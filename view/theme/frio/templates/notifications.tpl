@@ -6,7 +6,7 @@
 
 	<div class="notif-network-wrapper">
 		{{* The "show ignored" link *}}
-		{{if $notif_ignored_lnk}}{{$notif_ignored_lnk}}{{/if}}
+		{{if $notif_show_lnk}}<a href="{{$notif_show_lnk.href}}" id="notifications-show-hide-link">{{$notif_show_lnk.text}}</a>{{/if}}
 
 		{{* The notifications *}}
 		{{if $notif_content}}

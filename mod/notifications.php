@@ -67,6 +67,7 @@ function notifications_content(&$a) {
 		return;
 	}
 
+	$show	=	(x($_REQUEST,'show')		? $_REQUEST['show']		: 0);
 	nav_set_selected('notifications');
 
 	$json = (($a->argc > 1 && $a->argv[$a->argc - 1] === 'json') ? true : false);
@@ -89,14 +90,20 @@ function notifications_content(&$a) {
 		$notif_header = t('Notifications');
 		$notif_tpl = get_markup_template('notifications.tpl');
 
-		$notif_ignored_lnk .= '<a href="' . ((strlen($sql_extra)) ? 'notifications/intros/all' : 'notifications/intros' ) . '" id="notifications-show-hide-link" >'
-			. ((strlen($sql_extra)) ? t('Show Ignored Requests') : t('Hide Ignored Requests')) . '</a></div>' . "\r\n";
+//		$notif_show_lnk .= '<a href="' . ((strlen($sql_extra)) ? 'notifications/intros/all' : 'notifications/intros' ) . '" id="notifications-show-hide-link" >'
+//			. ((strlen($sql_extra)) ? t('Show Ignored Requests') : t('Hide Ignored Requests')) . '</a></div>' . "\r\n";
 
-		$r = q("SELECT COUNT(*)	AS `total` FROM `intro`
+		$notif_show_lnk = array(
+			'href' => ((strlen($sql_extra)) ? 'notifications/intros/all' : 'notifications/intros' ),
+			'text' => ((strlen($sql_extra)) ? t('Show Ignored Requests') : t('Hide Ignored Requests')),
+			'id' => "notifications-show-hide-link",
+		);
+
+		$r = q("SELECT COUNT(*) AS `total` FROM `intro`
 			WHERE `intro`.`uid` = %d $sql_extra AND `intro`.`blocked` = 0 ",
 				intval($_SESSION['uid'])
 		);
-		if($r && count($r)) {
+		if(dbm::is_result($r)) {
 			$a->set_pager_total($r[0]['total']);
 			$a->set_pager_itemspage(20);
 		}
@@ -114,7 +121,7 @@ function notifications_content(&$a) {
 			WHERE `intro`.`uid` = %d $sql_extra AND `intro`.`blocked` = 0 ",
 				intval($_SESSION['uid']));
 
-		if(($r !== false) && (count($r))) {
+		if(dbm::is_result($r)) {
 
 			$sugg = get_markup_template('suggestions.tpl');
 			$tpl = get_markup_template("intros.tpl");
@@ -240,82 +247,16 @@ function notifications_content(&$a) {
 		$notif_header = t('Network Notifications');
 		$notif_tpl = get_markup_template('notifications.tpl');
 
-		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`,
-				`item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object` as `object`,
-				`pitem`.`author-name` as `pname`, `pitem`.`author-link` as `plink`, `pitem`.`guid` as `pguid`
-				FROM `item` INNER JOIN `item` as `pitem` ON  `pitem`.`id`=`item`.`parent`
-				WHERE `item`.`unseen` = 1 AND `item`.`visible` = 1 AND `pitem`.`parent` != 0 AND
-				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 0 ORDER BY `item`.`created` DESC" ,
-			intval(local_user())
+		$notifs = $nm->networkNotifs($show);
+
+		$notif_show_lnk = array(
+			'href' => ($show ? 'notifications/network' : 'notifications/network?show=all' ),
+			'text' => ($show ? t('Show unread') : t('Show all')),
 		);
 
-//		$tpl_item_likes = get_markup_template('notifications_likes_item.tpl');
-//		$tpl_item_dislikes = get_markup_template('notifications_dislikes_item.tpl');
-//		$tpl_item_friends = get_markup_template('notifications_friends_item.tpl');
-//		$tpl_item_comments = get_markup_template('notifications_comments_item.tpl');
-//		$tpl_item_posts = get_markup_template('notifications_posts_item.tpl');
-
-		if ($r) {
-
-			$notifs = array(
-				'notifications' => $r,
-				'ident' => 'network',
-			);
-
-//			foreach ($r as $it) {
-//				switch($it['verb']){
-//					case ACTIVITY_LIKE:
-//						$notif_content[] = replace_macros($tpl_item_likes,array(
-//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-//							'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
-//							'$item_text' => sprintf( t("%s liked %s's post"), $it['author-name'], $it['pname']),
-//							'$item_when' => relative_date($it['created'])
-//						));
-//						break;
-//
-//					case ACTIVITY_DISLIKE:
-//						$notif_content[] = replace_macros($tpl_item_dislikes,array(
-//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-//							'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
-//							'$item_text' => sprintf( t("%s disliked %s's post"), $it['author-name'], $it['pname']),
-//							'$item_when' => relative_date($it['created'])
-//						));
-//						break;
-//
-//					case ACTIVITY_FRIEND:
-//
-//						$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
-//						$obj = parse_xml_string($xmlhead.$it['object']);
-//						$it['fname'] = $obj->title;
-//
-//						$notif_content[] = replace_macros($tpl_item_friends,array(
-//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-//							'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
-//							'$item_text' => sprintf( t("%s is now friends with %s"), $it['author-name'], $it['fname']),
-//							'$item_when' => relative_date($it['created'])
-//						));
-//						break;
-//
-//					default:
-//						$item_text = (($it['id'] == $it['parent'])
-//							? sprintf( t("%s created a new post"), $it['author-name'])
-//							: sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']));
-//						$tpl = (($it['id'] == $it['parent']) ? $tpl_item_posts : $tpl_item_comments);
-//
-//						$notif_content[] = replace_macros($tpl,array(
-//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-//							'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
-//							'$item_text' => $item_text,
-//							'$item_when' => relative_date($it['created'])
-//						));
-//				}
-//			}
-
-		} else {
+		if(!dbm::is_result($notifs)) {
+			if($show)
+				$notif_show_lnk = array();
 
 			$notif_nocontent = t('No more network notifications.');
 		}
@@ -325,28 +266,17 @@ function notifications_content(&$a) {
 		$notif_header = t('System Notifications');
 		$notif_tpl = get_markup_template('notifications.tpl');
 
-		$not_tpl = get_markup_template('notify.tpl');
-		require_once('include/bbcode.php');
+		$notifs = $nm->systemNotifs($show);
 
-		$r = q("SELECT * from notify where uid = %d and seen = 0 order by date desc",
-			intval(local_user())
+		$notif_show_lnk = array(
+			'href' => ($show ? 'notifications/system' : 'notifications/system?show=all' ),
+			'text' => ($show ? t('Show unread') : t('Show all')),
 		);
 
-		if (count($r) > 0) {
-//			foreach ($r as $it) {
-//				$notif_content[] = replace_macros($not_tpl,array(
-//					'$item_link' => $a->get_baseurl(true).'/notify/view/'. $it['id'],
-//					'$item_image' => proxy_url($it['photo'], false, PROXY_SIZE_MICRO),
-//					'$item_text' => strip_tags(bbcode($it['msg'])),
-//					'$item_when' => relative_date($it['date'])
-//				));
-//			}
-			$notifs = array(
-				'notifications' => $r,
-				'ident' => 'system',
-			);
+		if(!dbm::is_result($notifs)) {
+			if($show)
+				$notif_show_lnk = array();
 
-		} else {
 			$notif_nocontent = t('No more system notifications.');
 		}
 
@@ -355,94 +285,16 @@ function notifications_content(&$a) {
 		$notif_header = t('Personal Notifications');
 		$notif_tpl = get_markup_template('notifications.tpl');
 
-		$myurl = $a->get_baseurl(true) . '/profile/'. $a->user['nickname'];
-		$myurl = substr($myurl,strpos($myurl,'://')+3);
-		$myurl = str_replace(array('www.','.'),array('','\\.'),$myurl);
-		$diasp_url = str_replace('/profile/','/u/',$myurl);
-		$sql_extra .= sprintf(" AND ( `item`.`author-link` regexp '%s' or `item`.`tag` regexp '%s' or `item`.`tag` regexp '%s' ) ",
-			dbesc($myurl . '$'),
-			dbesc($myurl . '\\]'),
-			dbesc($diasp_url . '\\]')
+		$notifs = $nm->personalNotifs($show);
+
+		$notif_show_lnk = array(
+			'href' => ($show ? 'notifications/personal' : 'notifications/personal?show=all' ),
+			'text' => ($show ? t('Show unread') : t('Show all')),
 		);
 
-
-		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`,
-				`item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object` as `object`,
-				`pitem`.`author-name` as `pname`, `pitem`.`author-link` as `plink`, `pitem`.`guid` as `pguid`
-				FROM `item` INNER JOIN `item` as `pitem` ON  `pitem`.`id`=`item`.`parent`
-				WHERE `item`.`unseen` = 1 AND `item`.`visible` = 1
-				$sql_extra
-				AND `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 0 ORDER BY `item`.`created` DESC" ,
-			intval(local_user())
-		);
-
-//		$tpl_item_likes = get_markup_template('notifications_likes_item.tpl');
-//		$tpl_item_dislikes = get_markup_template('notifications_dislikes_item.tpl');
-//		$tpl_item_friends = get_markup_template('notifications_friends_item.tpl');
-//		$tpl_item_comments = get_markup_template('notifications_comments_item.tpl');
-//		$tpl_item_posts = get_markup_template('notifications_posts_item.tpl');
-
-		if (count($r) > 0) {
-			$notifs =array(
-				'notifications' => $r,
-				'ident' => 'personal'
-			);
-
-
-//			foreach ($r as $it) {
-//				switch($it['verb']){
-//					case ACTIVITY_LIKE:
-//						$notif_content[] = replace_macros($tpl_item_likes,array(
-//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-//							'$item_image' => $it['author-avatar'],
-//							'$item_text' => sprintf( t("%s liked %s's post"), $it['author-name'], $it['pname']),
-//							'$item_when' => relative_date($it['created'])
-//						));
-//						break;
-//
-//					case ACTIVITY_DISLIKE:
-//						$notif_content[] = replace_macros($tpl_item_dislikes,array(
-//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-//							'$item_image' => $it['author-avatar'],
-//							'$item_text' => sprintf( t("%s disliked %s's post"), $it['author-name'], $it['pname']),
-//							'$item_when' => relative_date($it['created'])
-//						));
-//						break;
-//
-//					case ACTIVITY_FRIEND:
-//
-//						$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
-//						$obj = parse_xml_string($xmlhead.$it['object']);
-//						$it['fname'] = $obj->title;
-//
-//						$notif_content[] = replace_macros($tpl_item_friends,array(
-//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-//							'$item_image' => $it['author-avatar'],
-//							'$item_text' => sprintf( t("%s is now friends with %s"), $it['author-name'], $it['fname']),
-//							'$item_when' => relative_date($it['created'])
-//						));
-//						break;
-//
-//					default:
-//						$item_text = (($it['id'] == $it['parent'])
-//							? sprintf( t("%s created a new post"), $it['author-name'])
-//							: sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']));
-//						$tpl = (($it['id'] == $it['parent']) ? $tpl_item_posts : $tpl_item_comments);
-//
-//						$notif_content[] = replace_macros($tpl,array(
-//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-//							'$item_image' => $it['author-avatar'],
-//							'$item_text' => $item_text,
-//							'$item_when' => relative_date($it['created'])
-//						));
-//				}
-//			}
-
-		} else {
+		if(!dbm::is_result($notifs)) {
+			if($show)
+				$notif_show_lnk = array();
 
 			$notif_nocontent = t('No more personal notifications.');
 		}
@@ -452,90 +304,53 @@ function notifications_content(&$a) {
 		$notif_header = t('Home Notifications');
 		$notif_tpl = get_markup_template('notifications.tpl');
 
-		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`,
-				`item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object` as `object`,
-				`pitem`.`author-name` as `pname`, `pitem`.`author-link` as `plink`, `pitem`.`guid` as `pguid`
-				FROM `item` INNER JOIN `item` as `pitem` ON  `pitem`.`id`=`item`.`parent`
-				WHERE `item`.`unseen` = 1 AND `item`.`visible` = 1 AND
-				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 1 ORDER BY `item`.`created` DESC",
-			intval(local_user())
+		$notifs = $nm->homeNotifs($show);
+
+		$notif_show_lnk = array(
+			'href' => ($show ? 'notifications/home' : 'notifications/home?show=all' ),
+			'text' => ($show ? t('Show unread') : t('Show all')),
 		);
 
-//		$tpl_item_likes = get_markup_template('notifications_likes_item.tpl');
-//		$tpl_item_dislikes = get_markup_template('notifications_dislikes_item.tpl');
-//		$tpl_item_friends = get_markup_template('notifications_friends_item.tpl');
-//		$tpl_item_comments = get_markup_template('notifications_comments_item.tpl');
+		if(!dbm::is_result($notifs)) {
+			if($show)
+				$notif_show_lnk = array();
 
-		if (count($r) > 0) {
-
-			$notifs = array(
-				'notifications' => $r,
-				'ident' => 'home',
-			);
-
-//			foreach ($r as $it) {
-//				switch($it['verb']){
-//					case ACTIVITY_LIKE:
-//						$notif_content[] = replace_macros($tpl_item_likes,array(
-//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-//							'$item_image' => $it['author-avatar'],
-//							'$item_text' => sprintf( t("%s liked %s's post"), $it['author-name'], $it['pname']),
-//							'$item_when' => relative_date($it['created'])
-//						));
-//
-//						break;
-//					case ACTIVITY_DISLIKE:
-//						$notif_content[] = replace_macros($tpl_item_dislikes,array(
-//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-//							'$item_image' => $it['author-avatar'],
-//							'$item_text' => sprintf( t("%s disliked %s's post"), $it['author-name'], $it['pname']),
-//							'$item_when' => relative_date($it['created'])
-//						));
-//
-//						break;
-//					case ACTIVITY_FRIEND:
-//
-//						$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
-//						$obj = parse_xml_string($xmlhead.$it['object']);
-//						$it['fname'] = $obj->title;
-//
-//						$notif_content[] = replace_macros($tpl_item_friends,array(
-//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-//							'$item_image' => $it['author-avatar'],
-//							'$item_text' => sprintf( t("%s is now friends with %s"), $it['author-name'], $it['fname']),
-//							'$item_when' => relative_date($it['created'])
-//						));
-//
-//						break;
-//					default:
-//						$notif_content[] = replace_macros($tpl_item_comments,array(
-//							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-//							'$item_link' => $a->get_baseurl(true).'/display/'.$it['pguid'],
-//							'$item_image' => $it['author-avatar'],
-//							'$item_text' => sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']),
-//							'$item_when' => relative_date($it['created'])
-//						));
-//				}
-//			}
-
-		} else {
 			$notif_nocontent = t('No more home notifications.');
 		}
 
 	}
 
-	if(count($notifs['notifications']) > 0 )
-		$notif_content =$nm->format ($notifs);
+	if(count($notifs['notifications']) > 0 ) {
+		// The template files we need in different cases for formatting the content
+		$tpl_item_like = 'notifications_likes_item.tpl';
+		$tpl_item_dislike = 'notifications_dislikes_item.tpl';
+		$tpl_item_friend = 'notifications_friends_item.tpl';
+		$tpl_item_comment = 'notifications_comments_item.tpl';
+		$tpl_item_post = 'notifications_posts_item.tpl';
+		$tpl_item_notify = 'notify.tpl';
+
+		foreach ($notifs['notifications'] as $it) {
+			$tplname = 'tpl_item_'.$it['label'];
+			$templ = get_markup_template($$tplname);
+
+			$notif_content[] = replace_macros($templ,array(
+				'$item_label' => $it['label'],
+				'$item_link' => $it['link'],
+				'$item_image' => $it['image'],
+				'$item_text' => $it['text'],
+				'$item_when' => $it['when'],
+				'$item_seen' => $it['seen'],
+			));
+		}
+
+	}
 
 	$o .= replace_macros($notif_tpl, array(
 		'$notif_header' => $notif_header,
 		'$tabs' => $tabs,
 		'$notif_content' => $notif_content,
 		'$notif_nocontent' => $notif_nocontent,
-		'$notif_ignored_lnk' => $notif_ignored_lnk,
+		'$notif_show_lnk' => $notif_show_lnk,
 	));
 
 	$o .= paginate($a);

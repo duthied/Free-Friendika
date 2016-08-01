@@ -5,6 +5,7 @@
 require_once('include/html2plain.php');
 require_once("include/datetime.php");
 require_once("include/bbcode.php");
+require_once("include/dbm.php");
 
 /**
  * @brief Read and write notifications from/to database
@@ -146,87 +147,56 @@ class NotificationsManager {
 				'label' => t('System'),
 				'url'=>'notifications/system',
 				'sel'=> (($this->a->argv[1] == 'system') ? 'active' : ''),
+				'id' => 'system-tab',
 				'accesskey' => 'y',
 			),
 			array(
 				'label' => t('Network'),
 				'url'=>'notifications/network',
 				'sel'=> (($this->a->argv[1] == 'network') ? 'active' : ''),
+				'id' => 'network-tab',
 				'accesskey' => 'w',
 			),
 			array(
 				'label' => t('Personal'),
 				'url'=>'notifications/personal',
 				'sel'=> (($this->a->argv[1] == 'personal') ? 'active' : ''),
+				'id' => 'personal-tab',
 				'accesskey' => 'r',
 			),
 			array(
 				'label' => t('Home'),
 				'url' => 'notifications/home',
 				'sel'=> (($this->a->argv[1] == 'home') ? 'active' : ''),
+				'id' => 'home-tab',
 				'accesskey' => 'h',
 			),
 			array(
 				'label' => t('Introductions'),
 				'url' => 'notifications/intros',
 				'sel'=> (($this->a->argv[1] == 'intros') ? 'active' : ''),
+				'id' => 'intro-tab',
 				'accesskey' => 'i',
 			),
-			/*array(
-				'label' => t('Messages'),
-				'url' => 'message',
-				'sel'=> '',
-			),*/ /*while I can have notifications for messages, this tablist is not place for message page link */
 		);
 
 		return $tabs;
 	}
 
-	public function format($notifs) {
+	public function format($notifs, $ident = "") {
 
-		$notif_content = array();
+		$notif = array();
+		$arr = array();
 
-		// The template files we need in different cases for formatting the content
-		$tpl_item_likes = get_markup_template('notifications_likes_item.tpl');
-		$tpl_item_dislikes = get_markup_template('notifications_dislikes_item.tpl');
-		$tpl_item_friends = get_markup_template('notifications_friends_item.tpl');
-		$tpl_item_comments = get_markup_template('notifications_comments_item.tpl');
-		$tpl_item_posts = get_markup_template('notifications_posts_item.tpl');
-		$tpl_notify = get_markup_template('notify.tpl');
+		if (dbm::is_result($notifs)) {
 
-		if (count($notifs['notifications']) > 0) {
-	//		switch ($notifs['ident']) {
-	//			case 'system':
-	//				$default_item_link = app::get_baseurl(true).'/notify/view/'. $it['id'];
-	//				$default_item_image = proxy_url($it['photo'], false, PROXY_SIZE_MICRO);
-	//				$default_item_text = strip_tags(bbcode($it['msg']));
-	//				$default_item_when = relative_date($it['date']);
-	//				$default_tpl = $tpl_notify;
-	//				break;
-	//
-	//			case 'home':
-	//				$default_item_link = app::get_baseurl(true).'/display/'.$it['pguid'];
-	//				$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
-	//				$default_item_text = sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']);
-	//				$default_item_when = relative_date($it['created']);
-	//				$default_tpl = $tpl_item_comments;
-	//				break;
-	//
-	//			default:
-	//				$default_item_link = app::get_baseurl(true).'/display/'.$it['pguid'];
-	//				$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
-	//				$default_item_text = (($it['id'] == $it['parent'])
-	//							? sprintf( t("%s created a new post"), $it['author-name'])
-	//							: sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']));
-	//				$default_item_when = relative_date($it['created']);
-	//				$default_tpl = (($it['id'] == $it['parent']) ? $tpl_item_posts : $tpl_item_comments);
-	//
-	//		}
+			foreach ($notifs as $it) {
+				if($it['unseen'])
+					$it['seen'] = ($it['unseen'] > 0 ? false : true);
 
-			foreach ($notifs['notifications'] as $it) {
-
-				switch ($notifs['ident']) {
+				switch ($ident) {
 					case 'system':
+						$default_item_label = 'notify';
 						$default_item_link = app::get_baseurl(true).'/notify/view/'. $it['id'];
 						$default_item_image = proxy_url($it['photo'], false, PROXY_SIZE_MICRO);
 						$default_item_text = strip_tags(bbcode($it['msg']));
@@ -235,6 +205,7 @@ class NotificationsManager {
 						break;
 
 					case 'home':
+						$default_item_label = 'comment';
 						$default_item_link = app::get_baseurl(true).'/display/'.$it['pguid'];
 						$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
 						$default_item_text = sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']);
@@ -243,6 +214,7 @@ class NotificationsManager {
 						break;
 
 					default:
+						$default_item_label = (($it['id'] == $it['parent']) ? 'post' : 'comment');
 						$default_item_link = app::get_baseurl(true).'/display/'.$it['pguid'];
 						$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
 						$default_item_text = (($it['id'] == $it['parent'])
@@ -255,23 +227,27 @@ class NotificationsManager {
 
 				switch($it['verb']){
 					case ACTIVITY_LIKE:
-						$notif_content[] = replace_macros($tpl_item_likes,array(
+						$notif = array(
 							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-							'$item_link' => app::get_baseurl(true).'/display/'.$it['pguid'],
-							'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
-							'$item_text' => sprintf( t("%s liked %s's post"), $it['author-name'], $it['pname']),
-							'$item_when' => relative_date($it['created'])
-						));
+							'label' => 'like',
+							'link' => app::get_baseurl(true).'/display/'.$it['pguid'],
+							'$image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
+							'text' => sprintf( t("%s liked %s's post"), $it['author-name'], $it['pname']),
+							'when' => relative_date($it['created']),
+							'seen' => $it['seen']
+						);
 						break;
 
 					case ACTIVITY_DISLIKE:
-						$notif_content[] = replace_macros($tpl_item_dislikes,array(
+						$notif = array(
 							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-							'$item_link' => app::get_baseurl(true).'/display/'.$it['pguid'],
-							'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
-							'$item_text' => sprintf( t("%s disliked %s's post"), $it['author-name'], $it['pname']),
-							'$item_when' => relative_date($it['created'])
-						));
+							'label' => 'dislike',
+							'link' => app::get_baseurl(true).'/display/'.$it['pguid'],
+							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
+							'text' => sprintf( t("%s disliked %s's post"), $it['author-name'], $it['pname']),
+							'when' => relative_date($it['created']),
+							'seen' => $it['seen']
+						);
 						break;
 
 					case ACTIVITY_FRIEND:
@@ -279,28 +255,235 @@ class NotificationsManager {
 						$obj = parse_xml_string($xmlhead.$it['object']);
 						$it['fname'] = $obj->title;
 
-						$notif_content[] = replace_macros($tpl_item_friends,array(
+						$notif = array(
 							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-							'$item_link' => app::get_baseurl(true).'/display/'.$it['pguid'],
-							'$item_image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
-							'$item_text' => sprintf( t("%s is now friends with %s"), $it['author-name'], $it['fname']),
-							'$item_when' => relative_date($it['created'])
-						));
+							'label' => 'friend',
+							'link' => app::get_baseurl(true).'/display/'.$it['pguid'],
+							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
+							'text' => sprintf( t("%s is now friends with %s"), $it['author-name'], $it['fname']),
+							'when' => relative_date($it['created']),
+							'seen' => $it['seen']
+						);
 						break;
 
 					default:
-						$notif_content[] = replace_macros($default_tpl,array(
+						$notif = array(
 							//'$item_link' => $a->get_baseurl(true).'/display/'.$a->user['nickname']."/".$it['parent'],
-							'$item_link' => $default_item_link,
-							'$item_image' => $default_item_image,
-							'$item_text' => $default_item_text,
-							'$item_when' => $default_item_when
-						));
+							'label' => $default_item_label,
+							'link' => $default_item_link,
+							'image' => $default_item_image,
+							'text' => $default_item_text,
+							'when' => $default_item_when,
+							'seen' => $it['seen']
+						);
 				}
+
+				$arr[] = $notif;
 			}
 		}
 
-		return $notif_content;
+		return $arr;
 
+	}
+
+	private function networkTotal($seen = 0) {
+		if($seen === 0)
+			$sql_seen = " AND `item`.`unseen` = 1 ";
+
+		$r = q("SELECT COUNT(*) AS `total`
+				FROM `item` INNER JOIN `item` AS `pitem` ON `pitem`.`id`=`item`.`parent`
+				WHERE `item`.`visible` = 1 AND `pitem`.`parent` != 0 AND
+				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 0
+				$sql_seen",
+			intval(local_user())
+		);
+
+		if(dbm::is_result($r))
+			return $r[0]['total'];
+
+		return 0;
+	}
+
+	public function networkNotifs($seen = 0) {
+		$ident = 'network';
+		$total = $this->networkTotal($seen);
+
+		if($seen === 0)
+			$sql_seen = " AND `item`.`unseen` = 1 ";
+
+
+		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`, `item`.`unseen`,
+				`item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object` AS `object`,
+				`pitem`.`author-name` AS `pname`, `pitem`.`author-link` AS `plink`, `pitem`.`guid` AS `pguid`
+				FROM `item` INNER JOIN `item` AS `pitem` ON `pitem`.`id`=`item`.`parent`
+				WHERE `item`.`visible` = 1 AND `pitem`.`parent` != 0 AND
+				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 0
+				$sql_seen
+				ORDER BY `item`.`created` DESC",
+			intval(local_user())
+		);
+
+		if(dbm::is_result($r)) {
+			$notifs = $this->format($r, $ident);
+			$arr = array (
+				'notifications' => $notifs,
+				'ident' => $ident,
+				'total' => $total,
+			);
+
+			return $arr;
+		}
+	}
+
+	private function systemTotal($seen = 0) {
+		if($seen === 0)
+			$sql_seen = " AND `seen` = 0 ";
+
+		$r = q("SELECT COUNT(*) AS `total` FROM `notify` WHERE `uid` = %d $sql_seen",
+			intval(local_user())
+		);
+
+		if(dbm::is_result($r))
+			return $r[0]['total'];
+
+		return 0;
+	}
+
+	public function systemNotifs($seen = 0) {
+		$ident = 'system';
+		$total = $this->systemTotal($seen);
+
+		if($seen === 0)
+			$sql_seen = " AND `seen` = 0 ";
+
+		$r = q("SELECT * FROM `notify` WHERE `uid` = %d $sql_seen ORDER BY `date` DESC",
+			intval(local_user())
+		);
+
+		if(dbm::is_result($r)) {
+			$notifs = $this->format($r, $ident);
+			$arr = array (
+				'notifications' => $notifs,
+				'ident' => $ident,
+				'total' => $total,
+			);
+
+			return $arr;
+		}
+	}
+
+	private function _personal_sql_extra() {
+		$myurl = app::get_baseurl(true) . '/profile/'. $this->a->user['nickname'];
+		$myurl = substr($myurl,strpos($myurl,'://')+3);
+		$myurl = str_replace(array('www.','.'),array('','\\.'),$myurl);
+		$diasp_url = str_replace('/profile/','/u/',$myurl);
+		$sql_extra .= sprintf(" AND ( `item`.`author-link` regexp '%s' or `item`.`tag` regexp '%s' or `item`.`tag` regexp '%s' ) ",
+			dbesc($myurl . '$'),
+			dbesc($myurl . '\\]'),
+			dbesc($diasp_url . '\\]')
+		);
+
+		return $sql_extra;
+	}
+
+	private function personalTotal($seen = 0) {
+		$sql_extra .= $this->_personal_sql_extra();
+
+		if($seen === 0)
+			$sql_seen = " AND `item`.`unseen` = 1 ";
+
+		$r = q("SELECT COUNT(*) AS `total`
+				FROM `item` INNER JOIN `item` AS `pitem` ON  `pitem`.`id`=`item`.`parent`
+				WHERE `item`.`visible` = 1
+				$sql_extra
+				$sql_seen
+				AND `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 0 " ,
+			intval(local_user())
+		);
+
+		if(dbm::is_result($r))
+			return $r[0]['total'];
+
+		return 0;
+	}
+	public function personalNotifs($seen = 0) {
+		$ident = 'personal';
+		$total = 0;
+		$sql_extra .= $this->_personal_sql_extra();
+
+		if($seen === 0)
+			$sql_seen = " AND `item`.`unseen` = 1 ";
+
+		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`, `item`.`unseen`,
+				`item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object` AS `object`, 
+				`pitem`.`author-name` AS `pname`, `pitem`.`author-link` AS `plink`, `pitem`.`guid` AS `pguid`, 
+				FROM `item` INNER JOIN `item` AS `pitem` ON  `pitem`.`id`=`item`.`parent`
+				WHERE `item`.`visible` = 1
+				$sql_extra
+				$sql_seen
+				AND `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 0 
+				ORDER BY `item`.`created` DESC" ,
+			intval(local_user())
+		);
+
+		if(dbm::is_result($r)) {
+			$notifs = $this->format($r, $ident);
+			$arr = array (
+				'notifications' => $notifs,
+				'ident' => $ident,
+				'total' => $total,
+			);
+
+			return $arr;
+		}
+	}
+
+	private function homeTotal($seen = 0) {
+		if($seen === 0)
+			$sql_seen = " AND `item`.`unseen` = 1 ";
+
+		$r = q("SELECT COUNT(*) AS `total` FROM `item`
+				WHERE ``item`.`visible` = 1 AND
+				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 1
+				$sql_seen",
+			intval(local_user())
+		);
+
+		if(dbm::is_result($r))
+			return $r['total'];
+
+		return 0;
+	}
+
+	public function homeNotifs($seen = 0) {
+		$ident = 'home';
+		$total = $this->homeTotal($seen);
+
+		if($seen === 0)
+			$sql_seen = " AND `item`.`unseen` = 1 ";
+
+		$total = $this->homeTotal($seen);
+
+		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`, `item`.`unseen`,
+				`item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object` as `object`,
+				`pitem`.`author-name` as `pname`, `pitem`.`author-link` as `plink`, `pitem`.`guid` as `pguid`
+				FROM `item` INNER JOIN `item` as `pitem` ON `pitem`.`id`=`item`.`parent`
+				WHERE `item`.`visible` = 1 AND
+				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 1
+				$sql_seen
+				ORDER BY `item`.`created` DESC",
+			intval(local_user())
+		);
+
+		if(dbm::is_result($r)) {
+			$notifs = $this->format($r, $ident);
+			$arr = array (
+				'notifications' => $notifs,
+				'ident' => $ident,
+				'total' => $total,
+			);
+
+			return $arr;
+		}
 	}
 }
