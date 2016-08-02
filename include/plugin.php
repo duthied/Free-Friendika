@@ -205,37 +205,41 @@ function load_hooks() {
  * @param string $name of the hook to call
  * @param string|array &$data to transmit to the callback handler
  */
-if(! function_exists('call_hooks')) {
 function call_hooks($name, &$data = null) {
 	$stamp1 = microtime(true);
 
 	$a = get_app();
 
-	#logger($name, LOGGER_ALL);
+	if (is_array($a->hooks) && array_key_exists($name, $a->hooks))
+		foreach ($a->hooks[$name] as $hook)
+			call_single_hook($a, $name, $hook, $data);
+}
 
-	if((is_array($a->hooks)) && (array_key_exists($name,$a->hooks))) {
-		foreach($a->hooks[$name] as $hook) {
-			// Don't run a theme's hook if the user isn't using the theme
-			if(strpos($hook[0], 'view/theme/') !== false && strpos($hook[0], 'view/theme/'.current_theme()) === false)
-				continue;
+/**
+ * @brief Calls a single hook.
+ *
+ * @param string $name of the hook to call
+ * @param array $hook Hook data
+ * @param string|array &$data to transmit to the callback handler
+ */
+function call_single_hook($a, $name, $hook, &$data = null) {
+	// Don't run a theme's hook if the user isn't using the theme
+	if (strpos($hook[0], 'view/theme/') !== false && strpos($hook[0], 'view/theme/'.current_theme()) === false)
+		return;
 
-			@include_once($hook[0]);
-			if(function_exists($hook[1])) {
-				$func = $hook[1];
-				//logger($name." => ".$hook[0].":".$func."()", LOGGER_DEBUG);
-				$func($a,$data);
-			}
-			else {
-				// remove orphan hooks
-				q("DELETE FROM `hook` WHERE `hook` = '%s' AND `file` = '%s' AND `function` = '%s'",
-					dbesc($name),
-					dbesc($hook[0]),
-					dbesc($hook[1])
-				);
-			}
-		}
+	@include_once($hook[0]);
+	if (function_exists($hook[1])) {
+		$func = $hook[1];
+		$func($a, $data);
+	} else {
+		// remove orphan hooks
+		q("DELETE FROM `hook` WHERE `hook` = '%s' AND `file` = '%s' AND `function` = '%s'",
+			dbesc($name),
+			dbesc($hook[0]),
+			dbesc($hook[1])
+		);
 	}
-}}
+}
 
 //check if an app_menu hook exist for plugin $name.
 //Return true if the plugin is an app
