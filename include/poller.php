@@ -46,10 +46,10 @@ function poller_run(&$argv, &$argc){
 
 	if(($argc <= 1) OR ($argv[1] != "no_cron")) {
 		// Run the cron job that calls all other jobs
-		proc_run("php","include/cron.php");
+		proc_run(PRIORITY_MEDIUM, "include/cron.php");
 
 		// Run the cronhooks job separately from cron for being able to use a different timing
-		proc_run("php","include/cronhooks.php");
+		proc_run(PRIORITY_MEDIUM, "include/cronhooks.php");
 
 		// Cleaning dead processes
 		poller_kill_stale_workers();

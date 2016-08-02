@@ -31,6 +31,17 @@ function cronhooks_run(&$argv, &$argc){
 			return;
 	}
 
+	load_hooks();
+
+	if (($argc == 2) AND is_array($a->hooks) AND array_key_exists("cron", $a->hooks)) {
+                foreach ($a->hooks["cron"] as $hook)
+			if ($hook[1] == $argv[1]) {
+				logger("Calling cron hook '".$hook[1]."'", LOGGER_DEBUG);
+				call_single_hook($a, $name, $hook, $data);
+			}
+		return;
+	}
+
 	$last = get_config('system','last_cronhook');
 
 	$poll_interval = intval(get_config('system','cronhook_interval'));
@@ -47,13 +58,17 @@ function cronhooks_run(&$argv, &$argc){
 
 	$a->set_baseurl(get_config('system','url'));
 
-	load_hooks();
-
 	logger('cronhooks: start');
 
 	$d = datetime_convert();
 
-	call_hooks('cron', $d);
+	if (get_config("system", "worker") AND is_array($a->hooks) AND array_key_exists("cron", $a->hooks)) {
+                foreach ($a->hooks["cron"] as $hook) {
+			logger("Calling cronhooks for '".$hook[1]."'", LOGGER_DEBUG);
+			proc_run(PRIORITY_MEDIUM, "include/cronhooks.php", $hook[1]);
+		}
+	} else
+		call_hooks('cron', $d);
 
 	logger('cronhooks: end');
 

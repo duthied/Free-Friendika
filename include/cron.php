@@ -142,28 +142,44 @@ function cron_run(&$argv, &$argc){
 	// Repair entries in the database
 	cron_repair_database();
 
+	// Poll contacts
+	cron_poll_contacts($argc, $argv);
+
+	logger('cron: end');
+
+	set_config('system','last_cron', time());
+
+	return;
+}
+
+/**
+ * @brief Clear cache entries
+ *
+ * @param App $a
+ */
+function cron_poll_contacts($argc, $argv) {
 	$manual_id  = 0;
 	$generation = 0;
 	$force      = false;
 	$restart    = false;
 
-	if(($argc > 1) && ($argv[1] == 'force'))
+	if (($argc > 1) && ($argv[1] == 'force'))
 		$force = true;
 
-	if(($argc > 1) && ($argv[1] == 'restart')) {
+	if (($argc > 1) && ($argv[1] == 'restart')) {
 		$restart = true;
 		$generation = intval($argv[2]);
-		if(! $generation)
+		if (!$generation)
 			killme();
 	}
 
-	if(($argc > 1) && intval($argv[1])) {
+	if (($argc > 1) && intval($argv[1])) {
 		$manual_id = intval($argv[1]);
 		$force     = true;
 	}
 
 	$interval = intval(get_config('system','poll_interval'));
-	if(! $interval)
+	if (!$interval)
 		$interval = ((get_config('system','delivery_interval') === false) ? 3 : intval(get_config('system','delivery_interval')));
 
 	// If we are using the worker we don't need a delivery interval
@@ -200,11 +216,11 @@ function cron_run(&$argv, &$argc){
 		dbesc(NETWORK_MAIL2)
 	);
 
-	if(! count($contacts)) {
+	if (!count($contacts)) {
 		return;
 	}
 
-	foreach($contacts as $c) {
+	foreach ($contacts as $c) {
 
 		$res = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 			intval($c['id'])
@@ -266,7 +282,7 @@ function cron_run(&$argv, &$argc){
 							$update = true;
 						break;
 				}
-				if(!$update)
+				if (!$update)
 					continue;
 			}
 
@@ -278,12 +294,6 @@ function cron_run(&$argv, &$argc){
 				@time_sleep_until(microtime(true) + (float) $interval);
 		}
 	}
-
-	logger('cron: end');
-
-	set_config('system','last_cron', time());
-
-	return;
 }
 
 /**
