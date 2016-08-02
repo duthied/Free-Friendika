@@ -153,9 +153,10 @@ function cron_run(&$argv, &$argc){
 }
 
 /**
- * @brief Clear cache entries
+ * @brief Poll contacts for unreceived messages
  *
- * @param App $a
+ * @param Integer $argc Number of command line arguments
+ * @param Array $argv Array of command line arguments
  */
 function cron_poll_contacts($argc, $argv) {
 	$manual_id  = 0;
