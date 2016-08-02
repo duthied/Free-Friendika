@@ -768,6 +768,7 @@
 		}
 
 		$data3 = array($root_element => $data2);
+
 		$ret = xml::from_array($data3, $xml, false, $namespaces);
 		return $ret;
 	}
@@ -2377,9 +2378,9 @@
 		$res = array();
 		$uri = $item['uri']."-l";
 		foreach($activities as $k => $v) {
-			$res[$k] = ( x($v,$uri) ? array_map("api_contactlink_to_array", $v[$uri]) : array() );
+			$res[$k] = (x($v,$uri)?count($v[$uri]):0);
+			#$res[$k] = ( x($v,$uri) ? array_map("api_contactlink_to_array", $v[$uri]) : array() );
 		}
-
 		return $res;
 	}
 
