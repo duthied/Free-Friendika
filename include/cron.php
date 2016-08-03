@@ -80,42 +80,37 @@ function cron_run(&$argv, &$argc){
 
 	proc_run(PRIORITY_LOW,"include/discover_poco.php", "checkcontact");
 
-	// expire any expired accounts
+	// Expire and remove user entries
+	cron_expire_and_remove_users();
 
-	q("UPDATE user SET `account_expired` = 1 where `account_expired` = 0
-		AND `account_expires_on` != '0000-00-00 00:00:00'
-		AND `account_expires_on` < UTC_TIMESTAMP() ");
+	// If the worker is active, split the jobs in several sub processes
+	if (get_config("system", "worker")) {
+		// Check OStatus conversations
+		proc_run(PRIORITY_MEDIUM, "include/cronjobs.php", "ostatus_mentions");
 
-	// delete user and contact records for recently removed accounts
+		// Check every conversation
+		proc_run(PRIORITY_MEDIUM, "include/cronjobs.php", "ostatus_conversations");
 
-	$r = q("SELECT * FROM `user` WHERE `account_removed` = 1 AND `account_expires_on` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
-	if ($r) {
-		foreach($r as $user) {
-			q("DELETE FROM `contact` WHERE `uid` = %d", intval($user['uid']));
-			q("DELETE FROM `user` WHERE `uid` = %d", intval($user['uid']));
-		}
+		// Call possible post update functions
+		proc_run(PRIORITY_LOW, "include/cronjobs.php", "post_update");
+
+		// update nodeinfo data
+		proc_run(PRIORITY_LOW, "include/cronjobs.php", "nodeinfo");
+	} else {
+		// Check OStatus conversations
+		// Check only conversations with mentions (for a longer time)
+		ostatus::check_conversations(true);
+
+		// Check every conversation
+		ostatus::check_conversations(false);
+
+		// Call possible post update functions
+		// see include/post_update.php for more details
+		post_update();
+
+		// update nodeinfo data
+		nodeinfo_cron();
 	}
-
-	$abandon_days = intval(get_config('system','account_abandon_days'));
-	if($abandon_days < 1)
-		$abandon_days = 0;
-
-	// Check OStatus conversations
-	// Check only conversations with mentions (for a longer time)
-	ostatus::check_conversations(true);
-
-	// Check every conversation
-	ostatus::check_conversations(false);
-
-	// Call possible post update functions
-	// see include/post_update.php for more details
-	post_update();
-
-	// update nodeinfo data
-	nodeinfo_cron();
-
-	/// @TODO Regenerate usage statistics
-	// q("ANALYZE TABLE `item`");
 
 	// once daily run birthday_updates and then expire in background
 
@@ -150,6 +145,25 @@ function cron_run(&$argv, &$argc){
 	set_config('system','last_cron', time());
 
 	return;
+}
+
+/**
+ * @brief Expire and remove user entries
+ */
+function cron_expire_and_remove_users() {
+	// expire any expired accounts
+	q("UPDATE user SET `account_expired` = 1 where `account_expired` = 0
+		AND `account_expires_on` != '0000-00-00 00:00:00'
+		AND `account_expires_on` < UTC_TIMESTAMP() ");
+
+	// delete user and contact records for recently removed accounts
+	$r = q("SELECT * FROM `user` WHERE `account_removed` AND `account_expires_on` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
+	if ($r) {
+		foreach($r as $user) {
+			q("DELETE FROM `contact` WHERE `uid` = %d", intval($user['uid']));
+			q("DELETE FROM `user` WHERE `uid` = %d", intval($user['uid']));
+		}
+	}
 }
 
 /**
@@ -196,6 +210,10 @@ function cron_poll_contacts($argc, $argv) {
 	// Only poll from those with suitable relationships,
 	// and which have a polling address and ignore Diaspora since
 	// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
+
+	$abandon_days = intval(get_config('system','account_abandon_days'));
+	if($abandon_days < 1)
+		$abandon_days = 0;
 
 	$abandon_sql = (($abandon_days)
 		? sprintf(" AND `user`.`login_date` > UTC_TIMESTAMP() - INTERVAL %d DAY ", intval($abandon_days))
