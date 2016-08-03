@@ -1,8 +1,13 @@
 <?php
-include_once("include/NotificationsManager.php");
-include_once("include/bbcode.php");
-include_once("include/contact_selectors.php");
-include_once("include/Scrape.php");
+
+/**
+ * @file mod/notifications.php
+ * @brief The notifications module
+ */
+
+require_once("include/NotificationsManager.php");
+require_once("include/contact_selectors.php");
+require_once("include/network.php");
 
 function notifications_post(&$a) {
 
@@ -77,259 +82,188 @@ function notifications_content(&$a) {
 	$nm = new NotificationsManager();
 
 	$o = '';
-	// get the nav tabs for the notification pages
+	// Get the nav tabs for the notification pages
 	$tabs = $nm->getTabs();
 	$notif_content = array();
+
+	// Notification results per page
 	$perpage = 20;
 	$startrec = ($page * $perpage) - $perpage;
 
+	// Get introductions
 	if( (($a->argc > 1) && ($a->argv[1] == 'intros')) || (($a->argc == 1))) {
 		nav_set_selected('introductions');
+		$notif_header = t('Notifications');
 
 		if(($a->argc > 2) && ($a->argv[2] == 'all'))
-			$sql_extra = '';
+			$all = 1;
 		else
-			$sql_extra = " AND `ignore` = 0 ";
+			$all = 0;
 
-		$notif_header = t('Notifications');
-		$notif_tpl = get_markup_template('notifications.tpl');
+		$notifs = $nm->introNotifs($all, $startrec, $perpage);
+
+	// Get the network notifications
+	} else if (($a->argc > 1) && ($a->argv[1] == 'network')) {
+
+		$notif_header = t('Network Notifications');
+		$notifs = $nm->networkNotifs($show, $startrec, $perpage);
+
+	// Get the system notifications
+	} else if (($a->argc > 1) && ($a->argv[1] == 'system')) {
+
+		$notif_header = t('System Notifications');
+		$notifs = $nm->systemNotifs($show, $startrec, $perpage);
+
+	// Get the personal notifications
+	} else if (($a->argc > 1) && ($a->argv[1] == 'personal')) {
+
+		$notif_header = t('Personal Notifications');
+		$notifs = $nm->personalNotifs($show, $startrec, $perpage);
+
+	// Get the home notifications
+	} else if (($a->argc > 1) && ($a->argv[1] == 'home')) {
+
+		$notif_header = t('Home Notifications');
+		$notifs = $nm->homeNotifs($show, $startrec, $perpage);
+
+	}
 
 
+	// Set the pager
+	$a->set_pager_total($notifs['total']);
+	$a->set_pager_itemspage($perpage);
+
+	// Add additional informations (needed for json output)
+	$notifs['items_page'] = $a->pager['itemspage'];
+	$notifs['page'] = $a->pager['page'];
+
+	// Json output
+	if(intval($json) === 1)
+		json_return_and_die($notifs);
+
+	$notif_tpl = get_markup_template('notifications.tpl');
+
+	// Process the data for template creation
+	if($notifs['ident'] === 'introductions') {
+
+		$sugg = get_markup_template('suggestions.tpl');
+		$tpl = get_markup_template("intros.tpl");
+
+		// The link to switch between ignored and normal connection requests
 		$notif_show_lnk = array(
-			'href' => ((strlen($sql_extra)) ? 'notifications/intros/all' : 'notifications/intros' ),
-			'text' => ((strlen($sql_extra)) ? t('Show Ignored Requests') : t('Hide Ignored Requests')),
-			'id' => "notifications-show-hide-link",
+			'href' => ($all === 0 ? 'notifications/intros/all' : 'notifications/intros' ),
+			'text' => ($all === 0 ? t('Show Ignored Requests') : t('Hide Ignored Requests'))
 		);
 
-		$r = q("SELECT COUNT(*) AS `total` FROM `intro`
-			WHERE `intro`.`uid` = %d $sql_extra AND `intro`.`blocked` = 0 ",
-				intval($_SESSION['uid'])
-		);
-		if(dbm::is_result($r)) {
-			$a->set_pager_total($r[0]['total']);
-			$a->set_pager_itemspage($perpage);
-		}
+		// Loop through all introduction notifications.This creates an array with the output html for each
+		// introduction
+		foreach ($notifs['notifications'] as $it) {
 
-		/// @todo Fetch contact details by "get_contact_details_by_url" instead of queries to contact, fcontact and gcontact
-
-		$r = q("SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*, `fcontact`.`name` AS `fname`,`fcontact`.`url` AS `furl`,`fcontact`.`photo` AS `fphoto`,`fcontact`.`request` AS `frequest`,
-				`gcontact`.`location` AS `glocation`, `gcontact`.`about` AS `gabout`,
-				`gcontact`.`keywords` AS `gkeywords`, `gcontact`.`gender` AS `ggender`,
-				`gcontact`.`network` AS `gnetwork`
-			FROM `intro`
-				LEFT JOIN `contact` ON `contact`.`id` = `intro`.`contact-id`
-				LEFT JOIN `gcontact` ON `gcontact`.`nurl` = `contact`.`nurl`
-				LEFT JOIN `fcontact` ON `intro`.`fid` = `fcontact`.`id`
-			WHERE `intro`.`uid` = %d $sql_extra AND `intro`.`blocked` = 0 ",
-				intval($_SESSION['uid']));
-
-		if(dbm::is_result($r)) {
-
-			$sugg = get_markup_template('suggestions.tpl');
-			$tpl = get_markup_template("intros.tpl");
-
-			foreach($r as $rr) {
-
-				if($rr['fid']) {
-
-					$return_addr = bin2hex($a->user['nickname'] . '@' . $a->get_hostname() . (($a->path) ? '/' . $a->path : ''));
-
+			// There are two kind of introduction. Contacts suggested by other contacts and normal connection requests.
+			// We have to distinguish between these two because they use different data.
+			switch ($it['label']) {
+				case 'friend_suggestion':
 					$notif_content[] = replace_macros($sugg, array(
 						'$str_notifytype' => t('Notification type: '),
-						'$notify_type' => t('Friend Suggestion'),
-						'$intro_id' => $rr['intro_id'],
-						'$madeby' => sprintf( t('suggested by %s'),$rr['name']),
-						'$contact_id' => $rr['contact-id'],
-						'$photo' => ((x($rr,'fphoto')) ? proxy_url($rr['fphoto'], false, PROXY_SIZE_SMALL) : "images/person-175.jpg"),
-						'$fullname' => $rr['fname'],
-						'$url' => zrl($rr['furl']),
-						'$hidden' => array('hidden', t('Hide this contact from others'), ($rr['hidden'] == 1), ''),
-						'$activity' => array('activity', t('Post a new friend activity'), (intval(get_pconfig(local_user(),'system','post_newfriend')) ? '1' : 0), t('if applicable')),
+						'$notify_type' => $it['notify_type'],
+						'$intro_id' => $it['intro_id'],
+						'$madeby' => sprintf( t('suggested by %s'),$it['madeby']),
+						'$contact_id' => $it['contact-id'],
+						'$photo' => $it['photo'],
+						'$fullname' => $it['name'],
+						'$url' => $it['url'],
+						'$hidden' => array('hidden', t('Hide this contact from others'), ($it['hidden'] == 1), ''),
+						'$activity' => array('activity', t('Post a new friend activity'), $it['post_newfriend'], t('if applicable')),
 
-						'$knowyou' => $knowyou,
+						'$knowyou' => $it['knowyou'],
 						'$approve' => t('Approve'),
-						'$note' => $rr['note'],
-						'$request' => $rr['frequest'] . '?addr=' . $return_addr,
+						'$note' => $it['note'],
+						'$request' => $it['request'],
 						'$ignore' => t('Ignore'),
 						'$discard' => t('Discard'),
-
 					));
+					break;
 
-					continue;
+				// Normal connection requests
+				default:
+					$friend_selected = (($it['network'] !== NETWORK_OSTATUS) ? ' checked="checked" ' : ' disabled ');
+					$fan_selected = (($it['network'] === NETWORK_OSTATUS) ? ' checked="checked" disabled ' : '');
+					$dfrn_tpl = get_markup_template('netfriend.tpl');
 
-				}
-				$friend_selected = (($rr['network'] !== NETWORK_OSTATUS) ? ' checked="checked" ' : ' disabled ');
-				$fan_selected = (($rr['network'] === NETWORK_OSTATUS) ? ' checked="checked" disabled ' : '');
-				$dfrn_tpl = get_markup_template('netfriend.tpl');
+					$knowyou   = '';
+					$dfrn_text = '';
 
-				$knowyou   = '';
-				$dfrn_text = '';
-
-				if($rr['network'] === NETWORK_DFRN || $rr['network'] === NETWORK_DIASPORA) {
-					if($rr['network'] === NETWORK_DFRN) {
-						$lbl_knowyou = t('Claims to be known to you: ');
-						$knowyou = (($rr['knowyou']) ? t('yes') : t('no'));
-						$helptext = t('Shall your connection be bidirectional or not? "Friend" implies that you allow to read and you subscribe to their posts. "Fan/Admirer" means that you allow to read but you do not want to read theirs. Approve as: ');
-					} else {
-						$knowyou = '';
-						$helptext = t('Shall your connection be bidirectional or not? "Friend" implies that you allow to read and you subscribe to their posts. "Sharer" means that you allow to read but you do not want to read theirs. Approve as: ');
+					if($it['network'] === NETWORK_DFRN || $it['network'] === NETWORK_DIASPORA) {
+						if($it['network'] === NETWORK_DFRN) {
+							$lbl_knowyou = t('Claims to be known to you: ');
+							$knowyou = (($it['knowyou']) ? t('yes') : t('no'));
+							$helptext = t('Shall your connection be bidirectional or not? "Friend" implies that you allow to read and you subscribe to their posts. "Fan/Admirer" means that you allow to read but you do not want to read theirs. Approve as: ');
+						} else {
+							$knowyou = '';
+							$helptext = t('Shall your connection be bidirectional or not? "Friend" implies that you allow to read and you subscribe to their posts. "Sharer" means that you allow to read but you do not want to read theirs. Approve as: ');
+						}
 					}
 
 					$dfrn_text = replace_macros($dfrn_tpl,array(
-						'$intro_id' => $rr['intro_id'],
+						'$intro_id' => $it['intro_id'],
 						'$friend_selected' => $friend_selected,
 						'$fan_selected' => $fan_selected,
 						'$approve_as' => $helptext,
 						'$as_friend' => t('Friend'),
-						'$as_fan' => (($rr['network'] == NETWORK_DIASPORA) ? t('Sharer') : t('Fan/Admirer'))
+						'$as_fan' => (($it['network'] == NETWORK_DIASPORA) ? t('Sharer') : t('Fan/Admirer'))
 					));
-				}
 
-				$header = $rr["name"];
+					$header = $it["name"];
 
-				$ret = probe_url($rr["url"]);
+					if ($it["addr"] != "")
+						$header .= " <".$it["addr"].">";
 
-				if ($rr['gnetwork'] == "")
-					$rr['gnetwork'] = $ret["network"];
+					$header .= " (".network_to_name($it['network'], $it['url']).")";
 
-				if ($ret["addr"] != "")
-					$header .= " <".$ret["addr"].">";
+					$notif_content[] = replace_macros($tpl, array(
+						'$header' => htmlentities($header),
+						'$str_notifytype' => t('Notification type: '),
+						'$notify_type' => $it['notify_type'],
+						'$dfrn_text' => $dfrn_text,
+						'$dfrn_id' => $it['dfrn_id'],
+						'$uid' => $it['uid'],
+						'$intro_id' => $it['intro_id'],
+						'$contact_id' => $it['contact_id'],
+						'$photo' => $it['photo'],
+						'$fullname' => $it['name'],
+						'$location' => $it['location'],
+						'$lbl_location' => t('Location:'),
+						'$about' => $it['about'],
+						'$lbl_about' => t('About:'),
+						'$keywords' => $it['keywords'],
+						'$lbl_keywords' => t('Tags:'),
+						'$gender' => $it['gender'],
+						'$lbl_gender' => t('Gender:'),
+						'$hidden' => array('hidden', t('Hide this contact from others'), ($it['hidden'] == 1), ''),
+						'$activity' => array('activity', t('Post a new friend activity'), $it['post_newfriend'], t('if applicable')),
+						'$url' => $it['url'],
+						'$zrl' => $it['zrl'],
+						'$lbl_url' => t('Profile URL'),
+						'$addr' => $it['addr'],
+						'$lbl_knowyou' => $lbl_knowyou,
+						'$lbl_network' => t('Network:'),
+						'$network' => network_to_name($it['network'], $it['url']),
+						'$knowyou' => $knowyou,
+						'$approve' => t('Approve'),
+						'$note' => $it['note'],
+						'$ignore' => t('Ignore'),
+						'$discard' => t('Discard'),
 
-				$header .= " (".network_to_name($rr['gnetwork'], $rr['url']).")";
-
-				// Don't show these data until you are connected. Diaspora is doing the same.
-				if($rr['gnetwork'] === NETWORK_DIASPORA) {
-					$rr['glocation'] = "";
-					$rr['gabout'] = "";
-					$rr['ggender'] = "";
-				}
-
-				$notif_content[] = replace_macros($tpl, array(
-					'$header' => htmlentities($header),
-					'$str_notifytype' => t('Notification type: '),
-					'$notify_type' => (($rr['network'] !== NETWORK_OSTATUS) ? t('Friend/Connect Request') : t('New Follower')),
-					'$dfrn_text' => $dfrn_text,
-					'$dfrn_id' => $rr['issued-id'],
-					'$uid' => $_SESSION['uid'],
-					'$intro_id' => $rr['intro_id'],
-					'$contact_id' => $rr['contact-id'],
-					'$photo' => ((x($rr,'photo')) ? proxy_url($rr['photo'], false, PROXY_SIZE_SMALL) : "images/person-175.jpg"),
-					'$fullname' => $rr['name'],
-					'$location' => bbcode($rr['glocation'], false, false),
-					'$location_label' => t('Location:'),
-					'$about' => bbcode($rr['gabout'], false, false),
-					'$about_label' => t('About:'),
-					'$keywords' => $rr['gkeywords'],
-					'$keywords_label' => t('Tags:'),
-					'$gender' => $rr['ggender'],
-					'$gender_label' => t('Gender:'),
-					'$hidden' => array('hidden', t('Hide this contact from others'), ($rr['hidden'] == 1), ''),
-					'$activity' => array('activity', t('Post a new friend activity'), (intval(get_pconfig(local_user(),'system','post_newfriend')) ? '1' : 0), t('if applicable')),
-					'$url' => $rr['url'],
-					'$zrl' => zrl($rr['url']),
-					'$url_label' => t('Profile URL'),
-					'$addr' => $rr['addr'],
-					'$lbl_knowyou' => $lbl_knowyou,
-					'$lbl_network' => t('Network:'),
-					'$network' => network_to_name($rr['gnetwork'], $rr['url']),
-					'$knowyou' => $knowyou,
-					'$approve' => t('Approve'),
-					'$note' => $rr['note'],
-					'$ignore' => t('Ignore'),
-					'$discard' => t('Discard'),
-
-				));
+					));
+					break;
 			}
 		}
-		else
+
+		if($notifs['total'] == 0)
 			info( t('No introductions.') . EOL);
 
-	} else if (($a->argc > 1) && ($a->argv[1] == 'network')) {
-
-		$notif_header = t('Network Notifications');
-		$notif_tpl = get_markup_template('notifications.tpl');
-
-		$notifs = $nm->networkNotifs($show, $startrec, $perpage);
-
-		$notif_show_lnk = array(
-			'href' => ($show ? 'notifications/network' : 'notifications/network?show=all' ),
-			'text' => ($show ? t('Show unread') : t('Show all')),
-		);
-
-		if(!dbm::is_result($notifs)) {
-			if($show)
-				$notif_show_lnk = array();
-
-			$notif_nocontent = t('No more network notifications.');
-		}
-
-	} else if (($a->argc > 1) && ($a->argv[1] == 'system')) {
-
-		$notif_header = t('System Notifications');
-		$notif_tpl = get_markup_template('notifications.tpl');
-
-		$notifs = $nm->systemNotifs($show, $startrec, $perpage);
-
-		$notif_show_lnk = array(
-			'href' => ($show ? 'notifications/system' : 'notifications/system?show=all' ),
-			'text' => ($show ? t('Show unread') : t('Show all')),
-		);
-
-		if(!dbm::is_result($notifs)) {
-			if($show)
-				$notif_show_lnk = array();
-
-			$notif_nocontent = t('No more system notifications.');
-		}
-
-	} else if (($a->argc > 1) && ($a->argv[1] == 'personal')) {
-
-		$notif_header = t('Personal Notifications');
-		$notif_tpl = get_markup_template('notifications.tpl');
-
-		$notifs = $nm->personalNotifs($show, $startrec, $perpage);
-
-		$notif_show_lnk = array(
-			'href' => ($show ? 'notifications/personal' : 'notifications/personal?show=all' ),
-			'text' => ($show ? t('Show unread') : t('Show all')),
-		);
-
-		if(!dbm::is_result($notifs)) {
-			if($show)
-				$notif_show_lnk = array();
-
-			$notif_nocontent = t('No more personal notifications.');
-		}
-
-	} else if (($a->argc > 1) && ($a->argv[1] == 'home')) {
-
-		$notif_header = t('Home Notifications');
-		$notif_tpl = get_markup_template('notifications.tpl');
-
-		$notifs = $nm->homeNotifs($show, $startrec, $perpage);
-
-		$notif_show_lnk = array(
-			'href' => ($show ? 'notifications/home' : 'notifications/home?show=all' ),
-			'text' => ($show ? t('Show unread') : t('Show all')),
-		);
-
-		if(!dbm::is_result($notifs)) {
-			if($show)
-				$notif_show_lnk = array();
-
-			$notif_nocontent = t('No more home notifications.');
-		}
-
-	}
-
-	if(count($notifs['notifications']) > 0 ) {
-		// set the pager
-		$a->set_pager_total($notifs['total']);
-		$a->set_pager_itemspage($perpage);
-
-		// add additional informations (needed for json output)
-		$notifs['items_page'] = $a->pager['itemspage'];
-		$notifs['page'] = $a->pager['page'];
+	// Normal notifications (no introductions)
+	} else {
 
 		// The template files we need in different cases for formatting the content
 		$tpl_item_like = 'notifications_likes_item.tpl';
@@ -342,11 +276,15 @@ function notifications_content(&$a) {
 		$tpl_item_post = 'notifications_posts_item.tpl';
 		$tpl_item_notify = 'notify.tpl';
 
+		// Loop trough ever notification This creates an array with the output html for each
+		// notification and apply the correct template according to the notificationtype (label).
 		foreach ($notifs['notifications'] as $it) {
-			$tplname = 'tpl_item_'.$it['label'];
-			$templ = get_markup_template($$tplname);
 
-			$notif_content[] = replace_macros($templ,array(
+			// We use the notification label to get the correct template file
+			$tpl_var_name = 'tpl_item_'.$it['label'];
+			$tpl_notif = get_markup_template($$tpl_var_name);
+
+			$notif_content[] = replace_macros($tpl_notif,array(
 				'$item_label' => $it['label'],
 				'$item_link' => $it['link'],
 				'$item_image' => $it['image'],
@@ -356,7 +294,20 @@ function notifications_content(&$a) {
 			));
 		}
 
+		// It doesn't make sense to show the Show unread / Show all link visible if the user is on the
+		// "Show all" page and there are no notifications. So we will hide it.
+		if($show == 0 || intval($show) && $notifs['total'] > 0) {
+			$notif_show_lnk = array(
+				'href' => ($show ? 'notifications/'.$notifs['ident'] : 'notifications/'.$notifs['ident'].'?show=all' ),
+				'text' => ($show ? t('Show unread') : t('Show all')),
+			);
+		}
+
+		// Output if there aren't any notifications available
+		if($notifs['total'] == 0)
+			$notif_nocontent = sprintf( t('No more %s notifications.'), $notifs['ident']);
 	}
+
 
 	$o .= replace_macros($notif_tpl, array(
 		'$notif_header' => $notif_header,
