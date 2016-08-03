@@ -20,12 +20,12 @@
 		<div class="intro-desc"><span class="intro-desc-label">{{$str_notifytype}}</span>{{$notify_type}}</div>
 
 		{{* Additional information of the contact *}}
-		<div class="intro-url"><span class="intro-url-label">{{$url_label}}:&nbsp;</span><a href="{{$zrl}}">{{$url}}</a></div>
+		<div class="intro-url"><span class="intro-url-label">{{$lbl_url}}:&nbsp;</span><a href="{{$zrl}}">{{$url}}</a></div>
 		{{if $network}}<div class="intro-network"><span class="intro-network-label">{{$lbl_network}}</span>&nbsp;{{$network}}</div>{{/if}}
-		{{if $location}}<div class="intro-location"><span class="intro-location-label">{{$location_label}}</span>&nbsp;{{$location}}</div>{{/if}}
-		{{if $gender}}<div class="intro-gender"><span class="intro-gender-label">{{$gender_label}}</span>&nbsp;{{$gender}}</div>{{/if}}
-		{{if $keywords}}<div class="intro-keywords"><span class="intro-keywords-label">{{$keywords_label}}</span>&nbsp;{{$keywords}}</div>{{/if}}
-		{{if $about}}<div class="intro-about"><span class="intro-about-label">{{$about_label}}</span>&nbsp;{{$about}}</div>{{/if}}
+		{{if $location}}<div class="intro-location"><span class="intro-location-label">{{$lbl_location}}</span>&nbsp;{{$location}}</div>{{/if}}
+		{{if $gender}}<div class="intro-gender"><span class="intro-gender-label">{{$lbl_gender}}</span>&nbsp;{{$gender}}</div>{{/if}}
+		{{if $keywords}}<div class="intro-keywords"><span class="intro-keywords-label">{{$lbl_keywords}}</span>&nbsp;{{$keywords}}</div>{{/if}}
+		{{if $about}}<div class="intro-about"><span class="intro-about-label">{{$lbl_about}}</span>&nbsp;{{$about}}</div>{{/if}}
 		<div class="intro-knowyou"><span class="intro-knowyou-label">{{$lbl_knowyou}}</span>{{$knowyou}}</div>
 		<div class="intro-note" id="intro-note-{{$contact_id}}">{{$note}}</div>
 

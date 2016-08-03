@@ -70,52 +70,47 @@ function cron_run(&$argv, &$argc){
 
 	// run queue delivery process in the background
 
-	proc_run('php',"include/queue.php");
+	proc_run(PRIORITY_LOW,"include/queue.php");
 
 	// run the process to discover global contacts in the background
 
-	proc_run('php',"include/discover_poco.php");
+	proc_run(PRIORITY_LOW,"include/discover_poco.php");
 
 	// run the process to update locally stored global contacts in the background
 
-	proc_run('php',"include/discover_poco.php", "checkcontact");
+	proc_run(PRIORITY_LOW,"include/discover_poco.php", "checkcontact");
 
-	// expire any expired accounts
+	// Expire and remove user entries
+	cron_expire_and_remove_users();
 
-	q("UPDATE user SET `account_expired` = 1 where `account_expired` = 0
-		AND `account_expires_on` != '0000-00-00 00:00:00'
-		AND `account_expires_on` < UTC_TIMESTAMP() ");
+	// If the worker is active, split the jobs in several sub processes
+	if (get_config("system", "worker")) {
+		// Check OStatus conversations
+		proc_run(PRIORITY_MEDIUM, "include/cronjobs.php", "ostatus_mentions");
 
-	// delete user and contact records for recently removed accounts
+		// Check every conversation
+		proc_run(PRIORITY_MEDIUM, "include/cronjobs.php", "ostatus_conversations");
 
-	$r = q("SELECT * FROM `user` WHERE `account_removed` = 1 AND `account_expires_on` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
-	if ($r) {
-		foreach($r as $user) {
-			q("DELETE FROM `contact` WHERE `uid` = %d", intval($user['uid']));
-			q("DELETE FROM `user` WHERE `uid` = %d", intval($user['uid']));
-		}
+		// Call possible post update functions
+		proc_run(PRIORITY_LOW, "include/cronjobs.php", "post_update");
+
+		// update nodeinfo data
+		proc_run(PRIORITY_LOW, "include/cronjobs.php", "nodeinfo");
+	} else {
+		// Check OStatus conversations
+		// Check only conversations with mentions (for a longer time)
+		ostatus::check_conversations(true);
+
+		// Check every conversation
+		ostatus::check_conversations(false);
+
+		// Call possible post update functions
+		// see include/post_update.php for more details
+		post_update();
+
+		// update nodeinfo data
+		nodeinfo_cron();
 	}
-
-	$abandon_days = intval(get_config('system','account_abandon_days'));
-	if($abandon_days < 1)
-		$abandon_days = 0;
-
-	// Check OStatus conversations
-	// Check only conversations with mentions (for a longer time)
-	ostatus::check_conversations(true);
-
-	// Check every conversation
-	ostatus::check_conversations(false);
-
-	// Call possible post update functions
-	// see include/post_update.php for more details
-	post_update();
-
-	// update nodeinfo data
-	nodeinfo_cron();
-
-	/// @TODO Regenerate usage statistics
-	// q("ANALYZE TABLE `item`");
 
 	// once daily run birthday_updates and then expire in background
 
@@ -126,11 +121,11 @@ function cron_run(&$argv, &$argc){
 
 		update_contact_birthdays();
 
-		proc_run('php',"include/discover_poco.php", "suggestions");
+		proc_run(PRIORITY_LOW,"include/discover_poco.php", "suggestions");
 
 		set_config('system','last_expire_day',$d2);
 
-		proc_run('php','include/expire.php');
+		proc_run(PRIORITY_LOW,'include/expire.php');
 	}
 
 	// Clear cache entries
@@ -142,28 +137,64 @@ function cron_run(&$argv, &$argc){
 	// Repair entries in the database
 	cron_repair_database();
 
+	// Poll contacts
+	cron_poll_contacts($argc, $argv);
+
+	logger('cron: end');
+
+	set_config('system','last_cron', time());
+
+	return;
+}
+
+/**
+ * @brief Expire and remove user entries
+ */
+function cron_expire_and_remove_users() {
+	// expire any expired accounts
+	q("UPDATE user SET `account_expired` = 1 where `account_expired` = 0
+		AND `account_expires_on` != '0000-00-00 00:00:00'
+		AND `account_expires_on` < UTC_TIMESTAMP() ");
+
+	// delete user and contact records for recently removed accounts
+	$r = q("SELECT * FROM `user` WHERE `account_removed` AND `account_expires_on` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
+	if ($r) {
+		foreach($r as $user) {
+			q("DELETE FROM `contact` WHERE `uid` = %d", intval($user['uid']));
+			q("DELETE FROM `user` WHERE `uid` = %d", intval($user['uid']));
+		}
+	}
+}
+
+/**
+ * @brief Poll contacts for unreceived messages
+ *
+ * @param Integer $argc Number of command line arguments
+ * @param Array $argv Array of command line arguments
+ */
+function cron_poll_contacts($argc, $argv) {
 	$manual_id  = 0;
 	$generation = 0;
 	$force      = false;
 	$restart    = false;
 
-	if(($argc > 1) && ($argv[1] == 'force'))
+	if (($argc > 1) && ($argv[1] == 'force'))
 		$force = true;
 
-	if(($argc > 1) && ($argv[1] == 'restart')) {
+	if (($argc > 1) && ($argv[1] == 'restart')) {
 		$restart = true;
 		$generation = intval($argv[2]);
-		if(! $generation)
+		if (!$generation)
 			killme();
 	}
 
-	if(($argc > 1) && intval($argv[1])) {
+	if (($argc > 1) && intval($argv[1])) {
 		$manual_id = intval($argv[1]);
 		$force     = true;
 	}
 
 	$interval = intval(get_config('system','poll_interval'));
-	if(! $interval)
+	if (!$interval)
 		$interval = ((get_config('system','delivery_interval') === false) ? 3 : intval(get_config('system','delivery_interval')));
 
 	// If we are using the worker we don't need a delivery interval
@@ -179,6 +210,10 @@ function cron_run(&$argv, &$argc){
 	// Only poll from those with suitable relationships,
 	// and which have a polling address and ignore Diaspora since
 	// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
+
+	$abandon_days = intval(get_config('system','account_abandon_days'));
+	if($abandon_days < 1)
+		$abandon_days = 0;
 
 	$abandon_sql = (($abandon_days)
 		? sprintf(" AND `user`.`login_date` > UTC_TIMESTAMP() - INTERVAL %d DAY ", intval($abandon_days))
@@ -200,11 +235,11 @@ function cron_run(&$argv, &$argc){
 		dbesc(NETWORK_MAIL2)
 	);
 
-	if(! count($contacts)) {
+	if (!count($contacts)) {
 		return;
 	}
 
-	foreach($contacts as $c) {
+	foreach ($contacts as $c) {
 
 		$res = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 			intval($c['id'])
@@ -266,24 +301,18 @@ function cron_run(&$argv, &$argc){
 							$update = true;
 						break;
 				}
-				if(!$update)
+				if (!$update)
 					continue;
 			}
 
 			logger("Polling ".$contact["network"]." ".$contact["id"]." ".$contact["nick"]." ".$contact["name"]);
 
-			proc_run('php','include/onepoll.php',$contact['id']);
+			proc_run(PRIORITY_MEDIUM,'include/onepoll.php',$contact['id']);
 
 			if($interval)
 				@time_sleep_until(microtime(true) + (float) $interval);
 		}
 	}
-
-	logger('cron: end');
-
-	set_config('system','last_cron', time());
-
-	return;
 }
 
 /**

@@ -45,10 +45,10 @@ function user_remove($uid) {
 	// don't delete yet, will be done later when contacts have deleted my stuff
 	// q("DELETE FROM `user` WHERE `uid` = %d", intval($uid));
 	q("UPDATE `user` SET `account_removed` = 1, `account_expires_on` = UTC_TIMESTAMP() WHERE `uid` = %d", intval($uid));
-	proc_run('php', "include/notifier.php", "removeme", $uid);
+	proc_run(PRIORITY_HIGH, "include/notifier.php", "removeme", $uid);
 
 	// Send an update to the directory
-	proc_run('php', "include/directory.php", $r[0]['url']);
+	proc_run(PRIORITY_LOW, "include/directory.php", $r[0]['url']);
 
 	if($uid == local_user()) {
 		unset($_SESSION['authenticated']);
@@ -275,7 +275,7 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 
 	if ((($profile["addr"] == "") OR ($profile["name"] == "")) AND ($profile["gid"] != 0) AND
 		in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
-		proc_run('php',"include/update_gcontact.php", $profile["gid"]);
+		proc_run(PRIORITY_LOW, "include/update_gcontact.php", $profile["gid"]);
 
 	// Show contact details of Diaspora contacts only if connected
 	if (($profile["cid"] == 0) AND ($profile["network"] == NETWORK_DIASPORA)) {
@@ -631,11 +631,11 @@ function posts_from_contact($a, $contact_id) {
 	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
 			`author-name` AS `name`, `owner-avatar` AS `photo`,
 			`owner-link` AS `url`, `owner-avatar` AS `thumb`
-		FROM `item` FORCE INDEX (`uid_contactid_created`)
+		FROM `item` FORCE INDEX (`uid_contactid_id`)
 		WHERE `item`.`uid` = %d AND `contact-id` = %d
 			AND `author-link` IN ('%s', '%s')
 			AND NOT `deleted` AND NOT `moderated` AND `visible`
-		ORDER BY `item`.`created` DESC LIMIT %d, %d",
+		ORDER BY `item`.`id` DESC LIMIT %d, %d",
 		intval(local_user()),
 		intval($contact_id),
 		dbesc(str_replace("https://", "http://", $contact["url"])),

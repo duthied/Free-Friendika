@@ -818,7 +818,7 @@ function zrl_init(&$a) {
 			}
 		}
 
-		proc_run('php','include/gprobe.php',bin2hex($tmp_str));
+		proc_run(PRIORITY_LOW, 'include/gprobe.php',bin2hex($tmp_str));
 		$arr = array('zrl' => $tmp_str, 'url' => $a->cmd);
 		call_hooks('zrl_init',$arr);
 	}

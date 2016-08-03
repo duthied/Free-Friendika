@@ -125,7 +125,7 @@ function profile_photo_post(&$a) {
 				// Update global directory in background
 				$url = $a->get_baseurl() . '/profile/' . $a->user['nickname'];
 				if($url && strlen(get_config('system','directory')))
-					proc_run('php',"include/directory.php","$url");
+					proc_run(PRIORITY_LOW, "include/directory.php", $url);
 
 				require_once('include/profile_update.php');
 				profile_change();
@@ -224,7 +224,7 @@ function profile_photo_content(&$a) {
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
 			if($url && strlen(get_config('system','directory')))
-				proc_run('php',"include/directory.php","$url");
+				proc_run(PRIORITY_LOW, "include/directory.php", $url);
 
 			goaway($a->get_baseurl() . '/profiles');
 			return; // NOTREACHED

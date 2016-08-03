@@ -38,7 +38,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
 define ( 'FRIENDICA_VERSION',      '3.5-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1199      );
+define ( 'DB_UPDATE_VERSION',      1200      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -384,6 +384,17 @@ define ( 'ACTIVITY_OBJ_QUESTION', 'http://activityschema.org/object/question' );
 define ( 'GRAVITY_PARENT',       0);
 define ( 'GRAVITY_LIKE',         3);
 define ( 'GRAVITY_COMMENT',      6);
+/* @}*/
+
+/**
+ * @name Priority
+ *
+ * Process priority for the worker
+ * @{
+ */
+define('PRIORITY_HIGH',   1);
+define('PRIORITY_MEDIUM', 2);
+define('PRIORITY_LOW',    3);
 /* @}*/
 
 
@@ -1241,12 +1252,33 @@ class App {
 					logger("killed stale process");
 					// Calling a new instance
 					if ($task != "")
-						proc_run('php', $task);
+						proc_run(PRIORITY_MEDIUM, $task);
 				}
 				return true;
 			}
 		}
 		return false;
+	}
+
+	function proc_run($args) {
+
+		// Add the php path if it is a php call
+		if (count($args) && $args[0] === 'php')
+			$args[0] = ((x($this->config,'php_path')) && (strlen($this->config['php_path'])) ? $this->config['php_path'] : 'php');
+
+		// add baseurl to args. cli scripts can't construct it
+		$args[] = $this->get_baseurl();
+
+		for($x = 0; $x < count($args); $x ++)
+			$args[$x] = escapeshellarg($args[$x]);
+
+		$cmdline = implode($args," ");
+
+		if(get_config('system','proc_windows'))
+			proc_close(proc_open('cmd /c start /b ' . $cmdline,array(),$foo,dirname(__FILE__)));
+		else
+			proc_close(proc_open($cmdline." &",array(),$foo,dirname(__FILE__)));
+
 	}
 }
 
@@ -1363,7 +1395,7 @@ function check_db() {
 		$build = DB_UPDATE_VERSION;
 	}
 	if($build != DB_UPDATE_VERSION)
-		proc_run('php', 'include/dbupdate.php');
+		proc_run(PRIORITY_HIGH, 'include/dbupdate.php');
 
 }
 
@@ -1736,10 +1768,11 @@ function get_max_import_size() {
  * @brief Wrap calls to proc_close(proc_open()) and call hook
  *	so plugins can take part in process :)
  *
- * @param string $cmd program to run
+ * @param (string|integer) $cmd program to run or priority
  * 
  * next args are passed as $cmd command line
  * e.g.: proc_run("ls","-la","/tmp");
+ * or: proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
  *
  * @note $cmd and string args are surrounded with ""
  * 
@@ -1753,7 +1786,7 @@ function proc_run($cmd){
 	$args = func_get_args();
 
 	$newargs = array();
-	if(! count($args))
+	if (!count($args))
 		return;
 
 	// expand any arrays
@@ -1763,8 +1796,7 @@ function proc_run($cmd){
 			foreach($arg as $n) {
 				$newargs[] = $n;
 			}
-		}
-		else
+		} else
 			$newargs[] = $arg;
 	}
 
@@ -1773,77 +1805,55 @@ function proc_run($cmd){
 	$arr = array('args' => $args, 'run_cmd' => true);
 
 	call_hooks("proc_run", $arr);
-	if(! $arr['run_cmd'])
+	if (!$arr['run_cmd'] OR !count($args))
 		return;
 
-	if(count($args) && $args[0] === 'php') {
-
-		if (get_config("system", "worker")) {
-			$argv = $args;
-			array_shift($argv);
-
-			$parameters = json_encode($argv);
-			$found = q("SELECT `id` FROM `workerqueue` WHERE `parameter` = '%s'",
-					dbesc($parameters));
-
-			$funcname = str_replace(".php", "", basename($argv[0]))."_run";
-
-			// Define the processes that have priority over any other process
-			/// @todo Better check for priority processes
-			$high_priority = array("delivery_run", "notifier_run", "pubsubpublish_run");
-			$low_priority = array("queue_run", "gprobe_run", "discover_poco_run");
-
-			if (in_array($funcname, $high_priority))
-				$priority = 1;
-			elseif (in_array($funcname, $low_priority))
-				$priority = 3;
-			else
-				$priority = 2;
-
-			if (!$found)
-				q("INSERT INTO `workerqueue` (`function`, `parameter`, `created`, `priority`)
-							VALUES ('%s', '%s', '%s', %d)",
-					dbesc($funcname),
-					dbesc($parameters),
-					dbesc(datetime_convert()),
-					intval($priority));
-
-			// Should we quit and wait for the poller to be called as a cronjob?
-			if (get_config("system", "worker_dont_fork"))
-				return;
-
-			// Checking number of workers
-			$workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
-
-			// Get number of allowed number of worker threads
-			$queues = intval(get_config("system", "worker_queues"));
-
-			if ($queues == 0)
-				$queues = 4;
-
-			// If there are already enough workers running, don't fork another one
-			if ($workers[0]["workers"] >= $queues)
-				return;
-
-			// Now call the poller to execute the jobs that we just added to the queue
-			$args = array("php", "include/poller.php", "no_cron");
-		}
-
-		$args[0] = ((x($a->config,'php_path')) && (strlen($a->config['php_path'])) ? $a->config['php_path'] : 'php');
+	if (!get_config("system", "worker") OR
+		(($args[0] != 'php') AND !is_int($args[0]))) {
+		$a->proc_run($args);
+		return;
 	}
 
-	// add baseurl to args. cli scripts can't construct it
-	$args[] = $a->get_baseurl();
-
-	for($x = 0; $x < count($args); $x ++)
-		$args[$x] = escapeshellarg($args[$x]);
-
-	$cmdline = implode($args," ");
-
-	if(get_config('system','proc_windows'))
-		proc_close(proc_open('cmd /c start /b ' . $cmdline,array(),$foo,dirname(__FILE__)));
+	if (is_int($args[0]))
+		$priority = $args[0];
 	else
-		proc_close(proc_open($cmdline." &",array(),$foo,dirname(__FILE__)));
+		$priority = PRIORITY_MEDIUM;
+
+	$argv = $args;
+	array_shift($argv);
+
+	$parameters = json_encode($argv);
+	$found = q("SELECT `id` FROM `workerqueue` WHERE `parameter` = '%s'",
+		dbesc($parameters));
+
+	if (!$found)
+		q("INSERT INTO `workerqueue` (`parameter`, `created`, `priority`)
+			VALUES ('%s', '%s', %d)",
+			dbesc($parameters),
+			dbesc(datetime_convert()),
+			intval($priority));
+
+	// Should we quit and wait for the poller to be called as a cronjob?
+	if (get_config("system", "worker_dont_fork"))
+		return;
+
+	// Checking number of workers
+	$workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
+
+	// Get number of allowed number of worker threads
+	$queues = intval(get_config("system", "worker_queues"));
+
+	if ($queues == 0)
+		$queues = 4;
+
+	// If there are already enough workers running, don't fork another one
+	if ($workers[0]["workers"] >= $queues)
+		return;
+
+	// Now call the poller to execute the jobs that we just added to the queue
+	$args = array("php", "include/poller.php", "no_cron");
+
+	$a->proc_run($args);
 }
 
 function current_theme(){

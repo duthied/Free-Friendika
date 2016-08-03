@@ -872,7 +872,8 @@ function contact_block() {
 		$micropro = Null;
 
 	} else {
-		$r = q("SELECT `id`, `uid`, `addr`, `url`, `name`, `thumb`, `network` FROM `contact`
+		// Splitting the query in two parts makes it much faster
+		$r = q("SELECT `id` FROM `contact`
 				WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending`
 					AND NOT `hidden` AND NOT `archive`
 				AND `network` IN ('%s', '%s', '%s') ORDER BY RAND() LIMIT %d",
@@ -882,11 +883,19 @@ function contact_block() {
 				dbesc(NETWORK_DIASPORA),
 				intval($shown)
 		);
-		if(count($r)) {
-			$contacts = sprintf( tt('%d Contact','%d Contacts', $total),$total);
-			$micropro = Array();
-			foreach($r as $rr) {
-				$micropro[] = micropro($rr,true,'mpfriend');
+		if ($r) {
+			$contacts = "";
+			foreach ($r AS $contact)
+				$contacts[] = $contact["id"];
+
+			$r = q("SELECT `id`, `uid`, `addr`, `url`, `name`, `thumb`, `network` FROM `contact` WHERE `id` IN (%s)",
+				dbesc(implode(",", $contacts)));
+			if(count($r)) {
+				$contacts = sprintf( tt('%d Contact','%d Contacts', $total),$total);
+				$micropro = Array();
+				foreach($r as $rr) {
+					$micropro[] = micropro($rr,true,'mpfriend');
+				}
 			}
 		}
 	}

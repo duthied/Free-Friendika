@@ -46,10 +46,10 @@ function poller_run(&$argv, &$argc){
 
 	if(($argc <= 1) OR ($argv[1] != "no_cron")) {
 		// Run the cron job that calls all other jobs
-		proc_run("php","include/cron.php");
+		proc_run(PRIORITY_MEDIUM, "include/cron.php");
 
 		// Run the cronhooks job separately from cron for being able to use a different timing
-		proc_run("php","include/cronhooks.php");
+		proc_run(PRIORITY_MEDIUM, "include/cronhooks.php");
 
 		// Cleaning dead processes
 		poller_kill_stale_workers();
@@ -270,11 +270,34 @@ function poller_too_much_workers() {
 		$slope = $maxworkers / pow($maxsysload, $exponent);
 		$queues = ceil($slope * pow(max(0, $maxsysload - $load), $exponent));
 
+		if (Config::get("system", "worker_fastlane", false) AND ($queues > 0) AND ($active >= $queues)) {
+			$s = q("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE `priority` = %d AND `executed` = '0000-00-00 00:00:00'",
+				intval(PRIORITY_HIGH));
+			$high_waiting = $s[0]["total"];
+
+			$s = q("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE `priority` = %d AND `executed` != '0000-00-00 00:00:00'",
+				intval(PRIORITY_HIGH));
+			$high_running = $s[0]["total"];
+
+			/// @todo define maximum number of fastlanes
+			if (($high_waiting > 0) AND ($high_running == 0)) {
+				logger("There are ".$high_waiting." high priority jobs waiting but none is executed. Open a fastlane.", LOGGER_DEBUG);
+				$queues = $active + 1;
+			}
+		}
+
 		$s = q("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00'");
 		$entries = $s[0]["total"];
 
 		logger("Current load: ".$load." - maximum: ".$maxsysload." - current queues: ".$active."/".$entries." - maximum: ".$queues."/".$maxqueues, LOGGER_DEBUG);
 
+		// Are there fewer workers running as possible? Then fork a new one.
+		if (!get_config("system", "worker_dont_fork") AND ($queues > ($active + 1)) AND ($entries > 1)) {
+			logger("Active workers: ".$active."/".$queues." Fork a new worker.", LOGGER_DEBUG);
+			$args = array("php", "include/poller.php", "no_cron");
+			$a = get_app();
+			$a->proc_run($args);
+		}
 	}
 
 	return($active >= $queues);

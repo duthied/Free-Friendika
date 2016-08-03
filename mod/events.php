@@ -177,7 +177,7 @@ function events_post(&$a) {
 	$item_id = event_store($datarray);
 
 	if(! $cid)
-		proc_run('php',"include/notifier.php","event","$item_id");
+		proc_run(PRIORITY_HIGH, "include/notifier.php", "event", $item_id);
 
 	goaway($_SESSION['return_url']);
 }
