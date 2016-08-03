@@ -1712,7 +1712,7 @@ function item_expire($uid, $days, $network = "", $force = false) {
 	} else
 		$range = "AND `created` < UTC_TIMESTAMP() - INTERVAL %d DAY ";
 
-	$r = q("SELECT * FROM `item`
+	$r = q("SELECT `file`, `resource-id`, `starred`, `type`, `id` FROM `item`
 		WHERE `uid` = %d $range
 		AND `id` = `parent`
 		$sql_extra

@@ -2278,7 +2278,7 @@ function current_load() {
 	if (!is_array($load_arr))
 		return false;
 
-	return max($load_arr);
+	return max($load_arr[0], $load_arr[1]);
 }
 
 /**
