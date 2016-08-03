@@ -270,24 +270,23 @@ function poller_too_much_workers() {
 		$slope = $maxworkers / pow($maxsysload, $exponent);
 		$queues = ceil($slope * pow(max(0, $maxsysload - $load), $exponent));
 
-		if (Config::get("system", "worker_fastlane", false) AND ($queues > 0) AND ($active >= $queues)) {
-			$s = q("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE `priority` = %d AND `executed` = '0000-00-00 00:00:00'",
-				intval(PRIORITY_HIGH));
-			$high_waiting = $s[0]["total"];
+		$s = q("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00'");
+		$entries = $s[0]["total"];
 
-			$s = q("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE `priority` = %d AND `executed` != '0000-00-00 00:00:00'",
-				intval(PRIORITY_HIGH));
+		if (Config::get("system", "worker_fastlane", false) AND ($queues > 0) AND ($entries > 0) AND ($active >= $queues)) {
+			$s = q("SELECT `priority` FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00' ORDER BY `priority` LIMIT 1");
+			$top_priority = $s[0]["priority"];
+
+			$s = q("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE `priority` <= %d AND `executed` != '0000-00-00 00:00:00'",
+				intval($top_priority));
 			$high_running = $s[0]["total"];
 
 			/// @todo define maximum number of fastlanes
-			if (($high_waiting > 0) AND ($high_running == 0)) {
-				logger("There are ".$high_waiting." high priority jobs waiting but none is executed. Open a fastlane.", LOGGER_DEBUG);
+			if (($high_running == 0) AND ($top_priority >= PRIORITY_HIGH) AND ($top_priority < PRIORITY_LOW)) {
+				logger("There are jobs with priority ".$top_priority." waiting but none is executed. Open a fastlane.", LOGGER_DEBUG);
 				$queues = $active + 1;
 			}
 		}
-
-		$s = q("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00'");
-		$entries = $s[0]["total"];
 
 		logger("Current load: ".$load." - maximum: ".$maxsysload." - current queues: ".$active."/".$entries." - maximum: ".$queues."/".$maxqueues, LOGGER_DEBUG);
 
