@@ -1692,7 +1692,7 @@ class dfrn {
 			$changed = true;
 
 			if ($entrytype == DFRN_REPLY_RC)
-				proc_run("php", "include/notifier.php","comment-import", $current["id"]);
+				proc_run(PRIORITY_HIGH, "include/notifier.php","comment-import", $current["id"]);
 		}
 
 		// update last-child if it changes
@@ -2252,7 +2252,7 @@ class dfrn {
 
 				if($posted_id AND $parent AND ($entrytype == DFRN_REPLY_RC)) {
 					logger("Notifying followers about comment ".$posted_id, LOGGER_DEBUG);
-					proc_run("php", "include/notifier.php", "comment-import", $posted_id);
+					proc_run(PRIORITY_HIGH, "include/notifier.php", "comment-import", $posted_id);
 				}
 
 				return true;
@@ -2423,7 +2423,7 @@ class dfrn {
 
 				if($entrytype == DFRN_REPLY_RC) {
 					logger("Notifying followers about deletion of post ".$item["id"], LOGGER_DEBUG);
-					proc_run("php", "include/notifier.php","drop", $item["id"]);
+					proc_run(PRIORITY_HIGH, "include/notifier.php","drop", $item["id"]);
 				}
 			}
 		}

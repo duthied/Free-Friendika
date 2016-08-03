@@ -1184,7 +1184,7 @@ class diaspora {
 			);
 
 			// notify others
-			proc_run("php", "include/notifier.php", "comment-import", $message_id);
+			proc_run(PRIORITY_HIGH, "include/notifier.php", "comment-import", $message_id);
 		}
 
 		return $message_id;
@@ -1519,7 +1519,7 @@ class diaspora {
 			);
 
 			// notify others
-			proc_run("php", "include/notifier.php", "comment-import", $message_id);
+			proc_run(PRIORITY_HIGH, "include/notifier.php", "comment-import", $message_id);
 		}
 
 		return $message_id;
@@ -1799,7 +1799,7 @@ class diaspora {
 
 				$i = item_store($arr);
 				if($i)
-					proc_run("php", "include/notifier.php", "activity", $i);
+					proc_run(PRIORITY_HIGH, "include/notifier.php", "activity", $i);
 			}
 		}
 	}
@@ -2192,7 +2192,7 @@ class diaspora {
 		// Now check if the retraction needs to be relayed by us
 		if($p[0]["origin"]) {
 			// notify others
-			proc_run("php", "include/notifier.php", "drop", $r[0]["id"]);
+			proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $r[0]["id"]);
 		}
 
 		return true;
