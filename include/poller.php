@@ -279,12 +279,10 @@ function poller_too_much_workers() {
 				intval(PRIORITY_HIGH));
 			$high_running = $s[0]["total"];
 
-			logger("High waiting: ".$high_waiting." - high running: ".$high_running);
-
 			/// @todo define maximum number of fastlanes
 			if (($high_waiting > 0) AND ($high_running == 0)) {
 				logger("There are ".$high_waiting." high priority jobs waiting but none is executed. Open a fastlane.", LOGGER_DEBUG);
-				$queue = $active + 1;
+				$queues = $active + 1;
 			}
 		}
 
