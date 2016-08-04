@@ -641,6 +641,7 @@ function admin_page_site_post(&$a) {
 	$worker			=	((x($_POST,'worker'))			? True						: False);
 	$worker_queues		=	((x($_POST,'worker_queues'))		? intval($_POST['worker_queues'])		: 4);
 	$worker_dont_fork	=	((x($_POST,'worker_dont_fork'))		? True						: False);
+	$worker_fastlane	=	((x($_POST,'worker_fastlane'))		? True						: False);
 
 	if($a->get_path() != "")
 		$diaspora_enabled = false;
@@ -790,6 +791,7 @@ function admin_page_site_post(&$a) {
 	set_config('system','worker', $worker);
 	set_config('system','worker_queues', $worker_queues);
 	set_config('system','worker_dont_fork', $worker_dont_fork);
+	set_config('system','worker_fastlane', $worker_fastlane);
 
 	if($rino==2 and !function_exists('mcrypt_create_iv')) {
 		notice(t("RINO2 needs mcrypt php extension to work."));
@@ -1020,6 +1022,7 @@ function admin_page_site(&$a) {
 		'$worker'		=> array('worker', t("Enable 'worker' background processing"), get_config('system','worker'), t("The worker background processing limits the number of parallel background jobs to a maximum number and respects the system load.")),
 		'$worker_queues' 	=> array('worker_queues', t("Maximum number of parallel workers"), get_config('system','worker_queues'), t("On shared hosters set this to 2. On larger systems, values of 10 are great. Default value is 4.")),
 		'$worker_dont_fork'	=> array('worker_dont_fork', t("Don't use 'proc_open' with the worker"), get_config('system','worker_dont_fork'), t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of poller calls in your crontab.")),
+		'$worker_fastlane'	=> array('worker_fastlane', t("Enable fastlane"), get_config('system','worker_fastlane'), t("When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.")),
 
 		'$form_security_token'	=> get_form_security_token("admin_site")
 
