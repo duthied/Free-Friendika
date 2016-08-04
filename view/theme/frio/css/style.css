@@ -2020,6 +2020,13 @@ ul li:hover .contact-wrapper a.contact-action-link:hover {
 #prvmail-end {
     clear:both;
 }
+/* photos */
+.photo-album-actions {
+    margin-bottom: 10px;
+}
+.photo-album-actions .photos-order-link {
+    float: right;
+}
 /* poke */
 #poke-desc {
     margin: 5px 0 30px;
