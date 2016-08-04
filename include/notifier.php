@@ -642,8 +642,8 @@ function notifier_run(&$argv, &$argc){
 				if ($h === '[internal]') {
 					// Set push flag for PuSH subscribers to this topic,
 					// they will be notified in queue.php
-					q("UPDATE `push_subscriber` SET `push` = 1 " .
-					  "WHERE `nickname` = '%s'", dbesc($owner['nickname']));
+					q("UPDATE `push_subscriber` SET `push` = 1 ".
+					  "WHERE `nickname` = '%s' AND `push` = 0", dbesc($owner['nickname']));
 
 					logger('Activating internal PuSH for item '.$item_id, LOGGER_DEBUG);
 
