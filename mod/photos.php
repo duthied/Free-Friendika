@@ -1307,10 +1307,9 @@ function photos_content(&$a) {
 				'$can_post' => $can_post,
 				'$upload' => array(t('Upload New Photos'), 'photos/' . $a->data['user']['nickname'] . '/upload/' . bin2hex($album)),
 				'$order' => $order,
-				'$edit' => $edit
+				'$edit' => $edit,
+				'$paginate' => paginate($a),
 			));
-
-		$o .= paginate($a);
 
 		return $o;
 
@@ -1888,10 +1887,9 @@ function photos_content(&$a) {
 		'$can_post' => $can_post,
 		'$upload' => array(t('Upload New Photos'), 'photos/'.$a->data['user']['nickname'].'/upload'),
 		'$photos' => $photos,
+		'$paginate' => paginate($a),
 	));
 
-
-	$o .= paginate($a);
 	return $o;
 }
 
