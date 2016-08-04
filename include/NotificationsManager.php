@@ -430,7 +430,7 @@ class NotificationsManager {
 		return 0;
 	}
 
-		/**
+	/**
 	 * @brief Get system notifications
 	 * 
 	 * @param int|string $seen
