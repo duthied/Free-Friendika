@@ -237,8 +237,11 @@ function poller_kill_stale_workers() {
 
 				// We killed the stale process.
 				// To avoid a blocking situation we reschedule the process at the beginning of the queue.
-				q("UPDATE `workerqueue` SET `executed` = '0000-00-00 00:00:00', `created` = '%s', `pid` = 0 WHERE `pid` = %d",
+				// Additionally we are lowering the priority.
+				q("UPDATE `workerqueue` SET `executed` = '0000-00-00 00:00:00', `created` = '%s',
+							`priority` = %d, `pid` = 0 WHERE `pid` = %d",
 					dbesc(datetime_convert()),
+					intval(PRIORITY_LOW),
 					intval($pid["pid"]));
 			} else
 				logger("Worker process ".$pid["pid"]." now runs for ".round($duration)." minutes. That's okay.", LOGGER_DEBUG);
