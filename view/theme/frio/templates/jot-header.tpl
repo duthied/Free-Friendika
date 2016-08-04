@@ -397,7 +397,7 @@ function enableOnUser(){
 
 	function jotShow() {
 		var modal = $('#jot-modal').modal();
-		jotcache = $("#profile-jot-form");
+		jotcache = $("#jot-sections");
 
 		modal
 			.find('#jot-modal-content')
