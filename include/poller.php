@@ -235,9 +235,13 @@ function poller_kill_stale_workers() {
 				logger("Worker process ".$pid["pid"]." took more than 3 hours. It will be killed now.");
 				posix_kill($pid["pid"], SIGTERM);
 
-				// Question: If a process is stale: Should we remove it or should we reschedule it?
-				// By now we rescheduling it. It's maybe not the wisest decision?
-				q("UPDATE `workerqueue` SET `executed` = '0000-00-00 00:00:00', `pid` = 0 WHERE `pid` = %d",
+				// We killed the stale process.
+				// To avoid a blocking situation we reschedule the process at the beginning of the queue.
+				// Additionally we are lowering the priority.
+				q("UPDATE `workerqueue` SET `executed` = '0000-00-00 00:00:00', `created` = '%s',
+							`priority` = %d, `pid` = 0 WHERE `pid` = %d",
+					dbesc(datetime_convert()),
+					intval(PRIORITY_LOW),
 					intval($pid["pid"]));
 			} else
 				logger("Worker process ".$pid["pid"]." now runs for ".round($duration)." minutes. That's okay.", LOGGER_DEBUG);
