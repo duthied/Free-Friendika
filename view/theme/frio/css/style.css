@@ -2200,10 +2200,29 @@ ul li:hover .intro-wrapper button.intro-action-link {
 ul li:hover .intro-wrapper button.intro-action-link:hover {
     opacity: 1;
 }
+.intro-action-buttons {
+    margin-top: 15px;
+    /*display: none;*/
+    max-height: 0px;
+    overflow: hidden;
+    transition: max-height 0.1s ease-out;
+}
+ul.notif-network-list > li:hover .intro-action-buttons {
+    /*display: block;*/
+    max-height: 30px;
+    transition: max-height 0.1s ease-in;
+}
 .intro-desc-label, .intro-url-label, .intro-network-label,
 .intro-location-label, .intro-gender-label, .intro-keywords-label,
 .intro-about-label, .intro-knowyou-label {
     font-weight: bold;
+}
+.intro-contact-info.xs .intro-url-label, .intro-contact-info.xs .intro-network-label,
+.intro-contact-info.xs .intro-location-label, .intro-contact-info.xs .intro-gender-label,
+.intro-contact-info.xs .intro-keywords-label, .intro-contact-info.xs .intro-about-label,
+.intro-contact-info.xs .intro-knowyou-label {
+    display: block;
+    margin-top: 5px
 }
 /*
 * Overwriting for transparency and other colors
