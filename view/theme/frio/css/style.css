@@ -108,6 +108,10 @@ a#item-delete-selected {
     display: none;
 }
 
+#toggle_mobile_link {
+    display: none;
+}
+
 /*
 * Overwriting and Extend Bootstrap
 */
@@ -509,6 +513,9 @@ nav.navbar a {
 }
 #topbar-first .btn-enter:hover {
     background-color: #89a2b0
+}
+.navbar-fixed-top ul.nav.navbar-nav.navbar-right {
+    display: flex;
 }
 
 
