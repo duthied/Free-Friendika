@@ -231,13 +231,13 @@
 {{if $nav.userinfo == ''}}
 <nav class="navbar navbar-fixed-top">
 	<div class="container">
-		<div class="navbar-header">
-		    <a class="navbar-brand" href="#"><div id="navbrand-container">
+		<div class="navbar-header pull-left">
+			<a class="navbar-brand" href="#"><div id="navbrand-container">
 				<div id="logo-img"></div>
 				<div id="navbar-brand-text"> Friendica</div></div>
 			</a>
 		</div>
-		<div class="hidden-sm hidden-xs">
+		<div class="pull-right">
 			<ul class="nav navbar-nav navbar-right">
 				<li><a href="register" data-toggle="tooltip" title="{{$register.title}}"><i class="fa fa-street-view fa-fw"></i> {{$register.desc}}</a></li>
 				<li>
