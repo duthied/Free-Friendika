@@ -79,7 +79,7 @@ $a->config['system']['rino_encrypt'] = {{$rino}};
 
 // default system theme
 
-$a->config['system']['theme'] = 'duepuntozero';
+$a->config['system']['theme'] = 'vier';
 
 // By default allow pseudonyms
 
