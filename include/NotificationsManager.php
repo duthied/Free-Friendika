@@ -7,7 +7,6 @@
 require_once('include/html2plain.php');
 require_once("include/datetime.php");
 require_once("include/bbcode.php");
-require_once("include/dbm.php");
 
 /**
  * @brief Methods for read and write notifications from/to database
@@ -82,12 +81,16 @@ class NotificationsManager {
 		}
 		$order_sql = implode(", ", $asOrder);
 
-		if ($limit!="") $limit = " LIMIT ".$limit;
+		if($limit!="")
+			$limit = " LIMIT ".$limit;
 
 			$r = q("SELECT * FROM `notify` WHERE `uid` = %d $filter_sql ORDER BY $order_sql $limit",
 				intval(local_user())
 			);
-		if ($r!==false && count($r)>0) return $this->_set_extra($r);
+
+		if(dbm::is_result($r))
+			return $this->_set_extra($r);
+
 		return false;
 	}
 
@@ -102,7 +105,7 @@ class NotificationsManager {
 			intval($id),
 			intval(local_user())
 		);
-		if($r!==false && count($r)>0) {
+		if(dbm::is_result($r)) {
 			return $this->_set_extra($r)[0];
 		}
 		return null;
@@ -344,6 +347,8 @@ class NotificationsManager {
 	 * @return int Number of network notifications
 	 */
 	private function networkTotal($seen = 0) {
+		$sql_seen = "";
+
 		if($seen === 0)
 			$sql_seen = " AND `item`.`unseen` = 1 ";
 
@@ -379,6 +384,7 @@ class NotificationsManager {
 		$ident = 'network';
 		$total = $this->networkTotal($seen);
 		$notifs = array();
+		$sql_seen = "";
 
 		if($seen === 0)
 			$sql_seen = " AND `item`.`unseen` = 1 ";
@@ -417,6 +423,8 @@ class NotificationsManager {
 	 * @return int Number of system notifications
 	 */
 	private function systemTotal($seen = 0) {
+		$sql_seen = "";
+
 		if($seen === 0)
 			$sql_seen = " AND `seen` = 0 ";
 
@@ -448,6 +456,7 @@ class NotificationsManager {
 		$ident = 'system';
 		$total = $this->systemTotal($seen);
 		$notifs = array();
+		$sql_seen = "";
 
 		if($seen === 0)
 			$sql_seen = " AND `seen` = 0 ";
@@ -481,7 +490,7 @@ class NotificationsManager {
 		$myurl = substr($myurl,strpos($myurl,'://')+3);
 		$myurl = str_replace(array('www.','.'),array('','\\.'),$myurl);
 		$diasp_url = str_replace('/profile/','/u/',$myurl);
-		$sql_extra .= sprintf(" AND ( `item`.`author-link` regexp '%s' or `item`.`tag` regexp '%s' or `item`.`tag` regexp '%s' ) ",
+		$sql_extra = sprintf(" AND ( `item`.`author-link` regexp '%s' or `item`.`tag` regexp '%s' or `item`.`tag` regexp '%s' ) ",
 			dbesc($myurl . '$'),
 			dbesc($myurl . '\\]'),
 			dbesc($diasp_url . '\\]')
@@ -498,7 +507,8 @@ class NotificationsManager {
 	 * @return int Number of personal notifications
 	 */
 	private function personalTotal($seen = 0) {
-		$sql_extra .= $this->_personal_sql_extra();
+		$sql_seen = "";
+		$sql_extra = $this->_personal_sql_extra();
 
 		if($seen === 0)
 			$sql_seen = " AND `item`.`unseen` = 1 ";
@@ -535,8 +545,9 @@ class NotificationsManager {
 	public function personalNotifs($seen = 0, $start = 0, $limit = 80) {
 		$ident = 'personal';
 		$total = $this->personalTotal($seen);
-		$sql_extra .= $this->_personal_sql_extra();
+		$sql_extra = $this->_personal_sql_extra();
 		$notifs = array();
+		$sql_seen = "";
 
 		if($seen === 0)
 			$sql_seen = " AND `item`.`unseen` = 1 ";
@@ -575,6 +586,8 @@ class NotificationsManager {
 	 * @return int Number of home notifications
 	 */
 	private function homeTotal($seen = 0) {
+		$sql_seen = "";
+
 		if($seen === 0)
 			$sql_seen = " AND `item`.`unseen` = 1 ";
 
@@ -609,6 +622,7 @@ class NotificationsManager {
 		$ident = 'home';
 		$total = $this->homeTotal($seen);
 		$notifs = array();
+		$sql_seen = "";
 
 		if($seen === 0)
 			$sql_seen = " AND `item`.`unseen` = 1 ";
@@ -640,13 +654,15 @@ class NotificationsManager {
 
 	/**
 	 * @brief Total number of introductions 
-	 * @param int $all
-	 *	If 0 only include introductions into the query
+	 * @param bool $all
+	 *	If false only include introductions into the query
 	 *	which aren't marked as ignored
 	 * @return int Number of introductions
 	 */
-	private function introTotal($all) {
-		if($all === 0)
+	private function introTotal($all = false) {
+		$sql_extra = "";
+
+		if($all === false)
 			$sql_extra = " AND `ignore` = 0 ";
 
 		$r = q("SELECT COUNT(*) AS `total` FROM `intro`
@@ -663,8 +679,8 @@ class NotificationsManager {
 	/**
 	 * @brief Get introductions
 	 * 
-	 * @param int $all
-	 *	If 0 only include introductions into the query
+	 * @param bool $all
+	 *	If false only include introductions into the query
 	 *	which aren't marked as ignored
 	 * @param int $start Start the query at this point
 	 * @param int $limit Maximum number of query results
@@ -674,12 +690,13 @@ class NotificationsManager {
 	 *	int 'total' => Total number of available introductions
 	 *	array 'notifications' => Introductions
 	 */
-	public function introNotifs($all = 0, $start = 0, $limit = 80) {
+	public function introNotifs($all = false, $start = 0, $limit = 80) {
 		$ident = 'introductions';
 		$total = $this->introTotal($seen);
 		$notifs = array();
+		$sql_extra = "";
 
-		if($all === 0)
+		if($all === false)
 			$sql_extra = " AND `ignore` = 0 ";
 
 		/// @todo Fetch contact details by "get_contact_details_by_url" instead of queries to contact, fcontact and gcontact

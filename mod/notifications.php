@@ -95,10 +95,7 @@ function notifications_content(&$a) {
 		nav_set_selected('introductions');
 		$notif_header = t('Notifications');
 
-		if(($a->argc > 2) && ($a->argv[2] == 'all'))
-			$all = 1;
-		else
-			$all = 0;
+		$all = (($a->argc > 2) && ($a->argv[2] == 'all'));
 
 		$notifs = $nm->introNotifs($all, $startrec, $perpage);
 
@@ -151,8 +148,8 @@ function notifications_content(&$a) {
 
 		// The link to switch between ignored and normal connection requests
 		$notif_show_lnk = array(
-			'href' => ($all === 0 ? 'notifications/intros/all' : 'notifications/intros' ),
-			'text' => ($all === 0 ? t('Show Ignored Requests') : t('Hide Ignored Requests'))
+			'href' => ($all === false ? 'notifications/intros/all' : 'notifications/intros' ),
+			'text' => ($all === false ? t('Show Ignored Requests') : t('Hide Ignored Requests'))
 		);
 
 		// Loop through all introduction notifications.This creates an array with the output html for each
