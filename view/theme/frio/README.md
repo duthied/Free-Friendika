@@ -1,6 +1,6 @@
 # frio
 ### A bootstrap based theme for friendica
-This Theme was started as Experiment to give the user a good looking and modern theme for friendica.
+This Theme was started as an experiment to give the user a good looking and modern theme for friendica.
 
 I conentrated on 3 topics:
 
@@ -10,14 +10,12 @@ I conentrated on 3 topics:
 
 **Installation Requirements:**
 * modern Browser with JS enabled (Chrome/Chromium is recommended)
-* enabled frio_hovercard addon
 * if you update the theme you should disable and enable the theme again from the admin panel (to apply possible new hooks)
 
 **Note:**
-This theme is far from beeing stable and ready for productive use. Many parts are missing and will be never added.
-Because of the heavy use of the bootstrap framework nearly every friendica theme template may have to be overwritten. It would be a lot of work and after that it would be hard to maintain the theme.
+This theme is marked as experimental. While it is doing its job very well in the most cases there still much work to do to get it marked as stable. So some important templates are still missing and will be added in future versions.
 
-So why I am doing this?
+Some insights into my motivation for starting coding this theme:
 This theme should be the start of a discussion in the friendica community (users and developers) about UI/UX in friendica.
 What frameworks do we want to use? How should default friendica look like? And how do we want to use friendica? What do we need in the core code (At the present time some stuff in this is done with ugly javascript hacks and own php code)?
 
@@ -59,6 +57,6 @@ Michael Vogel (Vier Theme)  - <https://github.com/annando>
 StefOfficiel (Friendiboot Theme) - <https://github.com/StefOfficiel/Friendiboot>
 
 #### License:
-<https://github.com/rabuzarus/frio/blob/master/LICENSE>
+<https://raw.githubusercontent.com/friendica/friendica/develop/view/theme/frio/LICENSE>
 
 [original commit history](https://github.com/rabuzarus/frio/commits/master)
