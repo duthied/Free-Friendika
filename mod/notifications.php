@@ -148,8 +148,8 @@ function notifications_content(&$a) {
 
 		// The link to switch between ignored and normal connection requests
 		$notif_show_lnk = array(
-			'href' => ($all === false ? 'notifications/intros/all' : 'notifications/intros' ),
-			'text' => ($all === false ? t('Show Ignored Requests') : t('Hide Ignored Requests'))
+			'href' => (!$all ? 'notifications/intros/all' : 'notifications/intros' ),
+			'text' => (!$all ? t('Show Ignored Requests') : t('Hide Ignored Requests'))
 		);
 
 		// Loop through all introduction notifications.This creates an array with the output html for each

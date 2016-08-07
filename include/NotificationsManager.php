@@ -662,7 +662,7 @@ class NotificationsManager {
 	private function introTotal($all = false) {
 		$sql_extra = "";
 
-		if($all === false)
+		if(!$all)
 			$sql_extra = " AND `ignore` = 0 ";
 
 		$r = q("SELECT COUNT(*) AS `total` FROM `intro`
@@ -696,7 +696,7 @@ class NotificationsManager {
 		$notifs = array();
 		$sql_extra = "";
 
-		if($all === false)
+		if(!$all)
 			$sql_extra = " AND `ignore` = 0 ";
 
 		/// @todo Fetch contact details by "get_contact_details_by_url" instead of queries to contact, fcontact and gcontact
