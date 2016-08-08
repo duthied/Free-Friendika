@@ -392,11 +392,11 @@ define ( 'GRAVITY_COMMENT',      6);
  * Process priority for the worker
  * @{
  */
-define('PRIORITY_SYSTEM',   -1);
 define('PRIORITY_UNDEFINED', 0);
-define('PRIORITY_HIGH',      1);
-define('PRIORITY_MEDIUM',    2);
-define('PRIORITY_LOW',       3);
+define('PRIORITY_SYSTEM',   10);
+define('PRIORITY_HIGH',     20);
+define('PRIORITY_MEDIUM',   30);
+define('PRIORITY_LOW',      40);
 /* @}*/
 
 
