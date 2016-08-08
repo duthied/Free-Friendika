@@ -571,6 +571,7 @@ class App {
 
 		$this->performance["start"] = microtime(true);
 		$this->performance["database"] = 0;
+		$this->performance["database_write"] = 0;
 		$this->performance["network"] = 0;
 		$this->performance["file"] = 0;
 		$this->performance["rendering"] = 0;
@@ -1263,7 +1264,7 @@ class App {
 	function proc_run($args) {
 
 		// Add the php path if it is a php call
-		if (count($args) && $args[0] === 'php')
+		if (count($args) && ($args[0] === 'php' OR is_int($args[0])))
 			$args[0] = ((x($this->config,'php_path')) && (strlen($this->config['php_path'])) ? $this->config['php_path'] : 'php');
 
 		// add baseurl to args. cli scripts can't construct it
