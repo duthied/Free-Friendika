@@ -217,7 +217,7 @@ function poller_max_connections_reached() {
  *
  */
 function poller_kill_stale_workers() {
-	$r = q("SELECT `pid`, `executed` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
+	$r = q("SELECT `pid`, `executed`, `priority`, `parameter` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
 
 	if (!dbm::is_result($r)) {
 		// No processing here needed
@@ -230,9 +230,19 @@ function poller_kill_stale_workers() {
 				intval($pid["pid"]));
 		else {
 			// Kill long running processes
+
+			// Check if the priority is in a valid range
+			if (!in_array($pid["priority"], array(PRIORITY_SYSTEM, PRIORITY_HIGH, PRIORITY_MEDIUM, PRIORITY_LOW)))
+				$pid["priority"] = PRIORITY_MEDIUM;
+
+			// Define the maximum durations
+			$max_duration_defaults = array(PRIORITY_SYSTEM => 360, PRIORITY_HIGH => 10, PRIORITY_MEDIUM => 60, PRIORITY_LOW => 180);
+			$max_duration = $max_duration_defaults[$pid["priority"]];
+
+			// How long is the process already running?
 			$duration = (time() - strtotime($pid["executed"])) / 60;
-			if ($duration > 180) {
-				logger("Worker process ".$pid["pid"]." took more than 3 hours. It will be killed now.");
+			if ($duration > $max_duration) {
+				logger("Worker process ".$pid["pid"]." (".$pid["parameter"].") took more than ".$max_duration." minutes. It will be killed now.");
 				posix_kill($pid["pid"], SIGTERM);
 
 				// We killed the stale process.
@@ -244,7 +254,7 @@ function poller_kill_stale_workers() {
 					intval(PRIORITY_LOW),
 					intval($pid["pid"]));
 			} else
-				logger("Worker process ".$pid["pid"]." now runs for ".round($duration)." minutes. That's okay.", LOGGER_DEBUG);
+				logger("Worker process ".$pid["pid"]." now runs for ".round($duration)." of ".$max_duration." allowed minutes. That's okay.", LOGGER_DEBUG);
 		}
 }
 
@@ -286,7 +296,7 @@ function poller_too_much_workers() {
 			$high_running = $s[0]["total"];
 
 			/// @todo define maximum number of fastlanes
-			if (($high_running == 0) AND ($top_priority >= PRIORITY_HIGH) AND ($top_priority < PRIORITY_LOW)) {
+			if (($high_running == 0) AND ($top_priority != PRIORITY_UNDEFINED) AND ($top_priority < PRIORITY_LOW)) {
 				logger("There are jobs with priority ".$top_priority." waiting but none is executed. Open a fastlane.", LOGGER_DEBUG);
 				$queues = $active + 1;
 			}
