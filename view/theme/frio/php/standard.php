@@ -42,16 +42,6 @@
 						"; include('includes/photo_side.php'); echo"
 					</aside>
 
-					<div id=\"NavAside\" class=\"navmenu navmenu-default navmenu-fixed-left offcanvas hidden-lg hidden-md\">
-						<div class=\"nav-container\">
-							<div class=\"list-group\">
-								"; if(x($page,'aside')) echo $page['aside']; echo"
-								"; if(x($page,'right_aside')) echo $page['right_aside']; echo"
-								"; include('includes/photo_side.php'); echo"
-							</div>
-						</div>
-					</div><!--/.sidebar-offcanvas-->
-
 					<div class=\"col-lg-8 col-md-8 col-sm-12 col-xs-12\" id=\"content\">
 						<section class=\"sectiontop\">
 								<div class=\"panel "; echo $a->argv[0]; echo "-content-wrapper\">
