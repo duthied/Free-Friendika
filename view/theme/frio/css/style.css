@@ -2181,12 +2181,17 @@ ul.notif-network-list > li {
     padding-left: 15px;
     padding-right: 15px;
 }
+ul.notif-network-list li.unseen {
+    border-left: 3px solid #f3fcfd;
+    background-color: #f3fcfd;
+}
 .intro-wrapper.media {
     overflow: visible;
     word-wrap: break-word;
     margin-top: 0;
 }
-.intro-photo-wrapper img.intro-photo {
+.intro-photo-wrapper img.intro-photo,
+.notif-item img.notif-image {
     height:80px;
     width: 80px;
     border-radius: 4px;
