@@ -2251,10 +2251,10 @@ ul.notif-network-list > li:hover .intro-action-buttons {
 
 /* Search Page */
 
-/* This is a little bit hacky. Since the search page is
-used for diferent content types we can't apply the generic-page-wrapper class.
-So we apply the css of the generic-page-wrapper class to the ul elemt with some
-little modifications to emolate a standard page template */
+/* This is a little bit hacky. Since the search page is used for diferent 
+content types we can't apply the generic-page-wrapper class.
+So we apply the css of the generic-page-wrapper class to the ul element with some
+little modifications to emulate a standard page template */
 .search-content-wrapper > ul.viewcontact_wrapper {
     min-height: calc(100vh - 150px);
     padding-top: 15px;
