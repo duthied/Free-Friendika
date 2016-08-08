@@ -217,7 +217,7 @@ function poller_max_connections_reached() {
  *
  */
 function poller_kill_stale_workers() {
-	$r = q("SELECT `pid`, `executed`, `priority` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
+	$r = q("SELECT `pid`, `executed`, `priority`, `parameter` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
 
 	if (!dbm::is_result($r)) {
 		// No processing here needed
@@ -236,13 +236,13 @@ function poller_kill_stale_workers() {
 				$pid["priority"] = PRIORITY_MEDIUM;
 
 			// Define the maximum durations
-			$max_duration_defaults = array(PRIORITY_SYSTEM => 360, PRIORITY_HIGH => 5, PRIORITY_MEDIUM => 60, PRIORITY_LOW => 180);
+			$max_duration_defaults = array(PRIORITY_SYSTEM => 360, PRIORITY_HIGH => 10, PRIORITY_MEDIUM => 60, PRIORITY_LOW => 180);
 			$max_duration = $max_duration_defaults[$pid["priority"]];
 
 			// How long is the process already running?
 			$duration = (time() - strtotime($pid["executed"])) / 60;
 			if ($duration > $max_duration) {
-				logger("Worker process ".$pid["pid"]." took more than ".$max_duration." minutes. It will be killed now.");
+				logger("Worker process ".$pid["pid"]." (".$pid["parameter"].") took more than ".$max_duration." minutes. It will be killed now.");
 				posix_kill($pid["pid"], SIGTERM);
 
 				// We killed the stale process.
