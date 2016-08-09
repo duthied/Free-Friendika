@@ -223,7 +223,7 @@ function frio_remote_nav($a,&$nav) {
 
 	} elseif(!local_user() && remote_user()) {
 		$r = q("SELECT `name`, `nick`, `micro` AS `photo` FROM `contact` WHERE `id` = %d", intval(remote_user()));
-		$nav['remote'] = t("Remote");
+		$nav['remote'] = t("Guest");
 
 	} elseif(get_my_url ()) {
 		$r = q("SELECT `name`, `nick`, `photo` FROM `gcontact`
