@@ -392,9 +392,11 @@ define ( 'GRAVITY_COMMENT',      6);
  * Process priority for the worker
  * @{
  */
-define('PRIORITY_HIGH',   1);
-define('PRIORITY_MEDIUM', 2);
-define('PRIORITY_LOW',    3);
+define('PRIORITY_UNDEFINED', 0);
+define('PRIORITY_SYSTEM',   10);
+define('PRIORITY_HIGH',     20);
+define('PRIORITY_MEDIUM',   30);
+define('PRIORITY_LOW',      40);
 /* @}*/
 
 
@@ -571,6 +573,7 @@ class App {
 
 		$this->performance["start"] = microtime(true);
 		$this->performance["database"] = 0;
+		$this->performance["database_write"] = 0;
 		$this->performance["network"] = 0;
 		$this->performance["file"] = 0;
 		$this->performance["rendering"] = 0;
@@ -1263,7 +1266,7 @@ class App {
 	function proc_run($args) {
 
 		// Add the php path if it is a php call
-		if (count($args) && $args[0] === 'php')
+		if (count($args) && ($args[0] === 'php' OR is_int($args[0])))
 			$args[0] = ((x($this->config,'php_path')) && (strlen($this->config['php_path'])) ? $this->config['php_path'] : 'php');
 
 		// add baseurl to args. cli scripts can't construct it
@@ -1395,7 +1398,7 @@ function check_db() {
 		$build = DB_UPDATE_VERSION;
 	}
 	if($build != DB_UPDATE_VERSION)
-		proc_run(PRIORITY_HIGH, 'include/dbupdate.php');
+		proc_run(PRIORITY_SYSTEM, 'include/dbupdate.php');
 
 }
 
