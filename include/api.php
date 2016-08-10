@@ -3664,6 +3664,389 @@
 	api_register_func('api/friendica/notification', 'api_friendica_notification', true, API_METHOD_GET);
 
 
+	/**
+	 * @brief same as api_format_messages, but output extended by seen and parent-uri as needed
+	 * in Windows 10 client
+	 *
+	 * @param array $item
+	 * @param array $recipient
+	 * @param array $sender
+	 * @return array $ret 
+	 */
+	function api_format_messages_win($item, $recipient, $sender) {
+		// standard meta information
+		$ret=Array(
+				'id'                    => $item['id'],
+				'sender_id'             => $sender['id'] ,
+				'text'                  => "",
+				'recipient_id'          => $recipient['id'],
+				'created_at'            => api_date($item['created']),
+				'sender_screen_name'    => $sender['screen_name'],
+				'recipient_screen_name' => $recipient['screen_name'],
+				'sender'                => $sender,
+				'recipient'             => $recipient,
+				'title'			=> "",
+				'seen'			=> $item['seen'],
+				'parent_uri'		=> $item['parent-uri'],
+		);
+
+		// "uid" and "self" are only needed for some internal stuff, so remove it from here
+		unset($ret["sender"]["uid"]);
+		unset($ret["sender"]["self"]);
+		unset($ret["recipient"]["uid"]);
+		unset($ret["recipient"]["self"]);
+
+		//don't send title to regular StatusNET requests to avoid confusing these apps
+		if (x($_GET, 'getText')) {
+			$ret['title'] = $item['title'] ;
+			if ($_GET["getText"] == "html") {
+				$ret['text'] = bbcode($item['body'], false, false);
+			}
+			elseif ($_GET["getText"] == "plain") {
+				$ret['text'] = trim(html2plain(bbcode(api_clean_plain_items($item['body']), false, false, 2, true), 0));
+			}
+		}
+		else {
+			$ret['text'] = $item['title']."\n".html2plain(bbcode(api_clean_plain_items($item['body']), false, false, 2, true), 0);
+		}
+		if (isset($_GET["getUserObjects"]) && $_GET["getUserObjects"] == "false") {
+			unset($ret['sender']);
+			unset($ret['recipient']);
+		}
+
+		return $ret;
+	}
+
+	/**
+	 * @brief return direct_messages for Windows 10 App (similar to direct_messages/all, but seen 
+	 * and parent-uri added to output
+	 *
+	 * @param App $a
+	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+	 * @return string
+	 */
+	function api_friendica_direct_messages_all($type){
+		$a = get_app();
+
+		if (api_user()===false) throw new ForbiddenException();
+
+		// params
+		$count = (x($_GET,'count')?$_GET['count']:20);
+		$page = (x($_REQUEST,'page')?$_REQUEST['page']-1:0);
+		if ($page<0) $page=0;
+
+		$since_id = (x($_REQUEST,'since_id')?$_REQUEST['since_id']:0);
+		$max_id = (x($_REQUEST,'max_id')?$_REQUEST['max_id']:0);
+
+		$user_id = (x($_REQUEST,'user_id')?$_REQUEST['user_id']:"");
+		$screen_name = (x($_REQUEST,'screen_name')?$_REQUEST['screen_name']:"");
+
+		//  caller user info
+		unset($_REQUEST["user_id"]);
+		unset($_GET["user_id"]);
+
+		unset($_REQUEST["screen_name"]);
+		unset($_GET["screen_name"]);
+
+		$user_info = api_get_user($a);
+		$profile_url = $user_info["url"];
+
+		// pagination
+		$start = $page*$count;
+
+		// filters
+		$sql_extra = "true";
+
+		if ($max_id > 0)
+			$sql_extra .= ' AND `mail`.`id` <= '.intval($max_id);
+
+		if ($user_id !="") {
+			$sql_extra .= ' AND `mail`.`contact-id` = ' . intval($user_id);
+		}
+		elseif($screen_name !=""){
+			$sql_extra .= " AND `contact`.`nick` = '" . dbesc($screen_name). "'";
+		}
+
+		$r = q("SELECT `mail`.*, `contact`.`nurl` AS `contact-url` FROM `mail`,`contact` WHERE `mail`.`contact-id` = `contact`.`id` AND `mail`.`uid`=%d AND $sql_extra AND `mail`.`id` > %d ORDER BY `mail`.`id` DESC LIMIT %d,%d",
+				intval(api_user()),
+				intval($since_id),
+				intval($start),	intval($count)
+		);
+
+		// stop execution and return error message if no mails available
+		if($r == null) {
+			$answer = array('result' => 'error', 'message' => 'no mails available');
+			return api_format_data("direct_messages_all", $type, array('$result' => $answer));
+		}
+
+		$ret = Array();
+		foreach($r as $item) {
+			if ($box == "inbox" || $item['from-url'] != $profile_url){
+				$recipient = $user_info;
+				$sender = api_get_user($a,normalise_link($item['contact-url']));
+			}
+			elseif ($box == "sentbox" || $item['from-url'] == $profile_url){
+				$recipient = api_get_user($a,normalise_link($item['contact-url']));
+				$sender = $user_info;
+
+			}
+			$ret[]=api_format_messages_win($item, $recipient, $sender);
+		}
+
+
+		$data = array('$messages' => $ret);
+		switch($type){
+			case "atom":
+			case "rss":
+				$data = api_rss_extra($a, $data, $user_info);
+		}
+
+		return  api_format_data("direct_messages_all", $type, $data);
+
+	}
+	api_register_func('api/friendica/direct_messages_all', 'api_friendica_direct_messages_all', true);
+
+
+	/**
+	 * @brief update a direct_message to seen state for Windows 10 App 
+	 *
+	 * @param App $a
+	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+	 * @return string
+	 */
+	function api_friendica_direct_messages_setseen($type){
+		$a = get_app();
+		if (api_user()===false) throw new ForbiddenException();
+
+		// params
+		$user_info = api_get_user($a);
+		$uid = $user_info['uid'];
+		$id = (x($_REQUEST, 'id') ? $_REQUEST['id'] : 0);
+
+		// return error if id is zero
+		if ($id == "") {
+			$answer = array('result' => 'error', 'message' => 'message id not specified');
+			return api_format_data("direct_messages_setseen", $type, array('$result' => $answer));
+		}
+
+		// get data of the specified message id
+		$r = q("SELECT * FROM `mail` WHERE `id` = %d AND `uid` = %d",
+			intval($id), 
+			intval($uid));
+		// error message if specified id is not in database
+		if (count($r) == 0) {
+			$answer = array('result' => 'error', 'message' => 'message id not in database');
+			return api_format_data("direct_messages_setseen", $type, array('$result' => $answer));
+		}
+
+		// update seen indicator
+		$result = q("UPDATE `mail` SET `seen` = 1 WHERE `id` = %d AND `uid` = %d", 
+			intval($id), 
+			intval($uid));
+
+		if ($result) {
+			// return success
+			$answer = array('result' => 'ok', 'message' => 'message set to seen');
+			return api_format_data("direct_message_setseen", $type, array('$result' => $answer));
+		} else {
+			$answer = array('result' => 'error', 'message' => 'unknown error');
+			return api_format_data("direct_messages_setseen", $type, array('$result' => $answer));
+		}
+	}
+	api_register_func('api/friendica/direct_messages_setseen', 'api_friendica_direct_messages_setseen', true);
+
+
+	/**
+	 * @brief delete a direct_message from mail table through api
+	 *
+	 * @param App $a
+	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+	 * @return string
+	 */
+	function api_friendica_direct_messages_delete($type){
+		$a = get_app();
+
+		if (api_user()===false) throw new ForbiddenException();
+
+		// params
+		$user_info = api_get_user($a);
+		$id = (x($_REQUEST,'id') ? $_REQUEST['id'] : 0);
+		$parenturi = (x($_REQUEST, 'parenturi') ? $_REQUEST['parenturi'] : "");
+		$uid = $user_info['uid'];
+	
+		// error if no id or parenturi specified
+		if ($id == 0 || $parenturi == "") {
+			$answer = array('result' => 'error', 'message' => 'message id or parenturi not specified');
+			return api_format_data("direct_messages_delete", $type, array('$result' => $answer));
+		}
+
+		// get data of the specified message id
+		$r = q("SELECT * FROM `mail` WHERE `uid` = %d AND `id` = %d",
+			intval($uid), 
+			intval($id));
+		// error message if specified id is not in database
+		if (count($r) == 0) {
+			$answer = array('result' => 'error', 'message' => 'message id not in database');
+			return api_format_data("direct_messages_delete", $type, array('$result' => $answer));
+		}
+
+		// delete message
+		$result = q("DELETE FROM `mail` WHERE `uid` = %d AND `id` = %d AND `parent-uri` = '%s'", 
+			intval($uid), 
+			intval($id), 
+			dbesc($parenturi));
+
+		if ($result) {
+			// return success
+			$answer = array('result' => 'ok', 'message' => 'message deleted');
+			return api_format_data("direct_message_delete", $type, array('$result' => $answer));
+		}
+		else {
+			$answer = array('result' => 'error', 'message' => 'unknown error');
+			return api_format_data("direct_messages_delete", $type, array('$result' => $answer));
+		}
+	}
+	api_register_func('api/friendica/direct_messages_delete', 'api_friendica_direct_messages_delete', true);
+
+
+	/**
+	 * @brief search for direct_messages containing a searchstring through api
+	 *
+	 * @param App $a
+	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+	 * @return string
+	 */
+	function api_friendica_direct_messages_search($type){
+		$a = get_app();
+
+		if (api_user()===false) throw new ForbiddenException();
+
+		// params
+		$user_info = api_get_user($a);
+		$searchstring = (x($_REQUEST,'searchstring') ? $_REQUEST['searchstring'] : "");
+		$uid = $user_info['uid'];
+	
+		// error if no searchstring specified
+		if ($searchstring == "") {
+			$answer = array('result' => 'error', 'message' => 'searchstring not specified');
+			return api_format_data("direct_messages_search", $type, array('$result' => $answer));
+		}
+
+		// get data for the specified searchstring
+		$r = q("SELECT `mail`.*, `contact`.`nurl` AS `contact-url` FROM `mail`,`contact` WHERE `mail`.`contact-id` = `contact`.`id` AND `mail`.`uid`=%d AND `body` LIKE '%s' ORDER BY `mail`.`id` DESC",
+			intval($uid),
+			dbesc('%'.$searchstring.'%')
+		);
+
+		$profile_url = $user_info["url"];
+		// message if nothing was found
+		if (count($r) == 0) 
+			$success = array('success' => false, 'search_results' => 'nothing found');
+		else {
+			$ret = Array();
+			foreach($r as $item) {
+				if ($box == "inbox" || $item['from-url'] != $profile_url){
+					$recipient = $user_info;
+					$sender = api_get_user($a,normalise_link($item['contact-url']));
+				}
+				elseif ($box == "sentbox" || $item['from-url'] == $profile_url){
+					$recipient = api_get_user($a,normalise_link($item['contact-url']));
+					$sender = $user_info;
+				}
+				$ret[]=api_format_messages_win($item, $recipient, $sender);
+			}
+			$success = array('success' => true, 'search_results' => $ret);
+		}
+
+		return api_format_data("direct_message_search", $type, array('$result' => $success));
+	}
+	api_register_func('api/friendica/direct_messages_search', 'api_friendica_direct_messages_search', true);
+
+
+	/**
+	 * @brief returns all messages for a specified parenturi, similar to api/direct_messages/conversation but enhanced to return parenturi and seen state
+	 *
+	 * @param App $a
+	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+	 * @return string
+	 */
+	function api_friendica_direct_messages_conversation($type) {
+		$a = get_app();
+		if (api_user()===false) return false;
+
+		// params
+		$count = (x($_GET,'count')?$_GET['count']:20);
+		$page = (x($_REQUEST,'page')?$_REQUEST['page']-1:0);
+		if ($page<0) $page=0;
+
+		$since_id = (x($_REQUEST,'since_id')?$_REQUEST['since_id']:0);
+		$max_id = (x($_REQUEST,'max_id')?$_REQUEST['max_id']:0);
+
+		$user_id = (x($_REQUEST,'user_id')?$_REQUEST['user_id']:"");
+		$screen_name = (x($_REQUEST,'screen_name')?$_REQUEST['screen_name']:"");
+
+		//  caller user info
+		unset($_REQUEST["user_id"]);
+		unset($_GET["user_id"]);
+
+		unset($_REQUEST["screen_name"]);
+		unset($_GET["screen_name"]);
+
+		$user_info = api_get_user($a);
+		$profile_url = $user_info["url"];
+
+
+		// pagination
+		$start = $page*$count;
+
+		$sql_extra = "`mail`.`parent-uri`='".dbesc( $_GET["uri"] )  ."'";
+
+		if ($max_id > 0)
+			$sql_extra .= ' AND `mail`.`id` <= '.intval($max_id);
+
+		if ($user_id !="") {
+			$sql_extra .= ' AND `mail`.`contact-id` = ' . intval($user_id);
+		}
+		elseif($screen_name !=""){
+			$sql_extra .= " AND `contact`.`nick` = '" . dbesc($screen_name). "'";
+		}
+
+		$r = q("SELECT `mail`.*, `contact`.`nurl` AS `contact-url` FROM `mail`,`contact` WHERE `mail`.`contact-id` = `contact`.`id` AND `mail`.`uid`=%d AND $sql_extra AND `mail`.`id` > %d ORDER BY `mail`.`id` DESC LIMIT %d,%d",
+				intval(api_user()),
+				intval($since_id),
+				intval($start),	intval($count)
+		);
+
+
+		$ret = Array();
+		foreach($r as $item) {
+			if ($box == "inbox" || $item['from-url'] != $profile_url){
+				$recipient = $user_info;
+				$sender = api_get_user($a,normalise_link($item['contact-url']));
+			}
+			elseif ($box == "sentbox" || $item['from-url'] == $profile_url){
+				$recipient = api_get_user($a,normalise_link($item['contact-url']));
+				$sender = $user_info;
+
+			}
+			$ret[]=api_format_messages_win($item, $recipient, $sender);
+		}
+
+
+		$data = array('$messages' => $ret);
+		switch($type){
+			case "atom":
+			case "rss":
+				$data = api_rss_extra($a, $data, $user_info);
+		}
+
+		return  api_format_data("direct_messages", $type, $data);
+
+	}
+
+	api_register_func('api/friendica/direct_messages_conversation','api_friendica_direct_messages_conversation',true);
+
+
 /*
 To.Do:
     [pagename] => api/1.1/statuses/lookup.json
