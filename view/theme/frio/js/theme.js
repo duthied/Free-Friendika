@@ -553,11 +553,15 @@ function scrollToItem(itemID) {
 	var colWhite = {backgroundColor:'#F5F5F5'};
 	var colShiny = {backgroundColor:'#FFF176'};
 
+	// Get the Item Position (we need to substract 100 to match
+	// correct position
+	var itemPos = $('#'+itemID).offset().top - 100;
+
 	// Scroll to the DIV with the ID (GUID)
 	$('html, body').animate({
-		scrollTop: $('#item-'+itemID).position().top
+		scrollTop: itemPos
 	}, 400, function() {
 		// Highlight post/commenent with ID  (GUID)
-		$('#item-'+itemID).animate(colWhite, 1000).animate(colShiny).animate(colWhite, 2000);
+		$('#'+itemID).animate(colWhite, 1000).animate(colShiny).animate(colWhite, 600);
 	});
 }
