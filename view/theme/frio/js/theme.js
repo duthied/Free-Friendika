@@ -546,7 +546,7 @@ String.prototype.rtrim = function() {
 // Scroll to a specific item and highlight it
 // Note: jquery.color.js is needed
 function scrollToItem(itemID) {
-	if( typeof searchValue === "undefined")
+	if( typeof itemID === "undefined")
 		return;
 
 	// Define the colors which are used for highlighting
