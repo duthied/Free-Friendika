@@ -8,12 +8,14 @@ require_once('include/xml.php');
 
 function ping_init(&$a) {
 
+	$xmlhead = "<"."?xml version='1.0' encoding='UTF-8' ?".">";
+
 	if (local_user()){
 		// Different login session than the page that is calling us.
 		if (intval($_GET['uid']) && intval($_GET['uid']) != local_user()) {
 		        $data = array("invalid" => 1);
 			header("Content-type: text/xml");
-			echo xml::from_array(array("result" => $data));
+			echo xml::from_array(array("result" => $data), $xml);
 			killme();
 		}
 
@@ -338,7 +340,7 @@ function ping_init(&$a) {
 	$data["sysmsgs"] = $sysmsg;
 
 	header("Content-type: text/xml");
-	echo xml::from_array(array("result" => $data));
+	echo xml::from_array(array("result" => $data), $xml);
 	killme();
 }
 
