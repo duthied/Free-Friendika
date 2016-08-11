@@ -2049,6 +2049,9 @@
 				'recipient_screen_name' => $recipient['screen_name'],
 				'sender'                => $sender,
 				'recipient'             => $recipient,
+				'title'			=> "",
+				'friendica_seen'	=> $item['seen'],
+				'friendica_parent_uri'	=> $item['parent-uri'],
 		);
 
 		// "uid" and "self" are only needed for some internal stuff, so remove it from here
@@ -3665,59 +3668,6 @@
 
 
 	/**
-	 * @brief same as api_format_messages, but output extended by seen and parent-uri as needed
-	 * in Windows 10 client
-	 *
-	 * @param array $item
-	 * @param array $recipient
-	 * @param array $sender
-	 * @return array $ret 
-	 */
-	function api_format_messages_win($item, $recipient, $sender) {
-		// standard meta information
-		$ret=Array(
-				'id'                    => $item['id'],
-				'sender_id'             => $sender['id'] ,
-				'text'                  => "",
-				'recipient_id'          => $recipient['id'],
-				'created_at'            => api_date($item['created']),
-				'sender_screen_name'    => $sender['screen_name'],
-				'recipient_screen_name' => $recipient['screen_name'],
-				'sender'                => $sender,
-				'recipient'             => $recipient,
-				'title'			=> "",
-				'seen'			=> $item['seen'],
-				'parent_uri'		=> $item['parent-uri'],
-		);
-
-		// "uid" and "self" are only needed for some internal stuff, so remove it from here
-		unset($ret["sender"]["uid"]);
-		unset($ret["sender"]["self"]);
-		unset($ret["recipient"]["uid"]);
-		unset($ret["recipient"]["self"]);
-
-		//don't send title to regular StatusNET requests to avoid confusing these apps
-		if (x($_GET, 'getText')) {
-			$ret['title'] = $item['title'] ;
-			if ($_GET["getText"] == "html") {
-				$ret['text'] = bbcode($item['body'], false, false);
-			}
-			elseif ($_GET["getText"] == "plain") {
-				$ret['text'] = trim(html2plain(bbcode(api_clean_plain_items($item['body']), false, false, 2, true), 0));
-			}
-		}
-		else {
-			$ret['text'] = $item['title']."\n".html2plain(bbcode(api_clean_plain_items($item['body']), false, false, 2, true), 0);
-		}
-		if (isset($_GET["getUserObjects"]) && $_GET["getUserObjects"] == "false") {
-			unset($ret['sender']);
-			unset($ret['recipient']);
-		}
-
-		return $ret;
-	}
-
-	/**
 	 * @brief return direct_messages for Windows 10 App (similar to direct_messages/all, but seen 
 	 * and parent-uri added to output
 	 *
@@ -3790,7 +3740,7 @@
 				$sender = $user_info;
 
 			}
-			$ret[]=api_format_messages_win($item, $recipient, $sender);
+			$ret[]=api_format_messages($item, $recipient, $sender);
 		}
 
 
@@ -3953,7 +3903,7 @@
 					$recipient = api_get_user($a,normalise_link($item['contact-url']));
 					$sender = $user_info;
 				}
-				$ret[]=api_format_messages_win($item, $recipient, $sender);
+				$ret[]=api_format_messages($item, $recipient, $sender);
 			}
 			$success = array('success' => true, 'search_results' => $ret);
 		}
@@ -4029,7 +3979,7 @@
 				$sender = $user_info;
 
 			}
-			$ret[]=api_format_messages_win($item, $recipient, $sender);
+			$ret[]=api_format_messages($item, $recipient, $sender);
 		}
 
 
