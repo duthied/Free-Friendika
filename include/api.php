@@ -2808,6 +2808,79 @@
 	}
 	api_register_func('api/direct_messages/new','api_direct_messages_new',true, API_METHOD_POST);
 
+
+	/**
+	 * @brief delete a direct_message from mail table through api
+	 *
+	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+ 	 * @return string 
+	 */
+	function api_direct_messages_destroy($type){
+		$a = get_app();
+
+		if (api_user()===false) throw new ForbiddenException();
+
+		// params
+		$user_info = api_get_user($a);
+		//required
+		$id = (x($_REQUEST,'id') ? $_REQUEST['id'] : 0);
+		// optional
+		$parenturi = (x($_REQUEST, 'friendica_parenturi') ? $_REQUEST['friendica_parenturi'] : "");
+		$verbose = (x($_GET,'friendica_verbose')?strtolower($_GET['friendica_verbose']):"false");
+		// TODO: optional parameter 'include_entities' from Twitter API not yet implemented
+
+		$uid = $user_info['uid'];
+		// error if no id or parenturi specified (for clients posting parent-uri as well)
+		if ($verbose == "true") {
+			if ($id == 0 || $parenturi == "") {
+				$answer = array('result' => 'error', 'message' => 'message id or parenturi not specified');
+				return api_format_data("direct_messages_delete", $type, array('$result' => $answer));
+			}
+		}
+
+		// BadRequestException if no id specified (for clients using Twitter API)
+		if ($id == 0) throw new BadRequestException('Message id not specified');
+
+		// add parent-uri to sql command if specified by calling app		
+		$sql_extra = ($parenturi != "" ? " AND `parent-uri` = '" . dbesc($parenturi) . "'" : "");
+
+		// get data of the specified message id
+		$r = q("SELECT * FROM `mail` WHERE `uid` = %d AND `id` = %d" . $sql_extra,
+			intval($uid), 
+			intval($id));
+	
+		// error message if specified id is not in database
+		if (count($r) == 0) {
+			if ($verbose == "true") {
+				$answer = array('result' => 'error', 'message' => 'message id not in database');
+				return api_format_data("direct_messages_delete", $type, array('$result' => $answer));
+			}
+			// TODO: BadRequestException ok for Twitter API clients?
+			throw new BadRequestException('message id not in database');
+		}
+
+		// delete message
+		$result = q("DELETE FROM `mail` WHERE `uid` = %d AND `id` = %d" . $sql_extra, 
+			intval($uid), 
+			intval($id));
+
+		if ($verbose == "true") {
+			if ($result) {
+				// return success
+				$answer = array('result' => 'ok', 'message' => 'message deleted');
+				return api_format_data("direct_message_delete", $type, array('$result' => $answer));
+			}
+			else {
+				$answer = array('result' => 'error', 'message' => 'unknown error');
+				return api_format_data("direct_messages_delete", $type, array('$result' => $answer));
+			}
+		}
+		// TODO: return JSON data like Twitter API not yet implemented
+
+	}
+	api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', true, API_METHOD_DELETE);
+
+
 	function api_direct_messages_box($type, $box, $verbose) {
 
 		$a = get_app();
@@ -3725,56 +3798,6 @@
 	api_register_func('api/friendica/direct_messages_setseen', 'api_friendica_direct_messages_setseen', true);
 
 
-	/**
-	 * @brief delete a direct_message from mail table through api
-	 *
-	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
-	 * @return string (success result=ok, error result=error with error message)
-	 */
-	function api_friendica_direct_messages_delete($type){
-		$a = get_app();
-
-		if (api_user()===false) throw new ForbiddenException();
-
-		// params
-		$user_info = api_get_user($a);
-		$id = (x($_REQUEST,'id') ? $_REQUEST['id'] : 0);
-		$parenturi = (x($_REQUEST, 'parenturi') ? $_REQUEST['parenturi'] : "");
-		$uid = $user_info['uid'];
-	
-		// error if no id or parenturi specified
-		if ($id == 0 || $parenturi == "") {
-			$answer = array('result' => 'error', 'message' => 'message id or parenturi not specified');
-			return api_format_data("direct_messages_delete", $type, array('$result' => $answer));
-		}
-
-		// get data of the specified message id
-		$r = q("SELECT * FROM `mail` WHERE `uid` = %d AND `id` = %d",
-			intval($uid), 
-			intval($id));
-		// error message if specified id is not in database
-		if (count($r) == 0) {
-			$answer = array('result' => 'error', 'message' => 'message id not in database');
-			return api_format_data("direct_messages_delete", $type, array('$result' => $answer));
-		}
-
-		// delete message
-		$result = q("DELETE FROM `mail` WHERE `uid` = %d AND `id` = %d AND `parent-uri` = '%s'", 
-			intval($uid), 
-			intval($id), 
-			dbesc($parenturi));
-
-		if ($result) {
-			// return success
-			$answer = array('result' => 'ok', 'message' => 'message deleted');
-			return api_format_data("direct_message_delete", $type, array('$result' => $answer));
-		}
-		else {
-			$answer = array('result' => 'error', 'message' => 'unknown error');
-			return api_format_data("direct_messages_delete", $type, array('$result' => $answer));
-		}
-	}
-	api_register_func('api/friendica/direct_messages_delete', 'api_friendica_direct_messages_delete', true);
 
 
 	/**
