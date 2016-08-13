@@ -104,6 +104,7 @@ Unofficial Twitter command. It shows all direct answers (excluding the original 
 * max_id: maximum id
 * getText: Defines the format of the status field. Can be "html" or "plain"
 * include_entities: "true" shows entities for pictures and links (Default: false)
+* friendica_verbose: "true" enables different error returns for Windows 10 app (default: "false")
 
 #### Unsupported parameters
 * skip_status
@@ -116,6 +117,7 @@ Unofficial Twitter command. It shows all direct answers (excluding the original 
 * since_id: minimal id
 * max_id: maximum id
 * getText: Defines the format of the status field. Can be "html" or "plain"
+* friendica_verbose: "true" enables different error returns for Windows 10 app (default: "false")
 
 ---
 ### direct_messages/conversation (*; AUTH)
@@ -127,6 +129,18 @@ Shows all direct messages of a conversation
 * max_id: maximum id
 * getText: Defines the format of the status field. Can be "html" or "plain"
 * uri: URI of the conversation
+* friendica_verbose: "true" enables different error returns for Windows 10 app (default: "false")
+
+---
+### direct_messages/sent (*; AUTH)
+#### Parameters
+* count: Items per page (default: 20)
+* page: page number
+* since_id: minimal id
+* max_id: maximum id
+* getText: Defines the format of the status field. Can be "html" or "plain"
+* include_entities: "true" shows entities for pictures and links (Default: false)
+* friendica_verbose: "true" enables different error returns for Windows 10 app (default: "false")
 
 ---
 ### direct_messages/new (POST,PUT; AUTH)
@@ -138,14 +152,22 @@ Shows all direct messages of a conversation
 * title: Title of the direct message
 
 ---
-### direct_messages/sent (*; AUTH)
+### direct_messages/destroy (POST,DELETE; AUTH)
 #### Parameters
-* count: Items per page (default: 20)
-* page: page number
-* since_id: minimal id
-* max_id: maximum id
-* getText: Defines the format of the status field. Can be "html" or "plain"
-* include_entities: "true" shows entities for pictures and links (Default: false)
+* id: id of the message to be deleted
+* include_entities: optional, currently not yet implemented
+* friendica_parenturi: optional, can be used for increased safety to delete only intended messages
+* friendica_verbose: "true" enables different error returns for Windows 10 app (default: "false")
+
+#### Return values
+
+On success:
+* JSON return as defined for Twitter API not yet implemented
+* on friendica_verbose=true: JSON return {"result":"ok","message":"message deleted"}
+
+On error:
+HTTP 400 BadRequest
+* on friendica_verbose=true: different JSON returns {"result":"error","message":"xyz"}
 
 ---
 ### favorites (*; AUTH)
@@ -694,6 +716,33 @@ xml
 	</photos>
 ```
 
+---
+### friendica/direct_messages_setseen (GET; AUTH)
+#### Parameters
+* id: id of the message to be updated as seen
+
+#### Return values
+
+On success:
+* JSON return {"result":"ok","message":"message set to seen"}
+
+On error:
+* different JSON returns {"result":"error","message":"xyz"}
+
+---
+### friendica/direct_messages_search (GET; AUTH)
+#### Parameters
+* searchstring: string for which the API call should search as '%searchstring%' in field 'body' of all messages of the authenticated user (caption ignored)
+
+#### Return values
+Returns only tested with JSON, XML might work as well.
+
+On success:
+* JSON return {"success":"true","search_results": array of found messages}
+* JSOn return {"success":"false","search_results":"nothing found"}
+
+On error:
+* different JSON returns {"result":"error","message":"searchstring not specified"}
 
 ---
 ## Not Implemented API calls
@@ -718,7 +767,6 @@ The following API calls from the Twitter API aren't implemented neither in Frien
 * statuses/lookup
 * direct_messages/show
 * search/tweets
-* direct_messages/destroy
 * friendships/no_retweets/ids
 * friendships/incoming
 * friendships/outgoing
