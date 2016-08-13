@@ -2827,7 +2827,7 @@
 		// optional
 		$parenturi = (x($_REQUEST, 'friendica_parenturi') ? $_REQUEST['friendica_parenturi'] : "");
 		$verbose = (x($_GET,'friendica_verbose')?strtolower($_GET['friendica_verbose']):"false");
-		// TODO: optional parameter 'include_entities' from Twitter API not yet implemented
+		/// @todo optional parameter 'include_entities' from Twitter API not yet implemented
 
 		$uid = $user_info['uid'];
 		// error if no id or parenturi specified (for clients posting parent-uri as well)
@@ -2845,17 +2845,17 @@
 		$sql_extra = ($parenturi != "" ? " AND `parent-uri` = '" . dbesc($parenturi) . "'" : "");
 
 		// get data of the specified message id
-		$r = q("SELECT * FROM `mail` WHERE `uid` = %d AND `id` = %d" . $sql_extra,
+		$r = q("SELECT `id` FROM `mail` WHERE `uid` = %d AND `id` = %d" . $sql_extra,
 			intval($uid), 
 			intval($id));
 	
 		// error message if specified id is not in database
-		if (count($r) == 0) {
+		if (!dbm::is_result($r)) {
 			if ($verbose == "true") {
 				$answer = array('result' => 'error', 'message' => 'message id not in database');
 				return api_format_data("direct_messages_delete", $type, array('$result' => $answer));
 			}
-			// TODO: BadRequestException ok for Twitter API clients?
+			/// @todo BadRequestException ok for Twitter API clients?
 			throw new BadRequestException('message id not in database');
 		}
 
@@ -2875,7 +2875,7 @@
 				return api_format_data("direct_messages_delete", $type, array('$result' => $answer));
 			}
 		}
-		// TODO: return JSON data like Twitter API not yet implemented
+		/// @todo return JSON data like Twitter API not yet implemented
 
 	}
 	api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', true, API_METHOD_DELETE);
@@ -3772,11 +3772,11 @@
 		}
 
 		// get data of the specified message id
-		$r = q("SELECT * FROM `mail` WHERE `id` = %d AND `uid` = %d",
+		$r = q("SELECT `id` FROM `mail` WHERE `id` = %d AND `uid` = %d",
 			intval($id), 
 			intval($uid));
 		// error message if specified id is not in database
-		if (count($r) == 0) {
+		if (!dbm::is_result($r)) {
 			$answer = array('result' => 'error', 'message' => 'message id not in database');
 			return api_format_data("direct_messages_setseen", $type, array('$result' => $answer));
 		}
