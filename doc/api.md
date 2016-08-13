@@ -104,7 +104,7 @@ Unofficial Twitter command. It shows all direct answers (excluding the original 
 * max_id: maximum id
 * getText: Defines the format of the status field. Can be "html" or "plain"
 * include_entities: "true" shows entities for pictures and links (Default: false)
-* friendica_verbose: "true" enables different error returns for Windows 10 app (default: "false")
+* friendica_verbose: "true" enables different error returns (default: "false")
 
 #### Unsupported parameters
 * skip_status
@@ -117,7 +117,7 @@ Unofficial Twitter command. It shows all direct answers (excluding the original 
 * since_id: minimal id
 * max_id: maximum id
 * getText: Defines the format of the status field. Can be "html" or "plain"
-* friendica_verbose: "true" enables different error returns for Windows 10 app (default: "false")
+* friendica_verbose: "true" enables different error returns (default: "false")
 
 ---
 ### direct_messages/conversation (*; AUTH)
@@ -129,7 +129,7 @@ Shows all direct messages of a conversation
 * max_id: maximum id
 * getText: Defines the format of the status field. Can be "html" or "plain"
 * uri: URI of the conversation
-* friendica_verbose: "true" enables different error returns for Windows 10 app (default: "false")
+* friendica_verbose: "true" enables different error returns (default: "false")
 
 ---
 ### direct_messages/sent (*; AUTH)
@@ -140,7 +140,7 @@ Shows all direct messages of a conversation
 * max_id: maximum id
 * getText: Defines the format of the status field. Can be "html" or "plain"
 * include_entities: "true" shows entities for pictures and links (Default: false)
-* friendica_verbose: "true" enables different error returns for Windows 10 app (default: "false")
+* friendica_verbose: "true" enables different error returns (default: "false")
 
 ---
 ### direct_messages/new (POST,PUT; AUTH)
@@ -157,7 +157,7 @@ Shows all direct messages of a conversation
 * id: id of the message to be deleted
 * include_entities: optional, currently not yet implemented
 * friendica_parenturi: optional, can be used for increased safety to delete only intended messages
-* friendica_verbose: "true" enables different error returns for Windows 10 app (default: "false")
+* friendica_verbose: "true" enables different error returns (default: "false")
 
 #### Return values
 
