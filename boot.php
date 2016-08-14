@@ -1266,8 +1266,20 @@ class App {
 	function proc_run($args) {
 
 		// Add the php path if it is a php call
-		if (count($args) && ($args[0] === 'php' OR is_int($args[0])))
+		if (count($args) && ($args[0] === 'php' OR is_int($args[0]))) {
+
+			// If the last worker fork was less than 10 seconds before then don't fork another one.
+			// This should prevent the forking of masses of workers.
+			if (get_config("system", "worker")) {
+				if ((time() - get_config("system", "proc_run_started")) < 10)
+					return;
+
+				// Set the timestamp of the last proc_run
+				set_config("system", "proc_run_started", time());
+			}
+
 			$args[0] = ((x($this->config,'php_path')) && (strlen($this->config['php_path'])) ? $this->config['php_path'] : 'php');
+		}
 
 		// add baseurl to args. cli scripts can't construct it
 		$args[] = $this->get_baseurl();
