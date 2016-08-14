@@ -10,7 +10,7 @@ Not every PHP/MySQL hosting provider will be able to support Friendica.
 Many will.
 But **please** review the requirements and confirm these with your hosting provider prior to installation.
 
-Also if you encounter installation issues, please let us know via the [helper](http://helpers.pyxis.uberspace.de/profile/helpers) or the [developer](https://friendika.openmindspace.org/profile/friendicadevelopers) forum or [file an issue](https://github.com/friendica/friendica/issues).
+Also if you encounter installation issues, please let us know via the [helper](http://helpers.pyxis.uberspace.de/profile/helpers) or the [developer](https://helpers.pyxis.uberspace.de/profile/developers) forum or [file an issue](https://github.com/friendica/friendica/issues).
 Please be as clear as you can about your operating environment and provide as much detail as possible about any error messages you may see, so that we can prevent it from happening in the future.
 Due to the large variety of operating systems and PHP platforms in existence we may have only limited ability to debug your PHP installation or acquire any missing modules - but we will do our best to solve any general code issues.
 If you do not have a Friendica account yet, you can register a temporary one at [tryfriendica.de](https://tryfriendica.de) and join the forums mentioned above from there.
