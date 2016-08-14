@@ -2049,6 +2049,9 @@
 				'recipient_screen_name' => $recipient['screen_name'],
 				'sender'                => $sender,
 				'recipient'             => $recipient,
+				'title'			=> "",
+				'friendica_seen'	=> $item['seen'],
+				'friendica_parent_uri'	=> $item['parent-uri'],
 		);
 
 		// "uid" and "self" are only needed for some internal stuff, so remove it from here
@@ -2805,7 +2808,80 @@
 	}
 	api_register_func('api/direct_messages/new','api_direct_messages_new',true, API_METHOD_POST);
 
-	function api_direct_messages_box($type, $box) {
+
+	/**
+	 * @brief delete a direct_message from mail table through api
+	 *
+	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+ 	 * @return string 
+	 */
+	function api_direct_messages_destroy($type){
+		$a = get_app();
+
+		if (api_user()===false) throw new ForbiddenException();
+
+		// params
+		$user_info = api_get_user($a);
+		//required
+		$id = (x($_REQUEST,'id') ? $_REQUEST['id'] : 0);
+		// optional
+		$parenturi = (x($_REQUEST, 'friendica_parenturi') ? $_REQUEST['friendica_parenturi'] : "");
+		$verbose = (x($_GET,'friendica_verbose')?strtolower($_GET['friendica_verbose']):"false");
+		/// @todo optional parameter 'include_entities' from Twitter API not yet implemented
+
+		$uid = $user_info['uid'];
+		// error if no id or parenturi specified (for clients posting parent-uri as well)
+		if ($verbose == "true") {
+			if ($id == 0 || $parenturi == "") {
+				$answer = array('result' => 'error', 'message' => 'message id or parenturi not specified');
+				return api_format_data("direct_messages_delete", $type, array('$result' => $answer));
+			}
+		}
+
+		// BadRequestException if no id specified (for clients using Twitter API)
+		if ($id == 0) throw new BadRequestException('Message id not specified');
+
+		// add parent-uri to sql command if specified by calling app		
+		$sql_extra = ($parenturi != "" ? " AND `parent-uri` = '" . dbesc($parenturi) . "'" : "");
+
+		// get data of the specified message id
+		$r = q("SELECT `id` FROM `mail` WHERE `uid` = %d AND `id` = %d" . $sql_extra,
+			intval($uid), 
+			intval($id));
+	
+		// error message if specified id is not in database
+		if (!dbm::is_result($r)) {
+			if ($verbose == "true") {
+				$answer = array('result' => 'error', 'message' => 'message id not in database');
+				return api_format_data("direct_messages_delete", $type, array('$result' => $answer));
+			}
+			/// @todo BadRequestException ok for Twitter API clients?
+			throw new BadRequestException('message id not in database');
+		}
+
+		// delete message
+		$result = q("DELETE FROM `mail` WHERE `uid` = %d AND `id` = %d" . $sql_extra, 
+			intval($uid), 
+			intval($id));
+
+		if ($verbose == "true") {
+			if ($result) {
+				// return success
+				$answer = array('result' => 'ok', 'message' => 'message deleted');
+				return api_format_data("direct_message_delete", $type, array('$result' => $answer));
+			}
+			else {
+				$answer = array('result' => 'error', 'message' => 'unknown error');
+				return api_format_data("direct_messages_delete", $type, array('$result' => $answer));
+			}
+		}
+		/// @todo return JSON data like Twitter API not yet implemented
+
+	}
+	api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', true, API_METHOD_DELETE);
+
+
+	function api_direct_messages_box($type, $box, $verbose) {
 
 		$a = get_app();
 
@@ -2865,7 +2941,13 @@
 				intval($since_id),
 				intval($start),	intval($count)
 		);
-
+		if ($verbose == "true") {
+			// stop execution and return error message if no mails available
+			if($r == null) {
+				$answer = array('result' => 'error', 'message' => 'no mails available');
+				return api_format_data("direct_messages_all", $type, array('$result' => $answer));
+			}
+		}
 
 		$ret = Array();
 		foreach($r as $item) {
@@ -2894,16 +2976,20 @@
 	}
 
 	function api_direct_messages_sentbox($type){
-		return api_direct_messages_box($type, "sentbox");
+		$verbose = (x($_GET,'friendica_verbose')?strtolower($_GET['friendica_verbose']):"false");
+		return api_direct_messages_box($type, "sentbox", $verbose);
 	}
 	function api_direct_messages_inbox($type){
-		return api_direct_messages_box($type, "inbox");
+		$verbose = (x($_GET,'friendica_verbose')?strtolower($_GET['friendica_verbose']):"false");
+		return api_direct_messages_box($type, "inbox", $verbose);
 	}
 	function api_direct_messages_all($type){
-		return api_direct_messages_box($type, "all");
+		$verbose = (x($_GET,'friendica_verbose')?strtolower($_GET['friendica_verbose']):"false");
+		return api_direct_messages_box($type, "all", $verbose);
 	}
 	function api_direct_messages_conversation($type){
-		return api_direct_messages_box($type, "conversation");
+		$verbose = (x($_GET,'friendica_verbose')?strtolower($_GET['friendica_verbose']):"false");
+		return api_direct_messages_box($type, "conversation", $verbose);
 	}
 	api_register_func('api/direct_messages/conversation','api_direct_messages_conversation',true);
 	api_register_func('api/direct_messages/all','api_direct_messages_all',true);
@@ -3662,6 +3748,111 @@
 
 	api_register_func('api/friendica/notification/seen', 'api_friendica_notification_seen', true, API_METHOD_POST);
 	api_register_func('api/friendica/notification', 'api_friendica_notification', true, API_METHOD_GET);
+
+
+	/**
+	 * @brief update a direct_message to seen state
+	 *
+	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+	 * @return string (success result=ok, error result=error with error message)
+	 */
+	function api_friendica_direct_messages_setseen($type){
+		$a = get_app();
+		if (api_user()===false) throw new ForbiddenException();
+
+		// params
+		$user_info = api_get_user($a);
+		$uid = $user_info['uid'];
+		$id = (x($_REQUEST, 'id') ? $_REQUEST['id'] : 0);
+
+		// return error if id is zero
+		if ($id == "") {
+			$answer = array('result' => 'error', 'message' => 'message id not specified');
+			return api_format_data("direct_messages_setseen", $type, array('$result' => $answer));
+		}
+
+		// get data of the specified message id
+		$r = q("SELECT `id` FROM `mail` WHERE `id` = %d AND `uid` = %d",
+			intval($id), 
+			intval($uid));
+		// error message if specified id is not in database
+		if (!dbm::is_result($r)) {
+			$answer = array('result' => 'error', 'message' => 'message id not in database');
+			return api_format_data("direct_messages_setseen", $type, array('$result' => $answer));
+		}
+
+		// update seen indicator
+		$result = q("UPDATE `mail` SET `seen` = 1 WHERE `id` = %d AND `uid` = %d", 
+			intval($id), 
+			intval($uid));
+
+		if ($result) {
+			// return success
+			$answer = array('result' => 'ok', 'message' => 'message set to seen');
+			return api_format_data("direct_message_setseen", $type, array('$result' => $answer));
+		} else {
+			$answer = array('result' => 'error', 'message' => 'unknown error');
+			return api_format_data("direct_messages_setseen", $type, array('$result' => $answer));
+		}
+	}
+	api_register_func('api/friendica/direct_messages_setseen', 'api_friendica_direct_messages_setseen', true);
+
+
+
+
+	/**
+	 * @brief search for direct_messages containing a searchstring through api
+	 *
+	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+	 * @return string (success: success=true if found and search_result contains found messages
+	 *                          success=false if nothing was found, search_result='nothing found',
+	 * 		   error: result=error with error message)
+	 */
+	function api_friendica_direct_messages_search($type){
+		$a = get_app();
+
+		if (api_user()===false) throw new ForbiddenException();
+
+		// params
+		$user_info = api_get_user($a);
+		$searchstring = (x($_REQUEST,'searchstring') ? $_REQUEST['searchstring'] : "");
+		$uid = $user_info['uid'];
+	
+		// error if no searchstring specified
+		if ($searchstring == "") {
+			$answer = array('result' => 'error', 'message' => 'searchstring not specified');
+			return api_format_data("direct_messages_search", $type, array('$result' => $answer));
+		}
+
+		// get data for the specified searchstring
+		$r = q("SELECT `mail`.*, `contact`.`nurl` AS `contact-url` FROM `mail`,`contact` WHERE `mail`.`contact-id` = `contact`.`id` AND `mail`.`uid`=%d AND `body` LIKE '%s' ORDER BY `mail`.`id` DESC",
+			intval($uid),
+			dbesc('%'.$searchstring.'%')
+		);
+
+		$profile_url = $user_info["url"];
+		// message if nothing was found
+		if (count($r) == 0) 
+			$success = array('success' => false, 'search_results' => 'nothing found');
+		else {
+			$ret = Array();
+			foreach($r as $item) {
+				if ($box == "inbox" || $item['from-url'] != $profile_url){
+					$recipient = $user_info;
+					$sender = api_get_user($a,normalise_link($item['contact-url']));
+				}
+				elseif ($box == "sentbox" || $item['from-url'] == $profile_url){
+					$recipient = api_get_user($a,normalise_link($item['contact-url']));
+					$sender = $user_info;
+				}
+				$ret[]=api_format_messages($item, $recipient, $sender);
+			}
+			$success = array('success' => true, 'search_results' => $ret);
+		}
+
+		return api_format_data("direct_message_search", $type, array('$result' => $success));
+	}
+	api_register_func('api/friendica/direct_messages_search', 'api_friendica_direct_messages_search', true);
 
 
 /*
