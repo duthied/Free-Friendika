@@ -1698,7 +1698,9 @@ function login($register = false, $hiddens=false) {
  * @brief Used to end the current process, after saving session state.
  */
 function killme() {
-	session_write_close();
+	if (!get_app()->is_backend())
+		session_write_close();
+
 	exit;
 }
 
