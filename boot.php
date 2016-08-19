@@ -392,11 +392,12 @@ define ( 'GRAVITY_COMMENT',      6);
  * Process priority for the worker
  * @{
  */
-define('PRIORITY_UNDEFINED', 0);
-define('PRIORITY_SYSTEM',   10);
-define('PRIORITY_HIGH',     20);
-define('PRIORITY_MEDIUM',   30);
-define('PRIORITY_LOW',      40);
+define('PRIORITY_UNDEFINED',  0);
+define('PRIORITY_CRITICAL',  10);
+define('PRIORITY_HIGH',      20);
+define('PRIORITY_MEDIUM',    30);
+define('PRIORITY_LOW',       40);
+define('PRIORITY_NEGLIGIBLE',50);
 /* @}*/
 
 
@@ -1410,7 +1411,7 @@ function check_db() {
 		$build = DB_UPDATE_VERSION;
 	}
 	if($build != DB_UPDATE_VERSION)
-		proc_run(PRIORITY_SYSTEM, 'include/dbupdate.php');
+		proc_run(PRIORITY_CRITICAL, 'include/dbupdate.php');
 
 }
 
