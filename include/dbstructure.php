@@ -1071,7 +1071,6 @@ function db_definition() {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"uid" => array("uid"),
-					"uid_profile" => array("uid", "profile"),
 					"resource-id" => array("resource-id"),
 					"guid" => array("guid"),
 					)
