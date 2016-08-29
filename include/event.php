@@ -293,7 +293,7 @@ function event_store($arr) {
 			`location` = '%s',
 			`type` = '%s',
 			`adjust` = %d,
-			`nofinish` = %d,
+			`nofinish` = %d
 			WHERE `id` = %d AND `uid` = %d",
 
 			dbesc($arr['edited']),
