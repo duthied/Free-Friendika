@@ -260,6 +260,13 @@ function db_field_command($parameters, $create = true) {
 function db_create_table($name, $fields, $verbose, $action, $indexes=null) {
 	global $a, $db;
 
+	if (isset($a->config["system"]["db_charset"]))
+		$charset = $a->config["system"]["db_charset"];
+	elseif ($verbose)
+		$charset = "utf8mb4";
+	else
+		$charset = "utf8";
+
 	$r = true;
 
 	$sql = "";
@@ -282,7 +289,7 @@ function db_create_table($name, $fields, $verbose, $action, $indexes=null) {
 
 	$sql = implode(",\n\t", $sql_rows);
 
-	$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n\t", dbesc($name)).$sql."\n) DEFAULT CHARSET=utf8";
+	$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n\t", dbesc($name)).$sql."\n) DEFAULT CHARSET=".$charset;
 	if ($verbose)
 		echo $sql.";\n";
 
