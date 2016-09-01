@@ -26,12 +26,12 @@ Requirements
 ---
 
 * Apache with mod-rewrite enabled and "Options All" so you can use a local .htaccess file
-* PHP  5.2+. The later the better. You'll need 5.3 for encryption of key exchange conversations. On a Windows environment, 5.2+ might not work as the function dns_get_record() is only available with version 5.3.
+* PHP 5.5+.
 * PHP *command line* access with register_argc_argv set to true in the php.ini file
 * curl, gd, mysql, hash and openssl extensions
 * some form of email server or email gateway such that PHP mail() works
 * mcrypt (optional; used for server-to-server message encryption)
-* Mysql 5.x or an equivalant alternative for MySQL (MariaDB etc.)
+* Mysql 5.5.3+ or an equivalant alternative for MySQL (MariaDB, Percona Server etc.)
 * the ability to schedule jobs with cron (Linux/Mac) or Scheduled Tasks (Windows) (Note: other options are presented in Section 7 of this document.)
 * Installation into a top-level domain or sub-domain (without a directory/path component in the URL) is preferred. Directory paths will not be as convenient to use and have not been thoroughly tested.
 * If your hosting provider doesn't allow Unix shell access, you might have trouble getting everything to work.
