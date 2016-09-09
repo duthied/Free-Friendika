@@ -333,7 +333,10 @@ function poller_active_workers() {
 }
 
 if (array_search(__file__,get_included_files())===0){
-  poller_run($_SERVER["argv"],$_SERVER["argc"]);
-  killme();
+	poller_run($_SERVER["argv"],$_SERVER["argc"]);
+
+	get_app()->end_process();
+
+	killme();
 }
 ?>

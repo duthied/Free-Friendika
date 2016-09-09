@@ -1467,8 +1467,6 @@ function dbstructure_run(&$argv, &$argc) {
 			unset($db_host, $db_user, $db_pass, $db_data);
 	}
 
-	$a->start_process();
-
 	if ($argc==2) {
 		switch ($argv[1]) {
 			case "update":

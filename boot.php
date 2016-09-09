@@ -1736,8 +1736,6 @@ function login($register = false, $hiddens=false) {
  */
 function killme() {
 
-	get_app()->end_process();
-
 	if (!get_app()->is_backend())
 		session_write_close();
 

@@ -19,8 +19,6 @@ function cli_startup() {
     	unset($db_host, $db_user, $db_pass, $db_data);
   	};
 
-	$a->start_process();
-
 	require_once('include/session.php');
 
 	load_config('config');

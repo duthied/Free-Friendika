@@ -16,8 +16,6 @@ function update_gcontact_run(&$argv, &$argc){
 		unset($db_host, $db_user, $db_pass, $db_data);
 	};
 
-	$a->start_process();
-
 	require_once('include/Scrape.php');
 	require_once("include/socgraph.php");
 
