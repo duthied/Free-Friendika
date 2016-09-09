@@ -38,7 +38,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
 define ( 'FRIENDICA_VERSION',      '3.5-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1201      );
+define ( 'DB_UPDATE_VERSION',      1202      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -1100,6 +1100,42 @@ class App {
 	}
 
 	/**
+	 * @brief Log active processes into the "process" table
+	 */
+	function start_process() {
+		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+
+		$command = basename($trace[0]["file"]);
+
+		$this->remove_inactive_processes();
+
+		$r = q("SELECT `pid` FROM `process` WHERE `pid` = %d", intval(getmypid()));
+		if(!dbm::is_result($r))
+			q("INSERT INTO `process` (`pid`,`command`,`created`) VALUES (%d, '%s', '%s')",
+				intval(getmypid()),
+				dbesc($command),
+				dbesc(datetime_convert()));
+	}
+
+	/**
+	 * @brief Remove inactive processes
+	 */
+	function remove_inactive_processes() {
+		$r = q("SELECT `pid` FROM `process`");
+		if(dbm::is_result($r))
+			foreach ($r AS $process)
+				if (!posix_kill($process["pid"], 0))
+					q("DELETE FROM `process` WHERE `pid` = %d", intval($process["pid"]));
+	}
+
+	/**
+	 * @brief Remove the active process from the "process" table
+	 */
+	function end_process() {
+		q("DELETE FROM `process` WHERE `pid` = %d", intval(getmypid()));
+	}
+
+	/**
 	 * @brief Returns a string with a callstack. Can be used for logging.
 	 *
 	 * @return string
@@ -1699,6 +1735,7 @@ function login($register = false, $hiddens=false) {
  * @brief Used to end the current process, after saving session state.
  */
 function killme() {
+
 	if (!get_app()->is_backend())
 		session_write_close();
 

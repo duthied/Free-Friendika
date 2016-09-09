@@ -1114,6 +1114,17 @@ function db_definition() {
 					"choice" => array("choice"),
 					)
 			);
+	$database["process"] = array(
+			"fields" => array(
+					"pid" => array("type" => "int(10) unsigned", "not null" => "1", "primary" => "1"),
+					"command" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
+					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
+					),
+			"indexes" => array(
+					"PRIMARY" => array("pid"),
+					"command" => array("command"),
+					)
+			);
 	$database["profile"] = array(
 			"fields" => array(
 					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
