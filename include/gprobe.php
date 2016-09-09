@@ -18,6 +18,8 @@ function gprobe_run(&$argv, &$argc){
     	unset($db_host, $db_user, $db_pass, $db_data);
   	};
 
+	$a->start_process();
+
 	require_once('include/session.php');
 	require_once('include/datetime.php');
 

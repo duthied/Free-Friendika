@@ -58,6 +58,8 @@ if(is_null($db)) {
 	unset($db_host, $db_user, $db_pass, $db_data);
 };
 
+$a->start_process();
+
 // the logfile to which to write, should be writeable by the user which is running the server
 $sLogFile = get_config('jabber','logfile');
 

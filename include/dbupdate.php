@@ -16,6 +16,8 @@ function dbupdate_run(&$argv, &$argc) {
 		        unset($db_host, $db_user, $db_pass, $db_data);
 	}
 
+	$a->start_process();
+
 	load_config('config');
 	load_config('system');
 

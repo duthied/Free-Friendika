@@ -70,6 +70,8 @@ function pubsubpublish_run(&$argv, &$argc){
 		unset($db_host, $db_user, $db_pass, $db_data);
 	};
 
+	$a->start_process();
+
 	require_once('include/items.php');
 
 	load_config('config');
