@@ -24,7 +24,7 @@ Version 3.5
     Improvements to the DDoS detection [heluecht]
     Improvements to the calendar/events module [heluecht, rabuzarus]
     Improvements to OpenID login [strk]
-    Improvements to the ShaShape font [andi
+    Improvements to the ShaShape font [andi]
     Reworked the implementation of the DFRN, Diaspora protocols [heluecht]
     Reworked the notifications code [fabrixxm, rabuzarus, heluecht]
     Reworked the p/config code [fabrixxm, rabuzarus]
