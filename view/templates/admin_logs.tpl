@@ -14,6 +14,7 @@
 
 	<h2>{{$phpheader}}</h2>
 	<div>
+		<p><strong>{{$phplogenabled}}</strong><p>
 		<p>{{$phphint}}</p>
 		<pre>{{$phplogcode}}</pre>
 	</div>
