@@ -732,6 +732,8 @@ function dfrn_request_content(&$a) {
 				intval($intro[0]['contact-id'])
 			);
 
+			$auto_confirm = false;
+
 			if(dbm::is_result($r)) {
 				if(($r[0]['page-flags'] != PAGE_NORMAL) && ($r[0]['page-flags'] != PAGE_PRVGROUP))
 					$auto_confirm = true;
