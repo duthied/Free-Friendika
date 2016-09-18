@@ -491,7 +491,7 @@ function item_new_uri($hostname,$uid, $guid = "") {
 
 		$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' LIMIT 1",
 			dbesc($uri));
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			$dups = true;
 	} while($dups == true);
 	return $uri;
@@ -515,7 +515,7 @@ function photo_new_resource() {
 		$r = q("SELECT `id` FROM `photo` WHERE `resource-id` = '%s' LIMIT 1",
 			dbesc($resource)
 		);
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			$found = true;
 	} while($found == true);
 	return $resource;
@@ -717,10 +717,15 @@ function logger($msg,$level = 0) {
 	if((! $debugging) || (! $logfile) || ($level > $loglevel))
 		return;
 
+	$process_id = session_id();
+
+	if ($process_id == "")
+		$process_id = get_app()->process_id;
+
 	$callers = debug_backtrace();
 	$logline =  sprintf("%s@%s\t[%s]:%s:%s:%s\t%s\n",
 				 datetime_convert(),
-				 session_id(),
+				 $process_id,
 				 $LOGGER_LEVELS[$level],
 				 basename($callers[0]['file']),
 				 $callers[0]['line'],
@@ -859,7 +864,7 @@ function contact_block() {
 			dbesc(NETWORK_OSTATUS),
 			dbesc(NETWORK_DIASPORA)
 	);
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		$total = intval($r[0]['total']);
 	}
 	if(! $total) {
@@ -867,7 +872,8 @@ function contact_block() {
 		$micropro = Null;
 
 	} else {
-		$r = q("SELECT `id`, `uid`, `addr`, `url`, `name`, `micro`, `network` FROM `contact`
+		// Splitting the query in two parts makes it much faster
+		$r = q("SELECT `id` FROM `contact`
 				WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending`
 					AND NOT `hidden` AND NOT `archive`
 				AND `network` IN ('%s', '%s', '%s') ORDER BY RAND() LIMIT %d",
@@ -877,11 +883,20 @@ function contact_block() {
 				dbesc(NETWORK_DIASPORA),
 				intval($shown)
 		);
-		if(dba::is_result($r)) {
-			$contacts = sprintf( tt('%d Contact','%d Contacts', $total),$total);
-			$micropro = Array();
-			foreach($r as $rr) {
-				$micropro[] = micropro($rr,true,'mpfriend');
+		if(dbm::is_result($r)) {
+			$contacts = "";
+			foreach ($r AS $contact)
+				$contacts[] = $contact["id"];
+
+			$r = q("SELECT `id`, `uid`, `addr`, `url`, `name`, `thumb`, `network` FROM `contact` WHERE `id` IN (%s)",
+				dbesc(implode(",", $contacts)));
+
+			if(dbm::is_result($r)) {
+				$contacts = sprintf( tt('%d Contact','%d Contacts', $total),$total);
+				$micropro = Array();
+				foreach($r as $rr) {
+					$micropro[] = micropro($rr,true,'mpfriend');
+				}
 			}
 		}
 	}
@@ -901,20 +916,28 @@ function contact_block() {
 
 }}
 
-if(! function_exists('micropro')) {
 /**
+ * @brief Format contacts as picture links or as texxt links
  *
- * @param array $contact
- * @param boolean $redirect
- * @param string $class
- * @param boolean $textmode
- * @return string #FIXME: remove html
+ * @param array $contact Array with contacts which contains an array with
+ *	int 'id' => The ID of the contact
+ *	int 'uid' => The user ID of the user who owns this data
+ *	string 'name' => The name of the contact
+ *	string 'url' => The url to the profile page of the contact
+ *	string 'addr' => The webbie of the contact (e.g.) username@friendica.com
+ *	string 'network' => The network to which the contact belongs to
+ *	string 'thumb' => The contact picture
+ *	string 'click' => js code which is performed when clicking on the contact
+ * @param boolean $redirect If true try to use the redir url if it's possible
+ * @param string $class CSS class for the 
+ * @param boolean $textmode If true display the contacts as text links
+ *	if false display the contacts as picture links
+ 
+ * @return string Formatted html 
  */
 function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 
-	if($class)
-		$class = ' ' . $class;
-
+	// Use the contact URL if no address is available
 	if ($contact["addr"] == "")
 		$contact["addr"] = $contact["url"];
 
@@ -933,26 +956,23 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 		else
 			$url = zrl($url);
 	}
-	$click = ((x($contact,'click')) ? ' onclick="' . $contact['click'] . '" ' : '');
-	if($click)
+
+	// If there is some js available we don't need the url
+	if(x($contact,'click'))
 		$url = '';
-	if($textmode) {
-		return '<div class="contact-block-textdiv' . $class . '"><a class="contact-block-link' . $class . $sparkle
-			. (($click) ? ' fakelink' : '') . '" '
-			. (($redir) ? ' target="redir" ' : '')
-			. (($url) ? ' href="' . $url . '"' : '') . $click
-			. '" title="' . $contact['name'] . ' [' . $contact['addr'] . ']" alt="' . $contact['name']
-			. '" >'. $contact['name'] . '</a></div>' . "\r\n";
-	}
-	else {
-		return '<div class="contact-block-div' . $class . '"><a class="contact-block-link' . $class . $sparkle
-			. (($click) ? ' fakelink' : '') . '" '
-			. (($redir) ? ' target="redir" ' : '')
-			. (($url) ? ' href="' . $url . '"' : '') . $click . ' ><img class="contact-block-img' . $class . $sparkle . '" src="'
-			. proxy_url($contact['micro'], false, PROXY_SIZE_THUMB) . '" title="' . $contact['name'] . ' [' . $contact['addr'] . ']" alt="' . $contact['name']
-			. '" /></a></div>' . "\r\n";
-	}
-}}
+
+	return replace_macros(get_markup_template(($textmode)?'micropro_txt.tpl':'micropro_img.tpl'),array(
+		'$click' => (($contact['click']) ? $contact['click'] : ''),
+		'$class' => $class,
+		'$url' => $url,
+		'$photo' => proxy_url($contact['thumb'], false, PROXY_SIZE_THUMB),
+		'$name' => $contact['name'],
+		'title' => $contact['name'] . ' [' . $contact['addr'] . ']',
+		'$parkle' => $sparkle,
+		'$redir' => $redir,
+
+	));
+}
 
 
 
@@ -975,6 +995,7 @@ function search($s,$id='search-box',$url='search',$save = false, $aside = true) 
 			'$search_label' => t('Search'),
 			'$save_label' => t('Save'),
 			'$savedsearch' => feature_enabled(local_user(),'savedsearch'),
+			'$search_hint' => t('@name, !forum, #tags, content'),
 		);
 
 	if (!$aside) {
@@ -1079,159 +1100,6 @@ function get_mood_verbs() {
 	call_hooks('mood_verbs', $arr);
 	return $arr;
 }
-
-
-if(! function_exists('smilies')) {
-/**
- * Replaces text emoticons with graphical images
- *
- * It is expected that this function will be called using HTML text.
- * We will escape text between HTML pre and code blocks from being
- * processed.
- *
- * At a higher level, the bbcode [nosmile] tag can be used to prevent this
- * function from being executed by the prepare_text() routine when preparing
- * bbcode source for HTML display
- *
- * @param string $s
- * @param boolean $sample
- * @return string
- * @hook smilie ('texts' => smilies texts array, 'icons' => smilies html array, 'string' => $s)
- */
-function smilies($s, $sample = false) {
-	$a = get_app();
-
-	if(intval(get_config('system','no_smilies'))
-		|| (local_user() && intval(get_pconfig(local_user(),'system','no_smilies'))))
-		return $s;
-
-	$s = preg_replace_callback('/<pre>(.*?)<\/pre>/ism','smile_encode',$s);
-	$s = preg_replace_callback('/<code>(.*?)<\/code>/ism','smile_encode',$s);
-
-	$texts =  array(
-		'&lt;3',
-		'&lt;/3',
-		'&lt;\\3',
-		':-)',
-		';-)',
-		':-(',
-		':-P',
-		':-p',
-		':-"',
-		':-&quot;',
-		':-x',
-		':-X',
-		':-D',
-		'8-|',
-		'8-O',
-		':-O',
-		'\\o/',
-		'o.O',
-		'O.o',
-		'o_O',
-		'O_o',
-		":'(",
-		":-!",
-		":-/",
-		":-[",
-		"8-)",
-		':beer',
-		':homebrew',
-		':coffee',
-		':facepalm',
-		':like',
-		':dislike',
-		'~friendica',
-		'red#',
-		'red#matrix'
-
-	);
-
-	$icons = array(
-		'<img class="smiley" src="' . z_root() . '/images/smiley-heart.gif" alt="&lt;3" title="&lt;3" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-brokenheart.gif" alt="&lt;/3" title="&lt;/3" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-brokenheart.gif" alt="&lt;\\3" title="&lt;\\3" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-smile.gif" alt=":-)" title=":-)" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-wink.gif" alt=";-)" title=";-)" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-frown.gif" alt=":-(" title=":-(" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-tongue-out.gif" alt=":-P" title=":-P" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-tongue-out.gif" alt=":-p" title=":-P" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-kiss.gif" alt=":-\" title=":-\" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-kiss.gif" alt=":-\" title=":-\" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-kiss.gif" alt=":-x" title=":-x" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-kiss.gif" alt=":-X" title=":-X" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-laughing.gif" alt=":-D" title=":-D"  />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-surprised.gif" alt="8-|" title="8-|" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-surprised.gif" alt="8-O" title="8-O" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-surprised.gif" alt=":-O" title="8-O" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-thumbsup.gif" alt="\\o/" title="\\o/" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-Oo.gif" alt="o.O" title="o.O" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-Oo.gif" alt="O.o" title="O.o" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-Oo.gif" alt="o_O" title="o_O" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-Oo.gif" alt="O_o" title="O_o" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-cry.gif" alt=":\'(" title=":\'("/>',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-foot-in-mouth.gif" alt=":-!" title=":-!" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-undecided.gif" alt=":-/" title=":-/" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-embarassed.gif" alt=":-[" title=":-[" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-cool.gif" alt="8-)" title="8-)" />',
-		'<img class="smiley" src="' . z_root() . '/images/beer_mug.gif" alt=":beer" title=":beer" />',
-		'<img class="smiley" src="' . z_root() . '/images/beer_mug.gif" alt=":homebrew" title=":homebrew" />',
-		'<img class="smiley" src="' . z_root() . '/images/coffee.gif" alt=":coffee" title=":coffee" />',
-		'<img class="smiley" src="' . z_root() . '/images/smiley-facepalm.gif" alt=":facepalm" title=":facepalm" />',
-		'<img class="smiley" src="' . z_root() . '/images/like.gif" alt=":like" title=":like" />',
-		'<img class="smiley" src="' . z_root() . '/images/dislike.gif" alt=":dislike" title=":dislike" />',
-		'<a href="http://friendica.com">~friendica <img class="smiley" src="' . z_root() . '/images/friendica-16.png" alt="~friendica" title="~friendica" /></a>',
-		'<a href="http://redmatrix.me/">red<img class="smiley" src="' . z_root() . '/images/rm-16.png" alt="red#" title="red#" />matrix</a>',
-		'<a href="http://redmatrix.me/">red<img class="smiley" src="' . z_root() . '/images/rm-16.png" alt="red#matrix" title="red#matrix" />matrix</a>'
-	);
-
-	$params = array('texts' => $texts, 'icons' => $icons, 'string' => $s);
-	call_hooks('smilie', $params);
-
-	if($sample) {
-		$s = '<div class="smiley-sample">';
-		for($x = 0; $x < count($params['texts']); $x ++) {
-			$s .= '<dl><dt>' . $params['texts'][$x] . '</dt><dd>' . $params['icons'][$x] . '</dd></dl>';
-		}
-	}
-	else {
-		$params['string'] = preg_replace_callback('/&lt;(3+)/','preg_heart',$params['string']);
-		$s = str_replace($params['texts'],$params['icons'],$params['string']);
-	}
-
-	$s = preg_replace_callback('/<pre>(.*?)<\/pre>/ism','smile_decode',$s);
-	$s = preg_replace_callback('/<code>(.*?)<\/code>/ism','smile_decode',$s);
-
-	return $s;
-
-}}
-
-function smile_encode($m) {
-	return(str_replace($m[1],base64url_encode($m[1]),$m[0]));
-}
-
-function smile_decode($m) {
-	return(str_replace($m[1],base64url_decode($m[1]),$m[0]));
-}
-
-
-/**
- * expand <3333 to the correct number of hearts
- *
- * @param string $x
- * @return string
- */
-function preg_heart($x) {
-	$a = get_app();
-	if(strlen($x[1]) == 1)
-		return $x[0];
-	$t = '';
-	for($cnt = 0; $cnt < strlen($x[1]); $cnt ++)
-		$t .= '<img class="smiley" src="' . z_root() . '/images/smiley-heart.gif" alt="&lt;3" />';
-	$r =  str_replace($x[0],$t,$x[0]);
-	return $r;
-}
-
 
 if(! function_exists('day_translate')) {
 /**
@@ -2050,7 +1918,7 @@ function file_tag_update_pconfig($uid,$file_old,$file_new,$type = 'file') {
 			//	intval($uid)
 			//);
 
-			if(dba::is_result($r)) {
+			if(dbm::is_result($r)) {
 				unset($deleted_tags[$key]);
 			}
 			else {
@@ -2080,7 +1948,7 @@ function file_tag_save_file($uid,$item,$file) {
 		intval($item),
 		intval($uid)
 	);
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		if(! stristr($r[0]['file'],'[' . file_tag_encode($file) . ']'))
 			q("UPDATE `item` SET `file` = '%s' WHERE `id` = %d AND `uid` = %d",
 				dbesc($r[0]['file'] . '[' . file_tag_encode($file) . ']'),
@@ -2238,4 +2106,55 @@ function format_network_name($network, $url = 0) {
 		return $network_name;
 	}
 
+}
+
+/**
+ * @brief Syntax based code highlighting for popular languages.
+ * @param string $s Code block
+ * @param string $lang Programming language
+ * @return string Formated html
+ */
+function text_highlight($s,$lang) {
+	if($lang === 'js')
+		$lang = 'javascript';
+
+	if(! strpos('Text_Highlighter',get_include_path())) {
+		set_include_path(get_include_path() . PATH_SEPARATOR . 'library/Text_Highlighter');
+	}
+
+	require_once('library/Text_Highlighter/Text/Highlighter.php');
+	require_once('library/Text_Highlighter/Text/Highlighter/Renderer/Html.php');
+	$options = array(
+		'numbers' => HL_NUMBERS_LI,
+		'tabsize' => 4,
+		);
+
+	$tag_added = false;
+	$s = trim(html_entity_decode($s,ENT_COMPAT));
+	$s = str_replace("    ","\t",$s);
+
+	// The highlighter library insists on an opening php tag for php code blocks. If 
+	// it isn't present, nothing is highlighted. So we're going to see if it's present.
+	// If not, we'll add it, and then quietly remove it after we get the processed output back.
+
+	if($lang === 'php') {
+		if(strpos('<?php',$s) !== 0) {
+			$s = '<?php' . "\n" . $s;
+			$tag_added = true;
+		}
+	} 
+
+	$renderer = new Text_Highlighter_Renderer_HTML($options);
+	$hl = Text_Highlighter::factory($lang);
+	$hl->setRenderer($renderer);
+	$o = $hl->highlight($s);
+	$o = str_replace(["    ","\n"],["&nbsp;&nbsp;&nbsp;&nbsp;",''],$o);
+
+	if($tag_added) {
+		$b = substr($o,0,strpos($o,'<li>'));
+		$e = substr($o,strpos($o,'</li>'));
+		$o = $b . $e;
+	}
+
+	return('<code>' . $o . '</code>');
 }

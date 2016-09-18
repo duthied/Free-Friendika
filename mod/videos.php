@@ -143,7 +143,7 @@ function videos_post(&$a) {
 			dbesc($video_id)
 		);
 
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 			q("DELETE FROM `attach` WHERE `uid` = %d AND `id` = '%s'",
 				intval(local_user()),
 				dbesc($video_id)
@@ -167,7 +167,7 @@ function videos_post(&$a) {
 				$drop_id = intval($i[0]['id']);
 
 				if($i[0]['visible'])
-					proc_run('php',"include/notifier.php","drop","$drop_id");
+					proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
 			}
 		}
 
@@ -262,7 +262,7 @@ function videos_content(&$a) {
 					intval($contact_id),
 					intval($owner_uid)
 				);
-				if(dba::is_result($r)) {
+				if(dbm::is_result($r)) {
 					$can_post = true;
 					$contact = $r[0];
 					$remote_contact = true;
@@ -290,7 +290,7 @@ function videos_content(&$a) {
 				intval($contact_id),
 				intval($owner_uid)
 			);
-			if(dba::is_result($r)) {
+			if(dbm::is_result($r)) {
 				$contact = $r[0];
 				$remote_contact = true;
 			}
@@ -350,8 +350,8 @@ function videos_content(&$a) {
 		$sql_extra GROUP BY hash",
 		intval($a->data['user']['uid'])
 	);
-	if(dba::is_result($r)) {
-		$a->set_pager_total(dba::is_result($r));
+	if(dbm::is_result($r)) {
+		$a->set_pager_total(dbm::is_result($r));
 		$a->set_pager_itemspage(20);
 	}
 
@@ -366,7 +366,7 @@ function videos_content(&$a) {
 
 
 	$videos = array();
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			if($a->theme['template_engine'] === 'internal') {
 				$alt_e = template_escape($rr['filename']);

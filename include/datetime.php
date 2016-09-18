@@ -162,7 +162,7 @@ function datetime_convert($from = 'UTC', $to = 'UTC', $s = 'now', $fmt = "Y-m-d 
  * @brief Wrapper for date selector, tailored for use in birthday fields.
  *
  * @param string $dob Date of Birth
- * @return string
+ * @return string Formatted html
  */
 function dob($dob) {
 	list($year,$month,$day) = sscanf($dob,'%4d-%2d-%2d');
@@ -175,7 +175,18 @@ function dob($dob) {
 	else
 		$value = (($year) ? datetime_convert('UTC','UTC',$dob,'Y-m-d') : datetime_convert('UTC','UTC',$dob,'m-d'));
 
-	$o = '<input type="text" name="dob" value="' . $value . '" placeholder="' . t('YYYY-MM-DD or MM-DD') . '" />';
+	$age = ((intval($value)) ? age($value, $a->user["timezone"], $a->user["timezone"]) : "");
+
+	$o = replace_macros(get_markup_template("field_input.tpl"), array(
+		'$field' => array(
+			'dob',
+			t('Birthday:'),
+			$value,
+			(((intval($age)) > 0 ) ? t('Age: ') . $age : ""),
+			'',
+			'placeholder="' . t('YYYY-MM-DD or MM-DD') . '"'
+		)
+	));
 
 //	if ($dob && $dob != '0000-00-00')
 //		$o = datesel($f,mktime(0,0,0,0,0,1900),mktime(),mktime(0,0,0,$month,$day,$year),'dob');
@@ -202,7 +213,7 @@ function dob($dob) {
  * @return string Parsed HTML output.
  */
 function datesel($format, $min, $max, $default, $id = 'datepicker') {
-	return datetimesel($format,$min,$max,$default,$id,true,false, '','');
+	return datetimesel($format,$min,$max,$default,'',$id,true,false, '','');
 }
 
 /**
@@ -220,7 +231,7 @@ function datesel($format, $min, $max, $default, $id = 'datepicker') {
  * @return string Parsed HTML output.
  */
 function timesel($format, $h, $m, $id='timepicker') {
-	return datetimesel($format,new DateTime(),new DateTime(),new DateTime("$h:$m"),$id,false,true);
+	return datetimesel($format,new DateTime(),new DateTime(),new DateTime("$h:$m"),'',$id,false,true);
 }
 
 /**
@@ -251,7 +262,7 @@ function timesel($format, $h, $m, $id='timepicker') {
  * @todo Once browser support is better this could probably be replaced with
  * native HTML5 date picker.
  */
-function datetimesel($format, $min, $max, $default, $id = 'datetimepicker', $pickdate = true, $picktime = true, $minfrom = '', $maxfrom = '', $required = false) {
+function datetimesel($format, $min, $max, $default, $label, $id = 'datetimepicker', $pickdate = true, $picktime = true, $minfrom = '', $maxfrom = '', $required = false) {
 
 	// First day of the week (0 = Sunday)
 	$firstDay = get_pconfig(local_user(),'system','first_day_of_week');
@@ -273,7 +284,7 @@ function datetimesel($format, $min, $max, $default, $id = 'datetimepicker', $pic
 	$minjs = $min ? ",minDate: new Date({$min->getTimestamp()}*1000), yearStart: " . $min->format('Y') : '';
 	$maxjs = $max ? ",maxDate: new Date({$max->getTimestamp()}*1000), yearEnd: " . $max->format('Y') : '';
 
-	$input_text = $default ? 'value="' . date($dateformat, $default->getTimestamp()) . '"' : '';
+	$input_text = $default ? date($dateformat, $default->getTimestamp()) : '';
 	$defaultdatejs = $default ? ",defaultDate: new Date({$default->getTimestamp()}*1000)" : '';
 
 	$pickers = '';
@@ -283,9 +294,9 @@ function datetimesel($format, $min, $max, $default, $id = 'datetimepicker', $pic
 	$extra_js = '';
 	$pickers .= ",dayOfWeekStart: ".$firstDay.",lang:'".$lang."'";
 	if($minfrom != '')
-		$extra_js .= "\$('#$minfrom').data('xdsoft_datetimepicker').setOptions({onChangeDateTime: function (currentDateTime) { \$('#$id').data('xdsoft_datetimepicker').setOptions({minDate: currentDateTime})}})";
+		$extra_js .= "\$('#id_$minfrom').data('xdsoft_datetimepicker').setOptions({onChangeDateTime: function (currentDateTime) { \$('#id_$id').data('xdsoft_datetimepicker').setOptions({minDate: currentDateTime})}})";
 	if($maxfrom != '')
-		$extra_js .= "\$('#$maxfrom').data('xdsoft_datetimepicker').setOptions({onChangeDateTime: function (currentDateTime) { \$('#$id').data('xdsoft_datetimepicker').setOptions({maxDate: currentDateTime})}})";
+		$extra_js .= "\$('#id_$maxfrom').data('xdsoft_datetimepicker').setOptions({onChangeDateTime: function (currentDateTime) { \$('#id_$id').data('xdsoft_datetimepicker').setOptions({maxDate: currentDateTime})}})";
 
 	$readable_format = $dateformat;
 	$readable_format = str_replace('Y','yyyy',$readable_format);
@@ -294,10 +305,13 @@ function datetimesel($format, $min, $max, $default, $id = 'datetimepicker', $pic
 	$readable_format = str_replace('H','HH',$readable_format);
 	$readable_format = str_replace('i','MM',$readable_format);
 
-	$o .= "<div class='date'><input type='text' placeholder='$readable_format' name='$id' id='$id' $input_text />";
-	$o .= '</div>';
+	$tpl = get_markup_template('field_input.tpl');
+	$o .= replace_macros($tpl,array(
+			'$field' => array($id, $label, $input_text, '', (($required) ? '*' : ''), 'placeholder="' . $readable_format . '"'),
+		));
+
 	$o .= "<script type='text/javascript'>";
-	$o .= "\$(function () {var picker = \$('#$id').datetimepicker({step:5,format:'$dateformat' $minjs $maxjs $pickers $defaultdatejs}); $extra_js})";
+	$o .= "\$(function () {var picker = \$('#id_$id').datetimepicker({step:5,format:'$dateformat' $minjs $maxjs $pickers $defaultdatejs}); $extra_js})";
 	$o .= "</script>";
 
 	return $o;
@@ -544,7 +558,7 @@ function update_contact_birthdays() {
 	// In-network birthdays are handled within local_delivery
 
 	$r = q("SELECT * FROM contact WHERE `bd` != '' AND `bd` != '0000-00-00' AND SUBSTRING(`bd`,1,4) != `bdyear` ");
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 
 			logger('update_contact_birthday: ' . $rr['bd']);

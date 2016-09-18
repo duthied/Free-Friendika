@@ -19,62 +19,45 @@ function p_init($a){
 
 	$guid = strtolower(substr($guid, 0, -4));
 
-	$item = q("SELECT `title`, `body`, `guid`, `contact-id`, `private`, `created`, `app` FROM `item` WHERE `uid` = 0 AND `guid` = '%s' AND `network` IN ('%s', '%s') AND `id` = `parent` LIMIT 1",
+	// Fetch the item
+	$item = q("SELECT `uid`, `title`, `body`, `guid`, `contact-id`, `private`, `created`, `app`, `location`, `coord`
+			FROM `item` WHERE `wall` AND NOT `private` AND `guid` = '%s' AND `network` IN ('%s', '%s') AND `id` = `parent` LIMIT 1",
 		dbesc($guid), NETWORK_DFRN, NETWORK_DIASPORA);
 	if (!$item) {
+		$r = q("SELECT `author-link`
+			FROM `item` WHERE `uid` = 0 AND `guid` = '%s' AND `network` IN ('%s', '%s') AND `id` = `parent` LIMIT 1",
+			dbesc($guid), NETWORK_DFRN, NETWORK_DIASPORA);
+		if ($r) {
+			$parts = parse_url($r[0]["author-link"]);
+			$host = $parts["scheme"]."://".$parts["host"];
+
+			if (normalise_link($host) != normalise_link(App::get_baseurl())) {
+				$location = $host."/p/".urlencode($guid).".xml";
+
+				header("HTTP/1.1 301 Moved Permanently");
+				header("Location:".$location);
+				killme();
+			}
+		}
+
 		header($_SERVER["SERVER_PROTOCOL"].' 404 '.t('Not Found'));
 		killme();
 	}
 
-	$post = array();
-
-	$reshared = diaspora::is_reshare($item[0]["body"]);
-
-	if ($reshared) {
-		$nodename = "reshare";
-		$post["root_diaspora_id"] = $reshared["root_handle"];
-		$post["root_guid"] = $reshared["root_guid"];
-		$post["guid"] = $item[0]["guid"];
-		$post["diaspora_handle"] = diaspora::handle_from_contact($item[0]["contact-id"]);
-		$post["public"] = (!$item[0]["private"] ? 'true':'false');
-		$post["created_at"] = datetime_convert('UTC','UTC',$item[0]["created"]);
-	} else {
-
-		$body = bb2diaspora($item[0]["body"]);
-
-		if(strlen($item[0]["title"]))
-			$body = "## ".html_entity_decode($item[0]["title"])."\n\n".$body;
-
-		$nodename = "status_message";
-		$post["raw_message"] = str_replace("&", "&amp;", $body);
-		$post["guid"] = $item[0]["guid"];
-		$post["diaspora_handle"] = diaspora::handle_from_contact($item[0]["contact-id"]);
-		$post["public"] = (!$item[0]["private"] ? 'true':'false');
-		$post["created_at"] = datetime_convert('UTC','UTC',$item[0]["created"]);
-		$post["provider_display_name"] = $item[0]["app"];
+	// Fetch some data from the author (We could combine both queries - but I think this is more readable)
+	$r = q("SELECT `user`.`prvkey`, `contact`.`addr`, `user`.`nickname`, `contact`.`nick` FROM `user`
+		INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid`
+		WHERE `user`.`uid` = %d", intval($item[0]["uid"]));
+	if (!dbm::is_result($r)) {
+		header($_SERVER["SERVER_PROTOCOL"].' 404 '.t('Not Found'));
+		killme();
 	}
+	$user = $r[0];
 
-	$dom = new DOMDocument("1.0");
-	$root = $dom->createElement("XML");
-	$dom->appendChild($root);
-	$postelement = $dom->createElement("post");
-	$root->appendChild($postelement);
-	$statuselement = $dom->createElement($nodename);
-	$postelement->appendChild($statuselement);
-
-	foreach($post AS $index => $value) {
-		$postnode = $dom->createElement($index, $value);
-		$statuselement->appendChild($postnode);
-	}
+	$status = diaspora::build_status($item[0], $user);
+	$xml = diaspora::build_post_xml($status["type"], $status["message"]);
 
 	header("Content-Type: application/xml; charset=utf-8");
-	$xml = $dom->saveXML();
-
-	// Diaspora doesn't send the XML header, so we remove them as well.
-	// So we avoid possible compatibility problems.
-	if (substr($xml, 0, 21) == '<?xml version="1.0"?>')
-		$xml = trim(substr($xml, 21));
-
 	echo $xml;
 
 	killme();

@@ -13,7 +13,7 @@ function profile_init(&$a) {
 		$which = $a->argv[1];
 	else {
 		$r = q("select nickname from user where blocked = 0 and account_expired = 0 and account_removed = 0 and verified = 1 order by rand() limit 1");
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 			goaway($a->get_baseurl() . '/profile/' . $r[0]['nickname']);
 		}
 		else {
@@ -136,7 +136,7 @@ function profile_content(&$a, $update = 0) {
 			intval($contact_id),
 			intval($a->profile['profile_uid'])
 		);
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 			$contact = $r[0];
 			$remote_contact = true;
 		}
@@ -216,8 +216,7 @@ function profile_content(&$a, $update = 0) {
 
 	if($update) {
 
-		$r = q("SELECT distinct(parent) AS `item_id`, `item`.`network` AS `item_network`,
-			`contact`.`uid` AS `contact-uid`
+		$r = q("SELECT distinct(parent) AS `item_id`, `item`.`network` AS `item_network`
 			FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND
@@ -259,7 +258,7 @@ function profile_content(&$a, $update = 0) {
 			    intval($a->profile['profile_uid'])
 			);
 
-			if(dba::is_result($r)) {
+			if(dbm::is_result($r)) {
 				$a->set_pager_total($r[0]['total']);
 			}
 		}
@@ -282,9 +281,8 @@ function profile_content(&$a, $update = 0) {
 
 		$pager_sql = sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
 
-		$r = q("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`,
-			`thread`.`uid` AS `contact-uid`
-			FROM `thread` INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
+		$r = q("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`
+			FROM `thread` FORCE INDEX (`uid_created`) INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
 			$sql_post_table INNER JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			WHERE `thread`.`uid` = %d AND `thread`.`visible` = 1 AND `thread`.`deleted` = 0
@@ -300,21 +298,13 @@ function profile_content(&$a, $update = 0) {
 	$parents_arr = array();
 	$parents_str = '';
 
-	if (dba::is_result($r)) {
+	if (dbm::is_result($r)) {
 		foreach($r as $rr)
 			$parents_arr[] = $rr['item_id'];
 		$parents_str = implode(', ', $parents_arr);
 
-		$items = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`network`, `contact`.`rel`,
-			`contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-			FROM `item`, `contact`
-			WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
-			and `item`.`moderated` = 0
-			AND `contact`.`id` = `item`.`contact-id`
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-			AND `item`.`parent` IN ( %s )
+		$items = q(item_query()." AND `item`.`uid` = %d
+			AND `item`.`parent` IN (%s)
 			$sql_extra ",
 			intval($a->profile['profile_uid']),
 			dbesc($parents_str)

@@ -51,6 +51,7 @@
 	var commentBusy = false;
 	var last_popup_menu = null;
 	var last_popup_button = null;
+	var lockLoadContent = false;
 
 	$(function() {
 		$.ajaxSetup({cache: false});
@@ -349,6 +350,21 @@
 			}
 		});
 
+		// Set an event listener for infinite scroll
+		if(typeof infinite_scroll !== 'undefined') {
+			$(window).scroll(function(e){
+				if ($(document).height() != $(window).height()) {
+					// First method that is expected to work - but has problems with Chrome
+					if ($(window).scrollTop() > ($(document).height() - $(window).height() * 1.5))
+						loadScrollContent();
+				} else {
+					// This method works with Chrome - but seems to be much slower in Firefox
+					if ($(window).scrollTop() > (($("section").height() + $("header").height() + $("footer").height()) - $(window).height() * 1.5))
+						loadScrollContent();
+				}
+			});
+		}
+
 
 	});
 
@@ -496,8 +512,8 @@
 			/* autocomplete @nicknames */
 			$(".comment-edit-form  textarea").editor_autocomplete(baseurl+"/acl");
 			/* autocomplete bbcode */
- +			$(".comment-edit-form  textarea").bbco_autocomplete('bbcode');
-
+			$(".comment-edit-form  textarea").bbco_autocomplete('bbcode');
+			
 			// setup videos, since VideoJS won't take care of any loaded via AJAX
 			if(typeof videojs != 'undefined') videojs.autoSetup();
 		});
@@ -709,6 +725,31 @@
 		$('#pause').html('');
 	}
 
+	// load more network content (used for infinite scroll)
+	function loadScrollContent() {
+		if (lockLoadContent) return;
+		lockLoadContent = true;
+
+		$("#scroll-loader").fadeIn('normal');
+
+		// the page number to load is one higher than the actual
+		// page number
+		infinite_scroll.pageno+=1;
+
+		console.log('Loading page ' + infinite_scroll.pageno);
+
+		// get the raw content from the next page and insert this content
+		// right before "#conversation-end"
+		$.get('network?mode=raw' + infinite_scroll.reload_uri + '&page=' + infinite_scroll.pageno, function(data) {
+			$("#scroll-loader").hide();
+			if ($(data).length > 0) {
+				$(data).insertBefore('#conversation-end');
+				lockLoadContent = false;
+			} else {
+				$("#scroll-end").fadeIn('normal');
+			}
+		});
+	}
 
     function bin2hex(s){
         // Converts the binary representation of data to hex

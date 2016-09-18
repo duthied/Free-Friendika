@@ -9,6 +9,7 @@
 
 require_once('include/datetime.php');
 require_once("include/Scrape.php");
+require_once("include/network.php");
 require_once("include/html2bbcode.php");
 require_once("include/Contact.php");
 require_once("include/Photo.php");
@@ -39,7 +40,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 			$r = q("select `poco`, `uid` from `contact` where `id` = %d limit 1",
 				intval($cid)
 			);
-			if(dba::is_result($r)) {
+			if(dbm::is_result($r)) {
 				$url = $r[0]['poco'];
 				$uid = $r[0]['uid'];
 			}
@@ -205,14 +206,14 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	$r = q("SELECT `network` FROM `contact` WHERE `nurl` = '%s' AND `network` != '' AND `network` != '%s' LIMIT 1",
 		dbesc(normalise_link($profile_url)), dbesc(NETWORK_STATUSNET)
 	);
-	if(dba::is_result($r))
+	if(dbm::is_result($r))
 		$network = $r[0]["network"];
 
 	if (($network == "") OR ($network == NETWORK_OSTATUS)) {
 		$r = q("SELECT `network`, `url` FROM `contact` WHERE `alias` IN ('%s', '%s') AND `network` != '' AND `network` != '%s' LIMIT 1",
 			dbesc($profile_url), dbesc(normalise_link($profile_url)), dbesc(NETWORK_STATUSNET)
 		);
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 			$network = $r[0]["network"];
 			//$profile_url = $r[0]["url"];
 		}
@@ -453,8 +454,11 @@ function poco_last_updated($profile, $force = false) {
 							"network" => $server[0]["network"],
 							"generation" => $gcontacts[0]["generation"]);
 
-					$contact["name"] = $noscrape["fn"];
-					$contact["community"] = $noscrape["comm"];
+					if (isset($noscrape["fn"]))
+						$contact["name"] = $noscrape["fn"];
+
+					if (isset($noscrape["comm"]))
+						$contact["community"] = $noscrape["comm"];
 
 					if (isset($noscrape["tags"])) {
 						$keywords = implode(" ", $noscrape["tags"]);
@@ -466,7 +470,8 @@ function poco_last_updated($profile, $force = false) {
 					if ($location)
 						$contact["location"] = $location;
 
-					$contact["notify"] = $noscrape["dfrn-notify"];
+					if (isset($noscrape["dfrn-notify"]))
+						$contact["notify"] = $noscrape["dfrn-notify"];
 
 					// Remove all fields that are not present in the gcontact table
 					unset($noscrape["fn"]);
@@ -948,7 +953,7 @@ function count_common_friends($uid,$cid) {
 	);
 
 //	logger("count_common_friends: $uid $cid {$r[0]['total']}");
-	if(dba::is_result($r))
+	if(dbm::is_result($r))
 		return $r[0]['total'];
 	return 0;
 
@@ -994,7 +999,7 @@ function count_common_friends_zcid($uid,$zcid) {
 		intval($uid)
 	);
 
-	if(dba::is_result($r))
+	if(dbm::is_result($r))
 		return $r[0]['total'];
 	return 0;
 
@@ -1033,7 +1038,7 @@ function count_all_friends($uid,$cid) {
 		intval($uid)
 	);
 
-	if(dba::is_result($r))
+	if(dbm::is_result($r))
 		return $r[0]['total'];
 	return 0;
 
@@ -1162,7 +1167,7 @@ function update_suggestions() {
 		dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA)
 	);
 
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			$base = substr($rr['poco'],0,strrpos($rr['poco'],'/'));
 			if(! in_array($base,$done))
@@ -1391,23 +1396,23 @@ function poco_discover_server($data, $default_generation = 0) {
  * @return string Contact url with the wanted parts
  */
 function clean_contact_url($url) {
-        $parts = parse_url($url);
+	$parts = parse_url($url);
 
-        if (!isset($parts["scheme"]) OR !isset($parts["host"]))
-                return $url;
+	if (!isset($parts["scheme"]) OR !isset($parts["host"]))
+		return $url;
 
-        $new_url = $parts["scheme"]."://".$parts["host"];
+	$new_url = $parts["scheme"]."://".$parts["host"];
 
-        if (isset($parts["port"]))
-                $new_url .= ":".$parts["port"];
+	if (isset($parts["port"]))
+		$new_url .= ":".$parts["port"];
 
-        if (isset($parts["path"]))
-                $new_url .= $parts["path"];
+	if (isset($parts["path"]))
+		$new_url .= $parts["path"];
 
 	if ($new_url != $url)
 		logger("Cleaned contact url ".$url." to ".$new_url." - Called by: ".App::callstack(), LOGGER_DEBUG);
 
-        return $new_url;
+	return $new_url;
 }
 
 /**
@@ -1417,7 +1422,7 @@ function clean_contact_url($url) {
  */
 function fix_alternate_contact_address(&$contact) {
 	if (($contact["network"] == NETWORK_OSTATUS) AND poco_alternate_ostatus_url($contact["url"])) {
-	        $data = probe_url($contact["url"]);
+		$data = probe_url($contact["url"]);
 		if ($contact["network"] == NETWORK_OSTATUS) {
 			logger("Fix primary url from ".$contact["url"]." to ".$data["url"]." - Called by: ".App::callstack(), LOGGER_DEBUG);
 			$contact["url"] = $data["url"];
@@ -1447,6 +1452,10 @@ function get_gcontact_id($contact) {
 	if ($contact["network"] == NETWORK_STATUSNET)
 		$contact["network"] = NETWORK_OSTATUS;
 
+	// All new contacts are hidden by default
+	if (!isset($contact["hide"]))
+		$contact["hide"] = true;
+
 	// Replace alternate OStatus user format with the primary one
 	fix_alternate_contact_address($contact);
 
@@ -1469,8 +1478,8 @@ function get_gcontact_id($contact) {
 			$doprobing = (((time() - $last_contact) > (90 * 86400)) AND ((time() - $last_failure) > (90 * 86400)));
 		}
 	} else {
-		q("INSERT INTO `gcontact` (`name`, `nick`, `addr` , `network`, `url`, `nurl`, `photo`, `created`, `updated`, `location`, `about`, `generation`)
-			VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)",
+		q("INSERT INTO `gcontact` (`name`, `nick`, `addr` , `network`, `url`, `nurl`, `photo`, `created`, `updated`, `location`, `about`, `hide`, `generation`)
+			VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d)",
 			dbesc($contact["name"]),
 			dbesc($contact["nick"]),
 			dbesc($contact["addr"]),
@@ -1482,6 +1491,7 @@ function get_gcontact_id($contact) {
 			dbesc(datetime_convert()),
 			dbesc($contact["location"]),
 			dbesc($contact["about"]),
+			intval($contact["hide"]),
 			intval($contact["generation"])
 		);
 
@@ -1497,7 +1507,7 @@ function get_gcontact_id($contact) {
 
 	if ($doprobing) {
 		logger("Last Contact: ". $last_contact_str." - Last Failure: ".$last_failure_str." - Checking: ".$contact["url"], LOGGER_DEBUG);
-		proc_run('php', 'include/gprobe.php', bin2hex($contact["url"]));
+		proc_run(PRIORITY_LOW, 'include/gprobe.php', bin2hex($contact["url"]));
 	}
 
 	if ((count($r) > 1) AND ($gcontact_id > 0) AND ($contact["url"] != ""))
@@ -1535,6 +1545,7 @@ function update_gcontact($contact) {
 
 	unset($fields["url"]);
 	unset($fields["updated"]);
+	unset($fields["hide"]);
 
 	// Bugfix: We had an error in the storing of keywords which lead to the "0"
 	// This value is still transmitted via poco.
@@ -1548,6 +1559,11 @@ function update_gcontact($contact) {
 	foreach ($fields AS $field => $data)
 		if (!isset($contact[$field]) OR ($contact[$field] == ""))
 			$contact[$field] = $r[0][$field];
+
+	if (!isset($contact["hide"]))
+		$contact["hide"] = $r[0]["hide"];
+
+	$fields["hide"] = $r[0]["hide"];
 
 	if ($contact["network"] == NETWORK_STATUSNET)
 		$contact["network"] = NETWORK_OSTATUS;
@@ -1655,6 +1671,44 @@ function update_gcontact_from_probe($url) {
 	}
 
 	update_gcontact($data);
+}
+
+/**
+ * @brief Update the gcontact entry for a given user id
+ *
+ * @param int $uid User ID
+ */
+function update_gcontact_for_user($uid) {
+	$r = q("SELECT `profile`.`locality`, `profile`.`region`, `profile`.`country-name`,
+			`profile`.`name`, `profile`.`about`, `profile`.`gender`,
+			`profile`.`pub_keywords`, `profile`.`dob`, `profile`.`photo`,
+			`profile`.`net-publish`, `user`.`nickname`, `user`.`hidewall`,
+			`contact`.`notify`, `contact`.`url`, `contact`.`addr`
+		FROM `profile`
+			INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
+			INNER JOIN `contact` ON `contact`.`uid` = `profile`.`uid`
+		WHERE `profile`.`uid` = %d AND `profile`.`is-default` AND `contact`.`self`",
+		intval($uid));
+
+	$location = formatted_location(array("locality" => $r[0]["locality"], "region" => $r[0]["region"],
+						"country-name" => $r[0]["country-name"]));
+
+	// The "addr" field was added in 3.4.3 so it can be empty for older users
+	if ($r[0]["addr"] != "")
+		$addr = $r[0]["nickname"].'@'.str_replace(array("http://", "https://"), "", App::get_baseurl());
+	else
+		$addr = $r[0]["addr"];
+
+	$gcontact = array("name" => $r[0]["name"], "location" => $location, "about" => $r[0]["about"],
+			"gender" => $r[0]["gender"], "keywords" => $r[0]["pub_keywords"],
+			"birthday" => $r[0]["dob"], "photo" => $r[0]["photo"],
+			"notify" => $r[0]["notify"], "url" => $r[0]["url"],
+			"hide" => ($r[0]["hidewall"] OR !$r[0]["net-publish"]),
+			"nick" => $r[0]["nickname"], "addr" => $addr,
+			"connect" => $addr, "server_url" => App::get_baseurl(),
+			"generation" => 1, "network" => NETWORK_DFRN);
+
+	update_gcontact($gcontact);
 }
 
 /**

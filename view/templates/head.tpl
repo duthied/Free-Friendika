@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="library/jgrowl/jquery.jgrowl.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="library/datetimepicker/jquery.datetimepicker.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="library/perfect-scrollbar/perfect-scrollbar.min.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="library/Text_Highlighter/sample.css" type="text/css" media="screen" />
 
 <link rel="stylesheet" type="text/css" href="{{$stylesheet}}" media="all" />
 
@@ -33,7 +34,7 @@
 <!-- <script type="text/javascript" src="{{$baseurl}}/js/jquery-migrate.js" ></script>-->
 <script type="text/javascript" src="{{$baseurl}}/js/jquery-migrate.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/js/jquery.textinputs.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/library/jquery-textcomplete/jquery.textcomplete.js" ></script>
+<script type="text/javascript" src="{{$baseurl}}/library/jquery-textcomplete/jquery.textcomplete.min.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/js/autocomplete.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/library/colorbox/jquery.colorbox-min.js"></script>
 <script type="text/javascript" src="{{$baseurl}}/library/jgrowl/jquery.jgrowl_minimized.js"></script>
@@ -47,6 +48,15 @@
 
 	var updateInterval = {{$update_interval}};
 	var localUser = {{if $local_user}}{{$local_user}}{{else}}false{{/if}};
+
+	{{* Create an object with the data which is needed for infinite scroll.
+	For the relevant js part look at function loadContent() in main.js. *}}
+	{{if $infinite_scroll}}
+	var infinite_scroll = {
+				'pageno'	: {{$infinite_scroll.pageno}},
+				'reload_uri'	: "{{$infinite_scroll.reload_uri}}"
+				}
+	{{/if}}
 
 	function confirmDelete() { return confirm("{{$delitem}}"); }
 	function commentExpand(id) {

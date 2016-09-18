@@ -393,7 +393,7 @@ if ($color=="dark") $color_path = "/diabook-dark/";
 	$r = q("select gcontact.* from gcontact left join glink on glink.gcid = gcontact.id
 			  where glink.cid = 0 and glink.uid = 0 order by rand() limit 9");
 	$tpl = get_markup_template('ch_directory_item.tpl');
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		$photo = 'photo';
 		foreach($r as $rr) {
 			$profile_link = $a->get_baseurl() . '/profile/' . ((strlen($rr['nickname'])) ? $rr['nickname'] : $rr['profile_uid']);
@@ -422,7 +422,7 @@ if ($color=="dark") $color_path = "/diabook-dark/";
 		9
 	);
 	$tpl = get_markup_template('ch_directory_item.tpl');
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		$photo = 'thumb';
 		foreach($r as $rr) {
 			$profile_link = $a->get_baseurl() . '/profile/' . ((strlen($rr['nickname'])) ? $rr['nickname'] : $rr['profile_uid']);
@@ -499,7 +499,7 @@ if ($color=="dark") $color_path = "/diabook-dark/";
 				dbesc(t('Contact Photos')),
 				dbesc(t('Profile Photos'))
 				);
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 		$tpl = get_markup_template('ch_directory_item.tpl');
 		foreach($r as $rr) {
 			$photo_page = $a->get_baseurl() . '/photos/' . $rr['nickname'] . '/image/' . $rr['resource-id'];

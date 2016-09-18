@@ -36,15 +36,15 @@ function viewcontacts_content(&$a) {
 		return;
 	}
 
-	if(((! count($a->profile)) || ($a->profile['hide-friends']))) {
-		notice( t('Permission denied.') . EOL);
-		return;
-	}
-
 	$o = "";
 
 	// tabs
 	$o .= profile_tabs($a,$is_owner, $a->data['user']['nickname']);
+
+	if(((! count($a->profile)) || ($a->profile['hide-friends']))) {
+		notice( t('Permission denied.') . EOL);
+		return $o;
+	}
 
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
 		WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
@@ -54,7 +54,7 @@ function viewcontacts_content(&$a) {
 		dbesc(NETWORK_DIASPORA),
 		dbesc(NETWORK_OSTATUS)
 	);
-	if(dba::is_result($r))
+	if(dbm::is_result($r))
 		$a->set_pager_total($r[0]['total']);
 
 	$r = q("SELECT * FROM `contact`
@@ -90,15 +90,15 @@ function viewcontacts_content(&$a) {
 		else
 			$url = zrl($url);
 
-		$contact_details = get_contact_details_by_url($rr['url'], $a->profile['uid']);
+		$contact_details = get_contact_details_by_url($rr['url'], $a->profile['uid'], $rr);
 
 		$contacts[] = array(
 			'id' => $rr['id'],
-			'img_hover' => sprintf( t('Visit %s\'s profile [%s]'), $rr['name'], $rr['url']),
+			'img_hover' => sprintf( t('Visit %s\'s profile [%s]'), $contact_details['name'], $rr['url']),
 			'photo_menu' => contact_photo_menu($rr),
-			'thumb' => proxy_url($rr['thumb'], false, PROXY_SIZE_THUMB),
-			'name' => htmlentities(substr($rr['name'],0,20)),
-			'username' => htmlentities($rr['name']),
+			'thumb' => proxy_url($contact_details['thumb'], false, PROXY_SIZE_THUMB),
+			'name' => htmlentities(substr($contact_details['name'],0,20)),
+			'username' => htmlentities($contact_details['name']),
 			'details'       => $contact_details['location'],
 			'tags'          => $contact_details['keywords'],
 			'about'         => $contact_details['about'],

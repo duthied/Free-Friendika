@@ -34,10 +34,10 @@ function user_allow($hash) {
 	$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `is-default` = 1",
 		intval($user[0]['uid'])
 	);
-	if(dba::is_result($r) && $r[0]['net-publish']) {
+	if(dbm::is_result($r) && $r[0]['net-publish']) {
 		$url = $a->get_baseurl() . '/profile/' . $user[0]['nickname'];
 		if($url && strlen(get_config('system','directory')))
-			proc_run('php',"include/directory.php","$url");
+			proc_run(PRIORITY_LOW, "include/directory.php", $url);
 	}
 
 	push_lang($register[0]['language']);

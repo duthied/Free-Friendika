@@ -24,7 +24,6 @@ function onepoll_run(&$argv, &$argc){
 		unset($db_host, $db_user, $db_pass, $db_data);
 	};
 
-
 	require_once('include/session.php');
 	require_once('include/datetime.php');
 	require_once('include/items.php');
@@ -94,7 +93,7 @@ function onepoll_run(&$argv, &$argc){
 			where `cid` = %d and updated > UTC_TIMESTAMP() - INTERVAL 1 DAY",
 			intval($contact['id'])
 		);
-		if (dba::is_result($r))
+		if (dbm::is_result($r))
 			if (!$r[0]['total'])
 				poco_load($contact['id'],$importer_uid,0,$contact['poco']);
 	}
@@ -394,7 +393,7 @@ function onepoll_run(&$argv, &$argc){
 							dbesc($datarray['uri'])
 						);
 
-						if(dba::is_result($r)) {
+						if(dbm::is_result($r)) {
 							logger("Mail: Seen before ".$msg_uid." for ".$mailconf[0]['user']." UID: ".$importer_uid." URI: ".$datarray['uri'],LOGGER_DEBUG);
 
 							// Only delete when mails aren't automatically moved or deleted
@@ -447,7 +446,7 @@ function onepoll_run(&$argv, &$argc){
 							$r = q("SELECT `uri` , `parent-uri` FROM `item` WHERE `uri` IN ( $qstr ) AND `uid` = %d LIMIT 1",
 								intval($importer_uid)
 							);
-							if(dba::is_result($r))
+							if(dbm::is_result($r))
 								$datarray['parent-uri'] = $r[0]['parent-uri'];  // Set the parent as the top-level item
 	//							$datarray['parent-uri'] = $r[0]['uri'];
 						}
@@ -479,7 +478,7 @@ function onepoll_run(&$argv, &$argc){
 							$r = q("SELECT `uri` , `parent-uri` FROM `item` WHERE `title` = \"%s\" AND `uid` = %d ORDER BY `created` DESC LIMIT 1",
 								dbesc(protect_sprintf($datarray['title'])),
 								intval($importer_uid));
-							if(dba::is_result($r))
+							if(dbm::is_result($r))
 								$datarray['parent-uri'] = $r[0]['parent-uri'];
 						}
 

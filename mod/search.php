@@ -15,7 +15,7 @@ function search_saved_searches() {
 		intval(local_user())
 	);
 
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		$saved = array();
 		foreach($r as $rr) {
 			$saved[] = array(
@@ -61,7 +61,7 @@ function search_init(&$a) {
 			}
 		}
 		if(x($_GET,'remove') && $search) {
-			q("delete from `search` where `uid` = %d and `term` = '%s' limit 1",
+			q("DELETE FROM `search` WHERE `uid` = %d AND `term` = '%s' LIMIT 1",
 				intval(local_user()),
 				dbesc($search)
 			);
@@ -132,9 +132,6 @@ function search_content(&$a) {
 
 	nav_set_selected('search');
 
-
-	$o = '<h3>' . t('Search') . '</h3>';
-
 	if(x($a->data,'search'))
 		$search = notags(trim($a->data['search']));
 	else
@@ -146,8 +143,13 @@ function search_content(&$a) {
 		$search = ((x($_GET,'tag')) ? notags(trim(rawurldecode($_GET['tag']))) : '');
 	}
 
-
-	$o .= search($search,'search-box','search',((local_user()) ? true : false), false);
+	// contruct a wrapper for the search header
+	$o .= replace_macros(get_markup_template("content_wrapper.tpl"),array(
+		'name' => "search-header",
+		'$title' => t("Search"),
+		'$title_size' => 3,
+		'$content' => search($search,'search-box','search',((local_user()) ? true : false), false)
+	));
 
 	if(strpos($search,'#') === 0) {
 		$tag = true;
@@ -160,7 +162,7 @@ function search_content(&$a) {
 		return dirfind_content($a);
 	}
 
-        if(x($_GET,'search-option'))
+	if(x($_GET,'search-option'))
 		switch($_GET['search-option']) {
 			case 'fulltext':
 				break;
@@ -189,17 +191,14 @@ function search_content(&$a) {
 	if($tag) {
 		logger("Start tag search for '".$search."'", LOGGER_DEBUG);
 
-		$r = q("SELECT STRAIGHT_JOIN `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
-				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
-				`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
-				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
+		$r = q("SELECT %s
 			FROM `term`
-				INNER JOIN `item` ON `item`.`id`=`term`.`oid`
-				INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
-			WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-				AND (`term`.`uid` = 0 OR (`term`.`uid` = %d AND NOT `term`.`global`)) AND `term`.`otype` = %d AND `term`.`type` = %d AND `term`.`term` = '%s'
+				STRAIGHT_JOIN `item` ON `item`.`id`=`term`.`oid` %s
+			WHERE %s AND (`term`.`uid` = 0 OR (`term`.`uid` = %d AND NOT `term`.`global`)) AND `term`.`otype` = %d AND `term`.`type` = %d AND `term`.`term` = '%s'
 			ORDER BY term.created DESC LIMIT %d , %d ",
-				intval(local_user()), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), dbesc(protect_sprintf($search)),
+				item_fieldlists(), item_joins(), item_condition(),
+				intval(local_user()),
+				intval(TERM_OBJ_POST), intval(TERM_HASHTAG), dbesc(protect_sprintf($search)),
 				intval($a->pager['start']), intval($a->pager['itemspage']));
 	} else {
 		logger("Start fulltext search for '".$search."'", LOGGER_DEBUG);
@@ -210,20 +209,17 @@ function search_content(&$a) {
 			$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
 		}
 
-		$r = q("SELECT STRAIGHT_JOIN `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
-				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
-				`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
-				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-			FROM `item`
-				INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
-			WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-				AND (`item`.`uid` = 0 OR (`item`.`uid` = %s AND NOT `item`.`global`))
+		$r = q("SELECT %s
+			FROM `item` %s
+			WHERE %s AND (`item`.`uid` = 0 OR (`item`.`uid` = %s AND NOT `item`.`global`))
 				$sql_extra
-			GROUP BY `item`.`uri` ORDER BY `item`.`id` DESC LIMIT %d , %d ",
-				intval(local_user()), intval($a->pager['start']), intval($a->pager['itemspage']));
+			GROUP BY `item`.`uri` ORDER BY `item`.`id` DESC LIMIT %d , %d",
+				item_fieldlists(), item_joins(), item_condition(),
+				intval(local_user()),
+				intval($a->pager['start']), intval($a->pager['itemspage']));
 	}
 
-	if(! count($r)) {
+	if(! dbm::is_result($r)) {
 		info( t('No results.') . EOL);
 		return $o;
 	}
@@ -232,7 +228,7 @@ function search_content(&$a) {
 	if($tag)
 		$title = sprintf( t('Items tagged with: %s'), $search);
 	else
-		$title = sprintf( t('Search results for: %s'), $search);
+		$title = sprintf( t('Results for: %s'), $search);
 
 	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
 		'$title' => $title

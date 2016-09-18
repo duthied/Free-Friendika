@@ -2,7 +2,7 @@
 
 {{foreach $threads as $thread}}
 
-<div id="tread-wrapper-{{$thread.id}}" class="tread-wrapper {{if $thread.threaded}}threaded{{/if}}  {{$thread.toplevel}} {{$thread.network}}">
+<div id="tread-wrapper-{{$thread.id}}" class="tread-wrapper {{if $thread.threaded}}threaded{{/if}}  {{$thread.toplevel}} {{if $thread.toplevel}} h-entry  {{else}} u-comment h-cite {{/if}} {{$thread.network}}">
 
 
 		{{if $thread.type == tag}}

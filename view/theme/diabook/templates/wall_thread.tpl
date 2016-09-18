@@ -5,7 +5,7 @@
 	</div>
 	<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
 {{/if}}
-<div id="tread-wrapper-{{$item.id}}" class="tread-wrapper {{$item.toplevel}}">
+<div id="tread-wrapper-{{$item.id}}" class="tread-wrapper {{$item.toplevel}} {{if $item.toplevel}} h-entry {{else}} u-comment h-cite {{/if}}">
 {{if $item.indent}}{{else}}
 <div class="wall-item-decor">
 	<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
@@ -28,22 +28,24 @@
 			</div>
 		</div>
 			<div class="wall-item-actions-author">
-				<a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.sparkle}}">{{$item.name}}</span></a> 
+                <span class="p-author h-card">
+				<a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="wall-item-name-link u-url"><span class="wall-item-name{{$item.sparkle}} p-name">{{$item.name}}</span></a> 
+                </span>
 			<span class="wall-item-ago">-
-			{{if $item.plink}}<a class="link{{$item.sparkle}}" title="{{$item.plink.title}}" href="{{$item.plink.href}}" style="color: #999">{{$item.ago}}</a>{{else}} {{$item.ago}} {{/if}}
+			{{if $item.plink}}<a class="link{{$item.sparkle}} u-url" title="{{$item.plink.title}}" href="{{$item.plink.href}}" style="color: #999"><time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time></a>{{else}} <time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time> {{/if}}
 			{{if $item.lock}} - <span class="fakelink" style="color: #999" onclick="lockview(event,{{$item.id}});">{{$item.lock}}</span> {{/if}}
 			</span>
 			</div>
 		<div class="wall-item-content">
-			{{if $item.title}}<h2><a href="{{$item.plink.href}}">{{$item.title}}</a></h2>{{/if}}
-			{{$item.body}}
+			{{if $item.title}}<h2><a href="{{$item.plink.href}}" class="p-name">{{$item.title}}</a></h2>{{/if}}
+			<span class="e-content {{if !$item.title}}p-name{{/if}}">{{$item.body}}</span>
 			{{if $item.has_cats}}
-			<div class="categorytags"><span>{{$item.txt_cats}} {{foreach $item.categories as $cat}}{{$cat.name}} <a href="{{$cat.removeurl}}" title="{{$remove}}">[{{$remove}}]</a> {{if $cat.last}}{{else}}, {{/if}}{{/foreach}}
+			<div class="categorytags"><span>{{$item.txt_cats}} {{foreach $item.categories as $cat}}<span class="p-category">{{$cat.name}}</span> <a href="{{$cat.removeurl}}" title="{{$remove}}">[{{$remove}}]</a> {{if $cat.last}}{{else}}, {{/if}}{{/foreach}}
 			</div>
 			{{/if}}
 
 			{{if $item.has_folders}}
-			<div class="filesavetags"><span>{{$item.txt_folders}} {{foreach $item.folders as $cat}}{{$cat.name}} <a href="{{$cat.removeurl}}" title="{{$remove}}">[{{$remove}}]</a> {{if $cat.last}}{{else}}, {{/if}}{{/foreach}}
+			<div class="filesavetags"><span>{{$item.txt_folders}} {{foreach $item.folders as $cat}}<span class="p-category">{{$cat.name}}</span> <a href="{{$cat.removeurl}}" title="{{$remove}}">[{{$remove}}]</a> {{if $cat.last}}{{else}}, {{/if}}{{/foreach}}
 			</div>
 			{{/if}}
 		</div>

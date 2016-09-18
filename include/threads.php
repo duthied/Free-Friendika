@@ -1,7 +1,9 @@
 <?php
 function add_thread($itemid, $onlyshadow = false) {
-	$items = q("SELECT `uid`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`, `moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`, `gcontact-id`,
-			`deleted`, `origin`, `forum_mode`, `mention`, `network`  FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
+	$items = q("SELECT `uid`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`,
+			`moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`, `gcontact-id`,
+			`deleted`, `origin`, `forum_mode`, `mention`, `network`, `author-id`, `owner-id`
+		FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
 
 	if (!$items)
 		return;
@@ -83,12 +85,12 @@ function add_shadow_entry($item) {
 
 	// Is there a shadow parent?
 	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = 0 LIMIT 1", dbesc($item['parent-uri']));
-	if (!count($r))
+	if (!dbm::is_result($r))
 		return;
 
 	// Is there already a shadow entry?
 	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = 0 LIMIT 1", dbesc($item['uri']));
-	if (dba::is_result($r))
+	if (dbm::is_result($r))
 		return;
 
 	// Preparing public shadow (removing user specific data)
@@ -106,7 +108,7 @@ function add_shadow_entry($item) {
 function update_thread_uri($itemuri, $uid) {
 	$messages = q("SELECT `id` FROM `item` WHERE uri ='%s' AND uid=%d", dbesc($itemuri), intval($uid));
 
-	if(count($messages))
+	if(dbm::is_result($messages))
 		foreach ($messages as $message)
 			update_thread($message["id"]);
 }
@@ -115,7 +117,7 @@ function update_thread($itemid, $setmention = false) {
 	$items = q("SELECT `uid`, `guid`, `title`, `body`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`, `moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`, `gcontact-id`,
 			`deleted`, `origin`, `forum_mode`, `network`, `rendered-html`, `rendered-hash` FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
 
-	if (!$items)
+	if (!dbm::is_result($items))
 		return;
 
 	$item = $items[0];
@@ -174,7 +176,7 @@ function delete_thread($itemid, $itemuri = "") {
 				intval($item["uid"])
 			);
 		if (!count($r)) {
-			$r = q("DELETE FROM `item` WHERE `uri` = '%s' AND `uid` = 0)",
+			$r = q("DELETE FROM `item` WHERE `uri` = '%s' AND `uid` = 0",
 				dbesc($itemuri)
 			);
 			logger("delete_thread: Deleted shadow for item ".$itemuri." - ".print_r($result, true), LOGGER_DEBUG);

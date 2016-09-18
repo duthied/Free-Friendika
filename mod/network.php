@@ -143,7 +143,7 @@ function network_init(&$a) {
 	// search terms header
 	if(x($_GET,'search')) {
 		$a->page['content'] .= replace_macros(get_markup_template("section_title.tpl"),array(
-			'$title' => sprintf( t('Search Results For: %s'), $search)
+			'$title' => sprintf( t('Results for: %s'), $search)
 		));
 	}
 
@@ -182,7 +182,7 @@ function saved_searches($search) {
 
 	$saved = array();
 
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			$saved[] = array(
 				'id'		=> $rr['id'],
@@ -280,7 +280,8 @@ function network_query_get_sel_tab($a) {
 }
 
 /**
- * Return selected network from query
+ * @brief Return selected network from query
+ * @return string Name of the selected network
  */
 function network_query_get_sel_net() {
 	$network = false;
@@ -348,92 +349,7 @@ function network_content(&$a, $update = 0) {
 
 	$o = '';
 
-	// item filter tabs
-	/// @TODO fix this logic, reduce duplication
-	/// $a->page['content'] .= '<div class="tabs-wrapper">';
 
-	list($no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active) = network_query_get_sel_tab($a);
-	// if no tabs are selected, defaults to comments
-	if ($no_active=='active') $all_active='active';
-
-	$cmd = (($datequery) ? '' : $a->cmd);
-	$len_naked_cmd = strlen(str_replace('/new','',$cmd));
-
-	// tabs
-	$tabs = array(
-		array(
-			'label'	=> t('Commented Order'),
-			'url'	=> str_replace('/new', '', $cmd) . '?f=&order=comment' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
-			'sel'	=> $all_active,
-			'title'	=> t('Sort by Comment Date'),
-			'id'	=> 'commented-order-tab',
-			'accesskey' => "e",
-		),
-		array(
-			'label'	=> t('Posted Order'),
-			'url'	=> str_replace('/new', '', $cmd) . '?f=&order=post' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
-			'sel'	=> $postord_active,
-			'title'	=> t('Sort by Post Date'),
-			'id'	=> 'posted-order-tab',
-			'accesskey' => "t",
-		),
-	);
-
-	if(feature_enabled(local_user(),'personal_tab')) {
-		$tabs[] = array(
-			'label'	=> t('Personal'),
-			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
-			'sel'	=> $conv_active,
-			'title'	=> t('Posts that mention or involve you'),
-			'id'	=> 'personal-tab',
-			'accesskey' => "r",
-		);
-	}
-
-	if(feature_enabled(local_user(),'new_tab')) {
-		$tabs[] = array(
-			'label'	=> t('New'),
-			'url'	=> str_replace('/new', '', $cmd) . ($len_naked_cmd ? '/' : '') . 'new' . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : ''),
-			'sel'	=> $new_active,
-			'title'	=> t('Activity Stream - by date'),
-			'id'	=> 'activitiy-by-date-tab',
-			'accesskey' => "w",
-		);
-	}
-
-	if(feature_enabled(local_user(),'link_tab')) {
-		$tabs[] = array(
-			'label'	=> t('Shared Links'),
-			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&bmark=1',
-			'sel'	=> $bookmarked_active,
-			'title'	=> t('Interesting Links'),
-			'id'	=> 'shared-links-tab',
-			'accesskey' => "b",
-		);
-	}
-
-	if(feature_enabled(local_user(),'star_posts')) {
-		$tabs[] = array(
-			'label'	=> t('Starred'),
-			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&star=1',
-			'sel'	=> $starred_active,
-			'title'	=> t('Favourite Posts'),
-			'id'	=> 'starred-posts-tab',
-			'accesskey' => "m",
-		);
-	}
-
-	// save selected tab, but only if not in search or file mode
-	if(!x($_GET,'search') && !x($_GET,'file')) {
-		set_pconfig( local_user(), 'network.view','tab.selected',array($all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active) );
-	}
-
-	$arr = array('tabs' => $tabs);
-	call_hooks('network_tabs', $arr);
-
-	$o .= replace_macros(get_markup_template('common_tabs.tpl'), array('$tabs'=> $arr['tabs']));
-
-	// --- end item filter tabs
 
 	$contact_id = $a->cid;
 
@@ -465,7 +381,7 @@ function network_content(&$a, $update = 0) {
 		);
 
 		$str = '';
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			foreach($r as $rr)
 				$str .= '<' . $rr['id'] . '>';
 		if(strlen($str))
@@ -474,6 +390,9 @@ function network_content(&$a, $update = 0) {
 	set_pconfig(local_user(), 'network.view', 'net.selected', ($nets ? $nets : 'all'));
 
 	if(!$update AND !$rawmode) {
+		$tabs = network_tabs($a);
+		$o .= $tabs;
+
 		if($group) {
 			if(($t = group_public_members($group)) && (! get_pconfig(local_user(),'system','nowarn_insecure'))) {
 				notice( sprintf( tt('Warning: This group contains %s member from an insecure network.',
@@ -587,7 +506,7 @@ function network_content(&$a, $update = 0) {
 				AND `blocked` = 0 AND `pending` = 0 LIMIT 1",
 			intval($cid)
 		);
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 			$sql_extra = " AND ".$sql_table.".`contact-id` = ".intval($cid);
 
 			$entries[0] = array(
@@ -639,7 +558,7 @@ function network_content(&$a, $update = 0) {
 		$search = escape_tags($_GET['search']);
 
 		if(strpos($search,'#') === 0) {
-                	$tag = true;
+			$tag = true;
 			$search = substr($search,1);
 		}
 
@@ -682,14 +601,14 @@ function network_content(&$a, $update = 0) {
 		if(get_config('system', 'old_pager')) {
 			$r = q("SELECT COUNT(*) AS `total`
 				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = $sql_table.`contact-id`
-				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				WHERE $sql_table.`uid` = %d AND $sql_table.`visible` = 1 AND $sql_table.`deleted` = 0
+				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				WHERE $sql_table.`uid` = %d AND $sql_table.`visible` AND NOT $sql_table.`deleted`
 				$sql_extra2 $sql_extra3
 				$sql_extra $sql_nets ",
 				intval($_SESSION['uid'])
 			);
 
-			if(dba::is_result($r)) {
+			if(dbm::is_result($r)) {
 				$a->set_pager_total($r[0]['total']);
 			}
 		}
@@ -714,23 +633,18 @@ function network_content(&$a, $update = 0) {
 	}
 
 	if($nouveau) {
-		$simple_update = (($update) ? " AND `item`.`unseen` = 1 " : '');
+		$simple_update = (($update) ? " AND `item`.`unseen` " : '');
 
 		if ($sql_order == "")
 			$sql_order = "`item`.`received`";
 
 		// "New Item View" - show all items unthreaded in reverse created date order
-		$items = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`, `contact`.`writable`,
-			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-			FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-			WHERE `item`.`uid` = %d AND `item`.`visible` = 1
-			AND `item`.`deleted` = 0 AND `item`.`moderated` = 0
+		$items = q("SELECT %s FROM $sql_table $sql_post_table %s
+			WHERE %s AND `item`.`uid` = %d
 			$simple_update
 			$sql_extra $sql_nets
 			ORDER BY $sql_order DESC $pager_sql ",
+			item_fieldlists(), item_joins(), item_condition(),
 			intval($_SESSION['uid'])
 		);
 
@@ -758,28 +672,26 @@ function network_content(&$a, $update = 0) {
 
 		// Fetch a page full of parent items for this page
 		if($update) {
-			if (!get_config("system", "like_no_comment"))
-				$sql_extra4 = "(`item`.`deleted` = 0
-						OR `item`.`verb` = '".ACTIVITY_LIKE."' OR `item`.`verb` = '".ACTIVITY_DISLIKE."'
-						OR `item`.`verb` = '".ACTIVITY_ATTEND."' OR `item`.`verb` = '".ACTIVITY_ATTENDNO."'
-						OR `item`.`verb` = '".ACTIVITY_ATTENDMAYBE."')";
+			if (get_config("system", "like_no_comment"))
+				$sql_extra4 = " AND `item`.`verb` = '".ACTIVITY_POST."'";
 			else
-				$sql_extra4 = "`item`.`deleted` = 0 AND `item`.`verb` = '".ACTIVITY_POST."'";
+				$sql_extra4 = "";
 
 			$r = q("SELECT `item`.`parent` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND $sql_extra4
-				AND `item`.`moderated` = 0 AND `item`.`unseen` = 1
-				$sql_extra3 $sql_extra $sql_nets ORDER BY `item_id` DESC LIMIT 100",
+				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted` $sql_extra4
+				AND NOT `item`.`moderated` AND `item`.`unseen`
+				$sql_extra3 $sql_extra $sql_nets
+				ORDER BY `item_id` DESC LIMIT 100",
 				intval(local_user())
 			);
 		} else {
 			$r = q("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table $sql_post_table STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
-				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				WHERE `thread`.`uid` = %d AND `thread`.`visible` = 1 AND `thread`.`deleted` = 0
-				AND `thread`.`moderated` = 0
+				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				WHERE `thread`.`uid` = %d AND `thread`.`visible` AND NOT `thread`.`deleted`
+				AND NOT `thread`.`moderated`
 				$sql_extra2 $sql_extra3 $sql_extra $sql_nets
 				ORDER BY $sql_order DESC $pager_sql ",
 				intval(local_user())
@@ -792,7 +704,7 @@ function network_content(&$a, $update = 0) {
 		$parents_str = '';
 		$date_offset = "";
 
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 			foreach($r as $rr)
 				if(! in_array($rr['item_id'],$parents_arr))
 					$parents_arr[] = $rr['item_id'];
@@ -809,15 +721,7 @@ function network_content(&$a, $update = 0) {
 			$items = array();
 
 			foreach ($parents_arr AS $parents) {
-//					$sql_extra ORDER BY `item`.`commented` DESC LIMIT %d",
-				$thread_items = q("SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-					`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`, `contact`.`writable`,
-					`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-					`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-					FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-					AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-					WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
-					AND `item`.`moderated` = 0
+				$thread_items = q(item_query()." AND `item`.`uid` = %d
 					AND `item`.`parent` = %d
 					ORDER BY `item`.`commented` DESC LIMIT %d",
 					intval(local_user()),
@@ -886,14 +790,110 @@ function network_content(&$a, $update = 0) {
 
 	if(!$update) {
 		if(get_pconfig(local_user(),'system','infinite_scroll')) {
-				$o .= scroll_loader();
+			$o .= scroll_loader();
 		} elseif(!get_config('system', 'old_pager')) {
-		        $o .= alt_pager($a,count($items));
+			$o .= alt_pager($a,count($items));
 		} else {
-		        $o .= paginate($a);
+			$o .= paginate($a);
 		}
 	}
 
 	return $o;
 }
 
+/**
+ * @brief Get the network tabs menu
+ * 
+ * @param app $a The global App
+ * @return string Html of the networktab
+ */
+function network_tabs($a) {
+	// item filter tabs
+	/// @TODO fix this logic, reduce duplication
+	/// $a->page['content'] .= '<div class="tabs-wrapper">';
+
+	list($no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active) = network_query_get_sel_tab($a);
+	// if no tabs are selected, defaults to comments
+	if ($no_active=='active') $all_active='active';
+
+	$cmd = (($datequery) ? '' : $a->cmd);
+	$len_naked_cmd = strlen(str_replace('/new','',$cmd));
+
+	// tabs
+	$tabs = array(
+		array(
+			'label'	=> t('Commented Order'),
+			'url'	=> str_replace('/new', '', $cmd) . '?f=&order=comment' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
+			'sel'	=> $all_active,
+			'title'	=> t('Sort by Comment Date'),
+			'id'	=> 'commented-order-tab',
+			'accesskey' => "e",
+		),
+		array(
+			'label'	=> t('Posted Order'),
+			'url'	=> str_replace('/new', '', $cmd) . '?f=&order=post' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
+			'sel'	=> $postord_active,
+			'title'	=> t('Sort by Post Date'),
+			'id'	=> 'posted-order-tab',
+			'accesskey' => "t",
+		),
+	);
+
+	if(feature_enabled(local_user(),'personal_tab')) {
+		$tabs[] = array(
+			'label'	=> t('Personal'),
+			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
+			'sel'	=> $conv_active,
+			'title'	=> t('Posts that mention or involve you'),
+			'id'	=> 'personal-tab',
+			'accesskey' => "r",
+		);
+	}
+
+	if(feature_enabled(local_user(),'new_tab')) {
+		$tabs[] = array(
+			'label'	=> t('New'),
+			'url'	=> str_replace('/new', '', $cmd) . ($len_naked_cmd ? '/' : '') . 'new' . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : ''),
+			'sel'	=> $new_active,
+			'title'	=> t('Activity Stream - by date'),
+			'id'	=> 'activitiy-by-date-tab',
+			'accesskey' => "w",
+		);
+	}
+
+	if(feature_enabled(local_user(),'link_tab')) {
+		$tabs[] = array(
+			'label'	=> t('Shared Links'),
+			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&bmark=1',
+			'sel'	=> $bookmarked_active,
+			'title'	=> t('Interesting Links'),
+			'id'	=> 'shared-links-tab',
+			'accesskey' => "b",
+		);
+	}
+
+	if(feature_enabled(local_user(),'star_posts')) {
+		$tabs[] = array(
+			'label'	=> t('Starred'),
+			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&star=1',
+			'sel'	=> $starred_active,
+			'title'	=> t('Favourite Posts'),
+			'id'	=> 'starred-posts-tab',
+			'accesskey' => "m",
+		);
+	}
+
+	// save selected tab, but only if not in search or file mode
+	if(!x($_GET,'search') && !x($_GET,'file')) {
+		set_pconfig( local_user(), 'network.view','tab.selected',array($all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active) );
+	}
+
+	$arr = array('tabs' => $tabs);
+	call_hooks('network_tabs', $arr);
+	
+	$tpl = get_markup_template('common_tabs.tpl');
+
+	return replace_macros($tpl, array('$tabs' => $arr['tabs']));
+
+	// --- end item filter tabs
+}

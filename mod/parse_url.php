@@ -72,8 +72,11 @@ function parseurl_getsiteinfo_cached($url, $no_guessing = false, $do_oembed = tr
 
 	$data = parseurl_getsiteinfo($url, $no_guessing, $do_oembed);
 
-	q("INSERT INTO `parsed_url` (`url`, `guessing`, `oembed`, `content`, `created`) VALUES ('%s', %d, %d, '%s', '%s')",
-		dbesc(normalise_link($url)), intval(!$no_guessing), intval($do_oembed), dbesc(serialize($data)), dbesc(datetime_convert()));
+	q("INSERT INTO `parsed_url` (`url`, `guessing`, `oembed`, `content`, `created`) VALUES ('%s', %d, %d, '%s', '%s')
+		 ON DUPLICATE KEY UPDATE `content` = '%s', `created` = '%s'",
+		dbesc(normalise_link($url)), intval(!$no_guessing), intval($do_oembed),
+		dbesc(serialize($data)), dbesc(datetime_convert()),
+		dbesc(serialize($data)), dbesc(datetime_convert()));
 
 	return $data;
 }
@@ -232,10 +235,9 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 		}
 	}
 
-	//$list = $xpath->query("head/title");
 	$list = $xpath->query("//title");
-	foreach ($list as $node)
-		$siteinfo["title"] =  html_entity_decode($node->nodeValue, ENT_QUOTES, "UTF-8");
+	if ($list->length > 0)
+		$siteinfo["title"] = $list->item(0)->nodeValue;
 
 	//$list = $xpath->query("head/meta[@name]");
 	$list = $xpath->query("//meta[@name]");

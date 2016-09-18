@@ -21,14 +21,14 @@ function was_recently_delayed($cid) {
 		and last > UTC_TIMESTAMP() - interval 15 minute limit 1",
 		intval($cid)
 	);
-	if(dba::is_result($r))
+	if(dbm::is_result($r))
 		return true;
 
 	$r = q("select `term-date` from contact where id = %d and `term-date` != '' and `term-date` != '0000-00-00 00:00:00' limit 1",
 		intval($cid)
 	);
 
-	return (dba::is_result($r));
+	return (dbm::is_result($r));
 }
 
 

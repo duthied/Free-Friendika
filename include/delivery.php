@@ -254,7 +254,7 @@ function delivery_run(&$argv, &$argc){
 			intval($contact_id)
 		);
 
-		if (dba::is_result($r))
+		if (dbm::is_result($r))
 			$contact = $r[0];
 
 		if ($contact['self'])
@@ -416,7 +416,7 @@ function delivery_run(&$argv, &$argc){
 							intval($argv[2]),
 							intval($uid)
 						);
-						if (dba::is_result($r))
+						if (dbm::is_result($r))
 							$it = $r[0];
 					}
 					if (!$it)

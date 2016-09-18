@@ -15,7 +15,7 @@ function manage_post(&$a) {
 		$r = q("select * from user where uid = %d limit 1",
 			intval($_SESSION['submanage'])
 		);
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 			$uid = intval($r[0]['uid']);
 			$orig_record = $r[0];
 		}

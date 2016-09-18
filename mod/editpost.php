@@ -78,7 +78,7 @@ function editpost_content(&$a) {
 		$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
 			intval(local_user())
 		);
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 			$mail_enabled = true;
 			if(intval($r[0]['pubmail']))
 				$pubmail_enabled = true;
@@ -146,7 +146,12 @@ function editpost_content(&$a) {
 		'$jotplugins' => $jotplugins,
 		'$sourceapp' => t($a->sourcename),
 		'$cancel' => t('Cancel'),
-		'$rand_num' => random_digits(12)
+		'$rand_num' => random_digits(12),
+
+		//jot nav tab (used in some themes)
+		'$message' => t('Message'),
+		'$browser' => t('Browser'),
+		'$shortpermset' => t('permissions'),
 	));
 
 	return $o;

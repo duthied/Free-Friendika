@@ -68,10 +68,11 @@ class dfrn {
 	 * @param string $owner_nick Owner nick name
 	 * @param string $last_update Date of the last update
 	 * @param int $direction Can be -1, 0 or 1.
+	 * @param boolean $onlyheader Output only the header without content? (Default is "no")
 	 *
 	 * @return string DFRN feed entries
 	 */
-	public static function feed($dfrn_id, $owner_nick, $last_update, $direction = 0) {
+	public static function feed($dfrn_id, $owner_nick, $last_update, $direction = 0, $onlyheader = false) {
 
 		$a = get_app();
 
@@ -196,7 +197,6 @@ class dfrn {
 			`contact`.`name`, `contact`.`network`, `contact`.`photo`, `contact`.`url`,
 			`contact`.`name-date`, `contact`.`uri-date`, `contact`.`avatar-date`,
 			`contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `contact-id`, `contact`.`uid` AS `contact-uid`,
 			`sign`.`signed_text`, `sign`.`signature`, `sign`.`signer`
 			FROM `item` $sql_post_table
 			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
@@ -234,7 +234,7 @@ class dfrn {
 		// This hook can't work anymore
 		//	call_hooks('atom_feed', $atom);
 
-		if(! count($items)) {
+		if (!count($items) OR $onlyheader) {
 			$atom = trim($doc->saveXML());
 
 			call_hooks('atom_feed_end', $atom);
@@ -368,6 +368,8 @@ class dfrn {
 
 		xml::add_element($doc, $relocate, "dfrn:url", $owner['url']);
 		xml::add_element($doc, $relocate, "dfrn:name", $owner['name']);
+		xml::add_element($doc, $relocate, "dfrn:addr", $owner['addr']);
+		xml::add_element($doc, $relocate, "dfrn:avatar", $owner['avatar']);
 		xml::add_element($doc, $relocate, "dfrn:photo", $photos[4]);
 		xml::add_element($doc, $relocate, "dfrn:thumb", $photos[5]);
 		xml::add_element($doc, $relocate, "dfrn:micro", $photos[6]);
@@ -462,37 +464,52 @@ class dfrn {
 	 */
 	private function add_author($doc, $owner, $authorelement, $public) {
 
+		// Is the profile hidden or shouldn't be published in the net? Then add the "hide" element
+		$r = q("SELECT `id` FROM `profile` INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
+				WHERE (`hidewall` OR NOT `net-publish`) AND `user`.`uid` = %d",
+			intval($owner['uid']));
+		if ($r)
+			$hidewall = true;
+		else
+			$hidewall = false;
+
 		$author = $doc->createElement($authorelement);
 
-		$namdate = datetime_convert('UTC', 'UTC', $owner['name-date'].'+00:00' , ATOM_TIME);
+		$namdate = datetime_convert('UTC', 'UTC', $owner['name-date'].'+00:00', ATOM_TIME);
 		$uridate = datetime_convert('UTC', 'UTC', $owner['uri-date'].'+00:00', ATOM_TIME);
 		$picdate = datetime_convert('UTC', 'UTC', $owner['avatar-date'].'+00:00', ATOM_TIME);
 
-		$attributes = array("dfrn:updated" => $namdate);
+		if (!$public OR !$hidewall)
+			$attributes = array("dfrn:updated" => $namdate);
+		else
+			$attributes = array();
+
 		xml::add_element($doc, $author, "name", $owner["name"], $attributes);
-
-		$attributes = array("dfrn:updated" => $namdate);
 		xml::add_element($doc, $author, "uri", app::get_baseurl().'/profile/'.$owner["nickname"], $attributes);
-
-		$attributes = array("dfrn:updated" => $namdate);
 		xml::add_element($doc, $author, "dfrn:handle", $owner["addr"], $attributes);
 
-		$attributes = array("rel" => "photo", "type" => "image/jpeg", "dfrn:updated" => $picdate,
+		$attributes = array("rel" => "photo", "type" => "image/jpeg",
 					"media:width" => 175, "media:height" => 175, "href" => $owner['photo']);
+
+		if (!$public OR !$hidewall)
+			$attributes["dfrn:updated"] = $picdate;
+
 		xml::add_element($doc, $author, "link", "", $attributes);
 
-		$attributes = array("rel" => "avatar", "type" => "image/jpeg", "dfrn:updated" => $picdate,
-					"media:width" => 175, "media:height" => 175, "href" => $owner['photo']);
+		$attributes["rel"] = "avatar";
 		xml::add_element($doc, $author, "link", "", $attributes);
+
+		if ($hidewall)
+			xml::add_element($doc, $author, "dfrn:hide", "true");
+
+		// The following fields will only be generated if the data isn't meant for a public feed
+		if ($public)
+			return $author;
 
 		$birthday = feed_birthday($owner['uid'], $owner['timezone']);
 
 		if ($birthday)
 			xml::add_element($doc, $author, "dfrn:birthday", $birthday);
-
-		// The following fields will only be generated if this isn't for a public feed
-		if ($public)
-			return $author;
 
 		// Only show contact details when we are allowed to
 		$r = q("SELECT `profile`.`about`, `profile`.`name`, `profile`.`homepage`, `user`.`nickname`, `user`.`timezone`,
@@ -1126,7 +1143,7 @@ class dfrn {
 		$author["link"] = $xpath->evaluate($element."/atom:uri/text()", $context)->item(0)->nodeValue;
 
 		$r = q("SELECT `id`, `uid`, `url`, `network`, `avatar-date`, `name-date`, `uri-date`, `addr`,
-				`name`, `nick`, `about`, `location`, `keywords`, `bdyear`, `bd`
+				`name`, `nick`, `about`, `location`, `keywords`, `bdyear`, `bd`, `hidden`
 				FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` != '%s'",
 			intval($importer["uid"]), dbesc(normalise_link($author["link"])), dbesc(NETWORK_STATUSNET));
 		if ($r) {
@@ -1210,6 +1227,16 @@ class dfrn {
 			/// - poco:region
 			/// - poco:country
 
+			// If the "hide" element is present then the profile isn't searchable.
+			$hide = intval($xpath->evaluate($element."/dfrn:hide/text()", $context)->item(0)->nodeValue == "true");
+
+			logger("Hidden status for contact ".$contact["url"].": ".$hide, LOGGER_DEBUG);
+
+			// If the contact isn't searchable then set the contact to "hidden".
+			// Problem: This can be manually overridden by the user.
+			if ($hide)
+				$contact["hidden"] = true;
+
 			// Save the keywords into the contact table
 			$tags = array();
 			$tagelements = $xpath->evaluate($element."/poco:tags/text()", $context);
@@ -1262,17 +1289,17 @@ class dfrn {
 			unset($fields["name-date"]);
 			unset($fields["uri-date"]);
 
-			 // Update check for this field has to be done differently
+			// Update check for this field has to be done differently
 			$datefields = array("name-date", "uri-date");
 			foreach ($datefields AS $field)
 				if (strtotime($contact[$field]) > strtotime($r[0][$field])) {
-					logger("Difference for contact ".$contact["id"]." in field '".$field."'. Old value: '".$contact[$field]."', new value '".$r[0][$field]."'", LOGGER_DEBUG);
+					logger("Difference for contact ".$contact["id"]." in field '".$field."'. New value: '".$contact[$field]."', old value '".$r[0][$field]."'", LOGGER_DEBUG);
 					$update = true;
 				}
 
 			foreach ($fields AS $field => $data)
 				if ($contact[$field] != $r[0][$field]) {
-					logger("Difference for contact ".$contact["id"]." in field '".$field."'. Old value: '".$contact[$field]."', new value '".$r[0][$field]."'", LOGGER_DEBUG);
+					logger("Difference for contact ".$contact["id"]." in field '".$field."'. New value: '".$contact[$field]."', old value '".$r[0][$field]."'", LOGGER_DEBUG);
 					$update = true;
 				}
 
@@ -1280,13 +1307,13 @@ class dfrn {
 				logger("Update contact data for contact ".$contact["id"]." (".$contact["nick"].")", LOGGER_DEBUG);
 
 				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s',
-					`addr` = '%s', `keywords` = '%s', `bdyear` = '%s', `bd` = '%s',
+					`addr` = '%s', `keywords` = '%s', `bdyear` = '%s', `bd` = '%s', `hidden` = %d,
 					`name-date`  = '%s', `uri-date` = '%s'
 					WHERE `id` = %d AND `network` = '%s'",
 					dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["about"]), dbesc($contact["location"]),
 					dbesc($contact["addr"]), dbesc($contact["keywords"]), dbesc($contact["bdyear"]),
-					dbesc($contact["bd"]), dbesc($contact["name-date"]), dbesc($contact["uri-date"]),
-					intval($contact["id"]), dbesc($contact["network"]));
+					dbesc($contact["bd"]), intval($contact["hidden"]), dbesc($contact["name-date"]),
+					dbesc($contact["uri-date"]), intval($contact["id"]), dbesc($contact["network"]));
 			}
 
 			update_contact_avatar($author["avatar"], $importer["uid"], $contact["id"],
@@ -1299,6 +1326,7 @@ class dfrn {
 
 			$poco["generation"] = 2;
 			$poco["photo"] = $author["avatar"];
+			$poco["hide"] = $hide;
 			update_gcontact($poco);
 		}
 
@@ -1430,7 +1458,7 @@ class dfrn {
 			dbesc(normalise_link($suggest["url"])),
 			intval($suggest["uid"])
 		);
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			return false;
 
 		// Do we already have an fcontact record for this person?
@@ -1441,7 +1469,7 @@ class dfrn {
 			dbesc($suggest["name"]),
 			dbesc($suggest["request"])
 		);
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 			$fid = $r[0]["id"];
 
 			// OK, we do. Do we already have an introduction for this person ?
@@ -1449,7 +1477,7 @@ class dfrn {
 				intval($suggest["uid"]),
 				intval($fid)
 			);
-			if(dba::is_result($r))
+			if(dbm::is_result($r))
 				return false;
 		}
 		if(!$fid)
@@ -1464,7 +1492,7 @@ class dfrn {
 			dbesc($suggest["name"]),
 			dbesc($suggest["request"])
 		);
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			$fid = $r[0]["id"];
 		else
 			// database record did not get created. Quietly give up.
@@ -1519,7 +1547,9 @@ class dfrn {
 		$relocate["uid"] = $importer["importer_uid"];
 		$relocate["cid"] = $importer["id"];
 		$relocate["url"] = $xpath->query("dfrn:url/text()", $relocation)->item(0)->nodeValue;
+		$relocate["addr"] = $xpath->query("dfrn:addr/text()", $relocation)->item(0)->nodeValue;
 		$relocate["name"] = $xpath->query("dfrn:name/text()", $relocation)->item(0)->nodeValue;
+		$relocate["avatar"] = $xpath->query("dfrn:avatar/text()", $relocation)->item(0)->nodeValue;
 		$relocate["photo"] = $xpath->query("dfrn:photo/text()", $relocation)->item(0)->nodeValue;
 		$relocate["thumb"] = $xpath->query("dfrn:thumb/text()", $relocation)->item(0)->nodeValue;
 		$relocate["micro"] = $xpath->query("dfrn:micro/text()", $relocation)->item(0)->nodeValue;
@@ -1528,6 +1558,12 @@ class dfrn {
 		$relocate["notify"] = $xpath->query("dfrn:notify/text()", $relocation)->item(0)->nodeValue;
 		$relocate["poll"] = $xpath->query("dfrn:poll/text()", $relocation)->item(0)->nodeValue;
 		$relocate["sitepubkey"] = $xpath->query("dfrn:sitepubkey/text()", $relocation)->item(0)->nodeValue;
+
+		if (($relocate["avatar"] == "") AND ($relocate["photo"] != ""))
+			$relocate["avatar"] = $relocate["photo"];
+
+		if ($relocate["addr"] == "")
+			$relocate["addr"] = preg_replace("=(https?://)(.*)/profile/(.*)=ism", "$3@$2", $relocate["url"]);
 
 		// update contact
 		$r = q("SELECT `photo`, `url` FROM `contact` WHERE `id` = %d AND `uid` = %d;",
@@ -1538,51 +1574,83 @@ class dfrn {
 
 		$old = $r[0];
 
-		$x = q("UPDATE `contact` SET
+		// Update the gcontact entry
+		$relocate["server_url"] = preg_replace("=(https?://)(.*)/profile/(.*)=ism", "$1$2", $relocate["url"]);
+
+		$x = q("UPDATE `gcontact` SET
 					`name` = '%s',
 					`photo` = '%s',
-					`thumb` = '%s',
-					`micro` = '%s',
 					`url` = '%s',
 					`nurl` = '%s',
+					`addr` = '%s',
+					`connect` = '%s',
+					`notify` = '%s',
+					`server_url` = '%s'
+			WHERE `nurl` = '%s';",
+					dbesc($relocate["name"]),
+					dbesc($relocate["avatar"]),
+					dbesc($relocate["url"]),
+					dbesc(normalise_link($relocate["url"])),
+					dbesc($relocate["addr"]),
+					dbesc($relocate["addr"]),
+					dbesc($relocate["notify"]),
+					dbesc($relocate["server_url"]),
+					dbesc(normalise_link($old["url"])));
+
+		// Update the contact table. We try to find every entry.
+		$x = q("UPDATE `contact` SET
+					`name` = '%s',
+					`avatar` = '%s',
+					`url` = '%s',
+					`nurl` = '%s',
+					`addr` = '%s',
 					`request` = '%s',
 					`confirm` = '%s',
 					`notify` = '%s',
 					`poll` = '%s',
 					`site-pubkey` = '%s'
-			WHERE `id` = %d AND `uid` = %d;",
+			WHERE (`id` = %d AND `uid` = %d) OR (`nurl` = '%s');",
 					dbesc($relocate["name"]),
-					dbesc($relocate["photo"]),
-					dbesc($relocate["thumb"]),
-					dbesc($relocate["micro"]),
+					dbesc($relocate["avatar"]),
 					dbesc($relocate["url"]),
 					dbesc(normalise_link($relocate["url"])),
+					dbesc($relocate["addr"]),
 					dbesc($relocate["request"]),
 					dbesc($relocate["confirm"]),
 					dbesc($relocate["notify"]),
 					dbesc($relocate["poll"]),
 					dbesc($relocate["sitepubkey"]),
 					intval($importer["id"]),
-					intval($importer["importer_uid"]));
+					intval($importer["importer_uid"]),
+					dbesc(normalise_link($old["url"])));
+
+		update_contact_avatar($relocate["avatar"], $importer["importer_uid"], $importer["id"], true);
 
 		if ($x === false)
 			return false;
 
 		// update items
+		/// @todo This is an extreme performance killer
 		$fields = array(
 			'owner-link' => array($old["url"], $relocate["url"]),
 			'author-link' => array($old["url"], $relocate["url"]),
-			'owner-avatar' => array($old["photo"], $relocate["photo"]),
-			'author-avatar' => array($old["photo"], $relocate["photo"]),
+			//'owner-avatar' => array($old["photo"], $relocate["photo"]),
+			//'author-avatar' => array($old["photo"], $relocate["photo"]),
 			);
-		foreach ($fields as $n=>$f){
-			$x = q("UPDATE `item` SET `%s` = '%s' WHERE `%s` = '%s' AND `uid` = %d",
-					$n, dbesc($f[1]),
+		foreach ($fields as $n=>$f) {
+			$r = q("SELECT `id` FROM `item` WHERE `%s` = '%s' AND `uid` = %d LIMIT 1",
 					$n, dbesc($f[0]),
 					intval($importer["importer_uid"]));
-				if ($x === false)
-					return false;
+
+			if ($r) {
+				$x = q("UPDATE `item` SET `%s` = '%s' WHERE `%s` = '%s' AND `uid` = %d",
+						$n, dbesc($f[1]),
+						$n, dbesc($f[0]),
+						intval($importer["importer_uid"]));
+					if ($x === false)
+						return false;
 			}
+		}
 
 		/// @TODO
 		/// merge with current record, current contents have priority
@@ -1624,7 +1692,7 @@ class dfrn {
 			$changed = true;
 
 			if ($entrytype == DFRN_REPLY_RC)
-				proc_run("php", "include/notifier.php","comment-import", $current["id"]);
+				proc_run(PRIORITY_HIGH, "include/notifier.php","comment-import", $current["id"]);
 		}
 
 		// update last-child if it changes
@@ -2120,7 +2188,7 @@ class dfrn {
 						dbesc($item["uri"]),
 						intval($importer["uid"])
 					);
-					if(dba::is_result($r))
+					if(dbm::is_result($r))
 						$ev["id"] = $r[0]["id"];
 
 					$event_id = event_store($ev);
@@ -2141,7 +2209,7 @@ class dfrn {
 		}
 
 		// Update content if 'updated' changes
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 			if (self::update_content($r[0], $item, $importer, $entrytype))
 				logger("Item ".$item["uri"]." was updated.", LOGGER_DEBUG);
 			else
@@ -2163,7 +2231,7 @@ class dfrn {
 					intval($posted_id),
 					intval($importer["importer_uid"])
 				);
-				if(dba::is_result($r)) {
+				if(dbm::is_result($r)) {
 					$parent = $r[0]["parent"];
 					$parent_uri = $r[0]["parent-uri"];
 				}
@@ -2184,7 +2252,7 @@ class dfrn {
 
 				if($posted_id AND $parent AND ($entrytype == DFRN_REPLY_RC)) {
 					logger("Notifying followers about comment ".$posted_id, LOGGER_DEBUG);
-					proc_run("php", "include/notifier.php", "comment-import", $posted_id);
+					proc_run(PRIORITY_HIGH, "include/notifier.php", "comment-import", $posted_id);
 				}
 
 				return true;
@@ -2345,7 +2413,7 @@ class dfrn {
 							dbesc($item["parent-uri"]),
 							intval($importer["uid"])
 					);
-					if(dba::is_result($r)) {
+					if(dbm::is_result($r)) {
 						q("UPDATE `item` SET `last-child` = 1 WHERE `id` = %d",
 							intval($r[0]["id"])
 						);
@@ -2355,7 +2423,7 @@ class dfrn {
 
 				if($entrytype == DFRN_REPLY_RC) {
 					logger("Notifying followers about deletion of post ".$item["id"], LOGGER_DEBUG);
-					proc_run("php", "include/notifier.php","drop", $item["id"]);
+					proc_run(PRIORITY_HIGH, "include/notifier.php","drop", $item["id"]);
 				}
 			}
 		}

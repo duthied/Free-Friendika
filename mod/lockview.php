@@ -52,7 +52,7 @@ function lockview_content(&$a) {
 		$r = q("SELECT `name` FROM `group` WHERE `id` IN ( %s )",
 			dbesc(implode(', ', $allowed_groups))
 		);
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			foreach($r as $rr) 
 				$l[] = '<b>' . $rr['name'] . '</b>';
 	}
@@ -60,7 +60,7 @@ function lockview_content(&$a) {
 		$r = q("SELECT `name` FROM `contact` WHERE `id` IN ( %s )",
 			dbesc(implode(', ',$allowed_users))
 		);
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			foreach($r as $rr) 
 				$l[] = $rr['name'];
 
@@ -70,7 +70,7 @@ function lockview_content(&$a) {
 		$r = q("SELECT `name` FROM `group` WHERE `id` IN ( %s )",
 			dbesc(implode(', ', $deny_groups))
 		);
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			foreach($r as $rr) 
 				$l[] = '<b><strike>' . $rr['name'] . '</strike></b>';
 	}
@@ -78,7 +78,7 @@ function lockview_content(&$a) {
 		$r = q("SELECT `name` FROM `contact` WHERE `id` IN ( %s )",
 			dbesc(implode(', ',$deny_users))
 		);
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			foreach($r as $rr) 
 				$l[] = '<strike>' . $rr['name'] . '</strike>';
 

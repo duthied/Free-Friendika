@@ -11,6 +11,7 @@
 
 require_once('include/enotify.php');
 require_once('include/Scrape.php');
+require_once('include/Probe.php');
 require_once('include/group.php');
 
 if(! function_exists('dfrn_request_init')) {
@@ -89,7 +90,7 @@ function dfrn_request_post(&$a) {
 					dbesc(normalise_link($dfrn_url))
 				);
 
-				if(dba::is_result($r)) {
+				if(dbm::is_result($r)) {
 					if(strlen($r[0]['dfrn-id'])) {
 
 						/**
@@ -116,7 +117,7 @@ function dfrn_request_post(&$a) {
 					 * Scrape the other site's profile page to pick up the dfrn links, key, fn, and photo
 					 */
 
-					$parms = scrape_dfrn($dfrn_url);
+					$parms = Probe::profile($dfrn_url);
 
 					if(! count($parms)) {
 						notice( t('Profile location is not valid or does not contain profile information.') . EOL );
@@ -127,7 +128,7 @@ function dfrn_request_post(&$a) {
 							notice( t('Warning: profile location has no identifiable owner name.') . EOL );
 						if(! x($parms,'photo'))
 							notice( t('Warning: profile location has no profile photo.') . EOL );
-						$invalid = validate_dfrn($parms);
+						$invalid = Probe::valid_dfrn($parms);
 						if($invalid) {
 							notice( sprintf( tt("%d required parameter was not found at the given location",
 												"%d required parameters were not found at the given location",
@@ -137,6 +138,8 @@ function dfrn_request_post(&$a) {
 					}
 
 					$dfrn_request = $parms['dfrn-request'];
+
+					$photo = $parms["photo"];
 
 					/********* Escape the entire array ********/
 
@@ -180,10 +183,13 @@ function dfrn_request_post(&$a) {
 					dbesc($dfrn_url),
 					$parms['key'] // this was already escaped
 				);
-				if(dba::is_result($r)) {
+				if(dbm::is_result($r)) {
 					$def_gid = get_default_group(local_user(), $r[0]["network"]);
 					if(intval($def_gid))
 						group_add_member(local_user(), '', $r[0]['id'], $def_gid);
+
+					if (isset($photo))
+						update_contact_avatar($photo, local_user(), $r[0]["id"], true);
 
 					$forwardurl = $a->get_baseurl()."/contacts/".$r[0]['id'];
 				} else
@@ -285,7 +291,7 @@ function dfrn_request_post(&$a) {
 			AND `intro`.`datetime` < UTC_TIMESTAMP() - INTERVAL 30 MINUTE ",
 			dbesc(NETWORK_MAIL2)
 		);
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 			foreach($r as $rr) {
 				if(! $rr['rel']) {
 					q("DELETE FROM `contact` WHERE `id` = %d",
@@ -310,7 +316,7 @@ function dfrn_request_post(&$a) {
 			AND `intro`.`datetime` < UTC_TIMESTAMP() - INTERVAL 3 DAY ",
 			dbesc(NETWORK_MAIL2)
 		);
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 			foreach($r as $rr) {
 				if(! $rr['rel']) {
 					q("DELETE FROM `contact` WHERE `id` = %d",
@@ -390,7 +396,7 @@ function dfrn_request_post(&$a) {
 				dbesc($poll),
 				intval($uid)
 			);
-			if(dba::is_result($r)) {
+			if(dbm::is_result($r)) {
 				$contact_id = $r[0]['id'];
 
 				$def_gid = get_default_group($uid, $r[0]["network"]);
@@ -444,7 +450,7 @@ function dfrn_request_post(&$a) {
 			logger('dfrn_request: url=' . $url . ',network=' . $network . ',hcard=' . $hcard . ' - BEFORE!', LOGGER_DEBUG);
 
 			// Canonicalise email-style profile locator
-			$url = webfinger_dfrn($url,$hcard);
+			$url = Probe::webfinger_dfrn($url,$hcard);
 
 			logger('dfrn_request: url=' . $url . ',network=' . $network . ',hcard=' . $hcard . ' - AFTER!', LOGGER_DEBUG);
 
@@ -510,7 +516,7 @@ function dfrn_request_post(&$a) {
 
 				require_once('include/Scrape.php');
 
-				$parms = scrape_dfrn(($hcard) ? $hcard : $url);
+				$parms = Probe::profile(($hcard) ? $hcard : $url);
 
 				if(! count($parms)) {
 					notice( t('Profile location is not valid or does not contain profile information.') . EOL );
@@ -521,7 +527,7 @@ function dfrn_request_post(&$a) {
 						notice( t('Warning: profile location has no identifiable owner name.') . EOL );
 					if(! x($parms,'photo'))
 						notice( t('Warning: profile location has no profile photo.') . EOL );
-					$invalid = validate_dfrn($parms);
+					$invalid = Probe::valid_dfrn($parms);
 					if($invalid) {
 						notice( sprintf( tt("%d required parameter was not found at the given location",
 											"%d required parameters were not found at the given location",
@@ -534,7 +540,7 @@ function dfrn_request_post(&$a) {
 
 				$parms['url'] = $url;
 				$parms['issued-id'] = $issued_id;
-
+				$photo = $parms["photo"];
 
 				dbesc_array($parms);
 				$r = q("INSERT INTO `contact` ( `uid`, `created`, `url`, `nurl`, `addr`, `name`, `nick`, `issued-id`, `photo`, `site-pubkey`,
@@ -543,7 +549,7 @@ function dfrn_request_post(&$a) {
 					intval($uid),
 					dbesc(datetime_convert()),
 					$parms['url'],
-					dbesc(normalise_link($parms['url'])),
+					dbesc(normalise_link($url)),
 					$parms['addr'],
 					$parms['fn'],
 					$parms['nick'],
@@ -566,8 +572,10 @@ function dfrn_request_post(&$a) {
 						$parms['url'],
 						$parms['issued-id']
 					);
-					if(dba::is_result($r))
+					if(dbm::is_result($r))
 						$contact_record = $r[0];
+						update_contact_avatar($photo, $uid, $contact_record["id"], true);
+					}
 				}
 
 			}
@@ -715,7 +723,7 @@ function dfrn_request_content(&$a) {
 			dbesc($_GET['confirm_key'])
 		);
 
-		if(dba::is_result($intro)) {
+		if(dbm::is_result($intro)) {
 
 			$auto_confirm = false;
 
@@ -724,7 +732,7 @@ function dfrn_request_content(&$a) {
 				intval($intro[0]['contact-id'])
 			);
 
-			if(dba::is_result($r)) {
+			if(dbm::is_result($r)) {
 				if(($r[0]['page-flags'] != PAGE_NORMAL) && ($r[0]['page-flags'] != PAGE_PRVGROUP))
 					$auto_confirm = true;
 

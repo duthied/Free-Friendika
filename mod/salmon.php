@@ -169,8 +169,8 @@ function salmon_post(&$a) {
 	// Have we ignored the person?
 	// If so we can not accept this post.
 
-	//if((dba::is_result($r)) && (($r[0]['readonly']) || ($r[0]['rel'] == CONTACT_IS_FOLLOWER) || ($r[0]['blocked']))) {
-	if(dba::is_result($r) && $r[0]['blocked']) {
+	//if((dbm::is_result($r)) && (($r[0]['readonly']) || ($r[0]['rel'] == CONTACT_IS_FOLLOWER) || ($r[0]['blocked']))) {
+	if(dbm::is_result($r) && $r[0]['blocked']) {
 		logger('mod-salmon: Ignoring this author.');
 		http_status_exit(202);
 		// NOTREACHED
@@ -179,7 +179,7 @@ function salmon_post(&$a) {
 	// Placeholder for hub discovery.
 	$hub = '';
 
-	$contact_rec = ((dba::is_result($r)) ? $r[0] : null);
+	$contact_rec = ((dbm::is_result($r)) ? $r[0] : null);
 
 	ostatus::import($data,$importer,$contact_rec, $hub);
 

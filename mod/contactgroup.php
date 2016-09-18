@@ -14,7 +14,7 @@ function contactgroup_content(&$a) {
 			intval($a->argv[2]),
 			intval(local_user())
 		);
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			$change = intval($a->argv[2]);
 	}
 

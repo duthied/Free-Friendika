@@ -15,8 +15,12 @@ function noscrape_init(&$a) {
 
 	profile_load($a,$which,$profile);
 
-	if(!$a->profile['net-publish'])
-		killme();
+	if (!$a->profile['net-publish'] OR $a->profile['hidewall']) {
+		header('Content-type: application/json; charset=utf-8');
+		$json_info = array("hide" => true);
+		echo json_encode($json_info);
+		exit;
+	}
 
 	$keywords = ((x($a->profile,'pub_keywords')) ? $a->profile['pub_keywords'] : '');
 	$keywords = str_replace(array('#',',',' ',',,'),array('',' ',',',','),$keywords);
@@ -39,7 +43,7 @@ function noscrape_init(&$a) {
 	if(is_array($a->profile) AND !$a->profile['hide-friends']) {
 		$r = q("SELECT `gcontact`.`updated` FROM `contact` INNER JOIN `gcontact` WHERE `gcontact`.`nurl` = `contact`.`nurl` AND `self` AND `uid` = %d LIMIT 1",
 			intval($a->profile['uid']));
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			$json_info["updated"] =  date("c", strtotime($r[0]['updated']));
 
 		$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0 AND `hidden` = 0 AND `archive` = 0
@@ -49,7 +53,7 @@ function noscrape_init(&$a) {
 			dbesc(NETWORK_DIASPORA),
 			dbesc(NETWORK_OSTATUS)
 		);
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			$json_info["contacts"] = intval($r[0]['total']);
 	}
 

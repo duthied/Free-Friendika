@@ -90,7 +90,7 @@ function do_like($item_id, $verb) {
 		WHERE `contact`.`self` = 1 AND `contact`.`uid` = %d LIMIT 1",
 		intval($owner_uid)
 	);
-	if(dba::is_result($r))
+	if(dbm::is_result($r))
 		$owner = $r[0];
 
 	if(! $owner) {
@@ -112,7 +112,7 @@ function do_like($item_id, $verb) {
 			intval($_SESSION['visitor_id']),
 			intval($owner_uid)
 		);
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			$contact = $r[0];
 	}
 	if(! $contact) {
@@ -135,7 +135,7 @@ function do_like($item_id, $verb) {
 		dbesc($item_id), dbesc($item_id), dbesc($item['uri'])
 	);
 
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		$like_item = $r[0];
 
 		// Already voted, undo it
@@ -153,7 +153,7 @@ function do_like($item_id, $verb) {
 		);
 
 		$like_item_id = $like_item['id'];
-		proc_run('php',"include/notifier.php","like","$like_item_id");
+		proc_run(PRIORITY_HIGH, "include/notifier.php", "like", $like_item_id);
 
 		return true;
 	}
@@ -161,7 +161,7 @@ function do_like($item_id, $verb) {
 	$uri = item_new_uri($a->get_hostname(),$owner_uid);
 
 	$post_type = (($item['resource-id']) ? t('photo') : t('status'));
-	if($item['obj_type'] === ACTIVITY_OBJ_EVENT)
+	if($item['object-type'] === ACTIVITY_OBJ_EVENT)
 		$post_type = t('event');
 	$objtype = (($item['resource-id']) ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE );
 	$link = xmlify('<link rel="alternate" type="text/html" href="' . $a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
@@ -245,7 +245,7 @@ EOT;
 
 	call_hooks('post_local_end', $arr);
 
-	proc_run('php',"include/notifier.php","like","$post_id");
+	proc_run(PRIORITY_HIGH, "include/notifier.php", "like", $post_id);
 
 	return true;
 }

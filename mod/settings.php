@@ -1,6 +1,7 @@
 <?php
 
 require_once('include/group.php');
+require_once('include/socgraph.php');
 
 function get_theme_config_file($theme){
 	$a = get_app();
@@ -254,7 +255,7 @@ function settings_post(&$a) {
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 					intval(local_user())
 				);
-				if(dba::is_result($r)) {
+				if(dbm::is_result($r)) {
 					$eacct = $r[0];
 					require_once('include/email.php');
 					$mb = construct_mailbox_name($eacct);
@@ -351,7 +352,7 @@ function settings_post(&$a) {
 	check_form_security_token_redirectOnErr('/settings', 'settings');
 
 	if (x($_POST,'resend_relocate')) {
-		proc_run('php', 'include/notifier.php', 'relocate', local_user());
+		proc_run(PRIORITY_HIGH, 'include/notifier.php', 'relocate', local_user());
 		info(t("Relocate message has been send to your contacts"));
 		goaway('settings');
 	}
@@ -602,7 +603,7 @@ function settings_post(&$a) {
 
 
 	if($name_change) {
-		q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `self` = 1",
+		q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `self`",
 			dbesc($username),
 			dbesc(datetime_convert()),
 			intval(local_user())
@@ -613,13 +614,14 @@ function settings_post(&$a) {
 		// Update global directory in background
 		$url = $_SESSION['my_url'];
 		if($url && strlen(get_config('system','directory')))
-			proc_run('php',"include/directory.php","$url");
-
+			proc_run(PRIORITY_LOW, "include/directory.php", $url);
 	}
-
 
 	require_once('include/profile_update.php');
 	profile_change();
+
+	// Update the global contact for the user
+	update_gcontact_for_user(local_user());
 
 	//$_SESSION['theme'] = $theme;
 	if($email_changed && $a->config['register_policy'] == REGISTER_VERIFY) {
@@ -629,7 +631,7 @@ function settings_post(&$a) {
 
 	}
 
-	goaway('settings' );
+	goaway('settings');
 	return; // NOTREACHED
 }
 
@@ -842,15 +844,15 @@ function settings_content(&$a) {
 			$r = null;
 		}
 
-		$mail_server       = ((dba::is_result($r)) ? $r[0]['server'] : '');
-		$mail_port         = ((dba::is_result($r) && intval($r[0]['port'])) ? intval($r[0]['port']) : '');
-		$mail_ssl          = ((dba::is_result($r)) ? $r[0]['ssltype'] : '');
-		$mail_user         = ((dba::is_result($r)) ? $r[0]['user'] : '');
-		$mail_replyto      = ((dba::is_result($r)) ? $r[0]['reply_to'] : '');
-		$mail_pubmail      = ((dba::is_result($r)) ? $r[0]['pubmail'] : 0);
-		$mail_action       = ((dba::is_result($r)) ? $r[0]['action'] : 0);
-		$mail_movetofolder = ((dba::is_result($r)) ? $r[0]['movetofolder'] : '');
-		$mail_chk          = ((dba::is_result($r)) ? $r[0]['last_check'] : '0000-00-00 00:00:00');
+		$mail_server       = ((dbm::is_result($r)) ? $r[0]['server'] : '');
+		$mail_port         = ((dbm::is_result($r) && intval($r[0]['port'])) ? intval($r[0]['port']) : '');
+		$mail_ssl          = ((dbm::is_result($r)) ? $r[0]['ssltype'] : '');
+		$mail_user         = ((dbm::is_result($r)) ? $r[0]['user'] : '');
+		$mail_replyto      = ((dbm::is_result($r)) ? $r[0]['reply_to'] : '');
+		$mail_pubmail      = ((dbm::is_result($r)) ? $r[0]['pubmail'] : 0);
+		$mail_action       = ((dbm::is_result($r)) ? $r[0]['action'] : 0);
+		$mail_movetofolder = ((dbm::is_result($r)) ? $r[0]['movetofolder'] : '');
+		$mail_chk          = ((dbm::is_result($r)) ? $r[0]['last_check'] : '0000-00-00 00:00:00');
 
 
 		$tpl = get_markup_template("settings_connectors.tpl");
@@ -987,6 +989,9 @@ function settings_content(&$a) {
 			'$infinite_scroll'	=> array('infinite_scroll', t("Infinite scroll"), $infinite_scroll, ''),
 			'$no_auto_update'	=> array('no_auto_update', t("Automatic updates only at the top of the network page"), $no_auto_update, 'When disabled, the network page is updated all the time, which could be confusing while reading.'),
 
+			'$d_tset' => t('General Theme Settings'),
+			'$d_ctset' => t('Custom Theme Settings'),
+			'$d_cset' => t('Content Settings'),
 			'stitle' => t('Theme settings'),
 			'$theme_config' => $theme_config,
 		));
@@ -1279,7 +1284,7 @@ function settings_content(&$a) {
 		'$notify7'  => array('notify7', t('You are tagged in a post'), ($notify & NOTIFY_TAGSELF), NOTIFY_TAGSELF, ''),
 		'$notify8'  => array('notify8', t('You are poked/prodded/etc. in a post'), ($notify & NOTIFY_POKE), NOTIFY_POKE, ''),
 
-        '$desktop_notifications' => array('desktop_notifications', t('Activate desktop notifications') , false, t('Show desktop popup on new notifications')),
+		'$desktop_notifications' => array('desktop_notifications', t('Activate desktop notifications') , false, t('Show desktop popup on new notifications')),
 
 		'$email_textonly' => array('email_textonly', t('Text-only notification emails'),
 									get_pconfig(local_user(),'system','email_textonly'),

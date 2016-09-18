@@ -16,7 +16,7 @@ function lock_function($fn_name, $block = true, $wait_sec = 2, $timeout = 30) {
 			dbesc($fn_name)
 		);
 
-		if((dba::is_result($r)) AND (!$r[0]['locked'] OR (strtotime($r[0]['created']) < time() - 3600))) {
+		if((dbm::is_result($r)) AND (!$r[0]['locked'] OR (strtotime($r[0]['created']) < time() - 3600))) {
 			q("UPDATE `locks` SET `locked` = 1, `created` = '%s' WHERE `name` = '%s'",
 				dbesc(datetime_convert()),
 				dbesc($fn_name)

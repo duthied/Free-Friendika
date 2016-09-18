@@ -28,7 +28,7 @@
 				</dl>
 			{{/if}}
 
-			{{if $gender}}<dl class="mf"><dt class="gender-label">{{$gender}}</dt> <dd class="x-gender">{{$profile.gender}}</dd></dl>{{/if}}
+			{{if $gender}}<dl class="mf"><dt class="gender-label">{{$gender}}</dt> <dd class="p-gender">{{$profile.gender}}</dd></dl>{{/if}}
 			</div>	
 			<div class="directory-detailscolumn-wrapper" id="directory-detailscolumn2-wrapper-{{$id}}">	
 				{{if $marital}}<dl class="marital"><dt class="marital-label"><span class="heart">&hearts;</span>{{$marital}}</dt><dd class="marital-text">{{$profile.marital}}</dd></dl>{{/if}}

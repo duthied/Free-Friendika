@@ -66,7 +66,7 @@ function poke_init(&$a) {
 			intval($parent),
 			intval($uid)
 		);
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 			$parent_uri = $r[0]['uri'];
 			$private    = $r[0]['private'];
 			$allow_cid  = $r[0]['allow_cid'];
@@ -131,13 +131,13 @@ function poke_init(&$a) {
 		//	intval($uid),
 		//	intval($item_id)
 		//);
-		proc_run('php',"include/notifier.php","tag","$item_id");
+		proc_run(PRIORITY_HIGH, "include/notifier.php", "tag", $item_id);
 	}
 
 
 	call_hooks('post_local_end', $arr);
 
-	proc_run('php',"include/notifier.php","like","$post_id");
+	proc_run(PRIORITY_HIGH, "include/notifier.php", "like", $post_id);
 
 	return;
 }
@@ -159,7 +159,7 @@ function poke_content(&$a) {
 			intval($_GET['c']),
 			intval(local_user())
 		);
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 			$name = $r[0]['name'];
 			$id = $r[0]['id'];
 		}

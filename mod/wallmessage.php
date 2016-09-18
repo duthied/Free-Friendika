@@ -48,7 +48,7 @@ function wallmessage_post(&$a) {
 	$body = str_replace("\r\n","\n",$body);
 	$body = str_replace("\n\n","\n",$body);
 
-	
+
 	$ret = send_wallmessage($user, $body, $subject, $replyto);
 
 	switch($ret){
@@ -68,8 +68,8 @@ function wallmessage_post(&$a) {
 			info( t('Message sent.') . EOL );
 	}
 
-//	goaway($a->get_baseurl() . '/profile/' . $user['nickname']);
-	
+	goaway('profile/'.$user['nickname']);
+
 }
 
 

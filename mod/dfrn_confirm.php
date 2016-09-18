@@ -16,6 +16,7 @@
 
 require_once('include/enotify.php');
 require_once('include/group.php');
+require_once('include/Probe.php');
 
 function dfrn_confirm_post(&$a,$handsfree = null) {
 
@@ -356,7 +357,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			$poll   = (($contact['poll']) ? $contact['poll'] : '');
 
 			if((! $contact['notify']) || (! $contact['poll'])) {
-				$arr = lrdd($contact['url']);
+				$arr = Probe::lrdd($contact['url']);
 				if(count($arr)) {
 					foreach($arr as $link) {
 						if($link['@attributes']['rel'] === 'salmon')
@@ -418,7 +419,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 			intval($contact_id)
 		);
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			$contact = $r[0];
 		else
 			$contact = null;
@@ -438,7 +439,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				intval($uid)
 			);
 
-			if((dba::is_result($r)) && ($r[0]['hide-friends'] == 0) && ($activity) && (! $hidden)) {
+			if((dbm::is_result($r)) && ($r[0]['hide-friends'] == 0) && ($activity) && (! $hidden)) {
 
 				require_once('include/items.php');
 
@@ -486,7 +487,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 					$i = item_store($arr);
 					if($i)
-				    	proc_run('php',"include/notifier.php","activity","$i");
+						proc_run(PRIORITY_HIGH, "include/notifier.php", "activity", $i);
 				}
 			}
 		}
@@ -624,7 +625,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		$r = q("SELECT * FROM `contact` WHERE `dfrn-id` = '%s' LIMIT 1",
 			dbesc($decrypted_dfrn_id)
 		);
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 			$message = t('The ID provided by your system is a duplicate on our system. It should work if you try again.');
 			xml_status(1,$message); // Birthday paradox - duplicate dfrn-id
 			// NOTREACHED
@@ -656,7 +657,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		$r = q("SELECT `photo` FROM `contact` WHERE `id` = %d LIMIT 1",
 			intval($dfrn_record));
 
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			$photo = $r[0]['photo'];
 		else
 			$photo = $a->get_baseurl() . '/images/person-175.jpg';
@@ -709,10 +710,10 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			intval($dfrn_record)
 		);
 
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			$combined = $r[0];
 
-		if((dba::is_result($r)) && ($r[0]['notify-flags'] & NOTIFY_CONFIRM)) {
+		if((dbm::is_result($r)) && ($r[0]['notify-flags'] & NOTIFY_CONFIRM)) {
 			$mutual = ($new_relation == CONTACT_IS_FRIEND);
 			notification(array(
 				'type'         => NOTIFY_CONFIRM,
@@ -737,7 +738,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				intval($local_uid)
 			);
 
-			if((dba::is_result($r)) && ($r[0]['hide-friends'] == 0)) {
+			if((dbm::is_result($r)) && ($r[0]['hide-friends'] == 0)) {
 
 				require_once('include/items.php');
 
@@ -783,7 +784,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 					$i = item_store($arr);
 					if($i)
-				    	proc_run('php',"include/notifier.php","activity","$i");
+						proc_run(PRIORITY_HIGH, "include/notifier.php", "activity", $i);
 
 				}
 			}

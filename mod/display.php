@@ -16,10 +16,10 @@ function display_init(&$a) {
 
 		// Does the local user have this item?
 		if (local_user()) {
-			$r = q("SELECT `id`, `parent`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid` FROM `item`
+			$r = q("SELECT `id`, `parent`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `guid` = '%s' AND `uid` = %d", dbesc($a->argv[1]), local_user());
-			if (dba::is_result($r)) {
+			if (dbm::is_result($r)) {
 				$nick = $a->user["nickname"];
 				$itemuid = local_user();
 			}
@@ -28,7 +28,7 @@ function display_init(&$a) {
 		// Or is it anywhere on the server?
 		if ($nick == "") {
 			$r = q("SELECT `user`.`nickname`, `item`.`id`, `item`.`parent`, `item`.`author-name`,
-				`item`.`author-link`, `item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`body`
+				`item`.`author-link`, `item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`owner-link`, `item`.`body`
 				FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
@@ -36,7 +36,7 @@ function display_init(&$a) {
 					AND NOT `item`.`private` AND NOT `user`.`hidewall`
 					AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
 				//	AND NOT `item`.`private` AND `item`.`wall`
-			if (dba::is_result($r)) {
+			if (dbm::is_result($r)) {
 				$nick = $r[0]["nickname"];
 				$itemuid = $r[0]["uid"];
 			}
@@ -44,8 +44,8 @@ function display_init(&$a) {
 
 		// Is it an item with uid=0?
 		if ($nick == "") {
-			$r = q("SELECT `item`.`id`, `item`.`parent`, `item`.`author-name`,
-				`item`.`author-link`, `item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`body`
+			$r = q("SELECT `item`.`id`, `item`.`parent`, `item`.`author-name`, `item`.`author-link`,
+				`item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`owner-link`, `item`.`body`
 				FROM `item` WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
@@ -53,11 +53,33 @@ function display_init(&$a) {
 					AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
 				//	AND NOT `item`.`private` AND `item`.`wall`
 		}
-		if (dba::is_result($r)) {
+		if (dbm::is_result($r)) {
 			if ($r[0]["id"] != $r[0]["parent"])
-				$r = q("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid` FROM `item`
+				$r = q("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `id` = %d", $r[0]["parent"]);
+
+			if (($itemuid != local_user()) AND local_user()) {
+				// Do we know this contact but we haven't got this item?
+				// Copy the wohle thread to our local storage so that we can interact.
+				// We really should change this need for the future since it scales very bad.
+				$contactid = get_contact($r[0]['owner-link'], local_user());
+				if ($contactid) {
+					$items = q("SELECT * FROM `item` WHERE `parent` = %d ORDER BY `id`", intval($r[0]["id"]));
+					foreach ($items AS $item) {
+						$itemcontactid = get_contact($item['owner-link'], local_user());
+						if (!$itemcontactid)
+							$itemcontactid = $contactid;
+
+						unset($item['id']);
+						$item['uid'] = local_user();
+						$item['origin'] = 0;
+						$item['contact-id'] = $itemcontactid;
+						$local_copy = item_store($item, false, false, true);
+						logger("Stored local copy for post ".$item['guid']." under id ".$local_copy, LOGGER_DEBUG);
+					}
+				}
+			}
 
 			$profiledata = display_fetchauthor($a, $r[0]);
 
@@ -70,7 +92,7 @@ function display_init(&$a) {
 						WHERE `user`.`nickname` = '%s' AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
 						dbesc($nickname)
 					);
-					if (dba::is_result($r))
+					if (dbm::is_result($r))
 						$profiledata = $r[0];
 
 					$profiledata["network"] = NETWORK_DFRN;
@@ -89,6 +111,8 @@ function display_init(&$a) {
 }
 
 function display_fetchauthor($a, $item) {
+
+	require_once("include/Contact.php");
 
 	$profiledata = array();
 	$profiledata["uid"] = -1;
@@ -154,61 +178,9 @@ function display_fetchauthor($a, $item) {
 		$profiledata["about"] = "";
 	}
 
-	// Don't show details from Diaspora contacts if you don't follow the contact
-	$showdetails = ($profiledata["network"] != NETWORK_DIASPORA);
+	$profiledata = get_contact_details_by_url($profiledata["url"], local_user(), $profiledata);
 
-	// Fetching further contact data from the contact table
-	$r = q("SELECT `uid`, `network`, `name`, `photo`, `nick`, `addr`, `location`, `about`, `gender`, `keywords`
-		FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `network` = '%s' AND `rel` IN (%d, %d)",
-		dbesc(normalise_link($profiledata["url"])), intval(local_user()), dbesc($item["network"]),
-		intval(CONTACT_IS_SHARING), intval(CONTACT_IS_FRIEND));
-	if (!count($r))
-		$r = q("SELECT `uid`, `network`, `name`, `photo`, `nick`, `addr`, `location`, `about`, `gender`, `keywords`
-			FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `rel` IN (%d, %d)",
-			dbesc(normalise_link($profiledata["url"])), intval(local_user()),
-			intval(CONTACT_IS_SHARING), intval(CONTACT_IS_FRIEND));
-
-	if (dba::is_result($r)) {
-		$profiledata["name"] = $r[0]["name"];
-		$profiledata["photo"] = $r[0]["photo"];
-		$profiledata["nickname"] = $r[0]["nick"];
-		$profiledata["addr"] = $r[0]["addr"];
-		$profiledata["keywords"] = $r[0]["keywords"];
-		$profiledata["network"] = $r[0]["network"];
-
-		if (local_user() OR $showdetails) {
-			$showdetails = true;
-			$profiledata["address"] = $r[0]["location"];
-			$profiledata["about"] = $r[0]["about"];
-			$profiledata["gender"] = $r[0]["gender"];
-		}
-	}
-
-	// Fetching profile data from global contacts
-	if ($profiledata["network"] != NETWORK_FEED) {
-		$r = q("SELECT `name`, `photo`, `nick`, `addr`, `location`, `about`, `gender`, `keywords`, `network` FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($profiledata["url"])));
-		if (dba::is_result($r)) {
-			$profiledata["name"] = $r[0]["name"];
-			$profiledata["photo"] = $r[0]["photo"];
-			$profiledata["nickname"] = $r[0]["nick"];
-			$profiledata["addr"] = $r[0]["addr"];
-			$profiledata["network"] = $r[0]["network"];
-
-			if ($r[0]["keywords"])
-				$profiledata["keywords"] = $r[0]["keywords"];
-
-			if ($showdetails) {
-				if ($r[0]["location"])
-					$profiledata["address"] = $r[0]["location"];
-
-				if ($r[0]["about"])
-					$profiledata["about"] = $r[0]["about"];
-
-				if ($r[0]["gender"])
-					$profiledata["gender"] = $r[0]["gender"];
-			}
-		}
-	}
+	$profiledata["photo"] = App::remove_baseurl($profiledata["photo"]);
 
 	if (local_user()) {
 		if (in_array($profiledata["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
@@ -259,7 +231,7 @@ function display_content(&$a, $update = 0) {
 				$r = q("SELECT `id` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `guid` = '%s' AND `uid` = %d", dbesc($a->argv[1]), local_user());
-				if (dba::is_result($r)) {
+				if (dbm::is_result($r)) {
 					$item_id = $r[0]["id"];
 					$nick = $a->user["nickname"];
 				}
@@ -273,7 +245,7 @@ function display_content(&$a, $update = 0) {
 						AND NOT `item`.`private` AND NOT `user`.`hidewall`
 						AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
 					//	AND NOT `item`.`private` AND `item`.`wall`
-				if (dba::is_result($r)) {
+				if (dbm::is_result($r)) {
 					$item_id = $r[0]["id"];
 					$nick = $r[0]["nickname"];
 				}
@@ -286,7 +258,7 @@ function display_content(&$a, $update = 0) {
 						AND NOT `item`.`private` AND `item`.`uid` = 0
 						AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
 					//	AND NOT `item`.`private` AND `item`.`wall`
-				if (dba::is_result($r)) {
+				if (dbm::is_result($r)) {
 					$item_id = $r[0]["id"];
 				}
 			}
@@ -331,7 +303,7 @@ function display_content(&$a, $update = 0) {
 			intval($contact_id),
 			intval($a->profile['uid'])
 		);
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 			$contact = $r[0];
 			$remote_contact = true;
 		}
@@ -347,7 +319,7 @@ function display_content(&$a, $update = 0) {
 	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1",
 		intval($a->profile['uid'])
 	);
-	if(dba::is_result($r))
+	if(dbm::is_result($r))
 		$a->page_contact = $r[0];
 
 	$is_owner = ((local_user()) && (local_user() == $a->profile['profile_uid']) ? true : false);
@@ -390,20 +362,14 @@ function display_content(&$a, $update = 0) {
 			return '';
 	}
 
-	$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,  `item`.`network` AS `item_network`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
-		`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-		FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-		AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
-		WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted`
-		AND NOT `item`.`moderated`
+	$r = q(item_query()." AND `item`.`uid` = %d
 		AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = %d)
 		$sql_extra
 		ORDER BY `parent` DESC, `gravity` ASC, `id` ASC",
 		intval($a->profile['uid']),
 		intval($item_id)
 	);
+
 
 	if(!$r && local_user()) {
 		// Check if this is another person's link to a post that we have
@@ -416,14 +382,7 @@ function display_content(&$a, $update = 0) {
 		if($r) {
 			$item_uri = $r[0]['uri'];
 
-			$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,  `item`.`network` AS `item_network`,
-				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-				`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
-				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-				FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
-				WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted`
-				AND NOT `item`.`moderated`
+			$r = q(item_query()." AND `item`.`uid` = %d
 				AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `uri` = '%s' AND uid = %d)
 				ORDER BY `parent` DESC, `gravity` ASC, `id` ASC ",
 				intval(local_user()),
@@ -432,7 +391,6 @@ function display_content(&$a, $update = 0) {
 			);
 		}
 	}
-
 
 	if($r) {
 
@@ -460,9 +418,7 @@ function display_content(&$a, $update = 0) {
 		$title = trim(html2plain(bbcode($r[0]["title"], false, false), 0, true));
 		$author_name = $r[0]["author-name"];
 
-		$image = "";
-		if ($image == "")
-			$image = $r[0]["thumb"];
+		$image = $a->remove_baseurl($r[0]["thumb"]);
 
 		if ($title == "")
 			$title = $author_name;

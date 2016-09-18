@@ -33,7 +33,7 @@ function fsuggest_post(&$a) {
 			intval($new_contact),
 			intval(local_user())
 		);
-		if(dba::is_result($r)) {
+		if(dbm::is_result($r)) {
 
 			$x = q("INSERT INTO `fsuggest` ( `uid`,`cid`,`name`,`url`,`request`,`photo`,`note`,`created`)
 				VALUES ( %d, %d, '%s','%s','%s','%s','%s','%s')",
@@ -50,14 +50,14 @@ function fsuggest_post(&$a) {
 				dbesc($hash),
 				intval(local_user())
 			);
-			if(dba::is_result($r)) {
+			if(dbm::is_result($r)) {
 				$fsuggest_id = $r[0]['id'];
 				q("UPDATE `fsuggest` SET `note` = '%s' WHERE `id` = %d AND `uid` = %d",
 					dbesc($note),
 					intval($fsuggest_id),
 					intval(local_user())
 				);
-				proc_run('php', 'include/notifier.php', 'suggest' , $fsuggest_id);
+				proc_run(PRIORITY_HIGH, 'include/notifier.php', 'suggest', $fsuggest_id);
 			}
 
 			info( t('Friend suggestion sent.') . EOL);

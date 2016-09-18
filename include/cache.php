@@ -10,7 +10,7 @@
 				dbesc($key)
 			);
 
-			if (dba::is_result($r))
+			if (dbm::is_result($r))
 				return $r[0]['v'];
 
 			return null;
@@ -38,7 +38,7 @@
  *			$r = q("SELECT * FROM `cache` WHERE `k`='%s' limit 1",
  *				dbesc($key)
  *			);
- *			if(dba::is_result($r)) {
+ *			if(dbm::is_result($r)) {
  *				q("UPDATE `cache` SET `v` = '%s', `updated = '%s' WHERE `k` = '%s'",
  *					dbesc($value),
  *					dbesc(datetime_convert()),

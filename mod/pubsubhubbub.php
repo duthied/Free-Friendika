@@ -132,7 +132,7 @@ function pubsubhubbub_init(&$a) {
 
 			// if we are just updating an old subscription, keep the
 			// old values for push and last_update
-			if (dba::is_result($r)) {
+			if (dbm::is_result($r)) {
 				$last_update = $r[0]['last_update'];
 				$push_flag = $r[0]['push'];
 			}

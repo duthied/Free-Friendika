@@ -78,7 +78,7 @@ function directory_content(&$a) {
 	$r = $db->q("SELECT COUNT(*) AS `total` FROM `profile`
 			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 			WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 $sql_extra ");
-	if(dba::is_result($r))
+	if(dbm::is_result($r))
 		$a->set_pager_total($r[0]['total']);
 
 	$order = " ORDER BY `name` ASC ";
@@ -90,7 +90,7 @@ function directory_content(&$a) {
 			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
 			WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 AND `contact`.`self` $sql_extra $order LIMIT ".$limit);
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 
 		if(in_array('small', $a->argv))
 			$photo = 'thumb';
@@ -159,7 +159,9 @@ function directory_content(&$a) {
 				$location_e = $location;
 			}
 
-			$photo_menu = array(array(t("View Profile"), zrl($profile_link)));
+			$photo_menu = array(
+				'profile' => array(t("View Profile"), zrl($profile_link))
+			);
 
 			$entry = array(
 				'id' => $rr['id'],
@@ -204,7 +206,7 @@ function directory_content(&$a) {
 			'$gdirpath' => $gdirpath,
 			'$desc' => t('Find on this site'),
 			'$contacts' => $entries,
-			'$finding' => t('Finding:'),
+			'$finding' => t('Results for:'),
 			'$findterm' => (strlen($search) ? $search : ""),
 			'$title' => t('Site Directory'),
 			'$submit' => t('Find'),

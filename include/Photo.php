@@ -589,7 +589,7 @@ class Photo {
 	$r = q("select `guid` from photo where `resource-id` = '%s' and `guid` != '' limit 1",
 	    dbesc($rid)
 	);
-	if(dba::is_result($r))
+	if(dbm::is_result($r))
 	    $guid = $r[0]['guid'];
 	else
 	    $guid = get_guid();
@@ -823,9 +823,12 @@ function get_photo_info($url) {
 
 	$data = Cache::get($url);
 
-	if (is_null($data)) {
-		$img_str = fetch_url($url, true, $redirects, 4);
+	// Unserialise to be able to check in the next step if the cached data is alright.
+	if (!is_null($data))
+		$data = unserialize($data);
 
+	if (is_null($data) OR !$data) {
+		$img_str = fetch_url($url, true, $redirects, 4);
 		$filesize = strlen($img_str);
 
 		if (function_exists("getimagesizefromstring"))
@@ -846,8 +849,7 @@ function get_photo_info($url) {
 			$data["size"] = $filesize;
 
 		Cache::set($url, serialize($data));
-	} else
-		$data = unserialize($data);
+	}
 
 	return $data;
 }

@@ -82,7 +82,7 @@ function get_attachment_data($body) {
 
 	$data = array();
 
-	if (!preg_match("/(.*)\[attachment(.*)\](.*?)\[\/attachment\](.*)/ism", $body, $match))
+	if (!preg_match("/(.*)\[attachment(.*?)\](.*?)\[\/attachment\](.*)/ism", $body, $match))
 		return get_old_attachment_data($body);
 
 	$attributes = $match[2];
@@ -117,7 +117,7 @@ function get_attachment_data($body) {
 		$url = $matches[1];
 
 	if ($url != "")
-		$data["url"] = $url;
+		$data["url"] = html_entity_decode($url, ENT_QUOTES, 'UTF-8');
 
 	$title = "";
 	preg_match("/title='(.*?)'/ism", $attributes, $matches);
@@ -128,12 +128,12 @@ function get_attachment_data($body) {
 	if ($matches[1] != "")
 		$title = $matches[1];
 
-	//$title = htmlentities($title, ENT_QUOTES, 'UTF-8', false);
-	$title = bbcode(html_entity_decode($title, ENT_QUOTES, 'UTF-8'), false, false, true);
-	$title = str_replace(array("[", "]"), array("&#91;", "&#93;"), $title);
-
-	if ($title != "")
+	if ($title != "") {
+		$title = bbcode(html_entity_decode($title, ENT_QUOTES, 'UTF-8'), false, false, true);
+		$title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
+		$title = str_replace(array("[", "]"), array("&#91;", "&#93;"), $title);
 		$data["title"] = $title;
+	}
 
 	$image = "";
 	preg_match("/image='(.*?)'/ism", $attributes, $matches);
@@ -145,7 +145,7 @@ function get_attachment_data($body) {
 		$image = $matches[1];
 
 	if ($image != "")
-		$data["image"] = $image;
+		$data["image"] = html_entity_decode($image, ENT_QUOTES, 'UTF-8');
 
 	$preview = "";
 	preg_match("/preview='(.*?)'/ism", $attributes, $matches);
@@ -157,7 +157,7 @@ function get_attachment_data($body) {
 		$preview = $matches[1];
 
 	if ($preview != "")
-		$data["preview"] = $preview;
+		$data["preview"] = html_entity_decode($preview, ENT_QUOTES, 'UTF-8');
 
 	$data["description"] = trim($match[3]);
 
@@ -189,6 +189,13 @@ function get_attached_data($body) {
 			if (count($pictures) == 1) {
 				// Checking, if the link goes to a picture
 				$data = parseurl_getsiteinfo_cached($pictures[0][1], true);
+
+				// Workaround:
+				// Sometimes photo posts to the own album are not detected at the start.
+				// So we seem to cannot use the cache for these cases. That's strange.
+				if (($data["type"] != "photo") AND strstr($pictures[0][1], "/photos/"))
+					$data = parseurl_getsiteinfo($pictures[0][1], true);
+
 				if ($data["type"] == "photo") {
 					$post["type"] = "photo";
 					if (isset($data["images"][0])) {
@@ -343,7 +350,7 @@ function plaintext($a, $b, $limit = 0, $includedlinks = false, $htmlmode = 2, $t
 		}
 	}
 
-	$html = bbcode($post["text"], false, false, $htmlmode);
+	$html = bbcode($post["text"].$post["after"], false, false, $htmlmode);
 	$msg = html2plain($html, 0, true);
 	$msg = trim(html_entity_decode($msg,ENT_QUOTES,'UTF-8'));
 

@@ -161,6 +161,7 @@ class ostatus {
 			}
 
 			$contact["generation"] = 2;
+			$contact["hide"] = false; // OStatus contacts are never hidden
 			$contact["photo"] = $author["author-avatar"];
 			update_gcontact($contact);
 		}
@@ -492,6 +493,7 @@ class ostatus {
 						$orig_body = $xpath->query('atom:content/text()', $activityobjects)->item(0)->nodeValue;
 
 					$orig_created = $xpath->query('atom:published/text()', $activityobjects)->item(0)->nodeValue;
+					$orig_edited = $xpath->query('atom:updated/text()', $activityobjects)->item(0)->nodeValue;
 
 					$orig_contact = $contact;
 					$orig_author = self::fetchauthor($xpath, $activityobjects, $importer, $orig_contact, false);
@@ -501,6 +503,7 @@ class ostatus {
 					$item["author-avatar"] = $orig_author["author-avatar"];
 					$item["body"] = add_page_info_to_body(html2bbcode($orig_body));
 					$item["created"] = $orig_created;
+					$item["edited"] = $orig_edited;
 
 					$item["uri"] = $orig_uri;
 					$item["plink"] = $orig_link;
@@ -691,6 +694,7 @@ class ostatus {
 				}
 			}
 
+		$contact["hide"] = false; // OStatus contacts are never hidden
 		update_gcontact($contact);
 	}
 
@@ -1967,7 +1971,7 @@ class ostatus {
 						OR (`item`.`network` = '%s' AND ((`thread`.`network` IN ('%s', '%s')) OR (`thritem`.`network` IN ('%s', '%s')))) AND `thread`.`mention`)
 					AND ((`item`.`owner-link` IN ('%s', '%s') AND (`item`.`parent` = `item`.`id`))
 						OR (`item`.`author-link` IN ('%s', '%s')))
-				ORDER BY `item`.`received` DESC
+				ORDER BY `item`.`id` DESC
 				LIMIT 0, 300",
 				intval($owner["uid"]), dbesc($check_date), dbesc(NETWORK_DFRN),
 				//dbesc(NETWORK_OSTATUS), dbesc(NETWORK_OSTATUS),

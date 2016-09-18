@@ -33,7 +33,7 @@ function group_select($selname,$selclass,$preselected = false,$size = 4) {
 
 	call_hooks($a->module . '_pre_' . $selname, $arr);
 
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			if((is_array($preselected)) && in_array($rr['id'], $preselected))
 				$selected = " selected=\"selected\" ";
@@ -144,7 +144,7 @@ function contact_selector($selname, $selclass, $preselected = false, $options) {
 
 	call_hooks($a->module . '_pre_' . $selname, $arr);
 
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			if((is_array($preselected)) && in_array($rr['id'], $preselected))
 				$selected = " selected=\"selected\" ";
@@ -220,7 +220,7 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 
 	$receiverlist = array();
 
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			if((is_array($preselected)) && in_array($rr['id'], $preselected))
 				$selected = " selected=\"selected\" ";
@@ -314,7 +314,7 @@ function populate_acl($user = null, $show_jotnets = false) {
 			$r = q("SELECT `pubmail` FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
 				intval(local_user())
 			);
-			if(dba::is_result($r)) {
+			if(dbm::is_result($r)) {
 				$mail_enabled = true;
 				if(intval($r[0]['pubmail']))
 					$pubmail_enabled = true;
@@ -399,7 +399,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 	$count	=	(x($_REQUEST,'count')		? $_REQUEST['count']		: 100);
 	$search	 =	(x($_REQUEST,'search')		? $_REQUEST['search']		: "");
 	$type	=	(x($_REQUEST,'type')		? $_REQUEST['type']		: "");
-	$mode	=	(x($_REQUEST,'mode')		? $_REQUEST['mode']		: "");
+	$mode	=	(x($_REQUEST,'smode')		? $_REQUEST['smode']		: "");
 	$conv_id =	(x($_REQUEST,'conversation')	? $_REQUEST['conversation']	: null);
 
 	// For use with jquery.textcomplete for private mail completion
@@ -481,11 +481,11 @@ function acl_lookup(&$a, $out_type = 'json') {
 	if ($type=='' || $type=='g'){
 
 		$r = q("SELECT `group`.`id`, `group`.`name`, GROUP_CONCAT(DISTINCT `group_member`.`contact-id` SEPARATOR ',') AS uids
-				FROM `group`,`group_member`
-				WHERE `group`.`deleted` = 0 AND `group`.`uid` = %d
-					AND `group_member`.`gid`=`group`.`id`
+				FROM `group`
+				INNER JOIN `group_member` ON `group_member`.`gid`=`group`.`id` AND `group_member`.`uid` = `group`.`uid`
+				WHERE NOT `group`.`deleted` AND `group`.`uid` = %d
 					$sql_extra
-				GROUP BY `group`.`id`
+				GROUP BY `group`.`name`
 				ORDER BY `group`.`name`
 				LIMIT %d,%d",
 			intval(local_user()),
@@ -577,7 +577,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 		$r = array();
 
 
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $g){
 			$contacts[] = array(
 				"type"  => "c",
@@ -612,7 +612,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 				dbesc($search),
 				implode("','", $known_contacts)
 		);
-		if (dba::is_result($r)){
+		if (dbm::is_result($r)){
 			foreach($r as $row) {
 				// nickname..
 				$up = parse_url($row['author-link']);
@@ -690,7 +690,7 @@ function navbar_complete(&$a) {
 	$localsearch = get_config('system','poco_local_search');
 
 	$search = $prefix.notags(trim($_REQUEST['search']));
-	$mode = $_REQUEST['mode'];
+	$mode = $_REQUEST['smode'];
 
 	// don't search if search term has less than 2 characters
 	if(! $search || mb_strlen($search) < 2)

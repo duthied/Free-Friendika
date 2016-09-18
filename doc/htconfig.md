@@ -38,6 +38,8 @@ line to your .htconfig.php:
 * max_connections_level - The maximum level of connections that are allowed to let the poller start. It is a percentage value. Default value is 75.
 * max_contact_queue - Default value is 500.
 * max_batch_queue - Default value is 1000.
+* max_processes_backend - Maximum number of concurrent database processes for background tasks. Default value is 5.
+* max_processes_frontend - Maximum number of concurrent database processes for foreground tasks. Default value is 20.
 * no_oembed (Boolean) - Don't use OEmbed to fetch more information about a link.
 * no_oembed_rich_content (Boolean) - Don't show the rich content (e.g. embedded PDF).
 * no_smilies (Boolean) - Don't show smilies.
@@ -55,7 +57,7 @@ line to your .htconfig.php:
 * qsearch_limit - Default value is 100.
 * relay_server - Experimental Diaspora feature. Address of the relay server where public posts should be send to. For example https://podrelay.net
 * relay_subscribe (Boolean) - Enables the receiving of public posts from the relay. They will be included in the search and on the community page when it is set up to show all public items.
-* relay_scope - Can be "all" or "tags". "all" means that every public post should be received. "tags" means that only posts witt selected tags should be received.
+* relay_scope - Can be "all" or "tags". "all" means that every public post should be received. "tags" means that only posts with selected tags should be received.
 * relay_server_tags - Comma separated list of tags for the "tags" subscription (see "relay_scrope")
 * relay_user_tags (Boolean) - If enabled, the tags from the saved searches will used for the "tags" subscription in addition to the "relay_server_tags".
 * remove_multiplicated_lines (Boolean) - If enabled, multiple linefeeds in items are stripped to a single one.
@@ -65,6 +67,7 @@ line to your .htconfig.php:
 * throttle_limit_week - Maximum number of posts that a user can send per week with the API.
 * throttle_limit_month - Maximum number of posts that a user can send per month with the API.
 * wall-to-wall_share (Boolean) - Displays forwarded posts like "wall-to-wall" posts.
+* worker_cooldown - Cooldown time after each worker function call. Default value is 0 seconds.
 * xrd_timeout - Timeout for fetching the XRD links. Default value is 20 seconds.
 
 ## service_class ##

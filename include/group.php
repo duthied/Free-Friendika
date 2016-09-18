@@ -44,7 +44,7 @@ function group_rmv($uid,$name) {
 			intval($uid),
 			dbesc($name)
 		);
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			$group_id = $r[0]['id'];
 		if(! $group_id)
 			return false;
@@ -106,7 +106,7 @@ function group_byname($uid,$name) {
 		intval($uid),
 		dbesc($name)
 	);
-	if(dba::is_result($r))
+	if(dbm::is_result($r))
 		return $r[0]['id'];
 	return false;
 }
@@ -139,7 +139,7 @@ function group_add_member($uid,$name,$member,$gid = 0) {
 		intval($gid),
 		intval($member)
 	);
-	if(dba::is_result($r))
+	if(dbm::is_result($r))
 		return true;	// You might question this, but
 				// we indicate success because the group member was in fact created
 				// -- It was just created at another time
@@ -164,7 +164,7 @@ function group_get_members($gid) {
 			intval($gid),
 			intval(local_user())
 		);
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			$ret = $r;
 	}
 	return $ret;
@@ -181,7 +181,7 @@ function group_public_members($gid) {
 			intval(local_user()),
 			dbesc(NETWORK_OSTATUS)
 		);
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			$ret = count($r);
 	}
 	return $ret;
@@ -197,7 +197,7 @@ function mini_group_select($uid,$gid = 0, $label = "") {
 		intval($uid)
 	);
 	$grps[] = array('name' => '', 'id' => '0', 'selected' => '');
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			$grps[] = array('name' => $rr['name'], 'id' => $rr['id'], 'selected' => (($gid == $rr['id']) ? 'true' : ''));
 		}
@@ -255,7 +255,7 @@ function group_side($every="contacts",$each="group",$editmode = "standard", $gro
 		$member_of = groups_containing(local_user(),$cid);
 	}
 
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			$selected = (($group_id == $rr['id']) ? ' group-selected' : '');
 
@@ -316,7 +316,7 @@ function expand_groups($a,$check_dead = false, $use_gcontact = false) {
 
 
 	$ret = array();
-	if(dba::is_result($r))
+	if(dbm::is_result($r))
 		foreach($r as $rr)
 			$ret[] = $rr['contact-id'];
 	if($check_dead AND !$use_gcontact) {
@@ -345,7 +345,7 @@ function groups_containing($uid,$c) {
 	);
 
 	$ret = array();
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr)
 			$ret[] = $rr['gid'];
 	}
@@ -366,7 +366,7 @@ function groups_containing($uid,$c) {
 function groups_count_unseen() {
 
 	$r = q("SELECT `group`.`id`, `group`.`name`,
-			(SELECT COUNT(*) FROM `item`
+			(SELECT COUNT(*) FROM `item` FORCE INDEX (`uid_unseen_contactid`)
 				WHERE `uid` = %d AND `unseen` AND
 					`contact-id` IN (SELECT `contact-id` FROM `group_member`
 								WHERE `group_member`.`gid` = `group`.`id` AND `group_member`.`uid` = %d)) AS `count`

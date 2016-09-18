@@ -36,9 +36,9 @@ require_once('include/dbstructure.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
-define ( 'FRIENDICA_VERSION',      '3.5-dev' );
+define ( 'FRIENDICA_VERSION',      '3.5.1-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1195      );
+define ( 'DB_UPDATE_VERSION',      1202      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -386,6 +386,24 @@ define ( 'GRAVITY_LIKE',         3);
 define ( 'GRAVITY_COMMENT',      6);
 /* @}*/
 
+/**
+ * @name Priority
+ *
+ * Process priority for the worker
+ * @{
+ */
+define('PRIORITY_UNDEFINED',  0);
+define('PRIORITY_CRITICAL',  10);
+define('PRIORITY_HIGH',      20);
+define('PRIORITY_MEDIUM',    30);
+define('PRIORITY_LOW',       40);
+define('PRIORITY_NEGLIGIBLE',50);
+/* @}*/
+
+
+// Normally this constant is defined - but not if "pcntl" isn't installed
+if (!defined("SIGTERM"))
+	define("SIGTERM", 15);
 
 /**
  *
@@ -471,6 +489,7 @@ class App {
 	public	$performance = array();
 	public	$callstack = array();
 	public	$theme_info = array();
+	public  $backend = true;
 
 	public $nav_sel;
 
@@ -511,6 +530,8 @@ class App {
 	 * @brief An array of instanced template engines ('name'=>'instance')
 	 */
 	public $template_engine_instance = array();
+
+	public $process_id;
 
 	private $ldelim = array(
 		'internal' => '',
@@ -553,6 +574,7 @@ class App {
 
 		$this->performance["start"] = microtime(true);
 		$this->performance["database"] = 0;
+		$this->performance["database_write"] = 0;
 		$this->performance["network"] = 0;
 		$this->performance["file"] = 0;
 		$this->performance["rendering"] = 0;
@@ -572,6 +594,8 @@ class App {
 
 		$this->query_string = '';
 
+		$this->process_id = uniqid("log", true);
+
 		startup();
 
 		set_include_path(
@@ -583,10 +607,15 @@ class App {
 
 
 		$this->scheme = 'http';
-		if(x($_SERVER,'HTTPS') && $_SERVER['HTTPS'])
+		if((x($_SERVER,'HTTPS') && $_SERVER['HTTPS']) ||
+		   (x($_SERVER['HTTP_FORWARDED']) && preg_match("/proto=https/", $_SERVER['HTTP_FORWARDED'])) ||
+		   (x($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') ||
+		   (x($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on') ||
+		   (x($_SERVER['FRONT_END_HTTPS']) && $_SERVER['FRONT_END_HTTPS'] == 'on') ||
+		   (x($_SERVER,'SERVER_PORT') && (intval($_SERVER['SERVER_PORT']) == 443)) // XXX: reasonable assumption, but isn't this hardcoding too much?
+		   ) {
 			$this->scheme = 'https';
-		elseif(x($_SERVER,'SERVER_PORT') && (intval($_SERVER['SERVER_PORT']) == 443))
-			$this->scheme = 'https';
+		   }
 
 		if(x($_SERVER,'SERVER_NAME')) {
 			$this->hostname = $_SERVER['SERVER_NAME'];
@@ -862,6 +891,9 @@ class App {
 		if ($touch_icon == "")
 			$touch_icon = "images/friendica-128.png";
 
+		// get data wich is needed for infinite scroll on the network page
+		$invinite_scroll = infinite_scroll_data($this->module);
+
 		$tpl = get_markup_template('head.tpl');
 		$this->page['htmlhead'] = replace_macros($tpl,array(
 			'$baseurl' => $this->get_baseurl(), // FIXME for z_path!!!!
@@ -874,7 +906,8 @@ class App {
 			'$update_interval' => $interval,
 			'$shortcut_icon' => $shortcut_icon,
 			'$touch_icon' => $touch_icon,
-			'$stylesheet' => $stylesheet
+			'$stylesheet' => $stylesheet,
+			'$infinite_scroll' => $invinite_scroll,
 		)) . $this->page['htmlhead'];
 	}
 
@@ -927,7 +960,7 @@ class App {
 		} else {
 			$r = q("SELECT `contact`.`avatar-date` AS picdate FROM `contact` WHERE `contact`.`thumb` like '%%/%s'",
 				$common_filename);
-			if(! dba::is_result($r)){
+			if(! dbm::is_result($r)){
 				$this->cached_profile_image[$avatar_image] = $avatar_image;
 			} else {
 				$this->cached_profile_picdate[$common_filename] = "?rev=".urlencode($r[0]['picdate']);
@@ -1067,6 +1100,42 @@ class App {
 	}
 
 	/**
+	 * @brief Log active processes into the "process" table
+	 */
+	function start_process() {
+		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+
+		$command = basename($trace[0]["file"]);
+
+		$this->remove_inactive_processes();
+
+		$r = q("SELECT `pid` FROM `process` WHERE `pid` = %d", intval(getmypid()));
+		if(!dbm::is_result($r))
+			q("INSERT INTO `process` (`pid`,`command`,`created`) VALUES (%d, '%s', '%s')",
+				intval(getmypid()),
+				dbesc($command),
+				dbesc(datetime_convert()));
+	}
+
+	/**
+	 * @brief Remove inactive processes
+	 */
+	function remove_inactive_processes() {
+		$r = q("SELECT `pid` FROM `process`");
+		if(dbm::is_result($r))
+			foreach ($r AS $process)
+				if (!posix_kill($process["pid"], 0))
+					q("DELETE FROM `process` WHERE `pid` = %d", intval($process["pid"]));
+	}
+
+	/**
+	 * @brief Remove the active process from the "process" table
+	 */
+	function end_process() {
+		q("DELETE FROM `process` WHERE `pid` = %d", intval(getmypid()));
+	}
+
+	/**
 	 * @brief Returns a string with a callstack. Can be used for logging.
 	 *
 	 * @return string
@@ -1099,20 +1168,103 @@ class App {
 	}
 
 	/**
+	 * @brief Checks if the site is called via a backend process
+	 *
+	 * This isn't a perfect solution. But we need this check very early.
+	 * So we cannot wait until the modules are loaded.
+	 *
+	 * @return bool Is it a known backend?
+	 */
+	function is_backend() {
+		$backend = array();
+		$backend[] = "_well_known";
+		$backend[] = "api";
+		$backend[] = "dfrn_notify";
+		$backend[] = "fetch";
+		$backend[] = "hcard";
+		$backend[] = "hostxrd";
+		$backend[] = "nodeinfo";
+		$backend[] = "noscrape";
+		$backend[] = "p";
+		$backend[] = "poco";
+		$backend[] = "post";
+		$backend[] = "proxy";
+		$backend[] = "pubsub";
+		$backend[] = "pubsubhubbub";
+		$backend[] = "receive";
+		$backend[] = "rsd_xml";
+		$backend[] = "salmon";
+		$backend[] = "statistics_json";
+		$backend[] = "xrd";
+
+		if (in_array($this->module, $backend))
+			return(true);
+		else
+			return($this->backend);
+	}
+
+	/**
+	 * @brief Checks if the maximum number of database processes is reached
+	 *
+	 * @return bool Is the limit reached?
+	 */
+	function max_processes_reached() {
+
+		// Is the function called statically?
+		if (!is_object($this))
+			return(self::$a->max_processes_reached());
+
+		if ($this->is_backend()) {
+			$process = "backend";
+			$max_processes = get_config('system', 'max_processes_backend');
+			if (intval($max_processes) == 0)
+				$max_processes = 5;
+		} else {
+			$process = "frontend";
+			$max_processes = get_config('system', 'max_processes_frontend');
+			if (intval($max_processes) == 0)
+				$max_processes = 20;
+		}
+
+		$processlist = dbm::processlist();
+		if ($processlist["list"] != "") {
+			logger("Processcheck: Processes: ".$processlist["amount"]." - Processlist: ".$processlist["list"], LOGGER_DEBUG);
+
+			if ($processlist["amount"] > $max_processes) {
+				logger("Processcheck: Maximum number of processes for ".$process." tasks (".$max_processes.") reached.", LOGGER_DEBUG);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * @brief Checks if the maximum load is reached
 	 *
 	 * @return bool Is the load reached?
 	 */
 	function maxload_reached() {
 
-		$maxsysload = intval(get_config('system', 'maxloadavg'));
-		if ($maxsysload < 1)
-			$maxsysload = 50;
+		// Is the function called statically?
+		if (!is_object($this))
+			return(self::$a->maxload_reached());
+
+		if ($this->is_backend()) {
+			$process = "backend";
+			$maxsysload = intval(get_config('system', 'maxloadavg'));
+			if ($maxsysload < 1)
+				$maxsysload = 50;
+		} else {
+			$process = "frontend";
+			$maxsysload = intval(get_config('system','maxloadavg_frontend'));
+			if ($maxsysload < 1)
+				$maxsysload = 50;
+		}
 
 		$load = current_load();
 		if ($load) {
 			if (intval($load) > $maxsysload) {
-				logger('system: load '.$load.' too high.');
+				logger('system: load '.$load.' for '.$process.' tasks ('.$maxsysload.') too high.');
 				return true;
 			}
 		}
@@ -1140,12 +1292,45 @@ class App {
 					logger("killed stale process");
 					// Calling a new instance
 					if ($task != "")
-						proc_run('php', $task);
+						proc_run(PRIORITY_MEDIUM, $task);
 				}
 				return true;
 			}
 		}
 		return false;
+	}
+
+	function proc_run($args) {
+
+		// Add the php path if it is a php call
+		if (count($args) && ($args[0] === 'php' OR is_int($args[0]))) {
+
+			// If the last worker fork was less than 10 seconds before then don't fork another one.
+			// This should prevent the forking of masses of workers.
+			if (get_config("system", "worker")) {
+				if ((time() - get_config("system", "proc_run_started")) < 10)
+					return;
+
+				// Set the timestamp of the last proc_run
+				set_config("system", "proc_run_started", time());
+			}
+
+			$args[0] = ((x($this->config,'php_path')) && (strlen($this->config['php_path'])) ? $this->config['php_path'] : 'php');
+		}
+
+		// add baseurl to args. cli scripts can't construct it
+		$args[] = $this->get_baseurl();
+
+		for($x = 0; $x < count($args); $x ++)
+			$args[$x] = escapeshellarg($args[$x]);
+
+		$cmdline = implode($args," ");
+
+		if(get_config('system','proc_windows'))
+			proc_close(proc_open('cmd /c start /b ' . $cmdline,array(),$foo,dirname(__FILE__)));
+		else
+			proc_close(proc_open($cmdline." &",array(),$foo,dirname(__FILE__)));
+
 	}
 }
 
@@ -1262,7 +1447,7 @@ function check_db() {
 		$build = DB_UPDATE_VERSION;
 	}
 	if($build != DB_UPDATE_VERSION)
-		proc_run('php', 'include/dbupdate.php');
+		proc_run(PRIORITY_CRITICAL, 'include/dbupdate.php');
 
 }
 
@@ -1412,7 +1597,7 @@ function run_update_function($x) {
 function check_plugins(&$a) {
 
 	$r = q("SELECT * FROM `addon` WHERE `installed` = 1");
-	if(dba::is_result($r))
+	if(dbm::is_result($r))
 		$installed = $r;
 	else
 		$installed = array();
@@ -1515,20 +1700,20 @@ function login($register = false, $hiddens=false) {
 
 	$o .= replace_macros($tpl, array(
 
-		'$dest_url'     => $dest_url,
-		'$logout'       => t('Logout'),
-		'$login'        => t('Login'),
+		'$dest_url'	=> $dest_url,
+		'$logout'	=> t('Logout'),
+		'$login'	=> t('Login'),
 
-		'$lname'	 	=> array('username', t('Nickname or Email address: ') , '', ''),
+		'$lname'	=> array('username', t('Nickname or Email: ') , '', ''),
 		'$lpassword' 	=> array('password', t('Password: '), '', ''),
 		'$lremember'	=> array('remember', t('Remember me'), 0,  ''),
 
-		'$openid'		=> !$noid,
-		'$lopenid'      => array('openid_url', t('Or login using OpenID: '),'',''),
+		'$openid'	=> !$noid,
+		'$lopenid'	=> array('openid_url', t('Or login using OpenID: '),'',''),
 
-		'$hiddens'      => $hiddens,
+		'$hiddens'	=> $hiddens,
 
-		'$register'     => $reg,
+		'$register'	=> $reg,
 
 		'$lostpass'     => t('Forgot your password?'),
 		'$lostlink'     => t('Password Reset'),
@@ -1550,7 +1735,10 @@ function login($register = false, $hiddens=false) {
  * @brief Used to end the current process, after saving session state.
  */
 function killme() {
-	session_write_close();
+
+	if (!get_app()->is_backend())
+		session_write_close();
+
 	exit;
 }
 
@@ -1635,10 +1823,11 @@ function get_max_import_size() {
  * @brief Wrap calls to proc_close(proc_open()) and call hook
  *	so plugins can take part in process :)
  *
- * @param string $cmd program to run
+ * @param (string|integer) $cmd program to run or priority
  * 
  * next args are passed as $cmd command line
  * e.g.: proc_run("ls","-la","/tmp");
+ * or: proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
  *
  * @note $cmd and string args are surrounded with ""
  * 
@@ -1652,7 +1841,7 @@ function proc_run($cmd){
 	$args = func_get_args();
 
 	$newargs = array();
-	if(! count($args))
+	if (!count($args))
 		return;
 
 	// expand any arrays
@@ -1662,8 +1851,7 @@ function proc_run($cmd){
 			foreach($arg as $n) {
 				$newargs[] = $n;
 			}
-		}
-		else
+		} else
 			$newargs[] = $arg;
 	}
 
@@ -1672,62 +1860,55 @@ function proc_run($cmd){
 	$arr = array('args' => $args, 'run_cmd' => true);
 
 	call_hooks("proc_run", $arr);
-	if(! $arr['run_cmd'])
+	if (!$arr['run_cmd'] OR !count($args))
 		return;
 
-	if(count($args) && $args[0] === 'php') {
-
-		if (get_config("system", "worker")) {
-			$argv = $args;
-			array_shift($argv);
-
-			$parameters = json_encode($argv);
-			$found = q("SELECT `id` FROM `workerqueue` WHERE `parameter` = '%s'",
-					dbesc($parameters));
-
-			if (!$found)
-				q("INSERT INTO `workerqueue` (`parameter`, `created`, `priority`)
-							VALUES ('%s', '%s', %d)",
-					dbesc($parameters),
-					dbesc(datetime_convert()),
-					intval(0));
-
-			// Should we quit and wait for the poller to be called as a cronjob?
-			if (get_config("system", "worker_dont_fork"))
-				return;
-
-			// Checking number of workers
-			$workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
-
-			// Get number of allowed number of worker threads
-			$queues = intval(get_config("system", "worker_queues"));
-
-			if ($queues == 0)
-				$queues = 4;
-
-			// If there are already enough workers running, don't fork another one
-			if ($workers[0]["workers"] >= $queues)
-				return;
-
-			// Now call the poller to execute the jobs that we just added to the queue
-			$args = array("php", "include/poller.php", "no_cron");
-		}
-
-		$args[0] = ((x($a->config,'php_path')) && (strlen($a->config['php_path'])) ? $a->config['php_path'] : 'php');
+	if (!get_config("system", "worker") OR
+		(($args[0] != 'php') AND !is_int($args[0]))) {
+		$a->proc_run($args);
+		return;
 	}
 
-	// add baseurl to args. cli scripts can't construct it
-	$args[] = $a->get_baseurl();
-
-	for($x = 0; $x < count($args); $x ++)
-		$args[$x] = escapeshellarg($args[$x]);
-
-	$cmdline = implode($args," ");
-
-	if(get_config('system','proc_windows'))
-		proc_close(proc_open('cmd /c start /b ' . $cmdline,array(),$foo,dirname(__FILE__)));
+	if (is_int($args[0]))
+		$priority = $args[0];
 	else
-		proc_close(proc_open($cmdline." &",array(),$foo,dirname(__FILE__)));
+		$priority = PRIORITY_MEDIUM;
+
+	$argv = $args;
+	array_shift($argv);
+
+	$parameters = json_encode($argv);
+	$found = q("SELECT `id` FROM `workerqueue` WHERE `parameter` = '%s'",
+		dbesc($parameters));
+
+	if (!$found)
+		q("INSERT INTO `workerqueue` (`parameter`, `created`, `priority`)
+			VALUES ('%s', '%s', %d)",
+			dbesc($parameters),
+			dbesc(datetime_convert()),
+			intval($priority));
+
+	// Should we quit and wait for the poller to be called as a cronjob?
+	if (get_config("system", "worker_dont_fork"))
+		return;
+
+	// Checking number of workers
+	$workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
+
+	// Get number of allowed number of worker threads
+	$queues = intval(get_config("system", "worker_queues"));
+
+	if ($queues == 0)
+		$queues = 4;
+
+	// If there are already enough workers running, don't fork another one
+	if ($workers[0]["workers"] >= $queues)
+		return;
+
+	// Now call the poller to execute the jobs that we just added to the queue
+	$args = array("php", "include/poller.php", "no_cron");
+
+	$a->proc_run($args);
 }
 
 function current_theme(){
@@ -1743,7 +1924,7 @@ function current_theme(){
 		$r = q("select theme from user where uid = %d limit 1",
 			intval($a->profile_uid)
 		);
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			$page_theme = $r[0]['theme'];
 	}
 
@@ -1856,7 +2037,7 @@ function feed_birthday($uid,$tz) {
 			intval($uid)
 	);
 
-	if(dba::is_result($p)) {
+	if(dbm::is_result($p)) {
 		$tmp_dob = substr($p[0]['dob'],5);
 		if(intval($tmp_dob)) {
 			$y = datetime_convert($tz,$tz,'now','Y');
@@ -1886,32 +2067,6 @@ function is_site_admin() {
 	if(local_user() && x($a->user,'email') && x($a->config,'admin_email') && in_array($a->user['email'], $adminlist))
 		return true;
 	return false;
-}
-
-
-function load_contact_links($uid) {
-
-	$a = get_app();
-
-	$ret = array();
-
-	if(! $uid || x($a->contacts,'empty'))
-		return;
-
-	$r = q("SELECT `id`,`network`,`url`,`thumb`, `rel` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `thumb` != ''",
-			intval($uid)
-	);
-
-	if(dba::is_result($r)) {
-		foreach($r as $rr){
-			$url = normalise_link($rr['url']);
-			$ret[$url] = $rr;
-		}
-	} else
-		$ret['empty'] = true;
-
-	$a->contacts = $ret;
-	return;
 }
 
 /**
@@ -2178,7 +2333,7 @@ function current_load() {
 	if (!is_array($load_arr))
 		return false;
 
-	return max($load_arr);
+	return max($load_arr[0], $load_arr[1]);
 }
 
 /**
@@ -2201,4 +2356,44 @@ function argv($x) {
 		return get_app()->argv[$x];
 
 	return '';
+}
+
+/**
+ * @brief Get the data which is needed for infinite scroll
+ * 
+ * For invinite scroll we need the page number of the actual page
+ * and the the URI where the content of the next page comes from.
+ * This data is needed for the js part in main.js.
+ * Note: infinite scroll does only work for the network page (module)
+ * 
+ * @param string $module The name of the module (e.g. "network")
+ * @return array Of infinite scroll data
+ *	'pageno' => $pageno The number of the actual page
+ *	'reload_uri' => $reload_uri The URI of the content we have to load
+ */
+function infinite_scroll_data($module) {
+
+	if (get_pconfig(local_user(),'system','infinite_scroll')
+		AND ($module == "network") AND ($_GET["mode"] != "minimal")) {
+
+		// get the page number
+		if (is_string($_GET["page"]))
+			$pageno = $_GET["page"];
+		else
+			$pageno = 1;
+
+		$reload_uri = "";
+
+		// try to get the uri from which we load the content
+		foreach ($_GET AS $param => $value)
+			if (($param != "page") AND ($param != "q"))
+				$reload_uri .= "&".$param."=".urlencode($value);
+
+		if (($a->page_offset != "") AND !strstr($reload_uri, "&offset="))
+			$reload_uri .= "&offset=".urlencode($a->page_offset);
+
+		$arr = array("pageno" => $pageno, "reload_uri" => $reload_uri);
+
+		return $arr;
+	}
 }

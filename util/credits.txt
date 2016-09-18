@@ -5,8 +5,11 @@ Adam Jurkiewicz
 Alex
 Alexander Kampmann
 AlfredSK
+Aliaksei Sakalou
 Andi Stadler
 Andreas H.
+Andrej Stieben
+André Alves
 André Lohan
 Anthronaut
 Arian - Cazare Muncitori
@@ -14,12 +17,16 @@ aweiher
 axelt
 balderino
 Beanow
+Beatriz Vital
+Ben Roberts
+ben-utzer
 bufalo1973
 Calango Jr
 Carlos Solís
 Carsten Pfeiffer
 Cat Gray
 Chris Case
+Christian González
 Christian M. Grube
 Christian Vogeley
 Cohan Robinson
@@ -31,6 +38,7 @@ Daniel Dupriest
 Daria Początek
 David
 David Martín Miranda
+David Rabel
 Devlon Duthie
 Diego Souza
 Domovoy
@@ -53,6 +61,7 @@ foss
 Francesco Apruzzese
 Frank Dieckmann
 Frederico Gonçalves Guimarães
+Gerhard Seeber
 gerhard6380
 Gert Cauwenberg
 greeneyedred
@@ -66,6 +75,7 @@ Hubert Kościański
 Jak
 Jakob
 jensp
+Jeroen S
 jeroenpraat
 Johannes Schwab
 John Brazil
@@ -106,7 +116,9 @@ Nicola Spanti
 Olaf Conradi
 Oliver
 Olivier
+Olivier Mehani
 Olivier Migeot
+Paolo Wave
 Pavel Morozov
 Perig Gouanvic
 peturisfeld
@@ -121,7 +133,9 @@ rcmaniac
 rebeka-catalina
 repat
 Ricardo Pereira
+Roland Haeder
 Rui Andrada
+Sakałoŭ Alaksiej
 Sam
 Sandro Santilli
 Sebastian Egbers
@@ -150,10 +164,10 @@ tomamplius
 tomtom84
 Tony Baldwin
 TORminator
+trebor
 tschlotfeldt
 Tubuntu
-tupambae
-tuscanhobbit
+Tupambae.org
 U-SOUND\mike
 ufic
 Vasudev Kamath

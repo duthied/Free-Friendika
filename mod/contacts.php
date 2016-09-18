@@ -237,7 +237,7 @@ function _contact_update($contact_id) {
 				intval($contact_id));
 	} else
 		// pull feed and consume it, which should subscribe to the hub.
-		proc_run('php',"include/onepoll.php","$contact_id", "force");
+		proc_run(PRIORITY_MEDIUM, "include/onepoll.php", $contact_id, "force");
 }
 
 function _contact_update_profile($contact_id) {
@@ -434,7 +434,8 @@ function contacts_content(&$a) {
 				$a->page['aside'] = '';
 
 				return replace_macros(get_markup_template('contact_drop_confirm.tpl'), array(
-					'$contact' =>  _contact_detail_for_template($orig_record[0]),
+					'$header' => t('Drop contact'),
+					'$contact' => _contact_detail_for_template($orig_record[0]),
 					'$method' => 'get',
 					'$message' => t('Do you really want to delete this contact?'),
 					'$extra_inputs' => $inputs,
@@ -571,6 +572,7 @@ function contacts_content(&$a) {
 
 		$o .= replace_macros($tpl, array(
 			//'$header' => t('Contact Editor'),
+			'$header' => t("Contact"),
 			'$tab_str' => $tab_str,
 			'$submit' => t('Submit'),
 			'$lbl_vis1' => t('Profile Visibility'),
@@ -604,6 +606,7 @@ function contacts_content(&$a) {
 			'$ignore_text' => (($contact['readonly']) ? t('Unignore') : t('Ignore') ),
 			'$insecure' => (($contact['network'] !== NETWORK_DFRN && $contact['network'] !== NETWORK_MAIL && $contact['network'] !== NETWORK_FACEBOOK && $contact['network'] !== NETWORK_DIASPORA) ? $insecure : ''),
 			'$info' => $contact['info'],
+			'$cinfo' => array('info', '', $contact['info'], ''),
 			'$blocked' => (($contact['blocked']) ? t('Currently blocked') : ''),
 			'$ignored' => (($contact['readonly']) ? t('Currently ignored') : ''),
 			'$archived' => (($contact['archive']) ? t('Currently archived') : ''),
@@ -620,6 +623,7 @@ function contacts_content(&$a) {
 			'$url' => $url,
 			'$profileurllabel' => t('Profile URL'),
 			'$profileurl' => $contact['url'],
+			'account_type' => (($contact['forum'] || $contact['prv']) ? t('Forum') : ''),
 			'$location' => bbcode($contact["location"]),
 			'$location_label' => t("Location:"),
 			'$about' => bbcode($contact["about"], false, false),
@@ -630,6 +634,7 @@ function contacts_content(&$a) {
 			'$contact_actions' => $contact_actions,
 			'$contact_status' => t("Status"),
 			'$contact_settings_label' => t('Contact Settings'),
+			'$contact_profile_label' => t("Profile"),
 
 		));
 
@@ -758,7 +763,7 @@ function contacts_content(&$a) {
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
 		WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 ",
 		intval($_SESSION['uid']));
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		$a->set_pager_total($r[0]['total']);
 		$total = $r[0]['total'];
 	}
@@ -773,7 +778,7 @@ function contacts_content(&$a) {
 		intval($a->pager['itemspage'])
 	);
 
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			$contacts[] = _contact_detail_for_template($rr);
 		}
@@ -787,7 +792,7 @@ function contacts_content(&$a) {
 		'$total' => $total,
 		'$search' => $search_hdr,
 		'$desc' => t('Search your contacts'),
-		'$finding' => (($searching) ? t('Finding: ') . "'" . $search . "'" : ""),
+		'$finding' => (($searching) ? sprintf(t('Results for: %s'),$search) : ""),
 		'$submit' => t('Find'),
 		'$cmd' => $a->cmd,
 		'$contacts' => $contacts,
@@ -800,6 +805,7 @@ function contacts_content(&$a) {
 			"contacts_batch_archive" => t('Archive')."/".t("Unarchive"),
 			"contacts_batch_drop" => t('Delete'),
 		),
+		'$h_batch_actions' => t('Batch Actions'),
 		'$paginate' => paginate($a),
 
 	));

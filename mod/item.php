@@ -25,6 +25,7 @@ require_once('include/text.php');
 require_once('include/items.php');
 require_once('include/Scrape.php');
 require_once('include/diaspora.php');
+require_once('include/Contact.php');
 
 function item_post(&$a) {
 
@@ -129,7 +130,7 @@ function item_post(&$a) {
 				intval($parent_item['contact-id']),
 				intval($uid)
 			);
-			if(dba::is_result($r))
+			if(dbm::is_result($r))
 				$parent_contact = $r[0];
 
 			// If the contact id doesn't fit with the contact, then set the contact to null
@@ -140,7 +141,7 @@ function item_post(&$a) {
 
 				$r = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 					dbesc(normalise_link($thrparent[0]["author-link"])));
-				if (dba::is_result($r)) {
+				if (dbm::is_result($r)) {
 					$parent_contact = $r[0];
 					$parent_contact["thumb"] = $parent_contact["photo"];
 					$parent_contact["micro"] = $parent_contact["photo"];
@@ -219,7 +220,7 @@ function item_post(&$a) {
 	$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 		intval($profile_uid)
 	);
-	if(dba::is_result($r))
+	if(dbm::is_result($r))
 		$user = $r[0];
 
 	if($orig_post) {
@@ -322,7 +323,7 @@ function item_post(&$a) {
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
 					intval(local_user())
 				);
-				if(dba::is_result($r) && intval($r[0]['pubmail']))
+				if(dbm::is_result($r) && intval($r[0]['pubmail']))
 					$pubmail_enabled = true;
 			}
 		}
@@ -391,7 +392,7 @@ function item_post(&$a) {
 		}
 	}
 
-	if(dba::is_result($r)) {
+	if(dbm::is_result($r)) {
 		$author = $r[0];
 		$contact_id = $author['id'];
 	}
@@ -405,7 +406,7 @@ function item_post(&$a) {
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 1 LIMIT 1",
 			intval($profile_uid)
 		);
-		if(dba::is_result($r))
+		if(dbm::is_result($r))
 			$contact_record = $r[0];
 	}
 
@@ -490,7 +491,7 @@ function item_post(&$a) {
 					intval($profile_uid),
 					intval($attach)
 				);
-				if(dba::is_result($r)) {
+				if(dbm::is_result($r)) {
 					$r = q("UPDATE `attach` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'
 						WHERE `uid` = %d AND `id` = %d",
 						dbesc($str_contact_allow),
@@ -631,7 +632,7 @@ function item_post(&$a) {
 				intval($profile_uid),
 				intval($mtch)
 			);
-			if(dba::is_result($r)) {
+			if(dbm::is_result($r)) {
 				if(strlen($attachments))
 					$attachments .= ',';
 				$attachments .= '[attach]href="' . $a->get_baseurl() . '/attach/' . $r[0]['id'] . '" length="' . $r[0]['filesize'] . '" type="' . $r[0]['filetype'] . '" title="' . (($r[0]['filename']) ? $r[0]['filename'] : '') . '"[/attach]';
@@ -676,9 +677,11 @@ function item_post(&$a) {
 	$datarray['owner-name']    = $contact_record['name'];
 	$datarray['owner-link']    = $contact_record['url'];
 	$datarray['owner-avatar']  = $contact_record['thumb'];
+	$datarray["owner-id"]      = get_contact($datarray["owner-link"], 0);
 	$datarray['author-name']   = $author['name'];
 	$datarray['author-link']   = $author['url'];
 	$datarray['author-avatar'] = $author['thumb'];
+	$datarray["author-id"]     = get_contact($datarray["author-link"], 0);
 	$datarray['created']       = datetime_convert();
 	$datarray['edited']        = datetime_convert();
 	$datarray['commented']     = datetime_convert();
@@ -711,6 +714,7 @@ function item_post(&$a) {
 	$datarray['moderated']     = $allow_moderated;
 	$datarray['gcontact-id']   = get_gcontact_id(array("url" => $datarray['author-link'], "network" => $datarray['network'],
 							"photo" => $datarray['author-avatar'], "name" => $datarray['author-name']));
+
 	/**
 	 * These fields are for the convenience of plugins...
 	 * 'self' if true indicates the owner is posting on their own wall
@@ -779,7 +783,7 @@ function item_post(&$a) {
 		// update filetags in pconfig
 		file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
 
-		proc_run('php', "include/notifier.php", 'edit_post', "$post_id");
+		proc_run(PRIORITY_HIGH, "include/notifier.php", 'edit_post', $post_id);
 		if((x($_REQUEST,'return')) && strlen($return_path)) {
 			logger('return: ' . $return_path);
 			goaway($a->get_baseurl() . "/" . $return_path );
@@ -790,10 +794,24 @@ function item_post(&$a) {
 		$post_id = 0;
 
 
-	$r = q("INSERT INTO `item` (`guid`, `extid`, `uid`,`type`,`wall`,`gravity`, `network`, `contact-id`,`owner-name`,`owner-link`,`owner-avatar`, `author-name`, `author-link`, `author-avatar`,
-		`created`, `edited`, `commented`, `received`, `changed`, `uri`, `thr-parent`, `title`, `body`, `app`, `location`, `coord`, `tag`, `inform`, `verb`, `object-type`, `postopts`,
-		`allow_cid`, `allow_gid`, `deny_cid`, `deny_gid`, `private`, `pubmail`, `attach`, `bookmark`,`origin`, `moderated`, `file`, `rendered-html`, `rendered-hash`)
-		VALUES( '%s', '%s', %d, '%s', %d, %d, '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', %d, %d, %d, '%s', '%s', '%s')",
+	$r = q("INSERT INTO `item` (`guid`, `extid`, `uid`,`type`,`wall`,`gravity`, `network`, `contact-id`,
+					`owner-name`,`owner-link`,`owner-avatar`, `owner-id`,
+					`author-name`, `author-link`, `author-avatar`, `author-id`,
+					`created`, `edited`, `commented`, `received`, `changed`,
+					`uri`, `thr-parent`, `title`, `body`, `app`, `location`, `coord`,
+					`tag`, `inform`, `verb`, `object-type`, `postopts`,
+					`allow_cid`, `allow_gid`, `deny_cid`, `deny_gid`, `private`,
+					`pubmail`, `attach`, `bookmark`,`origin`, `moderated`, `file`,
+					`rendered-html`, `rendered-hash`)
+		VALUES('%s', '%s', %d, '%s', %d, %d, '%s', %d,
+			'%s', '%s', '%s', %d,
+			'%s', '%s', '%s', %d,
+			'%s', '%s', '%s', '%s', '%s',
+			'%s', '%s', '%s', '%s', '%s', '%s', '%s',
+			'%s', '%s', '%s', '%s', '%s',
+			'%s', '%s', '%s', '%s', %d,
+			%d, '%s', %d, %d, %d, '%s',
+			'%s', '%s')",
 		dbesc($datarray['guid']),
 		dbesc($datarray['extid']),
 		intval($datarray['uid']),
@@ -805,9 +823,11 @@ function item_post(&$a) {
 		dbesc($datarray['owner-name']),
 		dbesc($datarray['owner-link']),
 		dbesc($datarray['owner-avatar']),
+		intval($datarray['owner-id']),
 		dbesc($datarray['author-name']),
 		dbesc($datarray['author-link']),
 		dbesc($datarray['author-avatar']),
+		intval($datarray['author-id']),
 		dbesc($datarray['created']),
 		dbesc($datarray['edited']),
 		dbesc($datarray['commented']),
@@ -1012,7 +1032,7 @@ function item_post(&$a) {
 	// Currently the only realistic fixes are to use a reliable server - which precludes shared hosting,
 	// or cut back on plugins which do remote deliveries.
 
-	proc_run('php', "include/notifier.php", $notify_type, "$post_id");
+	proc_run(PRIORITY_HIGH, "include/notifier.php", $notify_type, $post_id);
 
 	logger('post_complete');
 
