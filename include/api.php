@@ -2747,7 +2747,8 @@
 			intval(api_user())
 		);
 
-		if(dbm::is_result($r)) {
+		if(!dbm::is_result($r))
+			return;
 
 		$ids = array();
 		foreach($r as $rr)
@@ -3165,7 +3166,7 @@
 			intval(api_user())
 		);
 
-		if ((! count($r)) || ($r[0]['network'] !== NETWORK_DFRN))
+		if ((! dbm::is_result($r)) || ($r[0]['network'] !== NETWORK_DFRN))
 			throw new BadRequestException("Unknown contact");
 
 		$cid = $r[0]['id'];
@@ -3877,7 +3878,6 @@
 		return api_format_data("direct_message_search", $type, array('$result' => $success));
 	}
 	api_register_func('api/friendica/direct_messages_search', 'api_friendica_direct_messages_search', true);
-
 
 /*
 To.Do:
