@@ -17,6 +17,14 @@ function update_fail($update_id, $error_message){
 		$admin_mail_list
 	);
 
+	// No valid result?
+	if (!dbm::is_result($adminlist)) {
+		logger(sprintf('Cannot notify administrators about update_id=%d, error_message=%s', $update_id, $error_message), LOGGER_WARNING);
+
+		// Don't continue
+		return;
+	}
+
 	// every admin could had different language
 
 	foreach ($adminlist as $admin) {
@@ -73,7 +81,7 @@ function table_structure($table) {
 	$fielddata = array();
 	$indexdata = array();
 
-	if (is_array($indexes))
+	if (dbm::is_result($indexes))
 		foreach ($indexes AS $index) {
 			if ($index["Index_type"] == "FULLTEXT")
 				continue;
@@ -85,7 +93,7 @@ function table_structure($table) {
 			$indexdata[$index["Key_name"]][] = $column;
 		}
 
-	if (is_array($structures)) {
+	if (dbm::is_result($structures)) {
 		foreach($structures AS $field) {
 			$fielddata[$field["Field"]]["type"] = $field["Type"];
 			if ($field["Null"] == "NO")
@@ -135,6 +143,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 	foreach ($tables AS $table) {
 		$table = current($table);
 
+		logger(sprintf('updating structure for table %s ...', $table), LOGGER_DEBUG);
 		$database[$table] = table_structure($table);
 	}
 
@@ -149,7 +158,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 		$sql3="";
 		if (!isset($database[$name])) {
 			$r = db_create_table($name, $structure["fields"], $verbose, $action, $structure['indexes']);
-			if(false === $r) {
+			if(!dbm::is_result($r)) {
 				$errors .=  t('Errors encountered creating database tables.').$name.EOL;
 			}
 			$is_new_table = True;
@@ -226,7 +235,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 
 			if ($action) {
 				$r = @$db->q($sql3);
-				if(false === $r)
+				if(dbm::is_result($r))
 					$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
 			}
 		}
