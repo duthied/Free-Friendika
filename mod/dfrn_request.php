@@ -269,7 +269,7 @@ function dfrn_request_post(&$a) {
 				dbesc(datetime_convert('UTC','UTC','now - 24 hours')),
 				intval($uid)
 			);
-			if(count($r) > $maxreq) {
+			if(dbm::is_result($r) && count($r) > $maxreq) {
 				notice( sprintf( t('%s has received too many connection requests today.'),  $a->profile['name']) . EOL);
 				notice( t('Spam protection measures have been invoked.') . EOL);
 				notice( t('Friends are advised to please try again in 24 hours.') . EOL);
@@ -368,8 +368,7 @@ function dfrn_request_post(&$a) {
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 					intval($uid)
 				);
-				if(! count($r)) {
-
+				if(! dbm::is_result($r)) {
 					notice( t('This account has not been configured for email. Request failed.') . EOL);
 					return;
 				}
@@ -429,8 +428,8 @@ function dfrn_request_post(&$a) {
 
 			$hash = random_string();
 
-			$r = q("insert into intro ( uid, `contact-id`, knowyou, note, hash, datetime, blocked )
-				values( %d , %d, %d, '%s', '%s', '%s', %d ) ",
+			$r = q("INSERT INTO intro ( uid, `contact-id`, knowyou, note, hash, datetime, blocked )
+				VALUES( %d , %d, %d, '%s', '%s', '%s', %d ) ",
 				intval($uid),
 				intval($contact_id),
 				((x($_POST,'knowyou') && ($_POST['knowyou'] == 1)) ? 1 : 0),
@@ -475,7 +474,7 @@ function dfrn_request_post(&$a) {
 				dbesc($url)
 			);
 
-			if(count($ret)) {
+			if(dbm::is_result($ret)) {
 				if(strlen($ret[0]['issued-id'])) {
 					notice( t('You have already introduced yourself here.') . EOL );
 					return;
@@ -572,7 +571,7 @@ function dfrn_request_post(&$a) {
 						$parms['url'],
 						$parms['issued-id']
 					);
-					if(dbm::is_result($r))
+					if(dbm::is_result($r)) {
 						$contact_record = $r[0];
 						update_contact_avatar($photo, $uid, $contact_record["id"], true);
 					}
