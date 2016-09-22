@@ -143,7 +143,7 @@ class exAuth {
 	/**
 	 * @brief Check if the given username exists
 	 *
-	 * @param string $aCommand The command string
+	 * @param array $aCommand The command array
 	 */
 	private function isuser($aCommand) {
 		global $a;
@@ -209,7 +209,7 @@ class exAuth {
 	/**
 	 * @brief Authenticate the givven user and password
 	 *
-	 * @param string $aCommand The command string
+	 * @param array $aCommand The command array
 	 */
 	private function auth($aCommand) {
 		global $a;
