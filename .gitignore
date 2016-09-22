@@ -42,3 +42,8 @@ nbproject
 
 #ignore local folder
 /local/
+
+#ignore config files from Visual Studio
+/.vs/
+/php_friendica.phpproj
+/php_friendica.sln
