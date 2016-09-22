@@ -152,29 +152,31 @@ class exAuth {
 		if (!isset($aCommand[1])) {
 			$this->writeLog("[exAuth] invalid isuser command, no username given");
 			fwrite(STDOUT, pack("nn", 2, 0));
-		} else {
-			// Now we check if the given user is valid
-			$sUser = str_replace(array("%20", "(a)"), array(" ", "@"), $aCommand[1]);
-			$this->writeDebugLog("[debug] checking isuser for ". $sUser."@".$aCommand[2]);
+			return;
+		}
 
-			// If the hostnames doesn't match, we try to check remotely
-			if ($a->get_hostname() != $aCommand[2])
-				$found = $this->check_user($aCommand[2], $aCommand[1], true);
-			else {
-				$sQuery = "SELECT `uid` FROM `user` WHERE `nickname`='".dbesc($sUser)."'";
-				$this->writeDebugLog("[debug] using query ". $sQuery);
-				$r = q($sQuery);
-				$found = dbm::is_result($r);
-			}
-			if ($found) {
-				// The user is okay
-				$this->writeLog("[exAuth] valid user: ". $sUser);
-				fwrite(STDOUT, pack("nn", 2, 1));
-			} else {
-				// The user isn't okay
-				$this->writeLog("[exAuth] invalid user: ". $sUser);
-				fwrite(STDOUT, pack("nn", 2, 0));
-			}
+		// Now we check if the given user is valid
+		$sUser = str_replace(array("%20", "(a)"), array(" ", "@"), $aCommand[1]);
+		$this->writeDebugLog("[debug] checking isuser for ". $sUser."@".$aCommand[2]);
+
+		// If the hostnames doesn't match, we try to check remotely
+		if ($a->get_hostname() != $aCommand[2])
+			$found = $this->check_user($aCommand[2], $aCommand[1], true);
+		else {
+			$sQuery = "SELECT `uid` FROM `user` WHERE `nickname`='".dbesc($sUser)."'";
+			$this->writeDebugLog("[debug] using query ". $sQuery);
+			$r = q($sQuery);
+			$found = dbm::is_result($r);
+		}
+
+		if ($found) {
+			// The user is okay
+			$this->writeLog("[exAuth] valid user: ". $sUser);
+			fwrite(STDOUT, pack("nn", 2, 1));
+		} else {
+			// The user isn't okay
+			$this->writeLog("[exAuth] invalid user: ". $sUser);
+			fwrite(STDOUT, pack("nn", 2, 0));
 		}
 	}
 
@@ -218,38 +220,40 @@ class exAuth {
 		if (sizeof($aCommand) != 4) {
 			$this->writeLog("[exAuth] invalid auth command, data missing");
 			fwrite(STDOUT, pack("nn", 2, 0));
-		} else {
-			// We now check if the password match
-			$sUser = str_replace(array("%20", "(a)"), array(" ", "@"), $aCommand[1]);
-			$this->writeDebugLog("[debug] doing auth for ".$sUser."@".$aCommand[2]);
+			return;
+		}
 
-			// If the hostnames doesn't match, we try to authenticate remotely
-			if ($a->get_hostname() != $aCommand[2])
-				$Error = !$this->check_credentials($aCommand[2], $aCommand[1], $aCommand[3], true);
-			else {
-				$sQuery = "SELECT `uid`, `password` FROM `user` WHERE `nickname`='".dbesc($sUser)."'";
-				$this->writeDebugLog("[debug] using query ". $sQuery);
-				if ($oResult = q($sQuery)) {
-					$uid = $oResult[0]["uid"];
-					$Error = ($oResult[0]["password"] != hash('whirlpool',$aCommand[3]));
-				} else {
-					$this->writeLog("[MySQL] invalid query: ". $sQuery);
-					$Error = true;
-					$uid = -1;
-				}
-				if ($Error) {
-					$oConfig = q("SELECT `v` FROM `pconfig` WHERE `uid` = %d AND `cat` = 'xmpp' AND `k`='password' LIMIT 1;", intval($uid));
-					$this->writeLog("[exAuth] got password ".$oConfig[0]["v"]);
-					$Error = ($aCommand[3] != $oConfig[0]["v"]);
-				}
+		// We now check if the password match
+		$sUser = str_replace(array("%20", "(a)"), array(" ", "@"), $aCommand[1]);
+		$this->writeDebugLog("[debug] doing auth for ".$sUser."@".$aCommand[2]);
+
+		// If the hostnames doesn't match, we try to authenticate remotely
+		if ($a->get_hostname() != $aCommand[2])
+			$Error = !$this->check_credentials($aCommand[2], $aCommand[1], $aCommand[3], true);
+		else {
+			$sQuery = "SELECT `uid`, `password` FROM `user` WHERE `nickname`='".dbesc($sUser)."'";
+			$this->writeDebugLog("[debug] using query ". $sQuery);
+			if ($oResult = q($sQuery)) {
+				$uid = $oResult[0]["uid"];
+				$Error = ($oResult[0]["password"] != hash('whirlpool',$aCommand[3]));
+			} else {
+				$this->writeLog("[MySQL] invalid query: ". $sQuery);
+				$Error = true;
+				$uid = -1;
 			}
 			if ($Error) {
-				$this->writeLog("[exAuth] authentification failed for user ".$sUser."@". $aCommand[2]);
-				fwrite(STDOUT, pack("nn", 2, 0));
-			} else {
-				$this->writeLog("[exAuth] authentificated user ".$sUser."@".$aCommand[2]);
-				fwrite(STDOUT, pack("nn", 2, 1));
+				$oConfig = q("SELECT `v` FROM `pconfig` WHERE `uid` = %d AND `cat` = 'xmpp' AND `k`='password' LIMIT 1;", intval($uid));
+				$this->writeLog("[exAuth] got password ".$oConfig[0]["v"]);
+				$Error = ($aCommand[3] != $oConfig[0]["v"]);
 			}
+		}
+
+		if ($Error) {
+			$this->writeLog("[exAuth] authentification failed for user ".$sUser."@". $aCommand[2]);
+			fwrite(STDOUT, pack("nn", 2, 0));
+		} else {
+			$this->writeLog("[exAuth] authentificated user ".$sUser."@".$aCommand[2]);
+			fwrite(STDOUT, pack("nn", 2, 1));
 		}
 	}
 
