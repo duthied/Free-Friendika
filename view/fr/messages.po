@@ -5098,7 +5098,7 @@ msgstr "Certificat auto-signé, n'utiliser SSL que pour les liens locaux (non re
 #: mod/settings.php:820 mod/settings.php:889 mod/settings.php:976
 #: mod/settings.php:1214
 msgid "Save Settings"
-msgstr "Sauvegarder les paramétres"
+msgstr "Sauvegarder les paramètres"
 
 #: mod/admin.php:927 mod/register.php:263
 msgid "Registration"
