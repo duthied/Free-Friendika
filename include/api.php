@@ -2462,20 +2462,6 @@
                         'users' => null);
         return $profile;
         }
-		if ($type == "xml") {
-			$xml_activities = array();
-			foreach ($activities as $k => $v) {
-				// change xml element from "like" to "friendica:like"
-				$xml_activities["friendica:".$k] = $v;
-				// add user data into xml output
-				$k_user = 0;
-				foreach ($v as $user)
-					$xml_activities["friendica:".$k][$k_user++.":user"] = $user;
-			}
-			$activities = $xml_activities;
-		}
-
-		return $activities;
 	}
 
 	/**
@@ -4004,7 +3990,7 @@
 		}
 
         // return settings, authenticated user and profiles data
-        $result = array('multi_profiles' => $multi_profiles,
+        $result = array('multi_profiles' => $multi_profiles ? true : false,
                         'global_dir' => $directory,
                         'friendica_owner' => api_get_user($a, intval(api_user())),
                         'profiles' => $profiles);
