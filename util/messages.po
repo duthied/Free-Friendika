@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-21 12:10+0200\n"
+"POT-Creation-Date: 2016-09-24 09:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1010,209 +1010,6 @@ msgstr ""
 msgid "Registration details for %s"
 msgstr ""
 
-#: include/features.php:63
-msgid "General Features"
-msgstr ""
-
-#: include/features.php:65
-msgid "Multiple Profiles"
-msgstr ""
-
-#: include/features.php:65
-msgid "Ability to create multiple profiles"
-msgstr ""
-
-#: include/features.php:66
-msgid "Photo Location"
-msgstr ""
-
-#: include/features.php:66
-msgid ""
-"Photo metadata is normally stripped. This extracts the location (if present) "
-"prior to stripping metadata and links it to a map."
-msgstr ""
-
-#: include/features.php:67
-msgid "Export Public Calendar"
-msgstr ""
-
-#: include/features.php:67
-msgid "Ability for visitors to download the public calendar"
-msgstr ""
-
-#: include/features.php:72
-msgid "Post Composition Features"
-msgstr ""
-
-#: include/features.php:73
-msgid "Richtext Editor"
-msgstr ""
-
-#: include/features.php:73
-msgid "Enable richtext editor"
-msgstr ""
-
-#: include/features.php:74
-msgid "Post Preview"
-msgstr ""
-
-#: include/features.php:74
-msgid "Allow previewing posts and comments before publishing them"
-msgstr ""
-
-#: include/features.php:75
-msgid "Auto-mention Forums"
-msgstr ""
-
-#: include/features.php:75
-msgid ""
-"Add/remove mention when a fourm page is selected/deselected in ACL window."
-msgstr ""
-
-#: include/features.php:80
-msgid "Network Sidebar Widgets"
-msgstr ""
-
-#: include/features.php:81
-msgid "Search by Date"
-msgstr ""
-
-#: include/features.php:81
-msgid "Ability to select posts by date ranges"
-msgstr ""
-
-#: include/features.php:82 include/features.php:112
-msgid "List Forums"
-msgstr ""
-
-#: include/features.php:82
-msgid "Enable widget to display the forums your are connected with"
-msgstr ""
-
-#: include/features.php:83
-msgid "Group Filter"
-msgstr ""
-
-#: include/features.php:83
-msgid "Enable widget to display Network posts only from selected group"
-msgstr ""
-
-#: include/features.php:84
-msgid "Network Filter"
-msgstr ""
-
-#: include/features.php:84
-msgid "Enable widget to display Network posts only from selected network"
-msgstr ""
-
-#: include/features.php:85 mod/search.php:34 mod/network.php:200
-msgid "Saved Searches"
-msgstr ""
-
-#: include/features.php:85
-msgid "Save search terms for re-use"
-msgstr ""
-
-#: include/features.php:90
-msgid "Network Tabs"
-msgstr ""
-
-#: include/features.php:91
-msgid "Network Personal Tab"
-msgstr ""
-
-#: include/features.php:91
-msgid "Enable tab to display only Network posts that you've interacted on"
-msgstr ""
-
-#: include/features.php:92
-msgid "Network New Tab"
-msgstr ""
-
-#: include/features.php:92
-msgid "Enable tab to display only new Network posts (from the last 12 hours)"
-msgstr ""
-
-#: include/features.php:93
-msgid "Network Shared Links Tab"
-msgstr ""
-
-#: include/features.php:93
-msgid "Enable tab to display only Network posts with links in them"
-msgstr ""
-
-#: include/features.php:98
-msgid "Post/Comment Tools"
-msgstr ""
-
-#: include/features.php:99
-msgid "Multiple Deletion"
-msgstr ""
-
-#: include/features.php:99
-msgid "Select and delete multiple posts/comments at once"
-msgstr ""
-
-#: include/features.php:100
-msgid "Edit Sent Posts"
-msgstr ""
-
-#: include/features.php:100
-msgid "Edit and correct posts and comments after sending"
-msgstr ""
-
-#: include/features.php:101
-msgid "Tagging"
-msgstr ""
-
-#: include/features.php:101
-msgid "Ability to tag existing posts"
-msgstr ""
-
-#: include/features.php:102
-msgid "Post Categories"
-msgstr ""
-
-#: include/features.php:102
-msgid "Add categories to your posts"
-msgstr ""
-
-#: include/features.php:103
-msgid "Ability to file posts under folders"
-msgstr ""
-
-#: include/features.php:104
-msgid "Dislike Posts"
-msgstr ""
-
-#: include/features.php:104
-msgid "Ability to dislike posts/comments"
-msgstr ""
-
-#: include/features.php:105
-msgid "Star Posts"
-msgstr ""
-
-#: include/features.php:105
-msgid "Ability to mark special posts with a star indicator"
-msgstr ""
-
-#: include/features.php:106
-msgid "Mute Post Notifications"
-msgstr ""
-
-#: include/features.php:106
-msgid "Ability to mute notifications for a thread"
-msgstr ""
-
-#: include/features.php:111
-msgid "Advanced Profile Settings"
-msgstr ""
-
-#: include/features.php:112
-msgid "Show visitors public community forums at the Advanced Profile Page"
-msgstr ""
-
 #: include/nav.php:35 mod/navigation.php:19
 msgid "Nothing new here"
 msgstr ""
@@ -1351,8 +1148,8 @@ msgstr ""
 msgid "Tags"
 msgstr ""
 
-#: include/nav.php:127 include/nav.php:193 include/text.php:1004
-#: include/identity.php:781 include/identity.php:784 mod/viewcontacts.php:116
+#: include/nav.php:127 include/nav.php:193 include/identity.php:781
+#: include/identity.php:784 include/text.php:1004 mod/viewcontacts.php:116
 #: mod/contacts.php:790 mod/contacts.php:851 view/theme/frio/theme.php:257
 #: view/theme/diabook/theme.php:125
 msgid "Contacts"
@@ -1836,26 +1633,26 @@ msgstr ""
 msgid "Archives"
 msgstr ""
 
-#: include/like.php:163 include/text.php:1790 include/conversation.php:130
-#: include/conversation.php:266 mod/subthread.php:87 mod/tagger.php:62
-#: view/theme/diabook/theme.php:471
+#: include/like.php:163 include/conversation.php:130
+#: include/conversation.php:266 include/text.php:1790 mod/subthread.php:87
+#: mod/tagger.php:62 view/theme/diabook/theme.php:471
 msgid "photo"
 msgstr ""
 
-#: include/like.php:163 include/conversation.php:125
+#: include/like.php:163 include/diaspora.php:1402 include/conversation.php:125
 #: include/conversation.php:134 include/conversation.php:261
-#: include/conversation.php:270 include/diaspora.php:1402 mod/subthread.php:87
-#: mod/tagger.php:62 view/theme/diabook/theme.php:466
-#: view/theme/diabook/theme.php:475
+#: include/conversation.php:270 mod/subthread.php:87 mod/tagger.php:62
+#: view/theme/diabook/theme.php:466 view/theme/diabook/theme.php:475
 msgid "status"
 msgstr ""
 
-#: include/like.php:165 include/text.php:1788 include/conversation.php:122
-#: include/conversation.php:258 view/theme/diabook/theme.php:463
+#: include/like.php:165 include/conversation.php:122
+#: include/conversation.php:258 include/text.php:1788
+#: view/theme/diabook/theme.php:463
 msgid "event"
 msgstr ""
 
-#: include/like.php:182 include/conversation.php:141 include/diaspora.php:1398
+#: include/like.php:182 include/diaspora.php:1398 include/conversation.php:141
 #: view/theme/diabook/theme.php:480
 #, php-format
 msgid "%1$s likes %2$s's %3$s"
@@ -1895,304 +1692,6 @@ msgstr ""
 
 #: include/plugin.php:539
 msgid "This action is not available under your subscription plan."
-msgstr ""
-
-#: include/text.php:304
-msgid "newer"
-msgstr ""
-
-#: include/text.php:306
-msgid "older"
-msgstr ""
-
-#: include/text.php:311
-msgid "prev"
-msgstr ""
-
-#: include/text.php:313
-msgid "first"
-msgstr ""
-
-#: include/text.php:345
-msgid "last"
-msgstr ""
-
-#: include/text.php:348
-msgid "next"
-msgstr ""
-
-#: include/text.php:403
-msgid "Loading more entries..."
-msgstr ""
-
-#: include/text.php:404
-msgid "The end"
-msgstr ""
-
-#: include/text.php:871
-msgid "No contacts"
-msgstr ""
-
-#: include/text.php:894
-#, php-format
-msgid "%d Contact"
-msgid_plural "%d Contacts"
-msgstr[0] ""
-msgstr[1] ""
-
-#: include/text.php:907
-msgid "View Contacts"
-msgstr ""
-
-#: include/text.php:995 mod/notes.php:61 mod/filer.php:31 mod/editpost.php:109
-msgid "Save"
-msgstr ""
-
-#: include/text.php:1058
-msgid "poke"
-msgstr ""
-
-#: include/text.php:1058
-msgid "poked"
-msgstr ""
-
-#: include/text.php:1059
-msgid "ping"
-msgstr ""
-
-#: include/text.php:1059
-msgid "pinged"
-msgstr ""
-
-#: include/text.php:1060
-msgid "prod"
-msgstr ""
-
-#: include/text.php:1060
-msgid "prodded"
-msgstr ""
-
-#: include/text.php:1061
-msgid "slap"
-msgstr ""
-
-#: include/text.php:1061
-msgid "slapped"
-msgstr ""
-
-#: include/text.php:1062
-msgid "finger"
-msgstr ""
-
-#: include/text.php:1062
-msgid "fingered"
-msgstr ""
-
-#: include/text.php:1063
-msgid "rebuff"
-msgstr ""
-
-#: include/text.php:1063
-msgid "rebuffed"
-msgstr ""
-
-#: include/text.php:1077
-msgid "happy"
-msgstr ""
-
-#: include/text.php:1078
-msgid "sad"
-msgstr ""
-
-#: include/text.php:1079
-msgid "mellow"
-msgstr ""
-
-#: include/text.php:1080
-msgid "tired"
-msgstr ""
-
-#: include/text.php:1081
-msgid "perky"
-msgstr ""
-
-#: include/text.php:1082
-msgid "angry"
-msgstr ""
-
-#: include/text.php:1083
-msgid "stupified"
-msgstr ""
-
-#: include/text.php:1084
-msgid "puzzled"
-msgstr ""
-
-#: include/text.php:1085
-msgid "interested"
-msgstr ""
-
-#: include/text.php:1086
-msgid "bitter"
-msgstr ""
-
-#: include/text.php:1087
-msgid "cheerful"
-msgstr ""
-
-#: include/text.php:1088
-msgid "alive"
-msgstr ""
-
-#: include/text.php:1089
-msgid "annoyed"
-msgstr ""
-
-#: include/text.php:1090
-msgid "anxious"
-msgstr ""
-
-#: include/text.php:1091
-msgid "cranky"
-msgstr ""
-
-#: include/text.php:1092
-msgid "disturbed"
-msgstr ""
-
-#: include/text.php:1093
-msgid "frustrated"
-msgstr ""
-
-#: include/text.php:1094
-msgid "motivated"
-msgstr ""
-
-#: include/text.php:1095
-msgid "relaxed"
-msgstr ""
-
-#: include/text.php:1096
-msgid "surprised"
-msgstr ""
-
-#: include/text.php:1112 include/event.php:449 mod/settings.php:955
-msgid "Monday"
-msgstr ""
-
-#: include/text.php:1112 include/event.php:450
-msgid "Tuesday"
-msgstr ""
-
-#: include/text.php:1112 include/event.php:451
-msgid "Wednesday"
-msgstr ""
-
-#: include/text.php:1112 include/event.php:452
-msgid "Thursday"
-msgstr ""
-
-#: include/text.php:1112 include/event.php:453
-msgid "Friday"
-msgstr ""
-
-#: include/text.php:1112 include/event.php:454
-msgid "Saturday"
-msgstr ""
-
-#: include/text.php:1112 include/event.php:448 mod/settings.php:955
-msgid "Sunday"
-msgstr ""
-
-#: include/text.php:1116 include/event.php:467
-msgid "January"
-msgstr ""
-
-#: include/text.php:1116 include/event.php:468
-msgid "February"
-msgstr ""
-
-#: include/text.php:1116 include/event.php:469
-msgid "March"
-msgstr ""
-
-#: include/text.php:1116 include/event.php:470
-msgid "April"
-msgstr ""
-
-#: include/text.php:1116 include/event.php:459 include/event.php:471
-msgid "May"
-msgstr ""
-
-#: include/text.php:1116 include/event.php:472
-msgid "June"
-msgstr ""
-
-#: include/text.php:1116 include/event.php:473
-msgid "July"
-msgstr ""
-
-#: include/text.php:1116 include/event.php:474
-msgid "August"
-msgstr ""
-
-#: include/text.php:1116 include/event.php:475
-msgid "September"
-msgstr ""
-
-#: include/text.php:1116 include/event.php:476
-msgid "October"
-msgstr ""
-
-#: include/text.php:1116 include/event.php:477
-msgid "November"
-msgstr ""
-
-#: include/text.php:1116 include/event.php:478
-msgid "December"
-msgstr ""
-
-#: include/text.php:1310 mod/videos.php:383
-msgid "View Video"
-msgstr ""
-
-#: include/text.php:1342
-msgid "bytes"
-msgstr ""
-
-#: include/text.php:1374 include/text.php:1386
-msgid "Click to open/close"
-msgstr ""
-
-#: include/text.php:1512
-msgid "View on separate page"
-msgstr ""
-
-#: include/text.php:1513
-msgid "view on separate page"
-msgstr ""
-
-#: include/text.php:1518 include/text.php:1525 include/event.php:608
-msgid "link to source"
-msgstr ""
-
-#: include/text.php:1792
-msgid "activity"
-msgstr ""
-
-#: include/text.php:1794 mod/content.php:623 object/Item.php:431
-#: object/Item.php:444
-msgid "comment"
-msgid_plural "comments"
-msgstr[0] ""
-msgstr[1] ""
-
-#: include/text.php:1795
-msgid "post"
-msgstr ""
-
-#: include/text.php:1963
-msgid "Item filed"
 msgstr ""
 
 #: include/uimport.php:94
@@ -2324,379 +1823,6 @@ msgstr ""
 msgid "Encrypted content"
 msgstr ""
 
-#: include/conversation.php:147
-#, php-format
-msgid "%1$s attends %2$s's %3$s"
-msgstr ""
-
-#: include/conversation.php:150
-#, php-format
-msgid "%1$s doesn't attend %2$s's %3$s"
-msgstr ""
-
-#: include/conversation.php:153
-#, php-format
-msgid "%1$s attends maybe %2$s's %3$s"
-msgstr ""
-
-#: include/conversation.php:185 mod/dfrn_confirm.php:473
-#, php-format
-msgid "%1$s is now friends with %2$s"
-msgstr ""
-
-#: include/conversation.php:219
-#, php-format
-msgid "%1$s poked %2$s"
-msgstr ""
-
-#: include/conversation.php:239 mod/mood.php:62
-#, php-format
-msgid "%1$s is currently %2$s"
-msgstr ""
-
-#: include/conversation.php:278 mod/tagger.php:95
-#, php-format
-msgid "%1$s tagged %2$s's %3$s with %4$s"
-msgstr ""
-
-#: include/conversation.php:303
-msgid "post/item"
-msgstr ""
-
-#: include/conversation.php:304
-#, php-format
-msgid "%1$s marked %2$s's %3$s as favorite"
-msgstr ""
-
-#: include/conversation.php:585 mod/content.php:372 mod/profiles.php:345
-#: mod/photos.php:1634
-msgid "Likes"
-msgstr ""
-
-#: include/conversation.php:585 mod/content.php:372 mod/profiles.php:349
-#: mod/photos.php:1634
-msgid "Dislikes"
-msgstr ""
-
-#: include/conversation.php:586 include/conversation.php:1469
-#: mod/content.php:373 mod/photos.php:1635
-msgid "Attending"
-msgid_plural "Attending"
-msgstr[0] ""
-msgstr[1] ""
-
-#: include/conversation.php:586 mod/content.php:373 mod/photos.php:1635
-msgid "Not attending"
-msgstr ""
-
-#: include/conversation.php:586 mod/content.php:373 mod/photos.php:1635
-msgid "Might attend"
-msgstr ""
-
-#: include/conversation.php:708 mod/content.php:453 mod/content.php:758
-#: mod/photos.php:1709 object/Item.php:133
-msgid "Select"
-msgstr ""
-
-#: include/conversation.php:709 mod/group.php:171 mod/content.php:454
-#: mod/content.php:759 mod/contacts.php:806 mod/contacts.php:1021
-#: mod/settings.php:726 mod/photos.php:1710 mod/admin.php:1392
-#: object/Item.php:134
-msgid "Delete"
-msgstr ""
-
-#: include/conversation.php:753 mod/content.php:487 mod/content.php:910
-#: mod/content.php:911 object/Item.php:367 object/Item.php:368
-#, php-format
-msgid "View %s's profile @ %s"
-msgstr ""
-
-#: include/conversation.php:765 object/Item.php:355
-msgid "Categories:"
-msgstr ""
-
-#: include/conversation.php:766 object/Item.php:356
-msgid "Filed under:"
-msgstr ""
-
-#: include/conversation.php:773 mod/content.php:497 mod/content.php:923
-#: object/Item.php:381
-#, php-format
-msgid "%s from %s"
-msgstr ""
-
-#: include/conversation.php:789 mod/content.php:513
-msgid "View in context"
-msgstr ""
-
-#: include/conversation.php:791 include/conversation.php:1253
-#: mod/editpost.php:124 mod/wallmessage.php:156 mod/message.php:356
-#: mod/message.php:548 mod/content.php:515 mod/content.php:948
-#: mod/photos.php:1597 object/Item.php:406
-msgid "Please wait"
-msgstr ""
-
-#: include/conversation.php:870
-msgid "remove"
-msgstr ""
-
-#: include/conversation.php:874
-msgid "Delete Selected Items"
-msgstr ""
-
-#: include/conversation.php:962
-msgid "Follow Thread"
-msgstr ""
-
-#: include/conversation.php:1086
-#, php-format
-msgid "%s likes this."
-msgstr ""
-
-#: include/conversation.php:1089
-#, php-format
-msgid "%s doesn't like this."
-msgstr ""
-
-#: include/conversation.php:1092
-#, php-format
-msgid "%s attends."
-msgstr ""
-
-#: include/conversation.php:1095
-#, php-format
-msgid "%s doesn't attend."
-msgstr ""
-
-#: include/conversation.php:1098
-#, php-format
-msgid "%s attends maybe."
-msgstr ""
-
-#: include/conversation.php:1108
-msgid "and"
-msgstr ""
-
-#: include/conversation.php:1114
-#, php-format
-msgid ", and %d other people"
-msgstr ""
-
-#: include/conversation.php:1123
-#, php-format
-msgid "<span  %1$s>%2$d people</span> like this"
-msgstr ""
-
-#: include/conversation.php:1124
-#, php-format
-msgid "%s like this."
-msgstr ""
-
-#: include/conversation.php:1127
-#, php-format
-msgid "<span  %1$s>%2$d people</span> don't like this"
-msgstr ""
-
-#: include/conversation.php:1128
-#, php-format
-msgid "%s don't like this."
-msgstr ""
-
-#: include/conversation.php:1131
-#, php-format
-msgid "<span  %1$s>%2$d people</span> attend"
-msgstr ""
-
-#: include/conversation.php:1132
-#, php-format
-msgid "%s attend."
-msgstr ""
-
-#: include/conversation.php:1135
-#, php-format
-msgid "<span  %1$s>%2$d people</span> don't attend"
-msgstr ""
-
-#: include/conversation.php:1136
-#, php-format
-msgid "%s don't attend."
-msgstr ""
-
-#: include/conversation.php:1139
-#, php-format
-msgid "<span  %1$s>%2$d people</span> anttend maybe"
-msgstr ""
-
-#: include/conversation.php:1140
-#, php-format
-msgid "%s anttend maybe."
-msgstr ""
-
-#: include/conversation.php:1179 include/conversation.php:1197
-msgid "Visible to <strong>everybody</strong>"
-msgstr ""
-
-#: include/conversation.php:1180 include/conversation.php:1198
-#: mod/wallmessage.php:127 mod/wallmessage.php:135 mod/message.php:291
-#: mod/message.php:299 mod/message.php:442 mod/message.php:450
-msgid "Please enter a link URL:"
-msgstr ""
-
-#: include/conversation.php:1181 include/conversation.php:1199
-msgid "Please enter a video link/URL:"
-msgstr ""
-
-#: include/conversation.php:1182 include/conversation.php:1200
-msgid "Please enter an audio link/URL:"
-msgstr ""
-
-#: include/conversation.php:1183 include/conversation.php:1201
-msgid "Tag term:"
-msgstr ""
-
-#: include/conversation.php:1184 include/conversation.php:1202
-#: mod/filer.php:30
-msgid "Save to Folder:"
-msgstr ""
-
-#: include/conversation.php:1185 include/conversation.php:1203
-msgid "Where are you right now?"
-msgstr ""
-
-#: include/conversation.php:1186
-msgid "Delete item(s)?"
-msgstr ""
-
-#: include/conversation.php:1234 mod/photos.php:1596
-msgid "Share"
-msgstr ""
-
-#: include/conversation.php:1235 mod/editpost.php:110 mod/wallmessage.php:154
-#: mod/message.php:354 mod/message.php:545
-msgid "Upload photo"
-msgstr ""
-
-#: include/conversation.php:1236 mod/editpost.php:111
-msgid "upload photo"
-msgstr ""
-
-#: include/conversation.php:1237 mod/editpost.php:112
-msgid "Attach file"
-msgstr ""
-
-#: include/conversation.php:1238 mod/editpost.php:113
-msgid "attach file"
-msgstr ""
-
-#: include/conversation.php:1239 mod/editpost.php:114 mod/wallmessage.php:155
-#: mod/message.php:355 mod/message.php:546
-msgid "Insert web link"
-msgstr ""
-
-#: include/conversation.php:1240 mod/editpost.php:115
-msgid "web link"
-msgstr ""
-
-#: include/conversation.php:1241 mod/editpost.php:116
-msgid "Insert video link"
-msgstr ""
-
-#: include/conversation.php:1242 mod/editpost.php:117
-msgid "video link"
-msgstr ""
-
-#: include/conversation.php:1243 mod/editpost.php:118
-msgid "Insert audio link"
-msgstr ""
-
-#: include/conversation.php:1244 mod/editpost.php:119
-msgid "audio link"
-msgstr ""
-
-#: include/conversation.php:1245 mod/editpost.php:120
-msgid "Set your location"
-msgstr ""
-
-#: include/conversation.php:1246 mod/editpost.php:121
-msgid "set location"
-msgstr ""
-
-#: include/conversation.php:1247 mod/editpost.php:122
-msgid "Clear browser location"
-msgstr ""
-
-#: include/conversation.php:1248 mod/editpost.php:123
-msgid "clear location"
-msgstr ""
-
-#: include/conversation.php:1250 mod/editpost.php:137
-msgid "Set title"
-msgstr ""
-
-#: include/conversation.php:1252 mod/editpost.php:139
-msgid "Categories (comma-separated list)"
-msgstr ""
-
-#: include/conversation.php:1254 mod/editpost.php:125
-msgid "Permission settings"
-msgstr ""
-
-#: include/conversation.php:1255 mod/editpost.php:154
-msgid "permissions"
-msgstr ""
-
-#: include/conversation.php:1263 mod/editpost.php:134
-msgid "Public post"
-msgstr ""
-
-#: include/conversation.php:1268 mod/editpost.php:145 mod/content.php:737
-#: mod/photos.php:1618 mod/photos.php:1666 mod/photos.php:1754
-#: mod/events.php:505 object/Item.php:729
-msgid "Preview"
-msgstr ""
-
-#: include/conversation.php:1278
-msgid "Post to Groups"
-msgstr ""
-
-#: include/conversation.php:1279
-msgid "Post to Contacts"
-msgstr ""
-
-#: include/conversation.php:1280
-msgid "Private post"
-msgstr ""
-
-#: include/conversation.php:1285 include/identity.php:250 mod/editpost.php:152
-msgid "Message"
-msgstr ""
-
-#: include/conversation.php:1286 mod/editpost.php:153
-msgid "Browser"
-msgstr ""
-
-#: include/conversation.php:1441
-msgid "View all"
-msgstr ""
-
-#: include/conversation.php:1463
-msgid "Like"
-msgid_plural "Likes"
-msgstr[0] ""
-msgstr[1] ""
-
-#: include/conversation.php:1466
-msgid "Dislike"
-msgid_plural "Dislikes"
-msgstr[0] ""
-msgstr[1] ""
-
-#: include/conversation.php:1472
-msgid "Not Attending"
-msgid_plural "Not Attending"
-msgstr[0] ""
-msgstr[1] ""
-
 #: include/dbstructure.php:26
 #, php-format
 msgid ""
@@ -2759,6 +1885,34 @@ msgstr ""
 msgid "Sat"
 msgstr ""
 
+#: include/event.php:448 include/text.php:1112 mod/settings.php:955
+msgid "Sunday"
+msgstr ""
+
+#: include/event.php:449 include/text.php:1112 mod/settings.php:955
+msgid "Monday"
+msgstr ""
+
+#: include/event.php:450 include/text.php:1112
+msgid "Tuesday"
+msgstr ""
+
+#: include/event.php:451 include/text.php:1112
+msgid "Wednesday"
+msgstr ""
+
+#: include/event.php:452 include/text.php:1112
+msgid "Thursday"
+msgstr ""
+
+#: include/event.php:453 include/text.php:1112
+msgid "Friday"
+msgstr ""
+
+#: include/event.php:454 include/text.php:1112
+msgid "Saturday"
+msgstr ""
+
 #: include/event.php:455
 msgid "Jan"
 msgstr ""
@@ -2773,6 +1927,10 @@ msgstr ""
 
 #: include/event.php:458
 msgid "Apr"
+msgstr ""
+
+#: include/event.php:459 include/event.php:471 include/text.php:1116
+msgid "May"
 msgstr ""
 
 #: include/event.php:460
@@ -2803,6 +1961,50 @@ msgstr ""
 msgid "Dec"
 msgstr ""
 
+#: include/event.php:467 include/text.php:1116
+msgid "January"
+msgstr ""
+
+#: include/event.php:468 include/text.php:1116
+msgid "February"
+msgstr ""
+
+#: include/event.php:469 include/text.php:1116
+msgid "March"
+msgstr ""
+
+#: include/event.php:470 include/text.php:1116
+msgid "April"
+msgstr ""
+
+#: include/event.php:472 include/text.php:1116
+msgid "June"
+msgstr ""
+
+#: include/event.php:473 include/text.php:1116
+msgid "July"
+msgstr ""
+
+#: include/event.php:474 include/text.php:1116
+msgid "August"
+msgstr ""
+
+#: include/event.php:475 include/text.php:1116
+msgid "September"
+msgstr ""
+
+#: include/event.php:476 include/text.php:1116
+msgid "October"
+msgstr ""
+
+#: include/event.php:477 include/text.php:1116
+msgid "November"
+msgstr ""
+
+#: include/event.php:478 include/text.php:1116
+msgid "December"
+msgstr ""
+
 #: include/event.php:479 mod/cal.php:286 mod/events.php:388
 msgid "today"
 msgstr ""
@@ -2813,6 +2015,10 @@ msgstr ""
 
 #: include/event.php:586
 msgid "Edit event"
+msgstr ""
+
+#: include/event.php:608 include/text.php:1518 include/text.php:1525
+msgid "link to source"
 msgstr ""
 
 #: include/event.php:843
@@ -2841,6 +2047,10 @@ msgstr ""
 
 #: include/identity.php:245
 msgid "Atom feed"
+msgstr ""
+
+#: include/identity.php:250 include/conversation.php:1285 mod/editpost.php:152
+msgid "Message"
 msgstr ""
 
 #: include/identity.php:276
@@ -3046,6 +2256,796 @@ msgstr ""
 
 #: include/identity.php:773
 msgid "Only You Can See This"
+msgstr ""
+
+#: include/conversation.php:147
+#, php-format
+msgid "%1$s attends %2$s's %3$s"
+msgstr ""
+
+#: include/conversation.php:150
+#, php-format
+msgid "%1$s doesn't attend %2$s's %3$s"
+msgstr ""
+
+#: include/conversation.php:153
+#, php-format
+msgid "%1$s attends maybe %2$s's %3$s"
+msgstr ""
+
+#: include/conversation.php:185 mod/dfrn_confirm.php:473
+#, php-format
+msgid "%1$s is now friends with %2$s"
+msgstr ""
+
+#: include/conversation.php:219
+#, php-format
+msgid "%1$s poked %2$s"
+msgstr ""
+
+#: include/conversation.php:239 mod/mood.php:62
+#, php-format
+msgid "%1$s is currently %2$s"
+msgstr ""
+
+#: include/conversation.php:278 mod/tagger.php:95
+#, php-format
+msgid "%1$s tagged %2$s's %3$s with %4$s"
+msgstr ""
+
+#: include/conversation.php:303
+msgid "post/item"
+msgstr ""
+
+#: include/conversation.php:304
+#, php-format
+msgid "%1$s marked %2$s's %3$s as favorite"
+msgstr ""
+
+#: include/conversation.php:585 mod/content.php:372 mod/profiles.php:345
+#: mod/photos.php:1634
+msgid "Likes"
+msgstr ""
+
+#: include/conversation.php:585 mod/content.php:372 mod/profiles.php:349
+#: mod/photos.php:1634
+msgid "Dislikes"
+msgstr ""
+
+#: include/conversation.php:586 include/conversation.php:1469
+#: mod/content.php:373 mod/photos.php:1635
+msgid "Attending"
+msgid_plural "Attending"
+msgstr[0] ""
+msgstr[1] ""
+
+#: include/conversation.php:586 mod/content.php:373 mod/photos.php:1635
+msgid "Not attending"
+msgstr ""
+
+#: include/conversation.php:586 mod/content.php:373 mod/photos.php:1635
+msgid "Might attend"
+msgstr ""
+
+#: include/conversation.php:708 mod/content.php:453 mod/content.php:758
+#: mod/photos.php:1709 object/Item.php:133
+msgid "Select"
+msgstr ""
+
+#: include/conversation.php:709 mod/group.php:171 mod/content.php:454
+#: mod/content.php:759 mod/contacts.php:806 mod/contacts.php:1021
+#: mod/settings.php:726 mod/photos.php:1710 mod/admin.php:1392
+#: object/Item.php:134
+msgid "Delete"
+msgstr ""
+
+#: include/conversation.php:753 mod/content.php:487 mod/content.php:910
+#: mod/content.php:911 object/Item.php:367 object/Item.php:368
+#, php-format
+msgid "View %s's profile @ %s"
+msgstr ""
+
+#: include/conversation.php:765 object/Item.php:355
+msgid "Categories:"
+msgstr ""
+
+#: include/conversation.php:766 object/Item.php:356
+msgid "Filed under:"
+msgstr ""
+
+#: include/conversation.php:773 mod/content.php:497 mod/content.php:923
+#: object/Item.php:381
+#, php-format
+msgid "%s from %s"
+msgstr ""
+
+#: include/conversation.php:789 mod/content.php:513
+msgid "View in context"
+msgstr ""
+
+#: include/conversation.php:791 include/conversation.php:1253
+#: mod/editpost.php:124 mod/wallmessage.php:156 mod/message.php:356
+#: mod/message.php:548 mod/content.php:515 mod/content.php:948
+#: mod/photos.php:1597 object/Item.php:406
+msgid "Please wait"
+msgstr ""
+
+#: include/conversation.php:870
+msgid "remove"
+msgstr ""
+
+#: include/conversation.php:874
+msgid "Delete Selected Items"
+msgstr ""
+
+#: include/conversation.php:962
+msgid "Follow Thread"
+msgstr ""
+
+#: include/conversation.php:1086
+#, php-format
+msgid "%s likes this."
+msgstr ""
+
+#: include/conversation.php:1089
+#, php-format
+msgid "%s doesn't like this."
+msgstr ""
+
+#: include/conversation.php:1092
+#, php-format
+msgid "%s attends."
+msgstr ""
+
+#: include/conversation.php:1095
+#, php-format
+msgid "%s doesn't attend."
+msgstr ""
+
+#: include/conversation.php:1098
+#, php-format
+msgid "%s attends maybe."
+msgstr ""
+
+#: include/conversation.php:1108
+msgid "and"
+msgstr ""
+
+#: include/conversation.php:1114
+#, php-format
+msgid ", and %d other people"
+msgstr ""
+
+#: include/conversation.php:1123
+#, php-format
+msgid "<span  %1$s>%2$d people</span> like this"
+msgstr ""
+
+#: include/conversation.php:1124
+#, php-format
+msgid "%s like this."
+msgstr ""
+
+#: include/conversation.php:1127
+#, php-format
+msgid "<span  %1$s>%2$d people</span> don't like this"
+msgstr ""
+
+#: include/conversation.php:1128
+#, php-format
+msgid "%s don't like this."
+msgstr ""
+
+#: include/conversation.php:1131
+#, php-format
+msgid "<span  %1$s>%2$d people</span> attend"
+msgstr ""
+
+#: include/conversation.php:1132
+#, php-format
+msgid "%s attend."
+msgstr ""
+
+#: include/conversation.php:1135
+#, php-format
+msgid "<span  %1$s>%2$d people</span> don't attend"
+msgstr ""
+
+#: include/conversation.php:1136
+#, php-format
+msgid "%s don't attend."
+msgstr ""
+
+#: include/conversation.php:1139
+#, php-format
+msgid "<span  %1$s>%2$d people</span> attend maybe"
+msgstr ""
+
+#: include/conversation.php:1140
+#, php-format
+msgid "%s anttend maybe."
+msgstr ""
+
+#: include/conversation.php:1179 include/conversation.php:1197
+msgid "Visible to <strong>everybody</strong>"
+msgstr ""
+
+#: include/conversation.php:1180 include/conversation.php:1198
+#: mod/wallmessage.php:127 mod/wallmessage.php:135 mod/message.php:291
+#: mod/message.php:299 mod/message.php:442 mod/message.php:450
+msgid "Please enter a link URL:"
+msgstr ""
+
+#: include/conversation.php:1181 include/conversation.php:1199
+msgid "Please enter a video link/URL:"
+msgstr ""
+
+#: include/conversation.php:1182 include/conversation.php:1200
+msgid "Please enter an audio link/URL:"
+msgstr ""
+
+#: include/conversation.php:1183 include/conversation.php:1201
+msgid "Tag term:"
+msgstr ""
+
+#: include/conversation.php:1184 include/conversation.php:1202
+#: mod/filer.php:30
+msgid "Save to Folder:"
+msgstr ""
+
+#: include/conversation.php:1185 include/conversation.php:1203
+msgid "Where are you right now?"
+msgstr ""
+
+#: include/conversation.php:1186
+msgid "Delete item(s)?"
+msgstr ""
+
+#: include/conversation.php:1234 mod/photos.php:1596
+msgid "Share"
+msgstr ""
+
+#: include/conversation.php:1235 mod/editpost.php:110 mod/wallmessage.php:154
+#: mod/message.php:354 mod/message.php:545
+msgid "Upload photo"
+msgstr ""
+
+#: include/conversation.php:1236 mod/editpost.php:111
+msgid "upload photo"
+msgstr ""
+
+#: include/conversation.php:1237 mod/editpost.php:112
+msgid "Attach file"
+msgstr ""
+
+#: include/conversation.php:1238 mod/editpost.php:113
+msgid "attach file"
+msgstr ""
+
+#: include/conversation.php:1239 mod/editpost.php:114 mod/wallmessage.php:155
+#: mod/message.php:355 mod/message.php:546
+msgid "Insert web link"
+msgstr ""
+
+#: include/conversation.php:1240 mod/editpost.php:115
+msgid "web link"
+msgstr ""
+
+#: include/conversation.php:1241 mod/editpost.php:116
+msgid "Insert video link"
+msgstr ""
+
+#: include/conversation.php:1242 mod/editpost.php:117
+msgid "video link"
+msgstr ""
+
+#: include/conversation.php:1243 mod/editpost.php:118
+msgid "Insert audio link"
+msgstr ""
+
+#: include/conversation.php:1244 mod/editpost.php:119
+msgid "audio link"
+msgstr ""
+
+#: include/conversation.php:1245 mod/editpost.php:120
+msgid "Set your location"
+msgstr ""
+
+#: include/conversation.php:1246 mod/editpost.php:121
+msgid "set location"
+msgstr ""
+
+#: include/conversation.php:1247 mod/editpost.php:122
+msgid "Clear browser location"
+msgstr ""
+
+#: include/conversation.php:1248 mod/editpost.php:123
+msgid "clear location"
+msgstr ""
+
+#: include/conversation.php:1250 mod/editpost.php:137
+msgid "Set title"
+msgstr ""
+
+#: include/conversation.php:1252 mod/editpost.php:139
+msgid "Categories (comma-separated list)"
+msgstr ""
+
+#: include/conversation.php:1254 mod/editpost.php:125
+msgid "Permission settings"
+msgstr ""
+
+#: include/conversation.php:1255 mod/editpost.php:154
+msgid "permissions"
+msgstr ""
+
+#: include/conversation.php:1263 mod/editpost.php:134
+msgid "Public post"
+msgstr ""
+
+#: include/conversation.php:1268 mod/editpost.php:145 mod/content.php:737
+#: mod/photos.php:1618 mod/photos.php:1666 mod/photos.php:1754
+#: mod/events.php:505 object/Item.php:729
+msgid "Preview"
+msgstr ""
+
+#: include/conversation.php:1278
+msgid "Post to Groups"
+msgstr ""
+
+#: include/conversation.php:1279
+msgid "Post to Contacts"
+msgstr ""
+
+#: include/conversation.php:1280
+msgid "Private post"
+msgstr ""
+
+#: include/conversation.php:1286 mod/editpost.php:153
+msgid "Browser"
+msgstr ""
+
+#: include/conversation.php:1441
+msgid "View all"
+msgstr ""
+
+#: include/conversation.php:1463
+msgid "Like"
+msgid_plural "Likes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: include/conversation.php:1466
+msgid "Dislike"
+msgid_plural "Dislikes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: include/conversation.php:1472
+msgid "Not Attending"
+msgid_plural "Not Attending"
+msgstr[0] ""
+msgstr[1] ""
+
+#: include/features.php:63
+msgid "General Features"
+msgstr ""
+
+#: include/features.php:65
+msgid "Multiple Profiles"
+msgstr ""
+
+#: include/features.php:65
+msgid "Ability to create multiple profiles"
+msgstr ""
+
+#: include/features.php:66
+msgid "Photo Location"
+msgstr ""
+
+#: include/features.php:66
+msgid ""
+"Photo metadata is normally stripped. This extracts the location (if present) "
+"prior to stripping metadata and links it to a map."
+msgstr ""
+
+#: include/features.php:67
+msgid "Export Public Calendar"
+msgstr ""
+
+#: include/features.php:67
+msgid "Ability for visitors to download the public calendar"
+msgstr ""
+
+#: include/features.php:72
+msgid "Post Composition Features"
+msgstr ""
+
+#: include/features.php:73
+msgid "Richtext Editor"
+msgstr ""
+
+#: include/features.php:73
+msgid "Enable richtext editor"
+msgstr ""
+
+#: include/features.php:74
+msgid "Post Preview"
+msgstr ""
+
+#: include/features.php:74
+msgid "Allow previewing posts and comments before publishing them"
+msgstr ""
+
+#: include/features.php:75
+msgid "Auto-mention Forums"
+msgstr ""
+
+#: include/features.php:75
+msgid ""
+"Add/remove mention when a forum page is selected/deselected in ACL window."
+msgstr ""
+
+#: include/features.php:80
+msgid "Network Sidebar Widgets"
+msgstr ""
+
+#: include/features.php:81
+msgid "Search by Date"
+msgstr ""
+
+#: include/features.php:81
+msgid "Ability to select posts by date ranges"
+msgstr ""
+
+#: include/features.php:82 include/features.php:112
+msgid "List Forums"
+msgstr ""
+
+#: include/features.php:82
+msgid "Enable widget to display the forums your are connected with"
+msgstr ""
+
+#: include/features.php:83
+msgid "Group Filter"
+msgstr ""
+
+#: include/features.php:83
+msgid "Enable widget to display Network posts only from selected group"
+msgstr ""
+
+#: include/features.php:84
+msgid "Network Filter"
+msgstr ""
+
+#: include/features.php:84
+msgid "Enable widget to display Network posts only from selected network"
+msgstr ""
+
+#: include/features.php:85 mod/search.php:34 mod/network.php:200
+msgid "Saved Searches"
+msgstr ""
+
+#: include/features.php:85
+msgid "Save search terms for re-use"
+msgstr ""
+
+#: include/features.php:90
+msgid "Network Tabs"
+msgstr ""
+
+#: include/features.php:91
+msgid "Network Personal Tab"
+msgstr ""
+
+#: include/features.php:91
+msgid "Enable tab to display only Network posts that you've interacted on"
+msgstr ""
+
+#: include/features.php:92
+msgid "Network New Tab"
+msgstr ""
+
+#: include/features.php:92
+msgid "Enable tab to display only new Network posts (from the last 12 hours)"
+msgstr ""
+
+#: include/features.php:93
+msgid "Network Shared Links Tab"
+msgstr ""
+
+#: include/features.php:93
+msgid "Enable tab to display only Network posts with links in them"
+msgstr ""
+
+#: include/features.php:98
+msgid "Post/Comment Tools"
+msgstr ""
+
+#: include/features.php:99
+msgid "Multiple Deletion"
+msgstr ""
+
+#: include/features.php:99
+msgid "Select and delete multiple posts/comments at once"
+msgstr ""
+
+#: include/features.php:100
+msgid "Edit Sent Posts"
+msgstr ""
+
+#: include/features.php:100
+msgid "Edit and correct posts and comments after sending"
+msgstr ""
+
+#: include/features.php:101
+msgid "Tagging"
+msgstr ""
+
+#: include/features.php:101
+msgid "Ability to tag existing posts"
+msgstr ""
+
+#: include/features.php:102
+msgid "Post Categories"
+msgstr ""
+
+#: include/features.php:102
+msgid "Add categories to your posts"
+msgstr ""
+
+#: include/features.php:103
+msgid "Ability to file posts under folders"
+msgstr ""
+
+#: include/features.php:104
+msgid "Dislike Posts"
+msgstr ""
+
+#: include/features.php:104
+msgid "Ability to dislike posts/comments"
+msgstr ""
+
+#: include/features.php:105
+msgid "Star Posts"
+msgstr ""
+
+#: include/features.php:105
+msgid "Ability to mark special posts with a star indicator"
+msgstr ""
+
+#: include/features.php:106
+msgid "Mute Post Notifications"
+msgstr ""
+
+#: include/features.php:106
+msgid "Ability to mute notifications for a thread"
+msgstr ""
+
+#: include/features.php:111
+msgid "Advanced Profile Settings"
+msgstr ""
+
+#: include/features.php:112
+msgid "Show visitors public community forums at the Advanced Profile Page"
+msgstr ""
+
+#: include/text.php:304
+msgid "newer"
+msgstr ""
+
+#: include/text.php:306
+msgid "older"
+msgstr ""
+
+#: include/text.php:311
+msgid "prev"
+msgstr ""
+
+#: include/text.php:313
+msgid "first"
+msgstr ""
+
+#: include/text.php:345
+msgid "last"
+msgstr ""
+
+#: include/text.php:348
+msgid "next"
+msgstr ""
+
+#: include/text.php:403
+msgid "Loading more entries..."
+msgstr ""
+
+#: include/text.php:404
+msgid "The end"
+msgstr ""
+
+#: include/text.php:871
+msgid "No contacts"
+msgstr ""
+
+#: include/text.php:894
+#, php-format
+msgid "%d Contact"
+msgid_plural "%d Contacts"
+msgstr[0] ""
+msgstr[1] ""
+
+#: include/text.php:907
+msgid "View Contacts"
+msgstr ""
+
+#: include/text.php:995 mod/notes.php:61 mod/filer.php:31 mod/editpost.php:109
+msgid "Save"
+msgstr ""
+
+#: include/text.php:1058
+msgid "poke"
+msgstr ""
+
+#: include/text.php:1058
+msgid "poked"
+msgstr ""
+
+#: include/text.php:1059
+msgid "ping"
+msgstr ""
+
+#: include/text.php:1059
+msgid "pinged"
+msgstr ""
+
+#: include/text.php:1060
+msgid "prod"
+msgstr ""
+
+#: include/text.php:1060
+msgid "prodded"
+msgstr ""
+
+#: include/text.php:1061
+msgid "slap"
+msgstr ""
+
+#: include/text.php:1061
+msgid "slapped"
+msgstr ""
+
+#: include/text.php:1062
+msgid "finger"
+msgstr ""
+
+#: include/text.php:1062
+msgid "fingered"
+msgstr ""
+
+#: include/text.php:1063
+msgid "rebuff"
+msgstr ""
+
+#: include/text.php:1063
+msgid "rebuffed"
+msgstr ""
+
+#: include/text.php:1077
+msgid "happy"
+msgstr ""
+
+#: include/text.php:1078
+msgid "sad"
+msgstr ""
+
+#: include/text.php:1079
+msgid "mellow"
+msgstr ""
+
+#: include/text.php:1080
+msgid "tired"
+msgstr ""
+
+#: include/text.php:1081
+msgid "perky"
+msgstr ""
+
+#: include/text.php:1082
+msgid "angry"
+msgstr ""
+
+#: include/text.php:1083
+msgid "stupified"
+msgstr ""
+
+#: include/text.php:1084
+msgid "puzzled"
+msgstr ""
+
+#: include/text.php:1085
+msgid "interested"
+msgstr ""
+
+#: include/text.php:1086
+msgid "bitter"
+msgstr ""
+
+#: include/text.php:1087
+msgid "cheerful"
+msgstr ""
+
+#: include/text.php:1088
+msgid "alive"
+msgstr ""
+
+#: include/text.php:1089
+msgid "annoyed"
+msgstr ""
+
+#: include/text.php:1090
+msgid "anxious"
+msgstr ""
+
+#: include/text.php:1091
+msgid "cranky"
+msgstr ""
+
+#: include/text.php:1092
+msgid "disturbed"
+msgstr ""
+
+#: include/text.php:1093
+msgid "frustrated"
+msgstr ""
+
+#: include/text.php:1094
+msgid "motivated"
+msgstr ""
+
+#: include/text.php:1095
+msgid "relaxed"
+msgstr ""
+
+#: include/text.php:1096
+msgid "surprised"
+msgstr ""
+
+#: include/text.php:1310 mod/videos.php:383
+msgid "View Video"
+msgstr ""
+
+#: include/text.php:1342
+msgid "bytes"
+msgstr ""
+
+#: include/text.php:1374 include/text.php:1386
+msgid "Click to open/close"
+msgstr ""
+
+#: include/text.php:1512
+msgid "View on separate page"
+msgstr ""
+
+#: include/text.php:1513
+msgid "view on separate page"
+msgstr ""
+
+#: include/text.php:1792
+msgid "activity"
+msgstr ""
+
+#: include/text.php:1794 mod/content.php:623 object/Item.php:431
+#: object/Item.php:444
+msgid "comment"
+msgid_plural "comments"
+msgstr[0] ""
+msgstr[1] ""
+
+#: include/text.php:1795
+msgid "post"
+msgstr ""
+
+#: include/text.php:1963
+msgid "Item filed"
 msgstr ""
 
 #: mod/oexchange.php:25
@@ -3798,7 +3798,7 @@ msgstr ""
 msgid "Not Extended"
 msgstr ""
 
-#: mod/display.php:328 mod/profile.php:155 mod/cal.php:152
+#: mod/display.php:328 mod/cal.php:152 mod/profile.php:155
 msgid "Access to this profile has been restricted."
 msgstr ""
 
@@ -4312,10 +4312,6 @@ msgstr ""
 #: mod/dfrn_poll.php:104 mod/dfrn_poll.php:537
 #, php-format
 msgid "%1$s welcomes %2$s"
-msgstr ""
-
-#: mod/profile.php:179
-msgid "Tips for New Members"
 msgstr ""
 
 #: mod/message.php:75
@@ -8518,6 +8514,10 @@ msgstr ""
 
 #: mod/admin.php:2031
 msgid "Manage Additional Features"
+msgstr ""
+
+#: mod/profile.php:179
+msgid "Tips for New Members"
 msgstr ""
 
 #: object/Item.php:370
