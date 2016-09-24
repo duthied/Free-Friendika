@@ -61,7 +61,6 @@ as the value of $top_child_total (this is done at the end of this file)
 	<span class="icon s22 star {{$item.isstarred}}" id="starred-{{$item.id}}" title="{{$item.star.starred}}">{{$item.star.starred}}</span>
 	{{/if}}
 	{{if $item.lock}}<span class="navicon lock fakelink" onclick="lockview(event,{{$item.id}});" title="{{$item.lock}}"></span><span class="fa fa-lock"></span>{{/if}}
-	<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 </div>
 <!-- ./TODO => Unknow block -->
 
@@ -193,6 +192,7 @@ as the value of $top_child_total (this is done at the end of this file)
 			<div class="additional-info text-muted">
 				<div id="wall-item-ago-{{$item.id}}" class="wall-item-ago">
 					<small><a href="{{$item.plink.orig}}"><span class="time" title="{{$item.localtime}}" data-toggle="tooltip"><time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time></span></a></small>
+					<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 				</div>
 
 				{{if $item.location}}
