@@ -3,7 +3,7 @@
 It would be better if it would be done in friendica core but since core lacks this functionality
 it is done in the theme
 
-In short: the piece of code counts the total number of children of the toplevelpost 
+In short: the piece of code counts the total number of children of the toplevelpost
 - this are usaly all posts with thread_level = 2 - and stores it in variable $top_children_total.
 The first time a children which hits thread_level = 2 and $top_child = 1 opens the div.
 
@@ -41,9 +41,9 @@ as the value of $top_child_total (this is done at the end of this file)
 	{{if $item.thread_level<3}}
 		<div class="hide-comments-outer-wrapper">
 			<div class="hide-comments-outer btn-link" onclick="showHideComments({{$item.id}});">
-				<span id="hide-comments-total-{{$item.id}}" 
+				<span id="hide-comments-total-{{$item.id}}"
 					class="hide-comments-total">{{$item.num_comments}}</span>
-				<span id="hide-comments-{{$item.id}}" 
+				<span id="hide-comments-{{$item.id}}"
 					class="hide-comments fakelink">{{$item.hide_text}}</span>
 			</div>
 			<hr />
@@ -73,7 +73,7 @@ as the value of $top_child_total (this is done at the end of this file)
  {{/if}}
 	<div class="media">
 		{{* Put addional actions in a top-right dropdown menu *}}
-		
+
 		<ul class="nav nav-pills preferences">
 			<li><span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span></li>
 
