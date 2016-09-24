@@ -126,7 +126,7 @@ function ping_init(&$a) {
 			$regs = q("SELECT `contact`.`name`, `contact`.`url`, `contact`.`micro`, `register`.`created` FROM `contact` RIGHT JOIN `register` ON `register`.`uid`=`contact`.`uid` WHERE `contact`.`self`=1");
 			$register = count($regs);
 		} else {
-			$register = "0";
+			$register = 0;
 		}
 
 		$all_events = 0;
