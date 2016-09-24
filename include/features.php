@@ -72,7 +72,7 @@ function get_features($filtered = true) {
 			t('Post Composition Features'),
 			array('richtext',	t('Richtext Editor'),			t('Enable richtext editor'), false, get_config('feature_lock','richtext')),
 			array('preview',	t('Post Preview'),			t('Allow previewing posts and comments before publishing them'), false, get_config('feature_lock','preview')),
-			array('aclautomention',	t('Auto-mention Forums'),		t('Add/remove mention when a fourm page is selected/deselected in ACL window.'), false, get_config('feature_lock','aclautomention')),
+			array('aclautomention',	t('Auto-mention Forums'),		t('Add/remove mention when a forum page is selected/deselected in ACL window.'), false, get_config('feature_lock','aclautomention')),
 		),
 
 		// Network sidebar widgets
