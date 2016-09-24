@@ -1136,7 +1136,7 @@ function format_like($cnt,$arr,$type,$id) {
 				$explikers = sprintf( t('%s don\'t attend.'), $likers);
 				break;
 			case 'attendmaybe':
-				$phrase = sprintf( t('<span  %1$s>%2$d people</span> anttend maybe'), $spanatts, $cnt);
+				$phrase = sprintf( t('<span  %1$s>%2$d people</span> attend maybe'), $spanatts, $cnt);
 				$explikers = sprintf( t('%s anttend maybe.'), $likers);
 				break;
 		}
