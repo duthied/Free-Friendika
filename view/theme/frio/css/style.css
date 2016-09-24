@@ -1467,8 +1467,14 @@ blockquote.shared_content {
     margin-top: 15px;
     margin-bottom: 0;
 }
+.wall-item-actions a.active {
+    font-weight: bold;
+}
 .wall-item-actions a:hover {
     color: #555;
+}
+.wall-item-actions a.active:hover {
+    color: $link_color;
 }
 .wall-item-actions-left {
     display: table-cell;
