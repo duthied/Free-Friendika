@@ -3932,26 +3932,26 @@
 	api_register_func('api/friendica/direct_messages_search', 'api_friendica_direct_messages_search', true);
 
 
-    	/**
+	/**
 	 * @brief return data of all the profiles a user has to the client
 	 *
-     * @param string $profile_id optional parameter to provide the id of the profile to be returned
+	 * @param string $profile_id optional parameter to provide the id of the profile to be returned
 	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
 	 * @return string
 	 */
-    function api_friendica_profile_show($type){
-        $a = get_app();
+	function api_friendica_profile_show($type){
+		$a = get_app();
+		
+		if (api_user()===false) throw new ForbiddenException();
 
-        if (api_user()===false) throw new ForbiddenException();
-
-        // input params
+		// input params
 		$profileid = (x($_REQUEST,'profile_id') ? $_REQUEST['profile_id'] : 0);
 
-        // retrieve general information about profiles for user
-        $multi_profiles = feature_enabled(api_user(),'multi_profiles');
-        $directory = get_config('system', 'directory');
+		// retrieve general information about profiles for user
+		$multi_profiles = feature_enabled(api_user(),'multi_profiles');
+		$directory = get_config('system', 'directory');
 
-		// get data of the specified profile id or all profiles of the user if not specified
+// get data of the specified profile id or all profiles of the user if not specified
 		if ($profileid != 0) {
 			$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `id` = %d",
 				intval(api_user()),
@@ -3964,51 +3964,51 @@
 			$r = q("SELECT * FROM `profile` WHERE `uid` = %d",
 				intval(api_user()));
 
-        // loop through all returned profiles and retrieve data and users
-        $k = 0;
+		// loop through all returned profiles and retrieve data and users
+		$k = 0;
 		foreach ($r as $rr) {
 			$profile = api_format_items_profiles($rr, $type);
 
-            // select all users from contact table, loop and prepare standard return for user data
-            $users = array();
-            $r = q("SELECT `id`, `nurl` FROM `contact` WHERE `uid`= %d AND `profile-id` = %d",
+			// select all users from contact table, loop and prepare standard return for user data
+			$users = array();
+			$r = q("SELECT `id`, `nurl` FROM `contact` WHERE `uid`= %d AND `profile-id` = %d",
 				intval(api_user()),
 				intval($rr['profile_id']));
 
-    		foreach ($r as $rr) {
-                $user = api_get_user($a, $rr['nurl']);
-                ($type == "xml") ? $users[$k++.":user"] = $user : $users[] = $user;
-            }
-            $profile['users'] = $users;
+			foreach ($r as $rr) {
+				$user = api_get_user($a, $rr['nurl']);
+				($type == "xml") ? $users[$k++.":user"] = $user : $users[] = $user;
+			}
+			$profile['users'] = $users;
 
-            // add prepared profile data to array for final return
-            if ($type == "xml") {
-                $profiles[$k++.":profile"] = $profile;
-            } else {
-                $profiles[] = $profile;
-            }
+			// add prepared profile data to array for final return
+			if ($type == "xml") {
+				$profiles[$k++.":profile"] = $profile;
+			} else {
+				$profiles[] = $profile;
+			}
 		}
 
-        // return settings, authenticated user and profiles data
-        $result = array('multi_profiles' => $multi_profiles ? true : false,
-                        'global_dir' => $directory,
-                        'friendica_owner' => api_get_user($a, intval(api_user())),
-                        'profiles' => $profiles);
-        return api_format_data("friendica_profiles", $type, array('$result' => $result));
-    }
-    api_register_func('api/friendica/profile/show', 'api_friendica_profile_show', true, API_METHOD_GET);
+		// return settings, authenticated user and profiles data
+		$result = array('multi_profiles' => $multi_profiles ? true : false,
+						'global_dir' => $directory,
+						'friendica_owner' => api_get_user($a, intval(api_user())),
+						'profiles' => $profiles);
+		return api_format_data("friendica_profiles", $type, array('$result' => $result));
+	}
+	api_register_func('api/friendica/profile/show', 'api_friendica_profile_show', true, API_METHOD_GET);
 
 /*
 To.Do:
-    [pagename] => api/1.1/statuses/lookup.json
-    [id] => 605138389168451584
-    [include_cards] => true
-    [cards_platform] => Android-12
-    [include_entities] => true
-    [include_my_retweet] => 1
-    [include_rts] => 1
-    [include_reply_count] => true
-    [include_descendent_reply_count] => true
+	[pagename] => api/1.1/statuses/lookup.json
+	[id] => 605138389168451584
+	[include_cards] => true
+	[cards_platform] => Android-12
+	[include_entities] => true
+	[include_my_retweet] => 1
+	[include_rts] => 1
+	[include_reply_count] => true
+	[include_descendent_reply_count] => true
 (?)
 
 
