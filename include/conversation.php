@@ -1056,6 +1056,9 @@ function builtin_activity_puller($item, &$conv_responses) {
 			else
 				$conv_responses[$mode][$item['thr-parent']] ++;
 
+			if((local_user()) && (local_user() == $item['uid']) && ($item['self']))
+				$conv_responses[$mode][$item['thr-parent'] . '-self'] = 1;
+
 			$conv_responses[$mode][$item['thr-parent'] . '-l'][] = $url;
 
 			// there can only be one activity verb per item so if we found anything, we can stop looking
@@ -1435,6 +1438,7 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 		$ret[$v] = array();
 		$ret[$v]['count'] = ((x($conv_responses[$v],$item['uri'])) ? $conv_responses[$v][$item['uri']] : '');
 		$ret[$v]['list']  = ((x($conv_responses[$v],$item['uri'])) ? $conv_responses[$v][$item['uri'] . '-l'] : '');
+		$ret[$v]['self']  = ((x($conv_responses[$v],$item['uri'])) ? $conv_responses[$v][$item['uri'] . '-self'] : '0');
 		if(count($ret[$v]['list']) > MAX_LIKERS) {
 			$ret[$v]['list_part'] = array_slice($ret[$v]['list'], 0, MAX_LIKERS);
 			array_push($ret[$v]['list_part'], '<a href="#" data-toggle="modal" data-target="#' . $v . 'Modal-'
