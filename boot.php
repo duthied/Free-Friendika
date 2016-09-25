@@ -182,13 +182,14 @@ define ( 'PAGE_PRVGROUP',          5 );
 /** @}*/
 
 /**
- * @name page types
+ * @name account types
  *
  * @{
  */
-define ( 'PAGE_TYPE_PERSON',      0 );
-define ( 'PAGE_TYPE_COMPANY',     1 );
-define ( 'PAGE_TYPE_COMMUNITY',   2 );
+define ( 'ACCOUNT_TYPE_PERSON',      0 );
+define ( 'ACCOUNT_TYPE_COMPANY',     1 );
+define ( 'ACCOUNT_TYPE_NEWS',        2 );
+define ( 'ACCOUNT_TYPE_COMMUNITY',   3 );
 /** @}*/
 
 /**

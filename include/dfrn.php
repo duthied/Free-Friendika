@@ -98,9 +98,9 @@ class dfrn {
 
 		$sql_extra = " AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' ";
 
-		$r = q("SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`
+		$r = q("SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`, `user`.`account-type`
 			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
-			WHERE `contact`.`self` = 1 AND `user`.`nickname` = '%s' LIMIT 1",
+			WHERE `contact`.`self` AND `user`.`nickname` = '%s' LIMIT 1",
 			dbesc($owner_nick)
 		);
 
@@ -440,8 +440,12 @@ class dfrn {
 			xml::add_element($doc, $root, "link", "", $attributes);
 		}
 
+		// For backward compatibility we keep this element
 		if ($owner['page-flags'] == PAGE_COMMUNITY)
 			xml::add_element($doc, $root, "dfrn:community", 1);
+
+		// The former element is replaced by this one
+		xml::add_element($doc, $root, "dfrn:account_type", $owner["account-type"]);
 
 		/// @todo We need a way to transmit the different page flags like "PAGE_PRVGROUP"
 
