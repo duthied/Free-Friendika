@@ -3936,7 +3936,6 @@
 	/**
 	 * @brief return data of all the profiles a user has to the client
 	 *
-	 * @param string $profile_id optional parameter to provide the id of the profile to be returned
 	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
 	 * @return string
 	 */
