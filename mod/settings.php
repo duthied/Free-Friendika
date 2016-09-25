@@ -1065,12 +1065,18 @@ function settings_content(&$a) {
 	if(! strlen($a->user['timezone']))
 		$timezone = date_default_timezone_get();
 
-
+	$page_type = PAGE_TYPE_PERSON;
 
 	$pageset_tpl = get_markup_template('pagetypes.tpl');
+
 	$pagetype = replace_macros($pageset_tpl, array(
 		'$user' 	=> t("User Types"),
-		'$community' 	=> t("Community Types"),
+		'$company' 	=> t("Company Types"),
+		'$community'	=> t("Community Types"),
+		'$page_type'	=> $page_type,
+		'$page_person'	=> PAGE_TYPE_PERSON,
+		'$page_company'	=> PAGE_TYPE_COMPANY,
+		'$page_forum'   => PAGE_TYPE_COMMUNITY,
 		'$page_normal' 	=> array('page-flags', t('Normal Account Page'), PAGE_NORMAL,
 									t('This account is a normal personal profile'),
 									($a->user['page-flags'] == PAGE_NORMAL)),

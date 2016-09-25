@@ -209,21 +209,21 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 
 	// Fetch contact data from the contact table for the given user
 	$r = q("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
-			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd` AS `birthday`, `self`
+			`xmpp`, `keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd` AS `birthday`, `self`
 		FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
 			dbesc(normalise_link($url)), intval($uid));
 
 	// Fetch the data from the contact table with "uid=0" (which is filled automatically)
 	if (!$r)
 		$r = q("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
-				`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd` AS `birthday`, 0 AS `self`
+				`xmpp`, `keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd` AS `birthday`, 0 AS `self`
 			FROM `contact` WHERE `nurl` = '%s' AND `uid` = 0",
 				dbesc(normalise_link($url)));
 
 	// Fetch the data from the gcontact table
 	if (!$r)
 		$r = q("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `zid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
-				`keywords`, `gender`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, `community` AS `forum`, 0 AS `prv`, `community`, `birthday`, 0 AS `self`
+				'' AS `xmpp`, `keywords`, `gender`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, `community` AS `forum`, 0 AS `prv`, `community`, `birthday`, 0 AS `self`
 			FROM `gcontact` WHERE `nurl` = '%s'",
 				dbesc(normalise_link($url)));
 

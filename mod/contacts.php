@@ -626,6 +626,8 @@ function contacts_content(&$a) {
 			'account_type' => (($contact['forum'] || $contact['prv']) ? t('Forum') : ''),
 			'$location' => bbcode($contact["location"]),
 			'$location_label' => t("Location:"),
+			'$xmpp' => bbcode($contact["xmpp"]),
+			'$xmpp_label' => t("XMPP:"),
 			'$about' => bbcode($contact["about"], false, false),
 			'$about_label' => t("About:"),
 			'$keywords' => $contact["keywords"],

@@ -38,7 +38,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
 define ( 'FRIENDICA_VERSION',      '3.5.1-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1202      );
+define ( 'DB_UPDATE_VERSION',      1203      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -179,6 +179,16 @@ define ( 'PAGE_COMMUNITY',         2 );
 define ( 'PAGE_FREELOVE',          3 );
 define ( 'PAGE_BLOG',              4 );
 define ( 'PAGE_PRVGROUP',          5 );
+/** @}*/
+
+/**
+ * @name page types
+ *
+ * @{
+ */
+define ( 'PAGE_TYPE_PERSON',      0 );
+define ( 'PAGE_TYPE_COMPANY',     1 );
+define ( 'PAGE_TYPE_COMMUNITY',   2 );
 /** @}*/
 
 /**
