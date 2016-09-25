@@ -2373,7 +2373,7 @@
 			//builtin_activity_puller($i, $activities);
 
 			// get user data and add it to the array of the activity
-			$user = api_get_user($a, $i['author-link']);
+			$user = api_get_user($a, $i['author-link']);			
 			switch($i['verb']) {
 				case ACTIVITY_LIKE:
 					$activities['like'][] = $user;
@@ -4001,15 +4001,15 @@
 
 /*
 To.Do:
-	[pagename] => api/1.1/statuses/lookup.json
-	[id] => 605138389168451584
-	[include_cards] => true
-	[cards_platform] => Android-12
-	[include_entities] => true
-	[include_my_retweet] => 1
-	[include_rts] => 1
-	[include_reply_count] => true
-	[include_descendent_reply_count] => true
+    [pagename] => api/1.1/statuses/lookup.json
+    [id] => 605138389168451584
+    [include_cards] => true
+    [cards_platform] => Android-12
+    [include_entities] => true
+    [include_my_retweet] => 1
+    [include_rts] => 1
+    [include_reply_count] => true
+    [include_descendent_reply_count] => true
 (?)
 
 
