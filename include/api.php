@@ -2413,55 +2413,56 @@
 	}
 
 
-    /**
-     * @brief return data from profiles
-     *
-     * @param array $profile
-     * @return array
-     */
+	/**
+	 * @brief return data from profiles
+	 *
+	 * @param array $profile array containing data from db table 'profile'
+	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+	 * @return array
+	 */
 	function api_format_items_profiles(&$profile = null, $type = "json") {
-        if ($profile != null) {
-        $profile = array('profile_id' => $profile['id'],
-                        'profile_name' => $profile['profile-name'],
-                        'is_default' => $profile['is-default'] ? true : false,
-                        'hide_friends'=> $profile['hide-friends'] ? true : false,
-                        'profile_photo' => $profile['photo'],
-                        'profile_thumb' => $profile['thumb'],
-                        'publish' => $profile['publish'] ? true : false,
-                        'net_publish' => $profile['net-publish'] ? true : false,
-                        'description' => $profile['pdesc'],
-                        'date_of_birth' => $profile['dob'],
-                        'address' => $profile['address'],
-                        'city' => $profile['locality'],
-                        'region' => $profile['region'],
-                        'postal_code' => $profile['postal-code'],
-                        'country' => $profile['country-name'],
-                        'hometown' => $profile['hometown'],
-                        'gender' => $profile['gender'],
-                        'marital' => $profile['marital'],
-                        'marital_with' => $profile['with'],
-                        'marital_since' => $profile['howlong'],
-                        'sexual' => $profile['sexual'],
-                        'politic' => $profile['politic'],
-                        'religion' => $profile['religion'],
-                        'public_keywords' => $profile['pub_keywords'],
-                        'private_keywords' => $profile['prv_keywords'],
-                        'likes' => bbcode(api_clean_plain_items($profile['likes']), false, false, 2, true),
-                        'dislikes' => bbcode(api_clean_plain_items($profile['dislikes']), false, false, 2, true),
-                        'about' => bbcode(api_clean_plain_items($profile['about']), false, false, 2, true),
-                        'music' => bbcode(api_clean_plain_items($profile['music']), false, false, 2, true),
-                        'book' => bbcode(api_clean_plain_items($profile['book']), false, false, 2, true),
-                        'tv' => bbcode(api_clean_plain_items($profile['tv']), false, false, 2, true),
-                        'film' => bbcode(api_clean_plain_items($profile['film']), false, false, 2, true),
-                        'interest' => bbcode(api_clean_plain_items($profile['interest']), false, false, 2, true),
-                        'romance' => bbcode(api_clean_plain_items($profile['romance']), false, false, 2, true),
-                        'work' => bbcode(api_clean_plain_items($profile['work']), false, false, 2, true),
-                        'education' => bbcode(api_clean_plain_items($profile['education']), false, false, 2, true),
-                        'social_networks' => bbcode(api_clean_plain_items($profile['contact']), false, false, 2, true),
-                        'homepage' => $profile['homepage'],
-                        'users' => null);
-        return $profile;
-        }
+		if ($profile != null) {
+			$profile = array('profile_id' => $profile['id'],
+							'profile_name' => $profile['profile-name'],
+							'is_default' => $profile['is-default'] ? true : false,
+							'hide_friends'=> $profile['hide-friends'] ? true : false,
+							'profile_photo' => $profile['photo'],
+							'profile_thumb' => $profile['thumb'],
+							'publish' => $profile['publish'] ? true : false,
+							'net_publish' => $profile['net-publish'] ? true : false,
+							'description' => $profile['pdesc'],
+							'date_of_birth' => $profile['dob'],
+							'address' => $profile['address'],
+							'city' => $profile['locality'],
+							'region' => $profile['region'],
+							'postal_code' => $profile['postal-code'],
+							'country' => $profile['country-name'],
+							'hometown' => $profile['hometown'],
+							'gender' => $profile['gender'],
+							'marital' => $profile['marital'],
+							'marital_with' => $profile['with'],
+							'marital_since' => $profile['howlong'],
+							'sexual' => $profile['sexual'],
+							'politic' => $profile['politic'],
+							'religion' => $profile['religion'],
+							'public_keywords' => $profile['pub_keywords'],
+							'private_keywords' => $profile['prv_keywords'],
+							'likes' => bbcode(api_clean_plain_items($profile['likes']), false, false, 2, true),
+							'dislikes' => bbcode(api_clean_plain_items($profile['dislikes']), false, false, 2, true),
+							'about' => bbcode(api_clean_plain_items($profile['about']), false, false, 2, true),
+							'music' => bbcode(api_clean_plain_items($profile['music']), false, false, 2, true),
+							'book' => bbcode(api_clean_plain_items($profile['book']), false, false, 2, true),
+							'tv' => bbcode(api_clean_plain_items($profile['tv']), false, false, 2, true),
+							'film' => bbcode(api_clean_plain_items($profile['film']), false, false, 2, true),
+							'interest' => bbcode(api_clean_plain_items($profile['interest']), false, false, 2, true),
+							'romance' => bbcode(api_clean_plain_items($profile['romance']), false, false, 2, true),
+							'work' => bbcode(api_clean_plain_items($profile['work']), false, false, 2, true),
+							'education' => bbcode(api_clean_plain_items($profile['education']), false, false, 2, true),
+							'social_networks' => bbcode(api_clean_plain_items($profile['contact']), false, false, 2, true),
+							'homepage' => $profile['homepage'],
+							'users' => null);
+			return $profile;
+		} 
 	}
 
 	/**
@@ -2890,7 +2891,7 @@
 	 * @brief delete a direct_message from mail table through api
 	 *
 	 * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- 	 * @return string
+ 	 * @return string 
 	 */
 	function api_direct_messages_destroy($type){
 		$a = get_app();
@@ -2918,14 +2919,14 @@
 		// BadRequestException if no id specified (for clients using Twitter API)
 		if ($id == 0) throw new BadRequestException('Message id not specified');
 
-		// add parent-uri to sql command if specified by calling app
+		// add parent-uri to sql command if specified by calling app		
 		$sql_extra = ($parenturi != "" ? " AND `parent-uri` = '" . dbesc($parenturi) . "'" : "");
 
 		// get data of the specified message id
 		$r = q("SELECT `id` FROM `mail` WHERE `uid` = %d AND `id` = %d" . $sql_extra,
-			intval($uid),
+			intval($uid), 
 			intval($id));
-
+	
 		// error message if specified id is not in database
 		if (!dbm::is_result($r)) {
 			if ($verbose == "true") {
@@ -2937,8 +2938,8 @@
 		}
 
 		// delete message
-		$result = q("DELETE FROM `mail` WHERE `uid` = %d AND `id` = %d" . $sql_extra,
-			intval($uid),
+		$result = q("DELETE FROM `mail` WHERE `uid` = %d AND `id` = %d" . $sql_extra, 
+			intval($uid), 
 			intval($id));
 
 		if ($verbose == "true") {
@@ -3850,7 +3851,7 @@
 
 		// get data of the specified message id
 		$r = q("SELECT `id` FROM `mail` WHERE `id` = %d AND `uid` = %d",
-			intval($id),
+			intval($id), 
 			intval($uid));
 		// error message if specified id is not in database
 		if (!dbm::is_result($r)) {
@@ -3859,8 +3860,8 @@
 		}
 
 		// update seen indicator
-		$result = q("UPDATE `mail` SET `seen` = 1 WHERE `id` = %d AND `uid` = %d",
-			intval($id),
+		$result = q("UPDATE `mail` SET `seen` = 1 WHERE `id` = %d AND `uid` = %d", 
+			intval($id), 
 			intval($uid));
 
 		if ($result) {
@@ -3894,7 +3895,7 @@
 		$user_info = api_get_user($a);
 		$searchstring = (x($_REQUEST,'searchstring') ? $_REQUEST['searchstring'] : "");
 		$uid = $user_info['uid'];
-
+	
 		// error if no searchstring specified
 		if ($searchstring == "") {
 			$answer = array('result' => 'error', 'message' => 'searchstring not specified');
@@ -3909,7 +3910,7 @@
 
 		$profile_url = $user_info["url"];
 		// message if nothing was found
-		if (count($r) == 0)
+		if (count($r) == 0) 
 			$success = array('success' => false, 'search_results' => 'nothing found');
 		else {
 			$ret = Array();
@@ -3941,7 +3942,7 @@
 	 */
 	function api_friendica_profile_show($type){
 		$a = get_app();
-		
+
 		if (api_user()===false) throw new ForbiddenException();
 
 		// input params
