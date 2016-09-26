@@ -457,7 +457,7 @@ function settings_post(&$a) {
 	// Adjust the page flag if the account type doesn't fit to the page flag.
 	if (($account_type == ACCOUNT_TYPE_PERSON) AND !in_array($page_flags, array(PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE)))
 		$page_flags = PAGE_NORMAL;
-	elseif (($account_type == ACCOUNT_TYPE_COMPANY) AND !in_array($page_flags, array(PAGE_SOAPBOX)))
+	elseif (($account_type == ACCOUNT_TYPE_ORGANISATION) AND !in_array($page_flags, array(PAGE_SOAPBOX)))
 		$page_flags = PAGE_SOAPBOX;
 	elseif (($account_type == ACCOUNT_TYPE_NEWS) AND !in_array($page_flags, array(PAGE_SOAPBOX)))
 		$page_flags = PAGE_SOAPBOX;
@@ -1077,24 +1077,31 @@ function settings_content(&$a) {
 	if(! strlen($a->user['timezone']))
 		$timezone = date_default_timezone_get();
 
+	// Set the account type to "Community" when the page is a community page but the account type doesn't fit
+	// This is only happening on the first visit after the update
+	if (in_array($a->user['page-flags'], array(PAGE_COMMUNITY, PAGE_PRVGROUP)) AND
+		($a->user['account-type'] != ACCOUNT_TYPE_COMMUNITY))
+		$a->user['account-type'] = ACCOUNT_TYPE_COMMUNITY;
+
 	$pageset_tpl = get_markup_template('pagetypes.tpl');
 
 	$pagetype = replace_macros($pageset_tpl, array(
-		'$account_types'=> t("Account Types"),
-		'$user' 	=> t("Personal Page Subtypes"),
-		'$community'	=> t("Community Forum Subtypes"),
-		'$account_type'	=> $a->user['account-type'],
-		'$type_person'	=> ACCOUNT_TYPE_PERSON,
-		'$type_company'	=> ACCOUNT_TYPE_COMPANY,
-		'$type_news'	=> ACCOUNT_TYPE_NEWS,
-		'$type_community' => ACCOUNT_TYPE_COMMUNITY,
+		'$account_types'	=> t("Account Types"),
+		'$user' 		=> t("Personal Page Subtypes"),
+		'$community'		=> t("Community Forum Subtypes"),
+		'$account_type'		=> $a->user['account-type'],
+		'$type_person'		=> ACCOUNT_TYPE_PERSON,
+		'$type_organisation' 	=> ACCOUNT_TYPE_ORGANISATION,
+		'$type_news'		=> ACCOUNT_TYPE_NEWS,
+		'$type_community' 	=> ACCOUNT_TYPE_COMMUNITY,
+
 		'$account_person' 	=> array('account-type', t('Personal Page'), ACCOUNT_TYPE_PERSON,
 									t('This account is a regular personal profile'),
 									($a->user['account-type'] == ACCOUNT_TYPE_PERSON)),
 
-		'$account_company'	=> array('account-type', t('Company Page'), ACCOUNT_TYPE_COMPANY,
-									t('This account is a company profile'),
-									($a->user['account-type'] == ACCOUNT_TYPE_COMPANY)),
+		'$account_organisation'	=> array('account-type', t('Organisation Page'), ACCOUNT_TYPE_ORGANISATION,
+									t('This account is a profile for an organisation'),
+									($a->user['account-type'] == ACCOUNT_TYPE_ORGANISATION)),
 
 		'$account_news'		=> array('account-type', t('News Page'), ACCOUNT_TYPE_NEWS,
 									t('This account is a news account/reflector'),

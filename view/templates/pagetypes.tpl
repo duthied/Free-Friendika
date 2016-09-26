@@ -1,6 +1,6 @@
 <h4>{{$account_types}}</h4>
 {{include file="field_radio.tpl" field=$account_person}}
-{{include file="field_radio.tpl" field=$account_company}}
+{{include file="field_radio.tpl" field=$account_organisation}}
 {{include file="field_radio.tpl" field=$account_news}}
 {{include file="field_radio.tpl" field=$account_community}}
 
@@ -11,7 +11,7 @@
 	{{include file="field_radio.tpl" field=$page_freelove}}
 {{/if}}
 
-{{if $account_type == $type_company}}
+{{if $account_type == $type_organisation}}
 	<input type='hidden' name='page-flags' value='1'>
 {{/if}}
 

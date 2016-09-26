@@ -1723,3 +1723,8 @@ function update_1190() {
 	return UPDATE_SUCCESS;
 
 }
+
+function update_1202() {
+	$r = q("UPDATE `user` SET `account-type` = %d WHERE `page-flags` IN (%d, %d)",
+		dbesc(ACCOUNT_TYPE_COMMUNITY), dbesc(PAGE_COMMUNITY), dbesc(PAGE_PRVGROUP));
+}

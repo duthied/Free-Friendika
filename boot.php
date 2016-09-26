@@ -187,7 +187,7 @@ define ( 'PAGE_PRVGROUP',          5 );
  * @{
  */
 define ( 'ACCOUNT_TYPE_PERSON',      0 );
-define ( 'ACCOUNT_TYPE_COMPANY',     1 );
+define ( 'ACCOUNT_TYPE_ORGANISATION',1 );
 define ( 'ACCOUNT_TYPE_NEWS',        2 );
 define ( 'ACCOUNT_TYPE_COMMUNITY',   3 );
 /** @}*/
