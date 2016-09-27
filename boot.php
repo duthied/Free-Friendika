@@ -184,6 +184,17 @@ define ( 'PAGE_PRVGROUP',          5 );
 /**
  * @name account types
  *
+ * ACCOUNT_TYPE_PERSON - the account belongs to a person
+ *	Associated page types: PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE
+ *
+ * ACCOUNT_TYPE_ORGANISATION - the account belongs to an organisation
+ *	Associated page type: PAGE_SOAPBOX
+ *
+ * ACCOUNT_TYPE_NEWS - the account is a news reflector
+ *	Associated page type: PAGE_SOAPBOX
+ *
+ * ACCOUNT_TYPE_COMMUNITY - the account is community forum
+ *	Associated page types: PAGE_COMMUNITY, PAGE_PRVGROUP
  * @{
  */
 define ( 'ACCOUNT_TYPE_PERSON',      0 );
