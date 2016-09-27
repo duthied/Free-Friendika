@@ -1,8 +1,26 @@
+<h4>{{$account_types}}</h4>
+{{include file="field_radio.tpl" field=$account_person}}
+{{include file="field_radio.tpl" field=$account_organisation}}
+{{include file="field_radio.tpl" field=$account_news}}
+{{include file="field_radio.tpl" field=$account_community}}
 
-<h4>{{$user}}</h4>
+{{if $account_type == $type_person}}
+	<h5>{{$user}}</h5>
 	{{include file="field_radio.tpl" field=$page_normal}}
 	{{include file="field_radio.tpl" field=$page_soapbox}}
 	{{include file="field_radio.tpl" field=$page_freelove}}
-<h4>{{$community}}</h4>
+{{/if}}
+
+{{if $account_type == $type_organisation}}
+	<input type='hidden' name='page-flags' value='1'>
+{{/if}}
+
+{{if $account_type == $type_news}}
+	<input type='hidden' name='page-flags' value='1'>
+{{/if}}
+
+{{if $account_type == $type_community}}
+	<h5>{{$community}}</h5>
 	{{include file="field_radio.tpl" field=$page_community}}
 	{{include file="field_radio.tpl" field=$page_prvgroup}}
+{{/if}}

@@ -337,6 +337,8 @@ function profile_sidebar($profile, $block = 0) {
 
 	$about = ((x($profile,'about') == 1) ?  t('About:') : False);
 
+	$xmpp = ((x($profile,'xmpp') == 1) ?  t('XMPP:') : False);
+
 	if(($profile['hidewall'] || $block) && (! local_user()) && (! remote_user())) {
 		$location = $pdesc = $gender = $marital = $homepage = $about = False;
 	}
@@ -405,6 +407,7 @@ function profile_sidebar($profile, $block = 0) {
 	$tpl = get_markup_template('profile_vcard.tpl');
 	$o .= replace_macros($tpl, array(
 		'$profile' => $p,
+		'$xmpp' => $xmpp,
 		'$connect'  => $connect,
 		'$remoteconnect'  => $remoteconnect,
 		'$subscribe_feed' => $subscribe_feed,

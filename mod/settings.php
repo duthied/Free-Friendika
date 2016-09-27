@@ -420,6 +420,7 @@ function settings_post(&$a) {
 	$publish          = (((x($_POST,'profile_in_directory')) && (intval($_POST['profile_in_directory']) == 1)) ? 1: 0);
 	$net_publish      = (((x($_POST,'profile_in_netdirectory')) && (intval($_POST['profile_in_netdirectory']) == 1)) ? 1: 0);
 	$old_visibility   = (((x($_POST,'visibility')) && (intval($_POST['visibility']) == 1)) ? 1 : 0);
+	$account_type     = (((x($_POST,'account-type')) && (intval($_POST['account-type']))) ? intval($_POST['account-type']) : 0);
 	$page_flags       = (((x($_POST,'page-flags')) && (intval($_POST['page-flags']))) ? intval($_POST['page-flags']) : 0);
 	$blockwall        = (((x($_POST,'blockwall')) && (intval($_POST['blockwall']) == 1)) ? 0: 1); // this setting is inverted!
 	$blocktags        = (((x($_POST,'blocktags')) && (intval($_POST['blocktags']) == 1)) ? 0: 1); // this setting is inverted!
@@ -452,6 +453,16 @@ function settings_post(&$a) {
 		$notify += intval($_POST['notify7']);
 	if(x($_POST,'notify8'))
 		$notify += intval($_POST['notify8']);
+
+	// Adjust the page flag if the account type doesn't fit to the page flag.
+	if (($account_type == ACCOUNT_TYPE_PERSON) AND !in_array($page_flags, array(PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE)))
+		$page_flags = PAGE_NORMAL;
+	elseif (($account_type == ACCOUNT_TYPE_ORGANISATION) AND !in_array($page_flags, array(PAGE_SOAPBOX)))
+		$page_flags = PAGE_SOAPBOX;
+	elseif (($account_type == ACCOUNT_TYPE_NEWS) AND !in_array($page_flags, array(PAGE_SOAPBOX)))
+		$page_flags = PAGE_SOAPBOX;
+	elseif (($account_type == ACCOUNT_TYPE_COMMUNITY) AND !in_array($page_flags, array(PAGE_COMMUNITY, PAGE_PRVGROUP)))
+		$page_flags = PAGE_COMMUNITY;
 
 	$email_changed = false;
 
@@ -553,7 +564,7 @@ function settings_post(&$a) {
 	$r = q("UPDATE `user` SET `username` = '%s', `email` = '%s',
 				`openid` = '%s', `timezone` = '%s',
 				`allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s',
-				`notify-flags` = %d, `page-flags` = %d, `default-location` = '%s',
+				`notify-flags` = %d, `page-flags` = %d, `account-type` = %d, `default-location` = '%s',
 				`allow_location` = %d, `maxreq` = %d, `expire` = %d, `openidserver` = '%s',
 				`def_gid` = %d, `blockwall` = %d, `hidewall` = %d, `blocktags` = %d,
 				`unkmail` = %d, `cntunkmail` = %d, `language` = '%s'
@@ -568,6 +579,7 @@ function settings_post(&$a) {
 			dbesc($str_group_deny),
 			intval($notify),
 			intval($page_flags),
+			intval($account_type),
 			dbesc($defloc),
 			intval($allow_location),
 			intval($maxreq),
@@ -1065,13 +1077,41 @@ function settings_content(&$a) {
 	if(! strlen($a->user['timezone']))
 		$timezone = date_default_timezone_get();
 
-
+	// Set the account type to "Community" when the page is a community page but the account type doesn't fit
+	// This is only happening on the first visit after the update
+	if (in_array($a->user['page-flags'], array(PAGE_COMMUNITY, PAGE_PRVGROUP)) AND
+		($a->user['account-type'] != ACCOUNT_TYPE_COMMUNITY))
+		$a->user['account-type'] = ACCOUNT_TYPE_COMMUNITY;
 
 	$pageset_tpl = get_markup_template('pagetypes.tpl');
+
 	$pagetype = replace_macros($pageset_tpl, array(
-		'$user' 	=> t("User Types"),
-		'$community' 	=> t("Community Types"),
-		'$page_normal' 	=> array('page-flags', t('Normal Account Page'), PAGE_NORMAL,
+		'$account_types'	=> t("Account Types"),
+		'$user' 		=> t("Personal Page Subtypes"),
+		'$community'		=> t("Community Forum Subtypes"),
+		'$account_type'		=> $a->user['account-type'],
+		'$type_person'		=> ACCOUNT_TYPE_PERSON,
+		'$type_organisation' 	=> ACCOUNT_TYPE_ORGANISATION,
+		'$type_news'		=> ACCOUNT_TYPE_NEWS,
+		'$type_community' 	=> ACCOUNT_TYPE_COMMUNITY,
+
+		'$account_person' 	=> array('account-type', t('Personal Page'), ACCOUNT_TYPE_PERSON,
+									t('This account is a regular personal profile'),
+									($a->user['account-type'] == ACCOUNT_TYPE_PERSON)),
+
+		'$account_organisation'	=> array('account-type', t('Organisation Page'), ACCOUNT_TYPE_ORGANISATION,
+									t('This account is a profile for an organisation'),
+									($a->user['account-type'] == ACCOUNT_TYPE_ORGANISATION)),
+
+		'$account_news'		=> array('account-type', t('News Page'), ACCOUNT_TYPE_NEWS,
+									t('This account is a news account/reflector'),
+									($a->user['account-type'] == ACCOUNT_TYPE_NEWS)),
+
+		'$account_community' 	=> array('account-type', t('Community Forum'), ACCOUNT_TYPE_COMMUNITY,
+									t('This account is a community forum where people can discuss with each other'),
+									($a->user['account-type'] == ACCOUNT_TYPE_COMMUNITY)),
+
+		'$page_normal'		=> array('page-flags', t('Normal Account Page'), PAGE_NORMAL,
 									t('This account is a normal personal profile'),
 									($a->user['page-flags'] == PAGE_NORMAL)),
 
@@ -1079,8 +1119,8 @@ function settings_content(&$a) {
 									t('Automatically approve all connection/friend requests as read-only fans'),
 									($a->user['page-flags'] == PAGE_SOAPBOX)),
 
-		'$page_community'	=> array('page-flags', t('Community Forum/Celebrity Account'), PAGE_COMMUNITY,
-									t('Automatically approve all connection/friend requests as read-write fans'),
+		'$page_community'	=> array('page-flags', t('Public Forum'), PAGE_COMMUNITY,
+									t('Automatically approve all contact requests'),
 									($a->user['page-flags'] == PAGE_COMMUNITY)),
 
 		'$page_freelove' 	=> array('page-flags', t('Automatic Friend Page'), PAGE_FREELOVE,

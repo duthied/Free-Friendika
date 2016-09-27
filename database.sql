@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 3.5-dev (Asparagus)
--- DB_UPDATE_VERSION 1200
+-- Friendica 3.5.1-dev (Asparagus)
+-- DB_UPDATE_VERSION 1203
 -- ------------------------------------------
 
 
@@ -118,6 +118,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`about` text,
 	`keywords` text,
 	`gender` varchar(32) NOT NULL DEFAULT '',
+	`xmpp` varchar(255) NOT NULL DEFAULT '',
 	`attag` varchar(255) NOT NULL DEFAULT '',
 	`avatar` varchar(255) NOT NULL DEFAULT '',
 	`photo` text,
@@ -157,6 +158,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`writable` tinyint(1) NOT NULL DEFAULT 0,
 	`forum` tinyint(1) NOT NULL DEFAULT 0,
 	`prv` tinyint(1) NOT NULL DEFAULT 0,
+	`contact-type` int(11) unsigned NOT NULL DEFAULT 0,
 	`hidden` tinyint(1) NOT NULL DEFAULT 0,
 	`archive` tinyint(1) NOT NULL DEFAULT 0,
 	`pending` tinyint(1) NOT NULL DEFAULT 1,
@@ -772,6 +774,17 @@ CREATE TABLE IF NOT EXISTS `poll_result` (
 ) DEFAULT CHARSET=utf8mb4;
 
 --
+-- TABLE process
+--
+CREATE TABLE IF NOT EXISTS `process` (
+	`pid` int(10) unsigned NOT NULL,
+	`command` varchar(32) NOT NULL DEFAULT '',
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	 PRIMARY KEY(`pid`),
+	 INDEX `command` (`command`)
+) DEFAULT CHARSET=utf8mb4;
+
+--
 -- TABLE profile
 --
 CREATE TABLE IF NOT EXISTS `profile` (
@@ -812,6 +825,7 @@ CREATE TABLE IF NOT EXISTS `profile` (
 	`education` text,
 	`contact` text,
 	`homepage` varchar(255) NOT NULL DEFAULT '',
+	`xmpp` varchar(255) NOT NULL DEFAULT '',
 	`photo` varchar(255) NOT NULL DEFAULT '',
 	`thumb` varchar(255) NOT NULL DEFAULT '',
 	`publish` tinyint(1) NOT NULL DEFAULT 0,
@@ -1048,6 +1062,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 	`cntunkmail` int(11) NOT NULL DEFAULT 10,
 	`notify-flags` int(11) unsigned NOT NULL DEFAULT 65535,
 	`page-flags` int(11) unsigned NOT NULL DEFAULT 0,
+	`account-type` int(11) unsigned NOT NULL DEFAULT 0,
 	`prvnets` tinyint(1) NOT NULL DEFAULT 0,
 	`pwdreset` varchar(255) NOT NULL DEFAULT '',
 	`maxreq` int(11) NOT NULL DEFAULT 10,

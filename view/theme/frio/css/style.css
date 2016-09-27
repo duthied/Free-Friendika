@@ -967,9 +967,13 @@ aside .vcard .p-addr {
     white-space: nowrap;
     padding-bottom: 2px;
 }
+
 aside .vcard .detail {
     display: table;
     padding: 5px 0;
+}
+aside .xmpp {
+    display: table;
 }
 aside .vcard .icon {
     display: table-cell;

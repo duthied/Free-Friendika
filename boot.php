@@ -38,7 +38,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
 define ( 'FRIENDICA_VERSION',      '3.5.1-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1202      );
+define ( 'DB_UPDATE_VERSION',      1203      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -179,6 +179,28 @@ define ( 'PAGE_COMMUNITY',         2 );
 define ( 'PAGE_FREELOVE',          3 );
 define ( 'PAGE_BLOG',              4 );
 define ( 'PAGE_PRVGROUP',          5 );
+/** @}*/
+
+/**
+ * @name account types
+ *
+ * ACCOUNT_TYPE_PERSON - the account belongs to a person
+ *	Associated page types: PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE
+ *
+ * ACCOUNT_TYPE_ORGANISATION - the account belongs to an organisation
+ *	Associated page type: PAGE_SOAPBOX
+ *
+ * ACCOUNT_TYPE_NEWS - the account is a news reflector
+ *	Associated page type: PAGE_SOAPBOX
+ *
+ * ACCOUNT_TYPE_COMMUNITY - the account is community forum
+ *	Associated page types: PAGE_COMMUNITY, PAGE_PRVGROUP
+ * @{
+ */
+define ( 'ACCOUNT_TYPE_PERSON',      0 );
+define ( 'ACCOUNT_TYPE_ORGANISATION',1 );
+define ( 'ACCOUNT_TYPE_NEWS',        2 );
+define ( 'ACCOUNT_TYPE_COMMUNITY',   3 );
 /** @}*/
 
 /**

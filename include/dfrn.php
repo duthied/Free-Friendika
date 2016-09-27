@@ -98,9 +98,9 @@ class dfrn {
 
 		$sql_extra = " AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' ";
 
-		$r = q("SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`
+		$r = q("SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`, `user`.`account-type`
 			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
-			WHERE `contact`.`self` = 1 AND `user`.`nickname` = '%s' LIMIT 1",
+			WHERE `contact`.`self` AND `user`.`nickname` = '%s' LIMIT 1",
 			dbesc($owner_nick)
 		);
 
@@ -440,8 +440,12 @@ class dfrn {
 			xml::add_element($doc, $root, "link", "", $attributes);
 		}
 
+		// For backward compatibility we keep this element
 		if ($owner['page-flags'] == PAGE_COMMUNITY)
 			xml::add_element($doc, $root, "dfrn:community", 1);
+
+		// The former element is replaced by this one
+		xml::add_element($doc, $root, "dfrn:account_type", $owner["account-type"]);
 
 		/// @todo We need a way to transmit the different page flags like "PAGE_PRVGROUP"
 
@@ -512,14 +516,16 @@ class dfrn {
 			xml::add_element($doc, $author, "dfrn:birthday", $birthday);
 
 		// Only show contact details when we are allowed to
-		$r = q("SELECT `profile`.`about`, `profile`.`name`, `profile`.`homepage`, `user`.`nickname`, `user`.`timezone`,
-				`profile`.`locality`, `profile`.`region`, `profile`.`country-name`, `profile`.`pub_keywords`, `profile`.`dob`
+		$r = q("SELECT `profile`.`about`, `profile`.`name`, `profile`.`homepage`, `user`.`nickname`,
+				`user`.`timezone`, `profile`.`locality`, `profile`.`region`, `profile`.`country-name`,
+				`profile`.`pub_keywords`, `profile`.`xmpp`, `profile`.`dob`
 			FROM `profile`
 				INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
 				WHERE `profile`.`is-default` AND NOT `user`.`hidewall` AND `user`.`uid` = %d",
 			intval($owner['uid']));
 		if ($r) {
 			$profile = $r[0];
+
 			xml::add_element($doc, $author, "poco:displayName", $profile["name"]);
 			xml::add_element($doc, $author, "poco:updated", $namdate);
 
@@ -550,12 +556,10 @@ class dfrn {
 
 			}
 
-			/// @todo When we are having the XMPP address in the profile we should propagate it here
-			$xmpp = "";
-			if (trim($xmpp) != "") {
+			if (trim($profile["xmpp"]) != "") {
 				$ims = $doc->createElement("poco:ims");
 				xml::add_element($doc, $ims, "poco:type", "xmpp");
-				xml::add_element($doc, $ims, "poco:value", $xmpp);
+				xml::add_element($doc, $ims, "poco:value", $profile["xmpp"]);
 				xml::add_element($doc, $ims, "poco:primary", "true");
 				$author->appendChild($ims);
 			}
@@ -1143,7 +1147,7 @@ class dfrn {
 		$author["link"] = $xpath->evaluate($element."/atom:uri/text()", $context)->item(0)->nodeValue;
 
 		$r = q("SELECT `id`, `uid`, `url`, `network`, `avatar-date`, `name-date`, `uri-date`, `addr`,
-				`name`, `nick`, `about`, `location`, `keywords`, `bdyear`, `bd`, `hidden`
+				`name`, `nick`, `about`, `location`, `keywords`, `xmpp`, `bdyear`, `bd`, `hidden`
 				FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` != '%s'",
 			intval($importer["uid"]), dbesc(normalise_link($author["link"])), dbesc(NETWORK_STATUSNET));
 		if ($r) {
@@ -1219,9 +1223,13 @@ class dfrn {
 			if ($value != "")
 				$poco["location"] = $value;
 
+			/// @todo Only search for elements with "poco:type" = "xmpp"
+			$value = $xpath->evaluate($element."/poco:ims/poco:value/text()", $context)->item(0)->nodeValue;
+			if ($value != "")
+				$poco["xmpp"] = $value;
+
 			/// @todo Add support for the following fields that we don't support by now in the contact table:
 			/// - poco:utcOffset
-			/// - poco:ims
 			/// - poco:urls
 			/// - poco:locality
 			/// - poco:region
@@ -1308,12 +1316,13 @@ class dfrn {
 
 				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s',
 					`addr` = '%s', `keywords` = '%s', `bdyear` = '%s', `bd` = '%s', `hidden` = %d,
-					`name-date`  = '%s', `uri-date` = '%s'
+					`xmpp` = '%s', `name-date`  = '%s', `uri-date` = '%s'
 					WHERE `id` = %d AND `network` = '%s'",
 					dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["about"]), dbesc($contact["location"]),
 					dbesc($contact["addr"]), dbesc($contact["keywords"]), dbesc($contact["bdyear"]),
-					dbesc($contact["bd"]), intval($contact["hidden"]), dbesc($contact["name-date"]),
-					dbesc($contact["uri-date"]), intval($contact["id"]), dbesc($contact["network"]));
+					dbesc($contact["bd"]), intval($contact["hidden"]), dbesc($contact["xmpp"]),
+					dbesc($contact["name-date"]), dbesc($contact["uri-date"]),
+					intval($contact["id"]), dbesc($contact["network"]));
 			}
 
 			update_contact_avatar($author["avatar"], $importer["uid"], $contact["id"],
