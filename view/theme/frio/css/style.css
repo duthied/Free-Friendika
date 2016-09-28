@@ -1431,13 +1431,15 @@ section #jotOpen {
 }
 .shared_header {
     margin-left: 0px;
-        margin-top: 0px;
+    margin-top: 0px;
     padding-top: 0px;
+    margin-bottom: 10px;
     border-top: none;
     color: inherit;
 }
 blockquote.shared_content {
-    margin-left: 20px;
+    padding: 0px;
+    margin-left: 0px;
     color: inherit;
 }
 .wall-item-tags,
