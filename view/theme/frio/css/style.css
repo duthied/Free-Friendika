@@ -1441,6 +1441,7 @@ blockquote.shared_content {
     padding: 0px;
     margin-left: 0px;
     color: inherit;
+    font-size: inherit;
 }
 .wall-item-tags,
 .itemedited {
