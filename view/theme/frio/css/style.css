@@ -60,6 +60,9 @@ section hr {
 iframe, img {
     max-width: 100%;
 }
+blockquote {
+    font-size: inherit;
+}
 .clear {
     clear: both;
 }
@@ -1441,7 +1444,6 @@ blockquote.shared_content {
     padding: 0px;
     margin-left: 0px;
     color: inherit;
-    font-size: inherit;
 }
 .wall-item-tags,
 .itemedited {
