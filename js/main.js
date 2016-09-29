@@ -18,23 +18,28 @@
 		}
 	}
 
-  function openClose(theID) {
-    if(document.getElementById(theID).style.display == "block") {
-      document.getElementById(theID).style.display = "none"
-    }
-    else {
-      document.getElementById(theID).style.display = "block"
-    }
-  }
+	function openClose(theID) {
+		if(document.getElementById(theID).style.display == "block") {
+			document.getElementById(theID).style.display = "none"
+		}
+		else {
+			document.getElementById(theID).style.display = "block"
+		}
+	}
 
-  function openMenu(theID) {
-      document.getElementById(theID).style.display = "block"
-  }
+	function openMenu(theID) {
+		document.getElementById(theID).style.display = "block"
+	}
 
-  function closeMenu(theID) {
-      document.getElementById(theID).style.display = "none"
-  }
+	function closeMenu(theID) {
+		document.getElementById(theID).style.display = "none"
+	}
 
+	function decodeHtml(html) {
+		var txt = document.createElement("textarea");
+		txt.innerHTML = html;
+		return txt.value;
+	}
 
 
 	var src = null;
@@ -275,7 +280,7 @@
 					if (notification_lastitem!== null && notification_id > notification_lastitem) {
 						if (getNotificationPermission()==="granted") {
 							var notification = new Notification(document.title, {
-											  body: e.text().replace('&rarr; ','').format(e.attr('name')),
+											  body: decodeHtml(e.text().replace('&rarr; ','').format(e.attr('name'))),
 											  icon: e.attr('photo'),
 											 });
 							notification['url'] = e.attr('href');
@@ -513,7 +518,7 @@
 			$(".comment-edit-form  textarea").editor_autocomplete(baseurl+"/acl");
 			/* autocomplete bbcode */
 			$(".comment-edit-form  textarea").bbco_autocomplete('bbcode');
-			
+
 			// setup videos, since VideoJS won't take care of any loaded via AJAX
 			if(typeof videojs != 'undefined') videojs.autoSetup();
 		});
