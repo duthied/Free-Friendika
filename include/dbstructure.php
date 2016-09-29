@@ -262,7 +262,7 @@ function db_create_table($name, $fields, $verbose, $action, $indexes=null) {
 
 	if (isset($a->config["system"]["db_charset"]))
 		$charset = $a->config["system"]["db_charset"];
-	elseif ($verbose)
+	elseif (!$action) // Used for dumpsql
 		$charset = "utf8mb4";
 	else
 		$charset = "utf8";
