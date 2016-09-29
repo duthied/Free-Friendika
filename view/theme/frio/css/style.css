@@ -794,7 +794,8 @@ nav.navbar a {
     color: $nav_icon_color;
     font-weight: 400;
     font-size: 13px;
-    padding: 4px 15px
+    padding: 4px 15px;
+    text-transform: capitalize;
 }
 .nav-pills .dropdown-menu li a i,
 .nav-tabs .dropdown-menu li a i,
