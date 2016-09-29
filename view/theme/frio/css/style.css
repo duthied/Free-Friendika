@@ -1498,6 +1498,7 @@ blockquote.shared_content {
 .wall-item-actions .button-likes {
     padding-left: 0px;
     padding-right: 0px;
+	text-transform: capitalize;
 }
 
 /* wall item hover effects */

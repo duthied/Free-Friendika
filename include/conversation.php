@@ -1252,7 +1252,7 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		'$placeholdercategory' => (feature_enabled(local_user(),'categories') ? t('Categories (comma-separated list)') : ''),
 		'$wait' => t('Please wait'),
 		'$permset' => t('Permission settings'),
-		'$shortpermset' => t('permissions'),
+		'$shortpermset' => t('Permissions'),
 		'$ptyp' => (($notes_cid) ? 'note' : 'wall'),
 		'$content' => $x['content'],
 		'$post_id' => $x['post_id'],
