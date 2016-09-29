@@ -1123,6 +1123,7 @@ section #jotOpen {
 #jot-modal .modal-header a,
 #profile-jot-submit-wrapper a {
     color: #555;
+    text-transform: capitalize;
 }
 #jot-modal .modal-header {
     border-bottom: none;
