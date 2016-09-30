@@ -132,24 +132,6 @@ function register_post(&$a) {
 			$admin_mail_list
 		);
 
-
-		foreach ($adminlist as $admin) {
-			notification(array(
-				'type' => NOTIFY_SYSTEM,
-				'event' => 'SYSTEM_REGISTER_REQUEST',
-				'source_name' => $user['username'],
-				'source_mail' => $user['email'],
-				'source_nick' => $user['nickname'],
-				'source_link' => $a->get_baseurl()."/admin/users/",
-				'link' => $a->get_baseurl()."/admin/users/",
-				'source_photo' => $a->get_baseurl() . "/photo/avatar/".$user['uid'].".jpg",
-				'to_email' => $admin['email'],
-				'uid' => $admin['uid'],
-				'language' => ($admin['language']?$admin['language']:'en'))
-			);
-		}
-
-
 		info( t('Your registration is pending approval by the site owner.') . EOL ) ;
 		goaway(z_root());
 
