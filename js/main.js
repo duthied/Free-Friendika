@@ -130,6 +130,7 @@
 		function close_last_popup_menu() {
 			if(last_popup_menu) {
 				last_popup_menu.hide();
+				last_popup_menu.off('click', function(e) {e.stopPropagation()});
 				last_popup_button.removeClass("selected");
 				last_popup_menu = null;
 				last_popup_button = null;
@@ -152,6 +153,7 @@
 				last_popup_button = null;
 			} else {
 				last_popup_menu = menu;
+				last_popup_menu.on('click', function(e) {e.stopPropagation()});
 				last_popup_button = parent;
 				$('#nav-notifications-menu').perfectScrollbar('update');
 			}
