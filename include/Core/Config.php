@@ -2,7 +2,7 @@
 namespace Friendica\Core;
 /**
  * @file include/Core/Config.php
- * 
+ *
  *  @brief Contains the class with methods for system configuration
  */
 
@@ -74,7 +74,7 @@ class Config {
 
 		global $a;
 
-		if(! $instore) {
+		if(! $refresh) {
 			// Looking if the whole family isn't set
 			if(isset($a->config[$family])) {
 				if($a->config[$family] === '!<unset>!') {

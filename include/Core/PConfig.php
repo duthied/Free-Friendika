@@ -67,7 +67,7 @@ class PConfig {
 
 		global $a;
 
-		if(! $instore) {
+		if(! $refresh) {
 			// Looking if the whole family isn't set
 			if(isset($a->config[$uid][$family])) {
 				if($a->config[$uid][$family] === '!<unset>!') {
@@ -134,7 +134,7 @@ class PConfig {
 				dbesc($key),
 				dbesc($dbvalue)
 			);
-			if($ret) 
+			if($ret)
 				return $value;
 			return $ret;
 		}
