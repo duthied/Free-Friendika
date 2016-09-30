@@ -83,29 +83,6 @@ class PConfig {
 			}
 		}
 
-		// If APC is enabled then fetch the data from there, else try XCache
-		/*if (function_exists("apc_fetch") AND function_exists("apc_exists"))
-			if (apc_exists($uid."|".$family."|".$key)) {
-				$val = apc_fetch($uid."|".$family."|".$key);
-				$a->config[$uid][$family][$key] = $val;
-
-				if ($val === '!<unset>!')
-					return false;
-				else
-					return $val;
-			}
-		elseif (function_exists("xcache_get") AND function_exists("xcache_isset"))
-			if (xcache_isset($uid."|".$family."|".$key)) {
-				$val = xcache_get($uid."|".$family."|".$key);
-				$a->config[$uid][$family][$key] = $val;
-
-				if ($val === '!<unset>!')
-					return false;
-				else
-					return $val;
-			}*/
-
-
 		$ret = q("SELECT `v` FROM `pconfig` WHERE `uid` = %d AND `cat` = '%s' AND `k` = '%s' LIMIT 1",
 			intval($uid),
 			dbesc($family),
@@ -116,22 +93,10 @@ class PConfig {
 			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret[0]['v'])?unserialize( $ret[0]['v']):$ret[0]['v']);
 			$a->config[$uid][$family][$key] = $val;
 
-			// If APC is enabled then store the data there, else try XCache
-			/*if (function_exists("apc_store"))
-				apc_store($uid."|".$family."|".$key, $val, 600);
-			elseif (function_exists("xcache_set"))
-				xcache_set($uid."|".$family."|".$key, $val, 600);*/
-
 			return $val;
 		}
 		else {
 			$a->config[$uid][$family][$key] = '!<unset>!';
-
-			// If APC is enabled then store the data there, else try XCache
-			/*if (function_exists("apc_store"))
-				apc_store($uid."|".$family."|".$key, '!<unset>!', 600);
-			elseif (function_exists("xcache_set"))
-				xcache_set($uid."|".$family."|".$key, '!<unset>!', 600);*/
 		}
 		return $default_value;
 	}
@@ -181,13 +146,6 @@ class PConfig {
 		);
 
 		$a->config[$uid][$family][$key] = $value;
-
-		// If APC is enabled then store the data there, else try XCache
-		/*if (function_exists("apc_store"))
-			apc_store($uid."|".$family."|".$key, $value, 600);
-		elseif (function_exists("xcache_set"))
-			xcache_set($uid."|".$family."|".$key, $value, 600);*/
-
 
 		if($ret)
 			return $value;

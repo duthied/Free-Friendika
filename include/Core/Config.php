@@ -90,29 +90,6 @@ class Config {
 			}
 		}
 
-		// If APC is enabled then fetch the data from there, else try XCache
-		/*if (function_exists("apc_fetch") AND function_exists("apc_exists"))
-			if (apc_exists($family."|".$key)) {
-				$val = apc_fetch($family."|".$key);
-				$a->config[$family][$key] = $val;
-
-				if ($val === '!<unset>!')
-					return false;
-				else
-					return $val;
-			}
-		elseif (function_exists("xcache_fetch") AND function_exists("xcache_isset"))
-			if (xcache_isset($family."|".$key)) {
-				$val = xcache_fetch($family."|".$key);
-				$a->config[$family][$key] = $val;
-
-				if ($val === '!<unset>!')
-					return false;
-				else
-					return $val;
-			}
-		*/
-
 		$ret = q("SELECT `v` FROM `config` WHERE `cat` = '%s' AND `k` = '%s' LIMIT 1",
 			dbesc($family),
 			dbesc($key)
@@ -122,22 +99,10 @@ class Config {
 			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret[0]['v'])?unserialize( $ret[0]['v']):$ret[0]['v']);
 			$a->config[$family][$key] = $val;
 
-			// If APC is enabled then store the data there, else try XCache
-			/*if (function_exists("apc_store"))
-				apc_store($family."|".$key, $val, 600);
-			elseif (function_exists("xcache_set"))
-				xcache_set($family."|".$key, $val, 600);*/
-
 			return $val;
 		}
 		else {
 			$a->config[$family][$key] = '!<unset>!';
-
-			// If APC is enabled then store the data there, else try XCache
-			/*if (function_exists("apc_store"))
-				apc_store($family."|".$key, '!<unset>!', 600);
-			elseif (function_exists("xcache_set"))
-				xcache_set($family."|".$key, '!<unset>!', 600);*/
 		}
 		return $default_value;
 	}
@@ -192,12 +157,6 @@ class Config {
 
 		$a->config[$family][$key] = $value;
 
-		// If APC is enabled then store the data there, else try XCache
-		/*if (function_exists("apc_store"))
-			apc_store($family."|".$key, $value, 600);
-		elseif (function_exists("xcache_set"))
-			xcache_set($family."|".$key, $value, 600);*/
-
 		if($ret)
 			return $value;
 		return $ret;
@@ -224,11 +183,6 @@ class Config {
 			dbesc($family),
 			dbesc($key)
 		);
-		// If APC is enabled then delete the data from there, else try XCache
-		/*if (function_exists("apc_delete"))
-			apc_delete($family."|".$key);
-		elseif (function_exists("xcache_unset"))
-			xcache_unset($family."|".$key);*/
 
 		return $ret;
 	}
