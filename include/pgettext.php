@@ -41,7 +41,7 @@ function get_browser_language() {
 
 	if(isset($langs) && count($langs)) {
 		foreach ($langs as $lang => $v) {
-			if(file_exists("view/$lang") && is_dir("view/$lang")) {
+			if(file_exists("view/lang/$lang") && is_dir("view/lang/$lang")) {
 				$preferred = $lang;
 				break;
 			}
@@ -112,8 +112,8 @@ function load_translation_table($lang) {
 		}
 	}
 
-	if(file_exists("view/$lang/strings.php")) {
-		include("view/$lang/strings.php");
+	if(file_exists("view/lang/$lang/strings.php")) {
+		include("view/lang/$lang/strings.php");
 	}
 
 }}
@@ -171,11 +171,11 @@ function string_plural_select_default($n) {
  */
 function get_avaiable_languages() {
 	$lang_choices = array();
-	$langs = glob('view/*/strings.php'); /**/
+	$langs = glob('view/lang/*/strings.php'); /**/
 
 	if(is_array($langs) && count($langs)) {
-		if(! in_array('view/en/strings.php',$langs))
-			$langs[] = 'view/en/';
+		if(! in_array('view/lang/en/strings.php',$langs))
+			$langs[] = 'view/lang/en/';
 		asort($langs);
 		foreach($langs as $l) {
 			$t = explode("/",$l);

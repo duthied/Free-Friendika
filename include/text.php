@@ -581,14 +581,14 @@ function get_intltext_template($s) {
 	if(! isset($lang))
 		$lang = 'en';
 
-	if(file_exists("view/$lang$engine/$s")) {
+	if(file_exists("view/lang/$lang$engine/$s")) {
 		$stamp1 = microtime(true);
-		$content = file_get_contents("view/$lang$engine/$s");
+		$content = file_get_contents("view/lang/$lang$engine/$s");
 		$a->save_timestamp($stamp1, "file");
 		return $content;
-	} elseif(file_exists("view/en$engine/$s")) {
+	} elseif(file_exists("view/lang/en$engine/$s")) {
 		$stamp1 = microtime(true);
-		$content = file_get_contents("view/en$engine/$s");
+		$content = file_get_contents("view/lang/en$engine/$s");
 		$a->save_timestamp($stamp1, "file");
 		return $content;
 	} else {
@@ -928,11 +928,11 @@ function contact_block() {
  *	string 'thumb' => The contact picture
  *	string 'click' => js code which is performed when clicking on the contact
  * @param boolean $redirect If true try to use the redir url if it's possible
- * @param string $class CSS class for the 
+ * @param string $class CSS class for the
  * @param boolean $textmode If true display the contacts as text links
  *	if false display the contacts as picture links
- 
- * @return string Formatted html 
+
+ * @return string Formatted html
  */
 function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 
@@ -2087,7 +2087,7 @@ function formatBytes($bytes, $precision = 2) {
 
 /**
  * @brief translate and format the networkname of a contact
- * 
+ *
  * @param string $network
  *	Networkname of the contact (e.g. dfrn, rss and so on)
  * @param sting $url
@@ -2132,7 +2132,7 @@ function text_highlight($s,$lang) {
 	$s = trim(html_entity_decode($s,ENT_COMPAT));
 	$s = str_replace("    ","\t",$s);
 
-	// The highlighter library insists on an opening php tag for php code blocks. If 
+	// The highlighter library insists on an opening php tag for php code blocks. If
 	// it isn't present, nothing is highlighted. So we're going to see if it's present.
 	// If not, we'll add it, and then quietly remove it after we get the processed output back.
 
@@ -2141,7 +2141,7 @@ function text_highlight($s,$lang) {
 			$s = '<?php' . "\n" . $s;
 			$tag_added = true;
 		}
-	} 
+	}
 
 	$renderer = new Text_Highlighter_Renderer_HTML($options);
 	$hl = Text_Highlighter::factory($lang);
