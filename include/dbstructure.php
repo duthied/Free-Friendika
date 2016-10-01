@@ -336,7 +336,6 @@ function db_create_index($indexname, $fieldnames, $method="ADD") {
 	}
 
 	if ($indexname == "PRIMARY") {
-		//return sprintf("%s PRIMARY KEY(`%s`)", $method, implode("`,`", $fieldnames));
 		return sprintf("%s PRIMARY KEY(%s)", $method, $names);
 	}
 
