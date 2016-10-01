@@ -79,7 +79,11 @@ function table_structure($table) {
 				continue;
 
 			$column = $index["Column_name"];
-			if ($index["Sub_part"] != "")
+			// On utf8mb4 a varchar index can only have a length of 191
+			// To avoid the need to add this to every index definition we just ignore it here.
+			// Exception are primary indexes
+			// Since there are some combindex primary indexes we use the limit of 180 here.
+			if (($index["Sub_part"] != "") AND (($index["Sub_part"] < 180) OR ($index["Key_name"] == "PRIMARY")))
 				$column .= "(".$index["Sub_part"].")";
 
 			$indexdata[$index["Key_name"]][] = $column;
@@ -104,7 +108,7 @@ function table_structure($table) {
 	return(array("fields"=>$fielddata, "indexes"=>$indexdata));
 }
 
-function print_structure($database) {
+function print_structure($database, $charset) {
 	echo "-- ------------------------------------------\n";
 	echo "-- ".FRIENDICA_PLATFORM." ".FRIENDICA_VERSION." (".FRIENDICA_CODENAME,")\n";
 	echo "-- DB_UPDATE_VERSION ".DB_UPDATE_VERSION."\n";
@@ -113,7 +117,7 @@ function print_structure($database) {
 		echo "--\n";
 		echo "-- TABLE $name\n";
 		echo "--\n";
-		db_create_table($name, $structure['fields'], true, false, $structure["indexes"]);
+		db_create_table($name, $structure['fields'], $charset, true, false, $structure["indexes"]);
 
 		echo "\n";
 	}
@@ -121,6 +125,11 @@ function print_structure($database) {
 
 function update_structure($verbose, $action, $tables=null, $definition=null) {
 	global $a, $db;
+
+	if (isset($a->config["system"]["db_charset"]))
+		$charset = $a->config["system"]["db_charset"];
+	else
+		$charset = "utf8";
 
 	$errors = false;
 
@@ -140,7 +149,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 
 	// Get the definition
 	if (is_null($definition))
-		$definition = db_definition();
+		$definition = db_definition($charset);
 
 
 	// Compare it
@@ -148,7 +157,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 		$is_new_table = False;
 		$sql3="";
 		if (!isset($database[$name])) {
-			$r = db_create_table($name, $structure["fields"], $verbose, $action, $structure['indexes']);
+			$r = db_create_table($name, $structure["fields"], $charset, $verbose, $action, $structure['indexes']);
 			if(false === $r) {
 				$errors .=  t('Errors encountered creating database tables.').$name.EOL;
 			}
@@ -257,15 +266,8 @@ function db_field_command($parameters, $create = true) {
 	return($fieldstruct);
 }
 
-function db_create_table($name, $fields, $verbose, $action, $indexes=null) {
+function db_create_table($name, $fields, $charset, $verbose, $action, $indexes=null) {
 	global $a, $db;
-
-	if (isset($a->config["system"]["db_charset"]))
-		$charset = $a->config["system"]["db_charset"];
-	elseif (!$action) // Used for dumpsql
-		$charset = "utf8mb4";
-	else
-		$charset = "utf8";
 
 	$r = true;
 
@@ -322,11 +324,6 @@ function db_create_index($indexname, $fieldnames, $method="ADD") {
 		killme();
 	}
 
-
-	if ($indexname == "PRIMARY") {
-		return sprintf("%s PRIMARY KEY(`%s`)", $method, implode("`,`", $fieldnames));
-	}
-
 	$names = "";
 	foreach ($fieldnames AS $fieldname) {
 		if ($names != "")
@@ -338,12 +335,27 @@ function db_create_index($indexname, $fieldnames, $method="ADD") {
 			$names .= "`".dbesc($fieldname)."`";
 	}
 
+	if ($indexname == "PRIMARY") {
+		//return sprintf("%s PRIMARY KEY(`%s`)", $method, implode("`,`", $fieldnames));
+		return sprintf("%s PRIMARY KEY(%s)", $method, $names);
+	}
+
 
 	$sql = sprintf("%s INDEX `%s` (%s)", $method, dbesc($indexname), $names);
 	return($sql);
 }
 
-function db_definition() {
+function db_index_suffix($charset, $reduce = 0) {
+	if ($charset != "utf8mb4")
+		return "";
+
+	// On utf8mb4 indexes can only have a length of 191
+	$indexlength = 191 - $reduce;
+
+	return "(".$indexlength.")";
+}
+
+function db_definition($charset) {
 
 	$database = array();
 
@@ -401,7 +413,7 @@ function db_definition() {
 					"updated" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					),
 			"indexes" => array(
-					"PRIMARY" => array("k"),
+					"PRIMARY" => array("k".db_index_suffix($charset)),
 					"updated" => array("updated"),
 					)
 			);
@@ -1022,7 +1034,7 @@ function db_definition() {
 					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					),
 			"indexes" => array(
-					"PRIMARY" => array("url"),
+					"PRIMARY" => array("url".db_index_suffix($charset)),
 					"created" => array("created"),
 					)
 			);
@@ -1035,7 +1047,7 @@ function db_definition() {
 					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					),
 			"indexes" => array(
-					"PRIMARY" => array("url", "guessing", "oembed"),
+					"PRIMARY" => array("url".db_index_suffix($charset), "guessing", "oembed"),
 					"created" => array("created"),
 					)
 			);
@@ -1478,7 +1490,9 @@ function dbstructure_run(&$argv, &$argc) {
 				set_config('system','build',DB_UPDATE_VERSION);
 				return;
 			case "dumpsql":
-				print_structure(db_definition());
+				// For the dump that is used to create the database.sql we always assume utfmb4
+				$charset = "utf8mb4";
+				print_structure(db_definition($charset), $charset);
 				return;
 		}
 	}
