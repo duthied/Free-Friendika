@@ -1422,6 +1422,7 @@ section #jotOpen {
     width: 20px;
 }
 
+/* wall-item content elements */
 .shared-wrapper,
 .vevent {
     padding: 10px;
@@ -1450,6 +1451,12 @@ blockquote.shared_content {
     padding: 0px;
     margin-left: 0px;
     color: inherit;
+}
+code > .hl-main {
+    padding: 10px 10px 1px 0;
+}
+.hl-main ol {
+    line-height: 1.7;
 }
 .wall-item-tags,
 .itemedited {
@@ -1500,7 +1507,7 @@ blockquote.shared_content {
 .wall-item-actions .button-likes {
     padding-left: 0px;
     padding-right: 0px;
-	text-transform: capitalize;
+    text-transform: capitalize;
 }
 
 /* wall item hover effects */
