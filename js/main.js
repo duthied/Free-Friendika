@@ -5,17 +5,14 @@
 
 	function _resizeIframe(obj, desth) {
 		var h = obj.style.height;
-		var ch = obj.contentWindow.document.body.scrollHeight + 'px';
-		if (h==ch) {
+		var ch = obj.contentWindow.document.body.scrollHeight;
+		if (h == (ch + 'px')) {
 			return;
 		}
-		//console.log("_resizeIframe", obj, desth, ch);
-		if (desth!=ch) {
-			setTimeout(_resizeIframe, 500, obj, ch);
-		} else {
-			if (ch>0) obj.style.height  = ch;
-			setTimeout(_resizeIframe, 1000, obj, ch);
+		if (desth == ch && ch>0) {
+			obj.style.height  = ch + 'px';
 		}
+		setTimeout(_resizeIframe, 100, obj, ch);
 	}
 
 	function openClose(theID) {
