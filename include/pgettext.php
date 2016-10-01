@@ -179,7 +179,7 @@ function get_avaiable_languages() {
 		asort($langs);
 		foreach($langs as $l) {
 			$t = explode("/",$l);
-			$lang_choices[$t[1]] = $t[1];
+			$lang_choices[$t[2]] = $t[2];
 		}
 	}
 	return $lang_choices;
