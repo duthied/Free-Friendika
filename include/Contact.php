@@ -687,12 +687,13 @@ function formatted_location($profile) {
 /**
  * @brief Returns the account type name
  *
- * The function be called with either the profile or the contct array
+ * The function can be called with either the user or the contact array
  *
- * @param array $contact contact or profile array
+ * @param array $contact contact or user array
  */
 function account_type($contact) {
 
+	// There are several fields that indicate that the contact or user is a forum
 	if((isset($contact['page-flags']) && (intval($contact['page-flags']) == PAGE_COMMUNITY))
 		|| (isset($contact['page-flags']) && (intval($contact['page-flags']) == PAGE_PRVGROUP))
 		|| (isset($contact['forum']) && intval($contact['forum']))
@@ -702,23 +703,26 @@ function account_type($contact) {
 	else
 		$type = ACCOUNT_TYPE_PERSON;
 
+	// The field is named differently in the user and the contact record
 	if (isset($contact["contact-type"]))
 		$type = $contact["contact-type"];
 	if (isset($contact["account-type"]))
 		$type = $contact["account-type"];
 
-	if ($type != 0)
-		switch($type) {
-			case ACCOUNT_TYPE_ORGANISATION:
-				$account_type = t("Organisation");
-				 break;
-			case ACCOUNT_TYPE_NEWS:
-				$account_type = t('News');
-				break;
-			case ACCOUNT_TYPE_COMMUNITY:
-				$account_type = t("Forum");
-				break;
-		}
+	switch($type) {
+		case ACCOUNT_TYPE_ORGANISATION:
+			$account_type = t("Organisation");
+			break;
+		case ACCOUNT_TYPE_NEWS:
+			$account_type = t('News');
+			break;
+		case ACCOUNT_TYPE_COMMUNITY:
+			$account_type = t("Forum");
+			break;
+		default:
+			$account_type = "";
+			break;
+	}
 
 	return $account_type;
 }
