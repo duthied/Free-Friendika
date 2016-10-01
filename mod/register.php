@@ -52,6 +52,7 @@ function register_post(&$a) {
 
 	$arr['blocked'] = $blocked;
 	$arr['verified'] = $verified;
+	$arr['language'] = get_browser_language();
 
 	$result = create_user($arr);
 
