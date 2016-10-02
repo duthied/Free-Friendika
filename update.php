@@ -1,6 +1,6 @@
 <?php
 
-define('UPDATE_VERSION' , 1203);
+define('UPDATE_VERSION' , 1210);
 
 /**
  *
@@ -1727,14 +1727,4 @@ function update_1190() {
 function update_1202() {
 	$r = q("UPDATE `user` SET `account-type` = %d WHERE `page-flags` IN (%d, %d)",
 		dbesc(ACCOUNT_TYPE_COMMUNITY), dbesc(PAGE_COMMUNITY), dbesc(PAGE_PRVGROUP));
-}
-
-function update_1210() {
-	// Convert config indexes to unique, old_alter_table=1 removes duplicates on ALTER IGNORE
-	$r = q("SET session old_alter_table=1;");
-	$r = q("ALTER TABLE config DROP INDEX cat_k");
-	$r = q("ALTER IGNORE TABLE config ADD UNIQUE INDEX cat_k (cat, k)");
-
-	$r = q("ALTER TABLE pconfig DROP INDEX uid_cat_k");
-	$r = q("ALTER IGNORE TABLE pconfig ADD UNIQUE INDEX uid_cat_k (uid, cat, k)");
 }
