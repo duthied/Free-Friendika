@@ -694,6 +694,9 @@ function formatted_location($profile) {
 function account_type($contact) {
 
 	// There are several fields that indicate that the contact or user is a forum
+	// "page-flags" is a field in the user table,
+	// "forum" and "prv" are used in the contact table. They stand for PAGE_COMMUNITY and PAGE_PRVGROUP.
+	// "community" is used in the gcontact table and is true if the contact is PAGE_COMMUNITY or PAGE_PRVGROUP.
 	if((isset($contact['page-flags']) && (intval($contact['page-flags']) == PAGE_COMMUNITY))
 		|| (isset($contact['page-flags']) && (intval($contact['page-flags']) == PAGE_PRVGROUP))
 		|| (isset($contact['forum']) && intval($contact['forum']))
@@ -703,7 +706,7 @@ function account_type($contact) {
 	else
 		$type = ACCOUNT_TYPE_PERSON;
 
-	// The field is named differently in the user and the contact record
+	// The "contact-type" (contact table) and "account-type" (user table) are more general then the chaos from above.
 	if (isset($contact["contact-type"]))
 		$type = $contact["contact-type"];
 	if (isset($contact["account-type"]))
