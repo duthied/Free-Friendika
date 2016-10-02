@@ -26,16 +26,29 @@ function get_browser_language() {
 			$_SERVER['HTTP_ACCEPT_LANGUAGE'], $lang_parse);
 
 		if (count($lang_parse[1])) {
+			for ($i=0; $i<count($lang_parse[1]); $i++) {
+				if ( strlen($lang_parse[1][$i])>2 ) {
+					if (! in_array(substr($lang_parse[1][$i], 0, 2), $lang_parse[1] ) ) {
+						array_push($lang_parse[1], substr($lang_parse[1][$i], 0, 2));
+						if (floatval($lang_parse[4][$i])>0)
+							array_push($lang_parse[4], strval(floatval($lang_parse[4][$i])-0.0001));
+						else
+							array_push($lang_parse[4], '0.9999');
+					}
+				}
+			}
 			// create a list like "en" => 0.8
 			$langs = array_combine($lang_parse[1], $lang_parse[4]);
 
 			// set default to 1 for any without q factor
 			foreach ($langs as $lang => $val) {
 				if ($val === '') $langs[$lang] = 1;
+				if ($val === '0') $langs[$lang] = 1;
 			}
 
 			// sort list based on value
 			arsort($langs, SORT_NUMERIC);
+			print_r($langs);
 		}
 	}
 
