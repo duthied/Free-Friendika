@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.5.1-dev (Asparagus)
--- DB_UPDATE_VERSION 1203
+-- DB_UPDATE_VERSION 1210
 -- ------------------------------------------
 
 
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS `cache` (
 	`v` text,
 	`expire_mode` int(11) NOT NULL DEFAULT 0,
 	`updated` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-	 PRIMARY KEY(`k`),
+	 PRIMARY KEY(`k`(191)),
 	 INDEX `updated` (`updated`)
 ) DEFAULT CHARSET=utf8mb4;
 
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS `config` (
 	`k` varchar(255) NOT NULL DEFAULT '',
 	`v` text,
 	 PRIMARY KEY(`id`),
-	 INDEX `cat_k` (`cat`(30),`k`(30))
+	 UNIQUE INDEX `cat_k` (`cat`(30),`k`(30))
 ) DEFAULT CHARSET=utf8mb4;
 
 --
@@ -679,7 +679,7 @@ CREATE TABLE IF NOT EXISTS `oembed` (
 	`url` varchar(255) NOT NULL,
 	`content` text,
 	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-	 PRIMARY KEY(`url`),
+	 PRIMARY KEY(`url`(191)),
 	 INDEX `created` (`created`)
 ) DEFAULT CHARSET=utf8mb4;
 
@@ -692,7 +692,7 @@ CREATE TABLE IF NOT EXISTS `parsed_url` (
 	`oembed` tinyint(1) NOT NULL DEFAULT 0,
 	`content` text,
 	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-	 PRIMARY KEY(`url`,`guessing`,`oembed`),
+	 PRIMARY KEY(`url`(191),`guessing`,`oembed`),
 	 INDEX `created` (`created`)
 ) DEFAULT CHARSET=utf8mb4;
 
@@ -706,7 +706,7 @@ CREATE TABLE IF NOT EXISTS `pconfig` (
 	`k` varchar(255) NOT NULL DEFAULT '',
 	`v` mediumtext,
 	 PRIMARY KEY(`id`),
-	 INDEX `uid_cat_k` (`uid`,`cat`(30),`k`(30))
+	 UNIQUE INDEX `uid_cat_k` (`uid`,`cat`(30),`k`(30))
 ) DEFAULT CHARSET=utf8mb4;
 
 --
