@@ -275,7 +275,7 @@
 
 {{*The second part of the notifications dropdown menu. It handles the notifications *}}
 {{if $nav.notifications}}
-<ul id="nav-notifications-template" class="media-list" style="display:none;" rel="template"> <!-- needs further investigation. I thought the notifications have their own templates -->
+<ul id="nav-notifications-template" class="media-list" style="display:none;" rel="template">
 	<li class="{4} notif-entry">
 		<div class="notif-entry-wrapper media">
 			<div class="notif-photo-wrapper media-object pull-left"><a href="{6}"><img data-src="{1}"></a></div>

@@ -130,6 +130,9 @@ function print_structure($database, $charset) {
 function update_structure($verbose, $action, $tables=null, $definition=null) {
 	global $a, $db;
 
+	if ($action)
+		set_config('system', 'maintenance', 1);
+
 	if (isset($a->config["system"]["db_charset"]))
 		$charset = $a->config["system"]["db_charset"];
 	else
@@ -250,6 +253,9 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 			}
 		}
 	}
+
+	if ($action)
+		set_config('system', 'maintenance', 0);
 
 	return $errors;
 }
