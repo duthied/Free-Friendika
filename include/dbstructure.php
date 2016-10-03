@@ -165,6 +165,13 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 	if ($action)
 		@$db->q($sql_config);
 
+	// MySQL >= 5.7 doesn't support the IGNORE keyword in ALTER TABLE statements
+	if (version_compare($db->getdb()->server_info, '5.7') >= 0) {
+		$ignore = '';
+	}else {
+		$ignore = ' IGNORE';
+	}
+
 	// Compare it
 	foreach ($definition AS $name => $structure) {
 		$is_new_table = False;
@@ -189,7 +196,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 				if ($current_index_definition != $new_index_definition && substr($indexname, 0, 6) != 'local_') {
 					$sql2=db_drop_index($indexname);
 					if ($sql3 == "")
-						$sql3 = "ALTER IGNORE TABLE `".$name."` ".$sql2;
+						$sql3 = "ALTER TABLE `".$name."` ".$sql2;
 					else
 						$sql3 .= ", ".$sql2;
 				}
@@ -199,7 +206,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 				if (!isset($database[$name]["fields"][$fieldname])) {
 					$sql2=db_add_table_field($fieldname, $parameters);
 					if ($sql3 == "")
-						$sql3 = "ALTER IGNORE TABLE `".$name."` ".$sql2;
+						$sql3 = "ALTER TABLE `".$name."` ".$sql2;
 					else
 						$sql3 .= ", ".$sql2;
 				} else {
@@ -209,7 +216,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 					if ($current_field_definition != $new_field_definition) {
 						$sql2=db_modify_table_field($fieldname, $parameters);
 						if ($sql3 == "")
-							$sql3 = "ALTER IGNORE TABLE `".$name."` ".$sql2;
+							$sql3 = "ALTER TABLE `".$name."` ".$sql2;
 						else
 							$sql3 .= ", ".$sql2;
 					}
@@ -233,7 +240,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 					$sql2=db_create_index($indexname, $fieldnames);
 					if ($sql2 != "") {
 						if ($sql3 == "")
-							$sql3 = "ALTER IGNORE TABLE `".$name."` ".$sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `".$name."` ".$sql2;
 						else
 							$sql3 .= ", ".$sql2;
 					}
@@ -1524,7 +1531,8 @@ function dbstructure_run(&$argv, &$argc) {
 	// print help
 	echo $argv[0]." <command>\n";
 	echo "\n";
-	echo "commands:\n";
+	echo "Commands:\n";
+	echo "dryrun		show database update schema queries without running them\n";
 	echo "update		update database schema\n";
 	echo "dumpsql		dump database schema\n";
 	return;
