@@ -55,8 +55,8 @@ For the sake of consistency between contribution and general code readability, F
 
 Here's a few primers if you are new to the PSR-2 coding standards:
  * Indentation is 4 spaces, period.
- * By default, strings are enclosed in single quotes, but fell free to use double quotes if it makes more sense.
- * Operators are wrapped by spaces, e.g. `$var === true`, `$var = 1 + 2` and `'string' . $concat' . 'enation'`
+ * By default, strings are enclosed in single quotes, but feel free to use double quotes if it makes more sense (SQL queries, adding tabs and line feeds).
+ * Operators are wrapped by spaces, e.g. `$var === true`, `$var = 1 + 2` and `'string' . $concat . 'enation'`
  * Braces are mandatory in conditions
  * No closing PHP tag
  * No trailing spaces
