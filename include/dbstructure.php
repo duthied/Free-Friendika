@@ -686,6 +686,7 @@ function db_definition($charset) {
 					"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"birthday" => array("type" => "varchar(32)", "not null" => "1", "default" => "0000-00-00"),
 					"community" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
+					"contact-type" => array("type" => "tinyint(1)", "not null" => "1", "default" => "-1"),
 					"hide" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"nsfw" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"network" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
@@ -1492,6 +1493,22 @@ function dbstructure_run(&$argv, &$argc) {
 		switch ($argv[1]) {
 			case "update":
 				update_structure(true, true);
+
+				$build = get_config('system','build');
+				if (!x($build)) {
+					set_config('system','build',DB_UPDATE_VERSION);
+					$build = DB_UPDATE_VERSION;
+				}
+
+				$stored = intval($build);
+				$current = intval(DB_UPDATE_VERSION);
+
+				// run any left update_nnnn functions in update.php
+				for($x = $stored; $x < $current; $x ++) {
+					$r = run_update_function($x);
+					if (!$r) break;
+				}
+
 				set_config('system','build',DB_UPDATE_VERSION);
 				return;
 			case "dumpsql":
