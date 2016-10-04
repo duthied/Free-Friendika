@@ -1277,14 +1277,14 @@ function admin_page_users(&$a){
 
 	/* ordering */
 	$valid_orders = array(
-		'contact.name', 
+		'contact.name',
 		'user.email',
 		'user.register_date',
 		'user.login_date',
-		'lastitem.lastitem_date',
+		'lastitem_date',
 		'user.page-flags'
 	);
-	
+
 	$order = "contact.name";
 	$order_direction = "+";
 	if (x($_GET,'o')){
@@ -1293,19 +1293,18 @@ function admin_page_users(&$a){
 			$order_direction = "-";
 			$new_order = substr($new_order,1);
 		}
-		
+
 		if (in_array($new_order, $valid_orders)){
 			$order = $new_order;
 		}
 		if (x($_GET,'d')){
 			$new_direction = $_GET['d'];
-			
 		}
 	}
 	$sql_order = "`".str_replace('.','`.`',$order)."`";
 	$sql_order_direction = ($order_direction==="+")?"ASC":"DESC";
-	
-	$users = q("SELECT `user`.* , `contact`.`name` , `contact`.`url` , `contact`.`micro`, `lastitem`.`lastitem_date`, `user`.`account_expired`
+
+/*	$users = q("SELECT `user`.* , `contact`.`name` , `contact`.`url` , `contact`.`micro`, `lastitem`.`lastitem_date`, `user`.`account_expired`
 				FROM
 					(SELECT MAX(`item`.`changed`) as `lastitem_date`, `item`.`uid`
 					FROM `item`
@@ -1322,9 +1321,19 @@ function admin_page_users(&$a){
 				intval($a->pager['start']),
 				intval($a->pager['itemspage'])
 				);
-    
+*/
+	$users = q("SELECT `user`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`account_expired`,
+				(SELECT `changed` FROM `item` WHERE `wall` AND `uid` = `user`.`uid` ORDER BY `changed` DESC LIMIT 1) AS `lastitem_date`
+				FROM `user`
+				INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
+				WHERE `user`.`verified`
+				ORDER BY $sql_order $sql_order_direction LIMIT %d, %d",
+				intval($a->pager['start']),
+				intval($a->pager['itemspage'])
+				);
+
 	//echo "<pre>$users"; killme();
-				
+
 	$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
 	$_setup_users = function ($e) use ($adminlist){
 		$accounts = array(
