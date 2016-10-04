@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.5.1-dev (Asparagus)
--- DB_UPDATE_VERSION 1203
+-- DB_UPDATE_VERSION 1204
 -- ------------------------------------------
 
 
@@ -328,6 +328,7 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 	`gender` varchar(32) NOT NULL DEFAULT '',
 	`birthday` varchar(32) NOT NULL DEFAULT '0000-00-00',
 	`community` tinyint(1) NOT NULL DEFAULT 0,
+	`contact-type` tinyint(1) NOT NULL DEFAULT -1,
 	`hide` tinyint(1) NOT NULL DEFAULT 0,
 	`nsfw` tinyint(1) NOT NULL DEFAULT 0,
 	`network` varchar(255) NOT NULL DEFAULT '',
