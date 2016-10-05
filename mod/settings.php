@@ -1083,7 +1083,7 @@ function settings_content(&$a) {
 		($a->user['account-type'] != ACCOUNT_TYPE_COMMUNITY))
 		$a->user['account-type'] = ACCOUNT_TYPE_COMMUNITY;
 
-	$pageset_tpl = get_markup_template('pagetypes.tpl');
+	$pageset_tpl = get_markup_template('settings_pagetypes.tpl');
 
 	$pagetype = replace_macros($pageset_tpl, array(
 		'$account_types'	=> t("Account Types"),

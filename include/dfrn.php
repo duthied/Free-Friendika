@@ -1147,7 +1147,7 @@ class dfrn {
 		$author["link"] = $xpath->evaluate($element."/atom:uri/text()", $context)->item(0)->nodeValue;
 
 		$r = q("SELECT `id`, `uid`, `url`, `network`, `avatar-date`, `name-date`, `uri-date`, `addr`,
-				`name`, `nick`, `about`, `location`, `keywords`, `xmpp`, `bdyear`, `bd`, `hidden`
+				`name`, `nick`, `about`, `location`, `keywords`, `xmpp`, `bdyear`, `bd`, `hidden`, `contact-type`
 				FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` != '%s'",
 			intval($importer["uid"]), dbesc(normalise_link($author["link"])), dbesc(NETWORK_STATUSNET));
 		if ($r) {
@@ -1336,6 +1336,7 @@ class dfrn {
 			$poco["generation"] = 2;
 			$poco["photo"] = $author["avatar"];
 			$poco["hide"] = $hide;
+			$poco["contact-type"] = $contact["contact-type"];
 			update_gcontact($poco);
 		}
 
