@@ -49,7 +49,9 @@ Programming
 
 ###Coding standards
 
-For the sake of consistency between contribution and general code readability, Friendica follows the widespread [PSR-2 coding standards](http://www.php-fig.org/psr/psr-2/). Don't worry, you don't have to know by heart the PSR-2 coding standards. Before comitting your work, you can use the PHP Coding Standard Fixer located in the `util` folder this way:
+For the sake of consistency between contribution and general code readability, Friendica follows the widespread [PSR-2 coding standards](http://www.php-fig.org/psr/psr-2/).
+Don't worry, you don't have to know by heart the PSR-2 coding standards to start contributing to Friendica.
+Before comitting your work, you can use the PHP Coding Standard Fixer located in the `util` folder this way:
 
 	$> php util/php-cs-fixer.phar fix <file or folder> --level=psr2
 
