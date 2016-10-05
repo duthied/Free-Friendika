@@ -370,6 +370,13 @@ function uri_to_guid($uri) {
 
 function item_store($arr,$force_parent = false, $notify = false, $dontcache = false) {
 
+        $perfdb   = $a->performance["database"];
+        $perfdbw  = $a->performance["database_write"];
+        $perfnet  = $a->performance["network"];
+        $perffile = $a->performance["file"];
+
+	logger("Performance: Start", LOGGER_DEBUG);
+
 	// If it is a posting where users should get notifications, then define it as wall posting
 	if ($notify) {
 		$arr['wall'] = 1;
@@ -913,6 +920,14 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		update_thread($parent_id);
 		add_shadow_entry($arr);
 	}
+
+        $perfdb   = $a->performance["database"] - $perfdb;
+        $perfdbw  = $a->performance["database_write"] - $perfdbw;
+        $perfnet  = $a->performance["network"] - $perfnet;
+        $perffile = $a->performance["file"] - $perffile;
+
+        logger("Performance: DB-R: ".round($perfdb - $perfdbw, 2)." - DB-W: ".round($perfdbw, 2)." - Net: ".round($perfnet, 2)." - File: ".round($perffile, 2), LOGGER_DEBUG);
+        //logger("Performance: DB-R: ".round($perfdb - $perfdbw, 2)." - DB-W: ".round($perfdbw, 2)." - Net: ".round($perfnet, 2), LOGGER_DEBUG);
 
 	check_item_notification($current_post, $uid);
 

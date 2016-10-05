@@ -135,7 +135,9 @@ function update_thread($itemid, $setmention = false) {
 			$sql .= "`".$field."` = '".dbesc($data)."'";
 		}
 
+	logger("Pre Update Thread", LOGGER_DEBUG);
 	$result = q("UPDATE `thread` SET ".$sql." WHERE `iid` = %d", intval($itemid));
+	logger("Post Update Thread", LOGGER_DEBUG);
 
 	logger("Update thread for item ".$itemid." - guid ".$item["guid"]." - ".print_r($result, true)." ".print_r($item, true), LOGGER_DEBUG);
 
@@ -145,6 +147,7 @@ function update_thread($itemid, $setmention = false) {
 	if (!$items)
 		return;
 
+	logger("Pre Update Item", LOGGER_DEBUG);
 	$result = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `rendered-html` = '%s', `rendered-hash` = '%s' WHERE `id` = %d",
 			dbesc($item["title"]),
 			dbesc($item["body"]),
@@ -152,6 +155,7 @@ function update_thread($itemid, $setmention = false) {
 			dbesc($item["rendered-hash"]),
 			intval($items[0]["id"])
 		);
+	logger("Post Update Item", LOGGER_DEBUG);
 	logger("Updating public shadow for post ".$items[0]["id"]." - guid ".$item["guid"]." Result: ".print_r($result, true), LOGGER_DEBUG);
 }
 
