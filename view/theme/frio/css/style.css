@@ -835,17 +835,19 @@ nav.navbar a {
     /*border-left: 3px solid #6fdbe8;*/
     border-left: 3px solid $link_color;
     color: #fff!important;
-    background-color: $menu_background_hover_color !important
+    background-color: $menu_background_hover_color !important;
 }
-.nav-pills.preferences .dropdown .dropdown-toggle {
-    color: #bebebe
+.nav-pills.preferences .dropdown .dropdown-toggle,
+.nav-pills.preferences > li > .btn {
+    color: #bebebe;
 }
 .nav-pills.preferences .dropdown.open .dropdown-toggle,
 .nav-pills.preferences .dropdown.open .dropdown-toggle:hover {
-    background-color: $nav_bg
+    background-color: $nav_bg;
 }
 
-.nav-pills.preferences .dropdown .dropdown-toggle {
+.nav-pills.preferences .dropdown .dropdown-toggle,
+.nav-pills.preferences > li > .btn {
     padding: 2px 10px;
 }
 
