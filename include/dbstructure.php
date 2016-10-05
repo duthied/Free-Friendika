@@ -166,7 +166,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 		@$db->q($sql_config);
 
 	// MySQL >= 5.7.4 doesn't support the IGNORE keyword in ALTER TABLE statements
-	if (version_compare($db->getdb()->server_info, '5.7.4') >= 0) {
+	if (version_compare($db->server_info(), '5.7.4') >= 0) {
 		$ignore = '';
 	}else {
 		$ignore = ' IGNORE';
