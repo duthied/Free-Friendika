@@ -455,3 +455,8 @@ td.federation-data {
   display: none;
   margin: 10px 0;
 }
+
+/* settings page */
+#settings-form .pageflags {
+    margin: 0 0 20px 30px;
+}
