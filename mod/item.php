@@ -29,13 +29,6 @@ require_once('include/Contact.php');
 
 function item_post(&$a) {
 
-	$perfdb   = $a->performance["database"];
-	$perfdbw  = $a->performance["database_write"];
-	$perfnet  = $a->performance["network"];
-	$perffile = $a->performance["file"];
-
-	logger("Performance: Start", LOGGER_DEBUG);
-
 	if((! local_user()) && (! remote_user()) && (! x($_REQUEST,'commenter')))
 		return;
 
@@ -299,7 +292,6 @@ function item_post(&$a) {
 		// If this is a comment, set the permissions from the parent.
 
 		if($parent_item) {
-			$private = 0;
 
 			// for non native networks use the network of the original post as network of the item
 			if (($parent_item['network'] != NETWORK_DIASPORA)
@@ -307,19 +299,13 @@ function item_post(&$a) {
 				AND ($network == ""))
 				$network = $parent_item['network'];
 
-			if(($parent_item['private'])
-				|| strlen($parent_item['allow_cid'])
-				|| strlen($parent_item['allow_gid'])
-				|| strlen($parent_item['deny_cid'])
-				|| strlen($parent_item['deny_gid'])) {
-				$private = (($parent_item['private']) ? $parent_item['private'] : 1);
-			}
-
 			$str_contact_allow = $parent_item['allow_cid'];
 			$str_group_allow   = $parent_item['allow_gid'];
 			$str_contact_deny  = $parent_item['deny_cid'];
 			$str_group_deny    = $parent_item['deny_gid'];
+			$private           = $parent_item['private'];
 		}
+
 		$pubmail_enable    = ((x($_REQUEST,'pubmail_enable') && intval($_REQUEST['pubmail_enable']) && (! $private)) ? 1 : 0);
 
 		// if using the API, we won't see pubmail_enable - figure out if it should be set
@@ -467,7 +453,6 @@ function item_post(&$a) {
 				if(! count($r))
 					continue;
 
-				logger("Pre Photo", LOGGER_DEBUG);
 				$r = q("UPDATE `photo` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'
 					WHERE `resource-id` = '%s' AND `uid` = %d AND `album` = '%s' ",
 					dbesc($str_contact_allow),
@@ -478,8 +463,6 @@ function item_post(&$a) {
 					intval($profile_uid),
 					dbesc( t('Wall Photos'))
 				);
-				logger("Post Photo", LOGGER_DEBUG);
-
 			}
 		}
 	}
@@ -500,7 +483,6 @@ function item_post(&$a) {
 					intval($attach)
 				);
 				if(count($r)) {
-					logger("Pre Attach", LOGGER_DEBUG);
 					$r = q("UPDATE `attach` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'
 						WHERE `uid` = %d AND `id` = %d",
 						dbesc($str_contact_allow),
@@ -510,7 +492,6 @@ function item_post(&$a) {
 						intval($profile_uid),
 						intval($attach)
 					);
-					logger("Post Attach", LOGGER_DEBUG);
 				}
 			}
 		}
@@ -735,6 +716,11 @@ function item_post(&$a) {
 	$datarray['self']          = $self;
 //	$datarray['prvnets']       = $user['prvnets'];
 
+	$datarray['parent-uri'] = ($parent == 0) ? $uri : $parent_item['uri'];
+	$datarray['plink'] = $a->get_baseurl().'/display/'.urlencode($datarray['guid']);
+	$datarray['last-child'] = 1;
+	$datarray['visible'] = 1;
+
 	if($orig_post)
 		$datarray['edit']      = true;
 
@@ -772,7 +758,6 @@ function item_post(&$a) {
 	put_item_in_cache($datarray);
 
 	if($orig_post) {
-		logger("Pre Update", LOGGER_DEBUG);
 		$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `attach` = '%s', `file` = '%s', `rendered-html` = '%s', `rendered-hash` = '%s', `edited` = '%s', `changed` = '%s' WHERE `id` = %d AND `uid` = %d",
 			dbesc($datarray['title']),
 			dbesc($datarray['body']),
@@ -786,7 +771,6 @@ function item_post(&$a) {
 			intval($post_id),
 			intval($profile_uid)
 		);
-		logger("Post Update", LOGGER_DEBUG);
 
 		create_tags_from_item($post_id);
 		create_files_from_item($post_id);
@@ -801,21 +785,9 @@ function item_post(&$a) {
 			goaway($a->get_baseurl() . "/" . $return_path );
 		}
 		killme();
-	}
-	else
+	} else
 		$post_id = 0;
 
-	if ($parent) {
-		// Inherit ACLs from the parent item.
-		/// @todo Check if really needed
-		$datarray['allow_cid'] = $parent_item['allow_cid'];
-		$datarray['allow_gid'] = $parent_item['allow_gid'];
-		$datarray['deny_cid'] = $parent_item['deny_cid'];
-		$datarray['deny_gid'] = $parent_item['deny_gid'];
-		$datarray['private'] = $parent_item['private'];
-	}
-
-	logger("Pre Insert", LOGGER_DEBUG);
 	$r = q("INSERT INTO `item` (`guid`, `extid`, `uid`,`type`,`wall`,`gravity`, `network`, `contact-id`,
 					`owner-name`,`owner-link`,`owner-avatar`, `owner-id`,
 					`author-name`, `author-link`, `author-avatar`, `author-id`,
@@ -824,7 +796,8 @@ function item_post(&$a) {
 					`tag`, `inform`, `verb`, `object-type`, `postopts`,
 					`allow_cid`, `allow_gid`, `deny_cid`, `deny_gid`, `private`,
 					`pubmail`, `attach`, `bookmark`,`origin`, `moderated`, `file`,
-					`rendered-html`, `rendered-hash`)
+					`rendered-html`, `rendered-hash`,
+					`parent`, `parent-uri`, `plink`, `last-child`, `visible`)
 		VALUES('%s', '%s', %d, '%s', %d, %d, '%s', %d,
 			'%s', '%s', '%s', %d,
 			'%s', '%s', '%s', %d,
@@ -833,7 +806,8 @@ function item_post(&$a) {
 			'%s', '%s', '%s', '%s', '%s',
 			'%s', '%s', '%s', '%s', %d,
 			%d, '%s', %d, %d, %d, '%s',
-			'%s', '%s')",
+			'%s', '%s',
+			%d, '%s', '%s', %d, %d)",
 		dbesc($datarray['guid']),
 		dbesc($datarray['extid']),
 		intval($datarray['uid']),
@@ -879,10 +853,13 @@ function item_post(&$a) {
 		intval($datarray['moderated']),
 		dbesc($datarray['file']),
 		dbesc($datarray['rendered-html']),
-		dbesc($datarray['rendered-hash'])
+		dbesc($datarray['rendered-hash']),
+		intval($datarray['parent']),
+		dbesc($datarray['parent-uri']),
+		dbesc($datarray['plink']),
+		intval($datarray['last-child']),
+		intval($datarray['visible'])
 	       );
-
-	logger("Post Insert", LOGGER_DEBUG);
 
 	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' LIMIT 1",
 		dbesc($datarray['uri']));
@@ -897,36 +874,26 @@ function item_post(&$a) {
 	logger('mod_item: saved item ' . $post_id);
 
 	$datarray["id"] = $post_id;
-	$datarray["plink"] = $a->get_baseurl().'/display/'.urlencode($datarray["guid"]);
 
 	// update filetags in pconfig
 	file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
 
 	if($parent) {
 
-		logger("Pre Update last-child", LOGGER_DEBUG);
 		// This item is the last leaf and gets the comment box, clear any ancestors
-		$r = q("UPDATE `item` SET `last-child` = 0, `changed` = '%s' WHERE `parent` = %d AND `last-child`",
+		$r = q("UPDATE `item` SET `last-child` = 0, `changed` = '%s' WHERE `parent` = %d AND `last-child` AND `id` != %d",
+			dbesc(datetime_convert()),
+			intval($parent),
+			intval($post_id)
+		);
+
+		// update the commented timestamp on the parent
+		q("UPDATE `item` SET `visible` = 1, `commented` = '%s', `changed` = '%s' WHERE `id` = %d",
+			dbesc(datetime_convert()),
 			dbesc(datetime_convert()),
 			intval($parent)
 		);
-		logger("Post Update last-child", LOGGER_DEBUG);
-		//Test: update_thread($parent, true);
 
-		// Inherit ACLs from the parent item.
-/*
-		logger("Pre Update ACL", LOGGER_DEBUG);
-		$r = q("UPDATE `item` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s', `private` = %d
-			WHERE `id` = %d",
-			dbesc($parent_item['allow_cid']),
-			dbesc($parent_item['allow_gid']),
-			dbesc($parent_item['deny_cid']),
-			dbesc($parent_item['deny_gid']),
-			intval($parent_item['private']),
-			intval($post_id)
-		);
-		logger("Post Update ACL", LOGGER_DEBUG);
-*/
 		if($contact_record != $author) {
 			notification(array(
 				'type'         => NOTIFY_COMMENT,
@@ -955,6 +922,10 @@ function item_post(&$a) {
 	} else {
 		$parent = $post_id;
 
+		$r = q("UPDATE `item` SET `parent` = %d WHERE `id` = %d",
+			intval($parent),
+			intval($post_id));
+
 		if($contact_record != $author) {
 			notification(array(
 				'type'         => NOTIFY_WALL,
@@ -973,47 +944,6 @@ function item_post(&$a) {
 			));
 		}
 	}
-
-	// fallback so that parent always gets set to non-zero.
-
-	if(! $parent)
-		$parent = $post_id;
-
-	logger("Pre Update Parent", LOGGER_DEBUG);
-	$r = q("UPDATE `item` SET `parent` = %d, `parent-uri` = '%s', `plink` = '%s', `changed` = '%s', `last-child` = 1, `visible` = 1
-		WHERE `id` = %d",
-		intval($parent),
-		dbesc(($parent == $post_id) ? $uri : $parent_item['uri']),
-		dbesc($a->get_baseurl().'/display/'.urlencode($datarray['guid'])),
-		dbesc(datetime_convert()),
-		intval($post_id)
-	);
-	logger("Pre Update Parent", LOGGER_DEBUG);
-
-	// photo comments turn the corresponding item visible to the profile wall
-	// This way we don't see every picture in your new photo album posted to your wall at once.
-	// They will show up as people comment on them.
-
-	//if(! $parent_item['visible']) {
-	//	logger("Pre Update Visible", LOGGER_DEBUG);
-	//	$r = q("UPDATE `item` SET `visible` = 1 WHERE `id` = %d",
-	//		intval($parent_item['id'])
-	//	);
-	//	logger("Post Update Visible", LOGGER_DEBUG);
-		//update_thread($parent_item['id']);
-	//}
-
-	// update the commented timestamp on the parent
-
-	logger("Pre Update Commented", LOGGER_DEBUG);
-	q("UPDATE `item` SET `visible` = 1, `commented` = '%s', `changed` = '%s' WHERE `id` = %d",
-		dbesc(datetime_convert()),
-		dbesc(datetime_convert()),
-		intval($parent)
-	);
-	logger("Post Update Commented", LOGGER_DEBUG);
-	if ($post_id != $parent)
-		update_thread($parent, true);
 
 	call_hooks('post_local_end', $datarray);
 
@@ -1056,6 +986,19 @@ function item_post(&$a) {
 
 	if ($post_id == $parent)
 		add_thread($post_id);
+	else {
+		update_thread($parent, true);
+		unset($datarray['self']);
+		unset($datarray['wall']);
+		unset($datarray['origin']);
+
+		if (in_array($datarray['type'], array("net-comment", "wall-comment", "remote-comment")))
+			$datarray['type'] = 'remote-comment';
+		else
+			unset($datarray['type']);
+
+		add_shadow_entry($datarray);
+	}
 
 	// This is a real juggling act on shared hosting services which kill your processes
 	// e.g. dreamhost. We used to start delivery to our native delivery agents in the background
@@ -1069,14 +1012,6 @@ function item_post(&$a) {
 	proc_run(PRIORITY_HIGH, "include/notifier.php", $notify_type, $post_id);
 
 	logger('post_complete');
-
-	$perfdb   = $a->performance["database"] - $perfdb;
-	$perfdbw  = $a->performance["database_write"] - $perfdbw;
-	$perfnet  = $a->performance["network"] - $perfnet;
-	$perffile = $a->performance["file"] - $perffile;
-
-	logger("Performance: DB-R: ".round($perfdb - $perfdbw, 2)." - DB-W: ".round($perfdbw, 2)." - Net: ".round($perfnet, 2)." - File: ".round($perffile, 2), LOGGER_DEBUG);
-	//logger("Performance: DB-R: ".round($perfdb - $perfdbw, 2)." - DB-W: ".round($perfdbw, 2)." - Net: ".round($perfnet, 2), LOGGER_DEBUG);
 
 	item_post_return($a->get_baseurl(), $api_source, $return_path);
 	// NOTREACHED
