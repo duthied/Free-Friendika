@@ -180,6 +180,11 @@ class Probe {
 
 			$path = str_replace('{uri}', urlencode($uri), $link);
 			$webfinger = self::webfinger($path);
+
+			if (!$webfinger AND (strstr($uri, "@"))) {
+				$path = str_replace('{uri}', urlencode("acct:".$uri), $link);
+				$webfinger = self::webfinger($path);
+			}
 		}
 
 		if (!is_array($webfinger["links"]))
@@ -310,6 +315,7 @@ class Probe {
 				return array("network" => NETWORK_TWITTER);
 
 			$lrdd = self::xrd($host);
+
 			if (!$lrdd)
 				return self::mail($uri, $uid);
 
@@ -355,6 +361,12 @@ class Probe {
 			// Try webfinger with the address (user@domain.tld)
 			$path = str_replace('{uri}', urlencode($addr), $link);
 			$webfinger = self::webfinger($path);
+
+			// Mastodon needs to have it with "acct:"
+			if (!$webfinger) {
+				$path = str_replace('{uri}', urlencode("acct:".$addr), $link);
+				$webfinger = self::webfinger($path);
+			}
 
 			// If webfinger wasn't successful then try it with the URL - possibly in the format https://...
 			if (!$webfinger AND ($uri != $addr)) {
@@ -815,6 +827,9 @@ class Probe {
 				if (strstr($alias, "@"))
 					$data["addr"] = str_replace('acct:', '', $alias);
 
+		if (is_string($webfinger["subject"]) AND strstr($webfinger["subject"], "@"))
+			$data["addr"] = str_replace('acct:', '', $webfinger["subject"]);
+
 		$pubkey = "";
 		foreach ($webfinger["links"] AS $link) {
 			if (($link["rel"] == "http://webfinger.net/rel/profile-page") AND
@@ -832,7 +847,7 @@ class Probe {
 						$pubkey = substr($pubkey, strpos($pubkey, ',') + 1);
 					else
 						$pubkey = substr($pubkey, 5);
-				} else
+				} elseif (normalise_link($pubkey) == 'http://')
 					$pubkey = fetch_url($pubkey);
 
 				$key = explode(".", $pubkey);
