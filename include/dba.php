@@ -91,8 +91,9 @@ class dba {
 		return $this->db;
 	}
 
-	/** Returns the MySQL server version string
-	 *
+	/**
+	 * @brief Returns the MySQL server version string
+	 * 
 	 * This function discriminate between the deprecated mysql API and the current
 	 * object-oriented mysqli API. Example of returned string: 5.5.46-0+deb8u1
 	 *
