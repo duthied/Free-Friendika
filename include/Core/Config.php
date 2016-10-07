@@ -126,37 +126,19 @@ class Config {
 	public static function set($family,$key,$value) {
 		global $a;
 
-		// If $a->config[$family] has been previously set to '!<unset>!', then
-		// $a->config[$family][$key] will evaluate to $a->config[$family][0], and
-		// $a->config[$family][$key] = $value will be equivalent to
-		// $a->config[$family][0] = $value[0] (this causes infuriating bugs),
-		// so unset the family before assigning a value to a family's key
-		if($a->config[$family] === '!<unset>!')
-			unset($a->config[$family]);
+		$a->config[$family][$key] = $value;
 
 		// manage array value
 		$dbvalue = (is_array($value)?serialize($value):$value);
 		$dbvalue = (is_bool($dbvalue) ? intval($dbvalue) : $dbvalue);
-		if(is_null(self::get($family,$key,null,true))) {
-			$a->config[$family][$key] = $value;
-			$ret = q("INSERT INTO `config` ( `cat`, `k`, `v` ) VALUES ( '%s', '%s', '%s' ) ",
-				dbesc($family),
-				dbesc($key),
-				dbesc($dbvalue)
-			);
-			if($ret)
-				return $value;
-			return $ret;
-		}
 
-		$ret = q("UPDATE `config` SET `v` = '%s' WHERE `cat` = '%s' AND `k` = '%s'",
-			dbesc($dbvalue),
+		$ret = q("INSERT INTO `config` ( `cat`, `k`, `v` ) VALUES ( '%s', '%s', '%s' )
+ON DUPLICATE KEY UPDATE `v` = '%s'",
 			dbesc($family),
-			dbesc($key)
+			dbesc($key),
+			dbesc($dbvalue),
+			dbesc($dbvalue)
 		);
-
-		$a->config[$family][$key] = $value;
-
 		if($ret)
 			return $value;
 		return $ret;

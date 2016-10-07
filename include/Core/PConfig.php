@@ -126,27 +126,16 @@ class PConfig {
 		// manage array value
 		$dbvalue = (is_array($value)?serialize($value):$value);
 
-		if(is_null(self::get($uid,$family,$key,null, true))) {
-			$a->config[$uid][$family][$key] = $value;
-			$ret = q("INSERT INTO `pconfig` ( `uid`, `cat`, `k`, `v` ) VALUES ( %d, '%s', '%s', '%s' ) ",
-				intval($uid),
-				dbesc($family),
-				dbesc($key),
-				dbesc($dbvalue)
-			);
-			if($ret)
-				return $value;
-			return $ret;
-		}
-		$ret = q("UPDATE `pconfig` SET `v` = '%s' WHERE `uid` = %d AND `cat` = '%s' AND `k` = '%s'",
-			dbesc($dbvalue),
-			intval($uid),
-			dbesc($family),
-			dbesc($key)
-		);
-
 		$a->config[$uid][$family][$key] = $value;
 
+		$ret = q("INSERT INTO `pconfig` ( `uid`, `cat`, `k`, `v` ) VALUES ( %d, '%s', '%s', '%s' )
+ON DUPLICATE KEY UPDATE `v` = '%s'",
+			intval($uid),
+			dbesc($family),
+			dbesc($key),
+			dbesc($dbvalue),
+			dbesc($dbvalue)
+		);
 		if($ret)
 			return $value;
 		return $ret;
