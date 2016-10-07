@@ -50,11 +50,6 @@ Programming
 ###Coding standards
 
 For the sake of consistency between contribution and general code readability, Friendica follows the widespread [PSR-2 coding standards](http://www.php-fig.org/psr/psr-2/).
-Don't worry, you don't have to know by heart the PSR-2 coding standards to start contributing to Friendica.
-Before comitting your work, you can use the PHP Coding Standard Fixer located in the `util` folder this way:
-
-	$> php util/php-cs-fixer.phar fix <file or folder> --level=psr2
-
 Here's a few primers if you are new to the PSR-2 coding standards:
  * Indentation is 4 spaces, period.
  * By default, strings are enclosed in single quotes, but feel free to use double quotes if it makes more sense (SQL queries, adding tabs and line feeds).
@@ -62,6 +57,30 @@ Here's a few primers if you are new to the PSR-2 coding standards:
  * Braces are mandatory in conditions
  * No closing PHP tag
  * No trailing spaces
+
+Don't worry, you don't have to know by heart the PSR-2 coding standards to start contributing to Friendica.
+There are a few tools you can use to check or fix your files before you commit.
+
+####Check with [PHP Code Sniffer](https://github.com/squizlabs/PHP_CodeSniffer)
+
+This tool checks your files against a variety of coding standards, including PSR-2, and ouputs a report of all the standard violations.
+You can simply install it through PEAR: `pear install PHP_CodeSniffer`
+Once it is installed and available in your PATH, here's the command to run before committing your work:
+
+	$> phpcs --standard=PSR2 <file or directory>
+
+The output is a list of all the coding standards violations that you should fix before committing your work.
+Additionally, `phpcs` integrates with a few IDEs (Eclipse, Netbeans, PHPStorm...) so that you don't have to fiddle with the command line.
+
+####Fix with PHP Code Beautifier and Fixer (phpbcf) included in PHP Code Sniffer
+
+If you're getting a massive list of standards violations when running `phpcs`, it can be annoying to fix all the violations by hand.
+Thankfully, PHP Code Sniffer is shipped with an automatic code fixer that can take care of the tedious task for you.
+Here's the command to automatically fix the files you created/modified:
+
+	$> phpcbf --standard=PSR2 <file or directory>
+
+If the command-line tools `diff` and `patch` are unavailabe for you, `phpcbf` can use slightly slower PHP equivalents by using the `--no-patch` argument.
 
 ###Code documentation
 
