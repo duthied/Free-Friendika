@@ -1,13 +1,7 @@
 <?php
 
-require_once("include/dba.php");
-
 /**
- * translation support
- */
-
-
-/**
+ * @brief translation support
  *
  * Get the language setting directly from system variables, bypassing get_config()
  * as database may not yet be configured.
@@ -16,8 +10,12 @@ require_once("include/dba.php");
  *
  */
 
+require_once("include/dba.php");
 
 if(! function_exists('get_browser_language')) {
+/**
+ * @brief get the prefered language from the HTTP_ACCEPT_LANGUAGE header
+ */
 function get_browser_language() {
 
 	if (x($_SERVER,'HTTP_ACCEPT_LANGUAGE')) {
@@ -25,32 +23,34 @@ function get_browser_language() {
 		preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i',
 			$_SERVER['HTTP_ACCEPT_LANGUAGE'], $lang_parse);
 
+		$lang_list = [];
 		if (count($lang_parse[1])) {
-			// create a list like "en" => 0.8
-			$langs = array_combine($lang_parse[1], $lang_parse[4]);
-
-			// set default to 1 for any without q factor
-			foreach ($langs as $lang => $val) {
-				if ($val === '') $langs[$lang] = 1;
-			}
-
-			// sort list based on value
-			arsort($langs, SORT_NUMERIC);
-		}
-	}
-
-	if(isset($langs) && count($langs)) {
-		foreach ($langs as $lang => $v) {
-			if(file_exists("view/lang/$lang") && is_dir("view/lang/$lang")) {
-				$preferred = $lang;
-				break;
+			// go through the list of prefered languages and add a generic language
+			// for sub-linguas (e.g. de-ch will add de) if not already in array
+			for ($i=0; $i<count($lang_parse[1]); $i++) {
+				$lang_list[] = strtolower($lang_parse[1][$i]);
+				if ( strlen($lang_parse[1][$i])>3 ) {
+					$dashpos = strpos($lang_parse[1][$i], '-');
+					if (! in_array(substr($lang_parse[1][$i], 0, $dashpos), $lang_list ) ) {
+						$lang_list[] = strtolower(substr($lang_parse[1][$i], 0, $dashpos));
+					}
+				}
 			}
 		}
 	}
 
+	// check if we have translations for the preferred languages and pick the 1st that has
+	for ($i=0; $i<count($lang_list); $i++) {
+		$lang = $lang_list[$i];
+		if(file_exists("view/lang/$lang") && is_dir("view/lang/$lang")) {
+			$preferred = $lang;
+			break;
+		}
+	}
 	if(isset($preferred))
 		return $preferred;
 
+	// in case none matches, get the system wide configured language, or fall back to English
     $a = get_app();
 	return ((isset($a->config['system']['language'])) ? $a->config['system']['language'] : 'en');
 }}
