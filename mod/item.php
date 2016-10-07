@@ -988,14 +988,18 @@ function item_post(&$a) {
 		add_thread($post_id);
 	else {
 		update_thread($parent, true);
+
+		// Insert an item entry for UID=0 for global entries
+		// We have to remove or change some data before that,
+		// so that the post appear like a regular received post.
 		unset($datarray['self']);
 		unset($datarray['wall']);
 		unset($datarray['origin']);
 
-		if (in_array($datarray['type'], array("net-comment", "wall-comment", "remote-comment")))
+		if (in_array($datarray['type'], array("net-comment", "wall-comment")))
 			$datarray['type'] = 'remote-comment';
-		else
-			unset($datarray['type']);
+		elseif ($datarray['type'] == 'wall')
+			$datarray['type'] = 'remote';
 
 		add_shadow_entry($datarray);
 	}
