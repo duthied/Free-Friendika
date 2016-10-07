@@ -184,23 +184,9 @@ function nodeinfo_cron() {
 		}
 	}
         logger("cron_start");
-/*
-	$users = q("SELECT profile.*, `user`.`login_date`, `lastitem`.`lastitem_date`
-			FROM (SELECT MAX(`item`.`changed`) as `lastitem_date`, `item`.`uid`
-				FROM `item`
-					WHERE `item`.`type` = 'wall'
-						GROUP BY `item`.`uid`) AS `lastitem`
-						RIGHT OUTER JOIN `user` ON `user`.`uid` = `lastitem`.`uid`, `contact`, `profile`
-                                WHERE
-					`user`.`uid` = `contact`.`uid` AND `profile`.`uid` = `user`.`uid`
-					AND `profile`.`is-default` AND (`profile`.`publish` OR `profile`.`net-publish`)
-					AND `user`.`verified` AND `contact`.`self`
-					AND NOT `user`.`blocked`
-					AND NOT `user`.`account_removed`
-					AND NOT `user`.`account_expired`");
-*/
+
 	$users = q("SELECT `user`.`uid`, `user`.`login_date`,
-			(SELECT `changed` FROM `item` WHERE `wall` AND `uid` = `user`.`uid` ORDER BY `changed` DESC LIMIT 1) AS `lastitem_date`
+			(SELECT MAX(`changed`) FROM `item` FORCE INDEX (`uid_wall_changed`) WHERE `wall` AND `uid` = `user`.`uid`) AS `lastitem_date`
 			FROM `user`
 			INNER JOIN `profile` ON `profile`.`uid` = `user`.`uid` AND `profile`.`is-default`
 			WHERE (`profile`.`publish` OR `profile`.`net-publish`) AND `user`.`verified`

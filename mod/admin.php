@@ -1306,26 +1306,8 @@ function admin_page_users(&$a){
 	$sql_order = "`".str_replace('.','`.`',$order)."`";
 	$sql_order_direction = ($order_direction==="+")?"ASC":"DESC";
 
-/*	$users = q("SELECT `user`.* , `contact`.`name` , `contact`.`url` , `contact`.`micro`, `lastitem`.`lastitem_date`, `user`.`account_expired`
-				FROM
-					(SELECT MAX(`item`.`changed`) as `lastitem_date`, `item`.`uid`
-					FROM `item`
-					WHERE `item`.`type` = 'wall'
-					GROUP BY `item`.`uid`) AS `lastitem`
-						 RIGHT OUTER JOIN `user` ON `user`.`uid` = `lastitem`.`uid`,
-					   `contact`
-				WHERE
-					   `user`.`uid` = `contact`.`uid`
-						AND `user`.`verified` =1
-					AND `contact`.`self` =1
-				ORDER BY $sql_order $sql_order_direction LIMIT %d, %d
-				",
-				intval($a->pager['start']),
-				intval($a->pager['itemspage'])
-				);
-*/
 	$users = q("SELECT `user`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`account_expired`,
-				(SELECT `changed` FROM `item` WHERE `wall` AND `uid` = `user`.`uid` ORDER BY `changed` DESC LIMIT 1) AS `lastitem_date`
+				(SELECT MAX(`changed`) FROM `item` FORCE INDEX (`uid_wall_changed`) WHERE `wall` AND `uid` = `user`.`uid`) AS `lastitem_date`
 				FROM `user`
 				INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
 				WHERE `user`.`verified`
