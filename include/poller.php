@@ -128,7 +128,15 @@ function poller_run(&$argv, &$argc){
 
 		if (function_exists($funcname)) {
 			logger("Process ".$mypid." - Prio ".$r[0]["priority"]." - ID ".$r[0]["id"].": ".$funcname." ".$r[0]["parameter"]);
+
+			// For better logging create a new process id for every worker call
+			// But preserve the old one for the worker
+			$old_process_id = $a->process_id;
+			$a->process_id = uniqid("wrk", true);
+
 			$funcname($argv, $argc);
+
+			$a->process_id = $old_process_id;
 
 			if ($cooldown > 0) {
 				logger("Process ".$mypid." - Prio ".$r[0]["priority"]." - ID ".$r[0]["id"].": ".$funcname." - in cooldown for ".$cooldown." seconds");

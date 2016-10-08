@@ -669,7 +669,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 			// If its a post from myself then tag the thread as "mention"
 			logger("item_store: Checking if parent ".$parent_id." has to be tagged as mention for user ".$arr['uid'], LOGGER_DEBUG);
-			$u = q("select * from user where uid = %d limit 1", intval($arr['uid']));
+			$u = q("SELECT `nickname` FROM `user` WHERE `uid` = %d", intval($arr['uid']));
 			if(count($u)) {
 				$a = get_app();
 				$self = normalise_link($a->get_baseurl() . '/profile/' . $u[0]['nickname']);
@@ -679,8 +679,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 					logger("item_store: tagged thread ".$parent_id." as mention for user ".$self, LOGGER_DEBUG);
 				}
 			}
-		}
-		else {
+		} else {
 
 			// Allow one to see reply tweets from status.net even when
 			// we don't have or can't see the original post.
@@ -734,6 +733,19 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 		$arr["global"] = (count($isglobal) > 0);
 	}
+
+	// ACL settings
+	if(strlen($allow_cid) || strlen($allow_gid) || strlen($deny_cid) || strlen($deny_gid))
+		$private = 1;
+	else
+		$private = $arr['private'];
+
+	$arr["allow_cid"] = $allow_cid;
+	$arr["allow_gid"] = $allow_gid;
+	$arr["deny_cid"] = $deny_cid;
+	$arr["deny_gid"] = $deny_gid;
+	$arr["private"] = $private;
+	$arr["deleted"] = $parent_deleted;
 
 	// Fill the cache field
 	put_item_in_cache($arr);
@@ -807,41 +819,38 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 				dbesc($arr['received']),
 				intval($arr['contact-id'])
 			);
+
+		// Now do the same for the system wide contacts with uid=0
+		if (!$arr['private']) {
+			q("UPDATE `contact` SET `success_update` = '%s', `last-item` = '%s' WHERE `id` = %d",
+				dbesc($arr['received']),
+				dbesc($arr['received']),
+				intval($arr['owner-id'])
+			);
+
+			if ($arr['owner-id'] != $arr['author-id'])
+				q("UPDATE `contact` SET `success_update` = '%s', `last-item` = '%s' WHERE `id` = %d",
+					dbesc($arr['received']),
+					dbesc($arr['received']),
+					intval($arr['author-id'])
+				);
+		}
 	} else {
 		logger('item_store: could not locate created item');
 		return 0;
 	}
 
-	if((! $parent_id) || ($arr['parent-uri'] === $arr['uri']))
+	if(!$parent_id || ($arr['parent-uri'] === $arr['uri']))
 		$parent_id = $current_post;
 
-	if(strlen($allow_cid) || strlen($allow_gid) || strlen($deny_cid) || strlen($deny_gid))
-		$private = 1;
-	else
-		$private = $arr['private'];
-
-	// Set parent id - and also make sure to inherit the parent's ACLs.
-
-	$r = q("UPDATE `item` SET `parent` = %d, `allow_cid` = '%s', `allow_gid` = '%s',
-		`deny_cid` = '%s', `deny_gid` = '%s', `private` = %d, `deleted` = %d WHERE `id` = %d",
+	// Set parent id
+	$r = q("UPDATE `item` SET `parent` = %d WHERE `id` = %d",
 		intval($parent_id),
-		dbesc($allow_cid),
-		dbesc($allow_gid),
-		dbesc($deny_cid),
-		dbesc($deny_gid),
-		intval($private),
-		intval($parent_deleted),
 		intval($current_post)
 	);
 
 	$arr['id'] = $current_post;
 	$arr['parent'] = $parent_id;
-	$arr['allow_cid'] = $allow_cid;
-	$arr['allow_gid'] = $allow_gid;
-	$arr['deny_cid'] = $deny_cid;
-	$arr['deny_gid'] = $deny_gid;
-	$arr['private'] = $private;
-	$arr['deleted'] = $parent_deleted;
 
 	// update the commented timestamp on the parent
 	// Only update "commented" if it is really a comment
