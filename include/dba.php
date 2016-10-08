@@ -91,6 +91,23 @@ class dba {
 		return $this->db;
 	}
 
+	/**
+	 * @brief Returns the MySQL server version string
+	 * 
+	 * This function discriminate between the deprecated mysql API and the current
+	 * object-oriented mysqli API. Example of returned string: 5.5.46-0+deb8u1
+	 *
+	 * @return string
+	 */
+	public function server_info() {
+		if ($this->mysqli) {
+			$return = $this->db->server_info;
+		} else {
+			$return = mysql_get_server_info($this->db);
+		}
+		return $return;
+	}
+
 	public function q($sql, $onlyquery = false) {
 		global $a;
 

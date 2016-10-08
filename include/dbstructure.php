@@ -78,6 +78,10 @@ function table_structure($table) {
 			if ($index["Index_type"] == "FULLTEXT")
 				continue;
 
+			if ($index['Key_name'] != 'PRIMARY' && $index['Non_unique'] == '0' && !isset($indexdata[$index["Key_name"]])) {
+				$indexdata[$index["Key_name"]] = array('UNIQUE');
+			}
+
 			$column = $index["Column_name"];
 			// On utf8mb4 a varchar index can only have a length of 191
 			// To avoid the need to add this to every index definition we just ignore it here.
@@ -126,6 +130,9 @@ function print_structure($database, $charset) {
 function update_structure($verbose, $action, $tables=null, $definition=null) {
 	global $a, $db;
 
+	if ($action)
+		set_config('system', 'maintenance', 1);
+
 	if (isset($a->config["system"]["db_charset"]))
 		$charset = $a->config["system"]["db_charset"];
 	else
@@ -151,6 +158,19 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 	if (is_null($definition))
 		$definition = db_definition($charset);
 
+	// Ensure index conversion to unique removes duplicates
+	$sql_config = "SET session old_alter_table=1;";
+	if ($verbose)
+		echo $sql_config."\n";
+	if ($action)
+		@$db->q($sql_config);
+
+	// MySQL >= 5.7.4 doesn't support the IGNORE keyword in ALTER TABLE statements
+	if (version_compare($db->server_info(), '5.7.4') >= 0) {
+		$ignore = '';
+	}else {
+		$ignore = ' IGNORE';
+	}
 
 	// Compare it
 	foreach ($definition AS $name => $structure) {
@@ -220,7 +240,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 					$sql2=db_create_index($indexname, $fieldnames);
 					if ($sql2 != "") {
 						if ($sql3 == "")
-							$sql3 = "ALTER TABLE `".$name."` ".$sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `".$name."` ".$sql2;
 						else
 							$sql3 .= ", ".$sql2;
 					}
@@ -240,6 +260,9 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 			}
 		}
 	}
+
+	if ($action)
+		set_config('system', 'maintenance', 0);
 
 	return $errors;
 }
@@ -322,6 +345,11 @@ function db_create_index($indexname, $fieldnames, $method="ADD") {
 	if ($method!="" && $method!="ADD") {
 		throw new Exception("Invalid parameter 'method' in db_create_index(): '$method'");
 		killme();
+	}
+
+	if ($fieldnames[0] == "UNIQUE") {
+		array_shift($fieldnames);
+		$method .= ' UNIQUE';
 	}
 
 	$names = "";
@@ -451,7 +479,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"cat_k" => array("cat(30)","k(30)"),
+					"cat_k" => array("UNIQUE", "cat(30)","k(30)"),
 					)
 			);
 	$database["contact"] = array(
@@ -680,6 +708,7 @@ function db_definition($charset) {
 					"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"birthday" => array("type" => "varchar(32)", "not null" => "1", "default" => "0000-00-00"),
 					"community" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
+					"contact-type" => array("type" => "tinyint(1)", "not null" => "1", "default" => "-1"),
 					"hide" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"nsfw" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"network" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
@@ -1060,7 +1089,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"uid_cat_k" => array("uid","cat(30)","k(30)"),
+					"uid_cat_k" => array("UNIQUE", "uid","cat(30)","k(30)"),
 					)
 			);
 	$database["photo"] = array(
@@ -1484,8 +1513,27 @@ function dbstructure_run(&$argv, &$argc) {
 
 	if ($argc==2) {
 		switch ($argv[1]) {
+			case "dryrun":
+				update_structure(true, false);
+				return;
 			case "update":
 				update_structure(true, true);
+
+				$build = get_config('system','build');
+				if (!x($build)) {
+					set_config('system','build',DB_UPDATE_VERSION);
+					$build = DB_UPDATE_VERSION;
+				}
+
+				$stored = intval($build);
+				$current = intval(DB_UPDATE_VERSION);
+
+				// run any left update_nnnn functions in update.php
+				for($x = $stored; $x < $current; $x ++) {
+					$r = run_update_function($x);
+					if (!$r) break;
+				}
+
 				set_config('system','build',DB_UPDATE_VERSION);
 				return;
 			case "dumpsql":
@@ -1500,7 +1548,8 @@ function dbstructure_run(&$argv, &$argc) {
 	// print help
 	echo $argv[0]." <command>\n";
 	echo "\n";
-	echo "commands:\n";
+	echo "Commands:\n";
+	echo "dryrun		show database update schema queries without running them\n";
 	echo "update		update database schema\n";
 	echo "dumpsql		dump database schema\n";
 	return;

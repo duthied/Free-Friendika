@@ -29,6 +29,10 @@ function poller_run(&$argv, &$argc){
 		unset($db_host, $db_user, $db_pass, $db_data);
 	};
 
+	// Quit when in maintenance
+	if (get_config('system', 'maintenance', true))
+		return;
+
 	$a->start_process();
 
 	$mypid = getmypid();
@@ -70,6 +74,10 @@ function poller_run(&$argv, &$argc){
 	$starttime = time();
 
 	while ($r = q("SELECT * FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00' ORDER BY `priority`, `created` LIMIT 1")) {
+
+		// Quit when in maintenance
+		if (get_config('system', 'maintenance', true))
+			return;
 
 		// Constantly check the number of parallel database processes
 		if ($a->max_processes_reached())
@@ -120,7 +128,15 @@ function poller_run(&$argv, &$argc){
 
 		if (function_exists($funcname)) {
 			logger("Process ".$mypid." - Prio ".$r[0]["priority"]." - ID ".$r[0]["id"].": ".$funcname." ".$r[0]["parameter"]);
+
+			// For better logging create a new process id for every worker call
+			// But preserve the old one for the worker
+			$old_process_id = $a->process_id;
+			$a->process_id = uniqid("wrk", true);
+
 			$funcname($argv, $argc);
+
+			$a->process_id = $old_process_id;
 
 			if ($cooldown > 0) {
 				logger("Process ".$mypid." - Prio ".$r[0]["priority"]." - ID ".$r[0]["id"].": ".$funcname." - in cooldown for ".$cooldown." seconds");

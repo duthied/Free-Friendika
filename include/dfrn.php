@@ -1147,7 +1147,7 @@ class dfrn {
 		$author["link"] = $xpath->evaluate($element."/atom:uri/text()", $context)->item(0)->nodeValue;
 
 		$r = q("SELECT `id`, `uid`, `url`, `network`, `avatar-date`, `name-date`, `uri-date`, `addr`,
-				`name`, `nick`, `about`, `location`, `keywords`, `xmpp`, `bdyear`, `bd`, `hidden`
+				`name`, `nick`, `about`, `location`, `keywords`, `xmpp`, `bdyear`, `bd`, `hidden`, `contact-type`
 				FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` != '%s'",
 			intval($importer["uid"]), dbesc(normalise_link($author["link"])), dbesc(NETWORK_STATUSNET));
 		if ($r) {
@@ -1336,6 +1336,7 @@ class dfrn {
 			$poco["generation"] = 2;
 			$poco["photo"] = $author["avatar"];
 			$poco["hide"] = $hide;
+			$poco["contact-type"] = $contact["contact-type"];
 			update_gcontact($poco);
 		}
 
@@ -2492,7 +2493,19 @@ class dfrn {
 
 		logger("Import DFRN message for user ".$importer["uid"]." from contact ".$importer["id"], LOGGER_DEBUG);
 
-		// is it a public forum? Private forums aren't supported by now with this method
+		// The account type is new since 3.5.1
+		if ($xpath->query("/atom:feed/dfrn:account_type")->length > 0) {
+			$accounttype = intval($xpath->evaluate("/atom:feed/dfrn:account_type/text()", $context)->item(0)->nodeValue);
+
+			if ($accounttype != $importer["contact-type"])
+				q("UPDATE `contact` SET `contact-type` = %d WHERE `id` = %d",
+					intval($accounttype),
+					intval($importer["id"])
+				);
+		}
+
+		// is it a public forum? Private forums aren't supported with this method
+		// This is deprecated since 3.5.1
 		$forum = intval($xpath->evaluate("/atom:feed/dfrn:community/text()", $context)->item(0)->nodeValue);
 
 		if ($forum != $importer["forum"])
