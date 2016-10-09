@@ -32,7 +32,7 @@ class Config {
 	public static function load($family) {
 		global $a;
 
-		$r = q("SELECT `v`, `k` FROM `config` WHERE `cat` = '%s'", dbesc($family));
+		$r = q("SELECT `v`, `k` FROM `config` WHERE `cat` = '%s' ORDER BY `cat`, `k`, `id`", dbesc($family));
 		if(count($r)) {
 			foreach($r as $rr) {
 				$k = $rr['k'];
@@ -90,7 +90,7 @@ class Config {
 			}
 		}
 
-		$ret = q("SELECT `v` FROM `config` WHERE `cat` = '%s' AND `k` = '%s' LIMIT 1",
+		$ret = q("SELECT `v` FROM `config` WHERE `cat` = '%s' AND `k` = '%s' ORDER BY `id` DESC LIMIT 1",
 			dbesc($family),
 			dbesc($key)
 		);
