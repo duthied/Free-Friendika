@@ -29,7 +29,7 @@ class PConfig {
 	 */
 	public static function load($uid,$family) {
 		global $a;
-		$r = q("SELECT `v`,`k` FROM `pconfig` WHERE `cat` = '%s' AND `uid` = %d",
+		$r = q("SELECT `v`,`k` FROM `pconfig` WHERE `cat` = '%s' AND `uid` = %d ORDER BY `cat`, `k`, `id`",
 			dbesc($family),
 			intval($uid)
 		);
@@ -83,7 +83,7 @@ class PConfig {
 			}
 		}
 
-		$ret = q("SELECT `v` FROM `pconfig` WHERE `uid` = %d AND `cat` = '%s' AND `k` = '%s' LIMIT 1",
+		$ret = q("SELECT `v` FROM `pconfig` WHERE `uid` = %d AND `cat` = '%s' AND `k` = '%s' ORDER BY `id` DESC LIMIT 1",
 			intval($uid),
 			dbesc($family),
 			dbesc($key)

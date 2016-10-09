@@ -166,7 +166,8 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 		@$db->q($sql_config);
 
 	// MySQL >= 5.7.4 doesn't support the IGNORE keyword in ALTER TABLE statements
-	if (version_compare($db->server_info(), '5.7.4') >= 0) {
+	if ((version_compare($db->server_info(), '5.7.4') >= 0) AND
+		!(strpos($db->server_info(), 'MariaDB') !== false)) {
 		$ignore = '';
 	}else {
 		$ignore = ' IGNORE';
@@ -196,7 +197,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 				if ($current_index_definition != $new_index_definition && substr($indexname, 0, 6) != 'local_') {
 					$sql2=db_drop_index($indexname);
 					if ($sql3 == "")
-						$sql3 = "ALTER TABLE `".$name."` ".$sql2;
+						$sql3 = "ALTER".$ignore." TABLE `".$name."` ".$sql2;
 					else
 						$sql3 .= ", ".$sql2;
 				}
