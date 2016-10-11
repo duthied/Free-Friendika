@@ -328,7 +328,28 @@ function poller_too_much_workers() {
 			}
 		}
 
-		logger("Current load: ".$load." - maximum: ".$maxsysload." - current queues: ".$active."/".$entries." - maximum: ".$queues."/".$maxqueues, LOGGER_DEBUG);
+		// Create a list of queue entries grouped by their priority
+		$running = array(PRIORITY_CRITICAL => 0,
+				PRIORITY_HIGH => 0,
+				PRIORITY_MEDIUM => 0,
+				PRIORITY_LOW => 0,
+				PRIORITY_NEGLIGIBLE => 0);
+
+		$r = q("SELECT COUNT(*) AS `running`, `priority` FROM `process` INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid` GROUP BY `priority`");
+		if (dbm::is_result($r))
+			foreach ($r AS $process)
+				$running[$process["priority"]] = $process["running"];
+
+		$processlist = "";
+		$r = q("SELECT COUNT(*) AS `entries`, `priority` FROM `workerqueue` GROUP BY `priority`");
+		if (dbm::is_result($r))
+			foreach ($r as $entry) {
+				if ($processlist != "")
+					$processlist .= ", ";
+				$processlist .= $entry["priority"].":".$running[$entry["priority"]]."/".$entry["entries"];
+			}
+
+		logger("Load: ".$load."/".$maxsysload." - processes: ".$active."/".$entries." (".$processlist.") - maximum: ".$queues."/".$maxqueues, LOGGER_DEBUG);
 
 		// Are there fewer workers running as possible? Then fork a new one.
 		if (!get_config("system", "worker_dont_fork") AND ($queues > ($active + 1)) AND ($entries > 1)) {
