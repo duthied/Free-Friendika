@@ -73,7 +73,7 @@ function poller_run(&$argv, &$argc){
 
 	$starttime = time();
 
-	while ($r = q("SELECT * FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00' ORDER BY `priority`, `created` LIMIT 1")) {
+	while ($r = poller_worker_process()) {
 
 		// Quit when in maintenance
 		if (get_config('system', 'maintenance', true))
@@ -328,7 +328,28 @@ function poller_too_much_workers() {
 			}
 		}
 
-		logger("Current load: ".$load." - maximum: ".$maxsysload." - current queues: ".$active."/".$entries." - maximum: ".$queues."/".$maxqueues, LOGGER_DEBUG);
+		// Create a list of queue entries grouped by their priority
+		$running = array(PRIORITY_CRITICAL => 0,
+				PRIORITY_HIGH => 0,
+				PRIORITY_MEDIUM => 0,
+				PRIORITY_LOW => 0,
+				PRIORITY_NEGLIGIBLE => 0);
+
+		$r = q("SELECT COUNT(*) AS `running`, `priority` FROM `process` INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid` GROUP BY `priority`");
+		if (dbm::is_result($r))
+			foreach ($r AS $process)
+				$running[$process["priority"]] = $process["running"];
+
+		$processlist = "";
+		$r = q("SELECT COUNT(*) AS `entries`, `priority` FROM `workerqueue` GROUP BY `priority`");
+		if (dbm::is_result($r))
+			foreach ($r as $entry) {
+				if ($processlist != "")
+					$processlist .= ", ";
+				$processlist .= $entry["priority"].":".$running[$entry["priority"]]."/".$entry["entries"];
+			}
+
+		logger("Load: ".$load."/".$maxsysload." - processes: ".$active."/".$entries." (".$processlist.") - maximum: ".$queues."/".$maxqueues, LOGGER_DEBUG);
 
 		// Are there fewer workers running as possible? Then fork a new one.
 		if (!get_config("system", "worker_dont_fork") AND ($queues > ($active + 1)) AND ($entries > 1)) {
@@ -346,6 +367,89 @@ function poller_active_workers() {
 	$workers = q("SELECT COUNT(*) AS `processes` FROM `process` WHERE `command` = 'poller.php'");
 
 	return($workers[0]["processes"]);
+}
+
+/**
+ * @brief Check if we should pass some slow processes
+ *
+ * When the active processes of the highest priority are using more than 2/3
+ * of all processes, we let pass slower processes.
+ *
+ * @param string $highest_priority Returns the currently highest priority
+ * @return bool We let pass a slower process than $highest_priority
+ */
+function poller_passing_slow(&$highest_priority) {
+
+	$highest_priority = 0;
+
+	$r = q("SELECT `priority`
+		FROM `process`
+		INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid`
+		WHERE `process`.`command` = 'poller.php'");
+
+	// No active processes at all? Fine
+	if (!dbm::is_result($r))
+		return(false);
+
+	$priorities = array();
+	foreach ($r AS $line)
+		$priorities[] = $line["priority"];
+
+	// Should not happen
+	if (count($priorities) == 0)
+		return(false);
+
+	$highest_priority = min($priorities);
+
+	// The highest process is already the slowest one?
+	// Then we quit
+	if ($highest_priority == PRIORITY_NEGLIGIBLE)
+		return(false);
+
+	$high = 0;
+	foreach ($priorities AS $priority)
+		if ($priority == $highest_priority)
+			++$high;
+
+	logger("Highest priority: ".$highest_priority." Total processes: ".count($priorities)." Count high priority processes: ".$high, LOGGER_DEBUG);
+	$passing_slow = (($high/count($priorities)) > (2/3));
+
+	if ($passing_slow)
+		logger("Passing slower processes than priority ".$highest_priority, LOGGER_DEBUG);
+
+	return($passing_slow);
+}
+
+/**
+ * @brief Returns the next worker process
+ *
+ * @return string SQL statement
+ */
+
+function poller_worker_process() {
+
+	// Check if we should pass some low priority process
+	$highest_priority = 0;
+
+	if (poller_passing_slow($highest_priority)) {
+		// Are there waiting processes with a higher priority than the currently highest?
+		$r = q("SELECT * FROM `workerqueue`
+				WHERE `executed` = '0000-00-00 00:00:00' AND `priority` < %d
+				ORDER BY `priority`, `created` LIMIT 1", dbesc($highest_priority));
+		if (dbm::is_result($r))
+			return $r;
+
+		// Give slower processes some processing time
+		$r = q("SELECT * FROM `workerqueue`
+				WHERE `executed` = '0000-00-00 00:00:00' AND `priority` > %d
+				ORDER BY `priority`, `created` LIMIT 1", dbesc($highest_priority));
+	}
+
+	// If there is no result (or we shouldn't pass lower processes) we check without priority limit
+	if (($highest_priority == 0) OR !dbm::is_result($r))
+		$r = q("SELECT * FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00' ORDER BY `priority`, `created` LIMIT 1");
+
+	return $r;
 }
 
 if (array_search(__file__,get_included_files())===0){
