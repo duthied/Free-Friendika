@@ -282,14 +282,14 @@ function admin_page_federation(&$a) {
 	foreach ($platforms as $p) {
 		// get a total count for the platform, the name and version of the
 		// highest version and the protocol tpe
-		$c = q('SELECT COUNT(*) AS `total`, `platform`, `network`, `version` FROM `gserver`
+		$c = qu('SELECT COUNT(*) AS `total`, `platform`, `network`, `version` FROM `gserver`
 				WHERE `platform` LIKE "%s" AND `last_contact` > `last_failure` AND `version` != ""
 				ORDER BY `version` ASC;', $p);
 		$total = $total + $c[0]['total'];
 
 		// what versions for that platform do we know at all?
 		// again only the active nodes
-		$v = q('SELECT COUNT(*) AS `total`, `version` FROM `gserver`
+		$v = qu('SELECT COUNT(*) AS `total`, `version` FROM `gserver`
 				WHERE `last_contact` > `last_failure` AND `platform` LIKE "%s"  AND `version` != ""
 				GROUP BY `version`
 				ORDER BY `version`;', $p);
@@ -434,17 +434,17 @@ function admin_page_summary(&$a) {
 
 	logger('accounts: '.print_r($accounts,true),LOGGER_DATA);
 
-	$r = q("SELECT COUNT(`id`) AS `count` FROM `register`");
+	$r = qu("SELECT COUNT(`id`) AS `count` FROM `register`");
 	$pending = $r[0]['count'];
 
-	$r = q("SELECT COUNT(*) AS `total` FROM `deliverq` WHERE 1");
+	$r = qu("SELECT COUNT(*) AS `total` FROM `deliverq` WHERE 1");
 	$deliverq = (($r) ? $r[0]['total'] : 0);
 
-	$r = q("SELECT COUNT(*) AS `total` FROM `queue` WHERE 1");
+	$r = qu("SELECT COUNT(*) AS `total` FROM `queue` WHERE 1");
 	$queue = (($r) ? $r[0]['total'] : 0);
 
 	if (get_config('system','worker')) {
-		$r = q("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE 1");
+		$r = qu("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE 1");
 		$workerqueue = (($r) ? $r[0]['total'] : 0);
 	} else {
 		$workerqueue = 0;
@@ -1271,7 +1271,7 @@ function admin_page_users(&$a){
 
 
 	/* get users */
-	$total = q("SELECT COUNT(*) AS `total` FROM `user` WHERE 1");
+	$total = qu("SELECT COUNT(*) AS `total` FROM `user` WHERE 1");
 	if(count($total)) {
 		$a->set_pager_total($total[0]['total']);
 		$a->set_pager_itemspage(100);
@@ -1306,8 +1306,7 @@ function admin_page_users(&$a){
 	$sql_order = "`".str_replace('.','`.`',$order)."`";
 	$sql_order_direction = ($order_direction==="+")?"ASC":"DESC";
 
-	$users = q("SELECT `user`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`account_expired`,
-				(SELECT MAX(`changed`) FROM `item` FORCE INDEX (`uid_wall_changed`) WHERE `wall` AND `uid` = `user`.`uid`) AS `lastitem_date`
+	$users = qu("SELECT `user`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`account_expired`, `contact`.`last-item` AS `lastitem_date`
 				FROM `user`
 				INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
 				WHERE `user`.`verified`

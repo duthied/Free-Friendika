@@ -875,6 +875,8 @@ function item_post(&$a) {
 
 	$datarray["id"] = $post_id;
 
+	item_set_last_item($datarray);
+
 	// update filetags in pconfig
 	file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
 

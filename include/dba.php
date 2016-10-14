@@ -344,6 +344,42 @@ function q($sql) {
 }}
 
 /**
+ * @brief Performs a query with "dirty reads"
+ *
+ * By doing dirty reads (reading uncommitted data) no locks are performed
+ * This function can be used to fetch data that doesn't need to be reliable.
+ *
+ * @param $args Query parameters (1 to N parameters of different types)
+ * @return array Query array
+ */
+function qu($sql) {
+
+	global $db;
+	$args = func_get_args();
+	unset($args[0]);
+
+	if($db && $db->connected) {
+		$stmt = @vsprintf($sql,$args); // Disabled warnings
+		if($stmt === false)
+			logger('dba: vsprintf error: ' . print_r(debug_backtrace(),true), LOGGER_DEBUG);
+		$db->q("SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
+		$retval = $db->q($stmt);
+		$db->q("COMMIT;");
+		return $retval;
+	}
+
+	/**
+	 *
+	 * This will happen occasionally trying to store the
+	 * session data after abnormal program termination
+	 *
+	 */
+	logger('dba: no database: ' . print_r($args,true));
+	return false;
+
+}
+
+/**
  *
  * Raw db query, no arguments
  *
