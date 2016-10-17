@@ -119,7 +119,7 @@ class PConfig {
 	 *  The value to store
 	 * @return mixed Stored $value or false
 	 */
-	public static function set($uid,$family,$key,$value) {
+	public static function set($uid, $family, $key, $value) {
 
 		global $a;
 
@@ -136,8 +136,9 @@ ON DUPLICATE KEY UPDATE `v` = '%s'",
 			dbesc($dbvalue),
 			dbesc($dbvalue)
 		);
-		if($ret)
+		if ($ret) {
 			return $value;
+        }
 		return $ret;
 	}
 
