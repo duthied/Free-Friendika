@@ -131,16 +131,14 @@ function eventHoverBodyTemplate() {
 				<div class="hover-card-header left-align">\
 					<div class="event-hover-left-date left-align">\
 						<span class="event-date-wrapper medium">\
-							<span class="event-hover-short-month">{6}</span>\
-							<span class="event-hover-short-date">{7}</span>\
+							<span class="event-hover-short-month">{5}</span>\
+							<span class="event-hover-short-date">{6}</span>\
 						</span>\
 					</div>\
 					<div class="event-card-content media-body">\
-						<div class="event-hover-title">{3}</div>\
-						<div class="event-property"><span class="event-hover-date">{5}</span>{4}\
-						<div class="event-hover-profile-name profile-entry-name">\
-							<span class="left-align1"><a href="{1}" class="userinfo">{2}</a></span>\
-						</div>\
+						<div class="event-hover-title">{2}</div>\
+						<div class="event-property"><span class="event-hover-date">{4}</span>{3}\
+						{1}\
 					</div>\
 				</div>\
 				<div class="clearfix"></div>\
@@ -156,9 +154,17 @@ function eventHoverLocationTemplate() {
 	return template;
 }
 
+function eventHoverProfileNameTemplate() {
+	var template = '\
+			<div class="event-hover-profile-name profile-entry-name">\
+				<span class="left-align1"><a href="{0}" class="userinfo">{1}</a></span>\
+			</div>';
+	return template;
+}
 // transform the event data to html so we can use it in the event hover-card 
 function eventHoverHtmlContent(event) {
 	var eventLocation = '';
+	var eventProfileName = '';
 	// Get the Browser language
 	var locale = window.navigator.userLanguage || window.navigator.language;
 	var data = '';
@@ -176,7 +182,7 @@ function eventHoverHtmlContent(event) {
 	var endTime = moment(event.item.finish).format('HH:mm');
 	var monthNumber;
 
-	var formattedDate = startDate
+	var formattedDate = startDate;
 
 	// We only need the to format the end date if the event does have
 	// a finish date. 
@@ -195,8 +201,8 @@ function eventHoverHtmlContent(event) {
 	// Get the html template
 	data = eventHoverBodyTemplate();
 
-	// Get only template data if there exist location data
-	if (event.item.location != '') {
+	// Get only template data if there exists location data
+	if (event.item.location) {
 		var eventLocationText = formatEventLocationText(event.item.location);
 		// Get the the html template for formatting the location
 		var eventLocationTemplate = eventHoverLocationTemplate();
@@ -207,11 +213,21 @@ function eventHoverHtmlContent(event) {
 		);
 	}
 
+	// Get only template data if there exists a profile name
+	if (event.item['author-name']) {
+		// Get the template
+		var eventProfileNameTemplate = eventHoverProfileNameTemplate();
+		// Insert the data into the template
+		eventProfileName = eventProfileNameTemplate.format(
+					event.item['author-link'],
+					event.item['author-name']
+		);
+	}
+
 	// Format the event data according to the event hover template
 	var formatted = data.format(
 				event.item['author-avatar'], // this isn't used at the present time
-				event.item['author-link'],
-				event.item['author-name'],
+				eventProfileName,
 				event.title,
 				eventLocation,
 				formattedDate,
