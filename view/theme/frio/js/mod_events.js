@@ -38,38 +38,39 @@ $(document).ready(function() {
 		aspectRatio: 1,
 		eventRender: function(event, element, view) {
 			//console.log(view.name);
-			if (event.item['author-name'] == null) return;
 			switch(view.name){
 				case "month":
-				element.find(".fc-title").html(
-					"<span class='item-desc'>{2}</span>".format(
-						event.item['author-avatar'],
-						event.item['author-name'],
-						event.title,
-						event.item.desc,
-						event.item.location
-				));
-				break;
+					element.find(".fc-title").html(
+						"<span class='item-desc'>{2}</span>".format(
+							event.item['author-avatar'],
+							event.item['author-name'],
+							event.title,
+							event.item.desc,
+							event.item.location
+					));
+					break;
 				case "agendaWeek":
-				element.find(".fc-title").html(
-					"<img src='{0}' style='height:12px; width:12px'>{1}<p>{2}</p><p>{3}</p>".format(
-						event.item['author-avatar'],
-						event.item['author-name'],
-						event.item.desc,
-						formatEventLocationText(event.item.location)
-				));
+					if (event.item['author-name'] == null) return;
+					element.find(".fc-title").html(
+						"<img src='{0}' style='height:12px; width:12px'>{1}<p>{2}</p><p>{3}</p>".format(
+							event.item['author-avatar'],
+							event.item['author-name'],
+							event.item.desc,
+							formatEventLocationText(event.item.location)
+					));
 				break;
 				case "agendaDay":
-				element.find(".fc-title").html(
-					"<img src='{0}' style='height:24px;width:24px'>{1}<p>{2}</p><p>{3}</p>".format(
-						event.item['author-avatar'],
-						event.item['author-name'],
-						event.item.desc,
-						formatEventLocationText(event.item.location)
-				));
-				break;
+					if (event.item['author-name'] == null) return;
+					element.find(".fc-title").html(
+						"<img src='{0}' style='height:24px;width:24px'>{1}<p>{2}</p><p>{3}</p>".format(
+							event.item['author-avatar'],
+							event.item['author-name'],
+							event.item.desc,
+							formatEventLocationText(event.item.location)
+					));
+					break;
 				case "listMonth":
-				element.find(".fc-list-item-title").html(formatListViewEvent(event));
+					element.find(".fc-list-item-title").html(formatListViewEvent(event));
 				break;
 			}
 		},
