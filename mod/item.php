@@ -175,6 +175,19 @@ function item_post(&$a) {
 	$app         = ((x($_REQUEST,'source'))      ? strip_tags($_REQUEST['source'])  : '');
 	$extid       = ((x($_REQUEST,'extid'))       ? strip_tags($_REQUEST['extid'])  : '');
 
+	// Check for multiple posts with the same message id (when the post was created via API)
+	if (($message_id != "") AND ($profile_uid != 0)) {
+		$r = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+			dbesc($message_id),
+			intval($profile_uid)
+		);
+
+                if(count($r)) {
+			logger("Message with URI ".$message_id." already exists for user ".$profile_uid, LOGGER_DEBUG);
+			return;
+		}
+	}
+
 	$allow_moderated = false;
 
 	// here is where we are going to check for permission to post a moderated comment.
@@ -992,16 +1005,35 @@ function item_post(&$a) {
 		// Insert an item entry for UID=0 for global entries
 		// We have to remove or change some data before that,
 		// so that the post appear like a regular received post.
-		unset($datarray['self']);
-		unset($datarray['wall']);
-		unset($datarray['origin']);
+		// Additionally there is some data that isn't a database field.
+		$arr = $datarray;
 
-		if (in_array($datarray['type'], array("net-comment", "wall-comment")))
-			$datarray['type'] = 'remote-comment';
-		elseif ($datarray['type'] == 'wall')
-			$datarray['type'] = 'remote';
+		$arr['app'] = $arr['source'];
+		unset($arr['source']);
 
-		add_shadow_entry($datarray);
+		unset($arr['self']);
+		unset($arr['wall']);
+		unset($arr['origin']);
+		unset($arr['api_source']);
+		unset($arr['message_id']);
+		unset($arr['profile_uid']);
+		unset($arr['post_id']);
+		unset($arr['dropitems']);
+		unset($arr['commenter']);
+		unset($arr['return']);
+		unset($arr['preview']);
+		unset($arr['post_id_random']);
+		unset($arr['emailcc']);
+		unset($arr['pubmail_enable']);
+		unset($arr['category']);
+		unset($arr['jsreload']);
+
+		if (in_array($arr['type'], array("net-comment", "wall-comment")))
+			$arr['type'] = 'remote-comment';
+		elseif ($arr['type'] == 'wall')
+			$arr['type'] = 'remote';
+
+		add_shadow_entry($arr);
 	}
 
 	// This is a real juggling act on shared hosting services which kill your processes
