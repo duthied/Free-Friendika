@@ -56,7 +56,7 @@ $(document).ready(function() {
 							event.item['author-avatar'],
 							event.item['author-name'],
 							event.item.desc,
-							formatEventLocationText(event.item.location)
+							htmlToText(event.item.location)
 					));
 				break;
 				case "agendaDay":
@@ -66,7 +66,7 @@ $(document).ready(function() {
 							event.item['author-avatar'],
 							event.item['author-name'],
 							event.item.desc,
-							formatEventLocationText(event.item.location)
+							htmlToText(event.item.location)
 					));
 					break;
 				case "listMonth":
@@ -203,7 +203,7 @@ function eventHoverHtmlContent(event) {
 
 	// Get only template data if there exists location data
 	if (event.item.location) {
-		var eventLocationText = formatEventLocationText(event.item.location);
+		var eventLocationText = htmlToText(event.item.location);
 		// Get the the html template for formatting the location
 		var eventLocationTemplate = eventHoverLocationTemplate();
 		// Format the event location data according to the the event location
@@ -251,19 +251,4 @@ function formatListViewEvent(event) {
 	var formatted = template.format(eventHoverHtmlContent(event));
 
 	return formatted;
-}
-
-// Format event location in pure text
-function formatEventLocationText(location) {
-	// Friendica can store the event location as text or as html
-	// We need to check if the location is html. In this case we need
-	// to transform it into clean text
-	if (location.startsWith("<div")) {
-		var locationHtml = $.parseHTML( location );
-		var eventLocationText = locationHtml[0]['innerText'];
-	} else {
-		var eventLocationText = location.replace("<br>", " ");
-	};
-
-	return eventLocationText;
 }
