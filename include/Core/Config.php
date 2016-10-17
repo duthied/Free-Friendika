@@ -126,9 +126,9 @@ class Config {
 	public static function set($family, $key, $value) {
 		global $a;
 
-        if (self::get($family, $key) === $value) {
-            return true;
-        }
+		if (self::get($family, $key) === $value) {
+			return true;
+		}
 
 		$a->config[$family][$key] = $value;
 

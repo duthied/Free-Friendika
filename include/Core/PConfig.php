@@ -123,9 +123,9 @@ class PConfig {
 
 		global $a;
 
-        if (self::get($uid, $family, $key) === $value) {
-            return true;
-        }
+		if (self::get($uid, $family, $key) === $value) {
+			return true;
+		}
 
 		// manage array value
 		$dbvalue = (is_array($value)?serialize($value):$value);
