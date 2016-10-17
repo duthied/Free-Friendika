@@ -75,6 +75,9 @@ blockquote {
 .hidden {
     display: none !important;
 }
+code {
+	white-space: pre;
+}
 
 /*
 * standard page elements
