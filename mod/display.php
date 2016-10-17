@@ -16,7 +16,7 @@ function display_init(&$a) {
 
 		// Does the local user have this item?
 		if (local_user()) {
-			$r = q("SELECT `id`, `parent`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
+			$r = qu("SELECT `id`, `parent`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `guid` = '%s' AND `uid` = %d", dbesc($a->argv[1]), local_user());
 			if (count($r)) {
@@ -27,7 +27,7 @@ function display_init(&$a) {
 
 		// Or is it anywhere on the server?
 		if ($nick == "") {
-			$r = q("SELECT `user`.`nickname`, `item`.`id`, `item`.`parent`, `item`.`author-name`,
+			$r = qu("SELECT `user`.`nickname`, `item`.`id`, `item`.`parent`, `item`.`author-name`,
 				`item`.`author-link`, `item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`owner-link`, `item`.`body`
 				FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
@@ -44,7 +44,7 @@ function display_init(&$a) {
 
 		// Is it an item with uid=0?
 		if ($nick == "") {
-			$r = q("SELECT `item`.`id`, `item`.`parent`, `item`.`author-name`, `item`.`author-link`,
+			$r = qu("SELECT `item`.`id`, `item`.`parent`, `item`.`author-name`, `item`.`author-link`,
 				`item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`owner-link`, `item`.`body`
 				FROM `item` WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
@@ -55,7 +55,7 @@ function display_init(&$a) {
 		}
 		if (count($r)) {
 			if ($r[0]["id"] != $r[0]["parent"])
-				$r = q("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
+				$r = qu("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `id` = %d", $r[0]["parent"]);
 
@@ -65,7 +65,7 @@ function display_init(&$a) {
 				// We really should change this need for the future since it scales very bad.
 				$contactid = get_contact($r[0]['owner-link'], local_user());
 				if ($contactid) {
-					$items = q("SELECT * FROM `item` WHERE `parent` = %d ORDER BY `id`", intval($r[0]["id"]));
+					$items = qu("SELECT * FROM `item` WHERE `parent` = %d ORDER BY `id`", intval($r[0]["id"]));
 					foreach ($items AS $item) {
 						$itemcontactid = get_contact($item['owner-link'], local_user());
 						if (!$itemcontactid)
@@ -87,7 +87,7 @@ function display_init(&$a) {
 				$nickname = str_replace(normalise_link($a->get_baseurl())."/profile/", "", normalise_link($profiledata["url"]));
 
 				if (($nickname != $a->user["nickname"])) {
-					$r = q("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
+					$r = qu("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
 						INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
 						WHERE `user`.`nickname` = '%s' AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
 						dbesc($nickname)
@@ -228,7 +228,7 @@ function display_content(&$a, $update = 0) {
 			$nick = "";
 
 			if (local_user()) {
-				$r = q("SELECT `id` FROM `item`
+				$r = qu("SELECT `id` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `guid` = '%s' AND `uid` = %d", dbesc($a->argv[1]), local_user());
 				if (count($r)) {
@@ -238,7 +238,7 @@ function display_content(&$a, $update = 0) {
 			}
 
 			if ($nick == "") {
-				$r = q("SELECT `user`.`nickname`, `item`.`id` FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
+				$r = qu("SELECT `user`.`nickname`, `item`.`id` FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
@@ -251,7 +251,7 @@ function display_content(&$a, $update = 0) {
 				}
 			}
 			if ($nick == "") {
-				$r = q("SELECT `item`.`id` FROM `item`
+				$r = qu("SELECT `item`.`id` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
@@ -266,7 +266,7 @@ function display_content(&$a, $update = 0) {
 	}
 
 	if ($item_id AND !is_numeric($item_id)) {
-		$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+		$r = qu("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
 			dbesc($item_id), intval($a->profile['uid']));
 		if ($r)
 			$item_id = $r[0]["id"];
@@ -299,7 +299,7 @@ function display_content(&$a, $update = 0) {
 
 	if($contact_id) {
 		$groups = init_groups_visitor($contact_id);
-		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
+		$r = qu("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($contact_id),
 			intval($a->profile['uid'])
 		);
@@ -316,7 +316,7 @@ function display_content(&$a, $update = 0) {
 		}
 	}
 
-	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1",
+	$r = qu("SELECT * FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1",
 		intval($a->profile['uid'])
 	);
 	if(count($r))
@@ -351,7 +351,7 @@ function display_content(&$a, $update = 0) {
 
 	if($update) {
 
-		$r = q("SELECT `id` FROM `item` WHERE `item`.`uid` = %d
+		$r = qu("SELECT `id` FROM `item` WHERE `item`.`uid` = %d
 			AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = %d)
 			$sql_extra AND `unseen`",
 			intval($a->profile['uid']),
@@ -362,7 +362,7 @@ function display_content(&$a, $update = 0) {
 			return '';
 	}
 
-	$r = q(item_query()." AND `item`.`uid` = %d
+	$r = qu(item_query()." AND `item`.`uid` = %d
 		AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = %d)
 		$sql_extra
 		ORDER BY `parent` DESC, `gravity` ASC, `id` ASC",
@@ -373,7 +373,7 @@ function display_content(&$a, $update = 0) {
 
 	if(!$r && local_user()) {
 		// Check if this is another person's link to a post that we have
-		$r = q("SELECT `item`.uri FROM `item`
+		$r = qu("SELECT `item`.uri FROM `item`
 			WHERE (`item`.`id` = %d OR `item`.`uri` = '%s')
 			LIMIT 1",
 			intval($item_id),
@@ -382,7 +382,7 @@ function display_content(&$a, $update = 0) {
 		if($r) {
 			$item_uri = $r[0]['uri'];
 
-			$r = q(item_query()." AND `item`.`uid` = %d
+			$r = qu(item_query()." AND `item`.`uid` = %d
 				AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `uri` = '%s' AND uid = %d)
 				ORDER BY `parent` DESC, `gravity` ASC, `id` ASC ",
 				intval(local_user()),
@@ -462,7 +462,7 @@ function display_content(&$a, $update = 0) {
 		return $o;
 	}
 
-	$r = q("SELECT `id`,`deleted` FROM `item` WHERE `id` = '%s' OR `uri` = '%s' LIMIT 1",
+	$r = qu("SELECT `id`,`deleted` FROM `item` WHERE `id` = '%s' OR `uri` = '%s' LIMIT 1",
 		dbesc($item_id),
 		dbesc($item_id)
 	);

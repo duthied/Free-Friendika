@@ -128,14 +128,32 @@ class PConfig {
 
 		$a->config[$uid][$family][$key] = $value;
 
-		$ret = q("INSERT INTO `pconfig` ( `uid`, `cat`, `k`, `v` ) VALUES ( %d, '%s', '%s', '%s' )
-ON DUPLICATE KEY UPDATE `v` = '%s'",
+		// The "INSERT" command is very cost intense. It saves performance to do it this way.
+		$ret = q("SELECT `v` FROM `pconfig` WHERE `uid` = %d AND `cat` = '%s' AND `k` = '%s' ORDER BY `id` DESC LIMIT 1",
 			intval($uid),
 			dbesc($family),
-			dbesc($key),
-			dbesc($dbvalue),
-			dbesc($dbvalue)
+			dbesc($key)
 		);
+
+		// It would be better to use the dbm class.
+		// My lacking knowdledge in autoloaders prohibits this.
+		// if (!dbm::is_result($ret))
+                if (!$ret)
+			$ret = q("INSERT INTO `pconfig` (`uid`, `cat`, `k`, `v`) VALUES (%d, '%s', '%s', '%s') ON DUPLICATE KEY UPDATE `v` = '%s'",
+				intval($uid),
+				dbesc($family),
+				dbesc($key),
+				dbesc($dbvalue),
+				dbesc($dbvalue)
+			);
+		elseif ($ret[0]['v'] != $dbvalue)
+			$ret = q("UPDATE `pconfig` SET `v` = '%s' WHERE `uid` = %d AND `cat` = '%s' AND `k` = '%s'",
+				dbesc($dbvalue),
+				intval($uid),
+				dbesc($family),
+				dbesc($key)
+			);
+
 		if($ret)
 			return $value;
 		return $ret;

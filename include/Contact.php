@@ -481,9 +481,9 @@ function get_contact($url, $uid = 0) {
 	if ($contactid == 0) {
 		q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `addr`, `alias`, `notify`, `poll`,
 					`name`, `nick`, `photo`, `network`, `pubkey`, `rel`, `priority`,
-					`batch`, `request`, `confirm`, `poco`,
+					`batch`, `request`, `confirm`, `poco`, `name-date`, `uri-date`,
 					`writable`, `blocked`, `readonly`, `pending`)
-					VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', '%s', '%s', '%s', 1, 0, 0, 0)",
+					VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', 1, 0, 0, 0)",
 			intval($uid),
 			dbesc(datetime_convert()),
 			dbesc($data["url"]),
@@ -502,7 +502,9 @@ function get_contact($url, $uid = 0) {
 			dbesc($data["batch"]),
 			dbesc($data["request"]),
 			dbesc($data["confirm"]),
-			dbesc($data["poco"])
+			dbesc($data["poco"]),
+			dbesc(datetime_convert()),
+			dbesc(datetime_convert())
 		);
 
 		$contact = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d ORDER BY `id` LIMIT 2",
@@ -533,16 +535,27 @@ function get_contact($url, $uid = 0) {
 
 	update_contact_avatar($data["photo"],$uid,$contactid);
 
-	q("UPDATE `contact` SET `addr` = '%s', `alias` = '%s', `name` = '%s', `nick` = '%s',
-		`name-date` = '%s', `uri-date` = '%s' WHERE `id` = %d",
-		dbesc($data["addr"]),
-		dbesc($data["alias"]),
-		dbesc($data["name"]),
-		dbesc($data["nick"]),
-		dbesc(datetime_convert()),
-		dbesc(datetime_convert()),
-		intval($contactid)
-	);
+	$r = q("SELECT `addr`, `alias`, `name`, `nick` FROM `contact`  WHERE `id` = %d", intval($contactid));
+
+	// This condition should always be true
+	if (!dbm::is_result($r))
+		return $contactid;
+
+	// Only update if there had something been changed
+	if (($data["addr"] != $r[0]["addr"]) OR
+		($data["alias"] != $r[0]["alias"]) OR
+		($data["name"] != $r[0]["name"]) OR
+		($data["nick"] != $r[0]["nick"]))
+		q("UPDATE `contact` SET `addr` = '%s', `alias` = '%s', `name` = '%s', `nick` = '%s',
+			`name-date` = '%s', `uri-date` = '%s' WHERE `id` = %d",
+			dbesc($data["addr"]),
+			dbesc($data["alias"]),
+			dbesc($data["name"]),
+			dbesc($data["nick"]),
+			dbesc(datetime_convert()),
+			dbesc(datetime_convert()),
+			intval($contactid)
+		);
 
 	return $contactid;
 }

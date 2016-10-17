@@ -705,22 +705,34 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		dbesc(NETWORK_DFRN),
 		intval($arr['uid'])
 	);
-	if($r && count($r)) {
-		logger('duplicated item with the same uri found. ' . print_r($arr,true));
+	if (dbm::is_result($r)) {
+		logger('duplicated item with the same uri found. '.print_r($arr,true));
 		return 0;
 	}
 
-	// Check for an existing post with the same content. There seems to be a problem with OStatus.
-	$r = q("SELECT `id` FROM `item` WHERE `body` = '%s' AND `network` = '%s' AND `created` = '%s' AND `contact-id` = %d AND `uid` = %d LIMIT 1",
-		dbesc($arr['body']),
-		dbesc($arr['network']),
-		dbesc($arr['created']),
-		intval($arr['contact-id']),
-		intval($arr['uid'])
-	);
-	if($r && count($r)) {
-		logger('duplicated item with the same body found. ' . print_r($arr,true));
-		return 0;
+	// On Friendica and Diaspora the GUID is unique
+	if (in_array($arr['network'], array(NETWORK_DFRN, NETWORK_DIASPORA))) {
+		$r = q("SELECT `id` FROM `item` WHERE `guid` = '%s' AND `uid` = %d LIMIT 1",
+			dbesc($arr['guid']),
+			intval($arr['uid'])
+		);
+		if (dbm::is_result($r)) {
+			logger('duplicated item with the same guid found. '.print_r($arr,true));
+			return 0;
+		}
+	} else {
+		// Check for an existing post with the same content. There seems to be a problem with OStatus.
+		$r = q("SELECT `id` FROM `item` WHERE `body` = '%s' AND `network` = '%s' AND `created` = '%s' AND `contact-id` = %d AND `uid` = %d LIMIT 1",
+			dbesc($arr['body']),
+			dbesc($arr['network']),
+			dbesc($arr['created']),
+			intval($arr['contact-id']),
+			intval($arr['uid'])
+		);
+		if (dbm::is_result($r)) {
+			logger('duplicated item with the same body found. '.print_r($arr,true));
+			return 0;
+		}
 	}
 
 	// Is this item available in the global items (with uid=0)?

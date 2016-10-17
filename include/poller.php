@@ -91,10 +91,15 @@ function poller_run(&$argv, &$argc){
 		if (poller_too_much_workers())
 			return;
 
-		q("UPDATE `workerqueue` SET `executed` = '%s', `pid` = %d WHERE `id` = %d AND `executed` = '0000-00-00 00:00:00'",
+		$upd = q("UPDATE `workerqueue` SET `executed` = '%s', `pid` = %d WHERE `id` = %d AND `pid` = 0",
 			dbesc(datetime_convert()),
 			intval($mypid),
 			intval($r[0]["id"]));
+
+		if (!$upd) {
+			logger("Couldn't update queue entry ".$r[0]["id"]." - skip this execution", LOGGER_DEBUG);
+			continue;
+		}
 
 		// Assure that there are no tasks executed twice
 		$id = q("SELECT `pid`, `executed` FROM `workerqueue` WHERE `id` = %d", intval($r[0]["id"]));

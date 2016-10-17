@@ -132,15 +132,33 @@ class Config {
 		$dbvalue = (is_array($value)?serialize($value):$value);
 		$dbvalue = (is_bool($dbvalue) ? intval($dbvalue) : $dbvalue);
 
-		$ret = q("INSERT INTO `config` ( `cat`, `k`, `v` ) VALUES ( '%s', '%s', '%s' )
-ON DUPLICATE KEY UPDATE `v` = '%s'",
+		// The "INSERT" command is very cost intense. It saves performance to do it this way.
+		$ret = q("SELECT `v` FROM `config` WHERE `cat` = '%s' AND `k` = '%s' ORDER BY `id` DESC LIMIT 1",
 			dbesc($family),
-			dbesc($key),
-			dbesc($dbvalue),
-			dbesc($dbvalue)
+			dbesc($key)
 		);
+
+		// It would be better to use the dbm class.
+		// But there is an autoloader issue that I don't know how to fix:
+		// "Class 'Friendica\Core\dbm' not found"
+		//if (!dbm::is_result($ret))
+		if (!$ret)
+			$ret = q("INSERT INTO `config` (`cat`, `k`, `v`) VALUES ('%s', '%s', '%s') ON DUPLICATE KEY UPDATE `v` = '%s'",
+				dbesc($family),
+				dbesc($key),
+				dbesc($dbvalue),
+				dbesc($dbvalue)
+			);
+		elseif ($ret[0]['v'] != $dbvalue)
+			$ret = q("UPDATE `config` SET `v` = '%s' WHERE `cat` = '%s' AND `k` = '%s'",
+				dbesc($dbvalue),
+				dbesc($family),
+				dbesc($key)
+			);
+
 		if($ret)
 			return $value;
+
 		return $ret;
 	}
 
