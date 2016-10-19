@@ -27,7 +27,7 @@ function display_init(&$a) {
 
 		// Or is it anywhere on the server?
 		if ($nick == "") {
-			$r = qu("SELECT `user`.`nickname`, `item`.`id`, `item`.`parent`, `item`.`author-name`,
+			$r = qu("SELECT STRAIGHT_JOIN `user`.`nickname`, `item`.`id`, `item`.`parent`, `item`.`author-name`,
 				`item`.`author-link`, `item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`owner-link`, `item`.`body`
 				FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
@@ -35,7 +35,6 @@ function display_init(&$a) {
 					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 					AND NOT `item`.`private` AND NOT `user`.`hidewall`
 					AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
-				//	AND NOT `item`.`private` AND `item`.`wall`
 			if (count($r)) {
 				$nick = $r[0]["nickname"];
 				$itemuid = $r[0]["uid"];
@@ -51,7 +50,6 @@ function display_init(&$a) {
 					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 					AND NOT `item`.`private` AND `item`.`uid` = 0
 					AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
-				//	AND NOT `item`.`private` AND `item`.`wall`
 		}
 		if (count($r)) {
 			if ($r[0]["id"] != $r[0]["parent"])

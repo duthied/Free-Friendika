@@ -125,6 +125,8 @@ function cron_run(&$argv, &$argc){
 		set_config('system','last_expire_day',$d2);
 
 		proc_run(PRIORITY_LOW,'include/expire.php');
+
+		proc_run(PRIORITY_LOW,'include/dbclean.php');
 	}
 
 	// Clear cache entries
@@ -355,10 +357,10 @@ function cron_clear_cache(&$a) {
 	}
 
 	// Delete the cached OEmbed entries that are older than one year
-	q("DELETE FROM `oembed` WHERE `created` < NOW() - INTERVAL 1 YEAR");
+	q("DELETE FROM `oembed` WHERE `created` < NOW() - INTERVAL 3 MONTH");
 
 	// Delete the cached "parse_url" entries that are older than one year
-	q("DELETE FROM `parsed_url` WHERE `created` < NOW() - INTERVAL 1 YEAR");
+	q("DELETE FROM `parsed_url` WHERE `created` < NOW() - INTERVAL 3 MONTH");
 
 	// Maximum table size in megabyte
 	$max_tablesize = intval(get_config('system','optimize_max_tablesize')) * 1000000;
