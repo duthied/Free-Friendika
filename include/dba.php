@@ -108,6 +108,23 @@ class dba {
 		return $return;
 	}
 
+	/**
+	 * @brief Returns the number of rows
+	 *
+	 * @return string
+	 */
+	public function num_rows() {
+		if (!$this->result)
+			return 0;
+
+		if ($this->mysqli) {
+			$return = $this->result->num_rows;
+		} else {
+			$return = mysql_num_rows($this->result);
+		}
+		return $return;
+	}
+
 	public function q($sql, $onlyquery = false) {
 		global $a;
 
@@ -125,6 +142,8 @@ class dba {
 		$connstr = ($connected ? "Connected": "Disonnected");
 
 		$stamp1 = microtime(true);
+
+		$sql = "/*".$a->callstack()." */ ".$sql;
 
 		if($this->mysqli)
 			$result = @$this->db->query($sql);

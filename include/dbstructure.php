@@ -1121,6 +1121,7 @@ function db_definition($charset) {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"uid_contactid" => array("uid", "contact-id"),
+					"uid_album_created" => array("uid", "album", "created"),
 					"resource-id" => array("resource-id"),
 					"guid" => array("guid"),
 					)

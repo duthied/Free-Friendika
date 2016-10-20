@@ -236,7 +236,7 @@ function display_content(&$a, $update = 0) {
 			}
 
 			if ($nick == "") {
-				$r = qu("SELECT `user`.`nickname`, `item`.`id` FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
+				$r = qu("SELECT STRAIGHT_JOIN `user`.`nickname`, `item`.`id` FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
