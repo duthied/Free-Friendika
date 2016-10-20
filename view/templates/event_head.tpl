@@ -1,7 +1,8 @@
 
 <link rel='stylesheet' type='text/css' href='{{$baseurl}}/library/fullcalendar/fullcalendar.css' />
-<script language="javascript" type="text/javascript"
-	  src="{{$baseurl}}/library/fullcalendar/fullcalendar.min.js"></script>
+<script type="text/javascript" src="{{$baseurl}}/library/moment/moment.min.js"></script>
+<script type="text/javascript" src="{{$baseurl}}/library/moment/locales.min.js"></script>
+<script language="javascript" type="text/javascript" src="{{$baseurl}}/library/fullcalendar/fullcalendar.min.js"></script>
 
 <script>
 	function showEvent(eventid) {
@@ -37,11 +38,9 @@
 			monthNamesShort: ['{{$i18n.Jan}}','{{$i18n.Feb}}','{{$i18n.Mar}}','{{$i18n.Apr}}','{{$i18n.May}}','{{$i18n.Jun}}','{{$i18n.Jul}}','{{$i18n.Aug}}','{{$i18n.Sep}}','{{$i18n.Oct}}','{{$i18n.Nov}}','{{$i18n.Dec}}'],
 			dayNames: ['{{$i18n.Sunday}}','{{$i18n.Monday}}','{{$i18n.Tuesday}}','{{$i18n.Wednesday}}','{{$i18n.Thursday}}','{{$i18n.Friday}}','{{$i18n.Saturday}}'],
 			dayNamesShort: ['{{$i18n.Sun}}','{{$i18n.Mon}}','{{$i18n.Tue}}','{{$i18n.Wed}}','{{$i18n.Thu}}','{{$i18n.Fri}}','{{$i18n.Sat}}'],
+			allDayText: '{{$i18n.allday}}',
+			noEventsMessage: '{{$i18n.noevent}}',
 			buttonText: {
-				prev: "<span class='fc-text-arrow'>&lsaquo;</span>",
-				next: "<span class='fc-text-arrow'>&rsaquo;</span>",
-				prevYear: "<span class='fc-text-arrow'>&laquo;</span>",
-				nextYear: "<span class='fc-text-arrow'>&raquo;</span>",
 				today: '{{$i18n.today}}',
 				month: '{{$i18n.month}}',
 				week: '{{$i18n.week}}',
@@ -68,7 +67,7 @@
 				if (event.item['author-name']==null) return;
 				switch(view.name){
 					case "month":
-					element.find(".fc-event-title").html(
+					element.find(".fc-title").html(
 						"<img src='{0}' style='height:10px;width:10px'>{1} : {2}".format(
 							event.item['author-avatar'],
 							event.item['author-name'],
@@ -76,7 +75,7 @@
 					));
 					break;
 					case "agendaWeek":
-					element.find(".fc-event-title").html(
+					element.find(".fc-title").html(
 						"<img src='{0}' style='height:12px; width:12px'>{1}<p>{2}</p><p>{3}</p>".format(
 							event.item['author-avatar'],
 							event.item['author-name'],
@@ -85,7 +84,7 @@
 					));
 					break;
 					case "agendaDay":
-					element.find(".fc-event-title").html(
+					element.find(".fc-title").html(
 						"<img src='{0}' style='height:24px;width:24px'>{1}<p>{2}</p><p>{3}</p>".format(
 							event.item['author-avatar'],
 							event.item['author-name'],

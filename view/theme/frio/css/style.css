@@ -75,6 +75,9 @@ blockquote {
 .hidden {
     display: none !important;
 }
+code {
+	white-space: pre;
+}
 
 /*
 * standard page elements
@@ -2081,45 +2084,21 @@ ul li:hover .contact-wrapper a.contact-action-link:hover {
 }
 
 /* Events page */
-#fc-header {
-    margin-top: 20px;
-    margin-bottom: 10px;
-}
-#fc-header-left,
-#fc-header-right,
-#event-calendar-title {
-    display: inline-block;
-}
-#fc-title {
-    margin: 0;
-    padding-left: 20px;
 
+
+.fc .fc-month-view .fc-content .fc-title .item-desc:hover {
+    color: $link_hover_color;
 }
-#fc-header-right {
-    margin-top: -4px;
+.fc .fc-list-item-title a {
+    color: $link_color;
 }
-#event-calendar-title {
-    vertical-align: middle;
+.fc .fc-list-item-title a[href]:hover {
+    color: $link_hover_color;
+    text-decoration: none;
 }
-a#event-calendar-views {
-    padding: 6px 9px;
-    font-size: 14px
-}
-tr.fc-first,
-tr.fc-first th {
-    border-left: none;
-    border-right: none;
-    border-top: none;
-}
-td.fc-day {
-    border-left: none;
-    border-right: none;
-    padding: 0 6px;
-}
-#events-calendar .fc-grid .fc-day-number {
-    float: left;
-    font-size: 0.9em;
-}
+/*.event-date-wrapper.medium .event-hover-short-month {
+    color: $link_color;
+}*/
 .event-wrapper .event-owner {
   margin-bottom: 15px;
 }

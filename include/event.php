@@ -480,6 +480,13 @@ function get_event_strings() {
 			"month" => t("month"),
 			"week" => t("week"),
 			"day" => t("day"),
+			"allday" => t("all-day"),
+
+			"noevent" => t("No events to display"),
+
+			"dtstart_label" => t("Starts:"),
+			"dtend_label" => t("Finishes:"),
+			"location_label" => t("Location:")
 		);
 
 	return $i18n;

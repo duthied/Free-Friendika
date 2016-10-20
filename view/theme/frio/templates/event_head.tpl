@@ -1,112 +1,37 @@
 
 <link rel='stylesheet' type='text/css' href='{{$baseurl}}/library/fullcalendar/fullcalendar.css' />
-<script language="javascript" type="text/javascript"
-	  src="{{$baseurl}}/library/fullcalendar/fullcalendar.min.js"></script>
+<link rel='stylesheet' type='text/css' href='view/theme/frio/css/mod_events.css' />
+<script type="text/javascript" src="{{$baseurl}}/library/moment/moment.min.js"></script>
+<script type="text/javascript" src="{{$baseurl}}/library/moment/locales.min.js"></script>
+<script type="text/javascript" src="{{$baseurl}}/library/fullcalendar/fullcalendar.min.js"></script>
+<script type="text/javascript" src="view/theme/frio/js/mod_events.js"></script>
+
 
 <script language="javascript" type="text/javascript">
-	// loads the event into a modal
-	function showEvent(eventid) {
-			addToModal('{{$baseurl}}{{$module_url}}/?id='+eventid);
-	}
+	// pass php translation strings to js variables/arrays so we can make use of it in js files
+	aStr.monthNames = ['{{$i18n.January}}','{{$i18n.February}}','{{$i18n.March}}','{{$i18n.April}}','{{$i18n.May}}','{{$i18n.June}}','{{$i18n.July}}','{{$i18n.August}}','{{$i18n.September}}','{{$i18n.October}}','{{$i18n.November}}','{{$i18n.December}}'];
+	aStr.monthNamesShort = ['{{$i18n.Jan}}','{{$i18n.Feb}}','{{$i18n.Mar}}','{{$i18n.Apr}}','{{$i18n.May}}','{{$i18n.Jun}}','{{$i18n.Jul}}','{{$i18n.Aug}}','{{$i18n.Sep}}','{{$i18n.Oct}}','{{$i18n.Nov}}','{{$i18n.Dec}}'];
+	aStr.monthNamesShort = ['{{$i18n.Jan}}','{{$i18n.Feb}}','{{$i18n.Mar}}','{{$i18n.Apr}}','{{$i18n.May}}','{{$i18n.Jun}}','{{$i18n.Jul}}','{{$i18n.Aug}}','{{$i18n.Sep}}','{{$i18n.Oct}}','{{$i18n.Nov}}','{{$i18n.Dec}}'];
+	aStr.dayNames = ['{{$i18n.Sunday}}','{{$i18n.Monday}}','{{$i18n.Tuesday}}','{{$i18n.Wednesday}}','{{$i18n.Thursday}}','{{$i18n.Friday}}','{{$i18n.Saturday}}'];
+	aStr.dayNamesShort = ['{{$i18n.Sun}}','{{$i18n.Mon}}','{{$i18n.Tue}}','{{$i18n.Wed}}','{{$i18n.Thu}}','{{$i18n.Fri}}','{{$i18n.Sat}}'];
 
-	function changeView(action, viewName) {
-		$('#events-calendar').fullCalendar(action, viewName);
-		var view = $('#events-calendar').fullCalendar('getView');
-		$('#fc-title').text(view.title);
-	}
+	aStr.firstDay = '{{$i18n.firstDay}}';
+	aStr.today = '{{$i18n.today}}';
+	aStr.month = '{{$i18n.month}}';
+	aStr.week = '{{$i18n.week}}';
+	aStr.day = '{{$i18n.day}}';
 
-	$(document).ready(function() {
-		// start the fullCalendar
-		$('#events-calendar').fullCalendar({
-			firstDay: {{$i18n.firstDay}},
-			monthNames: ['{{$i18n.January}}','{{$i18n.February}}','{{$i18n.March}}','{{$i18n.April}}','{{$i18n.May}}','{{$i18n.June}}','{{$i18n.July}}','{{$i18n.August}}','{{$i18n.September}}','{{$i18n.October}}','{{$i18n.November}}','{{$i18n.December}}'],
-			monthNamesShort: ['{{$i18n.Jan}}','{{$i18n.Feb}}','{{$i18n.Mar}}','{{$i18n.Apr}}','{{$i18n.May}}','{{$i18n.Jun}}','{{$i18n.Jul}}','{{$i18n.Aug}}','{{$i18n.Sep}}','{{$i18n.Oct}}','{{$i18n.Nov}}','{{$i18n.Dec}}'],
-			dayNames: ['{{$i18n.Sunday}}','{{$i18n.Monday}}','{{$i18n.Tuesday}}','{{$i18n.Wednesday}}','{{$i18n.Thursday}}','{{$i18n.Friday}}','{{$i18n.Saturday}}'],
-			dayNamesShort: ['{{$i18n.Sun}}','{{$i18n.Mon}}','{{$i18n.Tue}}','{{$i18n.Wed}}','{{$i18n.Thu}}','{{$i18n.Fri}}','{{$i18n.Sat}}'],
-			buttonText: {
-				prev: "<span class='fc-text-arrow'>&lsaquo;</span>",
-				next: "<span class='fc-text-arrow'>&rsaquo;</span>",
-				prevYear: "<span class='fc-text-arrow'>&laquo;</span>",
-				nextYear: "<span class='fc-text-arrow'>&raquo;</span>",
-				today: '{{$i18n.today}}',
-				month: '{{$i18n.month}}',
-				week: '{{$i18n.week}}',
-				day: '{{$i18n.day}}'
-			},
-			events: '{{$baseurl}}{{$module_url}}/json/',
-			header: {
-				left: '',
-			//	center: 'title',
-				right: ''
-			},			
-			timeFormat: 'H(:mm)',
-			eventClick: function(calEvent, jsEvent, view) {
-				showEvent(calEvent.id);
-			},
-			loading: function(isLoading, view) {
-				if(!isLoading) {
-					$('td.fc-day').dblclick(function() { addToModal('/events/new?start='+$(this).data('date')); });
-				}
-			},
-			
-			eventRender: function(event, element, view) {
-				//console.log(view.name);
-				if (event.item['author-name']==null) return;
-				switch(view.name){
-					case "month":
-					element.find(".fc-event-title").html(
-						"<img src='{0}' style='height:10px;width:10px'>{1} : {2}".format(
-							event.item['author-avatar'],
-							event.item['author-name'],
-							event.title
-					));
-					break;
-					case "agendaWeek":
-					element.find(".fc-event-title").html(
-						"<img src='{0}' style='height:12px; width:12px'>{1}<p>{2}</p><p>{3}</p>".format(
-							event.item['author-avatar'],
-							event.item['author-name'],
-							event.item.desc,
-							event.item.location
-					));
-					break;
-					case "agendaDay":
-					element.find(".fc-event-title").html(
-						"<img src='{0}' style='height:24px;width:24px'>{1}<p>{2}</p><p>{3}</p>".format(
-							event.item['author-avatar'],
-							event.item['author-name'],
-							event.item.desc,
-							event.item.location
-					));
-					break;
-				}
-			}
-			
-		})
+	aStr.allday = '{{$i18n.allday}}';
+	aStr.noevent = '{{$i18n.noevent}}';
 
-		// center on date
-		var args=location.href.replace(baseurl,"").split("/");
-		{{if $modparams == 2}}
-		if (args.length>=5) {
-			$("#events-calendar").fullCalendar('gotoDate',args[3] , args[4]-1);
-		}
-		{{else}}
-		if (args.length>=4) {
-			$("#events-calendar").fullCalendar('gotoDate',args[2] , args[3]-1);
-		}
-		{{/if}} 
+	aStr.dtstartLabel = '{{$i18n.dtstart_label}}';
+	aStr.dtendLabel = '{{$i18n.dtend_label}}';
+	aStr.locationLabel = '{{$i18n.location_label}}';
 
-		// echo the title
-		var view = $('#events-calendar').fullCalendar('getView');
-		$('#fc-title').text(view.title);
+	var moduleUrl = '{{$module_url}}';
+	var modparams = {{$modparams}}
 
-		// show event popup
-		var hash = location.hash.split("-")
-		if (hash.length==2 && hash[0]=="#link") showEvent(hash[1]);
-		
-	});
 </script>
-
 
 {{if $editselect != 'none'}}
 <script language="javascript" type="text/javascript"
