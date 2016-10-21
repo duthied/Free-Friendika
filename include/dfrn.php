@@ -193,13 +193,13 @@ class dfrn {
 		//	AND ( `item`.`edited` > '%s' OR `item`.`changed` > '%s' )
 		//	dbesc($check_date),
 
-		$r = q("SELECT STRAIGHT_JOIN `item`.*, `item`.`id` AS `item_id`,
+		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,
 			`contact`.`name`, `contact`.`network`, `contact`.`photo`, `contact`.`url`,
 			`contact`.`name-date`, `contact`.`uri-date`, `contact`.`avatar-date`,
 			`contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`sign`.`signed_text`, `sign`.`signature`, `sign`.`signer`
 			FROM `item` $sql_post_table
-			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`
 			WHERE `item`.`uid` = %d AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`parent` != 0

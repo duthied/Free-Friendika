@@ -779,6 +779,9 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 	logger('item_store: ' . print_r($arr,true), LOGGER_DATA);
 
+	q("COMMIT;");
+	q("START TRANSACTION;");
+
 	$r = dbq("INSERT INTO `item` (`"
 			. implode("`, `", array_keys($arr))
 			. "`) VALUES ('"
@@ -804,6 +807,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 			dbesc($arr['network']),
 			intval($r[0]["id"])
 		);
+		q("COMMIT");
 		return 0;
 	} elseif(count($r)) {
 
@@ -813,6 +817,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		item_set_last_item($arr);
 	} else {
 		logger('item_store: could not locate created item');
+		q("COMMIT");
 		return 0;
 	}
 
@@ -891,10 +896,12 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	create_tags_from_item($current_post);
 	create_files_from_item($current_post);
 
+	q("COMMIT");
+
 	// Only check for notifications on start posts
-	if ($arr['parent-uri'] === $arr['uri'])
+	if ($arr['parent-uri'] === $arr['uri']) {
 		add_thread($current_post);
-	else {
+	} else {
 		update_thread($parent_id);
 		add_shadow_entry($arr);
 	}

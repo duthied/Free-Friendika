@@ -1121,6 +1121,7 @@ function db_definition($charset) {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"uid_contactid" => array("uid", "contact-id"),
+					"uid_profile" => array("uid", "profile"),
 					"uid_album_created" => array("uid", "album", "created"),
 					"resource-id" => array("resource-id"),
 					"guid" => array("guid"),
@@ -1356,6 +1357,7 @@ function db_definition($charset) {
 					"type_term" => array("type","term"),
 					"uid_otype_type_term_global_created" => array("uid","otype","type","term","global","created"),
 					"otype_type_term_tid" => array("otype","type","term","tid"),
+					"uid_otype_type_url" => array("uid","otype","type","url"),
 					"guid" => array("guid"),
 					)
 			);

@@ -27,9 +27,9 @@ function display_init(&$a) {
 
 		// Or is it anywhere on the server?
 		if ($nick == "") {
-			$r = qu("SELECT STRAIGHT_JOIN `user`.`nickname`, `item`.`id`, `item`.`parent`, `item`.`author-name`,
+			$r = qu("SELECT `user`.`nickname`, `item`.`id`, `item`.`parent`, `item`.`author-name`,
 				`item`.`author-link`, `item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`owner-link`, `item`.`body`
-				FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
+				FROM `item` STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
@@ -236,7 +236,7 @@ function display_content(&$a, $update = 0) {
 			}
 
 			if ($nick == "") {
-				$r = qu("SELECT STRAIGHT_JOIN `user`.`nickname`, `item`.`id` FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
+				$r = qu("SELECT `user`.`nickname`, `item`.`id` FROM `item` STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''

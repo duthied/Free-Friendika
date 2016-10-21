@@ -788,6 +788,9 @@ function item_post(&$a) {
 	} else
 		$post_id = 0;
 
+	q("COMMIT;");
+	q("START TRANSACTION;");
+
 	$r = q("INSERT INTO `item` (`guid`, `extid`, `uid`,`type`,`wall`,`gravity`, `network`, `contact-id`,
 					`owner-name`,`owner-link`,`owner-avatar`, `owner-id`,
 					`author-name`, `author-link`, `author-avatar`, `author-id`,
@@ -864,6 +867,7 @@ function item_post(&$a) {
 	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' LIMIT 1",
 		dbesc($datarray['uri']));
 	if(!count($r)) {
+		q("COMMIT");
 		logger('mod_item: unable to retrieve post that was just stored.');
 		notice( t('System error. Post not saved.') . EOL);
 		goaway($a->get_baseurl() . "/" . $return_path );
@@ -985,6 +989,8 @@ function item_post(&$a) {
 
 	create_tags_from_item($post_id);
 	create_files_from_item($post_id);
+
+	q("COMMIT");
 
 	if ($post_id == $parent)
 		add_thread($post_id);

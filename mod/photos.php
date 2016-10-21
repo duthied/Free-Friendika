@@ -53,8 +53,8 @@ function photos_init(&$a) {
 
 		$sql_extra = permissions_sql($a->data['user']['uid']);
 
-		$albums = q("SELECT count(distinct `resource-id`) AS `total`, `album` FROM `photo` WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s'
-			$sql_extra group by album order by created desc",
+		$albums = q("SELECT count(distinct `resource-id`) AS `total`, `album` FROM `photo` USE INDEX (`uid_album_created`) WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s'
+			$sql_extra GROUP BY `album` ORDER BY `created` DESC",
 			intval($a->data['user']['uid']),
 			dbesc('Contact Photos'),
 			dbesc( t('Contact Photos'))
