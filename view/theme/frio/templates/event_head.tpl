@@ -15,18 +15,18 @@
 	aStr.dayNames = ['{{$i18n.Sunday}}','{{$i18n.Monday}}','{{$i18n.Tuesday}}','{{$i18n.Wednesday}}','{{$i18n.Thursday}}','{{$i18n.Friday}}','{{$i18n.Saturday}}'];
 	aStr.dayNamesShort = ['{{$i18n.Sun}}','{{$i18n.Mon}}','{{$i18n.Tue}}','{{$i18n.Wed}}','{{$i18n.Thu}}','{{$i18n.Fri}}','{{$i18n.Sat}}'];
 
-	aStr.firstDay = '{{$i18n.firstDay}}';
-	aStr.today = '{{$i18n.today}}';
-	aStr.month = '{{$i18n.month}}';
-	aStr.week = '{{$i18n.week}}';
-	aStr.day = '{{$i18n.day}}';
+	aStr.firstDay = '{{$i18n.firstDay|escape:'quotes'}}';
+	aStr.today = '{{$i18n.today|escape:'quotes'}}';
+	aStr.month = '{{$i18n.month|escape:'quotes'}}';
+	aStr.week = '{{$i18n.week|escape:'quotes'}}';
+	aStr.day = '{{$i18n.day|escape:'quotes'}}';
 
-	aStr.allday = '{{$i18n.allday}}';
-	aStr.noevent = '{{$i18n.noevent}}';
+	aStr.allday = '{{$i18n.allday|escape:'quotes'}}';
+	aStr.noevent = '{{$i18n.noevent|escape:'quotes'}}';
 
-	aStr.dtstartLabel = '{{$i18n.dtstart_label}}';
-	aStr.dtendLabel = '{{$i18n.dtend_label}}';
-	aStr.locationLabel = '{{$i18n.location_label}}';
+	aStr.dtstartLabel = '{{$i18n.dtstart_label|escape:'quotes'}}';
+	aStr.dtendLabel = '{{$i18n.dtend_label|escape:'quotes'}}';
+	aStr.locationLabel = '{{$i18n.location_label|escape:'quotes'}}';
 
 	var moduleUrl = '{{$module_url}}';
 	var modparams = {{$modparams}}
@@ -68,7 +68,7 @@
 
 	});
 
-	$(document).ready(function() { 
+	$(document).ready(function() {
 		$('.comment-edit-bb').hide();
 	});
 	{{else}}
@@ -76,7 +76,7 @@
 	{{/if}}
 
 
-	$(document).ready(function() { 
+	$(document).ready(function() {
 		{{if $editselect = 'none'}}
 		$("#comment-edit-text-desc").bbco_autocomplete('bbcode');
 		{{/if}}
