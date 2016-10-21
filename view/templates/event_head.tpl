@@ -30,7 +30,6 @@
 			$('#id_finish_text').prop("disabled", false);
 	}
 
-
 	$(document).ready(function() {
 		$('#events-calendar').fullCalendar({
 			firstDay: '{{$i18n.firstDay|escape:'quotes'}}',
@@ -105,7 +104,6 @@
 			},
 
 			eventRender: function(event, element, view) {
-				//console.log(view.name);
 				if (event.item['author-name']==null) return;
 				switch(view.name){
 					case "month":
@@ -141,15 +139,15 @@
 
 		// center on date
 		var args=location.href.replace(baseurl,"").split("/");
-		{{if $modparams == 2}}
+{{if $modparams == 2}}
 		if (args.length>=5) {
 			$("#events-calendar").fullCalendar('gotoDate',args[3] , args[4]-1);
 		}
-		{{else}}
+{{else}}
 		if (args.length>=4) {
 			$("#events-calendar").fullCalendar('gotoDate',args[2] , args[3]-1);
 		}
-		{{/if}}
+{{/if}}
 
 		// show event popup
 		var hash = location.hash.split("-")
@@ -158,12 +156,10 @@
 	});
 </script>
 
-
 {{if $editselect != 'none'}}
 <script language="javascript" type="text/javascript"
 	  src="{{$baseurl}}/library/tinymce/jscripts/tiny_mce/tiny_mce_src.js"></script>
 <script language="javascript" type="text/javascript">
-
 
 	tinyMCE.init({
 		theme : "advanced",
@@ -181,8 +177,6 @@
 		entity_encoding : "raw",
 		add_unload_trigger : false,
 		remove_linebreaks : false,
-		//force_p_newlines : false,
-		//force_br_newlines : true,
 		forced_root_block : 'div',
 		content_css: "{{$baseurl}}/view/custom_tinymce.css",
 		theme_advanced_path : false,
@@ -197,15 +191,14 @@
 	$(document).ready(function() {
 		$('.comment-edit-bb').hide();
 	});
-	{{else}}
+{{else}}
 	<script language="javascript" type="text/javascript">
-	{{/if}}
-
+{{/if}}
 
 	$(document).ready(function() {
-		{{if $editselect = 'none'}}
+{{if $editselect = 'none'}}
 		$("#comment-edit-text-desc").bbco_autocomplete('bbcode');
-		{{/if}}
+{{/if}}
 
 		$('#id_share').change(function() {
 
@@ -216,7 +209,6 @@
 				$('#acl-wrapper').hide();
 			}
 		}).trigger('change');
-
 
 		$('#contact_allow, #contact_deny, #group_allow, #group_deny').change(function() {
 			var selstr;

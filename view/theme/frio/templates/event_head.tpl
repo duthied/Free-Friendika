@@ -6,7 +6,6 @@
 <script type="text/javascript" src="{{$baseurl}}/library/fullcalendar/fullcalendar.min.js"></script>
 <script type="text/javascript" src="view/theme/frio/js/mod_events.js"></script>
 
-
 <script language="javascript" type="text/javascript">
 	// pass php translation strings to js variables/arrays so we can make use of it in js files
 	aStr.monthNames = [
@@ -79,7 +78,6 @@
 	  src="{{$baseurl}}/library/tinymce/jscripts/tiny_mce/tiny_mce_src.js"></script>
 <script language="javascript" type="text/javascript">
 
-
 	tinyMCE.init({
 		theme : "advanced",
 		mode : "textareas",
@@ -96,8 +94,6 @@
 		entity_encoding : "raw",
 		add_unload_trigger : false,
 		remove_linebreaks : false,
-		//force_p_newlines : false,
-		//force_br_newlines : true,
 		forced_root_block : 'div',
 		content_css: "{{$baseurl}}/view/custom_tinymce.css",
 		theme_advanced_path : false,
@@ -112,15 +108,14 @@
 	$(document).ready(function() {
 		$('.comment-edit-bb').hide();
 	});
-	{{else}}
+{{else}}
 	<script language="javascript" type="text/javascript">
-	{{/if}}
-
+{{/if}}
 
 	$(document).ready(function() {
-		{{if $editselect = 'none'}}
+{{if $editselect = 'none'}}
 		$("#comment-edit-text-desc").bbco_autocomplete('bbcode');
-		{{/if}}
+{{/if}}
 
 	});
 
