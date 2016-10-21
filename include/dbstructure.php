@@ -557,6 +557,7 @@ function db_definition($charset) {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"uid" => array("uid"),
+					"addr_uid" => array("addr", "uid"),
 					"nurl" => array("nurl"),
 					)
 			);

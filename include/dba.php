@@ -143,7 +143,11 @@ class dba {
 
 		$stamp1 = microtime(true);
 
-		$sql = "/*".$a->callstack()." */ ".$sql;
+		$orig_sql = $sql;
+
+		if(x($a->config,'system') && x($a->config['system'],'db_callstack')) {
+			$sql = "/*".$a->callstack()." */ ".$sql;
+		}
 
 		if($this->mysqli)
 			$result = @$this->db->query($sql);
@@ -155,7 +159,7 @@ class dba {
 
 		$a->save_timestamp($stamp1, "database");
 
-		if (strtolower(substr($sql, 0, 6)) != "select")
+		if (strtolower(substr($orig_sql, 0, 6)) != "select")
 			$a->save_timestamp($stamp1, "database_write");
 
 		if(x($a->config,'system') && x($a->config['system'],'db_log')) {
