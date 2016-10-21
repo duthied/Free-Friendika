@@ -33,8 +33,8 @@ class Config {
 		global $a;
 
 		$r = q("SELECT `v`, `k` FROM `config` WHERE `cat` = '%s' ORDER BY `cat`, `k`, `id`", dbesc($family));
-		if(count($r)) {
-			foreach($r as $rr) {
+		if (count($r)) {
+			foreach ($r as $rr) {
 				$k = $rr['k'];
 				if ($family === 'config') {
 					$a->config[$k] = $rr['v'];
@@ -70,20 +70,20 @@ class Config {
 	 *  If true the config is loaded from the db and not from the cache (default: false)
 	 * @return mixed Stored value or null if it does not exist
 	 */
-	public static function get($family, $key, $default_value=null, $refresh = false) {
+	public static function get($family, $key, $default_value = null, $refresh = false) {
 
 		global $a;
 
-		if(! $refresh) {
+		if (!$refresh) {
 			// Looking if the whole family isn't set
-			if(isset($a->config[$family])) {
-				if($a->config[$family] === '!<unset>!') {
+			if (isset($a->config[$family])) {
+				if ($a->config[$family] === '!<unset>!') {
 					return $default_value;
 				}
 			}
 
-			if(isset($a->config[$family][$key])) {
-				if($a->config[$family][$key] === '!<unset>!') {
+			if (isset($a->config[$family][$key])) {
+				if ($a->config[$family][$key] === '!<unset>!') {
 					return $default_value;
 				}
 				return $a->config[$family][$key];
@@ -94,7 +94,7 @@ class Config {
 			dbesc($family),
 			dbesc($key)
 		);
-		if(count($ret)) {
+		if (count($ret)) {
 			// manage array value
 			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret[0]['v'])?unserialize( $ret[0]['v']):$ret[0]['v']);
 			$a->config[$family][$key] = $val;
@@ -123,13 +123,13 @@ class Config {
 	 *  The value to store
 	 * @return mixed Stored $value or false if the database update failed
 	 */
-	public static function set($family,$key,$value) {
+	public static function set($family, $key, $value) {
 		global $a;
 
 		$a->config[$family][$key] = $value;
 
 		// manage array value
-		$dbvalue = (is_array($value)?serialize($value):$value);
+		$dbvalue = (is_array($value) ? serialize($value):$value);
 		$dbvalue = (is_bool($dbvalue) ? intval($dbvalue) : $dbvalue);
 
 		// The "INSERT" command is very cost intense. It saves performance to do it this way.
@@ -138,25 +138,21 @@ class Config {
 			dbesc($key)
 		);
 
-		// It would be better to use the dbm class.
-		// But there is an autoloader issue that I don't know how to fix:
-		// "Class 'Friendica\Core\dbm' not found"
-		//if (!dbm::is_result($ret))
-		if (!$ret)
+		if (!$ret) {
 			$ret = q("INSERT INTO `config` (`cat`, `k`, `v`) VALUES ('%s', '%s', '%s') ON DUPLICATE KEY UPDATE `v` = '%s'",
 				dbesc($family),
 				dbesc($key),
 				dbesc($dbvalue),
 				dbesc($dbvalue)
 			);
-		elseif ($ret[0]['v'] != $dbvalue)
+		} elseif ($ret[0]['v'] != $dbvalue) {
 			$ret = q("UPDATE `config` SET `v` = '%s' WHERE `cat` = '%s' AND `k` = '%s'",
 				dbesc($dbvalue),
 				dbesc($family),
 				dbesc($key)
 			);
-
-		if($ret)
+		}
+		if ($ret)
 			return $value;
 
 		return $ret;
@@ -174,10 +170,10 @@ class Config {
 	 *  The configuration key to delete
 	 * @return mixed
 	 */
-	public static function delete($family,$key) {
+	public static function delete($family, $key) {
 
 		global $a;
-		if(x($a->config[$family],$key))
+		if (x($a->config[$family],$key))
 			unset($a->config[$family][$key]);
 		$ret = q("DELETE FROM `config` WHERE `cat` = '%s' AND `k` = '%s'",
 			dbesc($family),

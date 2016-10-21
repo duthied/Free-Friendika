@@ -27,14 +27,14 @@ class PConfig {
 	 *  The category of the configuration value
 	 * @return void
 	 */
-	public static function load($uid,$family) {
+	public static function load($uid, $family) {
 		global $a;
 		$r = q("SELECT `v`,`k` FROM `pconfig` WHERE `cat` = '%s' AND `uid` = %d ORDER BY `cat`, `k`, `id`",
 			dbesc($family),
 			intval($uid)
 		);
-		if(count($r)) {
-			foreach($r as $rr) {
+		if (count($r)) {
+			foreach ($r as $rr) {
 				$k = $rr['k'];
 				$a->config[$uid][$family][$k] = $rr['v'];
 			}
@@ -67,16 +67,16 @@ class PConfig {
 
 		global $a;
 
-		if(! $refresh) {
+		if (!$refresh) {
 			// Looking if the whole family isn't set
-			if(isset($a->config[$uid][$family])) {
-				if($a->config[$uid][$family] === '!<unset>!') {
+			if (isset($a->config[$uid][$family])) {
+				if ($a->config[$uid][$family] === '!<unset>!') {
 					return $default_value;
 				}
 			}
 
-			if(isset($a->config[$uid][$family][$key])) {
-				if($a->config[$uid][$family][$key] === '!<unset>!') {
+			if (isset($a->config[$uid][$family][$key])) {
+				if ($a->config[$uid][$family][$key] === '!<unset>!') {
 					return $default_value;
 				}
 				return $a->config[$uid][$family][$key];
@@ -89,13 +89,12 @@ class PConfig {
 			dbesc($key)
 		);
 
-		if(count($ret)) {
+		if (count($ret)) {
 			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret[0]['v'])?unserialize( $ret[0]['v']):$ret[0]['v']);
 			$a->config[$uid][$family][$key] = $val;
 
 			return $val;
-		}
-		else {
+		} else {
 			$a->config[$uid][$family][$key] = '!<unset>!';
 		}
 		return $default_value;
@@ -124,7 +123,7 @@ class PConfig {
 		global $a;
 
 		// manage array value
-		$dbvalue = (is_array($value)?serialize($value):$value);
+		$dbvalue = (is_array($value) ? serialize($value):$value);
 
 		$a->config[$uid][$family][$key] = $value;
 
@@ -154,8 +153,9 @@ class PConfig {
 				dbesc($key)
 			);
 
-		if($ret)
+		if ($ret)
 			return $value;
+
 		return $ret;
 	}
 
@@ -175,7 +175,7 @@ class PConfig {
 	public static function delete($uid,$family,$key) {
 
 		global $a;
-		if(x($a->config[$uid][$family],$key))
+		if (x($a->config[$uid][$family],$key))
 			unset($a->config[$uid][$family][$key]);
 		$ret = q("DELETE FROM `pconfig` WHERE `uid` = %d AND `cat` = '%s' AND `k` = '%s'",
 			intval($uid),

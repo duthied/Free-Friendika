@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file include/dbclean.php
+ * @brief The script is called from time to time to clean the database entries and remove orphaned data.
+ */
 require_once("boot.php");
 
 global $a, $db;
@@ -19,6 +23,9 @@ load_config('system');
 remove_orphans();
 killme();
 
+/**
+ * @brief Remove orphaned database entries
+ */
 function remove_orphans() {
 	 global $db;
 
