@@ -661,8 +661,12 @@ class Probe {
 	 */
 	private function poll_hcard($hcard, $data, $dfrn = false) {
 
+		$content = fetch_url($hcard);
+		if (!$content)
+			return false;
+
 		$doc = new DOMDocument();
-		if (!@$doc->loadHTMLFile($hcard))
+		if (!@$doc->loadHTML($content))
 			return false;
 
 		$xpath = new DomXPath($doc);
@@ -671,39 +675,38 @@ class Probe {
 		if (!is_object($vcards))
 			return false;
 
-		if ($vcards->length == 0)
-			return false;
+		if ($vcards->length > 0) {
+			$vcard = $vcards->item(0);
 
-		$vcard = $vcards->item(0);
+			// We have to discard the guid from the hcard in favour of the guid from lrdd
+			// Reason: Hubzilla doesn't use the value "uid" in the hcard like Diaspora does.
+			$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' uid ')]", $vcard); // */
+			if (($search->length > 0) AND ($data["guid"] == ""))
+				$data["guid"] = $search->item(0)->nodeValue;
 
-		// We have to discard the guid from the hcard in favour of the guid from lrdd
-		// Reason: Hubzilla doesn't use the value "uid" in the hcard like Diaspora does.
-		$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' uid ')]", $vcard); // */
-		if (($search->length > 0) AND ($data["guid"] == ""))
-			$data["guid"] = $search->item(0)->nodeValue;
+			$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' nickname ')]", $vcard); // */
+			if ($search->length > 0)
+				$data["nick"] = $search->item(0)->nodeValue;
 
-		$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' nickname ')]", $vcard); // */
-		if ($search->length > 0)
-			$data["nick"] = $search->item(0)->nodeValue;
+			$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' fn ')]", $vcard); // */
+			if ($search->length > 0)
+				$data["name"] = $search->item(0)->nodeValue;
 
-		$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' fn ')]", $vcard); // */
-		if ($search->length > 0)
-			$data["name"] = $search->item(0)->nodeValue;
+			$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' searchable ')]", $vcard); // */
+			if ($search->length > 0)
+				$data["searchable"] = $search->item(0)->nodeValue;
 
-		$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' searchable ')]", $vcard); // */
-		if ($search->length > 0)
-			$data["searchable"] = $search->item(0)->nodeValue;
+			$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' key ')]", $vcard); // */
+			if ($search->length > 0) {
+				$data["pubkey"] = $search->item(0)->nodeValue;
+				if (strstr($data["pubkey"], 'RSA '))
+					$data["pubkey"] = rsatopem($data["pubkey"]);
+			}
 
-		$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' key ')]", $vcard); // */
-		if ($search->length > 0) {
-			$data["pubkey"] = $search->item(0)->nodeValue;
-			if (strstr($data["pubkey"], 'RSA '))
-				$data["pubkey"] = rsatopem($data["pubkey"]);
+			$search = $xpath->query("//*[@id='pod_location']", $vcard); // */
+			if ($search->length > 0)
+				$data["baseurl"] = trim($search->item(0)->nodeValue, "/");
 		}
-
-		$search = $xpath->query("//*[@id='pod_location']", $vcard); // */
-		if ($search->length > 0)
-			$data["baseurl"] = trim($search->item(0)->nodeValue, "/");
 
 		$avatar = array();
 		$photos = $xpath->query("//*[contains(concat(' ', @class, ' '), ' photo ') or contains(concat(' ', @class, ' '), ' avatar ')]", $vcard); // */

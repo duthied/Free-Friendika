@@ -1,5 +1,5 @@
 <script language="javascript" type="text/javascript"
-	  src="{{$baseurl}}/view/theme/frio/js/event.js"></script>
+	  src="{{$baseurl}}/view/theme/frio/js/event_edit.js"></script>
 
 {{foreach $events as $event}}
 	<div class="event-wrapper">
