@@ -145,7 +145,7 @@ ON DUPLICATE KEY UPDATE `v` = '%s'",
 		);
 		if ($ret) {
 			return $value;
-        }
+		}
 		return $ret;
 	}
 

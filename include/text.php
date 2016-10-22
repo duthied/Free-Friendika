@@ -734,14 +734,14 @@ function logger($msg, $level = 0) {
 
 	$callers = debug_backtrace();
 	$logline = sprintf("%s@%s\t[%s]:%s:%s:%s\t%s\n",
-		datetime_convert(),
-		$process_id,
-		$LOGGER_LEVELS[$level],
-		basename($callers[0]['file']),
-		$callers[0]['line'],
-		$callers[1]['function'],
-		$msg
-	);
+			datetime_convert(),
+			$process_id,
+			$LOGGER_LEVELS[$level],
+			basename($callers[0]['file']),
+			$callers[0]['line'],
+			$callers[1]['function'],
+			$msg
+		);
 
 	$stamp1 = microtime(true);
 	@file_put_contents($logfile, $logline, FILE_APPEND);
