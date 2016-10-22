@@ -100,8 +100,7 @@ class Config {
 			$a->config[$family][$key] = $val;
 
 			return $val;
-		}
-		else {
+		} else {
 			$a->config[$family][$key] = '!<unset>!';
 		}
 		return $default_value;
@@ -126,19 +125,19 @@ class Config {
 	public static function set($family, $key, $value) {
 		global $a;
 
+		$stored = self::get($family, $key);
+
+		if ($stored == $value) {
+			return true;
+		}
+
 		$a->config[$family][$key] = $value;
 
 		// manage array value
 		$dbvalue = (is_array($value) ? serialize($value):$value);
 		$dbvalue = (is_bool($dbvalue) ? intval($dbvalue) : $dbvalue);
 
-		// The "INSERT" command is very cost intense. It saves performance to do it this way.
-		$ret = q("SELECT `v` FROM `config` WHERE `cat` = '%s' AND `k` = '%s' ORDER BY `id` DESC LIMIT 1",
-			dbesc($family),
-			dbesc($key)
-		);
-
-		if (!$ret) {
+		if (is_null($stored)) {
 			$ret = q("INSERT INTO `config` (`cat`, `k`, `v`) VALUES ('%s', '%s', '%s') ON DUPLICATE KEY UPDATE `v` = '%s'",
 				dbesc($family),
 				dbesc($key),
@@ -152,9 +151,9 @@ class Config {
 				dbesc($key)
 			);
 		}
-		if ($ret)
+		if ($ret) {
 			return $value;
-
+		}
 		return $ret;
 	}
 
@@ -173,8 +172,9 @@ class Config {
 	public static function delete($family, $key) {
 
 		global $a;
-		if (x($a->config[$family],$key))
+		if (x($a->config[$family],$key)) {
 			unset($a->config[$family][$key]);
+		}
 		$ret = q("DELETE FROM `config` WHERE `cat` = '%s' AND `k` = '%s'",
 			dbesc($family),
 			dbesc($key)

@@ -19,7 +19,7 @@ function display_init(&$a) {
 			$r = qu("SELECT `id`, `parent`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `guid` = '%s' AND `uid` = %d", dbesc($a->argv[1]), local_user());
-			if (dbm::isresult($r)) {
+			if (dbm::is_result($r)) {
 				$nick = $a->user["nickname"];
 				$itemuid = local_user();
 			}
@@ -35,7 +35,7 @@ function display_init(&$a) {
 					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 					AND NOT `item`.`private` AND NOT `user`.`hidewall`
 					AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
-			if (dbm::isresult($r)) {
+			if (dbm::is_result($r)) {
 				$nick = $r[0]["nickname"];
 				$itemuid = $r[0]["uid"];
 			}
@@ -51,7 +51,7 @@ function display_init(&$a) {
 					AND NOT `item`.`private` AND `item`.`uid` = 0
 					AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
 		}
-		if (dbm::isresult($r)) {
+		if (dbm::is_result($r)) {
 			if ($r[0]["id"] != $r[0]["parent"]) {
 				$r = qu("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
@@ -90,7 +90,7 @@ function display_init(&$a) {
 						WHERE `user`.`nickname` = '%s' AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
 						dbesc($nickname)
 					);
-					if (dbm::isresult($r)) {
+					if (dbm::is_result($r)) {
 						$profiledata = $r[0];
 					}
 					$profiledata["network"] = NETWORK_DFRN;
@@ -128,7 +128,7 @@ function display_fetchauthor($a, $item) {
 
 	// Skip if it isn't a pure repeated messages
 	// Does it start with a share?
-	if (!$skip AND strpos($body, "[share") > 0) }
+	if (!$skip AND strpos($body, "[share") > 0) {
 		$skip = true;
 	}
 	// Does it end with a share?
@@ -230,7 +230,7 @@ function display_content(&$a, $update = 0) {
 				$r = qu("SELECT `id` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `guid` = '%s' AND `uid` = %d", dbesc($a->argv[1]), local_user());
-				if (dbm::isresult($r)) {
+				if (dbm::is_result($r)) {
 					$item_id = $r[0]["id"];
 					$nick = $a->user["nickname"];
 				}
@@ -244,7 +244,7 @@ function display_content(&$a, $update = 0) {
 						AND NOT `item`.`private` AND NOT `user`.`hidewall`
 						AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
 					//	AND NOT `item`.`private` AND `item`.`wall`
-				if (dbm::isresult($r)) {
+				if (dbm::is_result($r)) {
 					$item_id = $r[0]["id"];
 					$nick = $r[0]["nickname"];
 				}
@@ -257,7 +257,7 @@ function display_content(&$a, $update = 0) {
 						AND NOT `item`.`private` AND `item`.`uid` = 0
 						AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
 					//	AND NOT `item`.`private` AND `item`.`wall`
-				if (dbm::isresult($r)) {
+				if (dbm::is_result($r)) {
 					$item_id = $r[0]["id"];
 				}
 			}
@@ -303,7 +303,7 @@ function display_content(&$a, $update = 0) {
 			intval($contact_id),
 			intval($a->profile['uid'])
 		);
-		if (dbm::isresult($r)) {
+		if (dbm::is_result($r)) {
 			$contact = $r[0];
 			$remote_contact = true;
 		}
@@ -319,7 +319,7 @@ function display_content(&$a, $update = 0) {
 	$r = qu("SELECT * FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1",
 		intval($a->profile['uid'])
 	);
-	if (dbm::isresult($r)) {
+	if (dbm::is_result($r)) {
 		$a->page_contact = $r[0];
 	}
 	$is_owner = ((local_user()) && (local_user() == $a->profile['profile_uid']) ? true : false);
