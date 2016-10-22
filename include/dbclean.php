@@ -5,23 +5,25 @@
  */
 require_once("boot.php");
 
-global $a, $db;
+function dbclean_run(&$argv, &$argc) {
+	global $a, $db;
 
-if(is_null($a))
-	$a = new App;
+	if(is_null($a))
+		$a = new App;
 
-if(is_null($db)) {
-	@include(".htconfig.php");
-	require_once("include/dba.php");
-	$db = new dba($db_host, $db_user, $db_pass, $db_data);
-	unset($db_host, $db_user, $db_pass, $db_data);
+	if(is_null($db)) {
+		@include(".htconfig.php");
+		require_once("include/dba.php");
+		$db = new dba($db_host, $db_user, $db_pass, $db_data);
+		unset($db_host, $db_user, $db_pass, $db_data);
+	}
+
+	load_config('config');
+	load_config('system');
+
+	remove_orphans();
+	killme();
 }
-
-load_config('config');
-load_config('system');
-
-remove_orphans();
-killme();
 
 /**
  * @brief Remove orphaned database entries
@@ -67,5 +69,10 @@ function remove_orphans() {
 // SELECT `id`, `received`, `created`, `guid` FROM `item` WHERE `uid` = 0 AND NOT EXISTS (SELECT `guid` FROM `item` AS `i` WHERE `item`.`guid` = `i`.`guid` AND `i`.`uid` != 0) LIMIT 1;
 
 	logger("Done deleting orphaned data from tables");
+}
+
+if (array_search(__file__,get_included_files())===0){
+  dbclean_run($_SERVER["argv"],$_SERVER["argc"]);
+  killme();
 }
 ?>
