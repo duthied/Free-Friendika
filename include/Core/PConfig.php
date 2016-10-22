@@ -123,7 +123,7 @@ class PConfig {
 
 		global $a;
 
-		if (self::get($uid, $family, $key) === $value) {
+		if (self::get($uid, $family, $key) == $value) {
 			return true;
 		}
 
