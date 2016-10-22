@@ -719,9 +719,10 @@ function logger($msg, $level = 0) {
 	}
 
 	if (count($LOGGER_LEVELS) == 0) {
-		foreach (get_defined_constants() as $k => $v){
-			if (substr($k, 0, 7) == "LOGGER_")
+		foreach (get_defined_constants() as $k => $v) {
+			if (substr($k, 0, 7) == "LOGGER_") {
 				$LOGGER_LEVELS[$v] = substr($k, 7, 7);
+			}
 		}
 	}
 
