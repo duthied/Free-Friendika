@@ -678,11 +678,13 @@ function attribute_contains($attr,$s) {
 	return false;
 }}
 
-if(! function_exists('logger')) {
+if (! function_exists('logger')) {
 /* setup int->string log level map */
 $LOGGER_LEVELS = array();
 
 /**
+ * @brief Logs the given message at the given log level
+ *
  * log levels:
  * LOGGER_NORMAL (default)
  * LOGGER_TRACE
@@ -692,51 +694,57 @@ $LOGGER_LEVELS = array();
  *
  * @global App $a
  * @global dba $db
+ * @global array $LOGGER_LEVELS
  * @param string $msg
  * @param int $level
  */
-function logger($msg,$level = 0) {
-	// turn off logger in install mode
+function logger($msg, $level = 0) {
 	global $a;
 	global $db;
 	global $LOGGER_LEVELS;
 
-	if(($a->module == 'install') || (! ($db && $db->connected))) return;
+	$debugging = get_config('system','debugging');
+	$logfile   = get_config('system','logfile');
+	$loglevel = intval(get_config('system','loglevel'));
 
-	if (count($LOGGER_LEVELS)==0){
-		foreach (get_defined_constants() as $k=>$v){
-			if (substr($k,0,7)=="LOGGER_")
-				$LOGGER_LEVELS[$v] = substr($k,7,7);
+	// turn off logger in install mode
+	if (
+		$a->module == 'install'
+		|| ! ($db && $db->connected)
+		|| ! $debugging
+		|| ! $logfile
+		|| $level > $loglevel
+	) {
+		return;
+	}
+
+	if (count($LOGGER_LEVELS) == 0) {
+		foreach (get_defined_constants() as $k => $v){
+			if (substr($k, 0, 7) == "LOGGER_")
+				$LOGGER_LEVELS[$v] = substr($k, 7, 7);
 		}
 	}
 
-	$debugging = get_config('system','debugging');
-	$loglevel  = intval(get_config('system','loglevel'));
-	$logfile   = get_config('system','logfile');
-
-	if((! $debugging) || (! $logfile) || ($level > $loglevel))
-		return;
-
 	$process_id = session_id();
 
-	if ($process_id == "")
+	if ($process_id == '') {
 		$process_id = get_app()->process_id;
+	}
 
 	$callers = debug_backtrace();
-	$logline =  sprintf("%s@%s\t[%s]:%s:%s:%s\t%s\n",
-				 datetime_convert(),
-				 $process_id,
-				 $LOGGER_LEVELS[$level],
-				 basename($callers[0]['file']),
-				 $callers[0]['line'],
-				 $callers[1]['function'],
-				 $msg
-				);
+	$logline = sprintf("%s@%s\t[%s]:%s:%s:%s\t%s\n",
+		datetime_convert(),
+		$process_id,
+		$LOGGER_LEVELS[$level],
+		basename($callers[0]['file']),
+		$callers[0]['line'],
+		$callers[1]['function'],
+		$msg
+	);
 
 	$stamp1 = microtime(true);
 	@file_put_contents($logfile, $logline, FILE_APPEND);
 	$a->save_timestamp($stamp1, "file");
-	return;
 }}
 
 
