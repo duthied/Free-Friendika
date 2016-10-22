@@ -1100,6 +1100,9 @@ class App {
 	}
 
 	function save_timestamp($stamp, $value) {
+		if (!isset($a->config['system']['profiler']) || !$a->config['system']['profiler'])
+			return;
+
 		$duration = (float)(microtime(true)-$stamp);
 
 		if (!isset($this->performance[$value])) {
@@ -1174,11 +1177,6 @@ class App {
 			$callstack[] = $func["function"];
 
 		return implode(", ", $callstack);
-	}
-
-	function mark_timestamp($mark) {
-		//$this->performance["markstart"] -= microtime(true) - $this->performance["marktime"];
-		$this->performance["markstart"] = microtime(true) - $this->performance["markstart"] - $this->performance["marktime"];
 	}
 
 	function get_useragent() {
