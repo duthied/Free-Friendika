@@ -5,7 +5,7 @@
 	<div class="event-wrapper">
 		<div class="event">
 			<div class="media">
-				<div class="event-owner pull-left">
+				<div class="event-owner media-left">
 					{{if $event.item.author_name}}
 					<a href="{{$event.item.author_link}}" ><img src="{{$event.item.author_avatar}}" /></a>
 					<a href="{{$event.item.author_link}}" >{{$event.item.author_name}}</a>
