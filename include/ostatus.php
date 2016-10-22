@@ -1982,6 +1982,7 @@ class ostatus {
 				intval($authorid), dbesc($check_date),
 				dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN));
 /*
+		// We keep this old query until we are sure that the new one works better
 		$items = q("SELECT `item`.*, `item`.`id` AS `item_id` FROM `item`
 				STRAIGHT_JOIN `thread` ON `thread`.`iid` = `item`.`parent`
 				LEFT JOIN `item` AS `thritem` ON `thritem`.`uri`=`item`.`thr-parent` AND `thritem`.`uid`=`item`.`uid`

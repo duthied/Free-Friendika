@@ -159,9 +159,9 @@ class dba {
 
 		$a->save_timestamp($stamp1, "database");
 
-		if (strtolower(substr($orig_sql, 0, 6)) != "select")
+		if (strtolower(substr($orig_sql, 0, 6)) != "select") {
 			$a->save_timestamp($stamp1, "database_write");
-
+		}
 		if (x($a->config,'system') && x($a->config['system'],'db_log')) {
 			if (($duration > $a->config["system"]["db_loglimit"])) {
 				$duration = round($duration, 3);
