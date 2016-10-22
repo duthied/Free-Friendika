@@ -126,7 +126,14 @@ function cron_run(&$argv, &$argc){
 
 		proc_run(PRIORITY_LOW,'include/expire.php');
 
-		proc_run(PRIORITY_LOW,'include/dbclean.php');
+		if (get_config("system", "worker")) {
+			proc_run(PRIORITY_LOW,'include/dbclean.php', 1);
+			proc_run(PRIORITY_LOW,'include/dbclean.php', 2);
+			proc_run(PRIORITY_LOW,'include/dbclean.php', 3);
+			proc_run(PRIORITY_LOW,'include/dbclean.php', 4);
+		} else {
+			proc_run(PRIORITY_LOW,'include/dbclean.php');
+		}
 	}
 
 	// Clear cache entries

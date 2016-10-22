@@ -8,17 +8,18 @@
  */
 function post_update() {
 
-	if (!post_update_1192())
+	if (!post_update_1192()) {
 		return;
-
-	if (!post_update_1194())
+	}
+	if (!post_update_1194()) {
 		return;
-
-	if (!post_update_1198())
+	}
+	if (!post_update_1198()) {
 		return;
-
-	if (!post_update_1206())
+	}
+	if (!post_update_1206()) {
 		return;
+	}
 }
 
 /**
@@ -242,14 +243,15 @@ function post_update_1206() {
 		FROM `user`
 		INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`");
 
-	if (!dbm::is_result($r))
+	if (!dbm::is_result($r)) {
 		return false;
-
+	}
 	foreach ($r AS $user) {
-		if (!empty($user["lastitem_date"]) AND ($user["lastitem_date"] > $user["last-item"]))
+		if (!empty($user["lastitem_date"]) AND ($user["lastitem_date"] > $user["last-item"])) {
 			q("UPDATE `contact` SET `last-item` = '%s' WHERE `id` = %d",
 				dbesc($user["lastitem_date"]),
 				intval($user["id"]));
+		}
 	}
 
 	set_config("system", "post_update_version", 1206);

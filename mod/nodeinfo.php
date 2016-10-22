@@ -217,7 +217,6 @@ function nodeinfo_cron() {
 			set_config('nodeinfo','active_users_monthly', $active_users_monthly);
 	}
 
-	//$posts = qu("SELECT COUNT(*) AS local_posts FROM `item` WHERE `wall` AND `uid` != 0 AND `id` = `parent` AND left(body, 6) != '[share'");
 	$posts = qu("SELECT COUNT(*) AS `local_posts` FROM `item`
 			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			WHERE `contact`.`self` and `item`.`id` = `item`.`parent` AND left(body, 6) != '[share' AND `item`.`network` IN ('%s', '%s', '%s')",

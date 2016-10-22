@@ -175,7 +175,7 @@ class PConfig {
 	public static function delete($uid,$family,$key) {
 
 		global $a;
-		if (x($a->config[$uid][$family],$key))
+		if (x($a->config[$uid][$family], $key))
 			unset($a->config[$uid][$family][$key]);
 		$ret = q("DELETE FROM `pconfig` WHERE `uid` = %d AND `cat` = '%s' AND `k` = '%s'",
 			intval($uid),
