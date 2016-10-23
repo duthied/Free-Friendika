@@ -149,17 +149,23 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0) {
 
 	if($profile) {
 		$profile_int = intval($profile);
-		$r = q("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `contact`.`addr`, `user`.* FROM `profile`
-				INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-				WHERE `user`.`nickname` = '%s' AND `profile`.`id` = %d AND `contact`.`self` = 1 LIMIT 1",
+		$r = q("SELECT `contact`.`id` AS `contact_id`, `profile`.`uid` AS `profile_uid`, `profile`.*,
+				`contact`.`avatar-date` AS picdate, `contact`.`addr`, `user`.*
+			FROM `profile`
+			INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` AND `contact`.`self`
+			INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
+			WHERE `user`.`nickname` = '%s' AND `profile`.`id` = %d LIMIT 1",
 				dbesc($nickname),
 				intval($profile_int)
 		);
 	}
 	if((!$r) && (!count($r))) {
-		$r = q("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `contact`.`addr`, `user`.* FROM `profile`
-				INNER JOIN `contact` ON `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-				WHERE `user`.`nickname` = '%s' AND `profile`.`is-default` = 1 AND `contact`.`self` = 1 LIMIT 1",
+		$r = q("SELECT `contact`.`id` AS `contact_id`, `profile`.`uid` AS `profile_uid`, `profile`.*,
+				`contact`.`avatar-date` AS picdate, `contact`.`addr`, `user`.*
+			FROM `profile`
+			INNER JOIN `contact` ON `contact`.`uid` = `profile`.`uid` AND `contact`.`self`
+			INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
+			WHERE `user`.`nickname` = '%s' AND `profile`.`is-default` LIMIT 1",
 				dbesc($nickname)
 		);
 	}

@@ -53,12 +53,18 @@ function photos_init(&$a) {
 
 		$sql_extra = permissions_sql($a->data['user']['uid']);
 
-		$albums = qu("SELECT count(distinct `resource-id`) AS `total`, `album` FROM `photo` USE INDEX (`uid_album_created`) WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s'
-			$sql_extra GROUP BY `album` ORDER BY `created` DESC",
-			intval($a->data['user']['uid']),
-			dbesc('Contact Photos'),
-			dbesc( t('Contact Photos'))
-		);
+		$albums = Cache::get("photos-albums:".$a->data['user']['uid']);
+		if (is_null($albums)) {
+			/// @todo This query needs to be renewed. It is really slow
+			// At this time we just store the data in the cache
+			$albums = qu("SELECT count(distinct `resource-id`) AS `total`, `album` FROM `photo` USE INDEX (`uid_album_created`) WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s'
+				$sql_extra GROUP BY `album` ORDER BY `created` DESC",
+				intval($a->data['user']['uid']),
+				dbesc('Contact Photos'),
+				dbesc( t('Contact Photos'))
+			);
+			Cache::set("photos-albums:".$a->data['user']['uid'], $albums, CACHE_FIVE_MINUTES);
+		}
 
 		$albums_visible = ((intval($a->data['user']['hidewall']) && (! local_user()) && (! remote_user())) ? false : true);
 

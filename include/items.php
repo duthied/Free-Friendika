@@ -770,7 +770,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 	logger('item_store: ' . print_r($arr,true), LOGGER_DATA);
 
-	q("COMMIT;");
 	q("START TRANSACTION;");
 
 	$r = dbq("INSERT INTO `item` (`"
@@ -887,13 +886,16 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	create_tags_from_item($current_post);
 	create_files_from_item($current_post);
 
-	q("COMMIT");
-
 	// Only check for notifications on start posts
 	if ($arr['parent-uri'] === $arr['uri']) {
 		add_thread($current_post);
+		q("COMMIT");
+
+		add_shadow_thread($current_post);
 	} else {
 		update_thread($parent_id);
+		q("COMMIT");
+
 		add_shadow_entry($arr);
 	}
 

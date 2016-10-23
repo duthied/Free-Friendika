@@ -813,7 +813,8 @@ class ostatus {
 				WHERE `term`.`uid` = %d AND `term`.`otype` = %d AND `term`.`type` = %d AND `term`.`url` = '%s'))",
 				intval($uid), intval(TERM_OBJ_POST), intval(TERM_CONVERSATION), dbesc($conversation_url));
 
-/*
+/*		2016-10-23: The old query will be kept until we are sure that the query above is a good and fast replacement
+
 		$parents = q("SELECT `id`, `parent`, `uri`, `contact-id`, `type`, `verb`, `visible` FROM `item` WHERE `id` IN
 				(SELECT `parent` FROM `item` WHERE `id` IN
 					(SELECT `oid` FROM `term` WHERE `uid` = %d AND `otype` = %d AND `type` = %d AND `url` = '%s'))",
@@ -1981,8 +1982,9 @@ class ostatus {
 				intval($owner["uid"]), intval($owner["id"]),
 				intval($authorid), dbesc($check_date),
 				dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN));
-/*
-		// We keep this old query until we are sure that the new one works better
+
+/*		2016-10-23: The old query will be kept until we are sure that the query above is a good and fast replacement
+
 		$items = q("SELECT `item`.*, `item`.`id` AS `item_id` FROM `item`
 				STRAIGHT_JOIN `thread` ON `thread`.`iid` = `item`.`parent`
 				LEFT JOIN `item` AS `thritem` ON `thritem`.`uri`=`item`.`thr-parent` AND `thritem`.`uid`=`item`.`uid`

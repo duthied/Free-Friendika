@@ -1075,8 +1075,14 @@ function all_friends($uid,$cid,$start = 0, $limit = 80) {
 
 function suggestion_query($uid, $start = 0, $limit = 80) {
 
-	if(! $uid)
+	if (!$uid) {
 		return array();
+	}
+
+	$list = Cache::get("suggestion_query:".$uid.":".$start.":".$limit);
+	if (!is_null($list)) {
+		return $list;
+	}
 
 	$network = array(NETWORK_DFRN);
 
@@ -1087,9 +1093,10 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 		$network[] = NETWORK_OSTATUS;
 
 	$sql_network = implode("', '", $network);
-	//$sql_network = "'".$sql_network."', ''";
 	$sql_network = "'".$sql_network."'";
 
+	/// @todo This query is really slow
+	// By now we cache the data for five minutes
 	$r = q("SELECT count(glink.gcid) as `total`, gcontact.* from gcontact
 		INNER JOIN `glink` ON `glink`.`gcid` = `gcontact`.`id`
 		where uid = %d and not gcontact.nurl in ( select nurl from contact where uid = %d )
@@ -1108,8 +1115,10 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 		intval($limit)
 	);
 
-	if(count($r) && count($r) >= ($limit -1))
+	if(count($r) && count($r) >= ($limit -1)) {
+		Cache::set("suggestion_query:".$uid.":".$start.":".$limit, $r, CACHE_FIVE_MINUTES);
 		return $r;
+	}
 
 	$r2 = q("SELECT gcontact.* FROM gcontact
 		INNER JOIN `glink` ON `glink`.`gcid` = `gcontact`.`id`
@@ -1138,6 +1147,7 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 	while (sizeof($list) > ($limit))
 		array_pop($list);
 
+	Cache::set("suggestion_query:".$uid.":".$start.":".$limit, $list, CACHE_FIVE_MINUTES);
 	return $list;
 }
 

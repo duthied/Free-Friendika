@@ -443,6 +443,7 @@ function db_definition($charset) {
 			"indexes" => array(
 					"PRIMARY" => array("k".db_index_suffix($charset)),
 					"updated" => array("updated"),
+					"expire_mode_updated" => array("expire_mode", "updated"),
 					)
 			);
 	$database["challenge"] = array(

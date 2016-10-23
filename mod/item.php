@@ -788,7 +788,6 @@ function item_post(&$a) {
 	} else
 		$post_id = 0;
 
-	q("COMMIT;");
 	q("START TRANSACTION;");
 
 	$r = q("INSERT INTO `item` (`guid`, `extid`, `uid`,`type`,`wall`,`gravity`, `network`, `contact-id`,
@@ -990,12 +989,14 @@ function item_post(&$a) {
 	create_tags_from_item($post_id);
 	create_files_from_item($post_id);
 
-	q("COMMIT");
-
-	if ($post_id == $parent)
+	if ($post_id == $parent) {
 		add_thread($post_id);
-	else {
+		q("COMMIT");
+
+		add_shadow_thread($post_id);
+	} else {
 		update_thread($parent, true);
+		q("COMMIT");
 
 		// Insert an item entry for UID=0 for global entries
 		// We have to remove or change some data before that,
