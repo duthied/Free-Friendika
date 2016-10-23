@@ -49,9 +49,9 @@ Programming
 
 ###Coding standards
 
-For the sake of consistency between contribution and general code readability, Friendica follows the widespread [PSR-2 coding standards](http://www.php-fig.org/psr/psr-2/).
-Here's a few primers if you are new to the PSR-2 coding standards:
- * Indentation is 4 spaces, period.
+For the sake of consistency between contribution and general code readability, Friendica follows the widespread [PSR-2 coding standards](http://www.php-fig.org/psr/psr-2/) to the exception of a few rules.
+Here's a few primers if you are new to Friendica or to the PSR-2 coding standards:
+ * Indentation is tabs, period (not PSR-2).
  * By default, strings are enclosed in single quotes, but feel free to use double quotes if it makes more sense (SQL queries, adding tabs and line feeds).
  * Operators are wrapped by spaces, e.g. `$var === true`, `$var = 1 + 2` and `'string' . $concat . 'enation'`
  * Braces are mandatory in conditions
