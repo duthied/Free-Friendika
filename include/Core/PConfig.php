@@ -122,22 +122,18 @@ class PConfig {
 
 		global $a;
 
+		$stored = self::get($uid, $family, $key);
+
+		if ($stored == $value) {
+			return true;
+		}
+
 		// manage array value
 		$dbvalue = (is_array($value) ? serialize($value):$value);
 
 		$a->config[$uid][$family][$key] = $value;
 
-		// The "INSERT" command is very cost intense. It saves performance to do it this way.
-		$ret = q("SELECT `v` FROM `pconfig` WHERE `uid` = %d AND `cat` = '%s' AND `k` = '%s' ORDER BY `id` DESC LIMIT 1",
-			intval($uid),
-			dbesc($family),
-			dbesc($key)
-		);
-
-		// It would be better to use the dbm class.
-		// My lacking knowdledge in autoloaders prohibits this.
-		// if (!dbm::is_result($ret))
-                if (!$ret)
+                if (is_null($stored)) {
 			$ret = q("INSERT INTO `pconfig` (`uid`, `cat`, `k`, `v`) VALUES (%d, '%s', '%s', '%s') ON DUPLICATE KEY UPDATE `v` = '%s'",
 				intval($uid),
 				dbesc($family),
@@ -145,17 +141,18 @@ class PConfig {
 				dbesc($dbvalue),
 				dbesc($dbvalue)
 			);
-		elseif ($ret[0]['v'] != $dbvalue)
+		} else {
 			$ret = q("UPDATE `pconfig` SET `v` = '%s' WHERE `uid` = %d AND `cat` = '%s' AND `k` = '%s'",
 				dbesc($dbvalue),
 				intval($uid),
 				dbesc($family),
 				dbesc($key)
 			);
+		}
 
-		if ($ret)
+		if ($ret) {
 			return $value;
-
+		}
 		return $ret;
 	}
 
@@ -175,13 +172,17 @@ class PConfig {
 	public static function delete($uid,$family,$key) {
 
 		global $a;
-		if (x($a->config[$uid][$family], $key))
+
+		if (x($a->config[$uid][$family], $key)) {
 			unset($a->config[$uid][$family][$key]);
+		}
+
 		$ret = q("DELETE FROM `pconfig` WHERE `uid` = %d AND `cat` = '%s' AND `k` = '%s'",
 			intval($uid),
 			dbesc($family),
 			dbesc($key)
 		);
+
 		return $ret;
 	}
 }

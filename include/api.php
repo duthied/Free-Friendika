@@ -565,7 +565,7 @@
 
 			//AND `allow_cid`='' AND `allow_gid`='' AND `deny_cid`='' AND `deny_gid`=''",
 			// count public wall messages
-			$r = q("SELECT COUNT(*) as `count` FROM `item` WHERE `uid` = %d AND wall",
+			$r = q("SELECT COUNT(*) as `count` FROM `item` WHERE `uid` = %d AND `wall`",
 					intval($uinfo[0]['uid'])
 			);
 			$countitms = $r[0]['count'];

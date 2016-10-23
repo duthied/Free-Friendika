@@ -144,7 +144,7 @@ class Config {
 				dbesc($dbvalue),
 				dbesc($dbvalue)
 			);
-		} elseif ($ret[0]['v'] != $dbvalue) {
+		} else {
 			$ret = q("UPDATE `config` SET `v` = '%s' WHERE `cat` = '%s' AND `k` = '%s'",
 				dbesc($dbvalue),
 				dbesc($family),
