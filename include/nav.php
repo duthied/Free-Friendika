@@ -43,8 +43,13 @@ function nav(&$a) {
 	call_hooks('page_header', $a->page['nav']);
 }
 
-
-function nav_info(&$a)
+/**
+ * @brief Prepares a list of navigation links
+ *
+ * @param App $a
+ * @return array
+ */
+function nav_info(App $a)
 {
 	$ssl_state = ((local_user()) ? true : false);
 
@@ -56,7 +61,7 @@ function nav_info(&$a)
 
 	$myident = ((is_array($a->user) && isset($a->user['nickname'])) ? $a->user['nickname'] . '@' : '');
 
-	$sitelocation = $myident . substr($a->get_baseurl($ssl_state),strpos($a->get_baseurl($ssl_state),'//') + 2 );
+	$sitelocation = $myident . substr($a->get_baseurl($ssl_state), strpos($a->get_baseurl($ssl_state), '//') + 2 );
 
 	// nav links: array of array('href', 'text', 'extra css classes', 'title')
 	$nav = array();
@@ -192,7 +197,7 @@ function nav_info(&$a)
 	// Provide a banner/logo/whatever
 	$banner = get_config('system', 'banner');
 	if ($banner === false) {
-		$banner .= '<a href="http://friendica.com"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="http://friendica.com">Friendica</a></span>';
+		$banner = '<a href="http://friendica.com"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="http://friendica.com">Friendica</a></span>';
 	}
 
 	call_hooks('nav_info', $nav);
