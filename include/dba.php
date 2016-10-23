@@ -221,13 +221,14 @@ class dba {
 
 		if ($result === false) {
 			logger('dba: ' . printable($sql) . ' returned false.' . "\n" . $this->error);
-			if (file_exists('dbfail.out'))
+			if (file_exists('dbfail.out')) {
 				file_put_contents('dbfail.out', datetime_convert() . "\n" . printable($sql) . ' returned false' . "\n" . $this->error . "\n", FILE_APPEND);
+			}
 		}
 
-		if (($result === true) || ($result === false))
+		if (($result === true) || ($result === false)) {
 			return $result;
-
+		}
 		if ($onlyquery) {
 			$this->result = $result;
 			return true;
@@ -250,8 +251,9 @@ class dba {
 
 		//$a->save_timestamp($stamp1, "database");
 
-		if ($this->debug)
+		if ($this->debug) {
 			logger('dba: ' . printable(print_r($r, true)));
+		}
 		return($r);
 	}
 
@@ -318,8 +320,9 @@ if (! function_exists('printable')) {
 function printable($s) {
 	$s = preg_replace("~([\x01-\x08\x0E-\x0F\x10-\x1F\x7F-\xFF])~",".", $s);
 	$s = str_replace("\x00",'.',$s);
-	if (x($_SERVER,'SERVER_NAME'))
+	if (x($_SERVER,'SERVER_NAME')) {
 		$s = escape_tags($s);
+	}
 	return $s;
 }}
 
@@ -327,8 +330,9 @@ function printable($s) {
 if (! function_exists('dbg')) {
 function dbg($state) {
 	global $db;
-	if ($db)
-	$db->dbg($state);
+	if ($db) {
+		$db->dbg($state);
+	}
 }}
 
 if (! function_exists('dbesc')) {
