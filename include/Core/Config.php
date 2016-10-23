@@ -134,7 +134,7 @@ class Config {
 		$a->config[$family][$key] = $value;
 
 		// manage array value
-		$dbvalue = (is_array($value) ? serialize($value):$value);
+		$dbvalue = (is_array($value) ? serialize($value) : $value);
 		$dbvalue = (is_bool($dbvalue) ? intval($dbvalue) : $dbvalue);
 
 		if (is_null($stored)) {

@@ -69,15 +69,15 @@ function cron_run(&$argv, &$argc){
 
 	// run queue delivery process in the background
 
-	proc_run(PRIORITY_NEGLIGIBLE,"include/queue.php");
+	proc_run(PRIORITY_NEGLIGIBLE, "include/queue.php");
 
 	// run the process to discover global contacts in the background
 
-	proc_run(PRIORITY_LOW,"include/discover_poco.php");
+	proc_run(PRIORITY_LOW, "include/discover_poco.php");
 
 	// run the process to update locally stored global contacts in the background
 
-	proc_run(PRIORITY_LOW,"include/discover_poco.php", "checkcontact");
+	proc_run(PRIORITY_LOW, "include/discover_poco.php", "checkcontact");
 
 	// Expire and remove user entries
 	cron_expire_and_remove_users();
@@ -120,19 +120,19 @@ function cron_run(&$argv, &$argc){
 
 		update_contact_birthdays();
 
-		proc_run(PRIORITY_LOW,"include/discover_poco.php", "suggestions");
+		proc_run(PRIORITY_LOW, "include/discover_poco.php", "suggestions");
 
 		set_config('system','last_expire_day',$d2);
 
-		proc_run(PRIORITY_LOW,'include/expire.php');
+		proc_run(PRIORITY_LOW, 'include/expire.php');
 
 		if (get_config("system", "worker")) {
-			proc_run(PRIORITY_LOW,'include/dbclean.php', 1);
-			proc_run(PRIORITY_LOW,'include/dbclean.php', 2);
-			proc_run(PRIORITY_LOW,'include/dbclean.php', 3);
-			proc_run(PRIORITY_LOW,'include/dbclean.php', 4);
+			proc_run(PRIORITY_LOW, 'include/dbclean.php', 1);
+			proc_run(PRIORITY_LOW, 'include/dbclean.php', 2);
+			proc_run(PRIORITY_LOW, 'include/dbclean.php', 3);
+			proc_run(PRIORITY_LOW, 'include/dbclean.php', 4);
 		} else {
-			proc_run(PRIORITY_LOW,'include/dbclean.php');
+			proc_run(PRIORITY_LOW, 'include/dbclean.php');
 		}
 	}
 
@@ -315,7 +315,7 @@ function cron_poll_contacts($argc, $argv) {
 
 			logger("Polling ".$contact["network"]." ".$contact["id"]." ".$contact["nick"]." ".$contact["name"]);
 
-			proc_run(PRIORITY_MEDIUM,'include/onepoll.php',$contact['id']);
+			proc_run(PRIORITY_MEDIUM, 'include/onepoll.php', $contact['id']);
 
 			if($interval)
 				@time_sleep_until(microtime(true) + (float) $interval);

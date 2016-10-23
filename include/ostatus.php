@@ -810,7 +810,7 @@ class ostatus {
 				`item`.`verb`, `item`.`visible` FROM `term`
 				STRAIGHT_JOIN `item` AS `thritem` ON `thritem`.`parent` = `term`.`oid`
 				STRAIGHT_JOIN `item` ON `item`.`parent` = `thritem`.`parent`
-				WHERE `term`.`uid` = %d AND `term`.`otype` = %d AND `term`.`type` = %d AND `term`.`url` = '%s'))",
+				WHERE `term`.`uid` = %d AND `term`.`otype` = %d AND `term`.`type` = %d AND `term`.`url` = '%s'",
 				intval($uid), intval(TERM_OBJ_POST), intval(TERM_CONVERSATION), dbesc($conversation_url));
 
 /*		2016-10-23: The old query will be kept until we are sure that the query above is a good and fast replacement

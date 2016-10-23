@@ -34,7 +34,7 @@ class dba {
 	public  $connected = false;
 	public  $error = false;
 
-	function __construct($server,$user,$pass,$db,$install = false) {
+	function __construct($server, $user, $pass, $db, $install = false) {
 		global $a;
 
 		$stamp1 = microtime(true);
@@ -80,8 +80,9 @@ class dba {
 		}
 		if (!$this->connected) {
 			$this->db = null;
-			if (!$install)
+			if (!$install) {
 				system_unavailable();
+			}
 		}
 
 		$a->save_timestamp($stamp1, "network");
@@ -114,8 +115,9 @@ class dba {
 	 * @return integer
 	 */
 	public function num_rows() {
-		if (!$this->result)
+		if (!$this->result) {
 			return 0;
+		}
 
 		if ($this->mysqli) {
 			$return = $this->result->num_rows;
@@ -128,8 +130,9 @@ class dba {
 	public function q($sql, $onlyquery = false) {
 		global $a;
 
-		if ((!$this->db) || (!$this->connected))
+		if (!$this->db || !$this->connected) {
 			return false;
+		}
 
 		$this->error = '';
 
@@ -139,13 +142,13 @@ class dba {
 		} else {
 			$connected = mysql_ping($this->db);
 		}
-		$connstr = ($connected ? "Connected": "Disonnected");
+		$connstr = ($connected ? "Connected" : "Disonnected");
 
 		$stamp1 = microtime(true);
 
 		$orig_sql = $sql;
 
-		if (x($a->config,'system') && x($a->config['system'],'db_callstack')) {
+		if (x($a->config,'system') && x($a->config['system'], 'db_callstack')) {
 			$sql = "/*".$a->callstack()." */ ".$sql;
 		}
 
@@ -255,7 +258,7 @@ class dba {
 	public function qfetch() {
 		$x = false;
 
-		if ($this->result)
+		if ($this->result) {
 			if ($this->mysqli) {
 				if ($this->result->num_rows)
 					$x = $this->result->fetch_array(MYSQLI_ASSOC);
@@ -263,17 +266,18 @@ class dba {
 				if (mysql_num_rows($this->result))
 					$x = mysql_fetch_array($this->result, MYSQL_ASSOC);
 			}
-
+		}
 		return($x);
 	}
 
 	public function qclose() {
-		if ($this->result)
+		if ($this->result) {
 			if ($this->mysqli) {
 				$this->result->free_result();
 			} else {
 				mysql_free_result($this->result);
 			}
+		}
 	}
 
 	public function dbg($dbg) {
