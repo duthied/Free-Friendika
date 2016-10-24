@@ -770,6 +770,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 	logger('item_store: ' . print_r($arr,true), LOGGER_DATA);
 
+	q("COMMIT");
 	q("START TRANSACTION;");
 
 	$r = dbq("INSERT INTO `item` (`"

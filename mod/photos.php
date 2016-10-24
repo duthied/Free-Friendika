@@ -25,7 +25,7 @@ function photos_init(&$a) {
 
 	if ($a->argc > 1) {
 		$nick = $a->argv[1];
-		$user = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
+		$user = qu("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
 			dbesc($nick)
 		);
 
@@ -50,21 +50,7 @@ function photos_init(&$a) {
 			'$pdesc' => (($profile['pdesc'] != "") ? $profile['pdesc'] : ""),
 		));
 
-
-		$sql_extra = permissions_sql($a->data['user']['uid']);
-
-		$albums = Cache::get("photos-albums:".$a->data['user']['uid']);
-		if (is_null($albums)) {
-			/// @todo This query needs to be renewed. It is really slow
-			// At this time we just store the data in the cache
-			$albums = qu("SELECT count(distinct `resource-id`) AS `total`, `album` FROM `photo` USE INDEX (`uid_album_created`) WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s'
-				$sql_extra GROUP BY `album` ORDER BY `created` DESC",
-				intval($a->data['user']['uid']),
-				dbesc('Contact Photos'),
-				dbesc( t('Contact Photos'))
-			);
-			Cache::set("photos-albums:".$a->data['user']['uid'], $albums, CACHE_FIVE_MINUTES);
-		}
+		$albums = photo_albums($a->data['user']['uid']);
 
 		$albums_visible = ((intval($a->data['user']['hidewall']) && (! local_user()) && (! remote_user())) ? false : true);
 
@@ -159,7 +145,7 @@ function photos_post(&$a) {
 			}
 			if ($cid) {
 
-				$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
+				$r = qu("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
 					intval($cid),
 					intval($page_owner_uid)
 				);
@@ -176,7 +162,7 @@ function photos_post(&$a) {
 		killme();
 	}
 
-	$r = q("SELECT `contact`.*, `user`.`nickname` FROM `contact` LEFT JOIN `user` ON `user`.`uid` = `contact`.`uid`
+	$r = qu("SELECT `contact`.*, `user`.`nickname` FROM `contact` LEFT JOIN `user` ON `user`.`uid` = `contact`.`uid`
 		WHERE `user`.`uid` = %d AND `self` = 1 LIMIT 1",
 		intval($page_owner_uid)
 	);
@@ -198,7 +184,7 @@ function photos_post(&$a) {
 			return; // NOTREACHED
 		}
 
-		$r = q("SELECT count(*) FROM `photo` WHERE `album` = '%s' AND `uid` = %d",
+		$r = qu("SELECT count(*) FROM `photo` WHERE `album` = '%s' AND `uid` = %d",
 			dbesc($album),
 			intval($page_owner_uid)
 		);
@@ -1343,7 +1329,7 @@ function photos_content(&$a) {
 			$order = 'DESC';
 
 
-		$prvnxt = q("SELECT `resource-id` FROM `photo` WHERE `album` = '%s' AND `uid` = %d AND `scale` = 0
+		$prvnxt = qu("SELECT `resource-id` FROM `photo` WHERE `album` = '%s' AND `uid` = %d AND `scale` = 0
 			$sql_extra ORDER BY `created` $order ",
 			dbesc($ph[0]['album']),
 			intval($owner_uid)
@@ -1439,7 +1425,7 @@ function photos_content(&$a) {
 
 		if (count($linked_items)) {
 			$link_item = $linked_items[0];
-			$r = q("SELECT COUNT(*) AS `total`
+			$r = qu("SELECT COUNT(*) AS `total`
 				FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				WHERE `parent-uri` = '%s' AND `uri` != '%s' AND `item`.`deleted` = 0 and `item`.`moderated` = 0
 				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
@@ -1455,7 +1441,7 @@ function photos_content(&$a) {
 				$a->set_pager_total($r[0]['total']);
 
 
-			$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,
+			$r = qu("SELECT `item`.*, `item`.`id` AS `item_id`,
 				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`network`,
 				`contact`.`rel`, `contact`.`thumb`, `contact`.`self`,
 				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
@@ -1804,7 +1790,7 @@ function photos_content(&$a) {
 	// Default - show recent photos with upload link (if applicable)
 	//$o = '';
 
-	$r = q("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s'
+	$r = qu("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s'
 		$sql_extra GROUP BY `resource-id`",
 		intval($a->data['user']['uid']),
 		dbesc('Contact Photos'),
@@ -1815,7 +1801,7 @@ function photos_content(&$a) {
 		$a->set_pager_itemspage(20);
 	}
 
-	$r = q("SELECT `resource-id`, `id`, `filename`, type, `album`, max(`scale`) AS `scale` FROM `photo`
+	$r = qu("SELECT `resource-id`, `id`, `filename`, type, `album`, max(`scale`) AS `scale` FROM `photo`
 		WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s'
 		$sql_extra GROUP BY `resource-id` ORDER BY `created` DESC LIMIT %d , %d",
 		intval($a->data['user']['uid']),
@@ -1878,4 +1864,3 @@ function photos_content(&$a) {
 
 	return $o;
 }
-

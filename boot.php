@@ -1135,23 +1135,33 @@ class App {
 
 		$this->remove_inactive_processes();
 
+		q("START TRANSACTION");
+
 		$r = q("SELECT `pid` FROM `process` WHERE `pid` = %d", intval(getmypid()));
-		if(!dbm::is_result($r))
+		if(!dbm::is_result($r)) {
 			q("INSERT INTO `process` (`pid`,`command`,`created`) VALUES (%d, '%s', '%s')",
 				intval(getmypid()),
 				dbesc($command),
 				dbesc(datetime_convert()));
+		}
+		q("COMMIT");
 	}
 
 	/**
 	 * @brief Remove inactive processes
 	 */
 	function remove_inactive_processes() {
+		q("START TRANSACTION");
+
 		$r = q("SELECT `pid` FROM `process`");
-		if(dbm::is_result($r))
-			foreach ($r AS $process)
-				if (!posix_kill($process["pid"], 0))
+		if(dbm::is_result($r)) {
+			foreach ($r AS $process) {
+				if (!posix_kill($process["pid"], 0)) {
 					q("DELETE FROM `process` WHERE `pid` = %d", intval($process["pid"]));
+				}
+			}
+		}
+		q("COMMIT");
 	}
 
 	/**

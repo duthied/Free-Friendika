@@ -134,6 +134,8 @@ function cron_run(&$argv, &$argc){
 		} else {
 			proc_run(PRIORITY_LOW, 'include/dbclean.php');
 		}
+
+		cron_update_photo_albums();
 	}
 
 	// Clear cache entries
@@ -153,6 +155,19 @@ function cron_run(&$argv, &$argc){
 	set_config('system','last_cron', time());
 
 	return;
+}
+
+/**
+ * @brief Update the cached values for the number of photo albums per user
+ */
+function cron_update_photo_albums() {
+	$r = q("SELECT `uid` FROM `user` WHERE NOT `account_expired` AND NOT `account_removed`");
+	if (!dbm::is_result($r))
+		return;
+
+	foreach ($r AS $user) {
+		photo_albums($user['uid'], true);
+	}
 }
 
 /**

@@ -788,6 +788,7 @@ function item_post(&$a) {
 	} else
 		$post_id = 0;
 
+	q("COMMIT");
 	q("START TRANSACTION;");
 
 	$r = q("INSERT INTO `item` (`guid`, `extid`, `uid`,`type`,`wall`,`gravity`, `network`, `contact-id`,
