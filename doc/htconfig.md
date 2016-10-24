@@ -1,19 +1,18 @@
 Config values that can only be set in .htconfig.php
 ===================================================
 
-There are some config values that haven't found their way into the administration page. This has several reasons. Maybe they are part of a
-current development that isn't considered stable and will be added later in the administration page when it is considered safe. Or it triggers
-something that isn't expected to be of public interest. Or it is for testing purposes only.
+There are some config values that haven't found their way into the administration page.
+This has several reasons.
+Maybe they are part of a current development that isn't considered stable and will be added later in the administration page when it is considered safe.
+Or it triggers something that isn't expected to be of public interest. Or it is for testing purposes only.
 
-**Attention:** Please be warned that you shouldn't use one of these values without the knowledge what it could trigger. Especially don't do that with
-undocumented values.
+**Attention:** Please be warned that you shouldn't use one of these values without the knowledge what it could trigger.
+Especially don't do that with undocumented values.
 
-The header of the section describes the category, the value is the parameter. Example: To set the directory value please add this
-line to your .htconfig.php:
+The header of the section describes the category, the value is the parameter.
+Example: To set the directory value please add this line to your .htconfig.php:
 
     $a->config['system']['directory'] = 'http://dir.friendi.ca';
-
-
 
 ## Jabber ##
 * debug (Boolean) - Enable debug level for the jabber account synchronisation.
@@ -48,7 +47,7 @@ line to your .htconfig.php:
 * ostatus_poll_timeframe - Defines how old an item can be to try to complete the conversation with it.
 * paranoia (Boolean) - Log out users if their IP address changed.
 * permit_crawling (Boolean) - Restricts the search for not logged in users to one search per minute.
-* profiler (Boolean) - Enable internal timings to help optimize code. Default is false.
+* profiler (Boolean) - Enable internal timings to help optimize code. Needed for "rendertime" addon. Default is false.
 * free_crawls - Number of "free" searches when "permit_crawling" is activated (Default value is 10)
 * crawl_permit_period - Period in seconds between allowed searches when the number of free searches is reached and "permit_crawling" is activated (Default value is 60)
 * png_quality - Default value is 8.
@@ -85,19 +84,15 @@ line to your .htconfig.php:
 
 # Administrator Options #
 
-Enabling the admin panel for an account, and thus making the account holder
-admin of the node, is done by setting the variable
+Enabling the admin panel for an account, and thus making the account holder admin of the node, is done by setting the variable
 
     $a->config['admin_email'] = "someone@example.com";
 
-where you have to match the email address used for the account with the one you
-enter to the .htconfig file. If more then one account should be able to access
-the admin panel, seperate the email addresses with a comma.
+Where you have to match the email address used for the account with the one you enter to the .htconfig file.
+If more then one account should be able to access the admin panel, seperate the email addresses with a comma.
 
     $a->config['admin_email'] = "someone@example.com,someonelese@example.com";
 
-If you want to have a more personalized closing line for the notification
-emails you can set a variable for the admin_name.
+If you want to have a more personalized closing line for the notification emails you can set a variable for the admin_name.
 
     $a->config['admin_name'] = "Marvin";
-
