@@ -47,7 +47,11 @@ function nav(&$a) {
  * @brief Prepares a list of navigation links
  *
  * @param App $a
- * @return array
+ * @return array Navigation links
+ *	string 'sitelocation' => The webbie (username@site.com)
+ *	array 'nav' => Array of links used in the nav menu
+ *	string 'banner' => Formatted html link with banner image
+ *	array 'userinfo' => Array of user information (name, icon)
  */
 function nav_info(App $a)
 {
@@ -91,7 +95,7 @@ function nav_info(App $a)
 		$nav['login'] = array('login', t('Login'), ($a->module == 'login' ? 'selected' : ''), t('Sign in'));
 	}
 
-    // "Home" should also take you home from an authenticated remote profile connection
+	// "Home" should also take you home from an authenticated remote profile connection
 	$homelink = get_my_url();
 	if (! $homelink) {
 		$homelink = ((x($_SESSION,'visitor_home')) ? $_SESSION['visitor_home'] : '');
@@ -188,6 +192,7 @@ function nav_info(App $a)
 		$nav['contacts'] = array('contacts', t('Contacts'), '', t('Manage/edit friends and contacts'));
 	}
 
+	// Show the link to the admin configuration page if user is admin
 	if (is_site_admin()) {
 		$nav['admin'] = array('admin/', t('Admin'), '', t('Site setup and configuration'));
 	}
@@ -209,7 +214,6 @@ function nav_info(App $a)
 		'userinfo' => $userinfo,
 	);
 }
-
 
 /**
  * Set a menu item in navbar as selected
