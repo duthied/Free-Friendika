@@ -130,7 +130,7 @@ function item_post(&$a) {
 				intval($parent_item['contact-id']),
 				intval($uid)
 			);
-			if(count($r))
+			if (dbm::is_result($r))
 				$parent_contact = $r[0];
 
 			// If the contact id doesn't fit with the contact, then set the contact to null
@@ -174,6 +174,19 @@ function item_post(&$a) {
 	$post_id     = ((x($_REQUEST,'post_id'))     ? intval($_REQUEST['post_id'])     : 0);
 	$app         = ((x($_REQUEST,'source'))      ? strip_tags($_REQUEST['source'])  : '');
 	$extid       = ((x($_REQUEST,'extid'))       ? strip_tags($_REQUEST['extid'])  : '');
+
+	// Check for multiple posts with the same message id (when the post was created via API)
+	if (($message_id != '') AND ($profile_uid != 0)) {
+		$r = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+			dbesc($message_id),
+			intval($profile_uid)
+		);
+
+		if (dbm::is_result($r)) {
+			logger("Message with URI ".$message_id." already exists for user ".$profile_uid, LOGGER_DEBUG);
+			return;
+		}
+	}
 
 	$allow_moderated = false;
 
@@ -220,7 +233,7 @@ function item_post(&$a) {
 	$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 		intval($profile_uid)
 	);
-	if(count($r))
+	if (dbm::is_result($r))
 		$user = $r[0];
 
 	if($orig_post) {
@@ -385,7 +398,7 @@ function item_post(&$a) {
 		}
 	}
 
-	if(count($r)) {
+	if (dbm::is_result($r)) {
 		$author = $r[0];
 		$contact_id = $author['id'];
 	}
@@ -399,7 +412,7 @@ function item_post(&$a) {
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 1 LIMIT 1",
 			intval($profile_uid)
 		);
-		if(count($r))
+		if (dbm::is_result($r))
 			$contact_record = $r[0];
 	}
 
@@ -482,7 +495,7 @@ function item_post(&$a) {
 					intval($profile_uid),
 					intval($attach)
 				);
-				if(count($r)) {
+				if (dbm::is_result($r)) {
 					$r = q("UPDATE `attach` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'
 						WHERE `uid` = %d AND `id` = %d",
 						dbesc($str_contact_allow),
@@ -623,7 +636,7 @@ function item_post(&$a) {
 				intval($profile_uid),
 				intval($mtch)
 			);
-			if(count($r)) {
+			if (dbm::is_result($r)) {
 				if(strlen($attachments))
 					$attachments .= ',';
 				$attachments .= '[attach]href="' . $a->get_baseurl() . '/attach/' . $r[0]['id'] . '" length="' . $r[0]['filesize'] . '" type="' . $r[0]['filetype'] . '" title="' . (($r[0]['filename']) ? $r[0]['filename'] : '') . '"[/attach]';
@@ -1002,16 +1015,35 @@ function item_post(&$a) {
 		// Insert an item entry for UID=0 for global entries
 		// We have to remove or change some data before that,
 		// so that the post appear like a regular received post.
-		unset($datarray['self']);
-		unset($datarray['wall']);
-		unset($datarray['origin']);
+		// Additionally there is some data that isn't a database field.
+		$arr = $datarray;
 
-		if (in_array($datarray['type'], array("net-comment", "wall-comment")))
-			$datarray['type'] = 'remote-comment';
-		elseif ($datarray['type'] == 'wall')
-			$datarray['type'] = 'remote';
+		$arr['app'] = $arr['source'];
+		unset($arr['source']);
 
-		add_shadow_entry($datarray);
+		unset($arr['self']);
+		unset($arr['wall']);
+		unset($arr['origin']);
+		unset($arr['api_source']);
+		unset($arr['message_id']);
+		unset($arr['profile_uid']);
+		unset($arr['post_id']);
+		unset($arr['dropitems']);
+		unset($arr['commenter']);
+		unset($arr['return']);
+		unset($arr['preview']);
+		unset($arr['post_id_random']);
+		unset($arr['emailcc']);
+		unset($arr['pubmail_enable']);
+		unset($arr['category']);
+		unset($arr['jsreload']);
+
+		if (in_array($arr['type'], array("net-comment", "wall-comment"))) {
+			$arr['type'] = 'remote-comment';
+		} elseif ($arr['type'] == 'wall') {
+			$arr['type'] = 'remote';
+		}
+		add_shadow_entry($arr);
 	}
 
 	// This is a real juggling act on shared hosting services which kill your processes

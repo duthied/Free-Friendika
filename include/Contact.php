@@ -159,7 +159,7 @@ function mark_for_death($contact) {
 	}
 	else {
 
-		/// @todo 
+		/// @todo
 		/// We really should send a notification to the owner after 2-3 weeks
 		/// so they won't be surprised when the contact vanishes and can take
 		/// remedial action if this was a serious mistake or glitch
@@ -288,84 +288,88 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 	return($profile);
 }
 
-if(! function_exists('contact_photo_menu')){
-function contact_photo_menu($contact, $uid = 0) {
-
+if (! function_exists('contact_photo_menu')) {
+function contact_photo_menu($contact, $uid = 0)
+{
 	$a = get_app();
 
-	$contact_url="";
-	$pm_url="";
-	$status_link="";
-	$photos_link="";
-	$posts_link="";
-	$contact_drop_link = "";
-	$poke_link="";
+	$contact_url = '';
+	$pm_url = '';
+	$status_link = '';
+	$photos_link = '';
+	$posts_link = '';
+	$contact_drop_link = '';
+	$poke_link = '';
 
-	if ($uid == 0)
+	if ($uid == 0) {
 		$uid = local_user();
+	}
 
-	if ($contact["uid"] != $uid) {
+	if ($contact['uid'] != $uid) {
 		if ($uid == 0) {
 			$profile_link = zrl($contact['url']);
-			$menu = Array('profile' => array(t("View Profile"), $profile_link, true));
+			$menu = Array('profile' => array(t('View Profile'), $profile_link, true));
 
 			return $menu;
 		}
 
 		$r = q("SELECT * FROM `contact` WHERE `nurl` = '%s' AND `network` = '%s' AND `uid` = %d",
-			dbesc($contact["nurl"]), dbesc($contact["network"]), intval($uid));
-		if ($r)
+			dbesc($contact['nurl']), dbesc($contact['network']), intval($uid));
+		if ($r) {
 			return contact_photo_menu($r[0], $uid);
-		else {
+		} else {
 			$profile_link = zrl($contact['url']);
 			$connlnk = 'follow/?url='.$contact['url'];
-			$menu = Array(
-				'profile' => array(t("View Profile"), $profile_link, true),
-				'follow' => array(t("Connect/Follow"), $connlnk, true)
-				);
+			$menu = array(
+				'profile' => array(t('View Profile'), $profile_link, true),
+				'follow' => array(t('Connect/Follow'), $connlnk, true)
+			);
 
 			return $menu;
 		}
 	}
 
 	$sparkle = false;
-	if($contact['network'] === NETWORK_DFRN) {
+	if ($contact['network'] === NETWORK_DFRN) {
 		$sparkle = true;
 		$profile_link = $a->get_baseurl() . '/redir/' . $contact['id'];
-	}
-	else
+	} else {
 		$profile_link = $contact['url'];
-
-	if($profile_link === 'mailbox')
-		$profile_link = '';
-
-	if($sparkle) {
-		$status_link = $profile_link . "?url=status";
-		$photos_link = $profile_link . "?url=photos";
-		$profile_link = $profile_link . "?url=profile";
 	}
 
-	if (in_array($contact["network"], array(NETWORK_DFRN, NETWORK_DIASPORA)))
-		$pm_url = $a->get_baseurl() . '/message/new/' . $contact['id'];
+	if ($profile_link === 'mailbox') {
+		$profile_link = '';
+	}
 
-	if ($contact["network"] == NETWORK_DFRN)
+	if ($sparkle) {
+		$status_link = $profile_link . '?url=status';
+		$photos_link = $profile_link . '?url=photos';
+		$profile_link = $profile_link . '?url=profile';
+	}
+
+	if (in_array($contact['network'], array(NETWORK_DFRN, NETWORK_DIASPORA))) {
+		$pm_url = $a->get_baseurl() . '/message/new/' . $contact['id'];
+	}
+
+	if ($contact['network'] == NETWORK_DFRN) {
 		$poke_link = $a->get_baseurl() . '/poke/?f=&c=' . $contact['id'];
+	}
 
 	$contact_url = $a->get_baseurl() . '/contacts/' . $contact['id'];
-	$posts_link = $a->get_baseurl() . "/contacts/" . $contact['id'] . '/posts';
-	$contact_drop_link = $a->get_baseurl() . "/contacts/" . $contact['id'] . '/drop?confirm=1';
 
+	$posts_link = $a->get_baseurl() . '/contacts/' . $contact['id'] . '/posts';
+	$contact_drop_link = $a->get_baseurl() . '/contacts/' . $contact['id'] . '/drop?confirm=1';
 
 	/**
 	 * menu array:
 	 * "name" => [ "Label", "link", (bool)Should the link opened in a new tab? ]
 	 */
-	$menu = Array(
+	$menu = array(
 		'status' => array(t("View Status"), $status_link, true),
 		'profile' => array(t("View Profile"), $profile_link, true),
-		'photos' => array(t("View Photos"), $photos_link,true),
-		'network' => array(t("Network Posts"), $posts_link,false),
-		'edit' => array(t("Edit Contact"), $contact_url, false),
+		'photos' => array(t("View Photos"), $photos_link, true),
+		'network' => array(t("Network Posts"), $posts_link, false),
+		'edit' => array(t("View Contact"), $contact_url, false),
 		'drop' => array(t("Drop Contact"), $contact_drop_link, false),
 		'pm' => array(t("Send PM"), $pm_url, false),
 		'poke' => array(t("Poke"), $poke_link, false),
@@ -378,9 +382,11 @@ function contact_photo_menu($contact, $uid = 0) {
 
 	$menucondensed = array();
 
-	foreach ($menu AS $menuname=>$menuitem)
-		if ($menuitem[1] != "")
+	foreach ($menu AS $menuname => $menuitem) {
+		if ($menuitem[1] != '') {
 			$menucondensed[$menuname] = $menuitem;
+		}
+	}
 
 	return $menucondensed;
 }}
