@@ -403,37 +403,37 @@ function settings_post(&$a)
 	}
 
 
-	$username		 = ((x($_POST,'username'))   ? notags(trim($_POST['username']))	 : '');
-	$email			= ((x($_POST,'email'))	  ? notags(trim($_POST['email']))		: '');
-	$timezone		 = ((x($_POST,'timezone'))   ? notags(trim($_POST['timezone']))	 : '');
-	$language		 = ((x($_POST,'language'))   ? notags(trim($_POST['language']))	 : '');
+	$username         = ((x($_POST,'username'))   ? notags(trim($_POST['username']))     : '');
+	$email            = ((x($_POST,'email'))      ? notags(trim($_POST['email']))        : '');
+	$timezone         = ((x($_POST,'timezone'))   ? notags(trim($_POST['timezone']))     : '');
+	$language         = ((x($_POST,'language'))   ? notags(trim($_POST['language']))     : '');
 
-	$defloc		   = ((x($_POST,'defloc'))	 ? notags(trim($_POST['defloc']))	   : '');
-	$openid		   = ((x($_POST,'openid_url')) ? notags(trim($_POST['openid_url']))   : '');
-	$maxreq		   = ((x($_POST,'maxreq'))	 ? intval($_POST['maxreq'])			 : 0);
-	$expire		   = ((x($_POST,'expire'))	 ? intval($_POST['expire'])			 : 0);
-	$def_gid		  = ((x($_POST,'group-selection')) ? intval($_POST['group-selection']) : 0);
+	$defloc           = ((x($_POST,'defloc'))     ? notags(trim($_POST['defloc']))       : '');
+	$openid           = ((x($_POST,'openid_url')) ? notags(trim($_POST['openid_url']))   : '');
+	$maxreq           = ((x($_POST,'maxreq'))     ? intval($_POST['maxreq'])             : 0);
+	$expire           = ((x($_POST,'expire'))     ? intval($_POST['expire'])             : 0);
+	$def_gid          = ((x($_POST,'group-selection')) ? intval($_POST['group-selection']) : 0);
 
 
-	$expire_items	 = ((x($_POST,'expire_items')) ? intval($_POST['expire_items'])	 : 0);
-	$expire_notes	 = ((x($_POST,'expire_notes')) ? intval($_POST['expire_notes'])	 : 0);
+	$expire_items     = ((x($_POST,'expire_items')) ? intval($_POST['expire_items'])     : 0);
+	$expire_notes     = ((x($_POST,'expire_notes')) ? intval($_POST['expire_notes'])     : 0);
 	$expire_starred   = ((x($_POST,'expire_starred')) ? intval($_POST['expire_starred']) : 0);
-	$expire_photos	= ((x($_POST,'expire_photos'))? intval($_POST['expire_photos'])	 : 0);
-	$expire_network_only	= ((x($_POST,'expire_network_only'))? intval($_POST['expire_network_only'])	 : 0);
+	$expire_photos    = ((x($_POST,'expire_photos'))? intval($_POST['expire_photos'])     : 0);
+	$expire_network_only    = ((x($_POST,'expire_network_only'))? intval($_POST['expire_network_only'])     : 0);
 
 	$allow_location   = (((x($_POST,'allow_location')) && (intval($_POST['allow_location']) == 1)) ? 1: 0);
-	$publish		  = (((x($_POST,'profile_in_directory')) && (intval($_POST['profile_in_directory']) == 1)) ? 1: 0);
-	$net_publish	  = (((x($_POST,'profile_in_netdirectory')) && (intval($_POST['profile_in_netdirectory']) == 1)) ? 1: 0);
+	$publish          = (((x($_POST,'profile_in_directory')) && (intval($_POST['profile_in_directory']) == 1)) ? 1: 0);
+	$net_publish      = (((x($_POST,'profile_in_netdirectory')) && (intval($_POST['profile_in_netdirectory']) == 1)) ? 1: 0);
 	$old_visibility   = (((x($_POST,'visibility')) && (intval($_POST['visibility']) == 1)) ? 1 : 0);
-	$account_type	 = (((x($_POST,'account-type')) && (intval($_POST['account-type']))) ? intval($_POST['account-type']) : 0);
-	$page_flags	   = (((x($_POST,'page-flags')) && (intval($_POST['page-flags']))) ? intval($_POST['page-flags']) : 0);
-	$blockwall		= (((x($_POST,'blockwall')) && (intval($_POST['blockwall']) == 1)) ? 0: 1); // this setting is inverted!
-	$blocktags		= (((x($_POST,'blocktags')) && (intval($_POST['blocktags']) == 1)) ? 0: 1); // this setting is inverted!
-	$unkmail		  = (((x($_POST,'unkmail')) && (intval($_POST['unkmail']) == 1)) ? 1: 0);
-	$cntunkmail	   = ((x($_POST,'cntunkmail')) ? intval($_POST['cntunkmail']) : 0);
-	$suggestme		= ((x($_POST,'suggestme')) ? intval($_POST['suggestme'])  : 0);
-	$hide_friends	 = (($_POST['hide-friends'] == 1) ? 1: 0);
-	$hidewall		 = (($_POST['hidewall'] == 1) ? 1: 0);
+	$account_type     = (((x($_POST,'account-type')) && (intval($_POST['account-type']))) ? intval($_POST['account-type']) : 0);
+	$page_flags       = (((x($_POST,'page-flags')) && (intval($_POST['page-flags']))) ? intval($_POST['page-flags']) : 0);
+	$blockwall        = (((x($_POST,'blockwall')) && (intval($_POST['blockwall']) == 1)) ? 0: 1); // this setting is inverted!
+	$blocktags        = (((x($_POST,'blocktags')) && (intval($_POST['blocktags']) == 1)) ? 0: 1); // this setting is inverted!
+	$unkmail          = (((x($_POST,'unkmail')) && (intval($_POST['unkmail']) == 1)) ? 1: 0);
+	$cntunkmail       = ((x($_POST,'cntunkmail')) ? intval($_POST['cntunkmail']) : 0);
+	$suggestme        = ((x($_POST,'suggestme')) ? intval($_POST['suggestme'])  : 0);
+	$hide_friends     = (($_POST['hide-friends'] == 1) ? 1: 0);
+	$hidewall         = (($_POST['hidewall'] == 1) ? 1: 0);
 	$post_newfriend   = (($_POST['post_newfriend'] == 1) ? 1: 0);
 	$post_joingroup   = (($_POST['post_joingroup'] == 1) ? 1: 0);
 	$post_profilechange   = (($_POST['post_profilechange'] == 1) ? 1: 0);
@@ -904,14 +904,14 @@ function settings_content(&$a)
 			'$imap_lastcheck' => array('imap_lastcheck', t('Last successful email check:'), $mail_chk, ''),
 			'$mail_disabled' => $mail_disabled_message,
 			'$mail_server' => array('mail_server',  t('IMAP server name:'), $mail_server, ''),
-			'$mail_port' => array('mail_port',	 t('IMAP port:'), $mail_port, ''),
-			'$mail_ssl' => array('mail_ssl',	 t('Security:'), strtoupper($mail_ssl), '', array('notls' => t('None'), 'TLS' => 'TLS', 'SSL' => 'SSL')),
-			'$mail_user' => array('mail_user',	t('Email login name:'), $mail_user, ''),
-			'$mail_pass' => array('mail_pass',	 t('Email password:'), '', ''),
+			'$mail_port' => array('mail_port',     t('IMAP port:'), $mail_port, ''),
+			'$mail_ssl' => array('mail_ssl',     t('Security:'), strtoupper($mail_ssl), '', array('notls' => t('None'), 'TLS' => 'TLS', 'SSL' => 'SSL')),
+			'$mail_user' => array('mail_user',    t('Email login name:'), $mail_user, ''),
+			'$mail_pass' => array('mail_pass',     t('Email password:'), '', ''),
 			'$mail_replyto' => array('mail_replyto', t('Reply-to address:'), $mail_replyto, 'Optional'),
 			'$mail_pubmail' => array('mail_pubmail', t('Send public posts to all email contacts:'), $mail_pubmail, ''),
-			'$mail_action' => array('mail_action',	 t('Action after import:'), $mail_action, '', array(0 => t('None'), /*1=>t('Delete'),*/ 2 => t('Mark as seen'), 3 => t('Move to folder'))),
-			'$mail_movetofolder' => array('mail_movetofolder',	 t('Move to folder:'), $mail_movetofolder, ''),
+			'$mail_action' => array('mail_action',     t('Action after import:'), $mail_action, '', array(0 => t('None'), /*1=>t('Delete'),*/ 2 => t('Mark as seen'), 3 => t('Move to folder'))),
+			'$mail_movetofolder' => array('mail_movetofolder',     t('Move to folder:'), $mail_movetofolder, ''),
 			'$submit' => t('Save Settings'),
 
 			'$settings_connectors' => $settings_connectors,
@@ -1053,18 +1053,18 @@ function settings_content(&$a)
 	}
 
 	$username   = $a->user['username'];
-	$email	  = $a->user['email'];
+	$email      = $a->user['email'];
 	$nickname   = $a->user['nickname'];
 	$timezone   = $a->user['timezone'];
 	$language   = $a->user['language'];
-	$notify	 = $a->user['notify-flags'];
-	$defloc	 = $a->user['default-location'];
-	$openid	 = $a->user['openid'];
-	$maxreq	 = $a->user['maxreq'];
-	$expire	 = ((intval($a->user['expire'])) ? $a->user['expire'] : '');
+	$notify     = $a->user['notify-flags'];
+	$defloc     = $a->user['default-location'];
+	$openid     = $a->user['openid'];
+	$maxreq     = $a->user['maxreq'];
+	$expire     = ((intval($a->user['expire'])) ? $a->user['expire'] : '');
 	$blockwall  = $a->user['blockwall'];
 	$blocktags  = $a->user['blocktags'];
-	$unkmail	= $a->user['unkmail'];
+	$unkmail    = $a->user['unkmail'];
 	$cntunkmail = $a->user['cntunkmail'];
 
 	$expire_items = get_pconfig(local_user(), 'expire', 'items');
@@ -1110,13 +1110,13 @@ function settings_content(&$a)
 	$pageset_tpl = get_markup_template('settings_pagetypes.tpl');
 
 	$pagetype = replace_macros($pageset_tpl, array(
-		'$account_types'	=> t('Account Types'),
-		'$user'			 => t('Personal Page Subtypes'),
-		'$community'		=> t('Community Forum Subtypes'),
-		'$account_type'	 => $a->user['account-type'],
-		'$type_person'	  => ACCOUNT_TYPE_PERSON,
+		'$account_types'    => t('Account Types'),
+		'$user'             => t('Personal Page Subtypes'),
+		'$community'        => t('Community Forum Subtypes'),
+		'$account_type'     => $a->user['account-type'],
+		'$type_person'      => ACCOUNT_TYPE_PERSON,
 		'$type_organisation'=> ACCOUNT_TYPE_ORGANISATION,
-		'$type_news'		=> ACCOUNT_TYPE_NEWS,
+		'$type_news'        => ACCOUNT_TYPE_NEWS,
 		'$type_community'   => ACCOUNT_TYPE_COMMUNITY,
 
 		'$account_person' => array('account-type', t('Personal Page'), ACCOUNT_TYPE_PERSON,
