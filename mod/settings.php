@@ -51,7 +51,7 @@ function settings_init(&$a)
 	if (get_features()) {
 		$tabs[] = array(
 			'label' => t('Additional features'),
-			'url' => 'settings/features',
+			'url'   => 'settings/features',
 			'selected' => (($a->argc > 1) && ($a->argv[1] === 'features') ? 'active' : ''),
 			'accesskey' => 't',
 		);
@@ -59,49 +59,49 @@ function settings_init(&$a)
 
 	$tabs[] = array(
 		'label' => t('Display'),
-		'url' => 'settings/display',
+		'url'   => 'settings/display',
 		'selected' => (($a->argc > 1) && ($a->argv[1] === 'display') ? 'active' : ''),
 		'accesskey' => 'i',
 	);
 
 	$tabs[] = array(
 		'label' => t('Social Networks'),
-		'url' => 'settings/connectors',
+		'url'   => 'settings/connectors',
 		'selected' => (($a->argc > 1) && ($a->argv[1] === 'connectors') ? 'active' : ''),
 		'accesskey' => 'w',
 	);
 
 	$tabs[] = array(
 		'label' => t('Plugins'),
-		'url' => 'settings/addon',
+		'url'   => 'settings/addon',
 		'selected' => (($a->argc > 1) && ($a->argv[1] === 'addon') ? 'active' : ''),
 		'accesskey' => 'l',
 	);
 
 	$tabs[] = array(
 		'label' => t('Delegations'),
-		'url' => 'delegate',
+		'url'   => 'delegate',
 		'selected' => (($a->argc == 1) && ($a->argv[0] === 'delegate') ? 'active' : ''),
 		'accesskey' => 'd',
 	);
 
 	$tabs[] = array(
 		'label' => t('Connected apps'),
-		'url' => 'settings/oauth',
+		'url'   => 'settings/oauth',
 		'selected' => (($a->argc > 1) && ($a->argv[1] === 'oauth') ? 'active' : ''),
 		'accesskey' => 'b',
 	);
 
 	$tabs[] = array(
 		'label' => t('Export personal data'),
-		'url' => 'uexport',
+		'url'   => 'uexport',
 		'selected' => (($a->argc == 1) && ($a->argv[0] === 'uexport') ? 'active' : ''),
 		'accesskey' => 'e',
 	);
 
 	$tabs[] = array(
 		'label' => t('Remove account'),
-		'url' => 'removeme',
+		'url'   => 'removeme',
 		'selected' => (($a->argc == 1) && ($a->argv[0] === 'removeme') ? 'active' : ''),
 		'accesskey' => 'r',
 	);
@@ -147,11 +147,11 @@ function settings_post(&$a)
 	if (($a->argc > 2) && ($a->argv[1] === 'oauth') && ($a->argv[2] === 'edit' || ($a->argv[2] === 'add')) && x($_POST, 'submit')) {
 		check_form_security_token_redirectOnErr('/settings/oauth', 'settings_oauth');
 
-		$name = ((x($_POST, 'name')) ? $_POST['name'] : '');
-		$key = ((x($_POST, 'key')) ? $_POST['key'] : '');
-		$secret = ((x($_POST, 'secret')) ? $_POST['secret'] : '');
+		$name     = ((x($_POST, 'name')) ? $_POST['name'] : '');
+		$key      = ((x($_POST, 'key')) ? $_POST['key'] : '');
+		$secret   = ((x($_POST, 'secret')) ? $_POST['secret'] : '');
 		$redirect = ((x($_POST, 'redirect')) ? $_POST['redirect'] : '');
-		$icon = ((x($_POST, 'icon')) ? $_POST['icon'] : '');
+		$icon     = ((x($_POST, 'icon')) ? $_POST['icon'] : '');
 		if ($name == '' || $key == '' || $secret == '') {
 			notice(t('Missing some important data!'));
 		} else {
@@ -205,15 +205,15 @@ function settings_post(&$a)
 			set_pconfig(local_user(), 'ostatus', 'default_group', $_POST['group-selection']);
 			set_pconfig(local_user(), 'ostatus', 'legacy_contact', $_POST['legacy_contact']);
 		} elseif (x($_POST, 'imap-submit')) {
-			$mail_server = ((x($_POST, 'mail_server')) ? $_POST['mail_server'] : '');
-			$mail_port = ((x($_POST, 'mail_port')) ? $_POST['mail_port'] : '');
-			$mail_ssl = ((x($_POST, 'mail_ssl')) ? strtolower(trim($_POST['mail_ssl'])) : '');
-			$mail_user = ((x($_POST, 'mail_user')) ? $_POST['mail_user'] : '');
-			$mail_pass = ((x($_POST, 'mail_pass')) ? trim($_POST['mail_pass']) : '');
-			$mail_action = ((x($_POST, 'mail_action')) ? trim($_POST['mail_action']) : '');
+			$mail_server       = ((x($_POST, 'mail_server')) ? $_POST['mail_server'] : '');
+			$mail_port         = ((x($_POST, 'mail_port')) ? $_POST['mail_port'] : '');
+			$mail_ssl          = ((x($_POST, 'mail_ssl')) ? strtolower(trim($_POST['mail_ssl'])) : '');
+			$mail_user         = ((x($_POST, 'mail_user')) ? $_POST['mail_user'] : '');
+			$mail_pass         = ((x($_POST, 'mail_pass')) ? trim($_POST['mail_pass']) : '');
+			$mail_action       = ((x($_POST, 'mail_action')) ? trim($_POST['mail_action']) : '');
 			$mail_movetofolder = ((x($_POST, 'mail_movetofolder')) ? trim($_POST['mail_movetofolder']) : '');
-			$mail_replyto = ((x($_POST, 'mail_replyto')) ? $_POST['mail_replyto'] : '');
-			$mail_pubmail = ((x($_POST, 'mail_pubmail')) ? $_POST['mail_pubmail'] : '');
+			$mail_replyto      = ((x($_POST, 'mail_replyto')) ? $_POST['mail_replyto'] : '');
+			$mail_pubmail      = ((x($_POST, 'mail_pubmail')) ? $_POST['mail_pubmail'] : '');
 
 			$mail_disabled = ((function_exists('imap_open') && (!get_config('system', 'imap_disabled'))) ? 0 : 1);
 			if (get_config('system', 'dfrn_only')) {
@@ -222,11 +222,11 @@ function settings_post(&$a)
 
 			if (!$mail_disabled) {
 				$failed = false;
-				$r = q('SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1',
+				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 					intval(local_user())
 				);
 				if (!count($r)) {
-					q('INSERT INTO `mailacct` (`uid`) VALUES (%d)',
+					q("INSERT INTO `mailacct` (`uid`) VALUES (%d)",
 						intval(local_user())
 					);
 				}
@@ -252,7 +252,7 @@ function settings_post(&$a)
 					intval(local_user())
 				);
 				logger('mail: updating mailaccount. Response: '.print_r($r, true));
-				$r = q('SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1',
+				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 					intval(local_user())
 				);
 				if (count($r)) {
@@ -382,7 +382,7 @@ function settings_post(&$a)
 
 		//  check if the old password was supplied correctly before
 		//  changing it to the new value
-		$r = q('SELECT `password` FROM `user`WHERE `uid` = %d LIMIT 1', intval(local_user()));
+		$r = q("SELECT `password` FROM `user`WHERE `uid` = %d LIMIT 1", intval(local_user()));
 		if ($oldpass != $r[0]['password']) {
 			notice(t('Wrong password.').EOL);
 			$err = true;
@@ -497,7 +497,7 @@ function settings_post(&$a)
 	if ($email != $a->user['email']) {
 		$email_changed = true;
 		//  check for the correct password
-		$r = q('SELECT `password` FROM `user`WHERE `uid` = %d LIMIT 1', intval(local_user()));
+		$r = q("SELECT `password` FROM `user`WHERE `uid` = %d LIMIT 1", intval(local_user()));
 		$password = hash('whirlpool', $_POST['mpassword']);
 		if ($password != $r[0]['password']) {
 			$err .= t('Wrong Password').EOL;
@@ -738,10 +738,10 @@ function settings_content(&$a)
 			return;
 		}
 
-		$r = q('SELECT clients.*, tokens.id as oauth_token, (clients.uid=%d) AS my
+		$r = q("SELECT clients.*, tokens.id as oauth_token, (clients.uid=%d) AS my
 				FROM clients
 				LEFT JOIN tokens ON clients.client_id=tokens.client_id
-				WHERE clients.uid IN (%d,0)',
+				WHERE clients.uid IN (%d,0)",
 				local_user(),
 				local_user());
 
@@ -866,7 +866,7 @@ function settings_content(&$a)
 		}
 
 		if (!$mail_disabled) {
-			$r = q('SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1',
+			$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 				local_user()
 			);
 		} else {
@@ -1045,7 +1045,7 @@ function settings_content(&$a)
 
 	require_once 'include/acl_selectors.php';
 
-	$p = q('SELECT * FROM `profile` WHERE `is-default` = 1 AND `uid` = %d LIMIT 1',
+	$p = q("SELECT * FROM `profile` WHERE `is-default` = 1 AND `uid` = %d LIMIT 1",
 		intval(local_user())
 	);
 	if (count($p)) {
