@@ -70,7 +70,7 @@ class Config {
 	 *  If true the config is loaded from the db and not from the cache (default: false)
 	 * @return mixed Stored value or null if it does not exist
 	 */
-	public static function get($family, $key, $default_value=null, $refresh = false) {
+	public static function get($family, $key, $default_value = null, $refresh = false) {
 
 		global $a;
 
@@ -123,14 +123,14 @@ class Config {
 	 *  The value to store
 	 * @return mixed Stored $value or false if the database update failed
 	 */
-	public static function set($family,$key,$value) {
+	public static function set($family, $key, $value) {
 		global $a;
 
 		$a->config[$family][$key] = $value;
 
 		// manage array value
-		$dbvalue = (is_array($value)?serialize($value):$value);
-		$dbvalue = (is_bool($dbvalue) ? intval($dbvalue) : $dbvalue);
+		$dbvalue = is_array($value) ? serialize($value) : $value;
+		$dbvalue = is_bool($dbvalue) ? intval($dbvalue) : $dbvalue;
 
 		$ret = q("INSERT INTO `config` ( `cat`, `k`, `v` ) VALUES ( '%s', '%s', '%s' )
 ON DUPLICATE KEY UPDATE `v` = '%s'",
@@ -139,8 +139,9 @@ ON DUPLICATE KEY UPDATE `v` = '%s'",
 			dbesc($dbvalue),
 			dbesc($dbvalue)
 		);
-		if($ret)
+		if ($ret) {
 			return $value;
+		}
 		return $ret;
 	}
 
