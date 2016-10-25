@@ -279,7 +279,7 @@ function settings_post(&$a) {
 		return;
 	}
 
-	if(($a->argc > 1) && ($a->argv[1] === 'features')) {
+	if (($a->argc > 1) && ($a->argv[1] === 'features')) {
 		check_form_security_token_redirectOnErr('/settings/features', 'settings_features');
 		foreach($_POST as $k => $v) {
 			if(strpos($k,'feature_') === 0) {
@@ -290,49 +290,50 @@ function settings_post(&$a) {
 		return;
 	}
 
-	if(($a->argc > 1) && ($a->argv[1] === 'display')) {
-
+	if (($a->argc > 1) && ($a->argv[1] === 'display')) {
 		check_form_security_token_redirectOnErr('/settings/display', 'settings_display');
 
-		$theme = ((x($_POST,'theme')) ? notags(trim($_POST['theme']))  : $a->user['theme']);
-		$mobile_theme = ((x($_POST,'mobile_theme')) ? notags(trim($_POST['mobile_theme']))  : '');
-		$nosmile = ((x($_POST,'nosmile')) ? intval($_POST['nosmile'])  : 0);
-		$first_day_of_week = ((x($_POST,'first_day_of_week')) ? intval($_POST['first_day_of_week'])  : 0);
-		$noinfo = ((x($_POST,'noinfo')) ? intval($_POST['noinfo'])  : 0);
-		$infinite_scroll = ((x($_POST,'infinite_scroll')) ? intval($_POST['infinite_scroll'])  : 0);
-		$no_auto_update = ((x($_POST,'no_auto_update')) ? intval($_POST['no_auto_update'])  : 0);
-		$browser_update   = ((x($_POST,'browser_update')) ? intval($_POST['browser_update']) : 0);
+		$theme             = x($_POST, 'theme')             ? notags(trim($_POST['theme']))        : $a->user['theme'];
+		$mobile_theme      = x($_POST, 'mobile_theme')      ? notags(trim($_POST['mobile_theme'])) : '';
+		$nosmile           = x($_POST, 'nosmile')           ? intval($_POST['nosmile'])            : 0;
+		$first_day_of_week = x($_POST, 'first_day_of_week') ? intval($_POST['first_day_of_week'])  : 0;
+		$noinfo            = x($_POST, 'noinfo')            ? intval($_POST['noinfo'])             : 0;
+		$infinite_scroll   = x($_POST, 'infinite_scroll')   ? intval($_POST['infinite_scroll'])    : 0;
+		$no_auto_update    = x($_POST, 'no_auto_update')    ? intval($_POST['no_auto_update'])     : 0;
+		$bandwidth_saver   = x($_POST, 'bandwidth_saver')   ? intval($_POST['bandwidth_saver'])    : 0;
+		$browser_update    = x($_POST, 'browser_update')    ? intval($_POST['browser_update'])     : 0;
 		if ($browser_update != -1) {
-			$browser_update   = $browser_update * 1000;
+			$browser_update = $browser_update * 1000;
 			if ($browser_update < 10000)
 				$browser_update = 10000;
 		}
 
-		$itemspage_network   = ((x($_POST,'itemspage_network')) ? intval($_POST['itemspage_network']) : 40);
-		if($itemspage_network > 100)
+		$itemspage_network = x($_POST,'itemspage_network')  ? intval($_POST['itemspage_network'])  : 40;
+		if ($itemspage_network > 100) {
 			$itemspage_network = 100;
-		$itemspage_mobile_network   = ((x($_POST,'itemspage_mobile_network')) ? intval($_POST['itemspage_mobile_network']) : 20);
-		if($itemspage_mobile_network > 100)
+		}
+		$itemspage_mobile_network = x($_POST,'itemspage_mobile_network') ? intval($_POST['itemspage_mobile_network']) : 20;
+		if ($itemspage_mobile_network > 100) {
 			$itemspage_mobile_network = 100;
-
+		}
 
 		if($mobile_theme !== '') {
 			set_pconfig(local_user(),'system','mobile_theme',$mobile_theme);
 		}
 
-		set_pconfig(local_user(),'system','update_interval', $browser_update);
-		set_pconfig(local_user(),'system','itemspage_network', $itemspage_network);
-		set_pconfig(local_user(),'system','itemspage_mobile_network', $itemspage_mobile_network);
-		set_pconfig(local_user(),'system','no_smilies',$nosmile);
-		set_pconfig(local_user(),'system','first_day_of_week',$first_day_of_week);
-		set_pconfig(local_user(),'system','ignore_info',$noinfo);
-		set_pconfig(local_user(),'system','infinite_scroll',$infinite_scroll);
-		set_pconfig(local_user(),'system','no_auto_update',$no_auto_update);
+		set_pconfig(local_user(), 'system', 'update_interval'         , $browser_update);
+		set_pconfig(local_user(), 'system', 'itemspage_network'       , $itemspage_network);
+		set_pconfig(local_user(), 'system', 'itemspage_mobile_network', $itemspage_mobile_network);
+		set_pconfig(local_user(), 'system', 'no_smilies'              , $nosmile);
+		set_pconfig(local_user(), 'system', 'first_day_of_week'       , $first_day_of_week);
+		set_pconfig(local_user(), 'system', 'ignore_info'             , $noinfo);
+		set_pconfig(local_user(), 'system', 'infinite_scroll'         , $infinite_scroll);
+		set_pconfig(local_user(), 'system', 'no_auto_update'          , $no_auto_update);
+		set_pconfig(local_user(), 'system', 'bandwidth_saver'         , $bandwidth_saver);
 
-
-		if ($theme == $a->user['theme']){
+		if ($theme == $a->user['theme']) {
 			// call theme_post only if theme has not been changed
-			if( ($themeconfigfile = get_theme_config_file($theme)) != null){
+			if (($themeconfigfile = get_theme_config_file($theme)) != null) {
 				require_once($themeconfigfile);
 				theme_post($a);
 			}
@@ -975,8 +976,11 @@ function settings_content(&$a) {
 		$no_auto_update = get_pconfig(local_user(),'system','no_auto_update');
 		$no_auto_update = (($no_auto_update===false)? '0': $no_auto_update); // default if not set: 0
 
+		$bandwidth_saver = get_pconfig(local_user(), 'system', 'bandwidth_saver');
+		$bandwidth_saver = (($bandwidth_saver === false) ? '0' : $bandwidth_saver); // default if not set: 0
+
 		$theme_config = "";
-		if( ($themeconfigfile = get_theme_config_file($theme_selected)) != null){
+		if (($themeconfigfile = get_theme_config_file($theme_selected)) != null) {
 			require_once($themeconfigfile);
 			$theme_config = theme_content($a);
 		}
@@ -1000,6 +1004,7 @@ function settings_content(&$a) {
 			'$noinfo'	=> array('noinfo', t("Don't show notices"), $noinfo, ''),
 			'$infinite_scroll'	=> array('infinite_scroll', t("Infinite scroll"), $infinite_scroll, ''),
 			'$no_auto_update'	=> array('no_auto_update', t("Automatic updates only at the top of the network page"), $no_auto_update, 'When disabled, the network page is updated all the time, which could be confusing while reading.'),
+			'$bandwidth_saver' => array('bandwidth_saver', t('Bandwith Saver Mode'), $bandwidth_saver, 'When enabled, embedded content is not displayed on automatic updates, they only show on page reload.'),
 
 			'$d_tset' => t('General Theme Settings'),
 			'$d_ctset' => t('Custom Theme Settings'),
@@ -1347,4 +1352,3 @@ function settings_content(&$a) {
 	return $o;
 
 }
-
