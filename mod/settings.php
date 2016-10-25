@@ -1251,7 +1251,7 @@ function settings_content(&$a) {
 		$public_post_link = '&public=1';
 
 	/* Installed langs */
-	$lang_choices = get_avaiable_languages();
+	$lang_choices = get_available_languages();
 
 	$o .= replace_macros($stpl, array(
 		'$ptitle' 	=> t('Account Settings'),

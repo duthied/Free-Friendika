@@ -820,7 +820,7 @@ function admin_page_site_post(&$a) {
 function admin_page_site(&$a) {
 
 	/* Installed langs */
-	$lang_choices = get_avaiable_languages();
+	$lang_choices = get_available_languages();
 
 	if(strlen(get_config('system','directory_submit_url')) AND
 		!strlen(get_config('system','directory'))) {
