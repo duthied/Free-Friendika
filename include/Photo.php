@@ -1065,6 +1065,16 @@ function store_photo($a, $uid, $imagedata = "", $url = "") {
 	return($image);
 }
 
+/**
+ * @brief Fetch the photo albums that are available for a viewer
+ *
+ * The query in this function is cost intensive, so it is cached.
+ *
+ * @param int $uid User id of the photos
+ * @param bool $update Update the cache
+ *
+ * @return array Returns array of the photo albums
+ */
 function photo_albums($uid, $update = false) {
 	$sql_extra = permissions_sql($uid);
 
@@ -1073,7 +1083,7 @@ function photo_albums($uid, $update = false) {
 	if (is_null($albums) OR $update) {
 		/// @todo This query needs to be renewed. It is really slow
 		// At this time we just store the data in the cache
-		$albums = qu("SELECT count(distinct `resource-id`) AS `total`, `album`
+		$albums = qu("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`
 			FROM `photo` USE INDEX (`uid_album_created`)
 			WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra
 			GROUP BY `album` ORDER BY `created` DESC",

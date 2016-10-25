@@ -587,6 +587,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
+					"cmd_item_contact" => array("UNIQUE", "cmd", "item", "contact"),
 					)
 			);
 	$database["event"] = array(

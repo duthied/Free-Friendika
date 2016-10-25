@@ -1115,7 +1115,7 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 		intval($limit)
 	);
 
-	if(count($r) && count($r) >= ($limit -1)) {
+	if (count($r) && count($r) >= ($limit -1)) {
 		Cache::set("suggestion_query:".$uid.":".$start.":".$limit, $r, CACHE_FIVE_MINUTES);
 		return $r;
 	}

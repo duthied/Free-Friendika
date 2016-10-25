@@ -22,6 +22,15 @@ function add_thread($itemid, $onlyshadow = false) {
 	}
 }
 
+/**
+ * @brief Add a shadow entry for a given item id
+ *
+ * We store every public item entry additionally with the user id "0".
+ * This is used for the community page and for the search.
+ * It is planned that in the future we will store public item entries only once.
+ *
+ * @param integer $itemid Item ID that should be added
+ */
 function add_shadow_thread($itemid) {
 	$items = q("SELECT `uid`, `wall`, `private`, `moderated`, `visible`, `contact-id`, `deleted`, `network`
 		FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
