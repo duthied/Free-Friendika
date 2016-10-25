@@ -118,7 +118,7 @@ class PConfig {
 	 *  The value to store
 	 * @return mixed Stored $value or false
 	 */
-	public static function set($uid,$family,$key,$value) {
+	public static function set($uid, $family, $key, $value) {
 
 		global $a;
 
