@@ -162,25 +162,31 @@ function string_plural_select_default($n) {
 }}
 
 
-/**
- * Return installed languages as associative array
- * [
- * 		lang => lang,
- * 		...
- * ]
- */
-function get_avaiable_languages() {
-	$lang_choices = array();
-	$langs = glob('view/lang/*/strings.php'); /**/
 
-	if(is_array($langs) && count($langs)) {
-		if(! in_array('view/lang/en/strings.php',$langs))
-			$langs[] = 'view/lang/en/';
-		asort($langs);
-		foreach($langs as $l) {
-			$t = explode("/",$l);
-			$lang_choices[$t[2]] = $t[2];
+/**
+ * @brief Return installed languages codes as associative array
+ *
+ * Scans the view/lang directory for the existence of "strings.php" files, and
+ * returns an alphabetical list of their folder names (@-char language codes).
+ * Adds the english language if it's missing from the list.
+ *
+ * Ex: array('de' => 'de', 'en' => 'en', 'fr' => 'fr', ...)
+ *
+ * @return array
+ */
+function get_available_languages() {
+	$langs = array();
+	$strings_file_paths = glob('view/lang/*/strings.php');
+
+	if (is_array($strings_file_paths) && count($strings_file_paths)) {
+		if (!in_array('view/lang/en/strings.php', $strings_file_paths)) {
+			$strings_file_paths[] = 'view/lang/en/strings.php';
+		}
+		asort($strings_file_paths);
+		foreach($strings_file_paths as $strings_file_path) {
+			$path_array = explode('/', $strings_file_path);
+			$langs[$path_array[2]] = $path_array[2];
 		}
 	}
-	return $lang_choices;
+	return $langs;
 }
