@@ -27,7 +27,6 @@ function dbclean_run(&$argv, &$argc) {
 		$stage = 0;
 	}
 	remove_orphans($stage);
-	killme();
 }
 
 /**
