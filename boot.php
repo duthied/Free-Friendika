@@ -1104,7 +1104,7 @@ class App {
 	}
 
 	function save_timestamp($stamp, $value) {
-		if (!isset($a->config['system']['profiler']) || !$a->config['system']['profiler'])
+		if (!isset($this->config['system']['profiler']) || !$this->config['system']['profiler'])
 			return;
 
 		$duration = (float)(microtime(true)-$stamp);
