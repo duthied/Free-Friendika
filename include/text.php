@@ -703,10 +703,6 @@ function logger($msg, $level = 0) {
 	global $db;
 	global $LOGGER_LEVELS;
 
-	$debugging = get_config('system','debugging');
-	$logfile   = get_config('system','logfile');
-	$loglevel = intval(get_config('system','loglevel'));
-
 	// turn off logger in install mode
 	if (
 		$a->module == 'install'
@@ -717,6 +713,10 @@ function logger($msg, $level = 0) {
 	) {
 		return;
 	}
+
+	$debugging = get_config('system','debugging');
+	$logfile   = get_config('system','logfile');
+	$loglevel = intval(get_config('system','loglevel'));
 
 	if (count($LOGGER_LEVELS) == 0) {
 		foreach (get_defined_constants() as $k => $v) {
