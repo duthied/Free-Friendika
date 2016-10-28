@@ -344,6 +344,12 @@ function ping_init(&$a) {
 	killme();
 }
 
+/**
+ * @brief Retrieves the notifications array for the given user ID
+ *
+ * @param int $uid
+ * @return array
+ */
 function ping_get_notifications($uid) {
 
 	$result = array();
@@ -372,46 +378,47 @@ function ping_get_notifications($uid) {
 			$seensql = "";
 			$order = "DESC";
 			$offset = 0;
-		} elseif (!$r)
+		} elseif (!$r) {
 			$quit = true;
-		else
+		} else {
 			$offset += 50;
-
+		}
 
 		foreach ($r AS $notification) {
-			if (is_null($notification["visible"]))
+			if (is_null($notification["visible"])) {
 				$notification["visible"] = true;
+			}
 
-			if (is_null($notification["spam"]))
+			if (is_null($notification["spam"])) {
 				$notification["spam"] = 0;
+			}
 
-			if (is_null($notification["deleted"]))
+			if (is_null($notification["deleted"])) {
 				$notification["deleted"] = 0;
+			}
 
-			$notification["message"] = strip_tags(bbcode($notification["msg"]));
-			$notification["name"] = strip_tags(bbcode($notification["name"]));
+			if ($notification["msg_cache"]) {
+				$notification["name"] = $notification["name_cache"];
+				$notification["message"] = $notification["msg_cache"];
+			} else {
+				$notification["name"] = strip_tags(bbcode($notification["name"]));
+				$notification["message"] = format_notification_message($notification["name"], strip_tags(bbcode($notification["msg"])));
 
-			// Replace the name with {0} but ensure to make that only once
-			// The {0} is used later and prints the name in bold.
+				q("UPDATE `notify` SET `name_cache` = '%s', `msg_cache` = '%s' WHERE `id` = %d",
+					dbesc($notification["name"]),
+					dbesc($notification["message"]),
+					intval($notification["id"])
+				);
+			}
 
-			if ($notification['name'] != "")
-				$pos = strpos($notification["message"],$notification['name']);
-			else
-				$pos = false;
-
-			if ($pos !== false)
-				$notification["message"] = substr_replace($notification["message"],"{0}",$pos,strlen($notification["name"]));
-
-			$notification['href'] = $a->get_baseurl() . '/notify/view/' . $notification['id'];
+			$notification["href"] = $a->get_baseurl() . "/notify/view/" . $notification["id"];
 
 			if ($notification["visible"] AND !$notification["spam"] AND
 				!$notification["deleted"] AND !is_array($result[$notification["parent"]])) {
 				$result[$notification["parent"]] = $notification;
 			}
 		}
-
 	} while ((count($result) < 50) AND !$quit);
-
 
 	return($result);
 }

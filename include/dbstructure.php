@@ -1036,6 +1036,8 @@ function db_definition($charset) {
 					"seen" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"verb" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"otype" => array("type" => "varchar(16)", "not null" => "1", "default" => ""),
+					"name_cache" => array("type" => "tinytext"),
+					"msg_cache" => array("type" => "mediumtext")
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
