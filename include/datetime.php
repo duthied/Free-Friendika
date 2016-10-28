@@ -328,12 +328,12 @@ function datetimesel($format, $min, $max, $default, $label, $id = 'datetimepicke
  * @param string $posted_date
  * @param string $format (optional) Parsed with sprintf()
  *    <tt>%1$d %2$s ago</tt>, e.g. 22 hours ago, 1 minute ago
- * 
+ *
  * @return string with relative date
  */
-function relative_date($posted_date,$format = null) {
+function relative_date($posted_date, $format = null) {
 
-	$localtime = datetime_convert('UTC',date_default_timezone_get(),$posted_date);
+	$localtime = $posted_date . ' UTC';
 
 	$abs = strtotime($localtime);
 
@@ -346,13 +346,6 @@ function relative_date($posted_date,$format = null) {
 	if ($etime < 1) {
 		return t('less than a second ago');
 	}
-
-	/*
-	$time_append = '';
-	if ($etime >= 86400) {
-		$time_append = ' ('.$localtime.')';
-	}
-	*/
 
 	$a = array( 12 * 30 * 24 * 60 * 60  =>  array( t('year'),   t('years')),
 				30 * 24 * 60 * 60       =>  array( t('month'),  t('months')),
@@ -368,8 +361,9 @@ function relative_date($posted_date,$format = null) {
 		if ($d >= 1) {
 			$r = round($d);
 			// translators - e.g. 22 hours ago, 1 minute ago
-			if(! $format)
+			if(! $format) {
 				$format = t('%1$d %2$s ago');
+			}
 
 			return sprintf( $format,$r, (($r == 1) ? $str[0] : $str[1]));
 		}
