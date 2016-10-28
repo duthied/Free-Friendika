@@ -707,9 +707,6 @@ function logger($msg, $level = 0) {
 	if (
 		$a->module == 'install'
 		|| ! ($db && $db->connected)
-		|| ! $debugging
-		|| ! $logfile
-		|| $level > $loglevel
 	) {
 		return;
 	}
@@ -717,6 +714,14 @@ function logger($msg, $level = 0) {
 	$debugging = get_config('system','debugging');
 	$logfile   = get_config('system','logfile');
 	$loglevel = intval(get_config('system','loglevel'));
+
+	if (
+		! $debugging
+		|| ! $logfile
+		|| $level > $loglevel
+	) {
+		return;
+	}
 
 	if (count($LOGGER_LEVELS) == 0) {
 		foreach (get_defined_constants() as $k => $v) {
