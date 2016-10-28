@@ -397,9 +397,9 @@ function qu($sql) {
 		$stmt = @vsprintf($sql,$args); // Disabled warnings
 		if ($stmt === false)
 			logger('dba: vsprintf error: ' . print_r(debug_backtrace(),true), LOGGER_DEBUG);
-		$db->q("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
+		$db->q("SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
 		$retval = $db->q($stmt);
-		$db->q("COMMIT;");
+		$db->q("SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;");
 		return $retval;
 	}
 
