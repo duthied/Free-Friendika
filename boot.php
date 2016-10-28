@@ -787,27 +787,29 @@ class App {
 		if (!is_object($this))
 			return(self::$a->get_baseurl($ssl));
 
-		$scheme = $this->scheme;
+		if (!$this->baseurl) {
+			$scheme = $this->scheme;
 
-		if((x($this->config,'system')) && (x($this->config['system'],'ssl_policy'))) {
-			if(intval($this->config['system']['ssl_policy']) === intval(SSL_POLICY_FULL))
-				$scheme = 'https';
-
-			//	Basically, we have $ssl = true on any links which can only be seen by a logged in user
-			//	(and also the login link). Anything seen by an outsider will have it turned off.
-
-			if($this->config['system']['ssl_policy'] == SSL_POLICY_SELFSIGN) {
-				if($ssl)
+			if((x($this->config,'system')) && (x($this->config['system'],'ssl_policy'))) {
+				if(intval($this->config['system']['ssl_policy']) === intval(SSL_POLICY_FULL))
 					$scheme = 'https';
-				else
-					$scheme = 'http';
+
+				//	Basically, we have $ssl = true on any links which can only be seen by a logged in user
+				//	(and also the login link). Anything seen by an outsider will have it turned off.
+
+				if($this->config['system']['ssl_policy'] == SSL_POLICY_SELFSIGN) {
+					if($ssl)
+						$scheme = 'https';
+					else
+						$scheme = 'http';
+				}
 			}
+
+			if (get_config('config','hostname') != "")
+				$this->hostname = get_config('config','hostname');
+
+			$this->baseurl = $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
 		}
-
-		if (get_config('config','hostname') != "")
-			$this->hostname = get_config('config','hostname');
-
-		$this->baseurl = $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
 		return $this->baseurl;
 	}
 
