@@ -801,6 +801,9 @@ function item_post(&$a) {
 	} else
 		$post_id = 0;
 
+	q("COMMIT");
+	q("START TRANSACTION;");
+
 	$r = q("INSERT INTO `item` (`guid`, `extid`, `uid`,`type`,`wall`,`gravity`, `network`, `contact-id`,
 					`owner-name`,`owner-link`,`owner-avatar`, `owner-id`,
 					`author-name`, `author-link`, `author-avatar`, `author-id`,
@@ -877,6 +880,7 @@ function item_post(&$a) {
 	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' LIMIT 1",
 		dbesc($datarray['uri']));
 	if(!count($r)) {
+		q("COMMIT");
 		logger('mod_item: unable to retrieve post that was just stored.');
 		notice( t('System error. Post not saved.') . EOL);
 		goaway($a->get_baseurl() . "/" . $return_path );
@@ -887,6 +891,8 @@ function item_post(&$a) {
 	logger('mod_item: saved item ' . $post_id);
 
 	$datarray["id"] = $post_id;
+
+	item_set_last_item($datarray);
 
 	// update filetags in pconfig
 	file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
@@ -997,10 +1003,14 @@ function item_post(&$a) {
 	create_tags_from_item($post_id);
 	create_files_from_item($post_id);
 
-	if ($post_id == $parent)
+	if ($post_id == $parent) {
 		add_thread($post_id);
-	else {
+		q("COMMIT");
+
+		add_shadow_thread($post_id);
+	} else {
 		update_thread($parent, true);
+		q("COMMIT");
 
 		// Insert an item entry for UID=0 for global entries
 		// We have to remove or change some data before that,

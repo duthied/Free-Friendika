@@ -38,7 +38,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
 define ( 'FRIENDICA_VERSION',      '3.5.1-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1206      );
+define ( 'DB_UPDATE_VERSION',      1207      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -127,6 +127,10 @@ define ( 'CACHE_MONTH',            0 );
 define ( 'CACHE_WEEK',             1 );
 define ( 'CACHE_DAY',              2 );
 define ( 'CACHE_HOUR',             3 );
+define ( 'CACHE_HALF_HOUR',        4 );
+define ( 'CACHE_QUARTER_HOUR',     5 );
+define ( 'CACHE_FIVE_MINUTES',     6 );
+define ( 'CACHE_MINUTE',           7 );
 /* @}*/
 
 /**
@@ -1134,23 +1138,33 @@ class App {
 
 		$this->remove_inactive_processes();
 
+		q("START TRANSACTION");
+
 		$r = q("SELECT `pid` FROM `process` WHERE `pid` = %d", intval(getmypid()));
-		if(!dbm::is_result($r))
+		if(!dbm::is_result($r)) {
 			q("INSERT INTO `process` (`pid`,`command`,`created`) VALUES (%d, '%s', '%s')",
 				intval(getmypid()),
 				dbesc($command),
 				dbesc(datetime_convert()));
+		}
+		q("COMMIT");
 	}
 
 	/**
 	 * @brief Remove inactive processes
 	 */
 	function remove_inactive_processes() {
+		q("START TRANSACTION");
+
 		$r = q("SELECT `pid` FROM `process`");
-		if(dbm::is_result($r))
-			foreach ($r AS $process)
-				if (!posix_kill($process["pid"], 0))
+		if(dbm::is_result($r)) {
+			foreach ($r AS $process) {
+				if (!posix_kill($process["pid"], 0)) {
 					q("DELETE FROM `process` WHERE `pid` = %d", intval($process["pid"]));
+				}
+			}
+		}
+		q("COMMIT");
 	}
 
 	/**
