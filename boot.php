@@ -781,16 +781,25 @@ class App {
 		return($this->scheme);
 	}
 
+	/**
+	 * @brief Retrieves the Friendica instance base URL
+	 *
+	 * Caches both SSL and non-SSL version for performance
+	 *
+	 * @param bool $ssl
+	 * @return string
+	 */
 	function get_baseurl($ssl = false) {
 
 		// Is the function called statically?
-		if (!is_object($this))
+		if (!is_object($this)) {
 			return(self::$a->get_baseurl($ssl));
+		}
 
-		if (!$this->baseurl) {
+		if (!isset($this->baseurl[$ssl ? 'https' : 'http'])) {
 			$scheme = $this->scheme;
 
-			if((x($this->config,'system')) && (x($this->config['system'],'ssl_policy'))) {
+			if((x($this->config, 'system')) && (x($this->config['system'], 'ssl_policy'))) {
 				if(intval($this->config['system']['ssl_policy']) === intval(SSL_POLICY_FULL))
 					$scheme = 'https';
 
@@ -798,45 +807,58 @@ class App {
 				//	(and also the login link). Anything seen by an outsider will have it turned off.
 
 				if($this->config['system']['ssl_policy'] == SSL_POLICY_SELFSIGN) {
-					if($ssl)
+					if($ssl) {
 						$scheme = 'https';
-					else
+					} else {
 						$scheme = 'http';
+					}
 				}
 			}
 
-			if (get_config('config','hostname') != "")
-				$this->hostname = get_config('config','hostname');
+			if (get_config('config','hostname') != '') {
+				$this->hostname = get_config('config', 'hostname');
+			}
 
-			$this->baseurl = $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
+			$this->baseurl[$ssl ? 'https' : 'http'] = $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
 		}
-		return $this->baseurl;
+		return $this->baseurl[$ssl ? 'https' : 'http'];
 	}
 
+	/**
+	 * @brief Initializes the baseurl components
+	 *
+	 * Clears the baseurl cache to prevent inconstistencies
+	 *
+	 * @param string $url
+	 */
 	function set_baseurl($url) {
 		$parsed = @parse_url($url);
 
-		$this->baseurl = $url;
+		$this->baseurl = [];
 
 		if($parsed) {
 			$this->scheme = $parsed['scheme'];
 
 			$hostname = $parsed['host'];
-			if(x($parsed,'port'))
+			if (x($parsed, 'port')) {
 				$hostname .= ':' . $parsed['port'];
-			if(x($parsed,'path'))
-				$this->path = trim($parsed['path'],'\\/');
+			}
+			if (x($parsed, 'path')) {
+				$this->path = trim($parsed['path'], '\\/');
+			}
 
-			if (file_exists(".htpreconfig.php"))
+			if (file_exists(".htpreconfig.php")) {
 				@include(".htpreconfig.php");
+			}
 
-			if (get_config('config','hostname') != "")
-				$this->hostname = get_config('config','hostname');
+			if (get_config('config', 'hostname') != '') {
+				$this->hostname = get_config('config', 'hostname');
+			}
 
-			if (!isset($this->hostname) OR ($this->hostname == ""))
+			if (!isset($this->hostname) OR ($this->hostname == '')) {
 				$this->hostname = $hostname;
+			}
 		}
-
 	}
 
 	function get_hostname() {
