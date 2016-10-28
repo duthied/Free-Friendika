@@ -793,21 +793,22 @@ class App {
 
 		// Is the function called statically?
 		if (!is_object($this)) {
-			return(self::$a->get_baseurl($ssl));
+			return self::$a->get_baseurl($ssl);
 		}
 
 		if (!isset($this->baseurl[$ssl ? 'https' : 'http'])) {
 			$scheme = $this->scheme;
 
-			if((x($this->config, 'system')) && (x($this->config['system'], 'ssl_policy'))) {
-				if(intval($this->config['system']['ssl_policy']) === intval(SSL_POLICY_FULL))
+			if ((x($this->config, 'system')) && (x($this->config['system'], 'ssl_policy'))) {
+				if (intval($this->config['system']['ssl_policy']) === SSL_POLICY_FULL) {
 					$scheme = 'https';
+				}
 
 				//	Basically, we have $ssl = true on any links which can only be seen by a logged in user
 				//	(and also the login link). Anything seen by an outsider will have it turned off.
 
-				if($this->config['system']['ssl_policy'] == SSL_POLICY_SELFSIGN) {
-					if($ssl) {
+				if ($this->config['system']['ssl_policy'] == SSL_POLICY_SELFSIGN) {
+					if ($ssl) {
 						$scheme = 'https';
 					} else {
 						$scheme = 'http';
@@ -815,7 +816,7 @@ class App {
 				}
 			}
 
-			if (get_config('config','hostname') != '') {
+			if (get_config('config', 'hostname') != '') {
 				$this->hostname = get_config('config', 'hostname');
 			}
 
