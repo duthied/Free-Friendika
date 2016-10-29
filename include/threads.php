@@ -23,7 +23,7 @@ function add_thread($itemid, $onlyshadow = false) {
 }
 
 /**
- * @brief Add a shadow entry for a given item id
+ * @brief Add a shadow entry for a given item id that is a thread starter
  *
  * We store every public item entry additionally with the user id "0".
  * This is used for the community page and for the search.
@@ -113,6 +113,13 @@ function add_shadow_thread($itemid) {
 	}
 }
 
+/**
+ * @brief Add a shadow entry for a given item id that is a comment
+ *
+ * This function does the same like the function above - but for comments
+ *
+ * @param integer $itemid Item ID that should be added
+ */
 function add_shadow_entry($itemid) {
 
 	$items = q("SELECT * FROM `item` WHERE `id` = %d", intval($itemid));

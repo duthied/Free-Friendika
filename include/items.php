@@ -922,11 +922,8 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	create_tags_from_item($current_post);
 	create_files_from_item($current_post);
 
-	/**
-	 * If this is now the last-child, force all _other_ children of this parent to *not* be last-child
-	 * It is done after the transaction to avoid dead locks.
-	 */
-
+	// If this is now the last-child, force all _other_ children of this parent to *not* be last-child
+	// It is done after the transaction to avoid dead locks.
 	if ($arr['last-child']) {
 		$r = q("UPDATE `item` SET `last-child` = 0 WHERE `parent-uri` = '%s' AND `uid` = %d AND `id` != %d",
 			dbesc($arr['uri']),
