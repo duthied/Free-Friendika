@@ -115,7 +115,7 @@ function item_post(&$a) {
 		if(($r === false) || (! count($r))) {
 			notice( t('Unable to locate original post.') . EOL);
 			if(x($_REQUEST,'return'))
-				goaway($a->get_baseurl() . "/" . $return_path );
+				goaway($return_path);
 			killme();
 		}
 		$parent_item = $r[0];
@@ -197,7 +197,7 @@ function item_post(&$a) {
 	if((x($_REQUEST,'commenter')) && ((! $parent) || (! $parent_item['wall']))) {
 		notice( t('Permission denied.') . EOL) ;
 		if(x($_REQUEST,'return'))
-			goaway($a->get_baseurl() . "/" . $return_path );
+			goaway($return_path);
 		killme();
 	}
 
@@ -209,7 +209,7 @@ function item_post(&$a) {
 	if((! can_write_wall($a,$profile_uid)) && (! $allow_moderated)) {
 		notice( t('Permission denied.') . EOL) ;
 		if(x($_REQUEST,'return'))
-			goaway($a->get_baseurl() . "/" . $return_path );
+			goaway($return_path);
 		killme();
 	}
 
@@ -339,7 +339,7 @@ function item_post(&$a) {
 				killme();
 			info( t('Empty post discarded.') . EOL );
 			if(x($_REQUEST,'return'))
-				goaway($a->get_baseurl() . "/" . $return_path );
+				goaway($return_path);
 			killme();
 		}
 	}
@@ -756,7 +756,7 @@ function item_post(&$a) {
 	if(x($datarray,'cancel')) {
 		logger('mod_item: post cancelled by plugin.');
 		if($return_path) {
-			goaway($a->get_baseurl() . "/" . $return_path);
+			goaway($return_path);
 		}
 
 		$json = array('cancel' => 1);
@@ -795,7 +795,7 @@ function item_post(&$a) {
 		proc_run(PRIORITY_HIGH, "include/notifier.php", 'edit_post', $post_id);
 		if((x($_REQUEST,'return')) && strlen($return_path)) {
 			logger('return: ' . $return_path);
-			goaway($a->get_baseurl() . "/" . $return_path );
+			goaway($return_path);
 		}
 		killme();
 	} else
@@ -877,17 +877,26 @@ function item_post(&$a) {
 		intval($datarray['visible'])
 	       );
 
-	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' LIMIT 1",
-		dbesc($datarray['uri']));
-	if(!count($r)) {
+	if (dbm::is_result($r)) {
+		$r = q("SELECT LAST_INSERT_ID() AS `item-id`");
+		if (dbm::is_result($r)) {
+			$post_id = $r[0]['item-id'];
+		} else {
+			$post_id = 0;
+		}
+	} else {
+		logger('mod_item: unable to create post.');
+		$post_id = 0;
+	}
+
+	if ($post_id == 0) {
 		q("COMMIT");
 		logger('mod_item: unable to retrieve post that was just stored.');
-		notice( t('System error. Post not saved.') . EOL);
-		goaway($a->get_baseurl() . "/" . $return_path );
+		notice(t('System error. Post not saved.') . EOL);
+		goaway($return_path);
 		// NOTREACHED
 	}
 
-	$post_id = $r[0]['id'];
 	logger('mod_item: saved item ' . $post_id);
 
 	$datarray["id"] = $post_id;
@@ -1070,7 +1079,7 @@ function item_post_return($baseurl, $api_source, $return_path) {
 		return;
 
 	if($return_path) {
-		goaway($baseurl . "/" . $return_path);
+		goaway($return_path);
 	}
 
 	$json = array('success' => 1);
