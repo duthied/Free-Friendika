@@ -33,8 +33,8 @@ class Config {
 		global $a;
 
 		$r = q("SELECT `v`, `k` FROM `config` WHERE `cat` = '%s' ORDER BY `cat`, `k`, `id`", dbesc($family));
-		if(count($r)) {
-			foreach($r as $rr) {
+		if (count($r)) {
+			foreach ($r as $rr) {
 				$k = $rr['k'];
 				if ($family === 'config') {
 					$a->config[$k] = $rr['v'];
@@ -74,16 +74,16 @@ class Config {
 
 		global $a;
 
-		if(! $refresh) {
+		if (!$refresh) {
 			// Looking if the whole family isn't set
-			if(isset($a->config[$family])) {
-				if($a->config[$family] === '!<unset>!') {
+			if (isset($a->config[$family])) {
+				if ($a->config[$family] === '!<unset>!') {
 					return $default_value;
 				}
 			}
 
-			if(isset($a->config[$family][$key])) {
-				if($a->config[$family][$key] === '!<unset>!') {
+			if (isset($a->config[$family][$key])) {
+				if ($a->config[$family][$key] === '!<unset>!') {
 					return $default_value;
 				}
 				return $a->config[$family][$key];
@@ -94,14 +94,13 @@ class Config {
 			dbesc($family),
 			dbesc($key)
 		);
-		if(count($ret)) {
+		if (count($ret)) {
 			// manage array value
 			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret[0]['v'])?unserialize( $ret[0]['v']):$ret[0]['v']);
 			$a->config[$family][$key] = $val;
 
 			return $val;
-		}
-		else {
+		} else {
 			$a->config[$family][$key] = '!<unset>!';
 		}
 		return $default_value;
@@ -126,19 +125,32 @@ class Config {
 	public static function set($family, $key, $value) {
 		global $a;
 
+		$stored = self::get($family, $key);
+
+		if ($stored == $value) {
+			return true;
+		}
+
 		$a->config[$family][$key] = $value;
 
 		// manage array value
-		$dbvalue = is_array($value) ? serialize($value) : $value;
-		$dbvalue = is_bool($dbvalue) ? intval($dbvalue) : $dbvalue;
+		$dbvalue = (is_array($value) ? serialize($value) : $value);
+		$dbvalue = (is_bool($dbvalue) ? intval($dbvalue) : $dbvalue);
 
-		$ret = q("INSERT INTO `config` ( `cat`, `k`, `v` ) VALUES ( '%s', '%s', '%s' )
-ON DUPLICATE KEY UPDATE `v` = '%s'",
-			dbesc($family),
-			dbesc($key),
-			dbesc($dbvalue),
-			dbesc($dbvalue)
-		);
+		if (is_null($stored)) {
+			$ret = q("INSERT INTO `config` (`cat`, `k`, `v`) VALUES ('%s', '%s', '%s') ON DUPLICATE KEY UPDATE `v` = '%s'",
+				dbesc($family),
+				dbesc($key),
+				dbesc($dbvalue),
+				dbesc($dbvalue)
+			);
+		} else {
+			$ret = q("UPDATE `config` SET `v` = '%s' WHERE `cat` = '%s' AND `k` = '%s'",
+				dbesc($dbvalue),
+				dbesc($family),
+				dbesc($key)
+			);
+		}
 		if ($ret) {
 			return $value;
 		}
@@ -157,11 +169,12 @@ ON DUPLICATE KEY UPDATE `v` = '%s'",
 	 *  The configuration key to delete
 	 * @return mixed
 	 */
-	public static function delete($family,$key) {
+	public static function delete($family, $key) {
 
 		global $a;
-		if(x($a->config[$family],$key))
+		if (x($a->config[$family],$key)) {
 			unset($a->config[$family][$key]);
+		}
 		$ret = q("DELETE FROM `config` WHERE `cat` = '%s' AND `k` = '%s'",
 			dbesc($family),
 			dbesc($key)

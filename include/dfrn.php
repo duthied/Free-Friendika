@@ -112,7 +112,6 @@ class dfrn {
 		$owner_nick = $owner['nickname'];
 
 		$sql_post_table = "";
-		$visibility = "";
 
 		if(! $public_feed) {
 
@@ -171,9 +170,6 @@ class dfrn {
 		else
 			$sort = 'ASC';
 
-		$date_field = "`changed`";
-		$sql_order = "`item`.`parent` ".$sort.", `item`.`created` ASC";
-
 		if(! strlen($last_update))
 			$last_update = 'now -30 days';
 
@@ -190,22 +186,19 @@ class dfrn {
 
 		$check_date = datetime_convert('UTC','UTC',$last_update,'Y-m-d H:i:s');
 
-		//	AND ( `item`.`edited` > '%s' OR `item`.`changed` > '%s' )
-		//	dbesc($check_date),
-
-		$r = q("SELECT STRAIGHT_JOIN `item`.*, `item`.`id` AS `item_id`,
+		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,
 			`contact`.`name`, `contact`.`network`, `contact`.`photo`, `contact`.`url`,
 			`contact`.`name-date`, `contact`.`uri-date`, `contact`.`avatar-date`,
 			`contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
 			`sign`.`signed_text`, `sign`.`signature`, `sign`.`signer`
-			FROM `item` $sql_post_table
-			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+			FROM `item` USE INDEX (`uid_wall_changed`, `uid_type_changed`) $sql_post_table
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+			AND NOT `contact`.`blocked`
 			LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`
-			WHERE `item`.`uid` = %d AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`parent` != 0
-			AND ((`item`.`wall` = 1) $visibility) AND `item`.$date_field > '%s'
+			WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`moderated` AND `item`.`parent` != 0
+			AND `item`.`wall` AND `item`.`changed` > '%s'
 			$sql_extra
-			ORDER BY $sql_order LIMIT 0, 300",
+			ORDER BY `item`.`parent` ".$sort.", `item`.`created` ASC LIMIT 0, 300",
 			intval($owner_id),
 			dbesc($check_date),
 			dbesc($sort)

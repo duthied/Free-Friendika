@@ -91,23 +91,33 @@ function poller_run(&$argv, &$argc){
 		if (poller_too_much_workers())
 			return;
 
-		q("UPDATE `workerqueue` SET `executed` = '%s', `pid` = %d WHERE `id` = %d AND `executed` = '0000-00-00 00:00:00'",
+		$upd = q("UPDATE `workerqueue` SET `executed` = '%s', `pid` = %d WHERE `id` = %d AND `pid` = 0",
 			dbesc(datetime_convert()),
 			intval($mypid),
 			intval($r[0]["id"]));
+
+		if (!$upd) {
+			logger("Couldn't update queue entry ".$r[0]["id"]." - skip this execution", LOGGER_DEBUG);
+			q("COMMIT");
+			continue;
+		}
 
 		// Assure that there are no tasks executed twice
 		$id = q("SELECT `pid`, `executed` FROM `workerqueue` WHERE `id` = %d", intval($r[0]["id"]));
 		if (!$id) {
 			logger("Queue item ".$r[0]["id"]." vanished - skip this execution", LOGGER_DEBUG);
+			q("COMMIT");
 			continue;
 		} elseif ((strtotime($id[0]["executed"]) <= 0) OR ($id[0]["pid"] == 0)) {
-			logger("Entry for queue item ".$r[0]["id"]." wasn't stored - we better stop here", LOGGER_DEBUG);
-			return;
+			logger("Entry for queue item ".$r[0]["id"]." wasn't stored - skip this execution", LOGGER_DEBUG);
+			q("COMMIT");
+			continue;
 		} elseif ($id[0]["pid"] != $mypid) {
 			logger("Queue item ".$r[0]["id"]." is to be executed by process ".$id[0]["pid"]." and not by me (".$mypid.") - skip this execution", LOGGER_DEBUG);
+			q("COMMIT");
 			continue;
 		}
+		q("COMMIT");
 
 		$argv = json_decode($r[0]["parameter"]);
 
@@ -427,6 +437,8 @@ function poller_passing_slow(&$highest_priority) {
  */
 
 function poller_worker_process() {
+
+	q("START TRANSACTION;");
 
 	// Check if we should pass some low priority process
 	$highest_priority = 0;
