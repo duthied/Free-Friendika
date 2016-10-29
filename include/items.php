@@ -938,7 +938,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	if ($arr['parent-uri'] === $arr['uri']) {
 		add_shadow_thread($current_post);
 	} else {
-		add_shadow_entry($arr);
+		add_shadow_entry($current_post);
 	}
 
 	check_item_notification($current_post, $uid);

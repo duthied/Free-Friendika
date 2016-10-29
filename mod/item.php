@@ -1009,50 +1009,22 @@ function item_post(&$a) {
 		}
 	}
 
+	if ($post_id == $parent) {
+		add_thread($post_id);
+	} else {
+		update_thread($parent, true);
+	}
+
+	q("COMMIT");
+
 	create_tags_from_item($post_id);
 	create_files_from_item($post_id);
 
-	if ($post_id == $parent) {
-		add_thread($post_id);
-		q("COMMIT");
-
+	// Insert an item entry for UID=0 for global entries
+	if ($post_id != $parent) {
 		add_shadow_thread($post_id);
 	} else {
-		update_thread($parent, true);
-		q("COMMIT");
-
-		// Insert an item entry for UID=0 for global entries
-		// We have to remove or change some data before that,
-		// so that the post appear like a regular received post.
-		// Additionally there is some data that isn't a database field.
-		$arr = $datarray;
-
-		$arr['app'] = $arr['source'];
-		unset($arr['source']);
-
-		unset($arr['self']);
-		unset($arr['wall']);
-		unset($arr['origin']);
-		unset($arr['api_source']);
-		unset($arr['message_id']);
-		unset($arr['profile_uid']);
-		unset($arr['post_id']);
-		unset($arr['dropitems']);
-		unset($arr['commenter']);
-		unset($arr['return']);
-		unset($arr['preview']);
-		unset($arr['post_id_random']);
-		unset($arr['emailcc']);
-		unset($arr['pubmail_enable']);
-		unset($arr['category']);
-		unset($arr['jsreload']);
-
-		if (in_array($arr['type'], array("net-comment", "wall-comment"))) {
-			$arr['type'] = 'remote-comment';
-		} elseif ($arr['type'] == 'wall') {
-			$arr['type'] = 'remote';
-		}
-		add_shadow_entry($arr);
+		add_shadow_entry($post_id);
 	}
 
 	// This is a real juggling act on shared hosting services which kill your processes
