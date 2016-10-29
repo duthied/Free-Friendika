@@ -347,8 +347,8 @@ function ping_init(&$a) {
 /**
  * @brief Retrieves the notifications array for the given user ID
  *
- * @param int $uid
- * @return array
+ * @param int $uid User id
+ * @return array Associative array of notifications
  */
 function ping_get_notifications($uid) {
 

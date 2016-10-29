@@ -26,18 +26,30 @@ function ref_session_read ($id) {
 	return '';
 }}
 
-if(! function_exists('ref_session_write')) {
-function ref_session_write ($id,$data) {
+/**
+ * @brief Standard PHP session write callback
+ *
+ * This callback updates the DB-stored session data and/or the expiration depending
+ * on the case. Uses the $session_expire global for existing session, 5 minutes
+ * for newly created session.
+ *
+ * @global bool $session_exists Whether a session with the given id already exists
+ * @global int $session_expire Session expiration delay in seconds
+ * @param string $id Session ID with format: [a-z0-9]{26}
+ * @param string $data Serialized session data
+ * @return boolean Returns false if parameters are missing, true otherwise
+ */
+function ref_session_write($id, $data) {
 	global $session_exists, $session_expire;
 
-	if(! $id || ! $data) {
+	if (!$id || !$data) {
 		return false;
 	}
 
 	$expire = time() + $session_expire;
 	$default_expire = time() + 300;
 
-	if($session_exists) {
+	if ($session_exists) {
 		$r = q("UPDATE `session`
 				SET `data` = '%s'
 				WHERE `sid` = '%s' AND `data` != '%s'",
@@ -47,13 +59,14 @@ function ref_session_write ($id,$data) {
 				SET `expire` = '%s'
 				WHERE `sid` = '%s' AND `expire` != '%s'",
 				dbesc($expire), dbesc($expire), dbesc($id));
-	} else
+	} else {
 		$r = q("INSERT INTO `session`
 				SET `sid` = '%s', `expire` = '%s', `data` = '%s'",
 				dbesc($id), dbesc($default_expire), dbesc($data));
+	}
 
 	return true;
-}}
+}
 
 if(! function_exists('ref_session_close')) {
 function ref_session_close() {
