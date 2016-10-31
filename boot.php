@@ -800,7 +800,9 @@ class App {
 			return self::$a->get_baseurl($ssl);
 		}
 
-		if (!isset($this->baseurl[$ssl ? 'https' : 'http'])) {
+		$cache_index = $ssl ? 'https' : 'http';
+
+		if (!isset($this->baseurl[$cache_index])) {
 			$scheme = $this->scheme;
 
 			if ((x($this->config, 'system')) && (x($this->config['system'], 'ssl_policy'))) {
@@ -824,9 +826,9 @@ class App {
 				$this->hostname = get_config('config', 'hostname');
 			}
 
-			$this->baseurl[$ssl ? 'https' : 'http'] = $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
+			$this->baseurl[$cache_index] = $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
 		}
-		return $this->baseurl[$ssl ? 'https' : 'http'];
+		return $this->baseurl[$cache_index];
 	}
 
 	/**
