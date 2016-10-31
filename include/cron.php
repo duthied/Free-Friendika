@@ -131,6 +131,9 @@ function cron_run(&$argv, &$argc){
 			proc_run(PRIORITY_LOW, 'include/dbclean.php', 2);
 			proc_run(PRIORITY_LOW, 'include/dbclean.php', 3);
 			proc_run(PRIORITY_LOW, 'include/dbclean.php', 4);
+			proc_run(PRIORITY_LOW, 'include/dbclean.php', 5);
+			proc_run(PRIORITY_LOW, 'include/dbclean.php', 6);
+			proc_run(PRIORITY_LOW, 'include/dbclean.php', 7);
 		} else {
 			proc_run(PRIORITY_LOW, 'include/dbclean.php');
 		}
@@ -330,7 +333,11 @@ function cron_poll_contacts($argc, $argv) {
 
 			logger("Polling ".$contact["network"]." ".$contact["id"]." ".$contact["nick"]." ".$contact["name"]);
 
-			proc_run(PRIORITY_MEDIUM, 'include/onepoll.php', $contact['id']);
+			if ($contact["remote_self"]) {
+				proc_run(PRIORITY_MEDIUM, 'include/onepoll.php', $contact['id']);
+			} else {
+				proc_run(PRIORITY_LOW, 'include/onepoll.php', $contact['id']);
+			}
 
 			if($interval)
 				@time_sleep_until(microtime(true) + (float) $interval);
