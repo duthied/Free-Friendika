@@ -23,7 +23,7 @@ function add_thread($itemid, $onlyshadow = false) {
 }
 
 /**
- * @brief Add a shadow entry for a given item id
+ * @brief Add a shadow entry for a given item id that is a thread starter
  *
  * We store every public item entry additionally with the user id "0".
  * This is used for the community page and for the search.
@@ -97,7 +97,15 @@ function add_shadow_thread($itemid) {
 			unset($item[0]['id']);
 			$item[0]['uid'] = 0;
 			$item[0]['origin'] = 0;
+			$item[0]['wall'] = 0;
 			$item[0]['contact-id'] = get_contact($item[0]['author-link'], 0);
+
+			if (in_array($item[0]['type'], array("net-comment", "wall-comment"))) {
+				$item[0]['type'] = 'remote-comment';
+			} elseif ($item[0]['type'] == 'wall') {
+				$item[0]['type'] = 'remote';
+			}
+
 			$public_shadow = item_store($item[0], false, false, true);
 
 			logger("Stored public shadow for thread ".$itemid." under id ".$public_shadow, LOGGER_DEBUG);
@@ -105,7 +113,17 @@ function add_shadow_thread($itemid) {
 	}
 }
 
-function add_shadow_entry($item) {
+/**
+ * @brief Add a shadow entry for a given item id that is a comment
+ *
+ * This function does the same like the function above - but for comments
+ *
+ * @param integer $itemid Item ID that should be added
+ */
+function add_shadow_entry($itemid) {
+
+	$items = q("SELECT * FROM `item` WHERE `id` = %d", intval($itemid));
+	$item = $items[0];
 
 	// Is this a shadow entry?
 	if ($item['uid'] == 0)
@@ -127,7 +145,16 @@ function add_shadow_entry($item) {
 
 	unset($item['id']);
 	$item['uid'] = 0;
+	$item['origin'] = 0;
+	$item['wall'] = 0;
 	$item['contact-id'] = get_contact($item['author-link'], 0);
+
+	if (in_array($item['type'], array("net-comment", "wall-comment"))) {
+		$item['type'] = 'remote-comment';
+	} elseif ($item['type'] == 'wall') {
+		$item['type'] = 'remote';
+	}
+
 	$public_shadow = item_store($item, false, false, true);
 
 	logger("Stored public shadow for comment ".$item['uri']." under id ".$public_shadow, LOGGER_DEBUG);

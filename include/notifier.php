@@ -599,10 +599,10 @@ function notifier_run(&$argv, &$argc){
 
 			foreach($r as $rr) {
 				if((! $mail) && (! $fsuggest) && (! $followup)) {
-					q("insert into deliverq ( `cmd`,`item`,`contact` ) values ('%s', %d, %d )",
-						dbesc($cmd),
-						intval($item_id),
-						intval($rr['id'])
+					q("INSERT INTO `deliverq` (`cmd`,`item`,`contact`) VALUES ('%s', %d, %d)
+						ON DUPLICATE KEY UPDATE `cmd` = '%s', `item` = %d, `contact` = %d",
+						dbesc($cmd), intval($item_id), intval($rr['id']),
+						dbesc($cmd), intval($item_id), intval($rr['id'])
 					);
 				}
 			}

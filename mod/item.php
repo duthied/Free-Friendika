@@ -115,7 +115,7 @@ function item_post(&$a) {
 		if(($r === false) || (! count($r))) {
 			notice( t('Unable to locate original post.') . EOL);
 			if(x($_REQUEST,'return'))
-				goaway($a->get_baseurl() . "/" . $return_path );
+				goaway($return_path);
 			killme();
 		}
 		$parent_item = $r[0];
@@ -197,7 +197,7 @@ function item_post(&$a) {
 	if((x($_REQUEST,'commenter')) && ((! $parent) || (! $parent_item['wall']))) {
 		notice( t('Permission denied.') . EOL) ;
 		if(x($_REQUEST,'return'))
-			goaway($a->get_baseurl() . "/" . $return_path );
+			goaway($return_path);
 		killme();
 	}
 
@@ -209,7 +209,7 @@ function item_post(&$a) {
 	if((! can_write_wall($a,$profile_uid)) && (! $allow_moderated)) {
 		notice( t('Permission denied.') . EOL) ;
 		if(x($_REQUEST,'return'))
-			goaway($a->get_baseurl() . "/" . $return_path );
+			goaway($return_path);
 		killme();
 	}
 
@@ -339,7 +339,7 @@ function item_post(&$a) {
 				killme();
 			info( t('Empty post discarded.') . EOL );
 			if(x($_REQUEST,'return'))
-				goaway($a->get_baseurl() . "/" . $return_path );
+				goaway($return_path);
 			killme();
 		}
 	}
@@ -756,7 +756,7 @@ function item_post(&$a) {
 	if(x($datarray,'cancel')) {
 		logger('mod_item: post cancelled by plugin.');
 		if($return_path) {
-			goaway($a->get_baseurl() . "/" . $return_path);
+			goaway($return_path);
 		}
 
 		$json = array('cancel' => 1);
@@ -795,7 +795,7 @@ function item_post(&$a) {
 		proc_run(PRIORITY_HIGH, "include/notifier.php", 'edit_post', $post_id);
 		if((x($_REQUEST,'return')) && strlen($return_path)) {
 			logger('return: ' . $return_path);
-			goaway($a->get_baseurl() . "/" . $return_path );
+			goaway($return_path);
 		}
 		killme();
 	} else
@@ -877,17 +877,26 @@ function item_post(&$a) {
 		intval($datarray['visible'])
 	       );
 
-	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' LIMIT 1",
-		dbesc($datarray['uri']));
-	if(!count($r)) {
+	if (dbm::is_result($r)) {
+		$r = q("SELECT LAST_INSERT_ID() AS `item-id`");
+		if (dbm::is_result($r)) {
+			$post_id = $r[0]['item-id'];
+		} else {
+			$post_id = 0;
+		}
+	} else {
+		logger('mod_item: unable to create post.');
+		$post_id = 0;
+	}
+
+	if ($post_id == 0) {
 		q("COMMIT");
 		logger('mod_item: unable to retrieve post that was just stored.');
-		notice( t('System error. Post not saved.') . EOL);
-		goaway($a->get_baseurl() . "/" . $return_path );
+		notice(t('System error. Post not saved.') . EOL);
+		goaway($return_path);
 		// NOTREACHED
 	}
 
-	$post_id = $r[0]['id'];
 	logger('mod_item: saved item ' . $post_id);
 
 	$datarray["id"] = $post_id;
@@ -1000,50 +1009,22 @@ function item_post(&$a) {
 		}
 	}
 
+	if ($post_id == $parent) {
+		add_thread($post_id);
+	} else {
+		update_thread($parent, true);
+	}
+
+	q("COMMIT");
+
 	create_tags_from_item($post_id);
 	create_files_from_item($post_id);
 
-	if ($post_id == $parent) {
-		add_thread($post_id);
-		q("COMMIT");
-
+	// Insert an item entry for UID=0 for global entries
+	if ($post_id != $parent) {
 		add_shadow_thread($post_id);
 	} else {
-		update_thread($parent, true);
-		q("COMMIT");
-
-		// Insert an item entry for UID=0 for global entries
-		// We have to remove or change some data before that,
-		// so that the post appear like a regular received post.
-		// Additionally there is some data that isn't a database field.
-		$arr = $datarray;
-
-		$arr['app'] = $arr['source'];
-		unset($arr['source']);
-
-		unset($arr['self']);
-		unset($arr['wall']);
-		unset($arr['origin']);
-		unset($arr['api_source']);
-		unset($arr['message_id']);
-		unset($arr['profile_uid']);
-		unset($arr['post_id']);
-		unset($arr['dropitems']);
-		unset($arr['commenter']);
-		unset($arr['return']);
-		unset($arr['preview']);
-		unset($arr['post_id_random']);
-		unset($arr['emailcc']);
-		unset($arr['pubmail_enable']);
-		unset($arr['category']);
-		unset($arr['jsreload']);
-
-		if (in_array($arr['type'], array("net-comment", "wall-comment"))) {
-			$arr['type'] = 'remote-comment';
-		} elseif ($arr['type'] == 'wall') {
-			$arr['type'] = 'remote';
-		}
-		add_shadow_entry($arr);
+		add_shadow_entry($post_id);
 	}
 
 	// This is a real juggling act on shared hosting services which kill your processes
@@ -1070,7 +1051,7 @@ function item_post_return($baseurl, $api_source, $return_path) {
 		return;
 
 	if($return_path) {
-		goaway($baseurl . "/" . $return_path);
+		goaway($return_path);
 	}
 
 	$json = array('success' => 1);
