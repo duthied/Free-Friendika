@@ -788,10 +788,18 @@ class App {
 	/**
 	 * @brief Retrieves the Friendica instance base URL
 	 *
-	 * Caches both SSL and non-SSL version for performance
+	 * This function assembles the base URL from multiple parts:
+	 * - Protocol is determined either by the request or a combination of
+	 * system.ssl_policy and the $ssl parameter.
+	 * - Host name is determined either by system.hostname or inferred from request
+	 * - Path is inferred from SCRIPT_NAME
 	 *
-	 * @param bool $ssl
-	 * @return string
+	 * Caches the result (depending on $ssl value) for performance.
+	 *
+	 * Note: $ssl parameter value doesn't directly correlate with the resulting protocol
+	 *
+	 * @param bool $ssl Whether to append http or https under SSL_POLICY_SELFSIGN
+	 * @return string Friendica server base URL
 	 */
 	function get_baseurl($ssl = false) {
 
@@ -800,34 +808,39 @@ class App {
 			return self::$a->get_baseurl($ssl);
 		}
 
+		// Arbitrary values, the resulting url protocol can be different
 		$cache_index = $ssl ? 'https' : 'http';
 
-		if (!isset($this->baseurl[$cache_index])) {
-			$scheme = $this->scheme;
-
-			if ((x($this->config, 'system')) && (x($this->config['system'], 'ssl_policy'))) {
-				if (intval($this->config['system']['ssl_policy']) === SSL_POLICY_FULL) {
-					$scheme = 'https';
-				}
-
-				//	Basically, we have $ssl = true on any links which can only be seen by a logged in user
-				//	(and also the login link). Anything seen by an outsider will have it turned off.
-
-				if ($this->config['system']['ssl_policy'] == SSL_POLICY_SELFSIGN) {
-					if ($ssl) {
-						$scheme = 'https';
-					} else {
-						$scheme = 'http';
-					}
-				}
-			}
-
-			if (get_config('config', 'hostname') != '') {
-				$this->hostname = get_config('config', 'hostname');
-			}
-
-			$this->baseurl[$cache_index] = $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
+		// Cached value found, nothing to process
+		if (isset($this->baseurl[$cache_index])) {
+			return $this->baseurl[$cache_index];
 		}
+
+		$scheme = $this->scheme;
+
+		if ((x($this->config, 'system')) && (x($this->config['system'], 'ssl_policy'))) {
+			if (intval($this->config['system']['ssl_policy']) === SSL_POLICY_FULL) {
+				$scheme = 'https';
+			}
+
+			//	Basically, we have $ssl = true on any links which can only be seen by a logged in user
+			//	(and also the login link). Anything seen by an outsider will have it turned off.
+
+			if ($this->config['system']['ssl_policy'] == SSL_POLICY_SELFSIGN) {
+				if ($ssl) {
+					$scheme = 'https';
+				} else {
+					$scheme = 'http';
+				}
+			}
+		}
+
+		if (get_config('config', 'hostname') != '') {
+			$this->hostname = get_config('config', 'hostname');
+		}
+
+		$this->baseurl[$cache_index] = $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
+
 		return $this->baseurl[$cache_index];
 	}
 
