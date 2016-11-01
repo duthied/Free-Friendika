@@ -325,7 +325,7 @@ function datetimesel($format, $min, $max, $default, $label, $id = 'datetimepicke
  * Results relative to current timezone.
  * Limited to range of timestamps.
  *
- * @param string $posted_date
+ * @param string $posted_date MySQL-formatted date string (YYYY-MM-DD HH:MM:SS)
  * @param string $format (optional) Parsed with sprintf()
  *    <tt>%1$d %2$s ago</tt>, e.g. 22 hours ago, 1 minute ago
  *
@@ -361,11 +361,11 @@ function relative_date($posted_date, $format = null) {
 		if ($d >= 1) {
 			$r = round($d);
 			// translators - e.g. 22 hours ago, 1 minute ago
-			if(! $format) {
+			if (!$format) {
 				$format = t('%1$d %2$s ago');
 			}
 
-			return sprintf( $format,$r, (($r == 1) ? $str[0] : $str[1]));
+			return sprintf($format, $r, (($r == 1) ? $str[0] : $str[1]));
 		}
 	}
 }
