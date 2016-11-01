@@ -26,7 +26,18 @@ function dbclean_run(&$argv, &$argc) {
 	} else {
 		$stage = 0;
 	}
-	remove_orphans($stage);
+
+	if (get_config("system", "worker") AND ($stage == 0)) {
+		proc_run(PRIORITY_LOW, 'include/dbclean.php', 1);
+		proc_run(PRIORITY_LOW, 'include/dbclean.php', 2);
+		proc_run(PRIORITY_LOW, 'include/dbclean.php', 3);
+		proc_run(PRIORITY_LOW, 'include/dbclean.php', 4);
+		proc_run(PRIORITY_LOW, 'include/dbclean.php', 5);
+		proc_run(PRIORITY_LOW, 'include/dbclean.php', 6);
+		proc_run(PRIORITY_LOW, 'include/dbclean.php', 7);
+	} else {
+		remove_orphans($stage);
+	}
 }
 
 /**
@@ -34,6 +45,8 @@ function dbclean_run(&$argv, &$argc) {
  */
 function remove_orphans($stage = 0) {
 	global $db;
+
+	$count = 0;
 
 	if (($stage == 1) OR ($stage == 0)) {
 		logger("Deleting old global item entries from item table without user copy");
@@ -44,11 +57,6 @@ function remove_orphans($stage = 0) {
 			logger("found global item orphans: ".$count);
 			while ($orphan = $db->qfetch()) {
 				q("DELETE FROM `item` WHERE `id` = %d", intval($orphan["id"]));
-			}
-
-			// Call it again if not all entries were purged
-			if (($count > 0) AND get_config("system", "worker")) {
-				proc_run(PRIORITY_LOW, 'include/dbclean.php', 1);
 			}
 		}
 		$db->qclose();
@@ -63,11 +71,6 @@ function remove_orphans($stage = 0) {
 			while ($orphan = $db->qfetch()) {
 				q("DELETE FROM `item` WHERE `id` = %d", intval($orphan["id"]));
 			}
-
-			// Call it again if not all entries were purged
-			if (($count > 0) AND get_config("system", "worker")) {
-				proc_run(PRIORITY_LOW, 'include/dbclean.php', 2);
-			}
 		}
 		$db->qclose();
 		logger("Done deleting items without parents");
@@ -80,11 +83,6 @@ function remove_orphans($stage = 0) {
 			logger("found thread orphans: ".$count);
 			while ($orphan = $db->qfetch()) {
 				q("DELETE FROM `thread` WHERE `iid` = %d", intval($orphan["iid"]));
-			}
-
-			// Call it again if not all entries were purged
-			if (($count > 0) AND get_config("system", "worker")) {
-				proc_run(PRIORITY_LOW, 'include/dbclean.php', 3);
 			}
 		}
 		$db->qclose();
@@ -99,11 +97,6 @@ function remove_orphans($stage = 0) {
 			while ($orphan = $db->qfetch()) {
 				q("DELETE FROM `notify` WHERE `iid` = %d", intval($orphan["iid"]));
 			}
-
-			// Call it again if not all entries were purged
-			if (($count > 0) AND get_config("system", "worker")) {
-				proc_run(PRIORITY_LOW, 'include/dbclean.php', 4);
-			}
 		}
 		$db->qclose();
 		logger("Done deleting orphaned data from notify table");
@@ -116,11 +109,6 @@ function remove_orphans($stage = 0) {
 			logger("found notify-threads orphans: ".$count);
 			while ($orphan = $db->qfetch()) {
 				q("DELETE FROM `notify-threads` WHERE `id` = %d", intval($orphan["id"]));
-			}
-
-			// Call it again if not all entries were purged
-			if (($count > 0) AND get_config("system", "worker")) {
-				proc_run(PRIORITY_LOW, 'include/dbclean.php', 5);
 			}
 		}
 		$db->qclose();
@@ -136,11 +124,6 @@ function remove_orphans($stage = 0) {
 			while ($orphan = $db->qfetch()) {
 				q("DELETE FROM `sign` WHERE `iid` = %d", intval($orphan["iid"]));
 			}
-
-			// Call it again if not all entries were purged
-			if (($count > 0) AND get_config("system", "worker")) {
-				proc_run(PRIORITY_LOW, 'include/dbclean.php', 6);
-			}
 		}
 		$db->qclose();
 		logger("Done deleting orphaned data from sign table");
@@ -155,15 +138,16 @@ function remove_orphans($stage = 0) {
 			while ($orphan = $db->qfetch()) {
 				q("DELETE FROM `term` WHERE `oid` = %d", intval($orphan["oid"]));
 			}
-
-			// Call it again if not all entries were purged
-			if (($count > 0) AND get_config("system", "worker")) {
-				proc_run(PRIORITY_LOW, 'include/dbclean.php', 7);
-			}
 		}
 		$db->qclose();
 		logger("Done deleting orphaned data from term table");
 	}
+
+	// Call it again if not all entries were purged
+	if (($stage != 0) AND ($count > 0) AND get_config("system", "worker")) {
+		proc_run(PRIORITY_LOW, 'include/dbclean.php');
+	}
+
 }
 
 if (array_search(__file__,get_included_files())===0){

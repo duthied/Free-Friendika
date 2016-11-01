@@ -126,17 +126,7 @@ function cron_run(&$argv, &$argc){
 
 		proc_run(PRIORITY_LOW, 'include/expire.php');
 
-		if (get_config("system", "worker")) {
-			proc_run(PRIORITY_LOW, 'include/dbclean.php', 1);
-			proc_run(PRIORITY_LOW, 'include/dbclean.php', 2);
-			proc_run(PRIORITY_LOW, 'include/dbclean.php', 3);
-			proc_run(PRIORITY_LOW, 'include/dbclean.php', 4);
-			proc_run(PRIORITY_LOW, 'include/dbclean.php', 5);
-			proc_run(PRIORITY_LOW, 'include/dbclean.php', 6);
-			proc_run(PRIORITY_LOW, 'include/dbclean.php', 7);
-		} else {
-			proc_run(PRIORITY_LOW, 'include/dbclean.php');
-		}
+		proc_run(PRIORITY_LOW, 'include/dbclean.php');
 
 		cron_update_photo_albums();
 	}
