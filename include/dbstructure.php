@@ -918,7 +918,7 @@ function db_definition($charset) {
 					"ownerid_created" => array("owner-id","created"),
 					"wall_body" => array("wall","body(6)"),
 					"uid_visible_moderated_created" => array("uid","visible","moderated","created"),
-					"uid_uri" => array("uid","uri"),
+					"uid_uri" => array("uid", "uri"),
 					"uid_wall_created" => array("uid","wall","created"),
 					"resource-id" => array("resource-id"),
 					"uid_type" => array("uid","type"),

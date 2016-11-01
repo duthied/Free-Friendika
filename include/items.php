@@ -730,6 +730,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	if ($arr["uid"] == 0) {
 		$arr["global"] = true;
 
+		// Set the global flag on all items if this was a global item entry
 		q("UPDATE `item` SET `global` = 1 WHERE `uri` = '%s'", dbesc($arr["uri"]));
 	} else {
 		$isglobal = q("SELECT `global` FROM `item` WHERE `uid` = 0 AND `uri` = '%s'", dbesc($arr["uri"]));
@@ -763,6 +764,17 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		return 0;
 	}
 
+	// Check for already added items.
+	// There is a timing issue here that sometimes creates double postings.
+	// An unique index would help - but the limitations of MySQL (maximum size of index values) prevent this.
+	if ($arr["uid"] == 0) {
+		$r = qu("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = 0 LIMIT 1", dbesc(trim($arr['uri'])));
+		if (dbm::is_result($r)) {
+			logger('Global item already stored. URI: '.$arr['uri'].' on network '.$arr['network'], LOGGER_DEBUG);
+			return 0;
+		}
+	}
+
 	// Store the unescaped version
 	$unescaped = $arr;
 
@@ -777,40 +789,66 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 			. implode("`, `", array_keys($arr))
 			. "`) VALUES ('"
 			. implode("', '", array_values($arr))
-			. "')" );
+			. "')");
 
 	// And restore it
 	$arr = $unescaped;
 
-	// find the item that we just created
-	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = %d AND `network` = '%s' ORDER BY `id` ASC",
+	// When the item was successfully stored we fetch the ID of the item.
+	if (dbm::is_result($r)) {
+		$r = q("SELECT LAST_INSERT_ID() AS `item-id`");
+		if (dbm::is_result($r)) {
+			$current_post = $r[0]['item-id'];
+		} else {
+			// This shouldn't happen
+			$current_post = 0;
+		}
+	} else {
+		// This can happen - for example - if there are locking timeouts.
+		logger("Item wasn't stored - we quit here.");
+		q("COMMIT");
+		return 0;
+	}
+
+	if ($current_post == 0) {
+		// This is one of these error messages that never should occur.
+		logger("couldn't find created item - we better quit now.");
+		q("COMMIT");
+		return 0;
+	}
+
+	// How much entries have we created?
+	// We wouldn't need this query when we could use an unique index - but MySQL has length problems with them.
+	$r = q("SELECT COUNT(*) AS `entries` FROM `item` WHERE `uri` = '%s' AND `uid` = %d AND `network` = '%s'",
 		dbesc($arr['uri']),
 		intval($arr['uid']),
 		dbesc($arr['network'])
 	);
 
-	if (count($r) > 1) {
-		// There are duplicates. Keep the oldest one, delete the others
-		logger('item_store: duplicated post occurred. Removing newer duplicates. uri = '.$arr['uri'].' uid = '.$arr['uid']);
-		q("DELETE FROM `item` WHERE `uri` = '%s' AND `uid` = %d AND `network` = '%s' AND `id` > %d",
-			dbesc($arr['uri']),
-			intval($arr['uid']),
-			dbesc($arr['network']),
-			intval($r[0]["id"])
-		);
-		q("COMMIT");
-		return 0;
-	} elseif (count($r)) {
-
-		$current_post = $r[0]['id'];
-		logger('item_store: created item ' . $current_post);
-
-		item_set_last_item($arr);
-	} else {
-		logger('item_store: could not locate created item');
+	if (!dbm::is_result($r)) {
+		// This shouldn't happen, since COUNT always works when the database connection is there.
+		logger("We couldn't count the stored entries. Very strange ...");
 		q("COMMIT");
 		return 0;
 	}
+
+	if ($r[0]["entries"] > 1) {
+		// There are duplicates. We delete our just created entry.
+		logger('Duplicated post occurred. uri = '.$arr['uri'].' uid = '.$arr['uid']);
+
+		// Yes, we could do a rollback here - but we are having many users with MyISAM.
+		q("DELETE FROM `item` WHERE `id` = %d", intval($current_post));
+		q("COMMIT");
+		return 0;
+	} elseif ($r[0]["entries"] == 0) {
+		// This really should never happen since we quit earlier if there were problems.
+		logger("Something is terribly wrong. We haven't found our created entry.");
+		q("COMMIT");
+		return 0;
+	}
+
+	logger('item_store: created item '.$current_post);
+	item_set_last_item($arr);
 
 	if (!$parent_id || ($arr['parent-uri'] === $arr['uri']))
 		$parent_id = $current_post;
@@ -855,19 +893,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		);
 	}
 
-
-	/**
-	 * If this is now the last-child, force all _other_ children of this parent to *not* be last-child
-	 */
-
-	if ($arr['last-child']) {
-		$r = q("UPDATE `item` SET `last-child` = 0 WHERE `parent-uri` = '%s' AND `uid` = %d AND `id` != %d",
-			dbesc($arr['uri']),
-			intval($arr['uid']),
-			intval($current_post)
-		);
-	}
-
 	$deleted = tag_deliver($arr['uid'],$current_post);
 
 	// current post can be deleted if is for a community page and no mention are
@@ -884,20 +909,33 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 			logger('item_store: new item not found in DB, id ' . $current_post);
 	}
 
+	if ($arr['parent-uri'] === $arr['uri']) {
+		add_thread($current_post);
+	} else {
+		update_thread($parent_id);
+	}
+
+	q("COMMIT");
+
+	// Due to deadlock issues with the "term" table we are doing these steps after the commit.
+	// This is not perfect - but a workable solution until we found the reason for the problem.
 	create_tags_from_item($current_post);
 	create_files_from_item($current_post);
 
-	// Only check for notifications on start posts
-	if ($arr['parent-uri'] === $arr['uri']) {
-		add_thread($current_post);
-		q("COMMIT");
+	// If this is now the last-child, force all _other_ children of this parent to *not* be last-child
+	// It is done after the transaction to avoid dead locks.
+	if ($arr['last-child']) {
+		$r = q("UPDATE `item` SET `last-child` = 0 WHERE `parent-uri` = '%s' AND `uid` = %d AND `id` != %d",
+			dbesc($arr['uri']),
+			intval($arr['uid']),
+			intval($current_post)
+		);
+	}
 
+	if ($arr['parent-uri'] === $arr['uri']) {
 		add_shadow_thread($current_post);
 	} else {
-		update_thread($parent_id);
-		q("COMMIT");
-
-		add_shadow_entry($arr);
+		add_shadow_entry($current_post);
 	}
 
 	check_item_notification($current_post, $uid);
