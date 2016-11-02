@@ -655,6 +655,8 @@ CREATE TABLE IF NOT EXISTS `notify` (
 	`seen` tinyint(1) NOT NULL DEFAULT 0,
 	`verb` varchar(255) NOT NULL DEFAULT '',
 	`otype` varchar(16) NOT NULL DEFAULT '',
+	`name_cache` tinytext,
+	`msg_name` mediumtext,
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`)
 ) DEFAULT CHARSET=utf8mb4;
