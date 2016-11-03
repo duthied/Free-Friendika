@@ -441,7 +441,7 @@ function notification($params) {
 		// create notification entry in DB
 
 		$r = q("INSERT INTO `notify` (`hash`, `name`, `url`, `photo`, `date`, `uid`, `link`, `iid`, `parent`, `type`, `verb`, `otype`, `name_cache`)
-			values('%s', '%s', '%s', '%s', '%s', %d, '%s', %d, %d, %d, '%s', '%s')",
+			values('%s', '%s', '%s', '%s', '%s', %d, '%s', %d, %d, %d, '%s', '%s', '%s')",
 			dbesc($datarray['hash']),
 			dbesc($datarray['name']),
 			dbesc($datarray['url']),
