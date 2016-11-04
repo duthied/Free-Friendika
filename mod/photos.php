@@ -21,8 +21,6 @@ function photos_init(&$a) {
 
 	nav_set_selected('home');
 
-	$o = '';
-
 	if ($a->argc > 1) {
 		$nick = $a->argv[1];
 		$user = qu("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",

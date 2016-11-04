@@ -11,6 +11,7 @@ if (!file_exists("boot.php") AND (sizeof($_SERVER["argv"]) != 0)) {
 }
 
 require_once("boot.php");
+require_once("include/photos.php");
 
 
 function cron_run(&$argv, &$argc){
@@ -162,8 +163,9 @@ function cron_run(&$argv, &$argc){
  */
 function cron_update_photo_albums() {
 	$r = q("SELECT `uid` FROM `user` WHERE NOT `account_expired` AND NOT `account_removed`");
-	if (!dbm::is_result($r))
+	if (!dbm::is_result($r)) {
 		return;
+	}
 
 	foreach ($r AS $user) {
 		photo_albums($user['uid'], true);
