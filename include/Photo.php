@@ -47,18 +47,18 @@ class Photo {
 	public function __construct($data, $type=null) {
 		$this->imagick = class_exists('Imagick');
 		$this->types = $this->supportedTypes();
-		if (!array_key_exists($type,$this->types)){
+		if (!array_key_exists($type, $this->types)){
 			$type='image/jpeg';
 		}
 		$this->type = $type;
 
 		if ($this->is_imagick() && $this->load_data($data)) {
-				return true;
-			} else {
-				// Failed to load with Imagick, fallback
-				$this->imagick = false;
-			}
-			return $this->load_data($data);
+			return true;
+		} else {
+			// Failed to load with Imagick, fallback
+			$this->imagick = false;
+		}
+		return $this->load_data($data);
 	}
 
 	public function __destruct() {
@@ -78,6 +78,7 @@ class Photo {
 
 	/**
 	 * @brief Maps Mime types to Imagick formats
+	 * @return arr With with image formats (mime type as key)
 	 */
 	public function get_FormatsMap() {
 		$m = array(
@@ -90,11 +91,10 @@ class Photo {
 
 	private function load_data($data) {
 		if ($this->is_imagick()) {
-				$this->image = new Imagick();
+			$this->image = new Imagick();
 			try {
 				$this->image->readImageBlob($data);
-			}
-			catch (Exception $e) {
+			} catch (Exception $e) {
 				// Imagick couldn't use the data
 				return false;
 			}
@@ -114,7 +114,7 @@ class Photo {
 			 */
 			switch($this->getType()){
 				case "image/png":
-					$quality = get_config('system','png_quality');
+					$quality = get_config('system', 'png_quality');
 					if ((! $quality) || ($quality > 9)) {
 						$quality = PNG_QUALITY;
 					}
@@ -130,7 +130,7 @@ class Photo {
 					$this->image->setCompressionQuality($quality);
 					break;
 				case "image/jpeg":
-					$quality = get_config('system','jpeg_quality');
+					$quality = get_config('system', 'jpeg_quality');
 					if ((! $quality) || ($quality > 100)) {
 						$quality = JPEG_QUALITY;
 					}
@@ -239,21 +239,21 @@ class Photo {
 
 			if ((($height * 9) / 16) > $width) {
 				$dest_width = $max;
-				$dest_height = intval(( $height * $max ) / $width);
+				$dest_height = intval(($height * $max) / $width);
 			} elseif ($width > $height) {
 				// else constrain both dimensions
 				$dest_width = $max;
-				$dest_height = intval(( $height * $max ) / $width);
+				$dest_height = intval(($height * $max) / $width);
 			} else {
-				$dest_width = intval(( $width * $max ) / $height);
+				$dest_width = intval(($width * $max) / $height);
 				$dest_height = $max;
 			}
 		} else {
-			if ( $width > $max ) {
+			if ($width > $max) {
 				$dest_width = $max;
-				$dest_height = intval(( $height * $max ) / $width);
+				$dest_height = intval(($height * $max) / $width);
 			} else {
-				if ( $height > $max ) {
+				if ($height > $max) {
 
 					// very tall image (greater than 16:9)
 					// but width is OK - don't do anything
@@ -262,7 +262,7 @@ class Photo {
 						$dest_width = $width;
 						$dest_height = $height;
 					} else {
-						$dest_width = intval(( $width * $max ) / $height);
+						$dest_width = intval(($width * $max) / $height);
 						$dest_height = $max;
 					}
 				} else {
@@ -296,7 +296,7 @@ class Photo {
 		}
 
 
-		$dest = imagecreatetruecolor( $dest_width, $dest_height );
+		$dest = imagecreatetruecolor($dest_width, $dest_height);
 		imagealphablending($dest, false);
 		imagesavealpha($dest, true);
 		if ($this->type=='image/png') {
@@ -388,12 +388,12 @@ class Photo {
 			return false;
 		}
 
-		if ( (! function_exists('exif_read_data')) || ($this->getType() !== 'image/jpeg') ) {
+		if ((!function_exists('exif_read_data')) || ($this->getType() !== 'image/jpeg')) {
 			return;
 		}
 
 		$exif = @exif_read_data($filename,null,true);
-		if (! $exif) {
+		if (!$exif) {
 			return;
 		}
 
@@ -453,25 +453,25 @@ class Photo {
 
 		$dest_width = $dest_height = 0;
 
-		if ((! $width)|| (! $height)) {
+		if ((!$width)|| (!$height)) {
 			return false;
 		}
 
 		if ($width < $min && $height < $min) {
 			if ($width > $height) {
 				$dest_width = $min;
-				$dest_height = intval(( $height * $min ) / $width);
+				$dest_height = intval(($height * $min) / $width);
 			} else {
-				$dest_width = intval(( $width * $min ) / $height);
+				$dest_width = intval(($width * $min) / $height);
 				$dest_height = $min;
 			}
 		} else {
-			if ( $width < $min ) {
+			if ($width < $min) {
 				$dest_width = $min;
-				$dest_height = intval(( $height * $min ) / $width);
+				$dest_height = intval(($height * $min) / $width);
 			} else {
-				if ( $height < $min ) {
-					$dest_width = intval(( $width * $min ) / $height);
+				if ($height < $min) {
+					$dest_width = intval(($width * $min) / $height);
 					$dest_height = $min;
 				} else {
 					$dest_width = $width;
@@ -481,10 +481,10 @@ class Photo {
 		}
 
 		if ($this->is_imagick()) {
-			return $this->scaleImage($dest_width,$dest_height);
+			return $this->scaleImage($dest_width, $dest_height);
 		}
 
-		$dest = imagecreatetruecolor( $dest_width, $dest_height );
+		$dest = imagecreatetruecolor($dest_width, $dest_height);
 		imagealphablending($dest, false);
 		imagesavealpha($dest, true);
 		if ($this->type=='image/png') {
@@ -514,7 +514,7 @@ class Photo {
 			return;
 		}
 
-		$dest = imagecreatetruecolor( $dim, $dim );
+		$dest = imagecreatetruecolor($dim, $dim);
 		imagealphablending($dest, false);
 		imagesavealpha($dest, true);
 		if ($this->type=='image/png') {
@@ -530,7 +530,7 @@ class Photo {
 	}
 
 
-	public function cropImage($max,$x,$y,$w,$h) {
+	public function cropImage($max, $x, $y, $w, $h) {
 		if (!$this->is_valid()) {
 			return false;
 		}
@@ -549,7 +549,7 @@ class Photo {
 			return $this->scaleImage($max);
 		}
 
-		$dest = imagecreatetruecolor( $max, $max );
+		$dest = imagecreatetruecolor($max, $max);
 		imagealphablending($dest, false);
 		imagesavealpha($dest, true);
 		if ($this->type=='image/png') {
@@ -590,7 +590,7 @@ class Photo {
 			return $string;
 		}
 
-		$quality = FALSE;
+		$quality = false;
 
 		ob_start();
 
@@ -599,18 +599,18 @@ class Photo {
 
 		switch($this->getType()){
 			case "image/png":
-				$quality = get_config('system','png_quality');
-				if ((! $quality) || ($quality > 9)) {
+				$quality = get_config('system', 'png_quality');
+				if ((!$quality) || ($quality > 9)) {
 					$quality = PNG_QUALITY;
 				}
-				imagepng($this->image,NULL, $quality);
+				imagepng($this->image, null, $quality);
 				break;
 			case "image/jpeg":
-				$quality = get_config('system','jpeg_quality');
-				if ((! $quality) || ($quality > 100)) {
+				$quality = get_config('system', 'jpeg_quality');
+				if ((!$quality) || ($quality > 100)) {
 					$quality = JPEG_QUALITY;
 				}
-				imagejpeg($this->image,NULL,$quality);
+				imagejpeg($this->image, null, $quality);
 		}
 		$string = ob_get_contents();
 		ob_end_clean();
@@ -683,8 +683,8 @@ class Photo {
 			);
 		} else {
 			$r = q("INSERT INTO `photo`
-				( `uid`, `contact-id`, `guid`, `resource-id`, `created`, `edited`, `filename`, type, `album`, `height`, `width`, `datasize`, `data`, `scale`, `profile`, `allow_cid`, `allow_gid`, `deny_cid`, `deny_gid` )
-				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, '%s', %d, %d, '%s', '%s', '%s', '%s' )",
+				(`uid`, `contact-id`, `guid`, `resource-id`, `created`, `edited`, `filename`, type, `album`, `height`, `width`, `datasize`, `data`, `scale`, `profile`, `allow_cid`, `allow_gid`, `deny_cid`, `deny_gid`)
+				VALUES (%d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, '%s', %d, %d, '%s', '%s', '%s', '%s')",
 				intval($uid),
 				intval($cid),
 				dbesc($guid),
@@ -752,8 +752,8 @@ function guess_image_type($filename, $fromcurl=false) {
 			$ext = pathinfo($filename, PATHINFO_EXTENSION);
 			$types = Photo::supportedTypes();
 			$type = "image/jpeg";
-			foreach ($types as $m=>$e){
-				if ($ext==$e) {
+			foreach ($types as $m => $e){
+				if ($ext == $e) {
 					$type = $m;
 				}
 			}
@@ -774,7 +774,7 @@ function guess_image_type($filename, $fromcurl=false) {
  *
  * @return array Returns array of the different avatar sizes
  */
-function update_contact_avatar($avatar,$uid,$cid, $force = false) {
+function update_contact_avatar($avatar, $uid, $cid, $force = false) {
 
 	$r = q("SELECT `avatar`, `photo`, `thumb`, `micro` FROM `contact` WHERE `id` = %d LIMIT 1", intval($cid));
 	if (!dbm::is_result($r)) {
@@ -784,7 +784,7 @@ function update_contact_avatar($avatar,$uid,$cid, $force = false) {
 	}
 
 	if (($r[0]["avatar"] != $avatar) OR $force) {
-		$photos = import_profile_photo($avatar,$uid,$cid, true);
+		$photos = import_profile_photo($avatar, $uid, $cid, true);
 
 		if ($photos) {
 			q("UPDATE `contact` SET `avatar` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' WHERE `id` = %d",
@@ -797,7 +797,7 @@ function update_contact_avatar($avatar,$uid,$cid, $force = false) {
 	return $data;
 }
 
-function import_profile_photo($photo,$uid,$cid, $quit_on_error = false) {
+function import_profile_photo($photo, $uid, $cid, $quit_on_error = false) {
 
 	$a = get_app();
 
@@ -814,33 +814,33 @@ function import_profile_photo($photo,$uid,$cid, $quit_on_error = false) {
 	$photo_failure = false;
 
 	$filename = basename($photo);
-	$img_str = fetch_url($photo,true);
+	$img_str = fetch_url($photo, true);
 
 	if ($quit_on_error AND ($img_str == "")) {
 		return false;
 	}
 
-	$type = guess_image_type($photo,true);
+	$type = guess_image_type($photo, true);
 	$img = new Photo($img_str, $type);
 	if ($img->is_valid()) {
 
 		$img->scaleImageSquare(175);
 
-		$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 4 );
+		$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 4);
 
 		if ($r === false)
 			$photo_failure = true;
 
 		$img->scaleImage(80);
 
-		$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 5 );
+		$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 5);
 
 		if ($r === false)
 			$photo_failure = true;
 
 		$img->scaleImage(48);
 
-		$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 6 );
+		$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 6);
 
 		if ($r === false) {
 			$photo_failure = true;
@@ -915,21 +915,21 @@ function scale_image($width, $height, $max) {
 
 		if ((($height * 9) / 16) > $width) {
 			$dest_width = $max;
-			$dest_height = intval(( $height * $max ) / $width);
+			$dest_height = intval(($height * $max) / $width);
 		} elseif ($width > $height) {
 			// else constrain both dimensions
 			$dest_width = $max;
-			$dest_height = intval(( $height * $max ) / $width);
+			$dest_height = intval(($height * $max) / $width);
 		} else {
-			$dest_width = intval(( $width * $max ) / $height);
+			$dest_width = intval(($width * $max) / $height);
 			$dest_height = $max;
 		}
 	} else {
-		if ( $width > $max ) {
+		if ($width > $max) {
 			$dest_width = $max;
-			$dest_height = intval(( $height * $max ) / $width);
+			$dest_height = intval(($height * $max) / $width);
 		} else {
-			if ( $height > $max ) {
+			if ($height > $max) {
 
 				// very tall image (greater than 16:9)
 				// but width is OK - don't do anything
@@ -938,7 +938,7 @@ function scale_image($width, $height, $max) {
 					$dest_width = $width;
 					$dest_height = $height;
 				} else {
-					$dest_width = intval(( $width * $max ) / $height);
+					$dest_width = intval(($width * $max) / $height);
 					$dest_height = $max;
 				}
 			} else {
@@ -977,7 +977,7 @@ function store_photo($a, $uid, $imagedata = "", $url = "") {
 		$a->save_timestamp($stamp1, "file");
 	}
 
-	$maximagesize = get_config('system','maximagesize');
+	$maximagesize = get_config('system', 'maximagesize');
 
 	if (($maximagesize) && (strlen($imagedata) > $maximagesize)) {
 		logger("Image exceeds size limit of ".$maximagesize, LOGGER_DEBUG);
@@ -1022,7 +1022,7 @@ function store_photo($a, $uid, $imagedata = "", $url = "") {
 	$ph->orient($tempfile);
 	unlink($tempfile);
 
-	$max_length = get_config('system','max_image_length');
+	$max_length = get_config('system', 'max_image_length');
 	if (! $max_length) {
 		$max_length = MAX_IMAGE_LENGTH;
 	}
@@ -1040,7 +1040,7 @@ function store_photo($a, $uid, $imagedata = "", $url = "") {
 	// Pictures are always public by now
 	//$defperm = '<'.$default_cid.'>';
 	$defperm = "";
-	$visitor   = 0;
+	$visitor = 0;
 
 	$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 0, 0, $defperm);
 
