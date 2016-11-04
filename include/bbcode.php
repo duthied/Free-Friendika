@@ -146,7 +146,7 @@ function cleancss($input) {
 		if (($char >= "a") and ($char <= "z"))
 			$cleaned .= $char;
 
-		if (!(strpos(" #;:0123456789-_", $char) === false))
+		if (!(strpos(" #;:0123456789-_.%", $char) === false))
 			$cleaned .= $char;
 	}
 
@@ -892,8 +892,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	// we may need to restrict this further if it picks up too many strays
 	// link acct:user@host to a webfinger profile redirector
 
-	$Text = preg_replace('/acct:(.*?)@(.*?)([ ,])/', '<a href="' . $a->get_baseurl() . '/acctlink?addr=' . "$1@$2"
-		. '" target="extlink" >acct:' . "$1@$2$3" . '</a>',$Text);
+	$Text = preg_replace('/acct:([^@]+)@((?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63})/', '<a href="' . $a->get_baseurl() . '/acctlink?addr=$1@$2" target="extlink">acct:$1@$2</a>',$Text);
 
 	// Perform MAIL Search
 	$Text = preg_replace("/\[mail\]([$MAILSearchString]*)\[\/mail\]/", '<a href="mailto:$1">$1</a>', $Text);

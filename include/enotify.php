@@ -418,6 +418,7 @@ function notification($params) {
 		$datarray = array();
 		$datarray['hash']  = $hash;
 		$datarray['name']  = $params['source_name'];
+		$datarray['name_cache'] = strip_tags(bbcode($params['source_name']));
 		$datarray['url']   = $params['source_link'];
 		$datarray['photo'] = $params['source_photo'];
 		$datarray['date']  = datetime_convert();
@@ -439,8 +440,8 @@ function notification($params) {
 
 		// create notification entry in DB
 
-		$r = q("INSERT INTO `notify` (`hash`, `name`, `url`, `photo`, `date`, `uid`, `link`, `iid`, `parent`, `type`, `verb`, `otype`)
-			values('%s', '%s', '%s', '%s', '%s', %d, '%s', %d, %d, %d, '%s', '%s')",
+		$r = q("INSERT INTO `notify` (`hash`, `name`, `url`, `photo`, `date`, `uid`, `link`, `iid`, `parent`, `type`, `verb`, `otype`, `name_cache`)
+			values('%s', '%s', '%s', '%s', '%s', %d, '%s', %d, %d, %d, '%s', '%s', '%s')",
 			dbesc($datarray['hash']),
 			dbesc($datarray['name']),
 			dbesc($datarray['url']),
@@ -452,7 +453,8 @@ function notification($params) {
 			intval($datarray['parent']),
 			intval($datarray['type']),
 			dbesc($datarray['verb']),
-			dbesc($datarray['otype'])
+			dbesc($datarray['otype']),
+			dbesc($datarray["name_cache"])
 		);
 
 		$r = q("SELECT `id` FROM `notify` WHERE `hash` = '%s' AND `uid` = %d LIMIT 1",
@@ -494,8 +496,10 @@ function notification($params) {
 
 		$itemlink = $a->get_baseurl().'/notify/view/'.$notify_id;
 		$msg = replace_macros($epreamble, array('$itemlink' => $itemlink));
-		$r = q("UPDATE `notify` SET `msg` = '%s' WHERE `id` = %d AND `uid` = %d",
+		$msg_cache = format_notification_message($datarray['name_cache'], strip_tags(bbcode($msg)));
+		$r = q("UPDATE `notify` SET `msg` = '%s', `msg_cache` = '%s' WHERE `id` = %d AND `uid` = %d",
 			dbesc($msg),
+			dbesc($msg_cache),
 			intval($notify_id),
 			intval($params['uid'])
 		);
@@ -778,4 +782,27 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	if (isset($params["type"]))
 		notification($params);
 }
-?>
+
+/**
+ * @brief Formats a notification message with the notification author
+ *
+ * Replace the name with {0} but ensure to make that only once. The {0} is used
+ * later and prints the name in bold.
+ *
+ * @param string $name
+ * @param string $message
+ * @return string Formatted message
+ */
+function format_notification_message($name, $message) {
+	if ($name != '') {
+		$pos = strpos($message, $name);
+	} else {
+		$pos = false;
+	}
+
+	if ($pos !== false) {
+		$message = substr_replace($message, '{0}', $pos, strlen($name));
+	}
+
+	return $message;
+}
