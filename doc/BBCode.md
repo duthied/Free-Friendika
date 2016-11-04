@@ -12,21 +12,21 @@ table.bbcodes {
     border: 1px solid #aaa;
     border-collapse: collapse;
     color: #000;
-	width: 100%;
+    width: 100%;
 }
 
 table.bbcodes > tr > th,
 table.bbcodes > tr > td,
 table.bbcodes > * > tr > th,
 table.bbcodes > * > tr > td {
-	border: 1px solid #aaa;
-	padding: 0.2em 0.4em
+    border: 1px solid #aaa;
+    padding: 0.2em 0.4em
 }
 
 table.bbcodes > tr > th,
 table.bbcodes > * > tr > th {
-	background-color: #f2f2f2;
-	text-align: center
+    background-color: #f2f2f2;
+    text-align: center
 }
 </style>
 
@@ -522,8 +522,8 @@ This is done with the [abstract]-element.
 <tr>
   <td>[abstract]Totally interesting! A must-see! Please click the link![/abstract]<br>
 I want to tell you a really boring story that you really never wanted to hear.</td>
-  <td>Twitter would display the text "Totally interesting! A must-see! Please click the link!".
-On Friendica you would only see the text after "I want to tell you a really ..."</td>
+  <td>Twitter would display the text <blockquote>Totally interesting! A must-see! Please click the link!</blockquote>
+On Friendica you would only see the text after <blockquote>I want to tell you a really ...</blockquote></td>
 </tr>
 </table>
 
@@ -579,7 +579,7 @@ The [abstract] element isn't working with the native OStatus connection or with 
   <th>Result</th>
 </tr>
 <tr>
-  <td>If you need to put literal bbcode in a message, [noparse], [nobb] or [pre] are used to escape bbcode:<br>
+  <td>If you need to put literal bbcode in a message, [noparse], [nobb] or [pre] are used to escape bbcode:
     <ul>
       <li>[noparse][b]bold[/b][/noparse]</li>
       <li>[nobb][b]bold[/b][/nobb]</li>
@@ -608,4 +608,3 @@ The [abstract] element isn't working with the native OStatus connection or with 
   <td><pre>&lt;span class="custom"&gt;If the class exists,<br> this block will have the custom class<br> style applied.&lt;/span&gt;</pre></td>
 </tr>
 </table>
-
