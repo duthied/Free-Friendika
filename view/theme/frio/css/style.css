@@ -45,7 +45,7 @@ body a {
  * anchor.top should be the opposite of body.padding-top
  */
 body a[name]:not([href]) {
-	display: block;
+    display: block;
     position: relative;
     top: -110px;
     visibility: hidden;

@@ -770,7 +770,8 @@ function activity_match($haystack,$needle) {
 
 
 /**
- * Pull out all #hashtags and @person tags from $string;
+ * @brief Pull out all #hashtags and @person tags from $string.
+ * 
  * We also get @person@domain.com - which would make
  * the regex quite complicated as tags can also
  * end a sentence. So we'll run through our results
