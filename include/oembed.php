@@ -6,7 +6,15 @@ function oembed_replacecb($matches){
 	return $s;
 }
 
-
+/**
+ * @brief Get data from an URL to embed its content.
+ * 
+ * @param string $embedurl The URL from which the data should be fetched.
+ * @param bool $no_rich_type If set to true rich type content won't be fetched.
+ * 
+ * @return bool|object Returns object with embed content or false if no embedable
+ *	 content exists
+ */
 function oembed_fetch_url($embedurl, $no_rich_type = false){
 	$embedurl = trim($embedurl, "'");
 	$embedurl = trim($embedurl, '"');
@@ -16,11 +24,11 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 	$r = q("SELECT * FROM `oembed` WHERE `url` = '%s'",
 		dbesc(normalise_link($embedurl)));
 
-	if ($r)
+	if (dbm::is_result($r)) {
 		$txt = $r[0]["content"];
-	else
+	} else {
 		$txt = Cache::get($a->videowidth . $embedurl);
-
+	}
 	// These media files should now be caught in bbcode.php
 	// left here as a fallback in case this is called from another source
 
@@ -28,27 +36,27 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 	$ext = pathinfo(strtolower($embedurl),PATHINFO_EXTENSION);
 
 
-	if(is_null($txt)){
+	if (is_null($txt)) {
 		$txt = "";
 
 		if (!in_array($ext, $noexts)){
 			// try oembed autodiscovery
 			$redirects = 0;
-			$html_text = fetch_url($embedurl, false, $redirects, 15, "text/*"); /**/
-			if($html_text){
+			$html_text = fetch_url($embedurl, false, $redirects, 15, "text/*");
+			if ($html_text) {
 				$dom = @DOMDocument::loadHTML($html_text);
-				if ($dom){
+				if ($dom) {
 					$xpath = new DOMXPath($dom);
 					$attr = "oembed";
 					$xattr = oe_build_xpath("class","oembed");
 					$entries = $xpath->query("//link[@type='application/json+oembed']");
-					foreach($entries as $e){
+					foreach ($entries as $e) {
 						$href = $e->getAttributeNode("href")->nodeValue;
 						$txt = fetch_url($href . '&maxwidth=' . $a->videowidth);
 						break;
 					}
 					$entries = $xpath->query("//link[@type='text/json+oembed']");
-					foreach($entries as $e){
+					foreach ($entries as $e) {
 						$href = $e->getAttributeNode("href")->nodeValue;
 						$txt = fetch_url($href . '&maxwidth=' . $a->videowidth);
 						break;
@@ -57,7 +65,7 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 			}
 		}
 
-		if ($txt==false || $txt==""){
+		if ($txt==false || $txt=="") {
 			$embedly = get_config("system", "embedly");
 			if ($embedly != "") {
 				// try embedly service
@@ -70,30 +78,33 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 
 		$txt=trim($txt);
 
-		if ($txt[0]!="{")
+		if ($txt[0]!="{") {
 			$txt='{"type":"error"}';
-		else {	//save in cache
+		} else {	//save in cache
 			$j = json_decode($txt);
-			if ($j->type != "error")
+			if ($j->type != "error") {
 				q("INSERT INTO `oembed` (`url`, `content`, `created`) VALUES ('%s', '%s', '%s')
 					ON DUPLICATE KEY UPDATE `content` = '%s', `created` = '%s'",
 					dbesc(normalise_link($embedurl)),
 					dbesc($txt), dbesc(datetime_convert()),
 					dbesc($txt), dbesc(datetime_convert()));
+			}
 
-			Cache::set($a->videowidth.$embedurl,$txt, CACHE_DAY);
+			Cache::set($a->videowidth.$embedurl, $txt, CACHE_DAY);
 		}
 	}
 
 	$j = json_decode($txt);
 
-	if (!is_object($j))
+	if (!is_object($j)) {
 		return false;
+	}
 
 	// Always embed the SSL version
-	if (isset($j->html))
+	if (isset($j->html)) {
 		$j->html = str_replace(array("http://www.youtube.com/", "http://player.vimeo.com/"),
 			array("https://www.youtube.com/", "https://player.vimeo.com/"), $j->html);
+	}
 
 	$j->embedurl = $embedurl;
 
@@ -109,16 +120,18 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 			//$j->height = $data["images"][0]["height"];
 		}
 
-		if (isset($data["title"]))
-		        $j->title = $data["title"];
+		if (isset($data["title"])) {
+			$j->title = $data["title"];
+		}
 
-		if (isset($data["text"]))
-	        	$j->description = $data["text"];
+		if (isset($data["text"])) {
+			$j->description = $data["text"];
+		}
 
 		if (is_array($data["images"])) {
-		        $j->thumbnail_url = $data["images"][0]["src"];
-		        $j->thumbnail_width = $data["images"][0]["width"];
-	        	$j->thumbnail_height = $data["images"][0]["height"];
+			$j->thumbnail_url = $data["images"][0]["src"];
+			$j->thumbnail_width = $data["images"][0]["width"];
+			$j->thumbnail_height = $data["images"][0]["height"];
 		}
 	}
 
