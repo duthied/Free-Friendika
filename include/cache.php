@@ -99,8 +99,8 @@ class Cache {
 			dbesc($key)
 		);
 
-		if (count($r)) {
-			return $r[0]['v'];
+		if (dbm::is_result($r)) {
+			return unserialize($r[0]['v']);
 		}
 
 		return null;
@@ -108,7 +108,9 @@ class Cache {
 
 	/**
 	 * @brief Put data in the cache according to the key
-	 *
+	 * 
+	 * The input $value can have multiple formats.
+	 * 
 	 * @param string $key The key to the cached data
 	 * @param mixed $valie The value that is about to be stored
 	 * @param integer $duration The cache lifespan
@@ -126,7 +128,7 @@ class Cache {
 		/// @todo store the cache data in the same way like the config data
 		q("REPLACE INTO `cache` (`k`,`v`,`expire_mode`,`updated`) VALUES ('%s','%s',%d,'%s')",
 				dbesc($key),
-				dbesc($value),
+				dbesc(serialize($value)),
 				intval($duration),
 				dbesc(datetime_convert()));
 	}

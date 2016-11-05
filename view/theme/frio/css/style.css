@@ -38,6 +38,18 @@ body a {
     color: $link_color;
     text-decoration: none;
 }
+/* Anchors incorrectly display with a fixed top menu. This global rule offsets all
+ * anchors so that accessing them with a # link will actually scroll the associated
+ * content in the visible part of the page.
+ *
+ * anchor.top should be the opposite of body.padding-top
+ */
+body a[name]:not([href]) {
+    display: block;
+    position: relative;
+    top: -110px;
+    visibility: hidden;
+}
 
 body a:hover, body a:focus, body a:active, body a.active, body .btn-link:hover{
     /*color: #59d6e4;*/

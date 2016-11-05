@@ -217,7 +217,6 @@ class Probe {
 		if ($cache) {
 			$result = Cache::get("probe_url:".$network.":".$uri);
 			if (!is_null($result)) {
-				$result = unserialize($result);
 				return $result;
 			}
 		}
@@ -257,7 +256,7 @@ class Probe {
 
 		// Only store into the cache if the value seems to be valid
 		if (!in_array($data['network'], array(NETWORK_PHANTOM, NETWORK_MAIL))) {
-			Cache::set("probe_url:".$network.":".$uri,serialize($data), CACHE_DAY);
+			Cache::set("probe_url:".$network.":".$uri, $data, CACHE_DAY);
 
 			/// @todo temporary fix - we need a real contact update function that updates only changing fields
 			/// The biggest problem is the avatar picture that could have a reduced image size.

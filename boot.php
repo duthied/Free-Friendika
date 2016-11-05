@@ -38,7 +38,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
 define ( 'FRIENDICA_VERSION',      '3.5.1-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1207      );
+define ( 'DB_UPDATE_VERSION',      1208      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -785,60 +785,100 @@ class App {
 		return($this->scheme);
 	}
 
+	/**
+	 * @brief Retrieves the Friendica instance base URL
+	 *
+	 * This function assembles the base URL from multiple parts:
+	 * - Protocol is determined either by the request or a combination of
+	 * system.ssl_policy and the $ssl parameter.
+	 * - Host name is determined either by system.hostname or inferred from request
+	 * - Path is inferred from SCRIPT_NAME
+	 *
+	 * Caches the result (depending on $ssl value) for performance.
+	 *
+	 * Note: $ssl parameter value doesn't directly correlate with the resulting protocol
+	 *
+	 * @param bool $ssl Whether to append http or https under SSL_POLICY_SELFSIGN
+	 * @return string Friendica server base URL
+	 */
 	function get_baseurl($ssl = false) {
 
 		// Is the function called statically?
-		if (!is_object($this))
-			return(self::$a->get_baseurl($ssl));
+		if (!is_object($this)) {
+			return self::$a->get_baseurl($ssl);
+		}
+
+		// Arbitrary values, the resulting url protocol can be different
+		$cache_index = $ssl ? 'https' : 'http';
+
+		// Cached value found, nothing to process
+		if (isset($this->baseurl[$cache_index])) {
+			return $this->baseurl[$cache_index];
+		}
 
 		$scheme = $this->scheme;
 
-		if((x($this->config,'system')) && (x($this->config['system'],'ssl_policy'))) {
-			if(intval($this->config['system']['ssl_policy']) === intval(SSL_POLICY_FULL))
+		if ((x($this->config, 'system')) && (x($this->config['system'], 'ssl_policy'))) {
+			if (intval($this->config['system']['ssl_policy']) === SSL_POLICY_FULL) {
 				$scheme = 'https';
+			}
 
 			//	Basically, we have $ssl = true on any links which can only be seen by a logged in user
 			//	(and also the login link). Anything seen by an outsider will have it turned off.
 
-			if($this->config['system']['ssl_policy'] == SSL_POLICY_SELFSIGN) {
-				if($ssl)
+			if ($this->config['system']['ssl_policy'] == SSL_POLICY_SELFSIGN) {
+				if ($ssl) {
 					$scheme = 'https';
-				else
+				} else {
 					$scheme = 'http';
+				}
 			}
 		}
 
-		if (get_config('config','hostname') != "")
-			$this->hostname = get_config('config','hostname');
+		if (get_config('config', 'hostname') != '') {
+			$this->hostname = get_config('config', 'hostname');
+		}
 
-		$this->baseurl = $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
-		return $this->baseurl;
+		$this->baseurl[$cache_index] = $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
+
+		return $this->baseurl[$cache_index];
 	}
 
+	/**
+	 * @brief Initializes the baseurl components
+	 *
+	 * Clears the baseurl cache to prevent inconstistencies
+	 *
+	 * @param string $url
+	 */
 	function set_baseurl($url) {
 		$parsed = @parse_url($url);
 
-		$this->baseurl = $url;
+		$this->baseurl = [];
 
 		if($parsed) {
 			$this->scheme = $parsed['scheme'];
 
 			$hostname = $parsed['host'];
-			if(x($parsed,'port'))
+			if (x($parsed, 'port')) {
 				$hostname .= ':' . $parsed['port'];
-			if(x($parsed,'path'))
-				$this->path = trim($parsed['path'],'\\/');
+			}
+			if (x($parsed, 'path')) {
+				$this->path = trim($parsed['path'], '\\/');
+			}
 
-			if (file_exists(".htpreconfig.php"))
+			if (file_exists(".htpreconfig.php")) {
 				@include(".htpreconfig.php");
+			}
 
-			if (get_config('config','hostname') != "")
-				$this->hostname = get_config('config','hostname');
+			if (get_config('config', 'hostname') != '') {
+				$this->hostname = get_config('config', 'hostname');
+			}
 
-			if (!isset($this->hostname) OR ($this->hostname == ""))
+			if (!isset($this->hostname) OR ($this->hostname == '')) {
 				$this->hostname = $hostname;
+			}
 		}
-
 	}
 
 	function get_hostname() {
