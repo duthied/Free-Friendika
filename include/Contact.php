@@ -428,8 +428,19 @@ function contacts_not_grouped($uid,$start = 0,$count = 0) {
 	return $r;
 }
 
-function get_contact($url, $uid = 0) {
+/**
+ * @brief Fetch the contact id for a given url and user
+ *
+ * @param string $url Contact URL
+ * @param integer $uid The user id for the contact
+ * @param boolean $no_update Don't update the contact
+ *
+ * @return integer Contact ID
+ */
+function get_contact($url, $uid = 0, $no_update = false) {
 	require_once("include/Scrape.php");
+
+	logger("Get contact data for url ".$url." and user ".$uid." - ".App::callstack(), LOGGER_DEBUG);;
 
 	$data = array();
 	$contactid = 0;
@@ -460,8 +471,9 @@ function get_contact($url, $uid = 0) {
 		$update_photo = ($contact[0]['avatar-date'] < datetime_convert('','','now -7 days'));
 		//$update_photo = ($contact[0]['avatar-date'] < datetime_convert('','','now -12 hours'));
 
-		if (!$update_photo)
+		if (!$update_photo OR $no_update) {
 			return($contactid);
+		}
 	} elseif ($uid != 0)
 		return 0;
 
