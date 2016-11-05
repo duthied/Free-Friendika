@@ -127,14 +127,7 @@ function cron_run(&$argv, &$argc){
 
 		proc_run(PRIORITY_LOW, 'include/expire.php');
 
-		if (get_config("system", "worker")) {
-			proc_run(PRIORITY_LOW, 'include/dbclean.php', 1);
-			proc_run(PRIORITY_LOW, 'include/dbclean.php', 2);
-			proc_run(PRIORITY_LOW, 'include/dbclean.php', 3);
-			proc_run(PRIORITY_LOW, 'include/dbclean.php', 4);
-		} else {
-			proc_run(PRIORITY_LOW, 'include/dbclean.php');
-		}
+		proc_run(PRIORITY_LOW, 'include/dbclean.php');
 
 		cron_update_photo_albums();
 	}
@@ -332,7 +325,11 @@ function cron_poll_contacts($argc, $argv) {
 
 			logger("Polling ".$contact["network"]." ".$contact["id"]." ".$contact["nick"]." ".$contact["name"]);
 
-			proc_run(PRIORITY_MEDIUM, 'include/onepoll.php', $contact['id']);
+			if ($contact["remote_self"]) {
+				proc_run(PRIORITY_MEDIUM, 'include/onepoll.php', $contact['id']);
+			} else {
+				proc_run(PRIORITY_LOW, 'include/onepoll.php', $contact['id']);
+			}
 
 			if($interval)
 				@time_sleep_until(microtime(true) + (float) $interval);
