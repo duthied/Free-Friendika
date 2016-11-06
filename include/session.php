@@ -72,8 +72,9 @@ function ref_session_write($id, $data) {
 	if ($session_exists) {
 		$r = q("UPDATE `session`
 				SET `data` = '%s', `expire` = '%s'
-				WHERE `sid` = '%s'",
-				dbesc($data), dbesc($expire), dbesc($id));
+				WHERE `sid` = '%s'
+				AND (`data` != '%s' OR `expire` != '%s'",
+				dbesc($data), dbesc($expire), dbesc($id), dbesc($data), dbesc($expire));
 	} else {
 		$r = q("INSERT INTO `session`
 				SET `sid` = '%s', `expire` = '%s', `data` = '%s'",
