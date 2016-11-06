@@ -196,6 +196,7 @@ function unmark_for_death($contact) {
  * @brief Get contact data for a given profile link
  *
  * The function looks at several places (contact table and gcontact table) for the contact
+ * It caches its result for the same script execution to prevent duplicate calls
  *
  * @param string $url The profile link
  * @param int $uid User id
@@ -204,8 +205,15 @@ function unmark_for_death($contact) {
  * @return array Contact data
  */
 function get_contact_details_by_url($url, $uid = -1, $default = array()) {
-	if ($uid == -1)
+	static $cache = array();
+
+	if ($uid == -1) {
 		$uid = local_user();
+	}
+
+	if (isset($cache[$url][$uid])) {
+		return $cache[$url][$uid];
+	}
 
 	// Fetch contact data from the contact table for the given user
 	$r = q("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
@@ -229,10 +237,13 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 
 	if ($r) {
 		// If there is more than one entry we filter out the connector networks
-		if (count($r) > 1)
-			foreach ($r AS $id => $result)
-				if ($result["network"] == NETWORK_STATUSNET)
+		if (count($r) > 1) {
+			foreach ($r AS $id => $result) {
+				if ($result["network"] == NETWORK_STATUSNET) {
 					unset($r[$id]);
+				}
+			}
+		}
 
 		$profile = array_shift($r);
 
@@ -251,31 +262,40 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 			$profile["bd"] = $current_year."-".$month."-".$day;
 			$current = $current_year."-".$current_month."-".$current_day;
 
-			if ($profile["bd"] < $current)
+			if ($profile["bd"] < $current) {
 				$profile["bd"] = (++$current_year)."-".$month."-".$day;
-		} else
+			}
+		} else {
 			$profile["bd"] = "0000-00-00";
-	} else
+		}
+	} else {
 		$profile = $default;
+	}
 
-	if (($profile["photo"] == "") AND isset($default["photo"]))
+	if (($profile["photo"] == "") AND isset($default["photo"])) {
 		$profile["photo"] = $default["photo"];
+	}
 
-	if (($profile["name"] == "") AND isset($default["name"]))
+	if (($profile["name"] == "") AND isset($default["name"])) {
 		$profile["name"] = $default["name"];
+	}
 
-	if (($profile["network"] == "") AND isset($default["network"]))
+	if (($profile["network"] == "") AND isset($default["network"])) {
 		$profile["network"] = $default["network"];
+	}
 
-	if (($profile["thumb"] == "") AND isset($profile["photo"]))
+	if (($profile["thumb"] == "") AND isset($profile["photo"])) {
 		$profile["thumb"] = $profile["photo"];
+	}
 
-	if (($profile["micro"] == "") AND isset($profile["thumb"]))
+	if (($profile["micro"] == "") AND isset($profile["thumb"])) {
 		$profile["micro"] = $profile["thumb"];
+	}
 
 	if ((($profile["addr"] == "") OR ($profile["name"] == "")) AND ($profile["gid"] != 0) AND
-		in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
+		in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
 		proc_run(PRIORITY_LOW, "include/update_gcontact.php", $profile["gid"]);
+	}
 
 	// Show contact details of Diaspora contacts only if connected
 	if (($profile["cid"] == 0) AND ($profile["network"] == NETWORK_DIASPORA)) {
@@ -285,7 +305,9 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 		$profile["birthday"] = "0000-00-00";
 	}
 
-	return($profile);
+	$cache[$url][$uid] = $profile;
+
+	return $profile;
 }
 
 if (! function_exists('contact_photo_menu')) {
