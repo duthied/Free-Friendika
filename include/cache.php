@@ -87,9 +87,9 @@ class Cache {
 			$cached = $memcache->get(get_app()->get_hostname().":".$key);
 			$value = @unserialize($cached);
 
-			// Only return a value if the serialized value is valid and
+			// Only return a value if the serialized value is valid.
 			// We also check if the db entry is a serialized
-			// boolean 'false' value which we want to return)
+			// boolean 'false' value (which we want to return).
 			if ($cached === 'b:0;' || $value !== false) {
 				return $value;
 			}
@@ -108,9 +108,9 @@ class Cache {
 			$cached = $r[0]['v'];
 			$value = @unserialize($cached);
 
-			// Only return a value if the serialized value is valid and
+			// Only return a value if the serialized value is valid.
 			// We also check if the db entry is a serialized
-			// boolean 'false' value which we want to return)
+			// boolean 'false' value (which we want to return).
 			if ($cached === 'b:0;' || $value !== false) {
 				return $value;
 			}

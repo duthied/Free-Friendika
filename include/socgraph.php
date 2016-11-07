@@ -1079,8 +1079,8 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 		return array();
 	}
 
-// Uncommented because the result of the queries are to big to store it in the cache
-// We need to decide if we want to change the db column type or if we want to delte it
+// Uncommented because the result of the queries are to big to store it in the cache.
+// We need to decide if we want to change the db column type or if we want to delete it.
 //	$list = Cache::get("suggestion_query:".$uid.":".$start.":".$limit);
 //	if (!is_null($list)) {
 //		return $list;
@@ -1118,8 +1118,8 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 	);
 
 	if (count($r) && count($r) >= ($limit -1)) {
-// Uncommented because the result of the queries are to big to store it in the cache
-// We need to decide if we want to change the db column type or if we want to delte it
+// Uncommented because the result of the queries are to big to store it in the cache.
+// We need to decide if we want to change the db column type or if we want to delete it.
 //		Cache::set("suggestion_query:".$uid.":".$start.":".$limit, $r, CACHE_FIVE_MINUTES);
 
 		return $r;
@@ -1152,8 +1152,8 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 	while (sizeof($list) > ($limit))
 		array_pop($list);
 
-// Uncommented because the result of the queries are to big to store it in the cache
-// We need to decide if we want to change the db column type or if we want to delte it
+// Uncommented because the result of the queries are to big to store it in the cache.
+// We need to decide if we want to change the db column type or if we want to delete it.
 //	Cache::set("suggestion_query:".$uid.":".$start.":".$limit, $list, CACHE_FIVE_MINUTES);
 	return $list;
 }
