@@ -269,13 +269,15 @@ function admin_page_federation(&$a) {
 	// off one % two of them are needed in the query
 	// Add more platforms if you like, when one returns 0 known nodes it is not
 	// displayed on the stats page.
-	$platforms = array('Friendica', 'Diaspora', '%%red%%', 'Hubzilla', 'GNU Social', 'StatusNet');
+	$platforms = array('Friendica', 'Diaspora', '%%red%%', 'Hubzilla', 'BlaBlaNet', 'GNU Social', 'StatusNet', 'Mastodon');
 	$colors    = array('Friendica' => '#ffc018',     // orange from the logo
-			    'Diaspora'  => '#a1a1a1',     // logo is black and white, makes a gray
+			   'Diaspora'  => '#a1a1a1',     // logo is black and white, makes a gray
 			   '%%red%%'   => '#c50001',     // fire red from the logo
 			   'Hubzilla'  => '#43488a',     // blue from the logo
+			   'BlaBlaNet' => '#3B5998',     // blue from the navbar at blablanet-dot-com
 			   'GNU Social'=> '#a22430',     // dark red from the logo
-			   'StatusNet' => '#789240');    // the green from the logo (red and blue have already others
+			   'StatusNet' => '#789240',     // the green from the logo (red and blue have already others
+			   'Mastodon'  => '#1a9df9');    // blue from the Mastodon logo
 	$counts = array();
 	$total = 0;
 
