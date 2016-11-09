@@ -26,7 +26,8 @@ table.bbcodes > * > tr > td {
 table.bbcodes > tr > th,
 table.bbcodes > * > tr > th {
     background-color: #f2f2f2;
-    text-align: center
+    text-align: center;
+    width: 50%
 }
 </style>
 
@@ -485,8 +486,8 @@ Page title with a link to *url* will be shown.</td>
 
 ## Map
 
-This require "openstreetmap" addon version 1.3 or newer. If the addon isn't activated,
-the raw coordinates are shown instead.
+This require "openstreetmap" or "Google Maps" addon version 1.3 or newer.
+If the addon isn't activated, the raw coordinates are shown instead.
 
 <table class="bbcodes">
 <tr>
@@ -543,7 +544,7 @@ pictures?[/abstract]<br>
 that I wanted to share with you.[/abstract]<br>
 Today I was in the woods and took some real cool pictures ...</td>
   <td>For Twitter and App.net the system will use the defined abstracts.<br>
-For other networks (e.g. when you are using the "statusnet" connector that is used to post to GNU Social) the general abstract element will be used.</td>
+For other networks (e.g. when you are using the "statusnet" connector that is used to post to your GNU Social account) the general abstract element will be used.</td>
 </tr>
 </table>
 
@@ -569,7 +570,8 @@ While taking pictures in the woods I had a really strange encounter...</td>
 </tr>
 </table>
 
-The [abstract] element isn't working with the native OStatus connection or with connectors where we post the HTML like Tumblr, Wordpress or Pump.io.
+The [abstract] element isn't working with connectors where we post the HTML like Tumblr, Wordpress or Pump.io.
+For the native connections--that is to e.g. Friendica, Hubzilla, Diaspora or GNU Social--the full posting is used and the contacts instance will display the posting as desired.
 
 ## Special
 
