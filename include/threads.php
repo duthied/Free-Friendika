@@ -123,7 +123,18 @@ function add_shadow_thread($itemid) {
 function add_shadow_entry($itemid) {
 
 	$items = q("SELECT * FROM `item` WHERE `id` = %d", intval($itemid));
+
+	if (!dbm::is_result($items)) {
+		return;
+	}
+
 	$item = $items[0];
+
+	// Is it a toplevel post?
+	if ($item['id'] == $item['parent']) {
+		add_shadow_thread($itemid);
+		return;
+	}
 
 	// Is this a shadow entry?
 	if ($item['uid'] == 0)
