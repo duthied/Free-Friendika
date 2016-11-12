@@ -8,7 +8,7 @@
 require_once("boot.php");
 require_once("include/threads.php");
 
-function create_shadowentry_run(&$argv, &$argc) {
+function create_shadowentry_run($argv, $argc) {
 	global $a, $db;
 
 	if (is_null($a))
