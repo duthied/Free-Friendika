@@ -41,7 +41,7 @@ function contact_search(term, callback, backend_url, type, mode) {
 		postdata['conversation'] = conv_id[0];
 
 	if(mode !== null)
-		postdata['mode'] = mode;
+		postdata['smode'] = mode;
 
 
 	$.ajax({

@@ -122,7 +122,7 @@ function network_init(&$a) {
 	$search = ((x($_GET,'search')) ? escape_tags($_GET['search']) : '');
 
 	if(x($_GET,'save')) {
-		$r = q("SELECT * FROM `search` WHERE `uid` = %d AND `term` = '%s' LIMIT 1",
+		$r = qu("SELECT * FROM `search` WHERE `uid` = %d AND `term` = '%s' LIMIT 1",
 			intval(local_user()),
 			dbesc($search)
 		);
@@ -176,7 +176,7 @@ function saved_searches($search) {
 
 	$o = '';
 
-	$r = q("SELECT `id`,`term` FROM `search` WHERE `uid` = %d",
+	$r = qu("SELECT `id`,`term` FROM `search` WHERE `uid` = %d",
 		intval(local_user())
 	);
 
@@ -280,7 +280,8 @@ function network_query_get_sel_tab($a) {
 }
 
 /**
- * Return selected network from query
+ * @brief Return selected network from query
+ * @return string Name of the selected network
  */
 function network_query_get_sel_net() {
 	$network = false;
@@ -348,6 +349,466 @@ function network_content(&$a, $update = 0) {
 
 	$o = '';
 
+
+
+	$contact_id = $a->cid;
+
+	require_once('include/acl_selectors.php');
+
+	$cid = ((x($_GET,'cid')) ? intval($_GET['cid']) : 0);
+	$star = ((x($_GET,'star')) ? intval($_GET['star']) : 0);
+	$bmark = ((x($_GET,'bmark')) ? intval($_GET['bmark']) : 0);
+	$order = ((x($_GET,'order')) ? notags($_GET['order']) : 'comment');
+	$liked = ((x($_GET,'liked')) ? intval($_GET['liked']) : 0);
+	$conv = ((x($_GET,'conv')) ? intval($_GET['conv']) : 0);
+	$spam = ((x($_GET,'spam')) ? intval($_GET['spam']) : 0);
+	$nets = ((x($_GET,'nets')) ? $_GET['nets'] : '');
+	$cmin = ((x($_GET,'cmin')) ? intval($_GET['cmin']) : 0);
+	$cmax = ((x($_GET,'cmax')) ? intval($_GET['cmax']) : 99);
+	$file = ((x($_GET,'file')) ? $_GET['file'] : '');
+
+
+
+	if(x($_GET,'search') || x($_GET,'file'))
+		$nouveau = true;
+	if($cid)
+		$def_acl = array('allow_cid' => '<' . intval($cid) . '>');
+
+	if($nets) {
+		$r = qu("SELECT `id` FROM `contact` WHERE `uid` = %d AND network = '%s' AND `self` = 0",
+			intval(local_user()),
+			dbesc($nets)
+		);
+
+		$str = '';
+		if(count($r))
+			foreach($r as $rr)
+				$str .= '<' . $rr['id'] . '>';
+		if(strlen($str))
+			$def_acl = array('allow_cid' => $str);
+	}
+	set_pconfig(local_user(), 'network.view', 'net.selected', ($nets ? $nets : 'all'));
+
+	if(!$update AND !$rawmode) {
+		$tabs = network_tabs($a);
+		$o .= $tabs;
+
+		if($group) {
+			if(($t = group_public_members($group)) && (! get_pconfig(local_user(),'system','nowarn_insecure'))) {
+				notice( sprintf( tt('Warning: This group contains %s member from an insecure network.',
+									'Warning: This group contains %s members from an insecure network.',
+									$t), $t ) . EOL);
+				notice( t('Private messages to this group are at risk of public disclosure.') . EOL);
+			}
+		}
+
+		nav_set_selected('network');
+
+		$content = "";
+
+		if ($cid) {
+			// If $cid belongs to a communitity forum or a privat goup,.add a mention to the status editor
+			$contact = qu("SELECT `nick` FROM `contact` WHERE `id` = %d AND `uid` = %d AND (`forum` OR `prv`) ",
+				intval($cid),
+				intval(local_user())
+			);
+			if ($contact)
+				$content = "@".$contact[0]["nick"]."+".$cid;
+		}
+
+		$x = array(
+			'is_owner' => true,
+			'allow_location' => $a->user['allow_location'],
+			'default_location' => $a->user['default-location'],
+			'nickname' => $a->user['nickname'],
+			'lockstate'=> ((($group) || ($cid) || ($nets) || (is_array($a->user) &&
+					((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) ||
+					(strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid']))))) ? 'lock' : 'unlock'),
+			'default_perms'	=> get_acl_permissions($a->user),
+			'acl'	=> populate_acl((($group || $cid || $nets) ? $def_acl : $a->user), true),
+			'bang'	=> (($group || $cid || $nets) ? '!' : ''),
+			'visitor' => 'block',
+			'profile_uid' => local_user(),
+			'acl_data' => construct_acl_data($a, $a->user), // For non-Javascript ACL selector
+			'content' => $content,
+		);
+
+		$o .= status_editor($a,$x);
+
+	}
+
+	// We don't have to deal with ACLs on this page. You're looking at everything
+	// that belongs to you, hence you can see all of it. We will filter by group if
+	// desired.
+
+	$sql_post_table = "";
+	$sql_options  = (($star) ? " and starred = 1 " : '');
+	$sql_options .= (($bmark) ? " and bookmark = 1 " : '');
+	$sql_extra = $sql_options;
+	$sql_extra2 = "";
+	$sql_extra3 = "";
+	$sql_table = "`thread`";
+	$sql_parent = "`iid`";
+
+	if ($nouveau OR strlen($file) OR $update) {
+		$sql_table = "`item`";
+		$sql_parent = "`parent`";
+	}
+
+	$sql_nets = (($nets) ? sprintf(" and $sql_table.`network` = '%s' ", dbesc($nets)) : '');
+
+	if($group) {
+		$r = qu("SELECT `name`, `id` FROM `group` WHERE `id` = %d AND `uid` = %d LIMIT 1",
+			intval($group),
+			intval($_SESSION['uid'])
+		);
+		if(! count($r)) {
+			if($update)
+				killme();
+			notice( t('No such group') . EOL );
+			goaway('network/0');
+			// NOTREACHED
+		}
+
+		$contacts = expand_groups(array($group));
+		$gcontacts = expand_groups(array($group), false, true);
+
+		if((is_array($contacts)) && count($contacts)) {
+			$contact_str_self = "";
+			$gcontact_str_self = "";
+
+			$contact_str = implode(',',$contacts);
+			$gcontact_str = implode(',',$gcontacts);
+			$self = qu("SELECT `contact`.`id`, `gcontact`.`id` AS `gid` FROM `contact`
+					INNER JOIN `gcontact` ON `gcontact`.`nurl` = `contact`.`nurl`
+					WHERE `uid` = %d AND `self`", intval($_SESSION['uid']));
+			if (count($self)) {
+				$contact_str_self = $self[0]["id"];
+				$gcontact_str_self = $self[0]["gid"];
+			}
+
+			$sql_post_table = " INNER JOIN `item` AS `temp1` ON `temp1`.`id` = ".$sql_table.".".$sql_parent;
+			$sql_extra3 .= " AND ($sql_table.`contact-id` IN ($contact_str) ";
+			$sql_extra3 .= " OR ($sql_table.`contact-id` = '$contact_str_self' AND `temp1`.`allow_gid` LIKE '".protect_sprintf('%<'.intval($group).'>%')."' AND `temp1`.`private`))";
+		} else {
+			$sql_extra3 .= " AND false ";
+			info( t('Group is empty'));
+		}
+
+		$o = replace_macros(get_markup_template("section_title.tpl"),array(
+			'$title' => sprintf( t('Group: %s'), $r[0]['name'])
+		)) . $o;
+
+	}
+	elseif($cid) {
+
+		$r = qu("SELECT `id`,`name`,`network`,`writable`,`nurl`, `forum`, `prv`, `contact-type`, `addr`, `thumb`, `location` FROM `contact` WHERE `id` = %d
+				AND `blocked` = 0 AND `pending` = 0 LIMIT 1",
+			intval($cid)
+		);
+		if(count($r)) {
+			$sql_extra = " AND ".$sql_table.".`contact-id` = ".intval($cid);
+
+			$entries[0] = array(
+				'id' => 'network',
+				'name' => htmlentities($r[0]['name']),
+				'itemurl' => (($r[0]['addr']) ? ($r[0]['addr']) : ($r[0]['nurl'])),
+				'thumb' => proxy_url($r[0]['thumb'], false, PROXY_SIZE_THUMB),
+				'details' => $r[0]['location'],
+			);
+
+			$entries[0]["account_type"] = account_type($r[0]);
+
+			$o = replace_macros(get_markup_template("viewcontact_template.tpl"),array(
+				'contacts' => $entries,
+				'id' => 'network',
+			)) . $o;
+
+			if($r[0]['network'] === NETWORK_OSTATUS && $r[0]['writable'] && (! get_pconfig(local_user(),'system','nowarn_insecure'))) {
+				notice( t('Private messages to this person are at risk of public disclosure.') . EOL);
+			}
+
+		}
+		else {
+			notice( t('Invalid contact.') . EOL);
+			goaway('network');
+			// NOTREACHED
+		}
+	}
+
+	if((! $group) && (! $cid) && (! $update) && (! get_config('theme','hide_eventlist'))) {
+		$o .= get_birthdays();
+		$o .= get_events();
+	}
+
+	if($datequery) {
+		$sql_extra3 .= protect_sprintf(sprintf(" AND $sql_table.created <= '%s' ", dbesc(datetime_convert(date_default_timezone_get(),'',$datequery))));
+	}
+	if($datequery2) {
+		$sql_extra3 .= protect_sprintf(sprintf(" AND $sql_table.created >= '%s' ", dbesc(datetime_convert(date_default_timezone_get(),'',$datequery2))));
+	}
+
+	//$sql_extra2 = (($nouveau) ? '' : " AND `item`.`parent` = `item`.`id` ");
+	$sql_extra2 = (($nouveau) ? '' : $sql_extra2);
+	$sql_extra3 = (($nouveau) ? '' : $sql_extra3);
+	$sql_order = "";
+	$order_mode = "received";
+	$tag = false;
+
+	if(x($_GET,'search')) {
+		$search = escape_tags($_GET['search']);
+
+		if(strpos($search,'#') === 0) {
+			$tag = true;
+			$search = substr($search,1);
+		}
+
+		if (get_config('system','only_tag_search'))
+			$tag = true;
+
+		if($tag) {
+			$sql_extra = "";
+
+			$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
+					dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), intval(local_user()));
+			$sql_order = "`item`.`id`";
+			$order_mode = "id";
+		} else {
+			if (get_config('system','use_fulltext_engine'))
+				$sql_extra = sprintf(" AND MATCH (`item`.`body`, `item`.`title`) AGAINST ('%s' in boolean mode) ", dbesc(protect_sprintf($search)));
+			else
+				$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
+			$sql_order = "`item`.`received`";
+			$order_mode = "received";
+		}
+	}
+	if(strlen($file)) {
+		$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
+				dbesc(protect_sprintf($file)), intval(TERM_OBJ_POST), intval(TERM_FILE), intval(local_user()));
+		$sql_order = "`item`.`id`";
+		$order_mode = "id";
+	}
+
+	if($conv)
+		$sql_extra3 .= " AND $sql_table.`mention`";
+
+	if($update) {
+
+		// only setup pagination on initial page view
+		$pager_sql = '';
+
+	}
+	else {
+		if(get_config('system', 'old_pager')) {
+			$r = qu("SELECT COUNT(*) AS `total`
+				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = $sql_table.`contact-id`
+				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				WHERE $sql_table.`uid` = %d AND $sql_table.`visible` AND NOT $sql_table.`deleted`
+				$sql_extra2 $sql_extra3
+				$sql_extra $sql_nets ",
+				intval($_SESSION['uid'])
+			);
+
+			if(count($r)) {
+				$a->set_pager_total($r[0]['total']);
+			}
+		}
+
+		//  check if we serve a mobile device and get the user settings
+		//  accordingly
+		if ($a->is_mobile) {
+			$itemspage_network = get_pconfig(local_user(),'system','itemspage_mobile_network');
+			$itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 20);
+		} else {
+			$itemspage_network = get_pconfig(local_user(),'system','itemspage_network');
+			$itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 40);
+		}
+
+		//  now that we have the user settings, see if the theme forces
+		//  a maximum item number which is lower then the user choice
+		if(($a->force_max_items > 0) && ($a->force_max_items < $itemspage_network))
+			$itemspage_network = $a->force_max_items;
+
+		$a->set_pager_itemspage($itemspage_network);
+		$pager_sql = sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
+	}
+
+	if($nouveau) {
+		$simple_update = (($update) ? " AND `item`.`unseen` " : '');
+
+		if ($sql_order == "")
+			$sql_order = "`item`.`received`";
+
+		// "New Item View" - show all items unthreaded in reverse created date order
+		$items = qu("SELECT %s FROM $sql_table $sql_post_table %s
+			WHERE %s AND `item`.`uid` = %d
+			$simple_update
+			$sql_extra $sql_nets
+			ORDER BY $sql_order DESC $pager_sql ",
+			item_fieldlists(), item_joins(), item_condition(),
+			intval($_SESSION['uid'])
+		);
+
+		$update_unseen = ' WHERE uid = ' . intval($_SESSION['uid']) . " AND unseen = 1 $sql_extra $sql_nets";
+	} else {
+
+		// Normal conversation view
+
+
+		if($order === 'post') {
+			$ordering = "`created`";
+			if ($sql_order == "")
+				$order_mode = "created";
+		} else {
+			$ordering = "`commented`";
+			if ($sql_order == "")
+				$order_mode = "commented";
+		}
+
+		if ($sql_order == "")
+			$sql_order = "$sql_table.$ordering";
+
+		if (($_GET["offset"] != ""))
+			$sql_extra3 .= sprintf(" AND $sql_order <= '%s'", dbesc($_GET["offset"]));
+
+		// Fetch a page full of parent items for this page
+		if($update) {
+			if (get_config("system", "like_no_comment"))
+				$sql_extra4 = " AND `item`.`verb` = '".ACTIVITY_POST."'";
+			else
+				$sql_extra4 = "";
+
+			$r = qu("SELECT `item`.`parent` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
+				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted` $sql_extra4
+				AND NOT `item`.`moderated` AND `item`.`unseen`
+				$sql_extra3 $sql_extra $sql_nets
+				ORDER BY `item_id` DESC LIMIT 100",
+				intval(local_user())
+			);
+		} else {
+			$r = qu("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
+				FROM $sql_table $sql_post_table STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
+				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				WHERE `thread`.`uid` = %d AND `thread`.`visible` AND NOT `thread`.`deleted`
+				AND NOT `thread`.`moderated`
+				$sql_extra2 $sql_extra3 $sql_extra $sql_nets
+				ORDER BY $sql_order DESC $pager_sql ",
+				intval(local_user())
+			);
+		}
+
+		// Then fetch all the children of the parents that are on this page
+
+		$parents_arr = array();
+		$parents_str = '';
+		$date_offset = "";
+
+		if(dbm::is_result($r)) {
+			foreach($r as $rr)
+				if(! in_array($rr['item_id'],$parents_arr))
+					$parents_arr[] = $rr['item_id'];
+
+			$parents_str = implode(", ", $parents_arr);
+
+			// splitted into separate queries to avoid the problem with very long threads
+			// so always the last X comments are loaded
+			// This problem can occur expecially with imported facebook posts
+			$max_comments = get_config("system", "max_comments");
+			if ($max_comments == 0)
+				$max_comments = 100;
+
+			$items = array();
+
+			foreach ($parents_arr AS $parents) {
+				$thread_items = qu(item_query()." AND `item`.`uid` = %d
+					AND `item`.`parent` = %d
+					ORDER BY `item`.`commented` DESC LIMIT %d",
+					intval(local_user()),
+					intval($parents),
+					intval($max_comments + 1)
+				);
+				$items = array_merge($items, $thread_items);
+			}
+			$items = conv_sort($items,$ordering);
+		} else {
+			$items = array();
+		}
+
+		if ($_GET["offset"] == "")
+			$date_offset = $items[0][$order_mode];
+		else
+			$date_offset = $_GET["offset"];
+
+		$a->page_offset = $date_offset;
+
+		if($parents_str)
+			$update_unseen = ' WHERE uid = ' . intval(local_user()) . ' AND unseen = 1 AND parent IN ( ' . dbesc($parents_str) . ' )';
+	}
+
+	// We aren't going to try and figure out at the item, group, and page
+	// level which items you've seen and which you haven't. If you're looking
+	// at the top level network page just mark everything seen.
+
+
+// The $update_unseen is a bit unreliable if you have stuff coming into your stream from a new contact -
+// and other feeds that bring in stuff from the past. One can't find it all.
+// I'm reviving this block to mark everything seen on page 1 of the network as a temporary measure.
+// The correct solution is to implement a network notifications box just like the system notifications popup
+// with the ability in the popup to "mark all seen".
+// Several people are complaining because there are unseen messages they can't find and as time goes
+// on they just get buried deeper. It has happened to me a couple of times also.
+
+
+	if((! $group) && (! $cid) && (! $star)) {
+
+		$unseen = q("SELECT `id` FROM `item` WHERE `unseen` AND `uid` = %d",
+				intval(local_user()));
+
+		if ($unseen)
+			$r = q("UPDATE `item` SET `unseen` = 0
+				WHERE `unseen` = 1 AND `uid` = %d",
+				intval(local_user())
+			);
+	}
+	else {
+		if($update_unseen) {
+
+			$unseen = q("SELECT `id` FROM `item` ".$update_unseen);
+
+			if ($unseen)
+				$r = q("UPDATE `item` SET `unseen` = 0 $update_unseen");
+		}
+	}
+
+	// Set this so that the conversation function can find out contact info for our wall-wall items
+	$a->page_contact = $a->contact;
+
+	$mode = (($nouveau) ? 'network-new' : 'network');
+
+	$o .= conversation($a,$items,$mode,$update);
+
+	if(!$update) {
+		if(get_pconfig(local_user(),'system','infinite_scroll')) {
+			$o .= scroll_loader();
+		} elseif(!get_config('system', 'old_pager')) {
+			$o .= alt_pager($a,count($items));
+		} else {
+			$o .= paginate($a);
+		}
+	}
+
+	return $o;
+}
+
+/**
+ * @brief Get the network tabs menu
+ * 
+ * @param app $a The global App
+ * @return string Html of the networktab
+ */
+function network_tabs($a) {
 	// item filter tabs
 	/// @TODO fix this logic, reduce duplication
 	/// $a->page['content'] .= '<div class="tabs-wrapper">';
@@ -430,464 +891,10 @@ function network_content(&$a, $update = 0) {
 
 	$arr = array('tabs' => $tabs);
 	call_hooks('network_tabs', $arr);
+	
+	$tpl = get_markup_template('common_tabs.tpl');
 
-	$o .= replace_macros(get_markup_template('common_tabs.tpl'), array('$tabs'=> $arr['tabs']));
+	return replace_macros($tpl, array('$tabs' => $arr['tabs']));
 
 	// --- end item filter tabs
-
-	$contact_id = $a->cid;
-
-	require_once('include/acl_selectors.php');
-
-	$cid = ((x($_GET,'cid')) ? intval($_GET['cid']) : 0);
-	$star = ((x($_GET,'star')) ? intval($_GET['star']) : 0);
-	$bmark = ((x($_GET,'bmark')) ? intval($_GET['bmark']) : 0);
-	$order = ((x($_GET,'order')) ? notags($_GET['order']) : 'comment');
-	$liked = ((x($_GET,'liked')) ? intval($_GET['liked']) : 0);
-	$conv = ((x($_GET,'conv')) ? intval($_GET['conv']) : 0);
-	$spam = ((x($_GET,'spam')) ? intval($_GET['spam']) : 0);
-	$nets = ((x($_GET,'nets')) ? $_GET['nets'] : '');
-	$cmin = ((x($_GET,'cmin')) ? intval($_GET['cmin']) : 0);
-	$cmax = ((x($_GET,'cmax')) ? intval($_GET['cmax']) : 99);
-	$file = ((x($_GET,'file')) ? $_GET['file'] : '');
-
-
-
-	if(x($_GET,'search') || x($_GET,'file'))
-		$nouveau = true;
-	if($cid)
-		$def_acl = array('allow_cid' => '<' . intval($cid) . '>');
-
-	if($nets) {
-		$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND network = '%s' AND `self` = 0",
-			intval(local_user()),
-			dbesc($nets)
-		);
-
-		$str = '';
-		if(count($r))
-			foreach($r as $rr)
-				$str .= '<' . $rr['id'] . '>';
-		if(strlen($str))
-			$def_acl = array('allow_cid' => $str);
-	}
-	set_pconfig(local_user(), 'network.view', 'net.selected', ($nets ? $nets : 'all'));
-
-	if(!$update AND !$rawmode) {
-		if($group) {
-			if(($t = group_public_members($group)) && (! get_pconfig(local_user(),'system','nowarn_insecure'))) {
-				notice( sprintf( tt('Warning: This group contains %s member from an insecure network.',
-									'Warning: This group contains %s members from an insecure network.',
-									$t), $t ) . EOL);
-				notice( t('Private messages to this group are at risk of public disclosure.') . EOL);
-			}
-		}
-
-		nav_set_selected('network');
-
-		$content = "";
-
-		if ($cid) {
-			// If $cid belongs to a communitity forum or a privat goup,.add a mention to the status editor
-			$contact = q("SELECT `nick` FROM `contact` WHERE `id` = %d AND `uid` = %d AND (`forum` OR `prv`) ",
-				intval($cid),
-				intval(local_user())
-			);
-			if ($contact)
-				$content = "@".$contact[0]["nick"]."+".$cid;
-		}
-
-		$x = array(
-			'is_owner' => true,
-			'allow_location' => $a->user['allow_location'],
-			'default_location' => $a->user['default-location'],
-			'nickname' => $a->user['nickname'],
-			'lockstate'=> ((($group) || ($cid) || ($nets) || (is_array($a->user) &&
-					((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) ||
-					(strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid']))))) ? 'lock' : 'unlock'),
-			'default_perms'	=> get_acl_permissions($a->user),
-			'acl'	=> populate_acl((($group || $cid || $nets) ? $def_acl : $a->user), true),
-			'bang'	=> (($group || $cid || $nets) ? '!' : ''),
-			'visitor' => 'block',
-			'profile_uid' => local_user(),
-			'acl_data' => construct_acl_data($a, $a->user), // For non-Javascript ACL selector
-			'content' => $content,
-		);
-
-		$o .= status_editor($a,$x);
-
-	}
-
-	// We don't have to deal with ACLs on this page. You're looking at everything
-	// that belongs to you, hence you can see all of it. We will filter by group if
-	// desired.
-
-	$sql_post_table = "";
-	$sql_options  = (($star) ? " and starred = 1 " : '');
-	$sql_options .= (($bmark) ? " and bookmark = 1 " : '');
-	$sql_extra = $sql_options;
-	$sql_extra2 = "";
-	$sql_extra3 = "";
-	$sql_table = "`thread`";
-	$sql_parent = "`iid`";
-
-	if ($nouveau OR strlen($file) OR $update) {
-		$sql_table = "`item`";
-		$sql_parent = "`parent`";
-	}
-
-	$sql_nets = (($nets) ? sprintf(" and $sql_table.`network` = '%s' ", dbesc($nets)) : '');
-
-	if($group) {
-		$r = q("SELECT `name`, `id` FROM `group` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-			intval($group),
-			intval($_SESSION['uid'])
-		);
-		if(! count($r)) {
-			if($update)
-				killme();
-			notice( t('No such group') . EOL );
-			goaway('network/0');
-			// NOTREACHED
-		}
-
-		$contacts = expand_groups(array($group));
-		$gcontacts = expand_groups(array($group), false, true);
-
-		if((is_array($contacts)) && count($contacts)) {
-			$contact_str_self = "";
-			$gcontact_str_self = "";
-
-			$contact_str = implode(',',$contacts);
-			$gcontact_str = implode(',',$gcontacts);
-			$self = q("SELECT `contact`.`id`, `gcontact`.`id` AS `gid` FROM `contact`
-					INNER JOIN `gcontact` ON `gcontact`.`nurl` = `contact`.`nurl`
-					WHERE `uid` = %d AND `self`", intval($_SESSION['uid']));
-			if (count($self)) {
-				$contact_str_self = $self[0]["id"];
-				$gcontact_str_self = $self[0]["gid"];
-			}
-
-			$sql_post_table = " INNER JOIN `item` AS `temp1` ON `temp1`.`id` = ".$sql_table.".".$sql_parent;
-			$sql_extra3 .= " AND ($sql_table.`contact-id` IN ($contact_str) ";
-			$sql_extra3 .= " OR ($sql_table.`contact-id` = '$contact_str_self' AND `temp1`.`allow_gid` LIKE '".protect_sprintf('%<'.intval($group).'>%')."' AND `temp1`.`private`))";
-		} else {
-			$sql_extra3 .= " AND false ";
-			info( t('Group is empty'));
-		}
-
-		$o = replace_macros(get_markup_template("section_title.tpl"),array(
-			'$title' => sprintf( t('Group: %s'), $r[0]['name'])
-		)) . $o;
-
-	}
-	elseif($cid) {
-
-		$r = q("SELECT `id`,`name`,`network`,`writable`,`nurl`, `forum`, `prv`, `addr`, `thumb`, `location` FROM `contact` WHERE `id` = %d
-				AND `blocked` = 0 AND `pending` = 0 LIMIT 1",
-			intval($cid)
-		);
-		if(count($r)) {
-			$sql_extra = " AND ".$sql_table.".`contact-id` = ".intval($cid);
-
-			$entries[0] = array(
-				'id' => 'network',
-				'name' => htmlentities($r[0]['name']),
-				'itemurl' => (($r[0]['addr']) ? ($r[0]['addr']) : ($r[0]['nurl'])),
-				'thumb' => proxy_url($r[0]['thumb'], false, PROXY_SIZE_THUMB),
-				'account_type' => (($r[0]['forum']) || ($r[0]['prv']) ? t('Forum') : ''),
-				'details' => $r[0]['location'],
-			);
-
-			$o = replace_macros(get_markup_template("viewcontact_template.tpl"),array(
-				'contacts' => $entries,
-				'id' => 'network',
-			)) . $o;
-
-			if($r[0]['network'] === NETWORK_OSTATUS && $r[0]['writable'] && (! get_pconfig(local_user(),'system','nowarn_insecure'))) {
-				notice( t('Private messages to this person are at risk of public disclosure.') . EOL);
-			}
-
-		}
-		else {
-			notice( t('Invalid contact.') . EOL);
-			goaway('network');
-			// NOTREACHED
-		}
-	}
-
-	if((! $group) && (! $cid) && (! $update) && (! get_config('theme','hide_eventlist'))) {
-		$o .= get_birthdays();
-		$o .= get_events();
-	}
-
-	if($datequery) {
-		$sql_extra3 .= protect_sprintf(sprintf(" AND $sql_table.created <= '%s' ", dbesc(datetime_convert(date_default_timezone_get(),'',$datequery))));
-	}
-	if($datequery2) {
-		$sql_extra3 .= protect_sprintf(sprintf(" AND $sql_table.created >= '%s' ", dbesc(datetime_convert(date_default_timezone_get(),'',$datequery2))));
-	}
-
-	//$sql_extra2 = (($nouveau) ? '' : " AND `item`.`parent` = `item`.`id` ");
-	$sql_extra2 = (($nouveau) ? '' : $sql_extra2);
-	$sql_extra3 = (($nouveau) ? '' : $sql_extra3);
-	$sql_order = "";
-	$order_mode = "received";
-	$tag = false;
-
-	if(x($_GET,'search')) {
-		$search = escape_tags($_GET['search']);
-
-		if(strpos($search,'#') === 0) {
-                	$tag = true;
-			$search = substr($search,1);
-		}
-
-		if (get_config('system','only_tag_search'))
-			$tag = true;
-
-		if($tag) {
-			$sql_extra = "";
-
-			$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-					dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), intval(local_user()));
-			$sql_order = "`item`.`id`";
-			$order_mode = "id";
-		} else {
-			if (get_config('system','use_fulltext_engine'))
-				$sql_extra = sprintf(" AND MATCH (`item`.`body`, `item`.`title`) AGAINST ('%s' in boolean mode) ", dbesc(protect_sprintf($search)));
-			else
-				$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
-			$sql_order = "`item`.`received`";
-			$order_mode = "received";
-		}
-	}
-	if(strlen($file)) {
-		$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-				dbesc(protect_sprintf($file)), intval(TERM_OBJ_POST), intval(TERM_FILE), intval(local_user()));
-		$sql_order = "`item`.`id`";
-		$order_mode = "id";
-	}
-
-	if($conv)
-		$sql_extra3 .= " AND $sql_table.`mention`";
-
-	if($update) {
-
-		// only setup pagination on initial page view
-		$pager_sql = '';
-
-	}
-	else {
-		if(get_config('system', 'old_pager')) {
-			$r = q("SELECT COUNT(*) AS `total`
-				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = $sql_table.`contact-id`
-				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				WHERE $sql_table.`uid` = %d AND $sql_table.`visible` = 1 AND $sql_table.`deleted` = 0
-				$sql_extra2 $sql_extra3
-				$sql_extra $sql_nets ",
-				intval($_SESSION['uid'])
-			);
-
-			if(count($r)) {
-				$a->set_pager_total($r[0]['total']);
-			}
-		}
-
-		//  check if we serve a mobile device and get the user settings
-		//  accordingly
-		if ($a->is_mobile) {
-			$itemspage_network = get_pconfig(local_user(),'system','itemspage_mobile_network');
-			$itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 20);
-		} else {
-			$itemspage_network = get_pconfig(local_user(),'system','itemspage_network');
-			$itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 40);
-		}
-
-		//  now that we have the user settings, see if the theme forces
-		//  a maximum item number which is lower then the user choice
-		if(($a->force_max_items > 0) && ($a->force_max_items < $itemspage_network))
-			$itemspage_network = $a->force_max_items;
-
-		$a->set_pager_itemspage($itemspage_network);
-		$pager_sql = sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
-	}
-
-	if($nouveau) {
-		$simple_update = (($update) ? " AND `item`.`unseen` = 1 " : '');
-
-		if ($sql_order == "")
-			$sql_order = "`item`.`received`";
-
-		// "New Item View" - show all items unthreaded in reverse created date order
-		$items = q("SELECT %s, %s FROM $sql_table $sql_post_table
-			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s
-			WHERE %s AND `item`.`uid` = %d
-			$simple_update
-			$sql_extra $sql_nets
-			ORDER BY $sql_order DESC $pager_sql ",
-			item_fieldlist(), contact_fieldlist(),
-			contact_condition(), item_condition(),
-			intval($_SESSION['uid'])
-		);
-
-		$update_unseen = ' WHERE uid = ' . intval($_SESSION['uid']) . " AND unseen = 1 $sql_extra $sql_nets";
-	} else {
-
-		// Normal conversation view
-
-
-		if($order === 'post') {
-			$ordering = "`created`";
-			if ($sql_order == "")
-				$order_mode = "created";
-		} else {
-			$ordering = "`commented`";
-			if ($sql_order == "")
-				$order_mode = "commented";
-		}
-
-		if ($sql_order == "")
-			$sql_order = "$sql_table.$ordering";
-
-		if (($_GET["offset"] != ""))
-			$sql_extra3 .= sprintf(" AND $sql_order <= '%s'", dbesc($_GET["offset"]));
-
-		// Fetch a page full of parent items for this page
-		if($update) {
-			if (!get_config("system", "like_no_comment"))
-				$sql_extra4 = "(`item`.`deleted` = 0
-						OR `item`.`verb` = '".ACTIVITY_LIKE."' OR `item`.`verb` = '".ACTIVITY_DISLIKE."'
-						OR `item`.`verb` = '".ACTIVITY_ATTEND."' OR `item`.`verb` = '".ACTIVITY_ATTENDNO."'
-						OR `item`.`verb` = '".ACTIVITY_ATTENDMAYBE."')";
-			else
-				$sql_extra4 = "`item`.`deleted` = 0 AND `item`.`verb` = '".ACTIVITY_POST."'";
-
-			$r = q("SELECT `item`.`parent` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
-				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND $sql_extra4
-				AND `item`.`moderated` = 0 AND `item`.`unseen` = 1
-				$sql_extra3 $sql_extra $sql_nets ORDER BY `item_id` DESC LIMIT 100",
-				intval(local_user())
-			);
-		} else {
-			$r = q("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
-				FROM $sql_table $sql_post_table STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
-				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				WHERE `thread`.`uid` = %d AND `thread`.`visible` = 1 AND `thread`.`deleted` = 0
-				AND `thread`.`moderated` = 0
-				$sql_extra2 $sql_extra3 $sql_extra $sql_nets
-				ORDER BY $sql_order DESC $pager_sql ",
-				intval(local_user())
-			);
-		}
-
-		// Then fetch all the children of the parents that are on this page
-
-		$parents_arr = array();
-		$parents_str = '';
-		$date_offset = "";
-
-		if(count($r)) {
-			foreach($r as $rr)
-				if(! in_array($rr['item_id'],$parents_arr))
-					$parents_arr[] = $rr['item_id'];
-
-			$parents_str = implode(", ", $parents_arr);
-
-			// splitted into separate queries to avoid the problem with very long threads
-			// so always the last X comments are loaded
-			// This problem can occur expecially with imported facebook posts
-			$max_comments = get_config("system", "max_comments");
-			if ($max_comments == 0)
-				$max_comments = 100;
-
-			$items = array();
-
-			foreach ($parents_arr AS $parents) {
-//					$sql_extra ORDER BY `item`.`commented` DESC LIMIT %d",
-				$thread_items = q("SELECT %s, %s FROM `item`
-					INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s
-					WHERE %s AND `item`.`uid` = %d
-					AND `item`.`parent` = %d
-					ORDER BY `item`.`commented` DESC LIMIT %d",
-					item_fieldlist(), contact_fieldlist(),
-					contact_condition(), item_condition(),
-					intval(local_user()),
-					intval($parents),
-					intval($max_comments + 1)
-				);
-				$items = array_merge($items, $thread_items);
-			}
-			$items = conv_sort($items,$ordering);
-		} else {
-			$items = array();
-		}
-
-		if ($_GET["offset"] == "")
-			$date_offset = $items[0][$order_mode];
-		else
-			$date_offset = $_GET["offset"];
-
-		$a->page_offset = $date_offset;
-
-		if($parents_str)
-			$update_unseen = ' WHERE uid = ' . intval(local_user()) . ' AND unseen = 1 AND parent IN ( ' . dbesc($parents_str) . ' )';
-	}
-
-	// We aren't going to try and figure out at the item, group, and page
-	// level which items you've seen and which you haven't. If you're looking
-	// at the top level network page just mark everything seen.
-
-
-// The $update_unseen is a bit unreliable if you have stuff coming into your stream from a new contact -
-// and other feeds that bring in stuff from the past. One can't find it all.
-// I'm reviving this block to mark everything seen on page 1 of the network as a temporary measure.
-// The correct solution is to implement a network notifications box just like the system notifications popup
-// with the ability in the popup to "mark all seen".
-// Several people are complaining because there are unseen messages they can't find and as time goes
-// on they just get buried deeper. It has happened to me a couple of times also.
-
-
-	if((! $group) && (! $cid) && (! $star)) {
-
-		$unseen = q("SELECT `id` FROM `item` WHERE `unseen` AND `uid` = %d",
-				intval(local_user()));
-
-		if ($unseen)
-			$r = q("UPDATE `item` SET `unseen` = 0
-				WHERE `unseen` = 1 AND `uid` = %d",
-				intval(local_user())
-			);
-	}
-	else {
-		if($update_unseen) {
-
-			$unseen = q("SELECT `id` FROM `item` ".$update_unseen);
-
-			if ($unseen)
-				$r = q("UPDATE `item` SET `unseen` = 0 $update_unseen");
-		}
-	}
-
-	// Set this so that the conversation function can find out contact info for our wall-wall items
-	$a->page_contact = $a->contact;
-
-	$mode = (($nouveau) ? 'network-new' : 'network');
-
-	$o .= conversation($a,$items,$mode,$update);
-
-	if(!$update) {
-		if(get_pconfig(local_user(),'system','infinite_scroll')) {
-				$o .= scroll_loader();
-		} elseif(!get_config('system', 'old_pager')) {
-		        $o .= alt_pager($a,count($items));
-		} else {
-		        $o .= paginate($a);
-		}
-	}
-
-	return $o;
 }
-

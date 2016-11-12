@@ -72,15 +72,14 @@ function hovercard_content() {
 		'gender' => $contact["gender"],
 		'about' => $contact["about"],
 		'network' => format_network_name($contact["network"], $contact["url"]),
-		'tags' => intval($contact["keywords"]),
+		'tags' => $contact["keywords"],
 //		'nsfw' => intval($contact["nsfw"]),
 //		'server_url' => $contact["server_url"],
 		'bd' => (($contact["birthday"] == "0000-00-00") ? "" : $contact["birthday"]),
 //		'generation' => $contact["generation"],
-		'account_type' => ($contact['community'] ? t("Forum") : ""),
+		'account_type' => account_type($contact),
 		'actions' => $actions,
 	);
-
 	if($datatype == "html") {
 		$t = get_markup_template("hovercard.tpl");
 

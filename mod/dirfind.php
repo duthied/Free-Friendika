@@ -156,7 +156,7 @@ function dirfind_content(&$a, $prefix = "") {
 			}
 
 			// Add found profiles from the global directory to the local directory
-			proc_run('php','include/discover_poco.php', "dirsearch", urlencode($search));
+			proc_run(PRIORITY_LOW, 'include/discover_poco.php', "dirsearch", urlencode($search));
 		} else {
 
 			$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
@@ -220,7 +220,7 @@ function dirfind_content(&$a, $prefix = "") {
 					'details'       => $contact_details['location'],
 					'tags'          => $contact_details['keywords'],
 					'about'         => $contact_details['about'],
-					'account_type'  => (($contact_details['community']) ? t('Forum') : ''),
+					'account_type'  => account_type($contact_details),
 					'network' => network_to_name($jj->network, $jj->url),
 					'id' => ++$id,
 				);

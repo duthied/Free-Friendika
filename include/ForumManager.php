@@ -26,6 +26,7 @@ class ForumManager {
 	 *	'name'	=> forum name
 	 *	'id'	=> number of the key from the array
 	 *	'micro' => contact photo in format micro
+	 *	'thumb' => contact photo in format thumb
 	 */
 	public static function get_list($uid, $showhidden = true, $lastitem, $showprivate = false) {
 
@@ -38,7 +39,7 @@ class ForumManager {
 			$select = '(`forum` OR `prv`)';
 		}
 
-		$contacts = q("SELECT `contact`.`id`, `contact`.`url`, `contact`.`name`, `contact`.`micro` FROM `contact`
+		$contacts = q("SELECT `contact`.`id`, `contact`.`url`, `contact`.`name`, `contact`.`micro`, `contact`.`thumb` FROM `contact`
 				WHERE `network`= 'dfrn' AND $select AND `uid` = %d
 				AND NOT `blocked` AND NOT `hidden` AND NOT `pending` AND NOT `archive`
 				AND `success_update` > `failure_update`
@@ -55,6 +56,7 @@ class ForumManager {
 				'name'	=> $contact['name'],
 				'id'	=> $contact['id'],
 				'micro' => $contact['micro'],
+				'thumb' => $contact['thumb'],
 			);
 		}
 		return($forumlist);
@@ -86,7 +88,7 @@ class ForumManager {
 		$total = count($contacts);
 		$visible_forums = 10;
 
-		if(count($contacts)) {
+		if(dbm::is_result($contacts)) {
 
 			$id = 0;
 

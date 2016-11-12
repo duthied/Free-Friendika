@@ -158,13 +158,22 @@ Dialog._load = function(url) {
  */
 function loadModalTitle() {
 	// clear the text of the title
-	//$("#modal-title").empty();
+	$("#modal-title").empty();
 
 	// hide the first element with the class "heading" of the modal body
 	$("#modal-body .heading").first().hide();
 
+	var title = "";
+
 	// get the text of the first element with "heading" class
-	var title = $("#modal-body .heading").first().text();
+	title = $("#modal-body .heading").first().text();
+
+	// for event modals we need some speacial handling
+	if($("#modal-body .event-wrapper .event-summary").length) {
+		title = '<i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;';
+		var eventsum = $("#modal-body .event-wrapper .event-summary").text();
+		title = title + eventsum;
+	}
 
 	// and append it to modal title
 	if (title!=="") {
@@ -195,6 +204,19 @@ function addToModal(url) {
 		});
 }
 
+// Add a element (by it's id) to a bootstrap modal
+function addElmToModal(id) {
+	var elm = $(id).html();
+	var modal = $('#modal').modal();
+
+	modal
+		.find('#modal-body')
+		.append(elm)
+		.modal.show;
+
+	loadModalTitle();
+}
+
 // function to load the html from the edit post page into
 // the jot modal
 function editpost(url) {
@@ -212,15 +234,15 @@ function editpost(url) {
 	}
 
 	var modal = $('#jot-modal').modal();
-	url = url + " #profile-jot-form";
+	url = url + " #jot-sections";
 
 	//var rand_num = random_digits(12);
-	$(".jot-nav #jot-perms-lnk").parent("li").hide();
+	$(".jot-nav .jot-perms-lnk").parent("li").addClass("hidden");
 
-	// For editpost we load the modal html form the edit page. So we would have two jot forms in
+	// For editpost we load the modal html of "jot-sections" of the edit page. So we would have two jot forms in
 	// the page html. To avoid js conflicts we store the original jot in the variable jotcache.
 	// After closing the modal original jot should be restored at its orginal position in the html structure.
-	jotcache = $("#jot-content > #profile-jot-form");
+	jotcache = $("#jot-content > #jot-sections");
 
 	// remove the original Jot as long as the edit Jot is open
 	jotcache.remove();
@@ -232,7 +254,7 @@ function editpost(url) {
 	jotreset();
 
 	modal
-		.find('#jot-modal-body')
+		.find('#jot-modal-content')
 		.load(url, function (responseText, textStatus) {
 			if ( textStatus === 'success' || 
 				textStatus === 'notmodified') 
@@ -258,7 +280,7 @@ function jotreset() {
 	// We need this to prevent that the modal displays old content
 	$('body').on('hidden.bs.modal', '#jot-modal.edit-jot', function () {
 		$(this).removeData('bs.modal');
-		$(".jot-nav #jot-perms-lnk").parent("li").show();
+		$(".jot-nav .jot-perms-lnk").parent("li").removeClass("hidden");
 		$("#profile-jot-form #jot-title-wrap").show();
 		$("#profile-jot-form #jot-category-wrap").show();
 
@@ -272,15 +294,31 @@ function jotreset() {
 
 		// remove the "edit-jot" class so we can the standard behavior on close
 		$("#jot-modal.edit-jot").removeClass("edit-jot");
-		$("#jot-modal-body").empty();
+		$("#jot-modal-content").empty();
 	});
 }
 
 // Give the active "jot-nav" list element the class "active"
 function toggleJotNav (elm) {
 	// select all li of jot-nav and remove the active class
-	$(elm).closest(".jot-nav").children("li").removeClass("active");
+	$(".jot-nav li").removeClass("active");
 	// add the active class to the parent of the link which was selected
 	$(elm).parent("li").addClass("active");
 }
 
+// Wall Message needs a special handling because in some cases
+// it redirects you to your own server. In such cases we can't
+// load it into a modal
+function openWallMessage(url) {
+	// split the the url in its parts
+	var parts = parseUrl(url);
+
+	// If the host isn't the same we can't load it in a modal.
+	// So we will go to to the url directly
+	if( ("host" in parts) && (parts.host !== window.location.host)) {
+		window.location.href = url;
+	} else {
+		// otherwise load the wall message into a modal
+		addToModal(url);
+	}
+}

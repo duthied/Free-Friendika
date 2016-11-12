@@ -282,14 +282,14 @@ function admin_page_federation(&$a) {
 	foreach ($platforms as $p) {
 		// get a total count for the platform, the name and version of the
 		// highest version and the protocol tpe
-		$c = q('SELECT COUNT(*) AS `total`, `platform`, `network`, `version` FROM `gserver`
+		$c = qu('SELECT COUNT(*) AS `total`, `platform`, `network`, `version` FROM `gserver`
 				WHERE `platform` LIKE "%s" AND `last_contact` > `last_failure` AND `version` != ""
 				ORDER BY `version` ASC;', $p);
 		$total = $total + $c[0]['total'];
 
 		// what versions for that platform do we know at all?
 		// again only the active nodes
-		$v = q('SELECT COUNT(*) AS `total`, `version` FROM `gserver`
+		$v = qu('SELECT COUNT(*) AS `total`, `version` FROM `gserver`
 				WHERE `last_contact` > `last_failure` AND `platform` LIKE "%s"  AND `version` != ""
 				GROUP BY `version`
 				ORDER BY `version`;', $p);
@@ -434,17 +434,17 @@ function admin_page_summary(&$a) {
 
 	logger('accounts: '.print_r($accounts,true),LOGGER_DATA);
 
-	$r = q("SELECT COUNT(`id`) AS `count` FROM `register`");
+	$r = qu("SELECT COUNT(`id`) AS `count` FROM `register`");
 	$pending = $r[0]['count'];
 
-	$r = q("SELECT COUNT(*) AS `total` FROM `deliverq` WHERE 1");
+	$r = qu("SELECT COUNT(*) AS `total` FROM `deliverq` WHERE 1");
 	$deliverq = (($r) ? $r[0]['total'] : 0);
 
-	$r = q("SELECT COUNT(*) AS `total` FROM `queue` WHERE 1");
+	$r = qu("SELECT COUNT(*) AS `total` FROM `queue` WHERE 1");
 	$queue = (($r) ? $r[0]['total'] : 0);
 
 	if (get_config('system','worker')) {
-		$r = q("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE 1");
+		$r = qu("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE 1");
 		$workerqueue = (($r) ? $r[0]['total'] : 0);
 	} else {
 		$workerqueue = 0;
@@ -460,6 +460,7 @@ function admin_page_summary(&$a) {
 		'$title' => t('Administration'),
 		'$page' => t('Summary'),
 		'$queues' => $queues,
+		'$workeractive' => get_config('system','worker'),
 		'$users' => array(t('Registered users'), $users),
 		'$accounts' => $accounts,
 		'$pending' => array(t('Pending registrations'), $pending),
@@ -549,7 +550,7 @@ function admin_page_site_post(&$a) {
 		$users = q("SELECT `uid` FROM `user` WHERE `account_removed` = 0 AND `account_expired` = 0");
 
 		foreach ($users as $user) {
-			proc_run('php', 'include/notifier.php', 'relocate', $user['uid']);
+			proc_run(PRIORITY_HIGH, 'include/notifier.php', 'relocate', $user['uid']);
 		}
 
 		info("Relocation started. Could take a while to complete.");
@@ -641,6 +642,7 @@ function admin_page_site_post(&$a) {
 	$worker			=	((x($_POST,'worker'))			? True						: False);
 	$worker_queues		=	((x($_POST,'worker_queues'))		? intval($_POST['worker_queues'])		: 4);
 	$worker_dont_fork	=	((x($_POST,'worker_dont_fork'))		? True						: False);
+	$worker_fastlane	=	((x($_POST,'worker_fastlane'))		? True						: False);
 
 	if($a->get_path() != "")
 		$diaspora_enabled = false;
@@ -790,6 +792,7 @@ function admin_page_site_post(&$a) {
 	set_config('system','worker', $worker);
 	set_config('system','worker_queues', $worker_queues);
 	set_config('system','worker_dont_fork', $worker_dont_fork);
+	set_config('system','worker_fastlane', $worker_fastlane);
 
 	if($rino==2 and !function_exists('mcrypt_create_iv')) {
 		notice(t("RINO2 needs mcrypt php extension to work."));
@@ -817,7 +820,7 @@ function admin_page_site_post(&$a) {
 function admin_page_site(&$a) {
 
 	/* Installed langs */
-	$lang_choices = get_avaiable_languages();
+	$lang_choices = get_available_languages();
 
 	if(strlen(get_config('system','directory_submit_url')) AND
 		!strlen(get_config('system','directory'))) {
@@ -1020,6 +1023,7 @@ function admin_page_site(&$a) {
 		'$worker'		=> array('worker', t("Enable 'worker' background processing"), get_config('system','worker'), t("The worker background processing limits the number of parallel background jobs to a maximum number and respects the system load.")),
 		'$worker_queues' 	=> array('worker_queues', t("Maximum number of parallel workers"), get_config('system','worker_queues'), t("On shared hosters set this to 2. On larger systems, values of 10 are great. Default value is 4.")),
 		'$worker_dont_fork'	=> array('worker_dont_fork', t("Don't use 'proc_open' with the worker"), get_config('system','worker_dont_fork'), t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of poller calls in your crontab.")),
+		'$worker_fastlane'	=> array('worker_fastlane', t("Enable fastlane"), get_config('system','worker_fastlane'), t("When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.")),
 
 		'$form_security_token'	=> get_form_security_token("admin_site")
 
@@ -1123,18 +1127,20 @@ function admin_page_dbsync(&$a) {
  * @param App $a
  */
 function admin_page_users_post(&$a){
-	$pending	=	(x($_POST, 'pending')			? $_POST['pending']		: array());
-	$users		=	(x($_POST, 'user')			? $_POST['user']		: array());
-	$nu_name	=	(x($_POST, 'new_user_name')		? $_POST['new_user_name']	: '');
-	$nu_nickname	=	(x($_POST, 'new_user_nickname')		? $_POST['new_user_nickname']	: '');
-	$nu_email	=	(x($_POST, 'new_user_email')		? $_POST['new_user_email']	: '');
+	$pending     =	(x($_POST, 'pending')			? $_POST['pending']		: array());
+	$users       =	(x($_POST, 'user')			? $_POST['user']		: array());
+	$nu_name     =	(x($_POST, 'new_user_name')		? $_POST['new_user_name']	: '');
+	$nu_nickname =	(x($_POST, 'new_user_nickname')		? $_POST['new_user_nickname']	: '');
+	$nu_email    =	(x($_POST, 'new_user_email')		? $_POST['new_user_email']	: '');
+	$nu_language = get_config('system', 'language');
 
 	check_form_security_token_redirectOnErr('/admin/users', 'admin_users');
 
 	if(!($nu_name==="") && !($nu_email==="") && !($nu_nickname==="")) {
 		require_once('include/user.php');
 
-		$result = create_user(array('username'=>$nu_name, 'email'=>$nu_email, 'nickname'=>$nu_nickname, 'verified'=>1));
+		$result = create_user(array('username'=>$nu_name, 'email'=>$nu_email, 
+			'nickname'=>$nu_nickname, 'verified'=>1, 'language'=>$nu_language));
 		if(! $result['success']) {
 			notice($result['message']);
 			return;
@@ -1265,7 +1271,7 @@ function admin_page_users(&$a){
 
 
 	/* get users */
-	$total = q("SELECT COUNT(*) AS `total` FROM `user` WHERE 1");
+	$total = qu("SELECT COUNT(*) AS `total` FROM `user` WHERE 1");
 	if(count($total)) {
 		$a->set_pager_total($total[0]['total']);
 		$a->set_pager_itemspage(100);
@@ -1273,14 +1279,14 @@ function admin_page_users(&$a){
 
 	/* ordering */
 	$valid_orders = array(
-		'contact.name', 
+		'contact.name',
 		'user.email',
 		'user.register_date',
 		'user.login_date',
-		'lastitem.lastitem_date',
+		'lastitem_date',
 		'user.page-flags'
 	);
-	
+
 	$order = "contact.name";
 	$order_direction = "+";
 	if (x($_GET,'o')){
@@ -1289,38 +1295,28 @@ function admin_page_users(&$a){
 			$order_direction = "-";
 			$new_order = substr($new_order,1);
 		}
-		
+
 		if (in_array($new_order, $valid_orders)){
 			$order = $new_order;
 		}
 		if (x($_GET,'d')){
 			$new_direction = $_GET['d'];
-			
 		}
 	}
 	$sql_order = "`".str_replace('.','`.`',$order)."`";
 	$sql_order_direction = ($order_direction==="+")?"ASC":"DESC";
-	
-	$users = q("SELECT `user`.* , `contact`.`name` , `contact`.`url` , `contact`.`micro`, `lastitem`.`lastitem_date`, `user`.`account_expired`
-				FROM
-					(SELECT MAX(`item`.`changed`) as `lastitem_date`, `item`.`uid`
-					FROM `item`
-					WHERE `item`.`type` = 'wall'
-					GROUP BY `item`.`uid`) AS `lastitem`
-						 RIGHT OUTER JOIN `user` ON `user`.`uid` = `lastitem`.`uid`,
-					   `contact`
-				WHERE
-					   `user`.`uid` = `contact`.`uid`
-						AND `user`.`verified` =1
-					AND `contact`.`self` =1
-				ORDER BY $sql_order $sql_order_direction LIMIT %d, %d
-				",
+
+	$users = qu("SELECT `user`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`account_expired`, `contact`.`last-item` AS `lastitem_date`
+				FROM `user`
+				INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
+				WHERE `user`.`verified`
+				ORDER BY $sql_order $sql_order_direction LIMIT %d, %d",
 				intval($a->pager['start']),
 				intval($a->pager['itemspage'])
 				);
-    
+
 	//echo "<pre>$users"; killme();
-				
+
 	$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
 	$_setup_users = function ($e) use ($adminlist){
 		$accounts = array(
@@ -1864,6 +1860,12 @@ function admin_page_logs(&$a){
 		LOGGER_DATA	=> 'Data',
 		LOGGER_ALL	=> 'All'
 	);
+	
+	if (ini_get('log_errors')) {
+		$phplogenabled = t('PHP log currently enabled.');
+	} else {
+		$phplogenabled = t('PHP log currently disabled.');
+	}
 
 	$t = get_markup_template("admin_logs.tpl");
 
@@ -1884,6 +1886,7 @@ function admin_page_logs(&$a){
 		'$phpheader' => t("PHP logging"),
 		'$phphint' => t("To enable logging of PHP errors and warnings you can add the following to the .htconfig.php file of your installation. The filename set in the 'error_log' line is relative to the friendica top-level directory and must be writeable by the web server. The option '1' for 'log_errors' and 'display_errors' is to enable these options, set to '0' to disable them."),
 		'$phplogcode' => "error_reporting(E_ERROR | E_WARNING | E_PARSE);\nini_set('error_log','php.out');\nini_set('log_errors','1');\nini_set('display_errors', '1');",
+		'$phplogenabled' => $phplogenabled,
 	));
 }
 

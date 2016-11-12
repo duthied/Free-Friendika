@@ -36,15 +36,15 @@ function viewcontacts_content(&$a) {
 		return;
 	}
 
-	if(((! count($a->profile)) || ($a->profile['hide-friends']))) {
-		notice( t('Permission denied.') . EOL);
-		return;
-	}
-
 	$o = "";
 
 	// tabs
 	$o .= profile_tabs($a,$is_owner, $a->data['user']['nickname']);
+
+	if(((! count($a->profile)) || ($a->profile['hide-friends']))) {
+		notice( t('Permission denied.') . EOL);
+		return $o;
+	}
 
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
 		WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
@@ -102,7 +102,7 @@ function viewcontacts_content(&$a) {
 			'details'       => $contact_details['location'],
 			'tags'          => $contact_details['keywords'],
 			'about'         => $contact_details['about'],
-			'account_type'  => (($contact_details['community']) ? t('Forum') : ''),
+			'account_type'  => account_type($contact_details),
 			'url' => $url,
 			'sparkle' => '',
 			'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),

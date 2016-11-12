@@ -38,7 +38,7 @@ function contacts_init(&$a) {
 
 			if (($a->data['contact']['network'] != "") AND ($a->data['contact']['network'] != NETWORK_DFRN)) {
 				$networkname = format_network_name($a->data['contact']['network'],$a->data['contact']['url']);
-			} else 
+			} else
 				$networkname = '';
 
 			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"),array(
@@ -48,7 +48,7 @@ function contacts_init(&$a) {
 				'$addr' => (($a->data['contact']['addr'] != "") ? ($a->data['contact']['addr']) : ""),
 				'$network_name' => $networkname,
 				'$network' => t('Network:'),
-				'account_type' => (($a->data['contact']['forum'] || $a->data['contact']['prv']) ? t('Forum') : '')
+				'$account_type' => account_type($a->data['contact'])
 			));
 			$finpeople_widget = '';
 			$follow_widget = '';
@@ -237,7 +237,7 @@ function _contact_update($contact_id) {
 				intval($contact_id));
 	} else
 		// pull feed and consume it, which should subscribe to the hub.
-		proc_run('php',"include/onepoll.php","$contact_id", "force");
+		proc_run(PRIORITY_HIGH, "include/onepoll.php", $contact_id, "force");
 }
 
 function _contact_update_profile($contact_id) {
@@ -434,7 +434,8 @@ function contacts_content(&$a) {
 				$a->page['aside'] = '';
 
 				return replace_macros(get_markup_template('contact_drop_confirm.tpl'), array(
-					'$contact' =>  _contact_detail_for_template($orig_record[0]),
+					'$header' => t('Drop contact'),
+					'$contact' => _contact_detail_for_template($orig_record[0]),
 					'$method' => 'get',
 					'$message' => t('Do you really want to delete this contact?'),
 					'$extra_inputs' => $inputs,
@@ -571,6 +572,7 @@ function contacts_content(&$a) {
 
 		$o .= replace_macros($tpl, array(
 			//'$header' => t('Contact Editor'),
+			'$header' => t("Contact"),
 			'$tab_str' => $tab_str,
 			'$submit' => t('Submit'),
 			'$lbl_vis1' => t('Profile Visibility'),
@@ -604,6 +606,7 @@ function contacts_content(&$a) {
 			'$ignore_text' => (($contact['readonly']) ? t('Unignore') : t('Ignore') ),
 			'$insecure' => (($contact['network'] !== NETWORK_DFRN && $contact['network'] !== NETWORK_MAIL && $contact['network'] !== NETWORK_FACEBOOK && $contact['network'] !== NETWORK_DIASPORA) ? $insecure : ''),
 			'$info' => $contact['info'],
+			'$cinfo' => array('info', '', $contact['info'], ''),
 			'$blocked' => (($contact['blocked']) ? t('Currently blocked') : ''),
 			'$ignored' => (($contact['readonly']) ? t('Currently ignored') : ''),
 			'$archived' => (($contact['archive']) ? t('Currently archived') : ''),
@@ -620,8 +623,11 @@ function contacts_content(&$a) {
 			'$url' => $url,
 			'$profileurllabel' => t('Profile URL'),
 			'$profileurl' => $contact['url'],
+			'$account_type' => account_type($contact),
 			'$location' => bbcode($contact["location"]),
 			'$location_label' => t("Location:"),
+			'$xmpp' => bbcode($contact["xmpp"]),
+			'$xmpp_label' => t("XMPP:"),
 			'$about' => bbcode($contact["about"], false, false),
 			'$about_label' => t("About:"),
 			'$keywords' => $contact["keywords"],
@@ -630,6 +636,7 @@ function contacts_content(&$a) {
 			'$contact_actions' => $contact_actions,
 			'$contact_status' => t("Status"),
 			'$contact_settings_label' => t('Contact Settings'),
+			'$contact_profile_label' => t("Profile"),
 
 		));
 
@@ -800,6 +807,7 @@ function contacts_content(&$a) {
 			"contacts_batch_archive" => t('Archive')."/".t("Unarchive"),
 			"contacts_batch_drop" => t('Delete'),
 		),
+		'$h_batch_actions' => t('Batch Actions'),
 		'$paginate' => paginate($a),
 
 	));
@@ -902,8 +910,6 @@ function contact_posts($a, $contact_id) {
 
 function _contact_detail_for_template($rr){
 
-	$community = '';
-
 	switch($rr['rel']) {
 		case CONTACT_IS_FRIEND:
 			$dir_icon = 'images/lrarrow.gif';
@@ -929,11 +935,6 @@ function _contact_detail_for_template($rr){
 		$sparkle = '';
 	}
 
-	//test if contact is a forum page
-	if (isset($rr['forum']) OR isset($rr['prv']))
-				$community = ($rr['forum'] OR $rr['prv']);
-
-
 	return array(
 		'img_hover' => sprintf( t('Visit %s\'s profile [%s]'),$rr['name'],$rr['url']),
 		'edit_hover' => t('Edit contact'),
@@ -944,7 +945,7 @@ function _contact_detail_for_template($rr){
 		'thumb' => proxy_url($rr['thumb'], false, PROXY_SIZE_THUMB),
 		'name' => htmlentities($rr['name']),
 		'username' => htmlentities($rr['name']),
-		'account_type' => ($community ? t('Forum') : ''),
+		'account_type' => account_type($rr),
 		'sparkle' => $sparkle,
 		'itemurl' => (($rr['addr'] != "") ? $rr['addr'] : $rr['url']),
 		'url' => $url,

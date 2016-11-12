@@ -10,7 +10,7 @@ function profile_init(&$a) {
 		$a->page['aside'] = '';
 
 	if($a->argc > 1)
-		$which = $a->argv[1];
+		$which = htmlspecialchars($a->argv[1]);
 	else {
 		$r = q("select nickname from user where blocked = 0 and account_expired = 0 and account_removed = 0 and verified = 1 order by rand() limit 1");
 		if(count($r)) {
@@ -27,7 +27,7 @@ function profile_init(&$a) {
 	$profile = 0;
 	if((local_user()) && ($a->argc > 2) && ($a->argv[2] === 'view')) {
 		$which = $a->user['nickname'];
-		$profile = $a->argv[1];
+		$profile = htmlspecialchars($a->argv[1]);
 	}
 	else {
 		auto_redir($a, $which);
@@ -282,34 +282,34 @@ function profile_content(&$a, $update = 0) {
 		$pager_sql = sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
 
 		$r = q("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`
-			FROM `thread` FORCE INDEX (`uid_created`) INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
-			$sql_post_table INNER JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-			WHERE `thread`.`uid` = %d AND `thread`.`visible` = 1 AND `thread`.`deleted` = 0
-			and `thread`.`moderated` = 0
-			AND `thread`.`wall` = 1
-			$sql_extra $sql_extra2
-			ORDER BY `thread`.`created` DESC $pager_sql ",
-			intval($a->profile['profile_uid'])
-
+			FROM `thread`
+			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
+			$sql_post_table
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
+				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+			WHERE `thread`.`uid` = %d AND `thread`.`visible`
+				AND `thread`.`contact-id` = %d
+				AND NOT `thread`.`deleted`
+				AND NOT `thread`.`moderated`
+				AND `thread`.`wall`
+				$sql_extra $sql_extra2
+			ORDER BY `thread`.`created` DESC $pager_sql",
+			intval($a->profile['profile_uid']),
+			intval($a->profile['contact_id'])
 		);
 	}
 
 	$parents_arr = array();
 	$parents_str = '';
 
-	if(count($r)) {
+	if (dbm::is_result($r)) {
 		foreach($r as $rr)
 			$parents_arr[] = $rr['item_id'];
 		$parents_str = implode(', ', $parents_arr);
 
-		$items = q("SELECT %s, %s FROM `item`
-			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND %s
-			WHERE %s AND `item`.`uid` = %d
+		$items = q(item_query()." AND `item`.`uid` = %d
 			AND `item`.`parent` IN (%s)
 			$sql_extra ",
-			item_fieldlist(), contact_fieldlist(),
-			contact_condition(), item_condition(),
 			intval($a->profile['profile_uid']),
 			dbesc($parents_str)
 		);

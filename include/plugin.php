@@ -205,37 +205,41 @@ function load_hooks() {
  * @param string $name of the hook to call
  * @param string|array &$data to transmit to the callback handler
  */
-if(! function_exists('call_hooks')) {
 function call_hooks($name, &$data = null) {
 	$stamp1 = microtime(true);
 
 	$a = get_app();
 
-	#logger($name, LOGGER_ALL);
+	if (is_array($a->hooks) && array_key_exists($name, $a->hooks))
+		foreach ($a->hooks[$name] as $hook)
+			call_single_hook($a, $name, $hook, $data);
+}
 
-	if((is_array($a->hooks)) && (array_key_exists($name,$a->hooks))) {
-		foreach($a->hooks[$name] as $hook) {
-			// Don't run a theme's hook if the user isn't using the theme
-			if(strpos($hook[0], 'view/theme/') !== false && strpos($hook[0], 'view/theme/'.current_theme()) === false)
-				continue;
+/**
+ * @brief Calls a single hook.
+ *
+ * @param string $name of the hook to call
+ * @param array $hook Hook data
+ * @param string|array &$data to transmit to the callback handler
+ */
+function call_single_hook($a, $name, $hook, &$data = null) {
+	// Don't run a theme's hook if the user isn't using the theme
+	if (strpos($hook[0], 'view/theme/') !== false && strpos($hook[0], 'view/theme/'.current_theme()) === false)
+		return;
 
-			@include_once($hook[0]);
-			if(function_exists($hook[1])) {
-				$func = $hook[1];
-				//logger($name." => ".$hook[0].":".$func."()", LOGGER_DEBUG);
-				$func($a,$data);
-			}
-			else {
-				// remove orphan hooks
-				q("DELETE FROM `hook` WHERE `hook` = '%s' AND `file` = '%s' AND `function` = '%s'",
-					dbesc($name),
-					dbesc($hook[0]),
-					dbesc($hook[1])
-				);
-			}
-		}
+	@include_once($hook[0]);
+	if (function_exists($hook[1])) {
+		$func = $hook[1];
+		$func($a, $data);
+	} else {
+		// remove orphan hooks
+		q("DELETE FROM `hook` WHERE `hook` = '%s' AND `file` = '%s' AND `function` = '%s'",
+			dbesc($name),
+			dbesc($hook[0]),
+			dbesc($hook[1])
+		);
 	}
-}}
+}
 
 //check if an app_menu hook exist for plugin $name.
 //Return true if the plugin is an app
@@ -533,4 +537,42 @@ function upgrade_message($bbcode = false) {
 function upgrade_bool_message($bbcode = false) {
 	$x = upgrade_link($bbcode);
 	return t('This action is not available under your subscription plan.') . (($x) ? ' ' . $x : '') ;
+}
+
+/**
+ * @brief Get the full path to relevant theme files by filename
+ * 
+ * This function search in the theme directory (and if not present in global theme directory)
+ * if there is a directory with the file extension and  for a file with the given
+ * filename. 
+ * 
+ * @param string $file Filename
+ * @param string $root Full root path
+ * @return string Path to the file or empty string if the file isn't found
+ */
+function theme_include($file, $root = '') {
+	// Make sure $root ends with a slash / if it's not blank
+	if($root !== '' && $root[strlen($root)-1] !== '/')
+		$root = $root . '/';
+	$theme_info = $a->theme_info;
+	if(is_array($theme_info) AND array_key_exists('extends',$theme_info))
+		$parent = $theme_info['extends'];
+	else
+		$parent = 'NOPATH';
+	$theme = current_theme();
+	$thname = $theme;
+	$ext = substr($file,strrpos($file,'.')+1);
+	$paths = array(
+		"{$root}view/theme/$thname/$ext/$file",
+		"{$root}view/theme/$parent/$ext/$file",
+		"{$root}view/$ext/$file",
+	);
+	foreach($paths as $p) {
+		// strpos() is faster than strstr when checking if one string is in another (http://php.net/manual/en/function.strstr.php)
+		if(strpos($p,'NOPATH') !== false)
+			continue;
+		if(file_exists($p))
+			return $p;
+	}
+	return '';
 }

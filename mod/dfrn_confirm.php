@@ -16,6 +16,7 @@
 
 require_once('include/enotify.php');
 require_once('include/group.php');
+require_once('include/Probe.php');
 
 function dfrn_confirm_post(&$a,$handsfree = null) {
 
@@ -356,7 +357,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			$poll   = (($contact['poll']) ? $contact['poll'] : '');
 
 			if((! $contact['notify']) || (! $contact['poll'])) {
-				$arr = lrdd($contact['url']);
+				$arr = Probe::lrdd($contact['url']);
 				if(count($arr)) {
 					foreach($arr as $link) {
 						if($link['@attributes']['rel'] === 'salmon')
@@ -486,7 +487,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 					$i = item_store($arr);
 					if($i)
-				    	proc_run('php',"include/notifier.php","activity","$i");
+						proc_run(PRIORITY_HIGH, "include/notifier.php", "activity", $i);
 				}
 			}
 		}
@@ -783,7 +784,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 					$i = item_store($arr);
 					if($i)
-				    	proc_run('php',"include/notifier.php","activity","$i");
+						proc_run(PRIORITY_HIGH, "include/notifier.php", "activity", $i);
 
 				}
 			}

@@ -2,7 +2,7 @@
 /*
  * Name: frio
  * Description: Bootstrap V3 theme. The theme is currently under construction, so it is far from finished. For further information have a look at the <a href="https://github.com/friendica/friendica/tree/develop/view/theme/frio/README.md">ReadMe</a>.
- * Version: V.0.2 Alpha
+ * Version: V.0.7
  * Author: Rabuzarus <https://friendica.kommune4.de/profile/rabuzarus>
  * 
  */
@@ -12,6 +12,10 @@ $frio = "view/theme/frio";
 global $frio;
 
 function frio_init(&$a) {
+
+	// disable the events module link in the profile tab
+	$a->theme_events_in_profile = false;
+
 	set_template_engine($a, 'smarty3');
 
 	$baseurl = $a->get_baseurl();
@@ -219,7 +223,7 @@ function frio_remote_nav($a,&$nav) {
 
 	} elseif(!local_user() && remote_user()) {
 		$r = q("SELECT `name`, `nick`, `micro` AS `photo` FROM `contact` WHERE `id` = %d", intval(remote_user()));
-		$nav['remote'] = t("Remote");
+		$nav['remote'] = t("Guest");
 
 	} elseif(get_my_url ()) {
 		$r = q("SELECT `name`, `nick`, `photo` FROM `gcontact`

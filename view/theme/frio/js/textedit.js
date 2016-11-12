@@ -93,6 +93,8 @@ function commentOpenUI(obj, id) {
 			$("#comment-edit-text-" + id).attr('tabindex','9');
 			$("#comment-edit-submit-" + id).attr('tabindex','10');
 			$("#comment-edit-submit-wrapper-" + id).show();
+			// initiale autosize for this comment
+			autosize($("#comment-edit-text-" + id + ".text-autosize"));
 		}
 	};
 
@@ -109,6 +111,8 @@ function commentCloseUI(obj, id) {
 			$("#comment-edit-text-" + id).removeAttr('tabindex');
 			$("#comment-edit-submit-" + id).removeAttr('tabindex');
 			$("#comment-edit-submit-wrapper-" + id).hide();
+			// destroy the automatic textarea resizing
+			autosize.destroy($("#comment-edit-text-" + id + ".text-autosize"));
 		}
 	};
 
@@ -120,6 +124,8 @@ function jotTextOpenUI(obj) {
 	if(obj.value == aStr.share) {
 		obj.value = '';
 		$(".modal-body #profile-jot-text").addClass("profile-jot-text-full").removeClass("profile-jot-text-empty");
+		// initiale autosize for the jot
+		autosize($(".modal-body #profile-jot-text"));
 	}
 }
 
@@ -129,6 +135,8 @@ function jotTextCloseUI(obj) {
 	if(obj.value === '') {
 	obj.value = aStr.share;
 		$(".modal-body #profile-jot-text").removeClass("profile-jot-text-full").addClass("profile-jot-text-empty");
+		// destroy the automatic textarea resizing
+		autosize.destroy($(".modal-body #profile-jot-text"));
 	}
 }
 
@@ -181,15 +189,21 @@ function confirmDelete() { return confirm(aStr.delitem); }
 
 function dropItem(url, object) {
 	var confirm = confirmDelete();
+
+	//if the first character of the object is #, remove it because
+	// we use getElementById which don't need the #
+	// getElementByID selects elements even if there are special characters
+	// in the ID (like %) which won't work with jQuery
+	/// @todo ceck if we can solve this in the template
+	object = object.indexOf('#') == 0 ? object.substring(1) : object;
+
 	if(confirm) {
 		$('body').css('cursor', 'wait');
-		$(object).fadeTo('fast', 0.33, function () {
+		$(document.getElementById(object)).fadeTo('fast', 0.33, function () {
 			$.get(url).done(function() {
-				$(object).remove();
+				$(document.getElementById(object)).remove();
 				$('body').css('cursor', 'auto');
 			});
 		});
 	}
 }
-
-	

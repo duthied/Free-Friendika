@@ -156,7 +156,7 @@ $(document).ready(function() {
 
 	if(window.aclType == "event_head") {
 		$('#events-calendar').fullCalendar({
-			events: baseurl + '/events/json/',
+			events: baseurl + window.eventModuleUrl +'/json/',
 			header: {
 				left: 'prev,next today',
 				center: 'title',
@@ -172,7 +172,7 @@ $(document).ready(function() {
 				if (event.item['author-name']==null) return;
 				switch(view.name){
 					case "month":
-					element.find(".fc-event-title").html(
+					element.find(".fc-title").html(
 						"<img src='{0}' style='height:10px;width:10px'>{1} : {2}".format(
 							event.item['author-avatar'],
 							event.item['author-name'],
@@ -180,7 +180,7 @@ $(document).ready(function() {
 					));
 					break;
 					case "agendaWeek":
-					element.find(".fc-event-title").html(
+					element.find(".fc-title").html(
 						"<img src='{0}' style='height:12px; width:12px'>{1}<p>{2}</p><p>{3}</p>".format(
 							event.item['author-avatar'],
 							event.item['author-name'],
@@ -189,7 +189,7 @@ $(document).ready(function() {
 					));
 					break;
 					case "agendaDay":
-					element.find(".fc-event-title").html(
+					element.find(".fc-title").html(
 						"<img src='{0}' style='height:24px;width:24px'>{1}<p>{2}</p><p>{3}</p>".format(
 							event.item['author-avatar'],
 							event.item['author-name'],
@@ -204,9 +204,11 @@ $(document).ready(function() {
 		
 		// center on date
 		var args=location.href.replace(baseurl,"").split("/");
-		if (args.length>=4) {
+		if (args.length>=5 && window.eventModeParams == 2) {
+			$("#events-calendar").fullCalendar('gotoDate',args[3] , args[4]-1);
+		} else if (args.length>=4 && window.eventModeParams == 1) {
 			$("#events-calendar").fullCalendar('gotoDate',args[2] , args[3]-1);
-		} 
+		}
 		
 		// show event popup
 		var hash = location.hash.split("-")
@@ -264,7 +266,7 @@ function initCrop() {
 
 function showEvent(eventid) {
 /*	$.get(
-		baseurl + '/events/?id='+eventid,
+		baseurl + window.eventModuleUrl + '/?id=' + eventid,
 		function(data){
 			$.colorbox({html:data});
 		}

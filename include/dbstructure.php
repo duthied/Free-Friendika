@@ -78,8 +78,16 @@ function table_structure($table) {
 			if ($index["Index_type"] == "FULLTEXT")
 				continue;
 
+			if ($index['Key_name'] != 'PRIMARY' && $index['Non_unique'] == '0' && !isset($indexdata[$index["Key_name"]])) {
+				$indexdata[$index["Key_name"]] = array('UNIQUE');
+			}
+
 			$column = $index["Column_name"];
-			if ($index["Sub_part"] != "")
+			// On utf8mb4 a varchar index can only have a length of 191
+			// To avoid the need to add this to every index definition we just ignore it here.
+			// Exception are primary indexes
+			// Since there are some combindex primary indexes we use the limit of 180 here.
+			if (($index["Sub_part"] != "") AND (($index["Sub_part"] < 180) OR ($index["Key_name"] == "PRIMARY")))
 				$column .= "(".$index["Sub_part"].")";
 
 			$indexdata[$index["Key_name"]][] = $column;
@@ -104,7 +112,7 @@ function table_structure($table) {
 	return(array("fields"=>$fielddata, "indexes"=>$indexdata));
 }
 
-function print_structure($database) {
+function print_structure($database, $charset) {
 	echo "-- ------------------------------------------\n";
 	echo "-- ".FRIENDICA_PLATFORM." ".FRIENDICA_VERSION." (".FRIENDICA_CODENAME,")\n";
 	echo "-- DB_UPDATE_VERSION ".DB_UPDATE_VERSION."\n";
@@ -113,7 +121,7 @@ function print_structure($database) {
 		echo "--\n";
 		echo "-- TABLE $name\n";
 		echo "--\n";
-		db_create_table($name, $structure['fields'], true, false, $structure["indexes"]);
+		db_create_table($name, $structure['fields'], $charset, true, false, $structure["indexes"]);
 
 		echo "\n";
 	}
@@ -121,6 +129,14 @@ function print_structure($database) {
 
 function update_structure($verbose, $action, $tables=null, $definition=null) {
 	global $a, $db;
+
+	if ($action)
+		set_config('system', 'maintenance', 1);
+
+	if (isset($a->config["system"]["db_charset"]))
+		$charset = $a->config["system"]["db_charset"];
+	else
+		$charset = "utf8";
 
 	$errors = false;
 
@@ -140,15 +156,29 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 
 	// Get the definition
 	if (is_null($definition))
-		$definition = db_definition();
+		$definition = db_definition($charset);
 
+	// Ensure index conversion to unique removes duplicates
+	$sql_config = "SET session old_alter_table=1;";
+	if ($verbose)
+		echo $sql_config."\n";
+	if ($action)
+		@$db->q($sql_config);
+
+	// MySQL >= 5.7.4 doesn't support the IGNORE keyword in ALTER TABLE statements
+	if ((version_compare($db->server_info(), '5.7.4') >= 0) AND
+		!(strpos($db->server_info(), 'MariaDB') !== false)) {
+		$ignore = '';
+	}else {
+		$ignore = ' IGNORE';
+	}
 
 	// Compare it
 	foreach ($definition AS $name => $structure) {
 		$is_new_table = False;
 		$sql3="";
 		if (!isset($database[$name])) {
-			$r = db_create_table($name, $structure["fields"], $verbose, $action, $structure['indexes']);
+			$r = db_create_table($name, $structure["fields"], $charset, $verbose, $action, $structure['indexes']);
 			if(false === $r) {
 				$errors .=  t('Errors encountered creating database tables.').$name.EOL;
 			}
@@ -167,7 +197,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 				if ($current_index_definition != $new_index_definition && substr($indexname, 0, 6) != 'local_') {
 					$sql2=db_drop_index($indexname);
 					if ($sql3 == "")
-						$sql3 = "ALTER TABLE `".$name."` ".$sql2;
+						$sql3 = "ALTER".$ignore." TABLE `".$name."` ".$sql2;
 					else
 						$sql3 .= ", ".$sql2;
 				}
@@ -211,7 +241,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 					$sql2=db_create_index($indexname, $fieldnames);
 					if ($sql2 != "") {
 						if ($sql3 == "")
-							$sql3 = "ALTER TABLE `".$name."` ".$sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `".$name."` ".$sql2;
 						else
 							$sql3 .= ", ".$sql2;
 					}
@@ -231,6 +261,9 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 			}
 		}
 	}
+
+	if ($action)
+		set_config('system', 'maintenance', 0);
 
 	return $errors;
 }
@@ -257,7 +290,7 @@ function db_field_command($parameters, $create = true) {
 	return($fieldstruct);
 }
 
-function db_create_table($name, $fields, $verbose, $action, $indexes=null) {
+function db_create_table($name, $fields, $charset, $verbose, $action, $indexes=null) {
 	global $a, $db;
 
 	$r = true;
@@ -282,7 +315,7 @@ function db_create_table($name, $fields, $verbose, $action, $indexes=null) {
 
 	$sql = implode(",\n\t", $sql_rows);
 
-	$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n\t", dbesc($name)).$sql."\n) DEFAULT CHARSET=utf8";
+	$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n\t", dbesc($name)).$sql."\n) DEFAULT CHARSET=".$charset;
 	if ($verbose)
 		echo $sql.";\n";
 
@@ -315,9 +348,9 @@ function db_create_index($indexname, $fieldnames, $method="ADD") {
 		killme();
 	}
 
-
-	if ($indexname == "PRIMARY") {
-		return sprintf("%s PRIMARY KEY(`%s`)", $method, implode("`,`", $fieldnames));
+	if ($fieldnames[0] == "UNIQUE") {
+		array_shift($fieldnames);
+		$method .= ' UNIQUE';
 	}
 
 	$names = "";
@@ -331,12 +364,26 @@ function db_create_index($indexname, $fieldnames, $method="ADD") {
 			$names .= "`".dbesc($fieldname)."`";
 	}
 
+	if ($indexname == "PRIMARY") {
+		return sprintf("%s PRIMARY KEY(%s)", $method, $names);
+	}
+
 
 	$sql = sprintf("%s INDEX `%s` (%s)", $method, dbesc($indexname), $names);
 	return($sql);
 }
 
-function db_definition() {
+function db_index_suffix($charset, $reduce = 0) {
+	if ($charset != "utf8mb4")
+		return "";
+
+	// On utf8mb4 indexes can only have a length of 191
+	$indexlength = 191 - $reduce;
+
+	return "(".$indexlength.")";
+}
+
+function db_definition($charset) {
 
 	$database = array();
 
@@ -365,10 +412,10 @@ function db_definition() {
 					"data" => array("type" => "longblob", "not null" => "1"),
 					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"edited" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
-					"allow_cid" => array("type" => "mediumtext", "not null" => "1"),
-					"allow_gid" => array("type" => "mediumtext", "not null" => "1"),
-					"deny_cid" => array("type" => "mediumtext", "not null" => "1"),
-					"deny_gid" => array("type" => "mediumtext", "not null" => "1"),
+					"allow_cid" => array("type" => "mediumtext"),
+					"allow_gid" => array("type" => "mediumtext"),
+					"deny_cid" => array("type" => "mediumtext"),
+					"deny_gid" => array("type" => "mediumtext"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
@@ -389,13 +436,14 @@ function db_definition() {
 	$database["cache"] = array(
 			"fields" => array(
 					"k" => array("type" => "varchar(255)", "not null" => "1", "primary" => "1"),
-					"v" => array("type" => "text", "not null" => "1"),
+					"v" => array("type" => "text"),
 					"expire_mode" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
 					"updated" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					),
 			"indexes" => array(
-					"PRIMARY" => array("k"),
+					"PRIMARY" => array("k".db_index_suffix($charset)),
 					"updated" => array("updated"),
+					"expire_mode_updated" => array("expire_mode", "updated"),
 					)
 			);
 	$database["challenge"] = array(
@@ -429,11 +477,11 @@ function db_definition() {
 					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
 					"cat" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"k" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"v" => array("type" => "text", "not null" => "1"),
+					"v" => array("type" => "text"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"cat_k" => array("cat(30)","k(30)"),
+					"cat_k" => array("UNIQUE", "cat(30)","k(30)"),
 					)
 			);
 	$database["contact"] = array(
@@ -449,29 +497,30 @@ function db_definition() {
 					"name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"nick" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"location" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"about" => array("type" => "text", "not null" => "1"),
-					"keywords" => array("type" => "text", "not null" => "1"),
+					"about" => array("type" => "text"),
+					"keywords" => array("type" => "text"),
 					"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
+					"xmpp" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"attag" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"avatar" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"photo" => array("type" => "text", "not null" => "1"),
-					"thumb" => array("type" => "text", "not null" => "1"),
-					"micro" => array("type" => "text", "not null" => "1"),
-					"site-pubkey" => array("type" => "text", "not null" => "1"),
+					"photo" => array("type" => "text"),
+					"thumb" => array("type" => "text"),
+					"micro" => array("type" => "text"),
+					"site-pubkey" => array("type" => "text"),
 					"issued-id" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"dfrn-id" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"nurl" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"addr" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"alias" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"pubkey" => array("type" => "text", "not null" => "1"),
-					"prvkey" => array("type" => "text", "not null" => "1"),
+					"pubkey" => array("type" => "text"),
+					"prvkey" => array("type" => "text"),
 					"batch" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"request" => array("type" => "text", "not null" => "1"),
-					"notify" => array("type" => "text", "not null" => "1"),
-					"poll" => array("type" => "text", "not null" => "1"),
-					"confirm" => array("type" => "text", "not null" => "1"),
-					"poco" => array("type" => "text", "not null" => "1"),
+					"request" => array("type" => "text"),
+					"notify" => array("type" => "text"),
+					"poll" => array("type" => "text"),
+					"confirm" => array("type" => "text"),
+					"poco" => array("type" => "text"),
 					"aes_allow" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"ret-aes" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"usehub" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
@@ -491,23 +540,25 @@ function db_definition() {
 					"writable" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"forum" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"prv" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
+					"contact-type" => array("type" => "int(11) unsigned", "not null" => "1", "default" => "0"),
 					"hidden" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"archive" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"pending" => array("type" => "tinyint(1)", "not null" => "1", "default" => "1"),
 					"rating" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
-					"reason" => array("type" => "text", "not null" => "1"),
+					"reason" => array("type" => "text"),
 					"closeness" => array("type" => "tinyint(2)", "not null" => "1", "default" => "99"),
-					"info" => array("type" => "mediumtext", "not null" => "1"),
+					"info" => array("type" => "mediumtext"),
 					"profile-id" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
 					"bdyear" => array("type" => "varchar(4)", "not null" => "1", "default" => ""),
 					"bd" => array("type" => "date", "not null" => "1", "default" => "0000-00-00"),
 					"notify_new_posts" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"fetch_further_information" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
-					"ffi_keyword_blacklist" => array("type" => "mediumtext", "not null" => "1"),
+					"ffi_keyword_blacklist" => array("type" => "mediumtext"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"uid" => array("uid"),
+					"addr_uid" => array("addr", "uid"),
 					"nurl" => array("nurl"),
 					)
 			);
@@ -515,12 +566,12 @@ function db_definition() {
 			"fields" => array(
 					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
 					"guid" => array("type" => "varchar(64)", "not null" => "1", "default" => ""),
-					"recips" => array("type" => "mediumtext", "not null" => "1"),
+					"recips" => array("type" => "mediumtext"),
 					"uid" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
 					"creator" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"updated" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
-					"subject" => array("type" => "mediumtext", "not null" => "1"),
+					"subject" => array("type" => "mediumtext"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
@@ -536,6 +587,7 @@ function db_definition() {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
+					"cmd_item_contact" => array("UNIQUE", "cmd", "item", "contact"),
 					)
 			);
 	$database["event"] = array(
@@ -548,17 +600,17 @@ function db_definition() {
 					"edited" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"start" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"finish" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
-					"summary" => array("type" => "text", "not null" => "1"),
-					"desc" => array("type" => "text", "not null" => "1"),
-					"location" => array("type" => "text", "not null" => "1"),
+					"summary" => array("type" => "text"),
+					"desc" => array("type" => "text"),
+					"location" => array("type" => "text"),
 					"type" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"nofinish" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"adjust" => array("type" => "tinyint(1)", "not null" => "1", "default" => "1"),
 					"ignore" => array("type" => "tinyint(1) unsigned", "not null" => "1", "default" => "0"),
-					"allow_cid" => array("type" => "mediumtext", "not null" => "1"),
-					"allow_gid" => array("type" => "mediumtext", "not null" => "1"),
-					"deny_cid" => array("type" => "mediumtext", "not null" => "1"),
-					"deny_gid" => array("type" => "mediumtext", "not null" => "1"),
+					"allow_cid" => array("type" => "mediumtext"),
+					"allow_gid" => array("type" => "mediumtext"),
+					"deny_cid" => array("type" => "mediumtext"),
+					"deny_gid" => array("type" => "mediumtext"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
@@ -568,6 +620,7 @@ function db_definition() {
 	$database["fcontact"] = array(
 			"fields" => array(
 					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
+					"guid" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"photo" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
@@ -581,7 +634,7 @@ function db_definition() {
 					"priority" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"network" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"alias" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"pubkey" => array("type" => "text", "not null" => "1"),
+					"pubkey" => array("type" => "text"),
 					"updated" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					),
 			"indexes" => array(
@@ -605,7 +658,7 @@ function db_definition() {
 					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
 					"server" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"posturl" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"key" => array("type" => "text", "not null" => "1"),
+					"key" => array("type" => "text"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
@@ -621,7 +674,7 @@ function db_definition() {
 					"url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"request" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"photo" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"note" => array("type" => "text", "not null" => "1"),
+					"note" => array("type" => "text"),
 					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					),
 			"indexes" => array(
@@ -654,16 +707,17 @@ function db_definition() {
 					"last_contact" => array("type" => "datetime", "default" => "0000-00-00 00:00:00"),
 					"last_failure" => array("type" => "datetime", "default" => "0000-00-00 00:00:00"),
 					"location" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"about" => array("type" => "text", "not null" => "1"),
-					"keywords" => array("type" => "text", "not null" => "1"),
+					"about" => array("type" => "text"),
+					"keywords" => array("type" => "text"),
 					"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"birthday" => array("type" => "varchar(32)", "not null" => "1", "default" => "0000-00-00"),
 					"community" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
+					"contact-type" => array("type" => "tinyint(1)", "not null" => "1", "default" => "-1"),
 					"hide" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"nsfw" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"network" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"addr" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"notify" => array("type" => "text", "not null" => "1"),
+					"notify" => array("type" => "text"),
 					"alias" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"generation" => array("type" => "tinyint(3)", "not null" => "1", "default" => "0"),
 					"server_url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
@@ -725,7 +779,7 @@ function db_definition() {
 					"nurl" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"version" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"site_name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"info" => array("type" => "text", "not null" => "1"),
+					"info" => array("type" => "text"),
 					"register_policy" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"poco" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"noscrape" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
@@ -762,7 +816,7 @@ function db_definition() {
 					"contact-id" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
 					"knowyou" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"duplex" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
-					"note" => array("type" => "text", "not null" => "1"),
+					"note" => array("type" => "text"),
 					"hash" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"datetime" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"blocked" => array("type" => "tinyint(1)", "not null" => "1", "default" => "1"),
@@ -792,34 +846,36 @@ function db_definition() {
 					"commented" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"received" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"changed" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
+					"owner-id" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
 					"owner-name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"owner-link" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"owner-avatar" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"author-id" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
 					"author-name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"author-link" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"author-avatar" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"title" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"body" => array("type" => "mediumtext", "not null" => "1"),
+					"body" => array("type" => "mediumtext"),
 					"app" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"verb" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"object-type" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"object" => array("type" => "text", "not null" => "1"),
+					"object" => array("type" => "text"),
 					"target-type" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"target" => array("type" => "text", "not null" => "1"),
-					"postopts" => array("type" => "text", "not null" => "1"),
+					"target" => array("type" => "text"),
+					"postopts" => array("type" => "text"),
 					"plink" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"resource-id" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"event-id" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
-					"tag" => array("type" => "mediumtext", "not null" => "1"),
-					"attach" => array("type" => "mediumtext", "not null" => "1"),
-					"inform" => array("type" => "mediumtext", "not null" => "1"),
-					"file" => array("type" => "mediumtext", "not null" => "1"),
+					"tag" => array("type" => "mediumtext"),
+					"attach" => array("type" => "mediumtext"),
+					"inform" => array("type" => "mediumtext"),
+					"file" => array("type" => "mediumtext"),
 					"location" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"coord" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"allow_cid" => array("type" => "mediumtext", "not null" => "1"),
-					"allow_gid" => array("type" => "mediumtext", "not null" => "1"),
-					"deny_cid" => array("type" => "mediumtext", "not null" => "1"),
-					"deny_gid" => array("type" => "mediumtext", "not null" => "1"),
+					"allow_cid" => array("type" => "mediumtext"),
+					"allow_gid" => array("type" => "mediumtext"),
+					"deny_cid" => array("type" => "mediumtext"),
+					"deny_gid" => array("type" => "mediumtext"),
 					"private" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"pubmail" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"moderated" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
@@ -835,7 +891,7 @@ function db_definition() {
 					"mention" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"network" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"rendered-hash" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
-					"rendered-html" => array("type" => "mediumtext", "not null" => "1"),
+					"rendered-html" => array("type" => "mediumtext"),
 					"global" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					),
 			"indexes" => array(
@@ -855,15 +911,18 @@ function db_definition() {
 					"uid_title" => array("uid","title"),
 					"uid_thrparent" => array("uid","thr-parent"),
 					"uid_parenturi" => array("uid","parent-uri"),
+					"uid_contactid_id" => array("uid","contact-id","id"),
 					"uid_contactid_created" => array("uid","contact-id","created"),
 					"gcontactid_uid_created" => array("gcontact-id","uid","created"),
+					"authorid_created" => array("author-id","created"),
+					"ownerid_created" => array("owner-id","created"),
 					"wall_body" => array("wall","body(6)"),
 					"uid_visible_moderated_created" => array("uid","visible","moderated","created"),
-					"uid_uri" => array("uid","uri"),
+					"uid_uri" => array("uid", "uri"),
 					"uid_wall_created" => array("uid","wall","created"),
 					"resource-id" => array("resource-id"),
 					"uid_type" => array("uid","type"),
-					"uid_starred" => array("uid","starred"),
+					"uid_starred_id" => array("uid","starred", "id"),
 					"contactid_allowcid_allowpid_denycid_denygid" => array("contact-id","allow_cid(10)","allow_gid(10)","deny_cid(10)","deny_gid(10)"),
 					"uid_wall_parent_created" => array("uid","wall","parent","created"),
 					"uid_type_changed" => array("uid","type","changed"),
@@ -913,7 +972,7 @@ function db_definition() {
 					"contact-id" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"convid" => array("type" => "int(11) unsigned", "not null" => "1", "default" => "0"),
 					"title" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"body" => array("type" => "mediumtext", "not null" => "1"),
+					"body" => array("type" => "mediumtext"),
 					"seen" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"reply" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"replied" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
@@ -941,7 +1000,7 @@ function db_definition() {
 					"ssltype" => array("type" => "varchar(16)", "not null" => "1", "default" => ""),
 					"mailbox" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"user" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"pass" => array("type" => "text", "not null" => "1"),
+					"pass" => array("type" => "text"),
 					"reply_to" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"action" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
 					"movetofolder" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
@@ -972,7 +1031,7 @@ function db_definition() {
 					"url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"photo" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"date" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
-					"msg" => array("type" => "mediumtext", "not null" => "1"),
+					"msg" => array("type" => "mediumtext"),
 					"uid" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
 					"link" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"iid" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
@@ -980,6 +1039,8 @@ function db_definition() {
 					"seen" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"verb" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"otype" => array("type" => "varchar(16)", "not null" => "1", "default" => ""),
+					"name_cache" => array("type" => "tinytext"),
+					"msg_cache" => array("type" => "mediumtext")
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
@@ -1003,11 +1064,11 @@ function db_definition() {
 	$database["oembed"] = array(
 			"fields" => array(
 					"url" => array("type" => "varchar(255)", "not null" => "1", "primary" => "1"),
-					"content" => array("type" => "text", "not null" => "1"),
+					"content" => array("type" => "text"),
 					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					),
 			"indexes" => array(
-					"PRIMARY" => array("url"),
+					"PRIMARY" => array("url".db_index_suffix($charset)),
 					"created" => array("created"),
 					)
 			);
@@ -1016,11 +1077,11 @@ function db_definition() {
 					"url" => array("type" => "varchar(255)", "not null" => "1", "primary" => "1"),
 					"guessing" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0", "primary" => "1"),
 					"oembed" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0", "primary" => "1"),
-					"content" => array("type" => "text", "not null" => "1"),
+					"content" => array("type" => "text"),
 					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					),
 			"indexes" => array(
-					"PRIMARY" => array("url", "guessing", "oembed"),
+					"PRIMARY" => array("url".db_index_suffix($charset), "guessing", "oembed"),
 					"created" => array("created"),
 					)
 			);
@@ -1030,11 +1091,11 @@ function db_definition() {
 					"uid" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
 					"cat" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"k" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"v" => array("type" => "mediumtext", "not null" => "1"),
+					"v" => array("type" => "mediumtext"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"uid_cat_k" => array("uid","cat(30)","k(30)"),
+					"uid_cat_k" => array("UNIQUE", "uid","cat(30)","k(30)"),
 					)
 			);
 	$database["photo"] = array(
@@ -1047,7 +1108,7 @@ function db_definition() {
 					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"edited" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"title" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"desc" => array("type" => "text", "not null" => "1"),
+					"desc" => array("type" => "text"),
 					"album" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"filename" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"type" => array("type" => "varchar(128)", "not null" => "1", "default" => "image/jpeg"),
@@ -1057,14 +1118,16 @@ function db_definition() {
 					"data" => array("type" => "mediumblob", "not null" => "1"),
 					"scale" => array("type" => "tinyint(3)", "not null" => "1", "default" => "0"),
 					"profile" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
-					"allow_cid" => array("type" => "mediumtext", "not null" => "1"),
-					"allow_gid" => array("type" => "mediumtext", "not null" => "1"),
-					"deny_cid" => array("type" => "mediumtext", "not null" => "1"),
-					"deny_gid" => array("type" => "mediumtext", "not null" => "1"),
+					"allow_cid" => array("type" => "mediumtext"),
+					"allow_gid" => array("type" => "mediumtext"),
+					"deny_cid" => array("type" => "mediumtext"),
+					"deny_gid" => array("type" => "mediumtext"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"uid" => array("uid"),
+					"uid_contactid" => array("uid", "contact-id"),
+					"uid_profile" => array("uid", "profile"),
+					"uid_album_created" => array("uid", "album", "created"),
 					"resource-id" => array("resource-id"),
 					"guid" => array("guid"),
 					)
@@ -1073,16 +1136,16 @@ function db_definition() {
 			"fields" => array(
 					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
 					"uid" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
-					"q0" => array("type" => "mediumtext", "not null" => "1"),
-					"q1" => array("type" => "mediumtext", "not null" => "1"),
-					"q2" => array("type" => "mediumtext", "not null" => "1"),
-					"q3" => array("type" => "mediumtext", "not null" => "1"),
-					"q4" => array("type" => "mediumtext", "not null" => "1"),
-					"q5" => array("type" => "mediumtext", "not null" => "1"),
-					"q6" => array("type" => "mediumtext", "not null" => "1"),
-					"q7" => array("type" => "mediumtext", "not null" => "1"),
-					"q8" => array("type" => "mediumtext", "not null" => "1"),
-					"q9" => array("type" => "mediumtext", "not null" => "1"),
+					"q0" => array("type" => "mediumtext"),
+					"q1" => array("type" => "mediumtext"),
+					"q2" => array("type" => "mediumtext"),
+					"q3" => array("type" => "mediumtext"),
+					"q4" => array("type" => "mediumtext"),
+					"q5" => array("type" => "mediumtext"),
+					"q6" => array("type" => "mediumtext"),
+					"q7" => array("type" => "mediumtext"),
+					"q8" => array("type" => "mediumtext"),
+					"q9" => array("type" => "mediumtext"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
@@ -1099,6 +1162,17 @@ function db_definition() {
 					"PRIMARY" => array("id"),
 					"poll_id" => array("poll_id"),
 					"choice" => array("choice"),
+					)
+			);
+	$database["process"] = array(
+			"fields" => array(
+					"pid" => array("type" => "int(10) unsigned", "not null" => "1", "primary" => "1"),
+					"command" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
+					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
+					),
+			"indexes" => array(
+					"PRIMARY" => array("pid"),
+					"command" => array("command"),
 					)
 			);
 	$database["profile"] = array(
@@ -1119,27 +1193,28 @@ function db_definition() {
 					"hometown" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"marital" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"with" => array("type" => "text", "not null" => "1"),
+					"with" => array("type" => "text"),
 					"howlong" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"sexual" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"politic" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"religion" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"pub_keywords" => array("type" => "text", "not null" => "1"),
-					"prv_keywords" => array("type" => "text", "not null" => "1"),
-					"likes" => array("type" => "text", "not null" => "1"),
-					"dislikes" => array("type" => "text", "not null" => "1"),
-					"about" => array("type" => "text", "not null" => "1"),
+					"pub_keywords" => array("type" => "text"),
+					"prv_keywords" => array("type" => "text"),
+					"likes" => array("type" => "text"),
+					"dislikes" => array("type" => "text"),
+					"about" => array("type" => "text"),
 					"summary" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"music" => array("type" => "text", "not null" => "1"),
-					"book" => array("type" => "text", "not null" => "1"),
-					"tv" => array("type" => "text", "not null" => "1"),
-					"film" => array("type" => "text", "not null" => "1"),
-					"interest" => array("type" => "text", "not null" => "1"),
-					"romance" => array("type" => "text", "not null" => "1"),
-					"work" => array("type" => "text", "not null" => "1"),
-					"education" => array("type" => "text", "not null" => "1"),
-					"contact" => array("type" => "text", "not null" => "1"),
+					"music" => array("type" => "text"),
+					"book" => array("type" => "text"),
+					"tv" => array("type" => "text"),
+					"film" => array("type" => "text"),
+					"interest" => array("type" => "text"),
+					"romance" => array("type" => "text"),
+					"work" => array("type" => "text"),
+					"education" => array("type" => "text"),
+					"contact" => array("type" => "text"),
 					"homepage" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"xmpp" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"photo" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"thumb" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"publish" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
@@ -1185,7 +1260,7 @@ function db_definition() {
 					"network" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"last" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
-					"content" => array("type" => "mediumtext", "not null" => "1"),
+					"content" => array("type" => "mediumtext"),
 					"batch" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					),
 			"indexes" => array(
@@ -1226,7 +1301,7 @@ function db_definition() {
 			"fields" => array(
 					"id" => array("type" => "bigint(20) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
 					"sid" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"data" => array("type" => "text", "not null" => "1"),
+					"data" => array("type" => "text"),
 					"expire" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
 					),
 			"indexes" => array(
@@ -1239,8 +1314,8 @@ function db_definition() {
 			"fields" => array(
 					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
 					"iid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
-					"signed_text" => array("type" => "mediumtext", "not null" => "1"),
-					"signature" => array("type" => "text", "not null" => "1"),
+					"signed_text" => array("type" => "mediumtext"),
+					"signature" => array("type" => "text"),
 					"signer" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					),
 			"indexes" => array(
@@ -1287,6 +1362,7 @@ function db_definition() {
 					"type_term" => array("type","term"),
 					"uid_otype_type_term_global_created" => array("uid","otype","type","term","global","created"),
 					"otype_type_term_tid" => array("otype","type","term","tid"),
+					"uid_otype_type_url" => array("uid","otype","type","url"),
 					"guid" => array("guid"),
 					)
 			);
@@ -1296,6 +1372,8 @@ function db_definition() {
 					"uid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
 					"contact-id" => array("type" => "int(11) unsigned", "not null" => "1", "default" => "0"),
 					"gcontact-id" => array("type" => "int(11) unsigned", "not null" => "1", "default" => "0"),
+					"owner-id" => array("type" => "int(11) unsigned", "not null" => "1", "default" => "0"),
+					"author-id" => array("type" => "int(11) unsigned", "not null" => "1", "default" => "0"),
 					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"edited" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"commented" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
@@ -1335,7 +1413,7 @@ function db_definition() {
 	$database["tokens"] = array(
 			"fields" => array(
 					"id" => array("type" => "varchar(40)", "not null" => "1", "primary" => "1"),
-					"secret" => array("type" => "text", "not null" => "1"),
+					"secret" => array("type" => "text"),
 					"client_id" => array("type" => "varchar(20)", "not null" => "1", "default" => ""),
 					"expires" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
 					"scope" => array("type" => "varchar(200)", "not null" => "1", "default" => ""),
@@ -1361,10 +1439,10 @@ function db_definition() {
 					"default-location" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"allow_location" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"theme" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"pubkey" => array("type" => "text", "not null" => "1"),
-					"prvkey" => array("type" => "text", "not null" => "1"),
-					"spubkey" => array("type" => "text", "not null" => "1"),
-					"sprvkey" => array("type" => "text", "not null" => "1"),
+					"pubkey" => array("type" => "text"),
+					"prvkey" => array("type" => "text"),
+					"spubkey" => array("type" => "text"),
+					"sprvkey" => array("type" => "text"),
 					"verified" => array("type" => "tinyint(1) unsigned", "not null" => "1", "default" => "0"),
 					"blocked" => array("type" => "tinyint(1) unsigned", "not null" => "1", "default" => "0"),
 					"blockwall" => array("type" => "tinyint(1) unsigned", "not null" => "1", "default" => "0"),
@@ -1374,6 +1452,7 @@ function db_definition() {
 					"cntunkmail" => array("type" => "int(11)", "not null" => "1", "default" => "10"),
 					"notify-flags" => array("type" => "int(11) unsigned", "not null" => "1", "default" => "65535"),
 					"page-flags" => array("type" => "int(11) unsigned", "not null" => "1", "default" => "0"),
+					"account-type" => array("type" => "int(11) unsigned", "not null" => "1", "default" => "0"),
 					"prvnets" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"pwdreset" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"maxreq" => array("type" => "int(11)", "not null" => "1", "default" => "10"),
@@ -1384,11 +1463,11 @@ function db_definition() {
 					"expire_notification_sent" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"service_class" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"def_gid" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
-					"allow_cid" => array("type" => "mediumtext", "not null" => "1"),
-					"allow_gid" => array("type" => "mediumtext", "not null" => "1"),
-					"deny_cid" => array("type" => "mediumtext", "not null" => "1"),
-					"deny_gid" => array("type" => "mediumtext", "not null" => "1"),
-					"openidserver" => array("type" => "text", "not null" => "1"),
+					"allow_cid" => array("type" => "mediumtext"),
+					"allow_gid" => array("type" => "mediumtext"),
+					"deny_cid" => array("type" => "mediumtext"),
+					"deny_gid" => array("type" => "mediumtext"),
+					"openidserver" => array("type" => "text"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("uid"),
@@ -1408,7 +1487,7 @@ function db_definition() {
 	$database["workerqueue"] = array(
 			"fields" => array(
 					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"parameter" => array("type" => "text", "not null" => "1"),
+					"parameter" => array("type" => "text"),
 					"priority" => array("type" => "tinyint(3) unsigned", "not null" => "1", "default" => "0"),
 					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"pid" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
@@ -1443,11 +1522,33 @@ function dbstructure_run(&$argv, &$argc) {
 
 	if ($argc==2) {
 		switch ($argv[1]) {
+			case "dryrun":
+				update_structure(true, false);
+				return;
 			case "update":
 				update_structure(true, true);
+
+				$build = get_config('system','build');
+				if (!x($build)) {
+					set_config('system','build',DB_UPDATE_VERSION);
+					$build = DB_UPDATE_VERSION;
+				}
+
+				$stored = intval($build);
+				$current = intval(DB_UPDATE_VERSION);
+
+				// run any left update_nnnn functions in update.php
+				for($x = $stored; $x < $current; $x ++) {
+					$r = run_update_function($x);
+					if (!$r) break;
+				}
+
+				set_config('system','build',DB_UPDATE_VERSION);
 				return;
 			case "dumpsql":
-				print_structure(db_definition());
+				// For the dump that is used to create the database.sql we always assume utfmb4
+				$charset = "utf8mb4";
+				print_structure(db_definition($charset), $charset);
 				return;
 		}
 	}
@@ -1456,7 +1557,8 @@ function dbstructure_run(&$argv, &$argc) {
 	// print help
 	echo $argv[0]." <command>\n";
 	echo "\n";
-	echo "commands:\n";
+	echo "Commands:\n";
+	echo "dryrun		show database update schema queries without running them\n";
 	echo "update		update database schema\n";
 	echo "dumpsql		dump database schema\n";
 	return;

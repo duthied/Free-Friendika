@@ -61,7 +61,7 @@
 				{{/if}}
 				{{if $wallmessage}}
 				<div id="wallmessage-link-botton">
-					<a id="wallmessage-link" class="btn btn-labeled btn-primary btn-sm" onclick="addToModal('{{$wallmessage_link}}')">
+					<a id="wallmessage-link" class="btn btn-labeled btn-primary btn-sm" onclick="openWallMessage('{{$wallmessage_link}}')">
 						<span class=""><i class="fa fa-envelope"></i></span>
 						<span class="">{{$wallmessage}}</span>
 					</a>
@@ -87,11 +87,17 @@
 			</div>
 		{{/if}}
 
+		{{if $profile.xmpp}}
+			<div class="xmpp">
+				<span class="xmpp-label icon"><i class="fa fa-comments"></i></span> 
+				<span class="xmpp-data">{{$profile.xmpp}}</span>
+			</div>
+		{{/if}}
 
 		{{if $gender}}
 		<div class="mf detail">
 			<span class="gender-label icon"><i class="fa fa-venus-mars"></i></span>
-			<span class="x-gender p-gender-identity">{{$profile.gender}}</span>
+			<span class="p-gender">{{$profile.gender}}</span>
 		</div>
 		{{/if}}
 

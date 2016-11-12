@@ -1,5 +1,5 @@
 
-<div class="vcard">
+<div class="vcard h-card">
 
 	{{if $profile.edit}}
 	<div class="action">
@@ -17,27 +17,27 @@
 	</div>
 	{{/if}}
 
-	<div class="fn label">{{$profile.name}}</div>
+	<div class="fn label p-name">{{$profile.name}}</div>
 
 	{{if $pdesc}}
     <div class="title">{{$profile.pdesc}}</div>
     {{/if}}
 	<div id="profile-photo-wrapper">
-		<img class="photo" width="175" height="175" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}" />
+		<img class="photo u-photo" width="175" height="175" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}" />
     </div>
 
 	{{if $location}}
 		<div class="location">
         <span class="location-label">{{$location}}</span>
-		<div class="adr">
+		<div class="adr h-adr">
 			{{if $profile.address}}
-            <div class="street-address">{{$profile.address}}</div>{{/if}}
+            <div class="street-address p-street-address">{{$profile.address}}</div>{{/if}}
 			<span class="city-state-zip">
-				<span class="locality">{{$profile.locality}}</span>{{if $profile.locality}}, {{/if}}
-				<span class="region">{{$profile.region}}</span>
-				<span class="postal-code">{{$profile.postal_code}}</span>
+				<span class="locality p-locality">{{$profile.locality}}</span>{{if $profile.locality}}, {{/if}}
+				<span class="region p-region">{{$profile.region}}</span>
+				<span class="postal-code p-postal-code">{{$profile.postal_code}}</span>
 			</span>
-			{{if $profile.country_name}}<span class="country-name">{{$profile.country_name}}</span>{{/if}}
+			{{if $profile.country_name}}<span class="country-name p-country-name">{{$profile.country_name}}</span>{{/if}}
 		</div>
 		</div>
 	{{/if}}
@@ -45,7 +45,7 @@
 	{{if $gender}}
     <div class="mf">
         <span class="gender-label">{{$gender}}</span>
-        <span class="x-gender">{{$profile.gender}}</span>
+        <span class="p-gender">{{$profile.gender}}</span>
     </div>
     {{/if}}
 	
@@ -64,7 +64,7 @@
 	{{if $homepage}}
     <div class="homepage">
     <span class="homepage-label">{{$homepage}}</span>
-    <span class="homepage-url"><a href="{{$profile.homepage}}"
+    <span class="homepage-url"><a href="{{$profile.homepage}}" class="u-url" rel="me"
     target="external-link">{{$profile.homepage}}</a></span>
     </div>{{/if}}
 

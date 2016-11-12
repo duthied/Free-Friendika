@@ -270,7 +270,7 @@ function new_contact($uid,$url,$interactive = false) {
 
 	// pull feed and consume it, which should subscribe to the hub.
 
-	proc_run('php',"include/onepoll.php","$contact_id", "force");
+	proc_run(PRIORITY_HIGH, "include/onepoll.php", $contact_id, "force");
 
 	// create a follow slap
 

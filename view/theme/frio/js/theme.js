@@ -179,6 +179,43 @@ $(document).ready(function(){
 		// there are two elements with this class but we don't want the js template
 		$(".network-content-wrapper > #viewcontact_wrapper-network .contact-wrapper").first().appendTo("#nav-short-info");
 	}
+
+	// move heading from network stream to the second navbar nav-short-info section
+	if( $(".network-content-wrapper > .section-title-wrapper").length) {
+		// get the heading element
+		var heading = $(".network-content-wrapper > .section-title-wrapper > h2");
+		// get the text of the heading
+		var headingContent = heading.text();
+		// create a new element with the content of the heading
+		var newText = '<h4 class="heading" data-toggle="tooltip" title="'+headingContent+'">'+headingContent+'</h4>';
+		// remove the old heading element
+		heading.remove(),
+		// put the new element to the second nav bar
+		$("#topbar-second #nav-short-info").append(newText);
+	}
+
+	if( $(".community-content-wrapper").length) {
+		// get the heading element
+		var heading = $(".community-content-wrapper > h3").first();
+		// get the text of the heading
+		var headingContent = heading.text();
+		// create a new element with the content of the heading
+		var newText = '<h4 class="heading">'+headingContent+'</h4>';
+		// remove the old heading element
+		heading.remove(),
+		// put the new element to the second nav bar
+		$("#topbar-second > .container > #tabmenu").append(newText);
+	}
+
+	// Dropdown menus with the class "dropdown-head" will display the active tab
+	// as button text
+	$("body").on('click', '.dropdown-head .dropdown-menu li a', function(){
+		$(this).closest(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
+		$(this).closest(".dropdown").find('.btn').val($(this).data('value'));
+		$(this).closest("ul").children("li").show();
+		$(this).parent("li").hide();
+	});
+
 });
 //function commentOpenUI(obj, id) {
 //	$(document).unbind( "click.commentOpen", handler );
@@ -506,3 +543,40 @@ String.prototype.rtrim = function() {
 	return trimmed;
 };
 
+// Scroll to a specific item and highlight it
+// Note: jquery.color.js is needed
+function scrollToItem(itemID) {
+	if( typeof itemID === "undefined")
+		return;
+
+	var elm = $('#'+itemID);
+	// Test if the Item exists
+	if(!elm.length)
+		return;
+
+	// Define the colors which are used for highlighting
+	var colWhite = {backgroundColor:'#F5F5F5'};
+	var colShiny = {backgroundColor:'#FFF176'};
+
+	// Get the Item Position (we need to substract 100 to match
+	// correct position
+	var itemPos = $(elm).offset().top - 100;
+
+	// Scroll to the DIV with the ID (GUID)
+	$('html, body').animate({
+		scrollTop: itemPos
+	}, 400, function() {
+		// Highlight post/commenent with ID  (GUID)
+		$(elm).animate(colWhite, 1000).animate(colShiny).animate(colWhite, 600);
+	});
+}
+
+// format a html string to pure text
+function htmlToText(htmlString) {
+	// Replace line breaks with spaces
+	var text = htmlString.replace(/<br>/g, ' ');
+	// Strip the text out of the html string
+	text = text.replace(/<[^>]*>/g, '');
+
+	return text;
+}

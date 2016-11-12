@@ -89,14 +89,14 @@ class Item extends BaseObject {
 		$a = $this->get_app();
 
 		$item = $this->get_data();
-                $edited = false;
-                if (strcmp($item['created'], $item['edited'])<>0) {
-                      $edited = array(
-                          'label' => t('This entry was edited'),
-                          'date' => datetime_convert('UTC', date_default_timezone_get(), $item['edited'], 'r'),
-                          'relative' => relative_date($item['edited'])
-                      );
-                }
+		$edited = false;
+		if (strcmp($item['created'], $item['edited'])<>0) {
+		      $edited = array(
+			  'label' => t('This entry was edited'),
+			  'date' => datetime_convert('UTC', date_default_timezone_get(), $item['edited'], 'r'),
+			  'relative' => relative_date($item['edited'])
+		      );
+		}
 		$commentww = '';
 		$sparkle = '';
 		$buttons = '';
@@ -150,12 +150,21 @@ class Item extends BaseObject {
 		else
 			$profile_link = zrl($profile_link);
 
-		// Don't rely on the author-avatar. It is better to use the data from the contact table
-		$author_contact = get_contact_details_by_url($item['author-link'], $conv->get_profile_owner());
-		if ($author_contact["thumb"])
-			$profile_avatar = $author_contact["thumb"];
-		else
-			$profile_avatar = $item['author-avatar'];
+		if (!isset($item['author-thumb']) OR ($item['author-thumb'] == "")) {
+			$author_contact = get_contact_details_by_url($item['author-link'], $conv->get_profile_owner());
+			if ($author_contact["thumb"])
+				$item['author-thumb'] = $author_contact["thumb"];
+			else
+				$item['author-thumb'] = $item['author-avatar'];
+		}
+
+		if (!isset($item['owner-thumb']) OR ($item['owner-thumb'] == "")) {
+			$owner_contact = get_contact_details_by_url($item['owner-link'], $conv->get_profile_owner());
+			if ($owner_contact["thumb"])
+				$item['owner-thumb'] = $owner_contact["thumb"];
+			else
+				$item['owner-thumb'] = $item['owner-avatar'];
+		}
 
 		$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
 		call_hooks('render_location',$locate);
@@ -364,7 +373,7 @@ class Item extends BaseObject {
 			'profile_url' => $profile_link,
 			'item_photo_menu' => item_photo_menu($item),
 			'name' => $name_e,
-			'thumb' => $a->remove_baseurl(proxy_url($profile_avatar, false, PROXY_SIZE_THUMB)),
+			'thumb' => $a->remove_baseurl(proxy_url($item['author-thumb'], false, PROXY_SIZE_THUMB)),
 			'osparkle' => $osparkle,
 			'sparkle' => $sparkle,
 			'title' => $title_e,
@@ -377,7 +386,7 @@ class Item extends BaseObject {
 			'indent' => $indent,
 			'shiny' => $shiny,
 			'owner_url' => $this->get_owner_url(),
-			'owner_photo' => proxy_url($this->get_owner_photo(), false, PROXY_SIZE_THUMB),
+			'owner_photo' => $a->remove_baseurl(proxy_url($item['owner-thumb'], false, PROXY_SIZE_THUMB)),
 			'owner_name' => htmlentities($owner_name_e),
 			'plink' => get_plink($item),
 			'edpost'    => ((feature_enabled($conv->get_profile_owner(),'edit_posts')) ? $edpost : ''),
@@ -430,10 +439,10 @@ class Item extends BaseObject {
 			}
 		}
 
-        if ($this->is_toplevel()) {
-            $result['total_comments_num'] = "$total_children";
-            $result['total_comments_text'] = tt('comment', 'comments', $total_children);
-        }
+	if ($this->is_toplevel()) {
+	    $result['total_comments_num'] = "$total_children";
+	    $result['total_comments_text'] = tt('comment', 'comments', $total_children);
+	}
 
 		$result['private'] = $item['private'];
 		$result['toplevel'] = ($this->is_toplevel() ? 'toplevel_item' : '');

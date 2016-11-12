@@ -211,7 +211,7 @@ EOT;
 
 	call_hooks('post_local_end', $arr);
 
-	proc_run('php',"include/notifier.php","tag","$post_id");
+	proc_run(PRIORITY_HIGH, "include/notifier.php", "tag", $post_id);
 
 	killme();
 

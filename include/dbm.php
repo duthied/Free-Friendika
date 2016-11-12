@@ -20,8 +20,8 @@ class dbm {
 		foreach ($r AS $process) {
 			$state = trim($process["State"]);
 
-			// Filter out all idle processes
-			if (!in_array($state, array("", "init", "statistics"))) {
+			// Filter out all non blocking processes
+			if (!in_array($state, array("", "init", "statistics", "updating"))) {
 				++$states[$state];
 				++$processes;
 			}
@@ -34,6 +34,20 @@ class dbm {
 			$statelist .= $state.": ".$usage;
 		}
 		return(array("list" => $statelist, "amount" => $processes));
+	}
+
+	/**
+	 * Checks if $array is a filled array with at least one entry.
+	 *
+	 * @param       $array  mixed   A filled array with at least one entry
+	 * @return      Whether $array is a filled array
+	 */
+	public static function is_result($array) {
+		// It could be a return value from an update statement
+		if (is_bool($array)) {
+			return $array;
+		}
+		return (is_array($array) && count($array) > 0);
 	}
 }
 ?>

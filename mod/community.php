@@ -49,7 +49,7 @@ function community_content(&$a, $update = 0) {
 	// OR your own posts if you are a logged in member
 
 	if(get_config('system', 'old_pager')) {
-		$r = q("SELECT COUNT(distinct(`item`.`uri`)) AS `total`
+		$r = qu("SELECT COUNT(distinct(`item`.`uri`)) AS `total`
 			FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			INNER JOIN `user` ON `user`.`uid` = `item`.`uid` AND `user`.`hidewall` = 0
@@ -120,19 +120,17 @@ function community_getitems($start, $itemspage) {
 	if (get_config('system','community_page_style') == CP_GLOBAL_COMMUNITY)
 		return(community_getpublicitems($start, $itemspage));
 
-	$r = q("SELECT %s, %s, `user`.`nickname`
+	$r = qu("SELECT %s
 		FROM `thread` FORCE INDEX (`wall_private_received`)
 		INNER JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
 		INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
 		AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 		AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-		INNER JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
-		AND %s AND `contact`.`self`
+		%s AND `contact`.`self`
 		WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
 		AND NOT `thread`.`private` AND `thread`.`wall`
 		ORDER BY `thread`.`received` DESC LIMIT %d, %d",
-		item_fieldlist(), contact_fieldlist(),
-		contact_condition(),
+		item_fieldlists(), item_joins(),
 		intval($start), intval($itemspage)
 	);
 
@@ -142,14 +140,13 @@ function community_getitems($start, $itemspage) {
 
 function community_getpublicitems($start, $itemspage) {
 
-	$r = q("SELECT %s, `author-name` AS `name`, `owner-avatar` AS `photo`,
-			`owner-link` AS `url`, `owner-avatar` AS `thumb`
+	$r = qu("SELECT %s
 		FROM `thread`
-		INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
+		INNER JOIN `item` ON `item`.`id` = `thread`.`iid` %s
 		WHERE `thread`.`uid` = 0
 		ORDER BY `thread`.`created` DESC LIMIT %d, %d",
-		item_fieldlist(), intval($start),
-		intval($itemspage)
+		item_fieldlists(), item_joins(),
+		intval($start), intval($itemspage)
 	);
 
 	return($r);

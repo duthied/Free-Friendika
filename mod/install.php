@@ -285,7 +285,7 @@ function install_content(&$a) {
 			$adminmail = notags(trim($_POST['adminmail']));
 			$timezone = ((x($_POST,'timezone')) ? ($_POST['timezone']) : 'America/Los_Angeles');
 			/* Installed langs */
-			$lang_choices = get_avaiable_languages();
+			$lang_choices = get_available_languages();
 
 			$tpl = get_markup_template('install_settings.tpl');
 			$o .= replace_macros($tpl, array(
@@ -418,6 +418,7 @@ function check_funcs(&$checks) {
 	check_add($ck_funcs, t('mb_string PHP module'), true, true, "");
 	check_add($ck_funcs, t('mcrypt PHP module'), true, true, "");
 	check_add($ck_funcs, t('XML PHP module'), true, true, "");
+	check_add($ck_funcs, t('iconv module'), true, true, "");
 
 	if(function_exists('apache_get_modules')){
 		if (! in_array('mod_rewrite',apache_get_modules())) {
@@ -450,6 +451,10 @@ function check_funcs(&$checks) {
 	if(! function_exists('mcrypt_create_iv')){
 		$ck_funcs[5]['status']= false;
 		$ck_funcs[5]['help']= t('Error: mcrypt PHP module required but not installed.');
+	}
+	if(! function_exists('iconv_strlen')){
+		$ck_funcs[7]['status']= false;
+		$ck_funcs[7]['help']= t('Error: iconv PHP module required but not installed.');
 	}
 
 	$checks = array_merge($checks, $ck_funcs);

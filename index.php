@@ -19,6 +19,10 @@ require_once('object/BaseObject.php');
 $a = new App;
 BaseObject::set_app($a);
 
+// We assume that the index.php is called by a frontend process
+// The value is set to "true" by default in boot.php
+$a->backend = false;
+
 /**
  *
  * Load the configuration file which contains our DB credentials.
@@ -41,7 +45,6 @@ $install = ((file_exists('.htconfig.php') && filesize('.htconfig.php')) ? false 
  */
 
 require_once("include/dba.php");
-require_once("include/dbm.php");
 
 if(!$install) {
 	$db = new dba($db_host, $db_user, $db_pass, $db_data, $install);
@@ -54,35 +57,12 @@ if(!$install) {
 	load_config('config');
 	load_config('system');
 
-	$processlist = dbm::processlist();
-	if ($processlist["list"] != "") {
-
-		logger("Processcheck: Processes: ".$processlist["amount"]." - Processlist: ".$processlist["list"], LOGGER_DEBUG);
-
-		$max_processes = get_config('system', 'max_processes_frontend');
-		if (intval($max_processes) == 0)
-			$max_processes = 20;
-
-		if ($processlist["amount"] > $max_processes) {
-			logger("Processcheck: Maximum number of processes for frontend tasks (".$max_processes.") reached.", LOGGER_DEBUG);
-			system_unavailable();
-		}
+	if ($a->max_processes_reached() OR $a->maxload_reached()) {
+		header($_SERVER["SERVER_PROTOCOL"].' 503 Service Temporarily Unavailable');
+		header('Retry-After: 120');
+		header('Refresh: 120; url='.$a->get_baseurl()."/".$a->query_string);
+		die("System is currently unavailable. Please try again later");
 	}
-
-	$maxsysload_frontend = intval(get_config('system','maxloadavg_frontend'));
-	if($maxsysload_frontend < 1)
-		$maxsysload_frontend = 50;
-
-	$load = current_load();
-	if($load) {
-		if($load > $maxsysload_frontend) {
-			logger('system: load ' . $load . ' too high. Service Temporarily Unavailable.');
-			header($_SERVER["SERVER_PROTOCOL"].' 503 Service Temporarily Unavailable');
-			header('Retry-After: 300');
-			die("System is currently unavailable. Please try again later");
-		}
-	}
-
 
 	if (get_config('system','force_ssl') AND ($a->get_scheme() == "http") AND
 		(intval(get_config('system','ssl_policy')) == SSL_POLICY_FULL) AND
@@ -114,9 +94,12 @@ load_translation_table($lang);
  *
  */
 
-$stamp1 = microtime(true);
-session_start();
-$a->save_timestamp($stamp1, "parser");
+// Exclude the backend processes from the session management
+if (!$a->is_backend()) {
+	$stamp1 = microtime(true);
+	session_start();
+	$a->save_timestamp($stamp1, "parser");
+}
 
 /**
  * Language was set earlier, but we can over-ride it in the session.
@@ -126,7 +109,7 @@ if (x($_SESSION,'authenticated') && !x($_SESSION,'language')) {
 	// we didn't loaded user data yet, but we need user language
 	$r = q("SELECT language FROM user WHERE uid=%d", intval($_SESSION['uid']));
 	$_SESSION['language'] = $lang;
-	if (count($r)>0) $_SESSION['language'] = $r[0]['language'];
+	if (dbm::is_result($r)) $_SESSION['language'] = $r[0]['language'];
 }
 
 if((x($_SESSION,'language')) && ($_SESSION['language'] !== $lang)) {
@@ -506,7 +489,8 @@ if (isset($_GET["mode"]) AND ($_GET["mode"] == "raw")) {
 
 	echo substr($target->saveHTML(), 6, -8);
 
-	session_write_close();
+	if (!$a->is_backend())
+		session_write_close();
 	exit;
 
 }
@@ -517,21 +501,20 @@ $profile = $a->profile;
 header("X-Friendica-Version: ".FRIENDICA_VERSION);
 header("Content-type: text/html; charset=utf-8");
 
-
-if (isset($_GET["mode"]) AND ($_GET["mode"] == "minimal")) {
-	//$page['content'] = substr($target->saveHTML(), 6, -8)."\n\n".
-	//			'<div id="conversation-end"></div>'."\n\n";
-
-	require "view/minimal.php";
-} else {
-	$template = 'view/theme/' . current_theme() . '/'
-		. ((x($a->page,'template')) ? $a->page['template'] : 'default' ) . '.php';
-
-	if(file_exists($template))
-		require_once($template);
-	else
-		require_once(str_replace('theme/' . current_theme() . '/', '', $template));
+// We use $_GET["mode"] for special page templates. So we will check if we have 
+// to load another page template than the default one
+// The page templates are located in /view/php/ or in the theme directory
+if (isset($_GET["mode"])) {
+		$template = theme_include($_GET["mode"].'.php');
 }
 
-session_write_close();
+// If there is no page template use the default page template
+if(!$template) {
+	$template = theme_include("default.php");
+}
+
+require_once($template);
+
+if (!$a->is_backend())
+	session_write_close();
 exit;

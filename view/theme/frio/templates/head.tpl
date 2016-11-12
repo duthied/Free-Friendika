@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="library/jgrowl/jquery.jgrowl.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="library/datetimepicker/jquery.datetimepicker.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="library/perfect-scrollbar/perfect-scrollbar.min.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="library/Text_Highlighter/sample.css" type="text/css" media="screen" />
 
 <link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap/css/bootstrap.min.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap/css/bootstrap-theme.min.css" type="text/css" media="screen"/>
@@ -29,6 +30,7 @@
 
 {{* own css files *}}
 <link rel="stylesheet" href="view/theme/frio/css/hovercard.css" type="text/css" media="screen"/>
+<link rel="stylesheet" href="view/theme/frio/css/font-awesome.custom.css" type="text/css" media="screen"/>
 
 <!--
 <link rel="shortcut icon" href="images/friendica-32.png" />
@@ -37,11 +39,15 @@
 <link rel="shortcut icon" href="{{$shortcut_icon}}" />
 <link rel="apple-touch-icon" href="{{$touch_icon}}"/>
 
-<meta name="apple-mobile-web-app-capable" content="yes" /> 
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<script>
+// Prevents links to switch to Safari in a home screen app - see https://gist.github.com/irae/1042167
+(function(a,b,c){if(c in b&&b[c]){var d,e=a.location,f=/^(a|html)$/i;a.addEventListener("click",function(a){d=a.target;while(!f.test(d.nodeName))d=d.parentNode;"href"in d&&(chref=d.href).replace(e.href,"").indexOf("#")&&(!/^[a-z\+\.\-]+:/i.test(chref)||chref.indexOf(e.protocol+"//"+e.host)===0)&&(a.preventDefault(),e.href=d.href)},!1)}})(document,window.navigator,"standalone");
+</script>
 
 <link rel="search"
-         href="{{$baseurl}}/opensearch" 
-         type="application/opensearchdescription+xml" 
+         href="{{$baseurl}}/opensearch"
+         type="application/opensearchdescription+xml"
          title="Search in Friendica" />
 
 
@@ -74,6 +80,7 @@
 <script type="text/javascript" src="view/theme/frio/frameworks/flexMenu/flexmenu.custom.js"></script>
 <script type="text/javascript" src="view/theme/frio/frameworks/jsmart/jsmart.custom.js"></script>
 <script type="text/javascript" src="view/theme/frio/frameworks/jquery-scrollspy/jquery-scrollspy.js"></script>
+<script type="text/javascript" src="view/theme/frio/frameworks/autosize/autosize.min.js"></script>
 
 {{* own js files *}}
 <script type="text/javascript" src="view/theme/frio/js/theme.js"></script>
@@ -81,7 +88,7 @@
 <script type="text/javascript" src="view/theme/frio/js/hovercard.js"></script>
 <script type="text/javascript" src="view/theme/frio/js/textedit.js"></script>
 
-<script>
+<script language="javascript" type="text/javascript">
 	window.showMore = "{{$showmore}}";
 	window.showFewer = "{{$showfewer}}";
 </script>

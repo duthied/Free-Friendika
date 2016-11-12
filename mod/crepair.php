@@ -24,7 +24,7 @@ function crepair_init(&$a) {
 
 	if($contact_id) {
 		$a->data['contact'] = $r[0];
-                $contact = $r[0];
+		$contact = $r[0];
 		profile_load($a, "", 0, get_contact_details_by_url($contact["url"]));
 	}
 }
@@ -150,15 +150,9 @@ function crepair_content(&$a) {
 		'$return'	=> t('Return to contact editor'),
 		'$update_profile' => update_profile,
 		'$udprofilenow' => t('Refetch contact data'),
-		'$label_name' => t('Name'),
-		'$label_nick' => t('Account Nickname'),
-		'$label_attag' => t('@Tagname - overrides Name/Nickname'),
-		'$label_url' => t('Account URL'),
-		'$label_request' => t('Friend Request URL'),
-		'$label_confirm' => t('Friend Confirm URL'),
-		'$label_notify' => t('Notification Endpoint URL'),
-		'$label_poll' => t('Poll/Feed URL'),
-		'$label_photo' => t('New photo from this URL'),
+		'$contact_id'	=> $contact['id'],
+		'$lbl_submit'	=> t('Submit'),
+
 		'$label_remote_self' => t('Remote Self'),
 		'$allow_remote_self' => $allow_remote_self,
 		'$remote_self' => array('remote_self',
@@ -167,16 +161,16 @@ function crepair_content(&$a) {
 					t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'),
 					$remote_self_options
 				),
-		'$contact_name' => htmlentities($contact['name']),
-		'$contact_nick' => htmlentities($contact['nick']),
-		'$contact_id'   => $contact['id'],
-		'$contact_url'  => $contact['url'],
-		'$request'      => $contact['request'],
-		'$confirm'      => $contact['confirm'],
-		'$notify'       => $contact['notify'],
-		'$poll'         => $contact['poll'],
-		'$contact_attag'  => $contact['attag'],
-		'$lbl_submit'   => t('Submit')
+
+		'$name'		=> array('name', t('Name') , htmlentities($contact['name'])),
+		'$nick'		=> array('nick', t('Account Nickname'), htmlentities($contact['nick'])),
+		'$attag'	=> array('attag', t('@Tagname - overrides Name/Nickname'), $contact['attag']),
+		'$url'		=> array('url', t('Account URL'), $contact['url']),
+		'$request'	=> array('request', t('Friend Request URL'), $contact['request']),
+		'confirm'	=> array('confirm', t('Friend Confirm URL'), $contact['confirm']),
+		'notify'	=> array('notify', t('Notification Endpoint URL'), $contact['notify']),
+		'poll'		=> array('poll', t('Poll/Feed URL'), $contact['poll']),
+		'photo'		=> array('photo', t('New photo from this URL'), ''),
 	));
 
 	return $o;

@@ -17,10 +17,15 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 
 	$a = get_app();
 
-	logger("Import Atom/RSS feed", LOGGER_DEBUG);
+	if (!$simulate)
+		logger("Import Atom/RSS feed '".$contact["name"]."' (Contact ".$contact["id"].") for user ".$importer["uid"], LOGGER_DEBUG);
+	else
+		logger("Test Atom/RSS feed", LOGGER_DEBUG);
 
-	if ($xml == "")
+	if ($xml == "") {
+		logger('XML is empty.', LOGGER_DEBUG);
 		return;
+	}
 
 	$doc = new DOMDocument();
 	@$doc->loadXML($xml);
@@ -54,8 +59,6 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 				if ($attributes->name == "href")
 					$author["author-link"] = $attributes->textContent;
 
-		$author["author-id"] = $xpath->evaluate('/atom:feed/atom:author/atom:uri/text()')->item(0)->nodeValue;
-
 		if ($author["author-link"] == "")
 			$author["author-link"] = $author["author-id"];
 
@@ -84,9 +87,22 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 		if ($value != "")
 			$author["author-name"] = $value;
 
-		$value = $xpath->evaluate('atom:author/poco:preferredUsername/text()')->item(0)->nodeValue;
-		if ($value != "")
-			$author["author-nick"] = $value;
+		if ($simulate) {
+			$author["author-id"] = $xpath->evaluate('/atom:feed/atom:author/atom:uri/text()')->item(0)->nodeValue;
+
+			$value = $xpath->evaluate('atom:author/poco:preferredUsername/text()')->item(0)->nodeValue;
+			if ($value != "")
+				$author["author-nick"] = $value;
+
+			$value = $xpath->evaluate('atom:author/poco:address/poco:formatted/text()', $context)->item(0)->nodeValue;
+			if ($value != "")
+				$author["author-location"] = $value;
+
+			$value = $xpath->evaluate('atom:author/poco:note/text()')->item(0)->nodeValue;
+			if ($value != "")
+				$author["author-about"] = $value;
+
+		}
 
 		$author["edited"] = $author["created"] = $xpath->query('/atom:feed/atom:updated/text()')->item(0)->nodeValue;
 
@@ -126,10 +142,6 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 		$author["owner-link"] = $contact["url"];
 		$author["owner-name"] = $contact["name"];
 		$author["owner-avatar"] = $contact["thumb"];
-
-		// This is no field in the item table. So we have to unset it.
-		unset($author["author-nick"]);
-		unset($author["author-id"]);
 	}
 
 	$header = array();
@@ -150,8 +162,10 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 		$header["last-child"] = 0;
 	}
 
-	if (!is_object($entries))
+	if (!is_object($entries)) {
+		logger("There are no entries in this feed.", LOGGER_DEBUG);
 		return;
+	}
 
 	$items = array();
 
