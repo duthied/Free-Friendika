@@ -281,16 +281,15 @@
 					logger("API call duration: ".round($duration, 2)."\t".$a->query_string, LOGGER_DEBUG);
 
 					if (get_config("system", "profiler")) {
-						logger(sprintf("Database: %s/%s, Network: %s, Rendering: %s, Session: %s, I/O: %s, Other: %s, Total: %s",
+						$duration = microtime(true)-$a->performance["start"];
+
+						logger(parse_url($a->query_string, PHP_URL_PATH).": ".sprintf("Database: %s/%s, Network: %s, I/O: %s, Other: %s, Total: %s",
 							round($a->performance["database"] - $a->performance["database_write"], 3),
 							round($a->performance["database_write"], 3),
 							round($a->performance["network"], 2),
-							round($a->performance["rendering"], 2),
-							round($a->performance["parser"], 2),
 							round($a->performance["file"], 2),
-							round($duration - $a->performance["database"]
-								 - $a->performance["network"] - $a->performance["rendering"]
-								 - $a->performance["parser"] - $a->performance["file"], 2),
+							round($duration - ($a->performance["database"] + $a->performance["network"]
+								+ $a->performance["file"]), 2),
 							round($duration, 2)),
 							LOGGER_DEBUG);
 

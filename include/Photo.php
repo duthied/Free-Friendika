@@ -707,11 +707,6 @@ class Photo {
 			);
 		}
 
-		// Update the cached values
-		if ($album != 'Contact Photos') {
-			photo_albums($uid, true);
-		}
-
 		return $r;
 	}
 }
@@ -872,7 +867,7 @@ function get_photo_info($url) {
 
 	$data = Cache::get($url);
 
-	if (is_null($data) OR !$data) {
+	if (is_null($data) OR !$data OR !is_array($data)) {
 		$img_str = fetch_url($url, true, $redirects, 4);
 		$filesize = strlen($img_str);
 
