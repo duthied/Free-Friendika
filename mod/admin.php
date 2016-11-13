@@ -299,6 +299,17 @@ function admin_page_federation(&$a) {
 		//
 		// clean up version numbers
 		//
+		// some platforms do not provide version information, add a unkown there
+		// to the version string for the displayed list.
+		$newV = array();
+		foreach ($v as $vv) {
+			if ($vv['version'] == '') {
+				$newV[] = array('total'=>$vv['total'], 'version'=>t('unknown'));
+			} else {
+				$newV[] = $vv;
+			}
+		}
+ 		$v = $newV;
 		// in the DB the Diaspora versions have the format x.x.x.x-xx the last
 		// part (-xx) should be removed to clean up the versions from the "head
 		// commit" information and combined into a single entry for x.x.x.x
