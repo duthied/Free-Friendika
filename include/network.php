@@ -789,12 +789,12 @@ function short_link($url) {
 		$yourls->set('password', $yourls_password);
 		$yourls->set('ssl', $yourls_ssl);
 		$yourls->set('yourls-url', $yourls_url);
-		$slinky->set_cascade( array($yourls, new Slinky_UR1ca(), new Slinky_Trim(), new Slinky_IsGd(), new Slinky_TinyURL()));
+		$slinky->set_cascade(array($yourls, new Slinky_UR1ca(), new Slinky_TinyURL()));
 	} else {
 		// setup a cascade of shortening services
 		// try to get a short link from these services
-		// in the order ur1.ca, trim, id.gd, tinyurl
-		$slinky->set_cascade(array(new Slinky_UR1ca(), new Slinky_Trim(), new Slinky_IsGd(), new Slinky_TinyURL()));
+		// in the order ur1.ca, tinyurl
+		$slinky->set_cascade(array(new Slinky_ur1ca(), new Slinky_TinyURL()));
 	}
 	return $slinky->short();
 }
