@@ -151,7 +151,7 @@ function add_page_info_data($data) {
 		$data["type"] = "link";
 
 	if ((($data["type"] != "link") AND ($data["type"] != "video") AND ($data["type"] != "photo")) OR ($data["title"] == $data["url"])) {
-		return("");
+		return "";
 	}
 
 	if ($no_photos AND ($data["type"] == "photo"))
