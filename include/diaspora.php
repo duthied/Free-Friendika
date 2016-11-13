@@ -2876,8 +2876,9 @@ class diaspora {
 					"created_at" => $created,
 					"provider_display_name" => $item["app"]);
 
-			if (count($location) == 0)
+			if (!isset($location["lat"]) OR !isset($location["lng"])) {
 				unset($message["location"]);
+			}
 
 			$type = "status_message";
 		}
