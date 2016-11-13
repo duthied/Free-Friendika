@@ -35,9 +35,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-06 16:00+0100\n"
-"PO-Revision-Date: 2016-11-10 09:26+0000\n"
-"Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
+"POT-Creation-Date: 2016-11-10 15:43+0100\n"
+"PO-Revision-Date: 2016-11-11 10:10+0000\n"
+"Last-Translator: Andreas H.\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -78,8 +78,8 @@ msgstr "Leute finden"
 msgid "Enter name or interest"
 msgstr "Name oder Interessen eingeben"
 
-#: include/contact_widgets.php:32 include/Contact.php:325
-#: include/conversation.php:981 mod/follow.php:103 mod/allfriends.php:66
+#: include/contact_widgets.php:32 include/conversation.php:981
+#: include/Contact.php:347 mod/follow.php:103 mod/allfriends.php:66
 #: mod/contacts.php:602 mod/dirfind.php:204 mod/match.php:72
 #: mod/suggest.php:83
 msgid "Connect/Follow"
@@ -1168,57 +1168,6 @@ msgstr "(kein Betreff)"
 msgid "noreply"
 msgstr "noreply"
 
-#: include/Contact.php:119
-msgid "stopped following"
-msgstr "wird nicht mehr gefolgt"
-
-#: include/Contact.php:311 include/Contact.php:324 include/Contact.php:369
-#: include/conversation.php:968 include/conversation.php:984
-#: mod/allfriends.php:65 mod/directory.php:155 mod/dirfind.php:203
-#: mod/match.php:71 mod/suggest.php:82
-msgid "View Profile"
-msgstr "Profil anschauen"
-
-#: include/Contact.php:368 include/conversation.php:967
-msgid "View Status"
-msgstr "Pinnwand anschauen"
-
-#: include/Contact.php:370 include/conversation.php:969
-msgid "View Photos"
-msgstr "Bilder anschauen"
-
-#: include/Contact.php:371 include/conversation.php:970
-msgid "Network Posts"
-msgstr "Netzwerkbeiträge"
-
-#: include/Contact.php:372 include/conversation.php:971
-msgid "View Contact"
-msgstr "Kontakt anzeigen"
-
-#: include/Contact.php:373
-msgid "Drop Contact"
-msgstr "Kontakt löschen"
-
-#: include/Contact.php:374 include/conversation.php:972
-msgid "Send PM"
-msgstr "Private Nachricht senden"
-
-#: include/Contact.php:375 include/conversation.php:976
-msgid "Poke"
-msgstr "Anstupsen"
-
-#: include/Contact.php:748
-msgid "Organisation"
-msgstr "Organisation"
-
-#: include/Contact.php:751
-msgid "News"
-msgstr "Nachrichten"
-
-#: include/Contact.php:754
-msgid "Forum"
-msgstr "Forum"
-
 #: include/api.php:1019
 #, php-format
 msgid "Daily posting limit of %d posts reached. The post was rejected."
@@ -1374,6 +1323,37 @@ msgstr "Lösche die markierten Beiträge"
 #: include/conversation.php:966
 msgid "Follow Thread"
 msgstr "Folge der Unterhaltung"
+
+#: include/conversation.php:967 include/Contact.php:390
+msgid "View Status"
+msgstr "Pinnwand anschauen"
+
+#: include/conversation.php:968 include/conversation.php:984
+#: include/Contact.php:333 include/Contact.php:346 include/Contact.php:391
+#: mod/allfriends.php:65 mod/directory.php:155 mod/dirfind.php:203
+#: mod/match.php:71 mod/suggest.php:82
+msgid "View Profile"
+msgstr "Profil anschauen"
+
+#: include/conversation.php:969 include/Contact.php:392
+msgid "View Photos"
+msgstr "Bilder anschauen"
+
+#: include/conversation.php:970 include/Contact.php:393
+msgid "Network Posts"
+msgstr "Netzwerkbeiträge"
+
+#: include/conversation.php:971 include/Contact.php:394
+msgid "View Contact"
+msgstr "Kontakt anzeigen"
+
+#: include/conversation.php:972 include/Contact.php:396
+msgid "Send PM"
+msgstr "Private Nachricht senden"
+
+#: include/conversation.php:976 include/Contact.php:397
+msgid "Poke"
+msgstr "Anstupsen"
 
 #: include/conversation.php:1094
 #, php-format
@@ -1586,8 +1566,8 @@ msgstr "Vorschau"
 #: mod/fbrowser.php:136 mod/tagrm.php:11 mod/tagrm.php:94 mod/follow.php:121
 #: mod/editpost.php:148 mod/message.php:220 mod/dfrn_request.php:875
 #: mod/contacts.php:445 mod/photos.php:235 mod/photos.php:322
-#: mod/settings.php:677 mod/settings.php:703 mod/suggest.php:32
-#: mod/videos.php:128
+#: mod/suggest.php:32 mod/videos.php:128 mod/settings.php:677
+#: mod/settings.php:703
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -2576,11 +2556,11 @@ msgstr "Möchtest Du wirklich dieses Item löschen?"
 #: include/items.php:1914 mod/follow.php:110 mod/api.php:105
 #: mod/message.php:217 mod/dfrn_request.php:861 mod/profiles.php:648
 #: mod/profiles.php:651 mod/profiles.php:677 mod/contacts.php:442
-#: mod/register.php:238 mod/settings.php:1158 mod/settings.php:1164
-#: mod/settings.php:1172 mod/settings.php:1176 mod/settings.php:1181
-#: mod/settings.php:1187 mod/settings.php:1193 mod/settings.php:1199
-#: mod/settings.php:1225 mod/settings.php:1226 mod/settings.php:1227
-#: mod/settings.php:1228 mod/settings.php:1229 mod/suggest.php:29
+#: mod/register.php:238 mod/suggest.php:29 mod/settings.php:1158
+#: mod/settings.php:1164 mod/settings.php:1172 mod/settings.php:1176
+#: mod/settings.php:1181 mod/settings.php:1187 mod/settings.php:1193
+#: mod/settings.php:1199 mod/settings.php:1225 mod/settings.php:1226
+#: mod/settings.php:1227 mod/settings.php:1228 mod/settings.php:1229
 msgid "Yes"
 msgstr "Ja"
 
@@ -2601,8 +2581,8 @@ msgstr "Ja"
 #: mod/contacts.php:350 mod/dirfind.php:11 mod/display.php:475
 #: mod/events.php:190 mod/item.php:198 mod/item.php:210 mod/network.php:4
 #: mod/photos.php:159 mod/photos.php:1072 mod/register.php:42
-#: mod/settings.php:22 mod/settings.php:128 mod/settings.php:663
-#: mod/suggest.php:58 mod/viewcontacts.php:45 index.php:397
+#: mod/suggest.php:58 mod/viewcontacts.php:45 mod/settings.php:22
+#: mod/settings.php:128 mod/settings.php:663 index.php:397
 msgid "Permission denied."
 msgstr "Zugriff verweigert."
 
@@ -3096,6 +3076,26 @@ msgstr "Beitrag"
 #: include/text.php:1981
 msgid "Item filed"
 msgstr "Beitrag abgelegt"
+
+#: include/Contact.php:119
+msgid "stopped following"
+msgstr "wird nicht mehr gefolgt"
+
+#: include/Contact.php:395
+msgid "Drop Contact"
+msgstr "Kontakt löschen"
+
+#: include/Contact.php:770
+msgid "Organisation"
+msgstr "Organisation"
+
+#: include/Contact.php:773
+msgid "News"
+msgstr "Nachrichten"
+
+#: include/Contact.php:776
+msgid "Forum"
+msgstr "Forum"
 
 #: mod/oexchange.php:25
 msgid "Post successful."
@@ -7879,6 +7879,49 @@ msgstr "Spitznamen wählen: "
 msgid "Import your profile to this friendica instance"
 msgstr "Importiere Dein Profil auf diese Friendica Instanz"
 
+#: mod/suggest.php:27
+msgid "Do you really want to delete this suggestion?"
+msgstr "Möchtest Du wirklich diese Empfehlung löschen?"
+
+#: mod/suggest.php:71
+msgid ""
+"No suggestions available. If this is a new site, please try again in 24 "
+"hours."
+msgstr "Keine Vorschläge verfügbar. Falls der Server frisch aufgesetzt wurde, versuche es bitte in 24 Stunden noch einmal."
+
+#: mod/suggest.php:84 mod/suggest.php:104
+msgid "Ignore/Hide"
+msgstr "Ignorieren/Verbergen"
+
+#: mod/update_community.php:19 mod/update_display.php:23
+#: mod/update_network.php:27 mod/update_notes.php:36 mod/update_profile.php:35
+msgid "[Embedded content - reload page to view]"
+msgstr "[Eingebetteter Inhalt - Seite neu laden zum Betrachten]"
+
+#: mod/videos.php:120
+msgid "Do you really want to delete this video?"
+msgstr "Möchtest Du dieses Video wirklich löschen?"
+
+#: mod/videos.php:125
+msgid "Delete Video"
+msgstr "Video Löschen"
+
+#: mod/videos.php:204
+msgid "No videos selected"
+msgstr "Keine Videos  ausgewählt"
+
+#: mod/videos.php:396
+msgid "Recent Videos"
+msgstr "Neueste Videos"
+
+#: mod/videos.php:398
+msgid "Upload New Videos"
+msgstr "Neues Video hochladen"
+
+#: mod/viewcontacts.php:72
+msgid "No contacts."
+msgstr "Keine Kontakte."
+
 #: mod/settings.php:60
 msgid "Display"
 msgstr "Anzeige"
@@ -8198,6 +8241,12 @@ msgstr "Automatische Updates nur, wenn Du oben auf der Netzwerkseite bist."
 #: mod/settings.php:1007
 msgid "Bandwith Saver Mode"
 msgstr "Bandbreiten-Spar-Modus"
+
+#: mod/settings.php:1007
+msgid ""
+"When enabled, embedded content is not displayed on automatic updates, they "
+"only show on page reload."
+msgstr "Wenn aktiviert, wird der eingebettete Inhalt nicht automatisch aktualisiert. In diesem Fall Seite bitte neu laden."
 
 #: mod/settings.php:1009
 msgid "General Theme Settings"
@@ -8573,49 +8622,6 @@ msgstr "Wenn Du Dein Profil von einem anderen Server umgezogen hast und einige D
 #: mod/settings.php:1344
 msgid "Resend relocate message to contacts"
 msgstr "Umzugsbenachrichtigung erneut an Kontakte senden"
-
-#: mod/suggest.php:27
-msgid "Do you really want to delete this suggestion?"
-msgstr "Möchtest Du wirklich diese Empfehlung löschen?"
-
-#: mod/suggest.php:71
-msgid ""
-"No suggestions available. If this is a new site, please try again in 24 "
-"hours."
-msgstr "Keine Vorschläge verfügbar. Falls der Server frisch aufgesetzt wurde, versuche es bitte in 24 Stunden noch einmal."
-
-#: mod/suggest.php:84 mod/suggest.php:104
-msgid "Ignore/Hide"
-msgstr "Ignorieren/Verbergen"
-
-#: mod/update_community.php:19 mod/update_display.php:23
-#: mod/update_network.php:27 mod/update_notes.php:36 mod/update_profile.php:35
-msgid "[Embedded content - reload page to view]"
-msgstr "[Eingebetteter Inhalt - Seite neu laden zum Betrachten]"
-
-#: mod/videos.php:120
-msgid "Do you really want to delete this video?"
-msgstr "Möchtest Du dieses Video wirklich löschen?"
-
-#: mod/videos.php:125
-msgid "Delete Video"
-msgstr "Video Löschen"
-
-#: mod/videos.php:204
-msgid "No videos selected"
-msgstr "Keine Videos  ausgewählt"
-
-#: mod/videos.php:396
-msgid "Recent Videos"
-msgstr "Neueste Videos"
-
-#: mod/videos.php:398
-msgid "Upload New Videos"
-msgstr "Neues Video hochladen"
-
-#: mod/viewcontacts.php:72
-msgid "No contacts."
-msgstr "Keine Kontakte."
 
 #: object/Item.php:370
 msgid "via"
