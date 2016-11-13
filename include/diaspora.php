@@ -2876,6 +2876,7 @@ class diaspora {
 					"created_at" => $created,
 					"provider_display_name" => $item["app"]);
 
+			// Diaspora rejects messages when they contain a location without "lat" or "lng"
 			if (!isset($location["lat"]) OR !isset($location["lng"])) {
 				unset($message["location"]);
 			}
