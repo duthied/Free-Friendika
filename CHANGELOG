@@ -4,6 +4,7 @@ Version 3.5.1
     Fix for a potential XSS vector [heluecht, thanks to Vít Šesták 'v6ak' for reporting the problem]
     Fix for ghost request notifications on single user instances [Hypolite]
     Fix user language selection [tobiasd]
+    Fix a problem with communication to Diaspora with set posting locations [heluecht]
     Adjustments for the Vagrant VM settings [silke]
     Improvements to the unliking of prior likes [Hypolite]
     Improvements to the API and Friendica specific extensions [gerhard6380]
