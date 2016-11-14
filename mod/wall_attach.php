@@ -14,19 +14,19 @@ function wall_attach_post(&$a) {
 		);
 		if(! count($r)){
 			if ($r_json) {
-                            echo json_encode(array('error'=>t('Invalid request.')));
-                            killme();
-                        }
+				echo json_encode(array('error'=>t('Invalid request.')));
+				killme();
+			}
 			return;
-        }
+	}
 
 	} else {
 		if ($r_json) {
-                    echo json_encode(array('error'=>t('Invalid request.')));
-                    killme();
-                }
+			echo json_encode(array('error'=>t('Invalid request.')));
+			killme();
+		}
 		return;
-    }
+	}
 
 	$can_post  = false;
 	$visitor   = 0;
@@ -40,41 +40,41 @@ function wall_attach_post(&$a) {
 		$can_post = true;
 	else {
 		if($community_page && remote_user()) {
-			$cid = 0;
+			$contact_id = 0;
 			if(is_array($_SESSION['remote'])) {
 				foreach($_SESSION['remote'] as $v) {
 					if($v['uid'] == $page_owner_uid) {
-						$cid = $v['cid'];
+						$contact_id = $v['cid'];
 						break;
 					}
 				}
 			}
-			if($cid) {
+			if($contact_id) {
 
 				$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
-					intval($cid),
+					intval($contact_id),
 					intval($page_owner_uid)
 				);
 				if(count($r)) {
 					$can_post = true;
-					$visitor = $cid;
+					$visitor = $contact_id;
 				}
 			}
 		}
 	}
 	if(! $can_post) {
 		if ($r_json) {
-                    echo json_encode(array('error'=>t('Permission denied.')));
-                    killme();
-                }
+			echo json_encode(array('error'=>t('Permission denied.')));
+			killme();
+		}
 		notice( t('Permission denied.') . EOL );
 		killme();
 	}
 
 	if(! x($_FILES,'userfile')) {
 		if ($r_json) {
-                    echo json_encode(array('error'=>t('Invalid request.')));
-                }
+			echo json_encode(array('error'=>t('Invalid request.')));
+		}
 		killme();
 	}
 
@@ -179,9 +179,9 @@ function wall_attach_post(&$a) {
 	}
 
 	if ($r_json) {
-            echo json_encode(array('ok'=>true));
-            killme();
-        }
+		echo json_encode(array('ok'=>true));
+		killme();
+	}
 
 	$lf = "\n";
 

@@ -1896,21 +1896,21 @@ function drop_item($id,$interactive = true) {
 
 	$owner = $item['uid'];
 
-	$cid = 0;
+	$contact_id = 0;
 
 	// check if logged in user is either the author or owner of this item
 
 	if (is_array($_SESSION['remote'])) {
 		foreach($_SESSION['remote'] as $visitor) {
 			if ($visitor['uid'] == $item['uid'] && $visitor['cid'] == $item['contact-id']) {
-				$cid = $visitor['cid'];
+				$contact_id = $visitor['cid'];
 				break;
 			}
 		}
 	}
 
 
-	if ((local_user() == $item['uid']) || ($cid) || (! $interactive)) {
+	if ((local_user() == $item['uid']) || ($contact_id) || (! $interactive)) {
 
 		// Check if we should do HTML-based delete confirmation
 		if ($_REQUEST['confirm']) {

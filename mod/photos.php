@@ -132,24 +132,24 @@ function photos_post(&$a) {
 		$can_post = true;
 	else {
 		if ($community_page && remote_user()) {
-			$cid = 0;
+			$contact_id = 0;
 			if (is_array($_SESSION['remote'])) {
 				foreach ($_SESSION['remote'] as $v) {
 					if ($v['uid'] == $page_owner_uid) {
-						$cid = $v['cid'];
+						$contact_id = $v['cid'];
 						break;
 					}
 				}
 			}
-			if ($cid) {
+			if ($contact_id) {
 
 				$r = qu("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
-					intval($cid),
+					intval($contact_id),
 					intval($page_owner_uid)
 				);
 				if (dbm::is_result($r)) {
 					$can_post = true;
-					$visitor = $cid;
+					$visitor = $contact_id;
 				}
 			}
 		}
@@ -1012,7 +1012,7 @@ function photos_content(&$a) {
 					$can_post = true;
 					$contact = $r[0];
 					$remote_contact = true;
-					$visitor = $cid;
+					$visitor = $contact_id;
 				}
 			}
 		}

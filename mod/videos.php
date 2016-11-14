@@ -263,7 +263,7 @@ function videos_content(&$a) {
 					$can_post = true;
 					$contact = $r[0];
 					$remote_contact = true;
-					$visitor = $cid;
+					$visitor = $contact_id;
 				}
 			}
 		}
