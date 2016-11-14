@@ -1020,22 +1020,13 @@ function item_post(&$a) {
 	create_tags_from_item($post_id);
 	create_files_from_item($post_id);
 
-	// Insert an item entry for UID=0 for global entries
-	if ($post_id != $parent) {
-		add_shadow_thread($post_id);
-	} else {
-		add_shadow_entry($post_id);
-	}
+	// Insert an item entry for UID=0 for global entries.
+	// We now do it in the background to save some time.
+	// This is important in interactive environments like the frontend or the API.
+	// We don't fork a new process since this is done anyway with the following command
+	proc_run(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "include/create_shadowentry.php", $post_id);
 
-	// This is a real juggling act on shared hosting services which kill your processes
-	// e.g. dreamhost. We used to start delivery to our native delivery agents in the background
-	// and then run our plugin delivery from the foreground. We're now doing plugin delivery first,
-	// because as soon as you start loading up a bunch of remote delivey processes, *this* page is
-	// likely to get killed off. If you end up looking at an /item URL and a blank page,
-	// it's very likely the delivery got killed before all your friends could be notified.
-	// Currently the only realistic fixes are to use a reliable server - which precludes shared hosting,
-	// or cut back on plugins which do remote deliveries.
-
+	// Call the background process that is delivering the item to the receivers
 	proc_run(PRIORITY_HIGH, "include/notifier.php", $notify_type, $post_id);
 
 	logger('post_complete');

@@ -1,6 +1,6 @@
 
 server_ip = "192.168.22.10"
-server_memory = "384" # MB
+server_memory = "1024" # MB
 server_timezone = "UTC"
 
 public_folder = "/vagrant"

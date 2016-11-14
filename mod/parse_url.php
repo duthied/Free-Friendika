@@ -89,6 +89,13 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 
 	$siteinfo = array();
 
+	// Check if the URL does contain a scheme
+	$scheme = parse_url($url, PHP_URL_SCHEME);
+
+	if ($scheme == "") {
+		$url = "http://".trim($url, "/");
+	}
+
 	if ($count > 10) {
 		logger("parseurl_getsiteinfo: Endless loop detected for ".$url, LOGGER_DEBUG);
 		return($siteinfo);
@@ -102,6 +109,8 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 	$siteinfo["url"] = $url;
 	$siteinfo["type"] = "link";
 
+	$check_cert = get_config('system','verifyssl');
+
 	$stamp1 = microtime(true);
 
 	$ch = curl_init();
@@ -110,8 +119,9 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 	curl_setopt($ch, CURLOPT_NOBODY, 1);
 	curl_setopt($ch, CURLOPT_TIMEOUT, 3);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	//curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 	curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (($check_cert) ? true : false));
+	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, (($check_cert) ? 2 : false));
 
 	$header = curl_exec($ch);
 	$curl_info = @curl_getinfo($ch);
@@ -142,8 +152,9 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 
 		$oembed_data = oembed_fetch_url($url);
 
-		if ($oembed_data->type != "error")
+		if (!in_array($oembed_data->type, array("error", "rich"))) {
 			$siteinfo["type"] = $oembed_data->type;
+		}
 
 		if (($oembed_data->type == "link") AND ($siteinfo["type"] != "photo")) {
 			if (isset($oembed_data->title))
@@ -165,6 +176,8 @@ function parseurl_getsiteinfo($url, $no_guessing = false, $do_oembed = true, $co
 	curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (($check_cert) ? true : false));
+	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, (($check_cert) ? 2 : false));
 
 	$header = curl_exec($ch);
 	$curl_info = @curl_getinfo($ch);

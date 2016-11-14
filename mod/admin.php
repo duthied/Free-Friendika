@@ -269,13 +269,15 @@ function admin_page_federation(&$a) {
 	// off one % two of them are needed in the query
 	// Add more platforms if you like, when one returns 0 known nodes it is not
 	// displayed on the stats page.
-	$platforms = array('Friendica', 'Diaspora', '%%red%%', 'Hubzilla', 'GNU Social', 'StatusNet');
+	$platforms = array('Friendica', 'Diaspora', '%%red%%', 'Hubzilla', 'BlaBlaNet', 'GNU Social', 'StatusNet', 'Mastodon');
 	$colors    = array('Friendica' => '#ffc018',     // orange from the logo
-			    'Diaspora'  => '#a1a1a1',     // logo is black and white, makes a gray
+			   'Diaspora'  => '#a1a1a1',     // logo is black and white, makes a gray
 			   '%%red%%'   => '#c50001',     // fire red from the logo
 			   'Hubzilla'  => '#43488a',     // blue from the logo
+			   'BlaBlaNet' => '#3B5998',     // blue from the navbar at blablanet-dot-com
 			   'GNU Social'=> '#a22430',     // dark red from the logo
-			   'StatusNet' => '#789240');    // the green from the logo (red and blue have already others
+			   'StatusNet' => '#789240',     // the green from the logo (red and blue have already others
+			   'Mastodon'  => '#1a9df9');    // blue from the Mastodon logo
 	$counts = array();
 	$total = 0;
 
@@ -283,20 +285,27 @@ function admin_page_federation(&$a) {
 		// get a total count for the platform, the name and version of the
 		// highest version and the protocol tpe
 		$c = qu('SELECT COUNT(*) AS `total`, `platform`, `network`, `version` FROM `gserver`
-				WHERE `platform` LIKE "%s" AND `last_contact` > `last_failure` AND `version` != ""
+				WHERE `platform` LIKE "%s" AND `last_contact` > `last_failure`
 				ORDER BY `version` ASC;', $p);
 		$total = $total + $c[0]['total'];
 
 		// what versions for that platform do we know at all?
 		// again only the active nodes
 		$v = qu('SELECT COUNT(*) AS `total`, `version` FROM `gserver`
-				WHERE `last_contact` > `last_failure` AND `platform` LIKE "%s"  AND `version` != ""
+				WHERE `last_contact` > `last_failure` AND `platform` LIKE "%s"
 				GROUP BY `version`
 				ORDER BY `version`;', $p);
 
 		//
 		// clean up version numbers
 		//
+		// some platforms do not provide version information, add a unkown there
+		// to the version string for the displayed list.
+		foreach ($v as $key => $value) {
+			if ($v[$key]['version'] == '') {
+				$v[$key] = array('total'=>$v[$key]['total'], 'version'=>t('unknown'));
+			}
+		}
 		// in the DB the Diaspora versions have the format x.x.x.x-xx the last
 		// part (-xx) should be removed to clean up the versions from the "head
 		// commit" information and combined into a single entry for x.x.x.x

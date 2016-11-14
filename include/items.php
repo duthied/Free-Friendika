@@ -147,19 +147,23 @@ function add_page_info_data($data) {
 	// It maybe is a rich content, but if it does have everything that a link has,
 	// then treat it that way
 	if (($data["type"] == "rich") AND is_string($data["title"]) AND
-		is_string($data["text"]) AND (sizeof($data["images"]) > 0))
+		is_string($data["text"]) AND (sizeof($data["images"]) > 0)) {
 		$data["type"] = "link";
+	}
 
-	if ((($data["type"] != "link") AND ($data["type"] != "video") AND ($data["type"] != "photo")) OR ($data["title"] == $url))
-		return("");
+	if ((($data["type"] != "link") AND ($data["type"] != "video") AND ($data["type"] != "photo")) OR ($data["title"] == $data["url"])) {
+		return "";
+	}
 
-	if ($no_photos AND ($data["type"] == "photo"))
-		return("");
+	if ($no_photos AND ($data["type"] == "photo")) {
+		return "";
+	}
 
-	if (sizeof($data["images"]) > 0)
+	if (sizeof($data["images"]) > 0) {
 		$preview = $data["images"][0];
-	else
+	} else {
 		$preview = "";
+	}
 
 	// Escape some bad characters
 	$data["url"] = str_replace(array("[", "]"), array("&#91;", "&#93;"), htmlentities($data["url"], ENT_QUOTES, 'UTF-8', false));
@@ -167,19 +171,33 @@ function add_page_info_data($data) {
 
 	$text = "[attachment type='".$data["type"]."'";
 
-	if ($data["url"] != "")
+	if ($data["text"] == "") {
+		$data["text"] = $data["title"];
+	}
+
+	if ($data["text"] == "") {
+		$data["text"] = $data["url"];
+	}
+
+	if ($data["url"] != "") {
 		$text .= " url='".$data["url"]."'";
-	if ($data["title"] != "")
+	}
+
+	if ($data["title"] != "") {
 		$text .= " title='".$data["title"]."'";
+	}
+
 	if (sizeof($data["images"]) > 0) {
 		$preview = str_replace(array("[", "]"), array("&#91;", "&#93;"), htmlentities($data["images"][0]["src"], ENT_QUOTES, 'UTF-8', false));
 		// if the preview picture is larger than 500 pixels then show it in a larger mode
 		// But only, if the picture isn't higher than large (To prevent huge posts)
-		if (($data["images"][0]["width"] >= 500) AND ($data["images"][0]["width"] >= $data["images"][0]["height"]))
+		if (($data["images"][0]["width"] >= 500) AND ($data["images"][0]["width"] >= $data["images"][0]["height"])) {
 			$text .= " image='".$preview."'";
-		else
+		} else {
 			$text .= " preview='".$preview."'";
+		}
 	}
+
 	$text .= "]".$data["text"]."[/attachment]";
 
 	$hashtags = "";

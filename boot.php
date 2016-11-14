@@ -1897,11 +1897,12 @@ function get_max_import_size() {
  * @brief Wrap calls to proc_close(proc_open()) and call hook
  *	so plugins can take part in process :)
  *
- * @param (string|integer) $cmd program to run or priority
+ * @param (string|integer|array) $cmd program to run, priority or parameter array
  *
  * next args are passed as $cmd command line
  * e.g.: proc_run("ls","-la","/tmp");
  * or: proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
+ * or: proc_run(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "include/create_shadowentry.php", $post_id);
  *
  * @note $cmd and string args are surrounded with ""
  *
@@ -1912,24 +1913,31 @@ function proc_run($cmd){
 
 	$a = get_app();
 
-	$args = func_get_args();
+	$proc_args = func_get_args();
 
-	$newargs = array();
-	if (!count($args))
+	$args = array();
+	if (!count($proc_args)) {
 		return;
-
-	// expand any arrays
-
-	foreach($args as $arg) {
-		if(is_array($arg)) {
-			foreach($arg as $n) {
-				$newargs[] = $n;
-			}
-		} else
-			$newargs[] = $arg;
 	}
 
-	$args = $newargs;
+	// Preserve the first parameter
+	// It could contain a command, the priority or an parameter array
+	// If we use the parameter array we have to protect it from the following function
+	$run_parameter = array_shift($proc_args);
+
+	// expand any arrays
+	foreach ($proc_args as $arg) {
+		if (is_array($arg)) {
+			foreach ($arg as $n) {
+				$args[] = $n;
+			}
+		} else {
+			$args[] = $arg;
+		}
+	}
+
+	// Now we add the run parameters back to the array
+	array_unshift($args, $run_parameter);
 
 	$arr = array('args' => $args, 'run_cmd' => true);
 
@@ -1937,16 +1945,24 @@ function proc_run($cmd){
 	if (!$arr['run_cmd'] OR !count($args))
 		return;
 
-	if (!get_config("system", "worker") OR
-		(($args[0] != 'php') AND !is_int($args[0]))) {
+	if (!get_config("system", "worker") OR (is_string($run_parameter) AND ($run_parameter != 'php'))) {
 		$a->proc_run($args);
 		return;
 	}
 
-	if (is_int($args[0]))
-		$priority = $args[0];
-	else
-		$priority = PRIORITY_MEDIUM;
+	$priority = PRIORITY_MEDIUM;
+	$dont_fork = get_config("system", "worker_dont_fork");
+
+	if (is_int($run_parameter)) {
+		$priority = $run_parameter;
+	} elseif (is_array($run_parameter)) {
+		if (isset($run_parameter['priority'])) {
+			$priority = $run_parameter['priority'];
+		}
+		if (isset($run_parameter['dont_fork'])) {
+			$dont_fork = $run_parameter['dont_fork'];
+		}
+	}
 
 	$argv = $args;
 	array_shift($argv);
@@ -1963,8 +1979,9 @@ function proc_run($cmd){
 			intval($priority));
 
 	// Should we quit and wait for the poller to be called as a cronjob?
-	if (get_config("system", "worker_dont_fork"))
+	if ($dont_fork) {
 		return;
+	}
 
 	// Checking number of workers
 	$workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
