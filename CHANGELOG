@@ -23,6 +23,8 @@ Version 3.5.1
     Updates to the translations (DE, ES, FR, PT-BR) [translation teams]
     Improvements to the IFTTT addon [Hypolite]
     Improvements to the language filter addon [strk]
+    Better posting loop prevention for the Google+/Twitter/GS connectors [heluecht]
+    On some pages the result of the Rendertime is not shown anymore [heluecht]
 
   Closed Issues
     1163, 2403, 2752, 2791, 2792, 2800, 2804, 2813, 2814, 2816, 2817, 
