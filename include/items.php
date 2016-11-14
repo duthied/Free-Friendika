@@ -361,12 +361,17 @@ function item_add_language_opt(&$arr) {
  * @param string $uri uri of an item entry
  * @return string unique guid
  */
-function uri_to_guid($uri) {
+function uri_to_guid($uri, $host = "") {
 
 	// Our regular guid routine is using this kind of prefix as well
 	// We have to avoid that different routines could accidentally create the same value
 	$parsed = parse_url($uri);
-	$guid_prefix = hash("crc32", $parsed["host"]);
+
+	if ($host == "") {
+		$host = $parsed["host"];
+	}
+
+	$guid_prefix = hash("crc32", $host);
 
 	// Remove the scheme to make sure that "https" and "http" doesn't make a difference
 	unset($parsed["scheme"]);
@@ -381,6 +386,8 @@ function uri_to_guid($uri) {
 
 function item_store($arr,$force_parent = false, $notify = false, $dontcache = false) {
 
+	$a = get_app();
+
 	// If it is a posting where users should get notifications, then define it as wall posting
 	if ($notify) {
 		$arr['wall'] = 1;
@@ -388,6 +395,15 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		$arr['origin'] = 1;
 		$arr['last-child'] = 1;
 		$arr['network'] = NETWORK_DFRN;
+
+		// We have to avoid duplicates. So we create the GUID in form of a hash of the plink or uri.
+		// In difference to the call to "uri_to_guid" several lines below we add the hash of our own host.
+		// This is done because our host is the original creator of the post.
+		if (isset($arr['plink'])) {
+			$arr['guid'] = uri_to_guid($arr['plink'], $a->get_hostname());
+		} elseif (isset($arr['uri'])) {
+			$arr['guid'] = uri_to_guid($arr['uri'], $a->get_hostname());
+		}
 	}
 
 	// If a Diaspora signature structure was passed in, pull it out of the
@@ -474,7 +490,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 	$arr['wall']          = ((x($arr,'wall'))          ? intval($arr['wall'])                : 0);
 	$arr['guid']          = ((x($arr,'guid'))          ? notags(trim($arr['guid']))          : get_guid(32, $guid_prefix));
-	$arr['uri']           = ((x($arr,'uri'))           ? notags(trim($arr['uri']))           : $arr['guid']);
+	$arr['uri']           = ((x($arr,'uri'))           ? notags(trim($arr['uri']))           : item_new_uri($a->get_hostname(), $uid, $arr['guid']));
 	$arr['extid']         = ((x($arr,'extid'))         ? notags(trim($arr['extid']))         : '');
 	$arr['author-name']   = ((x($arr,'author-name'))   ? trim($arr['author-name'])   : '');
 	$arr['author-link']   = ((x($arr,'author-link'))   ? notags(trim($arr['author-link']))   : '');
@@ -493,7 +509,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	$arr['last-child']    = ((x($arr,'last-child'))    ? intval($arr['last-child'])          : 0 );
 	$arr['visible']       = ((x($arr,'visible') !== false) ? intval($arr['visible'])         : 1 );
 	$arr['deleted']       = 0;
-	$arr['parent-uri']    = ((x($arr,'parent-uri'))    ? notags(trim($arr['parent-uri']))    : '');
+	$arr['parent-uri']    = ((x($arr,'parent-uri'))    ? notags(trim($arr['parent-uri']))    : $arr['uri']);
 	$arr['verb']          = ((x($arr,'verb'))          ? notags(trim($arr['verb']))          : '');
 	$arr['object-type']   = ((x($arr,'object-type'))   ? notags(trim($arr['object-type']))   : '');
 	$arr['object']        = ((x($arr,'object'))        ? trim($arr['object'])                : '');
