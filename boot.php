@@ -1045,16 +1045,24 @@ class App {
 	 *
 	 * @return string The cleaned url
 	 */
-	function remove_baseurl($url){
+	function remove_baseurl($orig_url){
 
 		// Is the function called statically?
-		if (!is_object($this))
+		if (!is_object($this)) {
 			return(self::$a->remove_baseurl($url));
+		}
 
-		$url = normalise_link($url);
+		// Remove the hostname from the url if it is an internal link
+		$url = normalise_link($orig_url);
 		$base = normalise_link($this->get_baseurl());
 		$url = str_replace($base."/", "", $url);
-		return $url;
+
+		// if it is an external link return the orignal value
+		if ($url == normalise_link($orig_url)) {
+			return $orig_url;
+		} else {
+			return $url;
+		}
 	}
 
 	/**
