@@ -359,6 +359,7 @@ function item_add_language_opt(&$arr) {
  * @brief Creates an unique guid out of a given uri
  *
  * @param string $uri uri of an item entry
+ * @param string $host (Optional) hostname for the GUID prefix
  * @return string unique guid
  */
 function uri_to_guid($uri, $host = "") {
