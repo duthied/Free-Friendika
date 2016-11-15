@@ -1377,7 +1377,7 @@ class App {
 	function proc_run($args) {
 
 		// Add the php path if it is a php call
-		if (count($args) && ($args[0] === 'php' OR is_int($args[0]))) {
+		if (count($args) && ($args[0] === 'php' OR !is_string($args[0]))) {
 
 			// If the last worker fork was less than 10 seconds before then don't fork another one.
 			// This should prevent the forking of masses of workers.
