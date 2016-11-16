@@ -1041,7 +1041,7 @@ class App {
 	/**
 	 * @brief Removes the baseurl from an url. This avoids some mixed content problems.
 	 *
-	 * @param string $url
+	 * @param string $orig_url
 	 *
 	 * @return string The cleaned url
 	 */
@@ -1049,13 +1049,13 @@ class App {
 
 		// Is the function called statically?
 		if (!is_object($this)) {
-			return(self::$a->remove_baseurl($url));
+			return(self::$a->remove_baseurl($orig_url));
 		}
 
 		// Remove the hostname from the url if it is an internal link
-		$url = normalise_link($orig_url);
+		$nurl = normalise_link($orig_url);
 		$base = normalise_link($this->get_baseurl());
-		$url = str_replace($base."/", "", $url);
+		$url = str_replace($base."/", "", $nurl);
 
 		// if it is an external link return the orignal value
 		if ($url == normalise_link($orig_url)) {
