@@ -252,7 +252,7 @@ class NotificationsManager {
 						$notif = array(
 							'label' => 'like',
 							'link' => $this->a->get_baseurl(true).'/display/'.$it['pguid'],
-							'$image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
+							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'text' => sprintf(t("%s liked %s's post"), $it['author-name'], $it['pname']),
 							'when' => relative_date($it['created']),
 							'seen' => $it['seen']
