@@ -390,7 +390,6 @@ function item_fieldlists() {
 /*
 These Fields are not added below (yet). They are here to for bug search.
 `item`.`type`,
-`item`.`object`,
 `item`.`extid`,
 `item`.`received`,
 `item`.`changed`,
@@ -399,7 +398,6 @@ These Fields are not added below (yet). They are here to for bug search.
 `item`.`target`,
 `item`.`resource-id`,
 `item`.`tag`,
-`item`.`attach`,
 `item`.`inform`,
 `item`.`pubmail`,
 `item`.`visible`,
@@ -424,8 +422,8 @@ These Fields are not added below (yet). They are here to for bug search.
 		`item`.`verb`, `item`.`object-type`, `item`.`postopts`, `item`.`plink`,
 		`item`.`guid`, `item`.`wall`, `item`.`private`, `item`.`starred`,
 		`item`.`title`,	`item`.`body`, `item`.`file`, `item`.`event-id`,
-		`item`.`location`, `item`.`coord`, `item`.`app`,
-		`item`.`rendered-hash`, `item`.`rendered-html`,
+		`item`.`location`, `item`.`coord`, `item`.`app`, `item`.`attach`,
+		`item`.`rendered-hash`, `item`.`rendered-html`, `item`.`object`,
 		`item`.`allow_cid`, `item`.`allow_gid`, `item`.`deny_cid`, `item`.`deny_gid`,
 		`item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 
@@ -887,7 +885,7 @@ function best_link_url($item,&$sparkle,$ssl_state = false) {
 	$clean_url = normalise_link($item['author-link']);
 
 	if (local_user()) {
-		$r = q("SELECT `id` FROM `contact` WHERE `network` = '%s' AND `uid` = %d AND `nurl` = '%s' LIMIT 1",
+		$r = q("SELECT `id` FROM `contact` WHERE `network` = '%s' AND `uid` = %d AND `nurl` = '%s' AND NOT `pending` LIMIT 1",
 			dbesc(NETWORK_DFRN), intval(local_user()), dbesc(normalise_link($clean_url)));
 		if ($r) {
 			$best_url = 'redir/'.$r[0]['id'];
@@ -905,79 +903,86 @@ function best_link_url($item,&$sparkle,$ssl_state = false) {
 }
 
 
-if(! function_exists('item_photo_menu')){
-function item_photo_menu($item){
-
+if (! function_exists('item_photo_menu')) {
+function item_photo_menu($item)
+{
 	$ssl_state = false;
 
-	if(local_user())
+	if(local_user()) {
 		$ssl_state = true;
+	}
 
-	$sub_link="";
-	$poke_link="";
-	$contact_url="";
-	$pm_url="";
-	$status_link="";
-	$photos_link="";
-	$posts_link="";
-	$network = "";
+	$sub_link = '';
+	$poke_link = '';
+	$contact_url = '';
+	$pm_url = '';
+	$status_link = '';
+	$photos_link = '';
+	$posts_link = '';
+	$network = '';
 
-	if((local_user()) && local_user() == $item['uid'] && $item['parent'] == $item['id'] && (! $item['self'])) {
+	if ((local_user()) && local_user() == $item['uid'] && $item['parent'] == $item['id'] && (! $item['self'])) {
 		$sub_link = 'javascript:dosubthread(' . $item['id'] . '); return false;';
 	}
 
 	$sparkle = false;
-	$profile_link = best_link_url($item,$sparkle,$ssl_state);
-	if($profile_link === 'mailbox')
+	$profile_link = best_link_url($item, $sparkle, $ssl_state);
+	if ($profile_link === 'mailbox') {
 		$profile_link = '';
+	}
 
 	$cid = 0;
-	$network = "";
+	$network = '';
 	$rel = 0;
 	$r = q("SELECT `id`, `network`, `rel` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' LIMIT 1",
 		intval(local_user()), dbesc(normalise_link($item['author-link'])));
 	if ($r) {
-		$cid = $r[0]["id"];
-		$network = $r[0]["network"];
-		$rel = $r[0]["rel"];
+		$cid = $r[0]['id'];
+		$network = $r[0]['network'];
+		$rel = $r[0]['rel'];
 	}
 
 	if($sparkle) {
-		$status_link = $profile_link."?url=status";
-		$photos_link = $profile_link."?url=photos";
-		$profile_link = $profile_link."?url=profile";
+		$status_link = $profile_link . '?url=status';
+		$photos_link = $profile_link . '?url=photos';
+		$profile_link = $profile_link . '?url=profile';
 		$zurl = '';
-	} else
+	} else {
 		$profile_link = zrl($profile_link);
+	}
 
-	if($cid && !$item['self']) {
-		$poke_link = 'poke/?f=&c='.$cid;
-		$contact_url = 'contacts/'.$cid;
-		$posts_link = 'contacts/'.$cid.'/posts';
+	if ($cid && !$item['self']) {
+		$poke_link = 'poke/?f=&c=' . $cid;
+		$contact_url = 'contacts/' . $cid;
+		$posts_link = 'contacts/' . $cid . '/posts';
 
-		if (in_array($network, array(NETWORK_DFRN, NETWORK_DIASPORA)))
-			$pm_url = 'message/new/'.$cid;
+		if (in_array($network, array(NETWORK_DFRN, NETWORK_DIASPORA))) {
+			$pm_url = 'message/new/' . $cid;
+		}
 	}
 
 	if (local_user()) {
 		$menu = Array(
-			t("Follow Thread") => $sub_link,
-			t("View Status") => $status_link,
-			t("View Profile") => $profile_link,
-			t("View Photos") => $photos_link,
-			t("Network Posts") => $posts_link,
-			t("Edit Contact") => $contact_url,
-			t("Send PM") => $pm_url
+			t('Follow Thread') => $sub_link,
+			t('View Status') => $status_link,
+			t('View Profile') => $profile_link,
+			t('View Photos') => $photos_link,
+			t('Network Posts') => $posts_link,
+			t('View Contact') => $contact_url,
+			t('Send PM') => $pm_url
 		);
 
-		if ($network == NETWORK_DFRN)
+		if ($network == NETWORK_DFRN) {
 			$menu[t("Poke")] = $poke_link;
+		}
 
 		if ((($cid == 0) OR ($rel == CONTACT_IS_FOLLOWER)) AND
-			in_array($item['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
-			$menu[t("Connect/Follow")] = "follow?url=".urlencode($item['author-link']);
-	} else
-		$menu = array(t("View Profile") => $item['author-link']);
+			in_array($item['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA))) {
+			$menu[t('Connect/Follow')] = 'follow?url=' . urlencode($item['author-link']);
+		}
+	} else {
+		$menu = array(t('View Profile') => $item['author-link']);
+	}
 
 	$args = array('item' => $item, 'menu' => $menu);
 
@@ -985,13 +990,14 @@ function item_photo_menu($item){
 
 	$menu = $args['menu'];
 
-	$o = "";
-	foreach($menu as $k=>$v){
-		if(strpos($v,'javascript:') === 0) {
-			$v = substr($v,11);
-			$o .= "<li role=\"menuitem\"><a onclick=\"$v\">$k</a></li>\n";
+	$o = '';
+	foreach ($menu as $k => $v) {
+		if (strpos($v, 'javascript:') === 0) {
+			$v = substr($v, 11);
+			$o .= '<li role="menuitem"><a onclick="' . $v . '">' . $k . '</a></li>' . PHP_EOL;
+		} elseif ($v!='') {
+			$o .= '<li role="menuitem"><a href="' . $v . '">' . $k . '</a></li>' . PHP_EOL;
 		}
-		elseif ($v!="") $o .= "<li role=\"menuitem\"><a href=\"$v\">$k</a></li>\n";
 	}
 	return $o;
 }}
@@ -1138,7 +1144,7 @@ function format_like($cnt,$arr,$type,$id) {
 				$explikers = sprintf( t('%s don\'t attend.'), $likers);
 				break;
 			case 'attendmaybe':
-				$phrase = sprintf( t('<span  %1$s>%2$d people</span> anttend maybe'), $spanatts, $cnt);
+				$phrase = sprintf( t('<span  %1$s>%2$d people</span> attend maybe'), $spanatts, $cnt);
 				$explikers = sprintf( t('%s anttend maybe.'), $likers);
 				break;
 		}

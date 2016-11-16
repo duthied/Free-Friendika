@@ -3,7 +3,7 @@ To change this license header, choose License Headers in Project Properties.
 To change this template file, choose Tools | Templates
 and open the template in the editor.
 */
-/* 
+/*
     Created on : 17.02.2016, 23:55:45
     Author     : rabuzarus
 */
@@ -38,6 +38,18 @@ body a {
     color: $link_color;
     text-decoration: none;
 }
+/* Anchors incorrectly display with a fixed top menu. This global rule offsets all
+ * anchors so that accessing them with a # link will actually scroll the associated
+ * content in the visible part of the page.
+ *
+ * anchor.top should be the opposite of body.padding-top
+ */
+body a[name]:not([href]) {
+    display: block;
+    position: relative;
+    top: -110px;
+    visibility: hidden;
+}
 
 body a:hover, body a:focus, body a:active, body a.active, body .btn-link:hover{
     /*color: #59d6e4;*/
@@ -60,6 +72,9 @@ section hr {
 iframe, img {
     max-width: 100%;
 }
+blockquote {
+    font-size: inherit;
+}
 .clear {
     clear: both;
 }
@@ -71,6 +86,9 @@ iframe, img {
 }
 .hidden {
     display: none !important;
+}
+code {
+	white-space: pre;
 }
 
 /*
@@ -105,6 +123,10 @@ a#item-delete-selected {
     border-radius: 10px;
     background-color: $link_color;
     line-height: 1.5;
+    display: none;
+}
+
+#toggle_mobile_link {
     display: none;
 }
 
@@ -167,7 +189,7 @@ a#item-delete-selected {
     background: $btn_primary_hover_color;
     border-color: none;
 }
-	
+
 .btn-link {
 /*    color: #6fdbe8;*/
     color: $link_color;
@@ -280,7 +302,7 @@ header #banner {
     whitespace: nowrap;
     padding-left: 55px;
 }
-header #banner #logo-img, 
+header #banner #logo-img,
 .navbar-brand #logo-img {
     /*mask: url('network#m1');*/
     /*mask-image: url('img/friendica-25.png');*/
@@ -412,7 +434,7 @@ nav.navbar .nav>li>a:focus{
     top: 4px;
     right: -2px;
     background-color: #ff8989;
-    
+
 /*    text-transform: uppercase;
     display: inline-block;
     padding: 3px 5px 4px;
@@ -509,6 +531,9 @@ nav.navbar a {
 }
 #topbar-first .btn-enter:hover {
     background-color: #89a2b0
+}
+.navbar-fixed-top ul.nav.navbar-nav.navbar-right {
+    display: flex;
 }
 
 
@@ -784,7 +809,8 @@ nav.navbar a {
     color: $nav_icon_color;
     font-weight: 400;
     font-size: 13px;
-    padding: 4px 15px
+    padding: 4px 15px;
+    text-transform: capitalize;
 }
 .nav-pills .dropdown-menu li a i,
 .nav-tabs .dropdown-menu li a i,
@@ -824,17 +850,19 @@ nav.navbar a {
     /*border-left: 3px solid #6fdbe8;*/
     border-left: 3px solid $link_color;
     color: #fff!important;
-    background-color: $menu_background_hover_color !important
+    background-color: $menu_background_hover_color !important;
 }
-.nav-pills.preferences .dropdown .dropdown-toggle {
-    color: #bebebe
+.nav-pills.preferences .dropdown .dropdown-toggle,
+.nav-pills.preferences > li > .btn {
+    color: #bebebe;
 }
 .nav-pills.preferences .dropdown.open .dropdown-toggle,
 .nav-pills.preferences .dropdown.open .dropdown-toggle:hover {
-    background-color: $nav_bg
+    background-color: $nav_bg;
 }
 
-.nav-pills.preferences .dropdown .dropdown-toggle {
+.nav-pills.preferences .dropdown .dropdown-toggle,
+.nav-pills.preferences > li > .btn {
     padding: 2px 10px;
 }
 
@@ -960,9 +988,13 @@ aside .vcard .p-addr {
     white-space: nowrap;
     padding-bottom: 2px;
 }
+
 aside .vcard .detail {
     display: table;
     padding: 5px 0;
+}
+aside .xmpp {
+    display: table;
 }
 aside .vcard .icon {
     display: table-cell;
@@ -1079,7 +1111,7 @@ aside #group-sidebar li .group-edit-tool:first-child {
     width: 90px;*/
 }
 #contact-block contact-block-link {
-    
+
 }
 #contact-block .contact-block-img {
     height: 75px;
@@ -1108,6 +1140,7 @@ section #jotOpen {
 #jot-modal .modal-header a,
 #profile-jot-submit-wrapper a {
     color: #555;
+    text-transform: capitalize;
 }
 #jot-modal .modal-header {
     border-bottom: none;
@@ -1397,10 +1430,18 @@ section #jotOpen {
 .wall-item-body > a > img {
     border-radius: 3px;
 }
+.wall-item-body .body-attach > a {
+    color: #555;
+    display: inline-block;
+}
+.wall-item-body .body-attach > a div {
+    color: #555;
+    width: 20px;
+}
+
+/* wall-item content elements */
 .shared-wrapper,
 .vevent {
-    margin-left: 50px;
-    margin-right: 50px;
     padding: 10px;
     box-shadow: 0 0 0 1.5px rgba(0, 0, 0, .1) inset, 0 1px 1px rgba(0, 0, 0, .05);
 }
@@ -1417,14 +1458,22 @@ section #jotOpen {
 }
 .shared_header {
     margin-left: 0px;
-        margin-top: 0px;
+    margin-top: 0px;
     padding-top: 0px;
+    margin-bottom: 10px;
     border-top: none;
     color: inherit;
 }
 blockquote.shared_content {
-    margin-left: 20px;
+    padding: 0px;
+    margin-left: 0px;
     color: inherit;
+}
+code > .hl-main {
+    padding: 10px 10px 1px 0;
+}
+.hl-main ol {
+    line-height: 1.7;
 }
 .wall-item-tags,
 .itemedited {
@@ -1475,11 +1524,13 @@ blockquote.shared_content {
 .wall-item-actions .button-likes {
     padding-left: 0px;
     padding-right: 0px;
+    text-transform: capitalize;
 }
 
 /* wall item hover effects */
 .wall-item-container .wall-item-links,
-.wall-item-container .wall-item-actions {
+.wall-item-container .wall-item-actions,
+.wall-item-container .body-attach > a {
     opacity: 0.3;
     -webkit-transition: all 0.25s ease-in-out;
     -moz-transition: all 0.25s ease-in-out;
@@ -1488,13 +1539,17 @@ blockquote.shared_content {
     transition: all 0.25s ease-in-out;
 }
 .wall-item-container:hover .wall-item-links,
-.wall-item-container:hover .wall-item-actions {
+.wall-item-container:hover .wall-item-actions,
+.wall-item-container:hover .body-attach > a {
     opacity: 0.6;
     -webkit-transition: all 0.25s ease-in-out;
     -moz-transition: all 0.25s ease-in-out;
     -o-transition: all 0.25s ease-in-out;
     -ms-transition: all 0.25s ease-in-out;
     transition: all 0.25s ease-in-out;
+}
+.wall-item-container .wall-item-body .body-attach > a:hover {
+    opacity: 1;
 }
 
 /*
@@ -1620,7 +1675,7 @@ img.acpopup-img {
 .wall-item-container.thread_level_6,
 .wall-item-container.thread_level_7 {
   margin-left: 15px;
-  
+
 }
 /* Menubar Tabs */
 #tabmenu,
@@ -1653,7 +1708,7 @@ ul.tabs li {
     transition: all .15s ease;
 }
 /*ul.tabs.visible-xs > li.active {
-    min-width: 150px;  This is a workaround to make the topbar-second dropdown better visible on mobile. We need something better here 
+    min-width: 150px;  This is a workaround to make the topbar-second dropdown better visible on mobile. We need something better here
 }*/
 ul.tabs li a {
     margin-left: 10px;
@@ -1791,15 +1846,18 @@ ul.dropdown-menu li:hover {
     -moz-box-shadow: 0 0 3px #dadada;
 }
 
-/* PAGES */
+/* *******
+ * PAGES
+ *********/
 
-/* Profile-page */
-.generic-page-wrapper ,#profile-page, .profile_photo-content-wrapper,
- .suggest-content-wrapper, .common-content-wrapper,
+.generic-page-wrapper, .profile_photo-content-wrapper, .videos-content-wrapper,
+ .suggest-content-wrapper, .common-content-wrapper, .help-content-wrapper,
 .allfriends-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper,
 .directory-content-wrapper, .manage-content-wrapper, .notes-content-wrapper,
-.message-content-wrapper, .apps-content-wrapper, .notifications-content-wrapper,
-.admin-content-wrapper, .group-content-wrapper, .viewcontacts-content-wrapper {
+.message-content-wrapper, .apps-content-wrapper, .photos-content-wrapper,
+.admin-content-wrapper, .group-content-wrapper, .viewcontacts-content-wrapper,
+.dfrn_request-content-wrapper, .friendica-content-wrapper, .credits-content-wrapper,
+.nogroup-content-wrapper, .profperm-content-wrapper {
     min-height: calc(100vh - 150px);
     padding: 15px;
     padding-bottom: 20px;
@@ -1815,6 +1873,8 @@ ul.dropdown-menu li:hover {
     -webkit-box-shadow: 0 0 3px #dadada;
     -moz-box-shadow: 0 0 3px #dadada;
 }
+
+/* Profile-page */
 #profile-content-standard,
 #profile-content-advanced {
     overflow: hidden;
@@ -1862,7 +1922,7 @@ ul.viewcontact_wrapper > li {
 }
 .contact-wrapper .contact-photo-image-wrapper img.contact-photo.xl {
     height: 80px;
-    width: 80px;    
+    width: 80px;
 }
 .contact-wrapper .contact-photo-image-wrapper img.contact-photo-xs {
     height: 48px;
@@ -1879,7 +1939,7 @@ ul.viewcontact_wrapper > li {
     margin-top: -20px;
 }
 .contact-wrapper .media-body .contact-entry-name h4.media-heading a {
-    font-weight: bold !important; 
+    font-weight: bold !important;
     color: $link_color;
     font-size: 15px !important;
 }
@@ -2020,6 +2080,13 @@ ul li:hover .contact-wrapper a.contact-action-link:hover {
 #prvmail-end {
     clear:both;
 }
+/* photos */
+.photo-album-actions {
+    margin-bottom: 10px;
+}
+.photo-album-actions .photos-order-link {
+    float: right;
+}
 /* poke */
 #poke-desc {
     margin: 5px 0 30px;
@@ -2029,45 +2096,21 @@ ul li:hover .contact-wrapper a.contact-action-link:hover {
 }
 
 /* Events page */
-#fc-header {
-    margin-top: 20px;
-    margin-bottom: 10px;
-}
-#fc-header-left,
-#fc-header-right,
-#event-calendar-title {
-    display: inline-block;
-}
-#fc-title {
-    margin: 0;
-    padding-left: 20px;
 
+
+.fc .fc-month-view .fc-content .fc-title .item-desc:hover {
+    color: $link_hover_color;
 }
-#fc-header-right {
-    margin-top: -4px;
+.fc .fc-list-item-title a {
+    color: $link_color;
 }
-#event-calendar-title {
-    vertical-align: middle;
+.fc .fc-list-item-title a[href]:hover {
+    color: $link_hover_color;
+    text-decoration: none;
 }
-a#event-calendar-views {
-    padding: 6px 9px;
-    font-size: 14px
-}
-tr.fc-first,
-tr.fc-first th {
-    border-left: none;
-    border-right: none;
-    border-top: none;
-}
-td.fc-day {
-    border-left: none;
-    border-right: none;
-    padding: 0 6px;
-}
-#events-calendar .fc-grid .fc-day-number {
-    float: left;
-    font-size: 0.9em;
-}
+/*.event-date-wrapper.medium .event-hover-short-month {
+    color: $link_color;
+}*/
 .event-wrapper .event-owner {
   margin-bottom: 15px;
 }
@@ -2157,6 +2200,103 @@ td.fc-day {
 .group {
     margin-left: 20px;
 }
+
+/* Notifications */
+ul.notif-network-list {
+    margin-left: -15px;
+    margin-right: -15px;
+}
+ul.notif-network-list > li {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+ul.notif-network-list li.unseen {
+    border-left: 3px solid #f3fcfd;
+    background-color: #f3fcfd;
+}
+.intro-wrapper.media {
+    overflow: visible;
+    word-wrap: break-word;
+    margin-top: 0;
+}
+.intro-photo-wrapper img.intro-photo,
+.notif-item img.notif-image {
+    height:80px;
+    width: 80px;
+    border-radius: 4px;
+}
+.intro-actions {
+    display: flex;
+}
+.intro-enty-name h4 {
+    font-size: 15px !important;
+}
+.intro-wrapper button.intro-action-link {
+    opacity: 0.1;
+    transition: all 0.25s ease-in-out;
+}
+.intro-wrapper button.intro-action-link,
+.intro-wrapper button.intro-action-link:hover {
+    padding-right: 5px;
+    padding-left: 5px;
+    color: #555;
+}
+ul li:hover .intro-wrapper button.intro-action-link {
+    opacity: 0.8;
+    transition: all 0.25s ease-in-out;
+}
+ul li:hover .intro-wrapper button.intro-action-link:hover {
+    opacity: 1;
+}
+.intro-action-buttons {
+    margin-top: 15px;
+    /*display: none;*/
+    max-height: 0px;
+    overflow: hidden;
+    transition: max-height 0.1s ease-out;
+}
+ul.notif-network-list > li:hover .intro-action-buttons {
+    /*display: block;*/
+    max-height: 30px;
+    transition: max-height 0.1s ease-in;
+}
+.intro-desc-label, .intro-url-label, .intro-network-label,
+.intro-location-label, .intro-gender-label, .intro-keywords-label,
+.intro-about-label, .intro-knowyou-label {
+    font-weight: bold;
+}
+.intro-contact-info.xs .intro-url-label, .intro-contact-info.xs .intro-network-label,
+.intro-contact-info.xs .intro-location-label, .intro-contact-info.xs .intro-gender-label,
+.intro-contact-info.xs .intro-keywords-label, .intro-contact-info.xs .intro-about-label,
+.intro-contact-info.xs .intro-knowyou-label {
+    display: block;
+    margin-top: 5px
+}
+
+/* Search Page */
+
+/* This is a little bit hacky. Since the search page is used for diferent
+content types we can't apply the generic-page-wrapper class.
+So we apply the css of the generic-page-wrapper class to the ul element with some
+little modifications to emulate a standard page template */
+.search-content-wrapper > ul.viewcontact_wrapper {
+    min-height: calc(100vh - 150px);
+    padding-top: 15px;
+    padding-bottom: 20px;
+    margin: 0;
+    margin-bottom: 20px;
+    border: none;
+    /*background-color: #fff;*/
+    background-color: rgba(255,255,255,$contentbg_transp);
+    border-radius: 4px;
+    position: relative;
+    /*overflow: hidden;*/
+    color: #555;
+    box-shadow: 0 0 3px #dadada;
+    -webkit-box-shadow: 0 0 3px #dadada;
+    -moz-box-shadow: 0 0 3px #dadada;
+}
+
 /*
 * Overwriting for transparency and other colors
 */
@@ -2244,7 +2384,7 @@ main .nav-tabs>li.active>a:hover {
 #contact-list ul.dropdown-menu.textcomplete-dropdown.media-list > li:first-child {
     display: none;
 }
-#contact-list ul.dropdown-menu.textcomplete-dropdown.media-list 
+#contact-list ul.dropdown-menu.textcomplete-dropdown.media-list
 .textcomplete-item > a {
     padding: 0 !important;
     border-left: none;

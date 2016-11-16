@@ -36,9 +36,9 @@ require_once('include/dbstructure.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
-define ( 'FRIENDICA_VERSION',      '3.5-dev' );
+define ( 'FRIENDICA_VERSION',      '3.5.1-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1200      );
+define ( 'DB_UPDATE_VERSION',      1208      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -53,7 +53,7 @@ define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
 
 /**
  * @brief Image storage quality.
- * 
+ *
  * Lower numbers save space at cost of image detail.
  * For ease of upgrade, please do not change here. Change jpeg quality with
  * $a->config['system']['jpeg_quality'] = n;
@@ -95,7 +95,7 @@ define ( 'DEFAULT_DB_ENGINE',  'MyISAM'  );
 
 /**
  * @name SSL Policy
- * 
+ *
  * SSL redirection policies
  * @{
  */
@@ -106,7 +106,7 @@ define ( 'SSL_POLICY_SELFSIGN',     2 );
 
 /**
  * @name Logger
- * 
+ *
  * log levels
  * @{
  */
@@ -119,7 +119,7 @@ define ( 'LOGGER_ALL',             4 );
 
 /**
  * @name Cache
- * 
+ *
  * Cache levels
  * @{
  */
@@ -127,11 +127,15 @@ define ( 'CACHE_MONTH',            0 );
 define ( 'CACHE_WEEK',             1 );
 define ( 'CACHE_DAY',              2 );
 define ( 'CACHE_HOUR',             3 );
+define ( 'CACHE_HALF_HOUR',        4 );
+define ( 'CACHE_QUARTER_HOUR',     5 );
+define ( 'CACHE_FIVE_MINUTES',     6 );
+define ( 'CACHE_MINUTE',           7 );
 /* @}*/
 
 /**
  * @name Register
- * 
+ *
  * Registration policies
  * @{
  */
@@ -142,7 +146,7 @@ define ( 'REGISTER_OPEN',          2 );
 
 /**
  * @name Contact_is
- * 
+ *
  * Relationship types
  * @{
  */
@@ -153,7 +157,7 @@ define ( 'CONTACT_IS_FRIEND',   3);
 
 /**
  * @name Update
- * 
+ *
  * DB update return values
  * @{
  */
@@ -182,8 +186,30 @@ define ( 'PAGE_PRVGROUP',          5 );
 /** @}*/
 
 /**
+ * @name account types
+ *
+ * ACCOUNT_TYPE_PERSON - the account belongs to a person
+ *	Associated page types: PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE
+ *
+ * ACCOUNT_TYPE_ORGANISATION - the account belongs to an organisation
+ *	Associated page type: PAGE_SOAPBOX
+ *
+ * ACCOUNT_TYPE_NEWS - the account is a news reflector
+ *	Associated page type: PAGE_SOAPBOX
+ *
+ * ACCOUNT_TYPE_COMMUNITY - the account is community forum
+ *	Associated page types: PAGE_COMMUNITY, PAGE_PRVGROUP
+ * @{
+ */
+define ( 'ACCOUNT_TYPE_PERSON',      0 );
+define ( 'ACCOUNT_TYPE_ORGANISATION',1 );
+define ( 'ACCOUNT_TYPE_NEWS',        2 );
+define ( 'ACCOUNT_TYPE_COMMUNITY',   3 );
+/** @}*/
+
+/**
  * @name CP
- * 
+ *
  * Type of the community page
  * @{
  */
@@ -194,7 +220,7 @@ define ( 'CP_GLOBAL_COMMUNITY',    1 );
 
 /**
  * @name Network
- * 
+ *
  * Network and protocol family types
  * @{
  */
@@ -266,7 +292,7 @@ define ( 'ZCURL_TIMEOUT' , (-1));
 
 /**
  * @name Notify
- * 
+ *
  * Email notification options
  * @{
  */
@@ -288,7 +314,7 @@ define ( 'NOTIFY_SYSTEM',   0x8000 );
 
 /**
  * @name Term
- * 
+ *
  * Tag/term types
  * @{
  */
@@ -308,7 +334,7 @@ define ( 'TERM_OBJ_PHOTO', 2 );
 
 /**
  * @name Namespaces
- * 
+ *
  * Various namespaces we may need to parse
  * @{
  */
@@ -331,7 +357,7 @@ define ( 'NAMESPACE_ATOM1',           'http://www.w3.org/2005/Atom' );
 
 /**
  * @name Activity
- * 
+ *
  * Activity stream defines
  * @{
  */
@@ -377,13 +403,27 @@ define ( 'ACTIVITY_OBJ_QUESTION', 'http://activityschema.org/object/question' );
 
 /**
  * @name Gravity
- * 
+ *
  * Item weight for query ordering
  * @{
  */
 define ( 'GRAVITY_PARENT',       0);
 define ( 'GRAVITY_LIKE',         3);
 define ( 'GRAVITY_COMMENT',      6);
+/* @}*/
+
+/**
+ * @name Priority
+ *
+ * Process priority for the worker
+ * @{
+ */
+define('PRIORITY_UNDEFINED',  0);
+define('PRIORITY_CRITICAL',  10);
+define('PRIORITY_HIGH',      20);
+define('PRIORITY_MEDIUM',    30);
+define('PRIORITY_LOW',       40);
+define('PRIORITY_NEGLIGIBLE',50);
 /* @}*/
 
 
@@ -430,9 +470,9 @@ function startup() {
 /**
  *
  * class: App
- * 
+ *
  * @brief Our main application structure for the life of this page.
- * 
+ *
  * Primarily deals with the URL that got us here
  * and tries to make some sense of it, and
  * stores our page contents and config storage
@@ -560,6 +600,7 @@ class App {
 
 		$this->performance["start"] = microtime(true);
 		$this->performance["database"] = 0;
+		$this->performance["database_write"] = 0;
 		$this->performance["network"] = 0;
 		$this->performance["file"] = 0;
 		$this->performance["rendering"] = 0;
@@ -744,60 +785,100 @@ class App {
 		return($this->scheme);
 	}
 
+	/**
+	 * @brief Retrieves the Friendica instance base URL
+	 *
+	 * This function assembles the base URL from multiple parts:
+	 * - Protocol is determined either by the request or a combination of
+	 * system.ssl_policy and the $ssl parameter.
+	 * - Host name is determined either by system.hostname or inferred from request
+	 * - Path is inferred from SCRIPT_NAME
+	 *
+	 * Caches the result (depending on $ssl value) for performance.
+	 *
+	 * Note: $ssl parameter value doesn't directly correlate with the resulting protocol
+	 *
+	 * @param bool $ssl Whether to append http or https under SSL_POLICY_SELFSIGN
+	 * @return string Friendica server base URL
+	 */
 	function get_baseurl($ssl = false) {
 
 		// Is the function called statically?
-		if (!is_object($this))
-			return(self::$a->get_baseurl($ssl));
+		if (!is_object($this)) {
+			return self::$a->get_baseurl($ssl);
+		}
+
+		// Arbitrary values, the resulting url protocol can be different
+		$cache_index = $ssl ? 'https' : 'http';
+
+		// Cached value found, nothing to process
+		if (isset($this->baseurl[$cache_index])) {
+			return $this->baseurl[$cache_index];
+		}
 
 		$scheme = $this->scheme;
 
-		if((x($this->config,'system')) && (x($this->config['system'],'ssl_policy'))) {
-			if(intval($this->config['system']['ssl_policy']) === intval(SSL_POLICY_FULL))
+		if ((x($this->config, 'system')) && (x($this->config['system'], 'ssl_policy'))) {
+			if (intval($this->config['system']['ssl_policy']) === SSL_POLICY_FULL) {
 				$scheme = 'https';
+			}
 
 			//	Basically, we have $ssl = true on any links which can only be seen by a logged in user
 			//	(and also the login link). Anything seen by an outsider will have it turned off.
 
-			if($this->config['system']['ssl_policy'] == SSL_POLICY_SELFSIGN) {
-				if($ssl)
+			if ($this->config['system']['ssl_policy'] == SSL_POLICY_SELFSIGN) {
+				if ($ssl) {
 					$scheme = 'https';
-				else
+				} else {
 					$scheme = 'http';
+				}
 			}
 		}
 
-		if (get_config('config','hostname') != "")
-			$this->hostname = get_config('config','hostname');
+		if (get_config('config', 'hostname') != '') {
+			$this->hostname = get_config('config', 'hostname');
+		}
 
-		$this->baseurl = $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
-		return $this->baseurl;
+		$this->baseurl[$cache_index] = $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
+
+		return $this->baseurl[$cache_index];
 	}
 
+	/**
+	 * @brief Initializes the baseurl components
+	 *
+	 * Clears the baseurl cache to prevent inconstistencies
+	 *
+	 * @param string $url
+	 */
 	function set_baseurl($url) {
 		$parsed = @parse_url($url);
 
-		$this->baseurl = $url;
+		$this->baseurl = [];
 
 		if($parsed) {
 			$this->scheme = $parsed['scheme'];
 
 			$hostname = $parsed['host'];
-			if(x($parsed,'port'))
+			if (x($parsed, 'port')) {
 				$hostname .= ':' . $parsed['port'];
-			if(x($parsed,'path'))
-				$this->path = trim($parsed['path'],'\\/');
+			}
+			if (x($parsed, 'path')) {
+				$this->path = trim($parsed['path'], '\\/');
+			}
 
-			if (file_exists(".htpreconfig.php"))
+			if (file_exists(".htpreconfig.php")) {
 				@include(".htpreconfig.php");
+			}
 
-			if (get_config('config','hostname') != "")
-				$this->hostname = get_config('config','hostname');
+			if (get_config('config', 'hostname') != '') {
+				$this->hostname = get_config('config', 'hostname');
+			}
 
-			if (!isset($this->hostname) OR ($this->hostname == ""))
+			if (!isset($this->hostname) OR ($this->hostname == '')) {
 				$this->hostname = $hostname;
+			}
 		}
-
 	}
 
 	function get_hostname() {
@@ -960,27 +1041,35 @@ class App {
 	/**
 	 * @brief Removes the baseurl from an url. This avoids some mixed content problems.
 	 *
-	 * @param string $url
+	 * @param string $orig_url
 	 *
 	 * @return string The cleaned url
 	 */
-	function remove_baseurl($url){
+	function remove_baseurl($orig_url){
 
 		// Is the function called statically?
-		if (!is_object($this))
-			return(self::$a->remove_baseurl($url));
+		if (!is_object($this)) {
+			return(self::$a->remove_baseurl($orig_url));
+		}
 
-		$url = normalise_link($url);
+		// Remove the hostname from the url if it is an internal link
+		$nurl = normalise_link($orig_url);
 		$base = normalise_link($this->get_baseurl());
-		$url = str_replace($base."/", "", $url);
-		return $url;
+		$url = str_replace($base."/", "", $nurl);
+
+		// if it is an external link return the orignal value
+		if ($url == normalise_link($orig_url)) {
+			return $orig_url;
+		} else {
+			return $url;
+		}
 	}
 
 	/**
 	 * @brief Register template engine class
-	 * 
+	 *
 	 * If $name is "", is used class static property $class::$name
-	 * 
+	 *
 	 * @param string $class
 	 * @param string $name
 	 */
@@ -998,7 +1087,7 @@ class App {
 
 	/**
 	 * @brief Return template engine instance.
-	 * 
+	 *
 	 * If $name is not defined, return engine defined by theme,
 	 * or default
 	 *
@@ -1063,6 +1152,9 @@ class App {
 	}
 
 	function save_timestamp($stamp, $value) {
+		if (!isset($this->config['system']['profiler']) || !$this->config['system']['profiler'])
+			return;
+
 		$duration = (float)(microtime(true)-$stamp);
 
 		if (!isset($this->performance[$value])) {
@@ -1085,6 +1177,52 @@ class App {
 	}
 
 	/**
+	 * @brief Log active processes into the "process" table
+	 */
+	function start_process() {
+		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+
+		$command = basename($trace[0]["file"]);
+
+		$this->remove_inactive_processes();
+
+		q("START TRANSACTION");
+
+		$r = q("SELECT `pid` FROM `process` WHERE `pid` = %d", intval(getmypid()));
+		if(!dbm::is_result($r)) {
+			q("INSERT INTO `process` (`pid`,`command`,`created`) VALUES (%d, '%s', '%s')",
+				intval(getmypid()),
+				dbesc($command),
+				dbesc(datetime_convert()));
+		}
+		q("COMMIT");
+	}
+
+	/**
+	 * @brief Remove inactive processes
+	 */
+	function remove_inactive_processes() {
+		q("START TRANSACTION");
+
+		$r = q("SELECT `pid` FROM `process`");
+		if(dbm::is_result($r)) {
+			foreach ($r AS $process) {
+				if (!posix_kill($process["pid"], 0)) {
+					q("DELETE FROM `process` WHERE `pid` = %d", intval($process["pid"]));
+				}
+			}
+		}
+		q("COMMIT");
+	}
+
+	/**
+	 * @brief Remove the active process from the "process" table
+	 */
+	function end_process() {
+		q("DELETE FROM `process` WHERE `pid` = %d", intval(getmypid()));
+	}
+
+	/**
 	 * @brief Returns a string with a callstack. Can be used for logging.
 	 *
 	 * @return string
@@ -1101,11 +1239,6 @@ class App {
 			$callstack[] = $func["function"];
 
 		return implode(", ", $callstack);
-	}
-
-	function mark_timestamp($mark) {
-		//$this->performance["markstart"] -= microtime(true) - $this->performance["marktime"];
-		$this->performance["markstart"] = microtime(true) - $this->performance["markstart"] - $this->performance["marktime"];
 	}
 
 	function get_useragent() {
@@ -1241,18 +1374,51 @@ class App {
 					logger("killed stale process");
 					// Calling a new instance
 					if ($task != "")
-						proc_run('php', $task);
+						proc_run(PRIORITY_MEDIUM, $task);
 				}
 				return true;
 			}
 		}
 		return false;
 	}
+
+	function proc_run($args) {
+
+		// Add the php path if it is a php call
+		if (count($args) && ($args[0] === 'php' OR !is_string($args[0]))) {
+
+			// If the last worker fork was less than 10 seconds before then don't fork another one.
+			// This should prevent the forking of masses of workers.
+			if (get_config("system", "worker")) {
+				if ((time() - get_config("system", "proc_run_started")) < 10)
+					return;
+
+				// Set the timestamp of the last proc_run
+				set_config("system", "proc_run_started", time());
+			}
+
+			$args[0] = ((x($this->config,'php_path')) && (strlen($this->config['php_path'])) ? $this->config['php_path'] : 'php');
+		}
+
+		// add baseurl to args. cli scripts can't construct it
+		$args[] = $this->get_baseurl();
+
+		for($x = 0; $x < count($args); $x ++)
+			$args[$x] = escapeshellarg($args[$x]);
+
+		$cmdline = implode($args," ");
+
+		if(get_config('system','proc_windows'))
+			proc_close(proc_open('cmd /c start /b ' . $cmdline,array(),$foo,dirname(__FILE__)));
+		else
+			proc_close(proc_open($cmdline." &",array(),$foo,dirname(__FILE__)));
+
+	}
 }
 
 /**
  * @brief Retrieve the App structure
- * 
+ *
  * Useful in functions which require it but don't get it passed to them
  */
 function get_app() {
@@ -1363,7 +1529,7 @@ function check_db() {
 		$build = DB_UPDATE_VERSION;
 	}
 	if($build != DB_UPDATE_VERSION)
-		proc_run('php', 'include/dbupdate.php');
+		proc_run(PRIORITY_CRITICAL, 'include/dbupdate.php');
 
 }
 
@@ -1506,7 +1672,7 @@ function run_update_function($x) {
  * and mark it uninstalled in the database (for now we'll remove it).
  * Then go through the config list and if we have a plugin that isn't installed,
  * call the install procedure and add it to the database.
- * 
+ *
  * @param App $a
  *
 	 */
@@ -1572,17 +1738,17 @@ function get_guid($size=16, $prefix = "") {
 	}
 }
 
-/** 
+/**
  * @brief Wrapper for adding a login box.
- * 
+ *
  * @param bool $register
  *	If $register == true provide a registration link.
  *	This will most always depend on the value of $a->config['register_policy'].
  * @param bool $hiddens
- * 
+ *
  * @return string
  *	Returns the complete html for inserting into the page
- * 
+ *
  * @hooks 'login_hook'
  *	string $o
  */
@@ -1651,7 +1817,10 @@ function login($register = false, $hiddens=false) {
  * @brief Used to end the current process, after saving session state.
  */
 function killme() {
-	session_write_close();
+
+	if (!get_app()->is_backend())
+		session_write_close();
+
 	exit;
 }
 
@@ -1669,7 +1838,7 @@ function goaway($s) {
 
 /**
  * @brief Returns the user id of locally logged in user or false.
- * 
+ *
  * @return int|bool user id or false
  */
 function local_user() {
@@ -1680,7 +1849,7 @@ function local_user() {
 
 /**
  * @brief Returns contact id of authenticated site visitor or false
- * 
+ *
  * @return int|bool visitor_id or false
  */
 function remote_user() {
@@ -1736,13 +1905,15 @@ function get_max_import_size() {
  * @brief Wrap calls to proc_close(proc_open()) and call hook
  *	so plugins can take part in process :)
  *
- * @param string $cmd program to run
- * 
+ * @param (string|integer|array) $cmd program to run, priority or parameter array
+ *
  * next args are passed as $cmd command line
  * e.g.: proc_run("ls","-la","/tmp");
+ * or: proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
+ * or: proc_run(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "include/create_shadowentry.php", $post_id);
  *
  * @note $cmd and string args are surrounded with ""
- * 
+ *
  * @hooks 'proc_run'
  *	array $arr
  */
@@ -1750,100 +1921,93 @@ function proc_run($cmd){
 
 	$a = get_app();
 
-	$args = func_get_args();
+	$proc_args = func_get_args();
 
-	$newargs = array();
-	if(! count($args))
+	$args = array();
+	if (!count($proc_args)) {
 		return;
-
-	// expand any arrays
-
-	foreach($args as $arg) {
-		if(is_array($arg)) {
-			foreach($arg as $n) {
-				$newargs[] = $n;
-			}
-		}
-		else
-			$newargs[] = $arg;
 	}
 
-	$args = $newargs;
+	// Preserve the first parameter
+	// It could contain a command, the priority or an parameter array
+	// If we use the parameter array we have to protect it from the following function
+	$run_parameter = array_shift($proc_args);
+
+	// expand any arrays
+	foreach ($proc_args as $arg) {
+		if (is_array($arg)) {
+			foreach ($arg as $n) {
+				$args[] = $n;
+			}
+		} else {
+			$args[] = $arg;
+		}
+	}
+
+	// Now we add the run parameters back to the array
+	array_unshift($args, $run_parameter);
 
 	$arr = array('args' => $args, 'run_cmd' => true);
 
 	call_hooks("proc_run", $arr);
-	if(! $arr['run_cmd'])
+	if (!$arr['run_cmd'] OR !count($args))
 		return;
 
-	if(count($args) && $args[0] === 'php') {
-
-		if (get_config("system", "worker")) {
-			$argv = $args;
-			array_shift($argv);
-
-			$parameters = json_encode($argv);
-			$found = q("SELECT `id` FROM `workerqueue` WHERE `parameter` = '%s'",
-					dbesc($parameters));
-
-			$funcname = str_replace(".php", "", basename($argv[0]))."_run";
-
-			// Define the processes that have priority over any other process
-			/// @todo Better check for priority processes
-			$high_priority = array("delivery_run", "notifier_run", "pubsubpublish_run");
-			$low_priority = array("queue_run", "gprobe_run", "discover_poco_run");
-
-			if (in_array($funcname, $high_priority))
-				$priority = 1;
-			elseif (in_array($funcname, $low_priority))
-				$priority = 3;
-			else
-				$priority = 2;
-
-			if (!$found)
-				q("INSERT INTO `workerqueue` (`function`, `parameter`, `created`, `priority`)
-							VALUES ('%s', '%s', '%s', %d)",
-					dbesc($funcname),
-					dbesc($parameters),
-					dbesc(datetime_convert()),
-					intval($priority));
-
-			// Should we quit and wait for the poller to be called as a cronjob?
-			if (get_config("system", "worker_dont_fork"))
-				return;
-
-			// Checking number of workers
-			$workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
-
-			// Get number of allowed number of worker threads
-			$queues = intval(get_config("system", "worker_queues"));
-
-			if ($queues == 0)
-				$queues = 4;
-
-			// If there are already enough workers running, don't fork another one
-			if ($workers[0]["workers"] >= $queues)
-				return;
-
-			// Now call the poller to execute the jobs that we just added to the queue
-			$args = array("php", "include/poller.php", "no_cron");
-		}
-
-		$args[0] = ((x($a->config,'php_path')) && (strlen($a->config['php_path'])) ? $a->config['php_path'] : 'php');
+	if (!get_config("system", "worker") OR (is_string($run_parameter) AND ($run_parameter != 'php'))) {
+		$a->proc_run($args);
+		return;
 	}
 
-	// add baseurl to args. cli scripts can't construct it
-	$args[] = $a->get_baseurl();
+	$priority = PRIORITY_MEDIUM;
+	$dont_fork = get_config("system", "worker_dont_fork");
 
-	for($x = 0; $x < count($args); $x ++)
-		$args[$x] = escapeshellarg($args[$x]);
+	if (is_int($run_parameter)) {
+		$priority = $run_parameter;
+	} elseif (is_array($run_parameter)) {
+		if (isset($run_parameter['priority'])) {
+			$priority = $run_parameter['priority'];
+		}
+		if (isset($run_parameter['dont_fork'])) {
+			$dont_fork = $run_parameter['dont_fork'];
+		}
+	}
 
-	$cmdline = implode($args," ");
+	$argv = $args;
+	array_shift($argv);
 
-	if(get_config('system','proc_windows'))
-		proc_close(proc_open('cmd /c start /b ' . $cmdline,array(),$foo,dirname(__FILE__)));
-	else
-		proc_close(proc_open($cmdline." &",array(),$foo,dirname(__FILE__)));
+	$parameters = json_encode($argv);
+	$found = q("SELECT `id` FROM `workerqueue` WHERE `parameter` = '%s'",
+		dbesc($parameters));
+
+	if (!$found)
+		q("INSERT INTO `workerqueue` (`parameter`, `created`, `priority`)
+			VALUES ('%s', '%s', %d)",
+			dbesc($parameters),
+			dbesc(datetime_convert()),
+			intval($priority));
+
+	// Should we quit and wait for the poller to be called as a cronjob?
+	if ($dont_fork) {
+		return;
+	}
+
+	// Checking number of workers
+	$workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
+
+	// Get number of allowed number of worker threads
+	$queues = intval(get_config("system", "worker_queues"));
+
+	if ($queues == 0)
+		$queues = 4;
+
+	// If there are already enough workers running, don't fork another one
+	if ($workers[0]["workers"] >= $queues)
+		return;
+
+	// Now call the poller to execute the jobs that we just added to the queue
+	$args = array("php", "include/poller.php", "no_cron");
+
+	$a->proc_run($args);
 }
 
 function current_theme(){
@@ -1924,9 +2088,9 @@ function current_theme(){
 
 /**
  * @brief Return full URL to theme which is currently in effect.
- * 
+ *
  * Provide a sane default if nothing is chosen or the specified theme does not exist.
- * 
+ *
  * @return string
  */
 function current_theme_url() {
@@ -2268,12 +2432,12 @@ function current_load() {
 	if (!is_array($load_arr))
 		return false;
 
-	return max($load_arr);
+	return max($load_arr[0], $load_arr[1]);
 }
 
 /**
  * @brief get c-style args
- * 
+ *
  * @return int
  */
 function argc() {
@@ -2282,7 +2446,7 @@ function argc() {
 
 /**
  * @brief Returns the value of a argv key
- * 
+ *
  * @param int $x argv key
  * @return string Value of the argv key
  */
@@ -2295,12 +2459,12 @@ function argv($x) {
 
 /**
  * @brief Get the data which is needed for infinite scroll
- * 
+ *
  * For invinite scroll we need the page number of the actual page
  * and the the URI where the content of the next page comes from.
  * This data is needed for the js part in main.js.
  * Note: infinite scroll does only work for the network page (module)
- * 
+ *
  * @param string $module The name of the module (e.g. "network")
  * @return array Of infinite scroll data
  *	'pageno' => $pageno The number of the actual page

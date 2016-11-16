@@ -40,10 +40,7 @@ function cal_init(&$a) {
 
 		$profile = get_profiledata_by_nick($nick, $a->profile_uid);
 
-		if((intval($profile['page-flags']) == PAGE_COMMUNITY) || (intval($profile['page-flags']) == PAGE_PRVGROUP))
-			$account_type = t('Forum');
-		else
-			$account_type = "";
+		$account_type = account_type($profile);
 
 		$tpl = get_markup_template("vcard-widget.tpl");
 
@@ -201,8 +198,8 @@ function cal_content(&$a) {
 
 
 		if ($a->argv[2] === 'json'){
-			if (x($_GET,'start'))	$start = date("Y-m-d h:i:s", $_GET['start']);
-			if (x($_GET,'end'))	$finish = date("Y-m-d h:i:s", $_GET['end']);
+			if (x($_GET,'start'))	$start = $_GET['start'];
+			if (x($_GET,'end'))	$finish = $_GET['end'];
 		}
 
 		$start  = datetime_convert('UTC','UTC',$start);
@@ -256,7 +253,7 @@ function cal_content(&$a) {
 			$tpl =  get_markup_template("event.tpl");
 		} else {
 //			if (get_config('experimentals','new_calendar')==1){
-				$tpl = get_markup_template("events-js.tpl");
+				$tpl = get_markup_template("events_js.tpl");
 //			} else {
 //				$tpl = get_markup_template("events.tpl");
 //			}
@@ -287,8 +284,7 @@ function cal_content(&$a) {
 			"month" => t("month"),
 			"week" => t("week"),
 			"day" => t("day"),
-
-
+			"list" => t("list"),
 		));
 
 		if (x($_GET,'id')){ echo $o; killme(); }
@@ -304,25 +300,32 @@ function cal_content(&$a) {
 
 		// Test permissions
 		// Respect the export feature setting for all other /cal pages if it's not the own profile
-		if( ((local_user() !== $owner_uid)) && ! feature_enabled($owner_uid, "export_calendar")) {
+		if( ((local_user() !== intval($owner_uid))) && ! feature_enabled($owner_uid, "export_calendar")) {
 			notice( t('Permission denied.') . EOL);
-			return;
+			goaway('cal/' . $nick);
 		}
 
 		// Get the export data by uid
 		$evexport = event_export($owner_uid, $format);
 
-		if ($evexport["success"] == false ) {
+		if (!$evexport["success"]) {
 			if($evexport["content"])
 				notice( t('This calendar format is not supported') );
 			else
 				notice( t('No exportable data found'));
 
-			return;
+			// If it the own calendar return to the events page
+			// otherwise to the profile calendar page
+			if (local_user() === intval($owner_uid))
+				$return_path = "events";
+			else
+				$returnpath = "cal/".$nick;
+
+			goaway($return_path);
 		}
 
 		// If nothing went wrong we can echo the export content
-		if ($evexport["success"] == true ) {
+		if ($evexport["success"]) {
 			header('Content-type: text/calendar');
 			header('content-disposition: attachment; filename="' . t('calendar') . '-' . $nick . '.' . $evexport["extension"] . '"' );
 			echo $evexport["content"];

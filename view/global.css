@@ -27,6 +27,10 @@ a.btn, a.btn:hover {
   background-color: #2d2d2d;
 }
 
+.overline {
+	text-decoration: overline;
+}
+
 /* List of social Networks */
 img.connector, img.connector-disabled {
   height: 40px;
@@ -115,6 +119,7 @@ span.connector {
 
 .embed_rich {
   display: block;
+  transition: height .75s;
 }
 
 /* Shared Messages */
@@ -453,4 +458,9 @@ td.federation-data {
 #contact-edit-settings {
   display: none;
   margin: 10px 0;
+}
+
+/* settings page */
+#settings-form .pageflags {
+    margin: 0 0 20px 30px;
 }

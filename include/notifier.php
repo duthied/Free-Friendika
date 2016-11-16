@@ -16,7 +16,7 @@ require_once('include/salmon.php');
 /*
  * The notifier is typically called with:
  *
- *		proc_run('php', "include/notifier.php", COMMAND, ITEM_ID);
+ *		proc_run(PRIORITY_HIGH, "include/notifier.php", COMMAND, ITEM_ID);
  *
  * where COMMAND is one of the following:
  *
@@ -134,7 +134,7 @@ function notifier_run(&$argv, &$argc){
 	} elseif($cmd === 'removeme') {
 		$r = q("SELECT `contact`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`,
 				`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`,
-				`user`.`page-flags`, `user`.`prvnets`, `user`.`guid`
+				`user`.`page-flags`, `user`.`prvnets`, `user`.`account-type`, `user`.`guid`
 			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
 				WHERE `contact`.`uid` = %d AND `contact`.`self` LIMIT 1",
 				intval($item_id));
@@ -204,7 +204,7 @@ function notifier_run(&$argv, &$argc){
 
 	$r = q("SELECT `contact`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`,
 		`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`,
-		`user`.`page-flags`, `user`.`prvnets`
+		`user`.`page-flags`, `user`.`prvnets`, `user`.`account-type`
 		FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
 		WHERE `contact`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
 		intval($uid)
@@ -355,7 +355,7 @@ function notifier_run(&$argv, &$argc){
 			// a delivery fork. private groups (forum_mode == 2) do not uplink
 
 			if((intval($parent['forum_mode']) == 1) && (! $top_level) && ($cmd !== 'uplink')) {
-				proc_run('php','include/notifier.php','uplink',$item_id);
+				proc_run(PRIORITY_HIGH,'include/notifier.php','uplink',$item_id);
 			}
 
 			$conversants = array();
@@ -538,7 +538,7 @@ function notifier_run(&$argv, &$argc){
 			$this_batch[] = $contact['id'];
 
 			if(count($this_batch) >= $deliveries_per_process) {
-				proc_run('php','include/delivery.php',$cmd,$item_id,$this_batch);
+				proc_run(PRIORITY_HIGH,'include/delivery.php',$cmd,$item_id,$this_batch);
 				$this_batch = array();
 				if($interval)
 					@time_sleep_until(microtime(true) + (float) $interval);
@@ -548,7 +548,7 @@ function notifier_run(&$argv, &$argc){
 
 		// be sure to pick up any stragglers
 		if(count($this_batch))
-			proc_run('php','include/delivery.php',$cmd,$item_id,$this_batch);
+			proc_run(PRIORITY_HIGH,'include/delivery.php',$cmd,$item_id,$this_batch);
 	}
 
 	// send salmon slaps to mentioned remote tags (@foo@example.com) in OStatus posts
@@ -599,10 +599,10 @@ function notifier_run(&$argv, &$argc){
 
 			foreach($r as $rr) {
 				if((! $mail) && (! $fsuggest) && (! $followup)) {
-					q("insert into deliverq ( `cmd`,`item`,`contact` ) values ('%s', %d, %d )",
-						dbesc($cmd),
-						intval($item_id),
-						intval($rr['id'])
+					q("INSERT INTO `deliverq` (`cmd`,`item`,`contact`) VALUES ('%s', %d, %d)
+						ON DUPLICATE KEY UPDATE `cmd` = '%s', `item` = %d, `contact` = %d",
+						dbesc($cmd), intval($item_id), intval($rr['id']),
+						dbesc($cmd), intval($item_id), intval($rr['id'])
 					);
 				}
 			}
@@ -619,7 +619,7 @@ function notifier_run(&$argv, &$argc){
 
 				if((! $mail) && (! $fsuggest) && (! $followup)) {
 					logger('notifier: delivery agent: '.$rr['name'].' '.$rr['id'].' '.$rr['network'].' '.$target_item["guid"]);
-					proc_run('php','include/delivery.php',$cmd,$item_id,$rr['id']);
+					proc_run(PRIORITY_HIGH,'include/delivery.php',$cmd,$item_id,$rr['id']);
 					if($interval)
 						@time_sleep_until(microtime(true) + (float) $interval);
 				}
@@ -642,8 +642,8 @@ function notifier_run(&$argv, &$argc){
 				if ($h === '[internal]') {
 					// Set push flag for PuSH subscribers to this topic,
 					// they will be notified in queue.php
-					q("UPDATE `push_subscriber` SET `push` = 1 " .
-					  "WHERE `nickname` = '%s'", dbesc($owner['nickname']));
+					q("UPDATE `push_subscriber` SET `push` = 1 ".
+					  "WHERE `nickname` = '%s' AND `push` = 0", dbesc($owner['nickname']));
 
 					logger('Activating internal PuSH for item '.$item_id, LOGGER_DEBUG);
 
@@ -659,7 +659,7 @@ function notifier_run(&$argv, &$argc){
 		}
 
 		// Handling the pubsubhubbub requests
-		proc_run('php','include/pubsubpublish.php');
+		proc_run(PRIORITY_HIGH,'include/pubsubpublish.php');
 	}
 
 	logger('notifier: calling hooks', LOGGER_DEBUG);

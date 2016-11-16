@@ -623,7 +623,7 @@ class diaspora {
 					dbesc($arr["photo"]),
 					dbesc($arr["request"]),
 					dbesc($arr["nick"]),
-					dbesc($arr["addr"]),
+					dbesc(strtolower($arr["addr"])),
 					dbesc($arr["guid"]),
 					dbesc($arr["batch"]),
 					dbesc($arr["notify"]),
@@ -677,7 +677,7 @@ class diaspora {
 			$r = q("SELECT `addr` FROM `gcontact` WHERE `id` = %d AND `addr` != ''",
 				intval($gcontact_id));
 			if ($r)
-				return $r[0]["addr"];
+				return strtolower($r[0]["addr"]);
 		}
 
 		$r = q("SELECT `network`, `addr`, `self`, `url`, `nick` FROM `contact` WHERE `id` = %d",
@@ -697,7 +697,7 @@ class diaspora {
 			}
 		}
 
-		return $handle;
+		return strtolower($handle);
 	}
 
 	/**
@@ -1184,7 +1184,7 @@ class diaspora {
 			);
 
 			// notify others
-			proc_run("php", "include/notifier.php", "comment-import", $message_id);
+			proc_run(PRIORITY_HIGH, "include/notifier.php", "comment-import", $message_id);
 		}
 
 		return $message_id;
@@ -1519,7 +1519,7 @@ class diaspora {
 			);
 
 			// notify others
-			proc_run("php", "include/notifier.php", "comment-import", $message_id);
+			proc_run(PRIORITY_HIGH, "include/notifier.php", "comment-import", $message_id);
 		}
 
 		return $message_id;
@@ -1652,7 +1652,7 @@ class diaspora {
 	 * @return bool Success
 	 */
 	private function receive_profile($importer, $data) {
-		$author = notags(unxmlify($data->author));
+		$author = strtolower(notags(unxmlify($data->author)));
 
 		$contact = self::contact_by_handle($importer["uid"], $author);
 		if (!$contact)
@@ -1799,7 +1799,7 @@ class diaspora {
 
 				$i = item_store($arr);
 				if($i)
-					proc_run("php", "include/notifier.php", "activity", $i);
+					proc_run(PRIORITY_HIGH, "include/notifier.php", "activity", $i);
 			}
 		}
 	}
@@ -2192,7 +2192,7 @@ class diaspora {
 		// Now check if the retraction needs to be relayed by us
 		if($p[0]["origin"]) {
 			// notify others
-			proc_run("php", "include/notifier.php", "drop", $r[0]["id"]);
+			proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $r[0]["id"]);
 		}
 
 		return true;
@@ -2876,8 +2876,10 @@ class diaspora {
 					"created_at" => $created,
 					"provider_display_name" => $item["app"]);
 
-			if (count($location) == 0)
+			// Diaspora rejects messages when they contain a location without "lat" or "lng"
+			if (!isset($location["lat"]) OR !isset($location["lng"])) {
 				unset($message["location"]);
+			}
 
 			$type = "status_message";
 		}

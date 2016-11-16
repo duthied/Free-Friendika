@@ -51,10 +51,27 @@ class xml {
 				$element = $xml;
 
 			if (is_integer($key)) {
-				if (isset($element))
-					$element[0] = $value;
+				if (isset($element)) {
+					if (is_scalar($value)) {
+						$element[0] = $value;
+					} else {
+						/// @todo: handle nested array values
+					}
+				}
 				continue;
 			}
+
+			$element_parts = explode(":", $key);
+			if ((count($element_parts) > 1) AND isset($namespaces[$element_parts[0]]))
+				$namespace = $namespaces[$element_parts[0]];
+			elseif (isset($namespaces[""])) {
+				$namespace = $namespaces[""];
+			} else
+				$namespace = NULL;
+
+			// Remove undefined namespaces from the key
+			if ((count($element_parts) > 1) AND is_null($namespace))
+				$key = $element_parts[1];
 
 			if (substr($key, 0, 11) == "@attributes") {
 				if (!isset($element) OR !is_array($value))
@@ -72,14 +89,6 @@ class xml {
 
 				continue;
 			}
-
-			$element_parts = explode(":", $key);
-			if ((count($element_parts) > 1) AND isset($namespaces[$element_parts[0]]))
-				$namespace = $namespaces[$element_parts[0]];
-			elseif (isset($namespaces[""]))
-				$namespace = $namespaces[""];
-			else
-				$namespace = NULL;
 
 			if (!is_array($value))
 				$element = $xml->addChild($key, xmlify($value), $namespace);
@@ -145,11 +154,11 @@ class xml {
 	/**
 	 * @brief Convert an XML document to a normalised, case-corrected array
 	 *   used by webfinger
-	 * 
+	 *
 	 * @param object $xml_element The XML document
-	 * @param integer $recursion_depth recursion counter for internal use - default 0 
+	 * @param integer $recursion_depth recursion counter for internal use - default 0
 	 *    internal use, recursion counter
-	 * 
+	 *
 	 * @return array | sring The array from the xml element or the string
 	 */
 	public static function element_to_array($xml_element, &$recursion_depth=0) {
@@ -195,23 +204,23 @@ class xml {
 
 	/**
 	 * @brief Convert the given XML text to an array in the XML structure.
-	 * 
+	 *
 	 * xml::to_array() will convert the given XML text to an array in the XML structure.
 	 * Link: http://www.bin-co.com/php/scripts/xml2array/
 	 * Portions significantly re-written by mike@macgirvin.com for Friendica
 	 * (namespaces, lowercase tags, get_attribute default changed, more...)
-	 * 
+	 *
 	 * Examples: $array =  xml::to_array(file_get_contents('feed.xml'));
 	 *		$array =  xml::to_array(file_get_contents('feed.xml', true, 1, 'attribute'));
-	 * 
+	 *
 	 * @param object $contents The XML text
 	 * @param boolean $namespaces True or false include namespace information
 	 *	in the returned array as array elements.
-	 * @param integer $get_attributes 1 or 0. If this is 1 the function will get the attributes as well as the tag values - 
+	 * @param integer $get_attributes 1 or 0. If this is 1 the function will get the attributes as well as the tag values -
 	 *	this results in a different array structure in the return value.
 	 * @param string $priority Can be 'tag' or 'attribute'. This will change the way the resulting
 	 *	 array sturcture. For 'tag', the tags are given more importance.
-	 * 
+	 *
 	 * @return array The parsed XML in an array form. Use print_r() to see the resulting array structure.
 	 */
 	public static function to_array($contents, $namespaces = true, $get_attributes=1, $priority = 'attribute') {

@@ -487,7 +487,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 					$i = item_store($arr);
 					if($i)
-				    	proc_run('php',"include/notifier.php","activity","$i");
+						proc_run(PRIORITY_HIGH, "include/notifier.php", "activity", $i);
 				}
 			}
 		}
@@ -784,7 +784,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 					$i = item_store($arr);
 					if($i)
-				    	proc_run('php',"include/notifier.php","activity","$i");
+						proc_run(PRIORITY_HIGH, "include/notifier.php", "activity", $i);
 
 				}
 			}

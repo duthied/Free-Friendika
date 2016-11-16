@@ -303,6 +303,7 @@ function profiles_post(&$a) {
 		}
 
 		$sexual = notags(trim($_POST['sexual']));
+		$xmpp = notags(trim($_POST['xmpp']));
 		$homepage = notags(trim($_POST['homepage']));
 		if ((strpos($homepage, 'http') !== 0) && (strlen($homepage))) {
 			// neither http nor https in URL, add them
@@ -368,6 +369,10 @@ function profiles_post(&$a) {
 				$changes[] = t('Sexual Preference');
 				$value = $sexual;
 			}
+			if($xmpp != $orig[0]['xmpp']) {
+				$changes[] = t('XMPP');
+				$value = $xmpp;
+			}
 			if($homepage != $orig[0]['homepage']) {
 				$changes[] = t('Homepage');
 				$value = $homepage;
@@ -409,6 +414,7 @@ function profiles_post(&$a) {
 			`with` = '%s',
 			`howlong` = '%s',
 			`sexual` = '%s',
+			`xmpp` = '%s',
 			`homepage` = '%s',
 			`hometown` = '%s',
 			`politic` = '%s',
@@ -443,6 +449,7 @@ function profiles_post(&$a) {
 			dbesc($with),
 			dbesc($howlong),
 			dbesc($sexual),
+			dbesc($xmpp),
 			dbesc($homepage),
 			dbesc($hometown),
 			dbesc($politic),
@@ -496,7 +503,7 @@ function profiles_post(&$a) {
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
 			if($url && strlen(get_config('system','directory')))
-				proc_run('php',"include/directory.php","$url");
+				proc_run(PRIORITY_LOW, "include/directory.php", $url);
 
 			require_once('include/profile_update.php');
 			profile_change();
@@ -587,9 +594,8 @@ function profile_activity($changed, $value) {
 	$arr['deny_gid']  = $a->user['deny_gid'];
 
 	$i = item_store($arr);
-	if($i) {
-	   	proc_run('php',"include/notifier.php","activity","$i");
-	}
+	if($i)
+		proc_run(PRIORITY_HIGH, "include/notifier.php", "activity", $i);
 }
 
 
@@ -726,6 +732,7 @@ function profiles_content(&$a) {
 			'$howlong' => array('howlong', t('Since [date]:'), ($r[0]['howlong'] === '0000-00-00 00:00:00' ? '' : datetime_convert('UTC',date_default_timezone_get(),$r[0]['howlong']))),
 			'$sexual' => sexpref_selector($r[0]['sexual']),
 			'$about' => array('about', t('Tell us about yourself...'), $r[0]['about']),
+			'$xmpp' => array('xmpp', t('XMPP (Jabber) address:'), $r[0]['xmpp'], t("The XMPP address will be propagated to your contacts so that they can follow you.")),
 			'$homepage' => array('homepage', t('Homepage URL:'), $r[0]['homepage']),
 			'$hometown' => array('hometown', t('Hometown:'), $r[0]['hometown']),
 			'$politic' => array('politic', t('Political Views:'), $r[0]['politic']),

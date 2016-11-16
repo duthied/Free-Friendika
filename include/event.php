@@ -293,7 +293,7 @@ function event_store($arr) {
 			`location` = '%s',
 			`type` = '%s',
 			`adjust` = %d,
-			`nofinish` = %d,
+			`nofinish` = %d
 			WHERE `id` = %d AND `uid` = %d",
 
 			dbesc($arr['edited']),
@@ -480,6 +480,13 @@ function get_event_strings() {
 			"month" => t("month"),
 			"week" => t("week"),
 			"day" => t("day"),
+			"allday" => t("all-day"),
+
+			"noevent" => t("No events to display"),
+
+			"dtstart_label" => t("Starts:"),
+			"dtend_label" => t("Finishes:"),
+			"location_label" => t("Location:")
 		);
 
 	return $i18n;
@@ -502,7 +509,7 @@ function event_by_id($owner_uid = 0, $event_params, $sql_extra = '') {
 	// query for the event by event id
 	$r = q("SELECT `event`.*, `item`.`id` AS `itemid`,`item`.`plink`,
 			`item`.`author-name`, `item`.`author-avatar`, `item`.`author-link` FROM `event`
-		LEFT JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`
+		STRAIGHT_JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`
 		WHERE `event`.`uid` = %d AND `event`.`id` = %d $sql_extra",
 		intval($owner_uid),
 		intval($event_params["event_id"])
@@ -535,7 +542,7 @@ function events_by_date($owner_uid = 0, $event_params, $sql_extra = '') {
 	// query for the event by date
 	$r = q("SELECT `event`.*, `item`.`id` AS `itemid`,`item`.`plink`,
 				`item`.`author-name`, `item`.`author-avatar`, `item`.`author-link` FROM `event`
-			LEFT JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`
+			STRAIGHT_JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`
 			WHERE `event`.`uid` = %d AND event.ignore = %d
 			AND ((`adjust` = 0 AND (`finish` >= '%s' OR (nofinish AND start >= '%s')) AND `start` <= '%s')
 			OR  (`adjust` = 1 AND (`finish` >= '%s' OR (nofinish AND start >= '%s')) AND `start` <= '%s'))
@@ -673,7 +680,7 @@ function event_format_export ($events, $format = 'ical', $timezone) {
 					$dtformat = "%Y%m%dT%H%M%S".$UTC;
 					$o .= 'DTSTART:'.strftime($dtformat, $tmp).PHP_EOL;
 				}
-				if ($event['finish']) {
+				if (!$event['nofinish']) {
 					$tmp = strtotime($event['finish']);
 					$dtformat = "%Y%m%dT%H%M%S".$UTC;
 					$o .= 'DTEND:'.strftime($dtformat, $tmp).PHP_EOL;
@@ -732,13 +739,13 @@ function events_by_uid($uid = 0, $sql_extra = '') {
 	//  requested? then show all of your events, otherwise only those that 
 	//  don't have limitations set in allow_cid and allow_gid
 	if (local_user() == $uid) {
-		$r = q("SELECT `start`, `finish`, `adjust`, `summary`, `desc`, `location`
+		$r = q("SELECT `start`, `finish`, `adjust`, `summary`, `desc`, `location`, `nofinish`
 			FROM `event` WHERE `uid`= %d AND `cid` = 0 ",
 			intval($uid)
 		);
 	} else {
-		$r = q("SELECT `start`, `finish`, `adjust`, `summary`, `desc`, `location`FROM `event`
-			WHERE  `uid` = %d AND `cid` = 0 $sql_extra ",
+		$r = q("SELECT `start`, `finish`, `adjust`, `summary`, `desc`, `location`, `nofinish`
+			FROM `event` WHERE `uid`= %d AND `cid` = 0 $sql_extra ",
 			intval($uid)
 		);
 	}

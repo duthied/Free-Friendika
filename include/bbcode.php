@@ -34,7 +34,6 @@ function bb_map_location($match) {
 function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 
 	$data = get_attachment_data($Text);
-
 	if (!$data)
 		return $Text;
 
@@ -85,7 +84,7 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 				$text .= $oembed;
 
 			if (trim($data["description"]) != "")
-				$text .= sprintf('<blockquote>%s</blockquote></span>', trim($data["description"]));
+				$text .= sprintf('<blockquote>%s</blockquote></span>', trim(bbcode($data["description"])));
 		}
 	}
 	return $data["text"].$text.$data["after"];
@@ -147,7 +146,7 @@ function cleancss($input) {
 		if (($char >= "a") and ($char <= "z"))
 			$cleaned .= $char;
 
-		if (!(strpos(" #;:0123456789-_", $char) === false))
+		if (!(strpos(" #;:0123456789-_.%", $char) === false))
 			$cleaned .= $char;
 	}
 
@@ -893,8 +892,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	// we may need to restrict this further if it picks up too many strays
 	// link acct:user@host to a webfinger profile redirector
 
-	$Text = preg_replace('/acct:(.*?)@(.*?)([ ,])/', '<a href="' . $a->get_baseurl() . '/acctlink?addr=' . "$1@$2"
-		. '" target="extlink" >acct:' . "$1@$2$3" . '</a>',$Text);
+	$Text = preg_replace('/acct:([^@]+)@((?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63})/', '<a href="' . $a->get_baseurl() . '/acctlink?addr=$1@$2" target="extlink">acct:$1@$2</a>',$Text);
 
 	// Perform MAIL Search
 	$Text = preg_replace("/\[mail\]([$MAILSearchString]*)\[\/mail\]/", '<a href="mailto:$1">$1</a>', $Text);
@@ -920,6 +918,9 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$Text = preg_replace("(\[h4\](.*?)\[\/h4\])ism",'<h4>$1</h4>',$Text);
 	$Text = preg_replace("(\[h5\](.*?)\[\/h5\])ism",'<h5>$1</h5>',$Text);
 	$Text = preg_replace("(\[h6\](.*?)\[\/h6\])ism",'<h6>$1</h6>',$Text);
+
+	// Check for paragraph
+	$Text = preg_replace("(\[p\](.*?)\[\/p\])ism",'<p>$1</p>',$Text);
 
 	// Check for bold text
 	$Text = preg_replace("(\[b\](.*?)\[\/b\])ism",'<strong>$1</strong>',$Text);

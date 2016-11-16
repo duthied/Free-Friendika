@@ -52,6 +52,7 @@ function register_post(&$a) {
 
 	$arr['blocked'] = $blocked;
 	$arr['verified'] = $verified;
+	$arr['language'] = get_browser_language();
 
 	$result = create_user($arr);
 
@@ -64,7 +65,7 @@ function register_post(&$a) {
 
 	if($netpublish && $a->config['register_policy'] != REGISTER_APPROVE) {
 		$url = $a->get_baseurl() . '/profile/' . $user['nickname'];
-		proc_run('php',"include/directory.php","$url");
+		proc_run(PRIORITY_LOW, "include/directory.php", $url);
 	}
 
 	$using_invites = get_config('system','invitation_only');
@@ -132,7 +133,6 @@ function register_post(&$a) {
 			$admin_mail_list
 		);
 
-
 		foreach ($adminlist as $admin) {
 			notification(array(
 				'type' => NOTIFY_SYSTEM,
@@ -145,10 +145,10 @@ function register_post(&$a) {
 				'source_photo' => $a->get_baseurl() . "/photo/avatar/".$user['uid'].".jpg",
 				'to_email' => $admin['email'],
 				'uid' => $admin['uid'],
-				'language' => ($admin['language']?$admin['language']:'en'))
-			);
+				'language' => ($admin['language']?$admin['language']:'en'),
+				'show_in_notification_page' => false
+			));
 		}
-
 
 		info( t('Your registration is pending approval by the site owner.') . EOL ) ;
 		goaway(z_root());

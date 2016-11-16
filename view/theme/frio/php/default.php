@@ -17,7 +17,7 @@
 <html>
 <head>
 	<title><?php if(x($page,'title')) echo $page['title'] ?></title>
-	<meta request="<?php echo $_REQUEST['pagename'] ?> ">
+	<meta request="<?php echo htmlspecialchars($_REQUEST['pagename']) ?> ">
 	<script>var baseurl="<?php echo $a->get_baseurl() ?>";</script>
 	<script>var frio="<?php echo "view/theme/frio"; ?>";</script>
 	<?php $baseurl = $a->get_baseurl(); ?>
@@ -72,16 +72,6 @@ else
 						"; if(x($page,'aside')) echo $page['aside']; echo"
 						"; if(x($page,'right_aside')) echo $page['right_aside']; echo"
 					</aside>
-
-					<!-- The following paragraph can maybe deleted because we don't need it anymore -->
-					<div id=\"NavAside\" class=\"navmenu navmenu-default navmenu-fixed-left offcanvas hidden-lg hidden-md\">
-						<div class=\"nav-container\">
-							<div class=\"list-group\">
-								"; if(x($page,'aside')) echo $page['aside']; echo"
-								"; if(x($page,'right_aside')) echo $page['right_aside']; echo"
-							</div>
-						</div>
-					</div><!--/.sidebar-offcanvas-->
 
 					<div class=\"col-lg-7 col-md-7 col-sm-12 col-xs-12\" id=\"content\">
 						<section class=\"sectiontop "; echo $a->argv[0]; echo "-content-wrapper\">";

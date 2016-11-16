@@ -45,10 +45,10 @@ function user_remove($uid) {
 	// don't delete yet, will be done later when contacts have deleted my stuff
 	// q("DELETE FROM `user` WHERE `uid` = %d", intval($uid));
 	q("UPDATE `user` SET `account_removed` = 1, `account_expires_on` = UTC_TIMESTAMP() WHERE `uid` = %d", intval($uid));
-	proc_run('php', "include/notifier.php", "removeme", $uid);
+	proc_run(PRIORITY_HIGH, "include/notifier.php", "removeme", $uid);
 
 	// Send an update to the directory
-	proc_run('php', "include/directory.php", $r[0]['url']);
+	proc_run(PRIORITY_LOW, "include/directory.php", $r[0]['url']);
 
 	if($uid == local_user()) {
 		unset($_SESSION['authenticated']);
@@ -159,7 +159,7 @@ function mark_for_death($contact) {
 	}
 	else {
 
-		/// @todo 
+		/// @todo
 		/// We really should send a notification to the owner after 2-3 weeks
 		/// so they won't be surprised when the contact vanishes and can take
 		/// remedial action if this was a serious mistake or glitch
@@ -196,6 +196,7 @@ function unmark_for_death($contact) {
  * @brief Get contact data for a given profile link
  *
  * The function looks at several places (contact table and gcontact table) for the contact
+ * It caches its result for the same script execution to prevent duplicate calls
  *
  * @param string $url The profile link
  * @param int $uid User id
@@ -204,35 +205,45 @@ function unmark_for_death($contact) {
  * @return array Contact data
  */
 function get_contact_details_by_url($url, $uid = -1, $default = array()) {
-	if ($uid == -1)
+	static $cache = array();
+
+	if ($uid == -1) {
 		$uid = local_user();
+	}
+
+	if (isset($cache[$url][$uid])) {
+		return $cache[$url][$uid];
+	}
 
 	// Fetch contact data from the contact table for the given user
-	$r = q("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
-			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd` AS `birthday`, `self`
+	$r = q("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
+			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`
 		FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
 			dbesc(normalise_link($url)), intval($uid));
 
 	// Fetch the data from the contact table with "uid=0" (which is filled automatically)
 	if (!$r)
-		$r = q("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
-				`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `bd` AS `birthday`, 0 AS `self`
+		$r = q("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
+			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`
 			FROM `contact` WHERE `nurl` = '%s' AND `uid` = 0",
 				dbesc(normalise_link($url)));
 
 	// Fetch the data from the gcontact table
 	if (!$r)
-		$r = q("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `zid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`,
-				`keywords`, `gender`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, `community` AS `forum`, 0 AS `prv`, `community`, `birthday`, 0 AS `self`
+		$r = q("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `zid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, '' AS `xmpp`,
+			`keywords`, `gender`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, `community` AS `forum`, 0 AS `prv`, `community`, `contact-type`, `birthday`, 0 AS `self`
 			FROM `gcontact` WHERE `nurl` = '%s'",
 				dbesc(normalise_link($url)));
 
 	if ($r) {
 		// If there is more than one entry we filter out the connector networks
-		if (count($r) > 1)
-			foreach ($r AS $id => $result)
-				if ($result["network"] == NETWORK_STATUSNET)
+		if (count($r) > 1) {
+			foreach ($r AS $id => $result) {
+				if ($result["network"] == NETWORK_STATUSNET) {
 					unset($r[$id]);
+				}
+			}
+		}
 
 		$profile = array_shift($r);
 
@@ -251,31 +262,40 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 			$profile["bd"] = $current_year."-".$month."-".$day;
 			$current = $current_year."-".$current_month."-".$current_day;
 
-			if ($profile["bd"] < $current)
+			if ($profile["bd"] < $current) {
 				$profile["bd"] = (++$current_year)."-".$month."-".$day;
-		} else
+			}
+		} else {
 			$profile["bd"] = "0000-00-00";
-	} else
+		}
+	} else {
 		$profile = $default;
+	}
 
-	if (($profile["photo"] == "") AND isset($default["photo"]))
+	if (($profile["photo"] == "") AND isset($default["photo"])) {
 		$profile["photo"] = $default["photo"];
+	}
 
-	if (($profile["name"] == "") AND isset($default["name"]))
+	if (($profile["name"] == "") AND isset($default["name"])) {
 		$profile["name"] = $default["name"];
+	}
 
-	if (($profile["network"] == "") AND isset($default["network"]))
+	if (($profile["network"] == "") AND isset($default["network"])) {
 		$profile["network"] = $default["network"];
+	}
 
-	if (($profile["thumb"] == "") AND isset($profile["photo"]))
+	if (($profile["thumb"] == "") AND isset($profile["photo"])) {
 		$profile["thumb"] = $profile["photo"];
+	}
 
-	if (($profile["micro"] == "") AND isset($profile["thumb"]))
+	if (($profile["micro"] == "") AND isset($profile["thumb"])) {
 		$profile["micro"] = $profile["thumb"];
+	}
 
 	if ((($profile["addr"] == "") OR ($profile["name"] == "")) AND ($profile["gid"] != 0) AND
-		in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
-		proc_run('php',"include/update_gcontact.php", $profile["gid"]);
+		in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
+		proc_run(PRIORITY_LOW, "include/update_gcontact.php", $profile["gid"]);
+	}
 
 	// Show contact details of Diaspora contacts only if connected
 	if (($profile["cid"] == 0) AND ($profile["network"] == NETWORK_DIASPORA)) {
@@ -285,87 +305,93 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 		$profile["birthday"] = "0000-00-00";
 	}
 
-	return($profile);
+	$cache[$url][$uid] = $profile;
+
+	return $profile;
 }
 
-if(! function_exists('contact_photo_menu')){
-function contact_photo_menu($contact, $uid = 0) {
-
+if (! function_exists('contact_photo_menu')) {
+function contact_photo_menu($contact, $uid = 0)
+{
 	$a = get_app();
 
-	$contact_url="";
-	$pm_url="";
-	$status_link="";
-	$photos_link="";
-	$posts_link="";
-	$contact_drop_link = "";
-	$poke_link="";
+	$contact_url = '';
+	$pm_url = '';
+	$status_link = '';
+	$photos_link = '';
+	$posts_link = '';
+	$contact_drop_link = '';
+	$poke_link = '';
 
-	if ($uid == 0)
+	if ($uid == 0) {
 		$uid = local_user();
+	}
 
-	if ($contact["uid"] != $uid) {
+	if ($contact['uid'] != $uid) {
 		if ($uid == 0) {
 			$profile_link = zrl($contact['url']);
-			$menu = Array('profile' => array(t("View Profile"), $profile_link, true));
+			$menu = Array('profile' => array(t('View Profile'), $profile_link, true));
 
 			return $menu;
 		}
 
 		$r = q("SELECT * FROM `contact` WHERE `nurl` = '%s' AND `network` = '%s' AND `uid` = %d",
-			dbesc($contact["nurl"]), dbesc($contact["network"]), intval($uid));
-		if ($r)
+			dbesc($contact['nurl']), dbesc($contact['network']), intval($uid));
+		if ($r) {
 			return contact_photo_menu($r[0], $uid);
-		else {
+		} else {
 			$profile_link = zrl($contact['url']);
 			$connlnk = 'follow/?url='.$contact['url'];
-			$menu = Array(
-				'profile' => array(t("View Profile"), $profile_link, true),
-				'follow' => array(t("Connect/Follow"), $connlnk, true)
-				);
+			$menu = array(
+				'profile' => array(t('View Profile'), $profile_link, true),
+				'follow' => array(t('Connect/Follow'), $connlnk, true)
+			);
 
 			return $menu;
 		}
 	}
 
 	$sparkle = false;
-	if($contact['network'] === NETWORK_DFRN) {
+	if ($contact['network'] === NETWORK_DFRN) {
 		$sparkle = true;
 		$profile_link = $a->get_baseurl() . '/redir/' . $contact['id'];
-	}
-	else
+	} else {
 		$profile_link = $contact['url'];
-
-	if($profile_link === 'mailbox')
-		$profile_link = '';
-
-	if($sparkle) {
-		$status_link = $profile_link . "?url=status";
-		$photos_link = $profile_link . "?url=photos";
-		$profile_link = $profile_link . "?url=profile";
 	}
 
-	if (in_array($contact["network"], array(NETWORK_DFRN, NETWORK_DIASPORA)))
-		$pm_url = $a->get_baseurl() . '/message/new/' . $contact['id'];
+	if ($profile_link === 'mailbox') {
+		$profile_link = '';
+	}
 
-	if ($contact["network"] == NETWORK_DFRN)
+	if ($sparkle) {
+		$status_link = $profile_link . '?url=status';
+		$photos_link = $profile_link . '?url=photos';
+		$profile_link = $profile_link . '?url=profile';
+	}
+
+	if (in_array($contact['network'], array(NETWORK_DFRN, NETWORK_DIASPORA))) {
+		$pm_url = $a->get_baseurl() . '/message/new/' . $contact['id'];
+	}
+
+	if ($contact['network'] == NETWORK_DFRN) {
 		$poke_link = $a->get_baseurl() . '/poke/?f=&c=' . $contact['id'];
+	}
 
 	$contact_url = $a->get_baseurl() . '/contacts/' . $contact['id'];
-	$posts_link = $a->get_baseurl() . "/contacts/" . $contact['id'] . '/posts';
-	$contact_drop_link = $a->get_baseurl() . "/contacts/" . $contact['id'] . '/drop?confirm=1';
 
+	$posts_link = $a->get_baseurl() . '/contacts/' . $contact['id'] . '/posts';
+	$contact_drop_link = $a->get_baseurl() . '/contacts/' . $contact['id'] . '/drop?confirm=1';
 
 	/**
 	 * menu array:
 	 * "name" => [ "Label", "link", (bool)Should the link opened in a new tab? ]
 	 */
-	$menu = Array(
+	$menu = array(
 		'status' => array(t("View Status"), $status_link, true),
 		'profile' => array(t("View Profile"), $profile_link, true),
-		'photos' => array(t("View Photos"), $photos_link,true),
-		'network' => array(t("Network Posts"), $posts_link,false),
-		'edit' => array(t("Edit Contact"), $contact_url, false),
+		'photos' => array(t("View Photos"), $photos_link, true),
+		'network' => array(t("Network Posts"), $posts_link, false),
+		'edit' => array(t("View Contact"), $contact_url, false),
 		'drop' => array(t("Drop Contact"), $contact_drop_link, false),
 		'pm' => array(t("Send PM"), $pm_url, false),
 		'poke' => array(t("Poke"), $poke_link, false),
@@ -378,9 +404,11 @@ function contact_photo_menu($contact, $uid = 0) {
 
 	$menucondensed = array();
 
-	foreach ($menu AS $menuname=>$menuitem)
-		if ($menuitem[1] != "")
+	foreach ($menu AS $menuname => $menuitem) {
+		if ($menuitem[1] != '') {
 			$menucondensed[$menuname] = $menuitem;
+		}
+	}
 
 	return $menucondensed;
 }}
@@ -422,8 +450,19 @@ function contacts_not_grouped($uid,$start = 0,$count = 0) {
 	return $r;
 }
 
-function get_contact($url, $uid = 0) {
+/**
+ * @brief Fetch the contact id for a given url and user
+ *
+ * @param string $url Contact URL
+ * @param integer $uid The user id for the contact
+ * @param boolean $no_update Don't update the contact
+ *
+ * @return integer Contact ID
+ */
+function get_contact($url, $uid = 0, $no_update = false) {
 	require_once("include/Scrape.php");
+
+	logger("Get contact data for url ".$url." and user ".$uid." - ".App::callstack(), LOGGER_DEBUG);;
 
 	$data = array();
 	$contactid = 0;
@@ -454,8 +493,9 @@ function get_contact($url, $uid = 0) {
 		$update_photo = ($contact[0]['avatar-date'] < datetime_convert('','','now -7 days'));
 		//$update_photo = ($contact[0]['avatar-date'] < datetime_convert('','','now -12 hours'));
 
-		if (!$update_photo)
+		if (!$update_photo OR $no_update) {
 			return($contactid);
+		}
 	} elseif ($uid != 0)
 		return 0;
 
@@ -481,9 +521,9 @@ function get_contact($url, $uid = 0) {
 	if ($contactid == 0) {
 		q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `addr`, `alias`, `notify`, `poll`,
 					`name`, `nick`, `photo`, `network`, `pubkey`, `rel`, `priority`,
-					`batch`, `request`, `confirm`, `poco`,
+					`batch`, `request`, `confirm`, `poco`, `name-date`, `uri-date`,
 					`writable`, `blocked`, `readonly`, `pending`)
-					VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', '%s', '%s', '%s', 1, 0, 0, 0)",
+					VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', 1, 0, 0, 0)",
 			intval($uid),
 			dbesc(datetime_convert()),
 			dbesc($data["url"]),
@@ -502,7 +542,9 @@ function get_contact($url, $uid = 0) {
 			dbesc($data["batch"]),
 			dbesc($data["request"]),
 			dbesc($data["confirm"]),
-			dbesc($data["poco"])
+			dbesc($data["poco"]),
+			dbesc(datetime_convert()),
+			dbesc(datetime_convert())
 		);
 
 		$contact = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d ORDER BY `id` LIMIT 2",
@@ -533,16 +575,27 @@ function get_contact($url, $uid = 0) {
 
 	update_contact_avatar($data["photo"],$uid,$contactid);
 
-	q("UPDATE `contact` SET `addr` = '%s', `alias` = '%s', `name` = '%s', `nick` = '%s',
-		`name-date` = '%s', `uri-date` = '%s' WHERE `id` = %d",
-		dbesc($data["addr"]),
-		dbesc($data["alias"]),
-		dbesc($data["name"]),
-		dbesc($data["nick"]),
-		dbesc(datetime_convert()),
-		dbesc(datetime_convert()),
-		intval($contactid)
-	);
+	$r = q("SELECT `addr`, `alias`, `name`, `nick` FROM `contact`  WHERE `id` = %d", intval($contactid));
+
+	// This condition should always be true
+	if (!dbm::is_result($r))
+		return $contactid;
+
+	// Only update if there had something been changed
+	if (($data["addr"] != $r[0]["addr"]) OR
+		($data["alias"] != $r[0]["alias"]) OR
+		($data["name"] != $r[0]["name"]) OR
+		($data["nick"] != $r[0]["nick"]))
+		q("UPDATE `contact` SET `addr` = '%s', `alias` = '%s', `name` = '%s', `nick` = '%s',
+			`name-date` = '%s', `uri-date` = '%s' WHERE `id` = %d",
+			dbesc($data["addr"]),
+			dbesc($data["alias"]),
+			dbesc($data["name"]),
+			dbesc($data["nick"]),
+			dbesc(datetime_convert()),
+			dbesc(datetime_convert()),
+			intval($contactid)
+		);
 
 	return $contactid;
 }
@@ -689,5 +742,51 @@ function formatted_location($profile) {
 	}
 
 	return $location;
+}
+
+/**
+ * @brief Returns the account type name
+ *
+ * The function can be called with either the user or the contact array
+ *
+ * @param array $contact contact or user array
+ */
+function account_type($contact) {
+
+	// There are several fields that indicate that the contact or user is a forum
+	// "page-flags" is a field in the user table,
+	// "forum" and "prv" are used in the contact table. They stand for PAGE_COMMUNITY and PAGE_PRVGROUP.
+	// "community" is used in the gcontact table and is true if the contact is PAGE_COMMUNITY or PAGE_PRVGROUP.
+	if((isset($contact['page-flags']) && (intval($contact['page-flags']) == PAGE_COMMUNITY))
+		|| (isset($contact['page-flags']) && (intval($contact['page-flags']) == PAGE_PRVGROUP))
+		|| (isset($contact['forum']) && intval($contact['forum']))
+		|| (isset($contact['prv']) && intval($contact['prv']))
+		|| (isset($contact['community']) && intval($contact['community'])))
+		$type = ACCOUNT_TYPE_COMMUNITY;
+	else
+		$type = ACCOUNT_TYPE_PERSON;
+
+	// The "contact-type" (contact table) and "account-type" (user table) are more general then the chaos from above.
+	if (isset($contact["contact-type"]))
+		$type = $contact["contact-type"];
+	if (isset($contact["account-type"]))
+		$type = $contact["account-type"];
+
+	switch($type) {
+		case ACCOUNT_TYPE_ORGANISATION:
+			$account_type = t("Organisation");
+			break;
+		case ACCOUNT_TYPE_NEWS:
+			$account_type = t('News');
+			break;
+		case ACCOUNT_TYPE_COMMUNITY:
+			$account_type = t("Forum");
+			break;
+		default:
+			$account_type = "";
+			break;
+	}
+
+	return $account_type;
 }
 ?>

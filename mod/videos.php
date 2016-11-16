@@ -33,10 +33,7 @@ function videos_init(&$a) {
 
 		$profile = get_profiledata_by_nick($nick, $a->profile_uid);
 
-		if((intval($profile['page-flags']) == PAGE_COMMUNITY) || (intval($profile['page-flags']) == PAGE_PRVGROUP))
-			$account_type = t('Forum');
-		else
-			$account_type = "";
+		$account_type = account_type($profile);
 
 		$tpl = get_markup_template("vcard-widget.tpl");
 
@@ -167,7 +164,7 @@ function videos_post(&$a) {
 				$drop_id = intval($i[0]['id']);
 
 				if($i[0]['visible'])
-					proc_run('php',"include/notifier.php","drop","$drop_id");
+					proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
 			}
 		}
 
@@ -266,7 +263,7 @@ function videos_content(&$a) {
 					$can_post = true;
 					$contact = $r[0];
 					$remote_contact = true;
-					$visitor = $cid;
+					$visitor = $contact_id;
 				}
 			}
 		}

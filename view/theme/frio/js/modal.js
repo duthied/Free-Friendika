@@ -204,6 +204,19 @@ function addToModal(url) {
 		});
 }
 
+// Add a element (by it's id) to a bootstrap modal
+function addElmToModal(id) {
+	var elm = $(id).html();
+	var modal = $('#modal').modal();
+
+	modal
+		.find('#modal-body')
+		.append(elm)
+		.modal.show;
+
+	loadModalTitle();
+}
+
 // function to load the html from the edit post page into
 // the jot modal
 function editpost(url) {
@@ -221,15 +234,15 @@ function editpost(url) {
 	}
 
 	var modal = $('#jot-modal').modal();
-	url = url + " #profile-jot-form";
+	url = url + " #jot-sections";
 
 	//var rand_num = random_digits(12);
 	$(".jot-nav .jot-perms-lnk").parent("li").addClass("hidden");
 
-	// For editpost we load the modal html form the edit page. So we would have two jot forms in
+	// For editpost we load the modal html of "jot-sections" of the edit page. So we would have two jot forms in
 	// the page html. To avoid js conflicts we store the original jot in the variable jotcache.
 	// After closing the modal original jot should be restored at its orginal position in the html structure.
-	jotcache = $("#jot-content > #profile-jot-form");
+	jotcache = $("#jot-content > #jot-sections");
 
 	// remove the original Jot as long as the edit Jot is open
 	jotcache.remove();

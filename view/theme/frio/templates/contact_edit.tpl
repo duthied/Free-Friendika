@@ -25,7 +25,7 @@
 							<li role="menuitem"><a  href="#" title="{{$contact_actions.block.title}}" onclick="window.location.href='{{$contact_actions.block.url}}'; return false;">{{$contact_actions.block.label}}</a></li>
 							<li role="menuitem"><a  href="#" title="{{$contact_actions.ignore.title}}" onclick="window.location.href='{{$contact_actions.ignore.url}}'; return false;">{{$contact_actions.ignore.label}}</a></li>
 							<li role="menuitem"><a  href="#" title="{{$contact_actions.archive.title}}" onclick="window.location.href='{{$contact_actions.archive.url}}'; return false;">{{$contact_actions.archive.label}}</a></li>
-							<li role="menuitem"><a  href="#" title="{{$contact_actions.delete.title}}" onclick="return confirmDelete();">{{$contact_actions.delete.label}}</a></li>
+							<li role="menuitem"><a  href="#" title="{{$contact_actions.delete.title}}" onclick="addToModal('{{$contact_actions.delete.url}}?confirm=1'); return false;">{{$contact_actions.delete.label}}</a></li>
 						</ul>
 					</li>
 				</ul>
@@ -88,10 +88,18 @@
 								</div>
 								{{/if}}
 
+								{{if $xmpp}}
+								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+									<hr class="profile-separator">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 text-muted">{{$xmpp_label}}</div>
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">{{$xmpp}}</div>
+								</div>
+								{{/if}}
+
 								{{if $keywords}}
 								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 									<hr class="profile-separator">
-									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 text-muted">{$keywords_label}}</div>
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 text-muted">{{$keywords_label}}</div>
 									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">{{$keywords}}</div>
 								</div>
 								{{/if}}
