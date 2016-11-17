@@ -5,6 +5,8 @@ Version 3.5.1
     Fix for ghost request notifications on single user instances [Hypolite]
     Fix user language selection [tobiasd]
     Fix a problem with communication to Diaspora with set posting locations [heluecht]
+    Fix schema handling of direct links to a original posting [Rabuzarus]
+    Fix n bug in otification handling [Rabuzarus]
     Adjustments for the Vagrant VM settings [silke]
     Improvements to the unliking of prior likes [Hypolite]
     Improvements to the API and Friendica specific extensions [gerhard6380]
