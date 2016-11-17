@@ -325,7 +325,7 @@ function cron_poll_contacts($argc, $argv) {
 
 			logger("Polling ".$contact["network"]." ".$contact["id"]." ".$contact["nick"]." ".$contact["name"]);
 
-			if ($contact["remote_self"]) {
+			if (($contact['network'] == NETWORK_FEED) AND ($contact['priority'] <= 3)) {
 				proc_run(PRIORITY_MEDIUM, 'include/onepoll.php', $contact['id']);
 			} else {
 				proc_run(PRIORITY_LOW, 'include/onepoll.php', $contact['id']);
