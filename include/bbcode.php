@@ -1161,8 +1161,10 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$Text = preg_replace('/\&quot\;/','"',$Text);
 
 	// fix any escaped ampersands that may have been converted into links
-	$Text = preg_replace("/\<([^>]*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism",'<$1$2=$3&$4>',$Text);
-	$Text = preg_replace("/\<([^>]*?)(src|href)=\"(?!http|ftp|mailto|gopher|cid)(.*?)\>/ism",'<$1$2="">',$Text);
+	$Text = preg_replace('/\<([^>]*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism', '<$1$2=$3&$4>', $Text);
+
+	// removes potentially harmful javascript in src/href
+	$Text = preg_replace('/\<([^>]*?)(src|href)="javascript(.*?)\>/ism', '', $Text);
 
 	if($saved_image)
 		$Text = bb_replace_images($Text, $saved_image);
