@@ -145,7 +145,6 @@ function terminate_friendship($user,$self,$contact) {
 // This provides for the possibility that their database is temporarily messed
 // up or some other transient event and that there's a possibility we could recover from it.
 
-if(! function_exists('mark_for_death')) {
 function mark_for_death($contact) {
 
 	if($contact['archive'])
@@ -156,13 +155,23 @@ function mark_for_death($contact) {
 				dbesc(datetime_convert()),
 				intval($contact['id'])
 		);
-	}
-	else {
+
+		if ($contact['url'] != '') {
+			q("UPDATE `contact` SET `term-date` = '%s'
+				WHERE `nurl` = '%s' AND `term-date` <= '1000-00-00'",
+					dbesc(datetime_convert()),
+					dbesc(normalise_link($contact['url']))
+			);
+		}
+	} else {
 
 		/// @todo
 		/// We really should send a notification to the owner after 2-3 weeks
 		/// so they won't be surprised when the contact vanishes and can take
 		/// remedial action if this was a serious mistake or glitch
+
+		/// @todo
+		/// Check for contact vitality via probing
 
 		$expiry = $contact['term-date'] . ' + 32 days ';
 		if(datetime_convert() > datetime_convert('UTC','UTC',$expiry)) {
@@ -171,26 +180,45 @@ function mark_for_death($contact) {
 			// archive them rather than delete
 			// though if the owner tries to unarchive them we'll start the whole process over again
 
-			q("update contact set `archive` = 1 where id = %d",
+			q("UPDATE `contact` SET `archive` = 1 WHERE `id` = %d",
 				intval($contact['id'])
 			);
-			q("UPDATE `item` SET `private` = 2 WHERE `contact-id` = %d AND `uid` = %d", intval($contact['id']), intval($contact['uid']));
 
-			//contact_remove($contact['id']);
-
+			if ($contact['url'] != '') {
+				q("UPDATE `contact` SET `archive` = 1 WHERE `nurl` = '%s'",
+					dbesc(normalise_link($contact['url']))
+				);
+			}
 		}
 	}
 
-}}
+}
 
-if(! function_exists('unmark_for_death')) {
 function unmark_for_death($contact) {
+
+	$r = q("SELECT `term-date` FROM `contact` WHERE `id` = %d AND `term-date` > '%s'",
+		intval($contact['id']),
+		dbesc('1000-00-00 00:00:00')
+	);
+
+	// We don't need to update, we never marked this contact as dead
+	if (!dbm::is_result($r)) {
+		return;
+	}
+
 	// It's a miracle. Our dead contact has inexplicably come back to life.
 	q("UPDATE `contact` SET `term-date` = '%s' WHERE `id` = %d",
 		dbesc('0000-00-00 00:00:00'),
 		intval($contact['id'])
 	);
-}}
+
+	if ($contact['url'] != '') {
+		q("UPDATE `contact` SET `term-date` = '%s' WHERE `nurl` = '%s'",
+			dbesc('0000-00-00 00:00:00'),
+			dbesc(normalise_link($contact['url']))
+		);
+	}
+}
 
 /**
  * @brief Get contact data for a given profile link
