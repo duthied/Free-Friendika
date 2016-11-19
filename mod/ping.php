@@ -83,7 +83,7 @@ function ping_init(&$a) {
 				// Find out how unseen network posts are spread across groups
 				$group_counts = groups_count_unseen();
 				if (dbm::is_result($group_counts)) {
-					foreach ($groups_counts as $group_count) {
+					foreach ($group_counts as $group_count) {
 						if ($group_count['count'] > 0) {
 							$groups_unseen[] = $group_count;
 						}
