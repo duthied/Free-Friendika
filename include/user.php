@@ -384,6 +384,7 @@ function create_user($arr) {
  * @param string $email
  * @param string $sitename
  * @param string $username
+ * @return NULL|boolean
  */
 function send_register_pending_eml($email, $sitename, $username) {
 	$body = deindent(t('
