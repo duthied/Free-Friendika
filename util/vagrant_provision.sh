@@ -37,11 +37,19 @@ sudo a2dissite 000-default
 sudo service apache2 restart
 
 #Install php
-echo ">>> Installing PHP5"
-sudo apt-get install -y php5 libapache2-mod-php5 php5-cli php5-mysql php5-curl php5-gd
-sudo apt-get install -y imagemagick
-sudo apt-get install -y php5-imagick
-sudo service apache2 restart
+if [ $( lsb_release -c | cut -f 2 ) == "trusty" ]; then
+    echo ">>> Installing PHP5"
+    sudo apt-get install -y php5 libapache2-mod-php5 php5-cli php5-mysql php5-curl php5-gd
+    sudo apt-get install -y imagemagick
+    sudo apt-get install -y php5-imagick
+    sudo service apache2 restart
+elif [ $( lsb_release -c | cut -f 2 ) == "xenial" ]; then
+    echo ">>> Installing PHP7"
+    sudo apt-get install -y php libapache2-mod-php php-cli php-mysql php-curl php-gd
+    sudo apt-get install -y imagemagick
+    sudo apt-get install -y php-imagick
+    sudo systemctl restart apache2
+fi
 
 
 #Install mysql
@@ -59,7 +67,12 @@ Q1="GRANT ALL ON *.* TO 'root'@'%' IDENTIFIED BY 'root' WITH GRANT OPTION;"
 Q2="FLUSH PRIVILEGES;"
 SQL="${Q1}${Q2}"
 $MYSQL -uroot -proot -e "$SQL"
-service mysql restart
+if [ $( lsb_release -c | cut -f 2 ) == "trusty" ]; then
+    service mysql restart
+elif [ $( lsb_release -c | cut -f 2 ) == "xenial" ]; then
+    systemctl restart mysql
+fi
+
 
 
 #configure rudimentary mail server (local delivery only)
@@ -87,4 +100,4 @@ sudo crontab friendicacron
 sudo rm friendicacron
 
 #Optional: checkout addon repositroy
-#sudo git clone https://github.com/friendica/friendica-addons.git /vagrant/addon
+sudo git clone https://github.com/friendica/friendica-addons.git /vagrant/addon
