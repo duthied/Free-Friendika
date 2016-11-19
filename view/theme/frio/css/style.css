@@ -1157,6 +1157,9 @@ section #jotOpen {
 #profile-jot-wrapper button#jot-submit {
     margin-top: 5px;
 }
+#profile-jot-wrapper #character-counter {
+    padding: 10px 15px;
+}
 
 /* ACL */
 /*#jot-modal-body {
