@@ -133,6 +133,7 @@ function register_post(&$a) {
 			$admin_mail_list
 		);
 
+		// send notification to admins
 		foreach ($adminlist as $admin) {
 			notification(array(
 				'type' => NOTIFY_SYSTEM,
@@ -149,6 +150,11 @@ function register_post(&$a) {
 				'show_in_notification_page' => false
 			));
 		}
+		// send notification to the user, that the registration is pending
+		send_register_pending_eml(
+				$user['email'],
+				$a->config['sitename'],
+				$user['username']);
 
 		info( t('Your registration is pending approval by the site owner.') . EOL ) ;
 		goaway(z_root());
