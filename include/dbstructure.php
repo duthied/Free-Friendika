@@ -1280,6 +1280,7 @@ function db_definition($charset) {
 					"uid" => array("type" => "int(11) unsigned", "not null" => "1", "default" => "0"),
 					"password" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"language" => array("type" => "varchar(16)", "not null" => "1", "default" => ""),
+					"note" => array("type" => "text"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),

@@ -113,12 +113,13 @@ function register_post(&$a) {
 		}
 
 		$hash = random_string();
-		$r = q("INSERT INTO `register` ( `hash`, `created`, `uid`, `password`, `language` ) VALUES ( '%s', '%s', %d, '%s', '%s' ) ",
+		$r = q("INSERT INTO `register` ( `hash`, `created`, `uid`, `password`, `language`, `note` ) VALUES ( '%s', '%s', %d, '%s', '%s', '%s' ) ",
 			dbesc($hash),
 			dbesc(datetime_convert()),
 			intval($user['uid']),
 			dbesc($result['password']),
-			dbesc($lang)
+			dbesc($lang),
+			dbesc($_POST['permonlybox'])
 		);
 
 		// invite system
@@ -262,6 +263,8 @@ function register_content(&$a) {
 	$o = replace_macros($o, array(
 		'$oidhtml' => $oidhtml,
 		'$invitations' => get_config('system','invitation_only'),
+		'$permonly' => $a->config['register_policy'] == REGISTER_APPROVE,
+		'$permonlybox' => array('permonlybox', t('Note for the admin'), '', t('Leave a message for the admin, why you want to join this node')),
 		'$invite_desc' => t('Membership on this site is by invitation only.'),
 		'$invite_label' => t('Your invitation ID: '),
 		'$invite_id' => $invite_id,
