@@ -306,7 +306,7 @@ function proxy_url($url, $writemode = false, $size = '') {
 	// Too long files aren't supported by Apache
 	// Writemode in combination with long files shouldn't be possible
 	if ((strlen($proxypath) > 250) AND $writemode) {
-		return hash('md5', $url);
+		return $shortpath;
 	} elseif (strlen($proxypath) > 250) {
 		return $a->get_baseurl() . '/proxy/' . $shortpath . '?url=' . urlencode($url);
 	} elseif ($writemode) {
