@@ -110,4 +110,4 @@ sudo crontab friendicacron
 sudo rm friendicacron
 
 #Optional: checkout addon repositroy
-sudo git clone https://github.com/friendica/friendica-addons.git /vagrant/addon
+#sudo git clone https://github.com/friendica/friendica-addons.git /vagrant/addon
