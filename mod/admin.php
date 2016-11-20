@@ -428,13 +428,19 @@ function admin_page_queue(&$a) {
  * @return string
  */
 function admin_page_summary(&$a) {
+	global $db;
 	// are there MyISAM tables in the DB? If so, trigger a warning message
 	$r = q("SELECT `engine` FROM `information_schema`.`tables` WHERE `engine`='myisam' LIMIT 1");
 	$showwarning = false;
-	$warningtext = "";
+	$warningtext = array();
 	if (dbm::is_result($r)) {
 		$showwarning = true;
-		$warningtext = sprintf(t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the <tt>convert_innodb.sql</tt> in the <tt>/util</tt> directory of your Friendica installation.<br />'), 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
+		$warningtext[] = sprintf(t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the <tt>convert_innodb.sql</tt> in the <tt>/util</tt> directory of your Friendica installation.<br />'), 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
+	}
+	// MySQL >= 5.7.4 doesn't support the IGNORE keyword in ALTER TABLE statements
+	if ((version_compare($db->server_info(), '5.7.4') >= 0) AND
+		!(strpos($db->server_info(), 'MariaDB') !== false)) {
+		$warningtext[] = t('You are using a MySQL version which does not support all features that Friendica uses. You should consider switching to MariaDB.');
 	}
 	$r = q("SELECT `page-flags`, COUNT(`uid`) AS `count` FROM `user` GROUP BY `page-flags`");
 	$accounts = array(
