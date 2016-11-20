@@ -609,6 +609,7 @@ class App {
 		$this->performance["markstart"] = microtime(true);
 
 		$this->callstack["database"] = array();
+		$this->callstack["database_write"] = array();
 		$this->callstack["network"] = array();
 		$this->callstack["file"] = array();
 		$this->callstack["rendering"] = array();
