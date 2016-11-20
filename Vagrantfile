@@ -7,6 +7,7 @@ server_timezone = "UTC"
 public_folder = "/vagrant"
 
 Vagrant.configure(2) do |config|
+######################################################################
   # Set server to Ubuntu 14.04
   config.vm.define "trusty" do |trusty|
     trusty.vm.box = "ubuntu/trusty64"
@@ -23,14 +24,12 @@ Vagrant.configure(2) do |config|
 
     # Create a static IP
     trusty.vm.network :private_network, ip: server_ip_trusty
-
-    # Share a folder between host and guest
-    trusty.vm.synced_folder "./", "/vagrant/", owner: "www-data", group: "vagrant"
   end
 
+######################################################################
   # Set server to Ubuntu 16.04
   config.vm.define "xenial" do |xenial|
-    xenial.vm.box = "ubuntu/xenial64"
+    xenial.vm.box = "boxcutter/ubuntu1604"
 
     # Disable automatic box update checking. If you disable this, then
     # boxes will only be checked for updates when the user runs
@@ -44,10 +43,11 @@ Vagrant.configure(2) do |config|
 
     # Create a static IP
     xenial.vm.network :private_network, ip: server_ip_xenial
-
-    # Share a folder between host and guest
-    xenial.vm.synced_folder "./", "/vagrant/", owner: "www-data", group: "vagrant"
   end
+
+######################################################################
+  # Share a folder between host and guest
+  config.vm.synced_folder "./", "/vagrant/", owner: "www-data", group: "vagrant"
 
 
   # Provider-specific configuration so you can fine-tune various
