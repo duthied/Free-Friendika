@@ -3,7 +3,9 @@
 	<h1>{{$title}} - {{$page}}</h1>
 {{if $showwarning}}
 	<div id="admin-warning-message-wrapper">
-		<p id="admin-warning-message" class="warning-message">{{$warningtext}}</p>
+		{{foreach $warningtext as $wt}}
+		<p class="warning-message">{{$wt}}</p>
+		{{/foreach}}
 	</div>
 {{/if}}
 
