@@ -301,6 +301,7 @@ function settings_post(&$a) {
 		$infinite_scroll   = x($_POST, 'infinite_scroll')   ? intval($_POST['infinite_scroll'])    : 0;
 		$no_auto_update    = x($_POST, 'no_auto_update')    ? intval($_POST['no_auto_update'])     : 0;
 		$bandwidth_saver   = x($_POST, 'bandwidth_saver')   ? intval($_POST['bandwidth_saver'])    : 0;
+		$nowarn_insecure   = x($_POST, 'nowarn_insecure')   ? intval($_POST['nowarn_insecure'])    : 0;
 		$browser_update    = x($_POST, 'browser_update')    ? intval($_POST['browser_update'])     : 0;
 		if ($browser_update != -1) {
 			$browser_update = $browser_update * 1000;
@@ -321,6 +322,7 @@ function settings_post(&$a) {
 			set_pconfig(local_user(),'system','mobile_theme',$mobile_theme);
 		}
 
+		set_pconfig(local_user(), 'system', 'nowarn_insecure'         , $nowarn_insecure);
 		set_pconfig(local_user(), 'system', 'update_interval'         , $browser_update);
 		set_pconfig(local_user(), 'system', 'itemspage_network'       , $itemspage_network);
 		set_pconfig(local_user(), 'system', 'itemspage_mobile_network', $itemspage_mobile_network);
@@ -951,6 +953,8 @@ function settings_content(&$a) {
 		$theme_selected = (!x($_SESSION,'theme')? $default_theme : $_SESSION['theme']);
 		$mobile_theme_selected = (!x($_SESSION,'mobile-theme')? $default_mobile_theme : $_SESSION['mobile-theme']);
 
+		$nowarn_insecure = intval(get_pconfig(local_user(), 'system', 'nowarn_insecure'));
+
 		$browser_update = intval(get_pconfig(local_user(), 'system','update_interval'));
 		if (intval($browser_update) != -1)
 			$browser_update = (($browser_update == 0) ? 40 : $browser_update / 1000); // default if not set: 40 seconds
@@ -995,6 +999,7 @@ function settings_content(&$a) {
 
 			'$theme'	=> array('theme', t('Display Theme:'), $theme_selected, '', $themes, true),
 			'$mobile_theme'	=> array('mobile_theme', t('Mobile Theme:'), $mobile_theme_selected, '', $mobile_themes, false),
+			'$nowarn_insecure' => array('nowarn_insecure',  t('Suppress warning of insecure networks'), $nowarn_insecure, t("Should the system suppress the warning that the current group contains members of networks that can't receive non public postings.")),
 			'$ajaxint'   => array('browser_update',  t("Update browser every xx seconds"), $browser_update, t('Minimum of 10 seconds. Enter -1 to disable it.')),
 			'$itemspage_network'   => array('itemspage_network',  t("Number of items to display per page:"), $itemspage_network, t('Maximum of 100 items')),
 			'$itemspage_mobile_network'   => array('itemspage_mobile_network',  t("Number of items to display per page when viewed from mobile device:"), $itemspage_mobile_network, t('Maximum of 100 items')),
