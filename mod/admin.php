@@ -429,7 +429,7 @@ function admin_page_queue(&$a) {
  */
 function admin_page_summary(&$a) {
 	// are there MyISAM tables in the DB? If so, trigger a warning message
-	$r = q("select `engine` from `information_schema`.`tables` where `engine`='myisam' limit 1");
+	$r = q("SELECT `engine` FROM `information_schema`.`tables` WHERE `engine`='myisam' LIMIT 1");
 	$showwarning = false;
 	$warningtext = "";
 	if (dbm::is_result($r)) {
