@@ -453,6 +453,7 @@ function network_content(&$a, $update = 0) {
 	if ($nouveau OR strlen($file) OR $update) {
 		$sql_table = "`item`";
 		$sql_parent = "`parent`";
+		$sql_post_table = " INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`";
 	}
 
 	$sql_nets = (($nets) ? sprintf(" and $sql_table.`network` = '%s' ", dbesc($nets)) : '');
@@ -487,9 +488,9 @@ function network_content(&$a, $update = 0) {
 				$gcontact_str_self = $self[0]["gid"];
 			}
 
-			$sql_post_table = " INNER JOIN `item` AS `temp1` ON `temp1`.`id` = ".$sql_table.".".$sql_parent;
-			$sql_extra3 .= " AND ($sql_table.`contact-id` IN ($contact_str) ";
-			$sql_extra3 .= " OR ($sql_table.`contact-id` = '$contact_str_self' AND `temp1`.`allow_gid` LIKE '".protect_sprintf('%<'.intval($group).'>%')."' AND `temp1`.`private`))";
+			$sql_post_table .= " INNER JOIN `item` AS `temp1` ON `temp1`.`id` = ".$sql_table.".".$sql_parent;
+			$sql_extra3 .= " AND (`thread`.`contact-id` IN ($contact_str) ";
+			$sql_extra3 .= " OR (`thread`.`contact-id` = '$contact_str_self' AND `temp1`.`allow_gid` LIKE '".protect_sprintf('%<'.intval($group).'>%')."' AND `temp1`.`private`))";
 		} else {
 			$sql_extra3 .= " AND false ";
 			info( t('Group is empty'));
@@ -569,7 +570,7 @@ function network_content(&$a, $update = 0) {
 		if($tag) {
 			$sql_extra = "";
 
-			$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
+			$sql_post_table .= sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
 					dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), intval(local_user()));
 			$sql_order = "`item`.`id`";
 			$order_mode = "id";
@@ -583,7 +584,7 @@ function network_content(&$a, $update = 0) {
 		}
 	}
 	if(strlen($file)) {
-		$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
+		$sql_post_table .= sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
 				dbesc(protect_sprintf($file)), intval(TERM_OBJ_POST), intval(TERM_FILE), intval(local_user()));
 		$sql_order = "`item`.`id`";
 		$order_mode = "id";
