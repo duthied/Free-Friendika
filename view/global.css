@@ -473,3 +473,11 @@ td.pendingnote {
 td.pendingnote > p > span {
 	font-weight: bold;
 }
+
+/* warning message */
+.warning-message {
+	padding: 10px;
+	margin: 5px;
+	border-left: 5px solid #f00;
+	font-weight: bold;
+}
