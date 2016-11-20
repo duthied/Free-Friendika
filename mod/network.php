@@ -504,7 +504,7 @@ function network_content(&$a, $update = 0) {
 	elseif($cid) {
 
 		$r = qu("SELECT `id`,`name`,`network`,`writable`,`nurl`, `forum`, `prv`, `contact-type`, `addr`, `thumb`, `location` FROM `contact` WHERE `id` = %d
-				AND `blocked` = 0 AND `pending` = 0 LIMIT 1",
+				AND NOT `blocked` LIMIT 1",
 			intval($cid)
 		);
 		if(count($r)) {
@@ -603,7 +603,7 @@ function network_content(&$a, $update = 0) {
 		if(get_config('system', 'old_pager')) {
 			$r = qu("SELECT COUNT(*) AS `total`
 				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = $sql_table.`contact-id`
-				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				AND NOT `contact`.`blocked`
 				WHERE $sql_table.`uid` = %d AND $sql_table.`visible` AND NOT $sql_table.`deleted`
 				$sql_extra2 $sql_extra3
 				$sql_extra $sql_nets ",
@@ -681,7 +681,7 @@ function network_content(&$a, $update = 0) {
 
 			$r = qu("SELECT `item`.`parent` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				AND NOT `contact`.`blocked`
 				WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted` $sql_extra4
 				AND NOT `item`.`moderated` AND `item`.`unseen`
 				$sql_extra3 $sql_extra $sql_nets
@@ -691,7 +691,7 @@ function network_content(&$a, $update = 0) {
 		} else {
 			$r = qu("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table $sql_post_table STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
-				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				AND NOT `contact`.`blocked`
 				WHERE `thread`.`uid` = %d AND `thread`.`visible` AND NOT `thread`.`deleted`
 				AND NOT `thread`.`moderated`
 				$sql_extra2 $sql_extra3 $sql_extra $sql_nets
