@@ -90,7 +90,7 @@ class Cache {
 			// Only return a value if the serialized value is valid.
 			// We also check if the db entry is a serialized
 			// boolean 'false' value (which we want to return).
-			if ($cached === 'b:0;' || $value !== false) {
+			if ($cached === serialize(false) || $value !== false) {
 				return $value;
 			}
 
@@ -111,7 +111,7 @@ class Cache {
 			// Only return a value if the serialized value is valid.
 			// We also check if the db entry is a serialized
 			// boolean 'false' value (which we want to return).
-			if ($cached === 'b:0;' || $value !== false) {
+			if ($cached === serialize(false) || $value !== false) {
 				return $value;
 			}
 		}
