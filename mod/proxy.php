@@ -264,7 +264,7 @@ function proxy_url($url, $writemode = false, $size = '') {
 	}
 
 	// Image URL may have encoded ampersands for display which aren't desirable for proxy
-	$url = html_entity_decode($url, ENT_NOQUOTES, 'UTF8');
+	$url = html_entity_decode($url, ENT_NOQUOTES, 'utf-8');
 
 	// Creating a sub directory to reduce the amount of files in the cache directory
 	$basepath = $a->get_basepath() . '/proxy';
