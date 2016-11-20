@@ -1,6 +1,11 @@
 
 <div id='adminpage'>
 	<h1>{{$title}} - {{$page}}</h1>
+{{if $showwarning}}
+	<div id="admin-warning-message-wrapper">
+		<p id="admin-warning-message" class="warning-message">{{$warningtext}}</p>
+	</div>
+{{/if}}
 
 	<dl>
 		<dt>{{$queues.label}}</dt>

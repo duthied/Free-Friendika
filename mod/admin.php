@@ -428,6 +428,14 @@ function admin_page_queue(&$a) {
  * @return string
  */
 function admin_page_summary(&$a) {
+	// are there MyISAM tables in the DB? If so, trigger a warning message
+	$r = q("select `engine` from `information_schema`.`tables` where `engine`='myisam' limit 1");
+	$showwarning = false;
+	$warningtext = "";
+	if (dbm::is_result($r)) {
+		$showwarning = true;
+		$warningtext = sprintf(t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the <tt>convert_innodb.sql</tt> in the <tt>/util</tt> directory of your Friendica installation.<br />'), 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
+	}
 	$r = q("SELECT `page-flags`, COUNT(`uid`) AS `count` FROM `user` GROUP BY `page-flags`");
 	$accounts = array(
 		array(t('Normal Account'), 0),
@@ -478,7 +486,9 @@ function admin_page_summary(&$a) {
 		'$platform' => FRIENDICA_PLATFORM,
 		'$codename' => FRIENDICA_CODENAME,
 		'$build' =>  get_config('system','build'),
-		'$plugins' => array(t('Active plugins'), $a->plugins)
+		'$plugins' => array(t('Active plugins'), $a->plugins),
+		'$showwarning' => $showwarning,
+		'$warningtext' => $warningtext
 	));
 }
 
