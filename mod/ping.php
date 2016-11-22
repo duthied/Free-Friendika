@@ -37,7 +37,7 @@ function ping_init(&$a) {
 		}
 
 		$notifs = ping_get_notifications(local_user());
-		$sysnotify = 0; // we will update this in a moment
+		$sysnotify_count = 0; // we will update this in a moment
 
 		$tags     = array();
 		$comments = array();
@@ -48,8 +48,8 @@ function ping_init(&$a) {
 		$regs     = array();
 		$mails    = array();
 
-		$home = 0;
-		$network = 0;
+		$home_count = 0;
+		$network_count = 0;
 		$groups_unseen = array();
 		$forums_unseen = array();
 
@@ -71,14 +71,14 @@ function ping_init(&$a) {
 
 			foreach ($r as $it) {
 				if ($it['wall']) {
-					$home++;
+					$home_count++;
 				} else {
-					$network++;
+					$network_count++;
 				}
 			}
 		}
 
-		if ($network) {
+		if ($network_count) {
 			if (intval(feature_enabled(local_user(),'groups'))) {
 				// Find out how unseen network posts are spread across groups
 				$group_counts = groups_count_unseen();
@@ -116,7 +116,7 @@ function ping_init(&$a) {
 			intval(local_user())
 		);
 
-		$intro = count($intros1) + count($intros2);
+		$intro_count = count($intros1) + count($intros2);
 		$intros = $intros1+$intros2;
 
 		$myurl = $a->get_baseurl() . '/profile/' . $a->user['nickname'] ;
@@ -130,10 +130,10 @@ function ping_init(&$a) {
 		if ($a->config['register_policy'] == REGISTER_APPROVE && is_site_admin()){
 			$regs = q("SELECT `contact`.`name`, `contact`.`url`, `contact`.`micro`, `register`.`created`, COUNT(*) as `total` FROM `contact` RIGHT JOIN `register` ON `register`.`uid`=`contact`.`uid` WHERE `contact`.`self`=1");
 			if ($regs) {
-				$register = $regs[0]['total'];
+				$register_count = $regs[0]['total'];
 			}
 		} else {
-			$register = 0;
+			$register_count = 0;
 		}
 
 		$all_events = 0;
@@ -177,11 +177,11 @@ function ping_init(&$a) {
 		}
 
 		$data = array();
-		$data['intro']    = $intro;
+		$data['intro']    = $intro_count;
 		$data['mail']     = $mail_count;
-		$data['net']      = $network;
-		$data['home']     = $home;
-		$data['register'] = $register;
+		$data['net']      = $network_count;
+		$data['home']     = $home_count;
+		$data['register'] = $register_count;
 
 		$data['all-events']       = $all_events;
 		$data['all-events-today'] = $all_events_today;
@@ -190,10 +190,10 @@ function ping_init(&$a) {
 		$data['birthdays']        = $birthdays;
 		$data['birthdays-today']  = $birthdays_today;
 
-		if (dbm::is_result($notifs) && !$sysnotify) {
+		if (dbm::is_result($notifs)) {
 			foreach ($notifs as $notif) {
 				if ($notif['seen'] == 0) {
-					$sysnotify ++;
+					$sysnotify_count ++;
 				}
 			}
 		}
@@ -304,7 +304,7 @@ function ping_init(&$a) {
 	if ($format == 'json') {
 		$data['groups'] = $groups_unseen;
 		$data['forums'] = $forums_unseen;
-		$data['notify'] = $sysnotify + $intro + $mail_count + $register;
+		$data['notify'] = $sysnotify_count + $intro_count + $mail_count + $register_count;
 		$data['notifications'] = $notifications;
 		$data['sysmsgs'] = array(
 			'notice' => $sysmsgs,
@@ -323,7 +323,7 @@ function ping_init(&$a) {
 		}
 	} else {
 		// Legacy slower XML format output
-		$data = ping_format_xml_data($data, $sysnotify, $notifications, $sysmsgs, $sysmsgs_info, $groups_unseen, $forums_unseen);
+		$data = ping_format_xml_data($data, $sysnotify_count, $notifications, $sysmsgs, $sysmsgs_info, $groups_unseen, $forums_unseen);
 
 		header("Content-type: text/xml");
 		echo xml::from_array(array("result" => $data), $xml);
@@ -416,13 +416,13 @@ function ping_get_notifications($uid) {
  * @deprecated
  *
  * @param array $data The initial ping data array
- * @param int $sysnotify Number of unseen system notifications
+ * @param int $sysnotify_count Number of unseen system notifications
  * @param array $notifs Complete list of notification
  * @param array $sysmsgs List of system notice messages
  * @param array $sysmsgs_info List of system info messages
  * @return array XML-transform ready data array
  */
-function ping_format_xml_data($data, $sysnotify, $notifs, $sysmsgs, $sysmsgs_info, $groups_unseen, $forums_unseen) {
+function ping_format_xml_data($data, $sysnotify_count, $notifs, $sysmsgs, $sysmsgs_info, $groups_unseen, $forums_unseen) {
 	$notifications = array();
 	foreach($notifs as $key => $n) {
 		$notifications[$key . ":note"] = $n['message'];
@@ -448,7 +448,7 @@ function ping_format_xml_data($data, $sysnotify, $notifs, $sysmsgs, $sysmsgs_inf
 	}
 
 	$data["notif"] = $notifications;
-	$data["@attributes"] = array("count" => $sysnotify + $data["intro"] + $data["mail"] + $data["register"]);
+	$data["@attributes"] = array("count" => $sysnotify_count + $data["intro"] + $data["mail"] + $data["register"]);
 	$data["sysmsgs"] = $sysmsg;
 
 	if ($data["register"] == 0) {
