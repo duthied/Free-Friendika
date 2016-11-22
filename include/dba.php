@@ -110,6 +110,17 @@ class dba {
 	}
 
 	/**
+	 * @brief Returns the selected database name
+	 *
+	 * @return string
+	 */
+	public function database_name() {
+		$r = $this->q("SELECT DATABASE() AS `db`");
+
+		return $r[0]['db'];
+	}
+
+	/**
 	 * @brief Returns the number of rows
 	 *
 	 * @return integer
