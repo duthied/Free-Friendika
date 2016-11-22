@@ -50,6 +50,7 @@ function ping_init(&$a) {
 
 		$home_count = 0;
 		$network_count = 0;
+		$register_count = 0;
 		$groups_unseen = array();
 		$forums_unseen = array();
 
@@ -132,8 +133,6 @@ function ping_init(&$a) {
 			if ($regs) {
 				$register_count = $regs[0]['total'];
 			}
-		} else {
-			$register_count = 0;
 		}
 
 		$all_events = 0;
