@@ -88,7 +88,7 @@ function ping_init(App $a)
 	$data['birthdays']        = $birthdays;
 	$data['birthdays-today']  = $birthdays_today;
 
-	if (false && local_user()){
+	if (local_user()){
 		// Different login session than the page that is calling us.
 		if (intval($_GET['uid']) && intval($_GET['uid']) != local_user()) {
 
