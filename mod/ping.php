@@ -131,7 +131,7 @@ function ping_init(App $a)
 				if ($item['wall']) {
 					$home_count++;
 				} else {
-					$network++;
+					$network_count++;
 				}
 			}
 		}
@@ -174,7 +174,7 @@ function ping_init(App $a)
 			intval(local_user())
 		);
 
-		$intro = count($intros1) + count($intros2);
+		$intro_count = count($intros1) + count($intros2);
 		$intros = $intros1+$intros2;
 
 		$myurl = $a->get_baseurl() . '/profile/' . $a->user['nickname'] ;
@@ -190,10 +190,8 @@ function ping_init(App $a)
 				FROM `contact` RIGHT JOIN `register` ON `register`.`uid` = `contact`.`uid`
 				WHERE `contact`.`self` = 1");
 			if ($regs) {
-				$register = $regs[0]['total'];
+				$register_count = $regs[0]['total'];
 			}
-		} else {
-			$register = 0;
 		}
 
 		$ev = q("SELECT count(`event`.`id`) AS total, type, start, adjust FROM `event`
@@ -231,9 +229,9 @@ function ping_init(App $a)
 
 		$data['intro']    = $intro_count;
 		$data['mail']     = $mail_count;
-		$data['net']      = $network;
-		$data['home']     = $home;
-		$data['register'] = $register;
+		$data['net']      = $network_count;
+		$data['home']     = $home_count;
+		$data['register'] = $register_count;
 
 		$data['all-events']       = $all_events;
 		$data['all-events-today'] = $all_events_today;
@@ -242,10 +240,10 @@ function ping_init(App $a)
 		$data['birthdays']        = $birthdays;
 		$data['birthdays-today']  = $birthdays_today;
 
-		if (dbm::is_result($notifs) && !$sysnotify) {
+		if (dbm::is_result($notifs)) {
 			foreach ($notifs as $notif) {
 				if ($notif['seen'] == 0) {
-					$sysnotify ++;
+					$sysnotify_count ++;
 				}
 			}
 		}
@@ -356,7 +354,7 @@ function ping_init(App $a)
 	if ($format == 'json') {
 		$data['groups'] = $groups_unseen;
 		$data['forums'] = $forums_unseen;
-		$data['notify'] = $sysnotify + $intro + $mail_count + $register;
+		$data['notify'] = $sysnotify_count + $intro_count + $mail_count + $register_count;
 		$data['notifications'] = $notifications;
 		$data['sysmsgs'] = array(
 			'notice' => $sysmsgs,
@@ -375,7 +373,7 @@ function ping_init(App $a)
 		}
 	} else {
 		// Legacy slower XML format output
-		$data = ping_format_xml_data($data, $sysnotify, $notifications, $sysmsgs, $sysmsgs_info, $groups_unseen, $forums_unseen);
+		$data = ping_format_xml_data($data, $sysnotify_count, $notifications, $sysmsgs, $sysmsgs_info, $groups_unseen, $forums_unseen);
 
 		header("Content-type: text/xml");
 		echo xml::from_array(array("result" => $data), $xml);
@@ -468,7 +466,7 @@ function ping_get_notifications($uid)
  * @deprecated
  *
  * @param array $data The initial ping data array
- * @param int $sysnotify Number of unseen system notifications
+ * @param int $sysnotify_count Number of unseen system notifications
  * @param array $notifs Complete list of notification
  * @param array $sysmsgs List of system notice messages
  * @param array $sysmsgs_info List of system info messages

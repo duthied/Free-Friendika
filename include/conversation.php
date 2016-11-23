@@ -439,7 +439,7 @@ These Fields are not added below (yet). They are here to for bug search.
 function item_joins() {
 
 	return "STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND
-		NOT `contact`.`blocked` AND NOT `contact`.`pending`
+		NOT `contact`.`blocked`
 		LEFT JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
 		LEFT JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`owner-id`";
 }
@@ -885,7 +885,7 @@ function best_link_url($item,&$sparkle,$ssl_state = false) {
 	$clean_url = normalise_link($item['author-link']);
 
 	if (local_user()) {
-		$r = q("SELECT `id` FROM `contact` WHERE `network` = '%s' AND `uid` = %d AND `nurl` = '%s' AND NOT `pending` LIMIT 1",
+		$r = q("SELECT `id` FROM `contact` WHERE `network` = '%s' AND `uid` = %d AND `nurl` = '%s' LIMIT 1",
 			dbesc(NETWORK_DFRN), intval(local_user()), dbesc(normalise_link($clean_url)));
 		if ($r) {
 			$best_url = 'redir/'.$r[0]['id'];

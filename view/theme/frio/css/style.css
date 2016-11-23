@@ -88,7 +88,7 @@ blockquote {
     display: none !important;
 }
 code {
-	white-space: pre;
+    white-space: pre-wrap;
 }
 
 /*
@@ -2406,4 +2406,12 @@ body .tread-wrapper .hovercard a:hover {
 }
 body .tread-wrapper .hovercard:hover .hover-card-content a {
     color: $link_color !important;
+}
+
+/*
+ * some temporary workarounds until this will solved
+ * elsewhere (e.g. new templates)
+ */
+section .profile-match-wrapper {
+    float: left;
 }

@@ -395,10 +395,10 @@ function network_content(&$a, $update = 0) {
 
 		if($group) {
 			if(($t = group_public_members($group)) && (! get_pconfig(local_user(),'system','nowarn_insecure'))) {
-				notice( sprintf( tt('Warning: This group contains %s member from an insecure network.',
-									'Warning: This group contains %s members from an insecure network.',
-									$t), $t ) . EOL);
-				notice( t('Private messages to this group are at risk of public disclosure.') . EOL);
+				notice(sprintf(tt("Warning: This group contains %s member from a network that doesn't allow non public messages.",
+						"Warning: This group contains %s members from a network that doesn't allow non public messages.",
+						$t), $t).EOL);
+				notice(t("Messages in this group won't be send to these receivers.").EOL);
 			}
 		}
 
@@ -453,6 +453,7 @@ function network_content(&$a, $update = 0) {
 	if ($nouveau OR strlen($file) OR $update) {
 		$sql_table = "`item`";
 		$sql_parent = "`parent`";
+		$sql_post_table = " INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`";
 	}
 
 	$sql_nets = (($nets) ? sprintf(" and $sql_table.`network` = '%s' ", dbesc($nets)) : '');
@@ -487,9 +488,9 @@ function network_content(&$a, $update = 0) {
 				$gcontact_str_self = $self[0]["gid"];
 			}
 
-			$sql_post_table = " INNER JOIN `item` AS `temp1` ON `temp1`.`id` = ".$sql_table.".".$sql_parent;
-			$sql_extra3 .= " AND ($sql_table.`contact-id` IN ($contact_str) ";
-			$sql_extra3 .= " OR ($sql_table.`contact-id` = '$contact_str_self' AND `temp1`.`allow_gid` LIKE '".protect_sprintf('%<'.intval($group).'>%')."' AND `temp1`.`private`))";
+			$sql_post_table .= " INNER JOIN `item` AS `temp1` ON `temp1`.`id` = ".$sql_table.".".$sql_parent;
+			$sql_extra3 .= " AND (`thread`.`contact-id` IN ($contact_str) ";
+			$sql_extra3 .= " OR (`thread`.`contact-id` = '$contact_str_self' AND `temp1`.`allow_gid` LIKE '".protect_sprintf('%<'.intval($group).'>%')."' AND `temp1`.`private`))";
 		} else {
 			$sql_extra3 .= " AND false ";
 			info( t('Group is empty'));
@@ -503,7 +504,7 @@ function network_content(&$a, $update = 0) {
 	elseif($cid) {
 
 		$r = qu("SELECT `id`,`name`,`network`,`writable`,`nurl`, `forum`, `prv`, `contact-type`, `addr`, `thumb`, `location` FROM `contact` WHERE `id` = %d
-				AND `blocked` = 0 AND `pending` = 0 LIMIT 1",
+				AND NOT `blocked` LIMIT 1",
 			intval($cid)
 		);
 		if(count($r)) {
@@ -569,7 +570,7 @@ function network_content(&$a, $update = 0) {
 		if($tag) {
 			$sql_extra = "";
 
-			$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
+			$sql_post_table .= sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
 					dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), intval(local_user()));
 			$sql_order = "`item`.`id`";
 			$order_mode = "id";
@@ -583,7 +584,7 @@ function network_content(&$a, $update = 0) {
 		}
 	}
 	if(strlen($file)) {
-		$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
+		$sql_post_table .= sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
 				dbesc(protect_sprintf($file)), intval(TERM_OBJ_POST), intval(TERM_FILE), intval(local_user()));
 		$sql_order = "`item`.`id`";
 		$order_mode = "id";
@@ -602,7 +603,7 @@ function network_content(&$a, $update = 0) {
 		if(get_config('system', 'old_pager')) {
 			$r = qu("SELECT COUNT(*) AS `total`
 				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = $sql_table.`contact-id`
-				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				AND NOT `contact`.`blocked`
 				WHERE $sql_table.`uid` = %d AND $sql_table.`visible` AND NOT $sql_table.`deleted`
 				$sql_extra2 $sql_extra3
 				$sql_extra $sql_nets ",
@@ -680,7 +681,7 @@ function network_content(&$a, $update = 0) {
 
 			$r = qu("SELECT `item`.`parent` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				AND NOT `contact`.`blocked`
 				WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted` $sql_extra4
 				AND NOT `item`.`moderated` AND `item`.`unseen`
 				$sql_extra3 $sql_extra $sql_nets
@@ -690,7 +691,7 @@ function network_content(&$a, $update = 0) {
 		} else {
 			$r = qu("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table $sql_post_table STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
-				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				AND NOT `contact`.`blocked`
 				WHERE `thread`.`uid` = %d AND `thread`.`visible` AND NOT `thread`.`deleted`
 				AND NOT `thread`.`moderated`
 				$sql_extra2 $sql_extra3 $sql_extra $sql_nets
