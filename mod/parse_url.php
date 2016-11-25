@@ -1,6 +1,15 @@
 <?php
 /** 
  * @file mod/parse_url.php
+ * @brief The parse_url module
+ * 
+ * This module does parse an url for embedable content (audio, video, image files or link)
+ * information and does format this information to BBCode or html (this depends
+ * on the user settings - default is BBCode output).
+ * If the user has enabled the richtext editor setting the output will be in html
+ * (Note: This is not always possible and in some case not useful because
+ * the richtext editor doesn't support all ind of html).
+ * Otherwise the output will be constructed BBCode.
  * 
  * @todo https://developers.google.com/+/plugins/snippet/
  * 
@@ -67,8 +76,8 @@ function parse_url_content(&$a) {
 
 	logger("prse_url: " . $url);
 
-	// If the URL is a image, video or audio file format the URL with the corresponding
-	// BBCode media tag
+	// Check if the URL is an image, video or audio file. If so format
+	// the URL with the corresponding BBCode media tag
 	$redirects = 0;
 	// Fetch the header of the URL
 	$result = z_fetch_url($url, false, $redirects, array("novalidate" => true, "nobody" => true));
@@ -114,7 +123,8 @@ function parse_url_content(&$a) {
 		killme();
 	}
 
-
+	// If there is allready some content information submitted we don't
+	// need to parse the url for content.
 	if ($url && $title && $text) {
 
 		$title = str_replace(array("\r","\n"),array("",""),$title);
@@ -134,7 +144,7 @@ function parse_url_content(&$a) {
 		killme();
 	}
 
-	// Fetch the information from the webpage
+	// Fetch the information directly from the webpage
 	$siteinfo = ParseUrl::getSiteinfo($url);
 
 	unset($siteinfo["keywords"]);
