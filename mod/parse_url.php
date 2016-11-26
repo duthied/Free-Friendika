@@ -8,7 +8,7 @@
  * on the user settings - default is BBCode output).
  * If the user has enabled the richtext editor setting the output will be in html
  * (Note: This is not always possible and in some case not useful because
- * the richtext editor doesn't support all ind of html).
+ * the richtext editor doesn't support all kind of html).
  * Otherwise the output will be constructed BBCode.
  * 
  * @todo https://developers.google.com/+/plugins/snippet/
