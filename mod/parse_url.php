@@ -1,4 +1,5 @@
 <?php
+
 /** 
  * @file mod/parse_url.php
  * @brief The parse_url module
@@ -11,19 +12,7 @@
  * the richtext editor doesn't support all kind of html).
  * Otherwise the output will be constructed BBCode.
  * 
- * @todo https://developers.google.com/+/plugins/snippet/
- * 
- * @verbatim
- * <meta itemprop="name" content="Toller Titel">
- * <meta itemprop="description" content="Eine tolle Beschreibung">
- * <meta itemprop="image" content="http://maple.libertreeproject.org/images/tree-icon.png">
- * 
- * <body itemscope itemtype="http://schema.org/Product">
- *   <h1 itemprop="name">Shiny Trinket</h1>
- *   <img itemprop="image" src="{image-url}" />
- *   <p itemprop="description">Shiny trinkets are shiny.</p>
- * </body>
- * @endverbatim
+ * @see ParseUrl::getSiteinfo() for more information about scraping embeddable content 
 */
 
 use \Friendica\ParseUrl;

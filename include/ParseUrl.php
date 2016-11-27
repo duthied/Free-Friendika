@@ -19,6 +19,28 @@ require_once("include/xml.php");
  */
 class ParseUrl {
 
+	/**
+	 * @brief Search for chached embeddable data of an url otherwise fetch it
+	 * 
+	 * @param type $url The url of the page which should be scraped
+	 * @param type $no_guessing If true the parse doens't search for
+	 *    preview pictures
+	 * @param type $do_oembed The false option is used by the function fetch_oembed()
+	 *    to avoid endless loops
+	 * 
+	 * @return array which contains needed data for embedding
+	 *    string 'url' => The url of the parsed page
+	 *    string 'type' => Content type
+	 *    string 'title' => The title of the content
+	 *    string 'text' => The description for the content
+	 *    string 'image' => A preview image of the content (only available
+	 *                if $no_geuessing = false
+	 *    array'images' = Array of preview pictures
+	 *    string 'keywords' => The tags which belong to the content
+	 * 
+	 * @see ParseUrl::getSiteinfo() for more information about scraping
+	 * embeddable content 
+	 */
 	public static function getSiteinfoCached($url, $no_guessing = false, $do_oembed = true) {
 
 		if ($url == "") {
@@ -47,7 +69,46 @@ class ParseUrl {
 
 		return $data;
 	}
-
+	/**
+	 * @brief Parse a page for embeddable content information
+	 * 
+	 * This method parses to url for meta data which can be used to embed
+	 * the content. If available it prioritizes Open Graph meta tags.
+	 * If this is not available it uses the twitter cards meta tags.
+	 * As fallback it uses standard html elements with meta informations
+	 * like \<title\>Awesome Title\</title\> or
+	 * \<meta name="description" content="An awesome description"\>
+	 * 
+	 * @param type $url The url of the page which should be scraped
+	 * @param type $no_guessing If true the parse doens't search for
+	 *    preview pictures
+	 * @param type $do_oembed The false option is used by the function fetch_oembed()
+	 *    to avoid endless loops
+	 * @param type $count Internal counter to avoid endless loops
+	 * 
+	 * @return array which contains needed data for embedding
+	 *    string 'url' => The url of the parsed page
+	 *    string 'type' => Content type
+	 *    string 'title' => The title of the content
+	 *    string 'text' => The description for the content
+	 *    string 'image' => A preview image of the content (only available
+	 *                if $no_geuessing = false
+	 *    array'images' = Array of preview pictures
+	 *    string 'keywords' => The tags which belong to the content
+	 * 
+	 * @todo https://developers.google.com/+/plugins/snippet/
+	 * @verbatim
+	 * <meta itemprop="name" content="Awesome title">
+	 * <meta itemprop="description" content="An awesome description">
+	 * <meta itemprop="image" content="http://maple.libertreeproject.org/images/tree-icon.png">
+	 * 
+	 * <body itemscope itemtype="http://schema.org/Product">
+	 *   <h1 itemprop="name">Shiny Trinket</h1>
+	 *   <img itemprop="image" src="{image-url}" />
+	 *   <p itemprop="description">Shiny trinkets are shiny.</p>
+	 * </body>
+	 * @endverbatim
+	 */
 	public static function getSiteinfo($url, $no_guessing = false, $do_oembed = true, $count = 1) {
 
 		$a = get_app();
@@ -441,9 +502,25 @@ class ParseUrl {
 		$tag = "#" . $tag;
 	}
 
+	/**
+	 * @brief Add a scheme to an url
+	 * 
+	 * The src attribute of some html elements (e.g. images)
+	 * can miss the scheme so we need to add the correct
+	 * scheme
+	 * 
+	 * @param string $url The url which possibly does have
+	 *    a missing scheme (a link to an image)
+	 * @param string $scheme The url with a correct scheme
+	 *    (e.g. the url from the webpage which does contain the image)
+	 * 
+	 * @return string The url with a scheme
+	 */
 	private static function completeUrl($url, $scheme) {
 		$urlarr = parse_url($url);
 
+		// If the url does allready have an scheme
+		// we can stop the process here
 		if (isset($urlarr["scheme"])) {
 			return($url);
 		}
