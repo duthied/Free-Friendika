@@ -1,8 +1,10 @@
 <?php
-/*
-Run the poller from a daemon.
-This script was taken from http://php.net/manual/en/function.pcntl-fork.php
-*/
+/**
+ * @file util/daemon.php
+ * @brief Run the poller from a daemon.
+ *
+ * This script was taken from http://php.net/manual/en/function.pcntl-fork.php
+ */
 function shutdown() {
 	posix_kill(posix_getpid(), SIGHUP);
 }
