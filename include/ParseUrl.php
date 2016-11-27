@@ -12,6 +12,7 @@ use \Friendica\Core\Config;
 require_once("include/network.php");
 require_once("include/Photo.php");
 require_once("include/oembed.php");
+require_once("include/xml.php");
 
 /**
  * @brief Class with methods for extracting certain content from an url
@@ -184,17 +185,17 @@ class ParseUrl {
 		$doc = new \DOMDocument();
 		@$doc->loadHTML($body);
 
-		self::deleteNode($doc, "style");
-		self::deleteNode($doc, "script");
-		self::deleteNode($doc, "option");
-		self::deleteNode($doc, "h1");
-		self::deleteNode($doc, "h2");
-		self::deleteNode($doc, "h3");
-		self::deleteNode($doc, "h4");
-		self::deleteNode($doc, "h5");
-		self::deleteNode($doc, "h6");
-		self::deleteNode($doc, "ol");
-		self::deleteNode($doc, "ul");
+		\xml::deleteNode($doc, "style");
+		\xml::deleteNode($doc, "script");
+		\xml::deleteNode($doc, "option");
+		\xml::deleteNode($doc, "h1");
+		\xml::deleteNode($doc, "h2");
+		\xml::deleteNode($doc, "h3");
+		\xml::deleteNode($doc, "h4");
+		\xml::deleteNode($doc, "h5");
+		\xml::deleteNode($doc, "h6");
+		\xml::deleteNode($doc, "ol");
+		\xml::deleteNode($doc, "ul");
 
 		$xpath = new \DomXPath($doc);
 
@@ -438,14 +439,6 @@ class ParseUrl {
 	 */
 	private static function arrAddHashes(&$tag, $k) {
 		$tag = "#" . $tag;
-	}
-
-	private static function deleteNode(&$doc, $node) {
-		$xpath = new \DomXPath($doc);
-		$list = $xpath->query("//".$node);
-		foreach ($list as $child) {
-			$child->parentNode->removeChild($child);
-		}
 	}
 
 	private static function completeUrl($url, $scheme) {

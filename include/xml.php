@@ -1,11 +1,12 @@
 <?php
+
 /**
  * @file include/xml.php
  */
 
 
 /**
- * @brief This class contain functions to work with XML data
+ * @brief This class contain methods to work with XML data
  *
  */
 class xml {
@@ -372,5 +373,18 @@ class xml {
 
 		return($xml_array);
 	}
+
+	/**
+	 * @brief Delete a node in a XML object
+	 * 
+	 * @param object $doc XML document
+	 * @param string $node Node name
+	 */
+	public static function deleteNode(&$doc, $node) {
+		$xpath = new \DomXPath($doc);
+		$list = $xpath->query("//".$node);
+		foreach ($list as $child) {
+			$child->parentNode->removeChild($child);
+		}
+	}
 }
-?>
