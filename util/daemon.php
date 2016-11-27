@@ -87,6 +87,9 @@ file_put_contents($pidfile, $pid);
 
 // Now running as a daemon.
 while (true) {
+	// Just to be sure that this script really runs endlessly
+	set_time_limit(0);
+
 	// Call the poller
 	$cmdline = $php.' include/poller.php';
 
