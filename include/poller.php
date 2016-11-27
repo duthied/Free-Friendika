@@ -311,6 +311,11 @@ function poller_kill_stale_workers() {
 		}
 }
 
+/**
+ * @brief Checks if the number of active workers exceeds the given limits
+ *
+ * @return bool Are there too much workers running?
+ */
 function poller_too_much_workers() {
 
 
@@ -389,6 +394,11 @@ function poller_too_much_workers() {
 	return($active >= $queues);
 }
 
+/**
+ * @brief Returns the number of active poller processes
+ *
+ * @return integer Number of active poller processes
+ */
 function poller_active_workers() {
 	$workers = q("SELECT COUNT(*) AS `processes` FROM `process` WHERE `command` = 'poller.php'");
 
@@ -478,6 +488,9 @@ function poller_worker_process() {
 	return $r;
 }
 
+/**
+ * @brief Call the front end worker
+ */
 function call_worker() {
 	if (!get_config("system", "frontend_worker")) {
 		return;
@@ -487,6 +500,9 @@ function call_worker() {
 	fetch_url($url, false, $redirects, 1);
 }
 
+/**
+ * @brief Call the front end worker if there aren't any active
+ */
 function call_worker_if_idle() {
 	if (!get_config("system", "frontend_worker")) {
 		return;
@@ -503,11 +519,19 @@ function call_worker_if_idle() {
 	}
 }
 
+/**
+ * @brief Removes long running worker processes
+ */
 function clear_worker_processes() {
+	/// @todo the 10 minutes needs to be configurable
+	/// Additionally we should clean up the corresponding workerqueue entries as well
 	q("DELETE FROM `process` WHERE `created` < '%s' AND `command` = 'worker.php'",
 		dbesc(datetime_convert('UTC','UTC',"now - 10 minutes")));
 }
 
+/**
+ * @brief Runs the cron processes
+ */
 function poller_run_cron() {
 	// Run the cron job that calls all other jobs
 	proc_run(PRIORITY_MEDIUM, "include/cron.php");
