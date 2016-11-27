@@ -1385,6 +1385,10 @@ class App {
 
 	function proc_run($args) {
 
+		if (!function_exists("proc_open")) {
+			return;
+		}
+
 		// Add the php path if it is a php call
 		if (count($args) && ($args[0] === 'php' OR !is_string($args[0]))) {
 

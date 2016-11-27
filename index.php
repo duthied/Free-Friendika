@@ -99,6 +99,10 @@ if (!$a->is_backend()) {
 	$stamp1 = microtime(true);
 	session_start();
 	$a->save_timestamp($stamp1, "parser");
+} else {
+	require_once "include/poller.php";
+
+	call_worker_if_idle();
 }
 
 /**
