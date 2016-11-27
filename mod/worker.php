@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file mod/worker.php
+ * @brief Module for running the poller as frontend process
+ */
 require_once("include/poller.php");
 
 use \Friendica\Core\Config;
@@ -6,7 +10,7 @@ use \Friendica\Core\PConfig;
 
 function worker_init($a){
 
-	if (!get_config("system", "frontend_worker")) {
+	if (!Config::get("system", "frontend_worker")) {
 		return;
 	}
 

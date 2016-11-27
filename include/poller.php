@@ -523,10 +523,11 @@ function call_worker_if_idle() {
  * @brief Removes long running worker processes
  */
 function clear_worker_processes() {
-	/// @todo the 10 minutes needs to be configurable
-	/// Additionally we should clean up the corresponding workerqueue entries as well
+	$timeout = Config::get("system", "frontend_worker_timeout", 10);
+
+	/// @todo We should clean up the corresponding workerqueue entries as well
 	q("DELETE FROM `process` WHERE `created` < '%s' AND `command` = 'worker.php'",
-		dbesc(datetime_convert('UTC','UTC',"now - 10 minutes")));
+		dbesc(datetime_convert('UTC','UTC',"now - ".$timeout." minutes")));
 }
 
 /**
