@@ -29,6 +29,11 @@ function worker_init($a){
 	call_worker();
 
 	if ($r = poller_worker_process()) {
+
+		// On most configurations this parameter wouldn't have any effect.
+		// But since it doesn't destroy anything, we just try to get more execution time in any way.
+		set_time_limit(0);
+
 		poller_execute($r[0]);
 	}
 
