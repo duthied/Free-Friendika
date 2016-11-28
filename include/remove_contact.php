@@ -33,7 +33,6 @@ function remove_contact_run($argv, $argc) {
 		return;
 	}
 
-die("Blubb ".$id);
 	q("DELETE FROM `item` WHERE `contact-id` = %d", intval($id));
 
 	q("DELETE FROM `photo` WHERE `contact-id` = %d", intval($id));
