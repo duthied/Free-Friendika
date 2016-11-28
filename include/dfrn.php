@@ -134,7 +134,7 @@ class dfrn {
 					break; // NOTREACHED
 			}
 
-			$r = q("SELECT * FROM `contact` WHERE NOT `blocked` AND `contact`.`uid` = %d $sql_extra LIMIT 1",
+			$r = q("SELECT * FROM `contact` WHERE (NOT `blocked` OR `pending`) AND `contact`.`uid` = %d $sql_extra LIMIT 1",
 				intval($owner_id)
 			);
 
@@ -193,7 +193,7 @@ class dfrn {
 			`sign`.`signed_text`, `sign`.`signature`, `sign`.`signer`
 			FROM `item` USE INDEX (`uid_wall_changed`, `uid_type_changed`) $sql_post_table
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			AND NOT `contact`.`blocked`
+			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 			LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`
 			WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`moderated` AND `item`.`parent` != 0
 			AND `item`.`wall` AND `item`.`changed` > '%s'

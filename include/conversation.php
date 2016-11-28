@@ -439,7 +439,7 @@ These Fields are not added below (yet). They are here to for bug search.
 function item_joins() {
 
 	return "STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND
-		NOT `contact`.`blocked`
+		(NOT `contact`.`blocked` OR `contact`.`pending`)
 		LEFT JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
 		LEFT JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`owner-id`";
 }

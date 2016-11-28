@@ -371,7 +371,7 @@ function profile_sidebar($profile, $block = 0) {
 			if(count($r))
 				$updated =  date("c", strtotime($r[0]['updated']));
 
-			$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `hidden` AND NOT `archive`
+			$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND NOT `self` AND (NOT `blocked` OR `pending`) AND NOT `hidden` AND NOT `archive`
 					AND `network` IN ('%s', '%s', '%s', '')",
 				intval($profile['uid']),
 				dbesc(NETWORK_DFRN),
