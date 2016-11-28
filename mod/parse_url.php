@@ -150,3 +150,27 @@ function parse_url_content(&$a) {
 
 	killme();
 }
+
+/**
+ * @brief Legacy function to call ParseUrl::getSiteinfoCached
+ * 
+ * Note: We have moved the function to ParseUrl.php. This function is only for
+ * legacy support and will be remove in the future
+ * 
+ * @param type $url The url of the page which should be scraped
+ * @param type $no_guessing If true the parse doens't search for
+ *    preview pictures
+ * @param type $do_oembed The false option is used by the function fetch_oembed()
+ *    to avoid endless loops
+ * 
+ * @return array which contains needed data for embedding
+ * 
+ * @see ParseUrl::getSiteinfoCached()
+ * 
+ * @todo Remove this function after all Addons has been changed to use
+ *    ParseUrl::getSiteinfoCached
+ */
+function parseurl_getsiteinfo_cached($url, $no_guessing = false, $do_oembed = true) {
+	$siteinfo = ParseUrl::getSiteinfoCached($url, $no_guessing, $do_oembed);
+	return $siteinfo;
+}
