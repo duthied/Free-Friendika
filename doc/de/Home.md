@@ -47,7 +47,7 @@ Friendica - Dokumentation und Ressourcen
 * [Plugin Development](help/Plugins)
 * [Theme Development](help/themes)
 * [Smarty 3 Templates](help/smarty3-templates)
-* [Nachrichtenfluss](help/Message-Flow)
+* [Protokoll Dokumentation](help/Protocol) (EN)
 * [Datenbank-Schema](help/database)
 * [Code-Referenz (mit doxygen generiert - setzt Cookies)](doc/html/)
 * [Twitter/GNU Social API Functions](help/api) (EN)
