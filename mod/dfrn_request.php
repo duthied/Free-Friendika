@@ -83,7 +83,7 @@ function dfrn_request_post(&$a) {
 				 */
 
 				$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND NOT `self` LIMIT 1",
-					dbesc($dfrn_url),
+					intval(local_user()),
 					dbesc(normalise_link($dfrn_url))
 				);
 
