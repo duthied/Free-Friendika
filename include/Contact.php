@@ -22,6 +22,7 @@ function user_remove($uid) {
 		$r[0]['nickname']
 	);
 
+	/// @todo Should be done in a background job since this likely will run into a time out
 	// don't delete yet, will be done later when contacts have deleted my stuff
 	// q("DELETE FROM `contact` WHERE `uid` = %d", intval($uid));
 	q("DELETE FROM `gcign` WHERE `uid` = %d", intval($uid));
@@ -74,25 +75,10 @@ function contact_remove($id) {
 		return;
 	}
 
-	q("DELETE FROM `contact` WHERE `id` = %d",
-		intval($id)
-	);
-	q("DELETE FROM `item` WHERE `contact-id` = %d ",
-		intval($id)
-	);
-	q("DELETE FROM `photo` WHERE `contact-id` = %d ",
-		intval($id)
-	);
-	q("DELETE FROM `mail` WHERE `contact-id` = %d ",
-		intval($id)
-	);
-	q("DELETE FROM `event` WHERE `cid` = %d ",
-		intval($id)
-	);
-	q("DELETE FROM `queue` WHERE `cid` = %d ",
-		intval($id)
-	);
+	q("DELETE FROM `contact` WHERE `id` = %d", intval($id));
 
+	// Delete the rest in the background
+	proc_run(PRIORITY_LOW, 'include/remove_contact.php', $id);
 }
 
 
