@@ -1,12 +1,13 @@
 <?php
 
 /**
- *
- * Module: dfrn_request
+ * @file mod/dfrn_request.php
+ * @brief Module: dfrn_request
  *
  * Purpose: Handles communication associated with the issuance of
  * friend requests.
  *
+ * @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/master/spec/dfrn2.pdf
  */
 
 require_once('include/enotify.php');
@@ -14,7 +15,6 @@ require_once('include/Scrape.php');
 require_once('include/Probe.php');
 require_once('include/group.php');
 
-if(! function_exists('dfrn_request_init')) {
 function dfrn_request_init(&$a) {
 
 	if($a->argc > 1)
@@ -22,7 +22,7 @@ function dfrn_request_init(&$a) {
 
 	profile_load($a,$which);
 	return;
-}}
+}
 
 
 /**
@@ -40,8 +40,6 @@ function dfrn_request_init(&$a) {
  * After logging in, we click 'submit' to approve the linkage.
  *
  */
-
-if(! function_exists('dfrn_request_post')) {
 function dfrn_request_post(&$a) {
 
 	if(($a->argc != 2) || (! count($a->profile))) {
@@ -55,7 +53,7 @@ function dfrn_request_post(&$a) {
 	}
 
 
-	/**
+	/*
 	 *
 	 * Scenario 2: We've introduced ourself to another cell, then have been returned to our own cell
 	 * to confirm the request, and then we've clicked submit (perhaps after logging in).
@@ -65,7 +63,7 @@ function dfrn_request_post(&$a) {
 
 	if((x($_POST,'localconfirm')) && ($_POST['localconfirm'] == 1)) {
 
-		/**
+		/*
 		 * Ensure this is a valid request
 		 */
 
@@ -80,20 +78,19 @@ function dfrn_request_post(&$a) {
 
 			if(x($dfrn_url)) {
 
-				/**
+				/*
 				 * Lookup the contact based on their URL (which is the only unique thing we have at the moment)
 				 */
 
-				$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND (`url` = '%s' OR `nurl` = '%s') AND `self` = 0 LIMIT 1",
+				$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND NOT `self` LIMIT 1",
 					intval(local_user()),
-					dbesc($dfrn_url),
 					dbesc(normalise_link($dfrn_url))
 				);
 
 				if(count($r)) {
 					if(strlen($r[0]['dfrn-id'])) {
 
-						/**
+						/*
 						 * We don't need to be here. It has already happened.
 						 */
 
@@ -113,7 +110,7 @@ function dfrn_request_post(&$a) {
 				}
 				else {
 
-					/**
+					/*
 					 * Scrape the other site's profile page to pick up the dfrn links, key, fn, and photo
 					 */
 
@@ -141,13 +138,12 @@ function dfrn_request_post(&$a) {
 
 					$photo = $parms["photo"];
 
-					/********* Escape the entire array ********/
+					// Escape the entire array
 
 					dbesc_array($parms);
 
-					/******************************************/
 
-					/**
+					/*
 					 * Create a contact record on our site for the other person
 					 */
 
@@ -195,7 +191,7 @@ function dfrn_request_post(&$a) {
 				} else
 					$forwardurl = $a->get_baseurl()."/contacts";
 
-				/**
+				/*
 				 * Allow the blocked remote notification to complete
 				 */
 
@@ -222,7 +218,7 @@ function dfrn_request_post(&$a) {
 		return; // NOTREACHED
 	}
 
-	/**
+	/*
 	 * Otherwise:
 	 *
 	 * Scenario 1:
@@ -260,7 +256,7 @@ function dfrn_request_post(&$a) {
 
 	if( x($_POST,'dfrn_url')) {
 
-		/**
+		/*
 		 * Block friend request spam
 		 */
 
@@ -277,7 +273,7 @@ function dfrn_request_post(&$a) {
 			}
 		}
 
-		/**
+		/*
 		 *
 		 * Cleanup old introductions that remain blocked.
 		 * Also remove the contact record, but only if there is no existing relationship
@@ -304,7 +300,7 @@ function dfrn_request_post(&$a) {
 			}
 		}
 
-		/**
+		/*
 		 *
 		 * Cleanup any old email intros - which will have a greater lifetime
 		 */
@@ -613,7 +609,7 @@ function dfrn_request_post(&$a) {
 			// END $network === NETWORK_DFRN
 		} elseif (($network != NETWORK_PHANTOM) AND ($url != "")) {
 
-			/**
+			/*
 			 *
 			 * Substitute our user's feed URL into $url template
 			 * Send the subscriber home to subscribe
@@ -642,12 +638,9 @@ function dfrn_request_post(&$a) {
 		}
 
 	}	return;
-}}
+}
 
 
-
-
-if(! function_exists('dfrn_request_content')) {
 function dfrn_request_content(&$a) {
 
 	if(($a->argc != 2) || (! count($a->profile)))
@@ -781,7 +774,7 @@ function dfrn_request_content(&$a) {
 	}
 	else {
 
-		/**
+		/*
 		 * Normal web request. Display our user's introduction form.
 		 */
 
@@ -793,7 +786,7 @@ function dfrn_request_content(&$a) {
 		}
 
 
-		/**
+		/*
 		 * Try to auto-fill the profile address
 		 */
 
@@ -816,7 +809,7 @@ function dfrn_request_content(&$a) {
 		$target_addr = $a->profile['nickname'] . '@' . substr(z_root(), strpos(z_root(),'://') + 3 );
 
 
-		/**
+		/*
 		 *
 		 * The auto_request form only has the profile address
 		 * because nobody is going to read the comments and
@@ -881,4 +874,4 @@ function dfrn_request_content(&$a) {
 	}
 
 	return; // Somebody is fishing.
-}}
+}
