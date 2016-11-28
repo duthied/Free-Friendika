@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file mod/dfrn_notify.php
+ * @brief The dfrn notify endpoint
+ * @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/master/spec/dfrn2.pdf
+ */
 require_once('include/items.php');
 require_once('include/dfrn.php');
 require_once('include/event.php');
@@ -7,7 +12,7 @@ require_once('include/event.php');
 require_once('library/defuse/php-encryption-1.2.1/Crypto.php');
 
 function dfrn_notify_post(&$a) {
-    logger(__function__, LOGGER_TRACE);
+	logger(__function__, LOGGER_TRACE);
 	$dfrn_id      = ((x($_POST,'dfrn_id'))      ? notags(trim($_POST['dfrn_id']))   : '');
 	$dfrn_version = ((x($_POST,'dfrn_version')) ? (float) $_POST['dfrn_version']    : 2.0);
 	$challenge    = ((x($_POST,'challenge'))    ? notags(trim($_POST['challenge'])) : '');
@@ -117,7 +122,7 @@ function dfrn_notify_post(&$a) {
 
 	if($dissolve == 1) {
 
-		/**
+		/*
 		 * Relationship is dissolved permanently
 		 */
 
