@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * @file include/items.php
+ */
+
+use \Friendica\ParseUrl;
+
 require_once('include/bbcode.php');
 require_once('include/oembed.php');
 require_once('include/salmon.php');
@@ -216,9 +222,8 @@ function add_page_info_data($data) {
 }
 
 function query_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
-	require_once("mod/parse_url.php");
 
-	$data = parseurl_getsiteinfo_cached($url, true);
+	$data = ParseUrl::getSiteinfoCached($url, true);
 
 	if ($photo != "")
 		$data["images"][0]["src"] = $photo;
