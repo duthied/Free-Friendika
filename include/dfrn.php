@@ -3,7 +3,8 @@
  * @file include/dfrn.php
  * @brief The implementation of the dfrn protocol
  *
- * https://github.com/friendica/friendica/wiki/Protocol
+ * @see https://github.com/friendica/friendica/wiki/Protocol and
+ * https://github.com/friendica/friendica/blob/master/spec/dfrn2.pdf
  */
 
 require_once("include/Contact.php");

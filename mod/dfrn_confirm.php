@@ -1,17 +1,21 @@
 <?php
 
-/*
- * Module: dfrn_confirm
+/**
+ * @file mod/dfrn_confirm.php
+ * @brief Module: dfrn_confirm
  * Purpose: Friendship acceptance for DFRN contacts
- *
+ *.
  * There are two possible entry points and three scenarios.
- *
+ *.
  *   1. A form was submitted by our user approving a friendship that originated elsewhere.
  *      This may also be called from dfrn_request to automatically approve a friendship.
  *
  *   2. We may be the target or other side of the conversation to scenario 1, and will
  *      interact with that process on our own user's behalf.
- *
+ *.
+ *  @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/master/spec/dfrn2.pdf
+ *    You also find a graphic which describes the confirmation process at
+ *    https://github.com/friendica/friendica/blob/master/spec/dfrn2_contact_confirmation.png
  */
 
 require_once('include/enotify.php');
@@ -22,7 +26,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 	if(is_array($handsfree)) {
 
-		/**
+		/*
 		 * We were called directly from dfrn_request due to automatic friend acceptance.
 		 * Any $_POST parameters we may require are supplied in the $handsfree array.
 		 *
@@ -37,7 +41,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			$node = $a->argv[1];
 	}
 
-		/**
+		/*
 		 *
 		 * Main entry point. Scenario 1. Our user received a friend request notification (perhaps
 		 * from another site) and clicked 'Approve'.
@@ -87,7 +91,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			$activity = ((x($_POST,'activity'))   ? intval($_POST['activity'])      : 0 );
 		}
 
-		/**
+		/*
 		 *
 		 * Ensure that dfrn_id has precedence when we go to find the contact record.
 		 * We only want to search based on contact id if there is no dfrn_id,
@@ -103,7 +107,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			logger('Confirming follower with contact_id: ' . $cid);
 
 
-		/**
+		/*
 		 *
 		 * The other person will have been issued an ID when they first requested friendship.
 		 * Locate their record. At this time, their record will have both pending and blocked set to 1.
@@ -139,7 +143,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 		if($network === NETWORK_DFRN) {
 
-			/**
+			/*
 			 *
 			 * Generate a key pair for all further communications with this person.
 			 * We have a keypair for every contact, and a site key for unknown people.
@@ -166,7 +170,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 			$params = array();
 
-			/**
+			/*
 			 *
 			 * Per the DFRN protocol, we will verify both ends by encrypting the dfrn_id with our
 			 * site private key (person on the other end can decrypt it with our site public key).
@@ -212,7 +216,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 			logger('Confirm: posting data to ' . $dfrn_confirm . ': ' . print_r($params,true), LOGGER_DATA);
 
-			/**
+			/*
 			 *
 			 * POST all this stuff to the other site.
 			 * Temporarily raise the network timeout to 120 seconds because the default 60
@@ -506,7 +510,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		//NOTREACHED
 	}
 
-	/**
+	/*
 	 *
 	 *
 	 * End of Scenario 1. [Local confirmation of remote friend request].
