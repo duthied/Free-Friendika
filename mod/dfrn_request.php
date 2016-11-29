@@ -75,6 +75,8 @@ function dfrn_request_post(&$a) {
 			$confirm_key = ((x($_POST,'confirm_key')) ? $_POST['confirm_key'] : "");
 			$hidden = ((x($_POST,'hidden-contact')) ? intval($_POST['hidden-contact']) : 0);
 			$contact_record = null;
+			$blocked = 1;
+			$pending = 1;
 
 			if(x($dfrn_url)) {
 
@@ -148,7 +150,7 @@ function dfrn_request_post(&$a) {
 					 */
 
 					$r = q("INSERT INTO `contact` ( `uid`, `created`,`url`, `nurl`, `addr`, `name`, `nick`, `photo`, `site-pubkey`,
-						`request`, `confirm`, `notify`, `poll`, `poco`, `network`, `aes_allow`, `hidden`)
+						`request`, `confirm`, `notify`, `poll`, `poco`, `network`, `aes_allow`, `hidden`, `blocked`, `pending`)
 						VALUES ( %d, '%s', '%s', '%s', '%s', '%s' , '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d)",
 						intval(local_user()),
 						datetime_convert(),
@@ -166,7 +168,9 @@ function dfrn_request_post(&$a) {
 						$parms['dfrn-poco'],
 						dbesc(NETWORK_DFRN),
 						intval($aes_allow),
-						intval($hidden)
+						intval($hidden),
+						intval($blocked),
+						intval($pending)
 					);
 				}
 
