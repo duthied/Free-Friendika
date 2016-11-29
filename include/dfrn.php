@@ -134,7 +134,7 @@ class dfrn {
 					break; // NOTREACHED
 			}
 
-			$r = q("SELECT * FROM `contact` WHERE (NOT `blocked` OR `pending`) AND `contact`.`uid` = %d $sql_extra LIMIT 1",
+			$r = q("SELECT * FROM `contact` WHERE NOT `blocked` AND `contact`.`uid` = %d $sql_extra LIMIT 1",
 				intval($owner_id)
 			);
 
