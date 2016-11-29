@@ -90,14 +90,15 @@ text { font:12px Dialog; }
 <text x="1055" y="1825" style="font:13px Open Sans">is prensent it is a duplicate)</text>
 <text x="1055" y="1871" style="font:13px Open Sans">- update dfrn-id and pubkey for Karens contact entry in the </text>
 <text x="1055" y="1894" style="font:13px Open Sans">contact table</text>
-<clipPath id="clip12"><path d="M144,1852 L455,1852 L455,1894 L144,1894 L144,1852 Z" /></clipPath>
-<path d="M153,1853 C148.5820313,1853 145,1856.5820313 145,1861 L145,1884 C145,1888.4179688 148.5820313,1892 153,1892 L445,1892 C449.4179688,1892 453,1888.4179688 453,1884 L453,1861 C453,1856.5820313 449.4179688,1853 445,1853 Z" style="fill:rgb(255,255,3);stroke:none" clip-path="url(#clip12)" />
-<text x="159" y="1875" style="font:13px Open Sans"> -&gt; set the relation for the contact</text>
+<clipPath id="clip12"><path d="M42,1841 L559,1841 L559,1906 L42,1906 L42,1841 Z" /></clipPath>
+<path d="M51,1842 C46.5820313,1842 43,1845.5820313 43,1850 L43,1896 C43,1900.4179688 46.5820313,1904 51,1904 L549,1904 C553.4179688,1904 557,1900.4179688 557,1896 L557,1850 C557,1845.5820313 553.4179688,1842 549,1842 Z" style="fill:rgb(255,255,3);stroke:none" clip-path="url(#clip12)" />
+<text x="57" y="1864" style="font:13px Open Sans"> -&gt; set the relation for the contact and set pending = 0 and </text>
+<text x="57" y="1887" style="font:13px Open Sans">blocked = 0</text>
 <clipPath id="clip13"><path d="M1128,1950 L1541,1950 L1541,2061 L1128,2061 L1128,1950 Z" /></clipPath>
 <path d="M1137,1951 C1132.5820313,1951 1129,1954.5820313 1129,1959 L1129,2051 C1129,2055.4179688 1132.5820313,2059 1137,2059 L1531,2059 C1535.4179688,2059 1539,2055.4179688 1539,2051 L1539,1959 C1539,1954.5820313 1535.4179688,1951 1531,1951 Z" style="fill:rgb(255,255,3);stroke:none" clip-path="url(#clip13)" />
 <text x="1142" y="1973" style="font:13px Open Sans">- update the relationship of the contact Karen</text>
 <text x="1142" y="2019" style="font:13px Open Sans">-&gt; if duplex delete the issued-id</text>
-<text x="1142" y="2042" style="font:13px Open Sans">-&gt; set pending to 0</text>
+<text x="1142" y="2042" style="font:13px Open Sans">-&gt; set blocked = 0 and pending = 0</text>
 <clipPath id="clip14"><path d="M1241,2117 L1428,2117 L1428,2159 L1241,2159 L1241,2117 Z" /></clipPath>
 <path d="M1250,2118 C1245.5820313,2118 1242,2121.5820313 1242,2126 L1242,2149 C1242,2153.4179688 1245.5820313,2157 1250,2157 L1418,2157 C1422.4179688,2157 1426,2153.4179688 1426,2149 L1426,2126 C1426,2121.5820313 1422.4179688,2118 1418,2118 Z" style="fill:rgb(255,255,3);stroke:none" clip-path="url(#clip14)" />
 <text x="1255" y="2140" style="font:13px Open Sans">send a notification</text>
@@ -134,12 +135,12 @@ text { font:12px Dialog; }
 <path d="M1039.1210938,1352.2304688 L1042,1342.65625 L1032.265625,1344.9492188 Z" style="fill:rgb(182,44,37);stroke:none" clip-path="url(#clip27)" />
 <clipPath id="clip28"><path d="M588,1338 L1046,1338 L1046,1770 L588,1770 L588,1338 Z" /></clipPath>
 <path d="M1039.1210938,1352.2304688 L1042,1342.65625 L1032.265625,1344.9492188 Z" style="fill:none;stroke:rgb(182,44,37);stroke-width:3" clip-path="url(#clip28)" />
-<clipPath id="clip29"><path d="M262,1792 L337,1792 L337,1857 L262,1857 L262,1792 Z" /></clipPath>
-<path d="M299.5546875,1796 L299.15625,1853" style="fill:none;stroke:rgb(182,44,37);stroke-width:3;stroke-dasharray:18,9;stroke-dashoffset:0" clip-path="url(#clip29)" />
-<clipPath id="clip30"><path d="M262,1792 L337,1792 L337,1857 L262,1857 L262,1792 Z" /></clipPath>
-<path d="M294.2148438,1844.3046875 L299.15625,1853 L304.2148438,1844.375 Z" style="fill:rgb(182,44,37);stroke:none" clip-path="url(#clip30)" />
-<clipPath id="clip31"><path d="M262,1792 L337,1792 L337,1857 L262,1857 L262,1792 Z" /></clipPath>
-<path d="M294.2148438,1844.3046875 L299.15625,1853 L304.2148438,1844.375 Z" style="fill:none;stroke:rgb(182,44,37);stroke-width:3" clip-path="url(#clip31)" />
+<clipPath id="clip29"><path d="M263,1792 L338,1792 L338,1846 L263,1846 L263,1792 Z" /></clipPath>
+<path d="M300.4296875,1796 L300.1992188,1842" style="fill:none;stroke:rgb(182,44,37);stroke-width:3;stroke-dasharray:18,9;stroke-dashoffset:0" clip-path="url(#clip29)" />
+<clipPath id="clip30"><path d="M263,1792 L338,1792 L338,1846 L263,1846 L263,1792 Z" /></clipPath>
+<path d="M295.2421875,1833.3164063 L300.1992188,1842 L305.2421875,1833.3632813 Z" style="fill:rgb(182,44,37);stroke:none" clip-path="url(#clip30)" />
+<clipPath id="clip31"><path d="M263,1792 L338,1792 L338,1846 L263,1846 L263,1792 Z" /></clipPath>
+<path d="M295.2421875,1833.3164063 L300.1992188,1842 L305.2421875,1833.3632813 Z" style="fill:none;stroke:rgb(182,44,37);stroke-width:3" clip-path="url(#clip31)" />
 <clipPath id="clip32"><path d="M1295,1907 L1370,1907 L1370,1955 L1295,1955 L1295,1907 Z" /></clipPath>
 <path d="M1332.9140625,1911 L1333.4453125,1951" style="fill:none;stroke:rgb(182,44,37);stroke-width:3;stroke-dasharray:18,9;stroke-dashoffset:0" clip-path="url(#clip32)" />
 <clipPath id="clip33"><path d="M1295,1907 L1370,1907 L1370,1955 L1295,1955 L1295,1907 Z" /></clipPath>
@@ -152,10 +153,10 @@ text { font:12px Dialog; }
 <path d="M1329,2109.3398438 L1334,2118 L1339,2109.3398438 Z" style="fill:rgb(182,44,37);stroke:none" clip-path="url(#clip36)" />
 <clipPath id="clip37"><path d="M1296,2055 L1371,2055 L1371,2122 L1296,2122 L1296,2055 Z" /></clipPath>
 <path d="M1329,2109.3398438 L1334,2118 L1339,2109.3398438 Z" style="fill:none;stroke:rgb(182,44,37);stroke-width:3" clip-path="url(#clip37)" />
-<clipPath id="clip38"><path d="M262,1888 L337,1888 L337,1942 L262,1942 L262,1888 Z" /></clipPath>
-<path d="M299.2265625,1892 L299.3828125,1938" style="fill:none;stroke:rgb(182,44,37);stroke-width:3;stroke-dasharray:18,9;stroke-dashoffset:0" clip-path="url(#clip38)" />
-<clipPath id="clip39"><path d="M262,1888 L337,1888 L337,1942 L262,1942 L262,1888 Z" /></clipPath>
-<path d="M294.3554688,1929.3554688 L299.3828125,1938 L304.3554688,1929.3242188 Z" style="fill:rgb(182,44,37);stroke:none" clip-path="url(#clip39)" />
-<clipPath id="clip40"><path d="M262,1888 L337,1888 L337,1942 L262,1942 L262,1888 Z" /></clipPath>
-<path d="M294.3554688,1929.3554688 L299.3828125,1938 L304.3554688,1929.3242188 Z" style="fill:none;stroke:rgb(182,44,37);stroke-width:3" clip-path="url(#clip40)" />
+<clipPath id="clip38"><path d="M263,1900 L338,1900 L338,1942 L263,1942 L263,1900 Z" /></clipPath>
+<path d="M300,1904 L299.6171875,1938" style="fill:none;stroke:rgb(182,44,37);stroke-width:3;stroke-dasharray:18,9;stroke-dashoffset:0" clip-path="url(#clip38)" />
+<clipPath id="clip39"><path d="M263,1900 L338,1900 L338,1942 L263,1942 L263,1900 Z" /></clipPath>
+<path d="M294.7148438,1929.2851563 L299.6171875,1938 L304.7148438,1929.3984375 Z" style="fill:rgb(182,44,37);stroke:none" clip-path="url(#clip39)" />
+<clipPath id="clip40"><path d="M263,1900 L338,1900 L338,1942 L263,1942 L263,1900 Z" /></clipPath>
+<path d="M294.7148438,1929.2851563 L299.6171875,1938 L304.7148438,1929.3984375 Z" style="fill:none;stroke:rgb(182,44,37);stroke-width:3" clip-path="url(#clip40)" />
 </svg>
