@@ -623,7 +623,7 @@
 		// count friends
 		$r = q("SELECT count(*) as `count` FROM `contact`
 				WHERE  `uid` = %d AND `rel` IN ( %d, %d )
-				AND `self`=0 AND (NOT `blocked` OR `pending`) AND `hidden`=0",
+				AND `self`=0 AND NOT `blocked` AND `hidden`=0",
 				intval($uinfo[0]['uid']),
 				intval(CONTACT_IS_SHARING),
 				intval(CONTACT_IS_FRIEND)
@@ -632,7 +632,7 @@
 
 		$r = q("SELECT count(*) as `count` FROM `contact`
 				WHERE  `uid` = %d AND `rel` IN ( %d, %d )
-				AND `self`=0 AND (NOT `blocked` OR `pending`) AND `hidden`=0",
+				AND `self`=0 AND NOT `blocked` AND `hidden`=0",
 				intval($uinfo[0]['uid']),
 				intval(CONTACT_IS_FOLLOWER),
 				intval(CONTACT_IS_FRIEND)
