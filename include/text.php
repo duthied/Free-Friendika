@@ -12,7 +12,7 @@ if(! function_exists('replace_macros')) {
  * This is our template processor
  *
  * @param string|FriendicaSmarty $s the string requiring macro substitution,
- *									or an instance of FriendicaSmarty
+ *				or an instance of FriendicaSmarty
  * @param array $r key value pairs (search => replace)
  * @return string substituted string
  */
@@ -874,7 +874,7 @@ function contact_block() {
 	if((! is_array($a->profile)) || ($a->profile['hide-friends']))
 		return $o;
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
-			WHERE `uid` = %d AND NOT `self` AND (NOT `blocked` OR `pending`)
+			WHERE `uid` = %d AND NOT `self` AND NOT `blocked`
 				AND NOT `hidden` AND NOT `archive`
 				AND `network` IN ('%s', '%s', '%s')",
 			intval($a->profile['uid']),
@@ -892,7 +892,7 @@ function contact_block() {
 	} else {
 		// Splitting the query in two parts makes it much faster
 		$r = q("SELECT `id` FROM `contact`
-				WHERE `uid` = %d AND NOT `self` AND (NOT `blocked` OR `pending`)
+				WHERE `uid` = %d AND NOT `self` AND NOT `blocked`
 					AND NOT `hidden` AND NOT `archive`
 				AND `network` IN ('%s', '%s', '%s') ORDER BY RAND() LIMIT %d",
 				intval($a->profile['uid']),
