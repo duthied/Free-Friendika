@@ -13,7 +13,7 @@ ActivityStreams
 ---
 
 Friendica is using ActivityStreams in version 1.0 for its activities and object types.
-Additional types are using for non standard activities.
+Additional types are used for non standard activities.
 
 * [Link to the specification](http://activitystrea.ms/head/activity-schema.html)
 * [List of used ActivityStreams verbs and object types.](https://github.com/friendica/friendica/wiki/ActivityStreams)
