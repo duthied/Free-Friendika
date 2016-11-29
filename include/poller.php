@@ -15,7 +15,7 @@ use \Friendica\Core\PConfig;
 
 require_once("boot.php");
 
-function poller_run(&$argv, &$argc){
+function poller_run($argv, $argc){
 	global $a, $db;
 
 	if(is_null($a)) {
@@ -35,8 +35,6 @@ function poller_run(&$argv, &$argc){
 
 	$a->start_process();
 
-	$mypid = getmypid();
-
 	if ($a->max_processes_reached())
 		return;
 
@@ -53,14 +51,7 @@ function poller_run(&$argv, &$argc){
 	}
 
 	if(($argc <= 1) OR ($argv[1] != "no_cron")) {
-		// Run the cron job that calls all other jobs
-		proc_run(PRIORITY_MEDIUM, "include/cron.php");
-
-		// Run the cronhooks job separately from cron for being able to use a different timing
-		proc_run(PRIORITY_MEDIUM, "include/cronhooks.php");
-
-		// Cleaning dead processes
-		poller_kill_stale_workers();
+		poller_run_cron();
 	} else
 		// Sleep four seconds before checking for running processes again to avoid having too many workers
 		sleep(4);
@@ -69,101 +60,126 @@ function poller_run(&$argv, &$argc){
 	if (poller_too_much_workers())
 		return;
 
-	$cooldown = Config::get("system", "worker_cooldown", 0);
-
 	$starttime = time();
 
 	while ($r = poller_worker_process()) {
 
-		// Quit when in maintenance
-		if (get_config('system', 'maintenance', true))
-			return;
-
-		// Constantly check the number of parallel database processes
-		if ($a->max_processes_reached())
-			return;
-
-		// Constantly check the number of available database connections to let the frontend be accessible at any time
-		if (poller_max_connections_reached())
-			return;
-
 		// Count active workers and compare them with a maximum value that depends on the load
-		if (poller_too_much_workers())
+		if (poller_too_much_workers()) {
 			return;
-
-		$upd = q("UPDATE `workerqueue` SET `executed` = '%s', `pid` = %d WHERE `id` = %d AND `pid` = 0",
-			dbesc(datetime_convert()),
-			intval($mypid),
-			intval($r[0]["id"]));
-
-		if (!$upd) {
-			logger("Couldn't update queue entry ".$r[0]["id"]." - skip this execution", LOGGER_DEBUG);
-			q("COMMIT");
-			continue;
 		}
 
-		// Assure that there are no tasks executed twice
-		$id = q("SELECT `pid`, `executed` FROM `workerqueue` WHERE `id` = %d", intval($r[0]["id"]));
-		if (!$id) {
-			logger("Queue item ".$r[0]["id"]." vanished - skip this execution", LOGGER_DEBUG);
-			q("COMMIT");
-			continue;
-		} elseif ((strtotime($id[0]["executed"]) <= 0) OR ($id[0]["pid"] == 0)) {
-			logger("Entry for queue item ".$r[0]["id"]." wasn't stored - skip this execution", LOGGER_DEBUG);
-			q("COMMIT");
-			continue;
-		} elseif ($id[0]["pid"] != $mypid) {
-			logger("Queue item ".$r[0]["id"]." is to be executed by process ".$id[0]["pid"]." and not by me (".$mypid.") - skip this execution", LOGGER_DEBUG);
-			q("COMMIT");
-			continue;
+		if (!poller_execute($r[0])) {
+			return;
 		}
-		q("COMMIT");
-
-		$argv = json_decode($r[0]["parameter"]);
-
-		$argc = count($argv);
-
-		// Check for existance and validity of the include file
-		$include = $argv[0];
-
-		if (!validate_include($include)) {
-			logger("Include file ".$argv[0]." is not valid!");
-			q("DELETE FROM `workerqueue` WHERE `id` = %d", intval($r[0]["id"]));
-			continue;
-		}
-
-		require_once($include);
-
-		$funcname = str_replace(".php", "", basename($argv[0]))."_run";
-
-		if (function_exists($funcname)) {
-			logger("Process ".$mypid." - Prio ".$r[0]["priority"]." - ID ".$r[0]["id"].": ".$funcname." ".$r[0]["parameter"]);
-
-			// For better logging create a new process id for every worker call
-			// But preserve the old one for the worker
-			$old_process_id = $a->process_id;
-			$a->process_id = uniqid("wrk", true);
-
-			$funcname($argv, $argc);
-
-			$a->process_id = $old_process_id;
-
-			if ($cooldown > 0) {
-				logger("Process ".$mypid." - Prio ".$r[0]["priority"]." - ID ".$r[0]["id"].": ".$funcname." - in cooldown for ".$cooldown." seconds");
-				sleep($cooldown);
-			}
-
-			logger("Process ".$mypid." - Prio ".$r[0]["priority"]." - ID ".$r[0]["id"].": ".$funcname." - done");
-
-			q("DELETE FROM `workerqueue` WHERE `id` = %d", intval($r[0]["id"]));
-		} else
-			logger("Function ".$funcname." does not exist");
 
 		// Quit the poller once every hour
 		if (time() > ($starttime + 3600))
 			return;
 	}
 
+}
+
+/**
+ * @brief Execute a worker entry
+ *
+ * @param array $queue Workerqueue entry
+ *
+ * @return boolean "true" if further processing should be stopped
+ */
+function poller_execute($queue) {
+
+	$a = get_app();
+
+	$mypid = getmypid();
+
+	$cooldown = Config::get("system", "worker_cooldown", 0);
+
+	// Quit when in maintenance
+	if (get_config('system', 'maintenance', true)) {
+		return false;
+	}
+
+	// Constantly check the number of parallel database processes
+	if ($a->max_processes_reached()) {
+		return false;
+	}
+
+	// Constantly check the number of available database connections to let the frontend be accessible at any time
+	if (poller_max_connections_reached()) {
+		return false;
+	}
+
+	$upd = q("UPDATE `workerqueue` SET `executed` = '%s', `pid` = %d WHERE `id` = %d AND `pid` = 0",
+		dbesc(datetime_convert()),
+		intval($mypid),
+		intval($queue["id"]));
+
+	if (!$upd) {
+		logger("Couldn't update queue entry ".$queue["id"]." - skip this execution", LOGGER_DEBUG);
+		q("COMMIT");
+		return true;
+	}
+
+	// Assure that there are no tasks executed twice
+	$id = q("SELECT `pid`, `executed` FROM `workerqueue` WHERE `id` = %d", intval($queue["id"]));
+	if (!$id) {
+		logger("Queue item ".$queue["id"]." vanished - skip this execution", LOGGER_DEBUG);
+		q("COMMIT");
+		return true;
+	} elseif ((strtotime($id[0]["executed"]) <= 0) OR ($id[0]["pid"] == 0)) {
+		logger("Entry for queue item ".$queue["id"]." wasn't stored - skip this execution", LOGGER_DEBUG);
+		q("COMMIT");
+		return true;
+	} elseif ($id[0]["pid"] != $mypid) {
+		logger("Queue item ".$queue["id"]." is to be executed by process ".$id[0]["pid"]." and not by me (".$mypid.") - skip this execution", LOGGER_DEBUG);
+		q("COMMIT");
+		return true;
+	}
+	q("COMMIT");
+
+	$argv = json_decode($queue["parameter"]);
+
+	$argc = count($argv);
+
+	// Check for existance and validity of the include file
+	$include = $argv[0];
+
+	if (!validate_include($include)) {
+		logger("Include file ".$argv[0]." is not valid!");
+		q("DELETE FROM `workerqueue` WHERE `id` = %d", intval($queue["id"]));
+		return true;
+	}
+
+	require_once($include);
+
+	$funcname = str_replace(".php", "", basename($argv[0]))."_run";
+
+	if (function_exists($funcname)) {
+		logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." ".$queue["parameter"]);
+
+		// For better logging create a new process id for every worker call
+		// But preserve the old one for the worker
+		$old_process_id = $a->process_id;
+		$a->process_id = uniqid("wrk", true);
+
+		$funcname($argv, $argc);
+
+		$a->process_id = $old_process_id;
+
+		if ($cooldown > 0) {
+			logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - in cooldown for ".$cooldown." seconds");
+			sleep($cooldown);
+		}
+
+		logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done");
+
+		q("DELETE FROM `workerqueue` WHERE `id` = %d", intval($queue["id"]));
+	} else {
+		logger("Function ".$funcname." does not exist");
+	}
+
+	return true;
 }
 
 /**
@@ -295,6 +311,11 @@ function poller_kill_stale_workers() {
 		}
 }
 
+/**
+ * @brief Checks if the number of active workers exceeds the given limits
+ *
+ * @return bool Are there too much workers running?
+ */
 function poller_too_much_workers() {
 
 
@@ -373,6 +394,11 @@ function poller_too_much_workers() {
 	return($active >= $queues);
 }
 
+/**
+ * @brief Returns the number of active poller processes
+ *
+ * @return integer Number of active poller processes
+ */
 function poller_active_workers() {
 	$workers = q("SELECT COUNT(*) AS `processes` FROM `process` WHERE `command` = 'poller.php'");
 
@@ -394,8 +420,7 @@ function poller_passing_slow(&$highest_priority) {
 
 	$r = q("SELECT `priority`
 		FROM `process`
-		INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid`
-		WHERE `process`.`command` = 'poller.php'");
+		INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid`");
 
 	// No active processes at all? Fine
 	if (!dbm::is_result($r))
@@ -435,7 +460,6 @@ function poller_passing_slow(&$highest_priority) {
  *
  * @return string SQL statement
  */
-
 function poller_worker_process() {
 
 	q("START TRANSACTION;");
@@ -462,6 +486,62 @@ function poller_worker_process() {
 		$r = q("SELECT * FROM `workerqueue` WHERE `executed` = '0000-00-00 00:00:00' ORDER BY `priority`, `created` LIMIT 1");
 
 	return $r;
+}
+
+/**
+ * @brief Call the front end worker
+ */
+function call_worker() {
+	if (!get_config("system", "frontend_worker")) {
+		return;
+	}
+
+	$url = get_app()->get_baseurl()."/worker";
+	fetch_url($url, false, $redirects, 1);
+}
+
+/**
+ * @brief Call the front end worker if there aren't any active
+ */
+function call_worker_if_idle() {
+	if (!get_config("system", "frontend_worker")) {
+		return;
+	}
+
+	poller_run_cron();
+
+	clear_worker_processes();
+
+	$workers = q("SELECT COUNT(*) AS `processes` FROM `process` WHERE `command` = 'worker.php'");
+
+	if ($workers[0]["processes"] == 0) {
+		call_worker();
+	}
+}
+
+/**
+ * @brief Removes long running worker processes
+ */
+function clear_worker_processes() {
+	$timeout = Config::get("system", "frontend_worker_timeout", 10);
+
+	/// @todo We should clean up the corresponding workerqueue entries as well
+	q("DELETE FROM `process` WHERE `created` < '%s' AND `command` = 'worker.php'",
+		dbesc(datetime_convert('UTC','UTC',"now - ".$timeout." minutes")));
+}
+
+/**
+ * @brief Runs the cron processes
+ */
+function poller_run_cron() {
+	// Run the cron job that calls all other jobs
+	proc_run(PRIORITY_MEDIUM, "include/cron.php");
+
+	// Run the cronhooks job separately from cron for being able to use a different timing
+	proc_run(PRIORITY_MEDIUM, "include/cronhooks.php");
+
+	// Cleaning dead processes
+	poller_kill_stale_workers();
 }
 
 if (array_search(__file__,get_included_files())===0){
