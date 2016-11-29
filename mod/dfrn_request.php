@@ -8,6 +8,8 @@
  * friend requests.
  *
  * @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/master/spec/dfrn2.pdf
+ *    You also find a graphic which describes the confirmation process at
+ *    https://github.com/friendica/friendica/blob/master/spec/dfrn2_contact_request.png
  */
 
 require_once('include/enotify.php');
