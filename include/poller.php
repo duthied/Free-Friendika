@@ -508,6 +508,28 @@ function call_worker_if_idle() {
 		return;
 	}
 
+	// Do we have "proc_open"? Then we can fork the poller
+	if (function_exists("proc_open")) {
+		// When was the last time that we called the poller?
+		// Less than 5 minutes? Then we quit
+		if ((time() - get_config("system", "proc_run_started")) < 300) {
+			return;
+		}
+
+		// Remove long running and crashed process entries
+		poller_kill_stale_workers();
+
+		// Do we have an already running worker? Then we quit here.
+		if (poller_active_workers() > 0) {
+			return;
+		}
+
+		get_app()->proc_run(array('php', 'include/poller.php'));
+	}
+
+	// We cannot execute background processes.
+	// We now run the processes from the frontend.
+	// This won't work with long running processes.
 	poller_run_cron();
 
 	clear_worker_processes();

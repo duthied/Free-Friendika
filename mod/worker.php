@@ -14,6 +14,11 @@ function worker_init($a){
 		return;
 	}
 
+	// We don't need the following lines if we can execute background jobs
+	if (function_exists("proc_open")) {
+		return;
+	}
+
 	clear_worker_processes();
 
 	$workers = q("SELECT COUNT(*) AS `processes` FROM `process` WHERE `command` = 'worker.php'");
