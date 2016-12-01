@@ -2365,20 +2365,27 @@ function get_lockpath() {
 	return "";
 }
 
+/**
+ * @brief Returns the path where spool files are stored
+ *
+ * @return string Spool path
+ */
 function get_spoolpath() {
 	$spoolpath = get_config('system','spoolpath');
-	if (($spoolpath != "") AND is_dir($spoolpath) AND is_writable($spoolpath))
+	if (($spoolpath != "") AND is_dir($spoolpath) AND is_writable($spoolpath)) {
 		return($spoolpath);
+	}
 
 	$temppath = get_temppath();
 
 	if ($temppath != "") {
 		$spoolpath = $temppath."/spool";
 
-		if (!is_dir($spoolpath))
+		if (!is_dir($spoolpath)) {
 			mkdir($spoolpath);
-		elseif (!is_writable($spoolpath))
+		} elseif (!is_writable($spoolpath)) {
 			$spoolpath = $temppath;
+		}
 
 		if (is_dir($spoolpath) AND is_writable($spoolpath)) {
 			set_config("system", "spoolpath", $spoolpath);
