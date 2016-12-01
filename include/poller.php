@@ -35,30 +35,27 @@ function poller_run($argv, $argc){
 
 	$a->start_process();
 
-	if ($a->max_processes_reached())
+	if (poller_max_connections_reached()) {
 		return;
+	}
 
-	if (poller_max_connections_reached())
+	if (App::maxload_reached()) {
 		return;
+	}
 
-	if (App::maxload_reached())
+	if(($argc <= 1) OR ($argv[1] != "no_cron")) {
+		poller_run_cron();
+	}
+
+	if ($a->max_processes_reached()) {
 		return;
+	}
 
 	// Checking the number of workers
 	if (poller_too_much_workers()) {
 		poller_kill_stale_workers();
 		return;
 	}
-
-	if(($argc <= 1) OR ($argv[1] != "no_cron")) {
-		poller_run_cron();
-	} else
-		// Sleep four seconds before checking for running processes again to avoid having too many workers
-		sleep(4);
-
-	// Checking number of workers
-	if (poller_too_much_workers())
-		return;
 
 	$starttime = time();
 
@@ -193,9 +190,7 @@ function poller_max_connections_reached() {
 	$max = get_config("system", "max_connections");
 
 	// Fetch the percentage level where the poller will get active
-	$maxlevel = get_config("system", "max_connections_level");
-	if ($maxlevel == 0)
-		$maxlevel = 75;
+	$maxlevel = Config::get("system", "max_connections_level", 75);
 
 	if ($max == 0) {
 		// the maximum number of possible user connections can be a system variable
@@ -317,12 +312,7 @@ function poller_kill_stale_workers() {
  * @return bool Are there too much workers running?
  */
 function poller_too_much_workers() {
-
-
-	$queues = get_config("system", "worker_queues");
-
-	if ($queues == 0)
-		$queues = 4;
+	$queues = Config::get("system", "worker_queues", 4);
 
 	$maxqueues = $queues;
 
@@ -331,9 +321,7 @@ function poller_too_much_workers() {
 	// Decrease the number of workers at higher load
 	$load = current_load();
 	if($load) {
-		$maxsysload = intval(get_config('system','maxloadavg'));
-		if($maxsysload < 1)
-			$maxsysload = 50;
+		$maxsysload = intval(Config::get("system", "maxloadavg", 50));
 
 		$maxworkers = $queues;
 
@@ -492,7 +480,7 @@ function poller_worker_process() {
  * @brief Call the front end worker
  */
 function call_worker() {
-	if (!get_config("system", "frontend_worker")) {
+	if (!Config::get("system", "frontend_worker") OR !Config::get("system", "worker")) {
 		return;
 	}
 
@@ -504,10 +492,42 @@ function call_worker() {
  * @brief Call the front end worker if there aren't any active
  */
 function call_worker_if_idle() {
-	if (!get_config("system", "frontend_worker")) {
+	if (!Config::get("system", "frontend_worker") OR !Config::get("system", "worker")) {
 		return;
 	}
 
+	// Do we have "proc_open"? Then we can fork the poller
+	if (function_exists("proc_open")) {
+		// When was the last time that we called the worker?
+		// Less than one minute? Then we quit
+		if ((time() - get_config("system", "worker_started")) < 60) {
+			return;
+		}
+
+		set_config("system", "worker_started", time());
+
+		// Do we have enough running workers? Then we quit here.
+		if (poller_too_much_workers()) {
+			// Cleaning dead processes
+			poller_kill_stale_workers();
+			get_app()->remove_inactive_processes();
+
+			return;
+		}
+
+		poller_run_cron();
+
+		logger('Call poller', LOGGER_DEBUG);
+
+		$args = array("php", "include/poller.php", "no_cron");
+		$a = get_app();
+		$a->proc_run($args);
+		return;
+	}
+
+	// We cannot execute background processes.
+	// We now run the processes from the frontend.
+	// This won't work with long running processes.
 	poller_run_cron();
 
 	clear_worker_processes();
@@ -534,6 +554,8 @@ function clear_worker_processes() {
  * @brief Runs the cron processes
  */
 function poller_run_cron() {
+	logger('Add cron entries', LOGGER_DEBUG);
+
 	// Run the cron job that calls all other jobs
 	proc_run(PRIORITY_MEDIUM, "include/cron.php");
 

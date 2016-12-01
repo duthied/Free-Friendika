@@ -10,7 +10,12 @@ use \Friendica\Core\PConfig;
 
 function worker_init($a){
 
-	if (!Config::get("system", "frontend_worker")) {
+	if (!Config::get("system", "frontend_worker") OR !Config::get("system", "worker")) {
+		return;
+	}
+
+	// We don't need the following lines if we can execute background jobs
+	if (function_exists("proc_open")) {
 		return;
 	}
 
