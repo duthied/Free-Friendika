@@ -851,8 +851,9 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		// Store the data into a spool file so that we can try again later.
 
 		// At first we restore the Diaspora signature that we removed above.
-		if (isset($encoded_signature))
+		if (isset($encoded_signature)) {
 			$arr['dsprsig'] = $encoded_signature;
+		}
 
 		// Now we store the data in the spool directory
 		$file = 'item-'.round(microtime(true) * 10000).".msg";
