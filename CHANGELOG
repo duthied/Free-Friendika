@@ -17,7 +17,8 @@ Version 3.5.1
     Improvements to the update process [heluecht]
     Improvements to the handling of worker processes [heluecht]
     Improvements to the performance [heluecht, Hypolite]
-    Improvements to the documentation [Hypolite, tobiasd]
+    Improvements to the documentation [Hypolite, tobiasd, rabuzarus]
+    The worker process can now also be started from the frontend [heluecht]
     Extension of the DFRN transmitted information fields [heluecht]
     Translations of the core are now in /view/lang [Hypolite, tobiasd]
     Update of the fullCalendar library to 3.0.1 and adjusting the themes [rabuzarus]
@@ -37,7 +38,7 @@ Version 3.5.1
   Closed Issues
     1019, 1163, 1613, 2177, 2252, 2403, 2991, 2614, 2751, 2752, 2791, 2792, 
     2800, 2804, 2813, 2814, 2816, 2817, 2823, 2850, 2858, 2865, 2892, 2894, 
-    2895, 2907, 2914, 2926, 2948
+    2895, 2907, 2914, 2926, 2948, 2955, 2958, 2964
 
 Version 3.5 (2016-09-13)
   Friendica Core:
