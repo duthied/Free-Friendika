@@ -112,7 +112,7 @@ function ping_init(App $a)
 
 		$notifs = ping_get_notifications(local_user());
 
-		$items_unseen = q("SELECT `item`.`id`, `item`.`parent`, `item`.`verb`, `item`.`wall`, `item`.`author-name`,
+		$items_unseen = qu("SELECT `item`.`id`, `item`.`parent`, `item`.`verb`, `item`.`wall`, `item`.`author-name`,
 				`item`.`contact-id`, `item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object`,
 				`pitem`.`author-name` AS `pname`, `pitem`.`author-link` AS `plink`
 				FROM `item` INNER JOIN `item` AS `pitem` ON  `pitem`.`id` = `item`.`parent`
@@ -161,13 +161,13 @@ function ping_init(App $a)
 			}
 		}
 
-		$intros1 = q("SELECT  `intro`.`id`, `intro`.`datetime`,
+		$intros1 = qu("SELECT  `intro`.`id`, `intro`.`datetime`,
 			`fcontact`.`name`, `fcontact`.`url`, `fcontact`.`photo`
 			FROM `intro` LEFT JOIN `fcontact` ON `intro`.`fid` = `fcontact`.`id`
 			WHERE `intro`.`uid` = %d  AND `intro`.`blocked` = 0 AND `intro`.`ignore` = 0 AND `intro`.`fid` != 0",
 			intval(local_user())
 		);
-		$intros2 = q("SELECT `intro`.`id`, `intro`.`datetime`,
+		$intros2 = qu("SELECT `intro`.`id`, `intro`.`datetime`,
 			`contact`.`name`, `contact`.`url`, `contact`.`photo`
 			FROM `intro` LEFT JOIN `contact` ON `intro`.`contact-id` = `contact`.`id`
 			WHERE `intro`.`uid` = %d  AND `intro`.`blocked` = 0 AND `intro`.`ignore` = 0 AND `intro`.`contact-id` != 0",
@@ -178,7 +178,7 @@ function ping_init(App $a)
 		$intros = $intros1+$intros2;
 
 		$myurl = $a->get_baseurl() . '/profile/' . $a->user['nickname'] ;
-		$mails = q("SELECT * FROM `mail`
+		$mails = qu("SELECT `id`, `from-name`, `from-url`, `from-photo`, `created` FROM `mail`
 			WHERE `uid` = %d AND `seen` = 0 AND `from-url` != '%s' ",
 			intval(local_user()),
 			dbesc($myurl)
@@ -186,7 +186,7 @@ function ping_init(App $a)
 		$mail_count = count($mails);
 
 		if ($a->config['register_policy'] == REGISTER_APPROVE && is_site_admin()){
-			$regs = q("SELECT `contact`.`name`, `contact`.`url`, `contact`.`micro`, `register`.`created`, COUNT(*) AS `total`
+			$regs = qu("SELECT `contact`.`name`, `contact`.`url`, `contact`.`micro`, `register`.`created`, COUNT(*) AS `total`
 				FROM `contact` RIGHT JOIN `register` ON `register`.`uid` = `contact`.`uid`
 				WHERE `contact`.`self` = 1");
 			if ($regs) {
@@ -194,7 +194,7 @@ function ping_init(App $a)
 			}
 		}
 
-		$ev = q("SELECT count(`event`.`id`) AS total, type, start, adjust FROM `event`
+		$ev = qu("SELECT count(`event`.`id`) AS total, type, start, adjust FROM `event`
 			WHERE `event`.`uid` = %d AND `start` < '%s' AND `finish` > '%s' and `ignore` = 0
 			ORDER BY `start` ASC ",
 			intval(local_user()),
@@ -400,7 +400,7 @@ function ping_get_notifications($uid)
 	$a = get_app();
 
 	do {
-		$r = q("SELECT `notify`.*, `item`.`visible`, `item`.`spam`, `item`.`deleted`
+		$r = qu("SELECT `notify`.*, `item`.`visible`, `item`.`spam`, `item`.`deleted`
 			FROM `notify` LEFT JOIN `item` ON `item`.`id` = `notify`.`iid`
 			WHERE `notify`.`uid` = %d AND `notify`.`msg` != ''
 			AND NOT (`notify`.`type` IN (%d, %d))
