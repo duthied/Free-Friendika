@@ -14,8 +14,10 @@ function worker_init($a){
 		return;
 	}
 
-	// We don't need the following lines if we can execute background jobs
+	// We don't need the following lines if we can execute background jobs.
+	// So we just wake up the worker if it sleeps.
 	if (function_exists("proc_open")) {
+		call_worker_if_idle();
 		return;
 	}
 

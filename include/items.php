@@ -846,7 +846,6 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		}
 	} else {
 		// This can happen - for example - if there are locking timeouts.
-		logger("Item wasn't stored - we quit here.");
 		q("ROLLBACK");
 
 		// Store the data into a spool file so that we can try again later.
@@ -856,8 +855,10 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 			$arr['dsprsig'] = $encoded_signature;
 
 		// Now we store the data in the spool directory
-		$spool = get_spoolpath().'/'.round(microtime(true) * 10000).".msg";
+		$file = 'item-'.round(microtime(true) * 10000).".msg";
+		$spool = get_spoolpath().'/'.$file;
 		file_put_contents($spool, json_encode($arr));
+		logger("Item wasn't stored - Item was spooled into file ".$file, LOGGER_DEBUG);
 		return 0;
 	}
 
