@@ -16,6 +16,9 @@ function frio_init(&$a) {
 	// disable the events module link in the profile tab
 	$a->theme_events_in_profile = false;
 
+	// Disallow the richtext editor
+	$a->theme_richtext_editor = false;
+
 	set_template_engine($a, 'smarty3');
 
 	$baseurl = $a->get_baseurl();
