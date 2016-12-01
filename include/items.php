@@ -417,6 +417,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 	$dsprsig = null;
 	if (x($arr,'dsprsig')) {
+		$encoded_signature = $arr['dsprsig'];
 		$dsprsig = json_decode(base64_decode($arr['dsprsig']));
 		unset($arr['dsprsig']);
 	}
@@ -846,14 +847,24 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	} else {
 		// This can happen - for example - if there are locking timeouts.
 		logger("Item wasn't stored - we quit here.");
-		q("COMMIT");
+		q("ROLLBACK");
+
+		// Store the data into a spool file so that we can try again later.
+
+		// At first we restore the Diaspora signature that we removed above.
+		if (isset($encoded_signature))
+			$arr['dsprsig'] = $encoded_signature;
+
+		// Now we store the data in the spool directory
+		$spool = get_spoolpath().'/'.round(microtime(true) * 10000).".msg";
+		file_put_contents($spool, json_encode($arr));
 		return 0;
 	}
 
 	if ($current_post == 0) {
 		// This is one of these error messages that never should occur.
 		logger("couldn't find created item - we better quit now.");
-		q("COMMIT");
+		q("ROLLBACK");
 		return 0;
 	}
 
@@ -868,7 +879,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	if (!dbm::is_result($r)) {
 		// This shouldn't happen, since COUNT always works when the database connection is there.
 		logger("We couldn't count the stored entries. Very strange ...");
-		q("COMMIT");
+		q("ROLLBACK");
 		return 0;
 	}
 
@@ -883,7 +894,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	} elseif ($r[0]["entries"] == 0) {
 		// This really should never happen since we quit earlier if there were problems.
 		logger("Something is terribly wrong. We haven't found our created entry.");
-		q("COMMIT");
+		q("ROLLBACK");
 		return 0;
 	}
 

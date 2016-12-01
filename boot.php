@@ -2364,6 +2364,29 @@ function get_lockpath() {
 	return "";
 }
 
+function get_spoolpath() {
+	$spoolpath = get_config('system','spoolpath');
+	if (($spoolpath != "") AND is_dir($spoolpath) AND is_writable($spoolpath))
+		return($spoolpath);
+
+	$temppath = get_temppath();
+
+	if ($temppath != "") {
+		$spoolpath = $temppath."/spool";
+
+		if (!is_dir($spoolpath))
+			mkdir($spoolpath);
+		elseif (!is_writable($spoolpath))
+			$spoolpath = $temppath;
+
+		if (is_dir($spoolpath) AND is_writable($spoolpath)) {
+			set_config("system", "spoolpath", $spoolpath);
+			return($spoolpath);
+		}
+	}
+	return "";
+}
+
 function get_temppath() {
 	$a = get_app();
 
