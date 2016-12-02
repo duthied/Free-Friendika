@@ -556,6 +556,9 @@ function clear_worker_processes() {
 function poller_run_cron() {
 	logger('Add cron entries', LOGGER_DEBUG);
 
+	// Check for spooled items
+	proc_run(PRIORITY_HIGH, "include/spool_post.php");
+
 	// Run the cron job that calls all other jobs
 	proc_run(PRIORITY_MEDIUM, "include/cron.php");
 
