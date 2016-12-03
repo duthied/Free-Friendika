@@ -88,7 +88,7 @@ blockquote {
     display: none !important;
 }
 code {
-	white-space: pre;
+    white-space: pre-wrap;
 }
 
 /*
@@ -1157,6 +1157,9 @@ section #jotOpen {
 #profile-jot-wrapper button#jot-submit {
     margin-top: 5px;
 }
+#profile-jot-wrapper #character-counter {
+    padding: 10px 15px;
+}
 
 /* ACL */
 /*#jot-modal-body {
@@ -1496,13 +1499,18 @@ code > .hl-main {
 /* item social action buttons */
 .wall-item-actions, .wall-item-actions a {
     font-size: 13px;
-    /*color: #aeaeae;*/
     color: #555;
     margin-top: 15px;
     margin-bottom: 0;
 }
+.wall-item-actions a.active {
+    font-weight: bold;
+}
 .wall-item-actions a:hover {
     color: #555;
+}
+.wall-item-actions a.active:hover {
+    color: $link_color;
 }
 .wall-item-actions-left {
     display: table-cell;
@@ -2097,7 +2105,6 @@ ul li:hover .contact-wrapper a.contact-action-link:hover {
 
 /* Events page */
 
-
 .fc .fc-month-view .fc-content .fc-title .item-desc:hover {
     color: $link_hover_color;
 }
@@ -2297,6 +2304,39 @@ little modifications to emulate a standard page template */
     -moz-box-shadow: 0 0 3px #dadada;
 }
 
+/* Help Page */
+section.help-content-wrapper h1 {
+    padding-bottom: 0.3em;
+    font-size: 1.8em;
+    border-bottom: 1px solid #ddd;
+}
+section.help-content-wrapper h2 {
+    padding-bottom: 0.3em;
+    font-size: 1.5em;
+    border-bottom: 1px solid #ddd;
+}
+section.help-content-wrapper h3 {
+    font-size: 1.2em;
+}
+section.help-content-wrapper h1,
+section.help-content-wrapper h2,
+section.help-content-wrapper h3,
+section.help-content-wrapper h5,
+section.help-content-wrapper h6 {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+section.help-content-wrapper p {
+    margin: 0.4em 0;
+}
+section.help-content-wrapper p,
+section.help-content-wrapper a {
+    line-height: 1.6;
+    font-size: 0.96em;
+}
+
 /*
 * Overwriting for transparency and other colors
 */
@@ -2403,4 +2443,12 @@ body .tread-wrapper .hovercard a:hover {
 }
 body .tread-wrapper .hovercard:hover .hover-card-content a {
     color: $link_color !important;
+}
+
+/*
+ * some temporary workarounds until this will solved
+ * elsewhere (e.g. new templates)
+ */
+section .profile-match-wrapper {
+    float: left;
 }

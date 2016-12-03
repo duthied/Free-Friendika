@@ -428,6 +428,21 @@ function admin_page_queue(&$a) {
  * @return string
  */
 function admin_page_summary(&$a) {
+	global $db;
+	// are there MyISAM tables in the DB? If so, trigger a warning message
+	$r = q("SELECT `engine` FROM `information_schema`.`tables` WHERE `engine` = 'myisam' AND `table_schema` = '%s' LIMIT 1",
+		dbesc($db->database_name()));
+	$showwarning = false;
+	$warningtext = array();
+	if (dbm::is_result($r)) {
+		$showwarning = true;
+		$warningtext[] = sprintf(t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the <tt>convert_innodb.sql</tt> in the <tt>/util</tt> directory of your Friendica installation.<br />'), 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
+	}
+	// MySQL >= 5.7.4 doesn't support the IGNORE keyword in ALTER TABLE statements
+	if ((version_compare($db->server_info(), '5.7.4') >= 0) AND
+		!(strpos($db->server_info(), 'MariaDB') !== false)) {
+		$warningtext[] = t('You are using a MySQL version which does not support all features that Friendica uses. You should consider switching to MariaDB.');
+	}
 	$r = q("SELECT `page-flags`, COUNT(`uid`) AS `count` FROM `user` GROUP BY `page-flags`");
 	$accounts = array(
 		array(t('Normal Account'), 0),
@@ -478,7 +493,9 @@ function admin_page_summary(&$a) {
 		'$platform' => FRIENDICA_PLATFORM,
 		'$codename' => FRIENDICA_CODENAME,
 		'$build' =>  get_config('system','build'),
-		'$plugins' => array(t('Active plugins'), $a->plugins)
+		'$plugins' => array(t('Active plugins'), $a->plugins),
+		'$showwarning' => $showwarning,
+		'$warningtext' => $warningtext
 	));
 }
 
@@ -1388,6 +1405,7 @@ function admin_page_users(&$a){
 		'$h_deleted' => t('User waiting for permanent deletion'),
 		'$th_pending' => array(t('Request date'), t('Name'), t('Email')),
 		'$no_pending' =>  t('No registrations.'),
+		'$pendingnotetext' => t('Note from the user'),
 		'$approve' => t('Approve'),
 		'$deny' => t('Deny'),
 		'$delete' => t('Delete'),

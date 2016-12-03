@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.5.1-dev (Asparagus)
--- DB_UPDATE_VERSION 1205
+-- DB_UPDATE_VERSION 1208
 -- ------------------------------------------
 
 
@@ -59,7 +59,8 @@ CREATE TABLE IF NOT EXISTS `cache` (
 	`expire_mode` int(11) NOT NULL DEFAULT 0,
 	`updated` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	 PRIMARY KEY(`k`(191)),
-	 INDEX `updated` (`updated`)
+	 INDEX `updated` (`updated`),
+	 INDEX `expire_mode_updated` (`expire_mode`,`updated`)
 ) DEFAULT CHARSET=utf8mb4;
 
 --
@@ -174,6 +175,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`ffi_keyword_blacklist` mediumtext,
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
+	 INDEX `addr_uid` (`addr`,`uid`),
 	 INDEX `nurl` (`nurl`)
 ) DEFAULT CHARSET=utf8mb4;
 
@@ -201,7 +203,8 @@ CREATE TABLE IF NOT EXISTS `deliverq` (
 	`cmd` varchar(32) NOT NULL DEFAULT '',
 	`item` int(11) NOT NULL DEFAULT 0,
 	`contact` int(11) NOT NULL DEFAULT 0,
-	 PRIMARY KEY(`id`)
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `cmd_item_contact` (`cmd`,`item`,`contact`)
 ) DEFAULT CHARSET=utf8mb4;
 
 --
@@ -656,7 +659,7 @@ CREATE TABLE IF NOT EXISTS `notify` (
 	`verb` varchar(255) NOT NULL DEFAULT '',
 	`otype` varchar(16) NOT NULL DEFAULT '',
 	`name_cache` tinytext,
-	`msg_name` mediumtext,
+	`msg_cache` mediumtext,
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`)
 ) DEFAULT CHARSET=utf8mb4;
@@ -739,7 +742,9 @@ CREATE TABLE IF NOT EXISTS `photo` (
 	`deny_cid` mediumtext,
 	`deny_gid` mediumtext,
 	 PRIMARY KEY(`id`),
-	 INDEX `uid` (`uid`),
+	 INDEX `uid_contactid` (`uid`,`contact-id`),
+	 INDEX `uid_profile` (`uid`,`profile`),
+	 INDEX `uid_album_created` (`uid`,`album`,`created`),
 	 INDEX `resource-id` (`resource-id`),
 	 INDEX `guid` (`guid`)
 ) DEFAULT CHARSET=utf8mb4;
@@ -894,6 +899,7 @@ CREATE TABLE IF NOT EXISTS `register` (
 	`uid` int(11) unsigned NOT NULL DEFAULT 0,
 	`password` varchar(255) NOT NULL DEFAULT '',
 	`language` varchar(16) NOT NULL DEFAULT '',
+	`note` text,
 	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8mb4;
 
@@ -974,6 +980,7 @@ CREATE TABLE IF NOT EXISTS `term` (
 	 INDEX `type_term` (`type`,`term`),
 	 INDEX `uid_otype_type_term_global_created` (`uid`,`otype`,`type`,`term`,`global`,`created`),
 	 INDEX `otype_type_term_tid` (`otype`,`type`,`term`,`tid`),
+	 INDEX `uid_otype_type_url` (`uid`,`otype`,`type`,`url`),
 	 INDEX `guid` (`guid`)
 ) DEFAULT CHARSET=utf8mb4;
 

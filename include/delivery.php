@@ -381,7 +381,14 @@ function delivery_run(&$argv, &$argc){
 				if ($deliver_status == (-1)) {
 					logger('notifier: delivery failed: queuing message');
 					add_to_queue($contact['id'],NETWORK_DFRN,$atom);
+
+					// The message could not be delivered. We mark the contact as "dead"
+					mark_for_death($contact);
+				} else {
+					// We successfully delivered a message, the contact is alive
+					unmark_for_death($contact);
 				}
+
 				break;
 
 			case NETWORK_OSTATUS:

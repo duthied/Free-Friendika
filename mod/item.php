@@ -744,6 +744,9 @@ function item_post(&$a) {
 
 	if($preview) {
 		require_once('include/conversation.php');
+		// We set the datarray ID to -1 because in preview mode the dataray
+		// doesn't have an ID.
+		$datarray["id"] = -1;
 		$o = conversation($a,array(array_merge($contact_record,$datarray)),'search', false, true);
 		logger('preview: ' . $o);
 		echo json_encode(array('preview' => $o));
