@@ -78,3 +78,6 @@ $a->config['system']['no_regfullname'] = true;
 
 // Location of the global directory
 $a->config['system']['directory'] = 'http://dir.friendi.ca';
+
+// Allowed protocols in link URLs; HTTP protocols always are accepted
+$a->config['system']['allowed_link_protocols'] = array('ftp', 'ftps', 'mailto', 'cid', 'gopher');

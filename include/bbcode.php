@@ -1163,11 +1163,17 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	// fix any escaped ampersands that may have been converted into links
 	$Text = preg_replace('/\<([^>]*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism', '<$1$2=$3&$4>', $Text);
 
-	// removes potentially harmful javascript in src/href
-	$Text = preg_replace('/\<([^>]*?)(src|href)="javascript(.*?)\>/ism', '', $Text);
+	// sanitizes src attributes (only relative URIs or http URLs)
+	$Text = preg_replace('#<([^>]*?)(src)="(?!/|http)(.*?)"(.*?)>#ism', '<$1$2=""$4 class="invalid-src" title="' . t('Invalid source protocol') . '">', $Text);
 
-	if($saved_image)
+	// sanitize href attributes (only relative URIs or whitelisted protocols URLs)
+	$allowed_link_protocols = get_config('system', 'allowed_link_protocols');
+	$regex = '#<([^>]*?)(href)="(?!/|http|' . implode('|', $allowed_link_protocols) . ')(.*?)"(.*?)>#ism';
+	$Text = preg_replace($regex, '<$1$2="javascript:void(0)"$4 class="invalid-href" title="' . t('Invalid link protocol') . '">', $Text);
+
+	if($saved_image) {
 		$Text = bb_replace_images($Text, $saved_image);
+	}
 
 	// Clean up the HTML by loading and saving the HTML with the DOM.
 	// Bad structured html can break a whole page.
