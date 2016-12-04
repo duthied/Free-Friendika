@@ -15,24 +15,24 @@ require_once("library/html-to-markdown/HTML_To_Markdown.php");
 
 function diaspora2bb($s) {
 
-	$s = html_entity_decode($s,ENT_COMPAT,'UTF-8');
+	$s = html_entity_decode($s, ENT_COMPAT, 'UTF-8');
 
 	// Remove CR to avoid problems with following code
-	$s = str_replace("\r","",$s);
+	$s = str_replace("\r", '', $s);
 
-	$s = str_replace("\n"," \n",$s);
+	$s = str_replace("\n", " \n", $s);
 
 	// The parser cannot handle paragraphs correctly
-	$s = str_replace(array("</p>", "<p>", '<p dir="ltr">'),array("<br>", "<br>", "<br>"),$s);
+	$s = str_replace(array('</p>', '<p>', '<p dir="ltr">'), array('<br>', '<br>', '<br>'), $s);
 
 	// Escaping the hash tags
-	$s = preg_replace('/\#([^\s\#])/','&#35;$1',$s);
+	$s = preg_replace('/\#([^\s\#])/', '&#35;$1', $s);
 
 	$s = Markdown($s);
 
-	$s = preg_replace('/\@\{(.+?)\; (.+?)\@(.+?)\}/','@[url=https://$3/u/$2]$1[/url]',$s);
+	$s = preg_replace('/\@\{(.+?)\; (.+?)\@(.+?)\}/', '@[url=https://$3/u/$2]$1[/url]', $s);
 
-	$s = str_replace('&#35;','#',$s);
+	$s = str_replace('&#35;', '#', $s);
 
 	$search = array(" \n", "\n ");
 	$replace = array("\n", "\n");
@@ -41,23 +41,23 @@ function diaspora2bb($s) {
 		$s = str_replace($search, $replace, $s);
 	} while ($oldtext != $s);
 
-	$s = str_replace("\n\n", "<br>", $s);
+	$s = str_replace("\n\n", '<br>', $s);
 
 	$s = html2bbcode($s);
 
 	// protect the recycle symbol from turning into a tag, but without unescaping angles and naked ampersands
-	$s = str_replace('&#x2672;',html_entity_decode('&#x2672;',ENT_QUOTES,'UTF-8'),$s);
+	$s = str_replace('&#x2672;', html_entity_decode('&#x2672;', ENT_QUOTES, 'UTF-8'), $s);
 
 	// Convert everything that looks like a link to a link
-	$s = preg_replace("/([^\]\=]|^)(https?\:\/\/)([a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url=$2$3]$2$3[/url]',$s);
+	$s = preg_replace('/([^\]=]|^)(https?\:\/\/)([a-zA-Z0-9:\/\-?&;.=_~#%$!+,@]+(?<!,))/ism', '$1[url=$2$3]$2$3[/url]', $s);
 
 	//$s = preg_replace("/([^\]\=]|^)(https?\:\/\/)(vimeo|youtu|www\.youtube|soundcloud)([a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url=$2$3$4]$2$3$4[/url]',$s);
-	$s = bb_tag_preg_replace("/\[url\=?(.*?)\]https?:\/\/www.youtube.com\/watch\?v\=(.*?)\[\/url\]/ism",'[youtube]$2[/youtube]','url',$s);
-	$s = bb_tag_preg_replace("/\[url\=https?:\/\/www.youtube.com\/watch\?v\=(.*?)\].*?\[\/url\]/ism",'[youtube]$1[/youtube]','url',$s);
-	$s = bb_tag_preg_replace("/\[url\=?(.*?)\]https?:\/\/vimeo.com\/([0-9]+)(.*?)\[\/url\]/ism",'[vimeo]$2[/vimeo]','url',$s);
-	$s = bb_tag_preg_replace("/\[url\=https?:\/\/vimeo.com\/([0-9]+)\](.*?)\[\/url\]/ism",'[vimeo]$1[/vimeo]','url',$s);
+	$s = bb_tag_preg_replace('/\[url\=?(.*?)\]https?:\/\/www.youtube.com\/watch\?v\=(.*?)\[\/url\]/ism', '[youtube]$2[/youtube]', 'url',$s);
+	$s = bb_tag_preg_replace('/\[url\=https?:\/\/www.youtube.com\/watch\?v\=(.*?)\].*?\[\/url\]/ism', '[youtube]$1[/youtube]', 'url',$s);
+	$s = bb_tag_preg_replace('/\[url\=?(.*?)\]https?:\/\/vimeo.com\/([0-9]+)(.*?)\[\/url\]/ism', '[vimeo]$2[/vimeo]', 'url', $s);
+	$s = bb_tag_preg_replace('/\[url\=https?:\/\/vimeo.com\/([0-9]+)\](.*?)\[\/url\]/ism', '[vimeo]$1[/vimeo]', 'url', $s);
 	// remove duplicate adjacent code tags
-	$s = preg_replace("/(\[code\])+(.*?)(\[\/code\])+/ism","[code]$2[/code]", $s);
+	$s = preg_replace('/(\[code\])+(.*?)(\[\/code\])+/ism', '[code]$2[/code]', $s);
 
 	// Don't show link to full picture (until it is fixed)
 	$s = scale_external_images($s, false);
