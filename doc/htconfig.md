@@ -1,6 +1,8 @@
 Config values that can only be set in .htconfig.php
 ===================================================
 
+* [Home](help)
+
 There are some config values that haven't found their way into the administration page.
 This has several reasons.
 Maybe they are part of a current development that isn't considered stable and will be added later in the administration page when it is considered safe.
