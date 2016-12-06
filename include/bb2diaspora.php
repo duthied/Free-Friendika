@@ -22,6 +22,9 @@ function diaspora2bb($s) {
 
 	$s = str_replace("\n", " \n", $s);
 
+	// Replace lonely stars in lines not starting with it with literal stars
+	$s = preg_replace('/^([^\*]+)\*([^\*]*)$/im', '$1\*$2', $s);
+
 	// The parser cannot handle paragraphs correctly
 	$s = str_replace(array('</p>', '<p>', '<p dir="ltr">'), array('<br>', '<br>', '<br>'), $s);
 
