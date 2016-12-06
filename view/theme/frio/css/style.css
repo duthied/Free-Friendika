@@ -2318,9 +2318,13 @@ section.help-content-wrapper h2 {
 section.help-content-wrapper h3 {
     font-size: 1.2em;
 }
+section.help-content-wrapper h4 {
+    font-size: 1em;
+}
 section.help-content-wrapper h1,
 section.help-content-wrapper h2,
 section.help-content-wrapper h3,
+section.help-content-wrapper h4,
 section.help-content-wrapper h5,
 section.help-content-wrapper h6 {
     margin-top: 24px;
@@ -2332,7 +2336,8 @@ section.help-content-wrapper p {
     margin: 0.4em 0;
 }
 section.help-content-wrapper p,
-section.help-content-wrapper a {
+section.help-content-wrapper a,
+section.help-content-wrapper li {
     line-height: 1.6;
     font-size: 0.96em;
 }
