@@ -158,11 +158,9 @@
 
 	<h3>{{$worker_title}}</h3>
 	{{include file="field_checkbox.tpl" field=$worker}}
-	{{if $worker.2}}
-		{{include file="field_input.tpl" field=$worker_queues}}
-		{{include file="field_checkbox.tpl" field=$worker_dont_fork}}
-		{{include file="field_checkbox.tpl" field=$worker_fastlane}}
-	{{/if}}
+	{{include file="field_input.tpl" field=$worker_queues}}
+	{{include file="field_checkbox.tpl" field=$worker_dont_fork}}
+	{{include file="field_checkbox.tpl" field=$worker_fastlane}}
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	</form>
