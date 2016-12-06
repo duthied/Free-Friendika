@@ -669,6 +669,7 @@ function admin_page_site_post(&$a) {
 	$worker_queues		=	((x($_POST,'worker_queues'))		? intval($_POST['worker_queues'])		: 4);
 	$worker_dont_fork	=	((x($_POST,'worker_dont_fork'))		? True						: False);
 	$worker_fastlane	=	((x($_POST,'worker_fastlane'))		? True						: False);
+	$worker_frontend	=	((x($_POST,'worker_frontend'))		? True						: False);
 
 	if($a->get_path() != "")
 		$diaspora_enabled = false;
@@ -819,6 +820,7 @@ function admin_page_site_post(&$a) {
 	set_config('system','worker_queues', $worker_queues);
 	set_config('system','worker_dont_fork', $worker_dont_fork);
 	set_config('system','worker_fastlane', $worker_fastlane);
+	set_config('system','frontend_worker', $worker_frontend);
 
 	if($rino==2 and !function_exists('mcrypt_create_iv')) {
 		notice(t("RINO2 needs mcrypt php extension to work."));
@@ -1050,6 +1052,7 @@ function admin_page_site(&$a) {
 		'$worker_queues' 	=> array('worker_queues', t("Maximum number of parallel workers"), get_config('system','worker_queues'), t("On shared hosters set this to 2. On larger systems, values of 10 are great. Default value is 4.")),
 		'$worker_dont_fork'	=> array('worker_dont_fork', t("Don't use 'proc_open' with the worker"), get_config('system','worker_dont_fork'), t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of poller calls in your crontab.")),
 		'$worker_fastlane'	=> array('worker_fastlane', t("Enable fastlane"), get_config('system','worker_fastlane'), t("When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.")),
+		'$worker_frontend'	=> array('worker_frontend', t('Enable frontend worker'), get_config('system','frontend_worker'), t('When enabled the Worker process is triggered when backend access is performed (e.g. messages being delivered). On smaller sites you might want to call yourdomain.tld/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server. The worker background process needs to be activated for this.')),
 
 		'$form_security_token'	=> get_form_security_token("admin_site")
 
