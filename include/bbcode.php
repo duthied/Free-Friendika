@@ -1169,9 +1169,10 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$Text = preg_replace('#<([^>]*?)(src)="(?!http|redir)(.*?)"(.*?)>#ism', '<$1$2=""$4 class="invalid-src" title="' . t('Invalid source protocol') . '">', $Text);
 
 	// sanitize href attributes (only whitelisted protocols URLs)
-	$allowed_link_protocols = Config::get('system', 'allowed_link_protocols', array());
+	// default value for backward compatibility
+	$allowed_link_protocols = Config::get('system', 'allowed_link_protocols', array('ftp', 'mailto', 'gopher', 'cid'));
 
-	// Always allowed protocol even if config isn't set
+	// Always allowed protocol even if config isn't set or not including it
 	$allowed_link_protocols[] = 'http';
 
 	$regex = '#<([^>]*?)(href)="(?!' . implode('|', $allowed_link_protocols) . ')(.*?)"(.*?)>#ism';
