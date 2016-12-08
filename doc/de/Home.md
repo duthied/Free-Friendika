@@ -20,7 +20,6 @@ Friendica - Dokumentation und Ressourcen
 	* [Community-Foren](help/Forums)
 	* [Chats](help/Chats)
 * Weiterführende Informationen
-	* [Performance verbessern](help/Improve-Performance)
 	* [Account umziehen](help/Move-Account)
 	* [Account löschen](help/Remove-Account)
 	* [Bugs und Probleme](help/Bugs-and-Issues)
@@ -35,6 +34,7 @@ Friendica - Dokumentation und Ressourcen
 * [Installation eines ejabberd Servers (XMPP-Chat) mit synchronisierten Anmeldedaten](help/install-ejabberd) (EN)
 * [Betreibe deine Seite mit einem SSL-Zertifikat](help/SSL)
 * [Konfigurationswerte, die nur in der .htconfig.php gesetzt werden können](help/htconfig) (EN)
+* [Performance verbessern](help/Improve-Performance)
 
 **Dokumentation für Entwickler**
 

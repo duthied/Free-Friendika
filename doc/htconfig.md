@@ -1,6 +1,8 @@
 Config values that can only be set in .htconfig.php
 ===================================================
 
+* [Home](help)
+
 There are some config values that haven't found their way into the administration page.
 This has several reasons.
 Maybe they are part of a current development that isn't considered stable and will be added later in the administration page when it is considered safe.
@@ -30,7 +32,6 @@ Example: To set the directory value please add this line to your .htconfig.php:
 * **disable_email_validation** (Boolean) - Disables the check if a mail address is in a valid format and can be resolved via DNS.
 * **disable_url_validation** (Boolean) - Disables the DNS lookup of an URL.
 * **event_input_format** - Default value is "ymd".
-* **frontend_worker** (Boolean) - Activates the frontend worker which acts as a replacement for running the poller via the command line.
 * **frontend_worker_timeout** - Value in minutes after we think that a frontend task was killed by the webserver. Default value is 10.
 * **ignore_cache** (Boolean) - For development only. Disables the item cache.
 * **like_no_comment** (Boolean) - Don't update the "commented" value of an item when it is liked.
