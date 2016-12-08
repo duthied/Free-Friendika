@@ -1182,7 +1182,7 @@ function redir_private_images($a, &$item)
 	$cnt = preg_match_all('|\[img\](http[^\[]*?/photo/[a-fA-F0-9]+?(-[0-9]\.[\w]+?)?)\[\/img\]|', $item['body'], $matches, PREG_SET_ORDER);
 	if ($cnt) {
 		foreach ($matches as $mtch) {
-			if(strpos($mtch[1], '/redir') !== false) {
+			if (strpos($mtch[1], '/redir') !== false) {
 				continue;
 			}
 
