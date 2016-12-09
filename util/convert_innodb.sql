@@ -1,5 +1,5 @@
 #  script to convert tables from MyISAM to InnoDB
-#  change the %PLACEHOLDER% to ythe actual name of your Friendica DB
+#  change the %PLACEHOLDER% to the actual name of your Friendica DB
  
 SELECT CONCAT('ALTER TABLE ',table_schema,'.',table_name,' engine=InnoDB;') 
 FROM information_schema.tables 
