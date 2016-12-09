@@ -18,6 +18,7 @@ Version 3.5.1
     Improvements to the handling of worker processes [heluecht]
     Improvements to the performance [heluecht, Hypolite]
     Improvements to the documentation [Hypolite, tobiasd, rabuzarus]
+    Improvements to the MMCode / Markdown conversation [Hypolite]
     The worker process can now also be started from the frontend [heluecht]
     Extension of the DFRN transmitted information fields [heluecht]
     Translations of the core are now in /view/lang [Hypolite, tobiasd]
@@ -27,7 +28,7 @@ Version 3.5.1
     On systems where the registration needs approval, a note for the admin can now be written [tobiasd]
     Theme developers can now announce if their theme does support the RichText editor or not [heluecht, rabuzarus]
     Removed very old deprecated themes from the repository [silke]
-    Marked frost and frost mobile as deprecated
+    Marked frost and frost mobile as deprecated [silke]
 
   Friendica Addons:
     Updates to the translations (DE, ES, FR, PT-BR) [translation teams]
@@ -35,6 +36,7 @@ Version 3.5.1
     Improvements to the language filter addon [strk]
     Better posting loop prevention for the Google+/Twitter/GS connectors [heluecht]
     On some pages the result of the Rendertime is not shown anymore [heluecht]
+    Twitter-bridge now supports quotes and long posts when importing tweets [heluecht]
 
   Closed Issues
     1019, 1163, 1613, 2177, 2252, 2403, 2991, 2614, 2751, 2752, 2772, 2791,
