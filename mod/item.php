@@ -173,7 +173,8 @@ function item_post(&$a) {
 	$profile_uid = ((x($_REQUEST,'profile_uid')) ? intval($_REQUEST['profile_uid']) : 0);
 	$post_id     = ((x($_REQUEST,'post_id'))     ? intval($_REQUEST['post_id'])     : 0);
 	$app         = ((x($_REQUEST,'source'))      ? strip_tags($_REQUEST['source'])  : '');
-	$extid       = ((x($_REQUEST,'extid'))       ? strip_tags($_REQUEST['extid'])  : '');
+	$extid       = ((x($_REQUEST,'extid'))       ? strip_tags($_REQUEST['extid'])   : '');
+	$object      = ((x($_REQUEST,'object'))      ? $_REQUEST['object']              : '');
 
 	// Check for multiple posts with the same message id (when the post was created via API)
 	if (($message_id != '') AND ($profile_uid != 0)) {
@@ -718,6 +719,7 @@ function item_post(&$a) {
 	$datarray['moderated']     = $allow_moderated;
 	$datarray['gcontact-id']   = get_gcontact_id(array("url" => $datarray['author-link'], "network" => $datarray['network'],
 							"photo" => $datarray['author-avatar'], "name" => $datarray['author-name']));
+	$datarray['object']        = $object;
 
 	/**
 	 * These fields are for the convenience of plugins...
@@ -815,7 +817,7 @@ function item_post(&$a) {
 					`tag`, `inform`, `verb`, `object-type`, `postopts`,
 					`allow_cid`, `allow_gid`, `deny_cid`, `deny_gid`, `private`,
 					`pubmail`, `attach`, `bookmark`,`origin`, `moderated`, `file`,
-					`rendered-html`, `rendered-hash`,
+					`rendered-html`, `rendered-hash`, `gcontact-id`, `object`,
 					`parent`, `parent-uri`, `plink`, `last-child`, `visible`)
 		VALUES('%s', '%s', %d, '%s', %d, %d, '%s', %d,
 			'%s', '%s', '%s', %d,
@@ -825,7 +827,7 @@ function item_post(&$a) {
 			'%s', '%s', '%s', '%s', '%s',
 			'%s', '%s', '%s', '%s', %d,
 			%d, '%s', %d, %d, %d, '%s',
-			'%s', '%s',
+			'%s', '%s', %d, '%s',
 			%d, '%s', '%s', %d, %d)",
 		dbesc($datarray['guid']),
 		dbesc($datarray['extid']),
@@ -873,6 +875,8 @@ function item_post(&$a) {
 		dbesc($datarray['file']),
 		dbesc($datarray['rendered-html']),
 		dbesc($datarray['rendered-hash']),
+		intval($datarray['gcontact-id']),
+		dbesc($datarray['object']),
 		intval($datarray['parent']),
 		dbesc($datarray['parent-uri']),
 		dbesc($datarray['plink']),
