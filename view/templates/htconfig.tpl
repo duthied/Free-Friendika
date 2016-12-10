@@ -35,6 +35,9 @@ $a->config['php_path'] = '{{$phpath}}';
 
 $a->path = '{{$urlpath}}';
 
+// Allowed protocols in link URLs; HTTP protocols always are accepted
+$a->config['system']['allowed_link_protocols'] = array('ftp', 'ftps', 'mailto', 'cid', 'gopher');
+
 /* *********************************************************************
  *  The configuration below will be overruled by the admin panel.
  *  Changes made below will only have an effect if the database does
@@ -95,6 +98,3 @@ $a->config['system']['no_regfullname'] = true;
 
 // Location of the global directory
 $a->config['system']['directory'] = 'http://dir.friendi.ca';
-
-// Allowed protocols in link URLs; HTTP protocols always are accepted
-$a->config['system']['allowed_link_protocols'] = array('ftp', 'ftps', 'mailto', 'cid', 'gopher');
