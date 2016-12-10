@@ -683,10 +683,11 @@ function posts_from_contact_url($a, $contact_url) {
 	$r = q("SELECT `network`, `id` AS `author-id` FROM `contact`
 		WHERE `contact`.`nurl` = '%s' AND `contact`.`uid` = 0",
 		dbesc(normalise_link($contact_url)));
-	if (in_array($r[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, "")))
-		$sql = "(`item`.`uid` = 0 OR  (`item`.`uid` = %d AND `item`.`private`))";
-	else
+	if (in_array($r[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""))) {
+		$sql = "(`item`.`uid` = 0 OR (`item`.`uid` = %d AND `item`.`private`))";
+	} else {
 		$sql = "`item`.`uid` = %d";
+	}
 
 	$author_id = intval($r[0]["author-id"]);
 
@@ -699,16 +700,6 @@ function posts_from_contact_url($a, $contact_url) {
 		$a->set_pager_total($r[0]['total']);
 	}
 
-/*
-"SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
-			`author-name` AS `name`, `owner-avatar` AS `photo`,
-			`owner-link` AS `url`, `owner-avatar` AS `thumb`
-		FROM `item` FORCE INDEX (`authorid_created`)
-		WHERE `item`.`author-id` = %d AND $sql
-		AND NOT `deleted` AND NOT `moderated` AND `visible`
-
-*/
-
 	$r = q(item_query()." AND `item`.`author-id` = %d AND ".$sql.
 		" ORDER BY `item`.`created` DESC LIMIT %d, %d",
 		intval($author_id),
@@ -719,7 +710,7 @@ function posts_from_contact_url($a, $contact_url) {
 
 	$o = conversation($a,$r,'community',false);
 
-	if(!get_config('system', 'old_pager')) {
+	if (!get_config('system', 'old_pager')) {
 		$o .= alt_pager($a,count($r));
 	} else {
 		$o .= paginate($a);
