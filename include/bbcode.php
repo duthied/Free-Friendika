@@ -1,4 +1,6 @@
 <?php
+use \Friendica\Core\Config;
+
 require_once("include/oembed.php");
 require_once('include/event.php');
 require_once('include/map.php');
@@ -1161,11 +1163,24 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$Text = preg_replace('/\&quot\;/','"',$Text);
 
 	// fix any escaped ampersands that may have been converted into links
-	$Text = preg_replace("/\<([^>]*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism",'<$1$2=$3&$4>',$Text);
-	$Text = preg_replace("/\<([^>]*?)(src|href)=\"(?!http|ftp|mailto|gopher|cid)(.*?)\>/ism",'<$1$2="">',$Text);
+	$Text = preg_replace('/\<([^>]*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism', '<$1$2=$3&$4>', $Text);
 
-	if($saved_image)
+	// sanitizes src attributes (only relative redir URIs or http URLs)
+	$Text = preg_replace('#<([^>]*?)(src)="(?!http|redir)(.*?)"(.*?)>#ism', '<$1$2=""$4 class="invalid-src" title="' . t('Invalid source protocol') . '">', $Text);
+
+	// sanitize href attributes (only whitelisted protocols URLs)
+	// default value for backward compatibility
+	$allowed_link_protocols = Config::get('system', 'allowed_link_protocols', array('ftp', 'mailto', 'gopher', 'cid'));
+
+	// Always allowed protocol even if config isn't set or not including it
+	$allowed_link_protocols[] = 'http';
+
+	$regex = '#<([^>]*?)(href)="(?!' . implode('|', $allowed_link_protocols) . ')(.*?)"(.*?)>#ism';
+	$Text = preg_replace($regex, '<$1$2="javascript:void(0)"$4 class="invalid-href" title="' . t('Invalid link protocol') . '">', $Text);
+
+	if($saved_image) {
 		$Text = bb_replace_images($Text, $saved_image);
+	}
 
 	// Clean up the HTML by loading and saving the HTML with the DOM.
 	// Bad structured html can break a whole page.

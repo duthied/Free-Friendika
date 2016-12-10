@@ -428,6 +428,21 @@ function admin_page_queue(&$a) {
  * @return string
  */
 function admin_page_summary(&$a) {
+	global $db;
+	// are there MyISAM tables in the DB? If so, trigger a warning message
+	$r = q("SELECT `engine` FROM `information_schema`.`tables` WHERE `engine` = 'myisam' AND `table_schema` = '%s' LIMIT 1",
+		dbesc($db->database_name()));
+	$showwarning = false;
+	$warningtext = array();
+	if (dbm::is_result($r)) {
+		$showwarning = true;
+		$warningtext[] = sprintf(t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the <tt>convert_innodb.sql</tt> in the <tt>/util</tt> directory of your Friendica installation.<br />'), 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
+	}
+	// MySQL >= 5.7.4 doesn't support the IGNORE keyword in ALTER TABLE statements
+	if ((version_compare($db->server_info(), '5.7.4') >= 0) AND
+		!(strpos($db->server_info(), 'MariaDB') !== false)) {
+		$warningtext[] = t('You are using a MySQL version which does not support all features that Friendica uses. You should consider switching to MariaDB.');
+	}
 	$r = q("SELECT `page-flags`, COUNT(`uid`) AS `count` FROM `user` GROUP BY `page-flags`");
 	$accounts = array(
 		array(t('Normal Account'), 0),
@@ -478,7 +493,9 @@ function admin_page_summary(&$a) {
 		'$platform' => FRIENDICA_PLATFORM,
 		'$codename' => FRIENDICA_CODENAME,
 		'$build' =>  get_config('system','build'),
-		'$plugins' => array(t('Active plugins'), $a->plugins)
+		'$plugins' => array(t('Active plugins'), $a->plugins),
+		'$showwarning' => $showwarning,
+		'$warningtext' => $warningtext
 	));
 }
 
@@ -652,6 +669,7 @@ function admin_page_site_post(&$a) {
 	$worker_queues		=	((x($_POST,'worker_queues'))		? intval($_POST['worker_queues'])		: 4);
 	$worker_dont_fork	=	((x($_POST,'worker_dont_fork'))		? True						: False);
 	$worker_fastlane	=	((x($_POST,'worker_fastlane'))		? True						: False);
+	$worker_frontend	=	((x($_POST,'worker_frontend'))		? True						: False);
 
 	if($a->get_path() != "")
 		$diaspora_enabled = false;
@@ -802,6 +820,7 @@ function admin_page_site_post(&$a) {
 	set_config('system','worker_queues', $worker_queues);
 	set_config('system','worker_dont_fork', $worker_dont_fork);
 	set_config('system','worker_fastlane', $worker_fastlane);
+	set_config('system','frontend_worker', $worker_frontend);
 
 	if($rino==2 and !function_exists('mcrypt_create_iv')) {
 		notice(t("RINO2 needs mcrypt php extension to work."));
@@ -1033,6 +1052,7 @@ function admin_page_site(&$a) {
 		'$worker_queues' 	=> array('worker_queues', t("Maximum number of parallel workers"), get_config('system','worker_queues'), t("On shared hosters set this to 2. On larger systems, values of 10 are great. Default value is 4.")),
 		'$worker_dont_fork'	=> array('worker_dont_fork', t("Don't use 'proc_open' with the worker"), get_config('system','worker_dont_fork'), t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of poller calls in your crontab.")),
 		'$worker_fastlane'	=> array('worker_fastlane', t("Enable fastlane"), get_config('system','worker_fastlane'), t("When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.")),
+		'$worker_frontend'	=> array('worker_frontend', t('Enable frontend worker'), get_config('system','frontend_worker'), t('When enabled the Worker process is triggered when backend access is performed (e.g. messages being delivered). On smaller sites you might want to call yourdomain.tld/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server. The worker background process needs to be activated for this.')),
 
 		'$form_security_token'	=> get_form_security_token("admin_site")
 
@@ -1388,6 +1408,7 @@ function admin_page_users(&$a){
 		'$h_deleted' => t('User waiting for permanent deletion'),
 		'$th_pending' => array(t('Request date'), t('Name'), t('Email')),
 		'$no_pending' =>  t('No registrations.'),
+		'$pendingnotetext' => t('Note from the user'),
 		'$approve' => t('Approve'),
 		'$deny' => t('Deny'),
 		'$delete' => t('Delete'),

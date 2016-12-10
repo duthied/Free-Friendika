@@ -84,9 +84,14 @@ class Cache {
 		$memcache = self::memcache();
 		if (is_object($memcache)) {
 			// We fetch with the hostname as key to avoid problems with other applications
-			$value = $memcache->get(get_app()->get_hostname().":".$key);
-			if (!is_bool($value)) {
-				return unserialize($value);
+			$cached = $memcache->get(get_app()->get_hostname().":".$key);
+			$value = @unserialize($cached);
+
+			// Only return a value if the serialized value is valid.
+			// We also check if the db entry is a serialized
+			// boolean 'false' value (which we want to return).
+			if ($cached === serialize(false) || $value !== false) {
+				return $value;
 			}
 
 			return null;
@@ -100,7 +105,15 @@ class Cache {
 		);
 
 		if (dbm::is_result($r)) {
-			return unserialize($r[0]['v']);
+			$cached = $r[0]['v'];
+			$value = @unserialize($cached);
+
+			// Only return a value if the serialized value is valid.
+			// We also check if the db entry is a serialized
+			// boolean 'false' value (which we want to return).
+			if ($cached === serialize(false) || $value !== false) {
+				return $value;
+			}
 		}
 
 		return null;

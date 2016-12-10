@@ -12,7 +12,7 @@ if(! function_exists('replace_macros')) {
  * This is our template processor
  *
  * @param string|FriendicaSmarty $s the string requiring macro substitution,
- *									or an instance of FriendicaSmarty
+ *				or an instance of FriendicaSmarty
  * @param array $r key value pairs (search => replace)
  * @return string substituted string
  */
@@ -771,7 +771,7 @@ function activity_match($haystack,$needle) {
 
 /**
  * @brief Pull out all #hashtags and @person tags from $string.
- * 
+ *
  * We also get @person@domain.com - which would make
  * the regex quite complicated as tags can also
  * end a sentence. So we'll run through our results
@@ -874,8 +874,8 @@ function contact_block() {
 	if((! is_array($a->profile)) || ($a->profile['hide-friends']))
 		return $o;
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
-			WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0
-				AND `hidden` = 0 AND `archive` = 0
+			WHERE `uid` = %d AND NOT `self` AND NOT `blocked`
+				AND NOT `hidden` AND NOT `archive`
 				AND `network` IN ('%s', '%s', '%s')",
 			intval($a->profile['uid']),
 			dbesc(NETWORK_DFRN),
@@ -892,7 +892,7 @@ function contact_block() {
 	} else {
 		// Splitting the query in two parts makes it much faster
 		$r = q("SELECT `id` FROM `contact`
-				WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending`
+				WHERE `uid` = %d AND NOT `self` AND NOT `blocked`
 					AND NOT `hidden` AND NOT `archive`
 				AND `network` IN ('%s', '%s', '%s') ORDER BY RAND() LIMIT %d",
 				intval($a->profile['uid']),
@@ -1170,33 +1170,29 @@ function link_compare($a,$b) {
 	return false;
 }}
 
-
-if(! function_exists('redir_private_images')) {
 /**
- * Find any non-embedded images in private items and add redir links to them
+ * @brief Find any non-embedded images in private items and add redir links to them
  *
  * @param App $a
- * @param array $item
+ * @param array &$item The field array of an item row
  */
-function redir_private_images($a, &$item) {
-
+function redir_private_images($a, &$item)
+{
 	$matches = false;
 	$cnt = preg_match_all('|\[img\](http[^\[]*?/photo/[a-fA-F0-9]+?(-[0-9]\.[\w]+?)?)\[\/img\]|', $item['body'], $matches, PREG_SET_ORDER);
-	if($cnt) {
-		//logger("redir_private_images: matches = " . print_r($matches, true));
-		foreach($matches as $mtch) {
-			if(strpos($mtch[1], '/redir') !== false)
+	if ($cnt) {
+		foreach ($matches as $mtch) {
+			if (strpos($mtch[1], '/redir') !== false) {
 				continue;
+			}
 
-			if((local_user() == $item['uid']) && ($item['private'] != 0) && ($item['contact-id'] != $a->contact['id']) && ($item['network'] == NETWORK_DFRN)) {
-				//logger("redir_private_images: redir");
-				$img_url = 'redir?f=1&quiet=1&url=' . $mtch[1] . '&conurl=' . $item['author-link'];
-				$item['body'] = str_replace($mtch[0], "[img]".$img_url."[/img]", $item['body']);
+			if ((local_user() == $item['uid']) && ($item['private'] != 0) && ($item['contact-id'] != $a->contact['id']) && ($item['network'] == NETWORK_DFRN)) {
+				$img_url = 'redir?f=1&quiet=1&url=' . urlencode($mtch[1]) . '&conurl=' . urlencode($item['author-link']);
+				$item['body'] = str_replace($mtch[0], '[img]' . $img_url . '[/img]', $item['body']);
 			}
 		}
 	}
-
-}}
+}
 
 function put_item_in_cache(&$item, $update = false) {
 

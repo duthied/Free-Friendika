@@ -5,7 +5,7 @@ Using SSL with Friendica
 
 Disclaimer
 ---
-**This document has been updated in November 2015.
+**This document has been updated in November 2016.
 SSL encryption is relevant for security.
 This means that recommended settings change fast.
 Keep your setup up to date and do not rely on this document being updated as fast as technologies change!**
@@ -40,65 +40,26 @@ If your Friendica instance is running on a shared hosting platform, you should f
 They have instructions for you on how to do it there.
 You can always order a paid certificate with your provider.
 They will either install it for you or provide an easy way to upload the certificate and the key via a web interface.
-
-
-It might be worth asking if your provider would install a certificate you provide yourself, to save money.
-If so, read on.
-
-Getting a free StartSSL certificate
----
-StartSSL is a certificate authority that issues certificates for free.
-They are valid for a year and are sufficient for our purposes.
-
-### Step 1: Create a client certificate
-
-When you initially sign up with StartSSL, you receive a certificate that is installed in your browser.
-You need it for the login on startssl.com, also when coming back to the site later.
-It has nothing to do with the SSL certificate for your server.
-
-### Step 2: Validate your email address and your domain
-
-To continue you have to prove that you own the email address you specified and the domain that you want a certificate for.
-Specify your email address, request a validation link via email from the "validations wizard".
-Same procedure for the domain validation.
-
-### Step 3: Request the certificate
-
-Go to the "certificates wizard".
-Choose the target web server.
-When you are first prompted for a domain to certify, you need to enter your main domain, e.g. example.com.
-In the next step, you will be able to specify a subdomain for Friendica, if needed.
-Example: If you have friendica.example.com, you first enter example.com, then specify the subdomain friendica later.
-
-If you know how to generate an openssl key and a certificate signing request (csr) yourself, do so.
-Paste the csr into your browser to get it signed by StartSSL.
-
-If you do not know how to generate a key and a csr, accept StartSSL's offer to generate it for you.
-This means: StartSSL has the key to your encryption but it is better than no certificate at all.
-Download your certificate from the website.
-(Or in the second case: Download your certificate and your key.)
-
-To install your certificate on a server, you need one or two extra files: sub.class1.server.ca.pem and ca.pem, delivered by startssl.com
-Go to the "Tool box" section and download "Class 1 Intermediate Server CA" and "StartCom Root CA (PEM encoded)".
-
-If you want to send your certificate to your hosting provider, they need the certificate, the key and probably at least the intermediate server CA.
-To be sure, send those three and the ca.pem file.
+With some providers, you have to send them your certificate.
+They need the certificate, the key and the CA's intermediate certificate.
+To be sure, send those three files.
 **You should send them to your provider via an encrypted channel!**
 
-If you run your own server, upload the files and check out the Mozilla wiki link below.
-
-Let's encrypt
+Own server
 ---
 
-If you run your own server, the "Let's encrypt" initiative might become an interesting alternative.
-Their offer is in public beta right now.
-Check out [their website](https://letsencrypt.org/) for status updates.
+If you run your own server, we recommend to check out the ["Let's Encrypt" initiative](https://letsencrypt.org/).
+Not only do they offer free SSL certificates, but also a way to automate their renewal.
+You need to install a client software on your server to use it.
+Instructions for the official client are [here](https://certbot.eff.org/).
+Depending on your needs, you might want to look at the [list of alternative letsencrypt clients](https://letsencrypt.org/docs/client-options/).
+
 
 Web server settings
 ---
 
 Visit the [Mozilla's wiki](https://wiki.mozilla.org/Security/Server_Side_TLS) for instructions on how to configure a secure webserver.
-They provide recommendations for [different web servers](https://wiki.mozilla.org/Security/Server_Side_TLS#Recommended_Server_Configurations).
+They provide recommendations for [different web servers](https://mozilla.github.io/server-side-tls/ssl-config-generator/).
 
 Test your SSL settings
 ---

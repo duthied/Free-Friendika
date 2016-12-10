@@ -38,7 +38,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
 define ( 'FRIENDICA_VERSION',      '3.5.1-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1208      );
+define ( 'DB_UPDATE_VERSION',      1209      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -530,6 +530,7 @@ class App {
 	public	$videoheight = 350;
 	public	$force_max_items = 0;
 	public	$theme_thread_allow = true;
+	public	$theme_richtext_editor = true;
 	public	$theme_events_in_profile = true;
 
 	/**
@@ -609,6 +610,7 @@ class App {
 		$this->performance["markstart"] = microtime(true);
 
 		$this->callstack["database"] = array();
+		$this->callstack["database_write"] = array();
 		$this->callstack["network"] = array();
 		$this->callstack["file"] = array();
 		$this->callstack["rendering"] = array();
@@ -1383,6 +1385,10 @@ class App {
 	}
 
 	function proc_run($args) {
+
+		if (!function_exists("proc_open")) {
+			return;
+		}
 
 		// Add the php path if it is a php call
 		if (count($args) && ($args[0] === 'php' OR !is_string($args[0]))) {
@@ -2354,6 +2360,36 @@ function get_lockpath() {
 		if (is_dir($lockpath) AND is_writable($lockpath)) {
 			set_config("system", "lockpath", $lockpath);
 			return($lockpath);
+		}
+	}
+	return "";
+}
+
+/**
+ * @brief Returns the path where spool files are stored
+ *
+ * @return string Spool path
+ */
+function get_spoolpath() {
+	$spoolpath = get_config('system','spoolpath');
+	if (($spoolpath != "") AND is_dir($spoolpath) AND is_writable($spoolpath)) {
+		return($spoolpath);
+	}
+
+	$temppath = get_temppath();
+
+	if ($temppath != "") {
+		$spoolpath = $temppath."/spool";
+
+		if (!is_dir($spoolpath)) {
+			mkdir($spoolpath);
+		} elseif (!is_writable($spoolpath)) {
+			$spoolpath = $temppath;
+		}
+
+		if (is_dir($spoolpath) AND is_writable($spoolpath)) {
+			set_config("system", "spoolpath", $spoolpath);
+			return($spoolpath);
 		}
 	}
 	return "";

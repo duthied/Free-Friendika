@@ -378,6 +378,29 @@ function create_user($arr) {
 }
 
 
+/**
+ * @brief send registration confiŕmation with the intormation that reg is pending
+ *
+ * @param string $email
+ * @param string $sitename
+ * @param string $username
+ * @return NULL|boolean from notification() and email() inherited 
+ */
+function send_register_pending_eml($email, $sitename, $username) {
+	$body = deindent(t('
+		Dear %1$s,
+			Thank you for registering at %2$s. Your account is pending for approval by the administrator.
+	'));
+
+	$body = sprintf($body, $username, $sitename);
+
+	return notification(array(
+		'type' => "SYSTEM_EMAIL",
+		'to_email' => $email,
+		'subject'=> sprintf( t('Registration at %s'), $sitename),
+		'body' => $body));
+}
+
 /*
  * send registration confirmation.
  * It's here as a function because the mail is sent

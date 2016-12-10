@@ -371,7 +371,7 @@ function profile_sidebar($profile, $block = 0) {
 			if(count($r))
 				$updated =  date("c", strtotime($r[0]['updated']));
 
-			$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
+			$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `hidden` AND NOT `archive`
 					AND `network` IN ('%s', '%s', '%s', '')",
 				intval($profile['uid']),
 				dbesc(NETWORK_DFRN),
@@ -813,7 +813,6 @@ function zrl_init(&$a) {
 
 		$result = Cache::get("gprobe:".$urlparts["host"]);
 		if (!is_null($result)) {
-			$result = unserialize($result);
 			if (in_array($result["network"], array(NETWORK_FEED, NETWORK_PHANTOM))) {
 				logger("DDoS attempt detected for ".$urlparts["host"]." by ".$_SERVER["REMOTE_ADDR"].". server data: ".print_r($_SERVER, true), LOGGER_DEBUG);
 				return;

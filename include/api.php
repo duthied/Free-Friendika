@@ -623,7 +623,7 @@
 		// count friends
 		$r = q("SELECT count(*) as `count` FROM `contact`
 				WHERE  `uid` = %d AND `rel` IN ( %d, %d )
-				AND `self`=0 AND `blocked`=0 AND `pending`=0 AND `hidden`=0",
+				AND `self`=0 AND NOT `blocked` AND `hidden`=0",
 				intval($uinfo[0]['uid']),
 				intval(CONTACT_IS_SHARING),
 				intval(CONTACT_IS_FRIEND)
@@ -632,7 +632,7 @@
 
 		$r = q("SELECT count(*) as `count` FROM `contact`
 				WHERE  `uid` = %d AND `rel` IN ( %d, %d )
-				AND `self`=0 AND `blocked`=0 AND `pending`=0 AND `hidden`=0",
+				AND `self`=0 AND NOT `blocked` AND `hidden`=0",
 				intval($uinfo[0]['uid']),
 				intval(CONTACT_IS_FOLLOWER),
 				intval(CONTACT_IS_FRIEND)
@@ -1399,7 +1399,7 @@
 			`contact`.`id` AS `cid`
 			FROM `item`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
-				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 			WHERE `item`.`uid` = %d AND `verb` = '%s'
 			AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
 			$sql_extra
@@ -1476,7 +1476,7 @@
 			`user`.`nickname`, `user`.`hidewall`
 			FROM `item`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
-				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 			STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
 				AND NOT `user`.`hidewall`
 			WHERE `verb` = '%s' AND `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
@@ -1543,7 +1543,7 @@
 			`contact`.`id` AS `cid`
 			FROM `item`
 			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
-				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 			WHERE `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
 			AND `item`.`uid` = %d AND `item`.`verb` = '%s'
 			$sql_extra",
@@ -1619,7 +1619,7 @@
 			`contact`.`id` AS `cid`
 			FROM `item`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
-				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 			WHERE `item`.`parent` = %d AND `item`.`visible`
 			AND NOT `item`.`moderated` AND NOT `item`.`deleted`
 			AND `item`.`uid` = %d AND `item`.`verb` = '%s'
@@ -1673,7 +1673,7 @@
 			`contact`.`id` AS `cid`
 			FROM `item`
 			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
-				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 			WHERE `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
 			AND NOT `item`.`private` AND `item`.`allow_cid` = '' AND `item`.`allow`.`gid` = ''
 			AND `item`.`deny_cid` = '' AND `item`.`deny_gid` = ''
@@ -1792,7 +1792,7 @@
 			`contact`.`id` AS `cid`
 			FROM `item` FORCE INDEX (`uid_id`)
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
-				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 			WHERE `item`.`uid` = %d AND `verb` = '%s'
 			AND NOT (`item`.`author-link` IN ('https://%s', 'http://%s'))
 			AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
@@ -1866,7 +1866,7 @@
 			`contact`.`id` AS `cid`
 			FROM `item` FORCE INDEX (`uid_contactid_id`)
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
-				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 			WHERE `item`.`uid` = %d AND `verb` = '%s'
 			AND `item`.`contact-id` = %d
 			AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
@@ -2002,7 +2002,7 @@
 				AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
 				AND `item`.`starred` = 1
 				AND `contact`.`id` = `item`.`contact-id`
-				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
+				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 				$sql_extra
 				AND `item`.`id`>%d
 				ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
@@ -2436,18 +2436,18 @@
 							'religion' => $profile['religion'],
 							'public_keywords' => $profile['pub_keywords'],
 							'private_keywords' => $profile['prv_keywords'],
-							'likes' => bbcode(api_clean_plain_items($profile['likes']), false, false, 2, true),
-							'dislikes' => bbcode(api_clean_plain_items($profile['dislikes']), false, false, 2, true),
-							'about' => bbcode(api_clean_plain_items($profile['about']), false, false, 2, true),
-							'music' => bbcode(api_clean_plain_items($profile['music']), false, false, 2, true),
-							'book' => bbcode(api_clean_plain_items($profile['book']), false, false, 2, true),
-							'tv' => bbcode(api_clean_plain_items($profile['tv']), false, false, 2, true),
-							'film' => bbcode(api_clean_plain_items($profile['film']), false, false, 2, true),
-							'interest' => bbcode(api_clean_plain_items($profile['interest']), false, false, 2, true),
-							'romance' => bbcode(api_clean_plain_items($profile['romance']), false, false, 2, true),
-							'work' => bbcode(api_clean_plain_items($profile['work']), false, false, 2, true),
-							'education' => bbcode(api_clean_plain_items($profile['education']), false, false, 2, true),
-							'social_networks' => bbcode(api_clean_plain_items($profile['contact']), false, false, 2, true),
+							'likes' => bbcode(api_clean_plain_items($profile['likes']), false, false, 2, false),
+							'dislikes' => bbcode(api_clean_plain_items($profile['dislikes']), false, false, 2, false),
+							'about' => bbcode(api_clean_plain_items($profile['about']), false, false, 2, false),
+							'music' => bbcode(api_clean_plain_items($profile['music']), false, false, 2, false),
+							'book' => bbcode(api_clean_plain_items($profile['book']), false, false, 2, false),
+							'tv' => bbcode(api_clean_plain_items($profile['tv']), false, false, 2, false),
+							'film' => bbcode(api_clean_plain_items($profile['film']), false, false, 2, false),
+							'interest' => bbcode(api_clean_plain_items($profile['interest']), false, false, 2, false),
+							'romance' => bbcode(api_clean_plain_items($profile['romance']), false, false, 2, false),
+							'work' => bbcode(api_clean_plain_items($profile['work']), false, false, 2, false),
+							'education' => bbcode(api_clean_plain_items($profile['education']), false, false, 2, false),
+							'social_networks' => bbcode(api_clean_plain_items($profile['contact']), false, false, 2, false),
 							'homepage' => $profile['homepage'],
 							'users' => null);
 			return $profile;
@@ -2648,7 +2648,7 @@
 		if ($user_info['self'] == 0)
 			$sql_extra = " AND false ";
 
-		$r = q("SELECT `nurl` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 $sql_extra",
+		$r = q("SELECT `nurl` FROM `contact` WHERE `uid` = %d AND NOT `self` AND (NOT `blocked` OR `pending`) $sql_extra",
 			intval(api_user())
 		);
 
