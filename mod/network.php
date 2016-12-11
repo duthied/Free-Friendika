@@ -442,8 +442,8 @@ function network_content(&$a, $update = 0) {
 	// desired.
 
 	$sql_post_table = "";
-	$sql_options  = (($star) ? " and starred = 1 " : '');
-	$sql_options .= (($bmark) ? " and bookmark = 1 " : '');
+	$sql_options  = (($star) ? " AND `thread`.`starred` " : '');
+	$sql_options .= (($bmark) ? " AND `thread`.`bookmark` " : '');
 	$sql_extra = $sql_options;
 	$sql_extra2 = "";
 	$sql_extra3 = "";
