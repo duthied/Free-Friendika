@@ -670,7 +670,7 @@ function posts_from_gcontact($a, $gcontact_id) {
  * @brief Returns posts from a given contact url
  *
  * @param App $a argv application class
- * @param int $contact_url Contact URL
+ * @param string $contact_url Contact URL
  *
  * @return string posts in HTML
  */
