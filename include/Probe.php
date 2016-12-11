@@ -569,6 +569,8 @@ class Probe {
 
 		$data = array();
 
+		logger("Check profile ".$profile, LOGGER_DEBUG);
+
 		// Fetch data via noscrape - this is faster
 		$noscrape = str_replace(array("/hcard/", "/profile/"), "/noscrape/", $profile);
 		$data = self::poll_noscrape($noscrape, $data);
@@ -590,6 +592,8 @@ class Probe {
 		$prof_data["photo"] = $data["photo"];
 		$prof_data["fn"] = $data["name"];
 		$prof_data["key"] = $data["pubkey"];
+
+		logger("Result for profile ".$profile.": ".print_r($prof_data, true), LOGGER_DEBUG);
 
 		return $prof_data;
 	}
