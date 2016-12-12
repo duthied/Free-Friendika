@@ -391,6 +391,15 @@ function poco_detect_server($profile) {
 		}
 	}
 
+	// Mastodon
+	if ($server_url == "") {
+		$red = preg_replace("=(https?://)(.*)/users/(.*)=ism", "$1$2", $profile);
+		if ($red != $profile) {
+			$server_url = $red;
+			$network = NETWORK_OSTATUS;
+		}
+	}
+
 	return $server_url;
 }
 
@@ -723,7 +732,6 @@ function poco_check_server($server_url, $network = "", $force = false) {
 	if (!$serverret["success"] OR ($serverret["body"] == "") OR (@sizeof($xmlobj) == 0) OR !is_object($xmlobj)) {
 		$server_url = str_replace("https://", "http://", $server_url);
 		$serverret = z_fetch_url($server_url."/.well-known/host-meta");
-
 		$xmlobj = @simplexml_load_string($serverret["body"],'SimpleXMLElement',0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
 	}
 
@@ -754,6 +762,13 @@ function poco_check_server($server_url, $network = "", $force = false) {
 						$network = NETWORK_DIASPORA;
 						$versionparts = explode("-", $version);
 						$version = $versionparts[0];
+					}
+
+					if(stristr($line,'Server: Mastodon')) {
+						$platform = "Mastodon";
+						$network = NETWORK_OSTATUS;
+						// Mastodon doesn't reveal version numbers
+						$version = "";
 					}
 				}
 		}
