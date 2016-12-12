@@ -391,6 +391,15 @@ function poco_detect_server($profile) {
 		}
 	}
 
+	// Mastodon
+	if ($server_url == "") {
+		$red = preg_replace("=(https?://)(.*)/users/(.*)=ism", "$1$2", $profile);
+		if ($red != $profile) {
+			$server_url = $red;
+			$network = NETWORK_OSTATUS;
+		}
+	}
+
 	return $server_url;
 }
 
@@ -754,6 +763,13 @@ function poco_check_server($server_url, $network = "", $force = false) {
 						$network = NETWORK_DIASPORA;
 						$versionparts = explode("-", $version);
 						$version = $versionparts[0];
+					}
+
+					if(stristr($line,'Server: Mastodon')) {
+						$platform = "Mastodon";
+						$network = NETWORK_OSTATUS;
+						// Mastodon doesn't reveal version numbers
+						$version = "";
 					}
 				}
 		}

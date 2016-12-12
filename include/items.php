@@ -280,6 +280,10 @@ function add_page_info_to_body($body, $texturl = false, $no_photos = false) {
 
 	$URLSearchString = "^\[\]";
 
+	// Fix for Mastodon where the mentions are in a different format
+	$body = preg_replace("/\[url\=([$URLSearchString]*)\]([#!@])(.*?)\[\/url\]/ism",
+				'$2[url=$1]$3[/url]', $body);
+
 	// Adding these spaces is a quick hack due to my problems with regular expressions :)
 	preg_match("/[^!#@]\[url\]([$URLSearchString]*)\[\/url\]/ism", " ".$body, $matches);
 
