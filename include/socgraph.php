@@ -732,6 +732,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 	if (!$serverret["success"] OR ($serverret["body"] == "") OR (@sizeof($xmlobj) == 0) OR !is_object($xmlobj)) {
 		$server_url = str_replace("https://", "http://", $server_url);
 		$serverret = z_fetch_url($server_url."/.well-known/host-meta");
+
 		$xmlobj = @simplexml_load_string($serverret["body"],'SimpleXMLElement',0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
 	}
 
