@@ -190,8 +190,6 @@ function ping_init(App $a)
 				FROM `contact` RIGHT JOIN `register` ON `register`.`uid` = `contact`.`uid`
 				WHERE `contact`.`self` = 1");
 
-			$register_count = 0;
-
 			if (dbm::is_result($regs)) {
 				$register_count = $regs[0]['total'];
 			}
