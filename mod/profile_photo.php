@@ -32,7 +32,7 @@ function profile_photo_post(&$a) {
 				intval($_REQUEST['profile']),
 				intval(local_user())
 			);
-			if(count($r) && (! intval($r[0]['is-default'])))
+			if(dbm::is_result($r) && (! intval($r[0]['is-default'])))
 				$is_default_profile = 0;
 		}
 
@@ -63,7 +63,7 @@ function profile_photo_post(&$a) {
 			dbesc(local_user()),
 			intval($scale));
 
-		if(count($r)) {
+		if(dbm::is_result($r)) {
 
 			$base_image = $r[0];
 
@@ -195,7 +195,7 @@ function profile_photo_content(&$a) {
 			intval(local_user()),
 			dbesc($resource_id)
 			);
-		if (!count($r)){
+		if (!dbm::is_result($r)){
 			notice( t('Permission denied.') . EOL );
 			return;
 		}

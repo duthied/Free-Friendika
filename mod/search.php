@@ -15,7 +15,7 @@ function search_saved_searches() {
 		intval(local_user())
 	);
 
-	if(count($r)) {
+	if(dbm::is_result($r)) {
 		$saved = array();
 		foreach($r as $rr) {
 			$saved[] = array(
@@ -53,7 +53,7 @@ function search_init(&$a) {
 				intval(local_user()),
 				dbesc($search)
 			);
-			if(! count($r)) {
+			if(! dbm::is_result($r)) {
 				q("INSERT INTO `search` (`uid`,`term`) VALUES ( %d, '%s')",
 					intval(local_user()),
 					dbesc($search)
@@ -220,7 +220,7 @@ function search_content(&$a) {
 				intval($a->pager['start']), intval($a->pager['itemspage']));
 	}
 
-	if(! count($r)) {
+	if(! dbm::is_result($r)) {
 		info( t('No results.') . EOL);
 		return $o;
 	}

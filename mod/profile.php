@@ -13,7 +13,7 @@ function profile_init(&$a) {
 		$which = htmlspecialchars($a->argv[1]);
 	else {
 		$r = q("select nickname from user where blocked = 0 and account_expired = 0 and account_removed = 0 and verified = 1 order by rand() limit 1");
-		if(count($r)) {
+		if(dbm::is_result($r)) {
 			goaway($a->get_baseurl() . '/profile/' . $r[0]['nickname']);
 		}
 		else {
@@ -136,7 +136,7 @@ function profile_content(&$a, $update = 0) {
 			intval($contact_id),
 			intval($a->profile['profile_uid'])
 		);
-		if(count($r)) {
+		if(dbm::is_result($r)) {
 			$contact = $r[0];
 			$remote_contact = true;
 		}
@@ -258,7 +258,7 @@ function profile_content(&$a, $update = 0) {
 			    intval($a->profile['profile_uid'])
 		    );
 
-	        if(count($r)) {
+	        if(dbm::is_result($r)) {
 		        $a->set_pager_total($r[0]['total']);
 			}
 		}

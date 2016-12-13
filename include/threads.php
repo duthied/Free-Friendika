@@ -142,12 +142,12 @@ function add_shadow_entry($itemid) {
 
 	// Is there a shadow parent?
 	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = 0 LIMIT 1", dbesc($item['parent-uri']));
-	if (!count($r))
+	if (!dbm::is_result($r))
 		return;
 
 	// Is there already a shadow entry?
 	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = 0 LIMIT 1", dbesc($item['uri']));
-	if (count($r))
+	if (dbm::is_result($r))
 		return;
 
 	// Preparing public shadow (removing user specific data)
@@ -241,7 +241,7 @@ function delete_thread($itemid, $itemuri = "") {
 				dbesc($itemuri),
 				intval($item["uid"])
 			);
-		if (!count($r)) {
+		if (!dbm::is_result($r)) {
 			$r = q("DELETE FROM `item` WHERE `uri` = '%s' AND `uid` = 0",
 				dbesc($itemuri)
 			);

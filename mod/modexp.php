@@ -12,7 +12,7 @@ function modexp_init(&$a) {
 			dbesc($nick)
 	);
 
-	if(! count($r))
+	if(! dbm::is_result($r))
 		killme();
 
 	$lines = explode("\n",$r[0]['spubkey']);

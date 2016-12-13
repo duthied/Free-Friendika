@@ -165,7 +165,7 @@ function photos_post(&$a) {
 		intval($page_owner_uid)
 	);
 
-	if (! count($r)) {
+	if (! dbm::is_result($r)) {
 		notice( t('Contact information unavailable') . EOL);
 		logger('photos_post: unable to locate contact record for page owner. uid=' . $page_owner_uid);
 		killme();
@@ -186,7 +186,7 @@ function photos_post(&$a) {
 			dbesc($album),
 			intval($page_owner_uid)
 		);
-		if (! count($r)) {
+		if (! dbm::is_result($r)) {
 			notice( t('Album not found.') . EOL);
 			goaway($_SESSION['photo_return']);
 			return; // NOTREACHED
@@ -748,7 +748,7 @@ function photos_post(&$a) {
 		dbesc($album),
 		intval($page_owner_uid)
 	);
-	if ((! count($r)) || ($album == t('Profile Photos')))
+	if ((! dbm::is_result($r)) || ($album == t('Profile Photos')))
 		$visible = 1;
 	else
 		$visible = 0;
@@ -1573,7 +1573,7 @@ function photos_content(&$a) {
 			}
 
 			$comments = '';
-			if (! count($r)) {
+			if (! dbm::is_result($r)) {
 				if ($can_post || can_write_wall($a,$owner_uid)) {
 					if ($link_item['last-child']) {
 						$comments .= replace_macros($cmnt_tpl,array(

@@ -33,7 +33,7 @@ function group_select($selname,$selclass,$preselected = false,$size = 4) {
 
 	call_hooks($a->module . '_pre_' . $selname, $arr);
 
-	if(count($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			if((is_array($preselected)) && in_array($rr['id'], $preselected))
 				$selected = " selected=\"selected\" ";
@@ -144,7 +144,7 @@ function contact_selector($selname, $selclass, $preselected = false, $options) {
 
 	call_hooks($a->module . '_pre_' . $selname, $arr);
 
-	if(count($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			if((is_array($preselected)) && in_array($rr['id'], $preselected))
 				$selected = " selected=\"selected\" ";
@@ -220,7 +220,7 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 
 	$receiverlist = array();
 
-	if(count($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			if((is_array($preselected)) && in_array($rr['id'], $preselected))
 				$selected = " selected=\"selected\" ";
@@ -314,7 +314,7 @@ function populate_acl($user = null, $show_jotnets = false) {
 			$r = q("SELECT `pubmail` FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
 				intval(local_user())
 			);
-			if(count($r)) {
+			if(dbm::is_result($r)) {
 				$mail_enabled = true;
 				if(intval($r[0]['pubmail']))
 					$pubmail_enabled = true;
@@ -577,7 +577,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 		$r = array();
 
 
-	if(count($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $g){
 			$contacts[] = array(
 				"type"  => "c",
@@ -612,7 +612,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 				dbesc($search),
 				implode("','", $known_contacts)
 		);
-		if (is_array($r) && count($r)){
+		if (dbm::is_result($r)){
 			foreach($r as $row) {
 				// nickname..
 				$up = parse_url($row['author-link']);

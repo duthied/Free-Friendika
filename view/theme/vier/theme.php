@@ -147,7 +147,7 @@ function vier_community_info() {
 		$r = suggestion_query(local_user(), 0, 9);
 
 		$tpl = get_markup_template('ch_directory_item.tpl');
-		if(count($r)) {
+		if(dbm::is_result($r)) {
 
 			$aside['$comunity_profiles_title'] = t('Community Profiles');
 			$aside['$comunity_profiles_items'] = array();
@@ -176,7 +176,7 @@ function vier_community_info() {
 				0, 9);
 
 		$tpl = get_markup_template('ch_directory_item.tpl');
-		if(count($r)) {
+		if(dbm::is_result($r)) {
 
 			$aside['$lastusers_title'] = t('Last users');
 			$aside['$lastusers_items'] = array();

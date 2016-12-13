@@ -39,7 +39,7 @@ function allfriends_content(&$a) {
 
 	$r = all_friends(local_user(), $cid, $a->pager['start'], $a->pager['itemspage']);
 
-	if(! count($r)) {
+	if(! dbm::is_result($r)) {
 		$o .= t('No friends to display.');
 		return $o;
 	}

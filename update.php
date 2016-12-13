@@ -85,7 +85,7 @@ function update_1006() {
 	// create 's' keys for everybody that does not have one
 
 	$r = q("SELECT * FROM `user` WHERE `spubkey` = '' ");
-	if(count($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			$sres=openssl_pkey_new(array('encrypt_key' => false ));
 			$sprvkey = '';
@@ -122,7 +122,7 @@ function update_1010() {
 function update_1011() {
 	q("ALTER TABLE `contact` ADD `nick` CHAR( 255 ) NOT NULL AFTER `name` ");
 	$r = q("SELECT * FROM `contact` WHERE 1");
-	if(count($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 				q("UPDATE `contact` SET `nick` = '%s' WHERE `id` = %d",
 					dbesc(basename($rr['url'])),
@@ -145,7 +145,7 @@ function update_1014() {
 	require_once('include/Photo.php');
 	q("ALTER TABLE `contact` ADD `micro` TEXT NOT NULL AFTER `thumb` ");
 	$r = q("SELECT * FROM `photo` WHERE `scale` = 4");
-	if(count($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			$ph = new Photo($rr['data']);
 			if($ph->is_valid()) {
@@ -155,7 +155,7 @@ function update_1014() {
 		}
 	}
 	$r = q("SELECT * FROM `contact` WHERE 1");
-	if(count($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			if(stristr($rr['thumb'],'avatar'))
 				q("UPDATE `contact` SET `micro` = '%s' WHERE `id` = %d",
@@ -308,7 +308,7 @@ function update_1030() {
 function update_1031() {
 	// Repair any bad links that slipped into the item table
 	$r = q("SELECT `id`, `object` FROM `item` WHERE `object` != '' ");
-	if($r && count($r)) {
+	if($r && dbm::is_result($r)) {
 		foreach($r as $rr) {
 			if(strstr($rr['object'],'type=&quot;http')) {
 				q("UPDATE `item` SET `object` = '%s' WHERE `id` = %d",
@@ -356,7 +356,7 @@ function update_1035() {
 function update_1036() {
 
 	$r = dbq("SELECT * FROM `contact` WHERE `network` = 'dfrn' && `photo` LIKE '%include/photo%' ");
-	if(count($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s' WHERE `id` = %d",
 				dbesc(str_replace('include/photo','photo',$rr['photo'])),
@@ -594,7 +594,7 @@ function update_1073() {
 function update_1074() {
 	q("ALTER TABLE `user` ADD `hidewall` TINYINT( 1) NOT NULL DEFAULT '0' AFTER `blockwall` ");
 	$r = q("SELECT `uid` FROM `profile` WHERE `is-default` = 1 AND `hidewall` = 1");
-	if(count($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr)
 			q("UPDATE `user` SET `hidewall` = 1 WHERE `uid` = %d",
 				intval($rr['uid'])
@@ -606,7 +606,7 @@ function update_1074() {
 function update_1075() {
 	q("ALTER TABLE `user` ADD `guid` CHAR( 16 ) NOT NULL AFTER `uid` ");
 	$r = q("SELECT `uid` FROM `user` WHERE 1");
-	if(count($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			$found = true;
 			do {
@@ -685,10 +685,10 @@ function update_1082() {
 		ADD INDEX ( `guid` )  ");
 	// make certain the following code is only executed once
 	$r = q("select `id` from `photo` where `guid` != '' limit 1");
-	if($r && count($r))
+	if(dbm::is_result($r))
 		return;
 	$r = q("SELECT distinct(`resource-id`) FROM `photo` WHERE 1 group by `id`");
-	if(count($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			$guid = get_guid();
 			q("update `photo` set `guid` = '%s' where `resource-id` = '%s'",
@@ -731,7 +731,7 @@ function update_1087() {
 	q("ALTER TABLE `item` ADD `commented` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `edited` ");
 
 	$r = q("SELECT `id` FROM `item` WHERE `parent` = `id` ");
-	if(count($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			$x = q("SELECT max(`created`) AS `cdate` FROM `item` WHERE `parent` = %d LIMIT 1",
 				intval($rr['id'])
@@ -854,7 +854,7 @@ function update_1100() {
 	require_once('include/text.php');
 
 	$r = q("select id, url from contact where url != '' and nurl = '' ");
-	if(count($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			q("update contact set nurl = '%s' where id = %d",
 				dbesc(normalise_link($rr['url'])),
@@ -1030,7 +1030,7 @@ function update_1120() {
 	// might be missing on new installs. We'll check.
 
 	$r = q("describe item");
-	if($r && count($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr)
 			if($rr['Field'] == 'spam')
 				return;
@@ -1168,7 +1168,7 @@ function update_1136() {
 	// order in reverse so that we save the newest entry
 
 	$r = q("select * from config where 1 order by id desc");
-	if(count($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			$found = false;
 			foreach($arr as $x) {
@@ -1187,7 +1187,7 @@ function update_1136() {
 
 	$arr = array();
 	$r = q("select * from pconfig where 1 order by id desc");
-	if(count($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			$found = false;
 			foreach($arr as $x) {
@@ -1692,7 +1692,7 @@ function update_1190() {
 	);
 
 	// convert old forumlist addon entries in new config entries
-	if (count($r)) {
+	if (dbm::is_result($r)) {
 		foreach ($r as $rr) {
 			$uid = $rr['uid'];
 			$family = $rr['cat'];

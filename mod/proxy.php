@@ -136,7 +136,7 @@ function proxy_init() {
 
 	if (!$direct_cache AND ($cachefile == "")) {
 		$r = qu("SELECT * FROM `photo` WHERE `resource-id` = '%s' LIMIT 1", $urlhash);
-		if (count($r)) {
+		if (dbm::is_result($r)) {
         		$img_str = $r[0]['data'];
 			$mime = $r[0]["desc"];
 			if ($mime == "") $mime = "image/jpeg";
@@ -144,7 +144,7 @@ function proxy_init() {
 	} else
 		$r = array();
 
-	if (!count($r)) {
+	if (!dbm::is_result($r)) {
 		// It shouldn't happen but it does - spaces in URL
 		$_REQUEST['url'] = str_replace(" ", "+", $_REQUEST['url']);
 		$redirects = 0;

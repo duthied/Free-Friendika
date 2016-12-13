@@ -41,7 +41,7 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 			dbesc($replyto),
 			dbesc($replyto)
 		);
-		if(count($r))
+		if(dbm::is_result($r))
 			$convid = $r[0]['convid'];
 	}
 
@@ -74,7 +74,7 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 			dbesc($conv_guid),
 			intval(local_user())
 		);
-		if(count($r))
+		if(dbm::is_result($r))
 			$convid = $r[0]['id'];
 	}
 
@@ -113,7 +113,7 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 		dbesc($uri),
 		intval(local_user())
 	);
-	if(count($r))
+	if(dbm::is_result($r))
 		$post_id = $r[0]['id'];
 
 	/**
@@ -210,7 +210,7 @@ function send_wallmessage($recipient='', $body='', $subject='', $replyto=''){
 		dbesc($conv_guid),
 		intval($recipient['uid'])
 	);
-	if(count($r))
+	if(dbm::is_result($r))
 		$convid = $r[0]['id'];
 
 	if(! $convid) {

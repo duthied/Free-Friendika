@@ -33,7 +33,7 @@ class Config {
 		$a = get_app();
 
 		$r = q("SELECT `v`, `k` FROM `config` WHERE `cat` = '%s' ORDER BY `cat`, `k`, `id`", dbesc($family));
-		if (count($r)) {
+		if (dbm::is_result($r)) {
 			foreach ($r as $rr) {
 				$k = $rr['k'];
 				if ($family === 'config') {

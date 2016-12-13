@@ -33,7 +33,7 @@ class PConfig {
 			dbesc($family),
 			intval($uid)
 		);
-		if (count($r)) {
+		if (dbm::is_result($r)) {
 			foreach ($r as $rr) {
 				$k = $rr['k'];
 				$a->config[$uid][$family][$k] = $rr['v'];

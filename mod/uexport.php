@@ -44,7 +44,7 @@ function uexport_content(&$a){
 function _uexport_multirow($query) {
 	$result = array();
 	$r = q($query);
-//	if(count($r)) {
+//	if(dbm::is_result($r)) {
 	if ($r){
 		foreach($r as $rr){
             $p = array();
@@ -130,7 +130,7 @@ function uexport_all(&$a) {
 	$r = q("SELECT count(*) as `total` FROM `item` WHERE `uid` = %d ",
 		intval(local_user())
 	);
-	if(count($r))
+	if(dbm::is_result($r))
 		$total = $r[0]['total'];
 
 	// chunk the output to avoid exhausting memory
@@ -142,7 +142,7 @@ function uexport_all(&$a) {
 			intval($x),
 			intval(500)
 		);
-		/*if(count($r)) {
+		/*if(dbm::is_result($r)) {
 			foreach($r as $rr)
 				foreach($rr as $k => $v)
 					$item[][$k] = $v;

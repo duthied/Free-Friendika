@@ -165,7 +165,7 @@ function install_content(&$a) {
 
 	if($db && $db->connected) {
 		$r = q("SELECT COUNT(*) as `total` FROM `user`");
-		if($r && count($r) && $r[0]['total']) {
+		if(dbm::is_result($r) && $r[0]['total']) {
 			$tpl = get_markup_template('install.tpl');
 			return replace_macros($tpl, array(
 				'$title' => $install_title,

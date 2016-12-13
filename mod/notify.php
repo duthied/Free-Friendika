@@ -47,7 +47,7 @@ function notify_content(&$a) {
 	require_once('include/bbcode.php');
 
 	$r = $nm->getAll(array('seen'=>0));
-	if ($r!==false && count($r) > 0) {
+	if (dbm::is_result($r) > 0) {
 		foreach ($r as $it) {
 			$notif_content .= replace_macros($not_tpl,array(
 				'$item_link' => $a->get_baseurl(true).'/notify/view/'. $it['id'],

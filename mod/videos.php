@@ -140,7 +140,7 @@ function videos_post(&$a) {
 			dbesc($video_id)
 		);
 
-		if(count($r)) {
+		if(dbm::is_result($r)) {
 			q("DELETE FROM `attach` WHERE `uid` = %d AND `id` = '%s'",
 				intval(local_user()),
 				dbesc($video_id)
@@ -259,7 +259,7 @@ function videos_content(&$a) {
 					intval($contact_id),
 					intval($owner_uid)
 				);
-				if(count($r)) {
+				if(dbm::is_result($r)) {
 					$can_post = true;
 					$contact = $r[0];
 					$remote_contact = true;
@@ -287,7 +287,7 @@ function videos_content(&$a) {
 				intval($contact_id),
 				intval($owner_uid)
 			);
-			if(count($r)) {
+			if(dbm::is_result($r)) {
 				$contact = $r[0];
 				$remote_contact = true;
 			}
@@ -347,7 +347,7 @@ function videos_content(&$a) {
 		$sql_extra GROUP BY hash",
 		intval($a->data['user']['uid'])
 	);
-	if(count($r)) {
+	if(dbm::is_result($r)) {
 		$a->set_pager_total(count($r));
 		$a->set_pager_itemspage(20);
 	}
@@ -363,7 +363,7 @@ function videos_content(&$a) {
 
 
 	$videos = array();
-	if(count($r)) {
+	if(dbm::is_result($r)) {
 		foreach($r as $rr) {
 			if($a->theme['template_engine'] === 'internal') {
 				$alt_e = template_escape($rr['filename']);

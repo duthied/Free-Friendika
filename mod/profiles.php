@@ -15,7 +15,7 @@ function profiles_init(&$a) {
 			intval($a->argv[2]),
 			intval(local_user())
 		);
-		if(! count($r)) {
+		if(! dbm::is_result($r)) {
 			notice( t('Profile not found.') . EOL);
 			goaway('profiles');
 			return; // NOTREACHED
@@ -130,7 +130,7 @@ function profiles_init(&$a) {
 			intval($a->argv[1]),
 			intval(local_user())
 		);
-		if(! count($r)) {
+		if(! dbm::is_result($r)) {
 			notice( t('Profile not found.') . EOL);
 			killme();
 			return;
@@ -286,7 +286,7 @@ function profiles_post(&$a) {
 							intval(local_user())
 						);
 					}
-					if(count($r)) {
+					if(dbm::is_result($r)) {
 						$prf = $r[0]['url'];
 						$newname = $r[0]['name'];
 					}
@@ -613,7 +613,7 @@ function profiles_content(&$a) {
 			intval($a->argv[1]),
 			intval(local_user())
 		);
-		if(! count($r)) {
+		if(! dbm::is_result($r)) {
 			notice( t('Profile not found.') . EOL);
 			return;
 		}
@@ -767,7 +767,7 @@ function profiles_content(&$a) {
 				"SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`=1",
 				local_user()
 			);
-			if(count($r)){
+			if(dbm::is_result($r)){
 				//Go to the default profile.
 				goaway('profiles/'.$r[0]['id']);
 			}
@@ -775,7 +775,7 @@ function profiles_content(&$a) {
 
 		$r = q("SELECT * FROM `profile` WHERE `uid` = %d",
 			local_user());
-		if(count($r)) {
+		if(dbm::is_result($r)) {
 
 			$tpl = get_markup_template('profile_entry.tpl');
 			foreach($r as $rr) {

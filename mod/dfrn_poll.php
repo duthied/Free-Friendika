@@ -79,7 +79,7 @@ function dfrn_poll_init(&$a) {
 			dbesc($a->argv[1])
 		);
 
-		if(count($r)) {
+		if(dbm::is_result($r)) {
 
 			$s = fetch_url($r[0]['poll'] . '?dfrn_id=' . $my_id . '&type=profile-check');
 
@@ -126,7 +126,7 @@ function dfrn_poll_init(&$a) {
 			$r = q("SELECT * FROM `profile_check` WHERE `sec` = '%s' ORDER BY `expire` DESC LIMIT 1",
 				dbesc($sec)
 			);
-			if(! count($r)) {
+			if(! dbm::is_result($r)) {
 				xml_status(3, 'No ticket');
 				// NOTREACHED
 			}
@@ -190,7 +190,7 @@ function dfrn_poll_init(&$a) {
 			q("DELETE FROM `profile_check` WHERE `expire` < " . intval(time()));
 			$r = q("SELECT * FROM `profile_check` WHERE `dfrn_id` = '%s' ORDER BY `expire` DESC",
 				dbesc($dfrn_id));
-			if(count($r)) {
+			if(dbm::is_result($r)) {
 				xml_status(1);
 				return; // NOTREACHED
 			}
@@ -223,7 +223,7 @@ function dfrn_poll_post(&$a) {
 			$r = q("SELECT * FROM `profile_check` WHERE `sec` = '%s' ORDER BY `expire` DESC LIMIT 1",
 				dbesc($sec)
 			);
-			if(! count($r)) {
+			if(! dbm::is_result($r)) {
 				xml_status(3, 'No ticket');
 				// NOTREACHED
 			}
@@ -284,7 +284,7 @@ function dfrn_poll_post(&$a) {
 		dbesc($challenge)
 	);
 
-	if(! count($r))
+	if(! dbm::is_result($r))
 		killme();
 
 	$type = $r[0]['type'];
@@ -319,7 +319,7 @@ function dfrn_poll_post(&$a) {
 	$r = q("SELECT * FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 $sql_extra LIMIT 1");
 
 
-	if(! count($r))
+	if(! dbm::is_result($r))
 		killme();
 
 	$contact = $r[0];
@@ -335,7 +335,7 @@ function dfrn_poll_post(&$a) {
 		$reputation = 0;
 		$text = '';
 
-		if(count($r)) {
+		if(dbm::is_result($r)) {
 			$reputation = $r[0]['rating'];
 			$text = $r[0]['reason'];
 
@@ -448,7 +448,7 @@ function dfrn_poll_content(&$a) {
 			dbesc($nickname)
 		);
 
-		if(count($r)) {
+		if(dbm::is_result($r)) {
 
 			$challenge = '';
 			$encrypted_id = '';
@@ -495,7 +495,7 @@ function dfrn_poll_content(&$a) {
 				));
 			}
 
-			$profile = ((count($r) && $r[0]['nickname']) ? $r[0]['nickname'] : $nickname);
+			$profile = ((dbm::is_result($r) && $r[0]['nickname']) ? $r[0]['nickname'] : $nickname);
 
 			switch($destination_url) {
 				case 'profile':

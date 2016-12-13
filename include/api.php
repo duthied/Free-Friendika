@@ -208,7 +208,7 @@
 				dbesc(trim($user)),
 				dbesc($encrypted)
 			);
-			if(count($r))
+			if(dbm::is_result($r))
 				$record = $r[0];
 		}
 
@@ -1326,10 +1326,10 @@
 
 		if (isset($_GET["q"])) {
 			$r = q("SELECT id FROM `contact` WHERE `uid` = 0 AND `name` = '%s'", dbesc($_GET["q"]));
-			if (!count($r))
+			if (!dbm::is_result($r))
 				$r = q("SELECT `id` FROM `contact` WHERE `uid` = 0 AND `nick` = '%s'", dbesc($_GET["q"]));
 
-			if (count($r)) {
+			if (dbm::is_result($r)) {
 				$k = 0;
 				foreach ($r AS $user) {
 					$user_info = api_get_user($a, $user["id"], "json");
@@ -3174,7 +3174,7 @@
 			intval(api_user())
 		);
 
-		if ((! count($r)) || ($r[0]['network'] !== NETWORK_DFRN))
+		if ((! dbm::is_result($r)) || ($r[0]['network'] !== NETWORK_DFRN))
 			throw new BadRequestException("Unknown contact");
 
 		$cid = $r[0]['id'];
@@ -3526,7 +3526,7 @@
 				intval($uid),
 				intval($gid));
 			// error message if specified gid is not in database
-			if (count($r) == 0)
+			if (!dbm::is_result($r))
 				throw new BadRequestException("gid not available");
 		}
 		else
@@ -3581,7 +3581,7 @@
 			intval($uid),
 			intval($gid));
 		// error message if specified gid is not in database
-		if (count($r) == 0)
+		if (!dbm::is_result($r))
 			throw new BadRequestException('gid not available');
 
 		// get data of the specified group id and group name
@@ -3919,7 +3919,9 @@
 
 		$profile_url = $user_info["url"];
 		// message if nothing was found
-		if (count($r) == 0) 
+		if (!dbm::is_result($r))
+			$success = array('success' => false, 'search_results' => 'problem with query');
+		else if (count($r) == 0) 
 			$success = array('success' => false, 'search_results' => 'nothing found');
 		else {
 			$ret = Array();
@@ -3966,7 +3968,7 @@
 				intval(api_user()),
 				intval($profileid));
 			// error message if specified gid is not in database
-			if (count($r) == 0)
+			if (!dbm::is_result($r))
 				throw new BadRequestException("profile_id not available");
 		}
 		else

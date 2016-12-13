@@ -105,7 +105,7 @@ class dfrn {
 			dbesc($owner_nick)
 		);
 
-		if(! count($r))
+		if(! dbm::is_result($r))
 			killme();
 
 		$owner = $r[0];
@@ -139,7 +139,7 @@ class dfrn {
 				intval($owner_id)
 			);
 
-			if(! count($r))
+			if(! dbm::is_result($r))
 				killme();
 
 			$contact = $r[0];
@@ -1463,7 +1463,7 @@ class dfrn {
 			dbesc(normalise_link($suggest["url"])),
 			intval($suggest["uid"])
 		);
-		if(count($r))
+		if(dbm::is_result($r))
 			return false;
 
 		// Do we already have an fcontact record for this person?
@@ -1474,7 +1474,7 @@ class dfrn {
 			dbesc($suggest["name"]),
 			dbesc($suggest["request"])
 		);
-		if(count($r)) {
+		if(dbm::is_result($r)) {
 			$fid = $r[0]["id"];
 
 			// OK, we do. Do we already have an introduction for this person ?
@@ -1482,7 +1482,7 @@ class dfrn {
 				intval($suggest["uid"]),
 				intval($fid)
 			);
-			if(count($r))
+			if(dbm::is_result($r))
 				return false;
 		}
 		if(!$fid)
@@ -1497,7 +1497,7 @@ class dfrn {
 			dbesc($suggest["name"]),
 			dbesc($suggest["request"])
 		);
-		if(count($r))
+		if(dbm::is_result($r))
 			$fid = $r[0]["id"];
 		else
 			// database record did not get created. Quietly give up.
@@ -1746,7 +1746,7 @@ class dfrn {
 				LIMIT 1",
 				dbesc($item["parent-uri"])
 			);
-			if($r && count($r)) {
+			if(dbm::is_result($r)) {
 				$r = q("SELECT `item`.`forum_mode`, `item`.`wall` FROM `item`
 					INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 					WHERE `item`.`uri` = '%s' AND (`item`.`parent-uri` = '%s' OR `item`.`thr-parent` = '%s')
@@ -1758,7 +1758,7 @@ class dfrn {
 					dbesc($r[0]["parent-uri"]),
 					intval($importer["importer_uid"])
 				);
-				if($r && count($r))
+				if(dbm::is_result($r))
 					$is_a_remote_action = true;
 			}
 
@@ -1898,7 +1898,7 @@ class dfrn {
 					dbesc($item["verb"]),
 					dbesc($item["parent-uri"])
 				);
-				if($r && count($r))
+				if(dbm::is_result($r))
 					return false;
 
 				$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `author-link` = '%s' AND `verb` = '%s' AND `thr-parent` = '%s' AND NOT `deleted` LIMIT 1",
@@ -1907,7 +1907,7 @@ class dfrn {
 					dbesc($item["verb"]),
 					dbesc($item["parent-uri"])
 				);
-				if($r && count($r))
+				if(dbm::is_result($r))
 					return false;
 			} else
 				$is_like = false;
@@ -1923,7 +1923,7 @@ class dfrn {
 						intval($importer["importer_uid"])
 					);
 
-					if(!count($r))
+					if(!dbm::is_result($r))
 						return false;
 
 					// extract tag, if not duplicate, add to parent item
@@ -2195,7 +2195,7 @@ class dfrn {
 						dbesc($item["uri"]),
 						intval($importer["uid"])
 					);
-					if(count($r))
+					if(dbm::is_result($r))
 						$ev["id"] = $r[0]["id"];
 
 					$event_id = event_store($ev);
@@ -2216,7 +2216,7 @@ class dfrn {
 		}
 
 		// Update content if 'updated' changes
-		if(count($r)) {
+		if(dbm::is_result($r)) {
 			if (self::update_content($r[0], $item, $importer, $entrytype))
 				logger("Item ".$item["uri"]." was updated.", LOGGER_DEBUG);
 			else
@@ -2238,7 +2238,7 @@ class dfrn {
 					intval($posted_id),
 					intval($importer["importer_uid"])
 				);
-				if(count($r)) {
+				if(dbm::is_result($r)) {
 					$parent = $r[0]["parent"];
 					$parent_uri = $r[0]["parent-uri"];
 				}
@@ -2326,7 +2326,7 @@ class dfrn {
 				intval($importer["uid"]),
 				intval($importer["id"])
 			);
-		if(!count($r)) {
+		if(!dbm::is_result($r)) {
 			logger("Item with uri ".$uri." from contact ".$importer["id"]." for user ".$importer["uid"]." wasn't found.", LOGGER_DEBUG);
 			return;
 		} else {
@@ -2420,7 +2420,7 @@ class dfrn {
 							dbesc($item["parent-uri"]),
 							intval($importer["uid"])
 					);
-					if(count($r)) {
+					if(dbm::is_result($r)) {
 						q("UPDATE `item` SET `last-child` = 1 WHERE `id` = %d",
 							intval($r[0]["id"])
 						);

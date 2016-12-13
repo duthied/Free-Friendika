@@ -225,7 +225,7 @@ function settings_post(&$a) {
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 					intval(local_user())
 				);
-				if(! count($r)) {
+				if(! dbm::is_result($r)) {
 					q("INSERT INTO `mailacct` (`uid`) VALUES (%d)",
 						intval(local_user())
 					);
@@ -255,7 +255,7 @@ function settings_post(&$a) {
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 					intval(local_user())
 				);
-				if(count($r)) {
+				if(dbm::is_result($r)) {
 					$eacct = $r[0];
 					require_once('include/email.php');
 					$mb = construct_mailbox_name($eacct);
@@ -691,7 +691,7 @@ function settings_content(&$a) {
 					dbesc($a->argv[3]),
 					local_user());
 
-			if (!count($r)){
+			if (!dbm::is_result($r)){
 				notice(t("You can't edit this application."));
 				return;
 			}
@@ -752,7 +752,7 @@ function settings_content(&$a) {
 		$settings_addons = "";
 
 		$r = q("SELECT * FROM `hook` WHERE `hook` = 'plugin_settings' ");
-		if(! count($r))
+		if(! dbm::is_result($r))
 			$settings_addons = t('No Plugin settings configured');
 
 		call_hooks('plugin_settings', $settings_addons);
@@ -859,15 +859,15 @@ function settings_content(&$a) {
 			$r = null;
 		}
 
-		$mail_server       = ((count($r)) ? $r[0]['server'] : '');
-		$mail_port         = ((count($r) && intval($r[0]['port'])) ? intval($r[0]['port']) : '');
-		$mail_ssl          = ((count($r)) ? $r[0]['ssltype'] : '');
-		$mail_user         = ((count($r)) ? $r[0]['user'] : '');
-		$mail_replyto      = ((count($r)) ? $r[0]['reply_to'] : '');
-		$mail_pubmail      = ((count($r)) ? $r[0]['pubmail'] : 0);
-		$mail_action       = ((count($r)) ? $r[0]['action'] : 0);
-		$mail_movetofolder = ((count($r)) ? $r[0]['movetofolder'] : '');
-		$mail_chk          = ((count($r)) ? $r[0]['last_check'] : '0000-00-00 00:00:00');
+		$mail_server       = ((dbm::is_result($r)) ? $r[0]['server'] : '');
+		$mail_port         = ((dbm::is_result($r) && intval($r[0]['port'])) ? intval($r[0]['port']) : '');
+		$mail_ssl          = ((dbm::is_result($r)) ? $r[0]['ssltype'] : '');
+		$mail_user         = ((dbm::is_result($r)) ? $r[0]['user'] : '');
+		$mail_replyto      = ((dbm::is_result($r)) ? $r[0]['reply_to'] : '');
+		$mail_pubmail      = ((dbm::is_result($r)) ? $r[0]['pubmail'] : 0);
+		$mail_action       = ((dbm::is_result($r)) ? $r[0]['action'] : 0);
+		$mail_movetofolder = ((dbm::is_result($r)) ? $r[0]['movetofolder'] : '');
+		$mail_chk          = ((dbm::is_result($r)) ? $r[0]['last_check'] : '0000-00-00 00:00:00');
 
 
 		$tpl = get_markup_template("settings_connectors.tpl");
