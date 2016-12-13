@@ -344,9 +344,10 @@ function events_content(&$a) {
 		$events=array();
 
 		// transform the event in a usable array
-		if(dbm::is_result($r))
+		if(dbm::is_result($r)) {
 			$r = sort_by_date($r);
 			$events = process_events($r);
+		}
 
 		if ($a->argv[1] === 'json'){
 			echo json_encode($events); killme();

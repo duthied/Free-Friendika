@@ -411,7 +411,7 @@ function notification($params) {
 			$hash = random_string();
 			$r = q("SELECT `id` FROM `notify` WHERE `hash` = '%s' LIMIT 1",
 				dbesc($hash));
-			if (dbm::is_result($r))
+			if(dbm::is_result($r))
 				$dups = true;
 		} while($dups == true);
 
@@ -739,7 +739,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 			$tags = q("SELECT `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` = %d AND `uid` = %d",
 				intval(TERM_OBJ_POST), intval($itemid), intval(TERM_MENTION), intval($uid));
 
-			if (count($tags)) {
+			if (dbm::is_result($tags)) {
 				foreach ($tags AS $tag) {
 					$r = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `notify_new_posts`",
 						normalise_link($tag["url"]), intval($uid));

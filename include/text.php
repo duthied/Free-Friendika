@@ -901,13 +901,14 @@ function contact_block() {
 				dbesc(NETWORK_DIASPORA),
 				intval($shown)
 		);
-		if ($r) {
+		if(dbm::is_result($r)) {
 			$contacts = "";
 			foreach ($r AS $contact)
 				$contacts[] = $contact["id"];
 
 			$r = q("SELECT `id`, `uid`, `addr`, `url`, `name`, `thumb`, `network` FROM `contact` WHERE `id` IN (%s)",
 				dbesc(implode(",", $contacts)));
+
 			if(dbm::is_result($r)) {
 				$contacts = sprintf( tt('%d Contact','%d Contacts', $total),$total);
 				$micropro = Array();

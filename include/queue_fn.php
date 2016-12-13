@@ -24,7 +24,12 @@ function remove_queue_item($id) {
  */
 function was_recently_delayed($cid) {
 
-	$was_delayed = false;
+	$r = q("SELECT `id` FROM `queue` WHERE `cid` = %d 
+		and last > UTC_TIMESTAMP() - interval 15 minute limit 1",
+		intval($cid)
+	);
+	if(dbm::is_result($r))
+		return true;
 
 	// Are there queue entries that were recently added?
 	$r = q("SELECT `id` FROM `queue` WHERE `cid` = %d
@@ -32,18 +37,7 @@ function was_recently_delayed($cid) {
 		intval($cid)
 	);
 
-	$was_delayed = dbm::is_result($r);
-
-	// We set "term-date" to a current date if the communication has problems.
-	// If the communication works again we reset this value.
-	if ($was_delayed) {
-		$r = q("SELECT `term-date` FROM `contact` WHERE `id` = %d AND `term-date` <= '1000-01-01' LIMIT 1",
-			intval($cid)
-		);
-		$was_delayed = !dbm::is_result($r);
-	}
-
-	return $was_delayed;
+	return (dbm::is_result($r));
 }
 
 

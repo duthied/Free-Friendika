@@ -3943,7 +3943,6 @@
 	}
 	api_register_func('api/friendica/direct_messages_search', 'api_friendica_direct_messages_search', true);
 
-
 	/**
 	 * @brief return data of all the profiles a user has to the client
 	 *

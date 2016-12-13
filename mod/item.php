@@ -130,7 +130,7 @@ function item_post(&$a) {
 				intval($parent_item['contact-id']),
 				intval($uid)
 			);
-			if (dbm::is_result($r))
+			if(dbm::is_result($r))
 				$parent_contact = $r[0];
 
 			// If the contact id doesn't fit with the contact, then set the contact to null
@@ -234,7 +234,7 @@ function item_post(&$a) {
 	$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 		intval($profile_uid)
 	);
-	if (dbm::is_result($r))
+	if(dbm::is_result($r))
 		$user = $r[0];
 
 	if($orig_post) {
@@ -399,7 +399,7 @@ function item_post(&$a) {
 		}
 	}
 
-	if (dbm::is_result($r)) {
+	if(dbm::is_result($r)) {
 		$author = $r[0];
 		$contact_id = $author['id'];
 	}
@@ -413,7 +413,7 @@ function item_post(&$a) {
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 1 LIMIT 1",
 			intval($profile_uid)
 		);
-		if (dbm::is_result($r))
+		if(dbm::is_result($r))
 			$contact_record = $r[0];
 	}
 
@@ -496,7 +496,7 @@ function item_post(&$a) {
 					intval($profile_uid),
 					intval($attach)
 				);
-				if (dbm::is_result($r)) {
+				if(dbm::is_result($r)) {
 					$r = q("UPDATE `attach` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'
 						WHERE `uid` = %d AND `id` = %d",
 						dbesc($str_contact_allow),
@@ -637,7 +637,7 @@ function item_post(&$a) {
 				intval($profile_uid),
 				intval($mtch)
 			);
-			if (dbm::is_result($r)) {
+			if(dbm::is_result($r)) {
 				if(strlen($attachments))
 					$attachments .= ',';
 				$attachments .= '[attach]href="' . $a->get_baseurl() . '/attach/' . $r[0]['id'] . '" length="' . $r[0]['filesize'] . '" type="' . $r[0]['filetype'] . '" title="' . (($r[0]['filename']) ? $r[0]['filename'] : '') . '"[/attach]';

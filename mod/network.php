@@ -729,7 +729,9 @@ function network_content(&$a, $update = 0) {
 					intval($parents),
 					intval($max_comments + 1)
 				);
-				$items = array_merge($items, $thread_items);
+	
+				if (dbm::is_result($thread_items))
+					$items = array_merge($items, $thread_items);
 			}
 			$items = conv_sort($items,$ordering);
 		} else {

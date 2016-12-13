@@ -309,18 +309,20 @@ function message_content(&$a) {
 				intval(local_user()),
 				intval($a->argv[2])
 			);
-			if(!$r) {
+			if(!dbm::is_result($r)) {
 				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' LIMIT 1",
 					intval(local_user()),
 					dbesc(normalise_link(base64_decode($a->argv[2])))
 				);
 			}
-			if(!$r) {
+
+			if(!dbm::is_result($r)) {
 				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `addr` = '%s' LIMIT 1",
 					intval(local_user()),
 					dbesc(base64_decode($a->argv[2]))
 				);
 			}
+
 			if(dbm::is_result($r)) {
 				$prename = $r[0]['name'];
 				$preurl = $r[0]['url'];

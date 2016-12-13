@@ -305,7 +305,6 @@ function notifications_content(&$a) {
 			$notif_nocontent = sprintf( t('No more %s notifications.'), $notifs['ident']);
 	}
 
-
 	$o .= replace_macros($notif_tpl, array(
 		'$notif_header' => $notif_header,
 		'$tabs' => $tabs,

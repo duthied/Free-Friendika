@@ -173,7 +173,7 @@ function poco_init(&$a) {
 	}
 
 	if(is_array($r)) {
-		if(count($r) > 0) {
+		if(dbm::is_result($r)) {
 			foreach($r as $rr) {
 				if (!isset($rr['generation'])) {
 					if ($global)
