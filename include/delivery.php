@@ -57,7 +57,7 @@ function delivery_run(&$argv, &$argc){
 			continue;
 		}
 
-		if (App::maxload_reached())
+		if ($a->maxload_reached())
 			return;
 
 		// It's ours to deliver. Remove it from the queue.

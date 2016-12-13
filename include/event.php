@@ -590,7 +590,7 @@ function process_events ($arr) {
 			$is_first = ($d !== $last_date);
 
 			$last_date = $d;
-			$edit = ((! $rr['cid']) ? array(App::get_baseurl().'/events/event/'.$rr['id'],t('Edit event'),'','') : null);
+			$edit = ((! $rr['cid']) ? array($a->get_baseurl().'/events/event/'.$rr['id'],t('Edit event'),'','') : null);
 			$title = strip_tags(html_entity_decode(bbcode($rr['summary']),ENT_QUOTES,'UTF-8'));
 			if(! $title) {
 				list($title, $_trash) = explode("<br",bbcode($rr['desc']),2);

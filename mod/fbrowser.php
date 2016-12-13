@@ -63,7 +63,7 @@ function fbrowser_content($a){
 			);
 
 			function _map_files1($rr){
-				global $a;
+				$a = get_app();
 				$types = Photo::supportedTypes();
 				$ext = $types[$rr['type']];
 
@@ -110,7 +110,8 @@ function fbrowser_content($a){
 					intval(local_user())
 				);
 
-				function _map_files2($rr){ global $a;
+				function _map_files2($rr){
+					$a = get_app();
 					list($m1,$m2) = explode("/",$rr['filetype']);
 					$filetype = ( (file_exists("images/icons/$m1.png"))?$m1:"zip");
 

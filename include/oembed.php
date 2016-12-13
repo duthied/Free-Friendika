@@ -149,6 +149,8 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 }
 
 function oembed_format_object($j){
+	$a = get_app();
+
 	require_once("mod/proxy.php");
 
 	$embedurl = $j->embedurl;
@@ -165,7 +167,7 @@ function oembed_format_object($j){
 				$th=120; $tw = $th*$tr;
 				$tpl=get_markup_template('oembed_video.tpl');
 				$ret.=replace_macros($tpl, array(
-					'$baseurl' => App::get_baseurl(),
+					'$baseurl' => $a->get_baseurl(),
 					'$embedurl'=>$embedurl,
 					'$escapedhtml'=>base64_encode($jhtml),
 					'$tw'=>$tw,
@@ -255,12 +257,14 @@ function oembed_format_object($j){
  * @see oembed_format_object()
  */
 function oembed_iframe($src, $width, $height) {
+	$a = get_app();
+
 	if (!$height || strstr($height,'%')) {
 		$height = '200';
 	}
 	$width = '100%';
 
-	$s = App::get_baseurl() . '/oembed/'.base64url_encode($src);
+	$s = $a->get_baseurl() . '/oembed/'.base64url_encode($src);
 	return '<iframe onload="resizeIframe(this);" class="embed_rich" height="' . $height . '" width="' . $width . '" src="' . $s . '" allowfullscreen scrolling="no" frameborder="no">' . t('Embedded content') . '</iframe>';
 }
 

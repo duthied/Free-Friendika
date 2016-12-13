@@ -1294,10 +1294,6 @@ class App {
 	 */
 	function max_processes_reached() {
 
-		// Is the function called statically?
-		if (!is_object($this))
-			return(self::$a->max_processes_reached());
-
 		if ($this->is_backend()) {
 			$process = "backend";
 			$max_processes = get_config('system', 'max_processes_backend');
@@ -1328,10 +1324,6 @@ class App {
 	 * @return bool Is the load reached?
 	 */
 	function maxload_reached() {
-
-		// Is the function called statically?
-		if (!is_object($this))
-			return(self::$a->maxload_reached());
 
 		if ($this->is_backend()) {
 			$process = "backend";
@@ -1479,14 +1471,14 @@ function system_unavailable() {
 
 
 function clean_urls() {
-	global $a;
+	$a = get_app();
 	//	if($a->config['system']['clean_urls'])
 	return true;
 	//	return false;
 }
 
 function z_path() {
-	global $a;
+	$a = get_app();
 	$base = $a->get_baseurl();
 	if(! clean_urls())
 		$base .= '/?q=';
@@ -1501,7 +1493,7 @@ function z_path() {
  * @return string
  */
 function z_root() {
-	global $a;
+	$a = get_app();
 	return $a->get_baseurl();
 }
 
@@ -1903,7 +1895,7 @@ function info($s) {
  * @return int
  */
 function get_max_import_size() {
-	global $a;
+	$a = get_app();
 	return ((x($a->config,'max_import_size')) ? $a->config['max_import_size'] : 0 );
 }
 
@@ -2100,7 +2092,7 @@ function current_theme(){
  * @return string
  */
 function current_theme_url() {
-	global $a;
+	$a = get_app();
 
 	$t = current_theme();
 

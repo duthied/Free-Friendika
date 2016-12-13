@@ -30,7 +30,7 @@ class Config {
 	 * @return void
 	 */
 	public static function load($family) {
-		global $a;
+		$a = get_app();
 
 		$r = q("SELECT `v`, `k` FROM `config` WHERE `cat` = '%s' ORDER BY `cat`, `k`, `id`", dbesc($family));
 		if (count($r)) {
@@ -72,7 +72,7 @@ class Config {
 	 */
 	public static function get($family, $key, $default_value = null, $refresh = false) {
 
-		global $a;
+		$a = get_app();
 
 		if (!$refresh) {
 			// Looking if the whole family isn't set
@@ -123,7 +123,7 @@ class Config {
 	 * @return mixed Stored $value or false if the database update failed
 	 */
 	public static function set($family, $key, $value) {
-		global $a;
+		$a = get_app();
 
 		$stored = self::get($family, $key);
 
@@ -171,7 +171,7 @@ class Config {
 	 */
 	public static function delete($family, $key) {
 
-		global $a;
+		$a = get_app();
 		if (x($a->config[$family],$key)) {
 			unset($a->config[$family][$key]);
 		}

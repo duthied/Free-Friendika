@@ -409,12 +409,12 @@
 		$arr['$user'] = $user_info;
 		$arr['$rss'] = array(
 			'alternate' => $user_info['url'],
-			'self' => App::get_baseurl(). "/". $a->query_string,
-			'base' => App::get_baseurl(),
+			'self' => $a->get_baseurl(). "/". $a->query_string,
+			'base' => $a->get_baseurl(),
 			'updated' => api_date(null),
 			'atom_updated' => datetime_convert('UTC','UTC','now',ATOM_TIME),
 			'language' => $user_info['language'],
-			'logo'	=> App::get_baseurl()."/images/friendica-32.png",
+			'logo'	=> $a->get_baseurl()."/images/friendica-32.png",
 		);
 
 		return $arr;
@@ -693,7 +693,7 @@
 			'follow_request_sent' => false,
 			'statusnet_blocking' => false,
 			'notifications' => false,
-			//'statusnet_profile_url' => App::get_baseurl()."/contacts/".$uinfo[0]['cid'],
+			//'statusnet_profile_url' => $a->get_baseurl()."/contacts/".$uinfo[0]['cid'],
 			'statusnet_profile_url' => $uinfo[0]['url'],
 			'uid' => intval($uinfo[0]['uid']),
 			'cid' => intval($uinfo[0]['cid']),
@@ -1078,8 +1078,8 @@
 			if ($r) {
 				$phototypes = Photo::supportedTypes();
 				$ext = $phototypes[$r[0]['type']];
-				$_REQUEST['body'] .= "\n\n".'[url='.App::get_baseurl().'/photos/'.$r[0]['nickname'].'/image/'.$r[0]['resource-id'].']';
-				$_REQUEST['body'] .= '[img]'.App::get_baseurl()."/photo/".$r[0]['resource-id']."-".$r[0]['scale'].".".$ext."[/img][/url]";
+				$_REQUEST['body'] .= "\n\n".'[url='.$a->get_baseurl().'/photos/'.$r[0]['nickname'].'/image/'.$r[0]['resource-id'].']';
+				$_REQUEST['body'] .= '[img]'.$a->get_baseurl()."/photo/".$r[0]['resource-id']."-".$r[0]['scale'].".".$ext."[/img][/url]";
 			}
 		}
 
@@ -1777,7 +1777,7 @@
 		$start = $page*$count;
 
 		// Ugly code - should be changed
-		$myurl = App::get_baseurl() . '/profile/'. $a->user['nickname'];
+		$myurl = $a->get_baseurl() . '/profile/'. $a->user['nickname'];
 		$myurl = substr($myurl,strpos($myurl,'://')+3);
 		//$myurl = str_replace(array('www.','.'),array('','\\.'),$myurl);
 		$myurl = str_replace('www.','',$myurl);
@@ -2302,7 +2302,7 @@
 		$text = preg_replace_callback(
 				"|data:image/([^;]+)[^=]+=*|m",
 				function($match) use ($item) {
-					return App::get_baseurl()."/display/".$item['guid'];
+					return $a->get_baseurl()."/display/".$item['guid'];
 				},
 				$text);
 		return $text;
@@ -2690,7 +2690,7 @@
 
 		$name = $a->config['sitename'];
 		$server = $a->get_hostname();
-		$logo = App::get_baseurl() . '/images/friendica-64.png';
+		$logo = $a->get_baseurl() . '/images/friendica-64.png';
 		$email = $a->config['admin_email'];
 		$closed = (($a->config['register_policy'] == REGISTER_CLOSED) ? 'true' : 'false');
 		$private = (($a->config['system']['block_public']) ? 'true' : 'false');
@@ -2698,7 +2698,7 @@
 		if($a->config['api_import_size'])
 			$texlimit = string($a->config['api_import_size']);
 		$ssl = (($a->config['system']['have_ssl']) ? 'true' : 'false');
-		$sslserver = (($ssl === 'true') ? str_replace('http:','https:',App::get_baseurl()) : '');
+		$sslserver = (($ssl === 'true') ? str_replace('http:','https:',$a->get_baseurl()) : '');
 
 		$config = array(
 			'site' => array('name' => $name,'server' => $server, 'theme' => 'default', 'path' => '',
@@ -3075,7 +3075,7 @@
 				$photo['album'] = $rr['album'];
 				$photo['filename'] = $rr['filename'];
 				$photo['type'] = $rr['type'];
-				$thumb = App::get_baseurl()."/photo/".$rr['resource-id']."-".$rr['scale'].".".$typetoext[$rr['type']];
+				$thumb = $a->get_baseurl()."/photo/".$rr['resource-id']."-".$rr['scale'].".".$typetoext[$rr['type']];
 
 				if ($type == "xml")
 					$data['photo'][] = array("@attributes" => $photo, "1" => $thumb);
@@ -3124,11 +3124,11 @@
 				for ($k=intval($data['photo']['minscale']); $k<=intval($data['photo']['maxscale']); $k++)
 					$data['photo']['links'][$k.":link"]["@attributes"] = array("type" => $data['photo']['type'],
 											"scale" => $k,
-											"href" => App::get_baseurl()."/photo/".$data['photo']['resource-id']."-".$k.".".$typetoext[$data['photo']['type']]);
+											"href" => $a->get_baseurl()."/photo/".$data['photo']['resource-id']."-".$k.".".$typetoext[$data['photo']['type']]);
 			} else {
 				$data['photo']['link'] = array();
 				for ($k=intval($data['photo']['minscale']); $k<=intval($data['photo']['maxscale']); $k++) {
-					$data['photo']['link'][$k] = App::get_baseurl()."/photo/".$data['photo']['resource-id']."-".$k.".".$typetoext[$data['photo']['type']];
+					$data['photo']['link'][$k] = $a->get_baseurl()."/photo/".$data['photo']['resource-id']."-".$k.".".$typetoext[$data['photo']['type']];
 				}
 			}
 			unset($data['photo']['resource-id']);

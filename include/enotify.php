@@ -648,6 +648,7 @@ function notification($params) {
  * @param str $defaulttype (Optional) Forces a notification with this type.
  */
 function check_item_notification($itemid, $uid, $defaulttype = "") {
+	$a = get_app();
 
 	$notification_data = array("uid" => $uid, "profiles" => array());
 	call_hooks('check_item_notification', $notification_data);
@@ -666,7 +667,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$profiles[] = $owner[0]["url"];
 
 	// Notifications from Diaspora are often with an URL in the Diaspora format
-	$profiles[] = App::get_baseurl()."/u/".$user[0]["nickname"];
+	$profiles[] = $a->get_baseurl()."/u/".$user[0]["nickname"];
 
 	$profiles2 = array();
 
@@ -720,7 +721,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$params["to_email"] = $user[0]["email"];
 	$params["item"] = $item[0];
 	$params["parent"] = $item[0]["parent"];
-	$params["link"] = App::get_baseurl().'/display/'.urlencode($item[0]["guid"]);
+	$params["link"] = $a->get_baseurl().'/display/'.urlencode($item[0]["guid"]);
 	$params["otype"] = 'item';
 	$params["source_name"] = $item[0]["author-name"];
 	$params["source_link"] = $item[0]["author-link"];

@@ -699,7 +699,7 @@ $LOGGER_LEVELS = array();
  * @param int $level
  */
 function logger($msg, $level = 0) {
-	global $a;
+	$a = get_app();
 	global $db;
 	global $LOGGER_LEVELS;
 
