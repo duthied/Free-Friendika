@@ -1,5 +1,8 @@
 <?php
 namespace Friendica\Core;
+
+use dbm;
+
 /**
  * @file include/Core/PConfig.php
  * @brief contains the class with methods for the management

@@ -1,5 +1,8 @@
 <?php
 namespace Friendica\Core;
+
+use dbm;
+
 /**
  * @file include/Core/Config.php
  *
