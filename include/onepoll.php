@@ -443,7 +443,7 @@ function onepoll_run(&$argv, &$argc){
 									$refs_arr[$x] = "'" . msgid2iri(str_replace(array('<','>',' '),array('','',''),dbesc($refs_arr[$x]))) . "'";
 							}
 							$qstr = implode(',',$refs_arr);
-							$r = q("SELECT `uri` , `parent-uri` FROM `item` WHERE `uri` IN ( $qstr ) AND `uid` = %d LIMIT 1",
+							$r = q("SELECT `uri` , `parent-uri` FROM `item` USE INDEX (`uid_uri`) WHERE `uri` IN ($qstr) AND `uid` = %d LIMIT 1",
 								intval($importer_uid)
 							);
 							if(count($r))
@@ -475,9 +475,10 @@ function onepoll_run(&$argv, &$argc){
 
 						// If it seems to be a reply but a header couldn't be found take the last message with matching subject
 						if(!x($datarray,'parent-uri') and $reply) {
-							$r = q("SELECT `uri` , `parent-uri` FROM `item` WHERE `title` = \"%s\" AND `uid` = %d ORDER BY `created` DESC LIMIT 1",
+							$r = q("SELECT `uri` , `parent-uri` FROM `item` WHERE `title` = \"%s\" AND `uid` = %d AND `network` = '%s' ORDER BY `created` DESC LIMIT 1",
 								dbesc(protect_sprintf($datarray['title'])),
-								intval($importer_uid));
+								intval($importer_uid),
+								dbesc(NETWORK_MAIL));
 							if(count($r))
 								$datarray['parent-uri'] = $r[0]['parent-uri'];
 						}

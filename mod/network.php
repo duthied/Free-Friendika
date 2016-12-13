@@ -122,7 +122,7 @@ function network_init(&$a) {
 	$search = ((x($_GET,'search')) ? escape_tags($_GET['search']) : '');
 
 	if(x($_GET,'save')) {
-		$r = q("SELECT * FROM `search` WHERE `uid` = %d AND `term` = '%s' LIMIT 1",
+		$r = qu("SELECT * FROM `search` WHERE `uid` = %d AND `term` = '%s' LIMIT 1",
 			intval(local_user()),
 			dbesc($search)
 		);
@@ -176,7 +176,7 @@ function saved_searches($search) {
 
 	$o = '';
 
-	$r = q("SELECT `id`,`term` FROM `search` WHERE `uid` = %d",
+	$r = qu("SELECT `id`,`term` FROM `search` WHERE `uid` = %d",
 		intval(local_user())
 	);
 
@@ -375,7 +375,7 @@ function network_content(&$a, $update = 0) {
 		$def_acl = array('allow_cid' => '<' . intval($cid) . '>');
 
 	if($nets) {
-		$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND network = '%s' AND `self` = 0",
+		$r = qu("SELECT `id` FROM `contact` WHERE `uid` = %d AND network = '%s' AND `self` = 0",
 			intval(local_user()),
 			dbesc($nets)
 		);
@@ -395,10 +395,10 @@ function network_content(&$a, $update = 0) {
 
 		if($group) {
 			if(($t = group_public_members($group)) && (! get_pconfig(local_user(),'system','nowarn_insecure'))) {
-				notice( sprintf( tt('Warning: This group contains %s member from an insecure network.',
-									'Warning: This group contains %s members from an insecure network.',
-									$t), $t ) . EOL);
-				notice( t('Private messages to this group are at risk of public disclosure.') . EOL);
+				notice(sprintf(tt("Warning: This group contains %s member from a network that doesn't allow non public messages.",
+						"Warning: This group contains %s members from a network that doesn't allow non public messages.",
+						$t), $t).EOL);
+				notice(t("Messages in this group won't be send to these receivers.").EOL);
 			}
 		}
 
@@ -408,7 +408,7 @@ function network_content(&$a, $update = 0) {
 
 		if ($cid) {
 			// If $cid belongs to a communitity forum or a privat goup,.add a mention to the status editor
-			$contact = q("SELECT `nick` FROM `contact` WHERE `id` = %d AND `uid` = %d AND (`forum` OR `prv`) ",
+			$contact = qu("SELECT `nick` FROM `contact` WHERE `id` = %d AND `uid` = %d AND (`forum` OR `prv`) ",
 				intval($cid),
 				intval(local_user())
 			);
@@ -442,8 +442,8 @@ function network_content(&$a, $update = 0) {
 	// desired.
 
 	$sql_post_table = "";
-	$sql_options  = (($star) ? " and starred = 1 " : '');
-	$sql_options .= (($bmark) ? " and bookmark = 1 " : '');
+	$sql_options  = (($star) ? " AND `thread`.`starred` " : '');
+	$sql_options .= (($bmark) ? " AND `thread`.`bookmark` " : '');
 	$sql_extra = $sql_options;
 	$sql_extra2 = "";
 	$sql_extra3 = "";
@@ -453,12 +453,13 @@ function network_content(&$a, $update = 0) {
 	if ($nouveau OR strlen($file) OR $update) {
 		$sql_table = "`item`";
 		$sql_parent = "`parent`";
+		$sql_post_table = " INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`";
 	}
 
 	$sql_nets = (($nets) ? sprintf(" and $sql_table.`network` = '%s' ", dbesc($nets)) : '');
 
 	if($group) {
-		$r = q("SELECT `name`, `id` FROM `group` WHERE `id` = %d AND `uid` = %d LIMIT 1",
+		$r = qu("SELECT `name`, `id` FROM `group` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($group),
 			intval($_SESSION['uid'])
 		);
@@ -479,7 +480,7 @@ function network_content(&$a, $update = 0) {
 
 			$contact_str = implode(',',$contacts);
 			$gcontact_str = implode(',',$gcontacts);
-			$self = q("SELECT `contact`.`id`, `gcontact`.`id` AS `gid` FROM `contact`
+			$self = qu("SELECT `contact`.`id`, `gcontact`.`id` AS `gid` FROM `contact`
 					INNER JOIN `gcontact` ON `gcontact`.`nurl` = `contact`.`nurl`
 					WHERE `uid` = %d AND `self`", intval($_SESSION['uid']));
 			if (count($self)) {
@@ -487,9 +488,9 @@ function network_content(&$a, $update = 0) {
 				$gcontact_str_self = $self[0]["gid"];
 			}
 
-			$sql_post_table = " INNER JOIN `item` AS `temp1` ON `temp1`.`id` = ".$sql_table.".".$sql_parent;
-			$sql_extra3 .= " AND ($sql_table.`contact-id` IN ($contact_str) ";
-			$sql_extra3 .= " OR ($sql_table.`contact-id` = '$contact_str_self' AND `temp1`.`allow_gid` LIKE '".protect_sprintf('%<'.intval($group).'>%')."' AND `temp1`.`private`))";
+			$sql_post_table .= " INNER JOIN `item` AS `temp1` ON `temp1`.`id` = ".$sql_table.".".$sql_parent;
+			$sql_extra3 .= " AND (`thread`.`contact-id` IN ($contact_str) ";
+			$sql_extra3 .= " OR (`thread`.`contact-id` = '$contact_str_self' AND `temp1`.`allow_gid` LIKE '".protect_sprintf('%<'.intval($group).'>%')."' AND `temp1`.`private`))";
 		} else {
 			$sql_extra3 .= " AND false ";
 			info( t('Group is empty'));
@@ -502,8 +503,8 @@ function network_content(&$a, $update = 0) {
 	}
 	elseif($cid) {
 
-		$r = q("SELECT `id`,`name`,`network`,`writable`,`nurl`, `forum`, `prv`, `addr`, `thumb`, `location` FROM `contact` WHERE `id` = %d
-				AND `blocked` = 0 AND `pending` = 0 LIMIT 1",
+		$r = qu("SELECT `id`,`name`,`network`,`writable`,`nurl`, `forum`, `prv`, `contact-type`, `addr`, `thumb`, `location` FROM `contact` WHERE `id` = %d
+				AND (NOT `blocked` OR `pending`) LIMIT 1",
 			intval($cid)
 		);
 		if(count($r)) {
@@ -514,9 +515,10 @@ function network_content(&$a, $update = 0) {
 				'name' => htmlentities($r[0]['name']),
 				'itemurl' => (($r[0]['addr']) ? ($r[0]['addr']) : ($r[0]['nurl'])),
 				'thumb' => proxy_url($r[0]['thumb'], false, PROXY_SIZE_THUMB),
-				'account_type' => (($r[0]['forum']) || ($r[0]['prv']) ? t('Forum') : ''),
 				'details' => $r[0]['location'],
 			);
+
+			$entries[0]["account_type"] = account_type($r[0]);
 
 			$o = replace_macros(get_markup_template("viewcontact_template.tpl"),array(
 				'contacts' => $entries,
@@ -568,7 +570,7 @@ function network_content(&$a, $update = 0) {
 		if($tag) {
 			$sql_extra = "";
 
-			$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
+			$sql_post_table .= sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
 					dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), intval(local_user()));
 			$sql_order = "`item`.`id`";
 			$order_mode = "id";
@@ -577,12 +579,12 @@ function network_content(&$a, $update = 0) {
 				$sql_extra = sprintf(" AND MATCH (`item`.`body`, `item`.`title`) AGAINST ('%s' in boolean mode) ", dbesc(protect_sprintf($search)));
 			else
 				$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
-			$sql_order = "`item`.`received`";
-			$order_mode = "received";
+			$sql_order = "`item`.`id`";
+			$order_mode = "id";
 		}
 	}
 	if(strlen($file)) {
-		$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
+		$sql_post_table .= sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
 				dbesc(protect_sprintf($file)), intval(TERM_OBJ_POST), intval(TERM_FILE), intval(local_user()));
 		$sql_order = "`item`.`id`";
 		$order_mode = "id";
@@ -596,12 +598,11 @@ function network_content(&$a, $update = 0) {
 		// only setup pagination on initial page view
 		$pager_sql = '';
 
-	}
-	else {
+	} else {
 		if(get_config('system', 'old_pager')) {
-			$r = q("SELECT COUNT(*) AS `total`
+			$r = qu("SELECT COUNT(*) AS `total`
 				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = $sql_table.`contact-id`
-				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 				WHERE $sql_table.`uid` = %d AND $sql_table.`visible` AND NOT $sql_table.`deleted`
 				$sql_extra2 $sql_extra3
 				$sql_extra $sql_nets ",
@@ -636,10 +637,10 @@ function network_content(&$a, $update = 0) {
 		$simple_update = (($update) ? " AND `item`.`unseen` " : '');
 
 		if ($sql_order == "")
-			$sql_order = "`item`.`received`";
+			$sql_order = "`item`.`id`";
 
 		// "New Item View" - show all items unthreaded in reverse created date order
-		$items = q("SELECT %s FROM $sql_table $sql_post_table %s
+		$items = qu("SELECT %s FROM $sql_table $sql_post_table %s
 			WHERE %s AND `item`.`uid` = %d
 			$simple_update
 			$sql_extra $sql_nets
@@ -677,9 +678,9 @@ function network_content(&$a, $update = 0) {
 			else
 				$sql_extra4 = "";
 
-			$r = q("SELECT `item`.`parent` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
+			$r = qu("SELECT `item`.`parent` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 				WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted` $sql_extra4
 				AND NOT `item`.`moderated` AND `item`.`unseen`
 				$sql_extra3 $sql_extra $sql_nets
@@ -687,9 +688,9 @@ function network_content(&$a, $update = 0) {
 				intval(local_user())
 			);
 		} else {
-			$r = q("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
+			$r = qu("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table $sql_post_table STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
-				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 				WHERE `thread`.`uid` = %d AND `thread`.`visible` AND NOT `thread`.`deleted`
 				AND NOT `thread`.`moderated`
 				$sql_extra2 $sql_extra3 $sql_extra $sql_nets
@@ -721,7 +722,7 @@ function network_content(&$a, $update = 0) {
 			$items = array();
 
 			foreach ($parents_arr AS $parents) {
-				$thread_items = q(item_query()." AND `item`.`uid` = %d
+				$thread_items = qu(item_query()." AND `item`.`uid` = %d
 					AND `item`.`parent` = %d
 					ORDER BY `item`.`commented` DESC LIMIT %d",
 					intval(local_user()),

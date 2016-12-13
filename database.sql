@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 3.5-dev (Asparagus)
--- DB_UPDATE_VERSION 1200
+-- Friendica 3.5.1-dev (Asparagus)
+-- DB_UPDATE_VERSION 1208
 -- ------------------------------------------
 
 
@@ -58,8 +58,9 @@ CREATE TABLE IF NOT EXISTS `cache` (
 	`v` text,
 	`expire_mode` int(11) NOT NULL DEFAULT 0,
 	`updated` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-	 PRIMARY KEY(`k`),
-	 INDEX `updated` (`updated`)
+	 PRIMARY KEY(`k`(191)),
+	 INDEX `updated` (`updated`),
+	 INDEX `expire_mode_updated` (`expire_mode`,`updated`)
 ) DEFAULT CHARSET=utf8mb4;
 
 --
@@ -97,7 +98,7 @@ CREATE TABLE IF NOT EXISTS `config` (
 	`k` varchar(255) NOT NULL DEFAULT '',
 	`v` text,
 	 PRIMARY KEY(`id`),
-	 INDEX `cat_k` (`cat`(30),`k`(30))
+	 UNIQUE INDEX `cat_k` (`cat`(30),`k`(30))
 ) DEFAULT CHARSET=utf8mb4;
 
 --
@@ -118,6 +119,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`about` text,
 	`keywords` text,
 	`gender` varchar(32) NOT NULL DEFAULT '',
+	`xmpp` varchar(255) NOT NULL DEFAULT '',
 	`attag` varchar(255) NOT NULL DEFAULT '',
 	`avatar` varchar(255) NOT NULL DEFAULT '',
 	`photo` text,
@@ -157,6 +159,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`writable` tinyint(1) NOT NULL DEFAULT 0,
 	`forum` tinyint(1) NOT NULL DEFAULT 0,
 	`prv` tinyint(1) NOT NULL DEFAULT 0,
+	`contact-type` int(11) unsigned NOT NULL DEFAULT 0,
 	`hidden` tinyint(1) NOT NULL DEFAULT 0,
 	`archive` tinyint(1) NOT NULL DEFAULT 0,
 	`pending` tinyint(1) NOT NULL DEFAULT 1,
@@ -172,6 +175,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`ffi_keyword_blacklist` mediumtext,
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
+	 INDEX `addr_uid` (`addr`,`uid`),
 	 INDEX `nurl` (`nurl`)
 ) DEFAULT CHARSET=utf8mb4;
 
@@ -199,7 +203,8 @@ CREATE TABLE IF NOT EXISTS `deliverq` (
 	`cmd` varchar(32) NOT NULL DEFAULT '',
 	`item` int(11) NOT NULL DEFAULT 0,
 	`contact` int(11) NOT NULL DEFAULT 0,
-	 PRIMARY KEY(`id`)
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `cmd_item_contact` (`cmd`,`item`,`contact`)
 ) DEFAULT CHARSET=utf8mb4;
 
 --
@@ -326,6 +331,7 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 	`gender` varchar(32) NOT NULL DEFAULT '',
 	`birthday` varchar(32) NOT NULL DEFAULT '0000-00-00',
 	`community` tinyint(1) NOT NULL DEFAULT 0,
+	`contact-type` tinyint(1) NOT NULL DEFAULT -1,
 	`hide` tinyint(1) NOT NULL DEFAULT 0,
 	`nsfw` tinyint(1) NOT NULL DEFAULT 0,
 	`network` varchar(255) NOT NULL DEFAULT '',
@@ -652,6 +658,8 @@ CREATE TABLE IF NOT EXISTS `notify` (
 	`seen` tinyint(1) NOT NULL DEFAULT 0,
 	`verb` varchar(255) NOT NULL DEFAULT '',
 	`otype` varchar(16) NOT NULL DEFAULT '',
+	`name_cache` tinytext,
+	`msg_cache` mediumtext,
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`)
 ) DEFAULT CHARSET=utf8mb4;
@@ -677,7 +685,7 @@ CREATE TABLE IF NOT EXISTS `oembed` (
 	`url` varchar(255) NOT NULL,
 	`content` text,
 	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-	 PRIMARY KEY(`url`),
+	 PRIMARY KEY(`url`(191)),
 	 INDEX `created` (`created`)
 ) DEFAULT CHARSET=utf8mb4;
 
@@ -690,7 +698,7 @@ CREATE TABLE IF NOT EXISTS `parsed_url` (
 	`oembed` tinyint(1) NOT NULL DEFAULT 0,
 	`content` text,
 	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-	 PRIMARY KEY(`url`,`guessing`,`oembed`),
+	 PRIMARY KEY(`url`(191),`guessing`,`oembed`),
 	 INDEX `created` (`created`)
 ) DEFAULT CHARSET=utf8mb4;
 
@@ -704,7 +712,7 @@ CREATE TABLE IF NOT EXISTS `pconfig` (
 	`k` varchar(255) NOT NULL DEFAULT '',
 	`v` mediumtext,
 	 PRIMARY KEY(`id`),
-	 INDEX `uid_cat_k` (`uid`,`cat`(30),`k`(30))
+	 UNIQUE INDEX `uid_cat_k` (`uid`,`cat`(30),`k`(30))
 ) DEFAULT CHARSET=utf8mb4;
 
 --
@@ -734,7 +742,9 @@ CREATE TABLE IF NOT EXISTS `photo` (
 	`deny_cid` mediumtext,
 	`deny_gid` mediumtext,
 	 PRIMARY KEY(`id`),
-	 INDEX `uid` (`uid`),
+	 INDEX `uid_contactid` (`uid`,`contact-id`),
+	 INDEX `uid_profile` (`uid`,`profile`),
+	 INDEX `uid_album_created` (`uid`,`album`,`created`),
 	 INDEX `resource-id` (`resource-id`),
 	 INDEX `guid` (`guid`)
 ) DEFAULT CHARSET=utf8mb4;
@@ -769,6 +779,17 @@ CREATE TABLE IF NOT EXISTS `poll_result` (
 	 PRIMARY KEY(`id`),
 	 INDEX `poll_id` (`poll_id`),
 	 INDEX `choice` (`choice`)
+) DEFAULT CHARSET=utf8mb4;
+
+--
+-- TABLE process
+--
+CREATE TABLE IF NOT EXISTS `process` (
+	`pid` int(10) unsigned NOT NULL,
+	`command` varchar(32) NOT NULL DEFAULT '',
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	 PRIMARY KEY(`pid`),
+	 INDEX `command` (`command`)
 ) DEFAULT CHARSET=utf8mb4;
 
 --
@@ -812,6 +833,7 @@ CREATE TABLE IF NOT EXISTS `profile` (
 	`education` text,
 	`contact` text,
 	`homepage` varchar(255) NOT NULL DEFAULT '',
+	`xmpp` varchar(255) NOT NULL DEFAULT '',
 	`photo` varchar(255) NOT NULL DEFAULT '',
 	`thumb` varchar(255) NOT NULL DEFAULT '',
 	`publish` tinyint(1) NOT NULL DEFAULT 0,
@@ -877,6 +899,7 @@ CREATE TABLE IF NOT EXISTS `register` (
 	`uid` int(11) unsigned NOT NULL DEFAULT 0,
 	`password` varchar(255) NOT NULL DEFAULT '',
 	`language` varchar(16) NOT NULL DEFAULT '',
+	`note` text,
 	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8mb4;
 
@@ -957,6 +980,7 @@ CREATE TABLE IF NOT EXISTS `term` (
 	 INDEX `type_term` (`type`,`term`),
 	 INDEX `uid_otype_type_term_global_created` (`uid`,`otype`,`type`,`term`,`global`,`created`),
 	 INDEX `otype_type_term_tid` (`otype`,`type`,`term`,`tid`),
+	 INDEX `uid_otype_type_url` (`uid`,`otype`,`type`,`url`),
 	 INDEX `guid` (`guid`)
 ) DEFAULT CHARSET=utf8mb4;
 
@@ -1048,6 +1072,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 	`cntunkmail` int(11) NOT NULL DEFAULT 10,
 	`notify-flags` int(11) unsigned NOT NULL DEFAULT 65535,
 	`page-flags` int(11) unsigned NOT NULL DEFAULT 0,
+	`account-type` int(11) unsigned NOT NULL DEFAULT 0,
 	`prvnets` tinyint(1) NOT NULL DEFAULT 0,
 	`pwdreset` varchar(255) NOT NULL DEFAULT '',
 	`maxreq` int(11) NOT NULL DEFAULT 10,

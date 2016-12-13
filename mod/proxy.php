@@ -135,7 +135,7 @@ function proxy_init() {
 	$valid = true;
 
 	if (!$direct_cache AND ($cachefile == "")) {
-		$r = q("SELECT * FROM `photo` WHERE `resource-id` = '%s' LIMIT 1", $urlhash);
+		$r = qu("SELECT * FROM `photo` WHERE `resource-id` = '%s' LIMIT 1", $urlhash);
 		if (count($r)) {
         		$img_str = $r[0]['data'];
 			$mime = $r[0]["desc"];
@@ -233,66 +233,87 @@ function proxy_init() {
 	killme();
 }
 
-function proxy_url($url, $writemode = false, $size = "") {
-	global $_SERVER;
-
+/**
+ * @brief Transform a remote URL into a local one
+ *
+ * This function only performs the URL replacement on http URL and if the
+ * provided URL isn't local, "the isn't deactivated" (sic) and if the config
+ * system.proxy_disabled is set to false.
+ *
+ * @param string $url       The URL to proxyfy
+ * @param bool   $writemode Returns a local path the remote URL should be saved to
+ * @param string $size      One of the PROXY_SIZE_* constants
+ *
+ * @return string The proxyfied URL or relative path
+ */
+function proxy_url($url, $writemode = false, $size = '') {
 	$a = get_app();
 
 	if (substr($url, 0, strlen('http')) !== 'http') {
-		return($url);
+		return $url;
 	}
 
 	// Only continue if it isn't a local image and the isn't deactivated
 	if (proxy_is_local_image($url)) {
-		$url = str_replace(normalise_link($a->get_baseurl())."/", $a->get_baseurl()."/", $url);
-		return($url);
+		$url = str_replace(normalise_link($a->get_baseurl()) . '/', $a->get_baseurl() . '/', $url);
+		return $url;
 	}
 
-	if (get_config("system", "proxy_disabled"))
-		return($url);
+	if (get_config('system', 'proxy_disabled')) {
+		return $url;
+	}
+
+	// Image URL may have encoded ampersands for display which aren't desirable for proxy
+	$url = html_entity_decode($url, ENT_NOQUOTES, 'utf-8');
 
 	// Creating a sub directory to reduce the amount of files in the cache directory
-	$basepath = $a->get_basepath()."/proxy";
+	$basepath = $a->get_basepath() . '/proxy';
 
-	$path = substr(hash("md5", $url), 0, 2);
+	$shortpath = hash('md5', $url);
+	$longpath = substr($shortpath, 0, 2);
 
-	if (is_dir($basepath) and $writemode)
-		if (!is_dir($basepath."/".$path)) {
-			mkdir($basepath."/".$path);
-			chmod($basepath."/".$path, 0777);
+	if (is_dir($basepath) and $writemode) {
+		if (!is_dir($basepath . '/' . $longpath)) {
+			mkdir($basepath . '/' . $longpath);
+			chmod($basepath . '/' . $longpath, 0777);
 		}
-
-	$path .= "/".strtr(base64_encode($url), '+/', '-_');
-
-	// Checking for valid extensions. Only add them if they are safe
-	$pos = strrpos($url, ".");
-	if ($pos) {
-		$extension = strtolower(substr($url, $pos+1));
-		$pos = strpos($extension, "?");
-		if ($pos)
-			$extension = substr($extension, 0, $pos);
 	}
 
-	$extensions = array("jpg", "jpeg", "gif", "png");
+	$longpath .= '/' . strtr(base64_encode($url), '+/', '-_');
 
-	if (in_array($extension, $extensions))
-		$path .= ".".$extension;
+	// Checking for valid extensions. Only add them if they are safe
+	$pos = strrpos($url, '.');
+	if ($pos) {
+		$extension = strtolower(substr($url, $pos + 1));
+		$pos = strpos($extension, '?');
+		if ($pos) {
+			$extension = substr($extension, 0, $pos);
+		}
+	}
 
-	$proxypath = $a->get_baseurl()."/proxy/".$path;
+	$extensions = array('jpg', 'jpeg', 'gif', 'png');
+	if (in_array($extension, $extensions)) {
+		$shortpath .= '.' . $extension;
+		$longpath .= '.' . $extension;
+	}
 
-	if ($size != "")
-		$size = ":".$size;
+	$proxypath = $a->get_baseurl() . '/proxy/' . $longpath;
+
+	if ($size != '') {
+		$size = ':' . $size;
+	}
 
 	// Too long files aren't supported by Apache
 	// Writemode in combination with long files shouldn't be possible
-	if ((strlen($proxypath) > 250) AND $writemode)
-		return (hash("md5", $url));
-	elseif (strlen($proxypath) > 250)
-		return ($a->get_baseurl()."/proxy/".hash("md5", $url)."?url=".urlencode($url));
-	elseif ($writemode)
-		return ($path);
-	else
-		return ($proxypath.$size);
+	if ((strlen($proxypath) > 250) AND $writemode) {
+		return $shortpath;
+	} elseif (strlen($proxypath) > 250) {
+		return $a->get_baseurl() . '/proxy/' . $shortpath . '?url=' . urlencode($url);
+	} elseif ($writemode) {
+		return $longpath;
+	} else {
+		return $proxypath . $size;
+	}
 }
 
 /**

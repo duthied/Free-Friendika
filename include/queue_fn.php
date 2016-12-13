@@ -15,22 +15,35 @@ function remove_queue_item($id) {
 	);
 }
 
+/**
+ * @brief Checks if the communication with a given contact had problems recently
+ *
+ * @param int $cid Contact id
+ *
+ * @return bool The communication with this contact has currently problems
+ */
 function was_recently_delayed($cid) {
 
-	$r = q("SELECT `id` FROM `queue` WHERE `cid` = %d 
-		and last > UTC_TIMESTAMP() - interval 15 minute limit 1",
+	$was_delayed = false;
+
+	// Are there queue entries that were recently added?
+	$r = q("SELECT `id` FROM `queue` WHERE `cid` = %d
+		AND `last` > UTC_TIMESTAMP() - interval 15 minute LIMIT 1",
 		intval($cid)
 	);
-	if(count($r))
-		return true;
 
-	$r = q("select `term-date` from contact where id = %d and `term-date` != '' and `term-date` != '0000-00-00 00:00:00' limit 1",
-		intval($cid)
-	);
-	if(count($r))
-		return true;
+	$was_delayed = dbm::is_result($r);
 
-	return false;
+	// We set "term-date" to a current date if the communication has problems.
+	// If the communication works again we reset this value.
+	if ($was_delayed) {
+		$r = q("SELECT `term-date` FROM `contact` WHERE `id` = %d AND `term-date` <= '1000-01-01' LIMIT 1",
+			intval($cid)
+		);
+		$was_delayed = !dbm::is_result($r);
+	}
+
+	return $was_delayed;
 }
 
 

@@ -178,7 +178,7 @@ function delivery_run(&$argv, &$argc){
 
 		$r = q("SELECT `contact`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`,
 			`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`,
-			`user`.`page-flags`, `user`.`prvnets`
+			`user`.`page-flags`, `user`.`account-type`, `user`.`prvnets`
 			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
 			WHERE `contact`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
 			intval($uid)
@@ -381,7 +381,14 @@ function delivery_run(&$argv, &$argc){
 				if ($deliver_status == (-1)) {
 					logger('notifier: delivery failed: queuing message');
 					add_to_queue($contact['id'],NETWORK_DFRN,$atom);
+
+					// The message could not be delivered. We mark the contact as "dead"
+					mark_for_death($contact);
+				} else {
+					// We successfully delivered a message, the contact is alive
+					unmark_for_death($contact);
 				}
+
 				break;
 
 			case NETWORK_OSTATUS:

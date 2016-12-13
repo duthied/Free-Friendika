@@ -213,8 +213,9 @@ class NotificationsManager {
 				// Because we use different db tables for the notification query
 				// we have sometimes $it['unseen'] and sometimes $it['seen].
 				// So we will have to transform $it['unseen']
-				if($it['unseen'])
+				if (array_key_exists('unseen', $it)) {
 					$it['seen'] = ($it['unseen'] > 0 ? false : true);
+				}
 
 				// Depending on the identifier of the notification we need to use different defaults
 				switch ($ident) {
@@ -224,16 +225,14 @@ class NotificationsManager {
 						$default_item_image = proxy_url($it['photo'], false, PROXY_SIZE_MICRO);
 						$default_item_text = strip_tags(bbcode($it['msg']));
 						$default_item_when = relative_date($it['date']);
-						$default_tpl = $tpl_notify;
 						break;
 
 					case 'home':
 						$default_item_label = 'comment';
 						$default_item_link = $this->a->get_baseurl(true).'/display/'.$it['pguid'];
 						$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
-						$default_item_text = sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']);
+						$default_item_text = sprintf(t("%s commented on %s's post"), $it['author-name'], $it['pname']);
 						$default_item_when = relative_date($it['created']);
-						$default_tpl = $tpl_item_comments;
 						break;
 
 					default:
@@ -241,21 +240,20 @@ class NotificationsManager {
 						$default_item_link = $this->a->get_baseurl(true).'/display/'.$it['pguid'];
 						$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
 						$default_item_text = (($it['id'] == $it['parent'])
-									? sprintf( t("%s created a new post"), $it['author-name'])
-									: sprintf( t("%s commented on %s's post"), $it['author-name'], $it['pname']));
+									? sprintf(t("%s created a new post"), $it['author-name'])
+									: sprintf(t("%s commented on %s's post"), $it['author-name'], $it['pname']));
 						$default_item_when = relative_date($it['created']);
-						$default_tpl = (($it['id'] == $it['parent']) ? $tpl_item_posts : $tpl_item_comments);
 
 				}
 
 				// Transform the different types of notification in an usable array
-				switch($it['verb']){
+				switch ($it['verb']){
 					case ACTIVITY_LIKE:
 						$notif = array(
 							'label' => 'like',
 							'link' => $this->a->get_baseurl(true).'/display/'.$it['pguid'],
-							'$image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
-							'text' => sprintf( t("%s liked %s's post"), $it['author-name'], $it['pname']),
+							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
+							'text' => sprintf(t("%s liked %s's post"), $it['author-name'], $it['pname']),
 							'when' => relative_date($it['created']),
 							'seen' => $it['seen']
 						);
@@ -266,7 +264,7 @@ class NotificationsManager {
 							'label' => 'dislike',
 							'link' => $this->a->get_baseurl(true).'/display/'.$it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
-							'text' => sprintf( t("%s disliked %s's post"), $it['author-name'], $it['pname']),
+							'text' => sprintf(t("%s disliked %s's post"), $it['author-name'], $it['pname']),
 							'when' => relative_date($it['created']),
 							'seen' => $it['seen']
 						);
@@ -277,7 +275,7 @@ class NotificationsManager {
 							'label' => 'attend',
 							'link' => $this->a->get_baseurl(true).'/display/'.$it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
-							'text' => sprintf( t("%s is attending %s's event"), $it['author-name'], $it['pname']),
+							'text' => sprintf(t("%s is attending %s's event"), $it['author-name'], $it['pname']),
 							'when' => relative_date($it['created']),
 							'seen' => $it['seen']
 						);
@@ -299,7 +297,7 @@ class NotificationsManager {
 							'label' => 'attendmaybe',
 							'link' => $this->a->get_baseurl(true).'/display/'.$it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
-							'text' => sprintf( t("%s may attend %s's event"), $it['author-name'], $it['pname']),
+							'text' => sprintf(t("%s may attend %s's event"), $it['author-name'], $it['pname']),
 							'when' => relative_date($it['created']),
 							'seen' => $it['seen']
 						);
@@ -314,7 +312,7 @@ class NotificationsManager {
 							'label' => 'friend',
 							'link' => $this->a->get_baseurl(true).'/display/'.$it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
-							'text' => sprintf( t("%s is now friends with %s"), $it['author-name'], $it['fname']),
+							'text' => sprintf(t("%s is now friends with %s"), $it['author-name'], $it['fname']),
 							'when' => relative_date($it['created']),
 							'seen' => $it['seen']
 						);
@@ -554,7 +552,7 @@ class NotificationsManager {
 
 		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`, `item`.`unseen`,
 				`item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object` AS `object`, 
-				`pitem`.`author-name` AS `pname`, `pitem`.`author-link` AS `plink`, `pitem`.`guid` AS `pguid`, 
+				`pitem`.`author-name` AS `pname`, `pitem`.`author-link` AS `plink`, `pitem`.`guid` AS `pguid` 
 			FROM `item` INNER JOIN `item` AS `pitem` ON  `pitem`.`id`=`item`.`parent`
 			WHERE `item`.`visible` = 1
 				$sql_extra

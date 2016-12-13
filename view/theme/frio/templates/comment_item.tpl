@@ -18,7 +18,7 @@
 		</div>
 		<div class="comment-edit-photo-end"></div>-->
 		<div class="bb form-group">
-			<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty form-control" name="body" onFocus="commentOpenUI(this,{{$id}});" onBlur="commentCloseUI(this,{{$id}});">{{$comment}}</textarea>
+			<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty form-control text-autosize" name="body" onFocus="commentOpenUI(this,{{$id}});" onBlur="commentCloseUI(this,{{$id}});">{{$comment}}</textarea>
 		</div>
 		{{if $qcomment}}
 			<select id="qcomment-select-{{$id}}" name="qcomment-{{$id}}" class="qcomment" onchange="qCommentInsert(this,{{$id}});" >
@@ -29,7 +29,7 @@
 			</select>
 		{{/if}}
 
-		<div class="comment-edit-text-end"></div>
+		<div class="comment-edit-text-end clear"></div>
 		<div class="comment-edit-submit-wrapper" id="comment-edit-submit-wrapper-{{$id}}" style="display: none;">
 			<button class="btn btn-primary btn-sm" type="submit" onclick="post_comment({{$id}}); return false;" id="comment-edit-submit-{{$id}}" name="submit"><i class="fa fa-envelope"></i> {{$submit}}</button>
 			{{if $preview}}
@@ -76,7 +76,7 @@
 			<div id="comment-edit-preview-{{$id}}" class="comment-edit-preview" style="display:none;"></div>
 		</div>
 
-		<div class="comment-edit-end"></div>
+		<div class="comment-edit-end clear"></div>
 	</form>
 
 </div>

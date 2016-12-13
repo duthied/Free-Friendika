@@ -38,6 +38,18 @@ body a {
     color: $link_color;
     text-decoration: none;
 }
+/* Anchors incorrectly display with a fixed top menu. This global rule offsets all
+ * anchors so that accessing them with a # link will actually scroll the associated
+ * content in the visible part of the page.
+ *
+ * anchor.top should be the opposite of body.padding-top
+ */
+body a[name]:not([href]) {
+    display: block;
+    position: relative;
+    top: -110px;
+    visibility: hidden;
+}
 
 body a:hover, body a:focus, body a:active, body a.active, body .btn-link:hover{
     /*color: #59d6e4;*/
@@ -60,6 +72,9 @@ section hr {
 iframe, img {
     max-width: 100%;
 }
+blockquote {
+    font-size: inherit;
+}
 .clear {
     clear: both;
 }
@@ -71,6 +86,9 @@ iframe, img {
 }
 .hidden {
     display: none !important;
+}
+code {
+    white-space: pre-wrap;
 }
 
 /*
@@ -791,7 +809,8 @@ nav.navbar a {
     color: $nav_icon_color;
     font-weight: 400;
     font-size: 13px;
-    padding: 4px 15px
+    padding: 4px 15px;
+    text-transform: capitalize;
 }
 .nav-pills .dropdown-menu li a i,
 .nav-tabs .dropdown-menu li a i,
@@ -831,17 +850,19 @@ nav.navbar a {
     /*border-left: 3px solid #6fdbe8;*/
     border-left: 3px solid $link_color;
     color: #fff!important;
-    background-color: $menu_background_hover_color !important
+    background-color: $menu_background_hover_color !important;
 }
-.nav-pills.preferences .dropdown .dropdown-toggle {
-    color: #bebebe
+.nav-pills.preferences .dropdown .dropdown-toggle,
+.nav-pills.preferences > li > .btn {
+    color: #bebebe;
 }
 .nav-pills.preferences .dropdown.open .dropdown-toggle,
 .nav-pills.preferences .dropdown.open .dropdown-toggle:hover {
-    background-color: $nav_bg
+    background-color: $nav_bg;
 }
 
-.nav-pills.preferences .dropdown .dropdown-toggle {
+.nav-pills.preferences .dropdown .dropdown-toggle,
+.nav-pills.preferences > li > .btn {
     padding: 2px 10px;
 }
 
@@ -967,9 +988,13 @@ aside .vcard .p-addr {
     white-space: nowrap;
     padding-bottom: 2px;
 }
+
 aside .vcard .detail {
     display: table;
     padding: 5px 0;
+}
+aside .xmpp {
+    display: table;
 }
 aside .vcard .icon {
     display: table-cell;
@@ -1115,6 +1140,7 @@ section #jotOpen {
 #jot-modal .modal-header a,
 #profile-jot-submit-wrapper a {
     color: #555;
+    text-transform: capitalize;
 }
 #jot-modal .modal-header {
     border-bottom: none;
@@ -1130,6 +1156,9 @@ section #jotOpen {
 }
 #profile-jot-wrapper button#jot-submit {
     margin-top: 5px;
+}
+#profile-jot-wrapper #character-counter {
+    padding: 10px 15px;
 }
 
 /* ACL */
@@ -1413,10 +1442,9 @@ section #jotOpen {
     width: 20px;
 }
 
+/* wall-item content elements */
 .shared-wrapper,
 .vevent {
-    margin-left: 50px;
-    margin-right: 50px;
     padding: 10px;
     box-shadow: 0 0 0 1.5px rgba(0, 0, 0, .1) inset, 0 1px 1px rgba(0, 0, 0, .05);
 }
@@ -1433,14 +1461,22 @@ section #jotOpen {
 }
 .shared_header {
     margin-left: 0px;
-        margin-top: 0px;
+    margin-top: 0px;
     padding-top: 0px;
+    margin-bottom: 10px;
     border-top: none;
     color: inherit;
 }
 blockquote.shared_content {
-    margin-left: 20px;
+    padding: 0px;
+    margin-left: 0px;
     color: inherit;
+}
+code > .hl-main {
+    padding: 10px 10px 1px 0;
+}
+.hl-main ol {
+    line-height: 1.7;
 }
 .wall-item-tags,
 .itemedited {
@@ -1496,6 +1532,7 @@ blockquote.shared_content {
 .wall-item-actions .button-likes {
     padding-left: 0px;
     padding-right: 0px;
+    text-transform: capitalize;
 }
 
 /* wall item hover effects */
@@ -2067,45 +2104,20 @@ ul li:hover .contact-wrapper a.contact-action-link:hover {
 }
 
 /* Events page */
-#fc-header {
-    margin-top: 20px;
-    margin-bottom: 10px;
-}
-#fc-header-left,
-#fc-header-right,
-#event-calendar-title {
-    display: inline-block;
-}
-#fc-title {
-    margin: 0;
-    padding-left: 20px;
 
+.fc .fc-month-view .fc-content .fc-title .item-desc:hover {
+    color: $link_hover_color;
 }
-#fc-header-right {
-    margin-top: -4px;
+.fc .fc-list-item-title a {
+    color: $link_color;
 }
-#event-calendar-title {
-    vertical-align: middle;
+.fc .fc-list-item-title a[href]:hover {
+    color: $link_hover_color;
+    text-decoration: none;
 }
-a#event-calendar-views {
-    padding: 6px 9px;
-    font-size: 14px
-}
-tr.fc-first,
-tr.fc-first th {
-    border-left: none;
-    border-right: none;
-    border-top: none;
-}
-td.fc-day {
-    border-left: none;
-    border-right: none;
-    padding: 0 6px;
-}
-#events-calendar .fc-grid .fc-day-number {
-    float: left;
-    font-size: 0.9em;
-}
+/*.event-date-wrapper.medium .event-hover-short-month {
+    color: $link_color;
+}*/
 .event-wrapper .event-owner {
   margin-bottom: 15px;
 }
@@ -2292,6 +2304,44 @@ little modifications to emulate a standard page template */
     -moz-box-shadow: 0 0 3px #dadada;
 }
 
+/* Help Page */
+section.help-content-wrapper h1 {
+    padding-bottom: 0.3em;
+    font-size: 1.8em;
+    border-bottom: 1px solid #ddd;
+}
+section.help-content-wrapper h2 {
+    padding-bottom: 0.3em;
+    font-size: 1.5em;
+    border-bottom: 1px solid #ddd;
+}
+section.help-content-wrapper h3 {
+    font-size: 1.2em;
+}
+section.help-content-wrapper h4 {
+    font-size: 1em;
+}
+section.help-content-wrapper h1,
+section.help-content-wrapper h2,
+section.help-content-wrapper h3,
+section.help-content-wrapper h4,
+section.help-content-wrapper h5,
+section.help-content-wrapper h6 {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+section.help-content-wrapper p {
+    margin: 0.4em 0;
+}
+section.help-content-wrapper p,
+section.help-content-wrapper a,
+section.help-content-wrapper li {
+    line-height: 1.6;
+    font-size: 0.96em;
+}
+
 /*
 * Overwriting for transparency and other colors
 */
@@ -2398,4 +2448,12 @@ body .tread-wrapper .hovercard a:hover {
 }
 body .tread-wrapper .hovercard:hover .hover-card-content a {
     color: $link_color !important;
+}
+
+/*
+ * some temporary workarounds until this will solved
+ * elsewhere (e.g. new templates)
+ */
+section .profile-match-wrapper {
+    float: left;
 }

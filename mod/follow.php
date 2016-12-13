@@ -137,13 +137,13 @@ function follow_content(&$a) {
 	$a->page['aside'] = "";
 	profile_load($a, "", 0, get_contact_details_by_url($ret["url"]));
 
-	// Show last public posts
 	if ($gcontact_id <> 0) {
 		$o .= replace_macros(get_markup_template('section_title.tpl'),
 						array('$title' => t('Status Messages and Posts')
 		));
 
-		$o .= posts_from_gcontact($a, $gcontact_id);
+		// Show last public posts
+		$o .= posts_from_contact_url($a, $ret["url"]);
 	}
 
 	return $o;

@@ -38,7 +38,6 @@
 			<form id="profile-jot-form" action="{{$action}}" method="post">
 				<div id="profile-jot-wrapper">
 					<div>
-						<div id="character-counter" class="grey jothidden text-info pull-left"></div>
 						<!--<div id="profile-jot-desc" class="jothidden pull-right">&nbsp;</div>-->
 					</div>
 
@@ -63,7 +62,7 @@
 
 					{{* The jot text field in which the post text is inserted *}}
 					<div id="jot-text-wrap">
-					<textarea rows="2" cols="64" class="profile-jot-text form-control" id="profile-jot-text" name="body" onFocus="jotTextOpenUI(this);" onBlur="jotTextCloseUI(this);" style="min-width:100%; max-width:100%;">{{if $content}}{{$content}}{{else}}{{$share}}{{/if}}</textarea>
+					<textarea rows="2" cols="64" class="profile-jot-text form-control text-autosize" id="profile-jot-text" name="body" onFocus="jotTextOpenUI(this);" onBlur="jotTextCloseUI(this);" style="min-width:100%; max-width:100%;">{{if $content}}{{$content}}{{else}}{{$share}}{{/if}}</textarea>
 					</div>
 
 					<ul id="profile-jot-submit-wrapper" class="jothidden nav nav-pills">
@@ -80,6 +79,7 @@
 						-->
 
 						<li class="pull-right"><button class="btn btn-primary" id="jot-submit" type="submit" id="profile-jot-submit" name="submit" ><i class="fa fa-slideshare fa-fw"></i> {{$share}}</button></li>
+						<li id="character-counter" class="grey jothidden text-info pull-right"></li>
 						<div id="profile-rotator-wrapper" style="display: {{$visitor}};" >
 							<img id="profile-rotator" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait}}" style="display: none;" />
 						</div> 
@@ -119,7 +119,7 @@ can load different content into the jot moadl (e.g. the item edit jot)
 </div>
 
 
-<script>
+<script language="javascript" type="text/javascript">
 	$('iframe').load(function() {
 		this.style.height = this.contentWindow.document.body.offsetHeight + 'px';
 	});

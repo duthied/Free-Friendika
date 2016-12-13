@@ -1,5 +1,7 @@
 # Settings
 
+* [Zur Startseite der Hilfe](help)
+
 Wenn du der Administrator einer Friendica Instanz bist, hast du Zugriff auf das so genannte **Admin Panel** in dem du die Friendica Instanz konfigurieren kannst,
 
 Auf der Startseite des Admin Panels werden die Informationen zu der Instanz zusammengefasst.
@@ -9,8 +11,9 @@ Diese Zahl sollte sich relativ schnell sinken.
 Die zweite Zahl gibt die Anzahl von Nachrichten an, die nicht zugestellt werden konnten.
 Die Zustellung wird zu einem späteren Zeitpunkt noch einmal versucht.
 Unter dem Punkt "Warteschlange Inspizieren" kannst du einen schnellen Blick auf die zweite Warteschlange werfen.
-Solltest du für die Hintergrundprozesse die Worker aktiviert haben, könntest du eine dritte Zahl angezeigt bekommen.
+Solltest du für die Hintergrundprozesse die Worker aktiviert haben, wird eine dritte Zahl angezeigt.
 Diese repräsentiert die Anzahl der Aufgaben, die die Worker noch vor sich haben.
+Die Aufgaben der Worker sind priorisiert und werden anhand dieser Prioritäten abgearbeitet.
 
 Des weiteren findest du eine Übersicht über die Accounts auf dem Friendica Knoten, die unter dem Punkt "Nutzer" moderiert werden können.
 Sowie eine Liste der derzeit aktivierten Addons.

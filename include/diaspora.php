@@ -999,17 +999,21 @@ class diaspora {
 	 */
 	private function author_contact_by_url($contact, $person, $uid) {
 
-		$r = q("SELECT `id`, `network` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
+		$r = q("SELECT `id`, `network`, `url` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
 			dbesc(normalise_link($person["url"])), intval($uid));
 		if ($r) {
 			$cid = $r[0]["id"];
 			$network = $r[0]["network"];
+
+			// We are receiving content from a user that is about to be terminated
+			// This means the user is vital, so we remove a possible termination date.
+			unmark_for_death($contact);
 		} else {
 			$cid = $contact["id"];
 			$network = NETWORK_DIASPORA;
 		}
 
-		return (array("cid" => $cid, "network" => $network));
+		return array("cid" => $cid, "network" => $network);
 	}
 
 	/**
@@ -2633,7 +2637,13 @@ class diaspora {
 			} else {
 				// queue message for redelivery
 				add_to_queue($contact["id"], NETWORK_DIASPORA, $slap, $public_batch);
+
+				// The message could not be delivered. We mark the contact as "dead"
+				mark_for_death($contact);
 			}
+		} elseif (($return_code >= 200) AND ($return_code <= 299)) {
+			// We successfully delivered a message, the contact is alive
+			unmark_for_death($contact);
 		}
 
 		return(($return_code) ? $return_code : (-1));
@@ -2876,8 +2886,10 @@ class diaspora {
 					"created_at" => $created,
 					"provider_display_name" => $item["app"]);
 
-			if (count($location) == 0)
+			// Diaspora rejects messages when they contain a location without "lat" or "lng"
+			if (!isset($location["lat"]) OR !isset($location["lng"])) {
 				unset($message["location"]);
+			}
 
 			$type = "status_message";
 		}
