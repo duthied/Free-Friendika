@@ -767,7 +767,7 @@ class App {
 
 	}
 
-	function get_basepath() {
+	public static function get_basepath() {
 
 		$basepath = get_config("system", "basepath");
 

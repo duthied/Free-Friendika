@@ -44,7 +44,7 @@ function proxy_init() {
 	$thumb = false;
 	$size = 1024;
 	$sizetype = "";
-	$basepath = $a->get_basepath();
+	$basepath = App::get_basepath();
 
 	// If the cache path isn't there, try to create it
 	if (!is_dir($basepath."/proxy"))
@@ -267,7 +267,7 @@ function proxy_url($url, $writemode = false, $size = '') {
 	$url = html_entity_decode($url, ENT_NOQUOTES, 'utf-8');
 
 	// Creating a sub directory to reduce the amount of files in the cache directory
-	$basepath = $a->get_basepath() . '/proxy';
+	$basepath = App::get_basepath() . '/proxy';
 
 	$shortpath = hash('md5', $url);
 	$longpath = substr($shortpath, 0, 2);
