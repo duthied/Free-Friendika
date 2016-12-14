@@ -31,9 +31,7 @@ function was_recently_delayed($cid) {
 	if (dbm::is_result($r))
 		return true;
 
-	// Are there queue entries that were recently added?
-	$r = q("SELECT `id` FROM `queue` WHERE `cid` = %d
-		AND `last` > UTC_TIMESTAMP() - interval 15 minute LIMIT 1",
+	$r = q("select `term-date` from contact where id = %d and `term-date` != '' and `term-date` != '0000-00-00 00:00:00' limit 1",
 		intval($cid)
 	);
 
