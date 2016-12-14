@@ -1478,10 +1478,11 @@ function clean_urls() {
 }
 
 function z_path() {
-	$a = get_app();
-	$base = $a->get_baseurl();
+	$base = App::get_baseurl();
+
 	if(! clean_urls())
 		$base .= '/?q=';
+
 	return $base;
 }
 
@@ -1491,10 +1492,10 @@ function z_path() {
  * @see App::get_baseurl()
  *
  * @return string
+ * @TODO Maybe super-flous and deprecated? Seems to only wrap App::get_baseurl()
  */
 function z_root() {
-	$a = get_app();
-	return $a->get_baseurl();
+	return App::get_baseurl();
 }
 
 /**
