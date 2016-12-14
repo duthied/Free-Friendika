@@ -32,21 +32,21 @@
 <!--[if IE]>
 <script type="text/javascript" src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
-<script type="text/javascript" src="{{$baseurl}}/js/modernizr.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/js/jquery.js" ></script>
-<!-- <script type="text/javascript" src="{{$baseurl}}/js/jquery-migrate.js" ></script>-->
-<script type="text/javascript" src="{{$baseurl}}/js/jquery-migrate.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/js/jquery.textinputs.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/library/jquery-textcomplete/jquery.textcomplete.min.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/js/autocomplete.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/library/colorbox/jquery.colorbox-min.js"></script>
-<script type="text/javascript" src="{{$baseurl}}/library/jgrowl/jquery.jgrowl_minimized.js"></script>
-<script type="text/javascript" src="{{$baseurl}}/library/datetimepicker/jquery.datetimepicker.js"></script>
-<script type="text/javascript" src="{{$baseurl}}/library/tinymce/jscripts/tiny_mce/tiny_mce_src.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/library/perfect-scrollbar/perfect-scrollbar.jquery.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/js/acl.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/js/webtoolkit.base64.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/js/main.js" ></script>
+<script type="text/javascript" src="js/modernizr.js" ></script>
+<script type="text/javascript" src="js/jquery.js" ></script>
+<!-- <script type="text/javascript" src="js/jquery-migrate.js" ></script>-->
+<script type="text/javascript" src="js/jquery-migrate.js" ></script>
+<script type="text/javascript" src="js/jquery.textinputs.js" ></script>
+<script type="text/javascript" src="library/jquery-textcomplete/jquery.textcomplete.min.js" ></script>
+<script type="text/javascript" src="js/autocomplete.js" ></script>
+<script type="text/javascript" src="library/colorbox/jquery.colorbox-min.js"></script>
+<script type="text/javascript" src="library/jgrowl/jquery.jgrowl_minimized.js"></script>
+<script type="text/javascript" src="library/datetimepicker/jquery.datetimepicker.js"></script>
+<script type="text/javascript" src="library/tinymce/jscripts/tiny_mce/tiny_mce_src.js" ></script>
+<script type="text/javascript" src="library/perfect-scrollbar/perfect-scrollbar.jquery.js" ></script>
+<script type="text/javascript" src="js/acl.js" ></script>
+<script type="text/javascript" src="js/webtoolkit.base64.js" ></script>
+<script type="text/javascript" src="js/main.js" ></script>
 <script>
 
 	var updateInterval = {{$update_interval}};
