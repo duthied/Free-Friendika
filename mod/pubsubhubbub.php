@@ -55,7 +55,7 @@ function pubsubhubbub_init(&$a) {
 			   " AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
 			   dbesc($nick));
 
-		if(!dbm::is_result($r)) {
+		if (!dbm::is_result($r)) {
 			logger('pubsubhubbub: local account not found: ' . $nick);
 			http_status_exit(404);
 		}
@@ -73,7 +73,7 @@ function pubsubhubbub_init(&$a) {
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `blocked`".
 			   " AND NOT `pending` AND `self` LIMIT 1",
 			   intval($owner['uid']));
-		if(!dbm::is_result($r)) {
+		if (!dbm::is_result($r)) {
 			logger('pubsubhubbub: contact not found.');
 			http_status_exit(404);
 		}

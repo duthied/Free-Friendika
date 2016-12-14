@@ -24,7 +24,7 @@ function friendica_init(&$a) {
 		$visible_plugins = array();
 		if(is_array($a->plugins) && count($a->plugins)) {
 			$r = q("select * from addon where hidden = 0");
-			if(dbm::is_result($r))
+			if (dbm::is_result($r))
 				foreach($r as $rr)
 					$visible_plugins[] = $rr['name'];
 		}
@@ -80,7 +80,7 @@ function friendica_content(&$a) {
 	$visible_plugins = array();
 	if(is_array($a->plugins) && count($a->plugins)) {
 		$r = q("select * from addon where hidden = 0");
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			foreach($r as $rr)
 				$visible_plugins[] = $rr['name'];
 	}

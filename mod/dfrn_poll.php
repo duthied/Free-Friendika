@@ -79,7 +79,7 @@ function dfrn_poll_init(&$a) {
 			dbesc($a->argv[1])
 		);
 
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 
 			$s = fetch_url($r[0]['poll'] . '?dfrn_id=' . $my_id . '&type=profile-check');
 
@@ -190,7 +190,7 @@ function dfrn_poll_init(&$a) {
 			q("DELETE FROM `profile_check` WHERE `expire` < " . intval(time()));
 			$r = q("SELECT * FROM `profile_check` WHERE `dfrn_id` = '%s' ORDER BY `expire` DESC",
 				dbesc($dfrn_id));
-			if(dbm::is_result($r)) {
+			if (dbm::is_result($r)) {
 				xml_status(1);
 				return; // NOTREACHED
 			}
@@ -335,7 +335,7 @@ function dfrn_poll_post(&$a) {
 		$reputation = 0;
 		$text = '';
 
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			$reputation = $r[0]['rating'];
 			$text = $r[0]['reason'];
 
@@ -448,7 +448,7 @@ function dfrn_poll_content(&$a) {
 			dbesc($nickname)
 		);
 
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 
 			$challenge = '';
 			$encrypted_id = '';

@@ -303,7 +303,7 @@ function display_content(&$a, $update = 0) {
 			intval($contact_id),
 			intval($a->profile['uid'])
 		);
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			$contact = $r[0];
 			$remote_contact = true;
 		}
@@ -319,7 +319,7 @@ function display_content(&$a, $update = 0) {
 	$r = qu("SELECT * FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1",
 		intval($a->profile['uid'])
 	);
-	if(dbm::is_result($r)) {
+	if (dbm::is_result($r)) {
 		$a->page_contact = $r[0];
 	}
 	$is_owner = ((local_user()) && (local_user() == $a->profile['profile_uid']) ? true : false);

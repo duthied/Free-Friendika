@@ -170,7 +170,7 @@ function salmon_post(&$a) {
 	// If so we can not accept this post.
 
 	//if((dbm::is_result($r)) && (($r[0]['readonly']) || ($r[0]['rel'] == CONTACT_IS_FOLLOWER) || ($r[0]['blocked']))) {
-	if(dbm::is_result($r) && $r[0]['blocked']) {
+	if (dbm::is_result($r) && $r[0]['blocked']) {
 		logger('mod-salmon: Ignoring this author.');
 		http_status_exit(202);
 		// NOTREACHED

@@ -42,7 +42,7 @@ function profperm_content(&$a) {
 			intval($a->argv[2]),
 			intval(local_user())
 		);
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			$change = intval($a->argv[2]);
 	}
 
@@ -64,7 +64,7 @@ function profperm_content(&$a) {
 		);
 
 		$ingroup = array();
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			foreach($r as $member)
 				$ingroup[] = $member['id'];
 
@@ -94,7 +94,7 @@ function profperm_content(&$a) {
 			$members = $r;
 
 			$ingroup = array();
-			if(dbm::is_result($r))
+			if (dbm::is_result($r))
 				foreach($r as $member)
 					$ingroup[] = $member['id'];
 		}
@@ -138,7 +138,7 @@ function profperm_content(&$a) {
 			dbesc(NETWORK_DFRN)
 		);
 
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			$textmode = (($switchtotext && (count($r) > $switchtotext)) ? true : false);
 			foreach($r as $member) {
 				if(! in_array($member['id'],$ingroup)) {

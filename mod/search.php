@@ -15,7 +15,7 @@ function search_saved_searches() {
 		intval(local_user())
 	);
 
-	if(dbm::is_result($r)) {
+	if (dbm::is_result($r)) {
 		$saved = array();
 		foreach($r as $rr) {
 			$saved[] = array(

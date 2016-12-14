@@ -423,7 +423,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 			intval($contact_id)
 		);
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			$contact = $r[0];
 		else
 			$contact = null;
@@ -629,7 +629,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		$r = q("SELECT * FROM `contact` WHERE `dfrn-id` = '%s' LIMIT 1",
 			dbesc($decrypted_dfrn_id)
 		);
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			$message = t('The ID provided by your system is a duplicate on our system. It should work if you try again.');
 			xml_status(1,$message); // Birthday paradox - duplicate dfrn-id
 			// NOTREACHED
@@ -661,7 +661,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		$r = q("SELECT `photo` FROM `contact` WHERE `id` = %d LIMIT 1",
 			intval($dfrn_record));
 
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			$photo = $r[0]['photo'];
 		else
 			$photo = $a->get_baseurl() . '/images/person-175.jpg';
@@ -714,7 +714,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			intval($dfrn_record)
 		);
 
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			$combined = $r[0];
 
 		if((dbm::is_result($r)) && ($r[0]['notify-flags'] & NOTIFY_CONFIRM)) {

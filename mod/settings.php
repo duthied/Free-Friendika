@@ -255,7 +255,7 @@ function settings_post(&$a) {
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 					intval(local_user())
 				);
-				if(dbm::is_result($r)) {
+				if (dbm::is_result($r)) {
 					$eacct = $r[0];
 					require_once('include/email.php');
 					$mb = construct_mailbox_name($eacct);

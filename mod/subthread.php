@@ -53,7 +53,7 @@ function subthread_content(&$a) {
 		WHERE `contact`.`self` = 1 AND `contact`.`uid` = %d LIMIT 1",
 		intval($owner_uid)
 	);
-	if(dbm::is_result($r))
+	if (dbm::is_result($r))
 		$owner = $r[0];
 
 	if(! $owner) {
@@ -75,7 +75,7 @@ function subthread_content(&$a) {
 			intval($_SESSION['visitor_id']),
 			intval($owner_uid)
 		);
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			$contact = $r[0];
 	}
 	if(! $contact) {

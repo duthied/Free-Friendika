@@ -765,7 +765,7 @@ function contacts_content(&$a) {
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
 		WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 ",
 		intval($_SESSION['uid']));
-	if(dbm::is_result($r)) {
+	if (dbm::is_result($r)) {
 		$a->set_pager_total($r[0]['total']);
 		$total = $r[0]['total'];
 	}
@@ -780,7 +780,7 @@ function contacts_content(&$a) {
 
 	$contacts = array();
 
-	if(dbm::is_result($r)) {
+	if (dbm::is_result($r)) {
 		foreach ($r as $rr) {
 			$contacts[] = _contact_detail_for_template($rr);
 		}

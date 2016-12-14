@@ -91,7 +91,7 @@ function dfrn_request_post(&$a) {
 					dbesc(normalise_link($dfrn_url))
 				);
 
-				if(dbm::is_result($r)) {
+				if (dbm::is_result($r)) {
 					if(strlen($r[0]['dfrn-id'])) {
 
 						/*
@@ -185,7 +185,7 @@ function dfrn_request_post(&$a) {
 					dbesc($dfrn_url),
 					$parms['key'] // this was already escaped
 				);
-				if(dbm::is_result($r)) {
+				if (dbm::is_result($r)) {
 					$def_gid = get_default_group(local_user(), $r[0]["network"]);
 					if(intval($def_gid))
 						group_add_member(local_user(), '', $r[0]['id'], $def_gid);
@@ -273,7 +273,7 @@ function dfrn_request_post(&$a) {
 				dbesc(datetime_convert('UTC','UTC','now - 24 hours')),
 				intval($uid)
 			);
-			if(dbm::is_result($r) && count($r) > $maxreq) {
+			if (dbm::is_result($r) && count($r) > $maxreq) {
 				notice( sprintf( t('%s has received too many connection requests today.'),  $a->profile['name']) . EOL);
 				notice( t('Spam protection measures have been invoked.') . EOL);
 				notice( t('Friends are advised to please try again in 24 hours.') . EOL);
@@ -295,7 +295,7 @@ function dfrn_request_post(&$a) {
 			AND `intro`.`datetime` < UTC_TIMESTAMP() - INTERVAL 30 MINUTE ",
 			dbesc(NETWORK_MAIL2)
 		);
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			foreach($r as $rr) {
 				if(! $rr['rel']) {
 					q("DELETE FROM `contact` WHERE `id` = %d",
@@ -320,7 +320,7 @@ function dfrn_request_post(&$a) {
 			AND `intro`.`datetime` < UTC_TIMESTAMP() - INTERVAL 3 DAY ",
 			dbesc(NETWORK_MAIL2)
 		);
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			foreach($r as $rr) {
 				if(! $rr['rel']) {
 					q("DELETE FROM `contact` WHERE `id` = %d",
@@ -398,7 +398,7 @@ function dfrn_request_post(&$a) {
 				dbesc($poll),
 				intval($uid)
 			);
-			if(dbm::is_result($r)) {
+			if (dbm::is_result($r)) {
 				$contact_id = $r[0]['id'];
 
 				$def_gid = get_default_group($uid, $r[0]["network"]);
@@ -477,7 +477,7 @@ function dfrn_request_post(&$a) {
 				dbesc($url)
 			);
 
-			if(dbm::is_result($ret)) {
+			if (dbm::is_result($ret)) {
 				if(strlen($ret[0]['issued-id'])) {
 					notice( t('You have already introduced yourself here.') . EOL );
 					return;
@@ -576,7 +576,7 @@ function dfrn_request_post(&$a) {
 						$parms['url'],
 						$parms['issued-id']
 					);
-					if(dbm::is_result($r)) {
+					if (dbm::is_result($r)) {
 						$contact_record = $r[0];
 						update_contact_avatar($photo, $uid, $contact_record["id"], true);
 					}
@@ -724,7 +724,7 @@ function dfrn_request_content(&$a) {
 			dbesc($_GET['confirm_key'])
 		);
 
-		if(dbm::is_result($intro)) {
+		if (dbm::is_result($intro)) {
 
 			$r = q("SELECT `contact`.*, `user`.* FROM `contact` LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
 				WHERE `contact`.`id` = %d LIMIT 1",
@@ -733,7 +733,7 @@ function dfrn_request_content(&$a) {
 
 			$auto_confirm = false;
 
-			if(dbm::is_result($r)) {
+			if (dbm::is_result($r)) {
 				if(($r[0]['page-flags'] != PAGE_NORMAL) && ($r[0]['page-flags'] != PAGE_PRVGROUP))
 					$auto_confirm = true;
 

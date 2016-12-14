@@ -63,7 +63,7 @@ function wall_upload_post(&$a, $desktopmode = true) {
 					intval($contact_id),
 					intval($page_owner_uid)
 				);
-				if(dbm::is_result($r)) {
+				if (dbm::is_result($r)) {
 					$can_post = true;
 					$visitor = $contact_id;
 				}

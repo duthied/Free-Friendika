@@ -83,7 +83,7 @@ function poco_init(&$a) {
 			dbesc(NETWORK_STATUSNET)
 		);
 	}
-	if(dbm::is_result($r))
+	if (dbm::is_result($r))
 		$totalResults = intval($r[0]['total']);
 	else
 		$totalResults = 0;
@@ -173,7 +173,7 @@ function poco_init(&$a) {
 	}
 
 	if(is_array($r)) {
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			foreach($r as $rr) {
 				if (!isset($rr['generation'])) {
 					if ($global)

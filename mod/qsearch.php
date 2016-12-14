@@ -23,7 +23,7 @@ function qsearch_init(&$a) {
 		intval($limit)
 	);
 
-	if(dbm::is_result($r)) {
+	if (dbm::is_result($r)) {
 
 		foreach($r as $rr)
 			$results[] = array( 0, (int) $rr['id'], $rr['name'], '', '');
@@ -38,7 +38,7 @@ function qsearch_init(&$a) {
 	);
 
 
-	if(dbm::is_result($r)) {
+	if (dbm::is_result($r)) {
 
 		foreach($r as $rr)
 			$results[] = array( (int) $rr['id'], 0, $rr['name'],$rr['url'],$rr['photo']);

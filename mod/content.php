@@ -93,7 +93,7 @@ function content_content(&$a, $update = 0) {
 		);
 
 		$str = '';
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			foreach($r as $rr)
 				$str .= '<' . $rr['id'] . '>';
 		if(strlen($str))
@@ -141,7 +141,7 @@ function content_content(&$a, $update = 0) {
 				AND `blocked` = 0 AND `pending` = 0 LIMIT 1",
 			intval($cid)
 		);
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			$sql_extra = " AND `item`.`parent` IN ( SELECT DISTINCT(`parent`) FROM `item` WHERE 1 $sql_options AND `contact-id` = " . intval($cid) . " and deleted = 0 ) ";
 
 		}
@@ -259,7 +259,7 @@ function content_content(&$a, $update = 0) {
 		$parents_arr = array();
 		$parents_str = '';
 
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			foreach($r as $rr)
 				if(! in_array($rr['item_id'],$parents_arr))
 					$parents_arr[] = $rr['item_id'];
