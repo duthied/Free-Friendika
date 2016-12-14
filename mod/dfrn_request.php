@@ -726,8 +726,6 @@ function dfrn_request_content(&$a) {
 
 		if(dbm::is_result($intro)) {
 
-			$auto_confirm = false;
-
 			$r = q("SELECT `contact`.*, `user`.* FROM `contact` LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
 				WHERE `contact`.`id` = %d LIMIT 1",
 				intval($intro[0]['contact-id'])

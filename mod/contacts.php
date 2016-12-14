@@ -772,8 +772,6 @@ function contacts_content(&$a) {
 
 	$sql_extra3 = unavailable_networks();
 
-	$contacts = array();
-
 	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 $sql_extra3 ORDER BY `name` ASC LIMIT %d , %d ",
 		intval($_SESSION['uid']),
 		intval($a->pager['start']),
@@ -783,7 +781,7 @@ function contacts_content(&$a) {
 	$contacts = array();
 
 	if(dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			$contacts[] = _contact_detail_for_template($rr);
 		}
 	}

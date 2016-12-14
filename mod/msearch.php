@@ -25,8 +25,6 @@ function msearch_post(&$a) {
 		intval($perpage)
 	);
 
-	$results = array();
-
 	if(dbm::is_result($r)) {
 		foreach($r as $rr)
 			$results[] = array(
