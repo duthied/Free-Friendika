@@ -24,14 +24,14 @@ function remove_queue_item($id) {
  */
 function was_recently_delayed($cid) {
 
-	$r = q("SELECT `id` FROM `queue` WHERE `cid` = %d 
-		and last > UTC_TIMESTAMP() - interval 15 minute limit 1",
+	$r = q("SELECT `id` FROM `queue` WHERE `cid` = %d
+		AND `last` > UTC_TIMESTAMP() - INTVAL 15 MINUTE LIMIT 1",
 		intval($cid)
 	);
 	if (dbm::is_result($r))
 		return true;
 
-	$r = q("select `term-date` from contact where id = %d and `term-date` != '' and `term-date` != '0000-00-00 00:00:00' limit 1",
+	$r = q("SELECT `term-date` FROM `contact` WHERE `id` = %d AND `term-date` != '' AND `term-date` != '0000-00-00 00:00:00' LIMIT 1",
 		intval($cid)
 	);
 
