@@ -465,6 +465,8 @@ function dfrn_request_post(&$a) {
 				$network = NETWORK_DFRN;
 		}
 
+		logger('dfrn_request: url: ' . $url . ',network=' . $network, LOGGER_DEBUG);
+
 		if($network === NETWORK_DFRN) {
 			$ret = q("SELECT * FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `self` = 0 LIMIT 1",
 				intval($uid),
