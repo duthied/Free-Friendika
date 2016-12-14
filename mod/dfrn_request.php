@@ -449,12 +449,8 @@ function dfrn_request_post(&$a) {
 			$data = probe_url($url);
 			$network = $data["network"];
 
-			logger('dfrn_request: url=' . $url . ',network=' . $network . ',hcard=' . $hcard . ' - BEFORE!', LOGGER_DEBUG);
-
 			// Canonicalise email-style profile locator
 			$url = Probe::webfinger_dfrn($url,$hcard);
-
-			logger('dfrn_request: url=' . $url . ',network=' . $network . ',hcard=' . $hcard . ' - AFTER!', LOGGER_DEBUG);
 
 			if (substr($url,0,5) === 'stat:') {
 
@@ -468,8 +464,6 @@ function dfrn_request_post(&$a) {
 			} else
 				$network = NETWORK_DFRN;
 		}
-
-		logger('dfrn_request: url: ' . $url . ',network=' . $network, LOGGER_DEBUG);
 
 		if($network === NETWORK_DFRN) {
 			$ret = q("SELECT * FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `self` = 0 LIMIT 1",
