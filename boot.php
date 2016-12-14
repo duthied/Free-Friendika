@@ -1191,7 +1191,7 @@ class App {
 		q("START TRANSACTION");
 
 		$r = q("SELECT `pid` FROM `process` WHERE `pid` = %d", intval(getmypid()));
-		if(!dbm::is_result($r)) {
+		if (!dbm::is_result($r)) {
 			q("INSERT INTO `process` (`pid`,`command`,`created`) VALUES (%d, '%s', '%s')",
 				intval(getmypid()),
 				dbesc($command),
@@ -1207,7 +1207,7 @@ class App {
 		q("START TRANSACTION");
 
 		$r = q("SELECT `pid` FROM `process`");
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			foreach ($r AS $process) {
 				if (!posix_kill($process["pid"], 0)) {
 					q("DELETE FROM `process` WHERE `pid` = %d", intval($process["pid"]));
@@ -1677,7 +1677,7 @@ function run_update_function($x) {
 function check_plugins(&$a) {
 
 	$r = q("SELECT * FROM `addon` WHERE `installed` = 1");
-	if(dbm::is_result($r))
+	if (dbm::is_result($r))
 		$installed = $r;
 	else
 		$installed = array();
@@ -2021,7 +2021,7 @@ function current_theme(){
 		$r = q("select theme from user where uid = %d limit 1",
 			intval($a->profile_uid)
 		);
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			$page_theme = $r[0]['theme'];
 	}
 
@@ -2134,7 +2134,7 @@ function feed_birthday($uid,$tz) {
 			intval($uid)
 	);
 
-	if(dbm::is_result($p)) {
+	if (dbm::is_result($p)) {
 		$tmp_dob = substr($p[0]['dob'],5);
 		if(intval($tmp_dob)) {
 			$y = datetime_convert($tz,$tz,'now','Y');
