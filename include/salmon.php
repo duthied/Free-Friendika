@@ -24,7 +24,7 @@ function get_salmon_key($uri,$keyhash) {
 	// We have found at least one key URL
 	// If it's inline, parse it - otherwise get the key
 
-	if(count($ret)) {
+	if(count($ret) > 0) {
 		for($x = 0; $x < count($ret); $x ++) {
 			if(substr($ret[$x],0,5) === 'data:') {
 				if(strstr($ret[$x],','))
