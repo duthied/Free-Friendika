@@ -746,7 +746,7 @@ function dfrn_request_content(&$a) {
 						'to_name'      => $r[0]['username'],
 						'to_email'     => $r[0]['email'],
 						'uid'          => $r[0]['uid'],
-						'link'		   => $a->get_baseurl() . '/notifications/intros',
+						'link'         => $a->get_baseurl() . '/notifications/intros',
 						'source_name'  => ((strlen(stripslashes($r[0]['name']))) ? stripslashes($r[0]['name']) : t('[Name Withheld]')),
 						'source_link'  => $r[0]['url'],
 						'source_photo' => $r[0]['photo'],
@@ -758,11 +758,11 @@ function dfrn_request_content(&$a) {
 				if($auto_confirm) {
 					require_once('mod/dfrn_confirm.php');
 					$handsfree = array(
-						'uid' => $r[0]['uid'],
-						'node' => $r[0]['nickname'],
-						'dfrn_id' => $r[0]['issued-id'],
+						'uid'      => $r[0]['uid'],
+						'node'     => $r[0]['nickname'],
+						'dfrn_id'  => $r[0]['issued-id'],
 						'intro_id' => $intro[0]['id'],
-						'duplex' => (($r[0]['page-flags'] == PAGE_FREELOVE) ? 1 : 0),
+						'duplex'   => (($r[0]['page-flags'] == PAGE_FREELOVE) ? 1 : 0),
 						'activity' => intval(get_pconfig($r[0]['uid'],'system','post_newfriend'))
 					);
 					dfrn_confirm_post($a,$handsfree);
