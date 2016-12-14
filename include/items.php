@@ -451,7 +451,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	/* check for create  date and expire time */
 	$uid = intval($arr['uid']);
 	$r = q("SELECT expire FROM user WHERE uid = %d", intval($uid));
-	if(dbm::is_result($r)) {
+	if (dbm::is_result($r)) {
 		$expire_interval = $r[0]['expire'];
 		if ($expire_interval>0) {
 			$expire_date =  new DateTime( '- '.$expire_interval.' days', new DateTimeZone('UTC'));
@@ -580,7 +580,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 				intval($arr['uid'])
 			);
 
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			$arr['network'] = $r[0]["network"];
 
 		// Fallback to friendica (why is it empty in some cases?)
@@ -634,7 +634,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		$r = q("SELECT `guid` FROM `item` WHERE `guid` = '%s' AND `network` = '%s' AND `uid` = '%d' LIMIT 1",
 			dbesc($arr['guid']), dbesc($arr['network']), intval($arr['uid']));
 
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			logger('found item with guid '.$arr['guid'].' for user '.$arr['uid'].' on network '.$arr['network'], LOGGER_DEBUG);
 			return 0;
 		}
@@ -662,7 +662,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 			intval($arr['uid'])
 		);
 
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 
 			// is the new message multi-level threaded?
 			// even though we don't support it now, preserve the info
@@ -1531,7 +1531,7 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 				intval($importer['uid']),
 				dbesc($url)
 		);
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			$contact_record = $r[0];
 			update_contact_avatar($photo, $importer["uid"], $contact_record["id"], true);
 		}
@@ -1542,7 +1542,7 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 		);
 		$a = get_app();
 
-		if(dbm::is_result($r) AND !in_array($r[0]['page-flags'], array(PAGE_SOAPBOX, PAGE_FREELOVE))) {
+		if (dbm::is_result($r) AND !in_array($r[0]['page-flags'], array(PAGE_SOAPBOX, PAGE_FREELOVE))) {
 
 			// create notification
 			$hash = random_string();
@@ -2112,7 +2112,7 @@ function drop_item($id,$interactive = true) {
 				dbesc($item['parent-uri']),
 				intval($item['uid'])
 			);
-			if(dbm::is_result($r)) {
+			if (dbm::is_result($r)) {
 				q("UPDATE `item` SET `last-child` = 1 WHERE `id` = %d",
 					intval($r[0]['id'])
 				);
@@ -2148,7 +2148,7 @@ function first_post_date($uid,$wall = false) {
 		intval($uid),
 		intval($wall ? 1 : 0)
 	);
-	if(dbm::is_result($r)) {
+	if (dbm::is_result($r)) {
 //		logger('first_post_date: ' . $r[0]['id'] . ' ' . $r[0]['created'], LOGGER_DATA);
 		return substr(datetime_convert('',date_default_timezone_get(),$r[0]['created']),0,10);
 	}

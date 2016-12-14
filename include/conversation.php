@@ -109,7 +109,7 @@ function localize_item(&$item){
 		$r = q("SELECT * from `item`,`contact` WHERE
 				`item`.`contact-id`=`contact`.`id` AND `item`.`uri`='%s';",
 				 dbesc($item['parent-uri']));
-		if(!dbm::is_result($r)) return;
+		if (!dbm::is_result($r)) return;
 		$obj=$r[0];
 
 		$author  = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
@@ -245,7 +245,7 @@ function localize_item(&$item){
 		$r = q("SELECT * from `item`,`contact` WHERE
 		`item`.`contact-id`=`contact`.`id` AND `item`.`uri`='%s';",
 		 dbesc($item['parent-uri']));
-		if(!dbm::is_result($r)) return;
+		if (!dbm::is_result($r)) return;
 		$obj=$r[0];
 
 		$author  = '[url=' . zrl($item['author-link']) . ']' . $item['author-name'] . '[/url]';
@@ -294,7 +294,7 @@ function localize_item(&$item){
 					dbesc($obj->id),
 					intval($item['uid'])
 			);
-			if(dbm::is_result($r) && $r[0]['plink']) {
+			if (dbm::is_result($r) && $r[0]['plink']) {
 				$target = $r[0];
 				$Bname = $target['author-name'];
 				$Blink = $target['author-link'];

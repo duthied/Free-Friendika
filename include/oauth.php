@@ -136,7 +136,7 @@ class FKOAuth1 extends OAuthServer {
 		$r = q("SELECT * FROM `user` WHERE uid=%d AND `blocked` = 0 AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 LIMIT 1",
 			intval($uid)
 		);
-		if(dbm::is_result($r)){
+		if (dbm::is_result($r)){
 			$record = $r[0];
 		} else {
 		   logger('FKOAuth1::loginUser failure: ' . print_r($_SERVER,true), LOGGER_DEBUG);
@@ -162,7 +162,7 @@ class FKOAuth1 extends OAuthServer {
 
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %s AND `self` = 1 LIMIT 1",
 			intval($_SESSION['uid']));
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			$a->contact = $r[0];
 			$a->cid = $r[0]['id'];
 			$_SESSION['cid'] = $a->cid;

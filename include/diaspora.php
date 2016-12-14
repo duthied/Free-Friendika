@@ -1278,7 +1278,7 @@ class diaspora {
 		$r = q("SELECT `id` FROM `mail` WHERE `uri` = '%s' LIMIT 1",
 			dbesc($message_uri)
 		);
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			logger("duplicate message already delivered.", LOGGER_DEBUG);
 			return false;
 		}
@@ -2925,7 +2925,7 @@ class diaspora {
 
 		$p = q("SELECT `guid`, `uri`, `parent-uri` FROM `item` WHERE `uri` = '%s' LIMIT 1",
 			dbesc($item["thr-parent"]));
-		if(!dbm::is_result($p))
+		if (!dbm::is_result($p))
 			return false;
 
 		$parent = $p[0];

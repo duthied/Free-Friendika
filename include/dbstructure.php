@@ -188,7 +188,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 		$sql3="";
 		if (!isset($database[$name])) {
 			$r = db_create_table($name, $structure["fields"], $charset, $verbose, $action, $structure['indexes']);
-			if(!dbm::is_result($r)) {
+			if (!dbm::is_result($r)) {
 				$errors .=  t('Errors encountered creating database tables.').$name.EOL;
 			}
 			$is_new_table = True;
@@ -265,7 +265,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 
 			if ($action) {
 				$r = @$db->q($sql3);
-				if(dbm::is_result($r))
+				if (dbm::is_result($r))
 					$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
 			}
 		}

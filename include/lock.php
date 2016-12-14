@@ -56,7 +56,7 @@ function block_on_function_lock($fn_name, $wait_sec = 2, $timeout = 30) {
 				dbesc($fn_name)
 		     );
 
-		if(dbm::is_result($r) && $r[0]['locked'])
+		if (dbm::is_result($r) && $r[0]['locked'])
 			sleep($wait_sec);
 
 	} while(dbm::is_result($r) && $r[0]['locked'] && ((time() - $start) < $timeout));

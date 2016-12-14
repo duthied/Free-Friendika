@@ -312,7 +312,7 @@ function event_store($arr) {
 			intval($arr['id']),
 			intval($arr['uid'])
 		);
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			$object = '<object><type>' . xmlify(ACTIVITY_OBJ_EVENT) . '</type><title></title><id>' . xmlify($arr['uri']) . '</id>';
 			$object .= '<content>' . xmlify(format_event_bbcode($arr)) . '</content>';
 			$object .= '</object>' . "\n";
@@ -365,7 +365,7 @@ function event_store($arr) {
 			dbesc($arr['uri']),
 			intval($arr['uid'])
 		);
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			$event = $r[0];
 
 		$item_arr = array();
@@ -407,7 +407,7 @@ function event_store($arr) {
 		$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 			intval($arr['uid'])
 		);
-		//if(dbm::is_result($r))
+		//if (dbm::is_result($r))
 		//	$plink = $a->get_baseurl() . '/display/' . $r[0]['nickname'] . '/' . $item_id;
 
 
@@ -515,7 +515,7 @@ function event_by_id($owner_uid = 0, $event_params, $sql_extra = '') {
 		intval($event_params["event_id"])
 	);
 
-	if(dbm::is_result($r))
+	if (dbm::is_result($r))
 		return $r;
 
 }
@@ -557,7 +557,7 @@ function events_by_date($owner_uid = 0, $event_params, $sql_extra = '') {
 			dbesc($event_params["adjust_finish"])
 	);
 
-	if(dbm::is_result($r))
+	if (dbm::is_result($r))
 		return $r;
 }
 
@@ -750,7 +750,7 @@ function events_by_uid($uid = 0, $sql_extra = '') {
 		);
 	}
 
-	if(dbm::is_result($r))
+	if (dbm::is_result($r))
 		return $r;
 }
 

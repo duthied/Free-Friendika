@@ -28,7 +28,7 @@ function was_recently_delayed($cid) {
 		and last > UTC_TIMESTAMP() - interval 15 minute limit 1",
 		intval($cid)
 	);
-	if(dbm::is_result($r))
+	if (dbm::is_result($r))
 		return true;
 
 	// Are there queue entries that were recently added?
@@ -55,7 +55,7 @@ function add_to_queue($cid,$network,$msg,$batch = false) {
 		WHERE `queue`.`cid` = %d AND `contact`.`self` = 0 ",
 		intval($cid)
 	);
-	if(dbm::is_result($r)) {
+	if (dbm::is_result($r)) {
 		if($batch &&  ($r[0]['total'] > $batch_queue)) {
 			logger('add_to_queue: too many queued items for batch server ' . $cid . ' - discarding message');
 			return;

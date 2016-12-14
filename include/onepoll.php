@@ -393,7 +393,7 @@ function onepoll_run(&$argv, &$argc){
 							dbesc($datarray['uri'])
 						);
 
-						if(dbm::is_result($r)) {
+						if (dbm::is_result($r)) {
 							logger("Mail: Seen before ".$msg_uid." for ".$mailconf[0]['user']." UID: ".$importer_uid." URI: ".$datarray['uri'],LOGGER_DEBUG);
 
 							// Only delete when mails aren't automatically moved or deleted
@@ -446,7 +446,7 @@ function onepoll_run(&$argv, &$argc){
 							$r = q("SELECT `uri` , `parent-uri` FROM `item` USE INDEX (`uid_uri`) WHERE `uri` IN ($qstr) AND `uid` = %d LIMIT 1",
 								intval($importer_uid)
 							);
-							if(dbm::is_result($r))
+							if (dbm::is_result($r))
 								$datarray['parent-uri'] = $r[0]['parent-uri'];  // Set the parent as the top-level item
 	//							$datarray['parent-uri'] = $r[0]['uri'];
 						}
@@ -479,7 +479,7 @@ function onepoll_run(&$argv, &$argc){
 								dbesc(protect_sprintf($datarray['title'])),
 								intval($importer_uid),
 								dbesc(NETWORK_MAIL));
-							if(dbm::is_result($r))
+							if (dbm::is_result($r))
 								$datarray['parent-uri'] = $r[0]['parent-uri'];
 						}
 

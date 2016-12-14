@@ -90,7 +90,7 @@ function do_like($item_id, $verb) {
 		WHERE `contact`.`self` = 1 AND `contact`.`uid` = %d LIMIT 1",
 		intval($owner_uid)
 	);
-	if(dbm::is_result($r))
+	if (dbm::is_result($r))
 		$owner = $r[0];
 
 	if(! $owner) {
@@ -112,7 +112,7 @@ function do_like($item_id, $verb) {
 			intval($_SESSION['visitor_id']),
 			intval($owner_uid)
 		);
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			$contact = $r[0];
 	}
 	if(! $contact) {
@@ -135,7 +135,7 @@ function do_like($item_id, $verb) {
 		dbesc($item_id), dbesc($item_id), dbesc($item['uri'])
 	);
 
-	if(dbm::is_result($r)) {
+	if (dbm::is_result($r)) {
 		$like_item = $r[0];
 
 		// Already voted, undo it

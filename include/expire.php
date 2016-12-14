@@ -39,7 +39,7 @@ function expire_run(&$argv, &$argc){
 	logger('expire: start');
 
 	$r = q("SELECT `uid`,`username`,`expire` FROM `user` WHERE `expire` != 0");
-	if(dbm::is_result($r)) {
+	if (dbm::is_result($r)) {
 		foreach($r as $rr) {
 			logger('Expire: ' . $rr['username'] . ' interval: ' . $rr['expire'], LOGGER_DEBUG);
 			item_expire($rr['uid'],$rr['expire']);

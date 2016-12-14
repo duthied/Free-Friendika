@@ -10,7 +10,7 @@ function fcontact_store($url,$name,$photo) {
 		dbesc($nurl)
 	);
 
-	if(dbm::is_result($r))
+	if (dbm::is_result($r))
 		return $r[0]['id'];
 
 	$r = q("INSERT INTO `fcontact` ( `url`, `name`, `photo` ) VALUES ( '%s', '%s', '%s' ) ",
@@ -19,11 +19,11 @@ function fcontact_store($url,$name,$photo) {
 		dbesc($photo)
 	);
 
-	if(dbm::is_result($r)) {
+	if (dbm::is_result($r)) {
 		$r = q("SELECT `id` FROM `fcontact` WHERE `url` = '%s' LIMIT 1",
 			dbesc($nurl)
 		);
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			return $r[0]['id'];
 	}
 

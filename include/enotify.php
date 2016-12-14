@@ -411,7 +411,7 @@ function notification($params) {
 			$hash = random_string();
 			$r = q("SELECT `id` FROM `notify` WHERE `hash` = '%s' LIMIT 1",
 				dbesc($hash));
-			if(dbm::is_result($r))
+			if (dbm::is_result($r))
 				$dups = true;
 		} while($dups == true);
 

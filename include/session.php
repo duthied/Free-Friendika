@@ -30,7 +30,7 @@ function ref_session_read($id) {
 
 	$r = q("SELECT `data` FROM `session` WHERE `sid`= '%s'", dbesc($id));
 
-	if(dbm::is_result($r)) {
+	if (dbm::is_result($r)) {
 		$session_exists = true;
 		return $r[0]['data'];
 	} else {

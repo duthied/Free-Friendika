@@ -435,7 +435,7 @@ function random_profile() {
 			ORDER BY rand() LIMIT 1",
 		dbesc(NETWORK_DFRN));
 
-	if(dbm::is_result($r))
+	if (dbm::is_result($r))
 		return dirname($r[0]['url']);
 	return '';
 }

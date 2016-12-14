@@ -208,7 +208,7 @@
 				dbesc(trim($user)),
 				dbesc($encrypted)
 			);
-			if(dbm::is_result($r))
+			if (dbm::is_result($r))
 				$record = $r[0];
 		}
 
@@ -2755,7 +2755,7 @@
 			intval(api_user())
 		);
 
-		if(!dbm::is_result($r))
+		if (!dbm::is_result($r))
 			return;
 
 		$ids = array();

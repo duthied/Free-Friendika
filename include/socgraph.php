@@ -40,7 +40,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 			$r = q("select `poco`, `uid` from `contact` where `id` = %d limit 1",
 				intval($cid)
 			);
-			if(dbm::is_result($r)) {
+			if (dbm::is_result($r)) {
 				$url = $r[0]['poco'];
 				$uid = $r[0]['uid'];
 			}
@@ -213,14 +213,14 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	$r = q("SELECT `network` FROM `contact` WHERE `nurl` = '%s' AND `network` != '' AND `network` != '%s' LIMIT 1",
 		dbesc(normalise_link($profile_url)), dbesc(NETWORK_STATUSNET)
 	);
-	if(dbm::is_result($r))
+	if (dbm::is_result($r))
 		$network = $r[0]["network"];
 
 	if (($network == "") OR ($network == NETWORK_OSTATUS)) {
 		$r = q("SELECT `network`, `url` FROM `contact` WHERE `alias` IN ('%s', '%s') AND `network` != '' AND `network` != '%s' LIMIT 1",
 			dbesc($profile_url), dbesc(normalise_link($profile_url)), dbesc(NETWORK_STATUSNET)
 		);
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			$network = $r[0]["network"];
 			//$profile_url = $r[0]["url"];
 		}
@@ -976,7 +976,7 @@ function count_common_friends($uid,$cid) {
 	);
 
 //	logger("count_common_friends: $uid $cid {$r[0]['total']}");
-	if(dbm::is_result($r))
+	if (dbm::is_result($r))
 		return $r[0]['total'];
 	return 0;
 
@@ -1022,7 +1022,7 @@ function count_common_friends_zcid($uid,$zcid) {
 		intval($uid)
 	);
 
-	if(dbm::is_result($r))
+	if (dbm::is_result($r))
 		return $r[0]['total'];
 	return 0;
 
@@ -1061,7 +1061,7 @@ function count_all_friends($uid,$cid) {
 		intval($uid)
 	);
 
-	if(dbm::is_result($r))
+	if (dbm::is_result($r))
 		return $r[0]['total'];
 	return 0;
 
@@ -1207,7 +1207,7 @@ function update_suggestions() {
 		dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA)
 	);
 
-	if(dbm::is_result($r)) {
+	if (dbm::is_result($r)) {
 		foreach($r as $rr) {
 			$base = substr($rr['poco'],0,strrpos($rr['poco'],'/'));
 			if(! in_array($base,$done))

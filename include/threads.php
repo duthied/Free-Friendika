@@ -174,7 +174,7 @@ function add_shadow_entry($itemid) {
 function update_thread_uri($itemuri, $uid) {
 	$messages = q("SELECT `id` FROM `item` WHERE uri ='%s' AND uid=%d", dbesc($itemuri), intval($uid));
 
-	if(dbm::is_result($messages))
+	if (dbm::is_result($messages))
 		foreach ($messages as $message)
 			update_thread($message["id"]);
 }
