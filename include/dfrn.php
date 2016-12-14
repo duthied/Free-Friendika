@@ -1525,7 +1525,7 @@ class dfrn {
 			"to_email"     => $importer["email"],
 			"uid"          => $importer["importer_uid"],
 			"item"         => $suggest,
-			"link"         => $a->get_baseurl()."/notifications/intros",
+			"link"         => App::get_baseurl()."/notifications/intros",
 			"source_name"  => $importer["name"],
 			"source_link"  => $importer["url"],
 			"source_photo" => $importer["photo"],
@@ -1792,8 +1792,6 @@ class dfrn {
 	 * @param int $posted_id The record number of item record that was just posted
 	 */
 	private function do_poke($item, $importer, $posted_id) {
-		$a = get_app();
-
 		$verb = urldecode(substr($item["verb"],strpos($item["verb"], "#")+1));
 		if(!$verb)
 			return;
@@ -1813,7 +1811,7 @@ class dfrn {
 				}
 			}
 
-			if($Blink && link_compare($Blink,$a->get_baseurl()."/profile/".$importer["nickname"])) {
+			if($Blink && link_compare($Blink,App::get_baseurl()."/profile/".$importer["nickname"])) {
 
 				// send a notification
 				notification(array(
@@ -1824,7 +1822,7 @@ class dfrn {
 					"to_email"     => $importer["email"],
 					"uid"          => $importer["importer_uid"],
 					"item"         => $item,
-					"link"         => $a->get_baseurl()."/display/".urlencode(get_item_guid($posted_id)),
+					"link"         => App::get_baseurl()."/display/".urlencode(get_item_guid($posted_id)),
 					"source_name"  => stripslashes($item["author-name"]),
 					"source_link"  => $item["author-link"],
 					"source_photo" => ((link_compare($item["author-link"],$importer["url"]))
