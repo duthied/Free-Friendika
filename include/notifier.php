@@ -424,7 +424,6 @@ function notifier_run(&$argv, &$argc){
 				$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
 			}
 
-			// Send a salmon to the parent author
 			$probed_contact = probe_url($thr_parent[0]['author-link']);
 			if ($probed_contact["notify"] != "") {
 				logger('Notify parent author '.$probed_contact["url"].': '.$probed_contact["notify"]);
