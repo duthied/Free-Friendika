@@ -42,7 +42,7 @@ function was_recently_delayed($cid) {
 		$was_delayed = !dbm::is_result($r);
 	}
 
-	return $was_delayed;;
+	return $was_delayed;
 }
 
 
