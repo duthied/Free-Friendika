@@ -27,7 +27,7 @@ function was_recently_delayed($cid) {
 
 	// Are there queue entries that were recently added?
 	$r = q("SELECT `id` FROM `queue` WHERE `cid` = %d
-		AND `last` > UTC_TIMESTAMP() - INTVAL 15 MINUTE LIMIT 1",
+		AND `last` > UTC_TIMESTAMP() - INTERVAL 15 MINUTE LIMIT 1",
 		intval($cid)
 	);
 
