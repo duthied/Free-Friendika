@@ -1728,8 +1728,6 @@ function update_gcontact_from_probe($url) {
  * @param int $uid User ID
  */
 function update_gcontact_for_user($uid) {
-	$a = get_app();
-
 	$r = q("SELECT `profile`.`locality`, `profile`.`region`, `profile`.`country-name`,
 			`profile`.`name`, `profile`.`about`, `profile`.`gender`,
 			`profile`.`pub_keywords`, `profile`.`dob`, `profile`.`photo`,
@@ -1746,7 +1744,7 @@ function update_gcontact_for_user($uid) {
 
 	// The "addr" field was added in 3.4.3 so it can be empty for older users
 	if ($r[0]["addr"] != "")
-		$addr = $r[0]["nickname"].'@'.str_replace(array("http://", "https://"), "", $a->get_baseurl());
+		$addr = $r[0]["nickname"].'@'.str_replace(array("http://", "https://"), "", App::get_baseurl());
 	else
 		$addr = $r[0]["addr"];
 
@@ -1756,7 +1754,7 @@ function update_gcontact_for_user($uid) {
 			"notify" => $r[0]["notify"], "url" => $r[0]["url"],
 			"hide" => ($r[0]["hidewall"] OR !$r[0]["net-publish"]),
 			"nick" => $r[0]["nickname"], "addr" => $addr,
-			"connect" => $addr, "server_url" => $a->get_baseurl(),
+			"connect" => $addr, "server_url" => App::get_baseurl(),
 			"generation" => 1, "network" => NETWORK_DFRN);
 
 	update_gcontact($gcontact);
