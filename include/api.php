@@ -408,13 +408,13 @@
 		if (is_null($user_info)) $user_info = api_get_user($a);
 		$arr['$user'] = $user_info;
 		$arr['$rss'] = array(
-			'alternate' => $user_info['url'],
-			'self' => $a->get_baseurl(). "/". $a->query_string,
-			'base' => $a->get_baseurl(),
-			'updated' => api_date(null),
+			'alternate'    => $user_info['url'],
+			'self'         => App::get_baseurl(). "/". $a->query_string,
+			'base'         => App::get_baseurl(),
+			'updated'      => api_date(null),
 			'atom_updated' => datetime_convert('UTC','UTC','now',ATOM_TIME),
-			'language' => $user_info['language'],
-			'logo'	=> $a->get_baseurl()."/images/friendica-32.png",
+			'language'     => $user_info['language'],
+			'logo'         => App::get_baseurl()."/images/friendica-32.png",
 		);
 
 		return $arr;
@@ -1777,7 +1777,7 @@
 		$start = $page*$count;
 
 		// Ugly code - should be changed
-		$myurl = $a->get_baseurl() . '/profile/'. $a->user['nickname'];
+		$myurl = App::get_baseurl() . '/profile/'. $a->user['nickname'];
 		$myurl = substr($myurl,strpos($myurl,'://')+3);
 		//$myurl = str_replace(array('www.','.'),array('','\\.'),$myurl);
 		$myurl = str_replace('www.','',$myurl);
