@@ -44,7 +44,7 @@ function proxy_init() {
 	$thumb = false;
 	$size = 1024;
 	$sizetype = "";
-	$basepath = App::get_basepath();
+	$basepath = $a->get_basepath();
 
 	// If the cache path isn't there, try to create it
 	if (!is_dir($basepath."/proxy"))
