@@ -12,6 +12,7 @@ if (!file_exists("boot.php") AND (sizeof($_SERVER["argv"]) != 0)) {
 
 require_once("boot.php");
 require_once("include/photos.php");
+require_once("include/user.php");
 
 
 function cron_run(&$argv, &$argc){
@@ -453,6 +454,16 @@ function cron_repair_diaspora(&$a) {
  *
  */
 function cron_repair_database() {
+
+	// Sometimes there seem to be issues where the "self" contact vanishes.
+	// We haven't found the origin of the problem by now.
+	$r = q("SELECT `uid` FROM `user` WHERE NOT EXISTS (SELECT `uid` FROM `contact` WHERE `contact`.`uid` = `user`.`uid` AND `contact`.`self`)");
+	if (dbm::is_result($r)) {
+		foreach ($r AS $user) {
+			logger('Create missing self contact for user '.$user['uid']);
+			user_create_self_contact($user['uid']);
+		}
+	}
 
 	// Set the parent if it wasn't set. (Shouldn't happen - but does sometimes)
 	// This call is very "cheap" so we can do it at any time without a problem
