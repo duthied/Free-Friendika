@@ -362,14 +362,14 @@ function cron_clear_cache(&$a) {
 	clear_cache();
 
 	// clear cache for photos
-	clear_cache(App::get_basepath(), App::get_basepath()."/photo");
+	clear_cache($a->get_basepath(), $a->get_basepath()."/photo");
 
 	// clear smarty cache
-	clear_cache(App::get_basepath()."/view/smarty3/compiled", App::get_basepath()."/view/smarty3/compiled");
+	clear_cache($a->get_basepath()."/view/smarty3/compiled", $a->get_basepath()."/view/smarty3/compiled");
 
 	// clear cache for image proxy
 	if (!get_config("system", "proxy_disabled")) {
-		clear_cache(App::get_basepath(), App::get_basepath()."/proxy");
+		clear_cache($a->get_basepath(), $a->get_basepath()."/proxy");
 
 		$cachetime = get_config('system','proxy_cache_time');
 		if (!$cachetime) $cachetime = PROXY_DEFAULT_TIME;
