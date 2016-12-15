@@ -431,7 +431,7 @@ function dfrn_request_post(&$a) {
 
 			$hash = random_string();
 
-			$r = q("INSERT INTO intro ( uid, `contact-id`, knowyou, note, hash, datetime, blocked )
+			$r = q("INSERT INTO `intro` ( `uid`, `contact-id`, knowyou, note, hash, datetime, blocked )
 				VALUES( %d , %d, %d, '%s', '%s', '%s', %d ) ",
 				intval($uid),
 				intval($contact_id),
