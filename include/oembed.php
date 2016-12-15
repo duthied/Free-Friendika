@@ -149,8 +149,6 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 }
 
 function oembed_format_object($j){
-	$a = get_app();
-
 	require_once("mod/proxy.php");
 
 	$embedurl = $j->embedurl;
@@ -167,12 +165,12 @@ function oembed_format_object($j){
 				$th=120; $tw = $th*$tr;
 				$tpl=get_markup_template('oembed_video.tpl');
 				$ret.=replace_macros($tpl, array(
-					'$baseurl' => $a->get_baseurl(),
-					'$embedurl'=>$embedurl,
-					'$escapedhtml'=>base64_encode($jhtml),
-					'$tw'=>$tw,
-					'$th'=>$th,
-					'$turl'=>$j->thumbnail_url,
+					'$baseurl'     => App::get_baseurl(),
+					'$embedurl'    => $embedurl,
+					'$escapedhtml' => base64_encode($jhtml),
+					'$tw'          => $tw,
+					'$th'          => $th,
+					'$turl'        => $j->thumbnail_url,
 				));
 
 			} else {
