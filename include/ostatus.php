@@ -1801,10 +1801,8 @@ class ostatus {
 	private function follow_entry($doc, $item, $owner, $toplevel) {
 
 		$item["id"] = $item["parent"] = 0;
-		$item['guid'] = get_guid(32);
-		$item["uri"] = $item['parent-uri'] = $item['thr-parent'] = 'urn:X-dfrn:'.get_app()->get_hostname() . ':follow:'.$item['guid'];
-		$item["created"] = $item["edited"] = datetime_convert('UTC','UTC', 'now', ATOM_TIME);
-		$item["app"] = "activity";
+		$item["created"] = $item["edited"] = date("c");
+		$item["private"] = true;
 
 		$contact = Probe::uri($item['follow']);
 
@@ -1814,17 +1812,35 @@ class ostatus {
 			$item['follow'] = $contact['alias'];
 		}
 
-		if ($item['verb'] == ACTIVITY_FOLLOW) {
-			$message = t('<a href="%s">%s</> is now following <a href="%s">%s</>.');
+		$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s'",
+			intval($owner['uid']), dbesc(normalise_link($contact["url"])));
+
+		if (dbm::is_result($r)) {
+			$connect_id = $r[0]['id'];
 		} else {
-			$message = t('<a href="%s">%s</> stopped following <a href="%s">%s</>.');
+			$connect_id = 0;
 		}
 
-		$item["body"] = sprintf($message, $owner["url"], $owner["nick"], $contact["url"], $contact["nick"]);
+		if ($item['verb'] == ACTIVITY_FOLLOW) {
+			$message = t('%s is now following %s.');
+			$title = t('following');
+			$action = "subscription";
+		} else {
+			$message = t('%s stopped following %s.');
+			$title = t('stopped following');
+			$action = "unfollow";
+		}
 
-		$title = self::entry_header($doc, $entry, $owner, $toplevel);
+		$item["uri"] = $item['parent-uri'] = $item['thr-parent'] =
+				'tag:'.get_app()->get_hostname().
+				','.date('Y-m-d').':'.$action.':'.$owner['uid'].
+				':person:'.$connect_id.':'.$item['created'];
 
-		self::entry_content($doc, $entry, $item, $owner, "");
+		$item["body"] = sprintf($message, $owner["nick"], $contact["nick"]);
+
+		self::entry_header($doc, $entry, $owner, $toplevel);
+
+		self::entry_content($doc, $entry, $item, $owner, $title);
 
 		$object = self::add_person_object($doc, $owner, $contact);
 		$entry->appendChild($object);
@@ -1926,7 +1942,7 @@ class ostatus {
 		xml::add_element($doc, $entry, "link", "", array("rel" => "alternate", "type" => "text/html",
 								"href" => App::get_baseurl()."/display/".$item["guid"]));
 
-		if ($complete)
+		if ($complete AND ($item["id"] > 0))
 			xml::add_element($doc, $entry, "status_net", "", array("notice_id" => $item["id"]));
 
 		xml::add_element($doc, $entry, "activity:verb", $verb);
@@ -1977,12 +1993,9 @@ class ostatus {
 
 		if (intval($item["parent"]) > 0) {
 			$conversation = App::get_baseurl()."/display/".$owner["nick"]."/".$item["parent"];
-		} else {
-			$conversation = "urn:X-dfrn:".App::get_baseurl().":conversation:".$item["guid"];
+			xml::add_element($doc, $entry, "link", "", array("rel" => "ostatus:conversation", "href" => $conversation));
+			xml::add_element($doc, $entry, "ostatus:conversation", $conversation);
 		}
-
-		xml::add_element($doc, $entry, "link", "", array("rel" => "ostatus:conversation", "href" => $conversation));
-		xml::add_element($doc, $entry, "ostatus:conversation", $conversation);
 
 		$tags = item_getfeedtags($item);
 
@@ -1990,10 +2003,6 @@ class ostatus {
 			foreach($tags as $t)
 				if ($t[0] == "@")
 					$mentioned[$t[1]] = $t[1];
-
-		if (isset($item['follow'])) {
-			$mentioned[$item['follow']] = $item['follow'];
-		}
 
 		// Make sure that mentions are accepted (GNU Social has problems with mixing HTTP and HTTPS)
 		$newmentions = array();
@@ -2032,7 +2041,7 @@ class ostatus {
 
 		self::get_attachment($doc, $entry, $item);
 
-		if ($complete) {
+		if ($complete AND ($item["id"] > 0)) {
 			$app = $item["app"];
 			if ($app == "")
 				$app = "web";
