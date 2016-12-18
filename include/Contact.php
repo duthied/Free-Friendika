@@ -152,7 +152,7 @@ function mark_for_death($contact) {
 		/// @todo
 		/// Check for contact vitality via probing
 
-		$expiry = $contact['term-date'] . ' + 10 days ';
+		$expiry = $contact['term-date'] . ' + 32 days ';
 		if(datetime_convert() > datetime_convert('UTC','UTC',$expiry)) {
 
 			// relationship is really truly dead.
