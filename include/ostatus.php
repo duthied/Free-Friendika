@@ -1561,10 +1561,13 @@ class ostatus {
 		if ($xml)
 			return $xml;
 
-		if ($item["verb"] == ACTIVITY_LIKE)
+		if ($item["verb"] == ACTIVITY_LIKE) {
 			return self::like_entry($doc, $item, $owner, $toplevel);
-		else
+		} elseif (in_array($item["verb"], array(ACTIVITY_FOLLOW, NAMESPACE_OSTATUS."/unfollow"))) {
+			return self::follow_entry($doc, $item, $owner, $toplevel);
+		} else {
 			return self::note_entry($doc, $item, $owner, $toplevel);
+		}
 	}
 
 	/**
@@ -1741,6 +1744,97 @@ class ostatus {
 	}
 
 	/**
+	 * @brief Adds the person object element to the XML document
+	 *
+	 * @param object $doc XML document
+	 * @param array $owner Contact data of the poster
+	 * @param array $contact Contact data of the target
+	 *
+	 * @return object author element
+	 */
+	private function add_person_object($doc, $owner, $contact) {
+
+		$object = $doc->createElement("activity:object");
+		xml::add_element($doc, $object, "activity:object-type", ACTIVITY_OBJ_PERSON);
+
+		if ($contact['network'] == NETWORK_PHANTOM) {
+			xml::add_element($doc, $object, "id", $contact['url']);
+			return $object;
+		}
+
+		xml::add_element($doc, $object, "id", $contact["alias"]);
+		xml::add_element($doc, $object, "title", $contact["nick"]);
+
+		$attributes = array("rel" => "alternate", "type" => "text/html", "href" => $contact["url"]);
+		xml::add_element($doc, $object, "link", "", $attributes);
+
+		$attributes = array(
+				"rel" => "avatar",
+				"type" => "image/jpeg", // To-Do?
+				"media:width" => 175,
+				"media:height" => 175,
+				"href" => $contact["photo"]);
+		xml::add_element($doc, $object, "link", "", $attributes);
+
+		xml::add_element($doc, $object, "poco:preferredUsername", $contact["nick"]);
+		xml::add_element($doc, $object, "poco:displayName", $contact["name"]);
+
+		if (trim($contact["location"]) != "") {
+			$element = $doc->createElement("poco:address");
+			xml::add_element($doc, $element, "poco:formatted", $contact["location"]);
+			$object->appendChild($element);
+		}
+
+		return $object;
+	}
+
+	/**
+	 * @brief Adds a follow/unfollow entry element
+	 *
+	 * @param object $doc XML document
+	 * @param array $item Data of the follow/unfollow message
+	 * @param array $owner Contact data of the poster
+	 * @param bool $toplevel Is it for en entry element (false) or a feed entry (true)?
+	 *
+	 * @return object Entry element
+	 */
+	private function follow_entry($doc, $item, $owner, $toplevel) {
+
+		$item["id"] = $item["parent"] = 0;
+		$item['guid'] = get_guid(32);
+		$item["uri"] = $item['parent-uri'] = $item['thr-parent'] = 'urn:X-dfrn:'.get_app()->get_hostname() . ':follow:'.$item['guid'];
+		$item["created"] = $item["edited"] = datetime_convert('UTC','UTC', 'now', ATOM_TIME);
+		$item["app"] = "activity";
+
+		$contact = Probe::uri($item['follow']);
+
+		if ($contact['alias'] == '') {
+			$contact['alias'] = $contact["url"];
+		} else {
+			$item['follow'] = $contact['alias'];
+		}
+
+		if ($item['verb'] == ACTIVITY_FOLLOW) {
+			$message = t('<a href="%s">%s</> is now following <a href="%s">%s</>.');
+		} else {
+			$message = t('<a href="%s">%s</> stopped following <a href="%s">%s</>.');
+		}
+
+		$item["body"] = sprintf($message, $owner["url"], $owner["nick"], $contact["url"], $contact["nick"]);
+
+		$title = self::entry_header($doc, $entry, $owner, $toplevel);
+
+		self::entry_content($doc, $entry, $item, $owner, "");
+
+		$object = self::add_person_object($doc, $owner, $contact);
+		$entry->appendChild($object);
+
+		self::entry_footer($doc, $entry, $item, $owner);
+
+		return $entry;
+	}
+
+	/**
 	 * @brief Adds a regular entry element
 	 *
 	 * @param object $doc XML document
@@ -1881,9 +1975,14 @@ class ostatus {
 			}
 		}
 
-		xml::add_element($doc, $entry, "link", "", array("rel" => "ostatus:conversation",
-							"href" => App::get_baseurl()."/display/".$owner["nick"]."/".$item["parent"]));
-		xml::add_element($doc, $entry, "ostatus:conversation", App::get_baseurl()."/display/".$owner["nick"]."/".$item["parent"]);
+		if (intval($item["parent"]) > 0) {
+			$conversation = App::get_baseurl()."/display/".$owner["nick"]."/".$item["parent"];
+		} else {
+			$conversation = "urn:X-dfrn:".App::get_baseurl().":conversation:".$item["guid"];
+		}
+
+		xml::add_element($doc, $entry, "link", "", array("rel" => "ostatus:conversation", "href" => $conversation));
+		xml::add_element($doc, $entry, "ostatus:conversation", $conversation);
 
 		$tags = item_getfeedtags($item);
 
@@ -1891,6 +1990,10 @@ class ostatus {
 			foreach($tags as $t)
 				if ($t[0] == "@")
 					$mentioned[$t[1]] = $t[1];
+
+		if (isset($item['follow'])) {
+			$mentioned[$item['follow']] = $item['follow'];
+		}
 
 		// Make sure that mentions are accepted (GNU Social has problems with mixing HTTP and HTTPS)
 		$newmentions = array();
