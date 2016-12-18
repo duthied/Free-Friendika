@@ -63,6 +63,10 @@ function get_old_attachment_data($body) {
 				$post["url"] = $matches[1];
 				$post["title"] = $matches[2];
 			}
+			if (($post["url"] == "") AND (in_array($post["type"], array("link", "video")))
+				AND preg_match("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", $attacheddata, $matches)) {
+				$post["url"] = $matches[1];
+			}
 
 			// Search for description
 			if (preg_match("/\[quote\](.*?)\[\/quote\]/ism", $attacheddata, $matches))
