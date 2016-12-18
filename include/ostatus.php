@@ -467,7 +467,7 @@ class ostatus {
 			}
 
 			// Is it a repeated post?
-			if ($repeat_of != "") {
+			if (($repeat_of != "") OR ($item["verb"] == ACTIVITY_SHARE)) {
 				$activityobjects = $xpath->query('activity:object', $entry)->item(0);
 
 				if (is_object($activityobjects)) {
