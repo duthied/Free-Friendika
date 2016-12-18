@@ -93,20 +93,13 @@ function terminate_friendship($user,$self,$contact) {
 
 	if($contact['network'] === NETWORK_OSTATUS) {
 
-		$slap = replace_macros(get_markup_template('follow_slap.tpl'), array(
-			'$name' => $user['username'],
-			'$profile_page' => $a->get_baseurl() . '/profile/' . $user['nickname'],
-			'$photo' => $self['photo'],
-			'$thumb' => $self['thumb'],
-			'$published' => datetime_convert('UTC','UTC', 'now', ATOM_TIME),
-			'$item_id' => 'urn:X-dfrn:' . $a->get_hostname() . ':unfollow:' . get_guid(32),
-			'$title' => '',
-			'$type' => 'text',
-			'$content' => t('stopped following'),
-			'$nick' => $user['nickname'],
-			'$verb' => 'http://ostatus.org/schema/1.0/unfollow', // ACTIVITY_UNFOLLOW,
-			'$ostat_follow' => '' // '<as:verb>http://ostatus.org/schema/1.0/unfollow</as:verb>' . "\r\n"
-		));
+		require_once('include/ostatus.php');
+
+		// create an unfollow slap
+		$item = array();
+		$item['verb'] = NAMESPACE_OSTATUS."/unfollow";
+		$item['follow'] = $contact["url"];
+		$slap = ostatus::salmon($item, $user);
 
 		if((x($contact,'notify')) && (strlen($contact['notify']))) {
 			require_once('include/salmon.php');
@@ -159,7 +152,7 @@ function mark_for_death($contact) {
 		/// @todo
 		/// Check for contact vitality via probing
 
-		$expiry = $contact['term-date'] . ' + 32 days ';
+		$expiry = $contact['term-date'] . ' + 10 days ';
 		if(datetime_convert() > datetime_convert('UTC','UTC',$expiry)) {
 
 			// relationship is really truly dead.

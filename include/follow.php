@@ -2,6 +2,10 @@
 require_once("include/Scrape.php");
 require_once("include/socgraph.php");
 require_once('include/group.php');
+require_once('include/salmon.php');
+require_once('include/ostatus.php');
+require_once("include/Photo.php");
+require_once('include/diaspora.php');
 
 function update_contact($id) {
 	/*
@@ -263,8 +267,6 @@ function new_contact($uid,$url,$interactive = false) {
 	if (intval($def_gid))
 		group_add_member($uid, '', $contact_id, $def_gid);
 
-	require_once("include/Photo.php");
-
 	// Update the avatar
 	update_contact_avatar($ret['photo'],$uid,$contact_id);
 
@@ -272,36 +274,22 @@ function new_contact($uid,$url,$interactive = false) {
 
 	proc_run(PRIORITY_HIGH, "include/onepoll.php", $contact_id, "force");
 
-	// create a follow slap
-
-	$tpl = get_markup_template('follow_slap.tpl');
-	$slap = replace_macros($tpl, array(
-		'$name' => $a->user['username'],
-		'$profile_page' => $a->get_baseurl() . '/profile/' . $a->user['nickname'],
-		'$photo' => $a->contact['photo'],
-		'$thumb' => $a->contact['thumb'],
-		'$published' => datetime_convert('UTC','UTC', 'now', ATOM_TIME),
-		'$item_id' => 'urn:X-dfrn:' . $a->get_hostname() . ':follow:' . get_guid(32),
-		'$title' => '',
-		'$type' => 'text',
-		'$content' => t('following'),
-		'$nick' => $a->user['nickname'],
-		'$verb' => ACTIVITY_FOLLOW,
-		'$ostat_follow' => ''
-	));
-
 	$r = q("SELECT `contact`.*, `user`.* FROM `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid`
-			WHERE `user`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
+			WHERE `user`.`uid` = %d AND `contact`.`self` LIMIT 1",
 			intval($uid)
 	);
 
-	if(count($r)) {
-		if(($contact['network'] == NETWORK_OSTATUS) && (strlen($contact['notify']))) {
-			require_once('include/salmon.php');
-			slapper($r[0],$contact['notify'],$slap);
+	if (dbm::is_result($r)) {
+		if (($contact['network'] == NETWORK_OSTATUS) && (strlen($contact['notify']))) {
+
+			// create a follow slap
+			$item = array();
+			$item['verb'] = ACTIVITY_FOLLOW;
+			$item['follow'] = $contact["url"];
+			$slap = ostatus::salmon($item, $r[0]);
+			slapper($r[0], $contact['notify'], $slap);
 		}
-		if($contact['network'] == NETWORK_DIASPORA) {
-			require_once('include/diaspora.php');
+		if ($contact['network'] == NETWORK_DIASPORA) {
 			$ret = diaspora::send_share($a->user,$contact);
 			logger('share returns: '.$ret);
 		}
