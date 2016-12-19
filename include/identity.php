@@ -232,7 +232,7 @@ function profile_sidebar($profile, $block = 0) {
 		if (isset($profile["url"]))
 			$profile_url = normalise_link($profile["url"]);
 		else
-			$profile_url = normalise_link($a->get_baseurl()."/profile/".$profile["nickname"]);
+			$profile_url = normalise_link(App::get_baseurl()."/profile/".$profile["nickname"]);
 
 		$r = q("SELECT * FROM `contact` WHERE NOT `pending` AND `uid` = %d AND `nurl` = '%s'",
 			local_user(), $profile_url);
@@ -279,7 +279,7 @@ function profile_sidebar($profile, $block = 0) {
 
 	// show edit profile to yourself
 	if ($profile['uid'] == local_user() && feature_enabled(local_user(),'multi_profiles')) {
-		$profile['edit'] = array($a->get_baseurl(). '/profiles', t('Profiles'),"", t('Manage/edit profiles'));
+		$profile['edit'] = array(App::get_baseurl(). '/profiles', t('Profiles'),"", t('Manage/edit profiles'));
 		$r = q("SELECT * FROM `profile` WHERE `uid` = %d",
 				local_user());
 
@@ -308,7 +308,7 @@ function profile_sidebar($profile, $block = 0) {
 		}
 	}
 	if ($profile['uid'] == local_user() && !feature_enabled(local_user(),'multi_profiles')) {
-		$profile['edit'] = array($a->get_baseurl(). '/profiles/'.$profile['id'], t('Edit profile'),"", t('Edit profile'));
+		$profile['edit'] = array(App::get_baseurl(). '/profiles/'.$profile['id'], t('Edit profile'),"", t('Edit profile'));
 		$profile['menu'] = array(
 			'chg_photo' => t('Change profile photo'),
 			'cr_new' => null,
@@ -349,15 +349,15 @@ function profile_sidebar($profile, $block = 0) {
 	if ($profile['guid'] != "")
 		$diaspora = array(
 			'guid' => $profile['guid'],
-			'podloc' => $a->get_baseurl(),
+			'podloc' => App::get_baseurl(),
 			'searchable' => (($profile['publish'] && $profile['net-publish']) ? 'true' : 'false' ),
 			'nickname' => $profile['nickname'],
 			'fullname' => $profile['name'],
 			'firstname' => $firstname,
 			'lastname' => $lastname,
-			'photo300' => $a->get_baseurl() . '/photo/custom/300/' . $profile['uid'] . '.jpg',
-			'photo100' => $a->get_baseurl() . '/photo/custom/100/' . $profile['uid'] . '.jpg',
-			'photo50' => $a->get_baseurl() . '/photo/custom/50/'  . $profile['uid'] . '.jpg',
+			'photo300' => App::get_baseurl() . '/photo/custom/300/' . $profile['uid'] . '.jpg',
+			'photo100' => App::get_baseurl() . '/photo/custom/100/' . $profile['uid'] . '.jpg',
+			'photo50' => App::get_baseurl() . '/photo/custom/50/'  . $profile['uid'] . '.jpg',
 		);
 	else
 		$diaspora = false;
@@ -489,7 +489,7 @@ function get_birthdays() {
 				$url = $rr['url'];
 				if($rr['network'] === NETWORK_DFRN) {
 					$sparkle = " sparkle";
-					$url = $a->get_baseurl() . '/redir/'  . $rr['cid'];
+					$url = App::get_baseurl() . '/redir/'  . $rr['cid'];
 				}
 
 				$rr['link'] = $url;
@@ -503,7 +503,7 @@ function get_birthdays() {
 	}
 	$tpl = get_markup_template("birthdays_reminder.tpl");
 	return replace_macros($tpl, array(
-		'$baseurl' => $a->get_baseurl(),
+		'$baseurl' => App::get_baseurl(),
 		'$classtoday' => $classtoday,
 		'$count' => $total,
 		'$event_reminders' => t('Birthday Reminders'),
@@ -587,7 +587,7 @@ function get_events() {
 
 	$tpl = get_markup_template("events_reminder.tpl");
 	return replace_macros($tpl, array(
-		'$baseurl' => $a->get_baseurl(),
+		'$baseurl' => App::get_baseurl(),
 		'$classtoday' => $classtoday,
 		'$count' => count($r) - $skip,
 		'$event_reminders' => t('Event Reminders'),
@@ -685,7 +685,7 @@ function advanced_profile(&$a) {
 		}
 
 		if ($a->profile['uid'] == local_user())
-			$profile['edit'] = array($a->get_baseurl(). '/profiles/'.$a->profile['id'], t('Edit profile'),"", t('Edit profile'));
+			$profile['edit'] = array(App::get_baseurl(). '/profiles/'.$a->profile['id'], t('Edit profile'),"", t('Edit profile'));
 
 		return replace_macros($tpl, array(
 			'$title' => t('Profile'),
@@ -707,7 +707,7 @@ function profile_tabs($a, $is_owner=False, $nickname=Null){
 	if(x($_GET,'tab'))
 		$tab = notags(trim($_GET['tab']));
 
-	$url = $a->get_baseurl() . '/profile/' . $nickname;
+	$url = App::get_baseurl() . '/profile/' . $nickname;
 
 	$tabs = array(
 		array(
@@ -728,7 +728,7 @@ function profile_tabs($a, $is_owner=False, $nickname=Null){
 		),
 		array(
 			'label' => t('Photos'),
-			'url'	=> $a->get_baseurl() . '/photos/' . $nickname,
+			'url'	=> App::get_baseurl() . '/photos/' . $nickname,
 			'sel'	=> ((!isset($tab)&&$a->argv[0]=='photos')?'active':''),
 			'title' => t('Photo Albums'),
 			'id' => 'photo-tab',
@@ -736,7 +736,7 @@ function profile_tabs($a, $is_owner=False, $nickname=Null){
 		),
 		array(
 			'label' => t('Videos'),
-			'url'	=> $a->get_baseurl() . '/videos/' . $nickname,
+			'url'	=> App::get_baseurl() . '/videos/' . $nickname,
 			'sel'	=> ((!isset($tab)&&$a->argv[0]=='videos')?'active':''),
 			'title' => t('Videos'),
 			'id' => 'video-tab',
@@ -748,7 +748,7 @@ function profile_tabs($a, $is_owner=False, $nickname=Null){
 	if ($is_owner && $a->theme_events_in_profile) {
 			$tabs[] = array(
 				'label' => t('Events'),
-				'url'	=> $a->get_baseurl() . '/events',
+				'url'	=> App::get_baseurl() . '/events',
 				'sel' 	=>((!isset($tab)&&$a->argv[0]=='events')?'active':''),
 				'title' => t('Events and Calendar'),
 				'id' => 'events-tab',
@@ -759,7 +759,7 @@ function profile_tabs($a, $is_owner=False, $nickname=Null){
 	} elseif (! $is_owner) {
 		$tabs[] = array(
 				'label' => t('Events'),
-				'url'	=> $a->get_baseurl() . '/cal/' . $nickname,
+				'url'	=> App::get_baseurl() . '/cal/' . $nickname,
 				'sel' 	=>((!isset($tab)&&$a->argv[0]=='cal')?'active':''),
 				'title' => t('Events and Calendar'),
 				'id' => 'events-tab',
@@ -770,7 +770,7 @@ function profile_tabs($a, $is_owner=False, $nickname=Null){
 	if ($is_owner){
 		$tabs[] = array(
 			'label' => t('Personal Notes'),
-			'url'	=> $a->get_baseurl() . '/notes',
+			'url'	=> App::get_baseurl() . '/notes',
 			'sel' 	=>((!isset($tab)&&$a->argv[0]=='notes')?'active':''),
 			'title' => t('Only You Can See This'),
 			'id' => 'notes-tab',
@@ -781,7 +781,7 @@ function profile_tabs($a, $is_owner=False, $nickname=Null){
 	if ((! $is_owner) && ((count($a->profile)) || (! $a->profile['hide-friends']))) {
 		$tabs[] = array(
 			'label' => t('Contacts'),
-			'url'	=> $a->get_baseurl() . '/viewcontacts/' . $nickname,
+			'url'	=> App::get_baseurl() . '/viewcontacts/' . $nickname,
 			'sel'	=> ((!isset($tab)&&$a->argv[0]=='viewcontacts')?'active':''),
 			'title' => t('Contacts'),
 			'id' => 'viewcontacts-tab',

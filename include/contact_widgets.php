@@ -116,7 +116,6 @@ function networks_widget($baseurl,$selected = '') {
 }
 
 function fileas_widget($baseurl,$selected = '') {
-	$a = get_app();
 	if(! local_user())
 		return '';
 
@@ -235,7 +234,7 @@ function common_friends_visitor_widget($profile_uid) {
 
 	return replace_macros(get_markup_template('remote_friends_common.tpl'), array(
 		'$desc' =>  sprintf( tt("%d contact in common", "%d contacts in common", $t), $t),
-		'$base' => $a->get_baseurl(),
+		'$base' => App::get_baseurl(),
 		'$uid' => $profile_uid,
 		'$cid' => (($cid) ? $cid : '0'),
 		'$linkmore' => (($t > 5) ? 'true' : ''),

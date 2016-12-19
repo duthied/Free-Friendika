@@ -23,7 +23,7 @@ function notification($params) {
 
 	$banner = t('Friendica Notification');
 	$product = FRIENDICA_PLATFORM;
-	$siteurl = $a->get_baseurl(true);
+	$siteurl = App::get_baseurl(true);
 	$thanks = t('Thank You,');
 	$sitename = $a->config['sitename'];
 	if (!x($a->config['admin_name']))
@@ -58,7 +58,7 @@ function notification($params) {
 	$additional_mail_header .= "X-Friendica-Platform: ".FRIENDICA_PLATFORM."\n";
 	$additional_mail_header .= "X-Friendica-Version: ".FRIENDICA_VERSION."\n";
 	$additional_mail_header .= "List-ID: <notification.".$hostname.">\n";
-	$additional_mail_header .= "List-Archive: <".$a->get_baseurl()."/notifications/system>\n";
+	$additional_mail_header .= "List-Archive: <".App::get_baseurl()."/notifications/system>\n";
 
 	if (array_key_exists('item', $params)) {
 		$title = $params['item']['title'];
@@ -494,7 +494,7 @@ function notification($params) {
 		}
 
 
-		$itemlink = $a->get_baseurl().'/notify/view/'.$notify_id;
+		$itemlink = App::get_baseurl().'/notify/view/'.$notify_id;
 		$msg = replace_macros($epreamble, array('$itemlink' => $itemlink));
 		$msg_cache = format_notification_message($datarray['name_cache'], strip_tags(bbcode($msg)));
 		$r = q("UPDATE `notify` SET `msg` = '%s', `msg_cache` = '%s' WHERE `id` = %d AND `uid` = %d",
@@ -648,8 +648,6 @@ function notification($params) {
  * @param str $defaulttype (Optional) Forces a notification with this type.
  */
 function check_item_notification($itemid, $uid, $defaulttype = "") {
-	$a = get_app();
-
 	$notification_data = array("uid" => $uid, "profiles" => array());
 	call_hooks('check_item_notification', $notification_data);
 
@@ -667,7 +665,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$profiles[] = $owner[0]["url"];
 
 	// Notifications from Diaspora are often with an URL in the Diaspora format
-	$profiles[] = $a->get_baseurl()."/u/".$user[0]["nickname"];
+	$profiles[] = App::get_baseurl()."/u/".$user[0]["nickname"];
 
 	$profiles2 = array();
 

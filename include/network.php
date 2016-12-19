@@ -513,8 +513,6 @@ function allowed_email($email) {
 
 function avatar_img($email) {
 
-	$a = get_app();
-
 	$avatar['size'] = 175;
 	$avatar['email'] = $email;
 	$avatar['url'] = '';
@@ -523,7 +521,7 @@ function avatar_img($email) {
 	call_hooks('avatar_lookup', $avatar);
 
 	if(! $avatar['success'])
-		$avatar['url'] = $a->get_baseurl() . '/images/person-175.jpg';
+		$avatar['url'] = App::get_baseurl() . '/images/person-175.jpg';
 
 	logger('Avatar: ' . $avatar['email'] . ' ' . $avatar['url'], LOGGER_DEBUG);
 	return $avatar['url'];
@@ -569,7 +567,7 @@ function scale_external_images($srctext, $include_link = true, $scale_replace = 
 		foreach($matches as $mtch) {
 			logger('scale_external_image: ' . $mtch[1]);
 
-			$hostname = str_replace('www.','',substr($a->get_baseurl(),strpos($a->get_baseurl(),'://')+3));
+			$hostname = str_replace('www.','',substr(App::get_baseurl(),strpos(App::get_baseurl(),'://')+3));
 			if(stristr($mtch[1],$hostname))
 				continue;
 

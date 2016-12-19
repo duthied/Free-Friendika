@@ -255,7 +255,7 @@ function proxy_url($url, $writemode = false, $size = '') {
 
 	// Only continue if it isn't a local image and the isn't deactivated
 	if (proxy_is_local_image($url)) {
-		$url = str_replace(normalise_link($a->get_baseurl()) . '/', $a->get_baseurl() . '/', $url);
+		$url = str_replace(normalise_link(App::get_baseurl()) . '/', App::get_baseurl() . '/', $url);
 		return $url;
 	}
 
@@ -297,7 +297,7 @@ function proxy_url($url, $writemode = false, $size = '') {
 		$longpath .= '.' . $extension;
 	}
 
-	$proxypath = $a->get_baseurl() . '/proxy/' . $longpath;
+	$proxypath = App::get_baseurl() . '/proxy/' . $longpath;
 
 	if ($size != '') {
 		$size = ':' . $size;
@@ -308,7 +308,7 @@ function proxy_url($url, $writemode = false, $size = '') {
 	if ((strlen($proxypath) > 250) AND $writemode) {
 		return $shortpath;
 	} elseif (strlen($proxypath) > 250) {
-		return $a->get_baseurl() . '/proxy/' . $shortpath . '?url=' . urlencode($url);
+		return App::get_baseurl() . '/proxy/' . $shortpath . '?url=' . urlencode($url);
 	} elseif ($writemode) {
 		return $longpath;
 	} else {
@@ -366,7 +366,7 @@ function proxy_img_cb($matches) {
 
 function proxy_parse_html($html) {
 	$a = get_app();
-	$html = str_replace(normalise_link($a->get_baseurl())."/", $a->get_baseurl()."/", $html);
+	$html = str_replace(normalise_link(App::get_baseurl())."/", App::get_baseurl()."/", $html);
 
 	return preg_replace_callback("/(<img [^>]*src *= *[\"'])([^\"']+)([\"'][^>]*>)/siU", "proxy_img_cb", $html);
 }

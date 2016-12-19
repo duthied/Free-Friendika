@@ -20,7 +20,7 @@ function auto_redir(&$a, $contact_nick) {
 		//
 		// We also have to make sure that I'm a legitimate contact--I'm not blocked or pending.
 
-		$baseurl = $a->get_baseurl();
+		$baseurl = App::get_baseurl();
 		$domain_st = strpos($baseurl, "://");
 		if($domain_st === false)
 			return;

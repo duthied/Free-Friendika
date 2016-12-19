@@ -112,7 +112,7 @@ function dfrn_poll_init(&$a) {
 				}
 			}
 			$profile = $r[0]['nickname'];
-			goaway((strlen($destination_url)) ? $destination_url : $a->get_baseurl() . '/profile/' . $profile);
+			goaway((strlen($destination_url)) ? $destination_url : App::get_baseurl() . '/profile/' . $profile);
 		}
 		goaway(z_root());
 
@@ -499,14 +499,14 @@ function dfrn_poll_content(&$a) {
 
 			switch($destination_url) {
 				case 'profile':
-					$dest = $a->get_baseurl() . '/profile/' . $profile . '?f=&tab=profile';
+					$dest = App::get_baseurl() . '/profile/' . $profile . '?f=&tab=profile';
 					break;
 				case 'photos':
-					$dest = $a->get_baseurl() . '/photos/' . $profile;
+					$dest = App::get_baseurl() . '/photos/' . $profile;
 					break;
 				case 'status':
 				case '':
-					$dest = $a->get_baseurl() . '/profile/' . $profile;
+					$dest = App::get_baseurl() . '/profile/' . $profile;
 					break;
 				default:
 					$dest = $destination_url . '?f=&redir=1';

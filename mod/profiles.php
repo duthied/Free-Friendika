@@ -629,11 +629,11 @@ function profiles_content(&$a) {
 			$editselect = 'textareas';
 
 		$a->page['htmlhead'] .= replace_macros(get_markup_template('profed_head.tpl'), array(
-			'$baseurl' => $a->get_baseurl(true),
+			'$baseurl' => App::get_baseurl(true),
 			'$editselect' => $editselect,
 		));
 		$a->page['end'] .= replace_macros(get_markup_template('profed_end.tpl'), array(
-			'$baseurl' => $a->get_baseurl(true),
+			'$baseurl' => App::get_baseurl(true),
 			'$editselect' => $editselect,
 		));
 
@@ -711,7 +711,7 @@ function profiles_content(&$a) {
 			'$lbl_ex2' => t('Example: fishing photography software'),
 
 			'$disabled' => (($is_default) ? 'onclick="return false;" style="color: #BBBBFF;"' : ''),
-			'$baseurl' => $a->get_baseurl(true),
+			'$baseurl' => App::get_baseurl(true),
 			'$profile_id' => $r[0]['id'],
 			'$profile_name' => array('profile_name', t('Profile Name:'), $r[0]['profile-name'], t('Required'), '*'),
 			'$is_default'   => $is_default,

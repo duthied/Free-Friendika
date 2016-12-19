@@ -15,7 +15,7 @@ function install_init(&$a){
 	// We overwrite current theme css, because during install we could not have a working mod_rewrite
 	// so we could not have a css at all. Here we set a static css file for the install procedure pages
 	$a->config['system']['theme'] = "../install";
-	$a->theme['stylesheet'] = $a->get_baseurl()."/view/install/style.css";
+	$a->theme['stylesheet'] = App::get_baseurl()."/view/install/style.css";
 	
 	
 	
@@ -231,7 +231,7 @@ function install_content(&$a) {
 				'$next' => t('Next'),
 				'$reload' => t('Check again'),
 				'$phpath' => $phpath,
-				'$baseurl' => $a->get_baseurl(),
+				'$baseurl' => App::get_baseurl(),
 			));
 			return $o;
 		}; break;
@@ -265,7 +265,7 @@ function install_content(&$a) {
 
 				'$lbl_10' => t('Please select a default timezone for your website'),
 
-				'$baseurl' => $a->get_baseurl(),
+				'$baseurl' => App::get_baseurl(),
 
 				'$phpath' => $phpath,
 
@@ -305,7 +305,7 @@ function install_content(&$a) {
 
 				'$timezone' => field_timezone('timezone', t('Please select a default timezone for your website'), $timezone, ''),
 				'$language' => array('language', t('System Language:'), 'en', t('Set the default language for your Friendica installation interface and to send emails.'), $lang_choices),
-				'$baseurl' => $a->get_baseurl(),
+				'$baseurl' => App::get_baseurl(),
 
 
 
@@ -518,14 +518,13 @@ function check_smarty3(&$checks) {
 }
 
 function check_htaccess(&$checks) {
-	$a = get_app();
 	$status = true;
 	$help = "";
 	if (function_exists('curl_init')){
-		$test = fetch_url($a->get_baseurl()."/install/testrewrite");
+		$test = fetch_url(App::get_baseurl()."/install/testrewrite");
 
 		if ($test!="ok")
-			$test = fetch_url(normalise_link($a->get_baseurl()."/install/testrewrite"));
+			$test = fetch_url(normalise_link(App::get_baseurl()."/install/testrewrite"));
 
 		if ($test!="ok") {
 			$status = false;
@@ -599,8 +598,7 @@ function load_database($db) {
 }
 
 function what_next() {
-	$a = get_app();
-	$baseurl = $a->get_baseurl();
+	$baseurl = App::get_baseurl();
 	return
 		t('<h1>What next</h1>')
 		."<p>".t('IMPORTANT: You will need to [manually] setup a scheduled task for the poller.')

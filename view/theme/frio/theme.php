@@ -21,7 +21,7 @@ function frio_init(&$a) {
 
 	set_template_engine($a, 'smarty3');
 
-	$baseurl = $a->get_baseurl();
+	$baseurl = App::get_baseurl();
 
 	$style = get_pconfig(local_user(), 'frio', 'style');
 

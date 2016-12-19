@@ -29,11 +29,11 @@ function group_post(&$a) {
 			info( t('Group created.') . EOL );
 			$r = group_byname(local_user(),$name);
 			if($r)
-				goaway($a->get_baseurl() . '/group/' . $r);
+				goaway(App::get_baseurl() . '/group/' . $r);
 		}
 		else
 			notice( t('Could not create group.') . EOL );
-		goaway($a->get_baseurl() . '/group');
+		goaway(App::get_baseurl() . '/group');
 		return; // NOTREACHED
 	}
 	if(($a->argc == 2) && (intval($a->argv[1]))) {
@@ -45,7 +45,7 @@ function group_post(&$a) {
 		);
 		if(! dbm::is_result($r)) {
 			notice( t('Group not found.') . EOL );
-			goaway($a->get_baseurl() . '/contacts');
+			goaway(App::get_baseurl() . '/contacts');
 			return; // NOTREACHED
 		}
 		$group = $r[0];
@@ -114,7 +114,7 @@ function group_content(&$a) {
 			else
 				notice( t('Unable to remove group.') . EOL);
 		}
-		goaway($a->get_baseurl() . '/group');
+		goaway(App::get_baseurl() . '/group');
 		// NOTREACHED
 	}
 
@@ -138,7 +138,7 @@ function group_content(&$a) {
 		);
 		if(! dbm::is_result($r)) {
 			notice( t('Group not found.') . EOL );
-			goaway($a->get_baseurl() . '/contacts');
+			goaway(App::get_baseurl() . '/contacts');
 		}
 		$group = $r[0];
 		$members = group_get_members($group['id']);

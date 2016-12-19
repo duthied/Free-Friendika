@@ -34,7 +34,7 @@ function noscrape_init(&$a) {
 		'addr' => $a->profile['addr'],
 		'nick' => $which,
 		'key' => $a->profile['pubkey'],
-		'homepage' => $a->get_baseurl()."/profile/{$which}",
+		'homepage' => App::get_baseurl()."/profile/{$which}",
 		'comm' => (x($a->profile,'page-flags')) && ($a->profile['page-flags'] == PAGE_COMMUNITY),
 		'photo' => $r[0]["photo"],
 		'tags' => $keywords
@@ -64,7 +64,7 @@ function noscrape_init(&$a) {
 
 	$dfrn_pages = array('request', 'confirm', 'notify', 'poll');
 	foreach($dfrn_pages as $dfrn)
-		$json_info["dfrn-{$dfrn}"] = $a->get_baseurl()."/dfrn_{$dfrn}/{$which}";
+		$json_info["dfrn-{$dfrn}"] = App::get_baseurl()."/dfrn_{$dfrn}/{$which}";
 
 	//Output all the JSON!
 	header('Content-type: application/json; charset=utf-8');

@@ -194,7 +194,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			$params['public_key'] = $public_key;
 
 
-			$my_url = $a->get_baseurl() . '/profile/' . $user[0]['nickname'];
+			$my_url = App::get_baseurl() . '/profile/' . $user[0]['nickname'];
 
 			openssl_public_encrypt($my_url, $params['source_url'], $site_pubkey);
 			$params['source_url'] = bin2hex($params['source_url']);
@@ -504,7 +504,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		// do anything special with this new friend.
 
 		if($handsfree === null)
-			goaway($a->get_baseurl() . '/contacts/' . intval($contact_id));
+			goaway(App::get_baseurl() . '/contacts/' . intval($contact_id));
 		else
 			return;
 		//NOTREACHED
@@ -664,7 +664,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		if (dbm::is_result($r))
 			$photo = $r[0]['photo'];
 		else
-			$photo = $a->get_baseurl() . '/images/person-175.jpg';
+			$photo = App::get_baseurl() . '/images/person-175.jpg';
 
 		require_once("include/Photo.php");
 
@@ -726,7 +726,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				'to_name'      => $r[0]['username'],
 				'to_email'     => $r[0]['email'],
 				'uid'          => $r[0]['uid'],
-				'link'		   => $a->get_baseurl() . '/contacts/' . $dfrn_record,
+				'link'		   => App::get_baseurl() . '/contacts/' . $dfrn_record,
 				'source_name'  => ((strlen(stripslashes($r[0]['name']))) ? stripslashes($r[0]['name']) : t('[Name Withheld]')),
 				'source_link'  => $r[0]['url'],
 				'source_photo' => $r[0]['photo'],

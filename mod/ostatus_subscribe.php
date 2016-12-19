@@ -45,7 +45,7 @@ function ostatus_subscribe_content(&$a) {
 	$total = sizeof($friends);
 
 	if ($counter >= $total) {
-		$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL='.$a->get_baseurl().'/settings/connectors">';
+		$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL='.App::get_baseurl().'/settings/connectors">';
 		del_pconfig($uid, "ostatus", "legacy_friends");
 		del_pconfig($uid, "ostatus", "legacy_contact");
 		$o .= t("Done");
@@ -72,7 +72,7 @@ function ostatus_subscribe_content(&$a) {
 
 	$o .= "<p>".t("Keep this window open until done.")."</p>";
 
-	$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL='.$a->get_baseurl().'/ostatus_subscribe?counter='.$counter.'">';
+	$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL='.App::get_baseurl().'/ostatus_subscribe?counter='.$counter.'">';
 
 	return $o;
 }

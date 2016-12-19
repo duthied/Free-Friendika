@@ -60,7 +60,7 @@ function allfriends_content(&$a) {
 			$photo_menu = contact_photo_menu ($rr);
 		}
 		else {
-			$connlnk = $a->get_baseurl() . '/follow/?url=' . $rr['url'];
+			$connlnk = App::get_baseurl() . '/follow/?url=' . $rr['url'];
 			$photo_menu = array(
 				'profile' => array(t("View Profile"), zrl($rr['url'])),
 				'follow' => array(t("Connect/Follow"), $connlnk)

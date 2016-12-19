@@ -84,7 +84,7 @@ function manage_post(&$a) {
 	$ret = array();
 	call_hooks('home_init',$ret);
 
-	goaway( $a->get_baseurl() . "/profile/" . $a->user['nickname'] );
+	goaway( App::get_baseurl() . "/profile/" . $a->user['nickname'] );
 	// NOTREACHED
 }
 

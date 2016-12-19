@@ -649,7 +649,7 @@ function notifier_run(&$argv, &$argc){
 
 				} else {
 
-					$params = 'hub.mode=publish&hub.url=' . urlencode( $a->get_baseurl() . '/dfrn_poll/' . $owner['nickname'] );
+					$params = 'hub.mode=publish&hub.url=' . urlencode( App::get_baseurl() . '/dfrn_poll/' . $owner['nickname'] );
 					post_url($h,$params);
 					logger('publish for item '.$item_id.' ' . $h . ' ' . $params . ' returned ' . $a->get_curl_code());
 				}

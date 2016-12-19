@@ -408,7 +408,7 @@ function event_store($arr) {
 			intval($arr['uid'])
 		);
 		//if (dbm::is_result($r))
-		//	$plink = $a->get_baseurl() . '/display/' . $r[0]['nickname'] . '/' . $item_id;
+		//	$plink = App::get_baseurl() . '/display/' . $r[0]['nickname'] . '/' . $item_id;
 
 
 		if($item_id) {

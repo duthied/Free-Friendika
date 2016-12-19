@@ -117,7 +117,7 @@ function content_content(&$a, $update = 0) {
 			if($update)
 				killme();
 			notice( t('No such group') . EOL );
-			goaway($a->get_baseurl(true) . '/network');
+			goaway(App::get_baseurl(true) . '/network');
 			// NOTREACHED
 		}
 
@@ -509,8 +509,8 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 					'like' => '',
 					'dislike' => '',
 					'comment' => '',
-					//'conv' => (($preview) ? '' : array('href'=> $a->get_baseurl($ssl_state) . '/display/' . $nickname . '/' . $item['id'], 'title'=> t('View in context'))),
-					'conv' => (($preview) ? '' : array('href'=> $a->get_baseurl($ssl_state).'/display/'.$item['guid'], 'title'=> t('View in context'))),
+					//'conv' => (($preview) ? '' : array('href'=> App::get_baseurl($ssl_state) . '/display/' . $nickname . '/' . $item['id'], 'title'=> t('View in context'))),
+					'conv' => (($preview) ? '' : array('href'=> App::get_baseurl($ssl_state).'/display/'.$item['guid'], 'title'=> t('View in context'))),
 					'previewing' => $previewing,
 					'wait' => t('Please wait'),
 				);
@@ -743,7 +743,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 				}
 
 				if(local_user() && link_compare($a->contact['url'],$item['author-link']))
-					$edpost = array($a->get_baseurl($ssl_state)."/editpost/".$item['id'], t("Edit"));
+					$edpost = array(App::get_baseurl($ssl_state)."/editpost/".$item['id'], t("Edit"));
 				else
 					$edpost = false;
 

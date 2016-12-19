@@ -118,7 +118,7 @@ function poke_init(&$a) {
 	$arr['origin']        = 1;
 	$arr['body']          = '[url=' . $poster['url'] . ']' . $poster['name'] . '[/url]' . ' ' . t($verbs[$verb][0]) . ' ' . '[url=' . $target['url'] . ']' . $target['name'] . '[/url]';
 
-	$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $target['name'] . '</title><id>' . $a->get_baseurl() . '/contact/' . $target['id'] . '</id>';
+	$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $target['name'] . '</title><id>' . App::get_baseurl() . '/contact/' . $target['id'] . '</id>';
 	$arr['object'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . $target['url'] . '" />' . "\n");
 
 	$arr['object'] .= xmlify('<link rel="photo" type="image/jpeg" href="' . $target['photo'] . '" />' . "\n");
@@ -127,7 +127,7 @@ function poke_init(&$a) {
 	$item_id = item_store($arr);
 	if($item_id) {
 		//q("UPDATE `item` SET `plink` = '%s' WHERE `uid` = %d AND `id` = %d",
-		//	dbesc($a->get_baseurl() . '/display/' . $poster['nickname'] . '/' . $item_id),
+		//	dbesc(App::get_baseurl() . '/display/' . $poster['nickname'] . '/' . $item_id),
 		//	intval($uid),
 		//	intval($item_id)
 		//);
@@ -166,11 +166,11 @@ function poke_content(&$a) {
 	}
 
 
-	$base = $a->get_baseurl();
+	$base = App::get_baseurl();
 
 	$head_tpl = get_markup_template('poke_head.tpl');
 	$a->page['htmlhead'] .= replace_macros($head_tpl,array(
-		'$baseurl' => $a->get_baseurl(true),
+		'$baseurl' => App::get_baseurl(true),
 		'$base' => $base
 	));
 

@@ -138,7 +138,7 @@ function vier_community_info() {
 	$show_lastusers  = get_vier_config("show_lastusers", 1);
 
 	//get_baseurl
-	$url = $a->get_baseurl($ssl_state);
+	$url = App::get_baseurl($ssl_state);
 	$aside['$url'] = $url;
 
 	// comunity_profiles

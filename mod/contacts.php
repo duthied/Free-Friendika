@@ -78,13 +78,13 @@ function contacts_init(&$a) {
 	$base = z_root();
 	$tpl = get_markup_template("contacts-head.tpl");
 	$a->page['htmlhead'] .= replace_macros($tpl,array(
-		'$baseurl' => $a->get_baseurl(true),
+		'$baseurl' => App::get_baseurl(true),
 		'$base' => $base
 	));
 
 	$tpl = get_markup_template("contacts-end.tpl");
 	$a->page['end'] .= replace_macros($tpl,array(
-		'$baseurl' => $a->get_baseurl(true),
+		'$baseurl' => App::get_baseurl(true),
 		'$base' => $base
 	));
 
@@ -480,11 +480,11 @@ function contacts_content(&$a) {
 			$editselect = 'exact';
 
 		$a->page['htmlhead'] .= replace_macros(get_markup_template('contact_head.tpl'), array(
-			'$baseurl' => $a->get_baseurl(true),
+			'$baseurl' => App::get_baseurl(true),
 			'$editselect' => $editselect,
 		));
 		$a->page['end'] .= replace_macros(get_markup_template('contact_end.tpl'), array(
-			'$baseurl' => $a->get_baseurl(true),
+			'$baseurl' => App::get_baseurl(true),
 			'$editselect' => $editselect,
 		));
 
@@ -564,7 +564,7 @@ function contacts_content(&$a) {
 
 		if (in_array($contact['network'], array(NETWORK_DIASPORA, NETWORK_OSTATUS)) AND
 			($contact['rel'] == CONTACT_IS_FOLLOWER))
-			$follow = $a->get_baseurl(true)."/follow?url=".urlencode($contact["url"]);
+			$follow = App::get_baseurl(true)."/follow?url=".urlencode($contact["url"]);
 
 		// Load contactact related actions like hide, suggest, delete and others
 		$contact_actions = contact_actions($contact);

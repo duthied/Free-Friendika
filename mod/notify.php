@@ -18,13 +18,13 @@ function notify_init(&$a) {
 				$guid = basename($urldata["path"]);
 				$itemdata = get_item_id($guid, local_user());
 				if ($itemdata["id"] != 0)
-					$note['link'] = $a->get_baseurl().'/display/'.$itemdata["nick"].'/'.$itemdata["id"];
+					$note['link'] = App::get_baseurl().'/display/'.$itemdata["nick"].'/'.$itemdata["id"];
 			}
 
 			goaway($note['link']);
 		}
 
-		goaway($a->get_baseurl(true));
+		goaway(App::get_baseurl(true));
 	}
 
 	if($a->argc > 2 && $a->argv[1] === 'mark' && $a->argv[2] === 'all' ) {
@@ -50,7 +50,7 @@ function notify_content(&$a) {
 	if (dbm::is_result($r) > 0) {
 		foreach ($r as $it) {
 			$notif_content .= replace_macros($not_tpl,array(
-				'$item_link' => $a->get_baseurl(true).'/notify/view/'. $it['id'],
+				'$item_link' => App::get_baseurl(true).'/notify/view/'. $it['id'],
 				'$item_image' => $it['photo'],
 				'$item_text' => strip_tags(bbcode($it['msg'])),
 				'$item_when' => relative_date($it['date'])

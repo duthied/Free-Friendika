@@ -177,7 +177,7 @@ function ping_init(App $a)
 		$intro_count = count($intros1) + count($intros2);
 		$intros = $intros1 + $intros2;
 
-		$myurl = $a->get_baseurl() . '/profile/' . $a->user['nickname'] ;
+		$myurl = App::get_baseurl() . '/profile/' . $a->user['nickname'] ;
 		$mails = qu("SELECT `id`, `from-name`, `from-url`, `from-photo`, `created` FROM `mail`
 			WHERE `uid` = %d AND `seen` = 0 AND `from-url` != '%s' ",
 			intval(local_user()),
@@ -253,7 +253,7 @@ function ping_init(App $a)
 		if (dbm::is_result($intros)) {
 			foreach ($intros as $intro) {
 				$notif = array(
-					'href'    => $a->get_baseurl() . '/notifications/intros/' . $intro['id'],
+					'href'    => App::get_baseurl() . '/notifications/intros/' . $intro['id'],
 					'name'    => $intro['name'],
 					'url'     => $intro['url'],
 					'photo'   => $intro['photo'],
@@ -268,7 +268,7 @@ function ping_init(App $a)
 		if (dbm::is_result($mails)) {
 			foreach ($mails as $mail) {
 				$notif = array(
-					'href'    => $a->get_baseurl() . '/message/' . $mail['id'],
+					'href'    => App::get_baseurl() . '/message/' . $mail['id'],
 					'name'    => $mail['from-name'],
 					'url'     => $mail['from-url'],
 					'photo'   => $mail['from-photo'],
@@ -283,7 +283,7 @@ function ping_init(App $a)
 		if (dbm::is_result($regs)) {
 			foreach ($regs as $reg) {
 				$notif = array(
-					'href'    => $a->get_baseurl() . '/admin/users/',
+					'href'    => App::get_baseurl() . '/admin/users/',
 					'name'    => $reg['name'],
 					'url'     => $reg['url'],
 					'photo'   => $reg['micro'],
@@ -450,7 +450,7 @@ function ping_get_notifications($uid)
 				);
 			}
 
-			$notification["href"] = $a->get_baseurl() . "/notify/view/" . $notification["id"];
+			$notification["href"] = App::get_baseurl() . "/notify/view/" . $notification["id"];
 
 			if ($notification["visible"] AND !$notification["spam"] AND
 				!$notification["deleted"] AND !is_array($result[$notification["parent"]])) {
