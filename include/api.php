@@ -3590,7 +3590,7 @@
 			intval($gid),
 			dbesc($name));
 		// error message if specified gid is not in database
-		if (count($rname) == 0)
+		if (!dbm::is_result($rname))
 			throw new BadRequestException('wrong group name');
 
 		// delete group
@@ -3629,7 +3629,7 @@
 			intval($uid),
 			dbesc($name));
 		// error message if specified group name already exists
-		if (count($rname) != 0)
+		if (dbm::is_result($rname))
 			throw new BadRequestException('group name already exists');
 
 		// check if specified group name is a deleted group
@@ -3637,7 +3637,7 @@
 			intval($uid),
 			dbesc($name));
 		// error message if specified group name already exists
-		if (count($rname) != 0)
+		if (dbm::is_result($rname))
 			$reactivate_group = true;
 
 		// create group

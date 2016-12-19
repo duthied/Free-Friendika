@@ -264,7 +264,7 @@ function cron_poll_contacts($argc, $argv) {
 			intval($c['id'])
 		);
 
-		if((! $res) || (! count($res)))
+		if (dbm::is_result($res))
 			continue;
 
 		foreach($res as $contact) {

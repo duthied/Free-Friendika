@@ -92,7 +92,7 @@ function profiles_init(&$a) {
 			intval(local_user()),
 			intval($a->argv[2])
 		);
-		if(! count($r1)) {
+		if(! dbm::is_result($r1)) {
 			notice( t('Profile unavailable to clone.') . EOL);
 			killme();
 			return;
@@ -116,7 +116,7 @@ function profiles_init(&$a) {
 			dbesc($name)
 		);
 		info( t('New profile created.') . EOL);
-		if(count($r3) == 1)
+		if ((dbm::is_result($r3)) && (count($r3) == 1))
 			goaway('profiles/'.$r3[0]['id']);
 
 		goaway('profiles');

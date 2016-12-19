@@ -956,8 +956,8 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	// in it.
 	if (!$deleted AND !$dontcache) {
 
-		$r = q('SELECT * FROM `item` WHERE id = %d', intval($current_post));
-		if (count($r) == 1) {
+		$r = q('SELECT * FROM `item` WHERE `id` = %d', intval($current_post));
+		if ((dbm::is_result($r)) && (count($r) == 1)) {
 			if ($notify)
 				call_hooks('post_local_end', $r[0]);
 			else
@@ -2230,7 +2230,7 @@ function posted_date_widget($url,$uid,$wall) {
 
 	$ret = list_post_dates($uid,$wall);
 
-	if (! count($ret))
+	if (! dbm::is_result($ret))
 		return $o;
 
 	$cutoff_year = intval(datetime_convert('',date_default_timezone_get(),'now','Y')) - $visible_years;
