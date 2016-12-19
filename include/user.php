@@ -130,7 +130,7 @@ function create_user($arr) {
 		$r = q("SELECT * FROM `user` WHERE `email` = '%s' LIMIT 1",
 			dbesc($email)
 		);
-		if(count($r))
+		if (dbm::is_result($r))
 			$result['message'] .= t('Cannot use that email.') . EOL;
 	}
 
@@ -143,7 +143,7 @@ function create_user($arr) {
 		WHERE `nickname` = '%s' LIMIT 1",
 		dbesc($nickname)
 	);
-	if(count($r))
+	if (dbm::is_result($r))
 		$result['message'] .= t('Nickname is already registered. Please choose another.') . EOL;
 
 	// Check deleted accounts that had this nickname. Doesn't matter to us,
@@ -153,7 +153,7 @@ function create_user($arr) {
 		WHERE `username` = '%s' LIMIT 1",
 		dbesc($nickname)
 	);
-	if(count($r))
+	if (dbm::is_result($r))
 		$result['message'] .= t('Nickname was once registered here and may not be re-used. Please choose another.') . EOL;
 
 	if(strlen($result['message'])) {
@@ -222,7 +222,7 @@ function create_user($arr) {
 			dbesc($username),
 			dbesc($new_password_encoded)
 		);
-		if($r !== false && count($r)) {
+		if (dbm::is_result($r)) {
 			$u = $r[0];
 			$newuid = intval($r[0]['uid']);
 		}
@@ -283,7 +283,7 @@ function create_user($arr) {
 			intval($newuid),
 			dbesc(t('Friends'))
 		);
-		if($r && count($r)) {
+		if (dbm::is_result($r)) {
 			$def_gid = $r[0]['id'];
 
 			q("UPDATE `user` SET `def_gid` = %d WHERE `uid` = %d",

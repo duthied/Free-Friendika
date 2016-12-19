@@ -36,7 +36,7 @@ function auto_redir(&$a, $contact_nick) {
                dbesc($nurl)
 		);
 
-		if((!$r) || (! count($r)) || $r[0]['id'] == remote_user())
+		if((! dbm::is_result($r)) || $r[0]['id'] == remote_user())
 			return;
 
 
@@ -48,7 +48,7 @@ function auto_redir(&$a, $contact_nick) {
 		       dbesc($baseurl)
 		);
 
-		if(! ($r && count($r)))
+		if(! dbm::is_result($r))
 			return;
 
 		$cid = $r[0]['id'];

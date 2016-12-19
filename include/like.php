@@ -57,7 +57,7 @@ function do_like($item_id, $verb) {
 		dbesc($item_id)
 	);
 
-	if(! $item_id || (! count($r))) {
+	if(! $item_id || (! dbm::is_result($r))) {
 		logger('like: no item ' . $item_id);
 		return false;
 	}
@@ -78,7 +78,7 @@ function do_like($item_id, $verb) {
 			intval($item['contact-id']),
 			intval($item['uid'])
 		);
-		if(! count($r))
+		if(! dbm::is_result($r))
 			return false;
 		if(! $r[0]['self'])
 			$remote_owner = $r[0];
@@ -90,7 +90,7 @@ function do_like($item_id, $verb) {
 		WHERE `contact`.`self` = 1 AND `contact`.`uid` = %d LIMIT 1",
 		intval($owner_uid)
 	);
-	if(count($r))
+	if (dbm::is_result($r))
 		$owner = $r[0];
 
 	if(! $owner) {
@@ -112,7 +112,7 @@ function do_like($item_id, $verb) {
 			intval($_SESSION['visitor_id']),
 			intval($owner_uid)
 		);
-		if(count($r))
+		if (dbm::is_result($r))
 			$contact = $r[0];
 	}
 	if(! $contact) {
@@ -135,7 +135,7 @@ function do_like($item_id, $verb) {
 		dbesc($item_id), dbesc($item_id), dbesc($item['uri'])
 	);
 
-	if(count($r)) {
+	if (dbm::is_result($r)) {
 		$like_item = $r[0];
 
 		// Already voted, undo it

@@ -14,7 +14,7 @@ function crepair_init(&$a) {
 			intval(local_user()),
 			intval($contact_id)
 		);
-		if(! count($r)) {
+		if(! dbm::is_result($r)) {
 			$contact_id = 0;
 		}
 	}
@@ -43,7 +43,7 @@ function crepair_post(&$a) {
 		);
 	}
 
-	if(! count($r))
+	if(! dbm::is_result($r))
 		return;
 
 	$contact = $r[0];
@@ -110,7 +110,7 @@ function crepair_content(&$a) {
 		);
 	}
 
-	if(! count($r)) {
+	if(! dbm::is_result($r)) {
 		notice( t('Contact not found.') . EOL);
 		return;
 	}

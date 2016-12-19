@@ -146,7 +146,7 @@ class exAuth {
 	 * @param array $aCommand The command array
 	 */
 	private function isuser($aCommand) {
-		global $a;
+		$a = get_app();
 
 		// Check if there is a username
 		if (!isset($aCommand[1])) {
@@ -214,7 +214,7 @@ class exAuth {
 	 * @param array $aCommand The command array
 	 */
 	private function auth($aCommand) {
-		global $a;
+		$a = get_app();
 
 		// check user authentication
 		if (sizeof($aCommand) != 4) {

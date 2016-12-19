@@ -19,7 +19,7 @@ function tagrm_post(&$a) {
 		intval(local_user())
 	);
 
-	if(! count($r))
+	if(! dbm::is_result($r))
 		goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
 
 	$arr = explode(',', $r[0]['tag']);
@@ -68,7 +68,7 @@ function tagrm_content(&$a) {
 		intval(local_user())
 	);
 
-	if(! count($r))
+	if(! dbm::is_result($r))
 		goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
 
 	$arr = explode(',', $r[0]['tag']);

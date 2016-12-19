@@ -43,7 +43,7 @@ function cron_run(&$argv, &$argc){
 
 	// Don't check this stuff if the function is called by the poller
 	if (App::callstack() != "poller_run") {
-		if (App::maxload_reached())
+		if ($a->maxload_reached())
 			return;
 		if (App::is_already_running('cron', 'include/cron.php', 540))
 			return;
@@ -434,7 +434,7 @@ function cron_repair_diaspora(&$a) {
 	$r = q("SELECT `id`, `url` FROM `contact`
 		WHERE `network` = '%s' AND (`batch` = '' OR `notify` = '' OR `poll` = '' OR pubkey = '')
 			ORDER BY RAND() LIMIT 50", dbesc(NETWORK_DIASPORA));
-	if ($r) {
+	if (dbm::is_result($r)) {
 		foreach ($r AS $contact) {
 			if (poco_reachable($contact["url"])) {
 				$data = probe_url($contact["url"]);
@@ -474,7 +474,7 @@ function cron_repair_database() {
 
 	// Update the global contacts for local users
 	$r = q("SELECT `uid` FROM `user` WHERE `verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired`");
-	if ($r)
+	if (dbm::is_result($r))
 		foreach ($r AS $user)
 			update_gcontact_for_user($user["uid"]);
 

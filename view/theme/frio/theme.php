@@ -221,7 +221,7 @@ function frio_remote_nav($a,&$nav) {
 		// user info
 		$r = q("SELECT `micro` FROM `contact` WHERE `uid` = %d AND `self` = 1", intval($a->user['uid']));
 		
-		$r[0]['photo'] = (count($r) ? $a->remove_baseurl($r[0]['micro']) : "images/person-48.jpg");
+		$r[0]['photo'] = (dbm::is_result($r) ? $a->remove_baseurl($r[0]['micro']) : "images/person-48.jpg");
 		$r[0]['name'] = $a->user['username'];
 
 	} elseif(!local_user() && remote_user()) {
@@ -235,9 +235,9 @@ function frio_remote_nav($a,&$nav) {
 		$nav['remote'] = t("Visitor");
 	}
 
-	if(count($r)){
+	if (dbm::is_result($r)){
 			$nav['userinfo'] = array(
-				'icon' => (count($r) ? $r[0]['photo'] : "images/person-48.jpg"),
+				'icon' => (dbm::is_result($r) ? $r[0]['photo'] : "images/person-48.jpg"),
 				'name' => $r[0]['name'],
 			);
 		}
@@ -299,7 +299,7 @@ function frio_acl_lookup($a, &$results) {
 		$r = q("SELECT COUNT(*) AS `total` FROM `contact`
 			WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 ",
 			intval($_SESSION['uid']));
-		if(count($r)) {
+		if (dbm::is_result($r)) {
 			$total = $r[0]["total"];
 		}
 
@@ -311,7 +311,7 @@ function frio_acl_lookup($a, &$results) {
 
 		$contacts = array();
 
-		if(count($r)) {
+		if (dbm::is_result($r)) {
 			foreach($r as $rr) {
 				$contacts[] = _contact_detail_for_template($rr);
 			}
