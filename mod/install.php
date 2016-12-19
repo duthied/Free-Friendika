@@ -548,9 +548,14 @@ function check_imagik(&$checks) {
 			$gif = true;
 		}
 	}
-	check_add($checks, t('ImageMagick PHP extension is installed'), $imagick, false, "");
-	if ($imagick) {
-		check_add($checks, t('ImageMagick supports GIF'), $gif, false, "");
+	if ($imagick == false) {
+		check_add($checks, t('ImageMagick PHP extension is not installed'), $imagick, false, "");
+		}
+	else {
+		check_add($checks, t('ImageMagick PHP extension is installed'), $imagick, false, "");
+		if ($imagick) {
+			check_add($checks, t('ImageMagick supports GIF'), $gif, false, "");
+		}
 	}
 }
 
