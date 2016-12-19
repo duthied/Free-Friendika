@@ -241,7 +241,7 @@ function create_user($arr) {
 		WHERE `nickname` = '%s' ",
 		dbesc($nickname)
 	);
-	if((count($r) > 1) && $newuid) {
+	if ((dbm::is_result($r)) && (count($r) > 1) && $newuid) {
 		$result['message'] .= t('Nickname is already registered. Please choose another.') . EOL;
 		q("DELETE FROM `user` WHERE `uid` = %d",
 			intval($newuid)

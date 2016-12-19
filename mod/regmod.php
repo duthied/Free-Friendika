@@ -12,14 +12,14 @@ function user_allow($hash) {
 	);
 
 
-	if(! count($register))
+	if(! dbm::is_result($register))
 		return false;
 
 	$user = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 		intval($register[0]['uid'])
 	);
 
-	if(! count($user))
+	if(! dbm::is_result($user))
 		killme();
 
 	$r = q("DELETE FROM `register` WHERE `hash` = '%s'",
@@ -69,7 +69,7 @@ function user_deny($hash) {
 		dbesc($hash)
 	);
 
-	if(! count($register))
+	if(! dbm::is_result($register))
 		return false;
 
 	$user = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
