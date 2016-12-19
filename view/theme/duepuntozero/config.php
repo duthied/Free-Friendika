@@ -38,7 +38,7 @@ function theme_admin_post(&$a){
     }
 }
 
-
+/// @TODO $a is no longer used
 function clean_form(&$a, &$colorset, $user){
     $colorset = array(
 	'default'=>t('default'), 
@@ -56,9 +56,9 @@ function clean_form(&$a, &$colorset, $user){
     }
     $t = get_markup_template("theme_settings.tpl" );
     $o .= replace_macros($t, array(
-        '$submit' => t('Submit'),
-        '$baseurl' => $a->get_baseurl(),
-        '$title' => t("Theme settings"),
+        '$submit'   => t('Submit'),
+        '$baseurl'  => App::get_baseurl(),
+        '$title'    => t("Theme settings"),
         '$colorset' => array('duepuntozero_colorset', t('Variations'), $color, '', $colorset),
     ));
     return $o;

@@ -62,7 +62,7 @@ function item_post(&$a) {
 	if(!$preview && x($_REQUEST['post_id_random'])) {
 		if(x($_SESSION['post-random']) && $_SESSION['post-random'] == $_REQUEST['post_id_random']) {
 			logger("item post: duplicate post", LOGGER_DEBUG);
-			item_post_return($a->get_baseurl(), $api_source, $return_path);
+			item_post_return(App::get_baseurl(), $api_source, $return_path);
 		}
 		else
 			$_SESSION['post-random'] = $_REQUEST['post_id_random'];
@@ -449,7 +449,7 @@ function item_post(&$a) {
 			$objecttype = ACTIVITY_OBJ_IMAGE;
 
 			foreach($images as $image) {
-				if(! stristr($image,$a->get_baseurl() . '/photo/'))
+				if(! stristr($image,App::get_baseurl() . '/photo/'))
 					continue;
 				$image_uri = substr($image,strrpos($image,'/') + 1);
 				$image_uri = substr($image_uri,0, strpos($image_uri,'-'));
@@ -640,7 +640,7 @@ function item_post(&$a) {
 			if (dbm::is_result($r)) {
 				if(strlen($attachments))
 					$attachments .= ',';
-				$attachments .= '[attach]href="' . $a->get_baseurl() . '/attach/' . $r[0]['id'] . '" length="' . $r[0]['filesize'] . '" type="' . $r[0]['filetype'] . '" title="' . (($r[0]['filename']) ? $r[0]['filename'] : '') . '"[/attach]';
+				$attachments .= '[attach]href="' . App::get_baseurl() . '/attach/' . $r[0]['id'] . '" length="' . $r[0]['filesize'] . '" type="' . $r[0]['filetype'] . '" title="' . (($r[0]['filename']) ? $r[0]['filename'] : '') . '"[/attach]';
 			}
 			$body = str_replace($match[1],'',$body);
 		}
@@ -732,7 +732,7 @@ function item_post(&$a) {
 //	$datarray['prvnets']       = $user['prvnets'];
 
 	$datarray['parent-uri'] = ($parent == 0) ? $uri : $parent_item['uri'];
-	$datarray['plink'] = $a->get_baseurl().'/display/'.urlencode($datarray['guid']);
+	$datarray['plink'] = App::get_baseurl().'/display/'.urlencode($datarray['guid']);
 	$datarray['last-child'] = 1;
 	$datarray['visible'] = 1;
 
@@ -766,7 +766,7 @@ function item_post(&$a) {
 
 		$json = array('cancel' => 1);
 		if(x($_REQUEST,'jsreload') && strlen($_REQUEST['jsreload']))
-			$json['reload'] = $a->get_baseurl() . '/' . $_REQUEST['jsreload'];
+			$json['reload'] = App::get_baseurl() . '/' . $_REQUEST['jsreload'];
 
 		echo json_encode($json);
 		killme();
@@ -938,7 +938,7 @@ function item_post(&$a) {
 				'to_email'     => $user['email'],
 				'uid'          => $user['uid'],
 				'item'         => $datarray,
-				'link'		=> $a->get_baseurl().'/display/'.urlencode($datarray['guid']),
+				'link'		=> App::get_baseurl().'/display/'.urlencode($datarray['guid']),
 				'source_name'  => $datarray['author-name'],
 				'source_link'  => $datarray['author-link'],
 				'source_photo' => $datarray['author-avatar'],
@@ -970,7 +970,7 @@ function item_post(&$a) {
 				'to_email'     => $user['email'],
 				'uid'          => $user['uid'],
 				'item'         => $datarray,
-				'link'		=> $a->get_baseurl().'/display/'.urlencode($datarray['guid']),
+				'link'		=> App::get_baseurl().'/display/'.urlencode($datarray['guid']),
 				'source_name'  => $datarray['author-name'],
 				'source_link'  => $datarray['author-link'],
 				'source_photo' => $datarray['author-avatar'],
@@ -991,14 +991,14 @@ function item_post(&$a) {
 					continue;
 				$disclaimer = '<hr />' . sprintf( t('This message was sent to you by %s, a member of the Friendica social network.'),$a->user['username'])
 					. '<br />';
-				$disclaimer .= sprintf( t('You may visit them online at %s'), $a->get_baseurl() . '/profile/' . $a->user['nickname']) . EOL;
+				$disclaimer .= sprintf( t('You may visit them online at %s'), App::get_baseurl() . '/profile/' . $a->user['nickname']) . EOL;
 				$disclaimer .= t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
 				if (!$datarray['title']=='') {
 				    $subject = email_header_encode($datarray['title'],'UTF-8');
 				} else {
 				    $subject = email_header_encode('[Friendica]' . ' ' . sprintf( t('%s posted an update.'),$a->user['username']),'UTF-8');
 				}
-				$link = '<a href="' . $a->get_baseurl() . '/profile/' . $a->user['nickname'] . '"><img src="' . $author['thumb'] . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
+				$link = '<a href="' . App::get_baseurl() . '/profile/' . $a->user['nickname'] . '"><img src="' . $author['thumb'] . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
 				$html    = prepare_body($datarray);
 				$message = '<html><body>' . $link . $html . $disclaimer . '</body></html>';
 				include_once('include/html2plain.php');
@@ -1038,7 +1038,7 @@ function item_post(&$a) {
 
 	logger('post_complete');
 
-	item_post_return($a->get_baseurl(), $api_source, $return_path);
+	item_post_return(App::get_baseurl(), $api_source, $return_path);
 	// NOTREACHED
 }
 

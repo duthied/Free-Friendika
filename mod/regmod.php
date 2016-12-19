@@ -35,7 +35,7 @@ function user_allow($hash) {
 		intval($user[0]['uid'])
 	);
 	if (dbm::is_result($r) && $r[0]['net-publish']) {
-		$url = $a->get_baseurl() . '/profile/' . $user[0]['nickname'];
+		$url = App::get_baseurl() . '/profile/' . $user[0]['nickname'];
 		if($url && strlen(get_config('system','directory')))
 			proc_run(PRIORITY_LOW, "include/directory.php", $url);
 	}
@@ -45,7 +45,7 @@ function user_allow($hash) {
 	send_register_open_eml(
 		$user[0]['email'],
 		$a->config['sitename'],
-		$a->get_baseurl(),
+		App::get_baseurl(),
 		$user[0]['username'],
 		$register[0]['password']);
 
@@ -121,13 +121,13 @@ function regmod_content(&$a) {
 
 	if($cmd === 'deny') {
 		user_deny($hash);
-		goaway($a->get_baseurl()."/admin/users/");
+		goaway(App::get_baseurl()."/admin/users/");
 		killme();
 	}
 
 	if($cmd === 'allow') {
 		user_allow($hash);
-		goaway($a->get_baseurl()."/admin/users/");
+		goaway(App::get_baseurl()."/admin/users/");
 		killme();
 	}
 }

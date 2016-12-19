@@ -48,7 +48,7 @@ function theme_admin_post(&$a){
 	}
 }
 
-
+/// @TODO $a is no longer used here
 function quattro_form(&$a, $align, $color, $tfs, $pfs){
 	$colors = array(
 		"dark"=>"Quattro", 
@@ -62,7 +62,7 @@ function quattro_form(&$a, $align, $color, $tfs, $pfs){
 	$t = get_markup_template("theme_settings.tpl" );
 	$o .= replace_macros($t, array(
 		'$submit' => t('Submit'),
-		'$baseurl' => $a->get_baseurl(),
+		'$baseurl' => App::get_baseurl(),
 		'$title' => t("Theme settings"),
 		'$align' => array('quattro_align', t('Alignment'), $align, '', array('left'=>t('Left'), 'center'=>t('Center'))),
 		'$color' => array('quattro_color', t('Color scheme'), $color, '', $colors),

@@ -207,7 +207,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	$orig_updated = $updated;
 
 	// The global contacts should contain the original picture, not the cached one
-	if (($generation != 1) AND stristr(normalise_link($profile_photo), normalise_link($a->get_baseurl()."/photo/")))
+	if (($generation != 1) AND stristr(normalise_link($profile_photo), normalise_link(App::get_baseurl()."/photo/")))
 		$profile_photo = "";
 
 	$r = q("SELECT `network` FROM `contact` WHERE `nurl` = '%s' AND `network` != '' AND `network` != '%s' LIMIT 1",
@@ -1181,9 +1181,9 @@ function update_suggestions() {
 	$done = array();
 
 	/// TODO Check if it is really neccessary to poll the own server
-	poco_load(0,0,0,$a->get_baseurl() . '/poco');
+	poco_load(0,0,0,App::get_baseurl() . '/poco');
 
-	$done[] = $a->get_baseurl() . '/poco';
+	$done[] = App::get_baseurl() . '/poco';
 
 	if(strlen(get_config('system','directory'))) {
 		$x = fetch_url(get_server()."/pubsites");
@@ -1771,8 +1771,6 @@ function gs_fetch_users($server) {
 
 	logger("Fetching users from GNU Social server ".$server, LOGGER_DEBUG);
 
-	$a = get_app();
-
 	$url = $server."/main/statistics";
 
 	$result = z_fetch_url($url);
@@ -1811,7 +1809,7 @@ function gs_fetch_users($server) {
 					"nick" => $user->nickname,
 					"about" => $user->bio,
 					"network" => NETWORK_OSTATUS,
-					"photo" => $a->get_baseurl()."/images/person-175.jpg");
+					"photo" => App::get_baseurl()."/images/person-175.jpg");
 			get_gcontact_id($contact);
 		}
 }

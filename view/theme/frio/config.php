@@ -57,7 +57,7 @@ function frio_form(&$a, $arr) {
 	$t = get_markup_template('theme_settings.tpl');
 	$o .= replace_macros($t, array(
 		'$submit'		=> t('Submit'),
-		'$baseurl'		=> $a->get_baseurl(),
+		'$baseurl'		=> App::get_baseurl(),
 		'$title'		=> t("Theme settings"),
 		'$schema'		=> array('frio_schema',		t("Select scheme"),			$arr["schema"], '', $scheme_choices),
 		'$nav_bg'		=> array_key_exists("nav_bg", $disable) ? "" : array('frio_nav_bg',		t('Navigation bar background color'),	$arr['nav_bg']),

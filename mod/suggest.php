@@ -59,7 +59,7 @@ function suggest_content(&$a) {
 		return;
 	}
 
-	$_SESSION['return_url'] = $a->get_baseurl() . '/' . $a->cmd;
+	$_SESSION['return_url'] = App::get_baseurl() . '/' . $a->cmd;
 
 	$a->page['aside'] .= findpeople_widget();
 	$a->page['aside'] .= follow_widget();
@@ -76,8 +76,8 @@ function suggest_content(&$a) {
 
 	foreach($r as $rr) {
 
-		$connlnk = $a->get_baseurl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);
-		$ignlnk = $a->get_baseurl() . '/suggest?ignore=' . $rr['id'];
+		$connlnk = App::get_baseurl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);
+		$ignlnk = App::get_baseurl() . '/suggest?ignore=' . $rr['id'];
 		$photo_menu = array(
 			'profile' => array(t("View Profile"), zrl($rr["url"])),
 			'follow' => array(t("Connect/Follow"), $connlnk),

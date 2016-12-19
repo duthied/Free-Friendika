@@ -15,7 +15,7 @@ function bookmarklet_content(&$a) {
 	}
 
 	$referer = normalise_link($_SERVER["HTTP_REFERER"]);
-	$page = normalise_link($a->get_baseurl()."/bookmarklet");
+	$page = normalise_link(App::get_baseurl()."/bookmarklet");
 
 	if (!strstr($referer, $page)) {
 		$content = add_page_info($_REQUEST["url"]);

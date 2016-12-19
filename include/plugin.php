@@ -410,13 +410,12 @@ function get_theme_info($theme){
  * @return string
  */
 function get_theme_screenshot($theme) {
-	$a = get_app();
 	$exts = array('.png','.jpg');
 	foreach($exts as $ext) {
 		if(file_exists('view/theme/' . $theme . '/screenshot' . $ext))
-			return($a->get_baseurl() . '/view/theme/' . $theme . '/screenshot' . $ext);
+			return(App::get_baseurl() . '/view/theme/' . $theme . '/screenshot' . $ext);
 	}
-	return($a->get_baseurl() . '/images/blank.png');
+	return(App::get_baseurl() . '/images/blank.png');
 }
 
 // install and uninstall theme

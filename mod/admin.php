@@ -376,7 +376,7 @@ function admin_page_federation(&$a) {
 		'$counts' => $counts,
 		'$version' => FRIENDICA_VERSION,
 		'$legendtext' => sprintf(t('Currently this node is aware of %d nodes from the following platforms:'), $total),
-		'$baseurl' => $a->get_baseurl(),
+		'$baseurl' => App::get_baseurl(),
 	));
 }
 
@@ -489,7 +489,7 @@ function admin_page_summary(&$a) {
 		'$accounts' => $accounts,
 		'$pending' => array(t('Pending registrations'), $pending),
 		'$version' => array(t('Version'), FRIENDICA_VERSION),
-		'$baseurl' => $a->get_baseurl(),
+		'$baseurl' => App::get_baseurl(),
 		'$platform' => FRIENDICA_PLATFORM,
 		'$codename' => FRIENDICA_CODENAME,
 		'$build' =>  get_config('system','build'),
@@ -527,7 +527,7 @@ function admin_page_site_post(&$a) {
 		 * send relocate for every local user
 		 * */
 
-		$old_url = $a->get_baseurl(true);
+		$old_url = App::get_baseurl(true);
 
 		// Generate host names for relocation the addresses in the format user@address.tld
 		$new_host = str_replace("http://", "@", normalise_link($new_url));
@@ -961,7 +961,7 @@ function admin_page_site(&$a) {
 		'$performance' => t('Performance'),
 		'$worker_title' => t('Worker'),
 		'$relocate'=> t('Relocate - WARNING: advanced function. Could make this server unreachable.'),
-		'$baseurl' => $a->get_baseurl(true),
+		'$baseurl' => App::get_baseurl(true),
 		// name, label, value, help string, extra data...
 		'$sitename' 		=> array('sitename', t("Site name"), $a->config['sitename'],''),
 		'$hostname' 		=> array('hostname', t("Host name"), $a->config['hostname'], ""),
@@ -1043,7 +1043,7 @@ function admin_page_site(&$a) {
 		'$old_pager'		=> array('old_pager', t("Enable old style pager"), get_config('system','old_pager'), t("The old style pager has page numbers but slows down massively the page speed.")),
 		'$only_tag_search'	=> array('only_tag_search', t("Only search in tags"), get_config('system','only_tag_search'), t("On large systems the text search can slow down the system extremely.")),
 
-		'$relocate_url'		=> array('relocate_url', t("New base url"), $a->get_baseurl(), t("Change base url for this server. Sends relocate message to all DFRN contacts of all users.")),
+		'$relocate_url'		=> array('relocate_url', t("New base url"), App::get_baseurl(), t("Change base url for this server. Sends relocate message to all DFRN contacts of all users.")),
 
 		'$rino' 		=> array('rino', t("RINO Encryption"), intval(get_config('system','rino_encrypt')), t("Encryption layer between nodes."), array("Disabled", "RINO1 (deprecated)", "RINO2")),
 		'$embedly' 		=> array('embedly', t("Embedly API key"), get_config('system','embedly'), t("<a href='http://embed.ly'>Embedly</a> is used to fetch additional data for web pages. This is an optional parameter.")),
@@ -1131,13 +1131,13 @@ function admin_page_dbsync(&$a) {
 	}
 	if(! count($failed)) {
 		$o = replace_macros(get_markup_template('structure_check.tpl'),array(
-			'$base' => $a->get_baseurl(true),
+			'$base' => App::get_baseurl(true),
 			'$banner' => t('No failed updates.'),
 			'$check' => t('Check database structure'),
 		));
 	} else {
 		$o = replace_macros(get_markup_template('failed_updates.tpl'),array(
-			'$base' => $a->get_baseurl(true),
+			'$base' => App::get_baseurl(true),
 			'$banner' => t('Failed Updates'),
 			'$desc' => t('This does not include updates prior to 1139, which did not return a status.'),
 			'$mark' => t('Mark success (if update was manually applied)'),
@@ -1205,7 +1205,7 @@ function admin_page_users_post(&$a){
 			Thank you and welcome to %4$s.'));
 
 		$preamble = sprintf($preamble, $nu['username'], $a->config['sitename']);
-		$body = sprintf($body, $a->get_baseurl(), $nu['email'], $result['password'], $a->config['sitename']);
+		$body = sprintf($body, App::get_baseurl(), $nu['email'], $result['password'], $a->config['sitename']);
 
 		notification(array(
 			'type' => "SYSTEM_EMAIL",
@@ -1430,7 +1430,7 @@ function admin_page_users(&$a){
 		'$form_security_token' => get_form_security_token("admin_users"),
 
 		// values //
-		'$baseurl' => $a->get_baseurl(true),
+		'$baseurl' => App::get_baseurl(true),
 
 		'$pending' => $pending,
 		'deleted' => $deleted,
@@ -1522,7 +1522,7 @@ function admin_page_plugins(&$a){
 			'$page' => t('Plugins'),
 			'$toggle' => t('Toggle'),
 			'$settings' => t('Settings'),
-			'$baseurl' => $a->get_baseurl(true),
+			'$baseurl' => App::get_baseurl(true),
 
 			'$plugin' => $plugin,
 			'$status' => $status,
@@ -1547,10 +1547,10 @@ function admin_page_plugins(&$a){
 	 */
 
 	if(x($_GET,"a") && $_GET['a']=="r") {
-		check_form_security_token_redirectOnErr($a->get_baseurl().'/admin/plugins', 'admin_themes', 't');
+		check_form_security_token_redirectOnErr(App::get_baseurl().'/admin/plugins', 'admin_themes', 't');
 		reload_plugins();
 		info("Plugins reloaded");
-		goaway($a->get_baseurl().'/admin/plugins');
+		goaway(App::get_baseurl().'/admin/plugins');
 	}
 
 	$plugins = array();
@@ -1582,7 +1582,7 @@ function admin_page_plugins(&$a){
 		'$page' => t('Plugins'),
 		'$submit' => t('Save Settings'),
 		'$reload' => t('Reload active plugins'),
-		'$baseurl' => $a->get_baseurl(true),
+		'$baseurl' => App::get_baseurl(true),
 		'$function' => 'plugins',
 		'$plugins' => $plugins,
 		'$pcount' => count($plugins), 
@@ -1780,7 +1780,7 @@ function admin_page_themes(&$a){
 			'$page' => t('Themes'),
 			'$toggle' => t('Toggle'),
 			'$settings' => t('Settings'),
-			'$baseurl' => $a->get_baseurl(true),
+			'$baseurl' => App::get_baseurl(true),
 			'$plugin' => $theme,
 			'$status' => $status,
 			'$action' => $action,
@@ -1799,7 +1799,7 @@ function admin_page_themes(&$a){
 
 	// reload active themes
 	if(x($_GET,"a") && $_GET['a']=="r") {
-		check_form_security_token_redirectOnErr($a->get_baseurl().'/admin/themes', 'admin_themes', 't');
+		check_form_security_token_redirectOnErr(App::get_baseurl().'/admin/themes', 'admin_themes', 't');
 		if($themes) {
 			foreach($themes as $th) {
 				if($th['allowed']) {
@@ -1809,7 +1809,7 @@ function admin_page_themes(&$a){
 			}
 		}
 		info("Themes reloaded");
-		goaway($a->get_baseurl().'/admin/themes');
+		goaway(App::get_baseurl().'/admin/themes');
 	}
 
 	/*
@@ -1830,7 +1830,7 @@ function admin_page_themes(&$a){
 		'$page' => t('Themes'),
 		'$submit' => t('Save Settings'),
 		'$reload' => t('Reload active themes'),
-		'$baseurl' => $a->get_baseurl(true),
+		'$baseurl' => App::get_baseurl(true),
 		'$function' => 'themes',
 		'$plugins' => $xthemes,
 		'$pcount' => count($themes),
@@ -1904,7 +1904,7 @@ function admin_page_logs(&$a){
 		'$page' => t('Logs'),
 		'$submit' => t('Save Settings'),
 		'$clear' => t('Clear'),
-		'$baseurl' => $a->get_baseurl(true),
+		'$baseurl' => App::get_baseurl(true),
 		'$logname' =>  get_config('system','logfile'),
 
 		// name, label, value, help string, extra data...

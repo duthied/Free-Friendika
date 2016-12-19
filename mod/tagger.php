@@ -63,7 +63,7 @@ function tagger_content(&$a) {
 	$targettype = (($item['resource-id']) ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE );
 
 	$link = xmlify('<link rel="alternate" type="text/html" href="'
-		. $a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
+		. App::get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
 
 	$body = xmlify($item['body']);
 
@@ -78,7 +78,7 @@ function tagger_content(&$a) {
 	</target>
 EOT;
 
-	$tagid = $a->get_baseurl() . '/search?tag=' . $term;
+	$tagid = App::get_baseurl() . '/search?tag=' . $term;
 	$objtype = ACTIVITY_OBJ_TAGTERM;
 
 	$obj = <<< EOT
@@ -97,7 +97,7 @@ EOT;
 	if(! isset($bodyverb))
 			return;
 
-	$termlink = html_entity_decode('&#x2317;') . '[url=' . $a->get_baseurl() . '/search?tag=' . urlencode($term) . ']'. $term . '[/url]';
+	$termlink = html_entity_decode('&#x2317;') . '[url=' . App::get_baseurl() . '/search?tag=' . urlencode($term) . ']'. $term . '[/url]';
 
 	$arr = array();
 
@@ -140,7 +140,7 @@ EOT;
 	$post_id = item_store($arr);
 
 //	q("UPDATE `item` set plink = '%s' where id = %d",
-//		dbesc($a->get_baseurl() . '/display/' . $owner_nick . '/' . $post_id),
+//		dbesc(App::get_baseurl() . '/display/' . $owner_nick . '/' . $post_id),
 //		intval($post_id)
 //	);
 
@@ -159,7 +159,7 @@ EOT;
         );
 	if((! $blocktags) && $t[0]['tcount']==0 ) {
 		/*q("update item set tag = '%s' where id = %d",
-			dbesc($item['tag'] . (strlen($item['tag']) ? ',' : '') . '#[url=' . $a->get_baseurl() . '/search?tag=' . $term . ']'. $term . '[/url]'),
+			dbesc($item['tag'] . (strlen($item['tag']) ? ',' : '') . '#[url=' . App::get_baseurl() . '/search?tag=' . $term . ']'. $term . '[/url]'),
 			intval($item['id'])
 		);*/
 
@@ -168,7 +168,7 @@ EOT;
 		   $term_objtype,
 		   TERM_HASHTAG,
 		   dbesc($term),
-		   dbesc($a->get_baseurl() . '/search?tag=' . $term),
+		   dbesc(App::get_baseurl() . '/search?tag=' . $term),
 		   intval($owner_uid)
 		);
 	}
@@ -192,14 +192,14 @@ EOT;
 	                   $term_objtype,
 	                   TERM_HASHTAG,
 	                   dbesc($term),
-	                   dbesc($a->get_baseurl() . '/search?tag=' . $term),
+	                   dbesc(App::get_baseurl() . '/search?tag=' . $term),
 	                   intval($owner_uid)
 	                );
 		}
 
 		/*if(count($x) && !$x[0]['blocktags'] && (! stristr($r[0]['tag'], ']' . $term . '['))) {
 			q("update item set tag = '%s' where id = %d",
-				dbesc($r[0]['tag'] . (strlen($r[0]['tag']) ? ',' : '') . '#[url=' . $a->get_baseurl() . '/search?tag=' . $term . ']'. $term . '[/url]'),
+				dbesc($r[0]['tag'] . (strlen($r[0]['tag']) ? ',' : '') . '#[url=' . App::get_baseurl() . '/search?tag=' . $term . ']'. $term . '[/url]'),
 				intval($r[0]['id'])
 			);
 		}*/

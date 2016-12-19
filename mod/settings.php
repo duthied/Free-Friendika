@@ -138,7 +138,7 @@ function settings_post(&$a) {
 		q("DELETE FROM tokens WHERE id='%s' AND uid=%d",
 			dbesc($key),
 			local_user());
-		goaway($a->get_baseurl(true)."/settings/oauth/");
+		goaway(App::get_baseurl(true)."/settings/oauth/");
 		return;
 	}
 
@@ -183,7 +183,7 @@ function settings_post(&$a) {
 						local_user());
 			}
 		}
-		goaway($a->get_baseurl(true)."/settings/oauth/");
+		goaway(App::get_baseurl(true)."/settings/oauth/");
 		return;
 	}
 
@@ -718,7 +718,7 @@ function settings_content(&$a) {
 			$r = q("DELETE FROM clients WHERE client_id='%s' AND uid=%d",
 					dbesc($a->argv[3]),
 					local_user());
-			goaway($a->get_baseurl(true)."/settings/oauth/");
+			goaway(App::get_baseurl(true)."/settings/oauth/");
 			return;
 		}
 
@@ -734,7 +734,7 @@ function settings_content(&$a) {
 		$tpl = get_markup_template("settings_oauth.tpl");
 		$o .= replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("settings_oauth"),
-			'$baseurl'	=> $a->get_baseurl(true),
+			'$baseurl'	=> App::get_baseurl(true),
 			'$title'	=> t('Connected Apps'),
 			'$add'		=> t('Add application'),
 			'$edit'		=> t('Edit'),
@@ -822,7 +822,7 @@ function settings_content(&$a) {
 		$settings_connectors .= mini_group_select(local_user(), $default_group, t("Default group for OStatus contacts"));
 
 		if ($legacy_contact != "")
-			$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL='.$a->get_baseurl().'/ostatus_subscribe?url='.urlencode($legacy_contact).'">';
+			$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL='.App::get_baseurl().'/ostatus_subscribe?url='.urlencode($legacy_contact).'">';
 
 		$settings_connectors .= '<div id="legacy-contact-wrapper" class="field input">';
 		$settings_connectors .= '<label id="legacy-contact-label" for="snautofollow-checkbox">'. t('Your legacy GNU Social account'). '</label>';
@@ -830,7 +830,7 @@ function settings_content(&$a) {
 		$settings_connectors .= '<span class="field_help">'.t('If you enter your old GNU Social/Statusnet account name here (in the format user@domain.tld), your contacts will be added automatically. The field will be emptied when done.').'</span>';
 		$settings_connectors .= '</div>';
 
-		$settings_connectors .= '<p><a href="'.$a->get_baseurl().'/repair_ostatus">'.t("Repair OStatus subscriptions").'</a></p>';
+		$settings_connectors .= '<p><a href="'.App::get_baseurl().'/repair_ostatus">'.t("Repair OStatus subscriptions").'</a></p>';
 
 		$settings_connectors .= '<div class="settings-submit-wrapper" ><input type="submit" name="general-submit" class="settings-submit" value="' . t('Save Settings') . '" /></div>';
 
@@ -994,7 +994,7 @@ function settings_content(&$a) {
 			'$ptitle' 	=> t('Display Settings'),
 			'$form_security_token' => get_form_security_token("settings_display"),
 			'$submit' 	=> t('Save Settings'),
-			'$baseurl' => $a->get_baseurl(true),
+			'$baseurl' => App::get_baseurl(true),
 			'$uid' => local_user(),
 
 			'$theme'	=> array('theme', t('Display Theme:'), $theme_selected, '', $themes, true),
@@ -1217,7 +1217,7 @@ function settings_content(&$a) {
 	$tpl_addr = get_markup_template("settings_nick_set.tpl");
 
 	$prof_addr = replace_macros($tpl_addr,array(
-		'$desc' => sprintf(t("Your Identity Address is <strong>'%s'</strong> or '%s'."), $nickname.'@'.$a->get_hostname().$a->get_path(), $a->get_baseurl().'/profile/'.$nickname),
+		'$desc' => sprintf(t("Your Identity Address is <strong>'%s'</strong> or '%s'."), $nickname.'@'.$a->get_hostname().$a->get_path(), App::get_baseurl().'/profile/'.$nickname),
 		'$basepath' => $a->get_hostname()
 	));
 
@@ -1262,7 +1262,7 @@ function settings_content(&$a) {
 		'$ptitle' 	=> t('Account Settings'),
 
 		'$submit' 	=> t('Save Settings'),
-		'$baseurl' => $a->get_baseurl(true),
+		'$baseurl' => App::get_baseurl(true),
 		'$uid' => local_user(),
 		'$form_security_token' => get_form_security_token("settings"),
 		'$nickname_block' => $prof_addr,

@@ -89,7 +89,7 @@ function events_post(&$a) {
 	$type     = 'event';
 
 	$action = ($event_id == '') ? 'new' : "event/" . $event_id;
-	$onerror_url = $a->get_baseurl() . "/events/" . $action . "?summary=$summary&description=$desc&location=$location&start=$start_text&finish=$finish_text&adjust=$adjust&nofinish=$nofinish";
+	$onerror_url = App::get_baseurl() . "/events/" . $action . "?summary=$summary&description=$desc&location=$location&start=$start_text&finish=$finish_text&adjust=$adjust&nofinish=$nofinish";
 
 	if(strcmp($finish,$start) < 0 && !$nofinish) {
 		notice( t('Event can not end before it has started.') . EOL);
@@ -192,7 +192,7 @@ function events_content(&$a) {
 	}
 
 	if($a->argc == 1)
-		$_SESSION['return_url'] = $a->get_baseurl() . '/' . $a->cmd;
+		$_SESSION['return_url'] = App::get_baseurl() . '/' . $a->cmd;
 
 	if(($a->argc > 2) && ($a->argv[1] === 'ignore') && intval($a->argv[2])) {
 		$r = q("update event set ignore = 1 where id = %d and uid = %d",
@@ -222,7 +222,7 @@ function events_content(&$a) {
 
 	$htpl = get_markup_template('event_head.tpl');
 	$a->page['htmlhead'] .= replace_macros($htpl,array(
-		'$baseurl' => $a->get_baseurl(),
+		'$baseurl' => App::get_baseurl(),
 		'$module_url' => '/events',
 		'$modparams' => 1,
 		'$i18n' => $i18n,
@@ -231,7 +231,7 @@ function events_content(&$a) {
 
 	$etpl = get_markup_template('event_end.tpl');
 	$a->page['end'] .= replace_macros($etpl,array(
-		'$baseurl' => $a->get_baseurl(),
+		'$baseurl' => App::get_baseurl(),
 		'$editselect' => $editselect
 	));
 
@@ -337,7 +337,7 @@ function events_content(&$a) {
 			foreach($r as $rr) {
 				$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'j') : datetime_convert('UTC','UTC',$rr['start'],'j'));
 				if(! x($links,$j))
-					$links[$j] = $a->get_baseurl() . '/' . $a->cmd . '#link-' . $j;
+					$links[$j] = App::get_baseurl() . '/' . $a->cmd . '#link-' . $j;
 			}
 		}
 
@@ -375,13 +375,13 @@ function events_content(&$a) {
 		}
 
 		$o = replace_macros($tpl, array(
-			'$baseurl'	=> $a->get_baseurl(),
+			'$baseurl'	=> App::get_baseurl(),
 			'$tabs'		=> $tabs,
 			'$title'	=> t('Events'),
 			'$view'		=> t('View'),
-			'$new_event'	=> array($a->get_baseurl().'/events/new',t('Create New Event'),'',''),
-			'$previus'	=> array($a->get_baseurl()."/events/$prevyear/$prevmonth",t('Previous'),'',''),
-			'$next'		=> array($a->get_baseurl()."/events/$nextyear/$nextmonth",t('Next'),'',''),
+			'$new_event'	=> array(App::get_baseurl().'/events/new',t('Create New Event'),'',''),
+			'$previus'	=> array(App::get_baseurl()."/events/$prevyear/$prevmonth",t('Previous'),'',''),
+			'$next'		=> array(App::get_baseurl()."/events/$nextyear/$nextmonth",t('Next'),'',''),
 			'$calendar'	=> cal($y,$m,$links, ' eventcal'),
 
 			'$events'	=> $events,
@@ -475,7 +475,7 @@ function events_content(&$a) {
 		$tpl = get_markup_template('event_form.tpl');
 
 		$o .= replace_macros($tpl,array(
-			'$post' => $a->get_baseurl() . '/events',
+			'$post' => App::get_baseurl() . '/events',
 			'$eid' => $eid,
 			'$cid' => $cid,
 			'$uri' => $uri,

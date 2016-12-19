@@ -89,7 +89,7 @@ function theme_admin_post(&$a){
 	}
 }
 
-
+/// @TODO $a is no longer used
 function vier_form(&$a, $style, $show_pages, $show_profiles, $show_helpers, $show_services, $show_friends, $show_lastusers){
 	$styles = array(
 		"plus"=>"Plus",
@@ -105,7 +105,7 @@ function vier_form(&$a, $style, $show_pages, $show_profiles, $show_helpers, $sho
 	$t = get_markup_template("theme_settings.tpl");
 	$o .= replace_macros($t, array(
 		'$submit' => t('Submit'),
-		'$baseurl' => $a->get_baseurl(),
+		'$baseurl' => App::get_baseurl(),
 		'$title' => t("Theme settings"),
 		'$style' => array('vier_style',t ('Set style'),$style,'',$styles),
 		'$show_pages' => array('vier_show_pages', t('Community Pages'), $show_pages, '', $show_or_not),
