@@ -31,8 +31,7 @@ function group_post(App &$a) {
 			if ($r) {
 				goaway(App::get_baseurl() . '/group/' . $r);
 			}
-		}
-		else {
+		} else {
 			notice( t('Could not create group.') . EOL );
 		}
 		goaway(App::get_baseurl() . '/group');
@@ -92,7 +91,7 @@ function group_content(App &$a) {
 			'$submit' => t('Save Group'),
 	);
 
-	if(($a->argc == 2) && ($a->argv[1] === 'new')) {
+	if (($a->argc == 2) && ($a->argv[1] === 'new')) {
 
 		return replace_macros($tpl, $context + array(
 			'$title' => t('Create a group of contacts/friends.'),

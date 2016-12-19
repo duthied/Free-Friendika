@@ -220,8 +220,9 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	$r = q("SELECT `network` FROM `contact` WHERE `nurl` = '%s' AND `network` != '' AND `network` != '%s' LIMIT 1",
 		dbesc(normalise_link($profile_url)), dbesc(NETWORK_STATUSNET)
 	);
-	if (dbm::is_result($r))
+	if (dbm::is_result($r)) {
 		$network = $r[0]["network"];
+	}
 
 	if (($network == "") OR ($network == NETWORK_OSTATUS)) {
 		$r = q("SELECT `network`, `url` FROM `contact` WHERE `alias` IN ('%s', '%s') AND `network` != '' AND `network` != '%s' LIMIT 1",

@@ -454,7 +454,7 @@ function item_post(App &$a) {
 			$objecttype = ACTIVITY_OBJ_IMAGE;
 
 			foreach ($images as $image) {
-				if (! stristr($image,App::get_baseurl() . '/photo/')) {
+				if (! stristr($image,App::get_baseurl() . '/photo/'))
 					continue;
 				}
 				$image_uri = substr($image,strrpos($image,'/') + 1);
@@ -620,16 +620,17 @@ function item_post(App &$a) {
 				continue;
 
 			$success = handle_tag($a, $body, $inform, $str_tags, (local_user()) ? local_user() : $profile_uid , $tag, $network);
-			if($success['replaced'])
+			if ($success['replaced']) {
 				$tagged[] = $tag;
-			if(is_array($success['contact']) && intval($success['contact']['prv'])) {
+			}
+			if (is_array($success['contact']) && intval($success['contact']['prv'])) {
 				$private_forum = true;
 				$private_id = $success['contact']['id'];
 			}
 		}
 	}
 
-	if(($private_forum) && (! $parent) && (! $private)) {
+	if (($private_forum) && (! $parent) && (! $private)) {
 		// we tagged a private forum in a top level post and the message was public.
 		// Restrict it.
 		$private = 1;
@@ -639,8 +640,8 @@ function item_post(App &$a) {
 	$attachments = '';
 	$match = false;
 
-	if(preg_match_all('/(\[attachment\]([0-9]+)\[\/attachment\])/',$body,$match)) {
-		foreach($match[2] as $mtch) {
+	if (preg_match_all('/(\[attachment\]([0-9]+)\[\/attachment\])/',$body,$match)) {
+		foreach ($match[2] as $mtch) {
 			$r = q("SELECT `id`,`filename`,`filesize`,`filetype` FROM `attach` WHERE `uid` = %d AND `id` = %d LIMIT 1",
 				intval($profile_uid),
 				intval($mtch)

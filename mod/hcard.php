@@ -52,4 +52,3 @@ function hcard_init(App &$a) {
 	}
 
 }
-

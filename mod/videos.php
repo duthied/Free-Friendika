@@ -113,7 +113,7 @@ function videos_post(App &$a) {
 	if (($a->argc == 2) && x($_POST,'delete') && x($_POST, 'id')) {
 
 		// Check if we should do HTML-based delete confirmation
-		if(!x($_REQUEST,'confirm')) {
+		if (!x($_REQUEST,'confirm')) {
 			if (x($_REQUEST,'canceled')) {
 				goaway(App::get_baseurl() . '/videos/' . $a->data['user']['nickname']);
 			}
@@ -137,7 +137,6 @@ function videos_post(App &$a) {
 		}
 
 		$video_id = $_POST['id'];
-
 
 		$r = q("SELECT `id`  FROM `attach` WHERE `uid` = %d AND `id` = '%s' LIMIT 1",
 			intval(local_user()),
@@ -409,4 +408,3 @@ function videos_content(App &$a) {
 	$o .= paginate($a);
 	return $o;
 }
-

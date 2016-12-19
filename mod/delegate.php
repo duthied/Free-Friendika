@@ -21,7 +21,6 @@ function delegate_content(App &$a) {
 			goaway(App::get_baseurl() . '/delegate');
 		}
 
-
 		$id = $a->argv[2];
 
 		$r = q("select `nickname` from user where uid = %d limit 1",
@@ -45,12 +44,11 @@ function delegate_content(App &$a) {
 	if ($a->argc > 2 && $a->argv[1] === 'remove' && intval($a->argv[2])) {
 
 		// delegated admins can view but not change delegation permissions
-
 		if (x($_SESSION,'submanage') && intval($_SESSION['submanage'])) {
 			goaway(App::get_baseurl() . '/delegate');
 		}
 
-		q("delete from manage where uid = %d and mid = %d limit 1",
+		q("DELETE FROM `manage` WHERE `uid` = %d AND `mid` = %d LIMIT 1",
 			intval($a->argv[2]),
 			intval(local_user())
 		);

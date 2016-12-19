@@ -85,7 +85,7 @@ function contact_remove($id) {
 
 function terminate_friendship($user,$self,$contact) {
 
-	/// @TODO Get rid of this, include/datetime.php should care about by itself
+	/// @TODO Get rid of this, include/datetime.php should care about it by itself
 	$a = get_app();
 
 	require_once('include/datetime.php');
