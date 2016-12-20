@@ -42,10 +42,11 @@ function hcard_init(&$a) {
 	$uri = urlencode('acct:' . $a->profile['nickname'] . '@' . $a->get_hostname() . (($a->path) ? '/' . $a->path : ''));
 	$a->page['htmlhead'] .= '<link rel="lrdd" type="application/xrd+xml" href="' . App::get_baseurl() . '/xrd/?uri=' . $uri . '" />' . "\r\n";
 	header('Link: <' . App::get_baseurl() . '/xrd/?uri=' . $uri . '>; rel="lrdd"; type="application/xrd+xml"', false);
-  	
+
 	$dfrn_pages = array('request', 'confirm', 'notify', 'poll');
-	foreach($dfrn_pages as $dfrn)
+	foreach($dfrn_pages as $dfrn) {
 		$a->page['htmlhead'] .= "<link rel=\"dfrn-{$dfrn}\" href=\"".App::get_baseurl()."/dfrn_{$dfrn}/{$which}\" />\r\n";
+	}
 
 }
 
