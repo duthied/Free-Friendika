@@ -520,8 +520,9 @@ function avatar_img($email) {
 
 	call_hooks('avatar_lookup', $avatar);
 
-	if(! $avatar['success'])
+	if (! $avatar['success']) {
 		$avatar['url'] = App::get_baseurl() . '/images/person-175.jpg';
+	}
 
 	logger('Avatar: ' . $avatar['email'] . ' ' . $avatar['url'], LOGGER_DEBUG);
 	return $avatar['url'];

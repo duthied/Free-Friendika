@@ -207,8 +207,9 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	$orig_updated = $updated;
 
 	// The global contacts should contain the original picture, not the cached one
-	if (($generation != 1) AND stristr(normalise_link($profile_photo), normalise_link(App::get_baseurl()."/photo/")))
+	if (($generation != 1) AND stristr(normalise_link($profile_photo), normalise_link(App::get_baseurl()."/photo/"))) {
 		$profile_photo = "";
+	}
 
 	$r = q("SELECT `network` FROM `contact` WHERE `nurl` = '%s' AND `network` != '' AND `network` != '%s' LIMIT 1",
 		dbesc(normalise_link($profile_url)), dbesc(NETWORK_STATUSNET)
