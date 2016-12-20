@@ -77,12 +77,12 @@ function new_contact($uid,$url,$interactive = false) {
 
 	$url = str_replace('/#!/','/',$url);
 
-	if(! allowed_url($url)) {
+	if (! allowed_url($url)) {
 		$result['message'] = t('Disallowed profile URL.');
 		return $result;
 	}
 
-	if(! $url) {
+	if (! $url) {
 		$result['message'] = t('Connect URL missing.');
 		return $result;
 	}
@@ -91,17 +91,21 @@ function new_contact($uid,$url,$interactive = false) {
 
 	call_hooks('follow', $arr);
 
-	if(x($arr['contact'],'name'))
+	if (x($arr['contact'],'name')) {
 		$ret = $arr['contact'];
-	else
+	}
+	else {
 		$ret = probe_url($url);
+	}
 
-	if($ret['network'] === NETWORK_DFRN) {
-		if($interactive) {
-			if(strlen($a->path))
+	if ($ret['network'] === NETWORK_DFRN) {
+		if ($interactive) {
+			if (strlen($a->path)) {
 				$myaddr = bin2hex(App::get_baseurl() . '/profile/' . $a->user['nickname']);
-			else
+			}
+			else {
 				$myaddr = bin2hex($a->user['nickname'] . '@' . $a->get_hostname());
+			}
 
 			goaway($ret['request'] . "&addr=$myaddr");
 

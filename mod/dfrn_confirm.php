@@ -506,10 +506,11 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		// Let's send our user to the contact editor in case they want to
 		// do anything special with this new friend.
 
-		if($handsfree === null)
+		if ($handsfree === null) {
 			goaway(App::get_baseurl() . '/contacts/' . intval($contact_id));
-		else
+		} else {
 			return;
+		}
 		//NOTREACHED
 	}
 
@@ -525,7 +526,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 	 *
 	 */
 
-	if(x($_POST,'source_url')) {
+	if (x($_POST,'source_url')) {
 
 		// We are processing an external confirmation to an introduction created by our user.
 
@@ -546,7 +547,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 		// If $aes_key is set, both of these items require unpacking from the hex transport encoding.
 
-		if(x($aes_key)) {
+		if (x($aes_key)) {
 			$aes_key = hex2bin($aes_key);
 			$public_key = hex2bin($public_key);
 		}

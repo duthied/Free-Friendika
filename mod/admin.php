@@ -1129,19 +1129,19 @@ function admin_page_dbsync(App &$a) {
 			$failed[] = $upd;
 		}
 	}
-	if(! count($failed)) {
+	if (! count($failed)) {
 		$o = replace_macros(get_markup_template('structure_check.tpl'),array(
-			'$base' => App::get_baseurl(true),
+			'$base'   => App::get_baseurl(true),
 			'$banner' => t('No failed updates.'),
-			'$check' => t('Check database structure'),
+			'$check'  => t('Check database structure'),
 		));
 	} else {
 		$o = replace_macros(get_markup_template('failed_updates.tpl'),array(
-			'$base' => App::get_baseurl(true),
+			'$base'   => App::get_baseurl(true),
 			'$banner' => t('Failed Updates'),
-			'$desc' => t('This does not include updates prior to 1139, which did not return a status.'),
-			'$mark' => t('Mark success (if update was manually applied)'),
-			'$apply' => t('Attempt to execute this update step automatically'),
+			'$desc'   => t('This does not include updates prior to 1139, which did not return a status.'),
+			'$mark'   => t('Mark success (if update was manually applied)'),
+			'$apply'  => t('Attempt to execute this update step automatically'),
 			'$failed' => $failed
 		));
 	}
@@ -1156,11 +1156,11 @@ function admin_page_dbsync(App &$a) {
  * @param App $a
  */
 function admin_page_users_post(App &$a){
-	$pending     =	(x($_POST, 'pending')			? $_POST['pending']		: array());
-	$users       =	(x($_POST, 'user')			? $_POST['user']		: array());
-	$nu_name     =	(x($_POST, 'new_user_name')		? $_POST['new_user_name']	: '');
-	$nu_nickname =	(x($_POST, 'new_user_nickname')		? $_POST['new_user_nickname']	: '');
-	$nu_email    =	(x($_POST, 'new_user_email')		? $_POST['new_user_email']	: '');
+	$pending     =	(x($_POST, 'pending')           ? $_POST['pending']           : array());
+	$users       =	(x($_POST, 'user')              ? $_POST['user']		      : array());
+	$nu_name     =	(x($_POST, 'new_user_name')     ? $_POST['new_user_name']     : '');
+	$nu_nickname =	(x($_POST, 'new_user_nickname') ? $_POST['new_user_nickname'] : '');
+	$nu_email    =	(x($_POST, 'new_user_email')    ? $_POST['new_user_email']    : '');
 	$nu_language = get_config('system', 'language');
 
 	check_form_security_token_redirectOnErr('/admin/users', 'admin_users');
@@ -1546,7 +1546,7 @@ function admin_page_plugins(App &$a){
 	 * List plugins
 	 */
 
-	if(x($_GET,"a") && $_GET['a']=="r") {
+	if (x($_GET,"a") && $_GET['a']=="r") {
 		check_form_security_token_redirectOnErr(App::get_baseurl().'/admin/plugins', 'admin_themes', 't');
 		reload_plugins();
 		info("Plugins reloaded");
@@ -1555,23 +1555,26 @@ function admin_page_plugins(App &$a){
 
 	$plugins = array();
 	$files = glob("addon/*/");
-	if($files) {
-		foreach($files as $file) {
-			if(is_dir($file)) {
+	if ($files) {
+		foreach ($files as $file) {
+			if (is_dir($file)) {
 				list($tmp, $id)=array_map("trim", explode("/",$file));
 				$info = get_plugin_info($id);
 				$show_plugin = true;
 
 				// If the addon is unsupported, then only show it, when it is enabled
-				if((strtolower($info["status"]) == "unsupported") AND !in_array($id,  $a->plugins))
+				if ((strtolower($info["status"]) == "unsupported") AND !in_array($id,  $a->plugins)) {
 					$show_plugin = false;
+				}
 
 				// Override the above szenario, when the admin really wants to see outdated stuff
-				if(get_config("system", "show_unsupported_addons"))
+				if (get_config("system", "show_unsupported_addons")) {
 					$show_plugin = true;
+				}
 
-				if($show_plugin)
+				if ($show_plugin) {
 					$plugins[] = array($id, (in_array($id,  $a->plugins)?"on":"off") , $info);
+				}
 			}
 		}
 	}
@@ -1798,11 +1801,11 @@ function admin_page_themes(App &$a){
 
 
 	// reload active themes
-	if(x($_GET,"a") && $_GET['a']=="r") {
+	if (x($_GET,"a") && $_GET['a']=="r") {
 		check_form_security_token_redirectOnErr(App::get_baseurl().'/admin/themes', 'admin_themes', 't');
-		if($themes) {
-			foreach($themes as $th) {
-				if($th['allowed']) {
+		if ($themes) {
+			foreach ($themes as $th) {
+				if ($th['allowed']) {
 					uninstall_theme($th['name']);
 					install_theme($th['name']);
 				}
@@ -1817,7 +1820,7 @@ function admin_page_themes(App &$a){
 	 */
 
 	$xthemes = array();
-	if($themes) {
+	if ($themes) {
 		foreach($themes as $th) {
 			$xthemes[] = array($th['name'],(($th['allowed']) ? "on" : "off"), get_theme_info($th['name']));
 		}
@@ -1826,17 +1829,17 @@ function admin_page_themes(App &$a){
 
 	$t = get_markup_template("admin_plugins.tpl");
 	return replace_macros($t, array(
-		'$title' => t('Administration'),
-		'$page' => t('Themes'),
-		'$submit' => t('Save Settings'),
-		'$reload' => t('Reload active themes'),
-		'$baseurl' => App::get_baseurl(true),
-		'$function' => 'themes',
-		'$plugins' => $xthemes,
-		'$pcount' => count($themes),
-		'$noplugshint' => sprintf(t('No themes found on the system. They should be paced in %1$s'),'<code>/view/themes</code>'),
-		'$experimental' => t('[Experimental]'),
-		'$unsupported' => t('[Unsupported]'),
+		'$title'               => t('Administration'),
+		'$page'                => t('Themes'),
+		'$submit'              => t('Save Settings'),
+		'$reload'              => t('Reload active themes'),
+		'$baseurl'             => App::get_baseurl(true),
+		'$function'            => 'themes',
+		'$plugins'             => $xthemes,
+		'$pcount'              => count($themes),
+		'$noplugshint'         => sprintf(t('No themes found on the system. They should be paced in %1$s'),'<code>/view/themes</code>'),
+		'$experimental'        => t('[Experimental]'),
+		'$unsupported'         => t('[Unsupported]'),
 		'$form_security_token' => get_form_security_token("admin_themes"),
 	));
 }

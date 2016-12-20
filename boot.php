@@ -670,22 +670,23 @@ class App {
 
 		#set_include_path("include/$this->hostname" . PATH_SEPARATOR . get_include_path());
 
-		if((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,9) === "pagename=") {
+		if ((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,9) === "pagename=") {
 			$this->query_string = substr($_SERVER['QUERY_STRING'],9);
 			// removing trailing / - maybe a nginx problem
 			if (substr($this->query_string, 0, 1) == "/")
 				$this->query_string = substr($this->query_string, 1);
-		} elseif((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,2) === "q=") {
+		} elseif ((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,2) === "q=") {
 			$this->query_string = substr($_SERVER['QUERY_STRING'],2);
 			// removing trailing / - maybe a nginx problem
 			if (substr($this->query_string, 0, 1) == "/")
 				$this->query_string = substr($this->query_string, 1);
 		}
 
-		if (x($_GET,'pagename'))
+		if (x($_GET,'pagename')) {
 			$this->cmd = trim($_GET['pagename'],'/\\');
-		elseif (x($_GET,'q'))
+		} elseif (x($_GET,'q')) {
 			$this->cmd = trim($_GET['q'],'/\\');
+		}
 
 
 		// fix query_string
@@ -694,13 +695,15 @@ class App {
 
 		// unix style "homedir"
 
-		if(substr($this->cmd,0,1) === '~')
+		if (substr($this->cmd,0,1) === '~') {
 			$this->cmd = 'profile/' . substr($this->cmd,1);
+		}
 
 		// Diaspora style profile url
 
-		if(substr($this->cmd,0,2) === 'u/')
+		if (substr($this->cmd,0,2) === 'u/') {
 			$this->cmd = 'profile/' . substr($this->cmd,2);
+		}
 
 
 		/*
