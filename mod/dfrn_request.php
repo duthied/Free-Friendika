@@ -194,18 +194,21 @@ function dfrn_request_post(&$a) {
 						update_contact_avatar($photo, local_user(), $r[0]["id"], true);
 
 					$forwardurl = App::get_baseurl()."/contacts/".$r[0]['id'];
-				} else
+				} else {
 					$forwardurl = App::get_baseurl()."/contacts";
+				}
 
 				/*
 				 * Allow the blocked remote notification to complete
 				 */
 
-				if(is_array($contact_record))
+				if (is_array($contact_record)) {
 					$dfrn_request = $contact_record['request'];
+				}
 
-				if(strlen($dfrn_request) && strlen($confirm_key))
+				if (strlen($dfrn_request) && strlen($confirm_key)) {
 					$s = fetch_url($dfrn_request . '?confirm_key=' . $confirm_key);
+				}
 
 				// (ignore reply, nothing we can do it failed)
 
@@ -565,7 +568,7 @@ function dfrn_request_post(&$a) {
 				);
 
 				// find the contact record we just created
-				if($r) {
+				if ($r) {
 					$r = q("SELECT `id` FROM `contact`
 						WHERE `uid` = %d AND `url` = '%s' AND `issued-id` = '%s' LIMIT 1",
 						intval($uid),
@@ -579,14 +582,14 @@ function dfrn_request_post(&$a) {
 				}
 
 			}
-			if($r === false) {
+			if ($r === false) {
 				notice( t('Failed to update contact record.') . EOL );
 				return;
 			}
 
 			$hash = random_string() . (string) time();   // Generate a confirm_key
 
-			if(is_array($contact_record)) {
+			if (is_array($contact_record)) {
 				$ret = q("INSERT INTO `intro` ( `uid`, `contact-id`, `blocked`, `knowyou`, `note`, `hash`, `datetime`)
 					VALUES ( %d, %d, 1, %d, '%s', '%s', '%s' )",
 					intval($uid),
@@ -600,8 +603,9 @@ function dfrn_request_post(&$a) {
 
 			// This notice will only be seen by the requestor if the requestor and requestee are on the same server.
 
-			if(! $failed)
+			if (! $failed) {
 				info( t('Your introduction has been sent.') . EOL );
+			}
 
 			// "Homecoming" - send the requestor back to their site to record the introduction.
 
@@ -633,8 +637,9 @@ function dfrn_request_post(&$a) {
 					$uri .= '/'.$a->get_path();
 
 				$uri = urlencode($uri);
-			} else
+			} else {
 				$uri = App::get_baseurl().'/profile/'.$nickname;
+			}
 
 			$url = str_replace('{uri}', $uri, $url);
 			goaway($url);
@@ -651,16 +656,17 @@ function dfrn_request_post(&$a) {
 
 function dfrn_request_content(&$a) {
 
-	if(($a->argc != 2) || (! count($a->profile)))
+	if (($a->argc != 2) || (! count($a->profile))) {
 		return "";
+	}
 
 
 	// "Homecoming". Make sure we're logged in to this site as the correct user. Then offer a confirm button
 	// to send us to the post section to record the introduction.
 
-	if(x($_GET,'dfrn_url')) {
+	if (x($_GET,'dfrn_url')) {
 
-		if(! local_user()) {
+		if (! local_user()) {
 			info( t("Please login to confirm introduction.") . EOL );
 			/* setup the return URL to come back to this page if they use openid */
 			$_SESSION['return_url'] = $a->query_string;
