@@ -121,17 +121,18 @@ function settings_post(&$a) {
 	if(! local_user())
 		return;
 
-	if(x($_SESSION,'submanage') && intval($_SESSION['submanage']))
+	if (x($_SESSION,'submanage') && intval($_SESSION['submanage'])) {
 		return;
+	}
 
-	if(count($a->user) && x($a->user,'uid') && $a->user['uid'] != local_user()) {
+	if (count($a->user) && x($a->user,'uid') && $a->user['uid'] != local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
 
 	$old_page_flags = $a->user['page-flags'];
 
-	if(($a->argc > 1) && ($a->argv[1] === 'oauth') && x($_POST,'remove')){
+	if (($a->argc > 1) && ($a->argv[1] === 'oauth') && x($_POST,'remove')) {
 		check_form_security_token_redirectOnErr('/settings/oauth', 'settings_oauth');
 
 		$key = $_POST['remove'];
@@ -142,7 +143,7 @@ function settings_post(&$a) {
 		return;
 	}
 
-	if(($a->argc > 2) && ($a->argv[1] === 'oauth')  && ($a->argv[2] === 'edit'||($a->argv[2] === 'add')) && x($_POST,'submit')) {
+	if (($a->argc > 2) && ($a->argv[1] === 'oauth')  && ($a->argv[2] === 'edit'||($a->argv[2] === 'add')) && x($_POST,'submit')) {
 
 		check_form_security_token_redirectOnErr('/settings/oauth', 'settings_oauth');
 
@@ -661,7 +662,7 @@ function settings_content(&$a) {
 		return;
 	}
 
-	if(x($_SESSION,'submanage') && intval($_SESSION['submanage'])) {
+	if (x($_SESSION,'submanage') && intval($_SESSION['submanage'])) {
 		notice( t('Permission denied.') . EOL );
 		return;
 	}

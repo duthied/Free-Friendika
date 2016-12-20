@@ -661,10 +661,11 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		$r = q("SELECT `photo` FROM `contact` WHERE `id` = %d LIMIT 1",
 			intval($dfrn_record));
 
-		if (dbm::is_result($r))
+		if (dbm::is_result($r)) {
 			$photo = $r[0]['photo'];
-		else
+		} else {
 			$photo = App::get_baseurl() . '/images/person-175.jpg';
+		}
 
 		require_once("include/Photo.php");
 
@@ -673,11 +674,13 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		logger('dfrn_confirm: request - photos imported');
 
 		$new_relation = CONTACT_IS_SHARING;
-		if(($relation == CONTACT_IS_FOLLOWER) || ($duplex))
+		if (($relation == CONTACT_IS_FOLLOWER) || ($duplex)) {
 			$new_relation = CONTACT_IS_FRIEND;
+		}
 
-		if(($relation == CONTACT_IS_FOLLOWER) && ($duplex))
+		if (($relation == CONTACT_IS_FOLLOWER) && ($duplex)) {
 			$duplex = 0;
+		}
 
 		$r = q("UPDATE `contact` SET
 			`rel` = %d,
@@ -699,7 +702,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			dbesc(NETWORK_DFRN),
 			intval($dfrn_record)
 		);
-		if($r === false) {    // indicates schema is messed up or total db failure
+		if ($r === false) {    // indicates schema is messed up or total db failure
 			$message = t('Unable to update your contact profile details on our system');
 			xml_status(3,$message);
 		}
