@@ -1,7 +1,7 @@
 <?php
 require_once('view/theme/frio/php/Image.php');
 
-function theme_content(&$a) {
+function theme_content(App &$a) {
 	if(!local_user()) { return;}
 	$arr = array();
 
@@ -17,7 +17,7 @@ function theme_content(&$a) {
 	return frio_form($a, $arr);
 }
 
-function theme_post(&$a) {
+function theme_post(App &$a) {
 	if(!local_user()) { return;}
 	if (isset($_POST['frio-settings-submit'])) {
 		set_pconfig(local_user(), 'frio', 'schema',		$_POST["frio_schema"]);
