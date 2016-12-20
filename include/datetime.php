@@ -552,7 +552,7 @@ function update_contact_birthdays() {
 	// In-network birthdays are handled within local_delivery
 
 	$r = q("SELECT * FROM contact WHERE `bd` != '' AND `bd` != '0000-00-00' AND SUBSTRING(`bd`,1,4) != `bdyear` ");
-	if(count($r)) {
+	if (dbm::is_result($r)) {
 		foreach($r as $rr) {
 
 			logger('update_contact_birthday: ' . $rr['bd']);

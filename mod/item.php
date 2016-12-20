@@ -102,7 +102,7 @@ function item_post(&$a) {
 		}
 
 		// if this isn't the real parent of the conversation, find it
-		if($r !== false && count($r)) {
+		if (dbm::is_result($r)) {
 			$parid = $r[0]['parent'];
 			$parent_uri = $r[0]['uri'];
 			if($r[0]['id'] != $r[0]['parent']) {
@@ -112,7 +112,7 @@ function item_post(&$a) {
 			}
 		}
 
-		if(($r === false) || (! count($r))) {
+		if(! dbm::is_result($r)) {
 			notice( t('Unable to locate original post.') . EOL);
 			if(x($_REQUEST,'return'))
 				goaway($return_path);
@@ -141,7 +141,7 @@ function item_post(&$a) {
 
 				$r = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 					dbesc(normalise_link($thrparent[0]["author-link"])));
-				if (count($r)) {
+				if (dbm::is_result($r)) {
 					$parent_contact = $r[0];
 					$parent_contact["thumb"] = $parent_contact["photo"];
 					$parent_contact["micro"] = $parent_contact["photo"];
@@ -330,7 +330,7 @@ function item_post(&$a) {
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
 					intval(local_user())
 				);
-				if(count($r) && intval($r[0]['pubmail']))
+				if (dbm::is_result($r) && intval($r[0]['pubmail']))
 					$pubmail_enabled = true;
 			}
 		}
@@ -464,7 +464,7 @@ function item_post(&$a) {
 					intval($profile_uid)
 				);
 
-				if(! count($r))
+				if(! dbm::is_result($r))
 					continue;
 
 				$r = q("UPDATE `photo` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'

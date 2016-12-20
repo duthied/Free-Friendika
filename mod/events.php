@@ -332,7 +332,7 @@ function events_content(&$a) {
 
 		$links = array();
 
-		if(count($r)) {
+		if (dbm::is_result($r)) {
 			$r = sort_by_date($r);
 			foreach($r as $rr) {
 				$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'j') : datetime_convert('UTC','UTC',$rr['start'],'j'));
@@ -344,9 +344,10 @@ function events_content(&$a) {
 		$events=array();
 
 		// transform the event in a usable array
-		if(count($r))
+		if (dbm::is_result($r)) {
 			$r = sort_by_date($r);
 			$events = process_events($r);
+		}
 
 		if ($a->argv[1] === 'json'){
 			echo json_encode($events); killme();
@@ -403,7 +404,7 @@ function events_content(&$a) {
 			intval($event_id),
 			intval(local_user())
 		);
-		if(count($r))
+		if (dbm::is_result($r))
 			$orig_event = $r[0];
 	}
 

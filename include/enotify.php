@@ -411,7 +411,7 @@ function notification($params) {
 			$hash = random_string();
 			$r = q("SELECT `id` FROM `notify` WHERE `hash` = '%s' LIMIT 1",
 				dbesc($hash));
-			if (count($r))
+			if (dbm::is_result($r))
 				$dups = true;
 		} while($dups == true);
 
@@ -648,6 +648,7 @@ function notification($params) {
  * @param str $defaulttype (Optional) Forces a notification with this type.
  */
 function check_item_notification($itemid, $uid, $defaulttype = "") {
+	$a = get_app();
 
 	$notification_data = array("uid" => $uid, "profiles" => array());
 	call_hooks('check_item_notification', $notification_data);
@@ -666,7 +667,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$profiles[] = $owner[0]["url"];
 
 	// Notifications from Diaspora are often with an URL in the Diaspora format
-	$profiles[] = App::get_baseurl()."/u/".$user[0]["nickname"];
+	$profiles[] = $a->get_baseurl()."/u/".$user[0]["nickname"];
 
 	$profiles2 = array();
 
@@ -732,17 +733,17 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 			intval($item[0]['contact-id']),
 			intval($uid)
 		);
-		$send_notification = count($r);
+		$send_notification = dbm::is_result($r);
 
 		if (!$send_notification) {
 			$tags = q("SELECT `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` = %d AND `uid` = %d",
 				intval(TERM_OBJ_POST), intval($itemid), intval(TERM_MENTION), intval($uid));
 
-			if (count($tags)) {
+			if (dbm::is_result($tags)) {
 				foreach ($tags AS $tag) {
 					$r = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `notify_new_posts`",
 						normalise_link($tag["url"]), intval($uid));
-					if (count($r))
+					if (dbm::is_result($r))
 						$send_notification = true;
 				}
 			}

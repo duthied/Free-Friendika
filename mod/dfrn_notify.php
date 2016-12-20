@@ -42,7 +42,7 @@ function dfrn_notify_post(&$a) {
 		dbesc($dfrn_id),
 		dbesc($challenge)
 	);
-	if(! count($r)) {
+	if(! dbm::is_result($r)) {
 		logger('dfrn_notify: could not match challenge to dfrn_id ' . $dfrn_id . ' challenge=' . $challenge);
 		xml_status(3);
 	}
@@ -88,7 +88,7 @@ function dfrn_notify_post(&$a) {
 		dbesc($a->argv[1])
 	);
 
-	if(! count($r)) {
+	if(! dbm::is_result($r)) {
 		logger('dfrn_notify: contact not found for dfrn_id ' . $dfrn_id);
 		xml_status(3);
 		//NOTREACHED
@@ -284,7 +284,7 @@ function dfrn_notify_content(&$a) {
 				dbesc($a->argv[1])
 		);
 
-		if(! count($r))
+		if(! dbm::is_result($r))
 			$status = 1;
 
 		logger("Remote rino version: ".$rino_remote." for ".$r[0]["url"], LOGGER_DEBUG);

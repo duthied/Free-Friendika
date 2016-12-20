@@ -78,7 +78,7 @@ function editpost_content(&$a) {
 		$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
 			intval(local_user())
 		);
-		if(count($r)) {
+		if (dbm::is_result($r)) {
 			$mail_enabled = true;
 			if(intval($r[0]['pubmail']))
 				$pubmail_enabled = true;

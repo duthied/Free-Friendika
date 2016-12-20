@@ -88,7 +88,7 @@ class NotificationsManager {
 				intval(local_user())
 			);
 
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			return $this->_set_extra($r);
 
 		return false;
@@ -105,7 +105,7 @@ class NotificationsManager {
 			intval($id),
 			intval(local_user())
 		);
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			return $this->_set_extra($r)[0];
 		}
 		return null;
@@ -358,7 +358,7 @@ class NotificationsManager {
 			intval(local_user())
 		);
 
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			return $r[0]['total'];
 
 		return 0;
@@ -401,7 +401,7 @@ class NotificationsManager {
 				intval($limit)
 		);
 
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			$notifs = $this->formatNotifs($r, $ident);
 
 		$arr = array (
@@ -430,7 +430,7 @@ class NotificationsManager {
 			intval(local_user())
 		);
 
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			return $r[0]['total'];
 
 		return 0;
@@ -466,7 +466,7 @@ class NotificationsManager {
 			intval($limit)
 		);
 
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			$notifs = $this->formatNotifs($r, $ident);
 
 		$arr = array (
@@ -520,7 +520,7 @@ class NotificationsManager {
 			intval(local_user())
 		);
 
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			return $r[0]['total'];
 
 		return 0;
@@ -564,7 +564,7 @@ class NotificationsManager {
 				intval($limit)
 		);
 
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			$notifs = $this->formatNotifs($r, $ident);
 		
 		$arr = array (
@@ -596,7 +596,7 @@ class NotificationsManager {
 			intval(local_user())
 		);
 
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			return $r[0]['total'];
 
 		return 0;
@@ -638,7 +638,7 @@ class NotificationsManager {
 				intval($limit)
 		);
 
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			$notifs = $this->formatNotifs($r, $ident);
 
 		$arr = array (
@@ -668,7 +668,7 @@ class NotificationsManager {
 				intval($_SESSION['uid'])
 		);
 
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			return $r[0]['total'];
 
 		return 0;
@@ -713,7 +713,7 @@ class NotificationsManager {
 				intval($limit)
 		);
 
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			$notifs = $this->formatIntros($r);
 
 		$arr = array (

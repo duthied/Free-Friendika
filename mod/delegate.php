@@ -26,12 +26,12 @@ function delegate_content(&$a) {
 		$r = q("select `nickname` from user where uid = %d limit 1",
 			intval($id)
 		);
-		if(count($r)) {
+		if (dbm::is_result($r)) {
 			$r = q("select id from contact where uid = %d and nurl = '%s' limit 1",
 				intval(local_user()),
 				dbesc(normalise_link($a->get_baseurl() . '/profile/' . $r[0]['nickname']))
 			);
-			if(count($r)) {
+			if (dbm::is_result($r)) {
 				q("insert into manage ( uid, mid ) values ( %d , %d ) ",
 					intval($a->argv[2]),
 					intval(local_user())
@@ -64,7 +64,7 @@ function delegate_content(&$a) {
 		dbesc($a->user['email']),
 		dbesc($a->user['password'])
 	);
-	if(count($r))
+	if (dbm::is_result($r))
 		$full_managers = $r;
 
 	$delegates = array();
@@ -75,7 +75,7 @@ function delegate_content(&$a) {
 		intval(local_user())
 	);
 
-	if(count($r))
+	if (dbm::is_result($r))
 		$delegates = $r;
 
 	$uids = array();
@@ -97,14 +97,14 @@ function delegate_content(&$a) {
 		dbesc(NETWORK_DFRN)
 	); 
 
-	if(! count($r)) {
+	if(! dbm::is_result($r)) {
 		notice( t('No potential page delegates located.') . EOL);
 		return;
 	}
 
 	$nicknames = array();
 
-	if(count($r)) {
+	if (dbm::is_result($r)) {
 		foreach($r as $rr) {
 			$nicknames[] = "'" . dbesc(basename($rr['nurl'])) . "'";
 		}
@@ -118,7 +118,7 @@ function delegate_content(&$a) {
 
 	$r = q("select `uid`, `username`, `nickname` from user where nickname in ( $nicks )");
 
-	if(count($r))
+	if (dbm::is_result($r))
 		foreach($r as $rr)
 			if(! in_array($rr['uid'],$uids))
 				$potentials[] = $rr;
