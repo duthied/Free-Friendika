@@ -271,7 +271,7 @@ function frio_remote_nav($a,&$nav) {
  * We use this to give the data to textcomplete and have a filter function at the
  * contact page.
  * 
- * @param App $a The app data
+ * @param App $a The app data @TODO Unused
  * @param array $results The array with the originals from acl_lookup()
  */
 function frio_acl_lookup($a, &$results) {
@@ -281,17 +281,18 @@ function frio_acl_lookup($a, &$results) {
 
 	// we introduce a new search type, r should do the same query like it's
 	// done in /mod/contacts for connections
-	if($results["type"] == "r") {
+	if ($results["type"] == "r") {
 		$searching = false;
-		if($search) {
+		if ($search) {
 			$search_hdr = $search;
 			$search_txt = dbesc(protect_sprintf(preg_quote($search)));
 			$searching = true;
 		}
 		$sql_extra .= (($searching) ? " AND (`attag` LIKE '%%".dbesc($search_txt)."%%' OR `name` LIKE '%%".dbesc($search_txt)."%%' OR `nick` LIKE '%%".dbesc($search_txt)."%%') " : "");
 
-		if($nets)
+		if ($nets) {
 			$sql_extra .= sprintf(" AND network = '%s' ", dbesc($nets));
+		}
 
 		$sql_extra2 = ((($sort_type > 0) && ($sort_type <= CONTACT_IS_FRIEND)) ? sprintf(" AND `rel` = %d ",intval($sort_type)) : '');
 
@@ -312,7 +313,7 @@ function frio_acl_lookup($a, &$results) {
 		$contacts = array();
 
 		if (dbm::is_result($r)) {
-			foreach($r as $rr) {
+			foreach ($r as $rr) {
 				$contacts[] = _contact_detail_for_template($rr);
 			}
 		}
