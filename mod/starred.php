@@ -17,7 +17,7 @@ function starred_init(&$a) {
 		killme();
 	}
 
-	$r = q("SELECT starred FROM item WHERE uid = %d AND id = %d LIMIT 1",
+	$r = q("SELECT `starred` FROM `item` WHERE `uid` = %d AND `id` = %d LIMIT 1",
 		intval(local_user()),
 		intval($message_id)
 	);
@@ -25,10 +25,11 @@ function starred_init(&$a) {
 		killme();
 	}
 
-	if(! intval($r[0]['starred']))
+	if (! intval($r[0]['starred'])) {
 		$starred = 1;
+	}
 
-	$r = q("UPDATE item SET starred = %d WHERE uid = %d and id = %d",
+	$r = q("UPDATE `item` SET `starred` = %d WHERE `uid` = %d AND `id` = %d",
 		intval($starred),
 		intval(local_user()),
 		intval($message_id)
@@ -38,10 +39,14 @@ function starred_init(&$a) {
 
 	// See if we've been passed a return path to redirect to
 	$return_path = ((x($_REQUEST,'return')) ? $_REQUEST['return'] : '');
-	if($return_path) {
+	if ($return_path) {
 		$rand = '_=' . time();
-		if(strpos($return_path, '?')) $rand = "&$rand";
-		else $rand = "?$rand";
+		if (strpos($return_path, '?')) {
+			$rand = "&$rand";
+		}
+		else {
+			$rand = "?$rand";
+		}
 
 		goaway(App::get_baseurl() . "/" . $return_path . $rand);
 	}

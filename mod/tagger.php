@@ -94,8 +94,9 @@ EOT;
 
 	$bodyverb = t('%1$s tagged %2$s\'s %3$s with %4$s');
 
-	if(! isset($bodyverb))
-			return;
+	if (! isset($bodyverb)) {
+		return;
+	}
 
 	$termlink = html_entity_decode('&#x2317;') . '[url=' . App::get_baseurl() . '/search?tag=' . urlencode($term) . ']'. $term . '[/url]';
 

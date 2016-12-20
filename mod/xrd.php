@@ -41,13 +41,15 @@ function xrd_init(&$a) {
 
 	$profile_url = App::get_baseurl().'/profile/'.$r[0]['nickname'];
 
-	if ($acct)
+	if ($acct) {
 		$alias = $profile_url;
+	}
 	else {
 		$alias = 'acct:'.$r[0]['nickname'].'@'.$a->get_hostname();
 
-		if ($a->get_path())
+		if ($a->get_path()) {
 			$alias .= '/'.$a->get_path();
+		}
 	}
 
 	$o = replace_macros($tpl, array(
@@ -65,7 +67,7 @@ function xrd_init(&$a) {
 		'$salmen'      => App::get_baseurl() . '/salmon/'        . $r[0]['nickname'] . '/mention',
 		'$subscribe'   => App::get_baseurl() . '/follow?url={uri}',
 		'$modexp'      => 'data:application/magic-public-key,'  . $salmon_key,
-		'$bigkey'      =>  salmon_key($r[0]['pubkey'])
+		'$bigkey'      => salmon_key($r[0]['pubkey']),
 	));
 
 
