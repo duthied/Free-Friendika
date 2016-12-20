@@ -49,7 +49,7 @@ function allfriends_content(App &$a) {
 
 	$id = 0;
 
-	foreach($r as $rr) {
+	foreach ($r as $rr) {
 
 		//get further details of the contact
 		$contact_details = get_contact_details_by_url($rr['url'], $uid, $rr);

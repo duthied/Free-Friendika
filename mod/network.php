@@ -183,13 +183,13 @@ function saved_searches($search) {
 	$saved = array();
 
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			$saved[] = array(
-				'id'		=> $rr['id'],
-				'term'		=> $rr['term'],
-				'encodedterm' 	=> urlencode($rr['term']),
-				'delete'	=> t('Remove term'),
-				'selected'	=> ($search==$rr['term']),
+				'id'          => $rr['id'],
+				'term'        => $rr['term'],
+				'encodedterm' => urlencode($rr['term']),
+				'delete'      => t('Remove term'),
+				'selected'    => ($search==$rr['term']),
 			);
 		}
 	}
@@ -197,10 +197,10 @@ function saved_searches($search) {
 
 	$tpl = get_markup_template("saved_searches_aside.tpl");
 	$o = replace_macros($tpl, array(
-		'$title'	=> t('Saved Searches'),
-		'$add'		=> t('add'),
-		'$searchbox'	=> search($search,'netsearch-box',$srchurl,true),
-		'$saved' 	=> $saved,
+		'$title'     => t('Saved Searches'),
+		'$add'       => t('add'),
+		'$searchbox' => search($search,'netsearch-box',$srchurl,true),
+		'$saved'     => $saved,
 	));
 
 	return $o;

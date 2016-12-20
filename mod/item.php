@@ -59,13 +59,14 @@ function item_post(App &$a) {
 	// Check for doubly-submitted posts, and reject duplicates
 	// Note that we have to ignore previews, otherwise nothing will post
 	// after it's been previewed
-	if(!$preview && x($_REQUEST['post_id_random'])) {
-		if(x($_SESSION['post-random']) && $_SESSION['post-random'] == $_REQUEST['post_id_random']) {
+	if (!$preview && x($_REQUEST['post_id_random'])) {
+		if (x($_SESSION['post-random']) && $_SESSION['post-random'] == $_REQUEST['post_id_random']) {
 			logger("item post: duplicate post", LOGGER_DEBUG);
 			item_post_return(App::get_baseurl(), $api_source, $return_path);
 		}
-		else
+		else {
 			$_SESSION['post-random'] = $_REQUEST['post_id_random'];
+		}
 	}
 
 	/**
@@ -82,18 +83,20 @@ function item_post(App &$a) {
 	$r = false;
 	$objecttype = null;
 
-	if($parent || $parent_uri) {
+	if ($parent || $parent_uri) {
 
 		$objecttype = ACTIVITY_OBJ_COMMENT;
 
-		if(! x($_REQUEST,'type'))
+		if (! x($_REQUEST,'type')) {
 			$_REQUEST['type'] = 'net-comment';
+		}
 
-		if($parent) {
+		if ($parent) {
 			$r = q("SELECT * FROM `item` WHERE `id` = %d LIMIT 1",
 				intval($parent)
 			);
-		} elseif($parent_uri && local_user()) {
+		}
+		elseif ($parent_uri && local_user()) {
 			// This is coming from an API source, and we are logged in
 			$r = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
 				dbesc($parent_uri),
@@ -105,7 +108,7 @@ function item_post(App &$a) {
 		if (dbm::is_result($r)) {
 			$parid = $r[0]['parent'];
 			$parent_uri = $r[0]['uri'];
-			if($r[0]['id'] != $r[0]['parent']) {
+			if ($r[0]['id'] != $r[0]['parent']) {
 				$r = q("SELECT * FROM `item` WHERE `id` = `parent` AND `parent` = %d LIMIT 1",
 					intval($parid)
 				);
@@ -114,8 +117,9 @@ function item_post(App &$a) {
 
 		if (! dbm::is_result($r)) {
 			notice( t('Unable to locate original post.') . EOL);
-			if(x($_REQUEST,'return'))
+			if (x($_REQUEST,'return')) {
 				goaway($return_path);
+			}
 			killme();
 		}
 		$parent_item = $r[0];
@@ -125,7 +129,7 @@ function item_post(App &$a) {
 		//if(($parid) && ($parid != $parent))
 		$thr_parent = $parent_uri;
 
-		if($parent_item['contact-id'] && $uid) {
+		if ($parent_item['contact-id'] && $uid) {
 			$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 				intval($parent_item['contact-id']),
 				intval($uid)
@@ -449,13 +453,15 @@ function item_post(App &$a) {
 
 			$objecttype = ACTIVITY_OBJ_IMAGE;
 
-			foreach($images as $image) {
-				if(! stristr($image,App::get_baseurl() . '/photo/'))
+			foreach ($images as $image) {
+				if (! stristr($image,App::get_baseurl() . '/photo/')) {
 					continue;
+				}
 				$image_uri = substr($image,strrpos($image,'/') + 1);
 				$image_uri = substr($image_uri,0, strpos($image_uri,'-'));
-				if(! strlen($image_uri))
+				if (! strlen($image_uri)) {
 					continue;
+				}
 				$srch = '<' . intval($contact_id) . '>';
 
 				$r = q("SELECT `id` FROM `photo` WHERE `allow_cid` = '%s' AND `allow_gid` = '' AND `deny_cid` = '' AND `deny_gid` = ''

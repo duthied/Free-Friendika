@@ -129,10 +129,12 @@ function contacts_batch_actions(App &$a){
 		info ( sprintf( tt("%d contact edited.", "%d contacts edited.", $count_actions), $count_actions) );
 	}
 
-	if(x($_SESSION,'return_url'))
+	if (x($_SESSION,'return_url')) {
 		goaway('' . $_SESSION['return_url']);
-	else
+	}
+	else {
 		goaway('contacts');
+	}
 
 }
 
@@ -387,7 +389,7 @@ function contacts_content(App &$a) {
 
 		if($cmd === 'block') {
 			$r = _contact_block($contact_id, $orig_record[0]);
-			if($r) {
+			if ($r) {
 				$blocked = (($orig_record[0]['blocked']) ? 0 : 1);
 				info((($blocked) ? t('Contact has been blocked') : t('Contact has been unblocked')).EOL);
 			}
@@ -398,7 +400,7 @@ function contacts_content(App &$a) {
 
 		if($cmd === 'ignore') {
 			$r = _contact_ignore($contact_id, $orig_record[0]);
-			if($r) {
+			if ($r) {
 				$readonly = (($orig_record[0]['readonly']) ? 0 : 1);
 				info((($readonly) ? t('Contact has been ignored') : t('Contact has been unignored')).EOL);
 			}
@@ -410,7 +412,7 @@ function contacts_content(App &$a) {
 
 		if($cmd === 'archive') {
 			$r = _contact_archive($contact_id, $orig_record[0]);
-			if($r) {
+			if ($r) {
 				$archived = (($orig_record[0]['archive']) ? 0 : 1);
 				info((($archived) ? t('Contact has been archived') : t('Contact has been unarchived')).EOL);
 			}
@@ -449,22 +451,26 @@ function contacts_content(App &$a) {
 				));
 			}
 			// Now check how the user responded to the confirmation query
-			if($_REQUEST['canceled']) {
-				if(x($_SESSION,'return_url'))
+			if ($_REQUEST['canceled']) {
+				if (x($_SESSION,'return_url')) {
 					goaway('' . $_SESSION['return_url']);
-				else
+				}
+				else {
 					goaway('contacts');
+				}
 			}
 
 			_contact_drop($contact_id, $orig_record[0]);
 			info( t('Contact has been removed.') . EOL );
-			if(x($_SESSION,'return_url'))
+			if (x($_SESSION,'return_url')) {
 				goaway('' . $_SESSION['return_url']);
-			else
+			}
+			else {
 				goaway('contacts');
+			}
 			return; // NOTREACHED
 		}
-		if($cmd === 'posts') {
+		if ($cmd === 'posts') {
 			return contact_posts($a, $contact_id);
 		}
 	}
