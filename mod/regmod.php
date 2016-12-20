@@ -38,8 +38,9 @@ function user_allow($hash) {
 	);
 	if (dbm::is_result($r) && $r[0]['net-publish']) {
 		$url = App::get_baseurl() . '/profile/' . $user[0]['nickname'];
-		if($url && strlen(get_config('system','directory')))
+		if ($url && strlen(get_config('system','directory'))) {
 			proc_run(PRIORITY_LOW, "include/directory.php", $url);
+		}
 	}
 
 	push_lang($register[0]['language']);

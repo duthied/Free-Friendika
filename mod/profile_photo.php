@@ -124,8 +124,9 @@ function profile_photo_post(App &$a) {
 				info( t('Shift-reload the page or clear browser cache if the new photo does not display immediately.') . EOL);
 				// Update global directory in background
 				$url = App::get_baseurl() . '/profile/' . $a->user['nickname'];
-				if($url && strlen(get_config('system','directory')))
+				if ($url && strlen(get_config('system','directory'))) {
 					proc_run(PRIORITY_LOW, "include/directory.php", $url);
+				}
 
 				require_once('include/profile_update.php');
 				profile_change();
@@ -223,8 +224,9 @@ function profile_photo_content(App &$a) {
 
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
-			if($url && strlen(get_config('system','directory')))
+			if ($url && strlen(get_config('system','directory'))) {
 				proc_run(PRIORITY_LOW, "include/directory.php", $url);
+			}
 
 			goaway(App::get_baseurl() . '/profiles');
 			return; // NOTREACHED
