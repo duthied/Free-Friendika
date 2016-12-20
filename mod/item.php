@@ -766,8 +766,9 @@ function item_post(&$a) {
 		}
 
 		$json = array('cancel' => 1);
-		if(x($_REQUEST,'jsreload') && strlen($_REQUEST['jsreload']))
+		if (x($_REQUEST,'jsreload') && strlen($_REQUEST['jsreload'])) {
 			$json['reload'] = App::get_baseurl() . '/' . $_REQUEST['jsreload'];
+		}
 
 		echo json_encode($json);
 		killme();
@@ -1049,13 +1050,14 @@ function item_post_return($baseurl, $api_source, $return_path) {
 	if($api_source)
 		return;
 
-	if($return_path) {
+	if ($return_path) {
 		goaway($return_path);
 	}
 
 	$json = array('success' => 1);
-	if(x($_REQUEST,'jsreload') && strlen($_REQUEST['jsreload']))
+	if (x($_REQUEST,'jsreload') && strlen($_REQUEST['jsreload'])) {
 		$json['reload'] = $baseurl . '/' . $_REQUEST['jsreload'];
+	}
 
 	logger('post_json: ' . print_r($json,true), LOGGER_DEBUG);
 
@@ -1067,15 +1069,16 @@ function item_post_return($baseurl, $api_source, $return_path) {
 
 function item_content(&$a) {
 
-	if((! local_user()) && (! remote_user()))
+	if ((! local_user()) && (! remote_user())) {
 		return;
+	}
 
 	require_once('include/security.php');
 
 	$o = '';
-	if(($a->argc == 3) && ($a->argv[1] === 'drop') && intval($a->argv[2])) {
+	if (($a->argc == 3) && ($a->argv[1] === 'drop') && intval($a->argv[2])) {
 		$o = drop_item($a->argv[2], !is_ajax());
-		if (is_ajax()){
+		if (is_ajax()) {
 			// ajax return: [<item id>, 0 (no perm) | <owner id>]
 			echo json_encode(array(intval($a->argv[2]), intval($o)));
 			killme();
@@ -1088,6 +1091,7 @@ function item_content(&$a) {
  * This function removes the tag $tag from the text $body and replaces it with
  * the appropiate link.
  *
+ * @param App $a Application instance @TODO is unused in this function's scope (excluding included files)
  * @param unknown_type $body the text to replace the tag in
  * @param string $inform a comma-seperated string containing everybody to inform
  * @param string $str_tags string to add the tag to
@@ -1105,13 +1109,14 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 	$r = null;
 
 	//is it a person tag?
-	if(strpos($tag,'@') === 0) {
+	if (strpos($tag,'@') === 0) {
 		//is it already replaced?
-		if(strpos($tag,'[url=')) {
+		if (strpos($tag,'[url=')) {
 			//append tag to str_tags
-			if(!stristr($str_tags,$tag)) {
-				if(strlen($str_tags))
+			if (!stristr($str_tags,$tag)) {
+				if (strlen($str_tags)) {
 					$str_tags .= ',';
+				}
 				$str_tags .= $tag;
 			}
 
