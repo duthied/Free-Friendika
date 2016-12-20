@@ -8,16 +8,18 @@ require_once('mod/contacts.php');
 function allfriends_content(App &$a) {
 
 	$o = '';
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
 
-	if($a->argc > 1)
+	if ($a->argc > 1) {
 		$cid = intval($a->argv[1]);
+	}
 
-	if(! $cid)
+	if (! $cid) {
 		return;
+	}
 
 	$uid = $a->user['uid'];
 
@@ -26,7 +28,8 @@ function allfriends_content(App &$a) {
 		intval(local_user())
 	);
 
-	if(! count($c))
+	if (! count($c)) {
+	}
 		return;
 
 	$a->page['aside'] = "";

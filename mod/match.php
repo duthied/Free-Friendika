@@ -16,8 +16,9 @@ require_once('mod/proxy.php');
 function match_content(App &$a) {
 
 	$o = '';
-	if(! local_user())
+	if (! local_user()) {
 		return;
+	}
 
 	$a->page['aside'] .= findpeople_widget();
 	$a->page['aside'] .= follow_widget();

@@ -8,8 +8,9 @@ require_once('mod/proxy.php');
 require_once('include/Photo.php');
 
 function contacts_init(App &$a) {
-	if(! local_user())
+	if (! local_user()) {
 		return;
+	}
 
 	$contact_id = 0;
 
@@ -138,8 +139,9 @@ function contacts_batch_actions(App &$a){
 
 function contacts_post(App &$a) {
 
-	if(! local_user())
+	if (! local_user()) {
 		return;
+	}
 
 	if ($a->argv[1]==="batch") {
 		contacts_batch_actions($a);
@@ -147,15 +149,16 @@ function contacts_post(App &$a) {
 	}
 
 	$contact_id = intval($a->argv[1]);
-	if(! $contact_id)
+	if (! $contact_id) {
 		return;
+	}
 
 	$orig_record = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 		intval($contact_id),
 		intval(local_user())
 	);
 
-	if(! count($orig_record)) {
+	if (! count($orig_record)) {
 		notice( t('Could not access contact record.') . EOL);
 		goaway('contacts');
 		return; // NOTREACHED
@@ -164,7 +167,7 @@ function contacts_post(App &$a) {
 	call_hooks('contact_edit_post', $_POST);
 
 	$profile_id = intval($_POST['profile-assign']);
-	if($profile_id) {
+	if ($profile_id) {
 		$r = q("SELECT `id` FROM `profile` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($profile_id),
 			intval(local_user())
@@ -346,7 +349,7 @@ function contacts_content(App &$a) {
 	nav_set_selected('contacts');
 
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}

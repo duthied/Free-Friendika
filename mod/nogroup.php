@@ -6,14 +6,16 @@ require_once('include/contact_selectors.php');
 
 function nogroup_init(App &$a) {
 
-	if(! local_user())
+	if (! local_user()) {
 		return;
+	}
 
 	require_once('include/group.php');
 	require_once('include/contact_widgets.php');
 
-	if(! x($a->page,'aside'))
+	if (! x($a->page,'aside')) {
 		$a->page['aside'] = '';
+	}
 
 	$a->page['aside'] .= group_side('contacts','group','extended',0,$contact_id);
 }
@@ -21,7 +23,7 @@ function nogroup_init(App &$a) {
 
 function nogroup_content(App &$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return '';
 	}

@@ -3,8 +3,9 @@ require_once("include/contact_selectors.php");
 require_once("mod/contacts.php");
 
 function crepair_init(App &$a) {
-	if(! local_user())
+	if (! local_user()) {
 		return;
+	}
 
 	$contact_id = 0;
 
@@ -31,8 +32,9 @@ function crepair_init(App &$a) {
 
 
 function crepair_post(App &$a) {
-	if(! local_user())
+	if (! local_user()) {
 		return;
+	}
 
 	$cid = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
@@ -97,7 +99,7 @@ function crepair_post(App &$a) {
 
 function crepair_content(App &$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}

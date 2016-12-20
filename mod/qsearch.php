@@ -2,8 +2,9 @@
 
 function qsearch_init(App &$a) {
 
-	if(! local_user())
+	if (! local_user()) {
 		killme();
+	}
 
 	$limit = (get_config('system','qsearch_limit') ? intval(get_config('system','qsearch_limit')) : 100);
 

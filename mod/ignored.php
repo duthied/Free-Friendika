@@ -5,12 +5,15 @@ function ignored_init(App &$a) {
 
 	$ignored = 0;
 
-	if(! local_user())
+	if (! local_user()) {
 		killme();
-	if($a->argc > 1)
+	}
+	if ($a->argc > 1) {
 		$message_id = intval($a->argv[1]);
-	if(! $message_id)
+	}
+	if (! $message_id) {
 		killme();
+	}
 
 	$r = q("SELECT `ignored` FROM `thread` WHERE `uid` = %d AND `iid` = %d LIMIT 1",
 		intval(local_user()),
@@ -20,8 +23,9 @@ function ignored_init(App &$a) {
 		killme();
 	}
 
-	if(! intval($r[0]['ignored']))
+	if (! intval($r[0]['ignored'])) {
 		$ignored = 1;
+	}
 
 	$r = q("UPDATE `thread` SET `ignored` = %d WHERE `uid` = %d and `iid` = %d",
 		intval($ignored),
@@ -31,7 +35,7 @@ function ignored_init(App &$a) {
 
 	// See if we've been passed a return path to redirect to
 	$return_path = ((x($_REQUEST,'return')) ? $_REQUEST['return'] : '');
-	if($return_path) {
+	if ($return_path) {
 		$rand = '_=' . time();
 		if(strpos($return_path, '?')) $rand = "&$rand";
 		else $rand = "?$rand";

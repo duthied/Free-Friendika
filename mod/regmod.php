@@ -103,32 +103,33 @@ function regmod_content(App &$a) {
 
 	$_SESSION['return_url'] = $a->cmd;
 
-	if(! local_user()) {
+	if (! local_user()) {
 		info( t('Please login.') . EOL);
 		$o .= '<br /><br />' . login(($a->config['register_policy'] == REGISTER_CLOSED) ? 0 : 1);
 		return $o;
 	}
 
-	if((!is_site_admin()) || (x($_SESSION,'submanage') && intval($_SESSION['submanage']))) {
+	if ((!is_site_admin()) || (x($_SESSION,'submanage') && intval($_SESSION['submanage']))) {
 		notice( t('Permission denied.') . EOL);
 		return '';
 	}
 
-	if($a->argc != 3)
+	if ($a->argc != 3) {
 		killme();
+	}
 
 	$cmd  = $a->argv[1];
 	$hash = $a->argv[2];
 
 
 
-	if($cmd === 'deny') {
+	if ($cmd === 'deny') {
 		user_deny($hash);
 		goaway(App::get_baseurl()."/admin/users/");
 		killme();
 	}
 
-	if($cmd === 'allow') {
+	if ($cmd === 'allow') {
 		user_allow($hash);
 		goaway(App::get_baseurl()."/admin/users/");
 		killme();

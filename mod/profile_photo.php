@@ -4,7 +4,7 @@ require_once("include/Photo.php");
 
 function profile_photo_init(App &$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		return;
 	}
 
@@ -15,7 +15,7 @@ function profile_photo_init(App &$a) {
 
 function profile_photo_post(App &$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice ( t('Permission denied.') . EOL );
 		return;
 	}
@@ -172,7 +172,7 @@ function profile_photo_post(App &$a) {
 if(! function_exists('profile_photo_content')) {
 function profile_photo_content(App &$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL );
 		return;
 	}

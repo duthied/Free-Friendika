@@ -7,12 +7,15 @@ function starred_init(App &$a) {
 
 	$starred = 0;
 
-	if(! local_user())
+	if (! local_user()) {
 		killme();
-	if($a->argc > 1)
+	}
+	if ($a->argc > 1) {
 		$message_id = intval($a->argv[1]);
-	if(! $message_id)
+	}
+	if (! $message_id) {
 		killme();
+	}
 
 	$r = q("SELECT starred FROM item WHERE uid = %d AND id = %d LIMIT 1",
 		intval(local_user()),

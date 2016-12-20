@@ -2,8 +2,9 @@
 
 function profperm_init(App &$a) {
 
-	if(! local_user())
+	if (! local_user()) {
 		return;
+	}
 
 	$which = $a->user['nickname'];
 	$profile = $a->argv[1];
@@ -15,7 +16,7 @@ function profperm_init(App &$a) {
 
 function profperm_content(App &$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied') . EOL);
 		return;
 	}

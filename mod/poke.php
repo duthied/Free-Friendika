@@ -21,25 +21,29 @@ require_once('include/items.php');
 
 function poke_init(App &$a) {
 
-	if(! local_user())
+	if (! local_user()) {
 		return;
+	}
 
 	$uid = local_user();
 	$verb = notags(trim($_GET['verb']));
 
-	if(! $verb)
+	if (! $verb) {
 		return;
+	}
 
 	$verbs = get_poke_verbs();
 
-	if(! array_key_exists($verb,$verbs))
+	if (! array_key_exists($verb,$verbs)) {
 		return;
+	}
 
 	$activity = ACTIVITY_POKE . '#' . urlencode($verbs[$verb][0]);
 
 	$contact_id = intval($_GET['cid']);
-	if(! $contact_id)
+	if (! $contact_id) {
 		return;
+	}
 
 	$parent = ((x($_GET,'parent')) ? intval($_GET['parent']) : 0);
 
@@ -146,7 +150,7 @@ function poke_init(App &$a) {
 
 function poke_content(App &$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
