@@ -78,7 +78,7 @@ function item_redir_and_replace_images($body, $images, $cid) {
 	$newbody .= $origbody;
 
 	$cnt = 0;
-	foreach($images as $image) {
+	foreach ($images as $image) {
 		// We're depending on the property of 'foreach' (specified on the PHP website) that
 		// it loops over the array starting from the first element and going sequentially
 		// to the last element

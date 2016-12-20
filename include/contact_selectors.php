@@ -13,7 +13,7 @@ function contact_profile_assign($current,$foreign_net) {
 			intval($_SESSION['uid']));
 
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			$selected = (($rr['id'] == $current) ? " selected=\"selected\" " : "");
 			$o .= "<option value=\"{$rr['id']}\" $selected >{$rr['profile-name']}</option>\r\n";
 		}

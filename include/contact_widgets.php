@@ -97,9 +97,11 @@ function networks_widget($baseurl,$selected = '') {
 	$nets = array();
 	if (dbm::is_result($r)) {
 		require_once('include/contact_selectors.php');
-		foreach($r as $rr) {
-				if($rr['network'])
-					$nets[] = array('ref' => $rr['network'], 'name' => network_to_name($rr['network']), 'selected' => (($selected == $rr['network']) ? 'selected' : '' ));
+		foreach ($r as $rr) {
+			/// @TODO If 'network' is not there, this triggers an E_NOTICE
+			if ($rr['network']) {
+				$nets[] = array('ref' => $rr['network'], 'name' => network_to_name($rr['network']), 'selected' => (($selected == $rr['network']) ? 'selected' : '' ));
+			}
 		}
 	}
 
