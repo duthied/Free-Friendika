@@ -26,6 +26,7 @@ function noscrape_init(&$a) {
 	$keywords = str_replace(array('#',',',' ',',,'),array('',' ',',',','),$keywords);
 	$keywords = explode(',', $keywords);
 
+	/// @TODO This query's result is not being used (see below), maybe old-lost code?
 	$r = q("SELECT `photo` FROM `contact` WHERE `self` AND `uid` = %d",
 		intval($a->profile['uid']));
 
@@ -59,12 +60,16 @@ function noscrape_init(&$a) {
 
 	//These are optional fields.
 	$profile_fields = array('pdesc', 'locality', 'region', 'postal-code', 'country-name', 'gender', 'marital', 'about');
-	foreach($profile_fields as $field)
-		if(!empty($a->profile[$field])) $json_info["$field"] = $a->profile[$field];
+	foreach($profile_fields as $field) {
+		if(!empty($a->profile[$field])) {
+			$json_info["$field"] = $a->profile[$field];
+		}
+	}
 
 	$dfrn_pages = array('request', 'confirm', 'notify', 'poll');
-	foreach($dfrn_pages as $dfrn)
+	foreach($dfrn_pages as $dfrn) {
 		$json_info["dfrn-{$dfrn}"] = App::get_baseurl()."/dfrn_{$dfrn}/{$which}";
+	}
 
 	//Output all the JSON!
 	header('Content-type: application/json; charset=utf-8');
