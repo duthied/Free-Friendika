@@ -701,6 +701,33 @@ class diaspora {
 	}
 
 	/**
+	 * @brief get a url (scheme://domain.tld/u/user) from a given Diaspora
+	 * fcontact id or guid
+	 *
+	 * @param mixed $contact_id Either the numeric id or the string guid
+	 *
+	 * @return string the url
+	 */
+	public static function url_from_fcontact($contact_id) {
+		$handle = False;
+
+		logger("fcontact id is ".$contact_id, LOGGER_DEBUG);
+
+		if (is_numeric($contact_id)) {
+			$r = q("SELECT `url` FROM `fcontact` WHERE `id` = %d AND `network` = 'dspr' `url` != ''",
+				intval($contact_id));
+		}else {
+			$r = q("SELECT `url` FROM `fcontact` WHERE `guid` = '%s' AND `network` = 'dspr' AND `url` != ''",
+				$contact_id);
+		}
+		if ($r) {
+			return $r[0]['url'];
+		}
+
+		return null;
+	}
+
+	/**
 	 * @brief Get a contact id for a given handle
 	 *
 	 * @param int $uid The user id
@@ -824,6 +851,37 @@ class diaspora {
 			function ($match) use ($item){
 				return(self::fetch_guid_sub($match, $item));
 			},$item["body"]);
+	}
+
+	/**
+	 * @brief Checks for relative /people/* links to match local contacts or
+	 * prepends the remote host taken from the author link
+	 *
+	 * @param string $body The item body to replace links from
+	 * @param string $author_link The author link for missing local contact fallback
+	 */
+	public function replace_people_guid($body, $author_link) {
+		$return = preg_replace_callback("&\[url=/people/([^\[\]]*)\](.*)\[\/url\]&Usi",
+			function ($match) use ($author_link){
+				// $match
+				// 0 => '[url=/people/0123456789abcdef]Foo Bar[/url]'
+				// 1 => '0123456789abcdef'
+				// 2 => 'Foo Bar'
+				$handle = self::url_from_fcontact($match[1]);
+
+				if ($handle) {
+					$return = '@[url='.$handle.']'.$match[2].'[/url]';
+				}else {
+					// No local match, restoring absolute remote URL from author scheme and host
+					$author_url = parse_url($author_link);
+					$return = '[url='.$author_url['scheme'].'://'.$author_url['host'].'/people/'.$match[1].']'.$match[2].'[/url]';
+				}
+
+				return $return;
+
+			}, $body);
+
+		return $return;
 	}
 
 	/**
@@ -1169,6 +1227,8 @@ class diaspora {
 		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = $created_at;
 
 		$datarray["body"] = diaspora2bb($text);
+
+		$datarray["body"] = self::replace_people_gui($datarray);
 
 		self::fetch_guid($datarray);
 
@@ -1564,7 +1624,8 @@ class diaspora {
 
 		$reply = 0;
 
-		$body = diaspora2bb($text);
+		$body = self::replace_people_guid(diaspora2bb($text), $person["url"]);
+
 		$message_uri = $author.":".$guid;
 
 		$person = self::person_by_handle($author);
@@ -2031,7 +2092,7 @@ class diaspora {
 			if (self::is_reshare($r[0]["body"], true))
 				$r = array();
 			elseif (self::is_reshare($r[0]["body"], false)) {
-				$r[0]["body"] = diaspora2bb(bb2diaspora($r[0]["body"]));
+				$r[0]["body"] = self::replace_people_guid(diaspora2bb(bb2diaspora($r[0]["body"])), $r[0]["author-link"]);
 
 				// Add OEmbed and other information to the body
 				$r[0]["body"] = add_page_info_to_body($r[0]["body"], false, true);
@@ -2060,8 +2121,9 @@ class diaspora {
 
 				if ($r) {
 					// If it is a reshared post from another network then reformat to avoid display problems with two share elements
-					if (self::is_reshare($r[0]["body"], false))
-						$r[0]["body"] = diaspora2bb(bb2diaspora($r[0]["body"]));
+					if (self::is_reshare($r[0]["body"], false)) {
+						$r[0]["body"] = self::replace_people_guid(diaspora2bb(bb2diaspora($r[0]["body"])), $r[0]["author-link"]);
+					}
 
 					return $r[0];
 				}
@@ -2319,7 +2381,7 @@ class diaspora {
 
 		$datarray["object"] = $xml;
 
-		$datarray["body"] = $body;
+		$datarray["body"] = self::replace_people_guid($body, $datarray["author-link"]);
 
 		if ($provider_display_name != "")
 			$datarray["app"] = $provider_display_name;
