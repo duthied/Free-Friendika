@@ -669,27 +669,30 @@ class Diaspora {
 	 * @return string the handle
 	 */
 	public static function handle_from_contact($contact_id, $gcontact_id = 0) {
-		$handle = False;
+		$handle = false;
 
 		logger("contact id is ".$contact_id." - gcontact id is ".$gcontact_id, LOGGER_DEBUG);
 
 		if ($gcontact_id != 0) {
 			$r = q("SELECT `addr` FROM `gcontact` WHERE `id` = %d AND `addr` != ''",
 				intval($gcontact_id));
-			if ($r)
+
+			if (dbm::is_result($r)) {
 				return strtolower($r[0]["addr"]);
+			}
 		}
 
 		$r = q("SELECT `network`, `addr`, `self`, `url`, `nick` FROM `contact` WHERE `id` = %d",
 			intval($contact_id));
-		if ($r) {
+
+		if (dbm::is_result($r)) {
 			$contact = $r[0];
 
 			logger("contact 'self' = ".$contact['self']." 'url' = ".$contact['url'], LOGGER_DEBUG);
 
-			if($contact['addr'] != "")
+			if ($contact['addr'] != "") {
 				$handle = $contact['addr'];
-			else {
+			} else {
 				$baseurl_start = strpos($contact['url'],'://') + 3;
 				$baseurl_length = strpos($contact['url'],'/profile') - $baseurl_start; // allows installations in a subdirectory--not sure how Diaspora will handle
 				$baseurl = substr($contact['url'], $baseurl_start, $baseurl_length);
@@ -1168,22 +1171,26 @@ class Diaspora {
 		$text = unxmlify($data->text);
 		$author = notags(unxmlify($data->author));
 
-		if (isset($data->created_at))
+		if (isset($data->created_at)) {
 			$created_at = datetime_convert("UTC", "UTC", notags(unxmlify($data->created_at)));
-		else
+		} else {
 			$created_at = datetime_convert();
+		}
 
 		$contact = self::allowed_contact_by_handle($importer, $sender, true);
-		if (!$contact)
+		if (!$contact) {
 			return false;
+		}
 
 		$message_id = self::message_exists($importer["uid"], $guid);
-		if ($message_id)
+		if ($message_id) {
 			return $message_id;
+		}
 
 		$parent_item = self::parent_item($importer["uid"], $parent_guid, $author, $contact);
-		if (!$parent_item)
+		if (!$parent_item) {
 			return false;
+		}
 
 		$person = self::person_by_handle($author);
 		if (!is_array($person)) {
@@ -1229,8 +1236,9 @@ class Diaspora {
 
 		$message_id = item_store($datarray);
 
-		if ($message_id)
+		if ($message_id) {
 			logger("Stored comment ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
+		}
 
 		// If we are the origin of the parent we store the original data and notify our followers
 		if($message_id AND $parent_item["origin"]) {
@@ -1266,8 +1274,6 @@ class Diaspora {
 		$subject = notags(unxmlify($data->subject));
 		$author = notags(unxmlify($data->author));
 
-		$reply = 0;
-
 		$msg_guid = notags(unxmlify($mesg->guid));
 		$msg_parent_guid = notags(unxmlify($mesg->parent_guid));
 		$msg_parent_author_signature = notags(unxmlify($mesg->parent_author_signature));
@@ -1277,16 +1283,17 @@ class Diaspora {
 
 		// "diaspora_handle" is the element name from the old version
 		// "author" is the element name from the new version
-		if ($mesg->author)
+		if ($mesg->author) {
 			$msg_author = notags(unxmlify($mesg->author));
-		elseif ($mesg->diaspora_handle)
+		} elseif ($mesg->diaspora_handle) {
 			$msg_author = notags(unxmlify($mesg->diaspora_handle));
-		else
+		} else {
 			return false;
+		}
 
 		$msg_conversation_guid = notags(unxmlify($mesg->conversation_guid));
 
-		if($msg_conversation_guid != $guid) {
+		if ($msg_conversation_guid != $guid) {
 			logger("message conversation guid does not belong to the current conversation.");
 			return false;
 		}
@@ -1298,15 +1305,15 @@ class Diaspora {
 
 		$author_signature = base64_decode($msg_author_signature);
 
-		if(strcasecmp($msg_author,$msg["author"]) == 0) {
+		if (strcasecmp($msg_author,$msg["author"]) == 0) {
 			$person = $contact;
 			$key = $msg["key"];
 		} else {
 			$person = self::person_by_handle($msg_author);
 
-			if (is_array($person) && x($person, "pubkey"))
+			if (is_array($person) && x($person, "pubkey")) {
 				$key = $person["pubkey"];
-			else {
+			} else {
 				logger("unable to find author details");
 					return false;
 			}
@@ -1317,7 +1324,7 @@ class Diaspora {
 			return false;
 		}
 
-		if($msg_parent_author_signature) {
+		if ($msg_parent_author_signature) {
 			$owner_signed_data = $msg_guid.";".$msg_parent_guid.";".$msg_text.";".unxmlify($mesg->created_at).";".$msg_author.";".$msg_conversation_guid;
 
 			$parent_author_signature = base64_decode($msg_parent_author_signature);
@@ -1333,7 +1340,7 @@ class Diaspora {
 		$r = q("SELECT `id` FROM `mail` WHERE `uri` = '%s' LIMIT 1",
 			dbesc($message_uri)
 		);
-		if($r) {
+		if (dbm::is_result($r)) {
 			logger("duplicate message already delivered.", LOGGER_DEBUG);
 			return false;
 		}
@@ -1601,8 +1608,9 @@ class Diaspora {
 		$conversation_guid = notags(unxmlify($data->conversation_guid));
 
 		$contact = self::allowed_contact_by_handle($importer, $author, true);
-		if (!$contact)
+		if (!$contact) {
 			return false;
+		}
 
 		$conversation = null;
 
@@ -1610,14 +1618,12 @@ class Diaspora {
 			intval($importer["uid"]),
 			dbesc($conversation_guid)
 		);
-		if($c)
+		if ($c) {
 			$conversation = $c[0];
-		else {
+		} else {
 			logger("conversation not available.");
 			return false;
 		}
-
-		$reply = 0;
 
 		$message_uri = $author.":".$guid;
 
@@ -1631,7 +1637,7 @@ class Diaspora {
 			dbesc($message_uri),
 			intval($importer["uid"])
 		);
-		if($r) {
+		if (dbm::is_result($r)) {
 			logger("duplicate message already delivered.", LOGGER_DEBUG);
 			return false;
 		}
@@ -2080,15 +2086,15 @@ class Diaspora {
 				FROM `item` WHERE `guid` = '%s' AND `visible` AND NOT `deleted` AND `body` != '' LIMIT 1",
 			dbesc($guid));
 
-		if($r) {
+		if (dbm::is_result($r)) {
 			logger("reshared message ".$guid." already exists on system.");
 
 			// Maybe it is already a reshared item?
 			// Then refetch the content, if it is a reshare from a reshare.
 			// If it is a reshared post from another network then reformat to avoid display problems with two share elements
-			if (self::is_reshare($r[0]["body"], true))
+			if (self::is_reshare($r[0]["body"], true)) {
 				$r = array();
-			elseif (self::is_reshare($r[0]["body"], false)) {
+			} elseif (self::is_reshare($r[0]["body"], false)) {
 				$r[0]["body"] = diaspora2bb(bb2diaspora($r[0]["body"]));
 
 				$r[0]["body"] = self::replace_people_guid($r[0]["body"], $r[0]["author-link"]);
@@ -2097,11 +2103,12 @@ class Diaspora {
 				$r[0]["body"] = add_page_info_to_body($r[0]["body"], false, true);
 
 				return $r[0];
-			} else
+			} else {
 				return $r[0];
+			}
 		}
 
-		if (!$r) {
+		if (!dbm::is_result($r)) {
 			$server = "https://".substr($orig_author, strpos($orig_author, "@") + 1);
 			logger("1st try: reshared message ".$guid." will be fetched via SSL from the server ".$server);
 			$item_id = self::store_by_guid($guid, $server);
@@ -2118,7 +2125,7 @@ class Diaspora {
 					FROM `item` WHERE `id` = %d AND `visible` AND NOT `deleted` AND `body` != '' LIMIT 1",
 					intval($item_id));
 
-				if ($r) {
+				if (dbm::is_result($r)) {
 					// If it is a reshared post from another network then reformat to avoid display problems with two share elements
 					if (self::is_reshare($r[0]["body"], false)) {
 						$r[0]["body"] = diaspora2bb(bb2diaspora($r[0]["body"]));
@@ -2330,17 +2337,21 @@ class Diaspora {
 		//	die("poll!\n");
 		//}
 		$contact = self::allowed_contact_by_handle($importer, $author, false);
-		if (!$contact)
+		if (!$contact) {
 			return false;
+		}
 
 		$message_id = self::message_exists($importer["uid"], $guid);
-		if ($message_id)
+		if ($message_id) {
 			return $message_id;
+		}
 
 		$address = array();
-		if ($data->location)
-			foreach ($data->location->children() AS $fieldname => $data)
+		if ($data->location) {
+			foreach ($data->location->children() AS $fieldname => $data) {
 				$address[$fieldname] = notags(unxmlify($data));
+			}
+		}
 
 		$body = diaspora2bb($raw_message);
 
@@ -2348,17 +2359,19 @@ class Diaspora {
 
 		// Attach embedded pictures to the body
 		if ($data->photo) {
-			foreach ($data->photo AS $photo)
+			foreach ($data->photo AS $photo) {
 				$body = "[img]".unxmlify($photo->remote_photo_path).
 					unxmlify($photo->remote_photo_name)."[/img]\n".$body;
+			}
 
 			$datarray["object-type"] = ACTIVITY_OBJ_PHOTO;
 		} else {
 			$datarray["object-type"] = ACTIVITY_OBJ_NOTE;
 
 			// Add OEmbed and other information to the body
-			if (!self::is_redmatrix($contact["url"]))
+			if (!self::is_redmatrix($contact["url"])) {
 				$body = add_page_info_to_body($body, false, true);
+			}
 		}
 
 		$datarray["uid"] = $importer["uid"];
@@ -2383,24 +2396,28 @@ class Diaspora {
 
 		$datarray["body"] = self::replace_people_guid($body, $contact["url"]);
 
-		if ($provider_display_name != "")
+		if ($provider_display_name != "") {
 			$datarray["app"] = $provider_display_name;
+		}
 
 		$datarray["plink"] = self::plink($author, $guid);
 		$datarray["private"] = (($public == "false") ? 1 : 0);
 		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = $created_at;
 
-		if (isset($address["address"]))
+		if (isset($address["address"])) {
 			$datarray["location"] = $address["address"];
+		}
 
-		if (isset($address["lat"]) AND isset($address["lng"]))
+		if (isset($address["lat"]) AND isset($address["lng"])) {
 			$datarray["coord"] = $address["lat"]." ".$address["lng"];
+		}
 
 		self::fetch_guid($datarray);
 		$message_id = item_store($datarray);
 
-		if ($message_id)
+		if ($message_id) {
 			logger("Stored item ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
+		}
 
 		return $message_id;
 	}
