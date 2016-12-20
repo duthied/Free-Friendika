@@ -905,24 +905,24 @@ function db_definition($charset) {
 					"uid_created" => array("uid","created"),
 					"uid_unseen_contactid" => array("uid","unseen","contact-id"),
 					"uid_network_received" => array("uid","network","received"),
-					"uid_received" => array("uid","received"),
+				//	"uid_received" => array("uid","received"),
 					"uid_network_commented" => array("uid","network","commented"),
-					"uid_commented" => array("uid","commented"),
-					"uid_title" => array("uid","title"),
+				//	"uid_commented" => array("uid","commented"),
+				//	"uid_title" => array("uid","title"),
 					"uid_thrparent" => array("uid","thr-parent"),
 					"uid_parenturi" => array("uid","parent-uri"),
 					"uid_contactid_id" => array("uid","contact-id","id"),
 					"uid_contactid_created" => array("uid","contact-id","created"),
-					"gcontactid_uid_created" => array("gcontact-id","uid","created"),
+				//	"gcontactid_uid_created" => array("gcontact-id","uid","created"),
 					"authorid_created" => array("author-id","created"),
-					"ownerid_created" => array("owner-id","created"),
-					"wall_body" => array("wall","body(6)"),
-					"uid_visible_moderated_created" => array("uid","visible","moderated","created"),
+				//	"ownerid_created" => array("owner-id","created"),
+				//	"wall_body" => array("wall","body(6)"),
+				//	"uid_visible_moderated_created" => array("uid","visible","moderated","created"),
 					"uid_uri" => array("uid", "uri"),
 					"uid_wall_created" => array("uid","wall","created"),
-					"resource-id" => array("resource-id"),
+				//	"resource-id" => array("resource-id"),
 					"uid_type" => array("uid","type"),
-					"uid_starred_id" => array("uid","starred", "id"),
+				//	"uid_starred_id" => array("uid","starred", "id"),
 					"contactid_allowcid_allowpid_denycid_denygid" => array("contact-id","allow_cid(10)","allow_gid(10)","deny_cid(10)","deny_gid(10)"),
 					"uid_wall_parent_created" => array("uid","wall","parent","created"),
 					"uid_type_changed" => array("uid","type","changed"),
@@ -931,7 +931,7 @@ function db_definition($charset) {
 					"uid_wall_changed" => array("uid","wall","changed"),
 					"uid_eventid" => array("uid","event-id"),
 					"uid_authorlink" => array("uid","author-link"),
-					"uid_ownerlink" => array("uid","owner-link"),
+				//	"uid_ownerlink" => array("uid","owner-link"),
 					)
 			);
 	$database["item_id"] = array(
@@ -984,9 +984,9 @@ function db_definition($charset) {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"uid" => array("uid"),
-					"guid" => array("guid"),
-					"convid" => array("convid"),
-					"reply" => array("reply"),
+				//	"guid" => array("guid"),
+				//	"convid" => array("convid"),
+				//	"reply" => array("reply"),
 					"uri" => array("uri"),
 					"parent-uri" => array("parent-uri"),
 					)
@@ -1058,7 +1058,7 @@ function db_definition($charset) {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"master-parent-item" => array("master-parent-item"),
-					"receiver-uid" => array("receiver-uid"),
+				//	"receiver-uid" => array("receiver-uid"),
 					)
 			);
 	$database["oembed"] = array(
@@ -1129,7 +1129,7 @@ function db_definition($charset) {
 					"uid_profile" => array("uid", "profile"),
 					"uid_album_created" => array("uid", "album", "created"),
 					"resource-id" => array("resource-id"),
-					"guid" => array("guid"),
+				//	"guid" => array("guid"),
 					)
 			);
 	$database["poll"] = array(
@@ -1268,7 +1268,7 @@ function db_definition($charset) {
 					"cid" => array("cid"),
 					"created" => array("created"),
 					"last" => array("last"),
-					"network" => array("network"),
+				//	"network" => array("network"),
 					"batch" => array("batch"),
 					)
 			);
@@ -1362,7 +1362,7 @@ function db_definition($charset) {
 					"uid_term_tid" => array("uid","term","tid"),
 					"type_term" => array("type","term"),
 					"uid_otype_type_term_global_created" => array("uid","otype","type","term","global","created"),
-					"otype_type_term_tid" => array("otype","type","term","tid"),
+				//	"otype_type_term_tid" => array("otype","type","term","tid"),
 					"uid_otype_type_url" => array("uid","otype","type","url"),
 					"guid" => array("guid"),
 					)
@@ -1404,11 +1404,11 @@ function db_definition($charset) {
 					"uid_network_created" => array("uid","network","created"),
 					"uid_contactid_commented" => array("uid","contact-id","commented"),
 					"uid_contactid_created" => array("uid","contact-id","created"),
-					"uid_gcontactid_commented" => array("uid","gcontact-id","commented"),
-					"uid_gcontactid_created" => array("uid","gcontact-id","created"),
-					"wall_private_received" => array("wall","private","received"),
+				//	"uid_gcontactid_commented" => array("uid","gcontact-id","commented"),
+				//	"uid_gcontactid_created" => array("uid","gcontact-id","created"),
+				//	"wall_private_received" => array("wall","private","received"),
 					"uid_created" => array("uid","created"),
-					"uid_commented" => array("uid","commented"),
+				//	"uid_commented" => array("uid","commented"),
 					)
 			);
 	$database["tokens"] = array(
