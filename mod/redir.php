@@ -64,7 +64,7 @@ function redir_init(&$a) {
 	}
 
 	if (local_user()) {
-		$handle = $a->user['nickname'] . '@' . substr($a->get_baseurl(),strpos($a->get_baseurl(),'://')+3);
+		$handle = $a->user['nickname'] . '@' . substr(App::get_baseurl(),strpos(App::get_baseurl(),'://')+3);
 	}
 	if (remote_user()) {
 		$handle = $_SESSION['handle'];

@@ -1548,9 +1548,9 @@ function check_url(&$a) {
 	// We will only change the url to an ip address if there is no existing setting
 
 	if(! x($url))
-		$url = set_config('system','url',$a->get_baseurl());
-	if((! link_compare($url,$a->get_baseurl())) && (! preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/",$a->get_hostname)))
-		$url = set_config('system','url',$a->get_baseurl());
+		$url = set_config('system','url',App::get_baseurl());
+	if((! link_compare($url,App::get_baseurl())) && (! preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/",$a->get_hostname)))
+		$url = set_config('system','url',App::get_baseurl());
 
 	return;
 }

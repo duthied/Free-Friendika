@@ -63,7 +63,7 @@ function follow_content(&$a) {
 		$request = $ret["request"];
 		$tpl = get_markup_template('dfrn_request.tpl');
 	} else {
-		$request = $a->get_baseurl()."/follow";
+		$request = App::get_baseurl()."/follow";
 		$tpl = get_markup_template('auto_request.tpl');
 	}
 
@@ -175,12 +175,12 @@ function follow_post(&$a) {
 			notice($result['message']);
 		goaway($return_url);
 	} elseif ($result['cid'])
-		goaway($a->get_baseurl().'/contacts/'.$result['cid']);
+		goaway(App::get_baseurl().'/contacts/'.$result['cid']);
 
 	info( t('Contact added').EOL);
 
 	if(strstr($return_url,'contacts'))
-		goaway($a->get_baseurl().'/contacts/'.$contact_id);
+		goaway(App::get_baseurl().'/contacts/'.$contact_id);
 
 	goaway($return_url);
 	// NOTREACHED
