@@ -1367,7 +1367,7 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 	// map
 	if(strpos($s,'<div class="map">') !== false && $item['coord']) {
 		$x = generate_map(trim($item['coord']));
-		if($x) {
+		if ($x) {
 			$s = preg_replace('/\<div class\=\"map\"\>/','$0' . $x,$s);
 		}
 	}
