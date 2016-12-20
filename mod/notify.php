@@ -1,12 +1,10 @@
 <?php
 require_once('include/NotificationsManager.php');
 
-
 function notify_init(App &$a) {
 	if (! local_user()) {
 		return;
 	}
-
 	$nm = new NotificationsManager();
 
 	if ($a->argc > 2 && $a->argv[1] === 'view' && intval($a->argv[2])) {

@@ -62,11 +62,7 @@ function profile_init(App &$a) {
 	header('Link: <' . App::get_baseurl() . '/xrd/?uri=' . $uri . '>; rel="lrdd"; type="application/xrd+xml"', false);
 
 	$dfrn_pages = array('request', 'confirm', 'notify', 'poll');
-<<<<<<< upstream/develop
 	foreach ($dfrn_pages as $dfrn) {
-=======
-	foreach($dfrn_pages as $dfrn) {
->>>>>>> HEAD~65
 		$a->page['htmlhead'] .= "<link rel=\"dfrn-{$dfrn}\" href=\"".App::get_baseurl()."/dfrn_{$dfrn}/{$which}\" />\r\n";
 	}
 	$a->page['htmlhead'] .= "<link rel=\"dfrn-poco\" href=\"".App::get_baseurl()."/poco/{$which}\" />\r\n";
