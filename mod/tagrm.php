@@ -4,12 +4,13 @@ require_once('include/bbcode.php');
 
 function tagrm_post(App &$a) {
 
-	if (! local_user())
+	if (! local_user()) {
 		goaway(App::get_baseurl() . '/' . $_SESSION['photo_return']);
+	}
 
-
-	if((x($_POST,'submit')) && ($_POST['submit'] === t('Cancel')))
+	if ((x($_POST,'submit')) && ($_POST['submit'] === t('Cancel'))) {
 		goaway(App::get_baseurl() . '/' . $_SESSION['photo_return']);
+	}
 
 	$tag =  ((x($_POST,'tag'))  ? hex2bin(notags(trim($_POST['tag']))) : '');
 	$item = ((x($_POST,'item')) ? intval($_POST['item'])               : 0 );
@@ -24,8 +25,8 @@ function tagrm_post(App &$a) {
 	}
 
 	$arr = explode(',', $r[0]['tag']);
-	for($x = 0; $x < count($arr); $x ++) {
-		if($arr[$x] === $tag) {
+	for ($x = 0; $x < count($arr); $x ++) {
+		if ($arr[$x] === $tag) {
 			unset($arr[$x]);
 			break;
 		}
