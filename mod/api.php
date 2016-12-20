@@ -22,7 +22,7 @@ function oauth_get_client($request){
 
 function api_post(App &$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
@@ -84,7 +84,7 @@ function api_content(App &$a) {
 		}
 
 
-		if(! local_user()) {
+		if (! local_user()) {
 			/// @TODO We need login form to redirect to this page
 			notice( t('Please login to continue.') . EOL );
 			return login(false,$request->get_parameters());

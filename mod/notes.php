@@ -2,8 +2,9 @@
 
 function notes_init(App &$a) {
 
-	if(! local_user())
+	if (! local_user()) {
 		return;
+	}
 
 	$profile = 0;
 
@@ -18,7 +19,7 @@ function notes_init(App &$a) {
 
 function notes_content(&$a,$update = false) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}

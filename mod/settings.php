@@ -18,7 +18,7 @@ function get_theme_config_file($theme){
 
 function settings_init(App &$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL );
 		return;
 	}
@@ -118,8 +118,9 @@ function settings_init(App &$a) {
 
 function settings_post(App &$a) {
 
-	if(! local_user())
+	if (! local_user()) {
 		return;
+	}
 
 	if (x($_SESSION,'submanage') && intval($_SESSION['submanage'])) {
 		return;
@@ -658,7 +659,7 @@ function settings_content(App &$a) {
 	$o = '';
 	nav_set_selected('settings');
 
-	if(! local_user()) {
+	if (! local_user()) {
 		#notice( t('Permission denied.') . EOL );
 		return;
 	}

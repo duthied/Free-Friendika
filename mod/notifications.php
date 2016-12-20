@@ -11,7 +11,7 @@ require_once("include/network.php");
 
 function notifications_post(App &$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		goaway(z_root());
 	}
 
@@ -67,7 +67,7 @@ function notifications_post(App &$a) {
 
 function notifications_content(App &$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}

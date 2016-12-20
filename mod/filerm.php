@@ -2,7 +2,7 @@
 
 function filerm_content(App &$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		killme();
 	}
 

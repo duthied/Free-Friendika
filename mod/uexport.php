@@ -1,11 +1,12 @@
 <?php
 
 function uexport_init(App &$a){
-	if(! local_user())
+	if (! local_user()) {
 		killme();
+	}
 
 	require_once("mod/settings.php");
-        settings_init($a);
+	settings_init($a);
 }
 
 function uexport_content(App &$a){

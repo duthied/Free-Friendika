@@ -4,7 +4,7 @@ require_once('include/bbcode.php');
 
 function tagrm_post(App &$a) {
 
-	if(! local_user())
+	if (! local_user())
 		goaway(App::get_baseurl() . '/' . $_SESSION['photo_return']);
 
 
@@ -52,7 +52,7 @@ function tagrm_content(App &$a) {
 
 	$o = '';
 
-	if(! local_user()) {
+	if (! local_user()) {
 		goaway(App::get_baseurl() . '/' . $_SESSION['photo_return']);
 		// NOTREACHED
 	}
@@ -62,7 +62,6 @@ function tagrm_content(App &$a) {
 		goaway(App::get_baseurl() . '/' . $_SESSION['photo_return']);
 		// NOTREACHED
 	}
-
 
 	$r = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 		intval($item),
@@ -75,8 +74,9 @@ function tagrm_content(App &$a) {
 
 	$arr = explode(',', $r[0]['tag']);
 
-	if(! count($arr))
+	if (! count($arr)) {
 		goaway(App::get_baseurl() . '/' . $_SESSION['photo_return']);
+	}
 
 	$o .= '<h3>' . t('Remove Item Tag') . '</h3>';
 

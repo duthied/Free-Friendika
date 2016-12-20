@@ -15,7 +15,7 @@ function group_init(App &$a) {
 
 function group_post(App &$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
@@ -73,7 +73,7 @@ function group_post(App &$a) {
 function group_content(App &$a) {
 	$change = false;
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied') . EOL);
 		return;
 	}

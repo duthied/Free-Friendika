@@ -9,8 +9,9 @@ require_once('include/event.php');
 require_once('include/items.php');
 
 function events_init(App &$a) {
-	if(! local_user())
+	if (! local_user()) {
 		return;
+	}
 
 	if ($a->argc == 1) {
 		// if it's a json request abort here becaus we don't
@@ -34,8 +35,9 @@ function events_post(App &$a) {
 
 	logger('post: ' . print_r($_REQUEST,true));
 
-	if(! local_user())
+	if (! local_user()) {
 		return;
+	}
 
 	$event_id = ((x($_POST,'event_id')) ? intval($_POST['event_id']) : 0);
 	$cid = ((x($_POST,'cid')) ? intval($_POST['cid']) : 0);
@@ -187,7 +189,7 @@ function events_post(App &$a) {
 
 function events_content(App &$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}

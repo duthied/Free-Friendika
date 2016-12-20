@@ -5,8 +5,9 @@ require_once("include/text.php");
 
 function manage_post(App &$a) {
 
-	if(! local_user())
+	if (! local_user()) {
 		return;
+	}
 
 	$uid = local_user();
 	$orig_record = $a->user;
@@ -93,7 +94,7 @@ function manage_post(App &$a) {
 
 function manage_content(App &$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}

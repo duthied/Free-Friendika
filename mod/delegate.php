@@ -8,7 +8,7 @@ function delegate_init(App &$a) {
 
 function delegate_content(App &$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
