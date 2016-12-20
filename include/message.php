@@ -153,7 +153,8 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 	if ($post_id) {
 		proc_run(PRIORITY_HIGH, "include/notifier.php", "mail", $post_id);
 		return intval($post_id);
-	} else {
+	}
+	else {
 		return -3;
 	}
 
