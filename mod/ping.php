@@ -175,7 +175,7 @@ function ping_init(App $a)
 		);
 
 		$intro_count = count($intros1) + count($intros2);
-		$intros = $intros1+$intros2;
+		$intros = $intros1 + $intros2;
 
 		$myurl = $a->get_baseurl() . '/profile/' . $a->user['nickname'] ;
 		$mails = qu("SELECT `id`, `from-name`, `from-url`, `from-photo`, `created` FROM `mail`
@@ -189,7 +189,8 @@ function ping_init(App $a)
 			$regs = qu("SELECT `contact`.`name`, `contact`.`url`, `contact`.`micro`, `register`.`created`, COUNT(*) AS `total`
 				FROM `contact` RIGHT JOIN `register` ON `register`.`uid` = `contact`.`uid`
 				WHERE `contact`.`self` = 1");
-			if ($regs) {
+
+			if (dbm::is_result($regs)) {
 				$register_count = $regs[0]['total'];
 			}
 		}

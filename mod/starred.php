@@ -18,7 +18,7 @@ function starred_init(&$a) {
 		intval(local_user()),
 		intval($message_id)
 	);
-	if(! count($r))
+	if(! dbm::is_result($r))
 		killme();
 
 	if(! intval($r[0]['starred']))

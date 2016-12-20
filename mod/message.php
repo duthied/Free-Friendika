@@ -242,7 +242,7 @@ function message_content(&$a) {
 				intval($a->argv[2]),
 				intval(local_user())
 			);
-			if(count($r)) {
+			if (dbm::is_result($r)) {
 				$parent = $r[0]['parent-uri'];
 				$convid = $r[0]['convid'];
 
@@ -309,19 +309,21 @@ function message_content(&$a) {
 				intval(local_user()),
 				intval($a->argv[2])
 			);
-			if(!$r) {
+			if (!dbm::is_result($r)) {
 				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' LIMIT 1",
 					intval(local_user()),
 					dbesc(normalise_link(base64_decode($a->argv[2])))
 				);
 			}
-			if(!$r) {
+
+			if (!dbm::is_result($r)) {
 				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `addr` = '%s' LIMIT 1",
 					intval(local_user()),
 					dbesc(base64_decode($a->argv[2]))
 				);
 			}
-			if(count($r)) {
+
+			if (dbm::is_result($r)) {
 				$prename = $r[0]['name'];
 				$preurl = $r[0]['url'];
 				$preid = $r[0]['id'];
@@ -405,7 +407,7 @@ function message_content(&$a) {
 			intval(local_user()),
 			intval($a->argv[1])
 		);
-		if(count($r)) {
+		if (dbm::is_result($r)) {
 			$contact_id = $r[0]['contact-id'];
 			$convid = $r[0]['convid'];
 

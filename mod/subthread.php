@@ -20,7 +20,7 @@ function subthread_content(&$a) {
 		dbesc($item_id)
 	);
 
-	if(! $item_id || (! count($r))) {
+	if(! $item_id || (! dbm::is_result($r))) {
 		logger('subthread: no item ' . $item_id);
 		return;
 	}
@@ -41,7 +41,7 @@ function subthread_content(&$a) {
 			intval($item['contact-id']),
 			intval($item['uid'])
 		);
-		if(! count($r))
+		if(! dbm::is_result($r))
 			return;
 		if(! $r[0]['self'])
 			$remote_owner = $r[0];
@@ -53,7 +53,7 @@ function subthread_content(&$a) {
 		WHERE `contact`.`self` = 1 AND `contact`.`uid` = %d LIMIT 1",
 		intval($owner_uid)
 	);
-	if(count($r))
+	if (dbm::is_result($r))
 		$owner = $r[0];
 
 	if(! $owner) {
@@ -75,7 +75,7 @@ function subthread_content(&$a) {
 			intval($_SESSION['visitor_id']),
 			intval($owner_uid)
 		);
-		if(count($r))
+		if (dbm::is_result($r))
 			$contact = $r[0];
 	}
 	if(! $contact) {
@@ -85,7 +85,7 @@ function subthread_content(&$a) {
 	$uri = item_new_uri($a->get_hostname(),$owner_uid);
 
 	$post_type = (($item['resource-id']) ? t('photo') : t('status'));
-	$objtype = (($item['resource-id']) ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE );
+	$objtype = (($item['resource-id']) ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE );
 	$link = xmlify('<link rel="alternate" type="text/html" href="' . $a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
 	$body = $item['body'];
 

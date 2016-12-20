@@ -27,7 +27,7 @@ function notifications_post(&$a) {
 			intval(local_user())
 		);
 
-		if(count($r)) {
+		if (dbm::is_result($r)) {
 			$intro_id = $r[0]['id'];
 			$contact_id = $r[0]['contact-id'];
 		}
@@ -304,7 +304,6 @@ function notifications_content(&$a) {
 		if($notifs['total'] == 0)
 			$notif_nocontent = sprintf( t('No more %s notifications.'), $notifs['ident']);
 	}
-
 
 	$o .= replace_macros($notif_tpl, array(
 		'$notif_header' => $notif_header,

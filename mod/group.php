@@ -43,7 +43,7 @@ function group_post(&$a) {
 			intval($a->argv[1]),
 			intval(local_user())
 		);
-		if(! count($r)) {
+		if(! dbm::is_result($r)) {
 			notice( t('Group not found.') . EOL );
 			goaway($a->get_baseurl() . '/contacts');
 			return; // NOTREACHED
@@ -107,7 +107,7 @@ function group_content(&$a) {
 				intval($a->argv[2]),
 				intval(local_user())
 			);
-			if(count($r))
+			if (dbm::is_result($r))
 				$result = group_rmv(local_user(),$r[0]['name']);
 			if($result)
 				info( t('Group removed.') . EOL);
@@ -125,7 +125,7 @@ function group_content(&$a) {
 			intval($a->argv[2]),
 			intval(local_user())
 		);
-		if(count($r))
+		if (dbm::is_result($r))
 			$change = intval($a->argv[2]);
 	}
 
@@ -136,7 +136,7 @@ function group_content(&$a) {
 			intval($a->argv[1]),
 			intval(local_user())
 		);
-		if(! count($r)) {
+		if(! dbm::is_result($r)) {
 			notice( t('Group not found.') . EOL );
 			goaway($a->get_baseurl() . '/contacts');
 		}
@@ -209,7 +209,7 @@ function group_content(&$a) {
 		intval(local_user())
 	);
 
-	if(count($r)) {
+	if (dbm::is_result($r)) {
 		$textmode = (($switchtotext && (count($r) > $switchtotext)) ? true : false);
 		foreach($r as $member) {
 			if(! in_array($member['id'],$preselected)) {

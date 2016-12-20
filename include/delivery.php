@@ -53,11 +53,11 @@ function delivery_run(&$argv, &$argc){
 			dbesc($item_id),
 			dbesc($contact_id)
 		);
-		if (!count($r)) {
+		if (!dbm::is_result($r)) {
 			continue;
 		}
 
-		if (App::maxload_reached())
+		if ($a->maxload_reached())
 			return;
 
 		// It's ours to deliver. Remove it from the queue.
@@ -131,7 +131,7 @@ function delivery_run(&$argv, &$argc){
 				intval($item_id)
 			);
 
-			if ((!count($r)) || (!intval($r[0]['parent']))) {
+			if ((!dbm::is_result($r)) || (!intval($r[0]['parent']))) {
 				continue;
 			}
 
@@ -184,7 +184,7 @@ function delivery_run(&$argv, &$argc){
 			intval($uid)
 		);
 
-		if (!count($r))
+		if (!dbm::is_result($r))
 			continue;
 
 		$owner = $r[0];
@@ -254,7 +254,7 @@ function delivery_run(&$argv, &$argc){
 			intval($contact_id)
 		);
 
-		if (count($r))
+		if (dbm::is_result($r))
 			$contact = $r[0];
 
 		if ($contact['self'])
@@ -423,7 +423,7 @@ function delivery_run(&$argv, &$argc){
 							intval($argv[2]),
 							intval($uid)
 						);
-						if (count($r))
+						if (dbm::is_result($r))
 							$it = $r[0];
 					}
 					if (!$it)
@@ -478,14 +478,14 @@ function delivery_run(&$argv, &$argc){
 								dbesc($it['parent-uri']),
 								intval($uid));
 
-							if (count($r) AND ($r[0]['title'] != ''))
+							if (dbm::is_result($r) AND ($r[0]['title'] != ''))
 								$subject = $r[0]['title'];
 							else {
 								$r = q("SELECT `title` FROM `item` WHERE `parent-uri` = '%s' AND `uid` = %d LIMIT 1",
 									dbesc($it['parent-uri']),
 									intval($uid));
 
-								if (count($r) AND ($r[0]['title'] != ''))
+								if (dbm::is_result($r) AND ($r[0]['title'] != ''))
 									$subject = $r[0]['title'];
 							}
 						}

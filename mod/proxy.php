@@ -136,7 +136,7 @@ function proxy_init() {
 
 	if (!$direct_cache AND ($cachefile == "")) {
 		$r = qu("SELECT * FROM `photo` WHERE `resource-id` = '%s' LIMIT 1", $urlhash);
-		if (count($r)) {
+		if (dbm::is_result($r)) {
         		$img_str = $r[0]['data'];
 			$mime = $r[0]["desc"];
 			if ($mime == "") $mime = "image/jpeg";
@@ -144,7 +144,7 @@ function proxy_init() {
 	} else
 		$r = array();
 
-	if (!count($r)) {
+	if (!dbm::is_result($r)) {
 		// It shouldn't happen but it does - spaces in URL
 		$_REQUEST['url'] = str_replace(" ", "+", $_REQUEST['url']);
 		$redirects = 0;
@@ -281,14 +281,14 @@ function proxy_url($url, $writemode = false, $size = '') {
 
 	$longpath .= '/' . strtr(base64_encode($url), '+/', '-_');
 
-	// Checking for valid extensions. Only add them if they are safe
-	$pos = strrpos($url, '.');
-	if ($pos) {
-		$extension = strtolower(substr($url, $pos + 1));
-		$pos = strpos($extension, '?');
-		if ($pos) {
-			$extension = substr($extension, 0, $pos);
-		}
+	// Extract the URL extension, disregarding GET parameters starting with ?
+	$question_mark_pos = strpos($url, '?');
+	if ($question_mark_pos === false) {
+		$question_mark_pos = strlen($url);
+	}
+	$dot_pos = strrpos($url, '.', $question_mark_pos - strlen($url));
+	if ($dot_pos !== false) {
+		$extension = strtolower(substr($url, $dot_pos + 1, $question_mark_pos - ($dot_pos + 1)));
 	}
 
 	$extensions = array('jpg', 'jpeg', 'gif', 'png');

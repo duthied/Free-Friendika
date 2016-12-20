@@ -50,7 +50,7 @@ if (isset($_SESSION) && x($_SESSION,'authenticated') && (!x($_POST,'auth-params'
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 			intval($_SESSION['visitor_id'])
 		);
-		if (count($r)) {
+		if (dbm::is_result($r)) {
 			$a->contact = $r[0];
 		}
 	}
@@ -73,7 +73,7 @@ if (isset($_SESSION) && x($_SESSION,'authenticated') && (!x($_POST,'auth-params'
 			intval($_SESSION['uid'])
 		);
 
-		if (!count($r)) {
+		if (!dbm::is_result($r)) {
 			nuke_session();
 			goaway(z_root());
 		}
@@ -169,7 +169,7 @@ if (isset($_SESSION) && x($_SESSION,'authenticated') && (!x($_POST,'auth-params'
 				dbesc(trim($_POST['username'])),
 				dbesc($encrypted)
 			);
-			if (count($r))
+			if (dbm::is_result($r))
 				$record = $r[0];
 		}
 

@@ -235,7 +235,7 @@ class Item extends BaseObject {
 					intval($item['uid']),
 					intval($item['id'])
 				);
-				if (count($r)) {
+				if (dbm::is_result($r)) {
 					$ignore = array(
 						'do' => t("ignore thread"),
 						'undo' => t("unignore thread"),

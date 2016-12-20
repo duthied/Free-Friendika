@@ -451,7 +451,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 	/* check for create  date and expire time */
 	$uid = intval($arr['uid']);
 	$r = q("SELECT expire FROM user WHERE uid = %d", intval($uid));
-	if (count($r)) {
+	if (dbm::is_result($r)) {
 		$expire_interval = $r[0]['expire'];
 		if ($expire_interval>0) {
 			$expire_date =  new DateTime( '- '.$expire_interval.' days', new DateTimeZone('UTC'));
@@ -568,19 +568,19 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 			intval($arr['uid'])
 		);
 
-		if (!count($r))
+		if (!dbm::is_result($r))
 			$r = q("SELECT `network` FROM `gcontact` WHERE `network` IN ('%s', '%s', '%s') AND `nurl` = '%s' LIMIT 1",
 				dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS),
 				dbesc(normalise_link($arr['author-link']))
 			);
 
-		if (!count($r))
+		if (!dbm::is_result($r))
 			$r = q("SELECT `network` FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 				intval($arr['contact-id']),
 				intval($arr['uid'])
 			);
 
-		if (count($r))
+		if (dbm::is_result($r))
 			$arr['network'] = $r[0]["network"];
 
 		// Fallback to friendica (why is it empty in some cases?)
@@ -634,7 +634,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		$r = q("SELECT `guid` FROM `item` WHERE `guid` = '%s' AND `network` = '%s' AND `uid` = '%d' LIMIT 1",
 			dbesc($arr['guid']), dbesc($arr['network']), intval($arr['uid']));
 
-		if (count($r)) {
+		if (dbm::is_result($r)) {
 			logger('found item with guid '.$arr['guid'].' for user '.$arr['uid'].' on network '.$arr['network'], LOGGER_DEBUG);
 			return 0;
 		}
@@ -662,7 +662,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 			intval($arr['uid'])
 		);
 
-		if (count($r)) {
+		if (dbm::is_result($r)) {
 
 			// is the new message multi-level threaded?
 			// even though we don't support it now, preserve the info
@@ -1120,7 +1120,7 @@ function item_body_set_hashtags(&$item) {
 
 function get_item_guid($id) {
 	$r = q("SELECT `guid` FROM `item` WHERE `id` = %d LIMIT 1", intval($id));
-	if (count($r))
+	if (dbm::is_result($r))
 		return($r[0]["guid"]);
 	else
 		return("");
@@ -1139,7 +1139,7 @@ function get_item_id($guid, $uid = 0) {
 		$r = q("SELECT `item`.`id`, `user`.`nickname` FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 			WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 and `item`.`moderated` = 0
 				AND `item`.`guid` = '%s' AND `item`.`uid` = %d", dbesc($guid), intval($uid));
-		if (count($r)) {
+		if (dbm::is_result($r)) {
 			$id = $r[0]["id"];
 			$nick = $r[0]["nickname"];
 		}
@@ -1153,7 +1153,7 @@ function get_item_id($guid, $uid = 0) {
 				AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 				AND `item`.`private` = 0 AND `item`.`wall` = 1
 				AND `item`.`guid` = '%s'", dbesc($guid));
-		if (count($r)) {
+		if (dbm::is_result($r)) {
 			$id = $r[0]["id"];
 			$nick = $r[0]["nickname"];
 		}
@@ -1454,7 +1454,7 @@ function item_is_remote_self($contact, &$datarray) {
 	if ($contact['remote_self'] == 2) {
 		$r = q("SELECT `id`,`url`,`name`,`thumb` FROM `contact` WHERE `uid` = %d AND `self`",
 			intval($contact['uid']));
-		if (count($r)) {
+		if (dbm::is_result($r)) {
 			$datarray['contact-id'] = $r[0]["id"];
 
 			$datarray['owner-name'] = $r[0]["name"];
@@ -1531,7 +1531,7 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 				intval($importer['uid']),
 				dbesc($url)
 		);
-		if (count($r)) {
+		if (dbm::is_result($r)) {
 			$contact_record = $r[0];
 			update_contact_avatar($photo, $importer["uid"], $contact_record["id"], true);
 		}
@@ -1541,7 +1541,8 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 			intval($importer['uid'])
 		);
 		$a = get_app();
-		if (count($r) AND !in_array($r[0]['page-flags'], array(PAGE_SOAPBOX, PAGE_FREELOVE))) {
+
+		if (dbm::is_result($r) AND !in_array($r[0]['page-flags'], array(PAGE_SOAPBOX, PAGE_FREELOVE))) {
 
 			// create notification
 			$hash = random_string();
@@ -1580,7 +1581,7 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 				));
 
 			}
-		} elseif (count($r) AND in_array($r[0]['page-flags'], array(PAGE_SOAPBOX, PAGE_FREELOVE))) {
+		} elseif (dbm::is_result($r) AND in_array($r[0]['page-flags'], array(PAGE_SOAPBOX, PAGE_FREELOVE))) {
 			$r = q("UPDATE `contact` SET `pending` = 0 WHERE `uid` = %d AND `url` = '%s' AND `pending` LIMIT 1",
 					intval($importer['uid']),
 					dbesc($url)
@@ -1628,7 +1629,7 @@ function subscribe_to_hub($url,$importer,$contact,$hubmode = 'subscribe') {
 	// through the direct Diaspora protocol. If we try and use
 	// the feed, we'll get duplicates. So don't.
 
-	if ((! count($r)) || $contact['network'] === NETWORK_DIASPORA)
+	if ((! dbm::is_result($r)) || $contact['network'] === NETWORK_DIASPORA)
 		return;
 
 	$push_url = get_config('system','url') . '/pubsub/' . $r[0]['nickname'] . '/' . $contact['id'];
@@ -1846,7 +1847,7 @@ function item_expire($uid, $days, $network = "", $force = false) {
 		intval($days)
 	);
 
-	if (! count($r))
+	if (! dbm::is_result($r))
 		return;
 
 	$expire_items = get_pconfig($uid, 'expire','items');
@@ -1924,7 +1925,7 @@ function drop_item($id,$interactive = true) {
 		intval($id)
 	);
 
-	if (! count($r)) {
+	if (! dbm::is_result($r)) {
 		if (! $interactive)
 			return 0;
 		notice( t('Item not found.') . EOL);
@@ -2111,7 +2112,7 @@ function drop_item($id,$interactive = true) {
 				dbesc($item['parent-uri']),
 				intval($item['uid'])
 			);
-			if (count($r)) {
+			if (dbm::is_result($r)) {
 				q("UPDATE `item` SET `last-child` = 1 WHERE `id` = %d",
 					intval($r[0]['id'])
 				);
@@ -2147,7 +2148,7 @@ function first_post_date($uid,$wall = false) {
 		intval($uid),
 		intval($wall ? 1 : 0)
 	);
-	if (count($r)) {
+	if (dbm::is_result($r)) {
 //		logger('first_post_date: ' . $r[0]['id'] . ' ' . $r[0]['created'], LOGGER_DATA);
 		return substr(datetime_convert('',date_default_timezone_get(),$r[0]['created']),0,10);
 	}

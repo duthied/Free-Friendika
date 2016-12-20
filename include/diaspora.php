@@ -2364,7 +2364,7 @@ class Diaspora {
 					unxmlify($photo->remote_photo_name)."[/img]\n".$body;
 			}
 
-			$datarray["object-type"] = ACTIVITY_OBJ_PHOTO;
+			$datarray["object-type"] = ACTIVITY_OBJ_IMAGE;
 		} else {
 			$datarray["object-type"] = ACTIVITY_OBJ_NOTE;
 
@@ -3004,7 +3004,7 @@ class Diaspora {
 
 		$p = q("SELECT `guid`, `uri`, `parent-uri` FROM `item` WHERE `uri` = '%s' LIMIT 1",
 			dbesc($item["thr-parent"]));
-		if(!$p)
+		if (!dbm::is_result($p))
 			return false;
 
 		$parent = $p[0];
@@ -3035,7 +3035,7 @@ class Diaspora {
 			intval($item["parent"])
 		);
 
-		if (!$p)
+		if (!dbm::is_result($p))
 			return false;
 
 		$parent = $p[0];
@@ -3249,7 +3249,7 @@ class Diaspora {
 			intval($item["uid"])
 		);
 
-		if (!$r) {
+		if (!dbm::is_result($r)) {
 			logger("conversation not found.");
 			return;
 		}

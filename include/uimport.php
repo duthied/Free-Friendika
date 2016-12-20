@@ -116,7 +116,7 @@ function import_account(&$a, $file) {
 		notice(t('Error! Cannot check nickname'));
 		return;
 	}
-	if (count($r) > 0) {
+	if (dbm::is_result($r) > 0) {
 		notice(sprintf(t("User '%s' already exists on this server!"), $account['user']['nickname']));
 		return;
 	}
@@ -127,7 +127,7 @@ function import_account(&$a, $file) {
 		notice(t('Error! Cannot check nickname'));
 		return;
 	}
-	if (count($r) > 0) {
+	if (dbm::is_result($r) > 0) {
 		notice(sprintf(t("User '%s' already exists on this server!"), $account['user']['nickname']));
 		return;
 	}

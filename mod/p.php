@@ -48,7 +48,7 @@ function p_init($a){
 	$r = q("SELECT `user`.`prvkey`, `contact`.`addr`, `user`.`nickname`, `contact`.`nick` FROM `user`
 		INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid`
 		WHERE `user`.`uid` = %d", intval($item[0]["uid"]));
-	if (!$r) {
+	if (!dbm::is_result($r)) {
 		header($_SERVER["SERVER_PROTOCOL"].' 404 '.t('Not Found'));
 		killme();
 	}

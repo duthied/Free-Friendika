@@ -165,12 +165,12 @@ function oembed_format_object($j){
 				$th=120; $tw = $th*$tr;
 				$tpl=get_markup_template('oembed_video.tpl');
 				$ret.=replace_macros($tpl, array(
-					'$baseurl' => App::get_baseurl(),
-					'$embedurl'=>$embedurl,
-					'$escapedhtml'=>base64_encode($jhtml),
-					'$tw'=>$tw,
-					'$th'=>$th,
-					'$turl'=>$j->thumbnail_url,
+					'$baseurl'     => App::get_baseurl(),
+					'$embedurl'    => $embedurl,
+					'$escapedhtml' => base64_encode($jhtml),
+					'$tw'          => $tw,
+					'$th'          => $th,
+					'$turl'        => $j->thumbnail_url,
 				));
 
 			} else {
@@ -255,12 +255,14 @@ function oembed_format_object($j){
  * @see oembed_format_object()
  */
 function oembed_iframe($src, $width, $height) {
+	$a = get_app();
+
 	if (!$height || strstr($height,'%')) {
 		$height = '200';
 	}
 	$width = '100%';
 
-	$s = App::get_baseurl() . '/oembed/'.base64url_encode($src);
+	$s = App::get_baseurl() . '/oembed/' . base64url_encode($src);
 	return '<iframe onload="resizeIframe(this);" class="embed_rich" height="' . $height . '" width="' . $width . '" src="' . $s . '" allowfullscreen scrolling="no" frameborder="no">' . t('Embedded content') . '</iframe>';
 }
 
