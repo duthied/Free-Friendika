@@ -3,7 +3,6 @@
  * Theme settings
  */
 
-
 function theme_content(App &$a){
 	if (!local_user()) {
 		return;
@@ -24,7 +23,6 @@ function theme_post(App &$a){
 		set_pconfig(local_user(), 'duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
 	}
 }
-
 
 function theme_admin(App &$a){
 	$colorset = get_config( 'duepuntozero', 'colorset');
