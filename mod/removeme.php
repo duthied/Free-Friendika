@@ -47,7 +47,7 @@ function removeme_content(App &$a) {
 
 	$tpl = get_markup_template('removeme.tpl');
 	$o .= replace_macros($tpl, array(
-		'$basedir' => $a->get_baseurl(),
+		'$basedir' => App::get_baseurl(),
 		'$hash' => $hash,
 		'$title' => t('Remove My Account'),
 		'$desc' => t('This will completely remove your account. Once this has been done it is not recoverable.'),
