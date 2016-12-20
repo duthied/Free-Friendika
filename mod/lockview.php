@@ -21,8 +21,9 @@ function lockview_content(&$a) {
 		dbesc($type),
 		intval($item_id)
 	);
-	if(! dbm::is_result($r))
+	if (! dbm::is_result($r)) {
 		killme();
+	}
 	$item = $r[0];
 
 	call_hooks('lockview_content', $item);

@@ -34,8 +34,9 @@ function receive_post(&$a) {
 		$r = q("SELECT * FROM `user` WHERE `guid` = '%s' AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
 			dbesc($guid)
 		);
-		if(! dbm::is_result($r))
+		if (! dbm::is_result($r)) {
 			http_status_exit(500);
+		}
 
 		$importer = $r[0];
 	}

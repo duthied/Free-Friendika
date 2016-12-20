@@ -56,8 +56,9 @@ function manage_post(&$a) {
 		);
 	}
 
-	if(! dbm::is_result($r))
+	if (! dbm::is_result($r)) {
 		return;
+	}
 
 	unset($_SESSION['authenticated']);
 	unset($_SESSION['uid']);

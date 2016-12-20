@@ -43,7 +43,7 @@ function group_post(&$a) {
 			intval($a->argv[1]),
 			intval(local_user())
 		);
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			notice( t('Group not found.') . EOL );
 			goaway(App::get_baseurl() . '/contacts');
 			return; // NOTREACHED
@@ -136,7 +136,7 @@ function group_content(&$a) {
 			intval($a->argv[1]),
 			intval(local_user())
 		);
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			notice( t('Group not found.') . EOL );
 			goaway(App::get_baseurl() . '/contacts');
 		}

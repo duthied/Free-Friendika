@@ -19,7 +19,7 @@ function contacts_init(&$a) {
 			intval(local_user()),
 			intval($contact_id)
 		);
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			$contact_id = 0;
 		}
 	}
@@ -169,7 +169,7 @@ function contacts_post(&$a) {
 			intval($profile_id),
 			intval(local_user())
 		);
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			notice( t('Could not locate selected profile.') . EOL);
 			return;
 		}

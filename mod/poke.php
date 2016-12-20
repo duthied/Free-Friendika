@@ -52,7 +52,7 @@ function poke_init(&$a) {
 		intval($uid)
 	);
 
-	if(! dbm::is_result($r)) {
+	if (! dbm::is_result($r)) {
 		logger('poke: no contact ' . $contact_id);
 		return;
 	}

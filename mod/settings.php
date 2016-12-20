@@ -225,7 +225,7 @@ function settings_post(&$a) {
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 					intval(local_user())
 				);
-				if(! dbm::is_result($r)) {
+				if (! dbm::is_result($r)) {
 					q("INSERT INTO `mailacct` (`uid`) VALUES (%d)",
 						intval(local_user())
 					);
@@ -752,8 +752,9 @@ function settings_content(&$a) {
 		$settings_addons = "";
 
 		$r = q("SELECT * FROM `hook` WHERE `hook` = 'plugin_settings' ");
-		if(! dbm::is_result($r))
+		if (! dbm::is_result($r)) {
 			$settings_addons = t('No Plugin settings configured');
+		}
 
 		call_hooks('plugin_settings', $settings_addons);
 

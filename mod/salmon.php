@@ -31,8 +31,9 @@ function salmon_post(&$a) {
 	$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
 		dbesc($nick)
 	);
-	if(! dbm::is_result($r))
+	if (! dbm::is_result($r)) {
 		http_status_exit(500);
+	}
 
 	$importer = $r[0];
 
@@ -150,7 +151,7 @@ function salmon_post(&$a) {
 		dbesc(normalise_link($author_link)),
 		intval($importer['uid'])
 	);
-	if(! dbm::is_result($r)) {
+	if (! dbm::is_result($r)) {
 		logger('mod-salmon: Author unknown to us.');
 		if(get_pconfig($importer['uid'],'system','ostatus_autofriend')) {
 			$result = new_contact($importer['uid'],$author_link);

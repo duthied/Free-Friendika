@@ -254,7 +254,7 @@ function new_contact($uid,$url,$interactive = false) {
 		intval($uid)
 	);
 
-	if(! dbm::is_result($r)) {
+	if (! dbm::is_result($r)) {
 		$result['message'] .=  t('Unable to retrieve contact information.') . EOL;
 		return $result;
 	}

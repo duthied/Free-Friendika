@@ -371,7 +371,7 @@ function dfrn_request_post(&$a) {
 					intval($uid)
 				);
 
-				if(! dbm::is_result($r)) {
+				if (! dbm::is_result($r)) {
 					notice( t('This account has not been configured for email. Request failed.') . EOL);
 					return;
 				}
@@ -842,8 +842,9 @@ function dfrn_request_content(&$a) {
 			$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 				intval($a->profile['uid'])
 			);
-			if(! dbm::is_result($r))
+			if (! dbm::is_result($r)) {
 				$mail_disabled = 1;
+			}
 		}
 
 		// "coming soon" is disabled for now

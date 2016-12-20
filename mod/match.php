@@ -27,8 +27,9 @@ function match_content(&$a) {
 	$r = q("SELECT `pub_keywords`, `prv_keywords` FROM `profile` WHERE `is-default` = 1 AND `uid` = %d LIMIT 1",
 		intval(local_user())
 	);
-	if(! dbm::is_result($r))
+	if (! dbm::is_result($r)) {
 		return;
+	}
 	if(! $r[0]['pub_keywords'] && (! $r[0]['prv_keywords'])) {
 		notice( t('No keywords to match. Please add keywords to your default profile.') . EOL);
 		return;

@@ -381,7 +381,7 @@ function message_content(&$a) {
 
 		$r = get_messages(local_user(), $a->pager['start'], $a->pager['itemspage']);
 
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			info( t('No messages.') . EOL);
 			return $o;
 		}

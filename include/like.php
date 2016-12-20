@@ -78,8 +78,9 @@ function do_like($item_id, $verb) {
 			intval($item['contact-id']),
 			intval($item['uid'])
 		);
-		if(! dbm::is_result($r))
+		if (! dbm::is_result($r)) {
 			return false;
+		}
 		if(! $r[0]['self'])
 			$remote_owner = $r[0];
 	}

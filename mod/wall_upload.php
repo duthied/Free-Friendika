@@ -15,7 +15,7 @@ function wall_upload_post(&$a, $desktopmode = true) {
 				dbesc($nick)
 			);
 
-			if(! dbm::is_result($r)){
+			if (! dbm::is_result($r)) {
 				if ($r_json) {
 					echo json_encode(array('error'=>t('Invalid request.')));
 					killme();

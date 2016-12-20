@@ -210,8 +210,9 @@ function notifier_run(&$argv, &$argc){
 		intval($uid)
 	);
 
-	if(! dbm::is_result($r))
+	if (! dbm::is_result($r)) {
 		return;
+	}
 
 	$owner = $r[0];
 
