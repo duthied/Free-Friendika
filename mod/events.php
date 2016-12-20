@@ -191,31 +191,34 @@ function events_content(&$a) {
 		return;
 	}
 
-	if($a->argc == 1)
+	if ($a->argc == 1) {
 		$_SESSION['return_url'] = App::get_baseurl() . '/' . $a->cmd;
+	}
 
-	if(($a->argc > 2) && ($a->argv[1] === 'ignore') && intval($a->argv[2])) {
+	if (($a->argc > 2) && ($a->argv[1] === 'ignore') && intval($a->argv[2])) {
 		$r = q("update event set ignore = 1 where id = %d and uid = %d",
 			intval($a->argv[2]),
 			intval(local_user())
 		);
 	}
 
-	if(($a->argc > 2) && ($a->argv[1] === 'unignore') && intval($a->argv[2])) {
+	if (($a->argc > 2) && ($a->argv[1] === 'unignore') && intval($a->argv[2])) {
 		$r = q("update event set ignore = 0 where id = %d and uid = %d",
 			intval($a->argv[2]),
 			intval(local_user())
 		);
 	}
 
-	if ($a->theme_events_in_profile)
+	if ($a->theme_events_in_profile) {
 		nav_set_selected('home');
-	else
+	} else {
 		nav_set_selected('events');
+	}
 
 	$editselect = 'none';
-	if( feature_enabled(local_user(), 'richtext') )
+	if ( feature_enabled(local_user(), 'richtext') ) {
 		$editselect = 'textareas';
+	}
 
 	// get the translation strings for the callendar
 	$i18n = get_event_strings();
