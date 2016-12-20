@@ -93,19 +93,19 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 
 		if(isset($entry->urls)) {
 			foreach($entry->urls as $url) {
-				if($url->type == 'profile') {
+				if ($url->type == 'profile') {
 					$profile_url = $url->value;
 					continue;
 				}
-				if($url->type == 'webfinger') {
+				if ($url->type == 'webfinger') {
 					$connect_url = str_replace('acct:' , '', $url->value);
 					continue;
 				}
 			}
 		}
-		if(isset($entry->photos)) {
+		if (isset($entry->photos)) {
 			foreach($entry->photos as $photo) {
-				if($photo->type == 'profile') {
+				if ($photo->type == 'profile') {
 					$profile_photo = $photo->value;
 					continue;
 				}
@@ -1334,7 +1334,7 @@ function poco_discover_server_users($data, $server) {
 		$username = "";
 		if (isset($entry->urls)) {
 			foreach($entry->urls as $url)
-				if($url->type == 'profile') {
+				if ($url->type == 'profile') {
 					$profile_url = $url->value;
 					$urlparts = parse_url($profile_url);
 					$username = end(explode("/", $urlparts["path"]));
@@ -1378,11 +1378,11 @@ function poco_discover_server($data, $default_generation = 0) {
 
 		if(isset($entry->urls)) {
 			foreach($entry->urls as $url) {
-				if($url->type == 'profile') {
+				if ($url->type == 'profile') {
 					$profile_url = $url->value;
 					continue;
 				}
-				if($url->type == 'webfinger') {
+				if ($url->type == 'webfinger') {
 					$connect_url = str_replace('acct:' , '', $url->value);
 					continue;
 				}

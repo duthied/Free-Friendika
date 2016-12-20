@@ -558,7 +558,7 @@ function notifier_run(&$argv, &$argc){
 	if($slap && count($url_recipients) && ($public_message || $push_notify) && $normal_mode) {
 		if(!get_config('system','dfrn_only')) {
 			foreach($url_recipients as $url) {
-				if($url) {
+				if ($url) {
 					logger('notifier: urldelivery: ' . $url);
 					$deliver_status = slapper($owner,$url,$slap);
 					/// @TODO Redeliver/queue these items on failure, though there is no contact record
