@@ -5,7 +5,7 @@ require_once('include/group.php');
 function contactgroup_content(&$a) {
 
 
-	if(! local_user()) {
+	if (! local_user()) {
 		killme();
 	}
 

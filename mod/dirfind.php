@@ -7,7 +7,7 @@ require_once('mod/contacts.php');
 
 function dirfind_init(&$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL );
 		return;
 	}

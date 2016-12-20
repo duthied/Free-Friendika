@@ -42,7 +42,7 @@ function message_init(&$a) {
 
 function message_post(&$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
@@ -178,7 +178,7 @@ function message_content(&$a) {
 	$o = '';
 	nav_set_selected('messages');
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}

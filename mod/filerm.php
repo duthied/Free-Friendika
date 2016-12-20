@@ -2,7 +2,7 @@
 
 function filerm_content(&$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		killme();
 	}
 

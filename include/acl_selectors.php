@@ -392,8 +392,9 @@ function construct_acl_data(&$a, $user) {
 
 function acl_lookup(&$a, $out_type = 'json') {
 
-	if(!local_user())
-		return "";
+	if (!local_user()) {
+		return '';
+	}
 
 	$start	=	(x($_REQUEST,'start')		? $_REQUEST['start']		: 0);
 	$count	=	(x($_REQUEST,'count')		? $_REQUEST['count']		: 100);

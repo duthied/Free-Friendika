@@ -80,11 +80,13 @@ function networks_widget($baseurl,$selected = '') {
 
 	$a = get_app();
 
-	if(!local_user())
+	if (!local_user()) {
 		return '';
+	}
 
-	if(!feature_enabled(local_user(),'networks'))
+	if (!feature_enabled(local_user(),'networks')) {
 		return '';
+	}
 
 	$extra_sql = unavailable_networks();
 
@@ -116,15 +118,18 @@ function networks_widget($baseurl,$selected = '') {
 }
 
 function fileas_widget($baseurl,$selected = '') {
-	if(! local_user())
+	if (! local_user()) {
 		return '';
+	}
 
-	if(! feature_enabled(local_user(),'filing'))
+	if (! feature_enabled(local_user(),'filing')) {
 		return '';
+	}
 
 	$saved = get_pconfig(local_user(),'system','filetags');
-	if(! strlen($saved))
+	if (! strlen($saved)) {
 		return;
+	}
 
 	$matches = false;
 	$terms = array();

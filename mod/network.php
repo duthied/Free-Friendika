@@ -1,6 +1,6 @@
 <?php
 function network_init(&$a) {
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
@@ -308,7 +308,7 @@ function network_content(&$a, $update = 0) {
 
 	require_once('include/conversation.php');
 
-	if(! local_user()) {
+	if (! local_user()) {
 		$_SESSION['return_url'] = $a->query_string;
 		return login(false);
 	}

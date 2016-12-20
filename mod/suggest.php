@@ -5,12 +5,13 @@ require_once('include/contact_widgets.php');
 
 
 function suggest_init(&$a) {
-	if(! local_user())
+	if (! local_user()) {
 		return;
+	}
 
-	if(x($_GET,'ignore') && intval($_GET['ignore'])) {
+	if (x($_GET,'ignore') && intval($_GET['ignore'])) {
 		// Check if we should do HTML-based delete confirmation
-		if($_REQUEST['confirm']) {
+		if ($_REQUEST['confirm']) {
 			// <form> can't take arguments in its "action" parameter
 			// so add any arguments as hidden inputs
 			$query = explode_querystring($a->query_string);
@@ -35,7 +36,7 @@ function suggest_init(&$a) {
 			return;
 		}
 		// Now check how the user responded to the confirmation query
-		if(!$_REQUEST['canceled']) {
+		if (!$_REQUEST['canceled']) {
 			q("INSERT INTO `gcign` ( `uid`, `gcid` ) VALUES ( %d, %d ) ",
 				intval(local_user()),
 				intval($_GET['ignore'])
@@ -54,7 +55,7 @@ function suggest_content(&$a) {
 	require_once("mod/proxy.php");
 
 	$o = '';
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}

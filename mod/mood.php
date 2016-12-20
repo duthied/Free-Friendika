@@ -7,8 +7,9 @@ require_once('include/items.php');
 
 function mood_init(&$a) {
 
-	if(! local_user())
+	if (! local_user()) {
 		return;
+	}
 
 	$uid = local_user();
 	$verb = notags(trim($_GET['verb']));
@@ -110,7 +111,7 @@ function mood_init(&$a) {
 
 function mood_content(&$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}

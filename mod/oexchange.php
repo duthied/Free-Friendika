@@ -16,12 +16,12 @@ function oexchange_init(&$a) {
 
 function oexchange_content(&$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		$o = login(false);
 		return $o;
 	}
 
-	if(($a->argc > 1) && $a->argv[1] === 'done') {
+	if (($a->argc > 1) && $a->argv[1] === 'done') {
 		info( t('Post successful.') . EOL);
 		return;
 	}

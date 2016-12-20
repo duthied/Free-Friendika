@@ -234,7 +234,7 @@ function group_side($every="contacts",$each="group",$editmode = "standard", $gro
 
 	$o = '';
 
-	if(! local_user())
+	if (! local_user())
 		return '';
 
 	$groups = array();

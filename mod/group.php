@@ -15,7 +15,7 @@ function group_init(&$a) {
 
 function group_post(&$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
@@ -73,7 +73,7 @@ function group_post(&$a) {
 function group_content(&$a) {
 	$change = false;
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied') . EOL);
 		return;
 	}

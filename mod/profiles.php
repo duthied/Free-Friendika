@@ -6,7 +6,7 @@ function profiles_init(&$a) {
 
 	nav_set_selected('profiles');
 
-	if(! local_user()) {
+	if (! local_user()) {
 		return;
 	}
 
@@ -162,7 +162,7 @@ function profile_clean_keywords($keywords) {
 
 function profiles_post(&$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
@@ -595,14 +595,15 @@ function profile_activity($changed, $value) {
 	$arr['deny_gid']  = $a->user['deny_gid'];
 
 	$i = item_store($arr);
-	if($i)
+	if ($i) {
 		proc_run(PRIORITY_HIGH, "include/notifier.php", "activity", $i);
+	}
 }
 
 
 function profiles_content(&$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}

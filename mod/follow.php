@@ -7,7 +7,7 @@ require_once('include/contact_selectors.php');
 
 function follow_content(&$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		goaway($_SESSION['return_url']);
 		// NOTREACHED
@@ -151,7 +151,7 @@ function follow_content(&$a) {
 
 function follow_post(&$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		goaway($_SESSION['return_url']);
 		// NOTREACHED

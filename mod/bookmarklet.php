@@ -8,7 +8,7 @@ function bookmarklet_init(&$a) {
 }
 
 function bookmarklet_content(&$a) {
-	if(!local_user()) {
+	if (!local_user()) {
 		$o = '<h2>'.t('Login').'</h2>';
 		$o .= login(($a->config['register_policy'] == REGISTER_CLOSED) ? false : true);
 		return $o;

@@ -6,21 +6,23 @@
 
 
 function theme_content(&$a){
-	if(!local_user())
-		return;		
-	
+	if (!local_user()) {
+		return;
+	}
+
 	$align = get_pconfig(local_user(), 'quattro', 'align' );
 	$color = get_pconfig(local_user(), 'quattro', 'color' );
-    $tfs = get_pconfig(local_user(),"quattro","tfs");
-    $pfs = get_pconfig(local_user(),"quattro","pfs");    
-    
+	$tfs = get_pconfig(local_user(),"quattro","tfs");
+	$pfs = get_pconfig(local_user(),"quattro","pfs");
+
 	return quattro_form($a,$align, $color, $tfs, $pfs);
 }
 
 function theme_post(&$a){
-	if(! local_user())
+	if (! local_user()) {
 		return;
-	
+	}
+
 	if (isset($_POST['quattro-settings-submit'])){
 		set_pconfig(local_user(), 'quattro', 'align', $_POST['quattro_align']);
 		set_pconfig(local_user(), 'quattro', 'color', $_POST['quattro_color']);

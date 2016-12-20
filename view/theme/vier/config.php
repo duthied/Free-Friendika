@@ -6,19 +6,23 @@
 
 
 function theme_content(&$a){
-	if(!local_user())
+	if (!local_user()) {
 		return;
+	}
 
-	if (!function_exists('get_vier_config'))
+	if (!function_exists('get_vier_config')) {
 		return;
+	}
 
 	$style = get_pconfig(local_user(), 'vier', 'style');
 
-	if ($style == "")
+	if ($style == "") {
 		$style = get_config('vier', 'style');
+	}
 
-	if ($style == "")
+	if ($style == "") {
 		$style = "plus";
+	}
 
 	$show_pages = get_vier_config('show_pages', true);
 	$show_profiles = get_vier_config('show_profiles', true);
@@ -32,8 +36,9 @@ function theme_content(&$a){
 }
 
 function theme_post(&$a){
-	if(! local_user())
+	if (! local_user()) {
 		return;
+	}
 
 	if (isset($_POST['vier-settings-submit'])){
 		set_pconfig(local_user(), 'vier', 'style', $_POST['vier_style']);

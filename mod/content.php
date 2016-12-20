@@ -23,7 +23,7 @@ function content_content(&$a, $update = 0) {
 
 	// Currently security is based on the logged in user
 
-	if(! local_user()) {
+	if (! local_user()) {
 		return;
 	}
 

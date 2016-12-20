@@ -6,14 +6,14 @@ function editpost_content(&$a) {
 
 	$o = '';
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
 
 	$post_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
-	if(! $post_id) {
+	if (! $post_id) {
 		notice( t('Item not found') . EOL);
 		return;
 	}
@@ -23,7 +23,7 @@ function editpost_content(&$a) {
 		intval(local_user())
 	);
 
-	if(! count($itm)) {
+	if (! count($itm)) {
 		notice( t('Item not found') . EOL);
 		return;
 	}
