@@ -3218,7 +3218,7 @@
 	function api_share_as_retweet(&$item) {
 		$body = trim($item["body"]);
 
-		if (diaspora::is_reshare($body, false)===false) {
+		if (Diaspora::is_reshare($body, false)===false) {
 			return false;
 		}
 

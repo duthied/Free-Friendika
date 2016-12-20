@@ -23,7 +23,7 @@ require_once("include/queue_fn.php");
  * @brief This class contain functions to create and send Diaspora XML files
  *
  */
-class diaspora {
+class Diaspora {
 
 	/**
 	 * @brief Return a list of relay servers
@@ -344,7 +344,7 @@ class diaspora {
 		// This will often be different with relayed messages (for example "like" and "comment")
 		$sender = $msg["author"];
 
-		if (!diaspora::valid_posting($msg, $fields)) {
+		if (!self::valid_posting($msg, $fields)) {
 			logger("Invalid posting");
 			return false;
 		}
@@ -2444,7 +2444,7 @@ class diaspora {
 		$b64url_data = base64url_encode($msg);
 		$data = str_replace(array("\n", "\r", " ", "\t"), array("", "", "", ""), $b64url_data);
 
-		$key_id = base64url_encode(diaspora::my_handle($user));
+		$key_id = base64url_encode(self::my_handle($user));
 		$type = "application/xml";
 		$encoding = "base64url";
 		$alg = "RSA-SHA256";
@@ -2970,7 +2970,7 @@ class diaspora {
 	 */
 	public static function send_status($item, $owner, $contact, $public_batch = false) {
 
-		$status = diaspora::build_status($item, $owner);
+		$status = self::build_status($item, $owner);
 
 		return self::build_and_transmit($owner, $contact, $status["type"], $status["message"], $public_batch, $item["guid"]);
 	}

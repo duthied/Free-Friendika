@@ -302,7 +302,7 @@ function new_contact($uid,$url,$interactive = false) {
 		}
 		if($contact['network'] == NETWORK_DIASPORA) {
 			require_once('include/diaspora.php');
-			$ret = diaspora::send_share($a->user,$contact);
+			$ret = Diaspora::send_share($a->user,$contact);
 			logger('share returns: '.$ret);
 		}
 	}

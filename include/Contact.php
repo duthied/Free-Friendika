@@ -115,7 +115,7 @@ function terminate_friendship($user,$self,$contact) {
 	}
 	elseif($contact['network'] === NETWORK_DIASPORA) {
 		require_once('include/diaspora.php');
-		diaspora::send_unshare($user,$contact);
+		Diaspora::send_unshare($user,$contact);
 	}
 	elseif($contact['network'] === NETWORK_DFRN) {
 		require_once('include/dfrn.php');

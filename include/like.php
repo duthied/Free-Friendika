@@ -239,7 +239,7 @@ EOT;
 
 
 	// Save the author information for the like in case we need to relay to Diaspora
-	diaspora::store_like_signature($contact, $post_id);
+	Diaspora::store_like_signature($contact, $post_id);
 
 	$arr['id'] = $post_id;
 
