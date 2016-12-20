@@ -224,8 +224,9 @@ function item_post(App &$a) {
 			intval($profile_uid),
 			intval($post_id)
 		);
-		if(! count($i))
+		if (! dbm::is_result($i)) {
 			killme();
+		}
 		$orig_post = $i[0];
 	}
 

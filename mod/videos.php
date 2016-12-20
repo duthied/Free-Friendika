@@ -154,7 +154,7 @@ function videos_post(App &$a) {
 				intval(local_user())
 			);
 			//echo "<pre>"; var_dump($i); killme();
-			if(count($i)) {
+			if (dbm::is_result($i)) {
 				q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
 					dbesc(datetime_convert()),
 					dbesc(datetime_convert()),

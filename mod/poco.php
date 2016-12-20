@@ -16,8 +16,9 @@ function poco_init(App &$a) {
 	}
 	if(! x($user)) {
 		$c = q("SELECT * FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1");
-		if(! count($c))
+		if (! dbm::is_result($c)) {
 			http_status_exit(401);
+		}
 		$system_mode = true;
 	}
 

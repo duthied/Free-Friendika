@@ -137,7 +137,7 @@ function dfrn_poll_init(App &$a) {
 			$c = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 				intval($r[0]['cid'])
 			);
-			if(! count($c)) {
+			if (! dbm::is_result($c)) {
 				xml_status(3, 'No profile');
 			}
 			$contact = $c[0];
@@ -234,7 +234,7 @@ function dfrn_poll_post(App &$a) {
 			$c = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 				intval($r[0]['cid'])
 			);
-			if(! count($c)) {
+			if (! dbm::is_result($c)) {
 				xml_status(3, 'No profile');
 			}
 			$contact = $c[0];
