@@ -780,24 +780,26 @@ function profiles_content(&$a) {
 		if (dbm::is_result($r)) {
 
 			$tpl = get_markup_template('profile_entry.tpl');
-			foreach($r as $rr) {
+
+			$profiles = '';
+			foreach ($r as $rr) {
 				$profiles .= replace_macros($tpl, array(
-					'$photo' => $a->remove_baseurl($rr['thumb']),
-					'$id' => $rr['id'],
-					'$alt' => t('Profile Image'),
+					'$photo'        => $a->remove_baseurl($rr['thumb']),
+					'$id'           => $rr['id'],
+					'$alt'          => t('Profile Image'),
 					'$profile_name' => $rr['profile-name'],
-					'$visible' => (($rr['is-default']) ? '<strong>' . t('visible to everybody') . '</strong>'
+					'$visible'      => (($rr['is-default']) ? '<strong>' . t('visible to everybody') . '</strong>'
 						: '<a href="'.'profperm/'.$rr['id'].'" />' . t('Edit visibility') . '</a>')
 				));
 			}
 
 			$tpl_header = get_markup_template('profile_listing_header.tpl');
 			$o .= replace_macros($tpl_header,array(
-				'$header' => t('Edit/Manage Profiles'),
-				'$chg_photo' => t('Change profile photo'),
-				'$cr_new' => t('Create New Profile'),
+				'$header'      => t('Edit/Manage Profiles'),
+				'$chg_photo'   => t('Change profile photo'),
+				'$cr_new'      => t('Create New Profile'),
 				'$cr_new_link' => 'profiles/new?t=' . get_form_security_token("profile_new"),
-				'$profiles' => $profiles
+				'$profiles'    => $profiles
 			));
 		}
 		return $o;

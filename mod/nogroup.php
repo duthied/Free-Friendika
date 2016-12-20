@@ -35,7 +35,7 @@ function nogroup_content(&$a) {
 	}
 	$r = contacts_not_grouped(local_user(),$a->pager['start'],$a->pager['itemspage']);
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 
 			$contact_details = get_contact_details_by_url($rr['url'], local_user(), $rr);
 

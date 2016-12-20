@@ -107,7 +107,7 @@ function delegate_content(&$a) {
 	$nicknames = array();
 
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			$nicknames[] = "'" . dbesc(basename($rr['nurl'])) . "'";
 		}
 	}

@@ -76,9 +76,11 @@ function viewcontacts_content(&$a) {
 
 	$contacts = array();
 
-	foreach($r as $rr) {
-		if($rr['self'])
+	foreach ($r as $rr) {
+		/// @TODO This triggers an E_NOTICE if 'self' is not there
+		if ($rr['self']) {
 			continue;
+		}
 
 		$url = $rr['url'];
 

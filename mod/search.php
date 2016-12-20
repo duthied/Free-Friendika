@@ -17,7 +17,7 @@ function search_saved_searches() {
 
 	if (dbm::is_result($r)) {
 		$saved = array();
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			$saved[] = array(
 				'id'		=> $rr['id'],
 				'term'		=> $rr['term'],

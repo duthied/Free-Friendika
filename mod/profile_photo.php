@@ -201,7 +201,7 @@ function profile_photo_content(&$a) {
 			return;
 		}
 		$havescale = false;
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			if($rr['scale'] == 5)
 				$havescale = true;
 		}

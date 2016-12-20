@@ -52,7 +52,7 @@ function install_post(&$a) {
 					$r = q("CREATE DATABASE '%s'",
 							dbesc($dbdata)
 					);
-					if($r) {
+					if ($r) {
 						unset($db);
 						$db = new dba($dbhost, $dbuser, $dbpass, $dbdata, true);
 					} else {
@@ -520,19 +520,22 @@ function check_smarty3(&$checks) {
 function check_htaccess(&$checks) {
 	$status = true;
 	$help = "";
-	if (function_exists('curl_init')){
+	if (function_exists('curl_init')) {
 		$test = fetch_url(App::get_baseurl()."/install/testrewrite");
 
-		if ($test!="ok")
+		if ($test!="ok") {
 			$test = fetch_url(normalise_link(App::get_baseurl()."/install/testrewrite"));
+		}
 
 		if ($test!="ok") {
 			$status = false;
 			$help = t('Url rewrite in .htaccess is not working. Check your server configuration.');
 		}
 		check_add($checks, t('Url rewrite is working'), $status, true, $help);
-	} else {
+	}
+	else {
 		// cannot check modrewrite if libcurl is not installed
+		/// @TODO Maybe issue warning here?
 	}
 }
 
@@ -549,7 +552,7 @@ function check_imagik(&$checks) {
 	}
 	if ($imagick == false) {
 		check_add($checks, t('ImageMagick PHP extension is not installed'), $imagick, false, "");
-		}
+	}
 	else {
 		check_add($checks, t('ImageMagick PHP extension is installed'), $imagick, false, "");
 		if ($imagick) {

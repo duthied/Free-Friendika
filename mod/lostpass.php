@@ -102,7 +102,7 @@ function lostpass_content(&$a) {
 			dbesc($new_password_encoded),
 			intval($uid)
 		);
-		if($r) {
+		if ($r) {
 			$tpl = get_markup_template('pwdreset.tpl');
 			$o .= replace_macros($tpl,array(
 				'$lbl1' => t('Password Reset'),
