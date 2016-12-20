@@ -106,13 +106,17 @@ function videos_post(App &$a) {
 
 	$owner_uid = $a->data['user']['uid'];
 
-	if (local_user() != $owner_uid) goaway(App::get_baseurl() . '/videos/' . $a->data['user']['nickname']);
+	if (local_user() != $owner_uid) {
+		goaway(App::get_baseurl() . '/videos/' . $a->data['user']['nickname']);
+	}
 
-	if(($a->argc == 2) && x($_POST,'delete') && x($_POST, 'id')) {
+	if (($a->argc == 2) && x($_POST,'delete') && x($_POST, 'id')) {
 
 		// Check if we should do HTML-based delete confirmation
 		if(!x($_REQUEST,'confirm')) {
-			if(x($_REQUEST,'canceled')) goaway(App::get_baseurl() . '/videos/' . $a->data['user']['nickname']);
+			if (x($_REQUEST,'canceled')) {
+				goaway(App::get_baseurl() . '/videos/' . $a->data['user']['nickname']);
+			}
 
 			$drop_url = $a->query_string;
 			$a->page['content'] = replace_macros(get_markup_template('confirm.tpl'), array(
@@ -149,7 +153,7 @@ function videos_post(App &$a) {
 				dbesc($video_id),
 				intval(local_user())
 			);
-			#echo "<pre>"; var_dump($i); killme();
+			//echo "<pre>"; var_dump($i); killme();
 			if(count($i)) {
 				q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
 					dbesc(datetime_convert()),
@@ -172,7 +176,7 @@ function videos_post(App &$a) {
 		return; // NOTREACHED
 	}
 
-    goaway(App::get_baseurl() . '/videos/' . $a->data['user']['nickname']);
+	goaway(App::get_baseurl() . '/videos/' . $a->data['user']['nickname']);
 
 }
 
