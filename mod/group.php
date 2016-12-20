@@ -104,26 +104,32 @@ function group_content(App &$a) {
 
 	}
 
-	if(($a->argc == 3) && ($a->argv[1] === 'drop')) {
+	if (($a->argc == 3) && ($a->argv[1] === 'drop')) {
 		check_form_security_token_redirectOnErr('/group', 'group_drop', 't');
 
-		if(intval($a->argv[2])) {
+		if (intval($a->argv[2])) {
 			$r = q("SELECT `name` FROM `group` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 				intval($a->argv[2]),
 				intval(local_user())
 			);
-			if (dbm::is_result($r))
+
+			$result = null;
+
+			if (dbm::is_result($r)) {
 				$result = group_rmv(local_user(),$r[0]['name']);
-			if($result)
+			}
+
+			if ($result) {
 				info( t('Group removed.') . EOL);
-			else
+			} else {
 				notice( t('Unable to remove group.') . EOL);
+			}
 		}
 		goaway(App::get_baseurl() . '/group');
 		// NOTREACHED
 	}
 
-	if(($a->argc > 2) && intval($a->argv[1]) && intval($a->argv[2])) {
+	if (($a->argc > 2) && intval($a->argv[1]) && intval($a->argv[2])) {
 		check_form_security_token_ForbiddenOnErr('group_member_change', 't');
 
 		$r = q("SELECT `id` FROM `contact` WHERE `id` = %d AND `uid` = %d and `self` = 0 and `blocked` = 0 AND `pending` = 0 LIMIT 1",
@@ -134,7 +140,7 @@ function group_content(App &$a) {
 			$change = intval($a->argv[2]);
 	}
 
-	if(($a->argc > 1) && (intval($a->argv[1]))) {
+	if (($a->argc > 1) && (intval($a->argv[1]))) {
 
 		require_once('include/acl_selectors.php');
 		$r = q("SELECT * FROM `group` WHERE `id` = %d AND `uid` = %d AND `deleted` = 0 LIMIT 1",
