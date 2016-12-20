@@ -60,7 +60,7 @@ function tagger_content(App &$a) {
 	$uri = item_new_uri($a->get_hostname(),$owner_uid);
 	$xterm = xmlify($term);
 	$post_type = (($item['resource-id']) ? t('photo') : t('status'));
-	$targettype = (($item['resource-id']) ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE );
+	$targettype = (($item['resource-id']) ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE );
 
 	$link = xmlify('<link rel="alternate" type="text/html" href="'
 		. App::get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
