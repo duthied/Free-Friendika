@@ -19,7 +19,7 @@ function contacts_init(&$a) {
 			intval(local_user()),
 			intval($contact_id)
 		);
-		if(! count($r)) {
+		if(! dbm::is_result($r)) {
 			$contact_id = 0;
 		}
 	}
@@ -169,7 +169,7 @@ function contacts_post(&$a) {
 			intval($profile_id),
 			intval(local_user())
 		);
-		if(! count($r)) {
+		if(! dbm::is_result($r)) {
 			notice( t('Could not locate selected profile.') . EOL);
 			return;
 		}
@@ -211,7 +211,7 @@ function contacts_post(&$a) {
 		intval($contact_id),
 		intval(local_user())
 	);
-	if($r && count($r))
+	if($r && dbm::is_result($r))
 		$a->data['contact'] = $r[0];
 
 	return;
@@ -765,7 +765,7 @@ function contacts_content(&$a) {
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
 		WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 ",
 		intval($_SESSION['uid']));
-	if(count($r)) {
+	if (dbm::is_result($r)) {
 		$a->set_pager_total($r[0]['total']);
 		$total = $r[0]['total'];
 	}
@@ -780,8 +780,8 @@ function contacts_content(&$a) {
 
 	$contacts = array();
 
-	if(count($r)) {
-		foreach($r as $rr) {
+	if (dbm::is_result($r)) {
+		foreach ($r as $rr) {
 			$contacts[] = _contact_detail_for_template($rr);
 		}
 	}

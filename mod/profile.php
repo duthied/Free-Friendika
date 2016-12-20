@@ -13,7 +13,7 @@ function profile_init(&$a) {
 		$which = htmlspecialchars($a->argv[1]);
 	else {
 		$r = q("select nickname from user where blocked = 0 and account_expired = 0 and account_removed = 0 and verified = 1 order by rand() limit 1");
-		if(count($r)) {
+		if (dbm::is_result($r)) {
 			goaway($a->get_baseurl() . '/profile/' . $r[0]['nickname']);
 		}
 		else {
@@ -136,7 +136,7 @@ function profile_content(&$a, $update = 0) {
 			intval($contact_id),
 			intval($a->profile['profile_uid'])
 		);
-		if(count($r)) {
+		if (dbm::is_result($r)) {
 			$contact = $r[0];
 			$remote_contact = true;
 		}
@@ -256,21 +256,21 @@ function profile_content(&$a, $update = 0) {
 			    AND `thread`.`wall` = 1
 			    $sql_extra $sql_extra2 ",
 			    intval($a->profile['profile_uid'])
-		    );
+			);
 
-	        if(count($r)) {
-		        $a->set_pager_total($r[0]['total']);
+			if (dbm::is_result($r)) {
+				$a->set_pager_total($r[0]['total']);
 			}
 		}
 
 		//  check if we serve a mobile device and get the user settings
 		//  accordingly
 		if ($a->is_mobile) {
-		    $itemspage_network = get_pconfig(local_user(),'system','itemspage_mobile_network');
-		    $itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 10);
+			$itemspage_network = get_pconfig(local_user(),'system','itemspage_mobile_network');
+			$itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 10);
 		} else {
-		    $itemspage_network = get_pconfig(local_user(),'system','itemspage_network');
-		    $itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 20);
+			$itemspage_network = get_pconfig(local_user(),'system','itemspage_network');
+			$itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 20);
 		}
 		//  now that we have the user settings, see if the theme forces
 		//  a maximum item number which is lower then the user choice

@@ -165,7 +165,7 @@ function photos_post(&$a) {
 		intval($page_owner_uid)
 	);
 
-	if (! count($r)) {
+	if (! dbm::is_result($r)) {
 		notice( t('Contact information unavailable') . EOL);
 		logger('photos_post: unable to locate contact record for page owner. uid=' . $page_owner_uid);
 		killme();
@@ -186,7 +186,7 @@ function photos_post(&$a) {
 			dbesc($album),
 			intval($page_owner_uid)
 		);
-		if (! count($r)) {
+		if (! dbm::is_result($r)) {
 			notice( t('Album not found.') . EOL);
 			goaway($_SESSION['photo_return']);
 			return; // NOTREACHED
@@ -255,7 +255,7 @@ function photos_post(&$a) {
 				);
 			}
 			if (dbm::is_result($r)) {
-				foreach ($r as $rr) {
+				foreach($r as $rr) {
 					$res[] = "'" . dbesc($rr['rid']) . "'" ;
 				}
 			} else {
@@ -277,7 +277,7 @@ function photos_post(&$a) {
 				intval($page_owner_uid)
 			);
 			if (dbm::is_result($r)) {
-				foreach ($r as $rr) {
+				foreach($r as $rr) {
 					q("UPDATE `item` SET `deleted` = 1, `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
 						dbesc(datetime_convert()),
 						dbesc($rr['parent-uri']),
@@ -681,7 +681,7 @@ function photos_post(&$a) {
 					$arr['visible']       = 1;
 					$arr['verb']          = ACTIVITY_TAG;
 					$arr['object-type']   = ACTIVITY_OBJ_PERSON;
-					$arr['target-type']   = ACTIVITY_OBJ_PHOTO;
+					$arr['target-type']   = ACTIVITY_OBJ_IMAGE;
 					$arr['tag']           = $tagged[4];
 					$arr['inform']        = $tagged[2];
 					$arr['origin']        = 1;
@@ -694,7 +694,7 @@ function photos_post(&$a) {
 						$arr['object'] .= xmlify('<link rel="photo" type="'.$p[0]['type'].'" href="' . $tagged[3]['photo'] . '" />' . "\n");
 					$arr['object'] .= '</link></object>' . "\n";
 
-					$arr['target'] = '<target><type>' . ACTIVITY_OBJ_PHOTO . '</type><title>' . $p[0]['desc'] . '</title><id>'
+					$arr['target'] = '<target><type>' . ACTIVITY_OBJ_IMAGE . '</type><title>' . $p[0]['desc'] . '</title><id>'
 						. $a->get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . '</id>';
 					$arr['target'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . $a->get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . '" />' . "\n" . '<link rel="preview" type="'.$p[0]['type'].'" href="' . $a->get_baseurl() . "/photo/" . $p[0]['resource-id'] . '-' . $best . '.' . $ext . '" />') . '</link></target>';
 
@@ -748,7 +748,7 @@ function photos_post(&$a) {
 		dbesc($album),
 		intval($page_owner_uid)
 	);
-	if ((! count($r)) || ($album == t('Profile Photos')))
+	if ((! dbm::is_result($r)) || ($album == t('Profile Photos')))
 		$visible = 1;
 	else
 		$visible = 0;
@@ -1573,7 +1573,7 @@ function photos_content(&$a) {
 			}
 
 			$comments = '';
-			if (! count($r)) {
+			if (! dbm::is_result($r)) {
 				if ($can_post || can_write_wall($a,$owner_uid)) {
 					if ($link_item['last-child']) {
 						$comments .= replace_macros($cmnt_tpl,array(
@@ -1808,8 +1808,6 @@ function photos_content(&$a) {
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
 	);
-
-
 
 	$photos = array();
 	if (dbm::is_result($r)) {

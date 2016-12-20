@@ -338,7 +338,6 @@ function xml_status($st, $message = '') {
 	killme();
 }
 
-
 /**
  * @brief Send HTTP status header and exit.
  *
@@ -348,6 +347,14 @@ function xml_status($st, $message = '') {
  *    'description' => optional message
  */
 
+/**
+ * @brief Send HTTP status header and exit.
+ *
+ * @param integer $val HTTP status result value
+ * @param array $description optional message
+ *    'title' => header title
+ *    'description' => optional message
+ */
 function http_status_exit($val, $description = array()) {
 	$err = '';
 	if($val >= 400) {
@@ -381,19 +388,23 @@ function http_status_exit($val, $description = array()) {
  * @return boolean True if it's a valid URL, fals if something wrong with it
  */
 function validate_url(&$url) {
-
 	if(get_config('system','disable_url_validation'))
 		return true;
+
 	// no naked subdomains (allow localhost for tests)
 	if(strpos($url,'.') === false && strpos($url,'/localhost/') === false)
 		return false;
+
 	if(substr($url,0,4) != 'http')
 		$url = 'http://' . $url;
+
+	/// @TODO Really supress function outcomes? Why not find them + debug them?
 	$h = @parse_url($url);
 
-	if(($h) && (dns_get_record($h['host'], DNS_A + DNS_CNAME + DNS_PTR) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
+	if((is_array($h)) && (dns_get_record($h['host'], DNS_A + DNS_CNAME + DNS_PTR) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
 		return true;
 	}
+
 	return false;
 }
 

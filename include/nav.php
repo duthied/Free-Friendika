@@ -88,7 +88,7 @@ function nav_info(App $a)
 		// user info
 		$r = q("SELECT `micro` FROM `contact` WHERE `uid` = %d AND `self` = 1", intval($a->user['uid']));
 		$userinfo = array(
-			'icon' => (count($r) ? $a->remove_baseurl($r[0]['micro']) : 'images/person-48.jpg'),
+			'icon' => (dbm::is_result($r) ? $a->remove_baseurl($r[0]['micro']) : 'images/person-48.jpg'),
 			'name' => $a->user['username'],
 		);
 	} else {

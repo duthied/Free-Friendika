@@ -39,7 +39,7 @@ function poller_run($argv, $argc){
 		return;
 	}
 
-	if (App::maxload_reached()) {
+	if ($a->maxload_reached()) {
 		return;
 	}
 
