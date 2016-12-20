@@ -326,7 +326,7 @@ function proxy_is_local_image($url) {
 	if (strtolower(substr($url, 0, 5)) == "data:") return true;
 
 	// links normalised - bug #431
-	$baseurl = normalise_link(get_app()->get_baseurl());
+	$baseurl = normalise_link(App::get_baseurl());
 	$url = normalise_link($url);
 	return (substr($url, 0, strlen($baseurl)) == $baseurl);
 }
