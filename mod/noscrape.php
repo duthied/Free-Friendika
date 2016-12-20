@@ -26,6 +26,7 @@ function noscrape_init(App &$a) {
 	$keywords = str_replace(array('#',',',' ',',,'),array('',' ',',',','),$keywords);
 	$keywords = explode(',', $keywords);
 
+	/// @TODO This query's result is not being used (see below), maybe old-lost code?
 	$r = q("SELECT `photo` FROM `contact` WHERE `self` AND `uid` = %d",
 		intval($a->profile['uid']));
 
