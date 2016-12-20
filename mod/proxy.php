@@ -281,15 +281,8 @@ function proxy_url($url, $writemode = false, $size = '') {
 
 	$longpath .= '/' . strtr(base64_encode($url), '+/', '-_');
 
-	// Extract the URL extension, disregarding GET parameters starting with ?
-	$question_mark_pos = strpos($url, '?');
-	if ($question_mark_pos === false) {
-		$question_mark_pos = strlen($url);
-	}
-	$dot_pos = strrpos($url, '.', $question_mark_pos - strlen($url));
-	if ($dot_pos !== false) {
-		$extension = strtolower(substr($url, $dot_pos + 1, $question_mark_pos - ($dot_pos + 1)));
-	}
+	// Extract the URL extension
+	$extension = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
 
 	$extensions = array('jpg', 'jpeg', 'gif', 'png');
 	if (in_array($extension, $extensions)) {
