@@ -1188,16 +1188,17 @@ function update_suggestions() {
 
 	if(strlen(get_config('system','directory'))) {
 		$x = fetch_url(get_server()."/pubsites");
-		if($x) {
+		if ($x) {
 			$j = json_decode($x);
-			if($j->entries) {
+			if ($j->entries) {
 				foreach($j->entries as $entry) {
 
 					poco_check_server($entry->url);
 
 					$url = $entry->url . '/poco';
-					if(! in_array($url,$done))
+					if (! in_array($url,$done)) {
 						poco_load(0,0,0,$entry->url . '/poco');
+					}
 				}
 			}
 		}
