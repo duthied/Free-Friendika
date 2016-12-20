@@ -139,7 +139,7 @@ function item_post(App &$a) {
 
 			// If the contact id doesn't fit with the contact, then set the contact to null
 			$thrparent = q("SELECT `author-link`, `network` FROM `item` WHERE `uri` = '%s' LIMIT 1", dbesc($thr_parent));
-			if (count($thrparent) AND ($thrparent[0]["network"] === NETWORK_OSTATUS)
+			if (dbm::is_result($thrparent) AND ($thrparent[0]["network"] === NETWORK_OSTATUS)
 				AND (normalise_link($parent_contact["url"]) != normalise_link($thrparent[0]["author-link"]))) {
 				$parent_contact = null;
 

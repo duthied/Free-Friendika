@@ -102,6 +102,8 @@ function lostpass_content(App &$a) {
 			dbesc($new_password_encoded),
 			intval($uid)
 		);
+
+		/// @TODO Is dbm::is_result() okay here?
 		if ($r) {
 			$tpl = get_markup_template('pwdreset.tpl');
 			$o .= replace_macros($tpl,array(
