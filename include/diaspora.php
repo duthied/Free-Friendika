@@ -711,10 +711,10 @@ class Diaspora {
 	 *
 	 * @return string the contact url or null
 	 */
-	public static function url_from_fcontact_guid($fcontact_guid) {
+	public static function url_from_contact_guid($fcontact_guid) {
 		logger("fcontact guid is ".$fcontact_guid, LOGGER_DEBUG);
 
-		$r = q("SELECT `url` FROM `fcontact` WHERE `guid` = '%s' AND `network` = 'dspr' AND `url` != ''",
+		$r = q("SELECT `url` FROM `fcontact` WHERE `guid` = '%s' AND `network` = '" . NETWORK_DIASPORA . "' AND `url` != ''",
 			$fcontact_guid);
 
 		if (dbm::is_result($r)) {
@@ -866,11 +866,11 @@ class Diaspora {
 				// 0 => '[url=/people/0123456789abcdef]Foo Bar[/url]'
 				// 1 => '0123456789abcdef'
 				// 2 => 'Foo Bar'
-				$handle = self::url_from_fcontact_guid($match[1]);
+				$handle = self::url_from_contact_guid($match[1]);
 
 				if ($handle) {
 					$return = '@[url='.$handle.']'.$match[2].'[/url]';
-				}else {
+				} else {
 					// No local match, restoring absolute remote URL from author scheme and host
 					$author_url = parse_url($author_link);
 					$return = '[url='.$author_url['scheme'].'://'.$author_url['host'].'/people/'.$match[1].']'.$match[2].'[/url]';
