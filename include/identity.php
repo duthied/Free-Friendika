@@ -294,7 +294,7 @@ function profile_sidebar($profile, $block = 0) {
 
 		if (dbm::is_result($r)) {
 
-			foreach($r as $rr) {
+			foreach ($r as $rr) {
 				$profile['menu']['entries'][] = array(
 					'photo' => $rr['thumb'],
 					'id' => $rr['id'],
@@ -469,7 +469,7 @@ function get_birthdays() {
 		$cids = array();
 
 		$istoday = false;
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			if(strlen($rr['name']))
 				$total ++;
 			if((strtotime($rr['start'] . ' +00:00') < $now) && (strtotime($rr['finish'] . ' +00:00') > $now))
@@ -549,7 +549,7 @@ function get_events() {
 	if (dbm::is_result($r)) {
 		$now = strtotime('now');
 		$istoday = false;
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			if(strlen($rr['name']))
 				$total ++;
 

@@ -130,12 +130,13 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 
 	$match = null;
 
-	if(preg_match_all("/\[img\](.*?)\[\/img\]/",$body,$match)) {
+	if (preg_match_all("/\[img\](.*?)\[\/img\]/",$body,$match)) {
 		$images = $match[1];
-		if(count($images)) {
-			foreach($images as $image) {
-				if(! stristr($image,App::get_baseurl() . '/photo/'))
+		if (count($images)) {
+			foreach ($images as $image) {
+				if (! stristr($image,App::get_baseurl() . '/photo/')) {
 					continue;
+				}
 				$image_uri = substr($image,strrpos($image,'/') + 1);
 				$image_uri = substr($image_uri,0, strpos($image_uri,'-'));
 				$r = q("UPDATE `photo` SET `allow_cid` = '%s'
@@ -149,25 +150,25 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 		}
 	}
 
-	if($post_id) {
+	if ($post_id) {
 		proc_run(PRIORITY_HIGH, "include/notifier.php", "mail", $post_id);
 		return intval($post_id);
-	} else {
+	}
+	else {
 		return -3;
 	}
 
 }
 
-
-
-
-
 function send_wallmessage($recipient='', $body='', $subject='', $replyto=''){
 
-	if(! $recipient) return -1;
+	if (! $recipient) {
+		return -1;
+	}
 
-	if(! strlen($subject))
+	if (! strlen($subject)) {
 		$subject = t('[no subject]');
+	}
 
 	$guid = get_guid(32);
  	$uri = 'urn:X-dfrn:' . App::get_baseurl() . ':' . local_user() . ':' . $guid;
@@ -179,8 +180,9 @@ function send_wallmessage($recipient='', $body='', $subject='', $replyto=''){
 
 	$me = probe_url($replyto);
 
-	if(! $me['name'])
+	if (! $me['name']) {
 		return -2;
+	}
 
 	$conv_guid = get_guid(32);
 
@@ -193,7 +195,7 @@ function send_wallmessage($recipient='', $body='', $subject='', $replyto=''){
 
 	$handles = $recip_handle . ';' . $sender_handle;
 
-	$r = q("insert into conv (uid,guid,creator,created,updated,subject,recips) values(%d, '%s', '%s', '%s', '%s', '%s', '%s') ",
+	$r = q("INSERT INTO `conv` (`uid`,`guid`,`creator`,`created`,`updated`,`subject`,`recips`) values(%d, '%s', '%s', '%s', '%s', '%s', '%s') ",
 		intval($recipient['uid']),
 		dbesc($conv_guid),
 		dbesc($sender_handle),
@@ -203,17 +205,18 @@ function send_wallmessage($recipient='', $body='', $subject='', $replyto=''){
 		dbesc($handles)
 	);
 
-	$r = q("select * from conv where guid = '%s' and uid = %d limit 1",
+	$r = q("SELECT * FROM `conv` WHERE `guid` = '%s' AND `uid` = %d LIMIT 1",
 		dbesc($conv_guid),
 		intval($recipient['uid'])
 	);
-	if (dbm::is_result($r))
-		$convid = $r[0]['id'];
 
-	if(! $convid) {
+
+	if (! dbm::is_result($r)) {
 		logger('send message: conversation not found.');
 		return -4;
 	}
+
+	$convid = $r[0]['id'];
 
 	$r = q("INSERT INTO `mail` ( `uid`, `guid`, `convid`, `from-name`, `from-photo`, `from-url`,
 		`contact-id`, `title`, `body`, `seen`, `reply`, `replied`, `uri`, `parent-uri`, `created`, `unknown`)

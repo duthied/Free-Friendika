@@ -187,8 +187,9 @@ function load_hooks() {
 	$a = get_app();
 	$a->hooks = array();
 	$r = q("SELECT * FROM `hook` WHERE 1 ORDER BY `priority` DESC, `file`");
+
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			if(! array_key_exists($rr['hook'],$a->hooks))
 				$a->hooks[$rr['hook']] = array();
 			$a->hooks[$rr['hook']][] = array($rr['file'],$rr['function']);

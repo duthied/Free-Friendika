@@ -912,7 +912,7 @@ function contact_block() {
 			if (dbm::is_result($r)) {
 				$contacts = sprintf( tt('%d Contact','%d Contacts', $total),$total);
 				$micropro = Array();
-				foreach($r as $rr) {
+				foreach ($r as $rr) {
 					$micropro[] = micropro($rr,true,'mpfriend');
 				}
 			}
@@ -1717,7 +1717,7 @@ function bb_translate_video($s) {
 
 	$matches = null;
 	$r = preg_match_all("/\[video\](.*?)\[\/video\]/ism",$s,$matches,PREG_SET_ORDER);
-	if($r) {
+	if ($r) {
 		foreach($matches as $mtch) {
 			if((stristr($mtch[1],'youtube')) || (stristr($mtch[1],'youtu.be')))
 				$s = str_replace($mtch[0],'[youtube]' . $mtch[1] . '[/youtube]',$s);
