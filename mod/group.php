@@ -25,7 +25,7 @@ function group_post(App &$a) {
 
 		$name = notags(trim($_POST['groupname']));
 		$r = group_add(local_user(),$name);
-		if($r) {
+		if ($r) {
 			info( t('Group created.') . EOL );
 			$r = group_byname(local_user(),$name);
 			if ($r) {

@@ -178,7 +178,7 @@ function dfrn_request_post(App &$a) {
 					);
 				}
 
-				if($r) {
+				if ($r) {
 					info( t("Introduction complete.") . EOL);
 				}
 
@@ -301,7 +301,7 @@ function dfrn_request_post(App &$a) {
 			dbesc(NETWORK_MAIL2)
 		);
 		if (dbm::is_result($r)) {
-			foreach($r as $rr) {
+			foreach ($r as $rr) {
 				if(! $rr['rel']) {
 					q("DELETE FROM `contact` WHERE `id` = %d",
 						intval($rr['cid'])
@@ -326,7 +326,7 @@ function dfrn_request_post(App &$a) {
 			dbesc(NETWORK_MAIL2)
 		);
 		if (dbm::is_result($r)) {
-			foreach($r as $rr) {
+			foreach ($r as $rr) {
 				if(! $rr['rel']) {
 					q("DELETE FROM `contact` WHERE `id` = %d",
 						intval($rr['cid'])

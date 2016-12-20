@@ -255,7 +255,7 @@ function photos_post(App &$a) {
 				);
 			}
 			if (dbm::is_result($r)) {
-				foreach($r as $rr) {
+				foreach ($r as $rr) {
 					$res[] = "'" . dbesc($rr['rid']) . "'" ;
 				}
 			} else {
@@ -277,7 +277,7 @@ function photos_post(App &$a) {
 				intval($page_owner_uid)
 			);
 			if (dbm::is_result($r)) {
-				foreach($r as $rr) {
+				foreach ($r as $rr) {
 					q("UPDATE `item` SET `deleted` = 1, `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
 						dbesc(datetime_convert()),
 						dbesc($rr['parent-uri']),

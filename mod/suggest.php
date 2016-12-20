@@ -75,7 +75,7 @@ function suggest_content(App &$a) {
 
 	require_once 'include/contact_selectors.php';
 
-	foreach($r as $rr) {
+	foreach ($r as $rr) {
 
 		$connlnk = App::get_baseurl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);
 		$ignlnk = App::get_baseurl() . '/suggest?ignore=' . $rr['id'];

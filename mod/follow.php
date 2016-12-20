@@ -157,8 +157,9 @@ function follow_post(App &$a) {
 		// NOTREACHED
 	}
 
-	if ($_REQUEST['cancel'])
+	if ($_REQUEST['cancel']) {
 		goaway($_SESSION['return_url']);
+	}
 
 	$uid = local_user();
 	$url = notags(trim($_REQUEST['url']));
@@ -170,17 +171,21 @@ function follow_post(App &$a) {
 
 	$result = new_contact($uid,$url,true);
 
-	if($result['success'] == false) {
-		if($result['message'])
+	if ($result['success'] == false) {
+		if ($result['message']) {
 			notice($result['message']);
+		}
 		goaway($return_url);
-	} elseif ($result['cid'])
+	}
+	elseif ($result['cid']) {
 		goaway(App::get_baseurl().'/contacts/'.$result['cid']);
+	}
 
 	info( t('Contact added').EOL);
 
-	if(strstr($return_url,'contacts'))
+	if (strstr($return_url,'contacts')) {
 		goaway(App::get_baseurl().'/contacts/'.$contact_id);
+	}
 
 	goaway($return_url);
 	// NOTREACHED

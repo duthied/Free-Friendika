@@ -175,7 +175,7 @@ function poco_init(App &$a) {
 
 	if(is_array($r)) {
 		if (dbm::is_result($r)) {
-			foreach($r as $rr) {
+			foreach ($r as $rr) {
 				if (!isset($rr['generation'])) {
 					if ($global)
 						$rr['generation'] = 3;
