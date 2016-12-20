@@ -86,7 +86,7 @@ function update_1006() {
 
 	$r = q("SELECT * FROM `user` WHERE `spubkey` = '' ");
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			$sres=openssl_pkey_new(array('encrypt_key' => false ));
 			$sprvkey = '';
 			openssl_pkey_export($sres, $sprvkey);
@@ -123,7 +123,7 @@ function update_1011() {
 	q("ALTER TABLE `contact` ADD `nick` CHAR( 255 ) NOT NULL AFTER `name` ");
 	$r = q("SELECT * FROM `contact` WHERE 1");
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 				q("UPDATE `contact` SET `nick` = '%s' WHERE `id` = %d",
 					dbesc(basename($rr['url'])),
 					intval($rr['id'])
@@ -146,7 +146,7 @@ function update_1014() {
 	q("ALTER TABLE `contact` ADD `micro` TEXT NOT NULL AFTER `thumb` ");
 	$r = q("SELECT * FROM `photo` WHERE `scale` = 4");
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			$ph = new Photo($rr['data']);
 			if($ph->is_valid()) {
 				$ph->scaleImage(48);
@@ -156,7 +156,7 @@ function update_1014() {
 	}
 	$r = q("SELECT * FROM `contact` WHERE 1");
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			if(stristr($rr['thumb'],'avatar'))
 				q("UPDATE `contact` SET `micro` = '%s' WHERE `id` = %d",
 					dbesc(str_replace('avatar','micro',$rr['thumb'])),
@@ -309,7 +309,7 @@ function update_1031() {
 	// Repair any bad links that slipped into the item table
 	$r = q("SELECT `id`, `object` FROM `item` WHERE `object` != '' ");
 	if($r && dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			if(strstr($rr['object'],'type=&quot;http')) {
 				q("UPDATE `item` SET `object` = '%s' WHERE `id` = %d",
 					dbesc(str_replace('type=&quot;http','href=&quot;http',$rr['object'])),
@@ -357,7 +357,7 @@ function update_1036() {
 
 	$r = dbq("SELECT * FROM `contact` WHERE `network` = 'dfrn' && `photo` LIKE '%include/photo%' ");
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s' WHERE `id` = %d",
 				dbesc(str_replace('include/photo','photo',$rr['photo'])),
 				dbesc(str_replace('include/photo','photo',$rr['thumb'])),
@@ -607,7 +607,7 @@ function update_1075() {
 	q("ALTER TABLE `user` ADD `guid` CHAR( 16 ) NOT NULL AFTER `uid` ");
 	$r = q("SELECT `uid` FROM `user` WHERE 1");
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			$found = true;
 			do {
 				$guid = substr(random_string(),0,16);
@@ -689,7 +689,7 @@ function update_1082() {
 		return;
 	$r = q("SELECT distinct(`resource-id`) FROM `photo` WHERE 1 group by `id`");
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			$guid = get_guid();
 			q("update `photo` set `guid` = '%s' where `resource-id` = '%s'",
 				dbesc($guid),
@@ -732,7 +732,7 @@ function update_1087() {
 
 	$r = q("SELECT `id` FROM `item` WHERE `parent` = `id` ");
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			$x = q("SELECT max(`created`) AS `cdate` FROM `item` WHERE `parent` = %d LIMIT 1",
 				intval($rr['id'])
 			);
@@ -855,7 +855,7 @@ function update_1100() {
 
 	$r = q("select id, url from contact where url != '' and nurl = '' ");
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			q("update contact set nurl = '%s' where id = %d",
 				dbesc(normalise_link($rr['url'])),
 				intval($rr['id'])
@@ -1169,7 +1169,7 @@ function update_1136() {
 
 	$r = q("select * from config where 1 order by id desc");
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			$found = false;
 			foreach($arr as $x) {
 				if($x['cat'] == $rr['cat'] && $x['k'] == $rr['k']) {
@@ -1188,7 +1188,7 @@ function update_1136() {
 	$arr = array();
 	$r = q("select * from pconfig where 1 order by id desc");
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			$found = false;
 			foreach($arr as $x) {
 				if($x['uid'] == $rr['uid'] && $x['cat'] == $rr['cat'] && $x['k'] == $rr['k']) {
