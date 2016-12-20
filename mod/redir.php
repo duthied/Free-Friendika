@@ -63,12 +63,14 @@ function redir_init(&$a) {
 			. '&dfrn_version=' . DFRN_PROTOCOL_VERSION . '&type=profile&sec=' . $sec . $dest . $quiet );
 	}
 
-	if(local_user())
+	if (local_user()) {
 		$handle = $a->user['nickname'] . '@' . substr($a->get_baseurl(),strpos($a->get_baseurl(),'://')+3);
-	if(remote_user())
+	}
+	if (remote_user()) {
 		$handle = $_SESSION['handle'];
+	}
 
-	if($url) {
+	if ($url) {
 		$url = str_replace('{zid}','&zid=' . $handle,$url);
 		goaway($url);
 	}
