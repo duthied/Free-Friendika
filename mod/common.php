@@ -48,8 +48,9 @@ function common_content(App &$a) {
 		$a->page['aside'] .= $vcard_widget;
 	}
 
-	if(! count($c))
+	if (! dbm::is_result($c)) {
 		return;
+	}
 
 	if(! $cid) {
 		if(get_my_url()) {

@@ -346,7 +346,7 @@ function photos_post(App &$a) {
 				dbesc($r[0]['resource-id']),
 				intval($page_owner_uid)
 			);
-			if (count($i)) {
+			if (dbm::is_result($i)) {
 				q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
 					dbesc(datetime_convert()),
 					dbesc(datetime_convert()),
