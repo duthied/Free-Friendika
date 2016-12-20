@@ -454,7 +454,7 @@ function item_post(App &$a) {
 			$objecttype = ACTIVITY_OBJ_IMAGE;
 
 			foreach ($images as $image) {
-				if (! stristr($image,App::get_baseurl() . '/photo/'))
+				if (! stristr($image,App::get_baseurl() . '/photo/')) {
 					continue;
 				}
 				$image_uri = substr($image,strrpos($image,'/') + 1);
