@@ -34,7 +34,7 @@ function group_select($selname,$selclass,$preselected = false,$size = 4) {
 	call_hooks($a->module . '_pre_' . $selname, $arr);
 
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			if((is_array($preselected)) && in_array($rr['id'], $preselected))
 				$selected = " selected=\"selected\" ";
 			else
@@ -145,7 +145,7 @@ function contact_selector($selname, $selclass, $preselected = false, $options) {
 	call_hooks($a->module . '_pre_' . $selname, $arr);
 
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			if((is_array($preselected)) && in_array($rr['id'], $preselected))
 				$selected = " selected=\"selected\" ";
 			else
@@ -221,16 +221,20 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 	$receiverlist = array();
 
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
-			if((is_array($preselected)) && in_array($rr['id'], $preselected))
+		foreach ($r as $rr) {
+			if ((is_array($preselected)) && in_array($rr['id'], $preselected)) {
 				$selected = " selected=\"selected\" ";
-			else
+			}
+			else {
 				$selected = '';
+			}
 
-			if($privmail)
+			if ($privmail) {
 				$trimmed = GetProfileUsername($rr['url'], $rr['name'], false);
-			else
+			}
+			else {
 				$trimmed = mb_substr($rr['name'],0,20);
+			}
 
 			$receiverlist[] = $trimmed;
 
@@ -260,7 +264,7 @@ function prune_deadguys($arr) {
 		return $arr;
 	$str = dbesc(implode(',',$arr));
 	$r = q("SELECT `id` FROM `contact` WHERE `id` IN ( " . $str . ") AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0 ");
-	if($r) {
+	if ($r) {
 		$ret = array();
 		foreach($r as $rr)
 			$ret[] = intval($rr['id']);
@@ -554,7 +558,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 		// autocomplete for global contact search (e.g. navbar search)
 		$r = navbar_complete($a);
 		$contacts = array();
-		if($r) {
+		if ($r) {
 			foreach($r as $g) {
 				$contacts[] = array(
 					"photo"    => proxy_url($g['photo'], false, PROXY_SIZE_MICRO),

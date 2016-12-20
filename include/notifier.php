@@ -598,7 +598,7 @@ function notifier_run(&$argv, &$argc){
 
 			// throw everything into the queue in case we get killed
 
-			foreach($r as $rr) {
+			foreach ($r as $rr) {
 				if((! $mail) && (! $fsuggest) && (! $followup)) {
 					q("INSERT INTO `deliverq` (`cmd`,`item`,`contact`) VALUES ('%s', %d, %d)
 						ON DUPLICATE KEY UPDATE `cmd` = '%s', `item` = %d, `contact` = %d",
@@ -608,7 +608,7 @@ function notifier_run(&$argv, &$argc){
 				}
 			}
 
-			foreach($r as $rr) {
+			foreach ($r as $rr) {
 
 				// except for Diaspora batch jobs
 				// Don't deliver to folks who have already been delivered to

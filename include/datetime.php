@@ -553,7 +553,7 @@ function update_contact_birthdays() {
 
 	$r = q("SELECT * FROM contact WHERE `bd` != '' AND `bd` != '0000-00-00' AND SUBSTRING(`bd`,1,4) != `bdyear` ");
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 
 			logger('update_contact_birthday: ' . $rr['bd']);
 

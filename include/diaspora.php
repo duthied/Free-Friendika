@@ -319,8 +319,8 @@ class diaspora {
 			dbesc(NETWORK_DIASPORA),
 			dbesc($msg["author"])
 		);
-		if($r) {
-			foreach($r as $rr) {
+		if ($r) {
+			foreach ($r as $rr) {
 				logger("delivering to: ".$rr["username"]);
 				self::dispatch($rr,$msg);
 			}
@@ -806,7 +806,7 @@ class diaspora {
 			dbesc($guid)
 		);
 
-		if($r) {
+		if ($r) {
 			logger("message ".$guid." already exists for user ".$uid);
 			return $r[0]["id"];
 		}
@@ -1577,7 +1577,7 @@ class diaspora {
 			dbesc($message_uri),
 			intval($importer["uid"])
 		);
-		if($r) {
+		if ($r) {
 			logger("duplicate message already delivered.", LOGGER_DEBUG);
 			return false;
 		}
@@ -2022,7 +2022,7 @@ class diaspora {
 				FROM `item` WHERE `guid` = '%s' AND `visible` AND NOT `deleted` AND `body` != '' LIMIT 1",
 			dbesc($guid));
 
-		if($r) {
+		if ($r) {
 			logger("reshared message ".$guid." already exists on system.");
 
 			// Maybe it is already a reshared item?
@@ -2623,7 +2623,7 @@ class diaspora {
 
 		logger("transmit: ".$logid."-".$guid." returns: ".$return_code);
 
-		if(!$return_code || (($return_code == 503) && (stristr($a->get_curl_headers(), "retry-after")))) {
+		if (!$return_code || (($return_code == 503) && (stristr($a->get_curl_headers(), "retry-after")))) {
 			logger("queue message");
 
 			$r = q("SELECT `id` FROM `queue` WHERE `cid` = %d AND `network` = '%s' AND `content` = '%s' AND `batch` = %d LIMIT 1",
@@ -2632,7 +2632,7 @@ class diaspora {
 				dbesc($slap),
 				intval($public_batch)
 			);
-			if($r) {
+			if ($r) {
 				logger("add_to_queue ignored - identical item already in queue");
 			} else {
 				// queue message for redelivery
