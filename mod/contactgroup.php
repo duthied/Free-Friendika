@@ -24,7 +24,7 @@ function contactgroup_content(&$a) {
 			intval($a->argv[1]),
 			intval(local_user())
 		);
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			killme();
 		}
 

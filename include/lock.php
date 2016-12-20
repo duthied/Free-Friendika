@@ -23,7 +23,8 @@ function lock_function($fn_name, $block = true, $wait_sec = 2, $timeout = 30) {
 			);
 			$got_lock = true;
 		}
-		elseif(! dbm::is_result($r)) { // the Boolean value for count($r) should be equivalent to the Boolean value of $r
+		elseif (! dbm::is_result($r)) {
+			/// @TODO the Boolean value for count($r) should be equivalent to the Boolean value of $r
 			q("INSERT INTO `locks` (`name`, `created`, `locked`) VALUES ('%s', '%s', 1)",
 				dbesc($fn_name),
 				dbesc(datetime_convert())

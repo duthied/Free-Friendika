@@ -67,7 +67,7 @@ function suggest_content(&$a) {
 
 	$r = suggestion_query(local_user());
 
-	if(! dbm::is_result($r)) {
+	if (! dbm::is_result($r)) {
 		$o .= t('No suggestions available. If this is a new site, please try again in 24 hours.');
 		return $o;
 	}

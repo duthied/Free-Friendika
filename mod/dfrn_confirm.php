@@ -121,7 +121,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			intval($uid)
 		);
 
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			logger('Contact not found in DB.');
 			notice( t('Contact not found.') . EOL );
 			notice( t('This may occasionally happen if contact was requested by both persons and it has already been approved.') . EOL );
@@ -553,7 +553,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' LIMIT 1",
 			dbesc($node));
 
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			$message = sprintf(t('No user record found for \'%s\' '), $node);
 			xml_status(3,$message); // failure
 			// NOTREACHED
@@ -640,7 +640,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			dbesc($dfrn_pubkey),
 			intval($dfrn_record)
 		);
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			$message = t('Unable to set your contact credentials on our system.');
 			xml_status(3,$message);
 		}

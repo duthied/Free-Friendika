@@ -94,7 +94,7 @@ function common_content(&$a) {
 		$r = common_friends_zcid($uid, $zcid, $a->pager['start'], $a->pager['itemspage']);
 
 
-	if(! dbm::is_result($r)) {
+	if (! dbm::is_result($r)) {
 		return $o;
 	}
 

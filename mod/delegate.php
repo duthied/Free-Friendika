@@ -97,7 +97,7 @@ function delegate_content(&$a) {
 		dbesc(NETWORK_DFRN)
 	); 
 
-	if(! dbm::is_result($r)) {
+	if (! dbm::is_result($r)) {
 		notice( t('No potential page delegates located.') . EOL);
 		return;
 	}

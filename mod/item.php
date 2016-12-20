@@ -112,7 +112,7 @@ function item_post(&$a) {
 			}
 		}
 
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			notice( t('Unable to locate original post.') . EOL);
 			if(x($_REQUEST,'return'))
 				goaway($return_path);
@@ -464,8 +464,9 @@ function item_post(&$a) {
 					intval($profile_uid)
 				);
 
-				if(! dbm::is_result($r))
+				if (! dbm::is_result($r)) {
 					continue;
+				}
 
 				$r = q("UPDATE `photo` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'
 					WHERE `resource-id` = '%s' AND `uid` = %d AND `album` = '%s' ",

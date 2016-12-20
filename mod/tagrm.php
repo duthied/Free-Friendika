@@ -19,8 +19,9 @@ function tagrm_post(&$a) {
 		intval(local_user())
 	);
 
-	if(! dbm::is_result($r))
+	if (! dbm::is_result($r)) {
 		goaway(App::get_baseurl() . '/' . $_SESSION['photo_return']);
+	}
 
 	$arr = explode(',', $r[0]['tag']);
 	for($x = 0; $x < count($arr); $x ++) {
@@ -68,8 +69,9 @@ function tagrm_content(&$a) {
 		intval(local_user())
 	);
 
-	if(! dbm::is_result($r))
+	if (! dbm::is_result($r)) {
 		goaway(App::get_baseurl() . '/' . $_SESSION['photo_return']);
+	}
 
 	$arr = explode(',', $r[0]['tag']);
 

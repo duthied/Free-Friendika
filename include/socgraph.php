@@ -330,7 +330,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		intval($gcid),
 		intval($zcid)
 	);
-	if(! dbm::is_result($r)) {
+	if (! dbm::is_result($r)) {
 		q("INSERT INTO `glink` (`cid`,`uid`,`gcid`,`zcid`, `updated`) VALUES (%d,%d,%d,%d, '%s') ",
 			intval($cid),
 			intval($uid),

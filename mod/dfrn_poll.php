@@ -126,7 +126,7 @@ function dfrn_poll_init(&$a) {
 			$r = q("SELECT * FROM `profile_check` WHERE `sec` = '%s' ORDER BY `expire` DESC LIMIT 1",
 				dbesc($sec)
 			);
-			if(! dbm::is_result($r)) {
+			if (! dbm::is_result($r)) {
 				xml_status(3, 'No ticket');
 				// NOTREACHED
 			}
@@ -223,7 +223,7 @@ function dfrn_poll_post(&$a) {
 			$r = q("SELECT * FROM `profile_check` WHERE `sec` = '%s' ORDER BY `expire` DESC LIMIT 1",
 				dbesc($sec)
 			);
-			if(! dbm::is_result($r)) {
+			if (! dbm::is_result($r)) {
 				xml_status(3, 'No ticket');
 				// NOTREACHED
 			}
@@ -284,8 +284,9 @@ function dfrn_poll_post(&$a) {
 		dbesc($challenge)
 	);
 
-	if(! dbm::is_result($r))
+	if (! dbm::is_result($r)) {
 		killme();
+	}
 
 	$type = $r[0]['type'];
 	$last_update = $r[0]['last_update'];
@@ -319,8 +320,9 @@ function dfrn_poll_post(&$a) {
 	$r = q("SELECT * FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 $sql_extra LIMIT 1");
 
 
-	if(! dbm::is_result($r))
+	if (! dbm::is_result($r)) {
 		killme();
+	}
 
 	$contact = $r[0];
 	$owner_uid = $r[0]['uid'];

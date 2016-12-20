@@ -1028,7 +1028,7 @@ class App {
 		} else {
 			$r = q("SELECT `contact`.`avatar-date` AS picdate FROM `contact` WHERE `contact`.`thumb` like '%%/%s'",
 				$common_filename);
-			if(! dbm::is_result($r)){
+			if (! dbm::is_result($r)) {
 				$this->cached_profile_image[$avatar_image] = $avatar_image;
 			} else {
 				$this->cached_profile_picdate[$common_filename] = "?rev=".urlencode($r[0]['picdate']);
