@@ -21,7 +21,7 @@ function filerm_content(App &$a) {
 		file_tag_unsave_file(local_user(),$item_id,$term, $category);
 
 	if(x($_SESSION,'return_url'))
-		goaway($a->get_baseurl() . '/' . $_SESSION['return_url']);
+		goaway(App::get_baseurl() . '/' . $_SESSION['return_url']);
 
 	killme();
 }
