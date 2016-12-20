@@ -28,15 +28,18 @@ function group_post(App &$a) {
 		if($r) {
 			info( t('Group created.') . EOL );
 			$r = group_byname(local_user(),$name);
-			if($r)
+			if ($r) {
 				goaway(App::get_baseurl() . '/group/' . $r);
+			}
 		}
-		else
+		else {
 			notice( t('Could not create group.') . EOL );
+		}
 		goaway(App::get_baseurl() . '/group');
 		return; // NOTREACHED
 	}
-	if(($a->argc == 2) && (intval($a->argv[1]))) {
+
+	if (($a->argc == 2) && (intval($a->argv[1]))) {
 		check_form_security_token_redirectOnErr('/group', 'group_edit');
 
 		$r = q("SELECT * FROM `group` WHERE `id` = %d AND `uid` = %d LIMIT 1",
@@ -50,14 +53,16 @@ function group_post(App &$a) {
 		}
 		$group = $r[0];
 		$groupname = notags(trim($_POST['groupname']));
-		if((strlen($groupname))  && ($groupname != $group['name'])) {
+		if ((strlen($groupname))  && ($groupname != $group['name'])) {
 			$r = q("UPDATE `group` SET `name` = '%s' WHERE `uid` = %d AND `id` = %d",
 				dbesc($groupname),
 				intval(local_user()),
 				intval($group['id'])
 			);
-			if($r)
+
+			if ($r) {
 				info( t('Group name changed.') . EOL );
+			}
 		}
 
 		$a->page['aside'] = group_side();
