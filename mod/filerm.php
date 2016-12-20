@@ -22,9 +22,14 @@ function filerm_content(App &$a) {
 		file_tag_unsave_file(local_user(),$item_id,$term, $category);
 	}
 
+<<<<<<< upstream/develop
 	if (x($_SESSION,'return_url')) {
 		goaway(App::get_baseurl() . '/' . $_SESSION['return_url']);
 	}
+=======
+	if(x($_SESSION,'return_url'))
+		goaway(App::get_baseurl() . '/' . $_SESSION['return_url']);
+>>>>>>> HEAD~33
 
 	killme();
 }
