@@ -289,14 +289,9 @@ function new_contact($uid,$url,$interactive = false) {
 			$slap = ostatus::salmon($item, $r[0]);
 			slapper($r[0], $contact['notify'], $slap);
 		}
-<<<<<<< HEAD
-		if($contact['network'] == NETWORK_DIASPORA) {
-			require_once('include/diaspora.php');
-			$ret = Diaspora::send_share($a->user,$contact);
-=======
+
 		if ($contact['network'] == NETWORK_DIASPORA) {
-			$ret = diaspora::send_share($a->user,$contact);
->>>>>>> friendica/develop
+			$ret = Diaspora::send_share($a->user,$contact);
 			logger('share returns: '.$ret);
 		}
 	}
