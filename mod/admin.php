@@ -32,13 +32,12 @@ function admin_post(&$a){
 
 	// do not allow a page manager to access the admin panel at all.
 
-	if(x($_SESSION,'submanage') && intval($_SESSION['submanage']))
+	if (x($_SESSION,'submanage') && intval($_SESSION['submanage'])) {
 		return;
-
-
+	}
 
 	// urls
-	if($a->argc > 1) {
+	if ($a->argc > 1) {
 		switch ($a->argv[1]){
 			case 'site':
 				admin_page_site_post($a);
@@ -134,8 +133,9 @@ function admin_content(&$a) {
 		return login(false);
 	}
 
-	if(x($_SESSION,'submanage') && intval($_SESSION['submanage']))
+	if (x($_SESSION,'submanage') && intval($_SESSION['submanage'])) {
 		return "";
+	}
 
 	// APC deactivated, since there are problems with PHP 5.5
 	//if (function_exists("apc_delete")) {

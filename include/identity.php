@@ -229,13 +229,16 @@ function profile_sidebar($profile, $block = 0) {
 
 	// Is the local user already connected to that user?
 	if ($connect AND local_user()) {
-		if (isset($profile["url"]))
+		if (isset($profile["url"])) {
 			$profile_url = normalise_link($profile["url"]);
-		else
+		}
+		else {
 			$profile_url = normalise_link(App::get_baseurl()."/profile/".$profile["nickname"]);
+		}
 
 		$r = q("SELECT * FROM `contact` WHERE NOT `pending` AND `uid` = %d AND `nurl` = '%s'",
 			local_user(), $profile_url);
+
 		if (dbm::is_result($r))
 			$connect = false;
 	}
@@ -684,8 +687,9 @@ function advanced_profile(&$a) {
 			$profile['forumlist'] = array( t('Forums:'), ForumManager::profile_advanced($uid));
 		}
 
-		if ($a->profile['uid'] == local_user())
+		if ($a->profile['uid'] == local_user()) {
 			$profile['edit'] = array(App::get_baseurl(). '/profiles/'.$a->profile['id'], t('Edit profile'),"", t('Edit profile'));
+		}
 
 		return replace_macros($tpl, array(
 			'$title' => t('Profile'),

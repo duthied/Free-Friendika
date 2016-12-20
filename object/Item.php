@@ -117,15 +117,19 @@ class Item extends BaseObject {
 			? t('Private Message')
 			: false);
 		$shareable = ((($conv->get_profile_owner() == local_user()) && ($item['private'] != 1)) ? true : false);
-		if(local_user() && link_compare($a->contact['url'],$item['author-link'])) {
-			if ($item["event-id"] != 0)
+		if (local_user() && link_compare($a->contact['url'],$item['author-link'])) {
+			if ($item["event-id"] != 0) {
 				$edpost = array("events/event/".$item['event-id'], t("Edit"));
-			else
+			} else {
 				$edpost = array("editpost/".$item['id'], t("Edit"));
-		} else
+			}
+		} else {
 			$edpost = false;
-		if(($this->get_data_value('uid') == local_user()) || $this->is_visiting())
+		}
+
+		if (($this->get_data_value('uid') == local_user()) || $this->is_visiting()) {
 			$dropping = true;
+		}
 
 		$drop = array(
 			'dropping' => $dropping,
@@ -143,27 +147,31 @@ class Item extends BaseObject {
 
 		$sp = false;
 		$profile_link = best_link_url($item,$sp);
-		if($profile_link === 'mailbox')
+		if ($profile_link === 'mailbox') {
 			$profile_link = '';
-		if($sp)
+		}
+		if ($sp) {
 			$sparkle = ' sparkle';
-		else
+		} else {
 			$profile_link = zrl($profile_link);
+		}
 
 		if (!isset($item['author-thumb']) OR ($item['author-thumb'] == "")) {
 			$author_contact = get_contact_details_by_url($item['author-link'], $conv->get_profile_owner());
-			if ($author_contact["thumb"])
+			if ($author_contact["thumb"]) {
 				$item['author-thumb'] = $author_contact["thumb"];
-			else
+			} else {
 				$item['author-thumb'] = $item['author-avatar'];
+			}
 		}
 
 		if (!isset($item['owner-thumb']) OR ($item['owner-thumb'] == "")) {
 			$owner_contact = get_contact_details_by_url($item['owner-link'], $conv->get_profile_owner());
-			if ($owner_contact["thumb"])
+			if ($owner_contact["thumb"]) {
 				$item['owner-thumb'] = $owner_contact["thumb"];
-			else
+			} else {
 				$item['owner-thumb'] = $item['owner-avatar'];
+			}
 		}
 
 		$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');

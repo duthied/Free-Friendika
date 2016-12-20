@@ -17,8 +17,9 @@ function delegate_content(&$a) {
 
 		// delegated admins can view but not change delegation permissions
 
-		if(x($_SESSION,'submanage') && intval($_SESSION['submanage']))
+		if (x($_SESSION,'submanage') && intval($_SESSION['submanage'])) {
 			goaway(App::get_baseurl() . '/delegate');
+		}
 
 
 		$id = $a->argv[2];
@@ -45,8 +46,9 @@ function delegate_content(&$a) {
 
 		// delegated admins can view but not change delegation permissions
 
-		if(x($_SESSION,'submanage') && intval($_SESSION['submanage']))
+		if (x($_SESSION,'submanage') && intval($_SESSION['submanage'])) {
 			goaway(App::get_baseurl() . '/delegate');
+		}
 
 		q("delete from manage where uid = %d and mid = %d limit 1",
 			intval($a->argv[2]),

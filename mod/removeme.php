@@ -2,24 +2,29 @@
 
 function removeme_post(&$a) {
 
-	if(! local_user())
+	if (! local_user()) {
 		return;
+	}
 
-	if(x($_SESSION,'submanage') && intval($_SESSION['submanage']))
+	if (x($_SESSION,'submanage') && intval($_SESSION['submanage'])) {
 		return;
+	}
 
-	if((! x($_POST,'qxz_password')) || (! strlen(trim($_POST['qxz_password']))))
+	if ((! x($_POST,'qxz_password')) || (! strlen(trim($_POST['qxz_password'])))) {
 		return;
+	}
 
-	if((! x($_POST,'verify')) || (! strlen(trim($_POST['verify']))))
+	if ((! x($_POST,'verify')) || (! strlen(trim($_POST['verify'])))) {
 		return;
+	}
 
-	if($_POST['verify'] !== $_SESSION['remove_account_verify'])
+	if ($_POST['verify'] !== $_SESSION['remove_account_verify']) {
 		return;
+	}
 
 	$encrypted = hash('whirlpool',trim($_POST['qxz_password']));
 
-	if((strlen($a->user['password'])) && ($encrypted === $a->user['password'])) {
+	if ((strlen($a->user['password'])) && ($encrypted === $a->user['password'])) {
 		require_once('include/Contact.php');
 		user_remove($a->user['uid']);
 		// NOTREACHED
@@ -29,13 +34,14 @@ function removeme_post(&$a) {
 
 function removeme_content(&$a) {
 
-	if(! local_user())
+	if (! local_user()) {
 		goaway(z_root());
+	}
 
 	$hash = random_string();
 
-        require_once("mod/settings.php");
-        settings_init($a);
+	require_once("mod/settings.php");
+	settings_init($a);
 
 	$_SESSION['remove_account_verify'] = $hash;
 
