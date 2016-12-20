@@ -538,7 +538,8 @@ function check_htaccess(&$checks) {
 			$help = t('Url rewrite in .htaccess is not working. Check your server configuration.');
 		}
 		check_add($checks, t('Url rewrite is working'), $status, true, $help);
-	} else {
+	}
+	else {
 		// cannot check modrewrite if libcurl is not installed
 		/// @TODO Maybe issue warning here?
 	}
