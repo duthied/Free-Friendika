@@ -584,7 +584,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			dbesc($decrypted_source_url),
 			intval($local_uid)
 		);
-		if(! dbm::is_result($ret)) {
+		if(! count($ret)) {
 			if(strstr($decrypted_source_url,'http:'))
 				$newurl = str_replace('http:','https:',$decrypted_source_url);
 			else
@@ -594,7 +594,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				dbesc($newurl),
 				intval($local_uid)
 			);
-			if(! dbm::is_result($ret)) {
+			if(! count($ret)) {
 				// this is either a bogus confirmation (?) or we deleted the original introduction.
 				$message = t('Contact record was not found for you on our site.');
 				xml_status(3,$message);
