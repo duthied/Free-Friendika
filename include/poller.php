@@ -484,7 +484,7 @@ function call_worker() {
 		return;
 	}
 
-	$url = get_app()->get_baseurl()."/worker";
+	$url = App::get_baseurl()."/worker";
 	fetch_url($url, false, $redirects, 1);
 }
 
