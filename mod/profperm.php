@@ -1,6 +1,6 @@
 <?php
 
-function profperm_init(&$a) {
+function profperm_init(App &$a) {
 
 	if(! local_user())
 		return;
@@ -13,7 +13,7 @@ function profperm_init(&$a) {
 }
 
 
-function profperm_content(&$a) {
+function profperm_content(App &$a) {
 
 	if(! local_user()) {
 		notice( t('Permission denied') . EOL);

@@ -5,7 +5,7 @@ require_once('include/bbcode.php');
 require_once('include/items.php');
 
 
-function subthread_content(&$a) {
+function subthread_content(App &$a) {
 
 	if(! local_user() && ! remote_user()) {
 		return;

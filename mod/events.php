@@ -8,11 +8,11 @@ require_once('include/datetime.php');
 require_once('include/event.php');
 require_once('include/items.php');
 
-function events_init(&$a) {
+function events_init(App &$a) {
 	if(! local_user())
 		return;
 
-	if($a->argc == 1) {
+	if ($a->argc == 1) {
 		// if it's a json request abort here becaus we don't
 		// need the widget data
 		if($a->argv[1] === 'json')
@@ -20,8 +20,9 @@ function events_init(&$a) {
 
 		$cal_widget = widget_events();
 
-		if(! x($a->page,'aside'))
+		if (! x($a->page,'aside')) {
 			$a->page['aside'] = '';
+		}
 
 		$a->page['aside'] .= $cal_widget;
 	}
@@ -29,7 +30,7 @@ function events_init(&$a) {
 	return;
 }
 
-function events_post(&$a) {
+function events_post(App &$a) {
 
 	logger('post: ' . print_r($_REQUEST,true));
 
@@ -184,38 +185,41 @@ function events_post(&$a) {
 
 
 
-function events_content(&$a) {
+function events_content(App &$a) {
 
 	if(! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
 
-	if($a->argc == 1)
+	if ($a->argc == 1) {
 		$_SESSION['return_url'] = App::get_baseurl() . '/' . $a->cmd;
+	}
 
-	if(($a->argc > 2) && ($a->argv[1] === 'ignore') && intval($a->argv[2])) {
+	if (($a->argc > 2) && ($a->argv[1] === 'ignore') && intval($a->argv[2])) {
 		$r = q("update event set ignore = 1 where id = %d and uid = %d",
 			intval($a->argv[2]),
 			intval(local_user())
 		);
 	}
 
-	if(($a->argc > 2) && ($a->argv[1] === 'unignore') && intval($a->argv[2])) {
+	if (($a->argc > 2) && ($a->argv[1] === 'unignore') && intval($a->argv[2])) {
 		$r = q("update event set ignore = 0 where id = %d and uid = %d",
 			intval($a->argv[2]),
 			intval(local_user())
 		);
 	}
 
-	if ($a->theme_events_in_profile)
+	if ($a->theme_events_in_profile) {
 		nav_set_selected('home');
-	else
+	} else {
 		nav_set_selected('events');
+	}
 
 	$editselect = 'none';
-	if( feature_enabled(local_user(), 'richtext') )
+	if ( feature_enabled(local_user(), 'richtext') ) {
 		$editselect = 'textareas';
+	}
 
 	// get the translation strings for the callendar
 	$i18n = get_event_strings();

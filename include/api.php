@@ -133,7 +133,7 @@
 	 * @hook 'logged_in'
 	 * 		array $user	logged user record
 	 */
-	function api_login(&$a){
+	function api_login(App &$a){
 		// login with oauth
 		try{
 			$oauth = new FKOAuth1();
@@ -251,8 +251,8 @@
 	 * @param App $a
 	 * @return string API call result
 	 */
-	function api_call(&$a){
-		GLOBAL $API, $called_api;
+	function api_call(App &$a){
+		global $API, $called_api;
 
 		$type="json";
 		if (strpos($a->query_string, ".xml")>0) $type="xml";

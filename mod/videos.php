@@ -6,7 +6,7 @@ require_once('include/security.php');
 require_once('include/redir.php');
 
 
-function videos_init(&$a) {
+function videos_init(App &$a) {
 
 	if($a->argc > 1)
 		auto_redir($a, $a->argv[1]);
@@ -102,7 +102,7 @@ function videos_init(&$a) {
 
 
 
-function videos_post(&$a) {
+function videos_post(App &$a) {
 
 	$owner_uid = $a->data['user']['uid'];
 
@@ -178,7 +178,7 @@ function videos_post(&$a) {
 
 
 
-function videos_content(&$a) {
+function videos_content(App &$a) {
 
 	// URLs (most aren't currently implemented):
 	// videos/name
