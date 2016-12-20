@@ -91,8 +91,8 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 
 		$name = $entry->displayName;
 
-		if(isset($entry->urls)) {
-			foreach($entry->urls as $url) {
+		if (isset($entry->urls)) {
+			foreach ($entry->urls as $url) {
 				if ($url->type == 'profile') {
 					$profile_url = $url->value;
 					continue;
@@ -104,7 +104,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 			}
 		}
 		if (isset($entry->photos)) {
-			foreach($entry->photos as $photo) {
+			foreach ($entry->photos as $photo) {
 				if ($photo->type == 'profile') {
 					$profile_photo = $photo->value;
 					continue;
@@ -112,29 +112,37 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 			}
 		}
 
-		if(isset($entry->updated))
+		if (isset($entry->updated)) {
 			$updated = date("Y-m-d H:i:s", strtotime($entry->updated));
+		}
 
-		if(isset($entry->network))
+		if (isset($entry->network)) {
 			$network = $entry->network;
+		}
 
-		if(isset($entry->currentLocation))
+		if (isset($entry->currentLocation)) {
 			$location = $entry->currentLocation;
+		}
 
-		if(isset($entry->aboutMe))
+		if (isset($entry->aboutMe)) {
 			$about = html2bbcode($entry->aboutMe);
+		}
 
-		if(isset($entry->gender))
+		if (isset($entry->gender)) {
 			$gender = $entry->gender;
+		}
 
-		if(isset($entry->generation) AND ($entry->generation > 0))
+		if (isset($entry->generation) AND ($entry->generation > 0)) {
 			$generation = ++$entry->generation;
+		}
 
-		if(isset($entry->tags))
-			foreach($entry->tags as $tag)
+		if (isset($entry->tags)) {
+			foreach($entry->tags as $tag) {
 				$keywords = implode(", ", $tag);
+			}
+		}
 
-		if(isset($entry->contactType) AND ($entry->contactType >= 0))
+		if (isset($entry->contactType) AND ($entry->contactType >= 0))
 			$contact_type = $entry->contactType;
 
 		// If you query a Friendica server for its profiles, the network has to be Friendica
@@ -170,8 +178,6 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 }
 
 function poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $generation, $cid = 0, $uid = 0, $zcid = 0) {
-
-	$a = get_app();
 
 	// Generation:
 	//  0: No definition
@@ -1186,12 +1192,12 @@ function update_suggestions() {
 
 	$done[] = App::get_baseurl() . '/poco';
 
-	if(strlen(get_config('system','directory'))) {
+	if (strlen(get_config('system','directory'))) {
 		$x = fetch_url(get_server()."/pubsites");
 		if ($x) {
 			$j = json_decode($x);
 			if ($j->entries) {
-				foreach($j->entries as $entry) {
+				foreach ($j->entries as $entry) {
 
 					poco_check_server($entry->url);
 
@@ -1210,7 +1216,7 @@ function update_suggestions() {
 	);
 
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			$base = substr($rr['poco'],0,strrpos($rr['poco'],'/'));
 			if(! in_array($base,$done))
 				poco_load(0,0,0,$base);
@@ -1221,7 +1227,7 @@ function update_suggestions() {
 function poco_discover_federation() {
 	$last = get_config('poco','last_federation_discovery');
 
-	if($last) {
+	if ($last) {
 		$next = $last + (24 * 60 * 60);
 		if($next > time())
 			return;
@@ -1377,7 +1383,7 @@ function poco_discover_server($data, $default_generation = 0) {
 
 		$name = $entry->displayName;
 
-		if(isset($entry->urls)) {
+		if (isset($entry->urls)) {
 			foreach($entry->urls as $url) {
 				if ($url->type == 'profile') {
 					$profile_url = $url->value;
@@ -1390,39 +1396,48 @@ function poco_discover_server($data, $default_generation = 0) {
 			}
 		}
 
-		if(isset($entry->photos)) {
-			foreach($entry->photos as $photo) {
-				if($photo->type == 'profile') {
+		if (isset($entry->photos)) {
+			foreach ($entry->photos as $photo) {
+				if ($photo->type == 'profile') {
 					$profile_photo = $photo->value;
 					continue;
 				}
 			}
 		}
 
-		if(isset($entry->updated))
+		if (isset($entry->updated)) {
 			$updated = date("Y-m-d H:i:s", strtotime($entry->updated));
+		}
 
-		if(isset($entry->network))
+		if(isset($entry->network)) {
 			$network = $entry->network;
+		}
 
-		if(isset($entry->currentLocation))
+		if(isset($entry->currentLocation)) {
 			$location = $entry->currentLocation;
+		}
 
-		if(isset($entry->aboutMe))
+		if(isset($entry->aboutMe)) {
 			$about = html2bbcode($entry->aboutMe);
+		}
 
-		if(isset($entry->gender))
+		if(isset($entry->gender)) {
 			$gender = $entry->gender;
+		}
 
-		if(isset($entry->generation) AND ($entry->generation > 0))
+		if(isset($entry->generation) AND ($entry->generation > 0)) {
 			$generation = ++$entry->generation;
+		}
 
-		if(isset($entry->contactType) AND ($entry->contactType >= 0))
+		if(isset($entry->contactType) AND ($entry->contactType >= 0)) {
 			$contact_type = $entry->contactType;
+		}
 
-		if(isset($entry->tags))
-			foreach($entry->tags as $tag)
+		if(isset($entry->tags)) {
+			foreach ($entry->tags as $tag) {
 				$keywords = implode(", ", $tag);
+			}
+		}
 
 		if ($generation > 0) {
 			$success = true;

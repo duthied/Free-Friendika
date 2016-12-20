@@ -253,15 +253,15 @@ function events_content(&$a) {
 	$ignored = ((x($_REQUEST,'ignored')) ? intval($_REQUEST['ignored']) : 0);
 
 	if($a->argc > 1) {
-		if($a->argc > 2 && $a->argv[1] == 'event') {
+		if ($a->argc > 2 && $a->argv[1] == 'event') {
 			$mode = 'edit';
 			$event_id = intval($a->argv[2]);
 		}
-		if($a->argv[1] === 'new') {
+		if ($a->argv[1] === 'new') {
 			$mode = 'new';
 			$event_id = 0;
 		}
-		if($a->argc > 2 && intval($a->argv[1]) && intval($a->argv[2])) {
+		if ($a->argc > 2 && intval($a->argv[1]) && intval($a->argv[2])) {
 			$mode = 'view';
 			$y = intval($a->argv[1]);
 			$m = intval($a->argv[2]);
@@ -269,23 +269,27 @@ function events_content(&$a) {
 	}
 
 	// The view mode part is similiar to /mod/cal.php
-	if($mode == 'view') {
+	if ($mode == 'view') {
 
 
 		$thisyear = datetime_convert('UTC',date_default_timezone_get(),'now','Y');
 		$thismonth = datetime_convert('UTC',date_default_timezone_get(),'now','m');
-		if(! $y)
+		if (! $y) {
 			$y = intval($thisyear);
-		if(! $m)
+		}
+		if (! $m) {
 			$m = intval($thismonth);
+		}
 
 		// Put some limits on dates. The PHP date functions don't seem to do so well before 1900.
 		// An upper limit was chosen to keep search engines from exploring links millions of years in the future.
 
-		if($y < 1901)
+		if ($y < 1901) {
 			$y = 1900;
-		if($y > 2099)
+		}
+		if ($y > 2099) {
 			$y = 2100;
+		}
 
 		$nextyear = $y;
 		$nextmonth = $m + 1;
@@ -341,7 +345,7 @@ function events_content(&$a) {
 			$r = sort_by_date($r);
 			foreach($r as $rr) {
 				$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'j') : datetime_convert('UTC','UTC',$rr['start'],'j'));
-				if(! x($links,$j)) {
+				if (! x($links,$j)) {
 					$links[$j] = App::get_baseurl() . '/' . $a->cmd . '#link-' . $j;
 				}
 			}

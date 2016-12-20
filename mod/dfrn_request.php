@@ -120,17 +120,19 @@ function dfrn_request_post(&$a) {
 
 					$parms = Probe::profile($dfrn_url);
 
-					if(! count($parms)) {
+					if (! count($parms)) {
 						notice( t('Profile location is not valid or does not contain profile information.') . EOL );
 						return;
 					}
 					else {
-						if(! x($parms,'fn'))
+						if (! x($parms,'fn')) {
 							notice( t('Warning: profile location has no identifiable owner name.') . EOL );
-						if(! x($parms,'photo'))
+						}
+						if (! x($parms,'photo')) {
 							notice( t('Warning: profile location has no profile photo.') . EOL );
+						}
 						$invalid = Probe::valid_dfrn($parms);
-						if($invalid) {
+						if ($invalid) {
 							notice( sprintf( tt("%d required parameter was not found at the given location",
 												"%d required parameters were not found at the given location",
 												$invalid), $invalid) . EOL );
@@ -502,13 +504,13 @@ function dfrn_request_post(&$a) {
 				);
 			}
 			else {
-				if(! validate_url($url)) {
+				if (! validate_url($url)) {
 					notice( t('Invalid profile URL.') . EOL);
 					goaway(App::get_baseurl() . '/' . $a->cmd);
 					return; // NOTREACHED
 				}
 
-				if(! allowed_url($url)) {
+				if (! allowed_url($url)) {
 					notice( t('Disallowed profile URL.') . EOL);
 					goaway(App::get_baseurl() . '/' . $a->cmd);
 					return; // NOTREACHED
@@ -519,17 +521,19 @@ function dfrn_request_post(&$a) {
 
 				$parms = Probe::profile(($hcard) ? $hcard : $url);
 
-				if(! count($parms)) {
+				if (! count($parms)) {
 					notice( t('Profile location is not valid or does not contain profile information.') . EOL );
 					goaway(App::get_baseurl() . '/' . $a->cmd);
 				}
 				else {
-					if(! x($parms,'fn'))
+					if (! x($parms,'fn')) {
 						notice( t('Warning: profile location has no identifiable owner name.') . EOL );
-					if(! x($parms,'photo'))
+					}
+					if (! x($parms,'photo')) {
 						notice( t('Warning: profile location has no profile photo.') . EOL );
+					}
 					$invalid = Probe::valid_dfrn($parms);
-					if($invalid) {
+					if ($invalid) {
 						notice( sprintf( tt("%d required parameter was not found at the given location",
 											"%d required parameters were not found at the given location",
 											$invalid), $invalid) . EOL );
@@ -810,15 +814,18 @@ function dfrn_request_content(&$a) {
 			$myaddr = hex2bin($_GET['addr']);
 		elseif (x($_GET,'address') AND ($_GET['address'] != ""))
 			$myaddr = $_GET['address'];
-		elseif(local_user()) {
-			if(strlen($a->path)) {
+		elseif (local_user()) {
+			if (strlen($a->path)) {
 				$myaddr = App::get_baseurl() . '/profile/' . $a->user['nickname'];
 			}
 			else {
 				$myaddr = $a->user['nickname'] . '@' . substr(z_root(), strpos(z_root(),'://') + 3 );
 			}
-		} else	// last, try a zrl
+		}
+		else {
+			// last, try a zrl
 			$myaddr = get_my_url();
+		}
 
 		$target_addr = $a->profile['nickname'] . '@' . substr(z_root(), strpos(z_root(),'://') + 3 );
 
@@ -831,10 +838,12 @@ function dfrn_request_content(&$a) {
 		 *
 		 */
 
-		if($a->profile['page-flags'] == PAGE_NORMAL)
+		if ($a->profile['page-flags'] == PAGE_NORMAL) {
 			$tpl = get_markup_template('dfrn_request.tpl');
-		else
+		}
+		else {
 			$tpl = get_markup_template('auto_request.tpl');
+		}
 
 		$page_desc = t("Please enter your 'Identity Address' from one of the following supported communications networks:");
 

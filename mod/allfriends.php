@@ -29,8 +29,8 @@ function allfriends_content(&$a) {
 	);
 
 	if (! count($c)) {
-	}
 		return;
+	}
 
 	$a->page['aside'] = "";
 	profile_load($a, "", 0, get_contact_details_by_url($c[0]["url"]));

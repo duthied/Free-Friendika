@@ -231,7 +231,7 @@ function cal_content(&$a) {
 			$r = sort_by_date($r);
 			foreach($r as $rr) {
 				$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'j') : datetime_convert('UTC','UTC',$rr['start'],'j'));
-				if(! x($links,$j)) {
+				if (! x($links,$j)) {
 					$links[$j] = App::get_baseurl() . '/' . $a->cmd . '#link-' . $j;
 				}
 			}

@@ -13,7 +13,7 @@ function delegate_content(&$a) {
 		return;
 	}
 
-	if($a->argc > 2 && $a->argv[1] === 'add' && intval($a->argv[2])) {
+	if ($a->argc > 2 && $a->argv[1] === 'add' && intval($a->argv[2])) {
 
 		// delegated admins can view but not change delegation permissions
 
@@ -42,7 +42,7 @@ function delegate_content(&$a) {
 		goaway(App::get_baseurl() . '/delegate');
 	}
 
-	if($a->argc > 2 && $a->argv[1] === 'remove' && intval($a->argv[2])) {
+	if ($a->argc > 2 && $a->argv[1] === 'remove' && intval($a->argv[2])) {
 
 		// delegated admins can view but not change delegation permissions
 

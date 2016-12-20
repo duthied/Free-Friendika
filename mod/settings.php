@@ -1170,13 +1170,14 @@ function settings_content(&$a) {
 		));
 	}
 
-	if(strlen(get_config('system','directory'))) {
+	if (strlen(get_config('system','directory'))) {
 		$profile_in_net_dir = replace_macros($opt_tpl,array(
 			'$field' 	=> array('profile_in_netdirectory', t('Publish your default profile in the global social directory?'), $profile['net-publish'], '', array(t('No'),t('Yes'))),
 		));
 	}
-	else
+	else {
 		$profile_in_net_dir = '';
+	}
 
 
 	$hide_friends = replace_macros($opt_tpl,array(
