@@ -742,10 +742,11 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 					}
 				}
 
-				if(local_user() && link_compare($a->contact['url'],$item['author-link']))
+				if (local_user() && link_compare($a->contact['url'],$item['author-link'])) {
 					$edpost = array(App::get_baseurl($ssl_state)."/editpost/".$item['id'], t("Edit"));
-				else
+				} else {
 					$edpost = false;
+				}
 
 				$drop = '';
 				$dropping = false;
@@ -764,7 +765,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 
 				$isstarred = "unstarred";
 				if ($profile_owner == local_user()) {
-					if($toplevelpost) {
+					if ($toplevelpost) {
 						$isstarred = (($item['starred']) ? "starred" : "unstarred");
 
 						$star = array(
@@ -782,6 +783,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 							intval($item['uid']),
 							intval($item['id'])
 						);
+
 						if (dbm::is_result($r)) {
 							$ignore = array(
 								'do' => t("ignore thread"),
@@ -793,7 +795,7 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 							);
 						}
 						$tagger = '';
-						if(feature_enabled($profile_owner,'commtag')) {
+						if (feature_enabled($profile_owner,'commtag')) {
 							$tagger = array(
 								'add' => t("add tag"),
 								'class' => "",
@@ -818,19 +820,22 @@ function render_content(&$a, $items, $mode, $update, $preview = false) {
 
 				$sp = false;
 				$profile_link = best_link_url($item,$sp);
-				if($profile_link === 'mailbox')
+				if ($profile_link === 'mailbox') {
 					$profile_link = '';
-				if($sp)
+				}
+				if ($sp) {
 					$sparkle = ' sparkle';
-				else
+				} else {
 					$profile_link = zrl($profile_link);
+				}
 
 				// Don't rely on the author-avatar. It is better to use the data from the contact table
 				$author_contact = get_contact_details_by_url($item['author-link'], $profile_owner);
-				if ($author_contact["thumb"])
+				if ($author_contact["thumb"]) {
 					$profile_avatar = $author_contact["thumb"];
-				else
+				} else {
 					$profile_avatar = $item['author-avatar'];
+				}
 
 				$like    = ((x($conv_responses['like'],$item['uri'])) ? format_like($conv_responses['like'][$item['uri']],$conv_responses['like'][$item['uri'] . '-l'],'like',$item['uri']) : '');
 				$dislike = ((x($conv_responses['dislike'],$item['uri'])) ? format_like($conv_responses['dislike'][$item['uri']],$conv_responses['dislike'][$item['uri'] . '-l'],'dislike',$item['uri']) : '');
