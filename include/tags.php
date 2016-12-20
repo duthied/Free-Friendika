@@ -1,6 +1,6 @@
 <?php
 function create_tags_from_item($itemid) {
-	global $a;
+	$a = get_app();
 
 	$profile_base = $a->get_baseurl();
 	$profile_data = parse_url($profile_base);

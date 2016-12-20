@@ -126,7 +126,7 @@ function network_init(&$a) {
 			intval(local_user()),
 			dbesc($search)
 		);
-		if(! count($r)) {
+		if(! dbm::is_result($r)) {
 			q("INSERT INTO `search` ( `uid`,`term` ) VALUES ( %d, '%s') ",
 				intval(local_user()),
 				dbesc($search)
@@ -182,7 +182,7 @@ function saved_searches($search) {
 
 	$saved = array();
 
-	if(count($r)) {
+	if (dbm::is_result($r)) {
 		foreach($r as $rr) {
 			$saved[] = array(
 				'id'		=> $rr['id'],
@@ -381,7 +381,7 @@ function network_content(&$a, $update = 0) {
 		);
 
 		$str = '';
-		if(count($r))
+		if (dbm::is_result($r))
 			foreach($r as $rr)
 				$str .= '<' . $rr['id'] . '>';
 		if(strlen($str))
@@ -463,7 +463,7 @@ function network_content(&$a, $update = 0) {
 			intval($group),
 			intval($_SESSION['uid'])
 		);
-		if(! count($r)) {
+		if(! dbm::is_result($r)) {
 			if($update)
 				killme();
 			notice( t('No such group') . EOL );
@@ -507,7 +507,7 @@ function network_content(&$a, $update = 0) {
 				AND (NOT `blocked` OR `pending`) LIMIT 1",
 			intval($cid)
 		);
-		if(count($r)) {
+		if (dbm::is_result($r)) {
 			$sql_extra = " AND ".$sql_table.".`contact-id` = ".intval($cid);
 
 			$entries[0] = array(
@@ -609,7 +609,7 @@ function network_content(&$a, $update = 0) {
 				intval($_SESSION['uid'])
 			);
 
-			if(count($r)) {
+			if (dbm::is_result($r)) {
 				$a->set_pager_total($r[0]['total']);
 			}
 		}
@@ -705,7 +705,7 @@ function network_content(&$a, $update = 0) {
 		$parents_str = '';
 		$date_offset = "";
 
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			foreach($r as $rr)
 				if(! in_array($rr['item_id'],$parents_arr))
 					$parents_arr[] = $rr['item_id'];
@@ -729,7 +729,9 @@ function network_content(&$a, $update = 0) {
 					intval($parents),
 					intval($max_comments + 1)
 				);
-				$items = array_merge($items, $thread_items);
+	
+				if (dbm::is_result($thread_items))
+					$items = array_merge($items, $thread_items);
 			}
 			$items = conv_sort($items,$ordering);
 		} else {

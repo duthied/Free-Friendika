@@ -767,7 +767,7 @@ class App {
 
 	}
 
-	function get_basepath() {
+	public static function get_basepath() {
 
 		$basepath = get_config("system", "basepath");
 
@@ -1191,7 +1191,7 @@ class App {
 		q("START TRANSACTION");
 
 		$r = q("SELECT `pid` FROM `process` WHERE `pid` = %d", intval(getmypid()));
-		if(!dbm::is_result($r)) {
+		if (!dbm::is_result($r)) {
 			q("INSERT INTO `process` (`pid`,`command`,`created`) VALUES (%d, '%s', '%s')",
 				intval(getmypid()),
 				dbesc($command),
@@ -1207,7 +1207,7 @@ class App {
 		q("START TRANSACTION");
 
 		$r = q("SELECT `pid` FROM `process`");
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			foreach ($r AS $process) {
 				if (!posix_kill($process["pid"], 0)) {
 					q("DELETE FROM `process` WHERE `pid` = %d", intval($process["pid"]));
@@ -1294,10 +1294,6 @@ class App {
 	 */
 	function max_processes_reached() {
 
-		// Is the function called statically?
-		if (!is_object($this))
-			return(self::$a->max_processes_reached());
-
 		if ($this->is_backend()) {
 			$process = "backend";
 			$max_processes = get_config('system', 'max_processes_backend');
@@ -1328,10 +1324,6 @@ class App {
 	 * @return bool Is the load reached?
 	 */
 	function maxload_reached() {
-
-		// Is the function called statically?
-		if (!is_object($this))
-			return(self::$a->maxload_reached());
 
 		if ($this->is_backend()) {
 			$process = "backend";
@@ -1479,17 +1471,18 @@ function system_unavailable() {
 
 
 function clean_urls() {
-	global $a;
+	$a = get_app();
 	//	if($a->config['system']['clean_urls'])
 	return true;
 	//	return false;
 }
 
 function z_path() {
-	global $a;
-	$base = $a->get_baseurl();
+	$base = App::get_baseurl();
+
 	if(! clean_urls())
 		$base .= '/?q=';
+
 	return $base;
 }
 
@@ -1499,10 +1492,10 @@ function z_path() {
  * @see App::get_baseurl()
  *
  * @return string
+ * @TODO Maybe super-flous and deprecated? Seems to only wrap App::get_baseurl()
  */
 function z_root() {
-	global $a;
-	return $a->get_baseurl();
+	return App::get_baseurl();
 }
 
 /**
@@ -1685,7 +1678,7 @@ function run_update_function($x) {
 function check_plugins(&$a) {
 
 	$r = q("SELECT * FROM `addon` WHERE `installed` = 1");
-	if(dbm::is_result($r))
+	if (dbm::is_result($r))
 		$installed = $r;
 	else
 		$installed = array();
@@ -1903,7 +1896,7 @@ function info($s) {
  * @return int
  */
 function get_max_import_size() {
-	global $a;
+	$a = get_app();
 	return ((x($a->config,'max_import_size')) ? $a->config['max_import_size'] : 0 );
 }
 
@@ -2029,7 +2022,7 @@ function current_theme(){
 		$r = q("select theme from user where uid = %d limit 1",
 			intval($a->profile_uid)
 		);
-		if(dbm::is_result($r))
+		if (dbm::is_result($r))
 			$page_theme = $r[0]['theme'];
 	}
 
@@ -2100,7 +2093,7 @@ function current_theme(){
  * @return string
  */
 function current_theme_url() {
-	global $a;
+	$a = get_app();
 
 	$t = current_theme();
 
@@ -2142,7 +2135,7 @@ function feed_birthday($uid,$tz) {
 			intval($uid)
 	);
 
-	if(dbm::is_result($p)) {
+	if (dbm::is_result($p)) {
 		$tmp_dob = substr($p[0]['dob'],5);
 		if(intval($tmp_dob)) {
 			$y = datetime_convert($tz,$tz,'now','Y');

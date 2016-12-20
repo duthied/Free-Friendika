@@ -15,7 +15,7 @@ function lostpass_post(&$a) {
 		dbesc($loginame)
 	);
 
-	if(! count($r)) {
+	if(! dbm::is_result($r)) {
 		notice( t('No valid account found.') . EOL);
 		goaway(z_root());
 	}
@@ -88,7 +88,7 @@ function lostpass_content(&$a) {
 		$r = q("SELECT * FROM `user` WHERE `pwdreset` = '%s' LIMIT 1",
 			dbesc($hash)
 		);
-		if(! count($r)) {
+		if(! dbm::is_result($r)) {
 			$o =  t("Request could not be verified. \x28You may have previously submitted it.\x29 Password reset failed.");
 			return $o;
 		}

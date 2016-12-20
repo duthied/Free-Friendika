@@ -18,7 +18,7 @@ function redir_init(&$a) {
 				intval(local_user())
 			);
 
-			if((! count($r)) || ($r[0]['network'] !== NETWORK_DFRN))
+			if((! dbm::is_result($r)) || ($r[0]['network'] !== NETWORK_DFRN))
 				goaway(z_root());
 
 			$cid = $r[0]['id'];
@@ -31,7 +31,7 @@ function redir_init(&$a) {
 				intval(local_user())
 			);
 
-			if((! count($r)) || ($r[0]['network'] !== NETWORK_DFRN))
+			if((! dbm::is_result($r)) || ($r[0]['network'] !== NETWORK_DFRN))
 				goaway(z_root());
 		}
 

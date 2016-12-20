@@ -64,7 +64,7 @@ function contact_remove($id) {
 	$r = q("select uid from contact where id = %d limit 1",
 		intval($id)
 	);
-	if((! count($r)) || (! intval($r[0]['uid'])))
+	if((! dbm::is_result($r)) || (! intval($r[0]['uid'])))
 		return;
 
 	$archive = get_pconfig($r[0]['uid'], 'system','archive_removed_contacts');
@@ -93,20 +93,13 @@ function terminate_friendship($user,$self,$contact) {
 
 	if($contact['network'] === NETWORK_OSTATUS) {
 
-		$slap = replace_macros(get_markup_template('follow_slap.tpl'), array(
-			'$name' => $user['username'],
-			'$profile_page' => $a->get_baseurl() . '/profile/' . $user['nickname'],
-			'$photo' => $self['photo'],
-			'$thumb' => $self['thumb'],
-			'$published' => datetime_convert('UTC','UTC', 'now', ATOM_TIME),
-			'$item_id' => 'urn:X-dfrn:' . $a->get_hostname() . ':unfollow:' . get_guid(32),
-			'$title' => '',
-			'$type' => 'text',
-			'$content' => t('stopped following'),
-			'$nick' => $user['nickname'],
-			'$verb' => 'http://ostatus.org/schema/1.0/unfollow', // ACTIVITY_UNFOLLOW,
-			'$ostat_follow' => '' // '<as:verb>http://ostatus.org/schema/1.0/unfollow</as:verb>' . "\r\n"
-		));
+		require_once('include/ostatus.php');
+
+		// create an unfollow slap
+		$item = array();
+		$item['verb'] = NAMESPACE_OSTATUS."/unfollow";
+		$item['follow'] = $contact["url"];
+		$slap = ostatus::salmon($item, $user);
 
 		if((x($contact,'notify')) && (strlen($contact['notify']))) {
 			require_once('include/salmon.php');
@@ -249,7 +242,7 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 			FROM `gcontact` WHERE `nurl` = '%s'",
 				dbesc(normalise_link($url)));
 
-	if ($r) {
+	if (dbm::is_result($r)) {
 		// If there is more than one entry we filter out the connector networks
 		if (count($r) > 1) {
 			foreach ($r AS $id => $result) {
@@ -435,7 +428,7 @@ function random_profile() {
 			ORDER BY rand() LIMIT 1",
 		dbesc(NETWORK_DFRN));
 
-	if(count($r))
+	if (dbm::is_result($r))
 		return dirname($r[0]['url']);
 	return '';
 }

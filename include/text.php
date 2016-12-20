@@ -491,7 +491,7 @@ function item_new_uri($hostname,$uid, $guid = "") {
 
 		$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' LIMIT 1",
 			dbesc($uri));
-		if(count($r))
+		if (dbm::is_result($r))
 			$dups = true;
 	} while($dups == true);
 	return $uri;
@@ -515,7 +515,7 @@ function photo_new_resource() {
 		$r = q("SELECT `id` FROM `photo` WHERE `resource-id` = '%s' LIMIT 1",
 			dbesc($resource)
 		);
-		if(count($r))
+		if (dbm::is_result($r))
 			$found = true;
 	} while($found == true);
 	return $resource;
@@ -699,7 +699,7 @@ $LOGGER_LEVELS = array();
  * @param int $level
  */
 function logger($msg, $level = 0) {
-	global $a;
+	$a = get_app();
 	global $db;
 	global $LOGGER_LEVELS;
 
@@ -882,7 +882,7 @@ function contact_block() {
 			dbesc(NETWORK_OSTATUS),
 			dbesc(NETWORK_DIASPORA)
 	);
-	if(count($r)) {
+	if (dbm::is_result($r)) {
 		$total = intval($r[0]['total']);
 	}
 	if(! $total) {
@@ -901,14 +901,15 @@ function contact_block() {
 				dbesc(NETWORK_DIASPORA),
 				intval($shown)
 		);
-		if ($r) {
+		if (dbm::is_result($r)) {
 			$contacts = "";
 			foreach ($r AS $contact)
 				$contacts[] = $contact["id"];
 
 			$r = q("SELECT `id`, `uid`, `addr`, `url`, `name`, `thumb`, `network` FROM `contact` WHERE `id` IN (%s)",
 				dbesc(implode(",", $contacts)));
-			if(count($r)) {
+
+			if (dbm::is_result($r)) {
 				$contacts = sprintf( tt('%d Contact','%d Contacts', $total),$total);
 				$micropro = Array();
 				foreach($r as $rr) {
@@ -1931,7 +1932,7 @@ function file_tag_update_pconfig($uid,$file_old,$file_new,$type = 'file') {
 			//	intval($uid)
 			//);
 
-			if(count($r)) {
+			if (dbm::is_result($r)) {
 				unset($deleted_tags[$key]);
 			}
 			else {
@@ -1961,7 +1962,7 @@ function file_tag_save_file($uid,$item,$file) {
 		intval($item),
 		intval($uid)
 	);
-	if(count($r)) {
+	if (dbm::is_result($r)) {
 		if(! stristr($r[0]['file'],'[' . file_tag_encode($file) . ']'))
 			q("UPDATE `item` SET `file` = '%s' WHERE `id` = %d AND `uid` = %d",
 				dbesc($r[0]['file'] . '[' . file_tag_encode($file) . ']'),
@@ -1999,7 +2000,7 @@ function file_tag_unsave_file($uid,$item,$file,$cat = false) {
 		intval($item),
 		intval($uid)
 	);
-	if(! count($r))
+	if(! dbm::is_result($r))
 		return false;
 
 	q("UPDATE `item` SET `file` = '%s' WHERE `id` = %d AND `uid` = %d",
@@ -2019,7 +2020,7 @@ function file_tag_unsave_file($uid,$item,$file,$cat = false) {
 	//$r = q("select file from item where uid = %d and deleted = 0 " . file_tag_file_query('item',$file,(($cat) ? 'category' : 'file')),
 	//);
 
-	if(! count($r)) {
+	if(! dbm::is_result($r)) {
 		$saved = get_pconfig($uid,'system','filetags');
 		set_pconfig($uid,'system','filetags',str_replace($pattern,'',$saved));
 
