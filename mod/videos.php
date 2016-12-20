@@ -380,12 +380,12 @@ function videos_content(&$a) {
 
 			$videos[] = array(
 				'id'       => $rr['id'],
-				'link'  	=> App::get_baseurl() . '/videos/' . $a->data['user']['nickname'] . '/video/' . $rr['resource-id'],
-				'title' 	=> t('View Video'),
-				'src'     	=> App::get_baseurl() . '/attach/' . $rr['id'] . '?attachment=0',
-				'alt'     	=> $alt_e,
-				'mime'		=> $rr['filetype'],
-				'album'	=> array(
+				'link'     => App::get_baseurl() . '/videos/' . $a->data['user']['nickname'] . '/video/' . $rr['resource-id'],
+				'title'    => t('View Video'),
+				'src'      => App::get_baseurl() . '/attach/' . $rr['id'] . '?attachment=0',
+				'alt'      => $alt_e,
+				'mime'     => $rr['filetype'],
+				'album' => array(
 					'link'  => App::get_baseurl() . '/videos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($rr['album']),
 					'name'  => $name_e,
 					'alt'   => t('View Album'),
@@ -397,11 +397,11 @@ function videos_content(&$a) {
 
 	$tpl = get_markup_template('videos_recent.tpl');
 	$o .= replace_macros($tpl, array(
-		'$title' => t('Recent Videos'),
-		'$can_post' => $can_post,
-		'$upload' => array(t('Upload New Videos'), App::get_baseurl().'/videos/'.$a->data['user']['nickname'].'/upload'),
-		'$videos' => $videos,
-        '$delete_url' => (($can_post)?App::get_baseurl().'/videos/'.$a->data['user']['nickname']:False)
+		'$title'      => t('Recent Videos'),
+		'$can_post'   => $can_post,
+		'$upload'     => array(t('Upload New Videos'), App::get_baseurl().'/videos/'.$a->data['user']['nickname'].'/upload'),
+		'$videos'     => $videos,
+		'$delete_url' => (($can_post)?App::get_baseurl().'/videos/'.$a->data['user']['nickname']:False)
 	));
 
 
