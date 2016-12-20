@@ -24,8 +24,10 @@ function frost_content_loaded(App &$a) {
 		//$a->page['htmlhead'] = str_replace('$stylesheet', App::get_baseurl() . '/view/theme/frost/login-style.css', $a->page['htmlhead']);
 		$a->theme['stylesheet'] = App::get_baseurl() . '/view/theme/frost/login-style.css';
 	}
-	if( $a->module === 'login' )
+
+	if ( $a->module === 'login' ) {
 		$a->page['end'] .= '<script type="text/javascript"> $(document).ready(function() { $("#id_" + window.loginName).focus();} );</script>';
+	}
 
 }
 
