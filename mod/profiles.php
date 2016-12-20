@@ -2,7 +2,7 @@
 require_once("include/Contact.php");
 require_once('include/Probe.php');
 
-function profiles_init(&$a) {
+function profiles_init(App &$a) {
 
 	nav_set_selected('profiles');
 
@@ -160,7 +160,7 @@ function profile_clean_keywords($keywords) {
 	return $keywords;
 }
 
-function profiles_post(&$a) {
+function profiles_post(App &$a) {
 
 	if(! local_user()) {
 		notice( t('Permission denied.') . EOL);
@@ -599,7 +599,7 @@ function profile_activity($changed, $value) {
 }
 
 
-function profiles_content(&$a) {
+function profiles_content(App &$a) {
 
 	if(! local_user()) {
 		notice( t('Permission denied.') . EOL);

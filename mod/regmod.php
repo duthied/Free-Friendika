@@ -96,7 +96,7 @@ function user_deny($hash) {
 
 }
 
-function regmod_content(&$a) {
+function regmod_content(App &$a) {
 
 	global $lang;
 

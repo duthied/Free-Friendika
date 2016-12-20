@@ -5,7 +5,7 @@ require_once('include/bbcode.php');
 require_once('include/items.php');
 
 
-function mood_init(&$a) {
+function mood_init(App &$a) {
 
 	if(! local_user())
 		return;
@@ -108,7 +108,7 @@ function mood_init(&$a) {
 
 
 
-function mood_content(&$a) {
+function mood_content(App &$a) {
 
 	if(! local_user()) {
 		notice( t('Permission denied.') . EOL);
