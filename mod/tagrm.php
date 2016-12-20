@@ -59,7 +59,7 @@ function tagrm_content(App &$a) {
 	}
 
 	$item = (($a->argc > 1) ? intval($a->argv[1]) : 0);
-	if(! $item) {
+	if (! $item) {
 		goaway(App::get_baseurl() . '/' . $_SESSION['photo_return']);
 		// NOTREACHED
 	}
@@ -87,8 +87,7 @@ function tagrm_content(App &$a) {
 	$o .= '<input type="hidden" name="item" value="' . $item . '" />';
 	$o .= '<ul>';
 
-
-	foreach($arr as $x) {
+	foreach ($arr as $x) {
 		$o .= '<li><input type="checkbox" name="tag" value="' . bin2hex($x) . '" >' . bbcode($x) . '</input></li>';
 	}
 
@@ -98,5 +97,5 @@ function tagrm_content(App &$a) {
 	$o .= '</form>';
 
 	return $o;
-	
+
 }

@@ -44,8 +44,9 @@ function subthread_content(App &$a) {
 		if (! dbm::is_result($r)) {
 			return;
 		}
-		if(! $r[0]['self'])
+		if (! $r[0]['self']) {
 			$remote_owner = $r[0];
+		}
 	}
 
 	// this represents the post owner on this system. 
@@ -57,18 +58,18 @@ function subthread_content(App &$a) {
 	if (dbm::is_result($r))
 		$owner = $r[0];
 
-	if(! $owner) {
+	if (! $owner) {
 		logger('like: no owner');
 		return;
 	}
 
-	if(! $remote_owner)
+	if (! $remote_owner)
 		$remote_owner = $owner;
 
 
 	// This represents the person posting
 
-	if((local_user()) && (local_user() == $owner_uid)) {
+	if ((local_user()) && (local_user() == $owner_uid)) {
 		$contact = $owner;
 	}
 	else {
@@ -79,7 +80,7 @@ function subthread_content(App &$a) {
 		if (dbm::is_result($r))
 			$contact = $r[0];
 	}
-	if(! $contact) {
+	if (! $contact) {
 		return;
 	}
 
@@ -103,8 +104,9 @@ function subthread_content(App &$a) {
 EOT;
 	$bodyverb = t('%1$s is following %2$s\'s %3$s');
 
-	if(! isset($bodyverb))
-			return;
+	if (! isset($bodyverb)) {
+		return;
+	}
 
 	$arr = array();
 
@@ -144,7 +146,7 @@ EOT;
 
 	$post_id = item_store($arr);
 
-	if(! $item['visible']) {
+	if (! $item['visible']) {
 		$r = q("UPDATE `item` SET `visible` = 1 WHERE `id` = %d AND `uid` = %d",
 			intval($item['id']),
 			intval($owner_uid)

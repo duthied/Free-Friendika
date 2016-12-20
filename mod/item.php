@@ -646,8 +646,9 @@ function item_post(App &$a) {
 				intval($mtch)
 			);
 			if (dbm::is_result($r)) {
-				if(strlen($attachments))
+				if (strlen($attachments)) {
 					$attachments .= ',';
+				}
 				$attachments .= '[attach]href="' . App::get_baseurl() . '/attach/' . $r[0]['id'] . '" length="' . $r[0]['filesize'] . '" type="' . $r[0]['filetype'] . '" title="' . (($r[0]['filename']) ? $r[0]['filename'] : '') . '"[/attach]';
 			}
 			$body = str_replace($match[1],'',$body);
@@ -656,14 +657,17 @@ function item_post(App &$a) {
 
 	$wall = 0;
 
-	if($post_type === 'wall' || $post_type === 'wall-comment')
+	if ($post_type === 'wall' || $post_type === 'wall-comment') {
 		$wall = 1;
+	}
 
-	if(! strlen($verb))
+	if (! strlen($verb)) {
 		$verb = ACTIVITY_POST ;
+	}
 
-	if ($network == "")
+	if ($network == "") {
 		$network = NETWORK_DFRN;
+	}
 
 	$gravity = (($parent) ? 6 : 0 );
 
@@ -677,8 +681,9 @@ function item_post(App &$a) {
 	$uri = (($message_id) ? $message_id : item_new_uri($a->get_hostname(),$profile_uid, $guid));
 
 	// Fallback so that we alway have a thr-parent
-	if(!$thr_parent)
+	if (!$thr_parent) {
 		$thr_parent = $uri;
+	}
 
 	$datarray = array();
 	$datarray['uid']           = $profile_uid;

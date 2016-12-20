@@ -627,7 +627,7 @@ function settings_post(App &$a) {
 		);
 	}
 
-	if(($old_visibility != $net_publish) || ($page_flags != $old_page_flags)) {
+	if (($old_visibility != $net_publish) || ($page_flags != $old_page_flags)) {
 		// Update global directory in background
 		$url = $_SESSION['my_url'];
 		if ($url && strlen(get_config('system','directory'))) {
@@ -642,10 +642,10 @@ function settings_post(App &$a) {
 	update_gcontact_for_user(local_user());
 
 	//$_SESSION['theme'] = $theme;
-	if($email_changed && $a->config['register_policy'] == REGISTER_VERIFY) {
+	if ($email_changed && $a->config['register_policy'] == REGISTER_VERIFY) {
 
-		// FIXME - set to un-verified, blocked and redirect to logout
-		// Why? Are we verifying people or email addresses?
+		/// @TODO set to un-verified, blocked and redirect to logout
+		/// @TODO Why? Are we verifying people or email addresses?
 
 	}
 
