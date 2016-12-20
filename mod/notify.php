@@ -3,10 +3,13 @@ require_once('include/NotificationsManager.php');
 
 
 function notify_init(&$a) {
-	if(! local_user()) return;
+	if (! local_user()) {
+		return;
+	}
+
 	$nm = new NotificationsManager();
-		
-	if($a->argc > 2 && $a->argv[1] === 'view' && intval($a->argv[2])) {
+
+	if ($a->argc > 2 && $a->argv[1] === 'view' && intval($a->argv[2])) {
 		$note = $nm->getByID($a->argv[2]);
 		if ($note) {
 			$nm->setSeen($note);
@@ -17,8 +20,9 @@ function notify_init(&$a) {
 				$urldata = parse_url($note['link']);
 				$guid = basename($urldata["path"]);
 				$itemdata = get_item_id($guid, local_user());
-				if ($itemdata["id"] != 0)
+				if ($itemdata["id"] != 0) {
 					$note['link'] = App::get_baseurl().'/display/'.$itemdata["nick"].'/'.$itemdata["id"];
+				}
 			}
 
 			goaway($note['link']);
@@ -27,7 +31,7 @@ function notify_init(&$a) {
 		goaway(App::get_baseurl(true));
 	}
 
-	if($a->argc > 2 && $a->argv[1] === 'mark' && $a->argv[2] === 'all' ) {
+	if ($a->argc > 2 && $a->argv[1] === 'mark' && $a->argv[2] === 'all' ) {
 		$r = $nm->setAllSeen();
 		$j = json_encode(array('result' => ($r) ? 'success' : 'fail'));
 		echo $j;
@@ -37,7 +41,9 @@ function notify_init(&$a) {
 }
 
 function notify_content(&$a) {
-	if(! local_user()) return login();
+	if (! local_user()) {
+		return login();
+	}
 
 	$nm = new NotificationsManager();
 	
