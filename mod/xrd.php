@@ -21,8 +21,9 @@ function xrd_init(&$a) {
 	$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' LIMIT 1",
 		dbesc($name)
 	);
-	if(! dbm::is_result($r))
+	if (! dbm::is_result($r)) {
 		killme();
+	}
 
 	$salmon_key = salmon_key($r[0]['spubkey']);
 

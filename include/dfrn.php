@@ -105,8 +105,9 @@ class dfrn {
 			dbesc($owner_nick)
 		);
 
-		if(! dbm::is_result($r))
+		if (! dbm::is_result($r)) {
 			killme();
+		}
 
 		$owner = $r[0];
 		$owner_id = $owner['uid'];
@@ -139,8 +140,9 @@ class dfrn {
 				intval($owner_id)
 			);
 
-			if(! dbm::is_result($r))
+			if (! dbm::is_result($r)) {
 				killme();
+			}
 
 			$contact = $r[0];
 			require_once('include/security.php');

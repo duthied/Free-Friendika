@@ -143,13 +143,14 @@ function group_add_member($uid,$name,$member,$gid = 0) {
 		return true;	// You might question this, but
 				// we indicate success because the group member was in fact created
 				// -- It was just created at another time
- 	if(! dbm::is_result($r))
+ 	if (! dbm::is_result($r)) {
 		$r = q("INSERT INTO `group_member` (`uid`, `gid`, `contact-id`)
 			VALUES( %d, %d, %d ) ",
 			intval($uid),
 			intval($gid),
 			intval($member)
-	);
+		);
+	}
 	return $r;
 }
 

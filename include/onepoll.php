@@ -143,8 +143,9 @@ function onepoll_run(&$argv, &$argc){
 	$r = q("SELECT `contact`.*, `user`.`page-flags` FROM `contact` INNER JOIN `user` on `contact`.`uid` = `user`.`uid` WHERE `user`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
 		intval($importer_uid)
 	);
-	if(! dbm::is_result($r))
+	if (! dbm::is_result($r)) {
 		return;
+	}
 
 	$importer = $r[0];
 

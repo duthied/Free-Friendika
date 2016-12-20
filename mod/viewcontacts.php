@@ -16,8 +16,9 @@ function viewcontacts_init(&$a) {
 			dbesc($nick)
 		);
 
-		if(! dbm::is_result($r))
+		if (! dbm::is_result($r)) {
 			return;
+		}
 
 		$a->data['user'] = $r[0];
 		$a->profile_uid = $r[0]['uid'];

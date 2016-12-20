@@ -126,7 +126,7 @@ function network_init(&$a) {
 			intval(local_user()),
 			dbesc($search)
 		);
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			q("INSERT INTO `search` ( `uid`,`term` ) VALUES ( %d, '%s') ",
 				intval(local_user()),
 				dbesc($search)
@@ -463,7 +463,7 @@ function network_content(&$a, $update = 0) {
 			intval($group),
 			intval($_SESSION['uid'])
 		);
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			if($update)
 				killme();
 			notice( t('No such group') . EOL );

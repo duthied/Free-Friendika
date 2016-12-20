@@ -52,7 +52,7 @@ function profperm_content(&$a) {
 			intval($a->argv[1]),
 			intval(local_user())
 		);
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			notice( t('Invalid profile identifier.') . EOL );
 			return;
 		}

@@ -16,7 +16,7 @@ function fsuggest_post(&$a) {
 		intval($contact_id),
 		intval(local_user())
 	);
-	if(! dbm::is_result($r)) {
+	if (! dbm::is_result($r)) {
 		notice( t('Contact not found.') . EOL);
 		return;
 	}
@@ -88,7 +88,7 @@ function fsuggest_content(&$a) {
 		intval($contact_id),
 		intval(local_user())
 	);
-	if(! dbm::is_result($r)) {
+	if (! dbm::is_result($r)) {
 		notice( t('Contact not found.') . EOL);
 		return;
 	}

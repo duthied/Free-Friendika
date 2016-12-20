@@ -71,7 +71,7 @@ function community_content(&$a, $update = 0) {
 
 	$r = community_getitems($a->pager['start'], $a->pager['itemspage']);
 
-	if(! dbm::is_result($r)) {
+	if (! dbm::is_result($r)) {
 		info( t('No results.') . EOL);
 		return $o;
 	}
