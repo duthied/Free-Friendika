@@ -824,8 +824,10 @@ function settings_content(&$a) {
 
 		$settings_connectors .= mini_group_select(local_user(), $default_group, t("Default group for OStatus contacts"));
 
-		if ($legacy_contact != "")
+		/// @TODO Found to much different usage to test empty/non-empty strings (e.g. empty(), trim() == '' ) which is wanted?
+		if ($legacy_contact != "") {
 			$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL='.App::get_baseurl().'/ostatus_subscribe?url='.urlencode($legacy_contact).'">';
+		}
 
 		$settings_connectors .= '<div id="legacy-contact-wrapper" class="field input">';
 		$settings_connectors .= '<label id="legacy-contact-label" for="snautofollow-checkbox">'. t('Your legacy GNU Social account'). '</label>';
