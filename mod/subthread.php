@@ -86,14 +86,7 @@ function subthread_content(App &$a) {
 	$uri = item_new_uri($a->get_hostname(),$owner_uid);
 
 	$post_type = (($item['resource-id']) ? t('photo') : t('status'));
-<<<<<<< upstream/develop
 	$objtype = (($item['resource-id']) ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE );
-=======
-	$objtype = (($item['resource-id']) ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE );
-<<<<<<< upstream/develop
->>>>>>> HEAD~33
-=======
->>>>>>> HEAD~32
 	$link = xmlify('<link rel="alternate" type="text/html" href="' . App::get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
 	$body = $item['body'];
 
