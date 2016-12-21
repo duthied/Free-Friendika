@@ -43,8 +43,7 @@ function starred_init(App &$a) {
 		$rand = '_=' . time();
 		if (strpos($return_path, '?')) {
 			$rand = "&$rand";
-		}
-		else {
+		} else {
 			$rand = "?$rand";
 		}
 

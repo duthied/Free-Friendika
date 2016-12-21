@@ -16,7 +16,6 @@ function home_init(App &$a) {
 
 }}
 
-
 if(! function_exists('home_content')) {
 function home_content(App &$a) {
 
@@ -35,9 +34,8 @@ function home_content(App &$a) {
 			$a->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="'.App::get_baseurl().'/home.css'.'" media="all" />';
 		}
 
-		$o .= file_get_contents('home.html');}
-
-	else {
+		$o .= file_get_contents('home.html');
+	} else {
 		$o .= '<h1>'.((x($a->config,'sitename')) ? sprintf(t("Welcome to %s"), $a->config['sitename']) : "").'</h1>';
 	}
 
@@ -47,6 +45,5 @@ function home_content(App &$a) {
 	call_hooks("home_content",$o);
 
 	return $o;
-
 
 }}
