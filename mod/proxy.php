@@ -136,6 +136,7 @@ function proxy_init(App $a) {
 	}
 
 	$valid = true;
+	$r = array();
 
 	if (!$direct_cache AND ($cachefile == '')) {
 		$r = qu("SELECT * FROM `photo` WHERE `resource-id` = '%s' LIMIT 1", $urlhash);
@@ -146,8 +147,6 @@ function proxy_init(App $a) {
 				$mime = 'image/jpeg';
 			}
 		}
-	} else {
-		$r = array();
 	}
 
 	if (!dbm::is_result($r)) {
