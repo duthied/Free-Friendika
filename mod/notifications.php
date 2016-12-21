@@ -288,6 +288,7 @@ function notifications_content(&$a) {
 				'$item_url' => $it['url'],
 				'$item_text' => htmlentities($it['text']),
 				'$item_when' => $it['when'],
+				'$item_ago' => $it['ago'],
 				'$item_seen' => $it['seen'],
 			));
 		}

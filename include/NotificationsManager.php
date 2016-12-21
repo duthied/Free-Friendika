@@ -198,9 +198,10 @@ class NotificationsManager {
 	 *	string 'label' => The type of the notification
 	 *	string 'link' => URL to the source
 	 *	string 'image' => The avatar image
-	 * *	string 'url' => The profile url of the contact
+	 *	string 'url' => The profile url of the contact
 	 *	string 'text' => The notification text
-	 *	string 'when' => Relative date of the notification
+	 *	string 'when' => The date of the notification
+	 *	string 'ago' => T relative date of the notification
 	 *	bool 'seen' => Is the notification marked as "seen"
 	 */
 	private function formatNotifs($notifs, $ident = "") {
@@ -226,7 +227,8 @@ class NotificationsManager {
 						$default_item_image = proxy_url($it['photo'], false, PROXY_SIZE_MICRO);
 						$default_item_url = $it['url'];
 						$default_item_text = strip_tags(bbcode($it['msg']));
-						$default_item_when = relative_date($it['date']);
+						$default_item_when = datetime_convert('UTC', date_default_timezone_get(), $it['date'], 'r');
+						$default_item_ago = relative_date($it['date']);
 						break;
 
 					case 'home':
@@ -235,7 +237,8 @@ class NotificationsManager {
 						$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
 						$default_item_url = $it['author-link'];
 						$default_item_text = sprintf(t("%s commented on %s's post"), $it['author-name'], $it['pname']);
-						$default_item_when = relative_date($it['created']);
+						$default_item_when = datetime_convert('UTC', date_default_timezone_get(), $it['created'], 'r');
+						$default_item_ago = relative_date($it['created']);
 						break;
 
 					default:
@@ -246,7 +249,8 @@ class NotificationsManager {
 						$default_item_text = (($it['id'] == $it['parent'])
 									? sprintf(t("%s created a new post"), $it['author-name'])
 									: sprintf(t("%s commented on %s's post"), $it['author-name'], $it['pname']));
-						$default_item_when = relative_date($it['created']);
+						$default_item_when = datetime_convert('UTC', date_default_timezone_get(), $it['created'], 'r');
+						$default_item_ago = relative_date($it['created']);
 
 				}
 
@@ -259,7 +263,8 @@ class NotificationsManager {
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
 							'text' => sprintf(t("%s liked %s's post"), $it['author-name'], $it['pname']),
-							'when' => relative_date($it['created']),
+							'when' => $default_item_when,
+							'ago' => $default_item_ago,
 							'seen' => $it['seen']
 						);
 						break;
@@ -271,7 +276,8 @@ class NotificationsManager {
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
 							'text' => sprintf(t("%s disliked %s's post"), $it['author-name'], $it['pname']),
-							'when' => relative_date($it['created']),
+							'when' => $default_item_when,
+							'ago' => $default_item_ago,
 							'seen' => $it['seen']
 						);
 						break;
@@ -283,7 +289,8 @@ class NotificationsManager {
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
 							'text' => sprintf(t("%s is attending %s's event"), $it['author-name'], $it['pname']),
-							'when' => relative_date($it['created']),
+							'when' => $default_item_when,
+							'ago' => $default_item_ago,
 							'seen' => $it['seen']
 						);
 						break;
@@ -295,7 +302,8 @@ class NotificationsManager {
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
 							'text' => sprintf( t("%s is not attending %s's event"), $it['author-name'], $it['pname']),
-							'when' => relative_date($it['created']),
+							'when' => $default_item_when,
+							'ago' => $default_item_ago,
 							'seen' => $it['seen']
 						);
 						break;
@@ -307,7 +315,8 @@ class NotificationsManager {
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
 							'text' => sprintf(t("%s may attend %s's event"), $it['author-name'], $it['pname']),
-							'when' => relative_date($it['created']),
+							'when' => $default_item_when,
+							'ago' => $default_item_ago,
 							'seen' => $it['seen']
 						);
 						break;
@@ -323,7 +332,8 @@ class NotificationsManager {
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
 							'text' => sprintf(t("%s is now friends with %s"), $it['author-name'], $it['fname']),
-							'when' => relative_date($it['created']),
+							'when' => $default_item_when,
+							'ago' => $default_item_ago,
 							'seen' => $it['seen']
 						);
 						break;
@@ -336,6 +346,7 @@ class NotificationsManager {
 							'url' => $default_item_url,
 							'text' => $default_item_text,
 							'when' => $default_item_when,
+							'ago' => $default_item_ago,
 							'seen' => $it['seen']
 						);
 				}

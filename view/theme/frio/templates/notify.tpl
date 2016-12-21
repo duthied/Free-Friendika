@@ -6,7 +6,7 @@
 	<div class="notif-desc-wrapper media-body">
 		<a href="{{$item_link}}">
 			{{$item_text}}
-			<div><time class="notif-when time" data-toggle="tooltip">{{$item_when}}</time></div>
+			<div><time class="notif-when time" data-toggle="tooltip" title="{{$item_when}}">{{$item_ago}}</time></div>
 		</a>
 	</div>
 </div>
