@@ -278,7 +278,7 @@
 <ul id="nav-notifications-template" class="media-list" style="display:none;" rel="template">
 	<li class="{4} notif-entry">
 		<div class="notif-entry-wrapper media">
-			<div class="notif-photo-wrapper media-object pull-left"><a href="{6}"><img data-src="{1}"></a></div>
+			<div class="notif-photo-wrapper media-object pull-left"><a href="{6}" class="userinfo"><img data-src="{1}"></a></div>
 			<a href="{0}" class="notif-desc-wrapper media-body">
 				{2}
 				<div><time class="notif-when time" data-toggle="tooltip" title="{5}">{3}</time></div>
