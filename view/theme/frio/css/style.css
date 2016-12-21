@@ -1882,6 +1882,9 @@ ul.dropdown-menu li:hover {
     -moz-box-shadow: 0 0 3px #dadada;
 }
 
+.section-title-wrapper {
+    overflow: hidden;
+}
 /* Profile-page */
 #profile-content-standard,
 #profile-content-advanced {
@@ -2208,7 +2211,7 @@ ul li:hover .contact-wrapper a.contact-action-link:hover {
     margin-left: 20px;
 }
 
-/* Notifications */
+/* Intro Notifications */
 ul.notif-network-list {
     margin-left: -15px;
     margin-right: -15px;
@@ -2226,10 +2229,9 @@ ul.notif-network-list li.unseen {
     word-wrap: break-word;
     margin-top: 0;
 }
-.intro-photo-wrapper img.intro-photo,
-.notif-item img.notif-image {
-    height:80px;
-    width: 80px;
+.intro-photo-wrapper img.intro-photo {
+    height:48px;
+    width: 48px;
     border-radius: 4px;
 }
 .intro-actions {
@@ -2278,6 +2280,23 @@ ul.notif-network-list > li:hover .intro-action-buttons {
 .intro-contact-info.xs .intro-knowyou-label {
     display: block;
     margin-top: 5px
+}
+
+/* Notifications Page */
+.notif-item img.notif-image {
+    height: 48px;
+    width: 48px;
+    border-radius: 4px;
+}
+.notif-item .notif-desc-wrapper {
+    height: 48px;
+}
+.notif-item .notif-desc-wrapper a {
+    height: 100%;
+    display: block;
+    color: #555;
+    font-size: 13px;
+    font-weight: 600;
 }
 
 /* Search Page */
