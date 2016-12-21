@@ -16,7 +16,7 @@ function events_init(App &$a) {
 	if ($a->argc == 1) {
 		// if it's a json request abort here becaus we don't
 		// need the widget data
-		if($a->argv[1] === 'json')
+		if ($a->argv[1] === 'json')
 			return;
 
 		$cal_widget = widget_events();
@@ -52,33 +52,35 @@ function events_post(App &$a) {
 	// The default setting for the `private` field in event_store() is false, so mirror that
 	$private_event = false;
 
-	if($start_text) {
+	if ($start_text) {
 		$start = $start_text;
 	}
 	else {
 		$start    = sprintf('%d-%d-%d %d:%d:0',$startyear,$startmonth,$startday,$starthour,$startminute);
 	}
 
-	if($nofinish) {
+	if ($nofinish) {
 		$finish = '0000-00-00 00:00:00';
 	}
 
-	if($finish_text) {
+	if ($finish_text) {
 		$finish = $finish_text;
 	}
 	else {
 		$finish    = sprintf('%d-%d-%d %d:%d:0',$finishyear,$finishmonth,$finishday,$finishhour,$finishminute);
 	}
 
-	if($adjust) {
+	if ($adjust) {
 		$start = datetime_convert(date_default_timezone_get(),'UTC',$start);
-		if(! $nofinish)
+		if (! $nofinish) {
 			$finish = datetime_convert(date_default_timezone_get(),'UTC',$finish);
+		}
 	}
 	else {
 		$start = datetime_convert('UTC','UTC',$start);
-		if(! $nofinish)
+		if (! $nofinish) {
 			$finish = datetime_convert('UTC','UTC',$finish);
+		}
 	}
 
 	// Don't allow the event to finish before it begins.
@@ -94,9 +96,9 @@ function events_post(App &$a) {
 	$action = ($event_id == '') ? 'new' : "event/" . $event_id;
 	$onerror_url = App::get_baseurl() . "/events/" . $action . "?summary=$summary&description=$desc&location=$location&start=$start_text&finish=$finish_text&adjust=$adjust&nofinish=$nofinish";
 
-	if(strcmp($finish,$start) < 0 && !$nofinish) {
+	if (strcmp($finish,$start) < 0 && !$nofinish) {
 		notice( t('Event can not end before it has started.') . EOL);
-		if(intval($_REQUEST['preview'])) {
+		if (intval($_REQUEST['preview'])) {
 			echo( t('Event can not end before it has started.'));
 			killme();
 		}
