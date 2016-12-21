@@ -88,20 +88,19 @@ function dirfind_content(&$a, $prefix = "") {
 
 			if (get_config('system','diaspora_enabled')) {
 				$diaspora = NETWORK_DIASPORA;
-			}
-			else {
+			} else {
 				$diaspora = NETWORK_DFRN;
 			}
 
 			if (!get_config('system','ostatus_disabled')) {
 				$ostatus = NETWORK_OSTATUS;
-			}
-			else {
+			} else {
 				$ostatus = NETWORK_DFRN;
 			}
 
 			$search2 = "%".$search."%";
 
+			/// @TODO These 2 SELECTs are not checked on validity with dbm::is_result()
 			$count = q("SELECT count(*) AS `total` FROM `gcontact`
 					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl`
 						AND `contact`.`network` = `gcontact`.`network`
@@ -200,8 +199,7 @@ function dirfind_content(&$a, $prefix = "") {
 						$photo_menu = contact_photo_menu($contact[0]);
 						$details = _contact_detail_for_template($contact[0]);
 						$alt_text = $details['alt_text'];
-					}
-					else {
+					} else {
 						$photo_menu = array();
 					}
 				} else {
@@ -243,8 +241,7 @@ function dirfind_content(&$a, $prefix = "") {
 			'$paginate' => paginate($a),
 		));
 
-		}
-		else {
+		} else {
 			info( t('No matches') . EOL);
 		}
 

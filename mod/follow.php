@@ -56,10 +56,11 @@ function follow_content(&$a) {
 		// NOTREACHED
 	}
 
-	if ($ret["network"] == NETWORK_MAIL)
+	if ($ret["network"] == NETWORK_MAIL) {
 		$ret["url"] = $ret["addr"];
+	}
 
-	if($ret['network'] === NETWORK_DFRN) {
+	if ($ret['network'] === NETWORK_DFRN) {
 		$request = $ret["request"];
 		$tpl = get_markup_template('dfrn_request.tpl');
 	} else {
@@ -84,20 +85,22 @@ function follow_content(&$a) {
 	$r = q("SELECT `id`, `location`, `about`, `keywords` FROM `gcontact` WHERE `nurl` = '%s'",
 		normalise_link($ret["url"]));
 
-	if (!$r)
+	if (!$r) {
 		$r = array(array("location" => "", "about" => "", "keywords" => ""));
-	else
+	} else {
 		$gcontact_id = $r[0]["id"];
+	}
 
-	if($ret['network'] === NETWORK_DIASPORA) {
+	if ($ret['network'] === NETWORK_DIASPORA) {
 		$r[0]["location"] = "";
 		$r[0]["about"] = "";
 	}
 
 	$header = $ret["name"];
 
-	if ($ret["addr"] != "")
+	if ($ret["addr"] != "") {
 		$header .= " <".$ret["addr"].">";
+	}
 
 	//$header .= " (".network_to_name($ret['network'], $ret['url']).")";
 	$header = t("Connect/Follow");
@@ -176,8 +179,7 @@ function follow_post(&$a) {
 			notice($result['message']);
 		}
 		goaway($return_url);
-	}
-	elseif ($result['cid']) {
+	} elseif ($result['cid']) {
 		goaway(App::get_baseurl().'/contacts/'.$result['cid']);
 	}
 
