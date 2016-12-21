@@ -140,17 +140,23 @@ function proxy_init(App $a) {
 	if (!$direct_cache AND ($cachefile == '')) {
 		$r = qu("SELECT * FROM `photo` WHERE `resource-id` = '%s' LIMIT 1", $urlhash);
 		if (dbm::is_result($r)) {
+<<<<<<< HEAD
 <<<<<<< origin/rewrites/app_get_baseurl_static
         		$img_str = $r[0]['data'];
 			$mime = $r[0]["desc"];
 			if ($mime == "") $mime = "image/jpeg";
 =======
+=======
+>>>>>>> upstream/develop
 			$img_str = $r[0]['data'];
 			$mime = $r[0]['desc'];
 			if ($mime == '') {
 				$mime = 'image/jpeg';
 			}
+<<<<<<< HEAD
 >>>>>>> HEAD~0
+=======
+>>>>>>> upstream/develop
 		}
 	} else {
 		$r = array();
