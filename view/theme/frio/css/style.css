@@ -2220,10 +2220,6 @@ ul.notif-network-list > li {
     padding-left: 15px;
     padding-right: 15px;
 }
-ul.notif-network-list li.unseen {
-    border-left: 3px solid #f3fcfd;
-    background-color: #f3fcfd;
-}
 .intro-wrapper.media {
     overflow: visible;
     word-wrap: break-word;
@@ -2283,6 +2279,9 @@ ul.notif-network-list > li:hover .intro-action-buttons {
 }
 
 /* Notifications Page */
+ul.notif-network-list li.unseen {
+    background-color: #f3fcfd;
+}
 .notif-item img.notif-image {
     height: 48px;
     width: 48px;
