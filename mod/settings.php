@@ -671,9 +671,9 @@ function settings_content(&$a) {
 
 
 
-	if(($a->argc > 1) && ($a->argv[1] === 'oauth')) {
+	if (($a->argc > 1) && ($a->argv[1] === 'oauth')) {
 
-		if(($a->argc > 2) && ($a->argv[2] === 'add')) {
+		if (($a->argc > 2) && ($a->argv[2] === 'add')) {
 			$tpl = get_markup_template("settings_oauth_edit.tpl");
 			$o .= replace_macros($tpl, array(
 				'$form_security_token' => get_form_security_token("settings_oauth"),
@@ -689,7 +689,7 @@ function settings_content(&$a) {
 			return $o;
 		}
 
-		if(($a->argc > 3) && ($a->argv[2] === 'edit')) {
+		if (($a->argc > 3) && ($a->argv[2] === 'edit')) {
 			$r = q("SELECT * FROM clients WHERE client_id='%s' AND uid=%d",
 					dbesc($a->argv[3]),
 					local_user());
@@ -725,7 +725,7 @@ function settings_content(&$a) {
 			return;
 		}
 
-
+		/// @TODO validate result with dbm::is_result()
 		$r = q("SELECT clients.*, tokens.id as oauth_token, (clients.uid=%d) AS my
 				FROM clients
 				LEFT JOIN tokens ON clients.client_id=tokens.client_id
@@ -751,7 +751,7 @@ function settings_content(&$a) {
 
 	}
 
-	if(($a->argc > 1) && ($a->argv[1] === 'addon')) {
+	if (($a->argc > 1) && ($a->argv[1] === 'addon')) {
 		$settings_addons = "";
 
 		$r = q("SELECT * FROM `hook` WHERE `hook` = 'plugin_settings' ");
@@ -771,14 +771,14 @@ function settings_content(&$a) {
 		return $o;
 	}
 
-	if(($a->argc > 1) && ($a->argv[1] === 'features')) {
+	if (($a->argc > 1) && ($a->argv[1] === 'features')) {
 
 		$arr = array();
 		$features = get_features();
-		foreach($features as $fname => $fdata) {
+		foreach ($features as $fname => $fdata) {
 			$arr[$fname] = array();
 			$arr[$fname][0] = $fdata[0];
-			foreach(array_slice($fdata,1) as $f) {
+			foreach (array_slice($fdata,1) as $f) {
 				$arr[$fname][1][] = array('feature_' .$f[0],$f[1],((intval(feature_enabled(local_user(),$f[0]))) ? "1" : ''),$f[2],array(t('Off'),t('On')));
 			}
 		}
@@ -787,14 +787,14 @@ function settings_content(&$a) {
 		$tpl = get_markup_template("settings_features.tpl");
 		$o .= replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("settings_features"),
-			'$title'	=> t('Additional Features'),
-			'$features' => $arr,
-			'$submit'   => t('Save Settings'),
+			'$title'               => t('Additional Features'),
+			'$features'            => $arr,
+			'$submit'              => t('Save Settings'),
 		));
 		return $o;
 	}
 
-	if(($a->argc > 1) && ($a->argv[1] === 'connectors')) {
+	if (($a->argc > 1) && ($a->argv[1] === 'connectors')) {
 
 		$settings_connectors = '<span id="settings_general_inflated" class="settings-block fakelink" style="display: block;" onclick="openClose(\'settings_general_expanded\'); openClose(\'settings_general_inflated\');">';
 		$settings_connectors .= '<h3 class="connector">'. t('General Social Media Settings').'</h3>';
@@ -860,8 +860,7 @@ function settings_content(&$a) {
 			$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 				local_user()
 			);
-		}
-		else {
+		} else {
 			$r = null;
 		}
 
@@ -878,10 +877,9 @@ function settings_content(&$a) {
 
 		$tpl = get_markup_template("settings_connectors.tpl");
 
-		if(! service_class_allows(local_user(),'email_connect')) {
+		if (! service_class_allows(local_user(),'email_connect')) {
 			$mail_disabled_message = upgrade_bool_message();
-		}
-		else {
+		} else {
 			$mail_disabled_message = (($mail_disabled) ? t('Email access is disabled on this site.') : '');
 		}
 
@@ -919,38 +917,42 @@ function settings_content(&$a) {
 	/*
 	 * DISPLAY SETTINGS
 	 */
-	if(($a->argc > 1) && ($a->argv[1] === 'display')) {
+	if (($a->argc > 1) && ($a->argv[1] === 'display')) {
 		$default_theme = get_config('system','theme');
-		if(! $default_theme)
+		if (! $default_theme) {
 			$default_theme = 'default';
+		}
 		$default_mobile_theme = get_config('system','mobile-theme');
-		if(! $mobile_default_theme)
+		if (! $mobile_default_theme) {
 			$mobile_default_theme = 'none';
+		}
 
 		$allowed_themes_str = get_config('system','allowed_themes');
 		$allowed_themes_raw = explode(',',$allowed_themes_str);
 		$allowed_themes = array();
-		if(count($allowed_themes_raw))
-			foreach($allowed_themes_raw as $x)
-				if(strlen(trim($x)) && is_dir("view/theme/$x"))
+		if (count($allowed_themes_raw)) {
+			foreach ($allowed_themes_raw as $x) {
+				if (strlen(trim($x)) && is_dir("view/theme/$x")) {
 					$allowed_themes[] = trim($x);
+				}
+			}
+		}
 
 
 		$themes = array();
 		$mobile_themes = array("---" => t('No special theme for mobile devices'));
 		$files = glob('view/theme/*'); /* */
-		if($allowed_themes) {
-			foreach($allowed_themes as $th) {
+		if ($allowed_themes) {
+			foreach ($allowed_themes as $th) {
 				$f = $th;
 				$is_experimental = file_exists('view/theme/' . $th . '/experimental');
 				$unsupported = file_exists('view/theme/' . $th . '/unsupported');
 				$is_mobile = file_exists('view/theme/' . $th . '/mobile');
 				if (!$is_experimental or ($is_experimental && (get_config('experimentals','exp_themes')==1 or get_config('experimentals','exp_themes')===false))){
 					$theme_name = (($is_experimental) ?  sprintf("%s - \x28Experimental\x29", $f) : $f);
-					if($is_mobile) {
+					if ($is_mobile) {
 						$mobile_themes[$f]=$theme_name;
-					}
-					else {
+					} else {
 						$themes[$f]=$theme_name;
 					}
 				}
@@ -962,8 +964,9 @@ function settings_content(&$a) {
 		$nowarn_insecure = intval(get_pconfig(local_user(), 'system', 'nowarn_insecure'));
 
 		$browser_update = intval(get_pconfig(local_user(), 'system','update_interval'));
-		if (intval($browser_update) != -1)
+		if (intval($browser_update) != -1) {
 			$browser_update = (($browser_update == 0) ? 40 : $browser_update / 1000); // default if not set: 40 seconds
+		}
 
 		$itemspage_network = intval(get_pconfig(local_user(), 'system','itemspage_network'));
 		$itemspage_network = (($itemspage_network > 0 && $itemspage_network < 101) ? $itemspage_network : 40); // default if not set: 40 items
@@ -1042,8 +1045,9 @@ function settings_content(&$a) {
 	$p = q("SELECT * FROM `profile` WHERE `is-default` = 1 AND `uid` = %d LIMIT 1",
 		intval(local_user())
 	);
-	if(count($p))
+	if (count($p)) {
 		$profile = $p[0];
+	}
 
 	$username   = $a->user['username'];
 	$email      = $a->user['email'];
@@ -1090,8 +1094,9 @@ function settings_content(&$a) {
 
 	// nowarn_insecure
 
-	if(! strlen($a->user['timezone']))
+	if (! strlen($a->user['timezone'])) {
 		$timezone = date_default_timezone_get();
+	}
 
 	// Set the account type to "Community" when the page is a community page but the account type doesn't fit
 	// This is only happening on the first visit after the update
@@ -1152,19 +1157,16 @@ function settings_content(&$a) {
 
 	$noid = get_config('system','no_openid');
 
-	if($noid) {
+	if ($noid) {
 		$openid_field = false;
-	}
-	else {
+	} else {
 		$openid_field = array('openid_url', t('OpenID:'),$openid, t("\x28Optional\x29 Allow this OpenID to login to this account."), "", "", "url");
 	}
-
 
 	$opt_tpl = get_markup_template("field_yesno.tpl");
 	if(get_config('system','publish_all')) {
 		$profile_in_dir = '<input type="hidden" name="profile_in_directory" value="1" />';
-	}
-	else {
+	} else {
 		$profile_in_dir = replace_macros($opt_tpl,array(
 			'$field' 	=> array('profile_in_directory', t('Publish your default profile in your local site directory?'), $profile['publish'], '', array(t('No'),t('Yes'))),
 		));
@@ -1174,11 +1176,9 @@ function settings_content(&$a) {
 		$profile_in_net_dir = replace_macros($opt_tpl,array(
 			'$field' 	=> array('profile_in_netdirectory', t('Publish your default profile in the global social directory?'), $profile['net-publish'], '', array(t('No'),t('Yes'))),
 		));
-	}
-	else {
+	} else {
 		$profile_in_net_dir = '';
 	}
-
 
 	$hide_friends = replace_macros($opt_tpl,array(
 			'$field' 	=> array('hide-friends', t('Hide your contact/friend list from viewers of your default profile?'), $profile['hide-friends'], '', array(t('No'),t('Yes'))),
@@ -1194,18 +1194,15 @@ function settings_content(&$a) {
 
 	));
 
-
 	$blocktags = replace_macros($opt_tpl,array(
 			'$field' 	=> array('blocktags',  t('Allow friends to tag your posts?'), (intval($a->user['blocktags']) ? '0' : '1'), '', array(t('No'),t('Yes'))),
 
 	));
 
-
 	$suggestme = replace_macros($opt_tpl,array(
 			'$field' 	=> array('suggestme',  t('Allow us to suggest you as a potential friend to new members?'), $suggestme, '', array(t('No'),t('Yes'))),
 
 	));
-
 
 	$unkmail = replace_macros($opt_tpl,array(
 			'$field' 	=> array('unkmail',  t('Permit unknown people to send you private mail?'), $unkmail, '', array(t('No'),t('Yes'))),
@@ -1215,9 +1212,9 @@ function settings_content(&$a) {
 	$invisible = (((! $profile['publish']) && (! $profile['net-publish']))
 		? true : false);
 
-	if($invisible)
+	if ($invisible) {
 		info( t('Profile is <strong>not published</strong>.') . EOL );
-
+	}
 
 	//$subdir = ((strlen($a->get_path())) ? '<br />' . t('or') . ' ' . 'profile/' . $nickname : '');
 
@@ -1244,27 +1241,30 @@ function settings_content(&$a) {
 	require_once('include/group.php');
 	$group_select = mini_group_select(local_user(),$a->user['def_gid']);
 
-
 	// Private/public post links for the non-JS ACL form
 	$private_post = 1;
-	if($_REQUEST['public'])
+	if ($_REQUEST['public']) {
 		$private_post = 0;
+	}
 
 	$query_str = $a->query_string;
-	if(strpos($query_str, 'public=1') !== false)
+	if (strpos($query_str, 'public=1') !== false) {
 		$query_str = str_replace(array('?public=1', '&public=1'), array('', ''), $query_str);
+	}
 
 	// I think $a->query_string may never have ? in it, but I could be wrong
 	// It looks like it's from the index.php?q=[etc] rewrite that the web
 	// server does, which converts any ? to &, e.g. suggest&ignore=61 for suggest?ignore=61
-	if(strpos($query_str, '?') === false)
+	if (strpos($query_str, '?') === false) {
 		$public_post_link = '?public=1';
-	else
+	} else {
 		$public_post_link = '&public=1';
+	}
 
 	/* Installed langs */
 	$lang_choices = get_available_languages();
 
+	/// @TODO Fix indending (or so)
 	$o .= replace_macros($stpl, array(
 		'$ptitle' 	=> t('Account Settings'),
 
