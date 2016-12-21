@@ -714,8 +714,10 @@ class Diaspora {
 	public static function url_from_contact_guid($fcontact_guid) {
 		logger("fcontact guid is ".$fcontact_guid, LOGGER_DEBUG);
 
-		$r = q("SELECT `url` FROM `fcontact` WHERE `guid` = '%s' AND `network` = '" . NETWORK_DIASPORA . "' AND `url` != ''",
-			$fcontact_guid);
+		$r = q("SELECT `url` FROM `fcontact` WHERE `url` != '' AND `network` = '%s' AND `guid` = '%s'",
+			dbesc(NETWORK_DIASPORA),
+			dbesc($fcontact_guid)
+		);
 
 		if (dbm::is_result($r)) {
 			return $r[0]['url'];
