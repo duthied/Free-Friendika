@@ -2226,8 +2226,8 @@ ul.notif-network-list > li {
     margin-top: 0;
 }
 .intro-photo-wrapper img.intro-photo {
-    height:48px;
-    width: 48px;
+    height:80px;
+    width: 80px;
     border-radius: 4px;
 }
 .intro-actions {
