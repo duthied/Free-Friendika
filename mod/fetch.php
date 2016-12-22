@@ -52,12 +52,12 @@ function fetch_init(&$a){
 	}
 	$user = $r[0];
 
-	$status = diaspora::build_status($item[0], $user);
-	$xml = diaspora::build_post_xml($status["type"], $status["message"]);
+	$status = Diaspora::build_status($item[0], $user);
+	$xml = Diaspora::build_post_xml($status["type"], $status["message"]);
 
 	// Send the envelope
 	header("Content-Type: application/magic-envelope+xml; charset=utf-8");
-	echo diaspora::build_magic_envelope($xml, $user);
+	echo Diaspora::build_magic_envelope($xml, $user);
 
 	killme();
 }

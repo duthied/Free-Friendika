@@ -952,7 +952,7 @@ function item_post(&$a) {
 
 
 		// Store the comment signature information in case we need to relay to Diaspora
-		diaspora::store_comment_signature($datarray, $author, ($self ? $user['prvkey'] : false), $post_id);
+		Diaspora::store_comment_signature($datarray, $author, ($self ? $user['prvkey'] : false), $post_id);
 
 	} else {
 		$parent = $post_id;
