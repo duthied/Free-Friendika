@@ -94,19 +94,19 @@ function fbrowser_content($a){
 			$tpl = get_markup_template($template_file);
 
 			$o =  replace_macros($tpl, array(
-				'$type' => 'image',
-				'$baseurl' => App::get_baseurl(),
-				'$path' => $path,
-				'$folders' => $albums,
-				'$files' =>$files,
-				'$cancel' => t('Cancel'),
+				'$type'     => 'image',
+				'$baseurl'  => App::get_baseurl(),
+				'$path'     => $path,
+				'$folders'  => $albums,
+				'$files'    => $files,
+				'$cancel'   => t('Cancel'),
 				'$nickname' => $a->user['nickname'],
 			));
 
 
 			break;
 		case "file":
-			if ($a->argc==2){
+			if ($a->argc==2) {
 				$files = q("SELECT `id`, `filename`, `filetype` FROM `attach` WHERE `uid` = %d ",
 					intval(local_user())
 				);
@@ -116,10 +116,9 @@ function fbrowser_content($a){
 					list($m1,$m2) = explode("/",$rr['filetype']);
 					$filetype = ( (file_exists("images/icons/$m1.png"))?$m1:"zip");
 
-					if($a->theme['template_engine'] === 'internal') {
+					if ($a->theme['template_engine'] === 'internal') {
 						$filename_e = template_escape($rr['filename']);
-					}
-					else {
+					} else {
 						$filename_e = $rr['filename'];
 					}
 
@@ -130,12 +129,12 @@ function fbrowser_content($a){
 
 				$tpl = get_markup_template($template_file);
 				$o = replace_macros($tpl, array(
-					'$type' => 'file',
-					'$baseurl' => App::get_baseurl(),
-					'$path' => array( array( "", t("Files")) ),
-					'$folders' => false,
-					'$files' =>$files,
-					'$cancel' => t('Cancel'),
+					'$type'     => 'file',
+					'$baseurl'  => App::get_baseurl(),
+					'$path'     => array( array( "", t("Files")) ),
+					'$folders'  => false,
+					'$files'    =>$files,
+					'$cancel'   => t('Cancel'),
 					'$nickname' => $a->user['nickname'],
 				));
 

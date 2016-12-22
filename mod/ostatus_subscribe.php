@@ -21,21 +21,24 @@ function ostatus_subscribe_content(&$a) {
 
 	if (get_pconfig($uid, "ostatus", "legacy_friends") == "") {
 
-		if ($_REQUEST["url"] == "")
+		if ($_REQUEST["url"] == "") {
 			return $o.t("No contact provided.");
+		}
 
 		$contact = probe_url($_REQUEST["url"]);
 
-		if (!$contact)
+		if (!$contact) {
 			return $o.t("Couldn't fetch information for contact.");
+		}
 
 		$api = $contact["baseurl"]."/api/";
 
 		// Fetching friends
 		$data = z_fetch_url($api."statuses/friends.json?screen_name=".$contact["nick"]);
 
-		if (!$data["success"])
+		if (!$data["success"]) {
 			return $o.t("Couldn't fetch friends for contact.");
+		}
 
 		set_pconfig($uid, "ostatus", "legacy_friends", $data["body"]);
 	}
@@ -61,12 +64,14 @@ function ostatus_subscribe_content(&$a) {
 	$data = probe_url($url);
 	if ($data["network"] == NETWORK_OSTATUS) {
 		$result = new_contact($uid,$url,true);
-		if ($result["success"])
+		if ($result["success"]) {
 			$o .= " - ".t("success");
-		else
+		} else {
 			$o .= " - ".t("failed");
-	} else
+		}
+	} else {
 		$o .= " - ".t("ignored");
+	}
 
 	$o .= "</p>";
 

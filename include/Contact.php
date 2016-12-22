@@ -85,11 +85,12 @@ function contact_remove($id) {
 
 function terminate_friendship($user,$self,$contact) {
 
+	/// @TODO Get rid of this, include/datetime.php should care about by itself
 	$a = get_app();
 
 	require_once('include/datetime.php');
 
-	if($contact['network'] === NETWORK_OSTATUS) {
+	if ($contact['network'] === NETWORK_OSTATUS) {
 
 		require_once('include/ostatus.php');
 
@@ -99,16 +100,14 @@ function terminate_friendship($user,$self,$contact) {
 		$item['follow'] = $contact["url"];
 		$slap = ostatus::salmon($item, $user);
 
-		if((x($contact,'notify')) && (strlen($contact['notify']))) {
+		if ((x($contact,'notify')) && (strlen($contact['notify']))) {
 			require_once('include/salmon.php');
 			slapper($user,$contact['notify'],$slap);
 		}
-	}
-	elseif($contact['network'] === NETWORK_DIASPORA) {
+	} elseif ($contact['network'] === NETWORK_DIASPORA) {
 		require_once('include/diaspora.php');
 		Diaspora::send_unshare($user,$contact);
-	}
-	elseif($contact['network'] === NETWORK_DFRN) {
+	} elseif ($contact['network'] === NETWORK_DFRN) {
 		require_once('include/dfrn.php');
 		dfrn::deliver($user,$contact,'placeholder', 1);
 	}
