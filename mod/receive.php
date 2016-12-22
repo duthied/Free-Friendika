@@ -54,7 +54,7 @@ function receive_post(&$a) {
 
 	logger('mod-diaspora: message is okay', LOGGER_DEBUG);
 
-	$msg = diaspora::decode($importer,$xml);
+	$msg = Diaspora::decode($importer,$xml);
 
 	logger('mod-diaspora: decoded', LOGGER_DEBUG);
 
@@ -67,9 +67,9 @@ function receive_post(&$a) {
 
 	$ret = 0;
 	if($public) {
-		diaspora::dispatch_public($msg);
+		Diaspora::dispatch_public($msg);
 	} else {
-		$ret = diaspora::dispatch($importer,$msg);
+		$ret = Diaspora::dispatch($importer,$msg);
 	}
 
 	http_status_exit(($ret) ? $ret : 200);
