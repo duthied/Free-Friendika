@@ -48,9 +48,7 @@ function do_like($item_id, $verb) {
 			break;
 	}
 
-
 	logger('like: verb ' . $verb . ' item ' . $item_id);
-
 
 	$r = q("SELECT * FROM `item` WHERE `id` = '%s' OR `uri` = '%s' LIMIT 1",
 		dbesc($item_id),
@@ -109,8 +107,7 @@ function do_like($item_id, $verb) {
 
 	if ((local_user()) && (local_user() == $owner_uid)) {
 		$contact = $owner;
-	}
-	else {
+	} else {
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($_SESSION['visitor_id']),
 			intval($owner_uid)
