@@ -30,7 +30,6 @@ function crepair_init(App &$a) {
 	}
 }
 
-
 function crepair_post(App &$a) {
 	if (! local_user()) {
 		return;

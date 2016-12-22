@@ -565,7 +565,6 @@ function check_imagik(&$checks) {
 	}
 }
 
-
 function manual_config(App &$a) {
 	$data = htmlentities($a->data['txt'],ENT_COMPAT,'UTF-8');
 	$o = t('The database configuration file ".htconfig.php" could not be written. Please use the enclosed text to create a configuration file in your web server root.');

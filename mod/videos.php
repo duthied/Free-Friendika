@@ -167,8 +167,9 @@ function videos_post(App &$a) {
 				$url = App::get_baseurl();
 				$drop_id = intval($i[0]['id']);
 
-				if($i[0]['visible'])
+				if ($i[0]['visible']) {
 					proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
+				}
 			}
 		}
 

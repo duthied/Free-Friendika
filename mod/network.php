@@ -6,12 +6,13 @@ function network_init(App &$a) {
 	}
 
 	$is_a_date_query = false;
-	if(x($_GET['cid']) && intval($_GET['cid']) != 0)
+	if (x($_GET['cid']) && intval($_GET['cid']) != 0) {
 		$cid = $_GET['cid'];
+	}
 
-	if($a->argc > 1) {
-		for($x = 1; $x < $a->argc; $x ++) {
-			if(is_a_date_arg($a->argv[$x])) {
+	if ($a->argc > 1) {
+		for ($x = 1; $x < $a->argc; $x ++) {
+			if (is_a_date_arg($a->argv[$x])) {
 				$is_a_date_query = true;
 				break;
 			}
@@ -26,7 +27,7 @@ function network_init(App &$a) {
 
 
 	// fetch last used network view and redirect if needed
-	if(! $is_a_date_query) {
+	if (! $is_a_date_query) {
 		$sel_tabs = network_query_get_sel_tab($a);
 		$sel_nets = network_query_get_sel_net();
 		$sel_groups = network_query_get_sel_group($a);
