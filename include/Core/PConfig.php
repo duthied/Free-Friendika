@@ -92,7 +92,7 @@ class PConfig {
 			dbesc($key)
 		);
 
-		if (dbm::is_result($ret)) {
+		if (count($ret)) {
 			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret[0]['v'])?unserialize( $ret[0]['v']):$ret[0]['v']);
 			$a->config[$uid][$family][$key] = $val;
 

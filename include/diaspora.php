@@ -1906,20 +1906,23 @@ class Diaspora {
 		$author = unxmlify($data->author);
 		$recipient = unxmlify($data->recipient);
 
-		if (!$author || !$recipient)
+		if (!$author || !$recipient) {
 			return false;
+		}
 
 		// the current protocol version doesn't know these fields
 		// That means that we will assume their existance
-		if (isset($data->following))
+		if (isset($data->following)) {
 			$following = (unxmlify($data->following) == "true");
-		else
+		} else {
 			$following = true;
+		}
 
-		if (isset($data->sharing))
+		if (isset($data->sharing)) {
 			$sharing = (unxmlify($data->sharing) == "true");
-		else
+		} else {
 			$sharing = true;
+		}
 
 		$contact = self::contact_by_handle($importer["uid"],$author);
 
@@ -1937,7 +1940,7 @@ class Diaspora {
 				// Normally we needn't to do so, but the first message could have been vanished.
 				if (in_array($contact["rel"], array(CONTACT_IS_FRIEND, CONTACT_IS_FOLLOWER))) {
 					$u = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval($importer["uid"]));
-					if($u) {
+					if ($u) {
 						logger("Sending share message to author ".$author." - Contact: ".$contact["id"]." - User: ".$importer["uid"], LOGGER_DEBUG);
 						$ret = self::send_share($u[0], $contact);
 					}

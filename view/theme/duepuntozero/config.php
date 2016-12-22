@@ -4,7 +4,6 @@
  */
 
 
-
 function theme_content(App &$a){
 	if (!local_user()) {
 		return;
