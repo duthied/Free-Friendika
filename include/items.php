@@ -1260,7 +1260,7 @@ function tag_deliver($uid,$item_id) {
 	$c = q("select name, url, thumb from contact where self = 1 and uid = %d limit 1",
 		intval($u[0]['uid'])
 	);
-	if (! count($c)) {
+	if (! dbm::is_result($c)) {
 		return;
 	}
 
@@ -1292,8 +1292,6 @@ function tag_deliver($uid,$item_id) {
 
 
 function tgroup_check($uid,$item) {
-
-	$a = get_app();
 
 	$mention = false;
 

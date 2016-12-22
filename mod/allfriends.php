@@ -28,7 +28,7 @@ function allfriends_content(App &$a) {
 		intval(local_user())
 	);
 
-	if (! count($c)) {
+	if (! dbm::is_result($c)) {
 		return;
 	}
 
@@ -71,20 +71,20 @@ function allfriends_content(App &$a) {
 		}
 
 		$entry = array(
-			'url'		=> $rr['url'],
-			'itemurl'	=> (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
-			'name'		=> htmlentities($contact_details['name']),
-			'thumb'		=> proxy_url($contact_details['thumb'], false, PROXY_SIZE_THUMB),
-			'img_hover'	=> htmlentities($contact_details['name']),
-			'details'	=> $contact_details['location'],
-			'tags'		=> $contact_details['keywords'],
-			'about'		=> $contact_details['about'],
-			'account_type'	=> account_type($contact_details),
-			'network'	=> network_to_name($contact_details['network'], $contact_details['url']),
-			'photo_menu'	=> $photo_menu,
-			'conntxt'	=> t('Connect'),
-			'connlnk'	=> $connlnk,
-			'id'		=> ++$id,
+			'url'          => $rr['url'],
+			'itemurl'      => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
+			'name'         => htmlentities($contact_details['name']),
+			'thumb'        => proxy_url($contact_details['thumb'], false, PROXY_SIZE_THUMB),
+			'img_hover'    => htmlentities($contact_details['name']),
+			'details'      => $contact_details['location'],
+			'tags'         => $contact_details['keywords'],
+			'about'        => $contact_details['about'],
+			'account_type' => account_type($contact_details),
+			'network'      => network_to_name($contact_details['network'], $contact_details['url']),
+			'photo_menu'   => $photo_menu,
+			'conntxt'      => t('Connect'),
+			'connlnk'      => $connlnk,
+			'id'           => ++$id,
 		);
 		$entries[] = $entry;
 	}
