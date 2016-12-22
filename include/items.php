@@ -1260,8 +1260,9 @@ function tag_deliver($uid,$item_id) {
 	$c = q("select name, url, thumb from contact where self = 1 and uid = %d limit 1",
 		intval($u[0]['uid'])
 	);
-	if (! count($c))
+	if (! count($c)) {
 		return;
+	}
 
 	// also reset all the privacy bits to the forum default permissions
 
@@ -1269,8 +1270,8 @@ function tag_deliver($uid,$item_id) {
 
 	$forum_mode = (($prvgroup) ? 2 : 1);
 
-	q("update item set wall = 1, origin = 1, forum_mode = %d, `owner-name` = '%s', `owner-link` = '%s', `owner-avatar` = '%s',
-		`private` = %d, `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'  where id = %d",
+	q("UPDATE `item` SET `wall` = 1, `origin` = 1, `forum_mode` = %d, `owner-name` = '%s', `owner-link` = '%s', `owner-avatar` = '%s',
+		`private` = %d, `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'  WHERE `id` = %d",
 		intval($forum_mode),
 		dbesc($c[0]['name']),
 		dbesc($c[0]['url']),
@@ -1322,7 +1323,7 @@ function tgroup_check($uid,$item) {
 
 	$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism',$item['body'],$matches,PREG_SET_ORDER);
 	if ($cnt) {
-		foreach($matches as $mtch) {
+		foreach ($matches as $mtch) {
 			if (link_compare($link,$mtch[1]) || link_compare($dlink,$mtch[1])) {
 				$mention = true;
 				logger('tgroup_check: mention found: ' . $mtch[2]);
@@ -1330,13 +1331,12 @@ function tgroup_check($uid,$item) {
 		}
 	}
 
-	if (! $mention)
+	if (! $mention) {
 		return false;
+	}
 
-	if ((! $community_page) && (! $prvgroup))
-		return false;
-
-	return true;
+	/// @TODO Combines both return statements into one
+	return (($community_page) || ($prvgroup));
 }
 
 /*
@@ -1348,15 +1348,16 @@ function tgroup_check($uid,$item) {
   assumes the update has been seen before and should be ignored.
   */
 function edited_timestamp_is_newer($existing, $update) {
-    if (!x($existing,'edited') || !$existing['edited']) {
-	return true;
-    }
-    if (!x($update,'edited') || !$update['edited']) {
-	return false;
-    }
-    $existing_edited = datetime_convert('UTC', 'UTC', $existing['edited']);
-    $update_edited = datetime_convert('UTC', 'UTC', $update['edited']);
-    return (strcmp($existing_edited, $update_edited) < 0);
+	if (!x($existing,'edited') || !$existing['edited']) {
+		return true;
+	}
+	if (!x($update,'edited') || !$update['edited']) {
+		return false;
+	}
+
+	$existing_edited = datetime_convert('UTC', 'UTC', $existing['edited']);
+	$update_edited = datetime_convert('UTC', 'UTC', $update['edited']);
+	return (strcmp($existing_edited, $update_edited) < 0);
 }
 
 /**
