@@ -436,7 +436,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 			if (($contact) && ($contact['network'] === NETWORK_DIASPORA)) {
 				require_once('include/diaspora.php');
-				$ret = diaspora::send_share($user[0],$r[0]);
+				$ret = Diaspora::send_share($user[0],$r[0]);
 				logger('share returns: ' . $ret);
 			}
 
