@@ -1854,8 +1854,8 @@ function admin_page_logs_post(App &$a) {
 	if (x($_POST,"page_logs")) {
 		check_form_security_token_redirectOnErr('/admin/logs', 'admin_logs');
 
-		$logfile   = ((x($_POST,'logfile'))    ? notags(trim($_POST['logfile'])) : '');
-		$debugging = ((x($_POST,'debugging')) ? true : false);
+		$logfile   = ((x($_POST,'logfile'))   ? notags(trim($_POST['logfile']))  : '');
+		$debugging = ((x($_POST,'debugging')) ? true                             : false);
 		$loglevel  = ((x($_POST,'loglevel'))  ? intval(trim($_POST['loglevel'])) : 0);
 
 		set_config('system','logfile', $logfile);
