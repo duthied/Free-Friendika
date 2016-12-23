@@ -3,12 +3,13 @@
 
 function fsuggest_post(&$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		return;
 	}
 
-	if($a->argc != 2)
+	if ($a->argc != 2) {
 		return;
+	}
 
 	$contact_id = intval($a->argv[1]);
 
@@ -16,7 +17,7 @@ function fsuggest_post(&$a) {
 		intval($contact_id),
 		intval(local_user())
 	);
-	if(! dbm::is_result($r)) {
+	if (! dbm::is_result($r)) {
 		notice( t('Contact not found.') . EOL);
 		return;
 	}
@@ -74,7 +75,7 @@ function fsuggest_content(&$a) {
 
 	require_once('include/acl_selectors.php');
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
@@ -88,7 +89,7 @@ function fsuggest_content(&$a) {
 		intval($contact_id),
 		intval(local_user())
 	);
-	if(! dbm::is_result($r)) {
+	if (! dbm::is_result($r)) {
 		notice( t('Contact not found.') . EOL);
 		return;
 	}

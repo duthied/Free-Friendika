@@ -210,8 +210,9 @@ function notifier_run(&$argv, &$argc){
 		intval($uid)
 	);
 
-	if(! dbm::is_result($r))
+	if (! dbm::is_result($r)) {
 		return;
+	}
 
 	$owner = $r[0];
 
@@ -557,7 +558,7 @@ function notifier_run(&$argv, &$argc){
 	if($slap && count($url_recipients) && ($public_message || $push_notify) && $normal_mode) {
 		if(!get_config('system','dfrn_only')) {
 			foreach($url_recipients as $url) {
-				if($url) {
+				if ($url) {
 					logger('notifier: urldelivery: ' . $url);
 					$deliver_status = slapper($owner,$url,$slap);
 					/// @TODO Redeliver/queue these items on failure, though there is no contact record
@@ -597,7 +598,7 @@ function notifier_run(&$argv, &$argc){
 
 			// throw everything into the queue in case we get killed
 
-			foreach($r as $rr) {
+			foreach ($r as $rr) {
 				if((! $mail) && (! $fsuggest) && (! $followup)) {
 					q("INSERT INTO `deliverq` (`cmd`,`item`,`contact`) VALUES ('%s', %d, %d)
 						ON DUPLICATE KEY UPDATE `cmd` = '%s', `item` = %d, `contact` = %d",
@@ -607,7 +608,7 @@ function notifier_run(&$argv, &$argc){
 				}
 			}
 
-			foreach($r as $rr) {
+			foreach ($r as $rr) {
 
 				// except for Diaspora batch jobs
 				// Don't deliver to folks who have already been delivered to
@@ -649,7 +650,7 @@ function notifier_run(&$argv, &$argc){
 
 				} else {
 
-					$params = 'hub.mode=publish&hub.url=' . urlencode( $a->get_baseurl() . '/dfrn_poll/' . $owner['nickname'] );
+					$params = 'hub.mode=publish&hub.url=' . urlencode( App::get_baseurl() . '/dfrn_poll/' . $owner['nickname'] );
 					post_url($h,$params);
 					logger('publish for item '.$item_id.' ' . $h . ' ' . $params . ' returned ' . $a->get_curl_code());
 				}

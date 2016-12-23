@@ -670,22 +670,23 @@ class App {
 
 		#set_include_path("include/$this->hostname" . PATH_SEPARATOR . get_include_path());
 
-		if((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,9) === "pagename=") {
+		if ((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,9) === "pagename=") {
 			$this->query_string = substr($_SERVER['QUERY_STRING'],9);
 			// removing trailing / - maybe a nginx problem
 			if (substr($this->query_string, 0, 1) == "/")
 				$this->query_string = substr($this->query_string, 1);
-		} elseif((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,2) === "q=") {
+		} elseif ((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,2) === "q=") {
 			$this->query_string = substr($_SERVER['QUERY_STRING'],2);
 			// removing trailing / - maybe a nginx problem
 			if (substr($this->query_string, 0, 1) == "/")
 				$this->query_string = substr($this->query_string, 1);
 		}
 
-		if (x($_GET,'pagename'))
+		if (x($_GET,'pagename')) {
 			$this->cmd = trim($_GET['pagename'],'/\\');
-		elseif (x($_GET,'q'))
+		} elseif (x($_GET,'q')) {
 			$this->cmd = trim($_GET['q'],'/\\');
+		}
 
 
 		// fix query_string
@@ -694,13 +695,15 @@ class App {
 
 		// unix style "homedir"
 
-		if(substr($this->cmd,0,1) === '~')
+		if (substr($this->cmd,0,1) === '~') {
 			$this->cmd = 'profile/' . substr($this->cmd,1);
+		}
 
 		// Diaspora style profile url
 
-		if(substr($this->cmd,0,2) === 'u/')
+		if (substr($this->cmd,0,2) === 'u/') {
 			$this->cmd = 'profile/' . substr($this->cmd,2);
+		}
 
 
 		/*
@@ -1028,7 +1031,7 @@ class App {
 		} else {
 			$r = q("SELECT `contact`.`avatar-date` AS picdate FROM `contact` WHERE `contact`.`thumb` like '%%/%s'",
 				$common_filename);
-			if(! dbm::is_result($r)){
+			if (! dbm::is_result($r)) {
 				$this->cached_profile_image[$avatar_image] = $avatar_image;
 			} else {
 				$this->cached_profile_picdate[$common_filename] = "?rev=".urlencode($r[0]['picdate']);
@@ -1548,9 +1551,9 @@ function check_url(&$a) {
 	// We will only change the url to an ip address if there is no existing setting
 
 	if(! x($url))
-		$url = set_config('system','url',$a->get_baseurl());
-	if((! link_compare($url,$a->get_baseurl())) && (! preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/",$a->get_hostname)))
-		$url = set_config('system','url',$a->get_baseurl());
+		$url = set_config('system','url',App::get_baseurl());
+	if((! link_compare($url,App::get_baseurl())) && (! preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/",$a->get_hostname)))
+		$url = set_config('system','url',App::get_baseurl());
 
 	return;
 }

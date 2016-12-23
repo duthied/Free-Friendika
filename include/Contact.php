@@ -8,7 +8,6 @@
 function user_remove($uid) {
 	if(! $uid)
 		return;
-	$a = get_app();
 	logger('Removing user: ' . $uid);
 
 	$r = q("select * from user where uid = %d limit 1", intval($uid));
@@ -54,7 +53,7 @@ function user_remove($uid) {
 	if($uid == local_user()) {
 		unset($_SESSION['authenticated']);
 		unset($_SESSION['uid']);
-		goaway($a->get_baseurl());
+		goaway(App::get_baseurl());
 	}
 }
 
@@ -86,12 +85,12 @@ function contact_remove($id) {
 
 function terminate_friendship($user,$self,$contact) {
 
-
+	/// @TODO Get rid of this, include/datetime.php should care about by itself
 	$a = get_app();
 
 	require_once('include/datetime.php');
 
-	if($contact['network'] === NETWORK_OSTATUS) {
+	if ($contact['network'] === NETWORK_OSTATUS) {
 
 		require_once('include/ostatus.php');
 
@@ -101,16 +100,14 @@ function terminate_friendship($user,$self,$contact) {
 		$item['follow'] = $contact["url"];
 		$slap = ostatus::salmon($item, $user);
 
-		if((x($contact,'notify')) && (strlen($contact['notify']))) {
+		if ((x($contact,'notify')) && (strlen($contact['notify']))) {
 			require_once('include/salmon.php');
 			slapper($user,$contact['notify'],$slap);
 		}
-	}
-	elseif($contact['network'] === NETWORK_DIASPORA) {
+	} elseif ($contact['network'] === NETWORK_DIASPORA) {
 		require_once('include/diaspora.php');
 		Diaspora::send_unshare($user,$contact);
-	}
-	elseif($contact['network'] === NETWORK_DFRN) {
+	} elseif ($contact['network'] === NETWORK_DFRN) {
 		require_once('include/dfrn.php');
 		dfrn::deliver($user,$contact,'placeholder', 1);
 	}
@@ -361,7 +358,7 @@ function contact_photo_menu($contact, $uid = 0)
 	$sparkle = false;
 	if ($contact['network'] === NETWORK_DFRN) {
 		$sparkle = true;
-		$profile_link = $a->get_baseurl() . '/redir/' . $contact['id'];
+		$profile_link = App::get_baseurl() . '/redir/' . $contact['id'];
 	} else {
 		$profile_link = $contact['url'];
 	}
@@ -377,17 +374,17 @@ function contact_photo_menu($contact, $uid = 0)
 	}
 
 	if (in_array($contact['network'], array(NETWORK_DFRN, NETWORK_DIASPORA))) {
-		$pm_url = $a->get_baseurl() . '/message/new/' . $contact['id'];
+		$pm_url = App::get_baseurl() . '/message/new/' . $contact['id'];
 	}
 
 	if ($contact['network'] == NETWORK_DFRN) {
-		$poke_link = $a->get_baseurl() . '/poke/?f=&c=' . $contact['id'];
+		$poke_link = App::get_baseurl() . '/poke/?f=&c=' . $contact['id'];
 	}
 
-	$contact_url = $a->get_baseurl() . '/contacts/' . $contact['id'];
+	$contact_url = App::get_baseurl() . '/contacts/' . $contact['id'];
 
-	$posts_link = $a->get_baseurl() . '/contacts/' . $contact['id'] . '/posts';
-	$contact_drop_link = $a->get_baseurl() . '/contacts/' . $contact['id'] . '/drop?confirm=1';
+	$posts_link = App::get_baseurl() . '/contacts/' . $contact['id'] . '/posts';
+	$contact_drop_link = App::get_baseurl() . '/contacts/' . $contact['id'] . '/drop?confirm=1';
 
 	/**
 	 * menu array:

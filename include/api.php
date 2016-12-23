@@ -3068,8 +3068,8 @@
 		'image/gif' => 'gif'
 		);
 		$data = array('photo'=>array());
-		if($r) {
-			foreach($r as $rr) {
+		if ($r) {
+			foreach ($r as $rr) {
 				$photo = array();
 				$photo['id'] = $rr['resource-id'];
 				$photo['album'] = $rr['album'];

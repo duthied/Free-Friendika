@@ -216,7 +216,7 @@ function create_user($arr) {
 		dbesc($default_service_class)
 	);
 
-	if($r) {
+	if ($r) {
 		$r = q("SELECT * FROM `user`
 			WHERE `username` = '%s' AND `password` = '%s' LIMIT 1",
 			dbesc($username),

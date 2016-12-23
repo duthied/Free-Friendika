@@ -187,8 +187,9 @@ function load_hooks() {
 	$a = get_app();
 	$a->hooks = array();
 	$r = q("SELECT * FROM `hook` WHERE 1 ORDER BY `priority` DESC, `file`");
+
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			if(! array_key_exists($rr['hook'],$a->hooks))
 				$a->hooks[$rr['hook']] = array();
 			$a->hooks[$rr['hook']][] = array($rr['file'],$rr['function']);
@@ -410,13 +411,13 @@ function get_theme_info($theme){
  * @return string
  */
 function get_theme_screenshot($theme) {
-	$a = get_app();
 	$exts = array('.png','.jpg');
 	foreach($exts as $ext) {
-		if(file_exists('view/theme/' . $theme . '/screenshot' . $ext))
-			return($a->get_baseurl() . '/view/theme/' . $theme . '/screenshot' . $ext);
+		if(file_exists('view/theme/' . $theme . '/screenshot' . $ext)) {
+			return(App::get_baseurl() . '/view/theme/' . $theme . '/screenshot' . $ext);
+		}
 	}
-	return($a->get_baseurl() . '/images/blank.png');
+	return(App::get_baseurl() . '/images/blank.png');
 }
 
 // install and uninstall theme

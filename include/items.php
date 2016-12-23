@@ -208,13 +208,12 @@ function add_page_info_data($data) {
 
 	$hashtags = "";
 	if (isset($data["keywords"]) AND count($data["keywords"])) {
-		$a = get_app();
 		$hashtags = "\n";
 		foreach ($data["keywords"] AS $keyword) {
 			/// @todo make a positive list of allowed characters
 			$hashtag = str_replace(array(" ", "+", "/", ".", "#", "'", "’", "`", "(", ")", "„", "“"),
 						array("","", "", "", "", "", "", "", "", "", "", ""), $keyword);
-			$hashtags .= "#[url=".$a->get_baseurl()."/search?tag=".rawurlencode($hashtag)."]".$hashtag."[/url] ";
+			$hashtags .= "#[url=".App::get_baseurl()."/search?tag=".rawurlencode($hashtag)."]".$hashtag."[/url] ";
 		}
 	}
 
@@ -251,7 +250,6 @@ function add_page_keywords($url, $no_photos = false, $photo = "", $keywords = fa
 
 	$tags = "";
 	if (isset($data["keywords"]) AND count($data["keywords"])) {
-		$a = get_app();
 		foreach ($data["keywords"] AS $keyword) {
 			$hashtag = str_replace(array(" ", "+", "/", ".", "#", "'"),
 						array("","", "", "", "", ""), $keyword);
@@ -259,7 +257,7 @@ function add_page_keywords($url, $no_photos = false, $photo = "", $keywords = fa
 			if ($tags != "")
 				$tags .= ",";
 
-			$tags .= "#[url=".$a->get_baseurl()."/search?tag=".rawurlencode($hashtag)."]".$hashtag."[/url]";
+			$tags .= "#[url=".App::get_baseurl()."/search?tag=".rawurlencode($hashtag)."]".$hashtag."[/url]";
 		}
 	}
 
@@ -557,8 +555,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		logger("Both author-link and owner-link are empty. Called by: ".App::callstack(), LOGGER_DEBUG);
 
 	if ($arr['plink'] == "") {
-		$a = get_app();
-		$arr['plink'] = $a->get_baseurl().'/display/'.urlencode($arr['guid']);
+		$arr['plink'] = App::get_baseurl().'/display/'.urlencode($arr['guid']);
 	}
 
 	if ($arr['network'] == "") {
@@ -709,7 +706,7 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 			$u = q("SELECT `nickname` FROM `user` WHERE `uid` = %d", intval($arr['uid']));
 			if (count($u)) {
 				$a = get_app();
-				$self = normalise_link($a->get_baseurl() . '/profile/' . $u[0]['nickname']);
+				$self = normalise_link(App::get_baseurl() . '/profile/' . $u[0]['nickname']);
 				logger("item_store: 'myself' is ".$self." for parent ".$parent_id." checking against ".$arr['author-link']." and ".$arr['owner-link'], LOGGER_DEBUG);
 				if ((normalise_link($arr['author-link']) == $self) OR (normalise_link($arr['owner-link']) == $self)) {
 					q("UPDATE `thread` SET `mention` = 1 WHERE `iid` = %d", intval($parent_id));
@@ -1068,10 +1065,10 @@ function item_body_set_hashtags(&$item) {
 
 	// All hashtags should point to the home server
 	//$item["body"] = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-	//		"#[url=".$a->get_baseurl()."/search?tag=$2]$2[/url]", $item["body"]);
+	//		"#[url=".App::get_baseurl()."/search?tag=$2]$2[/url]", $item["body"]);
 
 	//$item["tag"] = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-	//		"#[url=".$a->get_baseurl()."/search?tag=$2]$2[/url]", $item["tag"]);
+	//		"#[url=".App::get_baseurl()."/search?tag=$2]$2[/url]", $item["tag"]);
 
 	// mask hashtags inside of url, bookmarks and attachments to avoid urls in urls
 	$item["body"] = preg_replace_callback("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
@@ -1103,7 +1100,7 @@ function item_body_set_hashtags(&$item) {
 
 		$basetag = str_replace('_',' ',substr($tag,1));
 
-		$newtag = '#[url='.$a->get_baseurl().'/search?tag='.rawurlencode($basetag).']'.$basetag.'[/url]';
+		$newtag = '#[url='.App::get_baseurl().'/search?tag='.rawurlencode($basetag).']'.$basetag.'[/url]';
 
 		$item["body"] = str_replace($tag, $newtag, $item["body"]);
 
@@ -1207,12 +1204,12 @@ function tag_deliver($uid,$item_id) {
 
 	$item = $i[0];
 
-	$link = normalise_link($a->get_baseurl() . '/profile/' . $u[0]['nickname']);
+	$link = normalise_link(App::get_baseurl() . '/profile/' . $u[0]['nickname']);
 
 	// Diaspora uses their own hardwired link URL in @-tags
 	// instead of the one we supply with webfinger
 
-	$dlink = normalise_link($a->get_baseurl() . '/u/' . $u[0]['nickname']);
+	$dlink = normalise_link(App::get_baseurl() . '/u/' . $u[0]['nickname']);
 
 	$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism',$item['body'],$matches,PREG_SET_ORDER);
 	if ($cnt) {
@@ -1260,8 +1257,9 @@ function tag_deliver($uid,$item_id) {
 	$c = q("select name, url, thumb from contact where self = 1 and uid = %d limit 1",
 		intval($u[0]['uid'])
 	);
-	if (! count($c))
+	if (! count($c)) {
 		return;
+	}
 
 	// also reset all the privacy bits to the forum default permissions
 
@@ -1269,8 +1267,8 @@ function tag_deliver($uid,$item_id) {
 
 	$forum_mode = (($prvgroup) ? 2 : 1);
 
-	q("update item set wall = 1, origin = 1, forum_mode = %d, `owner-name` = '%s', `owner-link` = '%s', `owner-avatar` = '%s',
-		`private` = %d, `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'  where id = %d",
+	q("UPDATE `item` SET `wall` = 1, `origin` = 1, `forum_mode` = %d, `owner-name` = '%s', `owner-link` = '%s', `owner-avatar` = '%s',
+		`private` = %d, `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'  WHERE `id` = %d",
 		intval($forum_mode),
 		dbesc($c[0]['name']),
 		dbesc($c[0]['url']),
@@ -1312,16 +1310,16 @@ function tgroup_check($uid,$item) {
 	$prvgroup = (($u[0]['page-flags'] == PAGE_PRVGROUP) ? true : false);
 
 
-	$link = normalise_link($a->get_baseurl() . '/profile/' . $u[0]['nickname']);
+	$link = normalise_link(App::get_baseurl() . '/profile/' . $u[0]['nickname']);
 
 	// Diaspora uses their own hardwired link URL in @-tags
 	// instead of the one we supply with webfinger
 
-	$dlink = normalise_link($a->get_baseurl() . '/u/' . $u[0]['nickname']);
+	$dlink = normalise_link(App::get_baseurl() . '/u/' . $u[0]['nickname']);
 
 	$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism',$item['body'],$matches,PREG_SET_ORDER);
 	if ($cnt) {
-		foreach($matches as $mtch) {
+		foreach ($matches as $mtch) {
 			if (link_compare($link,$mtch[1]) || link_compare($dlink,$mtch[1])) {
 				$mention = true;
 				logger('tgroup_check: mention found: ' . $mtch[2]);
@@ -1329,13 +1327,12 @@ function tgroup_check($uid,$item) {
 		}
 	}
 
-	if (! $mention)
+	if (! $mention) {
 		return false;
+	}
 
-	if ((! $community_page) && (! $prvgroup))
-		return false;
-
-	return true;
+	/// @TODO Combines both return statements into one
+	return (($community_page) || ($prvgroup));
 }
 
 /*
@@ -1347,15 +1344,16 @@ function tgroup_check($uid,$item) {
   assumes the update has been seen before and should be ignored.
   */
 function edited_timestamp_is_newer($existing, $update) {
-    if (!x($existing,'edited') || !$existing['edited']) {
-	return true;
-    }
-    if (!x($update,'edited') || !$update['edited']) {
-	return false;
-    }
-    $existing_edited = datetime_convert('UTC', 'UTC', $existing['edited']);
-    $update_edited = datetime_convert('UTC', 'UTC', $update['edited']);
-    return (strcmp($existing_edited, $update_edited) < 0);
+	if (!x($existing,'edited') || !$existing['edited']) {
+		return true;
+	}
+	if (!x($update,'edited') || !$update['edited']) {
+		return false;
+	}
+
+	$existing_edited = datetime_convert('UTC', 'UTC', $existing['edited']);
+	$update_edited = datetime_convert('UTC', 'UTC', $update['edited']);
+	return (strcmp($existing_edited, $update_edited) < 0);
 }
 
 /**
@@ -1572,7 +1570,7 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 					'to_name'      => $r[0]['username'],
 					'to_email'     => $r[0]['email'],
 					'uid'          => $r[0]['uid'],
-					'link'		   => $a->get_baseurl() . '/notifications/intro',
+					'link'		   => App::get_baseurl() . '/notifications/intro',
 					'source_name'  => ((strlen(stripslashes($contact_record['name']))) ? stripslashes($contact_record['name']) : t('[Name Withheld]')),
 					'source_link'  => $contact_record['url'],
 					'source_photo' => $contact_record['photo'],
@@ -1665,7 +1663,7 @@ function fix_private_photos($s, $uid, $item = null, $cid = 0) {
 	$a = get_app();
 
 	logger('fix_private_photos: check for photos', LOGGER_DEBUG);
-	$site = substr($a->get_baseurl(),strpos($a->get_baseurl(),'://'));
+	$site = substr(App::get_baseurl(),strpos(App::get_baseurl(),'://'));
 
 	$orig_body = $s;
 	$new_body = '';
@@ -1929,7 +1927,7 @@ function drop_item($id,$interactive = true) {
 		if (! $interactive)
 			return 0;
 		notice( t('Item not found.') . EOL);
-		goaway($a->get_baseurl() . '/' . $_SESSION['return_url']);
+		goaway(App::get_baseurl() . '/' . $_SESSION['return_url']);
 	}
 
 	$item = $r[0];
@@ -1977,7 +1975,7 @@ function drop_item($id,$interactive = true) {
 		}
 		// Now check how the user responded to the confirmation query
 		if ($_REQUEST['canceled']) {
-			goaway($a->get_baseurl() . '/' . $_SESSION['return_url']);
+			goaway(App::get_baseurl() . '/' . $_SESSION['return_url']);
 		}
 
 		logger('delete item: ' . $item['id'], LOGGER_DEBUG);
@@ -2127,13 +2125,13 @@ function drop_item($id,$interactive = true) {
 
 		if (! $interactive)
 			return $owner;
-		goaway($a->get_baseurl() . '/' . $_SESSION['return_url']);
+		goaway(App::get_baseurl() . '/' . $_SESSION['return_url']);
 		//NOTREACHED
 	} else {
 		if (! $interactive)
 			return 0;
 		notice( t('Permission denied.') . EOL);
-		goaway($a->get_baseurl() . '/' . $_SESSION['return_url']);
+		goaway(App::get_baseurl() . '/' . $_SESSION['return_url']);
 		//NOTREACHED
 	}
 

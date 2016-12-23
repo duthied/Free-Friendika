@@ -91,50 +91,58 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 
 		$name = $entry->displayName;
 
-		if(isset($entry->urls)) {
-			foreach($entry->urls as $url) {
-				if($url->type == 'profile') {
+		if (isset($entry->urls)) {
+			foreach ($entry->urls as $url) {
+				if ($url->type == 'profile') {
 					$profile_url = $url->value;
 					continue;
 				}
-				if($url->type == 'webfinger') {
+				if ($url->type == 'webfinger') {
 					$connect_url = str_replace('acct:' , '', $url->value);
 					continue;
 				}
 			}
 		}
-		if(isset($entry->photos)) {
-			foreach($entry->photos as $photo) {
-				if($photo->type == 'profile') {
+		if (isset($entry->photos)) {
+			foreach ($entry->photos as $photo) {
+				if ($photo->type == 'profile') {
 					$profile_photo = $photo->value;
 					continue;
 				}
 			}
 		}
 
-		if(isset($entry->updated))
+		if (isset($entry->updated)) {
 			$updated = date("Y-m-d H:i:s", strtotime($entry->updated));
+		}
 
-		if(isset($entry->network))
+		if (isset($entry->network)) {
 			$network = $entry->network;
+		}
 
-		if(isset($entry->currentLocation))
+		if (isset($entry->currentLocation)) {
 			$location = $entry->currentLocation;
+		}
 
-		if(isset($entry->aboutMe))
+		if (isset($entry->aboutMe)) {
 			$about = html2bbcode($entry->aboutMe);
+		}
 
-		if(isset($entry->gender))
+		if (isset($entry->gender)) {
 			$gender = $entry->gender;
+		}
 
-		if(isset($entry->generation) AND ($entry->generation > 0))
+		if (isset($entry->generation) AND ($entry->generation > 0)) {
 			$generation = ++$entry->generation;
+		}
 
-		if(isset($entry->tags))
-			foreach($entry->tags as $tag)
+		if (isset($entry->tags)) {
+			foreach($entry->tags as $tag) {
 				$keywords = implode(", ", $tag);
+			}
+		}
 
-		if(isset($entry->contactType) AND ($entry->contactType >= 0))
+		if (isset($entry->contactType) AND ($entry->contactType >= 0))
 			$contact_type = $entry->contactType;
 
 		// If you query a Friendica server for its profiles, the network has to be Friendica
@@ -171,8 +179,6 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 
 function poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $generation, $cid = 0, $uid = 0, $zcid = 0) {
 
-	$a = get_app();
-
 	// Generation:
 	//  0: No definition
 	//  1: Profiles on this server
@@ -207,8 +213,9 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	$orig_updated = $updated;
 
 	// The global contacts should contain the original picture, not the cached one
-	if (($generation != 1) AND stristr(normalise_link($profile_photo), normalise_link($a->get_baseurl()."/photo/")))
+	if (($generation != 1) AND stristr(normalise_link($profile_photo), normalise_link(App::get_baseurl()."/photo/"))) {
 		$profile_photo = "";
+	}
 
 	$r = q("SELECT `network` FROM `contact` WHERE `nurl` = '%s' AND `network` != '' AND `network` != '%s' LIMIT 1",
 		dbesc(normalise_link($profile_url)), dbesc(NETWORK_STATUSNET)
@@ -330,7 +337,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 		intval($gcid),
 		intval($zcid)
 	);
-	if(! dbm::is_result($r)) {
+	if (! dbm::is_result($r)) {
 		q("INSERT INTO `glink` (`cid`,`uid`,`gcid`,`zcid`, `updated`) VALUES (%d,%d,%d,%d, '%s') ",
 			intval($cid),
 			intval($uid),
@@ -1181,22 +1188,23 @@ function update_suggestions() {
 	$done = array();
 
 	/// TODO Check if it is really neccessary to poll the own server
-	poco_load(0,0,0,$a->get_baseurl() . '/poco');
+	poco_load(0,0,0,App::get_baseurl() . '/poco');
 
-	$done[] = $a->get_baseurl() . '/poco';
+	$done[] = App::get_baseurl() . '/poco';
 
-	if(strlen(get_config('system','directory'))) {
+	if (strlen(get_config('system','directory'))) {
 		$x = fetch_url(get_server()."/pubsites");
-		if($x) {
+		if ($x) {
 			$j = json_decode($x);
-			if($j->entries) {
-				foreach($j->entries as $entry) {
+			if ($j->entries) {
+				foreach ($j->entries as $entry) {
 
 					poco_check_server($entry->url);
 
 					$url = $entry->url . '/poco';
-					if(! in_array($url,$done))
+					if (! in_array($url,$done)) {
 						poco_load(0,0,0,$entry->url . '/poco');
+					}
 				}
 			}
 		}
@@ -1208,7 +1216,7 @@ function update_suggestions() {
 	);
 
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			$base = substr($rr['poco'],0,strrpos($rr['poco'],'/'));
 			if(! in_array($base,$done))
 				poco_load(0,0,0,$base);
@@ -1219,7 +1227,7 @@ function update_suggestions() {
 function poco_discover_federation() {
 	$last = get_config('poco','last_federation_discovery');
 
-	if($last) {
+	if ($last) {
 		$next = $last + (24 * 60 * 60);
 		if($next > time())
 			return;
@@ -1333,7 +1341,7 @@ function poco_discover_server_users($data, $server) {
 		$username = "";
 		if (isset($entry->urls)) {
 			foreach($entry->urls as $url)
-				if($url->type == 'profile') {
+				if ($url->type == 'profile') {
 					$profile_url = $url->value;
 					$urlparts = parse_url($profile_url);
 					$username = end(explode("/", $urlparts["path"]));
@@ -1375,52 +1383,61 @@ function poco_discover_server($data, $default_generation = 0) {
 
 		$name = $entry->displayName;
 
-		if(isset($entry->urls)) {
+		if (isset($entry->urls)) {
 			foreach($entry->urls as $url) {
-				if($url->type == 'profile') {
+				if ($url->type == 'profile') {
 					$profile_url = $url->value;
 					continue;
 				}
-				if($url->type == 'webfinger') {
+				if ($url->type == 'webfinger') {
 					$connect_url = str_replace('acct:' , '', $url->value);
 					continue;
 				}
 			}
 		}
 
-		if(isset($entry->photos)) {
-			foreach($entry->photos as $photo) {
-				if($photo->type == 'profile') {
+		if (isset($entry->photos)) {
+			foreach ($entry->photos as $photo) {
+				if ($photo->type == 'profile') {
 					$profile_photo = $photo->value;
 					continue;
 				}
 			}
 		}
 
-		if(isset($entry->updated))
+		if (isset($entry->updated)) {
 			$updated = date("Y-m-d H:i:s", strtotime($entry->updated));
+		}
 
-		if(isset($entry->network))
+		if(isset($entry->network)) {
 			$network = $entry->network;
+		}
 
-		if(isset($entry->currentLocation))
+		if(isset($entry->currentLocation)) {
 			$location = $entry->currentLocation;
+		}
 
-		if(isset($entry->aboutMe))
+		if(isset($entry->aboutMe)) {
 			$about = html2bbcode($entry->aboutMe);
+		}
 
-		if(isset($entry->gender))
+		if(isset($entry->gender)) {
 			$gender = $entry->gender;
+		}
 
-		if(isset($entry->generation) AND ($entry->generation > 0))
+		if(isset($entry->generation) AND ($entry->generation > 0)) {
 			$generation = ++$entry->generation;
+		}
 
-		if(isset($entry->contactType) AND ($entry->contactType >= 0))
+		if(isset($entry->contactType) AND ($entry->contactType >= 0)) {
 			$contact_type = $entry->contactType;
+		}
 
-		if(isset($entry->tags))
-			foreach($entry->tags as $tag)
+		if(isset($entry->tags)) {
+			foreach ($entry->tags as $tag) {
 				$keywords = implode(", ", $tag);
+			}
+		}
 
 		if ($generation > 0) {
 			$success = true;
@@ -1771,8 +1788,6 @@ function gs_fetch_users($server) {
 
 	logger("Fetching users from GNU Social server ".$server, LOGGER_DEBUG);
 
-	$a = get_app();
-
 	$url = $server."/main/statistics";
 
 	$result = z_fetch_url($url);
@@ -1811,7 +1826,7 @@ function gs_fetch_users($server) {
 					"nick" => $user->nickname,
 					"about" => $user->bio,
 					"network" => NETWORK_OSTATUS,
-					"photo" => $a->get_baseurl()."/images/person-175.jpg");
+					"photo" => App::get_baseurl()."/images/person-175.jpg");
 			get_gcontact_id($contact);
 		}
 }

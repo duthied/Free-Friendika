@@ -53,7 +53,7 @@ function group_rmv($uid,$name) {
 		$r = q("SELECT def_gid, allow_gid, deny_gid FROM user WHERE uid = %d LIMIT 1",
 		       intval($uid)
 		);
-		if($r) {
+		if ($r) {
 			$user_info = $r[0];
 			$change = false;
 
@@ -143,13 +143,14 @@ function group_add_member($uid,$name,$member,$gid = 0) {
 		return true;	// You might question this, but
 				// we indicate success because the group member was in fact created
 				// -- It was just created at another time
- 	if(! dbm::is_result($r))
+ 	if (! dbm::is_result($r)) {
 		$r = q("INSERT INTO `group_member` (`uid`, `gid`, `contact-id`)
 			VALUES( %d, %d, %d ) ",
 			intval($uid),
 			intval($gid),
 			intval($member)
-	);
+		);
+	}
 	return $r;
 }
 
@@ -198,7 +199,7 @@ function mini_group_select($uid,$gid = 0, $label = "") {
 	);
 	$grps[] = array('name' => '', 'id' => '0', 'selected' => '');
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			$grps[] = array('name' => $rr['name'], 'id' => $rr['id'], 'selected' => (($gid == $rr['id']) ? 'true' : ''));
 		}
 
@@ -233,7 +234,7 @@ function group_side($every="contacts",$each="group",$editmode = "standard", $gro
 
 	$o = '';
 
-	if(! local_user())
+	if (! local_user())
 		return '';
 
 	$groups = array();
@@ -256,7 +257,7 @@ function group_side($every="contacts",$each="group",$editmode = "standard", $gro
 	}
 
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			$selected = (($group_id == $rr['id']) ? ' group-selected' : '');
 
 			if ($editmode == "full") {

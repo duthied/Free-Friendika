@@ -41,10 +41,12 @@ function subthread_content(&$a) {
 			intval($item['contact-id']),
 			intval($item['uid'])
 		);
-		if(! dbm::is_result($r))
+		if (! dbm::is_result($r)) {
 			return;
-		if(! $r[0]['self'])
+		}
+		if (! $r[0]['self']) {
 			$remote_owner = $r[0];
+		}
 	}
 
 	// this represents the post owner on this system. 
@@ -56,18 +58,18 @@ function subthread_content(&$a) {
 	if (dbm::is_result($r))
 		$owner = $r[0];
 
-	if(! $owner) {
+	if (! $owner) {
 		logger('like: no owner');
 		return;
 	}
 
-	if(! $remote_owner)
+	if (! $remote_owner)
 		$remote_owner = $owner;
 
 
 	// This represents the person posting
 
-	if((local_user()) && (local_user() == $owner_uid)) {
+	if ((local_user()) && (local_user() == $owner_uid)) {
 		$contact = $owner;
 	}
 	else {
@@ -78,7 +80,7 @@ function subthread_content(&$a) {
 		if (dbm::is_result($r))
 			$contact = $r[0];
 	}
-	if(! $contact) {
+	if (! $contact) {
 		return;
 	}
 
@@ -86,7 +88,7 @@ function subthread_content(&$a) {
 
 	$post_type = (($item['resource-id']) ? t('photo') : t('status'));
 	$objtype = (($item['resource-id']) ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE );
-	$link = xmlify('<link rel="alternate" type="text/html" href="' . $a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
+	$link = xmlify('<link rel="alternate" type="text/html" href="' . App::get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
 	$body = $item['body'];
 
 	$obj = <<< EOT
@@ -102,8 +104,9 @@ function subthread_content(&$a) {
 EOT;
 	$bodyverb = t('%1$s is following %2$s\'s %3$s');
 
-	if(! isset($bodyverb))
-			return;
+	if (! isset($bodyverb)) {
+		return;
+	}
 
 	$arr = array();
 
@@ -127,7 +130,7 @@ EOT;
 
 	$ulink = '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
 	$alink = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
-	$plink = '[url=' . $a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . ']' . $post_type . '[/url]';
+	$plink = '[url=' . App::get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . ']' . $post_type . '[/url]';
 	$arr['body'] =  sprintf( $bodyverb, $ulink, $alink, $plink );
 
 	$arr['verb'] = $activity;
@@ -143,7 +146,7 @@ EOT;
 
 	$post_id = item_store($arr);
 
-	if(! $item['visible']) {
+	if (! $item['visible']) {
 		$r = q("UPDATE `item` SET `visible` = 1 WHERE `id` = %d AND `uid` = %d",
 			intval($item['id']),
 			intval($owner_uid)

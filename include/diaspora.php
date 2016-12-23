@@ -319,8 +319,8 @@ class Diaspora {
 			dbesc(NETWORK_DIASPORA),
 			dbesc($msg["author"])
 		);
-		if($r) {
-			foreach($r as $rr) {
+		if ($r) {
+			foreach ($r as $rr) {
 				logger("delivering to: ".$rr["username"]);
 				self::dispatch($rr,$msg);
 			}
@@ -832,7 +832,7 @@ class Diaspora {
 			dbesc($guid)
 		);
 
-		if($r) {
+		if ($r) {
 			logger("message ".$guid." already exists for user ".$uid);
 			return $r[0]["id"];
 		}
@@ -1906,20 +1906,23 @@ class Diaspora {
 		$author = unxmlify($data->author);
 		$recipient = unxmlify($data->recipient);
 
-		if (!$author || !$recipient)
+		if (!$author || !$recipient) {
 			return false;
+		}
 
 		// the current protocol version doesn't know these fields
 		// That means that we will assume their existance
-		if (isset($data->following))
+		if (isset($data->following)) {
 			$following = (unxmlify($data->following) == "true");
-		else
+		} else {
 			$following = true;
+		}
 
-		if (isset($data->sharing))
+		if (isset($data->sharing)) {
 			$sharing = (unxmlify($data->sharing) == "true");
-		else
+		} else {
 			$sharing = true;
+		}
 
 		$contact = self::contact_by_handle($importer["uid"],$author);
 
@@ -1937,7 +1940,7 @@ class Diaspora {
 				// Normally we needn't to do so, but the first message could have been vanished.
 				if (in_array($contact["rel"], array(CONTACT_IS_FRIEND, CONTACT_IS_FOLLOWER))) {
 					$u = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval($importer["uid"]));
-					if($u) {
+					if ($u) {
 						logger("Sending share message to author ".$author." - Contact: ".$contact["id"]." - User: ".$importer["uid"], LOGGER_DEBUG);
 						$ret = self::send_share($u[0], $contact);
 					}
@@ -2160,16 +2163,19 @@ class Diaspora {
 		$created_at = datetime_convert("UTC", "UTC", notags(unxmlify($data->created_at)));
 
 		$contact = self::allowed_contact_by_handle($importer, $author, false);
-		if (!$contact)
+		if (!$contact) {
 			return false;
+		}
 
 		$message_id = self::message_exists($importer["uid"], $guid);
-		if ($message_id)
+		if ($message_id) {
 			return $message_id;
+		}
 
 		$original_item = self::original_item($root_guid, $root_author, $author);
-		if (!$original_item)
+		if (!$original_item) {
 			return false;
+		}
 
 		$orig_url = App::get_baseurl()."/display/".$original_item["guid"];
 
@@ -2211,8 +2217,9 @@ class Diaspora {
 		self::fetch_guid($datarray);
 		$message_id = item_store($datarray);
 
-		if ($message_id)
+		if ($message_id) {
 			logger("Stored reshare ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
+		}
 
 		return $message_id;
 	}
@@ -2704,7 +2711,7 @@ class Diaspora {
 
 		logger("transmit: ".$logid."-".$guid." returns: ".$return_code);
 
-		if(!$return_code || (($return_code == 503) && (stristr($a->get_curl_headers(), "retry-after")))) {
+		if (!$return_code || (($return_code == 503) && (stristr($a->get_curl_headers(), "retry-after")))) {
 			logger("queue message");
 
 			$r = q("SELECT `id` FROM `queue` WHERE `cid` = %d AND `network` = '%s' AND `content` = '%s' AND `batch` = %d LIMIT 1",
@@ -2713,7 +2720,7 @@ class Diaspora {
 				dbesc($slap),
 				intval($public_batch)
 			);
-			if($r) {
+			if ($r) {
 				logger("add_to_queue ignored - identical item already in queue");
 			} else {
 				// queue message for redelivery

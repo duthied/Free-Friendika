@@ -144,8 +144,6 @@ function unescape_underscores_in_links($m) {
 
 function format_event_diaspora($ev) {
 
-	$a = get_app();
-
 	if(! ((is_array($ev)) && count($ev)))
 		return '';
 
@@ -160,7 +158,7 @@ function format_event_diaspora($ev) {
 			$ev['start'] , $bd_format ))
 			:  day_translate(datetime_convert('UTC', 'UTC',
 			$ev['start'] , $bd_format)))
-		.  '](' . $a->get_baseurl() . '/localtime/?f=&time=' . urlencode(datetime_convert('UTC','UTC',$ev['start'])) . ")\n";
+		.  '](' . App::get_baseurl() . '/localtime/?f=&time=' . urlencode(datetime_convert('UTC','UTC',$ev['start'])) . ")\n";
 
 	if(! $ev['nofinish'])
 		$o .= t('Finishes:') . ' ' . '['
@@ -168,7 +166,7 @@ function format_event_diaspora($ev) {
 				$ev['finish'] , $bd_format ))
 				:  day_translate(datetime_convert('UTC', 'UTC',
 				$ev['finish'] , $bd_format )))
-			. '](' . $a->get_baseurl() . '/localtime/?f=&time=' . urlencode(datetime_convert('UTC','UTC',$ev['finish'])) . ")\n";
+			. '](' . App::get_baseurl() . '/localtime/?f=&time=' . urlencode(datetime_convert('UTC','UTC',$ev['finish'])) . ")\n";
 
 	if(strlen($ev['location']))
 		$o .= t('Location:') . bb2diaspora($ev['location'])
