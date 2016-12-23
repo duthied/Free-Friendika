@@ -478,7 +478,7 @@ function service_class_allows($uid,$property,$usage = false) {
 		}
 	}
 
-	if (! x($service_class)) [
+	if (! x($service_class)) {
 		// everything is allowed
 		return true;
 	}
