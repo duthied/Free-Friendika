@@ -28,19 +28,22 @@ function contacts_init(App &$a) {
 	require_once('include/group.php');
 	require_once('include/contact_widgets.php');
 
-	if ($_GET['nets'] == "all")
-	$_GET['nets'] = "";
+	if ($_GET['nets'] == "all") {
+		$_GET['nets'] = "";
+	}
 
-	if(! x($a->page,'aside'))
+	if (! x($a->page,'aside')) {
 		$a->page['aside'] = '';
+	}
 
-	if($contact_id) {
+	if ($contact_id) {
 			$a->data['contact'] = $r[0];
 
 			if (($a->data['contact']['network'] != "") AND ($a->data['contact']['network'] != NETWORK_DFRN)) {
 				$networkname = format_network_name($a->data['contact']['network'],$a->data['contact']['url']);
-			} else
+			} else {
 				$networkname = '';
+			}
 
 			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"),array(
 				'$name' => htmlentities($a->data['contact']['name']),

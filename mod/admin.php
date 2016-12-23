@@ -1156,21 +1156,21 @@ function admin_page_dbsync(App &$a) {
  * @param App $a
  */
 function admin_page_users_post(App &$a){
-	$pending     =	(x($_POST, 'pending')           ? $_POST['pending']           : array());
-	$users       =	(x($_POST, 'user')              ? $_POST['user']		      : array());
-	$nu_name     =	(x($_POST, 'new_user_name')     ? $_POST['new_user_name']     : '');
-	$nu_nickname =	(x($_POST, 'new_user_nickname') ? $_POST['new_user_nickname'] : '');
-	$nu_email    =	(x($_POST, 'new_user_email')    ? $_POST['new_user_email']    : '');
+	$pending     = (x($_POST, 'pending')           ? $_POST['pending']           : array());
+	$users       = (x($_POST, 'user')              ? $_POST['user']		      : array());
+	$nu_name     = (x($_POST, 'new_user_name')     ? $_POST['new_user_name']     : '');
+	$nu_nickname = (x($_POST, 'new_user_nickname') ? $_POST['new_user_nickname'] : '');
+	$nu_email    = (x($_POST, 'new_user_email')    ? $_POST['new_user_email']    : '');
 	$nu_language = get_config('system', 'language');
 
 	check_form_security_token_redirectOnErr('/admin/users', 'admin_users');
 
-	if(!($nu_name==="") && !($nu_email==="") && !($nu_nickname==="")) {
+	if (!($nu_name==="") && !($nu_email==="") && !($nu_nickname==="")) {
 		require_once('include/user.php');
 
 		$result = create_user(array('username'=>$nu_name, 'email'=>$nu_email, 
 			'nickname'=>$nu_nickname, 'verified'=>1, 'language'=>$nu_language));
-		if(! $result['success']) {
+		if (! $result['success']) {
 			notice($result['message']);
 			return;
 		}
@@ -1851,12 +1851,12 @@ function admin_page_themes(App &$a){
  * @param App $a
  */
 function admin_page_logs_post(App &$a) {
-	if(x($_POST,"page_logs")) {
+	if (x($_POST,"page_logs")) {
 		check_form_security_token_redirectOnErr('/admin/logs', 'admin_logs');
 
-		$logfile 	=	((x($_POST,'logfile'))		? notags(trim($_POST['logfile']))	: '');
-		$debugging	=	((x($_POST,'debugging'))	? true					: false);
-		$loglevel 	=	((x($_POST,'loglevel'))		? intval(trim($_POST['loglevel']))	: 0);
+		$logfile   = (x($_POST,'logfile'))    ? notags(trim($_POST['logfile']))	: '');
+		$debugging = ((x($_POST,'debugging')) ? true					: false);
+		$loglevel  = ((x($_POST,'loglevel'))  ? intval(trim($_POST['loglevel']))	: 0);
 
 		set_config('system','logfile', $logfile);
 		set_config('system','debugging',  $debugging);

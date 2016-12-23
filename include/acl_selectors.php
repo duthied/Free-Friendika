@@ -272,7 +272,7 @@ function prune_deadguys($arr) {
 
 	$r = q("SELECT `id` FROM `contact` WHERE `id` IN ( " . $str . ") AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0 ");
 
-	if ($r) {
+	if (dbm::is_result($r)) {
 		$ret = array();
 		foreach ($r as $rr) {
 			$ret[] = intval($rr['id']);
@@ -585,9 +585,9 @@ function acl_lookup(&$a, $out_type = 'json') {
 		);
 		echo json_encode($o);
 		killme();
-	}
-	else
+	} else {
 		$r = array();
+	}
 
 
 	if (dbm::is_result($r)) {

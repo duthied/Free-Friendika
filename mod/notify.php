@@ -1,7 +1,6 @@
 <?php
 require_once('include/NotificationsManager.php');
 
-
 function notify_init(App &$a) {
 	if (! local_user()) {
 		return;

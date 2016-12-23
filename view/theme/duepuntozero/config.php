@@ -3,7 +3,6 @@
  * Theme settings
  */
 
-
 function theme_content(App &$a){
 	if (!local_user()) {
 		return;
@@ -25,7 +24,6 @@ function theme_post(App &$a){
 	}
 }
 
-
 function theme_admin(App &$a){
 	$colorset = get_config( 'duepuntozero', 'colorset');
 	$user = false;
@@ -42,13 +40,13 @@ function theme_admin_post(App &$a){
 /// @TODO $a is no longer used
 function clean_form(&$a, &$colorset, $user){
 	$colorset = array(
-		'default'=>t('default'), 
-		'greenzero'=>t('greenzero'),
-		'purplezero'=>t('purplezero'),
-		'easterbunny'=>t('easterbunny'),
-		'darkzero'=>t('darkzero'),
-		'comix'=>t('comix'),
-		'slackr'=>t('slackr'),
+		'default'     =>t('default'), 
+		'greenzero'   =>t('greenzero'),
+		'purplezero'  =>t('purplezero'),
+		'easterbunny' =>t('easterbunny'),
+		'darkzero'    =>t('darkzero'),
+		'comix'       =>t('comix'),
+		'slackr'      =>t('slackr'),
 	);
 
 	if ($user) {
@@ -62,7 +60,7 @@ function clean_form(&$a, &$colorset, $user){
 	$o .= replace_macros($t, array(
 		'$submit'   => t('Submit'),
 		'$baseurl'  => App::get_baseurl(),
-		'$title'=> t("Theme settings"),
+		'$title'    => t("Theme settings"),
 		'$colorset' => array('duepuntozero_colorset', t('Variations'), $color, '', $colorset),
 	));
 

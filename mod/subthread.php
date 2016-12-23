@@ -71,8 +71,7 @@ function subthread_content(App &$a) {
 
 	if ((local_user()) && (local_user() == $owner_uid)) {
 		$contact = $owner;
-	}
-	else {
+	} else {
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($_SESSION['visitor_id']),
 			intval($owner_uid)

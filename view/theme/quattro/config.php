@@ -29,7 +29,6 @@ function theme_post(App &$a){
 	}
 }
 
-
 function theme_admin(App &$a){
 	$align = get_config('quattro', 'align' );
 	$color = get_config('quattro', 'color' );

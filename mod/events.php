@@ -354,7 +354,7 @@ function events_content(App &$a) {
 			}
 		}
 
-		$events=array();
+		$events = array();
 
 		// transform the event in a usable array
 		if (dbm::is_result($r)) {

@@ -581,7 +581,6 @@ function load_database_rem($v, $i){
 	}
 }
 
-
 function load_database($db) {
 
 	require_once("include/dbstructure.php");

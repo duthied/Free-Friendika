@@ -133,9 +133,9 @@ function profile_photo_post(App &$a) {
 
 				require_once('include/profile_update.php');
 				profile_change();
-			}
-			else
+			} else {
 				notice( t('Unable to process image') . EOL);
+			}
 		}
 
 		goaway(App::get_baseurl() . '/profiles');
@@ -146,11 +146,13 @@ function profile_photo_post(App &$a) {
 	$filename = basename($_FILES['userfile']['name']);
 	$filesize = intval($_FILES['userfile']['size']);
 	$filetype = $_FILES['userfile']['type'];
-    if ($filetype=="") $filetype=guess_image_type($filename);
-    
+	if ($filetype == "") {
+		$filetype = guess_image_type($filename);
+	}
+
 	$maximagesize = get_config('system','maximagesize');
 
-	if(($maximagesize) && ($filesize > $maximagesize)) {
+	if (($maximagesize) && ($filesize > $maximagesize)) {
 		notice( sprintf(t('Image exceeds size limit of %s'), formatBytes($maximagesize)) . EOL);
 		@unlink($src);
 		return;
@@ -159,7 +161,7 @@ function profile_photo_post(App &$a) {
 	$imagedata = @file_get_contents($src);
 	$ph = new Photo($imagedata, $filetype);
 
-	if(! $ph->is_valid()) {
+	if (! $ph->is_valid()) {
 		notice( t('Unable to process image.') . EOL );
 		@unlink($src);
 		return;
@@ -168,7 +170,6 @@ function profile_photo_post(App &$a) {
 	$ph->orient($src);
 	@unlink($src);
 	return profile_photo_crop_ui_head($a, $ph);
-	
 }
 
 

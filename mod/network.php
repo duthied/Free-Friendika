@@ -25,7 +25,6 @@ function network_init(App &$a) {
 	parse_str($query_string, $query_array);
 	array_shift($query_array);
 
-
 	// fetch last used network view and redirect if needed
 	if (! $is_a_date_query) {
 		$sel_tabs = network_query_get_sel_tab($a);
@@ -42,10 +41,9 @@ function network_init(App &$a) {
 		$net_baseurl = '/network';
 		$net_args = array();
 
-		if($remember_group) {
+		if ($remember_group) {
 			$net_baseurl .= '/' . $last_sel_groups; // Note that the group number must come before the "/new" tab selection
-		}
-		else if($sel_groups !== false) {
+		} elseif($sel_groups !== false) {
 			$net_baseurl .= '/' . $sel_groups;
 		}
 
