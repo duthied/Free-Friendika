@@ -41,14 +41,15 @@ function profile_init(App &$a) {
 	if((x($a->profile,'page-flags')) && ($a->profile['page-flags'] == PAGE_COMMUNITY)) {
 		$a->page['htmlhead'] .= '<meta name="friendica.community" content="true" />';
 	}
-	if(x($a->profile,'openidserver'))
+	if (x($a->profile,'openidserver')) {
 		$a->page['htmlhead'] .= '<link rel="openid.server" href="' . $a->profile['openidserver'] . '" />' . "\r\n";
-	if(x($a->profile,'openid')) {
+	}
+	if (x($a->profile,'openid')) {
 		$delegate = ((strstr($a->profile['openid'],'://')) ? $a->profile['openid'] : 'https://' . $a->profile['openid']);
 		$a->page['htmlhead'] .= '<link rel="openid.delegate" href="' . $delegate . '" />' . "\r\n";
 	}
 	// site block
-	if((! $blocked) && (! $userblock)) {
+	if ((! $blocked) && (! $userblock)) {
 		$keywords = ((x($a->profile,'pub_keywords')) ? $a->profile['pub_keywords'] : '');
 		$keywords = str_replace(array('#',',',' ',',,'),array('',' ',',',','),$keywords);
 		if(strlen($keywords))
@@ -81,6 +82,7 @@ function profile_content(&$a, $update = 0) {
 					$datequery2 = escape_tags($a->argv[$x]);
 				} else {
 					$datequery = escape_tags($a->argv[$x]);
+				}
 			} else {
 				$category = $a->argv[$x];
 			}
