@@ -2,6 +2,7 @@
 Abinoam P. Marques Jr.
 Abrax
 Adam Jurkiewicz
+Albert
 Alberto Díaz Tormo
 Alex
 Alexander Kampmann
@@ -137,7 +138,7 @@ rcmaniac
 rebeka-catalina
 repat
 Ricardo Pereira
-Roland Haeder
+Roland Häder
 Rui Andrada
 Sakałoŭ Alaksiej
 Sam
