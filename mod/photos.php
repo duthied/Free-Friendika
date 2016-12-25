@@ -208,6 +208,9 @@ function photos_post(&$a) {
 				dbesc($album),
 				intval($page_owner_uid)
 			);
+			// Update the photo albums cache
+			photo_albums($page_owner_uid, true);
+
 			$newurl = str_replace(bin2hex($album),bin2hex($newalbum),$_SESSION['photo_return']);
 			goaway($newurl);
 			return; // NOTREACHED
@@ -294,7 +297,11 @@ function photos_post(&$a) {
 						proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
 				}
 			}
+
+			// Update the photo albums cache
+			photo_albums($page_owner_uid, true);
 		}
+
 		goaway('photos/' . $a->data['user']['nickname']);
 		return; // NOTREACHED
 	}
@@ -358,6 +365,9 @@ function photos_post(&$a) {
 
 				$url = App::get_baseurl();
 				$drop_id = intval($i[0]['id']);
+
+				// Update the photo albums cache
+				photo_albums($page_owner_uid, true);
 
 				if ($i[0]['visible'])
 					proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
@@ -457,6 +467,8 @@ function photos_post(&$a) {
 				dbesc($resource_id),
 				intval($page_owner_uid)
 			);
+			// Update the photo albums cache
+			photo_albums($page_owner_uid, true);
 		}
 
 		/* Don't make the item visible if the only change was the album name */
@@ -913,6 +925,8 @@ function photos_post(&$a) {
 				. '[/url]';
 
 	$item_id = item_store($arr);
+	// Update the photo albums cache
+	photo_albums($page_owner_uid, true);
 
 	if ($visible)
 		proc_run(PRIORITY_HIGH, "include/notifier.php", 'wall-new', $item_id);
