@@ -380,10 +380,11 @@ function photos_post(&$a) {
 
 	if (($a->argc > 2) && ((x($_POST,'desc') !== false) || (x($_POST,'newtag') !== false)) || (x($_POST,'albname') !== false)) {
 
-		$desc        = ((x($_POST,'desc'))    ? notags(trim($_POST['desc']))    : '');
-		$rawtags     = ((x($_POST,'newtag'))  ? notags(trim($_POST['newtag']))  : '');
-		$item_id     = ((x($_POST,'item_id')) ? intval($_POST['item_id'])       : 0);
-		$albname     = ((x($_POST,'albname')) ? notags(trim($_POST['albname'])) : '');
+		$desc        = ((x($_POST,'desc'))      ? notags(trim($_POST['desc']))    : '');
+		$rawtags     = ((x($_POST,'newtag'))    ? notags(trim($_POST['newtag']))  : '');
+		$item_id     = ((x($_POST,'item_id'))   ? intval($_POST['item_id'])       : 0);
+		$albname     = ((x($_POST,'albname'))   ? notags(trim($_POST['albname'])) : '');
+		$origaname   = ((x($_POST,'origaname')) ? notags(trim($_POST['origaname'])) : '');
 		$str_group_allow   = perms2str($_POST['group_allow']);
 		$str_contact_allow = perms2str($_POST['contact_allow']);
 		$str_group_deny    = perms2str($_POST['group_deny']);
@@ -467,8 +468,10 @@ function photos_post(&$a) {
 				dbesc($resource_id),
 				intval($page_owner_uid)
 			);
-			// Update the photo albums cache
-			photo_albums($page_owner_uid, true);
+			// Update the photo albums cache if album name was changed
+			if ($albname !== $origaname) {
+				photo_albums($page_owner_uid, true);
+			}
 		}
 
 		/* Don't make the item visible if the only change was the album name */
