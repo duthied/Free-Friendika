@@ -3068,8 +3068,8 @@
 		'image/gif' => 'gif'
 		);
 		$data = array('photo'=>array());
-		if($r) {
-			foreach($r as $rr) {
+		if ($r) {
+			foreach ($r as $rr) {
 				$photo = array();
 				$photo['id'] = $rr['resource-id'];
 				$photo['album'] = $rr['album'];
@@ -3218,7 +3218,7 @@
 	function api_share_as_retweet(&$item) {
 		$body = trim($item["body"]);
 
-		if (diaspora::is_reshare($body, false)===false) {
+		if (Diaspora::is_reshare($body, false)===false) {
 			return false;
 		}
 

@@ -121,7 +121,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			intval($uid)
 		);
 
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			logger('Contact not found in DB.');
 			notice( t('Contact not found.') . EOL );
 			notice( t('This may occasionally happen if contact was requested by both persons and it has already been approved.') . EOL );
@@ -194,7 +194,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			$params['public_key'] = $public_key;
 
 
-			$my_url = $a->get_baseurl() . '/profile/' . $user[0]['nickname'];
+			$my_url = App::get_baseurl() . '/profile/' . $user[0]['nickname'];
 
 			openssl_public_encrypt($my_url, $params['source_url'], $site_pubkey);
 			$params['source_url'] = bin2hex($params['source_url']);
@@ -433,7 +433,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 			if(($contact) && ($contact['network'] === NETWORK_DIASPORA)) {
 				require_once('include/diaspora.php');
-				$ret = diaspora::send_share($user[0],$r[0]);
+				$ret = Diaspora::send_share($user[0],$r[0]);
 				logger('share returns: ' . $ret);
 			}
 
@@ -503,10 +503,11 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		// Let's send our user to the contact editor in case they want to
 		// do anything special with this new friend.
 
-		if($handsfree === null)
-			goaway($a->get_baseurl() . '/contacts/' . intval($contact_id));
-		else
+		if ($handsfree === null) {
+			goaway(App::get_baseurl() . '/contacts/' . intval($contact_id));
+		} else {
 			return;
+		}
 		//NOTREACHED
 	}
 
@@ -522,7 +523,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 	 *
 	 */
 
-	if(x($_POST,'source_url')) {
+	if (x($_POST,'source_url')) {
 
 		// We are processing an external confirmation to an introduction created by our user.
 
@@ -543,7 +544,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 		// If $aes_key is set, both of these items require unpacking from the hex transport encoding.
 
-		if(x($aes_key)) {
+		if (x($aes_key)) {
 			$aes_key = hex2bin($aes_key);
 			$public_key = hex2bin($public_key);
 		}
@@ -553,7 +554,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' LIMIT 1",
 			dbesc($node));
 
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			$message = sprintf(t('No user record found for \'%s\' '), $node);
 			xml_status(3,$message); // failure
 			// NOTREACHED
@@ -640,7 +641,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			dbesc($dfrn_pubkey),
 			intval($dfrn_record)
 		);
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			$message = t('Unable to set your contact credentials on our system.');
 			xml_status(3,$message);
 		}
@@ -661,10 +662,11 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		$r = q("SELECT `photo` FROM `contact` WHERE `id` = %d LIMIT 1",
 			intval($dfrn_record));
 
-		if (dbm::is_result($r))
+		if (dbm::is_result($r)) {
 			$photo = $r[0]['photo'];
-		else
-			$photo = $a->get_baseurl() . '/images/person-175.jpg';
+		} else {
+			$photo = App::get_baseurl() . '/images/person-175.jpg';
+		}
 
 		require_once("include/Photo.php");
 
@@ -673,11 +675,13 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		logger('dfrn_confirm: request - photos imported');
 
 		$new_relation = CONTACT_IS_SHARING;
-		if(($relation == CONTACT_IS_FOLLOWER) || ($duplex))
+		if (($relation == CONTACT_IS_FOLLOWER) || ($duplex)) {
 			$new_relation = CONTACT_IS_FRIEND;
+		}
 
-		if(($relation == CONTACT_IS_FOLLOWER) && ($duplex))
+		if (($relation == CONTACT_IS_FOLLOWER) && ($duplex)) {
 			$duplex = 0;
+		}
 
 		$r = q("UPDATE `contact` SET
 			`rel` = %d,
@@ -699,7 +703,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			dbesc(NETWORK_DFRN),
 			intval($dfrn_record)
 		);
-		if($r === false) {    // indicates schema is messed up or total db failure
+		if ($r === false) {    // indicates schema is messed up or total db failure
 			$message = t('Unable to update your contact profile details on our system');
 			xml_status(3,$message);
 		}
@@ -726,7 +730,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				'to_name'      => $r[0]['username'],
 				'to_email'     => $r[0]['email'],
 				'uid'          => $r[0]['uid'],
-				'link'		   => $a->get_baseurl() . '/contacts/' . $dfrn_record,
+				'link'		   => App::get_baseurl() . '/contacts/' . $dfrn_record,
 				'source_name'  => ((strlen(stripslashes($r[0]['name']))) ? stripslashes($r[0]['name']) : t('[Name Withheld]')),
 				'source_link'  => $r[0]['url'],
 				'source_photo' => $r[0]['photo'],

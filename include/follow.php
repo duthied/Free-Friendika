@@ -77,12 +77,12 @@ function new_contact($uid,$url,$interactive = false) {
 
 	$url = str_replace('/#!/','/',$url);
 
-	if(! allowed_url($url)) {
+	if (! allowed_url($url)) {
 		$result['message'] = t('Disallowed profile URL.');
 		return $result;
 	}
 
-	if(! $url) {
+	if (! $url) {
 		$result['message'] = t('Connect URL missing.');
 		return $result;
 	}
@@ -91,17 +91,21 @@ function new_contact($uid,$url,$interactive = false) {
 
 	call_hooks('follow', $arr);
 
-	if(x($arr['contact'],'name'))
+	if (x($arr['contact'],'name')) {
 		$ret = $arr['contact'];
-	else
+	}
+	else {
 		$ret = probe_url($url);
+	}
 
-	if($ret['network'] === NETWORK_DFRN) {
-		if($interactive) {
-			if(strlen($a->path))
-				$myaddr = bin2hex($a->get_baseurl() . '/profile/' . $a->user['nickname']);
-			else
+	if ($ret['network'] === NETWORK_DFRN) {
+		if ($interactive) {
+			if (strlen($a->path)) {
+				$myaddr = bin2hex(App::get_baseurl() . '/profile/' . $a->user['nickname']);
+			}
+			else {
 				$myaddr = bin2hex($a->user['nickname'] . '@' . $a->get_hostname());
+			}
 
 			goaway($ret['request'] . "&addr=$myaddr");
 
@@ -254,7 +258,7 @@ function new_contact($uid,$url,$interactive = false) {
 		intval($uid)
 	);
 
-	if(! dbm::is_result($r)) {
+	if (! dbm::is_result($r)) {
 		$result['message'] .=  t('Unable to retrieve contact information.') . EOL;
 		return $result;
 	}
@@ -289,8 +293,9 @@ function new_contact($uid,$url,$interactive = false) {
 			$slap = ostatus::salmon($item, $r[0]);
 			slapper($r[0], $contact['notify'], $slap);
 		}
+
 		if ($contact['network'] == NETWORK_DIASPORA) {
-			$ret = diaspora::send_share($a->user,$contact);
+			$ret = Diaspora::send_share($a->user,$contact);
 			logger('share returns: '.$ret);
 		}
 	}

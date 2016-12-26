@@ -12,7 +12,7 @@ function wall_attach_post(&$a) {
 		$r = q("SELECT `user`.*, `contact`.`id` FROM `user` LEFT JOIN `contact` on `user`.`uid` = `contact`.`uid`  WHERE `user`.`nickname` = '%s' AND `user`.`blocked` = 0 and `contact`.`self` = 1 LIMIT 1",
 			dbesc($nick)
 		);
-		if(! dbm::is_result($r)){
+		if (! dbm::is_result($r)) {
 			if ($r_json) {
 				echo json_encode(array('error'=>t('Invalid request.')));
 				killme();
@@ -168,7 +168,7 @@ function wall_attach_post(&$a) {
 		dbesc($hash)
 	);
 
-	if(! dbm::is_result($r)) {
+	if (! dbm::is_result($r)) {
 		$msg = t('File upload failed.');
 		if ($r_json) {
 			echo json_encode(array('error'=>$msg));

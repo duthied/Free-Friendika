@@ -23,7 +23,7 @@ function replace_macros($s,$r) {
 	$a = get_app();
 
 	// pass $baseurl to all templates
-	$r['$baseurl'] = $a->get_baseurl();
+	$r['$baseurl'] = App::get_baseurl();
 
 
 	$t = $a->template_engine();
@@ -912,7 +912,7 @@ function contact_block() {
 			if (dbm::is_result($r)) {
 				$contacts = sprintf( tt('%d Contact','%d Contacts', $total),$total);
 				$micropro = Array();
-				foreach($r as $rr) {
+				foreach ($r as $rr) {
 					$micropro[] = micropro($rr,true,'mpfriend');
 				}
 			}
@@ -1367,7 +1367,7 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 	// map
 	if(strpos($s,'<div class="map">') !== false && $item['coord']) {
 		$x = generate_map(trim($item['coord']));
-		if($x) {
+		if ($x) {
 			$s = preg_replace('/\<div class\=\"map\"\>/','$0' . $x,$s);
 		}
 	}
@@ -1717,7 +1717,7 @@ function bb_translate_video($s) {
 
 	$matches = null;
 	$r = preg_match_all("/\[video\](.*?)\[\/video\]/ism",$s,$matches,PREG_SET_ORDER);
-	if($r) {
+	if ($r) {
 		foreach($matches as $mtch) {
 			if((stristr($mtch[1],'youtube')) || (stristr($mtch[1],'youtu.be')))
 				$s = str_replace($mtch[0],'[youtube]' . $mtch[1] . '[/youtube]',$s);
@@ -2000,8 +2000,9 @@ function file_tag_unsave_file($uid,$item,$file,$cat = false) {
 		intval($item),
 		intval($uid)
 	);
-	if(! dbm::is_result($r))
+	if (! dbm::is_result($r)) {
 		return false;
+	}
 
 	q("UPDATE `item` SET `file` = '%s' WHERE `id` = %d AND `uid` = %d",
 		dbesc(str_replace($pattern,'',$r[0]['file'])),
@@ -2020,11 +2021,11 @@ function file_tag_unsave_file($uid,$item,$file,$cat = false) {
 	//$r = q("select file from item where uid = %d and deleted = 0 " . file_tag_file_query('item',$file,(($cat) ? 'category' : 'file')),
 	//);
 
-	if(! dbm::is_result($r)) {
+	if (! dbm::is_result($r)) {
 		$saved = get_pconfig($uid,'system','filetags');
 		set_pconfig($uid,'system','filetags',str_replace($pattern,'',$saved));
-
 	}
+
 	return true;
 }
 

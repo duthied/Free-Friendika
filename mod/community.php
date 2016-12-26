@@ -1,7 +1,7 @@
 <?php
 
 function community_init(&$a) {
-	if(! local_user()) {
+	if (! local_user()) {
 		unset($_SESSION['theme']);
 		unset($_SESSION['mobile-theme']);
 	}
@@ -71,7 +71,7 @@ function community_content(&$a, $update = 0) {
 
 	$r = community_getitems($a->pager['start'], $a->pager['itemspage']);
 
-	if(! dbm::is_result($r)) {
+	if (! dbm::is_result($r)) {
 		info( t('No results.') . EOL);
 		return $o;
 	}

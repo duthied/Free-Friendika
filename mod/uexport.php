@@ -1,11 +1,12 @@
 <?php
 
 function uexport_init(&$a){
-	if(! local_user())
+	if (! local_user()) {
 		killme();
+	}
 
 	require_once("mod/settings.php");
-        settings_init($a);
+	settings_init($a);
 }
 
 function uexport_content(&$a){
@@ -33,7 +34,7 @@ function uexport_content(&$a){
 
     $tpl = get_markup_template("uexport.tpl");
     return replace_macros($tpl, array(
-        '$baseurl' => $a->get_baseurl(),
+        '$baseurl' => App::get_baseurl(),
         '$title' => t('Export personal data'),
         '$options' => $options
     ));
@@ -104,7 +105,7 @@ function uexport_account($a){
 	$output = array(
         'version' => FRIENDICA_VERSION,
         'schema' => DB_UPDATE_VERSION,
-        'baseurl' => $a->get_baseurl(),
+        'baseurl' => App::get_baseurl(),
         'user' => $user,
         'contact' => $contact,
         'profile' => $profile,

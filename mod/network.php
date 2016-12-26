@@ -1,6 +1,6 @@
 <?php
 function network_init(&$a) {
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
@@ -100,7 +100,7 @@ function network_init(&$a) {
 
 			$redir_url = ($net_queries ? $net_baseurl."?".$net_queries : $net_baseurl);
 
-			goaway($a->get_baseurl() . $redir_url);
+			goaway(App::get_baseurl() . $redir_url);
 		}
 	}
 
@@ -126,7 +126,7 @@ function network_init(&$a) {
 			intval(local_user()),
 			dbesc($search)
 		);
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			q("INSERT INTO `search` ( `uid`,`term` ) VALUES ( %d, '%s') ",
 				intval(local_user()),
 				dbesc($search)
@@ -183,13 +183,13 @@ function saved_searches($search) {
 	$saved = array();
 
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			$saved[] = array(
-				'id'		=> $rr['id'],
-				'term'		=> $rr['term'],
-				'encodedterm' 	=> urlencode($rr['term']),
-				'delete'	=> t('Remove term'),
-				'selected'	=> ($search==$rr['term']),
+				'id'          => $rr['id'],
+				'term'        => $rr['term'],
+				'encodedterm' => urlencode($rr['term']),
+				'delete'      => t('Remove term'),
+				'selected'    => ($search==$rr['term']),
 			);
 		}
 	}
@@ -197,10 +197,10 @@ function saved_searches($search) {
 
 	$tpl = get_markup_template("saved_searches_aside.tpl");
 	$o = replace_macros($tpl, array(
-		'$title'	=> t('Saved Searches'),
-		'$add'		=> t('add'),
-		'$searchbox'	=> search($search,'netsearch-box',$srchurl,true),
-		'$saved' 	=> $saved,
+		'$title'     => t('Saved Searches'),
+		'$add'       => t('add'),
+		'$searchbox' => search($search,'netsearch-box',$srchurl,true),
+		'$saved'     => $saved,
 	));
 
 	return $o;
@@ -308,7 +308,7 @@ function network_content(&$a, $update = 0) {
 
 	require_once('include/conversation.php');
 
-	if(! local_user()) {
+	if (! local_user()) {
 		$_SESSION['return_url'] = $a->query_string;
 		return login(false);
 	}
@@ -463,7 +463,7 @@ function network_content(&$a, $update = 0) {
 			intval($group),
 			intval($_SESSION['uid'])
 		);
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			if($update)
 				killme();
 			notice( t('No such group') . EOL );
