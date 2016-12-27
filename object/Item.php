@@ -347,16 +347,18 @@ class Item extends BaseObject {
 			unset($buttons["like"]);
 		}
 
+		// Disabled for testing purposes
+
 		// Diaspora isn't able to do likes on comments - but red does
-		if (($item["item_network"] == NETWORK_DIASPORA) AND ($indent == 'comment') AND
-			!Diaspora::is_redmatrix($item["owner-link"]) AND isset($buttons["like"])) {
-			unset($buttons["like"]);
-		}
+		//if (($item["item_network"] == NETWORK_DIASPORA) AND ($indent == 'comment') AND
+		//	!Diaspora::is_redmatrix($item["owner-link"]) AND isset($buttons["like"])) {
+		//	unset($buttons["like"]);
+		//}
 
 		// Diaspora doesn't has multithreaded comments
-		if (($item["item_network"] == NETWORK_DIASPORA) AND ($indent == 'comment')) {
-			unset($comment);
-		}
+		//if (($item["item_network"] == NETWORK_DIASPORA) AND ($indent == 'comment')) {
+		//	unset($comment);
+		//}
 
 		// Facebook can like comments - but it isn't programmed in the connector yet.
 		if (($item["item_network"] == NETWORK_FACEBOOK) AND ($indent == 'comment') AND isset($buttons["like"])) {

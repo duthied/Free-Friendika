@@ -1158,6 +1158,23 @@ class Diaspora {
 	}
 
 	/**
+	 * @brief Fetch the guid from our database with a given uri
+	 *
+	 * @param string $author Author handle
+	 * @param string $uri Message uri
+	 *
+	 * @return string The post guid
+	 */
+	private static function get_guid_from_uri($uri, $uid) {
+
+		$r = q("SELECT `guid` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1", dbesc($uri), intval($uid));
+		if (dbm::is_result($r))
+			return $r[0]["guid"];
+		else
+			return false;
+	}
+
+	/**
 	 * @brief Processes an incoming comment
 	 *
 	 * @param array $importer Array of the importer user
@@ -2922,7 +2939,7 @@ class Diaspora {
 
 		$public = (($item["private"]) ? "false" : "true");
 
-		$created = datetime_convert("UTC", "UTC", $item["created"], 'Y-m-d H:i:s \U\T\C');
+		$created = datetime_convert("UTC", "UTC", $item["created"], 'Y-m-d\TH:i:s\Z');
 
 		// Detect a share element and do a reshare
 		if (!$item['private'] AND ($ret = self::is_reshare($item["body"]))) {
@@ -3050,12 +3067,20 @@ class Diaspora {
 		$parent = $p[0];
 
 		$text = html_entity_decode(bb2diaspora($item["body"]));
+		$created = datetime_convert("UTC", "UTC", $item["created"], 'Y-m-d\TH:i:s\Z');
 
-		return(array("guid" => $item["guid"],
+		$comment = array("guid" => $item["guid"],
 				"parent_guid" => $parent["guid"],
 				"author_signature" => "",
 				"text" => $text,
-				"diaspora_handle" => self::my_handle($owner)));
+				/// @todo Currently disabled until Diaspora supports it: "created_at" => $created,
+				"diaspora_handle" => self::my_handle($owner));
+
+		// Send the thread parent guid only if it is a threaded comment
+		if ($item['thr-parent'] != $item['parent-uri']) {
+			$comment['thread_parent_guid'] = self::get_guid_from_uri($item['thr-parent'], $item['uid']);
+		}
+		return($comment);
 	}
 
 	/**
@@ -3267,13 +3292,13 @@ class Diaspora {
 		$conv = array(
 			"guid" => $cnv["guid"],
 			"subject" => $cnv["subject"],
-			"created_at" => datetime_convert("UTC", "UTC", $cnv['created'], 'Y-m-d H:i:s \U\T\C'),
+			"created_at" => datetime_convert("UTC", "UTC", $cnv['created'], 'Y-m-d\TH:i:s\Z'),
 			"diaspora_handle" => $cnv["creator"],
 			"participant_handles" => $cnv["recips"]
 		);
 
 		$body = bb2diaspora($item["body"]);
-		$created = datetime_convert("UTC", "UTC", $item["created"], 'Y-m-d H:i:s \U\T\C');
+		$created = datetime_convert("UTC", "UTC", $item["created"], 'Y-m-d\TH:i:s\Z');
 
 		$signed_text = $item["guid"].";".$cnv["guid"].";".$body.";".$created.";".$myaddr.";".$cnv['guid'];
 		$sig = base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
@@ -3295,7 +3320,7 @@ class Diaspora {
 		} else {
 			$message = array("guid" => $cnv["guid"],
 					"subject" => $cnv["subject"],
-					"created_at" => datetime_convert("UTC", "UTC", $cnv['created'], 'Y-m-d H:i:s \U\T\C'),
+					"created_at" => datetime_convert("UTC", "UTC", $cnv['created'], 'Y-m-d\TH:i:s\Z'),
 					"message" => $msg,
 					"diaspora_handle" => $cnv["creator"],
 					"participant_handles" => $cnv["recips"]);
