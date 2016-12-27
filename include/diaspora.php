@@ -1145,16 +1145,20 @@ class Diaspora {
 	 *
 	 * @param string $author Author handle
 	 * @param string $guid Message guid
+	 * @param boolean $onlyfound Only return uri when found in the database
 	 *
 	 * @return string The constructed uri or the one from our database
 	 */
-	private function get_uri_from_guid($author, $guid) {
+	private static function get_uri_from_guid($author, $guid, $onlyfound = false) {
 
 		$r = q("SELECT `uri` FROM `item` WHERE `guid` = '%s' LIMIT 1", dbesc($guid));
-		if ($r)
+		if (dbm::is_result($r)) {
 			return $r[0]["uri"];
-		else
+		} elseif (!$onlyfound) {
 			return $author.":".$guid;
+		}
+
+		return "";
 	}
 
 	/**
@@ -1194,6 +1198,13 @@ class Diaspora {
 			$created_at = datetime_convert("UTC", "UTC", notags(unxmlify($data->created_at)));
 		} else {
 			$created_at = datetime_convert();
+		}
+
+		if (isset($data->thread_parent_guid)) {
+			$thread_parent_guid = notags(unxmlify($data->thread_parent_guid));
+			$thr_uri = self::get_uri_from_guid("", $thread_parent_guid, true);
+		} else {
+			$thr_uri = "";
 		}
 
 		$contact = self::allowed_contact_by_handle($importer, $sender, true);
@@ -1240,7 +1251,12 @@ class Diaspora {
 		$datarray["type"] = "remote-comment";
 		$datarray["verb"] = ACTIVITY_POST;
 		$datarray["gravity"] = GRAVITY_COMMENT;
-		$datarray["parent-uri"] = $parent_item["uri"];
+
+		if ($thr_uri != "") {
+			$datarray["parent-uri"] = $thr_uri;
+		} else {
+			$datarray["parent-uri"] = $parent_item["uri"];
+		}
 
 		$datarray["object-type"] = ACTIVITY_OBJ_COMMENT;
 		$datarray["object"] = $xml;
