@@ -3465,25 +3465,12 @@ class Diaspora {
 		$message = self::construct_like($r[0], $contact);
 		$message["author_signature"] = self::signature($contact, $message);
 
-		// In the future we will store the signature more flexible to support new fields.
-		// Right now we cannot change this since old Friendica versions (prior to 3.5) can only handle this format.
-		// (We are transmitting this data here via DFRN)
-
-		$signed_text = $message["positive"].";".$message["guid"].";".$message["target_type"].";".
-				$message["parent_guid"].";".$message["diaspora_handle"];
-
-		q("INSERT INTO `sign` (`iid`,`signed_text`,`signature`,`signer`) VALUES (%d,'%s','%s','%s')",
-			intval($post_id),
-			dbesc($signed_text),
-			dbesc($message["author_signature"]),
-			dbesc($message["diaspora_handle"])
+		// We now store the signature more flexible to dynamically support new fields.
+		// This will break Diaspora compatibility with Friendica versions prior to 3.5.
+		q("INSERT INTO `sign` (`iid`,`signed_text`) VALUES (%d,'%s')",
+			intval($message_id),
+			dbesc(json_encode($message))
 		);
-
-		// This here will replace the lines above, once Diaspora changed its protocol
-		//q("INSERT INTO `sign` (`iid`,`signed_text`) VALUES (%d,'%s')",
-		//	intval($message_id),
-		//	dbesc(json_encode($message))
-		//);
 
 		logger('Stored diaspora like signature');
 		return true;
@@ -3511,24 +3498,12 @@ class Diaspora {
 		$message = self::construct_comment($item, $contact);
 		$message["author_signature"] = self::signature($contact, $message);
 
-		// In the future we will store the signature more flexible to support new fields.
-		// Right now we cannot change this since old Friendica versions (prior to 3.5) can only handle this format.
-		// (We are transmitting this data here via DFRN)
-		$signed_text = $message["guid"].";".$message["parent_guid"].";".
-				$message["text"].";".$message["diaspora_handle"];
-
-		q("INSERT INTO `sign` (`iid`,`signed_text`,`signature`,`signer`) VALUES (%d,'%s','%s','%s')",
+		// We now store the signature more flexible to dynamically support new fields.
+		// This will break Diaspora compatibility with Friendica versions prior to 3.5.
+		q("INSERT INTO `sign` (`iid`,`signed_text`) VALUES (%d,'%s')",
 			intval($message_id),
-			dbesc($signed_text),
-			dbesc($message["author_signature"]),
-			dbesc($message["diaspora_handle"])
+			dbesc(json_encode($message))
 		);
-
-		// This here will replace the lines above, once Diaspora changed its protocol
-		//q("INSERT INTO `sign` (`iid`,`signed_text`) VALUES (%d,'%s')",
-		//	intval($message_id),
-		//	dbesc(json_encode($message))
-		//);
 
 		logger('Stored diaspora comment signature');
 		return true;
