@@ -520,7 +520,7 @@ class Diaspora {
 			$key = self::key($msg["author"]);
 
 			if (!rsa_verify($signed_data, $parent_author_signature, $key, "sha256")) {
-				logger("No valid parent author signature for author ".$msg["author"]. " in type ".$type." - signed data: ".$signed_data." - Message: ".$msg["message"]." - Signature ".$parent_author_signature, LOGGER_DEBUG);
+				logger("No valid parent author signature for parent author ".$msg["author"]. " in type ".$type." - signed data: ".$signed_data." - Message: ".$msg["message"]." - Signature ".$parent_author_signature, LOGGER_DEBUG);
 				return false;
 			}
 		}
@@ -528,7 +528,7 @@ class Diaspora {
 		$key = self::key($fields->author);
 
 		if (!rsa_verify($signed_data, $author_signature, $key, "sha256")) {
-			logger("No valid author signature for author ".$msg["author"]. " in type ".$type." - signed data: ".$signed_data." - Message: ".$msg["message"]." - Signature ".$author_signature, LOGGER_DEBUG);
+			logger("No valid author signature for author ".$fields->author. " in type ".$type." - signed data: ".$signed_data." - Message: ".$msg["message"]." - Signature ".$author_signature, LOGGER_DEBUG);
 			return false;
 		} else
 			return true;
