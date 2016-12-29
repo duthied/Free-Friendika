@@ -809,7 +809,7 @@ class App {
 	function get_baseurl($ssl = false) {
 
 		// Is the function called statically?
-		if (!is_object($this)) {
+		if (!(isset($this) && get_class($this) == __CLASS__)) {
 			return self::$a->get_baseurl($ssl);
 		}
 
@@ -1053,7 +1053,7 @@ class App {
 	function remove_baseurl($orig_url){
 
 		// Is the function called statically?
-		if (!is_object($this)) {
+		if (!(isset($this) && get_class($this) == __CLASS__)) {
 			return(self::$a->remove_baseurl($orig_url));
 		}
 
