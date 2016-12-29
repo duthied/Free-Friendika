@@ -1914,18 +1914,18 @@ class Diaspora {
 	 *
 	 * @return string The XML
 	 */
-        private function construct_new_friend_object($contact) {
-                $objtype = ACTIVITY_OBJ_PERSON;
-                $link = '<link rel="alternate" type="text/html" href="'.$contact["url"].'" />'."\n".
-                        '<link rel="photo" type="image/jpeg" href="'.$contact["thumb"].'" />'."\n";
+	private function construct_new_friend_object($contact) {
+		$objtype = ACTIVITY_OBJ_PERSON;
+		$link = '<link rel="alternate" type="text/html" href="'.$contact["url"].'" />'."\n".
+			'<link rel="photo" type="image/jpeg" href="'.$contact["thumb"].'" />'."\n";
 
-                $xmldata = array("object" => array("type" => $objtype,
-                                                "title" => $contact["name"],
-                                                "id" => $contact["url"]."/".$contact["name"],
-                                                "link" => $link));
+		$xmldata = array("object" => array("type" => $objtype,
+						"title" => $contact["name"],
+						"id" => $contact["url"]."/".$contact["name"],
+						"link" => $link));
 
-                return xml::from_array($xmldata, $xml, true);
-        }
+		return xml::from_array($xmldata, $xml, true);
+	}
 
 	/**
 	 * @brief Processes incoming sharing notification
@@ -2940,6 +2940,52 @@ class Diaspora {
 	}
 
 	/**
+	 * @brief Create an event array
+	 *
+	 * @param integer $event_id The id of the event
+	 *
+	 * @return array with event data
+	 */
+	private static function build_event($event_id) {
+		$r = q("SELECT `start`, `finish`, `summary`, `desc`, `location`, `adjust` FROM `event` WHERE `id` = %d", intval($event_id));
+		if (!dbm::is_result($r)) {
+			return array();
+		}
+
+		$eventdata = array();
+
+		/// @todo Timezone in start und end?
+
+		if ($r[0]['adjust']) {
+			$eventdata['timezone'] = 'UTC';
+		} else {
+			$eventdata['timezone'] = date_default_timezone_get();
+		}
+
+		if ($r[0]['start']) {
+			$eventdata['start'] = datetime_convert("UTC", "UTC", $r[0]['start'], 'Y-m-d\TH:i:s\Z');
+		}
+		if ($r[0]['finish']) {
+			$eventdata['end'] = datetime_convert("UTC", "UTC", $r[0]['finish'], 'Y-m-d\TH:i:s\Z');
+		}
+		if ($r[0]['summary']) {
+			$eventdata['summary'] = html_entity_decode(bb2diaspora($r[0]['summary']));
+		}
+		if ($r[0]['desc']) {
+			$eventdata['description'] = html_entity_decode(bb2diaspora($r[0]['desc']));
+		}
+		if ($r[0]['location']) {
+			$location = array();
+			$location["address"] = html_entity_decode(bb2diaspora($r[0]['location']));
+			$location["lat"] = 0;
+			$location["lng"] = 0;
+			$eventdata['location'] = $location;
+		}
+
+		return $eventdata;
+	}
+
+	/**
 	 * @brief Create a post (status message or reshare)
 	 *
 	 * @param array $item The item that will be exported
@@ -3010,6 +3056,13 @@ class Diaspora {
 			// Diaspora rejects messages when they contain a location without "lat" or "lng"
 			if (!isset($location["lat"]) OR !isset($location["lng"])) {
 				unset($message["location"]);
+			}
+
+			if ($item['event-id'] > 0) {
+				$event = self::build_event($item['event-id']);
+				if (count($event)) {
+					$message['event'] = $event;
+				}
 			}
 
 			$type = "status_message";
