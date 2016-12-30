@@ -324,7 +324,7 @@ class Probe {
 				!isset($parts["path"]))
 				return false;
 
-			// todo: Ports?
+			/// @todo: Ports?
 			$host = $parts["host"];
 
 			if ($host == 'twitter.com')

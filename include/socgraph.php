@@ -1188,7 +1188,7 @@ function update_suggestions() {
 
 	$done = array();
 
-	/// TODO Check if it is really neccessary to poll the own server
+	/// @TODO Check if it is really neccessary to poll the own server
 	poco_load(0,0,0,App::get_baseurl() . '/poco');
 
 	$done[] = App::get_baseurl() . '/poco';
