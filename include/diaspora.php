@@ -2949,7 +2949,7 @@ class Diaspora {
 	 */
 	private static function build_event($event_id) {
 
-		$r = q("SELECT `uid`, `start`, `finish`, `summary`, `desc`, `location`, `adjust` FROM `event` WHERE `id` = %d", intval($event_id));
+		$r = q("SELECT `guid`, `uid`, `start`, `finish`, `nofinish`, `summary`, `desc`, `location`, `adjust` FROM `event` WHERE `id` = %d", intval($event_id));
 		if (!dbm::is_result($r)) {
 			return array();
 		}
@@ -2965,22 +2965,37 @@ class Diaspora {
 
 		$user = $r[0];
 
-		if ($event['adjust']) {
+		$r = q("SELECT `addr`, `nick` FROM `contact` WHERE `uid` = %d AND `self`", intval($event['uid']));
+		if (!dbm::is_result($r)) {
+			return array();
+		}
+
+		$owner = $r[0];
+
+		$eventdata['author'] = self::my_handle($owner);
+
+		if ($event['guid']) {
+			$eventdata['guid'] = $event['guid'];
+		}
+
+		$mask = 'Y-m-d\TH:i:s\Z';
+
+		/// @todo
+		$eventdata["all_day"] = "false";
+
+		if (!$event['adjust']) {
 			$eventdata['timezone'] = $user['timezone'];
 
 			if ($eventdata['timezone'] == "") {
 				$eventdata['timezone'] = 'UTC';
 			}
-			$mask = 'Y-m-d\TH:i:s\Z';
-		} else {
-			$mask = 'Y-m-d\TH:i:s';
 		}
 
 		if ($event['start']) {
-			$eventdata['start'] = datetime_convert("UTC", "UTC", $event['start'], $mask);
+			$eventdata['start'] = datetime_convert($eventdata['timezone'], "UTC", $event['start'], $mask);
 		}
-		if ($event['finish']) {
-			$eventdata['end'] = datetime_convert("UTC", "UTC", $event['finish'], $mask);
+		if ($event['finish'] AND !$event['nofinish']) {
+			$eventdata['end'] = datetime_convert($eventdata['timezone'], "UTC", $event['finish'], $mask);
 		}
 		if ($event['summary']) {
 			$eventdata['summary'] = html_entity_decode(bb2diaspora($event['summary']));
@@ -3083,6 +3098,9 @@ class Diaspora {
 				$event = self::build_event($item['event-id']);
 				if (count($event)) {
 					$message['event'] = $event;
+
+					/// @todo Once Diaspora supports it, we will remove the body
+					// $message['raw_message'] = '';
 				}
 			}
 
