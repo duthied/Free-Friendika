@@ -3150,7 +3150,11 @@ class Diaspora {
 		$parent = $p[0];
 
 		$target_type = ($parent["uri"] === $parent["parent-uri"] ? "Post" : "Comment");
-		$positive = "true";
+		if ($item['verb'] === ACTIVITY_LIKE) {
+			$positive = "true";
+		} elseif ($item['verb'] === ACTIVITY_DISLIKE) {
+			$positive = "false";
+		}
 
 		return(array("positive" => $positive,
 				"guid" => $item["guid"],
@@ -3251,7 +3255,7 @@ class Diaspora {
 		if (in_array($item['verb'], array(ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE))) {
 			$message = self::construct_attend($item, $owner);
 			$type = "event_participation";
-		} elseif($item['verb'] === ACTIVITY_LIKE) {
+		} elseif (in_array($item["verb"], array(ACTIVITY_LIKE, ACTIVITY_DISLIKE))) {
 			$message = self::construct_like($item, $owner);
 			$type = "like";
 		} else {
