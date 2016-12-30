@@ -3213,6 +3213,13 @@ class Diaspora {
 	 */
 	private static function construct_comment($item, $owner) {
 
+		$cachekey = "diaspora:construct_comment:".$item['guid'];
+
+		$result = Cache::get($cachekey);
+		if (!is_null($result)) {
+			return $result;
+		}
+
 		$p = q("SELECT `guid` FROM `item` WHERE `parent` = %d AND `id` = %d LIMIT 1",
 			intval($item["parent"]),
 			intval($item["parent"])
@@ -3237,6 +3244,9 @@ class Diaspora {
 		if ($item['thr-parent'] != $item['parent-uri']) {
 			$comment['thread_parent_guid'] = self::get_guid_from_uri($item['thr-parent'], $item['uid']);
 		}
+
+		Cache::set($cachekey, $comment, CACHE_QUARTER_HOUR);
+
 		return($comment);
 	}
 
