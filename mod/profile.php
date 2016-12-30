@@ -111,10 +111,8 @@ function profile_content(&$a, $update = 0) {
 	if ($update) {
 		// Ensure we've got a profile owner if updating.
 		$a->profile['profile_uid'] = $update;
-	} else {
-		if ($a->profile['profile_uid'] == local_user()) {
-			nav_set_selected('home');
-		}
+	} elseif ($a->profile['profile_uid'] == local_user()) {
+		nav_set_selected('home');
 	}
 
 	$contact = null;
@@ -158,11 +156,11 @@ function profile_content(&$a, $update = 0) {
 	}
 
 	if (! $update) {
-		if (x($_GET,'tab'))
+		if (x($_GET,'tab')) {
 			$tab = notags(trim($_GET['tab']));
+		}
 
 		$o.=profile_tabs($a, $is_owner, $a->profile['nickname']);
-
 
 		if ($tab === 'profile') {
 			$o .= advanced_profile($a);
@@ -201,14 +199,12 @@ function profile_content(&$a, $update = 0) {
 
 		$o .= status_editor($a,$x);
 		}
-
 	}
 
 
 	/**
 	 * Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
 	 */
-
 	$sql_extra = item_permissions_sql($a->profile['profile_uid'],$remote_contact,$groups);
 
 

@@ -110,12 +110,10 @@ function new_contact($uid,$url,$interactive = false) {
 
 			// NOTREACHED
 		}
-	} else {
-		if (get_config('system','dfrn_only')) {
-			$result['message'] = t('This site is not configured to allow communications with other networks.') . EOL;
-			$result['message'] != t('No compatible communication protocols or feeds were discovered.') . EOL;
-			return $result;
-		}
+	} elseif (get_config('system','dfrn_only')) {
+		$result['message'] = t('This site is not configured to allow communications with other networks.') . EOL;
+		$result['message'] != t('No compatible communication protocols or feeds were discovered.') . EOL;
+		return $result;
 	}
 
 	// This extra param just confuses things, remove it

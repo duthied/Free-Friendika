@@ -33,7 +33,7 @@ function theme_admin(App &$a){
 	$align = get_config('quattro', 'align' );
 	$color = get_config('quattro', 'color' );
 	$tfs = get_config("quattro","tfs");
-	$pfs = get_config("quattro","pfs");    
+	$pfs = get_config("quattro","pfs");
 
 	return quattro_form($a,$align, $color, $tfs, $pfs);
 }
@@ -69,8 +69,8 @@ function quattro_form(App &$a, $align, $color, $tfs, $pfs){
 		'$title'   => t("Theme settings"),
 		'$align'   => array('quattro_align', t('Alignment'), $align, '', array('left'=>t('Left'), 'center'=>t('Center'))),
 		'$color'   => array('quattro_color', t('Color scheme'), $color, '', $colors),
-        '$pfs'     => array('quattro_pfs', t('Posts font size'), $pfs),
-        '$tfs'     => array('quattro_tfs',t('Textareas font size'), $tfs),
+		'$pfs'     => array('quattro_pfs', t('Posts font size'), $pfs),
+		'$tfs'     => array('quattro_tfs',t('Textareas font size'), $tfs),
 	));
 	return $o;
 }
