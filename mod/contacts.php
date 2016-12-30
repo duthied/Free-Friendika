@@ -37,34 +37,36 @@ function contacts_init(App &$a) {
 	}
 
 	if ($contact_id) {
-			$a->data['contact'] = $r[0];
+		$a->data['contact'] = $r[0];
 
-			if (($a->data['contact']['network'] != "") AND ($a->data['contact']['network'] != NETWORK_DFRN)) {
-				$networkname = format_network_name($a->data['contact']['network'],$a->data['contact']['url']);
-			} else {
-				$networkname = '';
-			}
+		if (($a->data['contact']['network'] != "") AND ($a->data['contact']['network'] != NETWORK_DFRN)) {
+			$networkname = format_network_name($a->data['contact']['network'],$a->data['contact']['url']);
+		} else {
+			$networkname = '';
+		}
 
-			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"),array(
-				'$name' => htmlentities($a->data['contact']['name']),
-				'$photo' => $a->data['contact']['photo'],
-				'$url' => ($a->data['contact']['network'] == NETWORK_DFRN) ? "redir/".$a->data['contact']['id'] : $a->data['contact']['url'],
-				'$addr' => (($a->data['contact']['addr'] != "") ? ($a->data['contact']['addr']) : ""),
-				'$network_name' => $networkname,
-				'$network' => t('Network:'),
-				'$account_type' => account_type($a->data['contact'])
-			));
-			$finpeople_widget = '';
-			$follow_widget = '';
-			$networks_widget = '';
-	}
-	else {
+		/// @TODO Add nice spaces
+		$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"),array(
+			'$name' => htmlentities($a->data['contact']['name']),
+			'$photo' => $a->data['contact']['photo'],
+			'$url' => ($a->data['contact']['network'] == NETWORK_DFRN) ? "redir/".$a->data['contact']['id'] : $a->data['contact']['url'],
+			'$addr' => (($a->data['contact']['addr'] != "") ? ($a->data['contact']['addr']) : ""),
+			'$network_name' => $networkname,
+			'$network' => t('Network:'),
+			'$account_type' => account_type($a->data['contact'])
+		));
+
+		$finpeople_widget = '';
+		$follow_widget = '';
+		$networks_widget = '';
+	} else {
 		$vcard_widget = '';
 		$networks_widget .= networks_widget('contacts',$_GET['nets']);
-		if (isset($_GET['add']))
+		if (isset($_GET['add'])) {
 			$follow_widget = follow_widget($_GET['add']);
-		else
+		} else {
 			$follow_widget = follow_widget();
+		}
 
 		$findpeople_widget .= findpeople_widget();
 	}

@@ -955,12 +955,14 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 		$r = q('SELECT * FROM `item` WHERE `id` = %d', intval($current_post));
 		if ((dbm::is_result($r)) && (count($r) == 1)) {
-			if ($notify)
+			if ($notify) {
 				call_hooks('post_local_end', $r[0]);
-			else
+			} else {
 				call_hooks('post_remote_end', $r[0]);
-		} else
+			}
+		} else {
 			logger('item_store: new item not found in DB, id ' . $current_post);
+		}
 	}
 
 	if ($arr['parent-uri'] === $arr['uri']) {
@@ -994,8 +996,9 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 
 	check_item_notification($current_post, $uid);
 
-	if ($notify)
+	if ($notify) {
 		proc_run(PRIORITY_HIGH, "include/notifier.php", $notify_type, $current_post);
+	}
 
 	return $current_post;
 }
