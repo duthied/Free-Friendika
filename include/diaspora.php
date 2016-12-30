@@ -3161,6 +3161,45 @@ class Diaspora {
 	}
 
 	/**
+	 * @brief Creates an "EventParticipation" object
+	 *
+	 * @param array $item The item that will be exported
+	 * @param array $owner the array of the item owner
+	 *
+	 * @return array The data for an "EventParticipation"
+	 */
+	private static function construct_attend($item, $owner) {
+
+		$p = q("SELECT `guid`, `uri`, `parent-uri` FROM `item` WHERE `uri` = '%s' LIMIT 1",
+			dbesc($item["thr-parent"]));
+		if (!dbm::is_result($p))
+			return false;
+
+		$parent = $p[0];
+
+		switch ($item['verb']) {
+			case ACTIVITY_ATTEND:
+				$attend_answer = 'accepted';
+				break;
+			case ACTIVITY_ATTENDNO:
+				$attend_answer = 'declined';
+				break;
+			case ACTIVITY_ATTENDMAYBE:
+				$attend_answer = 'tentative';
+				break;
+			default:
+				logger('Unknown verb '.$item['verb'].' in item '.$item['guid']);
+				return false;
+		}
+
+		return(array("author" => self::my_handle($owner),
+				"guid" => $item["guid"],
+				"parent_guid" => $parent["guid"],
+				"status" => $attend_answer,
+				"author_signature" => ""));
+	}
+
+	/**
 	 * @brief Creates the object for a comment
 	 *
 	 * @param array $item The item that will be exported
@@ -3209,7 +3248,10 @@ class Diaspora {
 	 */
 	public static function send_followup($item,$owner,$contact,$public_batch = false) {
 
-		if($item['verb'] === ACTIVITY_LIKE) {
+		if (in_array($item['verb'], array(ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE))) {
+			$message = self::construct_attend($item, $owner);
+			$type = "event_participation";
+		} elseif($item['verb'] === ACTIVITY_LIKE) {
 			$message = self::construct_like($item, $owner);
 			$type = "like";
 		} else {
