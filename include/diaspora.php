@@ -1173,10 +1173,11 @@ class Diaspora {
 	private static function get_guid_from_uri($uri, $uid) {
 
 		$r = q("SELECT `guid` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1", dbesc($uri), intval($uid));
-		if (dbm::is_result($r))
+		if (dbm::is_result($r)) {
 			return $r[0]["guid"];
-		else
+		} else {
 			return false;
+		}
 	}
 
 	/**
@@ -2980,7 +2981,7 @@ class Diaspora {
 
 		$mask = 'Y-m-d\TH:i:s\Z';
 
-		/// @todo
+		/// @todo - establish "all day" events in Friendica
 		$eventdata["all_day"] = "false";
 
 		if (!$event['adjust']) {
