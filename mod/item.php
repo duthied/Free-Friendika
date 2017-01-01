@@ -103,8 +103,6 @@ function item_post(&$a) {
 			);
 		}
 
-		$thr_parent_item = $r[0];
-
 		// if this isn't the real parent of the conversation, find it
 		if (dbm::is_result($r)) {
 			$parid = $r[0]['parent'];
