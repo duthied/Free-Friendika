@@ -568,8 +568,8 @@ function item_post(&$a) {
 	 * add a statusnet style reply tag if the original post was from there
 	 * and we are replying, and there isn't one already
 	 */
-
-	if($parent AND ($parent_contact['network'] === NETWORK_OSTATUS)) {
+	if ($parent AND (($parent_contact['network'] == NETWORK_OSTATUS) OR
+		(($parent_item['uri'] != $thr_parent) AND ($parent_contact['network'] == NETWORK_DIASPORA)))) {
 		if ($parent_contact['id'] != "")
 			$contact = '@'.$parent_contact['nick'].'+'.$parent_contact['id'];
 		else
