@@ -156,7 +156,7 @@ function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 
 	if ($fordiaspora) {
 		$URLSearchString = "^\[\]";
-		$Text = preg_replace_callback("/([@]\[(.*?)\])\(([$URLSearchString]*)\)/ism", 'diaspora_mentions', $Text);
+		$Text = preg_replace_callback("/([@]\[(.*?)\])\(([$URLSearchString]*?)\)/ism", 'diaspora_mentions', $Text);
 	}
 
 	call_hooks('bb2diaspora',$Text);
