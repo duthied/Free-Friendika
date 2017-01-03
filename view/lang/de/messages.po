@@ -36,7 +36,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-12-19 07:46+0100\n"
-"PO-Revision-Date: 2017-01-01 21:19+0000\n"
+"PO-Revision-Date: 2017-01-02 17:16+0000\n"
 "Last-Translator: rabuzarus <rabuzarus@t-online.de>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -7756,7 +7756,7 @@ msgstr "Beziehe Information und Schlüsselworte"
 
 #: mod/contacts.php:575
 msgid "Contact"
-msgstr "Kontakt: "
+msgstr "Kontakt"
 
 #: mod/contacts.php:578
 msgid "Profile Visibility"
