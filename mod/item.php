@@ -95,8 +95,7 @@ function item_post(App &$a) {
 			$r = q("SELECT * FROM `item` WHERE `id` = %d LIMIT 1",
 				intval($parent)
 			);
-		}
-		elseif ($parent_uri && local_user()) {
+		} elseif ($parent_uri && local_user()) {
 			// This is coming from an API source, and we are logged in
 			$r = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
 				dbesc($parent_uri),
@@ -141,16 +140,7 @@ function item_post(App &$a) {
 			$thrparent = q("SELECT `author-link`, `network` FROM `item` WHERE `uri` = '%s' LIMIT 1", dbesc($thr_parent));
 			if (dbm::is_result($thrparent) AND ($thrparent[0]["network"] === NETWORK_OSTATUS)
 				AND (normalise_link($parent_contact["url"]) != normalise_link($thrparent[0]["author-link"]))) {
-				$parent_contact = null;
-
-				$r = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
-					dbesc(normalise_link($thrparent[0]["author-link"])));
-				if (dbm::is_result($r)) {
-					$parent_contact = $r[0];
-					$parent_contact["thumb"] = $parent_contact["photo"];
-					$parent_contact["micro"] = $parent_contact["photo"];
-					unset($parent_contact["id"]);
-				}
+				$parent_contact = get_contact_details_by_url($thrparent[0]["author-link"]);
 
 				if (!isset($parent_contact["nick"])) {
 					require_once("include/Scrape.php");
@@ -569,12 +559,8 @@ function item_post(App &$a) {
 	 * add a statusnet style reply tag if the original post was from there
 	 * and we are replying, and there isn't one already
 	 */
-
-	if($parent AND ($parent_contact['network'] === NETWORK_OSTATUS)) {
-		if ($parent_contact['id'] != "")
-			$contact = '@'.$parent_contact['nick'].'+'.$parent_contact['id'];
-		else
-			$contact = '@[url='.$parent_contact['url'].']'.$parent_contact['nick'].'[/url]';
+	if ($parent AND ($parent_contact['network'] == NETWORK_OSTATUS)) {
+		$contact = '@[url='.$parent_contact['url'].']'.$parent_contact['nick'].'[/url]';
 
 		if (!in_array($contact,$tags)) {
 			$body = $contact.' '.$body;
