@@ -538,7 +538,7 @@ function db_definition($charset) {
 					"site-pubkey" => array("type" => "text"),
 					"issued-id" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"dfrn-id" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"url" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "collation" => "bin"),
+					"url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"nurl" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"addr" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"alias" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
@@ -1074,7 +1074,10 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"uid" => array("uid"),
+					"uid_hash" => array("uid", "hash"),
+					"uid_seen" => array("uid", "seen"),
+					"uid_type_link" => array("uid", "type", "link"),
+					"uid_link" => array("uid", "link"),
 					)
 			);
 	$database["notify-threads"] = array(
