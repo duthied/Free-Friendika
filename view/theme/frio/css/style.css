@@ -270,6 +270,7 @@ a#item-delete-selected {
     vertical-align: baseline;
     background-color: $link_color;
     border-radius: 4px;
+    z-index: 1;
 }
 aside .badge {
     opacity: 0.7;
