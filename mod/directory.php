@@ -92,12 +92,14 @@ function directory_content(&$a) {
 			WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 AND `contact`.`self` $sql_extra $order LIMIT ".$limit);
 	if (dbm::is_result($r)) {
 
-		if(in_array('small', $a->argv))
+		if (in_array('small', $a->argv)) {
 			$photo = 'thumb';
-		else
+		}
+		else {
 			$photo = 'photo';
+		}
 
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 
 			$itemurl= '';
 

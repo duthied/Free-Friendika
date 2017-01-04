@@ -8,8 +8,9 @@ require_once('mod/proxy.php');
 require_once('include/Photo.php');
 
 function contacts_init(&$a) {
-	if(! local_user())
+	if (! local_user()) {
 		return;
+	}
 
 	$contact_id = 0;
 
@@ -19,7 +20,7 @@ function contacts_init(&$a) {
 			intval(local_user()),
 			intval($contact_id)
 		);
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			$contact_id = 0;
 		}
 	}
@@ -78,13 +79,13 @@ function contacts_init(&$a) {
 	$base = z_root();
 	$tpl = get_markup_template("contacts-head.tpl");
 	$a->page['htmlhead'] .= replace_macros($tpl,array(
-		'$baseurl' => $a->get_baseurl(true),
+		'$baseurl' => App::get_baseurl(true),
 		'$base' => $base
 	));
 
 	$tpl = get_markup_template("contacts-end.tpl");
 	$a->page['end'] .= replace_macros($tpl,array(
-		'$baseurl' => $a->get_baseurl(true),
+		'$baseurl' => App::get_baseurl(true),
 		'$base' => $base
 	));
 
@@ -128,18 +129,21 @@ function contacts_batch_actions(&$a){
 		info ( sprintf( tt("%d contact edited.", "%d contacts edited.", $count_actions), $count_actions) );
 	}
 
-	if(x($_SESSION,'return_url'))
+	if (x($_SESSION,'return_url')) {
 		goaway('' . $_SESSION['return_url']);
-	else
+	}
+	else {
 		goaway('contacts');
+	}
 
 }
 
 
 function contacts_post(&$a) {
 
-	if(! local_user())
+	if (! local_user()) {
 		return;
+	}
 
 	if ($a->argv[1]==="batch") {
 		contacts_batch_actions($a);
@@ -147,15 +151,16 @@ function contacts_post(&$a) {
 	}
 
 	$contact_id = intval($a->argv[1]);
-	if(! $contact_id)
+	if (! $contact_id) {
 		return;
+	}
 
 	$orig_record = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 		intval($contact_id),
 		intval(local_user())
 	);
 
-	if(! count($orig_record)) {
+	if (! count($orig_record)) {
 		notice( t('Could not access contact record.') . EOL);
 		goaway('contacts');
 		return; // NOTREACHED
@@ -164,12 +169,12 @@ function contacts_post(&$a) {
 	call_hooks('contact_edit_post', $_POST);
 
 	$profile_id = intval($_POST['profile-assign']);
-	if($profile_id) {
+	if ($profile_id) {
 		$r = q("SELECT `id` FROM `profile` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($profile_id),
 			intval(local_user())
 		);
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			notice( t('Could not locate selected profile.') . EOL);
 			return;
 		}
@@ -346,7 +351,7 @@ function contacts_content(&$a) {
 	nav_set_selected('contacts');
 
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
@@ -384,7 +389,7 @@ function contacts_content(&$a) {
 
 		if($cmd === 'block') {
 			$r = _contact_block($contact_id, $orig_record[0]);
-			if($r) {
+			if ($r) {
 				$blocked = (($orig_record[0]['blocked']) ? 0 : 1);
 				info((($blocked) ? t('Contact has been blocked') : t('Contact has been unblocked')).EOL);
 			}
@@ -395,7 +400,7 @@ function contacts_content(&$a) {
 
 		if($cmd === 'ignore') {
 			$r = _contact_ignore($contact_id, $orig_record[0]);
-			if($r) {
+			if ($r) {
 				$readonly = (($orig_record[0]['readonly']) ? 0 : 1);
 				info((($readonly) ? t('Contact has been ignored') : t('Contact has been unignored')).EOL);
 			}
@@ -407,7 +412,7 @@ function contacts_content(&$a) {
 
 		if($cmd === 'archive') {
 			$r = _contact_archive($contact_id, $orig_record[0]);
-			if($r) {
+			if ($r) {
 				$archived = (($orig_record[0]['archive']) ? 0 : 1);
 				info((($archived) ? t('Contact has been archived') : t('Contact has been unarchived')).EOL);
 			}
@@ -446,22 +451,26 @@ function contacts_content(&$a) {
 				));
 			}
 			// Now check how the user responded to the confirmation query
-			if($_REQUEST['canceled']) {
-				if(x($_SESSION,'return_url'))
+			if ($_REQUEST['canceled']) {
+				if (x($_SESSION,'return_url')) {
 					goaway('' . $_SESSION['return_url']);
-				else
+				}
+				else {
 					goaway('contacts');
+				}
 			}
 
 			_contact_drop($contact_id, $orig_record[0]);
 			info( t('Contact has been removed.') . EOL );
-			if(x($_SESSION,'return_url'))
+			if (x($_SESSION,'return_url')) {
 				goaway('' . $_SESSION['return_url']);
-			else
+			}
+			else {
 				goaway('contacts');
+			}
 			return; // NOTREACHED
 		}
-		if($cmd === 'posts') {
+		if ($cmd === 'posts') {
 			return contact_posts($a, $contact_id);
 		}
 	}
@@ -480,11 +489,11 @@ function contacts_content(&$a) {
 			$editselect = 'exact';
 
 		$a->page['htmlhead'] .= replace_macros(get_markup_template('contact_head.tpl'), array(
-			'$baseurl' => $a->get_baseurl(true),
+			'$baseurl' => App::get_baseurl(true),
 			'$editselect' => $editselect,
 		));
 		$a->page['end'] .= replace_macros(get_markup_template('contact_end.tpl'), array(
-			'$baseurl' => $a->get_baseurl(true),
+			'$baseurl' => App::get_baseurl(true),
 			'$editselect' => $editselect,
 		));
 
@@ -564,7 +573,7 @@ function contacts_content(&$a) {
 
 		if (in_array($contact['network'], array(NETWORK_DIASPORA, NETWORK_OSTATUS)) AND
 			($contact['rel'] == CONTACT_IS_FOLLOWER))
-			$follow = $a->get_baseurl(true)."/follow?url=".urlencode($contact["url"]);
+			$follow = App::get_baseurl(true)."/follow?url=".urlencode($contact["url"]);
 
 		// Load contactact related actions like hide, suggest, delete and others
 		$contact_actions = contact_actions($contact);

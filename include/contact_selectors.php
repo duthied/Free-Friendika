@@ -13,7 +13,7 @@ function contact_profile_assign($current,$foreign_net) {
 			intval($_SESSION['uid']));
 
 	if (dbm::is_result($r)) {
-		foreach($r as $rr) {
+		foreach ($r as $rr) {
 			$selected = (($rr['id'] == $current) ? " selected=\"selected\" " : "");
 			$o .= "<option value=\"{$rr['id']}\" $selected >{$rr['profile-name']}</option>\r\n";
 		}
@@ -99,7 +99,7 @@ function network_to_name($s, $profile = "") {
 
 	$networkname = str_replace($search,$replace,$s);
 
-	if (($s == NETWORK_DIASPORA) AND ($profile != "") AND diaspora::is_redmatrix($profile)) {
+	if (($s == NETWORK_DIASPORA) AND ($profile != "") AND Diaspora::is_redmatrix($profile)) {
 		$networkname = t("Hubzilla/Redmatrix");
 
 		$r = q("SELECT `gserver`.`platform` FROM `gcontact`

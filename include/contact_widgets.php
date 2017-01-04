@@ -80,11 +80,13 @@ function networks_widget($baseurl,$selected = '') {
 
 	$a = get_app();
 
-	if(!local_user())
+	if (!local_user()) {
 		return '';
+	}
 
-	if(!feature_enabled(local_user(),'networks'))
+	if (!feature_enabled(local_user(),'networks')) {
 		return '';
+	}
 
 	$extra_sql = unavailable_networks();
 
@@ -95,9 +97,11 @@ function networks_widget($baseurl,$selected = '') {
 	$nets = array();
 	if (dbm::is_result($r)) {
 		require_once('include/contact_selectors.php');
-		foreach($r as $rr) {
-				if($rr['network'])
-					$nets[] = array('ref' => $rr['network'], 'name' => network_to_name($rr['network']), 'selected' => (($selected == $rr['network']) ? 'selected' : '' ));
+		foreach ($r as $rr) {
+			/// @TODO If 'network' is not there, this triggers an E_NOTICE
+			if ($rr['network']) {
+				$nets[] = array('ref' => $rr['network'], 'name' => network_to_name($rr['network']), 'selected' => (($selected == $rr['network']) ? 'selected' : '' ));
+			}
 		}
 	}
 
@@ -116,16 +120,18 @@ function networks_widget($baseurl,$selected = '') {
 }
 
 function fileas_widget($baseurl,$selected = '') {
-	$a = get_app();
-	if(! local_user())
+	if (! local_user()) {
 		return '';
+	}
 
-	if(! feature_enabled(local_user(),'filing'))
+	if (! feature_enabled(local_user(),'filing')) {
 		return '';
+	}
 
 	$saved = get_pconfig(local_user(),'system','filetags');
-	if(! strlen($saved))
+	if (! strlen($saved)) {
 		return;
+	}
 
 	$matches = false;
 	$terms = array();
@@ -235,7 +241,7 @@ function common_friends_visitor_widget($profile_uid) {
 
 	return replace_macros(get_markup_template('remote_friends_common.tpl'), array(
 		'$desc' =>  sprintf( tt("%d contact in common", "%d contacts in common", $t), $t),
-		'$base' => $a->get_baseurl(),
+		'$base' => App::get_baseurl(),
 		'$uid' => $profile_uid,
 		'$cid' => (($cid) ? $cid : '0'),
 		'$linkmore' => (($t > 5) ? 'true' : ''),

@@ -78,7 +78,7 @@ function item_redir_and_replace_images($body, $images, $cid) {
 	$newbody .= $origbody;
 
 	$cnt = 0;
-	foreach($images as $image) {
+	foreach ($images as $image) {
 		// We're depending on the property of 'foreach' (specified on the PHP website) that
 		// it loops over the array starting from the first element and going sequentially
 		// to the last element
@@ -324,11 +324,13 @@ function localize_item(&$item){
 	// add sparkle links to appropriate permalinks
 
 	$x = stristr($item['plink'],'/display/');
-	if($x) {
+	if ($x) {
 		$sparkle = false;
 		$y = best_link_url($item,$sparkle,true);
-		if(strstr($y,'/redir/'))
+
+		if (strstr($y,'/redir/')) {
 			$item['plink'] = $y . '?f=&url=' . $item['plink'];
+		}
 	}
 
 
@@ -864,7 +866,7 @@ function conversation(&$a, $items, $mode, $update, $preview = false) {
 	}
 
 	$o = replace_macros($page_template, array(
-		'$baseurl' => $a->get_baseurl($ssl_state),
+		'$baseurl' => App::get_baseurl($ssl_state),
 		'$return_path' => $a->query_string,
 		'$live_update' => $live_update_div,
 		'$remove' => t('remove'),
@@ -1183,7 +1185,7 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 	$tpl = get_markup_template('jot-header.tpl');
 	$a->page['htmlhead'] .= replace_macros($tpl, array(
 		'$newpost' => 'true',
-		'$baseurl' => $a->get_baseurl(true),
+		'$baseurl' => App::get_baseurl(true),
 		'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 		'$geotag' => $geotag,
 		'$nickname' => $x['nickname'],
@@ -1201,7 +1203,7 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 	$tpl = get_markup_template('jot-end.tpl');
 	$a->page['end'] .= replace_macros($tpl, array(
 		'$newpost' => 'true',
-		'$baseurl' => $a->get_baseurl(true),
+		'$baseurl' => App::get_baseurl(true),
 		'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 		'$geotag' => $geotag,
 		'$nickname' => $x['nickname'],
@@ -1267,7 +1269,7 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 		'$ptyp' => (($notes_cid) ? 'note' : 'wall'),
 		'$content' => $x['content'],
 		'$post_id' => $x['post_id'],
-		'$baseurl' => $a->get_baseurl(true),
+		'$baseurl' => App::get_baseurl(true),
 		'$defloc' => $x['default_location'],
 		'$visitor' => $x['visitor'],
 		'$pvisit' => (($notes_cid) ? 'none' : $x['visitor']),

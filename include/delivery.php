@@ -323,7 +323,7 @@ function delivery_run(&$argv, &$argc){
 
 				// perform local delivery if we are on the same site
 
-				if (link_compare($basepath,$a->get_baseurl())) {
+				if (link_compare($basepath,App::get_baseurl())) {
 
 					$nickname = basename($contact['url']);
 					if ($contact['issued-id'])
@@ -508,7 +508,7 @@ function delivery_run(&$argv, &$argc){
 					break;
 
 				if ($mail) {
-					diaspora::send_mail($item,$owner,$contact);
+					Diaspora::send_mail($item,$owner,$contact);
 					break;
 				}
 
@@ -518,34 +518,25 @@ function delivery_run(&$argv, &$argc){
 				if (!$contact['pubkey'] && !$public_message)
 					break;
 
-				$unsupported_activities = array(ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE);
-
-				//don't transmit activities which are not supported by diaspora
-				foreach($unsupported_activities as $act) {
-					if (activity_match($target_item['verb'],$act)) {
-						break 2;
-					}
-				}
-
 				if (($target_item['deleted']) && (($target_item['uri'] === $target_item['parent-uri']) || $followup)) {
 					// top-level retraction
 					logger('diaspora retract: '.$loc);
-					diaspora::send_retraction($target_item,$owner,$contact,$public_message);
+					Diaspora::send_retraction($target_item,$owner,$contact,$public_message);
 					break;
 				} elseif ($followup) {
 					// send comments and likes to owner to relay
 					logger('diaspora followup: '.$loc);
-					diaspora::send_followup($target_item,$owner,$contact,$public_message);
+					Diaspora::send_followup($target_item,$owner,$contact,$public_message);
 					break;
 				} elseif ($target_item['uri'] !== $target_item['parent-uri']) {
 					// we are the relay - send comments, likes and relayable_retractions to our conversants
 					logger('diaspora relay: '.$loc);
-					diaspora::send_relay($target_item,$owner,$contact,$public_message);
+					Diaspora::send_relay($target_item,$owner,$contact,$public_message);
 					break;
 				} elseif ($top_level && !$walltowall) {
 					// currently no workable solution for sending walltowall
 					logger('diaspora status: '.$loc);
-					diaspora::send_status($target_item,$owner,$contact,$public_message);
+					Diaspora::send_status($target_item,$owner,$contact,$public_message);
 					break;
 				}
 

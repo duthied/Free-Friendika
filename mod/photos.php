@@ -208,6 +208,9 @@ function photos_post(&$a) {
 				dbesc($album),
 				intval($page_owner_uid)
 			);
+			// Update the photo albums cache
+			photo_albums($page_owner_uid, true);
+
 			$newurl = str_replace(bin2hex($album),bin2hex($newalbum),$_SESSION['photo_return']);
 			goaway($newurl);
 			return; // NOTREACHED
@@ -255,7 +258,7 @@ function photos_post(&$a) {
 				);
 			}
 			if (dbm::is_result($r)) {
-				foreach($r as $rr) {
+				foreach ($r as $rr) {
 					$res[] = "'" . dbesc($rr['rid']) . "'" ;
 				}
 			} else {
@@ -277,7 +280,7 @@ function photos_post(&$a) {
 				intval($page_owner_uid)
 			);
 			if (dbm::is_result($r)) {
-				foreach($r as $rr) {
+				foreach ($r as $rr) {
 					q("UPDATE `item` SET `deleted` = 1, `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
 						dbesc(datetime_convert()),
 						dbesc($rr['parent-uri']),
@@ -294,7 +297,11 @@ function photos_post(&$a) {
 						proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
 				}
 			}
+
+			// Update the photo albums cache
+			photo_albums($page_owner_uid, true);
 		}
+
 		goaway('photos/' . $a->data['user']['nickname']);
 		return; // NOTREACHED
 	}
@@ -356,8 +363,11 @@ function photos_post(&$a) {
 				create_tags_from_itemuri($i[0]['uri'], $page_owner_uid);
 				delete_thread_uri($i[0]['uri'], $page_owner_uid);
 
-				$url = $a->get_baseurl();
+				$url = App::get_baseurl();
 				$drop_id = intval($i[0]['id']);
+
+				// Update the photo albums cache
+				photo_albums($page_owner_uid, true);
 
 				if ($i[0]['visible'])
 					proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
@@ -370,10 +380,11 @@ function photos_post(&$a) {
 
 	if (($a->argc > 2) && ((x($_POST,'desc') !== false) || (x($_POST,'newtag') !== false)) || (x($_POST,'albname') !== false)) {
 
-		$desc        = ((x($_POST,'desc'))    ? notags(trim($_POST['desc']))    : '');
-		$rawtags     = ((x($_POST,'newtag'))  ? notags(trim($_POST['newtag']))  : '');
-		$item_id     = ((x($_POST,'item_id')) ? intval($_POST['item_id'])       : 0);
-		$albname     = ((x($_POST,'albname')) ? notags(trim($_POST['albname'])) : '');
+		$desc        = ((x($_POST,'desc'))      ? notags(trim($_POST['desc']))    : '');
+		$rawtags     = ((x($_POST,'newtag'))    ? notags(trim($_POST['newtag']))  : '');
+		$item_id     = ((x($_POST,'item_id'))   ? intval($_POST['item_id'])       : 0);
+		$albname     = ((x($_POST,'albname'))   ? notags(trim($_POST['albname'])) : '');
+		$origaname   = ((x($_POST,'origaname')) ? notags(trim($_POST['origaname'])) : '');
 		$str_group_allow   = perms2str($_POST['group_allow']);
 		$str_contact_allow = perms2str($_POST['contact_allow']);
 		$str_group_deny    = perms2str($_POST['group_deny']);
@@ -457,6 +468,10 @@ function photos_post(&$a) {
 				dbesc($resource_id),
 				intval($page_owner_uid)
 			);
+			// Update the photo albums cache if album name was changed
+			if ($albname !== $origaname) {
+				photo_albums($page_owner_uid, true);
+			}
 		}
 
 		/* Don't make the item visible if the only change was the album name */
@@ -496,8 +511,8 @@ function photos_post(&$a) {
 			$arr['visible']       = $visibility;
 			$arr['origin']        = 1;
 
-			$arr['body']          = '[url=' . $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $p[0]['resource-id'] . ']'
-						. '[img]' . $a->get_baseurl() . '/photo/' . $p[0]['resource-id'] . '-' . $p[0]['scale'] . '.'. $ext . '[/img]'
+			$arr['body']          = '[url=' . App::get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $p[0]['resource-id'] . ']'
+						. '[img]' . App::get_baseurl() . '/photo/' . $p[0]['resource-id'] . '-' . $p[0]['scale'] . '.'. $ext . '[/img]'
 						. '[/url]';
 
 			$item_id = item_store($arr);
@@ -615,7 +630,7 @@ function photos_post(&$a) {
 						}
 					} elseif (strpos($tag,'#') === 0) {
 						$tagname = substr($tag, 1);
-						$str_tags .= '#[url='.$a->get_baseurl()."/search?tag=".$tagname.']'.$tagname.'[/url]';
+						$str_tags .= '#[url='.App::get_baseurl()."/search?tag=".$tagname.']'.$tagname.'[/url]';
 					}
 				}
 			}
@@ -685,8 +700,8 @@ function photos_post(&$a) {
 					$arr['tag']           = $tagged[4];
 					$arr['inform']        = $tagged[2];
 					$arr['origin']        = 1;
-					$arr['body']          = sprintf( t('%1$s was tagged in %2$s by %3$s'), '[url=' . $tagged[1] . ']' . $tagged[0] . '[/url]', '[url=' . $a->get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . t('a photo') . '[/url]', '[url=' . $owner_record['url'] . ']' . $owner_record['name'] . '[/url]') ;
-					$arr['body'] .= "\n\n" . '[url=' . $a->get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . '[img]' . $a->get_baseurl() . "/photo/" . $p[0]['resource-id'] . '-' . $best . '.' . $ext . '[/img][/url]' . "\n" ;
+					$arr['body']          = sprintf( t('%1$s was tagged in %2$s by %3$s'), '[url=' . $tagged[1] . ']' . $tagged[0] . '[/url]', '[url=' . App::get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . t('a photo') . '[/url]', '[url=' . $owner_record['url'] . ']' . $owner_record['name'] . '[/url]') ;
+					$arr['body'] .= "\n\n" . '[url=' . App::get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . '[img]' . App::get_baseurl() . "/photo/" . $p[0]['resource-id'] . '-' . $best . '.' . $ext . '[/img][/url]' . "\n" ;
 
 					$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $tagged[0] . '</title><id>' . $tagged[1] . '/' . $tagged[0] . '</id>';
 					$arr['object'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . $tagged[1] . '" />' . "\n");
@@ -695,8 +710,8 @@ function photos_post(&$a) {
 					$arr['object'] .= '</link></object>' . "\n";
 
 					$arr['target'] = '<target><type>' . ACTIVITY_OBJ_IMAGE . '</type><title>' . $p[0]['desc'] . '</title><id>'
-						. $a->get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . '</id>';
-					$arr['target'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . $a->get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . '" />' . "\n" . '<link rel="preview" type="'.$p[0]['type'].'" href="' . $a->get_baseurl() . "/photo/" . $p[0]['resource-id'] . '-' . $best . '.' . $ext . '" />') . '</link></target>';
+						. App::get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . '</id>';
+					$arr['target'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . App::get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . '" />' . "\n" . '<link rel="preview" type="'.$p[0]['type'].'" href="' . App::get_baseurl() . "/photo/" . $p[0]['resource-id'] . '-' . $best . '.' . $ext . '" />') . '</link></target>';
 
 					$item_id = item_store($arr);
 					if ($item_id) {
@@ -908,11 +923,13 @@ function photos_post(&$a) {
 	$arr['visible']       = $visible;
 	$arr['origin']        = 1;
 
-	$arr['body']          = '[url=' . $a->get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo_hash . ']'
-				. '[img]' . $a->get_baseurl() . "/photo/{$photo_hash}-{$smallest}.".$ph->getExt() . '[/img]'
+	$arr['body']          = '[url=' . App::get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo_hash . ']'
+				. '[img]' . App::get_baseurl() . "/photo/{$photo_hash}-{$smallest}.".$ph->getExt() . '[/img]'
 				. '[/url]';
 
 	$item_id = item_store($arr);
+	// Update the photo albums cache
+	photo_albums($page_owner_uid, true);
 
 	if ($visible)
 		proc_run(PRIORITY_HIGH, "include/notifier.php", 'wall-new', $item_id);

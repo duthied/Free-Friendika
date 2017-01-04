@@ -160,7 +160,7 @@
 							<li role="separator" class="divider"></li>
 							{{/if}}
 							{{if $nav.help}}
-							<li role="menuitem"><a id="nav-help-link" class="nav-link {{$nav.help.2}}" href="{{$nav.help.0}}" title="{{$nav.help.3}}" ><i class="fa fa-question-circle fa-fw"></i> {{$nav.help.3}}</a></li>
+							<li role="menuitem"><a id="nav-help-link" class="nav-link {{$nav.help.2}}" href="{{$nav.help.0}}" title="{{$nav.help.3}}" ><i class="fa fa-question-circle fa-fw"></i> {{$nav.help.1}}</a></li>
 							{{/if}}
 							{{if $nav.settings}}
 							<li role="menuitem"><a id="nav-settings-link" class="nav-link {{$nav.settings.2}}" href="{{$nav.settings.0}}" title="{{$nav.settings.3}}"><i class="fa fa-cog fa-fw"></i> {{$nav.settings.1}}</a></li>
@@ -278,7 +278,7 @@
 <ul id="nav-notifications-template" class="media-list" style="display:none;" rel="template">
 	<li class="{4} notif-entry">
 		<div class="notif-entry-wrapper media">
-			<div class="notif-photo-wrapper media-object pull-left"><a href="{6}"><img data-src="{1}"></a></div>
+			<div class="notif-photo-wrapper media-object pull-left"><a href="{6}" class="userinfo"><img data-src="{1}"></a></div>
 			<a href="{0}" class="notif-desc-wrapper media-body">
 				{2}
 				<div><time class="notif-when time" data-toggle="tooltip" title="{5}">{3}</time></div>

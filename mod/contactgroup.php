@@ -5,7 +5,7 @@ require_once('include/group.php');
 function contactgroup_content(&$a) {
 
 
-	if(! local_user()) {
+	if (! local_user()) {
 		killme();
 	}
 
@@ -24,7 +24,7 @@ function contactgroup_content(&$a) {
 			intval($a->argv[1]),
 			intval(local_user())
 		);
-		if(! dbm::is_result($r)) {
+		if (! dbm::is_result($r)) {
 			killme();
 		}
 

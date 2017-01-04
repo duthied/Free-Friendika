@@ -8,7 +8,7 @@
 				);
 		if (dbm::is_result($r)){
 			$nick = $r[0]['nickname'];
-			$url = $a->get_baseurl()."/display/$nick/$id";
+			$url = App::get_baseurl()."/display/$nick/$id";
 			goaway($url);
 		} else {
 			$a->error = 404;

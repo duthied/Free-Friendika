@@ -3,7 +3,7 @@
 
 function viewsrc_content(&$a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Access denied.') . EOL);
 		return;
 	}
