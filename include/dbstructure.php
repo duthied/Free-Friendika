@@ -588,7 +588,8 @@ function db_definition($charset) {
 					"PRIMARY" => array("id"),
 					"uid" => array("uid"),
 					"addr_uid" => array("addr(32)", "uid"),
-					"nurl" => array("nurl(32)"),
+					"nurl_uid" => array("nurl(32)", "uid"),
+					"nick_uid" => array("nick(32)", "uid"),
 					)
 			);
 	$database["conv"] = array(
