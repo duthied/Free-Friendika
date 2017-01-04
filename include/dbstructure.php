@@ -538,7 +538,7 @@ function db_definition($charset) {
 					"site-pubkey" => array("type" => "text"),
 					"issued-id" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"dfrn-id" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"url" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "collation" => "bin"),
 					"nurl" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"addr" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"alias" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
@@ -587,8 +587,8 @@ function db_definition($charset) {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"uid" => array("uid"),
-					"addr_uid" => array("addr", "uid"),
-					"nurl" => array("nurl"),
+					"addr_uid" => array("addr(32)", "uid"),
+					"nurl" => array("nurl(32)"),
 					)
 			);
 	$database["conv"] = array(
@@ -669,7 +669,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"addr" => array("addr"),
+					"addr" => array("addr(32)"),
 					)
 			);
 	$database["ffinder"] = array(
@@ -692,7 +692,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"server" => array("server"),
+					"server" => array("server(32)"),
 					)
 			);
 	$database["fsuggest"] = array(
@@ -754,10 +754,10 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"nurl" => array("nurl"),
-					"name" => array("name"),
-					"nick" => array("nick"),
-					"addr" => array("addr"),
+					"nurl" => array("nurl(32)"),
+					"name" => array("name(32)"),
+					"nick" => array("nick(32)"),
+					"addr" => array("addr(32)"),
 					"updated" => array("updated"),
 					)
 			);
@@ -822,7 +822,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"nurl" => array("nurl"),
+					"nurl" => array("nurl(32)"),
 					)
 			);
 	$database["hook"] = array(
@@ -935,10 +935,10 @@ function db_definition($charset) {
 					"uid_created" => array("uid","created"),
 					"uid_unseen_contactid" => array("uid","unseen","contact-id"),
 					"uid_network_received" => array("uid","network","received"),
-				//	"uid_received" => array("uid","received"),
+					"uid_received" => array("uid","received"),
 					"uid_network_commented" => array("uid","network","commented"),
 				//	"uid_commented" => array("uid","commented"),
-				//	"uid_title" => array("uid","title"),
+					"uid_title" => array("uid","title"),
 					"uid_thrparent" => array("uid","thr-parent"),
 					"uid_parenturi" => array("uid","parent-uri"),
 					"uid_contactid_id" => array("uid","contact-id","id"),
@@ -950,18 +950,18 @@ function db_definition($charset) {
 				//	"uid_visible_moderated_created" => array("uid","visible","moderated","created"),
 					"uid_uri" => array("uid", "uri"),
 					"uid_wall_created" => array("uid","wall","created"),
-				//	"resource-id" => array("resource-id"),
+					"resource-id" => array("resource-id"),
 					"uid_type" => array("uid","type"),
 				//	"uid_starred_id" => array("uid","starred", "id"),
 					"contactid_allowcid_allowpid_denycid_denygid" => array("contact-id","allow_cid(10)","allow_gid(10)","deny_cid(10)","deny_gid(10)"),
-					"uid_wall_parent_created" => array("uid","wall","parent","created"),
+				//	"uid_wall_parent_created" => array("uid","wall","parent","created"),
 					"uid_type_changed" => array("uid","type","changed"),
 					"contactid_verb" => array("contact-id","verb"),
 					"deleted_changed" => array("deleted","changed"),
 					"uid_wall_changed" => array("uid","wall","changed"),
 					"uid_eventid" => array("uid","event-id"),
 					"uid_authorlink" => array("uid","author-link"),
-				//	"uid_ownerlink" => array("uid","owner-link"),
+					"uid_ownerlink" => array("uid","owner-link"),
 					)
 			);
 	$database["item_id"] = array(
@@ -976,7 +976,7 @@ function db_definition($charset) {
 					"PRIMARY" => array("id"),
 					"uid" => array("uid"),
 					"sid" => array("sid"),
-					"service" => array("service"),
+					"service" => array("service(32)"),
 					"iid" => array("iid"),
 					)
 			);
@@ -1015,10 +1015,10 @@ function db_definition($charset) {
 					"PRIMARY" => array("id"),
 					"uid" => array("uid"),
 				//	"guid" => array("guid"),
-				//	"convid" => array("convid"),
+					"convid" => array("convid"),
 				//	"reply" => array("reply"),
 					"uri" => array("uri"),
-					"parent-uri" => array("parent-uri"),
+					"parent-uri" => array("parent-uri(64)"),
 					)
 			);
 	$database["mailacct"] = array(
@@ -1157,8 +1157,8 @@ function db_definition($charset) {
 					"PRIMARY" => array("id"),
 					"uid_contactid" => array("uid", "contact-id"),
 					"uid_profile" => array("uid", "profile"),
-					"uid_album_created" => array("uid", "album", "created"),
-					"resource-id" => array("resource-id"),
+					"uid_album_created" => array("uid", "album(32)", "created"),
+					"resource-id" => array("resource-id(64)"),
 				//	"guid" => array("guid"),
 					)
 			);
@@ -1252,7 +1252,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"hometown" => array("hometown"),
+				//	"hometown" => array("hometown(32)"),
 					)
 			);
 	$database["profile_check"] = array(
@@ -1298,7 +1298,7 @@ function db_definition($charset) {
 					"cid" => array("cid"),
 					"created" => array("created"),
 					"last" => array("last"),
-				//	"network" => array("network"),
+					"network" => array("network"),
 					"batch" => array("batch"),
 					)
 			);
@@ -1325,7 +1325,7 @@ function db_definition($charset) {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"uid" => array("uid"),
-					"term" => array("term"),
+				//	"term" => array("term(32)"),
 					)
 			);
 	$database["session"] = array(
@@ -1337,7 +1337,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"sid" => array("sid"),
+					"sid" => array("sid(64)"),
 					"expire" => array("expire"),
 					)
 			);
@@ -1389,12 +1389,12 @@ function db_definition($charset) {
 			"indexes" => array(
 					"PRIMARY" => array("tid"),
 					"oid_otype_type_term" => array("oid","otype","type","term"),
-					"uid_term_tid" => array("uid","term","tid"),
-					"type_term" => array("type","term"),
-					"uid_otype_type_term_global_created" => array("uid","otype","type","term","global","created"),
+					"uid_term_tid" => array("uid","term(32)","tid"),
+					"type_term" => array("type","term(32)"),
+					"uid_otype_type_term_global_created" => array("uid","otype","type","term(32)","global","created"),
 				//	"otype_type_term_tid" => array("otype","type","term","tid"),
-					"uid_otype_type_url" => array("uid","otype","type","url"),
-					"guid" => array("guid"),
+					"uid_otype_type_url" => array("uid","otype","type","url(64)"),
+					"guid" => array("guid(64)"),
 					)
 			);
 	$database["thread"] = array(
@@ -1438,7 +1438,7 @@ function db_definition($charset) {
 				//	"uid_gcontactid_created" => array("uid","gcontact-id","created"),
 				//	"wall_private_received" => array("wall","private","received"),
 					"uid_created" => array("uid","created"),
-				//	"uid_commented" => array("uid","commented"),
+					"uid_commented" => array("uid","commented"),
 					)
 			);
 	$database["tokens"] = array(
@@ -1502,7 +1502,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("uid"),
-					"nickname" => array("nickname"),
+					"nickname" => array("nickname(32)"),
 					)
 			);
 	$database["userd"] = array(
@@ -1512,7 +1512,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"username" => array("username"),
+					"username" => array("username(32)"),
 					)
 			);
 	$database["workerqueue"] = array(

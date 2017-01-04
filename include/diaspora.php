@@ -736,13 +736,30 @@ class Diaspora {
 	 * @return The contact id
 	 */
 	private static function contact_by_handle($uid, $handle) {
+
+		// First do a direct search on the contact table
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `addr` = '%s' LIMIT 1",
 			intval($uid),
 			dbesc($handle)
 		);
 
-		if ($r)
+		if ($r) {
+			//logger("Found contact ".$r[0]['id']." for user ".$uid." and handle ".$handle." - first try", LOGGER_DEBUG);
 			return $r[0];
+		} else {
+			// We haven't found it?
+			// We use another function for it that will possibly create a contact entry
+			$cid = get_contact($handle, $uid);
+
+			if ($cid > 0) {
+				$r = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1", intval($cid));
+
+				if (dbm::is_result($r)) {
+					logger("Found contact ".$r[0]['id']." for user ".$uid." and handle ".$handle." - second try", LOGGER_DEBUG);
+					return $r[0];
+				}
+			}
+		}
 
 		$handle_parts = explode("@", $handle);
 		$nurl_sql = "%%://".$handle_parts[1]."%%/profile/".$handle_parts[0];
@@ -751,9 +768,12 @@ class Diaspora {
 			intval($uid),
 			dbesc($nurl_sql)
 		);
-		if($r)
+		if(dbm::is_result($r)) {
+			logger("Found contact ".$r[0]['id']." for user ".$uid." and handle ".$handle." - third try", LOGGER_DEBUG);
 			return $r[0];
+		}
 
+		logger("Haven't found contact for user ".$uid." and handle ".$handle, LOGGER_DEBUG);
 		return false;
 	}
 
@@ -828,7 +848,7 @@ class Diaspora {
 	 * @return int|bool message id if the message already was stored into the system - or false.
 	 */
 	private static function message_exists($uid, $guid) {
-		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
+		$r = q("SELECT `guid` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
 			intval($uid),
 			dbesc($guid)
 		);
