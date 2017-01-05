@@ -589,10 +589,8 @@ function db_definition($charset) {
 					"uid" => array("uid"),
 					"uid_self" => array("uid", "self"),
 					"uid_network_batch_archive" => array("uid", "network", "batch(64)", "archive"),
-					"uid_network" => array("uid", "network"),
 					"addr_uid" => array("addr(32)", "uid"),
 					"nurl_uid" => array("nurl(32)", "uid"),
-					"url_uid" => array("url(32)", "uid"),
 					"nick_uid" => array("nick(32)", "uid"),
 					)
 			);
@@ -1022,7 +1020,7 @@ function db_definition($charset) {
 				//	"guid" => array("guid"),
 					"convid" => array("convid"),
 				//	"reply" => array("reply"),
-					"uri" => array("uri"),
+					"uri" => array("uri(64)"),
 					"parent-uri" => array("parent-uri(64)"),
 					)
 			);

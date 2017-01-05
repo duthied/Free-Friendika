@@ -27,13 +27,13 @@ function auto_redir(&$a, $contact_nick) {
 		$baseurl = substr($baseurl, $domain_st + 3);
 		$nurl = normalise_link($baseurl);
 
-
-		$r = q("SELECT id FROM contact WHERE uid = ( SELECT uid FROM user WHERE nickname = '%s' LIMIT 1 )
-		        AND nick = '%s' AND self = 0 AND ( url LIKE '%%%s%%' or nurl LIKE '%%%s%%' ) AND blocked = 0 AND pending = 0 LIMIT 1",
-			   dbesc($contact_nick),
-			   dbesc($a->user['nickname']),
-		       dbesc($baseurl),
-               dbesc($nurl)
+		/// @todo Why is there a query for "nurl" *and* "nurl"? Especially this normalising is strange.
+		$r = q("SELECT `id` FROM `contact` WHERE `uid` = (SELECT `uid` FROM `user` WHERE `nickname` = '%s' LIMIT 1)
+		        AND `nick` = '%s' AND NOT `self` AND (`url` LIKE '%%%s%%' OR `nurl` LIKE '%%%s%%') AND NOT `blocked` AND NOT `pending` LIMIT 1",
+				dbesc($contact_nick),
+				dbesc($a->user['nickname']),
+				dbesc($baseurl),
+				dbesc($nurl)
 		);
 
 		if ((! dbm::is_result($r)) || $r[0]['id'] == remote_user()) {
