@@ -944,24 +944,17 @@ function db_definition($charset) {
 					"uid_network_received" => array("uid","network","received"),
 					"uid_received" => array("uid","received"),
 					"uid_network_commented" => array("uid","network","commented"),
-				//	"uid_commented" => array("uid","commented"),
 					"uid_title" => array("uid","title"),
 					"uid_thrparent" => array("uid","thr-parent"),
 					"uid_parenturi" => array("uid","parent-uri"),
 					"uid_contactid_id" => array("uid","contact-id","id"),
 					"uid_contactid_created" => array("uid","contact-id","created"),
-				//	"gcontactid_uid_created" => array("gcontact-id","uid","created"),
 					"authorid_created" => array("author-id","created"),
-				//	"ownerid_created" => array("owner-id","created"),
-				//	"wall_body" => array("wall","body(6)"),
-				//	"uid_visible_moderated_created" => array("uid","visible","moderated","created"),
 					"uid_uri" => array("uid", "uri"),
 					"uid_wall_created" => array("uid","wall","created"),
 					"resource-id" => array("resource-id"),
 					"uid_type" => array("uid","type"),
-				//	"uid_starred_id" => array("uid","starred", "id"),
 					"contactid_allowcid_allowpid_denycid_denygid" => array("contact-id","allow_cid(10)","allow_gid(10)","deny_cid(10)","deny_gid(10)"),
-				//	"uid_wall_parent_created" => array("uid","wall","parent","created"),
 					"uid_type_changed" => array("uid","type","changed"),
 					"contactid_verb" => array("contact-id","verb"),
 					"deleted_changed" => array("deleted","changed"),
@@ -1022,9 +1015,7 @@ function db_definition($charset) {
 					"PRIMARY" => array("id"),
 					"uid" => array("uid"),
 					"uid_seen" => array("uid", "seen"),
-				//	"guid" => array("guid"),
 					"convid" => array("convid"),
-				//	"reply" => array("reply"),
 					"uri" => array("uri(64)"),
 					"parent-uri" => array("parent-uri(64)"),
 					)
@@ -1100,7 +1091,6 @@ function db_definition($charset) {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"master-parent-item" => array("master-parent-item"),
-				//	"receiver-uid" => array("receiver-uid"),
 					)
 			);
 	$database["oembed"] = array(
@@ -1171,7 +1161,6 @@ function db_definition($charset) {
 					"uid_profile" => array("uid", "profile"),
 					"uid_album_created" => array("uid", "album(32)", "created"),
 					"resource-id" => array("resource-id(64)"),
-				//	"guid" => array("guid"),
 					)
 			);
 	$database["poll"] = array(
@@ -1264,7 +1253,6 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-				//	"hometown" => array("hometown(32)"),
 					)
 			);
 	$database["profile_check"] = array(
@@ -1337,7 +1325,6 @@ function db_definition($charset) {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"uid" => array("uid"),
-				//	"term" => array("term(32)"),
 					)
 			);
 	$database["session"] = array(
@@ -1404,7 +1391,6 @@ function db_definition($charset) {
 					"uid_term_tid" => array("uid","term(32)","tid"),
 					"type_term" => array("type","term(32)"),
 					"uid_otype_type_term_global_created" => array("uid","otype","type","term(32)","global","created"),
-				//	"otype_type_term_tid" => array("otype","type","term","tid"),
 					"uid_otype_type_url" => array("uid","otype","type","url(64)"),
 					"guid" => array("guid(64)"),
 					)
@@ -1446,9 +1432,6 @@ function db_definition($charset) {
 					"uid_network_created" => array("uid","network","created"),
 					"uid_contactid_commented" => array("uid","contact-id","commented"),
 					"uid_contactid_created" => array("uid","contact-id","created"),
-				//	"uid_gcontactid_commented" => array("uid","gcontact-id","commented"),
-				//	"uid_gcontactid_created" => array("uid","gcontact-id","created"),
-				//	"wall_private_received" => array("wall","private","received"),
 					"uid_created" => array("uid","created"),
 					"uid_commented" => array("uid","commented"),
 					)
