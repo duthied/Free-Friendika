@@ -1078,9 +1078,10 @@ function db_definition($charset) {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"uid_hash" => array("uid", "hash"),
-					"uid_seen" => array("uid", "seen"),
+					"uid_seen_date" => array("uid", "seen", "date"),
 					"uid_type_link" => array("uid", "type", "link"),
 					"uid_link" => array("uid", "link"),
+					"uid_date" => array("uid", "date"),
 					)
 			);
 	$database["notify-threads"] = array(
