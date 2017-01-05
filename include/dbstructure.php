@@ -586,11 +586,13 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"uid" => array("uid"),
+					"uid_name" => array("uid", "name"),
 					"uid_self" => array("uid", "self"),
-					"uid_batch" => array("uid", "batch"),
+					"alias_uid" => array("alias(32)", "uid"),
 					"uid_pending" => array("uid", "pending"),
-					"uid_network_batch_archive" => array("uid", "network", "batch(64)", "archive"),
+					"uid_blocked" => array("uid", "blocked"),
+					"uid_rel_network_poll" => array("uid", "rel", "network", "poll(64)", "archive"),
+					"uid_network_batch" => array("uid", "network", "batch(64)"),
 					"addr_uid" => array("addr(32)", "uid"),
 					"nurl_uid" => array("nurl(32)", "uid"),
 					"nick_uid" => array("nick(32)", "uid"),
@@ -649,7 +651,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"uid" => array("uid"),
+					"uid_start" => array("uid", "start"),
 					)
 			);
 	$database["fcontact"] = array(
@@ -777,7 +779,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"cid_uid_gcid_zcid" => array("cid","uid","gcid","zcid"),
+					"cid_uid_gcid_zcid" => array("UNIQUE", "cid","uid","gcid","zcid"),
 					"gcid" => array("gcid"),
 					"zcid" => array("zcid"),
 					)
@@ -804,7 +806,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"uid_gid_contactid" => array("uid","gid","contact-id"),
+					"uid_gid_contactid" => array("UNIQUE", "uid","gid","contact-id"),
 					)
 			);
 	$database["gserver"] = array(
@@ -1019,6 +1021,7 @@ function db_definition($charset) {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"uid" => array("uid"),
+					"uid_seen" => array("uid", "seen"),
 				//	"guid" => array("guid"),
 					"convid" => array("convid"),
 				//	"reply" => array("reply"),
