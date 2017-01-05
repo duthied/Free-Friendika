@@ -588,6 +588,8 @@ function db_definition($charset) {
 					"PRIMARY" => array("id"),
 					"uid" => array("uid"),
 					"uid_self" => array("uid", "self"),
+					"uid_batch" => array("uid", "batch"),
+					"uid_pending" => array("uid", "pending"),
 					"uid_network_batch_archive" => array("uid", "network", "batch(64)", "archive"),
 					"addr_uid" => array("addr(32)", "uid"),
 					"nurl_uid" => array("nurl(32)", "uid"),
