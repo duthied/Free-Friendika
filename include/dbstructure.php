@@ -587,6 +587,8 @@ function db_definition($charset) {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"uid" => array("uid"),
+					"uid_batch" => array("uid", "batch(64)"),
+					"uid_network" => array("uid", "network"),
 					"addr_uid" => array("addr(32)", "uid"),
 					"nurl_uid" => array("nurl(32)", "uid"),
 					"nick_uid" => array("nick(32)", "uid"),
