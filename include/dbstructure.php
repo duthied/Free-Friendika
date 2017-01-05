@@ -592,6 +592,7 @@ function db_definition($charset) {
 					"uid_network" => array("uid", "network"),
 					"addr_uid" => array("addr(32)", "uid"),
 					"nurl_uid" => array("nurl(32)", "uid"),
+					"url_uid" => array("url(32)", "uid"),
 					"nick_uid" => array("nick(32)", "uid"),
 					)
 			);
