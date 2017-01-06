@@ -743,8 +743,7 @@ class Diaspora {
 			dbesc($handle)
 		);
 
-		if ($r) {
-			//logger("Found contact ".$r[0]['id']." for user ".$uid." and handle ".$handle." - first try", LOGGER_DEBUG);
+		if (dbm::is_result($r)) {
 			return $r[0];
 		} else {
 			// We haven't found it?
@@ -755,7 +754,6 @@ class Diaspora {
 				$r = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1", intval($cid));
 
 				if (dbm::is_result($r)) {
-					logger("Found contact ".$r[0]['id']." for user ".$uid." and handle ".$handle." - second try", LOGGER_DEBUG);
 					return $r[0];
 				}
 			}
@@ -769,7 +767,6 @@ class Diaspora {
 			dbesc($nurl_sql)
 		);
 		if(dbm::is_result($r)) {
-			logger("Found contact ".$r[0]['id']." for user ".$uid." and handle ".$handle." - third try", LOGGER_DEBUG);
 			return $r[0];
 		}
 
@@ -848,12 +845,12 @@ class Diaspora {
 	 * @return int|bool message id if the message already was stored into the system - or false.
 	 */
 	private static function message_exists($uid, $guid) {
-		$r = q("SELECT `guid` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
+		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
 			intval($uid),
 			dbesc($guid)
 		);
 
-		if ($r) {
+		if (dbm::is_result($r)) {
 			logger("message ".$guid." already exists for user ".$uid);
 			return $r[0]["id"];
 		}

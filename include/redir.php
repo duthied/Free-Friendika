@@ -27,7 +27,7 @@ function auto_redir(&$a, $contact_nick) {
 		$baseurl = substr($baseurl, $domain_st + 3);
 		$nurl = normalise_link($baseurl);
 
-		/// @todo Why is there a query for "nurl" *and* "nurl"? Especially this normalising is strange.
+		/// @todo Why is there a query for "url" *and* "nurl"? Especially this normalising is strange.
 		$r = q("SELECT `id` FROM `contact` WHERE `uid` = (SELECT `uid` FROM `user` WHERE `nickname` = '%s' LIMIT 1)
 		        AND `nick` = '%s' AND NOT `self` AND (`url` LIKE '%%%s%%' OR `nurl` LIKE '%%%s%%') AND NOT `blocked` AND NOT `pending` LIMIT 1",
 				dbesc($contact_nick),
