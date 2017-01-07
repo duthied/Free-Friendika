@@ -25,7 +25,7 @@
 		{{/if}}
 		<div id="jot-text-wrap">
 		<img id="profile-jot-text-loading" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait}}" style="display: none;" />
-		<textarea rows="5" cols="64" class="profile-jot-text" id="profile-jot-text" name="body" >{{if $content}}{{$content}}{{else}}{{$share}}{{/if}}</textarea>
+		<textarea rows="5" cols="64" class="profile-jot-text" id="profile-jot-text" name="body" placeholder="{{$share}}">{{if $content}}{{$content}}{{/if}}</textarea>
 		</div>
 
 <div id="profile-jot-submit-wrapper" class="jothidden">

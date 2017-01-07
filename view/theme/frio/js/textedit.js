@@ -119,21 +119,16 @@ function commentCloseUI(obj, id) {
 	$(document).bind( "click.commentClose", handler );
 }
 
-// test if there is default content in the jot text box and remove it
 function jotTextOpenUI(obj) {
-	if(obj.value == aStr.share) {
-		obj.value = '';
+	if (obj.value == '') {
 		$(".modal-body #profile-jot-text").addClass("profile-jot-text-full").removeClass("profile-jot-text-empty");
 		// initiale autosize for the jot
 		autosize($(".modal-body #profile-jot-text"));
 	}
 }
 
-// insert default content into the jot text box
-// if it's empty
 function jotTextCloseUI(obj) {
-	if(obj.value === '') {
-	obj.value = aStr.share;
+	if (obj.value === '') {
 		$(".modal-body #profile-jot-text").removeClass("profile-jot-text-full").addClass("profile-jot-text-empty");
 		// destroy the automatic textarea resizing
 		autosize.destroy($(".modal-body #profile-jot-text"));
