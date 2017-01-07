@@ -818,21 +818,22 @@ function photos_post(&$a) {
 	$imagedata = @file_get_contents($src);
 
 
-
-	$r = q("select sum(octet_length(data)) as total from photo where uid = %d and scale = 0 and album != 'Contact Photos' ",
-		intval($a->data['user']['uid'])
-	);
-
 	$limit = service_class_fetch($a->data['user']['uid'],'photo_upload_limit');
 
-	if (($limit !== false) && (($r[0]['total'] + strlen($imagedata)) > $limit)) {
-		notice( upgrade_message() . EOL );
-		@unlink($src);
-		$foo = 0;
-		call_hooks('photo_post_end',$foo);
-		killme();
-	}
+	if ($limit) {
+		$r = q("select sum(octet_length(data)) as total from photo where uid = %d and scale = 0 and album != 'Contact Photos' ",
+			intval($a->data['user']['uid'])
+		);
+		$size = $r[0]['total'];
 
+		if (($size + strlen($imagedata)) > $limit) {
+			notice( upgrade_message() . EOL );
+			@unlink($src);
+			$foo = 0;
+			call_hooks('photo_post_end',$foo);
+			killme();
+		}
+	}
 
 	$ph = new Photo($imagedata, $type);
 
