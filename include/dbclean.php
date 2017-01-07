@@ -3,6 +3,10 @@
  * @file include/dbclean.php
  * @brief The script is called from time to time to clean the database entries and remove orphaned data.
  */
+
+use \Friendica\Core\Config;
+use \Friendica\Core\PConfig;
+
 require_once("boot.php");
 
 function dbclean_run(&$argv, &$argc) {
@@ -22,7 +26,7 @@ function dbclean_run(&$argv, &$argc) {
 	load_config('config');
 	load_config('system');
 
-	if (!get_config("system", "dbclean")) {
+	if (!Config::get('system', 'dbclean', false)) {
 		return;
 	}
 
