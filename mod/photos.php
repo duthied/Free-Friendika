@@ -182,11 +182,11 @@ function photos_post(&$a) {
 			return; // NOTREACHED
 		}
 
-		$r = qu("SELECT count(*) FROM `photo` WHERE `album` = '%s' AND `uid` = %d",
+		$r = qu("SELECT `album` FROM `photo` WHERE `album` = '%s' AND `uid` = %d",
 			dbesc($album),
 			intval($page_owner_uid)
 		);
-		if (! dbm::is_result($r)) {
+		if (!dbm::is_result($r)) {
 			notice( t('Album not found.') . EOL);
 			goaway($_SESSION['photo_return']);
 			return; // NOTREACHED

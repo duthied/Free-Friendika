@@ -806,7 +806,9 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"uid_gid_contactid" => array("UNIQUE", "uid","gid","contact-id"),
+					"cid_contactid" => array("cid", "contact-id"),
+					"uid_contactid" => array("uid", "contact-id"),
+					"uid_gid_contactid" => array("UNIQUE", "uid", "gid", "contact-id"),
 					)
 			);
 	$database["gserver"] = array(
@@ -1160,6 +1162,7 @@ function db_definition($charset) {
 					"uid_contactid" => array("uid", "contact-id"),
 					"uid_profile" => array("uid", "profile"),
 					"uid_album_created" => array("uid", "album(32)", "created"),
+					"uid_album_resource-id_created" => array("uid", "album(32)", "resource-id(64)", "created"),
 					"resource-id" => array("resource-id(64)"),
 					)
 			);

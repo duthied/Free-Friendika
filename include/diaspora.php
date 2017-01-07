@@ -766,7 +766,7 @@ class Diaspora {
 			intval($uid),
 			dbesc($nurl_sql)
 		);
-		if(dbm::is_result($r)) {
+		if (dbm::is_result($r)) {
 			return $r[0];
 		}
 
