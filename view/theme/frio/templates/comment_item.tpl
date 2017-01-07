@@ -13,15 +13,11 @@
 		<input type="hidden" name="preview" id="comment-preview-inp-{{$id}}" value="0" />
 		<input type="hidden" name="post_id_random" value="{{$rand_num}}" />
 
-		<!--<div class="comment-edit-photo" id="comment-edit-photo-{{$id}}" >
-			<a class="comment-edit-photo-link" href="{{$mylink}}" title="{{$mytitle}}"><img class="my-comment-photo" src="{{$myphoto}}" alt="{{$mytitle}}" title="{{$mytitle}}" /></a>
-		</div>
-		<div class="comment-edit-photo-end"></div>-->
 		<div class="bb form-group">
 			<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty form-control text-autosize" name="body" onFocus="commentOpenUI(this,{{$id}});" onBlur="commentCloseUI(this,{{$id}});">{{$comment}}</textarea>
 		</div>
 		{{if $qcomment}}
-			<select id="qcomment-select-{{$id}}" name="qcomment-{{$id}}" class="qcomment" onchange="qCommentInsert(this,{{$id}});" >
+			<select id="qcomment-select-{{$id}}" name="qcomment-{{$id}}" class="qcomment" onchange="qCommentInsert(this,{{$id}});">
 			<option value=""></option>
 		{{foreach $qcomment as $qc}}
 			<option value="{{$qc}}">{{$qc}}</option>

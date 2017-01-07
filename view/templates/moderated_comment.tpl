@@ -8,7 +8,7 @@
 				<input type="hidden" name="jsreload" value="{{$jsreload}}" />
 				<input type="hidden" name="preview" id="comment-preview-inp-{{$id}}" value="0" />
 
-				<div class="comment-edit-photo" id="comment-edit-photo-{{$id}}" >
+				<div class="comment-edit-photo" id="comment-edit-photo-{{$id}}">
 					<a class="comment-edit-photo-link" href="{{$mylink}}" title="{{$mytitle|escape:'html'}}"><img class="my-comment-photo" src="{{$myphoto}}" alt="{{$mytitle|escape:'html'}}" title="{{$mytitle|escape:'html'}}" /></a>
 				</div>
 				<div class="comment-edit-photo-end"></div>
@@ -23,7 +23,7 @@
 				<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty" name="body" onFocus="commentOpen(this,{{$id}});" onBlur="commentClose(this,{{$id}});" >{{$comment}}</textarea>
 
 				<div class="comment-edit-text-end"></div>
-				<div class="comment-edit-submit-wrapper" id="comment-edit-submit-wrapper-{{$id}}" style="display: none;" >
+				<div class="comment-edit-submit-wrapper" id="comment-edit-submit-wrapper-{{$id}}" style="display: none;">
 					<input type="submit" onclick="post_comment({{$id}}); return false;" id="comment-edit-submit-{{$id}}" class="comment-edit-submit" name="submit" value="{{$submit|escape:'html'}}" />
 					<span onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}" class="fakelink">{{$preview}}</span>
 					<div id="comment-edit-preview-{{$id}}" class="comment-edit-preview" style="display:none;"></div>

@@ -74,7 +74,7 @@
 						<li><a id="profile-video" onclick="jotVideoURL();return false;" title="{{$video}}"><i class="fa fa-film"></i></a></li>
 						<li><a id="profile-audio" onclick="jotAudioURL();return false;" title="{{$audio}}"><i class="fa fa-music"></i></a></li>
 						<li><a id="profile-location" onclick="jotGetLocation();return false;" title="{{$setloc}}"><i class="fa fa-map-marker"></i></a></li>
-						<!-- TODO: waiting for a better placement 
+						<!-- TODO: waiting for a better placement
 						<li><a id="profile-nolocation" onclick="jotClearLocation();return false;" title="{{$noloc}}">{{$shortnoloc}}</a></li>
 						-->
 
@@ -82,7 +82,7 @@
 						<li id="character-counter" class="grey jothidden text-info pull-right"></li>
 						<div id="profile-rotator-wrapper" style="display: {{$visitor}};" >
 							<img id="profile-rotator" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait}}" style="display: none;" />
-						</div> 
+						</div>
 						<div id="profile-jot-plugin-wrapper">
 							{{$jotplugins}}
 						</div>

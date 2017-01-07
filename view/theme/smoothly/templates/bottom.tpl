@@ -5,7 +5,7 @@ $(document).ready(function() {
 
 });
 function tautogrow(id) {
-$("textarea#comment-edit-text-" + id).autogrow();
+	$("textarea#comment-edit-text-" + id).autogrow();
 };
 
 function insertFormatting(comment, BBcode, id) {
@@ -42,12 +42,9 @@ return true;
 }
 
 function cmtBbOpen(id) {
-$(".comment-edit-bb-" + id).show();
+	$(".comment-edit-bb-" + id).show();
 }
 function cmtBbClose(id) {
     $(".comment-edit-bb-" + id).hide();
 }
-
-
-
 </script>

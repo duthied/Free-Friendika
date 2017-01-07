@@ -22,7 +22,7 @@
 					<select id="qcomment-select-{{$id}}" name="qcomment-{{$id}}" class="qcomment" onchange="qCommentInsert(this,{{$id}});" >
 					<option value=""></option>
 				{{foreach $qcomment as $qc}}
-					<option value="{{$qc|escape:'html'}}">{{$qc}}</option>				
+					<option value="{{$qc|escape:'html'}}">{{$qc}}</option>
 				{{/foreach}}
 					</select>
 				{{/if}}

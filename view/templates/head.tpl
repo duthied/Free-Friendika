@@ -56,14 +56,14 @@
 	For the relevant js part look at function loadContent() in main.js. *}}
 	{{if $infinite_scroll}}
 	var infinite_scroll = {
-				'pageno'	: {{$infinite_scroll.pageno}},
-				'reload_uri'	: "{{$infinite_scroll.reload_uri}}"
-				}
+		"pageno"	: {{$infinite_scroll.pageno}},
+		"reload_uri"	: "{{$infinite_scroll.reload_uri}}"
+	}
 	{{/if}}
 
 	function confirmDelete() { return confirm("{{$delitem}}"); }
 	function commentExpand(id) {
-		$("#comment-edit-text-" + id).value = '';
+		$("#comment-edit-text-" + id).value = "";
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
 		$("#comment-edit-text-" + id).focus();
@@ -104,10 +104,10 @@
 			openMenu("comment-edit-submit-wrapper-" + id);
 		}
 		var ins = $(obj).html();
-		ins = ins.replace('&lt;','<');
-		ins = ins.replace('&gt;','>');
-		ins = ins.replace('&amp;','&');
-		ins = ins.replace('&quot;','"');
+		ins = ins.replace("&lt;","<");
+		ins = ins.replace("&gt;",">");
+		ins = ins.replace("&amp;","&");
+		ins = ins.replace("&quot;",""");
 		$("#comment-edit-text-" + id).val(tmpStr + ins);
 	}
 
@@ -120,23 +120,22 @@
 			openMenu("comment-edit-submit-wrapper-" + id);
 		}
 		var ins = $(obj).val();
-		ins = ins.replace('&lt;','<');
-		ins = ins.replace('&gt;','>');
-		ins = ins.replace('&amp;','&');
-		ins = ins.replace('&quot;','"');
+		ins = ins.replace("&lt;","<");
+		ins = ins.replace("&gt;",">");
+		ins = ins.replace("&amp;","&");
+		ins = ins.replace("&quot;",""");
 		$("#comment-edit-text-" + id).val(tmpStr + ins);
-		$(obj).val('');
+		$(obj).val("");
 	}
 
 	window.showMore = "{{$showmore}}";
 	window.showFewer = "{{$showfewer}}";
 
 	function showHideCommentBox(id) {
-		if( $('#comment-edit-form-' + id).is(':visible')) {
-			$('#comment-edit-form-' + id).hide();
-		}
-		else {
-			$('#comment-edit-form-' + id).show();
+		if ($("#comment-edit-form-" + id).is(":visible")) {
+			$("#comment-edit-form-" + id).hide();
+		} else {
+			$("#comment-edit-form-" + id).show();
 		}
 	}
 

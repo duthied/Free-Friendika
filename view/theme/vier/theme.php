@@ -29,10 +29,10 @@ function vier_init(&$a) {
 		$a->page['htmlhead'] .= '<meta name=viewport content="width=device-width, initial-scale=1">'."\n";
 		$a->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="view/theme/vier/mobile.css" media="screen"/>'."\n";
 	}
-		// deactivated since it doesn't work with desktop browsers at the moment (To-Do)
-		//$a->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="view/theme/vier/mobile.css" media="screen and (max-width: 1000px)"/>'."\n";
+	/// @todo deactivated since it doesn't work with desktop browsers at the moment
+	//$a->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="view/theme/vier/mobile.css" media="screen and (max-width: 1000px)"/>'."\n";
 
-$a->page['htmlhead'] .= <<< EOT
+	$a->page['htmlhead'] .= <<< EOT
 <link rel='stylesheet' type='text/css' href='view/theme/vier/narrow.css' media='screen and (max-width: 1100px)' />
 <script type="text/javascript">
 
@@ -66,7 +66,6 @@ function insertFormatting(comment,BBcode,id) {
 	return true;
 }
 
-
 function showThread(id) {
 	$("#collapsed-comments-" + id).show()
 	$("#collapsed-comments-" + id + " .collapsed-comments").show()
@@ -76,22 +75,17 @@ function hideThread(id) {
 	$("#collapsed-comments-" + id + " .collapsed-comments").hide()
 }
 
-
 function cmtBbOpen(id) {
 	$("#comment-edit-bb-" + id).show();
 }
 function cmtBbClose(id) {
 	$("#comment-edit-bb-" + id).hide();
 }
-
-
-
 </script>
 EOT;
 
-
-if ($a->is_mobile || $a->is_tablet){
-	$a->page['htmlhead'] .= <<< EOT
+	if ($a->is_mobile || $a->is_tablet){
+		$a->page['htmlhead'] .= <<< EOT
 <script>
 	$(document).ready(function() {
 		$(".mobile-aside-toggle a").click(function(e){
@@ -104,13 +98,13 @@ if ($a->is_mobile || $a->is_tablet){
 	});
 </script>
 EOT;
-}
-
+	}
 
 	// Hide the left menu bar
 	if (($a->page['aside'] == "") AND in_array($a->argv[0], array("community", "events", "help", "manage", "notifications",
-									"probe", "webfinger", "login", "invite", "credits")))
+									"probe", "webfinger", "login", "invite", "credits"))) {
 		$a->page['htmlhead'] .= "<link rel='stylesheet' href='view/theme/vier/hide.css' />";
+	}
 }
 
 function get_vier_config($key, $default = false, $admin = false) {
@@ -142,7 +136,7 @@ function vier_community_info() {
 	$aside['$url'] = $url;
 
 	// comunity_profiles
-	if($show_profiles) {
+	if ($show_profiles) {
 
 		$r = suggestion_query(local_user(), 0, 9);
 
@@ -166,7 +160,7 @@ function vier_community_info() {
 	}
 
 	// last 9 users
-	if($show_lastusers) {
+	if ($show_lastusers) {
 		$publish = (get_config('system','publish_all') ? '' : " AND `publish` = 1 ");
 		$order = " ORDER BY `register_date` DESC ";
 
@@ -215,11 +209,11 @@ function vier_community_info() {
 	}
 
 	//Community_Pages at right_aside
-	if($show_pages AND local_user()) {
+	if ($show_pages AND local_user()) {
 
 		require_once('include/ForumManager.php');
 
-		if(x($_GET['cid']) && intval($_GET['cid']) != 0)
+		if (x($_GET['cid']) && intval($_GET['cid']) != 0)
 			$cid = $_GET['cid'];
 
 		//sort by last updated item
@@ -229,7 +223,7 @@ function vier_community_info() {
 		$total = count($contacts);
 		$visible_forums = 10;
 
-		if(count($contacts)) {
+		if (count($contacts)) {
 
 			$id = 0;
 
@@ -267,7 +261,7 @@ function vier_community_info() {
 	//END Community Page
 
 	//helpers
-	if($show_helpers) {
+	if ($show_helpers) {
 		$r = array();
 
 		$helperlist = get_config("vier", "helperlist");

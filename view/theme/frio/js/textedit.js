@@ -1,4 +1,4 @@
-/* 
+/*
  * @brief The file contains functions for text editing and commenting
  */
 
@@ -93,7 +93,7 @@ function commentOpenUI(obj, id) {
 			$("#comment-edit-text-" + id).attr('tabindex','9');
 			$("#comment-edit-submit-" + id).attr('tabindex','10');
 			$("#comment-edit-submit-wrapper-" + id).show();
-			// initiale autosize for this comment
+			// initialize autosize for this comment
 			autosize($("#comment-edit-text-" + id + ".text-autosize"));
 		}
 	};
