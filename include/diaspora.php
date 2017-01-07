@@ -2300,8 +2300,9 @@ class Diaspora {
 			dbesc($target_guid),
 			intval($importer["uid"])
 		);
-		if (!$r)
+		if (!$r) {
 			return false;
+		}
 
 		// Check if the sender is the thread owner
 		$p = q("SELECT `id`, `author-link`, `origin` FROM `item` WHERE `id` = %d",
@@ -2324,7 +2325,7 @@ class Diaspora {
 		logger("Deleted target ".$target_guid." (".$r[0]["id"].") from user ".$importer["uid"]." parent: ".$p[0]["id"], LOGGER_DEBUG);
 
 		// Now check if the retraction needs to be relayed by us
-		if($p[0]["origin"]) {
+		if ($p[0]["origin"]) {
 			// notify others
 			proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $r[0]["id"]);
 		}
@@ -2495,15 +2496,17 @@ class Diaspora {
 	 * @return string the handle in the format user@domain.tld
 	 */
 	private static function my_handle($contact) {
-		if ($contact["addr"] != "")
+		if ($contact["addr"] != "") {
 			return $contact["addr"];
+		}
 
 		// Normally we should have a filled "addr" field - but in the past this wasn't the case
 		// So - just in case - we build the the address here.
-		if ($contact["nickname"] != "")
+		if ($contact["nickname"] != "") {
 			$nick = $contact["nickname"];
-		else
+		} else {
 			$nick = $contact["nick"];
+		}
 
 		return $nick."@".substr(App::get_baseurl(), strpos(App::get_baseurl(),"://") + 3);
 	}
