@@ -38,9 +38,9 @@ class Item extends BaseObject {
 		$this->set_template('wall');
 		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));
 
-		if(is_array($_SESSION['remote'])) {
-			foreach($_SESSION['remote'] as $visitor) {
-				if($visitor['cid'] == $this->get_data_value('contact-id')) {
+		if (is_array($_SESSION['remote'])) {
+			foreach ($_SESSION['remote'] as $visitor) {
+				if ($visitor['cid'] == $this->get_data_value('contact-id')) {
 					$this->visiting = true;
 					break;
 				}

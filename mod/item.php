@@ -27,7 +27,7 @@ require_once('include/Scrape.php');
 require_once('include/diaspora.php');
 require_once('include/Contact.php');
 
-function item_post(&$a) {
+function item_post(App &$a) {
 
 	if((! local_user()) && (! remote_user()) && (! x($_REQUEST,'commenter')))
 		return;
@@ -138,7 +138,7 @@ function item_post(&$a) {
 
 			// If the contact id doesn't fit with the contact, then set the contact to null
 			$thrparent = q("SELECT `author-link`, `network` FROM `item` WHERE `uri` = '%s' LIMIT 1", dbesc($thr_parent));
-			if (count($thrparent) AND ($thrparent[0]["network"] === NETWORK_OSTATUS)
+			if (dbm::is_result($thrparent) AND ($thrparent[0]["network"] === NETWORK_OSTATUS)
 				AND (normalise_link($parent_contact["url"]) != normalise_link($thrparent[0]["author-link"]))) {
 				$parent_contact = get_contact_details_by_url($thrparent[0]["author-link"]);
 
@@ -218,8 +218,9 @@ function item_post(&$a) {
 			intval($profile_uid),
 			intval($post_id)
 		);
-		if(! count($i))
+		if (! dbm::is_result($i)) {
 			killme();
+		}
 		$orig_post = $i[0];
 	}
 
@@ -605,16 +606,17 @@ function item_post(&$a) {
 				continue;
 
 			$success = handle_tag($a, $body, $inform, $str_tags, (local_user()) ? local_user() : $profile_uid , $tag, $network);
-			if($success['replaced'])
+			if ($success['replaced']) {
 				$tagged[] = $tag;
-			if(is_array($success['contact']) && intval($success['contact']['prv'])) {
+			}
+			if (is_array($success['contact']) && intval($success['contact']['prv'])) {
 				$private_forum = true;
 				$private_id = $success['contact']['id'];
 			}
 		}
 	}
 
-	if(($private_forum) && (! $parent) && (! $private)) {
+	if (($private_forum) && (! $parent) && (! $private)) {
 		// we tagged a private forum in a top level post and the message was public.
 		// Restrict it.
 		$private = 1;
@@ -624,8 +626,8 @@ function item_post(&$a) {
 	$attachments = '';
 	$match = false;
 
-	if(preg_match_all('/(\[attachment\]([0-9]+)\[\/attachment\])/',$body,$match)) {
-		foreach($match[2] as $mtch) {
+	if (preg_match_all('/(\[attachment\]([0-9]+)\[\/attachment\])/',$body,$match)) {
+		foreach ($match[2] as $mtch) {
 			$r = q("SELECT `id`,`filename`,`filesize`,`filetype` FROM `attach` WHERE `uid` = %d AND `id` = %d LIMIT 1",
 				intval($profile_uid),
 				intval($mtch)
@@ -1064,7 +1066,7 @@ function item_post_return($baseurl, $api_source, $return_path) {
 
 
 
-function item_content(&$a) {
+function item_content(App &$a) {
 
 	if ((! local_user()) && (! remote_user())) {
 		return;
