@@ -15,28 +15,28 @@
 					class="comment-edit-bb">
 					<li><a class="editicon boldbb shadow"
 						style="cursor: pointer;" title="{{$edbold}}"
-						data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="b" data-id="{{$id}}"></a></li>
+						data-role="insert-formatting" data-bbcode="b" data-id="{{$id}}"></a></li>
 					<li><a class="editicon italicbb shadow"
 						style="cursor: pointer;" title="{{$editalic}}"
-						data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="i" data-id="{{$id}}"></a></li>
+						data-role="insert-formatting" data-bbcode="i" data-id="{{$id}}"></a></li>
 					<li><a class="editicon underlinebb shadow"
 						style="cursor: pointer;" title="{{$eduline}}"
-						data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="u" data-id="{{$id}}"></a></li>
+						data-role="insert-formatting" data-bbcode="u" data-id="{{$id}}"></a></li>
 					<li><a class="editicon quotebb shadow"
 						style="cursor: pointer;" title="{{$edquote}}"
-						data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="quote" data-id="{{$id}}"></a></li>
+						data-role="insert-formatting" data-bbcode="quote" data-id="{{$id}}"></a></li>
 					<li><a class="editicon codebb shadow"
 						style="cursor: pointer;" title="{{$edcode}}"
-						data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="code" data-id="{{$id}}"></a></li>
+						data-role="insert-formatting" data-bbcode="code" data-id="{{$id}}"></a></li>
 					<li><a class="editicon imagebb shadow"
 						style="cursor: pointer;" title="{{$edimg}}"
-						data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="img" data-id="{{$id}}"></a></li>
+						data-role="insert-formatting" data-bbcode="img" data-id="{{$id}}"></a></li>
 					<li><a class="editicon urlbb shadow"
 						style="cursor: pointer;" title="{{$edurl}}"
-						data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="url" data-id="{{$id}}"></a></li>
+						data-role="insert-formatting" data-bbcode="url" data-id="{{$id}}"></a></li>
 					<li><a class="editicon videobb shadow"
 						style="cursor: pointer;" title="{{$edvideo}}"
-						data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="video" data-id="{{$id}}"></a></li>
+						data-role="insert-formatting" data-bbcode="video" data-id="{{$id}}"></a></li>
 				</ul>
 				<textarea id="comment-edit-text-{{$id}}"
 					class="comment-edit-text-empty"

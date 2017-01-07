@@ -12,19 +12,19 @@
 				<ul class="comment-edit-bb-{{$id}}">
 					<li><a class="editicon boldbb shadow"
 						style="cursor: pointer;" title="{{$edbold}}"
-						data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="b" data-id="{{$id}}"></a></li>
+						data-role="insert-formatting" data-bbcode="b" data-id="{{$id}}"></a></li>
 					<li><a class="editicon italicbb shadow"
 						style="cursor: pointer;" title="{{$editalic}}"
-						data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="i" data-id="{{$id}}"></a></li>
+						data-role="insert-formatting" data-bbcode="i" data-id="{{$id}}"></a></li>
 					<li><a class="editicon underlinebb shadow"
 						style="cursor: pointer;" title="{{$eduline}}"
-						data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="u" data-id="{{$id}}"></a></li>
+						data-role="insert-formatting" data-bbcode="u" data-id="{{$id}}"></a></li>
 					<li><a class="editicon quotebb shadow"
 						style="cursor: pointer;" title="{{$edquote}}"
-						data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="quote" data-id="{{$id}}"></a></li>
+						data-role="insert-formatting" data-bbcode="quote" data-id="{{$id}}"></a></li>
 					<li><a class="editicon codebb shadow"
 						style="cursor: pointer;" title="{{$edcode}}"
-						data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="code" data-id="{{$id}}"></a></li>
+						data-role="insert-formatting" data-bbcode="code" data-id="{{$id}}"></a></li>
 				</ul>
 				<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty" name="body" placeholder="{{$comment}}" onFocus="commentOpen(this,{{$id}});cmtBbOpen({{$id}});"></textarea>
 				{{if $qcomment}}

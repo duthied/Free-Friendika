@@ -33,38 +33,38 @@
 			{{/if}}
 			<ul class="comment-edit-bb-{{$id}} comment-icon-list nav nav-pills pull-right">
 				<li>
-					<a class="icon" style="cursor: pointer;" title="{{$edimg}}" data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="img" data-id="{{$id}}">
+					<a class="icon" style="cursor: pointer;" title="{{$edimg}}" data-role="insert-formatting" data-bbcode="img" data-id="{{$id}}">
 						<i class="fa fa-picture-o"></i>
 					</a>
 				</li>
 				<li>
-					<a class="icon bb-url" style="cursor: pointer;" title="{{$edurl}}" onclick="insertFormatting('{{$comment}}','url',{{$id}});">
+					<a class="icon bb-url" style="cursor: pointer;" title="{{$edurl}}" onclick="insertFormatting('url',{{$id}});">
 						<i class="fa fa-link"></i>
 					</a>
 				</li>
 				<li>
-					<a class="icon bb-video" style="cursor: pointer;" title="{{$edvideo}}" onclick="insertFormatting('{{$comment}}','video',{{$id}});">
+					<a class="icon bb-video" style="cursor: pointer;" title="{{$edvideo}}" onclick="insertFormatting('video',{{$id}});">
 						<i class="fa fa-video-camera"></i>
 					</a>
 				</li>
 
 				<li>
-					<a class="icon underline" style="cursor: pointer;" title="{{$eduline}}" onclick="insertFormatting('{{$comment}}','u',{{$id}});">
+					<a class="icon underline" style="cursor: pointer;" title="{{$eduline}}" onclick="insertFormatting('u',{{$id}});">
 						<i class="fa fa-underline"></i>
 					</a>
 				</li>
 				<li>
-					<a class="icon italic" style="cursor: pointer;" title="{{$editalic}}" onclick="insertFormatting('{{$comment}}','i',{{$id}});">
+					<a class="icon italic" style="cursor: pointer;" title="{{$editalic}}" onclick="insertFormatting('i',{{$id}});">
 						<i class="fa fa-italic"></i>
 					</a>
 				</li>
 				<li>
-					<a class="icon bold" style="cursor: pointer;"  title="{{$edbold}}" onclick="insertFormatting('{{$comment}}','b',{{$id}});">
+					<a class="icon bold" style="cursor: pointer;"  title="{{$edbold}}" onclick="insertFormatting('b',{{$id}});">
 						<i class="fa fa-bold"></i>
 					</a>
 				</li>
 				<li>
-					<a class="icon quote" style="cursor: pointer;" title="{{$edquote}}" onclick="insertFormatting('{{$comment}}','quote',{{$id}});">
+					<a class="icon quote" style="cursor: pointer;" title="{{$edquote}}" onclick="insertFormatting('quote',{{$id}});">
 						<i class="fa fa-quote-left"></i>
 					</a>
 				</li>
