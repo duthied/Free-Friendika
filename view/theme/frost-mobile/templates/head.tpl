@@ -17,7 +17,6 @@
 
 <script>
 	window.delItem = "{{$delitem}}";
-	window.commentEmptyText = "{{$comment}}";
 	window.showMore = "{{$showmore}}";
 	window.showFewer = "{{$showfewer}}";
 	var updateInterval = {{$update_interval}};

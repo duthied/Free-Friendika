@@ -25,8 +25,8 @@
 					<li><a class="editicon codebb shadow"
 						style="cursor: pointer;" title="{{$edcode}}"
 						data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="code" data-id="{{$id}}"></a></li>
-				</ul>	
-				<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty" name="body" onFocus="commentOpen(this,{{$id}});cmtBbOpen({{$id}});" >{{$comment}}</textarea>
+				</ul>
+				<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty" name="body" placeholder="{{$comment}}" onFocus="commentOpen(this,{{$id}});cmtBbOpen({{$id}});"></textarea>
 				{{if $qcomment}}
 					<select id="qcomment-select-{{$id}}" name="qcomment-{{$id}}" class="qcomment" onchange="qCommentInsert(this,{{$id}});">
 					<option value=""></option>

@@ -20,7 +20,7 @@
 					<div id="mod-cmnt-url-lbl-{{$id}}" class="mod-cmnt-url-lbl">{{$lbl_modurl}}</div>
 					<input type="text" id="mod-cmnt-url-{{$id}}" class="mod-cmnt-url" name="mod-cmnt-url" value="{{$modurl|escape:'html'}}" />
 				</div>
-				<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty" name="body" onFocus="commentOpen(this,{{$id}});" onBlur="commentClose(this,{{$id}});" >{{$comment}}</textarea>
+				<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty" name="body" placeholder="{{$comment}}" onFocus="commentOpen(this,{{$id}});" onBlur="commentClose(this,{{$id}});"></textarea>
 
 				<div class="comment-edit-text-end"></div>
 				<div class="comment-edit-submit-wrapper" id="comment-edit-submit-wrapper-{{$id}}" style="display: none;">

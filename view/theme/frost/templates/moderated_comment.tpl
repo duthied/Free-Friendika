@@ -47,7 +47,7 @@
 						onclick="insertFormatting('{{$comment}}','video', {{$id}});"></a></li>
 				</ul>
 				<div class="comment-edit-bb-end"></div>
-				<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty" name="body" onFocus="commentOpen(this,{{$id}});cmtBbOpen({{$id}});" onBlur="commentClose(this,{{$id}});" >{{$comment}}</textarea>			
+				<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty" name="body" placeholder="{{$comment}}" onFocus="commentOpen(this,{{$id}});cmtBbOpen({{$id}});" onBlur="commentClose(this,{{$id}});"></textarea>
 
 				<div class="comment-edit-text-end"></div>
 				<div class="comment-edit-submit-wrapper" id="comment-edit-submit-wrapper-{{$id}}" style="display: none;">

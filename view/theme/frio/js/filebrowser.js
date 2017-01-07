@@ -121,8 +121,7 @@ var FileBrowser = {
 			// work as expected (we need a way to wait until commentOpenUI would be finished).
 			// As for now we insert pieces of this function here
 			if ((commentElm !== null) && (typeof commentElm !== "undefined")) {
-				if (commentElm.value == aStr.comment){
-					commentElm.value = "";
+				if (commentElm.value == "") {
 					$("#comment-edit-text-" + FileBrowser.id).addClass("comment-edit-text-full").removeClass("comment-edit-text-empty");
 					$("#comment-edit-submit-wrapper-" + FileBrowser.id).show();
 					$("#comment-edit-text-" + FileBrowser.id).attr('tabindex','9');

@@ -72,8 +72,7 @@
 		return true;
 	}
 	function commentOpen(obj,id) {
-		if(obj.value == '{{$comment}}') {
-			obj.value = '';
+		if (obj.value == "") {
 			$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 			$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
 			$("#mod-cmnt-wrap-" + id).show();
@@ -83,8 +82,7 @@
 		return false;
 	}
 	function commentClose(obj,id) {
-		if(obj.value == '') {
-			obj.value = '{{$comment}}';
+		if (obj.value == "") {
 			$("#comment-edit-text-" + id).removeClass("comment-edit-text-full");
 			$("#comment-edit-text-" + id).addClass("comment-edit-text-empty");
 			$("#mod-cmnt-wrap-" + id).hide();
@@ -97,8 +95,7 @@
 
 	function commentInsert(obj,id) {
 		var tmpStr = $("#comment-edit-text-" + id).val();
-		if(tmpStr == '{{$comment}}') {
-			tmpStr = '';
+		if (tmpStr == "") {
 			$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 			$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
 			openMenu("comment-edit-submit-wrapper-" + id);
@@ -113,8 +110,7 @@
 
 	function qCommentInsert(obj,id) {
 		var tmpStr = $("#comment-edit-text-" + id).val();
-		if(tmpStr == '{{$comment}}') {
-			tmpStr = '';
+		if (tmpStr == "") {
 			$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 			$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
 			openMenu("comment-edit-submit-wrapper-" + id);

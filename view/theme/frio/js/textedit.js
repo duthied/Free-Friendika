@@ -61,8 +61,7 @@ function commentExpand(id) {
 }
 
 function commentClose(obj,id) {
-	if(obj.value == '') {
-		obj.value = aStr.comment;
+	if (obj.value == '') {
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-empty");
 		$("#mod-cmnt-wrap-" + id).hide();
@@ -85,8 +84,7 @@ function commentOpenUI(obj, id) {
 	$(document).unbind( "click.commentOpen", handler );
 
 	var handler = function() {
-		if(obj.value == aStr.comment) {
-			obj.value = '';
+		if (obj.value == '') {
 			$("#comment-edit-text-" + id).addClass("comment-edit-text-full").removeClass("comment-edit-text-empty");
 			// Choose an arbitrary tab index that's greater than what we're using in jot (3 of them)
 			// The submit button gets tabindex + 1
@@ -105,8 +103,7 @@ function commentCloseUI(obj, id) {
 	$(document).unbind( "click.commentClose", handler );
 
 	var handler = function() {
-		if(obj.value === '') {
-		obj.value = aStr.comment;
+		if (obj.value === '') {
 			$("#comment-edit-text-" + id).removeClass("comment-edit-text-full").addClass("comment-edit-text-empty");
 			$("#comment-edit-text-" + id).removeAttr('tabindex');
 			$("#comment-edit-submit-" + id).removeAttr('tabindex');
@@ -136,8 +133,7 @@ function jotTextCloseUI(obj) {
 }
 
 function commentOpen(obj,id) {
-	if(obj.value == aStr.comment) {
-		obj.value = '';
+	if (obj.value == '') {
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
 		$("#mod-cmnt-wrap-" + id).show();
@@ -149,8 +145,7 @@ function commentOpen(obj,id) {
 
 function commentInsert(obj,id) {
 	var tmpStr = $("#comment-edit-text-" + id).val();
-	if(tmpStr == aStr.comment) {
-		tmpStr = '';
+	if (tmpStr == '') {
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
 		openMenu("comment-edit-submit-wrapper-" + id);
@@ -165,8 +160,7 @@ function commentInsert(obj,id) {
 
 function qCommentInsert(obj,id) {
 	var tmpStr = $("#comment-edit-text-" + id).val();
-	if(tmpStr == aStr.comment) {
-		tmpStr = '';
+	if (tmpStr == '') {
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
 		openMenu("comment-edit-submit-wrapper-" + id);

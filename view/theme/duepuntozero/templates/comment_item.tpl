@@ -44,7 +44,7 @@
 						data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="video" data-id="{{$id}}"></a></li>
 				</ul>
 				<div class="comment-edit-bb-end"></div>
-				<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty" name="body" onFocus="commentOpen(this,{{$id}});cmtBbOpen(this, {{$id}});" onBlur="commentClose(this,{{$id}});cmtBbClose(this,{{$id}});" >{{$comment}}</textarea>			
+				<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty" name="body" placeholder="{{$comment}}" onFocus="commentOpen(this,{{$id}});cmtBbOpen(this, {{$id}});" onBlur="commentClose(this,{{$id}});cmtBbClose(this,{{$id}});"></textarea>
 				{{if $qcomment}}
 					<select id="qcomment-select-{{$id}}" name="qcomment-{{$id}}" class="qcomment" onchange="qCommentInsert(this,{{$id}});">
 					<option value=""></option>
