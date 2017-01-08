@@ -806,7 +806,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"cid_contactid" => array("cid", "contact-id"),
+					"gid_contactid" => array("gid", "contact-id"),
 					"uid_contactid" => array("uid", "contact-id"),
 					"uid_gid_contactid" => array("UNIQUE", "uid", "gid", "contact-id"),
 					)
