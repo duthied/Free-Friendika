@@ -220,6 +220,9 @@ function notifier_run(&$argv, &$argc){
 
 	$hub = get_config('system','huburl');
 
+	// Should the post be transmitted to Diaspora?
+	$diaspora_delivery = true;
+
 	// If this is a public conversation, notify the feed hub
 	$public_message = true;
 
@@ -240,7 +243,7 @@ function notifier_run(&$argv, &$argc){
 		$thr_parent = q("SELECT `network`, `author-link`, `owner-link` FROM `item` WHERE `uri` = '%s' AND `uid` = %d",
 			dbesc($target_item["thr-parent"]), intval($target_item["uid"]));
 
-		logger('Parent is '.$parent['network'].'. Thread parent is '.$thr_parent[0]['network'], LOGGER_DEBUG);
+		logger('GUID: '.$target_item["guid"].': Parent is '.$parent['network'].'. Thread parent is '.$thr_parent[0]['network'], LOGGER_DEBUG);
 
 		// This is IMPORTANT!!!!
 
@@ -396,6 +399,8 @@ function notifier_run(&$argv, &$argc){
 		// We have not only to look at the parent, since it could be a Friendica thread.
 		if (($thr_parent AND ($thr_parent[0]['network'] == NETWORK_OSTATUS)) OR ($parent['network'] == NETWORK_OSTATUS)) {
 
+			$diaspora_delivery = false;
+
 			logger('Some parent is OStatus for '.$target_item["guid"]." - Author: ".$thr_parent[0]['author-link']." - Owner: ".$thr_parent[0]['owner-link'], LOGGER_DEBUG);
 
 			// Send a salmon to the parent author
@@ -413,7 +418,7 @@ function notifier_run(&$argv, &$argc){
 			}
 
 			// Send a salmon to the parent owner
-			$r = q("SELECT `notify` FROM `contact` WHERE `nurl`='%s' AND `uid` IN (0, %d) AND `notify` != ''",
+			$r = q("SELECT `url`, `notify` FROM `contact` WHERE `nurl`='%s' AND `uid` IN (0, %d) AND `notify` != ''",
 				dbesc(normalise_link($thr_parent[0]['owner-link'])),
 				intval($uid));
 			if ($r)
@@ -443,12 +448,6 @@ function notifier_run(&$argv, &$argc){
 			$sql_extra = " AND `network` IN ('".NETWORK_OSTATUS."', '".NETWORK_DFRN."')";
 		} else
 			$sql_extra = " AND `network` IN ('".NETWORK_OSTATUS."', '".NETWORK_DFRN."', '".NETWORK_DIASPORA."', '".NETWORK_MAIL."', '".NETWORK_MAIL2."')";
-
-		$r = q("SELECT * FROM `contact` WHERE `id` IN ($conversant_str) AND NOT `blocked` AND NOT `pending` AND NOT `archive`".$sql_extra);
-
-		if (dbm::is_result($r))
-			$contacts = $r;
-
 	} else
 		$public_message = false;
 
@@ -479,10 +478,9 @@ function notifier_run(&$argv, &$argc){
 	if ($relocate)
 		$r = $recipients_relocate;
 	else
-		$r = q("SELECT * FROM `contact` WHERE `id` IN (%s) AND NOT `blocked` AND NOT `pending` AND NOT `archive`",
+		$r = q("SELECT * FROM `contact` WHERE `id` IN (%s) AND NOT `blocked` AND NOT `pending` AND NOT `archive`".$sql_extra,
 			dbesc($recip_str)
 		);
-
 
 	$interval = ((get_config('system','delivery_interval') === false) ? 2 : intval(get_config('system','delivery_interval')));
 
@@ -570,17 +568,20 @@ function notifier_run(&$argv, &$argc){
 
 	if($public_message) {
 
-		if (!$followup)
-			$r0 = Diaspora::relay_list();
-		else
-			$r0 = array();
+		$r0 = array();
+		$r1 = array();
 
-		$r1 = q("SELECT DISTINCT(`batch`), `id`, `name`,`network` FROM `contact` WHERE `network` = '%s'
-			AND `uid` = %d AND `rel` != %d AND NOT `blocked` AND NOT `pending` AND NOT `archive` GROUP BY `batch` ORDER BY rand()",
-			dbesc(NETWORK_DIASPORA),
-			intval($owner['uid']),
-			intval(CONTACT_IS_SHARING)
-		);
+		if ($diaspora_delivery) {
+			if (!$followup)
+				$r0 = Diaspora::relay_list();
+
+			$r1 = q("SELECT DISTINCT(`batch`), `id`, `name`,`network` FROM `contact` WHERE `network` = '%s'
+				AND `uid` = %d AND `rel` != %d AND NOT `blocked` AND NOT `pending` AND NOT `archive` GROUP BY `batch` ORDER BY rand()",
+				dbesc(NETWORK_DIASPORA),
+				intval($owner['uid']),
+				intval(CONTACT_IS_SHARING)
+			);
+		}
 
 		$r2 = q("SELECT `id`, `name`,`network` FROM `contact`
 			WHERE `network` in ( '%s', '%s')  AND `uid` = %d AND NOT `blocked` AND NOT `pending` AND NOT `archive`
