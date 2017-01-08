@@ -61,8 +61,7 @@ $(document).ready(function() {
 
 		if ($('#id_share').is(':checked')) {
 			$('#acl-wrapper').show();
-		}
-		else {
+		} else {
 			$('#acl-wrapper').hide();
 		}
 	}).trigger('change');
@@ -357,8 +356,7 @@ function showNavMenu(menuID) {
 	if (window.navMenuTimeout[menuID + '-closing']) {
 		window.navMenuTimeout[menuID + '-closing'] = false;
 		clearTimeout(window.navMenuTimeout[menuID + '-timeout']);
-	}
-	else {
+	} else {
 		window.navMenuTimeout[menuID + '-opening'] = true;
 
 		window.navMenuTimeout[menuID + '-timeout'] = setTimeout( function () {
@@ -373,8 +371,7 @@ function hideNavMenu(menuID) {
 	if (window.navMenuTimeout[menuID + '-opening']) {
 		window.navMenuTimeout[menuID + '-opening'] = false;
 		clearTimeout(window.navMenuTimeout[menuID + '-timeout']);
-	}
-	else {
+	} else {
 		window.navMenuTimeout[menuID + '-closing'] = true;
 
 		window.navMenuTimeout[menuID + '-timeout'] = setTimeout( function () {
@@ -421,8 +418,7 @@ function InitMCEEditor(editorData) {
 	if (window.editSelect != 'none') {
 		$.extend(tinyMCEInitConfig, editorData);
 		tinyMCE.init(tinyMCEInitConfig);
-	}
-	else if (typeof editorData.plaintextFn == 'function') {
+	} else if (typeof editorData.plaintextFn == 'function') {
 		(editorData.plaintextFn)();
 	}
 }
@@ -458,16 +454,14 @@ function initEditor(cb) {
 						}
 						if (cPopup.ready && match[1]!==cPopup.searchText) cPopup.search(match[1]);
 						if (! cPopup.ready) cPopup = null;
-					}
-					else {
+					} else {
 						if (cPopup !== null) { cPopup.close(); cPopup = null; }
 					}
 
 					textlen = txt.length;
 					if (textlen != 0 && $('#jot-perms-icon').is('.unlock')) {
 						$('#profile-jot-desc').html(window.isPublic);
-					}
-					else {
+					} else {
 						$('#profile-jot-desc').html('&nbsp;');
 					}
 
@@ -550,16 +544,14 @@ function msgInitEditor() {
 					}
 					if (cPopup.ready && match[1]!==cPopup.searchText) cPopup.search(match[1]);
 					if (! cPopup.ready) cPopup = null;
-				}
-				else {
+				} else {
 					if (cPopup !== null) { cPopup.close(); cPopup = null; }
 				}
 
 				textlen = txt.length;
 				if (textlen != 0 && $('#jot-perms-icon').is('.unlock')) {
 					$('#profile-jot-desc').html(window.isPublic);
-				}
-				else {
+				} else {
 					$('#profile-jot-desc').html('&nbsp;');
 				}
 			});
@@ -632,9 +624,9 @@ function addeditortext(textElem, data) {
 	if (window.editSelect == 'none') {
 		var currentText = $(textElem).val();
 		$(textElem).val(currentText + data);
-	}
-	else
+	} else {
 		tinyMCE.execCommand('mceInsertRawHTML',false,data);
+	}
 }
 
 function jotVideoURL() {
@@ -733,8 +725,7 @@ function deleteCheckedItems(delID) {
 			if ($(this).is(':checked')) {
 				if (checkedstr.length != 0) {
 					checkedstr = checkedstr + ',' + $(this).val();
-				}
-				else {
+				} else {
 					checkedstr = $(this).val();
 				}
 			}
