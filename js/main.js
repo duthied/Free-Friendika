@@ -25,11 +25,17 @@
 	}
 
 	function openMenu(theID) {
-		document.getElementById(theID).style.display = "block"
+		var el = document.getElementById(theID)
+		if (el) {
+			el.style.display = "block";
+		}
 	}
 
 	function closeMenu(theID) {
-		document.getElementById(theID).style.display = "none"
+		var el = document.getElementById(theID)
+		if (el) {
+			el.style.display = "none";
+		}
 	}
 
 	function decodeHtml(html) {

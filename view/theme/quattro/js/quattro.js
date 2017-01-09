@@ -65,7 +65,6 @@ function insertFormatting(BBcode, id) {
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
 		openMenu("comment-edit-submit-wrapper-" + id);
-		$("#comment-edit-text-" + id).val(tmpStr);
 	}
 
 	textarea = document.getElementById("comment-edit-text-" +id);
