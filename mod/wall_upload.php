@@ -2,7 +2,7 @@
 
 require_once('include/Photo.php');
 
-function wall_upload_post(&$a, $desktopmode = true) {
+function wall_upload_post(App $a, $desktopmode = true) {
 
 	logger("wall upload: starting new upload", LOGGER_DEBUG);
 
