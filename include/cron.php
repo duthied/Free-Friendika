@@ -128,7 +128,7 @@ function cron_run(&$argv, &$argc){
 
 		proc_run(PRIORITY_LOW, 'include/expire.php');
 
-		proc_run(PRIORITY_LOW, 'include/dbclean.php');
+		proc_run(PRIORITY_MEDIUM, 'include/dbclean.php');
 
 		cron_update_photo_albums();
 	}
