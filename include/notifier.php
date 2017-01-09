@@ -192,8 +192,9 @@ function notifier_run(&$argv, &$argc){
 		// avoid race condition with deleting entries
 
 		if ($items[0]['deleted']) {
-			foreach ($items as $item)
+			foreach ($items as $item) {
 				$item['deleted'] = 1;
+			}
 		}
 
 		if ((count($items) == 1) && ($items[0]['id'] === $target_item['id']) && ($items[0]['uri'] === $items[0]['parent-uri'])) {
@@ -326,9 +327,11 @@ function notifier_run(&$argv, &$argc){
 						intval($uid),
 						dbesc(NETWORK_DFRN)
 					);
-					if (dbm::is_result($r))
-						foreach ($r as $rr)
+					if (dbm::is_result($r)) {
+						foreach ($r as $rr) {
 							$recipients_followup[] = $rr['id'];
+						}
+					}
 				}
 			}
 			logger("Notify ".$target_item["guid"]." via PuSH: ".($push_notify?"Yes":"No"), LOGGER_DEBUG);
