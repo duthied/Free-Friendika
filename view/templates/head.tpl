@@ -104,7 +104,7 @@
 		ins = ins.replace("&lt;","<");
 		ins = ins.replace("&gt;",">");
 		ins = ins.replace("&amp;","&");
-		ins = ins.replace("&quot;",""");
+		ins = ins.replace("&quot;","\"");
 		$("#comment-edit-text-" + id).val(tmpStr + ins);
 	}
 
@@ -119,7 +119,7 @@
 		ins = ins.replace("&lt;","<");
 		ins = ins.replace("&gt;",">");
 		ins = ins.replace("&amp;","&");
-		ins = ins.replace("&quot;",""");
+		ins = ins.replace("&quot;","\"");
 		$("#comment-edit-text-" + id).val(tmpStr + ins);
 		$(obj).val("");
 	}
