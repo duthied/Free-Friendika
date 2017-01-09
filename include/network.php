@@ -4,6 +4,9 @@
  * @file include/network.php
  */
 
+use \Friendica\Core\Config;
+use \Friendica\Core\PConfig;
+
 require_once("include/xml.php");
 require_once('include/Probe.php');
 
@@ -93,7 +96,10 @@ function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 	@curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
 	@curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
 
-
+	$range = intval(Config::get('system', 'curl_range_bytes', 0));
+	if ($range > 0) {
+		@curl_setopt($ch, CURLOPT_RANGE, '0-'.$range);
+	}
 
 	if(x($opts,'headers')){
 		@curl_setopt($ch, CURLOPT_HTTPHEADER, $opts['headers']);
