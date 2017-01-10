@@ -135,7 +135,7 @@ function contact_selector($selname, $selclass, $preselected = false, $options) {
 		$o .= "<select name=\"{$selname}[]\" id=\"$selclass\" class=\"$selclass\" multiple=\"multiple\" size=\"" . $x['size'] . "$\" $tabindex >\r\n";
 
 	$r = q("SELECT `id`, `name`, `url`, `network` FROM `contact`
-		WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0 AND `notify` != ''
+		WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
 		$sql_extra
 		ORDER BY `name` ASC ",
 		intval(local_user())
@@ -210,7 +210,7 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 		$o .= "<select name=\"{$selname}[]\" id=\"$selclass\" class=\"$selclass\" multiple=\"multiple\" size=\"$size\" $tabindex >\r\n";
 
 	$r = q("SELECT `id`, `name`, `url`, `network` FROM `contact`
-		WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0 AND `notify` != ''
+		WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
 		$sql_extra
 		ORDER BY `name` ASC ",
 		intval(local_user())
@@ -449,8 +449,8 @@ function acl_lookup(&$a, $out_type = 'json') {
 	// autocomplete for editor mentions
 	if ($type=='' || $type=='c'){
 		$r = q("SELECT COUNT(*) AS c FROM `contact`
-				WHERE `uid` = %d AND `self` = 0
-				AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0
+				WHERE `uid` = %d AND NOT `self`
+				AND NOT `blocked` AND NOT `pending` AND NOT `archive`
 				AND `notify` != '' $sql_extra2" ,
 			intval(local_user())
 		);
@@ -461,8 +461,8 @@ function acl_lookup(&$a, $out_type = 'json') {
 		// autocomplete for Private Messages
 
 		$r = q("SELECT COUNT(*) AS c FROM `contact`
-				WHERE `uid` = %d AND `self` = 0
-				AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0
+				WHERE `uid` = %d AND NOT `self`
+				AND NOT `blocked` AND NOT `pending` AND NOT `archive`
 				AND `network` IN ('%s','%s','%s') $sql_extra2" ,
 			intval(local_user()),
 			dbesc(NETWORK_DFRN),
@@ -477,8 +477,8 @@ function acl_lookup(&$a, $out_type = 'json') {
 		// autocomplete for Contacts
 
 		$r = q("SELECT COUNT(*) AS c FROM `contact`
-				WHERE `uid` = %d AND `self` = 0
-				AND `pending` = 0 $sql_extra2" ,
+				WHERE `uid` = %d AND NOT `self`
+				AND NOT `pending` $sql_extra2" ,
 			intval(local_user())
 		);
 		$contact_count = (int)$r[0]['c'];
@@ -525,7 +525,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 	if ($type==''){
 
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `forum`, `prv` FROM `contact`
-			WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0 AND `notify` != ''
+			WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
 			AND NOT (`network` IN ('%s', '%s'))
 			$sql_extra2
 			ORDER BY `name` ASC ",
@@ -536,7 +536,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 	elseif ($type=='c'){
 
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `forum`, `prv` FROM `contact`
-			WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0 AND `notify` != ''
+			WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
 			AND NOT (`network` IN ('%s'))
 			$sql_extra2
 			ORDER BY `name` ASC ",
@@ -546,7 +546,7 @@ function acl_lookup(&$a, $out_type = 'json') {
 	}
 	elseif($type == 'm') {
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag` FROM `contact`
-			WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0
+			WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive`
 			AND `network` IN ('%s','%s','%s')
 			$sql_extra2
 			ORDER BY `name` ASC ",

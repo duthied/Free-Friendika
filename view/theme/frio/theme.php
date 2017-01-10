@@ -219,7 +219,7 @@ function frio_remote_nav($a,&$nav) {
 		// empty the server url for local user because we won't need it
 		$server_url = '';
 		// user info
-		$r = q("SELECT `micro` FROM `contact` WHERE `uid` = %d AND `self` = 1", intval($a->user['uid']));
+		$r = q("SELECT `micro` FROM `contact` WHERE `uid` = %d AND `self`", intval($a->user['uid']));
 
 		$r[0]['photo'] = (dbm::is_result($r) ? $a->remove_baseurl($r[0]['micro']) : "images/person-48.jpg");
 		$r[0]['name'] = $a->user['username'];
@@ -298,7 +298,7 @@ function frio_acl_lookup($a, &$results) {
 
 
 		$r = q("SELECT COUNT(*) AS `total` FROM `contact`
-			WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 ",
+			WHERE `uid` = %d AND NOT `self` AND NOT `pending` $sql_extra $sql_extra2 ",
 			intval($_SESSION['uid']));
 		if (dbm::is_result($r)) {
 			$total = $r[0]["total"];
@@ -306,7 +306,7 @@ function frio_acl_lookup($a, &$results) {
 
 		$sql_extra3 = unavailable_networks();
 
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 $sql_extra3 ORDER BY `name` ASC LIMIT 100 ",
+		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `self` AND NOT `pending` $sql_extra $sql_extra2 $sql_extra3 ORDER BY `name` ASC LIMIT 100 ",
 			intval($_SESSION['uid'])
 		);
 

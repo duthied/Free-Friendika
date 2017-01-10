@@ -182,11 +182,11 @@ function photos_post(App &$a) {
 			return; // NOTREACHED
 		}
 
-		$r = qu("SELECT count(*) FROM `photo` WHERE `album` = '%s' AND `uid` = %d",
+		$r = qu("SELECT `album` FROM `photo` WHERE `album` = '%s' AND `uid` = %d",
 			dbesc($album),
 			intval($page_owner_uid)
 		);
-		if (! dbm::is_result($r)) {
+		if (!dbm::is_result($r)) {
 			notice( t('Album not found.') . EOL);
 			goaway($_SESSION['photo_return']);
 			return; // NOTREACHED
@@ -818,21 +818,22 @@ function photos_post(App &$a) {
 	$imagedata = @file_get_contents($src);
 
 
-
-	$r = q("select sum(octet_length(data)) as total from photo where uid = %d and scale = 0 and album != 'Contact Photos' ",
-		intval($a->data['user']['uid'])
-	);
-
 	$limit = service_class_fetch($a->data['user']['uid'],'photo_upload_limit');
 
-	if (($limit !== false) && (($r[0]['total'] + strlen($imagedata)) > $limit)) {
-		notice( upgrade_message() . EOL );
-		@unlink($src);
-		$foo = 0;
-		call_hooks('photo_post_end',$foo);
-		killme();
-	}
+	if ($limit) {
+		$r = q("select sum(octet_length(data)) as total from photo where uid = %d and scale = 0 and album != 'Contact Photos' ",
+			intval($a->data['user']['uid'])
+		);
+		$size = $r[0]['total'];
 
+		if (($size + strlen($imagedata)) > $limit) {
+			notice( upgrade_message() . EOL );
+			@unlink($src);
+			$foo = 0;
+			call_hooks('photo_post_end',$foo);
+			killme();
+		}
+	}
 
 	$ph = new Photo($imagedata, $type);
 
