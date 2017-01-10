@@ -1,6 +1,6 @@
 <?php
 
-function community_init(App &$a) {
+function community_init(App $a) {
 	if (! local_user()) {
 		unset($_SESSION['theme']);
 		unset($_SESSION['mobile-theme']);
@@ -10,7 +10,7 @@ function community_init(App &$a) {
 }
 
 
-function community_content(&$a, $update = 0) {
+function community_content(App $a, $update = 0) {
 
 	$o = '';
 
