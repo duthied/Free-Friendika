@@ -174,7 +174,7 @@ function delivery_run(&$argv, &$argc){
 			// When commenting too fast after delivery, a post wasn't recognized as top level post.
 			// The count then showed more than one entry. The additional check should help.
 			// The check for the "count" should be superfluous, but I'm not totally sure by now, so we keep it.
-			if ((($items[0]['id'] = $parent_id) OR (count($items) == 1)) AND ($items[0]['uri'] === $items[0]['parent-uri'])) {
+			if ((($items[0]['id'] = $item_id) OR (count($items) == 1)) AND ($items[0]['uri'] === $items[0]['parent-uri'])) {
 				logger('delivery: top level post');
 				$top_level = true;
 			}
