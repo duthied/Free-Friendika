@@ -612,7 +612,7 @@ function get_contact($url, $uid = 0, $no_update = false) {
  *
  * @return string posts in HTML
  */
-function posts_from_gcontact($a, $gcontact_id) {
+function posts_from_gcontact(App $a, $gcontact_id) {
 
 	require_once('include/conversation.php');
 
@@ -664,7 +664,7 @@ function posts_from_gcontact($a, $gcontact_id) {
  *
  * @return string posts in HTML
  */
-function posts_from_contact_url($a, $contact_url) {
+function posts_from_contact_url(App $a, $contact_url) {
 
 	require_once('include/conversation.php');
 

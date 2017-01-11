@@ -133,7 +133,7 @@
 	 * @hook 'logged_in'
 	 * 		array $user	logged user record
 	 */
-	function api_login(App &$a){
+	function api_login(App $a){
 		// login with oauth
 		try{
 			$oauth = new FKOAuth1();
@@ -251,7 +251,7 @@
 	 * @param App $a
 	 * @return string API call result
 	 */
-	function api_call(App &$a){
+	function api_call(App $a){
 		global $API, $called_api;
 
 		$type="json";
@@ -404,7 +404,7 @@
 	 * @param array $user_info
 	 * @return array
 	 */
-	function api_rss_extra(&$a, $arr, $user_info){
+	function api_rss_extra(App $a, $arr, $user_info){
 		if (is_null($user_info)) $user_info = api_get_user($a);
 		$arr['$user'] = $user_info;
 		$arr['$rss'] = array(
@@ -444,7 +444,7 @@
 	 * @param int|string $contact_id Contact ID or URL
 	 * @param string $type Return type (for errors)
 	 */
-	function api_get_user(&$a, $contact_id = Null, $type = "json"){
+	function api_get_user(App $a, $contact_id = Null, $type = "json"){
 		global $called_api;
 		$user = null;
 		$extra_query = "";
@@ -712,7 +712,7 @@
 	 * @param array $item : item from db
 	 * @return array(array:author, array:owner)
 	 */
-	function api_item_get_user(&$a, $item) {
+	function api_item_get_user(App $a, $item) {
 
 		$status_user = api_get_user($a, $item["author-link"]);
 
@@ -2451,7 +2451,7 @@
 							'homepage' => $profile['homepage'],
 							'users' => null);
 			return $profile;
-		} 
+		}
 	}
 
 	/**
@@ -2874,14 +2874,14 @@
 		// BadRequestException if no id specified (for clients using Twitter API)
 		if ($id == 0) throw new BadRequestException('Message id not specified');
 
-		// add parent-uri to sql command if specified by calling app		
+		// add parent-uri to sql command if specified by calling app
 		$sql_extra = ($parenturi != "" ? " AND `parent-uri` = '" . dbesc($parenturi) . "'" : "");
 
 		// get data of the specified message id
 		$r = q("SELECT `id` FROM `mail` WHERE `uid` = %d AND `id` = %d" . $sql_extra,
-			intval($uid), 
+			intval($uid),
 			intval($id));
-	
+
 		// error message if specified id is not in database
 		if (!dbm::is_result($r)) {
 			if ($verbose == "true") {
@@ -2893,8 +2893,8 @@
 		}
 
 		// delete message
-		$result = q("DELETE FROM `mail` WHERE `uid` = %d AND `id` = %d" . $sql_extra, 
-			intval($uid), 
+		$result = q("DELETE FROM `mail` WHERE `uid` = %d AND `id` = %d" . $sql_extra,
+			intval($uid),
 			intval($id));
 
 		if ($verbose == "true") {
@@ -3860,7 +3860,7 @@
 
 		// get data of the specified message id
 		$r = q("SELECT `id` FROM `mail` WHERE `id` = %d AND `uid` = %d",
-			intval($id), 
+			intval($id),
 			intval($uid));
 		// error message if specified id is not in database
 		if (!dbm::is_result($r)) {
@@ -3869,8 +3869,8 @@
 		}
 
 		// update seen indicator
-		$result = q("UPDATE `mail` SET `seen` = 1 WHERE `id` = %d AND `uid` = %d", 
-			intval($id), 
+		$result = q("UPDATE `mail` SET `seen` = 1 WHERE `id` = %d AND `uid` = %d",
+			intval($id),
 			intval($uid));
 
 		if ($result) {
@@ -3921,7 +3921,7 @@
 		// message if nothing was found
 		if (!dbm::is_result($r))
 			$success = array('success' => false, 'search_results' => 'problem with query');
-		else if (count($r) == 0) 
+		else if (count($r) == 0)
 			$success = array('success' => false, 'search_results' => 'nothing found');
 		else {
 			$ret = Array();
