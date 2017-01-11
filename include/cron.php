@@ -128,7 +128,7 @@ function cron_run(&$argv, &$argc){
 
 		proc_run(PRIORITY_LOW, 'include/expire.php');
 
-		proc_run(PRIORITY_LOW, 'include/dbclean.php');
+		proc_run(PRIORITY_MEDIUM, 'include/dbclean.php');
 
 		cron_update_photo_albums();
 	}
@@ -343,7 +343,7 @@ function cron_poll_contacts($argc, $argv) {
  *
  * @param App $a
  */
-function cron_clear_cache(App &$a) {
+function cron_clear_cache(App $a) {
 
 	$last = get_config('system','cache_last_cleared');
 
@@ -430,7 +430,7 @@ function cron_clear_cache(App &$a) {
  *
  * @param App $a
  */
-function cron_repair_diaspora(App &$a) {
+function cron_repair_diaspora(App $a) {
 	$r = q("SELECT `id`, `url` FROM `contact`
 		WHERE `network` = '%s' AND (`batch` = '' OR `notify` = '' OR `poll` = '' OR pubkey = '')
 			ORDER BY RAND() LIMIT 50", dbesc(NETWORK_DIASPORA));

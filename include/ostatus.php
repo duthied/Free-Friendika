@@ -2072,7 +2072,7 @@ class ostatus {
 	 *
 	 * @return string XML feed
 	 */
-	public static function feed(&$a, $owner_nick, $last_update) {
+	public static function feed(App $a, $owner_nick, $last_update) {
 
 		$r = q("SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`
 				FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
