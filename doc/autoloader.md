@@ -160,7 +160,7 @@ But if you want to use classes from another library, you need to use the full na
 
 ```
     <?php
-    namespace \Frienidca;
+    namespace \Friendica;
 
     class Diaspora {
       public function md2bbcode() {
@@ -173,7 +173,7 @@ if you use that class in many places of the code and you don't want to write the
 
 ```
     <?php
-    namespace \Frienidca;
+    namespace \Friendica;
 
     use \Michelf\MarkdownExtra;
 
