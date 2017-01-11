@@ -6,7 +6,7 @@
 
 require_once("include/uimport.php");
 
-function uimport_post(App &$a) {
+function uimport_post(App $a) {
 	switch($a->config['register_policy']) {
         case REGISTER_OPEN:
             $blocked = 0;
@@ -28,7 +28,7 @@ function uimport_post(App &$a) {
             $verified = 0;
             break;
 	}
-    
+
     if (x($_FILES,'accountfile')){
         /// @TODO Pass $blocked / $verified, send email to admin on REGISTER_APPROVE
         import_account($a, $_FILES['accountfile']);
@@ -36,8 +36,8 @@ function uimport_post(App &$a) {
     }
 }
 
-function uimport_content(App &$a) {
-	
+function uimport_content(App $a) {
+
 	if((! local_user()) && ($a->config['register_policy'] == REGISTER_CLOSED)) {
 		notice("Permission denied." . EOL);
 		return;
@@ -52,8 +52,8 @@ function uimport_content(App &$a) {
 			return;
 		}
 	}
-	
-	
+
+
 	if(x($_SESSION,'theme'))
 		unset($_SESSION['theme']);
 	if(x($_SESSION,'mobile-theme'))

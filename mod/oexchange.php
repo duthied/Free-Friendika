@@ -1,7 +1,7 @@
 <?php
 
 
-function oexchange_init(App &$a) {
+function oexchange_init(App $a) {
 
 	if(($a->argc > 1) && ($a->argv[1] === 'xrd')) {
 		$tpl = get_markup_template('oexchange_xrd.tpl');
@@ -14,7 +14,7 @@ function oexchange_init(App &$a) {
 
 }
 
-function oexchange_content(App &$a) {
+function oexchange_content(App $a) {
 
 	if (! local_user()) {
 		$o = login(false);
@@ -26,13 +26,13 @@ function oexchange_content(App &$a) {
 		return;
 	}
 
-	$url = (((x($_REQUEST,'url')) && strlen($_REQUEST['url'])) 
+	$url = (((x($_REQUEST,'url')) && strlen($_REQUEST['url']))
 		? urlencode(notags(trim($_REQUEST['url']))) : '');
-	$title = (((x($_REQUEST,'title')) && strlen($_REQUEST['title'])) 
+	$title = (((x($_REQUEST,'title')) && strlen($_REQUEST['title']))
 		? '&title=' . urlencode(notags(trim($_REQUEST['title']))) : '');
-	$description = (((x($_REQUEST,'description')) && strlen($_REQUEST['description'])) 
+	$description = (((x($_REQUEST,'description')) && strlen($_REQUEST['description']))
 		? '&description=' . urlencode(notags(trim($_REQUEST['description']))) : '');
-	$tags = (((x($_REQUEST,'tags')) && strlen($_REQUEST['tags'])) 
+	$tags = (((x($_REQUEST,'tags')) && strlen($_REQUEST['tags']))
 		? '&tags=' . urlencode(notags(trim($_REQUEST['tags']))) : '');
 
 	$s = fetch_url(App::get_baseurl() . '/parse_url?f=&url=' . $url . $title . $description . $tags);
