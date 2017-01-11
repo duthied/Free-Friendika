@@ -325,8 +325,9 @@ class Diaspora {
 				logger("delivering to: ".$rr["username"]);
 				self::dispatch($rr,$msg);
 			}
-		} else
+		} else {
 			logger("No subscribers for ".$msg["author"]." ".print_r($msg, true), LOGGER_DEBUG);
+		}
 
 		return $message_id;
 	}
