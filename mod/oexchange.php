@@ -1,6 +1,5 @@
 <?php
-
-function oexchange_init(App &$a) {
+function oexchange_init(App $a) {
 
 	if (($a->argc > 1) && ($a->argv[1] === 'xrd')) {
 		$tpl = get_markup_template('oexchange_xrd.tpl');
@@ -11,7 +10,7 @@ function oexchange_init(App &$a) {
 	}
 }
 
-function oexchange_content(App &$a) {
+function oexchange_content(App $a) {
 
 	if (! local_user()) {
 		$o = login(false);

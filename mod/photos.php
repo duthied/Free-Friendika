@@ -10,7 +10,7 @@ require_once('include/tags.php');
 require_once('include/threads.php');
 require_once('include/Probe.php');
 
-function photos_init(App &$a) {
+function photos_init(App $a) {
 
 	if ($a->argc > 1)
 		auto_redir($a, $a->argv[1]);
@@ -112,7 +112,7 @@ function photos_init(App &$a) {
 
 
 
-function photos_post(App &$a) {
+function photos_post(App $a) {
 
 	logger('mod-photos: photos_post: begin' , LOGGER_DEBUG);
 
@@ -946,7 +946,7 @@ function photos_post(App &$a) {
 
 
 
-function photos_content(App &$a) {
+function photos_content(App $a) {
 
 	// URLs:
 	// photos/name
@@ -1308,7 +1308,7 @@ function photos_content(App &$a) {
 
 	}
 
-	/** 
+	/**
 	 * Display one photo
 	 */
 

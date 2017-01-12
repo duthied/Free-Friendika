@@ -5,7 +5,6 @@
  */
 
 use \Friendica\Core\Config;
-use \Friendica\Core\PConfig;
 
 require_once("include/xml.php");
 require_once('include/Probe.php');

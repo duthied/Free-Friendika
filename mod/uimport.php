@@ -6,7 +6,7 @@
 
 require_once("include/uimport.php");
 
-function uimport_post(App &$a) {
+function uimport_post(App $a) {
 	switch($a->config['register_policy']) {
 	case REGISTER_OPEN:
 		$blocked = 0;
@@ -36,7 +36,7 @@ function uimport_post(App &$a) {
 	}
 }
 
-function uimport_content(App &$a) {
+function uimport_content(App $a) {
 
 	if ((! local_user()) && ($a->config['register_policy'] == REGISTER_CLOSED)) {
 		notice("Permission denied." . EOL);
