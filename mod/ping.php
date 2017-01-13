@@ -196,7 +196,7 @@ function ping_init(App $a)
 			}
 		}
 
-		$cachekey = "ping:events:".local_user();
+		$cachekey = "ping_init:".local_user();
 		$ev = Cache::get($cachekey);
 		if (is_null($ev)) {
 			$ev = qu("SELECT count(`event`.`id`) AS total, type, start, adjust FROM `event`
@@ -206,11 +206,12 @@ function ping_init(App $a)
 				dbesc(datetime_convert('UTC', 'UTC', 'now + 7 days')),
 				dbesc(datetime_convert('UTC', 'UTC', 'now'))
 			);
+			if (dbm::is_result($ev)) {
+				Cache::set($cachekey, $ev, CACHE_HOUR);
+			}
 		}
 
 		if (dbm::is_result($ev)) {
-			Cache::set($cachekey, $ev, CACHE_HOUR);
-
 			$all_events = intval($ev[0]['total']);
 
 			if ($all_events) {
