@@ -138,6 +138,38 @@ class dba {
 		return $return;
 	}
 
+	public function log_index($query) {
+		$a = get_app();
+
+		if (($a->config["system"]["db_log_index"] == "") OR ($a->config["system"]["db_log_index_watch"] == "") OR
+			(intval($a->config["system"]["db_loglimit_index"]) == 0)) {
+			return;
+		}
+
+		if (strtolower(substr($query, 0, 7)) == "explain") {
+			return;
+		}
+
+		$r = $this->q("EXPLAIN ".$query);
+		if (!dbm::is_result($r)) {
+			return;
+		}
+
+		$watchlist = explode(',', $a->config["system"]["db_log_index_watch"]);
+
+		foreach ($r AS $row) {
+			if (in_array($row['key'], $watchlist) AND
+				($row['rows'] >= intval($a->config["system"]["db_loglimit_index"]))) {
+				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+				@file_put_contents($a->config["system"]["db_log_index"], datetime_convert()."\t".
+						$row['key']."\t".$row['rows']."\t".
+						basename($backtrace[1]["file"])."\t".
+						$backtrace[1]["line"]."\t".$backtrace[2]["function"]."\t".
+						substr($query, 0, 2000)."\n", FILE_APPEND);
+			}
+		}
+	}
+
 	public function q($sql, $onlyquery = false) {
 		$a = get_app();
 
@@ -375,6 +407,9 @@ function q($sql) {
 		//logger("dba: q: $stmt", LOGGER_ALL);
 		if ($stmt === false)
 			logger('dba: vsprintf error: ' . print_r(debug_backtrace(),true), LOGGER_DEBUG);
+
+		$db->log_index($stmt);
+
 		return $db->q($stmt);
 	}
 
@@ -408,6 +443,9 @@ function qu($sql) {
 		$stmt = @vsprintf($sql,$args); // Disabled warnings
 		if ($stmt === false)
 			logger('dba: vsprintf error: ' . print_r(debug_backtrace(),true), LOGGER_DEBUG);
+
+		$db->log_index($stmt);
+
 		$db->q("SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
 		$retval = $db->q($stmt);
 		$db->q("SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;");

@@ -587,10 +587,10 @@ function db_definition($charset) {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"uid_name" => array("uid", "name"),
-					"uid_self" => array("uid", "self"),
+					"self_uid" => array("self", "uid"),
 					"alias_uid" => array("alias(32)", "uid"),
-					"uid_pending" => array("uid", "pending"),
-					"uid_blocked" => array("uid", "blocked"),
+					"pending_uid" => array("pending", "uid"),
+					"blocked_uid" => array("blocked", "uid"),
 					"uid_rel_network_poll" => array("uid", "rel", "network", "poll(64)", "archive"),
 					"uid_network_batch" => array("uid", "network", "batch(64)"),
 					"addr_uid" => array("addr(32)", "uid"),
@@ -1162,6 +1162,7 @@ function db_definition($charset) {
 					"uid_contactid" => array("uid", "contact-id"),
 					"uid_profile" => array("uid", "profile"),
 					"uid_album_created" => array("uid", "album(32)", "created"),
+					"uid_album_scale_created" => array("uid", "album(32)", "scale", "created"),
 					"uid_album_resource-id_created" => array("uid", "album(32)", "resource-id(64)", "created"),
 					"resource-id" => array("resource-id(64)"),
 					)

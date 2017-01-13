@@ -49,7 +49,7 @@ function photo_albums($uid, $update = false) {
 			/// @todo This query needs to be renewed. It is really slow
 			// At this time we just store the data in the cache
 			$albums = qu("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`
-				FROM `photo` USE INDEX (`uid_album_created`)
+				FROM `photo`
 				WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra
 				GROUP BY `album` ORDER BY `created` DESC",
 				intval($uid),
@@ -57,9 +57,10 @@ function photo_albums($uid, $update = false) {
 				dbesc(t('Contact Photos'))
 			);
 		} else {
+// USE INDEX (`uid_album`)
 			// This query doesn't do the count and is much faster
 			$albums = qu("SELECT DISTINCT(`album`), '' AS `total`
-				FROM `photo` USE INDEX (`uid_album_created`)
+				FROM `photo`
 				WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra
 				GROUP BY `album` ORDER BY `created` DESC",
 				intval($uid),

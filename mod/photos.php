@@ -1344,7 +1344,7 @@ function photos_content(App $a) {
 		else
 			$order = 'DESC';
 
-
+		/// @todo This query is totally bad, the whole functionality has to be changed
 		$prvnxt = qu("SELECT `resource-id` FROM `photo` WHERE `album` = '%s' AND `uid` = %d AND `scale` = 0
 			$sql_extra ORDER BY `created` $order ",
 			dbesc($ph[0]['album']),
