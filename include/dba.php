@@ -141,12 +141,17 @@ class dba {
 	public function log_index($query) {
 		$a = get_app();
 
-		if (($a->config["system"]["db_log_index"] == "") OR ($a->config["system"]["db_log_index_watch"] == "") OR
-			(intval($a->config["system"]["db_loglimit_index"]) == 0)) {
+		if ($a->config["system"]["db_log_index"] == "") {
 			return;
 		}
 
+		// Don't explain an explain statement
 		if (strtolower(substr($query, 0, 7)) == "explain") {
+			return;
+		}
+
+		// Only do the explain on "select", "update" and "delete"
+		if (!in_array(strtolower(substr($query, 0, 6)), array("select", "update", "delete"))) {
 			return;
 		}
 
@@ -156,10 +161,24 @@ class dba {
 		}
 
 		$watchlist = explode(',', $a->config["system"]["db_log_index_watch"]);
+		$blacklist = explode(',', $a->config["system"]["db_log_index_blacklist"]);
 
 		foreach ($r AS $row) {
-			if (in_array($row['key'], $watchlist) AND
-				($row['rows'] >= intval($a->config["system"]["db_loglimit_index"]))) {
+			if ((intval($a->config["system"]["db_loglimit_index"]) > 0)) {
+				$log = (in_array($row['key'], $watchlist) AND
+					($row['rows'] >= intval($a->config["system"]["db_loglimit_index"])));
+			} else
+				$log = false;
+
+			if ((intval($a->config["system"]["db_loglimit_index_high"]) > 0) AND ($row['rows'] >= intval($a->config["system"]["db_loglimit_index_high"]))) {
+				$log = true;
+			}
+
+			if (in_array($row['key'], $blacklist) OR ($row['key'] == "")) {
+				$log = false;
+			}
+
+			if ($log) {
 				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 				@file_put_contents($a->config["system"]["db_log_index"], datetime_convert()."\t".
 						$row['key']."\t".$row['rows']."\t".

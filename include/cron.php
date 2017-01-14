@@ -239,11 +239,13 @@ function cron_poll_contacts($argc, $argv) {
 		: ''
 	);
 
-	$contacts = q("SELECT `contact`.`id` FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
-		WHERE `rel` IN (%d, %d) AND `poll` != '' AND `network` IN ('%s', '%s', '%s', '%s', '%s', '%s')
-		$sql_extra
-		AND NOT `self` AND NOT `contact`.`blocked` AND NOT `contact`.`readonly` AND NOT `contact`.`archive`
-		AND NOT `user`.`account_expired` AND NOT `user`.`account_removed` $abandon_sql ORDER BY RAND()",
+	$contacts = q("SELECT `contact`.`id` FROM `user`
+			STRAIGHT_JOIN `contact`
+			ON `contact`.`uid` = `user`.`uid` AND `contact`.`rel` IN (%d, %d) AND `contact`.`poll` != ''
+				AND `contact`.`network` IN ('%s', '%s', '%s', '%s', '%s', '%s') $sql_extra
+				AND NOT `contact`.`self` AND NOT `contact`.`blocked` AND NOT `contact`.`readonly`
+				AND NOT `contact`.`archive`
+			WHERE NOT `user`.`account_expired` AND NOT `user`.`account_removed` $abandon_sql ORDER BY RAND()",
 		intval(CONTACT_IS_SHARING),
 		intval(CONTACT_IS_FRIEND),
 		dbesc(NETWORK_DFRN),

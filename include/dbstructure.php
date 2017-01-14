@@ -595,6 +595,8 @@ function db_definition($charset) {
 					"addr_uid" => array("addr(32)", "uid"),
 					"nurl_uid" => array("nurl(32)", "uid"),
 					"nick_uid" => array("nick(32)", "uid"),
+					"dfrn-id" => array("dfrn-id"),
+					"issued-id" => array("issued-id"),
 					)
 			);
 	$database["conv"] = array(
@@ -676,6 +678,7 @@ function db_definition($charset) {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"addr" => array("addr(32)"),
+					"url" => array("url"),
 					)
 			);
 	$database["ffinder"] = array(
@@ -764,6 +767,7 @@ function db_definition($charset) {
 					"name" => array("name(32)"),
 					"nick" => array("nick(32)"),
 					"addr" => array("addr(32)"),
+					"hide_network_updated" => array("hide", "network", "updated"),
 					"updated" => array("updated"),
 					)
 			);
@@ -804,6 +808,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
+					"contactid" => array("contact-id"),
 					"gid_contactid" => array("gid", "contact-id"),
 					"uid_gid_contactid" => array("UNIQUE", "uid", "gid", "contact-id"),
 					)
@@ -953,6 +958,7 @@ function db_definition($charset) {
 					"contactid_verb" => array("contact-id","verb"),
 					"deleted_changed" => array("deleted","changed"),
 					"uid_wall_changed" => array("uid","wall","changed"),
+					"wall_uid_changed" => array("wall","uid","changed"),
 					"uid_eventid" => array("uid","event-id"),
 					"uid_authorlink" => array("uid","author-link"),
 					"uid_ownerlink" => array("uid","owner-link"),
@@ -1066,10 +1072,10 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"uid_hash" => array("uid", "hash"),
+					"hash_uid" => array("hash", "uid"),
 					"seen_uid_date" => array("seen", "uid", "date"),
-					"type_uid_link" => array("type", "uid", "link"),
 					"uid_date" => array("uid", "date"),
+					"uid_type_link" => array("uid", "type", "link"),
 					)
 			);
 	$database["notify-threads"] = array(
@@ -1245,6 +1251,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
+					"uid_is-default" => array("uid", "is-default"),
 					)
 			);
 	$database["profile_check"] = array(
