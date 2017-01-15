@@ -181,7 +181,7 @@ class dba {
 			if ($log) {
 				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 				@file_put_contents($a->config["system"]["db_log_index"], datetime_convert()."\t".
-						$row['key']."\t".$row['rows']."\t".
+						$row['key']."\t".$row['rows']."\t".$row['Extra']."\t".
 						basename($backtrace[1]["file"])."\t".
 						$backtrace[1]["line"]."\t".$backtrace[2]["function"]."\t".
 						substr($query, 0, 2000)."\n", FILE_APPEND);

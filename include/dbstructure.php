@@ -958,7 +958,6 @@ function db_definition($charset) {
 					"contactid_verb" => array("contact-id","verb"),
 					"deleted_changed" => array("deleted","changed"),
 					"uid_wall_changed" => array("uid","wall","changed"),
-					"wall_uid_changed" => array("wall","uid","changed"),
 					"uid_eventid" => array("uid","event-id"),
 					"uid_authorlink" => array("uid","author-link"),
 					"uid_ownerlink" => array("uid","owner-link"),
