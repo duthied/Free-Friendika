@@ -176,15 +176,6 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 		$definition = db_definition($charset);
 	}
 
-	// Ensure index conversion to unique removes duplicates
-	$sql_config = "SET session old_alter_table=1;";
-	if ($verbose) {
-		echo $sql_config."\n";
-	}
-	if ($action) {
-		$db->q($sql_config);
-	}
-
 	// MySQL >= 5.7.4 doesn't support the IGNORE keyword in ALTER TABLE statements
 	if ((version_compare($db->server_info(), '5.7.4') >= 0) AND
 		!(strpos($db->server_info(), 'MariaDB') !== false)) {
@@ -204,6 +195,26 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 			}
 			$is_new_table = True;
 		} else {
+			$is_unique = false;
+			$temp_name = $name;
+
+			foreach ($structure["indexes"] AS $indexname => $fieldnames) {
+				if (isset($database[$name]["indexes"][$indexname])) {
+					$current_index_definition = implode(",",$database[$name]["indexes"][$indexname]);
+				} else {
+					$current_index_definition = "__NOT_SET__";
+				}
+				$new_index_definition = implode(",",$fieldnames);
+				if ($current_index_definition != $new_index_definition) {
+					if ($fieldnames[0] == "UNIQUE") {
+						$is_unique = true;
+						if ($ignore == "") {
+							$temp_name = "temp-".$name;
+						}
+					}
+				}
+			}
+
 			/*
 			 * Drop the index if it isn't present in the definition
 			 * or the definition differ from current status
@@ -219,7 +230,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 				if ($current_index_definition != $new_index_definition && substr($indexname, 0, 6) != 'local_') {
 					$sql2=db_drop_index($indexname);
 					if ($sql3 == "") {
-						$sql3 = "ALTER".$ignore." TABLE `".$name."` ".$sql2;
+						$sql3 = "ALTER".$ignore." TABLE `".$temp_name."` ".$sql2;
 					} else {
 						$sql3 .= ", ".$sql2;
 					}
@@ -230,7 +241,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 				if (!isset($database[$name]["fields"][$fieldname])) {
 					$sql2=db_add_table_field($fieldname, $parameters);
 					if ($sql3 == "") {
-						$sql3 = "ALTER TABLE `".$name."` ".$sql2;
+						$sql3 = "ALTER TABLE `".$temp_name."` ".$sql2;
 					} else {
 						$sql3 .= ", ".$sql2;
 					}
@@ -241,7 +252,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 					if ($current_field_definition != $new_field_definition) {
 						$sql2=db_modify_table_field($fieldname, $parameters);
 						if ($sql3 == "") {
-							$sql3 = "ALTER TABLE `".$name."` ".$sql2;
+							$sql3 = "ALTER TABLE `".$temp_name."` ".$sql2;
 						} else {
 							$sql3 .= ", ".$sql2;
 						}
@@ -268,7 +279,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 					$sql2=db_create_index($indexname, $fieldnames);
 					if ($sql2 != "") {
 						if ($sql3 == "")
-							$sql3 = "ALTER" . $ignore . " TABLE `".$name."` ".$sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
 						else
 							$sql3 .= ", ".$sql2;
 					}
@@ -278,13 +289,74 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 		if ($sql3 != "") {
 			$sql3 .= ";";
 
-			if ($verbose)
+			if ($verbose) {
+				// Ensure index conversion to unique removes duplicates
+				if ($is_unique) {
+					if ($ignore != "") {
+						echo "SET session old_alter_table=1;\n";
+					} else {
+						echo "DROP TABLE IF EXISTS `".$temp_name."`;\n";
+						echo "CREATE TABLE `".$temp_name."` LIKE `".$name."`;\n";
+					}
+				}
+
 				echo $sql3."\n";
 
+				if ($is_unique) {
+					if ($ignore != "") {
+						echo "SET session old_alter_table=0;\n";
+					} else {
+						echo "INSERT IGNORE INTO `".$temp_name."` SELECT * FROM `".$name."`;\n";
+						echo "DROP TABLE `".$name."`;\n";
+						echo "RENAME TABLE `".$temp_name."` TO `".$name."`;\n";
+					}
+				}
+			}
+
 			if ($action) {
+				// Ensure index conversion to unique removes duplicates
+				if ($is_unique) {
+					if ($ignore != "") {
+						$db->q("SET session old_alter_table=1;");
+					} else {
+						$r = $db->q("DROP TABLE IF EXISTS `".$temp_name."`;");
+						if (!dbm::is_result($r)) {
+							$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
+							return $errors;
+						}
+						$r = $db->q("CREATE TABLE `".$temp_name."` LIKE `".$name."`;");
+						if (!dbm::is_result($r)) {
+							$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
+							return $errors;
+						}
+					}
+				}
+
 				$r = @$db->q($sql3);
-				if (dbm::is_result($r))
+				if (!dbm::is_result($r))
 					$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
+
+				if ($is_unique) {
+					if ($ignore != "") {
+						$db->q("SET session old_alter_table=0;");
+					} else {
+						$r = $db->q("INSERT IGNORE INTO `".$temp_name."` SELECT * FROM `".$name."`;");
+						if (!dbm::is_result($r)) {
+							$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
+							return $errors;
+						}
+						$r = $db->q("DROP TABLE `".$name."`;");
+						if (!dbm::is_result($r)) {
+							$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
+							return $errors;
+						}
+						$r = $db->q("RENAME TABLE `".$temp_name."` TO `".$name."`;");
+						if (!dbm::is_result($r)) {
+							$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
+							return $errors;
+						}
+					}
+				}
 			}
 		}
 	}
