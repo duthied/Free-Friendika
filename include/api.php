@@ -2344,6 +2344,9 @@
 	 * 			dislikes => int count
 	 */
 	function api_format_items_activities(&$item, $type = "json") {
+
+		$a = get_app();
+
 		$activities = array(
 			'like' => array(),
 			'dislike' => array(),
@@ -2521,9 +2524,9 @@
 
 			// Retweets are only valid for top postings
 			// It doesn't work reliable with the link if its a feed
-			#$IsRetweet = ($item['owner-link'] != $item['author-link']);
-			#if ($IsRetweet)
-			#	$IsRetweet = (($item['owner-name'] != $item['author-name']) OR ($item['owner-avatar'] != $item['author-avatar']));
+			//$IsRetweet = ($item['owner-link'] != $item['author-link']);
+			//if ($IsRetweet)
+			//	$IsRetweet = (($item['owner-name'] != $item['author-name']) OR ($item['owner-avatar'] != $item['author-avatar']));
 
 
 			if ($item["id"] == $item["parent"]) {
