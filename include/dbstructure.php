@@ -517,10 +517,10 @@ function db_definition($charset) {
 					"data" => array("type" => "longblob", "not null" => "1"),
 					"created" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"edited" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
-					"allow_cid" => array("type" => "text"),
-					"allow_gid" => array("type" => "text"),
-					"deny_cid" => array("type" => "text"),
-					"deny_gid" => array("type" => "text"),
+					"allow_cid" => array("type" => "mediumtext"),
+					"allow_gid" => array("type" => "medium_text"),
+					"deny_cid" => array("type" => "medium_text"),
+					"deny_gid" => array("type" => "medium_text"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
@@ -721,10 +721,10 @@ function db_definition($charset) {
 					"nofinish" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"adjust" => array("type" => "tinyint(1)", "not null" => "1", "default" => "1"),
 					"ignore" => array("type" => "tinyint(1) unsigned", "not null" => "1", "default" => "0"),
-					"allow_cid" => array("type" => "text"),
-					"allow_gid" => array("type" => "text"),
-					"deny_cid" => array("type" => "text"),
-					"deny_gid" => array("type" => "text"),
+					"allow_cid" => array("type" => "medium_text"),
+					"allow_gid" => array("type" => "medium_text"),
+					"deny_cid" => array("type" => "medium_text"),
+					"deny_gid" => array("type" => "medium_text"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
@@ -1264,7 +1264,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"poll_id" => array("UNIQUE", "poll_id"),
+					"poll_id" => array("poll_id"),
 					"choice" => array("choice"),
 					)
 			);
@@ -1559,10 +1559,10 @@ function db_definition($charset) {
 					"expire_notification_sent" => array("type" => "datetime", "not null" => "1", "default" => "0000-00-00 00:00:00"),
 					"service_class" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"def_gid" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
-					"allow_cid" => array("type" => "text"),
-					"allow_gid" => array("type" => "text"),
-					"deny_cid" => array("type" => "text"),
-					"deny_gid" => array("type" => "text"),
+					"allow_cid" => array("type" => "medium_text"),
+					"allow_gid" => array("type" => "medium_text"),
+					"deny_cid" => array("type" => "medium_text"),
+					"deny_gid" => array("type" => "medium_text"),
 					"openidserver" => array("type" => "text"),
 					),
 			"indexes" => array(

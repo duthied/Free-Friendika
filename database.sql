@@ -31,10 +31,10 @@ CREATE TABLE IF NOT EXISTS `attach` (
 	`data` longblob NOT NULL,
 	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`edited` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-	`allow_cid` text,
-	`allow_gid` text,
-	`deny_cid` text,
-	`deny_gid` text,
+	`allow_cid` mediumtext,
+	`allow_gid` medium_text,
+	`deny_cid` medium_text,
+	`deny_gid` medium_text,
 	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8mb4;
 
@@ -235,10 +235,10 @@ CREATE TABLE IF NOT EXISTS `event` (
 	`nofinish` tinyint(1) NOT NULL DEFAULT 0,
 	`adjust` tinyint(1) NOT NULL DEFAULT 1,
 	`ignore` tinyint(1) unsigned NOT NULL DEFAULT 0,
-	`allow_cid` text,
-	`allow_gid` text,
-	`deny_cid` text,
-	`deny_gid` text,
+	`allow_cid` medium_text,
+	`allow_gid` medium_text,
+	`deny_cid` medium_text,
+	`deny_gid` medium_text,
 	 PRIMARY KEY(`id`),
 	 INDEX `uid_start` (`uid`,`start`)
 ) DEFAULT CHARSET=utf8mb4;
@@ -1073,10 +1073,10 @@ CREATE TABLE IF NOT EXISTS `user` (
 	`expire_notification_sent` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`service_class` varchar(32) NOT NULL DEFAULT '',
 	`def_gid` int(11) NOT NULL DEFAULT 0,
-	`allow_cid` text,
-	`allow_gid` text,
-	`deny_cid` text,
-	`deny_gid` text,
+	`allow_cid` medium_text,
+	`allow_gid` medium_text,
+	`deny_cid` medium_text,
+	`deny_gid` medium_text,
 	`openidserver` text,
 	 PRIMARY KEY(`uid`),
 	 INDEX `nickname` (`nickname`(32))
