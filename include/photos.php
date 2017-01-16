@@ -57,7 +57,6 @@ function photo_albums($uid, $update = false) {
 				dbesc(t('Contact Photos'))
 			);
 		} else {
-// USE INDEX (`uid_album`)
 			// This query doesn't do the count and is much faster
 			$albums = qu("SELECT DISTINCT(`album`), '' AS `total`
 				FROM `photo`
