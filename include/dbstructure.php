@@ -208,9 +208,10 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 				if ($current_index_definition != $new_index_definition) {
 					if ($fieldnames[0] == "UNIQUE") {
 						$is_unique = true;
-						if ($ignore == "") {
-							$temp_name = "temp-".$name;
-						}
+						// Deactivated. See below for the reason
+						//if ($ignore == "") {
+						//	$temp_name = "temp-".$name;
+						//}
 					}
 				}
 			}
@@ -292,44 +293,44 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 			if ($verbose) {
 				// Ensure index conversion to unique removes duplicates
 				if ($is_unique) {
-					if ($ignore != "") {
+					// By now the alternative is commented out.
+					// This is a preparation for the time when we found a good SQL routine.
+					//if ($ignore != "") {
 						echo "SET session old_alter_table=1;\n";
-					} else {
-						echo "DROP TABLE IF EXISTS `".$temp_name."`;\n";
-						echo "CREATE TABLE `".$temp_name."` LIKE `".$name."`;\n";
-					}
+					//} else {
+					//	echo "CREATE TABLE `".$temp_name."` LIKE `".$name."`;\n";
+					//}
 				}
 
 				echo $sql3."\n";
 
 				if ($is_unique) {
-					if ($ignore != "") {
+					// By now the alternative is commented out.
+					// This is a preparation for the time when we found a good SQL routine.
+					//if ($ignore != "") {
 						echo "SET session old_alter_table=0;\n";
-					} else {
-						echo "INSERT IGNORE INTO `".$temp_name."` SELECT * FROM `".$name."`;\n";
-						echo "DROP TABLE `".$name."`;\n";
-						echo "RENAME TABLE `".$temp_name."` TO `".$name."`;\n";
-					}
+					//} else {
+					//	echo "INSERT IGNORE INTO `".$temp_name."` SELECT * FROM `".$name."`;\n";
+					//	echo "DROP TABLE `".$name."`;\n";
+					//	echo "RENAME TABLE `".$temp_name."` TO `".$name."`;\n";
+					//}
 				}
 			}
 
 			if ($action) {
 				// Ensure index conversion to unique removes duplicates
 				if ($is_unique) {
-					if ($ignore != "") {
+					// By now the alternative is commented out.
+					// This is a preparation for the time when we found a good SQL routine.
+					//if ($ignore != "") {
 						$db->q("SET session old_alter_table=1;");
-					} else {
-						$r = $db->q("DROP TABLE IF EXISTS `".$temp_name."`;");
-						if (!dbm::is_result($r)) {
-							$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
-							return $errors;
-						}
-						$r = $db->q("CREATE TABLE `".$temp_name."` LIKE `".$name."`;");
-						if (!dbm::is_result($r)) {
-							$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
-							return $errors;
-						}
-					}
+					//} else {
+					//	$r = $db->q("CREATE TABLE `".$temp_name."` LIKE `".$name."`;");
+					//	if (!dbm::is_result($r)) {
+					//		$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
+					//		return $errors;
+					//	}
+					//}
 				}
 
 				$r = @$db->q($sql3);
@@ -337,25 +338,28 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 					$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
 
 				if ($is_unique) {
-					if ($ignore != "") {
+					// By now the alternative is commented out.
+					// This is a preparation for the time when we found a good SQL routine.
+					//if ($ignore != "") {
 						$db->q("SET session old_alter_table=0;");
-					} else {
-						$r = $db->q("INSERT IGNORE INTO `".$temp_name."` SELECT * FROM `".$name."`;");
-						if (!dbm::is_result($r)) {
-							$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
-							return $errors;
-						}
-						$r = $db->q("DROP TABLE `".$name."`;");
-						if (!dbm::is_result($r)) {
-							$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
-							return $errors;
-						}
-						$r = $db->q("RENAME TABLE `".$temp_name."` TO `".$name."`;");
-						if (!dbm::is_result($r)) {
-							$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
-							return $errors;
-						}
-					}
+					//} else {
+					//	We have to check if "INSERT IGNORE" will work on newer MySQL versions
+					//	$r = $db->q("INSERT IGNORE INTO `".$temp_name."` SELECT * FROM `".$name."`;");
+					//	if (!dbm::is_result($r)) {
+					//		$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
+					//		return $errors;
+					//	}
+					//	$r = $db->q("DROP TABLE `".$name."`;");
+					//	if (!dbm::is_result($r)) {
+					//		$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
+					//		return $errors;
+					//	}
+					//	$r = $db->q("RENAME TABLE `".$temp_name."` TO `".$name."`;");
+					//	if (!dbm::is_result($r)) {
+					//		$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
+					//		return $errors;
+					//	}
+					//}
 				}
 			}
 		}
@@ -1260,7 +1264,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"poll_id" => array("poll_id"),
+					"poll_id" => array("UNIQUE", "poll_id"),
 					"choice" => array("choice"),
 					)
 			);
