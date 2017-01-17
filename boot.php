@@ -19,6 +19,8 @@
 
 require_once('include/autoloader.php');
 
+use \Friendica\Core\Config;
+
 require_once('include/config.php');
 require_once('include/network.php');
 require_once('include/plugin.php');
@@ -1475,9 +1477,7 @@ function system_unavailable() {
 
 function clean_urls() {
 	$a = get_app();
-	//	if($a->config['system']['clean_urls'])
 	return true;
-	//	return false;
 }
 
 function z_path() {
@@ -2041,16 +2041,18 @@ function current_theme(){
 //		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
 	$is_mobile = $a->is_mobile || $a->is_tablet;
 
-	$standard_system_theme = ((isset($a->config['system']['theme'])) ? $a->config['system']['theme'] : '');
+	$standard_system_theme = Config::get('system', 'theme', '');
 	$standard_theme_name = ((isset($_SESSION) && x($_SESSION,'theme')) ? $_SESSION['theme'] : $standard_system_theme);
 
-	if($is_mobile) {
-		if(isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
+	if ($is_mobile) {
+		if (isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
 			$system_theme = $standard_system_theme;
 			$theme_name = $standard_theme_name;
-		}
-		else {
-			$system_theme = ((isset($a->config['system']['mobile-theme'])) ? $a->config['system']['mobile-theme'] : $standard_system_theme);
+		} else {
+			$system_theme = Config::get('system', 'mobile-theme', '');
+			if ($system_theme == '') {
+				$system_theme = $standard_system_theme;
+			}
 			$theme_name = ((isset($_SESSION) && x($_SESSION,'mobile-theme')) ? $_SESSION['mobile-theme'] : $system_theme);
 
 			if($theme_name === '---') {
