@@ -825,24 +825,22 @@ class App {
 
 		$scheme = $this->scheme;
 
-		if ((x($this->config, 'system')) && (x($this->config['system'], 'ssl_policy'))) {
-			if (intval($this->config['system']['ssl_policy']) === SSL_POLICY_FULL) {
+		if (Config::get('system', 'ssl_policy') === SSL_POLICY_FULL) {
+			$scheme = 'https';
+		}
+
+		//	Basically, we have $ssl = true on any links which can only be seen by a logged in user
+		//	(and also the login link). Anything seen by an outsider will have it turned off.
+
+		if (Config::get('system', 'ssl_policy') == SSL_POLICY_SELFSIGN) {
+			if ($ssl) {
 				$scheme = 'https';
-			}
-
-			//	Basically, we have $ssl = true on any links which can only be seen by a logged in user
-			//	(and also the login link). Anything seen by an outsider will have it turned off.
-
-			if ($this->config['system']['ssl_policy'] == SSL_POLICY_SELFSIGN) {
-				if ($ssl) {
-					$scheme = 'https';
-				} else {
-					$scheme = 'http';
-				}
+			} else {
+				$scheme = 'http';
 			}
 		}
 
-		if (get_config('config', 'hostname') != '') {
+		if (Config::get('config', 'hostname') != '') {
 			$this->hostname = get_config('config', 'hostname');
 		}
 
