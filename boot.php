@@ -1569,7 +1569,7 @@ function update_db(App $a) {
 		$stored = intval($build);
 		$current = intval(DB_UPDATE_VERSION);
 		if($stored < $current) {
-			load_config('database');
+			Config::load('database');
 
 			// We're reporting a different version than what is currently installed.
 			// Run any existing update scripts to bring the database up to current.

@@ -9,13 +9,14 @@
 --
 CREATE TABLE IF NOT EXISTS `addon` (
 	`id` int(11) NOT NULL auto_increment,
-	`name` varchar(255) NOT NULL DEFAULT '',
+	`name` varchar(190) NOT NULL DEFAULT '',
 	`version` varchar(255) NOT NULL DEFAULT '',
 	`installed` tinyint(1) NOT NULL DEFAULT 0,
 	`hidden` tinyint(1) NOT NULL DEFAULT 0,
 	`timestamp` bigint(20) NOT NULL DEFAULT 0,
 	`plugin_admin` tinyint(1) NOT NULL DEFAULT 0,
-	 PRIMARY KEY(`id`)
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `name` (`name`)
 ) DEFAULT CHARSET=utf8mb4;
 
 --
@@ -32,9 +33,9 @@ CREATE TABLE IF NOT EXISTS `attach` (
 	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`edited` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`allow_cid` mediumtext,
-	`allow_gid` medium_text,
-	`deny_cid` medium_text,
-	`deny_gid` medium_text,
+	`allow_gid` mediumtext,
+	`deny_cid` mediumtext,
+	`deny_gid` mediumtext,
 	 PRIMARY KEY(`id`)
 ) DEFAULT CHARSET=utf8mb4;
 
@@ -235,10 +236,10 @@ CREATE TABLE IF NOT EXISTS `event` (
 	`nofinish` tinyint(1) NOT NULL DEFAULT 0,
 	`adjust` tinyint(1) NOT NULL DEFAULT 1,
 	`ignore` tinyint(1) unsigned NOT NULL DEFAULT 0,
-	`allow_cid` medium_text,
-	`allow_gid` medium_text,
-	`deny_cid` medium_text,
-	`deny_gid` medium_text,
+	`allow_cid` mediumtext,
+	`allow_gid` mediumtext,
+	`deny_cid` mediumtext,
+	`deny_gid` mediumtext,
 	 PRIMARY KEY(`id`),
 	 INDEX `uid_start` (`uid`,`start`)
 ) DEFAULT CHARSET=utf8mb4;
@@ -434,7 +435,7 @@ CREATE TABLE IF NOT EXISTS `hook` (
 	`function` varchar(255) NOT NULL DEFAULT '',
 	`priority` int(11) unsigned NOT NULL DEFAULT 0,
 	 PRIMARY KEY(`id`),
-	 INDEX `hook_file_function` (`hook`(30),`file`(60),`function`(30))
+	 UNIQUE INDEX `hook_file_function` (`hook`(50),`file`(80),`function`(60))
 ) DEFAULT CHARSET=utf8mb4;
 
 --
@@ -1073,10 +1074,10 @@ CREATE TABLE IF NOT EXISTS `user` (
 	`expire_notification_sent` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`service_class` varchar(32) NOT NULL DEFAULT '',
 	`def_gid` int(11) NOT NULL DEFAULT 0,
-	`allow_cid` medium_text,
-	`allow_gid` medium_text,
-	`deny_cid` medium_text,
-	`deny_gid` medium_text,
+	`allow_cid` mediumtext,
+	`allow_gid` mediumtext,
+	`deny_cid` mediumtext,
+	`deny_gid` mediumtext,
 	`openidserver` text,
 	 PRIMARY KEY(`uid`),
 	 INDEX `nickname` (`nickname`(32))

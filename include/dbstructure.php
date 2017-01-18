@@ -495,7 +495,7 @@ function db_definition($charset) {
 	$database["addon"] = array(
 			"fields" => array(
 					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
+					"name" => array("type" => "varchar(190)", "not null" => "1", "default" => ""),
 					"version" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"installed" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"hidden" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
@@ -504,6 +504,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
+					"name" => array("UNIQUE", "name"),
 					)
 			);
 	$database["attach"] = array(
@@ -922,7 +923,7 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"hook_file_function" => array("hook(30)","file(60)","function(30)"),
+					"hook_file_function" => array("UNIQUE", "hook(50)","file(80)","function(60)"),
 					)
 			);
 	$database["intro"] = array(

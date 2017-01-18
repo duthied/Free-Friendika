@@ -10,6 +10,8 @@ if (!file_exists("boot.php") AND (sizeof($_SERVER["argv"]) != 0)) {
 	chdir($directory);
 }
 
+use \Friendica\Core\Config;
+
 require_once("boot.php");
 require_once("include/photos.php");
 require_once("include/user.php");
@@ -38,8 +40,7 @@ function cron_run(&$argv, &$argc){
 	require_once('mod/nodeinfo.php');
 	require_once('include/post_update.php');
 
-	load_config('config');
-	load_config('system');
+	Config::load();
 
 	// Don't check this stuff if the function is called by the poller
 	if (App::callstack() != "poller_run") {
