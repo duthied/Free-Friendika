@@ -153,6 +153,9 @@ function poller_execute($queue) {
 	$funcname = str_replace(".php", "", basename($argv[0]))."_run";
 
 	if (function_exists($funcname)) {
+
+		$stamp = (float)microtime(true);
+
 		logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." ".$queue["parameter"]);
 
 		// For better logging create a new process id for every worker call
@@ -169,7 +172,9 @@ function poller_execute($queue) {
 			sleep($cooldown);
 		}
 
-		logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done");
+		$duration = (float)round(microtime(true)-$stamp, 3);
+
+		logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".$duration." seconds.");
 
 		q("DELETE FROM `workerqueue` WHERE `id` = %d", intval($queue["id"]));
 	} else {
