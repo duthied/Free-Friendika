@@ -38,7 +38,7 @@ class Config {
 
 		// We don't preload "system" anymore.
 		// This reduces the number of database reads a lot.
-		if ($family == 'system') {
+		if ($family === 'system') {
 			return;
 		}
 
@@ -88,7 +88,7 @@ class Config {
 
 			// Do we have the cached value? Then return it
 			if (isset(self::$cache[$family][$key])) {
-				if (self::$cache[$family][$key] == '!<unset>!') {
+				if (self::$cache[$family][$key] === '!<unset>!') {
 					return $default_value;
 				} else {
 					return self::$cache[$family][$key];
@@ -141,7 +141,7 @@ class Config {
 
 		$stored = self::get($family, $key);
 
-		if ($stored == $value) {
+		if ($stored === $value) {
 			return true;
 		}
 
