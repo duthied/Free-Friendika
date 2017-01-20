@@ -840,10 +840,10 @@ function db_definition($charset) {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"nurl" => array("nurl(32)"),
-					"name" => array("name(32)"),
+					"nurl" => array("nurl(64)"),
+					"name" => array("name(64)"),
 					"nick" => array("nick(32)"),
-					"addr" => array("addr(32)"),
+					"addr" => array("addr(64)"),
 					"hide_network_updated" => array("hide", "network", "updated"),
 					"updated" => array("updated"),
 					)
