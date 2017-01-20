@@ -156,6 +156,18 @@ function poller_execute($queue) {
 
 		$stamp = (float)microtime(true);
 
+		if (get_config("system", "profiler")) {
+			$a->performance["start"] = microtime(true);
+			$a->performance["database"] = 0;
+			$a->performance["database_write"] = 0;
+			$a->performance["network"] = 0;
+			$a->performance["file"] = 0;
+			$a->performance["rendering"] = 0;
+			$a->performance["parser"] = 0;
+			$a->performance["marktime"] = 0;
+			$a->performance["markstart"] = microtime(true);
+		}
+
 		logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." ".$queue["parameter"]);
 
 		// For better logging create a new process id for every worker call
@@ -175,6 +187,19 @@ function poller_execute($queue) {
 		$duration = (float)round(microtime(true)-$stamp, 3);
 
 		logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".$duration." seconds.");
+
+		if (get_config("system", "profiler")) {
+			$duration = microtime(true)-$a->performance["start"];
+
+			logger("ID ".$queue["id"].": ".$funcname.": ".sprintf("DB: %s/%s, Net: %s, I/O: %s, Other: %s, Total: %s",
+				round($a->performance["database"] - $a->performance["database_write"], 2),
+				round($a->performance["database_write"], 2),
+				round($a->performance["network"], 2),
+				round($a->performance["file"], 2),
+				round($duration - ($a->performance["database"] + $a->performance["network"] + $a->performance["file"]), 2),
+				round($duration, 2)),
+				LOGGER_DEBUG);
+		}
 
 		q("DELETE FROM `workerqueue` WHERE `id` = %d", intval($queue["id"]));
 	} else {
