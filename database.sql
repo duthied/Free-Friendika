@@ -352,10 +352,10 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 	`generation` tinyint(3) NOT NULL DEFAULT 0,
 	`server_url` varchar(255) NOT NULL DEFAULT '',
 	 PRIMARY KEY(`id`),
-	 INDEX `nurl` (`nurl`(32)),
-	 INDEX `name` (`name`(32)),
+	 INDEX `nurl` (`nurl`(64)),
+	 INDEX `name` (`name`(64)),
 	 INDEX `nick` (`nick`(32)),
-	 INDEX `addr` (`addr`(32)),
+	 INDEX `addr` (`addr`(64)),
 	 INDEX `hide_network_updated` (`hide`,`network`,`updated`),
 	 INDEX `updated` (`updated`)
 ) DEFAULT CHARSET=utf8mb4;
