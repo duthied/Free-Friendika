@@ -184,7 +184,7 @@ function poller_execute($queue) {
 			sleep($cooldown);
 		}
 
-		$duration = (float)round(microtime(true)-$stamp, 3);
+		$duration = number_format(microtime(true) - $stamp, 3);
 
 		logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".$duration." seconds.");
 
@@ -192,12 +192,12 @@ function poller_execute($queue) {
 			$duration = microtime(true)-$a->performance["start"];
 
 			logger("ID ".$queue["id"].": ".$funcname.": ".sprintf("DB: %s/%s, Net: %s, I/O: %s, Other: %s, Total: %s",
-				round($a->performance["database"] - $a->performance["database_write"], 2),
-				round($a->performance["database_write"], 2),
-				round($a->performance["network"], 2),
-				round($a->performance["file"], 2),
-				round($duration - ($a->performance["database"] + $a->performance["network"] + $a->performance["file"]), 2),
-				round($duration, 2)),
+				number_format($a->performance["database"] - $a->performance["database_write"], 2),
+				number_format($a->performance["database_write"], 2),
+				number_format($a->performance["network"], 2),
+				number_format($a->performance["file"], 2),
+				number_format($duration - ($a->performance["database"] + $a->performance["network"] + $a->performance["file"]), 2),
+				number_format($duration, 2)),
 				LOGGER_DEBUG);
 		}
 
