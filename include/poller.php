@@ -188,17 +188,8 @@ function poller_execute($queue) {
 		if (Config::get("system", "profiler")) {
 			$duration = microtime(true)-$a->performance["start"];
 
-			logger("ID ".$queue["id"].": ".$funcname.": ".sprintf("DB: %s/%s, Net: %s, I/O: %s, Other: %s, Total: %s",
-				number_format($a->performance["database"] - $a->performance["database_write"], 2),
-				number_format($a->performance["database_write"], 2),
-				number_format($a->performance["network"], 2),
-				number_format($a->performance["file"], 2),
-				number_format($duration - ($a->performance["database"] + $a->performance["network"] + $a->performance["file"]), 2),
-				number_format($duration, 2)),
-				LOGGER_DEBUG);
-
 			if (Config::get("rendertime", "callstack")) {
-				$o = "ID ".$queue["id"].": ".$funcname.": Database Read:\n";
+				$o = "\nDatabase Read:\n";
 				foreach ($a->callstack["database"] AS $func => $time) {
 					$time = round($time, 3);
 					if ($time > 0)
@@ -217,8 +208,18 @@ function poller_execute($queue) {
 					if ($time > 0)
 						$o .= $func.": ".$time."\n";
 				}
-				logger($o, LOGGER_DEBUG);
+			} else {
+				$o = '';
 			}
+
+			logger("ID ".$queue["id"].": ".$funcname.": ".sprintf("DB: %s/%s, Net: %s, I/O: %s, Other: %s, Total: %s".$o,
+				number_format($a->performance["database"] - $a->performance["database_write"], 2),
+				number_format($a->performance["database_write"], 2),
+				number_format($a->performance["network"], 2),
+				number_format($a->performance["file"], 2),
+				number_format($duration - ($a->performance["database"] + $a->performance["network"] + $a->performance["file"]), 2),
+				number_format($duration, 2)),
+				LOGGER_DEBUG);
 		}
 
 		if ($cooldown > 0) {
