@@ -91,8 +91,6 @@ function poller_execute($queue) {
 
 	$mypid = getmypid();
 
-	$cooldown = Config::get("system", "worker_cooldown", 0);
-
 	// Quit when in maintenance
 	if (Config::get('system', 'maintenance', true)) {
 		return false;
@@ -138,8 +136,6 @@ function poller_execute($queue) {
 
 	$argv = json_decode($queue["parameter"]);
 
-	$argc = count($argv);
-
 	// Check for existance and validity of the include file
 	$include = $argv[0];
 
@@ -155,77 +151,7 @@ function poller_execute($queue) {
 
 	if (function_exists($funcname)) {
 
-		logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." ".$queue["parameter"]);
-
-		$stamp = (float)microtime(true);
-
-		if (Config::get("system", "profiler")) {
-			$a->performance["start"] = microtime(true);
-			$a->performance["database"] = 0;
-			$a->performance["database_write"] = 0;
-			$a->performance["network"] = 0;
-			$a->performance["file"] = 0;
-			$a->performance["rendering"] = 0;
-			$a->performance["parser"] = 0;
-			$a->performance["marktime"] = 0;
-			$a->performance["markstart"] = microtime(true);
-			$a->callstack = array();
-		}
-
-		// For better logging create a new process id for every worker call
-		// But preserve the old one for the worker
-		$old_process_id = $a->process_id;
-		$a->process_id = uniqid("wrk", true);
-
-		$funcname($argv, $argc);
-
-		$a->process_id = $old_process_id;
-
-		$duration = number_format(microtime(true) - $stamp, 3);
-
-		logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".$duration." seconds.");
-
-		if (Config::get("system", "profiler")) {
-			$duration = microtime(true)-$a->performance["start"];
-
-			if (Config::get("rendertime", "callstack")) {
-				$o = "\nDatabase Read:\n";
-				foreach ($a->callstack["database"] AS $func => $time) {
-					$time = round($time, 3);
-					if ($time > 0)
-						$o .= $func.": ".$time."\n";
-				}
-				$o .= "\nDatabase Write:\n";
-				foreach ($a->callstack["database_write"] AS $func => $time) {
-					$time = round($time, 3);
-					if ($time > 0)
-						$o .= $func.": ".$time."\n";
-				}
-
-				$o .= "\nNetwork:\n";
-				foreach ($a->callstack["network"] AS $func => $time) {
-					$time = round($time, 3);
-					if ($time > 0)
-						$o .= $func.": ".$time."\n";
-				}
-			} else {
-				$o = '';
-			}
-
-			logger("ID ".$queue["id"].": ".$funcname.": ".sprintf("DB: %s/%s, Net: %s, I/O: %s, Other: %s, Total: %s".$o,
-				number_format($a->performance["database"] - $a->performance["database_write"], 2),
-				number_format($a->performance["database_write"], 2),
-				number_format($a->performance["network"], 2),
-				number_format($a->performance["file"], 2),
-				number_format($duration - ($a->performance["database"] + $a->performance["network"] + $a->performance["file"]), 2),
-				number_format($duration, 2)),
-				LOGGER_DEBUG);
-		}
-
-		if ($cooldown > 0) {
-			logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - in cooldown for ".$cooldown." seconds");
-			sleep($cooldown);
-		}
+		poller_exec_function($queue, $funcname, $argv);
 
 		q("DELETE FROM `workerqueue` WHERE `id` = %d", intval($queue["id"]));
 	} else {
@@ -233,6 +159,100 @@ function poller_execute($queue) {
 	}
 
 	return true;
+}
+
+/**
+ * @brief Execute a function from the queue
+ *
+ * @param array $queue Workerqueue entry
+ * @param string $funcname name of the function
+ */
+function poller_exec_function($queue, $funcname, $argv) {
+
+	$a = get_app();
+
+	$mypid = getmypid();
+
+	$argc = count($argv);
+
+	logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." ".$queue["parameter"]);
+
+	$stamp = (float)microtime(true);
+
+	if (Config::get("system", "profiler")) {
+		$a->performance["start"] = microtime(true);
+		$a->performance["database"] = 0;
+		$a->performance["database_write"] = 0;
+		$a->performance["network"] = 0;
+		$a->performance["file"] = 0;
+		$a->performance["rendering"] = 0;
+		$a->performance["parser"] = 0;
+		$a->performance["marktime"] = 0;
+		$a->performance["markstart"] = microtime(true);
+		$a->callstack = array();
+	}
+
+	// For better logging create a new process id for every worker call
+	// But preserve the old one for the worker
+	$old_process_id = $a->process_id;
+	$a->process_id = uniqid("wrk", true);
+
+	$funcname($argv, $argc);
+
+	$a->process_id = $old_process_id;
+
+	$duration = number_format(microtime(true) - $stamp, 3);
+
+	logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".$duration." seconds.");
+
+	if (Config::get("system", "profiler")) {
+		$duration = microtime(true)-$a->performance["start"];
+
+		if (Config::get("rendertime", "callstack")) {
+			if (isset($a->callstack["database"])) {
+				$o = "\nDatabase Read:\n";
+				foreach ($a->callstack["database"] AS $func => $time) {
+					$time = round($time, 3);
+					if ($time > 0)
+						$o .= $func.": ".$time."\n";
+				}
+			}
+			if (isset($a->callstack["database_write"])) {
+				$o .= "\nDatabase Write:\n";
+				foreach ($a->callstack["database_write"] AS $func => $time) {
+					$time = round($time, 3);
+					if ($time > 0)
+						$o .= $func.": ".$time."\n";
+				}
+			}
+			if (isset($a->callstack["network"])) {
+				$o .= "\nNetwork:\n";
+				foreach ($a->callstack["network"] AS $func => $time) {
+					$time = round($time, 3);
+					if ($time > 0)
+						$o .= $func.": ".$time."\n";
+				}
+			}
+		} else {
+			$o = '';
+		}
+
+		logger("ID ".$queue["id"].": ".$funcname.": ".sprintf("DB: %s/%s, Net: %s, I/O: %s, Other: %s, Total: %s".$o,
+			number_format($a->performance["database"] - $a->performance["database_write"], 2),
+			number_format($a->performance["database_write"], 2),
+			number_format($a->performance["network"], 2),
+			number_format($a->performance["file"], 2),
+			number_format($duration - ($a->performance["database"] + $a->performance["network"] + $a->performance["file"]), 2),
+			number_format($duration, 2)),
+			LOGGER_DEBUG);
+	}
+
+	$cooldown = Config::get("system", "worker_cooldown", 0);
+
+	if ($cooldown > 0) {
+		logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - in cooldown for ".$cooldown." seconds");
+		sleep($cooldown);
+	}
 }
 
 /**
