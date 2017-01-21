@@ -138,6 +138,11 @@ class dba {
 		return $return;
 	}
 
+	/**
+	 * @brief Analyze a database query and log this if some conditions are met.
+	 *
+	 * @param string $query The database query that will be analyzed
+	 */
 	public function log_index($query) {
 		$a = get_app();
 

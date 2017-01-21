@@ -179,6 +179,8 @@ function poller_exec_function($queue, $funcname, $argv) {
 
 	$stamp = (float)microtime(true);
 
+	// We use the callstack here to analyze the performance of executed worker entries.
+	// For this reason the variables have to be initialized.
 	if (Config::get("system", "profiler")) {
 		$a->performance["start"] = microtime(true);
 		$a->performance["database"] = 0;
@@ -205,6 +207,7 @@ function poller_exec_function($queue, $funcname, $argv) {
 
 	logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".$duration." seconds.");
 
+	// Write down the performance values into the log
 	if (Config::get("system", "profiler")) {
 		$duration = microtime(true)-$a->performance["start"];
 
