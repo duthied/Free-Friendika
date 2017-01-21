@@ -30,8 +30,9 @@ function poller_run($argv, $argc){
 	};
 
 	// Quit when in maintenance
-	if (get_config('system', 'maintenance', true))
+	if (Config::get('system', 'maintenance', true)) {
 		return;
+	}
 
 	$a->start_process();
 
@@ -93,7 +94,7 @@ function poller_execute($queue) {
 	$cooldown = Config::get("system", "worker_cooldown", 0);
 
 	// Quit when in maintenance
-	if (get_config('system', 'maintenance', true)) {
+	if (Config::get('system', 'maintenance', true)) {
 		return false;
 	}
 
@@ -154,9 +155,11 @@ function poller_execute($queue) {
 
 	if (function_exists($funcname)) {
 
+		logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." ".$queue["parameter"]);
+
 		$stamp = (float)microtime(true);
 
-		if (get_config("system", "profiler")) {
+		if (Config::get("system", "profiler")) {
 			$a->performance["start"] = microtime(true);
 			$a->performance["database"] = 0;
 			$a->performance["database_write"] = 0;
@@ -169,8 +172,6 @@ function poller_execute($queue) {
 			$a->callstack = array();
 		}
 
-		logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." ".$queue["parameter"]);
-
 		// For better logging create a new process id for every worker call
 		// But preserve the old one for the worker
 		$old_process_id = $a->process_id;
@@ -180,16 +181,11 @@ function poller_execute($queue) {
 
 		$a->process_id = $old_process_id;
 
-		if ($cooldown > 0) {
-			logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - in cooldown for ".$cooldown." seconds");
-			sleep($cooldown);
-		}
-
 		$duration = number_format(microtime(true) - $stamp, 3);
 
 		logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".$duration." seconds.");
 
-		if (get_config("system", "profiler")) {
+		if (Config::get("system", "profiler")) {
 			$duration = microtime(true)-$a->performance["start"];
 
 			logger("ID ".$queue["id"].": ".$funcname.": ".sprintf("DB: %s/%s, Net: %s, I/O: %s, Other: %s, Total: %s",
@@ -201,7 +197,7 @@ function poller_execute($queue) {
 				number_format($duration, 2)),
 				LOGGER_DEBUG);
 
-			if (get_config("rendertime", "callstack")) {
+			if (Config::get("rendertime", "callstack")) {
 				$o = "ID ".$queue["id"].": ".$funcname.": Database Read:\n";
 				foreach ($a->callstack["database"] AS $func => $time) {
 					$time = round($time, 3);
@@ -225,6 +221,11 @@ function poller_execute($queue) {
 			}
 		}
 
+		if ($cooldown > 0) {
+			logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - in cooldown for ".$cooldown." seconds");
+			sleep($cooldown);
+		}
+
 		q("DELETE FROM `workerqueue` WHERE `id` = %d", intval($queue["id"]));
 	} else {
 		logger("Function ".$funcname." does not exist");
@@ -241,7 +242,7 @@ function poller_execute($queue) {
 function poller_max_connections_reached() {
 
 	// Fetch the max value from the config. This is needed when the system cannot detect the correct value by itself.
-	$max = get_config("system", "max_connections");
+	$max = Config::get("system", "max_connections");
 
 	// Fetch the percentage level where the poller will get active
 	$maxlevel = Config::get("system", "max_connections_level", 75);
@@ -425,7 +426,7 @@ function poller_too_much_workers() {
 		logger("Load: ".$load."/".$maxsysload." - processes: ".$active."/".$entries." (".$processlist.") - maximum: ".$queues."/".$maxqueues, LOGGER_DEBUG);
 
 		// Are there fewer workers running as possible? Then fork a new one.
-		if (!get_config("system", "worker_dont_fork") AND ($queues > ($active + 1)) AND ($entries > 1)) {
+		if (!Config::get("system", "worker_dont_fork") AND ($queues > ($active + 1)) AND ($entries > 1)) {
 			logger("Active workers: ".$active."/".$queues." Fork a new worker.", LOGGER_DEBUG);
 			$args = array("php", "include/poller.php", "no_cron");
 			$a = get_app();
@@ -554,7 +555,7 @@ function call_worker_if_idle() {
 	if (function_exists("proc_open")) {
 		// When was the last time that we called the worker?
 		// Less than one minute? Then we quit
-		if ((time() - get_config("system", "worker_started")) < 60) {
+		if ((time() - Config::get("system", "worker_started")) < 60) {
 			return;
 		}
 
