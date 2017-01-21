@@ -166,6 +166,7 @@ function poller_execute($queue) {
 			$a->performance["parser"] = 0;
 			$a->performance["marktime"] = 0;
 			$a->performance["markstart"] = microtime(true);
+			$a->callstack = array();
 		}
 
 		logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." ".$queue["parameter"]);
@@ -199,6 +200,29 @@ function poller_execute($queue) {
 				number_format($duration - ($a->performance["database"] + $a->performance["network"] + $a->performance["file"]), 2),
 				number_format($duration, 2)),
 				LOGGER_DEBUG);
+
+			if (get_config("rendertime", "callstack")) {
+				$o = "ID ".$queue["id"].": ".$funcname.": Database Read:\n";
+				foreach ($a->callstack["database"] AS $func => $time) {
+					$time = round($time, 3);
+					if ($time > 0)
+						$o .= $func.": ".$time."\n";
+				}
+				$o .= "\nDatabase Write:\n";
+				foreach ($a->callstack["database_write"] AS $func => $time) {
+					$time = round($time, 3);
+					if ($time > 0)
+						$o .= $func.": ".$time."\n";
+				}
+
+				$o .= "\nNetwork:\n";
+				foreach ($a->callstack["network"] AS $func => $time) {
+					$time = round($time, 3);
+					if ($time > 0)
+						$o .= $func.": ".$time."\n";
+				}
+				logger($o, LOGGER_DEBUG);
+			}
 		}
 
 		q("DELETE FROM `workerqueue` WHERE `id` = %d", intval($queue["id"]));
