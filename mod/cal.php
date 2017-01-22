@@ -9,7 +9,7 @@
 require_once('include/event.php');
 require_once('include/redir.php');
 
-function cal_init(App &$a) {
+function cal_init(App $a) {
 	if($a->argc > 1)
 		auto_redir($a, $a->argv[1]);
 
@@ -64,7 +64,7 @@ function cal_init(App &$a) {
 	return;
 }
 
-function cal_content(App &$a) {
+function cal_content(App $a) {
 	nav_set_selected('events');
 
 	$editselect = 'none';
@@ -275,7 +275,7 @@ function cal_content(App &$a) {
 			'$tabs'		=> $tabs,
 			'$title'	=> t('Events'),
 			'$view'		=> t('View'),
-			'$previus'	=> array(App::get_baseurl()."/events/$prevyear/$prevmonth",t('Previous'),'',''),
+			'$previous'	=> array(App::get_baseurl()."/events/$prevyear/$prevmonth",t('Previous'),'',''),
 			'$next'		=> array(App::get_baseurl()."/events/$nextyear/$nextmonth",t('Next'),'',''),
 			'$calendar' => cal($y,$m,$links, ' eventcal'),
 
