@@ -1391,11 +1391,15 @@ class App {
 			// If the last worker fork was less than 10 seconds before then don't fork another one.
 			// This should prevent the forking of masses of workers.
 			if (get_config("system", "worker")) {
-				if ((time() - get_config("system", "proc_run_started")) < 10)
-					return;
-
+				$cachekey = "app:proc_run:started";
+				$result = Cache::get($cachekey);
+				if (!is_null($result)) {
+					if ((time() - $result) < 10) {
+						return;
+					}
+				}
 				// Set the timestamp of the last proc_run
-				set_config("system", "proc_run_started", time());
+				Cache::set($cachekey, time(), CACHE_MINUTE);
 			}
 
 			$args[0] = ((x($this->config,'php_path')) && (strlen($this->config['php_path'])) ? $this->config['php_path'] : 'php');
