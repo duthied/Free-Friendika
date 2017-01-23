@@ -568,6 +568,7 @@ function update_1069() {
 	q("ALTER TABLE `fcontact` ADD `request` CHAR( 255 ) NOT NULL AFTER `photo` ");
 }
 
+/// @TODO Still meeded?
 // mail body needs to accomodate private photos
 
 function update_1070() {
