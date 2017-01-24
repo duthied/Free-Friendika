@@ -139,24 +139,31 @@ class Config {
 	public static function set($family, $key, $value) {
 		$a = get_app();
 
+		// We always store boolean values as integer.
+		// And when fetching we don't convert them back to boolean.
+		// So we have to do the conversion here so that the compare below works.
+		$dbvalue = (is_bool($value) ? (string)intval($value) : $value);
+
+		// Convert the numeric values to string to make the compare work
+		$dbvalue = (is_numeric($value) ? (string)$value : $dbvalue);
+
 		$stored = self::get($family, $key);
 
-		if ($stored === $value) {
+		if ($stored === $dbvalue) {
 			return true;
 		}
 
 		if ($family === 'config') {
-			$a->config[$key] = $value;
+			$a->config[$key] = $dbvalue;
 		} elseif ($family != 'system') {
-			$a->config[$family][$key] = $value;
+			$a->config[$family][$key] = $dbvalue;
 		}
 
 		// Assign the just added value to the cache
-		self::$cache[$family][$key] = $value;
+		self::$cache[$family][$key] = $dbvalue;
 
 		// manage array value
-		$dbvalue = (is_array($value) ? serialize($value) : $value);
-		$dbvalue = (is_bool($dbvalue) ? intval($dbvalue) : $dbvalue);
+		$dbvalue = (is_array($value) ? serialize($value) : $dbvalue);
 
 		if (is_null($stored)) {
 			$ret = q("INSERT INTO `config` (`cat`, `k`, `v`) VALUES ('%s', '%s', '%s') ON DUPLICATE KEY UPDATE `v` = '%s'",
