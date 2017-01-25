@@ -1137,7 +1137,7 @@ class dfrn {
 
 
 			if ($dfrn_version >= 2.1) {
-				if (($contact['duplex'] && strlen($contact['pubkey']))
+				if (($contact['duplex'] && strlen($contact['pubkey'])) {
 					|| ($owner['page-flags'] == PAGE_COMMUNITY && strlen($contact['pubkey']))
 					|| ($contact['rel'] == CONTACT_IS_SHARING && strlen($contact['pubkey']))) {
 
