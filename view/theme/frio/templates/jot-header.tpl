@@ -29,7 +29,7 @@
 					$('#character-counter').text(textlen);
 				});
 				return;
-			}	
+			}
 			tinyMCE.init({
 				theme : "advanced",
 				mode : "specific_textareas",
@@ -82,7 +82,7 @@
 						}
 						else {
 							$('#profile-jot-desc').html('&nbsp;');
-						}	 
+						}
 
 					 //Character count
 
@@ -120,7 +120,7 @@
 			$("a#jot-perms-icon").colorbox({
 				'inline' : true,
 				'transition' : 'elastic'
-			}); 
+			});
 
 		} else {
 			if (typeof cb!="undefined") cb();
@@ -397,13 +397,18 @@
 		var modal = $('#jot-modal').modal();
 		jotcache = $("#jot-sections");
 
+		// Auto focus on the first enabled field in the modal
+		modal.on('shown.bs.modal', function (e) {
+			$('#jot-modal-content').find('select:not([disabled]), input:not([type=hidden]):not([disabled]), textarea:not([disabled])').first().focus();
+		})
+
 		modal
 			.find('#jot-modal-content')
 			.append(jotcache)
 			.modal.show;
 	}
 
-	// the following functions show/hide the specific jot content 
+	// the following functions show/hide the specific jot content
 	// in dependence of the selected nav
 	function aclActive() {
 		$(".modal-body #profile-jot-wrapper, .modal-body #jot-preview-content, .modal-body #jot-fbrowser-wrapper").hide();
