@@ -102,7 +102,7 @@ class Config {
 		);
 		if (dbm::is_result($ret)) {
 			// manage array value
-			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret[0]['v'])?unserialize( $ret[0]['v']):$ret[0]['v']);
+			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret[0]['v']) ? unserialize($ret[0]['v']) : $ret[0]['v']);
 
 			// Assign the value from the database to the cache
 			self::$cache[$family][$key] = $val;
@@ -139,13 +139,10 @@ class Config {
 	public static function set($family, $key, $value) {
 		$a = get_app();
 
-		// We always store boolean values as integer.
-		// And when fetching we don't convert them back to boolean.
+		// We store our setting values in a string variable.
 		// So we have to do the conversion here so that the compare below works.
-		$dbvalue = (is_bool($value) ? (string)intval($value) : $value);
-
-		// Convert the numeric values to string to make the compare work
-		$dbvalue = (is_numeric($value) ? (string)$value : $dbvalue);
+		// The exception are array values.
+		$dbvalue = (!is_array($value) ? (string)$value : $value);
 
 		$stored = self::get($family, $key);
 
