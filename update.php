@@ -148,7 +148,7 @@ function update_1014() {
 	if (dbm::is_result($r)) {
 		foreach ($r as $rr) {
 			$ph = new Photo($rr['data']);
-			if($ph->is_valid()) {
+			if ($ph->is_valid()) {
 				$ph->scaleImage(48);
 				$ph->store($rr['uid'],$rr['contact-id'],$rr['resource-id'],$rr['filename'],$rr['album'],6,(($rr['profile']) ? 1 : 0));
 			}
@@ -1756,7 +1756,7 @@ function update_1190() {
 		$plugins = get_config('system','addon');
 		$plugins_arr = array();
 
-		if($plugins) {
+		if ($plugins) {
 			$plugins_arr = explode(",",str_replace(" ", "",$plugins));
 
 			$idx = array_search($plugin, $plugins_arr);
