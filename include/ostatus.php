@@ -50,7 +50,7 @@ class ostatus {
 
 		$alternate = $xpath->query("atom:author/atom:link[@rel='alternate']", $context)->item(0)->attributes;
 		if (is_object($alternate)) {
-			/// @TODO foreach () may only later work on objects that have iterator interface implemented, please check this
+			/// @TODO foreach() may only later work on objects that have iterator interface implemented, please check this
 			foreach ($alternate AS $attributes) {
 				if ($attributes->name == "href") {
 					$author["author-link"] = $attributes->textContent;
@@ -1138,7 +1138,7 @@ class ostatus {
 				continue;
 			}
 
-			/// @TODO One statment is okay (until if () )
+			/// @TODO One statment is okay (until if() )
 			$arr = array();
 			$arr["network"] = $details["network"];
 			$arr["uri"] = $single_conv->id;
