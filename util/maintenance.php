@@ -17,14 +17,16 @@ unset($db_host, $db_user, $db_pass, $db_data);
 Config::load();
 
 $maint_mode = 1;
-if($argc > 1)
+if ($argc > 1) {
 	$maint_mode = intval($argv[1]);
+}
 set_config('system', 'maintenance', $maint_mode);
 
-if($maint_mode)
+if ($maint_mode) {
 	$mode_str = "maintenance mode";
-else
+} else {
 	$mode_str = "normal mode";
+}
 
 echo "\n\tSystem set in $mode_str\n\n";
 echo "Usage:\n\n";
