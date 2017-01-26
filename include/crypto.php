@@ -191,7 +191,7 @@ if (! function_exists('aes_decrypt')) {
 function aes_decrypt($val,$ky)
 {
     $key="\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
-    for($a=0;$a<strlen($ky);$a++)
+    for ($a=0;$a<strlen($ky);$a++)
       $key[$a%16]=chr(ord($key[$a%16]) ^ ord($ky[$a]));
     $mode = MCRYPT_MODE_ECB;
     $enc = MCRYPT_RIJNDAEL_128;
@@ -205,7 +205,7 @@ if (! function_exists('aes_encrypt')) {
 function aes_encrypt($val,$ky)
 {
     $key="\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
-    for($a=0;$a<strlen($ky);$a++)
+    for ($a=0;$a<strlen($ky);$a++)
       $key[$a%16]=chr(ord($key[$a%16]) ^ ord($ky[$a]));
     $mode=MCRYPT_MODE_ECB;
     $enc=MCRYPT_RIJNDAEL_128;

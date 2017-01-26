@@ -71,7 +71,7 @@ class FriendicaSmartyEngine implements ITemplateEngine {
 		call_hooks("template_vars", $arr);
 		$r = $arr['vars'];
 
-		foreach($r as $key=>$value) {
+		foreach ($r as $key=>$value) {
 			if ($key[0] === '$') {
 				$key = substr($key, 1);
 			}

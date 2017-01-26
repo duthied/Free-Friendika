@@ -73,7 +73,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 		return;
 
 	$total = 0;
-	foreach($j->entry as $entry) {
+	foreach ($j->entry as $entry) {
 
 		$total ++;
 		$profile_url = '';
@@ -137,7 +137,7 @@ function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
 		}
 
 		if (isset($entry->tags)) {
-			foreach($entry->tags as $tag) {
+			foreach ($entry->tags as $tag) {
 				$keywords = implode(", ", $tag);
 			}
 		}
@@ -1647,20 +1647,22 @@ function poco_discover_federation() {
 		}
 	}
 
-	// Currently disabled, since the service isn't available anymore.
-	// It is not removed since I hope that there will be a successor.
-	// Discover GNU Social Servers.
-	//if (!get_config('system','ostatus_disabled')) {
-	//	$serverdata = "http://gstools.org/api/get_open_instances/";
+	/*
+	 * Currently disabled, since the service isn't available anymore.
+	 * It is not removed since I hope that there will be a successor.
+	 * Discover GNU Social Servers.
+	if (!get_config('system','ostatus_disabled')) {
+		$serverdata = "http://gstools.org/api/get_open_instances/";
 
-	//	$result = z_fetch_url($serverdata);
-	//	if ($result["success"]) {
-	//		$servers = json_decode($result["body"]);
+		$result = z_fetch_url($serverdata);
+		if ($result["success"]) {
+			$servers = json_decode($result["body"]);
 
-	//		foreach($servers->data AS $server)
-	//			poco_check_server($server->instance_address);
-	//	}
-	//}
+			foreach($servers->data AS $server)
+				poco_check_server($server->instance_address);
+		}
+	}
+	*/
 
 	set_config('poco','last_federation_discovery', time());
 }
@@ -1749,7 +1751,7 @@ function poco_discover_server_users($data, $server) {
 	foreach ($data->entry AS $entry) {
 		$username = "";
 		if (isset($entry->urls)) {
-			foreach($entry->urls as $url)
+			foreach ($entry->urls as $url)
 				if ($url->type == 'profile') {
 					$profile_url = $url->value;
 					$urlparts = parse_url($profile_url);
@@ -1793,7 +1795,7 @@ function poco_discover_server($data, $default_generation = 0) {
 		$name = $entry->displayName;
 
 		if (isset($entry->urls)) {
-			foreach($entry->urls as $url) {
+			foreach ($entry->urls as $url) {
 				if ($url->type == 'profile') {
 					$profile_url = $url->value;
 					continue;

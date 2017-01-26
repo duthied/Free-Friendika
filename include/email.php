@@ -58,7 +58,7 @@ function email_msg_headers($mbox,$uid) {
 	$ret = array();
 	$h = explode("\n",$raw_header);
 	if (count($h))
-	foreach($h as $line ) {
+	foreach ($h as $line ) {
 	    if (preg_match("/^[a-zA-Z]/", $line)) {
 			$key = substr($line,0,strpos($line,':'));
 			$value = substr($line,strpos($line,':')+1);
@@ -94,7 +94,7 @@ function email_get_msg($mbox,$uid, $reply) {
 	else {
 		$text = '';
 		$html = '';
-		foreach($struc->parts as $ptop => $p) {
+		foreach ($struc->parts as $ptop => $p) {
 			$x = email_get_part($mbox,$uid,$p,$ptop + 1, 'plain');
 			if ($x) {
 				$text .= $x;
@@ -206,10 +206,10 @@ function email_get_part($mbox,$uid,$p,$partno, $subtype) {
 
 
 function email_header_encode($in_str, $charset) {
-    $out_str = $in_str;
+	$out_str = $in_str;
 	$need_to_convert = false;
 
-	for($x = 0; $x < strlen($in_str); $x ++) {
+	for ($x = 0; $x < strlen($in_str); $x ++) {
 		if ((ord($in_str[$x]) == 0) || ((ord($in_str[$x]) > 128))) {
 			$need_to_convert = true;
 		}

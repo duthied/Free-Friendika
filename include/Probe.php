@@ -858,7 +858,7 @@ class Probe {
 
 		$data = array();
 		if (is_array($webfinger["aliases"]))
-			foreach($webfinger["aliases"] AS $alias)
+			foreach ($webfinger["aliases"] AS $alias)
 				if (strstr($alias, "@"))
 					$data["addr"] = str_replace('acct:', '', $alias);
 
@@ -1165,18 +1165,20 @@ class Probe {
 			$adr = imap_rfc822_parse_adrlist($x[0]->to, '');
 		}
 		if (isset($adr)) {
-			foreach($adr as $feadr) {
+			foreach ($adr as $feadr) {
 				if ((strcasecmp($feadr->mailbox, $data["name"]) == 0)
 					&&(strcasecmp($feadr->host, $phost) == 0)
 					&& (strlen($feadr->personal))) {
 
 					$personal = imap_mime_header_decode($feadr->personal);
 					$data["name"] = "";
-					foreach($personal as $perspart)
-						if ($perspart->charset != "default")
+					foreach ($personal as $perspart) {
+						if ($perspart->charset != "default") {
 							$data["name"] .= iconv($perspart->charset, 'UTF-8//IGNORE', $perspart->text);
-						else
+						} else {
 							$data["name"] .= $perspart->text;
+						}
+					}
 
 					$data["name"] = notags($data["name"]);
 				}

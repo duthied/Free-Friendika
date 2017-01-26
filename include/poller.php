@@ -364,11 +364,11 @@ function poller_kill_stale_workers() {
 		return;
 	}
 
-	foreach($r AS $pid)
-		if (!posix_kill($pid["pid"], 0))
+	foreach ($r AS $pid)
+		if (!posix_kill($pid["pid"], 0)) {
 			q("UPDATE `workerqueue` SET `executed` = '0000-00-00 00:00:00', `pid` = 0 WHERE `pid` = %d",
 				intval($pid["pid"]));
-		else {
+		} else {
 			// Kill long running processes
 
 			// Check if the priority is in a valid range
@@ -396,8 +396,9 @@ function poller_kill_stale_workers() {
 					dbesc(datetime_convert()),
 					intval(PRIORITY_NEGLIGIBLE),
 					intval($pid["pid"]));
-			} else
+			} else {
 				logger("Worker process ".$pid["pid"]." (".implode(" ", $argv).") now runs for ".round($duration)." of ".$max_duration." allowed minutes. That's okay.", LOGGER_DEBUG);
+			}
 		}
 }
 

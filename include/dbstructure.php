@@ -398,7 +398,7 @@ function db_create_table($name, $fields, $charset, $verbose, $action, $indexes=n
 
 	$sql_rows = array();
 	$primary_keys = array();
-	foreach($fields AS $fieldname => $field) {
+	foreach ($fields AS $fieldname => $field) {
 		$sql_rows[] = "`".dbesc($fieldname)."` ".db_field_command($field);
 		if (x($field,'primary') and $field['primary']!=''){
 			$primary_keys[] = $fieldname;
@@ -1644,7 +1644,7 @@ function dbstructure_run(&$argv, &$argc) {
 				$current = intval(DB_UPDATE_VERSION);
 
 				// run any left update_nnnn functions in update.php
-				for($x = $stored; $x < $current; $x ++) {
+				for ($x = $stored; $x < $current; $x ++) {
 					$r = run_update_function($x);
 					if (!$r) break;
 				}

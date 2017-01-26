@@ -134,7 +134,7 @@ function profile_load(App $a, $nickname, $profile = 0, $profiledata = array()) {
  */
 function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0) {
 	if (remote_user() && count($_SESSION['remote'])) {
-			foreach($_SESSION['remote'] as $visitor) {
+			foreach ($_SESSION['remote'] as $visitor) {
 				if ($visitor['uid'] == $uid) {
 					$r = q("SELECT `profile-id` FROM `contact` WHERE `id` = %d LIMIT 1",
 						intval($visitor['cid'])
@@ -220,7 +220,7 @@ function profile_sidebar($profile, $block = 0) {
 
 	// don't show connect link to authenticated visitors either
 	if (remote_user() && count($_SESSION['remote'])) {
-		foreach($_SESSION['remote'] as $visitor) {
+		foreach ($_SESSION['remote'] as $visitor) {
 			if ($visitor['uid'] == $profile['uid']) {
 				$connect = false;
 				break;
@@ -390,7 +390,7 @@ function profile_sidebar($profile, $block = 0) {
 	}
 
 	$p = array();
-	foreach($profile as $k => $v) {
+	foreach ($profile as $k => $v) {
 		$k = str_replace('-','_',$k);
 		$p[$k] = $v;
 	}
@@ -486,7 +486,7 @@ function get_birthdays() {
 		}
 		$classtoday = $istoday ? ' birthday-today ' : '';
 		if ($total) {
-			foreach($r as &$rr) {
+			foreach ($r as &$rr) {
 				if (! strlen($rr['name']))
 					continue;
 
@@ -570,7 +570,7 @@ function get_events() {
 
 		$skip = 0;
 
-		foreach($r as &$rr) {
+		foreach ($r as &$rr) {
 			$title = strip_tags(html_entity_decode(bbcode($rr['summary']),ENT_QUOTES,'UTF-8'));
 
 			if (strlen($title) > 35)

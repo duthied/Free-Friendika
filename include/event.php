@@ -97,10 +97,10 @@ function parse_event($h) {
 
 	$items = $dom->getElementsByTagName('*');
 
-	foreach($items as $item) {
+	foreach ($items as $item) {
 		if (attribute_contains($item->getAttribute('class'), 'vevent')) {
 			$level2 = $item->getElementsByTagName('*');
-			foreach($level2 as $x) {
+			foreach ($level2 as $x) {
 				if (attribute_contains($x->getAttribute('class'),'dtstart') && $x->getAttribute('title')) {
 					$ret['start'] = $x->getAttribute('title');
 					if (! strpos($ret['start'],'Z'))
@@ -595,7 +595,7 @@ function process_events($arr) {
 	$last_date = '';
 	$fmt = t('l, F j');
 	if (count($arr)) {
-		foreach($arr as $rr) {
+		foreach ($arr as $rr) {
 
 			$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'j') : datetime_convert('UTC','UTC',$rr['start'],'j'));
 			$d = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], $fmt) : datetime_convert('UTC','UTC',$rr['start'],$fmt));

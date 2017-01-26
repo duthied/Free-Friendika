@@ -137,7 +137,7 @@ class Smilies {
 
 		if ($sample) {
 			$s = '<div class="smiley-sample">';
-			for($x = 0; $x < count($params['texts']); $x ++) {
+			for ($x = 0; $x < count($params['texts']); $x ++) {
 				$s .= '<dl><dt>' . $params['texts'][$x] . '</dt><dd>' . $params['icons'][$x] . '</dd></dl>';
 			}
 		}
@@ -174,7 +174,7 @@ class Smilies {
 			return $x[0];
 		}
 		$t = '';
-		for($cnt = 0; $cnt < strlen($x[1]); $cnt ++) {
+		for ($cnt = 0; $cnt < strlen($x[1]); $cnt ++) {
 			$t .= '<img class="smiley" src="' . app::get_baseurl() . '/images/smiley-heart.gif" alt="&lt;3" />';
 		}
 		$r =  str_replace($x[0],$t,$x[0]);

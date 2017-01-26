@@ -121,8 +121,9 @@ function contact_selector($selname, $selclass, $preselected = false, $options) {
 		$sql_extra .= sprintf(" AND `id` != %d ", intval($x['exclude']));
 
 	if (is_array($x['networks']) && count($x['networks'])) {
-		for($y = 0; $y < count($x['networks']) ; $y ++)
+		for ($y = 0; $y < count($x['networks']) ; $y ++) {
 			$x['networks'][$y] = "'" . dbesc($x['networks'][$y]) . "'";
+		}
 		$str_nets = implode(',',$x['networks']);
 		$sql_extra .= " AND `network` IN ( $str_nets ) ";
 	}
@@ -380,7 +381,7 @@ function construct_acl_data(App $a, $user) {
 	$user_defaults = get_acl_permissions($user);
 
 	if ($acl_data['groups']) {
-		foreach($acl_data['groups'] as $key=>$group) {
+		foreach ($acl_data['groups'] as $key=>$group) {
 			// Add a "selected" flag to groups that are posted to by default
 			if ($user_defaults['allow_gid'] &&
 			   in_array($group['id'], $user_defaults['allow_gid']) && !in_array($group['id'], $user_defaults['deny_gid']) )
@@ -390,7 +391,7 @@ function construct_acl_data(App $a, $user) {
 		}
 	}
 	if ($acl_data['contacts']) {
-		foreach($acl_data['contacts'] as $key=>$contact) {
+		foreach ($acl_data['contacts'] as $key=>$contact) {
 			// Add a "selected" flag to groups that are posted to by default
 			if ($user_defaults['allow_cid'] &&
 			   in_array($contact['id'], $user_defaults['allow_cid']) && !in_array($contact['id'], $user_defaults['deny_cid']) )
@@ -510,7 +511,7 @@ function acl_lookup(App $a, $out_type = 'json') {
 			intval($count)
 		);
 
-		foreach($r as $g){
+		foreach ($r as $g){
 //		logger('acl: group: ' . $g['name'] . ' members: ' . $g['uids']);
 			$groups[] = array(
 				"type"  => "g",

@@ -39,7 +39,7 @@ function select_timezone($current = 'America/Los_Angeles') {
 
 	usort($timezone_identifiers, 'timezone_cmp');
 	$continent = '';
-	foreach($timezone_identifiers as $value) {
+	foreach ($timezone_identifiers as $value) {
 		$ex = explode("/", $value);
 		if (count($ex) > 1) {
 			if ($ex[0] != $continent) {
@@ -48,12 +48,12 @@ function select_timezone($current = 'America/Los_Angeles') {
 				$continent = $ex[0];
 				$o .= '<optgroup label="' . t($continent) . '">';
 			}
-			if (count($ex) > 2)
+			if (count($ex) > 2) {
 				$city = substr($value,strpos($value,'/')+1);
-			else
+			} else {
 				$city = $ex[1];
-		}
-		else {
+			}
+		} else {
 			$city = $ex[0];
 			if ($continent != t('Miscellaneous')) {
 				$o .= '</optgroup>';
@@ -507,7 +507,7 @@ function cal($y = 0,$m = 0, $links = false, $class='') {
 	$str_month = day_translate($mtab[$m]);
 	$o = '<table class="calendar' . $class . '">';
 	$o .= "<caption>$str_month $y</caption><tr>";
-	for($a = 0; $a < 7; $a ++) {
+	for ($a = 0; $a < 7; $a ++) {
 		$o .= '<th>' . mb_substr(day_translate($dn[$a]),0,3,'UTF-8') . '</th>';
 	}
 

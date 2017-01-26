@@ -141,7 +141,7 @@ function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 		// Add all tags that maybe were removed
 		if (preg_match_all("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",$OriginalText, $tags)) {
 			$tagline = "";
-			foreach($tags[2] as $tag) {
+			foreach ($tags[2] as $tag) {
 				$tag = html_entity_decode($tag, ENT_QUOTES, 'UTF-8');
 				if (!strpos(html_entity_decode($Text, ENT_QUOTES, 'UTF-8'), "#".$tag))
 					$tagline .= "#".$tag." ";

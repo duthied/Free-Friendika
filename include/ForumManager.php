@@ -50,7 +50,7 @@ class ForumManager {
 		if (!$contacts)
 			return($forumlist);
 
-		foreach($contacts as $contact) {
+		foreach ($contacts as $contact) {
 			$forumlist[] = array(
 				'url'	=> $contact['url'],
 				'name'	=> $contact['name'],
@@ -92,7 +92,7 @@ class ForumManager {
 
 			$id = 0;
 
-			foreach($contacts as $contact) {
+			foreach ($contacts as $contact) {
 
 				$selected = (($cid == $contact['id']) ? ' forum-selected' : '');
 
@@ -151,7 +151,7 @@ class ForumManager {
 
 		$total_shown = 0;
 
-		foreach($contacts as $contact) {
+		foreach ($contacts as $contact) {
 			$forumlist .= micropro($contact,false,'forumlist-profile-advanced');
 			$total_shown ++;
 

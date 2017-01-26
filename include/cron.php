@@ -126,7 +126,7 @@ function cron_expire_and_remove_users() {
 	// delete user and contact records for recently removed accounts
 	$r = q("SELECT * FROM `user` WHERE `account_removed` AND `account_expires_on` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
 	if ($r) {
-		foreach($r as $user) {
+		foreach ($r as $user) {
 			q("DELETE FROM `contact` WHERE `uid` = %d", intval($user['uid']));
 			q("DELETE FROM `user` WHERE `uid` = %d", intval($user['uid']));
 		}
@@ -210,7 +210,7 @@ function cron_poll_contacts($argc, $argv) {
 			continue;
 		}
 
-		foreach($res as $contact) {
+		foreach ($res as $contact) {
 
 			$xml = false;
 
@@ -343,7 +343,7 @@ function cron_clear_cache(App $a) {
 
 		// Optimize some tables that need to be optimized
 		$r = q("SHOW TABLE STATUS");
-		foreach($r as $table) {
+		foreach ($r as $table) {
 
 			// Don't optimize tables that are too large
 			if ($table["Data_length"] > $max_tablesize) {

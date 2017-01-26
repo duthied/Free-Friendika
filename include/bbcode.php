@@ -206,10 +206,10 @@ function bb_spacefy($st) {
 // returning [i]italic[/i]
 
 function bb_unspacefy_and_trim($st) {
-  $whole_match = $st[0];
-  $captured = $st[1];
-  $unspacefied = preg_replace("/\[ (.*?)\ ]/", "[$1]", $captured);
-  return $unspacefied;
+	$whole_match = $st[0];
+	$captured = $st[1];
+	$unspacefied = preg_replace("/\[ (.*?)\ ]/", "[$1]", $captured);
+	return $unspacefied;
 }
 
 function bb_find_open_close($s, $open, $close, $occurance = 1) {
@@ -218,18 +218,21 @@ function bb_find_open_close($s, $open, $close, $occurance = 1) {
 		$occurance = 1;
 
 	$start_pos = -1;
-	for($i = 1; $i <= $occurance; $i++) {
-		if ( $start_pos !== false)
+	for ($i = 1; $i <= $occurance; $i++) {
+		if ( $start_pos !== false) {
 			$start_pos = strpos($s, $open, $start_pos + 1);
+		}
 	}
 
-	if ( $start_pos === false)
+	if ( $start_pos === false) {
 		return false;
+	}
 
 	$end_pos = strpos($s, $close, $start_pos);
 
-	if ( $end_pos === false)
+	if ( $end_pos === false) {
 		return false;
+	}
 
 	$res = array( 'start' => $start_pos, 'end' => $end_pos );
 
@@ -242,9 +245,10 @@ function get_bb_tag_pos($s, $name, $occurance = 1) {
 		$occurance = 1;
 
 	$start_open = -1;
-	for($i = 1; $i <= $occurance; $i++) {
-		if ( $start_open !== false)
+	for ($i = 1; $i <= $occurance; $i++) {
+		if ( $start_open !== false) {
 			$start_open = strpos($s, '[' . $name, $start_open + 1); // allow [name= type tags
+		}
 	}
 
 	if ( $start_open === false)

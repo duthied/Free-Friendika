@@ -33,7 +33,7 @@ class NotificationsManager {
 	 */
 	private function _set_extra($notes) {
 		$rets = array();
-		foreach($notes as $n) {
+		foreach ($notes as $n) {
 			$local_time = datetime_convert('UTC',date_default_timezone_get(),$n['date']);
 			$n['timestamp'] = strtotime($local_time);
 			$n['date_rel'] = relative_date($n['date']);
@@ -58,7 +58,7 @@ class NotificationsManager {
 	public function getAll($filter = array(), $order="-date", $limit="") {
 		$filter_str = array();
 		$filter_sql = "";
-		foreach($filter as $column => $value) {
+		foreach ($filter as $column => $value) {
 			$filter_str[] = sprintf("`%s` = '%s'", $column, dbesc($value));
 		}
 		if (count($filter_str)>0) {
@@ -67,7 +67,7 @@ class NotificationsManager {
 
 		$aOrder = explode(" ", $order);
 		$asOrder = array();
-		foreach($aOrder as $o) {
+		foreach ($aOrder as $o) {
 			$dir = "asc";
 			if ($o[0]==="-") {
 				$dir = "desc";
@@ -756,7 +756,7 @@ class NotificationsManager {
 	private function formatIntros($intros) {
 		$knowyou = '';
 
-		foreach($intros as $it) {
+		foreach ($intros as $it) {
 			// There are two kind of introduction. Contacts suggested by other contacts and normal connection requests.
 			// We have to distinguish between these two because they use different data.
 

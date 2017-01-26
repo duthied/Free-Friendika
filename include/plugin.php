@@ -87,7 +87,7 @@ function reload_plugins() {
 		$parr = explode(',',$plugins);
 
 		if (count($parr)) {
-			foreach($parr as $pl) {
+			foreach ($parr as $pl) {
 
 				$pl = trim($pl);
 
@@ -95,7 +95,7 @@ function reload_plugins() {
 
 				if (file_exists($fname)) {
 					$t = @filemtime($fname);
-					foreach($installed as $i) {
+					foreach ($installed as $i) {
 						if (($i['name'] == $pl) && ($i['timestamp'] != $t)) {
 							logger('Reloading plugin: ' . $i['name']);
 							@include_once($fname);
@@ -249,7 +249,7 @@ function plugin_is_app($name) {
 	$a = get_app();
 
 	if (is_array($a->hooks) && (array_key_exists('app_menu',$a->hooks))) {
-		foreach($a->hooks['app_menu'] as $hook) {
+		foreach ($a->hooks['app_menu'] as $hook) {
 			if ($hook[0] == 'addon/'.$name.'/'.$name.'.php')
 				return true;
 		}
@@ -297,7 +297,7 @@ function get_plugin_info($plugin){
 
 	if ($r){
 		$ll = explode("\n", $m[0]);
-		foreach( $ll as $l ) {
+		foreach ( $ll as $l ) {
 			$l = trim($l,"\t\n\r */");
 			if ($l!=""){
 				list($k,$v) = array_map("trim", explode(":",$l,2));
@@ -368,7 +368,7 @@ function get_theme_info($theme){
 
 	if ($r){
 		$ll = explode("\n", $m[0]);
-		foreach( $ll as $l ) {
+		foreach ( $ll as $l ) {
 			$l = trim($l,"\t\n\r */");
 			if ($l!=""){
 				list($k,$v) = array_map("trim", explode(":",$l,2));
@@ -412,7 +412,7 @@ function get_theme_info($theme){
  */
 function get_theme_screenshot($theme) {
 	$exts = array('.png','.jpg');
-	foreach($exts as $ext) {
+	foreach ($exts as $ext) {
 		if (file_exists('view/theme/' . $theme . '/screenshot' . $ext)) {
 			return(App::get_baseurl() . '/view/theme/' . $theme . '/screenshot' . $ext);
 		}
@@ -575,7 +575,7 @@ function theme_include($file, $root = '') {
 		"{$root}view/theme/$parent/$ext/$file",
 		"{$root}view/$ext/$file",
 	);
-	foreach($paths as $p) {
+	foreach ($paths as $p) {
 		// strpos() is faster than strstr when checking if one string is in another (http://php.net/manual/en/function.strstr.php)
 		if (strpos($p,'NOPATH') !== false) {
 			continue;

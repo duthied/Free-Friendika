@@ -11,13 +11,12 @@ function get_salmon_key($uri,$keyhash) {
 	$arr = Probe::lrdd($uri);
 
 	if (is_array($arr)) {
-		foreach($arr as $a) {
+		foreach ($arr as $a) {
 			if ($a['@attributes']['rel'] === 'magic-public-key') {
 				$ret[] = $a['@attributes']['href'];
 			}
 		}
-	}
-	else {
+	} else {
 		return '';
 	}
 

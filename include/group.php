@@ -318,7 +318,7 @@ function expand_groups($a,$check_dead = false, $use_gcontact = false) {
 
 	$ret = array();
 	if (dbm::is_result($r))
-		foreach($r as $rr)
+		foreach ($r as $rr)
 			$ret[] = $rr['contact-id'];
 	if ($check_dead AND !$use_gcontact) {
 		require_once('include/acl_selectors.php');
@@ -347,8 +347,9 @@ function groups_containing($uid,$c) {
 
 	$ret = array();
 	if (dbm::is_result($r)) {
-		foreach($r as $rr)
+		foreach ($r as $rr) {
 			$ret[] = $rr['gid'];
+		}
 	}
 
 	return $ret;

@@ -163,7 +163,7 @@ function autoname($len) {
 
 	$word = substr($word,0,$len);
 
-	foreach($noend as $noe) {
+	foreach ($noend as $noe) {
 		if ((strlen($word) > 2) && (substr($word,-2) == $noe)) {
 			$word = substr($word,0,-1);
 			break;
@@ -188,7 +188,7 @@ function xmlify($str) {
 /*	$buffer = '';
 
 	$len = mb_strlen($str);
-	for($x = 0; $x < $len; $x ++) {
+	for ($x = 0; $x < $len; $x ++) {
 		$char = mb_substr($str,$x,1);
 
 		switch( $char ) {
@@ -420,7 +420,7 @@ function expand_acl($s) {
 	if (strlen($s)) {
 		$t = str_replace('<','',$s);
 		$a = explode('>',$t);
-		foreach($a as $aa) {
+		foreach ($a as $aa) {
 			if (intval($aa))
 				$ret[] = intval($aa);
 		}
@@ -817,7 +817,7 @@ function get_tags($string) {
 	// and #hash tags.
 
 	if (preg_match_all('/([!#@][^\^ \x0D\x0A,;:?]+)([ \x0D\x0A,;:?]|$)/', $string, $matches)) {
-		foreach($matches[1] as $match) {
+		foreach ($matches[1] as $match) {
 			if (strstr($match, ']')) {
 				// we might be inside a bbcode color tag - leave it alone
 				continue;
@@ -1249,7 +1249,7 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 		$taglist = q("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` IN (%d, %d) ORDER BY `tid`",
 				intval(TERM_OBJ_POST), intval($item['id']), intval(TERM_HASHTAG), intval(TERM_MENTION));
 
-		foreach($taglist as $tag) {
+		foreach ($taglist as $tag) {
 
 			if ($tag["url"] == "")
 				$tag["url"] = $searchpath.strtolower($tag["term"]);
@@ -1295,12 +1295,12 @@ function prepare_body(&$item,$attach = false, $preview = false) {
 	$arr = explode('[/attach],',$item['attach']);
 	if (count($arr)) {
 		$as .= '<div class="body-attach">';
-		foreach($arr as $r) {
+		foreach ($arr as $r) {
 			$matches = false;
 			$icon = '';
 			$cnt = preg_match_all('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\" title=\"(.*?)\"|',$r,$matches, PREG_SET_ORDER);
 			if ($cnt) {
-				foreach($matches as $mtch) {
+				foreach ($matches as $mtch) {
 					$mime = $mtch[3];
 
 					if ((local_user() == $item['uid']) && ($item['contact-id'] != $a->contact['id']) && ($item['network'] == NETWORK_DFRN))
@@ -1475,7 +1475,7 @@ function get_cats_and_terms($item) {
 	$matches = false; $first = true;
 	$cnt = preg_match_all('/<(.*?)>/',$item['file'],$matches,PREG_SET_ORDER);
 	if ($cnt) {
-		foreach($matches as $mtch) {
+		foreach ($matches as $mtch) {
 			$categories[] = array(
 				'name' => xmlify(file_tag_decode($mtch[1])),
 				'url' =>  "#",
@@ -1493,7 +1493,7 @@ function get_cats_and_terms($item) {
 		$matches = false; $first = true;
 		$cnt = preg_match_all('/\[(.*?)\]/',$item['file'],$matches,PREG_SET_ORDER);
 		if ($cnt) {
-			foreach($matches as $mtch) {
+			foreach ($matches as $mtch) {
 				$folders[] = array(
 					'name' => xmlify(file_tag_decode($mtch[1])),
 					'url' =>  "#",
@@ -1719,7 +1719,7 @@ function bb_translate_video($s) {
 	$matches = null;
 	$r = preg_match_all("/\[video\](.*?)\[\/video\]/ism",$s,$matches,PREG_SET_ORDER);
 	if ($r) {
-		foreach($matches as $mtch) {
+		foreach ($matches as $mtch) {
 			if ((stristr($mtch[1],'youtube')) || (stristr($mtch[1],'youtu.be')))
 				$s = str_replace($mtch[0],'[youtube]' . $mtch[1] . '[/youtube]',$s);
 			elseif (stristr($mtch[1],'vimeo'))
@@ -1847,7 +1847,7 @@ function file_tag_list_to_file($list,$type = 'file') {
 			$rbracket = '>';
 		}
 
-		foreach($list_array as $item) {
+		foreach ($list_array as $item) {
 		  if (strlen($item)) {
 				$tag_list .= $lbracket . file_tag_encode(trim($item))  . $rbracket;
 			}
@@ -1867,7 +1867,7 @@ function file_tag_file_to_list($file,$type = 'file') {
 		$cnt = preg_match_all('/<(.*?)>/',$file,$matches,PREG_SET_ORDER);
 	}
 	if ($cnt) {
-		foreach($matches as $mtch) {
+		foreach ($matches as $mtch) {
 			if (strlen($list))
 				$list .= ',';
 			$list .= file_tag_decode($mtch[1]);
@@ -1906,7 +1906,7 @@ function file_tag_update_pconfig($uid,$file_old,$file_new,$type = 'file') {
 		$new_tags = array();
 		$check_new_tags = explode(",",file_tag_file_to_list($file_new,$type));
 
-		foreach($check_new_tags as $tag) {
+		foreach ($check_new_tags as $tag) {
 			if (! stristr($saved,$lbracket . file_tag_encode($tag) . $rbracket))
 				$new_tags[] = $tag;
 		}
@@ -1917,12 +1917,12 @@ function file_tag_update_pconfig($uid,$file_old,$file_new,$type = 'file') {
 		$deleted_tags = array();
 		$check_deleted_tags = explode(",",file_tag_file_to_list($file_old,$type));
 
-		foreach($check_deleted_tags as $tag) {
+		foreach ($check_deleted_tags as $tag) {
 			if (! stristr($file_new,$lbracket . file_tag_encode($tag) . $rbracket))
 				$deleted_tags[] = $tag;
 		}
 
-		foreach($deleted_tags as $key => $tag) {
+		foreach ($deleted_tags as $key => $tag) {
 			$r = q("SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d",
 				dbesc($tag),
 				intval(TERM_OBJ_POST),
@@ -2039,7 +2039,7 @@ function undo_post_tagging($s) {
 	$matches = null;
 	$cnt = preg_match_all('/([!#@])\[url=(.*?)\](.*?)\[\/url\]/ism',$s,$matches,PREG_SET_ORDER);
 	if ($cnt) {
-		foreach($matches as $mtch) {
+		foreach ($matches as $mtch) {
 			$s = str_replace($mtch[0], $mtch[1] . $mtch[3],$s);
 		}
 	}

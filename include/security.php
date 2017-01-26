@@ -276,7 +276,7 @@ function permissions_sql($owner_id,$remote_verified = false,$groups = null) {
 			$gs = '<<>>'; // should be impossible to match
 
 			if (is_array($groups) && count($groups)) {
-				foreach($groups as $g)
+				foreach ($groups as $g)
 					$gs .= '|<' . intval($g) . '>';
 			}
 
@@ -358,7 +358,7 @@ function item_permissions_sql($owner_id,$remote_verified = false,$groups = null)
 			$gs = '<<>>'; // should be impossible to match
 
 			if (is_array($groups) && count($groups)) {
-				foreach($groups as $g)
+				foreach ($groups as $g)
 					$gs .= '|<' . intval($g) . '>';
 			}
 
@@ -460,7 +460,7 @@ function init_groups_visitor($contact_id) {
 		intval($contact_id)
 	);
 	if (dbm::is_result($r)) {
-		foreach($r as $rr)
+		foreach ($r as $rr)
 			$groups[] = $rr['gid'];
 	}
 	return $groups;

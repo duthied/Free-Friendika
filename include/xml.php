@@ -50,7 +50,7 @@ class xml {
 			}
 		}
 
-		foreach($array as $key => $value) {
+		foreach ($array as $key => $value) {
 			if (!isset($element) AND isset($xml)) {
 				$element = $xml;
 			}

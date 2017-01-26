@@ -230,12 +230,14 @@ function gs_search_user($search) {
 	if (!$result["success"]) {
 		return false;
 	}
+
 	$contacts = json_decode($result["body"]);
 
 	if ($contacts->status == 'ERROR') {
 		return false;
 	}
-	foreach($contacts->data AS $user) {
+
+	foreach ($contacts->data AS $user) {
 		$contact = probe_url($user->site_address."/".$user->name);
 		if ($contact["network"] != NETWORK_PHANTOM) {
 			$contact["about"] = $user->description;

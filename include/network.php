@@ -475,7 +475,7 @@ function allowed_url($url) {
 	$allowed = explode(',',$str_allowed);
 
 	if (count($allowed)) {
-		foreach($allowed as $a) {
+		foreach ($allowed as $a) {
 			$pat = strtolower(trim($a));
 			if (($fnmatch && fnmatch($pat,$host)) || ($pat == $host)) {
 				$found = true;
@@ -497,14 +497,15 @@ function allowed_url($url) {
  */
 function allowed_email($email) {
 
-
 	$domain = strtolower(substr($email,strpos($email,'@') + 1));
-	if (! $domain)
+	if (! $domain) {
 		return false;
+	}
 
 	$str_allowed = get_config('system','allowed_email');
-	if (! $str_allowed)
+	if (! $str_allowed) {
 		return true;
+	}
 
 	$found = false;
 
@@ -512,7 +513,7 @@ function allowed_email($email) {
 	$allowed = explode(',',$str_allowed);
 
 	if (count($allowed)) {
-		foreach($allowed as $a) {
+		foreach ($allowed as $a) {
 			$pat = strtolower(trim($a));
 			if (($fnmatch && fnmatch($pat,$domain)) || ($pat == $domain)) {
 				$found = true;

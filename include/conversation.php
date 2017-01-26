@@ -308,7 +308,7 @@ function localize_item(&$item){
 	}
 	$matches = null;
 	if (preg_match_all('/@\[url=(.*?)\]/is',$item['body'],$matches,PREG_SET_ORDER)) {
-		foreach($matches as $mtch) {
+		foreach ($matches as $mtch) {
 			if (! strpos($mtch[1],'zrl='))
 				$item['body'] = str_replace($mtch[0],'@[url=' . zrl($mtch[1]). ']',$item['body']);
 		}
@@ -344,7 +344,7 @@ function count_descendants($item) {
 	$total = count($item['children']);
 
 	if ($total > 0) {
-		foreach($item['children'] as $child) {
+		foreach ($item['children'] as $child) {
 			if (! visible_activity($child))
 				$total --;
 			$total += count_descendants($child);
@@ -360,7 +360,7 @@ function visible_activity($item) {
 	// in which case we handle them specially
 
 	$hidden_activities = array(ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE);
-	foreach($hidden_activities as $act) {
+	foreach ($hidden_activities as $act) {
 		if (activity_match($item['verb'],$act)) {
 			return false;
 		}
@@ -484,8 +484,9 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 		$str_blocked = get_pconfig(local_user(),'system','blocked');
 		if ($str_blocked) {
 			$arr_blocked = explode(',',$str_blocked);
-			for($x = 0; $x < count($arr_blocked); $x ++)
+			for ($x = 0; $x < count($arr_blocked); $x ++) {
 				$arr_blocked[$x] = trim($arr_blocked[$x]);
+			}
 		}
 
 	}
@@ -604,11 +605,11 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 //			$tpl = get_markup_template('search_item.tpl');
 			$tpl = 'search_item.tpl';
 
-			foreach($items as $item) {
+			foreach ($items as $item) {
 
 				if ($arr_blocked) {
 					$blocked = false;
-					foreach($arr_blocked as $b) {
+					foreach ($arr_blocked as $b) {
 						if ($b && link_compare($item['author-link'],$b)) {
 							$blocked = true;
 							break;
@@ -652,7 +653,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 				$taglist = q("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` IN (%d, %d) ORDER BY `tid`",
 						intval(TERM_OBJ_POST), intval($item['id']), intval(TERM_HASHTAG), intval(TERM_MENTION));
 
-				foreach($taglist as $tag) {
+				foreach ($taglist as $tag) {
 
 					if ($tag["url"] == "")
 						$tag["url"] = $searchpath.strtolower($tag["term"]);
@@ -818,11 +819,11 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 			// But for now, this array respects the old style, just in case
 
 			$threads = array();
-			foreach($items as $item) {
+			foreach ($items as $item) {
 
 				if ($arr_blocked) {
 					$blocked = false;
-					foreach($arr_blocked as $b) {
+					foreach ($arr_blocked as $b) {
 
 						if ($b && link_compare($item['author-link'],$b)) {
 							$blocked = true;
@@ -1014,7 +1015,7 @@ function item_photo_menu($item)
  */
 if (! function_exists('builtin_activity_puller')) {
 function builtin_activity_puller($item, &$conv_responses) {
-	foreach($conv_responses as $mode => $v) {
+	foreach ($conv_responses as $mode => $v) {
 		$url = '';
 		$sparkle = '';
 
@@ -1302,7 +1303,7 @@ function status_editor($a,$x, $notes_cid = 0, $popup=false) {
 function get_item_children($arr, $parent) {
 	$children = array();
 	$a = get_app();
-	foreach($arr as $item) {
+	foreach ($arr as $item) {
 		if ($item['id'] != $item['parent']) {
 			if (get_config('system','thread_allow') && $a->theme_thread_allow) {
 				// Fallback to parent-uri if thr-parent is not set
@@ -1326,7 +1327,7 @@ function get_item_children($arr, $parent) {
 function sort_item_children($items) {
 	$result = $items;
 	usort($result,'sort_thr_created_rev');
-	foreach($result as $k => $i) {
+	foreach ($result as $k => $i) {
 		if (count($result[$k]['children'])) {
 			$result[$k]['children'] = sort_item_children($result[$k]['children']);
 		}
@@ -1335,7 +1336,7 @@ function sort_item_children($items) {
 }
 
 function add_children_to_list($children, &$arr) {
-	foreach($children as $y) {
+	foreach ($children as $y) {
 		$arr[] = $y;
 		if (count($y['children']))
 			add_children_to_list($y['children'], $arr);
@@ -1353,13 +1354,13 @@ function conv_sort($arr,$order) {
 
 	// This is a preparation for having two different items with the same uri in one thread
 	// This will otherwise lead to an endless loop.
-	foreach($arr as $x)
+	foreach ($arr as $x)
 		if (!isset($newarr[$x['uri']]))
 			$newarr[$x['uri']] = $x;
 
 	$arr = $newarr;
 
-	foreach($arr as $x)
+	foreach ($arr as $x)
 		if ($x['id'] == $x['parent'])
 				$parents[] = $x;
 
@@ -1369,10 +1370,10 @@ function conv_sort($arr,$order) {
 		usort($parents,'sort_thr_commented');
 
 	if (count($parents))
-		foreach($parents as $i=>$_x)
+		foreach ($parents as $i=>$_x)
 			$parents[$i]['children'] = get_item_children($arr, $_x);
 
-	/*foreach($arr as $x) {
+	/*foreach ($arr as $x) {
 		if ($x['id'] != $x['parent']) {
 			$p = find_thread_parent_index($parents,$x);
 			if ($p !== false)
@@ -1380,7 +1381,7 @@ function conv_sort($arr,$order) {
 		}
 	}*/
 	if (count($parents)) {
-		foreach($parents as $k => $v) {
+		foreach ($parents as $k => $v) {
 			if (count($parents[$k]['children'])) {
 				$parents[$k]['children'] = sort_item_children($parents[$k]['children']);
 				/*$y = $parents[$k]['children'];
@@ -1392,11 +1393,11 @@ function conv_sort($arr,$order) {
 
 	$ret = array();
 	if (count($parents)) {
-		foreach($parents as $x) {
+		foreach ($parents as $x) {
 			$ret[] = $x;
 			if (count($x['children']))
 				add_children_to_list($x['children'], $ret);
-				/*foreach($x['children'] as $y)
+				/*foreach ($x['children'] as $y)
 					$ret[] = $y;*/
 		}
 	}
@@ -1418,7 +1419,7 @@ function sort_thr_commented($a,$b) {
 }
 
 function find_thread_parent_index($arr,$x) {
-	foreach($arr as $k => $v) {
+	foreach ($arr as $k => $v) {
 		if ($v['id'] == $x['parent']) {
 			return $k;
 		}
@@ -1436,7 +1437,7 @@ function render_location_dummy($item) {
 
 function get_responses($conv_responses,$response_verbs,$ob,$item) {
 	$ret = array();
-	foreach($response_verbs as $v) {
+	foreach ($response_verbs as $v) {
 		$ret[$v] = array();
 		$ret[$v]['count'] = ((x($conv_responses[$v],$item['uri'])) ? $conv_responses[$v][$item['uri']] : '');
 		$ret[$v]['list']  = ((x($conv_responses[$v],$item['uri'])) ? $conv_responses[$v][$item['uri'] . '-l'] : '');
@@ -1453,9 +1454,10 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 	}
 
 	$count = 0;
-	foreach($ret as $key) {
-		if ($key['count'] == true)
+	foreach ($ret as $key) {
+		if ($key['count'] == true) {
 			$count++;
+		}
 	}
 	$ret['count'] = $count;
 

@@ -280,7 +280,7 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 			$type = "";
 			$title = "";
 
-			foreach($enclosure->attributes AS $attributes) {
+			foreach ($enclosure->attributes AS $attributes) {
 				if ($attributes->name == "url") {
 					$href = $attributes->textContent;
 				} elseif ($attributes->name == "length") {
