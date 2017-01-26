@@ -411,7 +411,7 @@ class ostatus {
 					foreach ($category->attributes AS $attributes)
 						if ($attributes->name == "term") {
 							$term = $attributes->textContent;
-							if(strlen($item["tag"]))
+							if (strlen($item["tag"]))
 								$item["tag"] .= ',';
 							$item["tag"] .= "#[url=".App::get_baseurl()."/search?tag=".$term."]".$term."[/url]";
 						}
@@ -454,7 +454,7 @@ class ostatus {
 								break;
 							case "enclosure":
 								$enclosure = $href;
-								if(strlen($item["attach"]))
+								if (strlen($item["attach"]))
 									$item["attach"] .= ',';
 
 								$item["attach"] .= '[attach]href="'.$href.'" length="'.$length.'" type="'.$type.'" title="'.$title.'"[/attach]';
@@ -1138,7 +1138,7 @@ class ostatus {
 				continue;
 			}
 
-			/// @TODO One statment is okay (until if() )
+			/// @TODO One statment is okay (until if () )
 			$arr = array();
 			$arr["network"] = $details["network"];
 			$arr["uri"] = $single_conv->id;
@@ -2234,7 +2234,7 @@ class ostatus {
 
 		$owner = $r[0];
 
-		if(!strlen($last_update))
+		if (!strlen($last_update))
 			$last_update = 'now -30 days';
 
 		$check_date = datetime_convert('UTC','UTC',$last_update,'Y-m-d H:i:s');

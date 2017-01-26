@@ -81,7 +81,7 @@ class NotificationsManager {
 		}
 		$order_sql = implode(", ", $asOrder);
 
-		if($limit!="")
+		if ($limit!="")
 			$limit = " LIMIT ".$limit;
 
 			$r = q("SELECT * FROM `notify` WHERE `uid` = %d $filter_sql ORDER BY $order_sql $limit",
@@ -369,7 +369,7 @@ class NotificationsManager {
 	private function networkTotal($seen = 0) {
 		$sql_seen = "";
 
-		if($seen === 0)
+		if ($seen === 0)
 			$sql_seen = " AND `item`.`unseen` = 1 ";
 
 		$r = q("SELECT COUNT(*) AS `total`
@@ -406,7 +406,7 @@ class NotificationsManager {
 		$notifs = array();
 		$sql_seen = "";
 
-		if($seen === 0)
+		if ($seen === 0)
 			$sql_seen = " AND `item`.`unseen` = 1 ";
 
 
@@ -445,7 +445,7 @@ class NotificationsManager {
 	private function systemTotal($seen = 0) {
 		$sql_seen = "";
 
-		if($seen === 0)
+		if ($seen === 0)
 			$sql_seen = " AND `seen` = 0 ";
 
 		$r = q("SELECT COUNT(*) AS `total` FROM `notify` WHERE `uid` = %d $sql_seen",
@@ -478,7 +478,7 @@ class NotificationsManager {
 		$notifs = array();
 		$sql_seen = "";
 
-		if($seen === 0)
+		if ($seen === 0)
 			$sql_seen = " AND `seen` = 0 ";
 
 		$r = q("SELECT `id`, `url`, `photo`, `msg`, `date`, `seen` FROM `notify`
@@ -530,7 +530,7 @@ class NotificationsManager {
 		$sql_seen = "";
 		$sql_extra = $this->_personal_sql_extra();
 
-		if($seen === 0)
+		if ($seen === 0)
 			$sql_seen = " AND `item`.`unseen` = 1 ";
 
 		$r = q("SELECT COUNT(*) AS `total`
@@ -569,7 +569,7 @@ class NotificationsManager {
 		$notifs = array();
 		$sql_seen = "";
 
-		if($seen === 0)
+		if ($seen === 0)
 			$sql_seen = " AND `item`.`unseen` = 1 ";
 
 		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`, `item`.`unseen`,
@@ -608,7 +608,7 @@ class NotificationsManager {
 	private function homeTotal($seen = 0) {
 		$sql_seen = "";
 
-		if($seen === 0)
+		if ($seen === 0)
 			$sql_seen = " AND `item`.`unseen` = 1 ";
 
 		$r = q("SELECT COUNT(*) AS `total` FROM `item`
@@ -644,7 +644,7 @@ class NotificationsManager {
 		$notifs = array();
 		$sql_seen = "";
 
-		if($seen === 0)
+		if ($seen === 0)
 			$sql_seen = " AND `item`.`unseen` = 1 ";
 
 		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`, `item`.`unseen`,
@@ -682,7 +682,7 @@ class NotificationsManager {
 	private function introTotal($all = false) {
 		$sql_extra = "";
 
-		if(!$all)
+		if (!$all)
 			$sql_extra = " AND `ignore` = 0 ";
 
 		$r = q("SELECT COUNT(*) AS `total` FROM `intro`
@@ -716,7 +716,7 @@ class NotificationsManager {
 		$notifs = array();
 		$sql_extra = "";
 
-		if(!$all)
+		if (!$all)
 			$sql_extra = " AND `ignore` = 0 ";
 
 		/// @todo Fetch contact details by "get_contact_details_by_url" instead of queries to contact, fcontact and gcontact
@@ -761,7 +761,7 @@ class NotificationsManager {
 			// We have to distinguish between these two because they use different data.
 
 			// Contact suggestions
-			if($it['fid']) {
+			if ($it['fid']) {
 
 				$return_addr = bin2hex($this->a->user['nickname'] . '@' . $this->a->get_hostname() . (($this->a->path) ? '/' . $this->a->path : ''));
 
@@ -793,7 +793,7 @@ class NotificationsManager {
 					$it['gnetwork'] = $ret["network"];
 
 				// Don't show these data until you are connected. Diaspora is doing the same.
-				if($it['gnetwork'] === NETWORK_DIASPORA) {
+				if ($it['gnetwork'] === NETWORK_DIASPORA) {
 					$it['glocation'] = "";
 					$it['gabout'] = "";
 					$it['ggender'] = "";

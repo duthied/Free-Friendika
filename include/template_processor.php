@@ -69,7 +69,7 @@ class Template implements ITemplateEngine {
 	 * {{ if <$var>==<val|$var> }}...[{{ else }} ...]{{ endif }}
 	 * {{ if <$var>!=<val|$var> }}...[{{ else }} ...]{{ endif }}
 	 */
-	private function _replcb_if($args) {
+	private function _replcb_if ($args) {
 		if (strpos($args[2], "==") > 0) {
 			list($a, $b) = array_map("trim", explode("==", $args[2]));
 			$a = $this->_get_var($a);

@@ -12,7 +12,7 @@ function rsa_sign($data,$key,$alg = 'sha256') {
 		openssl_sign($data,$sig,$key,(($alg == 'sha1') ? OPENSSL_ALGO_SHA1 : $alg));
     }
     else {
-		if(strlen($key) < 1024 || extension_loaded('gmp')) {
+		if (strlen($key) < 1024 || extension_loaded('gmp')) {
 			require_once('library/phpsec/Crypt/RSA.php');
 			$rsa = new CRYPT_RSA();
 			$rsa->signatureMode = CRYPT_RSA_SIGNATURE_PKCS1;
@@ -34,7 +34,7 @@ function rsa_verify($data,$sig,$key,$alg = 'sha256') {
 		$verify = openssl_verify($data,$sig,$key,(($alg == 'sha1') ? OPENSSL_ALGO_SHA1 : $alg));
     }
     else {
-		if(strlen($key) <= 300 || extension_loaded('gmp')) {
+		if (strlen($key) <= 300 || extension_loaded('gmp')) {
 			require_once('library/phpsec/Crypt/RSA.php');
 			$rsa = new CRYPT_RSA();
 			$rsa->signatureMode = CRYPT_RSA_SIGNATURE_PKCS1;
@@ -186,7 +186,7 @@ function salmon_key($pubkey) {
 
 
 
-if(! function_exists('aes_decrypt')) {
+if (! function_exists('aes_decrypt')) {
 // DEPRECATED IN 3.4.1
 function aes_decrypt($val,$ky)
 {
@@ -200,7 +200,7 @@ function aes_decrypt($val,$ky)
 }}
 
 
-if(! function_exists('aes_encrypt')) {
+if (! function_exists('aes_encrypt')) {
 // DEPRECATED IN 3.4.1
 function aes_encrypt($val,$ky)
 {
@@ -237,12 +237,12 @@ function new_keypair($bits) {
 	);
 
 	$conf = get_config('system','openssl_conf_file');
-	if($conf)
+	if ($conf)
 		$openssl_options['config'] = $conf;
 	
 	$result = openssl_pkey_new($openssl_options);
 
-	if(empty($result)) {
+	if (empty($result)) {
 		logger('new_keypair: failed');
 		return false;
 	}

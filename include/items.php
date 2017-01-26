@@ -60,7 +60,7 @@ function limit_body_size($body) {
 		$img_start = strpos($orig_body, '[img');
 		$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
 		$img_end = ($img_start !== false ? strpos(substr($orig_body, $img_start), '[/img]') : false);
-		while(($img_st_close !== false) && ($img_end !== false)) {
+		while (($img_st_close !== false) && ($img_end !== false)) {
 
 			$img_st_close++; // make it point to AFTER the closing bracket
 			$img_end += $img_start;
@@ -1681,7 +1681,7 @@ function fix_private_photos($s, $uid, $item = null, $cid = 0) {
 	$img_start = strpos($orig_body, '[img');
 	$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
 	$img_len = ($img_start !== false ? strpos(substr($orig_body, $img_start + $img_st_close + 1), '[/img]') : false);
-	while( ($img_st_close !== false) && ($img_len !== false) ) {
+	while ( ($img_st_close !== false) && ($img_len !== false) ) {
 
 		$img_st_close++; // make it point to AFTER the closing bracket
 		$image = substr($orig_body, $img_start + $img_st_close, $img_len);
@@ -2179,7 +2179,7 @@ function list_post_dates($uid, $wall) {
 
 	// Starting with the current month, get the first and last days of every
 	// month down to and including the month of the first post
-	while(substr($dnow, 0, 7) >= substr($dthen, 0, 7)) {
+	while (substr($dnow, 0, 7) >= substr($dthen, 0, 7)) {
 		$dyear = intval(substr($dnow,0,4));
 		$dstart = substr($dnow,0,8) . '01';
 		$dend = substr($dnow,0,8) . get_dim(intval($dnow),intval(substr($dnow,5)));
@@ -2208,7 +2208,7 @@ function posted_dates($uid,$wall) {
 	$ret = array();
 	// Starting with the current month, get the first and last days of every
 	// month down to and including the month of the first post
-	while(substr($dnow, 0, 7) >= substr($dthen, 0, 7)) {
+	while (substr($dnow, 0, 7) >= substr($dthen, 0, 7)) {
 		$dstart = substr($dnow,0,8) . '01';
 		$dend = substr($dnow,0,8) . get_dim(intval($dnow),intval(substr($dnow,5)));
 		$start_month = datetime_convert('','',$dstart,'Y-m-d');

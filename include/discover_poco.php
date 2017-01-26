@@ -174,10 +174,10 @@ function discover_directory($search) {
 	$j = json_decode($x);
 
 	if (count($j->results)) {
-		foreach($j->results as $jj) {
+		foreach ($j->results as $jj) {
 			// Check if the contact already exists
 			$exists = q("SELECT `id`, `last_contact`, `last_failure`, `updated` FROM `gcontact` WHERE `nurl` = '%s'", normalise_link($jj->url));
-			if ($exists) {
+			if (dbm::is_result($exists)) {
 				logger("Profile ".$jj->url." already exists (".$search.")", LOGGER_DEBUG);
 
 				if (($exists[0]["last_contact"] < $exists[0]["last_failure"]) AND

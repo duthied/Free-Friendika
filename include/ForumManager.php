@@ -76,7 +76,7 @@ class ForumManager {
 	 */
 	public static function widget($uid,$cid = 0) {
 
-		if(! intval(feature_enabled(local_user(),'forumlist_widget')))
+		if (! intval(feature_enabled(local_user(),'forumlist_widget')))
 			return;
 
 		$o = '';
@@ -136,7 +136,7 @@ class ForumManager {
 	public static function profile_advanced($uid) {
 
 		$profile = intval(feature_enabled($uid,'forumlist_profile'));
-		if(! $profile)
+		if (! $profile)
 			return;
 
 		$o = '';
@@ -154,13 +154,17 @@ class ForumManager {
 		foreach($contacts as $contact) {
 			$forumlist .= micropro($contact,false,'forumlist-profile-advanced');
 			$total_shown ++;
-			if($total_shown == $show_total)
+
+			if ($total_shown == $show_total) {
 				break;
+			}
 		}
 
-		if(count($contacts) > 0)
+		if (count($contacts) > 0) {
 			$o .= $forumlist;
-			return $o;
+		}
+
+		return $o;
 	}
 
 	/**

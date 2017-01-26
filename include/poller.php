@@ -17,11 +17,11 @@ require_once("boot.php");
 function poller_run($argv, $argc){
 	global $a, $db;
 
-	if(is_null($a)) {
+	if (is_null($a)) {
 		$a = new App;
 	}
 
-	if(is_null($db)) {
+	if (is_null($db)) {
 		@include(".htconfig.php");
 		require_once("include/dba.php");
 		$db = new dba($db_host, $db_user, $db_pass, $db_data);
@@ -49,7 +49,7 @@ function poller_run($argv, $argc){
 		return;
 	}
 
-	if(($argc <= 1) OR ($argv[1] != "no_cron")) {
+	if (($argc <= 1) OR ($argv[1] != "no_cron")) {
 		poller_run_cron();
 	}
 
@@ -415,7 +415,7 @@ function poller_too_much_workers() {
 
 	// Decrease the number of workers at higher load
 	$load = current_load();
-	if($load) {
+	if ($load) {
 		$maxsysload = intval(Config::get("system", "maxloadavg", 50));
 
 		$maxworkers = $queues;

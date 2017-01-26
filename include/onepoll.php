@@ -61,7 +61,7 @@ function onepoll_run(&$argv, &$argc){
 		intval($contact_id)
 	);
 
-	if (! count($contacts)) {
+	if (! dbm::is_result($contacts)) {
 		return;
 	}
 
