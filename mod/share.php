@@ -23,10 +23,11 @@ function share_init(App $a) {
 	} else {
 		$o = share_header($r[0]['author-name'], $r[0]['author-link'], $r[0]['author-avatar'], $r[0]['guid'], $r[0]['created'], $r[0]['plink']);
 
-		if ($r[0]['title'])
+		if ($r[0]['title']) {
 			$o .= '[b]'.$r[0]['title'].'[/b]'."\n";
+		}
 		$o .= $r[0]['body'];
-		$o.= "[/share]";
+		$o .= "[/share]";
 	}
 
 	echo $o;
@@ -34,17 +35,17 @@ function share_init(App $a) {
 }
 
 function share_header($author, $profile, $avatar, $guid, $posted, $link) {
-	$header = "[share author='".str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $author).
-		"' profile='".str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $profile).
-		"' avatar='".str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $avatar);
+	$header = "[share author='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $author).
+		"' profile='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $profile).
+		"' avatar='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $avatar);
 
 	if ($guid) {
-		$header .= "' guid='".str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $guid);
+		$header .= "' guid='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $guid);
 	}
 	if ($posted) {
-		$header .= "' posted='".str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $posted);
+		$header .= "' posted='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $posted);
 	}
-	$header .= "' link='".str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $link)."']";
+	$header .= "' link='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $link)."']";
 
 	return $header;
 }
