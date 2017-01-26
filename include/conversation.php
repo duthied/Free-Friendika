@@ -395,7 +395,7 @@ function visible_activity($item) {
 	}
 
 	if (activity_match($item['verb'], ACTIVITY_FOLLOW) && $item['object-type'] === ACTIVITY_OBJ_NOTE) {
-		if (!($item['self'] && ($item['uid'] == local_user()))) {
+		if (!(x($item, 'self') && ($item['uid'] == local_user()))) {
 			return false;
 		}
 	}
