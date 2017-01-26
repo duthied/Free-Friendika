@@ -1660,10 +1660,11 @@ function bb_translate_video($s) {
 	$r = preg_match_all("/\[video\](.*?)\[\/video\]/ism",$s,$matches,PREG_SET_ORDER);
 	if ($r) {
 		foreach ($matches as $mtch) {
-			if ((stristr($mtch[1],'youtube')) || (stristr($mtch[1],'youtu.be')))
-				$s = str_replace($mtch[0],'[youtube]' . $mtch[1] . '[/youtube]',$s);
-			elseif (stristr($mtch[1],'vimeo'))
-				$s = str_replace($mtch[0],'[vimeo]' . $mtch[1] . '[/vimeo]',$s);
+			if ((stristr($mtch[1], 'youtube')) || (stristr($mtch[1], 'youtu.be'))) {
+				$s = str_replace($mtch[0], '[youtube]' . $mtch[1] . '[/youtube]', $s);
+			} elseif (stristr($mtch[1], 'vimeo')) {
+				$s = str_replace($mtch[0], '[vimeo]' . $mtch[1] . '[/vimeo]', $s);
+			}
 		}
 	}
 	return $s;
@@ -1781,7 +1782,7 @@ function file_tag_file_query($table,$s,$type = 'file') {
 }
 
 // ex. given music,video return <music><video> or [music][video]
-function file_tag_list_to_file($list,$type = 'file') {
+function file_tag_list_to_file($list, $type = 'file') {
 	$tag_list = '';
 	if (strlen($list)) {
 		$list_array = explode(",",$list);
@@ -1803,7 +1804,7 @@ function file_tag_list_to_file($list,$type = 'file') {
 }
 
 // ex. given <music><video>[friends], return music,video or friends
-function file_tag_file_to_list($file,$type = 'file') {
+function file_tag_file_to_list($file, $type = 'file') {
 	$matches = false;
 	$list = '';
 	if ($type == 'file') {
@@ -1853,8 +1854,9 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 		$check_new_tags = explode(",",file_tag_file_to_list($file_new,$type));
 
 		foreach ($check_new_tags as $tag) {
-			if (! stristr($saved,$lbracket . file_tag_encode($tag) . $rbracket))
+			if (! stristr($saved,$lbracket . file_tag_encode($tag) . $rbracket)) {
 				$new_tags[] = $tag;
+			}
 		}
 
 		$filetags_updated .= file_tag_list_to_file(implode(",",$new_tags),$type);
@@ -1864,8 +1866,9 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 		$check_deleted_tags = explode(",",file_tag_file_to_list($file_old,$type));
 
 		foreach ($check_deleted_tags as $tag) {
-			if (! stristr($file_new,$lbracket . file_tag_encode($tag) . $rbracket))
+			if (! stristr($file_new,$lbracket . file_tag_encode($tag) . $rbracket)) {
 				$deleted_tags[] = $tag;
+			}
 		}
 
 		foreach ($deleted_tags as $key => $tag) {
@@ -1981,9 +1984,10 @@ function is_a_date_arg($s) {
 	if ($i > 1900) {
 		$y = date('Y');
 		if ($i <= $y + 1 && strpos($s, '-') == 4) {
-			$m = intval(substr($s,5));
+			$m = intval(substr($s, 5));
 			if ($m > 0 && $m <= 12)
 				return true;
+			}
 		}
 	}
 	return false;
@@ -2003,6 +2007,7 @@ function deindent($text, $chr = "[\t ]", $count = NULL) {
 		preg_match("|^" . $chr . "*|", $lines[$k], $m);
 		$count = strlen($m[0]);
 	}
+
 	for ($k = 0; $k < count($lines); $k++) {
 		$lines[$k] = preg_replace("|^" . $chr . "{" . $count . "}|", "", $lines[$k]);
 	}
