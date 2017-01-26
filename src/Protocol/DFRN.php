@@ -1581,7 +1581,7 @@ class DFRN
 			$href = "";
 			$width = 0;
 			foreach ($avatar->attributes as $attributes) {
-				/// @TODO Rewrite these similar if () to one switch
+				/// @TODO Rewrite these similar if() to one switch
 				if ($attributes->name == "href") {
 					$href = $attributes->textContent;
 				}
@@ -2801,6 +2801,7 @@ class DFRN
 	{
 		logger("Processing deletions");
 		$uri = null;
+
 		foreach ($deletion->attributes as $attributes) {
 			if ($attributes->name == "ref") {
 				$uri = $attributes->textContent;
