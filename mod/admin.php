@@ -859,7 +859,7 @@ function admin_page_site(App $a) {
 		$allowed_theme_list = Config::get('system', 'allowed_themes');
 
 		foreach ($files as $file) {
-			if (intval(file_exists($file.'/unsupported')))
+			if (file_exists($file.'/unsupported'))
 				continue;
 			}
 

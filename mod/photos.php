@@ -1345,10 +1345,11 @@ function photos_content(App $a) {
 		// The query leads to a really intense used index.
 		// By now we hide it if someone wants to.
 		if (!Config::get('system', 'no_count', false)) {
-			if ($_GET['order'] === 'posted')
+			if ($_GET['order'] === 'posted') {
 				$order = 'ASC';
-			else
+			} else {
 				$order = 'DESC';
+			}
 
 			$prvnxt = qu("SELECT `resource-id` FROM `photo` WHERE `album` = '%s' AND `uid` = %d AND `scale` = 0
 				$sql_extra ORDER BY `created` $order ",
@@ -1361,10 +1362,12 @@ function photos_content(App $a) {
 					if ($prvnxt[$z]['resource-id'] == $ph[0]['resource-id']) {
 						$prv = $z - 1;
 						$nxt = $z + 1;
-						if ($prv < 0)
+						if ($prv < 0) {
 							$prv = count($prvnxt) - 1;
-						if ($nxt >= count($prvnxt))
+						}
+						if ($nxt >= count($prvnxt)) {
 							$nxt = 0;
+						}
 						break;
 					}
 				}
