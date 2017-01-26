@@ -8,10 +8,10 @@ require_once('include/redir.php');
 
 function videos_init(App $a) {
 
-	if($a->argc > 1)
+	if ($a->argc > 1)
 		auto_redir($a, $a->argv[1]);
 
-	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if ((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
 		return;
 	}
 
@@ -19,14 +19,15 @@ function videos_init(App $a) {
 
 	$o = '';
 
-	if($a->argc > 1) {
+	if ($a->argc > 1) {
 		$nick = $a->argv[1];
 		$user = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
 			dbesc($nick)
 		);
 
-		if(! count($user))
+		if (!dbm::is_result($user)) {
 			return;
+		}
 
 		$a->data['user'] = $user[0];
 		$a->profile_uid = $user[0]['uid'];
@@ -52,35 +53,35 @@ function videos_init(App $a) {
 			intval($a->data['user']['uid'])
 		);
 
-		if(count($albums)) {
+		if (count($albums)) {
 			$a->data['albums'] = $albums;
 
 			$albums_visible = ((intval($a->data['user']['hidewall']) && (! local_user()) && (! remote_user())) ? false : true);
 
-			if($albums_visible) {
+			if ($albums_visible) {
 				$o .= '<div id="sidebar-photos-albums" class="widget">';
 				$o .= '<h3>' . '<a href="' . App::get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '">' . t('Photo Albums') . '</a></h3>';
 
 				$o .= '<ul>';
-				foreach($albums as $album) {
+				foreach ($albums as $album) {
 
 					// don't show contact photos. We once translated this name, but then you could still access it under
 					// a different language setting. Now we store the name in English and check in English (and translated for legacy albums).
 
-					if((! strlen($album['album'])) || ($album['album'] === 'Contact Photos') || ($album['album'] === t('Contact Photos')))
+					if ((! strlen($album['album'])) || ($album['album'] === 'Contact Photos') || ($album['album'] === t('Contact Photos')))
 						continue;
 					$o .= '<li>' . '<a href="photos/' . $a->argv[1] . '/album/' . bin2hex($album['album']) . '" >' . $album['album'] . '</a></li>';
 				}
 				$o .= '</ul>';
 			}
-			if(local_user() && $a->data['user']['uid'] == local_user()) {
+			if (local_user() && $a->data['user']['uid'] == local_user()) {
 				$o .= '<div id="photo-albums-upload-link"><a href="' . App::get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/upload" >' .t('Upload New Photos') . '</a></div>';
 			}
 
 			$o .= '</div>';
 		}*/
 
-		if(! x($a->page,'aside'))
+		if (! x($a->page,'aside'))
 			$a->page['aside'] = '';
 		$a->page['aside'] .= $vcard_widget;
 
@@ -194,7 +195,7 @@ function videos_content(App $a) {
 	// videos/name/video/xxxxx/edit
 
 
-	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if ((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
 		notice( t('Public access denied.') . EOL);
 		return;
 	}
@@ -204,7 +205,7 @@ function videos_content(App $a) {
 	require_once('include/security.php');
 	require_once('include/conversation.php');
 
-	if(! x($a->data,'user')) {
+	if (! x($a->data,'user')) {
 		notice( t('No videos selected') . EOL );
 		return;
 	}
@@ -217,16 +218,16 @@ function videos_content(App $a) {
 	// Parse arguments
 	//
 
-	if($a->argc > 3) {
+	if ($a->argc > 3) {
 		$datatype = $a->argv[2];
 		$datum = $a->argv[3];
 	}
-	elseif(($a->argc > 2) && ($a->argv[2] === 'upload'))
+	elseif (($a->argc > 2) && ($a->argv[2] === 'upload'))
 		$datatype = 'upload';
 	else
 		$datatype = 'summary';
 
-	if($a->argc > 4)
+	if ($a->argc > 4)
 		$cmd = $a->argv[4];
 	else
 		$cmd = 'view';
@@ -245,19 +246,19 @@ function videos_content(App $a) {
 
 	$community_page = (($a->data['user']['page-flags'] == PAGE_COMMUNITY) ? true : false);
 
-	if((local_user()) && (local_user() == $owner_uid))
+	if ((local_user()) && (local_user() == $owner_uid))
 		$can_post = true;
 	else {
-		if($community_page && remote_user()) {
-			if(is_array($_SESSION['remote'])) {
-				foreach($_SESSION['remote'] as $v) {
-					if($v['uid'] == $owner_uid) {
+		if ($community_page && remote_user()) {
+			if (is_array($_SESSION['remote'])) {
+				foreach ($_SESSION['remote'] as $v) {
+					if ($v['uid'] == $owner_uid) {
 						$contact_id = $v['cid'];
 						break;
 					}
 				}
 			}
-			if($contact_id) {
+			if ($contact_id) {
 
 				$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
 					intval($contact_id),
@@ -275,17 +276,17 @@ function videos_content(App $a) {
 
 	// perhaps they're visiting - but not a community page, so they wouldn't have write access
 
-	if(remote_user() && (! $visitor)) {
+	if (remote_user() && (! $visitor)) {
 		$contact_id = 0;
-		if(is_array($_SESSION['remote'])) {
-			foreach($_SESSION['remote'] as $v) {
-				if($v['uid'] == $owner_uid) {
+		if (is_array($_SESSION['remote'])) {
+			foreach ($_SESSION['remote'] as $v) {
+				if ($v['uid'] == $owner_uid) {
 					$contact_id = $v['cid'];
 					break;
 				}
 			}
 		}
-		if($contact_id) {
+		if ($contact_id) {
 			$groups = init_groups_visitor($contact_id);
 			$r = q("SELECT * FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
 				intval($contact_id),
@@ -298,14 +299,14 @@ function videos_content(App $a) {
 		}
 	}
 
-	if(! $remote_contact) {
-		if(local_user()) {
+	if (! $remote_contact) {
+		if (local_user()) {
 			$contact_id = $_SESSION['cid'];
 			$contact = $a->contact;
 		}
 	}
 
-	if($a->data['user']['hidewall'] && (local_user() != $owner_uid) && (! $remote_contact)) {
+	if ($a->data['user']['hidewall'] && (local_user() != $owner_uid) && (! $remote_contact)) {
 		notice( t('Access to this item is restricted.') . EOL);
 		return;
 	}
@@ -323,13 +324,13 @@ function videos_content(App $a) {
 	//
 
 
-	if($datatype === 'upload') {
+	if ($datatype === 'upload') {
 		return; // no uploading for now
 
 		// DELETED -- look at mod/photos.php if you want to implement
 	}
 
-	if($datatype === 'album') {
+	if ($datatype === 'album') {
 
 		return; // no albums for now
 
@@ -337,7 +338,7 @@ function videos_content(App $a) {
 	}
 
 
-	if($datatype === 'video') {
+	if ($datatype === 'video') {
 
 		return; // no single video view for now
 

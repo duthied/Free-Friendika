@@ -21,7 +21,7 @@ function pubsubhubbub_init(App $a) {
     // [hub_secret] => af11...
     // [hub_topic] => http://friendica.local/dfrn_poll/sazius
 
-	if($_SERVER['REQUEST_METHOD'] === 'POST') {
+	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		$hub_mode = post_var('hub_mode');
 		$hub_callback = post_var('hub_callback');
 		$hub_verify = post_var('hub_verify');
@@ -81,7 +81,7 @@ function pubsubhubbub_init(App $a) {
 		$contact = $r[0];
 
 		// sanity check that topic URLs are the same
-		if(!link_compare($hub_topic, $contact['poll'])) {
+		if (!link_compare($hub_topic, $contact['poll'])) {
 			logger('pubsubhubbub: hub topic ' . $hub_topic . ' != ' .
 				   $contact['poll']);
 			http_status_exit(404);

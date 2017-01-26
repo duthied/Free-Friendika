@@ -8,8 +8,8 @@ function wall_upload_post(App $a, $desktopmode = true) {
 
 	$r_json = (x($_GET,'response') && $_GET['response']=='json');
 
-	if($a->argc > 1) {
-		if(! x($_FILES,'media')) {
+	if ($a->argc > 1) {
+		if (! x($_FILES,'media')) {
 			$nick = $a->argv[1];
 			$r = q("SELECT `user`.*, `contact`.`id` FROM `user` INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`  WHERE `user`.`nickname` = '%s' AND `user`.`blocked` = 0 and `contact`.`self` = 1 LIMIT 1",
 				dbesc($nick)
@@ -44,20 +44,20 @@ function wall_upload_post(App $a, $desktopmode = true) {
 	$page_owner_nick  = $r[0]['nickname'];
 	$community_page   = (($r[0]['page-flags'] == PAGE_COMMUNITY) ? true : false);
 
-	if((local_user()) && (local_user() == $page_owner_uid))
+	if ((local_user()) && (local_user() == $page_owner_uid))
 		$can_post = true;
 	else {
-		if($community_page && remote_user()) {
+		if ($community_page && remote_user()) {
 			$contact_id = 0;
-			if(is_array($_SESSION['remote'])) {
-				foreach($_SESSION['remote'] as $v) {
-					if($v['uid'] == $page_owner_uid) {
+			if (is_array($_SESSION['remote'])) {
+				foreach ($_SESSION['remote'] as $v) {
+					if ($v['uid'] == $page_owner_uid) {
 						$contact_id = $v['cid'];
 						break;
 					}
 				}
 			}
-			if($contact_id) {
+			if ($contact_id) {
 
 				$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
 					intval($contact_id),
@@ -72,7 +72,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 	}
 
 
-	if(! $can_post) {
+	if (! $can_post) {
 		if ($r_json) {
 			echo json_encode(array('error'=>t('Permission denied.')));
 			killme();
@@ -81,7 +81,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 		killme();
 	}
 
-	if(! x($_FILES,'userfile') && ! x($_FILES,'media')){
+	if (! x($_FILES,'userfile') && ! x($_FILES,'media')){
 		if ($r_json) {
 			echo json_encode(array('error'=>t('Invalid request.')));
 		}
@@ -89,13 +89,13 @@ function wall_upload_post(App $a, $desktopmode = true) {
 	}
 
 	$src = "";
-	if(x($_FILES,'userfile')) {
+	if (x($_FILES,'userfile')) {
 		$src      = $_FILES['userfile']['tmp_name'];
 		$filename = basename($_FILES['userfile']['name']);
 		$filesize = intval($_FILES['userfile']['size']);
 		$filetype = $_FILES['userfile']['type'];
 	}
-	elseif(x($_FILES,'media')) {
+	elseif (x($_FILES,'media')) {
 		if (is_array($_FILES['media']['tmp_name']))
 			$src = $_FILES['media']['tmp_name'][0];
 		else
@@ -147,7 +147,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 
 	$maximagesize = get_config('system','maximagesize');
 
-	if(($maximagesize) && ($filesize > $maximagesize)) {
+	if (($maximagesize) && ($filesize > $maximagesize)) {
 		$msg = sprintf( t('Image exceeds size limit of %s'), formatBytes($maximagesize));
 		if ($r_json) {
 			echo json_encode(array('error'=>$msg));
@@ -182,7 +182,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 	$imagedata = @file_get_contents($src);
 	$ph = new Photo($imagedata, $filetype);
 
-	if(! $ph->is_valid()) {
+	if (! $ph->is_valid()) {
 		$msg = t('Unable to process image.');
 		if ($r_json) {
 			echo json_encode(array('error'=>$msg));
@@ -197,9 +197,9 @@ function wall_upload_post(App $a, $desktopmode = true) {
 	@unlink($src);
 
 	$max_length = get_config('system','max_image_length');
-	if(! $max_length)
+	if (! $max_length)
 		$max_length = MAX_IMAGE_LENGTH;
-	if($max_length > 0) {
+	if ($max_length > 0) {
 		$ph->scaleImage($max_length);
 		logger("File upload: Scaling picture to new size ".$max_length, LOGGER_DEBUG);
 	}

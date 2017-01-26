@@ -27,7 +27,7 @@ function api_post(App $a) {
 		return;
 	}
 
-	if(count($a->user) && x($a->user,'uid') && $a->user['uid'] != local_user()) {
+	if (count($a->user) && x($a->user,'uid') && $a->user['uid'] != local_user()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}

@@ -1356,7 +1356,7 @@ function photos_content(App $a) {
 				intval($owner_uid)
 			);
 
-			if (count($prvnxt)) {
+			if (dbm::is_result($prvnxt)) {
 				for($z = 0; $z < count($prvnxt); $z++) {
 					if ($prvnxt[$z]['resource-id'] == $ph[0]['resource-id']) {
 						$prv = $z - 1;
@@ -1374,8 +1374,9 @@ function photos_content(App $a) {
  			}
 		}
 
-		if (count($ph) == 1)
+		if (count($ph) == 1) {
 			$hires = $lores = $ph[0];
+		}
 		if (count($ph) > 1) {
 			if ($ph[1]['scale'] == 2) {
 				// original is 640 or less, we can display it directly

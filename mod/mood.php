@@ -14,12 +14,12 @@ function mood_init(App $a) {
 	$uid = local_user();
 	$verb = notags(trim($_GET['verb']));
 
-	if(! $verb)
+	if (! $verb)
 		return;
 
 	$verbs = get_mood_verbs();
 
-	if(! in_array($verb,$verbs))
+	if (! in_array($verb,$verbs))
 		return;
 
 	$activity = ACTIVITY_MOOD . '#' . urlencode($verb);
@@ -30,7 +30,7 @@ function mood_init(App $a) {
 	logger('mood: verb ' . $verb, LOGGER_DEBUG);
 
 
-	if($parent) {
+	if ($parent) {
 		$r = q("select uri, private, allow_cid, allow_gid, deny_cid, deny_gid
 			from item where id = %d and parent = %d and uid = %d limit 1",
 			intval($parent),
@@ -90,7 +90,7 @@ function mood_init(App $a) {
 	$arr['body']          = $action;
 
 	$item_id = item_store($arr);
-	if($item_id) {
+	if ($item_id) {
 		q("UPDATE `item` SET `plink` = '%s' WHERE `uid` = %d AND `id` = %d",
 			dbesc(App::get_baseurl() . '/display/' . $poster['nickname'] . '/' . $item_id),
 			intval($uid),
@@ -123,9 +123,11 @@ function mood_content(App $a) {
 	$verbs = get_mood_verbs();
 
 	$shortlist = array();
-	foreach($verbs as $k => $v)
-		if($v !== 'NOTRANSLATION')
+	foreach ($verbs as $k => $v) {
+		if ($v !== 'NOTRANSLATION') {
 			$shortlist[] = array($k,$v);
+		}
+	}
 
 
 	$tpl = get_markup_template('mood_content.tpl');

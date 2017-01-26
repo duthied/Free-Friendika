@@ -47,7 +47,7 @@ function settings_init(App $a) {
 		),
 	);
 
-	if(get_features()) {
+	if (get_features()) {
 		$tabs[] =	array(
 					'label'	=> t('Additional features'),
 					'url' 	=> 'settings/features',
@@ -189,23 +189,23 @@ function settings_post(App $a) {
 		return;
 	}
 
-	if(($a->argc > 1) && ($a->argv[1] == 'addon')) {
+	if (($a->argc > 1) && ($a->argv[1] == 'addon')) {
 		check_form_security_token_redirectOnErr('/settings/addon', 'settings_addon');
 
 		call_hooks('plugin_settings_post', $_POST);
 		return;
 	}
 
-	if(($a->argc > 1) && ($a->argv[1] == 'connectors')) {
+	if (($a->argc > 1) && ($a->argv[1] == 'connectors')) {
 
 		check_form_security_token_redirectOnErr('/settings/connectors', 'settings_connectors');
 
-		if(x($_POST, 'general-submit')) {
+		if (x($_POST, 'general-submit')) {
 			set_pconfig(local_user(), 'system', 'no_intelligent_shortening', intval($_POST['no_intelligent_shortening']));
 			set_pconfig(local_user(), 'system', 'ostatus_autofriend', intval($_POST['snautofollow']));
 			set_pconfig(local_user(), 'ostatus', 'default_group', $_POST['group-selection']);
 			set_pconfig(local_user(), 'ostatus', 'legacy_contact', $_POST['legacy_contact']);
-		} elseif(x($_POST, 'imap-submit')) {
+		} elseif (x($_POST, 'imap-submit')) {
 
 			$mail_server       = ((x($_POST,'mail_server')) ? $_POST['mail_server'] : '');
 			$mail_port         = ((x($_POST,'mail_port')) ? $_POST['mail_port'] : '');
@@ -219,10 +219,10 @@ function settings_post(App $a) {
 
 
 			$mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
-			if(get_config('system','dfrn_only'))
+			if (get_config('system','dfrn_only'))
 				$mail_disabled = 1;
 
-			if(! $mail_disabled) {
+			if (! $mail_disabled) {
 				$failed = false;
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 					intval(local_user())
@@ -232,7 +232,7 @@ function settings_post(App $a) {
 						intval(local_user())
 					);
 				}
-				if(strlen($mail_pass)) {
+				if (strlen($mail_pass)) {
 					$pass = '';
 					openssl_public_encrypt($mail_pass,$pass,$a->user['pubkey']);
 					q("UPDATE `mailacct` SET `pass` = '%s' WHERE `uid` = %d",
@@ -261,18 +261,18 @@ function settings_post(App $a) {
 					$eacct = $r[0];
 					require_once('include/email.php');
 					$mb = construct_mailbox_name($eacct);
-					if(strlen($eacct['server'])) {
+					if (strlen($eacct['server'])) {
 						$dcrpass = '';
 						openssl_private_decrypt(hex2bin($eacct['pass']),$dcrpass,$a->user['prvkey']);
 						$mbox = email_connect($mb,$mail_user,$dcrpass);
 						unset($dcrpass);
-						if(! $mbox) {
+						if (! $mbox) {
 							$failed = true;
 							notice( t('Failed to connect with email account using the settings provided.') . EOL);
 						}
 					}
 				}
-				if(! $failed)
+				if (! $failed)
 					info( t('Email settings updated.') . EOL);
 			}
 		}
@@ -283,8 +283,8 @@ function settings_post(App $a) {
 
 	if (($a->argc > 1) && ($a->argv[1] === 'features')) {
 		check_form_security_token_redirectOnErr('/settings/features', 'settings_features');
-		foreach($_POST as $k => $v) {
-			if(strpos($k,'feature_') === 0) {
+		foreach ($_POST as $k => $v) {
+			if (strpos($k,'feature_') === 0) {
 				set_pconfig(local_user(),'feature',substr($k,8),((intval($v)) ? 1 : 0));
 			}
 		}
@@ -320,7 +320,7 @@ function settings_post(App $a) {
 			$itemspage_mobile_network = 100;
 		}
 
-		if($mobile_theme !== '') {
+		if ($mobile_theme !== '') {
 			set_pconfig(local_user(),'system','mobile_theme',$mobile_theme);
 		}
 
@@ -487,7 +487,7 @@ function settings_post(App $a) {
 
 	$name_change = false;
 
-	if($username != $a->user['username']) {
+	if ($username != $a->user['username']) {
 		$name_change = true;
 		if (strlen($username) > 40) {
 			$err .= t(' Please use a shorter name.');
@@ -511,7 +511,7 @@ function settings_post(App $a) {
 			$err .= t(' Not valid email.');
 		}
 		//  ensure new email is not the admin mail
-		//if((x($a->config,'admin_email')) && (strcasecmp($email,$a->config['admin_email']) == 0)) {
+		//if ((x($a->config,'admin_email')) && (strcasecmp($email,$a->config['admin_email']) == 0)) {
 		if (x($a->config,'admin_email')) {
 			$adminlist = explode(",", str_replace(" ", "", strtolower($a->config['admin_email'])));
 			if (in_array(strtolower($email), $adminlist)) {
@@ -727,7 +727,7 @@ function settings_content(App $a) {
 			return $o;
 		}
 
-		if(($a->argc > 3) && ($a->argv[2] === 'delete')) {
+		if (($a->argc > 3) && ($a->argv[2] === 'delete')) {
 			check_form_security_token_redirectOnErr('/settings/oauth', 'settings_oauth', 't');
 
 			$r = q("DELETE FROM clients WHERE client_id='%s' AND uid=%d",
@@ -865,10 +865,10 @@ function settings_content(App $a) {
 		}
 
 		$mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
-		if(get_config('system','dfrn_only'))
+		if (get_config('system','dfrn_only'))
 			$mail_disabled = 1;
 
-		if(! $mail_disabled) {
+		if (! $mail_disabled) {
 			$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 				local_user()
 			);
@@ -1176,7 +1176,7 @@ function settings_content(App $a) {
 	}
 
 	$opt_tpl = get_markup_template("field_yesno.tpl");
-	if(get_config('system','publish_all')) {
+	if (get_config('system','publish_all')) {
 		$profile_in_dir = '<input type="hidden" name="profile_in_directory" value="1" />';
 	} else {
 		$profile_in_dir = replace_macros($opt_tpl,array(

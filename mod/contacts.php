@@ -14,7 +14,7 @@ function contacts_init(App $a) {
 
 	$contact_id = 0;
 
-	if((($a->argc == 2) && intval($a->argv[1])) OR (($a->argc == 3) && intval($a->argv[1]) && ($a->argv[2] == "posts"))) {
+	if ((($a->argc == 2) && intval($a->argv[1])) OR (($a->argc == 3) && intval($a->argv[1]) && ($a->argv[2] == "posts"))) {
 		$contact_id = intval($a->argv[1]);
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d and `id` = %d LIMIT 1",
 			intval(local_user()),
@@ -107,7 +107,7 @@ function contacts_batch_actions(App $a) {
 	);
 
 	$count_actions=0;
-	foreach($orig_records as $orig_record) {
+	foreach ($orig_records as $orig_record) {
 		$contact_id = $orig_record['id'];
 		if (x($_POST, 'contacts_batch_update')) {
 			_contact_update($contact_id);
@@ -281,7 +281,7 @@ function _contact_update_profile($contact_id) {
 			$update["subhub"] = true;
 	}
 
-	foreach($updatefields AS $field)
+	foreach ($updatefields AS $field)
 		if (isset($data[$field]) AND ($data[$field] != ""))
 			$update[$field] = $data[$field];
 
@@ -292,7 +292,7 @@ function _contact_update_profile($contact_id) {
 	if (isset($data["priority"]) AND ($data["priority"] != 0))
 		$query = "`priority` = ".intval($data["priority"]);
 
-	foreach($update AS $key => $value) {
+	foreach ($update AS $key => $value) {
 		if ($query != "")
 			$query .= ", ";
 
@@ -365,10 +365,10 @@ function contacts_content(App $a) {
 		return;
 	}
 
-	if($a->argc == 3) {
+	if ($a->argc == 3) {
 
 		$contact_id = intval($a->argv[1]);
-		if(! $contact_id)
+		if (! $contact_id)
 			return;
 
 		$cmd = $a->argv[2];
@@ -378,25 +378,25 @@ function contacts_content(App $a) {
 			intval(local_user())
 		);
 
-		if(! count($orig_record)) {
+		if (! count($orig_record)) {
 			notice( t('Could not access contact record.') . EOL);
 			goaway('contacts');
 			return; // NOTREACHED
 		}
 
-		if($cmd === 'update') {
+		if ($cmd === 'update') {
 			_contact_update($contact_id);
 			goaway('contacts/' . $contact_id);
 			// NOTREACHED
 		}
 
-		if($cmd === 'updateprofile') {
+		if ($cmd === 'updateprofile') {
 			_contact_update_profile($contact_id);
 			goaway('crepair/' . $contact_id);
 			// NOTREACHED
 		}
 
-		if($cmd === 'block') {
+		if ($cmd === 'block') {
 			$r = _contact_block($contact_id, $orig_record[0]);
 			if ($r) {
 				$blocked = (($orig_record[0]['blocked']) ? 0 : 1);
@@ -407,7 +407,7 @@ function contacts_content(App $a) {
 			return; // NOTREACHED
 		}
 
-		if($cmd === 'ignore') {
+		if ($cmd === 'ignore') {
 			$r = _contact_ignore($contact_id, $orig_record[0]);
 			if ($r) {
 				$readonly = (($orig_record[0]['readonly']) ? 0 : 1);
@@ -419,7 +419,7 @@ function contacts_content(App $a) {
 		}
 
 
-		if($cmd === 'archive') {
+		if ($cmd === 'archive') {
 			$r = _contact_archive($contact_id, $orig_record[0]);
 			if ($r) {
 				$archived = (($orig_record[0]['archive']) ? 0 : 1);
@@ -430,16 +430,16 @@ function contacts_content(App $a) {
 			return; // NOTREACHED
 		}
 
-		if($cmd === 'drop') {
+		if ($cmd === 'drop') {
 
 			// Check if we should do HTML-based delete confirmation
-			if($_REQUEST['confirm']) {
+			if ($_REQUEST['confirm']) {
 				// <form> can't take arguments in its "action" parameter
 				// so add any arguments as hidden inputs
 				$query = explode_querystring($a->query_string);
 				$inputs = array();
-				foreach($query['args'] as $arg) {
-					if(strpos($arg, 'confirm=') === false) {
+				foreach ($query['args'] as $arg) {
+					if (strpos($arg, 'confirm=') === false) {
 						$arg_parts = explode('=', $arg);
 						$inputs[] = array('name' => $arg_parts[0], 'value' => $arg_parts[1]);
 					}
@@ -488,7 +488,7 @@ function contacts_content(App $a) {
 
 	$_SESSION['return_url'] = $a->query_string;
 
-	if((x($a->data,'contact')) && (is_array($a->data['contact']))) {
+	if ((x($a->data,'contact')) && (is_array($a->data['contact']))) {
 
 		$contact_id = $a->data['contact']['id'];
 		$contact = $a->data['contact'];
@@ -522,12 +522,12 @@ function contacts_content(App $a) {
 				break;
 		}
 
-		if(!in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
+		if (!in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
 				$relation_text = "";
 
 		$relation_text = sprintf($relation_text,htmlentities($contact['name']));
 
-		if(($contact['network'] === NETWORK_DFRN) && ($contact['rel'])) {
+		if (($contact['network'] === NETWORK_DFRN) && ($contact['rel'])) {
 			$url = "redir/{$contact['id']}";
 			$sparkle = ' class="sparkle" ';
 		}
@@ -542,7 +542,7 @@ function contacts_content(App $a) {
 				? t('Never')
 				: datetime_convert('UTC',date_default_timezone_get(),$contact['last-update'],'D, j M Y, g:i A'));
 
-		if($contact['last-update'] !== '0000-00-00 00:00:00')
+		if ($contact['last-update'] !== '0000-00-00 00:00:00')
 			$last_update .= ' ' . (($contact['last-update'] <= $contact['success_update']) ? t("\x28Update was successful\x29") : t("\x28Update was not successful\x29"));
 
 		$lblsuggest = (($contact['network'] === NETWORK_DFRN) ? t('Suggest friends') : '');
@@ -665,23 +665,23 @@ function contacts_content(App $a) {
 	$ignored = false;
 	$all = false;
 
-	if(($a->argc == 2) && ($a->argv[1] === 'all')) {
+	if (($a->argc == 2) && ($a->argv[1] === 'all')) {
 		$sql_extra = '';
 		$all = true;
 	}
-	elseif(($a->argc == 2) && ($a->argv[1] === 'blocked')) {
+	elseif (($a->argc == 2) && ($a->argv[1] === 'blocked')) {
 		$sql_extra = " AND `blocked` = 1 ";
 		$blocked = true;
 	}
-	elseif(($a->argc == 2) && ($a->argv[1] === 'hidden')) {
+	elseif (($a->argc == 2) && ($a->argv[1] === 'hidden')) {
 		$sql_extra = " AND `hidden` = 1 ";
 		$hidden = true;
 	}
-	elseif(($a->argc == 2) && ($a->argv[1] === 'ignored')) {
+	elseif (($a->argc == 2) && ($a->argv[1] === 'ignored')) {
 		$sql_extra = " AND `readonly` = 1 ";
 		$ignored = true;
 	}
-	elseif(($a->argc == 2) && ($a->argv[1] === 'archived')) {
+	elseif (($a->argc == 2) && ($a->argv[1] === 'archived')) {
 		$sql_extra = " AND `archive` = 1 ";
 		$archived = true;
 	}
@@ -761,14 +761,14 @@ function contacts_content(App $a) {
 
 
 	$searching = false;
-	if($search) {
+	if ($search) {
 		$search_hdr = $search;
 		$search_txt = dbesc(protect_sprintf(preg_quote($search)));
 		$searching = true;
 	}
 	$sql_extra .= (($searching) ? " AND (name REGEXP '$search_txt' OR url REGEXP '$search_txt'  OR nick REGEXP '$search_txt') " : "");
 
-	if($nets)
+	if ($nets)
 		$sql_extra .= sprintf(" AND network = '%s' ", dbesc($nets));
 
 	$sql_extra2 = ((($sort_type > 0) && ($sort_type <= CONTACT_IS_FRIEND)) ? sprintf(" AND `rel` = %d ",intval($sort_type)) : '');
@@ -929,7 +929,7 @@ function _contact_detail_for_template($rr){
 		default:
 			break;
 	}
-	if(($rr['network'] === NETWORK_DFRN) && ($rr['rel'])) {
+	if (($rr['network'] === NETWORK_DFRN) && ($rr['rel'])) {
 		$url = "redir/{$rr['id']}";
 		$sparkle = ' class="sparkle" ';
 	}
@@ -971,7 +971,7 @@ function contact_actions($contact) {
 	$contact_action = array();
 
 	// Provide friend suggestion only for Friendica contacts
-	if($contact['network'] === NETWORK_DFRN) {
+	if ($contact['network'] === NETWORK_DFRN) {
 		$contact_actions['suggest'] = array(
 							'label' => t('Suggest friends'),
 							'url'	=> 'fsuggest/' . $contact['id'],
@@ -981,7 +981,7 @@ function contact_actions($contact) {
 					);
 	}
 
-	if($poll_enabled) {
+	if ($poll_enabled) {
 		$contact_actions['update'] = array(
 							'label'	=> t('Update now'),
 							'url'	=> 'contacts/' . $contact['id'] . '/update',

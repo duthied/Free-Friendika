@@ -9,7 +9,7 @@ function crepair_init(App $a) {
 
 	$contact_id = 0;
 
-	if(($a->argc == 2) && intval($a->argv[1])) {
+	if (($a->argc == 2) && intval($a->argv[1])) {
 		$contact_id = intval($a->argv[1]);
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d and `id` = %d LIMIT 1",
 			intval(local_user()),
@@ -109,7 +109,7 @@ function crepair_content(App $a) {
 
 	$cid = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
-	if($cid) {
+	if ($cid) {
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($cid),
 			intval(local_user())

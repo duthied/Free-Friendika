@@ -10,7 +10,7 @@ function viewsrc_content(App $a) {
 
 	$item_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
-	if(! $item_id) {
+	if (! $item_id) {
 		$a->error = 404;
 		notice( t('Item not found.') . EOL);
 		return;
@@ -25,7 +25,7 @@ function viewsrc_content(App $a) {
 	);
 
 	if (dbm::is_result($r))
-		if(is_ajax()) {
+		if (is_ajax()) {
 			echo str_replace("\n",'<br />',$r[0]['body']);
 			killme();
 		} else {

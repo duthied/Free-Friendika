@@ -10,12 +10,14 @@ function qsearch_init(App $a) {
 
 	$search = ((x($_GET,'s')) ? notags(trim(urldecode($_GET['s']))) : '');
 
-	if(! strlen($search))
+	if (! strlen($search)) {
 		killme();
+	}
 
 
-	if($search)
+	if ($search) {
 		$search = dbesc($search);
+	}
 
 	$results = array();
 
@@ -25,9 +27,9 @@ function qsearch_init(App $a) {
 	);
 
 	if (dbm::is_result($r)) {
-
-		foreach($r as $rr)
+		foreach ($r as $rr) {
 			$results[] = array( 0, (int) $rr['id'], $rr['name'], '', '');
+		}
 	}
 
 	$sql_extra = ((strlen($search)) ? " AND (`name` REGEXP '$search' OR `nick` REGEXP '$search') " : "");
@@ -40,9 +42,9 @@ function qsearch_init(App $a) {
 
 
 	if (dbm::is_result($r)) {
-
-		foreach($r as $rr)
+		foreach ($r as $rr) {
 			$results[] = array( (int) $rr['id'], 0, $rr['name'],$rr['url'],$rr['photo']);
+		}
 	}
 
 	echo json_encode((object) $results);

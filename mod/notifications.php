@@ -17,10 +17,10 @@ function notifications_post(App $a) {
 
 	$request_id = (($a->argc > 1) ? $a->argv[1] : 0);
 
-	if($request_id === "all")
+	if ($request_id === "all")
 		return;
 
-	if($request_id) {
+	if ($request_id) {
 
 		$r = q("SELECT * FROM `intro` WHERE `id` = %d  AND `uid` = %d LIMIT 1",
 			intval($request_id),
@@ -41,11 +41,11 @@ function notifications_post(App $a) {
 
 		$fid = $r[0]['fid'];
 
-		if($_POST['submit'] == t('Discard')) {
+		if ($_POST['submit'] == t('Discard')) {
 			$r = q("DELETE FROM `intro` WHERE `id` = %d",
 				intval($intro_id)
 			);
-			if(! $fid) {
+			if (! $fid) {
 
 				// The check for blocked and pending is in case the friendship was already approved
 				// and we just want to get rid of the now pointless notification
@@ -57,7 +57,7 @@ function notifications_post(App $a) {
 			}
 			goaway('notifications/intros');
 		}
-		if($_POST['submit'] == t('Ignore')) {
+		if ($_POST['submit'] == t('Ignore')) {
 			$r = q("UPDATE `intro` SET `ignore` = 1 WHERE `id` = %d",
 				intval($intro_id));
 			goaway('notifications/intros');
@@ -91,7 +91,7 @@ function notifications_content(App $a) {
 	$startrec = ($page * $perpage) - $perpage;
 
 	// Get introductions
-	if( (($a->argc > 1) && ($a->argv[1] == 'intros')) || (($a->argc == 1))) {
+	if ( (($a->argc > 1) && ($a->argv[1] == 'intros')) || (($a->argc == 1))) {
 		nav_set_selected('introductions');
 		$notif_header = t('Notifications');
 
@@ -135,13 +135,13 @@ function notifications_content(App $a) {
 	$notifs['page'] = $a->pager['page'];
 
 	// Json output
-	if(intval($json) === 1)
+	if (intval($json) === 1)
 		json_return_and_die($notifs);
 
 	$notif_tpl = get_markup_template('notifications.tpl');
 
 	// Process the data for template creation
-	if($notifs['ident'] === 'introductions') {
+	if ($notifs['ident'] === 'introductions') {
 
 		$sugg = get_markup_template('suggestions.tpl');
 		$tpl = get_markup_template("intros.tpl");
@@ -190,8 +190,8 @@ function notifications_content(App $a) {
 					$knowyou   = '';
 					$dfrn_text = '';
 
-					if($it['network'] === NETWORK_DFRN || $it['network'] === NETWORK_DIASPORA) {
-						if($it['network'] === NETWORK_DFRN) {
+					if ($it['network'] === NETWORK_DFRN || $it['network'] === NETWORK_DIASPORA) {
+						if ($it['network'] === NETWORK_DFRN) {
 							$lbl_knowyou = t('Claims to be known to you: ');
 							$knowyou = (($it['knowyou']) ? t('yes') : t('no'));
 							$helptext = t('Shall your connection be bidirectional or not?');
@@ -262,7 +262,7 @@ function notifications_content(App $a) {
 			}
 		}
 
-		if($notifs['total'] == 0)
+		if ($notifs['total'] == 0)
 			info( t('No introductions.') . EOL);
 
 	// Normal notifications (no introductions)
@@ -301,7 +301,7 @@ function notifications_content(App $a) {
 
 		// It doesn't make sense to show the Show unread / Show all link visible if the user is on the
 		// "Show all" page and there are no notifications. So we will hide it.
-		if($show == 0 || intval($show) && $notifs['total'] > 0) {
+		if ($show == 0 || intval($show) && $notifs['total'] > 0) {
 			$notif_show_lnk = array(
 				'href' => ($show ? 'notifications/'.$notifs['ident'] : 'notifications/'.$notifs['ident'].'?show=all' ),
 				'text' => ($show ? t('Show unread') : t('Show all')),
@@ -309,8 +309,9 @@ function notifications_content(App $a) {
 		}
 
 		// Output if there aren't any notifications available
-		if($notifs['total'] == 0)
+		if ($notifs['total'] == 0) {
 			$notif_nocontent = sprintf( t('No more %s notifications.'), $notifs['ident']);
+		}
 	}
 
 	$o .= replace_macros($notif_tpl, array(

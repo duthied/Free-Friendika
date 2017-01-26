@@ -105,9 +105,9 @@ function events_post(App $a) {
 		goaway($onerror_url);
 	}
 
-	if((! $summary) || (! $start)) {
+	if ((! $summary) || (! $start)) {
 		notice( t('Event title and start time are required.') . EOL);
-		if(intval($_REQUEST['preview'])) {
+		if (intval($_REQUEST['preview'])) {
 			echo( t('Event title and start time are required.'));
 			killme();
 		}
@@ -119,27 +119,27 @@ function events_post(App $a) {
 	$c = q("select id from contact where uid = %d and self = 1 limit 1",
 		intval(local_user())
 	);
-	if(count($c))
+	if (count($c))
 		$self = $c[0]['id'];
 	else
 		$self = 0;
 
 
-	if($share) {
+	if ($share) {
 		$str_group_allow   = perms2str($_POST['group_allow']);
 		$str_contact_allow = perms2str($_POST['contact_allow']);
 		$str_group_deny    = perms2str($_POST['group_deny']);
 		$str_contact_deny  = perms2str($_POST['contact_deny']);
 
 		// Undo the pseudo-contact of self, since there are real contacts now
-		if( strpos($str_contact_allow, '<' . $self . '>') !== false )
+		if ( strpos($str_contact_allow, '<' . $self . '>') !== false )
 		{
 			$str_contact_allow = str_replace('<' . $self . '>', '', $str_contact_allow);
 		}
 		// Make sure to set the `private` field as true. This is necessary to
 		// have the posts show up correctly in Diaspora if an event is created
 		// as visible only to self at first, but then edited to display to others.
-		if( strlen($str_group_allow) or strlen($str_contact_allow) or strlen($str_group_deny) or strlen($str_contact_deny) )
+		if ( strlen($str_group_allow) or strlen($str_contact_allow) or strlen($str_group_deny) or strlen($str_contact_deny) )
 		{
 			$private_event = true;
 		}
@@ -173,7 +173,7 @@ function events_post(App $a) {
 	$datarray['created'] = $created;
 	$datarray['edited'] = $edited;
 
-	if(intval($_REQUEST['preview'])) {
+	if (intval($_REQUEST['preview'])) {
 		$html = format_event_html($datarray);
 		echo $html;
 			killme();
@@ -181,7 +181,7 @@ function events_post(App $a) {
 
 	$item_id = event_store($datarray);
 
-	if(! $cid)
+	if (! $cid)
 		proc_run(PRIORITY_HIGH, "include/notifier.php", "event", $item_id);
 
 	goaway($_SESSION['return_url']);
@@ -248,7 +248,7 @@ function events_content(App $a) {
 	$m = 0;
 	$ignored = ((x($_REQUEST,'ignored')) ? intval($_REQUEST['ignored']) : 0);
 
-	if($a->argc > 1) {
+	if ($a->argc > 1) {
 		if ($a->argc > 2 && $a->argv[1] == 'event') {
 			$mode = 'edit';
 			$event_id = intval($a->argv[2]);
@@ -289,13 +289,13 @@ function events_content(App $a) {
 
 		$nextyear = $y;
 		$nextmonth = $m + 1;
-		if($nextmonth > 12) {
+		if ($nextmonth > 12) {
 				$nextmonth = 1;
 			$nextyear ++;
 		}
 
 		$prevyear = $y;
-		if($m > 1)
+		if ($m > 1)
 			$prevmonth = $m - 1;
 		else {
 			$prevmonth = 12;
@@ -371,9 +371,9 @@ function events_content(App $a) {
 		}
 
 		// Get rid of dashes in key names, Smarty3 can't handle them
-		foreach($events as $key => $event) {
+		foreach ($events as $key => $event) {
 			$event_item = array();
-			foreach($event['item'] as $k => $v) {
+			foreach ($event['item'] as $k => $v) {
 				$k = str_replace('-','_',$k);
 				$event_item[$k] = $v;
 			}
@@ -405,7 +405,7 @@ function events_content(App $a) {
 
 	}
 
-	if($mode === 'edit' && $event_id) {
+	if ($mode === 'edit' && $event_id) {
 		$r = q("SELECT * FROM `event` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($event_id),
 			intval(local_user())
@@ -415,19 +415,19 @@ function events_content(App $a) {
 	}
 
 	// Passed parameters overrides anything found in the DB
-	if($mode === 'edit' || $mode === 'new') {
-		if(!x($orig_event)) $orig_event = array();
+	if ($mode === 'edit' || $mode === 'new') {
+		if (!x($orig_event)) $orig_event = array();
 		// In case of an error the browser is redirected back here, with these parameters filled in with the previous values
-		if(x($_REQUEST,'nofinish')) $orig_event['nofinish'] = $_REQUEST['nofinish'];
-		if(x($_REQUEST,'adjust')) $orig_event['adjust'] = $_REQUEST['adjust'];
-		if(x($_REQUEST,'summary')) $orig_event['summary'] = $_REQUEST['summary'];
-		if(x($_REQUEST,'description')) $orig_event['description'] = $_REQUEST['description'];
-		if(x($_REQUEST,'location')) $orig_event['location'] = $_REQUEST['location'];
-		if(x($_REQUEST,'start')) $orig_event['start'] = $_REQUEST['start'];
-		if(x($_REQUEST,'finish')) $orig_event['finish'] = $_REQUEST['finish'];
+		if (x($_REQUEST,'nofinish')) $orig_event['nofinish'] = $_REQUEST['nofinish'];
+		if (x($_REQUEST,'adjust')) $orig_event['adjust'] = $_REQUEST['adjust'];
+		if (x($_REQUEST,'summary')) $orig_event['summary'] = $_REQUEST['summary'];
+		if (x($_REQUEST,'description')) $orig_event['description'] = $_REQUEST['description'];
+		if (x($_REQUEST,'location')) $orig_event['location'] = $_REQUEST['location'];
+		if (x($_REQUEST,'start')) $orig_event['start'] = $_REQUEST['start'];
+		if (x($_REQUEST,'finish')) $orig_event['finish'] = $_REQUEST['finish'];
 	}
 
-	if($mode === 'edit' || $mode === 'new') {
+	if ($mode === 'edit' || $mode === 'new') {
 
 		$n_checked = ((x($orig_event) && $orig_event['nofinish']) ? ' checked="checked" ' : '');
 		$a_checked = ((x($orig_event) && $orig_event['adjust']) ? ' checked="checked" ' : '');
@@ -439,21 +439,24 @@ function events_content(App $a) {
 		$uri = ((x($orig_event)) ? $orig_event['uri'] : '');
 
 
-		if(! x($orig_event))
+		if (! x($orig_event)) {
 			$sh_checked = '';
-		else
+		} else {
 			$sh_checked = (($orig_event['allow_cid'] === '<' . local_user() . '>' && (! $orig_event['allow_gid']) && (! $orig_event['deny_cid']) && (! $orig_event['deny_gid'])) ? '' : ' checked="checked" ' );
+		}
 
-		if($cid OR ($mode !== 'new'))
+		if ($cid OR ($mode !== 'new')) {
 			$sh_checked .= ' disabled="disabled" ';
+		}
 
 
 		$sdt = ((x($orig_event)) ? $orig_event['start'] : 'now');
 		$fdt = ((x($orig_event)) ? $orig_event['finish'] : 'now');
 
 		$tz = date_default_timezone_get();
-		if(x($orig_event))
+		if (x($orig_event)) {
 			$tz = (($orig_event['adjust']) ? date_default_timezone_get() : 'UTC');
+		}
 
 		$syear = datetime_convert('UTC', $tz, $sdt, 'Y');
 		$smonth = datetime_convert('UTC', $tz, $sdt, 'm');
@@ -470,8 +473,9 @@ function events_content(App $a) {
 		$fminute = ((x($orig_event)) ? datetime_convert('UTC', $tz, $fdt, 'i') : 0);
 
 		$f = get_config('system','event_input_format');
-		if(! $f)
+		if (! $f) {
 			$f = 'ymd';
+		}
 
 		require_once('include/acl_selectors.php');
 

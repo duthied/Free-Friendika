@@ -51,7 +51,7 @@ function editpost_content(App $a) {
 
 	$tpl = get_markup_template("jot.tpl");
 
-	if(($group) || (is_array($a->user) && ((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) || (strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid'])))))
+	if (($group) || (is_array($a->user) && ((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) || (strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid'])))))
 		$lockstate = 'lock';
 	else
 		$lockstate = 'unlock';
@@ -64,13 +64,13 @@ function editpost_content(App $a) {
 	$mail_enabled = false;
 	$pubmail_enabled = false;
 
-	if(! $mail_disabled) {
+	if (! $mail_disabled) {
 		$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
 			intval(local_user())
 		);
 		if (dbm::is_result($r)) {
 			$mail_enabled = true;
-			if(intval($r[0]['pubmail']))
+			if (intval($r[0]['pubmail']))
 				$pubmail_enabled = true;
 		}
 	}
@@ -78,7 +78,7 @@ function editpost_content(App $a) {
 	// I don't think there's any need for the $jotnets when editing the post,
 	// and including them makes it difficult for the JS-free theme, so let's
 	// disable them
-/*	if($mail_enabled) {
+/*	if ($mail_enabled) {
        $selected = (($pubmail_enabled) ? ' checked="checked" ' : '');
 		$jotnets .= '<div class="profile-jot-net"><input type="checkbox" name="pubmail_enable"' . $selected . ' value="1" /> '
           	. t("Post to Email") . '</div>';

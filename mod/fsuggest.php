@@ -29,7 +29,7 @@ function fsuggest_post(App $a) {
 
 	$note = escape_tags(trim($_POST['note']));
 
-	if($new_contact) {
+	if ($new_contact) {
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($new_contact),
 			intval(local_user())
@@ -80,8 +80,9 @@ function fsuggest_content(App $a) {
 		return;
 	}
 
-	if($a->argc != 2)
+	if ($a->argc != 2) {
 		return;
+	}
 
 	$contact_id = intval($a->argv[1]);
 

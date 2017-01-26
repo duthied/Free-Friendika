@@ -8,7 +8,7 @@ function search_saved_searches() {
 
 	$o = '';
 
-	if(! feature_enabled(local_user(),'savedsearch'))
+	if (! feature_enabled(local_user(),'savedsearch'))
 		return $o;
 
 	$r = q("SELECT `id`,`term` FROM `search` WHERE `uid` = %d",
@@ -47,8 +47,8 @@ function search_init(App $a) {
 
 	$search = ((x($_GET,'search')) ? notags(trim(rawurldecode($_GET['search']))) : '');
 
-	if(local_user()) {
-		if(x($_GET,'save') && $search) {
+	if (local_user()) {
+		if (x($_GET,'save') && $search) {
 			$r = q("SELECT * FROM `search` WHERE `uid` = %d AND `term` = '%s' LIMIT 1",
 				intval(local_user()),
 				dbesc($search)
@@ -60,7 +60,7 @@ function search_init(App $a) {
 				);
 			}
 		}
-		if(x($_GET,'remove') && $search) {
+		if (x($_GET,'remove') && $search) {
 			q("DELETE FROM `search` WHERE `uid` = %d AND `term` = '%s' LIMIT 1",
 				intval(local_user()),
 				dbesc($search)
@@ -82,19 +82,19 @@ function search_init(App $a) {
 
 
 function search_post(App $a) {
-	if(x($_POST,'search'))
+	if (x($_POST,'search'))
 		$a->data['search'] = $_POST['search'];
 }
 
 
 function search_content(App $a) {
 
-	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if ((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
 		notice( t('Public access denied.') . EOL);
 		return;
 	}
 
-	if(get_config('system','local_search') AND !local_user()) {
+	if (get_config('system','local_search') AND !local_user()) {
 		http_status_exit(403,
 				array("title" => t("Public access denied."),
 					"description" => t("Only logged in users are permitted to perform a search.")));
@@ -132,13 +132,13 @@ function search_content(App $a) {
 
 	nav_set_selected('search');
 
-	if(x($a->data,'search'))
+	if (x($a->data,'search'))
 		$search = notags(trim($a->data['search']));
 	else
 		$search = ((x($_GET,'search')) ? notags(trim(rawurldecode($_GET['search']))) : '');
 
 	$tag = false;
-	if(x($_GET,'tag')) {
+	if (x($_GET,'tag')) {
 		$tag = true;
 		$search = ((x($_GET,'tag')) ? notags(trim(rawurldecode($_GET['tag']))) : '');
 	}
@@ -151,18 +151,18 @@ function search_content(App $a) {
 		'$content' => search($search,'search-box','search',((local_user()) ? true : false), false)
 	));
 
-	if(strpos($search,'#') === 0) {
+	if (strpos($search,'#') === 0) {
 		$tag = true;
 		$search = substr($search,1);
 	}
-	if(strpos($search,'@') === 0) {
+	if (strpos($search,'@') === 0) {
 		return dirfind_content($a);
 	}
-	if(strpos($search,'!') === 0) {
+	if (strpos($search,'!') === 0) {
 		return dirfind_content($a);
 	}
 
-	if(x($_GET,'search-option'))
+	if (x($_GET,'search-option'))
 		switch($_GET['search-option']) {
 			case 'fulltext':
 				break;
@@ -177,7 +177,7 @@ function search_content(App $a) {
 				break;
 		}
 
-	if(! $search)
+	if (! $search)
 		return $o;
 
 	if (get_config('system','only_tag_search'))
@@ -188,7 +188,7 @@ function search_content(App $a) {
 	// OR your own posts if you are a logged in member
 	// No items will be shown if the member has a blocked profile wall.
 
-	if($tag) {
+	if ($tag) {
 		logger("Start tag search for '".$search."'", LOGGER_DEBUG);
 
 		$r = q("SELECT %s
@@ -226,7 +226,7 @@ function search_content(App $a) {
 	}
 
 
-	if($tag)
+	if ($tag)
 		$title = sprintf( t('Items tagged with: %s'), $search);
 	else
 		$title = sprintf( t('Results for: %s'), $search);

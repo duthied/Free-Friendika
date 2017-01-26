@@ -37,8 +37,9 @@ function allfriends_content(App $a) {
 
 	$total = count_all_friends(local_user(), $cid);
 
-	if(count($total))
+	if (count($total)) {
 		$a->set_pager_total($total);
+	}
 
 	$r = all_friends(local_user(), $cid, $a->pager['start'], $a->pager['itemspage']);
 
