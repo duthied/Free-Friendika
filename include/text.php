@@ -421,8 +421,9 @@ function expand_acl($s) {
 		$t = str_replace('<','',$s);
 		$a = explode('>',$t);
 		foreach ($a as $aa) {
-			if (intval($aa))
+			if (intval($aa)) {
 				$ret[] = intval($aa);
+			}
 		}
 	}
 	return $ret;

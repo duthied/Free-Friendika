@@ -172,10 +172,11 @@ function categories_widget($baseurl,$selected = '') {
 
 	$matches = false;
 	$terms = array();
-        $cnt = preg_match_all('/<(.*?)>/',$saved,$matches,PREG_SET_ORDER);
-        if ($cnt) {
-                foreach ($matches as $mtch) {
-		        $unescaped = xmlify(file_tag_decode($mtch[1]));
+	$cnt = preg_match_all('/<(.*?)>/',$saved,$matches,PREG_SET_ORDER);
+
+	if ($cnt) {
+		foreach ($matches as $mtch) {
+			$unescaped = xmlify(file_tag_decode($mtch[1]));
 			$terms[] = array('name' => $unescaped,'selected' => (($selected == $unescaped) ? 'selected' : ''));
 		}
 	}

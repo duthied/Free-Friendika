@@ -1138,7 +1138,7 @@ class ostatus {
 				continue;
 			}
 
-			/// @TODO One statment is okay (until if() )
+			/// @TODO One statment is okay (until if () )
 			$arr = array();
 			$arr["network"] = $details["network"];
 			$arr["uri"] = $single_conv->id;
