@@ -1919,8 +1919,15 @@ function file_tag_save_file($uid, $item, $file)
 	return true;
 }
 
+<<<<<<< HEAD
 function file_tag_unsave_file($uid, $item, $file, $cat = false)
 {
+=======
+function file_tag_unsave_file($uid, $item, $file, $cat = false) {
+	require_once "include/files.php";
+
+	$result = false;
+>>>>>>> more spaces + some curly spaces added
 	if (! intval($uid)) {
 		return false;
 	}
