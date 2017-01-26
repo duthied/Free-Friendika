@@ -452,7 +452,7 @@ function perms2str($p) {
 	if (is_array($p)) {
 		$tmp = $p;
 	} else {
-		$tmp = explode(',',$p);
+		$tmp = explode(',', $p);
 	}
 
 	if (is_array($tmp)) {
