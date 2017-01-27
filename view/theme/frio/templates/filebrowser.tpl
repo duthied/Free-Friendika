@@ -1,18 +1,16 @@
 	<!--
-		This is the template used by mod/fbrowser.php when is called from plain text editor.
-		See also 'filebrowser.tpl'
+		This is the template used by mod/fbrowser.php
 	-->
 <style>
 	#buglink_wrapper{display:none;} /* hide buglink. only in this page */
 </style>
-<script type="text/javascript" src="{{$baseurl}}/js/ajaxupload.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/js/filebrowser.js"></script>
-<script>
-	$(function() {
-		FileBrowser.init("{{$nickname}}", "{{$type}}");
-	});
-</script>
+{{*<script type="text/javascript" src="{{$baseurl}}/js/ajaxupload.js" ></script>*}}
+{{*<script type="text/javascript" src="view/theme/frio/js/filebrowser.js"></script>*}}
+
 <div class="fbrowser {{$type}}">
+	<input id="fb-nickname" type="hidden" name="type" value="{{$nickname}}" />
+	<input id="fb-type" type="hidden" name="type" value="{{$type}}" />
+
 	<div class="error hidden">
 		<span></span> <a href="#" class='close'>X</a>
 	</div>
@@ -45,7 +43,8 @@
 	</div>
 </div>
 
+<script>
+    $(document).ready(function(){
 
-	</body>
-
-</html>
+	});
+</script>
