@@ -52,17 +52,6 @@ function message_post(App $a) {
 	$body      = ((x($_REQUEST,'body'))      ? escape_tags(trim($_REQUEST['body'])) : '');
 	$recipient = ((x($_REQUEST,'messageto')) ? intval($_REQUEST['messageto'])       : 0 );
 
-	// Work around doubled linefeeds in Tinymce 3.5b2
-
-/*	$plaintext = intval(get_pconfig(local_user(),'system','plaintext') && !feature_enabled(local_user(),'richtext'));
-	if(! $plaintext) {
-		$body = fix_mce_lf($body);
-	}*/
-	$plaintext = intval(!feature_enabled(local_user(),'richtext'));
-	if(! $plaintext) {
-		$body = fix_mce_lf($body);
-	}
-
 	$ret = send_message($recipient, $body, $subject, $replyto);
 	$norecip = false;
 

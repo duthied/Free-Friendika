@@ -30,7 +30,7 @@ $(document).ready(function() {
 	if(typeof window.AjaxUpload != "undefined") {
 		var uploader = new window.AjaxUpload(
 			window.imageUploadButton,
-			{ action: 'wall_upload/'+window.nickname+'?nomce=1',
+			{ action: 'wall_upload/' + window.nickname,
 				name: 'userfile',
 				onSubmit: function(file,ext) { $('#profile-rotator').show(); },
 				onComplete: function(file,response) {
@@ -43,7 +43,7 @@ $(document).ready(function() {
 		if($('#wall-file-upload').length) {
 			var file_uploader = new window.AjaxUpload(
 				'wall-file-upload',
-				{ action: 'wall_attach/'+window.nickname+'?nomce=1',
+				{ action: 'wall_attach/' + window.nickname,
 					name: 'userfile',
 					onSubmit: function(file,ext) { $('#profile-rotator').show(); },
 					onComplete: function(file,response) {

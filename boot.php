@@ -530,7 +530,6 @@ class App {
 	public	$videoheight = 350;
 	public	$force_max_items = 0;
 	public	$theme_thread_allow = true;
-	public	$theme_richtext_editor = true;
 	public	$theme_events_in_profile = true;
 
 	/**

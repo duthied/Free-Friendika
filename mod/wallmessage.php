@@ -43,12 +43,6 @@ function wallmessage_post(App $a) {
 		return;
 	}
 
-	// Work around doubled linefeeds in Tinymce 3.5b2
-
-	$body = str_replace("\r\n","\n",$body);
-	$body = str_replace("\n\n","\n",$body);
-
-
 	$ret = send_wallmessage($user, $body, $subject, $replyto);
 
 	switch($ret){
