@@ -275,18 +275,9 @@ function message_content(App $a) {
 
 		$o .= $header;
 
-/*		$plaintext = false;
-		if(intval(get_pconfig(local_user(),'system','plaintext')))
-			$plaintext = true;*/
-		$plaintext = true;
-		if( local_user() && feature_enabled(local_user(),'richtext') )
-			$plaintext = false;
-
-
 		$tpl = get_markup_template('msg-header.tpl');
 		$a->page['htmlhead'] .= replace_macros($tpl, array(
 			'$baseurl' => App::get_baseurl(true),
-			'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => t('Please enter a link URL:')
 		));
@@ -294,7 +285,6 @@ function message_content(App $a) {
 		$tpl = get_markup_template('msg-end.tpl');
 		$a->page['end'] .= replace_macros($tpl, array(
 			'$baseurl' => App::get_baseurl(true),
-			'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => t('Please enter a link URL:')
 		));
@@ -397,10 +387,6 @@ function message_content(App $a) {
 
 		$o .= $header;
 
-		$plaintext = true;
-		if( local_user() && feature_enabled(local_user(),'richtext') )
-			$plaintext = false;
-
 		$r = q("SELECT `mail`.*, `contact`.`name`, `contact`.`url`, `contact`.`thumb`
 			FROM `mail` LEFT JOIN `contact` ON `mail`.`contact-id` = `contact`.`id`
 			WHERE `mail`.`uid` = %d AND `mail`.`id` = %d LIMIT 1",
@@ -439,7 +425,6 @@ function message_content(App $a) {
 		$tpl = get_markup_template('msg-header.tpl');
 		$a->page['htmlhead'] .= replace_macros($tpl, array(
 			'$baseurl' => App::get_baseurl(true),
-			'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => t('Please enter a link URL:')
 		));
@@ -447,11 +432,9 @@ function message_content(App $a) {
 		$tpl = get_markup_template('msg-end.tpl');
 		$a->page['end'] .= replace_macros($tpl, array(
 			'$baseurl' => App::get_baseurl(true),
-			'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => t('Please enter a link URL:')
 		));
-
 
 		$mails = array();
 		$seen = 0;

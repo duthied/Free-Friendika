@@ -489,17 +489,11 @@ function contacts_content(App $a) {
 		$contact_id = $a->data['contact']['id'];
 		$contact = $a->data['contact'];
 
-		$editselect = 'none';
-		if( feature_enabled(local_user(),'richtext') )
-			$editselect = 'exact';
-
 		$a->page['htmlhead'] .= replace_macros(get_markup_template('contact_head.tpl'), array(
 			'$baseurl' => App::get_baseurl(true),
-			'$editselect' => $editselect,
 		));
 		$a->page['end'] .= replace_macros(get_markup_template('contact_end.tpl'), array(
 			'$baseurl' => App::get_baseurl(true),
-			'$editselect' => $editselect,
 		));
 
 		require_once('include/contact_selectors.php');
