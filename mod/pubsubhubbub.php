@@ -32,7 +32,7 @@ function pubsubhubbub_init(App $a) {
 		// check for valid hub_mode
 		if ($hub_mode === 'subscribe') {
 			$subscribe = 1;
-		} else if ($hub_mode === 'unsubscribe') {
+		} elseif ($hub_mode === 'unsubscribe') {
 			$subscribe = 0;
 		} else {
 			logger("pubsubhubbub: invalid hub_mode=$hub_mode, ignoring.");

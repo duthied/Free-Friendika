@@ -100,25 +100,25 @@ function notifications_content(App $a) {
 		$notifs = $nm->introNotifs($all, $startrec, $perpage);
 
 	// Get the network notifications
-	} else if (($a->argc > 1) && ($a->argv[1] == 'network')) {
+	} elseif (($a->argc > 1) && ($a->argv[1] == 'network')) {
 
 		$notif_header = t('Network Notifications');
 		$notifs = $nm->networkNotifs($show, $startrec, $perpage);
 
 	// Get the system notifications
-	} else if (($a->argc > 1) && ($a->argv[1] == 'system')) {
+	} elseif (($a->argc > 1) && ($a->argv[1] == 'system')) {
 
 		$notif_header = t('System Notifications');
 		$notifs = $nm->systemNotifs($show, $startrec, $perpage);
 
 	// Get the personal notifications
-	} else if (($a->argc > 1) && ($a->argv[1] == 'personal')) {
+	} elseif (($a->argc > 1) && ($a->argv[1] == 'personal')) {
 
 		$notif_header = t('Personal Notifications');
 		$notifs = $nm->personalNotifs($show, $startrec, $perpage);
 
 	// Get the home notifications
-	} else if (($a->argc > 1) && ($a->argv[1] == 'home')) {
+	} elseif (($a->argc > 1) && ($a->argv[1] == 'home')) {
 
 		$notif_header = t('Home Notifications');
 		$notifs = $nm->homeNotifs($show, $startrec, $perpage);

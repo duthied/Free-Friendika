@@ -44,7 +44,7 @@ class PConfig {
 				$a->config[$uid][$family][$k] = $rr['v'];
 				self::$in_db[$uid][$family][$k] = true;
 			}
-		} else if ($family != 'config') {
+		} elseif ($family != 'config') {
 			// Negative caching
 			$a->config[$uid][$family] = "!<unset>!";
 		}

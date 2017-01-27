@@ -4,23 +4,30 @@ function duepuntozero_init(App $a) {
 
 set_template_engine($a, 'smarty3');
 
-    $colorset = get_pconfig( local_user(), 'duepuntozero','colorset');
-    if (!$colorset)
-       $colorset = get_config('duepuntozero', 'colorset');          // user setting have priority, then node settings
-    if ($colorset) {
-        if ($colorset == 'greenzero')
-            $a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/greenzero.css" type="text/css" media="screen" />'."\n";
-        if ($colorset == 'purplezero')
-            $a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/purplezero.css" type="text/css" media="screen" />'."\n";
-        if ($colorset == 'easterbunny')
-            $a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/easterbunny.css" type="text/css" media="screen" />'."\n";
-        if ($colorset == 'darkzero')
-            $a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/darkzero.css" type="text/css" media="screen" />'."\n";
-        if ($colorset == 'comix')
-            $a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/comix.css" type="text/css" media="screen" />'."\n";
-        if ($colorset == 'slackr')
-            $a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/slackr.css" type="text/css" media="screen" />'."\n";
-    }
+$colorset = get_pconfig( local_user(), 'duepuntozero','colorset');
+if (!$colorset) {
+	$colorset = get_config('duepuntozero', 'colorset');          // user setting have priority, then node settings
+}
+if ($colorset) {
+	if ($colorset == 'greenzero') {
+		$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/greenzero.css" type="text/css" media="screen" />'."\n";
+	}
+	if ($colorset == 'purplezero') {
+		$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/purplezero.css" type="text/css" media="screen" />'."\n";
+	}
+	if ($colorset == 'easterbunny') {
+		$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/easterbunny.css" type="text/css" media="screen" />'."\n";
+	}
+	if ($colorset == 'darkzero') {
+		$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/darkzero.css" type="text/css" media="screen" />'."\n";
+	}
+	if ($colorset == 'comix') {
+		$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/comix.css" type="text/css" media="screen" />'."\n";
+	}
+	if ($colorset == 'slackr') {
+		$a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/slackr.css" type="text/css" media="screen" />'."\n";
+	}
+}
 $a->page['htmlhead'] .= <<< EOT
 <script>
 function insertFormatting(BBcode, id) {
