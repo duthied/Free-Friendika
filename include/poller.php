@@ -166,6 +166,7 @@ function poller_execute($queue) {
  *
  * @param array $queue Workerqueue entry
  * @param string $funcname name of the function
+ * @param array $argv Array of values to be passed to the function
  */
 function poller_exec_function($queue, $funcname, $argv) {
 
