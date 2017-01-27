@@ -6,6 +6,7 @@
  * @brief Friendica admin
  */
 
+use \Friendica\Core\Config;
 
 require_once("include/enotify.php");
 require_once("include/text.php");
@@ -948,6 +949,16 @@ function admin_page_site(App $a) {
 
 	$diaspora_able = ($a->get_path() == "");
 
+	$optimize_max_tablesize = Config::get('system','optimize_max_tablesize', 100);
+
+	if ($optimize_max_tablesize < -1) {
+		$optimize_max_tablesize = -1;
+	}
+
+	if ($optimize_max_tablesize == 0) {
+		$optimize_max_tablesize = 100;
+	}
+
 	$t = get_markup_template("admin_site.tpl");
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
@@ -1019,7 +1030,7 @@ function admin_page_site(App $a) {
 		'$poll_interval'	=> array('poll_interval', t("Poll interval"), (x(get_config('system','poll_interval'))?get_config('system','poll_interval'):2), t("Delay background polling processes by this many seconds to reduce system load. If 0, use delivery interval.")),
 		'$maxloadavg'		=> array('maxloadavg', t("Maximum Load Average"), ((intval(get_config('system','maxloadavg')) > 0)?get_config('system','maxloadavg'):50), t("Maximum system load before delivery and poll processes are deferred - default 50.")),
 		'$maxloadavg_frontend'	=> array('maxloadavg_frontend', t("Maximum Load Average (Frontend)"), ((intval(get_config('system','maxloadavg_frontend')) > 0)?get_config('system','maxloadavg_frontend'):50), t("Maximum system load before the frontend quits service - default 50.")),
-		'$optimize_max_tablesize'=> array('optimize_max_tablesize', t("Maximum table size for optimization"), ((intval(get_config('system','optimize_max_tablesize')) > 0)?get_config('system','optimize_max_tablesize'):100), t("Maximum table size (in MB) for the automatic optimization - default 100 MB. Enter -1 to disable it.")),
+		'$optimize_max_tablesize'=> array('optimize_max_tablesize', t("Maximum table size for optimization"), $optimize_max_tablesize, t("Maximum table size (in MB) for the automatic optimization - default 100 MB. Enter -1 to disable it.")),
 		'$optimize_fragmentation'=> array('optimize_fragmentation', t("Minimum level of fragmentation"), ((intval(get_config('system','optimize_fragmentation')) > 0)?get_config('system','optimize_fragmentation'):30), t("Minimum fragmenation level to start the automatic optimization - default value is 30%.")),
 
 		'$poco_completion'	=> array('poco_completion', t("Periodical check of global contacts"), get_config('system','poco_completion'), t("If enabled, the global contacts are checked periodically for missing or outdated data and the vitality of the contacts and servers.")),

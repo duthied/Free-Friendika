@@ -762,24 +762,23 @@ function network_content(App $a, $update = 0) {
 // on they just get buried deeper. It has happened to me a couple of times also.
 
 
-	if((! $group) && (! $cid) && (! $star)) {
+	if (!$group && !$cid && !$star) {
 
-		$unseen = q("SELECT `id` FROM `item` WHERE `unseen` AND `uid` = %d",
+		$unseen = q("SELECT `id` FROM `item` WHERE `unseen` AND `uid` = %d LIMIT 1",
 				intval(local_user()));
 
-		if ($unseen)
+		if (dbm::is_result($unseen)) {
 			$r = q("UPDATE `item` SET `unseen` = 0
 				WHERE `unseen` = 1 AND `uid` = %d",
 				intval(local_user())
 			);
-	}
-	else {
-		if($update_unseen) {
+		}
+	} elseif ($update_unseen) {
 
-			$unseen = q("SELECT `id` FROM `item` ".$update_unseen);
+		$unseen = q("SELECT `id` FROM `item` ".$update_unseen. " LIMIT 1");
 
-			if ($unseen)
-				$r = q("UPDATE `item` SET `unseen` = 0 $update_unseen");
+		if (dbm::is_result($unseen)) {
+			$r = q("UPDATE `item` SET `unseen` = 0 $update_unseen");
 		}
 	}
 
@@ -790,10 +789,10 @@ function network_content(App $a, $update = 0) {
 
 	$o .= conversation($a,$items,$mode,$update);
 
-	if(!$update) {
-		if(get_pconfig(local_user(),'system','infinite_scroll')) {
+	if (!$update) {
+		if (get_pconfig(local_user(),'system','infinite_scroll')) {
 			$o .= scroll_loader();
-		} elseif(!get_config('system', 'old_pager')) {
+		} elseif (!get_config('system', 'old_pager')) {
 			$o .= alt_pager($a,count($items));
 		} else {
 			$o .= paginate($a);

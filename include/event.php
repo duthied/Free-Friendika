@@ -206,7 +206,7 @@ function bbtoevent($s) {
 }
 
 
-function sort_by_date(App $a) {
+function sort_by_date($a) {
 
 	usort($a,'ev_compare');
 	return $a;
@@ -510,7 +510,7 @@ function event_by_id($owner_uid = 0, $event_params, $sql_extra = '') {
 	// query for the event by event id
 	$r = q("SELECT `event`.*, `item`.`id` AS `itemid`,`item`.`plink`,
 			`item`.`author-name`, `item`.`author-avatar`, `item`.`author-link` FROM `event`
-		STRAIGHT_JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`
+		LEFT JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`
 		WHERE `event`.`uid` = %d AND `event`.`id` = %d $sql_extra",
 		intval($owner_uid),
 		intval($event_params["event_id"])
@@ -543,7 +543,7 @@ function events_by_date($owner_uid = 0, $event_params, $sql_extra = '') {
 	// query for the event by date
 	$r = q("SELECT `event`.*, `item`.`id` AS `itemid`,`item`.`plink`,
 				`item`.`author-name`, `item`.`author-avatar`, `item`.`author-link` FROM `event`
-			STRAIGHT_JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`
+			LEFT JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`
 			WHERE `event`.`uid` = %d AND event.ignore = %d
 			AND ((`adjust` = 0 AND (`finish` >= '%s' OR (nofinish AND start >= '%s')) AND `start` <= '%s')
 			OR  (`adjust` = 1 AND (`finish` >= '%s' OR (nofinish AND start >= '%s')) AND `start` <= '%s'))

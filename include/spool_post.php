@@ -3,6 +3,9 @@
  * @file include/spool_post.php
  * @brief Posts items that wer spooled because they couldn't be posted.
  */
+
+use \Friendica\Core\Config;
+
 require_once("boot.php");
 require_once("include/items.php");
 
@@ -20,8 +23,7 @@ function spool_post_run($argv, $argc) {
 		unset($db_host, $db_user, $db_pass, $db_data);
 	}
 
-	load_config('config');
-	load_config('system');
+	Config::load();
 
 	$path = get_spoolpath();
 
