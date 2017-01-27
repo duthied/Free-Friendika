@@ -12,12 +12,12 @@ $(document).ready(function() {
 		'#system-menu-list-closing': false
 	};
 
-/*    $.ajaxSetup({ 
-        cache: false 
+/*    $.ajaxSetup({
+        cache: false
     });*/
 
 
-	/* enable tinymce on focus and click */
+	/* enable editor on focus and click */
 	$("#profile-jot-text").focus(enableOnUser);
 	$("#profile-jot-text").click(enableOnUser);
 
@@ -72,7 +72,7 @@ $(document).ready(function() {
 
 	$('#id_share').change(function() {
 
-		if ($('#id_share').is(':checked')) { 
+		if ($('#id_share').is(':checked')) {
 			$('#acl-wrapper').show();
 		}
 		else {
@@ -103,7 +103,7 @@ $(document).ready(function() {
 				onComplete: function(file,response) {
 					addeditortext(window.jotId, response);
 					$('#profile-rotator').hide();
-				}				 
+				}
 			}
 		);
 
@@ -116,7 +116,7 @@ $(document).ready(function() {
 					onComplete: function(file,response) {
 						addeditortext(window.jotId, response);
 						$('#profile-rotator').hide();
-					}				 
+					}
 				}
 			);
 		}
@@ -139,7 +139,7 @@ $(document).ready(function() {
 				$('#jot-perms-icon').removeClass('unlock').addClass('lock');
 				$('#jot-public').hide();
 			});
-			if(selstr == null) { 
+			if(selstr == null) {
 				$('#jot-perms-icon').removeClass('lock').addClass('unlock');
 				$('#jot-public').show();
 			}
@@ -154,7 +154,7 @@ $(document).ready(function() {
 				left: 'prev,next today',
 				center: 'title',
 				right: 'month,agendaWeek,agendaDay'
-			},			
+			},
 			timeFormat: 'H(:mm)',
 			eventClick: function(calEvent, jsEvent, view) {
 				showEvent(calEvent.id);
@@ -164,7 +164,7 @@ $(document).ready(function() {
 					$('td.fc-day').dblclick(function() { window.location.href='/events/new?start='+$(this).data('date'); });
 				}
 			},
-			
+
 			eventRender: function(event, element, view) {
 				//console.log(view.name);
 				if (event.item['author-name']==null) return;
@@ -197,9 +197,9 @@ $(document).ready(function() {
 					break;
 				}
 			}
-			
+
 		});
-		
+
 		// center on date
 		var args=location.href.replace(baseurl,"").split("/");
 		if (args.length>=5 && window.eventModeParams == 2) {
@@ -211,7 +211,7 @@ $(document).ready(function() {
 		// show event popup
 		var hash = location.hash.split("-")
 		if (hash.length==2 && hash[0]=="#link") showEvent(hash[1]);
-	}	
+	}
 
 
 	switch(window.autocompleteType) {
@@ -300,7 +300,7 @@ $(function(){
 
 
 $(function(){
-	
+
 	$("#cnftheme").click(function(){
 		$.colorbox({
 			width: 800,
@@ -318,16 +318,16 @@ $(function(){
 						data[$(this).attr('name')] = $(this).children(":selected").val();
 					});
 					console.log(":)", url, data);
-				
+
 					$.post(url, data, function(data) {
 						if(timer) clearTimeout(timer);
 						NavUpdate();
 						$.colorbox.close();
 					})
-				
+
 					return false;
 				});
-			
+
 			}
 		});
 		return false;
@@ -359,7 +359,7 @@ function showEvent(eventid) {
 			$.colorbox({html:data});
 			$.colorbox.resize();
 		}
-	);			
+	);
 }
 
 function doEventPreview() {
@@ -423,7 +423,7 @@ function getPageContent(url) {
 
 	var pos = $('.main-container').position();
 
-	$('.main-container').css('margin-left', pos.left);	
+	$('.main-container').css('margin-left', pos.left);
 	$('.main-content-container').hide(0, function () {
 		$('.main-content-loading').show(0);
 	});
@@ -449,7 +449,7 @@ function showNavMenu(menuID) {
 	}
 	else {
 		window.navMenuTimeout[menuID + '-opening'] = true;
-		
+
 		window.navMenuTimeout[menuID + '-timeout'] = setTimeout( function () {
 			$(menuID).slideDown('fast').show();
 			window.navMenuTimeout[menuID + '-opening'] = false;
@@ -465,7 +465,7 @@ function hideNavMenu(menuID) {
 	}
 	else {
 		window.navMenuTimeout[menuID + '-closing'] = true;
-		
+
 		window.navMenuTimeout[menuID + '-timeout'] = setTimeout( function () {
 			$(menuID).slideUp('fast');
 			window.navMenuTimeout[menuID + '-closing'] = false;
@@ -476,254 +476,52 @@ function hideNavMenu(menuID) {
 
 
 /*
- * TinyMCE/Editor
+ * Editor
  */
-
-function InitMCEEditor(editorData) {
-	var tinyMCEInitConfig = {
-		theme : "advanced",
-		//mode : // SPECIFIC
-		//editor_selector: // SPECIFIC
-		//elements: // SPECIFIC
-		plugins : "bbcode,paste,autoresize,inlinepopups",
-		theme_advanced_buttons1 : "bold,italic,underline,undo,redo,link,unlink,image,forecolor,formatselect,code",
-		theme_advanced_buttons2 : "",
-		theme_advanced_buttons3 : "",
-		theme_advanced_toolbar_location : "top",
-		theme_advanced_toolbar_align : "center",
-		theme_advanced_blockformats : "blockquote,code",
-		gecko_spellcheck : true,
-		paste_text_sticky : true, // COUPLED WITH paste PLUGIN
-		entity_encoding : "raw",
-		add_unload_trigger : false,
-		remove_linebreaks : false,
-		//force_p_newlines : false,
-		//force_br_newlines : true,
-		forced_root_block : 'div',
-		//convert_urls: false, //SPECIFIC?
-		content_css: baseurl + "/view/custom_tinymce.css",
-		theme_advanced_path : false,
-		file_browser_callback : "fcFileBrowser",
-		//setup : // SPECIFIC
-	};
-
-	if(window.editSelect != 'none') {
-		$.extend(tinyMCEInitConfig, editorData);
-		tinyMCE.init(tinyMCEInitConfig);
-	}
-	else if(typeof editorData.plaintextFn == 'function') {
-		(editorData.plaintextFn)();
-	}
-}
 
 var editor = false;
 var textlen = 0;
 
-function initEditor(cb){
-	if(editor==false) {
-		editor = true;
+function initEditor(callback) {
+	if(editor == false) {
 		$("#profile-jot-text-loading").show();
 
-		var editorData = {
-			mode : "specific_textareas",
-			editor_selector : "profile-jot-text",
-			auto_focus : "profile-jot-text",
-			//plugins : "bbcode,paste,autoresize,inlinepopups",
-			//paste_text_sticky : true,
-			convert_urls : false,
-			setup : function(ed) {
-				cPopup = null;
-				ed.onKeyDown.add(function(ed,e) {
-					if(cPopup !== null)
-						cPopup.onkey(e);
-				});
-
-				ed.onKeyUp.add(function(ed, e) {
-					var txt = tinyMCE.activeEditor.getContent();
-					match = txt.match(/@([^ \n]+)$/);
-					if(match!==null) {
-						if(cPopup === null) {
-							cPopup = new ACPopup(this,baseurl+"/acl");
-						}
-						if(cPopup.ready && match[1]!==cPopup.searchText) cPopup.search(match[1]);
-						if(! cPopup.ready) cPopup = null;
-					}
-					else {
-						if(cPopup !== null) { cPopup.close(); cPopup = null; }
-					}
-
-					textlen = txt.length;
-					if(textlen != 0 && $('#jot-perms-icon').is('.unlock')) {
-						$('#profile-jot-desc').html(window.isPublic);
-					}
-					else {
-						$('#profile-jot-desc').html('&nbsp;');
-					}	 
-
-				 //Character count
-
-					if(textlen <= 140) {
-						$('#character-counter').removeClass('red');
-						$('#character-counter').removeClass('orange');
-						$('#character-counter').addClass('grey');
-					}
-					if((textlen > 140) && (textlen <= 420)) {
-						$('#character-counter').removeClass('grey');
-						$('#character-counter').removeClass('red');
-						$('#character-counter').addClass('orange');
-					}
-					if(textlen > 420) {
-						$('#character-counter').removeClass('grey');
-						$('#character-counter').removeClass('orange');
-						$('#character-counter').addClass('red');
-					}
-					$('#character-counter').text(textlen);
-				});
-
-				ed.onInit.add(function(ed) {
-					ed.pasteAsPlainText = true;
-					$("#profile-jot-text-loading").hide();
-					$(".jothidden").show();
-					if (typeof cb!="undefined") cb();
-				});
-
-			},
-			plaintextFn : function() {
-				$("#profile-jot-text-loading").hide();
-				$("#profile-jot-text").css({ 'height': 200, 'color': '#000' });
-				$("#profile-jot-text").editor_autocomplete(baseurl+"/acl");
-				$(".jothidden").show();
-				if (typeof cb!="undefined") cb();
-			}
-		};
-		InitMCEEditor(editorData);
-
+		$("#profile-jot-text-loading").hide();
+		$("#profile-jot-text").css({ 'height': 200, 'color': '#000' });
+		$("#profile-jot-text").editor_autocomplete(baseurl+"/acl");
+		$(".jothidden").show();
 		// setup acl popup
 		$("a#jot-perms-icon").colorbox({
 			'inline' : true,
 			'transition' : 'elastic'
-		}); 
-	} else {
-		if (typeof cb!="undefined") cb();
+		});
+
+		editor = true;
+	}
+	if (typeof callback != "undefined") {
+		callback();
 	}
 }
 
-function enableOnUser(){
-	if (editor) return;
+function enableOnUser() {
+	if (editor) {
+		return;
+	}
 	$(this).val("");
 	initEditor();
 }
 
-
 function msgInitEditor() {
-	var editorData = {
-		mode : "specific_textareas",
-		editor_selector : "prvmail-text",
-		//plugins : "bbcode,paste",
-		//paste_text_sticky : true,
-		convert_urls : false,
-		//theme_advanced_path : false,
-		setup : function(ed) {
-			cPopup = null;
-			ed.onKeyDown.add(function(ed,e) {
-				if(cPopup !== null)
-					cPopup.onkey(e);
-			});
-
-			ed.onKeyUp.add(function(ed, e) {
-				var txt = tinyMCE.activeEditor.getContent();
-				match = txt.match(/@([^ \n]+)$/);
-				if(match!==null) {
-					if(cPopup === null) {
-						cPopup = new ACPopup(this,baseurl+"/acl");
-					}
-					if(cPopup.ready && match[1]!==cPopup.searchText) cPopup.search(match[1]);
-					if(! cPopup.ready) cPopup = null;
-				}
-				else {
-					if(cPopup !== null) { cPopup.close(); cPopup = null; }
-				}
-
-				textlen = txt.length;
-				if(textlen != 0 && $('#jot-perms-icon').is('.unlock')) {
-					$('#profile-jot-desc').html(window.isPublic);
-				}
-				else {
-					$('#profile-jot-desc').html('&nbsp;');
-				}	 
-			});
-
-			ed.onInit.add(function(ed) {
-				ed.pasteAsPlainText = true;
-				var editorId = ed.editorId;
-				var textarea = $('#'+editorId);
-				if (typeof(textarea.attr('tabindex')) != "undefined") {
-					$('#'+editorId+'_ifr').attr('tabindex', textarea.attr('tabindex'));
-					textarea.attr('tabindex', null);
-				}
-			});
-		},
-		plaintextFn : function() {
-			$("#prvmail-text").editor_autocomplete(baseurl+"/acl");
-		}
-	}
-	InitMCEEditor(editorData);
+	$("#prvmail-text").editor_autocomplete(baseurl+"/acl");
 }
-
-
-function contactInitEditor() {
-	var editorData = {
-		mode : "exact",
-		elements : "contact-edit-info",
-		//plugins : "bbcode"
-	}
-	InitMCEEditor(editorData);
-}
-
-
-function eventInitEditor() {
-	var editorData = {
-		mode : "textareas",
-		//plugins : "bbcode,paste",
-		//paste_text_sticky : true,
-		//theme_advanced_path : false,
-		setup : function(ed) {
-			ed.onInit.add(function(ed) {
-				ed.pasteAsPlainText = true;
-			});
-		}
-	}
-	InitMCEEditor(editorData);
-}
-
-
-function profInitEditor() {
-	var editorData = {
-		mode : "textareas",
-		//plugins : "bbcode,paste",
-		//paste_text_sticky : true,
-		//theme_advanced_path : false,
-		setup : function(ed) {
-			ed.onInit.add(function(ed) {
-				ed.pasteAsPlainText = true;
-			});
-		}
-	}
-	InitMCEEditor(editorData);
-}
-
 
 /*
  * Jot
  */
 
 function addeditortext(textElem, data) {
-	if(window.editSelect == 'none') {
-		var currentText = $(textElem).val();
-		$(textElem).val(currentText + data);
-	}
-	else
-		tinyMCE.execCommand('mceInsertRawHTML',false,data);
+	var currentText = $(textElem).val();
+	$(textElem).val(currentText + data);
 }
 
 function jotVideoURL() {
@@ -867,7 +665,7 @@ function deleteCheckedItems(delID) {
 				else {
 					checkedstr = $(this).val();
 				}
-			}	
+			}
 		});
 		$.post('item', { dropitems: checkedstr }, function(data) {
 			window.location.reload();
@@ -893,9 +691,9 @@ function itemTag(id) {
 }
 
 function itemFiler(id) {
-	
+
 	var bordercolor = $("input").css("border-color");
-	
+
 	$.get('filer/', function(data){
 		$.colorbox({html:data});
 		$.colorbox.resize();
@@ -905,7 +703,7 @@ function itemFiler(id) {
 		$("#select_term").change(function(){
 			$("#id_term").css("border-color",bordercolor);
 		})
-		
+
 		$("#filer_save").click(function(e){
 			e.preventDefault();
 			reply = $("#id_term").val();
@@ -923,7 +721,7 @@ function itemFiler(id) {
 			return false;
 		});
 	});
-	
+
 }
 
 
@@ -932,7 +730,7 @@ function itemFiler(id) {
  */
 
 function insertFormatting(comment,BBcode,id) {
-	
+
 	var tmpStr = $("#comment-edit-text-" + id).val();
 	if(tmpStr == comment) {
 		tmpStr = "";
@@ -948,7 +746,7 @@ function insertFormatting(comment,BBcode,id) {
 		selected = document.selection.createRange();
 		if (BBcode == "url"){
 			selected.text = "["+BBcode+"=http://]" +  selected.text + "[/"+BBcode+"]";
-			} else			
+			} else
 		selected.text = "["+BBcode+"]" + selected.text + "[/"+BBcode+"]";
 	} else if (textarea.selectionStart || textarea.selectionStart == "0") {
 		var start = textarea.selectionStart;
