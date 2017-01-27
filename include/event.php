@@ -493,6 +493,7 @@ function get_event_strings() {
 	return $i18n;
 }
 
+/// @todo We should replace this with a separate update function if there is some time left
 /**
  * @brief Removes duplicated birthday events
  *
