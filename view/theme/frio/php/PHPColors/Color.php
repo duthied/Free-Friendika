@@ -33,9 +33,9 @@ class Color {
         $color = str_replace("#", "", $hex);
 
         // Make sure it's 6 digits
-        if( strlen($color) === 3 ) {
+        if ( strlen($color) === 3 ) {
             $color = $color[0].$color[0].$color[1].$color[1].$color[2].$color[2];
-        } else if( strlen($color) != 6 ) {
+        } else if ( strlen($color) != 6 ) {
             throw new Exception("HEX color needs to be 6 or 3 digits long");
         }
 
@@ -112,19 +112,19 @@ class Color {
      */
     public static function hslToHex( $hsl = array() ){
          // Make sure it's HSL
-        if(empty($hsl) || !isset($hsl["H"]) || !isset($hsl["S"]) || !isset($hsl["L"]) ) {
+        if (empty($hsl) || !isset($hsl["H"]) || !isset($hsl["S"]) || !isset($hsl["L"]) ) {
             throw new Exception("Param was not an HSL array");
         }
 
         list($H,$S,$L) = array( $hsl['H']/360,$hsl['S'],$hsl['L'] );
 
-        if( $S == 0 ) {
+        if ( $S == 0 ) {
             $r = $L * 255;
             $g = $L * 255;
             $b = $L * 255;
         } else {
 
-            if($L<0.5) {
+            if ($L<0.5) {
                 $var_2 = $L*(1+$S);
             } else {
                 $var_2 = ($L+$S) - ($S*$L);
@@ -183,7 +183,7 @@ class Color {
      */
     public static function rgbToHex( $rgb = array() ){
          // Make sure it's RGB
-        if(empty($rgb) || !isset($rgb["R"]) || !isset($rgb["G"]) || !isset($rgb["B"]) ) {
+        if (empty($rgb) || !isset($rgb["R"]) || !isset($rgb["G"]) || !isset($rgb["B"]) ) {
             throw new Exception("Param was not an RGB array");
         }
 
@@ -244,7 +244,7 @@ class Color {
      */
     public function makeGradient( $amount = self::DEFAULT_ADJUST ) {
         // Decide which color needs to be made
-        if( $this->isLight() ) {
+        if ( $this->isLight() ) {
             $lightColor = $this->_hex;
             $darkColor = $this->darken($amount);
         } else {
@@ -387,7 +387,7 @@ class Color {
      */
     private function _darken( $hsl, $amount = self::DEFAULT_ADJUST){
         // Check if we were provided a number
-        if( $amount ) {
+        if ( $amount ) {
             $hsl['L'] = ($hsl['L'] * 100) - $amount;
             $hsl['L'] = ($hsl['L'] < 0) ? 0:$hsl['L']/100;
         } else {
@@ -406,7 +406,7 @@ class Color {
      */
     private function _lighten( $hsl, $amount = self::DEFAULT_ADJUST){
         // Check if we were provided a number
-        if( $amount ) {
+        if ( $amount ) {
             $hsl['L'] = ($hsl['L'] * 100) + $amount;
             $hsl['L'] = ($hsl['L'] > 100) ? 1:$hsl['L']/100;
         } else {
@@ -446,23 +446,23 @@ class Color {
      * @return int
      */
     private static function _huetorgb( $v1,$v2,$vH ) {
-        if( $vH < 0 ) {
+        if ( $vH < 0 ) {
             $vH += 1;
         }
 
-        if( $vH > 1 ) {
+        if ( $vH > 1 ) {
             $vH -= 1;
         }
 
-        if( (6*$vH) < 1 ) {
+        if ( (6*$vH) < 1 ) {
                return ($v1 + ($v2 - $v1) * 6 * $vH);
         }
 
-        if( (2*$vH) < 1 ) {
+        if ( (2*$vH) < 1 ) {
             return $v2;
         }
 
-        if( (3*$vH) < 2 ) {
+        if ( (3*$vH) < 2 ) {
             return ($v1 + ($v2-$v1) * ( (2/3)-$vH ) * 6);
         }
 
@@ -481,9 +481,9 @@ class Color {
         $color = str_replace("#", "", $hex);
 
         // Make sure it's 6 digits
-        if( strlen($color) == 3 ) {
+        if ( strlen($color) == 3 ) {
             $color = $color[0].$color[0].$color[1].$color[1].$color[2].$color[2];
-        } else if( strlen($color) != 6 ) {
+        } else if ( strlen($color) != 6 ) {
             throw new Exception("HEX color needs to be 6 or 3 digits long");
         }
 

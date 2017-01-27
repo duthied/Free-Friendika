@@ -1,6 +1,7 @@
 <?php
-if(class_exists('Conversation'))
+if (class_exists('Conversation')) {
 	return;
+}
 
 require_once('boot.php');
 require_once('object/BaseObject.php');
@@ -28,7 +29,7 @@ class Conversation extends BaseObject {
 	 * Set the mode we'll be displayed on
 	 */
 	private function set_mode($mode) {
-		if($this->get_mode() == $mode)
+		if ($this->get_mode() == $mode)
 			return;
 
 		$a = $this->get_app();
@@ -92,11 +93,11 @@ class Conversation extends BaseObject {
 	 */
 	public function add_thread($item) {
 		$item_id = $item->get_id();
-		if(!$item_id) {
+		if (!$item_id) {
 			logger('[ERROR] Conversation::add_thread : Item has no ID!!', LOGGER_DEBUG);
 			return false;
 		}
-		if($this->get_thread($item->get_id())) {
+		if ($this->get_thread($item->get_id())) {
 			logger('[WARN] Conversation::add_thread : Thread already exists ('. $item->get_id() .').', LOGGER_DEBUG);
 			return false;
 		}
@@ -104,11 +105,11 @@ class Conversation extends BaseObject {
 		/*
 		 * Only add will be displayed
 		 */
-		if($item->get_data_value('network') === NETWORK_MAIL && local_user() != $item->get_data_value('uid')) {
+		if ($item->get_data_value('network') === NETWORK_MAIL && local_user() != $item->get_data_value('uid')) {
 			logger('[WARN] Conversation::add_thread : Thread is a mail ('. $item->get_id() .').', LOGGER_DEBUG);
 			return false;
 		}
-		if($item->get_data_value('verb') === ACTIVITY_LIKE || $item->get_data_value('verb') === ACTIVITY_DISLIKE) {
+		if ($item->get_data_value('verb') === ACTIVITY_LIKE || $item->get_data_value('verb') === ACTIVITY_DISLIKE) {
 			logger('[WARN] Conversation::add_thread : Thread is a (dis)like ('. $item->get_id() .').', LOGGER_DEBUG);
 			return false;
 		}
@@ -132,13 +133,14 @@ class Conversation extends BaseObject {
 
 		$i = 0;
 
-		foreach($this->threads as $item) {
-			if($item->get_data_value('network') === NETWORK_MAIL && local_user() != $item->get_data_value('uid'))
+		foreach ($this->threads as $item) {
+			if ($item->get_data_value('network') === NETWORK_MAIL && local_user() != $item->get_data_value('uid')) {
 				continue;
+			}
 
 			$item_data = $item->get_template_data($conv_responses);
 
-			if(!$item_data) {
+			if (!$item_data) {
 				logger('[ERROR] Conversation::get_template_data : Failed to get item template data ('. $item->get_id() .').', LOGGER_DEBUG);
 				return false;
 			}
@@ -156,9 +158,10 @@ class Conversation extends BaseObject {
 	 *      _ false on failure
 	 */
 	private function get_thread($id) {
-		foreach($this->threads as $item) {
-			if($item->get_id() == $id)
+		foreach ($this->threads as $item) {
+			if ($item->get_id() == $id) {
 				return $item;
+			}
 		}
 
 		return false;

@@ -78,12 +78,12 @@ function frio_item_photo_links(App $a, &$body_info) {
 	$occurence = 1;
 	$p = bb_find_open_close($body_info['html'], "<a", ">");
 
-	while($p !== false && ($occurence++ < 500)) {
+	while ($p !== false && ($occurence++ < 500)) {
 		$link = substr($body_info['html'], $p['start'], $p['end'] - $p['start']);
 		$matches = array();
 
 		preg_match("/\/photos\/[\w]+\/image\/([\w]+)/", $link, $matches);
-		if($matches) {
+		if ($matches) {
 			// Replace the link for the photo's page with a direct link to the photo itself
 			$newlink = str_replace($matches[0], "/photo/{$matches[1]}", $link);
 
