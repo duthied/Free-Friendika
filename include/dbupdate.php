@@ -1,5 +1,7 @@
 <?php
 
+use \Friendica\Core\Config;
+
 require_once("boot.php");
 
 function dbupdate_run(&$argv, &$argc) {
@@ -16,8 +18,7 @@ function dbupdate_run(&$argv, &$argc) {
 		        unset($db_host, $db_user, $db_pass, $db_data);
 	}
 
-	load_config('config');
-	load_config('system');
+	Config::load();
 
 	update_db($a);
 }

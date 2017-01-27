@@ -1,4 +1,7 @@
 <?php
+
+use \Friendica\Core\Config;
+
 require_once("boot.php");
 require_once('include/queue_fn.php');
 require_once('include/html2plain.php');
@@ -27,8 +30,7 @@ function delivery_run(&$argv, &$argc){
 	require_once('include/bbcode.php');
 	require_once('include/email.php');
 
-	load_config('config');
-	load_config('system');
+	Config::load();
 
 	load_hooks();
 

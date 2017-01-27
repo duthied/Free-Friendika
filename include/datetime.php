@@ -4,6 +4,7 @@
  * @brief Some functions for date and time related tasks.
  */
 
+use \Friendica\Core\Config;
 
 /**
  * @brief Two-level sort for timezones.
@@ -271,8 +272,9 @@ function datetimesel($format, $min, $max, $default, $label, $id = 'datetimepicke
 	$lang = substr(get_browser_language(), 0, 2);
 
 	// Check if the detected language is supported by the picker
-	if (!in_array($lang, array("ar", "ro", "id", "bg", "fa", "ru", "uk", "en", "el", "de", "nl", "tr", "fr", "es", "th", "pl", "pt", "ch", "se", "kr", "it", "da", "no", "ja", "vi", "sl", "cs", "hu")))
-		$lang = ((isset($a->config['system']['language'])) ? $a->config['system']['language'] : 'en');
+	if (!in_array($lang, array("ar", "ro", "id", "bg", "fa", "ru", "uk", "en", "el", "de", "nl", "tr", "fr", "es", "th", "pl", "pt", "ch", "se", "kr", "it", "da", "no", "ja", "vi", "sl", "cs", "hu"))) {
+		$lang = Config::get('system', 'language', 'en');
+	}
 
 	$o = '';
 	$dateformat = '';

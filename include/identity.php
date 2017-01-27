@@ -6,6 +6,7 @@
 require_once('include/ForumManager.php');
 require_once('include/bbcode.php');
 require_once("mod/proxy.php");
+require_once('include/cache.php');
 
 /**
  *
@@ -453,15 +454,21 @@ function get_birthdays() {
 	$bd_format = t('g A l F d') ; // 8 AM Friday January 18
 	$bd_short = t('F d');
 
-	$r = q("SELECT `event`.*, `event`.`id` AS `eid`, `contact`.* FROM `event`
-			INNER JOIN `contact` ON `contact`.`id` = `event`.`cid`
-			WHERE `event`.`uid` = %d AND `type` = 'birthday' AND `start` < '%s' AND `finish` > '%s'
-			ORDER BY `start` ASC ",
-			intval(local_user()),
-			dbesc(datetime_convert('UTC','UTC','now + 6 days')),
-			dbesc(datetime_convert('UTC','UTC','now'))
-	);
-
+	$cachekey = "get_birthdays:".local_user();
+	$r = Cache::get($cachekey);
+	if (is_null($r)) {
+		$r = q("SELECT `event`.*, `event`.`id` AS `eid`, `contact`.* FROM `event`
+				INNER JOIN `contact` ON `contact`.`id` = `event`.`cid`
+				WHERE `event`.`uid` = %d AND `type` = 'birthday' AND `start` < '%s' AND `finish` > '%s'
+				ORDER BY `start` ASC ",
+				intval(local_user()),
+				dbesc(datetime_convert('UTC','UTC','now + 6 days')),
+				dbesc(datetime_convert('UTC','UTC','now'))
+		);
+		if (dbm::is_result($r)) {
+			Cache::set($cachekey, $r, CACHE_HOUR);
+		}
+	}
 	if (dbm::is_result($r)) {
 		$total = 0;
 		$now = strtotime('now');
