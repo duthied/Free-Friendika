@@ -1105,11 +1105,21 @@ class dfrn {
 	 */
 	private function birthday_event($contact, $birthday) {
 
+		// Check for duplicates
+		$r = q("SELECT `id` FROM `event` WHERE `uid` = %d AND `cid` = %d AND `start` = '%s' AND `type` = '%s' LIMIT 1",
+			intval($contact["uid"]),
+			intval($contact["id"]),
+			dbesc(datetime_convert("UTC","UTC", $birthday)),
+			dbesc("birthday"));
+
+		if (dbm::is_result($r)) {
+			return;
+		}
+
 		logger("updating birthday: ".$birthday." for contact ".$contact["id"]);
 
 		$bdtext = sprintf(t("%s\'s birthday"), $contact["name"]);
 		$bdtext2 = sprintf(t("Happy Birthday %s"), " [url=".$contact["url"]."]".$contact["name"]."[/url]") ;
-
 
 		$r = q("INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`)
 			VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",

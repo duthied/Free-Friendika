@@ -571,6 +571,17 @@ function update_contact_birthdays() {
 			 *
 			 */
 
+			// Check for duplicates
+			$s = q("SELECT `id` FROM `event` WHERE `uid` = %d AND `cid` = %d AND `start` = '%s' AND `type` = '%s' LIMIT 1",
+				intval($rr['uid']),
+				intval($rr['id']),
+				dbesc(datetime_convert('UTC','UTC', $nextbd)),
+				dbesc('birthday'));
+
+			if (dbm::is_result($s)) {
+				continue;
+			}
+
 			$bdtext = sprintf( t('%s\'s birthday'), $rr['name']);
 			$bdtext2 = sprintf( t('Happy Birthday %s'), ' [url=' . $rr['url'] . ']' . $rr['name'] . '[/url]') ;
 
