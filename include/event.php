@@ -493,6 +493,26 @@ function get_event_strings() {
 	return $i18n;
 }
 
+/// @todo We should replace this with a separate update function if there is some time left
+/**
+ * @brief Removes duplicated birthday events
+ *
+ * @param array $dates Array of possibly duplicated events
+ * @return array Cleaned events
+ */
+function event_remove_duplicates($dates) {
+	$dates2 = array();
+
+	foreach ($dates AS $date) {
+		if ($date['type'] == 'birthday') {
+			$dates2[$date['uid']."-".$date['cid']."-".$date['start']] = $date;
+		} else {
+			$dates2[] = $date;
+		}
+	}
+	return $dates2;
+}
+
 /**
  * @brief Get an event by its event ID
  *
@@ -516,9 +536,9 @@ function event_by_id($owner_uid = 0, $event_params, $sql_extra = '') {
 		intval($event_params["event_id"])
 	);
 
-	if (dbm::is_result($r))
-		return $r;
-
+	if (dbm::is_result($r)) {
+		return event_remove_duplicates($r);
+	}
 }
 
 /**
@@ -558,8 +578,9 @@ function events_by_date($owner_uid = 0, $event_params, $sql_extra = '') {
 			dbesc($event_params["adjust_finish"])
 	);
 
-	if (dbm::is_result($r))
-		return $r;
+	if (dbm::is_result($r)) {
+		return event_remove_duplicates($r);
+	}
 }
 
 /**
@@ -568,7 +589,7 @@ function events_by_date($owner_uid = 0, $event_params, $sql_extra = '') {
  * @param array $arr Event query array
  * @return array Event array for the template
  */
-function process_events ($arr) {
+function process_events($arr) {
 	$events=array();
 
 	$last_date = '';
