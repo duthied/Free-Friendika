@@ -103,13 +103,13 @@ function profiles_init(App $a) {
 		$r1[0]['net-publish'] = 0;
 		$r1[0]['profile-name'] = dbesc($name);
 
-		dbesc_array($r1[0]);
+		dbm::esc_array($r1[0], true);
 
 		$r2 = dbq("INSERT INTO `profile` (`"
 			. implode("`, `", array_keys($r1[0]))
-			. "`) VALUES ('"
-			. implode("', '", array_values($r1[0]))
-			. "')" );
+			. "`) VALUES ("
+			. implode(", ", array_values($r1[0]))
+			. ")" );
 
 		$r3 = q("SELECT `id` FROM `profile` WHERE `uid` = %d AND `profile-name` = '%s' LIMIT 1",
 			intval(local_user()),
