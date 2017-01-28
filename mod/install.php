@@ -261,7 +261,7 @@ function install_content(App $a) {
 
 				'$dbhost' => array('dbhost', t('Database Server Name'), $dbhost, '', 'required'),
 				'$dbuser' => array('dbuser', t('Database Login Name'), $dbuser, '', 'required', 'autofocus'),
-				'$dbpass' => array('dbpass', t('Database Login Password'), $dbpass, '', 'required'),
+				'$dbpass' => array('dbpass', t('Database Login Password'), $dbpass, ''),
 				'$dbdata' => array('dbdata', t('Database Name'), $dbdata, '', 'required'),
 				'$adminmail' => array('adminmail', t('Site administrator email address'), $adminmail, t('Your account email address must match this in order to use the web admin panel.'), 'required', 'autofocus', 'email'),
 
