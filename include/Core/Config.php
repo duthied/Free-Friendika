@@ -23,6 +23,7 @@ use dbm;
 class Config {
 
 	private static $cache;
+	private static $in_db;
 
 	/**
 	 * @brief Loads all configuration values of family into a cached storage.
@@ -53,6 +54,7 @@ class Config {
 				} else {
 					$a->config[$family][$k] = $rr['v'];
 					self::$cache[$family][$k] = $rr['v'];
+					self::$in_db[$family][$k] = true;
 				}
 			}
 		}
@@ -106,16 +108,19 @@ class Config {
 
 			// Assign the value from the database to the cache
 			self::$cache[$family][$key] = $val;
+			self::$in_db[$family][$key] = true;
 			return $val;
 		} elseif (isset($a->config[$family][$key])) {
 
 			// Assign the value (mostly) from the .htconfig.php to the cache
 			self::$cache[$family][$key] = $a->config[$family][$key];
+			self::$in_db[$family][$key] = false;
 
 			return $a->config[$family][$key];
 		}
 
 		self::$cache[$family][$key] = '!<unset>!';
+		self::$in_db[$family][$key] = false;
 
 		return $default_value;
 	}
@@ -144,9 +149,9 @@ class Config {
 		// The exception are array values.
 		$dbvalue = (!is_array($value) ? (string)$value : $value);
 
-		$stored = self::get($family, $key);
+		$stored = self::get($family, $key, null, true);
 
-		if ($stored === $dbvalue) {
+		if (($stored === $dbvalue) AND self::$in_db[$family][$key]) {
 			return true;
 		}
 
@@ -162,7 +167,7 @@ class Config {
 		// manage array value
 		$dbvalue = (is_array($value) ? serialize($value) : $dbvalue);
 
-		if (is_null($stored)) {
+		if (is_null($stored) OR !self::$in_db[$family][$key]) {
 			$ret = q("INSERT INTO `config` (`cat`, `k`, `v`) VALUES ('%s', '%s', '%s') ON DUPLICATE KEY UPDATE `v` = '%s'",
 				dbesc($family),
 				dbesc($key),
@@ -177,6 +182,7 @@ class Config {
 			);
 		}
 		if ($ret) {
+			self::$in_db[$family][$key] = true;
 			return $value;
 		}
 		return $ret;
@@ -198,6 +204,7 @@ class Config {
 
 		if (isset(self::$cache[$family][$key])) {
 			unset(self::$cache[$family][$key]);
+			unset(self::$in_db[$family][$key]);
 		}
 		$ret = q("DELETE FROM `config` WHERE `cat` = '%s' AND `k` = '%s'",
 			dbesc($family),
