@@ -970,7 +970,6 @@ class App {
 			'$local_user' => local_user(),
 			'$generator' => 'Friendica' . ' ' . FRIENDICA_VERSION,
 			'$delitem' => t('Delete this item?'),
-			'$comment' => t('Comment'),
 			'$showmore' => t('show more'),
 			'$showfewer' => t('show fewer'),
 			'$update_interval' => $interval,

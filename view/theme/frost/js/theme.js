@@ -12,11 +12,6 @@ $(document).ready(function() {
 		'#system-menu-list-closing': false
 	};
 
-/*    $.ajaxSetup({
-        cache: false
-    });*/
-
-
 	/* enable editor on focus and click */
 	$("#profile-jot-text").focus(enableOnUser);
 	$("#profile-jot-text").click(enableOnUser);
@@ -26,8 +21,6 @@ $(document).ready(function() {
 	}, function() {
 		hideNavMenu($(this).attr('point'));
 	});
-
-/*	$('html').click(function() { $("#nav-notifications-menu" ).hide(); });*/
 
 	$('.group-edit-icon').hover(
 		function() {
@@ -64,37 +57,16 @@ $(document).ready(function() {
 			$('#drop-' + id).removeClass('icon');$('#drop-' + id).removeClass('drophide'); $('#drop-' + id).addClass('iconspacer');}
 	);
 
-/*	$('.nav-load-page-link').click(function() {
-		getPageContent( $(this).attr('href') );
-		hideNavMenu( '#' + $(this).closest('ul').attr('id') );
-		return false;
-	});*/
-
 	$('#id_share').change(function() {
 
 		if ($('#id_share').is(':checked')) {
 			$('#acl-wrapper').show();
-		}
-		else {
+		} else {
 			$('#acl-wrapper').hide();
 		}
 	}).trigger('change');
 
-// For event_end.tpl
-/*		$('#contact_allow, #contact_deny, #group_allow, #group_deny').change(function() {
-			var selstr;
-			$('#contact_allow option:selected, #contact_deny option:selected, #group_allow option:selected, #group_deny option:selected').each( function() {
-				selstr = $(this).text();
-				$('#jot-public').hide();
-			});
-			if(selstr == null) {
-				$('#jot-public').show();
-			}
-
-		}).trigger('change');*/
-
-
-	if(typeof window.AjaxUpload != "undefined") {
+	if (typeof window.AjaxUpload != "undefined") {
 		var uploader = new window.AjaxUpload(
 			window.imageUploadButton,
 			{ action: 'wall_upload/'+window.nickname,
@@ -107,7 +79,7 @@ $(document).ready(function() {
 			}
 		);
 
-		if($('#wall-file-upload').length) {
+		if ($('#wall-file-upload').length) {
 			var file_uploader = new window.AjaxUpload(
 				'wall-file-upload',
 				{ action: 'wall_attach/'+window.nickname,
@@ -123,7 +95,7 @@ $(document).ready(function() {
 	}
 
 
-	if(typeof window.aclInit !="undefined" && typeof acl=="undefined"){
+	if (typeof window.aclInit !="undefined" && typeof acl=="undefined") {
 		acl = new ACL(
 			baseurl+"/acl",
 			[ window.allowCID,window.allowGID,window.denyCID,window.denyGID ]
@@ -131,7 +103,7 @@ $(document).ready(function() {
 	}
 
 
-	if(window.aclType == "settings-head" || window.aclType == "photos_head" || window.aclType == "event_head") {
+	if (window.aclType == "settings-head" || window.aclType == "photos_head" || window.aclType == "event_head") {
 		$('#contact_allow, #contact_deny, #group_allow, #group_deny').change(function() {
 			var selstr;
 			$('#contact_allow option:selected, #contact_deny option:selected, #group_allow option:selected, #group_deny option:selected').each( function() {
@@ -139,7 +111,7 @@ $(document).ready(function() {
 				$('#jot-perms-icon').removeClass('unlock').addClass('lock');
 				$('#jot-public').hide();
 			});
-			if(selstr == null) {
+			if (selstr == null) {
 				$('#jot-perms-icon').removeClass('lock').addClass('unlock');
 				$('#jot-public').show();
 			}
@@ -147,7 +119,7 @@ $(document).ready(function() {
 		}).trigger('change');
 	}
 
-	if(window.aclType == "event_head") {
+	if (window.aclType == "event_head") {
 		$('#events-calendar').fullCalendar({
 			events: baseurl + window.eventModuleUrl +'/json/',
 			header: {
@@ -160,7 +132,7 @@ $(document).ready(function() {
 				showEvent(calEvent.id);
 			},
 			loading: function(isLoading, view) {
-				if(!isLoading) {
+				if (!isLoading) {
 					$('td.fc-day').dblclick(function() { window.location.href='/events/new?start='+$(this).data('date'); });
 				}
 			},
@@ -168,7 +140,7 @@ $(document).ready(function() {
 			eventRender: function(event, element, view) {
 				//console.log(view.name);
 				if (event.item['author-name']==null) return;
-				switch(view.name){
+				switch(view.name) {
 					case "month":
 					element.find(".fc-title").html(
 						"<img src='{0}' style='height:10px;width:10px'>{1} : {2}".format(
@@ -224,13 +196,13 @@ $(document).ready(function() {
 			$("#contacts-search").contact_autocomplete(baseurl + '/acl', 'a', true);
 
 
-			$("#contacts-search").keyup(function(event){
-				if(event.keyCode == 13){
+			$("#contacts-search").keyup(function(event) {
+				if (event.keyCode == 13) {
 					$("#contacts-search").click();
 				}
 			});
-			$(".autocomplete-w1 .selected").keyup(function(event){
-				if(event.keyCode == 13){
+			$(".autocomplete-w1 .selected").keyup(function(event) {
+				if (event.keyCode == 13) {
 					$("#contacts-search").click();
 				}
 			});
@@ -242,16 +214,9 @@ $(document).ready(function() {
 			break;
 	}
 
-/*	if(window.autoCompleteType == "display-head") {
-		//$(".comment-edit-wrapper textarea").contact_autocomplete(baseurl+"/acl");
-		// make auto-complete work in more places
-		//$(".wall-item-comment-wrapper textarea").contact_autocomplete(baseurl+"/acl");
-		$(".comment-wwedit-wrapper textarea").contact_autocomplete(baseurl+"/acl");
-	}*/
-
 	// Add Colorbox for viewing Network page images
 	//var cBoxClasses = new Array();
-	$(".wall-item-body a img").each(function(){
+	$(".wall-item-body a img").each(function() {
 		var aElem = $(this).parent();
 		var imgHref = aElem.attr("href");
 
@@ -259,15 +224,11 @@ $(document).ready(function() {
 		// We'll try to do this by looking for links of the form
 		// .../photo/ab803d8eg08daf85023adfec08 (with nothing more following), in hopes
 		// that that will be unique enough
-		if(imgHref.match(/\/photo\/[a-fA-F0-9]+(-[0-9]\.[\w]+?)?$/)) {
+		if (imgHref.match(/\/photo\/[a-fA-F0-9]+(-[0-9]\.[\w]+?)?$/)) {
 
 			// Add a unique class to all the images of a certain post, to allow scrolling through
 			var cBoxClass = $(this).closest(".wall-item-body").attr("id") + "-lightbox";
 			$(this).addClass(cBoxClass);
-
-//			if( $.inArray(cBoxClass, cBoxClasses) < 0 ) {
-//				cBoxClasses.push(cBoxClass);
-//			}
 
 			aElem.colorbox({
 				maxHeight: '90%',
@@ -276,21 +237,13 @@ $(document).ready(function() {
 			});
 		}
 	});
-	/*$.each(cBoxClasses, function(){
-		$('.'+this).colorbox({
-			maxHeight: '90%',
-			photo: true,
-			rel: this
-		});
-	});*/
-
 });
 
 
 // update pending count //
-$(function(){
+$(function() {
 
-	$("nav").bind('nav-update',  function(e,data){
+	$("nav").bind('nav-update',  function(e,data) {
 		var elm = $('#pending-update');
 		var register = $(data).find('register').text();
 		if (register=="0") { register=""; elm.hide();} else { elm.show(); }
@@ -299,28 +252,30 @@ $(function(){
 });
 
 
-$(function(){
+$(function() {
 
-	$("#cnftheme").click(function(){
+	$("#cnftheme").click(function() {
 		$.colorbox({
 			width: 800,
 			height: '90%',
 			href: baseurl + "/admin/themes/" + $("#id_theme :selected").val(),
-			onComplete: function(){
-				$("div#fancybox-content form").submit(function(e){
+			onComplete: function() {
+				$("div#fancybox-content form").submit(function(e) {
 					var url = $(this).attr('action');
 					// can't get .serialize() to work...
 					var data={};
-					$(this).find("input").each(function(){
+					$(this).find("input").each(function() {
 						data[$(this).attr('name')] = $(this).val();
 					});
-					$(this).find("select").each(function(){
+					$(this).find("select").each(function() {
 						data[$(this).attr('name')] = $(this).children(":selected").val();
 					});
 					console.log(":)", url, data);
 
 					$.post(url, data, function(data) {
-						if(timer) clearTimeout(timer);
+						if (timer) {
+							clearTimeout(timer);
+						}
 						NavUpdate();
 						$.colorbox.close();
 					})
@@ -336,18 +291,18 @@ $(function(){
 
 
 function homeRedirect() {
-	$('html').fadeOut('slow', function(){
+	$('html').fadeOut('slow', function() {
 		window.location = baseurl + "/login";
 	});
 }
 
 
-if(typeof window.photoEdit != 'undefined') {
+if (typeof window.photoEdit != 'undefined') {
 
 	$(document).keydown(function(event) {
 
-			if(window.prevLink != '') { if(event.ctrlKey && event.keyCode == 37) { event.preventDefault(); window.location.href = window.prevLink; }}
-			if(window.nextLink != '') { if(event.ctrlKey && event.keyCode == 39) { event.preventDefault(); window.location.href = window.nextLink; }}
+			if (window.prevLink != '') { if (event.ctrlKey && event.keyCode == 37) { event.preventDefault(); window.location.href = window.prevLink; }}
+			if (window.nextLink != '') { if (event.ctrlKey && event.keyCode == 39) { event.preventDefault(); window.location.href = window.nextLink; }}
 
 	});
 }
@@ -355,7 +310,7 @@ if(typeof window.photoEdit != 'undefined') {
 function showEvent(eventid) {
 	$.get(
 		baseurl + window.eventModuleUrl + '/?id=' + eventid,
-		function(data){
+		function(data) {
 			$.colorbox({html:data});
 			$.colorbox.resize();
 		}
@@ -396,58 +351,12 @@ function initCrop() {
 	});
 }
 
-
-/*
-$(document).mouseup(function (clickPos) {
-
-	var sysMenu = $("#system-menu-list");
-	var sysMenuLink = $(".system-menu-link");
-	var contactsMenu = $("#contacts-menu-list");
-	var contactsMenuLink = $(".contacts-menu-link");
-	var networkMenu = $("#network-menu-list");
-	var networkMenuLink = $(".network-menu-link");
-
-	if( !sysMenu.is(clickPos.target) && !sysMenuLink.is(clickPos.target) && sysMenu.has(clickPos.target).length === 0) {
-		hideNavMenu("#system-menu-list");
-	}
-	if( !contactsMenu.is(clickPos.target) && !contactsMenuLink.is(clickPos.target) && contactsMenu.has(clickPos.target).length === 0) {
-		hideNavMenu("#contacts-menu-list");
-	}
-	if( !networkMenu.is(clickPos.target) && !networkMenuLink.is(clickPos.target) && networkMenu.has(clickPos.target).length === 0) {
-		hideNavMenu("#network-menu-list");
-	}
-});
-
-
-function getPageContent(url) {
-
-	var pos = $('.main-container').position();
-
-	$('.main-container').css('margin-left', pos.left);
-	$('.main-content-container').hide(0, function () {
-		$('.main-content-loading').show(0);
-	});
-
-	$.get(url, function(html) {
-		console.log($('.main-content-container').html());
-		$('.main-content-container').html( $('.main-content-container', html).html() );
-		console.log($('.main-content-container').html());
-		$('.main-content-loading').hide(function() {
-			$('.main-content-container').fadeIn(800,function() {
-				$('.main-container').css('margin-left', 'auto'); // This sucks -- if the CSS specification changes, this will be wrong
-			});
-		});
-	});
-}
-*/
-
 function showNavMenu(menuID) {
 
-	if(window.navMenuTimeout[menuID + '-closing']) {
+	if (window.navMenuTimeout[menuID + '-closing']) {
 		window.navMenuTimeout[menuID + '-closing'] = false;
 		clearTimeout(window.navMenuTimeout[menuID + '-timeout']);
-	}
-	else {
+	} else {
 		window.navMenuTimeout[menuID + '-opening'] = true;
 
 		window.navMenuTimeout[menuID + '-timeout'] = setTimeout( function () {
@@ -459,11 +368,10 @@ function showNavMenu(menuID) {
 
 function hideNavMenu(menuID) {
 
-	if(window.navMenuTimeout[menuID + '-opening']) {
+	if (window.navMenuTimeout[menuID + '-opening']) {
 		window.navMenuTimeout[menuID + '-opening'] = false;
 		clearTimeout(window.navMenuTimeout[menuID + '-timeout']);
-	}
-	else {
+	} else {
 		window.navMenuTimeout[menuID + '-closing'] = true;
 
 		window.navMenuTimeout[menuID + '-timeout'] = setTimeout( function () {
@@ -526,53 +434,22 @@ function addeditortext(textElem, data) {
 
 function jotVideoURL() {
 	reply = prompt(window.vidURL);
-	if(reply && reply.length) {
+	if (reply && reply.length) {
 		addeditortext("#profile-jot-text", '[video]' + reply + '[/video]');
 	}
 }
 
 function jotAudioURL() {
 	reply = prompt(window.audURL);
-	if(reply && reply.length) {
+	if (reply && reply.length) {
 		addeditortext("#profile-jot-text", '[audio]' + reply + '[/audio]');
 	}
 }
 
 
 function jotGetLocation() {
-
-/*	if(navigator.geolocation) {
-
-		navigator.geolocation.getCurrentPosition(function(position) {
-			var lat = position.coords.latitude;
-			var lng = position.coords.longitude;
-
-			$.ajax({
-				type: 'GET',
-				url: 'http://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng,
-				jsonp: 'json_callback',
-				contentType: 'application/json',
-				dataType: 'jsonp',
-				success: function(json) {
-					console.log(json);
-					var locationDisplay = json.address.building+', '+json.address.city+', '+json.address.state;
-					$('#jot-location').val(locationDisplay);
-					$('#jot-display-location').html('Location: '+locationDisplay);
-					$('#jot-display-location').show();
-				}
-			});
-		});
-
-	}
-	else {
-		reply = prompt(window.whereAreU, $('#jot-location').val());
-		if(reply && reply.length) {
-			$('#jot-location').val(reply);
-		}
-	}*/
-
 	reply = prompt(window.whereAreU, $('#jot-location').val());
-	if(reply && reply.length) {
+	if (reply && reply.length) {
 		$('#jot-location').val(reply);
 	}
 }
@@ -583,7 +460,7 @@ function jotShare(id) {
 	$('#like-rotator-' + id).show();
 	$.get('share/' + id, function(data) {
 		if (!editor) $("#profile-jot-text").val("");
-		initEditor(function(){
+		initEditor(function() {
 			addeditortext("#profile-jot-text", data);
 			$('#like-rotator-' + id).hide();
 			$(window).scrollTop(0);
@@ -600,7 +477,7 @@ function jotClearLocation() {
 
 function jotGetLink() {
 	reply = prompt(window.linkURL);
-	if(reply && reply.length) {
+	if (reply && reply.length) {
 		reply = bin2hex(reply);
 		$('#profile-rotator').show();
 		$.get('parse_url?binurl=' + reply, function(data) {
@@ -613,36 +490,26 @@ function jotGetLink() {
 
 function linkdropper(event) {
 	var linkFound = event.dataTransfer.types.contains("text/uri-list");
-	if(linkFound)
+	if (linkFound)
 		event.preventDefault();
 }
 
 
 function linkdrop(event) {
 	var reply = event.dataTransfer.getData("text/uri-list");
-	//event.target.textContent = reply;
 	event.preventDefault();
-	if(reply && reply.length) {
+	if (reply && reply.length) {
 		reply = bin2hex(reply);
 		$('#profile-rotator').show();
 		$.get('parse_url?binurl=' + reply, function(data) {
-/*			if(window.jotId == "#profile-jot-text") {
-				if (!editor) $("#profile-jot-text").val("");
-				initEditor(function(){
-					addeditortext(window.jotId, data);
-					$('#profile-rotator').hide();
-				});
-			}
-			else {*/
 			addeditortext(window.jotId, data);
 			$('#profile-rotator').hide();
-//			}
 		});
 	}
 }
 
 
-if(typeof window.geoTag === 'function') window.geoTag();
+if (typeof window.geoTag === 'function') window.geoTag();
 
 
 /*
@@ -652,17 +519,16 @@ if(typeof window.geoTag === 'function') window.geoTag();
 function confirmDelete() { return confirm(window.delItem); }
 
 function deleteCheckedItems(delID) {
-	if(confirm(window.delItems)) {
+	if (confirm(window.delItems)) {
 		var checkedstr = '';
 
 		$(delID).hide();
 		$(delID + '-rotator').show();
 		$('.item-select').each( function() {
-			if($(this).is(':checked')) {
-				if(checkedstr.length != 0) {
+			if ($(this).is(':checked')) {
+				if (checkedstr.length != 0) {
 					checkedstr = checkedstr + ',' + $(this).val();
-				}
-				else {
+				} else {
 					checkedstr = $(this).val();
 				}
 			}
@@ -675,16 +541,14 @@ function deleteCheckedItems(delID) {
 
 function itemTag(id) {
 	reply = prompt(window.term);
-	if(reply && reply.length) {
+	if (reply && reply.length) {
 		reply = reply.replace('#','');
-		if(reply.length) {
+		if (reply.length) {
 
 			commentBusy = true;
 			$('body').css('cursor', 'wait');
 
 			$.get('tagger/' + id + '?term=' + reply, NavUpdate);
-			/*if(timer) clearTimeout(timer);
-			timer = setTimeout(NavUpdate,3000);*/
 			liking = 1;
 		}
 	}
@@ -694,25 +558,23 @@ function itemFiler(id) {
 
 	var bordercolor = $("input").css("border-color");
 
-	$.get('filer/', function(data){
+	$.get('filer/', function(data) {
 		$.colorbox({html:data});
 		$.colorbox.resize();
-		$("#id_term").keypress(function(){
+		$("#id_term").keypress(function() {
 			$(this).css("border-color",bordercolor);
 		})
-		$("#select_term").change(function(){
+		$("#select_term").change(function() {
 			$("#id_term").css("border-color",bordercolor);
 		})
 
-		$("#filer_save").click(function(e){
+		$("#filer_save").click(function(e) {
 			e.preventDefault();
 			reply = $("#id_term").val();
-			if(reply && reply.length) {
+			if (reply && reply.length) {
 				commentBusy = true;
 				$('body').css('cursor', 'wait');
 				$.get('filer/' + id + '?term=' + reply, NavUpdate);
-/*					if(timer) clearTimeout(timer);
-				timer = setTimeout(NavUpdate,3000);*/
 				liking = 1;
 				$.colorbox.close();
 			} else {
@@ -729,33 +591,33 @@ function itemFiler(id) {
  * Comments
  */
 
-function insertFormatting(comment,BBcode,id) {
-
+function insertFormatting(BBcode, id) {
 	var tmpStr = $("#comment-edit-text-" + id).val();
-	if(tmpStr == comment) {
-		tmpStr = "";
+	if (tmpStr == "") {
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
 		openMenu("comment-edit-submit-wrapper-" + id);
-		$("#comment-edit-text-" + id).val(tmpStr);
 	}
 
 	textarea = document.getElementById("comment-edit-text-" +id);
 	if (document.selection) {
 		textarea.focus();
 		selected = document.selection.createRange();
-		if (BBcode == "url"){
+		if (BBcode == "url") {
 			selected.text = "["+BBcode+"=http://]" +  selected.text + "[/"+BBcode+"]";
-			} else
-		selected.text = "["+BBcode+"]" + selected.text + "[/"+BBcode+"]";
+		} else {
+			selected.text = "["+BBcode+"]" + selected.text + "[/"+BBcode+"]";
+		}
 	} else if (textarea.selectionStart || textarea.selectionStart == "0") {
 		var start = textarea.selectionStart;
 		var end = textarea.selectionEnd;
-		if (BBcode == "url"){
+		if (BBcode == "url") {
 			textarea.value = textarea.value.substring(0, start) + "["+BBcode+"=http://]" + textarea.value.substring(start, end) + "[/"+BBcode+"]" + textarea.value.substring(end, textarea.value.length);
-			} else
-		textarea.value = textarea.value.substring(0, start) + "["+BBcode+"]" + textarea.value.substring(start, end) + "[/"+BBcode+"]" + textarea.value.substring(end, textarea.value.length);
+		} else {
+			textarea.value = textarea.value.substring(0, start) + "["+BBcode+"]" + textarea.value.substring(start, end) + "[/"+BBcode+"]" + textarea.value.substring(end, textarea.value.length);
+		}
 	}
+
 	return true;
 }
 
@@ -767,8 +629,7 @@ function cmtBbClose(id) {
 }
 
 function commentOpen(obj,id) {
-	if(obj.value == window.commentEmptyText) {
-		obj.value = "";
+	if (obj.value == "") {
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
 		$("#mod-cmnt-wrap-" + id).show();
@@ -776,8 +637,7 @@ function commentOpen(obj,id) {
 	}
 }
 function commentClose(obj,id) {
-	if(obj.value == "") {
-		obj.value = window.commentEmptyText;
+	if (obj.value == "") {
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-empty");
 		$("#mod-cmnt-wrap-" + id).hide();
@@ -788,8 +648,7 @@ function commentClose(obj,id) {
 
 function commentInsert(obj,id) {
 	var tmpStr = $("#comment-edit-text-" + id).val();
-	if(tmpStr == window.commentEmptyText) {
-		tmpStr = "";
+	if (tmpStr == "") {
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
 		openMenu("comment-edit-submit-wrapper-" + id);
@@ -804,8 +663,7 @@ function commentInsert(obj,id) {
 
 function qCommentInsert(obj,id) {
 	var tmpStr = $("#comment-edit-text-" + id).val();
-	if(tmpStr == window.commentEmptyText) {
-		tmpStr = "";
+	if (tmpStr == "") {
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
 		openMenu("comment-edit-submit-wrapper-" + id);
@@ -818,13 +676,3 @@ function qCommentInsert(obj,id) {
 	$("#comment-edit-text-" + id).val(tmpStr + ins);
 	$(obj).val("");
 }
-
-/*function showHideCommentBox(id) {
-	if( $('#comment-edit-form-' + id).is(':visible')) {
-		$('#comment-edit-form-' + id).hide();
-	}
-	else {
-		$('#comment-edit-form-' + id).show();
-	}
-}*/
-

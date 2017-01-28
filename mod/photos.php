@@ -1589,7 +1589,6 @@ function photos_content(App $a) {
 					'$id' => $link_item['id'],
 					'$likethis' => t("I like this \x28toggle\x29"),
 					'$nolike' => (feature_enabled(local_user(), 'dislike') ? t("I don't like this \x28toggle\x29") : ''),
-					'$share' => t('Share'),
 					'$wait' => t('Please wait'),
 					'$return_path' => $a->query_string,
 				));

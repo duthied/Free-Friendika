@@ -5,7 +5,6 @@ $(document).ready(function() {
 	$("#profile-jot-text").click(enableOnUser);
 
 	$('#event-share-checkbox').change(function() {
-
 		if ($('#event-share-checkbox').is(':checked')) {
 			$('#acl-wrapper').show();
 		}
@@ -13,7 +12,6 @@ $(document).ready(function() {
 			$('#acl-wrapper').hide();
 		}
 	}).trigger('change');
-
 
 	$(".popupbox").click(function () {
 		var parent = $( $(this).attr('href') ).parent();
@@ -27,7 +25,7 @@ $(document).ready(function() {
 
 
 
-	if(typeof window.AjaxUpload != "undefined") {
+	if (typeof window.AjaxUpload != "undefined") {
 		var uploader = new window.AjaxUpload(
 			window.imageUploadButton,
 			{ action: 'wall_upload/' + window.nickname,
@@ -40,7 +38,7 @@ $(document).ready(function() {
 			}
 		);
 
-		if($('#wall-file-upload').length) {
+		if ($('#wall-file-upload').length) {
 			var file_uploader = new window.AjaxUpload(
 				'wall-file-upload',
 				{ action: 'wall_attach/' + window.nickname,
@@ -56,7 +54,7 @@ $(document).ready(function() {
 	}
 
 
-	if(typeof window.aclInit !="undefined" && typeof acl=="undefined"){
+	if (typeof window.aclInit !="undefined" && typeof acl=="undefined") {
 		acl = new ACL(
 			baseurl+"/acl",
 			[ window.allowCID,window.allowGID,window.denyCID,window.denyGID ]
@@ -73,13 +71,13 @@ $(document).ready(function() {
 			$("#contacts-search").contact_autocomplete(baseurl + '/acl', 'a', true);
 
 
-			$("#contacts-search").keyup(function(event){
-				if(event.keyCode == 13){
+			$("#contacts-search").keyup(function(event) {
+				if (event.keyCode == 13) {
 					$("#contacts-search").click();
 				}
 			});
-			$(".autocomplete-w1 .selected").keyup(function(event){
-				if(event.keyCode == 13){
+			$(".autocomplete-w1 .selected").keyup(function(event) {
+				if (event.keyCode == 13) {
 					$("#contacts-search").click();
 				}
 			});
@@ -91,16 +89,7 @@ $(document).ready(function() {
 			break;
 	}
 
-
-/*	if(window.autoCompleteType == "display-head") {
-		//$(".comment-edit-wrapper textarea").contact_autocomplete(baseurl+"/acl");
-		// make auto-complete work in more places
-		//$(".wall-item-comment-wrapper textarea").contact_autocomplete(baseurl+"/acl");
-		$(".comment-wwedit-wrapper textarea").contact_autocomplete(baseurl+"/acl");
-	}*/
-
-
-	if(window.aclType == "settings-head" || window.aclType == "photos_head" || window.aclType == "event_head") {
+	if (window.aclType == "settings-head" || window.aclType == "photos_head" || window.aclType == "event_head") {
 		$('#contact_allow, #contact_deny, #group_allow, #group_deny').change(function() {
 			var selstr;
 			$('#contact_allow option:selected, #contact_deny option:selected, #group_allow option:selected, #group_deny option:selected').each( function() {
@@ -108,7 +97,7 @@ $(document).ready(function() {
 				$('#jot-perms-icon').removeClass('unlock').addClass('lock');
 				$('#jot-public').hide();
 			});
-			if(selstr == null) {
+			if (selstr == null) {
 				$('#jot-perms-icon').removeClass('lock').addClass('unlock');
 				$('#jot-public').show();
 			}
@@ -116,7 +105,7 @@ $(document).ready(function() {
 		}).trigger('change');
 	}
 
-	if(window.aclType == "event_head") {
+	if (window.aclType == "event_head") {
 		$('#events-calendar').fullCalendar({
 			events: baseurl + window.eventModuleUrl +'/json/',
 			header: {
@@ -132,7 +121,7 @@ $(document).ready(function() {
 			eventRender: function(event, element, view) {
 				//console.log(view.name);
 				if (event.item['author-name']==null) return;
-				switch(view.name){
+				switch(view.name) {
 					case "month":
 					element.find(".fc-title").html(
 						"<img src='{0}' style='height:10px;width:10px'>{1} : {2}".format(
@@ -180,9 +169,9 @@ $(document).ready(function() {
 });
 
 // update pending count //
-$(function(){
+$(function() {
 
-	$("nav").bind('nav-update',  function(e,data){
+	$("nav").bind('nav-update',  function(e,data) {
 		var elm = $('#pending-update');
 		var register = $(data).find('register').text();
 		if (register=="0") { register=""; elm.hide();} else { elm.show(); }
@@ -193,7 +182,7 @@ $(function(){
 
 
 function homeRedirect() {
-	$('html').fadeOut('slow', function(){
+	$('html').fadeOut('slow', function() {
 		window.location = baseurl + "/login";
 	});
 }
@@ -227,12 +216,6 @@ function initCrop() {
 
 
 function showEvent(eventid) {
-/*	$.get(
-		baseurl + window.eventModuleUrl + '/?id=' + eventid,
-		function(data){
-			$.colorbox({html:data});
-		}
-	);*/
 }
 
 /*
@@ -282,14 +265,14 @@ function addeditortext(textElem, data) {
 
 function jotVideoURL() {
 	reply = prompt(window.vidURL);
-	if(reply && reply.length) {
+	if (reply && reply.length) {
 		addeditortext("#profile-jot-text", '[video]' + reply + '[/video]');
 	}
 }
 
 function jotAudioURL() {
 	reply = prompt(window.audURL);
-	if(reply && reply.length) {
+	if (reply && reply.length) {
 		addeditortext("#profile-jot-text", '[audio]' + reply + '[/audio]');
 	}
 }
@@ -297,7 +280,7 @@ function jotAudioURL() {
 
 function jotGetLocation() {
 	reply = prompt(window.whereAreU, $('#jot-location').val());
-	if(reply && reply.length) {
+	if (reply && reply.length) {
 		$('#jot-location').val(reply);
 	}
 }
@@ -308,7 +291,7 @@ function jotShare(id) {
 	$('#like-rotator-' + id).show();
 	$.get('share/' + id, function(data) {
 		if (!editor) $("#profile-jot-text").val("");
-		initEditor(function(){
+		initEditor(function() {
 			addeditortext("#profile-jot-text", data);
 			$('#like-rotator-' + id).hide();
 			$(window).scrollTop(0);
@@ -319,7 +302,7 @@ function jotShare(id) {
 
 function jotGetLink() {
 	reply = prompt(window.linkURL);
-	if(reply && reply.length) {
+	if (reply && reply.length) {
 		reply = bin2hex(reply);
 		$('#profile-rotator').show();
 		$.get('parse_url?binurl=' + reply, function(data) {
@@ -328,36 +311,13 @@ function jotGetLink() {
 		});
 	}
 }
-
-/*function linkdropper(event) {
-	var linkFound = event.dataTransfer.types.contains("text/uri-list");
-	if(linkFound)
-		event.preventDefault();
-}
-
-function linkdrop(event) {
-	var reply = event.dataTransfer.getData("text/uri-list");
-	event.target.textContent = reply;
-	event.preventDefault();
-	if(reply && reply.length) {
-		reply = bin2hex(reply);
-		$('#profile-rotator').show();
-		$.get('parse_url?binurl=' + reply, function(data) {
-			//if (!editor) $("#profile-jot-text").val("");
-			//initEditor(function(){
-			addeditortext(window.jotId, data);
-			$('#profile-rotator').hide();
-			//});
-		});
-	}
-}*/
 
 function jotClearLocation() {
 	$('#jot-coord').val('');
 	$('#profile-nolocation-wrapper').hide();
 }
 
-if(typeof window.geoTag === 'function') window.geoTag();
+if (typeof window.geoTag === 'function') window.geoTag();
 
 
 
@@ -367,35 +327,17 @@ if(typeof window.geoTag === 'function') window.geoTag();
 
 function confirmDelete() { return confirm(window.delItem); }
 
-/*function deleteCheckedItems() {
-	var checkedstr = '';
-
-	$('.item-select').each( function() {
-		if($(this).is(':checked')) {
-			if(checkedstr.length != 0) {
-				checkedstr = checkedstr + ',' + $(this).val();
-			}
-			else {
-				checkedstr = $(this).val();
-			}
-		}
-	});
-	$.post('item', { dropitems: checkedstr }, function(data) {
-		window.location.reload();
-	});
-}*/
-
 function itemTag(id) {
 	reply = prompt(window.term);
-	if(reply && reply.length) {
+	if (reply && reply.length) {
 		reply = reply.replace('#','');
-		if(reply.length) {
+		if (reply.length) {
 
 			commentBusy = true;
 			$('body').css('cursor', 'wait');
 
 			$.get('tagger/' + id + '?term=' + reply, NavUpdate);
-			/*if(timer) clearTimeout(timer);
+			/*if (timer) clearTimeout(timer);
 			timer = setTimeout(NavUpdate,3000);*/
 			liking = 1;
 		}
@@ -403,64 +345,25 @@ function itemTag(id) {
 }
 
 function itemFiler(id) {
-
-	$.get('filer/', function(data){
+	$.get('filer/', function(data) {
 
 		var promptText = $('#id_term_label', data).text();
 
 		reply = prompt(promptText);
-		if(reply && reply.length) {
+		if (reply && reply.length) {
 			commentBusy = true;
 			$('body').css('cursor', 'wait');
 			$.get('filer/' + id + '?term=' + reply, NavUpdate);
-/*				if(timer) clearTimeout(timer);
-			timer = setTimeout(NavUpdate,3000);*/
 			liking = 1;
-/*				$.colorbox.close();*/
 		}
 	});
-
-/*		var bordercolor = $("input").css("border-color");
-
-	$.get('filer/', function(data){
-		$.colorbox({html:data});
-		$("#id_term").keypress(function(){
-			$(this).css("border-color",bordercolor);
-		})
-		$("#select_term").change(function(){
-			$("#id_term").css("border-color",bordercolor);
-		})
-
-		$("#filer_save").click(function(e){
-			e.preventDefault();
-			reply = $("#id_term").val();
-			if(reply && reply.length) {
-				commentBusy = true;
-				$('body').css('cursor', 'wait');
-				$.get('filer/' + id + '?term=' + reply);
-				if(timer) clearTimeout(timer);
-				timer = setTimeout(NavUpdate,3000);
-				liking = 1;
-				$.colorbox.close();
-			} else {
-				$("#id_term").css("border-color","#FF0000");
-			}
-			return false;
-		});
-	});
-*/
 }
-
-
 
 /*
  * Comments
  */
-
-
 function commentOpen(obj,id) {
-	if(obj.value == window.commentEmptyText) {
-		obj.value = "";
+	if (obj.value == "") {
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
 		$("#mod-cmnt-wrap-" + id).show();
@@ -468,8 +371,7 @@ function commentOpen(obj,id) {
 	}
 }
 function commentClose(obj,id) {
-	if(obj.value == "") {
-		obj.value = window.commentEmptyText;
+	if (obj.value == "") {
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-empty");
 		$("#mod-cmnt-wrap-" + id).hide();
@@ -480,8 +382,7 @@ function commentClose(obj,id) {
 
 function commentInsert(obj,id) {
 	var tmpStr = $("#comment-edit-text-" + id).val();
-	if(tmpStr == window.commentEmptyText) {
-		tmpStr = "";
+	if (tmpStr == "") {
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
 		openMenu("comment-edit-submit-wrapper-" + id);
@@ -496,8 +397,7 @@ function commentInsert(obj,id) {
 
 function qCommentInsert(obj,id) {
 	var tmpStr = $("#comment-edit-text-" + id).val();
-	if(tmpStr == window.commentEmptyText) {
-		tmpStr = "";
+	if (tmpStr == "") {
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
 		openMenu("comment-edit-submit-wrapper-" + id);
@@ -511,43 +411,33 @@ function qCommentInsert(obj,id) {
 	$(obj).val("");
 }
 
-/*function showHideCommentBox(id) {
-	if( $('#comment-edit-form-' + id).is(':visible')) {
-		$('#comment-edit-form-' + id).hide();
-	}
-	else {
-		$('#comment-edit-form-' + id).show();
-	}
-}*/
-
-
-function insertFormatting(comment,BBcode,id) {
-
+function insertFormatting(BBcode, id) {
 	var tmpStr = $("#comment-edit-text-" + id).val();
-	if(tmpStr == comment) {
-		tmpStr = "";
+	if (tmpStr == "") {
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
 		openMenu("comment-edit-submit-wrapper-" + id);
-		$("#comment-edit-text-" + id).val(tmpStr);
 	}
 
 	textarea = document.getElementById("comment-edit-text-" +id);
 	if (document.selection) {
 		textarea.focus();
 		selected = document.selection.createRange();
-		if (BBcode == "url"){
+		if (BBcode == "url") {
 			selected.text = "["+BBcode+"=http://]" +  selected.text + "[/"+BBcode+"]";
-			} else
-		selected.text = "["+BBcode+"]" + selected.text + "[/"+BBcode+"]";
+		} else {
+			selected.text = "["+BBcode+"]" + selected.text + "[/"+BBcode+"]";
+		}
 	} else if (textarea.selectionStart || textarea.selectionStart == "0") {
 		var start = textarea.selectionStart;
 		var end = textarea.selectionEnd;
-		if (BBcode == "url"){
+		if (BBcode == "url") {
 			textarea.value = textarea.value.substring(0, start) + "["+BBcode+"=http://]" + textarea.value.substring(start, end) + "[/"+BBcode+"]" + textarea.value.substring(end, textarea.value.length);
-			} else
-		textarea.value = textarea.value.substring(0, start) + "["+BBcode+"]" + textarea.value.substring(start, end) + "[/"+BBcode+"]" + textarea.value.substring(end, textarea.value.length);
+		} else {
+			textarea.value = textarea.value.substring(0, start) + "["+BBcode+"]" + textarea.value.substring(start, end) + "[/"+BBcode+"]" + textarea.value.substring(end, textarea.value.length);
+		}
 	}
+
 	return true;
 }
 
@@ -557,5 +447,3 @@ function cmtBbOpen(id) {
 function cmtBbClose(id) {
 	$(".comment-edit-bb-" + id).hide();
 }
-
-
