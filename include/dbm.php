@@ -55,7 +55,7 @@ class dbm {
 	 *
 	 * @param mixed $value Array value
 	 * @param string $key Array key
-	 * @param boolean $add_quotation add quoatation marks for string values
+	 * @param boolean $add_quotation add quotation marks for string values
 	 */
 	private static function esc_array_callback(&$value, $key, $add_quotation) {
 
@@ -81,7 +81,7 @@ class dbm {
 	 * @brief Escapes a whole array
 	 *
 	 * @param mixed $arr Array with values to be escaped
-	 * @param boolean $add_quotation add quoatation marks for string values
+	 * @param boolean $add_quotation add quotation marks for string values
 	 */
 	public static function esc_array(&$arr, $add_quotation = false) {
 		array_walk($arr, 'self::esc_array_callback', $add_quotation);
