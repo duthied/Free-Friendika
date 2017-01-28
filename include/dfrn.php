@@ -1421,9 +1421,9 @@ class dfrn {
 		$msg["seen"] = 0;
 		$msg["replied"] = 0;
 
-		dbesc_array($msg);
+		dbm::esc_array($msg, true);
 
-		$r = dbq("INSERT INTO `mail` (`".implode("`, `", array_keys($msg))."`) VALUES ('".implode("', '", array_values($msg))."')");
+		$r = dbq("INSERT INTO `mail` (`".implode("`, `", array_keys($msg))."`) VALUES (".implode(", ", array_values($msg)).")");
 
 		// send notifications.
 
