@@ -1,6 +1,6 @@
 Version 3.5.1
   Friendica Core:
-    Updates to the translations (DE, ES, FR, IT, PT-BR) [translation teams]
+    Updates to the translations (BG, CA, CS, DE, EO, ES, FR, IS, IT, NL, PL, PT-BR, RU, SV) [translation teams]
     Fix for a potential XSS vector [heluecht, thanks to Vít Šesták 'v6ak' for reporting the problem]
     Fix for ghost request notifications on single user instances [Hypolite]
     Fix user language selection [tobiasd]
@@ -37,6 +37,8 @@ Version 3.5.1
     Removed very old deprecated themes from the repository [silke]
     Marked frost and frost mobile as deprecated [silke]
     When creating new postings in the UI, focus is automatically put into the Title field [Hypolite]
+    We are now shipping config files for "tx" (the Transifex client) and the "EditorConfig" addon for many common editors [fabrixxm, tobiasd]
+    The TinyMCE richtext editor was removed [Hypolite]
     Various bugfixes
 
   Friendica Addons:
@@ -56,7 +58,7 @@ Version 3.5.1
     1019, 1163, 1612, 1613, 2177, 2252, 2260, 2403, 2991, 2614, 2751,
     2752, 2772, 2791, 2800, 2804, 2813, 2814, 2816, 2817, 2823, 2850, 
     2858, 2865, 2892, 2894, 2895, 2907, 2908, 2914, 2015, 2926, 2948,
-    2955, 2958, 2963, 2964, 2968, 2993, 3020, 3052, 3066
+    2955, 2958, 2963, 2964, 2968, 2993, 3020, 3052, 3062, 3066, 3108
 
 Version 3.5 (2016-09-13)
   Friendica Core:
