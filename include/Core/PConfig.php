@@ -138,7 +138,7 @@ class PConfig {
 
 		$stored = self::get($uid, $family, $key, null, true);
 
-		if ($stored === $dbvalue AND self::$in_db[$uid][$family][$key]) {
+		if (($stored === $dbvalue) AND self::$in_db[$uid][$family][$key]) {
 			return true;
 		}
 
