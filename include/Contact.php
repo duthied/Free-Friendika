@@ -60,11 +60,13 @@ function user_remove($uid) {
 
 function contact_remove($id) {
 
-	$r = q("select uid from contact where id = %d limit 1",
+	// We want just to make sure that we don't delete our "self" contact
+	$r = q("SELECT `uid` FROM `contact` WHERE `id` = %d AND NOT `self` LIMIT 1",
 		intval($id)
 	);
-	if((! dbm::is_result($r)) || (! intval($r[0]['uid'])))
+	if((! dbm::is_result($r)) || (! intval($r[0]['uid']))) {
 		return;
+	}
 
 	$archive = get_pconfig($r[0]['uid'], 'system','archive_removed_contacts');
 	if($archive) {
@@ -571,7 +573,7 @@ function get_contact($url, $uid = 0, $no_update = false) {
 	}
 
 	if ((count($contact) > 1) AND ($uid == 0) AND ($contactid != 0) AND ($url != ""))
-		q("DELETE FROM `contact` WHERE `nurl` = '%s' AND `id` != %d",
+		q("DELETE FROM `contact` WHERE `nurl` = '%s' AND `id` != %d AND NOT `self`",
 			dbesc(normalise_link($url)),
 			intval($contactid));
 
