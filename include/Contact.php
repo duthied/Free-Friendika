@@ -64,12 +64,12 @@ function contact_remove($id) {
 	$r = q("SELECT `uid` FROM `contact` WHERE `id` = %d AND NOT `self` LIMIT 1",
 		intval($id)
 	);
-	if((! dbm::is_result($r)) || (! intval($r[0]['uid']))) {
+	if (!dbm::is_result($r) || !intval($r[0]['uid'])) {
 		return;
 	}
 
 	$archive = get_pconfig($r[0]['uid'], 'system','archive_removed_contacts');
-	if($archive) {
+	if ($archive) {
 		q("update contact set `archive` = 1, `network` = 'none', `writable` = 0 where id = %d",
 			intval($id)
 		);
