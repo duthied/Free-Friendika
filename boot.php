@@ -572,7 +572,6 @@ class App {
 
 	private $scheme;
 	private $hostname;
-	private $baseurl;
 	private $db;
 
 	private $curl_code;
@@ -800,8 +799,6 @@ class App {
 	 * - Host name is determined either by system.hostname or inferred from request
 	 * - Path is inferred from SCRIPT_NAME
 	 *
-	 * Caches the result (depending on $ssl value) for performance.
-	 *
 	 * Note: $ssl parameter value doesn't directly correlate with the resulting protocol
 	 *
 	 * @param bool $ssl Whether to append http or https under SSL_POLICY_SELFSIGN
@@ -814,17 +811,9 @@ class App {
 			return self::$a->get_baseurl($ssl);
 		}
 
-		// Arbitrary values, the resulting url protocol can be different
-		$cache_index = $ssl ? 'https' : 'http';
-
-		// Cached value found, nothing to process
-		if (isset($this->baseurl[$cache_index])) {
-			return $this->baseurl[$cache_index];
-		}
-
 		$scheme = $this->scheme;
 
-		if (Config::get('system', 'ssl_policy') === SSL_POLICY_FULL) {
+		if (Config::get('system', 'ssl_policy') == SSL_POLICY_FULL) {
 			$scheme = 'https';
 		}
 
@@ -840,12 +829,10 @@ class App {
 		}
 
 		if (Config::get('config', 'hostname') != '') {
-			$this->hostname = get_config('config', 'hostname');
+			$this->hostname = Config::get('config', 'hostname');
 		}
 
-		$this->baseurl[$cache_index] = $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
-
-		return $this->baseurl[$cache_index];
+		return $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
 	}
 
 	/**
@@ -857,8 +844,6 @@ class App {
 	 */
 	function set_baseurl($url) {
 		$parsed = @parse_url($url);
-
-		$this->baseurl = [];
 
 		if($parsed) {
 			$this->scheme = $parsed['scheme'];
