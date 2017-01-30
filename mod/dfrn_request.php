@@ -301,7 +301,7 @@ function dfrn_request_post(App $a) {
 		if (dbm::is_result($r)) {
 			foreach ($r as $rr) {
 				if(! $rr['rel']) {
-					q("DELETE FROM `contact` WHERE `id` = %d",
+					q("DELETE FROM `contact` WHERE `id` = %d AND NOT `self`",
 						intval($rr['cid'])
 					);
 				}
@@ -326,7 +326,7 @@ function dfrn_request_post(App $a) {
 		if (dbm::is_result($r)) {
 			foreach ($r as $rr) {
 				if(! $rr['rel']) {
-					q("DELETE FROM `contact` WHERE `id` = %d",
+					q("DELETE FROM `contact` WHERE `id` = %d AND NOT `self`",
 						intval($rr['cid'])
 					);
 				}
