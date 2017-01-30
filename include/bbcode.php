@@ -1164,7 +1164,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$Text = preg_replace('/\<([^>]*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism', '<$1$2=$3&$4>', $Text);
 
 	// sanitizes src attributes (only relative redir URIs or http URLs)
-	$Text = preg_replace('#<([^>]*?)(src)="(?!http|redir)(.*?)"(.*?)>#ism', '<$1$2=""$4 class="invalid-src" title="' . t('Invalid source protocol') . '">', $Text);
+	$Text = preg_replace('#<([^>]*?)(src)="(?!http|redir|cid)(.*?)"(.*?)>#ism', '<$1$2=""$4 class="invalid-src" title="' . t('Invalid source protocol') . '">', $Text);
 
 	// sanitize href attributes (only whitelisted protocols URLs)
 	// default value for backward compatibility
