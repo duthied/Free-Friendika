@@ -20,6 +20,7 @@ Version 3.5.1
     Improvements to the documentation [Hypolite, tobiasd, rabuzarus, beardyunixer]
     Improvements to the BBCode / Markdown conversation [Hypolite]
     Improvements to the OStatus protocol implementation [heluecht]
+    Improvements to the installation wizzard [tobiasd]
     Improvements to the Diaspora protocol implementation [heluecht]
     Work on PHP7 compatibility [ddorian1]
     Code cleanup [Hypolite, Quix0r]
@@ -58,7 +59,8 @@ Version 3.5.1
     1019, 1163, 1612, 1613, 2177, 2252, 2260, 2403, 2991, 2614, 2751,
     2752, 2772, 2791, 2800, 2804, 2813, 2814, 2816, 2817, 2823, 2850, 
     2858, 2865, 2892, 2894, 2895, 2907, 2908, 2914, 2015, 2926, 2948,
-    2955, 2958, 2963, 2964, 2968, 2993, 3020, 3052, 3062, 3066, 3108
+    2955, 2958, 2963, 2964, 2968, 2993, 3020, 3052, 3062, 3066, 3091,
+    3108, 3116, 3118, 3126, 3130, 3135
 
 Version 3.5 (2016-09-13)
   Friendica Core:
