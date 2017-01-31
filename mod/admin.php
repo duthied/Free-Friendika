@@ -863,12 +863,22 @@ function admin_page_site(App $a) {
 	$theme_choices_mobile["---"] = t("No special theme for mobile devices");
 	$files = glob('view/theme/*');
 	if($files) {
+
+		$allowed_theme_list = Config::get('system', 'allowed_themes');
+
 		foreach($files as $file) {
 			if(intval(file_exists($file.'/unsupported')))
 				continue;
 
 			$f = basename($file);
+
+			// Only show allowed themes here
+			if (($allowed_theme_list != '') AND !strstr($allowed_theme_list, $f)) {
+				continue;
+			}
+
 			$theme_name = ((file_exists($file.'/experimental')) ?  sprintf("%s - \x28Experimental\x29", $f) : $f);
+
 			if(file_exists($file.'/mobile')) {
 				$theme_choices_mobile[$f] = $theme_name;
 			} else {
@@ -1695,6 +1705,15 @@ function admin_page_themes(App $a) {
 	if($files) {
 		foreach($files as $file) {
 			$f = basename($file);
+
+			// Is there a style file?
+			$theme_files = glob('view/theme/'.$f.'/style.*');
+
+			// If not then quit
+			if (count($theme_files) == 0) {
+				continue;
+			}
+
 			$is_experimental = intval(file_exists($file.'/experimental'));
 			$is_supported = 1-(intval(file_exists($file.'/unsupported')));
 			$is_allowed = intval(in_array($f,$allowed_themes));
