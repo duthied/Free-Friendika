@@ -206,6 +206,16 @@ function poller_exec_function($queue, $funcname, $argv) {
 
 	$duration = number_format(microtime(true) - $stamp, 3);
 
+	if ($duration > 3600) {
+		logger("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 1 hour (".round($duration/60, 3).")", LOGGER_DEBUG);
+	} elseif ($duration > 600) {
+		logger("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 10 minutes (".round($duration/60, 3).")", LOGGER_DEBUG);
+	} elseif ($duration > 300) {
+		logger("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 5 minutes (".round($duration/60, 3).")", LOGGER_DEBUG);
+	} elseif ($duration > 120) {
+		logger("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 2 minutes (".round($duration/60, 3).")", LOGGER_DEBUG);
+	}
+
 	logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".$duration." seconds.");
 
 	// Write down the performance values into the log
