@@ -1707,9 +1707,9 @@ function admin_page_themes(App $a) {
 				continue;
 			}
 
-			$is_experimental = intval(file_exists($file.'/experimental'));
-			$is_supported = 1-(intval(file_exists($file.'/unsupported')));
-			$is_allowed = intval(in_array($f,$allowed_themes));
+			$is_experimental = file_exists($file.'/experimental');
+			$is_supported = (!file_exists($file.'/unsupported'));
+			$is_allowed = in_array($f,$allowed_themes);
 
 			if ($is_allowed OR $is_supported OR get_config("system", "show_unsupported_themes")) {
 				$themes[] = array('name' => $f, 'experimental' => $is_experimental, 'supported' => $is_supported, 'allowed' => $is_allowed);
