@@ -60,7 +60,12 @@ class Probe {
 		$xrd_timeout = Config::get('system','xrd_timeout', 20);
 		$redirects = 0;
 
-		$xml = fetch_url($ssl_url, false, $redirects, $xrd_timeout, "application/xrd+xml");
+		$ret = z_fetch_url($ssl_url, false, $redirects, array('timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml'));
+		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+			return false;
+		}
+		$xml = $ret['body'];
+
 		$xrd = parse_xml_string($xml, false);
 
 		if (!is_object($xrd)) {
@@ -430,7 +435,12 @@ class Probe {
 		$xrd_timeout = Config::get('system','xrd_timeout', 20);
 		$redirects = 0;
 
-		$data = fetch_url($url, false, $redirects, $xrd_timeout, "application/xrd+xml");
+		$ret = z_fetch_url($url, false, $redirects, array('timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml'));
+		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+			return false;
+		}
+		$data = $ret['body'];
+
 		$xrd = parse_xml_string($data, false);
 
 		if (!is_object($xrd)) {
@@ -482,9 +492,14 @@ class Probe {
 	 * @return array noscrape data
 	 */
 	private function poll_noscrape($noscrape, $data) {
-		$content = fetch_url($noscrape);
-		if (!$content)
+		$ret = z_fetch_url($noscrape);
+		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
+		}
+		$content = $ret['body'];
+		if (!$content) {
+			return false;
+		}
 
 		$json = json_decode($content, true);
 		if (!is_array($json))
@@ -663,10 +678,14 @@ class Probe {
 	 * @return array hcard data
 	 */
 	private function poll_hcard($hcard, $data, $dfrn = false) {
-
-		$content = fetch_url($hcard);
-		if (!$content)
+		$ret = z_fetch_url($hcard);
+		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
+		}
+		$content = $ret['body'];
+		if (!$content) {
+			return false;
+		}
 
 		$doc = new DOMDocument();
 		if (!@$doc->loadHTML($content))
@@ -1035,7 +1054,11 @@ class Probe {
 	 * @return array feed data
 	 */
 	private function feed($url, $probe = true) {
-		$feed = fetch_url($url);
+		$ret = z_fetch_url($url);
+		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+			return false;
+		}
+		$feed = $ret['body'];
 		$feed_data = feed_import($feed, $dummy1, $dummy2, $dummy3, true);
 
 		if (!$feed_data) {
