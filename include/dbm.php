@@ -70,7 +70,7 @@ class dbm {
 
 		if (is_bool($value)) {
 			$value = ($value ? 'true' : 'false');
-		} elseif (is_numeric($value)) {
+		} elseif (is_float($value) OR is_integer($value)) {
 			$value = (string)$value;
 		} else {
 			 $value = "'".dbesc($value)."'";
