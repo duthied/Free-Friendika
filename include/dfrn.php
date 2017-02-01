@@ -913,7 +913,13 @@ class dfrn {
 
 		logger('dfrn_deliver: ' . $url);
 
-		$xml = fetch_url($url);
+		$ret = z_fetch_url($url);
+
+		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+			return(-1); // timed out
+		}
+
+		$xml = $ret['body'];
 
 		$curl_stat = $a->get_curl_code();
 		if(! $curl_stat)
