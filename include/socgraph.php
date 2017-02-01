@@ -690,7 +690,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		return false;
 
 	$servers = q("SELECT * FROM `gserver` WHERE `nurl` = '%s'", dbesc(normalise_link($server_url)));
-	if ($servers) {
+	if (dbm::is_result($servers)) {
 
 		if ($servers[0]["created"] == "0000-00-00 00:00:00")
 			q("UPDATE `gserver` SET `created` = '%s' WHERE `nurl` = '%s'",
@@ -740,7 +740,8 @@ function poco_check_server($server_url, $network = "", $force = false) {
 
 	// Quit if there is a timeout.
 	// But we want to make sure to only quit if we are mostly sure that this server url fits.
-	if (($orig_server_url == $server_url) AND ($serverret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
+	if (dbm::is_result($servers) AND ($orig_server_url == $server_url) AND
+		($serverret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
 		logger("Connection to server ".$server_url." timed out.", LOGGER_DEBUG);
 		return false;
 	}
