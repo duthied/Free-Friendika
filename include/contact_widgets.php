@@ -66,6 +66,9 @@ function unavailable_networks() {
 	if (!get_config("system","diaspora_enabled"))
 		$networks[] = NETWORK_DIASPORA;
 
+	if (!plugin_enabled("pnut"))
+		$networks[] = NETWORK_PNUT;
+
 	if (!sizeof($networks))
 		return "";
 
