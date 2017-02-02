@@ -5,15 +5,16 @@ use \Friendica\Core\Config;
 require_once("boot.php");
 require_once('include/queue_fn.php');
 require_once('include/dfrn.php');
+require_once('include/cache.php');
 
 function queue_run(&$argv, &$argc){
 	global $a, $db;
 
-	if(is_null($a)){
+	if (is_null($a)){
 		$a = new App;
 	}
 
-	if(is_null($db)){
+	if (is_null($db)){
 		@include(".htconfig.php");
 		require_once("include/dba.php");
 		$db = new dba($db_host, $db_user, $db_pass, $db_data);
@@ -42,9 +43,8 @@ function queue_run(&$argv, &$argc){
 	else
 		$queue_id = 0;
 
-	$deadguys = array();
-	$deadservers = array();
-	$serverlist = array();
+	$cachekey_deadguy = 'queue_run:deadguy:';
+	$cachekey_server = 'queue_run:server:';
 
 	if (!$queue_id) {
 
@@ -133,26 +133,32 @@ function queue_run(&$argv, &$argc){
 			remove_queue_item($q_item['id']);
 			continue;
 		}
-		if(in_array($c[0]['notify'],$deadguys)) {
-			logger('queue: skipping known dead url: ' . $c[0]['notify']);
+
+		$dead = Cache::get($cachekey_deadguy.$c[0]['notify']);
+
+		if (!is_null($dead) AND $dead) {
+			logger('queue: skipping known dead url: '.$c[0]['notify']);
 			update_queue_time($q_item['id']);
 			continue;
 		}
 
 		$server = poco_detect_server($c[0]['url']);
 
-		if (($server != "") AND !in_array($server, $serverlist)) {
-			logger("Check server ".$server." (".$c[0]["network"].")");
-			if (!poco_check_server($server, $c[0]["network"], true))
-				$deadservers[] = $server;
+		if ($server != "") {
+			$vital = Cache::get($cachekey_server.$server);
 
-			$serverlist[] = $server;
-		}
+			if (is_null($vital)) {
+				logger("Check server ".$server." (".$c[0]["network"].")");
 
-		if (($server != "") AND in_array($server, $deadservers)) {
-			logger('queue: skipping known dead server: '.$server);
-			update_queue_time($q_item['id']);
-			continue;
+				$vital = poco_check_server($server, $c[0]["network"], true);
+				Cache::set($cachekey_server.$server, $vital, CACHE_QUARTER_HOUR);
+			}
+
+			if (!is_null($vital) AND !$vital) {
+				logger('queue: skipping dead server: '.$server);
+				update_queue_time($q_item['id']);
+				continue;
+			}
 		}
 
 		$u = q("SELECT `user`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`
@@ -178,7 +184,7 @@ function queue_run(&$argv, &$argc){
 
 				if($deliver_status == (-1)) {
 					update_queue_time($q_item['id']);
-					$deadguys[] = $contact['notify'];
+					Cache::set($cachekey_deadguy.$contact['notify'], true, CACHE_QUARTER_HOUR);
 				} else
 					remove_queue_item($q_item['id']);
 
@@ -190,7 +196,7 @@ function queue_run(&$argv, &$argc){
 
 					if($deliver_status == (-1)) {
 						update_queue_time($q_item['id']);
-						$deadguys[] = $contact['notify'];
+						Cache::set($cachekey_deadguy.$contact['notify'], true, CACHE_QUARTER_HOUR);
 					} else
 						remove_queue_item($q_item['id']);
 				}
@@ -202,7 +208,7 @@ function queue_run(&$argv, &$argc){
 
 					if($deliver_status == (-1)) {
 						update_queue_time($q_item['id']);
-						$deadguys[] = $contact['notify'];
+						Cache::set($cachekey_deadguy.$contact['notify'], true, CACHE_QUARTER_HOUR);
 					} else
 						remove_queue_item($q_item['id']);
 

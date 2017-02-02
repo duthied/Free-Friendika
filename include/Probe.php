@@ -69,7 +69,11 @@ class Probe {
 		$xrd = parse_xml_string($xml, false);
 
 		if (!is_object($xrd)) {
-			$xml = fetch_url($url, false, $redirects, $xrd_timeout, "application/xrd+xml");
+			$ret = z_fetch_url($url, false, $redirects, array('timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml'));
+			if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+				return false;
+			}
+			$xml = $ret['body'];
 			$xrd = parse_xml_string($xml, false);
 		}
 		if (!is_object($xrd))
@@ -878,8 +882,13 @@ class Probe {
 						$pubkey = substr($pubkey, strpos($pubkey, ',') + 1);
 					else
 						$pubkey = substr($pubkey, 5);
-				} elseif (normalise_link($pubkey) == 'http://')
-					$pubkey = fetch_url($pubkey);
+				} elseif (normalise_link($pubkey) == 'http://') {
+					$ret = z_fetch_url($pubkey);
+					if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+						return false;
+					}
+					$pubkey = $ret['body'];
+				}
 
 				$key = explode(".", $pubkey);
 
@@ -899,7 +908,11 @@ class Probe {
 			return false;
 
 		// Fetch all additional data from the feed
-		$feed = fetch_url($data["poll"]);
+		$ret = z_fetch_url($data["poll"]);
+		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+			return false;
+		}
+		$feed = $ret['body'];
 		$feed_data = feed_import($feed,$dummy1,$dummy2, $dummy3, true);
 		if (!$feed_data)
 			return false;
