@@ -1040,6 +1040,7 @@ function db_definition($charset) {
 					"parent-uri" => array("parent-uri"),
 					"extid" => array("extid"),
 					"uid_id" => array("uid","id"),
+					"uid_contactid_id" => array("uid","contact-id","id"),
 					"uid_created" => array("uid","created"),
 					"uid_unseen_contactid" => array("uid","unseen","contact-id"),
 					"uid_network_received" => array("uid","network","received"),
