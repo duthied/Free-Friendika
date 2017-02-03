@@ -1719,6 +1719,12 @@ img.acpopup-img {
 
 }
 /* Menubar Tabs */
+section > ul.tabbar {
+/* The tabbar shouldn't' be visibile inside
+the section element. Only after we have
+moved it to the nav through js */
+    display: none !important;
+}
 #tabmenu,
 .tabbar,
 .tabbar > li {
