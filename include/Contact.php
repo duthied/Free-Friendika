@@ -1,5 +1,6 @@
 <?php
 
+require_once('include/Probe.php');
 
 // Included here for completeness, but this is a very dangerous operation.
 // It is the caller's responsibility to confirm the requestor's intent and
