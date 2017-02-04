@@ -245,6 +245,7 @@ define ( 'NETWORK_STATUSNET',        'stac');    // Statusnet connector
 define ( 'NETWORK_APPNET',           'apdn');    // app.net
 define ( 'NETWORK_NEWS',             'nntp');    // Network News Transfer Protocol
 define ( 'NETWORK_ICALENDAR',        'ical');    // iCalendar
+define ( 'NETWORK_PNUT',             'pnut');    // pnut.io
 define ( 'NETWORK_PHANTOM',          'unkn');    // Place holder
 /** @}*/
 
@@ -274,6 +275,7 @@ $netgroup_ids = array(
 	NETWORK_APPNET    => (-17),
 	NETWORK_NEWS      => (-18),
 	NETWORK_ICALENDAR => (-19),
+	NETWORK_PNUT      => (-20),
 
 	NETWORK_PHANTOM  => (-127),
 );
