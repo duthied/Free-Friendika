@@ -7,6 +7,29 @@ require_once("include/html2bbcode.php");
 require_once("include/bbcode.php");
 require_once("library/html-to-markdown/HTML_To_Markdown.php");
 
+/**
+ * @brief Callback function to replace a Diaspora style mention in a mention for Friendica
+ *
+ * @param array $match Matching values for the callback
+ * @return text Replaced mention
+ */
+function diaspora_mention2bb($match) {
+	if ($match[2] == '') {
+		return;
+	}
+
+	/// @todo Don't use probe
+	//$data = Probe::uri($match[2]);
+	$data = get_contact_details_by_addr($match[2]);
+
+	$name = $match[1];
+
+	if ($name == '') {
+		$name = $data['name'];
+	}
+
+	return '@[url='.$data['url'].']'.$name.'[/url]';
+}
 
 // we don't want to support a bbcode specific markdown interpreter
 // and the markdown library we have is pretty good, but provides HTML output.
@@ -33,7 +56,8 @@ function diaspora2bb($s) {
 
 	$s = Markdown($s);
 
-	$s = preg_replace('/\@\{(.+?)\; (.+?)\@(.+?)\}/', '@[url=https://$3/u/$2]$1[/url]', $s);
+	$regexp = "/@\{(?:([^\}]+?); )?([^\} ]+)\}/";
+	$s = preg_replace_callback($regexp, 'diaspora_mention2bb', $s);
 
 	$s = str_replace('&#35;', '#', $s);
 
