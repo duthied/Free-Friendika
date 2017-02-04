@@ -916,14 +916,14 @@ class dfrn {
 		$ret = z_fetch_url($url);
 
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
-			return(-1); // timed out
+			return -2; // timed out
 		}
 
 		$xml = $ret['body'];
 
 		$curl_stat = $a->get_curl_code();
 		if(! $curl_stat)
-			return(-1); // timed out
+			return -3; // timed out
 
 		logger('dfrn_deliver: ' . $xml, LOGGER_DATA);
 
@@ -1023,24 +1023,24 @@ class dfrn {
 						$key = Crypto::createNewRandomKey();
 					} catch (CryptoTestFailed $ex) {
 						logger('Cannot safely create a key');
-						return -1;
+						return -4;
 					} catch (CannotPerformOperation $ex) {
 						logger('Cannot safely create a key');
-						return -1;
+						return -5;
 					}
 					try {
 						$data = Crypto::encrypt($postvars['data'], $key);
 					} catch (CryptoTestFailed $ex) {
 						logger('Cannot safely perform encryption');
-						return -1;
+						return -6;
 					} catch (CannotPerformOperation $ex) {
 						logger('Cannot safely perform encryption');
-						return -1;
+						return -7;
 					}
 					break;
 				default:
 					logger("rino: invalid requested verision '$rino_remote_version'");
-					return -1;
+					return -8;
 			}
 
 			$postvars['rino'] = $rino_remote_version;
@@ -1074,16 +1074,16 @@ class dfrn {
 
 		logger('dfrn_deliver: ' . "SENDING: " . print_r($postvars,true), LOGGER_DATA);
 
-		$xml = post_url($contact['notify'],$postvars);
+		$xml = post_url($contact['notify'], $postvars);
 
 		logger('dfrn_deliver: ' . "RECEIVED: " . $xml, LOGGER_DATA);
 
 		$curl_stat = $a->get_curl_code();
 		if((! $curl_stat) || (! strlen($xml)))
-			return(-1); // timed out
+			return -9; // timed out
 
 		if(($curl_stat == 503) && (stristr($a->get_curl_headers(),'retry-after')))
-			return(-1);
+			return -10;
 
 		if(strpos($xml,'<?xml') === false) {
 			logger('dfrn_deliver: phase 2: no valid XML returned');
