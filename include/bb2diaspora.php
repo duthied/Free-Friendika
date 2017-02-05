@@ -11,15 +11,13 @@ require_once("library/html-to-markdown/HTML_To_Markdown.php");
  * @brief Callback function to replace a Diaspora style mention in a mention for Friendica
  *
  * @param array $match Matching values for the callback
- * @return text Replaced mention
+ * @return string Replaced mention
  */
 function diaspora_mention2bb($match) {
 	if ($match[2] == '') {
 		return;
 	}
 
-	/// @todo Don't use probe
-	//$data = Probe::uri($match[2]);
 	$data = get_contact_details_by_addr($match[2]);
 
 	$name = $match[1];
@@ -97,7 +95,7 @@ function diaspora2bb($s) {
  * @brief Callback function to replace a Friendica style mention in a mention for Diaspora
  *
  * @param array $match Matching values for the callback
- * @return text Replaced mention
+ * @return string Replaced mention
  */
 function diaspora_mentions($match) {
 
