@@ -829,7 +829,7 @@ class ostatus {
 					$uid, $actor, normalise_link($actor), NETWORK_STATUSNET);
 		}
 
-		if (dbm::is_resul($contact)) {
+		if (dbm::is_result($contact)) {
 			logger("Found contact for url ".$actor, LOGGER_DEBUG);
 			$details["contact_id"] = $contact[0]["id"];
 			$details["network"] = $contact[0]["network"];
