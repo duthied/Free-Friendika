@@ -385,6 +385,7 @@ function settings_post(App $a) {
 		//  changing it to the new value
 		$r = q("SELECT `password` FROM `user`WHERE `uid` = %d LIMIT 1", intval(local_user()));
 		if (!dbm::is_result($r)) {
+			/// @todo Don't quit silently here
 			killme();
 		} elseif ( $oldpass != $r[0]['password'] ) {
 			notice( t('Wrong password.') . EOL);
