@@ -1608,8 +1608,9 @@ class dfrn {
 			dbesc(normalise_link($suggest["url"])),
 			intval($suggest["uid"])
 		);
-		/// @TODO Really abort on valid result??? Maybe missed ! here?
+
 		if (dbm::is_result($r)) {
+			// Has already friend matching description
 			return false;
 		}
 
@@ -1730,6 +1731,7 @@ class dfrn {
 			intval($importer["importer_uid"]));
 
 		if (!dbm::is_result($r)) {
+			/// @todo Don't die quietly
 			killme();
 		}
 
@@ -1809,8 +1811,10 @@ class dfrn {
 						$n, dbesc($f[1]),
 						$n, dbesc($f[0]),
 						intval($importer["importer_uid"]));
-					if ($x === false)
-						return false;
+
+				if ($x === false) {
+					return false;
+				}
 			}
 		}
 
@@ -2692,12 +2696,14 @@ class dfrn {
 		// Update the contact table if the data has changed
 
 		// The "atom:author" is only present in feeds
-		if ($xpath->query("/atom:feed/atom:author")->length > 0)
+		if ($xpath->query("/atom:feed/atom:author")->length > 0) {
 			self::fetchauthor($xpath, $doc->firstChild, $importer, "atom:author", false, $xml);
+		}
 
 		// Only the "dfrn:owner" in the head section contains all data
-		if ($xpath->query("/atom:feed/dfrn:owner")->length > 0)
+		if ($xpath->query("/atom:feed/dfrn:owner")->length > 0) {
 			self::fetchauthor($xpath, $doc->firstChild, $importer, "dfrn:owner", false, $xml);
+		}
 
 		logger("Import DFRN message for user ".$importer["uid"]." from contact ".$importer["id"], LOGGER_DEBUG);
 
@@ -2705,22 +2711,24 @@ class dfrn {
 		if ($xpath->query("/atom:feed/dfrn:account_type")->length > 0) {
 			$accounttype = intval($xpath->evaluate("/atom:feed/dfrn:account_type/text()", $context)->item(0)->nodeValue);
 
-			if ($accounttype != $importer["contact-type"])
+			if ($accounttype != $importer["contact-type"]) {
 				q("UPDATE `contact` SET `contact-type` = %d WHERE `id` = %d",
 					intval($accounttype),
 					intval($importer["id"])
 				);
+			}
 		}
 
 		// is it a public forum? Private forums aren't supported with this method
 		// This is deprecated since 3.5.1
 		$forum = intval($xpath->evaluate("/atom:feed/dfrn:community/text()", $context)->item(0)->nodeValue);
 
-		if ($forum != $importer["forum"])
+		if ($forum != $importer["forum"]) {
 			q("UPDATE `contact` SET `forum` = %d WHERE `forum` != %d AND `id` = %d",
 				intval($forum), intval($forum),
 				intval($importer["id"])
 			);
+		}
 
 		$mails = $xpath->query("/atom:feed/dfrn:mail");
 		foreach ($mails AS $mail) {
