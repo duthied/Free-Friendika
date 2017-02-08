@@ -40,7 +40,7 @@ $(document).ready(function(){
 	$(".field.select > select, .field.custom > select").addClass("form-control");
 
 	// move the tabbar to the second nav bar
-	$("section ul.tabbar").first().appendTo("#topbar-second > .container > #tabmenu");
+	$("section .tabbar-wrapper").first().appendTo("#topbar-second > .container > #tabmenu");
 
 	// add mask css url to the logo-img container
 	//
