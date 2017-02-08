@@ -258,9 +258,9 @@ $(document).ready(function(){
 
 	// Set the padding for input elements with inline buttons
 	//
-	// In Frio we use some input elemnts where the submit button is visually
+	// In Frio we use some input elements where the submit button is visually
 	// inside the the input field (through css). We need to set a padding-right
-	// to the input field where the padding value would be at least the width
+	// to the input element where the padding value would be at least the width
 	// of the button. Otherwise long user input would be invisible because it is
 	// behind the button.
 	$("body").on('click', '.form-group-search > input', function() {
