@@ -8,6 +8,8 @@
  * This will change in the future.
  */
 
+use \Friendica\Core\Config;
+
 require_once("include/items.php");
 require_once("include/bb2diaspora.php");
 require_once("include/Scrape.php");
@@ -309,10 +311,6 @@ class Diaspora {
 			return false;
 		}
 
-		// Use a dummy importer to import the data for the public copy
-		$importer = array("uid" => 0, "page-flags" => PAGE_FREELOVE);
-		$message_id = self::dispatch($importer,$msg);
-
 		// Now distribute it to the followers
 		$r = q("SELECT `user`.* FROM `user` WHERE `user`.`uid` IN
 			(SELECT `contact`.`uid` FROM `contact` WHERE `contact`.`network` = '%s' AND `contact`.`addr` = '%s')
@@ -320,13 +318,21 @@ class Diaspora {
 			dbesc(NETWORK_DIASPORA),
 			dbesc($msg["author"])
 		);
-		if ($r) {
+		if (dbm::is_result($r)) {
 			foreach ($r as $rr) {
 				logger("delivering to: ".$rr["username"]);
 				self::dispatch($rr,$msg);
 			}
 		} else {
 			logger("No subscribers for ".$msg["author"]." ".print_r($msg, true), LOGGER_DEBUG);
+		}
+
+		$social_relay = (bool)Config::get('system', 'relay_subscribe', false);
+
+		// Use a dummy importer to import the data for the public copy
+		if (dbm::is_result($r) OR $social_relay) {
+			$importer = array("uid" => 0, "page-flags" => PAGE_FREELOVE);
+			$message_id = self::dispatch($importer,$msg);
 		}
 
 		return $message_id;
