@@ -318,21 +318,22 @@ class Diaspora {
 			dbesc(NETWORK_DIASPORA),
 			dbesc($msg["author"])
 		);
+
 		if (dbm::is_result($r)) {
 			foreach ($r as $rr) {
 				logger("delivering to: ".$rr["username"]);
 				self::dispatch($rr,$msg);
 			}
 		} else {
-			logger("No subscribers for ".$msg["author"]." ".print_r($msg, true), LOGGER_DEBUG);
-		}
+			$social_relay = (bool)Config::get('system', 'relay_subscribe', false);
 
-		$social_relay = (bool)Config::get('system', 'relay_subscribe', false);
-
-		// Use a dummy importer to import the data for the public copy
-		if (dbm::is_result($r) OR $social_relay) {
-			$importer = array("uid" => 0, "page-flags" => PAGE_FREELOVE);
-			$message_id = self::dispatch($importer,$msg);
+			// Use a dummy importer to import the data for the public copy
+			if ($social_relay) {
+				$importer = array("uid" => 0, "page-flags" => PAGE_FREELOVE);
+				$message_id = self::dispatch($importer,$msg);
+			} else {
+				logger("Unwanted message from ".$msg["author"]." send by ".$_SERVER["REMOTE_ADDR"]." with ".$_SERVER["HTTP_USER_AGENT"].": ".print_r($msg, true), LOGGER_DEBUG);
+			}
 		}
 
 		return $message_id;
