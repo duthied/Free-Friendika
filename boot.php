@@ -430,6 +430,17 @@ define('PRIORITY_LOW',       40);
 define('PRIORITY_NEGLIGIBLE',50);
 /* @}*/
 
+/**
+ * @name Social Relay settings
+ *
+ * See here: https://github.com/jaywink/social-relay
+ * and here: https://wiki.diasporafoundation.org/Relay_servers_for_public_posts
+ * @{
+ */
+define('SR_SCOPE_NONE', '');
+define('SR_SCOPE_ALL',  'all');
+define('SR_SCOPE_TAGS', 'tags');
+/* @}*/
 
 // Normally this constant is defined - but not if "pcntl" isn't installed
 if (!defined("SIGTERM"))
