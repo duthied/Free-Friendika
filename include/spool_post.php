@@ -35,7 +35,13 @@ function spool_post_run($argv, $argc) {
 					continue;
 				}
 				$arr = json_decode(file_get_contents($fullfile), true);
+				if (!is_array($arr)) {
+					continue;
+				}
 				$result = item_store($arr);
+				if ($result == 0) {
+					continue;
+				}
 				logger("Spool file ".$file." stored: ".$result, LOGGER_DEBUG);
 				unlink($fullfile);
 			}
