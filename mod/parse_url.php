@@ -4,13 +4,8 @@
  * @file mod/parse_url.php
  * @brief The parse_url module
  *
- * This module does parse an url for embedable content (audio, video, image files or link)
- * information and does format this information to BBCode or html (this depends
- * on the user settings - default is BBCode output).
- * If the user has enabled the richtext editor setting the output will be in html
- * (Note: This is not always possible and in some case not useful because
- * the richtext editor doesn't support all kind of html).
- * Otherwise the output will be constructed BBCode.
+ * This module does parse an url for embeddable content (audio, video, image files or link)
+ * information and does format this information to BBCode
  *
  * @see ParseUrl::getSiteinfo() for more information about scraping embeddable content
 */
@@ -24,13 +19,7 @@ function parse_url_content(App $a) {
 	$text = null;
 	$str_tags = "";
 
-	$textmode = false;
-
-	if (local_user() && (!feature_enabled(local_user(), "richtext"))) {
-		$textmode = true;
-	}
-
-	$br = (($textmode) ? "\n" : "<br />");
+	$br = "\n";
 
 	if (x($_GET,"binurl")) {
 		$url = trim(hex2bin($_GET["binurl"]));
@@ -97,11 +86,7 @@ function parse_url_content(App $a) {
 		}
 	}
 
-	if ($textmode) {
-		$template = "[bookmark=%s]%s[/bookmark]%s";
-	} else {
-		$template = "<a class=\"bookmark\" href=\"%s\" >%s</a>%s";
-	}
+	$template = "[bookmark=%s]%s[/bookmark]%s";
 
 	$arr = array("url" => $url, "text" => "");
 
@@ -118,12 +103,7 @@ function parse_url_content(App $a) {
 
 		$title = str_replace(array("\r","\n"),array("",""),$title);
 
-		if ($textmode) {
-			$text = "[quote]" . trim($text) . "[/quote]" . $br;
-		} else {
-			$text = "<blockquote>" . htmlspecialchars(trim($text)) . "</blockquote><br />";
-			$title = htmlspecialchars($title);
-		}
+		$text = "[quote]" . trim($text) . "[/quote]" . $br;
 
 		$result = sprintf($template, $url, ($title) ? $title : $url, $text) . $str_tags;
 
@@ -140,11 +120,6 @@ function parse_url_content(App $a) {
 
 	// Format it as BBCode attachment
 	$info = add_page_info_data($siteinfo);
-
-	if (!$textmode) {
-		// Replace ' with ’ - not perfect - but the richtext editor has problems otherwise
-		$info = str_replace(array("&#039;"), array("&#8217;"), $info);
-	}
 
 	echo $info;
 

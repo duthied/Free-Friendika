@@ -19,6 +19,8 @@
 
 require_once('include/autoloader.php');
 
+use \Friendica\Core\Config;
+
 require_once('include/config.php');
 require_once('include/network.php');
 require_once('include/plugin.php');
@@ -38,7 +40,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
 define ( 'FRIENDICA_VERSION',      '3.5.1-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1212      );
+define ( 'DB_UPDATE_VERSION',      1214      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -243,6 +245,7 @@ define ( 'NETWORK_STATUSNET',        'stac');    // Statusnet connector
 define ( 'NETWORK_APPNET',           'apdn');    // app.net
 define ( 'NETWORK_NEWS',             'nntp');    // Network News Transfer Protocol
 define ( 'NETWORK_ICALENDAR',        'ical');    // iCalendar
+define ( 'NETWORK_PNUT',             'pnut');    // pnut.io
 define ( 'NETWORK_PHANTOM',          'unkn');    // Place holder
 /** @}*/
 
@@ -272,6 +275,7 @@ $netgroup_ids = array(
 	NETWORK_APPNET    => (-17),
 	NETWORK_NEWS      => (-18),
 	NETWORK_ICALENDAR => (-19),
+	NETWORK_PNUT      => (-20),
 
 	NETWORK_PHANTOM  => (-127),
 );
@@ -530,7 +534,6 @@ class App {
 	public	$videoheight = 350;
 	public	$force_max_items = 0;
 	public	$theme_thread_allow = true;
-	public	$theme_richtext_editor = true;
 	public	$theme_events_in_profile = true;
 
 	/**
@@ -571,7 +574,6 @@ class App {
 
 	private $scheme;
 	private $hostname;
-	private $baseurl;
 	private $db;
 
 	private $curl_code;
@@ -799,8 +801,6 @@ class App {
 	 * - Host name is determined either by system.hostname or inferred from request
 	 * - Path is inferred from SCRIPT_NAME
 	 *
-	 * Caches the result (depending on $ssl value) for performance.
-	 *
 	 * Note: $ssl parameter value doesn't directly correlate with the resulting protocol
 	 *
 	 * @param bool $ssl Whether to append http or https under SSL_POLICY_SELFSIGN
@@ -813,40 +813,28 @@ class App {
 			return self::$a->get_baseurl($ssl);
 		}
 
-		// Arbitrary values, the resulting url protocol can be different
-		$cache_index = $ssl ? 'https' : 'http';
-
-		// Cached value found, nothing to process
-		if (isset($this->baseurl[$cache_index])) {
-			return $this->baseurl[$cache_index];
-		}
-
 		$scheme = $this->scheme;
 
-		if ((x($this->config, 'system')) && (x($this->config['system'], 'ssl_policy'))) {
-			if (intval($this->config['system']['ssl_policy']) === SSL_POLICY_FULL) {
+		if (Config::get('system', 'ssl_policy') == SSL_POLICY_FULL) {
+			$scheme = 'https';
+		}
+
+		//	Basically, we have $ssl = true on any links which can only be seen by a logged in user
+		//	(and also the login link). Anything seen by an outsider will have it turned off.
+
+		if (Config::get('system', 'ssl_policy') == SSL_POLICY_SELFSIGN) {
+			if ($ssl) {
 				$scheme = 'https';
-			}
-
-			//	Basically, we have $ssl = true on any links which can only be seen by a logged in user
-			//	(and also the login link). Anything seen by an outsider will have it turned off.
-
-			if ($this->config['system']['ssl_policy'] == SSL_POLICY_SELFSIGN) {
-				if ($ssl) {
-					$scheme = 'https';
-				} else {
-					$scheme = 'http';
-				}
+			} else {
+				$scheme = 'http';
 			}
 		}
 
-		if (get_config('config', 'hostname') != '') {
-			$this->hostname = get_config('config', 'hostname');
+		if (Config::get('config', 'hostname') != '') {
+			$this->hostname = Config::get('config', 'hostname');
 		}
 
-		$this->baseurl[$cache_index] = $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
-
-		return $this->baseurl[$cache_index];
+		return $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
 	}
 
 	/**
@@ -858,8 +846,6 @@ class App {
 	 */
 	function set_baseurl($url) {
 		$parsed = @parse_url($url);
-
-		$this->baseurl = [];
 
 		if($parsed) {
 			$this->scheme = $parsed['scheme'];
@@ -971,7 +957,6 @@ class App {
 			'$local_user' => local_user(),
 			'$generator' => 'Friendica' . ' ' . FRIENDICA_VERSION,
 			'$delitem' => t('Delete this item?'),
-			'$comment' => t('Comment'),
 			'$showmore' => t('show more'),
 			'$showfewer' => t('show fewer'),
 			'$update_interval' => $interval,
@@ -1391,11 +1376,15 @@ class App {
 			// If the last worker fork was less than 10 seconds before then don't fork another one.
 			// This should prevent the forking of masses of workers.
 			if (get_config("system", "worker")) {
-				if ((time() - get_config("system", "proc_run_started")) < 10)
-					return;
-
+				$cachekey = "app:proc_run:started";
+				$result = Cache::get($cachekey);
+				if (!is_null($result)) {
+					if ((time() - $result) < 10) {
+						return;
+					}
+				}
 				// Set the timestamp of the last proc_run
-				set_config("system", "proc_run_started", time());
+				Cache::set($cachekey, time(), CACHE_MINUTE);
 			}
 
 			$args[0] = ((x($this->config,'php_path')) && (strlen($this->config['php_path'])) ? $this->config['php_path'] : 'php');
@@ -1475,9 +1464,7 @@ function system_unavailable() {
 
 function clean_urls() {
 	$a = get_app();
-	//	if($a->config['system']['clean_urls'])
 	return true;
-	//	return false;
 }
 
 function z_path() {
@@ -1571,7 +1558,7 @@ function update_db(App $a) {
 		$stored = intval($build);
 		$current = intval(DB_UPDATE_VERSION);
 		if($stored < $current) {
-			load_config('database');
+			Config::load('database');
 
 			// We're reporting a different version than what is currently installed.
 			// Run any existing update scripts to bring the database up to current.
@@ -2041,16 +2028,18 @@ function current_theme(){
 //		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
 	$is_mobile = $a->is_mobile || $a->is_tablet;
 
-	$standard_system_theme = ((isset($a->config['system']['theme'])) ? $a->config['system']['theme'] : '');
+	$standard_system_theme = Config::get('system', 'theme', '');
 	$standard_theme_name = ((isset($_SESSION) && x($_SESSION,'theme')) ? $_SESSION['theme'] : $standard_system_theme);
 
-	if($is_mobile) {
-		if(isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
+	if ($is_mobile) {
+		if (isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
 			$system_theme = $standard_system_theme;
 			$theme_name = $standard_theme_name;
-		}
-		else {
-			$system_theme = ((isset($a->config['system']['mobile-theme'])) ? $a->config['system']['mobile-theme'] : $standard_system_theme);
+		} else {
+			$system_theme = Config::get('system', 'mobile-theme', '');
+			if ($system_theme == '') {
+				$system_theme = $standard_system_theme;
+			}
 			$theme_name = ((isset($_SESSION) && x($_SESSION,'mobile-theme')) ? $_SESSION['mobile-theme'] : $system_theme);
 
 			if($theme_name === '---') {

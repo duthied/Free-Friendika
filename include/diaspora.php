@@ -45,13 +45,13 @@ class Diaspora {
 
 		foreach($servers AS $server) {
 			$server = trim($server);
+			$addr = "relay@".str_replace("http://", "", normalise_link($server));
 			$batch = $server."/receive/public";
 
-			$relais = q("SELECT `batch`, `id`, `name`,`network` FROM `contact` WHERE `uid` = 0 AND `batch` = '%s' LIMIT 1", dbesc($batch));
+			$relais = q("SELECT `batch`, `id`, `name`,`network` FROM `contact` WHERE `uid` = 0 AND `batch` = '%s' AND `addr` = '%s' AND `nurl` = '%s' LIMIT 1",
+					dbesc($batch), dbesc($addr), dbesc(normalise_link($server)));
 
 			if (!$relais) {
-				$addr = "relay@".str_replace("http://", "", normalise_link($server));
-
 				$r = q("INSERT INTO `contact` (`uid`, `created`, `name`, `nick`, `addr`, `url`, `nurl`, `batch`, `network`, `rel`, `blocked`, `pending`, `writable`, `name-date`, `uri-date`, `avatar-date`)
 					VALUES (0, '%s', '%s', 'relay', '%s', '%s', '%s', '%s', '%s', %d, 0, 0, 1, '%s', '%s', '%s')",
 					datetime_convert(),

@@ -10,6 +10,8 @@ require_once('include/tags.php');
 require_once('include/threads.php');
 require_once('include/Probe.php');
 
+use \Friendica\Core\Config;
+
 function photos_init(App $a) {
 
 	if ($a->argc > 1)
@@ -1339,35 +1341,38 @@ function photos_content(App $a) {
 		$prevlink = '';
 		$nextlink = '';
 
-		if ($_GET['order'] === 'posted')
-			$order = 'ASC';
-		else
-			$order = 'DESC';
+		/// @todo This query is totally bad, the whole functionality has to be changed
+		// The query leads to a really intense used index.
+		// By now we hide it if someone wants to.
+		if (!Config::get('system', 'no_count', false)) {
+			if ($_GET['order'] === 'posted')
+				$order = 'ASC';
+			else
+				$order = 'DESC';
 
+			$prvnxt = qu("SELECT `resource-id` FROM `photo` WHERE `album` = '%s' AND `uid` = %d AND `scale` = 0
+				$sql_extra ORDER BY `created` $order ",
+				dbesc($ph[0]['album']),
+				intval($owner_uid)
+			);
 
-		$prvnxt = qu("SELECT `resource-id` FROM `photo` WHERE `album` = '%s' AND `uid` = %d AND `scale` = 0
-			$sql_extra ORDER BY `created` $order ",
-			dbesc($ph[0]['album']),
-			intval($owner_uid)
-		);
-
-		if (count($prvnxt)) {
-			for($z = 0; $z < count($prvnxt); $z++) {
-				if ($prvnxt[$z]['resource-id'] == $ph[0]['resource-id']) {
-					$prv = $z - 1;
-					$nxt = $z + 1;
-					if ($prv < 0)
-						$prv = count($prvnxt) - 1;
-					if ($nxt >= count($prvnxt))
-						$nxt = 0;
-					break;
+			if (count($prvnxt)) {
+				for($z = 0; $z < count($prvnxt); $z++) {
+					if ($prvnxt[$z]['resource-id'] == $ph[0]['resource-id']) {
+						$prv = $z - 1;
+						$nxt = $z + 1;
+						if ($prv < 0)
+							$prv = count($prvnxt) - 1;
+						if ($nxt >= count($prvnxt))
+							$nxt = 0;
+						break;
+					}
 				}
-			}
-			$edit_suffix = ((($cmd === 'edit') && ($can_post)) ? '/edit' : '');
-			$prevlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$prv]['resource-id'] . $edit_suffix . (($_GET['order'] === 'posted') ? '?f=&order=posted' : '');
-			$nextlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$nxt]['resource-id'] . $edit_suffix . (($_GET['order'] === 'posted') ? '?f=&order=posted' : '');
- 		}
-
+				$edit_suffix = ((($cmd === 'edit') && ($can_post)) ? '/edit' : '');
+				$prevlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$prv]['resource-id'] . $edit_suffix . (($_GET['order'] === 'posted') ? '?f=&order=posted' : '');
+				$nextlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$nxt]['resource-id'] . $edit_suffix . (($_GET['order'] === 'posted') ? '?f=&order=posted' : '');
+ 			}
+		}
 
 		if (count($ph) == 1)
 			$hires = $lores = $ph[0];
@@ -1584,7 +1589,6 @@ function photos_content(App $a) {
 					'$id' => $link_item['id'],
 					'$likethis' => t("I like this \x28toggle\x29"),
 					'$nolike' => (feature_enabled(local_user(), 'dislike') ? t("I don't like this \x28toggle\x29") : ''),
-					'$share' => t('Share'),
 					'$wait' => t('Please wait'),
 					'$return_path' => $a->query_string,
 				));
