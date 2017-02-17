@@ -730,6 +730,10 @@ function posts_from_contact_url(App $a, $contact_url) {
 		$sql = "`item`.`uid` = %d";
 	}
 
+	if (!dbm::is_result($r)) {
+		return '';
+	}
+
 	$author_id = intval($r[0]["author-id"]);
 
 	if (get_config('system', 'old_pager')) {
