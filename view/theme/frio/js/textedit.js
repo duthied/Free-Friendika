@@ -81,39 +81,25 @@ function showHideCommentBox(id) {
 }
 
 function commentOpenUI(obj, id) {
-	$(document).unbind( "click.commentOpen", handler );
-
-	var handler = function() {
-		if (obj.value == '') {
-			$("#comment-edit-text-" + id).addClass("comment-edit-text-full").removeClass("comment-edit-text-empty");
-			// Choose an arbitrary tab index that's greater than what we're using in jot (3 of them)
-			// The submit button gets tabindex + 1
-			$("#comment-edit-text-" + id).attr('tabindex','9');
-			$("#comment-edit-submit-" + id).attr('tabindex','10');
-			$("#comment-edit-submit-wrapper-" + id).show();
-			// initialize autosize for this comment
-			autosize($("#comment-edit-text-" + id + ".text-autosize"));
-		}
-	};
-
-	$(document).bind( "click.commentOpen", handler );
+	$("#comment-edit-text-" + id).addClass("comment-edit-text-full").removeClass("comment-edit-text-empty");
+	// Choose an arbitrary tab index that's greater than what we're using in jot (3 of them)
+	// The submit button gets tabindex + 1
+	$("#comment-edit-text-" + id).attr('tabindex','9');
+	$("#comment-edit-submit-" + id).attr('tabindex','10');
+	$("#comment-edit-submit-wrapper-" + id).show();
+	// initialize autosize for this comment
+	autosize($("#comment-edit-text-" + id + ".text-autosize"));
 }
 
 function commentCloseUI(obj, id) {
-	$(document).unbind( "click.commentClose", handler );
-
-	var handler = function() {
-		if (obj.value === '') {
-			$("#comment-edit-text-" + id).removeClass("comment-edit-text-full").addClass("comment-edit-text-empty");
-			$("#comment-edit-text-" + id).removeAttr('tabindex');
-			$("#comment-edit-submit-" + id).removeAttr('tabindex');
-			$("#comment-edit-submit-wrapper-" + id).hide();
-			// destroy the automatic textarea resizing
-			autosize.destroy($("#comment-edit-text-" + id + ".text-autosize"));
-		}
-	};
-
-	$(document).bind( "click.commentClose", handler );
+	if (obj.value === '') {
+		$("#comment-edit-text-" + id).removeClass("comment-edit-text-full").addClass("comment-edit-text-empty");
+		$("#comment-edit-text-" + id).removeAttr('tabindex');
+		$("#comment-edit-submit-" + id).removeAttr('tabindex');
+		$("#comment-edit-submit-wrapper-" + id).hide();
+		// destroy the automatic textarea resizing
+		autosize.destroy($("#comment-edit-text-" + id + ".text-autosize"));
+	}
 }
 
 function jotTextOpenUI(obj) {
