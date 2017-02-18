@@ -130,7 +130,7 @@ class ParseUrl {
 		$url = trim($url, "'");
 		$url = trim($url, '"');
 
-		$url = original_url($url);
+		$url = strip_tracking_query_params($url);
 
 		$siteinfo["url"] = $url;
 		$siteinfo["type"] = "link";
@@ -142,8 +142,7 @@ class ParseUrl {
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_HEADER, 1);
-		curl_setopt($ch, CURLOPT_NOBODY, 1);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (($check_cert) ? true : false));
@@ -151,7 +150,6 @@ class ParseUrl {
 
 		$header = curl_exec($ch);
 		$curl_info = @curl_getinfo($ch);
-		$http_code = $curl_info["http_code"];
 		curl_close($ch);
 
 		$a->save_timestamp($stamp1, "network");
@@ -196,26 +194,6 @@ class ParseUrl {
 				}
 			}
 		}
-
-		$stamp1 = microtime(true);
-
-		// Now fetch the body as well
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_HEADER, 1);
-		curl_setopt($ch, CURLOPT_NOBODY, 0);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (($check_cert) ? true : false));
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, (($check_cert) ? 2 : false));
-
-		$header = curl_exec($ch);
-		$curl_info = @curl_getinfo($ch);
-		$http_code = $curl_info["http_code"];
-		curl_close($ch);
-
-		$a->save_timestamp($stamp1, "network");
 
 		// Fetch the first mentioned charset. Can be in body or header
 		$charset = "";

@@ -670,41 +670,68 @@ function fix_contact_ssl_policy(&$contact,$new_policy) {
 	}
 }
 
-function original_url($url, $depth=1, $fetchbody = false) {
-
-	$a = get_app();
-
-	// Remove Analytics Data from Google and other tracking platforms
+/**
+ * @brief Remove Google Analytics and other tracking platforms params from URL
+ *
+ * @param string $url
+ * @return string
+ */
+function strip_tracking_query_params($url)
+{
 	$urldata = parse_url($url);
 	if (is_string($urldata["query"])) {
 		$query = $urldata["query"];
 		parse_str($query, $querydata);
 
-		if (is_array($querydata))
-			foreach ($querydata AS $param=>$value)
+		if (is_array($querydata)) {
+			foreach ($querydata AS $param => $value) {
 				if (in_array($param, array("utm_source", "utm_medium", "utm_term", "utm_content", "utm_campaign",
 							"wt_mc", "pk_campaign", "pk_kwd", "mc_cid", "mc_eid",
 							"fb_action_ids", "fb_action_types", "fb_ref",
 							"awesm", "wtrid",
 							"woo_campaign", "woo_source", "woo_medium", "woo_content", "woo_term"))) {
 
-					$pair = $param."=".urlencode($value);
+					$pair = $param . "=" . urlencode($value);
 					$url = str_replace($pair, "", $url);
 
 					// Second try: if the url isn't encoded completely
-					$pair = $param."=".str_replace(" ", "+", $value);
+					$pair = $param . "=" . str_replace(" ", "+", $value);
 					$url = str_replace($pair, "", $url);
 
 					// Third try: Maybey the url isn't encoded at all
-					$pair = $param."=".$value;
+					$pair = $param . "=" . $value;
 					$url = str_replace($pair, "", $url);
 
 					$url = str_replace(array("?&", "&&"), array("?", ""), $url);
 				}
+			}
+		}
 
-		if (substr($url, -1, 1) == "?")
+		if (substr($url, -1, 1) == "?") {
 			$url = substr($url, 0, -1);
+		}
 	}
+
+	return $url;
+}
+
+/**
+ * @brief Returns the original URL of the provided URL
+ *
+ * This function strips tracking query params and follows redirections, either
+ * through HTTP code or meta refresh tags. Stops after 10 redirections.
+ *
+ * @see ParseUrl::getSiteinfo
+ *
+ * @param string $url
+ * @param int $depth
+ * @param bool $fetchbody
+ * @return string
+ */
+function original_url($url, $depth = 1, $fetchbody = false) {
+	$a = get_app();
+
+	$url = strip_tracking_query_params($url);
 
 	if ($depth > 10)
 		return($url);
