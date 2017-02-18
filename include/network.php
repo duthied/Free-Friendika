@@ -11,11 +11,11 @@ require_once('include/Probe.php');
 
 /**
  * @brief Curl wrapper
- * 
+ *
  * If binary flag is true, return binary results.
  * Set the cookiejar argument to a string (e.g. "/tmp/friendica-cookies.txt")
  * to preserve cookies from one request to the next.
- * 
+ *
  * @param string $url URL to fetch
  * @param boolean $binary default false
  *    TRUE if asked to return binary results (file download)
@@ -23,7 +23,7 @@ require_once('include/Probe.php');
  * @param integer $timeout Timeout in seconds, default system config value or 60 seconds
  * @param string $accept_content supply Accept: header with 'accept_content' as the value
  * @param string $cookiejar Path to cookie jar file
- * 
+ *
  * @return string The fetched content
  */
 function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_content=Null, $cookiejar = 0) {
@@ -218,13 +218,13 @@ function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 
 /**
  * @brief Post request to $url
- * 
+ *
  * @param string $url URL to post
  * @param mixed $params
  * @param string $headers HTTP headers
  * @param integer $redirects Recursion counter for internal use - default = 0
  * @param integer $timeout The timeout in seconds, default system config value or 60 seconds
- * 
+ *
  * @return string The content
  */
 function post_url($url,$params, $headers = null, &$redirects = 0, $timeout = 0) {
@@ -385,10 +385,10 @@ function http_status_exit($val, $description = array()) {
 
 /**
  * @brief Check URL to se if ts's real
- * 
+ *
  * Take a URL from the wild, prepend http:// if necessary
  * and check DNS to see if it's real (or check if is a valid IP address)
- * 
+ *
  * @param string $url The URL to be validated
  * @return boolean True if it's a valid URL, fals if something wrong with it
  */
@@ -415,7 +415,7 @@ function validate_url(&$url) {
 
 /**
  * @brief Checks that email is an actual resolvable internet address
- * 
+ *
  * @param string $addr The email address
  * @return boolean True if it's a valid email address, false if it's not
  */
@@ -436,10 +436,10 @@ function validate_email($addr) {
 
 /**
  * @brief Check if URL is allowed
- * 
+ *
  * Check $url against our list of allowed sites,
  * wildcards allowed. If allowed_sites is unset return true;
- * 
+ *
  * @param string $url URL which get tested
  * @return boolean True if url is allowed otherwise return false
  */
@@ -481,9 +481,9 @@ function allowed_url($url) {
 
 /**
  * @brief Check if email address is allowed to register here.
- * 
+ *
  * Compare against our list (wildcards allowed).
- * 
+ *
  * @param type $email
  * @return boolean False if not allowed, true if allowed
  *    or if allowed list is not configured
@@ -821,7 +821,7 @@ function short_link($url) {
 
 /**
  * @brief Encodes content to json
- * 
+ *
  * This function encodes an array to json format
  * and adds an application/json HTTP header to the output.
  * After finishing the process is getting killed.
