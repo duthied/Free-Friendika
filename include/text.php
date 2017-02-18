@@ -875,7 +875,7 @@ function contact_block() {
 		return $o;
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
 			WHERE `uid` = %d AND NOT `self` AND NOT `blocked`
-				AND NOT `hidden` AND NOT `archive`
+				AND NOT `pending` AND NOT `hidden` AND NOT `archive`
 				AND `network` IN ('%s', '%s', '%s')",
 			intval($a->profile['uid']),
 			dbesc(NETWORK_DFRN),
@@ -893,8 +893,9 @@ function contact_block() {
 		// Splitting the query in two parts makes it much faster
 		$r = q("SELECT `id` FROM `contact`
 				WHERE `uid` = %d AND NOT `self` AND NOT `blocked`
-					AND NOT `hidden` AND NOT `archive`
-				AND `network` IN ('%s', '%s', '%s') ORDER BY RAND() LIMIT %d",
+					AND NOT `pending` AND NOT `hidden` AND NOT `archive`
+					AND `network` IN ('%s', '%s', '%s')
+				ORDER BY RAND() LIMIT %d",
 				intval($a->profile['uid']),
 				dbesc(NETWORK_DFRN),
 				dbesc(NETWORK_OSTATUS),

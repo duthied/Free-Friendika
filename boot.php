@@ -430,6 +430,17 @@ define('PRIORITY_LOW',       40);
 define('PRIORITY_NEGLIGIBLE',50);
 /* @}*/
 
+/**
+ * @name Social Relay settings
+ *
+ * See here: https://github.com/jaywink/social-relay
+ * and here: https://wiki.diasporafoundation.org/Relay_servers_for_public_posts
+ * @{
+ */
+define('SR_SCOPE_NONE', '');
+define('SR_SCOPE_ALL',  'all');
+define('SR_SCOPE_TAGS', 'tags');
+/* @}*/
 
 // Normally this constant is defined - but not if "pcntl" isn't installed
 if (!defined("SIGTERM"))
@@ -1404,6 +1415,53 @@ class App {
 			proc_close(proc_open($cmdline." &",array(),$foo,dirname(__FILE__)));
 
 	}
+
+	/**
+	 * @brief Returns the system user that is executing the script
+	 *
+	 * This mostly returns something like "www-data".
+	 *
+	 * @return string system username
+	 */
+	static function systemuser() {
+		if (!function_exists('posix_getpwuid') OR !function_exists('posix_geteuid')) {
+			return '';
+		}
+
+		$processUser = posix_getpwuid(posix_geteuid());
+		return $processUser['name'];
+	}
+
+	/**
+	 * @brief Checks if a given directory is usable for the system
+	 *
+	 * @return boolean the directory is usable
+	 */
+	static function directory_usable($directory) {
+
+		if ($directory == '') {
+			logger("Directory is empty. This shouldn't happen.", LOGGER_DEBUG);
+			return false;
+		}
+
+		if (!file_exists($directory)) {
+			logger('Path "'.$directory.'" does not exist for user '.self::systemuser(), LOGGER_DEBUG);
+			return false;
+		}
+		if (is_file($directory)) {
+			logger('Path "'.$directory.'" is a file for user '.self::systemuser(), LOGGER_DEBUG);
+			return false;
+		}
+		if (!is_dir($directory)) {
+			logger('Path "'.$directory.'" is not a directory for user '.self::systemuser(), LOGGER_DEBUG);
+			return false;
+		}
+		if (!is_writable($directory)) {
+			logger('Path "'.$temppath.'" is not writable for user '.self::systemuser(), LOGGER_DEBUG);
+			return false;
+		}
+		return true;
+	}
 }
 
 /**
@@ -2308,8 +2366,9 @@ function get_itemcachepath() {
 		return "";
 
 	$itemcache = get_config('system','itemcache');
-	if (($itemcache != "") AND is_dir($itemcache) AND is_writable($itemcache))
+	if (($itemcache != "") AND App::directory_usable($itemcache)) {
 		return($itemcache);
+	}
 
 	$temppath = get_temppath();
 
@@ -2319,7 +2378,7 @@ function get_itemcachepath() {
 			mkdir($itemcache);
 		}
 
-		if (is_dir($itemcache) AND is_writable($itemcache)) {
+		if (App::directory_usable($itemcache)) {
 			set_config("system", "itemcache", $itemcache);
 			return($itemcache);
 		}
@@ -2329,20 +2388,22 @@ function get_itemcachepath() {
 
 function get_lockpath() {
 	$lockpath = get_config('system','lockpath');
-	if (($lockpath != "") AND is_dir($lockpath) AND is_writable($lockpath))
+	if (($lockpath != "") AND App::directory_usable($lockpath)) {
 		return($lockpath);
+	}
 
 	$temppath = get_temppath();
 
 	if ($temppath != "") {
 		$lockpath = $temppath."/lock";
 
-		if (!is_dir($lockpath))
+		if (!is_dir($lockpath)) {
 			mkdir($lockpath);
-		elseif (!is_writable($lockpath))
+		} elseif (!App::directory_usable($lockpath)) {
 			$lockpath = $temppath;
+		}
 
-		if (is_dir($lockpath) AND is_writable($lockpath)) {
+		if (App::directory_usable($lockpath)) {
 			set_config("system", "lockpath", $lockpath);
 			return($lockpath);
 		}
@@ -2357,7 +2418,7 @@ function get_lockpath() {
  */
 function get_spoolpath() {
 	$spoolpath = get_config('system','spoolpath');
-	if (($spoolpath != "") AND is_dir($spoolpath) AND is_writable($spoolpath)) {
+	if (($spoolpath != "") AND App::directory_usable($spoolpath)) {
 		return($spoolpath);
 	}
 
@@ -2368,11 +2429,11 @@ function get_spoolpath() {
 
 		if (!is_dir($spoolpath)) {
 			mkdir($spoolpath);
-		} elseif (!is_writable($spoolpath)) {
+		} elseif (!App::directory_usable($spoolpath)) {
 			$spoolpath = $temppath;
 		}
 
-		if (is_dir($spoolpath) AND is_writable($spoolpath)) {
+		if (App::directory_usable($spoolpath)) {
 			set_config("system", "spoolpath", $spoolpath);
 			return($spoolpath);
 		}
@@ -2384,16 +2445,18 @@ function get_temppath() {
 	$a = get_app();
 
 	$temppath = get_config("system","temppath");
-	if (($temppath != "") AND is_dir($temppath) AND is_writable($temppath))
+
+	if (($temppath != "") AND App::directory_usable($temppath)) {
 		return($temppath);
+	}
 
 	$temppath = sys_get_temp_dir();
-	if (($temppath != "") AND is_dir($temppath) AND is_writable($temppath)) {
+	if (($temppath != "") AND App::directory_usable($temppath)) {
 		$temppath .= "/".$a->get_hostname();
 		if (!is_dir($temppath))
 			mkdir($temppath);
 
-		if (is_dir($temppath) AND is_writable($temppath)) {
+		if (App::directory_usable($temppath)) {
 			set_config("system", "temppath", $temppath);
 			return($temppath);
 		}
