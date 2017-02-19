@@ -293,16 +293,16 @@ find that out. I hope this saves some time for other people using suhosin with
 function blacklists.
 
 ########################################################################
-Unable to create alle mysql tables on MySQL 5.7.17 or newer
+Unable to create all mysql tables on MySQL 5.7.17 or newer
 #######################################################################
 
 If the setup fails to create all the database tables and/or manual
-creation from the command line failes, with this error : 
+creation from the command line fails, with this error: 
 
 ERROR 1067 (42000) at line XX: Invalid default value for 'created' 
 
 You need to adjust your my.cnf and add the following setting under 
-the [mysqld] setion : 
+the [mysqld] section : 
 
 sql_mode = '';
 
