@@ -27,7 +27,7 @@ function spool_post_run($argv, $argc) {
 
 	$path = get_spoolpath();
 
-	if (is_writable($path)){
+	if (($path != '') AND is_writable($path)){
 		if ($dh = opendir($path)) {
 			while (($file = readdir($dh)) !== false) {
 
