@@ -857,7 +857,9 @@ function item_store($arr,$force_parent = false, $notify = false, $dontcache = fa
 		}
 
 		// Now we store the data in the spool directory
-		$file = 'item-'.round(microtime(true) * 10000).".msg";
+		// We use "microtime" to keep the arrival order and "mt_rand" to avoid duplicates
+		$file = 'item-'.round(microtime(true) * 10000).'-'.mt_rand().'.msg';
+
 		$spool = get_spoolpath().'/'.$file;
 		file_put_contents($spool, json_encode($arr));
 		logger("Item wasn't stored - Item was spooled into file ".$file, LOGGER_DEBUG);

@@ -1457,7 +1457,7 @@ class App {
 			return false;
 		}
 		if (!is_writable($directory)) {
-			logger('Path "'.$temppath.'" is not writable for user '.self::systemuser(), LOGGER_DEBUG);
+			logger('Path "'.$directory.'" is not writable for user '.self::systemuser(), LOGGER_DEBUG);
 			return false;
 		}
 		return true;
@@ -2367,7 +2367,7 @@ function get_itemcachepath() {
 
 	$itemcache = get_config('system','itemcache');
 	if (($itemcache != "") AND App::directory_usable($itemcache)) {
-		return($itemcache);
+		return $itemcache;
 	}
 
 	$temppath = get_temppath();
@@ -2380,7 +2380,7 @@ function get_itemcachepath() {
 
 		if (App::directory_usable($itemcache)) {
 			set_config("system", "itemcache", $itemcache);
-			return($itemcache);
+			return $itemcache;
 		}
 	}
 	return "";
@@ -2389,25 +2389,32 @@ function get_itemcachepath() {
 function get_lockpath() {
 	$lockpath = get_config('system','lockpath');
 	if (($lockpath != "") AND App::directory_usable($lockpath)) {
-		return($lockpath);
+		// We have a lock path and it is usable
+		return $lockpath;
 	}
 
+	// We don't have a working preconfigured lock path, so we take the temp path.
 	$temppath = get_temppath();
 
 	if ($temppath != "") {
+		// To avoid any interferences with other systems we create our own directory
 		$lockpath = $temppath."/lock";
-
 		if (!is_dir($lockpath)) {
 			mkdir($lockpath);
-		} elseif (!App::directory_usable($lockpath)) {
-			$lockpath = $temppath;
 		}
 
 		if (App::directory_usable($lockpath)) {
+			// The new path is usable, we are happy
 			set_config("system", "lockpath", $lockpath);
-			return($lockpath);
+			return $lockpath;
+		} else {
+			// We can't create a subdirectory, strange.
+			// But the directory seems to work, so we use it but don't store it.
+			return $temppath;
 		}
 	}
+
+	// Reaching this point means that the operating system is configured badly.
 	return "";
 }
 
@@ -2419,50 +2426,68 @@ function get_lockpath() {
 function get_spoolpath() {
 	$spoolpath = get_config('system','spoolpath');
 	if (($spoolpath != "") AND App::directory_usable($spoolpath)) {
-		return($spoolpath);
+		// We have a spool path and it is usable
+		return $spoolpath;
 	}
 
+	// We don't have a working preconfigured spool path, so we take the temp path.
 	$temppath = get_temppath();
 
 	if ($temppath != "") {
+		// To avoid any interferences with other systems we create our own directory
 		$spoolpath = $temppath."/spool";
-
 		if (!is_dir($spoolpath)) {
 			mkdir($spoolpath);
-		} elseif (!App::directory_usable($spoolpath)) {
-			$spoolpath = $temppath;
 		}
 
 		if (App::directory_usable($spoolpath)) {
+			// The new path is usable, we are happy
 			set_config("system", "spoolpath", $spoolpath);
-			return($spoolpath);
+			return $spoolpath;
+		} else {
+			// We can't create a subdirectory, strange.
+			// But the directory seems to work, so we use it but don't store it.
+			return $temppath;
 		}
 	}
+
+	// Reaching this point means that the operating system is configured badly.
 	return "";
 }
 
 function get_temppath() {
 	$a = get_app();
 
-	$temppath = get_config("system","temppath");
+	$temppath = get_config("system", "temppath");
 
 	if (($temppath != "") AND App::directory_usable($temppath)) {
-		return($temppath);
+		// We have a temp path and it is usable
+		return $temppath;
 	}
 
+	// We don't have a working preconfigured temp path, so we take the system path.
 	$temppath = sys_get_temp_dir();
-	if (($temppath != "") AND App::directory_usable($temppath)) {
-		$temppath .= "/".$a->get_hostname();
-		if (!is_dir($temppath))
-			mkdir($temppath);
 
-		if (App::directory_usable($temppath)) {
-			set_config("system", "temppath", $temppath);
-			return($temppath);
+	// Check if it is usable
+	if (($temppath != "") AND App::directory_usable($temppath)) {
+		// To avoid any interferences with other systems we create our own directory
+		$new_temppath .= "/".$a->get_hostname();
+		if (!is_dir($new_temppath))
+			mkdir($new_temppath);
+
+		if (App::directory_usable($new_temppath)) {
+			// The new path is usable, we are happy
+			set_config("system", "temppath", $new_temppath);
+			return $new_temppath;
+		} else {
+			// We can't create a subdirectory, strange.
+			// But the directory seems to work, so we use it but don't store it.
+			return $temppath;
 		}
 	}
 
-	return("");
+	// Reaching this point means that the operating system is configured badly.
+	return '';
 }
 
 /// @deprecated
