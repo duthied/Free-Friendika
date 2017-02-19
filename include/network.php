@@ -721,12 +721,14 @@ function strip_tracking_query_params($url)
  * This function strips tracking query params and follows redirections, either
  * through HTTP code or meta refresh tags. Stops after 10 redirections.
  *
+ * @todo Remove the $fetchbody parameter that generates an extraneous HEAD request
+ *
  * @see ParseUrl::getSiteinfo
  *
- * @param string $url
- * @param int $depth
- * @param bool $fetchbody
- * @return string
+ * @param string $url A user-submitted URL
+ * @param int $depth The current redirection recursion level (internal)
+ * @param bool $fetchbody Wether to fetch the body or not after the HEAD requests
+ * @return string A canonical URL
  */
 function original_url($url, $depth = 1, $fetchbody = false) {
 	$a = get_app();
