@@ -673,8 +673,8 @@ function fix_contact_ssl_policy(&$contact,$new_policy) {
 /**
  * @brief Remove Google Analytics and other tracking platforms params from URL
  *
- * @param string $url
- * @return string
+ * @param string $url Any user-submitted URL that may contain tracking params
+ * @return string The same URL stripped of tracking parameters
  */
 function strip_tracking_query_params($url)
 {
