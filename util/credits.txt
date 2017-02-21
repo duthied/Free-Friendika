@@ -20,6 +20,7 @@ aweiher
 axelt
 balderino
 Beanow
+beardyunixer
 Beatriz Vital
 Ben Roberts
 ben-utzer
@@ -49,6 +50,7 @@ Doru  DEACONU
 Dylan Thiedeke
 Développeur égaré
 eddy2508
+Eelco Maljaars
 effex7
 Elena
 emilia.krawczyk
@@ -84,6 +86,7 @@ Jeroen S
 jeroenpraat
 Johannes Schwab
 John Brazil
+Jonatan Nyberg
 Josef Moravek
 juanman
 julia.domagalska
