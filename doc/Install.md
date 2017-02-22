@@ -73,7 +73,7 @@ With newer releases of MySQL (5.7.17 or newer), you might need to set the sql_mo
 Use this setting when the installer is unable to create all the needed tables due to a timestamp format problem.
 In this case find the [mysqld] section in your my.cnf file and add the line :
 
-sql_mode = ''
+    sql_mode = ''
 
 Restart mysql and you should be fine.
 
