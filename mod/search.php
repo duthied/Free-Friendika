@@ -203,11 +203,12 @@ function search_content(App $a) {
 	} else {
 		logger("Start fulltext search for '".$search."'", LOGGER_DEBUG);
 
-		if (get_config('system','use_fulltext_engine')) {
-			$sql_extra = sprintf(" AND MATCH (`item`.`body`, `item`.`title`) AGAINST ('%s' in boolean mode) ", dbesc(protect_sprintf($search)));
-		} else {
+		// Disabled until finally is decided how to proceed with this
+		//if (get_config('system','use_fulltext_engine')) {
+		//	$sql_extra = sprintf(" AND MATCH (`item`.`body`, `item`.`title`) AGAINST ('%s' in boolean mode) ", dbesc(protect_sprintf($search)));
+		//} else {
 			$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
-		}
+		//}
 
 		$r = q("SELECT %s
 			FROM `item` %s
