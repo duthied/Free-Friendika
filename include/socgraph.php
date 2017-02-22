@@ -1592,6 +1592,11 @@ function get_gcontact_id($contact) {
  */
 function update_gcontact($contact) {
 
+	// Check for invalid "contact-type" value
+	if (isset($contact['contact-type']) AND (intval($contact['contact-type']) < 0)) {
+		$contact['contact-type'] = 0;
+	}
+
 	/// @todo update contact table as well
 
 	$gcontact_id = get_gcontact_id($contact);
