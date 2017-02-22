@@ -86,5 +86,16 @@ class dbm {
 	public static function esc_array(&$arr, $add_quotation = false) {
 		array_walk($arr, 'self::esc_array_callback', $add_quotation);
 	}
+
+	/**
+	 * Checks Converts any date string into a SQL compatible date string
+	 *
+	 * @param string $date a date string in any format
+	 * @return string SQL style date string
+	 */
+	public static function date($date) {
+		$timestamp = strtotime($date);
+		return date('Y-m-d H:i:s');
+	}
 }
 ?>

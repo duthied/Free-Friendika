@@ -622,7 +622,7 @@ function poco_last_updated($profile, $force = false) {
 			$last_updated = "0000-00-00 00:00:00";
 
 	q("UPDATE `gcontact` SET `updated` = '%s', `last_contact` = '%s' WHERE `nurl` = '%s'",
-		dbesc($last_updated), dbesc(datetime_convert()), dbesc(normalise_link($profile)));
+		dbesc(dbm::date($last_updated)), dbesc(datetime_convert()), dbesc(normalise_link($profile)));
 
 	if (($gcontacts[0]["generation"] == 0))
 		q("UPDATE `gcontact` SET `generation` = 9 WHERE `nurl` = '%s'",
