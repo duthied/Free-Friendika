@@ -10,7 +10,7 @@ $(document).ready(function(){
 			$("#back-to-top").fadeOut();
 		}
 	});
- 
+
 	// scroll body to 0px on click
 	$("#back-to-top").click(function () {
 		$("body,html").animate({
@@ -54,7 +54,7 @@ $(document).ready(function(){
 	}
 
 	// make responsive tabmenu with flexmenu.js
-	// the menupoints which doesn't fit in the second nav bar will moved to a 
+	// the menupoints which doesn't fit in the second nav bar will moved to a
 	// dropdown menu. Look at common_tabs.tpl
 	$("ul.tabs.flex-nav").flexMenu({
 		'cutoff': 2,
@@ -82,17 +82,17 @@ $(document).ready(function(){
 				return false;
 			}
 		});
-		
+
 		if(checked == true) {
 			$("a#item-delete-selected").fadeTo(400, 1);
 			$("a#item-delete-selected").show();
 		} else {
 			$("a#item-delete-selected").fadeTo(400, 0, function(){
 				$("a#item-delete-selected").hide();
-			});	
+			});
 		}
 	});
-		
+
 	//$('ul.flex-nav').flexMenu();
 
 	// initialize the bootstrap tooltips
@@ -128,7 +128,7 @@ $(document).ready(function(){
 		// append the new heading to the navbar
 		$("#topbar-second > .container > #tabmenu").append(newText);
 
-		// try to get the value of the original search input to insert it 
+		// try to get the value of the original search input to insert it
 		// as value in the nav-search-input
 		var searchValue = $("#search-wrapper .form-group-search input").val();
 

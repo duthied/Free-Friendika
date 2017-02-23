@@ -48,7 +48,8 @@ function viewcontacts_content(App $a) {
 	}
 
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
-		WHERE `uid` = %d AND (NOT `blocked` OR `pending`) AND NOT `hidden` AND NOT `archive`
+		WHERE `uid` = %d AND NOT `blocked` AND NOT `pending`
+			AND NOT `hidden` AND NOT `archive`
 			AND `network` IN ('%s', '%s', '%s')",
 		intval($a->profile['uid']),
 		dbesc(NETWORK_DFRN),
@@ -59,7 +60,8 @@ function viewcontacts_content(App $a) {
 		$a->set_pager_total($r[0]['total']);
 
 	$r = q("SELECT * FROM `contact`
-		WHERE `uid` = %d AND (NOT `blocked` OR `pending`) AND NOT `hidden` AND NOT `archive`
+		WHERE `uid` = %d AND NOT `blocked` AND NOT `pending`
+			AND NOT `hidden` AND NOT `archive`
 			AND `network` IN ('%s', '%s', '%s')
 		ORDER BY `name` ASC LIMIT %d, %d",
 		intval($a->profile['uid']),

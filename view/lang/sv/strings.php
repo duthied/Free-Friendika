@@ -5,7 +5,7 @@ function string_plural_select_sv($n){
 	return ($n != 1);;
 }}
 ;
-$a->strings["Add New Contact"] = "";
+$a->strings["Add New Contact"] = "Lägg till kontakt";
 $a->strings["Enter address or web location"] = "";
 $a->strings["Example: bob@example.com, http://example.com/barbara"] = "Exempel: adam@exempel.com, http://exempel.com/bertil";
 $a->strings["Connect"] = "Skicka kontaktf&ouml;rfr&aring;gan";
