@@ -93,9 +93,9 @@ class dbm {
 	 * @param string $date a date string in any format
 	 * @return string SQL style date string
 	 */
-	public static function date($date) {
+	public static function date($date = 'now') {
 		$timestamp = strtotime($date);
-		return date('Y-m-d H:i:s');
+		return date('Y-m-d H:i:s', $timestamp);
 	}
 }
 ?>
