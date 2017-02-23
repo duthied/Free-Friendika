@@ -95,6 +95,12 @@ class dbm {
 	 */
 	public static function date($date = 'now') {
 		$timestamp = strtotime($date);
+
+		// Don't allow lower date strings as '0001-01-01 00:00:00'
+		if ($timestamp < -62135596800) {
+			$timestamp = -62135596800;
+		}
+
 		return date('Y-m-d H:i:s', $timestamp);
 	}
 }
