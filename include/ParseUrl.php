@@ -146,7 +146,9 @@ class ParseUrl {
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (($check_cert) ? true : false));
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, (($check_cert) ? 2 : false));
+		if ($check_cert) {
+			@curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+		}
 
 		$header = curl_exec($ch);
 		$curl_info = @curl_getinfo($ch);
