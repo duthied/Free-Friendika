@@ -11,7 +11,6 @@ if (!file_exists("boot.php") AND (sizeof($_SERVER["argv"]) != 0)) {
 }
 
 use \Friendica\Core\Config;
-use \Friendica\Core\PConfig;
 
 require_once("boot.php");
 
@@ -28,6 +27,8 @@ function poller_run($argv, $argc){
 		$db = new dba($db_host, $db_user, $db_pass, $db_data);
 		unset($db_host, $db_user, $db_pass, $db_data);
 	};
+
+	Config::load();
 
 	// Quit when in maintenance
 	if (Config::get('system', 'maintenance', true)) {
