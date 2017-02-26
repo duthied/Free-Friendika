@@ -35,6 +35,10 @@ function poller_run($argv, $argc){
 		return;
 	}
 
+	$a->set_baseurl(Config::get('system', 'url'));
+
+	load_hooks();
+
 	$a->start_process();
 
 	if (poller_max_connections_reached()) {
@@ -561,7 +565,7 @@ function poller_worker_process() {
  * @brief Call the front end worker
  */
 function call_worker() {
-	if (!Config::get("system", "frontend_worker") OR !Config::get("system", "worker")) {
+	if (!Config::get("system", "frontend_worker")) {
 		return;
 	}
 
@@ -573,7 +577,7 @@ function call_worker() {
  * @brief Call the front end worker if there aren't any active
  */
 function call_worker_if_idle() {
-	if (!Config::get("system", "frontend_worker") OR !Config::get("system", "worker")) {
+	if (!Config::get("system", "frontend_worker")) {
 		return;
 	}
 

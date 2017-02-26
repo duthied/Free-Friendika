@@ -120,10 +120,6 @@
 	{{include file="field_input.tpl" field=$proxy}}
 	{{include file="field_input.tpl" field=$proxyuser}}
 	{{include file="field_input.tpl" field=$timeout}}
-	{{if NOT $worker.2}}
-		{{include file="field_input.tpl" field=$delivery_interval}}
-		{{include file="field_input.tpl" field=$poll_interval}}
-	{{/if}}
 	{{include file="field_input.tpl" field=$maxloadavg}}
 	{{include file="field_input.tpl" field=$maxloadavg_frontend}}
 	{{include file="field_input.tpl" field=$optimize_max_tablesize}}
@@ -157,13 +153,10 @@
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	<h3>{{$worker_title}}</h3>
-	{{include file="field_checkbox.tpl" field=$worker}}
-	{{if $worker.2}}
-		{{include file="field_input.tpl" field=$worker_queues}}
-		{{include file="field_checkbox.tpl" field=$worker_dont_fork}}
-		{{include file="field_checkbox.tpl" field=$worker_fastlane}}
-		{{include file="field_checkbox.tpl" field=$worker_frontend}}
-	{{/if}}
+	{{include file="field_input.tpl" field=$worker_queues}}
+	{{include file="field_checkbox.tpl" field=$worker_dont_fork}}
+	{{include file="field_checkbox.tpl" field=$worker_fastlane}}
+	{{include file="field_checkbox.tpl" field=$worker_frontend}}
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	</form>

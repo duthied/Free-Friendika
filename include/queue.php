@@ -1,41 +1,18 @@
 <?php
 
+/// @todo Rework the whole file to a single item processing
+
 use \Friendica\Core\Config;
 
-require_once("boot.php");
 require_once('include/queue_fn.php');
 require_once('include/dfrn.php');
+require_once("include/datetime.php");
+require_once('include/items.php');
+require_once('include/bbcode.php');
+require_once('include/socgraph.php');
 
 function queue_run(&$argv, &$argc){
-	global $a, $db;
-
-	if(is_null($a)){
-		$a = new App;
-	}
-
-	if(is_null($db)){
-		@include(".htconfig.php");
-		require_once("include/dba.php");
-		$db = new dba($db_host, $db_user, $db_pass, $db_data);
-		unset($db_host, $db_user, $db_pass, $db_data);
-	};
-
-	require_once("include/session.php");
-	require_once("include/datetime.php");
-	require_once('include/items.php');
-	require_once('include/bbcode.php');
-	require_once('include/socgraph.php');
-
-	Config::load();
-
-	// Don't check this stuff if the function is called by the poller
-	if (App::callstack() != "poller_run")
-		if (App::is_already_running('queue', 'include/queue.php', 540))
-			return;
-
-	$a->set_baseurl(get_config('system','url'));
-
-	load_hooks();
+	global $a;
 
 	if($argc > 1)
 		$queue_id = intval($argv[1]);
@@ -53,20 +30,11 @@ function queue_run(&$argv, &$argc){
 		// Handling the pubsubhubbub requests
 		proc_run(PRIORITY_HIGH,'include/pubsubpublish.php');
 
-		$interval = ((get_config('system','delivery_interval') === false) ? 2 : intval(get_config('system','delivery_interval')));
-
-		// If we are using the worker we don't need a delivery interval
-		if (get_config("system", "worker"))
-			$interval = false;
-
 		$r = q("select * from deliverq where 1");
 		if ($r) {
 			foreach ($r as $rr) {
 				logger('queue: deliverq');
 				proc_run(PRIORITY_HIGH,'include/delivery.php',$rr['cmd'],$rr['item'],$rr['contact']);
-				if($interval) {
-					time_sleep_until(microtime(true) + (float) $interval);
-				}
 			}
 		}
 
@@ -111,16 +79,14 @@ function queue_run(&$argv, &$argc){
 		// queue_predeliver hooks may have changed the queue db details,
 		// so check again if this entry still needs processing
 
-		if($queue_id)
+		if ($queue_id) {
 			$qi = q("SELECT * FROM `queue` WHERE `id` = %d LIMIT 1",
 				intval($queue_id));
-		elseif (get_config("system", "worker")) {
+		} else {
 			logger('Call queue for id '.$q_item['id']);
 			proc_run(PRIORITY_LOW, "include/queue.php", $q_item['id']);
 			continue;
-		} else
-			$qi = q("SELECT * FROM `queue` WHERE `id` = %d AND `last` < UTC_TIMESTAMP() - INTERVAL 15 MINUTE ",
-				intval($q_item['id']));
+		}
 
 		if(! count($qi))
 			continue;
@@ -225,10 +191,4 @@ function queue_run(&$argv, &$argc){
 	}
 
 	return;
-
-}
-
-if (array_search(__file__,get_included_files())===0){
-  queue_run($_SERVER["argv"],$_SERVER["argc"]);
-  killme();
 }

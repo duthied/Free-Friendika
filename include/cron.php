@@ -1,35 +1,11 @@
 <?php
-if (!file_exists("boot.php") AND (sizeof($_SERVER["argv"]) != 0)) {
-	$directory = dirname($_SERVER["argv"][0]);
-
-	if (substr($directory, 0, 1) != "/")
-		$directory = $_SERVER["PWD"]."/".$directory;
-
-	$directory = realpath($directory."/..");
-
-	chdir($directory);
-}
-
 use \Friendica\Core\Config;
 
-require_once("boot.php");
 require_once("include/photos.php");
 require_once("include/user.php");
 
-
 function cron_run(&$argv, &$argc){
-	global $a, $db;
-
-	if(is_null($a)) {
-		$a = new App;
-	}
-
-	if(is_null($db)) {
-		@include(".htconfig.php");
-		require_once("include/dba.php");
-		$db = new dba($db_host, $db_user, $db_pass, $db_data);
-		unset($db_host, $db_user, $db_pass, $db_data);
-	};
+	global $a;
 
 	require_once('include/session.php');
 	require_once('include/datetime.php');
@@ -39,16 +15,6 @@ function cron_run(&$argv, &$argc){
 	require_once('include/socgraph.php');
 	require_once('mod/nodeinfo.php');
 	require_once('include/post_update.php');
-
-	Config::load();
-
-	// Don't check this stuff if the function is called by the poller
-	if (App::callstack() != "poller_run") {
-		if ($a->maxload_reached())
-			return;
-		if (App::is_already_running('cron', 'include/cron.php', 540))
-			return;
-	}
 
 	$last = get_config('system','last_cron');
 
@@ -63,10 +29,6 @@ function cron_run(&$argv, &$argc){
 			return;
 		}
 	}
-
-	$a->set_baseurl(get_config('system','url'));
-
-	load_hooks();
 
 	logger('cron: start');
 
@@ -85,34 +47,17 @@ function cron_run(&$argv, &$argc){
 	// Expire and remove user entries
 	cron_expire_and_remove_users();
 
-	// If the worker is active, split the jobs in several sub processes
-	if (get_config("system", "worker")) {
-		// Check OStatus conversations
-		proc_run(PRIORITY_MEDIUM, "include/cronjobs.php", "ostatus_mentions");
+	// Check OStatus conversations
+	proc_run(PRIORITY_MEDIUM, "include/cronjobs.php", "ostatus_mentions");
 
-		// Check every conversation
-		proc_run(PRIORITY_MEDIUM, "include/cronjobs.php", "ostatus_conversations");
+	// Check every conversation
+	proc_run(PRIORITY_MEDIUM, "include/cronjobs.php", "ostatus_conversations");
 
-		// Call possible post update functions
-		proc_run(PRIORITY_LOW, "include/cronjobs.php", "post_update");
+	// Call possible post update functions
+	proc_run(PRIORITY_LOW, "include/cronjobs.php", "post_update");
 
-		// update nodeinfo data
-		proc_run(PRIORITY_LOW, "include/cronjobs.php", "nodeinfo");
-	} else {
-		// Check OStatus conversations
-		// Check only conversations with mentions (for a longer time)
-		ostatus::check_conversations(true);
-
-		// Check every conversation
-		ostatus::check_conversations(false);
-
-		// Call possible post update functions
-		// see include/post_update.php for more details
-		post_update();
-
-		// update nodeinfo data
-		nodeinfo_cron();
-	}
+	// update nodeinfo data
+	proc_run(PRIORITY_LOW, "include/cronjobs.php", "nodeinfo");
 
 	// once daily run birthday_updates and then expire in background
 
@@ -212,14 +157,6 @@ function cron_poll_contacts($argc, $argv) {
 		$manual_id = intval($argv[1]);
 		$force     = true;
 	}
-
-	$interval = intval(get_config('system','poll_interval'));
-	if (!$interval)
-		$interval = ((get_config('system','delivery_interval') === false) ? 3 : intval(get_config('system','delivery_interval')));
-
-	// If we are using the worker we don't need a delivery interval
-	if (get_config("system", "worker"))
-		$interval = false;
 
 	$sql_extra = (($manual_id) ? " AND `id` = $manual_id " : "");
 
@@ -335,9 +272,6 @@ function cron_poll_contacts($argc, $argv) {
 			} else {
 				proc_run(PRIORITY_LOW, 'include/onepoll.php', $contact['id']);
 			}
-
-			if($interval)
-				@time_sleep_until(microtime(true) + (float) $interval);
 		}
 	}
 }
@@ -487,9 +421,4 @@ function cron_repair_database() {
 	/// - remove sign entries without item
 	/// - remove children when parent got lost
 	/// - set contact-id in item when not present
-}
-
-if (array_search(__file__,get_included_files())===0){
-	cron_run($_SERVER["argv"],$_SERVER["argc"]);
-	killme();
 }

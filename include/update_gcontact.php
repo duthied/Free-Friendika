@@ -2,30 +2,11 @@
 
 use \Friendica\Core\Config;
 
-require_once("boot.php");
-
 function update_gcontact_run(&$argv, &$argc){
-	global $a, $db;
-
-	if(is_null($a)) {
-		$a = new App;
-	}
-
-	if(is_null($db)) {
-		@include(".htconfig.php");
-		require_once("include/dba.php");
-		$db = new dba($db_host, $db_user, $db_pass, $db_data);
-		unset($db_host, $db_user, $db_pass, $db_data);
-	};
+	global $a;
 
 	require_once('include/Scrape.php');
 	require_once("include/socgraph.php");
-
-	Config::load();
-
-	$a->set_baseurl(get_config('system','url'));
-
-	load_hooks();
 
 	logger('update_gcontact: start');
 
@@ -36,11 +17,6 @@ function update_gcontact_run(&$argv, &$argc){
 		logger('update_gcontact: no contact');
 		return;
 	}
-
-	// Don't check this stuff if the function is called by the poller
-	if (App::callstack() != "poller_run")
-		if (App::is_already_running('update_gcontact'.$contact_id, '', 540))
-			return;
 
 	$r = q("SELECT * FROM `gcontact` WHERE `id` = %d", intval($contact_id));
 
@@ -97,9 +73,4 @@ function update_gcontact_run(&$argv, &$argc){
 				dbesc($data["addr"]),
 				dbesc(normalise_link($data["url"]))
 			);
-}
-
-if (array_search(__file__,get_included_files())===0){
-	update_gcontact_run($_SERVER["argv"],$_SERVER["argc"]);
-	killme();
 }
