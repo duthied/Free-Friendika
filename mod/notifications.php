@@ -194,10 +194,12 @@ function notifications_content(App $a) {
 						if($it['network'] === NETWORK_DFRN) {
 							$lbl_knowyou = t('Claims to be known to you: ');
 							$knowyou = (($it['knowyou']) ? t('yes') : t('no'));
-							$helptext = t('Shall your connection be bidirectional or not? "Friend" implies that you allow to read and you subscribe to their posts. "Fan/Admirer" means that you allow to read but you do not want to read theirs. Approve as: ');
+							$helptext = t('Shall your connection be bidirectional or not?');
+							$helptext2 = t('"Friend" implies that you allow to read and you subscribe to their posts. "Subscriber" means that you allow to read but you do not want to read theirs. Approve as: ');
 						} else {
 							$knowyou = '';
-							$helptext = t('Shall your connection be bidirectional or not? "Friend" implies that you allow to read and you subscribe to their posts. "Sharer" means that you allow to read but you do not want to read theirs. Approve as: ');
+							$helptext = t('Shall your connection be bidirectional or not?');
+							$helptext2 = t('"Friend" implies that you allow to read and you subscribe to their posts. "Sharer" means that you allow to read but you do not want to read theirs. Approve as: ');
 						}
 					}
 
@@ -205,9 +207,10 @@ function notifications_content(App $a) {
 						'$intro_id' => $it['intro_id'],
 						'$friend_selected' => $friend_selected,
 						'$fan_selected' => $fan_selected,
-						'$approve_as' => $helptext,
+						'$approve_as1' => $helptext,
+						'$approve_as2' => $helptext2,
 						'$as_friend' => t('Friend'),
-						'$as_fan' => (($it['network'] == NETWORK_DIASPORA) ? t('Sharer') : t('Fan/Admirer'))
+						'$as_fan' => (($it['network'] == NETWORK_DIASPORA) ? t('Sharer') : t('Subscriber'))
 					));
 
 					$header = $it["name"];
