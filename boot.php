@@ -1386,17 +1386,15 @@ class App {
 
 			// If the last worker fork was less than 10 seconds before then don't fork another one.
 			// This should prevent the forking of masses of workers.
-			if (get_config("system", "worker")) {
-				$cachekey = "app:proc_run:started";
-				$result = Cache::get($cachekey);
-				if (!is_null($result)) {
-					if ((time() - $result) < 10) {
-						return;
-					}
+			$cachekey = "app:proc_run:started";
+			$result = Cache::get($cachekey);
+			if (!is_null($result)) {
+				if ((time() - $result) < 10) {
+					return;
 				}
-				// Set the timestamp of the last proc_run
-				Cache::set($cachekey, time(), CACHE_MINUTE);
 			}
+			// Set the timestamp of the last proc_run
+			Cache::set($cachekey, time(), CACHE_MINUTE);
 
 			$args[0] = ((x($this->config,'php_path')) && (strlen($this->config['php_path'])) ? $this->config['php_path'] : 'php');
 		}
@@ -2000,7 +1998,8 @@ function proc_run($cmd){
 	if (!$arr['run_cmd'] OR !count($args))
 		return;
 
-	if (!get_config("system", "worker") OR (is_string($run_parameter) AND ($run_parameter != 'php'))) {
+	/// @todo I guess we can remove it, since we don't call it with something different
+	if (is_string($run_parameter) AND ($run_parameter != 'php')) {
 		$a->proc_run($args);
 		return;
 	}
