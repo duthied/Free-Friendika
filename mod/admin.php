@@ -270,8 +270,8 @@ function admin_page_federation(App $a) {
 	// off one % two of them are needed in the query
 	// Add more platforms if you like, when one returns 0 known nodes it is not
 	// displayed on the stats page.
-	$platforms = array('Friendica', 'Diaspora', '%%red%%', 'Hubzilla', 'BlaBlaNet', 'GNU Social', 'StatusNet', 'Mastodon');
-	$colors    = array('Friendica' => '#ffc018',     // orange from the logo
+	$platforms = array('Friendi%%a', 'Diaspora', '%%red%%', 'Hubzilla', 'BlaBlaNet', 'GNU Social', 'StatusNet', 'Mastodon');
+	$colors    = array('Friendi%%a' => '#ffc018',     // orange from the logo
 			   'Diaspora'  => '#a1a1a1',     // logo is black and white, makes a gray
 			   '%%red%%'   => '#c50001',     // fire red from the logo
 			   'Hubzilla'  => '#43488a',     // blue from the logo
@@ -333,7 +333,7 @@ function admin_page_federation(App $a) {
 		// early friendica versions have the format x.x.xxxx where xxxx is the
 		// DB version stamp; those should be operated out and versions be
 		// conbined
-		if($p=='Friendica') {
+		if($p=='Friendi%%a') {
 			$newV = array();
 			$newVv = array();
 			foreach ($v as $vv) {
