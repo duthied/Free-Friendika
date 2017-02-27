@@ -125,7 +125,6 @@
 	{{include file="field_input.tpl" field=$optimize_max_tablesize}}
 	{{include file="field_input.tpl" field=$optimize_fragmentation}}
 	{{include file="field_input.tpl" field=$abandon_days}}
-	{{include file="field_input.tpl" field=$lockpath}}
 	{{include file="field_input.tpl" field=$temppath}}
 	{{include file="field_input.tpl" field=$basepath}}
 	{{include file="field_checkbox.tpl" field=$suppress_language}}
