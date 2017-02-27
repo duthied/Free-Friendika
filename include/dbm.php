@@ -98,7 +98,7 @@ class dbm {
 
 		// Workaround for 3.5.1
 		if ($timestamp < -62135596800) {
-			return '0000-00-00 00:00:00';
+			return NULL_DATE;
 		}
 
 		// The above will be removed in 3.5.2

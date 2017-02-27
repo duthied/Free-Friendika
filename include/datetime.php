@@ -126,7 +126,7 @@ function datetime_convert($from = 'UTC', $to = 'UTC', $s = 'now', $fmt = "Y-m-d 
 	// add 32 days so that we at least get year 00, and then hack around the fact that
 	// months and days always start with 1.
 
-	if(substr($s,0,10) == '0000-00-00') {
+	if(substr($s,0,10) <= '0001-01-01') {
 		$d = new DateTime($s . ' + 32 days', new DateTimeZone('UTC'));
 		return str_replace('1','0',$d->format($fmt));
 	}
@@ -171,7 +171,7 @@ function dob($dob) {
 	$f = get_config('system','birthday_input_format');
 	if(! $f)
 		$f = 'ymd';
-	if($dob === '0000-00-00')
+	if($dob <= '0001-01-01')
 		$value = '';
 	else
 		$value = (($year) ? datetime_convert('UTC','UTC',$dob,'Y-m-d') : datetime_convert('UTC','UTC',$dob,'m-d'));
@@ -339,7 +339,7 @@ function relative_date($posted_date, $format = null) {
 
 	$abs = strtotime($localtime);
 
-	if (is_null($posted_date) || $posted_date === '0000-00-00 00:00:00' || $abs === False) {
+	if (is_null($posted_date) || $posted_date <= NULL_DATE || $abs === False) {
 		 return t('never');
 	}
 
@@ -553,7 +553,7 @@ function update_contact_birthdays() {
 	// This only handles foreign or alien networks where a birthday has been provided.
 	// In-network birthdays are handled within local_delivery
 
-	$r = q("SELECT * FROM contact WHERE `bd` != '' AND `bd` != '0000-00-00' AND SUBSTRING(`bd`,1,4) != `bdyear` ");
+	$r = q("SELECT * FROM contact WHERE `bd` != '' AND `bd` >= '0001-01-01' AND SUBSTRING(`bd`,1,4) != `bdyear` ");
 	if (dbm::is_result($r)) {
 		foreach ($r as $rr) {
 

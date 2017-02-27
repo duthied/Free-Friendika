@@ -534,11 +534,11 @@ function contacts_content(App $a) {
 
 		$insecure = t('Private communications are not available for this contact.');
 
-		$last_update = (($contact['last-update'] == '0000-00-00 00:00:00')
+		$last_update = (($contact['last-update'] <= NULL_DATE)
 				? t('Never')
 				: datetime_convert('UTC',date_default_timezone_get(),$contact['last-update'],'D, j M Y, g:i A'));
 
-		if($contact['last-update'] !== '0000-00-00 00:00:00')
+		if($contact['last-update'] > NULL_DATE)
 			$last_update .= ' ' . (($contact['last-update'] <= $contact['success_update']) ? t("\x28Update was successful\x29") : t("\x28Update was not successful\x29"));
 
 		$lblsuggest = (($contact['network'] === NETWORK_DFRN) ? t('Suggest friends') : '');
@@ -558,7 +558,7 @@ function contacts_content(App $a) {
 		// tabs
 		$tab_str = contacts_tab($a, $contact_id, 2);
 
-		$lost_contact = (($contact['archive'] && $contact['term-date'] != '0000-00-00 00:00:00' && $contact['term-date'] < datetime_convert('','','now')) ? t('Communications lost with this contact!') : '');
+		$lost_contact = (($contact['archive'] && $contact['term-date'] > NULL_DATE && $contact['term-date'] < datetime_convert('','','now')) ? t('Communications lost with this contact!') : '');
 
 		if ($contact['network'] == NETWORK_FEED)
 			$fetch_further_information = array('fetch_further_information', t('Fetch further information for feeds'), $contact['fetch_further_information'], t('Fetch further information for feeds'),

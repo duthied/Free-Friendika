@@ -129,7 +129,7 @@ function mark_for_death($contact) {
 	if($contact['archive'])
 		return;
 
-	if($contact['term-date'] == '0000-00-00 00:00:00') {
+	if($contact['term-date'] <= NULL_DATE) {
 		q("UPDATE `contact` SET `term-date` = '%s' WHERE `id` = %d",
 				dbesc(datetime_convert()),
 				intval($contact['id'])
@@ -187,13 +187,13 @@ function unmark_for_death($contact) {
 
 	// It's a miracle. Our dead contact has inexplicably come back to life.
 	q("UPDATE `contact` SET `term-date` = '%s' WHERE `id` = %d",
-		dbesc('0000-00-00 00:00:00'),
+		dbesc(NULL_DATE),
 		intval($contact['id'])
 	);
 
 	if ($contact['url'] != '') {
 		q("UPDATE `contact` SET `term-date` = '%s' WHERE `nurl` = '%s'",
-			dbesc('0000-00-00 00:00:00'),
+			dbesc(NULL_DATE),
 			dbesc(normalise_link($contact['url']))
 		);
 	}
@@ -256,7 +256,7 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 
 		// "bd" always contains the upcoming birthday of a contact.
 		// "birthday" might contain the birthday including the year of birth.
-		if ($profile["birthday"] != "0000-00-00") {
+		if ($profile["birthday"] >= "0001-01-01") {
 			$bd_timestamp = strtotime($profile["birthday"]);
 			$month = date("m", $bd_timestamp);
 			$day = date("d", $bd_timestamp);
@@ -273,7 +273,7 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 				$profile["bd"] = (++$current_year)."-".$month."-".$day;
 			}
 		} else {
-			$profile["bd"] = "0000-00-00";
+			$profile["bd"] = "0001-01-01";
 		}
 	} else {
 		$profile = $default;
@@ -309,7 +309,7 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 		$profile["location"] = "";
 		$profile["about"] = "";
 		$profile["gender"] = "";
-		$profile["birthday"] = "0000-00-00";
+		$profile["birthday"] = "0001-01-01";
 	}
 
 	$cache[$url][$uid] = $profile;

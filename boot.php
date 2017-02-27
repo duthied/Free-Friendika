@@ -442,6 +442,14 @@ define('SR_SCOPE_ALL',  'all');
 define('SR_SCOPE_TAGS', 'tags');
 /* @}*/
 
+/**
+ * Lowest possible date time value
+ */
+
+//define ('NULL_DATE', '0001-01-01 00:00:00');
+define ('NULL_DATE', '0000-00-00 00:00:00');
+
+
 // Normally this constant is defined - but not if "pcntl" isn't installed
 if (!defined("SIGTERM"))
 	define("SIGTERM", 15);
@@ -2039,7 +2047,7 @@ function proc_run($cmd){
 	}
 
 	// Checking number of workers
-	$workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
+	$workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` > '%s'", dbesc(NULL_DATE));
 
 	// Get number of allowed number of worker threads
 	$queues = intval(get_config("system", "worker_queues"));

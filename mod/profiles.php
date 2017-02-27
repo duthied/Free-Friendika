@@ -191,21 +191,21 @@ function profiles_post(App $a) {
 			return;
 		}
 
-		$dob = $_POST['dob'] ? escape_tags(trim($_POST['dob'])) : '0000-00-00'; // FIXME: Needs to be validated?
+		$dob = $_POST['dob'] ? escape_tags(trim($_POST['dob'])) : '0001-01-01'; // FIXME: Needs to be validated?
 
 		$y = substr($dob,0,4);
 		if((! ctype_digit($y)) || ($y < 1900))
 			$ignore_year = true;
 		else
 			$ignore_year = false;
-		if($dob != '0000-00-00') {
-			if(strpos($dob,'0000-') === 0) {
+		if($dob > '0001-01-01') {
+			if(strpos($dob,'000') === 0) {
 				$ignore_year = true;
 				$dob = substr($dob,5);
 			}
 			$dob = datetime_convert('UTC','UTC',(($ignore_year) ? '1900-' . $dob : $dob),(($ignore_year) ? 'm-d' : 'Y-m-d'));
 			if($ignore_year)
-				$dob = '0000-' . $dob;
+				$dob = '0001-' . $dob;
 		}
 
 		$name = notags(trim($_POST['name']));
@@ -234,7 +234,7 @@ function profiles_post(App $a) {
 		$with = ((x($_POST,'with')) ? notags(trim($_POST['with'])) : '');
 
 		if(! strlen($howlong))
-			$howlong = '0000-00-00 00:00:00';
+			$howlong = NULL_DATE;
 		else
 			$howlong = datetime_convert(date_default_timezone_get(),'UTC',$howlong);
 
@@ -721,7 +721,7 @@ function profiles_content(App $a) {
 			'$gender' => gender_selector($r[0]['gender']),
 			'$marital' => marital_selector($r[0]['marital']),
 			'$with' => array('with', t("Who: \x28if applicable\x29"), strip_tags($r[0]['with']), t('Examples: cathy123, Cathy Williams, cathy@example.com')),
-			'$howlong' => array('howlong', t('Since [date]:'), ($r[0]['howlong'] === '0000-00-00 00:00:00' ? '' : datetime_convert('UTC',date_default_timezone_get(),$r[0]['howlong']))),
+			'$howlong' => array('howlong', t('Since [date]:'), ($r[0]['howlong'] <= NULL_DATE ? '' : datetime_convert('UTC',date_default_timezone_get(),$r[0]['howlong']))),
 			'$sexual' => sexpref_selector($r[0]['sexual']),
 			'$about' => array('about', t('Tell us about yourself...'), $r[0]['about']),
 			'$xmpp' => array('xmpp', t('XMPP (Jabber) address:'), $r[0]['xmpp'], t("The XMPP address will be propagated to your contacts so that they can follow you.")),
