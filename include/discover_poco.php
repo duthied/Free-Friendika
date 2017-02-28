@@ -155,6 +155,10 @@ function discover_directory($search) {
  */
 function gs_search_user($search) {
 
+	// Currently disabled, since the service isn't available anymore.
+	// It is not removed since I hope that there will be a successor.
+	return false;
+
 	$a = get_app();
 
 	$url = "http://gstools.org/api/users_search/".urlencode($search);
