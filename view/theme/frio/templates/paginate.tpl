@@ -1,3 +1,4 @@
+{{* Pager template, uses output of paginate_data() in include/text.php *}}
 {{if $pager}}
 <div class="{{$pager.class}}">
 	{{if $pager.first}}<li class="pager_first {{$pager.first.class}}"><a href="{{$pager.first.url}}">{{$pager.first.text}}</a></li>{{/if}}

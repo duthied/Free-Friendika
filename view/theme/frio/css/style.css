@@ -2508,16 +2508,7 @@ body .tread-wrapper .hovercard:hover .hover-card-content a {
     color: $link_color !important;
 }
 
-/*
- * some temporary workarounds until this will solved
- * elsewhere (e.g. new templates)
- */
-section .profile-match-wrapper {
-    float: left;
-}
-
 /* Pagination improvements */
-
 .pagination > li > a,
 .pagination > li > span {
 	color: $link_color;
@@ -2531,7 +2522,14 @@ section .profile-match-wrapper {
 	background-color: $link_color;
     border-color: $link_color;
 }
-
 .disabled > a {
 	pointer-events: none;
+}
+
+/*
+ * some temporary workarounds until this will solved
+ * elsewhere (e.g. new templates)
+ */
+section .profile-match-wrapper {
+    float: left;
 }
