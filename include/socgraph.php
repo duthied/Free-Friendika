@@ -680,7 +680,13 @@ function poco_to_boolean($val) {
 	return ($val);
 }
 
-function poco_detect_friendica_server($body) {
+/**
+ * @brief Detect server type (Hubzilla or Friendica) via the front page body
+ *
+ * @param string $body Front page of the server
+ * @return array Server data
+ */
+function poco_detect_server_type($body) {
 	$server = false;
 
 	$doc = new \DOMDocument();
@@ -704,6 +710,27 @@ function poco_detect_friendica_server($body) {
 					$server["platform"] = $version_part[0];
 					$server["version"] = $version_part[1];
 					$server["network"] = NETWORK_DFRN;
+				}
+			}
+		}
+	}
+
+	if (!$server) {
+		$list = $xpath->query("//meta[@property]");
+
+		foreach ($list as $node) {
+			$attr = array();
+			if ($node->attributes->length) {
+				foreach ($node->attributes as $attribute) {
+					$attr[$attribute->name] = $attribute->value;
+				}
+			}
+			if ($attr['property'] == 'generator') {
+				if (in_array($attr['content'], array("hubzilla"))) {
+					$server = array();
+					$server["platform"] = $attr['content'];
+					$server["version"] = "";
+					$server["network"] = NETWORK_DIASPORA;
 				}
 			}
 		}
@@ -794,13 +821,22 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		$last_contact = datetime_convert();
 
 	if (!$failure) {
-		// Test for Diaspora
+		// Test for Diaspora, Hubzilla, Mastodon or older Friendica servers
 		$serverret = z_fetch_url($server_url);
 
 		if (!$serverret["success"] OR ($serverret["body"] == "")) {
 			$last_failure = datetime_convert();
 			$failure = true;
 		} else {
+			$server = poco_detect_server_type($serverret["body"]);
+			if ($server) {
+				$platform = $server['platform'];
+				$network = $server['network'];
+				$version = $server['version'];
+				$site_name = $server['site_name'];
+				$last_contact = datetime_convert();
+			}
+
 			$lines = explode("\n",$serverret["header"]);
 			if(count($lines)) {
 				foreach($lines as $line) {
@@ -823,15 +859,6 @@ function poco_check_server($server_url, $network = "", $force = false) {
 						$last_contact = datetime_convert();
 					}
 				}
-			}
-
-			$friendica_server = poco_detect_friendica_server($serverret["body"]);
-			if ($friendica_server) {
-				$platform = $friendica_server['platform'];
-				$network = $friendica_server['network'];
-				$version = $friendica_server['version'];
-				$site_name = $friendica_server['site_name'];
-				$last_contact = datetime_convert();
 			}
 		}
 	}
@@ -859,6 +886,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 			$last_contact = datetime_convert();
 		}
 
+		// Test for Hubzilla, Redmatrix or Friendica
 		$serverret = z_fetch_url($server_url."/api/statusnet/config.json");
 		if ($serverret["success"]) {
 			$data = json_decode($serverret["body"]);
