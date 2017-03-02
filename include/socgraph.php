@@ -1316,18 +1316,20 @@ function poco_discover_federation() {
 			poco_check_server("https://".$server->host);
 	}
 
-	// Discover GNU Social Servers
-	if (!get_config('system','ostatus_disabled')) {
-		$serverdata = "http://gstools.org/api/get_open_instances/";
+	// Currently disabled, since the service isn't available anymore.
+	// It is not removed since I hope that there will be a successor.
+	// Discover GNU Social Servers.
+	//if (!get_config('system','ostatus_disabled')) {
+	//	$serverdata = "http://gstools.org/api/get_open_instances/";
 
-		$result = z_fetch_url($serverdata);
-		if ($result["success"]) {
-			$servers = json_decode($result["body"]);
+	//	$result = z_fetch_url($serverdata);
+	//	if ($result["success"]) {
+	//		$servers = json_decode($result["body"]);
 
-			foreach($servers->data AS $server)
-				poco_check_server($server->instance_address);
-		}
-	}
+	//		foreach($servers->data AS $server)
+	//			poco_check_server($server->instance_address);
+	//	}
+	//}
 
 	set_config('poco','last_federation_discovery', time());
 }

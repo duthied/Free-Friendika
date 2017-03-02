@@ -282,14 +282,12 @@ function profile_content(App $a, $update = 0) {
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
 				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
 			WHERE `thread`.`uid` = %d AND `thread`.`visible`
-				AND `thread`.`contact-id` = %d
 				AND NOT `thread`.`deleted`
 				AND NOT `thread`.`moderated`
 				AND `thread`.`wall`
 				$sql_extra $sql_extra2
 			ORDER BY `thread`.`created` DESC $pager_sql",
-			intval($a->profile['profile_uid']),
-			intval($a->profile['contact_id'])
+			intval($a->profile['profile_uid'])
 		);
 	}
 

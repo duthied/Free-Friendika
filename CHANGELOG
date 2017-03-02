@@ -33,7 +33,6 @@ Version 3.5.1
     ping now works with JSON as well [Hypolite]
     On pending registrations, an email is now send to inform the user about it [tobiasd]
     On systems where the registration needs approval, a note for the admin can now be written [tobiasd]
-    Theme developers can now announce if their theme does support the RichText editor or not [heluecht, rabuzarus]
     Meta Information for HTML descriptions is now limited to 160 character [rabuzarus]
     Removed very old deprecated themes from the repository [silke]
     Marked frost and frost mobile as deprecated [silke]
@@ -64,7 +63,7 @@ Version 3.5.1
     2850, 2858, 2865, 2892, 2894, 2895, 2907, 2908, 2914, 2015, 2926,
     2948, 2955, 2958, 2963, 2964, 2968, 2987, 2993, 3020, 3052, 3062,
     3066, 3091, 3108, 3113, 3116, 3117, 3118, 3126, 3130, 3135, 3155,
-    3163
+    3160, 3163, 3196
 
 Version 3.5 (2016-09-13)
   Friendica Core:
