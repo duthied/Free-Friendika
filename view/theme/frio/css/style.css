@@ -185,6 +185,12 @@ a#item-delete-selected {
     outline: 0;
     background: $btn_primary_hover_color !important;
 }
+.btn-default:active, .btn-default.active {
+    color: $link_color;
+}
+.btn-default:active:hover, .btn-default.active:hover {
+    color: $link_hover_color;
+}
 .btn-primary.active.focus, .btn-primary.active:focus, .btn-primary.active:hover,
 .btn-primary:active.focus, .btn-primary:active:focus, .btn-primary:active:hover,
 .open>.dropdown-toggle.btn-primary.focus, .open>.dropdown-toggle.btn-primary:focus,
@@ -835,41 +841,41 @@ nav.navbar a {
 .contact-photo-wrapper .dropdown-menu li {
     border-left: 3px solid $nav_bg;
 }
-.nav-pills .dropdown-menu li a,
-.nav-tabs .dropdown-menu li a,
-.account .dropdown-menu li a,
-.contact-photo-wrapper .dropdown-menu li a {
+.nav-pills .dropdown-menu li a, .nav-pills .dropdown-menu li .btn-link,
+.nav-tabs .dropdown-menu li a, .nav-tabs .dropdown-menu li .btn-link,
+.account .dropdown-menu li a, .account .dropdown-menu li .btn-link,
+.contact-photo-wrapper .dropdown-menu li a, .contact-photo-wrapper .dropdown-menu li .btn-link {
     color: $nav_icon_color;
     font-weight: 400;
     font-size: 13px;
     padding: 4px 15px;
     text-transform: capitalize;
 }
-.nav-pills .dropdown-menu li a i,
-.nav-tabs .dropdown-menu li a i,
-.account .dropdown-menu li a i,
-.contact-photo-wrapper .dropdown-menu li a i {
+.nav-pills .dropdown-menu li a i, .nav-pills .dropdown-menu li .btn-link i,
+.nav-tabs .dropdown-menu li a i, .nav-tabs .dropdown-menu li .btn-link i,
+.account .dropdown-menu li a i, .account .dropdown-menu li .btn-link i,
+.contact-photo-wrapper .dropdown-menu li a i, .contact-photo-wrapper .dropdown-menu li .btn-link i {
     margin-right: 5px;
     font-size: 14px;
     display: inline-block;
     width: 14px
 }
-.nav-pills .dropdown-menu li a:hover,
-.nav-tabs .dropdown-menu li a:hover,
-.account .dropdown-menu li a:hover,
-.contact-photo-wrapper .dropdown-menu li a:hover,
-.nav-pills .dropdown-menu li a:visited,
-.nav-tabs .dropdown-menu li a:visited,
-.account .dropdown-menu li a:visited,
-.contact-photo-wrapper .dropdown-menu li a:visited,
-.nav-pills .dropdown-menu li a:hover,
-.nav-tabs .dropdown-menu li a:hover,
-.account .dropdown-menu li a:hover,
-.contact-photo-wrapper .dropdown-menu li a:hover,
-.nav-pills .dropdown-menu li a:focus,
-.nav-tabs .dropdown-menu li a:focus,
-.account .dropdown-menu li a:focus,
-.contact-photo-wrapper .dropdown-menu li a:focus {
+.nav-pills .dropdown-menu li a:hover, .nav-pills .dropdown-menu li .btn-link:hover,
+.nav-tabs .dropdown-menu li a:hover, .nav-tabs .dropdown-menu li .btn-link:hover,
+.account .dropdown-menu li a:hover, .account .dropdown-menu li .btn-link:hover,
+.contact-photo-wrapper .dropdown-menu li a:hover, .contact-photo-wrapper .dropdown-menu li .btn-link:hover,
+.nav-pills .dropdown-menu li a:visited, .nav-pills .dropdown-menu li .btn-link:visited,
+.nav-tabs .dropdown-menu li a:visited, .nav-tabs .dropdown-menu li .btn-link:visited,
+.account .dropdown-menu li a:visited, .account .dropdown-menu li .btn-link:visited,
+.contact-photo-wrapper .dropdown-menu li a:visited, .contact-photo-wrapper .dropdown-menu li .btn-link:visited,
+.nav-pills .dropdown-menu li a:hover, .nav-pills .dropdown-menu li .btn-link:hover,
+.nav-tabs .dropdown-menu li a:hover, .nav-tabs .dropdown-menu li .btn-link:hover,
+.account .dropdown-menu li a:hover, .account .dropdown-menu li .btn-link:hover,
+.contact-photo-wrapper .dropdown-menu li a:hover, .contact-photo-wrapper .dropdown-menu li .btn-link:hover,
+.nav-pills .dropdown-menu li a:focus, .nav-pills .dropdown-menu li .btn-link:focus,
+.nav-tabs .dropdown-menu li a:focus, .nav-tabs .dropdown-menu li .btn-link:focus,
+.account .dropdown-menu li a:focus, .account .dropdown-menu li .btn-link:focus,
+.contact-photo-wrapper .dropdown-menu li a:focus, .contact-photo-wrapper .dropdown-menu li .btn-link:focus {
     background: 0 0
 }
 .nav-pills .dropdown-menu li:hover,
@@ -1314,7 +1320,7 @@ section #jotOpen {
 }
 
 .toplevel_item:hover .fakelink, .wall-item-container:hover .fakelink,
-.toplevel_item:hover .wall-item-container:hover .btn-link,
+.toplevel_item:hover .wall-item-container:hover :not(.dropdown):not([role=menuitem]) > .btn-link,
 .toplevel_item:hover .wall-item-container:hover .wall-item-responses a,
 .toplevel_item:hover .wall-item-content a,
 .toplevel_item:hover .wall-item-name,
@@ -1563,8 +1569,6 @@ code > .hl-main {
 .wall-item-actions .button-comments,
 .wall-item-actions .button-votes,
 .wall-item-actions .button-likes {
-    padding-left: 0px;
-    padding-right: 0px;
     text-transform: capitalize;
 }
 
@@ -1638,6 +1642,9 @@ code > .hl-main {
 /*
 * Comment Box
 */
+.wall-item-comment-wrapper {
+	margin-top: 10px;
+}
 .thread_level_2 .wall-item-comment-wrapper {
     padding-right: 5px;
 }
