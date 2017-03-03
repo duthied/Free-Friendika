@@ -553,9 +553,8 @@ nav.navbar .nav>li>a:focus{
 #topbar-first .dropdown-footer {
     margin: 10px 10px 5px
 }
-#topbar-first a,
-nav.navbar a {
-    /*color: #fff*/
+#topbar-first a, #topbar-first .btn-link,
+nav.navbar a, nav.navbar .btn-link {
     color: $nav_icon_color;
 }
 #topbar-first .caret {

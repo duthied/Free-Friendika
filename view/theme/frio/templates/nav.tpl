@@ -119,7 +119,7 @@
 					{{* The user dropdown menu *}}
 					{{if $nav.userinfo}}
 					<li role="menu" id="nav-user-linkmenu" class="dropdown account nav-menu hidden-xs">
-						<a href="#" id="main-menu" class="dropdown-toggle nav-avatar " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+						<button id="main-menu" class="btn-link dropdown-toggle nav-avatar" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false">
 							<div class="user-title pull-left hidden-xs hidden-sm hidden-md">
 								<strong>{{$nav.userinfo.name}}</strong><br>
 								{{if $nav.remote}}<span class="trunctate">{{$nav.remote}}</span>{{/if}}
@@ -127,8 +127,7 @@
 
 							<img  id="avatar" src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}">
 							<span class="caret"></span>
-
-						</a>
+						</button>
 
 						{{* The list of available usermenu links *}}
 						<ul id="nav-user-menu" class="dropdown-menu pull-right menu-popup" role="group" aria-labelledby="main-menu">
