@@ -27,6 +27,12 @@ function poco_init(App $a) {
 	$justme = false;
 	$global = false;
 
+	if($a->argc > 1 && $a->argv[1] === '@server') {
+		$ret = poco_serverlist();
+		header('Content-type: application/json');
+		echo json_encode($ret);
+		killme();
+	}
 	if($a->argc > 1 && $a->argv[1] === '@global') {
 		$global = true;
 		$update_limit = date("Y-m-d H:i:s", time() - 30 * 86400);
@@ -314,11 +320,9 @@ function poco_init(App $a) {
 
 				$ret['entry'][] = $entry;
 			}
-		}
-		else
+		} else
 			$ret['entry'][] = array();
-	}
-	else
+	} else
 		http_status_exit(500);
 
 	logger("End of poco", LOGGER_DEBUG);
@@ -332,8 +336,7 @@ function poco_init(App $a) {
 		header('Content-type: application/json');
 		echo json_encode($ret);
 		killme();
-	}
-	else
+	} else
 		http_status_exit(500);
 
 

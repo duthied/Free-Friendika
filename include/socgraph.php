@@ -2024,4 +2024,25 @@ function gs_discover() {
 		q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
 	}
 }
+
+/**
+ * @brief Returns a list of all known servers
+ * @return array List of server urls
+ */
+function poco_serverlist() {
+	$r = q("SELECT `id`, `url`, `site_name` AS `displayName`, `network`, `platform`, `version` FROM `gserver`
+		WHERE `network` IN ('%s', '%s', '%s') AND `last_contact` > `last_failure`
+		ORDER BY `last_contact`
+		LIMIT 1000",
+		dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS));
+	if (!dbm::is_result($r)) {
+		return false;
+	}
+	$list = array();
+	foreach ($r AS $server) {
+		$server['id'] = (int)$server['id'];
+		$list[] = $server;
+	}
+	return $list;
+}
 ?>
