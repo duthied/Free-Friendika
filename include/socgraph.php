@@ -681,6 +681,42 @@ function poco_to_boolean($val) {
 }
 
 /**
+ * @brief Detect server type (Hubzilla or Friendica) via the poco data
+ *
+ * @param object $data POCO data
+ * @return array Server data
+ */
+function poco_detect_poco_data($data) {
+	$server = false;
+
+	if (!isset($data->entry)) {
+		return false;
+	}
+
+	if (count($data->entry) == 0) {
+		return false;
+	}
+
+	if (!isset($data->entry[0]->urls)) {
+		return false;
+	}
+
+	if (count($data->entry[0]->urls) == 0) {
+		return false;
+	}
+
+	foreach ($data->entry[0]->urls AS $url) {
+		if ($url->type == 'zot') {
+			$server = array();
+			$server["platform"] = 'Hubzilla';
+			$server["network"] = NETWORK_DIASPORA;
+			return $server;
+		}
+	}
+	return false;
+}
+
+/**
  * @brief Detect server type (Hubzilla or Friendica) via the front page body
  *
  * @param string $body Front page of the server
@@ -726,7 +762,7 @@ function poco_detect_server_type($body) {
 				}
 			}
 			if ($attr['property'] == 'generator') {
-				if (in_array($attr['content'], array("hubzilla"))) {
+				if (in_array($attr['content'], array("hubzilla", "BlaBlaNet"))) {
 					$server = array();
 					$server["platform"] = $attr['content'];
 					$server["version"] = "";
@@ -820,6 +856,35 @@ function poco_check_server($server_url, $network = "", $force = false) {
 	} elseif ($network == NETWORK_DIASPORA)
 		$last_contact = datetime_convert();
 
+	// If the server has no possible failure we reset the cached data
+	if (!$possible_failure) {
+		$version = "";
+		$platform = "";
+		$site_name = "";
+		$info = "";
+		$register_policy = -1;
+	}
+
+	// Look for poco
+	if (!$failure) {
+		$serverret = z_fetch_url($server_url."/poco");
+		if ($serverret["success"]) {
+			$data = json_decode($serverret["body"]);
+			if (isset($data->totalResults)) {
+				$poco = $server_url."/poco";
+				$last_contact = datetime_convert();
+
+				$server = poco_detect_poco_data($data);
+				if ($server) {
+					$platform = $server['platform'];
+					$network = $server['network'];
+					$version = '';
+					$site_name = '';
+				}
+			}
+		}
+	}
+
 	if (!$failure) {
 		// Test for Diaspora, Hubzilla, Mastodon or older Friendica servers
 		$serverret = z_fetch_url($server_url);
@@ -863,7 +928,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		}
 	}
 
-	if (!$failure) {
+	if (!$failure AND ($poco == "")) {
 		// Test for Statusnet
 		// Will also return data for Friendica and GNU Social - but it will be overwritten later
 		// The "not implemented" is a special treatment for really, really old Friendica versions
@@ -885,7 +950,8 @@ function poco_check_server($server_url, $network = "", $force = false) {
 			$network = NETWORK_OSTATUS;
 			$last_contact = datetime_convert();
 		}
-
+	}
+	if (!$failure) {
 		// Test for Hubzilla, Redmatrix or Friendica
 		$serverret = z_fetch_url($server_url."/api/statusnet/config.json");
 		if ($serverret["success"]) {
@@ -893,6 +959,16 @@ function poco_check_server($server_url, $network = "", $force = false) {
 			if (isset($data->site->server)) {
 				$last_contact = datetime_convert();
 
+				if (isset($data->site->platform)) {
+					$platform = $data->site->platform->PLATFORM_NAME;
+					$version = $data->site->platform->STD_VERSION;
+					$network = NETWORK_DIASPORA;
+				}
+				if (isset($data->site->BlaBlaNet)) {
+					$platform = $data->site->BlaBlaNet->PLATFORM_NAME;
+					$version = $data->site->BlaBlaNet->STD_VERSION;
+					$network = NETWORK_DIASPORA;
+				}
 				if (isset($data->site->hubzilla)) {
 					$platform = $data->site->hubzilla->PLATFORM_NAME;
 					$version = $data->site->hubzilla->RED_VERSION;
@@ -989,18 +1065,6 @@ function poco_check_server($server_url, $network = "", $force = false) {
 						$register_policy = REGISTER_OPEN;
 						break;
 				}
-			}
-		}
-	}
-
-	// Look for poco
-	if (!$failure) {
-		$serverret = z_fetch_url($server_url."/poco");
-		if ($serverret["success"]) {
-			$data = json_decode($serverret["body"]);
-			if (isset($data->totalResults)) {
-				$poco = $server_url."/poco";
-				$last_contact = datetime_convert();
 			}
 		}
 	}
