@@ -276,7 +276,7 @@ function profile_content(App $a, $update = 0) {
 		$pager_sql = sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
 
 		$r = q("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`
-			FROM `thread`
+			FROM `thread` USE INDEX (`uid_wall_created`)
 			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
 			$sql_post_table
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
