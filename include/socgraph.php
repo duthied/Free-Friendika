@@ -309,7 +309,18 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 
 	logger("profile-check generation: ".$generation." Network: ".$network." URL: ".$profile_url." name: ".$name." avatar: ".$profile_photo, LOGGER_DEBUG);
 
-	poco_check_server($server_url, $network);
+	// We check the server url to be sure that it is a real one
+	$server_url2 = poco_detect_server($profile_url);
+
+	// We are no sure that it is a correct URL. So we use it in the future
+	if ($server_url2 != "") {
+		$server_url = $server_url2;
+	}
+
+	// The server URL doesn't seem to be valid, so we don't store it.
+	if (!poco_check_server($server_url, $network)) {
+		$server_url = "";
+	}
 
 	$gcontact = array("url" => $profile_url,
 			"addr" => $addr,
@@ -401,11 +412,45 @@ function poco_detect_server($profile) {
 
 	// Mastodon
 	if ($server_url == "") {
-		$red = preg_replace("=(https?://)(.*)/users/(.*)=ism", "$1$2", $profile);
-		if ($red != $profile) {
-			$server_url = $red;
+		$mastodon = preg_replace("=(https?://)(.*)/users/(.*)=ism", "$1$2", $profile);
+		if ($mastodon != $profile) {
+			$server_url = $mastodon;
 			$network = NETWORK_OSTATUS;
 		}
+	}
+
+	// Numeric OStatus variant
+	if ($server_url == "") {
+		$ostatus = preg_replace("=(https?://)(.*)/user/(.*)=ism", "$1$2", $profile);
+		if ($ostatus != $profile) {
+			$server_url = $ostatus;
+			$network = NETWORK_OSTATUS;
+		}
+	}
+
+	// Wild guess
+	if ($server_url == "") {
+		$base = preg_replace("=(https?://)(.*?)/(.*)=ism", "$1$2", $profile);
+		if (base != $profile) {
+			$server_url = $base;
+			$network = NETWORK_PHANTOM;
+		}
+	}
+
+	if ($server_url == "") {
+		return "";
+	}
+
+	$r = q("SELECT `id` FROM `gserver` WHERE `nurl` = '%s' AND `last_contact` > `last_failure`",
+		dbesc(normalise_link($server_url)));
+	if (dbm::is_result($r)) {
+		return $server_url;
+	}
+
+	// Fetch the host-meta to check if this really is a server
+	$serverret = z_fetch_url($server_url."/.well-known/host-meta");
+	if (!$serverret["success"]) {
+		return "";
 	}
 
 	return $server_url;
@@ -424,10 +469,12 @@ function poco_last_updated($profile, $force = false) {
 		q("UPDATE `gcontact` SET `created` = '%s' WHERE `nurl` = '%s'",
 			dbesc(datetime_convert()), dbesc(normalise_link($profile)));
 
-	if ($gcontacts[0]["server_url"] != "")
+	if ($gcontacts[0]["server_url"] != "") {
 		$server_url = $gcontacts[0]["server_url"];
-	else
+	}
+	if (($server_url == '') OR ($gcontacts[0]["server_url"] == $gcontacts[0]["nurl"])) {
 		$server_url = poco_detect_server($profile);
+	}
 
 	if (!in_array($gcontacts[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_FEED, NETWORK_OSTATUS, ""))) {
 		logger("Profile ".$profile.": Network type ".$gcontacts[0]["network"]." can't be checked", LOGGER_DEBUG);
