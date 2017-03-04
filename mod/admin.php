@@ -917,6 +917,7 @@ function admin_page_site_post(App $a)
 			$upds = implode(", ", $upd);
 
 			$r = q("UPDATE %s SET %s;", $table_name, $upds);
+
 			if (!DBM::is_result($r)) {
 				notice("Failed updating '$table_name': " . dba::errorMessage());
 				goaway('admin/site');
