@@ -11,14 +11,11 @@ define("IMPORT_DEBUG", False);
 
 function last_insert_id() {
 	global $db;
+
 	if (IMPORT_DEBUG)
 		return 1;
-	if ($db->mysqli) {
-		$thedb = $db->getdb();
-		return $thedb->insert_id;
-	} else {
-		return mysql_insert_id();
-	}
+
+	return $db->insert_id();
 }
 
 function last_error() {
