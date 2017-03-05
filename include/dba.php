@@ -334,6 +334,9 @@ class dba {
 			if (file_exists('dbfail.out')) {
 				file_put_contents('dbfail.out', datetime_convert() . "\n" . printable($sql) . ' returned false' . "\n" . $this->error . "\n", FILE_APPEND);
 			}
+		} elseif (($this->driver == 'pdo') AND (strtolower(substr($orig_sql, 0, 6)) != "select")) {
+			// mysqli separates the return value between "select" and "update" - pdo doesn't
+			$result = true;
 		}
 
 		if (($result === true) || ($result === false)) {
