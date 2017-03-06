@@ -534,13 +534,31 @@ function get_contact($url, $uid = 0, $no_update = false) {
 	$data = array();
 	$contact_id = 0;
 
-	// Catch-all query, may return multiple rows
+	// We first try the addr (nick@server.tld)
 	$contacts = q("SELECT `id`, `avatar-date` FROM `contact`
-				WHERE ('%s' IN (`url`, `addr`, `alias`) OR '%s' IN (`nurl`, `alias`))
+				WHERE `addr` = '%s'
 				AND `uid` = %d",
 		dbesc($url),
-		dbesc(normalise_link($url)),
 		intval($uid));
+
+	// Then the nurl (http://server.tld/nick)
+	if (! dbm::is_result($contacts)) {
+		$contacts = q("SELECT `id`, `avatar-date` FROM `contact`
+					WHERE `nurl` = '%s'
+					AND `uid` = %d",
+			dbesc(normalise_link($url)),
+			intval($uid));
+	}
+
+	// Then the alias (which could be anything)
+	if (! dbm::is_result($contacts)) {
+		$contacts = q("SELECT `id`, `avatar-date` FROM `contact`
+					WHERE `alias` IN ('%s', '%s')
+					AND `uid` = %d",
+			dbesc($url),
+			dbesc(normalise_link($url)),
+			intval($uid));
+	}
 
 	if (dbm::is_result($contacts)) {
 		$contact_id = $contacts[0]["id"];
@@ -552,6 +570,7 @@ function get_contact($url, $uid = 0, $no_update = false) {
 			return $contact_id;
 		}
 	} elseif ($uid != 0) {
+		// Non-existing user-specific contact, exiting
 		return 0;
 	}
 
