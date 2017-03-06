@@ -63,18 +63,21 @@ class dba {
 			$this->db = @new mysqli($server,$user,$pass,$db);
 			if (!mysqli_connect_errno()) {
 				$this->connected = true;
-			}
-			if (isset($a->config["system"]["db_charset"])) {
-				$this->db->set_charset($a->config["system"]["db_charset"]);
+
+				if (isset($a->config["system"]["db_charset"])) {
+					$this->db->set_charset($a->config["system"]["db_charset"]);
+				}
 			}
 		} elseif (function_exists('mysql_connect')) {
 			$this->driver = 'mysql';
 			$this->db = mysql_connect($server,$user,$pass);
 			if ($this->db && mysql_select_db($db,$this->db)) {
 				$this->connected = true;
+
+				if (isset($a->config["system"]["db_charset"])) {
+					mysql_set_charset($a->config["system"]["db_charset"], $this->db);
+				}
 			}
-			if (isset($a->config["system"]["db_charset"]))
-				mysql_set_charset($a->config["system"]["db_charset"], $this->db);
 		} else {
 			// No suitable SQL driver was found.
 			if (!$install) {
@@ -334,9 +337,6 @@ class dba {
 			if (file_exists('dbfail.out')) {
 				file_put_contents('dbfail.out', datetime_convert() . "\n" . printable($sql) . ' returned false' . "\n" . $this->error . "\n", FILE_APPEND);
 			}
-		} elseif (($this->driver == 'pdo') AND (strtolower(substr($orig_sql, 0, 6)) != "select")) {
-			// mysqli separates the return value between "select" and "update" - pdo doesn't
-			$result = true;
 		}
 
 		if (($result === true) || ($result === false)) {
@@ -370,6 +370,11 @@ class dba {
 					mysql_free_result($result);
 				}
 				break;
+		}
+
+		if (($this->driver == 'pdo') AND (strtolower(substr($orig_sql, 0, 6)) != "select") AND (count($r) == 0)) {
+			// mysqli separates the return value between "select" and "update" - pdo doesn't
+			$r = true;
 		}
 
 		//$a->save_timestamp($stamp1, "database");
