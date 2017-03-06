@@ -1,7 +1,5 @@
 <?php
 
-require_once('include/Probe.php');
-
 // Included here for completeness, but this is a very dangerous operation.
 // It is the caller's responsibility to confirm the requestor's intent and
 // authorisation to do this.
@@ -355,6 +353,7 @@ function get_contact_details_by_addr($addr, $uid = -1) {
 				dbesc($addr));
 
 	if (!dbm::is_result($r)) {
+		require_once('include/Probe.php');
 		$data = Probe::uri($addr);
 
 		$profile = get_contact_details_by_url($data['url'], $uid);
@@ -530,8 +529,6 @@ function contacts_not_grouped($uid,$start = 0,$count = 0) {
  * @return integer Contact ID
  */
 function get_contact($url, $uid = 0, $no_update = false) {
-	require_once "include/Scrape.php";
-
 	logger("Get contact data for url ".$url." and user ".$uid." - ".App::callstack(), LOGGER_DEBUG);;
 
 	$data = array();
@@ -558,7 +555,8 @@ function get_contact($url, $uid = 0, $no_update = false) {
 		return 0;
 	}
 
-	$data = probe_url($url);
+	require_once('include/Probe.php');
+	$data = Probe::uri($url);
 	if (!$data['url']) {
 		return 0;
 	}
