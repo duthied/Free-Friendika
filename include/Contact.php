@@ -534,19 +534,20 @@ function get_contact($url, $uid = 0, $no_update = false) {
 	$data = array();
 	$contact_id = 0;
 
-	// We first try the addr (nick@server.tld)
+	// We first try the nurl (http://server.tld/nick), most common case
 	$contacts = q("SELECT `id`, `avatar-date` FROM `contact`
-				WHERE `addr` = '%s'
-				AND `uid` = %d",
-		dbesc($url),
-		intval($uid));
-
-	// Then the nurl (http://server.tld/nick)
-	if (! dbm::is_result($contacts)) {
-		$contacts = q("SELECT `id`, `avatar-date` FROM `contact`
 					WHERE `nurl` = '%s'
 					AND `uid` = %d",
 			dbesc(normalise_link($url)),
+			intval($uid));
+
+
+	// Then the addr (nick@server.tld)
+	if (! dbm::is_result($contacts)) {
+		$contacts = q("SELECT `id`, `avatar-date` FROM `contact`
+					WHERE `addr` = '%s'
+					AND `uid` = %d",
+			dbesc($url),
 			intval($uid));
 	}
 
