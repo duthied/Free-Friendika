@@ -577,11 +577,6 @@ function get_contact($url, $uid = 0, $no_update = false) {
 
 	require_once('include/Probe.php');
 	$data = Probe::uri($url);
-	if (!$data['url']) {
-		return 0;
-	}
-
-	$url = $data["url"];
 
 	// Does this address belongs to a valid network?
 	if (!in_array($data["network"], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA))) {
@@ -599,6 +594,12 @@ function get_contact($url, $uid = 0, $no_update = false) {
 		$data = $gcontacts[0];
 	}
 
+	// Unable to convert nick@server.tld into http://server.tld/nick
+	if (!$data['url'] && (!strstr($url, "http") OR strstr($url, "@"))) {
+		return 0;
+	}
+
+	$url = $data["url"];
 
 	if (!$contact_id) {
 		q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `addr`, `alias`, `notify`, `poll`,
