@@ -242,9 +242,13 @@ class dba {
 			$sql = "/*".$a->callstack()." */ ".$sql;
 		}
 
+		$columns = 0;
+
 		switch ($this->driver) {
 			case 'pdo':
 				$result = @$this->db->query($sql);
+				// Is used to separate between queries that returning data - or not
+				$columns = $result->columnCount();
 				break;
 			case 'mysqli':
 				$result = @$this->db->query($sql);
@@ -350,31 +354,30 @@ class dba {
 		$r = array();
 		switch ($this->driver) {
 			case 'pdo':
-				if ($result->rowCount()) {
-					while($x = $result->fetch(PDO::FETCH_ASSOC))
-						$r[] = $x;
-					$result->closeCursor();
+				while ($x = $result->fetch(PDO::FETCH_ASSOC)) {
+					$r[] = $x;
 				}
+				$result->closeCursor();
 				break;
 			case 'mysqli':
-				if ($result->num_rows) {
-					while($x = $result->fetch_array(MYSQLI_ASSOC))
-						$r[] = $x;
-					$result->free_result();
+				while ($x = $result->fetch_array(MYSQLI_ASSOC)) {
+					$r[] = $x;
 				}
+				$result->free_result();
 				break;
 			case 'mysql':
-				if (mysql_num_rows($result)) {
-					while($x = mysql_fetch_array($result, MYSQL_ASSOC))
-						$r[] = $x;
-					mysql_free_result($result);
+				while ($x = mysql_fetch_array($result, MYSQL_ASSOC)) {
+					$r[] = $x;
 				}
+				mysql_free_result($result);
 				break;
 		}
 
-		if (($this->driver == 'pdo') AND (strtolower(substr($orig_sql, 0, 6)) != "select") AND (count($r) == 0)) {
-			// mysqli separates the return value between "select" and "update" - pdo doesn't
-			$r = true;
+		// PDO doesn't return "true" on successful operations - like mysqli does
+		// Emulate this behaviour by checking if the query returned data and had columns
+		// This should be reliable enough
+		if (($this->driver == 'pdo') AND (count($r) == 0) AND ($columns == 0)) {
+			return true;
 		}
 
 		//$a->save_timestamp($stamp1, "database");
@@ -391,19 +394,13 @@ class dba {
 		if ($this->result) {
 			switch ($this->driver) {
 				case 'pdo':
-					if ($this->result->rowCount()) {
-						$x = $this->result->fetch(PDO::FETCH_ASSOC);
-					}
+					$x = $this->result->fetch(PDO::FETCH_ASSOC);
 					break;
 				case 'mysqli':
-					if ($this->result->num_rows) {
-						$x = $this->result->fetch_array(MYSQLI_ASSOC);
-					}
+					$x = $this->result->fetch_array(MYSQLI_ASSOC);
 					break;
 				case 'mysql':
-					if (mysql_num_rows($this->result)) {
-						$x = mysql_fetch_array($this->result, MYSQL_ASSOC);
-					}
+					$x = mysql_fetch_array($this->result, MYSQL_ASSOC);
 					break;
 			}
 		}
