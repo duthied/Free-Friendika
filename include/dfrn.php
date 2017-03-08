@@ -922,8 +922,9 @@ class dfrn {
 		$xml = $ret['body'];
 
 		$curl_stat = $a->get_curl_code();
-		if(! $curl_stat)
+		if (!$curl_stat) {
 			return -3; // timed out
+		}
 
 		logger('dfrn_deliver: ' . $xml, LOGGER_DATA);
 
@@ -1079,11 +1080,13 @@ class dfrn {
 		logger('dfrn_deliver: ' . "RECEIVED: " . $xml, LOGGER_DATA);
 
 		$curl_stat = $a->get_curl_code();
-		if((! $curl_stat) || (! strlen($xml)))
+		if ((!$curl_stat) || (!strlen($xml))) {
 			return -9; // timed out
+		}
 
-		if(($curl_stat == 503) && (stristr($a->get_curl_headers(),'retry-after')))
+		if (($curl_stat == 503) && (stristr($a->get_curl_headers(),'retry-after'))) {
 			return -10;
+		}
 
 		if(strpos($xml,'<?xml') === false) {
 			logger('dfrn_deliver: phase 2: no valid XML returned');
