@@ -1002,7 +1002,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 			$last_contact = datetime_convert();
 		}
 	}
-echo "3";
+
 	if (!$failure) {
 		// Test for Hubzilla, Redmatrix or Friendica
 		$serverret = z_fetch_url($server_url."/api/statusnet/config.json");
