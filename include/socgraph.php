@@ -983,7 +983,9 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		if ($serverret["success"] AND ($serverret["body"] != '{"error":"not implemented"}') AND
 			($serverret["body"] != '') AND (strlen($serverret["body"]) < 30)) {
 			$platform = "StatusNet";
-			$version = trim($serverret["body"], '"');
+			// Remove junk that some GNU Social servers return
+			$version = str_replace(chr(239).chr(187).chr(191), "", $serverret["body"]);
+			$version = trim($version, '"');
 			$network = NETWORK_OSTATUS;
 			$last_contact = datetime_convert();
 		}
@@ -993,11 +995,14 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		if ($serverret["success"] AND ($serverret["body"] != '{"error":"not implemented"}') AND
 			($serverret["body"] != '') AND (strlen($serverret["body"]) < 30)) {
 			$platform = "GNU Social";
-			$version = trim($serverret["body"], '"');
+			// Remove junk that some GNU Social servers return
+			$version = str_replace(chr(239).chr(187).chr(191), "", $serverret["body"]);
+			$version = trim($version, '"');
 			$network = NETWORK_OSTATUS;
 			$last_contact = datetime_convert();
 		}
 	}
+echo "3";
 	if (!$failure) {
 		// Test for Hubzilla, Redmatrix or Friendica
 		$serverret = z_fetch_url($server_url."/api/statusnet/config.json");
@@ -1141,7 +1146,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 	$info = strip_tags($info);
 	$platform = strip_tags($platform);
 
-	if ($servers)
+	if ($servers) {
 		 q("UPDATE `gserver` SET `url` = '%s', `version` = '%s', `site_name` = '%s', `info` = '%s', `register_policy` = %d, `poco` = '%s', `noscrape` = '%s',
 			`network` = '%s', `platform` = '%s', `last_contact` = '%s', `last_failure` = '%s' WHERE `nurl` = '%s'",
 			dbesc($server_url),
@@ -1157,7 +1162,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 			dbesc($last_failure),
 			dbesc(normalise_link($server_url))
 		);
-	elseif (!$failure)
+	} elseif (!$failure)
 		q("INSERT INTO `gserver` (`url`, `nurl`, `version`, `site_name`, `info`, `register_policy`, `poco`, `noscrape`, `network`, `platform`, `created`, `last_contact`, `last_failure`)
 					VALUES ('%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
 				dbesc($server_url),
