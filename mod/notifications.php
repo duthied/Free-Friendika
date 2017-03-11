@@ -194,10 +194,14 @@ function notifications_content(App $a) {
 						if($it['network'] === NETWORK_DFRN) {
 							$lbl_knowyou = t('Claims to be known to you: ');
 							$knowyou = (($it['knowyou']) ? t('yes') : t('no'));
-							$helptext = t('Shall your connection be bidirectional or not? "Friend" implies that you allow to read and you subscribe to their posts. "Fan/Admirer" means that you allow to read but you do not want to read theirs. Approve as: ');
+							$helptext = t('Shall your connection be bidirectional or not?');
+							$helptext2 = sprintf(t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.'), $it['name'], $it['name']);
+							$helptext3 = sprintf(t('Accepting %s as a subscriber allows them to subscribe to your posts, but you will not receive updates from them in your news feed.'), $it['name']);
 						} else {
 							$knowyou = '';
-							$helptext = t('Shall your connection be bidirectional or not? "Friend" implies that you allow to read and you subscribe to their posts. "Sharer" means that you allow to read but you do not want to read theirs. Approve as: ');
+							$helptext = t('Shall your connection be bidirectional or not?');
+							$helptext2 = sprintf(t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.'), $it['name'], $it['name']);
+							$helptext3 = sprintf(t('Accepting %s as a sharer allows them to subscribe to your posts, but you will not receive updates from them in your news feed.'), $it['name']);
 						}
 					}
 
@@ -205,9 +209,11 @@ function notifications_content(App $a) {
 						'$intro_id' => $it['intro_id'],
 						'$friend_selected' => $friend_selected,
 						'$fan_selected' => $fan_selected,
-						'$approve_as' => $helptext,
+						'$approve_as1' => $helptext,
+						'$approve_as2' => $helptext2,
+						'$approve_as3' => $helptext3,
 						'$as_friend' => t('Friend'),
-						'$as_fan' => (($it['network'] == NETWORK_DIASPORA) ? t('Sharer') : t('Fan/Admirer'))
+						'$as_fan' => (($it['network'] == NETWORK_DIASPORA) ? t('Sharer') : t('Subscriber'))
 					));
 
 					$header = $it["name"];
