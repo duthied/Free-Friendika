@@ -8,14 +8,19 @@ require_once("include/datetime.php");
 require_once('include/items.php');
 require_once('include/bbcode.php');
 require_once('include/socgraph.php');
+require_once('include/cache.php');
 
 function queue_run(&$argv, &$argc){
 	global $a;
 
-	if ($argc > 1)
+	if ($argc > 1) {
 		$queue_id = intval($argv[1]);
-	else
+	} else {
 		$queue_id = 0;
+	}
+
+	$cachekey_deadguy = 'queue_run:deadguy:';
+	$cachekey_server = 'queue_run:server:';
 
 	if (!$queue_id) {
 
@@ -38,7 +43,7 @@ function queue_run(&$argv, &$argc){
 		if ($r) {
 			foreach ($r as $rr) {
 				logger('Removing expired queue item for ' . $rr['name'] . ', uid=' . $rr['uid']);
-				logger('Expired queue data :' . $rr['content'], LOGGER_DATA);
+				logger('Expired queue data: ' . $rr['content'], LOGGER_DATA);
 			}
 			q("DELETE FROM `queue` WHERE `created` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
 		}
@@ -50,7 +55,7 @@ function queue_run(&$argv, &$argc){
 
 		call_hooks('queue_predeliver', $a, $r);
 
-		if (dbm::is_result) {
+		if (dbm::is_result($r)) {
 			foreach ($r as $q_item) {
 				logger('Call queue for id '.$q_item['id']);
 				proc_run(PRIORITY_LOW, "include/queue.php", $q_item['id']);
@@ -83,12 +88,27 @@ function queue_run(&$argv, &$argc){
 		return;
 	}
 
+	$dead = Cache::get($cachekey_deadguy.$c[0]['notify']);
+
+	if (!is_null($dead) AND $dead) {
+		logger('queue: skipping known dead url: '.$c[0]['notify']);
+		update_queue_time($q_item['id']);
+		return;
+	}
+
 	$server = poco_detect_server($c[0]['url']);
 
 	if ($server != "") {
-		logger("Check server ".$server." (".$c[0]["network"].")");
+		$vital = Cache::get($cachekey_server.$server);
 
-		if (!poco_check_server($server, $c[0]["network"], true)) {
+		if (is_null($vital)) {
+			logger("Check server ".$server." (".$c[0]["network"].")");
+
+			$vital = poco_check_server($server, $c[0]["network"], true);
+			Cache::set($cachekey_server.$server, $vital, CACHE_QUARTER_HOUR);
+		}
+
+		if (!is_null($vital) AND !$vital) {
 			logger('queue: skipping dead server: '.$server);
 			update_queue_time($q_item['id']);
 			return;
@@ -118,6 +138,7 @@ function queue_run(&$argv, &$argc){
 
 			if ($deliver_status == (-1)) {
 				update_queue_time($q_item['id']);
+				Cache::set($cachekey_deadguy.$contact['notify'], true, CACHE_QUARTER_HOUR);
 			} else {
 				remove_queue_item($q_item['id']);
 			}
@@ -129,6 +150,7 @@ function queue_run(&$argv, &$argc){
 
 				if ($deliver_status == (-1)) {
 					update_queue_time($q_item['id']);
+					Cache::set($cachekey_deadguy.$contact['notify'], true, CACHE_QUARTER_HOUR);
 				} else {
 					remove_queue_item($q_item['id']);
 				}
@@ -141,6 +163,7 @@ function queue_run(&$argv, &$argc){
 
 				if ($deliver_status == (-1)) {
 					update_queue_time($q_item['id']);
+					Cache::set($cachekey_deadguy.$contact['notify'], true, CACHE_QUARTER_HOUR);
 				} else {
 					remove_queue_item($q_item['id']);
 				}
@@ -151,15 +174,15 @@ function queue_run(&$argv, &$argc){
 			$params = array('owner' => $owner, 'contact' => $contact, 'queue' => $q_item, 'result' => false);
 			call_hooks('queue_deliver', $a, $params);
 
-			if ($params['result'])
+			if ($params['result']) {
 				remove_queue_item($q_item['id']);
-			else
+			} else {
 				update_queue_time($q_item['id']);
-
+			}
 			break;
 
 	}
-	logger('Deliver status '.$deliver_status.' for item '.$q_item['id'].' to '.$contact['name'].' <'.$contact['url'].'>');
+	logger('Deliver status '.(int)$deliver_status.' for item '.$q_item['id'].' to '.$contact['name'].' <'.$contact['url'].'>');
 
 	return;
 }
