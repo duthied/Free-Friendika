@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 3.5.1-dev (Asparagus)
--- DB_UPDATE_VERSION 1213
+-- Friendica 3.5.1-rc (Asparagus)
+-- DB_UPDATE_VERSION 1215
 -- ------------------------------------------
 
 
@@ -532,6 +532,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `parent-uri` (`parent-uri`),
 	 INDEX `extid` (`extid`),
 	 INDEX `uid_id` (`uid`,`id`),
+	 INDEX `uid_contactid_id` (`uid`,`contact-id`,`id`),
 	 INDEX `uid_created` (`uid`,`created`),
 	 INDEX `uid_unseen_contactid` (`uid`,`unseen`,`contact-id`),
 	 INDEX `uid_network_received` (`uid`,`network`,`received`),
@@ -1016,7 +1017,8 @@ CREATE TABLE IF NOT EXISTS `thread` (
 	 INDEX `uid_contactid_commented` (`uid`,`contact-id`,`commented`),
 	 INDEX `uid_contactid_created` (`uid`,`contact-id`,`created`),
 	 INDEX `uid_created` (`uid`,`created`),
-	 INDEX `uid_commented` (`uid`,`commented`)
+	 INDEX `uid_commented` (`uid`,`commented`),
+	 INDEX `uid_wall_created` (`uid`,`wall`,`created`)
 ) DEFAULT CHARSET=utf8mb4;
 
 --
