@@ -1,5 +1,41 @@
 <?php
 
+/**
+ * @brief Calculate the hash that is needed for the "Friendica" cookie
+ *
+ * @param array $user Record from "user" table
+ *
+ * @return string Hashed data
+ */
+function cookie_hash($user) {
+	return(hash("sha256", get_config("system", "site_prvkey").
+				$user["uprvkey"].
+				$user["password"]));
+}
+
+/**
+ * @brief Set the "Friendica" cookie
+ *
+ * @param int $time
+ * @param array $user Record from "user" table
+ */
+function new_cookie($time, $user = array()) {
+
+	if ($time != 0)
+		$time = $time + time();
+
+	if ($user)
+		$value = json_encode(array("uid" => $user["uid"],
+					"hash" => cookie_hash($user),
+					"ip" => $_SERVER['REMOTE_ADDR']));
+	else
+		$value = "";
+
+	setcookie("Friendica", $value, $time, "/", "",
+		(get_config('system', 'ssl_policy') == SSL_POLICY_FULL), true);
+
+}
+
 function authenticate_success($user_record, $login_initial = false, $interactive = false, $login_refresh = false) {
 
 	$a = get_app();
@@ -94,6 +130,24 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 
 
 	}
+
+	if ($login_initial) {
+		// If the user specified to remember the authentication, then set a cookie
+		// that expires after one week (the default is when the browser is closed).
+		// The cookie will be renewed automatically.
+		// The week ensures that sessions will expire after some inactivity.
+		if ($_SESSION['remember']) {
+			logger('Injecting cookie for remembered user '. $_SESSION['remember_user']['nickname']);
+			new_cookie(604800, $user_record);
+			unset($_SESSION['remember']);
+		}
+		else {
+			new_cookie(0); // 0 means delete on browser exit
+		}
+	}
+
+
+
 	if ($login_initial) {
 		call_hooks('logged_in', $a->user);
 
