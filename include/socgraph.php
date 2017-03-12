@@ -1441,6 +1441,33 @@ function update_suggestions() {
 	}
 }
 
+/**
+ * @brief Fetch server list from remote servers and adds them when they are new.
+ *
+ * @param string $poco URL to the POCO endpoint
+ */
+function poco_fetch_serverlist($poco) {
+	$serverret = z_fetch_url($poco."/@server");
+	if (!$serverret["success"]) {
+		return;
+	}
+	$serverlist = json_decode($serverret['body']);
+
+	if (!is_array($serverlist)) {
+		return;
+	}
+
+	foreach ($serverlist AS $server) {
+		$server_url = str_replace("/index.php", "", $server->url);
+
+		$r = q("SELECT `nurl` FROM `gserver` WHERE `nurl` = '%s'", dbesc(normalise_link($server_url)));
+		if (!dbm::is_result($r)) {
+			logger("Call server check for server ".$server_url, LOGGER_DEBUG);
+			proc_run(PRIORITY_LOW, "include/discover_poco.php", "server", base64_encode($server_url));
+		}
+	}
+}
+
 function poco_discover_federation() {
 	$last = get_config('poco','last_federation_discovery');
 
@@ -1456,8 +1483,9 @@ function poco_discover_federation() {
 	if ($serverdata) {
 		$servers = json_decode($serverdata);
 
-		foreach($servers->pods AS $server)
-			poco_check_server("https://".$server->host);
+		foreach ($servers->pods AS $server) {
+			proc_run(PRIORITY_LOW, "include/discover_poco.php", "server", base64_encode("https://".$server->host));
+		}
 	}
 
 	// Currently disabled, since the service isn't available anymore.
@@ -1501,6 +1529,9 @@ function poco_discover($complete = false) {
 				q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
 				continue;
 			}
+
+			// Discover new servers out there
+			poco_fetch_serverlist($server["poco"]);
 
 			// Fetch all users from the other server
 			$url = $server["poco"]."/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation";
