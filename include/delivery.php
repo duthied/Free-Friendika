@@ -379,7 +379,7 @@ function delivery_run(&$argv, &$argc){
 
 				logger('notifier: dfrn_delivery to '.$contact["url"].' with guid '.$target_item["guid"].' returns '.$deliver_status);
 
-				if ($deliver_status == (-1)) {
+				if ($deliver_status < 0) {
 					logger('notifier: delivery failed: queuing message');
 					add_to_queue($contact['id'],NETWORK_DFRN,$atom);
 
