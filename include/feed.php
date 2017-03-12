@@ -177,18 +177,6 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 	foreach (array_reverse($entrylist) AS $entry) {
 		$item = array_merge($header, $author);
 
-		$item["title"] = $xpath->evaluate('atom:title/text()', $entry)->item(0)->nodeValue;
-
-		if ($item["title"] == "")
-			$item["title"] = $xpath->evaluate('title/text()', $entry)->item(0)->nodeValue;
-
-		if ($item["title"] == "")
-			$item["title"] = $xpath->evaluate('rss:title/text()', $entry)->item(0)->nodeValue;
-
-		$alternate = $xpath->query("atom:link[@rel='alternate']", $entry)->item(0)->attributes;
-		if (!is_object($alternate))
-			$alternate = $xpath->query("atom:link", $entry)->item(0)->attributes;
-
 		if (is_object($alternate))
 			foreach($alternate AS $attributes)
 				if ($attributes->name == "href")
@@ -211,6 +199,27 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 			$item["uri"] = $item["plink"];
 
 		$item["parent-uri"] = $item["uri"];
+
+		if (!$simulate) {
+			$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `network` IN ('%s', '%s')",
+				intval($importer["uid"]), dbesc($item["uri"]), dbesc(NETWORK_FEED), dbesc(NETWORK_DFRN));
+			if ($r) {
+				logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$r[0]["id"], LOGGER_DEBUG);
+				continue;
+			}
+		}
+
+		$item["title"] = $xpath->evaluate('atom:title/text()', $entry)->item(0)->nodeValue;
+
+		if ($item["title"] == "")
+			$item["title"] = $xpath->evaluate('title/text()', $entry)->item(0)->nodeValue;
+
+		if ($item["title"] == "")
+			$item["title"] = $xpath->evaluate('rss:title/text()', $entry)->item(0)->nodeValue;
+
+		$alternate = $xpath->query("atom:link[@rel='alternate']", $entry)->item(0)->attributes;
+		if (!is_object($alternate))
+			$alternate = $xpath->query("atom:link", $entry)->item(0)->attributes;
 
 		$published = $xpath->query('atom:published/text()', $entry)->item(0)->nodeValue;
 
@@ -249,15 +258,6 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 
 		if ($creator != "")
 			$item["author-name"] = $creator;
-
-		if (!$simulate) {
-			$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `network` IN ('%s', '%s')",
-				intval($importer["uid"]), dbesc($item["uri"]), dbesc(NETWORK_FEED), dbesc(NETWORK_DFRN));
-			if ($r) {
-				logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$r[0]["id"], LOGGER_DEBUG);
-				continue;
-			}
-		}
 
 		/// @TODO ?
 		// <category>Ausland</category>

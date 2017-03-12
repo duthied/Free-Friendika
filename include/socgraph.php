@@ -837,7 +837,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		return false;
 
 	$servers = q("SELECT * FROM `gserver` WHERE `nurl` = '%s'", dbesc(normalise_link($server_url)));
-	if ($servers) {
+	if (dbm::is_result($servers)) {
 
 		if ($servers[0]["created"] == "0000-00-00 00:00:00")
 			q("UPDATE `gserver` SET `created` = '%s' WHERE `nurl` = '%s'",
@@ -881,21 +881,40 @@ function poco_check_server($server_url, $network = "", $force = false) {
 	$orig_last_contact = $last_contact;
 
 	// Check if the page is accessible via SSL.
+	$orig_server_url = $server_url;
 	$server_url = str_replace("http://", "https://", $server_url);
-	$serverret = z_fetch_url($server_url."/.well-known/host-meta");
+
+	// We set the timeout to 20 seconds since this operation should be done in no time if the server was vital
+	$serverret = z_fetch_url($server_url."/.well-known/host-meta", false, $redirects, array('timeout' => 20));
+
+	// Quit if there is a timeout.
+	// But we want to make sure to only quit if we are mostly sure that this server url fits.
+	if (dbm::is_result($servers) AND ($orig_server_url == $server_url) AND
+		($serverret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
+		logger("Connection to server ".$server_url." timed out.", LOGGER_DEBUG);
+		return false;
+	}
 
 	// Maybe the page is unencrypted only?
 	$xmlobj = @simplexml_load_string($serverret["body"],'SimpleXMLElement',0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
 	if (!$serverret["success"] OR ($serverret["body"] == "") OR (@sizeof($xmlobj) == 0) OR !is_object($xmlobj)) {
 		$server_url = str_replace("https://", "http://", $server_url);
-		$serverret = z_fetch_url($server_url."/.well-known/host-meta");
+
+		// We set the timeout to 20 seconds since this operation should be done in no time if the server was vital
+		$serverret = z_fetch_url($server_url."/.well-known/host-meta", false, $redirects, array('timeout' => 20));
+
+		// Quit if there is a timeout
+		if ($serverret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+			logger("Connection to server ".$server_url." timed out.", LOGGER_DEBUG);
+			return false;
+		}
 
 		$xmlobj = @simplexml_load_string($serverret["body"],'SimpleXMLElement',0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
 	}
 
 	if (!$serverret["success"] OR ($serverret["body"] == "") OR (sizeof($xmlobj) == 0) OR !is_object($xmlobj)) {
 		// Workaround for bad configured servers (known nginx problem)
-		if ($serverret["debug"]["http_code"] != "403") {
+		if (!in_array($serverret["debug"]["http_code"], array("403", "404"))) {
 			$last_failure = datetime_convert();
 			$failure = true;
 		}
@@ -1441,6 +1460,33 @@ function update_suggestions() {
 	}
 }
 
+/**
+ * @brief Fetch server list from remote servers and adds them when they are new.
+ *
+ * @param string $poco URL to the POCO endpoint
+ */
+function poco_fetch_serverlist($poco) {
+	$serverret = z_fetch_url($poco."/@server");
+	if (!$serverret["success"]) {
+		return;
+	}
+	$serverlist = json_decode($serverret['body']);
+
+	if (!is_array($serverlist)) {
+		return;
+	}
+
+	foreach ($serverlist AS $server) {
+		$server_url = str_replace("/index.php", "", $server->url);
+
+		$r = q("SELECT `nurl` FROM `gserver` WHERE `nurl` = '%s'", dbesc(normalise_link($server_url)));
+		if (!dbm::is_result($r)) {
+			logger("Call server check for server ".$server_url, LOGGER_DEBUG);
+			proc_run(PRIORITY_LOW, "include/discover_poco.php", "server", base64_encode($server_url));
+		}
+	}
+}
+
 function poco_discover_federation() {
 	$last = get_config('poco','last_federation_discovery');
 
@@ -1456,8 +1502,9 @@ function poco_discover_federation() {
 	if ($serverdata) {
 		$servers = json_decode($serverdata);
 
-		foreach($servers->pods AS $server)
-			poco_check_server("https://".$server->host);
+		foreach ($servers->pods AS $server) {
+			proc_run(PRIORITY_LOW, "include/discover_poco.php", "server", base64_encode("https://".$server->host));
+		}
 	}
 
 	// Currently disabled, since the service isn't available anymore.
@@ -1501,6 +1548,9 @@ function poco_discover($complete = false) {
 				q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
 				continue;
 			}
+
+			// Discover new servers out there
+			poco_fetch_serverlist($server["poco"]);
 
 			// Fetch all users from the other server
 			$url = $server["poco"]."/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation";
@@ -2082,7 +2132,7 @@ function gs_discover() {
  * @return array List of server urls
  */
 function poco_serverlist() {
-	$r = q("SELECT `id`, `url`, `site_name` AS `displayName`, `network`, `platform`, `version` FROM `gserver`
+	$r = q("SELECT `url`, `site_name` AS `displayName`, `network`, `platform`, `version` FROM `gserver`
 		WHERE `network` IN ('%s', '%s', '%s') AND `last_contact` > `last_failure`
 		ORDER BY `last_contact`
 		LIMIT 1000",
@@ -2090,11 +2140,6 @@ function poco_serverlist() {
 	if (!dbm::is_result($r)) {
 		return false;
 	}
-	$list = array();
-	foreach ($r AS $server) {
-		$server['id'] = (int)$server['id'];
-		$list[] = $server;
-	}
-	return $list;
+	return $r;
 }
 ?>

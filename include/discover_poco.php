@@ -36,11 +36,14 @@ function discover_poco_run(&$argv, &$argc){
 		$mode = 2;
 	} elseif(($argc == 2) && ($argv[1] == "suggestions")) {
 		$mode = 3;
+	} elseif(($argc == 3) && ($argv[1] == "server")) {
+		$mode = 4;
 	} elseif ($argc == 1) {
 		$search = "";
 		$mode = 0;
-	} else
+	} else {
 		die("Unknown or missing parameter ".$argv[1]."\n");
+	}
 
 	// Don't check this stuff if the function is called by the poller
 	if (App::callstack() != "poller_run")
@@ -53,11 +56,28 @@ function discover_poco_run(&$argv, &$argc){
 
 	logger('start '.$search);
 
-	if ($mode==3)
+	if ($mode == 4) {
+		$server_url = base64_decode($argv[2]);
+		if ($server_url == "") {
+			return;
+		}
+		$server_url = filter_var($server_url, FILTER_SANITIZE_URL);
+		if (substr(normalise_link($server_url), 0, 7) != "http://") {
+			return;
+		}
+		$result = "Checking server ".$server_url." - ";
+		$ret = poco_check_server($server_url);
+		if ($ret) {
+			$result .= "success";
+		} else {
+			$result .= "failed";
+		}
+		logger($result, LOGGER_DEBUG);
+	} elseif ($mode == 3) {
 		update_suggestions();
-	elseif (($mode == 2) AND get_config('system','poco_completion'))
+	} elseif (($mode == 2) AND get_config('system','poco_completion')) {
 		discover_users();
-	elseif (($mode == 1) AND ($search != "") and get_config('system','poco_local_search')) {
+	} elseif (($mode == 1) AND ($search != "") and get_config('system','poco_local_search')) {
 		discover_directory($search);
 		gs_search_user($search);
 	} elseif (($mode == 0) AND ($search == "") and (get_config('system','poco_discovery') > 0)) {

@@ -143,6 +143,8 @@ function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 		logger('fetch_url error fetching '.$url.': '.curl_error($ch), LOGGER_NORMAL);
 	}
 
+	$ret['errno'] = curl_errno($ch);
+
 	$base = $s;
 	$curl_info = @curl_getinfo($ch);
 
