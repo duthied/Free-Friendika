@@ -240,6 +240,17 @@ function profile_content(App $a, $update = 0) {
 			$sql_extra2 .= protect_sprintf(sprintf(" AND `thread`.`created` >= '%s' ", dbesc(datetime_convert(date_default_timezone_get(),'',$datequery2))));
 		}
 
+		// Belongs the profile page to a forum?
+		// If not then we can improve the performance with an additional condition
+		$r = q("SELECT `uid` FROM `user` WHERE `uid` = %d AND `page-flags` IN (%d, %d)",
+			intval($a->profile['profile_uid']),
+			intval(PAGE_COMMUNITY),
+			intval(PAGE_PRVGROUP));
+
+		if (!dbm::is_result($r)) {
+			$sql_extra3 = sprintf(" AND `thread`.`contact-id` = %d ", intval(intval($a->profile['contact_id'])));
+		}
+
 		//  check if we serve a mobile device and get the user settings
 		//  accordingly
 		if ($a->is_mobile) {
@@ -265,14 +276,12 @@ function profile_content(App $a, $update = 0) {
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
 				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
 			WHERE `thread`.`uid` = %d AND `thread`.`visible`
-				AND `thread`.`contact-id` = %d
 				AND NOT `thread`.`deleted`
 				AND NOT `thread`.`moderated`
 				AND `thread`.`wall`
-				$sql_extra $sql_extra2
+				$sql_extra3 $sql_extra $sql_extra2
 			ORDER BY `thread`.`created` DESC $pager_sql",
-			intval($a->profile['profile_uid']),
-			intval($a->profile['contact_id'])
+			intval($a->profile['profile_uid'])
 		);
 	}
 
