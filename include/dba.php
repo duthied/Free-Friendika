@@ -218,21 +218,7 @@ class dba {
 
 		$this->error = '';
 
-		// Check the connection (This can reconnect the connection - if configured)
-		switch ($this->driver) {
-			case 'pdo':
-				// Not sure if this really is working like expected
-				$connected = ($this->db->getAttribute(PDO::ATTR_CONNECTION_STATUS) != "");
-				break;
-			case 'mysqli':
-				$connected = $this->db->ping();
-				break;
-			case 'mysql':
-				$connected = mysql_ping($this->db);
-				break;
-		}
-
-		$connstr = ($connected ? "Connected" : "Disonnected");
+		$connstr = ($this->connected() ? "Connected" : "Disonnected");
 
 		$stamp1 = microtime(true);
 
