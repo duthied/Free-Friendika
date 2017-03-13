@@ -84,9 +84,9 @@ function community_content(App $a, $update = 0) {
 
 	// we behave the same in message lists as the search module
 
-	$o .= conversation($a,$s,'community',$update);
+	$o .= conversation($a, $s, 'community', $update);
 
-        $o .= alt_pager($a,count($r));
+        $o .= alt_pager($a, count($r));
 
 	return $o;
 }

@@ -715,7 +715,7 @@ function posts_from_gcontact(App $a, $gcontact_id) {
 		intval($a->pager['itemspage'])
 	);
 
-	$o = conversation($a,$r,'community',false);
+	$o = conversation($a, $r, 'community', false);
 
 	$o .= alt_pager($a, count($r));
 
@@ -758,7 +758,7 @@ function posts_from_contact_url(App $a, $contact_url) {
 		intval($a->pager['itemspage'])
 	);
 
-	$o = conversation($a,$r,'community',false);
+	$o = conversation($a, $r, 'community', false);
 
 	$o .= alt_pager($a, count($r));
 

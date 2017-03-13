@@ -318,10 +318,10 @@ function profile_content(App $a, $update = 0) {
 		);
 	}
 
-	$o .= conversation($a,$items,'profile',$update);
+	$o .= conversation($a, $items, 'profile', $update);
 
 	if (!$update) {
-		$o .= alt_pager($a,count($items));
+		$o .= alt_pager($a, count($items));
 	}
 
 	return $o;

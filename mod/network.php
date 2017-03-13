@@ -773,13 +773,13 @@ function network_content(App $a, $update = 0) {
 
 	$mode = (($nouveau) ? 'network-new' : 'network');
 
-	$o .= conversation($a,$items,$mode,$update);
+	$o .= conversation($a, $items, $mode, $update);
 
 	if (!$update) {
-		if (get_pconfig(local_user(),'system','infinite_scroll')) {
+		if (get_pconfig(local_user(), 'system', 'infinite_scroll')) {
 			$o .= scroll_loader();
 		} else {
-			$o .= alt_pager($a,count($items));
+			$o .= alt_pager($a, count($items));
 		}
 	}
 
