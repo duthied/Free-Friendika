@@ -179,7 +179,7 @@ if (isset($_SESSION) && x($_SESSION,'authenticated') && (!x($_POST,'auth-params'
 			goaway(z_root());
 		}
 
-		if ( ! $_POST['remember']) {
+		if (! $_POST['remember']) {
 			new_cookie(0); // 0 means delete on browser exit
 		}
 
