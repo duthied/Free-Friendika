@@ -431,7 +431,7 @@ function poco_detect_server($profile) {
 	// Wild guess
 	if ($server_url == "") {
 		$base = preg_replace("=(https?://)(.*?)/(.*)=ism", "$1$2", $profile);
-		if (base != $profile) {
+		if ($base != $profile) {
 			$server_url = $base;
 			$network = NETWORK_PHANTOM;
 		}
@@ -761,6 +761,110 @@ function poco_detect_poco_data($data) {
 		}
 	}
 	return false;
+}
+
+/**
+ * @brief Detect server type by using the nodeinfo data
+ *
+ * @param string $server_url address of the server
+ * @return array Server data
+ */
+function poco_fetch_nodeinfo($server_url) {
+	$serverret = z_fetch_url($server_url."/.well-known/nodeinfo");
+	if (!$serverret["success"]) {
+		return false;
+	}
+
+	$nodeinfo = json_decode($serverret['body']);
+
+	if (!is_object($nodeinfo)) {
+		return false;
+	}
+
+	if (!is_array($nodeinfo->links)) {
+		return false;
+	}
+
+	$nodeinfo_url = '';
+
+	foreach ($nodeinfo->links AS $link) {
+		if ($link->rel == 'http://nodeinfo.diaspora.software/ns/schema/1.0') {
+			$nodeinfo_url = $link->href;
+		}
+	}
+
+	if ($nodeinfo_url == '') {
+		return false;
+	}
+
+	$serverret = z_fetch_url($nodeinfo_url);
+	if (!$serverret["success"]) {
+		return false;
+	}
+
+	$nodeinfo = json_decode($serverret['body']);
+
+	if (!is_object($nodeinfo)) {
+		return false;
+	}
+
+	$server = array();
+
+	$server['register_policy'] = REGISTER_CLOSED;
+
+	if (is_bool($nodeinfo->openRegistrations) AND $nodeinfo->openRegistrations) {
+		$server['register_policy'] = REGISTER_OPEN;
+	}
+
+	if (is_object($nodeinfo->software)) {
+		if (isset($nodeinfo->software->name)) {
+			$server['platform'] = $nodeinfo->software->name;
+		}
+
+		if (isset($nodeinfo->software->version)) {
+			$server['version'] = $nodeinfo->software->version;
+		}
+	}
+
+	if (is_object($nodeinfo->metadata)) {
+		if (isset($nodeinfo->metadata->nodeName)) {
+			$server['site_name'] = $nodeinfo->metadata->nodeName;
+		}
+	}
+
+	$diaspora = false;
+	$friendica = false;
+	$gnusocial = false;
+
+	if (is_array($nodeinfo->protocols->inbound)) {
+		foreach ($nodeinfo->protocols->inbound AS $inbound) {
+			if ($inbound == 'diaspora') {
+				$diaspora = true;
+			}
+			if ($inbound == 'friendica') {
+				$friendica = true;
+			}
+			if ($inbound == 'gnusocial') {
+				$gnusocial = true;
+			}
+		}
+	}
+
+	if ($gnusocial) {
+		$server['network'] = NETWORK_OSTATUS;
+	}
+	if ($diaspora) {
+		$server['network'] = NETWORK_DIASPORA;
+	}
+	if ($friendica) {
+		$server['network'] = NETWORK_DFRN;
+	}
+
+	if (!$server) {
+		return false;
+	}
+
+	return $server;
 }
 
 /**
@@ -1103,6 +1207,24 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		}
 	}
 
+	// Query nodeinfo. Working for (at least) Diaspora and Friendica.
+	if (!$failure) {
+		$server = poco_fetch_nodeinfo($server_url);
+		if ($server) {
+			$register_policy = $server['register_policy'];
+			$platform = $server['platform'];
+			$network = $server['network'];
+
+			if ($version == "") {
+				$version = $server['version'];
+			}
+
+			$site_name = $server['site_name'];
+
+			$last_contact = datetime_convert();
+		}
+	}
+
 	// Check for noscrape
 	// Friendica servers could be detected as OStatus servers
 	if (!$failure AND in_array($network, array(NETWORK_DFRN, NETWORK_OSTATUS))) {
@@ -1181,7 +1303,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 			dbesc($last_failure),
 			dbesc(normalise_link($server_url))
 		);
-	} elseif (!$failure)
+	} elseif (!$failure) {
 		q("INSERT INTO `gserver` (`url`, `nurl`, `version`, `site_name`, `info`, `register_policy`, `poco`, `noscrape`, `network`, `platform`, `created`, `last_contact`, `last_failure`)
 					VALUES ('%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
 				dbesc($server_url),
@@ -1199,7 +1321,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 				dbesc($last_failure),
 				dbesc(datetime_convert())
 		);
-
+	}
 	logger("End discovery for server ".$server_url, LOGGER_DEBUG);
 
 	return !$failure;
