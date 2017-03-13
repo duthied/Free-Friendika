@@ -27,25 +27,30 @@ function poco_init(App $a) {
 	$justme = false;
 	$global = false;
 
-	if($a->argc > 1 && $a->argv[1] === '@server') {
+	if ($a->argc > 1 && $a->argv[1] === '@server') {
+		// List of all servers that this server knows
 		$ret = poco_serverlist();
 		header('Content-type: application/json');
 		echo json_encode($ret);
 		killme();
 	}
-	if($a->argc > 1 && $a->argv[1] === '@global') {
+	if ($a->argc > 1 && $a->argv[1] === '@global') {
+		// List of all profiles that this server recently had data from
 		$global = true;
 		$update_limit = date("Y-m-d H:i:s", time() - 30 * 86400);
 	}
-	if($a->argc > 2 && $a->argv[2] === '@me')
+	if ($a->argc > 2 && $a->argv[2] === '@me') {
 		$justme = true;
-	if($a->argc > 3 && $a->argv[3] === '@all')
+	}
+	if ($a->argc > 3 && $a->argv[3] === '@all') {
 		$justme = false;
-	if($a->argc > 3 && $a->argv[3] === '@self')
+	}
+	if ($a->argc > 3 && $a->argv[3] === '@self') {
 		$justme = true;
-	if($a->argc > 4 && intval($a->argv[4]) && $justme == false)
+	}
+	if ($a->argc > 4 && intval($a->argv[4]) && $justme == false)
 		$cid = intval($a->argv[4]);
-
+	}
 
 	if(!$system_mode AND !$global) {
 		$r = q("SELECT `user`.*,`profile`.`hide-friends` from user left join profile on `user`.`uid` = `profile`.`uid`
