@@ -21,15 +21,18 @@ function cookie_hash($user) {
  */
 function new_cookie($time, $user = array()) {
 
-	if ($time != 0)
+	if ($time != 0) {
 		$time = $time + time();
+	}
 
-	if ($user)
+	if ($user) {
 		$value = json_encode(array("uid" => $user["uid"],
 					"hash" => cookie_hash($user),
 					"ip" => $_SERVER['REMOTE_ADDR']));
-	else
+	}
+	else {
 		$value = "";
+	}
 
 	setcookie("Friendica", $value, $time, "/", "",
 		(get_config('system', 'ssl_policy') == SSL_POLICY_FULL), true);
