@@ -717,7 +717,7 @@ function posts_from_gcontact(App $a, $gcontact_id) {
 
 	$o = conversation($a,$r,'community',false);
 
-	$o .= alt_pager($a,count($r));
+	$o .= alt_pager($a, count($r));
 
 	return $o;
 }
@@ -760,7 +760,7 @@ function posts_from_contact_url(App $a, $contact_url) {
 
 	$o = conversation($a,$r,'community',false);
 
-	$o .= alt_pager($a,count($r));
+	$o .= alt_pager($a, count($r));
 
 	return $o;
 }
