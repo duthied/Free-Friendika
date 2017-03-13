@@ -87,6 +87,7 @@
 	{{if $thread_allow.2}}
 		{{include file="field_checkbox.tpl" field=$ostatus_disabled}}
 		{{include file="field_select.tpl" field=$ostatus_poll_interval}}
+		{{include file="field_checkbox.tpl" field=$ostatus_full_threads}}
 	{{else}}
 		<div class='field checkbox' id='div_id_{{$ostatus_disabled.0}}'>
 			<label for='id_{{$ostatus_disabled.0}}'>{{$ostatus_disabled.1}}</label>
@@ -119,8 +120,10 @@
 	{{include file="field_input.tpl" field=$proxy}}
 	{{include file="field_input.tpl" field=$proxyuser}}
 	{{include file="field_input.tpl" field=$timeout}}
-	{{include file="field_input.tpl" field=$delivery_interval}}
-	{{include file="field_input.tpl" field=$poll_interval}}
+	{{if NOT $worker.2}}
+		{{include file="field_input.tpl" field=$delivery_interval}}
+		{{include file="field_input.tpl" field=$poll_interval}}
+	{{/if}}
 	{{include file="field_input.tpl" field=$maxloadavg}}
 	{{include file="field_input.tpl" field=$maxloadavg_frontend}}
 	{{include file="field_input.tpl" field=$optimize_max_tablesize}}
@@ -144,13 +147,23 @@
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	<h3>{{$performance}}</h3>
-	{{include file="field_checkbox.tpl" field=$use_fulltext_engine}}
+	<!-- {{include file="field_checkbox.tpl" field=$use_fulltext_engine}} -->
 	{{include file="field_checkbox.tpl" field=$only_tag_search}}
 	{{include file="field_input.tpl" field=$itemcache}}
 	{{include file="field_input.tpl" field=$itemcache_duration}}
 	{{include file="field_input.tpl" field=$max_comments}}
 	{{include file="field_checkbox.tpl" field=$proxy_disabled}}
 	{{include file="field_checkbox.tpl" field=$old_pager}}
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
+
+	<h3>{{$worker_title}}</h3>
+	{{include file="field_checkbox.tpl" field=$worker}}
+	{{if $worker.2}}
+		{{include file="field_input.tpl" field=$worker_queues}}
+		{{include file="field_checkbox.tpl" field=$worker_dont_fork}}
+		{{include file="field_checkbox.tpl" field=$worker_fastlane}}
+		{{include file="field_checkbox.tpl" field=$worker_frontend}}
+	{{/if}}
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	</form>

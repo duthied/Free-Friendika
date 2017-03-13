@@ -5,15 +5,16 @@ require_once('include/Contact.php');
 require_once('include/contact_selectors.php');
 require_once('mod/contacts.php');
 
-function dirfind_init(&$a) {
+function dirfind_init(App $a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL );
 		return;
 	}
 
-	if(! x($a->page,'aside'))
+	if (! x($a->page,'aside')) {
 		$a->page['aside'] = '';
+	}
 
 	$a->page['aside'] .= findpeople_widget();
 
@@ -22,7 +23,7 @@ function dirfind_init(&$a) {
 
 
 
-function dirfind_content(&$a, $prefix = "") {
+function dirfind_content(App $a, $prefix = "") {
 
 	$community = false;
 	$discover_user = false;
@@ -31,8 +32,9 @@ function dirfind_content(&$a, $prefix = "") {
 
 	$search = $prefix.notags(trim($_REQUEST['search']));
 
-	if(strpos($search,'@') === 0) {
+	if (strpos($search,'@') === 0) {
 		$search = substr($search,1);
+		$header = sprintf( t('People Search - %s'), $search);
 		if ((valid_email($search) AND validate_email($search)) OR
 			(substr(normalise_link($search), 0, 7) == "http://")) {
 			$user_data = probe_url($search);
@@ -40,14 +42,15 @@ function dirfind_content(&$a, $prefix = "") {
 		}
 	}
 
-	if(strpos($search,'!') === 0) {
+	if (strpos($search,'!') === 0) {
 		$search = substr($search,1);
 		$community = true;
+		$header = sprintf( t('Forum Search - %s'), $search);
 	}
 
 	$o = '';
 
-	if($search) {
+	if ($search) {
 
 		if ($discover_user) {
 			$j = new stdClass();
@@ -64,16 +67,15 @@ function dirfind_content(&$a, $prefix = "") {
 			$objresult->tags = "";
 			$objresult->network = $user_data["network"];
 
-			$contact = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
-					dbesc(normalise_link($user_data["url"])), intval(local_user()));
-			if ($contact)
-				$objresult->cid = $contact[0]["id"];
-
+			$contact = get_contact_details_by_url($user_data["url"], local_user());
+			$objresult->cid = $contact["cid"];
 
 			$j->results[] = $objresult;
 
-			poco_check($user_data["url"], $user_data["name"], $user_data["network"], $user_data["photo"],
-				"", "", "", "", "", datetime_convert(), 0);
+			// Add the contact to the global contacts if it isn't already in our system
+			if (($contact["cid"] == 0) AND ($contact["zid"] == 0) AND ($contact["gid"] == 0))
+				poco_check($user_data["url"], $user_data["name"], $user_data["network"], $user_data["photo"],
+					"", "", "", "", "", datetime_convert(), 0);
 		} elseif ($local) {
 
 			if ($community)
@@ -84,46 +86,62 @@ function dirfind_content(&$a, $prefix = "") {
 			$perpage = 80;
 			$startrec = (($a->pager['page']) * $perpage) - $perpage;
 
-			if (get_config('system','diaspora_enabled'))
+			if (get_config('system','diaspora_enabled')) {
 				$diaspora = NETWORK_DIASPORA;
-			else
+			} else {
 				$diaspora = NETWORK_DFRN;
+			}
 
-			if (!get_config('system','ostatus_disabled'))
+			if (!get_config('system','ostatus_disabled')) {
 				$ostatus = NETWORK_OSTATUS;
-			else
+			} else {
 				$ostatus = NETWORK_DFRN;
+			}
 
-			$count = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `network` IN ('%s', '%s', '%s') AND
-					(`url` REGEXP '%s' OR `name` REGEXP '%s' OR `location` REGEXP '%s' OR
-						`about` REGEXP '%s' OR `keywords` REGEXP '%s')".$extra_sql,
+			$search2 = "%".$search."%";
+
+			/// @TODO These 2 SELECTs are not checked on validity with dbm::is_result()
+			$count = q("SELECT count(*) AS `total` FROM `gcontact`
+					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl`
+						AND `contact`.`network` = `gcontact`.`network`
+						AND `contact`.`uid` = %d AND NOT `contact`.`blocked`
+						AND NOT `contact`.`pending` AND `contact`.`rel` IN ('%s', '%s')
+					WHERE (`contact`.`id` > 0 OR (NOT `gcontact`.`hide` AND `gcontact`.`network` IN ('%s', '%s', '%s') AND
+					((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`)))) AND
+					(`gcontact`.`url` LIKE '%s' OR `gcontact`.`name` LIKE '%s' OR `gcontact`.`location` LIKE '%s' OR
+						`gcontact`.`addr` LIKE '%s' OR `gcontact`.`about` LIKE '%s' OR `gcontact`.`keywords` LIKE '%s') $extra_sql",
+					intval(local_user()), dbesc(CONTACT_IS_SHARING), dbesc(CONTACT_IS_FRIEND),
 					dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
-					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
-					dbesc(escape_tags($search)), dbesc(escape_tags($search)));
+					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
+					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)));
 
 			$results = q("SELECT `contact`.`id` AS `cid`, `gcontact`.`url`, `gcontact`.`name`, `gcontact`.`photo`, `gcontact`.`network`, `gcontact`.`keywords`, `gcontact`.`addr`
 					FROM `gcontact`
 					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl`
+						AND `contact`.`network` = `gcontact`.`network`
 						AND `contact`.`uid` = %d AND NOT `contact`.`blocked`
 						AND NOT `contact`.`pending` AND `contact`.`rel` IN ('%s', '%s')
-					WHERE `gcontact`.`network` IN ('%s', '%s', '%s') AND
-					((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`)) AND
-					(`gcontact`.`url` REGEXP '%s' OR `gcontact`.`name` REGEXP '%s' OR `gcontact`.`location` REGEXP '%s' OR
-						`gcontact`.`about` REGEXP '%s' OR `gcontact`.`keywords` REGEXP '%s') $extra_sql
+					WHERE (`contact`.`id` > 0 OR (NOT `gcontact`.`hide` AND `gcontact`.`network` IN ('%s', '%s', '%s') AND
+					((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`)))) AND
+					(`gcontact`.`url` LIKE '%s' OR `gcontact`.`name` LIKE '%s' OR `gcontact`.`location` LIKE '%s' OR
+						`gcontact`.`addr` LIKE '%s' OR `gcontact`.`about` LIKE '%s' OR `gcontact`.`keywords` LIKE '%s') $extra_sql
 						GROUP BY `gcontact`.`nurl`
 						ORDER BY `gcontact`.`updated` DESC LIMIT %d, %d",
 					intval(local_user()), dbesc(CONTACT_IS_SHARING), dbesc(CONTACT_IS_FRIEND),
 					dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
-					dbesc(escape_tags($search)), dbesc(escape_tags($search)), dbesc(escape_tags($search)),
-					dbesc(escape_tags($search)), dbesc(escape_tags($search)),
+					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
+					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
 					intval($startrec), intval($perpage));
 			$j = new stdClass();
 			$j->total = $count[0]["total"];
 			$j->items_page = $perpage;
 			$j->page = $a->pager['page'];
 			foreach ($results AS $result) {
-				if (poco_alternate_ostatus_url($result["url"]))
-					 continue;
+				if (poco_alternate_ostatus_url($result["url"])) {
+					continue;
+				}
+
+				$result = get_contact_details_by_url($result["url"], local_user(), $result);
 
 				if ($result["name"] == "") {
 					$urlparts = parse_url($result["url"]);
@@ -143,7 +161,7 @@ function dirfind_content(&$a, $prefix = "") {
 			}
 
 			// Add found profiles from the global directory to the local directory
-			proc_run('php','include/discover_poco.php', "dirsearch", urlencode($search));
+			proc_run(PRIORITY_LOW, 'include/discover_poco.php', "dirsearch", urlencode($search));
 		} else {
 
 			$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
@@ -154,16 +172,16 @@ function dirfind_content(&$a, $prefix = "") {
 			$j = json_decode($x);
 		}
 
-		if($j->total) {
+		if ($j->total) {
 			$a->set_pager_total($j->total);
 			$a->set_pager_itemspage($j->items_page);
 		}
 
-		if(count($j->results)) {
+		if (count($j->results)) {
 
 			$id = 0;
 
-			foreach($j->results as $jj) {
+			foreach ($j->results as $jj) {
 
 				$alt_text = "";
 
@@ -181,13 +199,16 @@ function dirfind_content(&$a, $prefix = "") {
 						$photo_menu = contact_photo_menu($contact[0]);
 						$details = _contact_detail_for_template($contact[0]);
 						$alt_text = $details['alt_text'];
-					} else
+					} else {
 						$photo_menu = array();
+					}
 				} else {
-					$connlnk = $a->get_baseurl().'/follow/?url='.(($jj->connect) ? $jj->connect : $jj->url);
+					$connlnk = App::get_baseurl().'/follow/?url='.(($jj->connect) ? $jj->connect : $jj->url);
 					$conntxt = t('Connect');
-					$photo_menu = array(array(t("View Profile"), zrl($jj->url)));
-					$photo_menu[] = array(t("Connect/Follow"), $connlnk);
+					$photo_menu = array(
+						'profile' => array(t("View Profile"), zrl($jj->url)),
+						'follow' => array(t("Connect/Follow"), $connlnk)
+					);
 				}
 
 				$jj->photo = str_replace("http:///photo/", get_server()."/photo/", $jj->photo);
@@ -205,7 +226,7 @@ function dirfind_content(&$a, $prefix = "") {
 					'details'       => $contact_details['location'],
 					'tags'          => $contact_details['keywords'],
 					'about'         => $contact_details['about'],
-					'account_type'  => (($contact_details['community']) ? t('Forum') : ''),
+					'account_type'  => account_type($contact_details),
 					'network' => network_to_name($jj->network, $jj->url),
 					'id' => ++$id,
 				);
@@ -215,13 +236,12 @@ function dirfind_content(&$a, $prefix = "") {
 		$tpl = get_markup_template('viewcontact_template.tpl');
 
 		$o .= replace_macros($tpl,array(
-			'title' => sprintf( t('People Search - %s'), $search),
+			'title' => $header,
 			'$contacts' => $entries,
 			'$paginate' => paginate($a),
 		));
 
-		}
-		else {
+		} else {
 			info( t('No matches') . EOL);
 		}
 

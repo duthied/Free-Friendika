@@ -1,7 +1,7 @@
 <?php
 
-function community_init(&$a) {
-	if(! local_user()) {
+function community_init(App $a) {
+	if (! local_user()) {
 		unset($_SESSION['theme']);
 		unset($_SESSION['mobile-theme']);
 	}
@@ -10,9 +10,13 @@ function community_init(&$a) {
 }
 
 
-function community_content(&$a, $update = 0) {
+function community_content(App $a, $update = 0) {
 
 	$o = '';
+
+	// Currently the community page isn't able to handle update requests
+	if ($update)
+		return;
 
 	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
 		notice( t('Public access denied.') . EOL);
@@ -45,7 +49,7 @@ function community_content(&$a, $update = 0) {
 	// OR your own posts if you are a logged in member
 
 	if(get_config('system', 'old_pager')) {
-		$r = q("SELECT COUNT(distinct(`item`.`uri`)) AS `total`
+		$r = qu("SELECT COUNT(distinct(`item`.`uri`)) AS `total`
 			FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			INNER JOIN `user` ON `user`.`uid` = `item`.`uid` AND `user`.`hidewall` = 0
@@ -55,7 +59,7 @@ function community_content(&$a, $update = 0) {
 			AND `item`.`private` = 0 AND `item`.`wall` = 1"
 		);
 
-		if(count($r))
+		if (dbm::is_result($r))
 			$a->set_pager_total($r[0]['total']);
 
 		if(! $r[0]['total']) {
@@ -67,7 +71,7 @@ function community_content(&$a, $update = 0) {
 
 	$r = community_getitems($a->pager['start'], $a->pager['itemspage']);
 
-	if(! count($r)) {
+	if (! dbm::is_result($r)) {
 		info( t('No results.') . EOL);
 		return $o;
 	}
@@ -116,23 +120,18 @@ function community_getitems($start, $itemspage) {
 	if (get_config('system','community_page_style') == CP_GLOBAL_COMMUNITY)
 		return(community_getpublicitems($start, $itemspage));
 
-	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`alias`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
-		`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`,
-		`user`.`nickname`, `user`.`hidewall`
-		FROM `thread` FORCE INDEX (`wall_private_received`)
-		INNER JOIN `user` ON `user`.`uid` = `thread`.`uid` AND `user`.`hidewall` = 0
+	$r = qu("SELECT %s
+		FROM `thread`
+		INNER JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
 		INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
 		AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 		AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-		INNER JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
-		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0 AND `contact`.`self`
-		WHERE `thread`.`visible` = 1 AND `thread`.`deleted` = 0 and `thread`.`moderated` = 0
-		AND `thread`.`private` = 0 AND `thread`.`wall` = 1
-		ORDER BY `thread`.`received` DESC LIMIT %d, %d ",
-		intval($start),
-		intval($itemspage)
+		%s AND `contact`.`self`
+		WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
+		AND NOT `thread`.`private` AND `thread`.`wall`
+		ORDER BY `thread`.`received` DESC LIMIT %d, %d",
+		item_fieldlists(), item_joins(),
+		intval($start), intval($itemspage)
 	);
 
 	return($r);
@@ -140,17 +139,15 @@ function community_getitems($start, $itemspage) {
 }
 
 function community_getpublicitems($start, $itemspage) {
-	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
-			`author-name` AS `name`, `owner-avatar` AS `photo`,
-			`owner-link` AS `url`, `owner-avatar` AS `thumb`
-		FROM `item` WHERE `item`.`uid` = 0 AND `item`.`id` = `item`.`parent`
-		AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = ''
-		AND `item`.`deny_cid` = '' AND `item`.`deny_gid` = ''
-		ORDER BY `item`.`received` DESC LIMIT %d, %d",
-		intval($start),
-		intval($itemspage)
+
+	$r = qu("SELECT %s
+		FROM `thread`
+		INNER JOIN `item` ON `item`.`id` = `thread`.`iid` %s
+		WHERE `thread`.`uid` = 0
+		ORDER BY `thread`.`created` DESC LIMIT %d, %d",
+		item_fieldlists(), item_joins(),
+		intval($start), intval($itemspage)
 	);
 
 	return($r);
-
 }

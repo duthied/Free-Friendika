@@ -1,11 +1,14 @@
 <?php
+/**
+ * @file include/event.php
+ * @brief functions specific to event handling
+ */
 
 require_once('include/bbcode.php');
 require_once('include/map.php');
+require_once('include/datetime.php');
 
 function format_event_html($ev, $simple = false) {
-
-
 
 	if(! ((is_array($ev)) && count($ev)))
 		return '';
@@ -61,7 +64,7 @@ function format_event_html($ev, $simple = false) {
 			. bbcode($ev['location'])
 			. '</span></p>' . "\r\n";
 
-		if (strpos($ev['location'], "[map")===False) {
+		if (strpos($ev['location'], "[map") !== False) {
 			$map = generate_named_map($ev['location']);
 			if ($map!==$ev['location']) $o.=$map;
 		}
@@ -76,7 +79,6 @@ function format_event_html($ev, $simple = false) {
 function parse_event($h) {
 
 	require_once('include/Scrape.php');
-	require_once('library/HTMLPurifier.auto.php');
 	require_once('include/html2bbcode');
 
 	$h = '<html><body>' . $h . '</body></html>';
@@ -244,6 +246,7 @@ function event_store($arr) {
 	$arr['cid']     = ((intval($arr['cid'])) ? intval($arr['cid']) : 0);
 	$arr['uri']     = (x($arr,'uri') ? $arr['uri'] : item_new_uri($a->get_hostname(),$arr['uid']));
 	$arr['private'] = ((x($arr,'private')) ? intval($arr['private']) : 0);
+	$arr['guid']    = get_guid(32);
 
 	if($arr['cid'])
 		$c = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
@@ -269,7 +272,7 @@ function event_store($arr) {
 			intval($arr['id']),
 			intval($arr['uid'])
 		);
-		if((! count($r)) || ($r[0]['edited'] === $arr['edited'])) {
+		if((! dbm::is_result($r)) || ($r[0]['edited'] === $arr['edited'])) {
 
 			// Nothing has changed. Grab the item id to return.
 
@@ -277,7 +280,7 @@ function event_store($arr) {
 				intval($arr['id']),
 				intval($arr['uid'])
 			);
-			return((count($r)) ? $r[0]['id'] : 0);
+			return((dbm::is_result($r)) ? $r[0]['id'] : 0);
 		}
 
 		// The event changed. Update it.
@@ -291,11 +294,7 @@ function event_store($arr) {
 			`location` = '%s',
 			`type` = '%s',
 			`adjust` = %d,
-			`nofinish` = %d,
-			`allow_cid` = '%s',
-			`allow_gid` = '%s',
-			`deny_cid` = '%s',
-			`deny_gid` = '%s'
+			`nofinish` = %d
 			WHERE `id` = %d AND `uid` = %d",
 
 			dbesc($arr['edited']),
@@ -307,10 +306,6 @@ function event_store($arr) {
 			dbesc($arr['type']),
 			intval($arr['adjust']),
 			intval($arr['nofinish']),
-			dbesc($arr['allow_cid']),
-			dbesc($arr['allow_gid']),
-			dbesc($arr['deny_cid']),
-			dbesc($arr['deny_gid']),
 			intval($arr['id']),
 			intval($arr['uid'])
 		);
@@ -318,43 +313,37 @@ function event_store($arr) {
 			intval($arr['id']),
 			intval($arr['uid'])
 		);
-		if(count($r)) {
+		if (dbm::is_result($r)) {
 			$object = '<object><type>' . xmlify(ACTIVITY_OBJ_EVENT) . '</type><title></title><id>' . xmlify($arr['uri']) . '</id>';
 			$object .= '<content>' . xmlify(format_event_bbcode($arr)) . '</content>';
 			$object .= '</object>' . "\n";
 
 
-			q("UPDATE `item` SET `body` = '%s', `object` = '%s', `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s', `edited` = '%s', `private` = %d WHERE `id` = %d AND `uid` = %d",
+			q("UPDATE `item` SET `body` = '%s', `object` = '%s', `edited` = '%s' WHERE `id` = %d AND `uid` = %d",
 				dbesc(format_event_bbcode($arr)),
 				dbesc($object),
-				dbesc($arr['allow_cid']),
-				dbesc($arr['allow_gid']),
-				dbesc($arr['deny_cid']),
-				dbesc($arr['deny_gid']),
 				dbesc($arr['edited']),
-				intval($arr['private']),
 				intval($r[0]['id']),
 				intval($arr['uid'])
 			);
 
 			$item_id = $r[0]['id'];
-		}
-		else
+		} else
 			$item_id = 0;
 
 		call_hooks("event_updated", $arr['id']);
 
 		return $item_id;
-	}
-	else {
+	} else {
 
 		// New event. Store it.
 
-		$r = q("INSERT INTO `event` ( `uid`,`cid`,`uri`,`created`,`edited`,`start`,`finish`,`summary`, `desc`,`location`,`type`,
+		$r = q("INSERT INTO `event` (`uid`,`cid`,`guid`,`uri`,`created`,`edited`,`start`,`finish`,`summary`, `desc`,`location`,`type`,
 			`adjust`,`nofinish`,`allow_cid`,`allow_gid`,`deny_cid`,`deny_gid`)
-			VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', '%s', '%s', '%s' ) ",
+			VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', '%s', '%s', '%s' ) ",
 			intval($arr['uid']),
 			intval($arr['cid']),
+			dbesc($arr['guid']),
 			dbesc($arr['uri']),
 			dbesc($arr['created']),
 			dbesc($arr['edited']),
@@ -377,7 +366,7 @@ function event_store($arr) {
 			dbesc($arr['uri']),
 			intval($arr['uid'])
 		);
-		if(count($r))
+		if (dbm::is_result($r))
 			$event = $r[0];
 
 		$item_arr = array();
@@ -419,8 +408,8 @@ function event_store($arr) {
 		$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 			intval($arr['uid'])
 		);
-		//if(count($r))
-		//	$plink = $a->get_baseurl() . '/display/' . $r[0]['nickname'] . '/' . $item_id;
+		//if (dbm::is_result($r))
+		//	$plink = App::get_baseurl() . '/display/' . $r[0]['nickname'] . '/' . $item_id;
 
 
 		if($item_id) {
@@ -441,4 +430,449 @@ function event_store($arr) {
 
 		return $item_id;
 	}
+}
+
+function get_event_strings() {
+	// First day of the week (0 = Sunday)
+	$firstDay = get_pconfig(local_user(),'system','first_day_of_week');
+	if ($firstDay === false) $firstDay=0;
+
+	$i18n = array(
+			"firstDay" => $firstDay,
+			"Sun" => t("Sun"),
+			"Mon" => t("Mon"),
+			"Tue" => t("Tue"),
+			"Wed" => t("Wed"),
+			"Thu" => t("Thu"),
+			"Fri" => t("Fri"),
+			"Sat" => t("Sat"),
+			"Sunday" => t("Sunday"),
+			"Monday" => t("Monday"),
+			"Tuesday" => t("Tuesday"),
+			"Wednesday" => t("Wednesday"),
+			"Thursday" => t("Thursday"),
+			"Friday" => t("Friday"),
+			"Saturday" => t("Saturday"),
+			"Jan" => t("Jan"),
+			"Feb" => t("Feb"),
+			"Mar" => t("Mar"),
+			"Apr" => t("Apr"),
+			"May" => t("May"),
+			"Jun" => t("Jun"),
+			"Jul" => t("Jul"),
+			"Aug" => t("Aug"),
+			"Sep" => t("Sept"),
+			"Oct" => t("Oct"),
+			"Nov" => t("Nov"),
+			"Dec" => t("Dec"),
+			"January" => t("January"),
+			"February" => t("February"),
+			"March" => t("March"),
+			"April" => t("April"),
+			"May" => t("May"),
+			"June" => t("June"),
+			"July" => t("July"),
+			"August" => t("August"),
+			"September" => t("September"),
+			"October" => t("October"),
+			"November" => t("November"),
+			"December" => t("December"),
+			"today" => t("today"),
+			"month" => t("month"),
+			"week" => t("week"),
+			"day" => t("day"),
+			"allday" => t("all-day"),
+
+			"noevent" => t("No events to display"),
+
+			"dtstart_label" => t("Starts:"),
+			"dtend_label" => t("Finishes:"),
+			"location_label" => t("Location:")
+		);
+
+	return $i18n;
+}
+
+/// @todo We should replace this with a separate update function if there is some time left
+/**
+ * @brief Removes duplicated birthday events
+ *
+ * @param array $dates Array of possibly duplicated events
+ * @return array Cleaned events
+ */
+function event_remove_duplicates($dates) {
+	$dates2 = array();
+
+	foreach ($dates AS $date) {
+		if ($date['type'] == 'birthday') {
+			$dates2[$date['uid']."-".$date['cid']."-".$date['start']] = $date;
+		} else {
+			$dates2[] = $date;
+		}
+	}
+	return $dates2;
+}
+
+/**
+ * @brief Get an event by its event ID
+ *
+ * @param type $owner_uid The User ID of the owner of the event
+ * @param type $event_params An assoziative array with
+ *	int 'event_id' => The ID of the event in the event table
+ * @param type $sql_extra
+ * @return array Query result
+ */
+function event_by_id($owner_uid = 0, $event_params, $sql_extra = '') {
+	// ownly allow events if there is a valid owner_id
+	if($owner_uid == 0)
+		return;
+
+	// query for the event by event id
+	$r = q("SELECT `event`.*, `item`.`id` AS `itemid`,`item`.`plink`,
+			`item`.`author-name`, `item`.`author-avatar`, `item`.`author-link` FROM `event`
+		LEFT JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`
+		WHERE `event`.`uid` = %d AND `event`.`id` = %d $sql_extra",
+		intval($owner_uid),
+		intval($event_params["event_id"])
+	);
+
+	if (dbm::is_result($r)) {
+		return event_remove_duplicates($r);
+	}
+}
+
+/**
+ * @brief Get all events in a specific timeframe
+ *
+ * @param int $owner_uid The User ID of the owner of the events
+ * @param array $event_params An assoziative array with
+ *	int 'ignored' =>
+ *	string 'start' => Start time of the timeframe
+ *	string 'finish' => Finish time of the timeframe
+ *	string 'adjust_start' =>
+ *	string 'adjust_start' =>
+ *
+ * @param string $sql_extra Additional sql conditions (e.g. permission request)
+ * @return array Query results
+ */
+function events_by_date($owner_uid = 0, $event_params, $sql_extra = '') {
+	// ownly allow events if there is a valid owner_id
+	if($owner_uid == 0)
+		return;
+
+	// query for the event by date
+	$r = q("SELECT `event`.*, `item`.`id` AS `itemid`,`item`.`plink`,
+				`item`.`author-name`, `item`.`author-avatar`, `item`.`author-link` FROM `event`
+			LEFT JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`
+			WHERE `event`.`uid` = %d AND event.ignore = %d
+			AND ((`adjust` = 0 AND (`finish` >= '%s' OR (nofinish AND start >= '%s')) AND `start` <= '%s')
+			OR  (`adjust` = 1 AND (`finish` >= '%s' OR (nofinish AND start >= '%s')) AND `start` <= '%s'))
+			$sql_extra ",
+			intval($owner_uid),
+			intval($event_params["ignored"]),
+			dbesc($event_params["start"]),
+			dbesc($event_params["start"]),
+			dbesc($event_params["finish"]),
+			dbesc($event_params["adjust_start"]),
+			dbesc($event_params["adjust_start"]),
+			dbesc($event_params["adjust_finish"])
+	);
+
+	if (dbm::is_result($r)) {
+		return event_remove_duplicates($r);
+	}
+}
+
+/**
+ * @brief Convert an array query results in an arry which could be used by the events template
+ *
+ * @param array $arr Event query array
+ * @return array Event array for the template
+ */
+function process_events($arr) {
+	$events=array();
+
+	$last_date = '';
+	$fmt = t('l, F j');
+	if (count($arr)) {
+		foreach($arr as $rr) {
+
+			$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'j') : datetime_convert('UTC','UTC',$rr['start'],'j'));
+			$d = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], $fmt) : datetime_convert('UTC','UTC',$rr['start'],$fmt));
+			$d = day_translate($d);
+
+			$start = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'c') : datetime_convert('UTC','UTC',$rr['start'],'c'));
+			if ($rr['nofinish']){
+				$end = null;
+			} else {
+				$end = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['finish'], 'c') : datetime_convert('UTC','UTC',$rr['finish'],'c'));
+			}
+
+
+			$is_first = ($d !== $last_date);
+
+			$last_date = $d;
+			$edit = ((! $rr['cid']) ? array(App::get_baseurl().'/events/event/'.$rr['id'],t('Edit event'),'','') : null);
+			$title = strip_tags(html_entity_decode(bbcode($rr['summary']),ENT_QUOTES,'UTF-8'));
+			if(! $title) {
+				list($title, $_trash) = explode("<br",bbcode($rr['desc']),2);
+				$title = strip_tags(html_entity_decode($title,ENT_QUOTES,'UTF-8'));
+			}
+
+			$html = format_event_html($rr);
+			$rr['desc'] = bbcode($rr['desc']);
+			$rr['location'] = bbcode($rr['location']);
+			$events[] = array(
+				'id'=>$rr['id'],
+				'start'=> $start,
+				'end' => $end,
+				'allDay' => false,
+				'title' => $title,
+
+				'j' => $j,
+				'd' => $d,
+				'is_first'=>$is_first,
+				'item'=>$rr,
+				'html'=>$html,
+				'plink' => array($rr['plink'],t('link to source'),'',''),
+			);
+		}
+	}
+
+	return $events;
+}
+
+/**
+ * @brief Format event to export format (ical/csv)
+ *
+ * @param array $events Query result for events
+ * @param string $format The output format (ical/csv)
+ * @param string $timezone The timezone of the user (not implemented yet)
+ *
+ * @return string Content according to selected export format
+ */
+function event_format_export ($events, $format = 'ical', $timezone) {
+	if(! ((is_array($events)) && count($events)))
+		return;
+
+	switch ($format) {
+		// format the exported data as a CSV file
+		case "csv":
+			header("Content-type: text/csv");
+			$o = '"Subject", "Start Date", "Start Time", "Description", "End Date", "End Time", "Location"' . PHP_EOL;
+
+			foreach ($events as $event) {
+			/// @todo the time / date entries don't include any information about the
+			// timezone the event is scheduled in :-/
+				$tmp1 = strtotime($event['start']);
+				$tmp2 = strtotime($event['finish']);
+				$time_format = "%H:%M:%S";
+				$date_format = "%Y-%m-%d";
+				$o .= '"'.$event['summary'].'", "'.strftime($date_format, $tmp1) .
+					'", "'.strftime($time_format, $tmp1).'", "'.$event['desc'] .
+					'", "'.strftime($date_format, $tmp2) .
+					'", "'.strftime($time_format, $tmp2) .
+					'", "'.$event['location'].'"' . PHP_EOL;
+			}
+			break;
+
+		// format the exported data as a ics file
+		case "ical":
+			header("Content-type: text/ics");
+			$o = 'BEGIN:VCALENDAR'. PHP_EOL
+				. 'VERSION:2.0' . PHP_EOL
+				. 'PRODID:-//friendica calendar export//0.1//EN' . PHP_EOL;
+			///  @todo include timezone informations in cases were the time is not in UTC
+			//  see http://tools.ietf.org/html/rfc2445#section-4.8.3
+			//		. 'BEGIN:VTIMEZONE' . PHP_EOL
+			//		. 'TZID:' . $timezone . PHP_EOL
+			//		. 'END:VTIMEZONE' . PHP_EOL;
+			//  TODO instead of PHP_EOL CRLF should be used for long entries
+			//       but test your solution against http://icalvalid.cloudapp.net/
+			//       also long lines SHOULD be split at 75 characters length
+			foreach ($events as $event) {
+				if ($event['adjust'] == 1) {
+					$UTC = 'Z';
+				} else {
+					$UTC = '';
+				}
+				$o .= 'BEGIN:VEVENT' . PHP_EOL;
+				if ($event[start]) {
+					$tmp = strtotime($event['start']);
+					$dtformat = "%Y%m%dT%H%M%S".$UTC;
+					$o .= 'DTSTART:'.strftime($dtformat, $tmp).PHP_EOL;
+				}
+				if (!$event['nofinish']) {
+					$tmp = strtotime($event['finish']);
+					$dtformat = "%Y%m%dT%H%M%S".$UTC;
+					$o .= 'DTEND:'.strftime($dtformat, $tmp).PHP_EOL;
+				}
+				if ($event['summary'])
+					$tmp = $event['summary'];
+					$tmp = str_replace(PHP_EOL, PHP_EOL.' ',$tmp);
+					$tmp = addcslashes($tmp, ',;');
+					$o .= 'SUMMARY:' . $tmp . PHP_EOL;
+				if ($event['desc'])
+					$tmp = $event['desc'];
+					$tmp = str_replace(PHP_EOL, PHP_EOL.' ',$tmp);
+					$tmp = addcslashes($tmp, ',;');
+					$o .= 'DESCRIPTION:' . $tmp . PHP_EOL;
+				if ($event['location']) {
+					$tmp = $event['location'];
+					$tmp = str_replace(PHP_EOL, PHP_EOL.' ',$tmp);
+					$tmp = addcslashes($tmp, ',;');
+					$o .= 'LOCATION:' . $tmp . PHP_EOL;
+				}
+
+				$o .= 'END:VEVENT' . PHP_EOL;
+				$o .= PHP_EOL;
+			}
+
+			$o .= 'END:VCALENDAR' . PHP_EOL;
+			break;
+	}
+
+	return $o;
+}
+
+/**
+ * @brief Get all events for a user ID
+ *
+ *    The query for events is done permission sensitive
+ *    If the user is the owner of the calendar he/she
+ *    will get all of his/her available events.
+ *    If the user is only a visitor only the public events will
+ *    be available
+ *
+ * @param int $uid The user ID
+ * @param int $sql_extra Additional sql conditions for permission
+ *
+ * @return array Query results
+ */
+function events_by_uid($uid = 0, $sql_extra = '') {
+	if($uid == 0)
+		return;
+
+	// The permission condition if no condition was transmitted
+	if($sql_extra == '')
+		$sql_extra = " AND `allow_cid` = '' AND `allow_gid` = '' ";
+
+	//  does the user who requests happen to be the owner of the events
+	//  requested? then show all of your events, otherwise only those that
+	//  don't have limitations set in allow_cid and allow_gid
+	if (local_user() == $uid) {
+		$r = q("SELECT `start`, `finish`, `adjust`, `summary`, `desc`, `location`, `nofinish`
+			FROM `event` WHERE `uid`= %d AND `cid` = 0 ",
+			intval($uid)
+		);
+	} else {
+		$r = q("SELECT `start`, `finish`, `adjust`, `summary`, `desc`, `location`, `nofinish`
+			FROM `event` WHERE `uid`= %d AND `cid` = 0 $sql_extra ",
+			intval($uid)
+		);
+	}
+
+	if (dbm::is_result($r))
+		return $r;
+}
+
+/**
+ *
+ * @param int $uid The user ID
+ * @param string $format Output format (ical/csv)
+ * @return array With the results
+ *	bool 'success' => True if the processing was successful
+ *	string 'format' => The output format
+ *	string 'extension' => The file extension of the output format
+ *	string 'content' => The formatted output content
+ *
+ * @todo Respect authenticated users with events_by_uid()
+ */
+function event_export($uid, $format = 'ical') {
+
+	$process = false;
+
+	// we are allowed to show events
+	// get the timezone the user is in
+	$r = q("SELECT `timezone` FROM `user` WHERE `uid` = %d LIMIT 1", intval($uid));
+	if (dbm::is_result($r))
+		$timezone = $r[0]['timezone'];
+
+	// get all events which are owned by a uid (respects permissions);
+	$events = events_by_uid($uid);
+
+	//  we have the events that are available for the requestor
+	//  now format the output according to the requested format
+	if(count($events))
+		$res = event_format_export($events, $format, $timezone);
+
+	// If there are results the precess was successfull
+	if(x($res))
+		$process = true;
+
+	// get the file extension for the format
+	switch ($format) {
+		case "ical":
+			$file_ext = "ics";
+			break;
+
+		case "csv":
+			$file_ext = "csv";
+			break;
+
+		default:
+			$file_ext = "";
+	}
+
+	$arr = array(
+		'success' => $process,
+		'format' => $format,
+		'extension' => $file_ext,
+		'content' => $res,
+	);
+
+	return $arr;
+}
+
+/**
+ * @brief Get the events widget
+ *
+ * @return string Formated html of the evens widget
+ */
+function widget_events() {
+	$a = get_app();
+
+	$owner_uid = $a->data['user']['uid'];
+	// $a->data is only available if the profile page is visited. If the visited page is not part
+	// of the profile page it should be the personal /events page. So we can use $a->user
+	$user = ($a->data['user']['nickname'] ? $a->data['user']['nickname'] : $a->user['nickname']);
+
+
+	// The permission testing is a little bit tricky because we have to respect many cases
+
+	// It's not the private events page (we don't get the $owner_uid for /events)
+	if(! local_user() && ! $owner_uid)
+		return;
+
+	// Cal logged in user (test permission at foreign profile page)
+	// If the $owner uid is available we know it is part of one of the profile pages (like /cal)
+	// So we have to test if if it's the own profile page of the logged in user
+	// or a foreign one. For foreign profile pages we need to check if the feature
+	// for exporting the cal is enabled (otherwise the widget would appear for logged in users
+	// on foreigen profile pages even if the widget is disabled)
+	if(intval($owner_uid) && local_user() !== $owner_uid && ! feature_enabled($owner_uid, "export_calendar"))
+		return;
+
+	// If it's a kind of profile page (intval($owner_uid)) return if the user not logged in and
+	// export feature isn't enabled
+	if(intval($owner_uid) && ! local_user() && ! feature_enabled($owner_uid, "export_calendar"))
+		return;
+
+	return replace_macros(get_markup_template("events_aside.tpl"), array(
+		'$etitle' => t("Export"),
+		'$export_ical' => t("Export calendar as ical"),
+		'$export_csv' => t("Export calendar as csv"),
+		'$user' => $user
+	));
+
 }

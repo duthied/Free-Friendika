@@ -1,6 +1,8 @@
 <?php
+// See here for a documentation for portable contacts:
+// https://web.archive.org/web/20160405005550/http://portablecontacts.net/draft-spec.html
 
-function poco_init(&$a) {
+function poco_init(App $a) {
 	require_once("include/bbcode.php");
 
 	$system_mode = false;
@@ -14,8 +16,9 @@ function poco_init(&$a) {
 	}
 	if(! x($user)) {
 		$c = q("SELECT * FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1");
-		if(! count($c))
+		if (! dbm::is_result($c)) {
 			http_status_exit(401);
+		}
 		$system_mode = true;
 	}
 
@@ -43,7 +46,7 @@ function poco_init(&$a) {
 			where `user`.`nickname` = '%s' and `profile`.`is-default` = 1 limit 1",
 			dbesc($user)
 		);
-		if(! count($r) || $r[0]['hidewall'] || $r[0]['hide-friends'])
+		if(! dbm::is_result($r) || $r[0]['hidewall'] || $r[0]['hide-friends'])
 			http_status_exit(404);
 
 		$user = $r[0];
@@ -61,8 +64,7 @@ function poco_init(&$a) {
 		$update_limit =  date("Y-m-d H:i:s",strtotime($_GET['updatedSince']));
 
 	if ($global) {
-		//$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND ((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`))  AND `network` IN ('%s')",
-		$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND `updated` >= `last_failure`  AND `network` IN ('%s', '%s', '%s')",
+		$r = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND `updated` >= `last_failure` AND NOT `hide` AND `network` IN ('%s', '%s', '%s')",
 			dbesc($update_limit),
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_DIASPORA),
@@ -82,7 +84,7 @@ function poco_init(&$a) {
 			dbesc(NETWORK_STATUSNET)
 		);
 	}
-	if(count($r))
+	if (dbm::is_result($r))
 		$totalResults = intval($r[0]['total']);
 	else
 		$totalResults = 0;
@@ -94,8 +96,7 @@ function poco_init(&$a) {
 
 	if ($global) {
 		logger("Start global query", LOGGER_DEBUG);
-		//$r = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND `network` IN ('%s') AND ((`last_contact` >= `last_failure`) OR (`updated` > `last_failure`)) LIMIT %d, %d",
-		$r = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND `network` IN ('%s', '%s', '%s') AND `updated` > `last_failure`
+		$r = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND NOT `hide` AND `network` IN ('%s', '%s', '%s') AND `updated` > `last_failure`
 			ORDER BY `updated` DESC LIMIT %d, %d",
 			dbesc($update_limit),
 			dbesc(NETWORK_DFRN),
@@ -106,9 +107,11 @@ function poco_init(&$a) {
 		);
 	} elseif($system_mode) {
 		logger("Start system mode query", LOGGER_DEBUG);
-		$r = q("SELECT `contact`.*, `profile`.`about` AS `pabout`, `profile`.`locality` AS `plocation`, `profile`.`pub_keywords`, `profile`.`gender` AS `pgender`,
-			`profile`.`address` AS `paddress`, `profile`.`region` AS `pregion`, `profile`.`postal-code` AS `ppostalcode`, `profile`.`country-name` AS `pcountry`
+		$r = q("SELECT `contact`.*, `profile`.`about` AS `pabout`, `profile`.`locality` AS `plocation`, `profile`.`pub_keywords`,
+				`profile`.`gender` AS `pgender`, `profile`.`address` AS `paddress`, `profile`.`region` AS `pregion`,
+				`profile`.`postal-code` AS `ppostalcode`, `profile`.`country-name` AS `pcountry`, `user`.`account-type`
 			FROM `contact` INNER JOIN `profile` ON `profile`.`uid` = `contact`.`uid`
+				INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
 			WHERE `self` = 1 AND `profile`.`is-default`
 			AND `contact`.`uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) LIMIT %d, %d",
 			intval($startIndex),
@@ -157,6 +160,7 @@ function poco_init(&$a) {
 		'gender' => false,
 		'tags' => false,
 		'address' => false,
+		'contactType' => false,
 		'generation' => false
 	);
 
@@ -170,8 +174,8 @@ function poco_init(&$a) {
 	}
 
 	if(is_array($r)) {
-		if(count($r)) {
-			foreach($r as $rr) {
+		if (dbm::is_result($r)) {
+			foreach ($r as $rr) {
 				if (!isset($rr['generation'])) {
 					if ($global)
 						$rr['generation'] = 3;
@@ -208,6 +212,9 @@ function poco_init(&$a) {
 
 				if (($rr['keywords'] == "") AND isset($rr['pub_keywords']))
 					$rr['keywords'] = $rr['pub_keywords'];
+
+				if (isset($rr['account-type']))
+					$rr['contact-type'] = $rr['account-type'];
 
 				$about = Cache::get("about:".$rr['updated'].":".$rr['nurl']);
 				if (is_null($about)) {
@@ -301,6 +308,9 @@ function poco_init(&$a) {
 					if (isset($rr['pcountry']))
 						 $entry['address']['country'] = $rr['pcountry'];
 				}
+
+				if($fields_ret['contactType'])
+					$entry['contactType'] = intval($rr['contact-type']);
 
 				$ret['entry'][] = $entry;
 			}

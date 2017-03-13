@@ -1,26 +1,32 @@
 <?php
 
-/*
- * Module: dfrn_confirm
+/**
+ * @file mod/dfrn_confirm.php
+ * @brief Module: dfrn_confirm
  * Purpose: Friendship acceptance for DFRN contacts
- *
+ *.
  * There are two possible entry points and three scenarios.
- *
+ *.
  *   1. A form was submitted by our user approving a friendship that originated elsewhere.
  *      This may also be called from dfrn_request to automatically approve a friendship.
  *
  *   2. We may be the target or other side of the conversation to scenario 1, and will
  *      interact with that process on our own user's behalf.
- *
+ *.
+ *  @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/master/spec/dfrn2.pdf
+ *    You also find a graphic which describes the confirmation process at
+ *    https://github.com/friendica/friendica/blob/master/spec/dfrn2_contact_confirmation.png
  */
 
 require_once('include/enotify.php');
+require_once('include/group.php');
+require_once('include/Probe.php');
 
-function dfrn_confirm_post(&$a,$handsfree = null) {
+function dfrn_confirm_post(App $a, $handsfree = null) {
 
 	if(is_array($handsfree)) {
 
-		/**
+		/*
 		 * We were called directly from dfrn_request due to automatic friend acceptance.
 		 * Any $_POST parameters we may require are supplied in the $handsfree array.
 		 *
@@ -35,7 +41,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			$node = $a->argv[1];
 	}
 
-		/**
+		/*
 		 *
 		 * Main entry point. Scenario 1. Our user received a friend request notification (perhaps
 		 * from another site) and clicked 'Approve'.
@@ -85,7 +91,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			$activity = ((x($_POST,'activity'))   ? intval($_POST['activity'])      : 0 );
 		}
 
-		/**
+		/*
 		 *
 		 * Ensure that dfrn_id has precedence when we go to find the contact record.
 		 * We only want to search based on contact id if there is no dfrn_id,
@@ -101,7 +107,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			logger('Confirming follower with contact_id: ' . $cid);
 
 
-		/**
+		/*
 		 *
 		 * The other person will have been issued an ID when they first requested friendship.
 		 * Locate their record. At this time, their record will have both pending and blocked set to 1.
@@ -115,7 +121,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			intval($uid)
 		);
 
-		if(! count($r)) {
+		if (! dbm::is_result($r)) {
 			logger('Contact not found in DB.');
 			notice( t('Contact not found.') . EOL );
 			notice( t('This may occasionally happen if contact was requested by both persons and it has already been approved.') . EOL );
@@ -137,7 +143,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 		if($network === NETWORK_DFRN) {
 
-			/**
+			/*
 			 *
 			 * Generate a key pair for all further communications with this person.
 			 * We have a keypair for every contact, and a site key for unknown people.
@@ -164,7 +170,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 			$params = array();
 
-			/**
+			/*
 			 *
 			 * Per the DFRN protocol, we will verify both ends by encrypting the dfrn_id with our
 			 * site private key (person on the other end can decrypt it with our site public key).
@@ -188,7 +194,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			$params['public_key'] = $public_key;
 
 
-			$my_url = $a->get_baseurl() . '/profile/' . $user[0]['nickname'];
+			$my_url = App::get_baseurl() . '/profile/' . $user[0]['nickname'];
 
 			openssl_public_encrypt($my_url, $params['source_url'], $site_pubkey);
 			$params['source_url'] = bin2hex($params['source_url']);
@@ -210,7 +216,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 			logger('Confirm: posting data to ' . $dfrn_confirm . ': ' . print_r($params,true), LOGGER_DATA);
 
-			/**
+			/*
 			 *
 			 * POST all this stuff to the other site.
 			 * Temporarily raise the network timeout to 120 seconds because the default 60
@@ -218,9 +224,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			 *
 			 */
 
-			$a->config['system']['curl_timeout'] = 120;
-
-			$res = post_url($dfrn_confirm,$params);
+			$res = post_url($dfrn_confirm, $params, null, $redirects, 120);
 
 			logger(' Confirm: received data: ' . $res, LOGGER_DATA);
 
@@ -315,7 +319,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 		require_once('include/Photo.php');
 
-		$photos = import_profile_photo($contact['photo'],$uid,$contact_id);
+		update_contact_avatar($contact['photo'],$uid,$contact_id);
 
 		logger('dfrn_confirm: confirm - imported photos');
 
@@ -328,25 +332,16 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			if(($relation == CONTACT_IS_SHARING) && ($duplex))
 				$duplex = 0;
 
-			$r = q("UPDATE `contact` SET
-				`photo` = '%s',
-				`thumb` = '%s',
-				`micro` = '%s',
-				`rel` = %d,
+			$r = q("UPDATE `contact` SET `rel` = %d,
 				`name-date` = '%s',
 				`uri-date` = '%s',
-				`avatar-date` = '%s',
 				`blocked` = 0,
 				`pending` = 0,
 				`duplex` = %d,
 				`hidden` = %d,
 				`network` = '%s' WHERE `id` = %d
 			",
-				dbesc($photos[0]),
-				dbesc($photos[1]),
-				dbesc($photos[2]),
 				intval($new_relation),
-				dbesc(datetime_convert()),
 				dbesc(datetime_convert()),
 				dbesc(datetime_convert()),
 				intval($duplex),
@@ -364,7 +359,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			$poll   = (($contact['poll']) ? $contact['poll'] : '');
 
 			if((! $contact['notify']) || (! $contact['poll'])) {
-				$arr = lrdd($contact['url']);
+				$arr = Probe::lrdd($contact['url']);
 				if(count($arr)) {
 					foreach($arr as $link) {
 						if($link['@attributes']['rel'] === 'salmon')
@@ -394,12 +389,8 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			);
 
 
-			$r = q("UPDATE `contact` SET `photo` = '%s',
-				`thumb` = '%s',
-				`micro` = '%s',
-				`name-date` = '%s',
+			$r = q("UPDATE `contact` SET `name-date` = '%s',
 				`uri-date` = '%s',
-				`avatar-date` = '%s',
 				`notify` = '%s',
 				`poll` = '%s',
 				`blocked` = 0,
@@ -410,10 +401,6 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				`rel` = %d
 				WHERE `id` = %d
 			",
-				dbesc($photos[0]),
-				dbesc($photos[1]),
-				dbesc($photos[2]),
-				dbesc(datetime_convert()),
 				dbesc(datetime_convert()),
 				dbesc(datetime_convert()),
 				dbesc($notify),
@@ -426,26 +413,29 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			);
 		}
 
-		if($r === false)
-				notice( t('Unable to set contact photo.') . EOL);
+		/// @TODO is dbm::is_result() working here?
+		if ($r === false) {
+			notice( t('Unable to set contact photo.') . EOL);
+		}
 
 		// reload contact info
 
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 			intval($contact_id)
 		);
-		if(count($r))
+		if (dbm::is_result($r)) {
 			$contact = $r[0];
-		else
+		} else {
 			$contact = null;
+		}
 
 
-		if((isset($new_relation) && $new_relation == CONTACT_IS_FRIEND)) {
+		if ((isset($new_relation) && $new_relation == CONTACT_IS_FRIEND)) {
 
-			if(($contact) && ($contact['network'] === NETWORK_DIASPORA)) {
+			if (($contact) && ($contact['network'] === NETWORK_DIASPORA)) {
 				require_once('include/diaspora.php');
-				$ret = diaspora_share($user[0],$r[0]);
-				logger('mod_follow: diaspora_share returns: ' . $ret);
+				$ret = Diaspora::send_share($user[0],$r[0]);
+				logger('share returns: ' . $ret);
 			}
 
 			// Send a new friend post if we are allowed to...
@@ -454,7 +444,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				intval($uid)
 			);
 
-			if((count($r)) && ($r[0]['hide-friends'] == 0) && ($activity) && (! $hidden)) {
+			if((dbm::is_result($r)) && ($r[0]['hide-friends'] == 0) && ($activity) && (! $hidden)) {
 
 				require_once('include/items.php');
 
@@ -465,6 +455,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				if(count($self)) {
 
 					$arr = array();
+					$arr['guid'] = get_guid(32);
 					$arr['uri'] = $arr['parent-uri'] = item_new_uri($a->get_hostname(), $uid);
 					$arr['uid'] = $uid;
 					$arr['contact-id'] = $self[0]['id'];
@@ -483,7 +474,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 					$BPhoto = '[url=' . $contact['url'] . ']' . '[img]' . $contact['thumb'] . '[/img][/url]';
 
 					$arr['verb'] = ACTIVITY_FRIEND;
-				    $arr['object-type'] = ACTIVITY_OBJ_PERSON;
+					$arr['object-type'] = ACTIVITY_OBJ_PERSON;
 					$arr['body'] =  sprintf( t('%1$s is now friends with %2$s'), $A, $B)."\n\n\n".$BPhoto;
 
 					$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $contact['name'] . '</title>'
@@ -501,31 +492,27 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 					$i = item_store($arr);
 					if($i)
-				    	proc_run('php',"include/notifier.php","activity","$i");
+						proc_run(PRIORITY_HIGH, "include/notifier.php", "activity", $i);
 				}
 			}
 		}
 
-
-		$g = q("select def_gid from user where uid = %d limit 1",
-			intval($uid)
-		);
-		if($contact && $g && intval($g[0]['def_gid'])) {
-			require_once('include/group.php');
-			group_add_member($uid,'',$contact['id'],$g[0]['def_gid']);
-		}
+		$def_gid = get_default_group($uid, $contact["network"]);
+		if($contact && intval($def_gid))
+			group_add_member($uid, '', $contact['id'], $def_gid);
 
 		// Let's send our user to the contact editor in case they want to
 		// do anything special with this new friend.
 
-		if($handsfree === null)
-			goaway($a->get_baseurl() . '/contacts/' . intval($contact_id));
-		else
+		if ($handsfree === null) {
+			goaway(App::get_baseurl() . '/contacts/' . intval($contact_id));
+		} else {
 			return;
+		}
 		//NOTREACHED
 	}
 
-	/**
+	/*
 	 *
 	 *
 	 * End of Scenario 1. [Local confirmation of remote friend request].
@@ -537,7 +524,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 	 *
 	 */
 
-	if(x($_POST,'source_url')) {
+	if (x($_POST,'source_url')) {
 
 		// We are processing an external confirmation to an introduction created by our user.
 
@@ -558,7 +545,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 		// If $aes_key is set, both of these items require unpacking from the hex transport encoding.
 
-		if(x($aes_key)) {
+		if (x($aes_key)) {
 			$aes_key = hex2bin($aes_key);
 			$public_key = hex2bin($public_key);
 		}
@@ -568,7 +555,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' LIMIT 1",
 			dbesc($node));
 
-		if(! count($r)) {
+		if (! dbm::is_result($r)) {
 			$message = sprintf(t('No user record found for \'%s\' '), $node);
 			xml_status(3,$message); // failure
 			// NOTREACHED
@@ -644,7 +631,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		$r = q("SELECT * FROM `contact` WHERE `dfrn-id` = '%s' LIMIT 1",
 			dbesc($decrypted_dfrn_id)
 		);
-		if(count($r)) {
+		if (dbm::is_result($r)) {
 			$message = t('The ID provided by your system is a duplicate on our system. It should work if you try again.');
 			xml_status(1,$message); // Birthday paradox - duplicate dfrn-id
 			// NOTREACHED
@@ -655,7 +642,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			dbesc($dfrn_pubkey),
 			intval($dfrn_record)
 		);
-		if(! count($r)) {
+		if (! dbm::is_result($r)) {
 			$message = t('Unable to set your contact credentials on our system.');
 			xml_status(3,$message);
 		}
@@ -676,32 +663,31 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		$r = q("SELECT `photo` FROM `contact` WHERE `id` = %d LIMIT 1",
 			intval($dfrn_record));
 
-		if(count($r))
+		if (dbm::is_result($r)) {
 			$photo = $r[0]['photo'];
-		else
-			$photo = $a->get_baseurl() . '/images/person-175.jpg';
+		} else {
+			$photo = App::get_baseurl() . '/images/person-175.jpg';
+		}
 
 		require_once("include/Photo.php");
 
-		$photos = import_profile_photo($photo,$local_uid,$dfrn_record);
+		update_contact_avatar($photo,$local_uid,$dfrn_record);
 
 		logger('dfrn_confirm: request - photos imported');
 
 		$new_relation = CONTACT_IS_SHARING;
-		if(($relation == CONTACT_IS_FOLLOWER) || ($duplex))
+		if (($relation == CONTACT_IS_FOLLOWER) || ($duplex)) {
 			$new_relation = CONTACT_IS_FRIEND;
+		}
 
-		if(($relation == CONTACT_IS_FOLLOWER) && ($duplex))
+		if (($relation == CONTACT_IS_FOLLOWER) && ($duplex)) {
 			$duplex = 0;
+		}
 
 		$r = q("UPDATE `contact` SET
-			`photo` = '%s',
-			`thumb` = '%s',
-			`micro` = '%s',
 			`rel` = %d,
 			`name-date` = '%s',
 			`uri-date` = '%s',
-			`avatar-date` = '%s',
 			`blocked` = 0,
 			`pending` = 0,
 			`duplex` = %d,
@@ -709,11 +695,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			`prv` = %d,
 			`network` = '%s' WHERE `id` = %d
 		",
-			dbesc($photos[0]),
-			dbesc($photos[1]),
-			dbesc($photos[2]),
 			intval($new_relation),
-			dbesc(datetime_convert()),
 			dbesc(datetime_convert()),
 			dbesc(datetime_convert()),
 			intval($duplex),
@@ -722,7 +704,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			dbesc(NETWORK_DFRN),
 			intval($dfrn_record)
 		);
-		if($r === false) {    // indicates schema is messed up or total db failure
+		if ($r === false) {    // indicates schema is messed up or total db failure
 			$message = t('Unable to update your contact profile details on our system');
 			xml_status(3,$message);
 		}
@@ -737,10 +719,10 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 			intval($dfrn_record)
 		);
 
-		if(count($r))
+		if (dbm::is_result($r))
 			$combined = $r[0];
 
-		if((count($r)) && ($r[0]['notify-flags'] & NOTIFY_CONFIRM)) {
+		if((dbm::is_result($r)) && ($r[0]['notify-flags'] & NOTIFY_CONFIRM)) {
 			$mutual = ($new_relation == CONTACT_IS_FRIEND);
 			notification(array(
 				'type'         => NOTIFY_CONFIRM,
@@ -749,7 +731,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				'to_name'      => $r[0]['username'],
 				'to_email'     => $r[0]['email'],
 				'uid'          => $r[0]['uid'],
-				'link'		   => $a->get_baseurl() . '/contacts/' . $dfrn_record,
+				'link'		   => App::get_baseurl() . '/contacts/' . $dfrn_record,
 				'source_name'  => ((strlen(stripslashes($r[0]['name']))) ? stripslashes($r[0]['name']) : t('[Name Withheld]')),
 				'source_link'  => $r[0]['url'],
 				'source_photo' => $r[0]['photo'],
@@ -765,7 +747,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 				intval($local_uid)
 			);
 
-			if((count($r)) && ($r[0]['hide-friends'] == 0)) {
+			if((dbm::is_result($r)) && ($r[0]['hide-friends'] == 0)) {
 
 				require_once('include/items.php');
 
@@ -811,7 +793,7 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 
 					$i = item_store($arr);
 					if($i)
-				    	proc_run('php',"include/notifier.php","activity","$i");
+						proc_run(PRIORITY_HIGH, "include/notifier.php", "activity", $i);
 
 				}
 			}

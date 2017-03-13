@@ -236,6 +236,39 @@ section {
 	color: #efefef;
 }
 
+ul.menu-popup {
+	position: absolute;
+	display: none;
+	width: auto;
+	margin: 2px 0 0;
+	padding: 0px;
+	list-style: none;
+	z-index: 100000;
+	color: #2e3436;
+	border-top: 1px;
+	background: #eeeeee;
+	border: 1px solid #7C7D7B;
+	border-radius: 0px 0px 5px 5px;
+	-webkit-border-radius: 0px 0px 5px 5px;
+	-moz-border-radius: 0px 0px 5px 5px;
+	box-shadow: 5px 5px 10px #242424;
+	-moz-box-shadow: 5px 5px 10px #242424;
+	-webkit-box-shadow: 5px 5px 10px #242424;
+}
+ul.menu-popup li a {
+	white-space: nowrap;
+	display: block;
+	padding: 5px 2px;
+	color: #2e3436;
+}
+ul.menu-popup li a:hover {
+	color: #efefef;
+	background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #1873a2), color-stop(1, #6da6c4) );
+	background: -moz-linear-gradient( center top, #1873a2 5%, #6da6c4 100% );
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1873a2', endColorstr='#6da6c4');
+	background-color: #1873a2;
+}
+
 /* ========= */
 /* = Login = */
 /* ========= */
@@ -1552,6 +1585,10 @@ ul .sidebar-group-li .icon {
 	float: left;
 	margin-right: 10px;
 	display: inline;
+}
+.wall-item-like-buttons a.self {
+	background-color: rgba(52, 101, 164, .5);
+	border-radius: 6px;
 }
 
 .wall-item-links-wrapper {
@@ -4271,16 +4308,6 @@ a.active {
 .nav-notify.show {
 	display: block;
 }
-ul.menu-popup {
-	position: absolute;
-	display: none;
-	width: 10em;
-	margin: 0px;
-	padding: 0px;
-	list-style: none;
-	z-index: 100000;
-	top: 40px;
-}
 #nav-notifications-menu {
 	width: 320px;
 	max-height: 400px;
@@ -4298,6 +4325,7 @@ ul.menu-popup {
 	box-shadow: 5px 5px 10px #242424;
 		-moz-box-shadow: 5px 5px 10px #242424;
 		-webkit-box-shadow: 5px 5px 10px #242424;
+	top: 40px;
 }
 
 #nav-notifications-menu .contactname {
@@ -4353,8 +4381,7 @@ ul.menu-popup {
 }
 
 /* autocomplete popup */
-.acpopup {
-	max-height: 150px;
+.acpopup, acpopup-mce {
 	overflow: auto;
 	z-index: 100000;
 	color: #2e3436;
@@ -4371,6 +4398,10 @@ ul.menu-popup {
 		-webkit-box-shadow: 0 0 8px #BDBDBD;
 }
 
+.acpopup-mce {
+	max-height: 150px;
+}
+
 .acpopupitem {
 	color: #2e3436;
 	padding: 4px;
@@ -4381,13 +4412,17 @@ ul.menu-popup {
 	margin-right: 4px;
 }
 
-.acpopupitem.selected {
+.acpopupitem.selected, .textcomplete-item.active {
 	color: #efefef;
 	background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #1873a2), color-stop(1, #6da6c4) );
 	background: -moz-linear-gradient( center top, #1873a2 5%, #6da6c4 100% );
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1873a2', endColorstr='#6da6c4');
 	background-color: #1873a2;
 	order-bottom: none;
+}
+
+.textcomplete-item a:hover, .textcomplete-item a:hover .acpopup-sub-text, .textcomplete-item.active a .acpopup-sub-text {
+	color: #efefef;
 }
 
 .qcomment {
@@ -4404,6 +4439,10 @@ ul.menu-popup {
 
 .notify-seen {
 	background: #000000;
+}
+
+.notify-seen a {
+	color: #efefef !important;
 }
 
 /* Pages profile widget ----------------------------------------------------------- */

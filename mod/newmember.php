@@ -1,6 +1,6 @@
 <?php
 
-function newmember_content(&$a) {
+function newmember_content(App $a) {
 
 
 	$o = '<h1>' . t('Welcome to Friendica') . '</h1>';
@@ -15,7 +15,7 @@ function newmember_content(&$a) {
 
 	$o .= '<ul>';
 
-	$o .= '<li> ' . '<a target="newmember" href="help/guide">' . t('Friendica Walk-Through') . '</a><br />' . t('On your <em>Quick Start</em> page - find a brief introduction to your profile and network tabs, make some new connections, and find some groups to join.') . '</li>' . EOL; 
+	$o .= '<li> ' . '<a target="newmember" href="help/guide">' . t('Friendica Walk-Through') . '</a><br />' . t('On your <em>Quick Start</em> page - find a brief introduction to your profile and network tabs, make some new connections, and find some groups to join.') . '</li>' . EOL;
 
 	$o .= '</ul>';
 
@@ -23,7 +23,7 @@ function newmember_content(&$a) {
 
 	$o .= '<ul>';
 
-	$o .= '<li>' . '<a target="newmember" href="settings">' . t('Go to Your Settings') . '</a><br />' . t('On your <em>Settings</em> page -  change your initial password. Also make a note of your Identity Address. This looks just like an email address - and will be useful in making friends on the free social web.') . '</li>' . EOL; 
+	$o .= '<li>' . '<a target="newmember" href="settings">' . t('Go to Your Settings') . '</a><br />' . t('On your <em>Settings</em> page -  change your initial password. Also make a note of your Identity Address. This looks just like an email address - and will be useful in making friends on the free social web.') . '</li>' . EOL;
 
 	$o .= '<li>' . t('Review the other settings, particularly the privacy settings. An unpublished directory listing is like having an unlisted phone number. In general, you should probably publish your listing - unless all of your friends and potential friends know exactly how to find you.') . '</li>' . EOL;
 
@@ -33,7 +33,7 @@ function newmember_content(&$a) {
 
 	$o .= '<ul>';
 
-	$o .= '<li>' . '<a target="newmember" href="profile_photo">' . t('Upload Profile Photo') . '</a><br />' . t('Upload a profile photo if you have not done so already. Studies have shown that people with real photos of themselves are ten times more likely to make friends than people who do not.') . '</li>' . EOL;  
+	$o .= '<li>' . '<a target="newmember" href="profile_photo">' . t('Upload Profile Photo') . '</a><br />' . t('Upload a profile photo if you have not done so already. Studies have shown that people with real photos of themselves are ten times more likely to make friends than people who do not.') . '</li>' . EOL;
 
 	$o .= '<li>' . '<a target="newmember" href="profiles">' . t('Edit Your Profile') . '</a><br />' . t('Edit your <strong>default</strong> profile to your liking. Review the settings for hiding your list of friends and hiding the profile from unknown visitors.') . '</li>' . EOL;
 
@@ -45,13 +45,8 @@ function newmember_content(&$a) {
 
 	$o .= '<ul>';
 
-	if(in_array('facebook', $a->plugins))
-		$o .= '<li>' . '<a target="newmember" href="facebook">' . t('Facebook') . '</a><br />' . t("Authorise the Facebook Connector if you currently have a Facebook account and we will \x28optionally\x29 import all your Facebook friends and conversations.") . '</li>' . EOL;
-	else
-		$o .= '<li>' . '<a target="newmember" href="help/Installing-Connectors">' . t('Facebook') . '</a><br />' . t("<em>If</em> this is your own personal server, installing the Facebook addon may ease your transition to the free social web.") . '</li>' . EOL;
-
     $mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
-	
+
 	if(! $mail_disabled)
 		$o .= '<li>' . '<a target="newmember" href="settings/connectors">' . t('Importing Emails') . '</a><br />' . t('Enter your email access information on your Connector Settings page if you wish to import and interact with friends or mailing lists from your email INBOX') . '</li>' . EOL;
 

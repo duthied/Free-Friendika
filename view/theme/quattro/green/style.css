@@ -463,7 +463,7 @@ a:hover {
   text-decoration: underline;
 }
 blockquote {
-  background: #ffffff;
+  background: #FFFFFF;
   padding: 1em;
   margin-left: 1em;
   border-left: 1em solid #e6e6e6;
@@ -544,7 +544,6 @@ header {
   margin: 0;
   padding: 0;
   /*width: 100%; height: 12px; */
-
   z-index: 110;
   color: #ffffff;
 }
@@ -745,8 +744,12 @@ ul.menu-popup .toolbar a:hover {
 }
 /* autocomplete popup */
 .autocomplete,
-.acpopup {
+.acpopup-mce {
   max-height: 150px;
+}
+.autocomplete,
+.acpopup-mce,
+.acpopup {
   background-color: #ffffff;
   color: #2d2d2d;
   border: 1px solid #364e59;
@@ -773,6 +776,15 @@ ul.menu-popup .toolbar a:hover {
 }
 .autocomplete > div.selected,
 .acpopupitem.selected {
+  background-color: #ccff42;
+}
+.textcomplete-item {
+  color: #2d2d2d;
+}
+.textcomplete-item a:hover {
+  color: #2d2d2d;
+}
+.textcomplete-item.active {
   background-color: #ccff42;
 }
 #nav-notifications-menu {
@@ -922,7 +934,6 @@ aside .posted-date-selector-months {
   overflow: auto;
   height: auto;
   /*.contact-block-div { width:60px; height: 60px; }*/
-
 }
 #contact-block .contact-block-h4 {
   float: left;
@@ -1004,7 +1015,6 @@ aside .posted-date-selector-months {
   margin-bottom: 2em;
   /*.action .s10 { width: 10px; overflow: hidden; padding: 0;}
 	.action .s16 { width: 16px; overflow: hidden; padding: 0;}*/
-
 }
 .widget h3 {
   padding: 0;
@@ -1200,6 +1210,9 @@ section {
 .wall-item-container .wall-item-actions-social a {
   margin-right: 3em;
 }
+.wall-item-container .wall-item-actions-social a.active {
+  font-weight: bold;
+}
 .wall-item-container .wall-item-actions-tools {
   float: right;
   width: 15%;
@@ -1308,7 +1321,6 @@ section {
   height: 32px;
   margin-left: 16px;
   /*background: url(../../../images/icons/22/user.png) no-repeat center center;*/
-
 }
 .comment-edit-preview .contact-photo-menu-button {
   top: 15px !important;
@@ -1447,9 +1459,12 @@ blockquote.shared_content {
 }
 .oembed.video > a.embed_video {
   display: block;
-  float: none;
+  position: relative;
 }
 .oembed.video > a.embed_video > div {
+  position: absolute;
+  top: 0px;
+  left: 0px;
   background: rgba(255, 255, 255, 0.36) url(../../../images/icons/48/play.png) no-repeat center center !important;
 }
 /* threaded comments */
@@ -1654,6 +1669,9 @@ span[id^="showmore-wrap"] {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+#contact-edit-status-wrapper {
+  border-color: #9ade00;
 }
 /* editor */
 .jothidden {
@@ -2241,7 +2259,6 @@ ul.tabs li .active {
   min-height: 22px;
   padding-top: 6px;
   /* a { display: block;}*/
-
 }
 #photo-caption {
   display: block;

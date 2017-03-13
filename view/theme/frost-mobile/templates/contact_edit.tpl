@@ -6,12 +6,6 @@
 
 	{{$tab_str}}
 
-	<div id="contact-edit-drop-link" >
-		<a href="contacts/{{$contact_id}}/drop" class="icon drophide" id="contact-edit-drop-link" onclick="return confirmDelete();"  title="{{$delete}}" {{*onmouseover="imgbright(this);" onmouseout="imgdull(this);"*}}></a>
-	</div>
-
-	<div id="contact-edit-drop-link-end"></div>
-
 	<div class="vcard">
 		<div class="fn">{{$name}}</div>
 		<div id="profile-photo-wrapper"><img class="photo" style="width: 175px; height: 175px;" src="{{$photo}}" alt="{{$name}}" /></div>
@@ -20,41 +14,49 @@
 
 	<div id="contact-edit-nav-wrapper" >
 		<div id="contact-edit-links">
-			<ul>
-				<li><div id="contact-edit-rel">{{$relation_text}}</div></li>
-				<li><div id="contact-edit-nettype">{{$nettype}}</div></li>
-				{{if $lost_contact}}
-					<li><div id="lost-contact-message">{{$lost_contact}}</div></li>
-				{{/if}}
-				{{if $insecure}}
-					<li><div id="insecure-message">{{$insecure}}</div></li>
-				{{/if}}
-				{{if $blocked}}
-					<li><div id="block-message">{{$blocked}}</div></li>
-				{{/if}}
-				{{if $ignored}}
-					<li><div id="ignore-message">{{$ignored}}</div></li>
-				{{/if}}
-				{{if $archived}}
-					<li><div id="archive-message">{{$archived}}</div></li>
-				{{/if}}
+			<div id="contact-edit-status-wrapper">
+				<span id="contact-edit-contact-status">{{$contact_status}}</span>
 
-				<li>&nbsp;</li>
+				<div id="contact-edit-actions">
+					<div class="btn" id="contact-edit-actions-button" onclick="openClose('contact-actions-menu')">{{$contact_action_button}}</div>
 
-				{{if $common_text}}
-					<li><div id="contact-edit-common"><a href="{{$common_link}}">{{$common_text}}</a></div></li>
-				{{/if}}
-				{{if $all_friends}}
-					<li><div id="contact-edit-allfriends"><a href="allfriends/{{$contact_id}}">{{$all_friends}}</a></div></li>
-				{{/if}}
+					<ul role="menu" aria-haspopup="true" id="contact-actions-menu" class="menu-popup" >
+						{{if $lblsuggest}}<li role="menuitem"><a  href="#" title="{{$contact_actions.suggest.title}}" onclick="window.location.href='{{$contact_actions.suggest.url}}'; return false;">{{$contact_actions.suggest.label}}</a></li>{{/if}}
+						{{if $poll_enabled}}<li role="menuitem"><a  href="#" title="{{$contact_actions.update.title}}" onclick="window.location.href='{{$contact_actions.update.url}}'; return false;">{{$contact_actions.update.label}}</a></li>{{/if}}
+						<li class="divider"></li>
+						<li role="menuitem"><a  href="#" title="{{$contact_actions.block.title}}" onclick="window.location.href='{{$contact_actions.block.url}}'; return false;">{{$contact_actions.block.label}}</a></li>
+						<li role="menuitem"><a  href="#" title="{{$contact_actions.ignore.title}}" onclick="window.location.href='{{$contact_actions.ignore.url}}'; return false;">{{$contact_actions.ignore.label}}</a></li>
+						<li role="menuitem"><a  href="#" title="{{$contact_actions.archive.title}}" onclick="window.location.href='{{$contact_actions.archive.url}}'; return false;">{{$contact_actions.archive.label}}</a></li>
+						<li role="menuitem"><a  href="{{$contact_actions.delete.url}}" title="{{$contact_actions.delete.title}}" onclick="return confirmDelete();">{{$contact_actions.delete.label}}</a></li>
+					</ul>
+				</div>
 
+				<ul>
+					<li><div id="contact-edit-rel">{{$relation_text}}</div></li>
+					<li><div id="contact-edit-nettype">{{$nettype}}</div></li>
+					{{if $poll_enabled}}
+						<div id="contact-edit-poll-wrapper">
+							<div id="contact-edit-last-update-text">{{$lastupdtext}} <span id="contact-edit-last-updated">{{$last_update}}</span></div>
+						</div>
+					{{/if}}
+					{{if $lost_contact}}
+						<li><div id="lost-contact-message">{{$lost_contact}}</div></li>
+					{{/if}}
+					{{if $insecure}}
+						<li><div id="insecure-message">{{$insecure}}</div></li>
+					{{/if}}
+					{{if $blocked}}
+						<li><div id="block-message">{{$blocked}}</div></li>
+					{{/if}}
+					{{if $ignored}}
+						<li><div id="ignore-message">{{$ignored}}</div></li>
+					{{/if}}
+					{{if $archived}}
+						<li><div id="archive-message">{{$archived}}</div></li>
+					{{/if}}
 
-				<li><a href="network/0?nets=all&cid={{$contact_id}}" id="contact-edit-view-recent">{{$lblrecent}}</a></li>
-				{{if $lblsuggest}}
-					<li><a href="fsuggest/{{$contact_id}}" id="contact-edit-suggest">{{$lblsuggest}}</a></li>
-				{{/if}}
-
-			</ul>
+				</ul>
+			</div>
 		</div>
 	</div>
 	<div id="contact-edit-nav-end"></div>
@@ -63,12 +65,6 @@
 <form action="contacts/{{$contact_id}}" method="post" >
 <input type="hidden" name="contact_id" value="{{$contact_id}}">
 
-	{{if $poll_enabled}}
-		<div id="contact-edit-poll-wrapper">
-			<div id="contact-edit-last-update-text">{{$lastupdtext}} <span id="contact-edit-last-updated">{{$last_update}}</span></div>
-			<span id="contact-edit-poll-text">{{$updpub}} {{$poll_interval}}</span> <span id="contact-edit-update-now" class="button"><a id="update_now_link" href="contacts/{{$contact_id}}/update" >{{$udnow}}</a></span>
-		</div>
-	{{/if}}
 	<div id="contact-edit-end" ></div>
 
 	{{include file="field_checkbox.tpl" field=$hidden}}

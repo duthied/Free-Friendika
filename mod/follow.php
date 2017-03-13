@@ -2,11 +2,12 @@
 
 require_once('include/Scrape.php');
 require_once('include/follow.php');
+require_once('include/Contact.php');
 require_once('include/contact_selectors.php');
 
-function follow_content(&$a) {
+function follow_content(App $a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		goaway($_SESSION['return_url']);
 		// NOTREACHED
@@ -55,14 +56,15 @@ function follow_content(&$a) {
 		// NOTREACHED
 	}
 
-	if ($ret["network"] == NETWORK_MAIL)
+	if ($ret["network"] == NETWORK_MAIL) {
 		$ret["url"] = $ret["addr"];
+	}
 
-	if($ret['network'] === NETWORK_DFRN) {
+	if ($ret['network'] === NETWORK_DFRN) {
 		$request = $ret["request"];
 		$tpl = get_markup_template('dfrn_request.tpl');
 	} else {
-		$request = $a->get_baseurl()."/follow";
+		$request = App::get_baseurl()."/follow";
 		$tpl = get_markup_template('auto_request.tpl');
 	}
 
@@ -75,31 +77,37 @@ function follow_content(&$a) {
 	}
 
 	$myaddr = $r[0]["url"];
+	$gcontact_id = 0;
 
 	// Makes the connection request for friendica contacts easier
 	$_SESSION["fastlane"] = $ret["url"];
 
-	$r = q("SELECT `location`, `about`, `keywords` FROM `gcontact` WHERE `nurl` = '%s'",
+	$r = q("SELECT `id`, `location`, `about`, `keywords` FROM `gcontact` WHERE `nurl` = '%s'",
 		normalise_link($ret["url"]));
 
-	if (!$r)
+	if (!$r) {
 		$r = array(array("location" => "", "about" => "", "keywords" => ""));
+	} else {
+		$gcontact_id = $r[0]["id"];
+	}
 
-	if($ret['network'] === NETWORK_DIASPORA) {
+	if ($ret['network'] === NETWORK_DIASPORA) {
 		$r[0]["location"] = "";
 		$r[0]["about"] = "";
 	}
 
 	$header = $ret["name"];
 
-	if ($ret["addr"] != "")
+	if ($ret["addr"] != "") {
 		$header .= " <".$ret["addr"].">";
+	}
 
-	$header .= " (".network_to_name($ret['network'], $ret['url']).")";
+	//$header .= " (".network_to_name($ret['network'], $ret['url']).")";
+	$header = t("Connect/Follow");
 
 	$o  = replace_macros($tpl,array(
 			'$header' => htmlentities($header),
-			'$photo' => proxy_url($ret["photo"], false, PROXY_SIZE_SMALL),
+			//'$photo' => proxy_url($ret["photo"], false, PROXY_SIZE_SMALL),
 			'$desc' => "",
 			'$pls_answer' => t('Please answer the following:'),
 			'$does_know_you' => array('knowyou', sprintf(t('Does %s know you?'),$ret["name"]), false, '', array(t('No'),t('Yes'))),
@@ -121,26 +129,40 @@ function follow_content(&$a) {
 			'$url_label' => t("Profile URL"),
 			'$myaddr' => $myaddr,
 			'$request' => $request,
-			'$location' => bbcode($r[0]["location"]),
+			/*'$location' => bbcode($r[0]["location"]),
 			'$location_label' => t("Location:"),
 			'$about' => bbcode($r[0]["about"], false, false),
-			'$about_label' => t("About:"),
+			'$about_label' => t("About:"), */
 			'$keywords' => $r[0]["keywords"],
 			'$keywords_label' => t("Tags:")
 	));
+
+	$a->page['aside'] = "";
+	profile_load($a, "", 0, get_contact_details_by_url($ret["url"]));
+
+	if ($gcontact_id <> 0) {
+		$o .= replace_macros(get_markup_template('section_title.tpl'),
+						array('$title' => t('Status Messages and Posts')
+		));
+
+		// Show last public posts
+		$o .= posts_from_contact_url($a, $ret["url"]);
+	}
+
 	return $o;
 }
 
-function follow_post(&$a) {
+function follow_post(App $a) {
 
-	if(! local_user()) {
+	if (! local_user()) {
 		notice( t('Permission denied.') . EOL);
 		goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
 
-	if ($_REQUEST['cancel'])
+	if ($_REQUEST['cancel']) {
 		goaway($_SESSION['return_url']);
+	}
 
 	$uid = local_user();
 	$url = notags(trim($_REQUEST['url']));
@@ -152,17 +174,20 @@ function follow_post(&$a) {
 
 	$result = new_contact($uid,$url,true);
 
-	if($result['success'] == false) {
-		if($result['message'])
+	if ($result['success'] == false) {
+		if ($result['message']) {
 			notice($result['message']);
+		}
 		goaway($return_url);
-	} elseif ($result['cid'])
-		goaway($a->get_baseurl().'/contacts/'.$result['cid']);
+	} elseif ($result['cid']) {
+		goaway(App::get_baseurl().'/contacts/'.$result['cid']);
+	}
 
 	info( t('Contact added').EOL);
 
-	if(strstr($return_url,'contacts'))
-		goaway($a->get_baseurl().'/contacts/'.$contact_id);
+	if (strstr($return_url,'contacts')) {
+		goaway(App::get_baseurl().'/contacts/'.$contact_id);
+	}
 
 	goaway($return_url);
 	// NOTREACHED

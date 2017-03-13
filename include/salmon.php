@@ -1,15 +1,14 @@
 <?php
 
 require_once('include/crypto.php');
-
-
+require_once('include/Probe.php');
 
 function get_salmon_key($uri,$keyhash) {
 	$ret = array();
 
 	logger('Fetching salmon key for '.$uri);
 
-	$arr = lrdd($uri);
+	$arr = Probe::lrdd($uri);
 
 	if(is_array($arr)) {
 		foreach($arr as $a) {
@@ -25,23 +24,24 @@ function get_salmon_key($uri,$keyhash) {
 	// We have found at least one key URL
 	// If it's inline, parse it - otherwise get the key
 
-	if(count($ret)) {
-		for($x = 0; $x < count($ret); $x ++) {
-			if(substr($ret[$x],0,5) === 'data:') {
-				if(strstr($ret[$x],','))
+	if (count($ret) > 0) {
+		for ($x = 0; $x < count($ret); $x ++) {
+			if (substr($ret[$x],0,5) === 'data:') {
+				if (strstr($ret[$x],',')) {
 					$ret[$x] = substr($ret[$x],strpos($ret[$x],',')+1);
-				else
+				} else {
 					$ret[$x] = substr($ret[$x],5);
-			}
-			else
+				}
+			} elseif (normalise_link($ret[$x]) == 'http://') {
 				$ret[$x] = fetch_url($ret[$x]);
+			}
 		}
 	}
 
 
 	logger('Key located: ' . print_r($ret,true));
 
-	if(count($ret) == 1) {
+	if (count($ret) == 1) {
 
 		// We only found one one key so we don't care if the hash matches.
 		// If it's the wrong key we'll find out soon enough because
@@ -52,10 +52,11 @@ function get_salmon_key($uri,$keyhash) {
 		return $ret[0];
 	}
 	else {
-		foreach($ret as $a) {
+		foreach ($ret as $a) {
 			$hash = base64url_encode(hash('sha256',$a));
-			if($hash == $keyhash)
+			if ($hash == $keyhash) {
 				return $a;
+			}
 		}
 	}
 
@@ -77,23 +78,6 @@ function slapper($owner,$url,$slap) {
 		$owner['username'],$owner['uid']));
 		return;
 	}
-
-	// add all namespaces to item
-
-$namespaces = <<< EOT
-<entry xmlns="http://www.w3.org/2005/Atom"
-      xmlns:thr="http://purl.org/syndication/thread/1.0"
-      xmlns:at="http://purl.org/atompub/tombstones/1.0"
-      xmlns:media="http://purl.org/syndication/atommedia"
-      xmlns:dfrn="http://purl.org/macgirvin/dfrn/1.0" 
-      xmlns:as="http://activitystrea.ms/spec/1.0/"
-      xmlns:georss="http://www.georss.org/georss" 
-      xmlns:poco="http://portablecontacts.net/spec/1.0" 
-      xmlns:ostatus="http://ostatus.org/schema/1.0" 
-	  xmlns:statusnet="http://status.net/schema/api/1/" >													>
-EOT;
-
-	$slap = str_replace('<entry>',$namespaces,$slap);
 
 	logger('slapper called for '.$url.'. Data: ' . $slap);
 

@@ -1,8 +1,9 @@
 <?php
 
+use \Friendica\Core\Config;
+
 require_once("boot.php");
 require_once("include/socgraph.php");
-
 
 function discover_poco_run(&$argv, &$argc){
 	global $a, $db;
@@ -20,22 +21,13 @@ function discover_poco_run(&$argv, &$argc){
 
 	require_once('include/session.php');
 	require_once('include/datetime.php');
-	require_once('include/pidfile.php');
 
-	load_config('config');
-	load_config('system');
+	Config::load();
 
-	$maxsysload = intval(get_config('system','maxloadavg'));
-	if($maxsysload < 1)
-		$maxsysload = 50;
-
-	$load = current_load();
-	if($load) {
-		if(intval($load) > $maxsysload) {
-			logger('system: load ' . $load . ' too high. discover_poco deferred to next scheduled run.');
+	// Don't check this stuff if the function is called by the poller
+	if (App::callstack() != "poller_run")
+		if ($a->maxload_reached())
 			return;
-		}
-	}
 
 	if(($argc > 2) && ($argv[1] == "dirsearch")) {
 		$search = urldecode($argv[2]);
@@ -50,21 +42,10 @@ function discover_poco_run(&$argv, &$argc){
 	} else
 		die("Unknown or missing parameter ".$argv[1]."\n");
 
-	$lockpath = get_lockpath();
-	if ($lockpath != '') {
-		$pidfile = new pidfile($lockpath, 'discover_poco'.$mode.urlencode($search));
-		if($pidfile->is_already_running()) {
-			logger("discover_poco: Already running");
-			if ($pidfile->running_time() > 19*60) {
-				$pidfile->kill();
-				logger("discover_poco: killed stale process");
-				// Calling a new instance
-				if ($mode == 0)
-					proc_run('php','include/discover_poco.php');
-			}
-			exit;
-		}
-	}
+	// Don't check this stuff if the function is called by the poller
+	if (App::callstack() != "poller_run")
+		if (App::is_already_running('discover_poco'.$mode.urlencode($search), 'include/discover_poco.php', 1140))
+			return;
 
 	$a->set_baseurl(get_config('system','url'));
 
@@ -76,10 +57,17 @@ function discover_poco_run(&$argv, &$argc){
 		update_suggestions();
 	elseif (($mode == 2) AND get_config('system','poco_completion'))
 		discover_users();
-	elseif (($mode == 1) AND ($search != "") and get_config('system','poco_local_search'))
+	elseif (($mode == 1) AND ($search != "") and get_config('system','poco_local_search')) {
 		discover_directory($search);
-	elseif (($mode == 0) AND ($search == "") and (get_config('system','poco_discovery') > 0))
+		gs_search_user($search);
+	} elseif (($mode == 0) AND ($search == "") and (get_config('system','poco_discovery') > 0)) {
+		// Query Friendica and Hubzilla servers for their users
 		poco_discover();
+
+		// Query GNU Social servers for their users ("statistics" addon has to be enabled on the GS server)
+		if (!get_config('system','ostatus_disabled'))
+			gs_discover();
+	}
 
 	logger('end '.$search);
 
@@ -128,7 +116,7 @@ function discover_users() {
 		else
 			$server_url = poco_detect_server($user["url"]);
 
-		if (poco_check_server($server_url, $gcontacts[0]["network"])) {
+		if (($server_url == "") OR poco_check_server($server_url, $gcontacts[0]["network"])) {
 			logger('Check user '.$user["url"]);
 			poco_last_updated($user["url"], true);
 
@@ -190,6 +178,40 @@ function discover_directory($search) {
 		}
 	Cache::set("dirsearch:".$search, time(), CACHE_DAY);
 }
+
+/**
+ * @brief Search for GNU Social user with gstools.org
+ *
+ * @param str $search User name
+ */
+function gs_search_user($search) {
+
+	// Currently disabled, since the service isn't available anymore.
+	// It is not removed since I hope that there will be a successor.
+	return false;
+
+	$a = get_app();
+
+	$url = "http://gstools.org/api/users_search/".urlencode($search);
+
+	$result = z_fetch_url($url);
+	if (!$result["success"])
+		return false;
+
+	$contacts = json_decode($result["body"]);
+
+	if ($contacts->status == 'ERROR')
+		return false;
+
+	foreach($contacts->data AS $user) {
+		$contact = probe_url($user->site_address."/".$user->name);
+		if ($contact["network"] != NETWORK_PHANTOM) {
+			$contact["about"] = $user->description;
+			update_gcontact($contact);
+		}
+	}
+}
+
 
 if (array_search(__file__,get_included_files())===0){
   discover_poco_run($_SERVER["argv"],$_SERVER["argc"]);

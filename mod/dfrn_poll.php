@@ -1,12 +1,10 @@
 <?php
-
-
-
 require_once('include/items.php');
 require_once('include/auth.php');
+require_once('include/dfrn.php');
 
 
-function dfrn_poll_init(&$a) {
+function dfrn_poll_init(App $a) {
 
 
 	$dfrn_id         = ((x($_GET,'dfrn_id'))         ? $_GET['dfrn_id']              : '');
@@ -27,6 +25,8 @@ function dfrn_poll_init(&$a) {
 		$dfrn_id   = substr($dfrn_id,2);
 	}
 
+	$hidewall = false;
+
 	if(($dfrn_id === '') && (! x($_POST,'dfrn_id'))) {
 		if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
 			http_status_exit(403);
@@ -37,16 +37,17 @@ function dfrn_poll_init(&$a) {
 			$r = q("SELECT `hidewall`,`nickname` FROM `user` WHERE `user`.`nickname` = '%s' LIMIT 1",
 				dbesc($a->argv[1])
 			);
-			if(! $r)
+			if (!$r)
 				http_status_exit(404);
-			if(($r[0]['hidewall']) && (! local_user()))
-				http_status_exit(403);
+
+			$hidewall = ($r[0]['hidewall'] && !local_user());
+
 			$user = $r[0]['nickname'];
 		}
 
 		logger('dfrn_poll: public feed request from ' . $_SERVER['REMOTE_ADDR'] . ' for ' . $user);
 		header("Content-type: application/atom+xml");
-		echo get_feed_for($a, '', $user,$last_update);
+		echo dfrn::feed('', $user,$last_update, 0, $hidewall);
 		killme();
 	}
 
@@ -78,7 +79,7 @@ function dfrn_poll_init(&$a) {
 			dbesc($a->argv[1])
 		);
 
-		if(count($r)) {
+		if (dbm::is_result($r)) {
 
 			$s = fetch_url($r[0]['poll'] . '?dfrn_id=' . $my_id . '&type=profile-check');
 
@@ -111,7 +112,7 @@ function dfrn_poll_init(&$a) {
 				}
 			}
 			$profile = $r[0]['nickname'];
-			goaway((strlen($destination_url)) ? $destination_url : $a->get_baseurl() . '/profile/' . $profile);
+			goaway((strlen($destination_url)) ? $destination_url : App::get_baseurl() . '/profile/' . $profile);
 		}
 		goaway(z_root());
 
@@ -125,7 +126,7 @@ function dfrn_poll_init(&$a) {
 			$r = q("SELECT * FROM `profile_check` WHERE `sec` = '%s' ORDER BY `expire` DESC LIMIT 1",
 				dbesc($sec)
 			);
-			if(! count($r)) {
+			if (! dbm::is_result($r)) {
 				xml_status(3, 'No ticket');
 				// NOTREACHED
 			}
@@ -136,7 +137,7 @@ function dfrn_poll_init(&$a) {
 			$c = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 				intval($r[0]['cid'])
 			);
-			if(! count($c)) {
+			if (! dbm::is_result($c)) {
 				xml_status(3, 'No profile');
 			}
 			$contact = $c[0];
@@ -162,7 +163,7 @@ function dfrn_poll_init(&$a) {
 
 			if($final_dfrn_id != $orig_id) {
 				logger('profile_check: ' . $final_dfrn_id . ' != ' . $orig_id, LOGGER_DEBUG);
-				// did not decode properly - cannot trust this site 
+				// did not decode properly - cannot trust this site
 				xml_status(3, 'Bad decryption');
 			}
 
@@ -189,7 +190,7 @@ function dfrn_poll_init(&$a) {
 			q("DELETE FROM `profile_check` WHERE `expire` < " . intval(time()));
 			$r = q("SELECT * FROM `profile_check` WHERE `dfrn_id` = '%s' ORDER BY `expire` DESC",
 				dbesc($dfrn_id));
-			if(count($r)) {
+			if (dbm::is_result($r)) {
 				xml_status(1);
 				return; // NOTREACHED
 			}
@@ -202,7 +203,7 @@ function dfrn_poll_init(&$a) {
 
 
 
-function dfrn_poll_post(&$a) {
+function dfrn_poll_post(App $a) {
 
 	$dfrn_id      = ((x($_POST,'dfrn_id'))      ? $_POST['dfrn_id']              : '');
 	$challenge    = ((x($_POST,'challenge'))    ? $_POST['challenge']            : '');
@@ -222,7 +223,7 @@ function dfrn_poll_post(&$a) {
 			$r = q("SELECT * FROM `profile_check` WHERE `sec` = '%s' ORDER BY `expire` DESC LIMIT 1",
 				dbesc($sec)
 			);
-			if(! count($r)) {
+			if (! dbm::is_result($r)) {
 				xml_status(3, 'No ticket');
 				// NOTREACHED
 			}
@@ -233,7 +234,7 @@ function dfrn_poll_post(&$a) {
 			$c = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 				intval($r[0]['cid'])
 			);
-			if(! count($c)) {
+			if (! dbm::is_result($c)) {
 				xml_status(3, 'No profile');
 			}
 			$contact = $c[0];
@@ -259,7 +260,7 @@ function dfrn_poll_post(&$a) {
 
 			if($final_dfrn_id != $orig_id) {
 				logger('profile_check: ' . $final_dfrn_id . ' != ' . $orig_id, LOGGER_DEBUG);
-				// did not decode properly - cannot trust this site 
+				// did not decode properly - cannot trust this site
 				xml_status(3, 'Bad decryption');
 			}
 
@@ -283,8 +284,9 @@ function dfrn_poll_post(&$a) {
 		dbesc($challenge)
 	);
 
-	if(! count($r))
+	if (! dbm::is_result($r)) {
 		killme();
+	}
 
 	$type = $r[0]['type'];
 	$last_update = $r[0]['last_update'];
@@ -318,8 +320,9 @@ function dfrn_poll_post(&$a) {
 	$r = q("SELECT * FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 $sql_extra LIMIT 1");
 
 
-	if(! count($r))
+	if (! dbm::is_result($r)) {
 		killme();
+	}
 
 	$contact = $r[0];
 	$owner_uid = $r[0]['uid'];
@@ -334,7 +337,7 @@ function dfrn_poll_post(&$a) {
 		$reputation = 0;
 		$text = '';
 
-		if(count($r)) {
+		if (dbm::is_result($r)) {
 			$reputation = $r[0]['rating'];
 			$text = $r[0]['reason'];
 
@@ -373,14 +376,14 @@ function dfrn_poll_post(&$a) {
 		}
 
 		header("Content-type: application/atom+xml");
-		$o = get_feed_for($a,$dfrn_id, $a->argv[1], $last_update, $direction);
+		$o = dfrn::feed($dfrn_id, $a->argv[1], $last_update, $direction);
 		echo $o;
 		killme();
 
 	}
 }
 
-function dfrn_poll_content(&$a) {
+function dfrn_poll_content(App $a) {
 
 	$dfrn_id         = ((x($_GET,'dfrn_id'))         ? $_GET['dfrn_id']              : '');
 	$type            = ((x($_GET,'type'))            ? $_GET['type']                 : 'data');
@@ -447,7 +450,7 @@ function dfrn_poll_content(&$a) {
 			dbesc($nickname)
 		);
 
-		if(count($r)) {
+		if (dbm::is_result($r)) {
 
 			$challenge = '';
 			$encrypted_id = '';
@@ -494,18 +497,18 @@ function dfrn_poll_content(&$a) {
 				));
 			}
 
-			$profile = ((count($r) && $r[0]['nickname']) ? $r[0]['nickname'] : $nickname);
+			$profile = ((dbm::is_result($r) && $r[0]['nickname']) ? $r[0]['nickname'] : $nickname);
 
 			switch($destination_url) {
 				case 'profile':
-					$dest = $a->get_baseurl() . '/profile/' . $profile . '?f=&tab=profile';
+					$dest = App::get_baseurl() . '/profile/' . $profile . '?f=&tab=profile';
 					break;
 				case 'photos':
-					$dest = $a->get_baseurl() . '/photos/' . $profile;
+					$dest = App::get_baseurl() . '/photos/' . $profile;
 					break;
 				case 'status':
 				case '':
-					$dest = $a->get_baseurl() . '/profile/' . $profile;
+					$dest = App::get_baseurl() . '/profile/' . $profile;
 					break;
 				default:
 					$dest = $destination_url . '?f=&redir=1';

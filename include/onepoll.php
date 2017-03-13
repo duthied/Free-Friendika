@@ -1,5 +1,7 @@
 <?php
 
+use \Friendica\Core\Config;
+
 require_once("boot.php");
 require_once("include/follow.php");
 
@@ -24,19 +26,15 @@ function onepoll_run(&$argv, &$argc){
 		unset($db_host, $db_user, $db_pass, $db_data);
 	};
 
-
 	require_once('include/session.php');
 	require_once('include/datetime.php');
-	require_once('library/simplepie/simplepie.inc');
 	require_once('include/items.php');
 	require_once('include/Contact.php');
 	require_once('include/email.php');
 	require_once('include/socgraph.php');
-	require_once('include/pidfile.php');
 	require_once('include/queue_fn.php');
 
-	load_config('config');
-	load_config('system');
+	Config::load();
 
 	$a->set_baseurl(get_config('system','url'));
 
@@ -61,18 +59,10 @@ function onepoll_run(&$argv, &$argc){
 		return;
 	}
 
-	$lockpath = get_lockpath();
-	if ($lockpath != '') {
-		$pidfile = new pidfile($lockpath, 'onepoll'.$contact_id);
-		if ($pidfile->is_already_running()) {
-			logger("onepoll: Already running for contact ".$contact_id);
-			if ($pidfile->running_time() > 9*60) {
-				$pidfile->kill();
-				logger("killed stale process");
-			}
-			exit;
-		}
-	}
+	// Don't check this stuff if the function is called by the poller
+	if (App::callstack() != "poller_run")
+		if (App::is_already_running('onepoll'.$contact_id, '', 540))
+			return;
 
 	$d = datetime_convert();
 
@@ -104,14 +94,13 @@ function onepoll_run(&$argv, &$argc){
 			where `cid` = %d and updated > UTC_TIMESTAMP() - INTERVAL 1 DAY",
 			intval($contact['id'])
 		);
-		if (count($r))
+		if (dbm::is_result($r))
 			if (!$r[0]['total'])
 				poco_load($contact['id'],$importer_uid,0,$contact['poco']);
 	}
 
-	// To-Do:
-	// - Check why we don't poll the Diaspora feed at the moment (some guid problem in the items?)
-	// - Check whether this is possible with Redmatrix
+	/// @TODO Check why we don't poll the Diaspora feed at the moment (some guid problem in the items?)
+	/// @TODO Check whether this is possible with Redmatrix
 	if ($contact["network"] == NETWORK_DIASPORA) {
 		if (poco_do_update($contact["created"], $contact["last-item"], $contact["failure_update"], $contact["success_update"])) {
 			$last_updated = poco_last_updated($contact["url"]);
@@ -155,8 +144,9 @@ function onepoll_run(&$argv, &$argc){
 	$r = q("SELECT `contact`.*, `user`.`page-flags` FROM `contact` INNER JOIN `user` on `contact`.`uid` = `user`.`uid` WHERE `user`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
 		intval($importer_uid)
 	);
-	if(! count($r))
+	if (! dbm::is_result($r)) {
 		return;
+	}
 
 	$importer = $r[0];
 
@@ -336,7 +326,9 @@ function onepoll_run(&$argv, &$argc){
 		if($contact['rel'] == CONTACT_IS_FOLLOWER || $contact['blocked'] || $contact['readonly'])
 			return;
 
-		$xml = fetch_url($contact['poll']);
+		$cookiejar = tempnam(get_temppath(), 'cookiejar-onepoll-');
+		$xml = fetch_url($contact['poll'], false, $redirects, 0, Null, $cookiejar);
+		unlink($cookiejar);
 	}
 	elseif($contact['network'] === NETWORK_MAIL || $contact['network'] === NETWORK_MAIL2) {
 
@@ -403,7 +395,7 @@ function onepoll_run(&$argv, &$argc){
 							dbesc($datarray['uri'])
 						);
 
-						if(count($r)) {
+						if (dbm::is_result($r)) {
 							logger("Mail: Seen before ".$msg_uid." for ".$mailconf[0]['user']." UID: ".$importer_uid." URI: ".$datarray['uri'],LOGGER_DEBUG);
 
 							// Only delete when mails aren't automatically moved or deleted
@@ -453,10 +445,10 @@ function onepoll_run(&$argv, &$argc){
 									$refs_arr[$x] = "'" . msgid2iri(str_replace(array('<','>',' '),array('','',''),dbesc($refs_arr[$x]))) . "'";
 							}
 							$qstr = implode(',',$refs_arr);
-							$r = q("SELECT `uri` , `parent-uri` FROM `item` WHERE `uri` IN ( $qstr ) AND `uid` = %d LIMIT 1",
+							$r = q("SELECT `uri` , `parent-uri` FROM `item` USE INDEX (`uid_uri`) WHERE `uri` IN ($qstr) AND `uid` = %d LIMIT 1",
 								intval($importer_uid)
 							);
-							if(count($r))
+							if (dbm::is_result($r))
 								$datarray['parent-uri'] = $r[0]['parent-uri'];  // Set the parent as the top-level item
 	//							$datarray['parent-uri'] = $r[0]['uri'];
 						}
@@ -485,10 +477,11 @@ function onepoll_run(&$argv, &$argc){
 
 						// If it seems to be a reply but a header couldn't be found take the last message with matching subject
 						if(!x($datarray,'parent-uri') and $reply) {
-							$r = q("SELECT `uri` , `parent-uri` FROM `item` WHERE `title` = \"%s\" AND `uid` = %d ORDER BY `created` DESC LIMIT 1",
+							$r = q("SELECT `uri` , `parent-uri` FROM `item` WHERE `title` = \"%s\" AND `uid` = %d AND `network` = '%s' ORDER BY `created` DESC LIMIT 1",
 								dbesc(protect_sprintf($datarray['title'])),
-								intval($importer_uid));
-							if(count($r))
+								intval($importer_uid),
+								dbesc(NETWORK_MAIL));
+							if (dbm::is_result($r))
 								$datarray['parent-uri'] = $r[0]['parent-uri'];
 						}
 
@@ -507,7 +500,7 @@ function onepoll_run(&$argv, &$argc){
 						logger("Mail: Importing ".$msg_uid." for ".$mailconf[0]['user']);
 
 						// some mailing lists have the original author as 'from' - add this sender info to msg body.
-						// todo: adding a gravatar for the original author would be cool
+						/// @TODO Adding a gravatar for the original author would be cool
 
 						if(! stristr($meta->from,$contact['addr'])) {
 							$from = imap_mime_header_decode($meta->from);

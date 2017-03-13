@@ -1,5 +1,7 @@
 Friendica Addon/Plugin development
-==========================
+==============
+
+* [Home](help)
 
 Please see the sample addon 'randplace' for a working example of using some of these features.
 Addons work by intercepting event hooks - which must be registered.
@@ -16,12 +18,12 @@ Future extensions may provide for "setup" amd "remove".
 
 Plugins should contain a comment block with the four following parameters:
 
-	/*
-	* Name: My Great Plugin
- 	* Description: This is what my plugin does. It's really cool
- 	* Version: 1.0
- 	* Author: John Q. Public <john@myfriendicasite.com>
-	*/
+    /*
+     * Name: My Great Plugin
+     * Description: This is what my plugin does. It's really cool.
+     * Version: 1.0
+     * Author: John Q. Public <john@myfriendicasite.com>
+     */
 
 Register your plugin hooks during installation.
 
@@ -38,14 +40,14 @@ Arguments
 ---
 Your hook callback functions will be called with at least one and possibly two arguments
 
-    function myhook_function(&$a, &$b) {
+    function myhook_function(App $a, &$b) {
 
     }
 
 
 If you wish to make changes to the calling data, you must declare them as reference variables (with '&') during function declaration.
 
-###$a
+#### $a
 $a is the Friendica 'App' class.
 It contains a wealth of information about the current state of Friendica:
 
@@ -56,13 +58,13 @@ It contains a wealth of information about the current state of Friendica:
 
 It is recommeded you call this '$a' to match its usage elsewhere.
 
-###$b
+#### $b
 $b can be called anything you like.
 This is information specific to the hook currently being processed, and generally contains information that is being immediately processed or acted on that you can use, display, or alter.
 Remember to declare it with '&' if you wish to alter it.
 
 Modules
---------
+---
 
 Plugins/addons may also act as "modules" and intercept all page requests for a given URL path.
 In order for a plugin to act as a module it needs to define a function "plugin_name_module()" which takes no arguments and needs not do anything.
@@ -72,15 +74,15 @@ These are parsed into an array $a->argv, with a corresponding $a->argc indicatin
 So http://my.web.site/plugin/arg1/arg2 would look for a module named "plugin" and pass its module functions the $a App structure (which is available to many components).
 This will include:
 
-     $a->argc = 3
-     $a->argv = array(0 => 'plugin', 1 => 'arg1', 2 => 'arg2');
+    $a->argc = 3
+    $a->argv = array(0 => 'plugin', 1 => 'arg1', 2 => 'arg2');
 
-Your module functions will often contain the function plugin_name_content(&$a), which defines and returns the page body content.
-They may also contain plugin_name_post(&$a) which is called before the _content function and typically handles the results of POST forms.
-You may also have plugin_name_init(&$a) which is called very early on and often does module initialisation.
+Your module functions will often contain the function plugin_name_content(App $a), which defines and returns the page body content.
+They may also contain plugin_name_post(App $a) which is called before the _content function and typically handles the results of POST forms.
+You may also have plugin_name_init(App $a) which is called very early on and often does module initialisation.
 
 Templates
-----------
+---
 
 If your plugin needs some template, you can use the Friendica template system.
 Friendica uses [smarty3](http://www.smarty.net/) as a template engine.
@@ -104,140 +106,140 @@ See also the wiki page [Quick Template Guide](https://github.com/friendica/frien
 Current hooks
 -------------
 
-###'authenticate'
+### 'authenticate'
 'authenticate' is called when a user attempts to login.
 $b is an array containing:
 
-	'username' => the supplied username
-	'password' => the supplied password
+    'username' => the supplied username
+    'password' => the supplied password
     'authenticated' => set this to non-zero to authenticate the user.
     'user_record' => successful authentication must also return a valid user record from the database
 
-###'logged_in'
+### 'logged_in'
 'logged_in' is called after a user has successfully logged in.
 $b contains the $a->user array.
 
-###'display_item'
+### 'display_item'
 'display_item' is called when formatting a post for display.
 $b is an array:
 
 	'item' => The item (array) details pulled from the database
 	'output' => the (string) HTML representation of this item prior to adding it to the page
 
-###'post_local'
+### 'post_local'
 * called when a status post or comment is entered on the local system
 * $b is the item array of the information to be stored in the database
 * Please note: body contents are bbcode - not HTML
 
-###'post_local_end'
+### 'post_local_end'
 * called when a local status post or comment has been stored on the local system
 * $b is the item array of the information which has just been stored in the database
 * Please note: body contents are bbcode - not HTML
 
-###'post_remote'
+### 'post_remote'
 * called when receiving a post from another source. This may also be used to post local activity or system generated messages.
 * $b is the item array of information to be stored in the database and the item body is bbcode.
 
-###'settings_form'
+### 'settings_form'
 * called when generating the HTML for the user Settings page
 * $b is the (string) HTML of the settings page before the final '</form>' tag.
 
-###'settings_post'
+### 'settings_post'
 * called when the Settings pages are submitted
 * $b is the $_POST array
 
-###'plugin_settings'
+### 'plugin_settings'
 * called when generating the HTML for the addon settings page
 * $b is the (string) HTML of the addon settings page before the final '</form>' tag.
 
-###'plugin_settings_post'
+### 'plugin_settings_post'
 * called when the Addon Settings pages are submitted
 * $b is the $_POST array
 
-###'profile_post'
+### 'profile_post'
 * called when posting a profile page
 * $b is the $_POST array
 
-###'profile_edit'
+### 'profile_edit'
 'profile_edit' is called prior to output of profile edit page.
 $b is an array containing:
 
 	'profile' => profile (array) record from the database
 	'entry' => the (string) HTML of the generated entry
 
-###'profile_advanced'
+### 'profile_advanced'
 * called when the HTML is generated for the 'Advanced profile', corresponding to the 'Profile' tab within a person's profile page
 * $b is the (string) HTML representation of the generated profile
 * The profile array details are in $a->profile.
 
-###'directory_item'
+### 'directory_item'
 'directory_item' is called from the Directory page when formatting an item for display.
 $b is an array:
 
 	'contact' => contact (array) record for the person from the database
     'entry' => the (string) HTML of the generated entry
 
-###'profile_sidebar_enter'
+### 'profile_sidebar_enter'
 * called prior to generating the sidebar "short" profile for a page
 * $b is the person's profile array
 
-###'profile_sidebar'
+### 'profile_sidebar'
 'profile_sidebar is called when generating the sidebar "short" profile for a page.
 $b is an array:
 
 	'profile' => profile (array) record for the person from the database
 	'entry' => the (string) HTML of the generated entry
 
-###'contact_block_end'
+### 'contact_block_end'
 is called when formatting the block of contacts/friends on a profile sidebar has completed.
 $b is an array:
 
 	'contacts' => array of contacts
 	'output' => the (string) generated HTML of the contact block
 
-###'bbcode'
+### 'bbcode'
 * called during conversion of bbcode to html
 * $b is a string converted text
 
-###'html2bbcode'
+### 'html2bbcode'
 * called during conversion of html to bbcode (e.g. remote message posting)
 * $b is a string converted text
 
-###'page_header'
+### 'page_header'
 * called after building the page navigation section
 * $b is a string HTML of nav region
 
-###'personal_xrd'
+### 'personal_xrd'
 'personal_xrd' is called prior to output of personal XRD file.
 $b is an array:
 
 	'user' => the user record for the person
 	'xml' => the complete XML to be output
 
-###'home_content'
+### 'home_content'
 * called prior to output home page content, shown to unlogged users
 * $b is (string) HTML of section region
 
-###'contact_edit'
+### 'contact_edit'
 is called when editing contact details on an individual from the Contacts page.
 $b is an array:
 
 	'contact' => contact record (array) of target contact
 	'output' => the (string) generated HTML of the contact edit page
 
-###'contact_edit_post'
+### 'contact_edit_post'
 * called when posting the contact edit page.
 * $b is the $_POST array
 
-###'init_1'
+### 'init_1'
 * called just after DB has been opened and before session start
 * $b is not used or passed
 
-###'page_end'
+### 'page_end'
 * called after HTML content functions have completed
 * $b is (string) HTML of content div
 
-###'avatar_lookup'
+### 'avatar_lookup'
 'avatar_lookup' is called when looking up the avatar.
 $b is an array:
 
@@ -245,11 +247,11 @@ $b is an array:
 	'email' => email to look up the avatar for
 	'url' => the (string) generated URL of the avatar
 
-###'emailer_send_prepare'
+### 'emailer_send_prepare'
 'emailer_send_prepare' called from Emailer::send() before building the mime message.
 $b is an array, params to Emailer::send()
 
-	'fromName' => name of the sender
+    'fromName' => name of the sender
     'fromEmail' => email fo the sender
     'replyTo' => replyTo address to direct responses
     'toEmail' => destination email address
@@ -258,20 +260,20 @@ $b is an array, params to Emailer::send()
     'textVersion' => text only version of the message
     'additionalMailHeader' => additions to the smtp mail header
 
-###'emailer_send'
+### 'emailer_send'
 is called before calling PHP's mail().
 $b is an array, params to mail()
 
-	'to'
-	'subject'
+    'to'
+    'subject'
     'body'
     'headers'
 
-###'nav_info'
+### 'nav_info'
 is called after the navigational menu is build in include/nav.php.
 $b is an array containing $nav from nav.php.
 
-###'template_vars'
+### 'template_vars'
 is called before vars are passed to the template engine to render the page.
 The registered function can add,change or remove variables passed to template.
 $b is an array with:
@@ -279,6 +281,11 @@ $b is an array with:
     'template' => filename of template
     'vars' => array of vars passed to template
 
+### ''acl_lookup_end'
+is called after the other queries have passed.
+The registered function can add, change or remove the acl_lookup() variables.
+
+    'results' => array of the acl_lookup() vars
 
 
 Complete list of hook callbacks
@@ -335,6 +342,8 @@ include/acl_selectors.php:	call_hooks($a->module . '_post_' . $selname, $o);
 include/acl_selectors.php:	call_hooks($a->module . '_pre_' . $selname, $arr);
 
 include/acl_selectors.php:	call_hooks($a->module . '_post_' . $selname, $o);
+
+include/acl_selectors.php	call_hooks('acl_lookup_end', $results);
 
 include/notifier.php:		call_hooks('notifier_normal',$target_item);
 
@@ -463,4 +472,3 @@ mod/cb.php:	call_hooks('cb_afterpost');
 mod/cb.php:	call_hooks('cb_content', $o);
 
 mod/directory.php:			call_hooks('directory_item', $arr);
-

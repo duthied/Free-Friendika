@@ -14,24 +14,28 @@
 		</li>
 		{{if $nav.home}}
 			<li role="menuitem" id="nav-home-link" class="nav-menu {{$sel.home}}">
-				<a accesskey="p" class="{{$nav.home.2}}" href="{{$nav.home.0}}" title="{{$nav.home.3}}" >{{$nav.home.1}}</a>
+				<a accesskey="p" class="{{$nav.home.2}} desktop-view" href="{{$nav.home.0}}" title="{{$nav.home.3}}" >{{$nav.home.1}}</a>
+				<a class="{{$nav.home.2}} mobile-view" href="{{$nav.home.0}}" title="{{$nav.home.3}}" ><i class="icon s22 icon-home"></i></a>
 				<span id="home-update" class="nav-notify"></span>
 			</li>
 		{{/if}}
 		{{if $nav.network}}
 			<li role="menuitem" id="nav-network-link" class="nav-menu {{$sel.network}}">
-				<a accesskey="n" class="{{$nav.network.2}}" href="{{$nav.network.0}}" title="{{$nav.network.3}}" >{{$nav.network.1}}</a>
+				<a accesskey="n" class="{{$nav.network.2}} desktop-view" href="{{$nav.network.0}}" title="{{$nav.network.3}}" >{{$nav.network.1}}</a>
+				<a class="{{$nav.network.2}} mobile-view" href="{{$nav.network.0}}" title="{{$nav.network.3}}" ><i class="icon s22 icon-th"></i></a>
 				<span id="net-update" class="nav-notify"></span>
 			</li>
 		{{/if}}
 		{{if $nav.events}}
 			<li role="menuitem" id="nav-events-link" class="nav-menu {{$sel.events}}">
-				<a accesskey="e" class="{{$nav.events.2}}" href="{{$nav.events.0}}" title="{{$nav.events.3}}" >{{$nav.events.1}}</a>
+				<a accesskey="e" class="{{$nav.events.2}} desktop-view" href="{{$nav.events.0}}" title="{{$nav.events.3}}" >{{$nav.events.1}}</a>
+				<a class="{{$nav.events.2}} mobile-view" href="{{$nav.events.0}}" title="{{$nav.events.3}}" ><i class="icon s22 icon-calendar"></i></a>
 			</li>
 		{{/if}}
 		{{if $nav.community}}
 			<li role="menuitem" id="nav-community-link" class="nav-menu {{$sel.community}}">
-				<a accesskey="c" class="{{$nav.community.2}}" href="{{$nav.community.0}}" title="{{$nav.community.3}}" >{{$nav.community.1}}</a>
+				<a accesskey="c" class="{{$nav.community.2}} desktop-view" href="{{$nav.community.0}}" title="{{$nav.community.3}}" >{{$nav.community.1}}</a>
+				<a class="{{$nav.community.2}} mobile-view" href="{{$nav.community.0}}" title="{{$nav.community.3}}" ><i class="icon s22 icon-bullseye"></i></a>
 			</li>
 		{{/if}}
 
@@ -76,9 +80,9 @@
 		{{/if}}
 
 		{{if $nav.search}}
-			<li role="search" id="search-box">
+			<li role="search" id="nav-search-box">
 				<form method="get" action="{{$nav.search.0}}">
-					<input accesskey="s" id="search-text" class="nav-menu-search" type="text" value="" name="search">
+					<input accesskey="s" id="nav-search-text" class="nav-menu-search" type="text" value="" name="search" placeholder=" {{$search_hint}}">
 					<select name="search-option">
 						<option value="fulltext">{{$nav.searchoption.0}}</option>
 						<option value="tags">{{$nav.searchoption.1}}</option>
@@ -109,7 +113,15 @@
 
 </nav>
 <ul id="nav-notifications-template" style="display:none;" rel="template">
-	<li class="{4}"><a href="{0}" title="{5}"><img data-src="{1}">{2} <span class="notif-when">{3}</span></a></li>
+	<li class="{4}" onclick="location.href='{0}';">
+		<div class="notif-entry-wrapper">
+			<div class="notif-photo-wrapper"><a href="{6}"><img data-src="{1}"></a></div>
+			<div class="notif-desc-wrapper">
+				{8}{7}
+				<div><time class="notif-when" title="{5}">{3}</time></div>
+			</div>
+		</div>
+	</li>
 </ul>
 <!--
 <div class="icon-flag" style="position: fixed; bottom: 10px; left: 20px; z-index:9;">{{$langselector}}</div>

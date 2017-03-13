@@ -48,7 +48,7 @@ case "$MODE" in
 		OUTFILE="$FULLPATH/messages.po"
 		FINDSTARTDIR="."
 		# skip addon folder
-		FINDOPTS="( -wholename */addon -or -wholename */smarty3 ) -prune -o"
+		FINDOPTS="( -wholename */addon -or -wholename */addons-extra -or -wholename */smarty3 ) -prune -o"
 		
 		F9KVERSION=$(sed -n "s/.*'FRIENDICA_VERSION'.*'\([0-9.]*\)'.*/\1/p" ./boot.php);
 		echo "Friendica version $F9KVERSION"

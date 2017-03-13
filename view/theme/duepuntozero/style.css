@@ -83,6 +83,26 @@ blockquote {
 	margin-right: 5px;
 }
 
+ul.menu-popup {
+	position: absolute;
+	display: none;
+	width: auto;
+	margin: 2px 0 0;
+	padding: 0px;
+	list-style: none;
+	z-index: 100000;
+	border: 2px solid #444444;
+	background: #FFFFFF;
+}
+.menu-popup li a {
+	padding: 2px;
+	white-space: nowrap;
+}
+
+a.btn, a.btn:hover {
+	text-decoration: none;
+	color: inherit;
+}
 
 
 /* nav */
@@ -140,12 +160,12 @@ nav #banner #logo-text a:hover { text-decoration: none; }
 
 
 .nav-commlink, .nav-login-link {
-    display: block;
-    height: 15px;
+	display: block;
+	height: 15px;
 	margin-top: 67px;
 	margin-right: 2px;
-	//padding: 6px 10px;
-       padding: 6px 3px;
+	/*padding: 6px 10px;*/
+	padding: 6px 3px;
 	float: left;
 	bottom: 140px;
 	border: 1px solid #babdb6;
@@ -244,7 +264,7 @@ section {
 	display:block;
 	float:left;
 	padding: 0.4em;
-	//margin-right: 1em;
+	/*margin-right: 1em;*/
 	margin-right: 3px ;
 }
 .tab.active {
@@ -1092,7 +1112,8 @@ input#dfrn-url {
 	left: 65px;
 }
 
-.wall-item-ago {
+.wall-item-ago,
+.shared-time {
 	color: #888888;
 	font-size: 0.8em;
 }
@@ -1131,6 +1152,11 @@ input#dfrn-url {
 .wall-item-share-buttons {
 	margin-left: 10px;
 	margin-right: 10px;
+}
+
+.wall-item-like-buttons > a.active,
+.wall-item-attend-wrapper > a.active {
+	background-color: rgba(52, 101, 164, .5);
 }
 
 .editpost {
@@ -1181,7 +1207,8 @@ input#dfrn-url {
 .wall-item-wrapper-end {
 	clear: both;
 }
-.wall-item-name-link {
+.wall-item-name-link,
+.shared-author {
 	font-weight: bold;
 	text-decoration: none;
 	color: #3172BD;
@@ -1220,6 +1247,10 @@ input#dfrn-url {
   overflow: hidden;
 }
 .type-link .oembed {
+}
+.oembed.video .embed_video > div {
+    position: absolute; top: 0px; left: 0px;
+    background: rgba(0, 0, 0, 0.5) url(shiny.png) no-repeat scroll center center;
 }
 
 .shared_header {
@@ -1713,10 +1744,6 @@ blockquote.shared_content {
 #contact-profile-selector {
 	width: 175px;
 	/*margin-left: 175px;*/
-}
-
-.contact-edit-submit {
-	margin-top: 20px;
 }
 
 .contact-select {	position: absolute; top: 64px; left:64px; display:none; }
@@ -3284,6 +3311,12 @@ aside input[type='text'] {
 
 /* autocomplete popup */
 .acpopup {
+	background-color:#ffffff;
+	overflow:auto;
+	z-index:100000;
+	border:1px solid #cccccc;
+}
+.acpopup-mce {
 	max-height:150px;
 	background-color:#ffffff;
 	overflow:auto;
@@ -3301,6 +3334,12 @@ aside input[type='text'] {
 
 .acpopupitem.selected {
 	color: #FFFFFF; background: #3465A4;
+}
+.textcomplete-item.active {
+	color: #FFFFFF; background: #3465A4;
+}
+.active a .acpopup-sub-text {
+	color: #fff;
 }
 
 /* popup notifications */
@@ -3367,17 +3406,6 @@ div.jGrowl div.info {
 .nav-notify.show {
 	display: block;
 }
-ul.menu-popup {
-	position: absolute;
-	display: none;
-	width: 10em;
-	margin: 0px;
-	padding: 0px;
-	list-style: none;
-	z-index: 100000;
-	top: 90px;
-	left: 200px;
-}
 #nav-notifications-menu {
 	width: 320px;
 	max-height: 400px;
@@ -3387,6 +3415,8 @@ ul.menu-popup {
 	-webkit-border-radius: 5px;
 	border-radius:5px;
 	border: 1px solid #888;
+	top: 90px;
+	left: 200px;
 }
 #nav-notifications-menu .contactname { font-weight: bold; font-size: 0.9em; }
 #nav-notifications-menu img { float: left; margin-right: 5px; }

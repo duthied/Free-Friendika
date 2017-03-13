@@ -2,7 +2,7 @@
 
 require_once('include/crypto.php');
 
-function hostxrd_init(&$a) {
+function hostxrd_init(App $a) {
 	header('Access-Control-Allow-Origin: *');
 	header("Content-type: text/xml");
 	$pubkey = get_config('system','site_pubkey');
@@ -25,7 +25,6 @@ function hostxrd_init(&$a) {
 		'$zot_post' => z_root() . '/post',
 		'$bigkey' => salmon_key(get_config('system','site_pubkey')),
 	));
-	session_write_close();
 	exit();
 
 }

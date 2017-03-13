@@ -265,9 +265,10 @@ ul.menu-popup {
 }
 
 /* autocomplete popup */
+.autocomplete, .acpopup-mce { max-height:150px; }
 .autocomplete,
+.acpopup-mce,
 .acpopup {
-	max-height:150px;
 	background-color:@MenuBg;
 	color: @Menu;
 	border:1px solid @MenuBorder;
@@ -288,6 +289,15 @@ ul.menu-popup {
 		height: 16px !important;
 	}
 	&.selected{
+		background-color: @MenuItemHoverBg;
+	}
+}
+.textcomplete-item {
+	color: @MenuItem;
+	a:hover{
+		color: @MenuItem;
+	}
+	&.active{
 		background-color: @MenuItemHoverBg;
 	}
 }
@@ -408,19 +418,19 @@ aside {
 .group-delete-wrapper {
 	float: right;
 	margin-right: 50px;
-        .drophide {
-            background-image: url('../../../images/icons/22/delete.png');
-            display: block; width: 22px; height: 22px;
-            opacity: 0.3;
-            position: relative;
-            top: -50px;
-        }
-        .drop {
-            background-image: url('../../../images/icons/22/delete.png');
-            display: block; width: 22px; height: 22px;
-            position: relative;
-            top: -50px;
-        }
+	.drophide {
+		background-image: url('../../../images/icons/22/delete.png');
+		display: block; width: 22px; height: 22px;
+		opacity: 0.3;
+		position: relative;
+		top: -50px;
+	}
+	.drop {
+		background-image: url('../../../images/icons/22/delete.png');
+		display: block; width: 22px; height: 22px;
+		position: relative;
+		top: -50px;
+	}
 }
 /*
 #group-members {
@@ -502,7 +512,7 @@ section {
 }
 
 .sparkle {
-  cursor: url('icons/lock.cur'), pointer;
+	cursor: url('icons/lock.cur'), pointer;
 }
 
 /* wall item */
@@ -565,7 +575,9 @@ section {
 		a { margin-right: 3em; }
 	 }
 	.wall-item-actions-social { float: left; margin-top: 0.5em;
-		a { margin-right: 3em; }
+		a { margin-right: 3em;
+			&.active { font-weight: bold;}
+		}
 	 }
 	.wall-item-actions-tools { float: right; width: 15%;
 		a { float: right; }
@@ -745,7 +757,7 @@ section {
             margin: 1em 0;
             max-height: 160px;
             overflow: hidden;
-                    padding-left: 1em;
+            padding-left: 1em;
         }
         .oembed {}
 }
@@ -776,12 +788,12 @@ blockquote.shared_content {
         border: none;
 }
 
-
 .oembed.video {
 	> a.embed_video {
 		display: block;
-		float: none;
+		position: relative;
 		> div {
+            position: absolute; top: 0px; left: 0px;
 			background:
 				rgba(255, 255, 255, 0.36)
 				url(../../../images/icons/48/play.png)
@@ -790,7 +802,6 @@ blockquote.shared_content {
 		}
 	}
 }
-
 
 /* threaded comments */
 .children {
@@ -957,6 +968,7 @@ span[id^="showmore-wrap"] {
 	text-overflow: ellipsis;
 }
 
+#contact-edit-status-wrapper { border-color: @JotToolsOverBackgroundColor;}
 /* editor */
 .jothidden { display: none; }
 #jot {

@@ -10,7 +10,7 @@ require_once('include/crypto.php');
 require_once('include/diaspora.php');
 
 
-function receive_post(&$a) {
+function receive_post(App $a) {
 
 
 	$enabled = intval(get_config('system','diaspora_enabled'));
@@ -34,8 +34,9 @@ function receive_post(&$a) {
 		$r = q("SELECT * FROM `user` WHERE `guid` = '%s' AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
 			dbesc($guid)
 		);
-		if(! count($r))
+		if (! dbm::is_result($r)) {
 			http_status_exit(500);
+		}
 
 		$importer = $r[0];
 	}
@@ -53,7 +54,7 @@ function receive_post(&$a) {
 
 	logger('mod-diaspora: message is okay', LOGGER_DEBUG);
 
-	$msg = diaspora_decode($importer,$xml);
+	$msg = Diaspora::decode($importer,$xml);
 
 	logger('mod-diaspora: decoded', LOGGER_DEBUG);
 
@@ -65,10 +66,11 @@ function receive_post(&$a) {
 	logger('mod-diaspora: dispatching', LOGGER_DEBUG);
 
 	$ret = 0;
-	if($public)
-		diaspora_dispatch_public($msg);
-	else
-		$ret = diaspora_dispatch($importer,$msg);
+	if($public) {
+		Diaspora::dispatch_public($msg);
+	} else {
+		$ret = Diaspora::dispatch($importer,$msg);
+	}
 
 	http_status_exit(($ret) ? $ret : 200);
 	// NOTREACHED

@@ -1,6 +1,36 @@
 /* General style rules .*/
 .pull-right { float: right }
 
+/* General designing elements */
+.btn {
+  outline: none;
+  -moz-box-shadow: inset 0px 1px 0px 0px #ffffff;
+  -webkit-box-shadow: inset 0px 1px 0px 0px #ffffff;
+  box-shadow: inset 0px 1px 0px 0px #ffffff;
+  background-color: #ededed;
+  text-indent: 0;
+  border: 1px solid #dcdcdc;
+  display: inline-block;
+  color: #777777;
+  padding: 5px 10px;
+  text-align: center;
+}
+a.btn, a.btn:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
+.menu-popup .divider {
+  height: 1px;
+  margin: 3px 0;
+  overflow: hidden;
+  background-color: #2d2d2d;
+}
+
+.overline {
+	text-decoration: overline;
+}
+
 /* List of social Networks */
 img.connector, img.connector-disabled {
   height: 40px;
@@ -87,13 +117,18 @@ span.connector {
   position: relative;
 }
 
+.embed_video.active {
+  float: none;
+}
+
 .embed_rich {
   display: block;
+  transition: height .75s;
 }
 
 /* Shared Messages */
 .shared_header {
-  height: 32px;
+  min-height: 32px;
   color: #999;
   border-top: 1px solid #D2D2D2;
   padding-top: 5px;
@@ -118,10 +153,12 @@ span.connector {
   -moz-border-radius: 4px;
   border-radius: 4px;
   float: left;
+  margin-right: 9px;
 }
 
 .shared_header span {
-  margin-left: 9px;
+  display: table-cell;
+  float: none;
 }
 
 blockquote.shared_content {
@@ -175,11 +212,64 @@ key { display: inline; background-color: #eee; color: #666; padding:0.2em; font-
 
 /* fields help text */
 .field .field_help {
-    clear: left;
+  clear: left;
 }
 
 /* notifications unseen */
 .notify-unseen { background-color: #cceeFF; }
+
+/* autocomplete popup */
+ul.acpopup {
+  list-style: none;
+  float: left;
+  min-width: 160px;
+  padding: 5px 0;
+  margin: 2px 0 0;
+}
+nav .acpopup {
+  width: 290px;
+  max-height: 450px;
+  max-width: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-top: 0px;
+}
+img.acpopup-img {
+  float: left;
+  width: 36px;
+  height: 36px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+.acpopup-contactname {
+  padding-top: 2px;
+  font-weight: bold;
+  line-height: 1em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+.acpopup-sub-text {
+  color: #777;
+  font-size: 0.833em;
+  line-height: 1em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+.textcomplete-item a {
+  color: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  clear: both;
+  white-space: nowrap;
+  padding: 3px 20px;
+  display: block;
+}
+.textcomplete-item a:hover {
+  text-decoration: none;
+}
 
 /* plain text editor upload/select popup */
 
@@ -274,12 +364,36 @@ a {
 #poke-recip-label, #poke-action-label, #prvmail-message-label {
   margin: 10px 0 10px;
 }
+.version-match {
+  font-weight: bold;
+  color: #00a700;
+}
+.federation-graph {
+  width: 400px;
+  height: 400px;
+  float: right;
+  margin: 20px;
+}
+.federation-network-graph {
+  width: 240px;
+  height: 240px;
+  float: left;
+  margin: 20px;
+}
+ul.federation-stats,
 ul.credits {
   list-style: none;
 }
+ul.federation-stats li,
 ul.credits li {
   float: left;
   width: 240px;
+}
+table#federation-stats {
+  width: 100%;
+}
+td.federation-data {
+  border-bottom: 1px solid #000;
 }
 
 .contact-entry-photo img {
@@ -303,21 +417,78 @@ ul.credits li {
 }
 
 .crepair-label {
-        margin-top: 10px;
-        float: left;
-        width: 250px;
+  margin-top: 10px;
+  float: left;
+  width: 250px;
 }
 
 .crepair-input {
-        margin-top: 10px;
-        float: left;
-        width: 200px;
+  margin-top: 10px;
+  float: left;
+  width: 200px;
 }
 
 .renderinfo {
-	clear: both;
+  clear: both;
 }
 
 .p-addr {
-	clear: both;	
+  clear: both;
 }
+
+#live-community {
+  clear: both;
+}
+
+/* contact-edit */
+#contact-edit-status-wrapper {
+  border: 1px solid;
+  padding: 10px;
+}
+#contact-edit-actions {
+  float: right;
+  display: inline-block;
+  position: relative;
+}
+#contact-edit-actions > .menu-popup {
+  right: 0;
+  left: auto;
+}
+
+#contact-edit-settings-label:after {
+  content: ' »';
+}
+
+#contact-edit-settings {
+  display: none;
+  margin: 10px 0;
+}
+
+/* settings page */
+#settings-form .pageflags {
+    margin: 0 0 20px 30px;
+}
+
+/* admin pending user notes */
+td.pendingnote {
+	padding-left: 20px;
+	padding-right: 20px;
+}
+td.pendingnote > p > span {
+	font-weight: bold;
+}
+
+/* warning message */
+.warning-message {
+	padding: 10px;
+	margin: 5px;
+	border-left: 5px solid #f00;
+	font-weight: bold;
+}
+
+/* src/href attributes filter error display */
+.invalid-src { border: 1px dotted red;}
+.invalid-href { border-bottom: 1px dotted red;}
+.invalid-src:after,
+.invalid-href:after { content: '⚠️'}
+img.invalid-src:after { vertical-align: top;}

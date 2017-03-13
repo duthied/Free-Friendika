@@ -44,7 +44,7 @@ function group_rmv($uid,$name) {
 			intval($uid),
 			dbesc($name)
 		);
-		if(count($r))
+		if (dbm::is_result($r))
 			$group_id = $r[0]['id'];
 		if(! $group_id)
 			return false;
@@ -53,7 +53,7 @@ function group_rmv($uid,$name) {
 		$r = q("SELECT def_gid, allow_gid, deny_gid FROM user WHERE uid = %d LIMIT 1",
 		       intval($uid)
 		);
-		if($r) {
+		if ($r) {
 			$user_info = $r[0];
 			$change = false;
 
@@ -106,7 +106,7 @@ function group_byname($uid,$name) {
 		intval($uid),
 		dbesc($name)
 	);
-	if(count($r))
+	if (dbm::is_result($r))
 		return $r[0]['id'];
 	return false;
 }
@@ -139,17 +139,18 @@ function group_add_member($uid,$name,$member,$gid = 0) {
 		intval($gid),
 		intval($member)
 	);
-	if(count($r))
+	if (dbm::is_result($r))
 		return true;	// You might question this, but
 				// we indicate success because the group member was in fact created
 				// -- It was just created at another time
- 	if(! count($r))
+ 	if (! dbm::is_result($r)) {
 		$r = q("INSERT INTO `group_member` (`uid`, `gid`, `contact-id`)
 			VALUES( %d, %d, %d ) ",
 			intval($uid),
 			intval($gid),
 			intval($member)
-	);
+		);
+	}
 	return $r;
 }
 
@@ -164,7 +165,7 @@ function group_get_members($gid) {
 			intval($gid),
 			intval(local_user())
 		);
-		if(count($r))
+		if (dbm::is_result($r))
 			$ret = $r;
 	}
 	return $ret;
@@ -181,14 +182,14 @@ function group_public_members($gid) {
 			intval(local_user()),
 			dbesc(NETWORK_OSTATUS)
 		);
-		if(count($r))
+		if (dbm::is_result($r))
 			$ret = count($r);
 	}
 	return $ret;
 }
 
 
-function mini_group_select($uid,$gid = 0) {
+function mini_group_select($uid,$gid = 0, $label = "") {
 
 	$grps = array();
 	$o = '';
@@ -197,16 +198,19 @@ function mini_group_select($uid,$gid = 0) {
 		intval($uid)
 	);
 	$grps[] = array('name' => '', 'id' => '0', 'selected' => '');
-	if(count($r)) {
-		foreach($r as $rr) {
+	if (dbm::is_result($r)) {
+		foreach ($r as $rr) {
 			$grps[] = array('name' => $rr['name'], 'id' => $rr['id'], 'selected' => (($gid == $rr['id']) ? 'true' : ''));
 		}
 
 	}
 	logger('groups: ' . print_r($grps,true));
 
+	if ($label == "")
+		$label = t('Default privacy group for new contacts');
+
 	$o = replace_macros(get_markup_template('group_selection.tpl'), array(
-		'$label' => t('Default privacy group for new contacts'),
+		'$label' => $label,
 		'$groups' => $grps
 	));
 	return $o;
@@ -215,7 +219,7 @@ function mini_group_select($uid,$gid = 0) {
 
 /**
  * @brief Create group sidebar widget
- * 
+ *
  * @param string $every
  * @param string $each
  * @param string $editmode
@@ -230,11 +234,11 @@ function group_side($every="contacts",$each="group",$editmode = "standard", $gro
 
 	$o = '';
 
-	if(! local_user())
+	if (! local_user())
 		return '';
 
 	$groups = array();
-	
+
 	$groups[] = array(
 		'text' 	=> t('Everybody'),
 		'id' => 0,
@@ -252,10 +256,10 @@ function group_side($every="contacts",$each="group",$editmode = "standard", $gro
 		$member_of = groups_containing(local_user(),$cid);
 	}
 
-	if(count($r)) {
-		foreach($r as $rr) {
+	if (dbm::is_result($r)) {
+		foreach ($r as $rr) {
 			$selected = (($group_id == $rr['id']) ? ' group-selected' : '');
-			
+
 			if ($editmode == "full") {
 				$groupedit = array(
 					'href' => "group/".$rr['id'],
@@ -264,7 +268,7 @@ function group_side($every="contacts",$each="group",$editmode = "standard", $gro
 			} else {
 				$groupedit = null;
 			}
-			
+
 			$groups[] = array(
 				'id'		=> $rr['id'],
 				'cid'		=> $cid,
@@ -297,17 +301,26 @@ function group_side($every="contacts",$each="group",$editmode = "standard", $gro
 	return $o;
 }
 
-function expand_groups($a,$check_dead = false) {
+function expand_groups($a,$check_dead = false, $use_gcontact = false) {
 	if(! (is_array($a) && count($a)))
 		return array();
 	$groups = implode(',', $a);
 	$groups = dbesc($groups);
-	$r = q("SELECT `contact-id` FROM `group_member` WHERE `gid` IN ( $groups )");
+
+	if ($use_gcontact)
+		$r = q("SELECT `gcontact`.`id` AS `contact-id` FROM `group_member`
+				INNER JOIN `contact` ON `contact`.`id` = `group_member`.`contact-id`
+				INNER JOIN `gcontact` ON `gcontact`.`nurl` = `contact`.`nurl`
+			WHERE `gid` IN ($groups)");
+	else
+		$r = q("SELECT `contact-id` FROM `group_member` WHERE `gid` IN ( $groups )");
+
+
 	$ret = array();
-	if(count($r))
+	if (dbm::is_result($r))
 		foreach($r as $rr)
 			$ret[] = $rr['contact-id'];
-	if($check_dead) {
+	if($check_dead AND !$use_gcontact) {
 		require_once('include/acl_selectors.php');
 		$ret = prune_deadguys($ret);
 	}
@@ -333,7 +346,7 @@ function groups_containing($uid,$c) {
 	);
 
 	$ret = array();
-	if(count($r)) {
+	if (dbm::is_result($r)) {
 		foreach($r as $rr)
 			$ret[] = $rr['gid'];
 	}
@@ -353,17 +366,41 @@ function groups_containing($uid,$c) {
  */
 function groups_count_unseen() {
 
-	$r = q("SELECT `group`.`id`, `group`.`name`, COUNT(`item`.`id`) AS `count` FROM `group`, `group_member`, `item`
-			WHERE `group`.`uid` = %d
-			AND `item`.`uid` = %d
-			AND `item`.`unseen` AND `item`.`visible`
-			AND NOT `item`.`deleted`
-			AND `item`.`contact-id` = `group_member`.`contact-id`
-			AND `group_member`.`gid` = `group`.`id`
-			GROUP BY `group`.`id` ",
+	$r = q("SELECT `group`.`id`, `group`.`name`,
+			(SELECT COUNT(*) FROM `item` FORCE INDEX (`uid_unseen_contactid`)
+				WHERE `uid` = %d AND `unseen` AND
+					`contact-id` IN (SELECT `contact-id` FROM `group_member`
+								WHERE `group_member`.`gid` = `group`.`id` AND `group_member`.`uid` = %d)) AS `count`
+			FROM `group` WHERE `group`.`uid` = %d;",
+		intval(local_user()),
 		intval(local_user()),
 		intval(local_user())
 	);
 
 	return $r;
+}
+
+/**
+ * @brief Returns the default group for a given user and network
+ *
+ * @param int $uid User id
+ * @param string $network network name
+ *
+ * @return int group id
+ */
+function get_default_group($uid, $network = "") {
+
+	$default_group = 0;
+
+	if ($network == NETWORK_OSTATUS)
+		$default_group = get_pconfig($uid, "ostatus", "default_group");
+
+	if ($default_group != 0)
+		return $default_group;
+
+	$g = q("SELECT `def_gid` FROM `user` WHERE `uid` = %d LIMIT 1", intval($uid));
+	if($g && intval($g[0]["def_gid"]))
+		$default_group = $g[0]["def_gid"];
+
+	return $default_group;
 }

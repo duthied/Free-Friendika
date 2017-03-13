@@ -23,7 +23,7 @@ import os, glob, subprocess
 #  not work in some cases.
 dontinclude = ['root', 'friendica', 'bavatar', 'tony baldwin', 'Taek', 'silke m',
                'leberwurscht', 'abinoam', 'fabrixxm', 'FULL NAME', 'Hauke Zuehl',
-               'Michal Supler', 'michal_s', 'Manuel Pérez']
+               'Michal Supler', 'michal_s', 'Manuel Pérez', 'rabuzarus', 'Alberto Díaz']
 
 
 #  this script is in the /util sub-directory of the friendica installation
@@ -32,7 +32,7 @@ dontinclude = ['root', 'friendica', 'bavatar', 'tony baldwin', 'Taek', 'silke m'
 path = os.path.abspath(argv[0].split('util/make_credits.py')[0])
 print('> base directory is assumed to be: '+path)
 #  a place to store contributors
-contributors = ['Andi Stadler']
+contributors = ["Andi Stadler", "Vít Šesták 'v6ak'"]
 #  get the contributors
 print('> getting contributors to the friendica core repository')
 p = subprocess.Popen(['git', 'shortlog', '--no-merges', '-s'],
@@ -46,17 +46,20 @@ for i in c:
 n1 = len(contributors)
 print('  > found %d contributors' % n1)
 #  get the contributors to the addons
-os.chdir(path+'/addon')
-#  get the contributors
-print('> getting contributors to the addons')
-p = subprocess.Popen(['git', 'shortlog', '--no-merges', '-s'],
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT)
-c = iter(p.stdout.readline, b'')
-for i in c:
-    name = i.decode().split('\t')[1].split('\n')[0]
-    if not name in contributors and name not in dontinclude:
-        contributors.append(name)
+try:
+    os.chdir(path+'/addon')
+    #  get the contributors
+    print('> getting contributors to the addons')
+    p = subprocess.Popen(['git', 'shortlog', '--no-merges', '-s'],
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
+    c = iter(p.stdout.readline, b'')
+    for i in c:
+        name = i.decode().split('\t')[1].split('\n')[0]
+        if not name in contributors and name not in dontinclude:
+            contributors.append(name)
+except FileNotFoundError:
+    print('  > no addon directory found ( THE LIST OF CONTRIBUTORS WILL BE INCOMPLETE )')
 n2 = len(contributors)
 print('  > found %d new contributors' % (n2-n1))
 print('> total of %d contributors to the repositories of friendica' % n2)
@@ -64,7 +67,7 @@ os.chdir(path)
 #  get the translators
 print('> getting translators')
 intrans = False
-for f in glob.glob(path+'/view/*/messages.po'):
+for f in glob.glob(path+'/view/lang/*/messages.po'):
     i = open(f, 'r')
     l = i.readlines()
     i.close()

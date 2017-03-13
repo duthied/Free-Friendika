@@ -21,20 +21,20 @@
 <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
 <div id="profile-edit-profile-name-wrapper" >
-<label id="profile-edit-profile-name-label" for="profile-edit-profile-name" >{{$lbl_profname}} </label>
-<input type="text" size="28" name="profile_name" id="profile-edit-profile-name" value="{{$profile_name}}" /><div class="required">*</div>
+<label id="profile-edit-profile-name-label" for="profile-edit-profile-name" >{{$profile_name.1}} </label>
+<input type="text" size="28" name="profile_name" id="profile-edit-profile-name" value="{{$profile_name.2}}" /><div class="required">*</div>
 </div>
 <div id="profile-edit-profile-name-end"></div>
 
 <div id="profile-edit-name-wrapper" >
-<label id="profile-edit-name-label" for="profile-edit-name" >{{$lbl_fullname}} </label>
-<input type="text" size="28" name="name" id="profile-edit-name" value="{{$name}}" />
+<label id="profile-edit-name-label" for="profile-edit-name" >{{$name.1}} </label>
+<input type="text" size="28" name="name" id="profile-edit-name" value="{{$name.2}}" />
 </div>
 <div id="profile-edit-name-end"></div>
 
 <div id="profile-edit-pdesc-wrapper" >
-<label id="profile-edit-pdesc-label" for="profile-edit-pdesc" >{{$lbl_title}} </label>
-<input type="text" size="28" name="pdesc" id="profile-edit-pdesc" value="{{$pdesc}}" />
+<label id="profile-edit-pdesc-label" for="profile-edit-pdesc" >{{$pdesc.1}} </label>
+<input type="text" size="28" name="pdesc" id="profile-edit-pdesc" value="{{$pdesc.2}}" />
 </div>
 <div id="profile-edit-pdesc-end"></div>
 
@@ -46,10 +46,7 @@
 <div id="profile-edit-gender-end"></div>
 
 <div id="profile-edit-dob-wrapper" >
-<label id="profile-edit-dob-label" for="dob-select" >{{$lbl_bd}} </label>
-<div id="profile-edit-dob" >
-{{$dob}} {{$age}}
-</div>
+{{$dob}}
 </div>
 <div id="profile-edit-dob-end"></div>
 
@@ -62,45 +59,45 @@
 
 
 <div id="profile-edit-address-wrapper" >
-<label id="profile-edit-address-label" for="profile-edit-address" >{{$lbl_address}} </label>
-<input type="text" size="28" name="address" id="profile-edit-address" value="{{$address}}" />
+<label id="profile-edit-address-label" for="profile-edit-address" >{{$address.1}} </label>
+<input type="text" size="28" name="address" id="profile-edit-address" value="{{$address.2}}" />
 </div>
 <div id="profile-edit-address-end"></div>
 
 <div id="profile-edit-locality-wrapper" >
-<label id="profile-edit-locality-label" for="profile-edit-locality" >{{$lbl_city}} </label>
-<input type="text" size="28" name="locality" id="profile-edit-locality" value="{{$locality}}" />
+<label id="profile-edit-locality-label" for="profile-edit-locality" >{{$locality.1}} </label>
+<input type="text" size="28" name="locality" id="profile-edit-locality" value="{{$locality.2}}" />
 </div>
 <div id="profile-edit-locality-end"></div>
 
 
 <div id="profile-edit-postal-code-wrapper" >
-<label id="profile-edit-postal-code-label" for="profile-edit-postal-code" >{{$lbl_zip}} </label>
-<input type="text" size="28" name="postal_code" id="profile-edit-postal-code" value="{{$postal_code}}" />
+<label id="profile-edit-postal-code-label" for="profile-edit-postal-code" >{{$postal_code.1}} </label>
+<input type="text" size="28" name="postal_code" id="profile-edit-postal-code" value="{{$postal_code.2}}" />
 </div>
 <div id="profile-edit-postal-code-end"></div>
 
 <div id="profile-edit-country-name-wrapper" >
-<label id="profile-edit-country-name-label" for="profile-edit-country-name" >{{$lbl_country}} </label>
-<select name="country_name" id="profile-edit-country-name" onChange="Fill_States('{{$region}}');">
-<option selected="selected" >{{$country_name}}</option>
+<label id="profile-edit-country-name-label" for="profile-edit-country-name" >{{$country_name.1}} </label>
+<select name="country_name" id="profile-edit-country-name" onChange="Fill_States('{{$region.2}}');">
+<option selected="selected" >{{$country_name.2}}</option>
 <option>temp</option>
 </select>
 </div>
 <div id="profile-edit-country-name-end"></div>
 
 <div id="profile-edit-region-wrapper" >
-<label id="profile-edit-region-label" for="profile-edit-region" >{{$lbl_region}} </label>
+<label id="profile-edit-region-label" for="profile-edit-region" >{{$region.1}} </label>
 <select name="region" id="profile-edit-region" onChange="Update_Globals();" >
-<option selected="selected" >{{$region}}</option>
+<option selected="selected" >{{$region.2}}</option>
 <option>temp</option>
 </select>
 </div>
 <div id="profile-edit-region-end"></div>
 
 <div id="profile-edit-hometown-wrapper" >
-<label id="profile-edit-hometown-label" for="profile-edit-hometown" >{{$lbl_hometown}} </label>
-<input type="text" size="28" name="hometown" id="profile-edit-hometown" value="{{$hometown}}" />
+<label id="profile-edit-hometown-label" for="profile-edit-hometown" >{{$hometown.1}} </label>
+<input type="text" size="28" name="hometown" id="profile-edit-hometown" value="{{$hometown.2}}" />
 </div>
 <div id="profile-edit-hometown-end"></div>
 
@@ -113,10 +110,10 @@
 <label id="profile-edit-marital-label" for="profile-edit-marital" >{{$lbl_marital}} </label>
 {{$marital}}
 </div>
-<label id="profile-edit-with-label" for="profile-edit-with" > {{$lbl_with}} </label>
-<input type="text" size="28" name="with" id="profile-edit-with" title="{{$lbl_ex1}}" value="{{$with}}" />
-<label id="profile-edit-howlong-label" for="profile-edit-howlong" > {{$lbl_howlong}} </label>
-<input type="text" size="28" name="howlong" id="profile-edit-howlong" title="{{$lbl_howlong}}" value="{{$howlong}}" />
+<label id="profile-edit-with-label" for="profile-edit-with" > {{$with.1}} </label>
+<input type="text" size="28" name="with" id="profile-edit-with" title="{{$with.3}}" value="{{$with.2}}" />
+<label id="profile-edit-howlong-label" for="profile-edit-howlong" > {{$howlong.1}} </label>
+<input type="text" size="28" name="howlong" id="profile-edit-howlong" title="{{$howlong.1}}" value="{{$howlong.2}}" />
 
 <div id="profile-edit-marital-end"></div>
 
@@ -129,33 +126,39 @@
 
 
 <div id="profile-edit-homepage-wrapper" >
-<label id="profile-edit-homepage-label" for="profile-edit-homepage" >{{$lbl_homepage}} </label>
-<input type="text" size="28" name="homepage" id="profile-edit-homepage" value="{{$homepage}}" />
+<label id="profile-edit-homepage-label" for="profile-edit-homepage" >{{$homepage.1}} </label>
+<input type="text" size="28" name="homepage" id="profile-edit-homepage" value="{{$homepage.2}}" />
 </div>
 <div id="profile-edit-homepage-end"></div>
 
+<div id="profile-edit-xmpp-wrapper" >
+<label id="profile-edit-xmpp-label" for="profile-edit-xmpp" >{{$xmpp.1}} </label>
+<input type="text" size="28" name="xmpp" id="profile-edit-xmpp" title="{{$lbl_ex2}}" value="{{$xmpp.2}}" />
+</div><div id="profile-edit-xmpp-desc">{{$xmpp.3}}</div>
+<div id="profile-edit-xmpp-end"></div>
+
 <div id="profile-edit-politic-wrapper" >
-<label id="profile-edit-politic-label" for="profile-edit-politic" >{{$lbl_politic}} </label>
-<input type="text" size="28" name="politic" id="profile-edit-politic" value="{{$politic}}" />
+<label id="profile-edit-politic-label" for="profile-edit-politic" >{{$politic.1}} </label>
+<input type="text" size="28" name="politic" id="profile-edit-politic" value="{{$politic.2}}" />
 </div>
 <div id="profile-edit-politic-end"></div>
 
 <div id="profile-edit-religion-wrapper" >
-<label id="profile-edit-religion-label" for="profile-edit-religion" >{{$lbl_religion}} </label>
-<input type="text" size="28" name="religion" id="profile-edit-religion" value="{{$religion}}" />
+<label id="profile-edit-religion-label" for="profile-edit-religion" >{{$religion.1}} </label>
+<input type="text" size="28" name="religion" id="profile-edit-religion" value="{{$religion.2}}" />
 </div>
 <div id="profile-edit-religion-end"></div>
 
 <div id="profile-edit-pubkeywords-wrapper" >
-<label id="profile-edit-pubkeywords-label" for="profile-edit-pubkeywords" >{{$lbl_pubkey}} </label>
-<input type="text" size="28" name="pub_keywords" id="profile-edit-pubkeywords" title="{{$lbl_ex2}}" value="{{$pub_keywords}}" />
-</div><div id="profile-edit-pubkeywords-desc">{{$lbl_pubdsc}}</div>
+<label id="profile-edit-pubkeywords-label" for="profile-edit-pubkeywords" >{{$pub_keywords.1}} </label>
+<input type="text" size="28" name="pub_keywords" id="profile-edit-pubkeywords" title="{{$lbl_ex2}}" value="{{$pub_keywords.2}}" />
+</div><div id="profile-edit-pubkeywords-desc">{{$pub_keywords.3}}</div>
 <div id="profile-edit-pubkeywords-end"></div>
 
 <div id="profile-edit-prvkeywords-wrapper" >
-<label id="profile-edit-prvkeywords-label" for="profile-edit-prvkeywords" >{{$lbl_prvkey}} </label>
-<input type="text" size="28" name="prv_keywords" id="profile-edit-prvkeywords" title="{{$lbl_ex2}}" value="{{$prv_keywords}}" />
-</div><div id="profile-edit-prvkeywords-desc">{{$lbl_prvdsc}}</div>
+<label id="profile-edit-prvkeywords-label" for="profile-edit-prvkeywords" >{{$prv_keywords.1}} </label>
+<input type="text" size="28" name="prv_keywords" id="profile-edit-prvkeywords" title="{{$lbl_ex2}}" value="{{$prv_keywords.2}}" />
+</div><div id="profile-edit-prvkeywords-desc">{{$prv_keywords.3}}</div>
 <div id="profile-edit-prvkeywords-end"></div>
 
 
@@ -166,10 +169,10 @@
 
 <div id="about-jot-wrapper" class="profile-jot-box">
 <p id="about-jot-desc" >
-{{$lbl_about}}
+{{$about.1}}
 </p>
 
-<textarea rows="10" cols="70" id="profile-about-text" class="profile-edit-textarea" name="about" >{{$about}}</textarea>
+<textarea rows="10" cols="70" id="profile-about-text" class="profile-edit-textarea" name="about" >{{$about.2}}</textarea>
 
 </div>
 <div id="about-jot-end"></div>
@@ -177,10 +180,10 @@
 
 <div id="interest-jot-wrapper" class="profile-jot-box" >
 <p id="interest-jot-desc" >
-{{$lbl_hobbies}}
+{{$interest.1}}
 </p>
 
-<textarea rows="10" cols="70" id="interest-jot-text" class="profile-edit-textarea" name="interest" >{{$interest}}</textarea>
+<textarea rows="10" cols="70" id="interest-jot-text" class="profile-edit-textarea" name="interest" >{{$interest.2}}</textarea>
 
 </div>
 <div id="interest-jot-end"></div>
@@ -188,10 +191,10 @@
 
 <div id="likes-jot-wrapper" class="profile-jot-box" >
 <p id="likes-jot-desc" >
-{{$lbl_likes}}
+{{$likes.1}}
 </p>
 
-<textarea rows="10" cols="70" id="likes-jot-text" class="profile-edit-textarea" name="likes" >{{$likes}}</textarea>
+<textarea rows="10" cols="70" id="likes-jot-text" class="profile-edit-textarea" name="likes" >{{$likes.2}}</textarea>
 
 </div>
 <div id="likes-jot-end"></div>
@@ -199,10 +202,10 @@
 
 <div id="dislikes-jot-wrapper" class="profile-jot-box" >
 <p id="dislikes-jot-desc" >
-{{$lbl_dislikes}}
+{{$dislikes.1}}
 </p>
 
-<textarea rows="10" cols="70" id="dislikes-jot-text" class="profile-edit-textarea" name="dislikes" >{{$dislikes}}</textarea>
+<textarea rows="10" cols="70" id="dislikes-jot-text" class="profile-edit-textarea" name="dislikes" >{{$dislikes.2}}</textarea>
 
 </div>
 <div id="dislikes-jot-end"></div>
@@ -210,10 +213,10 @@
 
 <div id="contact-jot-wrapper" class="profile-jot-box" >
 <p id="contact-jot-desc" >
-{{$lbl_social}}
+{{$contact.1}}
 </p>
 
-<textarea rows="10" cols="70" id="contact-jot-text" class="profile-edit-textarea" name="contact" >{{$contact}}</textarea>
+<textarea rows="10" cols="70" id="contact-jot-text" class="profile-edit-textarea" name="contact" >{{$contact.2}}</textarea>
 
 </div>
 <div id="contact-jot-end"></div>
@@ -227,20 +230,20 @@
 
 <div id="music-jot-wrapper" class="profile-jot-box" >
 <p id="music-jot-desc" >
-{{$lbl_music}}
+{{$music.1}}
 </p>
 
-<textarea rows="10" cols="70" id="music-jot-text" class="profile-edit-textarea" name="music" >{{$music}}</textarea>
+<textarea rows="10" cols="70" id="music-jot-text" class="profile-edit-textarea" name="music" >{{$music.2}}</textarea>
 
 </div>
 <div id="music-jot-end"></div>
 
 <div id="book-jot-wrapper" class="profile-jot-box" >
 <p id="book-jot-desc" >
-{{$lbl_book}}
+{{$book.1}}
 </p>
 
-<textarea rows="10" cols="70" id="book-jot-text" class="profile-edit-textarea" name="book" >{{$book}}</textarea>
+<textarea rows="10" cols="70" id="book-jot-text" class="profile-edit-textarea" name="book" >{{$book.2}}</textarea>
 
 </div>
 <div id="book-jot-end"></div>
@@ -249,10 +252,10 @@
 
 <div id="tv-jot-wrapper" class="profile-jot-box" >
 <p id="tv-jot-desc" >
-{{$lbl_tv}} 
+{{$tv.1}} 
 </p>
 
-<textarea rows="10" cols="70" id="tv-jot-text" class="profile-edit-textarea" name="tv" >{{$tv}}</textarea>
+<textarea rows="10" cols="70" id="tv-jot-text" class="profile-edit-textarea" name="tv" >{{$tv.2}}</textarea>
 
 </div>
 <div id="tv-jot-end"></div>
@@ -261,10 +264,10 @@
 
 <div id="film-jot-wrapper" class="profile-jot-box" >
 <p id="film-jot-desc" >
-{{$lbl_film}}
+{{$film.1}}
 </p>
 
-<textarea rows="10" cols="70" id="film-jot-text" class="profile-edit-textarea" name="film" >{{$film}}</textarea>
+<textarea rows="10" cols="70" id="film-jot-text" class="profile-edit-textarea" name="film" >{{$film.2}}</textarea>
 
 </div>
 <div id="film-jot-end"></div>
@@ -278,10 +281,10 @@
 
 <div id="romance-jot-wrapper" class="profile-jot-box" >
 <p id="romance-jot-desc" >
-{{$lbl_love}}
+{{$romance.1}}
 </p>
 
-<textarea rows="10" cols="70" id="romance-jot-text" class="profile-edit-textarea" name="romance" >{{$romance}}</textarea>
+<textarea rows="10" cols="70" id="romance-jot-text" class="profile-edit-textarea" name="romance" >{{$romance.2}}</textarea>
 
 </div>
 <div id="romance-jot-end"></div>
@@ -290,10 +293,10 @@
 
 <div id="work-jot-wrapper" class="profile-jot-box" >
 <p id="work-jot-desc" >
-{{$lbl_work}}
+{{$work.1}}
 </p>
 
-<textarea rows="10" cols="70" id="work-jot-text" class="profile-edit-textarea" name="work" >{{$work}}</textarea>
+<textarea rows="10" cols="70" id="work-jot-text" class="profile-edit-textarea" name="work" >{{$work.2}}</textarea>
 
 </div>
 <div id="work-jot-end"></div>
@@ -302,10 +305,10 @@
 
 <div id="education-jot-wrapper" class="profile-jot-box" >
 <p id="education-jot-desc" >
-{{$lbl_school}} 
+{{$education.1}}
 </p>
 
-<textarea rows="10" cols="70" id="education-jot-text" class="profile-edit-textarea" name="education" >{{$education}}</textarea>
+<textarea rows="10" cols="70" id="education-jot-text" class="profile-edit-textarea" name="education" >{{$education.2}}</textarea>
 
 </div>
 <div id="education-jot-end"></div>
