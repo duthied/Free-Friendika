@@ -333,7 +333,7 @@ function admin_page_federation(App $a) {
 		// early friendica versions have the format x.x.xxxx where xxxx is the
 		// DB version stamp; those should be operated out and versions be
 		// conbined
-		if($p=='Friendi%%a') {
+		if ($p=='Friendi%%a') {
 			$newV = array();
 			$newVv = array();
 			foreach ($v as $vv) {
