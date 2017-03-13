@@ -7,6 +7,27 @@ require_once("include/html2bbcode.php");
 require_once("include/bbcode.php");
 require_once("library/html-to-markdown/HTML_To_Markdown.php");
 
+/**
+ * @brief Callback function to replace a Diaspora style mention in a mention for Friendica
+ *
+ * @param array $match Matching values for the callback
+ * @return string Replaced mention
+ */
+function diaspora_mention2bb($match) {
+	if ($match[2] == '') {
+		return;
+	}
+
+	$data = get_contact_details_by_addr($match[2]);
+
+	$name = $match[1];
+
+	if ($name == '') {
+		$name = $data['name'];
+	}
+
+	return '@[url='.$data['url'].']'.$name.'[/url]';
+}
 
 // we don't want to support a bbcode specific markdown interpreter
 // and the markdown library we have is pretty good, but provides HTML output.
@@ -18,9 +39,9 @@ function diaspora2bb($s) {
 	$s = html_entity_decode($s, ENT_COMPAT, 'UTF-8');
 
 	// Handles single newlines
-	$s = str_replace("\r", '<br>', $s);
-
+	$s = str_replace("\r\n", "\n", $s);
 	$s = str_replace("\n", " \n", $s);
+	$s = str_replace("\r", " \n", $s);
 
 	// Replace lonely stars in lines not starting with it with literal stars
 	$s = preg_replace('/^([^\*]+)\*([^\*]*)$/im', '$1\*$2', $s);
@@ -33,7 +54,8 @@ function diaspora2bb($s) {
 
 	$s = Markdown($s);
 
-	$s = preg_replace('/\@\{(.+?)\; (.+?)\@(.+?)\}/', '@[url=https://$3/u/$2]$1[/url]', $s);
+	$regexp = "/@\{(?:([^\}]+?); )?([^\} ]+)\}/";
+	$s = preg_replace_callback($regexp, 'diaspora_mention2bb', $s);
 
 	$s = str_replace('&#35;', '#', $s);
 
@@ -73,7 +95,7 @@ function diaspora2bb($s) {
  * @brief Callback function to replace a Friendica style mention in a mention for Diaspora
  *
  * @param array $match Matching values for the callback
- * @return text Replaced mention
+ * @return string Replaced mention
  */
 function diaspora_mentions($match) {
 

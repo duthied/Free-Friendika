@@ -626,7 +626,7 @@ use \Friendica\Core\Config;
 		// count friends
 		$r = q("SELECT count(*) as `count` FROM `contact`
 				WHERE  `uid` = %d AND `rel` IN ( %d, %d )
-				AND `self`=0 AND NOT `blocked` AND `hidden`=0",
+				AND `self`=0 AND NOT `blocked` AND NOT `pending` AND `hidden`=0",
 				intval($uinfo[0]['uid']),
 				intval(CONTACT_IS_SHARING),
 				intval(CONTACT_IS_FRIEND)
@@ -635,7 +635,7 @@ use \Friendica\Core\Config;
 
 		$r = q("SELECT count(*) as `count` FROM `contact`
 				WHERE  `uid` = %d AND `rel` IN ( %d, %d )
-				AND `self`=0 AND NOT `blocked` AND `hidden`=0",
+				AND `self`=0 AND NOT `blocked` AND NOT `pending` AND `hidden`=0",
 				intval($uinfo[0]['uid']),
 				intval(CONTACT_IS_FOLLOWER),
 				intval(CONTACT_IS_FRIEND)
@@ -1686,20 +1686,16 @@ use \Friendica\Core\Config;
 		);
 
 		if ($r[0]['body'] != "") {
-			if (!intval(get_config('system','old_share'))) {
-				if (strpos($r[0]['body'], "[/share]") !== false) {
-					$pos = strpos($r[0]['body'], "[share");
-					$post = substr($r[0]['body'], $pos);
-				} else {
-					$post = share_header($r[0]['author-name'], $r[0]['author-link'], $r[0]['author-avatar'], $r[0]['guid'], $r[0]['created'], $r[0]['plink']);
+			if (strpos($r[0]['body'], "[/share]") !== false) {
+				$pos = strpos($r[0]['body'], "[share");
+				$post = substr($r[0]['body'], $pos);
+			} else {
+				$post = share_header($r[0]['author-name'], $r[0]['author-link'], $r[0]['author-avatar'], $r[0]['guid'], $r[0]['created'], $r[0]['plink']);
 
-					$post .= $r[0]['body'];
-					$post .= "[/share]";
-				}
-				$_REQUEST['body'] = $post;
-			} else
-				$_REQUEST['body'] = html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8')."[url=".$r[0]['reply_url']."]".$r[0]['reply_author']."[/url] \n".$r[0]['body'];
-
+				$post .= $r[0]['body'];
+				$post .= "[/share]";
+			}
+			$_REQUEST['body'] = $post;
 			$_REQUEST['profile_uid'] = api_user();
 			$_REQUEST['type'] = 'wall';
 			$_REQUEST['api_source'] = true;

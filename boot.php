@@ -38,9 +38,9 @@ require_once('include/dbstructure.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
-define ( 'FRIENDICA_VERSION',      '3.5.1-dev' );
+define ( 'FRIENDICA_VERSION',      '3.5.2-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1213      );
+define ( 'DB_UPDATE_VERSION',      1215      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -245,6 +245,7 @@ define ( 'NETWORK_STATUSNET',        'stac');    // Statusnet connector
 define ( 'NETWORK_APPNET',           'apdn');    // app.net
 define ( 'NETWORK_NEWS',             'nntp');    // Network News Transfer Protocol
 define ( 'NETWORK_ICALENDAR',        'ical');    // iCalendar
+define ( 'NETWORK_PNUT',             'pnut');    // pnut.io
 define ( 'NETWORK_PHANTOM',          'unkn');    // Place holder
 /** @}*/
 
@@ -274,6 +275,7 @@ $netgroup_ids = array(
 	NETWORK_APPNET    => (-17),
 	NETWORK_NEWS      => (-18),
 	NETWORK_ICALENDAR => (-19),
+	NETWORK_PNUT      => (-20),
 
 	NETWORK_PHANTOM  => (-127),
 );
@@ -428,6 +430,17 @@ define('PRIORITY_LOW',       40);
 define('PRIORITY_NEGLIGIBLE',50);
 /* @}*/
 
+/**
+ * @name Social Relay settings
+ *
+ * See here: https://github.com/jaywink/social-relay
+ * and here: https://wiki.diasporafoundation.org/Relay_servers_for_public_posts
+ * @{
+ */
+define('SR_SCOPE_NONE', '');
+define('SR_SCOPE_ALL',  'all');
+define('SR_SCOPE_TAGS', 'tags');
+/* @}*/
 
 // Normally this constant is defined - but not if "pcntl" isn't installed
 if (!defined("SIGTERM"))
@@ -532,7 +545,6 @@ class App {
 	public	$videoheight = 350;
 	public	$force_max_items = 0;
 	public	$theme_thread_allow = true;
-	public	$theme_richtext_editor = true;
 	public	$theme_events_in_profile = true;
 
 	/**
@@ -573,7 +585,6 @@ class App {
 
 	private $scheme;
 	private $hostname;
-	private $baseurl;
 	private $db;
 
 	private $curl_code;
@@ -801,8 +812,6 @@ class App {
 	 * - Host name is determined either by system.hostname or inferred from request
 	 * - Path is inferred from SCRIPT_NAME
 	 *
-	 * Caches the result (depending on $ssl value) for performance.
-	 *
 	 * Note: $ssl parameter value doesn't directly correlate with the resulting protocol
 	 *
 	 * @param bool $ssl Whether to append http or https under SSL_POLICY_SELFSIGN
@@ -815,17 +824,9 @@ class App {
 			return self::$a->get_baseurl($ssl);
 		}
 
-		// Arbitrary values, the resulting url protocol can be different
-		$cache_index = $ssl ? 'https' : 'http';
-
-		// Cached value found, nothing to process
-		if (isset($this->baseurl[$cache_index])) {
-			return $this->baseurl[$cache_index];
-		}
-
 		$scheme = $this->scheme;
 
-		if (Config::get('system', 'ssl_policy') === SSL_POLICY_FULL) {
+		if (Config::get('system', 'ssl_policy') == SSL_POLICY_FULL) {
 			$scheme = 'https';
 		}
 
@@ -841,12 +842,10 @@ class App {
 		}
 
 		if (Config::get('config', 'hostname') != '') {
-			$this->hostname = get_config('config', 'hostname');
+			$this->hostname = Config::get('config', 'hostname');
 		}
 
-		$this->baseurl[$cache_index] = $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
-
-		return $this->baseurl[$cache_index];
+		return $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
 	}
 
 	/**
@@ -858,8 +857,6 @@ class App {
 	 */
 	function set_baseurl($url) {
 		$parsed = @parse_url($url);
-
-		$this->baseurl = [];
 
 		if($parsed) {
 			$this->scheme = $parsed['scheme'];
@@ -971,7 +968,6 @@ class App {
 			'$local_user' => local_user(),
 			'$generator' => 'Friendica' . ' ' . FRIENDICA_VERSION,
 			'$delitem' => t('Delete this item?'),
-			'$comment' => t('Comment'),
 			'$showmore' => t('show more'),
 			'$showfewer' => t('show fewer'),
 			'$update_interval' => $interval,
@@ -1418,6 +1414,53 @@ class App {
 		else
 			proc_close(proc_open($cmdline." &",array(),$foo,dirname(__FILE__)));
 
+	}
+
+	/**
+	 * @brief Returns the system user that is executing the script
+	 *
+	 * This mostly returns something like "www-data".
+	 *
+	 * @return string system username
+	 */
+	static function systemuser() {
+		if (!function_exists('posix_getpwuid') OR !function_exists('posix_geteuid')) {
+			return '';
+		}
+
+		$processUser = posix_getpwuid(posix_geteuid());
+		return $processUser['name'];
+	}
+
+	/**
+	 * @brief Checks if a given directory is usable for the system
+	 *
+	 * @return boolean the directory is usable
+	 */
+	static function directory_usable($directory) {
+
+		if ($directory == '') {
+			logger("Directory is empty. This shouldn't happen.", LOGGER_DEBUG);
+			return false;
+		}
+
+		if (!file_exists($directory)) {
+			logger('Path "'.$directory.'" does not exist for user '.self::systemuser(), LOGGER_DEBUG);
+			return false;
+		}
+		if (is_file($directory)) {
+			logger('Path "'.$directory.'" is a file for user '.self::systemuser(), LOGGER_DEBUG);
+			return false;
+		}
+		if (!is_dir($directory)) {
+			logger('Path "'.$directory.'" is not a directory for user '.self::systemuser(), LOGGER_DEBUG);
+			return false;
+		}
+		if (!is_writable($directory)) {
+			logger('Path "'.$directory.'" is not writable for user '.self::systemuser(), LOGGER_DEBUG);
+			return false;
+		}
+		return true;
 	}
 }
 
@@ -2323,8 +2366,9 @@ function get_itemcachepath() {
 		return "";
 
 	$itemcache = get_config('system','itemcache');
-	if (($itemcache != "") AND is_dir($itemcache) AND is_writable($itemcache))
-		return($itemcache);
+	if (($itemcache != "") AND App::directory_usable($itemcache)) {
+		return $itemcache;
+	}
 
 	$temppath = get_temppath();
 
@@ -2334,9 +2378,9 @@ function get_itemcachepath() {
 			mkdir($itemcache);
 		}
 
-		if (is_dir($itemcache) AND is_writable($itemcache)) {
+		if (App::directory_usable($itemcache)) {
 			set_config("system", "itemcache", $itemcache);
-			return($itemcache);
+			return $itemcache;
 		}
 	}
 	return "";
@@ -2344,24 +2388,33 @@ function get_itemcachepath() {
 
 function get_lockpath() {
 	$lockpath = get_config('system','lockpath');
-	if (($lockpath != "") AND is_dir($lockpath) AND is_writable($lockpath))
-		return($lockpath);
+	if (($lockpath != "") AND App::directory_usable($lockpath)) {
+		// We have a lock path and it is usable
+		return $lockpath;
+	}
 
+	// We don't have a working preconfigured lock path, so we take the temp path.
 	$temppath = get_temppath();
 
 	if ($temppath != "") {
+		// To avoid any interferences with other systems we create our own directory
 		$lockpath = $temppath."/lock";
-
-		if (!is_dir($lockpath))
+		if (!is_dir($lockpath)) {
 			mkdir($lockpath);
-		elseif (!is_writable($lockpath))
-			$lockpath = $temppath;
+		}
 
-		if (is_dir($lockpath) AND is_writable($lockpath)) {
+		if (App::directory_usable($lockpath)) {
+			// The new path is usable, we are happy
 			set_config("system", "lockpath", $lockpath);
-			return($lockpath);
+			return $lockpath;
+		} else {
+			// We can't create a subdirectory, strange.
+			// But the directory seems to work, so we use it but don't store it.
+			return $temppath;
 		}
 	}
+
+	// Reaching this point means that the operating system is configured badly.
 	return "";
 }
 
@@ -2372,49 +2425,69 @@ function get_lockpath() {
  */
 function get_spoolpath() {
 	$spoolpath = get_config('system','spoolpath');
-	if (($spoolpath != "") AND is_dir($spoolpath) AND is_writable($spoolpath)) {
-		return($spoolpath);
+	if (($spoolpath != "") AND App::directory_usable($spoolpath)) {
+		// We have a spool path and it is usable
+		return $spoolpath;
 	}
 
+	// We don't have a working preconfigured spool path, so we take the temp path.
 	$temppath = get_temppath();
 
 	if ($temppath != "") {
+		// To avoid any interferences with other systems we create our own directory
 		$spoolpath = $temppath."/spool";
-
 		if (!is_dir($spoolpath)) {
 			mkdir($spoolpath);
-		} elseif (!is_writable($spoolpath)) {
-			$spoolpath = $temppath;
 		}
 
-		if (is_dir($spoolpath) AND is_writable($spoolpath)) {
+		if (App::directory_usable($spoolpath)) {
+			// The new path is usable, we are happy
 			set_config("system", "spoolpath", $spoolpath);
-			return($spoolpath);
+			return $spoolpath;
+		} else {
+			// We can't create a subdirectory, strange.
+			// But the directory seems to work, so we use it but don't store it.
+			return $temppath;
 		}
 	}
+
+	// Reaching this point means that the operating system is configured badly.
 	return "";
 }
 
 function get_temppath() {
 	$a = get_app();
 
-	$temppath = get_config("system","temppath");
-	if (($temppath != "") AND is_dir($temppath) AND is_writable($temppath))
-		return($temppath);
+	$temppath = get_config("system", "temppath");
 
+	if (($temppath != "") AND App::directory_usable($temppath)) {
+		// We have a temp path and it is usable
+		return $temppath;
+	}
+
+	// We don't have a working preconfigured temp path, so we take the system path.
 	$temppath = sys_get_temp_dir();
-	if (($temppath != "") AND is_dir($temppath) AND is_writable($temppath)) {
-		$temppath .= "/".$a->get_hostname();
-		if (!is_dir($temppath))
-			mkdir($temppath);
 
-		if (is_dir($temppath) AND is_writable($temppath)) {
-			set_config("system", "temppath", $temppath);
-			return($temppath);
+	// Check if it is usable
+	if (($temppath != "") AND App::directory_usable($temppath)) {
+		// To avoid any interferences with other systems we create our own directory
+		$new_temppath .= "/".$a->get_hostname();
+		if (!is_dir($new_temppath))
+			mkdir($new_temppath);
+
+		if (App::directory_usable($new_temppath)) {
+			// The new path is usable, we are happy
+			set_config("system", "temppath", $new_temppath);
+			return $new_temppath;
+		} else {
+			// We can't create a subdirectory, strange.
+			// But the directory seems to work, so we use it but don't store it.
+			return $temppath;
 		}
 	}
 
-	return("");
+	// Reaching this point means that the operating system is configured badly.
+	return '';
 }
 
 /// @deprecated

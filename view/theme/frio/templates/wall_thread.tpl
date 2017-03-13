@@ -68,9 +68,9 @@ as the value of $top_child_total (this is done at the end of this file)
 
 {{* Use a different div container in dependence max thread-level = 7 *}}
 {{if $item.thread_level<7}}
-<div class="wall-item-container {{$item.indent}} {{$item.shiny}} {{$item.network}} thread_level_{{$item.thread_level}} {{if $item.thread_level==1}}panel-body h-entry{{else}}u-comment h-cite{{/if}}" id="item-{{$item.guid}}"><!-- wall-item-container -->
+<div class="wall-item-container {{$item.indent}} {{$item.shiny}} {{$item.network}} thread_level_{{$item.thread_level}} {{if $item.thread_level==1}}panel-body h-entry{{else}}u-comment h-cite{{/if}}" id="item-{{$item.guid|regex_replace:'/%.*/':''}}"><!-- wall-item-container -->
 {{else}}
-<div class="wall-item-container {{$item.indent}} {{$item.shiny}} {{$item.network}} thread_level_7 u-comment h-cite" id="item-{{$item.guid}}">
+<div class="wall-item-container {{$item.indent}} {{$item.shiny}} {{$item.network}} thread_level_7 u-comment h-cite" id="item-{{$item.guid|regex_replace:'/%.*/':''}}">
  {{/if}}
 	<div class="media">
 		{{* Put addional actions in a top-right dropdown menu *}}

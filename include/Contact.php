@@ -1,6 +1,5 @@
 <?php
 
-
 // Included here for completeness, but this is a very dangerous operation.
 // It is the caller's responsibility to confirm the requestor's intent and
 // authorisation to do this.
@@ -60,14 +59,16 @@ function user_remove($uid) {
 
 function contact_remove($id) {
 
-	$r = q("select uid from contact where id = %d limit 1",
+	// We want just to make sure that we don't delete our "self" contact
+	$r = q("SELECT `uid` FROM `contact` WHERE `id` = %d AND NOT `self` LIMIT 1",
 		intval($id)
 	);
-	if((! dbm::is_result($r)) || (! intval($r[0]['uid'])))
+	if (!dbm::is_result($r) || !intval($r[0]['uid'])) {
 		return;
+	}
 
 	$archive = get_pconfig($r[0]['uid'], 'system','archive_removed_contacts');
-	if($archive) {
+	if ($archive) {
 		q("update contact set `archive` = 1, `network` = 'none', `writable` = 0 where id = %d",
 			intval($id)
 		);
@@ -314,6 +315,55 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 	return $profile;
 }
 
+/**
+ * @brief Get contact data for a given address
+ *
+ * The function looks at several places (contact table and gcontact table) for the contact
+ *
+ * @param string $addr The profile link
+ * @param int $uid User id
+ *
+ * @return array Contact data
+ */
+function get_contact_details_by_addr($addr, $uid = -1) {
+	static $cache = array();
+
+	if ($uid == -1) {
+		$uid = local_user();
+	}
+
+	// Fetch contact data from the contact table for the given user
+	$r = q("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
+			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`
+		FROM `contact` WHERE `addr` = '%s' AND `uid` = %d",
+			dbesc($addr), intval($uid));
+
+	// Fetch the data from the contact table with "uid=0" (which is filled automatically)
+	if (!dbm::is_result($r))
+		$r = q("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
+			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`
+			FROM `contact` WHERE `addr` = '%s' AND `uid` = 0",
+				dbesc($addr));
+
+	// Fetch the data from the gcontact table
+	if (!dbm::is_result($r))
+		$r = q("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `zid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, '' AS `xmpp`,
+			`keywords`, `gender`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, `community` AS `forum`, 0 AS `prv`, `community`, `contact-type`, `birthday`, 0 AS `self`
+			FROM `gcontact` WHERE `addr` = '%s'",
+				dbesc($addr));
+
+	if (!dbm::is_result($r)) {
+		require_once('include/Probe.php');
+		$data = Probe::uri($addr);
+
+		$profile = get_contact_details_by_url($data['url'], $uid);
+	} else {
+		$profile = $r[0];
+	}
+
+	return $profile;
+}
+
 if (! function_exists('contact_photo_menu')) {
 function contact_photo_menu($contact, $uid = 0)
 {
@@ -457,72 +507,96 @@ function contacts_not_grouped($uid,$start = 0,$count = 0) {
 /**
  * @brief Fetch the contact id for a given url and user
  *
+ * First lookup in the contact table to find a record matching either `url`, `nurl`,
+ * `addr` or `alias`.
+ *
+ * If there's no record and we aren't looking for a public contact, we quit.
+ * If there's one, we check that it isn't time to update the picture else we
+ * directly return the found contact id.
+ *
+ * Second, we probe the provided $url wether it's http://server.tld/profile or
+ * nick@server.tld. We quit if we can't get any info back.
+ *
+ * Third, we create the contact record if it doesn't exist
+ *
+ * Fourth, we update the existing record with the new data (avatar, alias, nick)
+ * if there's any updates
+ *
  * @param string $url Contact URL
- * @param integer $uid The user id for the contact
+ * @param integer $uid The user id for the contact (0 = public contact)
  * @param boolean $no_update Don't update the contact
  *
  * @return integer Contact ID
  */
 function get_contact($url, $uid = 0, $no_update = false) {
-	require_once("include/Scrape.php");
-
 	logger("Get contact data for url ".$url." and user ".$uid." - ".App::callstack(), LOGGER_DEBUG);;
 
 	$data = array();
-	$contactid = 0;
+	$contact_id = 0;
 
-	// is it an address in the format user@server.tld?
-	/// @todo use gcontact and/or the addr field for a lookup
-	if (!strstr($url, "http") OR strstr($url, "@")) {
-		$data = probe_url($url);
-		$url = $data["url"];
-		if ($url == "")
-			return 0;
-	}
-
-	$contact = q("SELECT `id`, `avatar-date` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d ORDER BY `id` LIMIT 2",
+	// We first try the nurl (http://server.tld/nick), most common case
+	$contacts = q("SELECT `id`, `avatar-date` FROM `contact`
+					WHERE `nurl` = '%s'
+					AND `uid` = %d",
 			dbesc(normalise_link($url)),
 			intval($uid));
 
-	if (!$contact)
-		$contact = q("SELECT `id`, `avatar-date` FROM `contact` WHERE `alias` IN ('%s', '%s') AND `uid` = %d ORDER BY `id` LIMIT 1",
-				dbesc($url),
-				dbesc(normalise_link($url)),
-				intval($uid));
 
-	if ($contact) {
-		$contactid = $contact[0]["id"];
+	// Then the addr (nick@server.tld)
+	if (! dbm::is_result($contacts)) {
+		$contacts = q("SELECT `id`, `avatar-date` FROM `contact`
+					WHERE `addr` = '%s'
+					AND `uid` = %d",
+			dbesc($url),
+			intval($uid));
+	}
+
+	// Then the alias (which could be anything)
+	if (! dbm::is_result($contacts)) {
+		$contacts = q("SELECT `id`, `avatar-date` FROM `contact`
+					WHERE `alias` IN ('%s', '%s')
+					AND `uid` = %d",
+			dbesc($url),
+			dbesc(normalise_link($url)),
+			intval($uid));
+	}
+
+	if (dbm::is_result($contacts)) {
+		$contact_id = $contacts[0]["id"];
 
 		// Update the contact every 7 days
-		$update_photo = ($contact[0]['avatar-date'] < datetime_convert('','','now -7 days'));
-		//$update_photo = ($contact[0]['avatar-date'] < datetime_convert('','','now -12 hours'));
+		$update_photo = ($contacts[0]['avatar-date'] < datetime_convert('','','now -7 days'));
 
 		if (!$update_photo OR $no_update) {
-			return($contactid);
+			return $contact_id;
 		}
-	} elseif ($uid != 0)
+	} elseif ($uid != 0) {
+		// Non-existing user-specific contact, exiting
 		return 0;
+	}
 
-	if (!count($data))
-		$data = probe_url($url);
+	require_once('include/Probe.php');
+	$data = Probe::uri($url);
 
-	// Does this address belongs to a valid network?
-	if (!in_array($data["network"], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA))) {
-		if ($uid != 0)
+	// Last try in gcontact for unsupported networks
+	if (!in_array($data["network"], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_PUMPIO))) {
+		if ($uid != 0) {
 			return 0;
+		}
 
 		// Get data from the gcontact table
-		$r = q("SELECT `name`, `nick`, `url`, `photo`, `addr`, `alias`, `network` FROM `gcontact` WHERE `nurl` = '%s'",
+		$gcontacts = q("SELECT `name`, `nick`, `url`, `photo`, `addr`, `alias`, `network` FROM `gcontact` WHERE `nurl` = '%s'",
 			 dbesc(normalise_link($url)));
-		if (!$r)
+		if (!$gcontacts) {
 			return 0;
+		}
 
-		$data = $r[0];
+		$data = $gcontacts[0];
 	}
 
 	$url = $data["url"];
 
-	if ($contactid == 0) {
+	if (!$contact_id) {
 		q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `addr`, `alias`, `notify`, `poll`,
 					`name`, `nick`, `photo`, `network`, `pubkey`, `rel`, `priority`,
 					`batch`, `request`, `confirm`, `poco`, `name-date`, `uri-date`,
@@ -551,45 +625,48 @@ function get_contact($url, $uid = 0, $no_update = false) {
 			dbesc(datetime_convert())
 		);
 
-		$contact = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d ORDER BY `id` LIMIT 2",
+		$contacts = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d ORDER BY `id` LIMIT 2",
 				dbesc(normalise_link($data["url"])),
 				intval($uid));
-		if (!$contact)
+		if (!dbm::is_result($contacts)) {
 			return 0;
+		}
 
-		$contactid = $contact[0]["id"];
+		$contact_id = $contacts[0]["id"];
 
 		// Update the newly created contact from data in the gcontact table
-		$r = q("SELECT `location`, `about`, `keywords`, `gender` FROM `gcontact` WHERE `nurl` = '%s'",
+		$gcontacts = q("SELECT `location`, `about`, `keywords`, `gender` FROM `gcontact` WHERE `nurl` = '%s'",
 			 dbesc(normalise_link($data["url"])));
-		if ($r) {
-			logger("Update contact ".$data["url"]);
+		if (dbm::is_result($gcontacts)) {
+			logger("Update contact " . $data["url"] . ' from gcontact');
 			q("UPDATE `contact` SET `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `id` = %d",
-				dbesc($r["location"]), dbesc($r["about"]), dbesc($r["keywords"]),
-				dbesc($r["gender"]), intval($contactid));
+				dbesc($gcontacts[0]["location"]), dbesc($gcontacts[0]["about"]), dbesc($gcontacts[0]["keywords"]),
+				dbesc($gcontacts[0]["gender"]), intval($contact_id));
 		}
 	}
 
-	if ((count($contact) > 1) AND ($uid == 0) AND ($contactid != 0) AND ($url != ""))
-		q("DELETE FROM `contact` WHERE `nurl` = '%s' AND `id` != %d",
+	if (count($contacts) > 1 AND $uid == 0 AND $contact_id != 0 AND $url != "") {
+		q("DELETE FROM `contact` WHERE `nurl` = '%s' AND `id` != %d AND NOT `self`",
 			dbesc(normalise_link($url)),
-			intval($contactid));
+			intval($contact_id));
+	}
 
-	require_once("Photo.php");
+	require_once "Photo.php";
 
-	update_contact_avatar($data["photo"],$uid,$contactid);
+	update_contact_avatar($data["photo"], $uid, $contact_id);
 
-	$r = q("SELECT `addr`, `alias`, `name`, `nick` FROM `contact`  WHERE `id` = %d", intval($contactid));
+	$contacts = q("SELECT `addr`, `alias`, `name`, `nick` FROM `contact` WHERE `id` = %d", intval($contact_id));
 
 	// This condition should always be true
-	if (!dbm::is_result($r))
-		return $contactid;
+	if (!dbm::is_result($contacts)) {
+		return $contact_id;
+	}
 
 	// Only update if there had something been changed
-	if (($data["addr"] != $r[0]["addr"]) OR
-		($data["alias"] != $r[0]["alias"]) OR
-		($data["name"] != $r[0]["name"]) OR
-		($data["nick"] != $r[0]["nick"]))
+	if ($data["addr"] != $contacts[0]["addr"] OR
+		$data["alias"] != $contacts[0]["alias"] OR
+		$data["name"] != $contacts[0]["name"] OR
+		$data["nick"] != $contacts[0]["nick"]) {
 		q("UPDATE `contact` SET `addr` = '%s', `alias` = '%s', `name` = '%s', `nick` = '%s',
 			`name-date` = '%s', `uri-date` = '%s' WHERE `id` = %d",
 			dbesc($data["addr"]),
@@ -598,10 +675,11 @@ function get_contact($url, $uid = 0, $no_update = false) {
 			dbesc($data["nick"]),
 			dbesc(datetime_convert()),
 			dbesc(datetime_convert()),
-			intval($contactid)
+			intval($contact_id)
 		);
+	}
 
-	return $contactid;
+	return $contact_id;
 }
 
 /**
@@ -677,6 +755,10 @@ function posts_from_contact_url(App $a, $contact_url) {
 		$sql = "(`item`.`uid` = 0 OR (`item`.`uid` = %d AND `item`.`private`))";
 	} else {
 		$sql = "`item`.`uid` = %d";
+	}
+
+	if (!dbm::is_result($r)) {
+		return '';
 	}
 
 	$author_id = intval($r[0]["author-id"]);

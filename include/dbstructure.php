@@ -187,7 +187,8 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 	// Compare it
 	foreach ($definition AS $name => $structure) {
 		$is_new_table = False;
-		$sql3="";
+		$group_by = "";
+		$sql3 = "";
 		if (!isset($database[$name])) {
 			$r = db_create_table($name, $structure["fields"], $charset, $verbose, $action, $structure['indexes']);
 			if (!dbm::is_result($r)) {
@@ -208,10 +209,9 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 				if ($current_index_definition != $new_index_definition) {
 					if ($fieldnames[0] == "UNIQUE") {
 						$is_unique = true;
-						// Deactivated. See below for the reason
-						//if ($ignore == "") {
-						//	$temp_name = "temp-".$name;
-						//}
+						if ($ignore == "") {
+							$temp_name = "temp-".$name;
+						}
 					}
 				}
 			}
@@ -242,7 +242,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 				if (!isset($database[$name]["fields"][$fieldname])) {
 					$sql2=db_add_table_field($fieldname, $parameters);
 					if ($sql3 == "") {
-						$sql3 = "ALTER TABLE `".$temp_name."` ".$sql2;
+						$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
 					} else {
 						$sql3 .= ", ".$sql2;
 					}
@@ -253,7 +253,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 					if ($current_field_definition != $new_field_definition) {
 						$sql2=db_modify_table_field($fieldname, $parameters);
 						if ($sql3 == "") {
-							$sql3 = "ALTER TABLE `".$temp_name."` ".$sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
 						} else {
 							$sql3 .= ", ".$sql2;
 						}
@@ -277,7 +277,12 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 				}
 				$new_index_definition = implode(",",$fieldnames);
 				if ($current_index_definition != $new_index_definition) {
-					$sql2=db_create_index($indexname, $fieldnames);
+					$sql2 = db_create_index($indexname, $fieldnames);
+
+					// Fetch the "group by" fields for unique indexes
+					if ($fieldnames[0] == "UNIQUE") {
+						$group_by = db_group_by($indexname, $fieldnames);
+					}
 					if ($sql2 != "") {
 						if ($sql3 == "")
 							$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
@@ -293,44 +298,38 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 			if ($verbose) {
 				// Ensure index conversion to unique removes duplicates
 				if ($is_unique) {
-					// By now the alternative is commented out.
-					// This is a preparation for the time when we found a good SQL routine.
-					//if ($ignore != "") {
+					if ($ignore != "") {
 						echo "SET session old_alter_table=1;\n";
-					//} else {
-					//	echo "CREATE TABLE `".$temp_name."` LIKE `".$name."`;\n";
-					//}
+					} else {
+						echo "CREATE TABLE `".$temp_name."` LIKE `".$name."`;\n";
+					}
 				}
 
 				echo $sql3."\n";
 
 				if ($is_unique) {
-					// By now the alternative is commented out.
-					// This is a preparation for the time when we found a good SQL routine.
-					//if ($ignore != "") {
+					if ($ignore != "") {
 						echo "SET session old_alter_table=0;\n";
-					//} else {
-					//	echo "INSERT IGNORE INTO `".$temp_name."` SELECT * FROM `".$name."`;\n";
-					//	echo "DROP TABLE `".$name."`;\n";
-					//	echo "RENAME TABLE `".$temp_name."` TO `".$name."`;\n";
-					//}
+					} else {
+						echo "INSERT INTO `".$temp_name."` SELECT * FROM `".$name."`".$group_by.";\n";
+						echo "DROP TABLE `".$name."`;\n";
+						echo "RENAME TABLE `".$temp_name."` TO `".$name."`;\n";
+					}
 				}
 			}
 
 			if ($action) {
 				// Ensure index conversion to unique removes duplicates
 				if ($is_unique) {
-					// By now the alternative is commented out.
-					// This is a preparation for the time when we found a good SQL routine.
-					//if ($ignore != "") {
+					if ($ignore != "") {
 						$db->q("SET session old_alter_table=1;");
-					//} else {
-					//	$r = $db->q("CREATE TABLE `".$temp_name."` LIKE `".$name."`;");
-					//	if (!dbm::is_result($r)) {
-					//		$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
-					//		return $errors;
-					//	}
-					//}
+					} else {
+						$r = $db->q("CREATE TABLE `".$temp_name."` LIKE `".$name."`;");
+						if (!dbm::is_result($r)) {
+							$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
+							return $errors;
+						}
+					}
 				}
 
 				$r = @$db->q($sql3);
@@ -338,28 +337,25 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 					$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
 
 				if ($is_unique) {
-					// By now the alternative is commented out.
-					// This is a preparation for the time when we found a good SQL routine.
-					//if ($ignore != "") {
+					if ($ignore != "") {
 						$db->q("SET session old_alter_table=0;");
-					//} else {
-					//	We have to check if "INSERT IGNORE" will work on newer MySQL versions
-					//	$r = $db->q("INSERT IGNORE INTO `".$temp_name."` SELECT * FROM `".$name."`;");
-					//	if (!dbm::is_result($r)) {
-					//		$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
-					//		return $errors;
-					//	}
-					//	$r = $db->q("DROP TABLE `".$name."`;");
-					//	if (!dbm::is_result($r)) {
-					//		$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
-					//		return $errors;
-					//	}
-					//	$r = $db->q("RENAME TABLE `".$temp_name."` TO `".$name."`;");
-					//	if (!dbm::is_result($r)) {
-					//		$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
-					//		return $errors;
-					//	}
-					//}
+					} else {
+						$r = $db->q("INSERT INTO `".$temp_name."` SELECT * FROM `".$name."`".$group_by.";");
+						if (!dbm::is_result($r)) {
+							$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
+							return $errors;
+						}
+						$r = $db->q("DROP TABLE `".$name."`;");
+						if (!dbm::is_result($r)) {
+							$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
+							return $errors;
+						}
+						$r = $db->q("RENAME TABLE `".$temp_name."` TO `".$name."`;");
+						if (!dbm::is_result($r)) {
+							$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
+							return $errors;
+						}
+					}
 				}
 			}
 		}
@@ -475,6 +471,30 @@ function db_create_index($indexname, $fieldnames, $method="ADD") {
 
 	$sql = sprintf("%s INDEX `%s` (%s)", $method, dbesc($indexname), $names);
 	return($sql);
+}
+
+function db_group_by($indexname, $fieldnames) {
+
+	if ($fieldnames[0] != "UNIQUE") {
+		return "";
+	}
+
+	array_shift($fieldnames);
+
+	$names = "";
+	foreach ($fieldnames AS $fieldname) {
+		if ($names != "")
+			$names .= ",";
+
+		if (preg_match('|(.+)\((\d+)\)|', $fieldname, $matches)) {
+			$names .= "`".dbesc($matches[1])."`";
+		} else {
+			$names .= "`".dbesc($fieldname)."`";
+		}
+	}
+
+	$sql = sprintf(" GROUP BY %s", $names);
+	return $sql;
 }
 
 function db_index_suffix($charset, $reduce = 0) {
@@ -1020,6 +1040,7 @@ function db_definition($charset) {
 					"parent-uri" => array("parent-uri"),
 					"extid" => array("extid"),
 					"uid_id" => array("uid","id"),
+					"uid_contactid_id" => array("uid","contact-id","id"),
 					"uid_created" => array("uid","created"),
 					"uid_unseen_contactid" => array("uid","unseen","contact-id"),
 					"uid_network_received" => array("uid","network","received"),
@@ -1505,6 +1526,7 @@ function db_definition($charset) {
 					"uid_contactid_created" => array("uid","contact-id","created"),
 					"uid_created" => array("uid","created"),
 					"uid_commented" => array("uid","commented"),
+					"uid_wall_created" => array("uid","wall","created"),
 					)
 			);
 	$database["tokens"] = array(

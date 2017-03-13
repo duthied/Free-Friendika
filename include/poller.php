@@ -11,7 +11,6 @@ if (!file_exists("boot.php") AND (sizeof($_SERVER["argv"]) != 0)) {
 }
 
 use \Friendica\Core\Config;
-use \Friendica\Core\PConfig;
 
 require_once("boot.php");
 
@@ -28,6 +27,8 @@ function poller_run($argv, $argc){
 		$db = new dba($db_host, $db_user, $db_pass, $db_data);
 		unset($db_host, $db_user, $db_pass, $db_data);
 	};
+
+	Config::load();
 
 	// Quit when in maintenance
 	if (Config::get('system', 'maintenance', true)) {
@@ -205,6 +206,16 @@ function poller_exec_function($queue, $funcname, $argv) {
 	$a->process_id = $old_process_id;
 
 	$duration = number_format(microtime(true) - $stamp, 3);
+
+	if ($duration > 3600) {
+		logger("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 1 hour (".round($duration/60, 3).")", LOGGER_DEBUG);
+	} elseif ($duration > 600) {
+		logger("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 10 minutes (".round($duration/60, 3).")", LOGGER_DEBUG);
+	} elseif ($duration > 300) {
+		logger("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 5 minutes (".round($duration/60, 3).")", LOGGER_DEBUG);
+	} elseif ($duration > 120) {
+		logger("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 2 minutes (".round($duration/60, 3).")", LOGGER_DEBUG);
+	}
 
 	logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".$duration." seconds.");
 

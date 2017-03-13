@@ -622,7 +622,7 @@ function poco_last_updated($profile, $force = false) {
 			$last_updated = "0000-00-00 00:00:00";
 
 	q("UPDATE `gcontact` SET `updated` = '%s', `last_contact` = '%s' WHERE `nurl` = '%s'",
-		dbesc($last_updated), dbesc(datetime_convert()), dbesc(normalise_link($profile)));
+		dbesc(dbm::date($last_updated)), dbesc(dbm::date()), dbesc(normalise_link($profile)));
 
 	if (($gcontacts[0]["generation"] == 0))
 		q("UPDATE `gcontact` SET `generation` = 9 WHERE `nurl` = '%s'",
@@ -690,7 +690,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		return false;
 
 	$servers = q("SELECT * FROM `gserver` WHERE `nurl` = '%s'", dbesc(normalise_link($server_url)));
-	if ($servers) {
+	if (dbm::is_result($servers)) {
 
 		if ($servers[0]["created"] == "0000-00-00 00:00:00")
 			q("UPDATE `gserver` SET `created` = '%s' WHERE `nurl` = '%s'",
@@ -732,21 +732,40 @@ function poco_check_server($server_url, $network = "", $force = false) {
 	$orig_last_failure = $last_failure;
 
 	// Check if the page is accessible via SSL.
+	$orig_server_url = $server_url;
 	$server_url = str_replace("http://", "https://", $server_url);
-	$serverret = z_fetch_url($server_url."/.well-known/host-meta");
+
+	// We set the timeout to 20 seconds since this operation should be done in no time if the server was vital
+	$serverret = z_fetch_url($server_url."/.well-known/host-meta", false, $redirects, array('timeout' => 20));
+
+	// Quit if there is a timeout.
+	// But we want to make sure to only quit if we are mostly sure that this server url fits.
+	if (dbm::is_result($servers) AND ($orig_server_url == $server_url) AND
+		($serverret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
+		logger("Connection to server ".$server_url." timed out.", LOGGER_DEBUG);
+		return false;
+	}
 
 	// Maybe the page is unencrypted only?
 	$xmlobj = @simplexml_load_string($serverret["body"],'SimpleXMLElement',0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
 	if (!$serverret["success"] OR ($serverret["body"] == "") OR (@sizeof($xmlobj) == 0) OR !is_object($xmlobj)) {
 		$server_url = str_replace("https://", "http://", $server_url);
-		$serverret = z_fetch_url($server_url."/.well-known/host-meta");
+
+		// We set the timeout to 20 seconds since this operation should be done in no time if the server was vital
+		$serverret = z_fetch_url($server_url."/.well-known/host-meta", false, $redirects, array('timeout' => 20));
+
+		// Quit if there is a timeout
+		if ($serverret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+			logger("Connection to server ".$server_url." timed out.", LOGGER_DEBUG);
+			return false;
+		}
 
 		$xmlobj = @simplexml_load_string($serverret["body"],'SimpleXMLElement',0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
 	}
 
 	if (!$serverret["success"] OR ($serverret["body"] == "") OR (sizeof($xmlobj) == 0) OR !is_object($xmlobj)) {
 		// Workaround for bad configured servers (known nginx problem)
-		if ($serverret["debug"]["http_code"] != "403") {
+		if (!in_array($serverret["debug"]["http_code"], array("403", "404"))) {
 			$last_failure = datetime_convert();
 			$failure = true;
 		}
@@ -1244,18 +1263,20 @@ function poco_discover_federation() {
 			poco_check_server("https://".$server->host);
 	}
 
-	// Discover GNU Social Servers
-	if (!get_config('system','ostatus_disabled')) {
-		$serverdata = "http://gstools.org/api/get_open_instances/";
+	// Currently disabled, since the service isn't available anymore.
+	// It is not removed since I hope that there will be a successor.
+	// Discover GNU Social Servers.
+	//if (!get_config('system','ostatus_disabled')) {
+	//	$serverdata = "http://gstools.org/api/get_open_instances/";
 
-		$result = z_fetch_url($serverdata);
-		if ($result["success"]) {
-			$servers = json_decode($result["body"]);
+	//	$result = z_fetch_url($serverdata);
+	//	if ($result["success"]) {
+	//		$servers = json_decode($result["body"]);
 
-			foreach($servers->data AS $server)
-				poco_check_server($server->instance_address);
-		}
-	}
+	//		foreach($servers->data AS $server)
+	//			poco_check_server($server->instance_address);
+	//	}
+	//}
 
 	set_config('poco','last_federation_discovery', time());
 }
@@ -1607,6 +1628,11 @@ function get_gcontact_id($contact) {
  * @return bool|int Returns false if not found, integer if contact was found
  */
 function update_gcontact($contact) {
+
+	// Check for invalid "contact-type" value
+	if (isset($contact['contact-type']) AND (intval($contact['contact-type']) < 0)) {
+		$contact['contact-type'] = 0;
+	}
 
 	/// @todo update contact table as well
 
