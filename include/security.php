@@ -141,9 +141,6 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 			new_cookie(604800, $user_record);
 			unset($_SESSION['remember']);
 		}
-		else {
-			new_cookie(0); // 0 means delete on browser exit
-		}
 	}
 
 

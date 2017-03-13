@@ -179,6 +179,10 @@ if (isset($_SESSION) && x($_SESSION,'authenticated') && (!x($_POST,'auth-params'
 			goaway(z_root());
 		}
 
+		if ( ! $_POST['remember']) {
+			new_cookie(0); // 0 means delete on browser exit
+		}
+
 		// if we haven't failed up this point, log them in.
 		$_SESSION['remember'] = $_POST['remember'];
 		$_SESSION['last_login_date'] = datetime_convert('UTC','UTC');
