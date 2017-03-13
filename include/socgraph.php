@@ -431,7 +431,7 @@ function poco_detect_server($profile) {
 	// Wild guess
 	if ($server_url == "") {
 		$base = preg_replace("=(https?://)(.*?)/(.*)=ism", "$1$2", $profile);
-		if (base != $profile) {
+		if ($base != $profile) {
 			$server_url = $base;
 			$network = NETWORK_PHANTOM;
 		}
@@ -1303,7 +1303,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 			dbesc($last_failure),
 			dbesc(normalise_link($server_url))
 		);
-	} elseif (!$failure)
+	} elseif (!$failure) {
 		q("INSERT INTO `gserver` (`url`, `nurl`, `version`, `site_name`, `info`, `register_policy`, `poco`, `noscrape`, `network`, `platform`, `created`, `last_contact`, `last_failure`)
 					VALUES ('%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
 				dbesc($server_url),
@@ -1321,7 +1321,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 				dbesc($last_failure),
 				dbesc(datetime_convert())
 		);
-
+	}
 	logger("End discovery for server ".$server_url, LOGGER_DEBUG);
 
 	return !$failure;

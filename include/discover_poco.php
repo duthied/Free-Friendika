@@ -29,6 +29,14 @@ function discover_poco_run(&$argv, &$argc){
 		if ($a->maxload_reached())
 			return;
 
+	/*
+	This function can be called in these ways:
+	- dirsearch <search pattern>: Searches for "search pattern" in the directory. "search pattern" is url encoded.
+	- checkcontact: Updates gcontact entries
+	- suggestions: Discover other servers for their contacts.
+	- server <poco url>: Searches for the poco server list. "poco url" is base64 encoded.
+	*/
+
 	if(($argc > 2) && ($argv[1] == "dirsearch")) {
 		$search = urldecode($argv[2]);
 		$mode = 1;
