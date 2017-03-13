@@ -131,7 +131,6 @@
 	{{include file="field_input.tpl" field=$lockpath}}
 	{{include file="field_input.tpl" field=$temppath}}
 	{{include file="field_input.tpl" field=$basepath}}
-	{{include file="field_checkbox.tpl" field=$suppress_language}}
 	{{include file="field_checkbox.tpl" field=$suppress_tags}}
 	{{include file="field_checkbox.tpl" field=$nodeinfo}}
 	{{include file="field_input.tpl" field=$embedly}}
