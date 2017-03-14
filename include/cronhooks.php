@@ -45,7 +45,7 @@ function cronhooks_run(&$argv, &$argc){
 
 	logger('cronhooks: end');
 
-	set_config('system','last_cronhook', time());
+	set_config('system', 'last_cronhook', time());
 
 	return;
 }
