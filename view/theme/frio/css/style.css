@@ -2514,6 +2514,24 @@ body .tread-wrapper .hovercard:hover .hover-card-content a {
     color: $link_color !important;
 }
 
+/* Pagination improvements */
+.pagination > li > a,
+.pagination > li > span {
+	color: $link_color;
+}
+.pagination>.active>a,
+.pagination>.active>a:focus,
+.pagination>.active>a:hover,
+.pagination>.active>span,
+.pagination>.active>span:focus,
+.pagination>.active>span:hover {
+	background-color: $link_color;
+    border-color: $link_color;
+}
+.disabled > a {
+	pointer-events: none;
+}
+
 /*
  * some temporary workarounds until this will solved
  * elsewhere (e.g. new templates)

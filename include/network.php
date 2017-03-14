@@ -118,7 +118,9 @@ function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 
 	$check_cert = get_config('system','verifyssl');
 	@curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (($check_cert) ? true : false));
-	@curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, (($check_cert) ? 2 : false));
+	if ($check_cert) {
+		@curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+	}
 
 	$prx = get_config('system','proxy');
 	if(strlen($prx)) {
@@ -140,6 +142,8 @@ function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 	if (curl_errno($ch) !== CURLE_OK) {
 		logger('fetch_url error fetching '.$url.': '.curl_error($ch), LOGGER_NORMAL);
 	}
+
+	$ret['errno'] = curl_errno($ch);
 
 	$base = $s;
 	$curl_info = @curl_getinfo($ch);
@@ -265,7 +269,9 @@ function post_url($url,$params, $headers = null, &$redirects = 0, $timeout = 0) 
 
 	$check_cert = get_config('system','verifyssl');
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (($check_cert) ? true : false));
-	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, (($check_cert) ? 2 : false));
+	if ($check_cert) {
+		@curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+	}
 	$prx = get_config('system','proxy');
 	if(strlen($prx)) {
 		curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, 1);

@@ -61,6 +61,8 @@ Here's a few primers if you are new to Friendica or to the PSR-2 coding standard
 Don't worry, you don't have to know by heart the PSR-2 coding standards to start contributing to Friendica.
 There are a few tools you can use to check or fix your files before you commit.
 
+For documentation we use the standard of *one sentence per line* for the `md` files in the `/doc` and `/doc/$lng` subdirectories.
+
 ####Check with [PHP Code Sniffer](https://github.com/squizlabs/PHP_CodeSniffer)
 
 This tool checks your files against a variety of coding standards, including PSR-2, and ouputs a report of all the standard violations.

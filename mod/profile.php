@@ -240,21 +240,15 @@ function profile_content(App $a, $update = 0) {
 			$sql_extra2 .= protect_sprintf(sprintf(" AND `thread`.`created` >= '%s' ", dbesc(datetime_convert(date_default_timezone_get(),'',$datequery2))));
 		}
 
-		if(get_config('system', 'old_pager')) {
-		    $r = q("SELECT COUNT(*) AS `total`
-			    FROM `thread` INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
-			    $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
-			    AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-			    WHERE `thread`.`uid` = %d AND `thread`.`visible` = 1 AND `thread`.`deleted` = 0
-			    and `thread`.`moderated` = 0
-			    AND `thread`.`wall` = 1
-			    $sql_extra $sql_extra2 ",
-			    intval($a->profile['profile_uid'])
-			);
+		// Belongs the profile page to a forum?
+		// If not then we can improve the performance with an additional condition
+		$r = q("SELECT `uid` FROM `user` WHERE `uid` = %d AND `page-flags` IN (%d, %d)",
+			intval($a->profile['profile_uid']),
+			intval(PAGE_COMMUNITY),
+			intval(PAGE_PRVGROUP));
 
-			if (dbm::is_result($r)) {
-				$a->set_pager_total($r[0]['total']);
-			}
+		if (!dbm::is_result($r)) {
+			$sql_extra3 = sprintf(" AND `thread`.`contact-id` = %d ", intval(intval($a->profile['contact_id'])));
 		}
 
 		//  check if we serve a mobile device and get the user settings
@@ -282,14 +276,12 @@ function profile_content(App $a, $update = 0) {
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
 				AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
 			WHERE `thread`.`uid` = %d AND `thread`.`visible`
-				AND `thread`.`contact-id` = %d
 				AND NOT `thread`.`deleted`
 				AND NOT `thread`.`moderated`
 				AND `thread`.`wall`
-				$sql_extra $sql_extra2
+				$sql_extra3 $sql_extra $sql_extra2
 			ORDER BY `thread`.`created` DESC $pager_sql",
-			intval($a->profile['profile_uid']),
-			intval($a->profile['contact_id'])
+			intval($a->profile['profile_uid'])
 		);
 	}
 
@@ -326,14 +318,10 @@ function profile_content(App $a, $update = 0) {
 		);
 	}
 
-	$o .= conversation($a,$items,'profile',$update);
+	$o .= conversation($a, $items, 'profile', $update);
 
-	if(! $update) {
-		if(!get_config('system', 'old_pager')) {
-			$o .= alt_pager($a,count($items));
-		} else {
-			$o .= paginate($a);
-		}
+	if (!$update) {
+		$o .= alt_pager($a, count($items));
 	}
 
 	return $o;

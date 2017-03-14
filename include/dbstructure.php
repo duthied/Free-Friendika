@@ -242,7 +242,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 				if (!isset($database[$name]["fields"][$fieldname])) {
 					$sql2=db_add_table_field($fieldname, $parameters);
 					if ($sql3 == "") {
-						$sql3 = "ALTER TABLE `".$temp_name."` ".$sql2;
+						$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
 					} else {
 						$sql3 .= ", ".$sql2;
 					}
@@ -253,7 +253,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 					if ($current_field_definition != $new_field_definition) {
 						$sql2=db_modify_table_field($fieldname, $parameters);
 						if ($sql3 == "") {
-							$sql3 = "ALTER TABLE `".$temp_name."` ".$sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
 						} else {
 							$sql3 .= ", ".$sql2;
 						}
@@ -1526,6 +1526,7 @@ function db_definition($charset) {
 					"uid_contactid_created" => array("uid","contact-id","created"),
 					"uid_created" => array("uid","created"),
 					"uid_commented" => array("uid","commented"),
+					"uid_wall_created" => array("uid","wall","created"),
 					)
 			);
 	$database["tokens"] = array(
