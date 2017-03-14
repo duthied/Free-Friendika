@@ -291,8 +291,8 @@ function paginate_data(App $a, $count = null) {
 	}
 
 	$url = $stripped;
-
 	$data = array();
+
 	function _l(&$d, $name, $url, $text, $class = '') {
 		if (strpos($url, '?') === false && ($pos = strpos($url, '&')) !== false) {
 			$url = substr($url, 0, $pos) . '?' . substr($url, $pos + 1);
@@ -318,9 +318,10 @@ function paginate_data(App $a, $count = null) {
 			$numstart = 1;
 			$numstop = $numpages;
 
-			if ($numpages > 14) {
-				$numstart = (($pagenum > 7) ? ($pagenum - 7) : 1);
-				$numstop = (($pagenum > ($numpages - 7)) ? $numpages : ($numstart + 14));
+			// Limit the number of displayed page number buttons.
+			if ($numpages > 8) {
+				$numstart = (($pagenum > 4) ? ($pagenum - 4) : 1);
+				$numstop = (($pagenum > ($numpages - 7)) ? $numpages : ($numstart + 8));
 			}
 
 			$pages = array();
