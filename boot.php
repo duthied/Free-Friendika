@@ -38,7 +38,7 @@ require_once('include/dbstructure.php');
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
-define ( 'FRIENDICA_VERSION',      '3.5.1' );
+define ( 'FRIENDICA_VERSION',      '3.5.2-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
 define ( 'DB_UPDATE_VERSION',      1215      );
 
@@ -1889,9 +1889,33 @@ function goaway($s) {
  * @return int|bool user id or false
  */
 function local_user() {
-	if((x($_SESSION,'authenticated')) && (x($_SESSION,'uid')))
+	if (x($_SESSION, 'authenticated') && x($_SESSION, 'uid')) {
 		return intval($_SESSION['uid']);
+	}
 	return false;
+}
+
+/**
+ * @brief Returns the public contact id of logged in user or false.
+ *
+ * @return int|bool public contact id or false
+ */
+function public_contact() {
+	static $public_contact_id = false;
+
+	if (!$public_contact_id && x($_SESSION, 'authenticated')) {
+		if (x($_SESSION, 'my_address')) {
+			// Local user
+			$public_contact_id = intval(get_contact($_SESSION['my_address'], 0));
+		} else if (x($_SESSION, 'visitor_home')) {
+			// Remote user
+			$public_contact_id = intval(get_contact($_SESSION['visitor_home'], 0));
+		}
+	} else if (!x($_SESSION, 'authenticated')) {
+		$public_contact_id = false;
+	}
+
+	return $public_contact_id;
 }
 
 /**
