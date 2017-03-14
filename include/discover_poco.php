@@ -124,7 +124,6 @@ function update_server() {
 		if (!poco_do_update($server["created"], "", $server["last_failure"], $server["last_contact"])) {
 			continue;
 		}
-echo $server["url"]."\n";
 		logger('Update server status for server '.$server["url"], LOGGER_DEBUG);
 
 		proc_run(PRIORITY_LOW, "include/discover_poco.php", "server", base64_encode($server["url"]));
