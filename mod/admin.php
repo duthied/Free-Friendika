@@ -660,7 +660,6 @@ function admin_page_site_post(App $a) {
 	$basepath		=	((x($_POST,'basepath'))			? notags(trim($_POST['basepath']))		: '');
 	$singleuser		=	((x($_POST,'singleuser'))		? notags(trim($_POST['singleuser']))		: '');
 	$proxy_disabled		=	((x($_POST,'proxy_disabled'))		? True						: False);
-	$old_pager		=	((x($_POST,'old_pager'))		? True						: False);
 	$only_tag_search	=	((x($_POST,'only_tag_search'))		? True						: False);
 	$rino			=	((x($_POST,'rino'))			? intval($_POST['rino'])			: 0);
 	$embedly		=	((x($_POST,'embedly'))			? notags(trim($_POST['embedly']))		: '');
@@ -811,7 +810,6 @@ function admin_page_site_post(App $a) {
 	set_config('system','temppath', $temppath);
 	set_config('system','basepath', $basepath);
 	set_config('system','proxy_disabled', $proxy_disabled);
-	set_config('system','old_pager', $old_pager);
 	set_config('system','only_tag_search', $only_tag_search);
 	set_config('system','worker', $worker);
 	set_config('system','worker_queues', $worker_queues);
@@ -1055,7 +1053,6 @@ function admin_page_site(App $a) {
 		'$temppath'		=> array('temppath', t("Temp path"), get_config('system','temppath'), t("If you have a restricted system where the webserver can't access the system temp path, enter another path here.")),
 		'$basepath'		=> array('basepath', t("Base path to installation"), get_config('system','basepath'), t("If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot.")),
 		'$proxy_disabled'	=> array('proxy_disabled', t("Disable picture proxy"), get_config('system','proxy_disabled'), t("The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith.")),
-		'$old_pager'		=> array('old_pager', t("Enable old style pager"), get_config('system','old_pager'), t("The old style pager has page numbers but slows down massively the page speed.")),
 		'$only_tag_search'	=> array('only_tag_search', t("Only search in tags"), get_config('system','only_tag_search'), t("On large systems the text search can slow down the system extremely.")),
 
 		'$relocate_url'		=> array('relocate_url', t("New base url"), App::get_baseurl(), t("Change base url for this server. Sends relocate message to all DFRN contacts of all users.")),
