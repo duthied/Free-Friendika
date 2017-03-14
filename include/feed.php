@@ -177,6 +177,10 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 	foreach (array_reverse($entrylist) AS $entry) {
 		$item = array_merge($header, $author);
 
+		$alternate = $xpath->query("atom:link[@rel='alternate']", $entry)->item(0)->attributes;
+		if (!is_object($alternate))
+			$alternate = $xpath->query("atom:link", $entry)->item(0)->attributes;
+
 		if (is_object($alternate))
 			foreach($alternate AS $attributes)
 				if ($attributes->name == "href")
@@ -216,10 +220,6 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 
 		if ($item["title"] == "")
 			$item["title"] = $xpath->evaluate('rss:title/text()', $entry)->item(0)->nodeValue;
-
-		$alternate = $xpath->query("atom:link[@rel='alternate']", $entry)->item(0)->attributes;
-		if (!is_object($alternate))
-			$alternate = $xpath->query("atom:link", $entry)->item(0)->attributes;
 
 		$published = $xpath->query('atom:published/text()', $entry)->item(0)->nodeValue;
 
