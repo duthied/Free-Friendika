@@ -2,7 +2,7 @@
 use \Friendica\Core\Config;
 
 require_once('include/items.php');
-require_once("include/ostatus.php");
+require_once('include/ostatus.php');
 
 function pubsubpublish_run(&$argv, &$argc){
 

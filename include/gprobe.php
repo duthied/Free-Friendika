@@ -7,9 +7,9 @@ require_once('include/socgraph.php');
 require_once('include/datetime.php');
 
 function gprobe_run(&$argv, &$argc){
-	if($argc != 2)
+	if ($argc != 2) {
 		return;
-
+	}
 	$url = hex2bin($argv[1]);
 
 	$r = q("SELECT `id`, `url`, `network` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 1",

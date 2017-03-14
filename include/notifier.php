@@ -4,9 +4,9 @@ use \Friendica\Core\Config;
 
 require_once('include/queue_fn.php');
 require_once('include/html2plain.php');
-require_once("include/Scrape.php");
+require_once('include/Scrape.php');
 require_once('include/diaspora.php');
-require_once("include/ostatus.php");
+require_once('include/ostatus.php');
 require_once('include/salmon.php');
 
 /*
@@ -45,7 +45,7 @@ require_once('include/salmon.php');
 function notifier_run(&$argv, &$argc){
 	global $a;
 
-	require_once("include/datetime.php");
+	require_once('include/datetime.php');
 	require_once('include/items.php');
 	require_once('include/bbcode.php');
 	require_once('include/email.php');

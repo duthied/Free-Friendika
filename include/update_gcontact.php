@@ -6,14 +6,15 @@ function update_gcontact_run(&$argv, &$argc){
 	global $a;
 
 	require_once('include/Scrape.php');
-	require_once("include/socgraph.php");
+	require_once('include/socgraph.php');
 
 	logger('update_gcontact: start');
 
-	if(($argc > 1) && (intval($argv[1])))
+	if (($argc > 1) && (intval($argv[1]))) {
 		$contact_id = intval($argv[1]);
+	}
 
-	if(!$contact_id) {
+	if (!$contact_id) {
 		logger('update_gcontact: no contact');
 		return;
 	}

@@ -16,7 +16,7 @@ function cronhooks_run(&$argv, &$argc){
 		return;
 	}
 
-	$last = get_config('system','last_cronhook');
+	$last = get_config('system', 'last_cronhook');
 
 	$poll_interval = intval(get_config('system','cronhook_interval'));
 	if(! $poll_interval)

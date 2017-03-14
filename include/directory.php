@@ -6,7 +6,7 @@ function directory_run(&$argv, &$argc){
 		return;
 	}
 
-	$dir = get_config('system','directory');
+	$dir = get_config('system', 'directory');
 
 	if (!strlen($dir)) {
 		return;

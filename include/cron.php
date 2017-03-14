@@ -1,8 +1,8 @@
 <?php
 use \Friendica\Core\Config;
 
-require_once("include/photos.php");
-require_once("include/user.php");
+require_once('include/photos.php');
+require_once('include/user.php');
 
 function cron_run(&$argv, &$argc){
 	global $a;
