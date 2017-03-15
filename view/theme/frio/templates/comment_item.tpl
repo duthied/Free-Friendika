@@ -27,9 +27,9 @@
 
 		<div class="comment-edit-text-end clear"></div>
 		<div class="comment-edit-submit-wrapper" id="comment-edit-submit-wrapper-{{$id}}" style="display: none;">
-			<button class="btn btn-primary btn-sm" type="submit" onclick="post_comment({{$id}});" id="comment-edit-submit-{{$id}}" name="submit"><i class="fa fa-envelope"></i> {{$submit}}</button>
+			<button type="submit" class="btn btn-primary btn-sm" id="comment-edit-submit-{{$id}}" name="submit"><i class="fa fa-envelope"></i> {{$submit}}</button>
 			{{if $preview}}
-				<button class="btn btn-defaul btn-sm" type="button" onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}"><i class="fa fa-eye"></i> {{$preview}}</button>
+				<button type="button" class="btn btn-defaul btn-sm" onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}"><i class="fa fa-eye"></i> {{$preview}}</button>
 			{{/if}}
 			<ul class="comment-edit-bb-{{$id}} comment-icon-list nav nav-pills pull-right">
 				<li>
