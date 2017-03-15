@@ -35,6 +35,7 @@ function discover_poco_run(&$argv, &$argc){
 	- checkcontact: Updates gcontact entries
 	- suggestions: Discover other servers for their contacts.
 	- server <poco url>: Searches for the poco server list. "poco url" is base64 encoded.
+	- update_server: Frequently check the first 250 servers for vitality.
 	*/
 
 	if(($argc > 2) && ($argv[1] == "dirsearch")) {
@@ -46,6 +47,8 @@ function discover_poco_run(&$argv, &$argc){
 		$mode = 3;
 	} elseif(($argc == 3) && ($argv[1] == "server")) {
 		$mode = 4;
+	} elseif(($argc == 2) && ($argv[1] == "update_server")) {
+		$mode = 5;
 	} elseif ($argc == 1) {
 		$search = "";
 		$mode = 0;
@@ -64,7 +67,9 @@ function discover_poco_run(&$argv, &$argc){
 
 	logger('start '.$search);
 
-	if ($mode == 4) {
+	if ($mode == 5) {
+		update_server();
+	} elseif ($mode == 4) {
 		$server_url = base64_decode($argv[2]);
 		if ($server_url == "") {
 			return;
@@ -100,6 +105,33 @@ function discover_poco_run(&$argv, &$argc){
 	logger('end '.$search);
 
 	return;
+}
+
+/**
+ * @brief Updates the first 250 servers
+ *
+ */
+function update_server() {
+	$r = q("SELECT `url`, `created`, `last_failure`, `last_contact` FROM `gserver` ORDER BY rand()");
+
+	if (!dbm::is_result($r)) {
+		return;
+	}
+
+	$updated = 0;
+
+	foreach ($r AS $server) {
+		if (!poco_do_update($server["created"], "", $server["last_failure"], $server["last_contact"])) {
+			continue;
+		}
+		logger('Update server status for server '.$server["url"], LOGGER_DEBUG);
+
+		proc_run(PRIORITY_LOW, "include/discover_poco.php", "server", base64_encode($server["url"]));
+
+		if (++$updated > 250) {
+			return;
+		}
+	}
 }
 
 function discover_users() {

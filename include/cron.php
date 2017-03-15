@@ -123,6 +123,8 @@ function cron_run(&$argv, &$argc){
 
 		update_contact_birthdays();
 
+		proc_run(PRIORITY_LOW, "include/discover_poco.php", "update_server");
+
 		proc_run(PRIORITY_LOW, "include/discover_poco.php", "suggestions");
 
 		set_config('system','last_expire_day',$d2);
