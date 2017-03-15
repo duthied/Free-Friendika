@@ -702,15 +702,6 @@ function posts_from_gcontact(App $a, $gcontact_id) {
 	else
 		$sql = "`item`.`uid` = %d";
 
-	if(get_config('system', 'old_pager')) {
-		$r = q("SELECT COUNT(*) AS `total` FROM `item`
-			WHERE `gcontact-id` = %d and $sql",
-			intval($gcontact_id),
-			intval(local_user()));
-
-		$a->set_pager_total($r[0]['total']);
-	}
-
 	$r = q("SELECT `item`.`uri`, `item`.*, `item`.`id` AS `item_id`,
 			`author-name` AS `name`, `owner-avatar` AS `photo`,
 			`owner-link` AS `url`, `owner-avatar` AS `thumb`
@@ -724,13 +715,9 @@ function posts_from_gcontact(App $a, $gcontact_id) {
 		intval($a->pager['itemspage'])
 	);
 
-	$o = conversation($a,$r,'community',false);
+	$o = conversation($a, $r, 'community', false);
 
-	if(!get_config('system', 'old_pager')) {
-		$o .= alt_pager($a,count($r));
-	} else {
-		$o .= paginate($a);
-	}
+	$o .= alt_pager($a, count($r));
 
 	return $o;
 }
@@ -763,15 +750,6 @@ function posts_from_contact_url(App $a, $contact_url) {
 
 	$author_id = intval($r[0]["author-id"]);
 
-	if (get_config('system', 'old_pager')) {
-		$r = q("SELECT COUNT(*) AS `total` FROM `item`
-			WHERE `author-id` = %d and $sql",
-			intval($author_id),
-			intval(local_user()));
-
-		$a->set_pager_total($r[0]['total']);
-	}
-
 	$r = q(item_query()." AND `item`.`author-id` = %d AND ".$sql.
 		" ORDER BY `item`.`created` DESC LIMIT %d, %d",
 		intval($author_id),
@@ -780,13 +758,9 @@ function posts_from_contact_url(App $a, $contact_url) {
 		intval($a->pager['itemspage'])
 	);
 
-	$o = conversation($a,$r,'community',false);
+	$o = conversation($a, $r, 'community', false);
 
-	if (!get_config('system', 'old_pager')) {
-		$o .= alt_pager($a,count($r));
-	} else {
-		$o .= paginate($a);
-	}
+	$o .= alt_pager($a, count($r));
 
 	return $o;
 }

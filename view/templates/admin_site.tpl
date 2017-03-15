@@ -151,7 +151,6 @@
 	{{include file="field_input.tpl" field=$itemcache_duration}}
 	{{include file="field_input.tpl" field=$max_comments}}
 	{{include file="field_checkbox.tpl" field=$proxy_disabled}}
-	{{include file="field_checkbox.tpl" field=$old_pager}}
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	<h3>{{$worker_title}}</h3>
