@@ -8,7 +8,6 @@ JSFILES=(
 	"js/acl.js"
 	"js/ajaxupload.js"
 	"js/country.js"
-	"js/fk.autocomplete.js"
 	"js/jquery.htmlstream.js"
 	"js/main.js"
 	"js/webtoolkit.base64.js"
@@ -24,9 +23,6 @@ JSFILES=(
 )
 JSFILES2=(
 	"library/colorbox/jquery.colorbox.js"
-)
-JSFILES3=(
-	"library/tinymce/jscripts/tiny_mce/plugins/bbcode/editor_plugin_src.js"
 )
 
 for i in ${JSFILES[@]}

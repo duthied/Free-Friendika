@@ -40,7 +40,7 @@ Arguments
 ---
 Your hook callback functions will be called with at least one and possibly two arguments
 
-    function myhook_function(&$a, &$b) {
+    function myhook_function(App $a, &$b) {
 
     }
 
@@ -77,9 +77,9 @@ This will include:
     $a->argc = 3
     $a->argv = array(0 => 'plugin', 1 => 'arg1', 2 => 'arg2');
 
-Your module functions will often contain the function plugin_name_content(&$a), which defines and returns the page body content.
-They may also contain plugin_name_post(&$a) which is called before the _content function and typically handles the results of POST forms.
-You may also have plugin_name_init(&$a) which is called very early on and often does module initialisation.
+Your module functions will often contain the function plugin_name_content(App $a), which defines and returns the page body content.
+They may also contain plugin_name_post(App $a) which is called before the _content function and typically handles the results of POST forms.
+You may also have plugin_name_init(App $a) which is called very early on and often does module initialisation.
 
 Templates
 ---
@@ -281,6 +281,11 @@ $b is an array with:
     'template' => filename of template
     'vars' => array of vars passed to template
 
+### ''acl_lookup_end'
+is called after the other queries have passed.
+The registered function can add, change or remove the acl_lookup() variables.
+
+    'results' => array of the acl_lookup() vars
 
 
 Complete list of hook callbacks
@@ -337,6 +342,8 @@ include/acl_selectors.php:	call_hooks($a->module . '_post_' . $selname, $o);
 include/acl_selectors.php:	call_hooks($a->module . '_pre_' . $selname, $arr);
 
 include/acl_selectors.php:	call_hooks($a->module . '_post_' . $selname, $o);
+
+include/acl_selectors.php	call_hooks('acl_lookup_end', $results);
 
 include/notifier.php:		call_hooks('notifier_normal',$target_item);
 

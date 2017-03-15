@@ -463,7 +463,7 @@ a:hover {
   text-decoration: underline;
 }
 blockquote {
-  background: #ffffff;
+  background: #FFFFFF;
   padding: 1em;
   margin-left: 1em;
   border-left: 1em solid #e6e6e6;
@@ -744,8 +744,12 @@ ul.menu-popup .toolbar a:hover {
 }
 /* autocomplete popup */
 .autocomplete,
-.acpopup {
+.acpopup-mce {
   max-height: 150px;
+}
+.autocomplete,
+.acpopup-mce,
+.acpopup {
   background-color: #ffffff;
   color: #2d2d2d;
   border: 1px solid #364e59;
@@ -772,6 +776,15 @@ ul.menu-popup .toolbar a:hover {
 }
 .autocomplete > div.selected,
 .acpopupitem.selected {
+  background-color: #bdcdd4;
+}
+.textcomplete-item {
+  color: #2d2d2d;
+}
+.textcomplete-item a:hover {
+  color: #2d2d2d;
+}
+.textcomplete-item.active {
   background-color: #bdcdd4;
 }
 #nav-notifications-menu {
@@ -1197,6 +1210,9 @@ section {
 .wall-item-container .wall-item-actions-social a {
   margin-right: 3em;
 }
+.wall-item-container .wall-item-actions-social a.active {
+  font-weight: bold;
+}
 .wall-item-container .wall-item-actions-tools {
   float: right;
   width: 15%;
@@ -1443,7 +1459,6 @@ blockquote.shared_content {
 }
 .oembed.video > a.embed_video {
   display: block;
-  float: left;
   position: relative;
 }
 .oembed.video > a.embed_video > div {

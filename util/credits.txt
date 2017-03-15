@@ -2,24 +2,35 @@
 Abinoam P. Marques Jr.
 Abrax
 Adam Jurkiewicz
+Albert
+Alberto Díaz Tormo
 Alex
 Alexander Kampmann
 AlfredSK
+Aliaksei Sakalou
 Andi Stadler
 Andreas H.
+Andrej Stieben
+André Alves
 André Lohan
 Anthronaut
 Arian - Cazare Muncitori
+Athalbert
 aweiher
 axelt
 balderino
 Beanow
+beardyunixer
+Beatriz Vital
+Ben Roberts
+ben-utzer
 bufalo1973
 Calango Jr
 Carlos Solís
 Carsten Pfeiffer
 Cat Gray
 Chris Case
+Christian González
 Christian M. Grube
 Christian Vogeley
 Cohan Robinson
@@ -31,6 +42,7 @@ Daniel Dupriest
 Daria Początek
 David
 David Martín Miranda
+David Rabel
 Devlon Duthie
 Diego Souza
 Domovoy
@@ -38,6 +50,7 @@ Doru  DEACONU
 Dylan Thiedeke
 Développeur égaré
 eddy2508
+Eelco Maljaars
 effex7
 Elena
 emilia.krawczyk
@@ -53,6 +66,7 @@ foss
 Francesco Apruzzese
 Frank Dieckmann
 Frederico Gonçalves Guimarães
+Gerhard Seeber
 gerhard6380
 Gert Cauwenberg
 greeneyedred
@@ -63,12 +77,16 @@ hauke
 Hauke Altmann
 Hauke Zühl
 Hubert Kościański
+Hypolite Petovan
 Jak
 Jakob
+Jens Tautenhahn
 jensp
+Jeroen S
 jeroenpraat
 Johannes Schwab
 John Brazil
+Jonatan Nyberg
 Josef Moravek
 juanman
 julia.domagalska
@@ -106,7 +124,9 @@ Nicola Spanti
 Olaf Conradi
 Oliver
 Olivier
+Olivier Mehani
 Olivier Migeot
+Paolo Wave
 Pavel Morozov
 Perig Gouanvic
 peturisfeld
@@ -121,7 +141,9 @@ rcmaniac
 rebeka-catalina
 repat
 Ricardo Pereira
+Roland Häder
 Rui Andrada
+Sakałoŭ Alaksiej
 Sam
 Sandro Santilli
 Sebastian Egbers
@@ -150,15 +172,16 @@ tomamplius
 tomtom84
 Tony Baldwin
 TORminator
+trebor
 tschlotfeldt
 Tubuntu
-tupambae
-tuscanhobbit
+Tupambae.org
 U-SOUND\mike
 ufic
 Vasudev Kamath
 Vasya Novikov
 vislav
+Vít Šesták 'v6ak'
 Yasen Pramatarov
 ylms
 Zach Prezkuta

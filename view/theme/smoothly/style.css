@@ -396,6 +396,10 @@ ul.menu-popup li a:hover {
 	margin: 4px;
 }
 
+.pager .disabled {
+	display: none;
+}
+
 .pager_current {
 	background-color: #1873a2;
 	color: #ffffff;
@@ -1585,6 +1589,10 @@ ul .sidebar-group-li .icon {
 	float: left;
 	margin-right: 10px;
 	display: inline;
+}
+.wall-item-like-buttons a.self {
+	background-color: rgba(52, 101, 164, .5);
+	border-radius: 6px;
 }
 
 .wall-item-links-wrapper {
@@ -4377,8 +4385,7 @@ a.active {
 }
 
 /* autocomplete popup */
-.acpopup {
-	max-height: 150px;
+.acpopup, acpopup-mce {
 	overflow: auto;
 	z-index: 100000;
 	color: #2e3436;
@@ -4395,6 +4402,10 @@ a.active {
 		-webkit-box-shadow: 0 0 8px #BDBDBD;
 }
 
+.acpopup-mce {
+	max-height: 150px;
+}
+
 .acpopupitem {
 	color: #2e3436;
 	padding: 4px;
@@ -4405,13 +4416,17 @@ a.active {
 	margin-right: 4px;
 }
 
-.acpopupitem.selected {
+.acpopupitem.selected, .textcomplete-item.active {
 	color: #efefef;
 	background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #1873a2), color-stop(1, #6da6c4) );
 	background: -moz-linear-gradient( center top, #1873a2 5%, #6da6c4 100% );
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1873a2', endColorstr='#6da6c4');
 	background-color: #1873a2;
 	order-bottom: none;
+}
+
+.textcomplete-item a:hover, .textcomplete-item a:hover .acpopup-sub-text, .textcomplete-item.active a .acpopup-sub-text {
+	color: #efefef;
 }
 
 .qcomment {

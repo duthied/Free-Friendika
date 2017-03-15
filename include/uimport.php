@@ -78,7 +78,7 @@ function import_cleanup($newuid) {
 	q("DELETE FROM `pconfig` WHERE uid = %d", $newuid);
 }
 
-function import_account(&$a, $file) {
+function import_account(App $a, $file) {
 	logger("Start user import from " . $file['tmp_name']);
 	/*
 	  STEPS
@@ -116,7 +116,7 @@ function import_account(&$a, $file) {
 		notice(t('Error! Cannot check nickname'));
 		return;
 	}
-	if (count($r) > 0) {
+	if (dbm::is_result($r) > 0) {
 		notice(sprintf(t("User '%s' already exists on this server!"), $account['user']['nickname']));
 		return;
 	}
@@ -127,13 +127,13 @@ function import_account(&$a, $file) {
 		notice(t('Error! Cannot check nickname'));
 		return;
 	}
-	if (count($r) > 0) {
+	if (dbm::is_result($r) > 0) {
 		notice(sprintf(t("User '%s' already exists on this server!"), $account['user']['nickname']));
 		return;
 	}
 
 	$oldbaseurl = $account['baseurl'];
-	$newbaseurl = $a->get_baseurl();
+	$newbaseurl = App::get_baseurl();
 	$olduid = $account['user']['uid'];
 
         unset($account['user']['uid']);
@@ -287,8 +287,8 @@ function import_account(&$a, $file) {
 	}
 
 	// send relocate messages
-	proc_run('php', 'include/notifier.php', 'relocate', $newuid);
+	proc_run(PRIORITY_HIGH, 'include/notifier.php', 'relocate', $newuid);
 
 	info(t("Done. You can now login with your username and password"));
-	goaway($a->get_baseurl() . "/login");
+	goaway(App::get_baseurl() . "/login");
 }

@@ -1,22 +1,25 @@
 <?php
+
+use \Friendica\Core\Config;
+
 require_once("boot.php");
 require_once('include/queue_fn.php');
 require_once('include/dfrn.php');
+require_once('include/cache.php');
 
 function queue_run(&$argv, &$argc){
 	global $a, $db;
 
-	if(is_null($a)){
+	if (is_null($a)){
 		$a = new App;
 	}
 
-	if(is_null($db)){
+	if (is_null($db)){
 		@include(".htconfig.php");
 		require_once("include/dba.php");
 		$db = new dba($db_host, $db_user, $db_pass, $db_data);
 		unset($db_host, $db_user, $db_pass, $db_data);
 	};
-
 
 	require_once("include/session.php");
 	require_once("include/datetime.php");
@@ -24,8 +27,7 @@ function queue_run(&$argv, &$argc){
 	require_once('include/bbcode.php');
 	require_once('include/socgraph.php');
 
-	load_config('config');
-	load_config('system');
+	Config::load();
 
 	// Don't check this stuff if the function is called by the poller
 	if (App::callstack() != "poller_run")
@@ -36,64 +38,67 @@ function queue_run(&$argv, &$argc){
 
 	load_hooks();
 
-	if($argc > 1)
+	if ($argc > 1) {
 		$queue_id = intval($argv[1]);
-	else
+	} else {
 		$queue_id = 0;
+	}
 
-	$deadguys = array();
-	$deadservers = array();
-	$serverlist = array();
+	$cachekey_deadguy = 'queue_run:deadguy:';
+	$cachekey_server = 'queue_run:server:';
 
-	logger('queue: start');
+	if (!$queue_id) {
 
-	// Handling the pubsubhubbub requests
-	proc_run('php','include/pubsubpublish.php');
+		logger('queue: start');
 
-	$interval = ((get_config('system','delivery_interval') === false) ? 2 : intval(get_config('system','delivery_interval')));
+		// Handling the pubsubhubbub requests
+		proc_run(PRIORITY_HIGH,'include/pubsubpublish.php');
 
-	// If we are using the worker we don't need a delivery interval
-	if (get_config("system", "worker"))
-		$interval = false;
+		$interval = ((get_config('system','delivery_interval') === false) ? 2 : intval(get_config('system','delivery_interval')));
 
-	$r = q("select * from deliverq where 1");
-	if($r) {
-		foreach($r as $rr) {
-			logger('queue: deliverq');
-			proc_run('php','include/delivery.php',$rr['cmd'],$rr['item'],$rr['contact']);
-			if($interval)
-				@time_sleep_until(microtime(true) + (float) $interval);
+		// If we are using the worker we don't need a delivery interval
+		if (get_config("system", "worker"))
+			$interval = false;
+
+		$r = q("select * from deliverq where 1");
+		if ($r) {
+			foreach ($r as $rr) {
+				logger('queue: deliverq');
+				proc_run(PRIORITY_HIGH,'include/delivery.php',$rr['cmd'],$rr['item'],$rr['contact']);
+				if ($interval) {
+					time_sleep_until(microtime(true) + (float) $interval);
+				}
+			}
 		}
-	}
 
-	$r = q("SELECT `queue`.*, `contact`.`name`, `contact`.`uid` FROM `queue`
-		INNER JOIN `contact` ON `queue`.`cid` = `contact`.`id`
-		WHERE `queue`.`created` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
-	if($r) {
-		foreach($r as $rr) {
-			logger('Removing expired queue item for ' . $rr['name'] . ', uid=' . $rr['uid']);
-			logger('Expired queue data :' . $rr['content'], LOGGER_DATA);
+		$r = q("SELECT `queue`.*, `contact`.`name`, `contact`.`uid` FROM `queue`
+			INNER JOIN `contact` ON `queue`.`cid` = `contact`.`id`
+			WHERE `queue`.`created` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
+		if ($r) {
+			foreach ($r as $rr) {
+				logger('Removing expired queue item for ' . $rr['name'] . ', uid=' . $rr['uid']);
+				logger('Expired queue data :' . $rr['content'], LOGGER_DATA);
+			}
+			q("DELETE FROM `queue` WHERE `created` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
 		}
-		q("DELETE FROM `queue` WHERE `created` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
-	}
-
-	if($queue_id) {
-		$r = q("SELECT `id` FROM `queue` WHERE `id` = %d LIMIT 1",
-			intval($queue_id)
-		);
-	}
-	else {
 
 		// For the first 12 hours we'll try to deliver every 15 minutes
 		// After that, we'll only attempt delivery once per hour.
 
 		$r = q("SELECT `id` FROM `queue` WHERE ((`created` > UTC_TIMESTAMP() - INTERVAL 12 HOUR && `last` < UTC_TIMESTAMP() - INTERVAL 15 MINUTE) OR (`last` < UTC_TIMESTAMP() - INTERVAL 1 HOUR)) ORDER BY `cid`, `created`");
+	} else {
+		logger('queue: start for id '.$queue_id);
+
+		$r = q("SELECT `id` FROM `queue` WHERE `id` = %d LIMIT 1",
+			intval($queue_id)
+		);
 	}
-	if(! $r){
+
+	if (!$r){
 		return;
 	}
 
-	if(! $queue_id)
+	if (!$queue_id)
 		call_hooks('queue_predeliver', $a, $r);
 
 
@@ -107,54 +112,62 @@ function queue_run(&$argv, &$argc){
 		// queue_predeliver hooks may have changed the queue db details,
 		// so check again if this entry still needs processing
 
-		if($queue_id) {
+		if ($queue_id) {
 			$qi = q("SELECT * FROM `queue` WHERE `id` = %d LIMIT 1",
-				intval($queue_id)
-			);
-		}
-		else {
-			$qi = q("SELECT * FROM `queue` WHERE `id` = %d AND `last` < UTC_TIMESTAMP() - INTERVAL 15 MINUTE ",
-				intval($q_item['id'])
-			);
-		}
-		if(! count($qi))
+				intval($queue_id));
+		} elseif (get_config("system", "worker")) {
+			logger('Call queue for id '.$q_item['id']);
+			proc_run(PRIORITY_LOW, "include/queue.php", $q_item['id']);
 			continue;
+		} else
+			$qi = q("SELECT * FROM `queue` WHERE `id` = %d AND `last` < UTC_TIMESTAMP() - INTERVAL 15 MINUTE ",
+				intval($q_item['id']));
+
+		if (!dbm::is_result($qi)) {
+			continue;
+		}
 
 
 		$c = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 			intval($qi[0]['cid'])
 		);
-		if(! count($c)) {
+		if (! dbm::is_result($c)) {
 			remove_queue_item($q_item['id']);
 			continue;
 		}
-		if(in_array($c[0]['notify'],$deadguys)) {
-			logger('queue: skipping known dead url: ' . $c[0]['notify']);
+
+		$dead = Cache::get($cachekey_deadguy.$c[0]['notify']);
+
+		if (!is_null($dead) AND $dead) {
+			logger('queue: skipping known dead url: '.$c[0]['notify']);
 			update_queue_time($q_item['id']);
 			continue;
 		}
 
 		$server = poco_detect_server($c[0]['url']);
 
-		if (($server != "") AND !in_array($server, $serverlist)) {
-			logger("Check server ".$server." (".$c[0]["network"].")");
-			if (!poco_check_server($server, $c[0]["network"], true))
-				$deadservers[] = $server;
+		if ($server != "") {
+			$vital = Cache::get($cachekey_server.$server);
 
-			$serverlist[] = $server;
-		}
+			if (is_null($vital)) {
+				logger("Check server ".$server." (".$c[0]["network"].")");
 
-		if (($server != "") AND in_array($server, $deadservers)) {
-			logger('queue: skipping known dead server: '.$server);
-			update_queue_time($q_item['id']);
-			continue;
+				$vital = poco_check_server($server, $c[0]["network"], true);
+				Cache::set($cachekey_server.$server, $vital, CACHE_QUARTER_HOUR);
+			}
+
+			if (!is_null($vital) AND !$vital) {
+				logger('queue: skipping dead server: '.$server);
+				update_queue_time($q_item['id']);
+				continue;
+			}
 		}
 
 		$u = q("SELECT `user`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`
 			FROM `user` WHERE `uid` = %d LIMIT 1",
 			intval($c[0]['uid'])
 		);
-		if(! count($u)) {
+		if (! dbm::is_result($u)) {
 			remove_queue_item($q_item['id']);
 			continue;
 		}
@@ -171,36 +184,37 @@ function queue_run(&$argv, &$argc){
 				logger('queue: dfrndelivery: item '.$q_item['id'].' for '.$contact['name'].' <'.$contact['url'].'>');
 				$deliver_status = dfrn::deliver($owner,$contact,$data);
 
-				if($deliver_status == (-1)) {
+				if ($deliver_status < 0) {
 					update_queue_time($q_item['id']);
-					$deadguys[] = $contact['notify'];
-				} else
+					Cache::set($cachekey_deadguy.$contact['notify'], true, CACHE_QUARTER_HOUR);
+				} else {
 					remove_queue_item($q_item['id']);
-
+				}
 				break;
 			case NETWORK_OSTATUS:
-				if($contact['notify']) {
+				if ($contact['notify']) {
 					logger('queue: slapdelivery: item '.$q_item['id'].' for '.$contact['name'].' <'.$contact['url'].'>');
 					$deliver_status = slapper($owner,$contact['notify'],$data);
 
-					if($deliver_status == (-1)) {
+					if ($deliver_status == (-1)) {
 						update_queue_time($q_item['id']);
-						$deadguys[] = $contact['notify'];
-					} else
+						Cache::set($cachekey_deadguy.$contact['notify'], true, CACHE_QUARTER_HOUR);
+					} else {
 						remove_queue_item($q_item['id']);
+					}
 				}
 				break;
 			case NETWORK_DIASPORA:
-				if($contact['notify']) {
+				if ($contact['notify']) {
 					logger('queue: diaspora_delivery: item '.$q_item['id'].' for '.$contact['name'].' <'.$contact['url'].'>');
-					$deliver_status = diaspora::transmit($owner,$contact,$data,$public,true);
+					$deliver_status = Diaspora::transmit($owner,$contact,$data,$public,true);
 
-					if($deliver_status == (-1)) {
+					if ($deliver_status == (-1)) {
 						update_queue_time($q_item['id']);
-						$deadguys[] = $contact['notify'];
-					} else
+						Cache::set($cachekey_deadguy.$contact['notify'], true, CACHE_QUARTER_HOUR);
+					} else {
 						remove_queue_item($q_item['id']);
-
+					}
 				}
 				break;
 
@@ -208,15 +222,15 @@ function queue_run(&$argv, &$argc){
 				$params = array('owner' => $owner, 'contact' => $contact, 'queue' => $q_item, 'result' => false);
 				call_hooks('queue_deliver', $a, $params);
 
-				if($params['result'])
+				if ($params['result']) {
 					remove_queue_item($q_item['id']);
-				else
+				} else {
 					update_queue_time($q_item['id']);
-
+				}
 				break;
 
 		}
-		logger('Deliver status '.$deliver_status.' for item '.$q_item['id'].' to '.$contact['name'].' <'.$contact['url'].'>');
+		logger('Deliver status '.(int)$deliver_status.' for item '.$q_item['id'].' to '.$contact['name'].' <'.$contact['url'].'>');
 	}
 
 	return;

@@ -56,7 +56,6 @@
 	{{include file="field_select.tpl" field=$theme_mobile}}
 	{{include file="field_select.tpl" field=$ssl_policy}}
 	{{if $ssl_policy.2 == 1}}{{include file="field_checkbox.tpl" field=$force_ssl}}{{/if}}
-	{{include file="field_checkbox.tpl" field=$old_share}}
 	{{include file="field_checkbox.tpl" field=$hide_help}}
 	{{include file="field_select.tpl" field=$singleuser}}
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
@@ -120,8 +119,10 @@
 	{{include file="field_input.tpl" field=$proxy}}
 	{{include file="field_input.tpl" field=$proxyuser}}
 	{{include file="field_input.tpl" field=$timeout}}
-	{{include file="field_input.tpl" field=$delivery_interval}}
-	{{include file="field_input.tpl" field=$poll_interval}}
+	{{if NOT $worker.2}}
+		{{include file="field_input.tpl" field=$delivery_interval}}
+		{{include file="field_input.tpl" field=$poll_interval}}
+	{{/if}}
 	{{include file="field_input.tpl" field=$maxloadavg}}
 	{{include file="field_input.tpl" field=$maxloadavg_frontend}}
 	{{include file="field_input.tpl" field=$optimize_max_tablesize}}
@@ -130,7 +131,6 @@
 	{{include file="field_input.tpl" field=$lockpath}}
 	{{include file="field_input.tpl" field=$temppath}}
 	{{include file="field_input.tpl" field=$basepath}}
-	{{include file="field_checkbox.tpl" field=$suppress_language}}
 	{{include file="field_checkbox.tpl" field=$suppress_tags}}
 	{{include file="field_checkbox.tpl" field=$nodeinfo}}
 	{{include file="field_input.tpl" field=$embedly}}
@@ -145,19 +145,22 @@
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	<h3>{{$performance}}</h3>
-	{{include file="field_checkbox.tpl" field=$use_fulltext_engine}}
+	<!-- {{include file="field_checkbox.tpl" field=$use_fulltext_engine}} -->
 	{{include file="field_checkbox.tpl" field=$only_tag_search}}
 	{{include file="field_input.tpl" field=$itemcache}}
 	{{include file="field_input.tpl" field=$itemcache_duration}}
 	{{include file="field_input.tpl" field=$max_comments}}
 	{{include file="field_checkbox.tpl" field=$proxy_disabled}}
-	{{include file="field_checkbox.tpl" field=$old_pager}}
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	<h3>{{$worker_title}}</h3>
 	{{include file="field_checkbox.tpl" field=$worker}}
-	{{include file="field_input.tpl" field=$worker_queues}}
-	{{include file="field_checkbox.tpl" field=$worker_dont_fork}}
+	{{if $worker.2}}
+		{{include file="field_input.tpl" field=$worker_queues}}
+		{{include file="field_checkbox.tpl" field=$worker_dont_fork}}
+		{{include file="field_checkbox.tpl" field=$worker_fastlane}}
+		{{include file="field_checkbox.tpl" field=$worker_frontend}}
+	{{/if}}
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	</form>

@@ -10,7 +10,11 @@ if (!file_exists("boot.php") AND (sizeof($_SERVER["argv"]) != 0)) {
 	chdir($directory);
 }
 
+use \Friendica\Core\Config;
+
 require_once("boot.php");
+require_once("include/photos.php");
+require_once("include/user.php");
 
 
 function cron_run(&$argv, &$argc){
@@ -27,7 +31,6 @@ function cron_run(&$argv, &$argc){
 		unset($db_host, $db_user, $db_pass, $db_data);
 	};
 
-
 	require_once('include/session.php');
 	require_once('include/datetime.php');
 	require_once('include/items.php');
@@ -37,12 +40,11 @@ function cron_run(&$argv, &$argc){
 	require_once('mod/nodeinfo.php');
 	require_once('include/post_update.php');
 
-	load_config('config');
-	load_config('system');
+	Config::load();
 
 	// Don't check this stuff if the function is called by the poller
 	if (App::callstack() != "poller_run") {
-		if (App::maxload_reached())
+		if ($a->maxload_reached())
 			return;
 		if (App::is_already_running('cron', 'include/cron.php', 540))
 			return;
@@ -70,52 +72,47 @@ function cron_run(&$argv, &$argc){
 
 	// run queue delivery process in the background
 
-	proc_run('php',"include/queue.php");
+	proc_run(PRIORITY_NEGLIGIBLE, "include/queue.php");
 
 	// run the process to discover global contacts in the background
 
-	proc_run('php',"include/discover_poco.php");
+	proc_run(PRIORITY_LOW, "include/discover_poco.php");
 
 	// run the process to update locally stored global contacts in the background
 
-	proc_run('php',"include/discover_poco.php", "checkcontact");
+	proc_run(PRIORITY_LOW, "include/discover_poco.php", "checkcontact");
 
-	// expire any expired accounts
+	// Expire and remove user entries
+	cron_expire_and_remove_users();
 
-	q("UPDATE user SET `account_expired` = 1 where `account_expired` = 0
-		AND `account_expires_on` != '0000-00-00 00:00:00'
-		AND `account_expires_on` < UTC_TIMESTAMP() ");
+	// If the worker is active, split the jobs in several sub processes
+	if (get_config("system", "worker")) {
+		// Check OStatus conversations
+		proc_run(PRIORITY_MEDIUM, "include/cronjobs.php", "ostatus_mentions");
 
-	// delete user and contact records for recently removed accounts
+		// Check every conversation
+		proc_run(PRIORITY_MEDIUM, "include/cronjobs.php", "ostatus_conversations");
 
-	$r = q("SELECT * FROM `user` WHERE `account_removed` = 1 AND `account_expires_on` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
-	if ($r) {
-		foreach($r as $user) {
-			q("DELETE FROM `contact` WHERE `uid` = %d", intval($user['uid']));
-			q("DELETE FROM `user` WHERE `uid` = %d", intval($user['uid']));
-		}
+		// Call possible post update functions
+		proc_run(PRIORITY_LOW, "include/cronjobs.php", "post_update");
+
+		// update nodeinfo data
+		proc_run(PRIORITY_LOW, "include/cronjobs.php", "nodeinfo");
+	} else {
+		// Check OStatus conversations
+		// Check only conversations with mentions (for a longer time)
+		ostatus::check_conversations(true);
+
+		// Check every conversation
+		ostatus::check_conversations(false);
+
+		// Call possible post update functions
+		// see include/post_update.php for more details
+		post_update();
+
+		// update nodeinfo data
+		nodeinfo_cron();
 	}
-
-	$abandon_days = intval(get_config('system','account_abandon_days'));
-	if($abandon_days < 1)
-		$abandon_days = 0;
-
-	// Check OStatus conversations
-	// Check only conversations with mentions (for a longer time)
-	ostatus::check_conversations(true);
-
-	// Check every conversation
-	ostatus::check_conversations(false);
-
-	// Call possible post update functions
-	// see include/post_update.php for more details
-	post_update();
-
-	// update nodeinfo data
-	nodeinfo_cron();
-
-	/// @TODO Regenerate usage statistics
-	// q("ANALYZE TABLE `item`");
 
 	// once daily run birthday_updates and then expire in background
 
@@ -126,11 +123,15 @@ function cron_run(&$argv, &$argc){
 
 		update_contact_birthdays();
 
-		proc_run('php',"include/discover_poco.php", "suggestions");
+		proc_run(PRIORITY_LOW, "include/discover_poco.php", "suggestions");
 
 		set_config('system','last_expire_day',$d2);
 
-		proc_run('php','include/expire.php');
+		proc_run(PRIORITY_LOW, 'include/expire.php');
+
+		proc_run(PRIORITY_MEDIUM, 'include/dbclean.php');
+
+		cron_update_photo_albums();
 	}
 
 	// Clear cache entries
@@ -142,28 +143,78 @@ function cron_run(&$argv, &$argc){
 	// Repair entries in the database
 	cron_repair_database();
 
+	// Poll contacts
+	cron_poll_contacts($argc, $argv);
+
+	logger('cron: end');
+
+	set_config('system','last_cron', time());
+
+	return;
+}
+
+/**
+ * @brief Update the cached values for the number of photo albums per user
+ */
+function cron_update_photo_albums() {
+	$r = q("SELECT `uid` FROM `user` WHERE NOT `account_expired` AND NOT `account_removed`");
+	if (!dbm::is_result($r)) {
+		return;
+	}
+
+	foreach ($r AS $user) {
+		photo_albums($user['uid'], true);
+	}
+}
+
+/**
+ * @brief Expire and remove user entries
+ */
+function cron_expire_and_remove_users() {
+	// expire any expired accounts
+	q("UPDATE user SET `account_expired` = 1 where `account_expired` = 0
+		AND `account_expires_on` != '0000-00-00 00:00:00'
+		AND `account_expires_on` < UTC_TIMESTAMP() ");
+
+	// delete user and contact records for recently removed accounts
+	$r = q("SELECT * FROM `user` WHERE `account_removed` AND `account_expires_on` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
+	if ($r) {
+		foreach($r as $user) {
+			q("DELETE FROM `contact` WHERE `uid` = %d", intval($user['uid']));
+			q("DELETE FROM `user` WHERE `uid` = %d", intval($user['uid']));
+		}
+	}
+}
+
+/**
+ * @brief Poll contacts for unreceived messages
+ *
+ * @param Integer $argc Number of command line arguments
+ * @param Array $argv Array of command line arguments
+ */
+function cron_poll_contacts($argc, $argv) {
 	$manual_id  = 0;
 	$generation = 0;
 	$force      = false;
 	$restart    = false;
 
-	if(($argc > 1) && ($argv[1] == 'force'))
+	if (($argc > 1) && ($argv[1] == 'force'))
 		$force = true;
 
-	if(($argc > 1) && ($argv[1] == 'restart')) {
+	if (($argc > 1) && ($argv[1] == 'restart')) {
 		$restart = true;
 		$generation = intval($argv[2]);
-		if(! $generation)
+		if (!$generation)
 			killme();
 	}
 
-	if(($argc > 1) && intval($argv[1])) {
+	if (($argc > 1) && intval($argv[1])) {
 		$manual_id = intval($argv[1]);
 		$force     = true;
 	}
 
 	$interval = intval(get_config('system','poll_interval'));
-	if(! $interval)
+	if (!$interval)
 		$interval = ((get_config('system','delivery_interval') === false) ? 3 : intval(get_config('system','delivery_interval')));
 
 	// If we are using the worker we don't need a delivery interval
@@ -180,16 +231,22 @@ function cron_run(&$argv, &$argc){
 	// and which have a polling address and ignore Diaspora since
 	// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
 
+	$abandon_days = intval(get_config('system','account_abandon_days'));
+	if($abandon_days < 1)
+		$abandon_days = 0;
+
 	$abandon_sql = (($abandon_days)
 		? sprintf(" AND `user`.`login_date` > UTC_TIMESTAMP() - INTERVAL %d DAY ", intval($abandon_days))
 		: ''
 	);
 
-	$contacts = q("SELECT `contact`.`id` FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
-		WHERE `rel` IN (%d, %d) AND `poll` != '' AND `network` IN ('%s', '%s', '%s', '%s', '%s', '%s')
-		$sql_extra
-		AND NOT `self` AND NOT `contact`.`blocked` AND NOT `contact`.`readonly` AND NOT `contact`.`archive`
-		AND NOT `user`.`account_expired` AND NOT `user`.`account_removed` $abandon_sql ORDER BY RAND()",
+	$contacts = q("SELECT `contact`.`id` FROM `user`
+			STRAIGHT_JOIN `contact`
+			ON `contact`.`uid` = `user`.`uid` AND `contact`.`rel` IN (%d, %d) AND `contact`.`poll` != ''
+				AND `contact`.`network` IN ('%s', '%s', '%s', '%s', '%s', '%s') $sql_extra
+				AND NOT `contact`.`self` AND NOT `contact`.`blocked` AND NOT `contact`.`readonly`
+				AND NOT `contact`.`archive`
+			WHERE NOT `user`.`account_expired` AND NOT `user`.`account_removed` $abandon_sql ORDER BY RAND()",
 		intval(CONTACT_IS_SHARING),
 		intval(CONTACT_IS_FRIEND),
 		dbesc(NETWORK_DFRN),
@@ -200,18 +257,19 @@ function cron_run(&$argv, &$argc){
 		dbesc(NETWORK_MAIL2)
 	);
 
-	if(! count($contacts)) {
+	if (!count($contacts)) {
 		return;
 	}
 
-	foreach($contacts as $c) {
+	foreach ($contacts as $c) {
 
 		$res = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 			intval($c['id'])
 		);
 
-		if((! $res) || (! count($res)))
+		if (!dbm::is_result($res)) {
 			continue;
+		}
 
 		foreach($res as $contact) {
 
@@ -266,24 +324,22 @@ function cron_run(&$argv, &$argc){
 							$update = true;
 						break;
 				}
-				if(!$update)
+				if (!$update)
 					continue;
 			}
 
 			logger("Polling ".$contact["network"]." ".$contact["id"]." ".$contact["nick"]." ".$contact["name"]);
 
-			proc_run('php','include/onepoll.php',$contact['id']);
+			if (($contact['network'] == NETWORK_FEED) AND ($contact['priority'] <= 3)) {
+				proc_run(PRIORITY_MEDIUM, 'include/onepoll.php', $contact['id']);
+			} else {
+				proc_run(PRIORITY_LOW, 'include/onepoll.php', $contact['id']);
+			}
 
 			if($interval)
 				@time_sleep_until(microtime(true) + (float) $interval);
 		}
 	}
-
-	logger('cron: end');
-
-	set_config('system','last_cron', time());
-
-	return;
 }
 
 /**
@@ -291,7 +347,7 @@ function cron_run(&$argv, &$argc){
  *
  * @param App $a
  */
-function cron_clear_cache(&$a) {
+function cron_clear_cache(App $a) {
 
 	$last = get_config('system','cache_last_cleared');
 
@@ -327,10 +383,10 @@ function cron_clear_cache(&$a) {
 	}
 
 	// Delete the cached OEmbed entries that are older than one year
-	q("DELETE FROM `oembed` WHERE `created` < NOW() - INTERVAL 1 YEAR");
+	q("DELETE FROM `oembed` WHERE `created` < NOW() - INTERVAL 3 MONTH");
 
 	// Delete the cached "parse_url" entries that are older than one year
-	q("DELETE FROM `parsed_url` WHERE `created` < NOW() - INTERVAL 1 YEAR");
+	q("DELETE FROM `parsed_url` WHERE `created` < NOW() - INTERVAL 3 MONTH");
 
 	// Maximum table size in megabyte
 	$max_tablesize = intval(get_config('system','optimize_max_tablesize')) * 1000000;
@@ -378,11 +434,11 @@ function cron_clear_cache(&$a) {
  *
  * @param App $a
  */
-function cron_repair_diaspora(&$a) {
+function cron_repair_diaspora(App $a) {
 	$r = q("SELECT `id`, `url` FROM `contact`
 		WHERE `network` = '%s' AND (`batch` = '' OR `notify` = '' OR `poll` = '' OR pubkey = '')
 			ORDER BY RAND() LIMIT 50", dbesc(NETWORK_DIASPORA));
-	if ($r) {
+	if (dbm::is_result($r)) {
 		foreach ($r AS $contact) {
 			if (poco_reachable($contact["url"])) {
 				$data = probe_url($contact["url"]);
@@ -403,12 +459,28 @@ function cron_repair_diaspora(&$a) {
  */
 function cron_repair_database() {
 
+	// Sometimes there seem to be issues where the "self" contact vanishes.
+	// We haven't found the origin of the problem by now.
+	$r = q("SELECT `uid` FROM `user` WHERE NOT EXISTS (SELECT `uid` FROM `contact` WHERE `contact`.`uid` = `user`.`uid` AND `contact`.`self`)");
+	if (dbm::is_result($r)) {
+		foreach ($r AS $user) {
+			logger('Create missing self contact for user '.$user['uid']);
+			user_create_self_contact($user['uid']);
+		}
+	}
+
 	// Set the parent if it wasn't set. (Shouldn't happen - but does sometimes)
 	// This call is very "cheap" so we can do it at any time without a problem
 	q("UPDATE `item` INNER JOIN `item` AS `parent` ON `parent`.`uri` = `item`.`parent-uri` AND `parent`.`uid` = `item`.`uid` SET `item`.`parent` = `parent`.`id` WHERE `item`.`parent` = 0");
 
 	// There was an issue where the nick vanishes from the contact table
 	q("UPDATE `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid` SET `nick` = `nickname` WHERE `self` AND `nick`=''");
+
+	// Update the global contacts for local users
+	$r = q("SELECT `uid` FROM `user` WHERE `verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired`");
+	if (dbm::is_result($r))
+		foreach ($r AS $user)
+			update_gcontact_for_user($user["uid"]);
 
 	/// @todo
 	/// - remove thread entries without item

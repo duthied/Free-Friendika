@@ -1,7 +1,8 @@
 <?php
 
-require_once("boot.php");
+use \Friendica\Core\Config;
 
+require_once("boot.php");
 
 function cronhooks_run(&$argv, &$argc){
 	global $a, $db;
@@ -20,15 +21,25 @@ function cronhooks_run(&$argv, &$argc){
 	require_once('include/session.php');
 	require_once('include/datetime.php');
 
-	load_config('config');
-	load_config('system');
+	Config::load();
 
 	// Don't check this stuff if the function is called by the poller
 	if (App::callstack() != "poller_run") {
-		if (App::maxload_reached())
+		if ($a->maxload_reached())
 			return;
 		if (App::is_already_running('cronhooks', 'include/cronhooks.php', 1140))
 			return;
+	}
+
+	load_hooks();
+
+	if (($argc == 2) AND is_array($a->hooks) AND array_key_exists("cron", $a->hooks)) {
+                foreach ($a->hooks["cron"] as $hook)
+			if ($hook[1] == $argv[1]) {
+				logger("Calling cron hook '".$hook[1]."'", LOGGER_DEBUG);
+				call_single_hook($a, $name, $hook, $data);
+			}
+		return;
 	}
 
 	$last = get_config('system','last_cronhook');
@@ -47,13 +58,17 @@ function cronhooks_run(&$argv, &$argc){
 
 	$a->set_baseurl(get_config('system','url'));
 
-	load_hooks();
-
 	logger('cronhooks: start');
 
 	$d = datetime_convert();
 
-	call_hooks('cron', $d);
+	if (get_config("system", "worker") AND is_array($a->hooks) AND array_key_exists("cron", $a->hooks)) {
+                foreach ($a->hooks["cron"] as $hook) {
+			logger("Calling cronhooks for '".$hook[1]."'", LOGGER_DEBUG);
+			proc_run(PRIORITY_MEDIUM, "include/cronhooks.php", $hook[1]);
+		}
+	} else
+		call_hooks('cron', $d);
 
 	logger('cronhooks: end');
 

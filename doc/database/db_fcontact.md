@@ -4,6 +4,7 @@ Table fcontact
 | Field    | Description   | Type             | Null | Key | Default             | Extra           |
 | -------- | ------------- | ---------------- | ---- | --- | ------------------- | --------------- |
 | id       | sequential ID | int(10) unsigned | NO   | PRI | NULL                | auto_increment  |
+| guid     | unique id     | varchar(64)      | NO   |     |                     |                 |
 | url      |               | varchar(255)     | NO   |     |                     |                 |
 | name     |               | varchar(255)     | NO   |     |                     |                 |
 | photo    |               | varchar(255)     | NO   |     |                     |                 |

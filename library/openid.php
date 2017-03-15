@@ -375,7 +375,7 @@ class LightOpenID
                                 $server = $server[1];
                                 if (isset($delegate[2])) $this->identity = trim($delegate[2]);
                                 $this->version = 2;
-logger('Server: ' . $server);
+#logger('Server: ' . $server);
                                 $this->server = $server;
                                 return $server;
                             }

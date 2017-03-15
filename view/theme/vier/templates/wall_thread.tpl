@@ -2,12 +2,12 @@
 {{if $mode == display}}
 {{else}}
 {{if $item.comment_firstcollapsed}}
-	{{if $item.thread_level<3}} 
+	{{if $item.thread_level<3}}
 		<div class="hide-comments-outer">
-			<span id="hide-comments-total-{{$item.id}}" 
+			<span id="hide-comments-total-{{$item.id}}"
 				class="hide-comments-total">{{$item.num_comments}}</span>
-			<span id="hide-comments-{{$item.id}}" 
-				class="hide-comments fakelink" 
+			<span id="hide-comments-{{$item.id}}"
+				class="hide-comments fakelink"
 				onclick="showHideComments({{$item.id}});">{{$item.hide_text}}</span>
 		</div>
 		<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
@@ -17,7 +17,7 @@
 {{/if}}
 {{/if}}
 
-{{if $item.thread_level!=1}}<div class="children">{{/if}}
+{{if $item.thread_level!=1}}<div class="children u-comment h-cite">{{/if}}
 
 <div aria-hidden="true" class="wall-item-decor">
 	<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
@@ -30,27 +30,27 @@
 {{/if}}
 	<div class="wall-item-item">
 		<div class="wall-item-info">
-			<div class="contact-photo-wrapper mframe{{if $item.owner_url}} wwfrom{{/if}}">
-				<!-- <a aria-hidden="true" href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="contact-photo-link" id="wall-item-photo-link-{{$item.id}}"></a> -->
-					<img src="{{$item.thumb}}" class="contact-photo {{$item.sparkle}}" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" />
+			<div class="contact-photo-wrapper mframe{{if $item.owner_url}} wwfrom{{/if}} p-author h-card">
+				<!-- <a aria-hidden="true" href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="contact-photo-link u-url" id="wall-item-photo-link-{{$item.id}}"></a> -->
+					<img src="{{$item.thumb}}" class="contact-photo {{$item.sparkle}} p-name u-photo" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" />
 				<ul role="menu" aria-haspopup="true" class="contact-menu menu-popup" id="wall-item-photo-menu-{{$item.id}}">
 				{{$item.item_photo_menu}}
 				</ul>
-				
+
 			</div>
 			{{if $item.owner_url}}
 			<div aria-hidden="true" class="contact-photo-wrapper mframe wwto" id="wall-item-ownerphoto-wrapper-{{$item.id}}" >
-				<a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="contact-photo-link" id="wall-item-ownerphoto-link-{{$item.id}}">
-					<img src="{{$item.owner_photo}}" class="contact-photo {{$item.osparkle}}" id="wall-item-ownerphoto-{{$item.id}}" alt="{{$item.owner_name}}" />
+				<a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="contact-photo-link u-url" id="wall-item-ownerphoto-link-{{$item.id}}">
+					<img src="{{$item.owner_photo}}" class="contact-photo {{$item.osparkle}} p-name u-photo" id="wall-item-ownerphoto-{{$item.id}}" alt="{{$item.owner_name}}" />
 				</a>
 			</div>
-			{{/if}}			
+			{{/if}}
 		</div>
 		<div role="heading" aria-level="{{$item.thread_level}}" class="wall-item-actions-author">
 			<a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.sparkle}}">{{$item.name}}</span></a>
 			{{if $item.owner_url}}{{$item.via}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span></a>{{/if}}
 			<span class="wall-item-ago">
-				{{if $item.plink}}<a title="{{$item.plink.title}}" href="{{$item.plink.href}}" style="color: #999">{{$item.created}}</a>{{else}} {{$item.created}} {{/if}}
+				{{if $item.plink}}<a title="{{$item.plink.title}}" href="{{$item.plink.href}}" class="u-url" style="color: #999"><time class="dt-published" datetime="{{$item.localtime}}">{{$item.created}}</time></a>{{else}} <time class="dt-published" datetime="{{$item.localtime}}">{{$item.created}}</time> {{/if}}
 			</span>
 			{{if $item.lock}}<span class="icon s10 lock fakelink" onclick="lockview(event,{{$item.id}});" title="{{$item.lock}}">{{$item.lock}}</span>{{/if}}
 			<span class="wall-item-network" title="{{$item.app}}">
@@ -60,8 +60,8 @@
 		</div>
 
 		<div itemprop="description" class="wall-item-content">
-			{{if $item.title}}<h2><a href="{{$item.plink.href}}" class="{{$item.sparkle}}">{{$item.title}}</a></h2>{{/if}}
-			{{$item.body}}
+			{{if $item.title}}<h2><a href="{{$item.plink.href}}" class="{{$item.sparkle}} p-name">{{$item.title}}</a></h2>{{/if}}
+			<span class="e-content {{if !$item.title}}p-name{{/if}}">{{$item.body}}</span>
 		</div>
 	</div>
 	<div class="wall-item-bottom">
@@ -75,13 +75,13 @@
 				<span class='mention'>{{$tag}}</span>
 			{{/foreach}}
                {{foreach $item.folders as $cat}}
-                    <span class='folder'>{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
+                    <span class='folder p-category'>{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
                {{/foreach}}
                 {{foreach $item.categories as $cat}}
-                    <span class='category'>{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
+                    <span class='category p-category'>{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
                 {{/foreach}}
 		</div>
-	</div>	
+	</div>
 	<div class="wall-item-bottom">
 		<div class="wall-item-links">
 			{{if $item.plink}}<a role="button" title="{{$item.plink.orig_title}}" href="{{$item.plink.orig}}"><i class="icon-link icon-large"><span class="sr-only">{{$item.plink.orig_title}}</span></i></a>{{/if}}
@@ -95,16 +95,16 @@
 			{{/if}}
 
 			{{if $item.isevent}}
-				<a role="button" id="attendyes-{{$item.id}}" title="{{$item.attend.0}}" onclick="dolike({{$item.id}},'attendyes'); return false;"><i class="icon-ok icon-large"><span class="sr-only">{{$item.attend.0}}</span></i></a>
-				<a role="button" id="attendno-{{$item.id}}" title="{{$item.attend.1}}" onclick="dolike({{$item.id}},'attendno'); return false;"><i class="icon-remove icon-large"><span class="sr-only">{{$item.attend.1}}</span></i></a>
-				<a role="button" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="dolike({{$item.id}},'attendmaybe'); return false;"><i class="icon-question icon-large"><span class="sr-only">{{$item.attend.2}}</span></i></a>
+				<a role="button" id="attendyes-{{$item.id}}"{{if $item.responses.attendyes.self}} class="active"{{/if}} title="{{$item.attend.0}}" onclick="dolike({{$item.id}},'attendyes'); return false;"><i class="icon-ok icon-large"><span class="sr-only">{{$item.attend.0}}</span></i></a>
+				<a role="button" id="attendno-{{$item.id}}"{{if $item.responses.attendno.self}} class="active"{{/if}} title="{{$item.attend.1}}" onclick="dolike({{$item.id}},'attendno'); return false;"><i class="icon-remove icon-large"><span class="sr-only">{{$item.attend.1}}</span></i></a>
+				<a role="button" id="attendmaybe-{{$item.id}}"{{if $item.responses.attendmaybe.self}} class="active"{{/if}} title="{{$item.attend.2}}" onclick="dolike({{$item.id}},'attendmaybe'); return false;"><i class="icon-question icon-large"><span class="sr-only">{{$item.attend.2}}</span></i></a>
 			{{/if}}
 
 			{{if $item.vote}}
 				{{if $item.vote.like}}
-				<a role="button" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}},'like'); return false"><i class="icon-thumbs-up icon-large"><span class="sr-only">{{$item.vote.like.0}}</span></i></a>
+				<a role="button" id="like-{{$item.id}}"{{if $item.responses.like.self}} class="active"{{/if}} title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}},'like'); return false"><i class="icon-thumbs-up icon-large"><span class="sr-only">{{$item.vote.like.0}}</span></i></a>
 				{{/if}}{{if $item.vote.dislike}}
-				<a role="button" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike'); return false"><i class="icon-thumbs-down icon-large"><span class="sr-only">{{$item.vote.dislike.0}}</span></i></a>
+				<a role="button" id="dislike-{{$item.id}}"{{if $item.responses.dislike.self}} class="active"{{/if}} title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike'); return false"><i class="icon-thumbs-down icon-large"><span class="sr-only">{{$item.vote.dislike.0}}</span></i></a>
 				{{/if}}
 			    {{if $item.vote.share}}
 				    <a role="button" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false"><i class="icon-retweet icon-large"><span class="sr-only">{{$item.vote.share.0}}</span></i></a>
@@ -144,7 +144,7 @@
 					<a role="button" href="{{$item.edpost.0}}" title="{{$item.edpost.1}}"><i class="icon-edit icon-large"><span class="sr-only">{{$item.edpost.1}}</span></i></a>
 				{{/if}}
 			</div>
-			
+
 		</div>
 	</div>
 	<div class="wall-item-bottom">
@@ -155,9 +155,9 @@
 				<div class="wall-item-{{$verb}}" id="wall-item-{{$verb}}-{{$item.id}}">{{$response.output}}</div>
 			{{/foreach}}
 		{{/if}}
-		
+
 	</div>
-	
+
 	{{if $item.threaded}}{{if $item.comment}}
 	<div class="wall-item-bottom">
 		<div class="wall-item-links">

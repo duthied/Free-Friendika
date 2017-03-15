@@ -24,69 +24,69 @@ img {
 }
 
 #pending-update {
-  float:right;
-  color: #ffffff;
-  font-weight: bold;
-  background-color: #FF0000;
-  padding: 0em 0.3em;
+	float:right;
+	color: #ffffff;
+	font-weight: bold;
+	background-color: #FF0000;
+	padding: 0em 0.3em;
 }
 
 .admin.linklist {
-  border: 0px;
-  padding: 0px;
-  list-style: none;
-  margin-top: 0px;
+	border: 0px;
+	padding: 0px;
+	list-style: none;
+	margin-top: 0px;
 }
 
 .admin.link {
-  list-style-position: inside;
-  font-size: 1em;
-/*  padding-left: 5px;
-    margin: 5px; */
+	list-style-position: inside;
+	font-size: 1em;
+/*        padding-left: 5px;
+	margin: 5px; */
 }
 
 #adminpage dl {
-  clear: left;
-  margin-bottom: 2px;
-  padding-bottom: 2px;
-  border-bottom: 1px solid black;
+	clear: left;
+	margin-bottom: 2px;
+	padding-bottom: 2px;
+	border-bottom: 1px solid black;
 }
 
 #adminpage dt {
-  width: 200px;
-  float: left;
-  font-weight: bold;
+	width: 200px;
+	float: left;
+	font-weight: bold;
 }
 
 #adminpage dd {
-  margin-left: 200px;
+	margin-left: 200px;
 }
 #adminpage h3 {
-  border-bottom: 1px solid #898989;
-  margin-bottom: 5px;
-  margin-top: 10px;
+	border-bottom: 1px solid #898989;
+	margin-bottom: 5px;
+	margin-top: 10px;
 }
 
 #adminpage .submit {
-  clear:left;
+	clear:left;
 }
 
 #adminpage #pluginslist {
-  margin: 0px; padding: 0px;
+	margin: 0px; padding: 0px;
 }
 
 #adminpage .plugin {
-  list-style: none;
-  display: block;
-  /* border: 1px solid #888888; */
-  padding: 1em;
-  margin-bottom: 5px;
-  clear: left;
+	list-style: none;
+	display: block;
+	/* border: 1px solid #888888; */
+	padding: 1em;
+	margin-bottom: 5px;
+	clear: left;
 }
 
 #adminpage .toggleplugin {
-  float:left;
-  margin-right: 1em;
+	float:left;
+	margin-right: 1em;
 }
 
 #adminpage table {width:100%; border-bottom: 1px solid #000000; margin: 5px 0px;}
@@ -245,6 +245,10 @@ div.pager {
 
 .pager a.pager_newer {
   float: left;
+}
+
+.pager .disabled {
+	display: none;
 }
 
 .hide-comments-outer {
@@ -429,7 +433,7 @@ code {
 .sidebar-group-li:hover, #sidebar-new-group:hover, #sidebar-edit-groups:hover,#forum-widget-collapse:hover,
 #sidebar-ungrouped:hover, .side-link:hover, .nets-ul li:hover, #forumlist-sidebar li:hover, #forumlist-sidebar-right li:hover,
 .nets-all:hover, .saved-search-li:hover, li.tool:hover, .admin.link:hover, aside h4 a:hover, right_aside h4 a:hover, #message-new:hover,
-#sidebar-photos-albums li:hover, .photos-upload-link:hover {
+#sidebar-photos-albums li:hover, .photos-upload-link:hover, .textcomplete-item.active {
   /* background-color: #ddd; */
 /*  background-color: #e5e5e5; */
   background-color: #F5F5F5;
@@ -641,7 +645,7 @@ nav ul li .menu-popup {
   right: auto;
 }
 
-nav #search-box #search-text {
+nav #nav-search-box #nav-search-text {
   /*background-image:  url('icons/lupe.png');
   background-repeat:no-repeat; */
   padding-left:0px;
@@ -900,14 +904,21 @@ ul.menu-popup .empty {
   color: #9eabb0;
 }
 /* autocomplete popup */
-.acpopup {
-  max-height: 150px;
+
+.acpopup, .acpopup-mce {
   background-color: #ffffff;
-  color: #2d2d2d;
   border: 1px solid #MenuBorder;
   overflow: auto;
   z-index: 100000;
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.7);
+}
+acpopup-mce {
+  color: #2d2d2d;
+  max-height: 150px;
+}
+nav .acpopup {
+  top: 31px !important;
+  margin-left: -23px
 }
 .acpopupitem {
   color: #2d2d2d;
@@ -921,6 +932,27 @@ ul.menu-popup .empty {
 .acpopupitem.selected {
   background-color: #bdcdd4;
 }
+.textcomplete-item {
+  float: none;
+}
+.textcomplete-item a {
+  color: #737373;
+}
+.textcomplete-item a:hover {
+  color: #000;
+  padding: 3px 20px;
+}
+.textcomplete-item a .forum, .forum .acpopup-sub-text {
+  color: #36C;
+  opacity: 0.8;
+}
+.textcomplete-item a .forum:hover {
+  opacity: 1.0;
+}
+img.acpopup-img {
+  border-radius: 4px;
+}
+
 #nav-notifications-menu {
   width: 400px;
   max-height: 550px;
@@ -1398,6 +1430,15 @@ section.minimal {
   font-size: 12px;
 }
 
+.shared-time {
+  color: #999;
+  font-size: 12px;
+}
+
+.shared_header {
+  line-height: 14px;
+}
+
 .wall-item-network {
   color: #999;
   font-size: 12px;
@@ -1476,7 +1517,8 @@ section.minimal {
   color: #36c;
 }
 
-.wall-item-container .wall-item-name {
+.wall-item-container .wall-item-name,
+.wall-item-container .shared-author {
   color: black;
   font-weight: bold;
   -webkit-transition: all 0.2s ease-in-out;
@@ -1487,7 +1529,9 @@ section.minimal {
 }
 
 .toplevel_item:hover .wall-item-name,
-.wall-item-container:hover .wall-item-name {
+.wall-item-container:hover .wall-item-name,
+.toplevel_item:hover .shared-author,
+.wall-item-container:hover .shared-author {
   color: #36c;
   font-weight: bold;
   -webkit-transition: all 0.2s ease-in-out;
@@ -1543,6 +1587,11 @@ section.minimal {
   margin-right: 1em;
   cursor: pointer;
 }
+.wall-item-container .wall-item-actions-social a.active,
+.wall-item-container .wall-item-actions-isevent a.active {
+	color: #36C;
+}
+
 .wall-item-container .wall-item-actions-tools {
   float: right;
   width: 80px;
@@ -1598,7 +1647,7 @@ section.minimal {
   max-width: calc(100% - 1px);
 }
 
-.children .wall-item-comment-wrapper textarea, 
+.children .wall-item-comment-wrapper textarea,
 .wall-item-container.thread_level_3 .wall-item-comment-wrapper textarea,
 .wall-item-container.thread_level_4 .wall-item-comment-wrapper textarea,
 .wall-item-container.thread_level_5 .wall-item-comment-wrapper textarea,
@@ -2350,6 +2399,11 @@ ul.tabs li .active, span.pager_current a {
 aside form {
   overflow-x: hidden;
 }
+aside form fieldset {
+  margin: 0px;
+  padding: 0px;
+  border: 0px none;
+}
 aside form .field label {
   float: left;
   width: 170px;
@@ -2958,10 +3012,6 @@ a.mail-list-link {
   list-style-type: none;
 }
 
-#contact-edit-settings {
-  margin-top: 10px;
-}
-
 a.btn#contact-edit-actions-button {
   cursor: pointer;
   border-radius: 3px;
@@ -2978,7 +3028,8 @@ a.btn#contact-edit-actions-button {
 }
 
 /* photo album page */
-.photo-top-image-wrapper {
+.photo-top-image-wrapper,
+.photo-album-image-wrapper {
   position: relative;
   float: left;
   margin-top: 15px;
@@ -3008,10 +3059,32 @@ a.btn#contact-edit-actions-button {
   float: left;
   width: 175px;
 }
-img.photo-top-photo {
+img.photo-top-photo,
+img.photo-album-photo {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+.photo-album-photo {
+  float: none;
+}
+.photo-album-image-wrapper .caption {
+  opacity: 0;
+  width: 100%;
+  position: absolute;
+  bottom: 0px;
+  padding: 3px 5px;
+  background-color: rgb(255, 255, 255);
+  margin: 0;
+  overflow: hidden;
+  -webkit-transition: all 0.5s ease-in-out;
+  -moz-transition: all 0.5s ease-in-out;
+  -o-transition: all 0.5s ease-in-out;
+  -ms-transition: all 0.5s ease-in-out;
+  transition: all 0.5s ease-in-out;
+}
+.photo-album-image-wrapper:hover .caption {
+  opacity: 1;
 }
 
 .menu-profile-list{
@@ -3265,9 +3338,14 @@ img.photo-top-photo {
 }
 
 /* upload/select popup */
-.fbrowser.image .photo-album-image-wrapper { margin-left: 10px; }
- #message-preview { margin-top: 15px; }
- #message-preview span { width: 100%; }
- #message-preview .mail-count, #message-preview .mail-delete { display:none; }
- #message-preview .mail-list-wrapper { padding: 3px; }
- #message-preview .mail-date { opacity:0.6; font-size:10px; }
+  fbrowser.image .photo-album-image-wrapper { margin-left: 10px; }
+  #message-preview { margin-top: 15px; }
+  #message-preview span { width: 100%; }
+  #message-preview .mail-count, #message-preview .mail-delete { display:none; }
+  #message-preview .mail-list-wrapper { padding: 3px; }
+  #message-preview .mail-date { opacity:0.6; font-size:10px; }
+
+/* colorbox */
+#colorbox img {
+  max-width: 100%;
+}
