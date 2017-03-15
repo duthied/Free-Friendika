@@ -20,7 +20,7 @@
 	<div class="container">
 		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 no-padding"><!-- div for navbar width-->
 			<!-- Brand and toggle get grouped for better mobile display -->
-			<div class="topbar-nav" role=”navigation”>
+			<div class="topbar-nav" role="navigation">
 
 				{{* Buttons for the mobile view *}}
 				<button role="menu" type="button" class="navbar-toggle collapsed pull-right" data-toggle="offcanvas" data-target="#myNavmenu">
@@ -84,7 +84,7 @@
 									<div class="arrow"></div>
 									{{$nav.notifications.1}}
 									<div class="dropdown-header-link">
-										<a href="#" onclick="notifyMarkAll(); return false;" data-toggle="tooltip" title="{{$nav.notifications.mark.3}}" class="">{{$nav.notifications.mark.1}}</a>
+										<button type="button" class="btn btn-link" onclick="notifyMarkAll();" data-toggle="tooltip" title="{{$nav.notifications.mark.3}}">{{$nav.notifications.mark.1}}</button>
 									</div>
 
 								</li>

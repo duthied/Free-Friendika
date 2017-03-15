@@ -91,26 +91,26 @@ as the value of $top_child_total (this is done at the end of this file)
 
 					{{if $item.edpost}} {{* edit the posting *}}
 					<li role="menuitem">
-						<button type="button" onclick="editpost('{{$item.edpost.0}}?mode=none'); return false;" title="{{$item.edpost.1}}" class="btn-link navicon pencil"><i class="fa fa-pencil"></i> {{$item.edpost.1}}</button>
+						<button type="button" onclick="editpost('{{$item.edpost.0}}?mode=none');" title="{{$item.edpost.1}}" class="btn-link navicon pencil"><i class="fa fa-pencil"></i> {{$item.edpost.1}}</button>
 					</li>
 					{{/if}}
 
 					{{if $item.tagger}} {{* tag the post *}}
 					<li role="menuitem">
-						<button type="button" id="tagger-{{$item.id}}" onclick="itemTag({{$item.id}}); return false;" class="btn-link {{$item.tagger.class}}" title="{{$item.tagger.add}}"><i class="fa fa-tag"></i> {{$item.tagger.add}}</button>
+						<button type="button" id="tagger-{{$item.id}}" onclick="itemTag({{$item.id}});" class="btn-link {{$item.tagger.class}}" title="{{$item.tagger.add}}"><i class="fa fa-tag"></i> {{$item.tagger.add}}</button>
 					</li>
 					{{/if}}
 
 					{{if $item.filer}}
 					<li role="menuitem">
-						<button type="button" id="filer-{{$item.id}}" onclick="itemFiler({{$item.id}}); return false;" class="btn-link filer-item filer-icon" title="{{$item.filer}}"><i class="fa fa-folder"></i>&nbsp;{{$item.filer}}</button>
+						<button type="button" id="filer-{{$item.id}}" onclick="itemFiler({{$item.id}});" class="btn-link filer-item filer-icon" title="{{$item.filer}}"><i class="fa fa-folder"></i>&nbsp;{{$item.filer}}</button>
 					</li>
 					{{/if}}
 
 					{{if $item.star}}
 					<li role="menuitem">
-						<button type="button" id="star-{{$item.id}}" onclick="dostar({{$item.id}}); return false;" class="btn-link {{$item.star.classdo}}" title="{{$item.star.do}}"><i class="fa fa-star-o"></i>&nbsp;{{$item.star.do}}</button>
-						<button type="button" id="unstar-{{$item.id}}" onclick="dostar({{$item.id}}); return false;" class="btn-link {{$item.star.classundo}}" title="{{$item.star.undo}}"><i class="fa fa-star"></i>&nbsp;{{$item.star.undo}}</button>
+						<button type="button" id="star-{{$item.id}}" onclick="dostar({{$item.id}});" class="btn-link {{$item.star.classdo}}" title="{{$item.star.do}}"><i class="fa fa-star-o"></i>&nbsp;{{$item.star.do}}</button>
+						<button type="button" id="unstar-{{$item.id}}" onclick="dostar({{$item.id}});" class="btn-link {{$item.star.classundo}}" title="{{$item.star.undo}}"><i class="fa fa-star"></i>&nbsp;{{$item.star.undo}}</button>
 					</li>
 					{{/if}}
 
@@ -120,16 +120,16 @@ as the value of $top_child_total (this is done at the end of this file)
 
 					{{if $item.ignore}}
 						<li role="menuitem">
-							<button type="button" id="ignore-{{$item.id}}" onclick="doignore({{$item.id}}); return false;" class="btn-link {{$item.ignore.classdo}}" title="{{$item.ignore.do}}"><i class="fa fa-eye-slash"></i> {{$item.ignore.do}}</button>
+							<button type="button" id="ignore-{{$item.id}}" onclick="doignore({{$item.id}});" class="btn-link {{$item.ignore.classdo}}" title="{{$item.ignore.do}}"><i class="fa fa-eye-slash"></i> {{$item.ignore.do}}</button>
 						</li>
 						<li role="menuitem">
-							<button type="button" id="unignore-{{$item.id}}" onclick="doignore({{$item.id}}); return false;" class="btn-link {{$item.ignore.classundo}}"  title="{{$item.ignore.undo}}"><i class="fa fa-eye"></i> {{$item.ignore.undo}}</button>
+							<button type="button" id="unignore-{{$item.id}}" onclick="doignore({{$item.id}});" class="btn-link {{$item.ignore.classundo}}"  title="{{$item.ignore.undo}}"><i class="fa fa-eye"></i> {{$item.ignore.undo}}</button>
 						</li>
 					{{/if}}
 
 					{{if $item.drop.dropping}}
 					<li role="menuitem">
-						<button type="button" class="btn-link navicon delete" onclick="dropItem('item/drop/{{$item.id}}', 'item-{{$item.guid}}'); return false;" title="{{$item.drop.delete}}"><i class="fa fa-trash"></i> {{$item.drop.delete}}</button>
+						<button type="button" class="btn-link navicon delete" onclick="dropItem('item/drop/{{$item.id}}', 'item-{{$item.guid}}');" title="{{$item.drop.delete}}"><i class="fa fa-trash"></i> {{$item.drop.delete}}</button>
 					</li>
 					{{/if}}
 				</ul>
@@ -287,10 +287,10 @@ as the value of $top_child_total (this is done at the end of this file)
 				{{* Buttons for like and dislike *}}
 				{{if $item.vote}}
 					{{if $item.vote.like}}
-					<button type="button" class="btn btn-xs btn-default button-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}},'like'); return false;" data-toggle="button"><i class="fa fa-thumbs-up"></i>&nbsp;{{$item.vote.like.1}}</button>
+					<button type="button" class="btn btn-xs btn-default button-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}},'like');" data-toggle="button"><i class="fa fa-thumbs-up"></i>&nbsp;{{$item.vote.like.1}}</button>
 					{{/if}}
 					{{if $item.vote.dislike}}
-					<button type="button" class="btn btn-xs btn-default button-likes{{if $item.responses.dislike.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike'); return false;" data-toggle="button"><i class="fa fa-thumbs-down"></i>&nbsp;{{$item.vote.dislike.1}}</button>
+					<button type="button" class="btn btn-xs btn-default button-likes{{if $item.responses.dislike.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike');" data-toggle="button"><i class="fa fa-thumbs-down"></i>&nbsp;{{$item.vote.dislike.1}}</button>
 					{{/if}}
 
 				{{/if}}
@@ -303,7 +303,7 @@ as the value of $top_child_total (this is done at the end of this file)
 				{{* Button for sharing the item *}}
 				{{if $item.vote}}
 					{{if $item.vote.share}}
-					<button type="button" class="btn btn-xs btn-default button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false;"><i class="fa fa-retweet"></i>&nbsp;{{$item.vote.share.1}}</a>
+					<button type="button" class="btn btn-xs btn-default button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-retweet"></i>&nbsp;{{$item.vote.share.1}}</a>
 					{{/if}}
 				{{/if}}
 			</div>
@@ -312,9 +312,9 @@ as the value of $top_child_total (this is done at the end of this file)
 				{{* Event attendance buttons *}}
 				{{if $item.isevent}}
 				<div class="vote-event">
-					<button type="button" class="btn btn-xs btn-default button-event{{if $item.responses.attendyes.self}} active" aria-pressed="true{{/if}}" id="attendyes-{{$item.id}}" title="{{$item.attend.0}}" onclick="dolike({{$item.id}},'attendyes'); return false;"><i class="fa fa-check"><span class="sr-only">{{$item.attend.0}}</span></i></button>
-					<button type="button" class="btn btn-xs btn-default button-event{{if $item.responses.attendno.self}} active" aria-pressed="true{{/if}}" id="attendno-{{$item.id}}" title="{{$item.attend.1}}" onclick="dolike({{$item.id}},'attendno'); return false;"><i class="fa fa-times"><span class="sr-only">{{$item.attend.1}}</span></i></button>
-					<button type="button" class="btn btn-xs btn-default button-event{{if $item.responses.attendmaybe.self}} active" aria-pressed="true{{/if}}" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="dolike({{$item.id}},'attendmaybe'); return false;"><i class="fa fa-question"><span class="sr-only">{{$item.attend.2}}</span></i></button>
+					<button type="button" class="btn btn-xs btn-default button-event{{if $item.responses.attendyes.self}} active" aria-pressed="true{{/if}}" id="attendyes-{{$item.id}}" title="{{$item.attend.0}}" onclick="dolike({{$item.id}},'attendyes');"><i class="fa fa-check"><span class="sr-only">{{$item.attend.0}}</span></i></button>
+					<button type="button" class="btn btn-xs btn-default button-event{{if $item.responses.attendno.self}} active" aria-pressed="true{{/if}}" id="attendno-{{$item.id}}" title="{{$item.attend.1}}" onclick="dolike({{$item.id}},'attendno');"><i class="fa fa-times"><span class="sr-only">{{$item.attend.1}}</span></i></button>
+					<button type="button" class="btn btn-xs btn-default button-event{{if $item.responses.attendmaybe.self}} active" aria-pressed="true{{/if}}" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="dolike({{$item.id}},'attendmaybe');"><i class="fa fa-question"><span class="sr-only">{{$item.attend.2}}</span></i></button>
 				</div>
 				{{/if}}
 

@@ -1,6 +1,6 @@
 
 {{* The button to open the jot - in This theme we move the button with js to the second nav bar *}}
-<button class="btn btn-sm btn-main pull-right" id="jotOpen" onclick="jotShow(); return false;"><i class="fa fa-pencil-square-o fa-2x"></i></button>
+<button class="btn btn-sm btn-main pull-right" id="jotOpen" onclick="jotShow();"><i class="fa fa-pencil-square-o fa-2x"></i></button>
 
 
 <div id="jot-content">
@@ -15,10 +15,22 @@
 			<ul class="nav nav-tabs hidden-xs jot-nav" role="menubar" data-tabs="tabs">
 				{{* Mark the first list entry as active because it is the first which is active after opening
 					the modal. Changing of the activity status is done by js in jot.tpl-header *}}
-				<li class="active" role="menuitem"><a id="jot-text-lnk" class="jot-text-lnk" onclick="jotActive(); return false;">{{$message}}</a></li>
-				{{if $acl}}<li role="menuitem"><a id="jot-perms-lnk" class="jot-perms-lnk" onclick="aclActive();return false;">{{$shortpermset}}</a></li>{{/if}}
-				{{if $preview}}<li role="menuitem"><a id="jot-preview-lnk" class="jot-preview-lnk" onclick="previewActive();return false;">{{$preview}}</a></li>{{/if}}
-				<li role="menuitem"><a id="jot-browser-link" onclick="fbrowserActive(); return false;">{{$browser}}</a></li>
+				<li class="active" role="menuitem">
+					<button type="button" class="btn btn-link jot-text-lnk" id="jot-text-lnk" onclick="jotActive();">{{$message}}</button>
+				</li>
+				{{if $acl}}
+				<li role="menuitem">
+					<button type="button" class="btn btn-link jot-perms-lnk" id="jot-perms-lnk" onclick="aclActive();">{{$shortpermset}}</button>
+				</li>
+				{{/if}}
+				{{if $preview}}
+				<li role="menuitem">
+					<button type="button" class="btn btn-link jot-preview-lnk" id="jot-preview-lnk" onclick="previewActive();">{{$preview}}</button>
+				</li>
+				{{/if}}
+				<li role="menuitem">
+					<button type="button" class="btn btn-link" id="jot-browser-link" onclick="fbrowserActive();">{{$browser}}</button>
+				</li>
 			</ul>
 
 			<div class="dropdown dropdown-head dropdown-mobile-jot jot-nav hidden-lg hidden-md hidden-sm" role="menubar" data-tabs="tabs" style="float: left;">
@@ -26,9 +38,19 @@
 				<ul class="dropdown-menu nav nav-pills">
 					{{* mark the first list entry as active because it is the first which is active after opening
 					the modal. Changing of the activity status is done by js in jot.tpl-header *}}
-					<li role="menuitem" style="display: none;"><a id="jot-text-lnk-mobile" class="jot-text-lnk" onclick="jotActive(); return false;">{{$message}}</a></li>
-					{{if $acl}}<li role="menuitem"><a id="jot-perms-lnk-mobile" class="jot-perms-lnk" onclick="aclActive();return false;">{{$shortpermset}}</a></li>{{/if}}
-					{{if $preview}}<li role="menuitem"><a id="jot-preview-lnk-mobile" class="jot-preview-lnk" onclick="previewActive();return false;">{{$preview}}</a></li>{{/if}}
+					<li role="menuitem" style="display: none;">
+						<button type="button" class="btn btn-link jot-text-lnk" id="jot-text-lnk-mobile" onclick="jotActive();">{{$message}}</button>
+					</li>
+					{{if $acl}}
+					<li role="menuitem">
+						<button type="button" class="btn btn-link jot-perms-lnk" id="jot-perms-lnk-mobile" onclick="aclActive();">{{$shortpermset}}</button>
+					</li>
+					{{/if}}
+					{{if $preview}}
+					<li role="menuitem">
+						<button type="button" class="btn btn-link jot-preview-lnk" id="jot-preview-lnk-mobile" onclick="previewActive();">{{$preview}}</button>
+					</li>
+					{{/if}}
 				</ul>
 			</div>
 			<button type="button" class="close hidden-lg hidden-md hidden-sm" data-dismiss="modal" style="float: right;">&times;</button>
@@ -69,13 +91,13 @@
 						{{* uncomment the button for "wall-immage-upload" because we have integrated it directly in the jot modal
 						<li><a href="#" id="wall-image-upload" title="{{$upload}}"><i class="fa fa-picture-o"></i></a></li>
 						*}}
-						<li><a href="#" onclick="return false;" id="wall-file-upload"  title="{{$attach}}"><i class="fa fa-paperclip"></i></a></li>
-						<li><a id="profile-link"  ondragenter="return linkdropper(event);" ondragover="return linkdropper(event);" ondrop="linkdrop(event);" onclick="jotGetLink(); return false;" title="{{$weblink}}"><i class="fa fa-link"></i></a></li>
-						<li><a id="profile-video" onclick="jotVideoURL();return false;" title="{{$video}}"><i class="fa fa-film"></i></a></li>
-						<li><a id="profile-audio" onclick="jotAudioURL();return false;" title="{{$audio}}"><i class="fa fa-music"></i></a></li>
-						<li><a id="profile-location" onclick="jotGetLocation();return false;" title="{{$setloc}}"><i class="fa fa-map-marker"></i></a></li>
+						<li><button type="button" class="btn btn-link" id="wall-file-upload" title="{{$attach}}"><i class="fa fa-paperclip"></i></button></li>
+						<li><button type="button" class="btn btn-link" id="profile-link"  ondragenter="return linkdropper(event);" ondragover="return linkdropper(event);" ondrop="linkdrop(event);" onclick="jotGetLink();" title="{{$weblink}}"><i class="fa fa-link"></i></button></li>
+						<li><button type="button" class="btn btn-link" id="profile-video" onclick="jotVideoURL();" title="{{$video}}"><i class="fa fa-film"></i></button></li>
+						<li><button type="button" class="btn btn-link" id="profile-audio" onclick="jotAudioURL();" title="{{$audio}}"><i class="fa fa-music"></i></button></li>
+						<li><button type="button" class="btn btn-link" id="profile-location" onclick="jotGetLocation();" title="{{$setloc}}"><i class="fa fa-map-marker"></i></button></li>
 						<!-- TODO: waiting for a better placement
-						<li><a id="profile-nolocation" onclick="jotClearLocation();return false;" title="{{$noloc}}">{{$shortnoloc}}</a></li>
+						<li><button type="button" class="btn btn-link" id="profile-nolocation" onclick="jotClearLocation();" title="{{$noloc}}">{{$shortnoloc}}</button></li>
 						-->
 
 						<li class="pull-right"><button class="btn btn-primary" id="jot-submit" type="submit" id="profile-jot-submit" name="submit" ><i class="fa fa-slideshare fa-fw"></i> {{$share}}</button></li>

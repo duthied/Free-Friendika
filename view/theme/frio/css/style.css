@@ -819,6 +819,19 @@ nav.navbar a, nav.navbar .btn-link {
 }
 
 /* Dropdown Menus */
+.nav-pills > li > .btn-link {
+	border-radius: 4px;
+}
+.dropdown-menu > li > :focus,
+.dropdown-menu > li > :hover {
+	background-color: #e8e8e8;
+    background-image: -webkit-linear-gradient(top,#f5f5f5 0,#e8e8e8 100%);
+    background-image: -o-linear-gradient(top,#f5f5f5 0,#e8e8e8 100%);
+    background-image: -webkit-gradient(linear,left top,left bottom,from(#f5f5f5),to(#e8e8e8));
+    background-image: linear-gradient(to bottom,#f5f5f5 0,#e8e8e8 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff5f5f5', endColorstr='#ffe8e8e8', GradientType=0);
+    background-repeat: repeat-x;
+}
 .nav-pills .dropdown-menu,
 .nav-tabs .dropdown-menu,
 .account .dropdown-menu,
@@ -849,6 +862,8 @@ nav.navbar a, nav.navbar .btn-link {
     font-size: 13px;
     padding: 4px 15px;
     text-transform: capitalize;
+	width: 100%;
+    text-align: left;
 }
 .nav-pills .dropdown-menu li a i, .nav-pills .dropdown-menu li .btn-link i,
 .nav-tabs .dropdown-menu li a i, .nav-tabs .dropdown-menu li .btn-link i,
@@ -1655,8 +1670,8 @@ code > .hl-main {
     padding-top: 5px !important;
     padding-bottom: 5px !important;
 }
-.comment-icon-list a.icon,
-.comment-icon-list a.icon:hover {
+.comment-icon-list .icon,
+.comment-icon-list .icon:hover {
     color: #555;
     background-color: transparent;
 }
@@ -1786,12 +1801,14 @@ ul.dropdown-menu li:hover {
 
 
 /* Dropdown Menu */
-.dropdown-menu li a {
+.dropdown-menu li a,
+.dropdown-menu li .btn-link {
     font-size: 13px!important;
     font-weight: 600!important;
 }
-.dropdown-menu li a:hover, .dropdown-menu li a:visited,
-.dropdown-menu li a:hover, .dropdown-menu li a:focus {
+.dropdown-menu li > :hover,
+.dropdown-menu li > :visited,
+.dropdown-menu li > :focus {
     background: 0 0;
 }
 
@@ -2003,22 +2020,22 @@ ul.viewcontact_wrapper > li {
 .contact-wrapper .contact-actions {
     display: flex;
 }
-.contact-wrapper a.contact-action-link {
+.contact-wrapper .contact-action-link,
+.contact-wrapper .contact-action-link:hover,
+.textcomplete-item .contact-wrapper .contact-action-link {
+    padding: 0 5px;
+    color: #555;
+	border: 0;
+}
+.contact-wrapper .contact-action-link {
     opacity: 0.1;
     transition: all 0.25s ease-in-out;
 }
-.contact-wrapper a.contact-action-link,
-.contact-wrapper a.contact-action-link:hover,
-.textcomplete-item .contact-wrapper a.contact-action-link {
-    padding-right: 5px;
-    padding-left: 5px;
-    color: #555;
-}
-ul li:hover .contact-wrapper a.contact-action-link {
+ul li:hover .contact-wrapper .contact-action-link {
     opacity: 0.8;
     transition: all 0.25s ease-in-out;
 }
-ul li:hover .contact-wrapper a.contact-action-link:hover {
+ul li:hover .contact-wrapper .contact-action-link:hover {
     opacity: 1;
 }
 #contacts-search-wrapper,
