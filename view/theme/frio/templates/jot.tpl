@@ -16,20 +16,20 @@
 				{{* Mark the first list entry as active because it is the first which is active after opening
 					the modal. Changing of the activity status is done by js in jot.tpl-header *}}
 				<li class="active" role="menuitem">
-					<button type="button" class="btn btn-link jot-text-lnk" id="jot-text-lnk" onclick="jotActive();">{{$message}}</button>
+					<a class="jot-text-lnk" id="jot-text-lnk" onclick="jotActive(); return false;">{{$message}}</a>
 				</li>
 				{{if $acl}}
 				<li role="menuitem">
-					<button type="button" class="btn btn-link jot-perms-lnk" id="jot-perms-lnk" onclick="aclActive();">{{$shortpermset}}</button>
+					<a class="btn btn-link jot-perms-lnk" id="jot-perms-lnk" onclick="aclActive(); return false;">{{$shortpermset}}</a>
 				</li>
 				{{/if}}
 				{{if $preview}}
 				<li role="menuitem">
-					<button type="button" class="btn btn-link jot-preview-lnk" id="jot-preview-lnk" onclick="previewActive();">{{$preview}}</button>
+					<a class="btn btn-link jot-preview-lnk" id="jot-preview-lnk" onclick="previewActive(); return false;">{{$preview}}</a>
 				</li>
 				{{/if}}
 				<li role="menuitem">
-					<button type="button" class="btn btn-link" id="jot-browser-link" onclick="fbrowserActive();">{{$browser}}</button>
+					<a class="btn btn-link" id="jot-browser-link" onclick="fbrowserActive(); return false;">{{$browser}}</a>
 				</li>
 			</ul>
 
