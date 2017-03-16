@@ -612,7 +612,14 @@ function process_events($arr) {
 			$is_first = ($d !== $last_date);
 
 			$last_date = $d;
-			$edit = ((! $rr['cid']) ? array(App::get_baseurl().'/events/event/'.$rr['id'],t('Edit event'),'','') : null);
+
+			// Show edit and drop actions only if the user is the owner of the event and the event
+			// is a real event (no bithdays)
+			if (local_user() && local_user() == $rr['uid'] && $rr['type'] == 'event') {
+				$edit = ((! $rr['cid']) ? array(App::get_baseurl().'/events/event/'.$rr['id'],t('Edit event'),'','') : null);
+				$drop = array(App::get_baseurl().'/events/drop/'.$rr['id'],t('Delete event'),'','');
+			}
+
 			$title = strip_tags(html_entity_decode(bbcode($rr['summary']),ENT_QUOTES,'UTF-8'));
 			if(! $title) {
 				list($title, $_trash) = explode("<br",bbcode($rr['desc']),2);
@@ -631,6 +638,8 @@ function process_events($arr) {
 
 				'j' => $j,
 				'd' => $d,
+				'edit' => $edit,
+				'drop' => $drop,
 				'is_first'=>$is_first,
 				'item'=>$rr,
 				'html'=>$html,
