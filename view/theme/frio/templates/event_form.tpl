@@ -8,23 +8,23 @@
 		{{* Mark the first list entry as active because it is the first which is active after opening
 			the modal. Changing of the activity status is done by js in event_head.tpl *}}
 		<li class="active" role="menuitem">
-			<button type="button" class="btn btn-link" id="event-edit-lnk" onclick="eventEditActive();">{{$basic}}</button>
+			<a id="event-edit-lnk" onclick="eventEditActive(); return false;">{{$basic}}</a>
 		</li>
 		<li role="menuitem">
-			<button type="button" class="btn btn-link" id="event-desc-lnk" onclick="eventDescActive();">{{$advanced}}</button>
+			<a id="event-desc-lnk" onclick="eventDescActive(); return false;">{{$advanced}}</a>
 		</li>
 		{{if $acl}}
 		<li role="menuitem" {{if !$sh_checked}} style="display: none"{{/if}}>
-			<button type="button" class="btn btn-link" id="event-perms-lnk" onclick="eventAclActive();">{{$permissions}}</button>
+			<a id="event-perms-lnk" onclick="eventAclActive(); return false;">{{$permissions}}</a>
 		</li>
 		{{/if}}
 		{{if $preview}}
 		<li role="menuitem">
-			<button type="button" class="btn btn-link" id="event-preview-lnk" onclick="eventPreviewActive();">{{$preview}}</button>
+			<a id="event-preview-lnk" onclick="eventPreviewActive(); return false;">{{$preview}}</a>
 		</li>
 		{{/if}}
 		{{* commented out because it isn't implemented yet
-		<li role="menuitem"><button type="button" class="btn btn-link" id="event-preview-link" onclick="fbrowserActive();"> Browser </button></li>
+		<li role="menuitem"><a id="event-preview-link" onclick="fbrowserActive(); return false;"> Browser </a></li>
 		*}}
 	</ul>
 
