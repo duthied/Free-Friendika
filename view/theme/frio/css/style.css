@@ -51,7 +51,10 @@ body a[name]:not([href]) {
     visibility: hidden;
 }
 
-body a:hover, body a:focus, body a:active, body a.active, body .btn-link:hover{
+body a:hover, body .btn-link:hover,
+body a:focus, body .btn-link:focus,
+body a:active, body .btn-link:active,
+body a.active, body .btn-link.active {
     /*color: #59d6e4;*/
     color: $link_hover_color;
     text-decoration: none;
@@ -1322,8 +1325,6 @@ section #jotOpen {
 .wall-item-container a,
 .wall-item-container .fakelink,
 .toplevel_item .fakelink,
-.toplevel_item .wall-item-container .btn-link,
-.wall-item-container .btn-link,
 .toplevel_item .wall-item-container .wall-item-responses a {
     color: #555;
     -webkit-transition: all 0.25s ease-in-out;
@@ -1334,7 +1335,6 @@ section #jotOpen {
 }
 
 .toplevel_item:hover .fakelink, .wall-item-container:hover .fakelink,
-.toplevel_item:hover .wall-item-container:hover :not(.dropdown):not([role=menuitem]) > .btn-link,
 .toplevel_item:hover .wall-item-container:hover .wall-item-responses a,
 .toplevel_item:hover .wall-item-content a,
 .toplevel_item:hover .wall-item-name,
@@ -1550,19 +1550,19 @@ code > .hl-main {
 }
 
 /* item social action buttons */
-.wall-item-actions, .wall-item-actions a {
+.wall-item-actions, .wall-item-actions a, .wall-item-actions button {
     font-size: 13px;
     color: #555;
     margin-top: 15px;
     margin-bottom: 0;
 }
-.wall-item-actions a.active {
+.wall-item-actions .active {
     font-weight: bold;
 }
-.wall-item-actions a:hover {
+.wall-item-actions :hover {
     color: #555;
 }
-.wall-item-actions a.active:hover {
+.wall-item-actions .active:hover {
     color: $link_color;
 }
 .wall-item-actions-left {

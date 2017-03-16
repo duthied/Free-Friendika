@@ -40,11 +40,11 @@ as the value of $top_child_total (this is done at the end of this file)
 
 	{{if $item.thread_level<3}}
 		<div class="hide-comments-outer-wrapper">
-			<div class="hide-comments-outer btn-link" onclick="showHideComments({{$item.id}});">
+			<div class="hide-comments-outer fakelink" onclick="showHideComments({{$item.id}});">
 				<span id="hide-comments-total-{{$item.id}}"
 					class="hide-comments-total">{{$item.num_comments}}</span>
 				<span id="hide-comments-{{$item.id}}"
-					class="hide-comments fakelink">{{$item.hide_text}}</span>
+					class="hide-comments">{{$item.hide_text}}</span>
 			</div>
 			<hr />
 		</div>
@@ -184,8 +184,8 @@ as the value of $top_child_total (this is done at the end of this file)
 		{{* contact info header*}}
 		{{if $item.thread_level==1}}
 		<div role="heading " aria-level="{{$item.thread_level}}" class="contact-info hidden-sm hidden-xs media-body"><!-- <= For computer -->
-			<h4 class="media-heading"><a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo"><span class="wall-item-name btn-link {{$item.sparkle}}">{{$item.name}}</span></a>
-			{{if $item.owner_url}}{{$item.via}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link userinfo"><span class="wall-item-name{{$item.osparkle}} btn-link" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span></a>{{/if}}
+			<h4 class="media-heading"><a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo"><span class="wall-item-name {{$item.sparkle}}">{{$item.name}}</span></a>
+			{{if $item.owner_url}}{{$item.via}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link userinfo"><span class="wall-item-name {{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span></a>{{/if}}
 			{{if $item.lock}}<span class="navicon lock fakelink" onClick="lockview(event,{{$item.id}});" title="{{$item.lock}}" data-toggle="tooltip">&nbsp;<small><i class="fa fa-lock"></i></small></span>{{/if}}
 			</h4>
 
@@ -220,7 +220,7 @@ as the value of $top_child_total (this is done at the end of this file)
 		<div class="media-body">{{*this is the media body for comments - this div must be closed at the end of the file *}}
 		<div role="heading " aria-level="{{$item.thread_level}}" class="contact-info-comment">
 			<h5 class="media-heading">
-				<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo"><span class="btn-link">{{$item.name}}</span></a>
+				<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo"><span class="fakelink">{{$item.name}}</span></a>
 				<span class="text-muted">
 					<small><span title="{{$item.localtime}}" data-toggle="tooltip">{{$item.ago}}</span> {{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location}}){{/if}}</small>
 				</span>
@@ -278,7 +278,7 @@ as the value of $top_child_total (this is done at the end of this file)
 			<div class="wall-item-actions-left pull-left">
 				<!--comment this out to try something different {{if $item.threaded}}{{if $item.comment}}
 				<div id="button-reply" class="pull-left">
-					<span class="btn-link" id="comment-{{$item.id}}" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"><i class="fa fa-reply" title="{{$item.switchcomment}}"></i> </span>
+					<button type="button" class="btn-link" id="comment-{{$item.id}}" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"><i class="fa fa-reply" title="{{$item.switchcomment}}"></i> </span>
 				</div>
 				{{/if}}{{/if}}-->
 
@@ -287,23 +287,32 @@ as the value of $top_child_total (this is done at the end of this file)
 				{{* Buttons for like and dislike *}}
 				{{if $item.vote}}
 					{{if $item.vote.like}}
-					<button type="button" class="btn btn-xs btn-default button-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}},'like');" data-toggle="button"><i class="fa fa-thumbs-up"></i>&nbsp;{{$item.vote.like.1}}</button>
+					<button type="button" class="btn-link button-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}},'like');" data-toggle="button"><i class="fa fa-thumbs-up"></i>&nbsp;{{$item.vote.like.1}}</button>
+					{{/if}}
+					{{if $item.vote.like AND $item.vote.dislike}}
+					<span role="presentation" class="separator">•</span>
 					{{/if}}
 					{{if $item.vote.dislike}}
-					<button type="button" class="btn btn-xs btn-default button-likes{{if $item.responses.dislike.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike');" data-toggle="button"><i class="fa fa-thumbs-down"></i>&nbsp;{{$item.vote.dislike.1}}</button>
+					<button type="button" class="btn-link button-likes{{if $item.responses.dislike.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike');" data-toggle="button"><i class="fa fa-thumbs-down"></i>&nbsp;{{$item.vote.dislike.1}}</button>
 					{{/if}}
 
+					{{if ($item.vote.like OR $item.vote.dislike) AND $item.comment}}
+					<span role="presentation" class="separator">•</span>
+					{{/if}}
 				{{/if}}
 
 				{{* Button to open the comment text field *}}
 				{{if $item.comment}}
-				<button type="button" class="btn btn-xs btn-default button-comments" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" {{if $item.thread_level != 1}}onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" {{else}} onclick="showHide('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"{{/if}}><i class="fa fa-commenting"></i>&nbsp;{{$item.switchcomment}}</button>
+				<button type="button" class="btn-link button-comments" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" {{if $item.thread_level != 1}}onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" {{else}} onclick="showHide('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"{{/if}}><i class="fa fa-commenting"></i>&nbsp;{{$item.switchcomment}}</button>
 				{{/if}}
 
 				{{* Button for sharing the item *}}
 				{{if $item.vote}}
 					{{if $item.vote.share}}
-					<button type="button" class="btn btn-xs btn-default button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-retweet"></i>&nbsp;{{$item.vote.share.1}}</a>
+						{{if $item.vote.like OR $item.vote.dislike OR $item.comment}}
+					<span role="presentation" class="separator">•</span>
+						{{/if}}
+					<button type="button" class="btn-link button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-retweet"></i>&nbsp;{{$item.vote.share.1}}</a>
 					{{/if}}
 				{{/if}}
 			</div>
