@@ -823,6 +823,9 @@ function poco_fetch_nodeinfo($server_url) {
 
 		if (isset($nodeinfo->software->version)) {
 			$server['version'] = $nodeinfo->software->version;
+			// Version numbers on Nodeinfo are presented with additional info, e.g.:
+			// 0.6.3.0-p1702cc1c, 0.6.99.0-p1b9ab160 or 3.4.3-2-1191.
+			$server['version'] = preg_replace("=(.+)-(.{4,})=ism", "$1", $server['version']);
 		}
 	}
 
@@ -1186,21 +1189,28 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		$serverret = z_fetch_url($server_url."/statistics.json");
 		if ($serverret["success"]) {
 			$data = json_decode($serverret["body"]);
-			if ($version == "")
+			if (isset($data->version)) {
 				$version = $data->version;
+				// Version numbers on statistics.json are presented with additional info, e.g.:
+				// 0.6.3.0-p1702cc1c, 0.6.99.0-p1b9ab160 or 3.4.3-2-1191.
+				$version = preg_replace("=(.+)-(.{4,})=ism", "$1", $version);
+			}
 
 			$site_name = $data->name;
 
-			if (isset($data->network) AND ($platform == ""))
+			if (isset($data->network)) {
 				$platform = $data->network;
+			}
 
-			if ($platform == "Diaspora")
+			if ($platform == "Diaspora") {
 				$network = NETWORK_DIASPORA;
+			}
 
-			if ($data->registrations_open)
+			if ($data->registrations_open) {
 				$register_policy = REGISTER_OPEN;
-			else
+			} else {
 				$register_policy = REGISTER_CLOSED;
+			}
 
 			if (isset($data->version))
 				$last_contact = datetime_convert();
@@ -1212,14 +1222,22 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		$server = poco_fetch_nodeinfo($server_url);
 		if ($server) {
 			$register_policy = $server['register_policy'];
-			$platform = $server['platform'];
-			$network = $server['network'];
 
-			if ($version == "") {
+			if (isset($server['platform'])) {
+				$platform = $server['platform'];
+			}
+
+			if (isset($server['network'])) {
+				$network = $server['network'];
+			}
+
+			if (isset($server['version'])) {
 				$version = $server['version'];
 			}
 
-			$site_name = $server['site_name'];
+			if (isset($server['site_name'])) {
+				$site_name = $server['site_name'];
+			}
 
 			$last_contact = datetime_convert();
 		}
