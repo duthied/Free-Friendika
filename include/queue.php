@@ -29,14 +29,6 @@ function queue_run(&$argv, &$argc){
 		// Handling the pubsubhubbub requests
 		proc_run(PRIORITY_HIGH,'include/pubsubpublish.php');
 
-		$r = q("select * from deliverq where 1");
-		if ($r) {
-			foreach ($r as $rr) {
-				logger('queue: deliverq');
-				proc_run(PRIORITY_HIGH,'include/delivery.php', $rr['cmd'], $rr['item'], $rr['contact']);
-			}
-		}
-
 		$r = q("SELECT `queue`.*, `contact`.`name`, `contact`.`uid` FROM `queue`
 			INNER JOIN `contact` ON `queue`.`cid` = `contact`.`id`
 			WHERE `queue`.`created` < UTC_TIMESTAMP() - INTERVAL 3 DAY");

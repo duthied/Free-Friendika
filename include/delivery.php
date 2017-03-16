@@ -30,30 +30,6 @@ function delivery_run(&$argv, &$argc){
 
 		$contact_id = intval($argv[$x]);
 
-		/// @todo When switching completely to the worker we won't need this anymore
-		// Some other process may have delivered this item already.
-
-		$r = q("SELECT * FROM `deliverq` WHERE `cmd` = '%s' AND `item` = %d AND `contact` = %d LIMIT 1",
-			dbesc($cmd),
-			dbesc($item_id),
-			dbesc($contact_id)
-		);
-		if (!dbm::is_result($r)) {
-			continue;
-		}
-
-		if ($a->maxload_reached()) {
-			return;
-		}
-
-		// It's ours to deliver. Remove it from the queue.
-
-		q("DELETE FROM `deliverq` WHERE `cmd` = '%s' AND `item` = %d AND `contact` = %d",
-			dbesc($cmd),
-			dbesc($item_id),
-			dbesc($contact_id)
-		);
-
 		if (!$item_id || !$contact_id) {
 			continue;
 		}

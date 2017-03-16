@@ -471,7 +471,8 @@ function notifier_run(&$argv, &$argc){
 	if ($relocate) {
 		$r = $recipients_relocate;
 	} else {
-		$r = q("SELECT * FROM `contact` WHERE `id` IN (%s) AND NOT `blocked` AND NOT `pending` AND NOT `archive`".$sql_extra,
+		$r = q("SELECT `id`, `url`, `network`, `self` FROM `contact`
+			WHERE `id` IN (%s) AND NOT `blocked` AND NOT `pending` AND NOT `archive`".$sql_extra,
 			dbesc($recip_str)
 		);
 	}
@@ -480,28 +481,12 @@ function notifier_run(&$argv, &$argc){
 
 	if (dbm::is_result($r)) {
 		foreach ($r as $contact) {
-			if (!$contact['self']) {
-				if (($contact['network'] === NETWORK_DIASPORA) && ($public_message)) {
-					continue;
-				}
-				q("INSERT INTO `deliverq` (`cmd`,`item`,`contact`) VALUES ('%s', %d, %d)",
-					dbesc($cmd),
-					intval($item_id),
-					intval($contact['id'])
-				);
-			}
-		}
-
-		for ($x = 0; $x < count($r); $x ++) {
-			$contact = $r[$x];
-
 			if ($contact['self']) {
 				continue;
 			}
 			logger("Deliver ".$target_item["guid"]." to ".$contact['url']." via network ".$contact['network'], LOGGER_DEBUG);
 
 			proc_run(PRIORITY_HIGH,'include/delivery.php', $cmd, $item_id, $contact['id']);
-			continue;
 		}
 	}
 
@@ -552,18 +537,6 @@ function notifier_run(&$argv, &$argc){
 
 		if (dbm::is_result($r)) {
 			logger('pubdeliver '.$target_item["guid"].': '.print_r($r,true), LOGGER_DEBUG);
-
-			// throw everything into the queue in case we get killed
-
-			foreach ($r as $rr) {
-				if ((! $mail) && (! $fsuggest) && (! $followup)) {
-					q("INSERT INTO `deliverq` (`cmd`,`item`,`contact`) VALUES ('%s', %d, %d)
-						ON DUPLICATE KEY UPDATE `cmd` = '%s', `item` = %d, `contact` = %d",
-						dbesc($cmd), intval($item_id), intval($rr['id']),
-						dbesc($cmd), intval($item_id), intval($rr['id'])
-					);
-				}
-			}
 
 			foreach ($r as $rr) {
 
