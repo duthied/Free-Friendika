@@ -21,6 +21,6 @@
 {{if $dropping}}
 <button type="button" id="item-delete-selected" class="btn btn-link" title="{{$dropping}}" onclick="deleteCheckedItems();" data-toggle="tooltip">
 	<i class="fa fa-trash" aria-hidden="true"></i>
-<button>
+</button>
 <img id="item-delete-selected-rotator" class="like-rotator" src="images/rotator.gif" style="display: none;" />
 {{/if}}
