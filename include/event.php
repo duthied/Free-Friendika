@@ -595,17 +595,17 @@ function process_events($arr) {
 	$last_date = '';
 	$fmt = t('l, F j');
 	if (count($arr)) {
-		foreach($arr as $rr) {
+		foreach ($arr as $rr) {
 
-			$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'j') : datetime_convert('UTC','UTC',$rr['start'],'j'));
-			$d = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], $fmt) : datetime_convert('UTC','UTC',$rr['start'],$fmt));
+			$j = (($rr['adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $rr['start'], 'j') : datetime_convert('UTC', 'UTC', $rr['start'], 'j'));
+			$d = (($rr['adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $rr['start'], $fmt) : datetime_convert('UTC', 'UTC', $rr['start'], $fmt));
 			$d = day_translate($d);
 
-			$start = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'c') : datetime_convert('UTC','UTC',$rr['start'],'c'));
+			$start = (($rr['adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $rr['start'], 'c') : datetime_convert('UTC', 'UTC', $rr['start'], 'c'));
 			if ($rr['nofinish']){
 				$end = null;
 			} else {
-				$end = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['finish'], 'c') : datetime_convert('UTC','UTC',$rr['finish'],'c'));
+				$end = (($rr['adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $rr['finish'], 'c') : datetime_convert('UTC', 'UTC', $rr['finish'], 'c'));
 			}
 
 
@@ -616,14 +616,14 @@ function process_events($arr) {
 			// Show edit and drop actions only if the user is the owner of the event and the event
 			// is a real event (no bithdays)
 			if (local_user() && local_user() == $rr['uid'] && $rr['type'] == 'event') {
-				$edit = ((! $rr['cid']) ? array(App::get_baseurl().'/events/event/'.$rr['id'],t('Edit event'),'','') : null);
-				$drop = array(App::get_baseurl().'/events/drop/'.$rr['id'],t('Delete event'),'','');
+				$edit = ((! $rr['cid']) ? array(App::get_baseurl() . '/events/event/' . $rr['id'], t('Edit event'), '', '') : null);
+				$drop = array(App::get_baseurl() . '/events/drop/' . $rr['id'], t('Delete event'), '', '');
 			}
 
-			$title = strip_tags(html_entity_decode(bbcode($rr['summary']),ENT_QUOTES,'UTF-8'));
-			if(! $title) {
-				list($title, $_trash) = explode("<br",bbcode($rr['desc']),2);
-				$title = strip_tags(html_entity_decode($title,ENT_QUOTES,'UTF-8'));
+			$title = strip_tags(html_entity_decode(bbcode($rr['summary']), ENT_QUOTES, 'UTF-8'));
+			if (! $title) {
+				list($title, $_trash) = explode("<br", bbcode($rr['desc']), 2);
+				$title = strip_tags(html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
 			}
 
 			$html = format_event_html($rr);
@@ -643,7 +643,7 @@ function process_events($arr) {
 				'is_first'=>$is_first,
 				'item'=>$rr,
 				'html'=>$html,
-				'plink' => array($rr['plink'],t('link to source'),'',''),
+				'plink' => array($rr['plink'], t('link to source'), '', ''),
 			);
 		}
 	}
