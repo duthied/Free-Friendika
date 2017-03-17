@@ -234,7 +234,9 @@ class dba {
 			case 'pdo':
 				$result = @$this->db->query($sql);
 				// Is used to separate between queries that returning data - or not
-				$columns = $result->columnCount();
+				if (!is_bool($result)) {
+					$columns = $result->columnCount();
+				}
 				break;
 			case 'mysqli':
 				$result = @$this->db->query($sql);
@@ -329,7 +331,7 @@ class dba {
 			}
 		}
 
-		if (($result === true) || ($result === false)) {
+		if (is_bool($result)) {
 			return $result;
 		}
 		if ($onlyquery) {
