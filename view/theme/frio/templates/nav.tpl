@@ -70,7 +70,7 @@
 					{{* The notifications dropdown *}}
 					{{if $nav.notifications}}
 						<li id="nav-notification" class="nav-segment hidden-xs" role="presentation">
-							<a role="menuitem" href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" data-toggle="tooltip" data-toggle="tooltip" title="{{$nav.notifications.1}}" class="btn-link" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<a role="menuitem" href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" data-toggle="tooltip" data-toggle="tooltip" title="{{$nav.notifications.1}}" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								<i class="fa fa-exclamation-circle fa-lg"></i>
 								<span class="sr-only">{{$nav.notifications.1}}</span>
 								<span id="notify-update" class="nav-notify-badge badge nav-notify dropdown" data-toggle="dropdown"></span>
@@ -84,7 +84,7 @@
 									<div class="arrow"></div>
 									{{$nav.notifications.1}}
 									<div class="dropdown-header-link">
-										<button type="button" class="btn btn-link" onclick="notifyMarkAll();" data-toggle="tooltip" title="{{$nav.notifications.mark.3}}">{{$nav.notifications.mark.1}}</button>
+										<button type="button" class="btn-link" onclick="notifyMarkAll();" data-toggle="tooltip" title="{{$nav.notifications.mark.3}}">{{$nav.notifications.mark.1}}</button>
 									</div>
 
 								</li>
