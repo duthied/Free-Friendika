@@ -32,7 +32,6 @@ require_once('include/cache.php');
 require_once('library/Mobile_Detect/Mobile_Detect.php');
 require_once('include/features.php');
 require_once('include/identity.php');
-require_once('include/pidfile.php');
 require_once('update.php');
 require_once('include/dbstructure.php');
 
@@ -1346,60 +1345,25 @@ class App {
 		return false;
 	}
 
-	/**
-	 * @brief Checks if the process is already running
-	 *
-	 * @param string $taskname The name of the task that will be used for the name of the lockfile
-	 * @param string $task The path and name of the php script
-	 * @param int $timeout The timeout after which a task should be killed
-	 *
-	 * @return bool Is the process running?
-	 */
-	function is_already_running($taskname, $task = "", $timeout = 540) {
-
-		$lockpath = get_lockpath();
-		if ($lockpath != '') {
-			$pidfile = new pidfile($lockpath, $taskname);
-			if ($pidfile->is_already_running()) {
-				logger("Already running");
-				if ($pidfile->running_time() > $timeout) {
-					$pidfile->kill();
-					logger("killed stale process");
-					// Calling a new instance
-					if ($task != "")
-						proc_run(PRIORITY_MEDIUM, $task);
-				}
-				return true;
-			}
-		}
-		return false;
-	}
-
 	function proc_run($args) {
 
 		if (!function_exists("proc_open")) {
 			return;
 		}
 
-		// Add the php path if it is a php call
-		if (count($args) && ($args[0] === 'php' OR !is_string($args[0]))) {
-
-			// If the last worker fork was less than 10 seconds before then don't fork another one.
-			// This should prevent the forking of masses of workers.
-			if (get_config("system", "worker")) {
-				$cachekey = "app:proc_run:started";
-				$result = Cache::get($cachekey);
-				if (!is_null($result)) {
-					if ((time() - $result) < 10) {
-						return;
-					}
-				}
-				// Set the timestamp of the last proc_run
-				Cache::set($cachekey, time(), CACHE_MINUTE);
+		// If the last worker fork was less than 10 seconds before then don't fork another one.
+		// This should prevent the forking of masses of workers.
+		$cachekey = "app:proc_run:started";
+		$result = Cache::get($cachekey);
+		if (!is_null($result)) {
+			if ((time() - $result) < 10) {
+				return;
 			}
-
-			$args[0] = ((x($this->config,'php_path')) && (strlen($this->config['php_path'])) ? $this->config['php_path'] : 'php');
 		}
+		// Set the timestamp of the last proc_run
+		Cache::set($cachekey, time(), CACHE_MINUTE);
+
+		array_unshift($args, ((x($this->config,'php_path')) && (strlen($this->config['php_path'])) ? $this->config['php_path'] : 'php'));
 
 		// add baseurl to args. cli scripts can't construct it
 		$args[] = $this->get_baseurl();
@@ -1976,10 +1940,9 @@ function get_max_import_size() {
  * @brief Wrap calls to proc_close(proc_open()) and call hook
  *	so plugins can take part in process :)
  *
- * @param (string|integer|array) $cmd program to run, priority or parameter array
+ * @param (integer|array) priority or parameter array, $cmd atrings are deprecated and are ignored
  *
  * next args are passed as $cmd command line
- * e.g.: proc_run("ls","-la","/tmp");
  * or: proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
  * or: proc_run(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "include/create_shadowentry.php", $post_id);
  *
@@ -2023,11 +1986,6 @@ function proc_run($cmd){
 	call_hooks("proc_run", $arr);
 	if (!$arr['run_cmd'] OR !count($args))
 		return;
-
-	if (!get_config("system", "worker") OR (is_string($run_parameter) AND ($run_parameter != 'php'))) {
-		$a->proc_run($args);
-		return;
-	}
 
 	$priority = PRIORITY_MEDIUM;
 	$dont_fork = get_config("system", "worker_dont_fork");
@@ -2076,7 +2034,7 @@ function proc_run($cmd){
 		return;
 
 	// Now call the poller to execute the jobs that we just added to the queue
-	$args = array("php", "include/poller.php", "no_cron");
+	$args = array("include/poller.php", "no_cron");
 
 	$a->proc_run($args);
 }
@@ -2407,38 +2365,6 @@ function get_itemcachepath() {
 			return $itemcache;
 		}
 	}
-	return "";
-}
-
-function get_lockpath() {
-	$lockpath = get_config('system','lockpath');
-	if (($lockpath != "") AND App::directory_usable($lockpath)) {
-		// We have a lock path and it is usable
-		return $lockpath;
-	}
-
-	// We don't have a working preconfigured lock path, so we take the temp path.
-	$temppath = get_temppath();
-
-	if ($temppath != "") {
-		// To avoid any interferences with other systems we create our own directory
-		$lockpath = $temppath."/lock";
-		if (!is_dir($lockpath)) {
-			mkdir($lockpath);
-		}
-
-		if (App::directory_usable($lockpath)) {
-			// The new path is usable, we are happy
-			set_config("system", "lockpath", $lockpath);
-			return $lockpath;
-		} else {
-			// We can't create a subdirectory, strange.
-			// But the directory seems to work, so we use it but don't store it.
-			return $temppath;
-		}
-	}
-
-	// Reaching this point means that the operating system is configured badly.
 	return "";
 }
 

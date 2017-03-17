@@ -35,6 +35,10 @@ function poller_run($argv, $argc){
 		return;
 	}
 
+	$a->set_baseurl(Config::get('system', 'url'));
+
+	load_hooks();
+
 	$a->start_process();
 
 	if (poller_max_connections_reached()) {
@@ -464,7 +468,7 @@ function poller_too_much_workers() {
 		// Are there fewer workers running as possible? Then fork a new one.
 		if (!Config::get("system", "worker_dont_fork") AND ($queues > ($active + 1)) AND ($entries > 1)) {
 			logger("Active workers: ".$active."/".$queues." Fork a new worker.", LOGGER_DEBUG);
-			$args = array("php", "include/poller.php", "no_cron");
+			$args = array("include/poller.php", "no_cron");
 			$a = get_app();
 			$a->proc_run($args);
 		}
@@ -571,7 +575,7 @@ function poller_worker_process() {
  * @brief Call the front end worker
  */
 function call_worker() {
-	if (!Config::get("system", "frontend_worker") OR !Config::get("system", "worker")) {
+	if (!Config::get("system", "frontend_worker")) {
 		return;
 	}
 
@@ -583,7 +587,7 @@ function call_worker() {
  * @brief Call the front end worker if there aren't any active
  */
 function call_worker_if_idle() {
-	if (!Config::get("system", "frontend_worker") OR !Config::get("system", "worker")) {
+	if (!Config::get("system", "frontend_worker")) {
 		return;
 	}
 
@@ -610,7 +614,7 @@ function call_worker_if_idle() {
 
 		logger('Call poller', LOGGER_DEBUG);
 
-		$args = array("php", "include/poller.php", "no_cron");
+		$args = array("include/poller.php", "no_cron");
 		$a = get_app();
 		$a->proc_run($args);
 		return;

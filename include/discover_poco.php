@@ -2,32 +2,10 @@
 
 use \Friendica\Core\Config;
 
-require_once("boot.php");
-require_once("include/socgraph.php");
+require_once('include/socgraph.php');
+require_once('include/datetime.php');
 
 function discover_poco_run(&$argv, &$argc){
-	global $a, $db;
-
-	if(is_null($a)) {
-		$a = new App;
-	}
-
-	if(is_null($db)) {
-	    @include(".htconfig.php");
-	require_once("include/dba.php");
-	    $db = new dba($db_host, $db_user, $db_pass, $db_data);
-	unset($db_host, $db_user, $db_pass, $db_data);
-	};
-
-	require_once('include/session.php');
-	require_once('include/datetime.php');
-
-	Config::load();
-
-	// Don't check this stuff if the function is called by the poller
-	if (App::callstack() != "poller_run")
-		if ($a->maxload_reached())
-			return;
 
 	/*
 	This function can be called in these ways:
@@ -38,7 +16,7 @@ function discover_poco_run(&$argv, &$argc){
 	- update_server: Frequently check the first 250 servers for vitality.
 	*/
 
-	if(($argc > 2) && ($argv[1] == "dirsearch")) {
+	if (($argc > 2) && ($argv[1] == "dirsearch")) {
 		$search = urldecode($argv[2]);
 		$mode = 1;
 	} elseif(($argc == 2) && ($argv[1] == "checkcontact")) {
@@ -55,15 +33,6 @@ function discover_poco_run(&$argv, &$argc){
 	} else {
 		die("Unknown or missing parameter ".$argv[1]."\n");
 	}
-
-	// Don't check this stuff if the function is called by the poller
-	if (App::callstack() != "poller_run")
-		if (App::is_already_running('discover_poco'.$mode.urlencode($search), 'include/discover_poco.php', 1140))
-			return;
-
-	$a->set_baseurl(get_config('system','url'));
-
-	load_hooks();
 
 	logger('start '.$search);
 
@@ -270,10 +239,4 @@ function gs_search_user($search) {
 			update_gcontact($contact);
 		}
 	}
-}
-
-
-if (array_search(__file__,get_included_files())===0){
-  discover_poco_run($_SERVER["argv"],$_SERVER["argc"]);
-  killme();
 }
