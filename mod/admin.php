@@ -468,12 +468,8 @@ function admin_page_summary(App $a) {
 	$r = qu("SELECT COUNT(*) AS `total` FROM `queue` WHERE 1");
 	$queue = (($r) ? $r[0]['total'] : 0);
 
-	if (get_config('system','worker')) {
-		$r = qu("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE 1");
-		$workerqueue = (($r) ? $r[0]['total'] : 0);
-	} else {
-		$workerqueue = 0;
-	}
+	$r = qu("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE 1");
+	$workerqueue = (($r) ? $r[0]['total'] : 0);
 
 	// We can do better, but this is a quick queue status
 
@@ -485,7 +481,6 @@ function admin_page_summary(App $a) {
 		'$title' => t('Administration'),
 		'$page' => t('Summary'),
 		'$queues' => $queues,
-		'$workeractive' => get_config('system','worker'),
 		'$users' => array(t('Registered users'), $users),
 		'$accounts' => $accounts,
 		'$pending' => array(t('Pending registrations'), $pending),
@@ -630,8 +625,6 @@ function admin_page_site_post(App $a) {
 	$proxyuser		=	((x($_POST,'proxyuser'))		? notags(trim($_POST['proxyuser']))		: '');
 	$proxy			=	((x($_POST,'proxy'))			? notags(trim($_POST['proxy']))			: '');
 	$timeout		=	((x($_POST,'timeout'))			? intval(trim($_POST['timeout']))		: 60);
-	$delivery_interval	=	((x($_POST,'delivery_interval'))	? intval(trim($_POST['delivery_interval']))	: 0);
-	$poll_interval		=	((x($_POST,'poll_interval'))		? intval(trim($_POST['poll_interval']))		: 0);
 	$maxloadavg		=	((x($_POST,'maxloadavg'))		? intval(trim($_POST['maxloadavg']))		: 50);
 	$maxloadavg_frontend	=	((x($_POST,'maxloadavg_frontend'))	? intval(trim($_POST['maxloadavg_frontend']))	: 50);
 	$optimize_max_tablesize	=	((x($_POST,'optimize_max_tablesize'))	? intval(trim($_POST['optimize_max_tablesize'])): 100);
@@ -655,7 +648,6 @@ function admin_page_site_post(App $a) {
 	$itemcache		=	((x($_POST,'itemcache'))		? notags(trim($_POST['itemcache']))		: '');
 	$itemcache_duration	=	((x($_POST,'itemcache_duration'))	? intval($_POST['itemcache_duration'])		: 0);
 	$max_comments		=	((x($_POST,'max_comments'))		? intval($_POST['max_comments'])		: 0);
-	$lockpath		=	((x($_POST,'lockpath'))			? notags(trim($_POST['lockpath']))		: '');
 	$temppath		=	((x($_POST,'temppath'))			? notags(trim($_POST['temppath']))		: '');
 	$basepath		=	((x($_POST,'basepath'))			? notags(trim($_POST['basepath']))		: '');
 	$singleuser		=	((x($_POST,'singleuser'))		? notags(trim($_POST['singleuser']))		: '');
@@ -663,7 +655,6 @@ function admin_page_site_post(App $a) {
 	$only_tag_search	=	((x($_POST,'only_tag_search'))		? True						: False);
 	$rino			=	((x($_POST,'rino'))			? intval($_POST['rino'])			: 0);
 	$embedly		=	((x($_POST,'embedly'))			? notags(trim($_POST['embedly']))		: '');
-	$worker			=	((x($_POST,'worker'))			? True						: False);
 	$worker_queues		=	((x($_POST,'worker_queues'))		? intval($_POST['worker_queues'])		: 4);
 	$worker_dont_fork	=	((x($_POST,'worker_dont_fork'))		? True						: False);
 	$worker_fastlane	=	((x($_POST,'worker_fastlane'))		? True						: False);
@@ -716,8 +707,6 @@ function admin_page_site_post(App $a) {
 		}
 	}
 	set_config('system','ssl_policy',$ssl_policy);
-	set_config('system','delivery_interval',$delivery_interval);
-	set_config('system','poll_interval',$poll_interval);
 	set_config('system','maxloadavg',$maxloadavg);
 	set_config('system','maxloadavg_frontend',$maxloadavg_frontend);
 	set_config('system','optimize_max_tablesize',$optimize_max_tablesize);
@@ -806,12 +795,10 @@ function admin_page_site_post(App $a) {
 	set_config('system','itemcache', $itemcache);
 	set_config('system','itemcache_duration', $itemcache_duration);
 	set_config('system','max_comments', $max_comments);
-	set_config('system','lockpath', $lockpath);
 	set_config('system','temppath', $temppath);
 	set_config('system','basepath', $basepath);
 	set_config('system','proxy_disabled', $proxy_disabled);
 	set_config('system','only_tag_search', $only_tag_search);
-	set_config('system','worker', $worker);
 	set_config('system','worker_queues', $worker_queues);
 	set_config('system','worker_dont_fork', $worker_dont_fork);
 	set_config('system','worker_fastlane', $worker_fastlane);
@@ -930,7 +917,6 @@ function admin_page_site(App $a) {
 
 	// Automatically create temporary paths
 	get_temppath();
-	get_lockpath();
 	get_itemcachepath();
 
 	//echo "<pre>"; var_dump($lang_choices); die("</pre>");
@@ -1029,8 +1015,6 @@ function admin_page_site(App $a) {
 		'$proxyuser'		=> array('proxyuser', t("Proxy user"), get_config('system','proxyuser'), ""),
 		'$proxy'		=> array('proxy', t("Proxy URL"), get_config('system','proxy'), ""),
 		'$timeout'		=> array('timeout', t("Network timeout"), (x(get_config('system','curl_timeout'))?get_config('system','curl_timeout'):60), t("Value is in seconds. Set to 0 for unlimited (not recommended).")),
-		'$delivery_interval'	=> array('delivery_interval', t("Delivery interval"), (x(get_config('system','delivery_interval'))?get_config('system','delivery_interval'):2), t("Delay background delivery processes by this many seconds to reduce system load. Recommend: 4-5 for shared hosts, 2-3 for virtual private servers. 0-1 for large dedicated servers.")),
-		'$poll_interval'	=> array('poll_interval', t("Poll interval"), (x(get_config('system','poll_interval'))?get_config('system','poll_interval'):2), t("Delay background polling processes by this many seconds to reduce system load. If 0, use delivery interval.")),
 		'$maxloadavg'		=> array('maxloadavg', t("Maximum Load Average"), ((intval(get_config('system','maxloadavg')) > 0)?get_config('system','maxloadavg'):50), t("Maximum system load before delivery and poll processes are deferred - default 50.")),
 		'$maxloadavg_frontend'	=> array('maxloadavg_frontend', t("Maximum Load Average (Frontend)"), ((intval(get_config('system','maxloadavg_frontend')) > 0)?get_config('system','maxloadavg_frontend'):50), t("Maximum system load before the frontend quits service - default 50.")),
 		'$optimize_max_tablesize'=> array('optimize_max_tablesize', t("Maximum table size for optimization"), $optimize_max_tablesize, t("Maximum table size (in MB) for the automatic optimization - default 100 MB. Enter -1 to disable it.")),
@@ -1049,7 +1033,6 @@ function admin_page_site(App $a) {
 		'$itemcache'		=> array('itemcache', t("Path to item cache"), get_config('system','itemcache'), t("The item caches buffers generated bbcode and external images.")),
 		'$itemcache_duration' 	=> array('itemcache_duration', t("Cache duration in seconds"), get_config('system','itemcache_duration'), t("How long should the cache files be hold? Default value is 86400 seconds (One day). To disable the item cache, set the value to -1.")),
 		'$max_comments' 	=> array('max_comments', t("Maximum numbers of comments per post"), get_config('system','max_comments'), t("How much comments should be shown for each post? Default value is 100.")),
-		'$lockpath'		=> array('lockpath', t("Path for lock file"), get_config('system','lockpath'), t("The lock file is used to avoid multiple pollers at one time. Only define a folder here.")),
 		'$temppath'		=> array('temppath', t("Temp path"), get_config('system','temppath'), t("If you have a restricted system where the webserver can't access the system temp path, enter another path here.")),
 		'$basepath'		=> array('basepath', t("Base path to installation"), get_config('system','basepath'), t("If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot.")),
 		'$proxy_disabled'	=> array('proxy_disabled', t("Disable picture proxy"), get_config('system','proxy_disabled'), t("The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith.")),
@@ -1060,7 +1043,6 @@ function admin_page_site(App $a) {
 		'$rino' 		=> array('rino', t("RINO Encryption"), intval(get_config('system','rino_encrypt')), t("Encryption layer between nodes."), array("Disabled", "RINO1 (deprecated)", "RINO2")),
 		'$embedly' 		=> array('embedly', t("Embedly API key"), get_config('system','embedly'), t("<a href='http://embed.ly'>Embedly</a> is used to fetch additional data for web pages. This is an optional parameter.")),
 
-		'$worker'		=> array('worker', t("Enable 'worker' background processing"), get_config('system','worker'), t("The worker background processing limits the number of parallel background jobs to a maximum number and respects the system load.")),
 		'$worker_queues' 	=> array('worker_queues', t("Maximum number of parallel workers"), get_config('system','worker_queues'), t("On shared hosters set this to 2. On larger systems, values of 10 are great. Default value is 4.")),
 		'$worker_dont_fork'	=> array('worker_dont_fork', t("Don't use 'proc_open' with the worker"), get_config('system','worker_dont_fork'), t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of poller calls in your crontab.")),
 		'$worker_fastlane'	=> array('worker_fastlane', t("Enable fastlane"), get_config('system','worker_fastlane'), t("When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.")),

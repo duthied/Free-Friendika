@@ -1,5 +1,5 @@
 -- ------------------------------------------
--- Friendica 3.5.1-rc (Asparagus)
+-- Friendica 3.5.2-dev (Asparagus)
 -- DB_UPDATE_VERSION 1215
 -- ------------------------------------------
 
@@ -202,18 +202,6 @@ CREATE TABLE IF NOT EXISTS `conv` (
 	`subject` text,
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`)
-) DEFAULT CHARSET=utf8mb4;
-
---
--- TABLE deliverq
---
-CREATE TABLE IF NOT EXISTS `deliverq` (
-	`id` int(10) unsigned NOT NULL auto_increment,
-	`cmd` varbinary(32) NOT NULL DEFAULT '',
-	`item` int(11) NOT NULL DEFAULT 0,
-	`contact` int(11) NOT NULL DEFAULT 0,
-	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `cmd_item_contact` (`cmd`,`item`,`contact`)
 ) DEFAULT CHARSET=utf8mb4;
 
 --
