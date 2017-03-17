@@ -5,7 +5,7 @@ use \Friendica\Core\Config;
 require_once('include/socgraph.php');
 require_once('include/datetime.php');
 
-function discover_poco_run(&$argv, &$argc){
+function discover_poco_run(&$argv, &$argc) {
 
 	/*
 	This function can be called in these ways:
@@ -19,13 +19,13 @@ function discover_poco_run(&$argv, &$argc){
 	if (($argc > 2) && ($argv[1] == "dirsearch")) {
 		$search = urldecode($argv[2]);
 		$mode = 1;
-	} elseif(($argc == 2) && ($argv[1] == "checkcontact")) {
+	} elseif (($argc == 2) && ($argv[1] == "checkcontact")) {
 		$mode = 2;
-	} elseif(($argc == 2) && ($argv[1] == "suggestions")) {
+	} elseif (($argc == 2) && ($argv[1] == "suggestions")) {
 		$mode = 3;
-	} elseif(($argc == 3) && ($argv[1] == "server")) {
+	} elseif (($argc == 3) && ($argv[1] == "server")) {
 		$mode = 4;
-	} elseif(($argc == 2) && ($argv[1] == "update_server")) {
+	} elseif (($argc == 2) && ($argv[1] == "update_server")) {
 		$mode = 5;
 	} elseif ($argc == 1) {
 		$search = "";
@@ -113,9 +113,9 @@ function discover_users() {
 			dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA),
 			dbesc(NETWORK_OSTATUS), dbesc(NETWORK_FEED));
 
-	if (!$users)
+	if (!$users) {
 		return;
-
+	}
 	$checked = 0;
 
 	foreach ($users AS $user) {
@@ -140,27 +140,29 @@ function discover_users() {
 			continue;
 		}
 
-		if ($user["server_url"] != "")
+		if ($user["server_url"] != "") {
 			$server_url = $user["server_url"];
-		else
+		} else {
 			$server_url = poco_detect_server($user["url"]);
-
+		}
 		if (($server_url == "") OR poco_check_server($server_url, $gcontacts[0]["network"])) {
 			logger('Check user '.$user["url"]);
 			poco_last_updated($user["url"], true);
 
-			if (++$checked > 100)
+			if (++$checked > 100) {
 				return;
-		} else
+			}
+		} else {
 			q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
 				dbesc(datetime_convert()), dbesc(normalise_link($user["url"])));
+		}
 	}
 }
 
 function discover_directory($search) {
 
 	$data = Cache::get("dirsearch:".$search);
-	if (!is_null($data)){
+	if (!is_null($data)) {
 		// Only search for the same item every 24 hours
 		if (time() < $data + (60 * 60 * 24)) {
 			logger("Already searched for ".$search." in the last 24 hours", LOGGER_DEBUG);
@@ -171,7 +173,7 @@ function discover_directory($search) {
 	$x = fetch_url(get_server()."/lsearch?p=1&n=500&search=".urlencode($search));
 	$j = json_decode($x);
 
-	if(count($j->results))
+	if (count($j->results)) {
 		foreach($j->results as $jj) {
 			// Check if the contact already exists
 			$exists = q("SELECT `id`, `last_contact`, `last_failure`, `updated` FROM `gcontact` WHERE `nurl` = '%s'", normalise_link($jj->url));
@@ -179,32 +181,33 @@ function discover_directory($search) {
 				logger("Profile ".$jj->url." already exists (".$search.")", LOGGER_DEBUG);
 
 				if (($exists[0]["last_contact"] < $exists[0]["last_failure"]) AND
-					($exists[0]["updated"] < $exists[0]["last_failure"]))
+					($exists[0]["updated"] < $exists[0]["last_failure"])) {
 					continue;
-
+				}
 				// Update the contact
 				poco_last_updated($jj->url);
 				continue;
 			}
 
-			// Harcoded paths aren't so good. But in this case it is okay.
-			// First: We only will get Friendica contacts (which always are using this url schema)
-			// Second: There will be no further problems if we are doing a mistake
-			$server_url = preg_replace("=(https?://)(.*)/profile/(.*)=ism", "$1$2", $jj->url);
-			if ($server_url != $jj->url)
+			$server_url = poco_detect_server($jj->url);
+			if ($server_url != '') {
 				if (!poco_check_server($server_url)) {
 					logger("Friendica server ".$server_url." doesn't answer.", LOGGER_DEBUG);
 					continue;
 				}
-					logger("Friendica server ".$server_url." seems to be okay.", LOGGER_DEBUG);
+				logger("Friendica server ".$server_url." seems to be okay.", LOGGER_DEBUG);
+			}
 
-			logger("Check if profile ".$jj->url." is reachable (".$search.")", LOGGER_DEBUG);
 			$data = probe_url($jj->url);
 			if ($data["network"] == NETWORK_DFRN) {
+				logger("Profile ".$jj->url." is reachable (".$search.")", LOGGER_DEBUG);
 				logger("Add profile ".$jj->url." to local directory (".$search.")", LOGGER_DEBUG);
 				poco_check($data["url"], $data["name"], $data["network"], $data["photo"], "", "", "", $jj->tags, $data["addr"], "", 0);
+			} else {
+				logger("Profile ".$jj->url." is not responding or no Friendica contact - but network ".$data["network"], LOGGER_DEBUG);
 			}
 		}
+	}
 	Cache::set("dirsearch:".$search, time(), CACHE_DAY);
 }
 
@@ -224,14 +227,14 @@ function gs_search_user($search) {
 	$url = "http://gstools.org/api/users_search/".urlencode($search);
 
 	$result = z_fetch_url($url);
-	if (!$result["success"])
+	if (!$result["success"]) {
 		return false;
-
+	}
 	$contacts = json_decode($result["body"]);
 
-	if ($contacts->status == 'ERROR')
+	if ($contacts->status == 'ERROR') {
 		return false;
-
+	}
 	foreach($contacts->data AS $user) {
 		$contact = probe_url($user->site_address."/".$user->name);
 		if ($contact["network"] != NETWORK_PHANTOM) {
