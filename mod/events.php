@@ -14,7 +14,7 @@ function events_init(App $a) {
 	}
 
 	if ($a->argc == 1) {
-		// if it's a json request abort here becaus we don't
+		// If it's a json request abort here because we don't
 		// need the widget data
 		if ($a->argv[1] === 'json') {
 			return;
@@ -34,7 +34,7 @@ function events_init(App $a) {
 
 function events_post(App $a) {
 
-	logger('post: ' . print_r($_REQUEST, true));
+	logger('post: ' . print_r($_REQUEST, true), LOGGER_DATA);
 
 	if (! local_user()) {
 		return;
@@ -53,20 +53,15 @@ function events_post(App $a) {
 	// The default setting for the `private` field in event_store() is false, so mirror that
 	$private_event = false;
 
+	$start  = '0000-00-00 00:00:00';
+	$finish = '0000-00-00 00:00:00';
+
 	if ($start_text) {
 		$start = $start_text;
-	} else {
-		$start = sprintf('%d-%d-%d %d:%d:0', $startyear, $startmonth, $startday, $starthour, $startminute);
-	}
-
-	if ($nofinish) {
-		$finish = '0000-00-00 00:00:00';
 	}
 
 	if ($finish_text) {
 		$finish = $finish_text;
-	} else {
-		$finish = sprintf('%d-%d-%d %d:%d:0', $finishyear, $finishmonth, $finishday, $finishhour, $finishminute);
 	}
 
 	if ($adjust) {
@@ -103,7 +98,7 @@ function events_post(App $a) {
 		goaway($onerror_url);
 	}
 
-	if ((! $summary) || (! $start)) {
+	if ((! $summary) || ($start === '0000-00-00 00:00:00')) {
 		notice(t('Event title and start time are required.') . EOL);
 		if (intval($_REQUEST['preview'])) {
 			echo t('Event title and start time are required.');
@@ -184,8 +179,6 @@ function events_post(App $a) {
 	goaway($_SESSION['return_url']);
 }
 
-
-
 function events_content(App $a) {
 
 	if (! local_user()) {
@@ -238,8 +231,6 @@ function events_content(App $a) {
 	if ($a->theme_events_in_profile) {
 		$tabs = profile_tabs($a, true);
 	}
-
-
 
 	$mode = 'view';
 	$y = 0;
@@ -425,9 +416,6 @@ function events_content(App $a) {
 		if (x($_REQUEST, 'location'))    {$orig_event['location']    = $_REQUEST['location'];}
 		if (x($_REQUEST, 'start'))       {$orig_event['start']       = $_REQUEST['start'];}
 		if (x($_REQUEST, 'finish'))      {$orig_event['finish']      = $_REQUEST['finish'];}
-	}
-
-	if ($mode === 'edit' || $mode === 'new') {
 
 		$n_checked = ((x($orig_event) && $orig_event['nofinish']) ? ' checked="checked" ' : '');
 		$a_checked = ((x($orig_event) && $orig_event['adjust'])   ? ' checked="checked" ' : '');
@@ -439,7 +427,6 @@ function events_content(App $a) {
 		$cid    = ((x($orig_event)) ? $orig_event['cid']      : 0);
 		$uri    = ((x($orig_event)) ? $orig_event['uri']      : '');
 
-
 		if (! x($orig_event)) {
 			$sh_checked = '';
 		} else {
@@ -449,7 +436,6 @@ function events_content(App $a) {
 		if ($cid OR ($mode !== 'new')) {
 			$sh_checked .= ' disabled="disabled" ';
 		}
-
 
 		$sdt = ((x($orig_event)) ? $orig_event['start'] : 'now');
 		$fdt = ((x($orig_event)) ? $orig_event['finish'] : 'now');
