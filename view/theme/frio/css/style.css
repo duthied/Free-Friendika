@@ -704,7 +704,7 @@ nav.navbar a, nav.navbar .btn-link {
 @media screen and (max-width: 767px) {
     #topbar-second > .container,
     #topbar-second #navbar-button {
-	padding: 0;
+    padding: 0;
     }
 }
 #topbar-second .dropdown-menu {
@@ -835,11 +835,11 @@ nav.navbar a, nav.navbar .btn-link {
     border-color: #337ab7;
 }
 .nav-pills > li > .btn-link {
-	border-radius: 4px;
+    border-radius: 4px;
 }
 .dropdown-menu > li > :focus,
 .dropdown-menu > li > :hover {
-	background-color: #e8e8e8;
+    background-color: #e8e8e8;
     background-image: -webkit-linear-gradient(top,#f5f5f5 0,#e8e8e8 100%);
     background-image: -o-linear-gradient(top,#f5f5f5 0,#e8e8e8 100%);
     background-image: -webkit-gradient(linear,left top,left bottom,from(#f5f5f5),to(#e8e8e8));
@@ -877,7 +877,7 @@ nav.navbar a, nav.navbar .btn-link {
     font-size: 13px;
     padding: 4px 15px;
     text-transform: capitalize;
-	width: 100%;
+    width: 100%;
     text-align: left;
 }
 .nav-pills .dropdown-menu li a i, .nav-pills .dropdown-menu li .btn-link i,
@@ -1516,8 +1516,8 @@ section #jotOpen {
 @media screen and (max-width: 767px) {
     .shared-wrapper,
     .vevent {
-	margin-left: 0px;
-	margin-right: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
     }
 }
 .shared-wrapper:hover,
@@ -1669,7 +1669,7 @@ code > .hl-main {
 * Comment Box
 */
 .wall-item-comment-wrapper {
-	margin-top: 10px;
+    margin-top: 10px;
 }
 .thread_level_2 .wall-item-comment-wrapper {
     padding-right: 5px;
@@ -2037,7 +2037,7 @@ ul.viewcontact_wrapper > li {
 .textcomplete-item .contact-wrapper .contact-action-link {
     padding: 0 5px;
     color: #555;
-	border: 0;
+    border: 0;
 }
 .contact-wrapper .contact-action-link {
     opacity: 0.1;
