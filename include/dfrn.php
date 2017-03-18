@@ -217,7 +217,7 @@ class dfrn {
 		);
 
 		if (!dbm::is_result($r)) {
-			/// @TODO Some logging?
+			logger("Query failed to execute, no result returned in " . __FUNCTION__);
 			killme();
 		}
 
