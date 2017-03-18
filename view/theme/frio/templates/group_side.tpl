@@ -34,7 +34,7 @@
 	{{if $newgroup}}
 	<div id="sidebar-new-group">
 		{{* show the input field by clicking "new group" *}}
-		<button type="button" class="btn btn-link" onclick="javascript:$('#group-new-form').fadeIn('fast');">{{$createtext}}</button>
+		<button type="button" class="btn-link" onclick="javascript:$('#group-new-form').fadeIn('fast');">{{$createtext}}</button>
 		<form id="group-new-form" action="group/new" method="post" style="display:none;">
 			<div class="form-group">
 				<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
