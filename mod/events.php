@@ -237,12 +237,12 @@ function events_content(App $a) {
 	$m = 0;
 	$ignored = ((x($_REQUEST, 'ignored')) ? intval($_REQUEST['ignored']) : 0);
 
-	if($a->argc > 1) {
+	if ($a->argc > 1) {
 		if ($a->argc > 2 && $a->argv[1] == 'event') {
 			$mode = 'edit';
 			$event_id = intval($a->argv[2]);
 		}
-		if($a->argc > 2 && $a->argv[1] == 'drop') {
+		if ($a->argc > 2 && $a->argv[1] == 'drop') {
 			$mode = 'drop';
 			$event_id = intval($a->argv[2]);
 		}
@@ -321,7 +321,7 @@ function events_content(App $a) {
 		);
 
 		// get events by id or by date
-		if (x($_GET, 'id')){
+		if (x($_GET, 'id')) {
 			$r = event_by_id(local_user(), $event_params);
 		} else {
 			$r = events_by_date(local_user(), $event_params);
@@ -352,7 +352,7 @@ function events_content(App $a) {
 			killme();
 		}
 
-		if (x($_GET, 'id')){
+		if (x($_GET, 'id')) {
 			$tpl =  get_markup_template("event.tpl");
 		} else {
 			$tpl = get_markup_template("events_js.tpl");
