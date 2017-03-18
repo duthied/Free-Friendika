@@ -143,7 +143,9 @@ function dfrn_notify_post(App $a) {
 	$rino = get_config('system','rino_encrypt');
 	$rino = intval($rino);
 	// use RINO1 if mcrypt isn't installed and RINO2 was selected
-	if ($rino==2 and !function_exists('mcrypt_create_iv')) $rino=1;
+	if ($rino == 2 and !function_exists('mcrypt_create_iv')) {
+		$rino=1;
+	}
 
 	logger("Local rino version: ". $rino, LOGGER_DEBUG);
 
@@ -315,7 +317,9 @@ function dfrn_notify_content(App $a) {
 		$rino = get_config('system','rino_encrypt');
 		$rino = intval($rino);
 		// use RINO1 if mcrypt isn't installed and RINO2 was selected
-		if ($rino==2 and !function_exists('mcrypt_create_iv')) $rino=1;
+		if ($rino == 2 and !function_exists('mcrypt_create_iv')) {
+			$rino=1;
+		}
 
 		logger("Local rino version: ". $rino, LOGGER_DEBUG);
 
