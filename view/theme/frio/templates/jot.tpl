@@ -91,13 +91,13 @@
 						{{* uncomment the button for "wall-immage-upload" because we have integrated it directly in the jot modal
 						<li><a href="#" id="wall-image-upload" title="{{$upload}}"><i class="fa fa-picture-o"></i></a></li>
 						*}}
-						<li><button type="button" class="btn-link" id="wall-file-upload" title="{{$attach}}"><i class="fa fa-paperclip"></i></button></li>
-						<li><button type="button" class="btn-link" id="profile-link"  ondragenter="return linkdropper(event);" ondragover="return linkdropper(event);" ondrop="linkdrop(event);" onclick="jotGetLink();" title="{{$weblink}}"><i class="fa fa-link"></i></button></li>
-						<li><button type="button" class="btn-link" id="profile-video" onclick="jotVideoURL();" title="{{$video}}"><i class="fa fa-film"></i></button></li>
-						<li><button type="button" class="btn-link" id="profile-audio" onclick="jotAudioURL();" title="{{$audio}}"><i class="fa fa-music"></i></button></li>
-						<li><button type="button" class="btn-link" id="profile-location" onclick="jotGetLocation();" title="{{$setloc}}"><i class="fa fa-map-marker"></i></button></li>
+						<li><button type="button" class="btn btn-link" id="wall-file-upload" title="{{$attach}}"><i class="fa fa-paperclip"></i></button></li>
+						<li><button type="button" class="btn btn-link" id="profile-link"  ondragenter="return linkdropper(event);" ondragover="return linkdropper(event);" ondrop="linkdrop(event);" onclick="jotGetLink();" title="{{$weblink}}"><i class="fa fa-link"></i></button></li>
+						<li><button type="button" class="btn btn-link" id="profile-video" onclick="jotVideoURL();" title="{{$video}}"><i class="fa fa-film"></i></button></li>
+						<li><button type="button" class="btn btn-link" id="profile-audio" onclick="jotAudioURL();" title="{{$audio}}"><i class="fa fa-music"></i></button></li>
+						<li><button type="button" class="btn btn-link" id="profile-location" onclick="jotGetLocation();" title="{{$setloc}}"><i class="fa fa-map-marker"></i></button></li>
 						<!-- TODO: waiting for a better placement
-						<li><button type="button" class="btn-link" id="profile-nolocation" onclick="jotClearLocation();" title="{{$noloc}}">{{$shortnoloc}}</button></li>
+						<li><button type="button" class="btn btn-link" id="profile-nolocation" onclick="jotClearLocation();" title="{{$noloc}}">{{$shortnoloc}}</button></li>
 						-->
 
 						<li class="pull-right"><button class="btn btn-primary" id="jot-submit" type="submit" id="profile-jot-submit" name="submit" ><i class="fa fa-slideshare fa-fw"></i> {{$share}}</button></li>
