@@ -3,7 +3,7 @@
 	{{include file="section_title.tpl" title=$title}}
 
 	{{* The link to create a new event *}}
-	<div id="new-event-link"><button type="button" class="btn btn-link" onclick="addToModal('{{$new_event.0}}')" >{{$new_event.1}}</button></div>
+	<div id="new-event-link"><button type="button" class="btn-link" onclick="addToModal('{{$new_event.0}}')" >{{$new_event.1}}</button></div>
 
 	{{* We create our own fullcallendar header (with title & calendar view *}}
 	<div id="fc-header">
