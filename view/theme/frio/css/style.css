@@ -204,6 +204,7 @@ a#item-delete-selected {
 }
 
 .btn-link {
+    border: 0;
     color: $link_color;
 }
 .btn-link:focus, .btn-link:hover {
@@ -556,7 +557,7 @@ nav.navbar .nav>li>a:focus{
 #topbar-first .dropdown-footer {
     margin: 10px 10px 5px
 }
-#topbar-first a,
+#topbar-first a, #topbar-first .btn-link,
 nav.navbar a, nav.navbar .btn-link {
     color: $nav_icon_color;
 }
@@ -822,6 +823,17 @@ nav.navbar a, nav.navbar .btn-link {
 }
 
 /* Dropdown Menus */
+.nav > li > .btn-link:not(.nav-avatar):focus,
+.nav > li > .btn-link:not(.nav-avatar):hover {
+    text-decoration: none;
+    background-color: #eee;
+}
+.nav .open > .btn-link:not(.nav-avatar),
+.nav .open > .btn-link:not(.nav-avatar):focus,
+.nav .open > .btn-link:not(.nav-avatar):hover {
+    background-color: #eee;
+    border-color: #337ab7;
+}
 .nav-pills > li > .btn-link {
 	border-radius: 4px;
 }
@@ -1193,8 +1205,8 @@ section #jotOpen {
 .jothidden {
     /*display: none;*/
 }
-#jot-modal .modal-header a,
-#profile-jot-submit-wrapper a {
+#jot-modal .modal-header a, #jot-modal .modal-header .btn-link,
+#profile-jot-submit-wrapper a, #profile-jot-submit-wrapper .btn-link {
     color: #555;
     text-transform: capitalize;
 }
