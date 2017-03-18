@@ -127,7 +127,7 @@ function mark_for_death($contact) {
 	if($contact['archive'])
 		return;
 
-	if($contact['term-date'] <= NULL_DATE) {
+	if ($contact['term-date'] <= NULL_DATE) {
 		q("UPDATE `contact` SET `term-date` = '%s' WHERE `id` = %d",
 				dbesc(datetime_convert()),
 				intval($contact['id'])

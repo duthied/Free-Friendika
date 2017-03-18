@@ -538,7 +538,7 @@ function contacts_content(App $a) {
 				? t('Never')
 				: datetime_convert('UTC',date_default_timezone_get(),$contact['last-update'],'D, j M Y, g:i A'));
 
-		if($contact['last-update'] > NULL_DATE)
+		if ($contact['last-update'] > NULL_DATE)
 			$last_update .= ' ' . (($contact['last-update'] <= $contact['success_update']) ? t("\x28Update was successful\x29") : t("\x28Update was not successful\x29"));
 
 		$lblsuggest = (($contact['network'] === NETWORK_DFRN) ? t('Suggest friends') : '');

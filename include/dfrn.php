@@ -1094,7 +1094,7 @@ class dfrn {
 			return 3;
 		}
 
-		if($contact['term-date'] > NULL_DATE) {
+		if ($contact['term-date'] > NULL_DATE) {
 			logger("dfrn_deliver: $url back from the dead - removing mark for death");
 			require_once('include/Contact.php');
 			unmark_for_death($contact);

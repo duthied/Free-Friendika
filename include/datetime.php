@@ -171,7 +171,7 @@ function dob($dob) {
 	$f = get_config('system','birthday_input_format');
 	if(! $f)
 		$f = 'ymd';
-	if($dob == '0000-00-00')
+	if($dob === '0000-00-00')
 		$value = '';
 	else
 		$value = (($year) ? datetime_convert('UTC','UTC',$dob,'Y-m-d') : datetime_convert('UTC','UTC',$dob,'m-d'));
