@@ -712,18 +712,6 @@ function db_definition($charset) {
 					"uid" => array("uid"),
 					)
 			);
-	$database["deliverq"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"cmd" => array("type" => "varbinary(32)", "not null" => "1", "default" => ""),
-					"item" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
-					"contact" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"cmd_item_contact" => array("UNIQUE", "cmd", "item", "contact"),
-					)
-			);
 	$database["event"] = array(
 			"fields" => array(
 					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
