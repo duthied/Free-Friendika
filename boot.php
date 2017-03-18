@@ -39,7 +39,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
 define ( 'FRIENDICA_VERSION',      '3.5.2-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1215      );
+define ( 'DB_UPDATE_VERSION',      1216      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -445,8 +445,7 @@ define('SR_SCOPE_TAGS', 'tags');
  * Lowest possible date time value
  */
 
-//define ('NULL_DATE', '0001-01-01 00:00:00');
-define ('NULL_DATE', '0000-00-00 00:00:00');
+define ('NULL_DATE', '0001-01-01 00:00:00');
 
 
 // Normally this constant is defined - but not if "pcntl" isn't installed
