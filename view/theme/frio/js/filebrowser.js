@@ -88,12 +88,12 @@ var FileBrowser = {
 
 		console.log("FileBrowser:", nickname, type,FileBrowser.event, FileBrowser.id );
 
-		$(".error a.close").on("click", function(e) {
+		$(".error .close").on("click", function(e) {
 			e.preventDefault();
 			$(".error").addClass("hidden");
 		});
 
-		$(".folders a, .path a").on("click", function(e) {
+		$(".folders a, .path a, .folders button, .path button").on("click", function(e) {
 			e.preventDefault();
 			var url = baseurl + "/fbrowser/" + FileBrowser.type + "/" + this.dataset.folder + "?mode=none";
 
