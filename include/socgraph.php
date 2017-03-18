@@ -309,7 +309,18 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 
 	logger("profile-check generation: ".$generation." Network: ".$network." URL: ".$profile_url." name: ".$name." avatar: ".$profile_photo, LOGGER_DEBUG);
 
-	poco_check_server($server_url, $network);
+	// We check the server url to be sure that it is a real one
+	$server_url2 = poco_detect_server($profile_url);
+
+	// We are no sure that it is a correct URL. So we use it in the future
+	if ($server_url2 != "") {
+		$server_url = $server_url2;
+	}
+
+	// The server URL doesn't seem to be valid, so we don't store it.
+	if (!poco_check_server($server_url, $network)) {
+		$server_url = "";
+	}
 
 	$gcontact = array("url" => $profile_url,
 			"addr" => $addr,
@@ -401,11 +412,45 @@ function poco_detect_server($profile) {
 
 	// Mastodon
 	if ($server_url == "") {
-		$red = preg_replace("=(https?://)(.*)/users/(.*)=ism", "$1$2", $profile);
-		if ($red != $profile) {
-			$server_url = $red;
+		$mastodon = preg_replace("=(https?://)(.*)/users/(.*)=ism", "$1$2", $profile);
+		if ($mastodon != $profile) {
+			$server_url = $mastodon;
 			$network = NETWORK_OSTATUS;
 		}
+	}
+
+	// Numeric OStatus variant
+	if ($server_url == "") {
+		$ostatus = preg_replace("=(https?://)(.*)/user/(.*)=ism", "$1$2", $profile);
+		if ($ostatus != $profile) {
+			$server_url = $ostatus;
+			$network = NETWORK_OSTATUS;
+		}
+	}
+
+	// Wild guess
+	if ($server_url == "") {
+		$base = preg_replace("=(https?://)(.*?)/(.*)=ism", "$1$2", $profile);
+		if ($base != $profile) {
+			$server_url = $base;
+			$network = NETWORK_PHANTOM;
+		}
+	}
+
+	if ($server_url == "") {
+		return "";
+	}
+
+	$r = q("SELECT `id` FROM `gserver` WHERE `nurl` = '%s' AND `last_contact` > `last_failure`",
+		dbesc(normalise_link($server_url)));
+	if (dbm::is_result($r)) {
+		return $server_url;
+	}
+
+	// Fetch the host-meta to check if this really is a server
+	$serverret = z_fetch_url($server_url."/.well-known/host-meta");
+	if (!$serverret["success"]) {
+		return "";
 	}
 
 	return $server_url;
@@ -424,10 +469,12 @@ function poco_last_updated($profile, $force = false) {
 		q("UPDATE `gcontact` SET `created` = '%s' WHERE `nurl` = '%s'",
 			dbesc(datetime_convert()), dbesc(normalise_link($profile)));
 
-	if ($gcontacts[0]["server_url"] != "")
+	if ($gcontacts[0]["server_url"] != "") {
 		$server_url = $gcontacts[0]["server_url"];
-	else
+	}
+	if (($server_url == '') OR ($gcontacts[0]["server_url"] == $gcontacts[0]["nurl"])) {
 		$server_url = poco_detect_server($profile);
+	}
 
 	if (!in_array($gcontacts[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_FEED, NETWORK_OSTATUS, ""))) {
 		logger("Profile ".$profile.": Network type ".$gcontacts[0]["network"]." can't be checked", LOGGER_DEBUG);
@@ -680,6 +727,213 @@ function poco_to_boolean($val) {
 	return ($val);
 }
 
+/**
+ * @brief Detect server type (Hubzilla or Friendica) via the poco data
+ *
+ * @param object $data POCO data
+ * @return array Server data
+ */
+function poco_detect_poco_data($data) {
+	$server = false;
+
+	if (!isset($data->entry)) {
+		return false;
+	}
+
+	if (count($data->entry) == 0) {
+		return false;
+	}
+
+	if (!isset($data->entry[0]->urls)) {
+		return false;
+	}
+
+	if (count($data->entry[0]->urls) == 0) {
+		return false;
+	}
+
+	foreach ($data->entry[0]->urls AS $url) {
+		if ($url->type == 'zot') {
+			$server = array();
+			$server["platform"] = 'Hubzilla';
+			$server["network"] = NETWORK_DIASPORA;
+			return $server;
+		}
+	}
+	return false;
+}
+
+/**
+ * @brief Detect server type by using the nodeinfo data
+ *
+ * @param string $server_url address of the server
+ * @return array Server data
+ */
+function poco_fetch_nodeinfo($server_url) {
+	$serverret = z_fetch_url($server_url."/.well-known/nodeinfo");
+	if (!$serverret["success"]) {
+		return false;
+	}
+
+	$nodeinfo = json_decode($serverret['body']);
+
+	if (!is_object($nodeinfo)) {
+		return false;
+	}
+
+	if (!is_array($nodeinfo->links)) {
+		return false;
+	}
+
+	$nodeinfo_url = '';
+
+	foreach ($nodeinfo->links AS $link) {
+		if ($link->rel == 'http://nodeinfo.diaspora.software/ns/schema/1.0') {
+			$nodeinfo_url = $link->href;
+		}
+	}
+
+	if ($nodeinfo_url == '') {
+		return false;
+	}
+
+	$serverret = z_fetch_url($nodeinfo_url);
+	if (!$serverret["success"]) {
+		return false;
+	}
+
+	$nodeinfo = json_decode($serverret['body']);
+
+	if (!is_object($nodeinfo)) {
+		return false;
+	}
+
+	$server = array();
+
+	$server['register_policy'] = REGISTER_CLOSED;
+
+	if (is_bool($nodeinfo->openRegistrations) AND $nodeinfo->openRegistrations) {
+		$server['register_policy'] = REGISTER_OPEN;
+	}
+
+	if (is_object($nodeinfo->software)) {
+		if (isset($nodeinfo->software->name)) {
+			$server['platform'] = $nodeinfo->software->name;
+		}
+
+		if (isset($nodeinfo->software->version)) {
+			$server['version'] = $nodeinfo->software->version;
+			// Version numbers on Nodeinfo are presented with additional info, e.g.:
+			// 0.6.3.0-p1702cc1c, 0.6.99.0-p1b9ab160 or 3.4.3-2-1191.
+			$server['version'] = preg_replace("=(.+)-(.{4,})=ism", "$1", $server['version']);
+		}
+	}
+
+	if (is_object($nodeinfo->metadata)) {
+		if (isset($nodeinfo->metadata->nodeName)) {
+			$server['site_name'] = $nodeinfo->metadata->nodeName;
+		}
+	}
+
+	$diaspora = false;
+	$friendica = false;
+	$gnusocial = false;
+
+	if (is_array($nodeinfo->protocols->inbound)) {
+		foreach ($nodeinfo->protocols->inbound AS $inbound) {
+			if ($inbound == 'diaspora') {
+				$diaspora = true;
+			}
+			if ($inbound == 'friendica') {
+				$friendica = true;
+			}
+			if ($inbound == 'gnusocial') {
+				$gnusocial = true;
+			}
+		}
+	}
+
+	if ($gnusocial) {
+		$server['network'] = NETWORK_OSTATUS;
+	}
+	if ($diaspora) {
+		$server['network'] = NETWORK_DIASPORA;
+	}
+	if ($friendica) {
+		$server['network'] = NETWORK_DFRN;
+	}
+
+	if (!$server) {
+		return false;
+	}
+
+	return $server;
+}
+
+/**
+ * @brief Detect server type (Hubzilla or Friendica) via the front page body
+ *
+ * @param string $body Front page of the server
+ * @return array Server data
+ */
+function poco_detect_server_type($body) {
+	$server = false;
+
+	$doc = new \DOMDocument();
+	@$doc->loadHTML($body);
+	$xpath = new \DomXPath($doc);
+
+	$list = $xpath->query("//meta[@name]");
+
+	foreach ($list as $node) {
+		$attr = array();
+		if ($node->attributes->length) {
+			foreach ($node->attributes as $attribute) {
+				$attr[$attribute->name] = $attribute->value;
+			}
+		}
+		if ($attr['name'] == 'generator') {
+			$version_part = explode(" ", $attr['content']);
+			if (count($version_part) == 2) {
+				if (in_array($version_part[0], array("Friendika", "Friendica"))) {
+					$server = array();
+					$server["platform"] = $version_part[0];
+					$server["version"] = $version_part[1];
+					$server["network"] = NETWORK_DFRN;
+				}
+			}
+		}
+	}
+
+	if (!$server) {
+		$list = $xpath->query("//meta[@property]");
+
+		foreach ($list as $node) {
+			$attr = array();
+			if ($node->attributes->length) {
+				foreach ($node->attributes as $attribute) {
+					$attr[$attribute->name] = $attribute->value;
+				}
+			}
+			if ($attr['property'] == 'generator') {
+				if (in_array($attr['content'], array("hubzilla", "BlaBlaNet"))) {
+					$server = array();
+					$server["platform"] = $attr['content'];
+					$server["version"] = "";
+					$server["network"] = NETWORK_DIASPORA;
+				}
+			}
+		}
+	}
+
+	if (!$server) {
+		return false;
+	}
+
+	$server["site_name"] = $xpath->evaluate($element."//head/title/text()", $context)->item(0)->nodeValue;
+	return $server;
+}
+
 function poco_check_server($server_url, $network = "", $force = false) {
 
 	// Unify the server address
@@ -729,7 +983,9 @@ function poco_check_server($server_url, $network = "", $force = false) {
 	logger("Server ".$server_url." is outdated or unknown. Start discovery. Force: ".$force." Created: ".$servers[0]["created"]." Failure: ".$last_failure." Contact: ".$last_contact, LOGGER_DEBUG);
 
 	$failure = false;
+	$possible_failure = false;
 	$orig_last_failure = $last_failure;
+	$orig_last_contact = $last_contact;
 
 	// Check if the page is accessible via SSL.
 	$orig_server_url = $server_url;
@@ -769,18 +1025,58 @@ function poco_check_server($server_url, $network = "", $force = false) {
 			$last_failure = datetime_convert();
 			$failure = true;
 		}
+		$possible_failure = true;
 	} elseif ($network == NETWORK_DIASPORA)
 		$last_contact = datetime_convert();
 
+	// If the server has no possible failure we reset the cached data
+	if (!$possible_failure) {
+		$version = "";
+		$platform = "";
+		$site_name = "";
+		$info = "";
+		$register_policy = -1;
+	}
+
+	// Look for poco
 	if (!$failure) {
-		// Test for Diaspora
+		$serverret = z_fetch_url($server_url."/poco");
+		if ($serverret["success"]) {
+			$data = json_decode($serverret["body"]);
+			if (isset($data->totalResults)) {
+				$poco = $server_url."/poco";
+				$last_contact = datetime_convert();
+
+				$server = poco_detect_poco_data($data);
+				if ($server) {
+					$platform = $server['platform'];
+					$network = $server['network'];
+					$version = '';
+					$site_name = '';
+				}
+			}
+		}
+	}
+
+	if (!$failure) {
+		// Test for Diaspora, Hubzilla, Mastodon or older Friendica servers
 		$serverret = z_fetch_url($server_url);
 
-		if (!$serverret["success"] OR ($serverret["body"] == ""))
+		if (!$serverret["success"] OR ($serverret["body"] == "")) {
+			$last_failure = datetime_convert();
 			$failure = true;
-		else {
+		} else {
+			$server = poco_detect_server_type($serverret["body"]);
+			if ($server) {
+				$platform = $server['platform'];
+				$network = $server['network'];
+				$version = $server['version'];
+				$site_name = $server['site_name'];
+				$last_contact = datetime_convert();
+			}
+
 			$lines = explode("\n",$serverret["header"]);
-			if(count($lines))
+			if(count($lines)) {
 				foreach($lines as $line) {
 					$line = trim($line);
 					if(stristr($line,'X-Diaspora-Version:')) {
@@ -790,6 +1086,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 						$network = NETWORK_DIASPORA;
 						$versionparts = explode("-", $version);
 						$version = $versionparts[0];
+						$last_contact = datetime_convert();
 					}
 
 					if(stristr($line,'Server: Mastodon')) {
@@ -797,12 +1094,14 @@ function poco_check_server($server_url, $network = "", $force = false) {
 						$network = NETWORK_OSTATUS;
 						// Mastodon doesn't reveal version numbers
 						$version = "";
+						$last_contact = datetime_convert();
 					}
 				}
+			}
 		}
 	}
 
-	if (!$failure) {
+	if (!$failure AND ($poco == "")) {
 		// Test for Statusnet
 		// Will also return data for Friendica and GNU Social - but it will be overwritten later
 		// The "not implemented" is a special treatment for really, really old Friendica versions
@@ -810,8 +1109,11 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		if ($serverret["success"] AND ($serverret["body"] != '{"error":"not implemented"}') AND
 			($serverret["body"] != '') AND (strlen($serverret["body"]) < 30)) {
 			$platform = "StatusNet";
-			$version = trim($serverret["body"], '"');
+			// Remove junk that some GNU Social servers return
+			$version = str_replace(chr(239).chr(187).chr(191), "", $serverret["body"]);
+			$version = trim($version, '"');
 			$network = NETWORK_OSTATUS;
+			$last_contact = datetime_convert();
 		}
 
 		// Test for GNU Social
@@ -819,17 +1121,32 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		if ($serverret["success"] AND ($serverret["body"] != '{"error":"not implemented"}') AND
 			($serverret["body"] != '') AND (strlen($serverret["body"]) < 30)) {
 			$platform = "GNU Social";
-			$version = trim($serverret["body"], '"');
+			// Remove junk that some GNU Social servers return
+			$version = str_replace(chr(239).chr(187).chr(191), "", $serverret["body"]);
+			$version = trim($version, '"');
 			$network = NETWORK_OSTATUS;
+			$last_contact = datetime_convert();
 		}
+	}
 
+	if (!$failure) {
+		// Test for Hubzilla, Redmatrix or Friendica
 		$serverret = z_fetch_url($server_url."/api/statusnet/config.json");
 		if ($serverret["success"]) {
 			$data = json_decode($serverret["body"]);
-
 			if (isset($data->site->server)) {
 				$last_contact = datetime_convert();
 
+				if (isset($data->site->platform)) {
+					$platform = $data->site->platform->PLATFORM_NAME;
+					$version = $data->site->platform->STD_VERSION;
+					$network = NETWORK_DIASPORA;
+				}
+				if (isset($data->site->BlaBlaNet)) {
+					$platform = $data->site->BlaBlaNet->PLATFORM_NAME;
+					$version = $data->site->BlaBlaNet->STD_VERSION;
+					$network = NETWORK_DIASPORA;
+				}
 				if (isset($data->site->hubzilla)) {
 					$platform = $data->site->hubzilla->PLATFORM_NAME;
 					$version = $data->site->hubzilla->RED_VERSION;
@@ -866,29 +1183,63 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		}
 	}
 
+
 	// Query statistics.json. Optional package for Diaspora, Friendica and Redmatrix
 	if (!$failure) {
 		$serverret = z_fetch_url($server_url."/statistics.json");
 		if ($serverret["success"]) {
 			$data = json_decode($serverret["body"]);
-			if ($version == "")
+			if (isset($data->version)) {
 				$version = $data->version;
+				// Version numbers on statistics.json are presented with additional info, e.g.:
+				// 0.6.3.0-p1702cc1c, 0.6.99.0-p1b9ab160 or 3.4.3-2-1191.
+				$version = preg_replace("=(.+)-(.{4,})=ism", "$1", $version);
+			}
 
 			$site_name = $data->name;
 
-			if (isset($data->network) AND ($platform == ""))
+			if (isset($data->network)) {
 				$platform = $data->network;
+			}
 
-			if ($platform == "Diaspora")
+			if ($platform == "Diaspora") {
 				$network = NETWORK_DIASPORA;
+			}
 
-			if ($data->registrations_open)
+			if ($data->registrations_open) {
 				$register_policy = REGISTER_OPEN;
-			else
+			} else {
 				$register_policy = REGISTER_CLOSED;
+			}
 
 			if (isset($data->version))
 				$last_contact = datetime_convert();
+		}
+	}
+
+	// Query nodeinfo. Working for (at least) Diaspora and Friendica.
+	if (!$failure) {
+		$server = poco_fetch_nodeinfo($server_url);
+		if ($server) {
+			$register_policy = $server['register_policy'];
+
+			if (isset($server['platform'])) {
+				$platform = $server['platform'];
+			}
+
+			if (isset($server['network'])) {
+				$network = $server['network'];
+			}
+
+			if (isset($server['version'])) {
+				$version = $server['version'];
+			}
+
+			if (isset($server['site_name'])) {
+				$site_name = $server['site_name'];
+			}
+
+			$last_contact = datetime_convert();
 		}
 	}
 
@@ -929,16 +1280,21 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		}
 	}
 
-	// Look for poco
-	if (!$failure) {
-		$serverret = z_fetch_url($server_url."/poco");
-		if ($serverret["success"]) {
-			$data = json_decode($serverret["body"]);
-			if (isset($data->totalResults)) {
-				$poco = $server_url."/poco";
-				$last_contact = datetime_convert();
-			}
-		}
+	if ($possible_failure AND !$failure) {
+		$last_failure = datetime_convert();
+		$failure = true;
+	}
+
+	if ($failure) {
+		$last_contact = $orig_last_contact;
+	} else {
+		$last_failure = $orig_last_failure;
+	}
+
+	if (($last_contact <= $last_failure) AND !$failure) {
+		logger("Server ".$server_url." seems to be alive, but last contact wasn't set - could be a bug", LOGGER_DEBUG);
+	} else if (($last_contact >= $last_failure) AND $failure) {
+		logger("Server ".$server_url." seems to be dead, but last failure wasn't set - could be a bug", LOGGER_DEBUG);
 	}
 
 	// Check again if the server exists
@@ -949,7 +1305,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 	$info = strip_tags($info);
 	$platform = strip_tags($platform);
 
-	if ($servers)
+	if ($servers) {
 		 q("UPDATE `gserver` SET `url` = '%s', `version` = '%s', `site_name` = '%s', `info` = '%s', `register_policy` = %d, `poco` = '%s', `noscrape` = '%s',
 			`network` = '%s', `platform` = '%s', `last_contact` = '%s', `last_failure` = '%s' WHERE `nurl` = '%s'",
 			dbesc($server_url),
@@ -965,7 +1321,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 			dbesc($last_failure),
 			dbesc(normalise_link($server_url))
 		);
-	else
+	} elseif (!$failure) {
 		q("INSERT INTO `gserver` (`url`, `nurl`, `version`, `site_name`, `info`, `register_policy`, `poco`, `noscrape`, `network`, `platform`, `created`, `last_contact`, `last_failure`)
 					VALUES ('%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
 				dbesc($server_url),
@@ -983,7 +1339,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 				dbesc($last_failure),
 				dbesc(datetime_convert())
 		);
-
+	}
 	logger("End discovery for server ".$server_url, LOGGER_DEBUG);
 
 	return !$failure;
@@ -1244,6 +1600,33 @@ function update_suggestions() {
 	}
 }
 
+/**
+ * @brief Fetch server list from remote servers and adds them when they are new.
+ *
+ * @param string $poco URL to the POCO endpoint
+ */
+function poco_fetch_serverlist($poco) {
+	$serverret = z_fetch_url($poco."/@server");
+	if (!$serverret["success"]) {
+		return;
+	}
+	$serverlist = json_decode($serverret['body']);
+
+	if (!is_array($serverlist)) {
+		return;
+	}
+
+	foreach ($serverlist AS $server) {
+		$server_url = str_replace("/index.php", "", $server->url);
+
+		$r = q("SELECT `nurl` FROM `gserver` WHERE `nurl` = '%s'", dbesc(normalise_link($server_url)));
+		if (!dbm::is_result($r)) {
+			logger("Call server check for server ".$server_url, LOGGER_DEBUG);
+			proc_run(PRIORITY_LOW, "include/discover_poco.php", "server", base64_encode($server_url));
+		}
+	}
+}
+
 function poco_discover_federation() {
 	$last = get_config('poco','last_federation_discovery');
 
@@ -1259,8 +1642,9 @@ function poco_discover_federation() {
 	if ($serverdata) {
 		$servers = json_decode($serverdata);
 
-		foreach($servers->pods AS $server)
-			poco_check_server("https://".$server->host);
+		foreach ($servers->pods AS $server) {
+			proc_run(PRIORITY_LOW, "include/discover_poco.php", "server", base64_encode("https://".$server->host));
+		}
 	}
 
 	// Currently disabled, since the service isn't available anymore.
@@ -1304,6 +1688,9 @@ function poco_discover($complete = false) {
 				q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
 				continue;
 			}
+
+			// Discover new servers out there
+			poco_fetch_serverlist($server["poco"]);
 
 			// Fetch all users from the other server
 			$url = $server["poco"]."/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation";
@@ -1878,5 +2265,21 @@ function gs_discover() {
 		gs_fetch_users($server["url"]);
 		q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
 	}
+}
+
+/**
+ * @brief Returns a list of all known servers
+ * @return array List of server urls
+ */
+function poco_serverlist() {
+	$r = q("SELECT `url`, `site_name` AS `displayName`, `network`, `platform`, `version` FROM `gserver`
+		WHERE `network` IN ('%s', '%s', '%s') AND `last_contact` > `last_failure`
+		ORDER BY `last_contact`
+		LIMIT 1000",
+		dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS));
+	if (!dbm::is_result($r)) {
+		return false;
+	}
+	return $r;
 }
 ?>
