@@ -1676,19 +1676,13 @@ function poco_discover_single_server($id) {
 
 	$server = $r[0];
 
-	if (!poco_check_server($server["url"], $server["network"])) {
-		// The server is not reachable? Okay, then we will try it later
-		q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
-		return false;
-	}
-
-	// Discover new servers out there
+	// Discover new servers out there (Works from Friendica version 3.5.2)
 	poco_fetch_serverlist($server["poco"]);
 
 	// Fetch all users from the other server
 	$url = $server["poco"]."/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation";
 
-	logger("Fetch all users from the server ".$server["nurl"], LOGGER_DEBUG);
+	logger("Fetch all users from the server ".$server["url"], LOGGER_DEBUG);
 
 	$retdata = z_fetch_url($url);
 	if ($retdata["success"]) {
@@ -1750,10 +1744,20 @@ function poco_discover($complete = false) {
 
 	$last_update = date("c", time() - (60 * 60 * 24 * $requery_days));
 
-	$r = q("SELECT `id` FROM `gserver` WHERE `last_contact` >= `last_failure` AND `poco` != '' AND `last_poco_query` < '%s' ORDER BY RAND()", dbesc($last_update));
+	$r = q("SELECT `id`, `url`, `network` FROM `gserver` WHERE `last_contact` >= `last_failure` AND `poco` != '' AND `last_poco_query` < '%s' ORDER BY RAND()", dbesc($last_update));
 	if (dbm::is_result($r)) {
 		foreach ($r AS $server) {
-			if (poco_discover_single_server($server['id']) AND !$complete AND (--$no_of_queries == 0)) {
+
+			if (!poco_check_server($server["url"], $server["network"])) {
+				// The server is not reachable? Okay, then we will try it later
+				q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
+				continue;
+			}
+
+			logger('Update directory from server '.$server['url'].' with ID '.$server['id'], LOGGER_DEBUG);
+			proc_run(PRIORITY_LOW, "include/discover_poco.php", "update_server_directory", $server['id']);
+
+			if (!$complete AND (--$no_of_queries == 0)) {
 				break;
 			}
 		}

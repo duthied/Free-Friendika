@@ -27,6 +27,8 @@ function discover_poco_run(&$argv, &$argc) {
 		$mode = 4;
 	} elseif (($argc == 2) && ($argv[1] == "update_server")) {
 		$mode = 5;
+	} elseif (($argc == 3) && ($argv[1] == "update_server_directory")) {
+		$mode = 6;
 	} elseif ($argc == 1) {
 		$search = "";
 		$mode = 0;
@@ -36,7 +38,9 @@ function discover_poco_run(&$argv, &$argc) {
 
 	logger('start '.$search);
 
-	if ($mode == 5) {
+	if ($mode == 6) {
+		poco_discover_single_server(intval($argv[2]));
+	} elseif ($mode == 5) {
 		update_server();
 	} elseif ($mode == 4) {
 		$server_url = base64_decode($argv[2]);
