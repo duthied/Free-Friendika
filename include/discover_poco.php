@@ -15,6 +15,7 @@ function discover_poco_run(&$argv, &$argc) {
 	- server <poco url>: Searches for the poco server list. "poco url" is base64 encoded.
 	- update_server: Frequently check the first 250 servers for vitality.
 	- update_server_directory: Discover the given server id for their contacts
+	- poco_load: Load POCO data from a given POCO address
 	*/
 
 	if (($argc > 2) && ($argv[1] == "dirsearch")) {
@@ -30,6 +31,8 @@ function discover_poco_run(&$argv, &$argc) {
 		$mode = 5;
 	} elseif (($argc == 3) && ($argv[1] == "update_server_directory")) {
 		$mode = 6;
+	} elseif (($argc > 5) && ($argv[1] == "poco_load")) {
+		$mode = 7;
 	} elseif ($argc == 1) {
 		$search = "";
 		$mode = 0;
@@ -39,7 +42,14 @@ function discover_poco_run(&$argv, &$argc) {
 
 	logger('start '.$search);
 
-	if ($mode == 6) {
+	if ($mode == 7) {
+		if ($argc == 6) {
+			$url = base64_decode($argv[5]);
+		} else {
+			$url = '';
+		}
+		poco_load_worker(intval($argv[2]), intval($argv[3]), intval($argv[4]), $url);
+	} elseif ($mode == 6) {
 		poco_discover_single_server(intval($argv[2]));
 	} elseif ($mode == 5) {
 		update_server();

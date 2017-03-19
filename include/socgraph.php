@@ -14,8 +14,13 @@ require_once("include/html2bbcode.php");
 require_once("include/Contact.php");
 require_once("include/Photo.php");
 
-/*
- * poco_load
+/**
+ * @brief Fetch POCO data
+ *
+ * @param integer $cid Contact ID
+ * @param integer $uid User ID
+ * @param integer $zcid Global Contact ID
+ * @param integer $url POCO address that should be polled
  *
  * Given a contact-id (minimum), load the PortableContacts friend list for that contact,
  * and add the entries to the gcontact (Global Contact) table, or update existing entries
@@ -27,12 +32,21 @@ require_once("include/Photo.php");
  * pointing to the same global contact id.
  *
  */
+function poco_load($cid, $uid = 0, $zcid = 0, $url = null) {
+	// Call the function "poco_load_worker" via the worker
+	proc_run(PRIORITY_LOW, "include/discover_poco.php", "poco_load", $cid, $uid, $zcid, base64_encode($url));
+}
 
-
-
-
-function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
-
+/**
+ * @brief Fetch POCO data from the worker
+ *
+ * @param integer $cid Contact ID
+ * @param integer $uid User ID
+ * @param integer $zcid Global Contact ID
+ * @param integer $url POCO address that should be polled
+ *
+ */
+function poco_load_worker($cid, $uid, $zcid, $url) {
 	$a = get_app();
 
 	if($cid) {
@@ -1739,9 +1753,9 @@ function poco_discover($complete = false) {
 
 	$requery_days = intval(get_config("system", "poco_requery_days"));
 
-	if ($requery_days == 0)
+	if ($requery_days == 0) {
 		$requery_days = 7;
-
+	}
 	$last_update = date("c", time() - (60 * 60 * 24 * $requery_days));
 
 	$r = q("SELECT `id`, `url`, `network` FROM `gserver` WHERE `last_contact` >= `last_failure` AND `poco` != '' AND `last_poco_query` < '%s' ORDER BY RAND()", dbesc($last_update));
