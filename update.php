@@ -1101,7 +1101,7 @@ function update_1125() {
   `receiver-uid` INT NOT NULL,
   INDEX ( `master-parent-item` ),
   INDEX ( `receiver-uid` )
-  ) ENGINE = MyISAM DEFAULT CHARSET=utf8");
+  ) DEFAULT CHARSET=utf8");
 }
 
 function update_1126() {
@@ -1120,7 +1120,7 @@ function update_1127() {
   INDEX ( `spam` ),
   INDEX ( `ham` ),
   INDEX ( `term` )
-  ) ENGINE = MyISAM DEFAULT CHARSET=utf8");
+  ) DEFAULT CHARSET=utf8");
 }
 
 
@@ -1146,7 +1146,7 @@ function update_1132() {
 `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 `username` CHAR( 255 ) NOT NULL,
 INDEX ( `username` )
-) ENGINE = MYISAM ");
+) ");
 
 }
 
@@ -1363,7 +1363,7 @@ function update_1151() {
 			`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 			`name` CHAR( 128 ) NOT NULL ,
 			`locked` TINYINT( 1 ) NOT NULL DEFAULT '0'
-		  ) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
+		  ) DEFAULT CHARSET=utf8 ");
 
 	if ($r) {
 		return UPDATE_SUCCESS ;
@@ -1384,7 +1384,7 @@ function update_1152() {
 		KEY `otype` ( `otype` ),
 		KEY `type`  ( `type` ),
 		KEY `term`  ( `term` )
-		) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
+		) DEFAULT CHARSET=utf8 ");
 
 	if ($r) {
 		return UPDATE_SUCCESS;
@@ -1594,7 +1594,7 @@ function update_1165() {
 	`push` INT NOT NULL,
 	`last_update` DATETIME NOT NULL,
 	`secret` CHAR( 255 ) NOT NULL
-	) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
+	) DEFAULT CHARSET=utf8 ");
 
 	if ($r) {
 		return UPDATE_SUCCESS;
@@ -1611,7 +1611,7 @@ function update_1166() {
 			`name` CHAR(255) NOT NULL,
 			`avatar` CHAR(255) NOT NULL,
 			INDEX (`url`)
-		  ) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
+		) DEFAULT CHARSET=utf8 ");
 
 	if ($r) {
 		return UPDATE_SUCCESS;
