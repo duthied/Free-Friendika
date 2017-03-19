@@ -49,5 +49,5 @@ if ($reason != '') {
 }
 
 echo "Usage:\n\n";
-echo "\tphp {$argv[0]} [1] [Maintenance reason]\tSet the system in maintenance mode\n";
+echo "\tphp {$argv[0]} [1] [Maintenance reason|redirection url]\tSet the system in maintenance mode\n";
 echo "\tphp {$argv[0]} 0  \tSet the system in normal mode\n\n";
