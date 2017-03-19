@@ -980,7 +980,7 @@ class ostatus {
 		$r = q("SELECT `nurl` FROM `contact` WHERE `uid` = %d AND `self`", intval($uid));
 
 		if (!dbm::is_result($r)) {
-			/// @TODO don't quit silently
+			logger("Failed query, uid=" . intval($uid) ." in " . __FUNCTION__);
 			killme();
 		}
 
