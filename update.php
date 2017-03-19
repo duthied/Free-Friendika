@@ -1533,7 +1533,6 @@ function update_1163() {
 function update_1164() {
 	set_config('system', 'maintenance', 1);
 
-	/// @TODO If one update fails, should it continue?
 	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '' AND `contact`.`uid` = `item`.`uid`)",
 		NETWORK_DFRN);
 
