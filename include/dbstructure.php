@@ -144,7 +144,8 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 	global $a, $db;
 
 	if ($action) {
-		set_config('system', 'maintenance', 1);
+		Config::set('system', 'maintenance', 1);
+		Config::set('system', 'maintenance_reason', 'Database update');
 	}
 
 	if (isset($a->config["system"]["db_charset"])) {
@@ -361,8 +362,10 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 		}
 	}
 
-	if ($action)
-		set_config('system', 'maintenance', 0);
+	if ($action) {
+		Config::set('system', 'maintenance', 0);
+		Config::set('system', 'maintenance_reason', '');
+	}
 
 	return $errors;
 }
