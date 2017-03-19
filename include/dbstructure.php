@@ -1,4 +1,7 @@
 <?php
+
+use \Friendica\Core\Config;
+
 require_once("boot.php");
 require_once("include/text.php");
 
