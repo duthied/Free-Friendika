@@ -14,6 +14,7 @@ function discover_poco_run(&$argv, &$argc) {
 	- suggestions: Discover other servers for their contacts.
 	- server <poco url>: Searches for the poco server list. "poco url" is base64 encoded.
 	- update_server: Frequently check the first 250 servers for vitality.
+	- update_server_directory: Discover the given server id for their contacts
 	*/
 
 	if (($argc > 2) && ($argv[1] == "dirsearch")) {
