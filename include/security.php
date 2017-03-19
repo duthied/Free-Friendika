@@ -55,7 +55,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 	$a->user = $user_record;
 
 	if($interactive) {
-		if($a->user['login_date'] === '0000-00-00 00:00:00') {
+		if ($a->user['login_date'] <= NULL_DATE) {
 			$_SESSION['return_url'] = 'profile_photo/new';
 			$a->module = 'profile_photo';
 			info( t("Welcome ") . $a->user['username'] . EOL);
