@@ -397,8 +397,9 @@ function poller_kill_stale_workers() {
 					dbesc(datetime_convert()),
 					intval(PRIORITY_NEGLIGIBLE),
 					intval($pid["pid"]));
-			} else
+			} else {
 				logger("Worker process ".$pid["pid"]." (".implode(" ", $argv).") now runs for ".round($duration)." of ".$max_duration." allowed minutes. That's okay.", LOGGER_DEBUG);
+			}
 		}
 	}
 }

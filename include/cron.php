@@ -222,7 +222,7 @@ function cron_poll_contacts($argc, $argv) {
 				$contact['priority'] = 2;
 			}
 
-			if($contact['subhub'] AND in_array($contact['network'], array(NETWORK_DFRN, NETWORK_ZOT, NETWORK_OSTATUS))) {
+			if ($contact['subhub'] AND in_array($contact['network'], array(NETWORK_DFRN, NETWORK_ZOT, NETWORK_OSTATUS))) {
 				// We should be getting everything via a hub. But just to be sure, let's check once a day.
 				// (You can make this more or less frequent if desired by setting 'pushpoll_frequency' appropriately)
 				// This also lets us update our subscription to the hub, and add or replace hubs in case it
