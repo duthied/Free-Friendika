@@ -1095,7 +1095,7 @@ class dfrn {
 		}
 
 
-		if ($rino>0 && $rino_remote_version>0 && (! $dissolve)) {
+		if ($rino > 0 && $rino_remote_version > 0 && (! $dissolve)) {
 			logger('rino version: '. $rino_remote_version);
 
 			switch($rino_remote_version) {
