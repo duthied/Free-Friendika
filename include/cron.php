@@ -120,8 +120,8 @@ function cron_update_photo_albums() {
 function cron_expire_and_remove_users() {
 	// expire any expired accounts
 	q("UPDATE user SET `account_expired` = 1 where `account_expired` = 0
-		AND `account_expires_on` != '0000-00-00 00:00:00'
-		AND `account_expires_on` < UTC_TIMESTAMP() ");
+		AND `account_expires_on` > '%s'
+		AND `account_expires_on` < UTC_TIMESTAMP()", dbesc(NULL_DATE));
 
 	// delete user and contact records for recently removed accounts
 	$r = q("SELECT * FROM `user` WHERE `account_removed` AND `account_expires_on` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
@@ -214,13 +214,15 @@ function cron_poll_contacts($argc, $argv) {
 
 			$xml = false;
 
-			if($manual_id)
-				$contact['last-update'] = '0000-00-00 00:00:00';
+			if ($manual_id) {
+				$contact['last-update'] = NULL_DATE;
+			}
 
-			if(in_array($contact['network'], array(NETWORK_DFRN, NETWORK_ZOT, NETWORK_OSTATUS)))
+			if (in_array($contact['network'], array(NETWORK_DFRN, NETWORK_ZOT, NETWORK_OSTATUS))) {
 				$contact['priority'] = 2;
+			}
 
-			if($contact['subhub'] AND in_array($contact['network'], array(NETWORK_DFRN, NETWORK_ZOT, NETWORK_OSTATUS))) {
+			if ($contact['subhub'] AND in_array($contact['network'], array(NETWORK_DFRN, NETWORK_ZOT, NETWORK_OSTATUS))) {
 				// We should be getting everything via a hub. But just to be sure, let's check once a day.
 				// (You can make this more or less frequent if desired by setting 'pushpoll_frequency' appropriately)
 				// This also lets us update our subscription to the hub, and add or replace hubs in case it

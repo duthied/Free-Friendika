@@ -39,7 +39,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
 define ( 'FRIENDICA_VERSION',      '3.5.2-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1215      );
+define ( 'DB_UPDATE_VERSION',      1216      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -441,10 +441,17 @@ define('SR_SCOPE_ALL',  'all');
 define('SR_SCOPE_TAGS', 'tags');
 /* @}*/
 
-// Normally this constant is defined - but not if "pcntl" isn't installed
-if (!defined("SIGTERM"))
-	define("SIGTERM", 15);
+/**
+ * Lowest possible date time value
+ */
 
+define ('NULL_DATE', '0001-01-01 00:00:00');
+
+
+// Normally this constant is defined - but not if "pcntl" isn't installed
+if (!defined("SIGTERM")) {
+	define("SIGTERM", 15);
+}
 /**
  *
  * Reverse the effect of magic_quotes_gpc if it is enabled.
@@ -2021,7 +2028,7 @@ function proc_run($cmd){
 	}
 
 	// Checking number of workers
-	$workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` != '0000-00-00 00:00:00'");
+	$workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` > '%s'", dbesc(NULL_DATE));
 
 	// Get number of allowed number of worker threads
 	$queues = intval(get_config("system", "worker_queues"));
