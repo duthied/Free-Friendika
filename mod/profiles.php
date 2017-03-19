@@ -233,11 +233,11 @@ function profiles_post(App $a) {
 
 		$with = ((x($_POST,'with')) ? notags(trim($_POST['with'])) : '');
 
-		if(! strlen($howlong))
+		if(! strlen($howlong)) {
 			$howlong = NULL_DATE;
-		else
+		} else {
 			$howlong = datetime_convert(date_default_timezone_get(),'UTC',$howlong);
-
+		}
 		// linkify the relationship target if applicable
 
 		$withchanged = false;

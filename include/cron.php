@@ -214,11 +214,13 @@ function cron_poll_contacts($argc, $argv) {
 
 			$xml = false;
 
-			if($manual_id)
+			if ($manual_id) {
 				$contact['last-update'] = NULL_DATE;
+			}
 
-			if(in_array($contact['network'], array(NETWORK_DFRN, NETWORK_ZOT, NETWORK_OSTATUS)))
+			if (in_array($contact['network'], array(NETWORK_DFRN, NETWORK_ZOT, NETWORK_OSTATUS))) {
 				$contact['priority'] = 2;
+			}
 
 			if($contact['subhub'] AND in_array($contact['network'], array(NETWORK_DFRN, NETWORK_ZOT, NETWORK_OSTATUS))) {
 				// We should be getting everything via a hub. But just to be sure, let's check once a day.

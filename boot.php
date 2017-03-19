@@ -449,9 +449,9 @@ define ('NULL_DATE', '0001-01-01 00:00:00');
 
 
 // Normally this constant is defined - but not if "pcntl" isn't installed
-if (!defined("SIGTERM"))
+if (!defined("SIGTERM")) {
 	define("SIGTERM", 15);
-
+}
 /**
  *
  * Reverse the effect of magic_quotes_gpc if it is enabled.

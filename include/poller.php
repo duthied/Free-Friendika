@@ -364,11 +364,11 @@ function poller_kill_stale_workers() {
 		return;
 	}
 
-	foreach($r AS $pid)
-		if (!posix_kill($pid["pid"], 0))
+	foreach ($r AS $pid) {
+		if (!posix_kill($pid["pid"], 0)) {
 			q("UPDATE `workerqueue` SET `executed` = '%s', `pid` = 0 WHERE `pid` = %d",
 				dbesc(NULL_DATE), intval($pid["pid"]));
-		else {
+		} else {
 			// Kill long running processes
 
 			// Check if the priority is in a valid range
@@ -400,6 +400,7 @@ function poller_kill_stale_workers() {
 			} else
 				logger("Worker process ".$pid["pid"]." (".implode(" ", $argv).") now runs for ".round($duration)." of ".$max_duration." allowed minutes. That's okay.", LOGGER_DEBUG);
 		}
+	}
 }
 
 /**
@@ -558,9 +559,9 @@ function poller_worker_process() {
 				ORDER BY `priority`, `created` LIMIT 1",
 				dbesc(NULL_DATE),
 				intval($highest_priority));
-		if (dbm::is_result($r))
+		if (dbm::is_result($r)) {
 			return $r;
-
+		}
 		// Give slower processes some processing time
 		$r = q("SELECT * FROM `workerqueue`
 				WHERE `executed` <= '%s' AND `priority` > %d
@@ -570,9 +571,9 @@ function poller_worker_process() {
 	}
 
 	// If there is no result (or we shouldn't pass lower processes) we check without priority limit
-	if (($highest_priority == 0) OR !dbm::is_result($r))
+	if (($highest_priority == 0) OR !dbm::is_result($r)) {
 		$r = q("SELECT * FROM `workerqueue` WHERE `executed` <= '%s' ORDER BY `priority`, `created` LIMIT 1", dbesc(NULL_DATE));
-
+	}
 	return $r;
 }
 

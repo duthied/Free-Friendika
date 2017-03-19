@@ -239,12 +239,12 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	);
 
 	if (count($x)) {
-		if (($network == "") AND ($x[0]["network"] != NETWORK_STATUSNET))
+		if (($network == "") AND ($x[0]["network"] != NETWORK_STATUSNET)) {
 			$network = $x[0]["network"];
-
-		if ($updated <= NULL_DATE)
+		}
+		if ($updated <= NULL_DATE) {
 			$updated = $x[0]["updated"];
-
+		}
 		$created = $x[0]["created"];
 		$server_url = $x[0]["server_url"];
 		$nick = $x[0]["nick"];
@@ -465,10 +465,10 @@ function poco_last_updated($profile, $force = false) {
 	$gcontacts = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s'",
 			dbesc(normalise_link($profile)));
 
-	if ($gcontacts[0]["created"] <= NULL_DATE)
+	if ($gcontacts[0]["created"] <= NULL_DATE) {
 		q("UPDATE `gcontact` SET `created` = '%s' WHERE `nurl` = '%s'",
 			dbesc(datetime_convert()), dbesc(normalise_link($profile)));
-
+	}
 	if ($gcontacts[0]["server_url"] != "") {
 		$server_url = $gcontacts[0]["server_url"];
 	}
@@ -664,10 +664,11 @@ function poco_last_updated($profile, $force = false) {
 	}
 
 	// Maybe there aren't any entries. Then check if it is a valid feed
-	if ($last_updated == "")
-		if ($xpath->query('/atom:feed')->length > 0)
+	if ($last_updated == "") {
+		if ($xpath->query('/atom:feed')->length > 0) {
 			$last_updated = NULL_DATE;
-
+		}
+	}
 	q("UPDATE `gcontact` SET `updated` = '%s', `last_contact` = '%s' WHERE `nurl` = '%s'",
 		dbesc(dbm::date($last_updated)), dbesc(dbm::date()), dbesc(normalise_link($profile)));
 
@@ -946,10 +947,10 @@ function poco_check_server($server_url, $network = "", $force = false) {
 	$servers = q("SELECT * FROM `gserver` WHERE `nurl` = '%s'", dbesc(normalise_link($server_url)));
 	if (dbm::is_result($servers)) {
 
-		if ($servers[0]["created"] <= NULL_DATE)
+		if ($servers[0]["created"] <= NULL_DATE) {
 			q("UPDATE `gserver` SET `created` = '%s' WHERE `nurl` = '%s'",
 				dbesc(datetime_convert()), dbesc(normalise_link($server_url)));
-
+		}
 		$poco = $servers[0]["poco"];
 		$noscrape = $servers[0]["noscrape"];
 
