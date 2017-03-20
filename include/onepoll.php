@@ -2,8 +2,7 @@
 
 use \Friendica\Core\Config;
 
-require_once("boot.php");
-require_once("include/follow.php");
+require_once('include/follow.php');
 
 function RemoveReply($subject) {
 	while (in_array(strtolower(substr($subject, 0, 3)), array("re:", "aw:")))
@@ -13,32 +12,14 @@ function RemoveReply($subject) {
 }
 
 function onepoll_run(&$argv, &$argc){
-	global $a, $db;
+	global $a;
 
-	if (is_null($a)) {
-		$a = new App;
-	}
-
-	if (is_null($db)) {
-		@include(".htconfig.php");
-		require_once("include/dba.php");
-		$db = new dba($db_host, $db_user, $db_pass, $db_data);
-		unset($db_host, $db_user, $db_pass, $db_data);
-	};
-
-	require_once('include/session.php');
 	require_once('include/datetime.php');
 	require_once('include/items.php');
 	require_once('include/Contact.php');
 	require_once('include/email.php');
 	require_once('include/socgraph.php');
 	require_once('include/queue_fn.php');
-
-	Config::load();
-
-	$a->set_baseurl(get_config('system','url'));
-
-	load_hooks();
 
 	logger('onepoll: start');
 
@@ -59,13 +40,6 @@ function onepoll_run(&$argv, &$argc){
 	if (! $contact_id) {
 		logger('onepoll: no contact');
 		return;
-	}
-
-	// Don't check this stuff if the function is called by the poller
-	if (App::callstack() != "poller_run") {
-		if (App::is_already_running('onepoll'.$contact_id, '', 540)) {
-			return;
-		}
 	}
 
 	$d = datetime_convert();
@@ -159,7 +133,7 @@ function onepoll_run(&$argv, &$argc){
 
 	logger("onepoll: poll: ({$contact['id']}) IMPORTER: {$importer['name']}, CONTACT: {$contact['name']}");
 
-	$last_update = (($contact['last-update'] === '0000-00-00 00:00:00')
+	$last_update = (($contact['last-update'] <= NULL_DATE)
 		? datetime_convert('UTC','UTC','now - 7 days', ATOM_TIME)
 		: datetime_convert('UTC','UTC',$contact['last-update'], ATOM_TIME)
 	);
@@ -265,7 +239,7 @@ function onepoll_run(&$argv, &$argc){
 				intval($contact['id'])
 			);
 			mark_for_death($contact);
-		} elseif ($contact['term-date'] != '0000-00-00 00:00:00') {
+		} elseif ($contact['term-date'] > NULL_DATE) {
 			logger("poller: $url back from the dead - removing mark for death");
 			unmark_for_death($contact);
 		}
@@ -696,9 +670,4 @@ function onepoll_run(&$argv, &$argc){
 	}
 
 	return;
-}
-
-if (array_search(__file__,get_included_files())===0) {
-	onepoll_run($_SERVER["argv"],$_SERVER["argc"]);
-	killme();
 }
