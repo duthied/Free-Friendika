@@ -195,32 +195,32 @@ function bbtoevent($s) {
 	$ev = array();
 
 	$match = '';
-	if (preg_match("/\[event\-summary\](.*?)\[\/event\-summary\]/is",$s,$match)) {
+	if (preg_match("/\[event\-summary\](.*?)\[\/event\-summary\]/is", $s, $match)) {
 		$ev['summary'] = $match[1];
 	}
 
 	$match = '';
-	if (preg_match("/\[event\-description\](.*?)\[\/event\-description\]/is",$s,$match)) {
+	if (preg_match("/\[event\-description\](.*?)\[\/event\-description\]/is", $s, $match)) {
 		$ev['desc'] = $match[1];
 	}
 
 	$match = '';
-	if (preg_match("/\[event\-start\](.*?)\[\/event\-start\]/is",$s,$match)) {
+	if (preg_match("/\[event\-start\](.*?)\[\/event\-start\]/is", $s, $match)) {
 		$ev['start'] = $match[1];
 	}
 
 	$match = '';
-	if (preg_match("/\[event\-finish\](.*?)\[\/event\-finish\]/is",$s,$match)) {
+	if (preg_match("/\[event\-finish\](.*?)\[\/event\-finish\]/is", $s, $match)) {
 		$ev['finish'] = $match[1];
 	}
 
 	$match = '';
-	if (preg_match("/\[event\-location\](.*?)\[\/event\-location\]/is",$s,$match)) {
+	if (preg_match("/\[event\-location\](.*?)\[\/event\-location\]/is", $s, $match)) {
 		$ev['location'] = $match[1];
 	}
 
 	$match = '';
-	if (preg_match("/\[event\-adjust\](.*?)\[\/event\-adjust\]/is",$s,$match)) {
+	if (preg_match("/\[event\-adjust\](.*?)\[\/event\-adjust\]/is", $s, $match)) {
 		$ev['adjust'] = $match[1];
 	}
 
@@ -269,11 +269,11 @@ function event_store($arr) {
 	$arr['edited']  = (($arr['edited'])      ? $arr['edited']          : datetime_convert());
 	$arr['type']    = (($arr['type'])        ? $arr['type']            : 'event' );
 	$arr['cid']     = ((intval($arr['cid'])) ? intval($arr['cid'])     : 0);
-	$arr['uri']     = (x($arr,'uri')         ? $arr['uri']             : item_new_uri($a->get_hostname(), $arr['uid']));
-	$arr['private'] = ((x($arr,'private'))   ? intval($arr['private']) : 0);
+	$arr['uri']     = (x($arr, 'uri')        ? $arr['uri']             : item_new_uri($a->get_hostname(), $arr['uid']));
+	$arr['private'] = ((x($arr, 'private'))  ? intval($arr['private']) : 0);
 	$arr['guid']    = get_guid(32);
 
-	if($arr['cid']) {
+	if ($arr['cid']) {
 		$c = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($arr['cid']),
 			intval($arr['uid'])
@@ -463,7 +463,7 @@ function event_store($arr) {
 function get_event_strings() {
 
 	// First day of the week (0 = Sunday)
-	$firstDay = get_pconfig(local_user(),'system', 'first_day_of_week');
+	$firstDay = get_pconfig(local_user(), 'system', 'first_day_of_week');
 	if ($firstDay === false) {
 		$firstDay = 0;
 	}
@@ -699,7 +699,7 @@ function process_events($arr) {
  * @return string Content according to selected export format
  */
 function event_format_export ($events, $format = 'ical', $timezone) {
-	if(! ((is_array($events)) && count($events))) {
+	if (! ((is_array($events)) && count($events))) {
 		return;
 	}
 
@@ -812,7 +812,7 @@ function events_by_uid($uid = 0, $sql_extra = '') {
 	}
 
 	// The permission condition if no condition was transmitted
-	if($sql_extra == '') {
+	if ($sql_extra == '') {
 		$sql_extra = " AND `allow_cid` = '' AND `allow_gid` = '' ";
 	}
 
@@ -940,5 +940,4 @@ function widget_events() {
 		'$export_csv' => t("Export calendar as csv"),
 		'$user' => $user
 	));
-
 }

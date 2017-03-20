@@ -53,8 +53,8 @@ function events_post(App $a) {
 	// The default setting for the `private` field in event_store() is false, so mirror that
 	$private_event = false;
 
-	$start  = '0000-00-00 00:00:00';
-	$finish = '0000-00-00 00:00:00';
+	$start  = NULL_DATE;
+	$finish = NULL_DATE;
 
 	if ($start_text) {
 		$start = $start_text;
