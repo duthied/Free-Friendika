@@ -59,6 +59,13 @@ function events_post(App $a) {
 	if ($start_text) {
 		$start = $start_text;
 	}
+	else {
+		$start    = sprintf('%d-%d-%d %d:%d:0',$startyear,$startmonth,$startday,$starthour,$startminute);
+	}
+
+	if ($nofinish) {
+		$finish = NULL_DATE;
+	}
 
 	if ($finish_text) {
 		$finish = $finish_text;
