@@ -1182,7 +1182,8 @@ class dfrn {
 			return 3;
 		}
 
-		if ($contact['term-date'] != '0000-00-00 00:00:00') {
+		/// @TODO Really compare with > here? Maybe DateTime (which allows such comparison again) is much safer/correcter
+		if ($contact['term-date'] > NULL_DATE) {
 			logger("dfrn_deliver: $url back from the dead - removing mark for death");
 			require_once('include/Contact.php');
 			unmark_for_death($contact);

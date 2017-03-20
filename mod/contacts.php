@@ -99,12 +99,21 @@ function contacts_init(App $a) {
 
 function contacts_batch_actions(App $a) {
 	$contacts_id = $_POST['contact_batch'];
-	if (!is_array($contacts_id)) return;
+	if (!is_array($contacts_id)) {
+		return;
+	}
 
 	$orig_records = q("SELECT * FROM `contact` WHERE `id` IN (%s) AND `uid` = %d AND `self` = 0",
 		implode(",", $contacts_id),
 		intval(local_user())
 	);
+
+	if (!dbm::is_result($orig_records)) {
+		/// @TODO EOL really needed?
+		notice( t('Could not access contact record(s).') . EOL);
+		goaway('contacts');
+		return; // NOTREACHED
+	}
 
 	$count_actions=0;
 	foreach ($orig_records as $orig_record) {
@@ -130,7 +139,8 @@ function contacts_batch_actions(App $a) {
 			$count_actions++;
 		}
 	}
-	if ($count_actions>0) {
+
+	if ($count_actions > 0) {
 		info ( sprintf( tt("%d contact edited.", "%d contacts edited.", $count_actions), $count_actions) );
 	}
 
@@ -164,7 +174,8 @@ function contacts_post(App $a) {
 		intval(local_user())
 	);
 
-	if (! count($orig_record)) {
+	if (! dbm::is_result($orig_record)) {
+		/// @TODO EOL really needed?
 		notice( t('Could not access contact record.') . EOL);
 		goaway('contacts');
 		return; // NOTREACHED
@@ -213,6 +224,7 @@ function contacts_post(App $a) {
 		intval($contact_id),
 		intval(local_user())
 	);
+	/// @TODO Decide to use dbm::is_result() here, what does $r include?
 	if ($r) {
 		info( t('Contact updated.') . EOL);
 	} else {
@@ -235,40 +247,47 @@ function contacts_post(App $a) {
 /*contact actions*/
 function _contact_update($contact_id) {
 	$r = q("SELECT `uid`, `url`, `network` FROM `contact` WHERE `id` = %d", intval($contact_id));
-	if (!$r)
+	if (!dbm::is_result($r)) {
 		return;
+	}
 
 	$uid = $r[0]["uid"];
 
-	if ($uid != local_user())
+	if ($uid != local_user()) {
 		return;
+	}
 
 	if ($r[0]["network"] == NETWORK_OSTATUS) {
 		$result = new_contact($uid, $r[0]["url"], false);
 
-		if ($result['success'])
+		if ($result['success']) {
 			$r = q("UPDATE `contact` SET `subhub` = 1 WHERE `id` = %d",
 				intval($contact_id));
-	} else
+		}
+	} else {
 		// pull feed and consume it, which should subscribe to the hub.
 		proc_run(PRIORITY_HIGH, "include/onepoll.php", $contact_id, "force");
+	}
 }
 
 function _contact_update_profile($contact_id) {
 	$r = q("SELECT `uid`, `url`, `network` FROM `contact` WHERE `id` = %d", intval($contact_id));
-	if (!$r)
+	if (!dbm::is_result($r)) {
 		return;
+	}
 
 	$uid = $r[0]["uid"];
 
-	if ($uid != local_user())
+	if ($uid != local_user()) {
 		return;
+	}
 
 	$data = probe_url($r[0]["url"]);
 
 	// "Feed" or "Unknown" is mostly a sign of communication problems
-	if ((in_array($data["network"], array(NETWORK_FEED, NETWORK_PHANTOM))) AND ($data["network"] != $r[0]["network"]))
+	if ((in_array($data["network"], array(NETWORK_FEED, NETWORK_PHANTOM))) AND ($data["network"] != $r[0]["network"])) {
 		return;
+	}
 
 	$updatefields = array("name", "nick", "url", "addr", "batch", "notify", "poll", "request", "confirm",
 				"poco", "network", "alias");
@@ -277,30 +296,36 @@ function _contact_update_profile($contact_id) {
 	if ($data["network"] == NETWORK_OSTATUS) {
 		$result = new_contact($uid, $data["url"], false);
 
-		if ($result['success'])
+		if ($result['success']) {
 			$update["subhub"] = true;
+		}
 	}
 
-	foreach ($updatefields AS $field)
-		if (isset($data[$field]) AND ($data[$field] != ""))
+	foreach ($updatefields AS $field) {
+		if (isset($data[$field]) AND ($data[$field] != "")) {
 			$update[$field] = $data[$field];
+		}
+	}
 
 	$update["nurl"] = normalise_link($data["url"]);
 
 	$query = "";
 
-	if (isset($data["priority"]) AND ($data["priority"] != 0))
+	if (isset($data["priority"]) AND ($data["priority"] != 0)) {
 		$query = "`priority` = ".intval($data["priority"]);
+	}
 
 	foreach ($update AS $key => $value) {
-		if ($query != "")
+		if ($query != "") {
 			$query .= ", ";
+		}
 
 		$query .= "`".$key."` = '".dbesc($value)."'";
 	}
 
-	if ($query == "")
+	if ($query == "") {
 		return;
+	}
 
 	$r = q("UPDATE `contact` SET $query WHERE `id` = %d AND `uid` = %d",
 		intval($contact_id),
@@ -368,8 +393,9 @@ function contacts_content(App $a) {
 	if ($a->argc == 3) {
 
 		$contact_id = intval($a->argv[1]);
-		if (! $contact_id)
+		if (! $contact_id) {
 			return;
+		}
 
 		$cmd = $a->argv[2];
 
@@ -378,7 +404,7 @@ function contacts_content(App $a) {
 			intval(local_user())
 		);
 
-		if (! count($orig_record)) {
+		if (! dbm::is_result($orig_record)) {
 			notice( t('Could not access contact record.') . EOL);
 			goaway('contacts');
 			return; // NOTREACHED
@@ -398,6 +424,7 @@ function contacts_content(App $a) {
 
 		if ($cmd === 'block') {
 			$r = _contact_block($contact_id, $orig_record[0]);
+			/// @TODO is $r a database result?
 			if ($r) {
 				$blocked = (($orig_record[0]['blocked']) ? 0 : 1);
 				info((($blocked) ? t('Contact has been blocked') : t('Contact has been unblocked')).EOL);
@@ -409,6 +436,7 @@ function contacts_content(App $a) {
 
 		if ($cmd === 'ignore') {
 			$r = _contact_ignore($contact_id, $orig_record[0]);
+			/// @TODO is $r a database result?
 			if ($r) {
 				$readonly = (($orig_record[0]['readonly']) ? 0 : 1);
 				info((($readonly) ? t('Contact has been ignored') : t('Contact has been unignored')).EOL);
@@ -421,6 +449,7 @@ function contacts_content(App $a) {
 
 		if ($cmd === 'archive') {
 			$r = _contact_archive($contact_id, $orig_record[0]);
+			/// @TODO is $r a database result?
 			if ($r) {
 				$archived = (($orig_record[0]['archive']) ? 0 : 1);
 				info((($archived) ? t('Contact has been archived') : t('Contact has been unarchived')).EOL);
@@ -463,8 +492,7 @@ function contacts_content(App $a) {
 			if ($_REQUEST['canceled']) {
 				if (x($_SESSION,'return_url')) {
 					goaway('' . $_SESSION['return_url']);
-				}
-				else {
+				} else {
 					goaway('contacts');
 				}
 			}
@@ -473,8 +501,7 @@ function contacts_content(App $a) {
 			info( t('Contact has been removed.') . EOL );
 			if (x($_SESSION,'return_url')) {
 				goaway('' . $_SESSION['return_url']);
-			}
-			else {
+			} else {
 				goaway('contacts');
 			}
 			return; // NOTREACHED
@@ -538,13 +565,13 @@ function contacts_content(App $a) {
 
 		$insecure = t('Private communications are not available for this contact.');
 
-		$last_update = (($contact['last-update'] == '0000-00-00 00:00:00')
+		$last_update = (($contact['last-update'] <= NULL_DATE)
 				? t('Never')
 				: datetime_convert('UTC',date_default_timezone_get(),$contact['last-update'],'D, j M Y, g:i A'));
 
-		if ($contact['last-update'] !== '0000-00-00 00:00:00')
+		if ($contact['last-update'] !== NULL_DATE) {
 			$last_update .= ' ' . (($contact['last-update'] <= $contact['success_update']) ? t("\x28Update was successful\x29") : t("\x28Update was not successful\x29"));
-
+		}
 		$lblsuggest = (($contact['network'] === NETWORK_DFRN) ? t('Suggest friends') : '');
 
 		$poll_enabled = in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_FEED, NETWORK_MAIL, NETWORK_MAIL2));
@@ -562,25 +589,27 @@ function contacts_content(App $a) {
 		// tabs
 		$tab_str = contacts_tab($a, $contact_id, 2);
 
-		$lost_contact = (($contact['archive'] && $contact['term-date'] != '0000-00-00 00:00:00' && $contact['term-date'] < datetime_convert('','','now')) ? t('Communications lost with this contact!') : '');
+		$lost_contact = (($contact['archive'] && $contact['term-date'] > NULL_DATE && $contact['term-date'] < datetime_convert('','','now')) ? t('Communications lost with this contact!') : '');
 
-		if ($contact['network'] == NETWORK_FEED)
+		if ($contact['network'] == NETWORK_FEED) {
 			$fetch_further_information = array('fetch_further_information', t('Fetch further information for feeds'), $contact['fetch_further_information'], t('Fetch further information for feeds'),
 									array('0'=>t('Disabled'), '1'=>t('Fetch information'), '2'=>t('Fetch information and keywords')));
-
-		if (in_array($contact['network'], array(NETWORK_FEED, NETWORK_MAIL, NETWORK_MAIL2)))
+		}
+		if (in_array($contact['network'], array(NETWORK_FEED, NETWORK_MAIL, NETWORK_MAIL2))) {
 			$poll_interval = contact_poll_interval($contact['priority'],(! $poll_enabled));
+		}
 
-		if ($contact['network'] == NETWORK_DFRN)
+		if ($contact['network'] == NETWORK_DFRN) {
 			$profile_select = contact_profile_assign($contact['profile-id'],(($contact['network'] !== NETWORK_DFRN) ? true : false));
+		}
 
 		if (in_array($contact['network'], array(NETWORK_DIASPORA, NETWORK_OSTATUS)) AND
-			($contact['rel'] == CONTACT_IS_FOLLOWER))
+			($contact['rel'] == CONTACT_IS_FOLLOWER)) {
 			$follow = App::get_baseurl(true)."/follow?url=".urlencode($contact["url"]);
+		}
 
 		// Load contactact related actions like hide, suggest, delete and others
 		$contact_actions = contact_actions($contact);
-
 
 		$o .= replace_macros($tpl, array(
 			//'$header' => t('Contact Editor'),
@@ -668,25 +697,21 @@ function contacts_content(App $a) {
 	if (($a->argc == 2) && ($a->argv[1] === 'all')) {
 		$sql_extra = '';
 		$all = true;
-	}
-	elseif (($a->argc == 2) && ($a->argv[1] === 'blocked')) {
+	} elseif (($a->argc == 2) && ($a->argv[1] === 'blocked')) {
 		$sql_extra = " AND `blocked` = 1 ";
 		$blocked = true;
-	}
-	elseif (($a->argc == 2) && ($a->argv[1] === 'hidden')) {
+	} elseif (($a->argc == 2) && ($a->argv[1] === 'hidden')) {
 		$sql_extra = " AND `hidden` = 1 ";
 		$hidden = true;
-	}
-	elseif (($a->argc == 2) && ($a->argv[1] === 'ignored')) {
+	} elseif (($a->argc == 2) && ($a->argv[1] === 'ignored')) {
 		$sql_extra = " AND `readonly` = 1 ";
 		$ignored = true;
-	}
-	elseif (($a->argc == 2) && ($a->argv[1] === 'archived')) {
+	} elseif (($a->argc == 2) && ($a->argv[1] === 'archived')) {
 		$sql_extra = " AND `archive` = 1 ";
 		$archived = true;
-	}
-	else
+	} else {
 		$sql_extra = " AND `blocked` = 0 ";
+	}
 
 	$search = ((x($_GET,'search')) ? notags(trim($_GET['search'])) : '');
 	$nets = ((x($_GET,'nets')) ? notags(trim($_GET['nets'])) : '');
@@ -758,8 +783,6 @@ function contacts_content(App $a) {
 	$tab_tpl = get_markup_template('common_tabs.tpl');
 	$t = replace_macros($tab_tpl, array('$tabs'=>$tabs));
 
-
-
 	$searching = false;
 	if ($search) {
 		$search_hdr = $search;
@@ -768,11 +791,11 @@ function contacts_content(App $a) {
 	}
 	$sql_extra .= (($searching) ? " AND (name REGEXP '$search_txt' OR url REGEXP '$search_txt'  OR nick REGEXP '$search_txt') " : "");
 
-	if ($nets)
+	if ($nets) {
 		$sql_extra .= sprintf(" AND network = '%s' ", dbesc($nets));
+	}
 
 	$sql_extra2 = ((($sort_type > 0) && ($sort_type <= CONTACT_IS_FRIEND)) ? sprintf(" AND `rel` = %d ",intval($sort_type)) : '');
-
 
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
 		WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 ",
@@ -861,23 +884,25 @@ function contacts_tab($a, $contact_id, $active_tab) {
 
 	// Show this tab only if there is visible friend list
 	$x = count_all_friends(local_user(), $contact_id);
-	if ($x)
+	if ($x) {
 		$tabs[] = array('label'=>t('Contacts'),
 				'url' => "allfriends/".$contact_id,
 				'sel' => (($active_tab == 3)?'active':''),
 				'title' => t('View all contacts'),
 				'id' => 'allfriends-tab',
 				'accesskey' => 't');
+	}
 
 	// Show this tab only if there is visible common friend list
 	$common = count_common_friends(local_user(),$contact_id);
-	if ($common)
+	if ($common) {
 		$tabs[] = array('label'=>t('Common Friends'),
 				'url' => "common/loc/".local_user()."/".$contact_id,
 				'sel' => (($active_tab == 4)?'active':''),
 				'title' => t('View all common friends'),
 				'id' => 'common-loc-tab',
 				'accesskey' => 'd');
+	}
 
 	$tabs[] = array('label' => t('Advanced'),
 			'url'   => 'crepair/' . $contact_id,
@@ -895,12 +920,13 @@ function contacts_tab($a, $contact_id, $active_tab) {
 function contact_posts($a, $contact_id) {
 
 	$r = q("SELECT `url` FROM `contact` WHERE `id` = %d", intval($contact_id));
-	if ($r) {
+	if (dbm::is_result($r)) {
 		$contact = $r[0];
 		$a->page['aside'] = "";
 		profile_load($a, "", 0, get_contact_details_by_url($contact["url"]));
-	} else
+	} else {
 		$profile = "";
+	}
 
 	$tab_str = contacts_tab($a, $contact_id, 1);
 
@@ -932,8 +958,7 @@ function _contact_detail_for_template($rr){
 	if (($rr['network'] === NETWORK_DFRN) && ($rr['rel'])) {
 		$url = "redir/{$rr['id']}";
 		$sparkle = ' class="sparkle" ';
-	}
-	else {
+	} else {
 		$url = $rr['url'];
 		$sparkle = '';
 	}

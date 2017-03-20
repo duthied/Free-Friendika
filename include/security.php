@@ -55,21 +55,25 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 	$a->user = $user_record;
 
 	if ($interactive) {
-		if ($a->user['login_date'] === '0000-00-00 00:00:00') {
+		/// @TODO Comparison of strings this way may lead to bugs/incompatiblities
+		if ($a->user['login_date'] <= NULL_DATE) {
 			$_SESSION['return_url'] = 'profile_photo/new';
 			$a->module = 'profile_photo';
 			info( t("Welcome ") . $a->user['username'] . EOL);
 			info( t('Please upload a profile photo.') . EOL);
-		}
-		else
+		} else {
 			info( t("Welcome back ") . $a->user['username'] . EOL);
+		}
 	}
 
 	$member_since = strtotime($a->user['register_date']);
-	if (time() < ($member_since + ( 60 * 60 * 24 * 14)))
+
+	if (time() < ($member_since + ( 60 * 60 * 24 * 14))) {
 		$_SESSION['new_member'] = true;
-	else
+	} else {
 		$_SESSION['new_member'] = false;
+	}
+
 	if (strlen($a->user['timezone'])) {
 		date_default_timezone_set($a->user['timezone']);
 		$a->timezone = $a->user['timezone'];

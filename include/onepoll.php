@@ -133,7 +133,7 @@ function onepoll_run(&$argv, &$argc){
 
 	logger("onepoll: poll: ({$contact['id']}) IMPORTER: {$importer['name']}, CONTACT: {$contact['name']}");
 
-	$last_update = (($contact['last-update'] === '0000-00-00 00:00:00')
+	$last_update = (($contact['last-update'] <= NULL_DATE)
 		? datetime_convert('UTC','UTC','now - 7 days', ATOM_TIME)
 		: datetime_convert('UTC','UTC',$contact['last-update'], ATOM_TIME)
 	);
@@ -239,7 +239,7 @@ function onepoll_run(&$argv, &$argc){
 				intval($contact['id'])
 			);
 			mark_for_death($contact);
-		} elseif ($contact['term-date'] != '0000-00-00 00:00:00') {
+		} elseif ($contact['term-date'] > NULL_DATE) {
 			logger("poller: $url back from the dead - removing mark for death");
 			unmark_for_death($contact);
 		}

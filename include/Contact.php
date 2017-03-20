@@ -122,12 +122,14 @@ function terminate_friendship($user,$self,$contact) {
 // This provides for the possibility that their database is temporarily messed
 // up or some other transient event and that there's a possibility we could recover from it.
 
-function mark_for_death($contact) {
+function mark_for_death(array $contact) {
 
-	if ($contact['archive'])
+	if ($contact['archive']) {
 		return;
+	}
 
-	if ($contact['term-date'] == '0000-00-00 00:00:00') {
+	/// @TODO Comparison of strings this way may lead to bugs/incompatibility, better switch to DateTime
+	if ($contact['term-date'] <= NULL_DATE) {
 		q("UPDATE `contact` SET `term-date` = '%s' WHERE `id` = %d",
 				dbesc(datetime_convert()),
 				intval($contact['id'])
@@ -185,13 +187,13 @@ function unmark_for_death($contact) {
 
 	// It's a miracle. Our dead contact has inexplicably come back to life.
 	q("UPDATE `contact` SET `term-date` = '%s' WHERE `id` = %d",
-		dbesc('0000-00-00 00:00:00'),
+		dbesc(NULL_DATE),
 		intval($contact['id'])
 	);
 
 	if ($contact['url'] != '') {
 		q("UPDATE `contact` SET `term-date` = '%s' WHERE `nurl` = '%s'",
-			dbesc('0000-00-00 00:00:00'),
+			dbesc(NULL_DATE),
 			dbesc(normalise_link($contact['url']))
 		);
 	}
