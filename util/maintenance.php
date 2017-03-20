@@ -21,7 +21,7 @@ if ($argc > 1) {
 	$maint_mode = intval($argv[1]);
 }
 
-//Config::set('system', 'maintenance', $maint_mode);
+Config::set('system', 'maintenance', $maint_mode);
 
 if ($maint_mode AND ($argc > 2)) {
 	$reason_arr = $argv;
