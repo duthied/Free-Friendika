@@ -49,5 +49,14 @@ if ($reason != '') {
 }
 
 echo "Usage:\n\n";
-echo "\tphp {$argv[0]} [1] [Maintenance reason]\tSet the system in maintenance mode\n";
-echo "\tphp {$argv[0]} 0  \tSet the system in normal mode\n\n";
+echo "\tphp {$argv[0]} [1] [Maintenance reason|redirection url]\n";
+echo "\t\tSet the system in maintenance mode\n\n";
+echo "\t\tIf the optionally entered maintenance reason is an url\n";
+echo "\t\tthe visitor is redirected to that page.\n";
+echo "\n";
+echo "\t\tExamples:\n";
+echo "\t\t\tphp {$argv[0]} 1 System upgrade\n";
+echo "\t\t\tphp {$argv[0]} 1 http://domain.tld/downtime\n";
+echo "\n";
+echo "\tphp {$argv[0]} 0\n";
+echo "\t\tSet the system in normal mode\n\n";

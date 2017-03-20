@@ -2228,6 +2228,9 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
 #event-edit-form-wrapper #event-edit-time {
     padding: 10px 0;
 }
+.event-buttons .plink-event-link {
+    margin-left: 20px;
+}
 /* Profiles Page */
 .profile-listing-table {
     display: table;
