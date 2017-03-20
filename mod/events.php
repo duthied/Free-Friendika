@@ -98,7 +98,7 @@ function events_post(App $a) {
 		goaway($onerror_url);
 	}
 
-	if ((! $summary) || ($start === '0000-00-00 00:00:00')) {
+	if ((! $summary) || ($start === NULL_DATE)) {
 		notice(t('Event title and start time are required.') . EOL);
 		if (intval($_REQUEST['preview'])) {
 			echo t('Event title and start time are required.');
