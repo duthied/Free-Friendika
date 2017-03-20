@@ -903,10 +903,10 @@ function contact_block() {
 				intval($shown)
 		);
 		if (dbm::is_result($r)) {
-			$contacts = "";
-			foreach ($r AS $contact)
+			$contacts = array();
+			foreach ($r AS $contact) {
 				$contacts[] = $contact["id"];
-
+			}
 			$r = q("SELECT `id`, `uid`, `addr`, `url`, `name`, `thumb`, `network` FROM `contact` WHERE `id` IN (%s)",
 				dbesc(implode(",", $contacts)));
 

@@ -72,8 +72,9 @@ function z_fetch_url($url,$binary = false, &$redirects = 0, $opts=array()) {
 	$a = get_app();
 
 	$ch = @curl_init($url);
-	if(($redirects > 8) || (! $ch))
-		return false;
+	if(($redirects > 8) || (! $ch)) {
+		return $ret;
+	}
 
 	@curl_setopt($ch, CURLOPT_HEADER, true);
 
