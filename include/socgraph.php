@@ -2018,7 +2018,7 @@ function get_gcontact_id($contact) {
 
 	if ($doprobing) {
 		logger("Last Contact: ". $last_contact_str." - Last Failure: ".$last_failure_str." - Checking: ".$contact["url"], LOGGER_DEBUG);
-		#proc_run(PRIORITY_LOW, 'include/gprobe.php', bin2hex($contact["url"]));
+		proc_run(PRIORITY_LOW, 'include/gprobe.php', bin2hex($contact["url"]));
 	}
 
 	if ((dbm::is_result($r)) AND (count($r) > 1) AND ($gcontact_id > 0) AND ($contact["url"] != ""))
