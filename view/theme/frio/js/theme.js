@@ -617,3 +617,53 @@ function htmlToText(htmlString) {
 
 	return text;
 }
+
+// Decodes a hexadecimally encoded binary string
+function hex2bin (s) {
+	//  discuss at: http://locutus.io/php/hex2bin/
+	// original by: Dumitru Uzun (http://duzun.me)
+	//   example 1: hex2bin('44696d61')
+	//   returns 1: 'Dima'
+	//   example 2: hex2bin('00')
+	//   returns 2: '\x00'
+	//   example 3: hex2bin('2f1q')
+	//   returns 3: false
+	var ret = [];
+	var i = 0;
+	var l;
+	s += '';
+
+	for (l = s.length; i < l; i += 2) {
+		var c = parseInt(s.substr(i, 1), 16);
+		var k = parseInt(s.substr(i + 1, 1), 16);
+		if (isNaN(c) || isNaN(k)) {
+			return false;
+		}
+		ret.push((c << 4) | k);
+	}
+	return String.fromCharCode.apply(String, ret);
+}
+
+// Convert binary data into hexadecimal representation
+function bin2hex (s) {
+	// From: http://phpjs.org/functions
+	// +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+	// +   bugfixed by: Onno Marsman
+	// +   bugfixed by: Linuxworld
+	// +   improved by: ntoniazzi (http://phpjs.org/functions/bin2hex:361#comment_177616)
+	// *     example 1: bin2hex('Kev');
+	// *     returns 1: '4b6576'
+	// *     example 2: bin2hex(String.fromCharCode(0x00));
+	// *     returns 2: '00'
+
+	var i, l, o = "", n;
+
+	s += "";
+
+	for (i = 0, l = s.length; i < l; i++) {
+		n = s.charCodeAt(i).toString(16);
+		o += n.length < 2 ? "0" + n : n;
+	}
+
+	return o;
+}
