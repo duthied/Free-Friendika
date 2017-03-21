@@ -11,7 +11,7 @@ function lockview_content(App $a) {
 		$item_id = (($a->argc > 2) ? intval($a->argv[2]) : 0);
 	}
 
-	if (! $item_id)
+	if(! $item_id)
 		killme();
 
 	if (!in_array($type, array('item','photo','event')))
@@ -28,13 +28,13 @@ function lockview_content(App $a) {
 
 	call_hooks('lockview_content', $item);
 
-	if ($item['uid'] != local_user()) {
+	if($item['uid'] != local_user()) {
 		echo t('Remote privacy information not available.') . '<br />';
 		killme();
 	}
 
 
-	if (($item['private'] == 1) && (! strlen($item['allow_cid'])) && (! strlen($item['allow_gid']))
+	if(($item['private'] == 1) && (! strlen($item['allow_cid'])) && (! strlen($item['allow_gid']))
 		&& (! strlen($item['deny_cid'])) && (! strlen($item['deny_gid']))) {
 
 		echo t('Remote privacy information not available.') . '<br />';
@@ -49,47 +49,39 @@ function lockview_content(App $a) {
 	$o = t('Visible to:') . '<br />';
 	$l = array();
 
-	if (count($allowed_groups)) {
+	if(count($allowed_groups)) {
 		$r = q("SELECT `name` FROM `group` WHERE `id` IN ( %s )",
 			dbesc(implode(', ', $allowed_groups))
 		);
-		if (dbm::is_result($r)) {
-			foreach ($r as $rr) {
+		if (dbm::is_result($r))
+			foreach($r as $rr)
 				$l[] = '<b>' . $rr['name'] . '</b>';
-			}
-		}
 	}
-	if (count($allowed_users)) {
+	if(count($allowed_users)) {
 		$r = q("SELECT `name` FROM `contact` WHERE `id` IN ( %s )",
 			dbesc(implode(', ',$allowed_users))
 		);
-		if (dbm::is_result($r)) {
-			foreach ($r as $rr) {
+		if (dbm::is_result($r))
+			foreach($r as $rr)
 				$l[] = $rr['name'];
-			}
-		}
 
 	}
 
-	if (count($deny_groups)) {
+	if(count($deny_groups)) {
 		$r = q("SELECT `name` FROM `group` WHERE `id` IN ( %s )",
 			dbesc(implode(', ', $deny_groups))
 		);
-		if (dbm::is_result($r)) {
-			foreach ($r as $rr) {
+		if (dbm::is_result($r))
+			foreach($r as $rr)
 				$l[] = '<b><strike>' . $rr['name'] . '</strike></b>';
-			}
-		}
 	}
-	if (count($deny_users)) {
+	if(count($deny_users)) {
 		$r = q("SELECT `name` FROM `contact` WHERE `id` IN ( %s )",
 			dbesc(implode(', ',$deny_users))
 		);
-		if (dbm::is_result($r)) {
-			foreach ($r as $rr) {
+		if (dbm::is_result($r))
+			foreach($r as $rr)
 				$l[] = '<strike>' . $rr['name'] . '</strike>';
-			}
-		}
 
 	}
 

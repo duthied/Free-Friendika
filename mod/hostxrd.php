@@ -7,7 +7,7 @@ function hostxrd_init(App $a) {
 	header("Content-type: text/xml");
 	$pubkey = get_config('system','site_pubkey');
 
-	if (! $pubkey) {
+	if(! $pubkey) {
 		$res = new_keypair(1024);
 
 		set_config('system','site_prvkey', $res['prvkey']);

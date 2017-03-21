@@ -8,9 +8,9 @@ function redir_init(App $a) {
 
 	// traditional DFRN
 
-	if ( $con_url || (local_user() && $a->argc > 1 && intval($a->argv[1])) ) {
+	if( $con_url || (local_user() && $a->argc > 1 && intval($a->argv[1])) ) {
 
-		if ($con_url) {
+		if($con_url) {
 			$con_url = str_replace('https', 'http', $con_url);
 
 			$r = q("SELECT * FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
@@ -18,7 +18,7 @@ function redir_init(App $a) {
 				intval(local_user())
 			);
 
-			if ((! dbm::is_result($r)) || ($r[0]['network'] !== NETWORK_DFRN))
+			if((! dbm::is_result($r)) || ($r[0]['network'] !== NETWORK_DFRN))
 				goaway(z_root());
 
 			$cid = $r[0]['id'];
@@ -31,17 +31,17 @@ function redir_init(App $a) {
 				intval(local_user())
 			);
 
-			if ((! dbm::is_result($r)) || ($r[0]['network'] !== NETWORK_DFRN))
+			if((! dbm::is_result($r)) || ($r[0]['network'] !== NETWORK_DFRN))
 				goaway(z_root());
 		}
 
 		$dfrn_id = $orig_id = (($r[0]['issued-id']) ? $r[0]['issued-id'] : $r[0]['dfrn-id']);
 
-		if ($r[0]['duplex'] && $r[0]['issued-id']) {
+		if($r[0]['duplex'] && $r[0]['issued-id']) {
 			$orig_id = $r[0]['issued-id'];
 			$dfrn_id = '1:' . $orig_id;
 		}
-		if ($r[0]['duplex'] && $r[0]['dfrn-id']) {
+		if($r[0]['duplex'] && $r[0]['dfrn-id']) {
 			$orig_id = $r[0]['dfrn-id'];
 			$dfrn_id = '0:' . $orig_id;
 		}

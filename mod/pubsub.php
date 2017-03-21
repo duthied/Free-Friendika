@@ -2,7 +2,7 @@
 
 function hub_return($valid,$body) {
 
-	if ($valid) {
+	if($valid) {
 		header($_SERVER["SERVER_PROTOCOL"] . ' 200 ' . 'OK');
 		echo $body;
 		killme();
@@ -31,7 +31,7 @@ function pubsub_init(App $a) {
 	$nick       = (($a->argc > 1) ? notags(trim($a->argv[1])) : '');
 	$contact_id = (($a->argc > 2) ? intval($a->argv[2])       : 0 );
 
-	if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+	if($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 		$hub_mode      = ((x($_GET,'hub_mode'))          ? notags(trim($_GET['hub_mode']))          : '');
 		$hub_topic     = ((x($_GET,'hub_topic'))         ? notags(trim($_GET['hub_topic']))         : '');
@@ -68,7 +68,7 @@ function pubsub_init(App $a) {
 		}
 
 		if ($hub_topic)
-			if (! link_compare($hub_topic,$r[0]['poll'])) {
+			if(! link_compare($hub_topic,$r[0]['poll'])) {
 				logger('pubsub: hub topic ' . $hub_topic . ' != ' . $r[0]['poll']);
 				// should abort but let's humour them.
 			}
@@ -78,8 +78,8 @@ function pubsub_init(App $a) {
 		// We must initiate an unsubscribe request with a verify_token.
 		// Don't allow outsiders to unsubscribe us.
 
-		if ($hub_mode === 'unsubscribe') {
-			if (! strlen($hub_verify)) {
+		if($hub_mode === 'unsubscribe') {
+			if(! strlen($hub_verify)) {
 				logger('pubsub: bogus unsubscribe');
 				hub_return(false, '');
 			}
@@ -106,7 +106,7 @@ function pubsub_post(App $a) {
 	logger('pubsub: user-agent: ' . $_SERVER['HTTP_USER_AGENT'] );
 	logger('pubsub: data: ' . $xml, LOGGER_DATA);
 
-//	if (! stristr($xml,'<?xml')) {
+//	if(! stristr($xml,'<?xml')) {
 //		logger('pubsub_post: bad xml');
 //		hub_post_return();
 //	}
@@ -142,9 +142,8 @@ function pubsub_post(App $a) {
 	// we have no way to match Diaspora guid's with atom post id's and could get duplicates.
 	// we'll assume that direct delivery is robust (and this is a bad assumption, but the duplicates are messy).
 
-	if ($r[0]['network'] === NETWORK_DIASPORA) {
+	if($r[0]['network'] === NETWORK_DIASPORA)
 		hub_post_return();
-	}
 
 	$feedhub = '';
 

@@ -22,12 +22,12 @@ function profile_photo_post(App $a) {
 
 	check_form_security_token_redirectOnErr('/profile_photo', 'profile_photo');
 
-	if ((x($_POST,'cropfinal')) && ($_POST['cropfinal'] == 1)) {
+	if((x($_POST,'cropfinal')) && ($_POST['cropfinal'] == 1)) {
 
 		// unless proven otherwise
 		$is_default_profile = 1;
 
-		if ($_REQUEST['profile']) {
+		if($_REQUEST['profile']) {
 			$r = q("select id, `is-default` from profile where id = %d and uid = %d limit 1",
 				intval($_REQUEST['profile']),
 				intval(local_user())
@@ -40,14 +40,14 @@ function profile_photo_post(App $a) {
 
 		// phase 2 - we have finished cropping
 
-		if ($a->argc != 2) {
+		if($a->argc != 2) {
 			notice( t('Image uploaded but image cropping failed.') . EOL );
 			return;
 		}
 
 		$image_id = $a->argv[1];
 
-		if (substr($image_id,-2,1) == '-') {
+		if(substr($image_id,-2,1) == '-') {
 			$scale = substr($image_id,-1,1);
 			$image_id = substr($image_id,0,-2);
 		}
@@ -68,7 +68,7 @@ function profile_photo_post(App $a) {
 			$base_image = $r[0];
 
 			$im = new Photo($base_image['data'], $base_image['type']);
-			if ($im->is_valid()) {
+			if($im->is_valid()) {
 				$im->cropImage(175,$srcX,$srcY,$srcW,$srcH);
 
 				$r = $im->store(local_user(), 0, $base_image['resource-id'],$base_image['filename'], t('Profile Photos'), 4, $is_default_profile);
@@ -95,7 +95,7 @@ function profile_photo_post(App $a) {
 
 				// If setting for the default profile, unset the profile photo flag from any other photos I own
 
-				if ($is_default_profile) {
+				if($is_default_profile) {
 					$r = q("UPDATE `photo` SET `profile` = 0 WHERE `profile` = 1 AND `resource-id` != '%s' AND `uid` = %d",
 						dbesc($base_image['resource-id']),
 						intval(local_user())
@@ -173,7 +173,7 @@ function profile_photo_post(App $a) {
 }
 
 
-if (! function_exists('profile_photo_content')) {
+if(! function_exists('profile_photo_content')) {
 function profile_photo_content(App $a) {
 
 	if (! local_user()) {
@@ -183,10 +183,10 @@ function profile_photo_content(App $a) {
 
 	$newuser = false;
 
-	if ($a->argc == 2 && $a->argv[1] === 'new')
+	if($a->argc == 2 && $a->argv[1] === 'new')
 		$newuser = true;
 
-	if ( $a->argv[1]=='use'){
+	if( $a->argv[1]=='use'){
 		if ($a->argc<3){
 			notice( t('Permission denied.') . EOL );
 			return;
@@ -206,7 +206,7 @@ function profile_photo_content(App $a) {
 		}
 		$havescale = false;
 		foreach ($r as $rr) {
-			if ($rr['scale'] == 5)
+			if($rr['scale'] == 5)
 				$havescale = true;
 		}
 
@@ -245,7 +245,7 @@ function profile_photo_content(App $a) {
 	);
 
 
-	if (! x($a->config,'imagecrop')) {
+	if(! x($a->config,'imagecrop')) {
 
 		$tpl = get_markup_template('profile_photo.tpl');
 
@@ -283,7 +283,7 @@ function profile_photo_content(App $a) {
 }}
 
 
-if (! function_exists('profile_photo_crop_ui_head')) {
+if(! function_exists('profile_photo_crop_ui_head')) {
 function profile_photo_crop_ui_head(App $a, $ph) {
 	$max_length = get_config('system','max_image_length');
 	if (! $max_length) {

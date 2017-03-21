@@ -6,23 +6,20 @@ require_once('include/datetime.php');
 function localtime_post(App $a) {
 
 	$t = $_REQUEST['time'];
-	if (! $t) {
+	if(! $t)
 		$t = 'now';
-	}
 
 	$bd_format = t('l F d, Y \@ g:i A') ; // Friday January 18, 2011 @ 8 AM
 
-	if ($_POST['timezone']) {
+	if($_POST['timezone'])
 		$a->data['mod-localtime'] = datetime_convert('UTC',$_POST['timezone'],$t,$bd_format);
-	}
 
 }
 
 function localtime_content(App $a) {
 	$t = $_REQUEST['time'];
-	if (! $t) {
+	if(! $t)
 		$t = 'now';
-	}
 
 	$o .= '<h3>' . t('Time Conversion') . '</h3>';
 
@@ -32,13 +29,11 @@ function localtime_content(App $a) {
 
 	$o .= '<p>' . sprintf( t('UTC time: %s'), $t) . '</p>';
 
-	if ($_REQUEST['timezone']) {
+	if($_REQUEST['timezone'])
 		$o .= '<p>' . sprintf( t('Current timezone: %s'), $_REQUEST['timezone']) . '</p>';
-	}
 
-	if (x($a->data,'mod-localtime')) {
+	if(x($a->data,'mod-localtime'))
 		$o .= '<p>' . sprintf( t('Converted localtime: %s'),$a->data['mod-localtime']) . '</p>';
-	}
 
 
 	$o .= '<form action ="' . App::get_baseurl() . '/localtime?f=&time=' . $t . '" method="post" >';

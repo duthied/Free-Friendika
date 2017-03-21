@@ -4,7 +4,7 @@ require_once('include/security.php');
 
 function attach_init(App $a) {
 
-	if ($a->argc != 2) {
+	if($a->argc != 2) {
 		notice( t('Item not available.') . EOL);
 		return;
 	}
@@ -38,7 +38,7 @@ function attach_init(App $a) {
 	// error in Chrome for filenames with commas in them
 	header('Content-type: ' . $r[0]['filetype']);
 	header('Content-length: ' . $r[0]['filesize']);
-	if (isset($_GET['attachment']) && $_GET['attachment'] === '0')
+	if(isset($_GET['attachment']) && $_GET['attachment'] === '0')
 		header('Content-disposition: filename="' . $r[0]['filename'] . '"');
 	else
 		header('Content-disposition: attachment; filename="' . $r[0]['filename'] . '"');

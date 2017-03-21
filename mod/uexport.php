@@ -51,9 +51,9 @@ function _uexport_multirow($query) {
 	$result = array();
 	$r = q($query);
 	if (dbm::is_result($r)) {
-		foreach ($r as $rr){
+		foreach($r as $rr){
 			$p = array();
-			foreach ($rr as $k => $v) {
+			foreach($rr as $k => $v) {
 				$p[$k] = $v;
 			}
 			$result[] = $p;
@@ -66,8 +66,8 @@ function _uexport_row($query) {
 	$result = array();
 	$r = q($query);
 	if (dbm::is_result($r)) {
-		foreach ($r as $rr) {
-			foreach ($rr as $k => $v) {
+		foreach($r as $rr) {
+			foreach($rr as $k => $v) {
 				$result[$k] = $v;
 			}
 		}
@@ -151,8 +151,8 @@ function uexport_all(App $a) {
 			intval(500)
 		);
 		/*if (dbm::is_result($r)) {
-			foreach ($r as $rr)
-				foreach ($rr as $k => $v)
+			foreach($r as $rr)
+				foreach($rr as $k => $v)
 					$item[][$k] = $v;
 		}*/
 

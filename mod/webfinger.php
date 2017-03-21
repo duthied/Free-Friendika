@@ -11,7 +11,7 @@ function webfinger_content(App $a) {
 
 	$o .= '<br /><br />';
 
-	if (x($_GET,'addr')) {
+	if(x($_GET,'addr')) {
 		$addr = trim($_GET['addr']);
 		$res = Probe::lrdd($addr);
 		$o .= '<pre>';

@@ -6,23 +6,20 @@ require_once('include/items.php');
 require_once('include/like.php');
 
 function like_content(App $a) {
-	if (! local_user() && ! remote_user()) {
+	if(! local_user() && ! remote_user()) {
 		return false;
 	}
 
 
 	$verb = notags(trim($_GET['verb']));
 
-	if (! $verb) {
+	if(! $verb)
 		$verb = 'like';
-	}
 
 	$item_id = (($a->argc > 1) ? notags(trim($a->argv[1])) : 0);
 
 	$r = do_like($item_id, $verb);
-	if (!$r) {
-		return;
-	}
+	if (!$r) return;
 
 	// See if we've been passed a return path to redirect to
 	$return_path = ((x($_REQUEST,'return')) ? $_REQUEST['return'] : '');
@@ -38,13 +35,10 @@ function like_content(App $a) {
 
 function like_content_return($baseurl, $return_path) {
 
-	if ($return_path) {
+	if($return_path) {
 		$rand = '_=' . time();
-		if (strpos($return_path, '?')) {
-			$rand = "&$rand";
-		} else {
-			$rand = "?$rand";
-		}
+		if(strpos($return_path, '?')) $rand = "&$rand";
+		else $rand = "?$rand";
 
 		goaway($baseurl . "/" . $return_path . $rand);
 	}

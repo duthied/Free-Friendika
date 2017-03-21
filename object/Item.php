@@ -1,7 +1,6 @@
 <?php
-if (class_exists('Item')) {
+if(class_exists('Item'))
 	return;
-}
 
 require_once('object/BaseObject.php');
 require_once('include/text.php');
@@ -182,19 +181,19 @@ class Item extends BaseObject {
 		$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
 
 		$searchpath = "search?tag=";
-		$tags = array();
+		$tags=array();
 		$hashtags = array();
 		$mentions = array();
 
 
-		/*foreach (explode(',',$item['tag']) as $tag){
+		/*foreach(explode(',',$item['tag']) as $tag){
 			$tag = trim($tag);
 			if ($tag!="") {
 				$t = bbcode($tag);
 				$tags[] = $t;
-				if ($t[0] == '#')
+				if($t[0] == '#')
 					$hashtags[] = $t;
-				elseif ($t[0] == '@')
+				elseif($t[0] == '@')
 					$mentions[] = $t;
 			}
 		}*/
@@ -259,7 +258,7 @@ class Item extends BaseObject {
 				}
 
 				$tagger = '';
-				if (feature_enabled($conv->get_profile_owner(),'commtag')) {
+				if(feature_enabled($conv->get_profile_owner(),'commtag')) {
 					$tagger = array(
 						'add'   => t("add tag"),
 						'class' => "",
@@ -504,7 +503,7 @@ class Item extends BaseObject {
 	 */
 	protected function set_parent($item) {
 		$parent = $this->get_parent();
-		if ($parent) {
+		if($parent) {
 			$parent->remove_child($this);
 		}
 		$this->parent = $item;
@@ -735,9 +734,9 @@ class Item extends BaseObject {
 		$conv = $this->get_conversation();
 		$this->wall_to_wall = false;
 
-		if ($this->is_toplevel()) {
-			if ($conv->get_mode() !== 'profile') {
-				if ($this->get_data_value('wall') AND !$this->get_data_value('self')) {
+		if($this->is_toplevel()) {
+			if($conv->get_mode() !== 'profile') {
+				if($this->get_data_value('wall') AND !$this->get_data_value('self')) {
 					// On the network page, I am the owner. On the display page it will be the profile owner.
 					// This will have been stored in $a->page_contact by our calling page.
 					// Put this person as the wall owner of the wall-to-wall notice.
@@ -746,7 +745,7 @@ class Item extends BaseObject {
 					$this->owner_photo = $a->page_contact['thumb'];
 					$this->owner_name = $a->page_contact['name'];
 					$this->wall_to_wall = true;
-				} elseif ($this->get_data_value('owner-link')) {
+				} elseif($this->get_data_value('owner-link')) {
 
 					$owner_linkmatch = (($this->get_data_value('owner-link')) && link_compare($this->get_data_value('owner-link'),$this->get_data_value('author-link')));
 					$alias_linkmatch = (($this->get_data_value('alias')) && link_compare($this->get_data_value('alias'),$this->get_data_value('author-link')));
