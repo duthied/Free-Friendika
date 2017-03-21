@@ -11,6 +11,7 @@ function cronjobs_run(&$argv, &$argc){
 	require_once('include/photos.php');
 	require_once('include/user.php');
 	require_once('include/socgraph.php');
+	require_once('include/Probe.php');
 
 	// No parameter set? So return
 	if ($argc <= 1) {
@@ -233,17 +234,11 @@ function cron_repair_diaspora(App $a) {
 			return;
 		}
 
-		$server_url = poco_detect_server($contact["url"]);
-
-		if (($server_url != "") AND !poco_check_server($server_url)) {
-			continue;
-		}
-
 		if (!poco_reachable($contact["url"])) {
 			continue;
 		}
 
-		$data = probe_url($contact["url"]);
+		$data = Probe::uri($contact["url"]);
 		if ($data["network"] != NETWORK_DIASPORA) {
 			continue;
 		}
