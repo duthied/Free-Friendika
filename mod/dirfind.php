@@ -166,9 +166,8 @@ function dirfind_content(App $a, $prefix = "") {
 
 			$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
 
-			if (strlen(get_config('system','directory'))) {
+			if(strlen(get_config('system','directory')))
 				$x = fetch_url(get_server().'/lsearch?f=' . $p .  '&search=' . urlencode($search));
-			}
 
 			$j = json_decode($x);
 		}

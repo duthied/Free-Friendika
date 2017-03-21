@@ -6,7 +6,7 @@
 	$files = array_merge($files,glob('mod/*'),glob('include/*'),glob('addon/*/*'));
 
 
-	foreach ($files as $file) {
+	foreach($files as $file) {
 		$str = file_get_contents($file);
 
 		$pat = '| t\(([^\)]*)\)|';
@@ -16,14 +16,14 @@
 		preg_match_all($patt, $str, $matchestt);
 		
 
-		if (count($matches)){
-			foreach ($matches[1] as $match) {
-				if (! in_array($match,$arr))
+		if(count($matches)){
+			foreach($matches[1] as $match) {
+				if(! in_array($match,$arr))
 					$arr[] = $match;
 			}
 		}
-		if (count($matchestt)){
-			foreach ($matchestt[1] as $match) {
+		if(count($matchestt)){
+			foreach($matchestt[1] as $match) {
 				$matchtkns = preg_split("|[ \t\r\n]*,[ \t\r\n]*|",$match);
 				if (count($matchtkns)==3 && !in_array($matchtkns,$arr)){
 					$arr[] = $matchtkns;
@@ -41,26 +41,23 @@ function string_plural_select($n){
 
 ';
 
-	foreach ($arr as $a) {
+	foreach($arr as $a) {
 		if (is_array($a)){
-			if (substr($a[1],0,1) == '$') {
+			if(substr($a[1],0,1) == '$')
 				continue;
-			}
 			$s .= '$a->strings[' . $a[0] . "] = array(\n";
 			$s .= "\t0 => ". $a[0]. ",\n";
 			$s .= "\t1 => ". $a[1]. ",\n";
 			$s .= ");\n";
 		} else {
-			if (substr($a,0,1) == '$') {
-				continue;
-			}
+			if(substr($a,0,1) == '$')
+				continue;			
 			$s .= '$a->strings[' . $a . '] = '. $a . ';' . "\n";
 		}
 	}
 
 	$zones = timezone_identifiers_list();
-	foreach ($zones as $zone) {
+	foreach($zones as $zone)
 		$s .= '$a->strings[\'' . $zone . '\'] = \'' . $zone . '\';' . "\n";
-	}
-
+	
 	echo $s;

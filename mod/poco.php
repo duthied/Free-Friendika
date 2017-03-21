@@ -157,27 +157,27 @@ function poco_init(App $a) {
 	if (x($_GET,'updatedSince') AND !$global) {
 		$ret['updatedSince'] = false;
 	}
-
 	$ret['startIndex']   = (int) $startIndex;
 	$ret['itemsPerPage'] = (int) $itemsPerPage;
 	$ret['totalResults'] = (int) $totalResults;
 	$ret['entry']        = array();
 
+
 	$fields_ret = array(
-		'id'                => false,
-		'displayName'       => false,
-		'urls'              => false,
-		'updated'           => false,
+		'id' => false,
+		'displayName' => false,
+		'urls' => false,
+		'updated' => false,
 		'preferredUsername' => false,
-		'photos'            => false,
-		'aboutMe'           => false,
-		'currentLocation'   => false,
-		'network'           => false,
-		'gender'            => false,
-		'tags'              => false,
-		'address'           => false,
-		'contactType'       => false,
-		'generation'        => false
+		'photos' => false,
+		'aboutMe' => false,
+		'currentLocation' => false,
+		'network' => false,
+		'gender' => false,
+		'tags' => false,
+		'address' => false,
+		'contactType' => false,
+		'generation' => false
 	);
 
 	if ((! x($_GET,'fields')) || ($_GET['fields'] === '@all')) {
@@ -207,17 +207,14 @@ function poco_init(App $a) {
 				if (($rr['about'] == "") AND isset($rr['pabout'])) {
 					$rr['about'] = $rr['pabout'];
 				}
-
 				if ($rr['location'] == "") {
 					if (isset($rr['plocation'])) {
 						$rr['location'] = $rr['plocation'];
 					}
-
 					if (isset($rr['pregion']) AND ($rr['pregion'] != "")) {
 						if ($rr['location'] != "") {
 							$rr['location'] .= ", ";
 						}
-
 						$rr['location'] .= $rr['pregion'];
 					}
 
@@ -295,7 +292,6 @@ function poco_init(App $a) {
 					} else {
 						$entry['updated'] = $rr['updated'];
 					}
-
 					$entry['updated'] = date("c", strtotime($entry['updated']));
 				}
 				if ($fields_ret['photos']) {
@@ -349,7 +345,6 @@ function poco_init(App $a) {
 				if ($fields_ret['contactType']) {
 					$entry['contactType'] = intval($rr['contact-type']);
 				}
-
 				$ret['entry'][] = $entry;
 			}
 		} else {
@@ -358,7 +353,6 @@ function poco_init(App $a) {
 	} else {
 		http_status_exit(500);
 	}
-
 	logger("End of poco", LOGGER_DEBUG);
 
 	if ($format === 'xml') {
@@ -373,5 +367,4 @@ function poco_init(App $a) {
 	} else {
 		http_status_exit(500);
 	}
-
 }

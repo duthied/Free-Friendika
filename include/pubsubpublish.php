@@ -28,12 +28,10 @@ function handle_pubsubhubbub($id) {
 	global $a;
 
 	$r = q("SELECT * FROM `push_subscriber` WHERE `id` = %d", intval($id));
-
-	if (!dbm::is_result($r)) {
+	if (!$r)
 		return;
-	}
-
-	$rr = $r[0];
+	else
+		$rr = $r[0];
 
 	logger("Generate feed of user ".$rr['nickname']." to ".$rr['callback_url']." - last updated ".$rr['last_update'], LOGGER_DEBUG);
 
@@ -67,10 +65,8 @@ function handle_pubsubhubbub($id) {
 		// increment this until some upper limit where we give up
 		$new_push = intval($rr['push']) + 1;
 
-		if ($new_push > 30) {
-			// OK, let's give up
+		if ($new_push > 30) // OK, let's give up
 			$new_push = 0;
-		}
 
 		q("UPDATE `push_subscriber` SET `push` = %d WHERE id = %d",
 			$new_push,

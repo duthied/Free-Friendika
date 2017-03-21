@@ -54,7 +54,7 @@ function wk_social_relay(App $a) {
 	}
 
 	$taglist = array();
-	foreach ($tags AS $tag) {
+	foreach($tags AS $tag) {
 		$taglist[] = $tag;
 	}
 

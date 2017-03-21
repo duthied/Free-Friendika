@@ -7,7 +7,7 @@ function msearch_post(App $a) {
 	$startrec = (($page+1) * $perpage) - $perpage;
 
 	$search = $_POST['s'];
-	if (! strlen($search))
+	if(! strlen($search))
 		killme();
 
 	$r = q("SELECT COUNT(*) AS `total` FROM `profile` LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid` WHERE `is-default` = 1 AND `user`.`hidewall` = 0 AND MATCH `pub_keywords` AGAINST ('%s') ",
@@ -26,7 +26,7 @@ function msearch_post(App $a) {
 	);
 
 	if (dbm::is_result($r)) {
-		foreach ($r as $rr)
+		foreach($r as $rr)
 			$results[] = array(
 				'name' => $rr['name'],
 				'url' => App::get_baseurl() . '/profile/' . $rr['nickname'],

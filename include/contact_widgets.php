@@ -17,9 +17,9 @@ function findpeople_widget() {
 
 	$a = get_app();
 
-	if (get_config('system','invitation_only')) {
+	if(get_config('system','invitation_only')) {
 		$x = get_pconfig(local_user(),'system','invites_remaining');
-		if ($x || is_site_admin()) {
+		if($x || is_site_admin()) {
 			$a->page['aside'] .= '<div class="side-link" id="side-invite-remain">'
 			. sprintf( tt('%d invitation available','%d invitations available',$x), $x)
 			. '</div>' . $inv;
@@ -108,7 +108,7 @@ function networks_widget($baseurl,$selected = '') {
 		}
 	}
 
-	if (count($nets) < 2)
+	if(count($nets) < 2)
 		return '';
 
 	return replace_macros(get_markup_template('nets.tpl'),array(
@@ -140,7 +140,7 @@ function fileas_widget($baseurl,$selected = '') {
 	$terms = array();
 	$cnt = preg_match_all('/\[(.*?)\]/',$saved,$matches,PREG_SET_ORDER);
 	if ($cnt) {
-		foreach ($matches as $mtch) {
+		foreach($matches as $mtch) {
 			$unescaped = xmlify(file_tag_decode($mtch[1]));
 			$terms[] = array('name' => $unescaped,'selected' => (($selected == $unescaped) ? 'selected' : ''));
 		}
@@ -172,11 +172,10 @@ function categories_widget($baseurl,$selected = '') {
 
 	$matches = false;
 	$terms = array();
-	$cnt = preg_match_all('/<(.*?)>/',$saved,$matches,PREG_SET_ORDER);
-
-	if ($cnt) {
-		foreach ($matches as $mtch) {
-			$unescaped = xmlify(file_tag_decode($mtch[1]));
+        $cnt = preg_match_all('/<(.*?)>/',$saved,$matches,PREG_SET_ORDER);
+        if($cnt) {
+                foreach($matches as $mtch) {
+		        $unescaped = xmlify(file_tag_decode($mtch[1]));
 			$terms[] = array('name' => $unescaped,'selected' => (($selected == $unescaped) ? 'selected' : ''));
 		}
 	}
@@ -196,29 +195,29 @@ function common_friends_visitor_widget($profile_uid) {
 
 	$a = get_app();
 
-	if (local_user() == $profile_uid)
+	if(local_user() == $profile_uid)
 		return;
 
 	$cid = $zcid = 0;
 
-	if (is_array($_SESSION['remote'])) {
-		foreach ($_SESSION['remote'] as $visitor) {
-			if ($visitor['uid'] == $profile_uid) {
+	if(is_array($_SESSION['remote'])) {
+		foreach($_SESSION['remote'] as $visitor) {
+			if($visitor['uid'] == $profile_uid) {
 				$cid = $visitor['cid'];
 				break;
 			}
 		}
 	}
 
-	if (! $cid) {
-		if (get_my_url()) {
+	if(! $cid) {
+		if(get_my_url()) {
 			$r = q("select id from contact where nurl = '%s' and uid = %d limit 1",
 				dbesc(normalise_link(get_my_url())),
 				intval($profile_uid)
 			);
-			if (dbm::is_result($r)) {
+			if (dbm::is_result($r))
 				$cid = $r[0]['id'];
-			} else {
+			else {
 				$r = q("select id from gcontact where nurl = '%s' limit 1",
 					dbesc(normalise_link(get_my_url()))
 				);
@@ -228,26 +227,22 @@ function common_friends_visitor_widget($profile_uid) {
 		}
 	}
 
-	if ($cid == 0 && $zcid == 0) {
+	if($cid == 0 && $zcid == 0)
 		return;
-	}
 
 	require_once('include/socgraph.php');
 
-	if ($cid) {
+	if($cid)
 		$t = count_common_friends($profile_uid,$cid);
-	} else {
+	else
 		$t = count_common_friends_zcid($profile_uid,$zcid);
-	}
-	if (! $t) {
+	if(! $t)
 		return;
-	}
 
-	if ($cid) {
+	if($cid)
 		$r = common_friends($profile_uid,$cid,0,5,true);
-	} else {
+	else
 		$r = common_friends_zcid($profile_uid,$zcid,0,5,true);
-	}
 
 	return replace_macros(get_markup_template('remote_friends_common.tpl'), array(
 		'$desc' =>  sprintf( tt("%d contact in common", "%d contacts in common", $t), $t),

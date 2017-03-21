@@ -44,23 +44,23 @@ function q($sql) {
 	$args=func_get_args(); 
 
 	//last parameter is always (in this test) uid, so, it should be 11
-	if ($args[count($args)-1]!=11) {
+	if($args[count($args)-1]!=11) {
 		return; 
 	}
 	
 	
-	if (3==count($args)) {
+	if(3==count($args)) {
 		//first call in handle_body, id only
-		if ($result[0]['id']==$args[1]) {
+		if($result[0]['id']==$args[1]) {
 			return $result; 
 		}
 		//second call in handle_body, name
-		if ($result[0]['name']===$args[1]) {
+		if($result[0]['name']===$args[1]) {
 			return $result;
 		}
 	}
 	//third call in handle_body, nick or attag
-	if ($result[0]['nick']===$args[2] || $result[0]['attag']===$args[1]) {
+	if($result[0]['nick']===$args[2] || $result[0]['attag']===$args[1]) {
 		return $result;
 	}
 }
@@ -108,7 +108,7 @@ class GetTagsTest extends PHPUnit_Framework_TestCase {
 
 		$inform=''; 
 		$str_tags='';
-		foreach ($tags as $tag) {
+		foreach($tags as $tag) {
 			handle_tag($this->a, $text, $inform, $str_tags, 11, $tag);
 		}
 
@@ -197,7 +197,7 @@ class GetTagsTest extends PHPUnit_Framework_TestCase {
 
 		$inform='';
 		$str_tags='';
-		foreach ($tags as $tag) {
+		foreach($tags as $tag) {
 			handle_tag($this->a, $text, $inform, $str_tags, 11, $tag);
 		}
 		
@@ -257,7 +257,7 @@ class GetTagsTest extends PHPUnit_Framework_TestCase {
 		
 		$inform='';
 		$str_tags='';
-		foreach ($tags as $tag) {
+		foreach($tags as $tag) {
 			handle_tag($this->a, $text, $inform, $str_tags, 11, $tag);
 		}
 		

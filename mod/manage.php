@@ -12,8 +12,8 @@ function manage_post(App $a) {
 	$uid = local_user();
 	$orig_record = $a->user;
 
-	if ((x($_SESSION,'submanage')) && intval($_SESSION['submanage'])) {
-		$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
+	if((x($_SESSION,'submanage')) && intval($_SESSION['submanage'])) {
+		$r = q("select * from user where uid = %d limit 1",
 			intval($_SESSION['submanage'])
 		);
 		if (dbm::is_result($r)) {
@@ -22,34 +22,34 @@ function manage_post(App $a) {
 		}
 	}
 
-	$r = q("SELECT * FROM `manage` WHERE `uid` = %d",
+	$r = q("select * from manage where uid = %d",
 		intval($uid)
 	);
 
 	$submanage = $r;
 
 	$identity = ((x($_POST['identity'])) ? intval($_POST['identity']) : 0);
-	if (! $identity) {
+	if(! $identity)
 		return;
-	}
 
 	$limited_id = 0;
 	$original_id = $uid;
 
-	if (count($submanage)) {
-		foreach ($submanage as $m) {
-			if ($identity == $m['mid']) {
+	if(count($submanage)) {
+		foreach($submanage as $m) {
+			if($identity == $m['mid']) {
 				$limited_id = $m['mid'];
 				break;
 			}
 		}
 	}
 
-	if ($limited_id) {
+	if($limited_id) {
 		$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 			intval($limited_id)
 		);
-	} else {
+	}
+	else {
 		$r = q("SELECT * FROM `user` WHERE `uid` = %d AND `email` = '%s' AND `password` = '%s' LIMIT 1",
 			intval($identity),
 			dbesc($orig_record['email']),
@@ -70,22 +70,18 @@ function manage_post(App $a) {
 	unset($_SESSION['mobile-theme']);
 	unset($_SESSION['page_flags']);
 	unset($_SESSION['return_url']);
-	if (x($_SESSION,'submanage')) {
+	if(x($_SESSION,'submanage'))
 		unset($_SESSION['submanage']);
-	}
-	if (x($_SESSION,'sysmsg')) {
+	if(x($_SESSION,'sysmsg'))
 		unset($_SESSION['sysmsg']);
-	}
-	if (x($_SESSION,'sysmsg_info')) {
+	if(x($_SESSION,'sysmsg_info'))
 		unset($_SESSION['sysmsg_info']);
-	}
 
 	require_once('include/security.php');
 	authenticate_success($r[0],true,true);
 
-	if ($limited_id) {
+	if($limited_id)
 		$_SESSION['submanage'] = $original_id;
-	}
 
 	$ret = array();
 	call_hooks('home_init',$ret);

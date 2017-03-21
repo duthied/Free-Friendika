@@ -4,7 +4,7 @@ require_once('include/enotify.php');
 require_once('include/bbcode.php');
 require_once('include/user.php');
 
-if (! function_exists('register_post')) {
+if(! function_exists('register_post')) {
 function register_post(App $a) {
 
 	global $lang;
@@ -16,9 +16,9 @@ function register_post(App $a) {
 	call_hooks('register_post', $arr);
 
 	$max_dailies = intval(get_config('system','max_daily_registrations'));
-	if ($max_dailies) {
+	if($max_dailies) {
 		$r = q("select count(*) as total from user where register_date > UTC_TIMESTAMP - INTERVAL 1 day");
-		if ($r && $r[0]['total'] >= $max_dailies) {
+		if($r && $r[0]['total'] >= $max_dailies) {
 			return;
 		}
 	}
@@ -38,7 +38,7 @@ function register_post(App $a) {
 
 	default:
 	case REGISTER_CLOSED:
-		if ((! x($_SESSION,'authenticated') && (! x($_SESSION,'administrator')))) {
+		if((! x($_SESSION,'authenticated') && (! x($_SESSION,'administrator')))) {
 			notice( t('Permission denied.') . EOL );
 			return;
 		}
@@ -56,14 +56,14 @@ function register_post(App $a) {
 
 	$result = create_user($arr);
 
-	if (! $result['success']) {
+	if(! $result['success']) {
 		notice($result['message']);
 		return;
 	}
 
 	$user = $result['user'];
 
-	if ($netpublish && $a->config['register_policy'] != REGISTER_APPROVE) {
+	if($netpublish && $a->config['register_policy'] != REGISTER_APPROVE) {
 		$url = App::get_baseurl() . '/profile/' . $user['nickname'];
 		proc_run(PRIORITY_LOW, "include/directory.php", $url);
 	}
@@ -73,9 +73,9 @@ function register_post(App $a) {
 	$invite_id  = ((x($_POST,'invite_id'))  ? notags(trim($_POST['invite_id']))  : '');
 
 
-	if ( $a->config['register_policy'] == REGISTER_OPEN ) {
+	if( $a->config['register_policy'] == REGISTER_OPEN ) {
 
-		if ($using_invites && $invite_id) {
+		if($using_invites && $invite_id) {
 			q("delete * from register where hash = '%s' limit 1", dbesc($invite_id));
 			set_pconfig($user['uid'],'system','invites_remaining',$num_invites);
 		}
@@ -89,7 +89,7 @@ function register_post(App $a) {
 				$user['username'],
 				$result['password']);
 
-			if ($res) {
+			if($res) {
 				info( t('Registration successful. Please check your email for further instructions.') . EOL ) ;
 				goaway(z_root());
 			} else {
@@ -106,8 +106,8 @@ function register_post(App $a) {
 			goaway(z_root());
 		}
 	}
-	elseif ($a->config['register_policy'] == REGISTER_APPROVE) {
-		if (! strlen($a->config['admin_email'])) {
+	elseif($a->config['register_policy'] == REGISTER_APPROVE) {
+		if(! strlen($a->config['admin_email'])) {
 			notice( t('Your registration can not be processed.') . EOL);
 			goaway(z_root());
 		}
@@ -123,7 +123,7 @@ function register_post(App $a) {
 		);
 
 		// invite system
-		if ($using_invites && $invite_id) {
+		if($using_invites && $invite_id) {
 			q("delete * from register where hash = '%s' limit 1", dbesc($invite_id));
 			set_pconfig($user['uid'],'system','invites_remaining',$num_invites);
 		}
@@ -171,7 +171,7 @@ function register_post(App $a) {
 
 
 
-if (! function_exists('register_content')) {
+if(! function_exists('register_content')) {
 function register_content(App $a) {
 
 	// logged in users can register others (people/pages/groups)
@@ -180,29 +180,29 @@ function register_content(App $a) {
 
 	$block = get_config('system','block_extended_register');
 
-	if (local_user() && ($block)) {
+	if(local_user() && ($block)) {
 		notice("Permission denied." . EOL);
 		return;
 	}
 
-	if ((! local_user()) && ($a->config['register_policy'] == REGISTER_CLOSED)) {
+	if((! local_user()) && ($a->config['register_policy'] == REGISTER_CLOSED)) {
 		notice("Permission denied." . EOL);
 		return;
 	}
 
 	$max_dailies = intval(get_config('system','max_daily_registrations'));
-	if ($max_dailies) {
+	if($max_dailies) {
 		$r = q("select count(*) as total from user where register_date > UTC_TIMESTAMP - INTERVAL 1 day");
-		if ($r && $r[0]['total'] >= $max_dailies) {
+		if($r && $r[0]['total'] >= $max_dailies) {
 			logger('max daily registrations exceeded.');
 			notice( t('This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.') . EOL);
 			return;
 		}
 	}
 
-	if (x($_SESSION,'theme'))
+	if(x($_SESSION,'theme'))
 		unset($_SESSION['theme']);
-	if (x($_SESSION,'mobile-theme'))
+	if(x($_SESSION,'mobile-theme'))
 		unset($_SESSION['mobile-theme']);
 
 
@@ -215,7 +215,7 @@ function register_content(App $a) {
 
 	$noid = get_config('system','no_openid');
 
-	if ($noid) {
+	if($noid) {
 		$oidhtml = '';
 		$fillwith = '';
 		$fillext = '';
@@ -232,7 +232,7 @@ function register_content(App $a) {
 
 	$realpeople = ''; // t('Members of this network prefer to communicate with real people who use their real names.');
 
-	if (get_config('system','publish_all')) {
+	if(get_config('system','publish_all')) {
 		$profile_publish_reg = '<input type="hidden" name="profile_publish_reg" value="1" />';
 	}
 	else {

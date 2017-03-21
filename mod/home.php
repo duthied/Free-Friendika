@@ -1,6 +1,6 @@
 <?php
 
-if (! function_exists('home_init')) {
+if(! function_exists('home_init')) {
 function home_init(App $a) {
 
 	$ret = array();
@@ -16,7 +16,7 @@ function home_init(App $a) {
 
 }}
 
-if (! function_exists('home_content')) {
+if(! function_exists('home_content')) {
 function home_content(App $a) {
 
 	$o = '';

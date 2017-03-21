@@ -38,18 +38,20 @@ function content_content(App $a, $update = 0) {
 
 	$nouveau = false;
 
-	if ($a->argc > 1) {
-		for ($x = 1; $x < $a->argc; $x ++) {
-			if (is_a_date_arg($a->argv[$x])) {
-				if ($datequery) {
+	if($a->argc > 1) {
+		for($x = 1; $x < $a->argc; $x ++) {
+			if(is_a_date_arg($a->argv[$x])) {
+				if($datequery)
 					$datequery2 = escape_tags($a->argv[$x]);
-				} else {
+				else {
 					$datequery = escape_tags($a->argv[$x]);
 					$_GET['order'] = 'post';
 				}
-			} elseif ($a->argv[$x] === 'new') {
+			}
+			elseif($a->argv[$x] === 'new') {
 				$nouveau = true;
-			} elseif (intval($a->argv[$x])) {
+			}
+			elseif(intval($a->argv[$x])) {
 				$group = intval($a->argv[$x]);
 				$def_acl = array('allow_gid' => '<' . $group . '>');
 			}
@@ -79,12 +81,12 @@ function content_content(App $a, $update = 0) {
 
 
 
-	if (x($_GET,'search') || x($_GET,'file'))
+	if(x($_GET,'search') || x($_GET,'file'))
 		$nouveau = true;
-	if ($cid)
+	if($cid)
 		$def_acl = array('allow_cid' => '<' . intval($cid) . '>');
 
-	if ($nets) {
+	if($nets) {
 		$r = q("select id from contact where uid = %d and network = '%s' and self = 0",
 			intval(local_user()),
 			dbesc($nets)
@@ -92,9 +94,9 @@ function content_content(App $a, $update = 0) {
 
 		$str = '';
 		if (dbm::is_result($r))
-			foreach ($r as $rr)
+			foreach($r as $rr)
 				$str .= '<' . $rr['id'] . '>';
-		if (strlen($str))
+		if(strlen($str))
 			$def_acl = array('allow_cid' => $str);
 	}
 
@@ -106,13 +108,13 @@ function content_content(App $a, $update = 0) {
 
 	$sql_extra = " AND `item`.`parent` IN ( SELECT `parent` FROM `item` WHERE `id` = `parent` $sql_options ) ";
 
-	if ($group) {
+	if($group) {
 		$r = q("SELECT `name`, `id` FROM `group` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($group),
 			intval($_SESSION['uid'])
 		);
 		if (! dbm::is_result($r)) {
-			if ($update)
+			if($update)
 				killme();
 			notice( t('No such group') . EOL );
 			goaway(App::get_baseurl(true) . '/network');
@@ -120,7 +122,7 @@ function content_content(App $a, $update = 0) {
 		}
 
 		$contacts = expand_groups(array($group));
-		if ((is_array($contacts)) && count($contacts)) {
+		if((is_array($contacts)) && count($contacts)) {
 			$contact_str = implode(',',$contacts);
 		}
 		else {
@@ -133,7 +135,7 @@ function content_content(App $a, $update = 0) {
 			'$title' => sprintf( t('Group: %s'), $r[0]['name'])
 		)) . $o;
 	}
-	elseif ($cid) {
+	elseif($cid) {
 
 		$r = q("SELECT `id`,`name`,`network`,`writable`,`nurl` FROM `contact` WHERE `id` = %d
 				AND `blocked` = 0 AND `pending` = 0 LIMIT 1",
@@ -151,10 +153,10 @@ function content_content(App $a, $update = 0) {
 
 	$sql_extra3 = '';
 
-	if ($datequery) {
+	if($datequery) {
 		$sql_extra3 .= protect_sprintf(sprintf(" AND item.created <= '%s' ", dbesc(datetime_convert(date_default_timezone_get(),'',$datequery))));
 	}
-	if ($datequery2) {
+	if($datequery2) {
 		$sql_extra3 .= protect_sprintf(sprintf(" AND item.created >= '%s' ", dbesc(datetime_convert(date_default_timezone_get(),'',$datequery2))));
 	}
 
@@ -162,10 +164,10 @@ function content_content(App $a, $update = 0) {
 	$sql_extra3 = (($nouveau) ? '' : $sql_extra3);
 	$sql_table = "`item`";
 
-	if (x($_GET,'search')) {
+	if(x($_GET,'search')) {
 		$search = escape_tags($_GET['search']);
 
-		if (strpos($search,'#') === 0) {
+		if(strpos($search,'#') === 0) {
 			$tag = true;
 			$search = substr($search,1);
 		}
@@ -173,7 +175,7 @@ function content_content(App $a, $update = 0) {
 		if (get_config('system','only_tag_search'))
 			$tag = true;
 
-		if ($tag) {
+		if($tag) {
 			//$sql_extra = sprintf(" AND `term`.`term` = '%s' AND `term`.`otype` = %d AND `term`.`type` = %d ",
 			//	dbesc(protect_sprintf($search)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG));
 			//$sql_table = "`term` INNER JOIN `item` ON `item`.`id` = `term`.`oid` AND `item`.`uid` = `term`.`uid` ";
@@ -190,11 +192,11 @@ function content_content(App $a, $update = 0) {
 		}
 
 	}
-	if (strlen($file)) {
+	if(strlen($file)) {
 		$sql_extra .= file_tag_file_query('item',unxmlify($file));
 	}
 
-	if ($conv) {
+	if($conv) {
 		$myurl = App::get_baseurl() . '/profile/'. $a->user['nickname'];
 		$myurl = substr($myurl,strpos($myurl,'://')+3);
 		$myurl = str_replace('www.','',$myurl);
@@ -209,7 +211,7 @@ function content_content(App $a, $update = 0) {
 	$pager_sql = sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
 
 
-	if ($nouveau) {
+	if($nouveau) {
 		// "New Item View" - show all items unthreaded in reverse created date order
 
 		$items = q("SELECT `item`.*, `item`.`id` AS `item_id`,
@@ -232,7 +234,7 @@ function content_content(App $a, $update = 0) {
 		// Normal conversation view
 
 
-		if ($order === 'post')
+		if($order === 'post')
 				$ordering = "`created`";
 		else
 				$ordering = "`commented`";
@@ -258,8 +260,8 @@ function content_content(App $a, $update = 0) {
 		$parents_str = '';
 
 		if (dbm::is_result($r)) {
-			foreach ($r as $rr)
-				if (! in_array($rr['item_id'],$parents_arr))
+			foreach($r as $rr)
+				if(! in_array($rr['item_id'],$parents_arr))
 					$parents_arr[] = $rr['item_id'];
 			$parents_str = implode(', ', $parents_arr);
 
@@ -326,32 +328,32 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 		);
 	}
 
-	if ($mode === 'network') {
+	if($mode === 'network') {
 		$profile_owner = local_user();
 		$page_writeable = true;
 	}
 
-	if ($mode === 'profile') {
+	if($mode === 'profile') {
 		$profile_owner = $a->profile['profile_uid'];
 		$page_writeable = can_write_wall($a,$profile_owner);
 	}
 
-	if ($mode === 'notes') {
+	if($mode === 'notes') {
 		$profile_owner = local_user();
 		$page_writeable = true;
 	}
 
-	if ($mode === 'display') {
+	if($mode === 'display') {
 		$profile_owner = $a->profile['uid'];
 		$page_writeable = can_write_wall($a,$profile_owner);
 	}
 
-	if ($mode === 'community') {
+	if($mode === 'community') {
 		$profile_owner = 0;
 		$page_writeable = false;
 	}
 
-	if ($update)
+	if($update)
 		$return_url = $_SESSION['return_url'];
 	else
 		$return_url = $_SESSION['return_url'] = $a->query_string;
@@ -376,9 +378,9 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 	$threads = array();
 	$threadsid = -1;
 
-	if ($items && count($items)) {
+	if($items && count($items)) {
 
-		if ($mode === 'network-new' || $mode === 'search' || $mode === 'community') {
+		if($mode === 'network-new' || $mode === 'search' || $mode === 'community') {
 
 			// "New Item View" on network page or search page results
 			// - just loop through the items and format them minimally for display
@@ -386,7 +388,7 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 			//$tpl = get_markup_template('search_item.tpl');
 			$tpl = 'search_item.tpl';
 
-			foreach ($items as $item) {
+			foreach($items as $item) {
 				$threadsid++;
 
 				$comment     = '';
@@ -395,8 +397,8 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 				$owner_name  = '';
 				$sparkle     = '';
 
-				if ($mode === 'search' || $mode === 'community') {
-					if (((activity_match($item['verb'],ACTIVITY_LIKE))
+				if($mode === 'search' || $mode === 'community') {
+					if(((activity_match($item['verb'],ACTIVITY_LIKE))
 						|| (activity_match($item['verb'],ACTIVITY_DISLIKE))
 						|| activity_match($item['verb'],ACTIVITY_ATTEND)
 						|| activity_match($item['verb'],ACTIVITY_ATTENDNO)
@@ -409,20 +411,20 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 					$nickname = $a->user['nickname'];
 
 				// prevent private email from leaking.
-				if ($item['network'] === NETWORK_MAIL && local_user() != $item['uid'])
+				if($item['network'] === NETWORK_MAIL && local_user() != $item['uid'])
 						continue;
 
 				$profile_name   = ((strlen($item['author-name']))   ? $item['author-name']   : $item['name']);
-				if ($item['author-link'] && (! $item['author-name']))
+				if($item['author-link'] && (! $item['author-name']))
 					$profile_name = $item['author-link'];
 
 
 
 				$sp = false;
 				$profile_link = best_link_url($item,$sp);
-				if ($profile_link === 'mailbox')
+				if($profile_link === 'mailbox')
 					$profile_link = '';
-				if ($sp)
+				if($sp)
 					$sparkle = ' sparkle';
 				else
 					$profile_link = zrl($profile_link);
@@ -440,7 +442,7 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 				$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
 
 				localize_item($item);
-				if ($mode === 'network-new')
+				if($mode === 'network-new')
 					$dropping = true;
 				else
 					$dropping = false;
@@ -461,7 +463,7 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 
 				$body = prepare_body($item,true);
 
-				if ($a->theme['template_engine'] === 'internal') {
+				if($a->theme['template_engine'] === 'internal') {
 					$name_e = template_escape($profile_name);
 					$title_e = template_escape($item['title']);
 					$body_e = template_escape($body);
@@ -532,20 +534,20 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 			// Store the result in the $comments array
 
 			$comments = array();
-			foreach ($items as $item) {
-				if ((intval($item['gravity']) == 6) && ($item['id'] != $item['parent'])) {
-					if (! x($comments,$item['parent']))
+			foreach($items as $item) {
+				if((intval($item['gravity']) == 6) && ($item['id'] != $item['parent'])) {
+					if(! x($comments,$item['parent']))
 						$comments[$item['parent']] = 1;
 					else
 						$comments[$item['parent']] += 1;
-				} elseif (! x($comments,$item['parent']))
+				} elseif(! x($comments,$item['parent']))
 					$comments[$item['parent']] = 0; // avoid notices later on
 			}
 
 			// map all the like/dislike/attendance activities for each parent item
 			// Store these in the $alike and $dlike arrays
 
-			foreach ($items as $item) {
+			foreach($items as $item) {
 				builtin_activity_puller($item, $conv_responses);
 			}
 
@@ -557,7 +559,7 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 			$blowhard_count = 0;
 
 
-			foreach ($items as $item) {
+			foreach($items as $item) {
 
 				$comment = '';
 				$template = $tpl;
@@ -567,7 +569,7 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 
 				// We've already parsed out like/dislike for special treatment. We can ignore them now
 
-				if (((activity_match($item['verb'],ACTIVITY_LIKE))
+				if(((activity_match($item['verb'],ACTIVITY_LIKE))
 					|| (activity_match($item['verb'],ACTIVITY_DISLIKE)
 					|| activity_match($item['verb'],ACTIVITY_ATTEND)
 					|| activity_match($item['verb'],ACTIVITY_ATTENDNO)
@@ -583,7 +585,7 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 				// If a single author has more than 3 consecutive top-level posts, squash the remaining ones.
 				// If there are more than two comments, squash all but the last 2.
 
-				if ($toplevelpost) {
+				if($toplevelpost) {
 
 					$item_writeable = (($item['writable'] || $item['self']) ? true : false);
 
@@ -601,7 +603,7 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 				else {
 
 					// prevent private email reply to public conversation from leaking.
-					if ($item['network'] === NETWORK_MAIL && local_user() != $item['uid'])
+					if($item['network'] === NETWORK_MAIL && local_user() != $item['uid'])
 							continue;
 
 					$comments_seen ++;
@@ -613,7 +615,7 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 				$show_comment_box = ((($page_writeable) && ($item_writeable) && ($comments_seen == $comments[$item['parent']])) ? true : false);
 
 
-				if (($comments[$item['parent']] > 2) && ($comments_seen <= ($comments[$item['parent']] - 2)) && ($item['gravity'] == 6)) {
+				if(($comments[$item['parent']] > 2) && ($comments_seen <= ($comments[$item['parent']] - 2)) && ($item['gravity'] == 6)) {
 
 					if (!$comments_collapsed){
 						$threads[$threadsid]['num_comments'] = sprintf( tt('%d comment','%d comments',$comments[$item['parent']]),$comments[$item['parent']] );
@@ -624,7 +626,7 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 						$comment_firstcollapsed = true;
 					}
 				}
-				if (($comments[$item['parent']] > 2) && ($comments_seen == ($comments[$item['parent']] - 1))) {
+				if(($comments[$item['parent']] > 2) && ($comments_seen == ($comments[$item['parent']] - 1))) {
 
 					$comment_lastcollapsed = true;
 				}
@@ -642,9 +644,9 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 
 				$osparkle = '';
 
-				if (($toplevelpost) && (! $item['self']) && ($mode !== 'profile')) {
+				if(($toplevelpost) && (! $item['self']) && ($mode !== 'profile')) {
 
-					if ($item['wall']) {
+					if($item['wall']) {
 
 						// On the network page, I am the owner. On the display page it will be the profile owner.
 						// This will have been stored in $a->page_contact by our calling page.
@@ -657,12 +659,12 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 						$commentww = 'ww';
 					}
 
-					if ((! $item['wall']) && $item['owner-link']) {
+					if((! $item['wall']) && $item['owner-link']) {
 
 						$owner_linkmatch = (($item['owner-link']) && link_compare($item['owner-link'],$item['author-link']));
 						$alias_linkmatch = (($item['alias']) && link_compare($item['alias'],$item['author-link']));
 						$owner_namematch = (($item['owner-name']) && $item['owner-name'] == $item['author-name']);
-						if ((! $owner_linkmatch) && (! $alias_linkmatch) && (! $owner_namematch)) {
+						if((! $owner_linkmatch) && (! $alias_linkmatch) && (! $owner_namematch)) {
 
 							// The author url doesn't match the owner (typically the contact)
 							// and also doesn't match the contact alias.
@@ -680,7 +682,7 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 							$template = $wallwall;
 							$commentww = 'ww';
 							// If it is our contact, use a friendly redirect link
-							if ((link_compare($item['owner-link'],$item['url']))
+							if((link_compare($item['owner-link'],$item['url']))
 								&& ($item['network'] === NETWORK_DFRN)) {
 								$owner_url = $redirect_url;
 								$osparkle = ' sparkle';
@@ -694,8 +696,8 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 				$likebuttons = '';
 				$shareable = ((($profile_owner == local_user()) && ($item['private'] != 1)) ? true : false);
 
-				if ($page_writeable) {
-/*					if ($toplevelpost) {  */
+				if($page_writeable) {
+/*					if($toplevelpost) {  */
 						$likebuttons = array(
 							'like' => array( t("I like this \x28toggle\x29"), t("like")),
 							'dislike' => array( t("I don't like this \x28toggle\x29"), t("dislike")),
@@ -705,12 +707,12 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 
 					$qc = $qcomment =  null;
 
-					if (in_array('qcomment',$a->plugins)) {
+					if(in_array('qcomment',$a->plugins)) {
 						$qc = ((local_user()) ? get_pconfig(local_user(),'qcomment','words') : null);
 						$qcomment = (($qc) ? explode("\n",$qc) : null);
 					}
 
-					if (($show_comment_box) || (($show_comment_box == false) && ($override_comment_box == false) && ($item['last-child']))) {
+					if(($show_comment_box) || (($show_comment_box == false) && ($override_comment_box == false) && ($item['last-child']))) {
 						$comment = replace_macros($cmnt_tpl,array(
 							'$return_path' => '',
 							'$jsreload' => (($mode === 'display') ? $_SESSION['return_url'] : ''),
@@ -749,7 +751,7 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 				$drop = '';
 				$dropping = false;
 
-				if ((intval($item['contact-id']) && $item['contact-id'] == remote_user()) || ($item['uid'] == local_user()))
+				if((intval($item['contact-id']) && $item['contact-id'] == remote_user()) || ($item['uid'] == local_user()))
 					$dropping = true;
 
 				$drop = array(
@@ -813,7 +815,7 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 
 				$profile_name   = (((strlen($item['author-name']))   && $diff_author) ? $item['author-name']   : $item['name']);
 
-				if ($item['author-link'] && (! $item['author-name']))
+				if($item['author-link'] && (! $item['author-name']))
 					$profile_name = $item['author-link'];
 
 				$sp = false;
@@ -840,14 +842,13 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 
 				// process action responses - e.g. like/dislike/attend/agree/whatever
 				$response_verbs = array('like');
-				if (feature_enabled($profile_owner,'dislike')) {
+				if(feature_enabled($profile_owner,'dislike'))
 					$response_verbs[] = 'dislike';
-				}
-				if ($item['object-type'] === ACTIVITY_OBJ_EVENT) {
+				if($item['object-type'] === ACTIVITY_OBJ_EVENT) {
 					$response_verbs[] = 'attendyes';
 					$response_verbs[] = 'attendno';
 					$response_verbs[] = 'attendmaybe';
-					if ($page_writeable) {
+					if($page_writeable) {
 						$isevent = true;
 						$attend = array( t('I will attend'), t('I will not attend'), t('I might attend'));
 					}
@@ -862,20 +863,17 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 				$indent = (($toplevelpost) ? '' : ' comment');
 
 				$shiny = "";
-				if (strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC','now - 12 hours')) > 0) {
+				if(strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC','now - 12 hours')) > 0)
 					$shiny = 'shiny';
-				}
 
 				//
 				localize_item($item);
 
 
 				$tags=array();
-				foreach (explode(',',$item['tag']) as $tag){
+				foreach(explode(',',$item['tag']) as $tag){
 					$tag = trim($tag);
-					if ($tag!="") {
-						$tags[] = bbcode($tag);
-					}
+					if ($tag!="") $tags[] = bbcode($tag);
 				}
 
 				// Build the HTML
@@ -883,14 +881,15 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 				$body = prepare_body($item,true);
 				//$tmp_item = replace_macros($template,
 
-				if ($a->theme['template_engine'] === 'internal') {
+				if($a->theme['template_engine'] === 'internal') {
 					$body_e = template_escape($body);
 					$text_e = strip_tags(template_escape($body));
 					$name_e = template_escape($profile_name);
 					$title_e = template_escape($item['title']);
 					$location_e = template_escape($location);
 					$owner_name_e = template_escape($owner_name);
-				} else {
+				}
+				else {
 					$body_e = $body;
 					$text_e = strip_tags($body);
 					$name_e = $profile_name;

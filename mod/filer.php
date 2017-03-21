@@ -16,7 +16,7 @@ function filer_content(App $a) {
 
 	logger('filer: tag ' . $term . ' item ' . $item_id);
 
-	if ($item_id && strlen($term)){
+	if($item_id && strlen($term)){
 		// file item
 		file_tag_save_file(local_user(),$item_id,$term);
 	} else {

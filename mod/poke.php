@@ -63,7 +63,7 @@ function poke_init(App $a) {
 
 	$target = $r[0];
 
-	if ($parent) {
+	if($parent) {
 		$r = q("SELECT `uri`, `private`, `allow_cid`, `allow_gid`, `deny_cid`, `deny_gid`
 			FROM `item` WHERE `id` = %d AND `parent` = %d AND `uid` = %d LIMIT 1",
 			intval($parent),
@@ -129,7 +129,7 @@ function poke_init(App $a) {
 	$arr['object'] .= '</link></object>' . "\n";
 
 	$item_id = item_store($arr);
-	if ($item_id) {
+	if($item_id) {
 		//q("UPDATE `item` SET `plink` = '%s' WHERE `uid` = %d AND `id` = %d",
 		//	dbesc(App::get_baseurl() . '/display/' . $poster['nickname'] . '/' . $item_id),
 		//	intval($uid),
@@ -158,7 +158,7 @@ function poke_content(App $a) {
 	$name = '';
 	$id = '';
 
-	if (intval($_GET['c'])) {
+	if(intval($_GET['c'])) {
 		$r = q("SELECT `id`,`name` FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($_GET['c']),
 			intval(local_user())
@@ -185,11 +185,9 @@ function poke_content(App $a) {
 	$verbs = get_poke_verbs();
 
 	$shortlist = array();
-	foreach ($verbs as $k => $v) {
-		if ($v[1] !== 'NOTRANSLATION') {
+	foreach($verbs as $k => $v)
+		if($v[1] !== 'NOTRANSLATION')
 			$shortlist[] = array($k,$v[1]);
-		}
-	}
 
 
 	$tpl = get_markup_template('poke_content.tpl');
