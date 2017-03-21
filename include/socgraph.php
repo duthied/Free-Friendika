@@ -34,7 +34,7 @@ require_once("include/Photo.php");
  */
 function poco_load($cid, $uid = 0, $zcid = 0, $url = null) {
 	// Call the function "poco_load_worker" via the worker
-	proc_run(PRIORITY_LOW, "include/discover_poco.php", "poco_load", $cid, $uid, $zcid, base64_encode($url));
+	proc_run(PRIORITY_LOW, "include/discover_poco.php", "poco_load", intval($cid), intval($uid), intval($zcid), base64_encode($url));
 }
 
 /**
@@ -1769,7 +1769,7 @@ function poco_discover($complete = false) {
 			}
 
 			logger('Update directory from server '.$server['url'].' with ID '.$server['id'], LOGGER_DEBUG);
-			proc_run(PRIORITY_LOW, "include/discover_poco.php", "update_server_directory", $server['id']);
+			proc_run(PRIORITY_LOW, "include/discover_poco.php", "update_server_directory", intval($server['id']));
 
 			if (!$complete AND (--$no_of_queries == 0)) {
 				break;
@@ -2018,7 +2018,7 @@ function get_gcontact_id($contact) {
 
 	if ($doprobing) {
 		logger("Last Contact: ". $last_contact_str." - Last Failure: ".$last_failure_str." - Checking: ".$contact["url"], LOGGER_DEBUG);
-		proc_run(PRIORITY_LOW, 'include/gprobe.php', bin2hex($contact["url"]));
+		#proc_run(PRIORITY_LOW, 'include/gprobe.php', bin2hex($contact["url"]));
 	}
 
 	if ((dbm::is_result($r)) AND (count($r) > 1) AND ($gcontact_id > 0) AND ($contact["url"] != ""))
