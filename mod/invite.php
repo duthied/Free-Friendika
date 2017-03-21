@@ -83,7 +83,7 @@ function invite_post(App $a) {
 			$total ++;
 			$current_invites ++;
 			set_pconfig(local_user(),'system','sent_invites',$current_invites);
-			if ($current_invites > $max_invites) {
+			if($current_invites > $max_invites) {
 				notice( t('Invitation limit exceeded. Please contact your site administrator.') . EOL);
 				return;
 			}

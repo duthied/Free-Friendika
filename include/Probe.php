@@ -564,15 +564,15 @@ class Probe {
 	 */
 	public static function valid_dfrn($data) {
 		$errors = 0;
-		if (!isset($data['key']))
+		if(!isset($data['key']))
 			$errors ++;
-		if (!isset($data['dfrn-request']))
+		if(!isset($data['dfrn-request']))
 			$errors ++;
-		if (!isset($data['dfrn-confirm']))
+		if(!isset($data['dfrn-confirm']))
 			$errors ++;
-		if (!isset($data['dfrn-notify']))
+		if(!isset($data['dfrn-notify']))
 			$errors ++;
-		if (!isset($data['dfrn-poll']))
+		if(!isset($data['dfrn-poll']))
 			$errors ++;
 		return $errors;
 	}
@@ -858,7 +858,7 @@ class Probe {
 
 		$data = array();
 		if (is_array($webfinger["aliases"]))
-			foreach ($webfinger["aliases"] AS $alias)
+			foreach($webfinger["aliases"] AS $alias)
 				if (strstr($alias, "@"))
 					$data["addr"] = str_replace('acct:', '', $alias);
 
@@ -1133,17 +1133,15 @@ class Probe {
 			$password = '';
 			openssl_private_decrypt(hex2bin($r[0]['pass']), $password,$x[0]['prvkey']);
 			$mbox = email_connect($mailbox,$r[0]['user'], $password);
-			if (!$mbox) {
+			if(!mbox)
 				return false;
-			}
 		}
 
 		$msgs = email_poll($mbox, $uri);
 		logger('searching '.$uri.', '.count($msgs).' messages found.', LOGGER_DEBUG);
 
-		if (!count($msgs)) {
+		if (!count($msgs))
 			return false;
-		}
 
 		$data = array();
 
@@ -1159,26 +1157,23 @@ class Probe {
 		$data["poll"] = 'email '.random_string();
 
 		$x = email_msg_meta($mbox, $msgs[0]);
-		if (stristr($x[0]->from, $uri)) {
+		if(stristr($x[0]->from, $uri))
 			$adr = imap_rfc822_parse_adrlist($x[0]->from, '');
-		} elseif (stristr($x[0]->to, $uri)) {
+		elseif(stristr($x[0]->to, $uri))
 			$adr = imap_rfc822_parse_adrlist($x[0]->to, '');
-		}
-		if (isset($adr)) {
-			foreach ($adr as $feadr) {
-				if ((strcasecmp($feadr->mailbox, $data["name"]) == 0)
+		if(isset($adr)) {
+			foreach($adr as $feadr) {
+				if((strcasecmp($feadr->mailbox, $data["name"]) == 0)
 					&&(strcasecmp($feadr->host, $phost) == 0)
 					&& (strlen($feadr->personal))) {
 
 					$personal = imap_mime_header_decode($feadr->personal);
 					$data["name"] = "";
-					foreach ($personal as $perspart) {
-						if ($perspart->charset != "default") {
+					foreach($personal as $perspart)
+						if ($perspart->charset != "default")
 							$data["name"] .= iconv($perspart->charset, 'UTF-8//IGNORE', $perspart->text);
-						} else {
+						else
 							$data["name"] .= $perspart->text;
-						}
-					}
 
 					$data["name"] = notags($data["name"]);
 				}

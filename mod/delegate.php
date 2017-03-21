@@ -23,16 +23,16 @@ function delegate_content(App $a) {
 
 		$id = $a->argv[2];
 
-		$r = q("SELECT `nickname` FROM `user` WHERE `uid` = %d LIMIT 1",
+		$r = q("select `nickname` from user where uid = %d limit 1",
 			intval($id)
 		);
 		if (dbm::is_result($r)) {
-			$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' LIMIT 1",
+			$r = q("select id from contact where uid = %d and nurl = '%s' limit 1",
 				intval(local_user()),
 				dbesc(normalise_link(App::get_baseurl() . '/profile/' . $r[0]['nickname']))
 			);
 			if (dbm::is_result($r)) {
-				q("INSERT INTO `manage` ( `uid`, `mid` ) VALUES ( %d , %d ) ",
+				q("insert into manage ( uid, mid ) values ( %d , %d ) ",
 					intval($a->argv[2]),
 					intval(local_user())
 				);
@@ -64,40 +64,34 @@ function delegate_content(App $a) {
 		dbesc($a->user['email']),
 		dbesc($a->user['password'])
 	);
-	if (dbm::is_result($r)) {
+	if (dbm::is_result($r))
 		$full_managers = $r;
-	}
 
 	$delegates = array();
 
 	// find everybody that currently has delegated management to this account/page
 
-	$r = q("SELECT * FROM `user` WHERE `uid` IN ( SELECT `uid` FROM `manage` WHERE `mid` = %d ) ",
+	$r = q("select * from user where uid in ( select uid from manage where mid = %d ) ",
 		intval(local_user())
 	);
 
-	if (dbm::is_result($r)) {
+	if (dbm::is_result($r))
 		$delegates = $r;
-	}
 
 	$uids = array();
 
-	if (count($full_managers)) {
-		foreach ($full_managers as $rr) {
+	if(count($full_managers))
+		foreach($full_managers as $rr)
 			$uids[] = $rr['uid'];
-		}
-	}
 
-	if (count($delegates)) {
-		foreach ($delegates as $rr) {
+	if(count($delegates))
+		foreach($delegates as $rr)
 			$uids[] = $rr['uid'];
-		}
-	}
 
 	// find every contact who might be a candidate for delegation
 
-	$r = q("SELECT `nurl` FROM `contact` WHERE SUBSTRING_INDEX(`contact`.`nurl`,'/',3) = '%s'
-		AND `contact`.`uid` = %d AND `contact`.`self` = 0 AND `network` = '%s' ",
+	$r = q("select nurl from contact where substring_index(contact.nurl,'/',3) = '%s'
+		and contact.uid = %d and contact.self = 0 and network = '%s' ",
 		dbesc(normalise_link(App::get_baseurl())),
 		intval(local_user()),
 		dbesc(NETWORK_DFRN)
@@ -122,15 +116,12 @@ function delegate_content(App $a) {
 
 	// get user records for all potential page delegates who are not already delegates or managers
 
-	$r = q("SELECT `uid`, `username`, `nickname` FROM `user` WHERE `nickname` IN ( $nicks )");
+	$r = q("select `uid`, `username`, `nickname` from user where nickname in ( $nicks )");
 
-	if (dbm::is_result($r)) {
-		foreach ($r as $rr) {
-			if (! in_array($rr['uid'],$uids)) {
+	if (dbm::is_result($r))
+		foreach($r as $rr)
+			if(! in_array($rr['uid'],$uids))
 				$potentials[] = $rr;
-			}
-		}
-	}
 
 	require_once("mod/settings.php");
 	settings_init($a);

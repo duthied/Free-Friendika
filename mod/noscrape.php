@@ -2,14 +2,13 @@
 
 function noscrape_init(App $a) {
 
-	if ($a->argc > 1) {
+	if($a->argc > 1)
 		$which = $a->argv[1];
-	} else {
+	else
 		killme();
-	}
 
 	$profile = 0;
-	if ((local_user()) && ($a->argc > 2) && ($a->argv[2] === 'view')) {
+	if((local_user()) && ($a->argc > 2) && ($a->argv[2] === 'view')) {
 		$which = $a->user['nickname'];
 		$profile = $a->argv[1];
 	}

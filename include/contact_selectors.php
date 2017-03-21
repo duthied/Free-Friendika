@@ -37,7 +37,7 @@ function contact_reputation($current) {
 		5 => t('Reputable, has my trust')
 	);
 
-	foreach ($rep as $k => $v) {
+	foreach($rep as $k => $v) {
 		$selected = (($k == $current) ? " selected=\"selected\" " : "");
 		$o .= "<option value=\"$k\" $selected >$v</option>\r\n";
 	}
@@ -61,7 +61,7 @@ function contact_poll_interval($current, $disabled = false) {
 		5 => t('Monthly')
 	);
 
-	foreach ($rep as $k => $v) {
+	foreach($rep as $k => $v) {
 		$selected = (($k == $current) ? " selected=\"selected\" " : "");
 		$o .= "<option value=\"$k\" $selected >$v</option>\r\n";
 	}

@@ -31,7 +31,7 @@ function match_content(App $a) {
 	if (! dbm::is_result($r)) {
 		return;
 	}
-	if (! $r[0]['pub_keywords'] && (! $r[0]['prv_keywords'])) {
+	if(! $r[0]['pub_keywords'] && (! $r[0]['prv_keywords'])) {
 		notice( t('No keywords to match. Please add keywords to your default profile.') . EOL);
 		return;
 	}
@@ -39,28 +39,28 @@ function match_content(App $a) {
 	$params = array();
 	$tags = trim($r[0]['pub_keywords'] . ' ' . $r[0]['prv_keywords']);
 
-	if ($tags) {
+	if($tags) {
 		$params['s'] = $tags;
-		if ($a->pager['page'] != 1)
+		if($a->pager['page'] != 1)
 			$params['p'] = $a->pager['page'];
 
-		if (strlen(get_config('system','directory')))
+		if(strlen(get_config('system','directory')))
 			$x = post_url(get_server().'/msearch', $params);
 		else
 			$x = post_url(App::get_baseurl() . '/msearch', $params);
 
 		$j = json_decode($x);
 
-		if ($j->total) {
+		if($j->total) {
 			$a->set_pager_total($j->total);
 			$a->set_pager_itemspage($j->items_page);
 		}
 
-		if (count($j->results)) {
+		if(count($j->results)) {
 
 			$id = 0;
 
-			foreach ($j->results as $jj) {
+			foreach($j->results as $jj) {
 				$match_nurl = normalise_link($jj->url);
 				$match = q("SELECT `nurl` FROM `contact` WHERE `uid` = '%d' AND nurl='%s' LIMIT 1",
 					intval(local_user()),

@@ -158,7 +158,7 @@ function nodeinfo_cron() {
 		$plugins = get_config("system","addon");
 		$plugins_arr = array();
 
-		if ($plugins) {
+		if($plugins) {
 			$plugins_arr = explode(",",str_replace(" ", "",$plugins));
 
 			$idx = array_search($plugin, $plugins_arr);
@@ -175,10 +175,10 @@ function nodeinfo_cron() {
 
 	$last = get_config('nodeinfo','last_calucation');
 
-	if ($last) {
+	if($last) {
 		// Calculate every 24 hours
 		$next = $last + (24 * 60 * 60);
-		if ($next > time()) {
+		if($next > time()) {
 			logger("calculation intervall not reached");
 			return;
 		}

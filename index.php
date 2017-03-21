@@ -28,17 +28,17 @@ $a->backend = false;
 /**
  *
  * Load the configuration file which contains our DB credentials.
- * Ignore errors. If the file doesn't exist or is empty, we are running in
- * installation mode.
+ * Ignore errors. If the file doesn't exist or is empty, we are running in installation mode.
  *
  */
 
 $install = ((file_exists('.htconfig.php') && filesize('.htconfig.php')) ? false : true);
 
-// Only load config if found, don't surpress errors
-if (!$install) {
-	include(".htconfig.php");
-}
+@include(".htconfig.php");
+
+
+
+
 
 /**
  *
@@ -48,7 +48,7 @@ if (!$install) {
 
 require_once("include/dba.php");
 
-if (!$install) {
+if(!$install) {
 	$db = new dba($db_host, $db_user, $db_pass, $db_data, $install);
 	    unset($db_host, $db_user, $db_pass, $db_data);
 
@@ -117,12 +117,12 @@ if (x($_SESSION,'authenticated') && !x($_SESSION,'language')) {
 	if (dbm::is_result($r)) $_SESSION['language'] = $r[0]['language'];
 }
 
-if ((x($_SESSION,'language')) && ($_SESSION['language'] !== $lang)) {
+if((x($_SESSION,'language')) && ($_SESSION['language'] !== $lang)) {
 	$lang = $_SESSION['language'];
 	load_translation_table($lang);
 }
 
-if ((x($_GET,'zrl')) && (!$install && !$maintenance)) {
+if((x($_GET,'zrl')) && (!$install && !$maintenance)) {
 	// Only continue when the given profile link seems valid
 	// Valid profile links contain a path with "/profile/" and no query parameters
 	if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == "") AND
@@ -223,7 +223,7 @@ if ((local_user()) || (! $privateapps === "1")) {
  * further processing.
  */
 
-if (strlen($a->module)) {
+if(strlen($a->module)) {
 
 	/**
 	 *
@@ -233,14 +233,12 @@ if (strlen($a->module)) {
 	 */
 
 	// Compatibility with the Android Diaspora client
-	if ($a->module == "stream") {
+	if ($a->module == "stream")
 		$a->module = "network";
-	}
 
 	// Compatibility with the Firefox App
-	if (($a->module == "users") AND ($a->cmd == "users/sign_in")) {
+	if (($a->module == "users") AND ($a->cmd == "users/sign_in"))
 		$a->module = "login";
-	}
 
 	$privateapps = get_config('config','private_addons');
 
@@ -248,11 +246,11 @@ if (strlen($a->module)) {
 		//Check if module is an app and if public access to apps is allowed or not
 		if ((!local_user()) && plugin_is_app($a->module) && $privateapps === "1") {
 			info( t("You must be logged in to use addons. "));
-		} else {
+		}
+		else {
 			include_once("addon/{$a->module}/{$a->module}.php");
-			if (function_exists($a->module . '_module')) {
+			if(function_exists($a->module . '_module'))
 				$a->module_loaded = true;
-			}
 		}
 	}
 
@@ -322,29 +320,29 @@ if (!$install && !$maintenance) {
  * Call module functions
  */
 
-if ($a->module_loaded) {
+if($a->module_loaded) {
 	$a->page['page_title'] = $a->module;
 	$placeholder = '';
 
-	if (function_exists($a->module . '_init')) {
+	if(function_exists($a->module . '_init')) {
 		call_hooks($a->module . '_mod_init', $placeholder);
 		$func = $a->module . '_init';
 		$func($a);
 	}
 
-	if (function_exists(str_replace('-','_',current_theme()) . '_init')) {
+	if(function_exists(str_replace('-','_',current_theme()) . '_init')) {
 		$func = str_replace('-','_',current_theme()) . '_init';
 		$func($a);
 	}
 //	elseif (x($a->theme_info,"extends") && file_exists("view/theme/".$a->theme_info["extends"]."/theme.php")) {
 //		require_once("view/theme/".$a->theme_info["extends"]."/theme.php");
-//		if (function_exists(str_replace('-','_',$a->theme_info["extends"]) . '_init')) {
+//		if(function_exists(str_replace('-','_',$a->theme_info["extends"]) . '_init')) {
 //			$func = str_replace('-','_',$a->theme_info["extends"]) . '_init';
 //			$func($a);
 //		}
 //	}
 
-	if (($_SERVER['REQUEST_METHOD'] === 'POST') && (! $a->error)
+	if(($_SERVER['REQUEST_METHOD'] === 'POST') && (! $a->error)
 		&& (function_exists($a->module . '_post'))
 		&& (! x($_POST,'auth-params'))) {
 		call_hooks($a->module . '_mod_post', $_POST);
@@ -352,13 +350,13 @@ if ($a->module_loaded) {
 		$func($a);
 	}
 
-	if ((! $a->error) && (function_exists($a->module . '_afterpost'))) {
+	if((! $a->error) && (function_exists($a->module . '_afterpost'))) {
 		call_hooks($a->module . '_mod_afterpost',$placeholder);
 		$func = $a->module . '_afterpost';
 		$func($a);
 	}
 
-	if ((! $a->error) && (function_exists($a->module . '_content'))) {
+	if((! $a->error) && (function_exists($a->module . '_content'))) {
 		$arr = array('content' => $a->page['content']);
 		call_hooks($a->module . '_mod_content', $arr);
 		$a->page['content'] = $arr['content'];
@@ -368,7 +366,7 @@ if ($a->module_loaded) {
 		$a->page['content'] .= $arr['content'];
 	}
 
-	if (function_exists(str_replace('-','_',current_theme()) . '_content_loaded')) {
+	if(function_exists(str_replace('-','_',current_theme()) . '_content_loaded')) {
 		$func = str_replace('-','_',current_theme()) . '_content_loaded';
 		$func($a);
 	}
@@ -394,20 +392,18 @@ $a->init_page_end();
 
 // If you're just visiting, let javascript take you home
 
-if (x($_SESSION,'visitor_home')) {
+if(x($_SESSION,'visitor_home'))
 	$homebase = $_SESSION['visitor_home'];
-} elseif (local_user()) {
+elseif(local_user())
 	$homebase = 'profile/' . $a->user['nickname'];
-}
 
-if (isset($homebase)) {
+if(isset($homebase))
 	$a->page['content'] .= '<script>var homebase="' . $homebase . '" ; </script>';
-}
 
 // now that we've been through the module content, see if the page reported
 // a permission problem and if so, a 403 response would seem to be in order.
 
-if (stristr( implode("",$_SESSION['sysmsg']), t('Permission denied'))) {
+if(stristr( implode("",$_SESSION['sysmsg']), t('Permission denied'))) {
 	header($_SERVER["SERVER_PROTOCOL"] . ' 403 ' . t('Permission denied.'));
 }
 
@@ -417,13 +413,13 @@ if (stristr( implode("",$_SESSION['sysmsg']), t('Permission denied'))) {
  *
  */
 
-/*if (x($_SESSION,'sysmsg')) {
+/*if(x($_SESSION,'sysmsg')) {
 	$a->page['content'] = "<div id=\"sysmsg\" class=\"error-message\">{$_SESSION['sysmsg']}</div>\r\n"
 		. ((x($a->page,'content')) ? $a->page['content'] : '');
 	$_SESSION['sysmsg']="";
 	unset($_SESSION['sysmsg']);
 }
-if (x($_SESSION,'sysmsg_info')) {
+if(x($_SESSION,'sysmsg_info')) {
 	$a->page['content'] = "<div id=\"sysmsg_info\" class=\"info-message\">{$_SESSION['sysmsg_info']}</div>\r\n"
 		. ((x($a->page,'content')) ? $a->page['content'] : '');
 	$_SESSION['sysmsg_info']="";
@@ -441,7 +437,7 @@ call_hooks('page_end', $a->page['content']);
  *
  */
 
-if ($a->module != 'install' && $a->module != 'maintenance') {
+if($a->module != 'install' && $a->module != 'maintenance') {
 	nav($a);
 }
 
@@ -449,27 +445,27 @@ if ($a->module != 'install' && $a->module != 'maintenance') {
  * Add a "toggle mobile" link if we're using a mobile device
  */
 
-if ($a->is_mobile || $a->is_tablet) {
-	if (isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
+if($a->is_mobile || $a->is_tablet) {
+	if(isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
 		$link = 'toggle_mobile?address=' . curPageURL();
-	} else {
+	}
+	else {
 		$link = 'toggle_mobile?off=1&address=' . curPageURL();
 	}
 	$a->page['footer'] = replace_macros(get_markup_template("toggle_mobile_footer.tpl"), array(
-		'$toggle_link' => $link,
-		'$toggle_text' => t('toggle mobile')
-	));
+				'$toggle_link' => $link,
+				'$toggle_text' => t('toggle mobile')
+			 ));
 }
 
 /**
  * Build the page - now that we have all the components
  */
 
-if (!$a->theme['stylesheet']) {
+if(!$a->theme['stylesheet'])
 	$stylesheet = current_theme_url();
-} else {
+else
 	$stylesheet = $a->theme['stylesheet'];
-}
 
 $a->page['htmlhead'] = str_replace('{{$stylesheet}}',$stylesheet,$a->page['htmlhead']);
 //$a->page['htmlhead'] = replace_macros($a->page['htmlhead'], array('$stylesheet' => $stylesheet));
@@ -503,9 +499,8 @@ if (isset($_GET["mode"]) AND ($_GET["mode"] == "raw")) {
 
 	echo substr($target->saveHTML(), 6, -8);
 
-	if (!$a->is_backend()) {
+	if (!$a->is_backend())
 		session_write_close();
-	}
 	exit;
 
 }
@@ -524,7 +519,7 @@ if (isset($_GET["mode"])) {
 }
 
 // If there is no page template use the default page template
-if (!$template) {
+if(!$template) {
 	$template = theme_include("default.php");
 }
 

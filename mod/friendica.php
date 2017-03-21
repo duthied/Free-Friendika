@@ -7,7 +7,7 @@ function friendica_init(App $a) {
 		$register_policy = Array('REGISTER_CLOSED', 'REGISTER_APPROVE', 'REGISTER_OPEN');
 
 		$sql_extra = '';
-		if (x($a->config,'admin_nickname')) {
+		if(x($a->config,'admin_nickname')) {
 			$sql_extra = sprintf(" AND nickname = '%s' ",dbesc($a->config['admin_nickname']));
 		}
 		if (isset($a->config['admin_email']) && $a->config['admin_email']!=''){
@@ -24,18 +24,18 @@ function friendica_init(App $a) {
 		}
 
 		$visible_plugins = array();
-		if (is_array($a->plugins) && count($a->plugins)) {
+		if(is_array($a->plugins) && count($a->plugins)) {
 			$r = q("select * from addon where hidden = 0");
 			if (dbm::is_result($r))
-				foreach ($r as $rr)
+				foreach($r as $rr)
 					$visible_plugins[] = $rr['name'];
 		}
 
 		Config::load('feature_lock');
 		$locked_features = array();
-		if (is_array($a->config['feature_lock']) && count($a->config['feature_lock'])) {
-			foreach ($a->config['feature_lock'] as $k => $v) {
-				if ($k === 'config_loaded')
+		if(is_array($a->config['feature_lock']) && count($a->config['feature_lock'])) {
+			foreach($a->config['feature_lock'] as $k => $v) {
+				if($k === 'config_loaded')
 					continue;
 				$locked_features[$k] = intval($v);
 			}
@@ -80,24 +80,22 @@ function friendica_content(App $a) {
 	$o .= '<p></p>';
 
 	$visible_plugins = array();
-	if (is_array($a->plugins) && count($a->plugins)) {
+	if(is_array($a->plugins) && count($a->plugins)) {
 		$r = q("select * from addon where hidden = 0");
 		if (dbm::is_result($r))
-			foreach ($r as $rr)
+			foreach($r as $rr)
 				$visible_plugins[] = $rr['name'];
 	}
 
 
-	if (count($visible_plugins)) {
+	if(count($visible_plugins)) {
 		$o .= '<p>' . t('Installed plugins/addons/apps:') . '</p>';
 		$sorted = $visible_plugins;
 		$s = '';
 		sort($sorted);
-		foreach ($sorted as $p) {
-			if (strlen($p)) {
-				if (strlen($s)) {
-					$s .= ', ';
-				}
+		foreach($sorted as $p) {
+			if(strlen($p)) {
+				if(strlen($s)) $s .= ', ';
 				$s .= $p;
 			}
 		}

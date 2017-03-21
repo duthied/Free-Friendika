@@ -43,11 +43,11 @@ function install_post(App $a) {
 			require_once("include/dba.php");
 			unset($db);
 			$db = new dba($dbhost, $dbuser, $dbpass, $dbdata, true);
-			/*if (get_db_errno()) {
+			/*if(get_db_errno()) {
 				unset($db);
 				$db = new dba($dbhost, $dbuser, $dbpass, '', true);
 
-				if (! get_db_errno()) {
+				if(! get_db_errno()) {
 					$r = q("CREATE DATABASE '%s'",
 							dbesc($dbdata)
 					);
@@ -164,7 +164,7 @@ function install_content(App $a) {
 		$db_return_text .= $txt;
 	}
 
-	if ($db && $db->connected) {
+	if($db && $db->connected) {
 		$r = q("SELECT COUNT(*) as `total` FROM `user`");
 		if (dbm::is_result($r) && $r[0]['total']) {
 			$tpl = get_markup_template('install.tpl');
@@ -360,13 +360,13 @@ function check_php(&$phpath, &$checks) {
 
 	check_add($checks, t('Command line PHP').($passed?" (<tt>$phpath</tt>)":""), $passed, false, $help);
 
-	if ($passed) {
+	if($passed) {
 		$cmd = "$phpath -v";
 		$result = trim(shell_exec($cmd));
 		$passed2 = ( strpos($result, "(cli)") !== false );
 		list($result) = explode("\n", $result);
 		$help = "";
-		if (!$passed2) {
+		if(!$passed2) {
 			$help .= t('PHP executable is not the php cli binary (could be cgi-fgci version)'). EOL;
 			$help .= t('Found PHP version: ')."<tt>$result</tt>";
 		}
@@ -380,7 +380,7 @@ function check_php(&$phpath, &$checks) {
 		$result = trim(shell_exec($cmd));
 		$passed3 = $result == $str;
 		$help = "";
-		if (!$passed3) {
+		if(!$passed3) {
 			$help .= t('The command line version of PHP on your system does not have "register_argc_argv" enabled.'). EOL;
 			$help .= t('This is required for message delivery to work.');
 		}
@@ -485,7 +485,7 @@ function check_funcs(&$checks) {
 		$ck_funcs[6]['help'] = t('Error, XML PHP module required but not installed.');
 	}
 
-	/*if ((x($_SESSION,'sysmsg')) && is_array($_SESSION['sysmsg']) && count($_SESSION['sysmsg']))
+	/*if((x($_SESSION,'sysmsg')) && is_array($_SESSION['sysmsg']) && count($_SESSION['sysmsg']))
 		notice( t('Please see the file "INSTALL.txt".') . EOL);*/
 }
 
@@ -589,10 +589,10 @@ function load_database($db) {
 /*	$str = file_get_contents('database.sql');
 	$arr = explode(';',$str);
 	$errors = false;
-	foreach ($arr as $a) {
-		if (strlen(trim($a))) {
+	foreach($arr as $a) {
+		if(strlen(trim($a))) {
 			$r = @$db->q(trim($a));
-			if (false === $r) {
+			if(false === $r) {
 				$errors .=  t('Errors encountered creating database tables.') . $a . EOL;
 			}
 		}

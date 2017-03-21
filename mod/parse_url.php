@@ -59,7 +59,7 @@ function parse_url_content(App $a) {
 	$redirects = 0;
 	// Fetch the header of the URL
 	$result = z_fetch_url($url, false, $redirects, array("novalidate" => true, "nobody" => true));
-	if ($result["success"]) {
+	if($result["success"]) {
 		// Convert the header fields into an array
 		$hdrs = array();
 		$h = explode("\n", $result["header"]);
@@ -71,7 +71,7 @@ function parse_url_content(App $a) {
 			$type = $hdrs["Content-Type"];
 		}
 		if ($type) {
-			if (stripos($type, "image/") !== false) {
+			if(stripos($type, "image/") !== false) {
 				echo $br . "[img]" . $url . "[/img]" . $br;
 				killme();
 			}

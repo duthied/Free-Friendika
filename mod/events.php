@@ -112,7 +112,7 @@ function events_post(App $a) {
 	$c = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1",
 		intval(local_user())
 	);
-	if (dbm::is_result($c)) {
+	if (count($c)) {
 		$self = $c[0]['id'];
 	} else {
 		$self = 0;
@@ -126,7 +126,7 @@ function events_post(App $a) {
 		$str_contact_deny  = perms2str($_POST['contact_deny']);
 
 		// Undo the pseudo-contact of self, since there are real contacts now
-		if (strpos($str_contact_allow, '<' . $self . '>') !== false) {
+		if (strpos($str_contact_allow, '<' . $self . '>') !== false ) {
 			$str_contact_allow = str_replace('<' . $self . '>', '', $str_contact_allow);
 		}
 		// Make sure to set the `private` field as true. This is necessary to
@@ -142,7 +142,7 @@ function events_post(App $a) {
 		$str_group_allow = $str_contact_deny = $str_group_deny = '';
 	}
 
-	/// @TODO One-time array initialization, one large block
+
 	$datarray = array();
 	$datarray['guid']      = get_guid(32);
 	$datarray['start']     = $start;
@@ -407,9 +407,7 @@ function events_content(App $a) {
 
 	// Passed parameters overrides anything found in the DB
 	if ($mode === 'edit' || $mode === 'new') {
-		if (!x($orig_event)) {
-			$orig_event = array();
-		}
+		if (!x($orig_event)) {$orig_event = array();}
 		// In case of an error the browser is redirected back here, with these parameters filled in with the previous values
 		if (x($_REQUEST, 'nofinish'))    {$orig_event['nofinish']    = $_REQUEST['nofinish'];}
 		if (x($_REQUEST, 'adjust'))      {$orig_event['adjust']      = $_REQUEST['adjust'];}

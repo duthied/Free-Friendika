@@ -6,15 +6,14 @@ function xrd_init(App $a) {
 
 	$uri = urldecode(notags(trim($_GET['uri'])));
 
-	if (substr($uri,0,4) === 'http') {
+	if(substr($uri,0,4) === 'http') {
 		$acct = false;
 		$name = basename($uri);
 	} else {
 		$acct = true;
 		$local = str_replace('acct:', '', $uri);
-		if (substr($local,0,2) == '//') {
+		if(substr($local,0,2) == '//')
 			$local = substr($local,2);
-		}
 
 		$name = substr($local,0,strpos($local,'@'));
 	}

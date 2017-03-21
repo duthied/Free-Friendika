@@ -33,7 +33,7 @@
  */
 function namesList($fileset) {
 	$fsparam="";
-	foreach ($fileset as $file) {
+	foreach($fileset as $file) {
 		$fsparam=$fsparam.",".$file;
 	}
 	return $fsparam;
@@ -50,7 +50,7 @@ function namesList($fileset) {
 function runs($fileset) {
 	$fsParam=namesList($fileset);
 	exec('docblox -t phpdoc_out -f '.$fsParam);
-	if (file_exists("phpdoc_out/index.html")) {
+	if(file_exists("phpdoc_out/index.html")) {
 		echo "\n Subset ".$fsParam." is okay. \n";
 		exec('rm -r phpdoc_out');
 		return true;
@@ -79,7 +79,7 @@ function reduce($fileset, $ps) {
 	//filter working subsets...
 	$parts=array_filter($parts, "runs");
 	//melt remaining parts together
-	if (is_array($parts)) {
+	if(is_array($parts)) {
 		return array_reduce($parts, "array_merge", array());
 	}
 	return array();
@@ -94,17 +94,17 @@ $dirstack=array();
 $filelist=array();
 
 //loop over all files in $dir
-while ($dh=opendir($dir)) {
-	while ($file=readdir($dh)) {
-		if (is_dir($dir."/".$file)) {
+while($dh=opendir($dir)) {
+	while($file=readdir($dh)) {
+		if(is_dir($dir."/".$file)) {
 			//add to directory stack
-			if ($file!=".." && $file!=".") {
+			if($file!=".." && $file!=".") {
 				array_push($dirstack, $dir."/".$file);
 				echo "dir ".$dir."/".$file."\n";
 			}
 		} else  {
 			//test if it is a source file and add to filelist
-			if (substr($file, strlen($file)-4)==".php") {
+			if(substr($file, strlen($file)-4)==".php") {
 				array_push($filelist, $dir."/".$file);
 				echo $dir."/".$file."\n";
 			}
@@ -115,7 +115,7 @@ while ($dh=opendir($dir)) {
 }
 
 //check the entire set
-if (runs($filelist)) {
+if(runs($filelist)) {
 	echo "I can not detect a problem. \n";
 	exit;
 }
@@ -128,15 +128,15 @@ do {
 	echo $i."/".count($fileset)." elements remaining. \n";
 	$res=reduce($res, count($res)/2);
 	shuffle($res);
-} while (count($res)<$i);
+} while(count($res)<$i);
 
 //check one file after another
 $needed=array();
 
-while (count($res)!=0) {
+while(count($res)!=0) {
 	$file=array_pop($res);
 
-	if (runs(array_merge($res, $needed))) {
+	if(runs(array_merge($res, $needed))) {
 		echo "needs: ".$file." and file count ".count($needed);
 		array_push($needed, $file);
 	}

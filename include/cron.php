@@ -20,7 +20,7 @@ function cron_run(&$argv, &$argc){
 	}
 	if ($last) {
 		$next = $last + ($poll_interval * 60);
-		if ($next > time()) {
+		if($next > time()) {
 			logger('cron intervall not reached');
 			return;
 		}
@@ -65,7 +65,7 @@ function cron_run(&$argv, &$argc){
 	$d1 = get_config('system','last_expire_day');
 	$d2 = intval(datetime_convert('UTC','UTC','now','d'));
 
-	if ($d2 != intval($d1)) {
+	if($d2 != intval($d1)) {
 
 		proc_run(PRIORITY_LOW, "include/cronjobs.php", "update_contact_birthdays");
 
@@ -170,7 +170,7 @@ function cron_poll_contacts($argc, $argv) {
 			continue;
 		}
 
-		foreach ($res as $contact) {
+		foreach($res as $contact) {
 
 			$xml = false;
 
@@ -192,7 +192,7 @@ function cron_poll_contacts($argc, $argv) {
 				$contact['priority'] = (($poll_interval !== false) ? intval($poll_interval) : 3);
 			}
 
-			if ($contact['priority'] AND !$force) {
+			if($contact['priority'] AND !$force) {
 
 				$update     = false;
 

@@ -43,11 +43,11 @@ function network_init(App $a) {
 
 		if ($remember_group) {
 			$net_baseurl .= '/' . $last_sel_groups; // Note that the group number must come before the "/new" tab selection
-		} elseif ($sel_groups !== false) {
+		} elseif($sel_groups !== false) {
 			$net_baseurl .= '/' . $sel_groups;
 		}
 
-		if ($remember_tab) {
+		if($remember_tab) {
 			// redirect if current selected tab is '/network' and
 			// last selected tab is _not_ '/network?f=&order=comment'.
 			// and this isn't a date query
@@ -81,19 +81,19 @@ function network_init(App $a) {
 			parse_str( $dest_qs, $dest_qa);
 			$net_args = array_merge($net_args, $dest_qa);
 		}
-		else if ($sel_tabs[4] === 'active') {
+		else if($sel_tabs[4] === 'active') {
 			// The '/new' tab is selected
 			$net_baseurl .= '/new';
 		}
 
-		if ($remember_net) {
+		if($remember_net) {
 			$net_args['nets'] = $last_sel_nets;
 		}
-		else if ($sel_nets!==false) {
+		else if($sel_nets!==false) {
 			$net_args['nets'] = $sel_nets;
 		}
 
-		if ($remember_tab || $remember_net || $remember_group) {
+		if($remember_tab || $remember_net || $remember_group) {
 			$net_args = array_merge($query_array, $net_args);
 			$net_queries = build_querystring($net_args);
 
@@ -103,7 +103,7 @@ function network_init(App $a) {
 		}
 	}
 
-	if (x($_GET['nets']) && $_GET['nets'] === 'all')
+	if(x($_GET['nets']) && $_GET['nets'] === 'all')
 		unset($_GET['nets']);
 
 	$group_id = (($a->argc > 1 && is_numeric($a->argv[1])) ? intval($a->argv[1]) : 0);
@@ -115,12 +115,12 @@ function network_init(App $a) {
 	require_once('include/items.php');
 	require_once('include/ForumManager.php');
 
-	if (! x($a->page,'aside'))
+	if(! x($a->page,'aside'))
 		$a->page['aside'] = '';
 
 	$search = ((x($_GET,'search')) ? escape_tags($_GET['search']) : '');
 
-	if (x($_GET,'save')) {
+	if(x($_GET,'save')) {
 		$r = qu("SELECT * FROM `search` WHERE `uid` = %d AND `term` = '%s' LIMIT 1",
 			intval(local_user()),
 			dbesc($search)
@@ -132,7 +132,7 @@ function network_init(App $a) {
 			);
 		}
 	}
-	if (x($_GET,'remove')) {
+	if(x($_GET,'remove')) {
 		q("DELETE FROM `search` WHERE `uid` = %d AND `term` = '%s'",
 			intval(local_user()),
 			dbesc($search)
@@ -140,7 +140,7 @@ function network_init(App $a) {
 	}
 
 	// search terms header
-	if (x($_GET,'search')) {
+	if(x($_GET,'search')) {
 		$a->page['content'] .= replace_macros(get_markup_template("section_title.tpl"),array(
 			'$title' => sprintf( t('Results for: %s'), $search)
 		));
@@ -157,7 +157,7 @@ function network_init(App $a) {
 
 function saved_searches($search) {
 
-	if (! feature_enabled(local_user(),'savedsearch'))
+	if(! feature_enabled(local_user(),'savedsearch'))
 		return '';
 
 	$a = get_app();
@@ -232,28 +232,28 @@ function network_query_get_sel_tab(App $a) {
 	$spam_active = '';
 	$postord_active = '';
 
-	if (($a->argc > 1 && $a->argv[1] === 'new')
+	if(($a->argc > 1 && $a->argv[1] === 'new')
 		|| ($a->argc > 2 && $a->argv[2] === 'new')) {
 			$new_active = 'active';
 	}
 
-	if (x($_GET,'search')) {
+	if(x($_GET,'search')) {
 		$search_active = 'active';
 	}
 
-	if (x($_GET,'star')) {
+	if(x($_GET,'star')) {
 		$starred_active = 'active';
 	}
 
-	if (x($_GET,'bmark')) {
+	if(x($_GET,'bmark')) {
 		$bookmarked_active = 'active';
 	}
 
-	if (x($_GET,'conv')) {
+	if(x($_GET,'conv')) {
 		$conv_active = 'active';
 	}
 
-	if (x($_GET,'spam')) {
+	if(x($_GET,'spam')) {
 		$spam_active = 'active';
 	}
 
@@ -285,7 +285,7 @@ function network_query_get_sel_tab(App $a) {
 function network_query_get_sel_net() {
 	$network = false;
 
-	if (x($_GET,'nets')) {
+	if(x($_GET,'nets')) {
 		$network = $_GET['nets'];
 	}
 
@@ -295,7 +295,7 @@ function network_query_get_sel_net() {
 function network_query_get_sel_group(App $a) {
 	$group = false;
 
-	if ($a->argc >= 2 && is_numeric($a->argv[1])) {
+	if($a->argc >= 2 && is_numeric($a->argv[1])) {
 		$group = $a->argv[1];
 	}
 
@@ -326,18 +326,20 @@ function network_content(App $a, $update = 0) {
 
 	$nouveau = false;
 
-	if ($a->argc > 1) {
-		for ($x = 1; $x < $a->argc; $x ++) {
-			if (is_a_date_arg($a->argv[$x])) {
-				if ($datequery) {
+	if($a->argc > 1) {
+		for($x = 1; $x < $a->argc; $x ++) {
+			if(is_a_date_arg($a->argv[$x])) {
+				if($datequery)
 					$datequery2 = escape_tags($a->argv[$x]);
-				} else {
+				else {
 					$datequery = escape_tags($a->argv[$x]);
 					$_GET['order'] = 'post';
 				}
-			} elseif ($a->argv[$x] === 'new') {
+			}
+			elseif($a->argv[$x] === 'new') {
 				$nouveau = true;
-			} elseif (intval($a->argv[$x])) {
+			}
+			elseif(intval($a->argv[$x])) {
 				$group = intval($a->argv[$x]);
 				$def_acl = array('allow_gid' => '<' . $group . '>');
 			}
@@ -366,12 +368,12 @@ function network_content(App $a, $update = 0) {
 
 
 
-	if (x($_GET,'search') || x($_GET,'file'))
+	if(x($_GET,'search') || x($_GET,'file'))
 		$nouveau = true;
-	if ($cid)
+	if($cid)
 		$def_acl = array('allow_cid' => '<' . intval($cid) . '>');
 
-	if ($nets) {
+	if($nets) {
 		$r = qu("SELECT `id` FROM `contact` WHERE `uid` = %d AND network = '%s' AND `self` = 0",
 			intval(local_user()),
 			dbesc($nets)
@@ -379,19 +381,19 @@ function network_content(App $a, $update = 0) {
 
 		$str = '';
 		if (dbm::is_result($r))
-			foreach ($r as $rr)
+			foreach($r as $rr)
 				$str .= '<' . $rr['id'] . '>';
-		if (strlen($str))
+		if(strlen($str))
 			$def_acl = array('allow_cid' => $str);
 	}
 	set_pconfig(local_user(), 'network.view', 'net.selected', ($nets ? $nets : 'all'));
 
-	if (!$update AND !$rawmode) {
+	if(!$update AND !$rawmode) {
 		$tabs = network_tabs($a);
 		$o .= $tabs;
 
-		if ($group) {
-			if (($t = group_public_members($group)) && (! get_pconfig(local_user(),'system','nowarn_insecure'))) {
+		if($group) {
+			if(($t = group_public_members($group)) && (! get_pconfig(local_user(),'system','nowarn_insecure'))) {
 				notice(sprintf(tt("Warning: This group contains %s member from a network that doesn't allow non public messages.",
 						"Warning: This group contains %s members from a network that doesn't allow non public messages.",
 						$t), $t).EOL);
@@ -455,13 +457,13 @@ function network_content(App $a, $update = 0) {
 
 	$sql_nets = (($nets) ? sprintf(" and $sql_table.`network` = '%s' ", dbesc($nets)) : '');
 
-	if ($group) {
+	if($group) {
 		$r = qu("SELECT `name`, `id` FROM `group` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($group),
 			intval($_SESSION['uid'])
 		);
 		if (! dbm::is_result($r)) {
-			if ($update)
+			if($update)
 				killme();
 			notice( t('No such group') . EOL );
 			goaway('network/0');
@@ -471,7 +473,7 @@ function network_content(App $a, $update = 0) {
 		$contacts = expand_groups(array($group));
 		$gcontacts = expand_groups(array($group), false, true);
 
-		if ((is_array($contacts)) && count($contacts)) {
+		if((is_array($contacts)) && count($contacts)) {
 			$contact_str_self = "";
 			$gcontact_str_self = "";
 
@@ -498,7 +500,7 @@ function network_content(App $a, $update = 0) {
 		)) . $o;
 
 	}
-	elseif ($cid) {
+	elseif($cid) {
 
 		$r = qu("SELECT `id`,`name`,`network`,`writable`,`nurl`, `forum`, `prv`, `contact-type`, `addr`, `thumb`, `location` FROM `contact` WHERE `id` = %d
 				AND (NOT `blocked` OR `pending`) LIMIT 1",
@@ -522,7 +524,7 @@ function network_content(App $a, $update = 0) {
 				'id' => 'network',
 			)) . $o;
 
-			if ($r[0]['network'] === NETWORK_OSTATUS && $r[0]['writable'] && (! get_pconfig(local_user(),'system','nowarn_insecure'))) {
+			if($r[0]['network'] === NETWORK_OSTATUS && $r[0]['writable'] && (! get_pconfig(local_user(),'system','nowarn_insecure'))) {
 				notice( t('Private messages to this person are at risk of public disclosure.') . EOL);
 			}
 
@@ -534,15 +536,15 @@ function network_content(App $a, $update = 0) {
 		}
 	}
 
-	if ((! $group) && (! $cid) && (! $update) && (! get_config('theme','hide_eventlist'))) {
+	if((! $group) && (! $cid) && (! $update) && (! get_config('theme','hide_eventlist'))) {
 		$o .= get_birthdays();
 		$o .= get_events();
 	}
 
-	if ($datequery) {
+	if($datequery) {
 		$sql_extra3 .= protect_sprintf(sprintf(" AND $sql_table.created <= '%s' ", dbesc(datetime_convert(date_default_timezone_get(),'',$datequery))));
 	}
-	if ($datequery2) {
+	if($datequery2) {
 		$sql_extra3 .= protect_sprintf(sprintf(" AND $sql_table.created >= '%s' ", dbesc(datetime_convert(date_default_timezone_get(),'',$datequery2))));
 	}
 
@@ -553,10 +555,10 @@ function network_content(App $a, $update = 0) {
 	$order_mode = "received";
 	$tag = false;
 
-	if (x($_GET,'search')) {
+	if(x($_GET,'search')) {
 		$search = escape_tags($_GET['search']);
 
-		if (strpos($search,'#') === 0) {
+		if(strpos($search,'#') === 0) {
 			$tag = true;
 			$search = substr($search,1);
 		}
@@ -564,7 +566,7 @@ function network_content(App $a, $update = 0) {
 		if (get_config('system','only_tag_search'))
 			$tag = true;
 
-		if ($tag) {
+		if($tag) {
 			$sql_extra = "";
 
 			$sql_post_table .= sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
@@ -581,17 +583,17 @@ function network_content(App $a, $update = 0) {
 			$order_mode = "id";
 		}
 	}
-	if (strlen($file)) {
+	if(strlen($file)) {
 		$sql_post_table .= sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
 				dbesc(protect_sprintf($file)), intval(TERM_OBJ_POST), intval(TERM_FILE), intval(local_user()));
 		$sql_order = "`item`.`id`";
 		$order_mode = "id";
 	}
 
-	if ($conv)
+	if($conv)
 		$sql_extra3 .= " AND $sql_table.`mention`";
 
-	if ($update) {
+	if($update) {
 
 		// only setup pagination on initial page view
 		$pager_sql = '';
@@ -609,14 +611,14 @@ function network_content(App $a, $update = 0) {
 
 		//  now that we have the user settings, see if the theme forces
 		//  a maximum item number which is lower then the user choice
-		if (($a->force_max_items > 0) && ($a->force_max_items < $itemspage_network))
+		if(($a->force_max_items > 0) && ($a->force_max_items < $itemspage_network))
 			$itemspage_network = $a->force_max_items;
 
 		$a->set_pager_itemspage($itemspage_network);
 		$pager_sql = sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
 	}
 
-	if ($nouveau) {
+	if($nouveau) {
 		$simple_update = (($update) ? " AND `item`.`unseen` " : '');
 
 		if ($sql_order == "")
@@ -638,7 +640,7 @@ function network_content(App $a, $update = 0) {
 		// Normal conversation view
 
 
-		if ($order === 'post') {
+		if($order === 'post') {
 			$ordering = "`created`";
 			if ($sql_order == "")
 				$order_mode = "created";
@@ -655,7 +657,7 @@ function network_content(App $a, $update = 0) {
 			$sql_extra3 .= sprintf(" AND $sql_order <= '%s'", dbesc($_GET["offset"]));
 
 		// Fetch a page full of parent items for this page
-		if ($update) {
+		if($update) {
 			if (get_config("system", "like_no_comment"))
 				$sql_extra4 = " AND `item`.`verb` = '".ACTIVITY_POST."'";
 			else
@@ -689,8 +691,8 @@ function network_content(App $a, $update = 0) {
 		$date_offset = "";
 
 		if (dbm::is_result($r)) {
-			foreach ($r as $rr)
-				if (! in_array($rr['item_id'],$parents_arr))
+			foreach($r as $rr)
+				if(! in_array($rr['item_id'],$parents_arr))
 					$parents_arr[] = $rr['item_id'];
 
 			$parents_str = implode(", ", $parents_arr);
@@ -728,7 +730,7 @@ function network_content(App $a, $update = 0) {
 
 		$a->page_offset = $date_offset;
 
-		if ($parents_str)
+		if($parents_str)
 			$update_unseen = ' WHERE uid = ' . intval(local_user()) . ' AND unseen = 1 AND parent IN ( ' . dbesc($parents_str) . ' )';
 	}
 
@@ -822,7 +824,7 @@ function network_tabs(App $a) {
 		),
 	);
 
-	if (feature_enabled(local_user(),'personal_tab')) {
+	if(feature_enabled(local_user(),'personal_tab')) {
 		$tabs[] = array(
 			'label'	=> t('Personal'),
 			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
@@ -833,7 +835,7 @@ function network_tabs(App $a) {
 		);
 	}
 
-	if (feature_enabled(local_user(),'new_tab')) {
+	if(feature_enabled(local_user(),'new_tab')) {
 		$tabs[] = array(
 			'label'	=> t('New'),
 			'url'	=> str_replace('/new', '', $cmd) . ($len_naked_cmd ? '/' : '') . 'new' . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : ''),
@@ -844,7 +846,7 @@ function network_tabs(App $a) {
 		);
 	}
 
-	if (feature_enabled(local_user(),'link_tab')) {
+	if(feature_enabled(local_user(),'link_tab')) {
 		$tabs[] = array(
 			'label'	=> t('Shared Links'),
 			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&bmark=1',
@@ -855,7 +857,7 @@ function network_tabs(App $a) {
 		);
 	}
 
-	if (feature_enabled(local_user(),'star_posts')) {
+	if(feature_enabled(local_user(),'star_posts')) {
 		$tabs[] = array(
 			'label'	=> t('Starred'),
 			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&star=1',
@@ -867,7 +869,7 @@ function network_tabs(App $a) {
 	}
 
 	// save selected tab, but only if not in search or file mode
-	if (!x($_GET,'search') && !x($_GET,'file')) {
+	if(!x($_GET,'search') && !x($_GET,'file')) {
 		set_pconfig( local_user(), 'network.view','tab.selected',array($all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active) );
 	}
 

@@ -66,9 +66,10 @@ function fbrowser_content(App $a) {
 				$types = Photo::supportedTypes();
 				$ext = $types[$rr['type']];
 
-				if ($a->theme['template_engine'] === 'internal') {
+				if($a->theme['template_engine'] === 'internal') {
 					$filename_e = template_escape($rr['filename']);
-				} else {
+				}
+				else {
 					$filename_e = $rr['filename'];
 				}
 

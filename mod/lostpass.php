@@ -7,7 +7,7 @@ require_once('include/text.php');
 function lostpass_post(App $a) {
 
 	$loginame = notags(trim($_POST['login-name']));
-	if (! $loginame)
+	if(! $loginame)
 		goaway(z_root());
 
 	$r = q("SELECT * FROM `user` WHERE ( `email` = '%s' OR `nickname` = '%s' ) AND `verified` = 1 AND `blocked` = 0 LIMIT 1",
@@ -31,7 +31,7 @@ function lostpass_post(App $a) {
 		dbesc($new_password_encoded),
 		intval($uid)
 	);
-	if ($r)
+	if($r)
 		info( t('Password reset request issued. Check your email.') . EOL);
 
 
@@ -79,7 +79,8 @@ function lostpass_post(App $a) {
 
 function lostpass_content(App $a) {
 
-	if (x($_GET,'verify')) {
+
+	if(x($_GET,'verify')) {
 		$verify = $_GET['verify'];
 		$hash = hash('whirlpool', $verify);
 

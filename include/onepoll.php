@@ -61,7 +61,7 @@ function onepoll_run(&$argv, &$argc){
 		intval($contact_id)
 	);
 
-	if (! dbm::is_result($contacts)) {
+	if (! count($contacts)) {
 		return;
 	}
 
@@ -437,18 +437,16 @@ function onepoll_run(&$argv, &$argc){
 						if ($raw_refs) {
 							$refs_arr = explode(' ', $raw_refs);
 							if (count($refs_arr)) {
-								for ($x = 0; $x < count($refs_arr); $x ++) {
+								for($x = 0; $x < count($refs_arr); $x ++)
 									$refs_arr[$x] = "'" . msgid2iri(str_replace(array('<','>',' '),array('','',''),dbesc($refs_arr[$x]))) . "'";
-								}
 							}
 							$qstr = implode(',',$refs_arr);
 							$r = q("SELECT `uri` , `parent-uri` FROM `item` USE INDEX (`uid_uri`) WHERE `uri` IN ($qstr) AND `uid` = %d LIMIT 1",
 								intval($importer_uid)
 							);
-							if (dbm::is_result($r)) {
+							if (dbm::is_result($r))
 								$datarray['parent-uri'] = $r[0]['parent-uri'];  // Set the parent as the top-level item
-								//$datarray['parent-uri'] = $r[0]['uri'];
-							}
+	//							$datarray['parent-uri'] = $r[0]['uri'];
 						}
 
 						// Decoding the header

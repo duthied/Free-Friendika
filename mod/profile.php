@@ -6,17 +6,17 @@ require_once('include/redir.php');
 
 function profile_init(App $a) {
 
-	if (! x($a->page,'aside')) {
+	if(! x($a->page,'aside'))
 		$a->page['aside'] = '';
-	}
 
-	if ($a->argc > 1) {
+	if($a->argc > 1)
 		$which = htmlspecialchars($a->argv[1]);
-	}else {
+	else {
 		$r = q("select nickname from user where blocked = 0 and account_expired = 0 and account_removed = 0 and verified = 1 order by rand() limit 1");
 		if (dbm::is_result($r)) {
 			goaway(App::get_baseurl() . '/profile/' . $r[0]['nickname']);
-		} else {
+		}
+		else {
 			logger('profile error: mod_profile ' . $a->query_string, LOGGER_DEBUG);
 			notice( t('Requested profile is not available.') . EOL );
 			$a->error = 404;
@@ -25,10 +25,11 @@ function profile_init(App $a) {
 	}
 
 	$profile = 0;
-	if ((local_user()) && ($a->argc > 2) && ($a->argv[2] === 'view')) {
+	if((local_user()) && ($a->argc > 2) && ($a->argv[2] === 'view')) {
 		$which = $a->user['nickname'];
 		$profile = htmlspecialchars($a->argv[1]);
-	} else {
+	}
+	else {
 		auto_redir($a, $which);
 	}
 
@@ -37,7 +38,7 @@ function profile_init(App $a) {
 	$blocked = (((get_config('system','block_public')) && (! local_user()) && (! remote_user())) ? true : false);
 	$userblock = (($a->profile['hidewall'] && (! local_user()) && (! remote_user())) ? true : false);
 
-	if ((x($a->profile,'page-flags')) && ($a->profile['page-flags'] == PAGE_COMMUNITY)) {
+	if((x($a->profile,'page-flags')) && ($a->profile['page-flags'] == PAGE_COMMUNITY)) {
 		$a->page['htmlhead'] .= '<meta name="friendica.community" content="true" />';
 	}
 	if (x($a->profile,'openidserver')) {
@@ -51,7 +52,7 @@ function profile_init(App $a) {
 	if ((! $blocked) && (! $userblock)) {
 		$keywords = ((x($a->profile,'pub_keywords')) ? $a->profile['pub_keywords'] : '');
 		$keywords = str_replace(array('#',',',' ',',,'),array('',' ',',',','),$keywords);
-		if (strlen($keywords))
+		if(strlen($keywords))
 			$a->page['htmlhead'] .= '<meta name="keywords" content="' . $keywords . '" />' . "\r\n" ;
 	}
 
@@ -261,7 +262,7 @@ function profile_content(App $a, $update = 0) {
 		}
 		//  now that we have the user settings, see if the theme forces
 		//  a maximum item number which is lower then the user choice
-		if (($a->force_max_items > 0) && ($a->force_max_items < $itemspage_network))
+		if(($a->force_max_items > 0) && ($a->force_max_items < $itemspage_network))
 			$itemspage_network = $a->force_max_items;
 
 		$a->set_pager_itemspage($itemspage_network);
@@ -288,9 +289,8 @@ function profile_content(App $a, $update = 0) {
 	$parents_str = '';
 
 	if (dbm::is_result($r)) {
-		foreach ($r as $rr) {
+		foreach($r as $rr)
 			$parents_arr[] = $rr['item_id'];
-		}
 		$parents_str = implode(', ', $parents_arr);
 
 		$items = q(item_query()." AND `item`.`uid` = %d
@@ -305,13 +305,13 @@ function profile_content(App $a, $update = 0) {
 		$items = array();
 	}
 
-	if ($is_owner && (! $update) && (! get_config('theme','hide_eventlist'))) {
+	if($is_owner && (! $update) && (! get_config('theme','hide_eventlist'))) {
 		$o .= get_birthdays();
 		$o .= get_events();
 	}
 
 
-	if ($is_owner) {
+	if($is_owner) {
 		$r = q("UPDATE `item` SET `unseen` = 0
 			WHERE `wall` = 1 AND `unseen` = 1 AND `uid` = %d",
 			intval(local_user())

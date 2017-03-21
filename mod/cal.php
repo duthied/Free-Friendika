@@ -10,10 +10,10 @@ require_once('include/event.php');
 require_once('include/redir.php');
 
 function cal_init(App $a) {
-	if ($a->argc > 1)
+	if($a->argc > 1)
 		auto_redir($a, $a->argv[1]);
 
-	if ((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
 		return;
 	}
 
@@ -21,13 +21,13 @@ function cal_init(App $a) {
 
 	$o = '';
 
-	if ($a->argc > 1) {
+	if($a->argc > 1) {
 		$nick = $a->argv[1];
 		$user = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
 			dbesc($nick)
 		);
 
-		if (! count($user))
+		if(! count($user))
 			return;
 
 		$a->data['user'] = $user[0];
@@ -54,7 +54,7 @@ function cal_init(App $a) {
 
 		$cal_widget = widget_events();
 
-		if (! x($a->page,'aside'))
+		if(! x($a->page,'aside'))
 			$a->page['aside'] = '';
 
 		$a->page['aside'] .= $vcard_widget;
@@ -69,7 +69,6 @@ function cal_content(App $a) {
 
 	// First day of the week (0 = Sunday)
 	$firstDay = get_pconfig(local_user(),'system','first_day_of_week');
-	/// @TODO Convert all these to with curly braces
 	if ($firstDay === false) $firstDay=0;
 
 	// get the translation strings for the callendar
@@ -95,9 +94,8 @@ function cal_content(App $a) {
 	$m = 0;
 	$ignored = ((x($_REQUEST,'ignored')) ? intval($_REQUEST['ignored']) : 0);
 
-	/// @TODO Convert to one if() statement
-	if ($a->argc == 4) {
-		if ($a->argv[2] == 'export') {
+	if($a->argc == 4) {
+		if($a->argv[2] == 'export') {
 			$mode = 'export';
 			$format = $a->argv[3];
 		}
@@ -114,15 +112,15 @@ function cal_content(App $a) {
 	$owner_uid = $a->data['user']['uid'];
 	$nick = $a->data['user']['nickname'];
 
-	if (is_array($_SESSION['remote'])) {
-		foreach ($_SESSION['remote'] as $v) {
-			if ($v['uid'] == $a->profile['profile_uid']) {
+	if(is_array($_SESSION['remote'])) {
+		foreach($_SESSION['remote'] as $v) {
+			if($v['uid'] == $a->profile['profile_uid']) {
 				$contact_id = $v['cid'];
 				break;
 			}
 		}
 	}
-	if ($contact_id) {
+	if($contact_id) {
 		$groups = init_groups_visitor($contact_id);
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($contact_id),
@@ -133,15 +131,15 @@ function cal_content(App $a) {
 			$remote_contact = true;
 		}
 	}
-	if (! $remote_contact) {
-		if (local_user()) {
+	if(! $remote_contact) {
+		if(local_user()) {
 			$contact_id = $_SESSION['cid'];
 			$contact = $a->contact;
 		}
 	}
 	$is_owner = ((local_user()) && (local_user() == $a->profile['profile_uid']) ? true : false);
 
-	if ($a->profile['hidewall'] && (! $is_owner) && (! $remote_contact)) {
+	if($a->profile['hidewall'] && (! $is_owner) && (! $remote_contact)) {
 		notice( t('Access to this profile has been restricted.') . EOL);
 		return;
 	}
@@ -155,33 +153,33 @@ function cal_content(App $a) {
 	$tabs .= profile_tabs($a,false, $a->data['user']['nickname']);
 
 	// The view mode part is similiar to /mod/events.php
-	if ($mode == 'view') {
+	if($mode == 'view') {
 
 
 		$thisyear = datetime_convert('UTC',date_default_timezone_get(),'now','Y');
 		$thismonth = datetime_convert('UTC',date_default_timezone_get(),'now','m');
-		if (! $y)
+		if(! $y)
 			$y = intval($thisyear);
-		if (! $m)
+		if(! $m)
 			$m = intval($thismonth);
 
 		// Put some limits on dates. The PHP date functions don't seem to do so well before 1900.
 		// An upper limit was chosen to keep search engines from exploring links millions of years in the future.
 
-		if ($y < 1901)
+		if($y < 1901)
 			$y = 1900;
-		if ($y > 2099)
+		if($y > 2099)
 			$y = 2100;
 
 		$nextyear = $y;
 		$nextmonth = $m + 1;
-		if ($nextmonth > 12) {
+		if($nextmonth > 12) {
 				$nextmonth = 1;
 			$nextyear ++;
 		}
 
 		$prevyear = $y;
-		if ($m > 1)
+		if($m > 1)
 			$prevmonth = $m - 1;
 		else {
 			$prevmonth = 12;
@@ -237,10 +235,9 @@ function cal_content(App $a) {
 		$events=array();
 
 		// transform the event in a usable array
-		if (dbm::is_result($r)) {
+		if (dbm::is_result($r))
 			$r = sort_by_date($r);
 			$events = process_events($r);
-		}
 
 		if ($a->argv[2] === 'json'){
 			echo json_encode($events); killme();
@@ -258,9 +255,9 @@ function cal_content(App $a) {
 		}
 
 		// Get rid of dashes in key names, Smarty3 can't handle them
-		foreach ($events as $key => $event) {
+		foreach($events as $key => $event) {
 			$event_item = array();
-			foreach ($event['item'] as $k => $v) {
+			foreach($event['item'] as $k => $v) {
 				$k = str_replace('-','_',$k);
 				$event_item[$k] = $v;
 			}
@@ -290,15 +287,15 @@ function cal_content(App $a) {
 		return $o;
 	}
 
-	if ($mode == 'export') {
-		if (! (intval($owner_uid))) {
+	if($mode == 'export') {
+		if(! (intval($owner_uid))) {
 			notice( t('User not found'));
 			return;
 		}
 
 		// Test permissions
 		// Respect the export feature setting for all other /cal pages if it's not the own profile
-		if ( ((local_user() !== intval($owner_uid))) && ! feature_enabled($owner_uid, "export_calendar")) {
+		if( ((local_user() !== intval($owner_uid))) && ! feature_enabled($owner_uid, "export_calendar")) {
 			notice( t('Permission denied.') . EOL);
 			goaway('cal/' . $nick);
 		}
@@ -307,7 +304,7 @@ function cal_content(App $a) {
 		$evexport = event_export($owner_uid, $format);
 
 		if (!$evexport["success"]) {
-			if ($evexport["content"])
+			if($evexport["content"])
 				notice( t('This calendar format is not supported') );
 			else
 				notice( t('No exportable data found'));

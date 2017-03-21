@@ -3,7 +3,7 @@
 function directory_init(App $a) {
 	$a->set_pager_itemspage(60);
 
-	if (local_user()) {
+	if(local_user()) {
 		require_once('include/contact_widgets.php');
 
 		$a->page['aside'] .= findpeople_widget();
@@ -21,7 +21,7 @@ function directory_init(App $a) {
 
 
 function directory_post(App $a) {
-	if (x($_POST,'search'))
+	if(x($_POST,'search'))
 		$a->data['search'] = $_POST['search'];
 }
 
@@ -32,7 +32,7 @@ function directory_content(App $a) {
 
 	require_once("mod/proxy.php");
 
-	if ((get_config('system','block_public')) && (! local_user()) && (! remote_user()) ||
+	if((get_config('system','block_public')) && (! local_user()) && (! remote_user()) ||
 		(get_config('system','block_local_dir')) && (! local_user()) && (! remote_user())) {
 		notice( t('Public access denied.') . EOL);
 		return;
@@ -41,18 +41,18 @@ function directory_content(App $a) {
 	$o = '';
 	nav_set_selected('directory');
 
-	if (x($a->data,'search'))
+	if(x($a->data,'search'))
 		$search = notags(trim($a->data['search']));
 	else
 		$search = ((x($_GET,'search')) ? notags(trim(rawurldecode($_GET['search']))) : '');
 
 	$gdirpath = '';
 	$dirurl = get_config('system','directory');
-	if (strlen($dirurl)) {
+	if(strlen($dirurl)) {
 		$gdirpath = zrl($dirurl,true);
 	}
 
-	if ($search) {
+	if($search) {
 		$search = dbesc($search);
 
 		$sql_extra = " AND ((`profile`.`name` LIKE '%$search%') OR
@@ -110,28 +110,28 @@ function directory_content(App $a) {
 			$pdesc = (($rr['pdesc']) ? $rr['pdesc'] . '<br />' : '');
 
 			$details = '';
-			if (strlen($rr['locality']))
+			if(strlen($rr['locality']))
 				$details .= $rr['locality'];
-			if (strlen($rr['region'])) {
-				if (strlen($rr['locality']))
+			if(strlen($rr['region'])) {
+				if(strlen($rr['locality']))
 					$details .= ', ';
 				$details .= $rr['region'];
 			}
-			if (strlen($rr['country-name'])) {
-				if (strlen($details))
+			if(strlen($rr['country-name'])) {
+				if(strlen($details))
 					$details .= ', ';
 				$details .= $rr['country-name'];
 			}
-//			if (strlen($rr['dob'])) {
-//				if (($years = age($rr['dob'],$rr['timezone'],'')) != 0)
+//			if(strlen($rr['dob'])) {
+//				if(($years = age($rr['dob'],$rr['timezone'],'')) != 0)
 //					$details .= '<br />' . t('Age: ') . $years ;
 //			}
-//			if (strlen($rr['gender']))
+//			if(strlen($rr['gender']))
 //				$details .= '<br />' . t('Gender: ') . $rr['gender'];
 
 			$profile = $rr;
 
-			if ((x($profile,'address') == 1)
+			if((x($profile,'address') == 1)
 				|| (x($profile,'locality') == 1)
 				|| (x($profile,'region') == 1)
 				|| (x($profile,'postal-code') == 1)
@@ -146,7 +146,7 @@ function directory_content(App $a) {
 
 			$about = ((x($profile,'about') == 1) ?  t('About:') : False);
 
-			if ($a->theme['template_engine'] === 'internal') {
+			if($a->theme['template_engine'] === 'internal') {
 				$location_e = template_escape($location);
 			}
 			else {
@@ -185,9 +185,8 @@ function directory_content(App $a) {
 			unset($profile);
 			unset($location);
 
-			if (! $arr['entry']) {
+			if(! $arr['entry'])
 				continue;
-			}
 
 			$entries[] = $arr['entry'];
 
