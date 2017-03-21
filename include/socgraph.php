@@ -14,8 +14,13 @@ require_once("include/html2bbcode.php");
 require_once("include/Contact.php");
 require_once("include/Photo.php");
 
-/*
- * poco_load
+/**
+ * @brief Fetch POCO data
+ *
+ * @param integer $cid Contact ID
+ * @param integer $uid User ID
+ * @param integer $zcid Global Contact ID
+ * @param integer $url POCO address that should be polled
  *
  * Given a contact-id (minimum), load the PortableContacts friend list for that contact,
  * and add the entries to the gcontact (Global Contact) table, or update existing entries
@@ -27,12 +32,21 @@ require_once("include/Photo.php");
  * pointing to the same global contact id.
  *
  */
+function poco_load($cid, $uid = 0, $zcid = 0, $url = null) {
+	// Call the function "poco_load_worker" via the worker
+	proc_run(PRIORITY_LOW, "include/discover_poco.php", "poco_load", $cid, $uid, $zcid, base64_encode($url));
+}
 
-
-
-
-function poco_load($cid,$uid = 0,$zcid = 0,$url = null) {
-
+/**
+ * @brief Fetch POCO data from the worker
+ *
+ * @param integer $cid Contact ID
+ * @param integer $uid User ID
+ * @param integer $zcid Global Contact ID
+ * @param integer $url POCO address that should be polled
+ *
+ */
+function poco_load_worker($cid, $uid, $zcid, $url) {
 	$a = get_app();
 
 	if($cid) {
@@ -1668,6 +1682,68 @@ function poco_discover_federation() {
 	set_config('poco','last_federation_discovery', time());
 }
 
+function poco_discover_single_server($id) {
+	$r = q("SELECT `poco`, `nurl`, `url`, `network` FROM `gserver` WHERE `id` = %d", intval($id));
+	if (!dbm::is_result($r)) {
+		return false;
+	}
+
+	$server = $r[0];
+
+	// Discover new servers out there (Works from Friendica version 3.5.2)
+	poco_fetch_serverlist($server["poco"]);
+
+	// Fetch all users from the other server
+	$url = $server["poco"]."/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation";
+
+	logger("Fetch all users from the server ".$server["url"], LOGGER_DEBUG);
+
+	$retdata = z_fetch_url($url);
+	if ($retdata["success"]) {
+		$data = json_decode($retdata["body"]);
+
+		poco_discover_server($data, 2);
+
+		if (get_config('system','poco_discovery') > 1) {
+
+			$timeframe = get_config('system','poco_discovery_since');
+			if ($timeframe == 0) {
+				$timeframe = 30;
+			}
+
+			$updatedSince = date("Y-m-d H:i:s", time() - $timeframe * 86400);
+
+			// Fetch all global contacts from the other server (Not working with Redmatrix and Friendica versions before 3.3)
+			$url = $server["poco"]."/@global?updatedSince=".$updatedSince."&fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation";
+
+			$success = false;
+
+			$retdata = z_fetch_url($url);
+			if ($retdata["success"]) {
+				logger("Fetch all global contacts from the server ".$server["nurl"], LOGGER_DEBUG);
+				$success = poco_discover_server(json_decode($retdata["body"]));
+			}
+
+			if (!$success AND (get_config('system','poco_discovery') > 2)) {
+				logger("Fetch contacts from users of the server ".$server["nurl"], LOGGER_DEBUG);
+				poco_discover_server_users($data, $server);
+			}
+		}
+
+		q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
+
+		return true;
+	} else {
+		// If the server hadn't replied correctly, then force a sanity check
+		poco_check_server($server["url"], $server["network"], true);
+
+		// If we couldn't reach the server, we will try it some time later
+		q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
+
+		return false;
+	}
+}
+
 function poco_discover($complete = false) {
 
 	// Update the server list
@@ -1677,13 +1753,13 @@ function poco_discover($complete = false) {
 
 	$requery_days = intval(get_config("system", "poco_requery_days"));
 
-	if ($requery_days == 0)
+	if ($requery_days == 0) {
 		$requery_days = 7;
-
+	}
 	$last_update = date("c", time() - (60 * 60 * 24 * $requery_days));
 
-	$r = q("SELECT `poco`, `nurl`, `url`, `network` FROM `gserver` WHERE `last_contact` >= `last_failure` AND `poco` != '' AND `last_poco_query` < '%s' ORDER BY RAND()", dbesc($last_update));
-	if ($r)
+	$r = q("SELECT `id`, `url`, `network` FROM `gserver` WHERE `last_contact` >= `last_failure` AND `poco` != '' AND `last_poco_query` < '%s' ORDER BY RAND()", dbesc($last_update));
+	if (dbm::is_result($r)) {
 		foreach ($r AS $server) {
 
 			if (!poco_check_server($server["url"], $server["network"])) {
@@ -1692,56 +1768,14 @@ function poco_discover($complete = false) {
 				continue;
 			}
 
-			// Discover new servers out there
-			poco_fetch_serverlist($server["poco"]);
+			logger('Update directory from server '.$server['url'].' with ID '.$server['id'], LOGGER_DEBUG);
+			proc_run(PRIORITY_LOW, "include/discover_poco.php", "update_server_directory", $server['id']);
 
-			// Fetch all users from the other server
-			$url = $server["poco"]."/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation";
-
-			logger("Fetch all users from the server ".$server["nurl"], LOGGER_DEBUG);
-
-			$retdata = z_fetch_url($url);
-			if ($retdata["success"]) {
-				$data = json_decode($retdata["body"]);
-
-				poco_discover_server($data, 2);
-
-				if (get_config('system','poco_discovery') > 1) {
-
-					$timeframe = get_config('system','poco_discovery_since');
-					if ($timeframe == 0)
-						$timeframe = 30;
-
-					$updatedSince = date("Y-m-d H:i:s", time() - $timeframe * 86400);
-
-					// Fetch all global contacts from the other server (Not working with Redmatrix and Friendica versions before 3.3)
-					$url = $server["poco"]."/@global?updatedSince=".$updatedSince."&fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation";
-
-					$success = false;
-
-					$retdata = z_fetch_url($url);
-					if ($retdata["success"]) {
-						logger("Fetch all global contacts from the server ".$server["nurl"], LOGGER_DEBUG);
-						$success = poco_discover_server(json_decode($retdata["body"]));
-					}
-
-					if (!$success AND (get_config('system','poco_discovery') > 2)) {
-						logger("Fetch contacts from users of the server ".$server["nurl"], LOGGER_DEBUG);
-						poco_discover_server_users($data, $server);
-					}
-				}
-
-				q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
-				if (!$complete AND (--$no_of_queries == 0))
-					break;
-			} else {
-				// If the server hadn't replied correctly, then force a sanity check
-				poco_check_server($server["url"], $server["network"], true);
-
-				// If we couldn't reach the server, we will try it some time later
-				q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
+			if (!$complete AND (--$no_of_queries == 0)) {
+				break;
 			}
 		}
+	}
 }
 
 function poco_discover_server_users($data, $server) {
