@@ -111,7 +111,7 @@ function cron_expire_and_remove_users() {
 	// delete user and contact records for recently removed accounts
 	$r = q("SELECT * FROM `user` WHERE `account_removed` AND `account_expires_on` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
 	if (dbm::is_result($r)) {
-		foreach($r as $user) {
+		foreach ($r as $user) {
 			q("DELETE FROM `contact` WHERE `uid` = %d", intval($user['uid']));
 			q("DELETE FROM `user` WHERE `uid` = %d", intval($user['uid']));
 		}

@@ -65,7 +65,7 @@ function cron_run(&$argv, &$argc){
 	$d1 = get_config('system','last_expire_day');
 	$d2 = intval(datetime_convert('UTC','UTC','now','d'));
 
-	if($d2 != intval($d1)) {
+	if ($d2 != intval($d1)) {
 
 		proc_run(PRIORITY_LOW, "include/cronjobs.php", "update_contact_birthdays");
 
@@ -104,14 +104,15 @@ function cron_poll_contacts($argc, $argv) {
 	$force      = false;
 	$restart    = false;
 
-	if (($argc > 1) && ($argv[1] == 'force'))
+	if (($argc > 1) && ($argv[1] == 'force')) {
 		$force = true;
-
+	}
 	if (($argc > 1) && ($argv[1] == 'restart')) {
 		$restart = true;
 		$generation = intval($argv[2]);
-		if (!$generation)
+		if (!$generation) {
 			killme();
+		}
 	}
 
 	if (($argc > 1) && intval($argv[1])) {
@@ -130,9 +131,9 @@ function cron_poll_contacts($argc, $argv) {
 	// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
 
 	$abandon_days = intval(get_config('system','account_abandon_days'));
-	if($abandon_days < 1)
+	if ($abandon_days < 1) {
 		$abandon_days = 0;
-
+	}
 	$abandon_sql = (($abandon_days)
 		? sprintf(" AND `user`.`login_date` > UTC_TIMESTAMP() - INTERVAL %d DAY ", intval($abandon_days))
 		: ''
@@ -169,7 +170,7 @@ function cron_poll_contacts($argc, $argv) {
 			continue;
 		}
 
-		foreach($res as $contact) {
+		foreach ($res as $contact) {
 
 			$xml = false;
 
@@ -191,7 +192,7 @@ function cron_poll_contacts($argc, $argv) {
 				$contact['priority'] = (($poll_interval !== false) ? intval($poll_interval) : 3);
 			}
 
-			if($contact['priority'] AND !$force) {
+			if ($contact['priority'] AND !$force) {
 
 				$update     = false;
 
@@ -203,29 +204,35 @@ function cron_poll_contacts($argc, $argv) {
 
 				switch ($contact['priority']) {
 					case 5:
-						if(datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 month"))
+						if (datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 month")) {
 							$update = true;
+						}
 						break;
 					case 4:
-						if(datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 week"))
+						if (datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 week")) {
 							$update = true;
+						}
 						break;
 					case 3:
-						if(datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 day"))
+						if (datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 day")) {
 							$update = true;
+						}
 						break;
 					case 2:
-						if(datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 12 hour"))
+						if (datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 12 hour")) {
 							$update = true;
+						}
 						break;
 					case 1:
 					default:
-						if(datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 hour"))
+						if (datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 hour")) {
 							$update = true;
+						}
 						break;
 				}
-				if (!$update)
+				if (!$update) {
 					continue;
+				}
 			}
 
 			logger("Polling ".$contact["network"]." ".$contact["id"]." ".$contact["nick"]." ".$contact["name"]);
