@@ -18,12 +18,12 @@ function community_content(App $a, $update = 0) {
 	if ($update)
 		return;
 
-	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if ((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
 		notice( t('Public access denied.') . EOL);
 		return;
 	}
 
-	if(get_config('system','community_page_style') == CP_NO_COMMUNITY_PAGE) {
+	if (get_config('system','community_page_style') == CP_NO_COMMUNITY_PAGE) {
 		notice( t('Not available.') . EOL);
 		return;
 	}
@@ -34,11 +34,11 @@ function community_content(App $a, $update = 0) {
 
 
 	$o .= '<h3>' . t('Community') . '</h3>';
-	if(! $update) {
+	if (! $update) {
 		nav_set_selected('community');
 	}
 
-	if(x($a->data,'search'))
+	if (x($a->data,'search'))
 		$search = notags(trim($a->data['search']));
 	else
 		$search = ((x($_GET,'search')) ? notags(trim(rawurldecode($_GET['search']))) : '');
@@ -79,14 +79,15 @@ function community_content(App $a, $update = 0) {
 				$r = community_getitems($a->pager['start'] + ($count * $a->pager['itemspage']), $a->pager['itemspage']);
 
 		} while ((sizeof($s) < $a->pager['itemspage']) AND (++$count < 50) AND (sizeof($r) > 0));
-	} else
+	} else {
 		$s = $r;
+	}
 
 	// we behave the same in message lists as the search module
 
 	$o .= conversation($a, $s, 'community', $update);
 
-        $o .= alt_pager($a, count($r));
+	$o .= alt_pager($a, count($r));
 
 	return $o;
 }

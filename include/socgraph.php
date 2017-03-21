@@ -49,8 +49,8 @@ function poco_load($cid, $uid = 0, $zcid = 0, $url = null) {
 function poco_load_worker($cid, $uid, $zcid, $url) {
 	$a = get_app();
 
-	if($cid) {
-		if((! $url) || (! $uid)) {
+	if ($cid) {
+		if ((! $url) || (! $uid)) {
 			$r = q("select `poco`, `uid` from `contact` where `id` = %d limit 1",
 				intval($cid)
 			);
@@ -59,11 +59,11 @@ function poco_load_worker($cid, $uid, $zcid, $url) {
 				$uid = $r[0]['uid'];
 			}
 		}
-		if(! $uid)
+		if (! $uid)
 			return;
 	}
 
-	if(! $url)
+	if (! $url)
 		return;
 
 	$url = $url . (($uid) ? '/@me/@all?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation' : '?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation') ;
@@ -76,18 +76,18 @@ function poco_load_worker($cid, $uid, $zcid, $url) {
 
 	logger('poco_load: return code: ' . $a->get_curl_code(), LOGGER_DEBUG);
 
-	if(($a->get_curl_code() > 299) || (! $s))
+	if (($a->get_curl_code() > 299) || (! $s))
 		return;
 
 	$j = json_decode($s);
 
 	logger('poco_load: json: ' . print_r($j,true),LOGGER_DATA);
 
-	if(! isset($j->entry))
+	if (! isset($j->entry))
 		return;
 
 	$total = 0;
-	foreach($j->entry as $entry) {
+	foreach ($j->entry as $entry) {
 
 		$total ++;
 		$profile_url = '';
@@ -151,7 +151,7 @@ function poco_load_worker($cid, $uid, $zcid, $url) {
 		}
 
 		if (isset($entry->tags)) {
-			foreach($entry->tags as $tag) {
+			foreach ($entry->tags as $tag) {
 				$keywords = implode(", ", $tag);
 			}
 		}
@@ -354,7 +354,7 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 
 	$gcid = update_gcontact($gcontact);
 
-	if(!$gcid)
+	if (!$gcid)
 		return $gcid;
 
 	$r = q("SELECT * FROM `glink` WHERE `cid` = %d AND `uid` = %d AND `gcid` = %d AND `zcid` = %d LIMIT 1",
@@ -1091,10 +1091,10 @@ function poco_check_server($server_url, $network = "", $force = false) {
 			}
 
 			$lines = explode("\n",$serverret["header"]);
-			if(count($lines)) {
-				foreach($lines as $line) {
+			if (count($lines)) {
+				foreach ($lines as $line) {
 					$line = trim($line);
-					if(stristr($line,'X-Diaspora-Version:')) {
+					if (stristr($line,'X-Diaspora-Version:')) {
 						$platform = "Diaspora";
 						$version = trim(str_replace("X-Diaspora-Version:", "", $line));
 						$version = trim(str_replace("x-diaspora-version:", "", $version));
@@ -1104,7 +1104,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 						$last_contact = datetime_convert();
 					}
 
-					if(stristr($line,'Server: Mastodon')) {
+					if (stristr($line,'Server: Mastodon')) {
 						$platform = "Mastodon";
 						$network = NETWORK_OSTATUS;
 						// Mastodon doesn't reveal version numbers
@@ -1383,7 +1383,7 @@ function count_common_friends($uid,$cid) {
 
 function common_friends($uid,$cid,$start = 0,$limit=9999,$shuffle = false) {
 
-	if($shuffle)
+	if ($shuffle)
 		$sql_extra = " order by rand() ";
 	else
 		$sql_extra = " order by `gcontact`.`name` asc ";
@@ -1428,7 +1428,7 @@ function count_common_friends_zcid($uid,$zcid) {
 
 function common_friends_zcid($uid,$zcid,$start = 0, $limit = 9999,$shuffle = false) {
 
-	if($shuffle)
+	if ($shuffle)
 		$sql_extra = " order by rand() ";
 	else
 		$sql_extra = " order by `gcontact`.`name` asc ";
@@ -1611,7 +1611,7 @@ function update_suggestions() {
 	if (dbm::is_result($r)) {
 		foreach ($r as $rr) {
 			$base = substr($rr['poco'],0,strrpos($rr['poco'],'/'));
-			if(! in_array($base,$done))
+			if (! in_array($base,$done))
 				poco_load(0,0,0,$base);
 		}
 	}
@@ -1649,7 +1649,7 @@ function poco_discover_federation() {
 
 	if ($last) {
 		$next = $last + (24 * 60 * 60);
-		if($next > time())
+		if ($next > time())
 			return;
 	}
 
@@ -1664,20 +1664,22 @@ function poco_discover_federation() {
 		}
 	}
 
-	// Currently disabled, since the service isn't available anymore.
-	// It is not removed since I hope that there will be a successor.
-	// Discover GNU Social Servers.
-	//if (!get_config('system','ostatus_disabled')) {
-	//	$serverdata = "http://gstools.org/api/get_open_instances/";
+	/*
+	 * Currently disabled, since the service isn't available anymore.
+	 * It is not removed since I hope that there will be a successor.
+	 * Discover GNU Social Servers.
+	if (!get_config('system','ostatus_disabled')) {
+		$serverdata = "http://gstools.org/api/get_open_instances/";
 
-	//	$result = z_fetch_url($serverdata);
-	//	if ($result["success"]) {
-	//		$servers = json_decode($result["body"]);
+		$result = z_fetch_url($serverdata);
+		if ($result["success"]) {
+			$servers = json_decode($result["body"]);
 
-	//		foreach($servers->data AS $server)
-	//			poco_check_server($server->instance_address);
-	//	}
-	//}
+			foreach($servers->data AS $server)
+				poco_check_server($server->instance_address);
+		}
+	}
+	*/
 
 	set_config('poco','last_federation_discovery', time());
 }
@@ -1786,7 +1788,7 @@ function poco_discover_server_users($data, $server) {
 	foreach ($data->entry AS $entry) {
 		$username = "";
 		if (isset($entry->urls)) {
-			foreach($entry->urls as $url)
+			foreach ($entry->urls as $url)
 				if ($url->type == 'profile') {
 					$profile_url = $url->value;
 					$urlparts = parse_url($profile_url);
@@ -1830,7 +1832,7 @@ function poco_discover_server($data, $default_generation = 0) {
 		$name = $entry->displayName;
 
 		if (isset($entry->urls)) {
-			foreach($entry->urls as $url) {
+			foreach ($entry->urls as $url) {
 				if ($url->type == 'profile') {
 					$profile_url = $url->value;
 					continue;
@@ -1855,31 +1857,31 @@ function poco_discover_server($data, $default_generation = 0) {
 			$updated = date("Y-m-d H:i:s", strtotime($entry->updated));
 		}
 
-		if(isset($entry->network)) {
+		if (isset($entry->network)) {
 			$network = $entry->network;
 		}
 
-		if(isset($entry->currentLocation)) {
+		if (isset($entry->currentLocation)) {
 			$location = $entry->currentLocation;
 		}
 
-		if(isset($entry->aboutMe)) {
+		if (isset($entry->aboutMe)) {
 			$about = html2bbcode($entry->aboutMe);
 		}
 
-		if(isset($entry->gender)) {
+		if (isset($entry->gender)) {
 			$gender = $entry->gender;
 		}
 
-		if(isset($entry->generation) AND ($entry->generation > 0)) {
+		if (isset($entry->generation) AND ($entry->generation > 0)) {
 			$generation = ++$entry->generation;
 		}
 
-		if(isset($entry->contactType) AND ($entry->contactType >= 0)) {
+		if (isset($entry->contactType) AND ($entry->contactType >= 0)) {
 			$contact_type = $entry->contactType;
 		}
 
-		if(isset($entry->tags)) {
+		if (isset($entry->tags)) {
 			foreach ($entry->tags as $tag) {
 				$keywords = implode(", ", $tag);
 			}

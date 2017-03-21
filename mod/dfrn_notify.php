@@ -28,12 +28,12 @@ function dfrn_notify_post(App $a) {
 	$prv   = (($page == 2) ? 1 : 0);
 
 	$writable = (-1);
-	if($dfrn_version >= 2.21) {
+	if ($dfrn_version >= 2.21) {
 		$writable = (($perm === 'rw') ? 1 : 0);
 	}
 
 	$direction = (-1);
-	if(strpos($dfrn_id,':') == 1) {
+	if (strpos($dfrn_id,':') == 1) {
 		$direction = intval(substr($dfrn_id,0,1));
 		$dfrn_id = substr($dfrn_id,2);
 	}
@@ -100,14 +100,14 @@ function dfrn_notify_post(App $a) {
 
 	logger("Remote rino version: ".$rino_remote." for ".$importer["url"], LOGGER_DEBUG);
 
-	if((($writable != (-1)) && ($writable != $importer['writable'])) || ($importer['forum'] != $forum) || ($importer['prv'] != $prv)) {
+	if ((($writable != (-1)) && ($writable != $importer['writable'])) || ($importer['forum'] != $forum) || ($importer['prv'] != $prv)) {
 		q("UPDATE `contact` SET `writable` = %d, forum = %d, prv = %d WHERE `id` = %d",
 			intval(($writable == (-1)) ? $importer['writable'] : $writable),
 			intval($forum),
 			intval($prv),
 			intval($importer['id'])
 		);
-		if($writable != (-1))
+		if ($writable != (-1))
 			$importer['writable'] = $writable;
 		$importer['forum'] = $page;
 	}
@@ -120,7 +120,7 @@ function dfrn_notify_post(App $a) {
 	logger('dfrn_notify: received notify from ' . $importer['name'] . ' for ' . $importer['username']);
 	logger('dfrn_notify: data: ' . $data, LOGGER_DATA);
 
-	if($dissolve == 1) {
+	if ($dissolve == 1) {
 
 		/*
 		 * Relationship is dissolved permanently
@@ -137,17 +137,19 @@ function dfrn_notify_post(App $a) {
 	// If we are setup as a soapbox we aren't accepting input from this person
 	// This behaviour is deactivated since it really doesn't make sense to even disallow comments
 	// The check if someone is a friend or simply a follower is done in a later place so it needn't to be done here
-	//if($importer['page-flags'] == PAGE_SOAPBOX)
+	//if ($importer['page-flags'] == PAGE_SOAPBOX)
 	//	xml_status(0);
 
 	$rino = get_config('system','rino_encrypt');
 	$rino = intval($rino);
 	// use RINO1 if mcrypt isn't installed and RINO2 was selected
-	if ($rino==2 and !function_exists('mcrypt_create_iv')) $rino=1;
+	if ($rino == 2 and !function_exists('mcrypt_create_iv')) {
+		$rino=1;
+	}
 
 	logger("Local rino version: ". $rino, LOGGER_DEBUG);
 
-	if(strlen($key)) {
+	if (strlen($key)) {
 
 		// if local rino is lower than remote rino, abort: should not happen!
 		// but only for $remote_rino > 1, because old code did't send rino version
@@ -160,8 +162,8 @@ function dfrn_notify_post(App $a) {
 		logger('rino: md5 raw key: ' . md5($rawkey));
 		$final_key = '';
 
-		if($dfrn_version >= 2.1) {
-			if((($importer['duplex']) && strlen($importer['cprvkey'])) || (! strlen($importer['cpubkey']))) {
+		if ($dfrn_version >= 2.1) {
+			if ((($importer['duplex']) && strlen($importer['cprvkey'])) || (! strlen($importer['cpubkey']))) {
 				openssl_private_decrypt($rawkey,$final_key,$importer['cprvkey']);
 			}
 			else {
@@ -169,7 +171,7 @@ function dfrn_notify_post(App $a) {
 			}
 		}
 		else {
-			if((($importer['duplex']) && strlen($importer['cpubkey'])) || (! strlen($importer['cprvkey']))) {
+			if ((($importer['duplex']) && strlen($importer['cpubkey'])) || (! strlen($importer['cprvkey']))) {
 				openssl_public_decrypt($rawkey,$final_key,$importer['cpubkey']);
 			}
 			else {
@@ -223,7 +225,7 @@ function dfrn_notify_post(App $a) {
 
 function dfrn_notify_content(App $a) {
 
-	if(x($_GET,'dfrn_id')) {
+	if (x($_GET,'dfrn_id')) {
 
 		// initial communication from external contact, $direction is their direction.
 		// If this is a duplex communication, ours will be the opposite.
@@ -237,7 +239,7 @@ function dfrn_notify_content(App $a) {
 		logger('dfrn_notify: new notification dfrn_id=' . $dfrn_id);
 
 		$direction = (-1);
-		if(strpos($dfrn_id,':') == 1) {
+		if (strpos($dfrn_id,':') == 1) {
 			$direction = intval(substr($dfrn_id,0,1));
 			$dfrn_id = substr($dfrn_id,2);
 		}
@@ -298,16 +300,15 @@ function dfrn_notify_content(App $a) {
 		$pub_key = trim($r[0]['pubkey']);
 		$dplx = intval($r[0]['duplex']);
 
-		if((($dplx) && (strlen($prv_key))) || ((strlen($prv_key)) && (!(strlen($pub_key))))) {
+		if ((($dplx) && (strlen($prv_key))) || ((strlen($prv_key)) && (!(strlen($pub_key))))) {
 			openssl_private_encrypt($hash,$challenge,$prv_key);
 			openssl_private_encrypt($id_str,$encrypted_id,$prv_key);
-		}
-		elseif(strlen($pub_key)) {
+		} elseif (strlen($pub_key)) {
 			openssl_public_encrypt($hash,$challenge,$pub_key);
 			openssl_public_encrypt($id_str,$encrypted_id,$pub_key);
-		}
-		else
+		} else {
 			$status = 1;
+		}
 
 		$challenge    = bin2hex($challenge);
 		$encrypted_id = bin2hex($encrypted_id);
@@ -316,7 +317,9 @@ function dfrn_notify_content(App $a) {
 		$rino = get_config('system','rino_encrypt');
 		$rino = intval($rino);
 		// use RINO1 if mcrypt isn't installed and RINO2 was selected
-		if ($rino==2 and !function_exists('mcrypt_create_iv')) $rino=1;
+		if ($rino == 2 and !function_exists('mcrypt_create_iv')) {
+			$rino=1;
+		}
 
 		logger("Local rino version: ". $rino, LOGGER_DEBUG);
 
@@ -324,10 +327,9 @@ function dfrn_notify_content(App $a) {
 		// if requested rino is higher than enabled local rino, reply with local rino
 		if ($rino_remote < $rino) $rino = $rino_remote;
 
-		if((($r[0]['rel']) && ($r[0]['rel'] != CONTACT_IS_SHARING)) || ($r[0]['page-flags'] == PAGE_COMMUNITY)) {
+		if ((($r[0]['rel']) && ($r[0]['rel'] != CONTACT_IS_SHARING)) || ($r[0]['page-flags'] == PAGE_COMMUNITY)) {
 			$perm = 'rw';
-		}
-		else {
+		} else {
 			$perm = 'r';
 		}
 

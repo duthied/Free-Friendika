@@ -30,9 +30,10 @@ function help_content(App $a) {
 		$path = '';
 		// looping through the argv keys bigger than 0 to build
 		// a path relative to /help
-		for($x = 1; $x < argc(); $x ++) {
-			if(strlen($path))
+		for ($x = 1; $x < argc(); $x ++) {
+			if (strlen($path)) {
 				$path .= '/';
+			}
 			$path .= argv($x);
 		}
 		$title = basename($path);
@@ -65,16 +66,22 @@ function help_content(App $a) {
 		$toc="<style>aside ul {padding-left: 1em;}aside h1{font-size:2em}</style><h2>TOC</h2><ul id='toc'>";
 		$lastlevel=1;
 		$idnum = array(0,0,0,0,0,0,0);
-		foreach($lines as &$line){
+		foreach ($lines as &$line){
 			if (substr($line,0,2)=="<h") {
 				$level = substr($line,2,1);
 				if ($level!="r") {
 					$level = intval($level);
 					if ($level<$lastlevel) {
-						for($k=$level;$k<$lastlevel; $k++) $toc.="</ul>";
-						for($k=$level+1;$k<count($idnum);$k++) $idnum[$k]=0;
+						for ($k=$level;$k<$lastlevel; $k++) {
+							$toc.="</ul>";
+						}
+						for ($k=$level+1;$k<count($idnum);$k++) {
+							$idnum[$k]=0;
+						}
 					}
-					if ($level>$lastlevel) $toc.="<ul>";
+					if ($level>$lastlevel) {
+						$toc.="<ul>";
+					}
 					$idnum[$level]++;
 					$id = implode("_", array_slice($idnum,1,$level));
 					$href = App::get_baseurl()."/help/{$filename}#{$id}";
@@ -84,7 +91,7 @@ function help_content(App $a) {
 				}
 			}
 		}
-		for($k=0;$k<$lastlevel; $k++) $toc.="</ul>";
+		for ($k=0;$k<$lastlevel; $k++) $toc.="</ul>";
 		$html = implode("\n",$lines);
 
 		$a->page['aside'] = $toc.$a->page['aside'];

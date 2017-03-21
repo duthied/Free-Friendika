@@ -7,7 +7,7 @@ require_once('include/items.php');
 
 function subthread_content(App $a) {
 
-	if(! local_user() && ! remote_user()) {
+	if (! local_user() && ! remote_user()) {
 		return;
 	}
 
@@ -20,7 +20,7 @@ function subthread_content(App $a) {
 		dbesc($item_id)
 	);
 
-	if(! $item_id || (! dbm::is_result($r))) {
+	if (! $item_id || (! dbm::is_result($r))) {
 		logger('subthread: no item ' . $item_id);
 		return;
 	}
@@ -29,13 +29,13 @@ function subthread_content(App $a) {
 
 	$owner_uid = $item['uid'];
 
-	if(! can_write_wall($a,$owner_uid)) {
+	if (! can_write_wall($a,$owner_uid)) {
 		return;
 	}
 
 	$remote_owner = null;
 
-	if(! $item['wall']) {
+	if (! $item['wall']) {
 		// The top level post may have been written by somebody on another system
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($item['contact-id']),

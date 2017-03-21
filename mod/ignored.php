@@ -37,8 +37,11 @@ function ignored_init(App $a) {
 	$return_path = ((x($_REQUEST,'return')) ? $_REQUEST['return'] : '');
 	if ($return_path) {
 		$rand = '_=' . time();
-		if(strpos($return_path, '?')) $rand = "&$rand";
-		else $rand = "?$rand";
+		if (strpos($return_path, '?')) {
+			$rand = "&$rand";
+		} else {
+			$rand = "?$rand";
+		}
 
 		goaway(App::get_baseurl() . "/" . $return_path . $rand);
 	}

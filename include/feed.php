@@ -163,7 +163,7 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 
 	$header["contact-id"] = $contact["id"];
 
-	if(!strlen($contact["notify"])) {
+	if (!strlen($contact["notify"])) {
 		// one way feed - no remote comment ability
 		$header["last-child"] = 0;
 	}
@@ -280,7 +280,7 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 			$type = "";
 			$title = "";
 
-			foreach($enclosure->attributes AS $attributes) {
+			foreach ($enclosure->attributes AS $attributes) {
 				if ($attributes->name == "url") {
 					$href = $attributes->textContent;
 				} elseif ($attributes->name == "length") {
@@ -289,8 +289,9 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 					$type = $attributes->textContent;
 				}
 			}
-			if(strlen($item["attach"]))
+			if (strlen($item["attach"])) {
 				$item["attach"] .= ',';
+			}
 
 			$attachments[] = array("link" => $href, "type" => $type, "length" => $length);
 

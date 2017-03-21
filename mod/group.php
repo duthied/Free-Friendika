@@ -5,7 +5,7 @@ function validate_members(&$item) {
 }
 
 function group_init(App $a) {
-	if(local_user()) {
+	if (local_user()) {
 		require_once('include/group.php');
 		$a->page['aside'] = group_side('contacts','group','extended',(($a->argc > 1) ? intval($a->argv[1]) : 0));
 	}
@@ -20,7 +20,7 @@ function group_post(App $a) {
 		return;
 	}
 
-	if(($a->argc == 2) && ($a->argv[1] === 'new')) {
+	if (($a->argc == 2) && ($a->argv[1] === 'new')) {
 		check_form_security_token_redirectOnErr('/group/new', 'group_edit');
 
 		$name = notags(trim($_POST['groupname']));
@@ -80,10 +80,12 @@ function group_content(App $a) {
 	// Switch to text mode interface if we have more than 'n' contacts or group members
 
 	$switchtotext = get_pconfig(local_user(),'system','groupedit_image_limit');
-	if($switchtotext === false)
+	if ($switchtotext === false) {
 		$switchtotext = get_config('system','groupedit_image_limit');
-	if($switchtotext === false)
+	}
+	if ($switchtotext === false) {
 		$switchtotext = 400;
+	}
 
 	$tpl = get_markup_template('group_edit.tpl');
 
@@ -99,8 +101,6 @@ function group_content(App $a) {
 			'$gid' => 'new',
 			'$form_security_token' => get_form_security_token("group_edit"),
 		));
-
-
 	}
 
 	if (($a->argc == 3) && ($a->argv[1] === 'drop')) {
@@ -135,8 +135,9 @@ function group_content(App $a) {
 			intval($a->argv[2]),
 			intval(local_user())
 		);
-		if (dbm::is_result($r))
+		if (dbm::is_result($r)) {
 			$change = intval($a->argv[2]);
+		}
 	}
 
 	if (($a->argc > 1) && (intval($a->argv[1]))) {
@@ -153,23 +154,23 @@ function group_content(App $a) {
 		$group = $r[0];
 		$members = group_get_members($group['id']);
 		$preselected = array();
-		if(count($members))	{
-			foreach($members as $member)
+		if (count($members)) {
+			foreach ($members as $member) {
 				$preselected[] = $member['id'];
+			}
 		}
 
-		if($change) {
-			if(in_array($change,$preselected)) {
+		if ($change) {
+			if (in_array($change,$preselected)) {
 				group_rmv_member(local_user(),$group['name'],$change);
-			}
-			else {
+			} else {
 				group_add_member(local_user(),$group['name'],$change);
 			}
 
 			$members = group_get_members($group['id']);
 			$preselected = array();
-			if(count($members))	{
-				foreach($members as $member)
+			if (count($members))	{
+				foreach ($members as $member)
 					$preselected[] = $member['id'];
 			}
 		}
@@ -193,8 +194,9 @@ function group_content(App $a) {
 
 	}
 
-	if(! isset($group))
+	if (! isset($group)) {
 		return;
+	}
 
 	$groupeditor = array(
 		'label_members' => t('Members'),
@@ -206,13 +208,13 @@ function group_content(App $a) {
 
 	$sec_token = addslashes(get_form_security_token('group_member_change'));
 	$textmode = (($switchtotext && (count($members) > $switchtotext)) ? true : false);
-	foreach($members as $member) {
-		if($member['url']) {
+	foreach ($members as $member) {
+		if ($member['url']) {
 			$member['click'] = 'groupChangeMember(' . $group['id'] . ',' . $member['id'] . ',\'' . $sec_token . '\'); return true;';
 			$groupeditor['members'][] = micropro($member,true,'mpgroup', $textmode);
-		}
-		else
+		} else {
 			group_rmv_member(local_user(),$group['name'],$member['id']);
+		}
 	}
 
 	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `blocked` AND NOT `pending` AND NOT `self` ORDER BY `name` ASC",
@@ -221,8 +223,8 @@ function group_content(App $a) {
 
 	if (dbm::is_result($r)) {
 		$textmode = (($switchtotext && (count($r) > $switchtotext)) ? true : false);
-		foreach($r as $member) {
-			if(! in_array($member['id'],$preselected)) {
+		foreach ($r as $member) {
+			if (! in_array($member['id'],$preselected)) {
 				$member['click'] = 'groupChangeMember(' . $group['id'] . ',' . $member['id'] . ',\'' . $sec_token . '\'); return true;';
 				$groupeditor['contacts'][] = micropro($member,true,'mpall', $textmode);
 			}
@@ -232,7 +234,7 @@ function group_content(App $a) {
 	$context['$groupeditor'] = $groupeditor;
 	$context['$desc'] = t('Click on a contact to add or remove.');
 
-	if($change) {
+	if ($change) {
 		$tpl = get_markup_template('groupeditor.tpl');
 		echo replace_macros($tpl, $context);
 		killme();

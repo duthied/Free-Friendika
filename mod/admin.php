@@ -859,8 +859,9 @@ function admin_page_site(App $a) {
 		$allowed_theme_list = Config::get('system', 'allowed_themes');
 
 		foreach ($files as $file) {
-			if (intval(file_exists($file.'/unsupported')))
+			if (file_exists($file.'/unsupported'))
 				continue;
+			}
 
 			$f = basename($file);
 
@@ -1274,7 +1275,7 @@ function admin_page_users(App $a) {
 	if ($a->argc>2) {
 		$uid = $a->argv[3];
 		$user = q("SELECT `username`, `blocked` FROM `user` WHERE `uid` = %d", intval($uid));
-		if (count($user) == 0) {
+		if (!dbm::is_result($user)) {
 			notice('User not found'.EOL);
 			goaway('admin/users');
 			return ''; // NOTREACHED
@@ -1609,7 +1610,7 @@ function admin_page_plugins(App $a) {
  * @param int $result
  */
 function toggle_theme(&$themes,$th,&$result) {
-	for($x = 0; $x < count($themes); $x ++) {
+	for ($x = 0; $x < count($themes); $x ++) {
 		if ($themes[$x]['name'] === $th) {
 			if ($themes[$x]['allowed']) {
 				$themes[$x]['allowed'] = 0;
@@ -1629,7 +1630,7 @@ function toggle_theme(&$themes,$th,&$result) {
  * @return int
  */
 function theme_status($themes,$th) {
-	for($x = 0; $x < count($themes); $x ++) {
+	for ($x = 0; $x < count($themes); $x ++) {
 		if ($themes[$x]['name'] === $th) {
 			if ($themes[$x]['allowed']) {
 				return 1;
@@ -1706,9 +1707,9 @@ function admin_page_themes(App $a) {
 				continue;
 			}
 
-			$is_experimental = intval(file_exists($file.'/experimental'));
-			$is_supported = 1-(intval(file_exists($file.'/unsupported')));
-			$is_allowed = intval(in_array($f,$allowed_themes));
+			$is_experimental = file_exists($file.'/experimental');
+			$is_supported = (!file_exists($file.'/unsupported'));
+			$is_allowed = in_array($f,$allowed_themes);
 
 			if ($is_allowed OR $is_supported OR get_config("system", "show_unsupported_themes")) {
 				$themes[] = array('name' => $f, 'experimental' => $is_experimental, 'supported' => $is_supported, 'allowed' => $is_allowed);
@@ -1761,7 +1762,7 @@ function admin_page_themes(App $a) {
 			$status="off"; $action= t("Enable");
 		}
 
-		$readme = Null;
+		$readme = null;
 		if (is_file("view/theme/$theme/README.md")) {
 			$readme = file_get_contents("view/theme/$theme/README.md");
 			$readme = Markdown($readme);

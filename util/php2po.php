@@ -10,7 +10,7 @@
 	DEFINE("NORM_REGEXP", "|[\\\]|");
 	
 	
-	if(! class_exists('App')) {
+	if (! class_exists('App')) {
 		class TmpA {
 			public $strings = Array();
 		}
@@ -68,7 +68,7 @@
 	}
 	
 	$infile = file($phpfile);
-	foreach($infile as $l) {
+	foreach ($infile as $l) {
 		$l = trim($l);
 		if  (startsWith($l, 'function string_plural_select_')) {
 			$lang = str_replace( 'function string_plural_select_' , '', str_replace( '($n){','', $l) );
@@ -94,7 +94,7 @@
 	$norm_base_msgids = array();
 	$base_f = file("util/messages.po") or die("No base messages.po\n");
 	$_f = 0; $_mid = ""; $_mids = array();
-	foreach( $base_f as $l) {
+	foreach ( $base_f as $l) {
 		$l = trim($l);
 		//~ print $l."\n";
 		
@@ -165,7 +165,7 @@
 	}
 	
 	$warnings = "";
-	foreach($a->strings as $key=>$str) {
+	foreach ($a->strings as $key=>$str) {
 		$msgid = massage_string($key);
 		
 		if (preg_match("|%[sd0-9](\$[sn])*|", $msgid)) {

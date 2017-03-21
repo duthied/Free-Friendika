@@ -154,9 +154,9 @@ use \Friendica\Core\Config;
 
 
 		// workaround for HTTP-auth in CGI mode
-		if(x($_SERVER,'REDIRECT_REMOTE_USER')) {
+		if (x($_SERVER,'REDIRECT_REMOTE_USER')) {
 			$userpass = base64_decode(substr($_SERVER["REDIRECT_REMOTE_USER"],6)) ;
-			if(strlen($userpass)) {
+			if (strlen($userpass)) {
 				list($name, $password) = explode(':', $userpass);
 				$_SERVER['PHP_AUTH_USER'] = $name;
 				$_SERVER['PHP_AUTH_PW'] = $password;
@@ -199,7 +199,7 @@ use \Friendica\Core\Config;
 
 		call_hooks('authenticate', $addon_auth);
 
-		if(($addon_auth['authenticated']) && (count($addon_auth['user_record']))) {
+		if (($addon_auth['authenticated']) && (count($addon_auth['user_record']))) {
 			$record = $addon_auth['user_record'];
 		}
 		else {
@@ -215,7 +215,7 @@ use \Friendica\Core\Config;
 				$record = $r[0];
 		}
 
-		if((! $record) || (! count($record))) {
+		if ((! $record) || (! count($record))) {
 			logger('API_login failure: ' . print_r($_SERVER,true), LOGGER_DEBUG);
 			header('WWW-Authenticate: Basic realm="Friendica"');
 			#header('HTTP/1.0 401 Unauthorized');
@@ -334,7 +334,7 @@ use \Friendica\Core\Config;
 							break;
 						case "json":
 							header ("Content-Type: application/json");
-							foreach($r as $rr)
+							foreach ($r as $rr)
 								$json = json_encode($rr);
 								if ($_GET['callback'])
 									$json = $_GET['callback']."(".$json.")";
@@ -457,7 +457,7 @@ use \Friendica\Core\Config;
 		logger("api_get_user: Fetching user data for user ".$contact_id, LOGGER_DEBUG);
 
 		// Searching for contact URL
-		if(!is_null($contact_id) AND (intval($contact_id) == 0)){
+		if (!is_null($contact_id) AND (intval($contact_id) == 0)){
 			$user = dbesc(normalise_link($contact_id));
 			$url = $user;
 			$extra_query = "AND `contact`.`nurl` = '%s' ";
@@ -465,7 +465,7 @@ use \Friendica\Core\Config;
 		}
 
 		// Searching for contact id with uid = 0
-		if(!is_null($contact_id) AND (intval($contact_id) != 0)){
+		if (!is_null($contact_id) AND (intval($contact_id) != 0)){
 			$user = dbesc(api_unique_id_to_url($contact_id));
 
 			if ($user == "")
@@ -476,7 +476,7 @@ use \Friendica\Core\Config;
 			if (api_user()!==false)  $extra_query .= "AND `contact`.`uid`=".intval(api_user());
 		}
 
-		if(is_null($user) && x($_GET, 'user_id')) {
+		if (is_null($user) && x($_GET, 'user_id')) {
 			$user = dbesc(api_unique_id_to_url($_GET['user_id']));
 
 			if ($user == "")
@@ -486,7 +486,7 @@ use \Friendica\Core\Config;
 			$extra_query = "AND `contact`.`nurl` = '%s' ";
 			if (api_user()!==false)  $extra_query .= "AND `contact`.`uid`=".intval(api_user());
 		}
-		if(is_null($user) && x($_GET, 'screen_name')) {
+		if (is_null($user) && x($_GET, 'screen_name')) {
 			$user = dbesc($_GET['screen_name']);
 			$nick = $user;
 			$extra_query = "AND `contact`.`nick` = '%s' ";
@@ -496,7 +496,7 @@ use \Friendica\Core\Config;
 		if (is_null($user) AND ($a->argc > (count($called_api)-1)) AND (count($called_api) > 0)){
 			$argid = count($called_api);
 			list($user, $null) = explode(".",$a->argv[$argid]);
-			if(is_numeric($user)){
+			if (is_numeric($user)){
 				$user = dbesc(api_unique_id_to_url($user));
 
 				if ($user == "")
@@ -593,7 +593,7 @@ use \Friendica\Core\Config;
 			}
 		}
 
-		if($uinfo[0]['self']) {
+		if ($uinfo[0]['self']) {
 
 			if ($uinfo[0]['network'] == "")
 				$uinfo[0]['network'] = NETWORK_DFRN;
@@ -648,7 +648,7 @@ use \Friendica\Core\Config;
 		$starred = $r[0]['count'];
 
 
-		if(! $uinfo[0]['self']) {
+		if (! $uinfo[0]['self']) {
 			$countfriends = 0;
 			$countfollowers = 0;
 			$starred = 0;
@@ -923,7 +923,7 @@ use \Friendica\Core\Config;
 		$txt = requestdata('status');
 		//$txt = urldecode(requestdata('status'));
 
-		if((strpos($txt,'<') !== false) || (strpos($txt,'>') !== false)) {
+		if ((strpos($txt,'<') !== false) || (strpos($txt,'>') !== false)) {
 
 			$txt = html2bb_video($txt);
 			$config = HTMLPurifier_Config::createDefault();
@@ -964,9 +964,9 @@ use \Friendica\Core\Config;
 
 		// logger('api_post: ' . print_r($_POST,true));
 
-		if(requestdata('htmlstatus')) {
+		if (requestdata('htmlstatus')) {
 			$txt = requestdata('htmlstatus');
-			if((strpos($txt,'<') !== false) || (strpos($txt,'>') !== false)) {
+			if ((strpos($txt,'<') !== false) || (strpos($txt,'>') !== false)) {
 				$txt = html2bb_video($txt);
 
 				$config = HTMLPurifier_Config::createDefault();
@@ -989,16 +989,16 @@ use \Friendica\Core\Config;
 		if ($parent == -1)
 			$parent = "";
 
-		if(ctype_digit($parent))
+		if (ctype_digit($parent))
 			$_REQUEST['parent'] = $parent;
 		else
 			$_REQUEST['parent_uri'] = $parent;
 
-		if(requestdata('lat') && requestdata('long'))
+		if (requestdata('lat') && requestdata('long'))
 			$_REQUEST['coord'] = sprintf("%s %s",requestdata('lat'),requestdata('long'));
 		$_REQUEST['profile_uid'] = api_user();
 
-		if($parent)
+		if ($parent)
 			$_REQUEST['type'] = 'net-comment';
 		else {
 			// Check for throttling (maximum posts per day, week and month)
@@ -1066,11 +1066,11 @@ use \Friendica\Core\Config;
 			$_REQUEST['type'] = 'wall';
 		}
 
-		if(x($_FILES,'media')) {
+		if (x($_FILES,'media')) {
 			// upload the image if we have one
 			$_REQUEST['hush']='yeah'; //tell wall_upload function to return img info instead of echo
 			$media = wall_upload_post($a);
-			if(strlen($media)>0)
+			if (strlen($media)>0)
 				$_REQUEST['body'] .= "\n\n".$media;
 		}
 
@@ -1115,13 +1115,13 @@ use \Friendica\Core\Config;
 
 		$user_info = api_get_user($a);
 
-		if(!x($_FILES,'media')) {
+		if (!x($_FILES,'media')) {
 			// Output error
 			throw new BadRequestException("No media.");
 		}
 
 		$media = wall_upload_post($a, false);
-		if(!$media) {
+		if (!$media) {
 			// Output error
 			throw new InternalServerErrorException();
 		}
@@ -2469,7 +2469,7 @@ use \Friendica\Core\Config;
 
 		$ret = Array();
 
-		foreach($r as $item) {
+		foreach ($r as $item) {
 
 			localize_item($item);
 			list($status_user, $owner_user) = api_item_get_user($a,$item);
@@ -2641,9 +2641,9 @@ use \Friendica\Core\Config;
 			return false;
 		}
 
-		if($qtype == 'friends')
+		if ($qtype == 'friends')
 			$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(CONTACT_IS_SHARING), intval(CONTACT_IS_FRIEND));
-		if($qtype == 'followers')
+		if ($qtype == 'followers')
 			$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(CONTACT_IS_FOLLOWER), intval(CONTACT_IS_FRIEND));
 
 		// friends and followers only for self
@@ -2655,7 +2655,7 @@ use \Friendica\Core\Config;
 		);
 
 		$ret = array();
-		foreach($r as $cid){
+		foreach ($r as $cid){
 			$user = api_get_user($a, $cid['nurl']);
 			// "uid" and "self" are only needed for some internal stuff, so remove it from here
 			unset($user["uid"]);
@@ -2697,7 +2697,7 @@ use \Friendica\Core\Config;
 		$closed = (($a->config['register_policy'] == REGISTER_CLOSED) ? 'true' : 'false');
 		$private = ((Config::get('system', 'block_public')) ? 'true' : 'false');
 		$textlimit = (string) (($a->config['max_import_size']) ? $a->config['max_import_size'] : 200000);
-		if($a->config['api_import_size'])
+		if ($a->config['api_import_size'])
 			$texlimit = string($a->config['api_import_size']);
 		$ssl = ((Config::get('system', 'have_ssl')) ? 'true' : 'false');
 		$sslserver = (($ssl === 'true') ? str_replace('http:','https:',App::get_baseurl()) : '');
@@ -2737,13 +2737,13 @@ use \Friendica\Core\Config;
 
 		$a = get_app();
 
-		if(! api_user()) throw new ForbiddenException();
+		if (! api_user()) throw new ForbiddenException();
 
 		$user_info = api_get_user($a);
 
-		if($qtype == 'friends')
+		if ($qtype == 'friends')
 			$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(CONTACT_IS_SHARING), intval(CONTACT_IS_FRIEND));
-		if($qtype == 'followers')
+		if ($qtype == 'followers')
 			$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(CONTACT_IS_FOLLOWER), intval(CONTACT_IS_FRIEND));
 
 		if (!$user_info["self"])
@@ -2761,7 +2761,7 @@ use \Friendica\Core\Config;
 			return;
 
 		$ids = array();
-		foreach($r as $rr)
+		foreach ($r as $rr)
 			if ($stringify_ids)
 				$ids[] = $rr['id'];
 			else
@@ -2967,7 +2967,7 @@ use \Friendica\Core\Config;
 		if ($user_id !="") {
 			$sql_extra .= ' AND `mail`.`contact-id` = ' . intval($user_id);
 		}
-		elseif($screen_name !=""){
+		elseif ($screen_name !=""){
 			$sql_extra .= " AND `contact`.`nick` = '" . dbesc($screen_name). "'";
 		}
 
@@ -2978,14 +2978,14 @@ use \Friendica\Core\Config;
 		);
 		if ($verbose == "true") {
 			// stop execution and return error message if no mails available
-			if($r == null) {
+			if ($r == null) {
 				$answer = array('result' => 'error', 'message' => 'no mails available');
 				return api_format_data("direct_messages_all", $type, array('$result' => $answer));
 			}
 		}
 
 		$ret = Array();
-		foreach($r as $item) {
+		foreach ($r as $item) {
 			if ($box == "inbox" || $item['from-url'] != $profile_url){
 				$recipient = $user_info;
 				$sender = api_get_user($a,normalise_link($item['contact-url']));
@@ -3092,7 +3092,7 @@ use \Friendica\Core\Config;
 
 	function api_fr_photo_detail($type) {
 		if (api_user()===false) throw new ForbiddenException();
-		if(!x($_REQUEST,'photo_id')) throw new BadRequestException("No photo id.");
+		if (!x($_REQUEST,'photo_id')) throw new BadRequestException("No photo id.");
 
 		$scale = (x($_REQUEST, 'scale') ? intval($_REQUEST['scale']) : false);
 		$scale_sql = ($scale === false ? "" : sprintf("and scale=%d",intval($scale)));
@@ -3183,11 +3183,11 @@ use \Friendica\Core\Config;
 
 		$dfrn_id = $orig_id = (($r[0]['issued-id']) ? $r[0]['issued-id'] : $r[0]['dfrn-id']);
 
-		if($r[0]['duplex'] && $r[0]['issued-id']) {
+		if ($r[0]['duplex'] && $r[0]['issued-id']) {
 			$orig_id = $r[0]['issued-id'];
 			$dfrn_id = '1:' . $orig_id;
 		}
-		if($r[0]['duplex'] && $r[0]['dfrn-id']) {
+		if ($r[0]['duplex'] && $r[0]['dfrn-id']) {
 			$orig_id = $r[0]['dfrn-id'];
 			$dfrn_id = '0:' . $orig_id;
 		}
@@ -3927,7 +3927,7 @@ use \Friendica\Core\Config;
 			$success = array('success' => false, 'search_results' => 'nothing found');
 		else {
 			$ret = Array();
-			foreach($r as $item) {
+			foreach ($r as $item) {
 				if ($box == "inbox" || $item['from-url'] != $profile_url){
 					$recipient = $user_info;
 					$sender = api_get_user($a,normalise_link($item['contact-url']));

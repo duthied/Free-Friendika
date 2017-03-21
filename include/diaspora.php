@@ -45,7 +45,7 @@ class Diaspora {
 
 		$servers = explode(",", $serverdata);
 
-		foreach($servers AS $server) {
+		foreach ($servers AS $server) {
 			$server = trim($server);
 			$addr = "relay@".str_replace("http://", "", normalise_link($server));
 			$batch = $server."/receive/public";
@@ -181,7 +181,7 @@ class Diaspora {
 
 		$children = $basedom->children('https://joindiaspora.com/protocol');
 
-		if($children->header) {
+		if ($children->header) {
 			$public = true;
 			$author_link = str_replace('acct:','',$children->header->author_id);
 		} else {
@@ -217,11 +217,11 @@ class Diaspora {
 
 		// figure out where in the DOM tree our data is hiding
 
-		if($dom->provenance->data)
+		if ($dom->provenance->data)
 			$base = $dom->provenance;
-		elseif($dom->env->data)
+		elseif ($dom->env->data)
 			$base = $dom->env;
-		elseif($dom->data)
+		elseif ($dom->data)
 			$base = $dom;
 
 		if (!$base) {
@@ -254,7 +254,7 @@ class Diaspora {
 		$data = base64url_decode($data);
 
 
-		if($public)
+		if ($public)
 			$inner_decrypted = $data;
 		else {
 
@@ -556,7 +556,7 @@ class Diaspora {
 		logger("Fetching diaspora key for: ".$handle);
 
 		$r = self::person_by_handle($handle);
-		if($r)
+		if ($r)
 			return $r["pubkey"];
 
 		return "";
@@ -612,7 +612,7 @@ class Diaspora {
 	 */
 	private static function add_fcontact($arr, $update = false) {
 
-		if($update) {
+		if ($update) {
 			$r = q("UPDATE `fcontact` SET
 					`name` = '%s',
 					`photo` = '%s',
@@ -796,7 +796,7 @@ class Diaspora {
 		// perhaps we were already sharing with this person. Now they're sharing with us.
 		// That makes us friends.
 		// Normally this should have handled by getting a request - but this could get lost
-		if($contact["rel"] == CONTACT_IS_FOLLOWER && in_array($importer["page-flags"], array(PAGE_FREELOVE))) {
+		if ($contact["rel"] == CONTACT_IS_FOLLOWER && in_array($importer["page-flags"], array(PAGE_FREELOVE))) {
 			q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d",
 				intval(CONTACT_IS_FRIEND),
 				intval($contact["id"]),
@@ -806,12 +806,12 @@ class Diaspora {
 			logger("defining user ".$contact["nick"]." as friend");
 		}
 
-		if(($contact["blocked"]) || ($contact["readonly"]) || ($contact["archive"]))
+		if (($contact["blocked"]) || ($contact["readonly"]) || ($contact["archive"]))
 			return false;
-		if($contact["rel"] == CONTACT_IS_SHARING || $contact["rel"] == CONTACT_IS_FRIEND)
+		if ($contact["rel"] == CONTACT_IS_SHARING || $contact["rel"] == CONTACT_IS_FRIEND)
 			return true;
-		if($contact["rel"] == CONTACT_IS_FOLLOWER)
-			if(($importer["page-flags"] == PAGE_COMMUNITY) OR $is_comment)
+		if ($contact["rel"] == CONTACT_IS_FOLLOWER)
+			if (($importer["page-flags"] == PAGE_COMMUNITY) OR $is_comment)
 				return true;
 
 		// Messages for the global users are always accepted
@@ -969,7 +969,7 @@ class Diaspora {
 		logger("Fetch post from ".$source_url, LOGGER_DEBUG);
 
 		$envelope = fetch_url($source_url);
-		if($envelope) {
+		if ($envelope) {
 			logger("Envelope was fetched.", LOGGER_DEBUG);
 			$x = self::verify_magic_envelope($envelope);
 			if (!$x)
@@ -985,7 +985,7 @@ class Diaspora {
 			logger("Fetch post from ".$source_url, LOGGER_DEBUG);
 
 			$x = fetch_url($source_url);
-			if(!$x)
+			if (!$x)
 				return false;
 		}
 
@@ -1042,7 +1042,7 @@ class Diaspora {
 			FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
 			intval($uid), dbesc($guid));
 
-		if(!$r) {
+		if (!$r) {
 			$result = self::store_by_guid($guid, $contact["url"], $uid);
 
 			if (!$result) {
@@ -1303,7 +1303,7 @@ class Diaspora {
 		}
 
 		// If we are the origin of the parent we store the original data and notify our followers
-		if($message_id AND $parent_item["origin"]) {
+		if ($message_id AND $parent_item["origin"]) {
 
 			// Formerly we stored the signed text, the signature and the author in different fields.
 			// We now store the raw data so that we are more flexible.
@@ -1480,7 +1480,7 @@ class Diaspora {
 			intval($importer["uid"]),
 			dbesc($guid)
 		);
-		if($c)
+		if ($c)
 			$conversation = $c[0];
 		else {
 			$r = q("INSERT INTO `conv` (`uid`, `guid`, `creator`, `created`, `updated`, `subject`, `recips`)
@@ -1493,13 +1493,13 @@ class Diaspora {
 				dbesc($subject),
 				dbesc($participants)
 			);
-			if($r)
+			if ($r)
 				$c = q("SELECT * FROM `conv` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
 					intval($importer["uid"]),
 					dbesc($guid)
 				);
 
-			if($c)
+			if ($c)
 				$conversation = $c[0];
 		}
 		if (!$conversation) {
@@ -1507,7 +1507,7 @@ class Diaspora {
 			return;
 		}
 
-		foreach($messages as $mesg)
+		foreach ($messages as $mesg)
 			self::receive_conversation_message($importer, $contact, $data, $msg, $mesg, $conversation);
 
 		return true;
@@ -1637,7 +1637,7 @@ class Diaspora {
 			logger("Stored like ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
 
 		// If we are the origin of the parent we store the original data and notify our followers
-		if($message_id AND $parent_item["origin"]) {
+		if ($message_id AND $parent_item["origin"]) {
 
 			// Formerly we stored the signed text, the signature and the author in different fields.
 			// We now store the raw data so that we are more flexible.
@@ -1812,10 +1812,10 @@ class Diaspora {
 		$handle_parts = explode("@", $author);
 		$nick = $handle_parts[0];
 
-		if($name === "")
+		if ($name === "")
 			$name = $handle_parts[0];
 
-		if( preg_match("|^https?://|", $image_url) === 0)
+		if ( preg_match("|^https?://|", $image_url) === 0)
 			$image_url = "http://".$handle_parts[1].$image_url;
 
 		update_contact_avatar($image_url, $importer["uid"], $contact["id"]);
@@ -1830,7 +1830,7 @@ class Diaspora {
 		// this is to prevent multiple birthday notifications in a single year
 		// if we already have a stored birthday and the 'm-d' part hasn't changed, preserve the entry, which will preserve the notify year
 
-		if(substr($birthday,5) === substr($contact["bd"],5))
+		if (substr($birthday,5) === substr($contact["bd"],5))
 			$birthday = $contact["bd"];
 
 		$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `addr` = '%s', `name-date` = '%s', `bd` = '%s',
@@ -1876,7 +1876,7 @@ class Diaspora {
 
 		$a = get_app();
 
-		if($contact["rel"] == CONTACT_IS_FOLLOWER && in_array($importer["page-flags"], array(PAGE_FREELOVE))) {
+		if ($contact["rel"] == CONTACT_IS_FOLLOWER && in_array($importer["page-flags"], array(PAGE_FREELOVE))) {
 			q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d",
 				intval(CONTACT_IS_FRIEND),
 				intval($contact["id"]),
@@ -1889,7 +1889,7 @@ class Diaspora {
 			intval($importer["uid"])
 		);
 
-		if($r && !$r[0]["hide-friends"] && !$contact["hidden"] && intval(get_pconfig($importer["uid"], "system", "post_newfriend"))) {
+		if ($r && !$r[0]["hide-friends"] && !$contact["hidden"] && intval(get_pconfig($importer["uid"], "system", "post_newfriend"))) {
 
 			$self = q("SELECT * FROM `contact` WHERE `self` AND `uid` = %d LIMIT 1",
 				intval($importer["uid"])
@@ -1897,7 +1897,7 @@ class Diaspora {
 
 			// they are not CONTACT_IS_FOLLOWER anymore but that's what we have in the array
 
-			if($self && $contact["rel"] == CONTACT_IS_FOLLOWER) {
+			if ($self && $contact["rel"] == CONTACT_IS_FOLLOWER) {
 
 				$arr = array();
 				$arr["uri"] = $arr["parent-uri"] = item_new_uri($a->get_hostname(), $importer["uid"]);
@@ -1928,7 +1928,7 @@ class Diaspora {
 				$arr["deny_gid"]  = $user[0]["deny_gid"];
 
 				$i = item_store($arr);
-				if($i)
+				if ($i)
 					proc_run(PRIORITY_HIGH, "include/notifier.php", "activity", $i);
 			}
 		}
@@ -2067,12 +2067,12 @@ class Diaspora {
 
 		$def_gid = get_default_group($importer['uid'], $ret["network"]);
 
-		if(intval($def_gid))
+		if (intval($def_gid))
 			group_add_member($importer["uid"], "", $contact_record["id"], $def_gid);
 
 		update_contact_avatar($ret["photo"], $importer['uid'], $contact_record["id"], true);
 
-		if($importer["page-flags"] == PAGE_NORMAL) {
+		if ($importer["page-flags"] == PAGE_NORMAL) {
 
 			logger("Sending intra message for author ".$author.".", LOGGER_DEBUG);
 
@@ -2122,7 +2122,7 @@ class Diaspora {
 			);
 
 			$u = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval($importer["uid"]));
-			if($u) {
+			if ($u) {
 				logger("Sending share message (Relation: ".$new_relation.") to author ".$author." - Contact: ".$contact_record["id"]." - User: ".$importer["uid"], LOGGER_DEBUG);
 				$ret = self::send_share($u[0], $contact_record);
 
@@ -2748,7 +2748,7 @@ class Diaspora {
 		$a = get_app();
 
 		$enabled = intval(get_config("system", "diaspora_enabled"));
-		if(!$enabled)
+		if (!$enabled)
 			return 200;
 
 		$logid = random_string(4);
@@ -3087,14 +3087,14 @@ class Diaspora {
 			$body = html_entity_decode(bb2diaspora($body));
 
 			// Adding the title
-			if(strlen($title))
+			if (strlen($title))
 				$body = "## ".html_entity_decode($title)."\n\n".$body;
 
 			if ($item["attach"]) {
 				$cnt = preg_match_all('/href=\"(.*?)\"(.*?)title=\"(.*?)\"/ism', $item["attach"], $matches, PREG_SET_ORDER);
-				if(cnt) {
+				if (cnt) {
 					$body .= "\n".t("Attachments:")."\n";
-					foreach($matches as $mtch)
+					foreach ($matches as $mtch)
 						$body .= "[".$mtch[3]."](".$mtch[1].")\n";
 				}
 			}
@@ -3587,7 +3587,7 @@ class Diaspora {
 				$kw = str_replace('  ',' ',$kw);
 				$arr = explode(' ',$profile['pub_keywords']);
 				if (count($arr)) {
-					for($x = 0; $x < 5; $x ++) {
+					for ($x = 0; $x < 5; $x ++) {
 						if (trim($arr[$x]))
 							$tags .= '#'. trim($arr[$x]) .' ';
 					}
@@ -3609,7 +3609,7 @@ class Diaspora {
 				"searchable" => $searchable,
 				"tag_string" => $tags);
 
-		foreach($recips as $recip) {
+		foreach ($recips as $recip) {
 			logger("Send updated profile data for user ".$uid." to contact ".$recip["id"], LOGGER_DEBUG);
 			self::build_and_transmit($profile, $recip, "profile", $message, false, "", true);
 		}
@@ -3632,17 +3632,20 @@ class Diaspora {
 		}
 
 		$r = q("SELECT `prvkey` FROM `user` WHERE `uid` = %d LIMIT 1", intval($contact['uid']));
-		if(!$r)
+		if (!dbm::is_result($r)) {
 			return false;
+		}
 
 		$contact["uprvkey"] = $r[0]['prvkey'];
 
 		$r = q("SELECT * FROM `item` WHERE `id` = %d LIMIT 1", intval($post_id));
-		if (!$r)
+		if (!dbm::is_result($r)) {
 			return false;
+		}
 
-		if (!in_array($r[0]["verb"], array(ACTIVITY_LIKE, ACTIVITY_DISLIKE)))
+		if (!in_array($r[0]["verb"], array(ACTIVITY_LIKE, ACTIVITY_DISLIKE))) {
 			return false;
+		}
 
 		$message = self::construct_like($r[0], $contact);
 		$message["author_signature"] = self::signature($contact, $message);

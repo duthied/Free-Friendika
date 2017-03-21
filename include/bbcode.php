@@ -206,30 +206,33 @@ function bb_spacefy($st) {
 // returning [i]italic[/i]
 
 function bb_unspacefy_and_trim($st) {
-  $whole_match = $st[0];
-  $captured = $st[1];
-  $unspacefied = preg_replace("/\[ (.*?)\ ]/", "[$1]", $captured);
-  return $unspacefied;
+	$whole_match = $st[0];
+	$captured = $st[1];
+	$unspacefied = preg_replace("/\[ (.*?)\ ]/", "[$1]", $captured);
+	return $unspacefied;
 }
 
 function bb_find_open_close($s, $open, $close, $occurance = 1) {
 
-	if($occurance < 1)
+	if ($occurance < 1)
 		$occurance = 1;
 
 	$start_pos = -1;
-	for($i = 1; $i <= $occurance; $i++) {
-		if( $start_pos !== false)
+	for ($i = 1; $i <= $occurance; $i++) {
+		if ( $start_pos !== false) {
 			$start_pos = strpos($s, $open, $start_pos + 1);
+		}
 	}
 
-	if( $start_pos === false)
+	if ( $start_pos === false) {
 		return false;
+	}
 
 	$end_pos = strpos($s, $close, $start_pos);
 
-	if( $end_pos === false)
+	if ( $end_pos === false) {
 		return false;
+	}
 
 	$res = array( 'start' => $start_pos, 'end' => $end_pos );
 
@@ -238,34 +241,35 @@ function bb_find_open_close($s, $open, $close, $occurance = 1) {
 
 function get_bb_tag_pos($s, $name, $occurance = 1) {
 
-	if($occurance < 1)
+	if ($occurance < 1)
 		$occurance = 1;
 
 	$start_open = -1;
-	for($i = 1; $i <= $occurance; $i++) {
-		if( $start_open !== false)
+	for ($i = 1; $i <= $occurance; $i++) {
+		if ( $start_open !== false) {
 			$start_open = strpos($s, '[' . $name, $start_open + 1); // allow [name= type tags
+		}
 	}
 
-	if( $start_open === false)
+	if ( $start_open === false)
 		return false;
 
 	$start_equal = strpos($s, '=', $start_open);
 	$start_close = strpos($s, ']', $start_open);
 
-	if( $start_close === false)
+	if ( $start_close === false)
 		return false;
 
 	$start_close++;
 
 	$end_open = strpos($s, '[/' . $name . ']', $start_close);
 
-	if( $end_open === false)
+	if ( $end_open === false)
 		return false;
 
 	$res = array( 'start' => array('open' => $start_open, 'close' => $start_close),
 		      'end' => array('open' => $end_open, 'close' => $end_open + strlen('[/' . $name . ']')) );
-	if( $start_equal !== false)
+	if ( $start_equal !== false)
 		$res['start']['equal'] = $start_equal + 1;
 
 	return $res;
@@ -277,12 +281,12 @@ function bb_tag_preg_replace($pattern, $replace, $name, $s) {
 
 	$occurance = 1;
 	$pos = get_bb_tag_pos($string, $name, $occurance);
-	while($pos !== false && $occurance < 1000) {
+	while ($pos !== false && $occurance < 1000) {
 
 		$start = substr($string, 0, $pos['start']['open']);
 		$subject = substr($string, $pos['start']['open'], $pos['end']['close'] - $pos['start']['open']);
 		$end = substr($string, $pos['end']['close']);
-		if($end === false)
+		if ($end === false)
 			$end = '';
 
 		$subject = preg_replace($pattern, $replace, $subject);
@@ -295,7 +299,7 @@ function bb_tag_preg_replace($pattern, $replace, $name, $s) {
 	return $string;
 }
 
-if(! function_exists('bb_extract_images')) {
+if (! function_exists('bb_extract_images')) {
 function bb_extract_images($body) {
 
 	$saved_image = array();
@@ -306,12 +310,12 @@ function bb_extract_images($body) {
 	$img_start = strpos($orig_body, '[img');
 	$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
 	$img_end = ($img_start !== false ? strpos(substr($orig_body, $img_start), '[/img]') : false);
-	while(($img_st_close !== false) && ($img_end !== false)) {
+	while (($img_st_close !== false) && ($img_end !== false)) {
 
 		$img_st_close++; // make it point to AFTER the closing bracket
 		$img_end += $img_start;
 
-		if(! strcmp(substr($orig_body, $img_start + $img_st_close, 5), 'data:')) {
+		if (! strcmp(substr($orig_body, $img_start + $img_st_close, 5), 'data:')) {
 			// This is an embedded image
 
 			$saved_image[$cnt] = substr($orig_body, $img_start + $img_st_close, $img_end - ($img_start + $img_st_close));
@@ -324,7 +328,7 @@ function bb_extract_images($body) {
 
 		$orig_body = substr($orig_body, $img_end + strlen('[/img]'));
 
-		if($orig_body === false) // in case the body ends on a closing image tag
+		if ($orig_body === false) // in case the body ends on a closing image tag
 			$orig_body = '';
 
 		$img_start = strpos($orig_body, '[img');
@@ -337,7 +341,7 @@ function bb_extract_images($body) {
 	return array('body' => $new_body, 'images' => $saved_image);
 }}
 
-if(! function_exists('bb_replace_images')) {
+if (! function_exists('bb_replace_images')) {
 function bb_replace_images($body, $images) {
 
 	$newbody = $body;
@@ -619,7 +623,7 @@ function bb_DiasporaLinks($match) {
 function bb_RemovePictureLinks($match) {
 	$text = Cache::get($match[1]);
 
-	if(is_null($text)){
+	if (is_null($text)){
 		$a = get_app();
 
 		$stamp1 = microtime(true);
@@ -673,7 +677,7 @@ function bb_expand_links($match) {
 function bb_CleanPictureLinksSub($match) {
 	$text = Cache::get($match[1]);
 
-	if(is_null($text)){
+	if (is_null($text)){
 		$a = get_app();
 
 		$stamp1 = microtime(true);
@@ -724,7 +728,7 @@ function bb_CleanPictureLinks($text) {
 }
 
 function bb_highlight($match) {
-	if(in_array(strtolower($match[1]),['php','css','mysql','sql','abap','diff','html','perl','ruby',
+	if (in_array(strtolower($match[1]),['php','css','mysql','sql','abap','diff','html','perl','ruby',
 		'vbscript','avrc','dtd','java','xml','cpp','python','javascript','js','sh']))
 		return text_highlight($match[2],strtolower($match[1]));
 	return $match[0];
@@ -814,7 +818,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 
 	$Text = str_replace(array("\r","\n"), array('<br />','<br />'), $Text);
 
-	if($preserve_nl)
+	if ($preserve_nl)
 		$Text = str_replace(array("\n","\r"), array('',''),$Text);
 
 	// Set up the parameters for a URL search string
@@ -1132,7 +1136,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	// Summary (e.g. title) is required, earlier revisions only required description (in addition to
 	// start which is always required). Allow desc with a missing summary for compatibility.
 
-	if((x($ev,'desc') || x($ev,'summary')) && x($ev,'start')) {
+	if ((x($ev,'desc') || x($ev,'summary')) && x($ev,'start')) {
 		$sub = format_event_html($ev, $simplehtml);
 
 		$Text = preg_replace("/\[event\-summary\](.*?)\[\/event\-summary\]/ism",'',$Text);
@@ -1178,7 +1182,7 @@ function bbcode($Text,$preserve_nl = false, $tryoembed = true, $simplehtml = fal
 	$regex = '#<([^>]*?)(href)="(?!' . implode('|', $allowed_link_protocols) . ')(.*?)"(.*?)>#ism';
 	$Text = preg_replace($regex, '<$1$2="javascript:void(0)"$4 class="invalid-href" title="' . t('Invalid link protocol') . '">', $Text);
 
-	if($saved_image) {
+	if ($saved_image) {
 		$Text = bb_replace_images($Text, $saved_image);
 	}
 

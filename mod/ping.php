@@ -216,7 +216,7 @@ function ping_init(App $a)
 
 			if ($all_events) {
 				$str_now = datetime_convert('UTC', $a->timezone, 'now', 'Y-m-d');
-				foreach($ev as $x) {
+				foreach ($ev as $x) {
 					$bd = false;
 					if ($x['type'] === 'birthday') {
 						$birthdays ++;
@@ -486,7 +486,7 @@ function ping_get_notifications($uid)
 function ping_format_xml_data($data, $sysnotify, $notifs, $sysmsgs, $sysmsgs_info, $groups_unseen, $forums_unseen)
 {
 	$notifications = array();
-	foreach($notifs as $key => $notif) {
+	foreach ($notifs as $key => $notif) {
 		$notifications[$key . ':note'] = $notif['message'];
 
 		$notifications[$key . ':@attributes'] = array(

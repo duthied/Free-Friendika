@@ -20,7 +20,7 @@ function hovercard_content() {
 	$datatype	=	(x($_REQUEST,'datatype')	?$_REQUEST['datatype']		: "json");
 
 	// Get out if the system doesn't have public access allowed
-	if(intval(get_config('system','block_public')))
+	if (intval(get_config('system','block_public')))
 		http_status_exit(401);
 
 	// Return the raw content of the template. We use this to make templates usable for js functions.
@@ -36,7 +36,7 @@ function hovercard_content() {
 	// If a contact is connected the url is internally changed to "redir/CID". We need the pure url to search for
 	// the contact. So we strip out the contact id from the internal url and look in the contact table for
 	// the real url (nurl)
-	if(local_user() && strpos($profileurl, "redir/") === 0) {
+	if (local_user() && strpos($profileurl, "redir/") === 0) {
 		$cid = intval(substr($profileurl, 6));
 		$r = q("SELECT `nurl`, `self`  FROM `contact` WHERE `id` = '%d' LIMIT 1", intval($cid));
 		$profileurl = ($r[0]["nurl"] ? $r[0]["nurl"] : "");
@@ -45,16 +45,16 @@ function hovercard_content() {
 
 	// if it's the url containing https it should be converted to http
 	$nurl = normalise_link(clean_contact_url($profileurl));
-	if($nurl) {
+	if ($nurl) {
 		// Search for contact data
 		$contact = get_contact_details_by_url($nurl);
 	}
 
-	if(!is_array($contact))
+	if (!is_array($contact))
 		return;
 
 	// Get the photo_menu - the menu if possible contact actions
-	if(local_user())
+	if (local_user())
 		$actions = contact_photo_menu($contact);
 
 
@@ -80,7 +80,7 @@ function hovercard_content() {
 		'account_type' => account_type($contact),
 		'actions' => $actions,
 	);
-	if($datatype == "html") {
+	if ($datatype == "html") {
 		$t = get_markup_template("hovercard.tpl");
 
 		$o = replace_macros($t, array(
@@ -110,7 +110,7 @@ function get_template_content($template, $root = "") {
 	$filename = $t->filename;
 
 	// Get the content of the template file
-	if(file_exists($filename)) {
+	if (file_exists($filename)) {
 		$content = file_get_contents($filename);
 
 		return $content;

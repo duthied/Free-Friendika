@@ -2,7 +2,7 @@
 function share_init(App $a) {
 
 	$post_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
-	if((! $post_id) || (! local_user()))
+	if ((! $post_id) || (! local_user()))
 		killme();
 
 	$r = q("SELECT item.*, contact.network FROM `item`
@@ -12,7 +12,7 @@ function share_init(App $a) {
 		intval($post_id),
 		intval(local_user())
 	);
-	if(! dbm::is_result($r) || ($r[0]['private'] == 1))
+	if (! dbm::is_result($r) || ($r[0]['private'] == 1))
 		killme();
 
 	if (strpos($r[0]['body'], "[/share]") !== false) {

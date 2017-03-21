@@ -19,12 +19,12 @@ function cron_run(&$argv, &$argc){
 	$last = get_config('system','last_cron');
 
 	$poll_interval = intval(get_config('system','cron_interval'));
-	if(! $poll_interval)
+	if (! $poll_interval)
 		$poll_interval = 10;
 
-	if($last) {
+	if ($last) {
 		$next = $last + ($poll_interval * 60);
-		if($next > time()) {
+		if ($next > time()) {
 			logger('cron intervall not reached');
 			return;
 		}
@@ -64,7 +64,7 @@ function cron_run(&$argv, &$argc){
 	$d1 = get_config('system','last_expire_day');
 	$d2 = intval(datetime_convert('UTC','UTC','now','d'));
 
-	if($d2 != intval($d1)) {
+	if ($d2 != intval($d1)) {
 
 		update_contact_birthdays();
 
@@ -126,7 +126,7 @@ function cron_expire_and_remove_users() {
 	// delete user and contact records for recently removed accounts
 	$r = q("SELECT * FROM `user` WHERE `account_removed` AND `account_expires_on` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
 	if ($r) {
-		foreach($r as $user) {
+		foreach ($r as $user) {
 			q("DELETE FROM `contact` WHERE `uid` = %d", intval($user['uid']));
 			q("DELETE FROM `user` WHERE `uid` = %d", intval($user['uid']));
 		}
@@ -171,7 +171,7 @@ function cron_poll_contacts($argc, $argv) {
 	// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
 
 	$abandon_days = intval(get_config('system','account_abandon_days'));
-	if($abandon_days < 1)
+	if ($abandon_days < 1)
 		$abandon_days = 0;
 
 	$abandon_sql = (($abandon_days)
@@ -210,7 +210,7 @@ function cron_poll_contacts($argc, $argv) {
 			continue;
 		}
 
-		foreach($res as $contact) {
+		foreach ($res as $contact) {
 
 			$xml = false;
 
@@ -232,7 +232,7 @@ function cron_poll_contacts($argc, $argv) {
 				$contact['priority'] = (($poll_interval !== false) ? intval($poll_interval) : 3);
 			}
 
-			if($contact['priority'] AND !$force) {
+			if ($contact['priority'] AND !$force) {
 
 				$update     = false;
 
@@ -244,24 +244,24 @@ function cron_poll_contacts($argc, $argv) {
 
 				switch ($contact['priority']) {
 					case 5:
-						if(datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 month"))
+						if (datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 month"))
 							$update = true;
 						break;
 					case 4:
-						if(datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 week"))
+						if (datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 week"))
 							$update = true;
 						break;
 					case 3:
-						if(datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 day"))
+						if (datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 day"))
 							$update = true;
 						break;
 					case 2:
-						if(datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 12 hour"))
+						if (datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 12 hour"))
 							$update = true;
 						break;
 					case 1:
 					default:
-						if(datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 hour"))
+						if (datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 hour"))
 							$update = true;
 						break;
 				}
@@ -289,14 +289,16 @@ function cron_clear_cache(App $a) {
 
 	$last = get_config('system','cache_last_cleared');
 
-	if($last) {
+	if ($last) {
 		$next = $last + (3600); // Once per hour
 		$clear_cache = ($next <= time());
-	} else
+	} else {
 		$clear_cache = true;
+	}
 
-	if (!$clear_cache)
+	if (!$clear_cache) {
 		return;
+	}
 
 	// clear old cache
 	Cache::clear();
@@ -315,7 +317,9 @@ function cron_clear_cache(App $a) {
 		clear_cache($a->get_basepath(), $a->get_basepath()."/proxy");
 
 		$cachetime = get_config('system','proxy_cache_time');
-		if (!$cachetime) $cachetime = PROXY_DEFAULT_TIME;
+		if (!$cachetime) {
+			$cachetime = PROXY_DEFAULT_TIME;
+		}
 
 		q('DELETE FROM `photo` WHERE `uid` = 0 AND `resource-id` LIKE "pic:%%" AND `created` < NOW() - INTERVAL %d SECOND', $cachetime);
 	}
@@ -328,26 +332,30 @@ function cron_clear_cache(App $a) {
 
 	// Maximum table size in megabyte
 	$max_tablesize = intval(get_config('system','optimize_max_tablesize')) * 1000000;
-	if ($max_tablesize == 0)
+	if ($max_tablesize == 0) {
 		$max_tablesize = 100 * 1000000; // Default are 100 MB
+	}
 
 	if ($max_tablesize > 0) {
 		// Minimum fragmentation level in percent
 		$fragmentation_level = intval(get_config('system','optimize_fragmentation')) / 100;
-		if ($fragmentation_level == 0)
+		if ($fragmentation_level == 0) {
 			$fragmentation_level = 0.3; // Default value is 30%
+		}
 
 		// Optimize some tables that need to be optimized
 		$r = q("SHOW TABLE STATUS");
-		foreach($r as $table) {
+		foreach ($r as $table) {
 
 			// Don't optimize tables that are too large
-			if ($table["Data_length"] > $max_tablesize)
+			if ($table["Data_length"] > $max_tablesize) {
 				continue;
+			}
 
 			// Don't optimize empty tables
-			if ($table["Data_length"] == 0)
+			if ($table["Data_length"] == 0) {
 				continue;
+			}
 
 			// Calculate fragmentation
 			$fragmentation = $table["Data_free"] / ($table["Data_length"] + $table["Index_length"]);
@@ -355,8 +363,9 @@ function cron_clear_cache(App $a) {
 			logger("Table ".$table["Name"]." - Fragmentation level: ".round($fragmentation * 100, 2), LOGGER_DEBUG);
 
 			// Don't optimize tables that needn't to be optimized
-			if ($fragmentation < $fragmentation_level)
+			if ($fragmentation < $fragmentation_level) {
 				continue;
+			}
 
 			// So optimize it
 			logger("Optimize Table ".$table["Name"], LOGGER_DEBUG);
@@ -416,9 +425,11 @@ function cron_repair_database() {
 
 	// Update the global contacts for local users
 	$r = q("SELECT `uid` FROM `user` WHERE `verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired`");
-	if (dbm::is_result($r))
-		foreach ($r AS $user)
+	if (dbm::is_result($r)) {
+		foreach ($r AS $user) {
 			update_gcontact_for_user($user["uid"]);
+		}
+	}
 
 	/// @todo
 	/// - remove thread entries without item

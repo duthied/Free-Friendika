@@ -7,20 +7,20 @@ require_once('library/openid.php');
 function openid_content(App $a) {
 
 	$noid = get_config('system','no_openid');
-	if($noid)
+	if ($noid)
 		goaway(z_root());
 
 	logger('mod_openid ' . print_r($_REQUEST,true), LOGGER_DATA);
 
-	if((x($_GET,'openid_mode')) && (x($_SESSION,'openid'))) {
+	if ((x($_GET,'openid_mode')) && (x($_SESSION,'openid'))) {
 
 		$openid = new LightOpenID;
 
-		if($openid->validate()) {
+		if ($openid->validate()) {
 
 			$authid = $_REQUEST['openid_identity'];
 
-			if(! strlen($authid)) {
+			if (! strlen($authid)) {
 				logger( t('OpenID protocol error. No ID returned.') . EOL);
 				goaway(z_root());
 			}
@@ -69,10 +69,10 @@ function openid_content(App $a) {
 					if ($k === 'namePerson/friendly') {
 						$nick = notags(trim($v));
 					}
-					if($k === 'namePerson/first') {
+					if ($k === 'namePerson/first') {
 						$first = notags(trim($v));
 					}
-					if($k === 'namePerson') {
+					if ($k === 'namePerson') {
 						$args .= '&username=' . notags(trim($v));
 					}
 					if ($k === 'contact/email') {

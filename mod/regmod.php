@@ -54,7 +54,7 @@ function user_allow($hash) {
 
 	pop_lang();
 
-	if($res) {
+	if ($res) {
 		info( t('Account approved.') . EOL );
 		return true;
 	}
@@ -72,8 +72,9 @@ function user_deny($hash) {
 		dbesc($hash)
 	);
 
-	if(! dbm::is_result($register))
+	if (! dbm::is_result($register)) {
 		return false;
+	}
 
 	$user = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 		intval($register[0]['uid'])

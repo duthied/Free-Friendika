@@ -14,19 +14,19 @@ function receive_post(App $a) {
 
 
 	$enabled = intval(get_config('system','diaspora_enabled'));
-	if(! $enabled) {
+	if (! $enabled) {
 		logger('mod-diaspora: disabled');
 		http_status_exit(500);
 	}
 
 	$public = false;
 
-	if(($a->argc == 2) && ($a->argv[1] === 'public')) {
+	if (($a->argc == 2) && ($a->argv[1] === 'public')) {
 		$public = true;
 	}
 	else {
 
-		if($a->argc != 3 || $a->argv[1] !== 'users')
+		if ($a->argc != 3 || $a->argv[1] !== 'users')
 			http_status_exit(500);
 
 		$guid = $a->argv[2];
@@ -49,7 +49,7 @@ function receive_post(App $a) {
 
 	logger('mod-diaspora: new salmon ' . $xml, LOGGER_DATA);
 
-	if(! $xml)
+	if (! $xml)
 		http_status_exit(500);
 
 	logger('mod-diaspora: message is okay', LOGGER_DEBUG);
@@ -60,13 +60,13 @@ function receive_post(App $a) {
 
 	logger('mod-diaspora: decoded msg: ' . print_r($msg,true), LOGGER_DATA);
 
-	if(! is_array($msg))
+	if (! is_array($msg))
 		http_status_exit(500);
 
 	logger('mod-diaspora: dispatching', LOGGER_DEBUG);
 
 	$ret = 0;
-	if($public) {
+	if ($public) {
 		Diaspora::dispatch_public($msg);
 	} else {
 		$ret = Diaspora::dispatch($importer,$msg);

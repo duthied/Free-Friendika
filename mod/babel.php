@@ -25,7 +25,7 @@ function babel_content(App $a) {
 
 	$o .= '<br /><br />';
 
-	if(x($_REQUEST,'text')) {
+	if (x($_REQUEST,'text')) {
 
 		$text = trim($_REQUEST['text']);
 		$o .= "<h2>" . t("Source input: ") . "</h2>" . EOL. EOL;
@@ -63,7 +63,7 @@ function babel_content(App $a) {
 
 	}
 
-	if(x($_REQUEST,'d2bbtext')) {
+	if (x($_REQUEST,'d2bbtext')) {
 
 		$d2bbtext = trim($_REQUEST['d2bbtext']);
 		$o .= "<h2>" . t("Source input (Diaspora format): ") . "</h2>" . EOL. EOL;
