@@ -1683,8 +1683,9 @@ function photos_content(App $a)
 		$twist = false;
 		foreach ($r as $rr) {
 			//hide profile photos to others
-			if (!$is_owner && !remote_user() && ($rr['album'] == L10n::t('Profile Photos')))
+			if (!$is_owner && !remote_user() && ($rr['album'] == L10n::t('Profile Photos'))) {
 				continue;
+			}
 
 			$twist = !$twist;
 
