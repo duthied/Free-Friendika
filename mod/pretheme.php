@@ -2,16 +2,15 @@
 
 function pretheme_init(App $a) {
 
-	if($_REQUEST['theme']) {
+	if ($_REQUEST['theme']) {
 		$theme = $_REQUEST['theme'];
 		$info = get_theme_info($theme);
-		if($info) {
+		if ($info) {
 			// unfortunately there will be no translation for this string
 			$desc = $info['description'];
 			$version = $info['version'];
 			$credits = $info['credits'];
-		}
-		else {
+		} else {
 			$desc = '';
 			$version = '';
 			$credits = '';

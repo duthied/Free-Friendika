@@ -13,19 +13,19 @@ class TemplateMockApp {
 	public $theme_info=array();
 }
 
-if(!function_exists('current_theme')) {
+if (!function_exists('current_theme')) {
 function current_theme() {
 	return 'clean';
 }
 }
 
-if(!function_exists('x')) {
+if (!function_exists('x')) {
 function x($s,$k = NULL) {
 	return false;
 }
 }
 
-if(!function_exists('get_app')) {
+if (!function_exists('get_app')) {
 function get_app() {
 	return new TemplateMockApp();
 }

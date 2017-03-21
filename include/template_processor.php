@@ -53,8 +53,9 @@ class Template implements ITemplateEngine {
 
 	private function _get_var($name, $retNoKey = false) {
 		$keys = array_map('trim', explode(".", $name));
-		if ($retNoKey && !array_key_exists($keys[0], $this->r))
+		if ($retNoKey && !array_key_exists($keys[0], $this->r)) {
 			return KEY_NOT_EXISTS;
+		}
 		$val = $this->r;
 		foreach ($keys as $k) {
 			$val = (isset($val[$k]) ? $val[$k] : null);
@@ -69,18 +70,20 @@ class Template implements ITemplateEngine {
 	 * {{ if <$var>==<val|$var> }}...[{{ else }} ...]{{ endif }}
 	 * {{ if <$var>!=<val|$var> }}...[{{ else }} ...]{{ endif }}
 	 */
-	private function _replcb_if($args) {
+	private function _replcb_if ($args) {
 		if (strpos($args[2], "==") > 0) {
 			list($a, $b) = array_map("trim", explode("==", $args[2]));
 			$a = $this->_get_var($a);
-			if ($b[0] == "$")
+			if ($b[0] == "$") {
 				$b = $this->_get_var($b);
+			}
 			$val = ($a == $b);
-		} else if (strpos($args[2], "!=") > 0) {
+		} elseif (strpos($args[2], "!=") > 0) {
 			list($a, $b) = array_map("trim", explode("!=", $args[2]));
 			$a = $this->_get_var($a);
-			if ($b[0] == "$")
+			if ($b[0] == "$") {
 				$b = $this->_get_var($b);
+			}
 			$val = ($a != $b);
 		} else {
 			$val = $this->_get_var($args[2]);
@@ -95,7 +98,7 @@ class Template implements ITemplateEngine {
 	 * {{ for <$var> as $name }}...{{ endfor }}
 	 * {{ for <$var> as $key=>$name }}...{{ endfor }}
 	 */
-	private function _replcb_for($args) {
+	private function _replcb_for ($args) {
 		$m = array_map('trim', explode(" as ", $args[2]));
 		$x = explode("=>", $m[1]);
 		if (count($x) == 1) {
@@ -109,14 +112,16 @@ class Template implements ITemplateEngine {
 		//$vals = $this->r[$m[0]];
 		$vals = $this->_get_var($m[0]);
 		$ret = "";
-		if (!is_array($vals))
+		if (!is_array($vals)) {
 			return $ret;
+		}
 		foreach ($vals as $k => $v) {
 			$this->_push_stack();
 			$r = $this->r;
 			$r[$varname] = $v;
-			if ($keyname != '')
+			if ($keyname != '') {
 				$r[$keyname] = (($k === 0) ? '0' : $k);
+			}
 			$ret .= $this->replace($args[3], $r);
 			$this->_pop_stack();
 		}
@@ -136,8 +141,9 @@ class Template implements ITemplateEngine {
 			$newctx = null;
 		}
 
-		if ($tplfile[0] == "$")
+		if ($tplfile[0] == "$") {
 			$tplfile = $this->_get_var($tplfile);
+		}
 
 		$this->_push_stack();
 		$r = $this->r;

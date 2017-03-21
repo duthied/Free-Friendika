@@ -8,9 +8,9 @@ require_once('include/follow.php');
 
 function salmon_return($val) {
 
-	if($val >= 400)
+	if ($val >= 400)
 		$err = 'Error';
-	if($val >= 200 && $val < 300)
+	if ($val >= 200 && $val < 300)
 		$err = 'OK';
 
 	logger('mod-salmon returns ' . $val);
@@ -43,14 +43,14 @@ function salmon_post(App $a) {
 
 	// figure out where in the DOM tree our data is hiding
 
-	if($dom->provenance->data)
+	if ($dom->provenance->data)
 		$base = $dom->provenance;
-	elseif($dom->env->data)
+	elseif ($dom->env->data)
 		$base = $dom->env;
-	elseif($dom->data)
+	elseif ($dom->data)
 		$base = $dom;
 
-	if(! $base) {
+	if (! $base) {
 		logger('mod-salmon: unable to locate salmon data in xml ');
 		http_status_exit(400);
 	}
@@ -88,7 +88,7 @@ function salmon_post(App $a) {
 	$author = ostatus::salmon_author($data,$importer);
 	$author_link = $author["author-link"];
 
-	if(! $author_link) {
+	if (! $author_link) {
 		logger('mod-salmon: Could not retrieve author URI.');
 		http_status_exit(400);
 	}
@@ -99,7 +99,7 @@ function salmon_post(App $a) {
 
 	$key = get_salmon_key($author_link,$keyhash);
 
-	if(! $key) {
+	if (! $key) {
 		logger('mod-salmon: Could not retrieve author key.');
 		http_status_exit(400);
 	}
@@ -117,17 +117,17 @@ function salmon_post(App $a) {
 
 	$verify = rsa_verify($compliant_format,$signature,$pubkey);
 
-	if(! $verify) {
+	if (! $verify) {
 		logger('mod-salmon: message did not verify using protocol. Trying padding hack.');
 	    $verify = rsa_verify($signed_data,$signature,$pubkey);
 	}
 
-	if(! $verify) {
+	if (! $verify) {
 		logger('mod-salmon: message did not verify using padding. Trying old statusnet hack.');
 	    $verify = rsa_verify($stnet_signed_data,$signature,$pubkey);
 	}
 
-	if(! $verify) {
+	if (! $verify) {
 		logger('mod-salmon: Message did not verify. Discarding.');
 		http_status_exit(400);
 	}
@@ -153,9 +153,9 @@ function salmon_post(App $a) {
 	);
 	if (! dbm::is_result($r)) {
 		logger('mod-salmon: Author unknown to us.');
-		if(get_pconfig($importer['uid'],'system','ostatus_autofriend')) {
+		if (get_pconfig($importer['uid'],'system','ostatus_autofriend')) {
 			$result = new_contact($importer['uid'],$author_link);
-			if($result['success']) {
+			if ($result['success']) {
 				$r = q("SELECT * FROM `contact` WHERE `network` = '%s' AND ( `url` = '%s' OR `alias` = '%s')
 					AND `uid` = %d LIMIT 1",
 					dbesc(NETWORK_OSTATUS),
@@ -170,7 +170,7 @@ function salmon_post(App $a) {
 	// Have we ignored the person?
 	// If so we can not accept this post.
 
-	//if((dbm::is_result($r)) && (($r[0]['readonly']) || ($r[0]['rel'] == CONTACT_IS_FOLLOWER) || ($r[0]['blocked']))) {
+	//if ((dbm::is_result($r)) && (($r[0]['readonly']) || ($r[0]['rel'] == CONTACT_IS_FOLLOWER) || ($r[0]['blocked']))) {
 	if (dbm::is_result($r) && $r[0]['blocked']) {
 		logger('mod-salmon: Ignoring this author.');
 		http_status_exit(202);

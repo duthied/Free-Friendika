@@ -5,7 +5,7 @@ require_once('include/message.php');
 function wallmessage_post(App $a) {
 
 	$replyto = get_my_url();
-	if(! $replyto) {
+	if (! $replyto) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
@@ -14,7 +14,7 @@ function wallmessage_post(App $a) {
 	$body      = ((x($_REQUEST,'body'))      ? escape_tags(trim($_REQUEST['body'])) : '');
 
 	$recipient = (($a->argc > 1) ? notags($a->argv[1]) : '');
-	if((! $recipient) || (! $body)) {
+	if ((! $recipient) || (! $body)) {
 		return;
 	}
 
@@ -29,7 +29,7 @@ function wallmessage_post(App $a) {
 
 	$user = $r[0];
 
-	if(! intval($user['unkmail'])) {
+	if (! intval($user['unkmail'])) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
@@ -38,7 +38,7 @@ function wallmessage_post(App $a) {
 			intval($user['uid'])
 	);
 
-	if($r[0]['total'] > $user['cntunkmail']) {
+	if ($r[0]['total'] > $user['cntunkmail']) {
 		notice( sprintf( t('Number of daily wall messages for %s exceeded. Message failed.', $user['username'])));
 		return;
 	}
@@ -69,14 +69,14 @@ function wallmessage_post(App $a) {
 
 function wallmessage_content(App $a) {
 
-	if(! get_my_url()) {
+	if (! get_my_url()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
 
 	$recipient = (($a->argc > 1) ? $a->argv[1] : '');
 
-	if(! $recipient) {
+	if (! $recipient) {
 		notice( t('No recipient.') . EOL);
 		return;
 	}
@@ -93,16 +93,19 @@ function wallmessage_content(App $a) {
 
 	$user = $r[0];
 
-	if(! intval($user['unkmail'])) {
+	if (! intval($user['unkmail'])) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
 
-	$r = q("select count(*) as total from mail where uid = %d and created > UTC_TIMESTAMP() - INTERVAL 1 day and unknown = 1",
+	$r = q("SELECT COUNT(*) AS `total` FROM `mail` WHERE `uid` = %d AND `created` > UTC_TIMESTAMP() - INTERVAL 1 DAY AND `unknown` = 1",
 			intval($user['uid'])
 	);
 
-	if($r[0]['total'] > $user['cntunkmail']) {
+	if (!dbm::is_result($r)) {
+		///@TODO Output message to use of failed query
+		return;
+	} elseif ($r[0]['total'] > $user['cntunkmail']) {
 		notice( sprintf( t('Number of daily wall messages for %s exceeded. Message failed.', $user['username'])));
 		return;
 	}

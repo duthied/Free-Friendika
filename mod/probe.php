@@ -12,7 +12,7 @@ function probe_content(App $a) {
 
 	$o .= '<br /><br />';
 
-	if(x($_GET,'addr')) {
+	if (x($_GET,'addr')) {
 
 		$addr = trim($_GET['addr']);
 		$res = probe_url($addr);

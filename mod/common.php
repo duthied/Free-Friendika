@@ -57,20 +57,21 @@ function common_content(App $a) {
 		return;
 	}
 
-	if(! $cid) {
-		if(get_my_url()) {
+	if (! $cid) {
+		if (get_my_url()) {
 			$r = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
 				dbesc(normalise_link(get_my_url())),
 				intval($profile_uid)
 			);
-			if (dbm::is_result($r))
+			if (dbm::is_result($r)) {
 				$cid = $r[0]['id'];
-			else {
+			} else {
 				$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 					dbesc(normalise_link(get_my_url()))
 				);
-				if (dbm::is_result($r))
+				if (dbm::is_result($r)) {
 					$zcid = $r[0]['id'];
+				}
 			}
 		}
 	}

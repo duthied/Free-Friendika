@@ -7,7 +7,7 @@ require_once('include/items.php');
 
 function tagger_content(App $a) {
 
-	if(! local_user() && ! remote_user()) {
+	if (! local_user() && ! remote_user()) {
 		return;
 	}
 
@@ -15,7 +15,7 @@ function tagger_content(App $a) {
 	// no commas allowed
 	$term = str_replace(array(',',' '),array('','_'),$term);
 
-	if(! $term)
+	if (! $term)
 		return;
 
 	$item_id = (($a->argc > 1) ? notags(trim($a->argv[1])) : 0);
@@ -27,7 +27,7 @@ function tagger_content(App $a) {
 		dbesc($item_id)
 	);
 
-	if(! $item_id || (! dbm::is_result($r))) {
+	if (! $item_id || (! dbm::is_result($r))) {
 		logger('tagger: no item ' . $item_id);
 		return;
 	}
@@ -44,7 +44,7 @@ function tagger_content(App $a) {
 		$blocktags = $r[0]['blocktags'];
 	}
 
-	if(local_user() != $owner_uid)
+	if (local_user() != $owner_uid)
 		return;
 
 	$r = q("select * from contact where self = 1 and uid = %d limit 1",
@@ -146,7 +146,7 @@ EOT;
 //	);
 
 
-	if(! $item['visible']) {
+	if (! $item['visible']) {
 		$r = q("UPDATE `item` SET `visible` = 1 WHERE `id` = %d AND `uid` = %d",
 			intval($item['id']),
 			intval($owner_uid)
@@ -158,7 +158,7 @@ EOT;
                 intval($item['id']),
                 dbesc($term)
         );
-	if((! $blocktags) && $t[0]['tcount']==0 ) {
+	if ((! $blocktags) && $t[0]['tcount']==0 ) {
 		/*q("update item set tag = '%s' where id = %d",
 			dbesc($item['tag'] . (strlen($item['tag']) ? ',' : '') . '#[url=' . App::get_baseurl() . '/search?tag=' . $term . ']'. $term . '[/url]'),
 			intval($item['id'])
@@ -187,18 +187,18 @@ EOT;
 			intval($r[0]['id']),
 			dbesc($term)
 		);
-		if(count($x) && !$x[0]['blocktags'] && $t[0]['tcount']==0){
+		if (count($x) && !$x[0]['blocktags'] && $t[0]['tcount']==0){
 			q("INSERT INTO term (oid, otype, type, term, url, uid) VALUE (%d, %d, %d, '%s', '%s', %d)",
-	                   intval($r[0]['id']),
-	                   $term_objtype,
-	                   TERM_HASHTAG,
-	                   dbesc($term),
-	                   dbesc(App::get_baseurl() . '/search?tag=' . $term),
-	                   intval($owner_uid)
-	                );
+				intval($r[0]['id']),
+				$term_objtype,
+				TERM_HASHTAG,
+				dbesc($term),
+				dbesc(App::get_baseurl() . '/search?tag=' . $term),
+				intval($owner_uid)
+			);
 		}
 
-		/*if(count($x) && !$x[0]['blocktags'] && (! stristr($r[0]['tag'], ']' . $term . '['))) {
+		/*if (count($x) && !$x[0]['blocktags'] && (! stristr($r[0]['tag'], ']' . $term . '['))) {
 			q("update item set tag = '%s' where id = %d",
 				dbesc($r[0]['tag'] . (strlen($r[0]['tag']) ? ',' : '') . '#[url=' . App::get_baseurl() . '/search?tag=' . $term . ']'. $term . '[/url]'),
 				intval($r[0]['id'])

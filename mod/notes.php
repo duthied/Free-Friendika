@@ -43,7 +43,7 @@ function notes_content(App $a, $update = false) {
 	$o ="";
 	$o .= profile_tabs($a,True);
 
-	if(! $update) {
+	if (! $update) {
 		$o .= '<h3>' . t('Personal Notes') . '</h3>';
 
 		$commpage = false;
@@ -104,8 +104,9 @@ function notes_content(App $a, $update = false) {
 	$parents_str = '';
 
 	if (dbm::is_result($r)) {
-		foreach($r as $rr)
+		foreach ($r as $rr) {
 			$parents_arr[] = $rr['item_id'];
+		}
 		$parents_str = implode(', ', $parents_arr);
 
 		$r = q("SELECT %s FROM `item` %s

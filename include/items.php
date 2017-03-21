@@ -60,7 +60,7 @@ function limit_body_size($body) {
 		$img_start = strpos($orig_body, '[img');
 		$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
 		$img_end = ($img_start !== false ? strpos(substr($orig_body, $img_start), '[/img]') : false);
-		while(($img_st_close !== false) && ($img_end !== false)) {
+		while (($img_st_close !== false) && ($img_end !== false)) {
 
 			$img_st_close++; // make it point to AFTER the closing bracket
 			$img_end += $img_start;
@@ -1099,7 +1099,7 @@ function item_body_set_hashtags(&$item) {
 			"&num;$2", $item["body"]);
 
 
-	foreach($tags as $tag) {
+	foreach ($tags as $tag) {
 		if (strpos($tag,'#') !== 0)
 			continue;
 
@@ -1170,7 +1170,7 @@ function get_item_id($guid, $uid = 0) {
 function get_item_contact($item,$contacts) {
 	if (! count($contacts) || (! is_array($item)))
 		return false;
-	foreach($contacts as $contact) {
+	foreach ($contacts as $contact) {
 		if ($contact['id'] == $item['contact-id']) {
 			return $contact;
 			break; // NOTREACHED
@@ -1224,7 +1224,7 @@ function tag_deliver($uid,$item_id) {
 
 	$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism',$item['body'],$matches,PREG_SET_ORDER);
 	if ($cnt) {
-		foreach($matches as $mtch) {
+		foreach ($matches as $mtch) {
 			if (link_compare($link,$mtch[1]) || link_compare($dlink,$mtch[1])) {
 				$mention = true;
 				logger('tag_deliver: mention found: ' . $mtch[2]);
@@ -1681,7 +1681,7 @@ function fix_private_photos($s, $uid, $item = null, $cid = 0) {
 	$img_start = strpos($orig_body, '[img');
 	$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
 	$img_len = ($img_start !== false ? strpos(substr($orig_body, $img_start + $img_st_close + 1), '[/img]') : false);
-	while( ($img_st_close !== false) && ($img_len !== false) ) {
+	while ( ($img_st_close !== false) && ($img_len !== false) ) {
 
 		$img_st_close++; // make it point to AFTER the closing bracket
 		$image = substr($orig_body, $img_start + $img_st_close, $img_len);
@@ -1810,7 +1810,7 @@ function item_getfeedtags($item) {
 	$matches = false;
 	$cnt = preg_match_all('|\#\[url\=(.*?)\](.*?)\[\/url\]|',$item['tag'],$matches);
 	if ($cnt) {
-		for($x = 0; $x < $cnt; $x ++) {
+		for ($x = 0; $x < $cnt; $x ++) {
 			if ($matches[1][$x])
 				$ret[$matches[2][$x]] = array('#',$matches[1][$x], $matches[2][$x]);
 		}
@@ -1818,7 +1818,7 @@ function item_getfeedtags($item) {
 	$matches = false;
 	$cnt = preg_match_all('|\@\[url\=(.*?)\](.*?)\[\/url\]|',$item['tag'],$matches);
 	if ($cnt) {
-		for($x = 0; $x < $cnt; $x ++) {
+		for ($x = 0; $x < $cnt; $x ++) {
 			if ($matches[1][$x])
 				$ret[] = array('@',$matches[1][$x], $matches[2][$x]);
 		}
@@ -1876,7 +1876,7 @@ function item_expire($uid, $days, $network = "", $force = false) {
 
 	logger('expire: # items=' . count($r). "; expire items: $expire_items, expire notes: $expire_notes, expire starred: $expire_starred, expire photos: $expire_photos");
 
-	foreach($r as $item) {
+	foreach ($r as $item) {
 
 		// don't expire filed items
 
@@ -1909,7 +1909,7 @@ function drop_items($items) {
 		return;
 
 	if (count($items)) {
-		foreach($items as $item) {
+		foreach ($items as $item) {
 			$owner = drop_item($item,false);
 			if ($owner && ! $uid)
 				$uid = $owner;
@@ -1949,7 +1949,7 @@ function drop_item($id,$interactive = true) {
 	// check if logged in user is either the author or owner of this item
 
 	if (is_array($_SESSION['remote'])) {
-		foreach($_SESSION['remote'] as $visitor) {
+		foreach ($_SESSION['remote'] as $visitor) {
 			if ($visitor['uid'] == $item['uid'] && $visitor['cid'] == $item['contact-id']) {
 				$contact_id = $visitor['cid'];
 				break;
@@ -1966,7 +1966,7 @@ function drop_item($id,$interactive = true) {
 			// so add any arguments as hidden inputs
 			$query = explode_querystring($a->query_string);
 			$inputs = array();
-			foreach($query['args'] as $arg) {
+			foreach ($query['args'] as $arg) {
 				if (strpos($arg, 'confirm=') === false) {
 					$arg_parts = explode('=', $arg);
 					$inputs[] = array('name' => $arg_parts[0], 'value' => $arg_parts[1]);
@@ -2005,7 +2005,7 @@ function drop_item($id,$interactive = true) {
 		$matches = false;
 		$cnt = preg_match_all('/<(.*?)>/',$item['file'],$matches,PREG_SET_ORDER);
 		if ($cnt) {
-			foreach($matches as $mtch) {
+			foreach ($matches as $mtch) {
 				file_tag_unsave_file($item['uid'],$item['id'],$mtch[1],true);
 			}
 		}
@@ -2014,7 +2014,7 @@ function drop_item($id,$interactive = true) {
 
 		$cnt = preg_match_all('/\[(.*?)\]/',$item['file'],$matches,PREG_SET_ORDER);
 		if ($cnt) {
-			foreach($matches as $mtch) {
+			foreach ($matches as $mtch) {
 				file_tag_unsave_file($item['uid'],$item['id'],$mtch[1],false);
 			}
 		}
@@ -2044,7 +2044,7 @@ function drop_item($id,$interactive = true) {
 
 		// If item has attachments, drop them
 
-		foreach(explode(",",$item['attach']) as $attach){
+		foreach (explode(",",$item['attach']) as $attach){
 			preg_match("|attach/(\d+)|", $attach, $matches);
 			q("DELETE FROM `attach` WHERE `id` = %d AND `uid` = %d",
 				intval($matches[1]),
@@ -2179,7 +2179,7 @@ function list_post_dates($uid, $wall) {
 
 	// Starting with the current month, get the first and last days of every
 	// month down to and including the month of the first post
-	while(substr($dnow, 0, 7) >= substr($dthen, 0, 7)) {
+	while (substr($dnow, 0, 7) >= substr($dthen, 0, 7)) {
 		$dyear = intval(substr($dnow,0,4));
 		$dstart = substr($dnow,0,8) . '01';
 		$dend = substr($dnow,0,8) . get_dim(intval($dnow),intval(substr($dnow,5)));
@@ -2208,7 +2208,7 @@ function posted_dates($uid,$wall) {
 	$ret = array();
 	// Starting with the current month, get the first and last days of every
 	// month down to and including the month of the first post
-	while(substr($dnow, 0, 7) >= substr($dthen, 0, 7)) {
+	while (substr($dnow, 0, 7) >= substr($dthen, 0, 7)) {
 		$dstart = substr($dnow,0,8) . '01';
 		$dend = substr($dnow,0,8) . get_dim(intval($dnow),intval(substr($dnow,5)));
 		$start_month = datetime_convert('','',$dstart,'Y-m-d');

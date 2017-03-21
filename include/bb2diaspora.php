@@ -141,7 +141,7 @@ function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 		// Add all tags that maybe were removed
 		if (preg_match_all("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",$OriginalText, $tags)) {
 			$tagline = "";
-			foreach($tags[2] as $tag) {
+			foreach ($tags[2] as $tag) {
 				$tag = html_entity_decode($tag, ENT_QUOTES, 'UTF-8');
 				if (!strpos(html_entity_decode($Text, ENT_QUOTES, 'UTF-8'), "#".$tag))
 					$tagline .= "#".$tag." ";
@@ -193,7 +193,7 @@ function unescape_underscores_in_links($m) {
 
 function format_event_diaspora($ev) {
 
-	if(! ((is_array($ev)) && count($ev)))
+	if (! ((is_array($ev)) && count($ev)))
 		return '';
 
 	$bd_format = t('l F d, Y \@ g:i A') ; // Friday January 18, 2011 @ 8 AM
@@ -209,7 +209,7 @@ function format_event_diaspora($ev) {
 			$ev['start'] , $bd_format)))
 		.  '](' . App::get_baseurl() . '/localtime/?f=&time=' . urlencode(datetime_convert('UTC','UTC',$ev['start'])) . ")\n";
 
-	if(! $ev['nofinish'])
+	if (! $ev['nofinish'])
 		$o .= t('Finishes:') . ' ' . '['
 			. (($ev['adjust']) ? day_translate(datetime_convert('UTC', 'UTC',
 				$ev['finish'] , $bd_format ))
@@ -217,7 +217,7 @@ function format_event_diaspora($ev) {
 				$ev['finish'] , $bd_format )))
 			. '](' . App::get_baseurl() . '/localtime/?f=&time=' . urlencode(datetime_convert('UTC','UTC',$ev['finish'])) . ")\n";
 
-	if(strlen($ev['location']))
+	if (strlen($ev['location']))
 		$o .= t('Location:') . bb2diaspora($ev['location'])
 			. "\n";
 

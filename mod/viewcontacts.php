@@ -4,13 +4,13 @@ require_once('include/contact_selectors.php');
 
 function viewcontacts_init(App $a) {
 
-	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if ((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
 		return;
 	}
 
 	nav_set_selected('home');
 
-	if($a->argc > 1) {
+	if ($a->argc > 1) {
 		$nick = $a->argv[1];
 		$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
 			dbesc($nick)
@@ -32,7 +32,7 @@ function viewcontacts_init(App $a) {
 function viewcontacts_content(App $a) {
 	require_once("mod/proxy.php");
 
-	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if ((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
 		notice( t('Public access denied.') . EOL);
 		return;
 	}
@@ -42,7 +42,7 @@ function viewcontacts_content(App $a) {
 	// tabs
 	$o .= profile_tabs($a,$is_owner, $a->data['user']['nickname']);
 
-	if(((! count($a->profile)) || ($a->profile['hide-friends']))) {
+	if (((! count($a->profile)) || ($a->profile['hide-friends']))) {
 		notice( t('Permission denied.') . EOL);
 		return $o;
 	}
@@ -90,10 +90,11 @@ function viewcontacts_content(App $a) {
 
 		$is_owner = ((local_user() && ($a->profile['profile_uid'] == local_user())) ? true : false);
 
-		if($is_owner && ($rr['network'] === NETWORK_DFRN) && ($rr['rel']))
+		if ($is_owner && ($rr['network'] === NETWORK_DFRN) && ($rr['rel'])) {
 			$url = 'redir/' . $rr['id'];
-		else
+		} else {
 			$url = zrl($url);
+		}
 
 		$contact_details = get_contact_details_by_url($rr['url'], $a->profile['uid'], $rr);
 
