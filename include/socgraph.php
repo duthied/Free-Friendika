@@ -357,14 +357,20 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 	if(!$gcid)
 		return $gcid;
 
+	link_gcontact($gcid, $uid, $cid, $zcid);
+
+	return $gcid;
+}
+
+function link_gcontact($gcid, $uid = 0, $cid = 0, $zcid = 0) {
 	$r = q("SELECT * FROM `glink` WHERE `cid` = %d AND `uid` = %d AND `gcid` = %d AND `zcid` = %d LIMIT 1",
 		intval($cid),
 		intval($uid),
 		intval($gcid),
 		intval($zcid)
 	);
-	if (! dbm::is_result($r)) {
-		q("INSERT INTO `glink` (`cid`,`uid`,`gcid`,`zcid`, `updated`) VALUES (%d,%d,%d,%d, '%s') ",
+	if (!dbm::is_result($r)) {
+		q("INSERT INTO `glink` (`cid`, `uid`, `gcid`, `zcid`, `updated`) VALUES (%d, %d, %d, %d, '%s') ",
 			intval($cid),
 			intval($uid),
 			intval($gcid),
@@ -380,8 +386,6 @@ function poco_check($profile_url, $name, $network, $profile_photo, $about, $loca
 			intval($zcid)
 		);
 	}
-
-	return $gcid;
 }
 
 function poco_reachable($profile, $server = "", $network = "", $force = false) {

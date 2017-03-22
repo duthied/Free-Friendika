@@ -266,6 +266,7 @@ function gs_search_user($search) {
 		return false;
 	}
 	foreach($contacts->data AS $user) {
+		//update_gcontact_from_probe($user->site_address."/".$user->name);
 		$contact = probe_url($user->site_address."/".$user->name);
 		if ($contact["network"] != NETWORK_PHANTOM) {
 			$contact["about"] = $user->description;
