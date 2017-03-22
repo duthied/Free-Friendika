@@ -16,6 +16,7 @@ function discover_poco_run(&$argv, &$argc) {
 	- update_server: Frequently check the first 250 servers for vitality.
 	- update_server_directory: Discover the given server id for their contacts
 	- poco_load: Load POCO data from a given POCO address
+	- check_profile: Update remote profile data
 	*/
 
 	if (($argc > 2) && ($argv[1] == "dirsearch")) {
@@ -33,6 +34,8 @@ function discover_poco_run(&$argv, &$argc) {
 		$mode = 6;
 	} elseif (($argc > 5) && ($argv[1] == "poco_load")) {
 		$mode = 7;
+	} elseif (($argc == 3) && ($argv[1] == "check_profile")) {
+		$mode = 8;
 	} elseif ($argc == 1) {
 		$search = "";
 		$mode = 0;
@@ -42,7 +45,12 @@ function discover_poco_run(&$argv, &$argc) {
 
 	logger('start '.$search);
 
-	if ($mode == 7) {
+	if ($mode == 8) {
+		$profile_url = base64_decode($argv[2]);
+		if ($profile_url != "") {
+			poco_last_updated($profile_url, true);
+		}
+	} elseif ($mode == 7) {
 		if ($argc == 6) {
 			$url = base64_decode($argv[5]);
 		} else {
@@ -121,7 +129,9 @@ function update_server() {
 function discover_users() {
 	logger("Discover users", LOGGER_DEBUG);
 
-	$users = q("SELECT `url`, `created`, `updated`, `last_failure`, `last_contact`, `server_url` FROM `gcontact`
+	$starttime = time();
+
+	$users = q("SELECT `url`, `created`, `updated`, `last_failure`, `last_contact`, `server_url`, `network` FROM `gcontact`
 			WHERE `last_contact` < UTC_TIMESTAMP - INTERVAL 1 MONTH AND
 				`last_failure` < UTC_TIMESTAMP - INTERVAL 1 MONTH AND
 				`network` IN ('%s', '%s', '%s', '%s', '') ORDER BY rand()",
@@ -160,9 +170,9 @@ function discover_users() {
 		} else {
 			$server_url = poco_detect_server($user["url"]);
 		}
-		if (($server_url == "") OR poco_check_server($server_url, $gcontacts[0]["network"])) {
-			logger('Check user '.$user["url"]);
-			poco_last_updated($user["url"], true);
+		if ((($server_url == "") AND ($user["network"] == NETWORK_FEED)) OR poco_check_server($server_url, $user["network"])) {
+			logger('Check profile '.$user["url"]);
+			proc_run(PRIORITY_LOW, "include/discover_poco.php", "check_profile", base64_encode($user["url"]));
 
 			if (++$checked > 100) {
 				return;
@@ -170,6 +180,11 @@ function discover_users() {
 		} else {
 			q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
 				dbesc(datetime_convert()), dbesc(normalise_link($user["url"])));
+		}
+
+		// Quit the loop after 3 minutes
+		if (time() > ($starttime + 180)) {
+			return;
 		}
 	}
 }
