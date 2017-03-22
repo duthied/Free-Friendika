@@ -232,7 +232,11 @@ function discover_directory($search) {
 			if ($data["network"] == NETWORK_DFRN) {
 				logger("Profile ".$jj->url." is reachable (".$search.")", LOGGER_DEBUG);
 				logger("Add profile ".$jj->url." to local directory (".$search.")", LOGGER_DEBUG);
-				poco_check($data["url"], $data["name"], $data["network"], $data["photo"], "", "", "", $jj->tags, $data["addr"], "", 0);
+
+				if ($jj->tags != "") {
+					$data["keywords"] = $jj->tags;
+				}
+				update_gcontact($data);
 			} else {
 				logger("Profile ".$jj->url." is not responding or no Friendica contact - but network ".$data["network"], LOGGER_DEBUG);
 			}
