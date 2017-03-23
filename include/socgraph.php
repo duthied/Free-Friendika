@@ -159,27 +159,24 @@ function poco_load_worker($cid, $uid, $zcid, $url) {
 		if (isset($entry->contactType) AND ($entry->contactType >= 0))
 			$contact_type = $entry->contactType;
 
-		// If you query a Friendica server for its profiles, the network has to be Friendica
-		/// TODO It could also be a Redmatrix server
-		//if ($uid == 0)
-		//	$network = NETWORK_DFRN;
+		$gcontact = array("url" => $profile_url,
+				"name" => $name,
+				"network" => $network,
+				"photo" => $profile_photo,
+				"about" => $about,
+				"location" => $location,
+				"gender" => $gender,
+				"keywords" => $keywords,
+				"connect" => $connect_url,
+				"updated" => $updated,
+				"contact-type" => $contact_type,
+				"generation" => $generation);
 
-		poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $generation, $cid, $uid, $zcid);
+		if (sanitized_gcontact($gcontact)) {
+			$gcid = update_gcontact($gcontact);
 
-		$gcontact = array("url" => $profile_url, "contact-type" => $contact_type, "generation" => $generation);
-		update_gcontact($gcontact);
-
-		// Update the Friendica contacts. Diaspora is doing it via a message. (See include/diaspora.php)
-		// Deactivated because we now update Friendica contacts in dfrn.php
-		//if (($location != "") OR ($about != "") OR ($keywords != "") OR ($gender != ""))
-		//	q("UPDATE `contact` SET `location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s'
-		//		WHERE `nurl` = '%s' AND NOT `self` AND `network` = '%s'",
-		//		dbesc($location),
-		//		dbesc($about),
-		//		dbesc($keywords),
-		//		dbesc($gender),
-		//		dbesc(normalise_link($profile_url)),
-		//		dbesc(NETWORK_DFRN));
+			link_gcontact($gcid, $uid, $cid, $zcid);
+		}
 	}
 	logger("poco_load: loaded $total entries",LOGGER_DEBUG);
 
@@ -191,12 +188,9 @@ function poco_load_worker($cid, $uid, $zcid, $url) {
 
 }
 /**
- * @brief Validate the given gcontact data
+ * @brief Sanitize the given gcontact data
  *
  * @param array $gcontact array with gcontact data
- * @param integer $cid Contact ID
- * @param integer $uid User ID
- * @param integer $zcid Global Contact ID
  *
  * Generation:
  *  0: No definition
@@ -206,7 +200,7 @@ function poco_load_worker($cid, $uid, $zcid, $url) {
  *  4: ...
  *
  */
-function validate_gcontact(&$gcontact) {
+function sanitized_gcontact(&$gcontact) {
 
 	if ($gcontact['url'] == "") {
 		return false;
@@ -344,178 +338,21 @@ function validate_gcontact(&$gcontact) {
 	return true;
 }
 
-function poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $generation, $cid = 0, $uid = 0, $zcid = 0) {
-
-	// Generation:
-	//  0: No definition
-	//  1: Profiles on this server
-	//  2: Contacts of profiles on this server
-	//  3: Contacts of contacts of profiles on this server
-	//  4: ...
-
-	$gcid = "";
-
-	if ($profile_url == "")
-		return $gcid;
-
-	$urlparts = parse_url($profile_url);
-	if (!isset($urlparts["scheme"]))
-		return $gcid;
-
-	if (in_array($urlparts["host"], array("www.facebook.com", "facebook.com", "twitter.com",
-						"identi.ca", "alpha.app.net")))
-		return $gcid;
-
-	// Don't store the statusnet connector as network
-	// We can't simply set this to NETWORK_OSTATUS since the connector could have fetched posts from friendica as well
-	if ($network == NETWORK_STATUSNET)
-		$network = "";
-
-	// Assure that there are no parameter fragments in the profile url
-	if (in_array($network, array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, "")))
-		$profile_url = clean_contact_url($profile_url);
-
-	$alternate = poco_alternate_ostatus_url($profile_url);
-
-	$orig_updated = $updated;
-
-	// The global contacts should contain the original picture, not the cached one
-	if (($generation != 1) AND stristr(normalise_link($profile_photo), normalise_link(App::get_baseurl()."/photo/"))) {
-		$profile_photo = "";
-	}
-
-	$r = q("SELECT `network` FROM `contact` WHERE `nurl` = '%s' AND `network` != '' AND `network` != '%s' LIMIT 1",
-		dbesc(normalise_link($profile_url)), dbesc(NETWORK_STATUSNET)
-	);
-	if (dbm::is_result($r)) {
-		$network = $r[0]["network"];
-	}
-
-	if (($network == "") OR ($network == NETWORK_OSTATUS)) {
-		$r = q("SELECT `network`, `url` FROM `contact` WHERE `alias` IN ('%s', '%s') AND `network` != '' AND `network` != '%s' LIMIT 1",
-			dbesc($profile_url), dbesc(normalise_link($profile_url)), dbesc(NETWORK_STATUSNET)
-		);
-		if (dbm::is_result($r)) {
-			$network = $r[0]["network"];
-			//$profile_url = $r[0]["url"];
-		}
-	}
-
-	$x = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
-		dbesc(normalise_link($profile_url))
-	);
-
-	if (count($x)) {
-		if (($network == "") AND ($x[0]["network"] != NETWORK_STATUSNET)) {
-			$network = $x[0]["network"];
-		}
-		if ($updated <= NULL_DATE) {
-			$updated = $x[0]["updated"];
-		}
-		$created = $x[0]["created"];
-		$server_url = $x[0]["server_url"];
-		$nick = $x[0]["nick"];
-		$addr = $x[0]["addr"];
-		$alias =  $x[0]["alias"];
-		$notify =  $x[0]["notify"];
-	} else {
-		$created = NULL_DATE;
-		$server_url = "";
-
-		$urlparts = parse_url($profile_url);
-		$nick = end(explode("/", $urlparts["path"]));
-		$addr = "";
-		$alias = "";
-		$notify = "";
-	}
-
-	if ((($network == "") OR ($name == "") OR ($addr == "") OR ($profile_photo == "") OR ($server_url == "") OR $alternate)
-		AND poco_reachable($profile_url, $server_url, $network, false)) {
-		$data = probe_url($profile_url);
-
-		$orig_profile = $profile_url;
-
-		$network = $data["network"];
-		$name = $data["name"];
-		$nick = $data["nick"];
-		$addr = $data["addr"];
-		$alias = $data["alias"];
-		$notify = $data["notify"];
-		$profile_url = $data["url"];
-		$profile_photo = $data["photo"];
-		$server_url = $data["baseurl"];
-
-		if ($alternate AND ($network == NETWORK_OSTATUS)) {
-			// Delete the old entry - if it exists
-			$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($orig_profile)));
-			if ($r) {
-				q("DELETE FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($orig_profile)));
-				q("DELETE FROM `glink` WHERE `gcid` = %d", intval($r[0]["id"]));
-			}
-
-			// possibly create a new entry
-			poco_check($profile_url, $name, $network, $profile_photo, $about, $location, $gender, $keywords, $connect_url, $updated, $generation, $cid, $uid, $zcid);
-		}
-	}
-
-	if ($alternate AND ($network == NETWORK_OSTATUS))
-		return $gcid;
-
-	if (count($x) AND ($x[0]["network"] == "") AND ($network != "")) {
-		q("UPDATE `gcontact` SET `network` = '%s' WHERE `nurl` = '%s'",
-			dbesc($network),
-			dbesc(normalise_link($profile_url))
-		);
-	}
-
-	if (($name == "") OR ($profile_photo == ""))
-		return $gcid;
-
-	if (!in_array($network, array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)))
-		return $gcid;
-
-	logger("profile-check generation: ".$generation." Network: ".$network." URL: ".$profile_url." name: ".$name." avatar: ".$profile_photo, LOGGER_DEBUG);
-
-	// We check the server url to be sure that it is a real one
-	$server_url2 = poco_detect_server($profile_url);
-
-	// We are no sure that it is a correct URL. So we use it in the future
-	if ($server_url2 != "") {
-		$server_url = $server_url2;
-	}
-
-	// The server URL doesn't seem to be valid, so we don't store it.
-	if (!poco_check_server($server_url, $network)) {
-		$server_url = "";
-	}
-
-	$gcontact = array("url" => $profile_url,
-			"addr" => $addr,
-			"alias" => $alias,
-			"name" => $name,
-			"network" => $network,
-			"photo" => $profile_photo,
-			"about" => $about,
-			"location" => $location,
-			"gender" => $gender,
-			"keywords" => $keywords,
-			"server_url" => $server_url,
-			"connect" => $connect_url,
-			"notify" => $notify,
-			"updated" => $updated,
-			"generation" => $generation);
-
-	$gcid = update_gcontact($gcontact);
-
-	if(!$gcid)
-		return $gcid;
-
-	link_gcontact($gcid, $uid, $cid, $zcid);
-
-	return $gcid;
-}
-
+/**
+ * @brief Link the gcontact entry with user, contact and global contact
+ *
+ * @param integer $gcid Global contact ID
+ * @param integer $cid Contact ID
+ * @param integer $uid User ID
+ * @param integer $zcid Global Contact ID
+ * *
+ */
 function link_gcontact($gcid, $uid = 0, $cid = 0, $zcid = 0) {
+
+	if ($gcid <= 0) {
+		return;
+	}
+
 	$r = q("SELECT * FROM `glink` WHERE `cid` = %d AND `uid` = %d AND `gcid` = %d AND `zcid` = %d LIMIT 1",
 		intval($cid),
 		intval($uid),
@@ -769,10 +606,23 @@ function poco_last_updated($profile, $force = false) {
 		q("DELETE FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($profile)));
 		q("DELETE FROM `glink` WHERE `gcid` = %d", intval($gcontacts[0]["id"]));
 
-		poco_check($data["url"], $data["name"], $data["network"], $data["photo"], $gcontacts[0]["about"], $gcontacts[0]["location"],
-				$gcontacts[0]["gender"], $gcontacts[0]["keywords"], $data["addr"], $gcontacts[0]["updated"], $gcontacts[0]["generation"]);
+		$gcontact = array_merge($gcontacts[0], $data);
 
-		poco_last_updated($data["url"], $force);
+		unset($gcontact["guid"]);
+		unset($gcontact["batch"]);
+		unset($gcontact["poll"]);
+		unset($gcontact["request"]);
+		unset($gcontact["confirm"]);
+		unset($gcontact["poco"]);
+		unset($gcontact["priority"]);
+		unset($gcontact["pubkey"]);
+		unset($gcontact["baseurl"]);
+
+		if (sanitized_gcontact($gcontact)) {
+			update_gcontact($gcontact);
+
+			poco_last_updated($data["url"], $force);
+		}
 
 		logger("Profile ".$profile." was deleted", LOGGER_DEBUG);
 		return false;
@@ -2061,7 +1911,7 @@ function poco_discover_server($data, $default_generation = 0) {
 					"contact-type" => $contact_type,
 					"generation" => $generation);
 
-			if (validate_gcontact($gcontact)) {
+			if (sanitized_gcontact($gcontact)) {
 				update_gcontact($gcontact);
 			}
 
