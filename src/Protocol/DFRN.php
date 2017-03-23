@@ -1988,10 +1988,8 @@ class DFRN
 		 */
 		if (!DBM::is_result($r)) {
 			// database record did not get created. Quietly give up.
-			killme();
+			return false;
 		}
-
-		$fid = $r[0]["id"];
 
 		$hash = random_string();
 
