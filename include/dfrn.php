@@ -2103,7 +2103,12 @@ class dfrn {
 					);
 
 					if (!dbm::is_result($r)) {
+						/*
+						 * @TODO maybe one day:
+						logger("Query failed to execute, no result returned in " . __FUNCTION__);
 						killme();
+						*/
+						return false;
 					}
 
 					// extract tag, if not duplicate, add to parent item
@@ -2551,7 +2556,7 @@ class dfrn {
 				intval($importer["id"])
 			);
 		if (!dbm::is_result($r)) {
-			logger("Item with uri ".$uri." from contact ".$importer["id"]." for user ".$importer["uid"]." wasn't found.", LOGGER_DEBUG);
+			logger("Item with uri " . $uri . " from contact " . $importer["id"] . " for user " . $importer["uid"] . " wasn't found.", LOGGER_DEBUG);
 			return;
 		} else {
 
