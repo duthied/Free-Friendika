@@ -308,7 +308,7 @@ function update_1030() {
 function update_1031() {
 	// Repair any bad links that slipped into the item table
 	$r = q("SELECT `id`, `object` FROM `item` WHERE `object` != '' ");
-	if($r && dbm::is_result($r)) {
+	if (dbm::is_result($r)) {
 		foreach ($r as $rr) {
 			if (strstr($rr['object'],'type=&quot;http')) {
 				q("UPDATE `item` SET `object` = '%s' WHERE `id` = %d",
@@ -326,22 +326,23 @@ function update_1032() {
 
 function update_1033() {
 	q("CREATE TABLE IF NOT EXISTS `cache` (
- 		`k` CHAR( 255 ) NOT NULL PRIMARY KEY ,
- 		`v` TEXT NOT NULL,
- 		`updated` DATETIME NOT NULL
-		) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
+		`k` CHAR( 255 ) NOT NULL PRIMARY KEY ,
+		`v` TEXT NOT NULL,
+		`updated` DATETIME NOT NULL
+		) DEFAULT CHARSET=utf8 ");
 }
 
 
 function update_1034() {
 
-	// If you have any of these parent-less posts they can cause problems, and
-	// we need to delete them. You can't see them anyway.
-	// Legitimate items will usually get re-created on the next
-	// pull from the hub.
-	// But don't get rid of a post that may have just come in
-	// and may not yet have the parent id set.
-
+	/*
+	 * If you have any of these parent-less posts they can cause problems, and
+	 * we need to delete them. You can't see them anyway.
+	 * Legitimate items will usually get re-created on the next
+	 * pull from the hub.
+	 * But don't get rid of a post that may have just come in
+	 * and may not yet have the parent id set.
+	 */
 	q("DELETE FROM `item` WHERE `parent` = 0 AND `created` < UTC_TIMESTAMP() - INTERVAL 2 MINUTE");
 
 }
