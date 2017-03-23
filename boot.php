@@ -1032,29 +1032,6 @@ class App {
 
 	function get_cached_avatar_image($avatar_image){
 		return $avatar_image;
-
-		// The following code is deactivated. It doesn't seem to make any sense and it slows down the system.
-		/*
-		if ($this->cached_profile_image[$avatar_image])
-			return $this->cached_profile_image[$avatar_image];
-
-		$path_parts = explode("/",$avatar_image);
-		$common_filename = $path_parts[count($path_parts)-1];
-
-		if ($this->cached_profile_picdate[$common_filename]){
-			$this->cached_profile_image[$avatar_image] = $avatar_image . $this->cached_profile_picdate[$common_filename];
-		} else {
-			$r = q("SELECT `contact`.`avatar-date` AS picdate FROM `contact` WHERE `contact`.`thumb` like '%%/%s'",
-				$common_filename);
-			if (! dbm::is_result($r)) {
-				$this->cached_profile_image[$avatar_image] = $avatar_image;
-			} else {
-				$this->cached_profile_picdate[$common_filename] = "?rev=".urlencode($r[0]['picdate']);
-				$this->cached_profile_image[$avatar_image] = $avatar_image.$this->cached_profile_picdate[$common_filename];
-			}
-		}
-		return $this->cached_profile_image[$avatar_image];
-		*/
 	}
 
 
