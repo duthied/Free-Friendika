@@ -417,23 +417,7 @@ if (stristr( implode("",$_SESSION['sysmsg']), t('Permission denied'))) {
  *
  */
 
-/*if (x($_SESSION,'sysmsg')) {
-	$a->page['content'] = "<div id=\"sysmsg\" class=\"error-message\">{$_SESSION['sysmsg']}</div>\r\n"
-		. ((x($a->page,'content')) ? $a->page['content'] : '');
-	$_SESSION['sysmsg']="";
-	unset($_SESSION['sysmsg']);
-}
-if (x($_SESSION,'sysmsg_info')) {
-	$a->page['content'] = "<div id=\"sysmsg_info\" class=\"info-message\">{$_SESSION['sysmsg_info']}</div>\r\n"
-		. ((x($a->page,'content')) ? $a->page['content'] : '');
-	$_SESSION['sysmsg_info']="";
-	unset($_SESSION['sysmsg_info']);
-}*/
-
-
-
 call_hooks('page_end', $a->page['content']);
-
 
 /**
  *
@@ -489,7 +473,6 @@ if (isset($_GET["mode"]) AND (($_GET["mode"] == "raw") OR ($_GET["mode"] == "min
 	$list = $xpath->query("//*[contains(@id,'tread-wrapper-')]");  /* */
 
 	foreach ($list as $item) {
-
 		$item = $target->importNode($item, true);
 
 		// And then append it to the target
@@ -520,7 +503,7 @@ header("Content-type: text/html; charset=utf-8");
 // to load another page template than the default one
 // The page templates are located in /view/php/ or in the theme directory
 if (isset($_GET["mode"])) {
-		$template = theme_include($_GET["mode"].'.php');
+	$template = theme_include($_GET["mode"].'.php');
 }
 
 // If there is no page template use the default page template
@@ -530,6 +513,7 @@ if (!$template) {
 
 require_once($template);
 
-if (!$a->is_backend())
+if (!$a->is_backend()) {
 	session_write_close();
-exit;
+}
+exit();
