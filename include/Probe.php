@@ -18,6 +18,8 @@ require_once('include/network.php');
  */
 class Probe {
 
+	private static $baseurl;
+
 	/**
 	 * @brief Rearrange the array so that it always has the same order
 	 *
@@ -56,6 +58,8 @@ class Probe {
 
 		$ssl_url = "https://".$host."/.well-known/host-meta";
 		$url = "http://".$host."/.well-known/host-meta";
+
+		$baseurl = "http://".$host;
 
 		$xrd_timeout = Config::get('system','xrd_timeout', 20);
 		$redirects = 0;
@@ -102,6 +106,9 @@ class Probe {
 			elseif ($attributes["rel"] == "lrdd")
 				$xrd_data["lrdd"] = $attributes["template"];
 		}
+
+		self::$baseurl = $baseurl;
+
 		return $xrd_data;
 	}
 
@@ -258,8 +265,13 @@ class Probe {
 				$data['nick'] = trim(substr($data['nick'], 0, strpos($data['nick'], ' ')));
 		}
 
-		if (!isset($data["network"]))
+		if (self::$baseurl != "") {
+			$data["baseurl"] = self::$baseurl;
+		}
+
+		if (!isset($data["network"])) {
 			$data["network"] = NETWORK_PHANTOM;
+		}
 
 		$data = self::rearrange_data($data);
 
@@ -286,6 +298,7 @@ class Probe {
 					dbesc(normalise_link($data['url']))
 			);
 		}
+
 		return $data;
 	}
 
