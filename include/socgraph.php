@@ -252,6 +252,9 @@ function sanitized_gcontact(&$gcontact) {
 		}
 	}
 
+	$gcontact['server_url'] = '';
+	$gcontact['network'] = '';
+
 	$x = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 		dbesc(normalise_link($gcontact['url']))
 	);
@@ -263,18 +266,11 @@ function sanitized_gcontact(&$gcontact) {
 		if ($gcontact['updated'] <= NULL_DATE) {
 			$gcontact['updated'] = $x[0]["updated"];
 		}
-		if (!isset($gcontact['server_url'])) {
+		if (!isset($gcontact['server_url']) AND (normalise_link($x[0]["server_url"]) != normalise_link($x[0]["url"]))) {
 			$gcontact['server_url'] = $x[0]["server_url"];
 		}
 		if (!isset($gcontact['addr'])) {
 			$gcontact['addr'] = $x[0]["addr"];
-		}
-	} else {
-		if (!isset($gcontact['server_url'])) {
-			$gcontact['server_url'] = '';
-		}
-		if (!isset($gcontact['network'])) {
-			$gcontact['network'] = '';
 		}
 	}
 
@@ -463,15 +459,26 @@ function poco_last_updated($profile, $force = false) {
 	$gcontacts = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s'",
 			dbesc(normalise_link($profile)));
 
-	if ($gcontacts[0]["created"] <= NULL_DATE) {
-		q("UPDATE `gcontact` SET `created` = '%s' WHERE `nurl` = '%s'",
-			dbesc(datetime_convert()), dbesc(normalise_link($profile)));
+	if (!dbm::is_result($gcontacts)) {
+		return false;
 	}
-	if ($gcontacts[0]["server_url"] != "") {
+
+	$contact = array("url" => $profile);
+
+	if ($gcontacts[0]["created"] <= NULL_DATE) {
+		$contact['created'] = datetime_convert();
+	}
+
+	if ($force) {
+		$server_url = normalise_link(poco_detect_server($profile));
+	}
+
+	if (($server_url == '') AND ($gcontacts[0]["server_url"] != "")) {
 		$server_url = $gcontacts[0]["server_url"];
 	}
-	if (($server_url == '') OR ($gcontacts[0]["server_url"] == $gcontacts[0]["nurl"])) {
-		$server_url = poco_detect_server($profile);
+
+	if (!$force AND (($server_url == '') OR ($gcontacts[0]["server_url"] == $gcontacts[0]["nurl"]))) {
+		$server_url = normalise_link(poco_detect_server($profile));
 	}
 
 	if (!in_array($gcontacts[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_FEED, NETWORK_OSTATUS, ""))) {
@@ -481,67 +488,64 @@ function poco_last_updated($profile, $force = false) {
 
 	if ($server_url != "") {
 		if (!poco_check_server($server_url, $gcontacts[0]["network"], $force)) {
-
-			if ($force)
+			if ($force) {
 				q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
 					dbesc(datetime_convert()), dbesc(normalise_link($profile)));
+			}
 
 			logger("Profile ".$profile.": Server ".$server_url." wasn't reachable.", LOGGER_DEBUG);
 			return false;
 		}
-
-		q("UPDATE `gcontact` SET `server_url` = '%s' WHERE `nurl` = '%s'",
-			dbesc($server_url), dbesc(normalise_link($profile)));
+		$contact['server_url'] = $server_url;
 	}
 
 	if (in_array($gcontacts[0]["network"], array("", NETWORK_FEED))) {
 		$server = q("SELECT `network` FROM `gserver` WHERE `nurl` = '%s' AND `network` != ''",
 			dbesc(normalise_link($server_url)));
 
-		if ($server)
-			q("UPDATE `gcontact` SET `network` = '%s' WHERE `nurl` = '%s'",
-				dbesc($server[0]["network"]), dbesc(normalise_link($profile)));
-		else
+		if ($server) {
+			$contact['network'] = $server[0]["network"];
+		} else {
 			return false;
+		}
 	}
 
 	// noscrape is really fast so we don't cache the call.
-	if (($gcontacts[0]["server_url"] != "") AND ($gcontacts[0]["nick"] != "")) {
+	if (($server_url != "") AND ($gcontacts[0]["nick"] != "")) {
 
 		//  Use noscrape if possible
-		$server = q("SELECT `noscrape`, `network` FROM `gserver` WHERE `nurl` = '%s' AND `noscrape` != ''", dbesc(normalise_link($gcontacts[0]["server_url"])));
+		$server = q("SELECT `noscrape`, `network` FROM `gserver` WHERE `nurl` = '%s' AND `noscrape` != ''", dbesc(normalise_link($server_url)));
 
 		if ($server) {
 			$noscraperet = z_fetch_url($server[0]["noscrape"]."/".$gcontacts[0]["nick"]);
 
-			 if ($noscraperet["success"] AND ($noscraperet["body"] != "")) {
+			if ($noscraperet["success"] AND ($noscraperet["body"] != "")) {
 
 				$noscrape = json_decode($noscraperet["body"], true);
 
 				if (is_array($noscrape)) {
-					$contact = array("url" => $profile,
-							"network" => $server[0]["network"],
-							"generation" => $gcontacts[0]["generation"]);
+					$contact["network"] = $server[0]["network"];
 
-					if (isset($noscrape["fn"]))
+					if (isset($noscrape["fn"])) {
 						$contact["name"] = $noscrape["fn"];
-
-					if (isset($noscrape["comm"]))
+					}
+					if (isset($noscrape["comm"])) {
 						$contact["community"] = $noscrape["comm"];
-
+					}
 					if (isset($noscrape["tags"])) {
 						$keywords = implode(" ", $noscrape["tags"]);
-						if ($keywords != "")
+						if ($keywords != "") {
 							$contact["keywords"] = $keywords;
+						}
 					}
 
 					$location = formatted_location($noscrape);
-					if ($location)
+					if ($location) {
 						$contact["location"] = $location;
-
-					if (isset($noscrape["dfrn-notify"]))
+					}
+					if (isset($noscrape["dfrn-notify"])) {
 						$contact["notify"] = $noscrape["dfrn-notify"];
-
+					}
 					// Remove all fields that are not present in the gcontact table
 					unset($noscrape["fn"]);
 					unset($noscrape["key"]);
@@ -579,8 +583,10 @@ function poco_last_updated($profile, $force = false) {
 	}
 
 	// If we only can poll the feed, then we only do this once a while
-	if (!$force AND !poco_do_update($gcontacts[0]["created"], $gcontacts[0]["updated"], $gcontacts[0]["last_failure"],  $gcontacts[0]["last_contact"])) {
+	if (!$force AND !poco_do_update($gcontacts[0]["created"], $gcontacts[0]["updated"], $gcontacts[0]["last_failure"], $gcontacts[0]["last_contact"])) {
 		logger("Profile ".$profile." was last updated at ".$gcontacts[0]["updated"]." (cached)", LOGGER_DEBUG);
+
+		update_gcontact($contact);
 		return $gcontacts[0]["updated"];
 	}
 
@@ -617,8 +623,6 @@ function poco_last_updated($profile, $force = false) {
 		logger("Profile ".$profile." wasn't reachable (profile)", LOGGER_DEBUG);
 		return false;
 	}
-
-	$contact = array("generation" => $gcontacts[0]["generation"]);
 
 	$contact = array_merge($contact, $data);
 
@@ -666,9 +670,10 @@ function poco_last_updated($profile, $force = false) {
 	q("UPDATE `gcontact` SET `updated` = '%s', `last_contact` = '%s' WHERE `nurl` = '%s'",
 		dbesc(dbm::date($last_updated)), dbesc(dbm::date()), dbesc(normalise_link($profile)));
 
-	if (($gcontacts[0]["generation"] == 0))
+	if (($gcontacts[0]["generation"] == 0)) {
 		q("UPDATE `gcontact` SET `generation` = 9 WHERE `nurl` = '%s'",
 			dbesc(normalise_link($profile)));
+	}
 
 	logger("Profile ".$profile." was last updated at ".$last_updated, LOGGER_DEBUG);
 
