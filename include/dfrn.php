@@ -1608,7 +1608,14 @@ class dfrn {
 			dbesc(normalise_link($suggest["url"])),
 			intval($suggest["uid"])
 		);
-		/// @TODO Really abort on valid result??? Maybe missed ! here?
+
+		/*
+		 * The valid result means the friend we're about to send a friend
+		 * suggestion already has them in their contact, which means no further
+		 * action is required.
+		 *
+		 * @see https://github.com/friendica/friendica/pull/3254#discussion_r107315246
+		 */
 		if (dbm::is_result($r)) {
 			return false;
 		}
@@ -1629,30 +1636,33 @@ class dfrn {
 				intval($suggest["uid"]),
 				intval($fid)
 			);
+
 			/// @TODO Really abort on valid result??? Maybe missed ! here?
 			if (dbm::is_result($r)) {
 				return false;
 			}
 		}
-		if (!$fid)
+		if (!$fid) {
 			$r = q("INSERT INTO `fcontact` (`name`,`url`,`photo`,`request`) VALUES ('%s', '%s', '%s', '%s')",
-			dbesc($suggest["name"]),
-			dbesc($suggest["url"]),
-			dbesc($suggest["photo"]),
-			dbesc($suggest["request"])
-		);
+				dbesc($suggest["name"]),
+				dbesc($suggest["url"]),
+				dbesc($suggest["photo"]),
+				dbesc($suggest["request"])
+			);
+		}
 		$r = q("SELECT `id` FROM `fcontact` WHERE `url` = '%s' AND `name` = '%s' AND `request` = '%s' LIMIT 1",
 			dbesc($suggest["url"]),
 			dbesc($suggest["name"]),
 			dbesc($suggest["request"])
 		);
-		if (dbm::is_result($r)) {
-			$fid = $r[0]["id"];
-		} else {
+
+		// This way a useless else-block is being spared, resulting in easier code.
+		if (!dbm::is_result($r)) {
 			// database record did not get created. Quietly give up.
 			killme();
 		}
 
+		$fid = $r[0]["id"];
 
 		$hash = random_string();
 
