@@ -411,43 +411,51 @@ class ostatus {
 						if ($attributes->name == "title")
 							$title = $attributes->textContent;
 					}
-					if (($rel != "") AND ($href != ""))
-						switch($rel) {
+					if (($rel != "") AND ($href != "")) {
+						switch ($rel) {
 							case "alternate":
 								$item["plink"] = $href;
+								/// @TODO These multi-lines can confuse, let's avoid them
 								if (($item["object-type"] == ACTIVITY_OBJ_QUESTION) OR
-									($item["object-type"] == ACTIVITY_OBJ_EVENT))
+									($item["object-type"] == ACTIVITY_OBJ_EVENT)) {
 									$item["body"] .= add_page_info($href);
+								}
 								break;
 							case "ostatus:conversation":
 								$conversation = $href;
 								break;
 							case "enclosure":
 								$enclosure = $href;
-								if(strlen($item["attach"]))
+								if (strlen($item["attach"])) {
 									$item["attach"] .= ',';
+								}
 
-								$item["attach"] .= '[attach]href="'.$href.'" length="'.$length.'" type="'.$type.'" title="'.$title.'"[/attach]';
+								$item["attach"] .= '[attach]href="' . $href . '" length="' . $length . '" type="' . $type . '" title="' . $title . '"[/attach]';
 								break;
 							case "related":
 								if ($item["object-type"] != ACTIVITY_OBJ_BOOKMARK) {
-									if (!isset($item["parent-uri"]))
+									if (!isset($item["parent-uri"])) {
 										$item["parent-uri"] = $href;
+									}
 
-									if ($related == "")
+									if ($related == "") {
 										$related = $href;
-								} else
+									}
+								} else {
 									$item["body"] .= add_page_info($href);
+								}
 								break;
 							case "self":
 								$self = $href;
 								break;
 							case "mentioned":
 								// Notification check
-								if ($importer["nurl"] == normalise_link($href))
+								if ($importer["nurl"] == normalise_link($href)) {
 									$mention = true;
+								}
 								break;
 						}
+					}
 				}
 			}
 
