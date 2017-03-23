@@ -1637,7 +1637,13 @@ class dfrn {
 				intval($fid)
 			);
 
-			/// @TODO Really abort on valid result??? Maybe missed ! here?
+			/*
+			 * The valid result means the friend we're about to send a friend
+			 * suggestion already has them in their contact, which means no further
+			 * action is required.
+			 *
+			 * @see https://github.com/friendica/friendica/pull/3254#discussion_r107315246
+			 */
 			if (dbm::is_result($r)) {
 				return false;
 			}
@@ -1656,7 +1662,10 @@ class dfrn {
 			dbesc($suggest["request"])
 		);
 
-		// This way a useless else-block is being spared, resulting in easier code.
+		/*
+		 * If no record in fcontact is found, below INSERT statement will not
+		 * link an introduction to it.
+		 */
 		if (!dbm::is_result($r)) {
 			// database record did not get created. Quietly give up.
 			killme();
