@@ -1349,12 +1349,11 @@ class App {
 		// This should prevent the forking of masses of workers.
 		$cachekey = "app:proc_run:started";
 		$result = Cache::get($cachekey);
-		/// @TODO maybe merge these both into one if() ?
-		if (!is_null($result)) {
-			if ((time() - $result) < 10) {
-				return;
-			}
+
+		if (!is_null($result) AND (time() - $result) < 10) {
+			return;
 		}
+
 		// Set the timestamp of the last proc_run
 		Cache::set($cachekey, time(), CACHE_MINUTE);
 
@@ -1363,16 +1362,17 @@ class App {
 		// add baseurl to args. cli scripts can't construct it
 		$args[] = $this->get_baseurl();
 
+		/// @TODO let's replace these with a foreach($key => $value) loop
 		for ($x = 0; $x < count($args); $x ++) {
 			$args[$x] = escapeshellarg($args[$x]);
 		}
 
-		$cmdline = implode($args," ");
+		$cmdline = implode($args, " ");
 
-		if (get_config('system','proc_windows')) {
-			proc_close(proc_open('cmd /c start /b ' . $cmdline,array(),$foo,dirname(__FILE__)));
+		if (get_config('system', 'proc_windows')) {
+			proc_close(proc_open('cmd /c start /b ' . $cmdline, array(), $foo, dirname(__FILE__)));
 		} else {
-			proc_close(proc_open($cmdline." &",array(),$foo,dirname(__FILE__)));
+			proc_close(proc_open($cmdline . " &", array(), $foo, dirname(__FILE__)));
 		}
 
 	}
