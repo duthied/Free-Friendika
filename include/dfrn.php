@@ -689,15 +689,15 @@ class dfrn {
 			}
 
 			if ($r->link) {
-				if (substr($r->link,0,1) == '<') {
-					if (strstr($r->link,'&') && (! strstr($r->link,'&amp;'))) {
-						$r->link = str_replace('&','&amp;', $r->link);
+				if (substr($r->link, 0, 1) == '<') {
+					if (strstr($r->link, '&') && (! strstr($r->link, '&amp;'))) {
+						$r->link = str_replace('&', '&amp;', $r->link);
 					}
 
-					$r->link = preg_replace('/\<link(.*?)\"\>/','<link$1"/>',$r->link);
+					$r->link = preg_replace('/\<link(.*?)\"\>/', '<link$1"/>', $r->link);
 
 					// XML does need a single element as root element so we add a dummy element here
-					$data = parse_xml_string("<dummy>".$r->link."</dummy>", false);
+					$data = parse_xml_string("<dummy>" . $r->link . "</dummy>", false);
 					if (is_object($data)) {
 						foreach ($data->link AS $link) {
 							$attributes = array();
