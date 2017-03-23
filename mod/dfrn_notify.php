@@ -143,7 +143,7 @@ function dfrn_notify_post(App $a) {
 	$rino = get_config('system','rino_encrypt');
 	$rino = intval($rino);
 	// use RINO1 if mcrypt isn't installed and RINO2 was selected
-	if ($rino==2 and !function_exists('mcrypt_create_iv')) $rino=1;
+	if ($rino == 2 and !function_exists('mcrypt_create_iv')) $rino=1;
 
 	logger("Local rino version: ". $rino, LOGGER_DEBUG);
 
@@ -290,24 +290,24 @@ function dfrn_notify_content(App $a) {
 
 		logger("Remote rino version: ".$rino_remote." for ".$r[0]["url"], LOGGER_DEBUG);
 
-		$challenge = '';
+		$challenge    = '';
 		$encrypted_id = '';
-		$id_str = $my_id . '.' . mt_rand(1000,9999);
+		$id_str       = $my_id . '.' . mt_rand(1000,9999);
 
 		$prv_key = trim($r[0]['prvkey']);
 		$pub_key = trim($r[0]['pubkey']);
-		$dplx = intval($r[0]['duplex']);
+		$dplx    = intval($r[0]['duplex']);
 
-		if((($dplx) && (strlen($prv_key))) || ((strlen($prv_key)) && (!(strlen($pub_key))))) {
-			openssl_private_encrypt($hash,$challenge,$prv_key);
-			openssl_private_encrypt($id_str,$encrypted_id,$prv_key);
-		}
-		elseif(strlen($pub_key)) {
-			openssl_public_encrypt($hash,$challenge,$pub_key);
-			openssl_public_encrypt($id_str,$encrypted_id,$pub_key);
-		}
-		else
+		if ((($dplx) && (strlen($prv_key))) || ((strlen($prv_key)) && (!(strlen($pub_key))))) {
+			openssl_private_encrypt($hash, $challenge, $prv_key);
+			openssl_private_encrypt($id_str, $encrypted_id, $prv_key);
+		} elseif (strlen($pub_key)) {
+			openssl_public_encrypt($hash, $challenge, $pub_key);
+			openssl_public_encrypt($id_str, $encrypted_id, $pub_key);
+		} else {
+			/// @TODO these kind of else-blocks are making the code harder to understand
 			$status = 1;
+		}
 
 		$challenge    = bin2hex($challenge);
 		$encrypted_id = bin2hex($encrypted_id);
@@ -316,18 +316,22 @@ function dfrn_notify_content(App $a) {
 		$rino = get_config('system','rino_encrypt');
 		$rino = intval($rino);
 		// use RINO1 if mcrypt isn't installed and RINO2 was selected
-		if ($rino==2 and !function_exists('mcrypt_create_iv')) $rino=1;
+		/// @TODO Define a code-standard: and/AND/&& are around
+		if ($rino == 2 and !function_exists('mcrypt_create_iv')) {
+			$rino = 1;
+		}
 
 		logger("Local rino version: ". $rino, LOGGER_DEBUG);
 
 		// if requested rino is lower than enabled local rino, lower local rino version
 		// if requested rino is higher than enabled local rino, reply with local rino
-		if ($rino_remote < $rino) $rino = $rino_remote;
+		if ($rino_remote < $rino) {
+			$rino = $rino_remote;
+		}
 
 		if((($r[0]['rel']) && ($r[0]['rel'] != CONTACT_IS_SHARING)) || ($r[0]['page-flags'] == PAGE_COMMUNITY)) {
 			$perm = 'rw';
-		}
-		else {
+		} else {
 			$perm = 'r';
 		}
 
