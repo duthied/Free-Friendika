@@ -2037,28 +2037,28 @@ class dfrn {
 
 			// Big question: Do we need these functions? They were part of the "consume_feed" function.
 			// This function once was responsible for DFRN and OStatus.
-			if (activity_match($item["verb"],ACTIVITY_FOLLOW)) {
+			if (activity_match($item["verb"], ACTIVITY_FOLLOW)) {
 				logger("New follower");
 				new_follower($importer, $contact, $item, $nickname);
 				return false;
 			}
-			if (activity_match($item["verb"],ACTIVITY_UNFOLLOW))  {
+			if (activity_match($item["verb"], ACTIVITY_UNFOLLOW))  {
 				logger("Lost follower");
 				lose_follower($importer, $contact, $item);
 				return false;
 			}
-			if (activity_match($item["verb"],ACTIVITY_REQ_FRIEND)) {
+			if (activity_match($item["verb"], ACTIVITY_REQ_FRIEND)) {
 				logger("New friend request");
 				new_follower($importer, $contact, $item, $nickname, true);
 				return false;
 			}
-			if (activity_match($item["verb"],ACTIVITY_UNFRIEND))  {
+			if (activity_match($item["verb"], ACTIVITY_UNFRIEND))  {
 				logger("Lost sharer");
 				lose_sharer($importer, $contact, $item);
 				return false;
 			}
 		} else {
-			if(($item["verb"] == ACTIVITY_LIKE)
+			if (($item["verb"] == ACTIVITY_LIKE)
 				|| ($item["verb"] == ACTIVITY_DISLIKE)
 				|| ($item["verb"] == ACTIVITY_ATTEND)
 				|| ($item["verb"] == ACTIVITY_ATTENDNO)
@@ -2331,7 +2331,7 @@ class dfrn {
 							$item["tag"] .= ",";
 						}
 
-						$item["tag"] .= $termhash."[url=".$termurl."]".$term."[/url]";
+						$item["tag"] .= $termhash . "[url=" . $termurl . "]" . $term . "[/url]";
 					}
 				}
 			}
@@ -2381,6 +2381,7 @@ class dfrn {
 				$item["network"] = $author["network"];
 			}
 
+			/// @TODO maybe remove this old-lost code then?
 			// This code was taken from the old DFRN code
 			// When activated, forums don't work.
 			// And: Why should we disallow commenting by followers?
@@ -2405,6 +2406,7 @@ class dfrn {
 				$ev = bbtoevent($item["body"]);
 				if ((x($ev, "desc") || x($ev, "summary")) && x($ev, "start")) {
 					logger("Event in item ".$item["uri"]." was found.", LOGGER_DEBUG);
+					/// @TODO Mixure of "/' ahead ...
 					$ev["cid"] = $importer["id"];
 					$ev["uid"] = $importer["uid"];
 					$ev["uri"] = $item["uri"];
@@ -2654,7 +2656,7 @@ class dfrn {
 				}
 				// if this is a relayed delete, propagate it to other recipients
 
-				if($entrytype == DFRN_REPLY_RC) {
+				if ($entrytype == DFRN_REPLY_RC) {
 					logger("Notifying followers about deletion of post ".$item["id"], LOGGER_DEBUG);
 					proc_run(PRIORITY_HIGH, "include/notifier.php","drop", $item["id"]);
 				}
@@ -2671,10 +2673,11 @@ class dfrn {
 	 */
 	public static function import($xml,$importer, $sort_by_date = false) {
 
-		if ($xml == "")
+		if ($xml == "") {
 			return;
+		}
 
-		if($importer["readonly"]) {
+		if ($importer["readonly"]) {
 			// We aren't receiving stuff from this person. But we will quietly ignore them
 			// rather than a blatant "go away" message.
 			logger('ignoring contact '.$importer["id"]);
@@ -2707,35 +2710,40 @@ class dfrn {
 		// Update the contact table if the data has changed
 
 		// The "atom:author" is only present in feeds
-		if ($xpath->query("/atom:feed/atom:author")->length > 0)
+		if ($xpath->query("/atom:feed/atom:author")->length > 0) {
 			self::fetchauthor($xpath, $doc->firstChild, $importer, "atom:author", false, $xml);
+		}
 
 		// Only the "dfrn:owner" in the head section contains all data
-		if ($xpath->query("/atom:feed/dfrn:owner")->length > 0)
+		if ($xpath->query("/atom:feed/dfrn:owner")->length > 0) {
 			self::fetchauthor($xpath, $doc->firstChild, $importer, "dfrn:owner", false, $xml);
+		}
 
-		logger("Import DFRN message for user ".$importer["uid"]." from contact ".$importer["id"], LOGGER_DEBUG);
+		logger("Import DFRN message for user " . $importer["uid"] . " from contact " . $importer["id"], LOGGER_DEBUG);
 
 		// The account type is new since 3.5.1
 		if ($xpath->query("/atom:feed/dfrn:account_type")->length > 0) {
 			$accounttype = intval($xpath->evaluate("/atom:feed/dfrn:account_type/text()", $context)->item(0)->nodeValue);
 
-			if ($accounttype != $importer["contact-type"])
+			if ($accounttype != $importer["contact-type"]) {
+				/// @TODO this way is the norm or putting ); at the end of the line?
 				q("UPDATE `contact` SET `contact-type` = %d WHERE `id` = %d",
 					intval($accounttype),
 					intval($importer["id"])
 				);
+			}
 		}
 
 		// is it a public forum? Private forums aren't supported with this method
 		// This is deprecated since 3.5.1
 		$forum = intval($xpath->evaluate("/atom:feed/dfrn:community/text()", $context)->item(0)->nodeValue);
 
-		if ($forum != $importer["forum"])
+		if ($forum != $importer["forum"]) {
 			q("UPDATE `contact` SET `forum` = %d WHERE `forum` != %d AND `id` = %d",
 				intval($forum), intval($forum),
 				intval($importer["id"])
 			);
+		}
 
 		$mails = $xpath->query("/atom:feed/dfrn:mail");
 		foreach ($mails AS $mail) {
@@ -2780,4 +2788,3 @@ class dfrn {
 		logger("Import done for user ".$importer["uid"]." from contact ".$importer["id"], LOGGER_DEBUG);
 	}
 }
-?>
