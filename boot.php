@@ -669,6 +669,7 @@ class App {
 
 			if (x($_SERVER,'SERVER_PORT') && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443)
 				$this->hostname .= ':' . $_SERVER['SERVER_PORT'];
+			}
 			/*
 			 * Figure out if we are running at the top of a domain
 			 * or in a sub-directory and adjust accordingly
@@ -677,10 +678,12 @@ class App {
 			$path = trim(dirname($_SERVER['SCRIPT_NAME']),'/\\');
 			if (isset($path) && strlen($path) && ($path != $this->path))
 				$this->path = $path;
+			}
 		}
 
-		if ($hostname != "")
+		if ($hostname != "") {
 			$this->hostname = $hostname;
+		}
 
 		if (is_array($_SERVER["argv"]) && $_SERVER["argc"]>1 && substr(end($_SERVER["argv"]), 0, 4)=="http" ) {
 			$this->set_baseurl(array_pop($_SERVER["argv"]) );
@@ -1090,11 +1093,12 @@ class App {
 	 * @param string $name
 	 */
 	function register_template_engine($class, $name = '') {
-		if ($name===""){
+		/// @TODO Really === and not just == ?
+		if ($name === "") {
 			$v = get_class_vars( $class );
 			if (x($v,"name")) $name = $v['name'];
 		}
-		if ($name===""){
+		if ($name === "") {
 			echo "template engine <tt>$class</tt> cannot be registered without a name.\n";
 			killme();
 		}
@@ -1110,8 +1114,9 @@ class App {
 	 * @param strin $name Template engine name
 	 * @return object Template Engine instance
 	 */
-	function template_engine($name = ''){
-		if ($name!=="") {
+	function template_engine($name = '') {
+		/// @TODO really type-check included?
+		if ($name !== "") {
 			$template_engine = $name;
 		} else {
 			$template_engine = 'smarty3';
@@ -1276,27 +1281,26 @@ class App {
 	 * @return bool Is it a known backend?
 	 */
 	function is_backend() {
-		static $backend = array(
-			"_well_known",
-			"api",
-			"dfrn_notify",
-			"fetch",
-			"hcard",
-			"hostxrd",
-			"nodeinfo",
-			"noscrape",
-			"p",
-			"poco",
-			"post",
-			"proxy",
-			"pubsub",
-			"pubsubhubbub",
-			"receive",
-			"rsd_xml",
-			"salmon",
-			"statistics_json",
-			"xrd",
-		);
+		$backend = array();
+		$backend[] = "_well_known";
+		$backend[] = "api";
+		$backend[] = "dfrn_notify";
+		$backend[] = "fetch";
+		$backend[] = "hcard";
+		$backend[] = "hostxrd";
+		$backend[] = "nodeinfo";
+		$backend[] = "noscrape";
+		$backend[] = "p";
+		$backend[] = "poco";
+		$backend[] = "post";
+		$backend[] = "proxy";
+		$backend[] = "pubsub";
+		$backend[] = "pubsubhubbub";
+		$backend[] = "receive";
+		$backend[] = "rsd_xml";
+		$backend[] = "salmon";
+		$backend[] = "statistics_json";
+		$backend[] = "xrd";
 
 		if (in_array($this->module, $backend)) {
 			return(true);
@@ -1404,6 +1408,7 @@ class App {
 		} else {
 			proc_close(proc_open($cmdline." &",array(),$foo,dirname(__FILE__)));
 		}
+
 	}
 
 	/**
@@ -1777,8 +1782,9 @@ function get_guid($size=16, $prefix = "") {
 		$prefix = hash("crc32", $a->get_hostname());
 	}
 
-	while (strlen($prefix) < ($size - 13))
+	while (strlen($prefix) < ($size - 13)) {
 		$prefix .= mt_rand();
+	}
 
 	if ($size >= 24) {
 		$prefix = substr($prefix, 0, $size - 22);
@@ -1822,7 +1828,7 @@ function login($register = false, $hiddens=false) {
 		$tpl = get_markup_template("logout.tpl");
 	} else {
 		$a->page['htmlhead'] .= replace_macros(get_markup_template("login_head.tpl"),array(
-			'$baseurl'		=> $a->get_baseurl(true)
+			'$baseurl' => $a->get_baseurl(true)
 		));
 
 		$tpl = get_markup_template("login.tpl");
@@ -1912,11 +1918,11 @@ function public_contact() {
 		if (x($_SESSION, 'my_address')) {
 			// Local user
 			$public_contact_id = intval(get_contact($_SESSION['my_address'], 0));
-		} else if (x($_SESSION, 'visitor_home')) {
+		} elseif (x($_SESSION, 'visitor_home')) {
 			// Remote user
 			$public_contact_id = intval(get_contact($_SESSION['visitor_home'], 0));
 		}
-	} else if (!x($_SESSION, 'authenticated')) {
+	} elseif (!x($_SESSION, 'authenticated')) {
 		$public_contact_id = false;
 	}
 
@@ -2175,7 +2181,6 @@ function current_theme(){
 	}
 
 	/// @TODO No final return statement?
-
 }
 
 /**
@@ -2257,9 +2262,10 @@ function is_site_admin() {
 
 	$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
 
-	//if (local_user() && x($a->user,'email') && x($a->config,'admin_email') && ($a->user['email'] === $a->config['admin_email']))
-	if (local_user() && x($a->user,'email') && x($a->config,'admin_email') && in_array($a->user['email'], $adminlist))
+	//if(local_user() && x($a->user,'email') && x($a->config,'admin_email') && ($a->user['email'] === $a->config['admin_email']))
+	if (local_user() && x($a->user,'email') && x($a->config,'admin_email') && in_array($a->user['email'], $adminlist)) {
 		return true;
+	}
 	return false;
 }
 
@@ -2271,21 +2277,24 @@ function is_site_admin() {
  *
  * @return string
  */
-function build_querystring($params, $name=null) {
+function build_querystring($params, $name = null) {
 	$ret = "";
-	foreach ($params as $key=>$val) {
+	foreach ($params as $key => $val) {
 		if (is_array($val)) {
-			if ($name==null) {
+			/// @TODO maybe not compare against null, use is_null()
+			if ($name == null) {
 				$ret .= build_querystring($val, $key);
 			} else {
 				$ret .= build_querystring($val, $name."[$key]");
 			}
 		} else {
 			$val = urlencode($val);
-			if ($name!=null) {
-				$ret.=$name."[$key]"."=$val&";
+			/// @TODO maybe not compare against null, use is_null()
+			if ($name != null) {
+				/// @TODO two string concated, can be merged to one
+				$ret .= $name . "[$key]" . "=$val&";
 			} else {
-				$ret.= "$key=$val&";
+				$ret .= "$key=$val&";
 			}
 		}
 	}
@@ -2303,7 +2312,8 @@ function explode_querystring($query) {
 	}
 
 	$args = explode('&', substr($query, $arg_st));
-	foreach ($args as $k=>$arg) {
+	foreach ($args as $k => $arg) {
+		/// @TODO really compare type-safe here?
 		if ($arg === '') {
 			unset($args[$k]);
 		}
@@ -2332,7 +2342,9 @@ function curPageURL() {
 	if ($_SERVER["HTTPS"] == "on") {
 		$pageURL .= "s";
 	}
+
 	$pageURL .= "://";
+
 	if ($_SERVER["SERVER_PORT"] != "80" && $_SERVER["SERVER_PORT"] != "443") {
 		$pageURL .= $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
 	} else {
@@ -2344,6 +2356,7 @@ function curPageURL() {
 function random_digits($digits) {
 	$rn = '';
 	for ($i = 0; $i < $digits; $i++) {
+		/// @TODO rand() is different to mt_rand() and maybe lesser "random"
 		$rn .= rand(0,9);
 	}
 	return $rn;
@@ -2366,9 +2379,9 @@ function get_cachefile($file, $writemode = true) {
 		return("");
 	}
 
-	$subfolder = $cache."/".substr($file, 0, 2);
+	$subfolder = $cache . "/" . substr($file, 0, 2);
 
-	$cachepath = $subfolder."/".$file;
+	$cachepath = $subfolder . "/" . $file;
 
 	if ($writemode) {
 		if (!is_dir($subfolder)) {
@@ -2377,6 +2390,7 @@ function get_cachefile($file, $writemode = true) {
 		}
 	}
 
+	/// @TODO no need to put braces here
 	return($cachepath);
 }
 
@@ -2497,8 +2511,10 @@ function get_temppath() {
 	if (($temppath != "") AND App::directory_usable($temppath)) {
 		// To avoid any interferences with other systems we create our own directory
 		$new_temppath .= "/".$a->get_hostname();
-		if (!is_dir($new_temppath))
+		if (!is_dir($new_temppath)) {
+			/// @TODO There is a mkdir()+chmod() upwards, maybe generalize this (+ configurable) into a function/method?
 			mkdir($new_temppath);
+		}
 
 		if (App::directory_usable($new_temppath)) {
 			// The new path is usable, we are happy
@@ -2519,6 +2535,7 @@ function get_temppath() {
 function set_template_engine(App $a, $engine = 'internal') {
 /// @note This function is no longer necessary, but keep it as a wrapper to the class method
 /// to avoid breaking themes again unnecessarily
+/// @TODO maybe output a warning here so the theme developer can see it? PHP won't show such warnings like Java does.
 
 	$a->set_template_engine($engine);
 }
@@ -2617,20 +2634,24 @@ function infinite_scroll_data($module) {
 		AND ($module == "network") AND ($_GET["mode"] != "minimal")) {
 
 		// get the page number
-		if (is_string($_GET["page"]))
+		if (is_string($_GET["page"])) {
 			$pageno = $_GET["page"];
-		else
+		} else {
 			$pageno = 1;
+		}
 
 		$reload_uri = "";
 
 		// try to get the uri from which we load the content
-		foreach ($_GET AS $param => $value)
-			if (($param != "page") AND ($param != "q"))
-				$reload_uri .= "&".$param."=".urlencode($value);
+		foreach ($_GET AS $param => $value) {
+			if (($param != "page") AND ($param != "q")) {
+				$reload_uri .= "&" . $param . "=" . urlencode($value);
+			}
+		}
 
-		if (($a->page_offset != "") AND !strstr($reload_uri, "&offset="))
-			$reload_uri .= "&offset=".urlencode($a->page_offset);
+		if (($a->page_offset != "") AND !strstr($reload_uri, "&offset=")) {
+			$reload_uri .= "&offset=" . urlencode($a->page_offset);
+		}
 
 		$arr = array("pageno" => $pageno, "reload_uri" => $reload_uri);
 
