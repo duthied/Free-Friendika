@@ -2377,7 +2377,11 @@ class DFRN
 					);
 
 					if (!DBM::is_result($r)) {
+						/*
+						 * @TODO maybe one day:
 						logger("Query failed to execute, no result returned in " . __FUNCTION__);
+						killme();
+						*/
 						return false;
 					}
 
