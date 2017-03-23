@@ -675,8 +675,8 @@ class App {
 			 * or in a sub-directory and adjust accordingly
 			 */
 
-			$path = trim(dirname($_SERVER['SCRIPT_NAME']),'/\\');
-			if (isset($path) && strlen($path) && ($path != $this->path))
+			$path = trim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+			if (isset($path) && strlen($path) && ($path != $this->path)) {
 				$this->path = $path;
 			}
 		}
