@@ -290,16 +290,6 @@ function sanitized_gcontact(&$gcontact) {
 
 		$gcontact["server_url"] = $data["baseurl"];
 
-		unset($data["guid"]);
-		unset($data["batch"]);
-		unset($data["poll"]);
-		unset($data["request"]);
-		unset($data["confirm"]);
-		unset($data["poco"]);
-		unset($data["priority"]);
-		unset($data["pubkey"]);
-		unset($data["baseurl"]);
-
 		$gcontact = array_merge($gcontact, $data);
 
 		if ($alternate AND ($gcontact['network'] == NETWORK_OSTATUS)) {
@@ -608,15 +598,7 @@ function poco_last_updated($profile, $force = false) {
 
 		$gcontact = array_merge($gcontacts[0], $data);
 
-		unset($gcontact["guid"]);
-		unset($gcontact["batch"]);
-		unset($gcontact["poll"]);
-		unset($gcontact["request"]);
-		unset($gcontact["confirm"]);
-		unset($gcontact["poco"]);
-		unset($gcontact["priority"]);
-		unset($gcontact["pubkey"]);
-		unset($gcontact["baseurl"]);
+		$gcontact["server_url"] = $data["baseurl"];
 
 		if (sanitized_gcontact($gcontact)) {
 			update_gcontact($gcontact);
@@ -641,16 +623,6 @@ function poco_last_updated($profile, $force = false) {
 	$contact = array_merge($contact, $data);
 
 	$contact["server_url"] = $data["baseurl"];
-
-	unset($contact["guid"]);
-	unset($contact["batch"]);
-	unset($contact["poll"]);
-	unset($contact["request"]);
-	unset($contact["confirm"]);
-	unset($contact["poco"]);
-	unset($contact["priority"]);
-	unset($contact["pubkey"]);
-	unset($contact["baseurl"]);
 
 	update_gcontact($contact);
 
@@ -2207,6 +2179,8 @@ function update_gcontact_from_probe($url) {
 		logger("Invalid network for contact url ".$data["url"]." - Called by: ".App::callstack(), LOGGER_DEBUG);
 		return;
 	}
+
+	$data["server_url"] = $data["baseurl"];
 
 	update_gcontact($data);
 }

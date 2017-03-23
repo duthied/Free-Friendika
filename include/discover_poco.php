@@ -236,6 +236,9 @@ function discover_directory($search) {
 				if ($jj->tags != "") {
 					$data["keywords"] = $jj->tags;
 				}
+
+				$data["server_url"] = $data["baseurl"];
+
 				update_gcontact($data);
 			} else {
 				logger("Profile ".$jj->url." is not responding or no Friendica contact - but network ".$data["network"], LOGGER_DEBUG);
