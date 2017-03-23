@@ -1128,18 +1128,6 @@ class App {
 
 	function set_template_engine($engine = 'smarty3') {
 		$this->theme['template_engine'] = $engine;
-		/*
-		$this->theme['template_engine'] = 'smarty3';
-
-		switch($engine) {
-			case 'smarty3':
-				if (is_writable('view/smarty3/'))
-					$this->theme['template_engine'] = 'smarty3';
-				break;
-			default:
-				break;
-		}
-		*/
 	}
 
 	function get_template_ldelim($engine = 'smarty3') {
