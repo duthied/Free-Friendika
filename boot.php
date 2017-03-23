@@ -611,8 +611,9 @@ class App {
 
 		$hostname = "";
 
-		if (file_exists(".htpreconfig.php"))
-			@include(".htpreconfig.php");
+		if (file_exists(".htpreconfig.php")) {
+			include ".htpreconfig.php";
+		}
 
 		$this->timezone = ((x($default_timezone)) ? $default_timezone : 'UTC');
 
@@ -881,7 +882,7 @@ class App {
 			}
 
 			if (file_exists(".htpreconfig.php")) {
-				include(".htpreconfig.php");
+				include ".htpreconfig.php";
 			}
 
 			if (get_config('config', 'hostname') != '') {
