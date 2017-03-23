@@ -165,12 +165,17 @@ function discover_users() {
 			continue;
 		}
 
+		$server_url = poco_detect_server($user["url"]);
+		$force_update = false;
+
 		if ($user["server_url"] != "") {
+
+			$force_update = (normalise_link($user["server_url"]) != normalise_link($server_url));
+
 			$server_url = $user["server_url"];
-		} else {
-			$server_url = poco_detect_server($user["url"]);
 		}
-		if ((($server_url == "") AND ($user["network"] == NETWORK_FEED)) OR poco_check_server($server_url, $user["network"])) {
+
+		if ((($server_url == "") AND ($user["network"] == NETWORK_FEED)) OR $force_update OR poco_check_server($server_url, $user["network"])) {
 			logger('Check profile '.$user["url"]);
 			proc_run(PRIORITY_LOW, "include/discover_poco.php", "check_profile", base64_encode($user["url"]));
 
