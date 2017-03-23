@@ -896,8 +896,8 @@ class App {
 	}
 
 	function get_hostname() {
-		if (get_config('config','hostname') != "") {
-			$this->hostname = get_config('config','hostname');
+		if (get_config('config', 'hostname') != "") {
+			$this->hostname = get_config('config', 'hostname');
 		}
 
 		return $this->hostname;
@@ -908,7 +908,7 @@ class App {
 	}
 
 	function set_path($p) {
-		$this->path = trim(trim($p),'/');
+		$this->path = trim(trim($p), '/');
 	}
 
 	function get_path() {
@@ -943,8 +943,8 @@ class App {
 
 		// compose the page title from the sitename and the
 		// current module called
-		if (!$this->module=='') {
-			$this->page['title'] = $this->config['sitename'].' ('.$this->module.')';
+		if (!$this->module == '') {
+		    $this->page['title'] = $this->config['sitename'] . ' (' . $this->module . ')';
 		} else {
 			$this->page['title'] = $this->config['sitename'];
 		}
