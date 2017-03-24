@@ -253,7 +253,6 @@ define ( 'NETWORK_PHANTOM',          'unkn');    // Place holder
  * and existing allocations MUST NEVER BE CHANGED
  * OR RE-ASSIGNED! You may only add to them.
  */
-
 $netgroup_ids = array(
 	NETWORK_DFRN     => (-1),
 	NETWORK_ZOT      => (-2),
@@ -503,6 +502,7 @@ function startup() {
  */
 class App {
 
+	/// @TODO decide indending as a colorful mixure is ahead ...
 	public  $module_loaded = false;
 	public  $query_string;
 	public  $config;
@@ -810,11 +810,11 @@ class App {
 			$basepath = $_SERVER["PWD"];
 		}
 
-		return($basepath);
+		return $basepath;
 	}
 
 	function get_scheme() {
-		return($this->scheme);
+		return $this->scheme;
 	}
 
 	/**
@@ -1048,7 +1048,7 @@ class App {
 
 		// Is the function called statically?
 		if (!(isset($this) && get_class($this) == __CLASS__)) {
-			return(self::$a->remove_baseurl($orig_url));
+			return self::$a->remove_baseurl($orig_url);
 		}
 
 		// Remove the hostname from the url if it is an internal link
@@ -1233,11 +1233,11 @@ class App {
 	}
 
 	function get_useragent() {
-		return(FRIENDICA_PLATFORM." '".FRIENDICA_CODENAME."' ".FRIENDICA_VERSION."-".DB_UPDATE_VERSION."; ".$this->get_baseurl());
+		return (FRIENDICA_PLATFORM." '".FRIENDICA_CODENAME."' ".FRIENDICA_VERSION."-".DB_UPDATE_VERSION."; ".$this->get_baseurl());
 	}
 
 	function is_friendica_app() {
-		return($this->is_friendica_app);
+		return $this->is_friendica_app;
 	}
 
 	/**
@@ -1249,6 +1249,7 @@ class App {
 	 * @return bool Is it a known backend?
 	 */
 	function is_backend() {
+		/// @Should be made static to speedup things
 		$backend = array();
 		$backend[] = "_well_known";
 		$backend[] = "api";
@@ -1270,6 +1271,7 @@ class App {
 		$backend[] = "statistics_json";
 		$backend[] = "xrd";
 
+		/// @TODO Maybe rewrite this part: return (in_array() || $this->backend); ?
 		if (in_array($this->module, $backend)) {
 			return(true);
 		} else {
@@ -2359,7 +2361,7 @@ function get_cachefile($file, $writemode = true) {
 	}
 
 	/// @TODO no need to put braces here
-	return($cachepath);
+	return $cachepath;
 }
 
 function clear_cache($basepath = "", $path = "") {
@@ -2511,7 +2513,7 @@ function set_template_engine(App $a, $engine = 'internal') {
 if (!function_exists('exif_imagetype')) {
 	function exif_imagetype($file) {
 		$size = getimagesize($file);
-		return($size[2]);
+		return $size[2];
 	}
 }
 
