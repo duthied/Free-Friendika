@@ -72,16 +72,19 @@ function manage_post(App $a) {
 	unset($_SESSION['return_url']);
 	if(x($_SESSION,'submanage'))
 		unset($_SESSION['submanage']);
-	if(x($_SESSION,'sysmsg'))
+	if (x($_SESSION,'sysmsg')) {
 		unset($_SESSION['sysmsg']);
-	if(x($_SESSION,'sysmsg_info'))
+	}
+	if (x($_SESSION,'sysmsg_info')) {
 		unset($_SESSION['sysmsg_info']);
+	}
 
 	require_once('include/security.php');
-	authenticate_success($r[0],true,true);
+	authenticate_success($r[0], true, true);
 
-	if($limited_id)
+	if ($limited_id) {
 		$_SESSION['submanage'] = $original_id;
+	}
 
 	$ret = array();
 	call_hooks('home_init',$ret);
@@ -113,26 +116,32 @@ function manage_content(App $a) {
 			dbesc($id['uid'])
 		);
 
-		$identities[$key][thumb] = $thumb[0][thumb];
+		$identities[$key]['thumb'] = $thumb[0]['thumb'];
 
-		$identities[$key]['selected'] = (($id['nickname'] === $a->user['nickname']) ? true : false);
+		$identities[$key]['selected'] = ($id['nickname'] === $a->user['nickname']);
 
 		$notifications = 0;
 
 		$r = q("SELECT DISTINCT(`parent`) FROM `notify` WHERE `uid` = %d AND NOT `seen` AND NOT (`type` IN (%d, %d))",
 			intval($id['uid']), intval(NOTIFY_INTRO), intval(NOTIFY_MAIL));
-		if ($r)
+
+		if (dbm::is_result($r)) {
 			$notifications = sizeof($r);
+		}
 
 		$r = q("SELECT DISTINCT(`convid`) FROM `mail` WHERE `uid` = %d AND NOT `seen`",
 			intval($id['uid']));
-		if ($r)
+
+		if (dbm::is_result($r)) {
 			$notifications = $notifications + sizeof($r);
+		}
 
 		$r = q("SELECT COUNT(*) AS `introductions` FROM `intro` WHERE NOT `blocked` AND NOT `ignore` AND `uid` = %d",
 			intval($id['uid']));
-		if ($r)
+
+		if (dbm::is_result($r)) {
 			$notifications = $notifications + $r[0]["introductions"];
+		}
 
 		$identities[$key]['notifications'] = $notifications;
 	}
