@@ -51,13 +51,14 @@ body a[name]:not([href]) {
     visibility: hidden;
 }
 
-body a:hover, body .btn-link:hover,
-body a:focus, body .btn-link:focus,
-body a:active, body .btn-link:active,
-body a.active, body .btn-link.active {
+body a:hover, .btn-link:hover,
+body a:focus, .btn-link:focus,
+body a:active, .btn-link:active,
+body a.active, .btn-link.active {
     /*color: #59d6e4;*/
     color: $link_hover_color;
     text-decoration: none;
+    outline: none;
 }
 
 .wall-item-container a:hover {
@@ -206,6 +207,8 @@ a#item-delete-selected {
 .btn-link {
     border: 0;
     color: $link_color;
+    padding-left: 0;
+    padding-right: 0;
 }
 .btn-link:focus, .btn-link:hover {
     color: #23527c;
@@ -404,7 +407,8 @@ header #banner #logo-img,
     top: 2px;
     right: 10px
 }
-.topbar .dropdown-header .dropdown-header-link a {
+.topbar .dropdown-header .dropdown-header-link a,
+.topbar .dropdown-header .dropdown-header-link .btn-link {
     /*color: #6fdbe8!important;*/
     color: $link_color !important;
     font-size: 12px;
@@ -652,10 +656,10 @@ nav.navbar a, nav.navbar .btn-link {
 #myNavmenu li.nav-sitename {
     font-weight: bold;
 }
-#topbar-first .dropdown.account>a,
-#topbar-first .dropdown.account.open>a,
-#topbar-first .dropdown.account>a:hover,
-#topbar-first .dropdown.account.open>a:hover {
+#topbar-first .dropdown.account > a,
+#topbar-first .dropdown.account.open > a,
+#topbar-first .dropdown.account > :hover,
+#topbar-first .dropdown.account.open > :hover {
     background-color: $nav_bg;
 }
 #topbar-first .dropdown.account li#nav-sitename {
@@ -823,14 +827,19 @@ nav.navbar a, nav.navbar .btn-link {
 }
 
 /* Dropdown Menus */
-.nav > li > .btn-link:not(.nav-avatar):focus,
-.nav > li > .btn-link:not(.nav-avatar):hover {
+.nav > li > .btn-link {
+    position: relative;
+    display: block;
+    padding: 10px 15px;
+}
+.nav > li > .btn-link:focus,
+.nav > li > .btn-link:hover {
     text-decoration: none;
     background-color: #eee;
 }
-.nav .open > .btn-link:not(.nav-avatar),
-.nav .open > .btn-link:not(.nav-avatar):focus,
-.nav .open > .btn-link:not(.nav-avatar):hover {
+.nav .open > .btn-link,
+.nav .open > .btn-link:focus,
+.nav .open > .btn-link:hover {
     background-color: #eee;
     border-color: #337ab7;
 }
@@ -1562,17 +1571,16 @@ code > .hl-main {
 }
 
 /* item social action buttons */
+.wall-item-actions {
+    margin-top: 15px;
+}
 .wall-item-actions, .wall-item-actions a, .wall-item-actions button {
     font-size: 13px;
     color: #555;
-    margin-top: 15px;
     margin-bottom: 0;
 }
 .wall-item-actions .active {
     font-weight: bold;
-}
-.wall-item-actions :hover {
-    color: #555;
 }
 .wall-item-actions .active:hover {
     color: $link_color;
@@ -1682,8 +1690,8 @@ code > .hl-main {
     padding-top: 5px !important;
     padding-bottom: 5px !important;
 }
-.comment-icon-list .icon,
-.comment-icon-list .icon:hover {
+.comment-icon-list > li > .icon,
+.comment-icon-list > li > .icon:hover {
     color: #555;
     background-color: transparent;
 }
