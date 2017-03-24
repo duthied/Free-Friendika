@@ -171,12 +171,12 @@ function profiles_post(App $a) {
 
 	call_hooks('profile_post', $_POST);
 
-	if(($a->argc > 1) && ($a->argv[1] !== "new") && intval($a->argv[1])) {
+	if (($a->argc > 1) && ($a->argv[1] !== "new") && intval($a->argv[1])) {
 		$orig = q("SELECT * FROM `profile` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($a->argv[1]),
 			intval(local_user())
 		);
-		if(! count($orig)) {
+		if (! dbm::is_result($orig)) {
 			notice( t('Profile not found.') . EOL);
 			return;
 		}
@@ -186,7 +186,7 @@ function profiles_post(App $a) {
 		$is_default = (($orig[0]['is-default']) ? 1 : 0);
 
 		$profile_name = notags(trim($_POST['profile_name']));
-		if(! strlen($profile_name)) {
+		if (! strlen($profile_name)) {
 			notice( t('Profile Name is required.') . EOL);
 			return;
 		}
@@ -194,18 +194,21 @@ function profiles_post(App $a) {
 		$dob = $_POST['dob'] ? escape_tags(trim($_POST['dob'])) : '0000-00-00'; // FIXME: Needs to be validated?
 
 		$y = substr($dob,0,4);
-		if((! ctype_digit($y)) || ($y < 1900))
+		if ((! ctype_digit($y)) || ($y < 1900)) {
 			$ignore_year = true;
-		else
+		} else {
 			$ignore_year = false;
-		if($dob != '0000-00-00') {
-			if(strpos($dob,'0000-') === 0) {
+		}
+		if ($dob != '0000-00-00') {
+			if (strpos($dob,'0000-') === 0) {
 				$ignore_year = true;
-				$dob = substr($dob,5);
+				$dob = substr($dob, 5);
 			}
-			$dob = datetime_convert('UTC','UTC',(($ignore_year) ? '1900-' . $dob : $dob),(($ignore_year) ? 'm-d' : 'Y-m-d'));
-			if($ignore_year)
+			$dob = datetime_convert('UTC', 'UTC', (($ignore_year) ? '1900-' . $dob : $dob), (($ignore_year) ? 'm-d' : 'Y-m-d'));
+
+			if ($ignore_year) {
 				$dob = '0000-' . $dob;
+			}
 		}
 
 		$name = notags(trim($_POST['name']));
@@ -214,10 +217,9 @@ function profiles_post(App $a) {
 			$name = '[No Name]';
 		}
 
-		if($orig[0]['name'] != $name)
+		if ($orig[0]['name'] != $name) {
 			$namechanged = true;
-
-
+		}
 
 		$pdesc = notags(trim($_POST['pdesc']));
 		$gender = notags(trim($_POST['gender']));
@@ -242,20 +244,21 @@ function profiles_post(App $a) {
 
 		$withchanged = false;
 
-		if(strlen($with)) {
-			if($with != strip_tags($orig[0]['with'])) {
+		if (strlen($with)) {
+			if ($with != strip_tags($orig[0]['with'])) {
 				$withchanged = true;
 				$prf = '';
 				$lookup = $with;
-				if(strpos($lookup,'@') === 0)
-					$lookup = substr($lookup,1);
+				if (strpos($lookup,'@') === 0) {
+					$lookup = substr($lookup, 1);
+				}
 				$lookup = str_replace('_',' ', $lookup);
-				if(strpos($lookup,'@') || (strpos($lookup,'http://'))) {
+				if (strpos($lookup, '@') || (strpos($lookup, 'http://'))) {
 					$newname = $lookup;
 					$links = @Probe::lrdd($lookup);
-					if(count($links)) {
-						foreach($links as $link) {
-							if($link['@attributes']['rel'] === 'http://webfinger.net/rel/profile-page') {
+					if (count($links)) {
+						foreach ($links as $link) {
+							if ($link['@attributes']['rel'] === 'http://webfinger.net/rel/profile-page') {
 								$prf = $link['@attributes']['href'];
 							}
 						}
@@ -280,16 +283,17 @@ function profiles_post(App $a) {
 				}
 
 				if ($prf) {
-					$with = str_replace($lookup,'<a href="' . $prf . '">' . $newname . '</a>', $with);
-					if (strpos($with,'@') === 0) {
+					$with = str_replace($lookup, '<a href="' . $prf . '">' . $newname . '</a>', $with);
+					if (strpos($with, '@') === 0) {
 						$with = substr($with, 1);
 					}
 				}
-			}
-			else
+			} else {
 				$with = $orig[0]['with'];
+			}
 		}
 
+		/// @TODO Not flexible enough for later expansion, let's have more OOP here
 		$sexual = notags(trim($_POST['sexual']));
 		$xmpp = notags(trim($_POST['xmpp']));
 		$homepage = notags(trim($_POST['homepage']));
@@ -463,7 +467,7 @@ function profiles_post(App $a) {
 
 		/// @TODO decide to use dbm::is_result() here and check $r
 		if ($r) {
-			info( t('Profile updated.') . EOL);
+			info(t('Profile updated.') . EOL);
 		}
 
 
@@ -513,11 +517,11 @@ function profile_activity($changed, $value) {
 		return;
 	}
 
-	if ($a->user['hidewall'] || get_config('system','block_public')) {
+	if ($a->user['hidewall'] || get_config('system', 'block_public')) {
 		return;
 	}
 
-	if (! get_pconfig(local_user(),'system','post_profilechange')) {
+	if (! get_pconfig(local_user(), 'system', 'post_profilechange')) {
 		return;
 	}
 
