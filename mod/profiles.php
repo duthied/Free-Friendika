@@ -321,7 +321,7 @@ function profiles_post(App $a) {
 
 		$hide_friends = (($_POST['hide-friends'] == 1) ? 1: 0);
 
-		set_pconfig(local_user(),'system','detailled_profile', (($_POST['detailled_profile'] == 1) ? 1: 0));
+		set_pconfig(local_user(),'system', 'detailled_profile', (($_POST['detailled_profile'] == 1) ? 1: 0));
 
 		$changes = array();
 		$value = '';
@@ -496,7 +496,7 @@ function profiles_post(App $a) {
 
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
-			if ($url && strlen(get_config('system','directory'))) {
+			if ($url && strlen(get_config('system', 'directory'))) {
 				proc_run(PRIORITY_LOW, "include/directory.php", $url);
 			}
 
@@ -648,11 +648,12 @@ function profiles_content(App $a) {
 		$personal_account = !(in_array($a->user["page-flags"],
 					array(PAGE_COMMUNITY, PAGE_PRVGROUP)));
 
-		$detailled_profile = (get_pconfig(local_user(),'system','detailled_profile') AND $personal_account);
+		$detailled_profile = (get_pconfig(local_user(),'system', 'detailled_profile') AND $personal_account);
 
-		$f = get_config('system','birthday_input_format');
-		if(! $f)
+		$f = get_config('system', 'birthday_input_format');
+		if (! $f) {
 			$f = 'ymd';
+		}
 
 		$is_default = (($r[0]['is-default']) ? 1 : 0);
 		$tpl = get_markup_template("profile_edit.tpl");
