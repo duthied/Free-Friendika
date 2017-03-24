@@ -665,10 +665,10 @@ class App {
 			$this->scheme = 'https';
 		}
 
-		if (x($_SERVER,'SERVER_NAME')) {
+		if (x($_SERVER, 'SERVER_NAME')) {
 			$this->hostname = $_SERVER['SERVER_NAME'];
 
-			if (x($_SERVER,'SERVER_PORT') && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443)
+			if (x($_SERVER, 'SERVER_PORT') && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) {
 				$this->hostname .= ':' . $_SERVER['SERVER_PORT'];
 			}
 			/*
@@ -676,6 +676,7 @@ class App {
 			 * or in a sub-directory and adjust accordingly
 			 */
 
+			/// @TODO This kind of escaping breaks syntax-highlightning on CoolEdit (Midnight Commander)
 			$path = trim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
 			if (isset($path) && strlen($path) && ($path != $this->path)) {
 				$this->path = $path;
@@ -686,11 +687,12 @@ class App {
 			$this->hostname = $hostname;
 		}
 
-		if (is_array($_SERVER["argv"]) && $_SERVER["argc"]>1 && substr(end($_SERVER["argv"]), 0, 4)=="http" ) {
-			$this->set_baseurl(array_pop($_SERVER["argv"]) );
+		if (is_array($_SERVER["argv"]) && $_SERVER["argc"] > 1 && substr(end($_SERVER["argv"]), 0, 4) == "http" ) {
+			$this->set_baseurl(array_pop($_SERVER["argv"]));
 			$_SERVER["argc"] --;
 		}
 
+		/// @TODO no longer needed?
 		#set_include_path("include/$this->hostname" . PATH_SEPARATOR . get_include_path());
 
 		if ((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,9) === "pagename=") {
