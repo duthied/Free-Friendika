@@ -2,12 +2,11 @@
 <div class="wall-item-decor" style="display:none;">
 	<span class="icon s22 star {{$item.isstarred}}" id="starred-{{$item.id}}" title="{{$item.star.starred}}">{{$item.star.starred}}</span>
 	{{if $item.lock}}<span class="navicon lock fakelink" onclick="lockview(event, {{$item.id}});" title="{{$item.lock}}"></span><span class="fa fa-lock"></span>{{/if}}
-	<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 </div>
 <!-- ./TODO => Unknow block -->
 
 
-<div class="panel" id="item-{{$item.guid}}">
+<div class="panel item-{{$item.id}}" id="item-{{$item.guid}}">
 	<div class="wall-item-container panel-body{{$item.indent}} {{$item.shiny}} {{$item.previewing}}" >
 		<div class="media">
 			{{* Put additional actions in a top-right dropdown menu *}}
@@ -170,11 +169,11 @@
 					{{* Buttons for like and dislike *}}
 					{{if $item.vote}}
 						{{if $item.vote.like}}
-						<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}}, 'like');">{{$item.vote.like.0}}</button>
+						<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="doLikeAction({{$item.id}}, 'like');">{{$item.vote.like.0}}</button>
 						{{/if}}
 
 						{{if $item.vote.dislike}}
-						<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}}, 'dislike');">{{$item.vote.dislike.0}}</button>
+						<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doLikeAction({{$item.id}}, 'dislike');">{{$item.vote.dislike.0}}</button>
 						{{/if}}
 					{{/if}}
 
@@ -189,6 +188,7 @@
 						<button type="button" class="btn btn-default" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-retweet"></i>&nbsp;{{$item.vote.share.0}}</button>
 						{{/if}}
 					{{/if}}
+                    <img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 				</div>
 
 
@@ -196,9 +196,9 @@
 					{{* Event attendance buttons *}}
 					{{if $item.isevent}}
 					<div class="vote-event">
-						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendyes.self}} active" aria-pressed="true{{/if}}" id="attendyes-{{$item.id}}" title="{{$item.attend.0}}" onclick="dolike({{$item.id}}, 'attendyes');"><i class="fa fa-check"><span class="sr-only">{{$item.attend.0}}</span></i></button>
-						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendno.self}} active" aria-pressed="true{{/if}}" id="attendno-{{$item.id}}" title="{{$item.attend.1}}" onclick="dolike({{$item.id}}, 'attendno');"><i class="fa fa-times"><span class="sr-only">{{$item.attend.1}}</span></i></button>
-						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendmaybe.self}} active" aria-pressed="true{{/if}}" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="dolike({{$item.id}}, 'attendmaybe');"><i class="fa fa-question"><span class="sr-only">{{$item.attend.2}}</span></i></button>
+						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendyes.self}} active" aria-pressed="true{{/if}}" id="attendyes-{{$item.id}}" title="{{$item.attend.0}}" onclick="doLikeAction({{$item.id}}, 'attendyes');"><i class="fa fa-check"><span class="sr-only">{{$item.attend.0}}</span></i></button>
+						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendno.self}} active" aria-pressed="true{{/if}}" id="attendno-{{$item.id}}" title="{{$item.attend.1}}" onclick="doLikeAction({{$item.id}}, 'attendno');"><i class="fa fa-times"><span class="sr-only">{{$item.attend.1}}</span></i></button>
+						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendmaybe.self}} active" aria-pressed="true{{/if}}" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="doLikeAction({{$item.id}}, 'attendmaybe');"><i class="fa fa-question"><span class="sr-only">{{$item.attend.2}}</span></i></button>
 					</div>
 					{{/if}}
 
