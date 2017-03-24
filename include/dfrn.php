@@ -967,8 +967,8 @@ class dfrn {
 		$rino = intval($rino);
 
 		// use RINO1 if mcrypt isn't installed and RINO2 was selected
-		if ($rino==2 and !function_exists('mcrypt_create_iv')) {
-			$rino=1;
+		if ($rino == 2 and !function_exists('mcrypt_create_iv')) {
+			$rino = 1;
 		}
 
 		logger("Local rino version: ". $rino, LOGGER_DEBUG);
@@ -976,7 +976,7 @@ class dfrn {
 		$ssl_val = intval(get_config('system','ssl_policy'));
 		$ssl_policy = '';
 
-		switch($ssl_val){
+		switch ($ssl_val) {
 			case SSL_POLICY_FULL:
 				$ssl_policy = 'full';
 				break;
@@ -1095,13 +1095,13 @@ class dfrn {
 		}
 
 
-		if ($rino>0 && $rino_remote_version>0 && (! $dissolve)) {
+		if ($rino > 0 && $rino_remote_version > 0 && (! $dissolve)) {
 			logger('rino version: '. $rino_remote_version);
 
-			switch($rino_remote_version) {
+			switch ($rino_remote_version) {
 				case 1:
 					// Deprecated rino version!
-					$key = substr(random_string(),0,16);
+					$key = substr(random_string(), 0, 16);
 					$data = aes_encrypt($postvars['data'],$key);
 					break;
 				case 2:
@@ -1298,19 +1298,19 @@ class dfrn {
 		}
 
 		if (dbm::is_result($r) AND !$onlyfetch) {
-			logger("Check if contact details for contact ".$r[0]["id"]." (".$r[0]["nick"].") have to be updated.", LOGGER_DEBUG);
+			logger("Check if contact details for contact " . $r[0]["id"] . " (" . $r[0]["nick"] . ") have to be updated.", LOGGER_DEBUG);
 
 			$poco = array("url" => $contact["url"]);
 
 			// When was the last change to name or uri?
-			$name_element = $xpath->query($element."/atom:name", $context)->item(0);
+			$name_element = $xpath->query($element . "/atom:name", $context)->item(0);
 			foreach ($name_element->attributes AS $attributes) {
 				if ($attributes->name == "updated") {
 					$poco["name-date"] = $attributes->textContent;
 				}
 			}
 
-			$link_element = $xpath->query($element."/atom:link", $context)->item(0);
+			$link_element = $xpath->query($element . "/atom:link", $context)->item(0);
 			foreach ($link_element->attributes AS $attributes) {
 				if ($attributes->name == "updated") {
 					$poco["uri-date"] = $attributes->textContent;
@@ -1318,33 +1318,33 @@ class dfrn {
 			}
 
 			// Update contact data
-			$value = $xpath->evaluate($element."/dfrn:handle/text()", $context)->item(0)->nodeValue;
+			$value = $xpath->evaluate($element . "/dfrn:handle/text()", $context)->item(0)->nodeValue;
 			if ($value != "") {
 				$poco["addr"] = $value;
 			}
 
-			$value = $xpath->evaluate($element."/poco:displayName/text()", $context)->item(0)->nodeValue;
+			$value = $xpath->evaluate($element . "/poco:displayName/text()", $context)->item(0)->nodeValue;
 			if ($value != "") {
 				$poco["name"] = $value;
 			}
 
-			$value = $xpath->evaluate($element."/poco:preferredUsername/text()", $context)->item(0)->nodeValue;
+			$value = $xpath->evaluate($element . "/poco:preferredUsername/text()", $context)->item(0)->nodeValue;
 			if ($value != "") {
 				$poco["nick"] = $value;
 			}
 
-			$value = $xpath->evaluate($element."/poco:note/text()", $context)->item(0)->nodeValue;
+			$value = $xpath->evaluate($element . "/poco:note/text()", $context)->item(0)->nodeValue;
 			if ($value != "") {
 				$poco["about"] = $value;
 			}
 
-			$value = $xpath->evaluate($element."/poco:address/poco:formatted/text()", $context)->item(0)->nodeValue;
+			$value = $xpath->evaluate($element . "/poco:address/poco:formatted/text()", $context)->item(0)->nodeValue;
 			if ($value != "") {
 				$poco["location"] = $value;
 			}
 
 			/// @todo Only search for elements with "poco:type" = "xmpp"
-			$value = $xpath->evaluate($element."/poco:ims/poco:value/text()", $context)->item(0)->nodeValue;
+			$value = $xpath->evaluate($element . "/poco:ims/poco:value/text()", $context)->item(0)->nodeValue;
 			if ($value != "") {
 				$poco["xmpp"] = $value;
 			}
@@ -1357,9 +1357,9 @@ class dfrn {
 			/// - poco:country
 
 			// If the "hide" element is present then the profile isn't searchable.
-			$hide = intval($xpath->evaluate($element."/dfrn:hide/text()", $context)->item(0)->nodeValue == "true");
+			$hide = intval($xpath->evaluate($element . "/dfrn:hide/text()", $context)->item(0)->nodeValue == "true");
 
-			logger("Hidden status for contact ".$contact["url"].": ".$hide, LOGGER_DEBUG);
+			logger("Hidden status for contact " . $contact["url"] . ": " . $hide, LOGGER_DEBUG);
 
 			// If the contact isn't searchable then set the contact to "hidden".
 			// Problem: This can be manually overridden by the user.
@@ -1369,7 +1369,7 @@ class dfrn {
 
 			// Save the keywords into the contact table
 			$tags = array();
-			$tagelements = $xpath->evaluate($element."/poco:tags/text()", $context);
+			$tagelements = $xpath->evaluate($element . "/poco:tags/text()", $context);
 			foreach ($tagelements AS $tag) {
 				$tags[$tag->nodeValue] = $tag->nodeValue;
 			}
@@ -1381,7 +1381,7 @@ class dfrn {
 			// "dfrn:birthday" contains the birthday converted to UTC
 			$old_bdyear = $contact["bdyear"];
 
-			$birthday = $xpath->evaluate($element."/dfrn:birthday/text()", $context)->item(0)->nodeValue;
+			$birthday = $xpath->evaluate($element . "/dfrn:birthday/text()", $context)->item(0)->nodeValue;
 
 			if (strtotime($birthday) > time()) {
 				$bd_timestamp = strtotime($birthday);
@@ -1390,7 +1390,7 @@ class dfrn {
 			}
 
 			// "poco:birthday" is the birthday in the format "yyyy-mm-dd"
-			$value = $xpath->evaluate($element."/poco:birthday/text()", $context)->item(0)->nodeValue;
+			$value = $xpath->evaluate($element . "/poco:birthday/text()", $context)->item(0)->nodeValue;
 
 			if (!in_array($value, array("", "0000-00-00"))) {
 				$bdyear = date("Y");
@@ -1427,20 +1427,20 @@ class dfrn {
 			$datefields = array("name-date", "uri-date");
 			foreach ($datefields AS $field) {
 				if (strtotime($contact[$field]) > strtotime($r[0][$field])) {
-					logger("Difference for contact ".$contact["id"]." in field '".$field."'. New value: '".$contact[$field]."', old value '".$r[0][$field]."'", LOGGER_DEBUG);
+					logger("Difference for contact " . $contact["id"] . " in field '" . $field . "'. New value: '" . $contact[$field] . "', old value '" . $r[0][$field] . "'", LOGGER_DEBUG);
 					$update = true;
 				}
 			}
 
 			foreach ($fields AS $field => $data) {
 				if ($contact[$field] != $r[0][$field]) {
-					logger("Difference for contact ".$contact["id"]." in field '".$field."'. New value: '".$contact[$field]."', old value '".$r[0][$field]."'", LOGGER_DEBUG);
+					logger("Difference for contact " . $contact["id"] . " in field '" . $field . "'. New value: '" . $contact[$field] . "', old value '" . $r[0][$field] . "'", LOGGER_DEBUG);
 					$update = true;
 				}
 			}
 
 			if ($update) {
-				logger("Update contact data for contact ".$contact["id"]." (".$contact["nick"].")", LOGGER_DEBUG);
+				logger("Update contact data for contact " . $contact["id"] . " (" . $contact["nick"] . ")", LOGGER_DEBUG);
 
 				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s',
 					`addr` = '%s', `keywords` = '%s', `bdyear` = '%s', `bd` = '%s', `hidden` = %d,
@@ -1456,10 +1456,12 @@ class dfrn {
 			update_contact_avatar($author["avatar"], $importer["uid"], $contact["id"],
 						(strtotime($contact["avatar-date"]) > strtotime($r[0]["avatar-date"])));
 
-			// The generation is a sign for the reliability of the provided data.
-			// It is used in the socgraph.php to prevent that old contact data
-			// that was relayed over several servers can overwrite contact
-			// data that we received directly.
+			/*
+			 * The generation is a sign for the reliability of the provided data.
+			 * It is used in the socgraph.php to prevent that old contact data
+			 * that was relayed over several servers can overwrite contact
+			 * data that we received directly.
+			 */
 
 			$poco["generation"] = 2;
 			$poco["photo"] = $author["avatar"];
@@ -1811,6 +1813,7 @@ class dfrn {
 
 		update_contact_avatar($relocate["avatar"], $importer["importer_uid"], $importer["id"], true);
 
+		/// @TODO decide to use dbm::is_result() here
 		if ($x === false) {
 			return false;
 		}
@@ -1822,7 +1825,7 @@ class dfrn {
 			'author-link' => array($old["url"], $relocate["url"]),
 			//'owner-avatar' => array($old["photo"], $relocate["photo"]),
 			//'author-avatar' => array($old["photo"], $relocate["photo"]),
-			);
+		);
 		foreach ($fields as $n=>$f) {
 			$r = q("SELECT `id` FROM `item` WHERE `%s` = '%s' AND `uid` = %d LIMIT 1",
 					$n, dbesc($f[0]),
@@ -1833,8 +1836,11 @@ class dfrn {
 						$n, dbesc($f[1]),
 						$n, dbesc($f[0]),
 						intval($importer["importer_uid"]));
-					if ($x === false)
+
+					/// @TODO decide to use dbm::is_result() here
+					if ($x === false) {
 						return false;
+					}
 			}
 		}
 
@@ -1853,6 +1859,7 @@ class dfrn {
 	 * @param array $item the new item record
 	 * @param array $importer Record of the importer user mixed with contact of the content
 	 * @param int $entrytype Is it a toplevel entry, a comment or a relayed comment?
+	 * @todo set proper type-hints (array?)
 	 */
 	private static function update_content($current, $item, $importer, $entrytype) {
 		$changed = false;
@@ -1860,8 +1867,9 @@ class dfrn {
 		if (edited_timestamp_is_newer($current, $item)) {
 
 			// do not accept (ignore) an earlier edit than one we currently have.
-			if(datetime_convert("UTC","UTC",$item["edited"]) < $current["edited"])
+			if (datetime_convert("UTC","UTC",$item["edited"]) < $current["edited"]) {
 				return(false);
+			}
 
 			$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s', `changed` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
 				dbesc($item["title"]),
@@ -1906,12 +1914,13 @@ class dfrn {
 	 * @param array $item the new item record
 	 *
 	 * @return int Is it a toplevel entry, a comment or a relayed comment?
+	 * @todo set proper type-hints (array?)
 	 */
 	private static function get_entry_type($importer, $item) {
 		if ($item["parent-uri"] != $item["uri"]) {
 			$community = false;
 
-			if($importer["page-flags"] == PAGE_COMMUNITY || $importer["page-flags"] == PAGE_PRVGROUP) {
+			if ($importer["page-flags"] == PAGE_COMMUNITY || $importer["page-flags"] == PAGE_PRVGROUP) {
 				$sql_extra = "";
 				$community = true;
 				logger("possible community action");
@@ -1946,11 +1955,14 @@ class dfrn {
 				}
 			}
 
-			// Does this have the characteristics of a community or private group action?
-			// If it's an action to a wall post on a community/prvgroup page it's a
-			// valid community action. Also forum_mode makes it valid for sure.
-			// If neither, it's not.
+			/*
+			 * Does this have the characteristics of a community or private group action?
+			 * If it's an action to a wall post on a community/prvgroup page it's a
+			 * valid community action. Also forum_mode makes it valid for sure.
+			 * If neither, it's not.
+			 */
 
+			/// @TODO Maybe merge these if() blocks into one?
 			if ($is_a_remote_action && $community) {
 				if ((!$r[0]["forum_mode"]) && (!$r[0]["wall"])) {
 					$is_a_remote_action = false;
@@ -1963,7 +1975,6 @@ class dfrn {
 			} else {
 				return DFRN_REPLY;
 			}
-
 		} else {
 			return DFRN_TOP_LEVEL;
 		}
@@ -1976,6 +1987,7 @@ class dfrn {
 	 * @param array $item the new item record
 	 * @param array $importer Record of the importer user mixed with contact of the content
 	 * @param int $posted_id The record number of item record that was just posted
+	 * @todo set proper type-hints (array?)
 	 */
 	private static function do_poke($item, $importer, $posted_id) {
 		$verb = urldecode(substr($item["verb"],strpos($item["verb"], "#")+1));
@@ -1989,7 +2001,7 @@ class dfrn {
 			// somebody was poked/prodded. Was it me?
 			foreach ($xo->link as $l) {
 				$atts = $l->attributes();
-				switch($atts["rel"]) {
+				switch ($atts["rel"]) {
 					case "alternate":
 						$Blink = $atts["href"];
 						break;
@@ -1998,7 +2010,7 @@ class dfrn {
 				}
 			}
 
-			if($Blink && link_compare($Blink,App::get_baseurl()."/profile/".$importer["nickname"])) {
+			if ($Blink && link_compare($Blink, App::get_baseurl() . "/profile/" . $importer["nickname"])) {
 
 				// send a notification
 				notification(array(
@@ -2032,6 +2044,7 @@ class dfrn {
 	 * @param bool $is_like Is the verb a "like"?
 	 *
 	 * @return bool Should the processing of the entries be continued?
+	 * @todo set proper type-hints (array?)
 	 */
 	private static function process_verbs($entrytype, $importer, &$item, &$is_like) {
 
@@ -2141,7 +2154,7 @@ class dfrn {
 	 *
 	 * @param object $links link elements
 	 * @param array $item the item record
-	 * @todo Add type-hints
+	 * @todo set proper type-hints
 	 */
 	private static function parse_links($links, &$item) {
 		$rel = "";
@@ -2501,10 +2514,12 @@ class dfrn {
 			}
 		} else { // $entrytype == DFRN_TOP_LEVEL
 			if (!link_compare($item["owner-link"],$importer["url"])) {
-				// The item owner info is not our contact. It's OK and is to be expected if this is a tgroup delivery,
-				// but otherwise there's a possible data mixup on the sender's system.
-				// the tgroup delivery code called from item_store will correct it if it's a forum,
-				// but we're going to unconditionally correct it here so that the post will always be owned by our contact.
+				/*
+				 * The item owner info is not our contact. It's OK and is to be expected if this is a tgroup delivery,
+				 * but otherwise there's a possible data mixup on the sender's system.
+				 * the tgroup delivery code called from item_store will correct it if it's a forum,
+				 * but we're going to unconditionally correct it here so that the post will always be owned by our contact.
+				 */
 				logger('Correcting item owner.', LOGGER_DEBUG);
 				$item["owner-name"]   = $importer["senderName"];
 				$item["owner-link"]   = $importer["url"];
@@ -2535,6 +2550,7 @@ class dfrn {
 	 * @param object $xpath XPath object
 	 * @param object $deletion deletion elements
 	 * @param array $importer Record of the importer user mixed with contact of the content
+	 * @todo set proper type-hints
 	 */
 	private static function process_deletion($xpath, $deletion, $importer) {
 
@@ -2617,7 +2633,7 @@ class dfrn {
 								}
 							}
 							q("UPDATE `item` SET `tag` = '%s' WHERE `id` = %d",
-								dbesc(implode(',',$newtags)),
+								dbesc(implode(',', $newtags)),
 								intval($i[0]["id"])
 							);
 							create_tags_from_item($i[0]["id"]);
@@ -2626,7 +2642,7 @@ class dfrn {
 				}
 			}
 
-			if($entrytype == DFRN_TOP_LEVEL) {
+			if ($entrytype == DFRN_TOP_LEVEL) {
 				$r = q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s',
 						`body` = '', `title` = ''
 					WHERE `parent-uri` = '%s' AND `uid` = %d",
@@ -2672,7 +2688,7 @@ class dfrn {
 				// if this is a relayed delete, propagate it to other recipients
 
 				if ($entrytype == DFRN_REPLY_RC) {
-					logger("Notifying followers about deletion of post ".$item["id"], LOGGER_DEBUG);
+					logger("Notifying followers about deletion of post " . $item["id"], LOGGER_DEBUG);
 					proc_run(PRIORITY_HIGH, "include/notifier.php","drop", $item["id"]);
 				}
 			}
@@ -2685,6 +2701,7 @@ class dfrn {
 	 * @param text $xml The DFRN message
 	 * @param array $importer Record of the importer user mixed with contact of the content
 	 * @param bool $sort_by_date Is used when feeds are polled
+	 * @todo set proper type-hints
 	 */
 	public static function import($xml,$importer, $sort_by_date = false) {
 
@@ -2800,6 +2817,6 @@ class dfrn {
 				self::process_entry($header, $xpath, $entry, $importer);
 			}
 		}
-		logger("Import done for user ".$importer["uid"]." from contact ".$importer["id"], LOGGER_DEBUG);
+		logger("Import done for user " . $importer["uid"] . " from contact " . $importer["id"], LOGGER_DEBUG);
 	}
 }
