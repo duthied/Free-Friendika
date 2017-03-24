@@ -18,7 +18,7 @@ function po2php_run(&$argv, &$argc) {
 		$lang = str_replace('-','_',basename(dirname($pofile)));
 	}
 
-	if (!file_exists($pofile)){
+	if (!file_exists($pofile)) {
 		print "Unable to find '$pofile'\n";
 		return;
 	}
@@ -34,7 +34,7 @@ function po2php_run(&$argv, &$argc) {
 	$ink = false;
 	$inv = false;
 	$escape_s_exp = '|[^\\\\]\$[a-z]|';
-	function escape_s($match){
+	function escape_s($match) {
 		return str_replace('$','\$',$match[0]);
 	}
 	foreach ($infile as $l) {
@@ -43,19 +43,19 @@ function po2php_run(&$argv, &$argc) {
 		if ($l[0] == "#") {
 			$l = "";
 		}
-		if (substr($l,0,15) == '"Plural-Forms: ') {
+		if (substr($l, 0, 15) == '"Plural-Forms: ') {
 			$match = array();
 			preg_match("|nplurals=([0-9]*); *plural=(.*)[;\\\\]|", $l, $match);
-			$cond = str_replace('n','$n',$match[2]);
+			$cond = str_replace('n', '$n', $match[2]);
 			// define plural select function if not already defined
 			$fnname = 'string_plural_select_' . $lang;
-			$out .= 'if(! function_exists("'.$fnname.'")) {'."\n";
-			$out .= 'function '. $fnname . '($n){'."\n";
-			$out .= '	return '.$cond.';'."\n";
-			$out .= '}}'."\n";
+			$out .= 'if(! function_exists("' . $fnname . '")) {' . "\n";
+			$out .= 'function '. $fnname . '($n){' . "\n";
+			$out .= '	return ' . $cond . ';' . "\n";
+			$out .= '}}' . "\n";
 		}
 
-		if ($k != "" && substr($l,0,7) == "msgstr ") {
+		if ($k != "" && substr($l, 0, 7) == "msgstr ") {
 			if ($ink) {
 				$ink = false;
 				$out .= '$a->strings["' . $k . '"] = ';
@@ -92,8 +92,10 @@ function po2php_run(&$argv, &$argc) {
 				.preg_replace_callback($escape_s_exp,'escape_s',$match[2]) .",\n";
 		}
 
-		if (substr($l,0,6)=="msgid_") { $ink = False; $out .= '$a->strings["'.$k.'"] = '; };
-
+		if (substr($l, 0, 6) == "msgid_") {
+			$ink = false;
+			$out .= '$a->strings["' . $k . '"] = ';
+		}
 
 		if ($ink) {
 			$k .= trim($l,"\"\r\n");
@@ -107,12 +109,13 @@ function po2php_run(&$argv, &$argc) {
 				$out .= '"'.$v.'"';
 			}
 			if ($k != "") {
-				$out .= $arr?");\n":";\n";
+				/// @TODO Maybe add parentheses here?
+				$out .= $arr ? ");\n" : ";\n";
 			}
 			$arr = false;
 			$k = str_replace("msgid ","",$l);
-			if ($k != '""' ) {
-				$k = trim($k,"\"\r\n");
+			if ($k != '""') {
+				$k = trim($k, "\"\r\n");
 			} else {
 				$k = "";
 			}
