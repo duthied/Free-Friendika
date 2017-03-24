@@ -496,14 +496,14 @@ if (isset($_GET["mode"]) AND ($_GET["mode"] == "raw")) {
 $page    = $a->page;
 $profile = $a->profile;
 
-header("X-Friendica-Version: ".FRIENDICA_VERSION);
+header("X-Friendica-Version: " . FRIENDICA_VERSION);
 header("Content-type: text/html; charset=utf-8");
 
 // We use $_GET["mode"] for special page templates. So we will check if we have 
 // to load another page template than the default one
 // The page templates are located in /view/php/ or in the theme directory
 if (isset($_GET["mode"])) {
-	$template = theme_include($_GET["mode"].'.php');
+	$template = theme_include($_GET["mode"] . '.php');
 }
 
 // If there is no page template use the default page template
@@ -511,7 +511,8 @@ if (!$template) {
 	$template = theme_include("default.php");
 }
 
-require_once($template);
+/// @TODO Looks unsafe (remote-inclusion), is maybe not but theme_include() uses file_exists() but does not escape anything
+require_once $template;
 
 if (!$a->is_backend()) {
 	session_write_close();
