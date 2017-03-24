@@ -2108,6 +2108,11 @@ class DFRN
 
 		logger('Contacts are updated.');
 
+		/// @TODO decide to use dbm::is_result() here
+		if ($x === false) {
+			return false;
+		}
+
 		// update items
 		// This is an extreme performance killer
 		Item::update(['owner-link' => $relocate["url"]], ['owner-link' => $old["url"], 'uid' => $importer["importer_uid"]]);
