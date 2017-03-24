@@ -1848,7 +1848,7 @@ function killme() {
 		session_write_close();
 	}
 
-	exit;
+	exit();
 }
 
 /**

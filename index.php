@@ -466,6 +466,7 @@ if (isset($_GET["mode"]) AND (($_GET["mode"] == "raw") OR ($_GET["mode"] == "min
 
 	$content = mb_convert_encoding($a->page["content"], 'HTML-ENTITIES', "UTF-8");
 
+	/// @TODO one day, kill those error-surpressing @ stuff, or PHP should ban it
 	@$doc->loadHTML($content);
 
 	$xpath = new DomXPath($doc);
@@ -486,11 +487,7 @@ if (isset($_GET["mode"]) AND ($_GET["mode"] == "raw")) {
 
 	echo substr($target->saveHTML(), 6, -8);
 
-	if (!$a->is_backend()) {
-		session_write_close();
-	}
-	exit;
-
+	killme();
 }
 
 $page    = $a->page;
@@ -499,9 +496,11 @@ $profile = $a->profile;
 header("X-Friendica-Version: " . FRIENDICA_VERSION);
 header("Content-type: text/html; charset=utf-8");
 
-// We use $_GET["mode"] for special page templates. So we will check if we have 
-// to load another page template than the default one
-// The page templates are located in /view/php/ or in the theme directory
+/*
+ * We use $_GET["mode"] for special page templates. So we will check if we have 
+ * to load another page template than the default one.
+ * The page templates are located in /view/php/ or in the theme directory.
+ */
 if (isset($_GET["mode"])) {
 	$template = theme_include($_GET["mode"] . '.php');
 }
@@ -514,7 +513,4 @@ if (!$template) {
 /// @TODO Looks unsafe (remote-inclusion), is maybe not but theme_include() uses file_exists() but does not escape anything
 require_once $template;
 
-if (!$a->is_backend()) {
-	session_write_close();
-}
-exit();
+killme();
