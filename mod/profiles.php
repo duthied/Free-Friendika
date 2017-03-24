@@ -321,7 +321,7 @@ function profiles_post(App $a) {
 
 		$hide_friends = (($_POST['hide-friends'] == 1) ? 1: 0);
 
-		set_pconfig(local_user(),'system', 'detailled_profile', (($_POST['detailled_profile'] == 1) ? 1: 0));
+		set_pconfig(local_user(), 'system', 'detailled_profile', (($_POST['detailled_profile'] == 1) ? 1: 0));
 
 		$changes = array();
 		$value = '';
@@ -648,7 +648,7 @@ function profiles_content(App $a) {
 		$personal_account = !(in_array($a->user["page-flags"],
 					array(PAGE_COMMUNITY, PAGE_PRVGROUP)));
 
-		$detailled_profile = (get_pconfig(local_user(),'system', 'detailled_profile') AND $personal_account);
+		$detailled_profile = (get_pconfig(local_user(), 'system', 'detailled_profile') AND $personal_account);
 
 		$f = get_config('system', 'birthday_input_format');
 		if (! $f) {
@@ -669,10 +669,10 @@ function profiles_content(App $a) {
 				array(t('No'), t('Yes')) //Off - On strings
 			),
 
-			'$multi_profiles'		=> feature_enabled(local_user(),'multi_profiles'),
+			'$multi_profiles'		=> feature_enabled(local_user(), 'multi_profiles'),
 			'$form_security_token'		=> get_form_security_token("profile_edit"),
 			'$form_security_token_photo'	=> get_form_security_token("profile_photo"),
-			'$profile_clone_link'		=> ((feature_enabled(local_user(),'multi_profiles')) ? 'profiles/clone/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_clone") : ""),
+			'$profile_clone_link'		=> ((feature_enabled(local_user(), 'multi_profiles')) ? 'profiles/clone/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_clone") : ""),
 			'$profile_drop_link'		=> 'profiles/drop/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_drop"),
 
 			'$profile_action' => t('Profile Actions'),
@@ -751,13 +751,13 @@ function profiles_content(App $a) {
 	} else {
 
 		// If we don't support multi profiles, don't display this list.
-		if (!feature_enabled(local_user(),'multi_profiles')){
+		if (!feature_enabled(local_user(), 'multi_profiles')) {
 			$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`=1",
 				local_user()
 			);
-			if (dbm::is_result($r)){
+			if (dbm::is_result($r)) {
 				//Go to the default profile.
-				goaway('profiles/'.$r[0]['id']);
+				goaway('profiles/' . $r[0]['id']);
 			}
 		}
 
