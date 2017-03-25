@@ -3963,7 +3963,7 @@ use \Friendica\Core\Config;
 		$multi_profiles = feature_enabled(api_user(),'multi_profiles');
 		$directory = get_config('system', 'directory');
 
-// get data of the specified profile id or all profiles of the user if not specified
+		// get data of the specified profile id or all profiles of the user if not specified
 		if ($profileid != 0) {
 			$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `id` = %d",
 				intval(api_user()),
@@ -3971,11 +3971,10 @@ use \Friendica\Core\Config;
 			// error message if specified gid is not in database
 			if (!dbm::is_result($r))
 				throw new BadRequestException("profile_id not available");
-		}
-		else
+		} else {
 			$r = q("SELECT * FROM `profile` WHERE `uid` = %d",
 				intval(api_user()));
-
+		}
 		// loop through all returned profiles and retrieve data and users
 		$k = 0;
 		foreach ($r as $rr) {
@@ -4002,9 +4001,11 @@ use \Friendica\Core\Config;
 		}
 
 		// return settings, authenticated user and profiles data
+		$self = q("SELECT `nurl` FROM `contact` WHERE `uid`= %d AND `self` LIMIT 1", intval(api_user()));
+
 		$result = array('multi_profiles' => $multi_profiles ? true : false,
 						'global_dir' => $directory,
-						'friendica_owner' => api_get_user($a, intval(api_user())),
+						'friendica_owner' => api_get_user($a, $self[0]['nurl']),
 						'profiles' => $profiles);
 		return api_format_data("friendica_profiles", $type, array('$result' => $result));
 	}
