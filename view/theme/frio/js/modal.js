@@ -8,9 +8,11 @@ $(document).ready(function(){
 		$(this).removeData('bs.modal');
 		$("#modal-title").empty();
 		$('#modal-body').empty();
-		// remove the file browser from jot (else we would have problems
-		// with ajaxupload
+		// Remove the file browser from jot (else we would have problems
+		// with AjaxUpload
 		$(".fbrowser").remove();
+		// Remove the AjaxUpload element
+		$("[name=userfile]").parent().remove();
 	});
 
 	// Clear bs modal on close
