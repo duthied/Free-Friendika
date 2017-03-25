@@ -114,7 +114,6 @@
 
 	<h3>{{$advanced}}</h3>
 	{{include file="field_select.tpl" field=$rino}}
-	{{include file="field_checkbox.tpl" field=$no_utf}}
 	{{include file="field_checkbox.tpl" field=$verifyssl}}
 	{{include file="field_input.tpl" field=$proxy}}
 	{{include file="field_input.tpl" field=$proxyuser}}

@@ -629,7 +629,6 @@ function admin_page_site_post(App $a) {
 	$no_multi_reg		=	((x($_POST,'no_multi_reg'))		? True						: False);
 	$no_openid		=	!((x($_POST,'no_openid'))		? True						: False);
 	$no_regfullname		=	!((x($_POST,'no_regfullname'))		? True						: False);
-	$no_utf			=	!((x($_POST,'no_utf'))			? True						: False);
 	$community_page_style	=	((x($_POST,'community_page_style'))	? intval(trim($_POST['community_page_style']))	: 0);
 	$max_author_posts_community_page	=	((x($_POST,'max_author_posts_community_page'))	? intval(trim($_POST['max_author_posts_community_page']))	: 0);
 
@@ -786,7 +785,6 @@ function admin_page_site_post(App $a) {
 	set_config('system','no_regfullname', $no_regfullname);
 	set_config('system','community_page_style', $community_page_style);
 	set_config('system','max_author_posts_community_page', $max_author_posts_community_page);
-	set_config('system','no_utf', $no_utf);
 	set_config('system','verifyssl', $verifyssl);
 	set_config('system','proxyuser', $proxyuser);
 	set_config('system','proxy', $proxy);
@@ -1008,7 +1006,6 @@ function admin_page_site(App $a) {
 		'$no_multi_reg'		=> array('no_multi_reg', t("Block multiple registrations"),  get_config('system','block_extended_register'), t("Disallow users to register additional accounts for use as pages.")),
 		'$no_openid'		=> array('no_openid', t("OpenID support"), !get_config('system','no_openid'), t("OpenID support for registration and logins.")),
 		'$no_regfullname'	=> array('no_regfullname', t("Fullname check"), !get_config('system','no_regfullname'), t("Force users to register with a space between firstname and lastname in Full name, as an antispam measure")),
-		'$no_utf'		=> array('no_utf', t("UTF-8 Regular expressions"), !get_config('system','no_utf'), t("Use PHP UTF8 regular expressions")),
 		'$community_page_style' => array('community_page_style', t("Community Page Style"), get_config('system','community_page_style'), t("Type of community page to show. 'Global community' shows every public posting from an open distributed network that arrived on this server."), $community_page_style_choices),
 		'$max_author_posts_community_page' => array('max_author_posts_community_page', t("Posts per user on community page"), get_config('system','max_author_posts_community_page'), t("The maximum number of posts per user on the community page. (Not valid for 'Global Community')")),
 		'$ostatus_disabled' 	=> array('ostatus_disabled', t("Enable OStatus support"), !get_config('system','ostatus_disabled'), t("Provide built-in OStatus \x28StatusNet, GNU Social etc.\x29 compatibility. All communications in OStatus are public, so privacy warnings will be occasionally displayed.")),
