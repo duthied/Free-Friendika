@@ -1866,7 +1866,7 @@ class dfrn {
 
 			// do not accept (ignore) an earlier edit than one we currently have.
 			if (datetime_convert("UTC","UTC",$item["edited"]) < $current["edited"]) {
-				return(false);
+				return false;
 			}
 
 			$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s', `changed` = '%s' WHERE `uri` = '%s' AND `uid` = %d",
