@@ -132,9 +132,6 @@ class ostatus {
 					dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["alias"]),
 					dbesc($contact["about"]), dbesc($contact["location"]),
 					dbesc(datetime_convert()), intval($contact["id"]));
-
-				poco_check($contact["url"], $contact["name"], $contact["network"], $author["author-avatar"], $contact["about"], $contact["location"],
-							"", "", "", datetime_convert(), 2, $contact["id"], $contact["uid"]);
 			}
 
 			if (isset($author["author-avatar"]) AND ($author["author-avatar"] != $r[0]['avatar'])) {
@@ -163,7 +160,9 @@ class ostatus {
 			$contact["generation"] = 2;
 			$contact["hide"] = false; // OStatus contacts are never hidden
 			$contact["photo"] = $author["author-avatar"];
-			update_gcontact($contact);
+			$gcid = update_gcontact($contact);
+
+			link_gcontact($gcid, $contact["uid"], $contact["id"]);
 		}
 
 		return($author);

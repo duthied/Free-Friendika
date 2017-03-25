@@ -18,6 +18,8 @@ require_once('include/network.php');
  */
 class Probe {
 
+	private static $baseurl;
+
 	/**
 	 * @brief Rearrange the array so that it always has the same order
 	 *
@@ -53,6 +55,9 @@ class Probe {
 	 *      'lrdd-json' => Link to LRDD endpoint in JSON format
 	 */
 	private function xrd($host) {
+
+		// Reset the static variable
+		self::$baseurl = '';
 
 		$ssl_url = "https://".$host."/.well-known/host-meta";
 		$url = "http://".$host."/.well-known/host-meta";
@@ -102,6 +107,9 @@ class Probe {
 			elseif ($attributes["rel"] == "lrdd")
 				$xrd_data["lrdd"] = $attributes["template"];
 		}
+
+		self::$baseurl = "http://".$host;
+
 		return $xrd_data;
 	}
 
@@ -258,8 +266,13 @@ class Probe {
 				$data['nick'] = trim(substr($data['nick'], 0, strpos($data['nick'], ' ')));
 		}
 
-		if (!isset($data["network"]))
+		if (self::$baseurl != "") {
+			$data["baseurl"] = self::$baseurl;
+		}
+
+		if (!isset($data["network"])) {
 			$data["network"] = NETWORK_PHANTOM;
+		}
 
 		$data = self::rearrange_data($data);
 
@@ -286,6 +299,7 @@ class Probe {
 					dbesc(normalise_link($data['url']))
 			);
 		}
+
 		return $data;
 	}
 

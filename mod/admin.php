@@ -629,7 +629,6 @@ function admin_page_site_post(App $a) {
 	$no_multi_reg		=	((x($_POST,'no_multi_reg'))		? True						: False);
 	$no_openid		=	!((x($_POST,'no_openid'))		? True						: False);
 	$no_regfullname		=	!((x($_POST,'no_regfullname'))		? True						: False);
-	$no_utf			=	!((x($_POST,'no_utf'))			? True						: False);
 	$community_page_style	=	((x($_POST,'community_page_style'))	? intval(trim($_POST['community_page_style']))	: 0);
 	$max_author_posts_community_page	=	((x($_POST,'max_author_posts_community_page'))	? intval(trim($_POST['max_author_posts_community_page']))	: 0);
 
@@ -666,7 +665,6 @@ function admin_page_site_post(App $a) {
 	$proxy_disabled		=	((x($_POST,'proxy_disabled'))		? True						: False);
 	$only_tag_search	=	((x($_POST,'only_tag_search'))		? True						: False);
 	$rino			=	((x($_POST,'rino'))			? intval($_POST['rino'])			: 0);
-	$embedly		=	((x($_POST,'embedly'))			? notags(trim($_POST['embedly']))		: '');
 	$worker_queues		=	((x($_POST,'worker_queues'))		? intval($_POST['worker_queues'])		: 4);
 	$worker_dont_fork	=	((x($_POST,'worker_dont_fork'))		? True						: False);
 	$worker_fastlane	=	((x($_POST,'worker_fastlane'))		? True						: False);
@@ -787,7 +785,6 @@ function admin_page_site_post(App $a) {
 	set_config('system','no_regfullname', $no_regfullname);
 	set_config('system','community_page_style', $community_page_style);
 	set_config('system','max_author_posts_community_page', $max_author_posts_community_page);
-	set_config('system','no_utf', $no_utf);
 	set_config('system','verifyssl', $verifyssl);
 	set_config('system','proxyuser', $proxyuser);
 	set_config('system','proxy', $proxy);
@@ -820,9 +817,6 @@ function admin_page_site_post(App $a) {
 	} else {
 		set_config('system','rino_encrypt', $rino);
 	}
-
-	set_config('system','embedly', $embedly);
-
 
 	info(t('Site settings updated.').EOL);
 	goaway('admin/site');
@@ -1012,7 +1006,6 @@ function admin_page_site(App $a) {
 		'$no_multi_reg'		=> array('no_multi_reg', t("Block multiple registrations"),  get_config('system','block_extended_register'), t("Disallow users to register additional accounts for use as pages.")),
 		'$no_openid'		=> array('no_openid', t("OpenID support"), !get_config('system','no_openid'), t("OpenID support for registration and logins.")),
 		'$no_regfullname'	=> array('no_regfullname', t("Fullname check"), !get_config('system','no_regfullname'), t("Force users to register with a space between firstname and lastname in Full name, as an antispam measure")),
-		'$no_utf'		=> array('no_utf', t("UTF-8 Regular expressions"), !get_config('system','no_utf'), t("Use PHP UTF8 regular expressions")),
 		'$community_page_style' => array('community_page_style', t("Community Page Style"), get_config('system','community_page_style'), t("Type of community page to show. 'Global community' shows every public posting from an open distributed network that arrived on this server."), $community_page_style_choices),
 		'$max_author_posts_community_page' => array('max_author_posts_community_page', t("Posts per user on community page"), get_config('system','max_author_posts_community_page'), t("The maximum number of posts per user on the community page. (Not valid for 'Global Community')")),
 		'$ostatus_disabled' 	=> array('ostatus_disabled', t("Enable OStatus support"), !get_config('system','ostatus_disabled'), t("Provide built-in OStatus \x28StatusNet, GNU Social etc.\x29 compatibility. All communications in OStatus are public, so privacy warnings will be occasionally displayed.")),
@@ -1053,7 +1046,6 @@ function admin_page_site(App $a) {
 		'$relocate_url'		=> array('relocate_url', t("New base url"), App::get_baseurl(), t("Change base url for this server. Sends relocate message to all DFRN contacts of all users.")),
 
 		'$rino' 		=> array('rino', t("RINO Encryption"), intval(get_config('system','rino_encrypt')), t("Encryption layer between nodes."), array("Disabled", "RINO1 (deprecated)", "RINO2")),
-		'$embedly' 		=> array('embedly', t("Embedly API key"), get_config('system','embedly'), t("<a href='http://embed.ly'>Embedly</a> is used to fetch additional data for web pages. This is an optional parameter.")),
 
 		'$worker_queues' 	=> array('worker_queues', t("Maximum number of parallel workers"), get_config('system','worker_queues'), t("On shared hosters set this to 2. On larger systems, values of 10 are great. Default value is 4.")),
 		'$worker_dont_fork'	=> array('worker_dont_fork', t("Don't use 'proc_open' with the worker"), get_config('system','worker_dont_fork'), t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of poller calls in your crontab.")),

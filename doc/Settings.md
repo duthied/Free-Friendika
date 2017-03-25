@@ -152,13 +152,6 @@ Value is in seconds.
 Default is 60 seconds.
 Set to 0 for unlimited (not recommended).
 
-#### UTF-8 Regular Expressions
-
-During registrations, full names are checked using UTF-8 regular expressions.
-This requires PHP to have been compiled with a special setting to allow UTF-8 expressions.
-If you are completely unable to register accounts, set no_utf to true.
-The default is set to false (meaning UTF8 regular expressions are supported and working).
-
 #### Verify SSL Certitificates
 
 By default Friendica allows SSL communication between websites that have "self-signed" SSL certificates.

@@ -4,20 +4,17 @@
  * @brief The default site template
  */
 ?>
-
 <!DOCTYPE html >
-
-<?php 
+<?php
 	require_once('view/theme/frio/php/frio_boot.php');
 
 //	$minimal = is_modal();
 
 ?>
-
 <html>
 <head>
 	<title><?php if(x($page,'title')) echo $page['title'] ?></title>
-	<meta request="<?php echo htmlspecialchars($_REQUEST['pagename']) ?> ">
+	<meta request="<?php echo htmlspecialchars($_REQUEST['pagename']) ?>">
 	<script>var baseurl="<?php echo App::get_baseurl() ?>";</script>
 	<script>var frio="<?php echo "view/theme/frio"; ?>";</script>
 	<?php $baseurl = App::get_baseurl(); ?>
@@ -31,8 +28,6 @@
 			if(x($page,'htmlhead')) echo $page['htmlhead'];
 		}
 	?>
-	
-
 </head>
 <?php
 if(($_SERVER['REQUEST_URI'] != "/register") && ($_SERVER['REQUEST_URI'] != "/lostpass") && ($_SERVER['REQUEST_URI'] != "/login"))
@@ -90,7 +85,6 @@ else
 					";
 				}
 ?>
-		
 			</div><!--row-->
 		</div><!-- container -->
 
