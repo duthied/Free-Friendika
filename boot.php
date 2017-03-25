@@ -1255,8 +1255,7 @@ class App {
 	 * @return bool Is it a known backend?
 	 */
 	function is_backend() {
-		/// @Should be made static to speedup things
-		$backend = array();
+		static $backend = array();
 		$backend[] = "_well_known";
 		$backend[] = "api";
 		$backend[] = "dfrn_notify";
@@ -1277,12 +1276,8 @@ class App {
 		$backend[] = "statistics_json";
 		$backend[] = "xrd";
 
-		/// @TODO Maybe rewrite this part: return (in_array() || $this->backend); ?
-		if (in_array($this->module, $backend)) {
-			return(true);
-		} else {
-			return($this->backend);
-		}
+		// Check if current module is in backend or backend flag is set
+		return (in_array($this->module, self::$backend) || $this->backend);
 	}
 
 	/**
