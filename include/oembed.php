@@ -17,10 +17,10 @@ function oembed_replacecb($matches){
 
 /**
  * @brief Get data from an URL to embed its content.
- * 
+ *
  * @param string $embedurl The URL from which the data should be fetched.
  * @param bool $no_rich_type If set to true rich type content won't be fetched.
- * 
+ *
  * @return bool|object Returns object with embed content or false if no embedable
  *	 content exists
  */
@@ -41,8 +41,8 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 	// These media files should now be caught in bbcode.php
 	// left here as a fallback in case this is called from another source
 
-	$noexts = array("mp3","mp4","ogg","ogv","oga","ogm","webm");
-	$ext = pathinfo(strtolower($embedurl),PATHINFO_EXTENSION);
+	$noexts = array("mp3", "mp4", "ogg", "ogv", "oga", "ogm", "webm");
+	$ext = pathinfo(strtolower($embedurl), PATHINFO_EXTENSION);
 
 
 	if (is_null($txt)) {
@@ -85,10 +85,10 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 			}
 		}
 
-		$txt=trim($txt);
+		$txt = trim($txt);
 
-		if ($txt[0]!="{") {
-			$txt='{"type":"error"}';
+		if ($txt[0] != "{") {
+			$txt = '{"type":"error"}';
 		} else {	//save in cache
 			$j = json_decode($txt);
 			if ($j->type != "error") {
