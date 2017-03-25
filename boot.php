@@ -1277,7 +1277,7 @@ class App {
 		$backends[] = "xrd";
 
 		// Check if current module is in backend or backend flag is set
-		return (in_array($this->module, self::$backends) || $this->backend);
+		return (in_array($this->module, $backends) || $this->backend);
 	}
 
 	/**
