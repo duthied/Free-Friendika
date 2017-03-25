@@ -1813,7 +1813,6 @@ class dfrn {
 
 		update_contact_avatar($relocate["avatar"], $importer["importer_uid"], $importer["id"], true);
 
-		/// @TODO decide to use dbm::is_result() here
 		if ($x === false) {
 			return false;
 		}
@@ -1837,7 +1836,6 @@ class dfrn {
 						$n, dbesc($f[0]),
 						intval($importer["importer_uid"]));
 
-					/// @TODO decide to use dbm::is_result() here
 					if ($x === false) {
 						return false;
 					}
