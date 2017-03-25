@@ -2,11 +2,11 @@
 
 use \Friendica\Core\Config;
 
-function update_gcontact_run(&$argv, &$argc){
+function update_gcontact_run(&$argv, &$argc) {
 	global $a;
 
-	require_once('include/Scrape.php');
-	require_once('include/socgraph.php');
+	require_once 'include/Scrape.php';
+	require_once 'include/socgraph.php';
 
 	logger('update_gcontact: start');
 
