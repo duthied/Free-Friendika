@@ -638,7 +638,7 @@ function photos_post(App $a) {
 							}
 						}
 						if ($profile) {
-							if (substr($notify,0,4) === 'cid:') {
+							if (substr($notify, 0, 4) === 'cid:') {
 								$taginfo[] = array($newname, $profile, $notify, $r[0], '@[url=' . str_replace(',','%2c',$profile) . ']' . $newname . '[/url]');
 							} else {
 								$taginfo[] = array($newname, $profile, $notify, null, $str_tags .= '@[url=' . $profile . ']' . $newname . '[/url]');
@@ -1427,8 +1427,8 @@ function photos_content(App $a) {
 		}
 
 		$album_link = 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($ph[0]['album']);
- 		$tools = null;
- 		$lock = null;
+		$tools = null;
+		$lock = null;
 
 		if ($can_post && ($ph[0]['uid'] == $owner_uid)) {
 			$tools = array(
