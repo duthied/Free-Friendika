@@ -695,18 +695,14 @@ class App {
 
 		if ((x($_SERVER, 'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'], 0, 9) === "pagename=") {
 			$this->query_string = substr($_SERVER['QUERY_STRING'], 9);
+
 			// removing trailing / - maybe a nginx problem
-			/// @TODO can be shortened by trim($str, '/') !
-			if (substr($this->query_string, 0, 1) == "/") {
-				$this->query_string = substr($this->query_string, 1);
-			}
+			$this->query_string = lrim($this->query_string, '/');
 		} elseif ((x($_SERVER, 'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'], 0, 2) === "q=") {
 			$this->query_string = substr($_SERVER['QUERY_STRING'],2);
+
 			// removing trailing / - maybe a nginx problem
-			/// @TODO can be shortened by trim($str, '/') !
-			if (substr($this->query_string, 0, 1) == "/") {
-				$this->query_string = substr($this->query_string, 1);
-			}
+			$this->query_string = lrim($this->query_string, '/');
 		}
 
 		if (x($_GET, 'pagename')) {
