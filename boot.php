@@ -655,14 +655,14 @@ class App {
 
 
 		$this->scheme = 'http';
-		/// @TODO x() should be better used here ...
+
 		if ((x($_SERVER, 'HTTPS') && $_SERVER['HTTPS']) ||
-		   (x($_SERVER['HTTP_FORWARDED']) && preg_match("/proto=https/", $_SERVER['HTTP_FORWARDED'])) ||
-		   (x($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') ||
-		   (x($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on') ||
-		   (x($_SERVER['FRONT_END_HTTPS']) && $_SERVER['FRONT_END_HTTPS'] == 'on') ||
-		   (x($_SERVER, 'SERVER_PORT') && (intval($_SERVER['SERVER_PORT']) == 443)) // XXX: reasonable assumption, but isn't this hardcoding too much?
-		   ) {
+				(x($_SERVER, 'HTTP_FORWARDED') && preg_match("/proto=https/", $_SERVER['HTTP_FORWARDED'])) ||
+				(x($_SERVER, 'HTTP_X_FORWARDED_PROTO') && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') ||
+				(x($_SERVER, 'HTTP_X_FORWARDED_SSL') && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on') ||
+				(x($_SERVER, 'FRONT_END_HTTPS') && $_SERVER['FRONT_END_HTTPS'] == 'on') ||
+				(x($_SERVER, 'SERVER_PORT') && (intval($_SERVER['SERVER_PORT']) == 443)) // XXX: reasonable assumption, but isn't this hardcoding too much?
+				) {
 			$this->scheme = 'https';
 		}
 
@@ -1367,7 +1367,6 @@ class App {
 		// add baseurl to args. cli scripts can't construct it
 		$args[] = $this->get_baseurl();
 
-		/// @TODO let's replace these with a foreach($key => $value) loop
 		for ($x = 0; $x < count($args); $x ++) {
 			$args[$x] = escapeshellarg($args[$x]);
 		}
