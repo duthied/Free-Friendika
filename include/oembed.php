@@ -74,17 +74,6 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 			}
 		}
 
-		if ($txt==false || $txt=="") {
-			$embedly = Config::get("system", "embedly");
-			if ($embedly != "") {
-				// try embedly service
-				$ourl = "https://api.embed.ly/1/oembed?key=".$embedly."&url=".urlencode($embedurl);
-				$txt = fetch_url($ourl);
-
-				logger("oembed_fetch_url: ".$txt, LOGGER_DEBUG);
-			}
-		}
-
 		$txt = trim($txt);
 
 		if ($txt[0] != "{") {
