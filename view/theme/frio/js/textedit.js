@@ -181,7 +181,7 @@ function dropItem(url, elementId) {
 		$el.fadeTo('fast', 0.33, function () {
 			$.get(url).then(function() {
 				$el.remove();
-			}).error(function() {
+			}).fail(function() {
 				// @todo Show related error message
 				$el.show();
 			}).always(function() {

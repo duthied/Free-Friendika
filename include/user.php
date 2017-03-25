@@ -97,13 +97,6 @@ function create_user($arr) {
 	if(mb_strlen($username) < 3)
 		$result['message'] .= t('Name too short.') . EOL;
 
-	// I don't really like having this rule, but it cuts down
-	// on the number of auto-registrations by Russian spammers
-
-	//  Using preg_match was completely unreliable, due to mixed UTF-8 regex support
-	//	$no_utf = get_config('system','no_utf');
-	//	$pat = (($no_utf) ? '/^[a-zA-Z]* [a-zA-Z]*$/' : '/^\p{L}* \p{L}*$/u' );
-
 	// So now we are just looking for a space in the full name.
 
 	$loose_reg = get_config('system','no_regfullname');
