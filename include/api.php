@@ -2721,6 +2721,7 @@ use \Friendica\Core\Config;
 		return api_format_data('config', $type, array('config' => $config));
 
 	}
+	api_register_func('api/gnusocial/config','api_statusnet_config',false);
 	api_register_func('api/statusnet/config','api_statusnet_config',false);
 
 	function api_statusnet_version($type) {
