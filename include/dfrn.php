@@ -1961,11 +1961,9 @@ class dfrn {
 			 */
 
 			/// @TODO Maybe merge these if() blocks into one?
-			if ($is_a_remote_action && $community) {
-				if ((!$r[0]["forum_mode"]) && (!$r[0]["wall"])) {
-					$is_a_remote_action = false;
-					logger("not a community action");
-				}
+			if ($is_a_remote_action && $community && (!$r[0]["forum_mode"]) && (!$r[0]["wall"])) {
+				$is_a_remote_action = false;
+				logger("not a community action");
 			}
 
 			if ($is_a_remote_action) {
