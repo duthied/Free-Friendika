@@ -37,7 +37,7 @@ $install = ((file_exists('.htconfig.php') && filesize('.htconfig.php')) ? false 
 
 // Only load config if found, don't surpress errors
 if (!$install) {
-	include(".htconfig.php");
+	include ".htconfig.php";
 }
 
 /**
@@ -46,11 +46,11 @@ if (!$install) {
  *
  */
 
-require_once("include/dba.php");
+require_once "include/dba.php";
 
 if (!$install) {
 	$db = new dba($db_host, $db_user, $db_pass, $db_data, $install);
-	    unset($db_host, $db_user, $db_pass, $db_data);
+	unset($db_host, $db_user, $db_pass, $db_data);
 
 	/**
 	 * Load configs from db. Overwrite configs from .htconfig.php
@@ -59,13 +59,13 @@ if (!$install) {
 	Config::load();
 
 	if ($a->max_processes_reached() OR $a->maxload_reached()) {
-		header($_SERVER["SERVER_PROTOCOL"].' 503 Service Temporarily Unavailable');
+		header($_SERVER["SERVER_PROTOCOL"] . ' 503 Service Temporarily Unavailable');
 		header('Retry-After: 120');
-		header('Refresh: 120; url='.App::get_baseurl()."/".$a->query_string);
+		header('Refresh: 120; url=' . App::get_baseurl() . "/" . $a->query_string);
 		die("System is currently unavailable. Please try again later");
 	}
 
-	if (get_config('system','force_ssl') AND ($a->get_scheme() == "http") AND
+	if (get_config('system', 'force_ssl') AND ($a->get_scheme() == "http") AND
 		(intval(get_config('system','ssl_policy')) == SSL_POLICY_FULL) AND
 		(substr(App::get_baseurl(), 0, 8) == "https://")) {
 		header("HTTP/1.1 302 Moved Temporarily");
