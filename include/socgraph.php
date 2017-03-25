@@ -194,6 +194,7 @@ function poco_load_worker($cid, $uid, $zcid, $url) {
  * @brief Sanitize the given gcontact data
  *
  * @param array $gcontact array with gcontact data
+ * @throw Exception
  *
  * Generation:
  *  0: No definition
@@ -203,7 +204,7 @@ function poco_load_worker($cid, $uid, $zcid, $url) {
  *  4: ...
  *
  */
-function sanitize_gcontact(&$gcontact) {
+function sanitize_gcontact($gcontact) {
 
 	if ($gcontact['url'] == "") {
 		throw new Exception('URL is empty');
