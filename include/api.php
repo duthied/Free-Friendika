@@ -352,6 +352,7 @@ use \Friendica\Core\Config;
 					}
 				}
 			}
+			logger('API call not implemented: '.$a->query_string);
 			throw new NotImplementedException();
 		} catch (HTTPException $e) {
 			header("HTTP/1.1 {$e->httpcode} {$e->httpdesc}");
@@ -2720,6 +2721,7 @@ use \Friendica\Core\Config;
 		return api_format_data('config', $type, array('config' => $config));
 
 	}
+	api_register_func('api/gnusocial/config','api_statusnet_config',false);
 	api_register_func('api/statusnet/config','api_statusnet_config',false);
 
 	function api_statusnet_version($type) {
@@ -2728,6 +2730,7 @@ use \Friendica\Core\Config;
 
 		return api_format_data('version', $type, array('version' => $fake_statusnet_version));
 	}
+	api_register_func('api/gnusocial/version','api_statusnet_version',false);
 	api_register_func('api/statusnet/version','api_statusnet_version',false);
 
 	/**
