@@ -1234,7 +1234,12 @@ class App {
 	}
 
 	function get_useragent() {
-		return (FRIENDICA_PLATFORM." '".FRIENDICA_CODENAME."' ".FRIENDICA_VERSION."-".DB_UPDATE_VERSION."; ".$this->get_baseurl());
+		return
+			FRIENDICA_PLATFORM . " '" .
+			FRIENDICA_CODENAME . "' " .
+			FRIENDICA_VERSION . "-" .
+			DB_UPDATE_VERSION . "; " .
+			$this->get_baseurl();
 	}
 
 	function is_friendica_app() {
