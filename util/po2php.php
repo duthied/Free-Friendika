@@ -86,10 +86,11 @@ function po2php_run(&$argv, &$argc) {
 			}
 			$match = array();
 			preg_match("|\[([0-9]*)\] (.*)|", $l, $match);
-			$out .= "\t".
-				preg_replace_callback($escape_s_exp,'escape_s',$match[1])
-				." => "
-				.preg_replace_callback($escape_s_exp,'escape_s',$match[2]) .",\n";
+			$out .= "\t"
+				. preg_replace_callback($escape_s_exp, 'escape_s', $match[1])
+				. " => "
+				. preg_replace_callback($escape_s_exp, 'escape_s', $match[2])
+				. ",\n";
 		}
 
 		if (substr($l, 0, 6) == "msgid_") {
@@ -99,7 +100,7 @@ function po2php_run(&$argv, &$argc) {
 
 		if ($ink) {
 			$k .= trim($l,"\"\r\n");
-			$k = preg_replace_callback($escape_s_exp,'escape_s',$k);
+			$k = preg_replace_callback($escape_s_exp, 'escape_s', $k);
 			//$out .= '$a->strings['.$k.'] = ';
 		}
 
