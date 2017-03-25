@@ -165,12 +165,17 @@ function discover_users() {
 			continue;
 		}
 
+		$server_url = poco_detect_server($user["url"]);
+		$force_update = false;
+
 		if ($user["server_url"] != "") {
+
+			$force_update = (normalise_link($user["server_url"]) != normalise_link($server_url));
+
 			$server_url = $user["server_url"];
-		} else {
-			$server_url = poco_detect_server($user["url"]);
 		}
-		if ((($server_url == "") AND ($user["network"] == NETWORK_FEED)) OR poco_check_server($server_url, $user["network"])) {
+
+		if ((($server_url == "") AND ($user["network"] == NETWORK_FEED)) OR $force_update OR poco_check_server($server_url, $user["network"])) {
 			logger('Check profile '.$user["url"]);
 			proc_run(PRIORITY_LOW, "include/discover_poco.php", "check_profile", base64_encode($user["url"]));
 
@@ -232,7 +237,14 @@ function discover_directory($search) {
 			if ($data["network"] == NETWORK_DFRN) {
 				logger("Profile ".$jj->url." is reachable (".$search.")", LOGGER_DEBUG);
 				logger("Add profile ".$jj->url." to local directory (".$search.")", LOGGER_DEBUG);
-				poco_check($data["url"], $data["name"], $data["network"], $data["photo"], "", "", "", $jj->tags, $data["addr"], "", 0);
+
+				if ($jj->tags != "") {
+					$data["keywords"] = $jj->tags;
+				}
+
+				$data["server_url"] = $data["baseurl"];
+
+				update_gcontact($data);
 			} else {
 				logger("Profile ".$jj->url." is not responding or no Friendica contact - but network ".$data["network"], LOGGER_DEBUG);
 			}

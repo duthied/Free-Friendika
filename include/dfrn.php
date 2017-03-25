@@ -1352,7 +1352,9 @@ class dfrn {
 			$poco["photo"] = $author["avatar"];
 			$poco["hide"] = $hide;
 			$poco["contact-type"] = $contact["contact-type"];
-			update_gcontact($poco);
+			$gcid = update_gcontact($poco);
+
+			link_gcontact($gcid, $importer["uid"], $contact["id"]);
 		}
 
 		return($author);
