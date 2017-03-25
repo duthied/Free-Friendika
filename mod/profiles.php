@@ -10,7 +10,7 @@ function profiles_init(App $a) {
 		return;
 	}
 
-	if(($a->argc > 2) && ($a->argv[1] === "drop") && intval($a->argv[2])) {
+	if (($a->argc > 2) && ($a->argv[1] === "drop") && intval($a->argv[2])) {
 		$r = q("SELECT * FROM `profile` WHERE `id` = %d AND `uid` = %d AND `is-default` = 0 LIMIT 1",
 			intval($a->argv[2]),
 			intval(local_user())
@@ -34,24 +34,22 @@ function profiles_init(App $a) {
 			intval($a->argv[2]),
 			intval(local_user())
 		);
-		if($r)
+		if (dbm::is_result($r)) {
 			info(t('Profile deleted.').EOL);
+		}
 
 		goaway('profiles');
 		return; // NOTREACHED
 	}
 
-
-
-
-
-	if(($a->argc > 1) && ($a->argv[1] === 'new')) {
+	if (($a->argc > 1) && ($a->argv[1] === 'new')) {
 
 		check_form_security_token_redirectOnErr('/profiles', 'profile_new', 't');
 
 		$r0 = q("SELECT `id` FROM `profile` WHERE `uid` = %d",
 			intval(local_user()));
-		$num_profiles = count($r0);
+
+		$num_profiles = (dbm::is_result($r0) ? count($r0) : 0);
 
 		$name = t('Profile-') . ($num_profiles + 1);
 
@@ -73,19 +71,21 @@ function profiles_init(App $a) {
 		);
 
 		info( t('New profile created.') . EOL);
-		if(count($r3) == 1)
-			goaway('profiles/'.$r3[0]['id']);
+		if (dbm::is_result($r3) && count($r3) == 1) {
+			goaway('profiles/' . $r3[0]['id']);
+		}
 
 		goaway('profiles');
 	}
 
-	if(($a->argc > 2) && ($a->argv[1] === 'clone')) {
+	if (($a->argc > 2) && ($a->argv[1] === 'clone')) {
 
 		check_form_security_token_redirectOnErr('/profiles', 'profile_clone', 't');
 
 		$r0 = q("SELECT `id` FROM `profile` WHERE `uid` = %d",
 			intval(local_user()));
-		$num_profiles = count($r0);
+
+		$num_profiles = (dbm::is_result($r0) ? count($r0) : 0);
 
 		$name = t('Profile-') . ($num_profiles + 1);
 		$r1 = q("SELECT * FROM `profile` WHERE `uid` = %d AND `id` = %d LIMIT 1",
@@ -116,8 +116,9 @@ function profiles_init(App $a) {
 			dbesc($name)
 		);
 		info( t('New profile created.') . EOL);
-		if ((dbm::is_result($r3)) && (count($r3) == 1))
+		if ((dbm::is_result($r3)) && (count($r3) == 1)) {
 			goaway('profiles/'.$r3[0]['id']);
+		}
 
 		goaway('profiles');
 
@@ -125,7 +126,7 @@ function profiles_init(App $a) {
 	}
 
 
-	if(($a->argc > 1) && (intval($a->argv[1]))) {
+	if (($a->argc > 1) && (intval($a->argv[1]))) {
 		$r = q("SELECT id FROM `profile` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($a->argv[1]),
 			intval(local_user())
@@ -136,7 +137,7 @@ function profiles_init(App $a) {
 			return;
 		}
 
-		profile_load($a,$a->user['nickname'],$r[0]['id']);
+		profile_load($a,$a->user['nickname'], $r[0]['id']);
 	}
 
 
@@ -144,15 +145,16 @@ function profiles_init(App $a) {
 }
 
 function profile_clean_keywords($keywords) {
-	$keywords = str_replace(","," ",$keywords);
+	$keywords = str_replace(",", " ", $keywords);
 	$keywords = explode(" ", $keywords);
 
 	$cleaned = array();
 	foreach ($keywords as $keyword) {
 		$keyword = trim(strtolower($keyword));
 		$keyword = trim($keyword, "#");
-		if ($keyword != "")
+		if ($keyword != "") {
 			$cleaned[] = $keyword;
+		}
 	}
 
 	$keywords = implode(", ", $cleaned);
@@ -213,7 +215,7 @@ function profiles_post(App $a) {
 
 		$name = notags(trim($_POST['name']));
 
-		if(! strlen($name)) {
+		if (! strlen($name)) {
 			$name = '[No Name]';
 		}
 
