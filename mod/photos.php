@@ -1243,12 +1243,16 @@ function photos_content(App $a)
 		$prevlink = '';
 		$nextlink = '';
 
-		/// @todo This query is totally bad, the whole functionality has to be changed
-		// The query leads to a really intense used index.
-		// By now we hide it if someone wants to.
+		/*
+		 * @todo This query is totally bad, the whole functionality has to be changed
+		 * The query leads to a really intense used index.
+		 * By now we hide it if someone wants to.
+		 */
 		if (!Config::get('system', 'no_count', false)) {
 			$order_field = defaults($_GET, 'order', '');
 			if ($order_field === 'posted') {
+		if (!Config::get('system', 'no_count', false)) {
+			if ($_GET['order'] === 'posted') {
 				$order = 'ASC';
 			} else {
 				$order = 'DESC';
