@@ -110,8 +110,7 @@ function po2php_run(&$argv, &$argc) {
 				$out .= '"' . $v . '"';
 			}
 			if ($k != "") {
-				/// @TODO Maybe add parentheses here?
-				$out .= $arr ? ");\n" : ";\n";
+				$out .= ($arr) ? ");\n" : ";\n";
 			}
 			$arr = false;
 			$k = str_replace("msgid ", "", $l);
