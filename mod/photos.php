@@ -14,8 +14,9 @@ use \Friendica\Core\Config;
 
 function photos_init(App $a) {
 
-	if ($a->argc > 1)
+	if ($a->argc > 1) {
 		auto_redir($a, $a->argv[1]);
+	}
 
 	if ((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
 		return;
@@ -29,8 +30,9 @@ function photos_init(App $a) {
 			dbesc($nick)
 		);
 
-		if (! count($user))
+		if (! dbm::is_result($user)) {
 			return;
+		}
 
 		$a->data['user'] = $user[0];
 		$a->profile_uid = $user[0]['uid'];
@@ -59,8 +61,9 @@ function photos_init(App $a) {
 
 		if ($albums) {
 			$a->data['albums'] = $albums;
-			if ($albums_visible)
+			if ($albums_visible) {
 				$ret['success'] = true;
+			}
 
 			$ret['albums'] = array();
 			foreach ($albums as $k => $album) {
@@ -80,24 +83,26 @@ function photos_init(App $a) {
 
 		$albums = $ret;
 
-		if (local_user() && $a->data['user']['uid'] == local_user())
+		if (local_user() && $a->data['user']['uid'] == local_user()) {
 			$can_post = true;
+		}
 
 		if ($albums['success']) {
-			$photo_albums_widget = replace_macros(get_markup_template('photo_albums.tpl'),array(
+			$photo_albums_widget = replace_macros(get_markup_template('photo_albums.tpl'), array(
 				'$nick'     => $a->data['user']['nickname'],
 				'$title'    => t('Photo Albums'),
-				'$recent'    => t('Recent Photos'),
+				'$recent'   => t('Recent Photos'),
 				'$albums'   => $albums['albums'],
 				'$baseurl'  => z_root(),
-				'$upload'   => array( t('Upload New Photos'), 'photos/' . $a->data['user']['nickname'] . '/upload'),
+				'$upload'   => array(t('Upload New Photos'), 'photos/' . $a->data['user']['nickname'] . '/upload'),
 				'$can_post' => $can_post
 			));
 		}
 
 
-		if (! x($a->page,'aside'))
+		if (! x($a->page, 'aside')) {
 			$a->page['aside'] = '';
+		}
 		$a->page['aside'] .= $vcard_widget;
 		$a->page['aside'] .= $photo_albums_widget;
 
@@ -130,9 +135,9 @@ function photos_post(App $a) {
 	$page_owner_uid = $a->data['user']['uid'];
 	$community_page = (($a->data['user']['page-flags'] == PAGE_COMMUNITY) ? true : false);
 
-	if ((local_user()) && (local_user() == $page_owner_uid))
+	if ((local_user()) && (local_user() == $page_owner_uid)) {
 		$can_post = true;
-	else {
+	} else {
 		if ($community_page && remote_user()) {
 			$contact_id = 0;
 			if (is_array($_SESSION['remote'])) {
@@ -295,8 +300,9 @@ function photos_post(App $a) {
 
 					// send the notification upstream/downstream as the case may be
 
-					if ($rr['visible'])
+					if ($rr['visible']) {
 						proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
+					}
 				}
 			}
 
@@ -371,8 +377,9 @@ function photos_post(App $a) {
 				// Update the photo albums cache
 				photo_albums($page_owner_uid, true);
 
-				if ($i[0]['visible'])
+				if ($i[0]['visible']) {
 					proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
+				}
 			}
 		}
 
@@ -394,15 +401,16 @@ function photos_post(App $a) {
 
 		$resource_id = $a->argv[2];
 
-		if (! strlen($albname))
+		if (! strlen($albname)) {
 			$albname = datetime_convert('UTC',date_default_timezone_get(),'now', 'Y');
+		}
 
 
 		if ((x($_POST,'rotate') !== false) &&
 		   ( (intval($_POST['rotate']) == 1) || (intval($_POST['rotate']) == 2) )) {
 			logger('rotate');
 
-			$r = q("select * from photo where `resource-id` = '%s' and uid = %d and scale = 0 limit 1",
+			$r = q("SELECT * FROM `photo` WHERE `resource-id` = '%s' AND `uid` = %d AND `scale` = 0 LIMIT 1",
 				dbesc($resource_id),
 				intval($page_owner_uid)
 			);
@@ -415,7 +423,7 @@ function photos_post(App $a) {
 					$width  = $ph->getWidth();
 					$height = $ph->getHeight();
 
-					$x = q("update photo set data = '%s', height = %d, width = %d where `resource-id` = '%s' and uid = %d and scale = 0",
+					$x = q("UPDATE `photo` SET `data` = '%s', `height` = %d, `width` = %d WHERE `resource-id` = '%s' AND `uid` = %d AND `scale` = 0",
 						dbesc($ph->imageString()),
 						intval($height),
 						intval($width),
@@ -428,7 +436,7 @@ function photos_post(App $a) {
 						$width  = $ph->getWidth();
 						$height = $ph->getHeight();
 
-						$x = q("update photo set data = '%s', height = %d, width = %d where `resource-id` = '%s' and uid = %d and scale = 1",
+						$x = q("UPDATE `photo` SET `data` = '%s', `height` = %d, `width` = %d WHERE `resource-id` = '%s' AND `uid` = %d AND `scale` = 1",
 							dbesc($ph->imageString()),
 							intval($height),
 							intval($width),
@@ -442,7 +450,7 @@ function photos_post(App $a) {
 						$width  = $ph->getWidth();
 						$height = $ph->getHeight();
 
-						$x = q("update photo set data = '%s', height = %d, width = %d where `resource-id` = '%s' and uid = %d and scale = 2",
+						$x = q("UPDATE `photo` SET `data` = '%s', `height` = %d, `width` = %d WHERE `resource-id` = '%s' AND `uid` = %d AND `scale` = 2",
 							dbesc($ph->imageString()),
 							intval($height),
 							intval($width),
@@ -458,7 +466,7 @@ function photos_post(App $a) {
 			dbesc($resource_id),
 			intval($page_owner_uid)
 		);
-		if (count($p)) {
+		if (dbm::is_result($p)) {
 			$ext = $phototypes[$p[0]['type']];
 			$r = q("UPDATE `photo` SET `desc` = '%s', `album` = '%s', `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s' WHERE `resource-id` = '%s' AND `uid` = %d",
 				dbesc($desc),
@@ -470,6 +478,7 @@ function photos_post(App $a) {
 				dbesc($resource_id),
 				intval($page_owner_uid)
 			);
+
 			// Update the photo albums cache if album name was changed
 			if ($albname !== $origaname) {
 				photo_albums($page_owner_uid, true);
@@ -479,8 +488,9 @@ function photos_post(App $a) {
 		/* Don't make the item visible if the only change was the album name */
 
 		$visibility = 0;
-		if ($p[0]['desc'] !== $desc || strlen($rawtags))
+		if ($p[0]['desc'] !== $desc || strlen($rawtags)) {
 			$visibility = 1;
+		}
 
 		if (! $item_id) {
 
@@ -540,16 +550,18 @@ function photos_post(App $a) {
 			// if the new tag doesn't have a namespace specifier (@foo or #foo) give it a hashtag
 
 			$x = substr($rawtags,0,1);
-			if ($x !== '@' && $x !== '#')
+			if ($x !== '@' && $x !== '#') {
 				$rawtags = '#' . $rawtags;
+			}
 
 			$taginfo = array();
 			$tags = get_tags($rawtags);
 
 			if (count($tags)) {
 				foreach ($tags as $tag) {
-					if (isset($profile))
+					if (isset($profile)) {
 						unset($profile);
+					}
 					if (strpos($tag,'@') === 0) {
 						$name = substr($tag,1);
 						if ((strpos($name,'@')) || (strpos($name,'http://'))) {
@@ -557,13 +569,15 @@ function photos_post(App $a) {
 							$links = @Probe::lrdd($name);
 							if (count($links)) {
 								foreach ($links as $link) {
-									if ($link['@attributes']['rel'] === 'http://webfinger.net/rel/profile-page')
+									if ($link['@attributes']['rel'] === 'http://webfinger.net/rel/profile-page') {
 										$profile = $link['@attributes']['href'];
+									}
 									if ($link['@attributes']['rel'] === 'salmon') {
 										$salmon = '$url:' . str_replace(',','%sc',$link['@attributes']['href']);
-										if (strlen($inform))
+										if (strlen($inform)) {
 											$inform .= ',';
-							$inform .= $salmon;
+										}
+										$inform .= $salmon;
 									}
 								}
 							}
@@ -572,8 +586,9 @@ function photos_post(App $a) {
 							$newname = $name;
 							$alias = '';
 							$tagcid = 0;
-							if (strrpos($newname,'+'))
-								$tagcid = intval(substr($newname,strrpos($newname,'+') + 1));
+							if (strrpos($newname,'+')) {
+								$tagcid = intval(substr($newname,strrpos($newname, '+') + 1));
+							}
 
 							if ($tagcid) {
 								$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
@@ -589,7 +604,7 @@ function photos_post(App $a) {
 										intval($page_owner_uid)
 								);
 
-								if (! $r) {
+								if (! dbm::is_result($r)) {
 									//select someone by attag or nick and the name passed in
 									$r = q("SELECT * FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
 											dbesc($name),
@@ -598,6 +613,7 @@ function photos_post(App $a) {
 									);
 								}
 							}
+							/// @TODO maybe old-lost code to be removed
 /*							elseif (strstr($name,'_') || strstr($name,' ')) {
 								$newname = str_replace('_',' ',$name);
 								$r = q("SELECT * FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
@@ -615,19 +631,22 @@ function photos_post(App $a) {
 								$newname = $r[0]['name'];
 								$profile = $r[0]['url'];
 								$notify = 'cid:' . $r[0]['id'];
-								if (strlen($inform))
+								if (strlen($inform)) {
 									$inform .= ',';
+								}
 								$inform .= $notify;
 							}
 						}
 						if ($profile) {
-							if (substr($notify,0,4) === 'cid:')
-								$taginfo[] = array($newname,$profile,$notify,$r[0],'@[url=' . str_replace(',','%2c',$profile) . ']' . $newname	. '[/url]');
-							else
-								$taginfo[] = array($newname,$profile,$notify,null,$str_tags .= '@[url=' . $profile . ']' . $newname	. '[/url]');
-							if (strlen($str_tags))
+							if (substr($notify,0,4) === 'cid:') {
+								$taginfo[] = array($newname, $profile, $notify, $r[0], '@[url=' . str_replace(',','%2c',$profile) . ']' . $newname . '[/url]');
+							} else {
+								$taginfo[] = array($newname, $profile, $notify, null, $str_tags .= '@[url=' . $profile . ']' . $newname . '[/url]');
+							}
+							if (strlen($str_tags)) {
 								$str_tags .= ',';
-							$profile = str_replace(',','%2c',$profile);
+							}
+							$profile = str_replace(',', '%2c', $profile);
 							$str_tags .= '@[url='.$profile.']'.$newname.'[/url]';
 						}
 					} elseif (strpos($tag,'#') === 0) {
@@ -638,13 +657,15 @@ function photos_post(App $a) {
 			}
 
 			$newtag = $old_tag;
-			if (strlen($newtag) && strlen($str_tags))
+			if (strlen($newtag) && strlen($str_tags)) {
 				$newtag .= ',';
+			}
 			$newtag .= $str_tags;
 
 			$newinform = $old_inform;
-			if (strlen($newinform) && strlen($inform))
+			if (strlen($newinform) && strlen($inform)) {
 				$newinform .= ',';
+			}
 			$newinform .= $inform;
 
 			$r = q("UPDATE `item` SET `tag` = '%s', `inform` = '%s', `edited` = '%s', `changed` = '%s' WHERE `id` = %d AND `uid` = %d",
@@ -707,8 +728,9 @@ function photos_post(App $a) {
 
 					$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $tagged[0] . '</title><id>' . $tagged[1] . '/' . $tagged[0] . '</id>';
 					$arr['object'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . $tagged[1] . '" />' . "\n");
-					if ($tagged[3])
+					if ($tagged[3]) {
 						$arr['object'] .= xmlify('<link rel="photo" type="'.$p[0]['type'].'" href="' . $tagged[3]['photo'] . '" />' . "\n");
+					}
 					$arr['object'] .= '</link></object>' . "\n";
 
 					$arr['target'] = '<target><type>' . ACTIVITY_OBJ_IMAGE . '</type><title>' . $p[0]['desc'] . '</title><id>'
@@ -720,9 +742,7 @@ function photos_post(App $a) {
 						proc_run(PRIORITY_HIGH, "include/notifier.php", "tag", $item_id);
 					}
 				}
-
 			}
-
 		}
 		goaway($_SESSION['photo_return']);
 		return; // NOTREACHED
@@ -745,33 +765,34 @@ function photos_post(App $a) {
 	logger('mod/photos.php: photos_post(): album= ' . $album . ' newalbum= ' . $newalbum , LOGGER_DEBUG);
 
 	if (! strlen($album)) {
-		if (strlen($newalbum))
+		if (strlen($newalbum)) {
 			$album = $newalbum;
-		else
+		} else {
 			$album = datetime_convert('UTC',date_default_timezone_get(),'now', 'Y');
+		}
 	}
 
-	/**
-	 *
+	/*
 	 * We create a wall item for every photo, but we don't want to
 	 * overwhelm the data stream with a hundred newly uploaded photos.
 	 * So we will make the first photo uploaded to this album in the last several hours
 	 * visible by default, the rest will become visible over time when and if
 	 * they acquire comments, likes, dislikes, and/or tags
-	 *
 	 */
 
 	$r = q("SELECT * FROM `photo` WHERE `album` = '%s' AND `uid` = %d AND `created` > UTC_TIMESTAMP() - INTERVAL 3 HOUR ",
 		dbesc($album),
 		intval($page_owner_uid)
 	);
-	if ((! dbm::is_result($r)) || ($album == t('Profile Photos')))
+	if ((! dbm::is_result($r)) || ($album == t('Profile Photos'))) {
 		$visible = 1;
-	else
+	} else {
 		$visible = 0;
+	}
 
-	if (intval($_REQUEST['not_visible']) || $_REQUEST['not_visible'] === 'true')
+	if (intval($_REQUEST['not_visible']) || $_REQUEST['not_visible'] === 'true') {
 		$visible = 0;
+	}
 
 	$str_group_allow   = perms2str(((is_array($_REQUEST['group_allow']))   ? $_REQUEST['group_allow']   : explode(',',$_REQUEST['group_allow'])));
 	$str_contact_allow = perms2str(((is_array($_REQUEST['contact_allow'])) ? $_REQUEST['contact_allow'] : explode(',',$_REQUEST['contact_allow'])));
@@ -793,7 +814,9 @@ function photos_post(App $a) {
 		$filesize   = intval($_FILES['userfile']['size']);
 		$type       = $_FILES['userfile']['type'];
 	}
-	if ($type=="") $type=guess_image_type($filename);
+	if ($type == "") {
+		$type = guess_image_type($filename);
+	}
 
 	logger('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes', LOGGER_DEBUG);
 
@@ -823,7 +846,7 @@ function photos_post(App $a) {
 	$limit = service_class_fetch($a->data['user']['uid'],'photo_upload_limit');
 
 	if ($limit) {
-		$r = q("select sum(octet_length(data)) as total from photo where uid = %d and scale = 0 and album != 'Contact Photos' ",
+		$r = q("SELECT SUM(OCTET_LENGTH(`data`)) AS `total` FROM `photo` WHERE `uid` = %d AND `scale` = 0 AND `album` != 'Contact Photos'",
 			intval($a->data['user']['uid'])
 		);
 		$size = $r[0]['total'];
@@ -852,10 +875,12 @@ function photos_post(App $a) {
 	@unlink($src);
 
 	$max_length = get_config('system','max_image_length');
-	if (! $max_length)
+	if (! $max_length) {
 		$max_length = MAX_IMAGE_LENGTH;
-	if ($max_length > 0)
+	}
+	if ($max_length > 0) {
 		$ph->scaleImage($max_length);
+	}
 
 	$width  = $ph->getWidth();
 	$height = $ph->getHeight();
@@ -891,6 +916,7 @@ function photos_post(App $a) {
 
 	$lat = $lon = null;
 
+	/// @TODO merge these 2 if() into one?
 	if ($exif && $exif['GPS']) {
 		if (feature_enabled($channel_id,'photo_location')) {
 			$lat = getGps($exif['GPS']['GPSLatitude'], $exif['GPS']['GPSLatitudeRef']);
@@ -900,8 +926,9 @@ function photos_post(App $a) {
 
 	$arr = array();
 
-	if ($lat && $lon)
+	if ($lat && $lon) {
 		$arr['coord'] = $lat . ' ' . $lon;
+	}
 
 	$arr['guid']          = get_guid(32);
 	$arr['uid']           = $page_owner_uid;
@@ -934,19 +961,20 @@ function photos_post(App $a) {
 	// Update the photo albums cache
 	photo_albums($page_owner_uid, true);
 
-	if ($visible)
+	if ($visible) {
 		proc_run(PRIORITY_HIGH, "include/notifier.php", 'wall-new', $item_id);
+	}
 
 	call_hooks('photo_post_end',intval($item_id));
 
-	// addon uploaders should call "killme()" [e.g. exit] within the photo_post_end hook
-	// if they do not wish to be redirected
+	/*
+	 * addon uploaders should call "killme()" [e.g. exit] within the photo_post_end hook
+	 * if they do not wish to be redirected
+	 */
 
 	goaway($_SESSION['photo_return']);
 	// NOTREACHED
 }
-
-
 
 function photos_content(App $a) {
 
@@ -964,7 +992,6 @@ function photos_content(App $a) {
 		notice( t('Public access denied.') . EOL);
 		return;
 	}
-
 
 	require_once('include/bbcode.php');
 	require_once('include/security.php');
@@ -986,15 +1013,17 @@ function photos_content(App $a) {
 	if ($a->argc > 3) {
 		$datatype = $a->argv[2];
 		$datum = $a->argv[3];
-	} elseif (($a->argc > 2) && ($a->argv[2] === 'upload'))
+	} elseif (($a->argc > 2) && ($a->argv[2] === 'upload')) {
 		$datatype = 'upload';
-	else
+	} else {
 		$datatype = 'summary';
+	}
 
-	if ($a->argc > 4)
+	if ($a->argc > 4) {
 		$cmd = $a->argv[4];
-	else
+	} else {
 		$cmd = 'view';
+	}
 
 	//
 	// Setup permissions structures
@@ -1010,9 +1039,9 @@ function photos_content(App $a) {
 
 	$community_page = (($a->data['user']['page-flags'] == PAGE_COMMUNITY) ? true : false);
 
-	if ((local_user()) && (local_user() == $owner_uid))
+	if ((local_user()) && (local_user() == $owner_uid)) {
 		$can_post = true;
-	else {
+	} else {
 		if ($community_page && remote_user()) {
 			if (is_array($_SESSION['remote'])) {
 				foreach ($_SESSION['remote'] as $v) {
@@ -1063,6 +1092,7 @@ function photos_content(App $a) {
 		}
 	}
 
+	/// @TODO merge these 2 if() into one?
 	if (! $remote_contact) {
 		if (local_user()) {
 			$contact_id = $_SESSION['cid'];
@@ -1089,7 +1119,7 @@ function photos_content(App $a) {
 
 	if ($datatype === 'upload') {
 		if (! ($can_post)) {
-			notice( t('Permission denied.'));
+			notice(t('Permission denied.'));
 			return;
 		}
 
@@ -1103,8 +1133,9 @@ function photos_content(App $a) {
 		$albumselect .= '<option value="" ' . ((! $selname) ? ' selected="selected" ' : '') . '>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>';
 		if (count($a->data['albums'])) {
 			foreach ($a->data['albums'] as $album) {
-				if (($album['album'] === '') || ($album['album'] === 'Contact Photos') || ($album['album'] === t('Contact Photos')))
+				if (($album['album'] === '') || ($album['album'] === 'Contact Photos') || ($album['album'] === t('Contact Photos'))) {
 					continue;
+				}
 				$selected = (($selname === $album['album']) ? ' selected="selected" ' : '');
 				$albumselect .= '<option value="' . $album['album'] . '"' . $selected . '>' . $album['album'] . '</option>';
 			}
@@ -1115,7 +1146,6 @@ function photos_content(App $a) {
 		$ret = array('post_url' => 'photos/' . $a->data['user']['nickname'],
 				'addon_text' => $uploader,
 				'default_upload' => true);
-
 
 		call_hooks('photo_upload_form',$ret);
 
@@ -1128,31 +1158,34 @@ function photos_content(App $a) {
 		$limit = service_class_fetch($a->data['user']['uid'],'photo_upload_limit');
 		if ($limit !== false) {
 
-			$r = q("select sum(datasize) as total from photo where uid = %d and scale = 0 and album != 'Contact Photos' ",
+			$r = q("SELECT SUM(`datasize`) AS `total` FROM `photo` WHERE `uid` = %d AND `scale` = 0 AND `album` != 'Contact Photos'",
 				intval($a->data['user']['uid'])
 			);
-			$usage_message = sprintf( t("You have used %1$.2f Mbytes of %2$.2f Mbytes photo storage."), $r[0]['total'] / 1024000, $limit / 1024000 );
+			$usage_message = sprintf(t("You have used %1$.2f Mbytes of %2$.2f Mbytes photo storage."), $r[0]['total'] / 1024000, $limit / 1024000 );
 		}
 
 
 		// Private/public post links for the non-JS ACL form
 		$private_post = 1;
-		if ($_REQUEST['public'])
+		if ($_REQUEST['public']) {
 			$private_post = 0;
+		}
 
 		$query_str = $a->query_string;
-		if (strpos($query_str, 'public=1') !== false)
+		if (strpos($query_str, 'public=1') !== false) {
 			$query_str = str_replace(array('?public=1', '&public=1'), array('', ''), $query_str);
+		}
 
-		// I think $a->query_string may never have ? in it, but I could be wrong
-		// It looks like it's from the index.php?q=[etc] rewrite that the web
-		// server does, which converts any ? to &, e.g. suggest&ignore=61 for suggest?ignore=61
-		if (strpos($query_str, '?') === false)
+		/*
+		 * I think $a->query_string may never have ? in it, but I could be wrong
+		 * It looks like it's from the index.php?q=[etc] rewrite that the web
+		 * server does, which converts any ? to &, e.g. suggest&ignore=61 for suggest?ignore=61
+		 */
+		if (strpos($query_str, '?') === false) {
 			$public_post_link = '?public=1';
-		else
+		} else {
 			$public_post_link = '&public=1';
-
-
+		}
 
 		$tpl = get_markup_template('photos_upload.tpl');
 
@@ -1213,10 +1246,12 @@ function photos_content(App $a) {
 			$a->set_pager_itemspage(20);
 		}
 
-		if ($_GET['order'] === 'posted')
+		/// @TODO I have seen this many times, maybe generalize it script-wide and encapsulate it?
+		if ($_GET['order'] === 'posted') {
 			$order = 'ASC';
-		else
+		} else {
 			$order = 'DESC';
+		}
 
 		$r = q("SELECT `resource-id`, `id`, `filename`, type, max(`scale`) AS `scale`, `desc` FROM `photo` WHERE `uid` = %d AND `album` = '%s'
 			AND `scale` <= 4 $sql_extra GROUP BY `resource-id` ORDER BY `created` $order LIMIT %d , %d",
@@ -1226,7 +1261,7 @@ function photos_content(App $a) {
 			intval($a->pager['itemspage'])
 		);
 
-		//edit album name
+		// edit album name
 		if ($cmd === 'edit') {
 			if (($album !== t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== t('Contact Photos'))) {
 				if ($can_post) {
@@ -1249,6 +1284,7 @@ function photos_content(App $a) {
 				}
 			}
 		} else {
+			/// @TODO merge else+if into elseif and 2 into one?
 			if (($album !== t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== t('Contact Photos'))) {
 				if ($can_post) {
 					$edit = array(t('Edit Album'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '/edit');
@@ -1256,20 +1292,22 @@ function photos_content(App $a) {
 			}
 		}
 
-		if ($_GET['order'] === 'posted')
+		if ($_GET['order'] === 'posted') {
 			$order =  array(t('Show Newest First'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album));
-		else
+		} else {
 			$order = array(t('Show Oldest First'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '?f=&order=posted');
+		}
 
 		$photos = array();
 
 		if (dbm::is_result($r))
 			$twist = 'rotright';
 			foreach ($r as $rr) {
-				if ($twist == 'rotright')
+				if ($twist == 'rotright') {
 					$twist = 'rotleft';
-				else
+				} else {
 					$twist = 'rotright';
+				}
 
 				$ext = $phototypes[$rr['type']];
 
@@ -1310,10 +1348,9 @@ function photos_content(App $a) {
 
 	}
 
-	/**
+	/*
 	 * Display one photo
 	 */
-
 	if ($datatype === 'image') {
 
 		//$o = '';
