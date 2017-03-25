@@ -1325,16 +1325,17 @@ function photos_content(App $a) {
 			dbesc($datum)
 		);
 
-		if (! count($ph)) {
+		if (! dbm::is_result($ph)) {
 			$ph = q("SELECT `id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s'
 				LIMIT 1",
 				intval($owner_uid),
 				dbesc($datum)
 			);
-			if (count($ph))
-				notice( t('Permission denied. Access to this item may be restricted.'));
-			else
-				notice( t('Photo not available') . EOL );
+			if (dbm::is_result($ph)) {
+				notice(t('Permission denied. Access to this item may be restricted.'));
+			} else {
+				notice(t('Photo not available') . EOL );
+			}
 			return;
 		}
 
@@ -1356,15 +1357,17 @@ function photos_content(App $a) {
 				intval($owner_uid)
 			);
 
-			if (count($prvnxt)) {
-				for($z = 0; $z < count($prvnxt); $z++) {
-					if ($prvnxt[$z]['resource-id'] == $ph[0]['resource-id']) {
+			if (dbm::is_result($prvnxt)) {
+				foreach ($prvnxt as $z => $entry) {
+					if ($entry['resource-id'] == $ph[0]['resource-id']) {
 						$prv = $z - 1;
 						$nxt = $z + 1;
-						if ($prv < 0)
+						if ($prv < 0) {
 							$prv = count($prvnxt) - 1;
-						if ($nxt >= count($prvnxt))
+						}
+						if ($nxt >= count($prvnxt)) {
 							$nxt = 0;
+						}
 						break;
 					}
 				}
@@ -1387,8 +1390,8 @@ function photos_content(App $a) {
 		}
 
 		$album_link = 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($ph[0]['album']);
- 		$tools = Null;
- 		$lock = Null;
+ 		$tools = null;
+ 		$lock = null;
 
 		if ($can_post && ($ph[0]['uid'] == $owner_uid)) {
 			$tools = array(
@@ -1426,8 +1429,9 @@ function photos_content(App $a) {
 			'filename' => $hires['filename'],
 		);
 
-		if ($nextlink)
+		if ($nextlink) {
 			$nextlink = array($nextlink, '<div class="icon next"></div>');
+		}
 
 
 		// Do we have an item for this photo?
@@ -1444,8 +1448,9 @@ function photos_content(App $a) {
 
 		$map = null;
 
-		if (count($linked_items)) {
+		if (dbm::is_result($linked_items)) {
 			$link_item = $linked_items[0];
+
 			$r = qu("SELECT COUNT(*) AS `total`
 				FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				WHERE `parent-uri` = '%s' AND `uri` != '%s' AND `item`.`deleted` = 0 and `item`.`moderated` = 0
@@ -1458,8 +1463,9 @@ function photos_content(App $a) {
 
 			);
 
-			if (dbm::is_result($r))
+			if (dbm::is_result($r)) {
 				$a->set_pager_total($r[0]['total']);
+			}
 
 
 			$r = qu("SELECT `item`.*, `item`.`id` AS `item_id`,
@@ -1493,15 +1499,16 @@ function photos_content(App $a) {
 			}
 		}
 
-		$tags=Null;
+		$tags = null;
 
 		if (count($linked_items) && strlen($link_item['tag'])) {
 			$arr = explode(',',$link_item['tag']);
 			// parse tags and add links
 			$tag_str = '';
 			foreach ($arr as $t) {
-				if (strlen($tag_str))
+				if (strlen($tag_str)) {
 					$tag_str .= ', ';
+				}
 				$tag_str .= bbcode($t);
 			}
 			$tags = array(t('Tags: '), $tag_str);
@@ -1518,21 +1525,25 @@ function photos_content(App $a) {
 
 			// Private/public post links for the non-JS ACL form
 			$private_post = 1;
-			if ($_REQUEST['public'])
+			if ($_REQUEST['public']) {
 				$private_post = 0;
+			}
 
 			$query_str = $a->query_string;
-			if (strpos($query_str, 'public=1') !== false)
+			if (strpos($query_str, 'public=1') !== false) {
 				$query_str = str_replace(array('?public=1', '&public=1'), array('', ''), $query_str);
+			}
 
-			// I think $a->query_string may never have ? in it, but I could be wrong
-			// It looks like it's from the index.php?q=[etc] rewrite that the web
-			// server does, which converts any ? to &, e.g. suggest&ignore=61 for suggest?ignore=61
-			if (strpos($query_str, '?') === false)
+			/*
+			 * I think $a->query_string may never have ? in it, but I could be wrong
+			 * It looks like it's from the index.php?q=[etc] rewrite that the web
+			 * server does, which converts any ? to &, e.g. suggest&ignore=61 for suggest?ignore=61
+			 */
+			if (strpos($query_str, '?') === false) {
 				$public_post_link = '?public=1';
-			else
+			} else {
 				$public_post_link = '&public=1';
-
+			}
 
 			if ($a->theme['template_engine'] === 'internal') {
 				$album_e = template_escape($ph[0]['album']);
@@ -1596,6 +1607,7 @@ function photos_content(App $a) {
 
 			$comments = '';
 			if (! dbm::is_result($r)) {
+				/// @TODO merge into one if() ?
 				if ($can_post || can_write_wall($a,$owner_uid)) {
 					if ($link_item['last-child']) {
 						$comments .= replace_macros($cmnt_tpl,array(
@@ -1630,8 +1642,6 @@ function photos_content(App $a) {
 				'attendyes' => array('title' => t('Attending','title')), 'attendno' => array('title' => t('Not attending','title')), 'attendmaybe' => array('title' => t('Might attend','title'))
 			);
 
-
-
 			// display comments
 			if (dbm::is_result($r)) {
 
@@ -1642,8 +1652,7 @@ function photos_content(App $a) {
 				$like    = ((x($conv_responses['like'],$link_item['uri'])) ? format_like($conv_responses['like'][$link_item['uri']],$conv_responses['like'][$link_item['uri'] . '-l'],'like',$link_item['id']) : '');
 				$dislike = ((x($conv_responses['dislike'],$link_item['uri'])) ? format_like($conv_responses['dislike'][$link_item['uri']],$conv_responses['dislike'][$link_item['uri'] . '-l'],'dislike',$link_item['id']) : '');
 
-
-
+				/// @TODO merge into one if() ?
 				if ($can_post || can_write_wall($a,$owner_uid)) {
 					if ($link_item['last-child']) {
 						$comments .= replace_macros($cmnt_tpl,array(
@@ -1675,7 +1684,7 @@ function photos_content(App $a) {
 					if (((activity_match($item['verb'],ACTIVITY_LIKE)) || (activity_match($item['verb'],ACTIVITY_DISLIKE))) && ($item['id'] != $item['parent']))
 						continue;
 
-					$redirect_url = 'redir/' . $item['cid'] ;
+					$redirect_url = 'redir/' . $item['cid'];
 
 
 					if (local_user() && ($item['contact-uid'] == local_user())
@@ -1694,8 +1703,6 @@ function photos_content(App $a) {
 
 					$profile_link = $profile_url;
 
-
-
 					$dropping = (($item['contact-id'] == $contact_id) || ($item['uid'] == local_user()));
 					$drop = array(
 						'dropping' => $dropping,
@@ -1703,7 +1710,6 @@ function photos_content(App $a) {
 						'select' => t('Select'),
 						'delete' => t('Delete'),
 					);
-
 
 					if ($a->theme['template_engine'] === 'internal') {
 						$name_e = template_escape($profile_name);
@@ -1729,10 +1735,10 @@ function photos_content(App $a) {
 						'$comment' => $comment
 					));
 
-					if ($can_post || can_write_wall($a,$owner_uid)) {
-
+					/// @TODO merge into one if() ?
+					if ($can_post || can_write_wall($a, $owner_uid)) {
 						if ($item['last-child']) {
-							$comments .= replace_macros($cmnt_tpl,array(
+							$comments .= replace_macros($cmnt_tpl, array(
 								'$return_path' => '',
 								'$jsreload' => $return_url,
 								'$type' => 'wall-comment',
