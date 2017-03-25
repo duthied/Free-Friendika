@@ -484,10 +484,6 @@ function check_funcs(&$checks) {
 		$ck_funcs[6]['status'] = false;
 		$ck_funcs[6]['help'] = t('Error, XML PHP module required but not installed.');
 	}
-
-	/// @TODO old-lost code here?
-	/*if((x($_SESSION,'sysmsg')) && is_array($_SESSION['sysmsg']) && count($_SESSION['sysmsg']))
-		notice( t('Please see the file "INSTALL.txt".') . EOL);*/
 }
 
 
