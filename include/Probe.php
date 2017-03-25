@@ -56,6 +56,9 @@ class Probe {
 	 */
 	private function xrd($host) {
 
+		// Reset the static variable
+		self::$baseurl = '';
+
 		$ssl_url = "https://".$host."/.well-known/host-meta";
 		$url = "http://".$host."/.well-known/host-meta";
 
