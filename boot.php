@@ -694,7 +694,7 @@ class App {
 		}
 
 		if ((x($_SERVER, 'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'], 0, 9) === "pagename=") {
-			$this->query_string = substr($_SERVER['QUERY_STRING'],9);
+			$this->query_string = substr($_SERVER['QUERY_STRING'], 9);
 			// removing trailing / - maybe a nginx problem
 			/// @TODO can be shortened by trim($str, '/') !
 			if (substr($this->query_string, 0, 1) == "/") {
@@ -717,7 +717,7 @@ class App {
 
 
 		// fix query_string
-		$this->query_string = str_replace($this->cmd."&",$this->cmd."?", $this->query_string);
+		$this->query_string = str_replace($this->cmd . "&", $this->cmd . "?", $this->query_string);
 
 		// unix style "homedir"
 		if (substr($this->cmd, 0, 1) === '~') {
@@ -725,14 +725,12 @@ class App {
 		}
 
 		// Diaspora style profile url
-
 		if (substr($this->cmd,0,2) === 'u/') {
 			$this->cmd = 'profile/' . substr($this->cmd,2);
 		}
 
 
 		/*
-		 *
 		 * Break the URL path into C style argc/argv style arguments for our
 		 * modules. Given "http://example.com/module/arg1/arg2", $this->argc
 		 * will be 3 (integer) and $this->argv will contain:
@@ -743,12 +741,11 @@ class App {
 		 *
 		 * There will always be one argument. If provided a naked domain
 		 * URL, $this->argv[0] is set to "home".
-		 *
 		 */
 
-		$this->argv = explode('/',$this->cmd);
+		$this->argv = explode('/', $this->cmd);
 		$this->argc = count($this->argv);
-		if ((array_key_exists('0',$this->argv)) && strlen($this->argv[0])) {
+		if ((array_key_exists('0', $this->argv)) && strlen($this->argv[0])) {
 			$this->module = str_replace(".", "_", $this->argv[0]);
 			$this->module = str_replace("-", "_", $this->module);
 		} else {
@@ -762,9 +759,10 @@ class App {
 		 * pagination
 		 */
 
-		$this->pager['page'] = ((x($_GET,'page') && intval($_GET['page']) > 0) ? intval($_GET['page']) : 1);
+		$this->pager['page'] = ((x($_GET, 'page') && intval($_GET['page']) > 0) ? intval($_GET['page']) : 1);
 		$this->pager['itemspage'] = 50;
 		$this->pager['start'] = ($this->pager['page'] * $this->pager['itemspage']) - $this->pager['itemspage'];
+
 		if ($this->pager['start'] < 0) {
 			$this->pager['start'] = 0;
 		}
