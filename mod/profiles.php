@@ -193,14 +193,14 @@ function profiles_post(App $a) {
 
 		$dob = $_POST['dob'] ? escape_tags(trim($_POST['dob'])) : '0000-00-00'; // FIXME: Needs to be validated?
 
-		$y = substr($dob,0,4);
+		$y = substr($dob, 0, 4);
 		if ((! ctype_digit($y)) || ($y < 1900)) {
 			$ignore_year = true;
 		} else {
 			$ignore_year = false;
 		}
 		if ($dob != '0000-00-00') {
-			if (strpos($dob,'0000-') === 0) {
+			if (strpos($dob, '0000-') === 0) {
 				$ignore_year = true;
 				$dob = substr($dob, 5);
 			}
@@ -235,10 +235,10 @@ function profiles_post(App $a) {
 
 		$with = ((x($_POST,'with')) ? notags(trim($_POST['with'])) : '');
 
-		if(! strlen($howlong)) {
+		if (! strlen($howlong)) {
 			$howlong = NULL_DATE;
 		} else {
-			$howlong = datetime_convert(date_default_timezone_get(),'UTC',$howlong);
+			$howlong = datetime_convert(date_default_timezone_get(), 'UTC', $howlong);
 		}
 		// linkify the relationship target if applicable
 
@@ -249,7 +249,7 @@ function profiles_post(App $a) {
 				$withchanged = true;
 				$prf = '';
 				$lookup = $with;
-				if (strpos($lookup,'@') === 0) {
+				if (strpos($lookup, '@') === 0) {
 					$lookup = substr($lookup, 1);
 				}
 				$lookup = str_replace('_',' ', $lookup);
