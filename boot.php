@@ -1255,29 +1255,29 @@ class App {
 	 * @return bool Is it a known backend?
 	 */
 	function is_backend() {
-		static $backend = array();
-		$backend[] = "_well_known";
-		$backend[] = "api";
-		$backend[] = "dfrn_notify";
-		$backend[] = "fetch";
-		$backend[] = "hcard";
-		$backend[] = "hostxrd";
-		$backend[] = "nodeinfo";
-		$backend[] = "noscrape";
-		$backend[] = "p";
-		$backend[] = "poco";
-		$backend[] = "post";
-		$backend[] = "proxy";
-		$backend[] = "pubsub";
-		$backend[] = "pubsubhubbub";
-		$backend[] = "receive";
-		$backend[] = "rsd_xml";
-		$backend[] = "salmon";
-		$backend[] = "statistics_json";
-		$backend[] = "xrd";
+		static $backends = array();
+		$backends[] = "_well_known";
+		$backends[] = "api";
+		$backends[] = "dfrn_notify";
+		$backends[] = "fetch";
+		$backends[] = "hcard";
+		$backends[] = "hostxrd";
+		$backends[] = "nodeinfo";
+		$backends[] = "noscrape";
+		$backends[] = "p";
+		$backends[] = "poco";
+		$backends[] = "post";
+		$backends[] = "proxy";
+		$backends[] = "pubsub";
+		$backends[] = "pubsubhubbub";
+		$backends[] = "receive";
+		$backends[] = "rsd_xml";
+		$backends[] = "salmon";
+		$backends[] = "statistics_json";
+		$backends[] = "xrd";
 
 		// Check if current module is in backend or backend flag is set
-		return (in_array($this->module, self::$backend) || $this->backend);
+		return (in_array($this->module, self::$backends) || $this->backend);
 	}
 
 	/**
