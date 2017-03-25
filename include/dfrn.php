@@ -915,12 +915,7 @@ class dfrn {
 				intval($owner["uid"]),
 				dbesc(normalise_link($mention)));
 
-			if (!dbm::is_result($r)) {
-				/// @TODO Maybe some logging?
-				killme();
-			}
-
-			if ($r[0]["forum"] OR $r[0]["prv"]) {
+			if (dbm::is_result($r) AND ($r[0]["forum"] OR $r[0]["prv"])) {
 				xml::add_element($doc, $entry, "link", "", array("rel" => "mentioned",
 											"ostatus:object-type" => ACTIVITY_OBJ_GROUP,
 											"href" => $mention));
