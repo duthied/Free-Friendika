@@ -2108,7 +2108,7 @@ class DFRN
 
 		logger('Contacts are updated.');
 
-		/// @TODO decide to use dbm::is_result() here
+		/// @TODO WHERE DOES $x COME FROM ???
 		if ($x === false) {
 			return false;
 		}
