@@ -99,7 +99,7 @@ function po2php_run(&$argv, &$argc) {
 		}
 
 		if ($ink) {
-			$k .= trim($l,"\"\r\n");
+			$k .= trim($l, "\"\r\n");
 			$k = preg_replace_callback($escape_s_exp, 'escape_s', $k);
 			//$out .= '$a->strings['.$k.'] = ';
 		}
@@ -107,14 +107,14 @@ function po2php_run(&$argv, &$argc) {
 		if (substr($l, 0, 6) == "msgid ") {
 			if ($inv) {
 				$inv = false;
-				$out .= '"'.$v.'"';
+				$out .= '"' . $v . '"';
 			}
 			if ($k != "") {
 				/// @TODO Maybe add parentheses here?
 				$out .= $arr ? ");\n" : ";\n";
 			}
 			$arr = false;
-			$k = str_replace("msgid ","",$l);
+			$k = str_replace("msgid ", "", $l);
 			if ($k != '""') {
 				$k = trim($k, "\"\r\n");
 			} else {
