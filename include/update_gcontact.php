@@ -25,7 +25,7 @@ function update_gcontact_run(&$argv, &$argc) {
 		return;
 	}
 
-	if (!in_array($r[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
+	if (!in_array($r[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
 		return;
 	}
 
