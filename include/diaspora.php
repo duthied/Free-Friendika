@@ -1848,18 +1848,15 @@ class Diaspora {
 			intval($importer["uid"])
 		);
 
-		if ($searchable) {
-			poco_check($contact["url"], $name, NETWORK_DIASPORA, $image_url, $about, $location, $gender, $keywords, "",
-				datetime_convert(), 2, $contact["id"], $importer["uid"]);
-		}
-
 		$gcontact = array("url" => $contact["url"], "network" => NETWORK_DIASPORA, "generation" => 2,
 					"photo" => $image_url, "name" => $name, "location" => $location,
 					"about" => $about, "birthday" => $birthday, "gender" => $gender,
 					"addr" => $author, "nick" => $nick, "keywords" => $keywords,
 					"hide" => !$searchable, "nsfw" => $nsfw);
 
-		update_gcontact($gcontact);
+		$gcid = update_gcontact($gcontact);
+
+		link_gcontact($gcid, $importer["uid"], $contact["id"]);
 
 		logger("Profile of contact ".$contact["id"]." stored for user ".$importer["uid"], LOGGER_DEBUG);
 
