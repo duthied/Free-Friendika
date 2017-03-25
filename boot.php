@@ -692,9 +692,6 @@ class App {
 			$_SERVER["argc"] --;
 		}
 
-		/// @TODO no longer needed?
-		#set_include_path("include/$this->hostname" . PATH_SEPARATOR . get_include_path());
-
 		if ((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'],0,9) === "pagename=") {
 			$this->query_string = substr($_SERVER['QUERY_STRING'],9);
 			// removing trailing / - maybe a nginx problem
