@@ -172,10 +172,13 @@ function poco_load_worker($cid, $uid, $zcid, $url) {
 				"contact-type" => $contact_type,
 				"generation" => $generation);
 
-		if (sanitized_gcontact($gcontact)) {
+		try {
+			$gcontact = sanitize_gcontact($gcontact);
 			$gcid = update_gcontact($gcontact);
 
 			link_gcontact($gcid, $uid, $cid, $zcid);
+		} catch (Exception $e) {
+			logger($e->getMessage(), LOGGER_DEBUG);
 		}
 	}
 	logger("poco_load: loaded $total entries",LOGGER_DEBUG);
@@ -200,20 +203,20 @@ function poco_load_worker($cid, $uid, $zcid, $url) {
  *  4: ...
  *
  */
-function sanitized_gcontact(&$gcontact) {
+function sanitize_gcontact(&$gcontact) {
 
 	if ($gcontact['url'] == "") {
-		return false;
+		throw new Exception('URL is empty');
 	}
 
 	$urlparts = parse_url($gcontact['url']);
 	if (!isset($urlparts["scheme"])) {
-		return false;
+		throw new Exception("This (".$gcontact['url'].") doesn't seem to be an url.");
 	}
 
 	if (in_array($urlparts["host"], array("www.facebook.com", "facebook.com", "twitter.com",
 						"identi.ca", "alpha.app.net"))) {
-		return false;
+		throw new Exception('Contact from a non federated network ignored. ('.$gcontact['url'].')');
 	}
 
 	// Don't store the statusnet connector as network
@@ -279,7 +282,7 @@ function sanitized_gcontact(&$gcontact) {
 		$data = Probe::uri($gcontact['url']);
 
 		if ($data["network"] == NETWORK_PHANTOM) {
-			return false;
+			throw new Exception('Probing for URL '.$gcontact['url'].' failed');
 		}
 
 		$orig_profile = $gcontact['url'];
@@ -299,11 +302,11 @@ function sanitized_gcontact(&$gcontact) {
 	}
 
 	if (!isset($gcontact['name']) OR !isset($gcontact['photo'])) {
-		return false;
+		throw new Exception('No name and photo for URL '.$gcontact['url']);
 	}
 
 	if (!in_array($gcontact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA))) {
-		return false;
+		throw new Exception('No federated network ('.$gcontact['network'].') detected for URL '.$gcontact['url']);
 	}
 
 	if (!isset($gcontact['server_url'])) {
@@ -321,7 +324,7 @@ function sanitized_gcontact(&$gcontact) {
 		$gcontact['server_url'] = "";
 	}
 
-	return true;
+	return $gcontact;
 }
 
 /**
@@ -606,10 +609,13 @@ function poco_last_updated($profile, $force = false) {
 
 		$gcontact["server_url"] = $data["baseurl"];
 
-		if (sanitized_gcontact($gcontact)) {
+		try {
+			$gcontact = sanitize_gcontact($gcontact);
 			update_gcontact($gcontact);
 
 			poco_last_updated($data["url"], $force);
+		} catch (Exception $e) {
+			logger($e->getMessage(), LOGGER_DEBUG);
 		}
 
 		logger("Profile ".$profile." was deleted", LOGGER_DEBUG);
@@ -1888,8 +1894,11 @@ function poco_discover_server($data, $default_generation = 0) {
 					"contact-type" => $contact_type,
 					"generation" => $generation);
 
-			if (sanitized_gcontact($gcontact)) {
+			try {
+				$gcontact = sanitize_gcontact($gcontact);
 				update_gcontact($gcontact);
+			} catch (Exception $e) {
+				logger($e->getMessage(), LOGGER_DEBUG);
 			}
 
 			logger("Done for profile ".$profile_url, LOGGER_DEBUG);
