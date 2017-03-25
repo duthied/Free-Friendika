@@ -62,8 +62,6 @@ class Probe {
 		$ssl_url = "https://".$host."/.well-known/host-meta";
 		$url = "http://".$host."/.well-known/host-meta";
 
-		$baseurl = "http://".$host;
-
 		$xrd_timeout = Config::get('system','xrd_timeout', 20);
 		$redirects = 0;
 
@@ -110,7 +108,7 @@ class Probe {
 				$xrd_data["lrdd"] = $attributes["template"];
 		}
 
-		self::$baseurl = $baseurl;
+		self::$baseurl = "http://".$host;
 
 		return $xrd_data;
 	}
