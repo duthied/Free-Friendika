@@ -1677,9 +1677,6 @@ code > .hl-main {
 /*
 * Comment Box
 */
-.wall-item-comment-wrapper {
-    margin-top: 10px;
-}
 .thread_level_2 .wall-item-comment-wrapper {
     padding-right: 5px;
 }
