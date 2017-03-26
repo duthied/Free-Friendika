@@ -210,9 +210,6 @@ a#item-delete-selected {
     padding-left: 0;
     padding-right: 0;
 }
-.btn-link:focus, .btn-link:hover {
-    color: #23527c;
-}
 .btn-eventnav, btn-eventnav:hover {
     font-size: 16px;
     background: none;
