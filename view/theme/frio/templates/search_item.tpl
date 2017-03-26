@@ -191,9 +191,9 @@
 					{{* Button for sharing the item *}}
 					{{if $item.vote}}
 						{{if $item.vote.share}}
-						{{if $item.vote.like OR $item.vote.dislike OR $item.comment}}
+							{{if $item.vote.like OR $item.vote.dislike OR $item.comment}}
 					<span role="presentation" class="separator">•</span>
-						{{/if}}
+							{{/if}}
 					<button type="button" class="btn btn-default" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-retweet"></i>&nbsp;{{$item.vote.share.0}}</button>
 						{{/if}}
 					{{/if}}
