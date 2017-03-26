@@ -7,7 +7,7 @@
 
 use \Friendica\Core\Config;
 
-require_once('include/plugin.php');
+require_once 'include/plugin.php';
 
 function nodeinfo_wellknown(App $a) {
 	$nodeinfo = array('links' => array(array('rel' => 'http://nodeinfo.diaspora.software/ns/schema/1.0',
