@@ -169,26 +169,35 @@
 					{{* Buttons for like and dislike *}}
 					{{if $item.vote}}
 						{{if $item.vote.like}}
-						<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="doLikeAction({{$item.id}}, 'like');">{{$item.vote.like.0}}</button>
+					<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="doLikeAction({{$item.id}}, 'like');">{{$item.vote.like.0}}</button>
+						{{/if}}
+						{{if $item.vote.like AND $item.vote.dislike}}
+					<span role="presentation" class="separator">•</span>
 						{{/if}}
 
 						{{if $item.vote.dislike}}
-						<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doLikeAction({{$item.id}}, 'dislike');">{{$item.vote.dislike.0}}</button>
+					<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doLikeAction({{$item.id}}, 'dislike');">{{$item.vote.dislike.0}}</button>
+						{{/if}}
+						{{if ($item.vote.like OR $item.vote.dislike) AND $item.comment}}
+					<span role="presentation" class="separator">•</span>
 						{{/if}}
 					{{/if}}
 
 					{{* Button to open the comment text field *}}
 					{{if $item.comment}}
-					<button type="button" class="btn btn-default" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});">{{$item.switchcomment}}</button>
+						<button type="button" class="btn btn-default" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});">{{$item.switchcomment}}</button>
 					{{/if}}
 
 					{{* Button for sharing the item *}}
 					{{if $item.vote}}
 						{{if $item.vote.share}}
-						<button type="button" class="btn btn-default" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-retweet"></i>&nbsp;{{$item.vote.share.0}}</button>
+						{{if $item.vote.like OR $item.vote.dislike OR $item.comment}}
+					<span role="presentation" class="separator">•</span>
+						{{/if}}
+					<button type="button" class="btn btn-default" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-retweet"></i>&nbsp;{{$item.vote.share.0}}</button>
 						{{/if}}
 					{{/if}}
-                    <img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
+					<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 				</div>
 
 
