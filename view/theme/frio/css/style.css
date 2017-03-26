@@ -1606,6 +1606,9 @@ code > .hl-main {
 .wall-item-actions .button-likes {
     text-transform: capitalize;
 }
+.wall-item-actions .separator {
+	margin: 0 .3em;
+}
 
 /* wall item hover effects */
 .wall-item-container .wall-item-links,
