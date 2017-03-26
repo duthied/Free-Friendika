@@ -88,23 +88,34 @@ var FileBrowser = {
 
 		console.log("FileBrowser:", nickname, type,FileBrowser.event, FileBrowser.id );
 
+		// We need to add the AjaxUpload to the button
+		FileBrowser.uploadButtons();
+
 		$(".error .close").on("click", function(e) {
 			e.preventDefault();
 			$(".error").addClass("hidden");
 		});
 
-		$(".folders a, .path a, .folders button, .path button").on("click", function(e) {
+		// Click on album link
+		$(".fbrowser").on("click", ".folders a, .path a, .folders button, .path button", function(e) {
 			e.preventDefault();
 			var url = baseurl + "/fbrowser/" + FileBrowser.type + "/" + this.dataset.folder + "?mode=none";
+			$(".fbrowser-content").hide();
+			$(".fbrowser .profile-rotator-wrapper").show();
 
 			// load new content to fbrowser window
-			$(".fbrowser").load(url,function() {
-				$(function() {FileBrowser.init(nickname, type, hash);});
+			$(".fbrowser").load(url, function(responseText, textStatus){
+				$(".profile-rotator-wrapper").hide();
+				if (textStatus === 'success') {
+					$(".fbrowser_content").show();
+					// We need to add the AjaxUpload to the button
+					FileBrowser.uploadButtons();
+				}
 			});
 		});
 
 		//embed on click
-		$(".photo-album-photo-link").on('click', function(e) {
+		$(".fbrowser").on('click', ".photo-album-photo-link", function(e) {
 			e.preventDefault();
 
 			var embed = "";
@@ -142,39 +153,52 @@ var FileBrowser = {
 			// update autosize for this textarea
 			autosize.update($(".text-autosize"));
 		});
+	},
 
-		if ($("#upload-image").length)
+	uploadButtons: function() {
+		if ($("#upload-image").length) {
 			var image_uploader = new window.AjaxUpload(
 				'upload-image',
-				{ action: 'wall_upload/'+FileBrowser.nickname+'?response=json',
+				{	action: 'wall_upload/'+FileBrowser.nickname+'?response=json',
 					name: 'userfile',
 					responseType: 'json',
-					onSubmit: function(file,ext) { $('#profile-rotator').show(); $(".error").addClass('hidden'); },
+					onSubmit: function(file,ext) {
+						$(".fbrowser-content").hide();
+						$(".fbrowser .profile-rotator-wrapper").show();
+						$(".error").addClass('hidden');
+					},
 					onComplete: function(file,response) {
 						if (response['error']!= undefined) {
 							$(".error span").html(response['error']);
 							$(".error").removeClass('hidden');
-							$('#profile-rotator').hide();
+							$(".fbrowser .profile-rotator-wrapper").hide();
 							return;
 						}
+
+						$(".profile-rotator-wrapper").hide();
+						$(".fbrowser_content").show();
+
 //						location = baseurl + "/fbrowser/image/?mode=none"+location['hash'];
 //						location.reload(true);
 
 						var url = baseurl + "/fbrowser/" + FileBrowser.type + "?mode=none"
 						// load new content to fbrowser window
-						$(".fbrowser").load(url,function() {
-							$(function() {FileBrowser.init(nickname, type, hash);});
-						});
+						$(".fbrowser").load(url);
 					}
 				}
 			);
+		}
 
-		if ($("#upload-file").length)
+		if ($("#upload-file").length) {
 			var file_uploader = new window.AjaxUpload(
 				'upload-file',
-				{ action: 'wall_attach/'+FileBrowser.nickname+'?response=json',
+				{	action: 'wall_attach/'+FileBrowser.nickname+'?response=json',
 					name: 'userfile',
-					onSubmit: function(file,ext) { $('#profile-rotator').show(); $(".error").addClass('hidden'); },
+					onSubmit: function(file,ext) {
+						$(".fbrowser-content").hide();
+						$(".fbrowser .profile-rotator-wrapper").show();
+						$(".error").addClass('hidden');
+					},
 					onComplete: function(file,response) {
 						if (response['error']!= undefined) {
 							$(".error span").html(response['error']);
@@ -182,17 +206,19 @@ var FileBrowser = {
 							$('#profile-rotator').hide();
 							return;
 						}
+
+						$(".profile-rotator-wrapper").hide();
+						$(".fbrowser_content").show();
+
 //						location = baseurl + "/fbrowser/file/?mode=none"+location['hash'];
 //						location.reload(true);
 
 						var url = baseurl + "/fbrowser/" + FileBrowser.type + "?mode=none"
 						// load new content to fbrowser window
-						$(".fbrowser").load(url,function() {
-							$(function() {FileBrowser.init(nickname, type, hash);});
-						});
+						$(".fbrowser").load(url);
 					}
 				}
-		);
-	},
+			);
+		}
+	}
 };
-
