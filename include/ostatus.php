@@ -811,7 +811,7 @@ class ostatus {
 		if (((intval(get_config('system','ostatus_poll_interval')) == -2) AND (count($item) > 0)) OR
 			($item["verb"] == ACTIVITY_LIKE) OR ($conversation_url == "")) {
 			$item_stored = item_store($item, $all_threads);
-			return($item_stored);
+			return $item_stored;
 		}
 
 		// Get the parent
