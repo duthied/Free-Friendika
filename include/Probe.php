@@ -337,9 +337,9 @@ class Probe {
 			/// @todo: Ports?
 			$host = $parts["host"];
 
-			if ($host == 'twitter.com')
+			if ($host == 'twitter.com') {
 				return array("network" => NETWORK_TWITTER);
-
+			}
 			$lrdd = self::xrd($host);
 
 			$path_parts = explode("/", trim($parts["path"], "/"));
@@ -348,9 +348,9 @@ class Probe {
 				$host .= "/".array_shift($path_parts);
 				$lrdd = self::xrd($host);
 			}
-			if (!$lrdd)
+			if (!$lrdd) {
 				return self::feed($uri);
-
+			}
 			$nick = array_pop($path_parts);
 
 			// Mastodon uses a "@" as prefix for usernames in their url format
@@ -373,14 +373,14 @@ class Probe {
 			$host = substr($uri,strpos($uri, '@') + 1);
 			$nick = substr($uri,0, strpos($uri, '@'));
 
-			if (strpos($uri, '@twitter.com'))
+			if (strpos($uri, '@twitter.com')) {
 				return array("network" => NETWORK_TWITTER);
-
+			}
 			$lrdd = self::xrd($host);
 
-			if (!$lrdd)
+			if (!$lrdd) {
 				return self::mail($uri, $uid);
-
+			}
 			$addr = $uri;
 		} else {
 			return false;
