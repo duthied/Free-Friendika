@@ -799,6 +799,9 @@ class ostatus {
 
 		/// @todo This function is totally ugly and has to be rewritten totally
 
+		// Import all threads or only threads that were started by our followers?
+		$all_threads = !get_config('system','ostatus_full_threads');
+
 		$item_stored = -1;
 
 		$conversation_url = self::fetch_conversation($self, $conversation_url);
@@ -807,8 +810,8 @@ class ostatus {
 		// Don't do a completion on liked content
 		if (((intval(get_config('system','ostatus_poll_interval')) == -2) AND (count($item) > 0)) OR
 			($item["verb"] == ACTIVITY_LIKE) OR ($conversation_url == "")) {
-			$item_stored = item_store($item, true);
-			return($item_stored);
+			$item_stored = item_store($item, $all_threads);
+			return $item_stored;
 		}
 
 		// Get the parent
@@ -888,7 +891,7 @@ class ostatus {
 
 		if (!sizeof($items)) {
 			if (count($item) > 0) {
-				$item_stored = item_store($item, true);
+				$item_stored = item_store($item, $all_threads);
 
 				if ($item_stored) {
 					logger("Conversation ".$conversation_url." couldn't be fetched. Item uri ".$item["uri"]." stored: ".$item_stored, LOGGER_DEBUG);
@@ -1186,7 +1189,7 @@ class ostatus {
 				}
 			}
 
-			$item_stored = item_store($item, true);
+			$item_stored = item_store($item, $all_threads);
 			if ($item_stored) {
 				logger("Uri ".$item["uri"]." wasn't found in conversation ".$conversation_url, LOGGER_DEBUG);
 				self::store_conversation($item_stored, $conversation_url);
