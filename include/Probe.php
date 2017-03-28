@@ -177,6 +177,8 @@ class Probe {
 
 			$path_parts = explode("/", trim($parts["path"], "/"));
 
+			$nick = array_pop($path_parts);
+
 			do {
 				$lrdd = self::xrd($host);
 				$host .= "/".array_shift($path_parts);
@@ -198,6 +200,19 @@ class Probe {
 
 			if (!$webfinger AND (strstr($uri, "@"))) {
 				$path = str_replace('{uri}', urlencode("acct:".$uri), $link);
+				$webfinger = self::webfinger($path);
+			}
+
+			// Special treatment for Mastodon
+			// Problem is that Mastodon uses an URL format like http://domain.tld/@nick
+			// But the webfinger for this format fails.
+			if (!$webfinger AND isset($nick)) {
+				// Mastodon uses a "@" as prefix for usernames in their url format
+				$nick = ltrim($nick, '@');
+
+				$addr = $nick."@".$host;
+
+				$path = str_replace('{uri}', urlencode("acct:".$addr), $link);
 				$webfinger = self::webfinger($path);
 			}
 		}
@@ -315,7 +330,34 @@ class Probe {
 	 * @return array uri data
 	 */
 	private function detect($uri, $network, $uid) {
-		if (strstr($uri, '@')) {
+		$parts = parse_url($uri);
+
+		if (isset($parts["scheme"]) AND isset($parts["host"]) AND isset($parts["path"])) {
+
+			/// @todo: Ports?
+			$host = $parts["host"];
+
+			if ($host == 'twitter.com') {
+				return array("network" => NETWORK_TWITTER);
+			}
+			$lrdd = self::xrd($host);
+
+			$path_parts = explode("/", trim($parts["path"], "/"));
+
+			while (!$lrdd AND (sizeof($path_parts) > 1)) {
+				$host .= "/".array_shift($path_parts);
+				$lrdd = self::xrd($host);
+			}
+			if (!$lrdd) {
+				return self::feed($uri);
+			}
+			$nick = array_pop($path_parts);
+
+			// Mastodon uses a "@" as prefix for usernames in their url format
+			$nick = ltrim($nick, '@');
+
+			$addr = $nick."@".$host;
+		} elseif (strstr($uri, '@')) {
 			// If the URI starts with "mailto:" then jump directly to the mail detection
 			if (strpos($url,'mailto:') !== false) {
 				$uri = str_replace('mailto:', '', $url);
@@ -331,42 +373,19 @@ class Probe {
 			$host = substr($uri,strpos($uri, '@') + 1);
 			$nick = substr($uri,0, strpos($uri, '@'));
 
-			if (strpos($uri, '@twitter.com'))
+			if (strpos($uri, '@twitter.com')) {
 				return array("network" => NETWORK_TWITTER);
-
+			}
 			$lrdd = self::xrd($host);
 
-			if (!$lrdd)
+			if (!$lrdd) {
 				return self::mail($uri, $uid);
-
+			}
 			$addr = $uri;
 		} else {
-			$parts = parse_url($uri);
-			if (!isset($parts["scheme"]) OR
-				!isset($parts["host"]) OR
-				!isset($parts["path"]))
-				return false;
-
-			/// @todo: Ports?
-			$host = $parts["host"];
-
-			if ($host == 'twitter.com')
-				return array("network" => NETWORK_TWITTER);
-
-			$lrdd = self::xrd($host);
-
-			$path_parts = explode("/", trim($parts["path"], "/"));
-
-			while (!$lrdd AND (sizeof($path_parts) > 1)) {
-				$host .= "/".array_shift($path_parts);
-				$lrdd = self::xrd($host);
-			}
-			if (!$lrdd)
-				return self::feed($uri);
-
-			$nick = array_pop($path_parts);
-			$addr = $nick."@".$host;
+			return false;
 		}
+
 		$webfinger = false;
 
 		/// @todo Do we need the prefix "acct:" or "acct://"?
