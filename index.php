@@ -66,10 +66,10 @@ if (!$install) {
 	}
 
 	if (get_config('system', 'force_ssl') AND ($a->get_scheme() == "http") AND
-		(intval(get_config('system','ssl_policy')) == SSL_POLICY_FULL) AND
+		(intval(get_config('system', 'ssl_policy')) == SSL_POLICY_FULL) AND
 		(substr(App::get_baseurl(), 0, 8) == "https://")) {
 		header("HTTP/1.1 302 Moved Temporarily");
-		header("Location: ".App::get_baseurl()."/".$a->query_string);
+		header("Location: " . App::get_baseurl() . "/" . $a->query_string);
 		exit();
 	}
 
@@ -336,14 +336,6 @@ if ($a->module_loaded) {
 		$func = str_replace('-','_',current_theme()) . '_init';
 		$func($a);
 	}
-/// @TODO commented out? old-lost again? :-)
-//	elseif (x($a->theme_info,"extends") && file_exists("view/theme/".$a->theme_info["extends"]."/theme.php")) {
-//		require_once("view/theme/".$a->theme_info["extends"]."/theme.php");
-//		if (function_exists(str_replace('-','_',$a->theme_info["extends"]) . '_init')) {
-//			$func = str_replace('-','_',$a->theme_info["extends"]) . '_init';
-//			$func($a);
-//		}
-//	}
 
 	if (($_SERVER['REQUEST_METHOD'] === 'POST') && (! $a->error)
 		&& (function_exists($a->module . '_post'))
