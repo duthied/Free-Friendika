@@ -160,15 +160,15 @@ function dfrn_notify_post(App $a) {
 
 		if ($dfrn_version >= 2.1) {
 			if ((($importer['duplex']) && strlen($importer['cprvkey'])) || (! strlen($importer['cpubkey']))) {
-				openssl_private_decrypt($rawkey,$final_key,$importer['cprvkey']);
+				openssl_private_decrypt($rawkey, $final_key, $importer['cprvkey']);
 			} else {
-				openssl_public_decrypt($rawkey,$final_key,$importer['cpubkey']);
+				openssl_public_decrypt($rawkey, $final_key, $importer['cpubkey']);
 			}
 		} else {
 			if ((($importer['duplex']) && strlen($importer['cpubkey'])) || (! strlen($importer['cprvkey']))) {
-				openssl_public_decrypt($rawkey,$final_key,$importer['cpubkey']);
+				openssl_public_decrypt($rawkey, $final_key, $importer['cpubkey']);
 			} else {
-				openssl_private_decrypt($rawkey,$final_key,$importer['cprvkey']);
+				openssl_private_decrypt($rawkey, $final_key, $importer['cprvkey']);
 			}
 		}
 
@@ -181,11 +181,11 @@ function dfrn_notify_post(App $a) {
 				 * we got a key. old code send only the key, without RINO version.
 				 * we assume RINO 1 if key and no RINO version
 				 */
-				$data = aes_decrypt(hex2bin($data),$final_key);
+				$data = aes_decrypt(hex2bin($data), $final_key);
 				break;
 			case 2:
 				try {
-					$data = Crypto::decrypt(hex2bin($data),$final_key);
+					$data = Crypto::decrypt(hex2bin($data), $final_key);
 				} catch (InvalidCiphertext $ex) { // VERY IMPORTANT
 					/*
 					 * Either:
@@ -195,13 +195,13 @@ function dfrn_notify_post(App $a) {
 					 * Assume the worst.
 					 */
 					logger('The ciphertext has been tampered with!');
-					xml_status(0,'The ciphertext has been tampered with!');
+					xml_status(0, 'The ciphertext has been tampered with!');
 				} catch (Ex\CryptoTestFailed $ex) {
 					logger('Cannot safely perform dencryption');
-					xml_status(0,'CryptoTestFailed');
+					xml_status(0, 'CryptoTestFailed');
 				} catch (Ex\CannotPerformOperation $ex) {
 					logger('Cannot safely perform decryption');
-					xml_status(0,'Cannot safely perform decryption');
+					xml_status(0, 'Cannot safely perform decryption');
 				}
 				break;
 			default:
