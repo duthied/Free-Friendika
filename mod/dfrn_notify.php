@@ -136,21 +136,14 @@ function dfrn_notify_post(App $a) {
 
 	}
 
-	/// @TODO remove this old-lost code then?
-	// If we are setup as a soapbox we aren't accepting input from this person
-	// This behaviour is deactivated since it really doesn't make sense to even disallow comments
-	// The check if someone is a friend or simply a follower is done in a later place so it needn't to be done here
-	//if($importer['page-flags'] == PAGE_SOAPBOX)
-	//	xml_status(0);
-
-	$rino = get_config('system','rino_encrypt');
+	$rino = get_config('system', 'rino_encrypt');
 	$rino = intval($rino);
 	// use RINO1 if mcrypt isn't installed and RINO2 was selected
 	if ($rino == 2 && !function_exists('mcrypt_create_iv')) {
 		$rino = 1;
 	}
 
-	logger("Local rino version: ". $rino, LOGGER_DEBUG);
+	logger("Local rino version: " .  $rino, LOGGER_DEBUG);
 
 	if (strlen($key)) {
 
