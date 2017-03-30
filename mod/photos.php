@@ -781,10 +781,10 @@ function photos_post(App $a) {
 		$visible = 0;
 	}
 
-	$str_group_allow   = perms2str(((is_array($_REQUEST['group_allow']))   ? $_REQUEST['group_allow']   : explode(',',$_REQUEST['group_allow'])));
-	$str_contact_allow = perms2str(((is_array($_REQUEST['contact_allow'])) ? $_REQUEST['contact_allow'] : explode(',',$_REQUEST['contact_allow'])));
-	$str_group_deny    = perms2str(((is_array($_REQUEST['group_deny']))    ? $_REQUEST['group_deny']    : explode(',',$_REQUEST['group_deny'])));
-	$str_contact_deny  = perms2str(((is_array($_REQUEST['contact_deny']))  ? $_REQUEST['contact_deny']  : explode(',',$_REQUEST['contact_deny'])));
+	$str_group_allow   = perms2str(((is_array($_REQUEST['group_allow']))   ? $_REQUEST['group_allow']   : explode(',', $_REQUEST['group_allow'])));
+	$str_contact_allow = perms2str(((is_array($_REQUEST['contact_allow'])) ? $_REQUEST['contact_allow'] : explode(',', $_REQUEST['contact_allow'])));
+	$str_group_deny    = perms2str(((is_array($_REQUEST['group_deny']))    ? $_REQUEST['group_deny']    : explode(',', $_REQUEST['group_deny'])));
+	$str_contact_deny  = perms2str(((is_array($_REQUEST['contact_deny']))  ? $_REQUEST['contact_deny']  : explode(',', $_REQUEST['contact_deny'])));
 
 	$ret = array('src' => '', 'filename' => '', 'filesize' => 0, 'type' => '');
 
@@ -830,7 +830,7 @@ function photos_post(App $a) {
 	$imagedata = @file_get_contents($src);
 
 
-	$limit = service_class_fetch($a->data['user']['uid'],'photo_upload_limit');
+	$limit = service_class_fetch($a->data['user']['uid'], 'photo_upload_limit');
 
 	if ($limit) {
 		$r = q("SELECT SUM(OCTET_LENGTH(`data`)) AS `total` FROM `photo` WHERE `uid` = %d AND `scale` = 0 AND `album` != 'Contact Photos'",
@@ -1142,7 +1142,7 @@ function photos_content(App $a) {
 		));
 
 		$usage_message = '';
-		$limit = service_class_fetch($a->data['user']['uid'],'photo_upload_limit');
+		$limit = service_class_fetch($a->data['user']['uid'], 'photo_upload_limit');
 		if ($limit !== false) {
 
 			$r = q("SELECT SUM(`datasize`) AS `total` FROM `photo` WHERE `uid` = %d AND `scale` = 0 AND `album` != 'Contact Photos'",
@@ -1526,7 +1526,7 @@ function photos_content(App $a) {
 		$tags = null;
 
 		if (count($linked_items) && strlen($link_item['tag'])) {
-			$arr = explode(',',$link_item['tag']);
+			$arr = explode(',', $link_item['tag']);
 			// parse tags and add links
 			$tag_str = '';
 			foreach ($arr as $t) {
@@ -1673,8 +1673,8 @@ function photos_content(App $a) {
 					builtin_activity_puller($item, $conv_responses);
 				}
 
-				$like    = ((x($conv_responses['like'],$link_item['uri'])) ? format_like($conv_responses['like'][$link_item['uri']],$conv_responses['like'][$link_item['uri'] . '-l'],'like',$link_item['id']) : '');
-				$dislike = ((x($conv_responses['dislike'],$link_item['uri'])) ? format_like($conv_responses['dislike'][$link_item['uri']],$conv_responses['dislike'][$link_item['uri'] . '-l'],'dislike',$link_item['id']) : '');
+				$like    = ((x($conv_responses['like'],$link_item['uri'])) ? format_like($conv_responses['like'][$link_item['uri']],$conv_responses['like'][$link_item['uri'] . '-l'], 'like',$link_item['id']) : '');
+				$dislike = ((x($conv_responses['dislike'],$link_item['uri'])) ? format_like($conv_responses['dislike'][$link_item['uri']],$conv_responses['dislike'][$link_item['uri'] . '-l'], 'dislike',$link_item['id']) : '');
 
 				/// @TODO merge into one if() ?
 				if ($can_post || can_write_wall($a,$owner_uid)) {
