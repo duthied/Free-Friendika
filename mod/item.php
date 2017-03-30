@@ -560,7 +560,7 @@ function item_post(App $a) {
 			$toplevel_contact = '@[url='.$toplevel_parent[0]['author-link'].']'.$toplevel_parent[0]['author-name'].'[/url]';
 		}
 
-		if (!in_array($toplevel_contact, $tags)) [
+		if (!in_array($toplevel_contact, $tags)) {
 			$tags[] = $toplevel_contact;
 		}
 	}
