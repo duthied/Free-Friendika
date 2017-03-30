@@ -18,7 +18,7 @@ function photos_init(App $a) {
 		auto_redir($a, $a->argv[1]);
 	}
 
-	if ((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if ((get_config('system', 'block_public')) && (! local_user()) && (! remote_user())) {
 		return;
 	}
 
@@ -562,9 +562,9 @@ function photos_post(App $a) {
 					if (isset($profile)) {
 						unset($profile);
 					}
-					if (strpos($tag,'@') === 0) {
+					if (strpos($tag, '@') === 0) {
 						$name = substr($tag,1);
-						if ((strpos($name,'@')) || (strpos($name,'http://'))) {
+						if ((strpos($name, '@')) || (strpos($name, 'http://'))) {
 							$newname = $name;
 							$links = @Probe::lrdd($name);
 							if (count($links)) {
@@ -573,7 +573,7 @@ function photos_post(App $a) {
 										$profile = $link['@attributes']['href'];
 									}
 									if ($link['@attributes']['rel'] === 'salmon') {
-										$salmon = '$url:' . str_replace(',','%sc',$link['@attributes']['href']);
+										$salmon = '$url:' . str_replace(',', '%sc', $link['@attributes']['href']);
 										if (strlen($inform)) {
 											$inform .= ',';
 										}
@@ -581,13 +581,13 @@ function photos_post(App $a) {
 									}
 								}
 							}
-							$taginfo[] = array($newname,$profile,$salmon);
+							$taginfo[] = array($newname, $profile, $salmon);
 						} else {
 							$newname = $name;
 							$alias = '';
 							$tagcid = 0;
-							if (strrpos($newname,'+')) {
-								$tagcid = intval(substr($newname,strrpos($newname, '+') + 1));
+							if (strrpos($newname, '+')) {
+								$tagcid = intval(substr($newname, strrpos($newname, '+') + 1));
 							}
 
 							if ($tagcid) {
@@ -649,9 +649,9 @@ function photos_post(App $a) {
 							$profile = str_replace(',', '%2c', $profile);
 							$str_tags .= '@[url='.$profile.']'.$newname.'[/url]';
 						}
-					} elseif (strpos($tag,'#') === 0) {
+					} elseif (strpos($tag, '#') === 0) {
 						$tagname = substr($tag, 1);
-						$str_tags .= '#[url='.App::get_baseurl()."/search?tag=".$tagname.']'.$tagname.'[/url]';
+						$str_tags .= '#[url=' . App::get_baseurl() . "/search?tag=" . $tagname . ']' . $tagname . '[/url]';
 					}
 				}
 			}
@@ -988,7 +988,7 @@ function photos_content(App $a) {
 	// photos/name/image/xxxxx/edit
 
 
-	if ((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if ((get_config('system', 'block_public')) && (! local_user()) && (! remote_user())) {
 		notice( t('Public access denied.') . EOL);
 		return;
 	}
