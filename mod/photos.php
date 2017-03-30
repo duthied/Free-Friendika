@@ -613,20 +613,7 @@ function photos_post(App $a) {
 									);
 								}
 							}
-							/// @TODO maybe old-lost code to be removed
-/*							elseif (strstr($name,'_') || strstr($name,' ')) {
-								$newname = str_replace('_',' ',$name);
-								$r = q("SELECT * FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
-									dbesc($newname),
-									intval($page_owner_uid)
-								);
-							} else {
-								$r = q("SELECT * FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
-									dbesc($name),
-									dbesc($name),
-									intval($page_owner_uid)
-								);
-							}*/
+
 							if (dbm::is_result($r)) {
 								$newname = $r[0]['name'];
 								$profile = $r[0]['url'];
