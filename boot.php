@@ -721,8 +721,8 @@ class App {
 		}
 
 		// Diaspora style profile url
-		if (substr($this->cmd,0,2) === 'u/') {
-			$this->cmd = 'profile/' . substr($this->cmd,2);
+		if (substr($this->cmd, 0, 2) === 'u/') {
+			$this->cmd = 'profile/' . substr($this->cmd, 2);
 		}
 
 
