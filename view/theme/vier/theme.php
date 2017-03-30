@@ -213,8 +213,9 @@ function vier_community_info() {
 
 		require_once('include/ForumManager.php');
 
-		if (x($_GET['cid']) && intval($_GET['cid']) != 0)
+		if (x($_GET, 'cid') && intval($_GET['cid']) != 0) {
 			$cid = $_GET['cid'];
+		}
 
 		//sort by last updated item
 		$lastitem = true;
@@ -227,18 +228,18 @@ function vier_community_info() {
 
 			$id = 0;
 
-			foreach($contacts as $contact) {
+			foreach ($contacts as $contact) {
 
 				$selected = (($cid == $contact['id']) ? ' forum-selected' : '');
 
 				$entry = array(
-					'url' => 'network?f=&cid=' . $contact['id'],
+					'url'          => 'network?f=&cid=' . $contact['id'],
 					'external_url' => 'redir/' . $contact['id'],
-					'name' => $contact['name'],
-					'cid' => $contact['id'],
-					'selected' 	=> $selected,
-					'micro' => App::remove_baseurl(proxy_url($contact['micro'], false, PROXY_SIZE_MICRO)),
-					'id' => ++$id,
+					'name'         => $contact['name'],
+					'cid'          => $contact['id'],
+					'selected'     => $selected,
+					'micro'        => App::remove_baseurl(proxy_url($contact['micro'], false, PROXY_SIZE_MICRO)),
+					'id'           => ++$id,
 				);
 				$entries[] = $entry;
 			}
@@ -247,12 +248,12 @@ function vier_community_info() {
 			$tpl = get_markup_template('widget_forumlist_right.tpl');
 
 			$page .= replace_macros($tpl,array(
-				'$title'	=> t('Forums'),
-				'$forums'	=> $entries,
-				'$link_desc'	=> t('External link to forum'),
-				'$total'	=> $total,
+				'$title'          => t('Forums'),
+				'$forums'         => $entries,
+				'$link_desc'      => t('External link to forum'),
+				'$total'          => $total,
 				'$visible_forums' => $visible_forums,
-				'$showmore'	=> t('show more'),
+				'$showmore'       => t('show more'),
 			));
 
 			$aside['$page'] = $page;
