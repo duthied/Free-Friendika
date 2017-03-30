@@ -1,14 +1,14 @@
 <?php
-require_once('include/Photo.php');
-require_once('include/photos.php');
-require_once('include/items.php');
-require_once('include/acl_selectors.php');
-require_once('include/bbcode.php');
-require_once('include/security.php');
-require_once('include/redir.php');
-require_once('include/tags.php');
-require_once('include/threads.php');
-require_once('include/Probe.php');
+require_once 'include/Photo.php';
+require_once 'include/photos.php';
+require_once 'include/items.php';
+require_once 'include/acl_selectors.php';
+require_once 'include/bbcode.php';
+require_once 'include/security.php';
+require_once 'include/redir.php';
+require_once 'include/tags.php';
+require_once 'include/threads.php';
+require_once 'include/Probe.php';
 
 use \Friendica\Core\Config;
 
@@ -861,7 +861,7 @@ function photos_post(App $a) {
 	$exif = $ph->orient($src);
 	@unlink($src);
 
-	$max_length = get_config('system','max_image_length');
+	$max_length = get_config('system', 'max_image_length');
 	if (! $max_length) {
 		$max_length = MAX_IMAGE_LENGTH;
 	}
