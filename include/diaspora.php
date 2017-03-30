@@ -171,6 +171,8 @@ class Diaspora {
 	 * @return string encrypted data
 	 */
 	private static function aes_encrypt($key, $iv, $data) {
+		return openssl_encrypt($data, 'aes-256-cbc', str_pad($key, 32, "\0"), OPENSSL_RAW_DATA, str_pad($iv, 16, "\0"));
+
 		$aes = new Crypt_AES();
 
 		$block_length = 128;
@@ -199,6 +201,8 @@ class Diaspora {
 	 * @return string decrypted data
 	 */
 	private static function aes_decrypt($key, $iv, $encrypted) {
+		return openssl_decrypt($encrypted,'aes-256-cbc', str_pad($key, 32, "\0"), OPENSSL_RAW_DATA,str_pad($iv, 16, "\0"));
+
 		$aes = new Crypt_AES();
 
 		$block_length = 128;
