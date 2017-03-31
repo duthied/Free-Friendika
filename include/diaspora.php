@@ -10,17 +10,17 @@
 
 use \Friendica\Core\Config;
 
-require_once("include/items.php");
-require_once("include/bb2diaspora.php");
-require_once("include/Scrape.php");
-require_once("include/Contact.php");
-require_once("include/Photo.php");
-require_once("include/socgraph.php");
-require_once("include/group.php");
-require_once("include/xml.php");
-require_once("include/datetime.php");
-require_once("include/queue_fn.php");
-require_once("include/cache.php");
+require_once 'include/items.php';
+require_once 'include/bb2diaspora.php';
+require_once 'include/Scrape.php';
+require_once 'include/Contact.php';
+require_once 'include/Photo.php';
+require_once 'include/socgraph.php';
+require_once 'include/group.php';
+require_once 'include/xml.php';
+require_once 'include/datetime.php';
+require_once 'include/queue_fn.php';
+require_once 'include/cache.php';
 
 /**
  * @brief This class contain functions to create and send Diaspora XML files
@@ -161,6 +161,32 @@ class Diaspora {
 	}
 
 	/**
+	 * @brief encrypts data via AES
+	 *
+	 * @param string $key The AES key
+	 * @param string $iv The IV (is used for CBC encoding)
+	 * @param string $data The data that is to be encrypted
+	 *
+	 * @return string encrypted data
+	 */
+	private static function aes_encrypt($key, $iv, $data) {
+		return openssl_encrypt($data, 'aes-256-cbc', str_pad($key, 32, "\0"), OPENSSL_RAW_DATA, str_pad($iv, 16, "\0"));
+	}
+
+	/**
+	 * @brief decrypts data via AES
+	 *
+	 * @param string $key The AES key
+	 * @param string $iv The IV (is used for CBC encoding)
+	 * @param string $encrypted The encrypted data
+	 *
+	 * @return string decrypted data
+	 */
+	private static function aes_decrypt($key, $iv, $encrypted) {
+		return openssl_decrypt($encrypted,'aes-256-cbc', str_pad($key, 32, "\0"), OPENSSL_RAW_DATA,str_pad($iv, 16, "\0"));
+	}
+
+	/**
 	 * @brief: Decodes incoming Diaspora message
 	 *
 	 * @param array $importer Array of the importer user
@@ -199,10 +225,7 @@ class Diaspora {
 			$outer_iv = base64_decode($j_outer_key_bundle->iv);
 			$outer_key = base64_decode($j_outer_key_bundle->key);
 
-			$decrypted = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $outer_key, $ciphertext, MCRYPT_MODE_CBC, $outer_iv);
-
-
-			$decrypted = pkcs5_unpad($decrypted);
+			$decrypted = self::aes_decrypt($outer_key, $outer_iv, $ciphertext);
 
 			logger('decrypted: '.$decrypted, LOGGER_DEBUG);
 			$idom = parse_xml_string($decrypted,false);
@@ -261,8 +284,7 @@ class Diaspora {
 			// Decode the encrypted blob
 
 			$inner_encrypted = base64_decode($data);
-			$inner_decrypted = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $inner_aes_key, $inner_encrypted, MCRYPT_MODE_CBC, $inner_iv);
-			$inner_decrypted = pkcs5_unpad($inner_decrypted);
+			$inner_decrypted = self::aes_decrypt($inner_aes_key, $inner_iv, $inner_encrypted);
 		}
 
 		if (!$author_link) {
@@ -2630,8 +2652,7 @@ class Diaspora {
 
 		$handle = self::my_handle($user);
 
-		$padded_data = pkcs5_pad($msg,16);
-		$inner_encrypted = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $inner_aes_key, $padded_data, MCRYPT_MODE_CBC, $inner_iv);
+		$inner_encrypted = self::aes_encrypt($inner_aes_key, $inner_iv, $msg);
 
 		$b64_data = base64_encode($inner_encrypted);
 
@@ -2653,9 +2674,8 @@ class Diaspora {
 							"author_id" => $handle));
 
 		$decrypted_header = xml::from_array($xmldata, $xml, true);
-		$decrypted_header = pkcs5_pad($decrypted_header,16);
 
-		$ciphertext = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $outer_aes_key, $decrypted_header, MCRYPT_MODE_CBC, $outer_iv);
+		$ciphertext = self::aes_encrypt($outer_aes_key, $outer_iv, $decrypted_header);
 
 		$outer_json = json_encode(array("iv" => $b_outer_iv, "key" => $b_outer_aes_key));
 
