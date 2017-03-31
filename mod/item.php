@@ -1201,9 +1201,9 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			}
 		} else {
 			$r = false;
-			if (strrpos($name,'+')) {
+			if (strrpos($name, '+')) {
 				// Is it in format @nick+number?
-				$tagcid = intval(substr($name,strrpos($name,'+') + 1));
+				$tagcid = intval(substr($name, strrpos($name, '+') + 1));
 
 				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 						intval($tagcid),
@@ -1276,18 +1276,20 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			$newtag = '@[url='.$profile.']'.$newname.'[/url]';
 			$body = str_replace('@'.$name, $newtag, $body);
 			// append tag to str_tags
-			if (! stristr($str_tags,$newtag)) {
+			if (! stristr($str_tags, $newtag)) {
 				if (strlen($str_tags)) {
 					$str_tags .= ',';
 				}
 				$str_tags .= $newtag;
 			}
 
-			// Status.Net seems to require the numeric ID URL in a mention if the person isn't
-			// subscribed to you. But the nickname URL is OK if they are. Grrr. We'll tag both.
+			/*
+			 * Status.Net seems to require the numeric ID URL in a mention if the person isn't
+			 * subscribed to you. But the nickname URL is OK if they are. Grrr. We'll tag both.
+			 */
 			if (strlen($alias)) {
-				$newtag = '@[url='.$alias.']'.$newname.'[/url]';
-				if (! stristr($str_tags,$newtag)) {
+				$newtag = '@[url=' . $alias . ']' . $newname . '[/url]';
+				if (! stristr($str_tags, $newtag)) {
 					if (strlen($str_tags)) {
 						$str_tags .= ',';
 					}
