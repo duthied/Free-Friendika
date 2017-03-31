@@ -264,12 +264,12 @@ function item_post(App $a) {
 		 * use the user default permissions - as they won't have
 		 * been supplied via a form.
 		 */
-
+		/// @TODO use x($_REQUEST, 'foo') here
 		if (($api_source)
-			&& (! array_key_exists('contact_allow',$_REQUEST))
-			&& (! array_key_exists('group_allow',$_REQUEST))
-			&& (! array_key_exists('contact_deny',$_REQUEST))
-			&& (! array_key_exists('group_deny',$_REQUEST))) {
+			&& (! array_key_exists('contact_allow', $_REQUEST))
+			&& (! array_key_exists('group_allow', $_REQUEST))
+			&& (! array_key_exists('contact_deny', $_REQUEST))
+			&& (! array_key_exists('group_deny', $_REQUEST))) {
 			$str_group_allow   = $user['allow_gid'];
 			$str_contact_allow = $user['allow_cid'];
 			$str_group_deny    = $user['deny_gid'];
