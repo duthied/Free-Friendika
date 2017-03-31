@@ -581,6 +581,7 @@ function item_post(App $a) {
 			 * Robert Johnson should be first in the $tags array
 			 */
 			$fullnametagged = false;
+			/// @TODO $tagged is initialized above if() block and is not filled, maybe old-lost code?
 			foreach ($tagged as $nextTag) {
 				if (stristr($nextTag, $tag . ' ')) {
 					$fullnametagged = true;
