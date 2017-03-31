@@ -1667,8 +1667,8 @@ function photos_content(App $a) {
 					builtin_activity_puller($item, $conv_responses);
 				}
 
-				$like    = ((x($conv_responses['like'],$link_item['uri'])) ? format_like($conv_responses['like'][$link_item['uri']],$conv_responses['like'][$link_item['uri'] . '-l'], 'like',$link_item['id']) : '');
-				$dislike = ((x($conv_responses['dislike'],$link_item['uri'])) ? format_like($conv_responses['dislike'][$link_item['uri']],$conv_responses['dislike'][$link_item['uri'] . '-l'], 'dislike',$link_item['id']) : '');
+				$like    = ((x($conv_responses['like'], $link_item['uri'])) ? format_like($conv_responses['like'][$link_item['uri']], $conv_responses['like'][$link_item['uri'] . '-l'], 'like',$link_item['id']) : '');
+				$dislike = ((x($conv_responses['dislike'], $link_item['uri'])) ? format_like($conv_responses['dislike'][$link_item['uri']], $conv_responses['dislike'][$link_item['uri'] . '-l'], 'dislike',$link_item['id']) : '');
 
 				if (($can_post || can_write_wall($a, $owner_uid)) && $link_item['last-child']) {
 					$comments .= replace_macros($cmnt_tpl,array(
