@@ -29,7 +29,7 @@ require_once 'include/Contact.php';
 
 function item_post(App $a) {
 
-	if ((! local_user()) && (! remote_user()) && (! x($_REQUEST,'commenter'))) {
+	if ((! local_user()) && (! remote_user()) && (! x($_REQUEST, 'commenter'))) {
 		return;
 	}
 
@@ -71,8 +71,8 @@ function item_post(App $a) {
 	}
 
 	// Is this a reply to something?
-	$parent = ((x($_REQUEST,'parent')) ? intval($_REQUEST['parent']) : 0);
-	$parent_uri = ((x($_REQUEST,'parent_uri')) ? trim($_REQUEST['parent_uri']) : '');
+	$parent = ((x($_REQUEST, 'parent')) ? intval($_REQUEST['parent']) : 0);
+	$parent_uri = ((x($_REQUEST, 'parent_uri')) ? trim($_REQUEST['parent_uri']) : '');
 
 	$parent_item = null;
 	$parent_contact = null;
@@ -85,7 +85,7 @@ function item_post(App $a) {
 
 		$objecttype = ACTIVITY_OBJ_COMMENT;
 
-		if (! x($_REQUEST,'type')) {
+		if (! x($_REQUEST, 'type')) {
 			$_REQUEST['type'] = 'net-comment';
 		}
 
@@ -114,7 +114,7 @@ function item_post(App $a) {
 
 		if (! dbm::is_result($r)) {
 			notice( t('Unable to locate original post.') . EOL);
-			if (x($_REQUEST,'return')) {
+			if (x($_REQUEST, 'return')) {
 				goaway($return_path);
 			}
 			killme();
@@ -167,11 +167,11 @@ function item_post(App $a) {
 		logger('mod_item: item_post parent=' . $parent);
 	}
 
-	$profile_uid = ((x($_REQUEST,'profile_uid')) ? intval($_REQUEST['profile_uid']) : 0);
-	$post_id     = ((x($_REQUEST,'post_id'))     ? intval($_REQUEST['post_id'])     : 0);
-	$app         = ((x($_REQUEST,'source'))      ? strip_tags($_REQUEST['source'])  : '');
-	$extid       = ((x($_REQUEST,'extid'))       ? strip_tags($_REQUEST['extid'])   : '');
-	$object      = ((x($_REQUEST,'object'))      ? $_REQUEST['object']              : '');
+	$profile_uid = ((x($_REQUEST, 'profile_uid')) ? intval($_REQUEST['profile_uid']) : 0);
+	$post_id     = ((x($_REQUEST, 'post_id'))     ? intval($_REQUEST['post_id'])     : 0);
+	$app         = ((x($_REQUEST, 'source'))      ? strip_tags($_REQUEST['source'])  : '');
+	$extid       = ((x($_REQUEST, 'extid'))       ? strip_tags($_REQUEST['extid'])   : '');
+	$object      = ((x($_REQUEST, 'object'))      ? $_REQUEST['object']              : '');
 
 	// Check for multiple posts with the same message id (when the post was created via API)
 	if (($message_id != '') AND ($profile_uid != 0)) {
@@ -648,7 +648,7 @@ function item_post(App $a) {
 	// even if the post arrived via API we are considering that it
 	// originated on this site by default for determining relayability.
 
-	$origin = ((x($_REQUEST,'origin')) ? intval($_REQUEST['origin']) : 1);
+	$origin = ((x($_REQUEST, 'origin')) ? intval($_REQUEST['origin']) : 1);
 
 	$notify_type = (($parent) ? 'comment-new' : 'wall-new' );
 
@@ -750,7 +750,7 @@ function item_post(App $a) {
 		}
 
 		$json = array('cancel' => 1);
-		if (x($_REQUEST,'jsreload') && strlen($_REQUEST['jsreload'])) {
+		if (x($_REQUEST, 'jsreload') && strlen($_REQUEST['jsreload'])) {
 			$json['reload'] = App::get_baseurl() . '/' . $_REQUEST['jsreload'];
 		}
 
@@ -784,7 +784,7 @@ function item_post(App $a) {
 		file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
 
 		proc_run(PRIORITY_HIGH, "include/notifier.php", 'edit_post', $post_id);
-		if ((x($_REQUEST,'return')) && strlen($return_path)) {
+		if ((x($_REQUEST, 'return')) && strlen($return_path)) {
 			logger('return: ' . $return_path);
 			goaway($return_path);
 		}
