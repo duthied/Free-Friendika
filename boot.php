@@ -697,7 +697,7 @@ class App {
 			$this->query_string = substr($_SERVER['QUERY_STRING'], 9);
 
 			// removing trailing / - maybe a nginx problem
-			$this->query_string = lrim($this->query_string, '/');
+			$this->query_string = ltrim($this->query_string, '/');
 		} elseif ((x($_SERVER, 'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'], 0, 2) === "q=") {
 			$this->query_string = substr($_SERVER['QUERY_STRING'], 2);
 
