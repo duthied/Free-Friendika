@@ -513,7 +513,7 @@ function item_post(App $a) {
 	// Fold multi-line [code] sequences
 	$body = preg_replace('/\[\/code\]\s*\[code\]/ism', "\n", $body);
 
-	$body = scale_external_images($body,false);
+	$body = scale_external_images($body, false);
 
 	// Setting the object type if not defined before
 	if (!$objecttype) {
@@ -545,7 +545,7 @@ function item_post(App $a) {
 		$contact = '@[url=' . $parent_contact['url'] . ']' . $parent_contact['nick'] . '[/url]';
 
 		if (!in_array($contact,$tags)) {
-			$body = $contact.' '.$body;
+			$body = $contact . ' ' . $body;
 			$tags[] = $contact;
 		}
 
@@ -557,7 +557,7 @@ function item_post(App $a) {
 			$toplevel_contact = '@' . $toplevel_parent[0]['nick'] . '+' . $toplevel_parent[0]['id'];
 		} else {
 			$toplevel_parent = q("SELECT `author-link`, `author-name` FROM `item` WHERE `id` = `parent` AND `parent` = %d", intval($parent));
-			$toplevel_contact = '@[url='.$toplevel_parent[0]['author-link'].']'.$toplevel_parent[0]['author-name'].'[/url]';
+			$toplevel_contact = '@[url=' . $toplevel_parent[0]['author-link'] . ']' . $toplevel_parent[0]['author-name'] . '[/url]';
 		}
 
 		if (!in_array($toplevel_contact, $tags)) {
@@ -581,8 +581,8 @@ function item_post(App $a) {
 			 * Robert Johnson should be first in the $tags array
 			 */
 			$fullnametagged = false;
-			for ($x = 0; $x < count($tagged); $x ++) {
-				if (stristr($tagged[$x],$tag . ' ')) {
+			foreach ($tagged as $nextTag) {
+				if (stristr($nextTag, $tag . ' ')) {
 					$fullnametagged = true;
 					break;
 				}
