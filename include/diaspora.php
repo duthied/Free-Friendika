@@ -21,7 +21,6 @@ require_once 'include/xml.php';
 require_once 'include/datetime.php';
 require_once 'include/queue_fn.php';
 require_once 'include/cache.php';
-require_once 'library/phpsec/Crypt/AES.php';
 
 /**
  * @brief This class contain functions to create and send Diaspora XML files
