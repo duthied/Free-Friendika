@@ -1098,7 +1098,7 @@ function photos_content(App $a) {
 
 	// tabs
 	$is_owner = (local_user() && (local_user() == $owner_uid));
-	$o .= profile_tabs($a,$is_owner, $a->data['user']['nickname']);
+	$o .= profile_tabs($a, $is_owner, $a->data['user']['nickname']);
 
 	/**
 	 * Display upload form
@@ -1616,8 +1616,8 @@ function photos_content(App $a) {
 
 			$likebuttons = '';
 
-			if ($can_post || can_write_wall($a,$owner_uid)) {
-				$likebuttons = replace_macros($like_tpl,array(
+			if ($can_post || can_write_wall($a, $owner_uid)) {
+				$likebuttons = replace_macros($like_tpl, array(
 					'$id' => $link_item['id'],
 					'$likethis' => t("I like this \x28toggle\x29"),
 					'$nolike' => (feature_enabled(local_user(), 'dislike') ? t("I don't like this \x28toggle\x29") : ''),
@@ -1628,8 +1628,8 @@ function photos_content(App $a) {
 
 			$comments = '';
 			if (! dbm::is_result($r)) {
-				if (($can_post || can_write_wall($a,$owner_uid)) && $link_item['last-child']) {
-					$comments .= replace_macros($cmnt_tpl,array(
+				if (($can_post || can_write_wall($a, $owner_uid)) && $link_item['last-child']) {
+					$comments .= replace_macros($cmnt_tpl, array(
 						'$return_path' => '',
 						'$jsreload' => $return_url,
 						'$type' => 'wall-comment',
@@ -1777,9 +1777,10 @@ function photos_content(App $a) {
 
 
 		$response_verbs = array('like');
-		if (feature_enabled($owner_uid,'dislike'))
+		if (feature_enabled($owner_uid, 'dislike')) {
 			$response_verbs[] = 'dislike';
-		$responses = get_responses($conv_responses,$response_verbs,'',$link_item);
+		}
+		$responses = get_responses($conv_responses,$response_verbs, '', $link_item);
 
 		$photo_tpl = get_markup_template('photo_view.tpl');
 
@@ -1789,7 +1790,7 @@ function photos_content(App $a) {
 			$like_e = template_escape($like);
 			$dislike_e = template_escape($dislike);
 		} else {
-			$album_e = array($album_link,$ph[0]['album']);
+			$album_e = array($album_link, $ph[0]['album']);
 			$tags_e = $tags;
 			$like_e = $like;
 			$dislike_e = $dislike;
@@ -1816,11 +1817,11 @@ function photos_content(App $a) {
 			'$paginate' => $paginate,
 		));
 
-		$a->page['htmlhead'] .= "\n".'<meta name="twitter:card" content="photo" />'."\n";
-		$a->page['htmlhead'] .= '<meta name="twitter:title" content="'.$photo["album"].'" />'."\n";
-		$a->page['htmlhead'] .= '<meta name="twitter:image" content="'.$photo["href"].'" />'."\n";
-		$a->page['htmlhead'] .= '<meta name="twitter:image:width" content="'.$photo["width"].'" />'."\n";
-		$a->page['htmlhead'] .= '<meta name="twitter:image:height" content="'.$photo["height"].'" />'."\n";
+		$a->page['htmlhead'] .= "\n" . '<meta name="twitter:card" content="photo" />' . "\n";
+		$a->page['htmlhead'] .= '<meta name="twitter:title" content="' . $photo["album"] . '" />' . "\n";
+		$a->page['htmlhead'] .= '<meta name="twitter:image" content="' . $photo["href"] . '" />' . "\n";
+		$a->page['htmlhead'] .= '<meta name="twitter:image:width" content="' . $photo["width"] . '" />' . "\n";
+		$a->page['htmlhead'] .= '<meta name="twitter:image:height" content="' . $photo["height"] . '" />' . "\n";
 
 		return $o;
 	}
