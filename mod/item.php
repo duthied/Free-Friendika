@@ -977,7 +977,7 @@ function item_post(App $a) {
 				if (! strlen($addr)) {
 					continue;
 				}
-				$disclaimer = '<hr />' . sprintf( t('This message was sent to you by %s, a member of the Friendica social network.'),$a->user['username'])
+				$disclaimer = '<hr />' . sprintf( t('This message was sent to you by %s, a member of the Friendica social network.'), $a->user['username'])
 					. '<br />';
 				$disclaimer .= sprintf( t('You may visit them online at %s'), App::get_baseurl() . '/profile/' . $a->user['nickname']) . EOL;
 				$disclaimer .= t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
