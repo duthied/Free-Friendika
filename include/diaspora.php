@@ -172,23 +172,6 @@ class Diaspora {
 	 */
 	private static function aes_encrypt($key, $iv, $data) {
 		return openssl_encrypt($data, 'aes-256-cbc', str_pad($key, 32, "\0"), OPENSSL_RAW_DATA, str_pad($iv, 16, "\0"));
-
-		$aes = new Crypt_AES();
-
-		$block_length = 128;
-
-		$aes->setKey($key);
-		$aes->setIV($iv);
-		$aes->disablePadding();
-		$aes->setBlockLength($block_length);
-
-		$extra = strlen($data) % $block_length;
-
-		if ($extra) {
-			$data .= str_repeat("\0", $block_length - $extra);
-		}
-
-		return $aes->encrypt($data);
 	}
 
 	/**
@@ -202,17 +185,6 @@ class Diaspora {
 	 */
 	private static function aes_decrypt($key, $iv, $encrypted) {
 		return openssl_decrypt($encrypted,'aes-256-cbc', str_pad($key, 32, "\0"), OPENSSL_RAW_DATA,str_pad($iv, 16, "\0"));
-
-		$aes = new Crypt_AES();
-
-		$block_length = 128;
-
-		$aes->setKey($key);
-		$aes->setIV($iv);
-		$aes->disablePadding();
-		$aes->setBlockLength($block_length);
-
-		return $aes->decrypt($encrypted);
 	}
 
 	/**
@@ -255,9 +227,6 @@ class Diaspora {
 			$outer_key = base64_decode($j_outer_key_bundle->key);
 
 			$decrypted = self::aes_decrypt($outer_key, $outer_iv, $ciphertext);
-
-
-			$decrypted = pkcs5_unpad($decrypted);
 
 			logger('decrypted: '.$decrypted, LOGGER_DEBUG);
 			$idom = parse_xml_string($decrypted,false);
@@ -317,7 +286,6 @@ class Diaspora {
 
 			$inner_encrypted = base64_decode($data);
 			$inner_decrypted = self::aes_decrypt($inner_aes_key, $inner_iv, $inner_encrypted);
-			$inner_decrypted = pkcs5_unpad($inner_decrypted);
 		}
 
 		if (!$author_link) {
@@ -2685,8 +2653,7 @@ class Diaspora {
 
 		$handle = self::my_handle($user);
 
-		$padded_data = pkcs5_pad($msg,16);
-		$inner_encrypted = self::aes_decrypt($inner_aes_key, $inner_iv, $padded_data);
+		$inner_encrypted = self::aes_encrypt($inner_aes_key, $inner_iv, $msg);
 
 		$b64_data = base64_encode($inner_encrypted);
 
@@ -2708,9 +2675,8 @@ class Diaspora {
 							"author_id" => $handle));
 
 		$decrypted_header = xml::from_array($xmldata, $xml, true);
-		$decrypted_header = pkcs5_pad($decrypted_header,16);
 
-		$ciphertext = self::aes_decrypt($outer_aes_key, $outer_iv, $decrypted_header);
+		$ciphertext = self::aes_encrypt($outer_aes_key, $outer_iv, $decrypted_header);
 
 		$outer_json = json_encode(array("iv" => $b_outer_iv, "key" => $b_outer_aes_key));
 
