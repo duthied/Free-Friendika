@@ -1272,9 +1272,9 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 
 			$replaced = true;
 			// create profile link
-			$profile = str_replace(',','%2c',$profile);
-			$newtag = '@[url='.$profile.']'.$newname.'[/url]';
-			$body = str_replace('@'.$name, $newtag, $body);
+			$profile = str_replace(',', '%2c', $profile);
+			$newtag = '@[url=' . $profile . ']' . $newname . '[/url]';
+			$body = str_replace('@' . $name, $newtag, $body);
 			// append tag to str_tags
 			if (! stristr($str_tags, $newtag)) {
 				if (strlen($str_tags)) {
