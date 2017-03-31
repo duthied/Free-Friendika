@@ -33,7 +33,7 @@ function item_post(App $a) {
 		return;
 	}
 
-	require_once('include/security.php');
+	require_once 'include/security.php';
 
 	$uid = local_user();
 
@@ -142,7 +142,7 @@ function item_post(App $a) {
 				$parent_contact = get_contact_details_by_url($thrparent[0]["author-link"]);
 
 				if (!isset($parent_contact["nick"])) {
-					require_once("include/Scrape.php");
+					require_once 'include/Scrape.php';
 					$probed_contact = probe_url($thrparent[0]["author-link"]);
 					if ($probed_contact["network"] != NETWORK_FEED) {
 						$parent_contact = $probed_contact;
@@ -518,7 +518,7 @@ function item_post(App $a) {
 	// Setting the object type if not defined before
 	if (!$objecttype) {
 		$objecttype = ACTIVITY_OBJ_NOTE; // Default value
-		require_once("include/plaintext.php");
+		require_once 'include/plaintext.php';
 		$objectdata = get_attached_data($body);
 
 		if ($post["type"] == "link") {
@@ -730,7 +730,7 @@ function item_post(App $a) {
 
 	// preview mode - prepare the body for display and send it via json
 	if ($preview) {
-		require_once('include/conversation.php');
+		require_once 'include/conversation.php';
 		// We set the datarray ID to -1 because in preview mode the dataray
 		// doesn't have an ID.
 		$datarray["id"] = -1;
@@ -988,7 +988,7 @@ function item_post(App $a) {
 				$link = '<a href="' . App::get_baseurl() . '/profile/' . $a->user['nickname'] . '"><img src="' . $author['thumb'] . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
 				$html    = prepare_body($datarray);
 				$message = '<html><body>' . $link . $html . $disclaimer . '</body></html>';
-				include_once('include/html2plain.php');
+				include_once 'include/html2plain.php';
 				$params = array (
 				    'fromName' => $a->user['username'],
 				    'fromEmail' => $a->user['email'],
@@ -1041,7 +1041,7 @@ function item_post_return($baseurl, $api_source, $return_path) {
 	}
 
 	$json = array('success' => 1);
-	if (x($_REQUEST,'jsreload') && strlen($_REQUEST['jsreload'])) {
+	if (x($_REQUEST, 'jsreload') && strlen($_REQUEST['jsreload'])) {
 		$json['reload'] = $baseurl . '/' . $_REQUEST['jsreload'];
 	}
 
@@ -1059,7 +1059,7 @@ function item_content(App $a) {
 		return;
 	}
 
-	require_once('include/security.php');
+	require_once 'include/security.php';
 
 	$o = '';
 	if (($a->argc == 3) && ($a->argv[1] === 'drop') && intval($a->argv[2])) {
@@ -1087,9 +1087,9 @@ function item_content(App $a) {
  *
  * @return boolean true if replaced, false if not replaced
  */
-function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $network = "") {
-	require_once("include/Scrape.php");
-	require_once("include/socgraph.php");
+function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $network = "") {
+	require_once 'include/Scrape.php';
+	require_once 'include/socgraph.php';
 
 	$replaced = false;
 	$r = null;
@@ -1099,7 +1099,7 @@ function handle_tag($a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $netwo
 		//is it already replaced?
 		if (strpos($tag, '[url=')) {
 			//append tag to str_tags
-			if (!stristr($str_tags,$tag)) {
+			if (!stristr($str_tags, $tag)) {
 				if (strlen($str_tags)) {
 					$str_tags .= ',';
 				}
