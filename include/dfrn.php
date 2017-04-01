@@ -864,10 +864,26 @@ class dfrn {
 		return $entry;
 	}
 
+	/**
+	 * @brief encrypts data via AES
+	 *
+	 * @param string $data The data that is to be encrypted
+	 * @param string $key The AES key
+	 *
+	 * @return string encrypted data
+	 */
 	private static function aes_encrypt($data, $key) {
 		return openssl_encrypt($data, 'aes-128-ecb', $key, OPENSSL_RAW_DATA);
 	}
 
+	/**
+	 * @brief decrypts data via AES
+	 *
+	 * @param string $encrypted The encrypted data
+	 * @param string $key The AES key
+	 *
+	 * @return string decrypted data
+	 */
 	public static function aes_decrypt($encrypted, $key) {
 		return openssl_decrypt($encrypted, 'aes-128-ecb', $key, OPENSSL_RAW_DATA);
 	}
