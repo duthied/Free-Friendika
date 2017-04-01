@@ -30,7 +30,6 @@ Requirements
 * PHP *command line* access with register_argc_argv set to true in the php.ini file
 * curl, gd, mysql, hash and openssl extensions
 * some form of email server or email gateway such that PHP mail() works
-* mcrypt (optional; used for server-to-server message encryption)
 * Mysql 5.5.3+ or an equivalant alternative for MySQL (MariaDB, Percona Server etc.)
 * the ability to schedule jobs with cron (Linux/Mac) or Scheduled Tasks (Windows) (Note: other options are presented in Section 7 of this document.)
 * Installation into a top-level domain or sub-domain (without a directory/path component in the URL) is preferred. Directory paths will not be as convenient to use and have not been thoroughly tested.
