@@ -185,10 +185,10 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 			 *
 			 */
 
-			$src_aes_key = random_string();
+			$src_aes_key = openssl_random_pseudo_bytes(64);
 
 			$result = '';
-			openssl_private_encrypt($dfrn_id,$result,$user[0]['prvkey']);
+			openssl_private_encrypt($dfrn_id, $result, $user[0]['prvkey']);
 
 			$params['dfrn_id'] = bin2hex($result);
 			$params['public_key'] = $public_key;

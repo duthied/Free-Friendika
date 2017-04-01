@@ -864,6 +864,14 @@ class dfrn {
 		return $entry;
 	}
 
+	private static function aes_encrypt($data, $key) {
+		return openssl_encrypt($data, 'aes-128-ecb', $key, OPENSSL_RAW_DATA);
+	}
+
+	public static function aes_decrypt($encrypted, $key) {
+		return openssl_decrypt($encrypted, 'aes-128-ecb', $key, OPENSSL_RAW_DATA);
+	}
+
 	/**
 	 * @brief Delivers the atom content to the contacts
 	 *
@@ -888,8 +896,6 @@ class dfrn {
 
 		$rino = get_config('system','rino_encrypt');
 		$rino = intval($rino);
-		// use RINO1 if mcrypt isn't installed and RINO2 was selected
-		if ($rino==2 and !function_exists('mcrypt_create_iv')) $rino=1;
 
 		logger("Local rino version: ". $rino, LOGGER_DEBUG);
 
@@ -1015,8 +1021,8 @@ class dfrn {
 			switch($rino_remote_version) {
 				case 1:
 					// Deprecated rino version!
-					$key = substr(random_string(),0,16);
-					$data = aes_encrypt($postvars['data'],$key);
+					$key = openssl_random_pseudo_bytes(16);
+					$data = self::aes_encrypt($postvars['data'], $key);
 					break;
 				case 2:
 					// RINO 2 based on php-encryption
