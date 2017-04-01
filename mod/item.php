@@ -325,8 +325,9 @@ function item_post(App $a) {
 		// if using the API, we won't see pubmail_enable - figure out if it should be set
 
 		if ($api_source && $profile_uid && $profile_uid == local_user() && (! $private)) {
-			$mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
+			$mail_disabled = ((function_exists('imap_open') && (! get_config('system', 'imap_disabled'))) ? 0 : 1);
 			if (! $mail_disabled) {
+				/// @TODO Check if only pubmail is loaded, * loads all columns
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
 					intval(local_user())
 				);
@@ -372,7 +373,7 @@ function item_post(App $a) {
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 1 LIMIT 1",
 			intval($_SESSION['uid']));
 	} elseif(remote_user()) {
-		if (is_array($_SESSION['remote'])) {
+		if (x($_SESSION, 'remote') && is_array($_SESSION['remote'])) {
 			foreach ($_SESSION['remote'] as $v) {
 				if ($v['uid'] == $profile_uid) {
 					$contact_id = $v['cid'];
@@ -544,7 +545,7 @@ function item_post(App $a) {
 	if ($parent AND ($parent_contact['network'] == NETWORK_OSTATUS)) {
 		$contact = '@[url=' . $parent_contact['url'] . ']' . $parent_contact['nick'] . '[/url]';
 
-		if (!in_array($contact,$tags)) {
+		if (!in_array($contact, $tags)) {
 			$body = $contact . ' ' . $body;
 			$tags[] = $contact;
 		}

@@ -1450,7 +1450,7 @@ function get_app() {
  */
 function x($s,$k = NULL) {
 	if ($k != NULL) {
-		if ((is_array($s)) && (array_key_exists($k,$s))) {
+		if ((is_array($s)) && (array_key_exists($k, $s))) {
 			if ($s[$k]) {
 				return (int) 1;
 			}
