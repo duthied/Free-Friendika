@@ -1,0 +1,32 @@
+{
+	"name": "friendica/friendica",
+	"description": "A decentralized social network part of The Federation",
+	"type": "project",
+	"keywords": [
+		"social network",
+		"dfrn",
+		"ostatus",
+		"diaspora"
+	],
+	"licence": "GNU-Affero",
+	"support": {
+		"issues": "https://github.com/friendica/friendica/issues"
+	},
+	"require": {
+	},
+	"autoload": {
+		"psr-4": {
+			"Friendica\\": "include/"
+		}
+	},
+	"config": {
+		"autoloader-suffix": "Friendica",
+		"optimize-autoloader": true,
+		"preferred-install": "dist"
+	},
+	"archive": {
+		"exclude": [
+			"log", "cache", "/photo", "/proxy"
+		]
+	}
+}
