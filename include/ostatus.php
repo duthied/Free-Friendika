@@ -28,6 +28,38 @@ class ostatus {
 	const OSTATUS_DEFAULT_POLL_TIMEFRAME_MENTIONS = 14400; // given in minutes
 
 	/**
+	 * @brief Mix two paths together to possibly fix missing parts
+	 *
+	 * @param string $avatar Path to the avatar
+	 * @param string $base Another path that is hopefully complete
+	 *
+	 * @return string fixed avatar path
+	 */
+	private static function fix_avatar($avatar, $base) {
+		$base_parts = parse_url($base);
+
+		// Remove all parts that could create a problem
+		unset($base_parts['path']);
+		unset($base_parts['query']);
+		unset($base_parts['fragment']);
+
+		$avatar_parts = parse_url($avatar);
+
+		// Now we mix them
+		$parts = array_merge($base_parts, $avatar_parts);
+
+		// And put them together again
+		$scheme   = isset($parts['scheme']) ? $parts['scheme'] . '://' : '';
+		$host     = isset($parts['host']) ? $parts['host'] : '';
+		$port     = isset($parts['port']) ? ':' . $parts['port'] : '';
+		$path     = isset($parts['path']) ? $parts['path'] : '';
+		$query    = isset($parts['query']) ? '?' . $parts['query'] : '';
+		$fragment = isset($parts['fragment']) ? '#' . $parts['fragment'] : '';
+
+		return $scheme.$host.$port.$path.$query.$fragment;
+	}
+
+	/**
 	 * @brief Fetches author data
 	 *
 	 * @param object $xpath The xpath object
@@ -77,7 +109,7 @@ class ostatus {
 		}
 		if (count($avatarlist) > 0) {
 			krsort($avatarlist);
-			$author["author-avatar"] = current($avatarlist);
+			$author["author-avatar"] = self::fix_avatar(current($avatarlist), $author["author-link"]);
 		}
 
 		$displayname = $xpath->evaluate('atom:author/poco:displayName/text()', $context)->item(0)->nodeValue;
@@ -499,13 +531,17 @@ class ostatus {
 
 					$item["author-name"] = $orig_author["author-name"];
 					$item["author-link"] = $orig_author["author-link"];
-					$item["author-avatar"] = $orig_author["author-avatar"];
+					$item["author-avatar"] = self::fix_avatar($orig_author["author-avatar"], $orig_author["author-link"]);
+
 					$item["body"] = add_page_info_to_body(html2bbcode($orig_body));
 					$item["created"] = $orig_created;
 					$item["edited"] = $orig_edited;
 
 					$item["uri"] = $orig_uri;
-					$item["plink"] = $orig_link;
+
+					if (!isset($item["plink"])) {
+						$item["plink"] = $orig_link;
+					}
 
 					$item["verb"] = $xpath->query('activity:verb/text()', $activityobjects)->item(0)->nodeValue;
 
