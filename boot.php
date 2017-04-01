@@ -649,7 +649,6 @@ class App {
 		set_include_path(
 				'include' . PATH_SEPARATOR
 				. 'library' . PATH_SEPARATOR
-				. 'library/phpsec' . PATH_SEPARATOR
 				. 'library/langdet' . PATH_SEPARATOR
 				. '.' );
 

@@ -78,14 +78,7 @@ function install_post(App $a) {
 			$timezone = notags(trim($_POST['timezone']));
 			$language = notags(trim($_POST['language']));
 			$adminmail = notags(trim($_POST['adminmail']));
-			// In step 4 of the installer, we passed the  check for mcrypt
-			// already, so we can activate RINO, make RINO2 the default
-			// and only fall back if the mcrypt_create_iv function is
-			// not available on the system.
 			$rino = 2;
-			if (! function_exists('mcrypt_create_iv')) {
-				$rino = 1;
-			}
 
 			// connect to db
 			$db = new dba($dbhost, $dbuser, $dbpass, $dbdata, true);
@@ -422,7 +415,6 @@ function check_funcs(&$checks) {
 	check_add($ck_funcs, t('OpenSSL PHP module'), true, true, "");
 	check_add($ck_funcs, t('mysqli PHP module'), true, true, "");
 	check_add($ck_funcs, t('mb_string PHP module'), true, true, "");
-	check_add($ck_funcs, t('mcrypt PHP module'), true, true, "");
 	check_add($ck_funcs, t('XML PHP module'), true, true, "");
 	check_add($ck_funcs, t('iconv module'), true, true, "");
 
@@ -454,28 +446,12 @@ function check_funcs(&$checks) {
 		$ck_funcs[4]['status']= false;
 		$ck_funcs[4]['help']= t('Error: mb_string PHP module required but not installed.');
 	}
-	if (! function_exists('mcrypt_create_iv')){
-		$ck_funcs[5]['status']= false;
-		$ck_funcs[5]['help']= t('Error: mcrypt PHP module required but not installed.');
-	}
 	if (! function_exists('iconv_strlen')){
 		$ck_funcs[7]['status']= false;
 		$ck_funcs[7]['help']= t('Error: iconv PHP module required but not installed.');
 	}
 
 	$checks = array_merge($checks, $ck_funcs);
-
-	// check for 'mcrypt_create_iv()', needed for RINO2
-	if ($ck_funcs[5]['status']) {
-		if (function_exists('mcrypt_create_iv')) {
-			$__status = true;
-			$__help = t("If you are using php_cli, please make sure that mcrypt module is enabled in its config file");
-		} else {
-			$__status = false;
-			$__help = t('Function mcrypt_create_iv() is not defined. This is needed to enable RINO2 encryption layer.');
-		}
-		check_add($checks, t('mcrypt_create_iv() function'), $__status, false, $__help);
-	}
 
 	// check for XML DOM Documents being able to be generated
 	try {

@@ -73,9 +73,9 @@ function dirfind_content(App $a, $prefix = "") {
 			$j->results[] = $objresult;
 
 			// Add the contact to the global contacts if it isn't already in our system
-			if (($contact["cid"] == 0) AND ($contact["zid"] == 0) AND ($contact["gid"] == 0))
-				poco_check($user_data["url"], $user_data["name"], $user_data["network"], $user_data["photo"],
-					"", "", "", "", "", datetime_convert(), 0);
+			if (($contact["cid"] == 0) AND ($contact["zid"] == 0) AND ($contact["gid"] == 0)) {
+				update_gcontact($user_data);
+			}
 		} elseif ($local) {
 
 			if ($community)

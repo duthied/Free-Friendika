@@ -1272,6 +1272,18 @@ section #jotOpen {
     color: #fff;
 }
 
+/* Filebrowser */
+.fbrowser .profile-rotator-wrapper {
+    min-height: 200px;
+}
+.fbrowser .fa-spin {
+   position: absolute;
+   left: 45%;
+   top: 40%;
+   font-size: 48px;
+   margin:0px auto;
+}
+
 /*
 /* Stream
 */

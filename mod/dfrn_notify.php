@@ -138,10 +138,6 @@ function dfrn_notify_post(App $a) {
 
 	$rino = get_config('system', 'rino_encrypt');
 	$rino = intval($rino);
-	// use RINO1 if mcrypt isn't installed and RINO2 was selected
-	if ($rino == 2 && !function_exists('mcrypt_create_iv')) {
-		$rino = 1;
-	}
 
 	logger("Local rino version: " .  $rino, LOGGER_DEBUG);
 
@@ -178,10 +174,10 @@ function dfrn_notify_post(App $a) {
 			case 0:
 			case 1:
 				/*
-				 * we got a key. old code send only the key, without RINO version.
+				 *we got a key. old code send only the key, without RINO version.
 				 * we assume RINO 1 if key and no RINO version
 				 */
-				$data = aes_decrypt(hex2bin($data), $final_key);
+				$data = dfrn::aes_decrypt(hex2bin($data), $final_key);
 				break;
 			case 2:
 				try {
@@ -316,10 +312,6 @@ function dfrn_notify_content(App $a) {
 
 		$rino = get_config('system', 'rino_encrypt');
 		$rino = intval($rino);
-		// use RINO1 if mcrypt isn't installed and RINO2 was selected
-		if ($rino == 2 && !function_exists('mcrypt_create_iv')) {
-			$rino = 1;
-		}
 
 		logger("Local rino version: ". $rino, LOGGER_DEBUG);
 
