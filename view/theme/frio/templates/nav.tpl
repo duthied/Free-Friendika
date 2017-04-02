@@ -20,7 +20,7 @@
 	<div class="container">
 		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 no-padding"><!-- div for navbar width-->
 			<!-- Brand and toggle get grouped for better mobile display -->
-			<div class="topbar-nav" role=”navigation”>
+			<div class="topbar-nav" role="navigation">
 
 				{{* Buttons for the mobile view *}}
 				<button role="menu" type="button" class="navbar-toggle collapsed pull-right" data-toggle="offcanvas" data-target="#myNavmenu">
@@ -70,7 +70,7 @@
 					{{* The notifications dropdown *}}
 					{{if $nav.notifications}}
 						<li id="nav-notification" class="nav-segment hidden-xs" role="presentation">
-							<a role="menuitem" href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" data-toggle="tooltip" data-toggle="tooltip" title="{{$nav.notifications.1}}" class="btn-link" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<a role="menuitem" href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" data-toggle="tooltip" data-toggle="tooltip" title="{{$nav.notifications.1}}" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								<i class="fa fa-exclamation-circle fa-lg"></i>
 								<span class="sr-only">{{$nav.notifications.1}}</span>
 								<span id="notify-update" class="nav-notify-badge badge nav-notify dropdown" data-toggle="dropdown"></span>
@@ -84,7 +84,7 @@
 									<div class="arrow"></div>
 									{{$nav.notifications.1}}
 									<div class="dropdown-header-link">
-										<a href="#" onclick="notifyMarkAll(); return false;" data-toggle="tooltip" title="{{$nav.notifications.mark.3}}" class="">{{$nav.notifications.mark.1}}</a>
+										<button type="button" class="btn-link" onclick="notifyMarkAll();" data-toggle="tooltip" title="{{$nav.notifications.mark.3}}">{{$nav.notifications.mark.1}}</button>
 									</div>
 
 								</li>
@@ -119,7 +119,7 @@
 					{{* The user dropdown menu *}}
 					{{if $nav.userinfo}}
 					<li role="menu" id="nav-user-linkmenu" class="dropdown account nav-menu hidden-xs">
-						<a href="#" id="main-menu" class="dropdown-toggle nav-avatar " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+						<button id="main-menu" class="btn-link dropdown-toggle nav-avatar" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false">
 							<div class="user-title pull-left hidden-xs hidden-sm hidden-md">
 								<strong>{{$nav.userinfo.name}}</strong><br>
 								{{if $nav.remote}}<span class="trunctate">{{$nav.remote}}</span>{{/if}}
@@ -127,8 +127,7 @@
 
 							<img  id="avatar" src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}">
 							<span class="caret"></span>
-
-						</a>
+						</button>
 
 						{{* The list of available usermenu links *}}
 						<ul id="nav-user-menu" class="dropdown-menu pull-right menu-popup" role="group" aria-labelledby="main-menu">

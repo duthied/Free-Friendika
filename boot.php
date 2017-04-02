@@ -17,7 +17,7 @@
  * easily as email does today.
  */
 
-require_once('include/autoloader.php');
+require_once(__DIR__ . DIRECTORY_SEPARATOR. 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
 
 use \Friendica\Core\Config;
 
@@ -29,7 +29,6 @@ require_once('include/datetime.php');
 require_once('include/pgettext.php');
 require_once('include/nav.php');
 require_once('include/cache.php');
-require_once('library/Mobile_Detect/Mobile_Detect.php');
 require_once('include/features.php');
 require_once('include/identity.php');
 require_once('update.php');
@@ -648,7 +647,6 @@ class App {
 		set_include_path(
 				'include' . PATH_SEPARATOR
 				. 'library' . PATH_SEPARATOR
-				. 'library/phpsec' . PATH_SEPARATOR
 				. 'library/langdet' . PATH_SEPARATOR
 				. '.' );
 

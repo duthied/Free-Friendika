@@ -91,7 +91,7 @@ var FileBrowser = {
 
 		FileBrowser.postLoad();
 
-		$(".error a.close").on("click", function(e) {
+		$(".error .close").on("click", function(e) {
 			e.preventDefault();
 			$(".error").addClass("hidden");
 		});
