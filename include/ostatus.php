@@ -573,7 +573,7 @@ class ostatus {
 					if (!isset($item["object-type"])) {
 						$item["object-type"] = $xpath->query('activity:object-type/text()', $activityobjects)->item(0)->nodeValue;
 					}
-					// Quickfix to read attachments
+
 					$enclosures = $xpath->query("atom:link[@rel='alternate']", $activityobjects);
 					if ($enclosures) {
 						foreach ($enclosures AS $link) {
