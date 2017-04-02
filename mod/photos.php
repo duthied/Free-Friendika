@@ -1230,9 +1230,6 @@ function photos_content(App $a)
 		 * By now we hide it if someone wants to.
 		 */
 		if (!Config::get('system', 'no_count', false)) {
-			$order_field = defaults($_GET, 'order', '');
-			if ($order_field === 'posted') {
-		if (!Config::get('system', 'no_count', false)) {
 			if ($_GET['order'] === 'posted') {
 				$order = 'ASC';
 			} else {
