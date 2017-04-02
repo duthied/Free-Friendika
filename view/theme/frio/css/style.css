@@ -90,6 +90,7 @@ blockquote {
 code {
     white-space: pre-wrap;
 }
+.help-content-wrapper code {display: inline}
 
 /*
 * standard page elements
