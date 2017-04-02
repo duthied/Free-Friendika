@@ -88,7 +88,7 @@ function network_to_name($s, $profile = "") {
 		NETWORK_PUMPIO   => t('pump.io'),
 		NETWORK_TWITTER  => t('Twitter'),
 		NETWORK_DIASPORA2 => t('Diaspora Connector'),
-		NETWORK_STATUSNET => t('GNU Social'),
+		NETWORK_STATUSNET => t('GNU Social Connector'),
 		NETWORK_PNUT      => t('pnut'),
 		NETWORK_APPNET => t('App.net')
 	);
@@ -98,17 +98,16 @@ function network_to_name($s, $profile = "") {
 	$search  = array_keys($nets);
 	$replace = array_values($nets);
 
-	$networkname = str_replace($search,$replace,$s);
+	$networkname = str_replace($search, $replace, $s);
 
-	if (($s == NETWORK_DIASPORA) AND ($profile != "") AND Diaspora::is_redmatrix($profile)) {
-		$networkname = t("Hubzilla/Redmatrix");
-
+	if ((in_array($s, array(NETWORK_DIASPORA, NETWORK_OSTATUS))) AND ($profile != "")) {
 		$r = q("SELECT `gserver`.`platform` FROM `gcontact`
 				INNER JOIN `gserver` ON `gserver`.`nurl` = `gcontact`.`server_url`
 				WHERE `gcontact`.`nurl` = '%s' AND `platform` != ''",
 				dbesc(normalise_link($profile)));
-		if ($r)
+		if (dbm::is_result($r)) {
 			$networkname = $r[0]["platform"];
+		}
 	}
 
 	return $networkname;
