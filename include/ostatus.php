@@ -35,7 +35,7 @@ class ostatus {
 	 *
 	 * @return string fixed avatar path
 	 */
-	private static function fix_avatar($avatar, $base) {
+	public static function fix_avatar($avatar, $base) {
 		$base_parts = parse_url($base);
 
 		// Remove all parts that could create a problem
@@ -56,7 +56,11 @@ class ostatus {
 		$query    = isset($parts['query']) ? '?' . $parts['query'] : '';
 		$fragment = isset($parts['fragment']) ? '#' . $parts['fragment'] : '';
 
-		return $scheme.$host.$port.$path.$query.$fragment;
+		$fixed = $scheme.$host.$port.$path.$query.$fragment;
+
+		logger('Base: '.$base.' - Avatar: '.$avatar.' - Fixed: '.$fixed, LOGGER_DATA);
+
+		return $fixed;
 	}
 
 	/**
@@ -531,7 +535,7 @@ class ostatus {
 
 					$item["author-name"] = $orig_author["author-name"];
 					$item["author-link"] = $orig_author["author-link"];
-					$item["author-avatar"] = self::fix_avatar($orig_author["author-avatar"], $orig_author["author-link"]);
+					$item["author-avatar"] = $orig_author["author-avatar"];
 
 					$item["body"] = add_page_info_to_body(html2bbcode($orig_body));
 					$item["created"] = $orig_created;
@@ -1104,10 +1108,11 @@ class ostatus {
 				$arr["owner-name"] = $single_conv->actor->portablecontacts_net->displayName;
 
 			$arr["owner-link"] = $actor;
-			$arr["owner-avatar"] = $single_conv->actor->image->url;
+			$arr["owner-avatar"] = self::fix_avatar($single_conv->actor->image->url, $arr["owner-link"]);
+
 			$arr["author-name"] = $arr["owner-name"];
-			$arr["author-link"] = $actor;
-			$arr["author-avatar"] = $single_conv->actor->image->url;
+			$arr["author-link"] = $arr["owner-link"];
+			$arr["author-avatar"] = $arr["owner-avatar"];
 			$arr["body"] = add_page_info_to_body(html2bbcode($single_conv->content));
 
 			if (isset($single_conv->status_net->notice_info->source))
@@ -1158,11 +1163,11 @@ class ostatus {
 				$arr["edited"] = $single_conv->object->published;
 
 				$arr["author-name"] = $single_conv->object->actor->displayName;
-				if ($arr["owner-name"] == '')
+				if ($arr["owner-name"] == '') {
 					$arr["author-name"] = $single_conv->object->actor->contact->displayName;
-
+				}
 				$arr["author-link"] = $single_conv->object->actor->url;
-				$arr["author-avatar"] = $single_conv->object->actor->image->url;
+				$arr["author-avatar"] = self::fix_avatar($single_conv->object->actor->image->url, $arr["author-link"]);
 
 				$arr["app"] = $single_conv->object->provider->displayName."#";
 				//$arr["verb"] = $single_conv->object->verb;
