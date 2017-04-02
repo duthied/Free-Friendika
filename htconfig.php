@@ -65,9 +65,8 @@ $a->config['php_path'] = 'php';
 $a->config['system']['huburl'] = '[internal]';
 
 // Server-to-server private message encryption (RINO) is allowed by default.
-// Encryption will only be provided if this setting is set to a non zero
-// value and the PHP mcrypt extension is installed on both systems
-// set to 0 to disable, 2 to enable, 1 is deprecated but wont need mcrypt
+// Encryption will only be provided if this setting is set to a non zero value
+// set to 0 to disable, 2 to enable, 1 is deprecated
 
 $a->config['system']['rino_encrypt'] = 2;
 

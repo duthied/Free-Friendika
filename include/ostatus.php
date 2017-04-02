@@ -28,6 +28,42 @@ class ostatus {
 	const OSTATUS_DEFAULT_POLL_TIMEFRAME_MENTIONS = 14400; // given in minutes
 
 	/**
+	 * @brief Mix two paths together to possibly fix missing parts
+	 *
+	 * @param string $avatar Path to the avatar
+	 * @param string $base Another path that is hopefully complete
+	 *
+	 * @return string fixed avatar path
+	 */
+	public static function fix_avatar($avatar, $base) {
+		$base_parts = parse_url($base);
+
+		// Remove all parts that could create a problem
+		unset($base_parts['path']);
+		unset($base_parts['query']);
+		unset($base_parts['fragment']);
+
+		$avatar_parts = parse_url($avatar);
+
+		// Now we mix them
+		$parts = array_merge($base_parts, $avatar_parts);
+
+		// And put them together again
+		$scheme   = isset($parts['scheme']) ? $parts['scheme'] . '://' : '';
+		$host     = isset($parts['host']) ? $parts['host'] : '';
+		$port     = isset($parts['port']) ? ':' . $parts['port'] : '';
+		$path     = isset($parts['path']) ? $parts['path'] : '';
+		$query    = isset($parts['query']) ? '?' . $parts['query'] : '';
+		$fragment = isset($parts['fragment']) ? '#' . $parts['fragment'] : '';
+
+		$fixed = $scheme.$host.$port.$path.$query.$fragment;
+
+		logger('Base: '.$base.' - Avatar: '.$avatar.' - Fixed: '.$fixed, LOGGER_DATA);
+
+		return $fixed;
+	}
+
+	/**
 	 * @brief Fetches author data
 	 *
 	 * @param object $xpath The xpath object
@@ -77,7 +113,7 @@ class ostatus {
 		}
 		if (count($avatarlist) > 0) {
 			krsort($avatarlist);
-			$author["author-avatar"] = current($avatarlist);
+			$author["author-avatar"] = self::fix_avatar(current($avatarlist), $author["author-link"]);
 		}
 
 		$displayname = $xpath->evaluate('atom:author/poco:displayName/text()', $context)->item(0)->nodeValue;
@@ -500,12 +536,16 @@ class ostatus {
 					$item["author-name"] = $orig_author["author-name"];
 					$item["author-link"] = $orig_author["author-link"];
 					$item["author-avatar"] = $orig_author["author-avatar"];
+
 					$item["body"] = add_page_info_to_body(html2bbcode($orig_body));
 					$item["created"] = $orig_created;
 					$item["edited"] = $orig_edited;
 
 					$item["uri"] = $orig_uri;
-					$item["plink"] = $orig_link;
+
+					if (!isset($item["plink"])) {
+						$item["plink"] = $orig_link;
+					}
 
 					$item["verb"] = $xpath->query('activity:verb/text()', $activityobjects)->item(0)->nodeValue;
 
@@ -1068,10 +1108,11 @@ class ostatus {
 				$arr["owner-name"] = $single_conv->actor->portablecontacts_net->displayName;
 
 			$arr["owner-link"] = $actor;
-			$arr["owner-avatar"] = $single_conv->actor->image->url;
+			$arr["owner-avatar"] = self::fix_avatar($single_conv->actor->image->url, $arr["owner-link"]);
+
 			$arr["author-name"] = $arr["owner-name"];
-			$arr["author-link"] = $actor;
-			$arr["author-avatar"] = $single_conv->actor->image->url;
+			$arr["author-link"] = $arr["owner-link"];
+			$arr["author-avatar"] = $arr["owner-avatar"];
 			$arr["body"] = add_page_info_to_body(html2bbcode($single_conv->content));
 
 			if (isset($single_conv->status_net->notice_info->source))
@@ -1122,11 +1163,11 @@ class ostatus {
 				$arr["edited"] = $single_conv->object->published;
 
 				$arr["author-name"] = $single_conv->object->actor->displayName;
-				if ($arr["owner-name"] == '')
+				if ($arr["owner-name"] == '') {
 					$arr["author-name"] = $single_conv->object->actor->contact->displayName;
-
+				}
 				$arr["author-link"] = $single_conv->object->actor->url;
-				$arr["author-avatar"] = $single_conv->object->actor->image->url;
+				$arr["author-avatar"] = self::fix_avatar($single_conv->object->actor->image->url, $arr["author-link"]);
 
 				$arr["app"] = $single_conv->object->provider->displayName."#";
 				//$arr["verb"] = $single_conv->object->verb;

@@ -888,33 +888,36 @@ class Probe {
 	 * @return array OStatus data
 	 */
 	private function ostatus($webfinger) {
-
 		$data = array();
-		if (is_array($webfinger["aliases"]))
-			foreach($webfinger["aliases"] AS $alias)
-				if (strstr($alias, "@"))
+		if (is_array($webfinger["aliases"])) {
+			foreach ($webfinger["aliases"] AS $alias) {
+				if (strstr($alias, "@")) {
 					$data["addr"] = str_replace('acct:', '', $alias);
+				}
+			}
+		}
 
-		if (is_string($webfinger["subject"]) AND strstr($webfinger["subject"], "@"))
+		if (is_string($webfinger["subject"]) AND strstr($webfinger["subject"], "@")) {
 			$data["addr"] = str_replace('acct:', '', $webfinger["subject"]);
-
+		}
 		$pubkey = "";
 		foreach ($webfinger["links"] AS $link) {
 			if (($link["rel"] == "http://webfinger.net/rel/profile-page") AND
-				($link["type"] == "text/html") AND ($link["href"] != ""))
+				($link["type"] == "text/html") AND ($link["href"] != "")) {
 				$data["url"] = $link["href"];
-			elseif (($link["rel"] == "salmon") AND ($link["href"] != ""))
+			} elseif (($link["rel"] == "salmon") AND ($link["href"] != "")) {
 				$data["notify"] = $link["href"];
-			elseif (($link["rel"] == NAMESPACE_FEED) AND ($link["href"] != ""))
+			} elseif (($link["rel"] == NAMESPACE_FEED) AND ($link["href"] != "")) {
 				$data["poll"] = $link["href"];
-			elseif (($link["rel"] == "magic-public-key") AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == "magic-public-key") AND ($link["href"] != "")) {
 				$pubkey = $link["href"];
 
 				if (substr($pubkey, 0, 5) === 'data:') {
-					if (strstr($pubkey, ','))
+					if (strstr($pubkey, ',')) {
 						$pubkey = substr($pubkey, strpos($pubkey, ',') + 1);
-					else
+					} else {
 						$pubkey = substr($pubkey, 5);
+					}
 				} elseif (normalise_link($pubkey) == 'http://') {
 					$ret = z_fetch_url($pubkey);
 					if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
@@ -930,16 +933,15 @@ class Probe {
 					$e = base64url_decode($key[2]);
 					$data["pubkey"] = metopem($m,$e);
 				}
-
 			}
 		}
 
 		if (isset($data["notify"]) AND isset($data["pubkey"]) AND
 			isset($data["poll"]) AND isset($data["url"])) {
 			$data["network"] = NETWORK_OSTATUS;
-		} else
+		} else {
 			return false;
-
+		}
 		// Fetch all additional data from the feed
 		$ret = z_fetch_url($data["poll"]);
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
@@ -947,32 +949,32 @@ class Probe {
 		}
 		$feed = $ret['body'];
 		$feed_data = feed_import($feed,$dummy1,$dummy2, $dummy3, true);
-		if (!$feed_data)
+		if (!$feed_data) {
 			return false;
-
-		if ($feed_data["header"]["author-name"] != "")
+		}
+		if ($feed_data["header"]["author-name"] != "") {
 			$data["name"] = $feed_data["header"]["author-name"];
-
-		if ($feed_data["header"]["author-nick"] != "")
+		}
+		if ($feed_data["header"]["author-nick"] != "") {
 			$data["nick"] = $feed_data["header"]["author-nick"];
-
-		if ($feed_data["header"]["author-avatar"] != "")
-			$data["photo"] = $feed_data["header"]["author-avatar"];
-
-		if ($feed_data["header"]["author-id"] != "")
+		}
+		if ($feed_data["header"]["author-avatar"] != "") {
+			$data["photo"] = ostatus::fix_avatar($feed_data["header"]["author-avatar"], $data["url"]);
+		}
+		if ($feed_data["header"]["author-id"] != "") {
 			$data["alias"] = $feed_data["header"]["author-id"];
-
-		if ($feed_data["header"]["author-location"] != "")
+		}
+		if ($feed_data["header"]["author-location"] != "") {
 			$data["location"] = $feed_data["header"]["author-location"];
-
-		if ($feed_data["header"]["author-about"] != "")
+		}
+		if ($feed_data["header"]["author-about"] != "") {
 			$data["about"] = $feed_data["header"]["author-about"];
-
+		}
 		// OStatus has serious issues when the the url doesn't fit (ssl vs. non ssl)
 		// So we take the value that we just fetched, although the other one worked as well
-		if ($feed_data["header"]["author-link"] != "")
+		if ($feed_data["header"]["author-link"] != "") {
 			$data["url"] = $feed_data["header"]["author-link"];
-
+		}
 		/// @todo Fetch location and "about" from the feed as well
 		return $data;
 	}

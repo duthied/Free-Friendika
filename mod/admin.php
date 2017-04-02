@@ -761,62 +761,57 @@ function admin_page_site_post(App $a) {
 		} else {
 			set_config('system','singleuser', $singleuser);
 		}
-	set_config('system','maximagesize', $maximagesize);
-	set_config('system','max_image_length', $maximagelength);
-	set_config('system','jpeg_quality', $jpegimagequality);
+	set_config('system', 'maximagesize', $maximagesize);
+	set_config('system', 'max_image_length', $maximagelength);
+	set_config('system', 'jpeg_quality', $jpegimagequality);
 
-	set_config('config','register_policy', $register_policy);
-	set_config('system','max_daily_registrations', $daily_registrations);
-	set_config('system','account_abandon_days', $abandon_days);
-	set_config('config','register_text', $register_text);
-	set_config('system','allowed_sites', $allowed_sites);
-	set_config('system','allowed_email', $allowed_email);
-	set_config('system','block_public', $block_public);
-	set_config('system','publish_all', $force_publish);
-	set_config('system','directory', $global_directory);
-	set_config('system','thread_allow', $thread_allow);
-	set_config('system','newuser_private', $newuser_private);
-	set_config('system','enotify_no_content', $enotify_no_content);
-	set_config('system','disable_embedded', $disable_embedded);
-	set_config('system','allow_users_remote_self', $allow_users_remote_self);
+	set_config('config', 'register_policy', $register_policy);
+	set_config('system', 'max_daily_registrations', $daily_registrations);
+	set_config('system', 'account_abandon_days', $abandon_days);
+	set_config('config', 'register_text', $register_text);
+	set_config('system', 'allowed_sites', $allowed_sites);
+	set_config('system', 'allowed_email', $allowed_email);
+	set_config('system', 'block_public', $block_public);
+	set_config('system', 'publish_all', $force_publish);
+	set_config('system', 'directory', $global_directory);
+	set_config('system', 'thread_allow', $thread_allow);
+	set_config('system', 'newuser_private', $newuser_private);
+	set_config('system', 'enotify_no_content', $enotify_no_content);
+	set_config('system', 'disable_embedded', $disable_embedded);
+	set_config('system', 'allow_users_remote_self', $allow_users_remote_self);
 
-	set_config('system','block_extended_register', $no_multi_reg);
-	set_config('system','no_openid', $no_openid);
-	set_config('system','no_regfullname', $no_regfullname);
-	set_config('system','community_page_style', $community_page_style);
-	set_config('system','max_author_posts_community_page', $max_author_posts_community_page);
-	set_config('system','verifyssl', $verifyssl);
-	set_config('system','proxyuser', $proxyuser);
-	set_config('system','proxy', $proxy);
-	set_config('system','curl_timeout', $timeout);
-	set_config('system','dfrn_only', $dfrn_only);
-	set_config('system','ostatus_disabled', $ostatus_disabled);
-	set_config('system','ostatus_poll_interval', $ostatus_poll_interval);
-	set_config('system','ostatus_full_threads', $ostatus_full_threads);
-	set_config('system','diaspora_enabled', $diaspora_enabled);
+	set_config('system', 'block_extended_register', $no_multi_reg);
+	set_config('system', 'no_openid', $no_openid);
+	set_config('system', 'no_regfullname', $no_regfullname);
+	set_config('system', 'community_page_style', $community_page_style);
+	set_config('system', 'max_author_posts_community_page', $max_author_posts_community_page);
+	set_config('system', 'verifyssl', $verifyssl);
+	set_config('system', 'proxyuser', $proxyuser);
+	set_config('system', 'proxy', $proxy);
+	set_config('system', 'curl_timeout', $timeout);
+	set_config('system', 'dfrn_only', $dfrn_only);
+	set_config('system', 'ostatus_disabled', $ostatus_disabled);
+	set_config('system', 'ostatus_poll_interval', $ostatus_poll_interval);
+	set_config('system', 'ostatus_full_threads', $ostatus_full_threads);
+	set_config('system', 'diaspora_enabled', $diaspora_enabled);
 
-	set_config('config','private_addons', $private_addons);
+	set_config('config', 'private_addons', $private_addons);
 
-	set_config('system','force_ssl', $force_ssl);
-	set_config('system','hide_help', $hide_help);
-	set_config('system','use_fulltext_engine', $use_fulltext_engine);
-	set_config('system','itemcache', $itemcache);
-	set_config('system','itemcache_duration', $itemcache_duration);
-	set_config('system','max_comments', $max_comments);
-	set_config('system','temppath', $temppath);
-	set_config('system','basepath', $basepath);
-	set_config('system','proxy_disabled', $proxy_disabled);
-	set_config('system','only_tag_search', $only_tag_search);
-	set_config('system','worker_queues', $worker_queues);
-	set_config('system','worker_dont_fork', $worker_dont_fork);
-	set_config('system','worker_fastlane', $worker_fastlane);
-	set_config('system','frontend_worker', $worker_frontend);
-
-	if (($rino == 2) and !function_exists('mcrypt_create_iv')) {
-		notice(t("RINO2 needs mcrypt php extension to work."));
-	} else {
-		set_config('system','rino_encrypt', $rino);
-	}
+	set_config('system', 'force_ssl', $force_ssl);
+	set_config('system', 'hide_help', $hide_help);
+	set_config('system', 'use_fulltext_engine', $use_fulltext_engine);
+	set_config('system', 'itemcache', $itemcache);
+	set_config('system', 'itemcache_duration', $itemcache_duration);
+	set_config('system', 'max_comments', $max_comments);
+	set_config('system', 'temppath', $temppath);
+	set_config('system', 'basepath', $basepath);
+	set_config('system', 'proxy_disabled', $proxy_disabled);
+	set_config('system', 'only_tag_search', $only_tag_search);
+	set_config('system', 'worker_queues', $worker_queues);
+	set_config('system', 'worker_dont_fork', $worker_dont_fork);
+	set_config('system', 'worker_fastlane', $worker_fastlane);
+	set_config('system', 'frontend_worker', $worker_frontend);
+	set_config('system', 'rino_encrypt', $rino);
 
 	info(t('Site settings updated.').EOL);
 	goaway('admin/site');
