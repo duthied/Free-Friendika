@@ -52,6 +52,9 @@
 						<a class="jot-preview-lnk" id="jot-preview-lnk-mobile" onclick="previewActive(); return false;">{{$preview}}</a>
 					</li>
 					{{/if}}
+					<li role="menuitem">
+						<a id="jot-browser-lnk-mobile" onclick="fbrowserActive(); return false;">{{$browser}}</a>
+					</li>
 				</ul>
 			</div>
 			<button type="button" class="close hidden-lg hidden-md hidden-sm" data-dismiss="modal" style="float: right;">&times;</button>
