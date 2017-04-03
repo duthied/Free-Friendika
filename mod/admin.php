@@ -2004,22 +2004,22 @@ function admin_page_features_post(App $a) {
 	$features = get_features(false);
 
 	foreach ($features as $fname => $fdata) {
-		foreach (array_slice($fdata,1) as $f) {
+		foreach (array_slice($fdata, 1) as $f) {
 			$feature = $f[0];
-			$feature_state = 'feature_'.$feature;
-			$featurelock = 'featurelock_'.$feature;
+			$feature_state = 'feature_' . $feature;
+			$featurelock = 'featurelock_' . $feature;
 
-			if (x($_POST[$feature_state])) {
-				$val = intval($_POST['feature_'.$feature]);
+			if (x($_POST, $feature_state)) {
+				$val = intval($_POST[$feature_state]);
 			} else {
 				$val = 0;
 			}
 			set_config('feature',$feature,$val);
 
-			if (x($_POST[$featurelock])) {
-				set_config('feature_lock',$feature,$val);
+			if (x($_POST, $featurelock)) {
+				set_config('feature_lock', $feature, $val);
 			} else {
-				del_config('feature_lock',$feature);
+				del_config('feature_lock', $feature);
 			}
 		}
 	}

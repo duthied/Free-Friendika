@@ -2,11 +2,11 @@
 
 use \Friendica\Core\Config;
 
-function update_gcontact_run(&$argv, &$argc){
+function update_gcontact_run(&$argv, &$argc) {
 	global $a;
 
-	require_once('include/Scrape.php');
-	require_once('include/socgraph.php');
+	require_once 'include/Scrape.php';
+	require_once 'include/socgraph.php';
 
 	logger('update_gcontact: start');
 
@@ -21,11 +21,13 @@ function update_gcontact_run(&$argv, &$argc){
 
 	$r = q("SELECT * FROM `gcontact` WHERE `id` = %d", intval($contact_id));
 
-	if (!$r)
+	if (!dbm::_is_result($r)) {
 		return;
+	}
 
-	if (!in_array($r[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)))
+	if (!in_array($r[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
 		return;
+	}
 
 	$data = probe_url($r[0]["url"]);
 
