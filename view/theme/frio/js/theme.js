@@ -617,3 +617,24 @@ function htmlToText(htmlString) {
 
 	return text;
 }
+
+/**
+ * Sends a /like API call and updates the display of the relevant action button
+ * before the update reloads the item.
+ *
+ * @param {string} ident The id of the relevant item
+ * @param {string} verb The verb of the action
+ * @returns {undefined}
+ */
+function doLikeAction(ident, verb) {
+	unpause();
+
+	if (verb.indexOf('attend') === 0) {
+		$('.item-' + ident + ' .button-event:not(#' + verb + '-' + ident + ')').removeClass('active');
+	}
+	$('#' + verb + '-' + ident).toggleClass('active');
+	$('#like-rotator-' + ident.toString()).show();
+	$.get('like/' + ident.toString() + '?verb=' + verb, NavUpdate );
+	liking = 1;
+	force_update = true;
+}

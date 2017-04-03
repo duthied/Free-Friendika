@@ -47,6 +47,7 @@ Friendica Documentation and Resources
 * [Protocol Documentation](help/Protocol)
 * [Database schema documantation](help/database)
 * [Class Autoloading](help/autoloader)
+* [Using Composer](help/Composer)
 * [Code - Reference(Doxygen generated - sets cookies)](doc/html/)
 * [Twitter/GNU Social API Functions](help/api)
 
