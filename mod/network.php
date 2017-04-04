@@ -47,7 +47,7 @@ function network_init(App $a) {
 			$net_baseurl .= '/' . $sel_groups;
 		}
 
-		if($remember_tab) {
+		if ($remember_tab) {
 			// redirect if current selected tab is '/network' and
 			// last selected tab is _not_ '/network?f=&order=comment'.
 			// and this isn't a date query
@@ -73,20 +73,23 @@ function network_init(App $a) {
 
 			$k = array_search('active', $last_sel_tabs);
 
-			$net_baseurl .= $tab_baseurls[$k];
+			if ($k != 3) {
+				$net_baseurl .= $tab_baseurls[$k];
 
-			// parse out tab queries
-			$dest_qa = array();
-			$dest_qs = $tab_args[$k];
-			parse_str( $dest_qs, $dest_qa);
-			$net_args = array_merge($net_args, $dest_qa);
-		}
-		else if($sel_tabs[4] === 'active') {
+				// parse out tab queries
+				$dest_qa = array();
+				$dest_qs = $tab_args[$k];
+				parse_str($dest_qs, $dest_qa);
+				$net_args = array_merge($net_args, $dest_qa);
+			} else {
+				$remember_tab = false;
+			}
+		} elseif($sel_tabs[4] === 'active') {
 			// The '/new' tab is selected
-			$net_baseurl .= '/new';
+			$remember_group = false;
 		}
 
-		if($remember_net) {
+		if ($remember_net) {
 			$net_args['nets'] = $last_sel_nets;
 		}
 		else if($sel_nets!==false) {
@@ -842,7 +845,7 @@ function network_tabs(App $a) {
 	if(feature_enabled(local_user(),'new_tab')) {
 		$tabs[] = array(
 			'label'	=> t('New'),
-			'url'	=> str_replace('/new', '', $cmd) . ($len_naked_cmd ? '/' : '') . 'new' . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : ''),
+			'url'	=> 'network/new' . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : ''),
 			'sel'	=> $new_active,
 			'title'	=> t('Activity Stream - by date'),
 			'id'	=> 'activitiy-by-date-tab',
