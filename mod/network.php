@@ -84,7 +84,7 @@ function network_init(App $a) {
 			} else {
 				$remember_tab = false;
 			}
-		} elseif($sel_tabs[4] === 'active') {
+		} elseif ($sel_tabs[4] === 'active') {
 			// The '/new' tab is selected
 			$remember_group = false;
 		}
@@ -842,7 +842,7 @@ function network_tabs(App $a) {
 		);
 	}
 
-	if(feature_enabled(local_user(),'new_tab')) {
+	if (feature_enabled(local_user(),'new_tab')) {
 		$tabs[] = array(
 			'label'	=> t('New'),
 			'url'	=> 'network/new' . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : ''),
