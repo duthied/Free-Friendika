@@ -8,23 +8,25 @@ function cronhooks_run(&$argv, &$argc){
 	require_once('include/datetime.php');
 
 	if (($argc == 2) AND is_array($a->hooks) AND array_key_exists("cron", $a->hooks)) {
-                foreach ($a->hooks["cron"] as $hook)
+		foreach ($a->hooks["cron"] as $hook) {
 			if ($hook[1] == $argv[1]) {
 				logger("Calling cron hook '".$hook[1]."'", LOGGER_DEBUG);
 				call_single_hook($a, $name, $hook, $data);
 			}
+		}
 		return;
 	}
 
 	$last = get_config('system', 'last_cronhook');
 
 	$poll_interval = intval(get_config('system','cronhook_interval'));
-	if(! $poll_interval)
+	if (! $poll_interval) {
 		$poll_interval = 9;
+	}
 
-	if($last) {
+	if ($last) {
 		$next = $last + ($poll_interval * 60);
-		if($next > time()) {
+		if ($next > time()) {
 			logger('cronhook intervall not reached');
 			return;
 		}
