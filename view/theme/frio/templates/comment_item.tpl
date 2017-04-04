@@ -27,52 +27,51 @@
 
 		<div class="comment-edit-text-end clear"></div>
 		<div class="comment-edit-submit-wrapper" id="comment-edit-submit-wrapper-{{$id}}" style="display: none;">
-			<button class="btn btn-primary btn-sm" type="submit" onclick="post_comment({{$id}}); return false;" id="comment-edit-submit-{{$id}}" name="submit"><i class="fa fa-envelope"></i> {{$submit}}</button>
+			<button type="submit" class="btn btn-primary btn-sm" id="comment-edit-submit-{{$id}}" name="submit"><i class="fa fa-envelope"></i> {{$submit}}</button>
 			{{if $preview}}
-				<button class="btn btn-defaul btn-sm" type="button" onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}"><i class="fa fa-eye"></i> {{$preview}}</button>
+				<button type="button" class="btn btn-defaul btn-sm" onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}"><i class="fa fa-eye"></i> {{$preview}}</button>
 			{{/if}}
 			<ul class="comment-edit-bb-{{$id}} comment-icon-list nav nav-pills pull-right">
 				<li>
-					<a class="icon" style="cursor: pointer;" title="{{$edimg}}" data-role="insert-formatting" data-bbcode="img" data-id="{{$id}}">
+					<button type="button" class="btn-link icon" style="cursor: pointer;" title="{{$edimg}}" data-role="insert-formatting" data-bbcode="img" data-id="{{$id}}">
 						<i class="fa fa-picture-o"></i>
-					</a>
+					</button>
 				</li>
 				<li>
-					<a class="icon bb-url" style="cursor: pointer;" title="{{$edurl}}" onclick="insertFormatting('url',{{$id}});">
+					<button type="button" class="btn-link icon bb-url" style="cursor: pointer;" title="{{$edurl}}" onclick="insertFormatting('url',{{$id}});">
 						<i class="fa fa-link"></i>
-					</a>
+					</button>
 				</li>
 				<li>
-					<a class="icon bb-video" style="cursor: pointer;" title="{{$edvideo}}" onclick="insertFormatting('video',{{$id}});">
+					<button type="button" class="btn-link icon bb-video" style="cursor: pointer;" title="{{$edvideo}}" onclick="insertFormatting('video',{{$id}});">
 						<i class="fa fa-video-camera"></i>
-					</a>
+					</button>
 				</li>
 
 				<li>
-					<a class="icon underline" style="cursor: pointer;" title="{{$eduline}}" onclick="insertFormatting('u',{{$id}});">
+					<button type="button" class="btn-link icon underline" style="cursor: pointer;" title="{{$eduline}}" onclick="insertFormatting('u',{{$id}});">
 						<i class="fa fa-underline"></i>
-					</a>
+					</button>
 				</li>
 				<li>
-					<a class="icon italic" style="cursor: pointer;" title="{{$editalic}}" onclick="insertFormatting('i',{{$id}});">
+					<button type="button" class="btn-link icon italic" style="cursor: pointer;" title="{{$editalic}}" onclick="insertFormatting('i',{{$id}});">
 						<i class="fa fa-italic"></i>
-					</a>
+					</button>
 				</li>
 				<li>
-					<a class="icon bold" style="cursor: pointer;"  title="{{$edbold}}" onclick="insertFormatting('b',{{$id}});">
+					<button type="button" class="btn-link icon bold" style="cursor: pointer;"  title="{{$edbold}}" onclick="insertFormatting('b',{{$id}});">
 						<i class="fa fa-bold"></i>
-					</a>
+					</button>
 				</li>
 				<li>
-					<a class="icon quote" style="cursor: pointer;" title="{{$edquote}}" onclick="insertFormatting('quote',{{$id}});">
+					<button type="button" class="btn-link icon quote" style="cursor: pointer;" title="{{$edquote}}" onclick="insertFormatting('quote',{{$id}});">
 						<i class="fa fa-quote-left"></i>
-					</a>
+					</button>
 				</li>
 			</ul>
-			<div id="comment-edit-preview-{{$id}}" class="comment-edit-preview" style="display:none;"></div>
 		</div>
 
 		<div class="comment-edit-end clear"></div>
 	</form>
-
+	<div id="comment-edit-preview-{{$id}}" class="comment-edit-preview" style="display:none;"></div>
 </div>

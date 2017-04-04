@@ -6,7 +6,7 @@ function network_init(App $a) {
 	}
 
 	$is_a_date_query = false;
-	if (x($_GET['cid']) && intval($_GET['cid']) != 0) {
+	if (x($_GET, 'cid') && intval($_GET['cid']) != 0) {
 		$cid = $_GET['cid'];
 	}
 
@@ -103,24 +103,27 @@ function network_init(App $a) {
 		}
 	}
 
-	if(x($_GET['nets']) && $_GET['nets'] === 'all')
+	// If nets is set to all, unset it
+	if (x($_GET, 'nets') && $_GET['nets'] === 'all') {
 		unset($_GET['nets']);
+	}
 
 	$group_id = (($a->argc > 1 && is_numeric($a->argv[1])) ? intval($a->argv[1]) : 0);
 
 	set_pconfig(local_user(), 'network.view', 'group.selected', $group_id);
 
-	require_once('include/group.php');
-	require_once('include/contact_widgets.php');
-	require_once('include/items.php');
-	require_once('include/ForumManager.php');
+	require_once 'include/group.php';
+	require_once 'include/contact_widgets.php';
+	require_once 'include/items.php';
+	require_once 'include/ForumManager.php';
 
-	if(! x($a->page,'aside'))
+	if (! x($a->page, 'aside')) {
 		$a->page['aside'] = '';
+	}
 
-	$search = ((x($_GET,'search')) ? escape_tags($_GET['search']) : '');
+	$search = ((x($_GET, 'search')) ? escape_tags($_GET['search']) : '');
 
-	if(x($_GET,'save')) {
+	if (x($_GET, 'save')) {
 		$r = qu("SELECT * FROM `search` WHERE `uid` = %d AND `term` = '%s' LIMIT 1",
 			intval(local_user()),
 			dbesc($search)
@@ -132,7 +135,7 @@ function network_init(App $a) {
 			);
 		}
 	}
-	if(x($_GET,'remove')) {
+	if (x($_GET, 'remove')) {
 		q("DELETE FROM `search` WHERE `uid` = %d AND `term` = '%s'",
 			intval(local_user()),
 			dbesc($search)
@@ -140,7 +143,7 @@ function network_init(App $a) {
 	}
 
 	// search terms header
-	if(x($_GET,'search')) {
+	if (x($_GET, 'search')) {
 		$a->page['content'] .= replace_macros(get_markup_template("section_title.tpl"),array(
 			'$title' => sprintf( t('Results for: %s'), $search)
 		));
@@ -157,8 +160,9 @@ function network_init(App $a) {
 
 function saved_searches($search) {
 
-	if(! feature_enabled(local_user(),'savedsearch'))
+	if (! feature_enabled(local_user(),'savedsearch')) {
 		return '';
+	}
 
 	$a = get_app();
 

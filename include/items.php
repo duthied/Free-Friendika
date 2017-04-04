@@ -1496,17 +1496,19 @@ function item_is_remote_self($contact, &$datarray) {
 	return true;
 }
 
-function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
+function new_follower($importer, $contact, $datarray, $item, $sharing = false) {
 	$url = notags(trim($datarray['author-link']));
 	$name = notags(trim($datarray['author-name']));
 	$photo = notags(trim($datarray['author-avatar']));
 
 	if (is_object($item)) {
 		$rawtag = $item->get_item_tags(NAMESPACE_ACTIVITY,'actor');
-		if ($rawtag && $rawtag[0]['child'][NAMESPACE_POCO]['preferredUsername'][0]['data'])
+		if ($rawtag && $rawtag[0]['child'][NAMESPACE_POCO]['preferredUsername'][0]['data']) {
 			$nick = $rawtag[0]['child'][NAMESPACE_POCO]['preferredUsername'][0]['data'];
-	} else
+		}
+	} else {
 		$nick = $item;
+	}
 
 	if (is_array($contact)) {
 		if (($contact['network'] == NETWORK_OSTATUS && $contact['rel'] == CONTACT_IS_SHARING)
@@ -1544,11 +1546,9 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 			update_contact_avatar($photo, $importer["uid"], $contact_record["id"], true);
 		}
 
-
 		$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 			intval($importer['uid'])
 		);
-		$a = get_app();
 
 		if (dbm::is_result($r) AND !in_array($r[0]['page-flags'], array(PAGE_SOAPBOX, PAGE_FREELOVE))) {
 
@@ -1567,8 +1567,9 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 
 			$def_gid = get_default_group($importer['uid'], $contact_record["network"]);
 
-			if (intval($def_gid))
-				group_add_member($importer['uid'],'',$contact_record['id'],$def_gid);
+			if (intval($def_gid)) {
+				group_add_member($importer['uid'], '', $contact_record['id'], $def_gid);
+			}
 
 			if (($r[0]['notify-flags'] & NOTIFY_INTRO) &&
 				in_array($r[0]['page-flags'], array(PAGE_NORMAL))) {
@@ -1599,7 +1600,7 @@ function new_follower($importer,$contact,$datarray,$item,$sharing = false) {
 	}
 }
 
-function lose_follower($importer,$contact,$datarray = array(),$item = "") {
+function lose_follower($importer, $contact, array $datarray = array(), $item = "") {
 
 	if (($contact['rel'] == CONTACT_IS_FRIEND) || ($contact['rel'] == CONTACT_IS_SHARING)) {
 		q("UPDATE `contact` SET `rel` = %d WHERE `id` = %d",
@@ -1611,7 +1612,7 @@ function lose_follower($importer,$contact,$datarray = array(),$item = "") {
 	}
 }
 
-function lose_sharer($importer,$contact,$datarray = array(),$item = "") {
+function lose_sharer($importer, $contact, array $datarray = array(), $item = "") {
 
 	if (($contact['rel'] == CONTACT_IS_FRIEND) || ($contact['rel'] == CONTACT_IS_FOLLOWER)) {
 		q("UPDATE `contact` SET `rel` = %d WHERE `id` = %d",
@@ -1623,7 +1624,7 @@ function lose_sharer($importer,$contact,$datarray = array(),$item = "") {
 	}
 }
 
-function subscribe_to_hub($url,$importer,$contact,$hubmode = 'subscribe') {
+function subscribe_to_hub($url, $importer, $contact, $hubmode = 'subscribe') {
 
 	$a = get_app();
 

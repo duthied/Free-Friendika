@@ -10,7 +10,7 @@ function profiles_init(App $a) {
 		return;
 	}
 
-	if(($a->argc > 2) && ($a->argv[1] === "drop") && intval($a->argv[2])) {
+	if (($a->argc > 2) && ($a->argv[1] === "drop") && intval($a->argv[2])) {
 		$r = q("SELECT * FROM `profile` WHERE `id` = %d AND `uid` = %d AND `is-default` = 0 LIMIT 1",
 			intval($a->argv[2]),
 			intval(local_user())
@@ -34,24 +34,22 @@ function profiles_init(App $a) {
 			intval($a->argv[2]),
 			intval(local_user())
 		);
-		if($r)
+		if (dbm::is_result($r)) {
 			info(t('Profile deleted.').EOL);
+		}
 
 		goaway('profiles');
 		return; // NOTREACHED
 	}
 
-
-
-
-
-	if(($a->argc > 1) && ($a->argv[1] === 'new')) {
+	if (($a->argc > 1) && ($a->argv[1] === 'new')) {
 
 		check_form_security_token_redirectOnErr('/profiles', 'profile_new', 't');
 
 		$r0 = q("SELECT `id` FROM `profile` WHERE `uid` = %d",
 			intval(local_user()));
-		$num_profiles = count($r0);
+
+		$num_profiles = (dbm::is_result($r0) ? count($r0) : 0);
 
 		$name = t('Profile-') . ($num_profiles + 1);
 
@@ -73,19 +71,21 @@ function profiles_init(App $a) {
 		);
 
 		info( t('New profile created.') . EOL);
-		if(count($r3) == 1)
-			goaway('profiles/'.$r3[0]['id']);
+		if (dbm::is_result($r3) && count($r3) == 1) {
+			goaway('profiles/' . $r3[0]['id']);
+		}
 
 		goaway('profiles');
 	}
 
-	if(($a->argc > 2) && ($a->argv[1] === 'clone')) {
+	if (($a->argc > 2) && ($a->argv[1] === 'clone')) {
 
 		check_form_security_token_redirectOnErr('/profiles', 'profile_clone', 't');
 
 		$r0 = q("SELECT `id` FROM `profile` WHERE `uid` = %d",
 			intval(local_user()));
-		$num_profiles = count($r0);
+
+		$num_profiles = (dbm::is_result($r0) ? count($r0) : 0);
 
 		$name = t('Profile-') . ($num_profiles + 1);
 		$r1 = q("SELECT * FROM `profile` WHERE `uid` = %d AND `id` = %d LIMIT 1",
@@ -116,8 +116,9 @@ function profiles_init(App $a) {
 			dbesc($name)
 		);
 		info( t('New profile created.') . EOL);
-		if ((dbm::is_result($r3)) && (count($r3) == 1))
+		if ((dbm::is_result($r3)) && (count($r3) == 1)) {
 			goaway('profiles/'.$r3[0]['id']);
+		}
 
 		goaway('profiles');
 
@@ -125,7 +126,7 @@ function profiles_init(App $a) {
 	}
 
 
-	if(($a->argc > 1) && (intval($a->argv[1]))) {
+	if (($a->argc > 1) && (intval($a->argv[1]))) {
 		$r = q("SELECT id FROM `profile` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($a->argv[1]),
 			intval(local_user())
@@ -136,7 +137,7 @@ function profiles_init(App $a) {
 			return;
 		}
 
-		profile_load($a,$a->user['nickname'],$r[0]['id']);
+		profile_load($a,$a->user['nickname'], $r[0]['id']);
 	}
 
 
@@ -144,15 +145,16 @@ function profiles_init(App $a) {
 }
 
 function profile_clean_keywords($keywords) {
-	$keywords = str_replace(","," ",$keywords);
+	$keywords = str_replace(",", " ", $keywords);
 	$keywords = explode(" ", $keywords);
 
 	$cleaned = array();
 	foreach ($keywords as $keyword) {
 		$keyword = trim(strtolower($keyword));
 		$keyword = trim($keyword, "#");
-		if ($keyword != "")
+		if ($keyword != "") {
 			$cleaned[] = $keyword;
+		}
 	}
 
 	$keywords = implode(", ", $cleaned);
@@ -171,12 +173,12 @@ function profiles_post(App $a) {
 
 	call_hooks('profile_post', $_POST);
 
-	if(($a->argc > 1) && ($a->argv[1] !== "new") && intval($a->argv[1])) {
+	if (($a->argc > 1) && ($a->argv[1] !== "new") && intval($a->argv[1])) {
 		$orig = q("SELECT * FROM `profile` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($a->argv[1]),
 			intval(local_user())
 		);
-		if(! count($orig)) {
+		if (! dbm::is_result($orig)) {
 			notice( t('Profile not found.') . EOL);
 			return;
 		}
@@ -186,38 +188,40 @@ function profiles_post(App $a) {
 		$is_default = (($orig[0]['is-default']) ? 1 : 0);
 
 		$profile_name = notags(trim($_POST['profile_name']));
-		if(! strlen($profile_name)) {
+		if (! strlen($profile_name)) {
 			notice( t('Profile Name is required.') . EOL);
 			return;
 		}
 
 		$dob = $_POST['dob'] ? escape_tags(trim($_POST['dob'])) : '0000-00-00'; // FIXME: Needs to be validated?
 
-		$y = substr($dob,0,4);
-		if((! ctype_digit($y)) || ($y < 1900))
+		$y = substr($dob, 0, 4);
+		if ((! ctype_digit($y)) || ($y < 1900)) {
 			$ignore_year = true;
-		else
+		} else {
 			$ignore_year = false;
-		if($dob != '0000-00-00') {
-			if(strpos($dob,'0000-') === 0) {
+		}
+		if ($dob != '0000-00-00') {
+			if (strpos($dob, '0000-') === 0) {
 				$ignore_year = true;
-				$dob = substr($dob,5);
+				$dob = substr($dob, 5);
 			}
-			$dob = datetime_convert('UTC','UTC',(($ignore_year) ? '1900-' . $dob : $dob),(($ignore_year) ? 'm-d' : 'Y-m-d'));
-			if($ignore_year)
+			$dob = datetime_convert('UTC', 'UTC', (($ignore_year) ? '1900-' . $dob : $dob), (($ignore_year) ? 'm-d' : 'Y-m-d'));
+
+			if ($ignore_year) {
 				$dob = '0000-' . $dob;
+			}
 		}
 
 		$name = notags(trim($_POST['name']));
 
-		if(! strlen($name)) {
+		if (! strlen($name)) {
 			$name = '[No Name]';
 		}
 
-		if($orig[0]['name'] != $name)
+		if ($orig[0]['name'] != $name) {
 			$namechanged = true;
-
-
+		}
 
 		$pdesc = notags(trim($_POST['pdesc']));
 		$gender = notags(trim($_POST['gender']));
@@ -233,54 +237,42 @@ function profiles_post(App $a) {
 
 		$with = ((x($_POST,'with')) ? notags(trim($_POST['with'])) : '');
 
-		if(! strlen($howlong)) {
+		if (! strlen($howlong)) {
 			$howlong = NULL_DATE;
 		} else {
-			$howlong = datetime_convert(date_default_timezone_get(),'UTC',$howlong);
+			$howlong = datetime_convert(date_default_timezone_get(), 'UTC', $howlong);
 		}
 		// linkify the relationship target if applicable
 
 		$withchanged = false;
 
-		if(strlen($with)) {
-			if($with != strip_tags($orig[0]['with'])) {
+		if (strlen($with)) {
+			if ($with != strip_tags($orig[0]['with'])) {
 				$withchanged = true;
 				$prf = '';
 				$lookup = $with;
-				if(strpos($lookup,'@') === 0)
-					$lookup = substr($lookup,1);
+				if (strpos($lookup, '@') === 0) {
+					$lookup = substr($lookup, 1);
+				}
 				$lookup = str_replace('_',' ', $lookup);
-				if(strpos($lookup,'@') || (strpos($lookup,'http://'))) {
+				if (strpos($lookup, '@') || (strpos($lookup, 'http://'))) {
 					$newname = $lookup;
 					$links = @Probe::lrdd($lookup);
-					if(count($links)) {
-						foreach($links as $link) {
-							if($link['@attributes']['rel'] === 'http://webfinger.net/rel/profile-page') {
+					if (count($links)) {
+						foreach ($links as $link) {
+							if ($link['@attributes']['rel'] === 'http://webfinger.net/rel/profile-page') {
 								$prf = $link['@attributes']['href'];
 							}
 						}
 					}
-				}
-				else {
+				} else {
 					$newname = $lookup;
-/*					if(strstr($lookup,' ')) {
-						$r = q("SELECT * FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
-							dbesc($newname),
-							intval(local_user())
-						);
-					}
-					else {
-						$r = q("SELECT * FROM `contact` WHERE `nick` = '%s' AND `uid` = %d LIMIT 1",
-							dbesc($lookup),
-							intval(local_user())
-						);
-					}*/
 
 					$r = q("SELECT * FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
 						dbesc($newname),
 						intval(local_user())
 					);
-					if(! $r) {
+					if (! dbm::is_result($r)) {
 						$r = q("SELECT * FROM `contact` WHERE `nick` = '%s' AND `uid` = %d LIMIT 1",
 							dbesc($lookup),
 							intval(local_user())
@@ -292,16 +284,18 @@ function profiles_post(App $a) {
 					}
 				}
 
-				if($prf) {
-					$with = str_replace($lookup,'<a href="' . $prf . '">' . $newname	. '</a>', $with);
-					if(strpos($with,'@') === 0)
-						$with = substr($with,1);
+				if ($prf) {
+					$with = str_replace($lookup, '<a href="' . $prf . '">' . $newname . '</a>', $with);
+					if (strpos($with, '@') === 0) {
+						$with = substr($with, 1);
+					}
 				}
-			}
-			else
+			} else {
 				$with = $orig[0]['with'];
+			}
 		}
 
+		/// @TODO Not flexible enough for later expansion, let's have more OOP here
 		$sexual = notags(trim($_POST['sexual']));
 		$xmpp = notags(trim($_POST['xmpp']));
 		$homepage = notags(trim($_POST['homepage']));
@@ -329,65 +323,65 @@ function profiles_post(App $a) {
 
 		$hide_friends = (($_POST['hide-friends'] == 1) ? 1: 0);
 
-		set_pconfig(local_user(),'system','detailled_profile', (($_POST['detailled_profile'] == 1) ? 1: 0));
+		set_pconfig(local_user(), 'system', 'detailled_profile', (($_POST['detailled_profile'] == 1) ? 1: 0));
 
 		$changes = array();
 		$value = '';
-		if($is_default) {
-			if($marital != $orig[0]['marital']) {
+		if ($is_default) {
+			if ($marital != $orig[0]['marital']) {
 				$changes[] = '[color=#ff0000]&hearts;[/color] ' . t('Marital Status');
 				$value = $marital;
 			}
-			if($withchanged) {
+			if ($withchanged) {
 				$changes[] = '[color=#ff0000]&hearts;[/color] ' . t('Romantic Partner');
 				$value = strip_tags($with);
 			}
-			if($likes != $orig[0]['likes']) {
+			if ($likes != $orig[0]['likes']) {
 				$changes[] = t('Likes');
 				$value = $likes;
 			}
-			if($dislikes != $orig[0]['dislikes']) {
+			if ($dislikes != $orig[0]['dislikes']) {
 				$changes[] = t('Dislikes');
 				$value = $dislikes;
 			}
-			if($work != $orig[0]['work']) {
+			if ($work != $orig[0]['work']) {
 				$changes[] = t('Work/Employment');
 			}
-			if($religion != $orig[0]['religion']) {
+			if ($religion != $orig[0]['religion']) {
 				$changes[] = t('Religion');
 				$value = $religion;
 			}
-			if($politic != $orig[0]['politic']) {
+			if ($politic != $orig[0]['politic']) {
 				$changes[] = t('Political Views');
 				$value = $politic;
 			}
-			if($gender != $orig[0]['gender']) {
+			if ($gender != $orig[0]['gender']) {
 				$changes[] = t('Gender');
 				$value = $gender;
 			}
-			if($sexual != $orig[0]['sexual']) {
+			if ($sexual != $orig[0]['sexual']) {
 				$changes[] = t('Sexual Preference');
 				$value = $sexual;
 			}
-			if($xmpp != $orig[0]['xmpp']) {
+			if ($xmpp != $orig[0]['xmpp']) {
 				$changes[] = t('XMPP');
 				$value = $xmpp;
 			}
-			if($homepage != $orig[0]['homepage']) {
+			if ($homepage != $orig[0]['homepage']) {
 				$changes[] = t('Homepage');
 				$value = $homepage;
 			}
-			if($interest != $orig[0]['interest']) {
+			if ($interest != $orig[0]['interest']) {
 				$changes[] = t('Interests');
 				$value = $interest;
 			}
-			if($address != $orig[0]['address']) {
+			if ($address != $orig[0]['address']) {
 				$changes[] = t('Address');
 				// New address not sent in notifications, potential privacy issues
 				// in case this leaks to unintended recipients. Yes, it's in the public
 				// profile but that doesn't mean we have to broadcast it to everybody.
 			}
-			if($locality != $orig[0]['locality'] || $region != $orig[0]['region']
+			if ($locality != $orig[0]['locality'] || $region != $orig[0]['region']
 				|| $country_name != $orig[0]['country-name']) {
  				$changes[] = t('Location');
 				$comma1 = ((($locality) && ($region || $country_name)) ? ', ' : ' ');
@@ -473,11 +467,12 @@ function profiles_post(App $a) {
 			intval(local_user())
 		);
 
-		if($r)
-			info( t('Profile updated.') . EOL);
+		if ($r) {
+			info(t('Profile updated.') . EOL);
+		}
 
 
-		if($namechanged && $is_default) {
+		if ($namechanged && $is_default) {
 			$r = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `self` = 1 AND `uid` = %d",
 				dbesc($name),
 				dbesc(datetime_convert()),
@@ -489,7 +484,7 @@ function profiles_post(App $a) {
 			);
 		}
 
-		if($is_default) {
+		if ($is_default) {
 			$location = formatted_location(array("locality" => $locality, "region" => $region, "country-name" => $country_name));
 
 			q("UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `self` AND `uid` = %d",
@@ -502,7 +497,7 @@ function profiles_post(App $a) {
 
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
-			if ($url && strlen(get_config('system','directory'))) {
+			if ($url && strlen(get_config('system', 'directory'))) {
 				proc_run(PRIORITY_LOW, "include/directory.php", $url);
 			}
 
@@ -519,14 +514,17 @@ function profiles_post(App $a) {
 function profile_activity($changed, $value) {
 	$a = get_app();
 
-	if(! local_user() || ! is_array($changed) || ! count($changed))
+	if (! local_user() || ! is_array($changed) || ! count($changed)) {
 		return;
+	}
 
-	if($a->user['hidewall'] || get_config('system','block_public'))
+	if ($a->user['hidewall'] || get_config('system', 'block_public')) {
 		return;
+	}
 
-	if(! get_pconfig(local_user(),'system','post_profilechange'))
+	if (! get_pconfig(local_user(), 'system', 'post_profilechange')) {
 		return;
+	}
 
 	require_once('include/items.php');
 
@@ -534,8 +532,9 @@ function profile_activity($changed, $value) {
 		intval(local_user())
 	);
 
-	if(! count($self))
+	if (! dbm::is_result($self)) {
 		return;
+	}
 
 	$arr = array();
 
@@ -559,12 +558,13 @@ function profile_activity($changed, $value) {
 	$changes = '';
 	$t = count($changed);
 	$z = 0;
-	foreach($changed as $ch) {
-		if(strlen($changes)) {
-			if ($z == ($t - 1))
+	foreach ($changed as $ch) {
+		if (strlen($changes)) {
+			if ($z == ($t - 1)) {
 				$changes .= t(' and ');
-			else
+			} else {
 				$changes .= ', ';
+			}
 		}
 		$z ++;
 		$changes .= $ch;
@@ -572,12 +572,12 @@ function profile_activity($changed, $value) {
 
 	$prof = '[url=' . $self[0]['url'] . '?tab=profile' . ']' . t('public profile') . '[/url]';
 
-	if($t == 1 && strlen($value)) {
+	if ($t == 1 && strlen($value)) {
 		$message = sprintf( t('%1$s changed %2$s to &ldquo;%3$s&rdquo;'), $A, $changes, $value);
 		$message .= "\n\n" . sprintf( t(' - Visit %1$s\'s %2$s'), $A, $prof);
-	}
-	else
+	} else {
 		$message = 	sprintf( t('%1$s has an updated %2$s, changing %3$s.'), $A, $prof, $changes);
+	}
 
 
 	$arr['body'] = $message;
@@ -610,7 +610,7 @@ function profiles_content(App $a) {
 
 	$o = '';
 
-	if(($a->argc > 1) && (intval($a->argv[1]))) {
+	if (($a->argc > 1) && (intval($a->argv[1]))) {
 		$r = q("SELECT * FROM `profile` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($a->argv[1]),
 			intval(local_user())
@@ -649,15 +649,16 @@ function profiles_content(App $a) {
 		$personal_account = !(in_array($a->user["page-flags"],
 					array(PAGE_COMMUNITY, PAGE_PRVGROUP)));
 
-		$detailled_profile = (get_pconfig(local_user(),'system','detailled_profile') AND $personal_account);
+		$detailled_profile = (get_pconfig(local_user(), 'system', 'detailled_profile') AND $personal_account);
 
-		$f = get_config('system','birthday_input_format');
-		if(! $f)
+		$f = get_config('system', 'birthday_input_format');
+		if (! $f) {
 			$f = 'ymd';
+		}
 
 		$is_default = (($r[0]['is-default']) ? 1 : 0);
 		$tpl = get_markup_template("profile_edit.tpl");
-		$o .= replace_macros($tpl,array(
+		$o .= replace_macros($tpl, array(
 			'$personal_account' => $personal_account,
 			'$detailled_profile' => $detailled_profile,
 
@@ -666,13 +667,13 @@ function profiles_content(App $a) {
 				t('Show more profile fields:'), //Label
 				$detailled_profile, //Value
 				'', //Help string
-				array(t('No'),t('Yes')) //Off - On strings
+				array(t('No'), t('Yes')) //Off - On strings
 			),
 
-			'$multi_profiles'		=> feature_enabled(local_user(),'multi_profiles'),
+			'$multi_profiles'		=> feature_enabled(local_user(), 'multi_profiles'),
 			'$form_security_token'		=> get_form_security_token("profile_edit"),
 			'$form_security_token_photo'	=> get_form_security_token("profile_photo"),
-			'$profile_clone_link'		=> ((feature_enabled(local_user(),'multi_profiles')) ? 'profiles/clone/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_clone") : ""),
+			'$profile_clone_link'		=> ((feature_enabled(local_user(), 'multi_profiles')) ? 'profiles/clone/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_clone") : ""),
 			'$profile_drop_link'		=> 'profiles/drop/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_drop"),
 
 			'$profile_action' => t('Profile Actions'),
@@ -748,25 +749,22 @@ function profiles_content(App $a) {
 		call_hooks('profile_edit', $arr);
 
 		return $o;
-	}
+	} else {
 
-	//Profiles list.
-	else {
-
-		//If we don't support multi profiles, don't display this list.
-		if(!feature_enabled(local_user(),'multi_profiles')){
-			$r = q(
-				"SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`=1",
+		// If we don't support multi profiles, don't display this list.
+		if (!feature_enabled(local_user(), 'multi_profiles')) {
+			$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`=1",
 				local_user()
 			);
-			if (dbm::is_result($r)){
+			if (dbm::is_result($r)) {
 				//Go to the default profile.
-				goaway('profiles/'.$r[0]['id']);
+				goaway('profiles/' . $r[0]['id']);
 			}
 		}
 
 		$r = q("SELECT * FROM `profile` WHERE `uid` = %d",
 			local_user());
+
 		if (dbm::is_result($r)) {
 
 			$tpl = get_markup_template('profile_entry.tpl');

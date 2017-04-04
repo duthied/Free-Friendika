@@ -91,13 +91,13 @@ var FileBrowser = {
 		// We need to add the AjaxUpload to the button
 		FileBrowser.uploadButtons();
 
-		$(".error a.close").on("click", function(e) {
+		$(".error .close").on("click", function(e) {
 			e.preventDefault();
 			$(".error").addClass("hidden");
 		});
 
 		// Click on album link
-		$(".fbrowser").on("click", ".folders a, .path a", function(e) {
+		$(".fbrowser").on("click", ".folders a, .path a, .folders button, .path button", function(e) {
 			e.preventDefault();
 			var url = baseurl + "/fbrowser/" + FileBrowser.type + "/" + this.dataset.folder + "?mode=none";
 			$(".fbrowser-content").hide();
@@ -112,7 +112,6 @@ var FileBrowser = {
 					FileBrowser.uploadButtons();
 				}
 			});
-			
 		});
 
 		//embed on click
