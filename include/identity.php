@@ -3,10 +3,10 @@
  * @file include/identity.php
  */
 
-require_once('include/ForumManager.php');
-require_once('include/bbcode.php');
-require_once("mod/proxy.php");
-require_once('include/cache.php');
+require_once 'include/ForumManager.php';
+require_once 'include/bbcode.php';
+require_once 'mod/proxy.php';
+require_once 'include/cache.php';
 
 /**
  *
@@ -83,9 +83,9 @@ function profile_load(App $a, $nickname, $profile = 0, $profiledata = array()) {
 
 	$a->set_template_engine(); // reset the template engine to the default in case the user's theme doesn't specify one
 
-	$theme_info_file = "view/theme/".current_theme()."/theme.php";
-	if (file_exists($theme_info_file)){
-		require_once($theme_info_file);
+	$theme_info_file = "view/theme/" . current_theme() . "/theme.php";
+	if (file_exists($theme_info_file)) {
+		require_once $theme_info_file;
 	}
 
 	if (! (x($a->page,'aside')))
@@ -370,7 +370,7 @@ function profile_sidebar($profile, $block = 0) {
 	else
 		$diaspora = false;
 
-	if (!$block){
+	if (!$block) {
 		$contact_block = contact_block();
 
 		if (is_array($a->profile) AND !$a->profile['hide-friends']) {
@@ -535,13 +535,13 @@ function get_birthdays() {
 
 function get_events() {
 
-	require_once('include/bbcode.php');
+	require_once 'include/bbcode.php';
 
 	$a = get_app();
 
-	if (! local_user() || $a->is_mobile || $a->is_tablet)
+	if (! local_user() || $a->is_mobile || $a->is_tablet) {
 		return $o;
-
+	}
 
 //		$mobile_detect = new Mobile_Detect();
 //		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
@@ -564,12 +564,14 @@ function get_events() {
 		$now = strtotime('now');
 		$istoday = false;
 		foreach ($r as $rr) {
-			if (strlen($rr['name']))
+			if (strlen($rr['name'])) {
 				$total ++;
+			}
 
 			$strt = datetime_convert('UTC',$rr['convert'] ? $a->timezone : 'UTC',$rr['start'],'Y-m-d');
-			if ($strt === datetime_convert('UTC',$a->timezone,'now','Y-m-d'))
+			if ($strt === datetime_convert('UTC',$a->timezone,'now','Y-m-d')) {
 				$istoday = true;
+			}
 		}
 		$classtoday = (($istoday) ? 'event-today' : '');
 
@@ -578,12 +580,14 @@ function get_events() {
 		foreach ($r as &$rr) {
 			$title = strip_tags(html_entity_decode(bbcode($rr['summary']),ENT_QUOTES,'UTF-8'));
 
-			if (strlen($title) > 35)
+			if (strlen($title) > 35) {
 				$title = substr($title,0,32) . '... ';
+			}
 
 			$description = substr(strip_tags(bbcode($rr['desc'])),0,32) . '... ';
-			if (! $description)
+			if (! $description) {
 				$description = t('[No description]');
+			}
 
 			$strt = datetime_convert('UTC',$rr['convert'] ? $a->timezone : 'UTC',$rr['start']);
 
@@ -630,7 +634,9 @@ function advanced_profile(App $a) {
 
 		$profile['fullname'] = array( t('Full Name:'), $a->profile['name'] ) ;
 
-		if ($a->profile['gender']) $profile['gender'] = array( t('Gender:'),  $a->profile['gender'] );
+		if ($a->profile['gender']) {
+			$profile['gender'] = array( t('Gender:'),  $a->profile['gender'] );
+		}
 
 		if (($a->profile['dob']) && ($a->profile['dob'] > '0001-01-01')) {
 			$year_bd_format = t('j F, Y');
@@ -645,10 +651,13 @@ function advanced_profile(App $a) {
 
 		}
 
-		if ($age = age($a->profile['dob'],$a->profile['timezone'],''))  $profile['age'] = array( t('Age:'), $age );
+		if ($age = age($a->profile['dob'],$a->profile['timezone'],'')) {
+			$profile['age'] = array( t('Age:'), $age );
+		}
 
-
-		if ($a->profile['marital']) $profile['marital'] = array( t('Status:'), $a->profile['marital']);
+		if ($a->profile['marital']) {
+			$profile['marital'] = array( t('Status:'), $a->profile['marital']);
+		}
 
 		/// @TODO Maybe use x() here, plus below?
 		if ($a->profile['with']) {
@@ -751,7 +760,7 @@ function advanced_profile(App $a) {
 	return '';
 }
 
-function profile_tabs($a, $is_owner=False, $nickname=Null){
+function profile_tabs($a, $is_owner=False, $nickname=Null) {
 	//echo "<pre>"; var_dump($a->user); killme();
 
 	if (is_null($nickname)) {
@@ -768,7 +777,7 @@ function profile_tabs($a, $is_owner=False, $nickname=Null){
 		array(
 			'label'=>t('Status'),
 			'url' => $url,
-			'sel' => ((!isset($tab) && $a->argv[0]=='profile')?'active':''),
+			'sel' => ((!isset($tab) && $a->argv[0]=='profile') ? 'active' : ''),
 			'title' => t('Status Messages and Posts'),
 			'id' => 'status-tab',
 			'accesskey' => 'm',
@@ -776,7 +785,7 @@ function profile_tabs($a, $is_owner=False, $nickname=Null){
 		array(
 			'label' => t('Profile'),
 			'url' 	=> $url.'/?tab=profile',
-			'sel'	=> ((isset($tab) && $tab=='profile')?'active':''),
+			'sel'	=> ((isset($tab) && $tab=='profile') ? 'active' : ''),
 			'title' => t('Profile Details'),
 			'id' => 'profile-tab',
 			'accesskey' => 'r',
@@ -784,7 +793,7 @@ function profile_tabs($a, $is_owner=False, $nickname=Null){
 		array(
 			'label' => t('Photos'),
 			'url'	=> App::get_baseurl() . '/photos/' . $nickname,
-			'sel'	=> ((!isset($tab) && $a->argv[0]=='photos')?'active':''),
+			'sel'	=> ((!isset($tab) && $a->argv[0]=='photos') ? 'active' : ''),
 			'title' => t('Photo Albums'),
 			'id' => 'photo-tab',
 			'accesskey' => 'h',
@@ -792,7 +801,7 @@ function profile_tabs($a, $is_owner=False, $nickname=Null){
 		array(
 			'label' => t('Videos'),
 			'url'	=> App::get_baseurl() . '/videos/' . $nickname,
-			'sel'	=> ((!isset($tab) && $a->argv[0]=='videos')?'active':''),
+			'sel'	=> ((!isset($tab) && $a->argv[0]=='videos') ? 'active' : ''),
 			'title' => t('Videos'),
 			'id' => 'video-tab',
 			'accesskey' => 'v',
@@ -804,7 +813,7 @@ function profile_tabs($a, $is_owner=False, $nickname=Null){
 			$tabs[] = array(
 				'label' => t('Events'),
 				'url'	=> App::get_baseurl() . '/events',
-				'sel' 	=>((!isset($tab) && $a->argv[0]=='events')?'active':''),
+				'sel' 	=>((!isset($tab) && $a->argv[0]=='events') ? 'active' : ''),
 				'title' => t('Events and Calendar'),
 				'id' => 'events-tab',
 				'accesskey' => 'e',
@@ -815,18 +824,18 @@ function profile_tabs($a, $is_owner=False, $nickname=Null){
 		$tabs[] = array(
 				'label' => t('Events'),
 				'url'	=> App::get_baseurl() . '/cal/' . $nickname,
-				'sel' 	=>((!isset($tab) && $a->argv[0]=='cal')?'active':''),
+				'sel' 	=>((!isset($tab) && $a->argv[0]=='cal') ? 'active' : ''),
 				'title' => t('Events and Calendar'),
 				'id' => 'events-tab',
 				'accesskey' => 'e',
 			);
 	}
 
-	if ($is_owner){
+	if ($is_owner) {
 		$tabs[] = array(
 			'label' => t('Personal Notes'),
 			'url'	=> App::get_baseurl() . '/notes',
-			'sel' 	=>((!isset($tab) && $a->argv[0]=='notes')?'active':''),
+			'sel' 	=>((!isset($tab) && $a->argv[0]=='notes') ? 'active' : ''),
 			'title' => t('Only You Can See This'),
 			'id' => 'notes-tab',
 			'accesskey' => 't',
@@ -837,7 +846,7 @@ function profile_tabs($a, $is_owner=False, $nickname=Null){
 		$tabs[] = array(
 			'label' => t('Contacts'),
 			'url'	=> App::get_baseurl() . '/viewcontacts/' . $nickname,
-			'sel'	=> ((!isset($tab) && $a->argv[0]=='viewcontacts')?'active':''),
+			'sel'	=> ((!isset($tab) && $a->argv[0]=='viewcontacts') ? 'active' : ''),
 			'title' => t('Contacts'),
 			'id' => 'viewcontacts-tab',
 			'accesskey' => 'k',
@@ -853,8 +862,9 @@ function profile_tabs($a, $is_owner=False, $nickname=Null){
 }
 
 function get_my_url() {
-	if (x($_SESSION,'my_url'))
+	if (x($_SESSION, 'my_url')) {
 		return $_SESSION['my_url'];
+	}
 	return false;
 }
 
@@ -866,33 +876,31 @@ function zrl_init(App $a) {
 		// The check fetches the cached value from gprobe to reduce the load for this system
 		$urlparts = parse_url($tmp_str);
 
-		$result = Cache::get("gprobe:".$urlparts["host"]);
-		if (!is_null($result)) {
-			if (in_array($result["network"], array(NETWORK_FEED, NETWORK_PHANTOM))) {
-				logger("DDoS attempt detected for ".$urlparts["host"]." by ".$_SERVER["REMOTE_ADDR"].". server data: ".print_r($_SERVER, true), LOGGER_DEBUG);
-				return;
-			}
+		$result = Cache::get("gprobe:" . $urlparts["host"]);
+		if (!is_null($result)) && (in_array($result["network"], array(NETWORK_FEED, NETWORK_PHANTOM))) {
+			logger("DDoS attempt detected for " . $urlparts["host"] . " by " . $_SERVER["REMOTE_ADDR"] . ". server data: " . print_r($_SERVER, true), LOGGER_DEBUG);
+			return;
 		}
 
-		proc_run(PRIORITY_LOW, 'include/gprobe.php',bin2hex($tmp_str));
+		proc_run(PRIORITY_LOW, 'include/gprobe.php', bin2hex($tmp_str));
 		$arr = array('zrl' => $tmp_str, 'url' => $a->cmd);
-		call_hooks('zrl_init',$arr);
+		call_hooks('zrl_init', $arr);
 	}
 }
 
-function zrl($s,$force = false) {
+function zrl($s, $force = false) {
 	if (! strlen($s)) {
 		return $s;
 	}
-	if ((! strpos($s,'/profile/')) && (! $force)) {
+	if ((! strpos($s, '/profile/')) && (! $force)) {
 		return $s;
 	}
-	if ($force && substr($s,-1,1) !== '/') {
+	if ($force && substr($s, -1, 1) !== '/') {
 		$s = $s . '/';
 	}
-	$achar = strpos($s,'?') ? '&' : '?';
+	$achar = strpos($s, '?') ? '&' : '?';
 	$mine = get_my_url();
-	if ($mine and ! link_compare($mine,$s)) {
+	if ($mine && ! link_compare($mine, $s)) {
 		return $s . $achar . 'zrl=' . urlencode($mine);
 	}
 	return $s;
@@ -914,10 +922,8 @@ function zrl($s,$force = false) {
  */
 function get_theme_uid() {
 	$uid = (($_REQUEST['puid']) ? intval($_REQUEST['puid']) : 0);
-	if (local_user()) {
-		if ((get_pconfig(local_user(),'system','always_my_theme')) || (! $uid)) {
-			return local_user();
-		}
+	if ((local_user()) && ((get_pconfig(local_user(),'system','always_my_theme')) || (! $uid))) {
+		return local_user();
 	}
 
 	return $uid;
