@@ -4379,7 +4379,6 @@ function api_fr_photo_create_update($type)
 	throw new InternalServerErrorException("unknown error - this error on uploading or updating a photo should never happen");
 }
 
-
 /**
  * @brief delete a single photo from the database through api
  *
