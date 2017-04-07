@@ -12,38 +12,58 @@
 		<input id="fb-nickname" type="hidden" name="type" value="{{$nickname}}" />
 		<input id="fb-type" type="hidden" name="type" value="{{$type}}" />
 
-        <div class="error hidden">
-            <span></span> <button type="button" class="btn btn-link" class="close">X</a>
-        </div>
+		<div class="error hidden">
+			<span></span> <button type="button" class="btn btn-link" class="close" aria-label="Close">X</a>
+		</div>
 
-        <div class="path">
-            {{foreach $path as $p}}<button type="button" class="btn-link" data-folder="{{$p.0}}">{{$p.1}}</button>{{/foreach}}
-        </div>
+		{{* The breadcrumb navigation *}}
+		<ol class="path breadcrumb" aria-label="Breadcrumb" role="navigation">
+			{{foreach $path as $p}}<li role="presentation"><a href="#" data-folder="{{$p.0}}">{{$p.1}}</a></li>{{/foreach}}
 
-        {{if $folders }}
-        <div class="folders">
-            <ul>
-                {{foreach $folders as $f}}<li><button type="button" class="btn-link" data-folder="{{$f.0}}">{{$f.1}}</button></li>{{/foreach}}
-            </ul>
-        </div>
-        {{/if}}
-
-        <div class="list">
-            {{foreach $files as $f}}
-            <div class="photo-album-image-wrapper">
-                <button type="button" class="btn btn-link photo-album-photo-link" data-link="{{$f.0}}" data-filename="{{$f.1}}" data-img="{{$f.2}}">
-                    <img src="{{$f.2}}">
-                    <p>{{$f.1}}</p>
-                </button>
+			{{* Switch between image and file mode *}}
+			<div class="fbswitcher btn-group btn-group-xs pull-right" aria-label="Switch between image and file mode">
+				<button type="button" class="btn btn-default" data-mode="image" aria-label="Image Mode"><i class="fa fa-picture-o" aria-hidden="true"></i></button>
+				<button type="button" class="btn btn-default" data-mode="file" aria-label="File Mode"><i class="fa fa-file-o" aria-hidden="true"></i></button>
 			</div>
-			{{/foreach}}
+		</ol>
+
+		<div class="media">
+
+			{{* List of photo albums *}}
+			{{if $folders }}
+			<div class="folders media-left" role="navigation" aria-label="Album Navigation">
+				<ul role="menu">
+					{{foreach $folders as $f}}
+					<li role="presentation">
+						<a href="#" data-folder="{{$f.0}}" role="menuitem">{{$f.1}}</a>
+					</li>
+					{{/foreach}}
+				</ul>
+			</div>
+			{{/if}}
+
+			{{* The main content (images or files) *}}
+			<div class="list {{$type}} media-body" role="main" aria-label="Browser Content">
+				<div class="fbrowser-content-container">
+					{{foreach $files as $f}}
+					<div class="photo-album-image-wrapper">
+						<a href="#" class="photo-album-photo-link" data-link="{{$f.0}}" data-filename="{{$f.1}}" data-img="{{$f.2}}">
+							<img src="{{$f.2}}" alt="{{$f.1}}">
+							<p>{{$f.1}}</p>
+						</a>
+					</div>
+					{{/foreach}}
+				</div>
+			</div>
 		</div>
 
 		<div class="upload">
-			<button id="upload-{{$type}}"><img id="profile-rotator" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait|escape:'html'}}" style="display: none;" /> {{"Upload"|t}}</button>
+			<button id="upload-{{$type}}">{{"Upload"|t}}</button>
 		</div>
 	</div>
-	<div class="profile-rotator-wrapper" style="display: none;">
-		<i class="fa fa-circle-o-notch fa-spin"></i>
+
+	{{* This part contains the conent loader icon which is visible when new conent is loaded *}}
+	<div class="profile-rotator-wrapper" aria-hidden="true" style="display: none;">
+		<i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i>
 	</div>
 </div>
