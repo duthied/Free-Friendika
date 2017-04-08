@@ -228,7 +228,7 @@ function bb_find_open_close($s, $open, $close, $occurence = 1) {
 
 	$start_pos = -1;
 	for ($i = 1; $i <= $occurence; $i++) {
-		if ( $start_pos !== false) {
+		if ($start_pos !== false) {
 			$start_pos = strpos($s, $open, $start_pos + 1);
 		}
 	}
@@ -255,7 +255,7 @@ function get_bb_tag_pos($s, $name, $occurence = 1) {
 
 	$start_open = -1;
 	for ($i = 1; $i <= $occurence; $i++) {
-		if ( $start_open !== false) {
+		if ($start_open !== false) {
 			$start_open = strpos($s, '[' . $name, $start_open + 1); // allow [name= type tags
 		}
 	}
