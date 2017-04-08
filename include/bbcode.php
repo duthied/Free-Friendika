@@ -198,10 +198,11 @@ function tryoembed($match) {
 	return $html;
 }
 
-// [noparse][i]italic[/i][/noparse] turns into
-// [noparse][ i ]italic[ /i ][/noparse],
-// to hide them from parser.
-
+/*
+ * [noparse][i]italic[/i][/noparse] turns into
+ * [noparse][ i ]italic[ /i ][/noparse],
+ * to hide them from parser.
+ */
 function bb_spacefy($st) {
 	$whole_match = $st[0];
 	$captured = $st[1];
@@ -210,10 +211,11 @@ function bb_spacefy($st) {
 	return $new_str;
 }
 
-// The previously spacefied [noparse][ i ]italic[ /i ][/noparse],
-// now turns back and the [noparse] tags are trimed
-// returning [i]italic[/i]
-
+/*
+ * The previously spacefied [noparse][ i ]italic[ /i ][/noparse],
+ * now turns back and the [noparse] tags are trimed
+ * returning [i]italic[/i]
+ */
 function bb_unspacefy_and_trim($st) {
 	$whole_match = $st[0];
 	$captured = $st[1];
@@ -251,7 +253,7 @@ function bb_find_open_close($s, $open, $close, $occurence = 1) {
 function get_bb_tag_pos($s, $name, $occurence = 1) {
 	if ($occurence < 1) {
 		$occurence = 1;
-  }
+	}
 
 	$start_open = -1;
 	for ($i = 1; $i <= $occurence; $i++) {
@@ -344,14 +346,16 @@ function bb_extract_images($body) {
 			$new_body = $new_body . substr($orig_body, 0, $img_start) . '[$#saved_image' . $cnt . '#$]';
 
 			$cnt++;
-		}
-		else
+		} else {
 			$new_body = $new_body . substr($orig_body, 0, $img_end + strlen('[/img]'));
+		}
 
 		$orig_body = substr($orig_body, $img_end + strlen('[/img]'));
 
-		if ($orig_body === false) // in case the body ends on a closing image tag
+		if ($orig_body === false) {
+			// in case the body ends on a closing image tag
 			$orig_body = '';
+		}
 
 		$img_start = strpos($orig_body, '[img');
 		$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
