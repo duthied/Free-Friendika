@@ -91,6 +91,10 @@ blockquote {
 .hidden {
     display: none !important;
 }
+.minimize {
+    max-height: 0px !important;
+    overflow: hidden !important;
+}
 code {
     white-space: pre-wrap;
 }
@@ -115,7 +119,7 @@ code {
     line-height: 1.5;
 }
 
-a#item-delete-selected {
+#item-delete-selected {
     cursor: pointer;
     color: white;
     position: fixed;
@@ -158,6 +162,7 @@ a#item-delete-selected {
     font-size: 14px;
     font-weight: 600;
     padding: 8px 16px;
+    color: inherit;
 }
 
 .btn-default {
@@ -190,12 +195,7 @@ a#item-delete-selected {
     outline: 0;
     background: $btn_primary_hover_color !important;
 }
-.btn-default:active, .btn-default.active {
-    color: $link_color;
-}
-.btn-default:active:hover, .btn-default.active:hover {
-    color: $link_hover_color;
-}
+
 .btn-primary.active.focus, .btn-primary.active:focus, .btn-primary.active:hover,
 .btn-primary:active.focus, .btn-primary:active:focus, .btn-primary:active:hover,
 .open>.dropdown-toggle.btn-primary.focus, .open>.dropdown-toggle.btn-primary:focus,
@@ -210,9 +210,6 @@ a#item-delete-selected {
     color: $link_color;
     padding-left: 0;
     padding-right: 0;
-}
-.btn {
-	color: inherit;
 }
 .btn-eventnav, btn-eventnav:hover {
     font-size: 16px;
@@ -443,7 +440,7 @@ nav.navbar .nav>li>a:focus{
     border-radius: 3px;
 }
 #topbar-first .nav>.account .dropdown-toggle {
-    padding: 10px 5px 8px;
+    padding: 10px 5px 0px;
     line-height: 1.1em;
     text-align: left
 }
@@ -1310,6 +1307,69 @@ section #jotOpen {
 }
 
 /* Filebrowser */
+.fbrowser .breadcrumb {
+    margin-bottom: 0px;
+}
+.fbrowser .path a:before {
+    content: "";
+    padding: 0;
+}
+.fbrowser .breadcrumb > li:last-of-type a{
+    color: #777;
+    pointer-events: none;
+    cursor: default;
+}
+.fbrowser .folders {
+    box-shadow: -1.5px 0 0 0 rgba(0, 0, 0, .1) inset;
+    padding-right: 1px;
+}
+.fbrowser .folders ul {
+    padding: 0px;
+    margin-left: -15px;
+    margin-bottom: 0px;
+    overflow-y: auto;
+    min-width: 100px;
+    max-height: calc(100vh - 210px);
+    line-height: 1.3;
+}
+@media (min-width: 768px) {
+    .fbrowser .folders ul {
+        max-height: calc(100vh - 255px);
+    }
+}
+.fbrowser .folders li {
+    padding-left: 20px;
+    padding-right: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+.fbrowser .folders li:hover {
+    z-index: 2;
+    color: #555;
+    background-color: rgba(247, 247, 247, $contentbg_transp);
+    border-left: 3px solid $link_color !important;
+    padding-left: 17px;
+}
+.fbrowser .folders li a,
+.fbrowser .folders li a:hover {
+    color: #555;
+    font-size: 13px;
+}
+.fbrowser .folders + .list {
+    padding-left: 10px;
+}
+.fbrowser .fbrowser-content-container {
+    overflow-y: auto;
+    max-height: calc(100vh - 175px);
+}
+@media (min-width: 768px) {
+    .fbrowser .fbrowser-content-container {
+        max-height: calc(100vh - 220px);
+    }
+}
+.fbrowser.image .photo-album-image-wrapper {
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.2);
+}
 .fbrowser .profile-rotator-wrapper {
     min-height: 200px;
 }
@@ -1609,6 +1669,10 @@ code > .hl-main {
 .wall-item-actions .button-votes,
 .wall-item-actions .button-likes {
     text-transform: capitalize;
+}
+.wall-item-actions button:hover {
+    color: #555;
+    text-decoration: underline;
 }
 .wall-item-actions .separator {
 	margin: 0 .3em;

@@ -646,11 +646,11 @@ class App {
 		startup();
 
 		set_include_path(
-				'include' . PATH_SEPARATOR
+				get_include_path() . PATH_SEPARATOR
+				. 'include' . PATH_SEPARATOR
 				. 'library' . PATH_SEPARATOR
 				. 'library/langdet' . PATH_SEPARATOR
 				. '.' );
-
 
 		$this->scheme = 'http';
 
@@ -2472,7 +2472,7 @@ function get_temppath() {
 	// Check if it is usable
 	if (($temppath != "") AND App::directory_usable($temppath)) {
 		// To avoid any interferences with other systems we create our own directory
-		$new_temppath .= "/".$a->get_hostname();
+		$new_temppath = $temppath."/".$a->get_hostname();
 		if (!is_dir($new_temppath)) {
 			/// @TODO There is a mkdir()+chmod() upwards, maybe generalize this (+ configurable) into a function/method?
 			mkdir($new_temppath);

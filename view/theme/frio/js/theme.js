@@ -83,12 +83,12 @@ $(document).ready(function(){
 			}
 		});
 
-		if(checked == true) {
-			$("a#item-delete-selected").fadeTo(400, 1);
-			$("a#item-delete-selected").show();
+		if(checked) {
+			$("#item-delete-selected").fadeTo(400, 1);
+			$("#item-delete-selected").show();
 		} else {
-			$("a#item-delete-selected").fadeTo(400, 0, function(){
-				$("a#item-delete-selected").hide();
+			$("#item-delete-selected").fadeTo(400, 0, function(){
+				$("#item-delete-selected").hide();
 			});
 		}
 	});
@@ -208,11 +208,8 @@ $(document).ready(function(){
 
 	// Dropdown menus with the class "dropdown-head" will display the active tab
 	// as button text
-	$("body").on('click', '.dropdown-head .dropdown-menu li a', function(){
-		$(this).closest(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
-		$(this).closest(".dropdown").find('.btn').val($(this).data('value'));
-		$(this).closest("ul").children("li").show();
-		$(this).parent("li").hide();
+	$("body").on('click', '.dropdown-head .dropdown-menu li a, .dropdown-head .dropdown-menu li button', function(){
+		toggleDropdownText(this);
 	});
 
 	/* setup onoff widgets */
@@ -637,4 +634,68 @@ function doLikeAction(ident, verb) {
 	$.get('like/' + ident.toString() + '?verb=' + verb, NavUpdate );
 	liking = 1;
 	force_update = true;
+}
+
+// Decodes a hexadecimally encoded binary string
+function hex2bin (s) {
+	//  discuss at: http://locutus.io/php/hex2bin/
+	// original by: Dumitru Uzun (http://duzun.me)
+	//   example 1: hex2bin('44696d61')
+	//   returns 1: 'Dima'
+	//   example 2: hex2bin('00')
+	//   returns 2: '\x00'
+	//   example 3: hex2bin('2f1q')
+	//   returns 3: false
+	var ret = [];
+	var i = 0;
+	var l;
+	s += '';
+
+	for (l = s.length; i < l; i += 2) {
+		var c = parseInt(s.substr(i, 1), 16);
+		var k = parseInt(s.substr(i + 1, 1), 16);
+		if (isNaN(c) || isNaN(k)) {
+			return false;
+		}
+		ret.push((c << 4) | k);
+	}
+	return String.fromCharCode.apply(String, ret);
+}
+
+// Convert binary data into hexadecimal representation
+function bin2hex (s) {
+	// From: http://phpjs.org/functions
+	// +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+	// +   bugfixed by: Onno Marsman
+	// +   bugfixed by: Linuxworld
+	// +   improved by: ntoniazzi (http://phpjs.org/functions/bin2hex:361#comment_177616)
+	// *     example 1: bin2hex('Kev');
+	// *     returns 1: '4b6576'
+	// *     example 2: bin2hex(String.fromCharCode(0x00));
+	// *     returns 2: '00'
+
+	var i, l, o = "", n;
+
+	s += "";
+
+	for (i = 0, l = s.length; i < l; i++) {
+		n = s.charCodeAt(i).toString(16);
+		o += n.length < 2 ? "0" + n : n;
+	}
+
+	return o;
+}
+
+// Dropdown menus with the class "dropdown-head" will display the active tab
+// as button text
+function toggleDropdownText(elm) {
+		$(elm).closest(".dropdown").find('.btn').html($(elm).text() + ' <span class="caret"></span>');
+		$(elm).closest(".dropdown").find('.btn').val($(elm).data('value'));
+		$(elm).closest("ul").children("li").show();
+		$(elm).parent("li").hide();
+}
+
+// Check if element does have a specific class
+function hasClass(elem, cls) {
+	return (" " + elem.className + " " ).indexOf( " "+cls+" " ) > -1;
 }

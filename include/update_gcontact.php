@@ -21,7 +21,7 @@ function update_gcontact_run(&$argv, &$argc) {
 
 	$r = q("SELECT * FROM `gcontact` WHERE `id` = %d", intval($contact_id));
 
-	if (!dbm::_is_result($r)) {
+	if (!dbm::is_result($r)) {
 		return;
 	}
 
