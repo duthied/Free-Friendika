@@ -355,6 +355,14 @@ class ostatus {
 
 			$item["body"] = add_page_info_to_body(html2bbcode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue));
 			$item["object-type"] = $xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue;
+			$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
+
+			// Mastodon Content Warning
+			if (($item["verb"] == ACTIVITY_POST) AND $xpath->evaluate('boolean(atom:summary)', $entry)) {
+				$clear_text = $xpath->query('atom:summary/text()', $entry)->item(0)->nodeValue;
+
+				$item["body"] = html2bbcode($clear_text) . '[spoiler]' . $item["body"] . '[/spoiler]';
+			}
 
 			if (($item["object-type"] == ACTIVITY_OBJ_BOOKMARK) OR ($item["object-type"] == ACTIVITY_OBJ_EVENT)) {
 				$item["title"] = $xpath->query('atom:title/text()', $entry)->item(0)->nodeValue;
@@ -363,7 +371,6 @@ class ostatus {
 				$item["title"] = $xpath->query('atom:title/text()', $entry)->item(0)->nodeValue;
 			}
 			$item["object"] = $xml;
-			$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
 
 			/// @TODO
 			/// Delete a message
@@ -2052,7 +2059,7 @@ class ostatus {
 
 		$mentioned = array();
 
-		if (($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
+		if (($item['parent'] != $item['id']) OR ($item['parent-uri'] !== $item['uri']) OR (($item['thr-parent'] !== '') AND ($item['thr-parent'] !== $item['uri']))) {
 			$parent = q("SELECT `guid`, `author-link`, `owner-link` FROM `item` WHERE `id` = %d", intval($item["parent"]));
 			$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 
