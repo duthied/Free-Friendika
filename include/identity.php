@@ -628,7 +628,7 @@ function advanced_profile(App $a) {
 		if($a->profile['gender']) $profile['gender'] = array( t('Gender:'),  $a->profile['gender'] );
 
 
-		if(($a->profile['dob']) && ($a->profile['dob'] != '0000-00-00')) {
+		if(($a->profile['dob']) && ($a->profile['dob'] > '0001-01-01')) {
 
 			$year_bd_format = t('j F, Y');
 			$short_bd_format = t('j F');
