@@ -3064,7 +3064,7 @@ use \Friendica\Core\Config;
 	function api_fr_photos_list($type) {
 		if (api_user()===false) throw new ForbiddenException();
 		$r = q("select `resource-id`, max(scale) as scale, album, filename, type from photo
-				where uid = %d and album != 'Contact Photos' group by `resource-id`",
+				where uid = %d and album != 'Contact Photos' group by `resource-id`, album, filename, type",
 			intval(local_user())
 		);
 		$typetoext = array(
@@ -3102,8 +3102,10 @@ use \Friendica\Core\Config;
 		$data_sql = ($scale === false ? "" : "data, ");
 
 		$r = q("select %s `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
-						`type`, `height`, `width`, `datasize`, `profile`, min(`scale`) as minscale, max(`scale`) as maxscale
-				from photo where `uid` = %d and `resource-id` = '%s' %s group by `resource-id`",
+					`type`, `height`, `width`, `datasize`, `profile`, min(`scale`) as minscale, max(`scale`) as maxscale
+				from photo where `uid` = %d and `resource-id` = '%s' %s
+				group by `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
+					`type`, `height`, `width`, `datasize`, `profile`",
 			$data_sql,
 			intval(local_user()),
 			dbesc($_REQUEST['photo_id']),
