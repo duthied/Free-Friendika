@@ -58,10 +58,9 @@ function photo_albums($uid, $update = false) {
 			);
 		} else {
 			// This query doesn't do the count and is much faster
-			$albums = qu("SELECT DISTINCT(`album`), '' AS `total`, ANY_VALUE(`created`) AS `created`
-				FROM `photo`
-				WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra
-				GROUP BY `album` ORDER BY `created` DESC",
+			$albums = qu("SELECT DISTINCT(`album`), '' AS `total`
+				FROM `photo` USE INDEX (`uid_album_scale_created`)
+				WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra",
 				intval($uid),
 				dbesc('Contact Photos'),
 				dbesc(t('Contact Photos'))

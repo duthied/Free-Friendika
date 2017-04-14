@@ -322,6 +322,30 @@
 			}
 		});
 
+		// Scroll to the next/previous thread when pressing J and K
+		$(document).keydown(function (event) {
+			var threads = $('.thread_level_1');
+			if ((event.keyCode === 74 || event.keyCode === 75) && !$(event.target).is('textarea, input')) {
+				var scrollTop = $(window).scrollTop();
+				if (event.keyCode === 75) {
+					threads = $(threads.get().reverse());
+				}
+				threads.each(function(key, item) {
+					var comparison;
+					var top = $(item).offset().top - 100;
+					if (event.keyCode === 74) {
+						comparison = top > scrollTop + 1;
+					} else if (event.keyCode === 75) {
+						comparison = top < scrollTop - 1;
+					}
+					if (comparison) {
+						$('html, body').animate({ scrollTop: top }, 200);
+						return false;
+					}
+				});
+			}
+		});
+
 		// Set an event listener for infinite scroll
 		if(typeof infinite_scroll !== 'undefined') {
 			$(window).scroll(function(e){
