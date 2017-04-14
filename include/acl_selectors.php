@@ -625,8 +625,11 @@ function acl_lookup(App $a, $out_type = 'json') {
 	$items = array_merge($groups, $contacts);
 
 	if ($conv_id) {
-		/* if $conv_id is set, get unknow contacts in thread */
-		/* but first get know contacts url to filter them out */
+		/*
+		 * if $conv_id is set, get unknow contacts in thread
+		 * but first get know contacts url to filter them out
+		 * @TODO rewrite below function to closure
+		 */
 		function _contact_link($i) { return dbesc($i['link']); }
 		$known_contacts = array_map('_contact_link', $contacts);
 		$unknow_contacts = array();
