@@ -48,20 +48,20 @@ function photo_albums($uid, $update = false) {
 		if (!Config::get('system', 'no_count', false)) {
 			/// @todo This query needs to be renewed. It is really slow
 			// At this time we just store the data in the cache
-			$albums = qu("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`
+			$albums = qu("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`, ANY_VALUE(`created`) AS `created`
 				FROM `photo`
 				WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra
-				GROUP BY `album`, `created` ORDER BY `created` DESC",
+				GROUP BY `album` ORDER BY `created` DESC",
 				intval($uid),
 				dbesc('Contact Photos'),
 				dbesc(t('Contact Photos'))
 			);
 		} else {
 			// This query doesn't do the count and is much faster
-			$albums = qu("SELECT DISTINCT(`album`), '' AS `total`
+			$albums = qu("SELECT DISTINCT(`album`), '' AS `total`, ANY_VALUE(`created`) AS `created`
 				FROM `photo`
 				WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra
-				GROUP BY `album`, `created` ORDER BY `created` DESC",
+				GROUP BY `album` ORDER BY `created` DESC",
 				intval($uid),
 				dbesc('Contact Photos'),
 				dbesc(t('Contact Photos'))
