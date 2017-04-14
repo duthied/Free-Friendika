@@ -474,9 +474,6 @@ function admin_page_summary(App $a) {
 	$r = qu("SELECT COUNT(`id`) AS `count` FROM `register`");
 	$pending = $r[0]['count'];
 
-	$r = qu("SELECT COUNT(*) AS `total` FROM `deliverq` WHERE 1");
-	$deliverq = (($r) ? $r[0]['total'] : 0);
-
 	$r = qu("SELECT COUNT(*) AS `total` FROM `queue` WHERE 1");
 	$queue = (($r) ? $r[0]['total'] : 0);
 
@@ -485,7 +482,7 @@ function admin_page_summary(App $a) {
 
 	// We can do better, but this is a quick queue status
 
-	$queues = array('label' => t('Message queues'), 'deliverq' => $deliverq, 'queue' => $queue, 'workerq' => $workerqueue);
+	$queues = array('label' => t('Message queues'), 'queue' => $queue, 'workerq' => $workerqueue);
 
 
 	$t = get_markup_template("admin_summary.tpl");
@@ -971,7 +968,7 @@ function admin_page_site(App $a) {
 		'$banner'		=> array('banner', t("Banner/Logo"), $banner, ""),
 		'$shortcut_icon'	=> array('shortcut_icon', t("Shortcut icon"), get_config('system','shortcut_icon'),  t("Link to an icon that will be used for browsers.")),
 		'$touch_icon'		=> array('touch_icon', t("Touch icon"), get_config('system','touch_icon'),  t("Link to an icon that will be used for tablets and mobiles.")),
-		'$info'			=> array('info',t('Additional Info'), $info, sprintf(t('For public servers: you can add additional information here that will be listed at %s/siteinfo.'), get_server())),
+		'$info'			=> array('info', t('Additional Info'), $info, sprintf(t('For public servers: you can add additional information here that will be listed at %s/siteinfo.'), get_server())),
 		'$language' 		=> array('language', t("System language"), get_config('system','language'), "", $lang_choices),
 		'$theme' 		=> array('theme', t("System theme"), get_config('system','theme'), t("Default system theme - may be over-ridden by user profiles - <a href='#' id='cnftheme'>change theme settings</a>"), $theme_choices),
 		'$theme_mobile' 	=> array('theme_mobile', t("Mobile system theme"), get_config('system','mobile-theme'), t("Theme for mobile devices"), $theme_choices_mobile),
@@ -2058,8 +2055,8 @@ function admin_page_features(App $a) {
 					$set = $f[3];
 				}
 				$arr[$fname][1][] = array(
-					array('feature_' .$f[0],$f[1],$set,$f[2],array(t('Off'),t('On'))),
-					array('featurelock_' .$f[0],sprintf(t('Lock feature %s'),$f[1]),(($f[4] !== false) ? "1" : ''),'',array(t('Off'),t('On')))
+					array('feature_' .$f[0],$f[1],$set,$f[2],array(t('Off'), t('On'))),
+					array('featurelock_' .$f[0],sprintf(t('Lock feature %s'),$f[1]),(($f[4] !== false) ? "1" : ''),'',array(t('Off'), t('On')))
 				);
 			}
 		}

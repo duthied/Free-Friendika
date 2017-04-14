@@ -38,7 +38,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
 define ( 'FRIENDICA_VERSION',      '3.5.2-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1216      );
+define ( 'DB_UPDATE_VERSION',      1217      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -382,6 +382,7 @@ define ( 'ACTIVITY_UPDATE',      NAMESPACE_ACTIVITY_SCHEMA . 'update' );
 define ( 'ACTIVITY_TAG',         NAMESPACE_ACTIVITY_SCHEMA . 'tag' );
 define ( 'ACTIVITY_FAVORITE',    NAMESPACE_ACTIVITY_SCHEMA . 'favorite' );
 define ( 'ACTIVITY_SHARE',       NAMESPACE_ACTIVITY_SCHEMA . 'share' );
+define ( 'ACTIVITY_DELETE',      NAMESPACE_ACTIVITY_SCHEMA . 'delete' );
 
 define ( 'ACTIVITY_POKE',        NAMESPACE_ZOT . '/activity/poke' );
 define ( 'ACTIVITY_MOOD',        NAMESPACE_ZOT . '/activity/mood' );
