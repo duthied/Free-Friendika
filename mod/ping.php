@@ -199,7 +199,7 @@ function ping_init(App $a)
 		$cachekey = "ping_init:".local_user();
 		$ev = Cache::get($cachekey);
 		if (is_null($ev)) {
-			$ev = qu("SELECT count(`event`.`id`) AS total, type, start, adjust FROM `event`
+			$ev = qu("SELECT type, start, adjust FROM `event`
 				WHERE `event`.`uid` = %d AND `start` < '%s' AND `finish` > '%s' and `ignore` = 0
 				ORDER BY `start` ASC ",
 				intval(local_user()),
@@ -212,7 +212,7 @@ function ping_init(App $a)
 		}
 
 		if (dbm::is_result($ev)) {
-			$all_events = intval($ev[0]['total']);
+			$all_events = count($ev);
 
 			if ($all_events) {
 				$str_now = datetime_convert('UTC', $a->timezone, 'now', 'Y-m-d');

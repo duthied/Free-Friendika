@@ -7,7 +7,7 @@
       'dsn' => 'mysql:host=127.0.0.1;dbname=installer',
       'username' => 'root',
       'password' => 'root',
-      'charset' => 'utf8',
+      'charset' => 'utf8mb4',
     ),
     'user' => 
     array (
