@@ -516,7 +516,8 @@ function notifier_run(&$argv, &$argc){
 				$r0 = Diaspora::relay_list();
 			}
 
-			$r1 = q("SELECT DISTINCT(`batch`), `id`, `name`,`network` FROM `contact` WHERE `network` = '%s'
+			$r1 = q("SELECT `batch`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`name`) AS `name`, ANY_VALUE(`network`) AS `network`
+				FROM `contact` WHERE `network` = '%s'
 				AND `uid` = %d AND `rel` != %d AND NOT `blocked` AND NOT `pending` AND NOT `archive` GROUP BY `batch` ORDER BY rand()",
 				dbesc(NETWORK_DIASPORA),
 				intval($owner['uid']),

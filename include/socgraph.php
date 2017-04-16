@@ -7,6 +7,8 @@
  * @todo Detect if it is a forum
  */
 
+use \Friendica\Core\Config;
+
 require_once('include/datetime.php');
 require_once("include/Scrape.php");
 require_once("include/network.php");
@@ -1656,6 +1658,20 @@ function poco_discover_federation() {
 		}
 	}
 
+	// Disvover Mastodon servers
+	if (!Config::get('system','ostatus_disabled')) {
+		$serverdata = fetch_url("https://instances.mastodon.xyz/instances.json");
+
+		if ($serverdata) {
+			$servers = json_decode($serverdata);
+
+			foreach ($servers AS $server) {
+				$url = (is_null($server->https_score) ? 'http' : 'https').'://'.$server->name;
+				proc_run(PRIORITY_LOW, "include/discover_poco.php", "server", base64_encode($url));
+			}
+		}
+	}
+
 	// Currently disabled, since the service isn't available anymore.
 	// It is not removed since I hope that there will be a successor.
 	// Discover GNU Social Servers.
@@ -2096,7 +2112,7 @@ function update_gcontact($contact) {
 	fix_alternate_contact_address($contact);
 
 	if (!isset($contact["updated"]))
-		$contact["updated"] = datetime_convert();
+		$contact["updated"] = dbm::date();
 
 	if ($contact["server_url"] == "") {
 		$server_url = $contact["url"];
@@ -2151,7 +2167,7 @@ function update_gcontact($contact) {
 			dbesc($contact["gender"]), dbesc($contact["keywords"]), intval($contact["hide"]),
 			intval($contact["nsfw"]), intval($contact["contact-type"]), dbesc($contact["alias"]),
 			dbesc($contact["notify"]), dbesc($contact["url"]), dbesc($contact["location"]),
-			dbesc($contact["about"]), intval($contact["generation"]), dbesc($contact["updated"]),
+			dbesc($contact["about"]), intval($contact["generation"]), dbesc(dbm::date($contact["updated"])),
 			dbesc($contact["server_url"]), dbesc($contact["connect"]),
 			dbesc(normalise_link($contact["url"])), intval($contact["generation"]));
 
