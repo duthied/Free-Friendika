@@ -126,6 +126,10 @@ Wildcards werden akzeptiert (Wildcard-Unterstützung unter Windows benötigt PHP
 Webb du die Option `Nutzern erlauben das remote_self Flag zu setzen` aktivierst, können alle Nutzer Atom Feeds in den erweiterten Einstellungen des Kontakts als "Entferntes Konto" markieren.
 Dadurch werden automatisch alle Beiträge dieser Feeds für diesen Nutzer gespiegelt und an die Kontakte bei Friendica verteilt.
 
+Dieses Feature kann z.B. dafür genutzt werden Blogbeiträge zu spiegeln.
+In der Grundeinstellung ist es nicht aktiviert, da es zusätzliche Last auf dem Server verursachen kann.
+Außerdem könnte es durch Nutzer als Spam Verteiler missbraucht werden.
+
 Als Administrator der Friendica Instanz kannst du diese Einstellungen ansonsten nur direkt in der Datenbank vornehmen.
 Bevor du das tust solltest du sicherstellen, dass du ein Backup der Datenbank hast und genau weißt was die Änderungen an der Datenbank bewirken, die du vornehmen willst.
 
@@ -161,6 +165,19 @@ Das führt dazu, dass du keinerlei Verbindung zu einer selbst unterzeichneten SS
 ### Performance
 
 ### Worker
+
+In diesem Abschnitt kann der Hintergrund-Prozess konfiguriert werden.
+Bevor ein neuer *Worker* Prozess gestartet wird, überprüft das System, dass die vorhandenen Resourchen ausrechend sind,
+Aus diesem Grund kann es sein, dass die maximale Zahl der Hintergrungprozesse nicht erreicht wird.
+
+Sollte die PHP Funktion `proc_open` auf dem Server nicht verfügbar sein, kann die Verwendung durch Friendica hier unterbunden werden.
+
+Die Aufgaben die im Hintergrund erledigt werden, haben Prioritäten zugeteilt.
+Um garantieren zu können, das wichtige Prozesse schnellst möglich abgearbeitet werden können, selbst wenn das System gerade stark belastet ist, sollte die *fastlane* aktiviert sein.
+
+Wenn es auf deinem Server nicht möglich ist, einen cron Job zu starten, kannst du den *frontend* Worker einschalten.
+Nachdem dies geschehen ist, kannst du `example.com/worker` (tausche example.com mit dem echten Domainnamen aus) aufrufen werden.
+Dadurch werden dann die Aufgaben aktiviert, die der cron Job sonst aktivieren würde.
 
 ### Umsiedeln
 
