@@ -726,7 +726,11 @@ use \Friendica\Core\Config;
 						($item["deny_gid"] != "") OR
 						$item["private"]);
 
-		$owner_user = api_get_user($a, $item["owner-link"]);
+		if ($item['thr-parent'] == $item['uri']) {
+			$owner_user = api_get_user($a, $item["owner-link"]);
+		} else {
+			$owner_user = $status_user;
+		}
 
 		return (array($status_user, $owner_user));
 	}
