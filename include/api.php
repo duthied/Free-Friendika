@@ -770,7 +770,11 @@ $called_api = null;
 						($item["deny_gid"] != "") OR
 						$item["private"]);
 
-		$owner_user = api_get_user($a, $item["owner-link"]);
+		if ($item['thr-parent'] == $item['uri']) {
+			$owner_user = api_get_user($a, $item["owner-link"]);
+		} else {
+			$owner_user = $status_user;
+		}
 
 		return (array($status_user, $owner_user));
 	}
@@ -3279,7 +3283,7 @@ $called_api = null;
 
 		$r = q("SELECT `resource-id`, MAX(`scale`) AS `scale`, `album`, `filename`, `type`
 				FROM `photo`
-				WHERE `uid` = %d AND `album` != 'Contact Photos' GROUP BY `resource-id`",
+				WHERE `uid` = %d AND `album` != 'Contact Photos' GROUP BY `resource-id`, `album`, `filename`, `type`",
 			intval(local_user())
 		);
 		$typetoext = array(
@@ -3316,12 +3320,15 @@ $called_api = null;
 		}
 
 		$scale = (x($_REQUEST, 'scale') ? intval($_REQUEST['scale']) : false);
-		$scale_sql = ($scale === false ? "" : sprintf("and scale=%d", intval($scale)));
-		$data_sql = ($scale === false ? "" : "data, ");
+		$scale_sql = ($scale === false ? "" : sprintf("AND `scale`=%d",intval($scale)));
+		$data_sql = ($scale === false ? "" : "ANY_VALUE(`data`) AS data`,");
 
-		$r = q("SELECT %s `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
-						`type`, `height`, `width`, `datasize`, `profile`, MIN(`scale`) AS `minscale`, MAX(`scale`) AS `maxscale`
-				FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' %s GROUP BY `resource-id`",
+		$r = q("SELECT %s ANY_VALUE(`resource-id`) AS `resource-id`, ANY_VALUE(`created`) AS `created`,
+				ANY_VALUE(`edited`) AS `edited`, ANY_VALUE(`title`) AS `title`, ANY_VALUE(`desc`) AS `desc`,
+				ANY_VALUE(`album`) AS `album`, ANY_VALUE(`filename`) AS `filename`, ANY_VALUE(`type`) AS `type`,
+				ANY_VALUE(`height`) AS `height`, ANY_VALUE(`width`) AS `width`, ANY_VALUE(`datasize`) AS `datasize`,
+				ANY_VALUE(`profile`) AS `profile`, min(`scale`) as minscale, max(`scale`) as maxscale
+				FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' %s",
 			$data_sql,
 			intval(local_user()),
 			dbesc($_REQUEST['photo_id']),
