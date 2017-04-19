@@ -59,11 +59,11 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 		if (($data["title"] != "") AND ((strpos($test1,$test2) !== false) OR
 			(similar_text($test1,$test2) / strlen($data["title"])) > 0.9))
 			$title2 = $data["url"];
-		$text = sprintf('<a href="%s" title="%s" class="attachment thumbnail" rel="nofollow external">%s</a><br />',
+		$text = sprintf('<a href="%s" title="%s" class="attachment" rel="nofollow external">%s</a><br />',
 				$data["url"], $data["title"], $title2);
-	} elseif (($simplehtml != 4) AND ($simplehtml != 0))
+	} elseif (($simplehtml != 4) AND ($simplehtml != 0)) {
 		$text = sprintf('<a href="%s" target="_blank">%s</a><br>', $data["url"], $data["title"]);
-	else {
+	} else {
 		$text = sprintf('<span class="type-%s">', $data["type"]);
 
 		$bookmark = array(sprintf('[bookmark=%s]%s[/bookmark]', $data["url"], $data["title"]), $data["url"], $data["title"]);
@@ -89,7 +89,7 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 				$text .= sprintf('<blockquote>%s</blockquote></span>', trim(bbcode($data["description"])));
 		}
 	}
-	return $data["text"].$text.$data["after"];
+	return trim($data["text"].' '.$text.' '.$data["after"]);
 }
 
 function bb_remove_share_information($Text, $plaintext = false, $nolink = false) {
