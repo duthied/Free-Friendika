@@ -27,14 +27,15 @@ function diaspora_mention2bb($match) {
 		$name = $data['name'];
 	}
 
-	return '@[url='.$data['url'].']'.$name.'[/url]';
+	return '@[url=' . $data['url'] . ']' . $name . '[/url]';
 }
 
-// we don't want to support a bbcode specific markdown interpreter
-// and the markdown library we have is pretty good, but provides HTML output.
-// So we'll use that to convert to HTML, then convert the HTML back to bbcode,
-// and then clean up a few Diaspora specific constructs.
-
+/*
+ * we don't want to support a bbcode specific markdown interpreter
+ * and the markdown library we have is pretty good, but provides HTML output.
+ * So we'll use that to convert to HTML, then convert the HTML back to bbcode,
+ * and then clean up a few Diaspora specific constructs.
+ */
 function diaspora2bb($s) {
 
 	$s = html_entity_decode($s, ENT_COMPAT, 'UTF-8');
@@ -93,15 +94,15 @@ function diaspora_mentions($match) {
 
 	$contact = get_contact_details_by_url($match[3]);
 
-	if (!isset($contact['addr'])) {
+	if (!x($contact, 'addr')) {
 		$contact = Probe::uri($match[3]);
 	}
 
-	if (!isset($contact['addr'])) {
+	if (!x($contact, 'addr')) {
 		return $match[0];
 	}
 
-	$mention = '@{'.$match[2].'; '.$contact['addr'].'}';
+	$mention = '@{' . $match[2] . '; ' . $contact['addr'] . '}';
 	return $mention;
 }
 
@@ -222,9 +223,9 @@ function unescape_underscores_in_links($m) {
 }
 
 function format_event_diaspora($ev) {
-
-	if(! ((is_array($ev)) && count($ev)))
+	if (! ((is_array($ev)) && count($ev))) {
 		return '';
+	}
 
 	$bd_format = t('l F d, Y \@ g:i A') ; // Friday January 18, 2011 @ 8 AM
 
@@ -239,17 +240,19 @@ function format_event_diaspora($ev) {
 			$ev['start'] , $bd_format)))
 		.  '](' . App::get_baseurl() . '/localtime/?f=&time=' . urlencode(datetime_convert('UTC','UTC',$ev['start'])) . ")\n";
 
-	if(! $ev['nofinish'])
+	if (! $ev['nofinish']) {
 		$o .= t('Finishes:') . ' ' . '['
 			. (($ev['adjust']) ? day_translate(datetime_convert('UTC', 'UTC',
 				$ev['finish'] , $bd_format ))
 				:  day_translate(datetime_convert('UTC', 'UTC',
 				$ev['finish'] , $bd_format )))
 			. '](' . App::get_baseurl() . '/localtime/?f=&time=' . urlencode(datetime_convert('UTC','UTC',$ev['finish'])) . ")\n";
+	}
 
-	if(strlen($ev['location']))
+	if (strlen($ev['location'])) {
 		$o .= t('Location:') . bb2diaspora($ev['location'])
 			. "\n";
+	}
 
 	$o .= "\n";
 	return $o;

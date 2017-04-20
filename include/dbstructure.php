@@ -158,6 +158,21 @@ function print_structure($database) {
 	}
 }
 
+/**
+ * @brief Print out database error messages
+ *
+ * @param object $db Database object
+ * @param string $message Message to be added to the error message
+ *
+ * @return string Error message
+ */
+function print_update_error($db, $message) {
+	echo sprintf(t("\nError %d occured during database update:\n%s\n"),
+		$db->errorno, $db->error);
+
+	return t('Errors encountered performing database changes: ').$message.EOL;
+}
+
 function update_structure($verbose, $action, $tables=null, $definition=null) {
 	global $a, $db;
 
@@ -207,7 +222,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 		if (!isset($database[$name])) {
 			$r = db_create_table($name, $structure["fields"], $verbose, $action, $structure['indexes']);
 			if (!dbm::is_result($r)) {
-				$errors .=  t('Errors encountered creating database tables.').$name.EOL;
+				$errors .= print_update_error($db, $name);
 			}
 			$is_new_table = True;
 		} else {
@@ -364,33 +379,33 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 					} else {
 						$r = $db->q("CREATE TABLE `".$temp_name."` LIKE `".$name."`;");
 						if (!dbm::is_result($r)) {
-							$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
+							$errors .= print_update_error($db, $sql3);
 							return $errors;
 						}
 					}
 				}
 
 				$r = @$db->q($sql3);
-				if (!dbm::is_result($r))
-					$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
-
+				if (!dbm::is_result($r)) {
+					$errors .= print_update_error($db, $sql3);
+				}
 				if ($is_unique) {
 					if ($ignore != "") {
 						$db->q("SET session old_alter_table=0;");
 					} else {
 						$r = $db->q("INSERT INTO `".$temp_name."` SELECT * FROM `".$name."`".$group_by.";");
 						if (!dbm::is_result($r)) {
-							$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
+							$errors .= print_update_error($db, $sql3);
 							return $errors;
 						}
 						$r = $db->q("DROP TABLE `".$name."`;");
 						if (!dbm::is_result($r)) {
-							$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
+							$errors .= print_update_error($db, $sql3);
 							return $errors;
 						}
 						$r = $db->q("RENAME TABLE `".$temp_name."` TO `".$name."`;");
 						if (!dbm::is_result($r)) {
-							$errors .= t('Errors encountered performing database changes.').$sql3.EOL;
+							$errors .= print_update_error($db, $sql3);
 							return $errors;
 						}
 					}
@@ -708,7 +723,7 @@ function db_definition() {
 					"info" => array("type" => "mediumtext"),
 					"profile-id" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
 					"bdyear" => array("type" => "varchar(4)", "not null" => "1", "default" => ""),
-					"bd" => array("type" => "date", "not null" => "1", "default" => "0000-00-00"),
+					"bd" => array("type" => "date", "not null" => "1", "default" => "0001-01-01"),
 					"notify_new_posts" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"fetch_further_information" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"ffi_keyword_blacklist" => array("type" => "text"),
@@ -867,7 +882,7 @@ function db_definition() {
 					"about" => array("type" => "text"),
 					"keywords" => array("type" => "text"),
 					"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
-					"birthday" => array("type" => "varchar(32)", "not null" => "1", "default" => "0000-00-00"),
+					"birthday" => array("type" => "varchar(32)", "not null" => "1", "default" => "0001-01-01"),
 					"community" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"contact-type" => array("type" => "tinyint(1)", "not null" => "1", "default" => "-1"),
 					"hide" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
@@ -1331,7 +1346,7 @@ function db_definition() {
 					"hide-friends" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"pdesc" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"dob" => array("type" => "varchar(32)", "not null" => "1", "default" => "0000-00-00"),
+					"dob" => array("type" => "varchar(32)", "not null" => "1", "default" => "0001-01-01"),
 					"address" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"locality" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"region" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),

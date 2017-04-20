@@ -9,12 +9,12 @@ function contact_profile_assign($current,$foreign_net) {
 
 	$o .= "<select id=\"contact-profile-selector\" class=\"form-control\" $disabled name=\"profile-assign\" />\r\n";
 
-	$r = q("SELECT `id`, `profile-name` FROM `profile` WHERE `uid` = %d",
+	$r = q("SELECT `id`, `profile-name`, `is-default` FROM `profile` WHERE `uid` = %d",
 			intval($_SESSION['uid']));
 
 	if (dbm::is_result($r)) {
 		foreach ($r as $rr) {
-			$selected = (($rr['id'] == $current) ? " selected=\"selected\" " : "");
+			$selected = (($rr['id'] == $current || ($current == 0 && $rr['is-default'] == 1)) ? " selected=\"selected\" " : "");
 			$o .= "<option value=\"{$rr['id']}\" $selected >{$rr['profile-name']}</option>\r\n";
 		}
 	}
@@ -37,7 +37,7 @@ function contact_reputation($current) {
 		5 => t('Reputable, has my trust')
 	);
 
-	foreach($rep as $k => $v) {
+	foreach ($rep as $k => $v) {
 		$selected = (($k == $current) ? " selected=\"selected\" " : "");
 		$o .= "<option value=\"$k\" $selected >$v</option>\r\n";
 	}
@@ -61,7 +61,7 @@ function contact_poll_interval($current, $disabled = false) {
 		5 => t('Monthly')
 	);
 
-	foreach($rep as $k => $v) {
+	foreach ($rep as $k => $v) {
 		$selected = (($k == $current) ? " selected=\"selected\" " : "");
 		$o .= "<option value=\"$k\" $selected >$v</option>\r\n";
 	}

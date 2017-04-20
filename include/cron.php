@@ -4,7 +4,7 @@ use \Friendica\Core\Config;
 function cron_run(&$argv, &$argc){
 	global $a;
 
-	require_once('include/datetime.php');
+	require_once 'include/datetime.php';
 
 	// Poll contacts with specific parameters
 	if ($argc > 1) {
@@ -12,15 +12,16 @@ function cron_run(&$argv, &$argc){
 		return;
 	}
 
-	$last = get_config('system','last_cron');
+	$last = get_config('system', 'last_cron');
 
-	$poll_interval = intval(get_config('system','cron_interval'));
+	$poll_interval = intval(get_config('system', 'cron_interval'));
 	if (! $poll_interval) {
 		$poll_interval = 10;
 	}
+
 	if ($last) {
 		$next = $last + ($poll_interval * 60);
-		if($next > time()) {
+		if ($next > time()) {
 			logger('cron intervall not reached');
 			return;
 		}
@@ -62,10 +63,10 @@ function cron_run(&$argv, &$argc){
 	proc_run(PRIORITY_LOW, "include/cronjobs.php", "repair_database");
 
 	// once daily run birthday_updates and then expire in background
-	$d1 = get_config('system','last_expire_day');
-	$d2 = intval(datetime_convert('UTC','UTC','now','d'));
+	$d1 = get_config('system', 'last_expire_day');
+	$d2 = intval(datetime_convert('UTC', 'UTC', 'now', 'd'));
 
-	if($d2 != intval($d1)) {
+	if ($d2 != intval($d1)) {
 
 		proc_run(PRIORITY_LOW, "include/cronjobs.php", "update_contact_birthdays");
 
@@ -73,7 +74,7 @@ function cron_run(&$argv, &$argc){
 
 		proc_run(PRIORITY_LOW, "include/discover_poco.php", "suggestions");
 
-		set_config('system','last_expire_day',$d2);
+		set_config('system', 'last_expire_day', $d2);
 
 		proc_run(PRIORITY_LOW, 'include/expire.php');
 
@@ -87,7 +88,7 @@ function cron_run(&$argv, &$argc){
 
 	logger('cron: end');
 
-	set_config('system','last_cron', time());
+	set_config('system', 'last_cron', time());
 
 	return;
 }
@@ -130,7 +131,7 @@ function cron_poll_contacts($argc, $argv) {
 	// and which have a polling address and ignore Diaspora since
 	// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
 
-	$abandon_days = intval(get_config('system','account_abandon_days'));
+	$abandon_days = intval(get_config('system', 'account_abandon_days'));
 	if ($abandon_days < 1) {
 		$abandon_days = 0;
 	}
@@ -156,7 +157,7 @@ function cron_poll_contacts($argc, $argv) {
 		dbesc(NETWORK_MAIL2)
 	);
 
-	if (!count($contacts)) {
+	if (!dbm::is_result($contacts)) {
 		return;
 	}
 
@@ -170,7 +171,7 @@ function cron_poll_contacts($argc, $argv) {
 			continue;
 		}
 
-		foreach($res as $contact) {
+		foreach ($res as $contact) {
 
 			$xml = false;
 
@@ -183,49 +184,48 @@ function cron_poll_contacts($argc, $argv) {
 			}
 
 			if ($contact['subhub'] AND in_array($contact['network'], array(NETWORK_DFRN, NETWORK_ZOT, NETWORK_OSTATUS))) {
-				// We should be getting everything via a hub. But just to be sure, let's check once a day.
-				// (You can make this more or less frequent if desired by setting 'pushpoll_frequency' appropriately)
-				// This also lets us update our subscription to the hub, and add or replace hubs in case it
-				// changed. We will only update hubs once a day, regardless of 'pushpoll_frequency'.
-
-				$poll_interval = get_config('system','pushpoll_frequency');
+				/*
+				 * We should be getting everything via a hub. But just to be sure, let's check once a day.
+				 * (You can make this more or less frequent if desired by setting 'pushpoll_frequency' appropriately)
+				 * This also lets us update our subscription to the hub, and add or replace hubs in case it
+				 * changed. We will only update hubs once a day, regardless of 'pushpoll_frequency'.
+				 */
+				$poll_interval = get_config('system', 'pushpoll_frequency');
 				$contact['priority'] = (($poll_interval !== false) ? intval($poll_interval) : 3);
 			}
 
-			if($contact['priority'] AND !$force) {
-
-				$update     = false;
+			if ($contact['priority'] AND !$force) {
+				$update = false;
 
 				$t = $contact['last-update'];
 
-				/**
+				/*
 				 * Based on $contact['priority'], should we poll this site now? Or later?
 				 */
-
 				switch ($contact['priority']) {
 					case 5:
-						if (datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 month")) {
+						if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + 1 month")) {
 							$update = true;
 						}
 						break;
 					case 4:
-						if (datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 week")) {
+						if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + 1 week")) {
 							$update = true;
 						}
 						break;
 					case 3:
-						if (datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 day")) {
+						if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + 1 day")) {
 							$update = true;
 						}
 						break;
 					case 2:
-						if (datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 12 hour")) {
+						if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + 12 hour")) {
 							$update = true;
 						}
 						break;
 					case 1:
 					default:
-						if (datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 hour")) {
+						if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + 1 hour")) {
 							$update = true;
 						}
 						break;
@@ -235,7 +235,7 @@ function cron_poll_contacts($argc, $argv) {
 				}
 			}
 
-			logger("Polling ".$contact["network"]." ".$contact["id"]." ".$contact["nick"]." ".$contact["name"]);
+			logger("Polling " . $contact["network"] . " " . $contact["id"] . " " . $contact["nick"] . " " . $contact["name"]);
 
 			if (($contact['network'] == NETWORK_FEED) AND ($contact['priority'] <= 3)) {
 				proc_run(PRIORITY_MEDIUM, 'include/onepoll.php', intval($contact['id']));
