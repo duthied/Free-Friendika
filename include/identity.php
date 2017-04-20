@@ -202,6 +202,9 @@ function profile_sidebar($profile, $block = 0) {
 	$address = false;
 //		$pdesc = true;
 
+	// This function can also use contact information in $profile
+	$is_contact = x($profile, 'cid');
+
 	if((! is_array($profile)) && (! count($profile)))
 		return $o;
 
@@ -281,7 +284,7 @@ function profile_sidebar($profile, $block = 0) {
 	}
 
 	// show edit profile to yourself
-	if ($profile['uid'] == local_user() && feature_enabled(local_user(),'multi_profiles')) {
+	if (!$is_contact && $profile['uid'] == local_user() && feature_enabled(local_user(),'multi_profiles')) {
 		$profile['edit'] = array(App::get_baseurl(). '/profiles', t('Profiles'),"", t('Manage/edit profiles'));
 		$r = q("SELECT * FROM `profile` WHERE `uid` = %d",
 				local_user());
@@ -310,7 +313,7 @@ function profile_sidebar($profile, $block = 0) {
 
 		}
 	}
-	if ($profile['uid'] == local_user() && !feature_enabled(local_user(),'multi_profiles')) {
+	if (!$is_contact && $profile['uid'] == local_user() && !feature_enabled(local_user(),'multi_profiles')) {
 		$profile['edit'] = array(App::get_baseurl(). '/profiles/'.$profile['id'], t('Edit profile'),"", t('Edit profile'));
 		$profile['menu'] = array(
 			'chg_photo' => t('Change profile photo'),
