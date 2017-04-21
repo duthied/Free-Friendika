@@ -212,6 +212,10 @@ function unmark_for_death($contact) {
 function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 	static $cache = array();
 
+	if ($url == '') {
+		return $default;
+	}
+
 	if ($uid == -1) {
 		$uid = local_user();
 	}
@@ -254,7 +258,7 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 
 		// "bd" always contains the upcoming birthday of a contact.
 		// "birthday" might contain the birthday including the year of birth.
-		if ($profile["birthday"] != "0000-00-00") {
+		if ($profile["birthday"] > '0001-01-01') {
 			$bd_timestamp = strtotime($profile["birthday"]);
 			$month = date("m", $bd_timestamp);
 			$day = date("d", $bd_timestamp);
@@ -271,7 +275,7 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 				$profile["bd"] = (++$current_year)."-".$month."-".$day;
 			}
 		} else {
-			$profile["bd"] = "0000-00-00";
+			$profile["bd"] = '0001-01-01';
 		}
 	} else {
 		$profile = $default;
@@ -307,7 +311,7 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 		$profile["location"] = "";
 		$profile["about"] = "";
 		$profile["gender"] = "";
-		$profile["birthday"] = "0000-00-00";
+		$profile["birthday"] = '0001-01-01';
 	}
 
 	$cache[$url][$uid] = $profile;
@@ -327,6 +331,10 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
  */
 function get_contact_details_by_addr($addr, $uid = -1) {
 	static $cache = array();
+
+	if ($addr == '') {
+		return array();
+	}
 
 	if ($uid == -1) {
 		$uid = local_user();
@@ -533,6 +541,10 @@ function get_contact($url, $uid = 0, $no_update = false) {
 
 	$data = array();
 	$contact_id = 0;
+
+	if ($url == '') {
+		return 0;
+	}
 
 	// We first try the nurl (http://server.tld/nick), most common case
 	$contacts = q("SELECT `id`, `avatar-date` FROM `contact`

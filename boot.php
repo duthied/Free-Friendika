@@ -38,7 +38,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
 define ( 'FRIENDICA_VERSION',      '3.5.2-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1216      );
+define ( 'DB_UPDATE_VERSION',      1219      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -382,6 +382,7 @@ define ( 'ACTIVITY_UPDATE',      NAMESPACE_ACTIVITY_SCHEMA . 'update' );
 define ( 'ACTIVITY_TAG',         NAMESPACE_ACTIVITY_SCHEMA . 'tag' );
 define ( 'ACTIVITY_FAVORITE',    NAMESPACE_ACTIVITY_SCHEMA . 'favorite' );
 define ( 'ACTIVITY_SHARE',       NAMESPACE_ACTIVITY_SCHEMA . 'share' );
+define ( 'ACTIVITY_DELETE',      NAMESPACE_ACTIVITY_SCHEMA . 'delete' );
 
 define ( 'ACTIVITY_POKE',        NAMESPACE_ZOT . '/activity/poke' );
 define ( 'ACTIVITY_MOOD',        NAMESPACE_ZOT . '/activity/mood' );
@@ -1366,11 +1367,15 @@ class App {
 		$cmdline = implode($args, " ");
 
 		if (get_config('system', 'proc_windows')) {
-			proc_close(proc_open('cmd /c start /b ' . $cmdline, array(), $foo, dirname(__FILE__)));
+			$resource = proc_open('cmd /c start /b ' . $cmdline, array(), $foo, dirname(__FILE__));
 		} else {
-			proc_close(proc_open($cmdline . " &", array(), $foo, dirname(__FILE__)));
+			$resource = proc_open($cmdline . " &", array(), $foo, dirname(__FILE__));
 		}
-
+		if (!is_resource($resource)) {
+			logger('We got no resource for command '.$cmdline, LOGGER_DEBUG);
+			return;
+		}
+		proc_close($resource);
 	}
 
 	/**
@@ -2472,7 +2477,7 @@ function get_temppath() {
 	// Check if it is usable
 	if (($temppath != "") AND App::directory_usable($temppath)) {
 		// To avoid any interferences with other systems we create our own directory
-		$new_temppath .= "/".$a->get_hostname();
+		$new_temppath = $temppath."/".$a->get_hostname();
 		if (!is_dir($new_temppath)) {
 			/// @TODO There is a mkdir()+chmod() upwards, maybe generalize this (+ configurable) into a function/method?
 			mkdir($new_temppath);

@@ -355,6 +355,14 @@ class ostatus {
 
 			$item["body"] = add_page_info_to_body(html2bbcode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue));
 			$item["object-type"] = $xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue;
+			$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
+
+			// Mastodon Content Warning
+			if (($item["verb"] == ACTIVITY_POST) AND $xpath->evaluate('boolean(atom:summary)', $entry)) {
+				$clear_text = $xpath->query('atom:summary/text()', $entry)->item(0)->nodeValue;
+
+				$item["body"] = html2bbcode($clear_text) . '[spoiler]' . $item["body"] . '[/spoiler]';
+			}
 
 			if (($item["object-type"] == ACTIVITY_OBJ_BOOKMARK) OR ($item["object-type"] == ACTIVITY_OBJ_EVENT)) {
 				$item["title"] = $xpath->query('atom:title/text()', $entry)->item(0)->nodeValue;
@@ -363,11 +371,10 @@ class ostatus {
 				$item["title"] = $xpath->query('atom:title/text()', $entry)->item(0)->nodeValue;
 			}
 			$item["object"] = $xml;
-			$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
 
 			/// @TODO
 			/// Delete a message
-			if ($item["verb"] == "qvitter-delete-notice") {
+			if ($item["verb"] == "qvitter-delete-notice" || $item["verb"] == ACTIVITY_DELETE) {
 				// ignore "Delete" messages (by now)
 				logger("Ignore delete message ".print_r($item, true));
 				continue;
@@ -713,11 +720,11 @@ class ostatus {
 			$conversations = q("SELECT `term`.`oid`, `term`.`url`, `term`.`uid` FROM `term`
 						STRAIGHT_JOIN `thread` ON `thread`.`iid` = `term`.`oid` AND `thread`.`uid` = `term`.`uid`
 						WHERE `term`.`type` = 7 AND `term`.`term` > '%s' AND `thread`.`mention`
-						GROUP BY `term`.`url`, `term`.`uid` ORDER BY `term`.`term` DESC", dbesc($start));
+						GROUP BY `term`.`url`, `term`.`uid`, `term`.`oid`, `term`.`term` ORDER BY `term`.`term` DESC", dbesc($start));
 		} else {
 			$conversations = q("SELECT `oid`, `url`, `uid` FROM `term`
 						WHERE `type` = 7 AND `term` > '%s'
-						GROUP BY `url`, `uid` ORDER BY `term` DESC", dbesc($start));
+						GROUP BY `url`, `uid`, `oid`, `term` ORDER BY `term` DESC", dbesc($start));
 		}
 
 		foreach ($conversations AS $conversation) {
@@ -1472,15 +1479,7 @@ class ostatus {
 		$o = "";
 		$siteinfo = get_attached_data($item["body"]);
 
-		switch($siteinfo["type"]) {
-			case 'link':
-				$attributes = array("rel" => "enclosure",
-						"href" => $siteinfo["url"],
-						"type" => "text/html; charset=UTF-8",
-						"length" => "",
-						"title" => $siteinfo["title"]);
-				xml::add_element($doc, $root, "link", "", $attributes);
-				break;
+		switch ($siteinfo["type"]) {
 			case 'photo':
 				$imgdata = get_photo_info($siteinfo["image"]);
 				$attributes = array("rel" => "enclosure",
@@ -1502,29 +1501,31 @@ class ostatus {
 		}
 
 		if (($siteinfo["type"] != "photo") AND isset($siteinfo["image"])) {
-			$photodata = get_photo_info($siteinfo["image"]);
+			$imgdata = get_photo_info($siteinfo["image"]);
+			$attributes = array("rel" => "enclosure",
+					"href" => $siteinfo["image"],
+					"type" => $imgdata["mime"],
+					"length" => intval($imgdata["size"]));
 
-			$attributes = array("rel" => "preview", "href" => $siteinfo["image"], "media:width" => $photodata[0], "media:height" => $photodata[1]);
 			xml::add_element($doc, $root, "link", "", $attributes);
 		}
 
-
-		$arr = explode('[/attach],',$item['attach']);
-		if(count($arr)) {
-			foreach($arr as $r) {
+		$arr = explode('[/attach],', $item['attach']);
+		if (count($arr)) {
+			foreach ($arr as $r) {
 				$matches = false;
-				$cnt = preg_match('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\" title=\"(.*?)\"|',$r,$matches);
-				if($cnt) {
+				$cnt = preg_match('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\" title=\"(.*?)\"|', $r, $matches);
+				if ($cnt) {
 					$attributes = array("rel" => "enclosure",
 							"href" => $matches[1],
 							"type" => $matches[3]);
 
-					if(intval($matches[2]))
+					if (intval($matches[2])) {
 						$attributes["length"] = intval($matches[2]);
-
-					if(trim($matches[4]) != "")
+					}
+					if (trim($matches[4]) != "") {
 						$attributes["title"] = trim($matches[4]);
-
+					}
 					xml::add_element($doc, $root, "link", "", $attributes);
 				}
 			}
@@ -2052,7 +2053,7 @@ class ostatus {
 
 		$mentioned = array();
 
-		if (($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
+		if (($item['parent'] != $item['id']) OR ($item['parent-uri'] !== $item['uri']) OR (($item['thr-parent'] !== '') AND ($item['thr-parent'] !== $item['uri']))) {
 			$parent = q("SELECT `guid`, `author-link`, `owner-link` FROM `item` WHERE `id` = %d", intval($item["parent"]));
 			$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 
@@ -2082,7 +2083,13 @@ class ostatus {
 		if (intval($item["parent"]) > 0) {
 			$conversation = App::get_baseurl()."/display/".$owner["nick"]."/".$item["parent"];
 			xml::add_element($doc, $entry, "link", "", array("rel" => "ostatus:conversation", "href" => $conversation));
-			xml::add_element($doc, $entry, "ostatus:conversation", $conversation);
+
+			$attributes = array(
+					"href" => $conversation,
+					"local_id" => $item["parent"],
+					"ref" => $conversation);
+
+			xml::add_element($doc, $entry, "ostatus:conversation", $conversation, $attributes);
 		}
 
 		$tags = item_getfeedtags($item);
