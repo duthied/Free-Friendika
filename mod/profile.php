@@ -149,6 +149,7 @@ function profile_content(App $a, $update = 0) {
 	}
 
 	$is_owner = ((local_user()) && (local_user() == $a->profile['profile_uid']) ? true : false);
+	$last_updated_key = "profile:" . $a->profile['profile_uid'] . ":" . local_user() . ":" . remote_user();
 
 	if ($a->profile['hidewall'] && (! $is_owner) && (! $remote_contact)) {
 		notice( t('Access to this profile has been restricted.') . EOL);
@@ -195,9 +196,9 @@ function profile_content(App $a, $update = 0) {
 				'visitor' => (($is_owner || $commvisitor) ? 'block' : 'none'),
 				'profile_uid' => $a->profile['profile_uid'],
 				'acl_data' => ( $is_owner ? construct_acl_data($a, $a->user) : '' ), // For non-Javascript ACL selector
-		);
+			);
 
-		$o .= status_editor($a,$x);
+			$o .= status_editor($a,$x);
 		}
 	}
 
@@ -209,6 +210,16 @@ function profile_content(App $a, $update = 0) {
 
 
 	if ($update) {
+		$last_updated = (x($_SESSION['last_updated'], $last_updated_key) ? $_SESSION['last_updated'][$last_updated_key] : 0);
+
+		// If the page user is the owner of the page we should query for unseen
+		// items. Otherwise use a timestamp of the last succesful update request.
+		if ($is_owner || !$last_updated) {
+			$sql_extra4 = " AND `item`.`unseen`";
+		} else {
+			$gmupdate = gmdate("Y-m-d H:i:s", $last_updated);
+			$sql_extra4 = " AND `item`.`received` > '" . $gmupdate . "'";
+		}
 
 		$r = q("SELECT distinct(parent) AS `item_id`, `item`.`network` AS `item_network`, `item`.`created`
 			FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
@@ -217,12 +228,17 @@ function profile_content(App $a, $update = 0) {
 			(`item`.`deleted` = 0 OR item.verb = '" . ACTIVITY_LIKE ."'
 			OR item.verb = '" . ACTIVITY_DISLIKE . "' OR item.verb = '" . ACTIVITY_ATTEND . "'
 			OR item.verb = '" . ACTIVITY_ATTENDNO . "' OR item.verb = '" . ACTIVITY_ATTENDMAYBE . "')
-			AND `item`.`moderated` = 0 and `item`.`unseen` = 1
+			AND `item`.`moderated` = 0
 			AND `item`.`wall` = 1
+			$sql_extra4
 			$sql_extra
 			ORDER BY `item`.`created` DESC",
 			intval($a->profile['profile_uid'])
 		);
+
+		if (!dbm::is_result($r)) {
+			return '';
+		}
 
 	} else {
 		$sql_post_table = "";
@@ -283,10 +299,15 @@ function profile_content(App $a, $update = 0) {
 			ORDER BY `thread`.`created` DESC $pager_sql",
 			intval($a->profile['profile_uid'])
 		);
+
 	}
 
 	$parents_arr = array();
 	$parents_str = '';
+
+	// Set a time stamp for this page. We will make use of it when we
+	// search for new items (update routine)
+	$_SESSION['last_updated'][$last_updated_key] = time();
 
 	if (dbm::is_result($r)) {
 		foreach($r as $rr)
