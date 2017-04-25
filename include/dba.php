@@ -10,6 +10,7 @@ require_once('include/datetime.php');
  * When logging, all binary info is converted to text and html entities are escaped so that
  * the debugging stream is safe to view within both terminals and web pages.
  *
+ * This class is for the low level database stuff that does driver specific things.
  */
 
 class dba {
@@ -21,6 +22,7 @@ class dba {
 	public  $connected = false;
 	public  $error = false;
 	private $_server_info = '';
+	private static $dbo;
 
 	function __construct($server, $user, $pass, $db, $install = false) {
 		$a = get_app();
@@ -93,6 +95,8 @@ class dba {
 			}
 		}
 		$a->save_timestamp($stamp1, "network");
+
+		self::$dbo = $this;
 	}
 
 	/**
@@ -129,30 +133,6 @@ class dba {
 		$r = $this->q("SELECT DATABASE() AS `db`");
 
 		return $r[0]['db'];
-	}
-
-	/**
-	 * @brief Returns the number of rows
-	 *
-	 * @return integer
-	 */
-	public function num_rows() {
-		if (!$this->result) {
-			return 0;
-		}
-
-		switch ($this->driver) {
-			case 'pdo':
-				$rows = $this->result->rowCount();
-				break;
-			case 'mysqli':
-				$rows = $this->result->num_rows;
-				break;
-			case 'mysql':
-				$rows = mysql_num_rows($this->result);
-				break;
-		}
-		return $rows;
 	}
 
 	/**
@@ -249,7 +229,7 @@ class dba {
 				break;
 		}
 		$stamp2 = microtime(true);
-		$duration = (float)($stamp2-$stamp1);
+		$duration = (float)($stamp2 - $stamp1);
 
 		$a->save_timestamp($stamp1, "database");
 
@@ -379,41 +359,6 @@ class dba {
 		return($r);
 	}
 
-	public function qfetch() {
-		$x = false;
-
-		if ($this->result) {
-			switch ($this->driver) {
-				case 'pdo':
-					$x = $this->result->fetch(PDO::FETCH_ASSOC);
-					break;
-				case 'mysqli':
-					$x = $this->result->fetch_array(MYSQLI_ASSOC);
-					break;
-				case 'mysql':
-					$x = mysql_fetch_array($this->result, MYSQL_ASSOC);
-					break;
-			}
-		}
-		return($x);
-	}
-
-	public function qclose() {
-		if ($this->result) {
-			switch ($this->driver) {
-				case 'pdo':
-					$this->result->closeCursor();
-					break;
-				case 'mysqli':
-					$this->result->free_result();
-					break;
-				case 'mysql':
-					mysql_free_result($this->result);
-					break;
-			}
-		}
-	}
-
 	public function dbg($dbg) {
 		$this->debug = $dbg;
 	}
@@ -496,6 +441,285 @@ class dba {
 			$sql = str_ireplace('ANY_VALUE(', 'MIN(', $sql);
 		}
 		return $sql;
+	}
+
+	/**
+	 * @brief Replaces the ? placeholders with the parameters in the $args array
+	 *
+	 * @param string $sql SQL query
+	 * @param array $args The parameters that are to replace the ? placeholders
+	 * @return string The replaced SQL query
+	 */
+	static private function replace_parameters($sql, $args) {
+		$offset = 0;
+		foreach ($args AS $param => $value) {
+			if (is_int($args[$param]) OR is_float($args[$param])) {
+				$replace = intval($args[$param]);
+			} else {
+				$replace = "'".dbesc($args[$param])."'";
+			}
+
+			$pos = strpos($sql, '?', $offset);
+			if ($pos !== false) {
+				$sql = substr_replace($sql, $replace, $pos, 1);
+			}
+			$offset = $pos + strlen($replace);
+		}
+		return $sql;
+	}
+
+	/**
+	 * @brief Executes a prepared statement that returns data
+	 * @usage Example: $r = p("SELECT * FROM `item` WHERE `guid` = ?", $guid);
+	 * @param string $sql SQL statement
+	 * @return object statement object
+	 */
+	static public function p($sql) {
+		$a = get_app();
+
+		$stamp1 = microtime(true);
+
+		$args = func_get_args();
+		unset($args[0]);
+
+		if (!self::$dbo OR !self::$dbo->connected) {
+			return false;
+		}
+
+		$sql = self::$dbo->any_value_fallback($sql);
+
+		if (x($a->config,'system') && x($a->config['system'], 'db_callstack')) {
+			$sql = "/*".$a->callstack()." */ ".$sql;
+		}
+
+		switch (self::$dbo->driver) {
+			case 'pdo':
+				if (!$stmt = self::$dbo->db->prepare($sql)) {
+					$errorInfo = self::$dbo->db->errorInfo();
+					self::$dbo->error = $errorInfo[2];
+					self::$dbo->errorno = $errorInfo[1];
+					$retval = false;
+					break;
+				}
+
+				foreach ($args AS $param => $value) {
+					$stmt->bindParam($param, $args[$param]);
+				}
+
+				if (!$stmt->execute()) {
+					$errorInfo = self::$dbo->db->errorInfo();
+					self::$dbo->error = $errorInfo[2];
+					self::$dbo->errorno = $errorInfo[1];
+					$retval = false;
+				} else {
+					$retval = $stmt;
+				}
+				break;
+			case 'mysqli':
+				$stmt = self::$dbo->db->stmt_init();
+
+				if (!$stmt->prepare($sql)) {
+					self::$dbo->error = self::$dbo->db->error;
+					self::$dbo->errorno = self::$dbo->db->errno;
+					$retval = false;
+					break;
+				}
+
+				$params = '';
+				$values = array();
+				foreach ($args AS $param => $value) {
+					if (is_int($args[$param])) {
+						$params .= 'i';
+					} elseif (is_float($args[$param])) {
+						$params .= 'd';
+					} elseif (is_string($args[$param])) {
+						$params .= 's';
+					} else {
+						$params .= 'b';
+					}
+					$values[] = &$args[$param];
+				}
+
+				array_unshift($values, $params);
+
+				call_user_func_array(array($stmt, 'bind_param'), $values);
+
+				if (!$stmt->execute()) {
+					self::$dbo->error = self::$dbo->db->error;
+					self::$dbo->errorno = self::$dbo->db->errno;
+					$retval = false;
+				} else {
+					$stmt->store_result();
+					$retval = $stmt;
+				}
+				break;
+			case 'mysql':
+				// For the old "mysql" functions we cannot use prepared statements
+				$retval = mysql_query(self::replace_parameters($sql, $args), self::$dbo->db);
+				if (mysql_errno(self::$dbo->db)) {
+					self::$dbo->error = mysql_error(self::$dbo->db);
+					self::$dbo->errorno = mysql_errno(self::$dbo->db);
+				}
+				break;
+		}
+
+		$a->save_timestamp($stamp1, 'database');
+
+		if (x($a->config,'system') && x($a->config['system'], 'db_log')) {
+
+			$stamp2 = microtime(true);
+			$duration = (float)($stamp2 - $stamp1);
+
+			if (($duration > $a->config["system"]["db_loglimit"])) {
+				$duration = round($duration, 3);
+				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+
+				@file_put_contents($a->config["system"]["db_log"], datetime_convert()."\t".$duration."\t".
+						basename($backtrace[1]["file"])."\t".
+						$backtrace[1]["line"]."\t".$backtrace[2]["function"]."\t".
+						substr(self::replace_parameters($sql, $args), 0, 2000)."\n", FILE_APPEND);
+			}
+		}
+		return $retval;
+	}
+
+	/**
+	 * @brief Executes a prepared statement like UPDATE or INSERT that doesn't return data
+	 *
+	 * @param string $sql SQL statement
+	 * @return boolean Was the query successfull? False is returned only if an error occurred
+	 */
+	static public function e($sql) {
+		$a = get_app();
+
+		$stamp = microtime(true);
+
+		$args = func_get_args();
+
+		$stmt = call_user_func_array('self::p', $args);
+
+		if (is_bool($stmt)) {
+			$retval = $stmt;
+		} elseif (is_object($stmt)) {
+			$retval = true;
+		} else {
+			$retval = false;
+		}
+
+		self::close($stmt);
+
+		$a->save_timestamp($stamp, "database_write");
+
+		return $retval;
+	}
+
+	/**
+	 * @brief Check if data exists
+	 *
+	 * @param string $sql SQL statement
+	 * @return boolean Are there rows for that query?
+	 */
+	static public function exists($sql) {
+		$args = func_get_args();
+
+		$stmt = call_user_func_array('self::p', $args);
+
+		if (is_bool($stmt)) {
+			$retval = $stmt;
+		} else {
+			$retval = (self::rows($stmt) > 0);
+		}
+
+		self::close($stmt);
+
+		return $retval;
+	}
+
+	/**
+	 * @brief Returns the number of rows of a statement
+	 *
+	 * @param object Statement object
+	 * @return int Number of rows
+	 */
+	static public function num_rows($stmt) {
+		switch (self::$dbo->driver) {
+			case 'pdo':
+				return $stmt->rowCount();
+			case 'mysqli':
+				return $stmt->num_rows;
+			case 'mysql':
+				return mysql_num_rows($stmt);
+		}
+		return 0;
+	}
+
+	/**
+	 * @brief Fetch a single row
+	 *
+	 * @param object $stmt statement object
+	 * @return array current row
+	 */
+	static public function fetch($stmt) {
+		if (!is_object($stmt)) {
+			return false;
+		}
+
+		switch (self::$dbo->driver) {
+			case 'pdo':
+				return $stmt->fetch(PDO::FETCH_ASSOC);
+			case 'mysqli':
+				// This code works, but is slow
+
+				// Bind the result to a result array
+				$cols = array();
+
+				$cols_num = array();
+				for ($x = 0; $x < $stmt->field_count; $x++) {
+					$cols[] = &$cols_num[$x];
+				}
+
+				call_user_func_array(array($stmt, 'bind_result'), $cols);
+
+				if (!$stmt->fetch()) {
+					return false;
+				}
+
+				// The slow part:
+				// We need to get the field names for the array keys
+				// It seems that there is no better way to do this.
+				$result = $stmt->result_metadata();
+				$fields = $result->fetch_fields();
+
+				$columns = array();
+				foreach ($cols_num AS $param => $col) {
+					$columns[$fields[$param]->name] = $col;
+				}
+				return $columns;
+			case 'mysql':
+				return mysql_fetch_array(self::$dbo->result, MYSQL_ASSOC);
+		}
+	}
+
+	/**
+	 * @brief Closes the current statement
+	 *
+	 * @param object $stmt statement object
+	 * @return boolean was the close successfull?
+	 */
+	static public function close($stmt) {
+		if (!is_object($stmt)) {
+			return false;
+		}
+
+		switch (self::$dbo->driver) {
+			case 'pdo':
+				return $stmt->closeCursor();
+			case 'mysqli':
+				return $stmt->free_result();
+				return $stmt->close();
+			case 'mysql':
+				return mysql_free_result($stmt);
+		}
 	}
 }
 

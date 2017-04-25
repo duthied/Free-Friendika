@@ -2,6 +2,7 @@
 /**
  * @brief This class contain functions for the database management
  *
+ * This class contains functions that doesn't need to know if pdo, mysqli or whatever is used.
  */
 class dbm {
 	/**
@@ -47,6 +48,11 @@ class dbm {
 		if (is_bool($array)) {
 			return $array;
 		}
+
+		if (is_object($array)) {
+			return true;
+		}
+
 		return (is_array($array) && count($array) > 0);
 	}
 
