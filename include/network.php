@@ -491,7 +491,7 @@ function allowed_url($url) {
 		return false;
 	}
 
-	$str_allowed = get_config('system', 'allowed_sites');
+	$str_allowed = Config::get('system', 'allowed_sites');
 	if (! $str_allowed) {
 		return true;
 	}
@@ -535,7 +535,7 @@ function blocked_url($url) {
 		return true;
 	}
 
-	$domain_blocklist = get_config('system', 'blocklist', array());
+	$domain_blocklist = Config::get('system', 'blocklist', array());
 	if (! $domain_blocklist) {
 		return false;
 	}
