@@ -38,7 +38,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
 define ( 'FRIENDICA_VERSION',      '3.5.2-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1220      );
+define ( 'DB_UPDATE_VERSION',      1221      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -219,6 +219,20 @@ define ( 'CP_GLOBAL_COMMUNITY',    1 );
 /** @}*/
 
 /**
+ * @name Protocols
+ *
+ * Different protocols that we are storing
+ * @{
+ */
+define('PROTOCOL_UNKNOWN',         0);
+define('PROTOCOL_DFRN',            1);
+define('PROTOCOL_DIASPORA',        2);
+define('PROTOCOL_OSTATUS_SALMON',  3);
+define('PROTOCOL_OSTATUS_FEED',    4);
+define('PROTOCOL_GS_CONVERSATION', 5);
+/** @}*/
+
+/**
  * @name Network
  *
  * Network and protocol family types
@@ -354,6 +368,7 @@ define ( 'NAMESPACE_FEED',            'http://schemas.google.com/g/2010#updates-
 define ( 'NAMESPACE_OSTATUS',         'http://ostatus.org/schema/1.0' );
 define ( 'NAMESPACE_STATUSNET',       'http://status.net/schema/api/1/' );
 define ( 'NAMESPACE_ATOM1',           'http://www.w3.org/2005/Atom' );
+define ( 'NAMESPACE_MASTODON',        'http://mastodon.social/schema/1.0' );
 /* @}*/
 
 /**

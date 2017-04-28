@@ -456,7 +456,7 @@ class dba {
 			if (is_int($args[$param]) OR is_float($args[$param])) {
 				$replace = intval($args[$param]);
 			} else {
-				$replace = "'".dbesc($args[$param])."'";
+				$replace = "'".self::$dbo->escape($args[$param])."'";
 			}
 
 			$pos = strpos($sql, '?', $offset);
@@ -482,6 +482,15 @@ class dba {
 		$args = func_get_args();
 		unset($args[0]);
 
+		// When the second function parameter is an array then use this as the parameter array
+		if ((count($args) == 1) AND (is_array($args[1]))) {
+			$params = $args[1];
+			$i = 0;
+			foreach ($params AS $param) {
+				$args[++$i] = $param;
+			}
+		}
+
 		if (!self::$dbo OR !self::$dbo->connected) {
 			return false;
 		}
@@ -491,6 +500,9 @@ class dba {
 		if (x($a->config,'system') && x($a->config['system'], 'db_callstack')) {
 			$sql = "/*".$a->callstack()." */ ".$sql;
 		}
+
+		self::$dbo->error = '';
+		self::$dbo->errorno = 0;
 
 		switch (self::$dbo->driver) {
 			case 'pdo':
@@ -563,6 +575,10 @@ class dba {
 				break;
 		}
 
+		if (self::$dbo->errorno != 0) {
+			logger('DB Error '.self::$dbo->errorno.': '.self::$dbo->error);
+		}
+
 		$a->save_timestamp($stamp1, 'database');
 
 		if (x($a->config,'system') && x($a->config['system'], 'db_log')) {
@@ -627,7 +643,29 @@ class dba {
 		if (is_bool($stmt)) {
 			$retval = $stmt;
 		} else {
-			$retval = (self::rows($stmt) > 0);
+			$retval = (self::num_rows($stmt) > 0);
+		}
+
+		self::close($stmt);
+
+		return $retval;
+	}
+
+	/**
+	 * @brief Fetches the first row
+	 *
+	 * @param string $sql SQL statement
+	 * @return array first row of query
+	 */
+	static public function fetch_first($sql) {
+		$args = func_get_args();
+
+		$stmt = call_user_func_array('self::p', $args);
+
+		if (is_bool($stmt)) {
+			$retval = $stmt;
+		} else {
+			$retval = self::fetch($stmt);
 		}
 
 		self::close($stmt);
@@ -698,6 +736,47 @@ class dba {
 			case 'mysql':
 				return mysql_fetch_array(self::$dbo->result, MYSQL_ASSOC);
 		}
+	}
+
+	/**
+	 * @brief Insert a row into a table
+	 *
+	 * @param string $table Table name
+	 * @param array $param parameter array
+	 *
+	 * @return boolean was the insert successfull?
+	 */
+	static public function insert($table, $param) {
+		$sql = "INSERT INTO `".self::$dbo->escape($table)."` (`".implode("`, `", array_keys($param))."`) VALUES (".
+			substr(str_repeat("?, ", count($param)), 0, -2).");";
+
+		return self::e($sql, $param);
+	}
+
+	/**
+	 * @brief Updates rows
+	 *
+	 * @param string $table Table name
+	 * @param array $fields contains the fields that are updated
+	 * @param array $condition condition array with the key values
+	 *
+	 * @return boolean was the update successfull?
+	 */
+	static public function update($table, $fields, $condition) {
+
+		$sql = "UPDATE `".self::$dbo->escape($table)."` SET `".
+			implode("` = ?, `", array_keys($fields))."` = ? WHERE `".
+			implode("` = ? AND `", array_keys($condition))."` = ?";
+
+		$params = array();
+		foreach ($fields AS $value) {
+			$params[] = $value;
+		}
+		foreach ($condition AS $value) {
+			$params[] = $value;
+		}
+
+		return self::e($sql, $params);
 	}
 
 	/**

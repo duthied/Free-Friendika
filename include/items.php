@@ -690,6 +690,52 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	item_body_set_hashtags($arr);
 
 	$arr['thr-parent'] = $arr['parent-uri'];
+
+	if (in_array($arr['network'], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
+		$conversation = array('item-uri' => $arr['uri'], 'received' => dbm::date());
+
+		if (isset($arr['thr-parent'])) {
+			if ($arr['thr-parent'] != $arr['uri']) {
+				$conversation['reply-to-uri'] = $arr['thr-parent'];
+			}
+		}
+
+		if (isset($arr['conversation-uri'])) {
+			$conversation['conversation-uri'] = $arr['conversation-uri'];
+		}
+
+		if (isset($arr['conversation-href'])) {
+			$conversation['conversation-href'] = $arr['conversation-href'];
+		}
+
+		if (isset($arr['protocol'])) {
+			$conversation['protocol'] = $arr['protocol'];
+		}
+
+		if (isset($arr['source'])) {
+			$conversation['source'] = $arr['source'];
+		}
+
+		$conv = dba::fetch_first("SELECT `protocol` FROM `conversation` WHERE `item-uri` = ?", $conversation['item-uri']);
+		if (dbm::is_result($conv)) {
+			// Replace the conversation entry when the new one is better
+			if ((($conv['protocol'] == 0) OR ($conv['protocol'] > $conversation['protocol'])) AND ($conversation['protocol'] > 0)) {
+				if (!dba::update('conversation', $conversation, array('item-uri' => $conversation['item-uri']))) {
+					logger('Conversation: update for '.$conversation['item-uri'].' from '.$conv['protocol'].' to '.$conversation['protocol'].' failed', LOGGER_DEBUG);
+				}
+			}
+		} else {
+			if (!dba::insert('conversation', $conversation)) {
+				logger('Conversation: insert for '.$conversation['item-uri'].' (protocol '.$conversation['protocol'].') failed', LOGGER_DEBUG);
+			}
+		}
+	}
+
+	unset($arr['conversation-uri']);
+	unset($arr['conversation-href']);
+	unset($arr['protocol']);
+	unset($arr['source']);
+
 	if ($arr['parent-uri'] === $arr['uri']) {
 		$parent_id = 0;
 		$parent_deleted = 0;
