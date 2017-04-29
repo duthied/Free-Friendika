@@ -41,6 +41,10 @@ function poller_run($argv, $argc){
 
 	$a->start_process();
 
+	if ($a->min_memory_reached()) {
+		return;
+	}
+
 	if (poller_max_connections_reached()) {
 		return;
 	}
@@ -66,6 +70,11 @@ function poller_run($argv, $argc){
 	$starttime = time();
 
 	while ($r = poller_worker_process()) {
+
+		// Check free memory
+		if ($a->min_memory_reached()) {
+			return;
+		}
 
 		// Count active workers and compare them with a maximum value that depends on the load
 		if (poller_too_much_workers()) {
