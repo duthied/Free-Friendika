@@ -23,6 +23,7 @@ class dba {
 	public  $error = false;
 	private $_server_info = '';
 	private static $dbo;
+	private static $relation = array();
 
 	function __construct($server, $user, $pass, $db, $install = false) {
 		$a = get_app();
@@ -519,7 +520,7 @@ class dba {
 				}
 
 				if (!$stmt->execute()) {
-					$errorInfo = self::$dbo->db->errorInfo();
+					$errorInfo = $stmt->errorInfo();
 					self::$dbo->error = $errorInfo[2];
 					self::$dbo->errorno = $errorInfo[1];
 					$retval = false;
@@ -531,8 +532,8 @@ class dba {
 				$stmt = self::$dbo->db->stmt_init();
 
 				if (!$stmt->prepare($sql)) {
-					self::$dbo->error = self::$dbo->db->error;
-					self::$dbo->errorno = self::$dbo->db->errno;
+					self::$dbo->error = $stmt->error;
+					self::$dbo->errorno = $stmt->errno;
 					$retval = false;
 					break;
 				}
@@ -751,6 +752,158 @@ class dba {
 			substr(str_repeat("?, ", count($param)), 0, -2).");";
 
 		return self::e($sql, $param);
+	}
+
+	/**
+	 * @brief Build the array with the table relations
+	 *
+	 * The array is build from the database definitions in dbstructure.php
+	 *
+	 * This process must only be started once, since the value is cached.
+	 */
+	static private function build_relation_data() {
+		$definition = db_definition();
+
+		foreach ($definition AS $table => $structure) {
+		        foreach ($structure['fields'] AS $field => $field_struct) {
+		                if (isset($field_struct['relation'])) {
+		                        foreach ($field_struct['relation'] AS $rel_table => $rel_field) {
+		                                self::$relation[$rel_table][$rel_field][$table][] = $field;
+		                        }
+		                }
+		        }
+		}
+	}
+
+	/**
+	 * @brief Insert a row into a table
+	 *
+	 * @param string $table Table name
+	 * @param array $param parameter array
+	 * @param boolean $in_commit Internal use: Only do a commit after the last delete
+	 * @param array $callstack Internal use: prevent endless loops
+	 *
+	 * @return boolean|array was the delete successfull? When $in_commit is set: deletion data
+	 */
+	static public function delete($table, $param, $in_commit = false, &$callstack = array()) {
+
+		$commands = array();
+
+		// Create a key for the loop prevention
+		$key = $table.':'.implode(':', array_keys($param)).':'.implode(':', $param);
+
+		// We quit when this key already exists in the callstack.
+		if (isset($callstack[$key])) {
+			return $commands;
+		}
+
+		$callstack[$key] = true;
+
+		$table = self::$dbo->escape($table);
+
+		$commands[$key] = array('table' => $table, 'param' => $param);
+
+		// To speed up the whole process we cache the table relations
+		if (count(self::$relation) == 0) {
+			self::build_relation_data();
+		}
+
+		// Is there a relation entry for the table?
+		if (isset(self::$relation[$table])) {
+			// We only allow a simple "one field" relation.
+			$field = array_keys(self::$relation[$table])[0];
+			$rel_def = array_values(self::$relation[$table])[0];
+
+			// When the search field is the relation field, we don't need to fetch the rows
+			// This is useful when the leading record is already deleted in the frontend but the rest is done in the backend
+			if ((count($param) == 1) AND ($field == array_keys($param)[0])) {
+				foreach ($rel_def AS $rel_table => $rel_fields) {
+					foreach ($rel_fields AS $rel_field) {
+						$retval = self::delete($rel_table, array($rel_field => array_values($param)[0]), true, $callstack);
+						$commands = array_merge($commands, $retval);
+					}
+				}
+			} else {
+				// Create a key for preventing double queries
+				$qkey = $field.'-'.$table.':'.implode(':', array_keys($param)).':'.implode(':', $param);
+
+				// We quit when this key already exists in the callstack.
+				if (isset($callstack[$qkey])) {
+					continue;
+				}
+
+				$callstack[$qkey] = true;
+
+				// Fetch all rows that are to be deleted
+				$sql = "SELECT ".self::$dbo->escape($field)." FROM `".$table."` WHERE `".
+				implode("` = ? AND `", array_keys($param))."` = ?";
+
+				$data = self::p($sql, $param);
+				while ($row = self::fetch($data)) {
+					// Now we accumulate the delete commands
+					$retval = self::delete($table, array($field => $row[$field]), true, $callstack);
+					$commands = array_merge($commands, $retval);
+				}
+
+				// Since we had split the delete command we don't need the original command anymore
+				unset($commands[$key]);
+			}
+		}
+
+		if (!$in_commit) {
+			// Now we finalize the process
+			self::p("COMMIT");
+			self::p("START TRANSACTION");
+
+			$compacted = array();
+			$counter = array();
+			foreach ($commands AS $command) {
+				if (count($command['param']) > 1) {
+					$sql = "DELETE FROM `".$command['table']."` WHERE `".
+						implode("` = ? AND `", array_keys($command['param']))."` = ?";
+
+					logger(dba::replace_parameters($sql, $command['param']), LOGGER_DATA);
+
+					if (!self::e($sql, $param)) {
+						self::p("ROLLBACK");
+						return false;
+					}
+				} else {
+					$key_table = $command['table'];
+					$key_param = array_keys($command['param'])[0];
+					$value = array_values($command['param'])[0];
+
+					// Split the SQL queries in chunks of 100 values
+					// We do the $i stuff here to make the code better readable
+					$i = $counter[$key_table][$key_param];
+					if (count($compacted[$key_table][$key_param][$i]) > 100) {
+						++$i;
+					}
+
+					$compacted[$key_table][$key_param][$i][$value] = $value;
+					$counter[$key_table][$key_param] = $i;
+				}
+			}
+			foreach ($compacted AS $table => $values) {
+				foreach ($values AS $field => $field_value_list) {
+					foreach ($field_value_list AS $field_values) {
+						$sql = "DELETE FROM `".$table."` WHERE `".$field."` IN (".
+							substr(str_repeat("?, ", count($field_values)), 0, -2).");";
+
+						logger(dba::replace_parameters($sql, $field_values), LOGGER_DATA);
+
+						if (!self::e($sql, $param)) {
+							self::p("ROLLBACK");
+							return false;
+						}
+					}
+				}
+			}
+			self::p("COMMIT");
+			return true;
+		}
+
+		return $commands;
 	}
 
 	/**
