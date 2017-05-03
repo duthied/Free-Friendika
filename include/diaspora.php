@@ -333,6 +333,23 @@ class Diaspora {
 			return false;
 		}
 
+		if (!self::valid_posting($msg, $fields)) {
+			logger("Invalid posting");
+			return false;
+		}
+
+		// Is it a an action (comment, like, ...) for our own post?
+		if (isset($fields->parent_guid)) {
+			$guid = notags(unxmlify($fields->parent_guid));
+
+			$importer = self::importer_for_guid($guid);
+			if (is_array($importer)) {
+				logger("delivering to origin: ".$importer["name"]);
+				$message_id = self::dispatch($importer, $msg);
+				return $message_id;
+			}
+		}
+
 		// Now distribute it to the followers
 		$r = q("SELECT `user`.* FROM `user` WHERE `user`.`uid` IN
 			(SELECT `contact`.`uid` FROM `contact` WHERE `contact`.`network` = '%s' AND `contact`.`addr` = '%s')
@@ -344,13 +361,14 @@ class Diaspora {
 		if (dbm::is_result($r)) {
 			foreach ($r as $rr) {
 				logger("delivering to: ".$rr["username"]);
-				self::dispatch($rr,$msg);
+				self::dispatch($rr, $msg);
 			}
+		} elseif (!Config::get('system', 'relay_subscribe', false)) {
+			logger("Unwanted message from ".$sender." send by ".$_SERVER["REMOTE_ADDR"]." with ".$_SERVER["HTTP_USER_AGENT"].": ".print_r($msg, true), LOGGER_DEBUG);
 		} else {
 			// Use a dummy importer to import the data for the public copy
-			// or for comments from unknown people
 			$importer = array("uid" => 0, "page-flags" => PAGE_FREELOVE);
-			$message_id = self::dispatch($importer,$msg);
+			$message_id = self::dispatch($importer, $msg);
 		}
 
 		return $message_id;
@@ -376,11 +394,6 @@ class Diaspora {
 		}
 
 		$type = $fields->getName();
-
-		$social_relay = Config::get('system', 'relay_subscribe', false);
-		if (!$social_relay AND ($type == 'message')) {
-			logger("Unwanted message from ".$sender." send by ".$_SERVER["REMOTE_ADDR"]." with ".$_SERVER["HTTP_USER_AGENT"].": ".print_r($msg, true), LOGGER_DEBUG);
-		}
 
 		logger("Received message type ".$type." from ".$sender." for user ".$importer["uid"], LOGGER_DEBUG);
 
@@ -828,17 +841,20 @@ class Diaspora {
 			logger("defining user ".$contact["nick"]." as friend");
 		}
 
-		if (($contact["blocked"]) || ($contact["readonly"]) || ($contact["archive"]))
+		// We don't seem to like that person
+		if ($contact["blocked"] || $contact["readonly"] || $contact["archive"]) {
 			return false;
-		if ($contact["rel"] == CONTACT_IS_SHARING || $contact["rel"] == CONTACT_IS_FRIEND)
+		// We are following this person? Then it is okay
+		} elseif (($contact["rel"] == CONTACT_IS_SHARING) || ($contact["rel"] == CONTACT_IS_FRIEND)) {
 			return true;
-		if ($contact["rel"] == CONTACT_IS_FOLLOWER)
-			if (($importer["page-flags"] == PAGE_COMMUNITY) OR $is_comment)
-				return true;
-
-		// Messages for the global users are always accepted
-		if ($importer["uid"] == 0)
+		// Is it a post to a community? That's good
+		} elseif (($contact["rel"] == CONTACT_IS_FOLLOWER) && ($importer["page-flags"] == PAGE_COMMUNITY)) {
 			return true;
+		}
+		// Messages for the global users and comments are always accepted
+		if (($importer["uid"] == 0) || $is_comment) {
+			return true;
+		}
 
 		return false;
 	}
@@ -856,7 +872,12 @@ class Diaspora {
 		$contact = self::contact_by_handle($importer["uid"], $handle);
 		if (!$contact) {
 			logger("A Contact for handle ".$handle." and user ".$importer["uid"]." was not found");
-			return false;
+			// If a contact isn't found, we accept it anyway if it is a comment
+			if ($is_comment) {
+				return $importer;
+			} else {
+				return false;
+			}
 		}
 
 		if (!self::post_allow($importer, $contact, $is_comment)) {
@@ -1111,9 +1132,9 @@ class Diaspora {
 			$cid = $r[0]["id"];
 			$network = $r[0]["network"];
 
-			// We are receiving content from a user that is about to be terminated
+			// We are receiving content from a user that possibly is about to be terminated
 			// This means the user is vital, so we remove a possible termination date.
-			unmark_for_death($contact);
+			unmark_for_death($r[0]);
 		} else {
 			$cid = $contact["id"];
 			$network = NETWORK_DIASPORA;
@@ -1228,24 +1249,23 @@ class Diaspora {
 	}
 
 	/**
-	 * @brief Find the best importer for a comment
+	 * @brief Find the best importer for a comment, like, ...
 	 *
-	 * @param array $importer Array of the importer user
 	 * @param string $guid The guid of the item
 	 *
-	 * @return array the importer that fits the best
+	 * @return array|boolean the origin owner of that post - or false
 	 */
-	private static function importer_for_comment($importer, $guid) {
+	private static function importer_for_guid($guid) {
 		$item = dba::fetch_first("SELECT `uid` FROM `item` WHERE `origin` AND `guid` = ? LIMIT 1", $guid);
 
 		if (dbm::is_result($item)) {
 			logger("Found user ".$item['uid']." as owner of item ".$guid, LOGGER_DEBUG);
 			$contact = dba::fetch_first("SELECT * FROM `contact` WHERE `self` AND `uid` = ?", $item['uid']);
 			if (dbm::is_result($contact)) {
-				$importer = $contact;
+				return $contact;
 			}
 		}
-		return $importer;
+		return false;
 	}
 
 	/**
@@ -1275,11 +1295,6 @@ class Diaspora {
 			$thr_uri = self::get_uri_from_guid("", $thread_parent_guid, true);
 		} else {
 			$thr_uri = "";
-		}
-
-		// Find the best importer when there was no importer found
-		if ($importer["uid"] == 0) {
-			$importer = self::importer_for_comment($importer, $parent_guid);
 		}
 
 		$contact = self::allowed_contact_by_handle($importer, $sender, true);
