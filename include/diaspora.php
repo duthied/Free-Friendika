@@ -333,19 +333,20 @@ class Diaspora {
 			return false;
 		}
 
-		if (!self::valid_posting($msg, $fields)) {
+		if (!($postdata = self::valid_posting($msg))) {
 			logger("Invalid posting");
 			return false;
 		}
 
-		// Is it a an action (comment, like, ...) for our own post?
-		if (isset($fields->parent_guid)) {
-			$guid = notags(unxmlify($fields->parent_guid));
+		$fields = $postdata['fields'];
 
+		// Is it a an action (comment, like, ...) for our own post?
+		if (isset($fields->parent_guid) AND !$postdata["relayed"]) {
+			$guid = notags(unxmlify($fields->parent_guid));
 			$importer = self::importer_for_guid($guid);
 			if (is_array($importer)) {
 				logger("delivering to origin: ".$importer["name"]);
-				$message_id = self::dispatch($importer, $msg);
+				$message_id = self::dispatch($importer, $msg, $fields);
 				return $message_id;
 			}
 		}
@@ -361,14 +362,14 @@ class Diaspora {
 		if (dbm::is_result($r)) {
 			foreach ($r as $rr) {
 				logger("delivering to: ".$rr["username"]);
-				self::dispatch($rr, $msg);
+				self::dispatch($rr, $msg, $fields);
 			}
 		} elseif (!Config::get('system', 'relay_subscribe', false)) {
-			logger("Unwanted message from ".$sender." send by ".$_SERVER["REMOTE_ADDR"]." with ".$_SERVER["HTTP_USER_AGENT"].": ".print_r($msg, true), LOGGER_DEBUG);
+			logger("Unwanted message from ".$msg["author"]." send by ".$_SERVER["REMOTE_ADDR"]." with ".$_SERVER["HTTP_USER_AGENT"].": ".print_r($msg, true), LOGGER_DEBUG);
 		} else {
 			// Use a dummy importer to import the data for the public copy
 			$importer = array("uid" => 0, "page-flags" => PAGE_FREELOVE);
-			$message_id = self::dispatch($importer, $msg);
+			$message_id = self::dispatch($importer, $msg, $fields);
 		}
 
 		return $message_id;
@@ -379,18 +380,23 @@ class Diaspora {
 	 *
 	 * @param array $importer Array of the importer user
 	 * @param array $msg The post that will be dispatched
+	 * @param object $fields SimpleXML object that contains the message
 	 *
 	 * @return int The message id of the generated message, "true" or "false" if there was an error
 	 */
-	public static function dispatch($importer, $msg) {
+	public static function dispatch($importer, $msg, $fields = null) {
 
 		// The sender is the handle of the contact that sent the message.
 		// This will often be different with relayed messages (for example "like" and "comment")
 		$sender = $msg["author"];
 
-		if (!self::valid_posting($msg, $fields)) {
-			logger("Invalid posting");
-			return false;
+		// This is only needed for private postings since this is already done for public ones before
+		if (is_null($fields)) {
+			if (!($postdata = self::valid_posting($msg))) {
+				logger("Invalid posting");
+				return false;
+			}
+			$fields = $postdata['fields'];
 		}
 
 		$type = $fields->getName();
@@ -452,11 +458,10 @@ class Diaspora {
 	 * It also does the conversion between the old and the new diaspora format.
 	 *
 	 * @param array $msg Array with the XML, the sender handle and the sender signature
-	 * @param object $fields SimpleXML object that contains the posting when it is valid
 	 *
-	 * @return bool Is the posting valid?
+	 * @return bool|array If the posting is valid then an array with an SimpleXML object is returned
 	 */
-	private static function valid_posting($msg, &$fields) {
+	private static function valid_posting($msg) {
 
 		$data = parse_xml_string($msg["message"], false);
 
@@ -551,9 +556,9 @@ class Diaspora {
 			}
 
 		// Only some message types have signatures. So we quit here for the other types.
-		if (!in_array($type, array("comment", "message", "like")))
-			return true;
-
+		if (!in_array($type, array("comment", "message", "like"))) {
+			return array("fields" => $fields, "relayed" => false);
+		}
 		// No author_signature? This is a must, so we quit.
 		if (!isset($author_signature)) {
 			logger("No author signature for type ".$type." - Message: ".$msg["message"], LOGGER_DEBUG);
@@ -561,12 +566,16 @@ class Diaspora {
 		}
 
 		if (isset($parent_author_signature)) {
+			$relayed = true;
+
 			$key = self::key($msg["author"]);
 
 			if (!rsa_verify($signed_data, $parent_author_signature, $key, "sha256")) {
 				logger("No valid parent author signature for parent author ".$msg["author"]. " in type ".$type." - signed data: ".$signed_data." - Message: ".$msg["message"]." - Signature ".$parent_author_signature, LOGGER_DEBUG);
 				return false;
 			}
+		} else {
+			$relayed = false;
 		}
 
 		$key = self::key($fields->author);
@@ -574,8 +583,9 @@ class Diaspora {
 		if (!rsa_verify($signed_data, $author_signature, $key, "sha256")) {
 			logger("No valid author signature for author ".$fields->author. " in type ".$type." - signed data: ".$signed_data." - Message: ".$msg["message"]." - Signature ".$author_signature, LOGGER_DEBUG);
 			return false;
-		} else
-			return true;
+		} else {
+			return array("fields" => $fields, "relayed" => $relayed);
+		}
 	}
 
 	/**
@@ -2370,11 +2380,16 @@ class Diaspora {
 			return false;
 		}
 
+		if (!isset($contact["url"])) {
+			$contact["url"] = $person["url"];
+		}
+
 		$r = q("SELECT `id`, `parent`, `parent-uri`, `author-link` FROM `item` WHERE `guid` = '%s' AND `uid` = %d AND NOT `file` LIKE '%%[%%' LIMIT 1",
 			dbesc($target_guid),
 			intval($importer["uid"])
 		);
 		if (!$r) {
+			logger("Target guid ".$target_guid." was not found for user ".$importer["uid"]);
 			return false;
 		}
 
@@ -2420,7 +2435,7 @@ class Diaspora {
 		$target_type = notags(unxmlify($data->target_type));
 
 		$contact = self::contact_by_handle($importer["uid"], $sender);
-		if (!$contact) {
+		if (!$contact AND (in_array($target_type, array("Contact", "Person")))) {
 			logger("cannot find contact for sender: ".$sender." and user ".$importer["uid"]);
 			return false;
 		}
@@ -2433,7 +2448,7 @@ class Diaspora {
 			case "Post": // "Post" will be supported in a future version
 			case "Reshare":
 			case "StatusMessage":
-				return self::item_retraction($importer, $contact, $data);;
+				return self::item_retraction($importer, $contact, $data);
 
 			case "Contact":
 			case "Person":
