@@ -3,6 +3,8 @@
  * @file include/ostatus.php
  */
 
+use \Friendica\Core\Config;
+
 require_once("include/Contact.php");
 require_once("include/threads.php");
 require_once("include/html2bbcode.php");
@@ -79,23 +81,43 @@ class ostatus {
 		$author = array();
 		$author["author-link"] = $xpath->evaluate('atom:author/atom:uri/text()', $context)->item(0)->nodeValue;
 		$author["author-name"] = $xpath->evaluate('atom:author/atom:name/text()', $context)->item(0)->nodeValue;
+		$addr = $xpath->evaluate('atom:author/atom:email/text()', $context)->item(0)->nodeValue;
 
 		$aliaslink = $author["author-link"];
 
 		$alternate = $xpath->query("atom:author/atom:link[@rel='alternate']", $context)->item(0)->attributes;
-		if (is_object($alternate))
-			foreach($alternate AS $attributes)
-				if ($attributes->name == "href")
+		if (is_object($alternate)) {
+			foreach ($alternate AS $attributes) {
+				if (($attributes->name == "href") AND ($attributes->textContent != "")) {
 					$author["author-link"] = $attributes->textContent;
+				}
+			}
+		}
 
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` IN ('%s', '%s') AND `network` != '%s'",
-			intval($importer["uid"]), dbesc(normalise_link($author["author-link"])),
-			dbesc(normalise_link($aliaslink)), dbesc(NETWORK_STATUSNET));
-		if ($r) {
-			$contact = $r[0];
-			$author["contact-id"] = $r[0]["id"];
-		} else
-			$author["contact-id"] = $contact["id"];
+		$author["contact-id"] = $contact["id"];
+
+		if ($author["author-link"] != "") {
+			if ($aliaslink == "") {
+				$aliaslink = $author["author-link"];
+			}
+
+			$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` IN ('%s', '%s') AND `network` != '%s'",
+				intval($importer["uid"]), dbesc(normalise_link($author["author-link"])),
+				dbesc(normalise_link($aliaslink)), dbesc(NETWORK_STATUSNET));
+			if (dbm::is_result($r)) {
+				$contact = $r[0];
+				$author["contact-id"] = $r[0]["id"];
+				$author["author-link"] = $r[0]["url"];
+			}
+		} elseif ($addr != "") {
+			// Should not happen
+			$contact = dba::fetch_first("SELECT * FROM `contact` WHERE `uid` = ? AND `addr` = ? AND `network` != ?",
+					$importer["uid"], $addr, NETWORK_STATUSNET);
+			if (dbm::is_result($contact)) {
+				$author["contact-id"] = $contact["id"];
+				$author["author-link"] = $contact["url"];
+			}
+		}
 
 		$avatarlist = array();
 		$avatars = $xpath->query("atom:author/atom:link[@rel='avatar']", $context);
@@ -2268,6 +2290,9 @@ class ostatus {
 		$root = self::add_header($doc, $owner);
 
 		foreach ($items AS $item) {
+			if (Config::get('system', 'ostatus_debug')) {
+				$item['body'] .= '🍼';
+			}
 			$entry = self::entry($doc, $item, $owner);
 			$root->appendChild($entry);
 		}
@@ -2287,6 +2312,10 @@ class ostatus {
 
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
+
+		if (Config::get('system', 'ostatus_debug')) {
+			$item['body'] .= '🐟';
+		}
 
 		$entry = self::entry($doc, $item, $owner, true);
 
