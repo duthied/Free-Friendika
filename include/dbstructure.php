@@ -878,7 +878,7 @@ function db_definition() {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"addr" => array("addr(32)"),
-					"url" => array("url"),
+					"url" => array("UNIQUE", "url(190)"),
 					)
 			);
 	$database["ffinder"] = array(
@@ -963,7 +963,7 @@ function db_definition() {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"nurl" => array("nurl(64)"),
+					"nurl" => array("UNIQUE", "nurl(190)"),
 					"name" => array("name(64)"),
 					"nick" => array("nick(32)"),
 					"addr" => array("addr(64)"),
@@ -1033,7 +1033,7 @@ function db_definition() {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"nurl" => array("nurl(32)"),
+					"nurl" => array("UNIQUE", "nurl(190)"),
 					)
 			);
 	$database["hook"] = array(
