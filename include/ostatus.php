@@ -3,7 +3,8 @@
  * @file include/ostatus.php
  */
 
-use \Friendica\Core\Config;
+use Friendica\App;
+use Friendica\Core\Config;
 
 require_once("include/Contact.php");
 require_once("include/threads.php");
@@ -2192,7 +2193,7 @@ class ostatus {
 	/**
 	 * @brief Creates the XML feed for a given nickname
 	 *
-	 * @param app $a The application class
+	 * @param App $a The application class
 	 * @param string $owner_nick Nickname of the feed owner
 	 * @param string $last_update Date of the last update
 	 *
@@ -2288,4 +2289,3 @@ class ostatus {
 		return(trim($doc->saveXML()));
 	}
 }
-?>
