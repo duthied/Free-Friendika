@@ -2,10 +2,10 @@
 
 use Friendica\App;
 
-require_once('include/Scrape.php');
-require_once('include/follow.php');
-require_once('include/Contact.php');
-require_once('include/contact_selectors.php');
+require_once 'include/probe.php';
+require_once 'include/follow.php';
+require_once 'include/Contact.php';
+require_once 'include/contact_selectors.php';
 
 function follow_content(App $a) {
 
