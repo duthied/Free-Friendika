@@ -25,10 +25,19 @@ class dba {
 	private static $dbo;
 	private static $relation = array();
 
-	function __construct($server, $user, $pass, $db, $install = false) {
+	function __construct($serveraddr, $user, $pass, $db, $install = false) {
 		$a = get_app();
 
 		$stamp1 = microtime(true);
+
+		$serveraddr = trim($serveraddr);
+
+		$serverdata = explode(':', $serveraddr);
+		$server = $serverdata[0];
+
+		if (count($serverdata) > 1) {
+			$port = trim($serverdata[1]);
+		}
 
 		$server = trim($server);
 		$user = trim($user);
@@ -55,6 +64,11 @@ class dba {
 		if (class_exists('\PDO') && in_array('mysql', PDO::getAvailableDrivers())) {
 			$this->driver = 'pdo';
 			$connect = "mysql:host=".$server.";dbname=".$db;
+
+			if (isset($port)) {
+				$connect .= ";port=".$port;
+			}
+
 			if (isset($a->config["system"]["db_charset"])) {
 				$connect .= ";charset=".$a->config["system"]["db_charset"];
 			}
@@ -64,7 +78,7 @@ class dba {
 			}
 		} elseif (class_exists('mysqli')) {
 			$this->driver = 'mysqli';
-			$this->db = @new mysqli($server,$user,$pass,$db);
+			$this->db = @new mysqli($server, $user, $pass, $db, $port);
 			if (!mysqli_connect_errno()) {
 				$this->connected = true;
 
@@ -74,8 +88,8 @@ class dba {
 			}
 		} elseif (function_exists('mysql_connect')) {
 			$this->driver = 'mysql';
-			$this->db = mysql_connect($server,$user,$pass);
-			if ($this->db && mysql_select_db($db,$this->db)) {
+			$this->db = mysql_connect($serveraddr, $user, $pass);
+			if ($this->db && mysql_select_db($db, $this->db)) {
 				$this->connected = true;
 
 				if (isset($a->config["system"]["db_charset"])) {
@@ -484,16 +498,26 @@ class dba {
 		unset($args[0]);
 
 		// When the second function parameter is an array then use this as the parameter array
-		if ((count($args) == 1) AND (is_array($args[1]))) {
+		if ((count($args) > 0) AND (is_array($args[1]))) {
 			$params = $args[1];
-			$i = 0;
-			foreach ($params AS $param) {
-				$args[++$i] = $param;
-			}
+		} else {
+			$params = $args;
+		}
+
+		// Renumber the array keys to be sure that they fit
+		$i = 0;
+		$args = array();
+		foreach ($params AS $param) {
+			$args[++$i] = $param;
 		}
 
 		if (!self::$dbo OR !self::$dbo->connected) {
 			return false;
+		}
+
+		if (substr_count($sql, '?') != count($args)) {
+			// Question: Should we continue or stop the query here?
+			logger('Parameter mismatch. Query "'.$sql.'" - Parameters '.print_r($args, true), LOGGER_DEBUG);
 		}
 
 		$sql = self::$dbo->any_value_fallback($sql);
@@ -553,9 +577,10 @@ class dba {
 					$values[] = &$args[$param];
 				}
 
-				array_unshift($values, $params);
-
-				call_user_func_array(array($stmt, 'bind_param'), $values);
+				if (count($values) > 0) {
+					array_unshift($values, $params);
+					call_user_func_array(array($stmt, 'bind_param'), $values);
+				}
 
 				if (!$stmt->execute()) {
 					self::$dbo->error = self::$dbo->db->error;
@@ -861,7 +886,7 @@ class dba {
 
 					logger(dba::replace_parameters($sql, $command['param']), LOGGER_DATA);
 
-					if (!self::e($sql, $param)) {
+					if (!self::e($sql, $command['param'])) {
 						self::p("ROLLBACK");
 						return false;
 					}
@@ -889,7 +914,7 @@ class dba {
 
 						logger(dba::replace_parameters($sql, $field_values), LOGGER_DATA);
 
-						if (!self::e($sql, $param)) {
+						if (!self::e($sql, $field_values)) {
 							self::p("ROLLBACK");
 							return false;
 						}
@@ -989,6 +1014,76 @@ class dba {
 		}
 
 		return self::e($sql, $params);
+	}
+
+	/**
+	 * @brief Select rows from a table
+	 *
+	 * @param string $table Table name
+	 * @param array $fields array of selected fields
+	 * @param array $condition array of fields for condition
+	 * @param array $params array of several parameters
+	 *
+	 * @return boolean|object If "limit" is equal "1" only a single row is returned, else a query object is returned
+	 *
+	 * Example:
+	 * $table = "item";
+	 * $fields = array("id", "uri", "uid", "network");
+	 * $condition = array("uid" => 1, "network" => 'dspr');
+	 * $params = array("order" => array("id", "received" => true), "limit" => 1);
+	 *
+	 * $data = dba::select($table, $fields, $condition, $params);
+	 */
+	static public function select($table, $fields = array(), $condition = array(), $params = array()) {
+		if ($table == '') {
+			return false;
+		}
+
+		if (count($fields) > 0) {
+			$select_fields = "`".implode("`, `", array_values($fields))."`";
+		} else {
+			$select_fields = "*";
+		}
+
+		if (count($condition) > 0) {
+			$condition_string = " WHERE `".implode("` = ? AND `", array_keys($condition))."` = ?";
+		} else {
+			$condition_string = "";
+		}
+
+		$param_string = '';
+		$single_row = false;
+
+		if (isset($params['order'])) {
+			$param_string .= " ORDER BY ";
+			foreach ($params['order'] AS $fields => $order) {
+				if (!is_int($fields)) {
+					$param_string .= "`".$fields."` ".($order ? "DESC" : "ASC").", ";
+				} else {
+					$param_string .= "`".$order."`, ";
+				}
+			}
+			$param_string = substr($param_string, 0, -2);
+		}
+
+		if (isset($params['limit'])) {
+			if (is_int($params['limit'])) {
+				$param_string .= " LIMIT ".$params['limit'];
+				$single_row =($params['limit'] == 1);
+			}
+		}
+
+		$sql = "SELECT ".$select_fields." FROM `".$table."`".$condition_string.$param_string;
+
+		$result = self::p($sql, $condition);
+
+		if (is_bool($result) OR !$single_row) {
+			return $result;
+		} else {
+			$row = self::fetch($result);
+			self::close($result);
+			return $row;
+		}
 	}
 
 	/**

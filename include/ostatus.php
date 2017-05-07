@@ -4,6 +4,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
 
 require_once("include/Contact.php");
 require_once("include/threads.php");
@@ -30,42 +31,6 @@ class ostatus {
 	const OSTATUS_DEFAULT_POLL_TIMEFRAME_MENTIONS = 14400; // given in minutes
 
 	/**
-	 * @brief Mix two paths together to possibly fix missing parts
-	 *
-	 * @param string $avatar Path to the avatar
-	 * @param string $base Another path that is hopefully complete
-	 *
-	 * @return string fixed avatar path
-	 */
-	public static function fix_avatar($avatar, $base) {
-		$base_parts = parse_url($base);
-
-		// Remove all parts that could create a problem
-		unset($base_parts['path']);
-		unset($base_parts['query']);
-		unset($base_parts['fragment']);
-
-		$avatar_parts = parse_url($avatar);
-
-		// Now we mix them
-		$parts = array_merge($base_parts, $avatar_parts);
-
-		// And put them together again
-		$scheme   = isset($parts['scheme']) ? $parts['scheme'] . '://' : '';
-		$host     = isset($parts['host']) ? $parts['host'] : '';
-		$port     = isset($parts['port']) ? ':' . $parts['port'] : '';
-		$path     = isset($parts['path']) ? $parts['path'] : '';
-		$query    = isset($parts['query']) ? '?' . $parts['query'] : '';
-		$fragment = isset($parts['fragment']) ? '#' . $parts['fragment'] : '';
-
-		$fixed = $scheme.$host.$port.$path.$query.$fragment;
-
-		logger('Base: '.$base.' - Avatar: '.$avatar.' - Fixed: '.$fixed, LOGGER_DATA);
-
-		return $fixed;
-	}
-
-	/**
 	 * @brief Fetches author data
 	 *
 	 * @param object $xpath The xpath object
@@ -81,23 +46,43 @@ class ostatus {
 		$author = array();
 		$author["author-link"] = $xpath->evaluate('atom:author/atom:uri/text()', $context)->item(0)->nodeValue;
 		$author["author-name"] = $xpath->evaluate('atom:author/atom:name/text()', $context)->item(0)->nodeValue;
+		$addr = $xpath->evaluate('atom:author/atom:email/text()', $context)->item(0)->nodeValue;
 
 		$aliaslink = $author["author-link"];
 
 		$alternate = $xpath->query("atom:author/atom:link[@rel='alternate']", $context)->item(0)->attributes;
-		if (is_object($alternate))
-			foreach($alternate AS $attributes)
-				if ($attributes->name == "href")
+		if (is_object($alternate)) {
+			foreach ($alternate AS $attributes) {
+				if (($attributes->name == "href") AND ($attributes->textContent != "")) {
 					$author["author-link"] = $attributes->textContent;
+				}
+			}
+		}
 
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` IN ('%s', '%s') AND `network` != '%s'",
-			intval($importer["uid"]), dbesc(normalise_link($author["author-link"])),
-			dbesc(normalise_link($aliaslink)), dbesc(NETWORK_STATUSNET));
-		if ($r) {
-			$contact = $r[0];
-			$author["contact-id"] = $r[0]["id"];
-		} else
-			$author["contact-id"] = $contact["id"];
+		$author["contact-id"] = $contact["id"];
+
+		if ($author["author-link"] != "") {
+			if ($aliaslink == "") {
+				$aliaslink = $author["author-link"];
+			}
+
+			$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` IN ('%s', '%s') AND `network` != '%s'",
+				intval($importer["uid"]), dbesc(normalise_link($author["author-link"])),
+				dbesc(normalise_link($aliaslink)), dbesc(NETWORK_STATUSNET));
+			if (dbm::is_result($r)) {
+				$contact = $r[0];
+				$author["contact-id"] = $r[0]["id"];
+				$author["author-link"] = $r[0]["url"];
+			}
+		} elseif ($addr != "") {
+			// Should not happen
+			$contact = dba::fetch_first("SELECT * FROM `contact` WHERE `uid` = ? AND `addr` = ? AND `network` != ?",
+					$importer["uid"], $addr, NETWORK_STATUSNET);
+			if (dbm::is_result($contact)) {
+				$author["contact-id"] = $contact["id"];
+				$author["author-link"] = $contact["url"];
+			}
+		}
 
 		$avatarlist = array();
 		$avatars = $xpath->query("atom:author/atom:link[@rel='avatar']", $context);
@@ -115,7 +100,7 @@ class ostatus {
 		}
 		if (count($avatarlist) > 0) {
 			krsort($avatarlist);
-			$author["author-avatar"] = self::fix_avatar(current($avatarlist), $author["author-link"]);
+			$author["author-avatar"] = Probe::fix_avatar(current($avatarlist), $author["author-link"]);
 		}
 
 		$displayname = $xpath->evaluate('atom:author/poco:displayName/text()', $context)->item(0)->nodeValue;
@@ -1176,7 +1161,7 @@ class ostatus {
 				$arr["owner-name"] = $single_conv->actor->portablecontacts_net->displayName;
 
 			$arr["owner-link"] = $actor;
-			$arr["owner-avatar"] = self::fix_avatar($single_conv->actor->image->url, $arr["owner-link"]);
+			$arr["owner-avatar"] = Probe::fix_avatar($single_conv->actor->image->url, $arr["owner-link"]);
 
 			$arr["author-name"] = $arr["owner-name"];
 			$arr["author-link"] = $arr["owner-link"];
@@ -1241,7 +1226,7 @@ class ostatus {
 					$arr["author-name"] = $single_conv->object->actor->contact->displayName;
 				}
 				$arr["author-link"] = $single_conv->object->actor->url;
-				$arr["author-avatar"] = self::fix_avatar($single_conv->object->actor->image->url, $arr["author-link"]);
+				$arr["author-avatar"] = Probe::fix_avatar($single_conv->object->actor->image->url, $arr["author-link"]);
 
 				$arr["app"] = $single_conv->object->provider->displayName."#";
 				//$arr["verb"] = $single_conv->object->verb;
@@ -2270,6 +2255,9 @@ class ostatus {
 		$root = self::add_header($doc, $owner);
 
 		foreach ($items AS $item) {
+			if (Config::get('system', 'ostatus_debug')) {
+				$item['body'] .= '🍼';
+			}
 			$entry = self::entry($doc, $item, $owner);
 			$root->appendChild($entry);
 		}
@@ -2289,6 +2277,10 @@ class ostatus {
 
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
+
+		if (Config::get('system', 'ostatus_debug')) {
+			$item['body'] .= '🐟';
+		}
 
 		$entry = self::entry($doc, $item, $owner, true);
 
