@@ -576,32 +576,38 @@ class Diaspora {
 		foreach ($element->children() AS $fieldname => $entry) {
 			if ($oldXML) {
 				// Translation for the old XML structure
-				if ($fieldname == "diaspora_handle")
+				if ($fieldname == "diaspora_handle") {
 					$fieldname = "author";
-
-				if ($fieldname == "participant_handles")
-					$fieldname = "participants";
-
-				if (in_array($type, array("like", "participation"))) {
-					if ($fieldname == "target_type")
-						$fieldname = "parent_type";
 				}
-
-				if ($fieldname == "sender_handle")
+				if ($fieldname == "participant_handles") {
+					$fieldname = "participants";
+				}
+				if (in_array($type, array("like", "participation"))) {
+					if ($fieldname == "target_type") {
+						$fieldname = "parent_type";
+					}
+				}
+				if ($fieldname == "sender_handle") {
 					$fieldname = "author";
-
-				if ($fieldname == "recipient_handle")
+				}
+				if ($fieldname == "recipient_handle") {
 					$fieldname = "recipient";
-
-				if ($fieldname == "root_diaspora_id")
+				}
+				if ($fieldname == "root_diaspora_id") {
 					$fieldname = "root_author";
-
+				}
+				if ($type == "status_message") {
+					if ($fieldname == "raw_message") {
+						$fieldname = "text";
+					}
+				}
 				if ($type == "retraction") {
-					if ($fieldname == "post_guid")
+					if ($fieldname == "post_guid") {
 						$fieldname = "target_guid";
-
-					if ($fieldname == "type")
+					}
+					if ($fieldname == "type") {
 						$fieldname = "target_type";
+					}
 				}
 			}
 
@@ -1363,10 +1369,10 @@ class Diaspora {
 	 * @return int The message id of the generated comment or "false" if there was an error
 	 */
 	private static function receive_comment($importer, $sender, $data, $xml) {
+		$author = notags(unxmlify($data->author));
 		$guid = notags(unxmlify($data->guid));
 		$parent_guid = notags(unxmlify($data->parent_guid));
 		$text = unxmlify($data->text);
-		$author = notags(unxmlify($data->author));
 
 		if (isset($data->created_at)) {
 			$created_at = datetime_convert("UTC", "UTC", notags(unxmlify($data->created_at)));
@@ -1481,16 +1487,9 @@ class Diaspora {
 	 * @return bool "true" if it was successful
 	 */
 	private static function receive_conversation_message($importer, $contact, $data, $msg, $mesg, $conversation) {
+		$author = notags(unxmlify($data->author));
 		$guid = notags(unxmlify($data->guid));
 		$subject = notags(unxmlify($data->subject));
-		$author = notags(unxmlify($data->author));
-
-		$msg_guid = notags(unxmlify($mesg->guid));
-		$msg_parent_guid = notags(unxmlify($mesg->parent_guid));
-		$msg_parent_author_signature = notags(unxmlify($mesg->parent_author_signature));
-		$msg_author_signature = notags(unxmlify($mesg->author_signature));
-		$msg_text = unxmlify($mesg->text);
-		$msg_created_at = datetime_convert("UTC", "UTC", notags(unxmlify($mesg->created_at)));
 
 		// "diaspora_handle" is the element name from the old version
 		// "author" is the element name from the new version
@@ -1502,7 +1501,15 @@ class Diaspora {
 			return false;
 		}
 
+		$msg_guid = notags(unxmlify($mesg->guid));
 		$msg_conversation_guid = notags(unxmlify($mesg->conversation_guid));
+		$msg_text = unxmlify($mesg->text);
+		$msg_created_at = datetime_convert("UTC", "UTC", notags(unxmlify($mesg->created_at)));
+
+		/// @todo these fields doesn't seem to be supported by the new protocol
+		$msg_parent_guid = notags(unxmlify($mesg->parent_guid));
+		$msg_parent_author_signature = notags(unxmlify($mesg->parent_author_signature));
+		$msg_author_signature = notags(unxmlify($mesg->author_signature));
 
 		if ($msg_conversation_guid != $guid) {
 			logger("message conversation guid does not belong to the current conversation.");
@@ -1606,10 +1613,10 @@ class Diaspora {
 	 * @return bool Success
 	 */
 	private static function receive_conversation($importer, $msg, $data) {
+		$author = notags(unxmlify($data->author));
 		$guid = notags(unxmlify($data->guid));
 		$subject = notags(unxmlify($data->subject));
 		$created_at = datetime_convert("UTC", "UTC", notags(unxmlify($data->created_at)));
-		$author = notags(unxmlify($data->author));
 		$participants = notags(unxmlify($data->participants));
 
 		$messages = $data->message;
@@ -1714,11 +1721,11 @@ class Diaspora {
 	 * @return int The message id of the generated like or "false" if there was an error
 	 */
 	private static function receive_like($importer, $sender, $data) {
-		$positive = notags(unxmlify($data->positive));
-		$guid = notags(unxmlify($data->guid));
-		$parent_type = notags(unxmlify($data->parent_type));
-		$parent_guid = notags(unxmlify($data->parent_guid));
 		$author = notags(unxmlify($data->author));
+		$guid = notags(unxmlify($data->guid));
+		$parent_guid = notags(unxmlify($data->parent_guid));
+		$parent_type = notags(unxmlify($data->parent_type));
+		$positive = notags(unxmlify($data->positive));
 
 		// likes on comments aren't supported by Diaspora - only on posts
 		// But maybe this will be supported in the future, so we will accept it.
@@ -1813,12 +1820,14 @@ class Diaspora {
 	 * @return bool Success?
 	 */
 	private static function receive_message($importer, $data) {
+		$author = notags(unxmlify($data->author));
 		$guid = notags(unxmlify($data->guid));
-		$parent_guid = notags(unxmlify($data->parent_guid));
+		$conversation_guid = notags(unxmlify($data->conversation_guid));
 		$text = unxmlify($data->text);
 		$created_at = datetime_convert("UTC", "UTC", notags(unxmlify($data->created_at)));
-		$author = notags(unxmlify($data->author));
-		$conversation_guid = notags(unxmlify($data->conversation_guid));
+
+		/// @todo "parent_guid" doesn't seem to be part of the new protocol
+		$parent_guid = notags(unxmlify($data->parent_guid));
 
 		$contact = self::allowed_contact_by_handle($importer, $author, true);
 		if (!$contact) {
@@ -1942,9 +1951,9 @@ class Diaspora {
 		$name = unxmlify($data->first_name).((strlen($data->last_name)) ? " ".unxmlify($data->last_name) : "");
 		$image_url = unxmlify($data->image_url);
 		$birthday = unxmlify($data->birthday);
-		$location = diaspora2bb(unxmlify($data->location));
-		$about = diaspora2bb(unxmlify($data->bio));
 		$gender = unxmlify($data->gender);
+		$about = diaspora2bb(unxmlify($data->bio));
+		$location = diaspora2bb(unxmlify($data->location));
 		$searchable = (unxmlify($data->searchable) == "true");
 		$nsfw = (unxmlify($data->nsfw) == "true");
 		$tags = unxmlify($data->tag_string);
@@ -2364,12 +2373,13 @@ class Diaspora {
 	 * @return int the message id
 	 */
 	private static function receive_reshare($importer, $data, $xml) {
+		$author = notags(unxmlify($data->author));
+		$guid = notags(unxmlify($data->guid));
+		$created_at = datetime_convert("UTC", "UTC", notags(unxmlify($data->created_at)));
 		$root_author = notags(unxmlify($data->root_author));
 		$root_guid = notags(unxmlify($data->root_guid));
-		$guid = notags(unxmlify($data->guid));
-		$author = notags(unxmlify($data->author));
+		/// @todo handle unprocessed property "provider_display_name"
 		$public = notags(unxmlify($data->public));
-		$created_at = datetime_convert("UTC", "UTC", notags(unxmlify($data->created_at)));
 
 		$contact = self::allowed_contact_by_handle($importer, $author, false);
 		if (!$contact) {
@@ -2444,9 +2454,9 @@ class Diaspora {
 	 * @return bool success
 	 */
 	private static function item_retraction($importer, $contact, $data) {
-		$target_type = notags(unxmlify($data->target_type));
-		$target_guid = notags(unxmlify($data->target_guid));
 		$author = notags(unxmlify($data->author));
+		$target_guid = notags(unxmlify($data->target_guid));
+		$target_type = notags(unxmlify($data->target_type));
 
 		$person = self::person_by_handle($author);
 		if (!is_array($person)) {
@@ -2548,19 +2558,13 @@ class Diaspora {
 	 * @return int The message id of the newly created item
 	 */
 	private static function receive_status_message($importer, $data, $xml) {
-		$raw_message = unxmlify($data->raw_message);
-		$guid = notags(unxmlify($data->guid));
 		$author = notags(unxmlify($data->author));
-		$public = notags(unxmlify($data->public));
+		$guid = notags(unxmlify($data->guid));
 		$created_at = datetime_convert("UTC", "UTC", notags(unxmlify($data->created_at)));
+		$public = notags(unxmlify($data->public));
+		$text = unxmlify($data->text);
 		$provider_display_name = notags(unxmlify($data->provider_display_name));
 
-		/// @todo enable support for polls
-		//if ($data->poll) {
-		//	foreach ($data->poll AS $poll)
-		//		print_r($poll);
-		//	die("poll!\n");
-		//}
 		$contact = self::allowed_contact_by_handle($importer, $author, false);
 		if (!$contact) {
 			return false;
@@ -2578,7 +2582,7 @@ class Diaspora {
 			}
 		}
 
-		$body = diaspora2bb($raw_message);
+		$body = diaspora2bb($text);
 
 		$datarray = array();
 
@@ -2598,6 +2602,15 @@ class Diaspora {
 				$body = add_page_info_to_body($body, false, true);
 			}
 		}
+
+		/// @todo enable support for polls
+		//if ($data->poll) {
+		//	foreach ($data->poll AS $poll)
+		//		print_r($poll);
+		//	die("poll!\n");
+		//}
+
+		/// @todo enable support for events
 
 		$datarray["uid"] = $importer["uid"];
 		$datarray["contact-id"] = $contact["id"];
