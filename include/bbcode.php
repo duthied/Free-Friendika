@@ -170,6 +170,11 @@ function cleancss($input) {
 	return $cleaned;
 }
 
+/**
+ * @brief Converts [url] BBCodes in a format that looks fine on Mastodon.
+ * @param array $match Array with the matching values
+ * @return string replaced value
+ */
 function bb_style_url($match) {
         $url = $match[1];
 
@@ -202,7 +207,6 @@ function bb_style_url($match) {
                 return sprintf($html, $url, $scheme, $styled_url);
         }
 }
-
 
 function stripcode_br_cb($s) {
 	return '[code]' . str_replace('<br />', '', $s[1]) . '[/code]';
