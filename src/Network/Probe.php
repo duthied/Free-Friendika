@@ -10,7 +10,6 @@ namespace Friendica\Network;
 
 use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\PConfig;
 
 require_once 'include/feed.php';
 require_once 'include/email.php';
@@ -184,6 +183,7 @@ class Probe {
 	public static function lrdd($uri) {
 
 		$lrdd = self::xrd($uri);
+		$webfinger = null;
 
 		if (!$lrdd) {
 			$parts = @parse_url($uri);
@@ -333,7 +333,7 @@ class Probe {
 			/// The biggest problem is the avatar picture that could have a reduced image size.
 			/// It should only be updated if the existing picture isn't existing anymore.
 			if (($data['network'] != NETWORK_FEED)
-				AND ($mode == PROBE_NORMAL)
+				AND ($data["network"] != NETWORK_DIASPORA)
 				AND $data["name"]
 				AND $data["nick"]
 				AND $data["url"]
@@ -402,8 +402,8 @@ class Probe {
 
 		} elseif (strstr($uri, '@')) {
 			// If the URI starts with "mailto:" then jump directly to the mail detection
-			if (strpos($url, 'mailto:') !== false) {
-				$uri = str_replace('mailto:', '', $url);
+			if (strpos($uri, 'mailto:') !== false) {
+				$uri = str_replace('mailto:', '', $uri);
 				return self::mail($uri, $uid);
 			}
 
