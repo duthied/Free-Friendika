@@ -1,5 +1,7 @@
 <?php
-use \Friendica\Core\Config;
+
+use Friendica\App;
+use Friendica\Core\Config;
 
 require_once 'include/oembed.php';
 require_once 'include/event.php';
@@ -53,18 +55,7 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 	}
 
 	if ($simplehtml == 7) {
-		$title2 = $data["title"];
-
-		$test1 = trim(html_entity_decode($data["text"],ENT_QUOTES,'UTF-8'));
-		$test2 = trim(html_entity_decode($data["title"],ENT_QUOTES,'UTF-8'));
-
-		// If the link description is similar to the text above then don't add the link description
-		if (($data["title"] != "") AND ((strpos($test1,$test2) !== false) OR
-			(similar_text($test1,$test2) / strlen($data["title"])) > 0.9)) {
-			$title2 = $data["url"];
-		}
-		$text = sprintf('<a href="%s" title="%s" class="attachment" rel="nofollow external">%s</a><br />',
-				$data["url"], $data["title"], $title2);
+		$text = style_url_for_mastodon($data["url"]);
 	} elseif (($simplehtml != 4) AND ($simplehtml != 0)) {
 		$text = sprintf('<a href="%s" target="_blank">%s</a><br>', $data["url"], $data["title"]);
 	} else {
@@ -166,6 +157,54 @@ function cleancss($input) {
 	}
 
 	return $cleaned;
+}
+
+/**
+ * @brief Converts [url] BBCodes in a format that looks fine on Mastodon. (callback function)
+ * @param array $match Array with the matching values
+ * @return string reformatted link including HTML codes
+ */
+function bb_style_url($match) {
+        $url = $match[1];
+
+	if (isset($match[2]) AND ($match[1] != $match[2])) {
+		return $match[0];
+	}
+
+        $parts = parse_url($url);
+        if (!isset($parts['scheme'])) {
+                return $match[0];
+        }
+
+	return style_url_for_mastodon($url);
+}
+
+/**
+ * @brief Converts [url] BBCodes in a format that looks fine on Mastodon and GNU Social.
+ * @param string $url URL that is about to be reformatted
+ * @return string reformatted link including HTML codes
+ */
+function style_url_for_mastodon($url) {
+        $styled_url = $url;
+
+        $parts = parse_url($url);
+        $scheme = $parts['scheme'].'://';
+        $styled_url = str_replace($scheme, '', $styled_url);
+
+        $html = '<a href="%s" class="attachment" rel="nofollow noopener" target="_blank">'.
+                 '<span class="invisible">%s</span>';
+
+        if (strlen($styled_url) > 30) {
+                $html .= '<span class="ellipsis">%s</span>'.
+                        '<span class="invisible">%s</span></a>';
+
+                $ellipsis = substr($styled_url, 0, 30);
+                $rest = substr($styled_url, 30);
+                return sprintf($html, $url, $scheme, $ellipsis, $rest);
+        } else {
+                $html .= '%s</a>';
+                return sprintf($html, $url, $scheme, $styled_url);
+        }
 }
 
 function stripcode_br_cb($s) {
@@ -940,7 +979,14 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
 //	if ($simplehtml != 7) {
 		if (!$forplaintext) {
-			$Text = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1<a href="$2" target="_blank">$2</a>', $Text);
+			if ($simplehtml != 7) {
+				$Text = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1<a href="$2" target="_blank">$2</a>', $Text);
+			} else {
+				$Text = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url]$2[/url]', $Text);
+
+				$Text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'bb_style_url', $Text);
+				$Text = preg_replace_callback("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", 'bb_style_url', $Text);
+			}
 		} else {
 			$Text = preg_replace("(\[url\]([$URLSearchString]*)\[\/url\])ism", " $1 ", $Text);
 			$Text = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'bb_RemovePictureLinks', $Text);

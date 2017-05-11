@@ -1,9 +1,10 @@
 <?php
 
-use \Friendica\Core\Config;
+use Friendica\Core\Config;
 
-require_once('include/socgraph.php');
-require_once('include/datetime.php');
+require_once 'include/probe.php';
+require_once 'include/socgraph.php';
+require_once 'include/datetime.php';
 
 function discover_poco_run(&$argv, &$argc) {
 

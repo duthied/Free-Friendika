@@ -13,12 +13,13 @@
  *
  */
 
-use \Friendica\Core\Config;
+use Friendica\App;
+use Friendica\Core\Config;
 
-require_once('boot.php');
-require_once('object/BaseObject.php');
+require_once 'boot.php';
+require_once 'object/BaseObject.php';
 
-$a = new App;
+$a = new App(__DIR__);
 BaseObject::set_app($a);
 
 // We assume that the index.php is called by a frontend process
@@ -73,7 +74,7 @@ if (!$install) {
 		exit();
 	}
 
-	require_once("include/session.php");
+	require_once 'include/session.php';
 	load_hooks();
 	call_hooks('init_1');
 
@@ -112,9 +113,11 @@ if (!$a->is_backend()) {
  */
 if (x($_SESSION,'authenticated') && !x($_SESSION,'language')) {
 	// we didn't loaded user data yet, but we need user language
-	$r = q("SELECT language FROM user WHERE uid=%d", intval($_SESSION['uid']));
+	$r = dba::select('user', array('language'), array('uid' => $_SESSION['uid']), array('limit' => 1));
 	$_SESSION['language'] = $lang;
-	if (dbm::is_result($r)) $_SESSION['language'] = $r[0]['language'];
+	if (dbm::is_result($r)) {
+		$_SESSION['language'] = $r['language'];
+	}
 }
 
 if ((x($_SESSION,'language')) && ($_SESSION['language'] !== $lang)) {
@@ -174,6 +177,10 @@ if (! x($_SESSION,'sysmsg_info')) {
 	$_SESSION['sysmsg_info'] = array();
 }
 
+// Array for informations about last received items
+if (! x($_SESSION,'last_updated')) {
+	$_SESSION['last_updated'] = array();
+}
 /*
  * check_config() is responsible for running update scripts. These automatically
  * update the DB schema whenever we push a new one out. It also checks to see if
@@ -482,7 +489,7 @@ header("X-Friendica-Version: " . FRIENDICA_VERSION);
 header("Content-type: text/html; charset=utf-8");
 
 /*
- * We use $_GET["mode"] for special page templates. So we will check if we have 
+ * We use $_GET["mode"] for special page templates. So we will check if we have
  * to load another page template than the default one.
  * The page templates are located in /view/php/ or in the theme directory.
  */

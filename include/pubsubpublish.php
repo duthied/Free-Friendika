@@ -1,5 +1,7 @@
 <?php
-use \Friendica\Core\Config;
+
+use Friendica\App;
+use Friendica\Core\Config;
 
 require_once('include/items.php');
 require_once('include/ostatus.php');
@@ -32,6 +34,9 @@ function handle_pubsubhubbub($id) {
 		return;
 	else
 		$rr = $r[0];
+
+	/// @todo Check server status with poco_check_server()
+	// Before this can be done we need a way to safely detect the server url.
 
 	logger("Generate feed of user ".$rr['nickname']." to ".$rr['callback_url']." - last updated ".$rr['last_update'], LOGGER_DEBUG);
 

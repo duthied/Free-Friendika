@@ -4,7 +4,8 @@
  * @file include/items.php
  */
 
-use \Friendica\ParseUrl;
+use Friendica\App;
+use Friendica\ParseUrl;
 
 require_once 'include/bbcode.php';
 require_once 'include/oembed.php';
@@ -339,7 +340,7 @@ function add_page_info_to_body($body, $texturl = false, $no_photos = false) {
  * Adds a "lang" specification in a "postopts" element of given $arr,
  * if possible and not already present.
  * Expects "body" element to exist in $arr.
- * 
+ *
  * @todo Add a parameter to request forcing override
  */
 function item_add_language_opt(&$arr) {
@@ -410,7 +411,70 @@ function uri_to_guid($uri, $host = "") {
 	return $guid_prefix.$host_hash;
 }
 
-/// @TODO Maybe $arr must be called-by-reference? This function modifies it
+/**
+ * @brief Store the conversation data
+ *
+ * @param array $arr Item array with conversation data
+ * @return array Item array with removed conversation data
+ */
+function store_conversation($arr) {
+	if (in_array($arr['network'], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
+		$conversation = array('item-uri' => $arr['uri'], 'received' => dbm::date());
+
+		if (isset($arr['parent-uri']) AND ($arr['parent-uri'] != $arr['uri'])) {
+			$conversation['reply-to-uri'] = $arr['parent-uri'];
+		}
+		if (isset($arr['thr-parent']) AND ($arr['thr-parent'] != $arr['uri'])) {
+			$conversation['reply-to-uri'] = $arr['thr-parent'];
+		}
+
+		if (isset($arr['conversation-uri'])) {
+			$conversation['conversation-uri'] = $arr['conversation-uri'];
+		}
+
+		if (isset($arr['conversation-href'])) {
+			$conversation['conversation-href'] = $arr['conversation-href'];
+		}
+
+		if (isset($arr['protocol'])) {
+			$conversation['protocol'] = $arr['protocol'];
+		}
+
+		if (isset($arr['source'])) {
+			$conversation['source'] = $arr['source'];
+		}
+
+		$old_conv = dba::fetch_first("SELECT `item-uri`, `reply-to-uri`, `conversation-uri`, `conversation-href`, `protocol`, `source`
+				FROM `conversation` WHERE `item-uri` = ?", $conversation['item-uri']);
+		if (dbm::is_result($old_conv)) {
+			// Don't update when only the source has changed.
+			// Only do this when there had been no source before.
+			if ($old_conv['source'] != '') {
+				unset($old_conv['source']);
+			}
+			// Update structure data all the time but the source only when its from a better protocol.
+			if (($old_conv['protocol'] < $conversation['protocol']) AND ($old_conv['protocol'] != 0)) {
+				unset($conversation['protocol']);
+				unset($conversation['source']);
+			}
+			if (!dba::update('conversation', $conversation, array('item-uri' => $conversation['item-uri']), $old_conv)) {
+				logger('Conversation: update for '.$conversation['item-uri'].' from '.$conv['protocol'].' to '.$conversation['protocol'].' failed', LOGGER_DEBUG);
+			}
+		} else {
+			if (!dba::insert('conversation', $conversation)) {
+				logger('Conversation: insert for '.$conversation['item-uri'].' (protocol '.$conversation['protocol'].') failed', LOGGER_DEBUG);
+			}
+		}
+	}
+
+	unset($arr['conversation-uri']);
+	unset($arr['conversation-href']);
+	unset($arr['protocol']);
+	unset($arr['source']);
+
+	return $arr;
+}
+
 /// @TODO add type-hint array
 function item_store($arr, $force_parent = false, $notify = false, $dontcache = false) {
 
@@ -423,6 +487,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		$arr['origin'] = 1;
 		$arr['last-child'] = 1;
 		$arr['network'] = NETWORK_DFRN;
+		$arr['protocol'] = PROTOCOL_DFRN;
 
 		// We have to avoid duplicates. So we create the GUID in form of a hash of the plink or uri.
 		// In difference to the call to "uri_to_guid" several lines below we add the hash of our own host.
@@ -435,6 +500,9 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 			}
 		}
 	}
+
+	// Store conversation data
+	$arr = store_conversation($arr);
 
 	/*
 	 * If a Diaspora signature structure was passed in, pull it out of the
@@ -690,6 +758,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	item_body_set_hashtags($arr);
 
 	$arr['thr-parent'] = $arr['parent-uri'];
+
 	if ($arr['parent-uri'] === $arr['uri']) {
 		$parent_id = 0;
 		$parent_deleted = 0;

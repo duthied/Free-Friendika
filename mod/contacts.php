@@ -1,11 +1,14 @@
 <?php
 
-require_once('include/Contact.php');
-require_once('include/socgraph.php');
-require_once('include/contact_selectors.php');
-require_once('include/Scrape.php');
-require_once('mod/proxy.php');
-require_once('include/Photo.php');
+use Friendica\App;
+use Friendica\Network\Probe;
+
+require_once 'include/Contact.php';
+require_once 'include/socgraph.php';
+require_once 'include/contact_selectors.php';
+require_once 'include/probe.php';
+require_once 'mod/proxy.php';
+require_once 'include/Photo.php';
 
 function contacts_init(App $a) {
 	if (! local_user()) {
@@ -25,8 +28,8 @@ function contacts_init(App $a) {
 		}
 	}
 
-	require_once('include/group.php');
-	require_once('include/contact_widgets.php');
+	require_once 'include/group.php';
+	require_once 'include/contact_widgets.php';
 
 	if ($_GET['nets'] == "all") {
 		$_GET['nets'] = "";
@@ -260,7 +263,7 @@ function _contact_update_profile($contact_id) {
 	if ($uid != local_user())
 		return;
 
-	$data = probe_url($r[0]["url"]);
+	$data = Probe::uri($r[0]["url"], "", 0, false);
 
 	// "Feed" or "Unknown" is mostly a sign of communication problems
 	if ((in_array($data["network"], array(NETWORK_FEED, NETWORK_PHANTOM))) AND ($data["network"] != $r[0]["network"]))
@@ -496,7 +499,7 @@ function contacts_content(App $a) {
 			'$baseurl' => App::get_baseurl(true),
 		));
 
-		require_once('include/contact_selectors.php');
+		require_once 'include/contact_selectors.php';
 
 		$tpl = get_markup_template("contact_edit.tpl");
 
@@ -828,7 +831,7 @@ function contacts_content(App $a) {
  *
  * Available Pages are 'Status', 'Profile', 'Contacts' and 'Common Friends'
  *
- * @param app $a
+ * @param App $a
  * @param int $contact_id The ID of the contact
  * @param int $active_tab 1 if tab should be marked as active
  *

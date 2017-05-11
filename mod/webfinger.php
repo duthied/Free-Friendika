@@ -1,5 +1,7 @@
 <?php
-require_once("include/Probe.php");
+
+use Friendica\App;
+use Friendica\Network\Probe;
 
 function webfinger_content(App $a) {
 

@@ -1,5 +1,7 @@
 <?php
 
+use Friendica\App;
+
 require_once('include/acl_selectors.php');
 require_once('include/message.php');
 require_once('include/Smilies.php');
@@ -349,7 +351,7 @@ function message_content(App $a) {
 
 		$o .= $header;
 
-		$r = q("SELECT count(*) AS `total` FROM `mail`, ANY_VALUE(`created`) AS `created`
+		$r = q("SELECT count(*) AS `total`, ANY_VALUE(`created`) AS `created` FROM `mail`
 			WHERE `mail`.`uid` = %d GROUP BY `parent-uri` ORDER BY `created` DESC",
 			intval(local_user())
 		);

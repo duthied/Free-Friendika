@@ -1,5 +1,8 @@
 <?php
-require_once("include/datetime.php");
+
+use Friendica\App;
+
+require_once('include/datetime.php');
 require_once('include/bbcode.php');
 require_once('include/ForumManager.php');
 require_once('include/group.php');
@@ -305,8 +308,18 @@ function ping_init(App $a)
 
 		// sort notifications by $[]['date']
 		$sort_function = function($a, $b) {
-			$adate = date($a['date']);
-			$bdate = date($b['date']);
+			$adate = strtotime($a['date']);
+			$bdate = strtotime($b['date']);
+
+			// Unseen messages are kept at the top
+			// The value 31536000 means one year. This should be enough :-)
+			if (!$a['seen']) {
+				$adate += 31536000;
+			}
+			if (!$b['seen']) {
+				$bdate += 31536000;
+			}
+
 			if ($adate == $bdate) {
 				return 0;
 			}

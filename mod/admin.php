@@ -6,7 +6,8 @@
  * @brief Friendica admin
  */
 
-use \Friendica\Core\Config;
+use Friendica\App;
+use Friendica\Core\Config;
 
 require_once("include/enotify.php");
 require_once("include/text.php");
@@ -109,6 +110,9 @@ function admin_post(App $a) {
 			case 'dbsync':
 				admin_page_dbsync_post($a);
 				break;
+			case 'blocklist':
+				admin_page_blocklist_post($a);
+				break;
 		}
 	}
 
@@ -166,6 +170,7 @@ function admin_content(App $a) {
 		'features' =>	array("admin/features/", t("Additional features") , "features"),
 		'dbsync' => 	array("admin/dbsync/", t('DB updates'), "dbsync"),
 		'queue'	 =>	array("admin/queue/", t('Inspect Queue'), "queue"),
+		'blocklist' => array("admin/blocklist/", t('Server Blocklist'), "blocklist"),
 		'federation' => array("admin/federation/", t('Federation Statistics'), "federation"),
 	);
 
@@ -236,6 +241,9 @@ function admin_content(App $a) {
 			case 'federation':
 				$o = admin_page_federation($a);
 				break;
+			case 'blocklist':
+				$o = admin_page_blocklist($a);
+				break;
 			default:
 				notice(t("Item not found."));
 		}
@@ -250,6 +258,94 @@ function admin_content(App $a) {
 	} else {
 		return $o;
 	}
+}
+
+/**
+ * @brief Subpage to modify the server wide block list via the admin panel.
+ *
+ * This function generates the subpage of the admin panel to allow the
+ * modification of the node wide block/black list to block entire
+ * remote servers from communication with this node. The page allows
+ * adding, removing and editing of entries from the blocklist.
+ *
+ * @param App $a
+ * @return string
+ */
+function admin_page_blocklist(App $a) {
+	$blocklist = Config::get('system', 'blocklist');
+	$blocklistform = array();
+	if (is_array($blocklist)) {
+		foreach($blocklist as $id => $b) {
+			$blocklistform[] = array(
+				'domain' => array("domain[$id]", t('Blocked domain'), $b['domain'], '', t('The blocked domain'), 'required', '', ''),
+				'reason' => array("reason[$id]", t("Reason for the block"), $b['reason'], t('The reason why you blocked this domain.').'('.$b['domain'].')', 'required', '', ''),
+				'delete' => array("delete[$id]", t("Delete domain").' ('.$b['domain'].')', False , t("Check to delete this entry from the blocklist"))
+			);
+		}
+	}
+	$t = get_markup_template("admin_blocklist.tpl");
+	return replace_macros($t, array(
+		'$title' => t('Administration'),
+		'$page' => t('Server Blocklist'),
+		'$intro' => t('This page can be used to define a black list of servers from the federated network that are not allowed to interact with your node. For all entered domains you should also give a reason why you have blocked the remote server.'),
+		'$public' => t('The list of blocked servers will be made publically available on the /friendica page so that your users and people investigating communication problems can find the reason easily.'),
+		'$addtitle' => t('Add new entry to block list'),
+		'$newdomain' => array('newentry_domain', t('Server Domain'), '', t('The domain of the new server to add to the block list. Do not include the protocol.'), 'required', '', ''),
+		'$newreason' => array('newentry_reason', t('Block reason'), '', t('The reason why you blocked this domain.'), 'required', '', ''),
+		'$submit' => t('Add Entry'),
+		'$savechanges' => t('Save changes to the blocklist'),
+		'$currenttitle' => t('Current Entries in the Blocklist'),
+		'$thurl' => t('Blocked domain'),
+		'$threason' => t('Reason for the block'),
+		'$delentry' => t('Delete entry from blocklist'),
+		'$entries' => $blocklistform,
+		'$baseurl' => App::get_baseurl(true),
+		'$confirm_delete' => t('Delete entry from blocklist?'),
+		'$form_security_token'	=> get_form_security_token("admin_blocklist")
+	));
+}
+
+/**
+ * @brief Process send data from Admin Blocklist Page
+ *
+ * @param App $a
+ */
+function admin_page_blocklist_post(App $a) {
+	if (!x($_POST,"page_blocklist_save") && (!x($_POST['page_blocklist_edit']))) {
+		return;
+	}
+
+	check_form_security_token_redirectOnErr('/admin/blocklist', 'admin_blocklist');
+
+	if (x($_POST['page_blocklist_save'])) {
+		//  Add new item to blocklist
+		$blocklist = get_config('system', 'blocklist');
+		$blocklist[] = array(
+			'domain' => notags(trim($_POST['newentry_domain'])),
+			'reason' => notags(trim($_POST['newentry_reason']))
+		);
+		Config::set('system', 'blocklist', $blocklist);
+		info(t('Server added to blocklist.').EOL);
+	} else {
+		// Edit the entries from blocklist
+		$blocklist = array();
+		foreach ($_POST['domain'] as $id => $domain) {
+			// Trimming whitespaces as well as any lingering slashes
+			$domain = notags(trim($domain, "\x00..\x1F/"));
+			$reason = notags(trim($_POST['reason'][$id]));
+			if (!x($_POST['delete'][$id])) {
+				$blocklist[] = array(
+					'domain' => $domain,
+					'reason' => $reason
+				);
+			}
+		}
+		Config::set('system', 'blocklist', $blocklist);
+		info(t('Site blocklist updated.').EOL);
+	}
+	goaway('admin/blocklist');
+
+	return; // NOTREACHED
 }
 
 /**
@@ -447,7 +543,7 @@ function admin_page_summary(App $a) {
 	$warningtext = array();
 	if (dbm::is_result($r)) {
 		$showwarning = true;
-		$warningtext[] = sprintf(t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the <tt>convert_innodb.sql</tt> in the <tt>/util</tt> directory of your Friendica installation.<br />'), 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
+		$warningtext[] = sprintf(t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php include/dbstructure.php toinnodb</tt> of your Friendica installation for an automatic conversion.<br />'), 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
 	}
 	// MySQL >= 5.7.4 doesn't support the IGNORE keyword in ALTER TABLE statements
 	if ((version_compare($db->server_info(), '5.7.4') >= 0) AND
@@ -636,6 +732,7 @@ function admin_page_site_post(App $a) {
 	$timeout		=	((x($_POST,'timeout'))			? intval(trim($_POST['timeout']))		: 60);
 	$maxloadavg		=	((x($_POST,'maxloadavg'))		? intval(trim($_POST['maxloadavg']))		: 50);
 	$maxloadavg_frontend	=	((x($_POST,'maxloadavg_frontend'))	? intval(trim($_POST['maxloadavg_frontend']))	: 50);
+	$min_memory		=	((x($_POST,'min_memory'))		? intval(trim($_POST['min_memory']))		: 0);
 	$optimize_max_tablesize	=	((x($_POST,'optimize_max_tablesize'))	? intval(trim($_POST['optimize_max_tablesize'])): 100);
 	$optimize_fragmentation	=	((x($_POST,'optimize_fragmentation'))	? intval(trim($_POST['optimize_fragmentation'])): 30);
 	$poco_completion	=	((x($_POST,'poco_completion'))		? intval(trim($_POST['poco_completion']))	: false);
@@ -721,6 +818,7 @@ function admin_page_site_post(App $a) {
 	set_config('system','ssl_policy',$ssl_policy);
 	set_config('system','maxloadavg',$maxloadavg);
 	set_config('system','maxloadavg_frontend',$maxloadavg_frontend);
+	set_config('system','min_memory',$min_memory);
 	set_config('system','optimize_max_tablesize',$optimize_max_tablesize);
 	set_config('system','optimize_fragmentation',$optimize_fragmentation);
 	set_config('system','poco_completion',$poco_completion);
@@ -1018,6 +1116,7 @@ function admin_page_site(App $a) {
 		'$timeout'		=> array('timeout', t("Network timeout"), (x(get_config('system','curl_timeout'))?get_config('system','curl_timeout'):60), t("Value is in seconds. Set to 0 for unlimited (not recommended).")),
 		'$maxloadavg'		=> array('maxloadavg', t("Maximum Load Average"), ((intval(get_config('system','maxloadavg')) > 0)?get_config('system','maxloadavg'):50), t("Maximum system load before delivery and poll processes are deferred - default 50.")),
 		'$maxloadavg_frontend'	=> array('maxloadavg_frontend', t("Maximum Load Average (Frontend)"), ((intval(get_config('system','maxloadavg_frontend')) > 0)?get_config('system','maxloadavg_frontend'):50), t("Maximum system load before the frontend quits service - default 50.")),
+		'$min_memory'		=> array('min_memory', t("Minimal Memory"), ((intval(get_config('system','min_memory')) > 0)?get_config('system','min_memory'):0), t("Minimal free memory in MB for the poller. Needs access to /proc/meminfo - default 0 (deactivated).")),
 		'$optimize_max_tablesize'=> array('optimize_max_tablesize', t("Maximum table size for optimization"), $optimize_max_tablesize, t("Maximum table size (in MB) for the automatic optimization - default 100 MB. Enter -1 to disable it.")),
 		'$optimize_fragmentation'=> array('optimize_fragmentation', t("Minimum level of fragmentation"), ((intval(get_config('system','optimize_fragmentation')) > 0)?get_config('system','optimize_fragmentation'):30), t("Minimum fragmenation level to start the automatic optimization - default value is 30%.")),
 

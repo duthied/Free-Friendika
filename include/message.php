@@ -1,9 +1,8 @@
 <?php
 
-	// send a private message
+// send a private message
 
-
-
+use Friendica\App;
 
 function send_message($recipient=0, $body='', $subject='', $replyto=''){
 
@@ -175,7 +174,7 @@ function send_wallmessage($recipient='', $body='', $subject='', $replyto=''){
 	$convid = 0;
 	$reply = false;
 
-	require_once('include/Scrape.php');
+	require_once 'include/probe.php';
 
 	$me = probe_url($replyto);
 

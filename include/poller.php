@@ -1,4 +1,8 @@
 <?php
+
+use Friendica\App;
+use Friendica\Core\Config;
+
 if (!file_exists("boot.php") AND (sizeof($_SERVER["argv"]) != 0)) {
 	$directory = dirname($_SERVER["argv"][0]);
 
@@ -10,15 +14,13 @@ if (!file_exists("boot.php") AND (sizeof($_SERVER["argv"]) != 0)) {
 	chdir($directory);
 }
 
-use \Friendica\Core\Config;
-
 require_once("boot.php");
 
 function poller_run($argv, $argc){
 	global $a, $db;
 
-	if(is_null($a)) {
-		$a = new App;
+	if (is_null($a)) {
+		$a = new App(dirname(__DIR__));
 	}
 
 	if(is_null($db)) {
@@ -40,6 +42,10 @@ function poller_run($argv, $argc){
 	load_hooks();
 
 	$a->start_process();
+
+	if ($a->min_memory_reached()) {
+		return;
+	}
 
 	if (poller_max_connections_reached()) {
 		return;
@@ -67,6 +73,11 @@ function poller_run($argv, $argc){
 
 	while ($r = poller_worker_process()) {
 
+		// Check free memory
+		if ($a->min_memory_reached()) {
+			return;
+		}
+
 		// Count active workers and compare them with a maximum value that depends on the load
 		if (poller_too_much_workers()) {
 			return;
@@ -80,7 +91,6 @@ function poller_run($argv, $argc){
 		if (time() > ($starttime + 3600))
 			return;
 	}
-
 }
 
 /**
@@ -678,4 +688,3 @@ if (array_search(__file__,get_included_files())===0){
 
 	killme();
 }
-?>
