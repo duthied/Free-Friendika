@@ -128,7 +128,7 @@ function poller_execute($queue) {
 
 	if (!$upd) {
 		logger("Couldn't update queue entry ".$queue["id"]." - skip this execution", LOGGER_DEBUG);
-		q("COMMIT");
+		dba::commit();
 		return true;
 	}
 
@@ -136,18 +136,18 @@ function poller_execute($queue) {
 	$id = q("SELECT `pid`, `executed` FROM `workerqueue` WHERE `id` = %d", intval($queue["id"]));
 	if (!$id) {
 		logger("Queue item ".$queue["id"]." vanished - skip this execution", LOGGER_DEBUG);
-		q("COMMIT");
+		dba::commit();
 		return true;
 	} elseif ((strtotime($id[0]["executed"]) <= 0) OR ($id[0]["pid"] == 0)) {
 		logger("Entry for queue item ".$queue["id"]." wasn't stored - skip this execution", LOGGER_DEBUG);
-		q("COMMIT");
+		dba::commit();
 		return true;
 	} elseif ($id[0]["pid"] != $mypid) {
 		logger("Queue item ".$queue["id"]." is to be executed by process ".$id[0]["pid"]." and not by me (".$mypid.") - skip this execution", LOGGER_DEBUG);
-		q("COMMIT");
+		dba::commit();
 		return true;
 	}
-	q("COMMIT");
+	dba::commit();
 
 	$argv = json_decode($queue["parameter"]);
 
@@ -558,7 +558,7 @@ function poller_passing_slow(&$highest_priority) {
  */
 function poller_worker_process() {
 
-	q("START TRANSACTION;");
+	dba::transaction();
 
 	// Check if we should pass some low priority process
 	$highest_priority = 0;

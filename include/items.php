@@ -951,8 +951,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 
 	logger('item_store: ' . print_r($arr,true), LOGGER_DATA);
 
-	q("COMMIT");
-	q("START TRANSACTION;");
+	dba::transaction();
 
 	$r = dbq("INSERT INTO `item` (`"
 			. implode("`, `", array_keys($arr))
@@ -974,7 +973,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		}
 	} else {
 		// This can happen - for example - if there are locking timeouts.
-		q("ROLLBACK");
+		dba::rollback();
 
 		// Store the data into a spool file so that we can try again later.
 
@@ -999,7 +998,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	if ($current_post == 0) {
 		// This is one of these error messages that never should occur.
 		logger("couldn't find created item - we better quit now.");
-		q("ROLLBACK");
+		dba::rollback();
 		return 0;
 	}
 
@@ -1014,7 +1013,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	if (!dbm::is_result($r)) {
 		// This shouldn't happen, since COUNT always works when the database connection is there.
 		logger("We couldn't count the stored entries. Very strange ...");
-		q("ROLLBACK");
+		dba::rollback();
 		return 0;
 	}
 
@@ -1023,13 +1022,13 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		logger('Duplicated post occurred. uri = ' . $arr['uri'] . ' uid = ' . $arr['uid']);
 
 		// Yes, we could do a rollback here - but we are having many users with MyISAM.
-		q("DELETE FROM `item` WHERE `id` = %d", intval($current_post));
-		q("COMMIT");
+		dba::delete('item', array('id' => $current_post));
+		dba::commit();
 		return 0;
 	} elseif ($r[0]["entries"] == 0) {
 		// This really should never happen since we quit earlier if there were problems.
 		logger("Something is terribly wrong. We haven't found our created entry.");
-		q("ROLLBACK");
+		dba::rollback();
 		return 0;
 	}
 
@@ -1109,7 +1108,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		update_thread($parent_id);
 	}
 
-	q("COMMIT");
+	dba::commit();
 
 	/*
 	 * Due to deadlock issues with the "term" table we are doing these steps after the commit.
@@ -1378,10 +1377,7 @@ function tag_deliver($uid, $item_id) {
 			// mmh.. no mention.. community page or private group... no wall.. no origin.. top-post (not a comment)
 			// delete it!
 			logger("tag_deliver: no-mention top-level post to communuty or private group. delete.");
-			q("DELETE FROM item WHERE id = %d and uid = %d",
-				intval($item_id),
-				intval($uid)
-			);
+			dba::delete('item', array('id' => $item_id));
 			return true;
 		}
 		return;
@@ -2236,23 +2232,6 @@ function drop_item($id, $interactive = true) {
 			);
 			// ignore the result
 		}
-
-
-		// clean up item_id and sign meta-data tables
-
-		/*
-		/// @TODO Old code - caused very long queries and warning entries in the mysql logfiles:
-
-		$r = q("DELETE FROM item_id where iid in (select id from item where parent = %d and uid = %d)",
-			intval($item['id']),
-			intval($item['uid'])
-		);
-
-		$r = q("DELETE FROM sign where iid in (select id from item where parent = %d and uid = %d)",
-			intval($item['id']),
-			intval($item['uid'])
-		);
-		*/
 
 		// The new code splits the queries since the mysql optimizer really has bad problems with subqueries
 
