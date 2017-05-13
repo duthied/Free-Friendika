@@ -63,16 +63,6 @@ function db_import_assoc($table, $arr) {
 	return q($query);
 }
 
-function import_cleanup($newuid) {
-	q("DELETE FROM `user` WHERE uid = %d", $newuid);
-	q("DELETE FROM `contact` WHERE uid = %d", $newuid);
-	q("DELETE FROM `profile` WHERE uid = %d", $newuid);
-	q("DELETE FROM `photo` WHERE uid = %d", $newuid);
-	q("DELETE FROM `group` WHERE uid = %d", $newuid);
-	q("DELETE FROM `group_member` WHERE uid = %d", $newuid);
-	q("DELETE FROM `pconfig` WHERE uid = %d", $newuid);
-}
-
 /**
  * @brief Import account file exported from mod/uexport
  *
@@ -174,7 +164,7 @@ function import_account(App $a, $file) {
 		if ($r === false) {
 			logger("uimport:insert profile " . $profile['profile-name'] . " : ERROR : " . last_error(), LOGGER_NORMAL);
 			info(t("User profile creation error"));
-			import_cleanup($newuid);
+			dba::delete('user', array('uid' => $newuid));
 			return;
 		}
 	}
