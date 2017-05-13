@@ -481,9 +481,9 @@ On success:
 On error:
 * 403 FORBIDDEN: if not authenticated
 * 400 BADREQUEST: "no media data submitted", "profile_id not available"
-* 500 INTERNALSERVERERROR: "image size exceeds PHP config settings, file was rejected by server", 
-			"image size exceeds Friendica Config setting (uploaded size: x)", 
-			"unable to process image data", 
+* 500 INTERNALSERVERERROR: "image size exceeds PHP config settings, file was rejected by server",
+			"image size exceeds Friendica Config setting (uploaded size: x)",
+			"unable to process image data",
 			"image upload failed"
 
 
@@ -792,14 +792,14 @@ On error:
 * desc (optional): description for the photo, updated when photo_id is specified
 * album: name of the album to be deleted (always necessary)
 * album_new (optional): can be used to change the album of a single photo if photo_id is specified
-* allow_cid/allow_gid/deny_cid/deny_gid (optional): on create: empty string or omitting = public photo, specify in format '```<x><y><z>```' for private photo; 
+* allow_cid/allow_gid/deny_cid/deny_gid (optional): on create: empty string or omitting = public photo, specify in format '```<x><y><z>```' for private photo;
 			on update: keys need to be present with empty values for setting a private photo now to public
 
-both calls point to one function for creating AND updating photos. 
-Saves data for the scales 0-2 to database (see above for scale description). 
-Call adds non-visible entries to items table to enable authenticated contacts to comment/like the photo. 
+both calls point to one function for creating AND updating photos.
+Saves data for the scales 0-2 to database (see above for scale description).
+Call adds non-visible entries to items table to enable authenticated contacts to comment/like the photo.
 Client should pay attention to the fact that updated access rights are not transferred to the contacts. i.e. public photos remain publicly visible if they have been commented/liked before setting visibility back to a limited group.
-Currently it is best way to inform user that updating rights is not the best way, offer a solution to add photo as a new photo with the new rights. 
+Currently it is best way to inform user that updating rights is not the best way, offer a solution to add photo as a new photo with the new rights.
 
 #### Return values
 
@@ -812,12 +812,12 @@ On success:
 On error:
 * 403 FORBIDDEN: if not authenticated
 * 400 BADREQUEST: "no albumname specified", "no media data submitted", "photo not available", "acl data invalid"
-* 500 INTERNALSERVERERROR: "image size exceeds PHP config settings, file was rejected by server", 
-			"image size exceeds Friendica Config setting (uploaded size: x)", 
-			"unable to process image data", 
-			"image upload failed", 
-			"unknown error - uploading photo failed, see Friendica log for more information", 
-			"unknown error - update photo entry in database failed", 
+* 500 INTERNALSERVERERROR: "image size exceeds PHP config settings, file was rejected by server",
+			"image size exceeds Friendica Config setting (uploaded size: x)",
+			"unable to process image data",
+			"image upload failed",
+			"unknown error - uploading photo failed, see Friendica log for more information",
+			"unknown error - update photo entry in database failed",
 			"unknown error - this error on uploading or updating a photo should never happen"
 
 
@@ -883,7 +883,7 @@ On success: Array of:
 * friendica_owner: user data of the authenticated user
 * profiles: array of the profile data
 
-On error: 
+On error:
 HTTP 403 Forbidden: when no authentication provided
 HTTP 400 Bad Request: if given profile_id is not in db or not assigned to authenticated user
 

@@ -19,6 +19,6 @@ function pretheme_init(App $a) {
 		}
 		echo json_encode(array('img' => get_theme_screenshot($theme), 'desc' => $desc, 'version' => $version, 'credits' => $credits));
 	}
-	
+
 	killme();
 }

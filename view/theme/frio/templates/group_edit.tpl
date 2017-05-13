@@ -1,5 +1,5 @@
 
-{{* This template is for the "group" module. It provides the user the possibility to 
+{{* This template is for the "group" module. It provides the user the possibility to
     modify a specific contact group (remove contact group, edit contact group name,
     add or remove contacts to the contact group.
 *}}
@@ -40,11 +40,11 @@
 				<div class="col-md-2"></div>
 				<div class="col-md-8 ">
 					<div class="form-group form-group-search">
-						<input type="text" 
-							name="filter" 
-							id="contacts-search" 
-							class="search-input form-control form-search" 
-							onkeyup="filterList(); return false;" 
+						<input type="text"
+							name="filter"
+							id="contacts-search"
+							class="search-input form-control form-search"
+							onkeyup="filterList(); return false;"
 							onfocus="this.select(); return false;"
 						/>
 					</div>

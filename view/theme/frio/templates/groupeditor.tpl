@@ -5,7 +5,7 @@
 	<ul id="contact-group-list" class="viewcontact_wrapper media-list">
 
 		{{* The contacts who are already members of the contact group *}}
-		{{foreach $groupeditor.members as $contact}} 
+		{{foreach $groupeditor.members as $contact}}
 			<li class="members active">{{include file="contact_template.tpl"}}</li>
 		{{/foreach}}
 
