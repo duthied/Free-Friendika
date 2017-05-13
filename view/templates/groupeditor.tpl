@@ -59,4 +59,3 @@
 	</div>
 	<div id="group-all-contacts-end"></div>
 </div>
-

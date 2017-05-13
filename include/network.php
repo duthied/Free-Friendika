@@ -172,7 +172,7 @@ function z_fetch_url($url, $binary = false, &$redirects = 0, $opts = array()) {
 	// allow for HTTP/2.x without fixing code
 
 	while (preg_match('/^HTTP\/[1-2].+? [1-5][0-9][0-9]/', $base)) {
-		$chunk = substr($base, 0, strpos($base, "\r\n\r\n") + 4);
+		$chunk = substr($base, 0, strpos($base,"\r\n\r\n") + 4);
 		$header .= $chunk;
 		$base = substr($base, strlen($chunk));
 	}
@@ -196,9 +196,8 @@ function z_fetch_url($url, $binary = false, &$redirects = 0, $opts = array()) {
 		if (preg_match('/(Location:|URI:)(.*?)\n/i', $header, $matches)) {
 			$newurl = trim(array_pop($matches));
 		}
-
-		if (strpos($newurl, '/') === 0) {
-			$newurl = $old_location_info['scheme'] . '://' . $old_location_info['host'] . $newurl;
+		if (strpos($newurl,'/') === 0) {
+			$newurl = $old_location_info["scheme"]."://".$old_location_info["host"].$newurl;
 		}
 
 		if (filter_var($newurl, FILTER_VALIDATE_URL)) {
@@ -342,7 +341,7 @@ function post_url($url, $params, $headers = null, &$redirects = 0, $timeout = 0)
 		$newurl = trim(array_pop($matches));
 
 		if (strpos($newurl, '/') === 0) {
-			$newurl = $old_location_info['scheme'] . '://' . $old_location_info['host'] . $newurl;
+			$newurl = $old_location_info["scheme"] . "://" . $old_location_info["host"] . $newurl;
 		}
 
 		if (filter_var($newurl, FILTER_VALIDATE_URL)) {
@@ -375,7 +374,7 @@ function xml_status($st, $message = '') {
 
 	$xml_message = ((strlen($message)) ? "\t<message>" . xmlify($message) . "</message>\r\n" : '');
 
-	if($st)
+	if ($st)
 		logger('xml_status returning non_zero: ' . $st . " message=" . $message);
 
 	header( "Content-type: text/xml" );
@@ -403,12 +402,12 @@ function xml_status($st, $message = '') {
  */
 function http_status_exit($val, $description = array()) {
 	$err = '';
-	if($val >= 400) {
+	if ($val >= 400) {
 		$err = 'Error';
 		if (!isset($description["title"]))
 			$description["title"] = $err." ".$val;
 	}
-	if($val >= 200 && $val < 300)
+	if ($val >= 200 && $val < 300)
 		$err = 'OK';
 
 	logger('http_status_exit ' . $val);
@@ -434,20 +433,20 @@ function http_status_exit($val, $description = array()) {
  * @return boolean True if it's a valid URL, fals if something wrong with it
  */
 function validate_url(&$url) {
-	if(get_config('system','disable_url_validation'))
+	if (get_config('system','disable_url_validation'))
 		return true;
 
 	// no naked subdomains (allow localhost for tests)
-	if(strpos($url,'.') === false && strpos($url,'/localhost/') === false)
+	if (strpos($url,'.') === false && strpos($url,'/localhost/') === false)
 		return false;
 
-	if(substr($url,0,4) != 'http')
+	if (substr($url,0,4) != 'http')
 		$url = 'http://' . $url;
 
 	/// @TODO Really supress function outcomes? Why not find them + debug them?
 	$h = @parse_url($url);
 
-	if((is_array($h)) && (dns_get_record($h['host'], DNS_A + DNS_CNAME + DNS_PTR) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
+	if ((is_array($h)) && (dns_get_record($h['host'], DNS_A + DNS_CNAME + DNS_PTR) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
 		return true;
 	}
 
@@ -462,14 +461,14 @@ function validate_url(&$url) {
  */
 function validate_email($addr) {
 
-	if(get_config('system','disable_email_validation'))
+	if (get_config('system','disable_email_validation'))
 		return true;
 
-	if(! strpos($addr,'@'))
+	if (! strpos($addr,'@'))
 		return false;
 	$h = substr($addr,strpos($addr,'@') + 1);
 
-	if(($h) && (dns_get_record($h, DNS_A + DNS_CNAME + DNS_PTR + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP) )) {
+	if (($h) && (dns_get_record($h, DNS_A + DNS_CNAME + DNS_PTR + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP) )) {
 		return true;
 	}
 	return false;
@@ -502,7 +501,6 @@ function allowed_url($url) {
 	$host = strtolower($h['host']);
 
 	// always allow our own site
-
 	if ($host == strtolower($_SERVER['SERVER_NAME'])) {
 		return true;
 	}
@@ -563,24 +561,25 @@ function blocked_url($url) {
  */
 function allowed_email($email) {
 
-
 	$domain = strtolower(substr($email,strpos($email,'@') + 1));
-	if(! $domain)
+	if (! $domain) {
 		return false;
+	}
 
 	$str_allowed = get_config('system','allowed_email');
-	if(! $str_allowed)
+	if (! $str_allowed) {
 		return true;
+	}
 
 	$found = false;
 
 	$fnmatch = function_exists('fnmatch');
 	$allowed = explode(',',$str_allowed);
 
-	if(count($allowed)) {
-		foreach($allowed as $a) {
+	if (count($allowed)) {
+		foreach ($allowed as $a) {
 			$pat = strtolower(trim($a));
-			if(($fnmatch && fnmatch($pat,$domain)) || ($pat == $domain)) {
+			if (($fnmatch && fnmatch($pat,$domain)) || ($pat == $domain)) {
 				$found = true;
 				break;
 			}
@@ -609,8 +608,8 @@ function avatar_img($email) {
 
 function parse_xml_string($s,$strict = true) {
 	/// @todo Move this function to the xml class
-	if($strict) {
-		if(! strstr($s,'<?xml'))
+	if ($strict) {
+		if (! strstr($s,'<?xml'))
 			return false;
 		$s2 = substr($s,strpos($s,'<?xml'));
 	}
