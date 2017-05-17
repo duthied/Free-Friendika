@@ -32,7 +32,8 @@ function queue_run(&$argv, &$argc){
 		$r = q("SELECT `queue`.*, `contact`.`name`, `contact`.`uid` FROM `queue`
 			INNER JOIN `contact` ON `queue`.`cid` = `contact`.`id`
 			WHERE `queue`.`created` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
-		if ($r) {
+
+		if (dbm::is_result($r)) {
 			foreach ($r as $rr) {
 				logger('Removing expired queue item for ' . $rr['name'] . ', uid=' . $rr['uid']);
 				logger('Expired queue data: ' . $rr['content'], LOGGER_DATA);
