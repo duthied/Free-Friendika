@@ -182,6 +182,7 @@ function autoname($len) {
 			break;
 		}
 	}
+
 	if (substr($word, -1) == 'q') {
 		$word = substr($word, 0, -1);
 	}
