@@ -22,7 +22,7 @@
 #fc-header-right {
     margin-top: -4px;
 }
-#fc-header-right button {
+#fc-header-right .dropdown > button {
     color: inherit;
 }
 #event-calendar-title {
