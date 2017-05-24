@@ -2076,7 +2076,7 @@ function item_expire($uid, $days, $network = "", $force = false) {
 		drop_item($item['id'], false);
 	}
 
-	proc_run(PRIORITY_HIGH, "include/notifier.php", "expire", $uid);
+	proc_run(PRIORITY_LOW, "include/notifier.php", "expire", $uid);
 
 }
 
@@ -2099,7 +2099,7 @@ function drop_items($items) {
 	// multiple threads may have been deleted, send an expire notification
 
 	if ($uid) {
-		proc_run(PRIORITY_HIGH, "include/notifier.php", "expire", $uid);
+		proc_run(PRIORITY_LOW, "include/notifier.php", "expire", $uid);
 	}
 }
 
@@ -2290,11 +2290,12 @@ function drop_item($id, $interactive = true) {
 			}
 		}
 
+		// send the notification upstream/downstream
+		// The priority depends on how the deletion is done.
 		$drop_id = intval($item['id']);
+		$priority = ($interactive ? PRIORITY_HIGH : PRIORITY_LOW);
 
-		// send the notification upstream/downstream as the case may be
-
-		proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
+		proc_run($priority, "include/notifier.php", "drop", $drop_id);
 
 		if (! $interactive) {
 			return $owner;
