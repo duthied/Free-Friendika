@@ -59,6 +59,28 @@ class Probe {
 	}
 
 	/**
+	 * @brief Check if the hostname belongs to the own server
+	 *
+	 * @param string $host The hostname that is to be checked
+	 *
+	 * @return bool Does the testes hostname belongs to the own server?
+	 */
+	private function ownHost($host) {
+		$own_host = get_app()->get_hostname();
+
+		$parts = parse_url($host);
+
+		if (!isset($parts['scheme'])) {
+			$parts = parse_url('http://'.$host);
+		}
+
+		if (!isset($parts['host'])) {
+			return false;
+		}
+		return $parts['host'] == $own_host;
+	}
+
+	/**
 	 * @brief Probes for XRD data
 	 *
 	 * @param string $host The host part of an url
@@ -82,7 +104,8 @@ class Probe {
 		logger("Probing for ".$host, LOGGER_DEBUG);
 
 		$ret = z_fetch_url($ssl_url, false, $redirects, array('timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml'));
-		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+		if (($ret['errno'] == CURLE_OPERATION_TIMEDOUT) AND !self::ownHost($ssl_url)) {
+			logger("Probing timeout for ".$ssl_url, LOGGER_DEBUG);
 			return false;
 		}
 		$xml = $ret['body'];
@@ -92,12 +115,14 @@ class Probe {
 		if (!is_object($xrd)) {
 			$ret = z_fetch_url($url, false, $redirects, array('timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml'));
 			if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+				logger("Probing timeout for ".$url, LOGGER_DEBUG);
 				return false;
 			}
 			$xml = $ret['body'];
 			$xrd = parse_xml_string($xml, false);
 		}
 		if (!is_object($xrd)) {
+			logger("No xrd object found for ".$host, LOGGER_DEBUG);
 			return false;
 		}
 
@@ -132,6 +157,8 @@ class Probe {
 		}
 
 		self::$baseurl = "http://".$host;
+
+		logger("Probing successful for ".$host, LOGGER_DEBUG);
 
 		return $xrd_data;
 	}
@@ -404,6 +431,7 @@ class Probe {
 				$lrdd = self::xrd($host);
 			}
 			if (!$lrdd) {
+				logger('No XRD data was found for '.$uri, LOGGER_DEBUG);
 				return self::feed($uri);
 			}
 			$nick = array_pop($path_parts);
@@ -435,6 +463,7 @@ class Probe {
 			$lrdd = self::xrd($host);
 
 			if (!$lrdd) {
+				logger('No XRD data was found for '.$uri, LOGGER_DEBUG);
 				return self::mail($uri, $uid);
 			}
 			$addr = $uri;
