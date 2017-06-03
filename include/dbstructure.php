@@ -1742,6 +1742,7 @@ function db_definition() {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
+					"priority_created" => array("priority", "created"),
 					)
 			);
 
