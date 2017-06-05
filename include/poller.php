@@ -573,7 +573,7 @@ function poller_worker_process() {
 	$highest_priority = 0;
 
 	if (poller_passing_slow($highest_priority)) {
-		dba::e('LOCK TABLES `workerqueue` WRITE');
+		dba::lock('workerqueue');
 
 		// Are there waiting processes with a higher priority than the currently highest?
 		$r = q("SELECT * FROM `workerqueue`
@@ -595,7 +595,7 @@ function poller_worker_process() {
 			return $r;
 		}
 	} else {
-		dba::e('LOCK TABLES `workerqueue` WRITE');
+		dba::lock('workerqueue');
 	}
 
 	// If there is no result (or we shouldn't pass lower processes) we check without priority limit
@@ -605,7 +605,7 @@ function poller_worker_process() {
 
 	// We only unlock the tables here, when we got no data
 	if (!dbm::is_result($r)) {
-		dba::e('UNLOCK TABLES');
+		dba::unlock();
 	}
 
 	return $r;
@@ -625,7 +625,7 @@ function poller_claim_process($queue) {
 
 	$success = dba::update('workerqueue', array('executed' => datetime_convert(), 'pid' => $mypid),
 			array('id' => $queue["id"], 'pid' => 0));
-	dba::e('UNLOCK TABLES');
+	dba::unlock();
 
 	if (!$success) {
 		logger("Couldn't update queue entry ".$queue["id"]." - skip this execution", LOGGER_DEBUG);
