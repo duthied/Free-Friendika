@@ -38,9 +38,9 @@ require_once 'include/dbstructure.php';
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
-define ( 'FRIENDICA_VERSION',      '3.5.2-dev' );
+define ( 'FRIENDICA_VERSION',      '3.5.2' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1224      );
+define ( 'DB_UPDATE_VERSION',      1227      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -457,6 +457,13 @@ if (!defined("SIGTERM")) {
 	define("SIGTERM", 15);
 }
 
+/**
+ * Depending on the PHP version this constant does exist - or not.
+ * See here: http://php.net/manual/en/curl.constants.php#117928
+ */
+if (!defined('CURLE_OPERATION_TIMEDOUT')) {
+        define('CURLE_OPERATION_TIMEDOUT', CURLE_OPERATION_TIMEOUTED);
+}
 /**
  *
  * Reverse the effect of magic_quotes_gpc if it is enabled.
@@ -1375,7 +1382,7 @@ function get_server() {
 	$server = get_config("system", "directory");
 
 	if ($server == "") {
-		$server = "http://dir.friendi.ca";
+		$server = "http://dir.friendica.social";
 	}
 
 	return($server);

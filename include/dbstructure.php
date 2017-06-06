@@ -8,7 +8,11 @@ require_once "include/text.php";
 
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
-/**
+const DB_UPDATE_NOT_CHECKED = 0; // Database check wasn't executed before
+const DB_UPDATE_SUCCESSFUL = 1;  // Database check was successful
+const DB_UPDATE_FAILED = 2;      // Database check failed
+
+/*
  * Converts all tables from MyISAM to InnoDB
  */
 function convert_to_innodb() {
@@ -480,6 +484,12 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 		Config::set('system', 'maintenance_reason', '');
 	}
 
+	if ($errors) {
+		Config::set('system', 'dbupdate', DB_UPDATE_FAILED);
+	} else {
+		Config::set('system', 'dbupdate', DB_UPDATE_SUCCESSFUL);
+	}
+
 	return $errors;
 }
 
@@ -808,7 +818,7 @@ function db_definition() {
 	$database["conv"] = array(
 			"fields" => array(
 					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"guid" => array("type" => "varchar(64)", "not null" => "1", "default" => ""),
+					"guid" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"recips" => array("type" => "text"),
 					"uid" => array("type" => "int(11)", "not null" => "1", "default" => "0", "relation" => array("user" => "uid")),
 					"creator" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
@@ -1205,7 +1215,7 @@ function db_definition() {
 			"fields" => array(
 					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
 					"uid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0", "relation" => array("user" => "uid")),
-					"guid" => array("type" => "varchar(64)", "not null" => "1", "default" => ""),
+					"guid" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"from-name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"from-photo" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"from-url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
@@ -1732,6 +1742,8 @@ function db_definition() {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
+					"pid" => array("pid"),
+					"priority_created" => array("priority", "created"),
 					)
 			);
 

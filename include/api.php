@@ -456,10 +456,13 @@ $called_api = null;
 	 * 		Contact url or False if contact id is unknown
 	 */
 	function api_unique_id_to_url($id) {
-		$r = q("SELECT `url` FROM `contact` WHERE `uid` = 0 AND `id` = %d LIMIT 1",
-			intval($id));
+		$r = dba::select('contact', array('url'), array('uid' => 0, 'id' => $id), array('limit' => 1));
 
-		return (dbm::is_result($r) && $r[0]["url"]);
+		if (dbm::is_result($r)) {
+			return $r["url"];
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -2286,6 +2289,11 @@ $called_api = null;
 			$statushtml = "<h4>" . bbcode($item['title']) . "</h4>\n" . $statushtml;
 		}
 
+		// feeds without body should contain the link 
+		if (($item['network'] == NETWORK_FEED) && (strlen($item['body']) == 0)) { 
+			$statushtml .= bbcode($item['plink']); 
+		} 
+		
 		$entities = api_get_entitities($statustext, $body);
 
 		return array(
@@ -3027,8 +3035,9 @@ $called_api = null;
 			api_best_nickname($r);
 
 			$recipient = api_get_user($a, $r[0]['nurl']);
-		} else
+		} else {
 			$recipient = api_get_user($a, $_POST['user_id']);
+		}
 
 		$replyto = '';
 		$sub     = '';
@@ -3740,8 +3749,7 @@ $called_api = null;
 			proc_run(PRIORITY_LOW, "include/directory.php", $url);
 		}
 
-		require_once 'include/profile_update.php';
-		profile_change();
+		proc_run(PRIORITY_LOW, 'include/profile_update.php', api_user());
 
 		// output for client
 		if ($data) {

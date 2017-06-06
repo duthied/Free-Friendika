@@ -1395,7 +1395,7 @@ class Diaspora {
 
 		$message_id = self::message_exists($importer["uid"], $guid);
 		if ($message_id) {
-			return $message_id;
+			return true;
 		}
 
 		$parent_item = self::parent_item($importer["uid"], $parent_guid, $author, $contact);
@@ -1454,6 +1454,10 @@ class Diaspora {
 
 		$message_id = item_store($datarray);
 
+		if ($message_id <= 0) {
+			return false;
+		}
+
 		if ($message_id) {
 			logger("Stored comment ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
 		}
@@ -1472,7 +1476,7 @@ class Diaspora {
 			proc_run(PRIORITY_HIGH, "include/notifier.php", "comment-import", $message_id);
 		}
 
-		return $message_id;
+		return true;
 	}
 
 	/**
@@ -1623,7 +1627,7 @@ class Diaspora {
 		}
 		if (!$conversation) {
 			logger("unable to create conversation.");
-			return;
+			return false;
 		}
 
 		foreach ($messages as $mesg)
@@ -1701,7 +1705,7 @@ class Diaspora {
 
 		$message_id = self::message_exists($importer["uid"], $guid);
 		if ($message_id)
-			return $message_id;
+			return true;
 
 		$parent_item = self::parent_item($importer["uid"], $parent_guid, $author, $contact);
 		if (!$parent_item)
@@ -1754,8 +1758,13 @@ class Diaspora {
 
 		$message_id = item_store($datarray);
 
-		if ($message_id)
+		if ($message_id <= 0) {
+			return false;
+		}
+
+		if ($message_id) {
 			logger("Stored like ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
+		}
 
 		// If we are the origin of the parent we store the original data and notify our followers
 		if ($message_id AND $parent_item["origin"]) {
@@ -1771,7 +1780,7 @@ class Diaspora {
 			proc_run(PRIORITY_HIGH, "include/notifier.php", "comment-import", $message_id);
 		}
 
-		return $message_id;
+		return true;
 	}
 
 	/**
@@ -2348,7 +2357,7 @@ class Diaspora {
 
 		$message_id = self::message_exists($importer["uid"], $guid);
 		if ($message_id) {
-			return $message_id;
+			return true;
 		}
 
 		$original_item = self::original_item($root_guid, $root_author, $author);
@@ -2399,9 +2408,10 @@ class Diaspora {
 
 		if ($message_id) {
 			logger("Stored reshare ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
+			return true;
+		} else {
+			return false;
 		}
-
-		return $message_id;
 	}
 
 	/**
@@ -2532,7 +2542,7 @@ class Diaspora {
 
 		$message_id = self::message_exists($importer["uid"], $guid);
 		if ($message_id) {
-			return $message_id;
+			return true;
 		}
 
 		$address = array();
@@ -2616,9 +2626,10 @@ class Diaspora {
 
 		if ($message_id) {
 			logger("Stored item ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
+			return true;
+		} else {
+			return false;
 		}
-
-		return $message_id;
 	}
 
 	/* ************************************************************************************** *
