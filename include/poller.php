@@ -391,7 +391,8 @@ function poller_kill_stale_workers() {
 			if (!in_array($pid["priority"], array(PRIORITY_CRITICAL, PRIORITY_HIGH, PRIORITY_MEDIUM, PRIORITY_LOW, PRIORITY_NEGLIGIBLE))) {
 				$pid["priority"] = PRIORITY_MEDIUM;
 			}
-			// Define the maximum durations
+
+      // Define the maximum durations
 			$max_duration_defaults = array(PRIORITY_CRITICAL => 360, PRIORITY_HIGH => 10, PRIORITY_MEDIUM => 60, PRIORITY_LOW => 180, PRIORITY_NEGLIGIBLE => 360);
 			$max_duration = $max_duration_defaults[$pid["priority"]];
 
