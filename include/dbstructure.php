@@ -1743,6 +1743,7 @@ function db_definition() {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"pid" => array("pid"),
+					"parameter" => array("parameter(192)"),
 					"priority_created" => array("priority", "created"),
 					)
 			);
