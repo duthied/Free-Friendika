@@ -807,6 +807,41 @@ class dba {
 	}
 
 	/**
+	 * @brief Locks a table for exclusive write access
+	 *
+	 * This function can be extended in the future to accept a table array as well.
+	 *
+	 * @param string $table Table name
+	 *
+	 * @return boolean was the lock successful?
+	 */
+	static public function lock($table) {
+		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
+		self::e("SET autocommit=0");
+		$success = self::e("LOCK TABLES `".self::$dbo->escape($table)."` WRITE");
+		if (!$success) {
+			self::e("SET autocommit=1");
+		} else {
+			self::$in_transaction = true;
+		}
+		return $success;
+	}
+
+	/**
+	 * @brief Unlocks all locked tables
+	 *
+	 * @return boolean was the unlock successful?
+	 */
+	static public function unlock() {
+		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
+		self::e("COMMIT");
+		$success = self::e("UNLOCK TABLES");
+		self::e("SET autocommit=1");
+		self::$in_transaction = false;
+		return $success;
+	}
+
+	/**
 	 * @brief Starts a transaction
 	 *
 	 * @return boolean Was the command executed successfully?
