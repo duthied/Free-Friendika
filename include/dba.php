@@ -460,6 +460,27 @@ class dba {
 	}
 
 	/**
+	 * @brief beautifies the query - useful for "SHOW PROCESSLIST"
+	 *
+	 * This is safe when we bind the parameters later.
+	 * The parameter values aren't part of the SQL.
+	 *
+	 * @param string $sql An SQL string without the values
+	 * @return string The input SQL string modified if necessary.
+	 */
+	public function clean_query($sql) {
+		$search = array("\t", "\n", "\r", "  ");
+		$replace = array(' ', ' ', ' ', ' ');
+		do {
+			$oldsql = $sql;
+			$sql = str_replace($search, $replace, $sql);
+		} while ($oldsql != $sql);
+
+		return $sql;
+	}
+
+
+	/**
 	 * @brief Replaces the ? placeholders with the parameters in the $args array
 	 *
 	 * @param string $sql SQL query
@@ -521,6 +542,7 @@ class dba {
 			logger('Parameter mismatch. Query "'.$sql.'" - Parameters '.print_r($args, true), LOGGER_DEBUG);
 		}
 
+		$sql = self::$dbo->clean_query($sql);
 		$sql = self::$dbo->any_value_fallback($sql);
 
 		if (x($a->config,'system') && x($a->config['system'], 'db_callstack')) {
@@ -708,6 +730,9 @@ class dba {
 	 * @return int Number of rows
 	 */
 	static public function num_rows($stmt) {
+		if (!is_object($stmt)) {
+			return 0;
+		}
 		switch (self::$dbo->driver) {
 			case 'pdo':
 				return $stmt->rowCount();
@@ -779,6 +804,41 @@ class dba {
 			substr(str_repeat("?, ", count($param)), 0, -2).");";
 
 		return self::e($sql, $param);
+	}
+
+	/**
+	 * @brief Locks a table for exclusive write access
+	 *
+	 * This function can be extended in the future to accept a table array as well.
+	 *
+	 * @param string $table Table name
+	 *
+	 * @return boolean was the lock successful?
+	 */
+	static public function lock($table) {
+		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
+		self::e("SET autocommit=0");
+		$success = self::e("LOCK TABLES `".self::$dbo->escape($table)."` WRITE");
+		if (!$success) {
+			self::e("SET autocommit=1");
+		} else {
+			self::$in_transaction = true;
+		}
+		return $success;
+	}
+
+	/**
+	 * @brief Unlocks all locked tables
+	 *
+	 * @return boolean was the unlock successful?
+	 */
+	static public function unlock() {
+		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
+		self::e("COMMIT");
+		$success = self::e("UNLOCK TABLES");
+		self::e("SET autocommit=1");
+		self::$in_transaction = false;
+		return $success;
 	}
 
 	/**
@@ -1200,6 +1260,7 @@ function q($sql) {
 	unset($args[0]);
 
 	if ($db && $db->connected) {
+		$sql = $db->clean_query($sql);
 		$sql = $db->any_value_fallback($sql);
 		$stmt = @vsprintf($sql,$args); // Disabled warnings
 		//logger("dba: q: $stmt", LOGGER_ALL);
@@ -1237,6 +1298,7 @@ function qu($sql) {
 	unset($args[0]);
 
 	if ($db && $db->connected) {
+		$sql = $db->clean_query($sql);
 		$sql = $db->any_value_fallback($sql);
 		$stmt = @vsprintf($sql,$args); // Disabled warnings
 		if ($stmt === false)

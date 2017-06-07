@@ -59,6 +59,28 @@ class Probe {
 	}
 
 	/**
+	 * @brief Check if the hostname belongs to the own server
+	 *
+	 * @param string $host The hostname that is to be checked
+	 *
+	 * @return bool Does the testes hostname belongs to the own server?
+	 */
+	private function ownHost($host) {
+		$own_host = get_app()->get_hostname();
+
+		$parts = parse_url($host);
+
+		if (!isset($parts['scheme'])) {
+			$parts = parse_url('http://'.$host);
+		}
+
+		if (!isset($parts['host'])) {
+			return false;
+		}
+		return $parts['host'] == $own_host;
+	}
+
+	/**
 	 * @brief Probes for XRD data
 	 *
 	 * @param string $host The host part of an url
@@ -79,8 +101,11 @@ class Probe {
 		$xrd_timeout = Config::get('system', 'xrd_timeout', 20);
 		$redirects = 0;
 
+		logger("Probing for ".$host, LOGGER_DEBUG);
+
 		$ret = z_fetch_url($ssl_url, false, $redirects, array('timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml'));
-		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+		if (($ret['errno'] == CURLE_OPERATION_TIMEDOUT) AND !self::ownHost($ssl_url)) {
+			logger("Probing timeout for ".$ssl_url, LOGGER_DEBUG);
 			return false;
 		}
 		$xml = $ret['body'];
@@ -90,18 +115,21 @@ class Probe {
 		if (!is_object($xrd)) {
 			$ret = z_fetch_url($url, false, $redirects, array('timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml'));
 			if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+				logger("Probing timeout for ".$url, LOGGER_DEBUG);
 				return false;
 			}
 			$xml = $ret['body'];
 			$xrd = parse_xml_string($xml, false);
 		}
 		if (!is_object($xrd)) {
-			return false;
+			logger("No xrd object found for ".$host, LOGGER_DEBUG);
+			return array();
 		}
 
 		$links = xml::element_to_array($xrd);
 		if (!isset($links["xrd"]["link"])) {
-			return false;
+			logger("No xrd data found for ".$host, LOGGER_DEBUG);
+			return array();
 		}
 
 		$xrd_data = array();
@@ -129,6 +157,8 @@ class Probe {
 		}
 
 		self::$baseurl = "http://".$host;
+
+		logger("Probing successful for ".$host, LOGGER_DEBUG);
 
 		return $xrd_data;
 	}
@@ -192,6 +222,10 @@ class Probe {
 		$lrdd = self::xrd($uri);
 		$webfinger = null;
 
+		if (is_bool($lrdd)) {
+			return array();
+		}
+
 		if (!$lrdd) {
 			$parts = @parse_url($uri);
 			if (!$parts) {
@@ -214,6 +248,7 @@ class Probe {
 		}
 
 		if (!$lrdd) {
+			logger("No lrdd data found for ".$uri, LOGGER_DEBUG);
 			return array();
 		}
 
@@ -249,6 +284,7 @@ class Probe {
 		}
 
 		if (!is_array($webfinger["links"])) {
+			logger("No webfinger links found for ".$uri, LOGGER_DEBUG);
 			return false;
 		}
 
@@ -392,6 +428,10 @@ class Probe {
 			}
 			$lrdd = self::xrd($host);
 
+			if (is_bool($lrdd)) {
+				return array();
+			}
+
 			$path_parts = explode("/", trim($parts["path"], "/"));
 
 			while (!$lrdd AND (sizeof($path_parts) > 1)) {
@@ -399,6 +439,7 @@ class Probe {
 				$lrdd = self::xrd($host);
 			}
 			if (!$lrdd) {
+				logger('No XRD data was found for '.$uri, LOGGER_DEBUG);
 				return self::feed($uri);
 			}
 			$nick = array_pop($path_parts);
@@ -429,12 +470,18 @@ class Probe {
 			}
 			$lrdd = self::xrd($host);
 
+			if (is_bool($lrdd)) {
+				return array();
+			}
+
 			if (!$lrdd) {
+				logger('No XRD data was found for '.$uri, LOGGER_DEBUG);
 				return self::mail($uri, $uid);
 			}
 			$addr = $uri;
 
 		} else {
+			logger("Uri ".$uri." was not detectable", LOGGER_DEBUG);
 			return false;
 		}
 
@@ -544,6 +591,7 @@ class Probe {
 			$webfinger = json_decode($data, true);
 
 			if (!isset($webfinger["links"])) {
+				logger("No json webfinger links for ".$url, LOGGER_DEBUG);
 				return false;
 			}
 
@@ -552,6 +600,7 @@ class Probe {
 
 		$xrd_arr = xml::element_to_array($xrd);
 		if (!isset($xrd_arr["xrd"]["link"])) {
+			logger("No XML webfinger links for ".$url, LOGGER_DEBUG);
 			return false;
 		}
 
@@ -599,11 +648,13 @@ class Probe {
 		}
 		$content = $ret['body'];
 		if (!$content) {
+			logger("Empty body for ".$noscrape_url, LOGGER_DEBUG);
 			return false;
 		}
 
 		$json = json_decode($content, true);
 		if (!is_array($json)) {
+			logger("No json data for ".$noscrape_url, LOGGER_DEBUG);
 			return false;
 		}
 

@@ -35,12 +35,13 @@ require_once 'include/features.php';
 require_once 'include/identity.php';
 require_once 'update.php';
 require_once 'include/dbstructure.php';
+require_once 'include/poller.php';
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
-define ( 'FRIENDICA_VERSION',      '3.5.2-dev' );
+define ( 'FRIENDICA_VERSION',      '3.5.3-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1224      );
+define ( 'DB_UPDATE_VERSION',      1228      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -457,6 +458,13 @@ if (!defined("SIGTERM")) {
 	define("SIGTERM", 15);
 }
 
+/**
+ * Depending on the PHP version this constant does exist - or not.
+ * See here: http://php.net/manual/en/curl.constants.php#117928
+ */
+if (!defined('CURLE_OPERATION_TIMEDOUT')) {
+        define('CURLE_OPERATION_TIMEDOUT', CURLE_OPERATION_TIMEOUTED);
+}
 /**
  *
  * Reverse the effect of magic_quotes_gpc if it is enabled.
@@ -1088,18 +1096,8 @@ function proc_run($cmd) {
 		return;
 	}
 
-	// Checking number of workers
-	$workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` > '%s'", dbesc(NULL_DATE));
-
-	// Get number of allowed number of worker threads
-	$queues = intval(get_config("system", "worker_queues"));
-
-	if ($queues == 0) {
-		$queues = 4;
-	}
-
 	// If there are already enough workers running, don't fork another one
-	if ($workers[0]["workers"] >= $queues) {
+	if (poller_too_much_workers()) {
 		return;
 	}
 
@@ -1375,7 +1373,7 @@ function get_server() {
 	$server = get_config("system", "directory");
 
 	if ($server == "") {
-		$server = "http://dir.friendi.ca";
+		$server = "http://dir.friendica.social";
 	}
 
 	return($server);
