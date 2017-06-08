@@ -2,6 +2,8 @@
 
 use Friendica\App;
 
+require_once('include/dfrn.php');
+
 function display_init(App $a) {
 
 	if ((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
@@ -10,6 +12,16 @@ function display_init(App $a) {
 
 	$nick = (($a->argc > 1) ? $a->argv[1] : '');
 	$profiledata = array();
+
+	if ($a->argc == 3) {
+		if (substr($a->argv[2], -5) == '.atom') {
+			$item_id = substr($a->argv[2], 0, -5);
+			$xml = dfrn::itemFeed($item_id);
+			header("Content-type: application/atom+xml");
+			echo $xml;
+			http_status_exit(($xml) ? 200 : 500);
+		}
+	}
 
 	// If there is only one parameter, then check if this parameter could be a guid
 	if ($a->argc == 2) {
@@ -209,9 +221,6 @@ function display_content(App $a, $update = 0) {
 
 	$o = '';
 
-	$a->page['htmlhead'] .= replace_macros(get_markup_template('display-head.tpl'), array());
-
-
 	if ($update) {
 		$nick = $_REQUEST['nick'];
 	} else {
@@ -281,6 +290,16 @@ function display_content(App $a, $update = 0) {
 		return;
 	}
 
+	// We are displaying an "alternate" link if that post was public. See issue 2864
+	$items = q("SELECT `id` FROM `item` WHERE `id` = %d AND NOT `private` AND `wall`", intval($item_id));
+	if (dbm::is_result($items)) {
+		$alternate = App::get_baseurl().'/display/'.$nick.'/'.$item_id.'.atom';
+	} else {
+		$alternate = '';
+	}
+
+	$a->page['htmlhead'] .= replace_macros(get_markup_template('display-head.tpl'),
+				array('$alternate' => $alternate));
 
 	$groups = array();
 
