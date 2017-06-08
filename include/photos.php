@@ -44,7 +44,7 @@ function photo_albums($uid, $update = false) {
 
 	$key = "photo_albums:".$uid.":".local_user().":".remote_user();
 	$albums = Cache::get($key);
-	if (is_null($albums) OR $update) {
+	if (is_null($albums) || $update) {
 		if (!Config::get('system', 'no_count', false)) {
 			/// @todo This query needs to be renewed. It is really slow
 			// At this time we just store the data in the cache

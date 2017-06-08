@@ -54,7 +54,7 @@ class ostatus {
 		$alternate = $xpath->query("atom:author/atom:link[@rel='alternate']", $context)->item(0)->attributes;
 		if (is_object($alternate)) {
 			foreach ($alternate AS $attributes) {
-				if (($attributes->name == "href") AND ($attributes->textContent != "")) {
+				if (($attributes->name == "href") && ($attributes->textContent != "")) {
 					$author["author-link"] = $attributes->textContent;
 				}
 			}
@@ -100,7 +100,7 @@ class ostatus {
 					$width = $attributes->textContent;
 				}
 			}
-			if (($width > 0) AND ($href != "")) {
+			if (($width > 0) && ($href != "")) {
 				$avatarlist[$width] = $href;
 			}
 		}
@@ -119,7 +119,7 @@ class ostatus {
 		$author["owner-avatar"] = $author["author-avatar"];
 
 		// Only update the contacts if it is an OStatus contact
-		if ($r AND !$onlyfetch AND ($contact["network"] == NETWORK_OSTATUS)) {
+		if ($r && !$onlyfetch && ($contact["network"] == NETWORK_OSTATUS)) {
 
 			// Update contact data
 
@@ -153,8 +153,8 @@ class ostatus {
 			if ($value != "")
 				$contact["location"] = $value;
 
-			if (($contact["name"] != $r[0]["name"]) OR ($contact["nick"] != $r[0]["nick"]) OR ($contact["about"] != $r[0]["about"]) OR
-				($contact["alias"] != $r[0]["alias"]) OR ($contact["location"] != $r[0]["location"])) {
+			if (($contact["name"] != $r[0]["name"]) || ($contact["nick"] != $r[0]["nick"]) || ($contact["about"] != $r[0]["about"]) ||
+				($contact["alias"] != $r[0]["alias"]) || ($contact["location"] != $r[0]["location"])) {
 
 				logger("Update contact data for contact ".$contact["id"], LOGGER_DEBUG);
 
@@ -164,7 +164,7 @@ class ostatus {
 					dbesc(datetime_convert()), intval($contact["id"]));
 			}
 
-			if (isset($author["author-avatar"]) AND ($author["author-avatar"] != $r[0]['avatar'])) {
+			if (isset($author["author-avatar"]) && ($author["author-avatar"] != $r[0]['avatar'])) {
 				logger("Update profile picture for contact ".$contact["id"], LOGGER_DEBUG);
 
 				update_contact_avatar($author["author-avatar"], $importer["uid"], $contact["id"]);
@@ -354,13 +354,13 @@ class ostatus {
 			$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
 
 			// Mastodon Content Warning
-			if (($item["verb"] == ACTIVITY_POST) AND $xpath->evaluate('boolean(atom:summary)', $entry)) {
+			if (($item["verb"] == ACTIVITY_POST) && $xpath->evaluate('boolean(atom:summary)', $entry)) {
 				$clear_text = $xpath->query('atom:summary/text()', $entry)->item(0)->nodeValue;
 
 				$item["body"] = html2bbcode($clear_text) . '[spoiler]' . $item["body"] . '[/spoiler]';
 			}
 
-			if (($item["object-type"] == ACTIVITY_OBJ_BOOKMARK) OR ($item["object-type"] == ACTIVITY_OBJ_EVENT)) {
+			if (($item["object-type"] == ACTIVITY_OBJ_BOOKMARK) || ($item["object-type"] == ACTIVITY_OBJ_EVENT)) {
 				$item["title"] = $xpath->query('atom:title/text()', $entry)->item(0)->nodeValue;
 				$item["body"] = $xpath->query('atom:summary/text()', $entry)->item(0)->nodeValue;
 			} elseif ($item["object-type"] == ACTIVITY_OBJ_QUESTION) {
@@ -469,11 +469,11 @@ class ostatus {
 				foreach ($links AS $link) {
 					$attribute = self::read_attributes($link);
 
-					if (($attribute['rel'] != "") AND ($attribute['href'] != "")) {
+					if (($attribute['rel'] != "") && ($attribute['href'] != "")) {
 						switch ($attribute['rel']) {
 							case "alternate":
 								$item["plink"] = $attribute['href'];
-								if (($item["object-type"] == ACTIVITY_OBJ_QUESTION) OR
+								if (($item["object-type"] == ACTIVITY_OBJ_QUESTION) ||
 									($item["object-type"] == ACTIVITY_OBJ_EVENT)) {
 									$item["body"] .= add_page_info($attribute['href']);
 								}
@@ -525,7 +525,7 @@ class ostatus {
 			$repeat_of = "";
 
 			$notice_info = $xpath->query('statusnet:notice_info', $entry);
-			if ($notice_info AND ($notice_info->length > 0)) {
+			if ($notice_info && ($notice_info->length > 0)) {
 				foreach ($notice_info->item(0)->attributes AS $attributes) {
 					if ($attributes->name == "source") {
 						$item["app"] = strip_tags($attributes->textContent);
@@ -540,7 +540,7 @@ class ostatus {
 			}
 
 			// Is it a repeated post?
-			if (($repeat_of != "") OR ($item["verb"] == ACTIVITY_SHARE)) {
+			if (($repeat_of != "") || ($item["verb"] == ACTIVITY_SHARE)) {
 				$activityobjects = $xpath->query('activity:object', $entry)->item(0);
 
 				if (is_object($activityobjects)) {
@@ -550,7 +550,7 @@ class ostatus {
 						$orig_uri = $xpath->query('atom:id/text()', $activityobjects)->item(0)->nodeValue;
 					}
 					$orig_links = $xpath->query("activity:object/atom:link[@rel='alternate']", $activityobjects);
-					if ($orig_links AND ($orig_links->length > 0)) {
+					if ($orig_links && ($orig_links->length > 0)) {
 						foreach ($orig_links->item(0)->attributes AS $attributes) {
 							if ($attributes->name == "href") {
 								$orig_link = $attributes->textContent;
@@ -621,8 +621,8 @@ class ostatus {
 					intval($importer["uid"]), dbesc($item["parent-uri"]));
 
 				// Only fetch missing stuff if it is a comment or reshare.
-				if (in_array($item["verb"], array(ACTIVITY_POST, ACTIVITY_SHARE)) AND
-					!dbm::is_result($r) AND ($related != "")) {
+				if (in_array($item["verb"], array(ACTIVITY_POST, ACTIVITY_SHARE)) &&
+					!dbm::is_result($r) && ($related != "")) {
 					$reply_path = str_replace("/notice/", "/api/statuses/show/", $related).".atom";
 
 					if ($reply_path != $related) {
@@ -668,16 +668,16 @@ class ostatus {
 	public static function convert_href($href) {
 		$elements = explode(":",$href);
 
-		if ((count($elements) <= 2) OR ($elements[0] != "tag"))
+		if ((count($elements) <= 2) || ($elements[0] != "tag"))
 			return $href;
 
 		$server = explode(",", $elements[1]);
 		$conversation = explode("=", $elements[2]);
 
-		if ((count($elements) == 4) AND ($elements[2] == "post"))
+		if ((count($elements) == 4) && ($elements[2] == "post"))
 			return "http://".$server[0]."/notice/".$elements[3];
 
-		if ((count($conversation) != 2) OR ($conversation[1] ==""))
+		if ((count($conversation) != 2) || ($conversation[1] ==""))
 			return $href;
 
 		if ($elements[3] == "objectType=thread")
@@ -703,7 +703,7 @@ class ostatus {
 		}
 
 		// Don't poll if the interval is set negative
-		if (($poll_interval < 0) AND !$override) {
+		if (($poll_interval < 0) && !$override) {
 			return;
 		}
 
@@ -720,7 +720,7 @@ class ostatus {
 		}
 
 
-		if ($last AND !$override) {
+		if ($last && !$override) {
 			$next = $last + ($poll_interval * 60);
 			if ($next > time()) {
 				logger('poll interval not reached');
@@ -818,7 +818,7 @@ class ostatus {
 		if ($conversation_id != "") {
 			$elements = explode(":", $conversation_id);
 
-			if ((count($elements) <= 2) OR ($elements[0] != "tag"))
+			if ((count($elements) <= 2) || ($elements[0] != "tag"))
 				return $conversation_id;
 		}
 
@@ -933,8 +933,8 @@ class ostatus {
 
 		// If the thread shouldn't be completed then store the item and go away
 		// Don't do a completion on liked content
-		if (((intval(get_config('system','ostatus_poll_interval')) == -2) AND (count($item) > 0)) OR
-			($item["verb"] == ACTIVITY_LIKE) OR ($conversation_url == "")) {
+		if (((intval(get_config('system','ostatus_poll_interval')) == -2) && (count($item) > 0)) ||
+			($item["verb"] == ACTIVITY_LIKE) || ($conversation_url == "")) {
 			$item_stored = item_store($item, $all_threads);
 			return $item_stored;
 		}
@@ -979,10 +979,10 @@ class ostatus {
 			$conv_arr = z_fetch_url($conv."?page=".$pageno);
 
 			// If it is a non-ssl site and there is an error, then try ssl or vice versa
-			if (!$conv_arr["success"] AND (substr($conv, 0, 7) == "http://")) {
+			if (!$conv_arr["success"] && (substr($conv, 0, 7) == "http://")) {
 				$conv = str_replace("http://", "https://", $conv);
 				$conv_as = fetch_url($conv."?page=".$pageno);
-			} elseif (!$conv_arr["success"] AND (substr($conv, 0, 8) == "https://")) {
+			} elseif (!$conv_arr["success"] && (substr($conv, 0, 8) == "https://")) {
 				$conv = str_replace("https://", "http://", $conv);
 				$conv_as = fetch_url($conv."?page=".$pageno);
 			} else
@@ -1057,7 +1057,7 @@ class ostatus {
 				// 1. Our conversation hasn't the "real" thread starter
 				// 2. This first post is a post inside our thread
 				// 3. This first post is a post inside another thread
-				if (($first_id != $parent["uri"]) AND ($parent["uri"] != "")) {
+				if (($first_id != $parent["uri"]) && ($parent["uri"] != "")) {
 
 					$new_parent = true;
 
@@ -1144,7 +1144,7 @@ class ostatus {
 				}
 
 				// The item we are having on the system is the one that we wanted to store via the item array
-				if (isset($item["uri"]) AND ($item["uri"] == $existing_message["uri"])) {
+				if (isset($item["uri"]) && ($item["uri"] == $existing_message["uri"])) {
 					$item = array();
 					$item_stored = 0;
 				}
@@ -1164,7 +1164,7 @@ class ostatus {
 			$details = self::get_actor_details($actor, $uid, $parent["contact-id"]);
 
 			// Do we only want to import threads that were started by our contacts?
-			if ($details["not_following"] AND $new_parent AND get_config('system','ostatus_full_threads')) {
+			if ($details["not_following"] && $new_parent && get_config('system','ostatus_full_threads')) {
 				logger("Don't import uri ".$first_id." because user ".$uid." doesn't follow the person ".$actor, LOGGER_DEBUG);
 				continue;
 			}
@@ -1218,7 +1218,7 @@ class ostatus {
 			$arr["coord"] = trim($single_conv->location->lat." ".$single_conv->location->lon);
 
 			// Is it a reshared item?
-			if (isset($single_conv->verb) AND ($single_conv->verb == "share") AND isset($single_conv->object)) {
+			if (isset($single_conv->verb) && ($single_conv->verb == "share") && isset($single_conv->object)) {
 				if (is_array($single_conv->object))
 					$single_conv->object = $single_conv->object[0];
 
@@ -1277,7 +1277,7 @@ class ostatus {
 				unset($arr["coord"]);
 
 			// Copy fields from given item array
-			if (isset($item["uri"]) AND (($item["uri"] == $arr["uri"]) OR ($item["uri"] ==  $single_conv->id))) {
+			if (isset($item["uri"]) && (($item["uri"] == $arr["uri"]) || ($item["uri"] ==  $single_conv->id))) {
 				logger('Use stored item array for item with URI '.$item["uri"], LOGGER_DEBUG);
 				$newitem = item_store($item);
 				$item = array();
@@ -1307,7 +1307,7 @@ class ostatus {
 			}
 		}
 
-		if (($item_stored < 0) AND (count($item) > 0)) {
+		if (($item_stored < 0) && (count($item) > 0)) {
 
 			if (get_config('system','ostatus_full_threads')) {
 				$details = self::get_actor_details($item["owner-link"], $uid, $item["contact-id"]);
@@ -1543,7 +1543,7 @@ class ostatus {
 				break;
 		}
 
-		if (($siteinfo["type"] != "photo") AND isset($siteinfo["image"])) {
+		if (($siteinfo["type"] != "photo") && isset($siteinfo["image"])) {
 			$imgdata = get_photo_info($siteinfo["image"]);
 			$attributes = array("rel" => "enclosure",
 					"href" => $siteinfo["image"],
@@ -1788,7 +1788,7 @@ class ostatus {
 	 */
 	private function reshare_entry($doc, $item, $owner, $repeated_guid, $toplevel) {
 
-		if (($item["id"] != $item["parent"]) AND (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
+		if (($item["id"] != $item["parent"]) && (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
 			logger("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", LOGGER_DEBUG);
 		}
 
@@ -1854,7 +1854,7 @@ class ostatus {
 	 */
 	private function like_entry($doc, $item, $owner, $toplevel) {
 
-		if (($item["id"] != $item["parent"]) AND (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
+		if (($item["id"] != $item["parent"]) && (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
 			logger("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", LOGGER_DEBUG);
 		}
 
@@ -1999,7 +1999,7 @@ class ostatus {
 	 */
 	private function note_entry($doc, $item, $owner, $toplevel) {
 
-		if (($item["id"] != $item["parent"]) AND (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
+		if (($item["id"] != $item["parent"]) && (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
 			logger("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", LOGGER_DEBUG);
 		}
 
@@ -2080,7 +2080,7 @@ class ostatus {
 		xml::add_element($doc, $entry, "link", "", array("rel" => "alternate", "type" => "text/html",
 								"href" => App::get_baseurl()."/display/".$item["guid"]));
 
-		if ($complete AND ($item["id"] > 0))
+		if ($complete && ($item["id"] > 0))
 			xml::add_element($doc, $entry, "status_net", "", array("notice_id" => $item["id"]));
 
 		xml::add_element($doc, $entry, "activity:verb", $verb);
@@ -2102,7 +2102,7 @@ class ostatus {
 
 		$mentioned = array();
 
-		if (($item['parent'] != $item['id']) OR ($item['parent-uri'] !== $item['uri']) OR (($item['thr-parent'] !== '') AND ($item['thr-parent'] !== $item['uri']))) {
+		if (($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
 			$parent = q("SELECT `guid`, `author-link`, `owner-link` FROM `item` WHERE `id` = %d", intval($item["parent"]));
 			$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 
@@ -2175,7 +2175,7 @@ class ostatus {
 			$r = q("SELECT `forum`, `prv` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s'",
 				intval($owner["uid"]),
 				dbesc(normalise_link($mention)));
-			if ($r[0]["forum"] OR $r[0]["prv"])
+			if ($r[0]["forum"] || $r[0]["prv"])
 				xml::add_element($doc, $entry, "link", "", array("rel" => "mentioned",
 											"ostatus:object-type" => ACTIVITY_OBJ_GROUP,
 											"href" => $mention));
@@ -2201,7 +2201,7 @@ class ostatus {
 
 		self::get_attachment($doc, $entry, $item);
 
-		if ($complete AND ($item["id"] > 0)) {
+		if ($complete && ($item["id"] > 0)) {
 			$app = $item["app"];
 			if ($app == "")
 				$app = "web";
