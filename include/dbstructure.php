@@ -530,7 +530,7 @@ function db_create_table($name, $fields, $verbose, $action, $indexes=null) {
 	$primary_keys = array();
 	foreach ($fields AS $fieldname => $field) {
 		$sql_rows[] = "`".dbesc($fieldname)."` ".db_field_command($field);
-		if (x($field,'primary') and $field['primary']!='') {
+		if (x($field,'primary') && $field['primary']!='') {
 			$primary_keys[] = $fieldname;
 		}
 	}
