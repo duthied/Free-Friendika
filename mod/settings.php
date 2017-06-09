@@ -462,13 +462,13 @@ function settings_post(App $a) {
 		$notify += intval($_POST['notify8']);
 
 	// Adjust the page flag if the account type doesn't fit to the page flag.
-	if (($account_type == ACCOUNT_TYPE_PERSON) AND !in_array($page_flags, array(PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE)))
+	if (($account_type == ACCOUNT_TYPE_PERSON) && !in_array($page_flags, array(PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE)))
 		$page_flags = PAGE_NORMAL;
-	elseif (($account_type == ACCOUNT_TYPE_ORGANISATION) AND !in_array($page_flags, array(PAGE_SOAPBOX)))
+	elseif (($account_type == ACCOUNT_TYPE_ORGANISATION) && !in_array($page_flags, array(PAGE_SOAPBOX)))
 		$page_flags = PAGE_SOAPBOX;
-	elseif (($account_type == ACCOUNT_TYPE_NEWS) AND !in_array($page_flags, array(PAGE_SOAPBOX)))
+	elseif (($account_type == ACCOUNT_TYPE_NEWS) && !in_array($page_flags, array(PAGE_SOAPBOX)))
 		$page_flags = PAGE_SOAPBOX;
-	elseif (($account_type == ACCOUNT_TYPE_COMMUNITY) AND !in_array($page_flags, array(PAGE_COMMUNITY, PAGE_PRVGROUP)))
+	elseif (($account_type == ACCOUNT_TYPE_COMMUNITY) && !in_array($page_flags, array(PAGE_COMMUNITY, PAGE_PRVGROUP)))
 		$page_flags = PAGE_COMMUNITY;
 
 	$email_changed = false;
@@ -949,7 +949,7 @@ function settings_content(App $a) {
 				$is_experimental = file_exists('view/theme/' . $th . '/experimental');
 				$unsupported = file_exists('view/theme/' . $th . '/unsupported');
 				$is_mobile = file_exists('view/theme/' . $th . '/mobile');
-				if (!$is_experimental or ($is_experimental && (get_config('experimentals','exp_themes')==1 or get_config('experimentals','exp_themes')===false))){
+				if (!$is_experimental || ($is_experimental && (get_config('experimentals','exp_themes')==1 || get_config('experimentals','exp_themes')===false))){
 					$theme_name = (($is_experimental) ?  sprintf("%s - \x28Experimental\x29", $f) : $f);
 					if ($is_mobile) {
 						$mobile_themes[$f]=$theme_name;
@@ -1101,7 +1101,7 @@ function settings_content(App $a) {
 
 	// Set the account type to "Community" when the page is a community page but the account type doesn't fit
 	// This is only happening on the first visit after the update
-	if (in_array($a->user['page-flags'], array(PAGE_COMMUNITY, PAGE_PRVGROUP)) AND
+	if (in_array($a->user['page-flags'], array(PAGE_COMMUNITY, PAGE_PRVGROUP)) &&
 		($a->user['account-type'] != ACCOUNT_TYPE_COMMUNITY))
 		$a->user['account-type'] = ACCOUNT_TYPE_COMMUNITY;
 

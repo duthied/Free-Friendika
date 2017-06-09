@@ -12,7 +12,7 @@ function getGps($exifCoord, $hemi) {
 	$minutes = count($exifCoord) > 1 ? gps2Num($exifCoord[1]) : 0;
 	$seconds = count($exifCoord) > 2 ? gps2Num($exifCoord[2]) : 0;
 
-	$flip = ($hemi == 'W' or $hemi == 'S') ? -1 : 1;
+	$flip = ($hemi == 'W' || $hemi == 'S') ? -1 : 1;
 
 	return floatval($flip * ($degrees + ($minutes / 60) + ($seconds / 3600)));
 }
@@ -44,7 +44,7 @@ function photo_albums($uid, $update = false) {
 
 	$key = "photo_albums:".$uid.":".local_user().":".remote_user();
 	$albums = Cache::get($key);
-	if (is_null($albums) OR $update) {
+	if (is_null($albums) || $update) {
 		if (!Config::get('system', 'no_count', false)) {
 			/// @todo This query needs to be renewed. It is really slow
 			// At this time we just store the data in the cache

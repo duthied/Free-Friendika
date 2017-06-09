@@ -21,7 +21,7 @@ function vier_init(App $a) {
 
 	set_template_engine($a, 'smarty3');
 
-	if ($a->argv[0].$a->argv[1] === "profile".$a->user['nickname'] or $a->argv[0] === "network" && local_user()) {
+	if ($a->argv[0].$a->argv[1] === "profile".$a->user['nickname'] || $a->argv[0] === "network" && local_user()) {
 		vier_community_info();
 
 		$a->page['htmlhead'] .= "<link rel='stylesheet' type='text/css' href='view/theme/vier/wide.css' media='screen and (min-width: 1300px)'/>\n";
@@ -96,14 +96,14 @@ EOT;
 
 	// Hide the left menu bar
 	/// @TODO maybe move this static array out where it should belong?
-	if (($a->page['aside'] == "") AND in_array($a->argv[0], array("community", "events", "help", "manage", "notifications",
+	if (($a->page['aside'] == "") && in_array($a->argv[0], array("community", "events", "help", "manage", "notifications",
 			"probe", "webfinger", "login", "invite", "credits"))) {
 		$a->page['htmlhead'] .= "<link rel='stylesheet' href='view/theme/vier/hide.css' />";
 	}
 }
 
 function get_vier_config($key, $default = false, $admin = false) {
-	if (local_user() AND !$admin) {
+	if (local_user() && !$admin) {
 		$result = get_pconfig(local_user(), "vier", $key);
 		if ($result !== false) {
 			return $result;
@@ -186,7 +186,7 @@ function vier_community_info() {
 	}
 
 	//right_aside FIND FRIENDS
-	if ($show_friends AND local_user()) {
+	if ($show_friends && local_user()) {
 		$nv = array();
 		$nv['title'] = array("", t('Find Friends'), "", "");
 		$nv['directory'] = array('directory', t('Local Directory'), "", "");
@@ -206,7 +206,7 @@ function vier_community_info() {
 	}
 
 	//Community_Pages at right_aside
-	if ($show_pages AND local_user()) {
+	if ($show_pages && local_user()) {
 
 		require_once 'include/ForumManager.php';
 
@@ -372,7 +372,7 @@ function vier_community_info() {
 			$r[] = array("photo" => "images/wordpress.png", "name" => "Wordpress");
 		}
 
-		if (function_exists("imap_open") AND !get_config("system","imap_disabled") AND !get_config("system","dfrn_only")) {
+		if (function_exists("imap_open") && !get_config("system","imap_disabled") && !get_config("system","dfrn_only")) {
 			$r[] = array("photo" => "images/mail.png", "name" => "E-Mail");
 		}
 

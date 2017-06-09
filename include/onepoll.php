@@ -68,9 +68,9 @@ function onepoll_run(&$argv, &$argc){
 	$contact = $contacts[0];
 
 	// load current friends if possible.
-	if (($contact['poco'] != "") AND ($contact['success_update'] > $contact['failure_update'])) {
-		$r = q("SELECT count(*) as total from glink
-			where `cid` = %d and updated > UTC_TIMESTAMP() - INTERVAL 1 DAY",
+	if (($contact['poco'] != "") && ($contact['success_update'] > $contact['failure_update'])) {
+		$r = q("SELECT count(*) AS total FROM glink
+			WHERE `cid` = %d AND updated > UTC_TIMESTAMP() - INTERVAL 1 DAY",
 			intval($contact['id'])
 		);
 		if (dbm::is_result($r)) {
@@ -395,7 +395,7 @@ function onepoll_run(&$argv, &$argc){
 							logger("Mail: Seen before ".$msg_uid." for ".$mailconf[0]['user']." UID: ".$importer_uid." URI: ".$datarray['uri'],LOGGER_DEBUG);
 
 							// Only delete when mails aren't automatically moved or deleted
-							if (($mailconf[0]['action'] != 1) AND ($mailconf[0]['action'] != 3))
+							if (($mailconf[0]['action'] != 1) && ($mailconf[0]['action'] != 3))
 								if ($meta->deleted && ! $r[0]['deleted']) {
 									q("UPDATE `item` SET `deleted` = 1, `changed` = '%s' WHERE `id` = %d",
 										dbesc(datetime_convert()),
@@ -467,15 +467,15 @@ function onepoll_run(&$argv, &$argc){
 						$datarray['created'] = datetime_convert('UTC','UTC',$meta->date);
 
 						// Is it a reply?
-						$reply = ((substr(strtolower($datarray['title']), 0, 3) == "re:") or
-							(substr(strtolower($datarray['title']), 0, 3) == "re-") or
+						$reply = ((substr(strtolower($datarray['title']), 0, 3) == "re:") ||
+							(substr(strtolower($datarray['title']), 0, 3) == "re-") ||
 							($raw_refs != ""));
 
 						// Remove Reply-signs in the subject
 						$datarray['title'] = RemoveReply($datarray['title']);
 
 						// If it seems to be a reply but a header couldn't be found take the last message with matching subject
-						if (!x($datarray,'parent-uri') and $reply) {
+						if (!x($datarray,'parent-uri') && $reply) {
 							$r = q("SELECT `uri` , `parent-uri` FROM `item` WHERE `title` = \"%s\" AND `uid` = %d AND `network` = '%s' ORDER BY `created` DESC LIMIT 1",
 								dbesc(protect_sprintf($datarray['title'])),
 								intval($importer_uid),
