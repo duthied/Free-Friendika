@@ -4,7 +4,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Util\Lock;
 
-if (!file_exists("boot.php") AND (sizeof($_SERVER["argv"]) != 0)) {
+if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 	$directory = dirname($_SERVER["argv"][0]);
 
 	if (substr($directory, 0, 1) != "/") {
@@ -75,7 +75,7 @@ function poller_run($argv, $argc){
 	}
 
 	// Now we start additional cron processes if we should do so
-	if (($argc <= 1) OR ($argv[1] != "no_cron")) {
+	if (($argc <= 1) || ($argv[1] != "no_cron")) {
 		poller_run_cron();
 	}
 
@@ -514,14 +514,14 @@ function poller_too_much_workers($entries = NULL, $top_priority = NULL, $high_ru
 		if (is_null($entries)) {
 			$entries = poller_total_entries();
 		}
-		if (Config::get("system", "worker_fastlane", false) AND ($queues > 0) AND ($entries > 0) AND ($active >= $queues)) {
+		if (Config::get("system", "worker_fastlane", false) && ($queues > 0) && ($entries > 0) && ($active >= $queues)) {
 			if (is_null($top_priority)) {
 				$top_priority = poller_highest_priority();
 			}
 			if (is_null($high_running)) {
 				$high_running = poller_process_with_priority_active($top_priority);
 			}
-			if (!$high_running AND ($top_priority > PRIORITY_UNDEFINED) AND ($top_priority < PRIORITY_NEGLIGIBLE)) {
+			if (!$high_running && ($top_priority > PRIORITY_UNDEFINED) && ($top_priority < PRIORITY_NEGLIGIBLE)) {
 				logger("There are jobs with priority ".$top_priority." waiting but none is executed. Open a fastlane.", LOGGER_DEBUG);
 				$queues = $active + 1;
 			}
@@ -530,7 +530,7 @@ function poller_too_much_workers($entries = NULL, $top_priority = NULL, $high_ru
 		logger("Load: ".$load."/".$maxsysload." - processes: ".$active."/".$entries.$processlist." - maximum: ".$queues."/".$maxqueues, LOGGER_DEBUG);
 
 		// Are there fewer workers running as possible? Then fork a new one.
-		if (!Config::get("system", "worker_dont_fork") AND ($queues > ($active + 1)) AND ($entries > 1)) {
+		if (!Config::get("system", "worker_dont_fork") && ($queues > ($active + 1)) && ($entries > 1)) {
 			logger("Active workers: ".$active."/".$queues." Fork a new worker.", LOGGER_DEBUG);
 			$args = array("include/poller.php", "no_cron");
 			$a = get_app();
@@ -677,7 +677,7 @@ function poller_claim_process($queue) {
 	if (!$id) {
 		logger("Queue item ".$queue["id"]." vanished - skip this execution", LOGGER_DEBUG);
 		return false;
-	} elseif ((strtotime($id[0]["executed"]) <= 0) OR ($id[0]["pid"] == 0)) {
+	} elseif ((strtotime($id[0]["executed"]) <= 0) || ($id[0]["pid"] == 0)) {
 		logger("Entry for queue item ".$queue["id"]." wasn't stored - skip this execution", LOGGER_DEBUG);
 		return false;
 	} elseif ($id[0]["pid"] != $mypid) {

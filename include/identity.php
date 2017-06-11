@@ -217,7 +217,7 @@ function profile_sidebar($profile, $block = 0) {
 
 	$profile['picdate'] = urlencode($profile['picdate']);
 
-	if (($profile['network'] != "") AND ($profile['network'] != NETWORK_DFRN)) {
+	if (($profile['network'] != "") && ($profile['network'] != NETWORK_DFRN)) {
 		$profile['network_name'] = format_network_name($profile['network'], $profile['url']);
 	} else {
 		$profile['network_name'] = "";
@@ -240,7 +240,7 @@ function profile_sidebar($profile, $block = 0) {
 	}
 
 	// Is the local user already connected to that user?
-	if ($connect AND local_user()) {
+	if ($connect && local_user()) {
 		if (isset($profile["url"])) {
 			$profile_url = normalise_link($profile["url"]);
 		} else {
@@ -254,19 +254,19 @@ function profile_sidebar($profile, $block = 0) {
 			$connect = false;
 	}
 
-	if ($connect AND ($profile['network'] != NETWORK_DFRN) AND !isset($profile['remoteconnect']))
+	if ($connect && ($profile['network'] != NETWORK_DFRN) && !isset($profile['remoteconnect']))
 		$connect = false;
 
 	$remoteconnect = NULL;
 	if (isset($profile['remoteconnect']))
 		$remoteconnect = $profile['remoteconnect'];
 
-	if ($connect AND ($profile['network'] == NETWORK_DFRN) AND !isset($remoteconnect))
+	if ($connect && ($profile['network'] == NETWORK_DFRN) && !isset($remoteconnect))
 		$subscribe_feed = t("Atom feed");
 	else
 		$subscribe_feed = false;
 
-	if (remote_user() OR (get_my_url() && $profile['unkmail'] && ($profile['uid'] != local_user()))) {
+	if (remote_user() || (get_my_url() && $profile['unkmail'] && ($profile['uid'] != local_user()))) {
 		$wallmessage = t('Message');
 		$wallmessage_link = "wallmessage/".$profile["nickname"];
 
@@ -379,7 +379,7 @@ function profile_sidebar($profile, $block = 0) {
 	if (!$block) {
 		$contact_block = contact_block();
 
-		if (is_array($a->profile) AND !$a->profile['hide-friends']) {
+		if (is_array($a->profile) && !$a->profile['hide-friends']) {
 			$r = q("SELECT `gcontact`.`updated` FROM `contact` INNER JOIN `gcontact` WHERE `gcontact`.`nurl` = `contact`.`nurl` AND `self` AND `uid` = %d LIMIT 1",
 				intval($a->profile['uid']));
 			if (dbm::is_result($r))

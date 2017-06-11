@@ -44,7 +44,7 @@ function queue_run(&$argv, &$argc){
 		// For the first 12 hours we'll try to deliver every 15 minutes
 		// After that, we'll only attempt delivery once per hour.
 
-		$r = q("SELECT `id` FROM `queue` WHERE ((`created` > UTC_TIMESTAMP() - INTERVAL 12 HOUR && `last` < UTC_TIMESTAMP() - INTERVAL 15 MINUTE) OR (`last` < UTC_TIMESTAMP() - INTERVAL 1 HOUR)) ORDER BY `cid`, `created`");
+		$r = q("SELECT `id` FROM `queue` WHERE ((`created` > UTC_TIMESTAMP() - INTERVAL 12 HOUR AND `last` < UTC_TIMESTAMP() - INTERVAL 15 MINUTE) OR (`last` < UTC_TIMESTAMP() - INTERVAL 1 HOUR)) ORDER BY `cid`, `created`");
 
 		call_hooks('queue_predeliver', $a, $r);
 
@@ -83,7 +83,7 @@ function queue_run(&$argv, &$argc){
 
 	$dead = Cache::get($cachekey_deadguy.$c[0]['notify']);
 
-	if (!is_null($dead) AND $dead) {
+	if (!is_null($dead) && $dead) {
 		logger('queue: skipping known dead url: '.$c[0]['notify']);
 		update_queue_time($q_item['id']);
 		return;
@@ -101,7 +101,7 @@ function queue_run(&$argv, &$argc){
 			Cache::set($cachekey_server.$server, $vital, CACHE_QUARTER_HOUR);
 		}
 
-		if (!is_null($vital) AND !$vital) {
+		if (!is_null($vital) && !$vital) {
 			logger('queue: skipping dead server: '.$server);
 			update_queue_time($q_item['id']);
 			return;

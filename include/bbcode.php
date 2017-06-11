@@ -49,14 +49,14 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 		$data["title"] = str_replace(array("http://", "https://"), "", $data["title"]);
 	}
 
-	if (((strpos($data["text"], "[img=") !== false) OR (strpos($data["text"], "[img]") !== false)) AND ($data["image"] != "")) {
+	if (((strpos($data["text"], "[img=") !== false) || (strpos($data["text"], "[img]") !== false)) && ($data["image"] != "")) {
 		$data["preview"] = $data["image"];
 		$data["image"] = "";
 	}
 
 	if ($simplehtml == 7) {
 		$text = style_url_for_mastodon($data["url"]);
-	} elseif (($simplehtml != 4) AND ($simplehtml != 0)) {
+	} elseif (($simplehtml != 4) && ($simplehtml != 0)) {
 		$text = sprintf('<a href="%s" target="_blank">%s</a><br>', $data["url"], $data["title"]);
 	} else {
 		$text = sprintf('<span class="type-%s">', $data["type"]);
@@ -71,13 +71,13 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 		if (strstr(strtolower($oembed), "<iframe ")) {
 			$text = $oembed;
 		} else {
-			if (($data["image"] != "") AND !strstr(strtolower($oembed), "<img ")) {
+			if (($data["image"] != "") && !strstr(strtolower($oembed), "<img ")) {
 				$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $data["url"], proxy_url($data["image"]), $data["title"]);
-			} elseif (($data["preview"] != "") AND !strstr(strtolower($oembed), "<img ")) {
+			} elseif (($data["preview"] != "") && !strstr(strtolower($oembed), "<img ")) {
 				$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $data["url"], proxy_url($data["preview"]), $data["title"]);
 			}
 
-			if (($data["type"] == "photo") AND ($data["url"] != "") AND ($data["image"] != "")) {
+			if (($data["type"] == "photo") && ($data["url"] != "") && ($data["image"] != "")) {
 				$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data["url"], proxy_url($data["image"]), $data["title"]);
 			} else {
 				$text .= $oembed;
@@ -103,25 +103,25 @@ function bb_remove_share_information($Text, $plaintext = false, $nolink = false)
 
 	$title = htmlentities($data["title"], ENT_QUOTES, 'UTF-8', false);
 	$text = htmlentities($data["text"], ENT_QUOTES, 'UTF-8', false);
-	if ($plaintext OR (($title != "") AND strstr($text, $title))) {
+	if ($plaintext || (($title != "") && strstr($text, $title))) {
 		$data["title"] = $data["url"];
-	} elseif (($text != "") AND strstr($title, $text)) {
+	} elseif (($text != "") && strstr($title, $text)) {
 		$data["text"] = $data["title"];
 		$data["title"] = $data["url"];
 	}
 
-	if (($data["text"] == "") AND ($data["title"] != "") AND ($data["url"] == "")) {
+	if (($data["text"] == "") && ($data["title"] != "") && ($data["url"] == "")) {
 		return $data["title"] . $data["after"];
 	}
 
 	// If the link already is included in the post, don't add it again
-	if (($data["url"] != "") AND strpos($data["text"], $data["url"])) {
+	if (($data["url"] != "") && strpos($data["text"], $data["url"])) {
 		return $data["text"] . $data["after"];
 	}
 
 	$text = $data["text"];
 
-	if (($data["url"] != "") AND ($data["title"] != "")) {
+	if (($data["url"] != "") && ($data["title"] != "")) {
 		$text .= "\n[url=" . $data["url"] . "]" . $data["title"] . "[/url]";
 	} elseif (($data["url"] != "")) {
 		$text .= "\n" . $data["url"];
@@ -147,7 +147,7 @@ function cleancss($input) {
 	for ($i = 0; $i < strlen($input); $i++) {
 		$char = substr($input, $i, 1);
 
-		if (($char >= "a") and ($char <= "z")) {
+		if (($char >= "a") && ($char <= "z")) {
 			$cleaned .= $char;
 		}
 
@@ -167,7 +167,7 @@ function cleancss($input) {
 function bb_style_url($match) {
         $url = $match[1];
 
-	if (isset($match[2]) AND ($match[1] != $match[2])) {
+	if (isset($match[2]) && ($match[1] != $match[2])) {
 		return $match[0];
 	}
 
@@ -485,20 +485,20 @@ function bb_ShareAttributes($share, $simplehtml) {
 
 	$data = get_contact_details_by_url($profile);
 
-	if (isset($data["name"]) AND ($data["name"] != "") AND isset($data["addr"]) AND ($data["addr"] != ""))
+	if (isset($data["name"]) && ($data["name"] != "") && isset($data["addr"]) && ($data["addr"] != ""))
 	        $userid_compact = $data["name"]." (".$data["addr"].")";
 	else
 		$userid_compact = GetProfileUsername($profile,$author, true);
 
-	if (isset($data["addr"]) AND ($data["addr"] != ""))
+	if (isset($data["addr"]) && ($data["addr"] != ""))
 		$userid = $data["addr"];
 	else
 		$userid = GetProfileUsername($profile,$author, false);
 
-	if (isset($data["name"]) AND ($data["name"] != ""))
+	if (isset($data["name"]) && ($data["name"] != ""))
 		$author = $data["name"];
 
-	if (isset($data["micro"]) AND ($data["micro"] != ""))
+	if (isset($data["micro"]) && ($data["micro"] != ""))
 		$avatar = $data["micro"];
 
 	$preshare = trim($share[1]);
@@ -744,7 +744,7 @@ function bb_RemovePictureLinks($match) {
 }
 
 function bb_expand_links($match) {
-	if (($match[3] == "") OR ($match[2] == $match[3]) OR stristr($match[2], $match[3])) {
+	if (($match[3] == "") || ($match[2] == $match[3]) || stristr($match[2], $match[3])) {
 		return ($match[1] . "[url]" . $match[2] . "[/url]");
 	} else {
 		return ($match[1] . $match[3] . " [url]" . $match[2] . "[/url]");
@@ -930,7 +930,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	$MAILSearchString = $URLSearchString;
 
 	// Remove all hashtag addresses
-	if ((!$tryoembed OR $simplehtml) AND !in_array($simplehtml, array(3, 7))) {
+	if ((!$tryoembed || $simplehtml) && !in_array($simplehtml, array(3, 7))) {
 		$Text = preg_replace("/([#@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $Text);
 	} elseif ($simplehtml == 3) {
 		$Text = preg_replace("/([@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
@@ -1126,7 +1126,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	// Check for [spoiler] text
 	// handle nested quotes
 	$endlessloop = 0;
-	while ((strpos($Text, "[/spoiler]") !== false) and (strpos($Text, "[spoiler]") !== false) and (++$endlessloop < 20)) {
+	while ((strpos($Text, "[/spoiler]") !== false) && (strpos($Text, "[spoiler]") !== false) && (++$endlessloop < 20)) {
 		$Text = preg_replace("/\[spoiler\](.*?)\[\/spoiler\]/ism", "$SpoilerLayout", $Text);
 	}
 
@@ -1136,7 +1136,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 
 	// handle nested quotes
 	$endlessloop = 0;
-	while ((strpos($Text, "[/spoiler]")!== false)  and (strpos($Text, "[spoiler=") !== false) and (++$endlessloop < 20)) {
+	while ((strpos($Text, "[/spoiler]")!== false)  && (strpos($Text, "[spoiler=") !== false) && (++$endlessloop < 20)) {
 		$Text = preg_replace("/\[spoiler=[\"\']*(.*?)[\"\']*\](.*?)\[\/spoiler\]/ism",
 				     "<br /><strong class=".'"spoiler"'.">" . $t_wrote . "</strong><blockquote class=".'"spoiler"'.">$2</blockquote>",
 				     $Text);
@@ -1148,7 +1148,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	// Check for [quote] text
 	// handle nested quotes
 	$endlessloop = 0;
-	while ((strpos($Text, "[/quote]") !== false) and (strpos($Text, "[quote]") !== false) and (++$endlessloop < 20)) {
+	while ((strpos($Text, "[/quote]") !== false) && (strpos($Text, "[quote]") !== false) && (++$endlessloop < 20)) {
 		$Text = preg_replace("/\[quote\](.*?)\[\/quote\]/ism", "$QuoteLayout", $Text);
 	}
 
@@ -1158,7 +1158,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 
 	// handle nested quotes
 	$endlessloop = 0;
-	while ((strpos($Text, "[/quote]")!== false)  and (strpos($Text, "[quote=") !== false) and (++$endlessloop < 20)) {
+	while ((strpos($Text, "[/quote]")!== false)  && (strpos($Text, "[quote=") !== false) && (++$endlessloop < 20)) {
 		$Text = preg_replace("/\[quote=[\"\']*(.*?)[\"\']*\](.*?)\[\/quote\]/ism",
 				     "<br /><strong class=".'"author"'.">" . $t_wrote . "</strong><blockquote>$2</blockquote>",
 				     $Text);
@@ -1319,7 +1319,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	// Clean up the HTML by loading and saving the HTML with the DOM.
 	// Bad structured html can break a whole page.
 	// For performance reasons do it only with ativated item cache or at export.
-	if (!$tryoembed OR (get_itemcachepath() != "")) {
+	if (!$tryoembed || (get_itemcachepath() != "")) {
 		$doc = new DOMDocument();
 		$doc->preserveWhiteSpace = false;
 
