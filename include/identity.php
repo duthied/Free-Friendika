@@ -152,7 +152,9 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0) {
 
 	if ($profile) {
 		$profile_int = intval($profile);
-		$r = q("SELECT `contact`.`id` AS `contact_id`, `profile`.`uid` AS `profile_uid`, `profile`.*,
+		$r = q("SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` AS `contact_photo`,
+				`contact`.`thumb` AS `contact_thumb`, `contact`.`micro` AS `contact_micro`,
+				`profile`.`uid` AS `profile_uid`, `profile`.*,
 				`contact`.`avatar-date` AS picdate, `contact`.`addr`, `user`.*
 			FROM `profile`
 			INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` AND `contact`.`self`
@@ -163,7 +165,9 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0) {
 		);
 	}
 	if (!dbm::is_result($r)) {
-		$r = q("SELECT `contact`.`id` AS `contact_id`, `profile`.`uid` AS `profile_uid`, `profile`.*,
+		$r = q("SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` as `contact_photo`,
+				`contact`.`thumb` AS `contact_thumb`, `contact`.`micro` AS `contact_micro`,
+				`profile`.`uid` AS `profile_uid`, `profile`.*,
 				`contact`.`avatar-date` AS picdate, `contact`.`addr`, `user`.*
 			FROM `profile`
 			INNER JOIN `contact` ON `contact`.`uid` = `profile`.`uid` AND `contact`.`self`
@@ -213,7 +217,7 @@ function profile_sidebar($profile, $block = 0) {
 
 	$profile['picdate'] = urlencode($profile['picdate']);
 
-	if (($profile['network'] != "") AND ($profile['network'] != NETWORK_DFRN)) {
+	if (($profile['network'] != "") && ($profile['network'] != NETWORK_DFRN)) {
 		$profile['network_name'] = format_network_name($profile['network'], $profile['url']);
 	} else {
 		$profile['network_name'] = "";
@@ -236,7 +240,7 @@ function profile_sidebar($profile, $block = 0) {
 	}
 
 	// Is the local user already connected to that user?
-	if ($connect AND local_user()) {
+	if ($connect && local_user()) {
 		if (isset($profile["url"])) {
 			$profile_url = normalise_link($profile["url"]);
 		} else {
@@ -250,19 +254,19 @@ function profile_sidebar($profile, $block = 0) {
 			$connect = false;
 	}
 
-	if ($connect AND ($profile['network'] != NETWORK_DFRN) AND !isset($profile['remoteconnect']))
+	if ($connect && ($profile['network'] != NETWORK_DFRN) && !isset($profile['remoteconnect']))
 		$connect = false;
 
 	$remoteconnect = NULL;
 	if (isset($profile['remoteconnect']))
 		$remoteconnect = $profile['remoteconnect'];
 
-	if ($connect AND ($profile['network'] == NETWORK_DFRN) AND !isset($remoteconnect))
+	if ($connect && ($profile['network'] == NETWORK_DFRN) && !isset($remoteconnect))
 		$subscribe_feed = t("Atom feed");
 	else
 		$subscribe_feed = false;
 
-	if (remote_user() OR (get_my_url() && $profile['unkmail'] && ($profile['uid'] != local_user()))) {
+	if (remote_user() || (get_my_url() && $profile['unkmail'] && ($profile['uid'] != local_user()))) {
 		$wallmessage = t('Message');
 		$wallmessage_link = "wallmessage/".$profile["nickname"];
 
@@ -365,9 +369,9 @@ function profile_sidebar($profile, $block = 0) {
 			'fullname' => $profile['name'],
 			'firstname' => $firstname,
 			'lastname' => $lastname,
-			'photo300' => App::get_baseurl() . '/photo/custom/300/' . $profile['uid'] . '.jpg',
-			'photo100' => App::get_baseurl() . '/photo/custom/100/' . $profile['uid'] . '.jpg',
-			'photo50' => App::get_baseurl() . '/photo/custom/50/'  . $profile['uid'] . '.jpg',
+			'photo300' => $profile['contact_photo'],
+			'photo100' => $profile['contact_thumb'],
+			'photo50' => $profile['contact_micro'],
 		);
 	else
 		$diaspora = false;
@@ -375,7 +379,7 @@ function profile_sidebar($profile, $block = 0) {
 	if (!$block) {
 		$contact_block = contact_block();
 
-		if (is_array($a->profile) AND !$a->profile['hide-friends']) {
+		if (is_array($a->profile) && !$a->profile['hide-friends']) {
 			$r = q("SELECT `gcontact`.`updated` FROM `contact` INNER JOIN `gcontact` WHERE `gcontact`.`nurl` = `contact`.`nurl` AND `self` AND `uid` = %d LIMIT 1",
 				intval($a->profile['uid']));
 			if (dbm::is_result($r))
@@ -410,9 +414,9 @@ function profile_sidebar($profile, $block = 0) {
 	else
 		$p["address"] = bbcode($p["location"]);
 
-	if (isset($p["photo"]))
+	if (isset($p["photo"])) {
 		$p["photo"] = proxy_url($p["photo"], false, PROXY_SIZE_SMALL);
-
+	}
 	if ($a->theme['template_engine'] === 'internal')
 		$location = template_escape($location);
 

@@ -209,7 +209,7 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 
 	$tabindex = ($tabindex > 0 ? "tabindex=\"$tabindex\"" : "");
 
-	if ($privmail AND $preselected) {
+	if ($privmail && $preselected) {
 		$sql_extra .= " AND `id` IN (".implode(",", $preselected).")";
 		$hidepreselected = ' style="display: none;"';
 	} else {
@@ -261,7 +261,7 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 
 	$o .= "</select>\r\n";
 
-	if ($privmail AND $preselected) {
+	if ($privmail && $preselected) {
 		$o .= implode(", ", $receiverlist);
 	}
 
@@ -388,6 +388,9 @@ function populate_acl($user = null, $show_jotnets = false) {
 }
 
 function construct_acl_data(App $a, $user) {
+	// This function is now deactivated. It seems as if the generated data isn't used anywhere.
+	/// @todo Remove this function and all function calls before releasing Friendica 3.5.3
+	return;
 
 	// Get group and contact information for html ACL selector
 	$acl_data = acl_lookup($a, 'html');

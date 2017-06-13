@@ -91,7 +91,7 @@ function delivery_run(&$argv, &$argc){
 			$uid = $item_id;
 		} else {
 			// find ancestors
-			$r = q("SELECT * FROM `item` WHERE `id` = %d and visible = 1 and moderated = 0 LIMIT 1",
+			$r = q("SELECT * FROM `item` WHERE `id` = %d AND visible = 1 AND moderated = 0 LIMIT 1",
 				intval($item_id)
 			);
 
@@ -105,7 +105,7 @@ function delivery_run(&$argv, &$argc){
 			$updated = $r[0]['edited'];
 
 			$items = q("SELECT `item`.*, `sign`.`signed_text`,`sign`.`signature`,`sign`.`signer`
-				FROM `item` LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id` WHERE `parent` = %d and visible = 1 and moderated = 0 ORDER BY `id` ASC",
+				FROM `item` LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id` WHERE `parent` = %d AND visible = 1 AND moderated = 0 ORDER BY `id` ASC",
 				intval($parent_id)
 			);
 
@@ -339,7 +339,7 @@ function delivery_run(&$argv, &$argc){
 
 						// If we are setup as a soapbox we aren't accepting top level posts from this person
 
-						if (($x[0]['page-flags'] == PAGE_SOAPBOX) AND $top_level) {
+						if (($x[0]['page-flags'] == PAGE_SOAPBOX) && $top_level) {
 							break;
 						}
 						logger('mod-delivery: local delivery');
@@ -453,7 +453,7 @@ function delivery_run(&$argv, &$argc){
 						$headers .= "References: <".iri2msgid($it["parent-uri"]).">";
 
 						// If Threading is enabled, write down the correct parent
-						if (($it["thr-parent"] != "") and ($it["thr-parent"] != $it["parent-uri"]))
+						if (($it["thr-parent"] != "") && ($it["thr-parent"] != $it["parent-uri"]))
 							$headers .= " <".iri2msgid($it["thr-parent"]).">";
 						$headers .= "\n";
 
@@ -462,14 +462,14 @@ function delivery_run(&$argv, &$argc){
 								dbesc($it['parent-uri']),
 								intval($uid));
 
-							if (dbm::is_result($r) AND ($r[0]['title'] != '')) {
+							if (dbm::is_result($r) && ($r[0]['title'] != '')) {
 								$subject = $r[0]['title'];
 							} else {
 								$r = q("SELECT `title` FROM `item` WHERE `parent-uri` = '%s' AND `uid` = %d LIMIT 1",
 									dbesc($it['parent-uri']),
 									intval($uid));
 
-								if (dbm::is_result($r) AND ($r[0]['title'] != ''))
+								if (dbm::is_result($r) && ($r[0]['title'] != ''))
 									$subject = $r[0]['title'];
 							}
 						}

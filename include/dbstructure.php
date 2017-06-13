@@ -8,7 +8,11 @@ require_once "include/text.php";
 
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
-/**
+const DB_UPDATE_NOT_CHECKED = 0; // Database check wasn't executed before
+const DB_UPDATE_SUCCESSFUL = 1;  // Database check was successful
+const DB_UPDATE_FAILED = 2;      // Database check failed
+
+/*
  * Converts all tables from MyISAM to InnoDB
  */
 function convert_to_innodb() {
@@ -130,7 +134,7 @@ function table_structure($table) {
 			// On utf8mb4 a varchar index can only have a length of 191
 			// The "show index" command sometimes returns this value although this value wasn't added manually.
 			// Because we don't want to add this number to every index, we ignore bigger numbers
-			if (($index["Sub_part"] != "") AND (($index["Sub_part"] < 191) OR ($index["Key_name"] == "PRIMARY"))) {
+			if (($index["Sub_part"] != "") && (($index["Sub_part"] < 191) || ($index["Key_name"] == "PRIMARY"))) {
 				$column .= "(".$index["Sub_part"].")";
 			}
 
@@ -229,7 +233,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 	}
 
 	// MySQL >= 5.7.4 doesn't support the IGNORE keyword in ALTER TABLE statements
-	if ((version_compare($db->server_info(), '5.7.4') >= 0) AND
+	if ((version_compare($db->server_info(), '5.7.4') >= 0) &&
 		!(strpos($db->server_info(), 'MariaDB') !== false)) {
 		$ignore = '';
 	} else {
@@ -378,7 +382,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 				$field_definition = $database[$name]["fields"][$fieldname];
 
 				// Define the default collation if not given
-				if (!isset($parameters['Collation']) AND !is_null($field_definition['Collation'])) {
+				if (!isset($parameters['Collation']) && !is_null($field_definition['Collation'])) {
 					$parameters['Collation'] = 'utf8mb4_general_ci';
 				} else {
 					$parameters['Collation'] = null;
@@ -386,7 +390,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 
 				if ($field_definition['Collation'] != $parameters['Collation']) {
 					$sql2 = db_modify_table_field($fieldname, $parameters);
-					if (($sql3 == "") OR (substr($sql3, -2, 2) == "; ")) {
+					if (($sql3 == "") || (substr($sql3, -2, 2) == "; ")) {
 						$sql3 .= "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
 					} else {
 						$sql3 .= ", ".$sql2;
@@ -481,6 +485,12 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 		Config::set('system', 'maintenance_reason', '');
 	}
 
+	if ($errors) {
+		Config::set('system', 'dbupdate', DB_UPDATE_FAILED);
+	} else {
+		Config::set('system', 'dbupdate', DB_UPDATE_SUCCESSFUL);
+	}
+
 	return $errors;
 }
 
@@ -504,7 +514,7 @@ function db_field_command($parameters, $create = true) {
 	if ($parameters["extra"] != "")
 		$fieldstruct .= " ".$parameters["extra"];
 
-	/*if (($parameters["primary"] != "") AND $create)
+	/*if (($parameters["primary"] != "") && $create)
 		$fieldstruct .= " PRIMARY KEY";*/
 
 	return($fieldstruct);
@@ -521,7 +531,7 @@ function db_create_table($name, $fields, $verbose, $action, $indexes=null) {
 	$primary_keys = array();
 	foreach ($fields AS $fieldname => $field) {
 		$sql_rows[] = "`".dbesc($fieldname)."` ".db_field_command($field);
-		if (x($field,'primary') and $field['primary']!='') {
+		if (x($field,'primary') && $field['primary']!='') {
 			$primary_keys[] = $fieldname;
 		}
 	}
@@ -809,7 +819,7 @@ function db_definition() {
 	$database["conv"] = array(
 			"fields" => array(
 					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"guid" => array("type" => "varchar(64)", "not null" => "1", "default" => ""),
+					"guid" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"recips" => array("type" => "text"),
 					"uid" => array("type" => "int(11)", "not null" => "1", "default" => "0", "relation" => array("user" => "uid")),
 					"creator" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
@@ -1196,7 +1206,7 @@ function db_definition() {
 					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
 					"name" => array("type" => "varchar(128)", "not null" => "1", "default" => ""),
 					"locked" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
-					"created" => array("type" => "datetime", "default" => NULL_DATE),
+					"pid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0"),
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
@@ -1206,7 +1216,7 @@ function db_definition() {
 			"fields" => array(
 					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
 					"uid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0", "relation" => array("user" => "uid")),
-					"guid" => array("type" => "varchar(64)", "not null" => "1", "default" => ""),
+					"guid" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"from-name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"from-photo" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"from-url" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
@@ -1733,6 +1743,9 @@ function db_definition() {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
+					"pid" => array("pid"),
+					"parameter" => array("parameter(64)"),
+					"priority_created" => array("priority", "created"),
 					)
 			);
 

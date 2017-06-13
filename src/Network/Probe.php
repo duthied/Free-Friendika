@@ -59,6 +59,28 @@ class Probe {
 	}
 
 	/**
+	 * @brief Check if the hostname belongs to the own server
+	 *
+	 * @param string $host The hostname that is to be checked
+	 *
+	 * @return bool Does the testes hostname belongs to the own server?
+	 */
+	private function ownHost($host) {
+		$own_host = get_app()->get_hostname();
+
+		$parts = parse_url($host);
+
+		if (!isset($parts['scheme'])) {
+			$parts = parse_url('http://'.$host);
+		}
+
+		if (!isset($parts['host'])) {
+			return false;
+		}
+		return $parts['host'] == $own_host;
+	}
+
+	/**
 	 * @brief Probes for XRD data
 	 *
 	 * @param string $host The host part of an url
@@ -79,8 +101,11 @@ class Probe {
 		$xrd_timeout = Config::get('system', 'xrd_timeout', 20);
 		$redirects = 0;
 
+		logger("Probing for ".$host, LOGGER_DEBUG);
+
 		$ret = z_fetch_url($ssl_url, false, $redirects, array('timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml'));
-		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+		if (($ret['errno'] == CURLE_OPERATION_TIMEDOUT) && !self::ownHost($ssl_url)) {
+			logger("Probing timeout for ".$ssl_url, LOGGER_DEBUG);
 			return false;
 		}
 		$xml = $ret['body'];
@@ -90,18 +115,21 @@ class Probe {
 		if (!is_object($xrd)) {
 			$ret = z_fetch_url($url, false, $redirects, array('timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml'));
 			if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+				logger("Probing timeout for ".$url, LOGGER_DEBUG);
 				return false;
 			}
 			$xml = $ret['body'];
 			$xrd = parse_xml_string($xml, false);
 		}
 		if (!is_object($xrd)) {
-			return false;
+			logger("No xrd object found for ".$host, LOGGER_DEBUG);
+			return array();
 		}
 
 		$links = xml::element_to_array($xrd);
 		if (!isset($links["xrd"]["link"])) {
-			return false;
+			logger("No xrd data found for ".$host, LOGGER_DEBUG);
+			return array();
 		}
 
 		$xrd_data = array();
@@ -116,11 +144,11 @@ class Probe {
 			}
 
 			if (($attributes["rel"] == "lrdd")
-				AND ($attributes["type"] == "application/xrd+xml")
+				&& ($attributes["type"] == "application/xrd+xml")
 			) {
 				$xrd_data["lrdd-xml"] = $attributes["template"];
 			} elseif (($attributes["rel"] == "lrdd")
-				AND ($attributes["type"] == "application/json")
+				&& ($attributes["type"] == "application/json")
 			) {
 				$xrd_data["lrdd-json"] = $attributes["template"];
 			} elseif ($attributes["rel"] == "lrdd") {
@@ -129,6 +157,8 @@ class Probe {
 		}
 
 		self::$baseurl = "http://".$host;
+
+		logger("Probing successful for ".$host, LOGGER_DEBUG);
 
 		return $xrd_data;
 	}
@@ -165,7 +195,7 @@ class Probe {
 				if ($link['@attributes']['rel'] === NAMESPACE_DFRN) {
 					$profile_link = $link['@attributes']['href'];
 				}
-				if (($link['@attributes']['rel'] === NAMESPACE_OSTATUSSUB) AND ($profile_link == "")) {
+				if (($link['@attributes']['rel'] === NAMESPACE_OSTATUSSUB) && ($profile_link == "")) {
 					$profile_link = 'stat:'.$link['@attributes']['template'];
 				}
 				if ($link['@attributes']['rel'] === 'http://microformats.org/profile/hcard') {
@@ -192,6 +222,10 @@ class Probe {
 		$lrdd = self::xrd($uri);
 		$webfinger = null;
 
+		if (is_bool($lrdd)) {
+			return array();
+		}
+
 		if (!$lrdd) {
 			$parts = @parse_url($uri);
 			if (!$parts) {
@@ -210,10 +244,11 @@ class Probe {
 			do {
 				$lrdd = self::xrd($host);
 				$host .= "/".array_shift($path_parts);
-			} while (!$lrdd AND (sizeof($path_parts) > 0));
+			} while (!$lrdd && (sizeof($path_parts) > 0));
 		}
 
 		if (!$lrdd) {
+			logger("No lrdd data found for ".$uri, LOGGER_DEBUG);
 			return array();
 		}
 
@@ -229,7 +264,7 @@ class Probe {
 			$path = str_replace('{uri}', urlencode($uri), $link);
 			$webfinger = self::webfinger($path);
 
-			if (!$webfinger AND (strstr($uri, "@"))) {
+			if (!$webfinger && (strstr($uri, "@"))) {
 				$path = str_replace('{uri}', urlencode("acct:".$uri), $link);
 				$webfinger = self::webfinger($path);
 			}
@@ -237,7 +272,7 @@ class Probe {
 			// Special treatment for Mastodon
 			// Problem is that Mastodon uses an URL format like http://domain.tld/@nick
 			// But the webfinger for this format fails.
-			if (!$webfinger AND isset($nick)) {
+			if (!$webfinger && isset($nick)) {
 				// Mastodon uses a "@" as prefix for usernames in their url format
 				$nick = ltrim($nick, '@');
 
@@ -249,6 +284,7 @@ class Probe {
 		}
 
 		if (!is_array($webfinger["links"])) {
+			logger("No webfinger links found for ".$uri, LOGGER_DEBUG);
 			return false;
 		}
 
@@ -304,7 +340,7 @@ class Probe {
 			$data["photo"] = App::get_baseurl().'/images/person-175.jpg';
 		}
 
-		if (!isset($data["name"]) OR ($data["name"] == "")) {
+		if (!isset($data["name"]) || ($data["name"] == "")) {
 			if (isset($data["nick"])) {
 				$data["name"] = $data["nick"];
 			}
@@ -314,7 +350,7 @@ class Probe {
 			}
 		}
 
-		if (!isset($data["nick"]) OR ($data["nick"] == "")) {
+		if (!isset($data["nick"]) || ($data["nick"] == "")) {
 			$data["nick"] = strtolower($data["name"]);
 
 			if (strpos($data['nick'], ' ')) {
@@ -341,12 +377,12 @@ class Probe {
 			/// It should only be updated if the existing picture isn't existing anymore.
 			/// We only update the contact when it is no probing for a specific network.
 			if (($data['network'] != NETWORK_FEED)
-				AND ($network == "")
-				AND $data["name"]
-				AND $data["nick"]
-				AND $data["url"]
-				AND $data["addr"]
-				AND $data["poll"]
+				&& ($network == "")
+				&& $data["name"]
+				&& $data["nick"]
+				&& $data["url"]
+				&& $data["addr"]
+				&& $data["poll"]
 			) {
 				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `url` = '%s', `addr` = '%s',
 						`notify` = '%s', `poll` = '%s', `alias` = '%s', `success_update` = '%s'
@@ -381,7 +417,7 @@ class Probe {
 	private function detect($uri, $network, $uid) {
 		$parts = parse_url($uri);
 
-		if (isset($parts["scheme"]) AND isset($parts["host"]) AND isset($parts["path"])) {
+		if (isset($parts["scheme"]) && isset($parts["host"]) && isset($parts["path"])) {
 			$host = $parts["host"];
 			if (isset($parts["port"])) {
 				$host .= ':'.$parts["port"];
@@ -392,13 +428,18 @@ class Probe {
 			}
 			$lrdd = self::xrd($host);
 
+			if (is_bool($lrdd)) {
+				return array();
+			}
+
 			$path_parts = explode("/", trim($parts["path"], "/"));
 
-			while (!$lrdd AND (sizeof($path_parts) > 1)) {
+			while (!$lrdd && (sizeof($path_parts) > 1)) {
 				$host .= "/".array_shift($path_parts);
 				$lrdd = self::xrd($host);
 			}
 			if (!$lrdd) {
+				logger('No XRD data was found for '.$uri, LOGGER_DEBUG);
 				return self::feed($uri);
 			}
 			$nick = array_pop($path_parts);
@@ -429,12 +470,18 @@ class Probe {
 			}
 			$lrdd = self::xrd($host);
 
+			if (is_bool($lrdd)) {
+				return array();
+			}
+
 			if (!$lrdd) {
+				logger('No XRD data was found for '.$uri, LOGGER_DEBUG);
 				return self::mail($uri, $uid);
 			}
 			$addr = $uri;
 
 		} else {
+			logger("Uri ".$uri." was not detectable", LOGGER_DEBUG);
 			return false;
 		}
 
@@ -454,7 +501,7 @@ class Probe {
 			$webfinger = self::webfinger($path);
 
 			// We cannot be sure that the detected address was correct, so we don't use the values
-			if ($webfinger AND ($uri != $addr)) {
+			if ($webfinger && ($uri != $addr)) {
 				$nick = "";
 				$addr = "";
 			}
@@ -482,32 +529,32 @@ class Probe {
 		if (in_array($network, array("", NETWORK_DFRN))) {
 			$result = self::dfrn($webfinger);
 		}
-		if ((!$result AND ($network == "")) OR ($network == NETWORK_DIASPORA)) {
+		if ((!$result && ($network == "")) || ($network == NETWORK_DIASPORA)) {
 			$result = self::diaspora($webfinger);
 		}
-		if ((!$result AND ($network == "")) OR ($network == NETWORK_OSTATUS)) {
+		if ((!$result && ($network == "")) || ($network == NETWORK_OSTATUS)) {
 			$result = self::ostatus($webfinger);
 		}
-		if ((!$result AND ($network == "")) OR ($network == NETWORK_PUMPIO)) {
+		if ((!$result && ($network == "")) || ($network == NETWORK_PUMPIO)) {
 			$result = self::pumpio($webfinger);
 		}
-		if ((!$result AND ($network == "")) OR ($network == NETWORK_FEED)) {
+		if ((!$result && ($network == "")) || ($network == NETWORK_FEED)) {
 			$result = self::feed($uri);
 		} else {
 			// We overwrite the detected nick with our try if the previois routines hadn't detected it.
 			// Additionally it is overwritten when the nickname doesn't make sense (contains spaces).
-			if ((!isset($result["nick"]) OR ($result["nick"] == "") OR (strstr($result["nick"], " "))) AND ($nick != "")) {
+			if ((!isset($result["nick"]) || ($result["nick"] == "") || (strstr($result["nick"], " "))) && ($nick != "")) {
 				$result["nick"] = $nick;
 			}
 
-			if ((!isset($result["addr"]) OR ($result["addr"] == "")) AND ($addr != "")) {
+			if ((!isset($result["addr"]) || ($result["addr"] == "")) && ($addr != "")) {
 				$result["addr"] = $addr;
 			}
 		}
 
 		logger($uri." is ".$result["network"], LOGGER_DEBUG);
 
-		if (!isset($result["baseurl"]) OR ($result["baseurl"] == "")) {
+		if (!isset($result["baseurl"]) || ($result["baseurl"] == "")) {
 			$pos = strpos($result["url"], $host);
 			if ($pos) {
 				$result["baseurl"] = substr($result["url"], 0, $pos).$host;
@@ -544,6 +591,7 @@ class Probe {
 			$webfinger = json_decode($data, true);
 
 			if (!isset($webfinger["links"])) {
+				logger("No json webfinger links for ".$url, LOGGER_DEBUG);
 				return false;
 			}
 
@@ -552,6 +600,7 @@ class Probe {
 
 		$xrd_arr = xml::element_to_array($xrd);
 		if (!isset($xrd_arr["xrd"]["link"])) {
+			logger("No XML webfinger links for ".$url, LOGGER_DEBUG);
 			return false;
 		}
 
@@ -599,11 +648,13 @@ class Probe {
 		}
 		$content = $ret['body'];
 		if (!$content) {
+			logger("Empty body for ".$noscrape_url, LOGGER_DEBUG);
 			return false;
 		}
 
 		$json = json_decode($content, true);
 		if (!is_array($json)) {
+			logger("No json data for ".$noscrape_url, LOGGER_DEBUG);
 			return false;
 		}
 
@@ -711,12 +762,12 @@ class Probe {
 		$data = self::pollNoscrape($noscrape_url, $data);
 
 		if (!isset($data["notify"])
-			OR !isset($data["confirm"])
-			OR !isset($data["request"])
-			OR !isset($data["poll"])
-			OR !isset($data["poco"])
-			OR !isset($data["name"])
-			OR !isset($data["photo"])
+			|| !isset($data["confirm"])
+			|| !isset($data["request"])
+			|| !isset($data["poll"])
+			|| !isset($data["poco"])
+			|| !isset($data["name"])
+			|| !isset($data["photo"])
 		) {
 			$data = self::pollHcard($profile_link, $data, true);
 		}
@@ -750,33 +801,33 @@ class Probe {
 		$hcard_url = "";
 		$data = array();
 		foreach ($webfinger["links"] as $link) {
-			if (($link["rel"] == NAMESPACE_DFRN) AND ($link["href"] != "")) {
+			if (($link["rel"] == NAMESPACE_DFRN) && ($link["href"] != "")) {
 				$data["network"] = NETWORK_DFRN;
-			} elseif (($link["rel"] == NAMESPACE_FEED) AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == NAMESPACE_FEED) && ($link["href"] != "")) {
 				$data["poll"] = $link["href"];
-			} elseif (($link["rel"] == "http://webfinger.net/rel/profile-page") AND ($link["type"] == "text/html") AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == "http://webfinger.net/rel/profile-page") && ($link["type"] == "text/html") && ($link["href"] != "")) {
 				$data["url"] = $link["href"];
-			} elseif (($link["rel"] == "http://microformats.org/profile/hcard") AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == "http://microformats.org/profile/hcard") && ($link["href"] != "")) {
 				$hcard_url = $link["href"];
-			} elseif (($link["rel"] == NAMESPACE_POCO) AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == NAMESPACE_POCO) && ($link["href"] != "")) {
 				$data["poco"] = $link["href"];
-			} elseif (($link["rel"] == "http://webfinger.net/rel/avatar") AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == "http://webfinger.net/rel/avatar") && ($link["href"] != "")) {
 				$data["photo"] = $link["href"];
-			} elseif (($link["rel"] == "http://joindiaspora.com/seed_location") AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == "http://joindiaspora.com/seed_location") && ($link["href"] != "")) {
 				$data["baseurl"] = trim($link["href"], '/');
-			} elseif (($link["rel"] == "http://joindiaspora.com/guid") AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == "http://joindiaspora.com/guid") && ($link["href"] != "")) {
 				$data["guid"] = $link["href"];
-			} elseif (($link["rel"] == "diaspora-public-key") AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == "diaspora-public-key") && ($link["href"] != "")) {
 				$data["pubkey"] = base64_decode($link["href"]);
 
-				//if (strstr($data["pubkey"], 'RSA ') OR ($link["type"] == "RSA"))
+				//if (strstr($data["pubkey"], 'RSA ') || ($link["type"] == "RSA"))
 				if (strstr($data["pubkey"], 'RSA ')) {
 					$data["pubkey"] = rsatopem($data["pubkey"]);
 				}
 			}
 		}
 
-		if (!isset($data["network"]) OR ($hcard_url == "")) {
+		if (!isset($data["network"]) || ($hcard_url == "")) {
 			return false;
 		}
 
@@ -785,11 +836,11 @@ class Probe {
 		$data = self::pollNoscrape($noscrape_url, $data);
 
 		if (isset($data["notify"])
-			AND isset($data["confirm"])
-			AND isset($data["request"])
-			AND isset($data["poll"])
-			AND isset($data["name"])
-			AND isset($data["photo"])
+			&& isset($data["confirm"])
+			&& isset($data["request"])
+			&& isset($data["poll"])
+			&& isset($data["name"])
+			&& isset($data["photo"])
 		) {
 			return $data;
 		}
@@ -836,7 +887,7 @@ class Probe {
 			// We have to discard the guid from the hcard in favour of the guid from lrdd
 			// Reason: Hubzilla doesn't use the value "uid" in the hcard like Diaspora does.
 			$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' uid ')]", $vcard); // */
-			if (($search->length > 0) AND ($data["guid"] == "")) {
+			if (($search->length > 0) && ($data["guid"] == "")) {
 				$data["guid"] = $search->item(0)->nodeValue;
 			}
 
@@ -877,13 +928,13 @@ class Probe {
 				$attr[$attribute->name] = trim($attribute->value);
 			}
 
-			if (isset($attr["src"]) AND isset($attr["width"])) {
+			if (isset($attr["src"]) && isset($attr["width"])) {
 				$avatar[$attr["width"]] = $attr["src"];
 			}
 
 			// We don't have a width. So we just take everything that we got.
 			// This is a Hubzilla workaround which doesn't send a width.
-			if ((sizeof($avatar) == 0) AND isset($attr["src"])) {
+			if ((sizeof($avatar) == 0) && isset($attr["src"])) {
 				$avatar[] = $attr["src"];
 			}
 		}
@@ -930,37 +981,37 @@ class Probe {
 		$hcard_url = "";
 		$data = array();
 		foreach ($webfinger["links"] as $link) {
-			if (($link["rel"] == "http://microformats.org/profile/hcard") AND ($link["href"] != "")) {
+			if (($link["rel"] == "http://microformats.org/profile/hcard") && ($link["href"] != "")) {
 				$hcard_url = $link["href"];
-			} elseif (($link["rel"] == "http://joindiaspora.com/seed_location") AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == "http://joindiaspora.com/seed_location") && ($link["href"] != "")) {
 				$data["baseurl"] = trim($link["href"], '/');
-			} elseif (($link["rel"] == "http://joindiaspora.com/guid") AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == "http://joindiaspora.com/guid") && ($link["href"] != "")) {
 				$data["guid"] = $link["href"];
-			} elseif (($link["rel"] == "http://webfinger.net/rel/profile-page") AND ($link["type"] == "text/html") AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == "http://webfinger.net/rel/profile-page") && ($link["type"] == "text/html") && ($link["href"] != "")) {
 				$data["url"] = $link["href"];
-			} elseif (($link["rel"] == NAMESPACE_FEED) AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == NAMESPACE_FEED) && ($link["href"] != "")) {
 				$data["poll"] = $link["href"];
-			} elseif (($link["rel"] == NAMESPACE_POCO) AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == NAMESPACE_POCO) && ($link["href"] != "")) {
 				$data["poco"] = $link["href"];
-			} elseif (($link["rel"] == "salmon") AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == "salmon") && ($link["href"] != "")) {
 				$data["notify"] = $link["href"];
-			} elseif (($link["rel"] == "diaspora-public-key") AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == "diaspora-public-key") && ($link["href"] != "")) {
 				$data["pubkey"] = base64_decode($link["href"]);
 
-				//if (strstr($data["pubkey"], 'RSA ') OR ($link["type"] == "RSA"))
+				//if (strstr($data["pubkey"], 'RSA ') || ($link["type"] == "RSA"))
 				if (strstr($data["pubkey"], 'RSA ')) {
 					$data["pubkey"] = rsatopem($data["pubkey"]);
 				}
 			}
 		}
 
-		if (!isset($data["url"]) OR ($hcard_url == "")) {
+		if (!isset($data["url"]) || ($hcard_url == "")) {
 			return false;
 		}
 
 		if (is_array($webfinger["aliases"])) {
 			foreach ($webfinger["aliases"] as $alias) {
-				if (normalise_link($alias) != normalise_link($data["url"]) AND ! strstr($alias, "@")) {
+				if (normalise_link($alias) != normalise_link($data["url"]) && ! strstr($alias, "@")) {
 					$data["alias"] = $alias;
 				}
 			}
@@ -974,10 +1025,10 @@ class Probe {
 		}
 
 		if (isset($data["url"])
-			AND isset($data["guid"])
-			AND isset($data["baseurl"])
-			AND isset($data["pubkey"])
-			AND ($hcard_url != "")
+			&& isset($data["guid"])
+			&& isset($data["baseurl"])
+			&& isset($data["pubkey"])
+			&& ($hcard_url != "")
 		) {
 			$data["network"] = NETWORK_DIASPORA;
 
@@ -1011,21 +1062,21 @@ class Probe {
 			}
 		}
 
-		if (is_string($webfinger["subject"]) AND strstr($webfinger["subject"], "@")) {
+		if (is_string($webfinger["subject"]) && strstr($webfinger["subject"], "@")) {
 			$data["addr"] = str_replace('acct:', '', $webfinger["subject"]);
 		}
 		$pubkey = "";
 		foreach ($webfinger["links"] as $link) {
 			if (($link["rel"] == "http://webfinger.net/rel/profile-page")
-				AND ($link["type"] == "text/html")
-				AND ($link["href"] != "")
+				&& ($link["type"] == "text/html")
+				&& ($link["href"] != "")
 			) {
 				$data["url"] = $link["href"];
-			} elseif (($link["rel"] == "salmon") AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == "salmon") && ($link["href"] != "")) {
 				$data["notify"] = $link["href"];
-			} elseif (($link["rel"] == NAMESPACE_FEED) AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == NAMESPACE_FEED) && ($link["href"] != "")) {
 				$data["poll"] = $link["href"];
-			} elseif (($link["rel"] == "magic-public-key") AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == "magic-public-key") && ($link["href"] != "")) {
 				$pubkey = $link["href"];
 
 				if (substr($pubkey, 0, 5) === 'data:') {
@@ -1052,9 +1103,9 @@ class Probe {
 			}
 		}
 
-		if (isset($data["notify"]) AND isset($data["pubkey"])
-			AND isset($data["poll"])
-			AND isset($data["url"])
+		if (isset($data["notify"]) && isset($data["pubkey"])
+			&& isset($data["poll"])
+			&& isset($data["url"])
 		) {
 			$data["network"] = NETWORK_OSTATUS;
 		} else {
@@ -1149,21 +1200,21 @@ class Probe {
 		$data = array();
 		foreach ($webfinger["links"] as $link) {
 			if (($link["rel"] == "http://webfinger.net/rel/profile-page")
-				AND ($link["type"] == "text/html")
-				AND ($link["href"] != "")
+				&& ($link["type"] == "text/html")
+				&& ($link["href"] != "")
 			) {
 				$data["url"] = $link["href"];
-			} elseif (($link["rel"] == "activity-inbox") AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == "activity-inbox") && ($link["href"] != "")) {
 				$data["notify"] = $link["href"];
-			} elseif (($link["rel"] == "activity-outbox") AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == "activity-outbox") && ($link["href"] != "")) {
 				$data["poll"] = $link["href"];
-			} elseif (($link["rel"] == "dialback") AND ($link["href"] != "")) {
+			} elseif (($link["rel"] == "dialback") && ($link["href"] != "")) {
 				$data["dialback"] = $link["href"];
 			}
 		}
-		if (isset($data["poll"]) AND isset($data["notify"])
-			AND isset($data["dialback"])
-			AND isset($data["url"])
+		if (isset($data["poll"]) && isset($data["notify"])
+			&& isset($data["dialback"])
+			&& isset($data["url"])
 		) {
 			// by now we use these fields only for the network type detection
 			// So we unset all data that isn't used at the moment

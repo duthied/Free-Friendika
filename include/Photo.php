@@ -778,21 +778,29 @@ function guess_image_type($filename, $fromcurl=false) {
  * @return array Returns array of the different avatar sizes
  */
 function update_contact_avatar($avatar, $uid, $cid, $force = false) {
-
-	$r = q("SELECT `avatar`, `photo`, `thumb`, `micro` FROM `contact` WHERE `id` = %d LIMIT 1", intval($cid));
+	$r = q("SELECT `avatar`, `photo`, `thumb`, `micro`, `nurl` FROM `contact` WHERE `id` = %d LIMIT 1", intval($cid));
 	if (!dbm::is_result($r)) {
 		return false;
 	} else {
 		$data = array($r[0]["photo"], $r[0]["thumb"], $r[0]["micro"]);
 	}
 
-	if (($r[0]["avatar"] != $avatar) OR $force) {
+	if (($r[0]["avatar"] != $avatar) || $force) {
 		$photos = import_profile_photo($avatar, $uid, $cid, true);
 
 		if ($photos) {
 			q("UPDATE `contact` SET `avatar` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' WHERE `id` = %d",
 				dbesc($avatar), dbesc($photos[0]), dbesc($photos[1]), dbesc($photos[2]),
 				dbesc(datetime_convert()), intval($cid));
+
+			// Update the public contact (contact id = 0)
+			if ($uid != 0) {
+				$pcontact = dba::select('contact', array('id'), array('nurl' => $r[0]['nurl']), array('limit' => 1));
+				if (dbm::is_result($pcontact)) {
+					update_contact_avatar($avatar, 0, $pcontact['id'], $force);
+				}
+			}
+
 			return $photos;
 		}
 	}
@@ -817,7 +825,7 @@ function import_profile_photo($photo, $uid, $cid, $quit_on_error = false) {
 	$filename = basename($photo);
 	$img_str = fetch_url($photo, true);
 
-	if ($quit_on_error AND ($img_str == "")) {
+	if ($quit_on_error && ($img_str == "")) {
 		return false;
 	}
 
@@ -847,14 +855,35 @@ function import_profile_photo($photo, $uid, $cid, $quit_on_error = false) {
 			$photo_failure = true;
 		}
 
-		$photo = App::get_baseurl() . '/photo/' . $hash . '-4.' . $img->getExt();
-		$thumb = App::get_baseurl() . '/photo/' . $hash . '-5.' . $img->getExt();
-		$micro = App::get_baseurl() . '/photo/' . $hash . '-6.' . $img->getExt();
+		$suffix = '?ts='.time();
+
+		$photo = App::get_baseurl() . '/photo/' . $hash . '-4.' . $img->getExt() . $suffix;
+		$thumb = App::get_baseurl() . '/photo/' . $hash . '-5.' . $img->getExt() . $suffix;
+		$micro = App::get_baseurl() . '/photo/' . $hash . '-6.' . $img->getExt() . $suffix;
+
+		// Remove the cached photo
+		$a = get_app();
+		$basepath = $a->get_basepath();
+
+		if (is_dir($basepath."/photo")) {
+			$filename = $basepath.'/photo/'.$hash.'-4.'.$img->getExt();
+			if (file_exists($filename)) {
+				unlink($filename);
+			}
+			$filename = $basepath.'/photo/'.$hash.'-5.'.$img->getExt();
+			if (file_exists($filename)) {
+				unlink($filename);
+			}
+			$filename = $basepath.'/photo/'.$hash.'-6.'.$img->getExt();
+			if (file_exists($filename)) {
+				unlink($filename);
+			}
+		}
 	} else {
 		$photo_failure = true;
 	}
 
-	if ($photo_failure AND $quit_on_error) {
+	if ($photo_failure && $quit_on_error) {
 		return false;
 	}
 
@@ -873,7 +902,7 @@ function get_photo_info($url) {
 
 	$data = Cache::get($url);
 
-	if (is_null($data) OR !$data OR !is_array($data)) {
+	if (is_null($data) || !$data || !is_array($data)) {
 		$img_str = fetch_url($url, true, $redirects, 4);
 		$filesize = strlen($img_str);
 
@@ -967,7 +996,7 @@ function store_photo(App $a, $uid, $imagedata = "", $url = "") {
 	/// $default_cid      = $r[0]['id'];
 	/// $community_page   = (($r[0]['page-flags'] == PAGE_COMMUNITY) ? true : false);
 
-	if ((strlen($imagedata) == 0) AND ($url == "")) {
+	if ((strlen($imagedata) == 0) && ($url == "")) {
 		logger("No image data and no url provided", LOGGER_DEBUG);
 		return(array());
 	} elseif (strlen($imagedata) == 0) {
@@ -1073,7 +1102,7 @@ function store_photo(App $a, $uid, $imagedata = "", $url = "") {
 		}
 	}
 
-	if ($width > 160 AND $height > 160) {
+	if ($width > 160 && $height > 160) {
 		$x = 0;
 		$y = 0;
 

@@ -35,12 +35,13 @@ require_once 'include/features.php';
 require_once 'include/identity.php';
 require_once 'update.php';
 require_once 'include/dbstructure.php';
+require_once 'include/poller.php';
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
-define ( 'FRIENDICA_VERSION',      '3.5.2-dev' );
+define ( 'FRIENDICA_VERSION',      '3.5.3-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1224      );
+define ( 'DB_UPDATE_VERSION',      1229      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -457,6 +458,13 @@ if (!defined("SIGTERM")) {
 	define("SIGTERM", 15);
 }
 
+/**
+ * Depending on the PHP version this constant does exist - or not.
+ * See here: http://php.net/manual/en/curl.constants.php#117928
+ */
+if (!defined('CURLE_OPERATION_TIMEDOUT')) {
+        define('CURLE_OPERATION_TIMEDOUT', CURLE_OPERATION_TIMEOUTED);
+}
 /**
  *
  * Reverse the effect of magic_quotes_gpc if it is enabled.
@@ -985,7 +993,7 @@ function notice($s) {
 function info($s) {
 	$a = get_app();
 
-	if (local_user() AND get_pconfig(local_user(), 'system', 'ignore_info')) {
+	if (local_user() && get_pconfig(local_user(), 'system', 'ignore_info')) {
 		return;
 	}
 
@@ -1055,7 +1063,7 @@ function proc_run($cmd) {
 	$arr = array('args' => $args, 'run_cmd' => true);
 
 	call_hooks("proc_run", $arr);
-	if (!$arr['run_cmd'] OR ! count($args)) {
+	if (!$arr['run_cmd'] || ! count($args)) {
 		return;
 	}
 
@@ -1088,18 +1096,8 @@ function proc_run($cmd) {
 		return;
 	}
 
-	// Checking number of workers
-	$workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` > '%s'", dbesc(NULL_DATE));
-
-	// Get number of allowed number of worker threads
-	$queues = intval(get_config("system", "worker_queues"));
-
-	if ($queues == 0) {
-		$queues = 4;
-	}
-
 	// If there are already enough workers running, don't fork another one
-	if ($workers[0]["workers"] >= $queues) {
+	if (poller_too_much_workers()) {
 		return;
 	}
 
@@ -1375,7 +1373,7 @@ function get_server() {
 	$server = get_config("system", "directory");
 
 	if ($server == "") {
-		$server = "http://dir.friendi.ca";
+		$server = "http://dir.friendica.social";
 	}
 
 	return($server);
@@ -1409,7 +1407,7 @@ function clear_cache($basepath = "", $path = "") {
 		$path = $basepath;
 	}
 
-	if (($path == "") OR (!is_dir($path))) {
+	if (($path == "") || (!is_dir($path))) {
 		return;
 	}
 
@@ -1426,10 +1424,10 @@ function clear_cache($basepath = "", $path = "") {
 		if ($dh = opendir($path)) {
 			while (($file = readdir($dh)) !== false) {
 				$fullpath = $path . "/" . $file;
-				if ((filetype($fullpath) == "dir") and ($file != ".") and ($file != "..")) {
+				if ((filetype($fullpath) == "dir") && ($file != ".") && ($file != "..")) {
 					clear_cache($basepath, $fullpath);
 				}
-				if ((filetype($fullpath) == "file") and (filectime($fullpath) < (time() - $cachetime))) {
+				if ((filetype($fullpath) == "file") && (filectime($fullpath) < (time() - $cachetime))) {
 					unlink($fullpath);
 				}
 			}
@@ -1446,7 +1444,7 @@ function get_itemcachepath() {
 	}
 
 	$itemcache = get_config('system', 'itemcache');
-	if (($itemcache != "") AND App::directory_usable($itemcache)) {
+	if (($itemcache != "") && App::directory_usable($itemcache)) {
 		return $itemcache;
 	}
 
@@ -1473,7 +1471,7 @@ function get_itemcachepath() {
  */
 function get_spoolpath() {
 	$spoolpath = get_config('system', 'spoolpath');
-	if (($spoolpath != "") AND App::directory_usable($spoolpath)) {
+	if (($spoolpath != "") && App::directory_usable($spoolpath)) {
 		// We have a spool path and it is usable
 		return $spoolpath;
 	}
@@ -1508,7 +1506,7 @@ function get_temppath() {
 
 	$temppath = get_config("system", "temppath");
 
-	if (($temppath != "") AND App::directory_usable($temppath)) {
+	if (($temppath != "") && App::directory_usable($temppath)) {
 		// We have a temp path and it is usable
 		return $temppath;
 	}
@@ -1517,7 +1515,7 @@ function get_temppath() {
 	$temppath = sys_get_temp_dir();
 
 	// Check if it is usable
-	if (($temppath != "") AND App::directory_usable($temppath)) {
+	if (($temppath != "") && App::directory_usable($temppath)) {
 		// To avoid any interferences with other systems we create our own directory
 		$new_temppath = $temppath . "/" . $a->get_hostname();
 		if (!is_dir($new_temppath)) {
@@ -1640,7 +1638,7 @@ function argv($x) {
 function infinite_scroll_data($module) {
 
 	if (get_pconfig(local_user(), 'system', 'infinite_scroll')
-		AND ($module == "network") AND ($_GET["mode"] != "minimal")) {
+		&& ($module == "network") && ($_GET["mode"] != "minimal")) {
 
 		// get the page number
 		if (is_string($_GET["page"])) {
@@ -1653,12 +1651,12 @@ function infinite_scroll_data($module) {
 
 		// try to get the uri from which we load the content
 		foreach ($_GET AS $param => $value) {
-			if (($param != "page") AND ($param != "q")) {
+			if (($param != "page") && ($param != "q")) {
 				$reload_uri .= "&" . $param . "=" . urlencode($value);
 			}
 		}
 
-		if (($a->page_offset != "") AND ! strstr($reload_uri, "&offset=")) {
+		if (($a->page_offset != "") && ! strstr($reload_uri, "&offset=")) {
 			$reload_uri .= "&offset=" . urlencode($a->page_offset);
 		}
 

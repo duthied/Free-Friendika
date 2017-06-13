@@ -122,6 +122,8 @@ function cron_poll_contacts($argc, $argv) {
 		$force     = true;
 	}
 
+	$min_poll_interval = Config::get('system', 'min_poll_interval', 1);
+
 	$sql_extra = (($manual_id) ? " AND `id` = $manual_id " : "");
 
 	reload_plugins();
@@ -184,7 +186,7 @@ function cron_poll_contacts($argc, $argv) {
 				$contact['priority'] = 2;
 			}
 
-			if ($contact['subhub'] AND in_array($contact['network'], array(NETWORK_DFRN, NETWORK_ZOT, NETWORK_OSTATUS))) {
+			if ($contact['subhub'] && in_array($contact['network'], array(NETWORK_DFRN, NETWORK_ZOT, NETWORK_OSTATUS))) {
 				/*
 				 * We should be getting everything via a hub. But just to be sure, let's check once a day.
 				 * (You can make this more or less frequent if desired by setting 'pushpoll_frequency' appropriately)
@@ -195,7 +197,7 @@ function cron_poll_contacts($argc, $argv) {
 				$contact['priority'] = (($poll_interval !== false) ? intval($poll_interval) : 3);
 			}
 
-			if ($contact['priority'] AND !$force) {
+			if (($contact['priority'] >= 0) && !$force) {
 				$update = false;
 
 				$t = $contact['last-update'];
@@ -225,8 +227,13 @@ function cron_poll_contacts($argc, $argv) {
 						}
 						break;
 					case 1:
-					default:
 						if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + 1 hour")) {
+							$update = true;
+						}
+						break;
+					case 0:
+					default:
+						if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + ".$min_poll_interval." minute")) {
 							$update = true;
 						}
 						break;
@@ -238,11 +245,12 @@ function cron_poll_contacts($argc, $argv) {
 
 			logger("Polling " . $contact["network"] . " " . $contact["id"] . " " . $contact["nick"] . " " . $contact["name"]);
 
-			if (($contact['network'] == NETWORK_FEED) AND ($contact['priority'] <= 3)) {
-				proc_run(PRIORITY_MEDIUM, 'include/onepoll.php', intval($contact['id']));
+			if (($contact['network'] == NETWORK_FEED) && ($contact['priority'] <= 3)) {
+				$priority = PRIORITY_MEDIUM;
 			} else {
-				proc_run(PRIORITY_LOW, 'include/onepoll.php', intval($contact['id']));
+				$priority = PRIORITY_LOW;
 			}
+			proc_run(array('priority' => $priority, 'dont_fork' => true), 'include/onepoll.php', intval($contact['id']));
 		}
 	}
 }

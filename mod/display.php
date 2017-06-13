@@ -2,6 +2,8 @@
 
 use Friendica\App;
 
+require_once('include/dfrn.php');
+
 function display_init(App $a) {
 
 	if ((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
@@ -10,6 +12,16 @@ function display_init(App $a) {
 
 	$nick = (($a->argc > 1) ? $a->argv[1] : '');
 	$profiledata = array();
+
+	if ($a->argc == 3) {
+		if (substr($a->argv[2], -5) == '.atom') {
+			$item_id = substr($a->argv[2], 0, -5);
+			$xml = dfrn::itemFeed($item_id);
+			header("Content-type: application/atom+xml");
+			echo $xml;
+			http_status_exit(($xml) ? 200 : 500);
+		}
+	}
 
 	// If there is only one parameter, then check if this parameter could be a guid
 	if ($a->argc == 2) {
@@ -59,7 +71,7 @@ function display_init(App $a) {
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `id` = %d", $r[0]["parent"]);
 			}
-			if (($itemuid != local_user()) AND local_user()) {
+			if (($itemuid != local_user()) && local_user()) {
 				// Do we know this contact but we haven't got this item?
 				// Copy the wohle thread to our local storage so that we can interact.
 				// We really should change this need for the future since it scales very bad.
@@ -129,11 +141,11 @@ function display_fetchauthor($a, $item) {
 
 	// Skip if it isn't a pure repeated messages
 	// Does it start with a share?
-	if (!$skip AND strpos($body, "[share") > 0) {
+	if (!$skip && strpos($body, "[share") > 0) {
 		$skip = true;
 	}
 	// Does it end with a share?
-	if (!$skip AND (strlen($body) > (strrpos($body, "[/share]") + 8))) {
+	if (!$skip && (strlen($body) > (strrpos($body, "[/share]") + 8))) {
 		$skip = true;
 	}
 	if (!$skip) {
@@ -209,9 +221,6 @@ function display_content(App $a, $update = 0) {
 
 	$o = '';
 
-	$a->page['htmlhead'] .= replace_macros(get_markup_template('display-head.tpl'), array());
-
-
 	if ($update) {
 		$nick = $_REQUEST['nick'];
 	} else {
@@ -265,7 +274,7 @@ function display_content(App $a, $update = 0) {
 		}
 	}
 
-	if ($item_id AND !is_numeric($item_id)) {
+	if ($item_id && !is_numeric($item_id)) {
 		$r = qu("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
 			dbesc($item_id), intval($a->profile['uid']));
 		if (dbm::is_result($r)) {
@@ -281,6 +290,16 @@ function display_content(App $a, $update = 0) {
 		return;
 	}
 
+	// We are displaying an "alternate" link if that post was public. See issue 2864
+	$items = q("SELECT `id` FROM `item` WHERE `id` = %d AND NOT `private` AND `wall`", intval($item_id));
+	if (dbm::is_result($items)) {
+		$alternate = App::get_baseurl().'/display/'.$nick.'/'.$item_id.'.atom';
+	} else {
+		$alternate = '';
+	}
+
+	$a->page['htmlhead'] .= replace_macros(get_markup_template('display-head.tpl'),
+				array('$alternate' => $alternate));
 
 	$groups = array();
 
