@@ -21,6 +21,8 @@ class dba {
 	private $driver;
 	public  $connected = false;
 	public  $error = false;
+	public  $errorno = 0;
+	public  $affected_rows = 0;
 	private $_server_info = '';
 	private static $in_transaction = false;
 	private static $dbo;
@@ -551,6 +553,7 @@ class dba {
 
 		self::$dbo->error = '';
 		self::$dbo->errorno = 0;
+		self::$dbo->affected_rows = 0;
 
 		switch (self::$dbo->driver) {
 			case 'pdo':
@@ -573,6 +576,7 @@ class dba {
 					$retval = false;
 				} else {
 					$retval = $stmt;
+					self::$dbo->affected_rows = $retval->rowCount();
 				}
 				break;
 			case 'mysqli':
@@ -612,6 +616,7 @@ class dba {
 				} else {
 					$stmt->store_result();
 					$retval = $stmt;
+					self::$dbo->affected_rows = $retval->affected_rows;
 				}
 				break;
 			case 'mysql':
@@ -620,13 +625,28 @@ class dba {
 				if (mysql_errno(self::$dbo->db)) {
 					self::$dbo->error = mysql_error(self::$dbo->db);
 					self::$dbo->errorno = mysql_errno(self::$dbo->db);
+				} else {
+					self::$dbo->affected_rows = mysql_affected_rows($retval);
 				}
 				break;
 		}
 
 		if (self::$dbo->errorno != 0) {
-			logger('DB Error '.self::$dbo->errorno.': '.self::$dbo->error."\n".
-				$a->callstack(8))."\n".self::replace_parameters($sql, $args);
+			$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+			$called_from = array_shift($trace);
+
+			// We are having an own error logging in the function "p"
+			if ($called_from['function'] != 'p') {
+				// We have to preserve the error code, somewhere in the logging it get lost
+				$error = self::$dbo->error;
+				$errorno = self::$dbo->errorno;
+
+				logger('DB Error '.self::$dbo->errorno.': '.self::$dbo->error."\n".
+					$a->callstack(8))."\n".self::replace_parameters($sql, $args);
+
+				self::$dbo->error = $error;
+				self::$dbo->errorno = $errorno;
+			}
 		}
 
 		$a->save_timestamp($stamp1, 'database');
@@ -662,17 +682,35 @@ class dba {
 
 		$args = func_get_args();
 
-		$stmt = call_user_func_array('self::p', $args);
+		// In a case of a deadlock we are repeating the query 20 times
+		$timeout = 20;
 
-		if (is_bool($stmt)) {
-			$retval = $stmt;
-		} elseif (is_object($stmt)) {
-			$retval = true;
-		} else {
-			$retval = false;
+		do {
+			$stmt = call_user_func_array('self::p', $args);
+
+			if (is_bool($stmt)) {
+				$retval = $stmt;
+			} elseif (is_object($stmt)) {
+				$retval = true;
+			} else {
+				$retval = false;
+			}
+
+			self::close($stmt);
+
+		} while ((self::$dbo->errorno == 1213) && (--$timeout > 0));
+
+		if (self::$dbo->errorno != 0) {
+			// We have to preserve the error code, somewhere in the logging it get lost
+			$error = self::$dbo->error;
+			$errorno = self::$dbo->errorno;
+
+			logger('DB Error '.self::$dbo->errorno.': '.self::$dbo->error."\n".
+				$a->callstack(8))."\n".self::replace_parameters($sql, $args);
+
+			self::$dbo->error = $error;
+			self::$dbo->errorno = $errorno;
 		}
-
-		self::close($stmt);
 
 		$a->save_timestamp($stamp, "database_write");
 
@@ -721,6 +759,15 @@ class dba {
 		self::close($stmt);
 
 		return $retval;
+	}
+
+	/**
+	 * @brief Returns the number of affected rows of the last statement
+	 *
+	 * @return int Number of rows
+	 */
+	static public function affected_rows() {
+		return self::$dbo->affected_rows;
 	}
 
 	/**
