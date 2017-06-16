@@ -7,6 +7,7 @@ require_once('include/items.php');
 require_once('include/ostatus.php');
 
 function pubsubpublish_run(&$argv, &$argc){
+	global $a;
 
 	if ($argc > 1) {
 		$pubsubpublish_id = intval($argv[1]);
@@ -17,7 +18,8 @@ function pubsubpublish_run(&$argv, &$argc){
 
 		foreach ($r as $rr) {
 			logger("Publish feed to ".$rr["callback_url"], LOGGER_DEBUG);
-			proc_run(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), 'include/pubsubpublish.php', $rr["id"]);
+			proc_run(array('priority' => PRIORITY_HIGH, 'created' => $a->queue['created'], 'dont_fork' => true),
+					'include/pubsubpublish.php', (int)$rr["id"]);
 		}
 	}
 
