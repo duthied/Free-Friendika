@@ -2144,7 +2144,7 @@ function update_gcontact($contact) {
 	}
 
 	// assign all unassigned fields from the database entry
-	foreach ($fields as $field => $data)
+	foreach ($fields as $field => $data) {
 		if (!isset($contact[$field]) || ($contact[$field] == "")) {
 			$contact[$field] = $r[0][$field];
 		}
