@@ -2356,7 +2356,7 @@ function gs_fetch_users($server) {
 		$hostname = $statistics->instance_address;
 	}
 
-	if (is_object($statistics->users))
+	if (is_object($statistics->users)) {
 		foreach ($statistics->users AS $nick => $user) {
 			$profile_url = $server."/".$user->nickname;
 
