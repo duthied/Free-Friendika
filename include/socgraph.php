@@ -669,7 +669,7 @@ function poco_last_updated($profile, $force = false) {
 
 	$last_updated = "";
 
-	foreach ($entries AS $entry) {
+	foreach ($entries as $entry) {
 		$published = $xpath->query('atom:published/text()', $entry)->item(0)->nodeValue;
 		$updated = $xpath->query('atom:updated/text()', $entry)->item(0)->nodeValue;
 
@@ -778,7 +778,7 @@ function poco_detect_poco_data($data) {
 		return false;
 	}
 
-	foreach ($data->entry[0]->urls AS $url) {
+	foreach ($data->entry[0]->urls as $url) {
 		if ($url->type == 'zot') {
 			$server = array();
 			$server["platform"] = 'Hubzilla';
@@ -813,7 +813,7 @@ function poco_fetch_nodeinfo($server_url) {
 
 	$nodeinfo_url = '';
 
-	foreach ($nodeinfo->links AS $link) {
+	foreach ($nodeinfo->links as $link) {
 		if ($link->rel == 'http://nodeinfo.diaspora.software/ns/schema/1.0') {
 			$nodeinfo_url = $link->href;
 		}
@@ -866,7 +866,7 @@ function poco_fetch_nodeinfo($server_url) {
 	$gnusocial = false;
 
 	if (is_array($nodeinfo->protocols->inbound)) {
-		foreach ($nodeinfo->protocols->inbound AS $inbound) {
+		foreach ($nodeinfo->protocols->inbound as $inbound) {
 			if ($inbound == 'diaspora') {
 				$diaspora = true;
 			}
@@ -1582,11 +1582,11 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 	);
 
 	$list = array();
-	foreach ($r2 AS $suggestion) {
+	foreach ($r2 as $suggestion) {
 		$list[$suggestion["nurl"]] = $suggestion;
 	}
 
-	foreach ($r AS $suggestion) {
+	foreach ($r as $suggestion) {
 		$list[$suggestion["nurl"]] = $suggestion;
 	}
 
@@ -1662,7 +1662,7 @@ function poco_fetch_serverlist($poco) {
 		return;
 	}
 
-	foreach ($serverlist AS $server) {
+	foreach ($serverlist as $server) {
 		$server_url = str_replace("/index.php", "", $server->url);
 
 		$r = q("SELECT `nurl` FROM `gserver` WHERE `nurl` = '%s'", dbesc(normalise_link($server_url)));
@@ -1689,7 +1689,7 @@ function poco_discover_federation() {
 	if ($serverdata) {
 		$servers = json_decode($serverdata);
 
-		foreach ($servers->pods AS $server) {
+		foreach ($servers->pods as $server) {
 			proc_run(PRIORITY_LOW, "include/discover_poco.php", "server", base64_encode("https://".$server->host));
 		}
 	}
@@ -1701,7 +1701,7 @@ function poco_discover_federation() {
 		if ($serverdata) {
 			$servers = json_decode($serverdata);
 
-			foreach ($servers AS $server) {
+			foreach ($servers as $server) {
 				$url = (is_null($server->https_score) ? 'http' : 'https').'://'.$server->name;
 				proc_run(PRIORITY_LOW, "include/discover_poco.php", "server", base64_encode($url));
 			}
@@ -1718,7 +1718,7 @@ function poco_discover_federation() {
 	//	if ($result["success"]) {
 	//		$servers = json_decode($result["body"]);
 
-	//		foreach($servers->data AS $server)
+	//		foreach($servers->data as $server)
 	//			poco_check_server($server->instance_address);
 	//	}
 	//}
@@ -1804,7 +1804,7 @@ function poco_discover($complete = false) {
 
 	$r = q("SELECT `id`, `url`, `network` FROM `gserver` WHERE `last_contact` >= `last_failure` AND `poco` != '' AND `last_poco_query` < '%s' ORDER BY RAND()", dbesc($last_update));
 	if (dbm::is_result($r)) {
-		foreach ($r AS $server) {
+		foreach ($r as $server) {
 
 			if (!poco_check_server($server["url"], $server["network"])) {
 				// The server is not reachable? Okay, then we will try it later
@@ -1828,7 +1828,7 @@ function poco_discover_server_users($data, $server) {
 		return;
 	}
 
-	foreach ($data->entry AS $entry) {
+	foreach ($data->entry as $entry) {
 		$username = "";
 		if (isset($entry->urls)) {
 			foreach ($entry->urls as $url) {
@@ -1861,7 +1861,7 @@ function poco_discover_server($data, $default_generation = 0) {
 
 	$success = false;
 
-	foreach ($data->entry AS $entry) {
+	foreach ($data->entry as $entry) {
 		$profile_url = '';
 		$profile_photo = '';
 		$connect_url = '';
@@ -2125,7 +2125,7 @@ function update_gcontact($contact) {
 
 	// Get all field names
 	$fields = array();
-	foreach ($r[0] AS $field => $data) {
+	foreach ($r[0] as $field => $data) {
 		$fields[$field] = $data;
 	}
 
@@ -2198,7 +2198,7 @@ function update_gcontact($contact) {
 	unset($fields["generation"]);
 
 	if ((($contact["generation"] > 0) && ($contact["generation"] <= $r[0]["generation"])) || ($r[0]["generation"] == 0)) {
-		foreach ($fields AS $field => $data) {
+		foreach ($fields as $field => $data) {
 			if ($contact[$field] != $r[0][$field]) {
 				logger("Difference for contact ".$contact["url"]." in field '".$field."'. New value: '".$contact[$field]."', old value '".$r[0][$field]."'", LOGGER_DEBUG);
 				$update = true;
@@ -2357,7 +2357,7 @@ function gs_fetch_users($server) {
 	}
 
 	if (is_object($statistics->users)) {
-		foreach ($statistics->users AS $nick => $user) {
+		foreach ($statistics->users as $nick => $user) {
 			$profile_url = $server."/".$user->nickname;
 
 			$contact = array("url" => $profile_url,
@@ -2389,7 +2389,7 @@ function gs_discover() {
 		return;
 	}
 
-	foreach ($r AS $server) {
+	foreach ($r as $server) {
 		gs_fetch_users($server["url"]);
 		q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
 	}
