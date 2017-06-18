@@ -9,37 +9,37 @@ Account - Basics
 Nicht alle Friendica-Knoten bieten die Möglichkeit zur Registrierung. 
 Wenn die Registrierung möglich ist, wird ein "Registrieren"-Link unter dem Login-Feld auf der Startseite angezeigt, der zur Registrierungsseite führt. 
 Die Stärke unseres Netzwerks ist, dass die verschiedenen Knoten komplett kompatibel zueinander sind. 
-Wenn der Knoten, den Du besuchst, keine Registrierung anbietet, oder wenn Du glaubst, dass Dir eine andere Seite möglicherweise besser gefällt, dann kannst Du hier eine <a href="https://dir.friendica.social/servers">Liste von öffentlichen Servern (Knoten)</a> finden und den Knoten heraus suchen, der am Besten zu Deinen Anforderungen passt. 
+Wenn der Knoten, den Du besuchst, keine Registrierung anbietet, oder wenn Du glaubst, dass Dir eine andere Seite möglicherweise besser gefällt, dann kannst Du hier eine <a href="https://dir.friendica.social/servers">Liste von öffentlichen Servern (Knoten)</a> finden und den Knoten heraus suchen, der am Besten zu Deinen Anforderungen passt.
 
-Wenn Du Deinen eigenen Server aufsetzen willst, kannst Du das ebenfalls machen. 
-Besuche <a href="http://friendi.ca">die Friendica-Webseite</a>, um den Code mit den Installationsanleitungen herunterzuladen. 
+Wenn Du Deinen eigenen Server aufsetzen willst, kannst Du das ebenfalls machen.
+Besuche <a href="http://friendi.ca">die Friendica-Webseite</a>, um den Code mit den Installationsanleitungen herunterzuladen.
 Es ist ein einfacher Installationsprozess, den jeder mit ein wenig Erfahrungen im Webseiten-Hosting oder mit grundlegenden Linux-Erfahrungen einfach handhaben kann.
 
 
 *OpenID*
 
-Das erste Feld auf der Registrierungsseite ist für eine OpenID-Adresse. 
-Wenn Du keine OpenID-Adresse hast oder nicht wünschst, diese zu nutzen, dann lasse das Feld frei. 
-Wenn Du einen OpenID-Account hast und diesen nutzen willst, gib die Adresse in das Feld ein und klicke auf "Registrieren". 
-Friendica wird versuchen, so viele Informationen wie möglich von Deinem OpenID-Provider zu übernehmen, um diese in Dein Profil auf dieser Seite einzutragen. 
+Das erste Feld auf der Registrierungsseite ist für eine OpenID-Adresse.
+Wenn Du keine OpenID-Adresse hast oder nicht wünschst, diese zu nutzen, dann lasse das Feld frei.
+Wenn Du einen OpenID-Account hast und diesen nutzen willst, gib die Adresse in das Feld ein und klicke auf "Registrieren".
+Friendica wird versuchen, so viele Informationen wie möglich von Deinem OpenID-Provider zu übernehmen, um diese in Dein Profil auf dieser Seite einzutragen.
 
 
 *Dein vollständiger Name*
 
-Bitte trage Deinen vollständigen Namen **so ein, wie Du ihn im System anzeigen lassen willst**. 
+Bitte trage Deinen vollständigen Namen **so ein, wie Du ihn im System anzeigen lassen willst**.
 Viele Leute nutzen ihren richtigen Namen hierfür, allerdings besteht für dich keine Pflicht, das auch so zu machen.
 
 
 *Email-Adresse*
 
-Bitte trage eine richtige Email-Adresse ein. 
-Deine Email-Adresse wird **niemals** veröffentlicht. 
-Wir benötigen diese, um Dir Account-Informationen und die Login-Daten zu schicken. 
-Du erhältst zudem von Zeit zu Zeit Benachrichtigungen über eingegangene Nachrichten oder Punkte, die Deine Aufmerksamkeit benötigen. 
-Du hast aber auch die Möglichkeit, diese Nachrichten in Deinen Account-Einstellungen komplett abzuschalten. 
+Bitte trage eine richtige Email-Adresse ein.
+Deine Email-Adresse wird **niemals** veröffentlicht.
+Wir benötigen diese, um Dir Account-Informationen und die Login-Daten zu schicken.
+Du erhältst zudem von Zeit zu Zeit Benachrichtigungen über eingegangene Nachrichten oder Punkte, die Deine Aufmerksamkeit benötigen.
+Du hast aber auch die Möglichkeit, diese Nachrichten in Deinen Account-Einstellungen komplett abzuschalten.
 
-Du musst nicht Deine Haupt-Email-Adresse sein, jedoch wird eine funktionierende Adresse benötigt. 
-Ohne dieses kannst Du weder Dein Initialpasswort erhalten, noch Dein Passwort zurücksetzen. 
+Du musst nicht Deine Haupt-Email-Adresse sein, jedoch wird eine funktionierende Adresse benötigt.
+Ohne dieses kannst Du weder Dein Initialpasswort erhalten, noch Dein Passwort zurücksetzen.
 Dies ist die einzige persönliche Information, die korrekt sein muss.
  
 
@@ -85,7 +85,7 @@ Falls Du Schwierigkeiten beim Login hast, prüfe bitte, ob z. B. Deine Feststell
 
 **Passwort ändern**
 
-Besuche nach Deinem ersten Login bitte die Einstellungsseite und wechsle das Passwort in eines, dass Du Dir merken kannst. 
+Besuche nach Deinem ersten Login bitte die Einstellungsseite und wechsle das Passwort in eines, dass Du Dir merken kannst.
 
 
 **Der Anfang**
@@ -95,7 +95,7 @@ Ein ['Tipp für neue Mitglieder'](newmember)-Link zeigt sich in den ersten beide
 
 **Persönliche Daten exportieren**
 
-Du kannst eine Kopie Deiner persönlichen Daten in einer XML-Datei exportieren. 
+Du kannst eine Kopie Deiner persönlichen Daten in einer XML-Datei exportieren.
 Gehe hierzu in Deinen Einstellungen auf "Persönliche Daten exportieren".
 
 

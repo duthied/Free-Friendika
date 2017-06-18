@@ -880,11 +880,14 @@ class Diaspora {
 		if (dbm::is_result($r)) {
 			return $r[0];
 		} else {
-			// We haven't found it?
-			// We use another function for it that will possibly create a contact entry
+			/*
+			 * We haven't found it?
+			 * We use another function for it that will possibly create a contact entry.
+			 */
 			$cid = get_contact($handle, $uid);
 
 			if ($cid > 0) {
+				/// @TODO Contact retrieval should be encapsulated into an "entity" class like `Contact`
 				$r = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1", intval($cid));
 
 				if (dbm::is_result($r)) {
@@ -919,9 +922,11 @@ class Diaspora {
 	 */
 	private static function post_allow($importer, $contact, $is_comment = false) {
 
-		// perhaps we were already sharing with this person. Now they're sharing with us.
-		// That makes us friends.
-		// Normally this should have handled by getting a request - but this could get lost
+		/*
+		 * Perhaps we were already sharing with this person. Now they're sharing with us.
+		 * That makes us friends.
+		 * Normally this should have handled by getting a request - but this could get lost
+		 */
 		if ($contact["rel"] == CONTACT_IS_FOLLOWER && in_array($importer["page-flags"], array(PAGE_FREELOVE))) {
 			q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d",
 				intval(CONTACT_IS_FRIEND),
@@ -934,16 +939,19 @@ class Diaspora {
 
 		// We don't seem to like that person
 		if ($contact["blocked"] || $contact["readonly"] || $contact["archive"]) {
+			// Maybe blocked, don't accept.
 			return false;
-		// We are following this person? Then it is okay
+		// We are following this person?
 		} elseif (($contact["rel"] == CONTACT_IS_SHARING) || ($contact["rel"] == CONTACT_IS_FRIEND)) {
+			// Yes, then it is fine.
 			return true;
-		// Is it a post to a community? That's good
+		// Is it a post to a community?
 		} elseif (($contact["rel"] == CONTACT_IS_FOLLOWER) && ($importer["page-flags"] == PAGE_COMMUNITY)) {
+			// That's good
 			return true;
-		}
-		// Messages for the global users and comments are always accepted
-		if (($importer["uid"] == 0) || $is_comment) {
+		// Is the message a global user or a comment?
+		} elseif (($importer["uid"] == 0) || $is_comment) {
+			// Messages for the global users and comments are always accepted
 			return true;
 		}
 

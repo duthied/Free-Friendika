@@ -2,15 +2,15 @@
 
 use Friendica\Core\Config;
 
-require_once('include/queue_fn.php');
-require_once('include/dfrn.php');
-require_once("include/datetime.php");
-require_once('include/items.php');
-require_once('include/bbcode.php');
-require_once('include/socgraph.php');
-require_once('include/cache.php');
+require_once 'include/queue_fn.php';
+require_once 'include/dfrn.php';
+require_once 'include/datetime.php';
+require_once 'include/items.php';
+require_once 'include/bbcode.php';
+require_once 'include/socgraph.php';
+require_once 'include/cache.php';
 
-function queue_run(&$argv, &$argc){
+function queue_run(&$argv, &$argc) {
 	global $a;
 
 	if ($argc > 1) {
@@ -41,9 +41,10 @@ function queue_run(&$argv, &$argc){
 			q("DELETE FROM `queue` WHERE `created` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
 		}
 
-		// For the first 12 hours we'll try to deliver every 15 minutes
-		// After that, we'll only attempt delivery once per hour.
-
+		/*
+		 * For the first 12 hours we'll try to deliver every 15 minutes
+		 * After that, we'll only attempt delivery once per hour.
+		 */
 		$r = q("SELECT `id` FROM `queue` WHERE ((`created` > UTC_TIMESTAMP() - INTERVAL 12 HOUR AND `last` < UTC_TIMESTAMP() - INTERVAL 15 MINUTE) OR (`last` < UTC_TIMESTAMP() - INTERVAL 1 HOUR)) ORDER BY `cid`, `created`");
 
 		call_hooks('queue_predeliver', $a, $r);
@@ -60,8 +61,8 @@ function queue_run(&$argv, &$argc){
 
 	// delivering
 
-	require_once('include/salmon.php');
-	require_once('include/diaspora.php');
+	require_once 'include/salmon.php';
+	require_once 'include/diaspora.php';
 
 	$r = q("SELECT * FROM `queue` WHERE `id` = %d LIMIT 1",
 		intval($queue_id));

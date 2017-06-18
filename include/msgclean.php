@@ -158,7 +158,7 @@ function removelinebreak($message)
 		$currquotelevel = 0;
 		$currline = $line;
 		while ((strlen($currline)>0) && ((substr($currline, 0, 1) == '>')
- 			|| (substr($currline, 0, 1) == ' '))) {
+			|| (substr($currline, 0, 1) == ' '))) {
 			if (substr($currline, 0, 1) == '>')
 				$currquotelevel++;
 
@@ -168,7 +168,7 @@ function removelinebreak($message)
 		$quotelevel = 0;
 		$nextline = trim($arrbody[$i+1]);
 		while ((strlen($nextline)>0) && ((substr($nextline, 0, 1) == '>')
- 			|| (substr($nextline, 0, 1) == ' '))) {
+			|| (substr($nextline, 0, 1) == ' '))) {
 			if (substr($nextline, 0, 1) == '>')
 				$quotelevel++;
 
@@ -203,7 +203,7 @@ function removelinebreak($message)
 			$lines[$lineno] .= ' ';
 
 			while ((strlen($line)>0) && ((substr($line, 0, 1) == '>')
- 			|| (substr($line, 0, 1) == ' '))) {
+			|| (substr($line, 0, 1) == ' '))) {
 
 				$line = ltrim(substr($line, 1));
 			}

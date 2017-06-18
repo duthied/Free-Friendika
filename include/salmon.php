@@ -170,11 +170,14 @@ function slapper($owner, $url, $slap) {
 	}
 
 	logger('slapper for '.$url.' returned ' . $return_code);
+
 	if (! $return_code) {
-		return(-1);
+		return -1;
 	}
+
 	if (($return_code == 503) && (stristr($a->get_curl_headers(), 'retry-after'))) {
-		return(-1);
+		return -1;
 	}
+
 	return ((($return_code >= 200) && ($return_code < 300)) ? 0 : 1);
 }
