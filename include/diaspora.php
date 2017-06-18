@@ -4,8 +4,8 @@
  * @brief The implementation of the diaspora protocol
  *
  * The new protocol is described here: http://diaspora.github.io/diaspora_federation/index.html
- * Currently this implementation here interprets the old and the new protocol and sends the old one.
- * This will change in the future.
+ * This implementation here interprets the old and the new protocol and sends the new one.
+ * In the future we will remove most stuff from "valid_posting" and interpret only the new protocol.
  */
 
 use Friendica\App;
@@ -2499,7 +2499,7 @@ class Diaspora {
 		switch ($target_type) {
 			case "Comment":
 			case "Like":
-			case "Post": // "Post" will be supported in a future version
+			case "Post":
 			case "Reshare":
 			case "StatusMessage":
 				return self::item_retraction($importer, $contact, $data);
@@ -2659,15 +2659,54 @@ class Diaspora {
 		return $nick."@".substr(App::get_baseurl(), strpos(App::get_baseurl(),"://") + 3);
 	}
 
+
 	/**
-	 * @brief Creates the envelope for the "fetch" endpoint
+	 * @brief Creates the data for a private message in the new format
+	 *
+	 * @param string $msg The message that is to be transmitted
+	 * @param array $user The record of the sender
+	 * @param array $contact Target of the communication
+	 * @param string $prvkey The private key of the sender
+	 * @param string $pubkey The public key of the receiver
+	 *
+	 * @return string The encrypted data
+	 */
+	public static function encode_private_data($msg, $user, $contact, $prvkey, $pubkey) {
+
+		logger("Message: ".$msg, LOGGER_DATA);
+
+		// without a public key nothing will work
+		if (!$pubkey) {
+			logger("pubkey missing: contact id: ".$contact["id"]);
+			return false;
+		}
+
+		$aes_key = openssl_random_pseudo_bytes(32);
+		$b_aes_key = base64_encode($aes_key);
+		$iv = openssl_random_pseudo_bytes(16);
+		$b_iv = base64_encode($iv);
+
+		$ciphertext = self::aes_encrypt($aes_key, $iv, $msg);
+
+		$json = json_encode(array("iv" => $b_iv, "key" => $b_aes_key));
+
+		$encrypted_key_bundle = "";
+		openssl_public_encrypt($json, $encrypted_key_bundle, $pubkey);
+
+		$json_object = json_encode(array("aes_key" => base64_encode($encrypted_key_bundle),
+						"encrypted_magic_envelope" => base64_encode($ciphertext)));
+
+		return $json_object;
+	}
+
+	/**
+	 * @brief Creates the envelope for the "fetch" endpoint and for the new format
 	 *
 	 * @param string $msg The message that is to be transmitted
 	 * @param array $user The record of the sender
 	 *
 	 * @return string The envelope
 	 */
-
 	public static function build_magic_envelope($msg, $user) {
 
 		$b64url_data = base64url_encode($msg);
@@ -2678,7 +2717,12 @@ class Diaspora {
 		$encoding = "base64url";
 		$alg = "RSA-SHA256";
 		$signable_data = $data.".".base64url_encode($type).".".base64url_encode($encoding).".".base64url_encode($alg);
-		$signature = rsa_sign($signable_data, $user["prvkey"]);
+
+		// Fallback if the private key wasn't transmitted in the expected field
+		if ($user['uprvkey'] == "")
+			$user['uprvkey'] = $user['prvkey'];
+
+		$signature = rsa_sign($signable_data, $user["uprvkey"]);
 		$sig = base64url_encode($signature);
 
 		$xmldata = array("me:env" => array("me:data" => $data,
@@ -2691,140 +2735,6 @@ class Diaspora {
 		$namespaces = array("me" => "http://salmon-protocol.org/ns/magic-env");
 
 		return xml::from_array($xmldata, $xml, false, $namespaces);
-	}
-
-	/**
-	 * @brief Creates the envelope for a public message
-	 *
-	 * @param string $msg The message that is to be transmitted
-	 * @param array $user The record of the sender
-	 * @param array $contact Target of the communication
-	 * @param string $prvkey The private key of the sender
-	 * @param string $pubkey The public key of the receiver
-	 *
-	 * @return string The envelope
-	 */
-	private static function build_public_message($msg, $user, $contact, $prvkey, $pubkey) {
-
-		logger("Message: ".$msg, LOGGER_DATA);
-
-		$handle = self::my_handle($user);
-
-		$b64url_data = base64url_encode($msg);
-
-		$data = str_replace(array("\n", "\r", " ", "\t"), array("", "", "", ""), $b64url_data);
-
-		$type = "application/xml";
-		$encoding = "base64url";
-		$alg = "RSA-SHA256";
-
-		$signable_data = $data.".".base64url_encode($type).".".base64url_encode($encoding).".".base64url_encode($alg);
-
-		$signature = rsa_sign($signable_data,$prvkey);
-		$sig = base64url_encode($signature);
-
-		$xmldata = array("diaspora" => array("header" => array("author_id" => $handle),
-							"me:env" => array("me:encoding" => $encoding,
-							"me:alg" => $alg,
-							"me:data" => $data,
-							"@attributes" => array("type" => $type),
-							"me:sig" => $sig)));
-
-		$namespaces = array("" => "https://joindiaspora.com/protocol",
-				"me" => "http://salmon-protocol.org/ns/magic-env");
-
-		$magic_env = xml::from_array($xmldata, $xml, false, $namespaces);
-
-		logger("magic_env: ".$magic_env, LOGGER_DATA);
-		return $magic_env;
-	}
-
-	/**
-	 * @brief Creates the envelope for a private message
-	 *
-	 * @param string $msg The message that is to be transmitted
-	 * @param array $user The record of the sender
-	 * @param array $contact Target of the communication
-	 * @param string $prvkey The private key of the sender
-	 * @param string $pubkey The public key of the receiver
-	 *
-	 * @return string The envelope
-	 */
-	private static function build_private_message($msg, $user, $contact, $prvkey, $pubkey) {
-
-		logger("Message: ".$msg, LOGGER_DATA);
-
-		// without a public key nothing will work
-
-		if (!$pubkey) {
-			logger("pubkey missing: contact id: ".$contact["id"]);
-			return false;
-		}
-
-		$inner_aes_key = openssl_random_pseudo_bytes(32);
-		$b_inner_aes_key = base64_encode($inner_aes_key);
-		$inner_iv = openssl_random_pseudo_bytes(16);
-		$b_inner_iv = base64_encode($inner_iv);
-
-		$outer_aes_key = openssl_random_pseudo_bytes(32);
-		$b_outer_aes_key = base64_encode($outer_aes_key);
-		$outer_iv = openssl_random_pseudo_bytes(16);
-		$b_outer_iv = base64_encode($outer_iv);
-
-		$handle = self::my_handle($user);
-
-		$inner_encrypted = self::aes_encrypt($inner_aes_key, $inner_iv, $msg);
-
-		$b64_data = base64_encode($inner_encrypted);
-
-
-		$b64url_data = base64url_encode($b64_data);
-		$data = str_replace(array("\n", "\r", " ", "\t"), array("", "", "", ""), $b64url_data);
-
-		$type = "application/xml";
-		$encoding = "base64url";
-		$alg = "RSA-SHA256";
-
-		$signable_data = $data.".".base64url_encode($type).".".base64url_encode($encoding).".".base64url_encode($alg);
-
-		$signature = rsa_sign($signable_data,$prvkey);
-		$sig = base64url_encode($signature);
-
-		$xmldata = array("decrypted_header" => array("iv" => $b_inner_iv,
-							"aes_key" => $b_inner_aes_key,
-							"author_id" => $handle));
-
-		$decrypted_header = xml::from_array($xmldata, $xml, true);
-
-		$ciphertext = self::aes_encrypt($outer_aes_key, $outer_iv, $decrypted_header);
-
-		$outer_json = json_encode(array("iv" => $b_outer_iv, "key" => $b_outer_aes_key));
-
-		$encrypted_outer_key_bundle = "";
-		openssl_public_encrypt($outer_json, $encrypted_outer_key_bundle, $pubkey);
-
-		$b64_encrypted_outer_key_bundle = base64_encode($encrypted_outer_key_bundle);
-
-		logger("outer_bundle: ".$b64_encrypted_outer_key_bundle." key: ".$pubkey, LOGGER_DATA);
-
-		$encrypted_header_json_object = json_encode(array("aes_key" => base64_encode($encrypted_outer_key_bundle),
-								"ciphertext" => base64_encode($ciphertext)));
-		$cipher_json = base64_encode($encrypted_header_json_object);
-
-		$xmldata = array("diaspora" => array("encrypted_header" => $cipher_json,
-						"me:env" => array("me:encoding" => $encoding,
-								"me:alg" => $alg,
-								"me:data" => $data,
-								"@attributes" => array("type" => $type),
-								"me:sig" => $sig)));
-
-		$namespaces = array("" => "https://joindiaspora.com/protocol",
-				"me" => "http://salmon-protocol.org/ns/magic-env");
-
-		$magic_env = xml::from_array($xmldata, $xml, false, $namespaces);
-
-		logger("magic_env: ".$magic_env, LOGGER_DATA);
-		return $magic_env;
 	}
 
 	/**
@@ -2841,14 +2751,15 @@ class Diaspora {
 	 */
 	private static function build_message($msg, $user, $contact, $prvkey, $pubkey, $public = false) {
 
-		if ($public)
-			$magic_env =  self::build_public_message($msg,$user,$contact,$prvkey,$pubkey);
-		else
-			$magic_env =  self::build_private_message($msg,$user,$contact,$prvkey,$pubkey);
+		// The message is put into an envelope with the sender's signature
+		$envelope = self::build_magic_envelope($msg, $user);
 
-		// The data that will be transmitted is double encoded via "urlencode", strange ...
-		$slap = "xml=".urlencode(urlencode($magic_env));
-		return $slap;
+		// Private messages are put into a second envelope, encrypted with the receivers public key
+		if (!$public) {
+			$envelope = self::encode_private_data($envelope, $user, $contact, $prvkey, $pubkey);
+		}
+
+		return $envelope;
 	}
 
 	/**
@@ -2874,14 +2785,14 @@ class Diaspora {
 	 *
 	 * @param array $owner the array of the item owner
 	 * @param array $contact Target of the communication
-	 * @param string $slap The message that is to be transmitted
+	 * @param string $envelope The message that is to be transmitted
 	 * @param bool $public_batch Is it a public post?
 	 * @param bool $queue_run Is the transmission called from the queue?
 	 * @param string $guid message guid
 	 *
 	 * @return int Result of the transmission
 	 */
-	public static function transmit($owner, $contact, $slap, $public_batch, $queue_run=false, $guid = "") {
+	public static function transmit($owner, $contact, $envelope, $public_batch, $queue_run=false, $guid = "") {
 
 		$a = get_app();
 
@@ -2902,7 +2813,9 @@ class Diaspora {
 			$return_code = 0;
 		} else {
 			if (!intval(get_config("system", "diaspora_test"))) {
-				post_url($dest_url."/", $slap);
+				$content_type = (($public_batch) ? "application/magic-envelope+xml" : "application/json");
+
+				post_url($dest_url."/", $envelope, array("Content-Type: ".$content_type));
 				$return_code = $a->get_curl_code();
 			} else {
 				logger("test_mode");
@@ -2918,14 +2831,14 @@ class Diaspora {
 			$r = q("SELECT `id` FROM `queue` WHERE `cid` = %d AND `network` = '%s' AND `content` = '%s' AND `batch` = %d LIMIT 1",
 				intval($contact["id"]),
 				dbesc(NETWORK_DIASPORA),
-				dbesc($slap),
+				dbesc($envelope),
 				intval($public_batch)
 			);
 			if ($r) {
 				logger("add_to_queue ignored - identical item already in queue");
 			} else {
 				// queue message for redelivery
-				add_to_queue($contact["id"], NETWORK_DIASPORA, $slap, $public_batch);
+				add_to_queue($contact["id"], NETWORK_DIASPORA, $envelope, $public_batch);
 
 				// The message could not be delivered. We mark the contact as "dead"
 				mark_for_death($contact);
@@ -2949,7 +2862,8 @@ class Diaspora {
 	 */
 	public static function build_post_xml($type, $message) {
 
-		$data = array("XML" => array("post" => array($type => $message)));
+		$data = array($type => $message);
+
 		return xml::from_array($data, $xml);
 	}
 
@@ -2977,13 +2891,13 @@ class Diaspora {
 		if ($owner['uprvkey'] == "")
 			$owner['uprvkey'] = $owner['prvkey'];
 
-		$slap = self::build_message($msg, $owner, $contact, $owner['uprvkey'], $contact['pubkey'], $public_batch);
+		$envelope = self::build_message($msg, $owner, $contact, $owner['uprvkey'], $contact['pubkey'], $public_batch);
 
 		if ($spool) {
-			add_to_queue($contact['id'], NETWORK_DIASPORA, $slap, $public_batch);
+			add_to_queue($contact['id'], NETWORK_DIASPORA, $envelope, $public_batch);
 			return true;
 		} else
-			$return_code = self::transmit($owner, $contact, $slap, $public_batch, false, $guid);
+			$return_code = self::transmit($owner, $contact, $envelope, $public_batch, false, $guid);
 
 		logger("guid: ".$item["guid"]." result ".$return_code, LOGGER_DEBUG);
 
@@ -2998,14 +2912,37 @@ class Diaspora {
 	 *
 	 * @return int The result of the transmission
 	 */
-	public static function send_share($owner,$contact) {
+	public static function send_share($owner, $contact) {
 
-		$message = array("sender_handle" => self::my_handle($owner),
-				"recipient_handle" => $contact["addr"]);
+		/**
+		 * @todo support the different possible combinations of "following" and "sharing"
+		 * Currently, Diaspora only interprets the "sharing" field
+		 *
+		 * Before switching this code productive, we have to check all "send_share" calls if "rel" is set correctly
+		 */
+
+		/*
+		switch ($contact["rel"]) {
+			case CONTACT_IS_FRIEND:
+				$following = true;
+				$sharing = true;
+			case CONTACT_IS_SHARING:
+				$following = false;
+				$sharing = true;
+			case CONTACT_IS_FOLLOWER:
+				$following = true;
+				$sharing = false;
+		}
+		*/
+
+		$message = array("author" => self::my_handle($owner),
+				"recipient" => $contact["addr"],
+				"following" => "true",
+				"sharing" => "true");
 
 		logger("Send share ".print_r($message, true), LOGGER_DEBUG);
 
-		return self::build_and_transmit($owner, $contact, "request", $message);
+		return self::build_and_transmit($owner, $contact, "contact", $message);
 	}
 
 	/**
@@ -3016,15 +2953,16 @@ class Diaspora {
 	 *
 	 * @return int The result of the transmission
 	 */
-	public static function send_unshare($owner,$contact) {
+	public static function send_unshare($owner, $contact) {
 
-		$message = array("post_guid" => $owner["guid"],
-				"diaspora_handle" => self::my_handle($owner),
-				"type" => "Person");
+		$message = array("author" => self::my_handle($owner),
+				"recipient" => $contact["addr"],
+				"following" => "false",
+				"sharing" => "false");
 
 		logger("Send unshare ".print_r($message, true), LOGGER_DEBUG);
 
-		return self::build_and_transmit($owner, $contact, "retraction", $message);
+		return self::build_and_transmit($owner, $contact, "contact", $message);
 	}
 
 	/**
@@ -3208,13 +3146,13 @@ class Diaspora {
 
 		// Detect a share element and do a reshare
 		if (!$item['private'] && ($ret = self::is_reshare($item["body"]))) {
-			$message = array("root_diaspora_id" => $ret["root_handle"],
-					"root_guid" => $ret["root_guid"],
+			$message = array("author" => $myaddr,
 					"guid" => $item["guid"],
-					"diaspora_handle" => $myaddr,
-					"public" => $public,
 					"created_at" => $created,
-					"provider_display_name" => $item["app"]);
+					"root_author" => $ret["root_handle"],
+					"root_guid" => $ret["root_guid"],
+					"provider_display_name" => $item["app"],
+					"public" => $public);
 
 			$type = "reshare";
 		} else {
@@ -3248,13 +3186,13 @@ class Diaspora {
 				$location["lng"] = $coord[1];
 			}
 
-			$message = array("raw_message" => $body,
-					"location" => $location,
+			$message = array("author" => $myaddr,
 					"guid" => $item["guid"],
-					"diaspora_handle" => $myaddr,
-					"public" => $public,
 					"created_at" => $created,
-					"provider_display_name" => $item["app"]);
+					"public" => $public,
+					"text" => $body,
+					"provider_display_name" => $item["app"],
+					"location" => $location);
 
 			// Diaspora rejects messages when they contain a location without "lat" or "lng"
 			if (!isset($location["lat"]) || !isset($location["lng"])) {
@@ -3267,7 +3205,7 @@ class Diaspora {
 					$message['event'] = $event;
 
 					/// @todo Once Diaspora supports it, we will remove the body
-					// $message['raw_message'] = '';
+					// $message['text'] = '';
 				}
 			}
 
@@ -3322,12 +3260,12 @@ class Diaspora {
 			$positive = "false";
 		}
 
-		return(array("positive" => $positive,
+		return(array("author" => self::my_handle($owner),
 				"guid" => $item["guid"],
-				"target_type" => $target_type,
 				"parent_guid" => $parent["guid"],
-				"author_signature" => "",
-				"diaspora_handle" => self::my_handle($owner)));
+				"parent_type" => $target_type,
+				"positive" => $positive,
+				"author_signature" => ""));
 	}
 
 	/**
@@ -3399,12 +3337,12 @@ class Diaspora {
 		$text = html_entity_decode(bb2diaspora($item["body"]));
 		$created = datetime_convert("UTC", "UTC", $item["created"], 'Y-m-d\TH:i:s\Z');
 
-		$comment = array("guid" => $item["guid"],
+		$comment = array("author" => self::my_handle($owner),
+				"guid" => $item["guid"],
+				"created_at" => $created,
 				"parent_guid" => $parent["guid"],
-				"author_signature" => "",
 				"text" => $text,
-				/// @todo Currently disabled until Diaspora supports it: "created_at" => $created,
-				"diaspora_handle" => self::my_handle($owner));
+				"author_signature" => "");
 
 		// Send the thread parent guid only if it is a threaded comment
 		if ($item['thr-parent'] != $item['parent-uri']) {
@@ -3461,19 +3399,17 @@ class Diaspora {
 		$signed_parts = explode(";", $signature['signed_text']);
 
 		if ($item["deleted"])
-			$message = array("parent_author_signature" => "",
+			$message = array("author" => $signature['signer'],
 					"target_guid" => $signed_parts[0],
-					"target_type" => $signed_parts[1],
-					"sender_handle" => $signature['signer'],
-					"target_author_signature" => $signature['signature']);
+					"target_type" => $signed_parts[1]);
 		elseif ($item['verb'] === ACTIVITY_LIKE)
-			$message = array("positive" => $signed_parts[0],
+			$message = array("author" => $signed_parts[4],
 					"guid" => $signed_parts[1],
-					"target_type" => $signed_parts[2],
 					"parent_guid" => $signed_parts[3],
-					"parent_author_signature" => "",
+					"parent_type" => $signed_parts[2],
+					"positive" => $signed_parts[0],
 					"author_signature" => $signature['signature'],
-					"diaspora_handle" => $signed_parts[4]);
+					"parent_author_signature" => "");
 		else {
 			// Remove the comment guid
 			$guid = array_shift($signed_parts);
@@ -3487,12 +3423,12 @@ class Diaspora {
 			// Glue the parts together
 			$text = implode(";", $signed_parts);
 
-			$message = array("guid" => $guid,
+			$message = array("author" => $handle,
+					"guid" => $guid,
 					"parent_guid" => $parent_guid,
-					"parent_author_signature" => "",
-					"author_signature" => $signature['signature'],
 					"text" => implode(";", $signed_parts),
-					"diaspora_handle" => $handle);
+					"author_signature" => $signature['signature'],
+					"parent_author_signature" => "");
 		}
 		return $message;
 	}
@@ -3541,10 +3477,12 @@ class Diaspora {
 			if (is_array($msg)) {
 				foreach ($msg AS $field => $data) {
 					if (!$item["deleted"]) {
-						if ($field == "author")
-							$field = "diaspora_handle";
-						if ($field == "parent_type")
-							$field = "target_type";
+						if ($field == "diaspora_handle") {
+							$field = "author";
+						}
+						if ($field == "target_type") {
+							$field = "parent_type";
+						}
 					}
 
 					$message[$field] = $data;
@@ -3575,26 +3513,12 @@ class Diaspora {
 
 		$itemaddr = self::handle_from_contact($item["contact-id"], $item["gcontact-id"]);
 
-		// Check whether the retraction is for a top-level post or whether it's a relayable
-		if ($item["uri"] !== $item["parent-uri"]) {
-			$msg_type = "relayable_retraction";
-			$target_type = (($item["verb"] === ACTIVITY_LIKE) ? "Like" : "Comment");
-		} else {
-			$msg_type = "signed_retraction";
-			$target_type = "StatusMessage";
-		}
+		$msg_type = "retraction";
+		$target_type = "Post";
 
-		if ($relay && ($item["uri"] !== $item["parent-uri"]))
-			$signature = "parent_author_signature";
-		else
-			$signature = "target_author_signature";
-
-		$signed_text = $item["guid"].";".$target_type;
-
-		$message = array("target_guid" => $item['guid'],
-				"target_type" => $target_type,
-				"sender_handle" => $itemaddr,
-				$signature => base64_encode(rsa_sign($signed_text,$owner['uprvkey'],'sha256')));
+		$message = array("author" => $itemaddr,
+				"target_guid" => $item['guid'],
+				"target_type" => $target_type);
 
 		logger("Got message ".print_r($message, true), LOGGER_DEBUG);
 
@@ -3626,40 +3550,35 @@ class Diaspora {
 		$cnv = $r[0];
 
 		$conv = array(
+			"author" => $cnv["creator"],
 			"guid" => $cnv["guid"],
 			"subject" => $cnv["subject"],
 			"created_at" => datetime_convert("UTC", "UTC", $cnv['created'], 'Y-m-d\TH:i:s\Z'),
-			"diaspora_handle" => $cnv["creator"],
-			"participant_handles" => $cnv["recips"]
+			"participants" => $cnv["recips"]
 		);
 
 		$body = bb2diaspora($item["body"]);
 		$created = datetime_convert("UTC", "UTC", $item["created"], 'Y-m-d\TH:i:s\Z');
 
-		$signed_text = $item["guid"].";".$cnv["guid"].";".$body.";".$created.";".$myaddr.";".$cnv['guid'];
-		$sig = base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
-
 		$msg = array(
+			"author" => $myaddr,
 			"guid" => $item["guid"],
-			"parent_guid" => $cnv["guid"],
-			"parent_author_signature" => $sig,
-			"author_signature" => $sig,
+			"conversation_guid" => $cnv["guid"],
 			"text" => $body,
 			"created_at" => $created,
-			"diaspora_handle" => $myaddr,
-			"conversation_guid" => $cnv["guid"]
 		);
 
 		if ($item["reply"]) {
 			$message = $msg;
 			$type = "message";
 		} else {
-			$message = array("guid" => $cnv["guid"],
+			$message = array(
+					"author" => $cnv["creator"],
+					"guid" => $cnv["guid"],
 					"subject" => $cnv["subject"],
 					"created_at" => datetime_convert("UTC", "UTC", $cnv['created'], 'Y-m-d\TH:i:s\Z'),
-					"message" => $msg,
-					"diaspora_handle" => $cnv["creator"],
-					"participant_handles" => $cnv["recips"]);
+					"participants" => $cnv["recips"],
+					"message" => $msg);
 
 			$type = "conversation";
 		}
@@ -3734,7 +3653,7 @@ class Diaspora {
 			$tags = trim($tags);
 		}
 
-		$message = array("diaspora_handle" => $handle,
+		$message = array("author" => $handle,
 				"first_name" => $first,
 				"last_name" => $last,
 				"image_url" => $large,
@@ -3745,6 +3664,7 @@ class Diaspora {
 				"bio" => $about,
 				"location" => $location,
 				"searchable" => $searchable,
+				"nsfw" => "false",
 				"tag_string" => $tags);
 
 		foreach ($recips as $recip) {
