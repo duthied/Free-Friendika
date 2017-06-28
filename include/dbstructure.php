@@ -1747,6 +1747,7 @@ function db_definition() {
 					"pid" => array("pid"),
 					"parameter" => array("parameter(64)"),
 					"priority_created" => array("priority", "created"),
+					"executed" => array("executed"),
 					)
 			);
 
