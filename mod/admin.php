@@ -11,6 +11,7 @@ use Friendica\Core\Config;
 
 require_once("include/enotify.php");
 require_once("include/text.php");
+require_once('include/items.php');
 
 /**
  * @brief Process send data from the admin panels subpages
@@ -113,6 +114,9 @@ function admin_post(App $a) {
 			case 'blocklist':
 				admin_page_blocklist_post($a);
 				break;
+			case 'deleteitem':
+				admin_page_deleteitem_post($a);
+				break;
 		}
 	}
 
@@ -172,6 +176,7 @@ function admin_content(App $a) {
 		'queue'	 =>	array("admin/queue/", t('Inspect Queue'), "queue"),
 		'blocklist' => array("admin/blocklist/", t('Server Blocklist'), "blocklist"),
 		'federation' => array("admin/federation/", t('Federation Statistics'), "federation"),
+		'deleteitem' => array("admin/deleteitem/", t('Delete Item'), 'deleteitem'),
 	);
 
 	/* get plugins admin page */
@@ -243,6 +248,9 @@ function admin_content(App $a) {
 				break;
 			case 'blocklist':
 				$o = admin_page_blocklist($a);
+				break;
+			case 'deleteitem':
+				$o = admin_page_deleteitem($a);
 				break;
 			default:
 				notice(t("Item not found."));
@@ -345,6 +353,67 @@ function admin_page_blocklist_post(App $a) {
 	}
 	goaway('admin/blocklist');
 
+	return; // NOTREACHED
+}
+
+/**
+ * @brief Subpage where the admin can delete an item from their node given the GUID
+ *
+ * This subpage of the admin panel offers the nodes admin to delete an item from
+ * the node, given the GUID or the display URL such as http://example.com/display/123456.
+ * The item will then be marked as deleted in the database and processed accordingly.
+ * 
+ * @param App $a
+ * @return string
+ */
+function admin_page_deleteitem(App $a) {
+	$t = get_markup_template("admin_deleteitem.tpl");
+
+	return replace_macros($t, array(
+		'$title' => t('Administration'),
+		'$page' => t('Delete Item'),
+		'$submit' => t('Delete this Item'),
+		'$intro1' => t('On this page you can delete an item from your node. If the item is a top level posting, the entire thread will be deleted.'),
+		'$intro2' => t('You need to know the GUID of the item. You can find it e.g. by looking at the display URL. The last part of http://example.com/display/123456 is the GUID, here 123456.'),
+		'$deleteitemguid' => array('deleteitemguid', t("GUID"), '', t("The GUID of the item you want to delete."), 'required', 'autofocus'),
+		'$baseurl' => App::get_baseurl(),
+		'$form_security_token'	=> get_form_security_token("admin_deleteitem")
+	));
+}
+/**
+ * @brief Process send data from Admin Delete Item Page
+ *
+ * The GUID passed through the form should be only the GUID. But we also parse
+ * URLs like the full /display URL to make the process more easy for the admin.
+ *
+ * @param App $a
+ */
+function admin_page_deleteitem_post(App $a) {
+	if (!x($_POST['page_deleteitem_submit'])) {
+		return;
+	}
+
+	check_form_security_token_redirectOnErr('/admin/deleteitem/', 'admin_deleteitem');
+
+	if (x($_POST['page_deleteitem_submit'])) {
+		$guid = trim(notags($_POST['deleteitemguid']));
+		// The GUID should not include a "/", so if there is one, we got an URL
+		// and the last part of it is most likely the GUID.
+		if (strpos($guid, '/')) {
+			$guid = substr($guid, strrpos($guid, '/')+1);
+		}
+		// Now that we have the GUID get all IDs of the associated entries in the
+		// item table of the DB and drop those items, which will also delete the
+		// associated threads.
+		$r = dba::select('item', array('id'), array('guid'=>$guid));
+		while ($row = dba::fetch($r)) {
+			drop_item($row['id'], false);
+		}
+		dba::close($r);
+	}
+
+	info(t('Item marked for deletion.').EOL);
+	goaway('admin/deleteitem');
 	return; // NOTREACHED
 }
 
@@ -558,11 +627,11 @@ function admin_page_summary(App $a) {
 	$r = q("SELECT `page-flags`, COUNT(`uid`) AS `count` FROM `user` GROUP BY `page-flags`");
 	$accounts = array(
 		array(t('Normal Account'), 0),
-		array(t('Soapbox Account'), 0),
-		array(t('Community/Celebrity Account'), 0),
+		array(t('Automatic Follower Account'), 0),
+		array(t('Public Forum Account'), 0),
 		array(t('Automatic Friend Account'), 0),
 		array(t('Blog Account'), 0),
-		array(t('Private Forum'), 0)
+		array(t('Private Forum Account'), 0)
 	);
 
 	$users=0;
@@ -579,7 +648,7 @@ function admin_page_summary(App $a) {
 	$r = qu("SELECT COUNT(*) AS `total` FROM `queue` WHERE 1");
 	$queue = (($r) ? $r[0]['total'] : 0);
 
-	$r = qu("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE 1");
+	$r = qu("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE NOT `done`");
 	$workerqueue = (($r) ? $r[0]['total'] : 0);
 
 	// We can do better, but this is a quick queue status
@@ -770,7 +839,7 @@ function admin_page_site_post(App $a) {
 	$worker_frontend	=	((x($_POST,'worker_frontend'))		? True						: False);
 
 	// Has the directory url changed? If yes, then resubmit the existing profiles there
-	if ($global_directory != Config::get('system', 'directory') AND ($global_directory != '')) {
+	if ($global_directory != Config::get('system', 'directory') && ($global_directory != '')) {
 		Config::set('system', 'directory', $global_directory);
 		proc_run(PRIORITY_LOW, 'include/directory.php');
 	}
@@ -936,7 +1005,7 @@ function admin_page_site(App $a) {
 	/* Installed langs */
 	$lang_choices = get_available_languages();
 
-	if (strlen(get_config('system','directory_submit_url')) AND
+	if (strlen(get_config('system','directory_submit_url')) &&
 		!strlen(get_config('system','directory'))) {
 			set_config('system','directory', dirname(get_config('system','directory_submit_url')));
 			del_config('system','directory_submit_url');
@@ -958,7 +1027,7 @@ function admin_page_site(App $a) {
 			$f = basename($file);
 
 			// Only show allowed themes here
-			if (($allowed_theme_list != '') AND !strstr($allowed_theme_list, $f)) {
+			if (($allowed_theme_list != '') && !strstr($allowed_theme_list, $f)) {
 				continue;
 			}
 
@@ -1183,7 +1252,7 @@ function admin_page_dbsync(App $a) {
 		goaway('admin/dbsync');
 	}
 
-	if (($a->argc > 2) AND (intval($a->argv[2]) OR ($a->argv[2] === 'check'))) {
+	if (($a->argc > 2) && (intval($a->argv[2]) || ($a->argv[2] === 'check'))) {
 		require_once("include/dbstructure.php");
 		$retval = update_structure(false, true);
 		if (!$retval) {
@@ -1451,8 +1520,8 @@ function admin_page_users(App $a) {
 	$_setup_users = function ($e) use ($adminlist) {
 		$accounts = array(
 			t('Normal Account'),
-			t('Soapbox Account'),
-			t('Community/Celebrity Account'),
+			t('Automatic Follower Account'),
+			t('Public Forum Account'),
 						t('Automatic Friend Account')
 		);
 		$e['page-flags'] = $accounts[$e['page-flags']];
@@ -1663,7 +1732,7 @@ function admin_page_plugins(App $a) {
 				$show_plugin = true;
 
 				// If the addon is unsupported, then only show it, when it is enabled
-				if ((strtolower($info["status"]) == "unsupported") AND !in_array($id,  $a->plugins)) {
+				if ((strtolower($info["status"]) == "unsupported") && !in_array($id,  $a->plugins)) {
 					$show_plugin = false;
 				}
 
@@ -1801,7 +1870,7 @@ function admin_page_themes(App $a) {
 			$is_supported = 1-(intval(file_exists($file.'/unsupported')));
 			$is_allowed = intval(in_array($f,$allowed_themes));
 
-			if ($is_allowed OR $is_supported OR get_config("system", "show_unsupported_themes")) {
+			if ($is_allowed || $is_supported || get_config("system", "show_unsupported_themes")) {
 				$themes[] = array('name' => $f, 'experimental' => $is_experimental, 'supported' => $is_supported, 'allowed' => $is_allowed);
 			}
 		}

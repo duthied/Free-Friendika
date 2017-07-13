@@ -71,9 +71,14 @@ write or create files in your web directory, create an empty file called
 .htconfig.php and make it writable by the web server.
 
 5. Visit your website with a web browser and follow the instructions. Please 
-note any error messages and correct these before continuing. If you are using
-SSL with a known signature authority (recommended), use the https: link to your
-website. If you are using a self-signed cert or no cert, use the http: link. 
+note any error messages and correct these before continuing.
+
+If you are using SSL with a known signature authority (recommended), use the
+https: link to your website. If you are using a self-signed cert or no cert,
+use the http: link.
+
+If you need to specify a port for the connection to the database, you can do
+so in the host name setting for the database.
 
 6. *If* the automated installation fails for any reason, check the following:
 
@@ -135,7 +140,17 @@ $a->config['system']['addon'] = 'js_upload,poormancron';
 
 and save your changes.
 
-9. (Optional) Reverse-proxying and HTTPS
+9. (Recommended) Set up a backup plan
+
+Bad things will happen. Let there be a hardware failure, a corrupted
+database or whatever you can think of. So once the installation of your
+Friendica node is done, you should make yoursef a backup plan.
+
+The most important file is the `.htconfig.php` file in the base directory.
+As it stores all your data, you should also have a recent dump of your
+Friendica database at hand, should you have to recover your node.
+
+10. (Optional) Reverse-proxying and HTTPS
 
 Friendica looks for some well-known HTTP headers indicating a reverse-proxy
 terminating an HTTPS connection. While the standard from RFC 7239 specifies

@@ -31,7 +31,7 @@ function create_tags_from_item($itemid) {
 
 	$tags = "";
 	foreach ($taglist as $tag)
-		if ((substr(trim($tag), 0, 1) == "#") OR (substr(trim($tag), 0, 1) == "@"))
+		if ((substr(trim($tag), 0, 1) == "#") || (substr(trim($tag), 0, 1) == "@"))
 			$tags .= " ".trim($tag);
 		else
 			$tags .= " #".trim($tag);
@@ -58,10 +58,10 @@ function create_tags_from_item($itemid) {
 
 		if (substr(trim($tag), 0, 1) == "#") {
 			// try to ignore #039 or #1 or anything like that
-			if(ctype_digit(substr(trim($tag),1)))
+			if (ctype_digit(substr(trim($tag),1)))
 				continue;
 			// try to ignore html hex escapes, e.g. #x2317
-			if((substr(trim($tag),1,1) == 'x' || substr(trim($tag),1,1) == 'X') && ctype_digit(substr(trim($tag),2)))
+			if ((substr(trim($tag),1,1) == 'x' || substr(trim($tag),1,1) == 'X') && ctype_digit(substr(trim($tag),2)))
 				continue;
 			$type = TERM_HASHTAG;
 			$term = substr($tag, 1);
@@ -91,7 +91,7 @@ function create_tags_from_item($itemid) {
 			dbesc($link), dbesc($message["guid"]), dbesc($message["created"]), dbesc($message["received"]), intval($global));
 
 		// Search for mentions
-		if ((substr($tag, 0, 1) == '@') AND (strpos($link, $profile_base_friendica) OR strpos($link, $profile_base_diaspora))) {
+		if ((substr($tag, 0, 1) == '@') && (strpos($link, $profile_base_friendica) || strpos($link, $profile_base_diaspora))) {
 			$users = q("SELECT `uid` FROM `contact` WHERE self AND (`url` = '%s' OR `nurl` = '%s')", $link, $link);
 			foreach ($users AS $user) {
 				if ($user["uid"] == $message["uid"]) {
@@ -107,9 +107,10 @@ function create_tags_from_item($itemid) {
 function create_tags_from_itemuri($itemuri, $uid) {
 	$messages = q("SELECT `id` FROM `item` WHERE uri ='%s' AND uid=%d", dbesc($itemuri), intval($uid));
 
-	if(count($messages)) {
-		foreach ($messages as $message)
+	if (count($messages)) {
+		foreach ($messages as $message) {
 			create_tags_from_item($message["id"]);
+		}
 	}
 }
 

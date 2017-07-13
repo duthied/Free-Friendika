@@ -82,6 +82,8 @@ Restart mysql and you should be fine.
 Point your web browser to the new site and follow the instructions.
 Please note any error messages and correct these before continuing.
 
+If you need to specify a port for the connection to the database, you can do so in the host name setting for the database.
+
 *If* the automated installation fails for any reason, check the following:
 
 * Does ".htconfig.php" exist? If not, edit htconfig.php and change the system settings. Rename to .htconfig.php
@@ -142,3 +144,11 @@ The addon tree has to be updated separately like so:
 
     cd mywebsite/addon
     git pull
+
+###Set up a backup plan
+Bad things will happen.
+Let there be a hardware failure, a corrupted database or whatever you can think of.
+So once the installation of your Friendica node is done, you should make yoursef a backup plan.
+
+The most important file is the `.htconfig.php` file in the base directory.
+As it stores all your data, you should also have a recent dump of your Friendica database at hand, should you have to recover your node.

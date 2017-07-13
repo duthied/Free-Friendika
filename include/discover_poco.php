@@ -47,13 +47,12 @@ function discover_poco_run(&$argv, &$argc) {
 	logger('start '.$search);
 
 	if ($mode == 8) {
-		$profile_url = base64_decode($argv[2]);
-		if ($profile_url != "") {
-			poco_last_updated($profile_url, true);
+		if ($argv[2] != "") {
+			poco_last_updated($argv[2], true);
 		}
 	} elseif ($mode == 7) {
 		if ($argc == 6) {
-			$url = base64_decode($argv[5]);
+			$url = $argv[5];
 		} else {
 			$url = '';
 		}
@@ -63,7 +62,7 @@ function discover_poco_run(&$argv, &$argc) {
 	} elseif ($mode == 5) {
 		update_server();
 	} elseif ($mode == 4) {
-		$server_url = base64_decode($argv[2]);
+		$server_url = $argv[2];
 		if ($server_url == "") {
 			return;
 		}
@@ -81,12 +80,12 @@ function discover_poco_run(&$argv, &$argc) {
 		logger($result, LOGGER_DEBUG);
 	} elseif ($mode == 3) {
 		update_suggestions();
-	} elseif (($mode == 2) AND get_config('system','poco_completion')) {
+	} elseif (($mode == 2) && get_config('system','poco_completion')) {
 		discover_users();
-	} elseif (($mode == 1) AND ($search != "") and get_config('system','poco_local_search')) {
+	} elseif (($mode == 1) && ($search != "") && get_config('system','poco_local_search')) {
 		discover_directory($search);
 		gs_search_user($search);
-	} elseif (($mode == 0) AND ($search == "") and (get_config('system','poco_discovery') > 0)) {
+	} elseif (($mode == 0) && ($search == "") && (get_config('system','poco_discovery') > 0)) {
 		// Query Friendica and Hubzilla servers for their users
 		poco_discover();
 
@@ -119,7 +118,7 @@ function update_server() {
 		}
 		logger('Update server status for server '.$server["url"], LOGGER_DEBUG);
 
-		proc_run(PRIORITY_LOW, "include/discover_poco.php", "server", base64_encode($server["url"]));
+		proc_run(PRIORITY_LOW, "include/discover_poco.php", "server", $server["url"]);
 
 		if (++$updated > 250) {
 			return;
@@ -176,9 +175,9 @@ function discover_users() {
 			$server_url = $user["server_url"];
 		}
 
-		if ((($server_url == "") AND ($user["network"] == NETWORK_FEED)) OR $force_update OR poco_check_server($server_url, $user["network"])) {
+		if ((($server_url == "") && ($user["network"] == NETWORK_FEED)) || $force_update || poco_check_server($server_url, $user["network"])) {
 			logger('Check profile '.$user["url"]);
-			proc_run(PRIORITY_LOW, "include/discover_poco.php", "check_profile", base64_encode($user["url"]));
+			proc_run(PRIORITY_LOW, "include/discover_poco.php", "check_profile", $user["url"]);
 
 			if (++$checked > 100) {
 				return;
@@ -216,7 +215,7 @@ function discover_directory($search) {
 			if (dbm::is_result($exists)) {
 				logger("Profile ".$jj->url." already exists (".$search.")", LOGGER_DEBUG);
 
-				if (($exists[0]["last_contact"] < $exists[0]["last_failure"]) AND
+				if (($exists[0]["last_contact"] < $exists[0]["last_failure"]) &&
 					($exists[0]["updated"] < $exists[0]["last_failure"])) {
 					continue;
 				}

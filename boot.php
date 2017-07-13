@@ -22,6 +22,7 @@ require_once(__DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'a
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Util\Lock;
 
 require_once 'include/config.php';
 require_once 'include/network.php';
@@ -35,12 +36,13 @@ require_once 'include/features.php';
 require_once 'include/identity.php';
 require_once 'update.php';
 require_once 'include/dbstructure.php';
+require_once 'include/poller.php';
 
 define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
-define ( 'FRIENDICA_VERSION',      '3.5.3dev' );
+define ( 'FRIENDICA_VERSION',      '3.5.3-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1227      );
+define ( 'DB_UPDATE_VERSION',      1232      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -992,7 +994,7 @@ function notice($s) {
 function info($s) {
 	$a = get_app();
 
-	if (local_user() AND get_pconfig(local_user(), 'system', 'ignore_info')) {
+	if (local_user() && get_pconfig(local_user(), 'system', 'ignore_info')) {
 		return;
 	}
 
@@ -1062,18 +1064,22 @@ function proc_run($cmd) {
 	$arr = array('args' => $args, 'run_cmd' => true);
 
 	call_hooks("proc_run", $arr);
-	if (!$arr['run_cmd'] OR ! count($args)) {
+	if (!$arr['run_cmd'] || ! count($args)) {
 		return;
 	}
 
 	$priority = PRIORITY_MEDIUM;
 	$dont_fork = get_config("system", "worker_dont_fork");
+	$created = datetime_convert();
 
 	if (is_int($run_parameter)) {
 		$priority = $run_parameter;
 	} elseif (is_array($run_parameter)) {
 		if (isset($run_parameter['priority'])) {
 			$priority = $run_parameter['priority'];
+		}
+		if (isset($run_parameter['created'])) {
+			$created = $run_parameter['created'];
 		}
 		if (isset($run_parameter['dont_fork'])) {
 			$dont_fork = $run_parameter['dont_fork'];
@@ -1084,10 +1090,10 @@ function proc_run($cmd) {
 	array_shift($argv);
 
 	$parameters = json_encode($argv);
-	$found = dba::select('workerqueue', array('id'), array('parameter' => $parameters), array('limit' => 1));
+	$found = dba::select('workerqueue', array('id'), array('parameter' => $parameters, 'done' => false), array('limit' => 1));
 
 	if (!dbm::is_result($found)) {
-		dba::insert('workerqueue', array('parameter' => $parameters, 'created' => datetime_convert(), 'priority' => $priority));
+		dba::insert('workerqueue', array('parameter' => $parameters, 'created' => $created, 'priority' => $priority));
 	}
 
 	// Should we quit and wait for the poller to be called as a cronjob?
@@ -1095,18 +1101,16 @@ function proc_run($cmd) {
 		return;
 	}
 
-	// Checking number of workers
-	$workers = q("SELECT COUNT(*) AS `workers` FROM `workerqueue` WHERE `executed` > '%s'", dbesc(NULL_DATE));
-
-	// Get number of allowed number of worker threads
-	$queues = intval(get_config("system", "worker_queues"));
-
-	if ($queues == 0) {
-		$queues = 4;
+	// If there is a lock then we don't have to check for too much worker
+	if (!Lock::set('poller_worker', 0)) {
+		return;
 	}
 
 	// If there are already enough workers running, don't fork another one
-	if ($workers[0]["workers"] >= $queues) {
+	$quit = poller_too_much_workers();
+	Lock::remove('poller_worker');
+
+	if ($quit) {
 		return;
 	}
 
@@ -1388,6 +1392,43 @@ function get_server() {
 	return($server);
 }
 
+function get_temppath() {
+	$a = get_app();
+
+	$temppath = get_config("system", "temppath");
+
+	if (($temppath != "") && App::directory_usable($temppath)) {
+		// We have a temp path and it is usable
+		return $temppath;
+	}
+
+	// We don't have a working preconfigured temp path, so we take the system path.
+	$temppath = sys_get_temp_dir();
+
+	// Check if it is usable
+	if (($temppath != "") && App::directory_usable($temppath)) {
+		// To avoid any interferences with other systems we create our own directory
+		$new_temppath = $temppath . "/" . $a->get_hostname();
+		if (!is_dir($new_temppath)) {
+			/// @TODO There is a mkdir()+chmod() upwards, maybe generalize this (+ configurable) into a function/method?
+			mkdir($new_temppath);
+		}
+
+		if (App::directory_usable($new_temppath)) {
+			// The new path is usable, we are happy
+			set_config("system", "temppath", $new_temppath);
+			return $new_temppath;
+		} else {
+			// We can't create a subdirectory, strange.
+			// But the directory seems to work, so we use it but don't store it.
+			return $temppath;
+		}
+	}
+
+	// Reaching this point means that the operating system is configured badly.
+	return '';
+}
+
 function get_cachefile($file, $writemode = true) {
 	$cache = get_itemcachepath();
 
@@ -1416,7 +1457,7 @@ function clear_cache($basepath = "", $path = "") {
 		$path = $basepath;
 	}
 
-	if (($path == "") OR (!is_dir($path))) {
+	if (($path == "") || (!is_dir($path))) {
 		return;
 	}
 
@@ -1433,10 +1474,10 @@ function clear_cache($basepath = "", $path = "") {
 		if ($dh = opendir($path)) {
 			while (($file = readdir($dh)) !== false) {
 				$fullpath = $path . "/" . $file;
-				if ((filetype($fullpath) == "dir") and ($file != ".") and ($file != "..")) {
+				if ((filetype($fullpath) == "dir") && ($file != ".") && ($file != "..")) {
 					clear_cache($basepath, $fullpath);
 				}
-				if ((filetype($fullpath) == "file") and (filectime($fullpath) < (time() - $cachetime))) {
+				if ((filetype($fullpath) == "file") && (filectime($fullpath) < (time() - $cachetime))) {
 					unlink($fullpath);
 				}
 			}
@@ -1453,7 +1494,7 @@ function get_itemcachepath() {
 	}
 
 	$itemcache = get_config('system', 'itemcache');
-	if (($itemcache != "") AND App::directory_usable($itemcache)) {
+	if (($itemcache != "") && App::directory_usable($itemcache)) {
 		return $itemcache;
 	}
 
@@ -1480,7 +1521,7 @@ function get_itemcachepath() {
  */
 function get_spoolpath() {
 	$spoolpath = get_config('system', 'spoolpath');
-	if (($spoolpath != "") AND App::directory_usable($spoolpath)) {
+	if (($spoolpath != "") && App::directory_usable($spoolpath)) {
 		// We have a spool path and it is usable
 		return $spoolpath;
 	}
@@ -1508,43 +1549,6 @@ function get_spoolpath() {
 
 	// Reaching this point means that the operating system is configured badly.
 	return "";
-}
-
-function get_temppath() {
-	$a = get_app();
-
-	$temppath = get_config("system", "temppath");
-
-	if (($temppath != "") AND App::directory_usable($temppath)) {
-		// We have a temp path and it is usable
-		return $temppath;
-	}
-
-	// We don't have a working preconfigured temp path, so we take the system path.
-	$temppath = sys_get_temp_dir();
-
-	// Check if it is usable
-	if (($temppath != "") AND App::directory_usable($temppath)) {
-		// To avoid any interferences with other systems we create our own directory
-		$new_temppath = $temppath . "/" . $a->get_hostname();
-		if (!is_dir($new_temppath)) {
-			/// @TODO There is a mkdir()+chmod() upwards, maybe generalize this (+ configurable) into a function/method?
-			mkdir($new_temppath);
-		}
-
-		if (App::directory_usable($new_temppath)) {
-			// The new path is usable, we are happy
-			set_config("system", "temppath", $new_temppath);
-			return $new_temppath;
-		} else {
-			// We can't create a subdirectory, strange.
-			// But the directory seems to work, so we use it but don't store it.
-			return $temppath;
-		}
-	}
-
-	// Reaching this point means that the operating system is configured badly.
-	return '';
 }
 
 /// @deprecated
@@ -1647,7 +1651,7 @@ function argv($x) {
 function infinite_scroll_data($module) {
 
 	if (get_pconfig(local_user(), 'system', 'infinite_scroll')
-		AND ($module == "network") AND ($_GET["mode"] != "minimal")) {
+		&& ($module == "network") && ($_GET["mode"] != "minimal")) {
 
 		// get the page number
 		if (is_string($_GET["page"])) {
@@ -1660,12 +1664,12 @@ function infinite_scroll_data($module) {
 
 		// try to get the uri from which we load the content
 		foreach ($_GET AS $param => $value) {
-			if (($param != "page") AND ($param != "q")) {
+			if (($param != "page") && ($param != "q")) {
 				$reload_uri .= "&" . $param . "=" . urlencode($value);
 			}
 		}
 
-		if (($a->page_offset != "") AND ! strstr($reload_uri, "&offset=")) {
+		if (($a->page_offset != "") && ! strstr($reload_uri, "&offset=")) {
 			$reload_uri .= "&offset=" . urlencode($a->page_offset);
 		}
 

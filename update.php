@@ -1,6 +1,6 @@
 <?php
 
-define('UPDATE_VERSION' , 1227);
+define('UPDATE_VERSION' , 1232);
 
 /**
  *
@@ -356,7 +356,7 @@ function update_1035() {
 
 function update_1036() {
 
-	$r = dbq("SELECT * FROM `contact` WHERE `network` = 'dfrn' && `photo` LIKE '%include/photo%' ");
+	$r = dbq("SELECT * FROM `contact` WHERE `network` = 'dfrn' AND `photo` LIKE '%include/photo%' ");
 	if (dbm::is_result($r)) {
 		foreach ($r as $rr) {
 			q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s' WHERE `id` = %d",
@@ -1652,7 +1652,7 @@ function update_1180() {
 
 function update_1188() {
 
-	if (strlen(get_config('system','directory_submit_url')) AND
+	if (strlen(get_config('system','directory_submit_url')) &&
 		!strlen(get_config('system','directory'))) {
 		set_config('system','directory', dirname(get_config('system','directory_submit_url')));
 		del_config('system','directory_submit_url');
@@ -1728,4 +1728,9 @@ function update_1190() {
 function update_1202() {
 	$r = q("UPDATE `user` SET `account-type` = %d WHERE `page-flags` IN (%d, %d)",
 		dbesc(ACCOUNT_TYPE_COMMUNITY), dbesc(PAGE_COMMUNITY), dbesc(PAGE_PRVGROUP));
+}
+
+function update_1231() {
+	// For this special case we have to use the old update routine
+	$r = q("ALTER TABLE `workerqueue` ADD `done` tinyint(1) NOT NULL DEFAULT 0");
 }

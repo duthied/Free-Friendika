@@ -462,13 +462,13 @@ function settings_post(App $a) {
 		$notify += intval($_POST['notify8']);
 
 	// Adjust the page flag if the account type doesn't fit to the page flag.
-	if (($account_type == ACCOUNT_TYPE_PERSON) AND !in_array($page_flags, array(PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE)))
+	if (($account_type == ACCOUNT_TYPE_PERSON) && !in_array($page_flags, array(PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE)))
 		$page_flags = PAGE_NORMAL;
-	elseif (($account_type == ACCOUNT_TYPE_ORGANISATION) AND !in_array($page_flags, array(PAGE_SOAPBOX)))
+	elseif (($account_type == ACCOUNT_TYPE_ORGANISATION) && !in_array($page_flags, array(PAGE_SOAPBOX)))
 		$page_flags = PAGE_SOAPBOX;
-	elseif (($account_type == ACCOUNT_TYPE_NEWS) AND !in_array($page_flags, array(PAGE_SOAPBOX)))
+	elseif (($account_type == ACCOUNT_TYPE_NEWS) && !in_array($page_flags, array(PAGE_SOAPBOX)))
 		$page_flags = PAGE_SOAPBOX;
-	elseif (($account_type == ACCOUNT_TYPE_COMMUNITY) AND !in_array($page_flags, array(PAGE_COMMUNITY, PAGE_PRVGROUP)))
+	elseif (($account_type == ACCOUNT_TYPE_COMMUNITY) && !in_array($page_flags, array(PAGE_COMMUNITY, PAGE_PRVGROUP)))
 		$page_flags = PAGE_COMMUNITY;
 
 	$email_changed = false;
@@ -949,7 +949,7 @@ function settings_content(App $a) {
 				$is_experimental = file_exists('view/theme/' . $th . '/experimental');
 				$unsupported = file_exists('view/theme/' . $th . '/unsupported');
 				$is_mobile = file_exists('view/theme/' . $th . '/mobile');
-				if (!$is_experimental or ($is_experimental && (get_config('experimentals','exp_themes')==1 or get_config('experimentals','exp_themes')===false))){
+				if (!$is_experimental || ($is_experimental && (get_config('experimentals','exp_themes')==1 || get_config('experimentals','exp_themes')===false))){
 					$theme_name = (($is_experimental) ?  sprintf("%s - \x28Experimental\x29", $f) : $f);
 					if ($is_mobile) {
 						$mobile_themes[$f]=$theme_name;
@@ -1101,7 +1101,7 @@ function settings_content(App $a) {
 
 	// Set the account type to "Community" when the page is a community page but the account type doesn't fit
 	// This is only happening on the first visit after the update
-	if (in_array($a->user['page-flags'], array(PAGE_COMMUNITY, PAGE_PRVGROUP)) AND
+	if (in_array($a->user['page-flags'], array(PAGE_COMMUNITY, PAGE_PRVGROUP)) &&
 		($a->user['account-type'] != ACCOUNT_TYPE_COMMUNITY))
 		$a->user['account-type'] = ACCOUNT_TYPE_COMMUNITY;
 
@@ -1118,39 +1118,39 @@ function settings_content(App $a) {
 		'$type_community' 	=> ACCOUNT_TYPE_COMMUNITY,
 
 		'$account_person' 	=> array('account-type', t('Personal Page'), ACCOUNT_TYPE_PERSON,
-									t('This account is a regular personal profile'),
+									t('Account for a personal profile.'),
 									($a->user['account-type'] == ACCOUNT_TYPE_PERSON)),
 
 		'$account_organisation'	=> array('account-type', t('Organisation Page'), ACCOUNT_TYPE_ORGANISATION,
-									t('This account is a profile for an organisation'),
+									t('Account for an organisation that automatically approves contact requests as "Followers".'),
 									($a->user['account-type'] == ACCOUNT_TYPE_ORGANISATION)),
 
 		'$account_news'		=> array('account-type', t('News Page'), ACCOUNT_TYPE_NEWS,
-									t('This account is a news account/reflector'),
+									t('Account for a news reflector that automatically approves contact requests as "Followers".'),
 									($a->user['account-type'] == ACCOUNT_TYPE_NEWS)),
 
 		'$account_community' 	=> array('account-type', t('Community Forum'), ACCOUNT_TYPE_COMMUNITY,
-									t('This account is a community forum where people can discuss with each other'),
+									t('Account for community discussions.'),
 									($a->user['account-type'] == ACCOUNT_TYPE_COMMUNITY)),
 
 		'$page_normal'		=> array('page-flags', t('Normal Account Page'), PAGE_NORMAL,
-									t('This account is a normal personal profile'),
+									t('Account for a regular personal profile that requires manual approval of "Friends" and "Followers".'),
 									($a->user['page-flags'] == PAGE_NORMAL)),
 
 		'$page_soapbox' 	=> array('page-flags', t('Soapbox Page'), PAGE_SOAPBOX,
-									t('Automatically approve all connection/friend requests as read-only fans'),
+									t('Account for a public profile that automatically approves contact requests as "Followers".'),
 									($a->user['page-flags'] == PAGE_SOAPBOX)),
 
 		'$page_community'	=> array('page-flags', t('Public Forum'), PAGE_COMMUNITY,
-									t('Automatically approve all contact requests'),
+									t('Automatically approves all contact requests.'),
 									($a->user['page-flags'] == PAGE_COMMUNITY)),
 
 		'$page_freelove' 	=> array('page-flags', t('Automatic Friend Page'), PAGE_FREELOVE,
-									t('Automatically approve all connection/friend requests as friends'),
+									t('Account for a popular profile that automatically approves contact requests as "Friends".'),
 									($a->user['page-flags'] == PAGE_FREELOVE)),
 
 		'$page_prvgroup' 	=> array('page-flags', t('Private Forum [Experimental]'), PAGE_PRVGROUP,
-									t('Private forum - approved members only'),
+									t('Requires manual approval of contact requests.'),
 									($a->user['page-flags'] == PAGE_PRVGROUP)),
 
 

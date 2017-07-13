@@ -10,7 +10,7 @@ function gprobe_run(&$argv, &$argc){
 	if ($argc != 2) {
 		return;
 	}
-	$url = hex2bin($argv[1]);
+	$url = $argv[1];
 
 	$r = q("SELECT `id`, `url`, `network` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 1",
 		dbesc(normalise_link($url))
@@ -47,7 +47,7 @@ function gprobe_run(&$argv, &$argc){
 	}
 	if (dbm::is_result($r)) {
 		// Check for accessibility and do a poco discovery
-		if (poco_last_updated($r[0]['url'], true) AND ($r[0]["network"] == NETWORK_DFRN))
+		if (poco_last_updated($r[0]['url'], true) && ($r[0]["network"] == NETWORK_DFRN))
 			poco_load(0,0,$r[0]['id'], str_replace('/profile/','/poco/',$r[0]['url']));
 	}
 
