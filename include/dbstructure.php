@@ -1572,7 +1572,7 @@ function db_definition() {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"iid" => array("iid"),
+					"iid" => array("UNIQUE", "iid"),
 					)
 			);
 	$database["spam"] = array(
