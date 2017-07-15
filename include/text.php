@@ -1424,7 +1424,7 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 					$title .= ' ' . $mtch[2] . ' ' . t('bytes');
 
 					if (($filetype == 'image') AND ($item['network'] == NETWORK_OSTATUS)) {
-						$icon = '<img src="'.$the_url.'" alt="" title="'.$title.'">';
+						$icon = '<img class="attached" src="'.$the_url.'" alt="" title="'.$title.'">';
 					} else {
 						$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
 					}
