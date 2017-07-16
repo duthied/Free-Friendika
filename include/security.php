@@ -275,6 +275,13 @@ function permissions_sql($owner_id, $remote_verified = false, $groups = null)
 	 */
 	if ($local_user && $local_user == $owner_id) {
 		$sql = '';
+	/**
+	 * Authenticated visitor. Unless pre-verified,
+	 * check that the contact belongs to this $owner_id
+	 * and load the groups the visitor belongs to.
+	 * If pre-verified, the caller is expected to have already
+	 * done this and passed the groups into this function.
+	 */
 	} elseif ($remote_user) {
 		/*
 		 * Authenticated visitor. Unless pre-verified,
