@@ -1374,7 +1374,6 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 	$vhead = false;
 	$arr = explode('[/attach],', $item['attach']);
 	if (count($arr)) {
-		$as .= '<div class="body-attach">';
 		foreach ($arr as $r) {
 			$matches = false;
 			$icon = '';
@@ -1411,39 +1410,33 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 						));
 					}
 
-					$filetype = strtolower(substr( $mime, 0, strpos($mime,'/') ));
+					$filetype = strtolower(substr($mime, 0, strpos($mime,'/')));
 					if ($filetype) {
-						$filesubtype = strtolower(substr( $mime, strpos($mime,'/') + 1 ));
+						$filesubtype = strtolower(substr($mime, strpos($mime,'/') + 1));
 						$filesubtype = str_replace('.', '-', $filesubtype);
 					} else {
 						$filetype = 'unkn';
 						$filesubtype = 'unkn';
 					}
 
-					$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
-					/*$icontype = strtolower(substr($mtch[3],0,strpos($mtch[3],'/')));
-					switch($icontype) {
-						case 'video':
-						case 'audio':
-						case 'image':
-						case 'text':
-							$icon = '<div class="attachtype icon s22 type-' . $icontype . '"></div>';
-							break;
-						default:
-							$icon = '<div class="attachtype icon s22 type-unkn"></div>';
-							break;
-					}*/
-
 					$title = ((strlen(trim($mtch[4]))) ? escape_tags(trim($mtch[4])) : escape_tags($mtch[1]));
 					$title .= ' ' . $mtch[2] . ' ' . t('bytes');
 
-					$as .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" >' . $icon . '</a>';
+					if (($filetype == 'image') AND ($item['network'] == NETWORK_OSTATUS)) {
+						$icon = '<img class="attached" src="'.$the_url.'" alt="" title="'.$title.'">';
+						$s .= '<br><a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attached" target="_blank" >' . $icon . '</a>';
+					} else {
+						$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
+						$as .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" >' . $icon . '</a>';
+					}
+
 				}
 			}
 		}
-		$as .= '<div class="clear"></div></div>';
 	}
-	$s = $s . $as;
+	if ($as != '') {
+		$s .= '<div class="body-attach">'.$as.'<div class="clear"></div></div>';
+	}
 
 	// map
 	if (strpos($s, '<div class="map">') !== false && x($item, 'coord')) {
