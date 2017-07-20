@@ -81,7 +81,7 @@ class DFRN
 			$root->appendChild($entry);
 		}
 
-		return(trim($doc->saveXML()));
+		return trim($doc->saveXML());
 	}
 
 	/**
@@ -221,10 +221,8 @@ class DFRN
 			//$sql_extra .= file_tag_file_query('item',$category,'category');
 		}
 
-		if ($public_feed) {
-			if (! $converse) {
-				$sql_extra .= " AND `contact`.`self` = 1 ";
-			}
+		if ($public_feed && ! $converse) {
+			$sql_extra .= " AND `contact`.`self` = 1 ";
 		}
 
 		$check_date = DateTimeFormat::utc($last_update);
@@ -425,7 +423,7 @@ class DFRN
 
 		$root->appendChild($mail);
 
-		return(trim($doc->saveXML()));
+		return trim($doc->saveXML());
 	}
 
 	/**
@@ -454,7 +452,7 @@ class DFRN
 
 		$root->appendChild($suggest);
 
-		return(trim($doc->saveXML()));
+		return trim($doc->saveXML());
 	}
 
 	/**
@@ -513,7 +511,7 @@ class DFRN
 
 		$root->appendChild($relocate);
 
-		return(trim($doc->saveXML()));
+		return trim($doc->saveXML());
 	}
 
 	/**
@@ -939,7 +937,7 @@ class DFRN
 			$htmlbody = $body;
 
 			if ($item['title'] != "") {
-				$htmlbody = "[b]".$item['title']."[/b]\n\n".$htmlbody;
+				$htmlbody = "[b]" . $item['title'] . "[/b]\n\n" . $htmlbody;
 			}
 
 			$htmlbody = BBCode::convert($htmlbody, false, 7);
@@ -1066,6 +1064,7 @@ class DFRN
 
 		$tags = Item::getFeedTags($item);
 
+		/// @TODO Combine this with similar below if() block?
 		if (count($tags)) {
 			foreach ($tags as $t) {
 				if (($type != 'html') || ($t[0] != "@")) {
@@ -1575,7 +1574,7 @@ class DFRN
 		// Until now we aren't serving different sizes - but maybe later
 		$avatarlist = [];
 		/// @todo check if "avatar" or "photo" would be the best field in the specification
-		$avatars = $xpath->query($element."/atom:link[@rel='avatar']", $context);
+		$avatars = $xpath->query($element . "/atom:link[@rel='avatar']", $context);
 		foreach ($avatars as $avatar) {
 			$href = "";
 			$width = 0;
@@ -1595,6 +1594,7 @@ class DFRN
 				$avatarlist[$width] = $href;
 			}
 		}
+
 		if (count($avatarlist) > 0) {
 			krsort($avatarlist);
 			$author["avatar"] = current($avatarlist);
@@ -2707,7 +2707,7 @@ class DFRN
 			if (self::updateContent($current, $item, $importer, $entrytype)) {
 				logger("Item ".$item["uri"]." was updated.", LOGGER_DEBUG);
 			} else {
-				logger("Item ".$item["uri"]." already existed.", LOGGER_DEBUG);
+				logger("Item " . $item["uri"] . " already existed.", LOGGER_DEBUG);
 			}
 			return;
 		}
