@@ -1761,18 +1761,13 @@
             "time": "2018-01-27T08:24:15+00:00"
         },
         {
-            "name": "pear/text_languagedetect",
-            "version": "v1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pear/Text_LanguageDetect.git",
-                "reference": "bb9ff6f4970f686fac59081e916b456021fe7ba6"
-            },
+            "name": "pear-pear.php.net/Archive_Tar",
+            "version": "1.4.3",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pear/Text_LanguageDetect/zipball/bb9ff6f4970f686fac59081e916b456021fe7ba6",
-                "reference": "bb9ff6f4970f686fac59081e916b456021fe7ba6",
-                "shasum": ""
+                "type": "file",
+                "url": "https://pear.php.net/get/Archive_Tar-1.4.3.tgz",
+                "reference": null,
+                "shasum": null
             },
             "require-dev": {
                 "phpunit/phpunit": "*"
