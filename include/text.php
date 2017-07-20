@@ -1970,6 +1970,7 @@ function is_a_date_arg($s) {
  */
 function deindent($text, $chr = "[\t ]", $count = NULL) {
 	$lines = explode("\n", $text);
+
 	if (is_null($count)) {
 		$m = [];
 		$k = 0;
