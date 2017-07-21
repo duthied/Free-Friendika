@@ -1159,11 +1159,11 @@ function poco_check_server($server_url, $network = "", $force = false) {
 	}
 
 	if (!$failure) {
-		// Test for Hubzilla, Redmatrix or Friendica
+		// Test for Hubzilla and Red
 		$serverret = z_fetch_url($server_url."/siteinfo.json");
 		if ($serverret["success"]) {
 			$data = json_decode($serverret["body"]);
-			if(isset($data->url)) {
+			if (isset($data->url)) {
 				$platform = $data->platform;
 				$version = $data->version;
 				$network = NETWORK_DIASPORA;
@@ -1181,8 +1181,8 @@ function poco_check_server($server_url, $network = "", $force = false) {
 					$register_policy = REGISTER_CLOSED;
 					break;
 			}
-		}
-		else {
+		} else {
+			// Test for Hubzilla, Redmatrix or Friendica
 			$serverret = z_fetch_url($server_url."/api/statusnet/config.json");
 			if ($serverret["success"]) {
 				$data = json_decode($serverret["body"]);
