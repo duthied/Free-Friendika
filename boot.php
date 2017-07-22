@@ -1399,7 +1399,7 @@ function get_temppath() {
 
 	if (($temppath != "") && App::directory_usable($temppath)) {
 		// We have a temp path and it is usable
-		return realpath($temppath);
+		return App::realpath($temppath);
 	}
 
 	// We don't have a working preconfigured temp path, so we take the system path.
@@ -1408,7 +1408,7 @@ function get_temppath() {
 	// Check if it is usable
 	if (($temppath != "") && App::directory_usable($temppath)) {
 		// Always store the real path, not the path through symlinks
-		$temppath = realpath($temppath);
+		$temppath = App::realpath($temppath);
 
 		// To avoid any interferences with other systems we create our own directory
 		$new_temppath = $temppath . "/" . $a->get_hostname();
@@ -1498,7 +1498,7 @@ function get_itemcachepath() {
 
 	$itemcache = get_config('system', 'itemcache');
 	if (($itemcache != "") && App::directory_usable($itemcache)) {
-		return realpath($itemcache);
+		return App::realpath($itemcache);
 	}
 
 	$temppath = get_temppath();
