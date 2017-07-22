@@ -975,7 +975,7 @@ function admin_page_site_post(App $a) {
 	set_config('system', 'hide_help', $hide_help);
 
 	if ($itemcache != '') {
-		$itemcache = realpath($itemcache);
+		$itemcache = App::realpath($itemcache);
 	}
 
 	set_config('system', 'itemcache', $itemcache);
@@ -983,13 +983,13 @@ function admin_page_site_post(App $a) {
 	set_config('system', 'max_comments', $max_comments);
 
 	if ($temppath != '') {
-		$temppath = realpath($temppath);
+		$temppath = App::realpath($temppath);
 	}
 
 	set_config('system', 'temppath', $temppath);
 
 	if ($basepath != '') {
-		$basepath = realpath($basepath);
+		$basepath = App::realpath($basepath);
 	}
 
 	set_config('system', 'basepath', $basepath);
