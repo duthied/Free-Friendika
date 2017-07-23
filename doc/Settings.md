@@ -253,6 +253,13 @@ Matching is exact, blocking a domain doesn't block subdomains.
 The federation statistics page gives you a short summery of the nodes/servers/pods of the decentralized social network federation your node knows.
 These numbers are not compleate and only contain nodes from networks Friendica federates directly with.
 
+## Delete Item
+
+Using this page an admin can delete postings and eventually associated discussion threads from their Friendica node.
+To do so, they need to know the GUID of the posting.
+This can be found on the `/display` page of the posting, it is the last part of the URL displayed in the browsers navigation bar.
+You can get to the `/display` page by following the *Link to source*.
+
 ## Plugin Features
 
 Some of the addons you can install for your Friendica node have settings which have to be set by the admin.

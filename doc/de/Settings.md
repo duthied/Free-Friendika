@@ -249,6 +249,13 @@ Der Abgleich der Domainnamen ist exakt, Subdomains werden nicht automatisch eben
 Deine Instanz ist ein Teil eines Netzwerks von Servern dezentraler sozialer Netzwerke, der sogenannten **Federation**.
 In diesem Bereich des Admin Panels findest du ein paar Zahlen zu dem Teil der Federation, die deine Instanz kennt.
 
+## Eintrag löschen
+
+Hier kann man als Admin einer Friendica Instanz Beiträge und ggf. damit gekoppelte Unterhaltungen von der Instanz löschen.
+Dazu muss man nur die GUID des Beitrags kennen.
+Diese kann u.a. in der Adresse der `/display`-Seite gefunden werden, wenn man dem *Link zum Originalbeitrag* folgt.
+Hier ist die GUID der letzte Teil der URL in der Adresszeile des Browsers.
+
 ## Plugin Features
 
 Einige der Erweiterungen von Friendica benötigen global gültige Einstellungen, die der Administrator vornehmen muss.
