@@ -14,6 +14,7 @@ Andrej Stieben
 André Alves
 André Lohan
 Andy H3
+AndyHee
 Anthronaut
 Arian - Cazare Muncitori
 Athalbert
@@ -44,6 +45,7 @@ Daria Początek
 David
 David Martín Miranda
 David Rabel
+Dean Townsley
 Denis Chenu
 Devlon Duthie
 Diego Souza
@@ -80,6 +82,7 @@ Hauke Altmann
 Hauke Zühl
 Hubert Kościański
 Hypolite Petovan
+irhen
 Jak
 Jakob
 Jens Tautenhahn
@@ -144,6 +147,7 @@ rcmaniac
 rebeka-catalina
 repat
 Ricardo Pereira
+RJ Madsen
 Roland Häder
 Rui Andrada
 Sakałoŭ Alaksiej
@@ -190,6 +194,7 @@ Yasen Pramatarov
 ylms
 Zach Prezkuta
 Zered
+zotlabs
 zottel
 Zvi ben Yaakov (a.k.a rdc)
 Михаил
