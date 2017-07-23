@@ -575,11 +575,11 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		$expire_interval = $r['expire'];
 	}
 
-	if ($expire_interval > 0) {
-		$expire_date = datetime_convert('UTC', 'UTC', '- '.$expire_interval.' days');
-		$created_date = datetime_convert('UTC', 'UTC', $arr['created']);
+	if (($expire_interval > 0) && !empty($arr['created'])) {
+		$expire_date = time() - ($expire_interval * 86400);
+		$created_date = strtotime($arr['created']);
 		if ($created_date < $expire_date) {
-			logger('item-store: item created ('.$arr['created'].') before expiration time ('.$expire_date->format(DateTime::W3C).'). ignored. ' . print_r($arr,true), LOGGER_DEBUG);
+			logger('item-store: item created ('.date('c', $created_date).') before expiration time ('.date('c', $expire_date).'). ignored. ' . print_r($arr,true), LOGGER_DEBUG);
 			return 0;
 		}
 	}
