@@ -404,6 +404,70 @@ class Probe {
 	}
 
 	/**
+	 * @brief Switch the scheme of an url between http and https
+	 *
+	 * @param string $url URL
+	 *
+	 * @return string switched URL
+	 */
+	private function switch_scheme($url) {
+		$parts = parse_url($url);
+
+		if (!isset($parts['scheme'])) {
+			return $url;
+		}
+
+		if ($parts['scheme'] == 'http') {
+			$url = str_replace('http://', 'https://', $url);
+		} elseif ($parts['scheme'] == 'https') {
+			$url = str_replace('https://', 'http://', $url);
+		}
+
+		return $url;
+	}
+
+	/**
+	 * @brief Checks if a profile url should be OStatus but only provides partial information
+	 *
+	 * @param array $webfinger Webfinger data
+	 * @param string $lrdd Path template for webfinger request
+	 *
+	 * @return array fixed webfinger data
+	 */
+	private function fix_ostatus($webfinger, $lrdd) {
+		if (empty($webfinger['links']) || empty($webfinger['subject'])) {
+			return $webfinger;
+		}
+
+		$is_ostatus = false;
+		$has_key = false;
+
+		foreach ($webfinger['links'] as $link) {
+			if ($link['rel'] == NAMESPACE_OSTATUSSUB) {
+				$is_ostatus = true;
+			}
+			if ($link['rel'] == 'magic-public-key') {
+				$has_key = true;
+			}
+		}
+
+		if (!$is_ostatus || $has_key) {
+			return $webfinger;
+		}
+
+		$url = self::switch_scheme($webfinger['subject']);
+		$path = str_replace('{uri}', urlencode($url), $lrdd);
+		$webfinger2 = self::webfinger($path);
+
+		// Is the new webfinger detectable as OStatus?
+		if (self::ostatus($webfinger2, true)) {
+			$webfinger = $webfinger2;
+		}
+
+		return $webfinger;
+	}
+
+	/**
 	 * @brief Fetch information (protocol endpoints and user information) about a given uri
 	 *
 	 * This function is only called by the "uri" function that adds caching and rearranging of data.
@@ -499,6 +563,9 @@ class Probe {
 			// At first try it with the given uri
 			$path = str_replace('{uri}', urlencode($uri), $link);
 			$webfinger = self::webfinger($path);
+
+			// Fix possible problems with GNU Social probing to wrong scheme
+			$webfinger = self::fix_ostatus($webfinger, $link);
 
 			// We cannot be sure that the detected address was correct, so we don't use the values
 			if ($webfinger && ($uri != $addr)) {
@@ -1057,10 +1124,11 @@ class Probe {
 	 * @brief Check for OStatus contact
 	 *
 	 * @param array $webfinger Webfinger data
+	 * @param bool $short Short detection mode
 	 *
-	 * @return array OStatus data
+	 * @return array|bool OStatus data or "false" on error or "true" on short mode
 	 */
-	private function ostatus($webfinger) {
+	private function ostatus($webfinger, $short = false) {
 		$data = array();
 		if (is_array($webfinger["aliases"])) {
 			foreach ($webfinger["aliases"] as $alias) {
@@ -1119,6 +1187,11 @@ class Probe {
 		} else {
 			return false;
 		}
+
+		if ($short) {
+			return true;
+		}
+
 		// Fetch all additional data from the feed
 		$ret = z_fetch_url($data["poll"]);
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
