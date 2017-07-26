@@ -56,7 +56,6 @@ venv/
 
 #ignore all in 'vendor' as `utils/composer.phar install` will bring it back
 vendor/*
-<<<<<<< HEAD
 
 #ignore config files from JetBrains
 /.idea
@@ -66,5 +65,3 @@ addons/
 
 #Ignore .htaccess as it may contain local changes
 .htaccess
-=======
->>>>>>> Fixes for composer:
