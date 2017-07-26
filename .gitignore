@@ -54,3 +54,9 @@ venv/
 
 #ignore all in 'vendor' as `utils/composer.phar install` will bring it back
 vendor/*
+
+#ignore config files from JetBrains
+/.idea
+
+#ignore addons/ directory
+addons/
