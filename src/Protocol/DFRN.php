@@ -487,7 +487,6 @@ class DFRN
 			$photos[$p['scale']] = System::baseUrl().'/photo/'.$p['resource-id'].'-'.$p['scale'].'.'.$ext[$p['type']];
 		}
 
-		unset($rp, $ext);
 
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
