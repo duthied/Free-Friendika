@@ -19,7 +19,14 @@
 {{/if}}
 {{/if}}
 
-{{if $item.thread_level!=1}}<div class="children u-comment h-cite">{{/if}}
+{{if $item.thread_level!=1}}
+<div class="children u-comment h-cite">
+{{else}}
+<span class="commented" style="display: none;">{{$item.commented}}</span>
+<span class="received" style="display: none;">{{$item.received}}</span>
+<span class="created" style="display: none;">{{$item.created_date}}</span>
+<span class="id" style="display: none;">{{$item.id}}</span>
+{{/if}}
 
 <div class="wall-item-decor">
 	{{if $item.star}}<span class="icon s22 star {{$item.isstarred}}" id="starred-{{$item.id}}" title="{{$item.star.starred}}">{{$item.star.starred}}</span>{{/if}}

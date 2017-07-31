@@ -325,6 +325,18 @@ function network_content(App $a, $update = 0) {
 	// Rawmode is used for fetching new content at the end of the page
 	$rawmode = (isset($_GET["mode"]) AND ($_GET["mode"] == "raw"));
 
+	if (isset($_GET["last_received"]) && isset($_GET["last_commented"]) && isset($_GET["last_created"]) && isset($_GET["last_id"])) {
+		$last_received = dbm::date($_GET["last_received"]);
+		$last_commented = dbm::date($_GET["last_commented"]);
+		$last_created = dbm::date($_GET["last_created"]);
+		$last_id = intval($_GET["last_id"]);
+	} else {
+		$last_received = '';
+		$last_commented = '';
+		$last_created = '';
+		$last_id = 0;
+	}
+
 	/// @TODO Is this really necessary? $a is already available to hooks
 	$arr = array('query' => $a->query_string);
 	call_hooks('network_content_init', $arr);
@@ -596,14 +608,12 @@ function network_content(App $a, $update = 0) {
 		$order_mode = "id";
 	}
 
-	if($conv)
+	if ($conv) {
 		$sql_extra3 .= " AND $sql_table.`mention`";
-
-	if($update) {
-
+	}
+	if ($update) {
 		// only setup pagination on initial page view
 		$pager_sql = '';
-
 	} else {
 		//  check if we serve a mobile device and get the user settings
 		//  accordingly
@@ -624,7 +634,7 @@ function network_content(App $a, $update = 0) {
 		$pager_sql = sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
 	}
 
-	if($nouveau) {
+	if ($nouveau) {
 		$simple_update = (($update) ? " AND `item`.`unseen` " : '');
 
 		if ($sql_order == "")
@@ -644,8 +654,6 @@ function network_content(App $a, $update = 0) {
 	} else {
 
 		// Normal conversation view
-
-
 		if($order === 'post') {
 			$ordering = "`created`";
 			if ($sql_order == "")
@@ -662,8 +670,39 @@ function network_content(App $a, $update = 0) {
 		if (($_GET["offset"] != ""))
 			$sql_extra3 .= sprintf(" AND $sql_order <= '%s'", dbesc($_GET["offset"]));
 
+		switch ($order_mode) {
+			case 'received':
+				if ($last_received != '') {
+					$sql_extra3 .= sprintf(" AND $sql_table.`received` < '%s'", dbesc($last_received));
+					$a->set_pager_page(1);
+					$pager_sql = sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
+				}
+				break;
+			case 'commented':
+				if ($last_commented != '') {
+					$sql_extra3 .= sprintf(" AND $sql_table.`commented` < '%s'", dbesc($last_commented));
+					$a->set_pager_page(1);
+					$pager_sql = sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
+				}
+				break;
+			case 'created':
+				if ($last_created != '') {
+					$sql_extra3 .= sprintf(" AND $sql_table.`created` < '%s'", dbesc($last_created));
+					$a->set_pager_page(1);
+					$pager_sql = sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
+				}
+				break;
+			case 'id':
+				if (($last_id > 0) && ($sql_table == "`thread`")) {
+					$sql_extra3 .= sprintf(" AND $sql_table.`iid` < '%s'", dbesc($last_id));
+					$a->set_pager_page(1);
+					$pager_sql = sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
+				}
+				break;
+		}
+
 		// Fetch a page full of parent items for this page
-		if($update) {
+		if ($update) {
 			if (get_config("system", "like_no_comment"))
 				$sql_extra4 = " AND `item`.`verb` = '".ACTIVITY_POST."'";
 			else

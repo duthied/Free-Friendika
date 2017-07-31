@@ -5,6 +5,12 @@
 	</div>
 	<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
 {{/if}}
+{{if $item.thread_level==1}}
+<span class="commented" style="display: none;">{{$item.commented}}</span>
+<span class="received" style="display: none;">{{$item.received}}</span>
+<span class="created" style="display: none;">{{$item.created_date}}</span>
+<span class="id" style="display: none;">{{$item.id}}</span>
+{{/if}}
 <div id="tread-wrapper-{{$item.id}}" class="tread-wrapper {{$item.toplevel}} {{if $item.toplevel}} h-entry {{else}} u-comment h-cite {{/if}}">
 <a name="{{$item.id}}" ></a>
 <div class="wall-item-outside-wrapper {{$item.indent}}{{$item.previewing}}{{if $item.owner_url}} wallwall{{/if}}" id="wall-item-outside-wrapper-{{$item.id}}" >

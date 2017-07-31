@@ -28,6 +28,12 @@
 {{else}}
 	<div class="wall-item-container {{$item.indent}} {{$item.shiny}} {{$item.network}} thread_level_7" id="item-{{$item.guid}}">
 {{/if}}
+{{if $item.thread_level==1}}
+<span class="commented" style="display: none;">{{$item.commented}}</span>
+<span class="received" style="display: none;">{{$item.received}}</span>
+<span class="created" style="display: none;">{{$item.created_date}}</span>
+<span class="id" style="display: none;">{{$item.id}}</span>
+{{/if}}
 	<div class="wall-item-item">
 		<div class="wall-item-info">
 			<div class="contact-photo-wrapper mframe{{if $item.owner_url}} wwfrom{{/if}} p-author h-card">

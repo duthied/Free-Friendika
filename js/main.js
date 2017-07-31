@@ -720,11 +720,41 @@
 		// page number
 		infinite_scroll.pageno+=1;
 
+		match = $("span.received").last();
+		if (match.length > 0) {
+			received = match[0].innerHTML;
+		} else {
+			received = "0000-00-00 00:00:00";
+		}
+
+		match = $("span.created").last();
+		if (match.length > 0) {
+			created = match[0].innerHTML;
+		} else {
+			created = "0000-00-00 00:00:00";
+		}
+
+		match = $("span.commented").last();
+		if (match.length > 0) {
+			commented = match[0].innerHTML;
+		} else {
+			commented = "0000-00-00 00:00:00";
+		}
+
+		match = $("span.id").last();
+		if (match.length > 0) {
+			id = match[0].innerHTML;
+		} else {
+			id = "0";
+		}
+		// console.log("Received: " + received + " - Commented: " + commented+ " - Created: " + created + " - ID: " + id);
+
 		// get the raw content from the next page and insert this content
 		// right before "#conversation-end"
-		$.get('network?mode=raw' + infinite_scroll.reload_uri + '&page=' + infinite_scroll.pageno, function(data) {
+		$.get('network?mode=raw' + infinite_scroll.reload_uri + '&last_received=' + received + '&last_commented=' + commented + '&last_created=' + created + '&last_id=' + id + '&page=' + infinite_scroll.pageno, function(data) {
 			$("#scroll-loader").hide();
 			if ($(data).length > 0) {
+
 				$(data).insertBefore('#conversation-end');
 				lockLoadContent = false;
 			} else {
