@@ -424,7 +424,6 @@ function item_fieldlists() {
 These Fields are not added below (yet). They are here to for bug search.
 `item`.`type`,
 `item`.`extid`,
-`item`.`received`,
 `item`.`changed`,
 `item`.`moderated`,
 `item`.`target-type`,
@@ -451,7 +450,7 @@ These Fields are not added below (yet). They are here to for bug search.
 		`item`.`owner-id`, `item`.`owner-link`, `item`.`owner-name`, `item`.`owner-avatar`,
 		`item`.`contact-id`, `item`.`uid`, `item`.`id`, `item`.`parent`,
 		`item`.`uri`, `item`.`thr-parent`, `item`.`parent-uri`,
-		`item`.`commented`, `item`.`created`, `item`.`edited`,
+		`item`.`commented`, `item`.`created`, `item`.`edited`, `item`.`received`,
 		`item`.`verb`, `item`.`object-type`, `item`.`postopts`, `item`.`plink`,
 		`item`.`guid`, `item`.`wall`, `item`.`private`, `item`.`starred`,
 		`item`.`title`,	`item`.`body`, `item`.`file`, `item`.`event-id`,

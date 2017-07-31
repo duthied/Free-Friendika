@@ -394,6 +394,9 @@ class Item extends BaseObject {
 			'edited'          => $edited,
 			'network'         => $item["item_network"],
 			'network_name'    => network_to_name($item['item_network'], $profile_link),
+			'received'        => $item['received'],
+			'commented'       => $item['commented'],
+			'created_date'    => $item['created'],
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);
