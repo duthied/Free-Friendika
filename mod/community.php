@@ -115,10 +115,10 @@ function community_getpublicitems($start, $itemspage) {
 	$r = qu("SELECT %s
 		FROM `thread`
 		INNER JOIN `item` ON `item`.`id` = `thread`.`iid` %s
-		WHERE `thread`.`uid` = 0
+		WHERE `thread`.`uid` = 0 AND `verb` = '%s'
 		ORDER BY `thread`.`created` DESC LIMIT %d, %d",
 		item_fieldlists(), item_joins(),
-		intval($start), intval($itemspage)
+		dbesc(ACTIVITY_POST), intval($start), intval($itemspage)
 	);
 
 	return($r);
