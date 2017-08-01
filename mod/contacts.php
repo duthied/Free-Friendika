@@ -589,6 +589,8 @@ function contacts_content(App $a) {
 			'$lbl_vis1' => t('Profile Visibility'),
 			'$lbl_vis2' => sprintf( t('Please choose the profile you would like to display to %s when viewing your profile securely.'), $contact['name']),
 			'$lbl_info1' => t('Contact Information / Notes'),
+			'$lbl_info2' => t('Their personal note'),
+			'$reason' => trim(notags($contact['reason'])),
 			'$infedit' => t('Edit contact notes'),
 			'$common_text' => $common_text,
 			'$common_link' => 'common/loc/' . local_user() . '/' . $contact['id'],
