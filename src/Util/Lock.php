@@ -19,7 +19,7 @@ use dbm;
 class Lock {
 	private static $semaphore = array();
 
-       /**
+	/**
 	 * @brief Check for memcache and open a connection if configured
 	 *
 	 * @return object|boolean The memcache object - or "false" if not successful
@@ -52,7 +52,7 @@ class Lock {
 	 *
 	 * @return ressource the semaphore key
 	 */
-	private static function semaphore_key($fn_name) {
+	private static function semaphoreKey($fn_name) {
 		$temp = get_temppath();
 
 		$file = $temp.'/'.$fn_name.'.sem';
@@ -77,7 +77,7 @@ class Lock {
 		$start = time();
 
 		if (function_exists('sem_get')) {
-			self::$semaphore[$fn_name] = sem_get(self::semaphore_key($fn_name));
+			self::$semaphore[$fn_name] = sem_get(self::semaphoreKey($fn_name));
 			if (self::$semaphore[$fn_name]) {
 				return sem_acquire(self::$semaphore[$fn_name], ($timeout == 0));
 			}
