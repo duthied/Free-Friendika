@@ -48,6 +48,7 @@ function frio_install() {
 	register_hook('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
 	register_hook('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
 	register_hook('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
+	register_hook('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
 
 	logger("installed theme frio");
 }
@@ -58,6 +59,7 @@ function frio_uninstall() {
 	unregister_hook('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
 	unregister_hook('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
 	unregister_hook('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
+	unregister_hook('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
 
 	logger("uninstalled theme frio");
 }
@@ -320,4 +322,29 @@ function frio_acl_lookup(App $a, &$results) {
 		$results["items"] = $contacts;
 		$results["tot"] = $total;
 	}
+}
+
+/**
+ * @brief Manipulate the data of the item
+ * 
+ * At the moment we use this function to add some own stuff to the item menu
+ * 
+ * @param App $a App $a The app data
+ * @param array $arr Array with the item and the item actions<br>
+ *     'item' => Array with item data<br>
+ *     'output' => Array with item actions<br>
+ */
+function frio_display_item(App $a,&$arr) {
+
+	// Add subthread to the item menu
+	$subthread = array();
+	if ((local_user()) && local_user() == $arr['item']['uid'] && $arr['item']['parent'] == $arr['item']['id'] && (! $arr['item']['self'])) {
+		$subthread = array(
+			'menu'   => 'follow_thread',
+			'title'  => t('Follow Thread'),
+			'action' => 'dosubthread(' . $arr['item']['id'] . '); return false;',
+			'href'   => '#'
+		);
+	}
+	$arr['output']['subthread'] = $subthread;
 }
