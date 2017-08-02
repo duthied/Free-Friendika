@@ -37,7 +37,7 @@ class Probe {
 	 *
 	 * @return array Ordered data
 	 */
-	private function rearrangeData($data) {
+	private static function rearrangeData($data) {
 		$fields = array("name", "nick", "guid", "url", "addr", "alias",
 				"photo", "community", "keywords", "location", "about",
 				"batch", "notify", "poll", "request", "confirm", "poco",
@@ -65,7 +65,7 @@ class Probe {
 	 *
 	 * @return bool Does the testes hostname belongs to the own server?
 	 */
-	private function ownHost($host) {
+	private static function ownHost($host) {
 		$own_host = get_app()->get_hostname();
 
 		$parts = parse_url($host);
@@ -90,7 +90,7 @@ class Probe {
 	 *      'lrdd-xml' => Link to LRDD endpoint in XML format
 	 *      'lrdd-json' => Link to LRDD endpoint in JSON format
 	 */
-	private function xrd($host) {
+	private static function xrd($host) {
 
 		// Reset the static variable
 		self::$baseurl = '';
@@ -183,7 +183,6 @@ class Probe {
 	 *
 	 * @return string profile link
 	 */
-
 	public static function webfingerDfrn($webbie, &$hcard_url) {
 
 		$profile_link = '';
@@ -410,7 +409,7 @@ class Probe {
 	 *
 	 * @return string switched URL
 	 */
-	private function switch_scheme($url) {
+	private static function switchScheme($url) {
 		$parts = parse_url($url);
 
 		if (!isset($parts['scheme'])) {
@@ -434,7 +433,7 @@ class Probe {
 	 *
 	 * @return array fixed webfinger data
 	 */
-	private function fix_ostatus($webfinger, $lrdd) {
+	private static function fixOstatus($webfinger, $lrdd) {
 		if (empty($webfinger['links']) || empty($webfinger['subject'])) {
 			return $webfinger;
 		}
@@ -455,7 +454,7 @@ class Probe {
 			return $webfinger;
 		}
 
-		$url = self::switch_scheme($webfinger['subject']);
+		$url = self::switchScheme($webfinger['subject']);
 		$path = str_replace('{uri}', urlencode($url), $lrdd);
 		$webfinger2 = self::webfinger($path);
 
@@ -478,7 +477,7 @@ class Probe {
 	 *
 	 * @return array uri data
 	 */
-	private function detect($uri, $network, $uid) {
+	private static function detect($uri, $network, $uid) {
 		$parts = parse_url($uri);
 
 		if (isset($parts["scheme"]) && isset($parts["host"]) && isset($parts["path"])) {
@@ -565,7 +564,7 @@ class Probe {
 			$webfinger = self::webfinger($path);
 
 			// Fix possible problems with GNU Social probing to wrong scheme
-			$webfinger = self::fix_ostatus($webfinger, $link);
+			$webfinger = self::fixOstatus($webfinger, $link);
 
 			// We cannot be sure that the detected address was correct, so we don't use the values
 			if ($webfinger && ($uri != $addr)) {
@@ -640,7 +639,7 @@ class Probe {
 	 *
 	 * @return array webfinger data
 	 */
-	private function webfinger($url) {
+	private static function webfinger($url) {
 
 		$xrd_timeout = Config::get('system', 'xrd_timeout', 20);
 		$redirects = 0;
@@ -708,7 +707,7 @@ class Probe {
 	 *
 	 * @return array noscrape data
 	 */
-	private function pollNoscrape($noscrape_url, $data) {
+	private static function pollNoscrape($noscrape_url, $data) {
 		$ret = z_fetch_url($noscrape_url);
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
@@ -863,7 +862,7 @@ class Probe {
 	 *
 	 * @return array DFRN data
 	 */
-	private function dfrn($webfinger) {
+	private static function dfrn($webfinger) {
 
 		$hcard_url = "";
 		$data = array();
@@ -934,7 +933,7 @@ class Probe {
 	 *
 	 * @return array hcard data
 	 */
-	private function pollHcard($hcard_url, $data, $dfrn = false) {
+	private static function pollHcard($hcard_url, $data, $dfrn = false) {
 		$ret = z_fetch_url($hcard_url);
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
@@ -1051,7 +1050,7 @@ class Probe {
 	 *
 	 * @return array Diaspora data
 	 */
-	private function diaspora($webfinger) {
+	private static function diaspora($webfinger) {
 
 		$hcard_url = "";
 		$data = array();
@@ -1128,7 +1127,7 @@ class Probe {
 	 *
 	 * @return array|bool OStatus data or "false" on error or "true" on short mode
 	 */
-	private function ostatus($webfinger, $short = false) {
+	private static function ostatus($webfinger, $short = false) {
 		$data = array();
 		if (is_array($webfinger["aliases"])) {
 			foreach ($webfinger["aliases"] as $alias) {
@@ -1236,7 +1235,7 @@ class Probe {
 	 *
 	 * @return array profile data
 	 */
-	private function pumpioProfileData($profile_link) {
+	private static function pumpioProfileData($profile_link) {
 
 		$doc = new DOMDocument();
 		if (!@$doc->loadHTMLFile($profile_link)) {
@@ -1276,7 +1275,7 @@ class Probe {
 	 *
 	 * @return array pump.io data
 	 */
-	private function pumpio($webfinger) {
+	private static function pumpio($webfinger) {
 
 		$data = array();
 		foreach ($webfinger["links"] as $link) {
@@ -1324,7 +1323,7 @@ class Probe {
 	 *
 	 * @return string feed link
 	 */
-	private function getFeedLink($url) {
+	private static function getFeedLink($url) {
 		$doc = new DOMDocument();
 
 		if (!@$doc->loadHTMLFile($url)) {
@@ -1367,7 +1366,7 @@ class Probe {
 	 *
 	 * @return array feed data
 	 */
-	private function feed($url, $probe = true) {
+	private static function feed($url, $probe = true) {
 		$ret = z_fetch_url($url);
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
@@ -1427,7 +1426,7 @@ class Probe {
 	 *
 	 * @return array mail data
 	 */
-	private function mail($uri, $uid) {
+	private static function mail($uri, $uid) {
 
 		if (!validate_email($uri)) {
 			return false;
