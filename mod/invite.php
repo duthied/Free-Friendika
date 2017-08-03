@@ -126,9 +126,14 @@ function invite_content(App $a) {
 			$linktxt = sprintf( t('To accept this invitation, please visit and register at %s or any other public Friendica website.'), App::get_baseurl())
 			. "\r\n" . "\r\n" . sprintf( t('Friendica sites all inter-connect to create a huge privacy-enhanced social web that is owned and controlled by its members. They can also connect with many traditional social networks. See %s for a list of alternate Friendica sites you can join.'),$dirloc . '/servers');
 		}
-	} else {
-		$o = t('Our apologies. This system is not currently configured to connect with other public sites or invite members.');
-		return $o;
+	} else { // there is no global directory URL defined
+		if ($a->config['register_policy'] == REGISTER_CLOSED) {
+			$o = t('Our apologies. This system is not currently configured to connect with other public sites or invite members.');
+			return $o;
+		} else {
+			$linktxt = sprintf( t('To accept this invitation, please visit and register at %s.'), App::get_baseurl()
+			. "\r\n" . "\r\n" . t('Friendica sites all inter-connect to create a huge privacy-enhanced social web that is owned and controlled by its members. They can also connect with many traditional social networks.');
+		}
 	}
 
 	$o = replace_macros($tpl, array(
