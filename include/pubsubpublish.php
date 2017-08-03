@@ -14,7 +14,7 @@ function pubsubpublish_run(&$argv, &$argc){
 	} else {
 		// We'll push to each subscriber that has push > 0,
 		// i.e. there has been an update (set in notifier.php).
-		$r = q("SELECT `id`, `callback_url` FROM `push_subscriber` WHERE `push` > 0");
+		$r = q("SELECT `id`, `callback_url` FROM `push_subscriber` WHERE `push` > 0 ORDER BY `last_update` DESC");
 
 		foreach ($r as $rr) {
 			logger("Publish feed to ".$rr["callback_url"], LOGGER_DEBUG);
@@ -43,7 +43,13 @@ function handle_pubsubhubbub($id) {
 
 	logger("Generate feed of user ".$rr['nickname']." to ".$rr['callback_url']." - last updated ".$rr['last_update'], LOGGER_DEBUG);
 
-	$params = ostatus::feed($a, $rr['nickname'], $rr['last_update']);
+	$last_update = $rr['last_update'];
+	$params = ostatus::feed($a, $rr['nickname'], $last_update);
+
+	if (!$params) {
+		return;
+	}
+
 	$hmac_sig = hash_hmac("sha1", $params, $rr['secret']);
 
 	$headers = array("Content-type: application/atom+xml",
@@ -60,10 +66,9 @@ function handle_pubsubhubbub($id) {
 	if ($ret >= 200 && $ret <= 299) {
 		logger('successfully pushed to '.$rr['callback_url']);
 
-		// set last_update to "now", and reset push=0
-		$date_now = datetime_convert('UTC','UTC','now','Y-m-d H:i:s');
+		// set last_update to the "created" date of the last item, and reset push=0
 		q("UPDATE `push_subscriber` SET `push` = 0, last_update = '%s' WHERE id = %d",
-			dbesc($date_now),
+			dbesc($last_update),
 			intval($rr['id']));
 
 	} else {
