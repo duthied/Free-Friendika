@@ -21,6 +21,7 @@ require_once 'include/follow.php';
 require_once 'include/api.php';
 require_once 'mod/proxy.php';
 require_once 'include/xml.php';
+require_once 'include/cache.php';
 
 /**
  * @brief This class contain functions for the OStatus protocol
@@ -195,7 +196,7 @@ class ostatus {
 			link_gcontact($gcid, $contact["uid"], $contact["id"]);
 		}
 
-		return($author);
+		return $author;
 	}
 
 	/**
@@ -677,14 +678,14 @@ class ostatus {
 		if ((count($elements) == 4) && ($elements[2] == "post"))
 			return "http://".$server[0]."/notice/".$elements[3];
 
-		if ((count($conversation) != 2) || ($conversation[1] ==""))
+		if ((count($conversation) != 2) || ($conversation[1] =="")) {
 			return $href;
-
-		if ($elements[3] == "objectType=thread")
+		}
+		if ($elements[3] == "objectType=thread") {
 			return "http://".$server[0]."/conversation/".$conversation[1];
-		else
+		} else {
 			return "http://".$server[0]."/notice/".$conversation[1];
-
+		}
 		return $href;
 	}
 
@@ -946,9 +947,9 @@ class ostatus {
 				STRAIGHT_JOIN `item` ON `item`.`parent` = `thritem`.`parent`
 				WHERE `term`.`uid` = %d AND `term`.`otype` = %d AND `term`.`type` = %d AND `term`.`url` = '%s'",
 				intval($uid), intval(TERM_OBJ_POST), intval(TERM_CONVERSATION), dbesc($conversation_url));
-		if ($parents)
+		if ($parents) {
 			$parent = $parents[0];
-		elseif (count($item) > 0) {
+		} elseif (count($item) > 0) {
 			$parent = $item;
 			$parent["type"] = "remote";
 			$parent["verb"] = ACTIVITY_POST;
@@ -956,9 +957,9 @@ class ostatus {
 		} else {
 			// Preset the parent
 			$r = q("SELECT `id` FROM `contact` WHERE `self` AND `uid`=%d", $uid);
-			if (!$r)
-				return(-2);
-
+			if (!dbm::is_result($r)) {
+				return -2;
+			}
 			$parent = array();
 			$parent["id"] = 0;
 			$parent["parent"] = 0;
@@ -985,9 +986,9 @@ class ostatus {
 			} elseif (!$conv_arr["success"] && (substr($conv, 0, 8) == "https://")) {
 				$conv = str_replace("https://", "http://", $conv);
 				$conv_as = fetch_url($conv."?page=".$pageno);
-			} else
+			} else {
 				$conv_as = $conv_arr["body"];
-
+			}
 			$conv_as = str_replace(',"statusnet:notice_info":', ',"statusnet_notice_info":', $conv_as);
 			$conv_as = json_decode($conv_as);
 
@@ -1015,9 +1016,10 @@ class ostatus {
 					self::store_conversation($item_id, $conversation_url);
 				}
 
-				return($item_stored);
-			} else
-				return(-3);
+				return $item_stored;
+			} else {
+				return -3;
+			}
 		}
 
 		$items = array_reverse($items);
@@ -1153,7 +1155,7 @@ class ostatus {
 			}
 
 			if (is_array($single_conv->to))
-				foreach($single_conv->to AS $to)
+				foreach ($single_conv->to AS $to)
 					if ($importer["nurl"] == normalise_link($to->id))
 						$mention = true;
 
@@ -1197,17 +1199,17 @@ class ostatus {
 				$arr['conversation-uri'] = $single_conv->status_net->conversation;
 			}
 
-			if (isset($single_conv->status_net->notice_info->source))
+			if (isset($single_conv->status_net->notice_info->source)) {
 				$arr["app"] = strip_tags($single_conv->status_net->notice_info->source);
-			elseif (isset($single_conv->statusnet->notice_info->source))
+			} elseif (isset($single_conv->statusnet->notice_info->source)) {
 				$arr["app"] = strip_tags($single_conv->statusnet->notice_info->source);
-			elseif (isset($single_conv->statusnet_notice_info->source))
+			} elseif (isset($single_conv->statusnet_notice_info->source)) {
 				$arr["app"] = strip_tags($single_conv->statusnet_notice_info->source);
-			elseif (isset($single_conv->provider->displayName))
+			} elseif (isset($single_conv->provider->displayName)) {
 				$arr["app"] = $single_conv->provider->displayName;
-			else
+			} else {
 				$arr["app"] = "OStatus";
-
+			}
 
 			$arr["source"] = json_encode($single_conv);
 			$arr["protocol"] = PROTOCOL_GS_CONVERSATION;
@@ -1324,7 +1326,7 @@ class ostatus {
 			}
 		}
 
-		return($item_stored);
+		return $item_stored;
 	}
 
 	/**
@@ -1367,16 +1369,16 @@ class ostatus {
 		// Skip if it isn't a pure repeated messages
 		// Does it start with a share?
 		if (strpos($body, "[share") > 0)
-			return("");
+			return "";
 
 		// Does it end with a share?
 		if (strlen($body) > (strrpos($body, "[/share]") + 8))
-			return("");
+			return "";
 
 		$attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","$1",$body);
 		// Skip if there is no shared message in there
 		if ($body == $attributes)
-			return(false);
+			return false;
 
 		$guid = "";
 		preg_match("/guid='(.*?)'/ism", $attributes, $matches);
@@ -1496,12 +1498,12 @@ class ostatus {
 		$hub = get_config('system','huburl');
 
 		$hubxml = '';
-		if(strlen($hub)) {
+		if (strlen($hub)) {
 			$hubs = explode(',', $hub);
-			if(count($hubs)) {
-				foreach($hubs as $h) {
+			if (count($hubs)) {
+				foreach ($hubs as $h) {
 					$h = trim($h);
-					if(! strlen($h))
+					if (! strlen($h))
 						continue;
 					if ($h === '[internal]')
 						$h = App::get_baseurl() . '/pubsubhubbub';
@@ -1543,7 +1545,7 @@ class ostatus {
 				break;
 		}
 
-		if (($siteinfo["type"] != "photo") && isset($siteinfo["image"])) {
+		if (!Config::get('system', 'ostatus_not_attach_preview') && ($siteinfo["type"] != "photo") && isset($siteinfo["image"])) {
 			$imgdata = get_photo_info($siteinfo["image"]);
 			$attributes = array("rel" => "enclosure",
 					"href" => $siteinfo["image"],
@@ -1586,9 +1588,9 @@ class ostatus {
 	private function add_author($doc, $owner) {
 
 		$r = q("SELECT `homepage`, `publish` FROM `profile` WHERE `uid` = %d AND `is-default` LIMIT 1", intval($owner["uid"]));
-		if ($r)
+		if (dbm::is_result($r)) {
 			$profile = $r[0];
-
+		}
 		$author = $doc->createElement("author");
 		xml::add_element($doc, $author, "id", $owner["url"]);
 		xml::add_element($doc, $author, "activity:object-type", ACTIVITY_OBJ_PERSON);
@@ -1743,22 +1745,22 @@ class ostatus {
 
 		$r = q("SELECT * FROM `contact` WHERE `nurl` = '%s' AND `uid` IN (0, %d) ORDER BY `uid` DESC LIMIT 1",
 			dbesc(normalise_link($url)), intval($owner["uid"]));
-		if ($r) {
+		if (dbm::is_result($r)) {
 			$contact = $r[0];
 			$contact["uid"] = -1;
 		}
 
-		if (!$r) {
+		if (!dbm::is_result($r)) {
 			$r = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 				dbesc(normalise_link($url)));
-			if ($r) {
+			if (dbm::is_result($r)) {
 				$contact = $r[0];
 				$contact["uid"] = -1;
 				$contact["success_update"] = $contact["updated"];
 			}
 		}
 
-		if (!$r)
+		if (!dbm::is_result($r))
 			$contact = owner;
 
 		if (!isset($contact["poll"])) {
@@ -1797,11 +1799,11 @@ class ostatus {
 		$r = q("SELECT * FROM `item` WHERE `uid` = %d AND `guid` = '%s' AND NOT `private` AND `network` IN ('%s', '%s', '%s') LIMIT 1",
 			intval($owner["uid"]), dbesc($repeated_guid),
 			dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS));
-		if ($r)
+		if (dbm::is_result($r)) {
 			$repeated_item = $r[0];
-		else
+		} else {
 			return false;
-
+		}
 		$contact = self::contact_entry($repeated_item['author-link'], $owner);
 
 		$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
@@ -2158,8 +2160,8 @@ class ostatus {
 
 		$tags = item_getfeedtags($item);
 
-		if(count($tags))
-			foreach($tags as $t)
+		if (count($tags))
+			foreach ($tags as $t)
 				if ($t[0] == "@")
 					$mentioned[$t[1]] = $t[1];
 
@@ -2194,8 +2196,8 @@ class ostatus {
 			xml::add_element($doc, $entry, "mastodon:scope", "public");
 		}
 
-		if(count($tags))
-			foreach($tags as $t)
+		if (count($tags))
+			foreach ($tags as $t)
 				if ($t[0] != "@")
 					xml::add_element($doc, $entry, "category", "", array("term" => $t[2]));
 
@@ -2227,19 +2229,33 @@ class ostatus {
 	 *
 	 * @return string XML feed
 	 */
-	public static function feed(App $a, $owner_nick, $last_update) {
+	public static function feed(App $a, $owner_nick, &$last_update) {
+		$stamp = microtime(true);
+
+		$cachekey = "ostatus:feed:".$owner_nick.":".$last_update;
+
+		$previous_created = $last_update;
+
+		$result = Cache::get($cachekey);
+		if (!is_null($result)) {
+			logger('Feed duration: '.number_format(microtime(true) - $stamp, 3).' - '.$owner_nick.' - '.$previous_created.' (cached)', LOGGER_DEBUG);
+			$last_update = $result['last_update'];
+			return $result['feed'];
+		}
 
 		$r = q("SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`
 				FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
 				WHERE `contact`.`self` AND `user`.`nickname` = '%s' LIMIT 1",
 				dbesc($owner_nick));
-		if (!$r)
+		if (!dbm::is_result($r)) {
 			return;
+		}
 
 		$owner = $r[0];
 
-		if (!strlen($last_update))
+		if (!strlen($last_update)) {
 			$last_update = 'now -30 days';
+		}
 
 		$check_date = datetime_convert('UTC','UTC',$last_update,'Y-m-d H:i:s');
 		$authorid = get_contact($owner["url"], 0);
@@ -2255,28 +2271,6 @@ class ostatus {
 				intval($authorid), dbesc($check_date),
 				dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN));
 
-/*		2016-10-23: The old query will be kept until we are sure that the query above is a good and fast replacement
-
-		$items = q("SELECT `item`.*, `item`.`id` AS `item_id` FROM `item`
-				STRAIGHT_JOIN `thread` ON `thread`.`iid` = `item`.`parent`
-				LEFT JOIN `item` AS `thritem` ON `thritem`.`uri`=`item`.`thr-parent` AND `thritem`.`uid`=`item`.`uid`
-				WHERE `item`.`uid` = %d AND `item`.`received` > '%s' AND NOT `item`.`private` AND NOT `item`.`deleted`
-					AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-					AND ((`item`.`wall` AND (`item`.`parent` = `item`.`id`))
-						OR (`item`.`network` = '%s' AND ((`thread`.`network` IN ('%s', '%s')) OR (`thritem`.`network` IN ('%s', '%s')))) AND `thread`.`mention`)
-					AND ((`item`.`owner-link` IN ('%s', '%s') AND (`item`.`parent` = `item`.`id`))
-						OR (`item`.`author-link` IN ('%s', '%s')))
-				ORDER BY `item`.`id` DESC
-				LIMIT 0, 300",
-				intval($owner["uid"]), dbesc($check_date), dbesc(NETWORK_DFRN),
-				//dbesc(NETWORK_OSTATUS), dbesc(NETWORK_OSTATUS),
-				//dbesc(NETWORK_OSTATUS), dbesc(NETWORK_OSTATUS),
-				dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN),
-				dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN),
-				dbesc($owner["nurl"]), dbesc(str_replace("http://", "https://", $owner["nurl"])),
-				dbesc($owner["nurl"]), dbesc(str_replace("http://", "https://", $owner["nurl"]))
-			);
-*/
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
 
@@ -2288,9 +2282,20 @@ class ostatus {
 			}
 			$entry = self::entry($doc, $item, $owner);
 			$root->appendChild($entry);
+
+			if ($last_update < $item['created']) {
+				$last_update = $item['created'];
+			}
 		}
 
-		return(trim($doc->saveXML()));
+		$feeddata = trim($doc->saveXML());
+
+		$msg = array('feed' => $feeddata, 'last_update' => $last_update);
+		Cache::set($cachekey, $msg, CACHE_QUARTER_HOUR);
+
+		logger('Feed duration: '.number_format(microtime(true) - $stamp, 3).' - '.$owner_nick.' - '.$previous_created, LOGGER_DEBUG);
+
+		return $feeddata;
 	}
 
 	/**
@@ -2314,6 +2319,6 @@ class ostatus {
 
 		$doc->appendChild($entry);
 
-		return(trim($doc->saveXML()));
+		return trim($doc->saveXML());
 	}
 }

@@ -623,11 +623,11 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	$arr['owner-name']    = ((x($arr, 'owner-name'))    ? trim($arr['owner-name'])    : '');
 	$arr['owner-link']    = ((x($arr, 'owner-link'))    ? notags(trim($arr['owner-link']))    : '');
 	$arr['owner-avatar']  = ((x($arr, 'owner-avatar'))  ? notags(trim($arr['owner-avatar']))  : '');
-	$arr['created']       = ((x($arr, 'created') !== false) ? datetime_convert('UTC','UTC', $arr['created']) : datetime_convert());
-	$arr['edited']        = ((x($arr, 'edited')  !== false) ? datetime_convert('UTC','UTC', $arr['edited'])  : datetime_convert());
-	$arr['commented']     = ((x($arr, 'commented')  !== false) ? datetime_convert('UTC','UTC', $arr['commented'])  : datetime_convert());
-	$arr['received']      = ((x($arr, 'received')  !== false) ? datetime_convert('UTC','UTC', $arr['received'])  : datetime_convert());
-	$arr['changed']       = ((x($arr, 'changed')  !== false) ? datetime_convert('UTC','UTC', $arr['changed'])  : datetime_convert());
+	$arr['received']      = ((x($arr, 'received') !== false) ? datetime_convert('UTC','UTC', $arr['received']) : datetime_convert());
+	$arr['created']       = ((x($arr, 'created') !== false) ? datetime_convert('UTC','UTC', $arr['created']) : $arr['received']);
+	$arr['edited']        = ((x($arr, 'edited') !== false) ? datetime_convert('UTC','UTC', $arr['edited']) : $arr['created']);
+	$arr['changed']       = ((x($arr, 'changed') !== false) ? datetime_convert('UTC','UTC', $arr['changed']) : $arr['created']);
+	$arr['commented']     = ((x($arr, 'commented') !== false) ? datetime_convert('UTC','UTC', $arr['commented']) : $arr['created']);
 	$arr['title']         = ((x($arr, 'title'))         ? trim($arr['title'])         : '');
 	$arr['location']      = ((x($arr, 'location'))      ? trim($arr['location'])      : '');
 	$arr['coord']         = ((x($arr, 'coord'))         ? notags(trim($arr['coord']))         : '');
@@ -1640,6 +1640,9 @@ function item_is_remote_self($contact, &$datarray) {
 			$datarray['author-name']   = $datarray['owner-name'];
 			$datarray['author-link']   = $datarray['owner-link'];
 			$datarray['author-avatar'] = $datarray['owner-avatar'];
+
+			unset($datarray['created']);
+			unset($datarray['edited']);
 		}
 
 		if ($contact['network'] != NETWORK_FEED) {

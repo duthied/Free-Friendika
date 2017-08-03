@@ -273,7 +273,9 @@ function poller_exec_function($queue, $funcname, $argv) {
 
 	$argc = count($argv);
 
-	logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." ".$queue["parameter"]);
+	$new_process_id = uniqid("wrk", true);
+
+	logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." ".$queue["parameter"]." - Process PID: ".$new_process_id);
 
 	$stamp = (float)microtime(true);
 
@@ -295,7 +297,7 @@ function poller_exec_function($queue, $funcname, $argv) {
 	// For better logging create a new process id for every worker call
 	// But preserve the old one for the worker
 	$old_process_id = $a->process_id;
-	$a->process_id = uniqid("wrk", true);
+	$a->process_id = $new_process_id;
 	$a->queue = $queue;
 
 	$up_duration = number_format(microtime(true) - $poller_up_start, 3);
@@ -330,7 +332,7 @@ function poller_exec_function($queue, $funcname, $argv) {
 		logger("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 2 minutes (".round($duration/60, 3).")", LOGGER_DEBUG);
 	}
 
-	logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".$duration." seconds.");
+	logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".$duration." seconds. Process PID: ".$new_process_id);
 
 	// Write down the performance values into the log
 	if (Config::get("system", "profiler")) {
