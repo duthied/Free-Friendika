@@ -929,8 +929,8 @@ function zrl($s, $force = false) {
  *      is set to true
  */
 function get_theme_uid() {
-	$uid = (($_REQUEST['puid']) ? intval($_REQUEST['puid']) : 0);
-	if ((local_user()) && ((get_pconfig(local_user(),'system','always_my_theme')) || (! $uid))) {
+	$uid = ((!empty($_REQUEST['puid'])) ? intval($_REQUEST['puid']) : 0);
+	if ((local_user()) && ((get_pconfig(local_user(), 'system', 'always_my_theme')) || (! $uid))) {
 		return local_user();
 	}
 

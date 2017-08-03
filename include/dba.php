@@ -161,7 +161,7 @@ class dba {
 	public function log_index($query) {
 		$a = get_app();
 
-		if ($a->config["system"]["db_log_index"] == "") {
+		if (empty($a->config["system"]["db_log_index"])) {
 			return;
 		}
 
