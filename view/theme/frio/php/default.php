@@ -9,7 +9,9 @@
 	require_once('view/theme/frio/php/frio_boot.php');
 
 //	$minimal = is_modal();
-
+	if (!isset($minimal)) {
+		$minimal = false;
+	}
 ?>
 <html>
 <head>

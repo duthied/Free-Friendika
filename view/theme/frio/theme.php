@@ -214,7 +214,7 @@ function frio_remote_nav($a,&$nav) {
 
 	// since $userinfo isn't available for the hook we write it to the nav array
 	// this isn't optimal because the contact query will be done now twice
-	if(local_user()) {
+	if (local_user()) {
 		// empty the server url for local user because we won't need it
 		$server_url = '';
 		// user info
@@ -223,25 +223,27 @@ function frio_remote_nav($a,&$nav) {
 		$r[0]['photo'] = (dbm::is_result($r) ? $a->remove_baseurl($r[0]['micro']) : "images/person-48.jpg");
 		$r[0]['name'] = $a->user['username'];
 
-	} elseif(!local_user() && remote_user()) {
+	} elseif (!local_user() && remote_user()) {
 		$r = q("SELECT `name`, `nick`, `micro` AS `photo` FROM `contact` WHERE `id` = %d", intval(remote_user()));
 		$nav['remote'] = t("Guest");
 
-	} elseif(get_my_url ()) {
+	} elseif (get_my_url()) {
 		$r = q("SELECT `name`, `nick`, `photo` FROM `gcontact`
 				WHERE `addr` = '%s' AND `network` = 'dfrn'",
 			dbesc($webbie));
 		$nav['remote'] = t("Visitor");
+	} else {
+		$r = false;
 	}
 
-	if (dbm::is_result($r)){
+	if (dbm::is_result($r)) {
 			$nav['userinfo'] = array(
 				'icon' => (dbm::is_result($r) ? $r[0]['photo'] : "images/person-48.jpg"),
 				'name' => $r[0]['name'],
 			);
 		}
 
-	if(!local_user() && !empty($server_url)) {
+	if (!local_user() && !empty($server_url)) {
 		$nav['logout'] = Array($server_url . '/logout', t('Logout'), "", t('End this session'));
 
 		// user menu
