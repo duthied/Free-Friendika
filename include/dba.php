@@ -75,9 +75,11 @@ class dba {
 			if (isset($a->config["system"]["db_charset"])) {
 				$connect .= ";charset=".$a->config["system"]["db_charset"];
 			}
-			$this->db = @new PDO($connect, $user, $pass);
-			if (!$this->db->errorCode()) {
+			try {
+				$this->db = @new PDO($connect, $user, $pass);
 				$this->connected = true;
+			} catch (PDOException $e) {
+				$this->connected = false;
 			}
 		} elseif (class_exists('mysqli')) {
 			$this->driver = 'mysqli';
