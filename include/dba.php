@@ -547,6 +547,8 @@ class dba {
 		$sql = self::$dbo->clean_query($sql);
 		$sql = self::$dbo->any_value_fallback($sql);
 
+		$orig_sql = $sql;
+
 		if (x($a->config,'system') && x($a->config['system'], 'db_callstack')) {
 			$sql = "/*".$a->callstack()." */ ".$sql;
 		}
@@ -554,6 +556,18 @@ class dba {
 		self::$dbo->error = '';
 		self::$dbo->errorno = 0;
 		self::$dbo->affected_rows = 0;
+
+		// We have to make some things different if this function is called from "e"
+		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+
+		if (isset($trace[2])) {
+			$called_from = $trace[2];
+		} else {
+			// We use just something that is defined to avoid warnings
+			$called_from = $trace[0];
+		}
+		// We are having an own error logging in the function "e"
+		$called_from_e = ($called_from['function'] == 'e');
 
 		switch (self::$dbo->driver) {
 			case 'pdo':
@@ -580,6 +594,28 @@ class dba {
 				}
 				break;
 			case 'mysqli':
+				// There are SQL statements that cannot be executed with a prepared statement
+				$parts = explode(' ', $orig_sql);
+				$command = strtolower($parts[0]);
+				$can_be_prepared = in_array($command, array('select', 'update', 'insert', 'delete'));
+
+				// The fallback routine currently only works with statements that doesn't return values
+				if (!$can_be_prepared && $called_from_e) {
+					$retval = self::$dbo->db->query(self::replace_parameters($sql, $args));
+					if (self::$dbo->db->errno) {
+						self::$dbo->error = self::$dbo->db->error;
+						self::$dbo->errorno = self::$dbo->db->errno;
+						$retval = false;
+					} else {
+						if (isset($retval->num_rows)) {
+							self::$dbo->affected_rows = $retval->num_rows;
+						} else {
+							self::$dbo->affected_rows = self::$dbo->db->affected_rows;
+						}
+					}
+					break;
+				}
+
 				$stmt = self::$dbo->db->stmt_init();
 
 				if (!$stmt->prepare($sql)) {
@@ -637,27 +673,17 @@ class dba {
 				break;
 		}
 
-		if (self::$dbo->errorno != 0) {
-			$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+		// We are having an own error logging in the function "e"
+		if ((self::$dbo->errorno != 0) && !$called_from_e) {
+			// We have to preserve the error code, somewhere in the logging it get lost
+			$error = self::$dbo->error;
+			$errorno = self::$dbo->errorno;
 
-			if (isset($trace[2])) {
-				$called_from = $trace[2];
-			} else {
-				// We use just something that is defined to avoid warnings
-				$called_from = $trace[0];
-			}
-			// We are having an own error logging in the function "e"
-			if ($called_from['function'] != 'e') {
-				// We have to preserve the error code, somewhere in the logging it get lost
-				$error = self::$dbo->error;
-				$errorno = self::$dbo->errorno;
+			logger('DB Error '.self::$dbo->errorno.': '.self::$dbo->error."\n".
+				$a->callstack(8)."\n".self::replace_parameters($sql, $params));
 
-				logger('DB Error '.self::$dbo->errorno.': '.self::$dbo->error."\n".
-					$a->callstack(8)."\n".self::replace_parameters($sql, $params));
-
-				self::$dbo->error = $error;
-				self::$dbo->errorno = $errorno;
-			}
+			self::$dbo->error = $error;
+			self::$dbo->errorno = $errorno;
 		}
 
 		$a->save_timestamp($stamp1, 'database');
