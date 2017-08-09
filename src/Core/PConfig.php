@@ -36,8 +36,7 @@ class PConfig {
 	public static function load($uid, $family) {
 		$a = get_app();
 
-		$r = dba::select('pconfig', array('v', 'k'), array('cat' => $family, 'uid' => $uid),
-				array("order" => array('uid', 'cat', 'k')));
+		$r = dba::select('pconfig', array('v', 'k'), array('cat' => $family, 'uid' => $uid));
 		if (dbm::is_result($r)) {
 			while ($rr = dba::fetch($r)) {
 				$k = $rr['k'];
@@ -89,8 +88,7 @@ class PConfig {
 			}
 		}
 
-		$ret = dba::select('pconfig', array('v'), array('uid' => $uid, 'cat' => $family, 'k' => $key),
-				array("order" => array('uid', 'cat', 'k'), 'limit' => 1));
+		$ret = dba::select('pconfig', array('v'), array('uid' => $uid, 'cat' => $family, 'k' => $key), array('limit' => 1));
 		if (dbm::is_result($ret)) {
 			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret['v']) ? unserialize($ret['v']) : $ret['v']);
 			$a->config[$uid][$family][$key] = $val;

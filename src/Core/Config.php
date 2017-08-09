@@ -46,7 +46,7 @@ class Config {
 
 		$a = get_app();
 
-		$r = dba::select('config', array('v', 'k'), array('cat' => $family), array("order" => array("cat", "k")));
+		$r = dba::select('config', array('v', 'k'), array('cat' => $family));
 		while ($rr = dba::fetch($r)) {
 			$k = $rr['k'];
 			if ($family === 'config') {
@@ -97,8 +97,7 @@ class Config {
 			}
 		}
 
-		$ret = dba::select('config', array('v'), array('cat' => $family, 'k' => $key),
-				array("order" => array("cat", "k"), 'limit' => 1));
+		$ret = dba::select('config', array('v'), array('cat' => $family, 'k' => $key), array('limit' => 1));
 		if (dbm::is_result($ret)) {
 			// manage array value
 			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret['v']) ? unserialize($ret['v']) : $ret['v']);
