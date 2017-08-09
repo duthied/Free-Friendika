@@ -29,11 +29,7 @@ function Markdown($text, $hardwrap = true) {
 	$stamp1 = microtime(true);
 
 	$MarkdownParser = new MarkdownExtra();
-	if ($hardwrap) {
-		$MarkdownParser->hard_wrap = true;
-	} else {
-		$MarkdownParser->hard_wrap = false;
-	}
+	$MarkdownParser->hard_wrap = $hardwrap;
 	$html = $MarkdownParser->transform($text);
 
 	$a->save_timestamp($stamp1, "parser");
