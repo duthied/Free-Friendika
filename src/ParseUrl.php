@@ -10,6 +10,7 @@ namespace Friendica;
 use Friendica\Core\Config;
 
 use xml;
+use dba;
 
 use DomXPath;
 use DOMDocument;
