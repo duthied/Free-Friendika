@@ -1475,10 +1475,7 @@ class Diaspora {
 
 			// Formerly we stored the signed text, the signature and the author in different fields.
 			// We now store the raw data so that we are more flexible.
-			q("INSERT INTO `sign` (`iid`,`signed_text`) VALUES (%d,'%s')",
-				intval($message_id),
-				dbesc(json_encode($data))
-			);
+			dba::insert('sign', array('iid' => $message_id, 'signed_text' => json_encode($data)));
 
 			// notify others
 			proc_run(PRIORITY_HIGH, "include/notifier.php", "comment-import", $message_id);
@@ -1783,10 +1780,7 @@ class Diaspora {
 
 			// Formerly we stored the signed text, the signature and the author in different fields.
 			// We now store the raw data so that we are more flexible.
-			q("INSERT INTO `sign` (`iid`,`signed_text`) VALUES (%d,'%s')",
-				intval($message_id),
-				dbesc(json_encode($data))
-			);
+			dba::insert('sign', array('iid' => $message_id, 'signed_text' => json_encode($data)));
 
 			// notify others
 			proc_run(PRIORITY_HIGH, "include/notifier.php", "comment-import", $message_id);
@@ -3728,10 +3722,7 @@ class Diaspora {
 		 * Now store the signature more flexible to dynamically support new fields.
 		 * This will break Diaspora compatibility with Friendica versions prior to 3.5.
 		 */
-		q("INSERT INTO `sign` (`iid`,`signed_text`) VALUES (%d,'%s')",
-			intval($post_id),
-			dbesc(json_encode($message))
-		);
+		dba::insert('sign', array('iid' => $post_id, 'signed_text' => json_encode($message)));
 
 		logger('Stored diaspora like signature');
 		return true;
@@ -3763,10 +3754,7 @@ class Diaspora {
 		 * Now store the signature more flexible to dynamically support new fields.
 		 * This will break Diaspora compatibility with Friendica versions prior to 3.5.
 		 */
-		q("INSERT INTO `sign` (`iid`, `signed_text`) VALUES (%d, '%s')",
-			intval($message_id),
-			dbesc(json_encode($message))
-		);
+		dba::insert('sign', array('iid' => $message_id, 'signed_text' => json_encode($message)));
 
 		logger('Stored diaspora comment signature');
 		return true;
