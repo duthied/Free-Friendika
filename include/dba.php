@@ -81,7 +81,9 @@ class dba {
 			} catch (PDOException $e) {
 				$this->connected = false;
 			}
-		} elseif (class_exists('mysqli')) {
+		}
+
+		if (!$this->connected && class_exists('mysqli')) {
 			$this->driver = 'mysqli';
 			$this->db = @new mysqli($server, $user, $pass, $db, $port);
 			if (!mysqli_connect_errno()) {
@@ -91,7 +93,9 @@ class dba {
 					$this->db->set_charset($a->config["system"]["db_charset"]);
 				}
 			}
-		} elseif (function_exists('mysql_connect')) {
+		}
+
+		if (!$this->connected && function_exists('mysql_connect')) {
 			$this->driver = 'mysql';
 			$this->db = mysql_connect($serveraddr, $user, $pass);
 			if ($this->db && mysql_select_db($db, $this->db)) {
@@ -101,13 +105,9 @@ class dba {
 					mysql_set_charset($a->config["system"]["db_charset"], $this->db);
 				}
 			}
-		} else {
-			// No suitable SQL driver was found.
-			if (!$install) {
-				system_unavailable();
-			}
 		}
 
+		// No suitable SQL driver was found.
 		if (!$this->connected) {
 			$this->db = null;
 			if (!$install) {
