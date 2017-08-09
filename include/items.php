@@ -1073,12 +1073,8 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 			logger("Repaired double encoded signature from handle ".$dsprsig->signer, LOGGER_DEBUG);
 		}
 
-		q("INSERT INTO `sign` (`iid`,`signed_text`,`signature`,`signer`) values (%d,'%s','%s','%s') ",
-			intval($current_post),
-			dbesc($dsprsig->signed_text),
-			dbesc($dsprsig->signature),
-			dbesc($dsprsig->signer)
-		);
+		dba::insert('sign', array('iid' => $current_post, 'signed_text' => $dsprsig->signed_text,
+					'signature' => $dsprsig->signature, 'signer' => $dsprsig->signer));
 	}
 
 	$deleted = tag_deliver($arr['uid'], $current_post);
@@ -1708,13 +1704,9 @@ function new_follower($importer, $contact, $datarray, $item, $sharing = false) {
 			$hash = random_string();
 
 			if (is_array($contact_record)) {
-				$ret = q("INSERT INTO `intro` ( `uid`, `contact-id`, `blocked`, `knowyou`, `hash`, `datetime`)
-					VALUES ( %d, %d, 0, 0, '%s', '%s' )",
-					intval($importer['uid']),
-					intval($contact_record['id']),
-					dbesc($hash),
-					dbesc(datetime_convert())
-				);
+				dba::insert('intro', array('uid' => $importer['uid'], 'contact-id' => $contact_record['id'],
+							'blocked' => false, 'knowyou' => false,
+							'hash' => $hash, 'datetime' => datetime_convert()));
 			}
 
 			$def_gid = get_default_group($importer['uid'], $contact_record["network"]);
