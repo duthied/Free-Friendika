@@ -141,11 +141,7 @@ class PConfig {
 		// manage array value
 		$dbvalue = (is_array($value) ? serialize($value) : $dbvalue);
 
-		if (is_null($stored) || !self::$in_db[$uid][$family][$key]) {
-			dba::insert('pconfig', array('uid' => $uid, 'cat' => $family, 'k' => $key, 'v' => $dbvalue), true);
-		} else {
-			dba::update('pconfig', array('v' => $dbvalue), array('uid' => $uid, 'cat' => $family, 'k' => $key), true);
-		}
+		dba::update('pconfig', array('v' => $dbvalue), array('uid' => $uid, 'cat' => $family, 'k' => $key), true);
 
 		if ($ret) {
 			self::$in_db[$uid][$family][$key] = true;

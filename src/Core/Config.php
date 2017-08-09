@@ -163,11 +163,7 @@ class Config {
 		// manage array value
 		$dbvalue = (is_array($value) ? serialize($value) : $dbvalue);
 
-		if (is_null($stored) || !self::$in_db[$family][$key]) {
-                        dba::insert('config', array('cat' => $family, 'k' => $key, 'v' => $dbvalue), true);
-		} else {
-                        dba::update('config', array('v' => $dbvalue), array('cat' => $family, 'k' => $key), true);
-		}
+		dba::update('config', array('v' => $dbvalue), array('cat' => $family, 'k' => $key), true);
 
 		if ($ret) {
 			self::$in_db[$family][$key] = true;
