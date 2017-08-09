@@ -136,49 +136,47 @@ function profile_load(App $a, $nickname, $profile = 0, $profiledata = array()) {
  */
 function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0) {
 	if (remote_user() && count($_SESSION['remote'])) {
-			foreach ($_SESSION['remote'] as $visitor) {
-				if ($visitor['uid'] == $uid) {
-					$r = q("SELECT `profile-id` FROM `contact` WHERE `id` = %d LIMIT 1",
-						intval($visitor['cid'])
-					);
-					if (dbm::is_result($r))
-						$profile = $r[0]['profile-id'];
-					break;
+		foreach ($_SESSION['remote'] as $visitor) {
+			if ($visitor['uid'] == $uid) {
+				$r = dba::select('contact', array('profile-id'), array('id' => $visitor['cid']), array('limit' => 1));
+				if (dbm::is_result($r)) {
+					$profile = $r['profile-id'];
 				}
+				break;
 			}
 		}
+	}
 
 	$r = null;
 
 	if ($profile) {
 		$profile_int = intval($profile);
-		$r = q("SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` AS `contact_photo`,
+		$r = dba::fetch_first("SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` AS `contact_photo`,
 				`contact`.`thumb` AS `contact_thumb`, `contact`.`micro` AS `contact_micro`,
 				`profile`.`uid` AS `profile_uid`, `profile`.*,
 				`contact`.`avatar-date` AS picdate, `contact`.`addr`, `user`.*
 			FROM `profile`
 			INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` AND `contact`.`self`
 			INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-			WHERE `user`.`nickname` = '%s' AND `profile`.`id` = %d LIMIT 1",
-				dbesc($nickname),
-				intval($profile_int)
+			WHERE `user`.`nickname` = ? AND `profile`.`id` = ? LIMIT 1",
+				$nickname,
+				$profile_int
 		);
 	}
 	if (!dbm::is_result($r)) {
-		$r = q("SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` as `contact_photo`,
+		$r = dba::fetch_first("SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` as `contact_photo`,
 				`contact`.`thumb` AS `contact_thumb`, `contact`.`micro` AS `contact_micro`,
 				`profile`.`uid` AS `profile_uid`, `profile`.*,
 				`contact`.`avatar-date` AS picdate, `contact`.`addr`, `user`.*
 			FROM `profile`
 			INNER JOIN `contact` ON `contact`.`uid` = `profile`.`uid` AND `contact`.`self`
 			INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-			WHERE `user`.`nickname` = '%s' AND `profile`.`is-default` LIMIT 1",
-				dbesc($nickname)
+			WHERE `user`.`nickname` = ? AND `profile`.`is-default` LIMIT 1",
+				$nickname
 		);
 	}
 
-	return $r[0];
-
+	return $r;
 }
 
 

@@ -142,20 +142,9 @@ class PConfig {
 		$dbvalue = (is_array($value) ? serialize($value) : $dbvalue);
 
 		if (is_null($stored) || !self::$in_db[$uid][$family][$key]) {
-			$ret = q("INSERT INTO `pconfig` (`uid`, `cat`, `k`, `v`) VALUES (%d, '%s', '%s', '%s') ON DUPLICATE KEY UPDATE `v` = '%s'",
-				intval($uid),
-				dbesc($family),
-				dbesc($key),
-				dbesc($dbvalue),
-				dbesc($dbvalue)
-			);
+			dba::insert('pconfig', array('uid' => $uid, 'cat' => $family, 'k' => $key, 'v' => $dbvalue), true);
 		} else {
-			$ret = q("UPDATE `pconfig` SET `v` = '%s' WHERE `uid` = %d AND `cat` = '%s' AND `k` = '%s'",
-				dbesc($dbvalue),
-				intval($uid),
-				dbesc($family),
-				dbesc($key)
-			);
+			dba::update('pconfig', array('v' => $dbvalue), array('uid' => $uid, 'cat' => $family, 'k' => $key), true);
 		}
 
 		if ($ret) {

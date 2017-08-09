@@ -891,12 +891,20 @@ class dba {
 	 *
 	 * @param string $table Table name
 	 * @param array $param parameter array
+	 * @param bool $on_duplicate_update Do an update on a duplicate entry
 	 *
 	 * @return boolean was the insert successfull?
 	 */
-	static public function insert($table, $param) {
+	static public function insert($table, $param, $on_duplicate_update = false) {
 		$sql = "INSERT INTO `".self::$dbo->escape($table)."` (`".implode("`, `", array_keys($param))."`) VALUES (".
-			substr(str_repeat("?, ", count($param)), 0, -2).");";
+			substr(str_repeat("?, ", count($param)), 0, -2).")";
+
+		if ($on_duplicate_update) {
+			$sql .= " ON DUPLICATE KEY UPDATE `".implode("` = ?, `", array_keys($param))."` = ?";
+
+			$values = array_values($param);
+			$param = array_merge_recursive($values, $values);
+		}
 
 		return self::e($sql, $param);
 	}
@@ -1160,16 +1168,11 @@ class dba {
 	 * @param string $table Table name
 	 * @param array $fields contains the fields that are updated
 	 * @param array $condition condition array with the key values
-	 * @param array|boolean $old_fields array with the old field values that are about to be replaced
+	 * @param array|boolean $old_fields array with the old field values that are about to be replaced (true = update on duplicate)
 	 *
 	 * @return boolean was the update successfull?
 	 */
 	static public function update($table, $fields, $condition, $old_fields = array()) {
-
-		/** @todo We may use MySQL specific functions here:
-		 * INSERT INTO `config` (`cat`, `k`, `v`) VALUES ('%s', '%s', '%s') ON DUPLICATE KEY UPDATE `v` = '%s'"
-		 * But I think that it doesn't make sense here.
-		*/
 
 		$table = self::$dbo->escape($table);
 
@@ -1177,17 +1180,15 @@ class dba {
 			$sql = "SELECT * FROM `".$table."` WHERE `".
 			implode("` = ? AND `", array_keys($condition))."` = ? LIMIT 1";
 
-			$params = array();
-			foreach ($condition AS $value) {
-				$params[] = $value;
-			}
+			$params = array_values($condition);
 
 			$do_insert = $old_fields;
 
 			$old_fields = self::fetch_first($sql, $params);
 			if (is_bool($old_fields)) {
 				if ($do_insert) {
-					return self::insert($table, $fields);
+					$values = array_merge($condition, $fields);
+					return self::insert($table, $values, $do_insert);
 				}
 				$old_fields = array();
 			}
@@ -1213,13 +1214,9 @@ class dba {
 			implode("` = ?, `", array_keys($fields))."` = ? WHERE `".
 			implode("` = ? AND `", array_keys($condition))."` = ?";
 
-		$params = array();
-		foreach ($fields AS $value) {
-			$params[] = $value;
-		}
-		foreach ($condition AS $value) {
-			$params[] = $value;
-		}
+		$params1 = array_values($fields);
+		$params2 = array_values($condition);
+		$params = array_merge_recursive($params1, $params2);
 
 		return self::e($sql, $params);
 	}

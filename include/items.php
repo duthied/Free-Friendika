@@ -446,15 +446,6 @@ function store_conversation($arr) {
 			$conversation['source'] = $arr['source'];
 		}
 
-		if (!Lock::set('store_conversation')) {
-			// When using semaphores, this case never can't happen
-			unset($arr['conversation-uri']);
-			unset($arr['conversation-href']);
-			unset($arr['protocol']);
-			unset($arr['source']);
-			return $arr;
-		}
-
 		$old_conv = dba::fetch_first("SELECT `item-uri`, `reply-to-uri`, `conversation-uri`, `conversation-href`, `protocol`, `source`
 				FROM `conversation` WHERE `item-uri` = ?", $conversation['item-uri']);
 		if (dbm::is_result($old_conv)) {
@@ -472,11 +463,10 @@ function store_conversation($arr) {
 				logger('Conversation: update for '.$conversation['item-uri'].' from '.$conv['protocol'].' to '.$conversation['protocol'].' failed', LOGGER_DEBUG);
 			}
 		} else {
-			if (!dba::insert('conversation', $conversation)) {
+			if (!dba::insert('conversation', $conversation, true)) {
 				logger('Conversation: insert for '.$conversation['item-uri'].' (protocol '.$conversation['protocol'].') failed', LOGGER_DEBUG);
 			}
 		}
-		Lock::remove('store_conversation');
 	}
 
 	unset($arr['conversation-uri']);
@@ -966,23 +956,10 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		}
 	}
 
-	// Store the unescaped version
-	$unescaped = $arr;
-
-	dbm::esc_array($arr, true);
-
 	logger('item_store: ' . print_r($arr,true), LOGGER_DATA);
 
 	dba::transaction();
-
-	$r = dbq("INSERT INTO `item` (`"
-			. implode("`, `", array_keys($arr))
-			. "`) VALUES ("
-			. implode(", ", array_values($arr))
-			. ")");
-
-	// And restore it
-	$arr = $unescaped;
+	$r = dba::insert('item', $arr);
 
 	// When the item was successfully stored we fetch the ID of the item.
 	if (dbm::is_result($r)) {

@@ -183,20 +183,18 @@ function unregister_hook($hook,$file,$function) {
 }}
 
 
-if (! function_exists('load_hooks')) {
 function load_hooks() {
 	$a = get_app();
 	$a->hooks = array();
-	$r = q("SELECT * FROM `hook` WHERE 1 ORDER BY `priority` DESC, `file`");
+	$r = dba::select('hook', array('hook', 'file', 'function'), array(), array('order' => array('priority' => 'desc', 'file')));
 
-	if (dbm::is_result($r)) {
-		foreach ($r as $rr) {
-			if (! array_key_exists($rr['hook'],$a->hooks))
-				$a->hooks[$rr['hook']] = array();
-			$a->hooks[$rr['hook']][] = array($rr['file'],$rr['function']);
+	while ($rr = dba::fetch($r)) {
+		if (! array_key_exists($rr['hook'],$a->hooks)) {
+			$a->hooks[$rr['hook']] = array();
 		}
+		$a->hooks[$rr['hook']][] = array($rr['file'],$rr['function']);
 	}
-}}
+}
 
 /**
  * @brief Calls a hook.

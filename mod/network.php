@@ -794,18 +794,12 @@ function network_content(App $a, $update = 0) {
 
 
 	if (!$group && !$cid && !$star) {
-
-		$unseen = q("SELECT `id` FROM `item` WHERE `unseen` AND `uid` = %d LIMIT 1",
-				intval(local_user()));
+		$unseen = dba::select('item', array('id'), array('unseen' => true, 'uid' => local_user()), array('limit' => 1));
 
 		if (dbm::is_result($unseen)) {
-			$r = q("UPDATE `item` SET `unseen` = 0
-				WHERE `unseen` = 1 AND `uid` = %d",
-				intval(local_user())
-			);
+			$r = dba::update('item', array('unseen' => false), array('uid' => local_user(), 'unseen' => true));
 		}
 	} elseif ($update_unseen) {
-
 		$unseen = q("SELECT `id` FROM `item` ".$update_unseen. " LIMIT 1");
 
 		if (dbm::is_result($unseen)) {

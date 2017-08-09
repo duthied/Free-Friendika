@@ -921,10 +921,11 @@ function best_link_url($item, &$sparkle, $ssl_state = false) {
 	$clean_url = normalise_link($item['author-link']);
 
 	if (local_user()) {
-		$r = q("SELECT `id` FROM `contact` WHERE `network` = '%s' AND `uid` = %d AND `nurl` = '%s' AND NOT `pending` LIMIT 1",
-			dbesc(NETWORK_DFRN), intval(local_user()), dbesc(normalise_link($clean_url)));
+		$r = dba::select('contact', array('id'),
+			array('network' => NETWORK_DFRN, 'uid' => local_user(), 'nurl' => normalise_link($clean_url), 'pending' => false),
+			array('limit' => 1));
 		if (dbm::is_result($r)) {
-			$best_url = 'redir/' . $r[0]['id'];
+			$best_url = 'redir/' . $r['id'];
 			$sparkle = true;
 		}
 	}
@@ -940,7 +941,6 @@ function best_link_url($item, &$sparkle, $ssl_state = false) {
 }
 
 
-if (! function_exists('item_photo_menu')) {
 function item_photo_menu($item) {
 	$ssl_state = false;
 
@@ -970,12 +970,11 @@ function item_photo_menu($item) {
 	$cid = 0;
 	$network = '';
 	$rel = 0;
-	$r = q("SELECT `id`, `network`, `rel` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' LIMIT 1",
-		intval(local_user()), dbesc(normalise_link($item['author-link'])));
+	$r = dba::select('contact', array('id', 'network', 'rel'), array('uid' => local_user(), 'nurl' => normalise_link($item['author-link'])), array('limit' => 1));
 	if (dbm::is_result($r)) {
-		$cid = $r[0]['id'];
-		$network = $r[0]['network'];
-		$rel = $r[0]['rel'];
+		$cid = $r['id'];
+		$network = $r['network'];
+		$rel = $r['rel'];
 	}
 
 	if ($sparkle) {
@@ -1036,7 +1035,7 @@ function item_photo_menu($item) {
 		}
 	}
 	return $o;
-}}
+}
 
 if (! function_exists('builtin_activity_puller')) {
 /**

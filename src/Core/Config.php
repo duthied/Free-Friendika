@@ -164,19 +164,11 @@ class Config {
 		$dbvalue = (is_array($value) ? serialize($value) : $dbvalue);
 
 		if (is_null($stored) || !self::$in_db[$family][$key]) {
-			$ret = q("INSERT INTO `config` (`cat`, `k`, `v`) VALUES ('%s', '%s', '%s') ON DUPLICATE KEY UPDATE `v` = '%s'",
-				dbesc($family),
-				dbesc($key),
-				dbesc($dbvalue),
-				dbesc($dbvalue)
-			);
+                        dba::insert('config', array('cat' => $family, 'k' => $key, 'v' => $dbvalue), true);
 		} else {
-			$ret = q("UPDATE `config` SET `v` = '%s' WHERE `cat` = '%s' AND `k` = '%s'",
-				dbesc($dbvalue),
-				dbesc($family),
-				dbesc($key)
-			);
+                        dba::update('config', array('v' => $dbvalue), array('cat' => $family, 'k' => $key), true);
 		}
+
 		if ($ret) {
 			self::$in_db[$family][$key] = true;
 			return $value;

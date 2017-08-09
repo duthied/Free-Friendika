@@ -6,6 +6,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 
 use Cache;
+use dba;
 use dbm;
 
 use Detection\MobileDetect;
@@ -712,20 +713,20 @@ class App {
 
 		$this->remove_inactive_processes();
 
-		q('START TRANSACTION');
+		dba::transaction();
 
 		$r = q('SELECT `pid` FROM `process` WHERE `pid` = %d', intval(getmypid()));
 		if (!dbm::is_result($r)) {
 			q("INSERT INTO `process` (`pid`,`command`,`created`) VALUES (%d, '%s', '%s')", intval(getmypid()), dbesc($command), dbesc(datetime_convert()));
 		}
-		q('COMMIT');
+		dba::commit();
 	}
 
 	/**
 	 * @brief Remove inactive processes
 	 */
 	function remove_inactive_processes() {
-		q('START TRANSACTION');
+		dba::transaction();
 
 		$r = q('SELECT `pid` FROM `process`');
 		if (dbm::is_result($r)) {
@@ -735,7 +736,7 @@ class App {
 				}
 			}
 		}
-		q('COMMIT');
+		dba::commit();
 	}
 
 	/**
