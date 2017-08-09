@@ -23,7 +23,7 @@ use \Michelf\MarkdownExtra;
  * @return string
  */
 
-function Markdown($text, $hardwrap=true) {
+function Markdown($text, $hardwrap = true) {
 	$a = get_app();
 
 	$stamp1 = microtime(true);
