@@ -1,6 +1,7 @@
 <?php
 namespace Friendica\Core;
 
+use dba;
 use dbm;
 
 /**
@@ -34,12 +35,11 @@ class PConfig {
 	 */
 	public static function load($uid, $family) {
 		$a = get_app();
-		$r = q("SELECT `v`,`k` FROM `pconfig` WHERE `cat` = '%s' AND `uid` = %d ORDER BY `cat`, `k`, `id`",
-			dbesc($family),
-			intval($uid)
-		);
+
+		$r = dba::select('pconfig', array('v', 'k'), array('cat' => $family, 'uid' => $uid),
+				array("order" => array('uid', 'cat', 'k')));
 		if (dbm::is_result($r)) {
-			foreach ($r as $rr) {
+			while ($rr = dba::fetch($r)) {
 				$k = $rr['k'];
 				$a->config[$uid][$family][$k] = $rr['v'];
 				self::$in_db[$uid][$family][$k] = true;
@@ -89,14 +89,10 @@ class PConfig {
 			}
 		}
 
-		$ret = q("SELECT `v` FROM `pconfig` WHERE `uid` = %d AND `cat` = '%s' AND `k` = '%s' ORDER BY `id` DESC LIMIT 1",
-			intval($uid),
-			dbesc($family),
-			dbesc($key)
-		);
-
-		if (count($ret)) {
-			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret[0]['v'])?unserialize( $ret[0]['v']):$ret[0]['v']);
+		$ret = dba::select('pconfig', array('v'), array('uid' => $uid, 'cat' => $family, 'k' => $key),
+				array("order" => array('uid', 'cat', 'k'), 'limit' => 1));
+		if (dbm::is_result($ret)) {
+			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret[0]['v']) ? unserialize($ret[0]['v']) : $ret[0]['v']);
 			$a->config[$uid][$family][$key] = $val;
 			self::$in_db[$uid][$family][$key] = true;
 
@@ -193,11 +189,7 @@ class PConfig {
 			unset(self::$in_db[$uid][$family][$key]);
 		}
 
-		$ret = q("DELETE FROM `pconfig` WHERE `uid` = %d AND `cat` = '%s' AND `k` = '%s'",
-			intval($uid),
-			dbesc($family),
-			dbesc($key)
-		);
+		$ret = dba::delete('pconfig', array('uid' => $uid, 'cat' => $family, 'k' => $key));
 
 		return $ret;
 	}
