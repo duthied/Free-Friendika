@@ -98,7 +98,7 @@ class Config {
 		}
 
 		$ret = dba::select('config', array('v'), array('cat' => $family, 'k' => $key),
-					array("order" => array("cat", "k"), 'limit' => 1));
+				array("order" => array("cat", "k"), 'limit' => 1));
 		if (dbm::is_result($ret)) {
 			// manage array value
 			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret['v']) ? unserialize($ret['v']) : $ret['v']);
@@ -205,6 +205,7 @@ class Config {
 		}
 
 		$ret = dba::delete('config', array('cat' => $family, 'k' => $key));
+
 		return $ret;
 	}
 }

@@ -92,7 +92,7 @@ class PConfig {
 		$ret = dba::select('pconfig', array('v'), array('uid' => $uid, 'cat' => $family, 'k' => $key),
 				array("order" => array('uid', 'cat', 'k'), 'limit' => 1));
 		if (dbm::is_result($ret)) {
-			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret[0]['v']) ? unserialize($ret[0]['v']) : $ret[0]['v']);
+			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret['v']) ? unserialize($ret['v']) : $ret['v']);
 			$a->config[$uid][$family][$key] = $val;
 			self::$in_db[$uid][$family][$key] = true;
 
