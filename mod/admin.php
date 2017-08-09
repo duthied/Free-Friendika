@@ -1687,7 +1687,7 @@ function admin_page_plugins(App $a) {
 		$readme=Null;
 		if (is_file("addon/$plugin/README.md")) {
 			$readme = file_get_contents("addon/$plugin/README.md");
-			$readme = Markdown($readme);
+			$readme = Markdown($readme, false);
 		} elseif (is_file("addon/$plugin/README")) {
 			$readme = "<pre>". file_get_contents("addon/$plugin/README") ."</pre>";
 		}
@@ -1939,7 +1939,7 @@ function admin_page_themes(App $a) {
 		$readme = Null;
 		if (is_file("view/theme/$theme/README.md")) {
 			$readme = file_get_contents("view/theme/$theme/README.md");
-			$readme = Markdown($readme);
+			$readme = Markdown($readme, false);
 		} elseif (is_file("view/theme/$theme/README")) {
 			$readme = "<pre>". file_get_contents("view/theme/$theme/README") ."</pre>";
 		}

@@ -49,7 +49,7 @@ function help_content(App $a) {
 		$filename = "Home";
 		$a->page['title'] = t('Help');
 	} else {
-		$a->page['aside'] = Markdown($home);
+		$a->page['aside'] = Markdown($home, false);
 	}
 
 	if (!strlen($text)) {
@@ -60,7 +60,7 @@ function help_content(App $a) {
 				));
 	}
 
-	$html = Markdown($text);
+	$html = Markdown($text, false);
 
 	if ($filename !== "Home") {
 		// create TOC but not for home
