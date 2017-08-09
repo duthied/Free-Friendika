@@ -46,13 +46,10 @@ function install_plugin($plugin) {
 		$func = $plugin . '_install';
 		$func();
 
-		$plugin_admin = (function_exists($plugin."_plugin_admin")?1:0);
+		$plugin_admin = (function_exists($plugin."_plugin_admin") ? 1 : 0);
 
-		$r = q("INSERT INTO `addon` (`name`, `installed`, `timestamp`, `plugin_admin`) VALUES ( '%s', 1, %d , %d ) ",
-			dbesc($plugin),
-			intval($t),
-			$plugin_admin
-		);
+		dba::insert('addon', array('name' => $plugin, 'installed' => true,
+					'timestamp' => $t, 'plugin_admin' => $plugin_admin));
 
 		// we can add the following with the previous SQL
 		// once most site tables have been updated.
@@ -154,12 +151,8 @@ function register_hook($hook,$file,$function,$priority=0) {
 	if (dbm::is_result($r))
 		return true;
 
-	$r = q("INSERT INTO `hook` (`hook`, `file`, `function`, `priority`) VALUES ( '%s', '%s', '%s', '%s' ) ",
-		dbesc($hook),
-		dbesc($file),
-		dbesc($function),
-		dbesc($priority)
-	);
+	$r = dba::insert('hook', array('hook' => $hook, 'file' => $file, 'function' => $function, 'priority' => $priority));
+
 	return $r;
 }}
 

@@ -26,11 +26,7 @@ function group_add($uid,$name) {
 			}
 			return true;
 		}
-		$r = q("INSERT INTO `group` ( `uid`, `name` )
-			VALUES( %d, '%s' ) ",
-			intval($uid),
-			dbesc($name)
-		);
+		$r = dba::insert('group', array('uid' => $uid, 'name' => $name));
 		$ret = $r;
 	}
 	return $ret;
@@ -144,12 +140,7 @@ function group_add_member($uid,$name,$member,$gid = 0) {
 				// we indicate success because the group member was in fact created
 				// -- It was just created at another time
  	if (! dbm::is_result($r)) {
-		$r = q("INSERT INTO `group_member` (`uid`, `gid`, `contact-id`)
-			VALUES( %d, %d, %d ) ",
-			intval($uid),
-			intval($gid),
-			intval($member)
-		);
+		$r = dba::insert('group_member', array('uid' => $uid, 'gid' => $gid, 'contact-id' => $member));
 	}
 	return $r;
 }

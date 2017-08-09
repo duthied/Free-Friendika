@@ -83,7 +83,7 @@ function oembed_fetch_url($embedurl, $no_rich_type = false){
 			$j = json_decode($txt);
 			if ($j->type != "error") {
 				dba::insert('oembed', array('url' => normalise_link($embedurl),
-							'content' => $txt, 'created' => datetime_convert()));
+							'content' => $txt, 'created' => datetime_convert()), true);
 			}
 
 			Cache::set($a->videowidth.$embedurl, $txt, CACHE_DAY);

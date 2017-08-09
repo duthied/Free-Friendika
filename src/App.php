@@ -717,7 +717,7 @@ class App {
 
 		$r = q('SELECT `pid` FROM `process` WHERE `pid` = %d', intval(getmypid()));
 		if (!dbm::is_result($r)) {
-			q("INSERT INTO `process` (`pid`,`command`,`created`) VALUES (%d, '%s', '%s')", intval(getmypid()), dbesc($command), dbesc(datetime_convert()));
+			dba::insert('process', array('pid' => getmypid(), 'command' => $command, 'created' => datetime_convert()));
 		}
 		dba::commit();
 	}
