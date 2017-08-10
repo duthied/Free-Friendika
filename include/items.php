@@ -844,7 +844,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 				$self = normalise_link(App::get_baseurl() . '/profile/' . $u[0]['nickname']);
 				logger("item_store: 'myself' is ".$self." for parent ".$parent_id." checking against ".$arr['author-link']." and ".$arr['owner-link'], LOGGER_DEBUG);
 				if ((normalise_link($arr['author-link']) == $self) || (normalise_link($arr['owner-link']) == $self)) {
-					q("UPDATE `thread` SET `mention` = 1 WHERE `iid` = %d", intval($parent_id));
+					dba::update('thread', array('mention' => true), array('iid' => $parent_id));
 					logger("item_store: tagged thread ".$parent_id." as mention for user ".$self, LOGGER_DEBUG);
 				}
 			}
@@ -908,7 +908,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		$arr["global"] = true;
 
 		// Set the global flag on all items if this was a global item entry
-		q("UPDATE `item` SET `global` = 1 WHERE `uri` = '%s'", dbesc($arr["uri"]));
+		dba::update('item', array('global' => true), array('uri' => $arr["uri"]));
 	} else {
 		$isglobal = q("SELECT `global` FROM `item` WHERE `uid` = 0 AND `uri` = '%s'", dbesc($arr["uri"]));
 
@@ -1039,10 +1039,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	}
 
 	// Set parent id
-	$r = q("UPDATE `item` SET `parent` = %d WHERE `id` = %d",
-		intval($parent_id),
-		intval($current_post)
-	);
+	$r = dba::update('item', array('parent' => $parent_id), array('id' => $current_post));
 
 	$arr['id'] = $current_post;
 	$arr['parent'] = $parent_id;
@@ -1050,16 +1047,9 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	// update the commented timestamp on the parent
 	// Only update "commented" if it is really a comment
 	if (($arr['verb'] == ACTIVITY_POST) || !get_config("system", "like_no_comment")) {
-		q("UPDATE `item` SET `commented` = '%s', `changed` = '%s' WHERE `id` = %d",
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			intval($parent_id)
-		);
+		dba::update('item', array('commented' => datetime_convert(), 'changed' => datetime_convert()), array('id' => $parent_id));
 	} else {
-		q("UPDATE `item` SET `changed` = '%s' WHERE `id` = %d",
-			dbesc(datetime_convert()),
-			intval($parent_id)
-		);
+		dba::update('item', array('changed' => datetime_convert()), array('id' => $parent_id));
 	}
 
 	if ($dsprsig) {
@@ -1162,26 +1152,17 @@ function item_set_last_item($arr) {
 	}
 
 	if ($update) {
-		q("UPDATE `contact` SET `success_update` = '%s', `last-item` = '%s' WHERE `id` = %d",
-			dbesc($arr['received']),
-			dbesc($arr['received']),
-			intval($arr['contact-id'])
-		);
+		dba::update('contact', array('success_update' => $arr['received'], 'last-item' => $arr['received']),
+			array('id' => $arr['contact-id']));
 	}
 	// Now do the same for the system wide contacts with uid=0
 	if (!$arr['private']) {
-		q("UPDATE `contact` SET `success_update` = '%s', `last-item` = '%s' WHERE `id` = %d",
-			dbesc($arr['received']),
-			dbesc($arr['received']),
-			intval($arr['owner-id'])
-		);
+		dba::update('contact', array('success_update' => $arr['received'], 'last-item' => $arr['received']),
+			array('id' => $arr['owner-id']));
 
 		if ($arr['owner-id'] != $arr['author-id']) {
-			q("UPDATE `contact` SET `success_update` = '%s', `last-item` = '%s' WHERE `id` = %d",
-				dbesc($arr['received']),
-				dbesc($arr['received']),
-				intval($arr['author-id'])
-			);
+			dba::update('contact', array('success_update' => $arr['received'], 'last-item' => $arr['received']),
+				array('id' => $arr['author-id']));
 		}
 	}
 }
@@ -1487,7 +1468,7 @@ function tgroup_check($uid, $item) {
  *
  * @todo fix type-hints (both array)
  */
-function edited_timestamp_is_newer ($existing, $update) {
+function edited_timestamp_is_newer($existing, $update) {
 	if (!x($existing, 'edited') || !$existing['edited']) {
 		return true;
 	}
@@ -1660,11 +1641,8 @@ function new_follower($importer, $contact, $datarray, $item, $sharing = false) {
 	if (is_array($contact)) {
 		if (($contact['network'] == NETWORK_OSTATUS && $contact['rel'] == CONTACT_IS_SHARING)
 			|| ($sharing && $contact['rel'] == CONTACT_IS_FOLLOWER)) {
-			$r = q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d",
-				intval(CONTACT_IS_FRIEND),
-				intval($contact['id']),
-				intval($importer['uid'])
-			);
+			$r = dba::update('contact', array('rel' => CONTACT_IS_FRIEND, 'writable' => true),
+					array('id' => $contact['id'], 'uid' => $importer['uid']));
 		}
 		// send email notification to owner?
 	} else {
@@ -1747,10 +1725,7 @@ function new_follower($importer, $contact, $datarray, $item, $sharing = false) {
 function lose_follower($importer, $contact, array $datarray = array(), $item = "") {
 
 	if (($contact['rel'] == CONTACT_IS_FRIEND) || ($contact['rel'] == CONTACT_IS_SHARING)) {
-		q("UPDATE `contact` SET `rel` = %d WHERE `id` = %d",
-			intval(CONTACT_IS_SHARING),
-			intval($contact['id'])
-		);
+		dba::update('contact', array('rel' => CONTACT_IS_SHARING), array('id' => $contact['id']));
 	} else {
 		contact_remove($contact['id']);
 	}
@@ -1759,10 +1734,7 @@ function lose_follower($importer, $contact, array $datarray = array(), $item = "
 function lose_sharer($importer, $contact, array $datarray = array(), $item = "") {
 
 	if (($contact['rel'] == CONTACT_IS_FRIEND) || ($contact['rel'] == CONTACT_IS_FOLLOWER)) {
-		q("UPDATE `contact` SET `rel` = %d WHERE `id` = %d",
-			intval(CONTACT_IS_FOLLOWER),
-			intval($contact['id'])
-		);
+		dba::update('contact', array('rel' => CONTACT_IS_FOLLOWER), array('id' => $contact['id']));
 	} else {
 		contact_remove($contact['id']);
 	}
@@ -1797,10 +1769,7 @@ function subscribe_to_hub($url, $importer, $contact, $hubmode = 'subscribe') {
 	logger('subscribe_to_hub: ' . $hubmode . ' ' . $contact['name'] . ' to hub ' . $url . ' endpoint: '  . $push_url . ' with verifier ' . $verify_token);
 
 	if (!strlen($contact['hub-verify']) || ($contact['hub-verify'] != $verify_token)) {
-		$r = q("UPDATE `contact` SET `hub-verify` = '%s' WHERE `id` = %d",
-			dbesc($verify_token),
-			intval($contact['id'])
-		);
+		$r = dba::update('contact', array('hub-verify' => $verify_token), array('id' => $contact['id']));
 	}
 
 	post_url($url, $params);
@@ -2168,13 +2137,12 @@ function drop_item($id, $interactive = true) {
 		}
 
 		logger('delete item: ' . $item['id'], LOGGER_DEBUG);
-		// delete the item
 
-		$r = q("UPDATE `item` SET `deleted` = 1, `title` = '', `body` = '', `edited` = '%s', `changed` = '%s' WHERE `id` = %d",
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			intval($item['id'])
-		);
+		// delete the item
+		$r = dba::update('item', array('deleted' => true, 'title' => '', 'body' => '',
+					'edited' => datetime_convert(), 'changed' => datetime_convert()),
+				array('id' => $item['id']));
+
 		create_tags_from_item($item['id']);
 		create_files_from_item($item['id']);
 		delete_thread($item['id'], $item['parent-uri']);
@@ -2257,33 +2225,26 @@ function drop_item($id, $interactive = true) {
 
 		// If it's the parent of a comment thread, kill all the kids
 		if ($item['uri'] == $item['parent-uri']) {
-			$r = q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s', `body` = '' , `title` = ''
-				WHERE `parent-uri` = '%s' AND `uid` = %d ",
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert()),
-				dbesc($item['parent-uri']),
-				intval($item['uid'])
-			);
+			$r = dba::update('item', array('deleted' => true, 'title' => '', 'body' => '',
+					'edited' => datetime_convert(), 'changed' => datetime_convert()),
+				array('parent-uri' => $item['parent-uri'], 'uid' => $item['uid']));
+
 			create_tags_from_itemuri($item['parent-uri'], $item['uid']);
 			create_files_from_itemuri($item['parent-uri'], $item['uid']);
 			delete_thread_uri($item['parent-uri'], $item['uid']);
 			// ignore the result
 		} else {
 			// ensure that last-child is set in case the comment that had it just got wiped.
-			q("UPDATE `item` SET `last-child` = 0, `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d ",
-				dbesc(datetime_convert()),
-				dbesc($item['parent-uri']),
-				intval($item['uid'])
-			);
+			dba::update('item', array('last-child' => false, 'changed' => datetime_convert()),
+					array('parent-uri' => $item['parent-uri'], 'uid' => $item['uid']));
+
 			// who is the last child now?
 			$r = q("SELECT `id` FROM `item` WHERE `parent-uri` = '%s' AND `type` != 'activity' AND `deleted` = 0 AND `uid` = %d ORDER BY `edited` DESC LIMIT 1",
 				dbesc($item['parent-uri']),
 				intval($item['uid'])
 			);
 			if (dbm::is_result($r)) {
-				q("UPDATE `item` SET `last-child` = 1 WHERE `id` = %d",
-					intval($r[0]['id'])
-				);
+				dba::update('item', array('last-child' => true), array('id' => $r[0]['id']));
 			}
 		}
 
