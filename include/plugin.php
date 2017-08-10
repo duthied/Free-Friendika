@@ -182,6 +182,7 @@ function load_hooks() {
 		}
 		$a->hooks[$rr['hook']][] = array($rr['file'],$rr['function']);
 	}
+	dba::close($r);
 }
 
 /**

@@ -57,6 +57,7 @@ class Config {
 				self::$in_db[$family][$k] = true;
 			}
 		}
+		dba::close($r);
 	}
 
 	/**
