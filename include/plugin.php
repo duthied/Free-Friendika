@@ -56,9 +56,7 @@ function install_plugin($plugin) {
 		// This way the system won't fall over dead during the update.
 
 		if (file_exists('addon/' . $plugin . '/.hidden')) {
-			q("UPDATE `addon` SET `hidden` = 1 WHERE `name` = '%s'",
-				dbesc($plugin)
-			);
+			dba::update('addon', array('hidden' => true), array('name' => $plugin));
 		}
 		return true;
 	}
@@ -106,10 +104,7 @@ function reload_plugins() {
 								$func = $pl . '_install';
 								$func();
 							}
-							q("UPDATE `addon` SET `timestamp` = %d WHERE `id` = %d",
-								intval($t),
-								intval($i['id'])
-							);
+							dba::update('addon', array('timestamp' => $t), array('id' => $i['id']));
 						}
 					}
 				}

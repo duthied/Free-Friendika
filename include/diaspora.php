@@ -928,11 +928,9 @@ class Diaspora {
 		 * Normally this should have handled by getting a request - but this could get lost
 		 */
 		if ($contact["rel"] == CONTACT_IS_FOLLOWER && in_array($importer["page-flags"], array(PAGE_FREELOVE))) {
-			q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d",
-				intval(CONTACT_IS_FRIEND),
-				intval($contact["id"]),
-				intval($importer["uid"])
-			);
+			dba::update('contact', array('rel' => CONTACT_IS_FRIEND, 'writable' => true),
+					array('id' => $contact["id"], 'uid' => $contact["uid"]));
+
 			$contact["rel"] = CONTACT_IS_FRIEND;
 			logger("defining user ".$contact["nick"]." as friend");
 		}
@@ -1557,10 +1555,7 @@ class Diaspora {
 
 		dba::unlock();
 
-		q("UPDATE `conv` SET `updated` = '%s' WHERE `id` = %d",
-			dbesc(datetime_convert()),
-			intval($conversation["id"])
-		);
+		dba::update('conv', array('updated' => datetime_convert()), array('id' => $conversation["id"]));
 
 		notification(array(
 			"type" => NOTIFY_MAIL,
@@ -1865,11 +1860,7 @@ class Diaspora {
 
 		dba::unlock();
 
-		q("UPDATE `conv` SET `updated` = '%s' WHERE `id` = %d",
-			dbesc(datetime_convert()),
-			intval($conversation["id"])
-		);
-
+		dba::update('conv', array('updated' => datetime_convert()), array('id' => $conversation["id"]));
 		return true;
 	}
 
@@ -2013,11 +2004,8 @@ class Diaspora {
 		$a = get_app();
 
 		if ($contact["rel"] == CONTACT_IS_FOLLOWER && in_array($importer["page-flags"], array(PAGE_FREELOVE))) {
-			q("UPDATE `contact` SET `rel` = %d, `writable` = 1 WHERE `id` = %d AND `uid` = %d",
-				intval(CONTACT_IS_FRIEND),
-				intval($contact["id"]),
-				intval($importer["uid"])
-			);
+			dba::update('contact', array('rel' => CONTACT_IS_FRIEND, 'writable' => true),
+					array('id' => $contact["id"], 'uid' => $importer["uid"]));
 		}
 		// send notification
 
@@ -2468,11 +2456,10 @@ class Diaspora {
 		}
 
 		// Currently we don't have a central deletion function that we could use in this case. The function "item_drop" doesn't work for that case
-		q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s', `body` = '' , `title` = '' WHERE `id` = %d",
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			intval($r[0]["id"])
-		);
+		dba::update('item', array('deleted' => true, 'title' => '', 'body' => '',
+					'edited' => datetime_convert(), 'changed' => datetime_convert()),
+				array('id' => $r[0]["id"]));
+
 		delete_thread($r[0]["id"], $r[0]["parent-uri"]);
 
 		logger("Deleted target ".$target_guid." (".$r[0]["id"].") from user ".$importer["uid"]." parent: ".$p[0]["id"], LOGGER_DEBUG);
