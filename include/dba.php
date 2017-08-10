@@ -510,6 +510,22 @@ class dba {
 	}
 
 	/**
+	 * @brief Convert parameter array to an universal form
+	 * @param array $args Parameter array
+	 * @return array universalized parameter array
+	 */
+	private static function getParam($args) {
+		unset($args[0]);
+
+		// When the second function parameter is an array then use this as the parameter array
+		if ((count($args) > 0) && (is_array($args[1]))) {
+			return $args[1];
+		} else {
+			return $args;
+		}
+	}
+
+	/**
 	 * @brief Executes a prepared statement that returns data
 	 * @usage Example: $r = p("SELECT * FROM `item` WHERE `guid` = ?", $guid);
 	 * @param string $sql SQL statement
@@ -520,15 +536,7 @@ class dba {
 
 		$stamp1 = microtime(true);
 
-		$args = func_get_args();
-		unset($args[0]);
-
-		// When the second function parameter is an array then use this as the parameter array
-		if ((count($args) > 0) && (is_array($args[1]))) {
-			$params = $args[1];
-		} else {
-			$params = $args;
-		}
+		$params = self::getParam(func_get_args());
 
 		// Renumber the array keys to be sure that they fit
 		$i = 0;
@@ -560,10 +568,10 @@ class dba {
 		self::$dbo->affected_rows = 0;
 
 		// We have to make some things different if this function is called from "e"
-		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
-		if (isset($trace[2])) {
-			$called_from = $trace[2];
+		if (isset($trace[1])) {
+			$called_from = $trace[1];
 		} else {
 			// We use just something that is defined to avoid warnings
 			$called_from = $trace[0];
@@ -719,13 +727,13 @@ class dba {
 
 		$stamp = microtime(true);
 
-		$args = func_get_args();
+		$params = self::getParam(func_get_args());
 
 		// In a case of a deadlock we are repeating the query 20 times
 		$timeout = 20;
 
 		do {
-			$stmt = call_user_func_array('self::p', $args);
+			$stmt = self::p($sql, $params);
 
 			if (is_bool($stmt)) {
 				$retval = $stmt;
@@ -743,15 +751,6 @@ class dba {
 			// We have to preserve the error code, somewhere in the logging it get lost
 			$error = self::$dbo->error;
 			$errorno = self::$dbo->errorno;
-
-			array_shift($args);
-
-			// When the second function parameter is an array then use this as the parameter array
-			if ((count($args) > 0) && (is_array($args[0]))) {
-				$params = $args[0];
-			} else {
-				$params = $args;
-			}
 
 			logger('DB Error '.self::$dbo->errorno.': '.self::$dbo->error."\n".
 				$a->callstack(8)."\n".self::replace_parameters($sql, $params));
@@ -772,9 +771,9 @@ class dba {
 	 * @return boolean Are there rows for that query?
 	 */
 	static public function exists($sql) {
-		$args = func_get_args();
+		$params = self::getParam(func_get_args());
 
-		$stmt = call_user_func_array('self::p', $args);
+		$stmt = self::p($sql, $params);
 
 		if (is_bool($stmt)) {
 			$retval = $stmt;
@@ -794,9 +793,9 @@ class dba {
 	 * @return array first row of query
 	 */
 	static public function fetch_first($sql) {
-		$args = func_get_args();
+		$params = self::getParam(func_get_args());
 
-		$stmt = call_user_func_array('self::p', $args);
+		$stmt = self::p($sql, $params);
 
 		if (is_bool($stmt)) {
 			$retval = $stmt;
