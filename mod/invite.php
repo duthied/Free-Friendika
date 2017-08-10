@@ -132,7 +132,7 @@ function invite_content(App $a) {
 			return $o;
 		} else {
 			$linktxt = sprintf( t('To accept this invitation, please visit and register at %s.'), App::get_baseurl()
-			. "\r\n" . "\r\n" . t('Friendica sites all inter-connect to create a huge privacy-enhanced social web that is owned and controlled by its members. They can also connect with many traditional social networks.');
+			. "\r\n" . "\r\n" . t('Friendica sites all inter-connect to create a huge privacy-enhanced social web that is owned and controlled by its members. They can also connect with many traditional social networks.'));
 		}
 	}
 
