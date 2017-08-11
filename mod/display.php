@@ -72,7 +72,7 @@ function display_init(App $a) {
 			if ($r["id"] != $r["parent"]) {
 				$r = dba::fetch_first("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-						AND `id` = %d", $r["parent"]);
+						AND `id` = ?", $r["parent"]);
 			}
 			if (($itemuid != local_user()) && local_user()) {
 				// Do we know this contact but we haven't got this item?
