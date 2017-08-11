@@ -206,26 +206,27 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 	}
 
 	// Fetch contact data from the contact table for the given user
-	$r = q("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
+	$s = dba::p("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
 			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`
-		FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d",
-			dbesc(normalise_link($url)), intval($uid));
+		FROM `contact` WHERE `nurl` = ? AND `uid` = ?",
+			normalise_link($url), $uid);
 
 	// Fetch the data from the contact table with "uid=0" (which is filled automatically)
-	if (!dbm::is_result($r))
-		$r = q("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
+	if (!dbm::is_result($s))
+		$s = dba::p("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
 			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`
-			FROM `contact` WHERE `nurl` = '%s' AND `uid` = 0",
-				dbesc(normalise_link($url)));
+			FROM `contact` WHERE `nurl` = ? AND `uid` = 0",
+				normalise_link($url));
 
 	// Fetch the data from the gcontact table
-	if (!dbm::is_result($r))
-		$r = q("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `zid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, '' AS `xmpp`,
+	if (!dbm::is_result($s))
+		$s = dba::p("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `zid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, '' AS `xmpp`,
 			`keywords`, `gender`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, `community` AS `forum`, 0 AS `prv`, `community`, `contact-type`, `birthday`, 0 AS `self`
-			FROM `gcontact` WHERE `nurl` = '%s'",
-				dbesc(normalise_link($url)));
+			FROM `gcontact` WHERE `nurl` = ?",
+				normalise_link($url));
 
-	if (dbm::is_result($r)) {
+	if (dbm::is_result($s)) {
+		$r = dba::inArray($s);
 		// If there is more than one entry we filter out the connector networks
 		if (count($r) > 1) {
 			foreach ($r AS $id => $result) {

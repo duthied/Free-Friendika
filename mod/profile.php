@@ -333,11 +333,13 @@ function profile_content(App $a, $update = 0) {
 	}
 
 
-	if($is_owner) {
-		$r = q("UPDATE `item` SET `unseen` = 0
-			WHERE `wall` = 1 AND `unseen` = 1 AND `uid` = %d",
-			intval(local_user())
-		);
+	if ($is_owner) {
+		$unseen = dba::select('item', array('id'), array('wall' => true, 'unseen' => true, 'uid' => local_user()),
+			array('limit' => 1));
+		if (dbm::is_result($unseen)) {
+			$r = dba::update('item', array('unseen' => false),
+					array('wall' => true, 'unseen' => true, 'uid' => local_user()));
+		}
 	}
 
 	$o .= conversation($a, $items, 'profile', $update);

@@ -499,8 +499,7 @@ function item_new_uri($hostname, $uid, $guid = "") {
 
 		$uri = "urn:X-dfrn:" . $hostname . ':' . $uid . ':' . $hash;
 
-		$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' LIMIT 1",
-			dbesc($uri));
+		$r = dba::select('item', array('id'), array('uri' => $uri), array('limit' => 1));
 		if (dbm::is_result($r)) {
 			$dups = true;
 		}
@@ -1324,11 +1323,10 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 	$mentions = array();
 
 	if (!get_config('system','suppress_tags')) {
-		$taglist = q("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` IN (%d, %d) ORDER BY `tid`",
+		$taglist = dba::p("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = ? AND `oid` = ? AND `type` IN (?, ?) ORDER BY `tid`",
 				intval(TERM_OBJ_POST), intval($item['id']), intval(TERM_HASHTAG), intval(TERM_MENTION));
 
-		foreach ($taglist as $tag) {
-
+		while ($tag = dba::fetch($taglist)) {
 			if ($tag["url"] == "") {
 				$tag["url"] = $searchpath.strtolower($tag["term"]);
 			}
@@ -1342,6 +1340,7 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 			}
 			$tags[] = $prefix."<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
 		}
+		dba::close($taglist);
 	}
 
 	$item['tags'] = $tags;
@@ -1665,7 +1664,7 @@ function generate_user_guid() {
 		if (! dbm::is_result($x)) {
 			$found = false;
 		}
-	} while ($found == true );
+	} while ($found == true);
 
 	return $guid;
 }

@@ -245,9 +245,8 @@ function profile_sidebar($profile, $block = 0) {
 			$profile_url = normalise_link(App::get_baseurl()."/profile/".$profile["nickname"]);
 		}
 
-		$r = q("SELECT * FROM `contact` WHERE NOT `pending` AND `uid` = %d AND `nurl` = '%s'",
-			local_user(), $profile_url);
-
+		$r = dba::select('contact', array('id'),
+			array('pending' => false, 'uid' => local_user(), 'nurl' => $profile_url), array('limit' => 1));
 		if (dbm::is_result($r))
 			$connect = false;
 	}

@@ -81,32 +81,30 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 	$master_record = $a->user;
 
 	if ((x($_SESSION,'submanage')) && intval($_SESSION['submanage'])) {
-		$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
+		$r = dba::fetch_first("SELECT * FROM `user` WHERE `uid` = ? LIMIT 1",
 			intval($_SESSION['submanage'])
 		);
 		if (dbm::is_result($r)) {
-			$master_record = $r[0];
+			$master_record = $r;
 		}
 	}
 
-	$r = q("SELECT `uid`,`username`,`nickname` FROM `user` WHERE `password` = '%s' AND `email` = '%s' AND `account_removed` = 0 ",
-		dbesc($master_record['password']),
-		dbesc($master_record['email'])
-	);
+	$r = dba::select('user', array('uid', 'username', 'nickname'),
+		array('password' => $master_record['password'], 'email' => $master_record['email'], 'account_removed' => false));
 	if (dbm::is_result($r)) {
-		$a->identities = $r;
+		$a->identities = dba::inArray($r);
 	} else {
 		$a->identities = array();
 	}
 
-	$r = q("SELECT `user`.`uid`, `user`.`username`, `user`.`nickname`
+	$r = dba::p("SELECT `user`.`uid`, `user`.`username`, `user`.`nickname`
 		FROM `manage`
 		INNER JOIN `user` ON `manage`.`mid` = `user`.`uid`
-		WHERE `user`.`account_removed` = 0 AND `manage`.`uid` = %d",
-		intval($master_record['uid'])
+		WHERE `user`.`account_removed` = 0 AND `manage`.`uid` = ?",
+		$master_record['uid']
 	);
 	if (dbm::is_result($r)) {
-		$a->identities = array_merge($a->identities,$r);
+		$a->identities = array_merge($a->identities, dba::inArray($r));
 	}
 
 	if ($login_initial) {
@@ -116,31 +114,21 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		logger('auth_identities refresh: ' . print_r($a->identities,true), LOGGER_DEBUG);
 	}
 
-	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 1 LIMIT 1",
-		intval($_SESSION['uid']));
+	$r = dba::fetch_first("SELECT * FROM `contact` WHERE `uid` = ? AND `self` LIMIT 1", $_SESSION['uid']);
 	if (dbm::is_result($r)) {
-		$a->contact = $r[0];
-		$a->cid = $r[0]['id'];
+		$a->contact = $r;
+		$a->cid = $r['id'];
 		$_SESSION['cid'] = $a->cid;
 	}
 
 	header('X-Account-Management-Status: active; name="' . $a->user['username'] . '"; id="' . $a->user['nickname'] .'"');
 
 	if ($login_initial || $login_refresh) {
-
-		q("UPDATE `user` SET `login_date` = '%s' WHERE `uid` = %d",
-			dbesc(datetime_convert()),
-			intval($_SESSION['uid'])
-		);
+		dba::update('user', array('login_date' => datetime_convert()), array('uid' => $_SESSION['uid']));
 
 		// Set the login date for all identities of the user
-		q("UPDATE `user` SET `login_date` = '%s' WHERE `password` = '%s' AND `email` = '%s' AND `account_removed` = 0",
-			dbesc(datetime_convert()),
-			dbesc($master_record['password']),
-			dbesc($master_record['email'])
-		);
-
-
+		dba::update('user', array('login_date' => datetime_convert()),
+			array('password' => $master_record['password'], 'email' => $master_record['email'], 'account_removed' => false));
 	}
 
 	if ($login_initial) {
@@ -155,8 +143,6 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		}
 	}
 
-
-
 	if ($login_initial) {
 		call_hooks('logged_in', $a->user);
 
@@ -164,7 +150,6 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 			goaway(App::get_baseurl() . '/' . $_SESSION['return_url']);
 		}
 	}
-
 }
 
 

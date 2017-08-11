@@ -33,9 +33,9 @@ function display_init(App $a) {
 
 		// Does the local user have this item?
 		if (local_user()) {
-			$r = qu("SELECT `id`, `parent`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
+			$r = dba::fetch_first("SELECT `id`, `parent`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-					AND `guid` = '%s' AND `uid` = %d", dbesc($a->argv[1]), local_user());
+					AND `guid` = ? AND `uid` = ? LIMIT 1", $a->argv[1], local_user());
 			if (dbm::is_result($r)) {
 				$nick = $a->user["nickname"];
 				$itemuid = local_user();
@@ -44,44 +44,44 @@ function display_init(App $a) {
 
 		// Or is it anywhere on the server?
 		if ($nick == "") {
-			$r = qu("SELECT `user`.`nickname`, `item`.`id`, `item`.`parent`, `item`.`author-name`,
+			$r = dba::fetch_first("SELECT `user`.`nickname`, `item`.`id`, `item`.`parent`, `item`.`author-name`,
 				`item`.`author-link`, `item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`owner-link`, `item`.`body`
 				FROM `item` STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 					AND NOT `item`.`private` AND NOT `user`.`hidewall`
-					AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
+					AND `item`.`guid` = ? LIMIT 1", $a->argv[1]);
 			if (dbm::is_result($r)) {
-				$nick = $r[0]["nickname"];
-				$itemuid = $r[0]["uid"];
+				$nick = $r["nickname"];
+				$itemuid = $r["uid"];
 			}
 		}
 
 		// Is it an item with uid=0?
 		if ($nick == "") {
-			$r = qu("SELECT `item`.`id`, `item`.`parent`, `item`.`author-name`, `item`.`author-link`,
+			$r = dba::fetch_first("SELECT `item`.`id`, `item`.`parent`, `item`.`author-name`, `item`.`author-link`,
 				`item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`owner-link`, `item`.`body`
 				FROM `item` WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 					AND NOT `item`.`private` AND `item`.`uid` = 0
-					AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
+					AND `item`.`guid` = ? LIMIT 1", $a->argv[1]);
 		}
 		if (dbm::is_result($r)) {
-			if ($r[0]["id"] != $r[0]["parent"]) {
-				$r = qu("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
+			if ($r["id"] != $r["parent"]) {
+				$r = dba::fetch_first("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-						AND `id` = %d", $r[0]["parent"]);
+						AND `id` = %d", $r["parent"]);
 			}
 			if (($itemuid != local_user()) && local_user()) {
 				// Do we know this contact but we haven't got this item?
 				// Copy the wohle thread to our local storage so that we can interact.
 				// We really should change this need for the future since it scales very bad.
-				$contactid = get_contact($r[0]['owner-link'], local_user());
+				$contactid = get_contact($r['owner-link'], local_user());
 				if ($contactid) {
-					$items = qu("SELECT * FROM `item` WHERE `parent` = %d ORDER BY `id`", intval($r[0]["id"]));
-					foreach ($items AS $item) {
+					$items = dba::p("SELECT * FROM `item` WHERE `parent` = ? ORDER BY `id`", $r["id"]);
+					while ($item = self::fetch($items)) {
 						$itemcontactid = get_contact($item['owner-link'], local_user());
 						if (!$itemcontactid) {
 							$itemcontactid = $contactid;
@@ -93,22 +93,23 @@ function display_init(App $a) {
 						$local_copy = item_store($item, false, false, true);
 						logger("Stored local copy for post ".$item['guid']." under id ".$local_copy, LOGGER_DEBUG);
 					}
+					dba::close($items);
 				}
 			}
 
-			$profiledata = display_fetchauthor($a, $r[0]);
+			$profiledata = display_fetchauthor($a, $r);
 
 			if (strstr(normalise_link($profiledata["url"]), normalise_link(App::get_baseurl()))) {
 				$nickname = str_replace(normalise_link(App::get_baseurl())."/profile/", "", normalise_link($profiledata["url"]));
 
 				if (($nickname != $a->user["nickname"])) {
-					$r = qu("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
+					$r = dba::fetch_first("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
 						INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-						WHERE `user`.`nickname` = '%s' AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
-						dbesc($nickname)
+						WHERE `user`.`nickname` = ? AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
+						$nickname
 					);
 					if (dbm::is_result($r)) {
-						$profiledata = $r[0];
+						$profiledata = $r;
 					}
 					$profiledata["network"] = NETWORK_DFRN;
 				} else {
@@ -240,48 +241,45 @@ function display_content(App $a, $update = 0) {
 			$nick = "";
 
 			if (local_user()) {
-				$r = qu("SELECT `id` FROM `item`
+				$r = dba::fetch_first("SELECT `id` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-						AND `guid` = '%s' AND `uid` = %d", dbesc($a->argv[1]), local_user());
+						AND `guid` = ? AND `uid` = ?", $a->argv[1], local_user());
 				if (dbm::is_result($r)) {
-					$item_id = $r[0]["id"];
+					$item_id = $r["id"];
 					$nick = $a->user["nickname"];
 				}
 			}
 
 			if ($nick == "") {
-				$r = qu("SELECT `user`.`nickname`, `item`.`id` FROM `item` STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
+				$r = dba::fetch_first("SELECT `user`.`nickname`, `item`.`id` FROM `item` STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 						AND NOT `item`.`private` AND NOT `user`.`hidewall`
-						AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
-					//	AND NOT `item`.`private` AND `item`.`wall`
+						AND `item`.`guid` = ?", $a->argv[1]);
 				if (dbm::is_result($r)) {
-					$item_id = $r[0]["id"];
-					$nick = $r[0]["nickname"];
+					$item_id = $r["id"];
+					$nick = $r["nickname"];
 				}
 			}
 			if ($nick == "") {
-				$r = qu("SELECT `item`.`id` FROM `item`
+				$r = dba::fetch_first("SELECT `item`.`id` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 						AND NOT `item`.`private` AND `item`.`uid` = 0
-						AND `item`.`guid` = '%s'", dbesc($a->argv[1]));
-					//	AND NOT `item`.`private` AND `item`.`wall`
+						AND `item`.`guid` = ?", $a->argv[1]);
 				if (dbm::is_result($r)) {
-					$item_id = $r[0]["id"];
+					$item_id = $r["id"];
 				}
 			}
 		}
 	}
 
 	if ($item_id && !is_numeric($item_id)) {
-		$r = qu("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
-			dbesc($item_id), intval($a->profile['uid']));
+		$r = dba::select('item', array('id'), array('uri' => $item_id, 'uid' => $a->profile['uid']), array('limit' => 1));
 		if (dbm::is_result($r)) {
-			$item_id = $r[0]["id"];
+			$item_id = $r["id"];
 		} else {
 			$item_id = false;
 		}
@@ -294,7 +292,7 @@ function display_content(App $a, $update = 0) {
 	}
 
 	// We are displaying an "alternate" link if that post was public. See issue 2864
-	$items = q("SELECT `id` FROM `item` WHERE `id` = %d AND NOT `private` AND `wall`", intval($item_id));
+	$items = dba::select('item', array('id'), array('id' => $item_id, 'private' => false, 'wall' => true));
 	if (dbm::is_result($items)) {
 		$alternate = App::get_baseurl().'/display/'.$nick.'/'.$item_id.'.atom';
 	} else {
@@ -322,12 +320,12 @@ function display_content(App $a, $update = 0) {
 
 	if ($contact_id) {
 		$groups = init_groups_visitor($contact_id);
-		$r = qu("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-			intval($contact_id),
-			intval($a->profile['uid'])
+		$r = dba::fetch_first("SELECT * FROM `contact` WHERE `id` = ? AND `uid` = ? LIMIT 1",
+			$contact_id,
+			$a->profile['uid']
 		);
 		if (dbm::is_result($r)) {
-			$contact = $r[0];
+			$contact = $r;
 			$remote_contact = true;
 		}
 	}
@@ -339,11 +337,9 @@ function display_content(App $a, $update = 0) {
 		}
 	}
 
-	$r = qu("SELECT * FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1",
-		intval($a->profile['uid'])
-	);
+	$r = dba::fetch_first("SELECT * FROM `contact` WHERE `uid` = ? AND `self` LIMIT 1", $a->profile['uid']);
 	if (dbm::is_result($r)) {
-		$a->page_contact = $r[0];
+		$a->page_contact = $r;
 	}
 	$is_owner = ((local_user()) && (local_user() == $a->profile['profile_uid']) ? true : false);
 
@@ -373,12 +369,11 @@ function display_content(App $a, $update = 0) {
 	$sql_extra = item_permissions_sql($a->profile['uid'],$remote_contact,$groups);
 
 	if ($update) {
-
-		$r = qu("SELECT `id` FROM `item` WHERE `item`.`uid` = %d
-			AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = %d)
+		$r = dba::exists("SELECT `id` FROM `item` WHERE `item`.`uid` = ?
+			AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = ?)
 			$sql_extra AND `unseen`",
-			intval($a->profile['uid']),
-			intval($item_id)
+			$a->profile['uid'],
+			$item_id
 		);
 
 		if (!$r) {
@@ -386,62 +381,60 @@ function display_content(App $a, $update = 0) {
 		}
 	}
 
-	$r = qu(item_query()." AND `item`.`uid` = %d
-		AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = %d)
+	$r = dba::p(item_query()." AND `item`.`uid` = ?
+		AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = ?)
 		$sql_extra
 		ORDER BY `parent` DESC, `gravity` ASC, `id` ASC",
-		intval($a->profile['uid']),
-		intval($item_id)
+		$a->profile['uid'],
+		$item_id
 	);
 
-
-	if (!$r && local_user()) {
+	if (!dbm::is_result($r) && local_user()) {
 		// Check if this is another person's link to a post that we have
-		$r = qu("SELECT `item`.uri FROM `item`
-			WHERE (`item`.`id` = %d OR `item`.`uri` = '%s')
+		$r = dba::fetch_first("SELECT `item`.uri FROM `item`
+			WHERE (`item`.`id` = ? OR `item`.`uri` = ?)
 			LIMIT 1",
-			intval($item_id),
-			dbesc($item_id)
+			$item_id,
+			$item_id
 		);
 		if (dbm::is_result($r)) {
-			$item_uri = $r[0]['uri'];
+			$item_uri = $r['uri'];
 
-			$r = qu(item_query()." AND `item`.`uid` = %d
-				AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `uri` = '%s' AND uid = %d)
-				ORDER BY `parent` DESC, `gravity` ASC, `id` ASC ",
-				intval(local_user()),
-				dbesc($item_uri),
-				intval(local_user())
+			$r = dba::p(item_query()." AND `item`.`uid` = ?
+				AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `uri` = ? AND uid = ?)
+				ORDER BY `parent` DESC, `gravity` ASC, `id` ASC",
+				local_user(),
+				$item_uri,
+				local_user()
 			);
 		}
 	}
 
-	if ($r) {
+	if (dbm::is_result($r)) {
+		$s = dba::inArray($r);
 
 		if ((local_user()) && (local_user() == $a->profile['uid'])) {
-			$unseen = q("SELECT `id` FROM `item` WHERE `unseen` AND `parent` = %d",
-					intval($r[0]['parent']));
-
-			if ($unseen) {
-				dba::update('item', array('unseen' => false), array('parent' => $r[0]['parent'], 'unseen' => true));
+			$unseen = dba::select('item', array('id'), array('parent' => $s[0]['parent'], 'unseen' => true), array('limit' => 1));
+			if (dbm::is_result($unseen)) {
+				dba::update('item', array('unseen' => false), array('parent' => $s[0]['parent'], 'unseen' => true));
 			}
 		}
 
-		$items = conv_sort($r,"`commented`");
+		$items = conv_sort($s, "`commented`");
 
 		if (!$update) {
 			$o .= "<script> var netargs = '?f=&nick=" . $nick . "&item_id=" . $item_id . "'; </script>";
 		}
-		$o .= conversation($a,$items,'display', $update);
+		$o .= conversation($a, $items, 'display', $update);
 
 		// Preparing the meta header
 		require_once('include/bbcode.php');
 		require_once("include/html2plain.php");
-		$description = trim(html2plain(bbcode($r[0]["body"], false, false), 0, true));
-		$title = trim(html2plain(bbcode($r[0]["title"], false, false), 0, true));
-		$author_name = $r[0]["author-name"];
+		$description = trim(html2plain(bbcode($s[0]["body"], false, false), 0, true));
+		$title = trim(html2plain(bbcode($s[0]["title"], false, false), 0, true));
+		$author_name = $s[0]["author-name"];
 
-		$image = $a->remove_baseurl($r[0]["author-thumb"]);
+		$image = $a->remove_baseurl($s[0]["author-thumb"]);
 
 		if ($title == "") {
 			$title = $author_name;
@@ -473,7 +466,7 @@ function display_content(App $a, $update = 0) {
 		$a->page['htmlhead'] .= '<meta name="twitter:title" content="'.$title.'" />'."\n";
 		$a->page['htmlhead'] .= '<meta name="twitter:description" content="'.$description.'" />'."\n";
 		$a->page['htmlhead'] .= '<meta name="twitter:image" content="'.$image.'" />'."\n";
-		$a->page['htmlhead'] .= '<meta name="twitter:url" content="'.$r[0]["plink"].'" />'."\n";
+		$a->page['htmlhead'] .= '<meta name="twitter:url" content="'.$s[0]["plink"].'" />'."\n";
 
 		// Dublin Core
 		$a->page['htmlhead'] .= '<meta name="DC.title" content="'.$title.'" />'."\n";
@@ -483,7 +476,7 @@ function display_content(App $a, $update = 0) {
 		$a->page['htmlhead'] .= '<meta property="og:type" content="website" />'."\n";
 		$a->page['htmlhead'] .= '<meta property="og:title" content="'.$title.'" />'."\n";
 		$a->page['htmlhead'] .= '<meta property="og:image" content="'.$image.'" />'."\n";
-		$a->page['htmlhead'] .= '<meta property="og:url" content="'.$r[0]["plink"].'" />'."\n";
+		$a->page['htmlhead'] .= '<meta property="og:url" content="'.$s[0]["plink"].'" />'."\n";
 		$a->page['htmlhead'] .= '<meta property="og:description" content="'.$description.'" />'."\n";
 		$a->page['htmlhead'] .= '<meta name="og:article:author" content="'.$author_name.'" />'."\n";
 		// article:tag
@@ -491,18 +484,18 @@ function display_content(App $a, $update = 0) {
 		return $o;
 	}
 
-	$r = qu("SELECT `id`,`deleted` FROM `item` WHERE `id` = '%s' OR `uri` = '%s' LIMIT 1",
-		dbesc($item_id),
-		dbesc($item_id)
+	$r = dba::fetch_first("SELECT `id`,`deleted` FROM `item` WHERE `id` = ? OR `uri` = ? LIMIT 1",
+		$item_id,
+		$item_id
 	);
 	if ($r) {
-		if ($r[0]['deleted']) {
-			notice(t('Item has been removed.') . EOL );
+		if ($r['deleted']) {
+			notice(t('Item has been removed.') . EOL);
 		} else {
-			notice(t('Permission denied.') . EOL );
+			notice(t('Permission denied.') . EOL);
 		}
 	} else {
-		notice(t('Item not found.') . EOL );
+		notice(t('Item not found.') . EOL);
 	}
 
 	return $o;

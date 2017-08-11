@@ -1290,6 +1290,24 @@ class dba {
 		}
 	}
 
+
+	/**
+	 * @brief Fills an array with data from a query
+	 *
+	 * @param object $stmt statement object
+	 * @return array Data array
+	 */
+	static public function inArray($stmt, $do_close = true) {
+		$data = array();
+		while ($row = self::fetch($stmt)) {
+			$data[] = $row;
+		}
+		if ($do_close) {
+			self::close($stmt);
+		}
+		return $data;
+	}
+
 	/**
 	 * @brief Closes the current statement
 	 *

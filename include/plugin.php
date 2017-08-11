@@ -121,7 +121,7 @@ function reload_plugins() {
  * @return boolean
  */
 function plugin_enabled($plugin) {
-	$r = q("SELECT * FROM `addon` WHERE `installed` = 1 AND `name` = '%s'", $plugin);
+	$r = dba::select('addon', array('id'), array('installed' => true, 'name' => $plugin), array('limit' => 1));
 	return ((dbm::is_result($r)) && (count($r) > 0));
 }
 
