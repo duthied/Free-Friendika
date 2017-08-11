@@ -510,6 +510,22 @@ class dba {
 	}
 
 	/**
+	 * @brief Convert parameter array to an universal form
+	 * @param array $args Parameter array
+	 * @return array universalized parameter array
+	 */
+	private static function getParam($args) {
+		unset($args[0]);
+
+		// When the second function parameter is an array then use this as the parameter array
+		if ((count($args) > 0) && (is_array($args[1]))) {
+			return $args[1];
+		} else {
+			return $args;
+		}
+	}
+
+	/**
 	 * @brief Executes a prepared statement that returns data
 	 * @usage Example: $r = p("SELECT * FROM `item` WHERE `guid` = ?", $guid);
 	 * @param string $sql SQL statement
@@ -520,15 +536,7 @@ class dba {
 
 		$stamp1 = microtime(true);
 
-		$args = func_get_args();
-		unset($args[0]);
-
-		// When the second function parameter is an array then use this as the parameter array
-		if ((count($args) > 0) && (is_array($args[1]))) {
-			$params = $args[1];
-		} else {
-			$params = $args;
-		}
+		$params = self::getParam(func_get_args());
 
 		// Renumber the array keys to be sure that they fit
 		$i = 0;
@@ -560,10 +568,10 @@ class dba {
 		self::$dbo->affected_rows = 0;
 
 		// We have to make some things different if this function is called from "e"
-		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
-		if (isset($trace[2])) {
-			$called_from = $trace[2];
+		if (isset($trace[1])) {
+			$called_from = $trace[1];
 		} else {
 			// We use just something that is defined to avoid warnings
 			$called_from = $trace[0];
@@ -719,13 +727,13 @@ class dba {
 
 		$stamp = microtime(true);
 
-		$args = func_get_args();
+		$params = self::getParam(func_get_args());
 
 		// In a case of a deadlock we are repeating the query 20 times
 		$timeout = 20;
 
 		do {
-			$stmt = call_user_func_array('self::p', $args);
+			$stmt = self::p($sql, $params);
 
 			if (is_bool($stmt)) {
 				$retval = $stmt;
@@ -743,15 +751,6 @@ class dba {
 			// We have to preserve the error code, somewhere in the logging it get lost
 			$error = self::$dbo->error;
 			$errorno = self::$dbo->errorno;
-
-			array_shift($args);
-
-			// When the second function parameter is an array then use this as the parameter array
-			if ((count($args) > 0) && (is_array($args[0]))) {
-				$params = $args[0];
-			} else {
-				$params = $args;
-			}
 
 			logger('DB Error '.self::$dbo->errorno.': '.self::$dbo->error."\n".
 				$a->callstack(8)."\n".self::replace_parameters($sql, $params));
@@ -772,9 +771,9 @@ class dba {
 	 * @return boolean Are there rows for that query?
 	 */
 	static public function exists($sql) {
-		$args = func_get_args();
+		$params = self::getParam(func_get_args());
 
-		$stmt = call_user_func_array('self::p', $args);
+		$stmt = self::p($sql, $params);
 
 		if (is_bool($stmt)) {
 			$retval = $stmt;
@@ -794,9 +793,9 @@ class dba {
 	 * @return array first row of query
 	 */
 	static public function fetch_first($sql) {
-		$args = func_get_args();
+		$params = self::getParam(func_get_args());
 
-		$stmt = call_user_func_array('self::p', $args);
+		$stmt = self::p($sql, $params);
 
 		if (is_bool($stmt)) {
 			$retval = $stmt;
@@ -891,12 +890,20 @@ class dba {
 	 *
 	 * @param string $table Table name
 	 * @param array $param parameter array
+	 * @param bool $on_duplicate_update Do an update on a duplicate entry
 	 *
 	 * @return boolean was the insert successfull?
 	 */
-	static public function insert($table, $param) {
+	static public function insert($table, $param, $on_duplicate_update = false) {
 		$sql = "INSERT INTO `".self::$dbo->escape($table)."` (`".implode("`, `", array_keys($param))."`) VALUES (".
-			substr(str_repeat("?, ", count($param)), 0, -2).");";
+			substr(str_repeat("?, ", count($param)), 0, -2).")";
+
+		if ($on_duplicate_update) {
+			$sql .= " ON DUPLICATE KEY UPDATE `".implode("` = ?, `", array_keys($param))."` = ?";
+
+			$values = array_values($param);
+			$param = array_merge_recursive($values, $values);
+		}
 
 		return self::e($sql, $param);
 	}
@@ -1160,16 +1167,11 @@ class dba {
 	 * @param string $table Table name
 	 * @param array $fields contains the fields that are updated
 	 * @param array $condition condition array with the key values
-	 * @param array|boolean $old_fields array with the old field values that are about to be replaced
+	 * @param array|boolean $old_fields array with the old field values that are about to be replaced (true = update on duplicate)
 	 *
 	 * @return boolean was the update successfull?
 	 */
 	static public function update($table, $fields, $condition, $old_fields = array()) {
-
-		/** @todo We may use MySQL specific functions here:
-		 * INSERT INTO `config` (`cat`, `k`, `v`) VALUES ('%s', '%s', '%s') ON DUPLICATE KEY UPDATE `v` = '%s'"
-		 * But I think that it doesn't make sense here.
-		*/
 
 		$table = self::$dbo->escape($table);
 
@@ -1177,17 +1179,15 @@ class dba {
 			$sql = "SELECT * FROM `".$table."` WHERE `".
 			implode("` = ? AND `", array_keys($condition))."` = ? LIMIT 1";
 
-			$params = array();
-			foreach ($condition AS $value) {
-				$params[] = $value;
-			}
+			$params = array_values($condition);
 
 			$do_insert = $old_fields;
 
 			$old_fields = self::fetch_first($sql, $params);
 			if (is_bool($old_fields)) {
 				if ($do_insert) {
-					return self::insert($table, $fields);
+					$values = array_merge($condition, $fields);
+					return self::insert($table, $values, $do_insert);
 				}
 				$old_fields = array();
 			}
@@ -1213,13 +1213,9 @@ class dba {
 			implode("` = ?, `", array_keys($fields))."` = ? WHERE `".
 			implode("` = ? AND `", array_keys($condition))."` = ?";
 
-		$params = array();
-		foreach ($fields AS $value) {
-			$params[] = $value;
-		}
-		foreach ($condition AS $value) {
-			$params[] = $value;
-		}
+		$params1 = array_values($fields);
+		$params2 = array_values($condition);
+		$params = array_merge_recursive($params1, $params2);
 
 		return self::e($sql, $params);
 	}

@@ -46,22 +46,17 @@ function install_plugin($plugin) {
 		$func = $plugin . '_install';
 		$func();
 
-		$plugin_admin = (function_exists($plugin."_plugin_admin")?1:0);
+		$plugin_admin = (function_exists($plugin."_plugin_admin") ? 1 : 0);
 
-		$r = q("INSERT INTO `addon` (`name`, `installed`, `timestamp`, `plugin_admin`) VALUES ( '%s', 1, %d , %d ) ",
-			dbesc($plugin),
-			intval($t),
-			$plugin_admin
-		);
+		dba::insert('addon', array('name' => $plugin, 'installed' => true,
+					'timestamp' => $t, 'plugin_admin' => $plugin_admin));
 
 		// we can add the following with the previous SQL
 		// once most site tables have been updated.
 		// This way the system won't fall over dead during the update.
 
 		if (file_exists('addon/' . $plugin . '/.hidden')) {
-			q("UPDATE `addon` SET `hidden` = 1 WHERE `name` = '%s'",
-				dbesc($plugin)
-			);
+			dba::update('addon', array('hidden' => true), array('name' => $plugin));
 		}
 		return true;
 	}
@@ -109,10 +104,7 @@ function reload_plugins() {
 								$func = $pl . '_install';
 								$func();
 							}
-							q("UPDATE `addon` SET `timestamp` = %d WHERE `id` = %d",
-								intval($t),
-								intval($i['id'])
-							);
+							dba::update('addon', array('timestamp' => $t), array('id' => $i['id']));
 						}
 					}
 				}
@@ -154,12 +146,8 @@ function register_hook($hook,$file,$function,$priority=0) {
 	if (dbm::is_result($r))
 		return true;
 
-	$r = q("INSERT INTO `hook` (`hook`, `file`, `function`, `priority`) VALUES ( '%s', '%s', '%s', '%s' ) ",
-		dbesc($hook),
-		dbesc($file),
-		dbesc($function),
-		dbesc($priority)
-	);
+	$r = dba::insert('hook', array('hook' => $hook, 'file' => $file, 'function' => $function, 'priority' => $priority));
+
 	return $r;
 }}
 
@@ -183,20 +171,19 @@ function unregister_hook($hook,$file,$function) {
 }}
 
 
-if (! function_exists('load_hooks')) {
 function load_hooks() {
 	$a = get_app();
 	$a->hooks = array();
-	$r = q("SELECT * FROM `hook` WHERE 1 ORDER BY `priority` DESC, `file`");
+	$r = dba::select('hook', array('hook', 'file', 'function'), array(), array('order' => array('priority' => 'desc', 'file')));
 
-	if (dbm::is_result($r)) {
-		foreach ($r as $rr) {
-			if (! array_key_exists($rr['hook'],$a->hooks))
-				$a->hooks[$rr['hook']] = array();
-			$a->hooks[$rr['hook']][] = array($rr['file'],$rr['function']);
+	while ($rr = dba::fetch($r)) {
+		if (! array_key_exists($rr['hook'],$a->hooks)) {
+			$a->hooks[$rr['hook']] = array();
 		}
+		$a->hooks[$rr['hook']][] = array($rr['file'],$rr['function']);
 	}
-}}
+	dba::close($r);
+}
 
 /**
  * @brief Calls a hook.

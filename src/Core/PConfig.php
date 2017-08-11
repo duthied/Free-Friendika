@@ -1,6 +1,7 @@
 <?php
 namespace Friendica\Core;
 
+use dba;
 use dbm;
 
 /**
@@ -34,16 +35,15 @@ class PConfig {
 	 */
 	public static function load($uid, $family) {
 		$a = get_app();
-		$r = q("SELECT `v`,`k` FROM `pconfig` WHERE `cat` = '%s' AND `uid` = %d ORDER BY `cat`, `k`, `id`",
-			dbesc($family),
-			intval($uid)
-		);
+
+		$r = dba::select('pconfig', array('v', 'k'), array('cat' => $family, 'uid' => $uid));
 		if (dbm::is_result($r)) {
-			foreach ($r as $rr) {
+			while ($rr = dba::fetch($r)) {
 				$k = $rr['k'];
 				$a->config[$uid][$family][$k] = $rr['v'];
 				self::$in_db[$uid][$family][$k] = true;
 			}
+			dba::close($r);
 		} else if ($family != 'config') {
 			// Negative caching
 			$a->config[$uid][$family] = "!<unset>!";
@@ -89,14 +89,9 @@ class PConfig {
 			}
 		}
 
-		$ret = q("SELECT `v` FROM `pconfig` WHERE `uid` = %d AND `cat` = '%s' AND `k` = '%s' ORDER BY `id` DESC LIMIT 1",
-			intval($uid),
-			dbesc($family),
-			dbesc($key)
-		);
-
-		if (count($ret)) {
-			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret[0]['v'])?unserialize( $ret[0]['v']):$ret[0]['v']);
+		$ret = dba::select('pconfig', array('v'), array('uid' => $uid, 'cat' => $family, 'k' => $key), array('limit' => 1));
+		if (dbm::is_result($ret)) {
+			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret['v']) ? unserialize($ret['v']) : $ret['v']);
 			$a->config[$uid][$family][$key] = $val;
 			self::$in_db[$uid][$family][$key] = true;
 
@@ -147,22 +142,7 @@ class PConfig {
 		// manage array value
 		$dbvalue = (is_array($value) ? serialize($value) : $dbvalue);
 
-		if (is_null($stored) || !self::$in_db[$uid][$family][$key]) {
-			$ret = q("INSERT INTO `pconfig` (`uid`, `cat`, `k`, `v`) VALUES (%d, '%s', '%s', '%s') ON DUPLICATE KEY UPDATE `v` = '%s'",
-				intval($uid),
-				dbesc($family),
-				dbesc($key),
-				dbesc($dbvalue),
-				dbesc($dbvalue)
-			);
-		} else {
-			$ret = q("UPDATE `pconfig` SET `v` = '%s' WHERE `uid` = %d AND `cat` = '%s' AND `k` = '%s'",
-				dbesc($dbvalue),
-				intval($uid),
-				dbesc($family),
-				dbesc($key)
-			);
-		}
+		dba::update('pconfig', array('v' => $dbvalue), array('uid' => $uid, 'cat' => $family, 'k' => $key), true);
 
 		if ($ret) {
 			self::$in_db[$uid][$family][$key] = true;
@@ -193,11 +173,7 @@ class PConfig {
 			unset(self::$in_db[$uid][$family][$key]);
 		}
 
-		$ret = q("DELETE FROM `pconfig` WHERE `uid` = %d AND `cat` = '%s' AND `k` = '%s'",
-			intval($uid),
-			dbesc($family),
-			dbesc($key)
-		);
+		$ret = dba::delete('pconfig', array('uid' => $uid, 'cat' => $family, 'k' => $key));
 
 		return $ret;
 	}

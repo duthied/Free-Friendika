@@ -423,9 +423,7 @@ function display_content(App $a, $update = 0) {
 					intval($r[0]['parent']));
 
 			if ($unseen) {
-				q("UPDATE `item` SET `unseen` = 0 WHERE `parent` = %d AND `unseen`",
-					intval($r[0]['parent'])
-				);
+				dba::update('item', array('unseen' => false), array('parent' => $r[0]['parent'], 'unseen' => true));
 			}
 		}
 

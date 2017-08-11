@@ -1,6 +1,7 @@
 <?php
 namespace Friendica\Core;
 
+use dba;
 use dbm;
 
 /**
@@ -45,19 +46,18 @@ class Config {
 
 		$a = get_app();
 
-		$r = q("SELECT `v`, `k` FROM `config` WHERE `cat` = '%s'", dbesc($family));
-		if (dbm::is_result($r)) {
-			foreach ($r as $rr) {
-				$k = $rr['k'];
-				if ($family === 'config') {
-					$a->config[$k] = $rr['v'];
-				} else {
-					$a->config[$family][$k] = $rr['v'];
-					self::$cache[$family][$k] = $rr['v'];
-					self::$in_db[$family][$k] = true;
-				}
+		$r = dba::select('config', array('v', 'k'), array('cat' => $family));
+		while ($rr = dba::fetch($r)) {
+			$k = $rr['k'];
+			if ($family === 'config') {
+				$a->config[$k] = $rr['v'];
+			} else {
+				$a->config[$family][$k] = $rr['v'];
+				self::$cache[$family][$k] = $rr['v'];
+				self::$in_db[$family][$k] = true;
 			}
 		}
+		dba::close($r);
 	}
 
 	/**
@@ -98,13 +98,10 @@ class Config {
 			}
 		}
 
-		$ret = q("SELECT `v` FROM `config` WHERE `cat` = '%s' AND `k` = '%s'",
-			dbesc($family),
-			dbesc($key)
-		);
+		$ret = dba::select('config', array('v'), array('cat' => $family, 'k' => $key), array('limit' => 1));
 		if (dbm::is_result($ret)) {
 			// manage array value
-			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret[0]['v']) ? unserialize($ret[0]['v']) : $ret[0]['v']);
+			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret['v']) ? unserialize($ret['v']) : $ret['v']);
 
 			// Assign the value from the database to the cache
 			self::$cache[$family][$key] = $val;
@@ -167,20 +164,8 @@ class Config {
 		// manage array value
 		$dbvalue = (is_array($value) ? serialize($value) : $dbvalue);
 
-		if (is_null($stored) || !self::$in_db[$family][$key]) {
-			$ret = q("INSERT INTO `config` (`cat`, `k`, `v`) VALUES ('%s', '%s', '%s') ON DUPLICATE KEY UPDATE `v` = '%s'",
-				dbesc($family),
-				dbesc($key),
-				dbesc($dbvalue),
-				dbesc($dbvalue)
-			);
-		} else {
-			$ret = q("UPDATE `config` SET `v` = '%s' WHERE `cat` = '%s' AND `k` = '%s'",
-				dbesc($dbvalue),
-				dbesc($family),
-				dbesc($key)
-			);
-		}
+		dba::update('config', array('v' => $dbvalue), array('cat' => $family, 'k' => $key), true);
+
 		if ($ret) {
 			self::$in_db[$family][$key] = true;
 			return $value;
@@ -206,10 +191,8 @@ class Config {
 			unset(self::$cache[$family][$key]);
 			unset(self::$in_db[$family][$key]);
 		}
-		$ret = q("DELETE FROM `config` WHERE `cat` = '%s' AND `k` = '%s'",
-			dbesc($family),
-			dbesc($key)
-		);
+
+		$ret = dba::delete('config', array('cat' => $family, 'k' => $key));
 
 		return $ret;
 	}

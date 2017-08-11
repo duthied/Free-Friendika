@@ -10,6 +10,7 @@ namespace Friendica;
 use Friendica\Core\Config;
 
 use xml;
+use dba;
 
 use DomXPath;
 use DOMDocument;
@@ -66,11 +67,9 @@ class ParseUrl {
 
 		$data = self::getSiteinfo($url, $no_guessing, $do_oembed);
 
-		q("INSERT INTO `parsed_url` (`url`, `guessing`, `oembed`, `content`, `created`) VALUES ('%s', %d, %d, '%s', '%s')
-			 ON DUPLICATE KEY UPDATE `content` = '%s', `created` = '%s'",
-			dbesc(normalise_link($url)), intval(!$no_guessing), intval($do_oembed),
-			dbesc(serialize($data)), dbesc(datetime_convert()),
-			dbesc(serialize($data)), dbesc(datetime_convert()));
+		dba::insert('parsed_url', array('url' => normalise_link($url), 'guessing' => !$no_guessing,
+				'oembed' => $do_oembed, 'content' => serialize($data),
+				'created' => datetime_convert()), true);
 
 		return $data;
 	}

@@ -101,12 +101,12 @@ function network_to_name($s, $profile = "") {
 	$networkname = str_replace($search, $replace, $s);
 
 	if ((in_array($s, array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) && ($profile != "")) {
-		$r = q("SELECT `gserver`.`platform` FROM `gcontact`
+		$r = dba::fetch_first("SELECT `gserver`.`platform` FROM `gcontact`
 				INNER JOIN `gserver` ON `gserver`.`nurl` = `gcontact`.`server_url`
-				WHERE `gcontact`.`nurl` = '%s' AND `platform` != ''",
-				dbesc(normalise_link($profile)));
+				WHERE `gcontact`.`nurl` = ? AND `platform` != ''", normalise_link($profile));
+
 		if (dbm::is_result($r)) {
-			$networkname = $r[0]["platform"];
+			$networkname = $r['platform'];
 		}
 	}
 

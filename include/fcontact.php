@@ -13,11 +13,7 @@ function fcontact_store($url,$name,$photo) {
 	if (dbm::is_result($r))
 		return $r[0]['id'];
 
-	$r = q("INSERT INTO `fcontact` ( `url`, `name`, `photo` ) VALUES ( '%s', '%s', '%s' ) ",
-		dbesc($nurl),
-		dbesc($name),
-		dbesc($photo)
-	);
+	$r = dba::insert('fcontact', array('url' => $nurl, 'name' => $name, 'photo' => $photo));
 
 	if (dbm::is_result($r)) {
 		$r = q("SELECT `id` FROM `fcontact` WHERE `url` = '%s' LIMIT 1",
@@ -31,11 +27,7 @@ function fcontact_store($url,$name,$photo) {
 }
 
 function ffinder_store($uid,$cid,$fid) {
-	$r = q("INSERT INTO `ffinder` ( `uid`, `cid`, `fid` ) VALUES ( %d, %d, %d ) ",
-		intval($uid),
-		intval($cid),
-		intval($fid)
-	);
+	$r = dba::insert('ffinder', array('uid' => $uid, 'cid' => $cid, 'fid' => $fid));
 	return $r;
 }
 
