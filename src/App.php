@@ -760,7 +760,11 @@ class App {
 
 		$callstack = array();
 		foreach ($trace AS $func) {
-			$callstack[] = $func['function'];
+			if (!empty($func['class'])) {
+				$callstack[] = $func['class'].'::'.$func['function'];
+			} else {
+				$callstack[] = $func['function'];
+			}
 		}
 
 		return implode(', ', $callstack);

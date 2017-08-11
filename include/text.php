@@ -1290,8 +1290,8 @@ function put_item_in_cache(&$item, $update = false) {
 		$item["body"] = $body;
 
 		if ($update && ($item["id"] != 0)) {
-			q("UPDATE `item` SET `rendered-html` = '%s', `rendered-hash` = '%s' WHERE `id` = %d",
-				dbesc($item["rendered-html"]), dbesc($item["rendered-hash"]), intval($item["id"]));
+			dba::update('item', array('rendered-html' => $item["rendered-html"], 'rendered-hash' => $item["rendered-hash"]),
+					array('id' => $item["id"]), false);
 		}
 	}
 }

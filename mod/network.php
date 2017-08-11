@@ -130,7 +130,7 @@ function network_init(App $a) {
 	$search = ((x($_GET, 'search')) ? escape_tags($_GET['search']) : '');
 
 	if (x($_GET, 'save')) {
-		$r = qu("SELECT * FROM `search` WHERE `uid` = %d AND `term` = '%s' LIMIT 1",
+		$r = q("SELECT * FROM `search` WHERE `uid` = %d AND `term` = '%s' LIMIT 1",
 			intval(local_user()),
 			dbesc($search)
 		);
@@ -185,7 +185,7 @@ function saved_searches($search) {
 
 	$o = '';
 
-	$r = qu("SELECT `id`,`term` FROM `search` WHERE `uid` = %d",
+	$r = q("SELECT `id`,`term` FROM `search` WHERE `uid` = %d",
 		intval(local_user())
 	);
 
@@ -396,7 +396,7 @@ function network_content(App $a, $update = 0) {
 		$def_acl = array('allow_cid' => '<' . intval($cid) . '>');
 
 	if($nets) {
-		$r = qu("SELECT `id` FROM `contact` WHERE `uid` = %d AND network = '%s' AND `self` = 0",
+		$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND network = '%s' AND `self` = 0",
 			intval(local_user()),
 			dbesc($nets)
 		);
@@ -429,7 +429,7 @@ function network_content(App $a, $update = 0) {
 
 		if ($cid) {
 			// If $cid belongs to a communitity forum or a privat goup,.add a mention to the status editor
-			$contact = qu("SELECT `nick` FROM `contact` WHERE `id` = %d AND `uid` = %d AND (`forum` OR `prv`) ",
+			$contact = q("SELECT `nick` FROM `contact` WHERE `id` = %d AND `uid` = %d AND (`forum` OR `prv`) ",
 				intval($cid),
 				intval(local_user())
 			);
@@ -480,7 +480,7 @@ function network_content(App $a, $update = 0) {
 	$sql_nets = (($nets) ? sprintf(" and $sql_table.`network` = '%s' ", dbesc($nets)) : '');
 
 	if($group) {
-		$r = qu("SELECT `name`, `id` FROM `group` WHERE `id` = %d AND `uid` = %d LIMIT 1",
+		$r = q("SELECT `name`, `id` FROM `group` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($group),
 			intval($_SESSION['uid'])
 		);
@@ -501,7 +501,7 @@ function network_content(App $a, $update = 0) {
 
 			$contact_str = implode(',',$contacts);
 			$gcontact_str = implode(',',$gcontacts);
-			$self = qu("SELECT `contact`.`id`, `gcontact`.`id` AS `gid` FROM `contact`
+			$self = q("SELECT `contact`.`id`, `gcontact`.`id` AS `gid` FROM `contact`
 					INNER JOIN `gcontact` ON `gcontact`.`nurl` = `contact`.`nurl`
 					WHERE `uid` = %d AND `self`", intval($_SESSION['uid']));
 			if (count($self)) {
@@ -524,7 +524,7 @@ function network_content(App $a, $update = 0) {
 	}
 	elseif($cid) {
 
-		$r = qu("SELECT `id`,`name`,`network`,`writable`,`nurl`, `forum`, `prv`, `contact-type`, `addr`, `thumb`, `location` FROM `contact` WHERE `id` = %d
+		$r = q("SELECT `id`,`name`,`network`,`writable`,`nurl`, `forum`, `prv`, `contact-type`, `addr`, `thumb`, `location` FROM `contact` WHERE `id` = %d
 				AND (NOT `blocked` OR `pending`) LIMIT 1",
 			intval($cid)
 		);
@@ -641,7 +641,7 @@ function network_content(App $a, $update = 0) {
 			$sql_order = "`item`.`id`";
 
 		// "New Item View" - show all items unthreaded in reverse created date order
-		$items = qu("SELECT %s FROM $sql_table $sql_post_table %s
+		$items = q("SELECT %s FROM $sql_table $sql_post_table %s
 			WHERE %s AND `item`.`uid` = %d
 			$simple_update
 			$sql_extra $sql_nets
@@ -708,7 +708,7 @@ function network_content(App $a, $update = 0) {
 			else
 				$sql_extra4 = "";
 
-			$r = qu("SELECT `item`.`parent` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
+			$r = q("SELECT `item`.`parent` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 				WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted` $sql_extra4
@@ -718,7 +718,7 @@ function network_content(App $a, $update = 0) {
 				intval(local_user())
 			);
 		} else {
-			$r = qu("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
+			$r = q("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
 				FROM $sql_table $sql_post_table STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
 				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 				WHERE `thread`.`uid` = %d AND `thread`.`visible` AND NOT `thread`.`deleted`
@@ -752,16 +752,15 @@ function network_content(App $a, $update = 0) {
 			$items = array();
 
 			foreach ($parents_arr AS $parents) {
-				$thread_items = qu(item_query()." AND `item`.`uid` = %d
-					AND `item`.`parent` = %d
-					ORDER BY `item`.`commented` DESC LIMIT %d",
-					intval(local_user()),
-					intval($parents),
-					intval($max_comments + 1)
+				$thread_items = dba::p(item_query()." AND `item`.`uid` = ?
+					AND `item`.`parent` = ?
+					ORDER BY `item`.`commented` DESC LIMIT ".intval($max_comments + 1),
+					local_user(),
+					$parents
 				);
 
 				if (dbm::is_result($thread_items))
-					$items = array_merge($items, $thread_items);
+					$items = array_merge($items, dba::inArray($thread_items));
 			}
 			$items = conv_sort($items,$ordering);
 		} else {
