@@ -1289,7 +1289,7 @@ function put_item_in_cache(&$item, $update = false) {
 		$item["rendered-hash"] = hash("md5", $item["body"]);
 		$item["body"] = $body;
 
-		if ($update && ($item["id"] != 0)) {
+		if ($update && ($item["id"] > 0)) {
 			dba::update('item', array('rendered-html' => $item["rendered-html"], 'rendered-hash' => $item["rendered-hash"]),
 					array('id' => $item["id"]), false);
 		}
