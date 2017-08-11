@@ -41,18 +41,18 @@ class ForumManager {
 			$select = '(`forum` OR `prv`)';
 		}
 
-		$contacts = q("SELECT `contact`.`id`, `contact`.`url`, `contact`.`name`, `contact`.`micro`, `contact`.`thumb` FROM `contact`
-				WHERE `network`= 'dfrn' AND $select AND `uid` = %d
+		$contacts = dba::p("SELECT `contact`.`id`, `contact`.`url`, `contact`.`name`, `contact`.`micro`, `contact`.`thumb` FROM `contact`
+				WHERE `network`= 'dfrn' AND $select AND `uid` = ?
 				AND NOT `blocked` AND NOT `hidden` AND NOT `pending` AND NOT `archive`
 				AND `success_update` > `failure_update`
 				$order ",
-				intval($uid)
+				$uid
 		);
 
 		if (!$contacts)
 			return($forumlist);
 
-		foreach($contacts as $contact) {
+		while ($contact = dba::fetch($contacts)) {
 			$forumlist[] = array(
 				'url'	=> $contact['url'],
 				'name'	=> $contact['name'],
@@ -61,6 +61,8 @@ class ForumManager {
 				'thumb' => $contact['thumb'],
 			);
 		}
+		dba::close($contacts);
+
 		return($forumlist);
 	}
 

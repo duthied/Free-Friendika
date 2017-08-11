@@ -468,15 +468,16 @@ function get_birthdays() {
 	$cachekey = "get_birthdays:".local_user();
 	$r = Cache::get($cachekey);
 	if (is_null($r)) {
-		$r = q("SELECT `event`.*, `event`.`id` AS `eid`, `contact`.* FROM `event`
+		$s = dba::p("SELECT `event`.*, `event`.`id` AS `eid`, `contact`.* FROM `event`
 				INNER JOIN `contact` ON `contact`.`id` = `event`.`cid`
-				WHERE `event`.`uid` = %d AND `type` = 'birthday' AND `start` < '%s' AND `finish` > '%s'
+				WHERE `event`.`uid` = ? AND `type` = 'birthday' AND `start` < ? AND `finish` > ?
 				ORDER BY `start` ASC ",
-				intval(local_user()),
-				dbesc(datetime_convert('UTC','UTC','now + 6 days')),
-				dbesc(datetime_convert('UTC','UTC','now'))
+				local_user(),
+				datetime_convert('UTC','UTC','now + 6 days'),
+				datetime_convert('UTC','UTC','now')
 		);
-		if (dbm::is_result($r)) {
+		if (dbm::is_result($s)) {
+			$r = dba::inArray($s);
 			Cache::set($cachekey, $r, CACHE_HOUR);
 		}
 	}
@@ -555,18 +556,20 @@ function get_events() {
 	$bd_format = t('g A l F d') ; // 8 AM Friday January 18
 	$bd_short = t('F d');
 
-	$r = q("SELECT `event`.* FROM `event`
-			WHERE `event`.`uid` = %d AND `type` != 'birthday' AND `start` < '%s' AND `start` >= '%s'
+	$r = dba::p("SELECT `event`.* FROM `event`
+			WHERE `event`.`uid` = ? AND `type` != 'birthday' AND `start` < ? AND `start` >= ?
 			ORDER BY `start` ASC ",
-			intval(local_user()),
-			dbesc(datetime_convert('UTC','UTC','now + 7 days')),
-			dbesc(datetime_convert('UTC','UTC','now - 1 days'))
+			local_user(),
+			datetime_convert('UTC','UTC','now + 7 days'),
+			datetime_convert('UTC','UTC','now - 1 days')
 	);
 
 	if (dbm::is_result($r)) {
 		$now = strtotime('now');
 		$istoday = false;
-		foreach ($r as $rr) {
+		$skip = 0;
+
+		while ($rr = dba::fetch($r)) {
 			if (strlen($rr['name'])) {
 				$total ++;
 			}
@@ -575,12 +578,7 @@ function get_events() {
 			if ($strt === datetime_convert('UTC',$a->timezone,'now','Y-m-d')) {
 				$istoday = true;
 			}
-		}
-		$classtoday = (($istoday) ? 'event-today' : '');
 
-		$skip = 0;
-
-		foreach ($r as &$rr) {
 			$title = strip_tags(html_entity_decode(bbcode($rr['summary']),ENT_QUOTES,'UTF-8'));
 
 			if (strlen($title) > 35) {
@@ -607,6 +605,8 @@ function get_events() {
 			$rr['startime'] = $strt;
 			$rr['today'] = $today;
 		}
+		dba::close($r);
+		$classtoday = (($istoday) ? 'event-today' : '');
 	}
 
 	$tpl = get_markup_template("events_reminder.tpl");
