@@ -135,7 +135,7 @@ class Probe {
 		$xrd_data = array();
 
 		foreach ($links["xrd"]["link"] as $value => $link) {
-			if (isset($link["@attributes"])) {
+			if (!empty($link["@attributes"])) {
 				$attributes = $link["@attributes"];
 			} elseif ($value == "@attributes") {
 				$attributes = $link;
@@ -232,7 +232,7 @@ class Probe {
 			}
 
 			$host = $parts["host"];
-			if (isset($parts["port"])) {
+			if (!empty($parts["port"])) {
 				$host .= ':'.$parts["port"];
 			}
 
@@ -271,7 +271,7 @@ class Probe {
 			// Special treatment for Mastodon
 			// Problem is that Mastodon uses an URL format like http://domain.tld/@nick
 			// But the webfinger for this format fails.
-			if (!$webfinger && isset($nick)) {
+			if (!$webfinger && !empty($nick)) {
 				// Mastodon uses a "@" as prefix for usernames in their url format
 				$nick = ltrim($nick, '@');
 
@@ -339,8 +339,8 @@ class Probe {
 			$data["photo"] = App::get_baseurl().'/images/person-175.jpg';
 		}
 
-		if (!isset($data["name"]) || ($data["name"] == "")) {
-			if (isset($data["nick"])) {
+		if (empty($data["name"])) {
+			if (!empty($data["nick"])) {
 				$data["name"] = $data["nick"];
 			}
 
@@ -349,7 +349,7 @@ class Probe {
 			}
 		}
 
-		if (!isset($data["nick"]) || ($data["nick"] == "")) {
+		if (empty($data["nick"])) {
 			$data["nick"] = strtolower($data["name"]);
 
 			if (strpos($data['nick'], ' ')) {
@@ -480,9 +480,9 @@ class Probe {
 	private static function detect($uri, $network, $uid) {
 		$parts = parse_url($uri);
 
-		if (isset($parts["scheme"]) && isset($parts["host"]) && isset($parts["path"])) {
+		if (!empty($parts["scheme"]) && !empty($parts["host"]) && !empty($parts["path"])) {
 			$host = $parts["host"];
-			if (isset($parts["port"])) {
+			if (!empty($parts["port"])) {
 				$host .= ':'.$parts["port"];
 			}
 
@@ -609,18 +609,18 @@ class Probe {
 		} else {
 			// We overwrite the detected nick with our try if the previois routines hadn't detected it.
 			// Additionally it is overwritten when the nickname doesn't make sense (contains spaces).
-			if ((!isset($result["nick"]) || ($result["nick"] == "") || (strstr($result["nick"], " "))) && ($nick != "")) {
+			if ((empty($result["nick"]) || (strstr($result["nick"], " "))) && ($nick != "")) {
 				$result["nick"] = $nick;
 			}
 
-			if ((!isset($result["addr"]) || ($result["addr"] == "")) && ($addr != "")) {
+			if (empty($result["addr"]) && ($addr != "")) {
 				$result["addr"] = $addr;
 			}
 		}
 
 		logger($uri." is ".$result["network"], LOGGER_DEBUG);
 
-		if (!isset($result["baseurl"]) || ($result["baseurl"] == "")) {
+		if (empty($result["baseurl"])) {
 			$pos = strpos($result["url"], $host);
 			if ($pos) {
 				$result["baseurl"] = substr($result["url"], 0, $pos).$host;
@@ -672,18 +672,18 @@ class Probe {
 
 		$webfinger = array();
 
-		if (isset($xrd_arr["xrd"]["subject"])) {
+		if (!empty($xrd_arr["xrd"]["subject"])) {
 			$webfinger["subject"] = $xrd_arr["xrd"]["subject"];
 		}
 
-		if (isset($xrd_arr["xrd"]["alias"])) {
+		if (!empty($xrd_arr["xrd"]["alias"])) {
 			$webfinger["aliases"] = $xrd_arr["xrd"]["alias"];
 		}
 
 		$webfinger["links"] = array();
 
 		foreach ($xrd_arr["xrd"]["link"] as $value => $data) {
-			if (isset($data["@attributes"])) {
+			if (!empty($data["@attributes"])) {
 				$attributes = $data["@attributes"];
 			} elseif ($value == "@attributes") {
 				$attributes = $data;
@@ -724,23 +724,23 @@ class Probe {
 			return false;
 		}
 
-		if (isset($json["fn"])) {
+		if (!empty($json["fn"])) {
 			$data["name"] = $json["fn"];
 		}
 
-		if (isset($json["addr"])) {
+		if (!empty($json["addr"])) {
 			$data["addr"] = $json["addr"];
 		}
 
-		if (isset($json["nick"])) {
+		if (!empty($json["nick"])) {
 			$data["nick"] = $json["nick"];
 		}
 
-		if (isset($json["comm"])) {
+		if (!empty($json["comm"])) {
 			$data["community"] = $json["comm"];
 		}
 
-		if (isset($json["tags"])) {
+		if (!empty($json["tags"])) {
 			$keywords = implode(" ", $json["tags"]);
 			if ($keywords != "") {
 				$data["keywords"] = $keywords;
@@ -752,31 +752,31 @@ class Probe {
 			$data["location"] = $location;
 		}
 
-		if (isset($json["about"])) {
+		if (!empty($json["about"])) {
 			$data["about"] = $json["about"];
 		}
 
-		if (isset($json["key"])) {
+		if (!empty($json["key"])) {
 			$data["pubkey"] = $json["key"];
 		}
 
-		if (isset($json["photo"])) {
+		if (!empty($json["photo"])) {
 			$data["photo"] = $json["photo"];
 		}
 
-		if (isset($json["dfrn-request"])) {
+		if (!empty($json["dfrn-request"])) {
 			$data["request"] = $json["dfrn-request"];
 		}
 
-		if (isset($json["dfrn-confirm"])) {
+		if (!empty($json["dfrn-confirm"])) {
 			$data["confirm"] = $json["dfrn-confirm"];
 		}
 
-		if (isset($json["dfrn-notify"])) {
+		if (!empty($json["dfrn-notify"])) {
 			$data["notify"] = $json["dfrn-notify"];
 		}
 
-		if (isset($json["dfrn-poll"])) {
+		if (!empty($json["dfrn-poll"])) {
 			$data["poll"] = $json["dfrn-poll"];
 		}
 
@@ -1008,7 +1008,7 @@ class Probe {
 
 			// We don't have a width. So we just take everything that we got.
 			// This is a Hubzilla workaround which doesn't send a width.
-			if ((sizeof($avatar) == 0) && isset($attr["src"])) {
+			if ((sizeof($avatar) == 0) && !empty($attr["src"])) {
 				$avatar[] = $attr["src"];
 			}
 		}
