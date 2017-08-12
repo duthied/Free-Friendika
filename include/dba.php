@@ -1080,15 +1080,15 @@ class dba {
 				$callstack[$qkey] = true;
 
 				// Fetch all rows that are to be deleted
-				$sql = "SELECT ".self::$dbo->escape($field)." FROM `".$table."` WHERE `".
-				implode("` = ? AND `", array_keys($param))."` = ?";
+				$data = self::select($table, array($field), $param);
 
-				$data = self::p($sql, $param);
 				while ($row = self::fetch($data)) {
 					// Now we accumulate the delete commands
 					$retval = self::delete($table, array($field => $row[$field]), true, $callstack);
 					$commands = array_merge($commands, $retval);
 				}
+
+				self::close($data);
 
 				// Since we had split the delete command we don't need the original command anymore
 				unset($commands[$key]);
@@ -1105,14 +1105,22 @@ class dba {
 
 			$compacted = array();
 			$counter = array();
+
 			foreach ($commands AS $command) {
-				if (count($command['param']) > 1) {
-					$sql = "DELETE FROM `".$command['table']."` WHERE `".
-						implode("` = ? AND `", array_keys($command['param']))."` = ?";
+				$condition = $command['param'];
+				$array_element = each($condition);
+				$array_key = $array_element['key'];
+				if (is_int($array_key)) {
+					$condition_string = " WHERE ".array_shift($condition);
+				} else {
+					$condition_string = " WHERE `".implode("` = ? AND `", array_keys($condition))."` = ?";
+				}
 
-					logger(self::replace_parameters($sql, $command['param']), LOGGER_DATA);
+				if ((count($command['param']) > 1) || is_int($array_key)) {
+					$sql = "DELETE FROM `".$command['table']."`".$condition_string;
+					logger(self::replace_parameters($sql, $condition), LOGGER_DATA);
 
-					if (!self::e($sql, $command['param'])) {
+					if (!self::e($sql, $condition)) {
 						if ($do_transaction) {
 							self::rollback();
 						}
@@ -1159,7 +1167,7 @@ class dba {
 
 		return $commands;
 	}
-
+// $param
 	/**
 	 * @brief Updates rows
 	 *

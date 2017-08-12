@@ -81,7 +81,7 @@ function display_init(App $a) {
 				$contactid = get_contact($r['owner-link'], local_user());
 				if ($contactid) {
 					$items = dba::p("SELECT * FROM `item` WHERE `parent` = ? ORDER BY `id`", $r["id"]);
-					while ($item = self::fetch($items)) {
+					while ($item = dba::fetch($items)) {
 						$itemcontactid = get_contact($item['owner-link'], local_user());
 						if (!$itemcontactid) {
 							$itemcontactid = $contactid;
