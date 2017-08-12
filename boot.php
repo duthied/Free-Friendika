@@ -1090,9 +1090,9 @@ function proc_run($cmd) {
 	array_shift($argv);
 
 	$parameters = json_encode($argv);
-	$found = dba::select('workerqueue', array('id'), array('parameter' => $parameters, 'done' => false), array('limit' => 1));
+	$found = dba::exists('workerqueue', array('parameter' => $parameters, 'done' => false));
 
-	if (!dbm::is_result($found)) {
+	if (!$found) {
 		dba::insert('workerqueue', array('parameter' => $parameters, 'created' => $created, 'priority' => $priority));
 	}
 

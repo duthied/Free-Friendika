@@ -488,8 +488,6 @@ if (! function_exists('item_new_uri')) {
 function item_new_uri($hostname, $uid, $guid = "") {
 
 	do {
-		$dups = false;
-
 		if ($guid == "") {
 			$hash = get_guid(32);
 		} else {
@@ -499,10 +497,7 @@ function item_new_uri($hostname, $uid, $guid = "") {
 
 		$uri = "urn:X-dfrn:" . $hostname . ':' . $uid . ':' . $hash;
 
-		$r = dba::select('item', array('id'), array('uri' => $uri), array('limit' => 1));
-		if (dbm::is_result($r)) {
-			$dups = true;
-		}
+		$dups = dba::exists('item', array('uri' => $uri));
 	} while ($dups == true);
 
 	return $uri;

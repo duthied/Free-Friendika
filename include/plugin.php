@@ -121,8 +121,7 @@ function reload_plugins() {
  * @return boolean
  */
 function plugin_enabled($plugin) {
-	$r = dba::select('addon', array('id'), array('installed' => true, 'name' => $plugin), array('limit' => 1));
-	return ((dbm::is_result($r)) && (count($r) > 0));
+	return dba::exists('addon', array('installed' => true, 'name' => $plugin));
 }
 
 

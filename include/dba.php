@@ -767,13 +767,19 @@ class dba {
 	/**
 	 * @brief Check if data exists
 	 *
-	 * @param string $sql SQL statement
-	 * @return boolean Are there rows for that query?
+	 * @param string $table Table name
+	 * @param array $condition array of fields for condition
+	 *
+	 * @return boolean Are there rows for that condition?
 	 */
-	static public function exists($sql) {
-		$params = self::getParam(func_get_args());
+	static public function exists($table, $condition) {
+		if (empty($table)) {
+			return false;
+		}
 
-		$stmt = self::p($sql, $params);
+		$fields = array_keys($condition);
+
+		$stmt = self::select($table, array($fields[0]), $condition, array('limit' => 1, 'only_query' => true));
 
 		if (is_bool($stmt)) {
 			$retval = $stmt;
@@ -1270,11 +1276,13 @@ class dba {
 			$param_string = substr($param_string, 0, -2);
 		}
 
-		if (isset($params['limit'])) {
-			if (is_int($params['limit'])) {
-				$param_string .= " LIMIT ".$params['limit'];
-				$single_row =($params['limit'] == 1);
-			}
+		if (isset($params['limit']) && is_int($params['limit'])) {
+			$param_string .= " LIMIT ".$params['limit'];
+			$single_row = ($params['limit'] == 1);
+		}
+
+		if (isset($params['only_query']) && $params['only_query']) {
+			$single_row = !$params['only_query'];
 		}
 
 		$sql = "SELECT ".$select_fields." FROM `".$table."`".$condition_string.$param_string;

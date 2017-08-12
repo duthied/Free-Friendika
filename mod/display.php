@@ -292,8 +292,8 @@ function display_content(App $a, $update = 0) {
 	}
 
 	// We are displaying an "alternate" link if that post was public. See issue 2864
-	$items = dba::select('item', array('id'), array('id' => $item_id, 'private' => false, 'wall' => true));
-	if (dbm::is_result($items)) {
+	$is_public = dba::exists('item', array('id' => $item_id, 'private' => false, 'wall' => true));
+	if ($is_public) {
 		$alternate = App::get_baseurl().'/display/'.$nick.'/'.$item_id.'.atom';
 	} else {
 		$alternate = '';
@@ -369,14 +369,14 @@ function display_content(App $a, $update = 0) {
 	$sql_extra = item_permissions_sql($a->profile['uid'],$remote_contact,$groups);
 
 	if ($update) {
-		$r = dba::exists("SELECT `id` FROM `item` WHERE `item`.`uid` = ?
+		$r = dba::p("SELECT `id` FROM `item` WHERE `item`.`uid` = ?
 			AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = ?)
 			$sql_extra AND `unseen`",
 			$a->profile['uid'],
 			$item_id
 		);
 
-		if (!$r) {
+		if (dba::num_rows($r) == 0) {
 			return '';
 		}
 	}
