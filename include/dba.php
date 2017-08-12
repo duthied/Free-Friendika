@@ -412,21 +412,6 @@ class dba {
 		return $connected;
 	}
 
-	function insert_id() {
-		switch ($this->driver) {
-			case 'pdo':
-				$id = $this->db->lastInsertId();
-				break;
-			case 'mysqli':
-				$id = $this->db->insert_id;
-				break;
-			case 'mysql':
-				$id = mysql_insert_id($this->db);
-				break;
-		}
-		return $id;
-	}
-
 	function __destruct() {
 		if ($this->db) {
 			switch ($this->driver) {
@@ -777,9 +762,15 @@ class dba {
 			return false;
 		}
 
-		$fields = array_keys($condition);
+		$fields = array();
 
-		$stmt = self::select($table, array($fields[0]), $condition, array('limit' => 1, 'only_query' => true));
+		$array_element = each($condition);
+		$array_key = $array_element['key'];
+		if (!is_int($array_key)) {
+			$fields = array($array_key);
+		}
+
+		$stmt = self::select($table, $fields, $condition, array('limit' => 1, 'only_query' => true));
 
 		if (is_bool($stmt)) {
 			$retval = $stmt;
@@ -912,6 +903,26 @@ class dba {
 		}
 
 		return self::e($sql, $param);
+	}
+
+	/**
+	 * @brief Fetch the id of the last insert command
+	 *
+	 * @return integer Last inserted id
+	 */
+	function lastInsertId() {
+		switch (self::$dbo->driver) {
+			case 'pdo':
+				$id = self::$dbo->db->lastInsertId();
+				break;
+			case 'mysqli':
+				$id = self::$dbo->db->insert_id;
+				break;
+			case 'mysql':
+				$id = mysql_insert_id(self::$dbo);
+				break;
+		}
+		return $id;
 	}
 
 	/**
@@ -1181,15 +1192,23 @@ class dba {
 
 		$table = self::$dbo->escape($table);
 
+		if (count($condition) > 0) {
+			$array_element = each($condition);
+			$array_key = $array_element['key'];
+			if (is_int($array_key)) {
+				$condition_string = " WHERE ".array_shift($condition);
+			} else {
+				$condition_string = " WHERE `".implode("` = ? AND `", array_keys($condition))."` = ?";
+			}
+		} else {
+			$condition_string = "";
+		}
+
 		if (is_bool($old_fields)) {
-			$sql = "SELECT * FROM `".$table."` WHERE `".
-			implode("` = ? AND `", array_keys($condition))."` = ? LIMIT 1";
-
-			$params = array_values($condition);
-
 			$do_insert = $old_fields;
 
-			$old_fields = self::fetch_first($sql, $params);
+			$old_fields = self::select($table, array(), $condition, array('limit' => 1));
+
 			if (is_bool($old_fields)) {
 				if ($do_insert) {
 					$values = array_merge($condition, $fields);
@@ -1216,8 +1235,7 @@ class dba {
 		}
 
 		$sql = "UPDATE `".$table."` SET `".
-			implode("` = ?, `", array_keys($fields))."` = ? WHERE `".
-			implode("` = ? AND `", array_keys($condition))."` = ?";
+			implode("` = ?, `", array_keys($fields))."` = ?".$condition_string;
 
 		$params1 = array_values($fields);
 		$params2 = array_values($condition);
@@ -1256,7 +1274,13 @@ class dba {
 		}
 
 		if (count($condition) > 0) {
-			$condition_string = " WHERE `".implode("` = ? AND `", array_keys($condition))."` = ?";
+			$array_element = each($condition);
+			$array_key = $array_element['key'];
+			if (is_int($array_key)) {
+				$condition_string = " WHERE ".array_shift($condition);
+			} else {
+				$condition_string = " WHERE `".implode("` = ? AND `", array_keys($condition))."` = ?";
+			}
 		} else {
 			$condition_string = "";
 		}
