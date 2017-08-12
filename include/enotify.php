@@ -45,9 +45,14 @@ function notification($params) {
 	if (empty($sender_email))
 		$sender_email = t('noreply').'@'.$hostname;
 
-	$user = q("SELECT `nickname` FROM `user` WHERE `uid` = %d", intval($params['uid']));
-	if ($user)
-		$nickname = $user[0]["nickname"];
+	$user = dba::select('user', array('nickname', 'page-flags'),
+			array('uid' => $params['uid']), array('limit' => 1));
+
+	// There is no need to create notifications for forum accounts
+	if (!dbm::is_result($user) || in_array($user["page-flags"], array(PAGE_COMMUNITY, PAGE_PRVGROUP))) {
+		return;
+	}
+	$nickname = $user["nickname"];
 
 	// with $params['show_in_notification_page'] == false, the notification isn't inserted into
 	// the database, and an email is sent if applicable.
