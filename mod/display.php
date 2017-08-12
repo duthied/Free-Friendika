@@ -80,7 +80,7 @@ function display_init(App $a) {
 				// We really should change this need for the future since it scales very bad.
 				$contactid = get_contact($r['owner-link'], local_user());
 				if ($contactid) {
-					$items = dba::p("SELECT * FROM `item` WHERE `parent` = ? ORDER BY `id`", $r["id"]);
+					$items = dba::select('item', array(), array('parent' => $r["id"]), array('order' => array('id')));
 					while ($item = dba::fetch($items)) {
 						$itemcontactid = get_contact($item['owner-link'], local_user());
 						if (!$itemcontactid) {

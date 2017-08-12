@@ -262,7 +262,7 @@ function delete_thread($itemid, $itemuri = "") {
 function update_threads() {
 	logger("update_threads: start");
 
-	$messages = dba::p("SELECT `id` FROM `item` WHERE `id` = `parent`");
+	$messages = dba::select('item', array('id'), array("`id` = `parent`"));
 
 	logger("update_threads: fetched messages: ".dba::num_rows($messages));
 
@@ -292,9 +292,9 @@ function update_threads_mention() {
 function update_shadow_copy() {
 	logger("start");
 
-	$messages = dba::p("SELECT `iid` FROM `thread` WHERE `uid` != 0 AND `network` IN ('', ?, ?, ?)
-				AND `visible` AND NOT `deleted` AND NOT `moderated` AND NOT `private` ORDER BY `created`",
-				NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS);
+	$condition = "`uid` != 0 AND `network` IN ('', ?, ?, ?) AND `visible` AND NOT `deleted` AND NOT `moderated` AND NOT `private`";
+	$messages = dba::select('thread', array('iid'), array($condition, NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS),
+				array('order' => 'created'));
 
 	logger("fetched messages: ".dba::num_rows($messages));
 	while ($message = dba::fetch($messages))

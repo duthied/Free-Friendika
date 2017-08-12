@@ -680,8 +680,9 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 				$hashtags = array();
 				$mentions = array();
 
-				$taglist = dba::p("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = ? AND `oid` = ? AND `type` IN (?, ?) ORDER BY `tid`",
-						intval(TERM_OBJ_POST), intval($item['id']), intval(TERM_HASHTAG), intval(TERM_MENTION));
+				$taglist = dba::select('term', array('type', 'term', 'url'),
+							array("`otype` = ? AND `oid` = ? AND `type` IN (?, ?)", TERM_OBJ_POST, $item['id'], TERM_HASHTAG, TERM_MENTION),
+							array('order' => array('tid')));
 
 				while ($tag = dba::fetch($taglist)) {
 					if ($tag["url"] == "") {

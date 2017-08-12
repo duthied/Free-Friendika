@@ -56,7 +56,7 @@ function contact_remove($id) {
 		return;
 	}
 
-	q("DELETE FROM `contact` WHERE `id` = %d", intval($id));
+	dba::delete('contact', array('id' => $id));
 
 	// Delete the rest in the background
 	proc_run(PRIORITY_LOW, 'include/remove_contact.php', $id);
@@ -617,8 +617,8 @@ function get_contact($url, $uid = 0, $no_update = false) {
 		}
 
 		if (count($contacts) > 1 && $uid == 0 && $contact_id != 0 && $data["url"] != "") {
-			dba::e("DELETE FROM `contact` WHERE `nurl` = ? AND `uid` = 0 AND `id` != ? AND NOT `self`",
-				normalise_link($data["url"]), $contact_id);
+			dba::delete('contact', array("`nurl` = ? AND `uid` = 0 AND `id` != ? AND NOT `self`",
+				normalise_link($data["url"]), $contact_id));
 		}
 	}
 
