@@ -49,7 +49,7 @@ function profile_load(App $a, $nickname, $profile = 0, $profiledata = array()) {
 
 	$pdata = get_profiledata_by_nick($nickname, $user[0]['uid'], $profile);
 
-	if (($pdata === false) || (!count($pdata)) && !count($profiledata)) {
+	if (empty($pdata) && empty($profiledata)) {
 		logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
 		notice( t('Requested profile is not available.') . EOL );
 		$a->error = 404;
