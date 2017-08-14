@@ -553,7 +553,7 @@ function get_events() {
 	$bd_format = t('g A l F d') ; // 8 AM Friday January 18
 	$bd_short = t('F d');
 
-	$r = dba::p("SELECT `event`.* FROM `event`
+	$s = dba::p("SELECT `event`.* FROM `event`
 			WHERE `event`.`uid` = ? AND `type` != 'birthday' AND `start` < ? AND `start` >= ?
 			ORDER BY `start` ASC ",
 			local_user(),
@@ -561,12 +561,13 @@ function get_events() {
 			datetime_convert('UTC','UTC','now - 1 days')
 	);
 
-	if (dbm::is_result($r)) {
+	$r = array();
+
+	if (dbm::is_result($s)) {
 		$now = strtotime('now');
 		$istoday = false;
-		$skip = 0;
 
-		while ($rr = dba::fetch($r)) {
+		while ($rr = dba::fetch($s)) {
 			if (strlen($rr['name'])) {
 				$total ++;
 			}
@@ -590,7 +591,6 @@ function get_events() {
 			$strt = datetime_convert('UTC',$rr['convert'] ? $a->timezone : 'UTC',$rr['start']);
 
 			if (substr($strt,0,10) < datetime_convert('UTC',$a->timezone,'now','Y-m-d')) {
-				$skip++;
 				continue;
 			}
 
@@ -601,16 +601,17 @@ function get_events() {
 			$rr['date'] = day_translate(datetime_convert('UTC', $rr['adjust'] ? $a->timezone : 'UTC', $rr['start'], $bd_format)) . (($today) ?  ' ' . t('[today]') : '');
 			$rr['startime'] = $strt;
 			$rr['today'] = $today;
+
+			$r[] = $rr;
 		}
-		dba::close($r);
+		dba::close($s);
 		$classtoday = (($istoday) ? 'event-today' : '');
 	}
-
 	$tpl = get_markup_template("events_reminder.tpl");
 	return replace_macros($tpl, array(
 		'$baseurl' => App::get_baseurl(),
 		'$classtoday' => $classtoday,
-		'$count' => count($r) - $skip,
+		'$count' => count($r),
 		'$event_reminders' => t('Event Reminders'),
 		'$event_title' => t('Events this week:'),
 		'$events' => $r,
