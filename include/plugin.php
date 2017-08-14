@@ -544,6 +544,8 @@ function upgrade_bool_message($bbcode = false) {
  * @return string Path to the file or empty string if the file isn't found
  */
 function theme_include($file, $root = '') {
+	$file = basename($file);
+
 	// Make sure $root ends with a slash / if it's not blank
 	if ($root !== '' && $root[strlen($root)-1] !== '/') {
 		$root = $root . '/';
