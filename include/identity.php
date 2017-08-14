@@ -245,11 +245,7 @@ function profile_sidebar($profile, $block = 0) {
 			$profile_url = normalise_link(App::get_baseurl()."/profile/".$profile["nickname"]);
 		}
 
-		$r = q("SELECT * FROM `contact` WHERE NOT `pending` AND `uid` = %d AND `nurl` = '%s'",
-			local_user(), $profile_url);
-
-		if (dbm::is_result($r))
-			$connect = false;
+		$connect = !dba::exists('contact', array('pending' => false, 'uid' => local_user(), 'nurl' => $profile_url));
 	}
 
 	if ($connect && ($profile['network'] != NETWORK_DFRN) && !isset($profile['remoteconnect']))
@@ -469,15 +465,16 @@ function get_birthdays() {
 	$cachekey = "get_birthdays:".local_user();
 	$r = Cache::get($cachekey);
 	if (is_null($r)) {
-		$r = q("SELECT `event`.*, `event`.`id` AS `eid`, `contact`.* FROM `event`
+		$s = dba::p("SELECT `event`.*, `event`.`id` AS `eid`, `contact`.* FROM `event`
 				INNER JOIN `contact` ON `contact`.`id` = `event`.`cid`
-				WHERE `event`.`uid` = %d AND `type` = 'birthday' AND `start` < '%s' AND `finish` > '%s'
+				WHERE `event`.`uid` = ? AND `type` = 'birthday' AND `start` < ? AND `finish` > ?
 				ORDER BY `start` ASC ",
-				intval(local_user()),
-				dbesc(datetime_convert('UTC','UTC','now + 6 days')),
-				dbesc(datetime_convert('UTC','UTC','now'))
+				local_user(),
+				datetime_convert('UTC','UTC','now + 6 days'),
+				datetime_convert('UTC','UTC','now')
 		);
-		if (dbm::is_result($r)) {
+		if (dbm::is_result($s)) {
+			$r = dba::inArray($s);
 			Cache::set($cachekey, $r, CACHE_HOUR);
 		}
 	}
@@ -556,18 +553,21 @@ function get_events() {
 	$bd_format = t('g A l F d') ; // 8 AM Friday January 18
 	$bd_short = t('F d');
 
-	$r = q("SELECT `event`.* FROM `event`
-			WHERE `event`.`uid` = %d AND `type` != 'birthday' AND `start` < '%s' AND `start` >= '%s'
+	$s = dba::p("SELECT `event`.* FROM `event`
+			WHERE `event`.`uid` = ? AND `type` != 'birthday' AND `start` < ? AND `start` >= ?
 			ORDER BY `start` ASC ",
-			intval(local_user()),
-			dbesc(datetime_convert('UTC','UTC','now + 7 days')),
-			dbesc(datetime_convert('UTC','UTC','now - 1 days'))
+			local_user(),
+			datetime_convert('UTC','UTC','now + 7 days'),
+			datetime_convert('UTC','UTC','now - 1 days')
 	);
 
-	if (dbm::is_result($r)) {
+	$r = array();
+
+	if (dbm::is_result($s)) {
 		$now = strtotime('now');
 		$istoday = false;
-		foreach ($r as $rr) {
+
+		while ($rr = dba::fetch($s)) {
 			if (strlen($rr['name'])) {
 				$total ++;
 			}
@@ -576,12 +576,7 @@ function get_events() {
 			if ($strt === datetime_convert('UTC',$a->timezone,'now','Y-m-d')) {
 				$istoday = true;
 			}
-		}
-		$classtoday = (($istoday) ? 'event-today' : '');
 
-		$skip = 0;
-
-		foreach ($r as &$rr) {
 			$title = strip_tags(html_entity_decode(bbcode($rr['summary']),ENT_QUOTES,'UTF-8'));
 
 			if (strlen($title) > 35) {
@@ -596,7 +591,6 @@ function get_events() {
 			$strt = datetime_convert('UTC',$rr['convert'] ? $a->timezone : 'UTC',$rr['start']);
 
 			if (substr($strt,0,10) < datetime_convert('UTC',$a->timezone,'now','Y-m-d')) {
-				$skip++;
 				continue;
 			}
 
@@ -607,14 +601,17 @@ function get_events() {
 			$rr['date'] = day_translate(datetime_convert('UTC', $rr['adjust'] ? $a->timezone : 'UTC', $rr['start'], $bd_format)) . (($today) ?  ' ' . t('[today]') : '');
 			$rr['startime'] = $strt;
 			$rr['today'] = $today;
-		}
-	}
 
+			$r[] = $rr;
+		}
+		dba::close($s);
+		$classtoday = (($istoday) ? 'event-today' : '');
+	}
 	$tpl = get_markup_template("events_reminder.tpl");
 	return replace_macros($tpl, array(
 		'$baseurl' => App::get_baseurl(),
 		'$classtoday' => $classtoday,
-		'$count' => count($r) - $skip,
+		'$count' => count($r),
 		'$event_reminders' => t('Event Reminders'),
 		'$event_title' => t('Events this week:'),
 		'$events' => $r,

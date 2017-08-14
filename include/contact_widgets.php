@@ -108,19 +108,20 @@ function networks_widget($baseurl, $selected = '') {
 
 	$extra_sql = unavailable_networks();
 
-	$r = q("SELECT DISTINCT(`network`) FROM `contact` WHERE `uid` = %d AND `network` != '' $extra_sql ORDER BY `network`",
-		intval(local_user())
+	$r = dba::p("SELECT DISTINCT(`network`) FROM `contact` WHERE `uid` = ? AND `network` != '' $extra_sql ORDER BY `network`",
+		local_user()
 	);
 
 	$nets = array();
 	if (dbm::is_result($r)) {
 		require_once 'include/contact_selectors.php';
-		foreach ($r as $rr) {
+		while ($rr = dba::fetch($r)) {
 			/// @TODO If 'network' is not there, this triggers an E_NOTICE
 			if ($rr['network']) {
 				$nets[] = array('ref' => $rr['network'], 'name' => network_to_name($rr['network']), 'selected' => (($selected == $rr['network']) ? 'selected' : '' ));
 			}
 		}
+		dba::close($r);
 	}
 
 	if (count($nets) < 2) {
@@ -229,18 +230,14 @@ function common_friends_visitor_widget($profile_uid) {
 
 	if (! $cid) {
 		if (get_my_url()) {
-			$r = q("select id from contact where nurl = '%s' and uid = %d limit 1",
-				dbesc(normalise_link(get_my_url())),
-				intval($profile_uid)
-			);
+			$r = dba::select('contact', array('id'),
+					array('nurl' => normalise_link(get_my_url()), 'uid' => $profile_uid), array('limit' => 1));
 			if (dbm::is_result($r)) {
-				$cid = $r[0]['id'];
+				$cid = $r['id'];
 			} else {
-				$r = q("select id from gcontact where nurl = '%s' limit 1",
-					dbesc(normalise_link(get_my_url()))
-				);
+				$r = dba::select('gcontact', array('id'), array('nurl' => normalise_link(get_my_url())), array('limit' => 1));
 				if (dbm::is_result($r))
-					$zcid = $r[0]['id'];
+					$zcid = $r['id'];
 			}
 		}
 	}

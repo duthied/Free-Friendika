@@ -220,8 +220,8 @@ function z_fetch_url($url, $binary = false, &$redirects = 0, $opts = array()) {
 	if (!$ret['success']) {
 		$ret['error'] = curl_error($ch);
 		$ret['debug'] = $curl_info;
-		logger('z_fetch_url: error: ' . $url . ': ' . $ret['error'], LOGGER_DEBUG);
-		logger('z_fetch_url: debug: ' . print_r($curl_info, true), LOGGER_DATA);
+		logger('z_fetch_url: error: '.$url.': '.$ret['return_code'].' - '.$ret['error'], LOGGER_DEBUG);
+		logger('z_fetch_url: debug: '.print_r($curl_info, true), LOGGER_DATA);
 	}
 
 	$ret['body'] = substr($s, strlen($header));

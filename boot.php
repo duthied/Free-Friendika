@@ -42,7 +42,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
 define ( 'FRIENDICA_VERSION',      '3.5.3-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1233      );
+define ( 'DB_UPDATE_VERSION',      1234      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -1090,9 +1090,9 @@ function proc_run($cmd) {
 	array_shift($argv);
 
 	$parameters = json_encode($argv);
-	$found = dba::select('workerqueue', array('id'), array('parameter' => $parameters, 'done' => false), array('limit' => 1));
+	$found = dba::exists('workerqueue', array('parameter' => $parameters, 'done' => false));
 
-	if (!dbm::is_result($found)) {
+	if (!$found) {
 		dba::insert('workerqueue', array('parameter' => $parameters, 'created' => $created, 'priority' => $priority));
 	}
 

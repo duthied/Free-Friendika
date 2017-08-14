@@ -1025,7 +1025,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 	if (dbm::is_result($servers) && ($orig_server_url == $server_url) &&
 		($serverret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
 		logger("Connection to server ".$server_url." timed out.", LOGGER_DEBUG);
-		dba::p("UPDATE `gserver` SET `last_failure` = ? WHERE `nurl` = ?", datetime_convert(), normalise_link($server_url));
+		dba::update('gserver', array('last_failure' => datetime_convert()), array('nurl' => normalise_link($server_url)));
 		return false;
 	}
 
@@ -1040,7 +1040,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		// Quit if there is a timeout
 		if ($serverret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			logger("Connection to server ".$server_url." timed out.", LOGGER_DEBUG);
-			dba::p("UPDATE `gserver` SET `last_failure` = ? WHERE `nurl` = ?", datetime_convert(), normalise_link($server_url));
+			dba::update('gserver', array('last_failure' => datetime_convert()), array('nurl' => normalise_link($server_url)));
 			return false;
 		}
 

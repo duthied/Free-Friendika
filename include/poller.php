@@ -474,8 +474,9 @@ function poller_max_connections_reached() {
  *
  */
 function poller_kill_stale_workers() {
-	$entries = dba::p("SELECT `id`, `pid`, `executed`, `priority`, `parameter` FROM `workerqueue` WHERE `executed` > ? AND NOT `done` AND `pid` != 0 ORDER BY `priority`, `created`", NULL_DATE);
-
+	$entries = dba::select('workerqueue', array('id', 'pid', 'executed', 'priority', 'parameter'),
+				array('`executed` > ? AND NOT `done` AND `pid` != 0', NULL_DATE),
+				array('order' => array('priority', 'created')));
 	while ($entry = dba::fetch($entries)) {
 		if (!posix_kill($entry["pid"], 0)) {
 			dba::update('workerqueue', array('executed' => NULL_DATE, 'pid' => 0),
@@ -698,10 +699,8 @@ function find_worker_processes(&$passing_slow) {
 
 	if (poller_passing_slow($highest_priority)) {
 		// Are there waiting processes with a higher priority than the currently highest?
-		$result = dba::p("SELECT `id` FROM `workerqueue`
-					WHERE `executed` <= ? AND `priority` < ? AND NOT `done`
-					ORDER BY `priority`, `created` LIMIT ".intval($limit),
-				NULL_DATE, $highest_priority);
+		$result = dba::select('workerqueue', array('id'), array("`executed` <= ? AND `priority` < ? AND NOT `done`", NULL_DATE, $highest_priority),
+				array('limit' => $limit, 'order' => array('priority', 'created'), 'only_query' => true));
 
 		while ($id = dba::fetch($result)) {
 			$ids[] = $id["id"];
@@ -712,10 +711,8 @@ function find_worker_processes(&$passing_slow) {
 
 		if (!$found) {
 			// Give slower processes some processing time
-			$result = dba::p("SELECT `id` FROM `workerqueue`
-						WHERE `executed` <= ? AND `priority` > ? AND NOT `done`
-						ORDER BY `priority`, `created` LIMIT ".intval($limit),
-					NULL_DATE, $highest_priority);
+			$result = dba::select('workerqueue', array('id'), array("`executed` <= ? AND `priority` > ? AND NOT `done`", NULL_DATE, $highest_priority),
+					array('limit' => $limit, 'order' => array('priority', 'created'), 'only_query' => true));
 
 			while ($id = dba::fetch($result)) {
 				$ids[] = $id["id"];
@@ -729,7 +726,8 @@ function find_worker_processes(&$passing_slow) {
 
 	// If there is no result (or we shouldn't pass lower processes) we check without priority limit
 	if (!$found) {
-		$result = dba::p("SELECT `id` FROM `workerqueue` WHERE `executed` <= ? AND NOT `done` ORDER BY `priority`, `created` LIMIT ".intval($limit), NULL_DATE);
+		$result = dba::select('workerqueue', array('id'), array("`executed` <= ? AND NOT `done`", NULL_DATE),
+				array('limit' => $limit, 'order' => array('priority', 'created'), 'only_query' => true));
 
 		while ($id = dba::fetch($result)) {
 			$ids[] = $id["id"];
@@ -740,9 +738,9 @@ function find_worker_processes(&$passing_slow) {
 	}
 
 	if ($found) {
-		$sql = "UPDATE `workerqueue` SET `executed` = ?, `pid` = ? WHERE `id` IN (".substr(str_repeat("?, ", count($ids)), 0, -2).") AND `pid` = 0 AND NOT `done`;";
-		array_unshift($ids, datetime_convert(), $mypid);
-		dba::e($sql, $ids);
+		$condition = "`id` IN (".substr(str_repeat("?, ", count($ids)), 0, -2).") AND `pid` = 0 AND NOT `done`";
+		array_unshift($ids, $condition);
+		dba::update('workerqueue', array('executed' => datetime_convert(), 'pid' => $mypid), $ids);
 	}
 
 	return $found;

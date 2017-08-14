@@ -498,7 +498,7 @@ if (isset($_GET["mode"])) {
 }
 
 // If there is no page template use the default page template
-if (!$template) {
+if (empty($template)) {
 	$template = theme_include("default.php");
 }
 

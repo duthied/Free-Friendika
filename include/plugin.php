@@ -121,8 +121,7 @@ function reload_plugins() {
  * @return boolean
  */
 function plugin_enabled($plugin) {
-	$r = q("SELECT * FROM `addon` WHERE `installed` = 1 AND `name` = '%s'", $plugin);
-	return ((dbm::is_result($r)) && (count($r) > 0));
+	return dba::exists('addon', array('installed' => true, 'name' => $plugin));
 }
 
 
@@ -545,6 +544,8 @@ function upgrade_bool_message($bbcode = false) {
  * @return string Path to the file or empty string if the file isn't found
  */
 function theme_include($file, $root = '') {
+	$file = basename($file);
+
 	// Make sure $root ends with a slash / if it's not blank
 	if ($root !== '' && $root[strlen($root)-1] !== '/') {
 		$root = $root . '/';

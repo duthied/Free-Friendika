@@ -6,13 +6,11 @@ require_once("include/Photo.php");
 define("IMPORT_DEBUG", False);
 
 function last_insert_id() {
-	global $db;
-
 	if (IMPORT_DEBUG) {
 		return 1;
 	}
 
-	return $db->insert_id();
+	return dba::lastInsertId();
 }
 
 function last_error() {

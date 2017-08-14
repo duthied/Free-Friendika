@@ -887,12 +887,7 @@ function item_post(App $a) {
 	);
 
 	if (dbm::is_result($r)) {
-		$r = q("SELECT LAST_INSERT_ID() AS `item-id`");
-		if (dbm::is_result($r)) {
-			$post_id = $r[0]['item-id'];
-		} else {
-			$post_id = 0;
-		}
+		$post_id = dba::lastInsertId();
 	} else {
 		logger('mod_item: unable to create post.');
 		$post_id = 0;

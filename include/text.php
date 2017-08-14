@@ -488,8 +488,6 @@ if (! function_exists('item_new_uri')) {
 function item_new_uri($hostname, $uid, $guid = "") {
 
 	do {
-		$dups = false;
-
 		if ($guid == "") {
 			$hash = get_guid(32);
 		} else {
@@ -499,11 +497,7 @@ function item_new_uri($hostname, $uid, $guid = "") {
 
 		$uri = "urn:X-dfrn:" . $hostname . ':' . $uid . ':' . $hash;
 
-		$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' LIMIT 1",
-			dbesc($uri));
-		if (dbm::is_result($r)) {
-			$dups = true;
-		}
+		$dups = dba::exists('item', array('uri' => $uri));
 	} while ($dups == true);
 
 	return $uri;
@@ -1290,9 +1284,9 @@ function put_item_in_cache(&$item, $update = false) {
 		$item["rendered-hash"] = hash("md5", $item["body"]);
 		$item["body"] = $body;
 
-		if ($update && ($item["id"] != 0)) {
-			q("UPDATE `item` SET `rendered-html` = '%s', `rendered-hash` = '%s' WHERE `id` = %d",
-				dbesc($item["rendered-html"]), dbesc($item["rendered-hash"]), intval($item["id"]));
+		if ($update && ($item["id"] > 0)) {
+			dba::update('item', array('rendered-html' => $item["rendered-html"], 'rendered-hash' => $item["rendered-hash"]),
+					array('id' => $item["id"]), false);
 		}
 	}
 }
@@ -1324,11 +1318,10 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 	$mentions = array();
 
 	if (!get_config('system','suppress_tags')) {
-		$taglist = q("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` IN (%d, %d) ORDER BY `tid`",
+		$taglist = dba::p("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = ? AND `oid` = ? AND `type` IN (?, ?) ORDER BY `tid`",
 				intval(TERM_OBJ_POST), intval($item['id']), intval(TERM_HASHTAG), intval(TERM_MENTION));
 
-		foreach ($taglist as $tag) {
-
+		while ($tag = dba::fetch($taglist)) {
 			if ($tag["url"] == "") {
 				$tag["url"] = $searchpath.strtolower($tag["term"]);
 			}
@@ -1342,6 +1335,7 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 			}
 			$tags[] = $prefix."<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
 		}
+		dba::close($taglist);
 	}
 
 	$item['tags'] = $tags;
@@ -1665,7 +1659,7 @@ function generate_user_guid() {
 		if (! dbm::is_result($x)) {
 			$found = false;
 		}
-	} while ($found == true );
+	} while ($found == true);
 
 	return $guid;
 }

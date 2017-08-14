@@ -11,7 +11,6 @@ function community_init(App $a) {
 }
 
 function community_content(App $a, $update = 0) {
-
 	$o = '';
 
 	if ((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
@@ -92,34 +91,27 @@ function community_getitems($start, $itemspage) {
 	if (Config::get('system','community_page_style') == CP_GLOBAL_COMMUNITY) {
 		return(community_getpublicitems($start, $itemspage));
 	}
-	$r = qu("SELECT %s
-		FROM `thread`
+	$r = dba::p("SELECT ".item_fieldlists()." FROM `thread`
 		INNER JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
 		INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
 		AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
-		AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-		%s AND `contact`.`self`
+		AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''".
+		item_joins()." AND `contact`.`self`
 		WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
 		AND NOT `thread`.`private` AND `thread`.`wall`
-		ORDER BY `thread`.`received` DESC LIMIT %d, %d",
-		item_fieldlists(), item_joins(),
-		intval($start), intval($itemspage)
+		ORDER BY `thread`.`received` DESC LIMIT ".intval($start).", ".intval($itemspage)
 	);
 
-	return($r);
-
+	return dba::inArray($r);
 }
 
 function community_getpublicitems($start, $itemspage) {
-
-	$r = qu("SELECT %s
-		FROM `thread`
-		INNER JOIN `item` ON `item`.`id` = `thread`.`iid` %s
-		WHERE `thread`.`uid` = 0 AND `verb` = '%s'
-		ORDER BY `thread`.`created` DESC LIMIT %d, %d",
-		item_fieldlists(), item_joins(),
-		dbesc(ACTIVITY_POST), intval($start), intval($itemspage)
+	$r = dba::p("SELECT ".item_fieldlists()." FROM `thread`
+		INNER JOIN `item` ON `item`.`id` = `thread`.`iid` ".item_joins().
+		"WHERE `thread`.`uid` = 0 AND `verb` = ?
+		ORDER BY `thread`.`created` DESC LIMIT ".intval($start).", ".intval($itemspage),
+		ACTIVITY_POST
 	);
 
-	return($r);
+	return dba::inArray($r);
 }

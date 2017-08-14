@@ -680,11 +680,11 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 				$hashtags = array();
 				$mentions = array();
 
-				$taglist = q("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` IN (%d, %d) ORDER BY `tid`",
-						intval(TERM_OBJ_POST), intval($item['id']), intval(TERM_HASHTAG), intval(TERM_MENTION));
+				$taglist = dba::select('term', array('type', 'term', 'url'),
+							array("`otype` = ? AND `oid` = ? AND `type` IN (?, ?)", TERM_OBJ_POST, $item['id'], TERM_HASHTAG, TERM_MENTION),
+							array('order' => array('tid')));
 
-				foreach ($taglist as $tag) {
-
+				while ($tag = dba::fetch($taglist)) {
 					if ($tag["url"] == "") {
 						$tag["url"] = $searchpath . strtolower($tag["term"]);
 					}
@@ -698,6 +698,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 					}
 					$tags[] = $prefix."<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
 				}
+				dba::close($taglist);
 
 				$sp = false;
 				$profile_link = best_link_url($item,$sp);

@@ -963,13 +963,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 
 	// When the item was successfully stored we fetch the ID of the item.
 	if (dbm::is_result($r)) {
-		$r = q("SELECT LAST_INSERT_ID() AS `item-id`");
-		if (dbm::is_result($r)) {
-			$current_post = $r[0]['item-id'];
-		} else {
-			// This shouldn't happen
-			$current_post = 0;
-		}
+		$current_post = dba::lastInsertId();
 	} else {
 		// This can happen - for example - if there are locking timeouts.
 		dba::rollback();

@@ -412,21 +412,6 @@ class dba {
 		return $connected;
 	}
 
-	function insert_id() {
-		switch ($this->driver) {
-			case 'pdo':
-				$id = $this->db->lastInsertId();
-				break;
-			case 'mysqli':
-				$id = $this->db->insert_id;
-				break;
-			case 'mysql':
-				$id = mysql_insert_id($this->db);
-				break;
-		}
-		return $id;
-	}
-
 	function __destruct() {
 		if ($this->db) {
 			switch ($this->driver) {
@@ -767,13 +752,25 @@ class dba {
 	/**
 	 * @brief Check if data exists
 	 *
-	 * @param string $sql SQL statement
-	 * @return boolean Are there rows for that query?
+	 * @param string $table Table name
+	 * @param array $condition array of fields for condition
+	 *
+	 * @return boolean Are there rows for that condition?
 	 */
-	static public function exists($sql) {
-		$params = self::getParam(func_get_args());
+	static public function exists($table, $condition) {
+		if (empty($table)) {
+			return false;
+		}
 
-		$stmt = self::p($sql, $params);
+		$fields = array();
+
+		$array_element = each($condition);
+		$array_key = $array_element['key'];
+		if (!is_int($array_key)) {
+			$fields = array($array_key);
+		}
+
+		$stmt = self::select($table, $fields, $condition, array('limit' => 1, 'only_query' => true));
 
 		if (is_bool($stmt)) {
 			$retval = $stmt;
@@ -906,6 +903,26 @@ class dba {
 		}
 
 		return self::e($sql, $param);
+	}
+
+	/**
+	 * @brief Fetch the id of the last insert command
+	 *
+	 * @return integer Last inserted id
+	 */
+	function lastInsertId() {
+		switch (self::$dbo->driver) {
+			case 'pdo':
+				$id = self::$dbo->db->lastInsertId();
+				break;
+			case 'mysqli':
+				$id = self::$dbo->db->insert_id;
+				break;
+			case 'mysql':
+				$id = mysql_insert_id(self::$dbo);
+				break;
+		}
+		return $id;
 	}
 
 	/**
@@ -1063,15 +1080,15 @@ class dba {
 				$callstack[$qkey] = true;
 
 				// Fetch all rows that are to be deleted
-				$sql = "SELECT ".self::$dbo->escape($field)." FROM `".$table."` WHERE `".
-				implode("` = ? AND `", array_keys($param))."` = ?";
+				$data = self::select($table, array($field), $param);
 
-				$data = self::p($sql, $param);
 				while ($row = self::fetch($data)) {
 					// Now we accumulate the delete commands
 					$retval = self::delete($table, array($field => $row[$field]), true, $callstack);
 					$commands = array_merge($commands, $retval);
 				}
+
+				self::close($data);
 
 				// Since we had split the delete command we don't need the original command anymore
 				unset($commands[$key]);
@@ -1088,14 +1105,22 @@ class dba {
 
 			$compacted = array();
 			$counter = array();
+
 			foreach ($commands AS $command) {
-				if (count($command['param']) > 1) {
-					$sql = "DELETE FROM `".$command['table']."` WHERE `".
-						implode("` = ? AND `", array_keys($command['param']))."` = ?";
+				$condition = $command['param'];
+				$array_element = each($condition);
+				$array_key = $array_element['key'];
+				if (is_int($array_key)) {
+					$condition_string = " WHERE ".array_shift($condition);
+				} else {
+					$condition_string = " WHERE `".implode("` = ? AND `", array_keys($condition))."` = ?";
+				}
 
-					logger(self::replace_parameters($sql, $command['param']), LOGGER_DATA);
+				if ((count($command['param']) > 1) || is_int($array_key)) {
+					$sql = "DELETE FROM `".$command['table']."`".$condition_string;
+					logger(self::replace_parameters($sql, $condition), LOGGER_DATA);
 
-					if (!self::e($sql, $command['param'])) {
+					if (!self::e($sql, $condition)) {
 						if ($do_transaction) {
 							self::rollback();
 						}
@@ -1175,15 +1200,23 @@ class dba {
 
 		$table = self::$dbo->escape($table);
 
+		if (count($condition) > 0) {
+			$array_element = each($condition);
+			$array_key = $array_element['key'];
+			if (is_int($array_key)) {
+				$condition_string = " WHERE ".array_shift($condition);
+			} else {
+				$condition_string = " WHERE `".implode("` = ? AND `", array_keys($condition))."` = ?";
+			}
+		} else {
+			$condition_string = "";
+		}
+
 		if (is_bool($old_fields)) {
-			$sql = "SELECT * FROM `".$table."` WHERE `".
-			implode("` = ? AND `", array_keys($condition))."` = ? LIMIT 1";
-
-			$params = array_values($condition);
-
 			$do_insert = $old_fields;
 
-			$old_fields = self::fetch_first($sql, $params);
+			$old_fields = self::select($table, array(), $condition, array('limit' => 1));
+
 			if (is_bool($old_fields)) {
 				if ($do_insert) {
 					$values = array_merge($condition, $fields);
@@ -1210,8 +1243,7 @@ class dba {
 		}
 
 		$sql = "UPDATE `".$table."` SET `".
-			implode("` = ?, `", array_keys($fields))."` = ? WHERE `".
-			implode("` = ? AND `", array_keys($condition))."` = ?";
+			implode("` = ?, `", array_keys($fields))."` = ?".$condition_string;
 
 		$params1 = array_values($fields);
 		$params2 = array_values($condition);
@@ -1250,7 +1282,13 @@ class dba {
 		}
 
 		if (count($condition) > 0) {
-			$condition_string = " WHERE `".implode("` = ? AND `", array_keys($condition))."` = ?";
+			$array_element = each($condition);
+			$array_key = $array_element['key'];
+			if (is_int($array_key)) {
+				$condition_string = " WHERE ".array_shift($condition);
+			} else {
+				$condition_string = " WHERE `".implode("` = ? AND `", array_keys($condition))."` = ?";
+			}
 		} else {
 			$condition_string = "";
 		}
@@ -1270,11 +1308,13 @@ class dba {
 			$param_string = substr($param_string, 0, -2);
 		}
 
-		if (isset($params['limit'])) {
-			if (is_int($params['limit'])) {
-				$param_string .= " LIMIT ".$params['limit'];
-				$single_row =($params['limit'] == 1);
-			}
+		if (isset($params['limit']) && is_int($params['limit'])) {
+			$param_string .= " LIMIT ".$params['limit'];
+			$single_row = ($params['limit'] == 1);
+		}
+
+		if (isset($params['only_query']) && $params['only_query']) {
+			$single_row = !$params['only_query'];
 		}
 
 		$sql = "SELECT ".$select_fields." FROM `".$table."`".$condition_string.$param_string;
@@ -1288,6 +1328,24 @@ class dba {
 			self::close($result);
 			return $row;
 		}
+	}
+
+
+	/**
+	 * @brief Fills an array with data from a query
+	 *
+	 * @param object $stmt statement object
+	 * @return array Data array
+	 */
+	static public function inArray($stmt, $do_close = true) {
+		$data = array();
+		while ($row = self::fetch($stmt)) {
+			$data[] = $row;
+		}
+		if ($do_close) {
+			self::close($stmt);
+		}
+		return $data;
 	}
 
 	/**
