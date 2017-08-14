@@ -52,7 +52,6 @@ function hovercard_content() {
 		// Search for contact data
 		$contact = get_contact_details_by_url($nurl);
 	}
-
 	if(!is_array($contact))
 		return;
 

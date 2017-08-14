@@ -1338,6 +1338,10 @@ class dba {
 	 * @return array Data array
 	 */
 	static public function inArray($stmt, $do_close = true) {
+		if (is_bool($stmt)) {
+			return $stmt;
+		}
+
 		$data = array();
 		while ($row = self::fetch($stmt)) {
 			$data[] = $row;
