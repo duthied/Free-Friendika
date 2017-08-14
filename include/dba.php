@@ -1167,7 +1167,7 @@ class dba {
 
 		return $commands;
 	}
-// $param
+
 	/**
 	 * @brief Updates rows
 	 *
