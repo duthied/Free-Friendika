@@ -59,7 +59,11 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 	} elseif (($simplehtml != 4) && ($simplehtml != 0)) {
 		$text = sprintf('<a href="%s" target="_blank">%s</a><br>', $data["url"], $data["title"]);
 	} else {
-		$text = sprintf('<span class="type-%s">', $data["type"]);
+		if ($simplehtml != 4) {
+			$text = sprintf('<span class="type-%s">', $data["type"]);
+		} else {
+			$span_end = '';
+		}
 
 		$bookmark = array(sprintf('[bookmark=%s]%s[/bookmark]', $data["url"], $data["title"]), $data["url"], $data["title"]);
 		if ($tryoembed) {
@@ -84,8 +88,12 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 			}
 
 			if (trim($data["description"]) != "") {
-				$text .= sprintf('<blockquote>%s</blockquote></span>', trim(bbcode($data["description"])));
+				$text .= sprintf('<blockquote>%s</blockquote>', trim(bbcode($data["description"])));
 			}
+		}
+
+		if ($simplehtml != 4) {
+			$text .= '</span>';
 		}
 	}
 	return trim($data["text"].' '.$text.' '.$data["after"]);
@@ -531,10 +539,9 @@ function bb_ShareAttributes($share, $simplehtml) {
 
 			break;
 		case 4:
-			$headline = '<div class="shared_header">';
-			$headline .= '<span><b>'.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
+			$headline .= '<br /><b>'.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
 			$headline .= sprintf(t('<a href="%1$s" target="_blank">%2$s</a> %3$s'), $link, $userid, $posted);
-			$headline .= ":</b></span></div>";
+			$headline .= ":</b><br />";
 
 			$text = trim($share[1]);
 
