@@ -41,7 +41,7 @@ class dbm {
 	 * Checks if $array is a filled array with at least one entry.
 	 *
 	 * @param       $array  mixed   A filled array with at least one entry
-	 * @return      Whether $array is a filled array
+	 * @return      Whether $array is a filled array or an object with rows
 	 */
 	public static function is_result($array) {
 		// It could be a return value from an update statement
@@ -50,10 +50,10 @@ class dbm {
 		}
 
 		if (is_object($array)) {
-			return true;
+			return dba::num_rows($array) > 0;
 		}
 
-		return (is_array($array) && count($array) > 0);
+		return (is_array($array) && (count($array) > 0));
 	}
 
 	/**

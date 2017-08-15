@@ -3,6 +3,8 @@
 use Friendica\App;
 use Friendica\Core\Config;
 
+require_once 'include/contact_selectors.php';
+
 function follow_widget($value = "") {
 
 	return replace_macros(get_markup_template('follow.tpl'), array(
@@ -113,16 +115,13 @@ function networks_widget($baseurl, $selected = '') {
 	);
 
 	$nets = array();
-	if (dbm::is_result($r)) {
-		require_once 'include/contact_selectors.php';
-		while ($rr = dba::fetch($r)) {
-			/// @TODO If 'network' is not there, this triggers an E_NOTICE
-			if ($rr['network']) {
-				$nets[] = array('ref' => $rr['network'], 'name' => network_to_name($rr['network']), 'selected' => (($selected == $rr['network']) ? 'selected' : '' ));
-			}
+	while ($rr = dba::fetch($r)) {
+		/// @TODO If 'network' is not there, this triggers an E_NOTICE
+		if ($rr['network']) {
+			$nets[] = array('ref' => $rr['network'], 'name' => network_to_name($rr['network']), 'selected' => (($selected == $rr['network']) ? 'selected' : '' ));
 		}
-		dba::close($r);
 	}
+	dba::close($r);
 
 	if (count($nets) < 2) {
 		return '';
