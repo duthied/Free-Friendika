@@ -39,7 +39,7 @@ function hovercard_content() {
 	// If a contact is connected the url is internally changed to "redir/CID". We need the pure url to search for
 	// the contact. So we strip out the contact id from the internal url and look in the contact table for
 	// the real url (nurl)
-	if(local_user() && strpos($profileurl, "redir/") === 0) {
+	if (local_user() && strpos($profileurl, "redir/") === 0) {
 		$cid = intval(substr($profileurl, 6));
 		$r = dba::select('contact', array('nurl', 'self'), array('id' => $cid), array('limit' => 1));
 		$profileurl = ($r["nurl"] ? $r["nurl"] : "");
@@ -52,7 +52,6 @@ function hovercard_content() {
 		// Search for contact data
 		$contact = get_contact_details_by_url($nurl);
 	}
-
 	if(!is_array($contact))
 		return;
 
