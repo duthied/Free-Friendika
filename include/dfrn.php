@@ -1285,6 +1285,10 @@ class dfrn {
 			return -11;
 		}
 
+		if (!empty($res->message)) {
+			logger('Delivery returned status '.$res->status.' - '.$res->message, LOGGER_DEBUG);
+		}
+
 		return intval($res->status);
 	}
 
