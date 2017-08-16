@@ -1281,7 +1281,15 @@ class dfrn {
 
 		$res = parse_xml_string($xml);
 
-		return $res->status;
+		if (!isset($res->status)) {
+			return -11;
+		}
+
+		if (!empty($res->message)) {
+			logger('Delivery returned status '.$res->status.' - '.$res->message, LOGGER_DEBUG);
+		}
+
+		return intval($res->status);
 	}
 
 	/**
@@ -2800,19 +2808,20 @@ class dfrn {
 	 * @param text $xml The DFRN message
 	 * @param array $importer Record of the importer user mixed with contact of the content
 	 * @param bool $sort_by_date Is used when feeds are polled
+	 * @return integer Import status
 	 * @todo set proper type-hints
 	 */
-	public static function import($xml,$importer, $sort_by_date = false) {
+	public static function import($xml, $importer, $sort_by_date = false) {
 
 		if ($xml == "") {
-			return;
+			return 400;
 		}
 
 		if ($importer["readonly"]) {
 			// We aren't receiving stuff from this person. But we will quietly ignore them
 			// rather than a blatant "go away" message.
 			logger('ignoring contact '.$importer["id"]);
-			return;
+			return 403;
 		}
 
 		$doc = new DOMDocument();
@@ -2917,5 +2926,6 @@ class dfrn {
 			}
 		}
 		logger("Import done for user " . $importer["uid"] . " from contact " . $importer["id"], LOGGER_DEBUG);
+		return 200;
 	}
 }

@@ -47,7 +47,7 @@ function dfrn_notify_post(App $a) {
 	);
 	if (! dbm::is_result($r)) {
 		logger('dfrn_notify: could not match challenge to dfrn_id ' . $dfrn_id . ' challenge=' . $challenge);
-		xml_status(3);
+		xml_status(3, 'Could not match challenge');
 	}
 
 	$r = q("DELETE FROM `challenge` WHERE `dfrn-id` = '%s' AND `challenge` = '%s'",
@@ -58,7 +58,7 @@ function dfrn_notify_post(App $a) {
 	// find the local user who owns this relationship.
 
 	$sql_extra = '';
-	switch($direction) {
+	switch ($direction) {
 		case (-1):
 			$sql_extra = sprintf(" AND ( `issued-id` = '%s' OR `dfrn-id` = '%s' ) ", dbesc($dfrn_id), dbesc($dfrn_id));
 			break;
@@ -69,7 +69,7 @@ function dfrn_notify_post(App $a) {
 			$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
 			break;
 		default:
-			xml_status(3);
+			xml_status(3, 'Invalid direction');
 			break; // NOTREACHED
 	}
 
@@ -95,7 +95,7 @@ function dfrn_notify_post(App $a) {
 
 	if (! dbm::is_result($r)) {
 		logger('dfrn_notify: contact not found for dfrn_id ' . $dfrn_id);
-		xml_status(3);
+		xml_status(3, 'Contact not found');
 		//NOTREACHED
 	}
 
@@ -135,8 +135,7 @@ function dfrn_notify_post(App $a) {
 		require_once('include/Contact.php');
 		contact_remove($importer['id']);
 		logger('relationship dissolved : ' . $importer['name'] . ' dissolved ' . $importer['username']);
-		xml_status(0);
-
+		xml_status(0, 'relationship dissolved');
 	}
 
 	$rino = get_config('system', 'rino_encrypt');
@@ -150,7 +149,7 @@ function dfrn_notify_post(App $a) {
 		// but only for $remote_rino > 1, because old code did't send rino version
 		if ($rino_remote_version > 1 && $rino < $rino_remote) {
 			logger("rino version '$rino_remote' is lower than supported '$rino'");
-			xml_status(0,"rino version '$rino_remote' is lower than supported '$rino'");
+			xml_status(0, "rino version '$rino_remote' is lower than supported '$rino'");
 		}
 
 		$rawkey = hex2bin(trim($key));
@@ -204,8 +203,8 @@ function dfrn_notify_post(App $a) {
 				}
 				break;
 			default:
-				logger("rino: invalid sent verision '$rino_remote'");
-				xml_status(0);
+				logger("rino: invalid sent version '$rino_remote'");
+				xml_status(0, "Invalid sent version '$rino_remote'");
 		}
 
 
@@ -213,7 +212,7 @@ function dfrn_notify_post(App $a) {
 	}
 
 	$ret = dfrn::import($data, $importer);
-	xml_status($ret);
+	xml_status($ret, 'Processed');
 
 	// NOTREACHED
 }
