@@ -372,14 +372,22 @@ function post_url($url, $params, $headers = null, &$redirects = 0, $timeout = 0)
 
 function xml_status($st, $message = '') {
 
-	$xml_message = ((strlen($message)) ? "\t<message>" . xmlify($message) . "</message>\r\n" : '');
+	$result = array('status' => $st);
 
-	if ($st)
+	if ($message != '') {
+		$result['message'] = $message;
+	}
+
+	if ($st) {
 		logger('xml_status returning non_zero: ' . $st . " message=" . $message);
+	}
 
-	header( "Content-type: text/xml" );
-	echo '<?xml version="1.0" encoding="UTF-8"?>'."\r\n";
-	echo "<result>\r\n\t<status>$st</status>\r\n$xml_message</result>\r\n";
+	header("Content-type: text/xml");
+
+	$xmldata = array("result" => $result);
+
+	echo xml::from_array($xmldata, $xml);
+
 	killme();
 }
 
