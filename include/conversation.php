@@ -358,7 +358,7 @@ function localize_item(&$item) {
 	$x = stristr($item['plink'],'/display/');
 	if ($x) {
 		$sparkle = false;
-		$y = best_link_url($item, $sparkle, true);
+		$y = best_link_url($item, $sparkle);
 
 		if (strstr($y, '/redir/')) {
 			$item['plink'] = $y . '?f=&url=' . $item['plink'];
@@ -680,6 +680,8 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 				$hashtags = array();
 				$mentions = array();
 
+				$searchpath = App::get_baseurl()."/search?tag=";
+
 				$taglist = dba::select('term', array('type', 'term', 'url'),
 							array("`otype` = ? AND `oid` = ? AND `type` IN (?, ?)", TERM_OBJ_POST, $item['id'], TERM_HASHTAG, TERM_MENTION),
 							array('order' => array('tid')));
@@ -688,6 +690,8 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 					if ($tag["url"] == "") {
 						$tag["url"] = $searchpath . strtolower($tag["term"]);
 					}
+
+					$tag["url"] = best_link_url($item, $sp, $tag["url"]);
 
 					if ($tag["type"] == TERM_HASHTAG) {
 						$hashtags[] = "#<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
@@ -701,7 +705,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 				dba::close($taglist);
 
 				$sp = false;
-				$profile_link = best_link_url($item,$sp);
+				$profile_link = best_link_url($item, $sp);
 				if ($profile_link === 'mailbox') {
 					$profile_link = '';
 				}
@@ -914,7 +918,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 	return $o;
 }}
 
-function best_link_url($item, &$sparkle, $ssl_state = false) {
+function best_link_url($item, &$sparkle, $url = '') {
 
 	$best_url = '';
 	$sparkle  = false;
@@ -928,10 +932,20 @@ function best_link_url($item, &$sparkle, $ssl_state = false) {
 		if (dbm::is_result($r)) {
 			$best_url = 'redir/' . $r['id'];
 			$sparkle = true;
+			if ($url != '') {
+				$hostname = get_app()->get_hostname();
+				if (!strstr($url, $hostname)) {
+					$best_url .= "?url=".$url;
+				} else {
+					$best_url = $url;
+				}
+			}
 		}
 	}
 	if (! $best_url) {
-		if (strlen($item['author-link'])) {
+		if ($url != '') {
+			$best_url = $url;
+		} elseif (strlen($item['author-link'])) {
 			$best_url = $item['author-link'];
 		} else {
 			$best_url = $item['url'];
@@ -943,12 +957,6 @@ function best_link_url($item, &$sparkle, $ssl_state = false) {
 
 
 function item_photo_menu($item) {
-	$ssl_state = false;
-
-	if (local_user()) {
-		$ssl_state = true;
-	}
-
 	$sub_link = '';
 	$poke_link = '';
 	$contact_url = '';
@@ -963,7 +971,7 @@ function item_photo_menu($item) {
 	}
 
 	$sparkle = false;
-	$profile_link = best_link_url($item, $sparkle, $ssl_state);
+	$profile_link = best_link_url($item, $sparkle);
 	if ($profile_link === 'mailbox') {
 		$profile_link = '';
 	}

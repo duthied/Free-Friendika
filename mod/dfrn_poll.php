@@ -511,7 +511,8 @@ function dfrn_poll_content(App $a) {
 					$dest = App::get_baseurl() . '/profile/' . $profile;
 					break;
 				default:
-					$dest = $destination_url . '?f=&redir=1';
+					$appendix = (strstr($destination_url, '?') ? '&f=&redir=1' : '?f=&redir=1');
+					$dest = $destination_url . $appendix;
 					break;
 			}
 

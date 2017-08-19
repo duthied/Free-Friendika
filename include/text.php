@@ -1326,6 +1326,14 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 				$tag["url"] = $searchpath.strtolower($tag["term"]);
 			}
 
+			$orig_tag = $tag["url"];
+
+			$tag["url"] = best_link_url($item, $sp, $tag["url"]);
+
+			if ($orig_tag != $tag["url"]) {
+				$item['body'] = str_replace($orig_tag, $tag["url"], $item['body']);
+			}
+
 			if ($tag["type"] == TERM_HASHTAG) {
 				$hashtags[] = "#<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
 				$prefix = "#";

@@ -1178,8 +1178,8 @@ function item_body_set_hashtags(&$item) {
 
 	$URLSearchString = "^\[\]";
 
-	// All hashtags should point to the home server if "local_search" is activated
-	if (Config::get('system', 'local_search')) {
+	// All hashtags should point to the home server if "local_tags" is activated
+	if (Config::get('system', 'local_tags')) {
 		$item["body"] = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
 				"#[url=".App::get_baseurl()."/search?tag=$2]$2[/url]", $item["body"]);
 

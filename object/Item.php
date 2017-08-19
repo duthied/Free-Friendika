@@ -180,7 +180,6 @@ class Item extends BaseObject {
 		call_hooks('render_location',$locate);
 		$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
 
-		$searchpath = "search?tag=";
 		$tags=array();
 		$hashtags = array();
 		$mentions = array();

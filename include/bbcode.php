@@ -1315,6 +1315,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 
 	// Always allowed protocol even if config isn't set or not including it
 	$allowed_link_protocols[] = 'http';
+	$allowed_link_protocols[] = 'redir/';
 
 	$regex = '#<([^>]*?)(href)="(?!' . implode('|', $allowed_link_protocols) . ')(.*?)"(.*?)>#ism';
 	$Text = preg_replace($regex, '<$1$2="javascript:void(0)"$4 class="invalid-href" title="' . t('Invalid link protocol') . '">', $Text);
