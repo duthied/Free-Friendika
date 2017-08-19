@@ -8,8 +8,6 @@ function create_tags_from_item($itemid) {
 	$profile_base_friendica = $profile_data['host'].$profile_data['path']."/profile/";
 	$profile_base_diaspora = $profile_data['host'].$profile_data['path']."/u/";
 
-	$searchpath = App::get_baseurl()."/search?tag=";
-
 	$messages = q("SELECT `guid`, `uid`, `id`, `edited`, `deleted`, `created`, `received`, `title`, `body`, `tag`, `parent` FROM `item` WHERE `id` = %d LIMIT 1", intval($itemid));
 
 	if (!$messages)
@@ -46,7 +44,7 @@ function create_tags_from_item($itemid) {
 	$pattern = "/\W\#([^\[].*?)[\s'\".,:;\?!\[\]\/]/ism";
 	if (preg_match_all($pattern, $data, $matches))
 		foreach ($matches[1] as $match)
-			$tags["#".strtolower($match)] = ""; // $searchpath.strtolower($match);
+			$tags["#".strtolower($match)] = "";
 
 	$pattern = "/\W([\#@])\[url\=(.*?)\](.*?)\[\/url\]/ism";
 	if (preg_match_all($pattern, $data, $matches, PREG_SET_ORDER)) {
