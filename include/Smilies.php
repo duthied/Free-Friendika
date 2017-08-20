@@ -14,6 +14,26 @@ use Friendica\App;
 class Smilies {
 
 	/**
+	 * @brief Replaces/adds the emoticon list
+	 *
+	 * This function should be used whenever emoticons are added
+	 *
+	 * @param array $b Array of emoticons
+	 * @param string $smiley The text smilie
+	 * @param string $representation The replacement
+	 */
+	public static function add(&$b, $smiley, $representation) {
+		$found = array_search($smiley, $b['texts']);
+
+		if (!is_int($found)) {
+			$b['texts'][] = $smiley;
+			$b['icons'][] = $representation;
+		} else {
+			$b['icons'][$found] = $representation;
+		}
+	}
+
+	/**
 	 * @brief Function to list all smilies
 	 *
 	 * Get an array of all smilies, both internal and from addons.
@@ -107,7 +127,6 @@ class Smilies {
 		call_hooks('smilie', $params);
 
 		return $params;
-
 	}
 
 	/**
@@ -121,12 +140,13 @@ class Smilies {
 	 * function from being executed by the prepare_text() routine when preparing
 	 * bbcode source for HTML display
 	 *
-	 * @param string $s
+	 * @param string $s Text that should be replaced
 	 * @param boolean $sample
+	 * @param boolean $no_images Only replace emoticons without images
 	 *
 	 * @return string HML Output of the Smilie
 	 */
-	public static function replace($s, $sample = false) {
+	public static function replace($s, $sample = false, $no_images = false) {
 		if(intval(get_config('system','no_smilies'))
 			|| (local_user() && intval(get_pconfig(local_user(),'system','no_smilies'))))
 			return $s;
@@ -135,6 +155,19 @@ class Smilies {
 		$s = preg_replace_callback('/<code>(.*?)<\/code>/ism','self::encode',$s);
 
 		$params = self::get_list();
+
+		if ($no_images) {
+			$cleaned = array('texts' => array(), 'icons' => array());
+			$icons = $params['icons'];
+			foreach ($icons AS $key => $icon) {
+				if (!strstr($icon, '<img ')) {
+					$cleaned['texts'][] = $params['texts'][$key];
+					$cleaned['icons'][] = $params['icons'][$key];
+				}
+			}
+			$params = $cleaned;
+		}
+
 		$params['string'] = $s;
 
 		if($sample) {
@@ -180,5 +213,4 @@ class Smilies {
 		$r =  str_replace($x[0],$t,$x[0]);
 		return $r;
 	}
-
 }
