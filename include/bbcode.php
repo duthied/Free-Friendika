@@ -9,6 +9,7 @@ require_once 'include/map.php';
 require_once 'mod/proxy.php';
 require_once 'include/Contact.php';
 require_once 'include/plaintext.php';
+require_once 'include/Smilies.php';
 
 function bb_PictureCacheExt($matches) {
 	if (strpos($matches[3], "data:image/") === 0) {
@@ -1276,6 +1277,10 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 		$Text = preg_replace("/\[event\-id\](.*?)\[\/event\-id\]/ism", '', $Text);
 	}
 
+	// Replace non graphical smilies for external posts
+	if ($simplehtml) {
+		$Text = Smilies::replace($Text, false, true);
+	}
 
 	// Replace inline code blocks
 	$Text = preg_replace_callback("|(?!<br[^>]*>)<code>([^<]*)</code>(?!<br[^>]*>)|ism",
