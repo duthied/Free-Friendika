@@ -101,7 +101,7 @@ class ostatus {
 					$width = $attributes->textContent;
 				}
 			}
-			if (($width > 0) && ($href != "")) {
+			if ($href != "") {
 				$avatarlist[$width] = $href;
 			}
 		}

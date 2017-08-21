@@ -1201,6 +1201,7 @@ class Probe {
 		if (!$feed_data) {
 			return false;
 		}
+
 		if ($feed_data["header"]["author-name"] != "") {
 			$data["name"] = $feed_data["header"]["author-name"];
 		}
@@ -1224,6 +1225,12 @@ class Probe {
 		if ($feed_data["header"]["author-link"] != "") {
 			$data["url"] = $feed_data["header"]["author-link"];
 		}
+
+		if (($data['poll'] == $data['url']) && ($data["alias"] != '')) {
+			$data['url'] = $data["alias"];
+			$data["alias"] = '';
+		}
+
 		/// @todo Fetch location and "about" from the feed as well
 		return $data;
 	}

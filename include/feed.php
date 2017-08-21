@@ -108,6 +108,14 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 			if ($value != "") {
 				$author["author-about"] = $value;
 			}
+			$avatar = $xpath->evaluate("atom:author/atom:link[@rel='avatar']")->item(0)->attributes;
+			if (is_object($avatar)) {
+				foreach ($avatar AS $attributes) {
+					if ($attributes->name == "href") {
+						$author["author-avatar"] = $attributes->textContent;
+					}
+				}
+			}
 		}
 
 		$author["edited"] = $author["created"] = $xpath->query('/atom:feed/atom:updated/text()')->item(0)->nodeValue;
