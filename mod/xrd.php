@@ -8,6 +8,10 @@ function xrd_init(App $a) {
 
 	$uri = urldecode(notags(trim($_GET['uri'])));
 
+	if ($uri == "") {
+		$uri = urldecode(notags(trim($_GET['resource'])));
+	}
+
 	if(substr($uri,0,4) === 'http') {
 		$acct = false;
 		$name = basename($uri);
