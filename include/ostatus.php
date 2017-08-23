@@ -1470,7 +1470,7 @@ class ostatus {
 		///		"type" => "application/json");
 		/// xml::add_element($doc, $root, "link", "", $attributes);
 
-		self::hublinks($doc, $root);
+		self::hublinks($doc, $root, $owner["nick"]);
 
 		$attributes = array("href" => App::get_baseurl()."/salmon/".$owner["nick"], "rel" => "salmon");
 		xml::add_element($doc, $root, "link", "", $attributes);
@@ -1494,7 +1494,7 @@ class ostatus {
 	 * @param object $doc XML document
 	 * @param object $root XML root element where the hub links are added
 	 */
-	public static function hublinks($doc, $root) {
+	public static function hublinks($doc, $root, $nick) {
 		$hub = get_config('system','huburl');
 
 		$hubxml = '';
@@ -1505,8 +1505,9 @@ class ostatus {
 					$h = trim($h);
 					if (! strlen($h))
 						continue;
-					if ($h === '[internal]')
-						$h = App::get_baseurl() . '/pubsubhubbub';
+					if ($h === '[internal]') {
+						$h = App::get_baseurl() . '/pubsubhubbub/'.$nick;
+					}
 					xml::add_element($doc, $root, "link", "", array("href" => $h, "rel" => "hub"));
 				}
 			}
