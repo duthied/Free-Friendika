@@ -160,6 +160,3 @@ function pubsub_post(App $a) {
 	hub_post_return();
 
 }
-
-
-
