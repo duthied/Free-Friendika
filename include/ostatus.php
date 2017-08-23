@@ -2227,10 +2227,11 @@ class ostatus {
 	 * @param App $a The application class
 	 * @param string $owner_nick Nickname of the feed owner
 	 * @param string $last_update Date of the last update
+	 * @param integer $max_items Number of maximum items to fetch
 	 *
 	 * @return string XML feed
 	 */
-	public static function feed(App $a, $owner_nick, &$last_update) {
+	public static function feed(App $a, $owner_nick, &$last_update, $max_items = 300) {
 		$stamp = microtime(true);
 
 		$cachekey = "ostatus:feed:".$owner_nick.":".$last_update;
@@ -2267,10 +2268,10 @@ class ostatus {
 					`item`.`author-id` = %d AND `item`.`created` > '%s' AND
 					NOT `item`.`deleted` AND NOT `item`.`private` AND
 					`thread`.`network` IN ('%s', '%s')
-				ORDER BY `item`.`created` DESC LIMIT 300",
+				ORDER BY `item`.`created` DESC LIMIT %d",
 				intval($owner["uid"]), intval($owner["id"]),
 				intval($authorid), dbesc($check_date),
-				dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN));
+				dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN), intval($max_items));
 
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;

@@ -22,7 +22,7 @@ function dfrn_poll_init(App $a) {
 	if (($a->argc > 1) && ($dfrn_id == '') && !strstr($_SERVER["HTTP_USER_AGENT"], 'Friendica')) {
 		$nickname = $a->argv[1];
 		header("Content-type: application/atom+xml");
-		echo ostatus::feed($a, $nickname, $last_update);
+		echo ostatus::feed($a, $nickname, $last_update, 10);
 		killme();
 	}
 
