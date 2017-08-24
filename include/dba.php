@@ -527,6 +527,10 @@ class dba {
 		$i = 0;
 		$args = array();
 		foreach ($params AS $param) {
+			// Avoid problems with some MySQL servers and boolean values. See issue #3645
+			if (is_bool($param)) {
+				$param = (int)$param;
+			}
 			$args[++$i] = $param;
 		}
 
