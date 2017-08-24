@@ -107,6 +107,11 @@ function z_fetch_url($url, $binary = false, &$redirects = 0, $opts = array()) {
 		@curl_setopt($ch, CURLOPT_RANGE, '0-' . $range);
 	}
 
+	// Without this setting it seems as if some webservers send compressed content
+	// This seems to confuse curl so that it shows this uncompressed.
+	/// @todo  We could possibly set this value to "gzip" or something similar
+	curl_setopt($ch, CURLOPT_ENCODING, '');
+
 	if (x($opts, 'headers')) {
 		@curl_setopt($ch, CURLOPT_HTTPHEADER, $opts['headers']);
 	}
