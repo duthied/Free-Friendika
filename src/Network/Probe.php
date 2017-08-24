@@ -104,13 +104,10 @@ class Probe {
 		logger("Probing for ".$host, LOGGER_DEBUG);
 
 		$ret = z_fetch_url($ssl_url, false, $redirects, array('timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml'));
-		if (($ret['errno'] == CURLE_OPERATION_TIMEDOUT) && !self::ownHost($ssl_url)) {
-			logger("Probing timeout for ".$ssl_url, LOGGER_DEBUG);
-			return false;
+		if ($ret['success']) {
+			$xml = $ret['body'];
+			$xrd = parse_xml_string($xml, false);
 		}
-		$xml = $ret['body'];
-
-		$xrd = parse_xml_string($xml, false);
 
 		if (!is_object($xrd)) {
 			$ret = z_fetch_url($url, false, $redirects, array('timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml'));
