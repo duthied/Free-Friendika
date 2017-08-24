@@ -504,7 +504,7 @@ class dfrn {
 
 		if ($public) {
 			// DFRN itself doesn't uses this. But maybe someone else wants to subscribe to the public feed.
-			ostatus::hublinks($doc, $root);
+			ostatus::hublinks($doc, $root, $owner["nick"]);
 
 			$attributes = array("rel" => "salmon", "href" => App::get_baseurl()."/salmon/".$owner["nick"]);
 			xml::add_element($doc, $root, "link", "", $attributes);

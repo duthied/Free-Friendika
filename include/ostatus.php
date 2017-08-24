@@ -1470,7 +1470,7 @@ class ostatus {
 		///		"type" => "application/json");
 		/// xml::add_element($doc, $root, "link", "", $attributes);
 
-		self::hublinks($doc, $root);
+		self::hublinks($doc, $root, $owner["nick"]);
 
 		$attributes = array("href" => App::get_baseurl()."/salmon/".$owner["nick"], "rel" => "salmon");
 		xml::add_element($doc, $root, "link", "", $attributes);
@@ -1494,7 +1494,7 @@ class ostatus {
 	 * @param object $doc XML document
 	 * @param object $root XML root element where the hub links are added
 	 */
-	public static function hublinks($doc, $root) {
+	public static function hublinks($doc, $root, $nick) {
 		$hub = get_config('system','huburl');
 
 		$hubxml = '';
@@ -1505,8 +1505,9 @@ class ostatus {
 					$h = trim($h);
 					if (! strlen($h))
 						continue;
-					if ($h === '[internal]')
-						$h = App::get_baseurl() . '/pubsubhubbub';
+					if ($h === '[internal]') {
+						$h = App::get_baseurl() . '/pubsubhubbub/'.$nick;
+					}
 					xml::add_element($doc, $root, "link", "", array("href" => $h, "rel" => "hub"));
 				}
 			}
@@ -2226,10 +2227,11 @@ class ostatus {
 	 * @param App $a The application class
 	 * @param string $owner_nick Nickname of the feed owner
 	 * @param string $last_update Date of the last update
+	 * @param integer $max_items Number of maximum items to fetch
 	 *
 	 * @return string XML feed
 	 */
-	public static function feed(App $a, $owner_nick, &$last_update) {
+	public static function feed(App $a, $owner_nick, &$last_update, $max_items = 300) {
 		$stamp = microtime(true);
 
 		$cachekey = "ostatus:feed:".$owner_nick.":".$last_update;
@@ -2266,10 +2268,10 @@ class ostatus {
 					`item`.`author-id` = %d AND `item`.`created` > '%s' AND
 					NOT `item`.`deleted` AND NOT `item`.`private` AND
 					`thread`.`network` IN ('%s', '%s')
-				ORDER BY `item`.`created` DESC LIMIT 300",
+				ORDER BY `item`.`created` DESC LIMIT %d",
 				intval($owner["uid"]), intval($owner["id"]),
 				intval($authorid), dbesc($check_date),
-				dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN));
+				dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN), intval($max_items));
 
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;

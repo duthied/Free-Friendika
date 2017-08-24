@@ -16,14 +16,14 @@ function pubsubhubbub_init(App $a) {
 	// Subscription request from subscriber
 	// https://pubsubhubbub.googlecode.com/git/pubsubhubbub-core-0.4.html#anchor4
 	// Example from GNU Social:
-    // [hub_mode] => subscribe
-    // [hub_callback] => http://status.local/main/push/callback/1
-    // [hub_verify] => sync
-    // [hub_verify_token] => af11...
-    // [hub_secret] => af11...
-    // [hub_topic] => http://friendica.local/dfrn_poll/sazius
+	// [hub_mode] => subscribe
+	// [hub_callback] => http://status.local/main/push/callback/1
+	// [hub_verify] => sync
+	// [hub_verify_token] => af11...
+	// [hub_secret] => af11...
+	// [hub_topic] => http://friendica.local/dfrn_poll/sazius
 
-	if($_SERVER['REQUEST_METHOD'] === 'POST') {
+	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		$hub_mode = post_var('hub_mode');
 		$hub_callback = post_var('hub_callback');
 		$hub_verify = post_var('hub_verify');
@@ -34,7 +34,7 @@ function pubsubhubbub_init(App $a) {
 		// check for valid hub_mode
 		if ($hub_mode === 'subscribe') {
 			$subscribe = 1;
-		} else if ($hub_mode === 'unsubscribe') {
+		} elseif ($hub_mode === 'unsubscribe') {
 			$subscribe = 0;
 		} else {
 			logger("pubsubhubbub: invalid hub_mode=$hub_mode, ignoring.");
@@ -44,8 +44,13 @@ function pubsubhubbub_init(App $a) {
 		logger("pubsubhubbub: $hub_mode request from " .
 			   $_SERVER['REMOTE_ADDR']);
 
-		// get the nick name from the topic, a bit hacky but needed
+		// get the nick name from the topic, a bit hacky but needed as a fallback
 		$nick = substr(strrchr($hub_topic, "/"), 1);
+
+		// Normally the url should now contain the nick name as last part of the url
+		if ($a->argc > 1) {
+			$nick = $a->argv[1];
+		}
 
 		if (!$nick) {
 			logger('pubsubhubbub: bad hub_topic=$hub_topic, ignoring.');
@@ -83,7 +88,7 @@ function pubsubhubbub_init(App $a) {
 		$contact = $r[0];
 
 		// sanity check that topic URLs are the same
-		if(!link_compare($hub_topic, $contact['poll'])) {
+		if (!link_compare($hub_topic, $contact['poll'])) {
 			logger('pubsubhubbub: hub topic ' . $hub_topic . ' != ' .
 				   $contact['poll']);
 			http_status_exit(404);

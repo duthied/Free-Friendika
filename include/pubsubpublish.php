@@ -54,7 +54,7 @@ function handle_pubsubhubbub($id) {
 
 	$headers = array("Content-type: application/atom+xml",
 			sprintf("Link: <%s>;rel=hub,<%s>;rel=self",
-				App::get_baseurl().'/pubsubhubbub',
+				App::get_baseurl().'/pubsubhubbub/'.$rr['nickname'],
 				$rr['topic']),
 			"X-Hub-Signature: sha1=".$hmac_sig);
 

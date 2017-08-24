@@ -5,6 +5,7 @@ use Friendica\App;
 require_once('include/items.php');
 require_once('include/auth.php');
 require_once('include/dfrn.php');
+require_once('include/ostatus.php');
 
 function dfrn_poll_init(App $a) {
 	$dfrn_id         = ((x($_GET,'dfrn_id'))         ? $_GET['dfrn_id']              : '');
@@ -16,6 +17,14 @@ function dfrn_poll_init(App $a) {
 	$dfrn_version    = ((x($_GET,'dfrn_version'))    ? (float) $_GET['dfrn_version'] : 2.0);
 	$perm            = ((x($_GET,'perm'))            ? $_GET['perm']                 : 'r');
 	$quiet			 = ((x($_GET,'quiet'))			 ? true							 : false);
+
+	// Possibly it is an OStatus compatible server that requests a user feed
+	if (($a->argc > 1) && ($dfrn_id == '') && !strstr($_SERVER["HTTP_USER_AGENT"], 'Friendica')) {
+		$nickname = $a->argv[1];
+		header("Content-type: application/atom+xml");
+		echo ostatus::feed($a, $nickname, $last_update, 10);
+		killme();
+	}
 
 	$direction = (-1);
 

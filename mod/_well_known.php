@@ -5,6 +5,7 @@ use Friendica\Core\Config;
 
 require_once("mod/hostxrd.php");
 require_once("mod/nodeinfo.php");
+require_once("mod/xrd.php");
 
 function _well_known_init(App $a) {
 	if ($a->argc > 1) {
@@ -17,6 +18,9 @@ function _well_known_init(App $a) {
 				break;
 			case "nodeinfo":
 				nodeinfo_wellknown($a);
+				break;
+			case "webfinger":
+				xrd_init($a);
 				break;
 		}
 	}
