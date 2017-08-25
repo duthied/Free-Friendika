@@ -1027,7 +1027,7 @@ class Diaspora {
 	 *
 	 * @return the replaced string
 	 */
-	public function replace_people_guid($body, $author_link) {
+	public static function replace_people_guid($body, $author_link) {
 		$return = preg_replace_callback("&\[url=/people/([^\[\]]*)\](.*)\[\/url\]&Usi",
 			function ($match) use ($author_link) {
 				// $match
