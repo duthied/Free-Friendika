@@ -1495,23 +1495,8 @@ class ostatus {
 	 * @param object $root XML root element where the hub links are added
 	 */
 	public static function hublinks($doc, $root, $nick) {
-		$hub = get_config('system','huburl');
-
-		$hubxml = '';
-		if (strlen($hub)) {
-			$hubs = explode(',', $hub);
-			if (count($hubs)) {
-				foreach ($hubs as $h) {
-					$h = trim($h);
-					if (! strlen($h))
-						continue;
-					if ($h === '[internal]') {
-						$h = App::get_baseurl() . '/pubsubhubbub/'.$nick;
-					}
-					xml::add_element($doc, $root, "link", "", array("href" => $h, "rel" => "hub"));
-				}
-			}
-		}
+		$h = App::get_baseurl() . '/pubsubhubbub/'.$nick;
+		xml::add_element($doc, $root, "link", "", array("href" => $h, "rel" => "hub"));
 	}
 
 	/**
