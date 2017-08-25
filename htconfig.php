@@ -60,10 +60,6 @@ $a->config['system']['maximagesize'] = 800000;
 
 $a->config['php_path'] = 'php';
 
-// PuSH - aka pubsubhubbub URL. This makes delivery of public posts as fast as private posts
-
-$a->config['system']['huburl'] = '[internal]';
-
 // Server-to-server private message encryption (RINO) is allowed by default.
 // Encryption will only be provided if this setting is set to a non zero value
 // set to 0 to disable, 2 to enable, 1 is deprecated

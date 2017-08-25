@@ -205,8 +205,6 @@ function notifier_run(&$argv, &$argc){
 
 	$walltowall = ((($top_level) && ($owner['id'] != $items[0]['contact-id'])) ? true : false);
 
-	$hub = get_config('system','huburl');
-
 	// Should the post be transmitted to Diaspora?
 	$diaspora_delivery = true;
 
@@ -563,34 +561,13 @@ function notifier_run(&$argv, &$argc){
 	}
 
 	// Notify PuSH subscribers (Used for OStatus distribution of regular posts)
-	if ($push_notify && strlen($hub)) {
-		$hubs = explode(',', $hub);
-		if (count($hubs)) {
-			foreach ($hubs as $h) {
-				$h = trim($h);
-				if (! strlen($h)) {
-					continue;
-				}
+	if ($push_notify) {
+		// Set push flag for PuSH subscribers to this topic,
+		// they will be notified in queue.php
+		q("UPDATE `push_subscriber` SET `push` = 1 ".
+		  "WHERE `nickname` = '%s' AND `push` = 0", dbesc($owner['nickname']));
 
-				if ($h === '[internal]') {
-					// Set push flag for PuSH subscribers to this topic,
-					// they will be notified in queue.php
-					q("UPDATE `push_subscriber` SET `push` = 1 ".
-					  "WHERE `nickname` = '%s' AND `push` = 0", dbesc($owner['nickname']));
-
-					logger('Activating internal PuSH for item '.$item_id, LOGGER_DEBUG);
-
-				} else {
-
-					$params = 'hub.mode=publish&hub.url=' . urlencode( App::get_baseurl() . '/dfrn_poll/' . $owner['nickname'] );
-					post_url($h,$params);
-					logger('publish for item '.$item_id.' ' . $h . ' ' . $params . ' returned ' . $a->get_curl_code());
-				}
-				if (count($hubs) > 1) {
-					sleep(7);				// try and avoid multiple hubs responding at precisely the same time
-				}
-			}
-		}
+		logger('Activating internal PuSH for item '.$item_id, LOGGER_DEBUG);
 
 		// Handling the pubsubhubbub requests
 		proc_run(array('priority' => PRIORITY_HIGH, 'created' => $a->queue['created'], 'dont_fork' => true),
