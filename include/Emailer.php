@@ -16,7 +16,7 @@ class Emailer {
 	 * @param additionalMailHeader	additions to the smtp mail header
 	 * @param optional uid      user id of the destination user
 	 */
-	static public function send($params) {
+	public static function send($params) {
 
 		call_hooks('emailer_send_prepare', $params);
 

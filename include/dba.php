@@ -476,7 +476,7 @@ class dba {
 	 * @param array $args The parameters that are to replace the ? placeholders
 	 * @return string The replaced SQL query
 	 */
-	static private function replace_parameters($sql, $args) {
+	private static function replace_parameters($sql, $args) {
 		$offset = 0;
 		foreach ($args AS $param => $value) {
 			if (is_int($args[$param]) || is_float($args[$param])) {
@@ -516,7 +516,7 @@ class dba {
 	 * @param string $sql SQL statement
 	 * @return object statement object
 	 */
-	static public function p($sql) {
+	public static function p($sql) {
 		$a = get_app();
 
 		$stamp1 = microtime(true);
@@ -711,7 +711,7 @@ class dba {
 	 * @param string $sql SQL statement
 	 * @return boolean Was the query successfull? False is returned only if an error occurred
 	 */
-	static public function e($sql) {
+	public static function e($sql) {
 		$a = get_app();
 
 		$stamp = microtime(true);
@@ -761,7 +761,7 @@ class dba {
 	 *
 	 * @return boolean Are there rows for that condition?
 	 */
-	static public function exists($table, $condition) {
+	public static function exists($table, $condition) {
 		if (empty($table)) {
 			return false;
 		}
@@ -793,7 +793,7 @@ class dba {
 	 * @param string $sql SQL statement
 	 * @return array first row of query
 	 */
-	static public function fetch_first($sql) {
+	public static function fetch_first($sql) {
 		$params = self::getParam(func_get_args());
 
 		$stmt = self::p($sql, $params);
@@ -814,7 +814,7 @@ class dba {
 	 *
 	 * @return int Number of rows
 	 */
-	static public function affected_rows() {
+	public static function affected_rows() {
 		return self::$dbo->affected_rows;
 	}
 
@@ -824,7 +824,7 @@ class dba {
 	 * @param object Statement object
 	 * @return int Number of rows
 	 */
-	static public function num_rows($stmt) {
+	public static function num_rows($stmt) {
 		if (!is_object($stmt)) {
 			return 0;
 		}
@@ -845,7 +845,7 @@ class dba {
 	 * @param object $stmt statement object
 	 * @return array current row
 	 */
-	static public function fetch($stmt) {
+	public static function fetch($stmt) {
 		if (!is_object($stmt)) {
 			return false;
 		}
@@ -895,7 +895,7 @@ class dba {
 	 *
 	 * @return boolean was the insert successfull?
 	 */
-	static public function insert($table, $param, $on_duplicate_update = false) {
+	public static function insert($table, $param, $on_duplicate_update = false) {
 		$sql = "INSERT INTO `".self::$dbo->escape($table)."` (`".implode("`, `", array_keys($param))."`) VALUES (".
 			substr(str_repeat("?, ", count($param)), 0, -2).")";
 
@@ -938,7 +938,7 @@ class dba {
 	 *
 	 * @return boolean was the lock successful?
 	 */
-	static public function lock($table) {
+	public static function lock($table) {
 		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
 		self::e("SET autocommit=0");
 		$success = self::e("LOCK TABLES `".self::$dbo->escape($table)."` WRITE");
@@ -955,7 +955,7 @@ class dba {
 	 *
 	 * @return boolean was the unlock successful?
 	 */
-	static public function unlock() {
+	public static function unlock() {
 		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
 		self::e("COMMIT");
 		$success = self::e("UNLOCK TABLES");
@@ -969,7 +969,7 @@ class dba {
 	 *
 	 * @return boolean Was the command executed successfully?
 	 */
-	static public function transaction() {
+	public static function transaction() {
 		if (!self::e('COMMIT')) {
 			return false;
 		}
@@ -985,7 +985,7 @@ class dba {
 	 *
 	 * @return boolean Was the command executed successfully?
 	 */
-	static public function commit() {
+	public static function commit() {
 		if (!self::e('COMMIT')) {
 			return false;
 		}
@@ -998,7 +998,7 @@ class dba {
 	 *
 	 * @return boolean Was the command executed successfully?
 	 */
-	static public function rollback() {
+	public static function rollback() {
 		if (!self::e('ROLLBACK')) {
 			return false;
 		}
@@ -1013,7 +1013,7 @@ class dba {
 	 *
 	 * This process must only be started once, since the value is cached.
 	 */
-	static private function build_relation_data() {
+	private static function build_relation_data() {
 		$definition = db_definition();
 
 		foreach ($definition AS $table => $structure) {
@@ -1037,7 +1037,7 @@ class dba {
 	 *
 	 * @return boolean|array was the delete successfull? When $in_process is set: deletion data
 	 */
-	static public function delete($table, $param, $in_process = false, &$callstack = array()) {
+	public static function delete($table, $param, $in_process = false, &$callstack = array()) {
 
 		$commands = array();
 
@@ -1200,7 +1200,7 @@ class dba {
 	 *
 	 * @return boolean was the update successfull?
 	 */
-	static public function update($table, $fields, $condition, $old_fields = array()) {
+	public static function update($table, $fields, $condition, $old_fields = array()) {
 
 		$table = self::$dbo->escape($table);
 
@@ -1274,7 +1274,7 @@ class dba {
 	 *
 	 * $data = dba::select($table, $fields, $condition, $params);
 	 */
-	static public function select($table, $fields = array(), $condition = array(), $params = array()) {
+	public static function select($table, $fields = array(), $condition = array(), $params = array()) {
 		if ($table == '') {
 			return false;
 		}
@@ -1341,7 +1341,7 @@ class dba {
 	 * @param object $stmt statement object
 	 * @return array Data array
 	 */
-	static public function inArray($stmt, $do_close = true) {
+	public static function inArray($stmt, $do_close = true) {
 		if (is_bool($stmt)) {
 			return $stmt;
 		}
@@ -1362,7 +1362,7 @@ class dba {
 	 * @param object $stmt statement object
 	 * @return boolean was the close successfull?
 	 */
-	static public function close($stmt) {
+	public static function close($stmt) {
 		if (!is_object($stmt)) {
 			return false;
 		}

@@ -187,11 +187,11 @@ class Smilies {
 		return $s;
 	}
 
-	private function encode($m) {
+	private static function encode($m) {
 		return(str_replace($m[1],base64url_encode($m[1]),$m[0]));
 	}
 
-	private function decode($m) {
+	private static function decode($m) {
 		return(str_replace($m[1],base64url_decode($m[1]),$m[0]));
 	}
 
@@ -204,7 +204,7 @@ class Smilies {
 	 *
 	 * @todo: Rework because it doesn't work correctly
 	 */
-	private function preg_heart($x) {
+	private static function preg_heart($x) {
 		if(strlen($x[1]) == 1)
 			return $x[0];
 		$t = '';

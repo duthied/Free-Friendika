@@ -42,7 +42,7 @@ class Cache {
 	 *
 	 * @return integer The cache duration in seconds
 	 */
-	private function duration($level) {
+	private static function duration($level) {
 		switch($level) {
 			case CACHE_MONTH;
 				$seconds = 2592000;
