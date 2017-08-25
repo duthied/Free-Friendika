@@ -112,19 +112,7 @@ You can generally find the location of PHP by executing "which php".
 If you run into trouble with this section please contact your hosting provider for assistance.
 Friendica will not work correctly if you cannot perform this step.
 
-Alternative: You may be able to use the 'poormancron' plugin to perform this step.
-To do this, edit the file ".htconfig.php" and look for a line describing your plugins.
-On a fresh installation, it will look like this:
-
-    $a->config['system']['addon'] = 'js_upload';
-
-It indicates the "js_upload" addon module is enabled.
-You may add additional addons/plugins using this same line in the configuration file.
-Change it to read
-
-    $a->config['system']['addon'] = 'js_upload,poormancron';
-
-and save your changes.
+If it is not possible to set up a cron job then please activate the "frontend worker" in the administration interface.
 
 Once you have installed Friendica and created an admin account as part of the process, you can access the admin panel of your installation and do most of the server wide configuration from there
 

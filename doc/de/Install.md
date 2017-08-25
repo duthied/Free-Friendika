@@ -96,18 +96,7 @@ Du kannst den PHP-Pfad finden, indem du den Befehl „which php“ ausführst.
 Wenn du Schwierigkeiten mit diesem Schritt hast, kannst du deinen Hosting-Anbieter kontaktieren. 
 Friendica wird nicht korrekt laufen, wenn dieser Schritt nicht erfolgreich abgeschlossen werden kann.
 
-Alternativ kannst du das Plugin 'poormancron' nutzen, um diesen Schritt durchzuführen, wenn du eine aktuelle Friendica-Version nutzt. 
-Um dies zu machen, musst du die ".htconfig.php" an der Stelle anpassen, die dein Plugin beschreibt. 
-In einer frischen Installation sieht es aus wie: 
-
-`$a->config['system']['addon'] = 'js_upload';`
-
-Dies setzt voraus, dass das Addon-Modul "js_upload" aktiviert ist. 
-Du kannst auch weitere Addons/Plugins ergänzen. Ändere den Eintrag folgendermaßen ab:
-
-`$a->config['system']['addon'] = 'js_upload,poormancron';`
-
-und speichere deine Änderungen.
+Falls das Einrichten des cron nicht möglich ist, kannst Du alternativ den "frontend worker" vom Administrationsinterface aus aktivieren.
 
 ###Erstelle einen Backup Plan
 Es werden schlimme Dinge geschehen.
