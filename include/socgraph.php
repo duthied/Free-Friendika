@@ -2013,7 +2013,7 @@ function clean_contact_url($url) {
 	}
 
 	if ($new_url != $url) {
-		logger("Cleaned contact url ".$url." to ".$new_url." - Called by: ".App::callstack(), LOGGER_DEBUG);
+		logger("Cleaned contact url ".$url." to ".$new_url." - Called by: ".System::callstack(), LOGGER_DEBUG);
 	}
 
 	return $new_url;
@@ -2028,7 +2028,7 @@ function fix_alternate_contact_address(&$contact) {
 	if (($contact["network"] == NETWORK_OSTATUS) && poco_alternate_ostatus_url($contact["url"])) {
 		$data = probe_url($contact["url"]);
 		if ($contact["network"] == NETWORK_OSTATUS) {
-			logger("Fix primary url from ".$contact["url"]." to ".$data["url"]." - Called by: ".App::callstack(), LOGGER_DEBUG);
+			logger("Fix primary url from ".$contact["url"]." to ".$data["url"]." - Called by: ".System::callstack(), LOGGER_DEBUG);
 			$contact["url"] = $data["url"];
 			$contact["addr"] = $data["addr"];
 			$contact["alias"] = $data["alias"];
@@ -2049,7 +2049,7 @@ function get_gcontact_id($contact) {
 	$doprobing = false;
 
 	if (in_array($contact["network"], array(NETWORK_PHANTOM))) {
-		logger("Invalid network for contact url ".$contact["url"]." - Called by: ".App::callstack(), LOGGER_DEBUG);
+		logger("Invalid network for contact url ".$contact["url"]." - Called by: ".System::callstack(), LOGGER_DEBUG);
 		return false;
 	}
 
@@ -2290,7 +2290,7 @@ function update_gcontact_from_probe($url) {
 	$data = probe_url($url);
 
 	if (in_array($data["network"], array(NETWORK_PHANTOM))) {
-		logger("Invalid network for contact url ".$data["url"]." - Called by: ".App::callstack(), LOGGER_DEBUG);
+		logger("Invalid network for contact url ".$data["url"]." - Called by: ".System::callstack(), LOGGER_DEBUG);
 		return;
 	}
 

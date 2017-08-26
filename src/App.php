@@ -2,6 +2,7 @@
 
 namespace Friendica;
 
+use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 
@@ -683,7 +684,7 @@ class App {
 		$this->performance[$value] += (float) $duration;
 		$this->performance['marktime'] += (float) $duration;
 
-		$callstack = $this->callstack();
+		$callstack = System::callstack();
 
 		if (!isset($this->callstack[$value][$callstack])) {
 			// Prevent ugly E_NOTICE
@@ -734,30 +735,6 @@ class App {
 	 */
 	function end_process() {
 		q('DELETE FROM `process` WHERE `pid` = %d', intval(getmypid()));
-	}
-
-	/**
-	 * @brief Returns a string with a callstack. Can be used for logging.
-	 *
-	 * @return string
-	 */
-	function callstack($depth = 4) {
-		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $depth + 2);
-
-		// We remove the first two items from the list since they contain data that we don't need.
-		array_shift($trace);
-		array_shift($trace);
-
-		$callstack = array();
-		foreach ($trace AS $func) {
-			if (!empty($func['class'])) {
-				$callstack[] = $func['class'].'::'.$func['function'];
-			} else {
-				$callstack[] = $func['function'];
-			}
-		}
-
-		return implode(', ', $callstack);
 	}
 
 	function get_useragent() {

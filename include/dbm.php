@@ -107,6 +107,6 @@ class dbm {
 			$timestamp = -62135596800;
 		}
 
-		return date('Y-m-d H:i:s', $timestamp);
+		return date('Y-m-d H:i:s', (int)$timestamp);
 	}
 }

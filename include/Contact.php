@@ -523,7 +523,7 @@ function contacts_not_grouped($uid,$start = 0,$count = 0) {
  * @return integer Contact ID
  */
 function get_contact($url, $uid = 0, $no_update = false) {
-	logger("Get contact data for url ".$url." and user ".$uid." - ".App::callstack(), LOGGER_DEBUG);
+	logger("Get contact data for url ".$url." and user ".$uid." - ".System::callstack(), LOGGER_DEBUG);
 
 	$data = array();
 	$contact_id = 0;

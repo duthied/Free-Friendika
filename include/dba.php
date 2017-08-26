@@ -1,4 +1,6 @@
 <?php
+use \Friendica\Core\System;
+
 require_once("dbm.php");
 require_once('include/datetime.php');
 
@@ -228,7 +230,7 @@ class dba {
 		$orig_sql = $sql;
 
 		if (x($a->config,'system') && x($a->config['system'], 'db_callstack')) {
-			$sql = "/*".$a->callstack()." */ ".$sql;
+			$sql = "/*".System::callstack()." */ ".$sql;
 		}
 
 		$columns = 0;
@@ -549,7 +551,7 @@ class dba {
 		$orig_sql = $sql;
 
 		if (x($a->config,'system') && x($a->config['system'], 'db_callstack')) {
-			$sql = "/*".$a->callstack()." */ ".$sql;
+			$sql = "/*".System::callstack()." */ ".$sql;
 		}
 
 		self::$dbo->error = '';
@@ -679,7 +681,7 @@ class dba {
 			$errorno = self::$dbo->errorno;
 
 			logger('DB Error '.self::$dbo->errorno.': '.self::$dbo->error."\n".
-				$a->callstack(8)."\n".self::replace_parameters($sql, $params));
+				System::callstack(8)."\n".self::replace_parameters($sql, $params));
 
 			self::$dbo->error = $error;
 			self::$dbo->errorno = $errorno;
@@ -742,7 +744,7 @@ class dba {
 			$errorno = self::$dbo->errorno;
 
 			logger('DB Error '.self::$dbo->errorno.': '.self::$dbo->error."\n".
-				$a->callstack(8)."\n".self::replace_parameters($sql, $params));
+				System::callstack(8)."\n".self::replace_parameters($sql, $params));
 
 			self::$dbo->error = $error;
 			self::$dbo->errorno = $errorno;
@@ -914,7 +916,7 @@ class dba {
 	 *
 	 * @return integer Last inserted id
 	 */
-	function lastInsertId() {
+	public static function lastInsertId() {
 		switch (self::$dbo->driver) {
 			case 'pdo':
 				$id = self::$dbo->db->lastInsertId();
