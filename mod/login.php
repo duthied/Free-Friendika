@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function login_content(App $a) {
 	if (x($_SESSION, 'theme')) {
@@ -12,7 +13,7 @@ function login_content(App $a) {
 	}
 
 	if (local_user()) {
-		goaway(z_root());
+		goaway(System::baseUrl());
 	}
 
 	return login(($a->config['register_policy'] == REGISTER_CLOSED) ? false : true);

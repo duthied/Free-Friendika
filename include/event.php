@@ -373,7 +373,7 @@ function event_store($arr) {
 			intval($arr['uid'])
 		);
 		//if (dbm::is_result($r))
-		//	$plink = App::get_baseurl() . '/display/' . $r[0]['nickname'] . '/' . $item_id;
+		//	$plink = System::baseUrl() . '/display/' . $r[0]['nickname'] . '/' . $item_id;
 
 
 		if ($item_id) {
@@ -590,8 +590,8 @@ function process_events($arr) {
 			// Show edit and drop actions only if the user is the owner of the event and the event
 			// is a real event (no bithdays)
 			if (local_user() && local_user() == $rr['uid'] && $rr['type'] == 'event') {
-				$edit = ((! $rr['cid']) ? array(App::get_baseurl() . '/events/event/' . $rr['id'], t('Edit event'), '', '') : null);
-				$drop = array(App::get_baseurl() . '/events/drop/' . $rr['id'], t('Delete event'), '', '');
+				$edit = ((! $rr['cid']) ? array(System::baseUrl() . '/events/event/' . $rr['id'], t('Edit event'), '', '') : null);
+				$drop = array(System::baseUrl() . '/events/drop/' . $rr['id'], t('Delete event'), '', '');
 			}
 
 			$title = strip_tags(html_entity_decode(bbcode($rr['summary']), ENT_QUOTES, 'UTF-8'));

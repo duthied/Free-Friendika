@@ -308,7 +308,7 @@ function admin_page_blocklist(App $a) {
 		'$threason' => t('Reason for the block'),
 		'$delentry' => t('Delete entry from blocklist'),
 		'$entries' => $blocklistform,
-		'$baseurl' => App::get_baseurl(true),
+		'$baseurl' => System::baseUrl(true),
 		'$confirm_delete' => t('Delete entry from blocklist?'),
 		'$form_security_token'	=> get_form_security_token("admin_blocklist")
 	));
@@ -377,7 +377,7 @@ function admin_page_deleteitem(App $a) {
 		'$intro1' => t('On this page you can delete an item from your node. If the item is a top level posting, the entire thread will be deleted.'),
 		'$intro2' => t('You need to know the GUID of the item. You can find it e.g. by looking at the display URL. The last part of http://example.com/display/123456 is the GUID, here 123456.'),
 		'$deleteitemguid' => array('deleteitemguid', t("GUID"), '', t("The GUID of the item you want to delete."), 'required', 'autofocus'),
-		'$baseurl' => App::get_baseurl(),
+		'$baseurl' => System::baseUrl(),
 		'$form_security_token'	=> get_form_security_token("admin_deleteitem")
 	));
 }
@@ -553,7 +553,7 @@ function admin_page_federation(App $a) {
 		'$counts' => $counts,
 		'$version' => FRIENDICA_VERSION,
 		'$legendtext' => sprintf(t('Currently this node is aware of %d nodes from the following platforms:'), $total),
-		'$baseurl' => App::get_baseurl(),
+		'$baseurl' => System::baseUrl(),
 	));
 }
 
@@ -666,7 +666,7 @@ function admin_page_summary(App $a) {
 		'$accounts' => $accounts,
 		'$pending' => array(t('Pending registrations'), $pending),
 		'$version' => array(t('Version'), FRIENDICA_VERSION),
-		'$baseurl' => App::get_baseurl(),
+		'$baseurl' => System::baseUrl(),
 		'$platform' => FRIENDICA_PLATFORM,
 		'$codename' => FRIENDICA_CODENAME,
 		'$build' =>  get_config('system','build'),
@@ -704,7 +704,7 @@ function admin_page_site_post(App $a) {
 		 * send relocate for every local user
 		 * */
 
-		$old_url = App::get_baseurl(true);
+		$old_url = System::baseUrl(true);
 
 		// Generate host names for relocation the addresses in the format user@address.tld
 		$new_host = str_replace("http://", "@", normalise_link($new_url));
@@ -1152,7 +1152,7 @@ function admin_page_site(App $a) {
 		'$performance' => t('Performance'),
 		'$worker_title' => t('Worker'),
 		'$relocate'=> t('Relocate - WARNING: advanced function. Could make this server unreachable.'),
-		'$baseurl' => App::get_baseurl(true),
+		'$baseurl' => System::baseUrl(true),
 		// name, label, value, help string, extra data...
 		'$sitename' 		=> array('sitename', t("Site name"), $a->config['sitename'],''),
 		'$hostname' 		=> array('hostname', t("Host name"), $a->config['hostname'], ""),
@@ -1227,14 +1227,14 @@ function admin_page_site(App $a) {
 		'$proxy_disabled'	=> array('proxy_disabled', t("Disable picture proxy"), get_config('system','proxy_disabled'), t("The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith.")),
 		'$only_tag_search'	=> array('only_tag_search', t("Only search in tags"), get_config('system','only_tag_search'), t("On large systems the text search can slow down the system extremely.")),
 
-		'$relocate_url'		=> array('relocate_url', t("New base url"), App::get_baseurl(), t("Change base url for this server. Sends relocate message to all DFRN contacts of all users.")),
+		'$relocate_url'		=> array('relocate_url', t("New base url"), System::baseUrl(), t("Change base url for this server. Sends relocate message to all DFRN contacts of all users.")),
 
 		'$rino' 		=> array('rino', t("RINO Encryption"), intval(get_config('system','rino_encrypt')), t("Encryption layer between nodes."), array("Disabled", "RINO1 (deprecated)", "RINO2")),
 
 		'$worker_queues' 	=> array('worker_queues', t("Maximum number of parallel workers"), get_config('system','worker_queues'), t("On shared hosters set this to 2. On larger systems, values of 10 are great. Default value is 4.")),
 		'$worker_dont_fork'	=> array('worker_dont_fork', t("Don't use 'proc_open' with the worker"), get_config('system','worker_dont_fork'), t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of poller calls in your crontab.")),
 		'$worker_fastlane'	=> array('worker_fastlane', t("Enable fastlane"), get_config('system','worker_fastlane'), t("When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.")),
-		'$worker_frontend'	=> array('worker_frontend', t('Enable frontend worker'), get_config('system','frontend_worker'), sprintf(t('When enabled the Worker process is triggered when backend access is performed (e.g. messages being delivered). On smaller sites you might want to call %s/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server.'), App::get_baseurl())),
+		'$worker_frontend'	=> array('worker_frontend', t('Enable frontend worker'), get_config('system','frontend_worker'), sprintf(t('When enabled the Worker process is triggered when backend access is performed (e.g. messages being delivered). On smaller sites you might want to call %s/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server.'), System::baseUrl())),
 
 		'$form_security_token'	=> get_form_security_token("admin_site")
 
@@ -1317,13 +1317,13 @@ function admin_page_dbsync(App $a) {
 	}
 	if (! count($failed)) {
 		$o = replace_macros(get_markup_template('structure_check.tpl'),array(
-			'$base'   => App::get_baseurl(true),
+			'$base'   => System::baseUrl(true),
 			'$banner' => t('No failed updates.'),
 			'$check'  => t('Check database structure'),
 		));
 	} else {
 		$o = replace_macros(get_markup_template('failed_updates.tpl'),array(
-			'$base'   => App::get_baseurl(true),
+			'$base'   => System::baseUrl(true),
 			'$banner' => t('Failed Updates'),
 			'$desc'   => t('This does not include updates prior to 1139, which did not return a status.'),
 			'$mark'   => t('Mark success (if update was manually applied)'),
@@ -1391,7 +1391,7 @@ function admin_page_users_post(App $a) {
 			Thank you and welcome to %4$s.'));
 
 		$preamble = sprintf($preamble, $nu['username'], $a->config['sitename']);
-		$body = sprintf($body, App::get_baseurl(), $nu['email'], $result['password'], $a->config['sitename']);
+		$body = sprintf($body, System::baseUrl(), $nu['email'], $result['password'], $a->config['sitename']);
 
 		notification(array(
 			'type' => "SYSTEM_EMAIL",
@@ -1615,7 +1615,7 @@ function admin_page_users(App $a) {
 		'$form_security_token' => get_form_security_token("admin_users"),
 
 		// values //
-		'$baseurl' => App::get_baseurl(true),
+		'$baseurl' => System::baseUrl(true),
 
 		'$pending' => $pending,
 		'deleted' => $deleted,
@@ -1707,7 +1707,7 @@ function admin_page_plugins(App $a) {
 			'$page' => t('Plugins'),
 			'$toggle' => t('Toggle'),
 			'$settings' => t('Settings'),
-			'$baseurl' => App::get_baseurl(true),
+			'$baseurl' => System::baseUrl(true),
 
 			'$plugin' => $plugin,
 			'$status' => $status,
@@ -1732,10 +1732,10 @@ function admin_page_plugins(App $a) {
 	 */
 
 	if (x($_GET,"a") && $_GET['a']=="r") {
-		check_form_security_token_redirectOnErr(App::get_baseurl().'/admin/plugins', 'admin_themes', 't');
+		check_form_security_token_redirectOnErr(System::baseUrl().'/admin/plugins', 'admin_themes', 't');
 		reload_plugins();
 		info("Plugins reloaded");
-		goaway(App::get_baseurl().'/admin/plugins');
+		goaway(System::baseUrl().'/admin/plugins');
 	}
 
 	$plugins = array();
@@ -1770,7 +1770,7 @@ function admin_page_plugins(App $a) {
 		'$page' => t('Plugins'),
 		'$submit' => t('Save Settings'),
 		'$reload' => t('Reload active plugins'),
-		'$baseurl' => App::get_baseurl(true),
+		'$baseurl' => System::baseUrl(true),
 		'$function' => 'plugins',
 		'$plugins' => $plugins,
 		'$pcount' => count($plugins),
@@ -1983,7 +1983,7 @@ function admin_page_themes(App $a) {
 			'$page' => t('Themes'),
 			'$toggle' => t('Toggle'),
 			'$settings' => t('Settings'),
-			'$baseurl' => App::get_baseurl(true),
+			'$baseurl' => System::baseUrl(true),
 			'$plugin' => $theme,
 			'$status' => $status,
 			'$action' => $action,
@@ -2002,7 +2002,7 @@ function admin_page_themes(App $a) {
 
 	// reload active themes
 	if (x($_GET,"a") && $_GET['a']=="r") {
-		check_form_security_token_redirectOnErr(App::get_baseurl().'/admin/themes', 'admin_themes', 't');
+		check_form_security_token_redirectOnErr(System::baseUrl().'/admin/themes', 'admin_themes', 't');
 		if ($themes) {
 			foreach ($themes as $th) {
 				if ($th['allowed']) {
@@ -2012,7 +2012,7 @@ function admin_page_themes(App $a) {
 			}
 		}
 		info("Themes reloaded");
-		goaway(App::get_baseurl().'/admin/themes');
+		goaway(System::baseUrl().'/admin/themes');
 	}
 
 	/*
@@ -2033,7 +2033,7 @@ function admin_page_themes(App $a) {
 		'$page'                => t('Themes'),
 		'$submit'              => t('Save Settings'),
 		'$reload'              => t('Reload active themes'),
-		'$baseurl'             => App::get_baseurl(true),
+		'$baseurl'             => System::baseUrl(true),
 		'$function'            => 'themes',
 		'$plugins'             => $xthemes,
 		'$pcount'              => count($themes),
@@ -2107,7 +2107,7 @@ function admin_page_logs(App $a) {
 		'$page' => t('Logs'),
 		'$submit' => t('Save Settings'),
 		'$clear' => t('Clear'),
-		'$baseurl' => App::get_baseurl(true),
+		'$baseurl' => System::baseUrl(true),
 		'$logname' =>  get_config('system','logfile'),
 
 		// name, label, value, help string, extra data...

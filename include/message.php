@@ -27,7 +27,7 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 	}
 
 	$guid = get_guid(32);
- 	$uri = 'urn:X-dfrn:' . App::get_baseurl() . ':' . local_user() . ':' . $guid;
+ 	$uri = 'urn:X-dfrn:' . System::baseUrl() . ':' . local_user() . ':' . $guid;
 
 	$convid = 0;
 	$reply = false;
@@ -53,7 +53,7 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 		$recip_host = substr($recip_host,0,strpos($recip_host,'/'));
 
 		$recip_handle = (($contact[0]['addr']) ? $contact[0]['addr'] : $contact[0]['nick'] . '@' . $recip_host);
-		$sender_handle = $a->user['nickname'] . '@' . substr(App::get_baseurl(), strpos(App::get_baseurl(),'://') + 3);
+		$sender_handle = $a->user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(),'://') + 3);
 
 		$conv_guid = get_guid(32);
 		$convuri = $recip_handle.':'.$conv_guid;
@@ -134,7 +134,7 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 		$images = $match[1];
 		if (count($images)) {
 			foreach ($images as $image) {
-				if (! stristr($image,App::get_baseurl() . '/photo/')) {
+				if (! stristr($image,System::baseUrl() . '/photo/')) {
 					continue;
 				}
 				$image_uri = substr($image,strrpos($image,'/') + 1);
@@ -170,7 +170,7 @@ function send_wallmessage($recipient='', $body='', $subject='', $replyto=''){
 	}
 
 	$guid = get_guid(32);
- 	$uri = 'urn:X-dfrn:' . App::get_baseurl() . ':' . local_user() . ':' . $guid;
+ 	$uri = 'urn:X-dfrn:' . System::baseUrl() . ':' . local_user() . ':' . $guid;
 
 	$convid = 0;
 	$reply = false;
@@ -185,7 +185,7 @@ function send_wallmessage($recipient='', $body='', $subject='', $replyto=''){
 
 	$conv_guid = get_guid(32);
 
-	$recip_handle = $recipient['nickname'] . '@' . substr(App::get_baseurl(), strpos(App::get_baseurl(),'://') + 3);
+	$recip_handle = $recipient['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(),'://') + 3);
 
 	$sender_nick = basename($replyto);
 	$sender_host = substr($replyto,strpos($replyto,'://')+3);

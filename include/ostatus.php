@@ -457,7 +457,7 @@ class ostatus {
 							if (strlen($item["tag"])) {
 								$item["tag"] .= ',';
 							}
-							$item["tag"] .= "#[url=".App::get_baseurl()."/search?tag=".$term."]".$term."[/url]";
+							$item["tag"] .= "#[url=".System::baseUrl()."/search?tag=".$term."]".$term."[/url]";
 						}
 					}
 				}
@@ -1453,7 +1453,7 @@ class ostatus {
 
 		$attributes = array("uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION."-".DB_UPDATE_VERSION);
 		xml::add_element($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
-		xml::add_element($doc, $root, "id", App::get_baseurl()."/profile/".$owner["nick"]);
+		xml::add_element($doc, $root, "id", System::baseUrl()."/profile/".$owner["nick"]);
 		xml::add_element($doc, $root, "title", sprintf("%s timeline", $owner["name"]));
 		xml::add_element($doc, $root, "subtitle", sprintf("Updates from %s on %s", $owner["name"], $a->config["sitename"]));
 		xml::add_element($doc, $root, "logo", $owner["photo"]);
@@ -1466,23 +1466,23 @@ class ostatus {
 		xml::add_element($doc, $root, "link", "", $attributes);
 
 		/// @TODO We have to find out what this is
-		/// $attributes = array("href" => App::get_baseurl()."/sup",
+		/// $attributes = array("href" => System::baseUrl()."/sup",
 		///		"rel" => "http://api.friendfeed.com/2008/03#sup",
 		///		"type" => "application/json");
 		/// xml::add_element($doc, $root, "link", "", $attributes);
 
 		self::hublinks($doc, $root, $owner["nick"]);
 
-		$attributes = array("href" => App::get_baseurl()."/salmon/".$owner["nick"], "rel" => "salmon");
+		$attributes = array("href" => System::baseUrl()."/salmon/".$owner["nick"], "rel" => "salmon");
 		xml::add_element($doc, $root, "link", "", $attributes);
 
-		$attributes = array("href" => App::get_baseurl()."/salmon/".$owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-replies");
+		$attributes = array("href" => System::baseUrl()."/salmon/".$owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-replies");
 		xml::add_element($doc, $root, "link", "", $attributes);
 
-		$attributes = array("href" => App::get_baseurl()."/salmon/".$owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-mention");
+		$attributes = array("href" => System::baseUrl()."/salmon/".$owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-mention");
 		xml::add_element($doc, $root, "link", "", $attributes);
 
-		$attributes = array("href" => App::get_baseurl()."/api/statuses/user_timeline/".$owner["nick"].".atom",
+		$attributes = array("href" => System::baseUrl()."/api/statuses/user_timeline/".$owner["nick"].".atom",
 				"rel" => "self", "type" => "application/atom+xml");
 		xml::add_element($doc, $root, "link", "", $attributes);
 
@@ -1496,7 +1496,7 @@ class ostatus {
 	 * @param object $root XML root element where the hub links are added
 	 */
 	public static function hublinks($doc, $root, $nick) {
-		$h = App::get_baseurl() . '/pubsubhubbub/'.$nick;
+		$h = System::baseUrl() . '/pubsubhubbub/'.$nick;
 		xml::add_element($doc, $root, "link", "", array("href" => $h, "rel" => "hub"));
 	}
 
@@ -1626,7 +1626,7 @@ class ostatus {
 		}
 
 		if (count($profile)) {
-			xml::add_element($doc, $author, "followers", "", array("url" => App::get_baseurl()."/viewcontacts/".$owner["nick"]));
+			xml::add_element($doc, $author, "followers", "", array("url" => System::baseUrl()."/viewcontacts/".$owner["nick"]));
 			xml::add_element($doc, $author, "statusnet:profile_info", "", array("local_id" => $owner["uid"]));
 		}
 
@@ -2067,7 +2067,7 @@ class ostatus {
 		xml::add_element($doc, $entry, "content", $body, array("type" => "html"));
 
 		xml::add_element($doc, $entry, "link", "", array("rel" => "alternate", "type" => "text/html",
-								"href" => App::get_baseurl()."/display/".$item["guid"]));
+								"href" => System::baseUrl()."/display/".$item["guid"]));
 
 		if ($complete && ($item["id"] > 0))
 			xml::add_element($doc, $entry, "status_net", "", array("notice_id" => $item["id"]));
@@ -2105,7 +2105,7 @@ class ostatus {
 			} else {
 				$mentioned[$parent[0]["author-link"]] = $parent[0]["author-link"];
 				$mentioned[$parent[0]["owner-link"]] = $parent[0]["owner-link"];
-				$parent_plink = App::get_baseurl()."/display/".$parent[0]["guid"];
+				$parent_plink = System::baseUrl()."/display/".$parent[0]["guid"];
 			}
 
 			$attributes = array(
@@ -2120,7 +2120,7 @@ class ostatus {
 		}
 
 		if (intval($item["parent"]) > 0) {
-			$conversation_href = App::get_baseurl()."/display/".$owner["nick"]."/".$item["parent"];
+			$conversation_href = System::baseUrl()."/display/".$owner["nick"]."/".$item["parent"];
 			$conversation_uri = $conversation_href;
 
 			if (isset($parent_item)) {

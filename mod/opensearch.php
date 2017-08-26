@@ -10,7 +10,7 @@ function opensearch_content(App $a) {
 	header("Content-type: application/opensearchdescription+xml");
 
 	$o = replace_macros($tpl, array(
-		'$baseurl' => App::get_baseurl(),
+		'$baseurl' => System::baseUrl(),
 		'$nodename' => $a->get_hostname(),
 	));
 

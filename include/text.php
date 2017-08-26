@@ -25,7 +25,7 @@ function replace_macros($s, $r) {
 	$a = get_app();
 
 	// pass $baseurl to all templates
-	$r['$baseurl'] = App::get_baseurl();
+	$r['$baseurl'] = System::baseUrl();
 
 	$t = $a->template_engine();
 	try {
@@ -1312,7 +1312,7 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 	$a = get_app();
 	call_hooks('prepare_body_init', $item);
 
-	$searchpath = z_root() . "/search?tag=";
+	$searchpath = System::baseUrl() . "/search?tag=";
 
 	$tags = array();
 	$hashtags = array();
@@ -1395,10 +1395,10 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 						if (!$vhead) {
 							$vhead = true;
 							$a->page['htmlhead'] .= replace_macros(get_markup_template('videos_head.tpl'), array(
-								'$baseurl' => z_root(),
+								'$baseurl' => System::baseUrl(),
 							));
 							$a->page['end'] .= replace_macros(get_markup_template('videos_end.tpl'), array(
-								'$baseurl' => z_root(),
+								'$baseurl' => System::baseUrl(),
 							));
 						}
 

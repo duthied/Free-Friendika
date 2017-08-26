@@ -18,7 +18,7 @@ function friendica_init(App $a) {
 			$r = q("SELECT `username`, `nickname` FROM `user` WHERE `email` = '%s' $sql_extra", dbesc($adminlist[0]));
 			$admin = array(
 				'name' => $r[0]['username'],
-				'profile'=> App::get_baseurl() . '/profile/' . $r[0]['nickname'],
+				'profile'=> System::baseUrl() . '/profile/' . $r[0]['nickname'],
 			);
 		} else {
 			$admin = false;
@@ -48,7 +48,7 @@ function friendica_init(App $a) {
 
 		$data = Array(
 			'version'         => FRIENDICA_VERSION,
-			'url'             => z_root(),
+			'url'             => System::baseUrl(),
 			'plugins'         => $visible_plugins,
 			'locked_features' => $locked_features,
 			'register_policy' =>  $register_policy[$a->config['register_policy']],
@@ -56,7 +56,7 @@ function friendica_init(App $a) {
 			'site_name'       => $a->config['sitename'],
 			'platform'        => FRIENDICA_PLATFORM,
 			'info'            => ((x($a->config,'info')) ? $a->config['info'] : ''),
-			'no_scrape_url'   => App::get_baseurl().'/noscrape'
+			'no_scrape_url'   => System::baseUrl().'/noscrape'
 		);
 
 		echo json_encode($data);
@@ -68,7 +68,7 @@ function friendica_content(App $a) {
 	$o = '<h1>Friendica</h1>' . PHP_EOL;
 	$o .= '<p>';
 	$o .= t('This is Friendica, version') . ' <strong>' . FRIENDICA_VERSION . '</strong> ';
-	$o .= t('running at web location') . ' ' . z_root();
+	$o .= t('running at web location') . ' ' . System::baseUrl();
 	$o .= '</p>' . PHP_EOL;
 
 	$o .= '<p>';

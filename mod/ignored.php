@@ -42,7 +42,7 @@ function ignored_init(App $a) {
 		if(strpos($return_path, '?')) $rand = "&$rand";
 		else $rand = "?$rand";
 
-		goaway(App::get_baseurl() . "/" . $return_path . $rand);
+		goaway(System::baseUrl() . "/" . $return_path . $rand);
 	}
 
 	// the json doesn't really matter, it will either be 0 or 1

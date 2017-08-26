@@ -100,8 +100,8 @@ function display_init(App $a) {
 
 			$profiledata = display_fetchauthor($a, $r);
 
-			if (strstr(normalise_link($profiledata["url"]), normalise_link(App::get_baseurl()))) {
-				$nickname = str_replace(normalise_link(App::get_baseurl())."/profile/", "", normalise_link($profiledata["url"]));
+			if (strstr(normalise_link($profiledata["url"]), normalise_link(System::baseUrl()))) {
+				$nickname = str_replace(normalise_link(System::baseUrl())."/profile/", "", normalise_link($profiledata["url"]));
 
 				if (($nickname != $a->user["nickname"])) {
 					$r = dba::fetch_first("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
@@ -198,11 +198,11 @@ function display_fetchauthor($a, $item) {
 
 	$profiledata = get_contact_details_by_url($profiledata["url"], local_user(), $profiledata);
 
-	$profiledata["photo"] = App::remove_baseurl($profiledata["photo"]);
+	$profiledata["photo"] = System::removedBaseUrl($profiledata["photo"]);
 
 	if (local_user()) {
 		if (in_array($profiledata["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
-			$profiledata["remoteconnect"] = App::get_baseurl()."/follow?url=".urlencode($profiledata["url"]);
+			$profiledata["remoteconnect"] = System::baseUrl()."/follow?url=".urlencode($profiledata["url"]);
 		}
 	} elseif ($profiledata["network"] == NETWORK_DFRN) {
 		$connect = str_replace("/profile/", "/dfrn_request/", $profiledata["url"]);
@@ -295,7 +295,7 @@ function display_content(App $a, $update = 0) {
 	// We are displaying an "alternate" link if that post was public. See issue 2864
 	$is_public = dba::exists('item', array('id' => $item_id, 'private' => false, 'wall' => true));
 	if ($is_public) {
-		$alternate = App::get_baseurl().'/display/'.$nick.'/'.$item_id.'.atom';
+		$alternate = System::baseUrl().'/display/'.$nick.'/'.$item_id.'.atom';
 	} else {
 		$alternate = '';
 	}

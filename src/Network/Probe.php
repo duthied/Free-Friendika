@@ -334,7 +334,7 @@ class Probe {
 		if ($data["photo"] != "") {
 			$data["baseurl"] = matching_url(normalise_link($data["baseurl"]), normalise_link($data["photo"]));
 		} else {
-			$data["photo"] = App::get_baseurl().'/images/person-175.jpg';
+			$data["photo"] = System::baseUrl().'/images/person-175.jpg';
 		}
 
 		if (empty($data["name"])) {

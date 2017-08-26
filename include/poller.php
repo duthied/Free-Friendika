@@ -800,7 +800,7 @@ function call_worker() {
 		return;
 	}
 
-	$url = App::get_baseurl()."/worker";
+	$url = System::baseUrl()."/worker";
 	fetch_url($url, false, $redirects, 1);
 }
 

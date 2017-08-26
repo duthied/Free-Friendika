@@ -12,5 +12,5 @@ function randprof_init(App $a) {
 		goaway(zrl($x));
 	}
 
-	goaway(App::get_baseurl() . '/profile');
+	goaway(System::baseUrl() . '/profile');
 }

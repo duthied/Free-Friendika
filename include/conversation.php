@@ -66,7 +66,7 @@ function item_redir_and_replace_images($body, $images, $cid) {
 	while ($pos !== false && $cnt < 1000) {
 
 		$search = '/\[url\=(.*?)\]\[!#saved_image([0-9]*)#!\]\[\/url\]' . '/is';
-		$replace = '[url=' . z_path() . '/redir/' . $cid
+		$replace = '[url=' . System::baseUrl() . '/redir/' . $cid
 				   . '?f=1&url=' . '$1' . '][!#saved_image' . '$2' .'#!][/url]';
 
 		$newbody .= substr($origbody, 0, $pos['start']['open']);
@@ -681,7 +681,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 				$hashtags = array();
 				$mentions = array();
 
-				$searchpath = App::get_baseurl()."/search?tag=";
+				$searchpath = System::baseUrl()."/search?tag=";
 
 				$taglist = dba::select('term', array('type', 'term', 'url'),
 							array("`otype` = ? AND `oid` = ? AND `type` IN (?, ?)", TERM_OBJ_POST, $item['id'], TERM_HASHTAG, TERM_MENTION),
@@ -800,7 +800,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 					'name' => $profile_name_e,
 					'sparkle' => $sparkle,
 					'lock' => $lock,
-					'thumb' => App::remove_baseurl(proxy_url($item['author-thumb'], false, PROXY_SIZE_THUMB)),
+					'thumb' => System::removedBaseUrl(proxy_url($item['author-thumb'], false, PROXY_SIZE_THUMB)),
 					'title' => $item['title_e'],
 					'body' => $body_e,
 					'tags' => $tags_e,
@@ -819,7 +819,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 					'indent' => '',
 					'owner_name' => $owner_name_e,
 					'owner_url' => $owner_url,
-					'owner_photo' => App::remove_baseurl(proxy_url($item['owner-thumb'], false, PROXY_SIZE_THUMB)),
+					'owner_photo' => System::removedBaseUrl(proxy_url($item['owner-thumb'], false, PROXY_SIZE_THUMB)),
 					'plink' => get_plink($item),
 					'edpost' => false,
 					'isstarred' => $isstarred,
@@ -906,7 +906,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 	}
 
 	$o = replace_macros($page_template, array(
-		'$baseurl' => App::get_baseurl($ssl_state),
+		'$baseurl' => System::baseUrl($ssl_state),
 		'$return_path' => $a->query_string,
 		'$live_update' => $live_update_div,
 		'$remove' => t('remove'),
@@ -1226,7 +1226,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false) {
 	$tpl = get_markup_template('jot-header.tpl');
 	$a->page['htmlhead'] .= replace_macros($tpl, array(
 		'$newpost' => 'true',
-		'$baseurl' => App::get_baseurl(true),
+		'$baseurl' => System::baseUrl(true),
 		'$geotag' => $geotag,
 		'$nickname' => $x['nickname'],
 		'$ispublic' => t('Visible to <strong>everybody</strong>'),
@@ -1242,7 +1242,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false) {
 	$tpl = get_markup_template('jot-end.tpl');
 	$a->page['end'] .= replace_macros($tpl, array(
 		'$newpost' => 'true',
-		'$baseurl' => App::get_baseurl(true),
+		'$baseurl' => System::baseUrl(true),
 		'$geotag' => $geotag,
 		'$nickname' => $x['nickname'],
 		'$ispublic' => t('Visible to <strong>everybody</strong>'),
@@ -1310,7 +1310,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false) {
 		'$ptyp' => (($notes_cid) ? 'note' : 'wall'),
 		'$content' => $x['content'],
 		'$post_id' => $x['post_id'],
-		'$baseurl' => App::get_baseurl(true),
+		'$baseurl' => System::baseUrl(true),
 		'$defloc' => $x['default_location'],
 		'$visitor' => $x['visitor'],
 		'$pvisit' => (($notes_cid) ? 'none' : $x['visitor']),

@@ -628,10 +628,10 @@ function profiles_content(App $a) {
 
 
 		$a->page['htmlhead'] .= replace_macros(get_markup_template('profed_head.tpl'), array(
-			'$baseurl' => App::get_baseurl(true),
+			'$baseurl' => System::baseUrl(true),
 		));
 		$a->page['end'] .= replace_macros(get_markup_template('profed_end.tpl'), array(
-			'$baseurl' => App::get_baseurl(true),
+			'$baseurl' => System::baseUrl(true),
 		));
 
 		$opt_tpl = get_markup_template("profile-hide-friends.tpl");
@@ -708,7 +708,7 @@ function profiles_content(App $a) {
 			'$lbl_ex2' => t('Example: fishing photography software'),
 
 			'$disabled' => (($is_default) ? 'onclick="return false;" style="color: #BBBBFF;"' : ''),
-			'$baseurl' => App::get_baseurl(true),
+			'$baseurl' => System::baseUrl(true),
 			'$profile_id' => $r[0]['id'],
 			'$profile_name' => array('profile_name', t('Profile Name:'), $r[0]['profile-name'], t('Required'), '*'),
 			'$is_default'   => $is_default,

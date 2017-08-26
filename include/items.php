@@ -223,7 +223,7 @@ function add_page_info_data($data) {
 			/// @todo make a positive list of allowed characters
 			$hashtag = str_replace(array(" ", "+", "/", ".", "#", "'", "’", "`", "(", ")", "„", "“"),
 						array("", "", "", "", "", "", "", "", "", "", "", ""), $keyword);
-			$hashtags .= "#[url=" . App::get_baseurl() . "/search?tag=" . rawurlencode($hashtag) . "]" . $hashtag . "[/url] ";
+			$hashtags .= "#[url=" . System::baseUrl() . "/search?tag=" . rawurlencode($hashtag) . "]" . $hashtag . "[/url] ";
 		}
 	}
 
@@ -271,7 +271,7 @@ function add_page_keywords($url, $no_photos = false, $photo = "", $keywords = fa
 				$tags .= ", ";
 			}
 
-			$tags .= "#[url=" . App::get_baseurl() . "/search?tag=" . rawurlencode($hashtag) . "]" . $hashtag . "[/url]";
+			$tags .= "#[url=" . System::baseUrl() . "/search?tag=" . rawurlencode($hashtag) . "]" . $hashtag . "[/url]";
 		}
 	}
 
@@ -670,7 +670,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	}
 
 	if ($arr['plink'] == "") {
-		$arr['plink'] = App::get_baseurl() . '/display/' . urlencode($arr['guid']);
+		$arr['plink'] = System::baseUrl() . '/display/' . urlencode($arr['guid']);
 	}
 
 	if ($arr['network'] == "") {
@@ -842,7 +842,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 			$u = q("SELECT `nickname` FROM `user` WHERE `uid` = %d", intval($arr['uid']));
 			if (dbm::is_result($u)) {
 				$a = get_app();
-				$self = normalise_link(App::get_baseurl() . '/profile/' . $u[0]['nickname']);
+				$self = normalise_link(System::baseUrl() . '/profile/' . $u[0]['nickname']);
 				logger("item_store: 'myself' is ".$self." for parent ".$parent_id." checking against ".$arr['author-link']." and ".$arr['owner-link'], LOGGER_DEBUG);
 				if ((normalise_link($arr['author-link']) == $self) || (normalise_link($arr['owner-link']) == $self)) {
 					dba::update('thread', array('mention' => true), array('iid' => $parent_id));
@@ -1182,10 +1182,10 @@ function item_body_set_hashtags(&$item) {
 	// All hashtags should point to the home server if "local_tags" is activated
 	if (Config::get('system', 'local_tags')) {
 		$item["body"] = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-				"#[url=".App::get_baseurl()."/search?tag=$2]$2[/url]", $item["body"]);
+				"#[url=".System::baseUrl()."/search?tag=$2]$2[/url]", $item["body"]);
 
 		$item["tag"] = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-				"#[url=".App::get_baseurl()."/search?tag=$2]$2[/url]", $item["tag"]);
+				"#[url=".System::baseUrl()."/search?tag=$2]$2[/url]", $item["tag"]);
 	}
 
 	// mask hashtags inside of url, bookmarks and attachments to avoid urls in urls
@@ -1215,7 +1215,7 @@ function item_body_set_hashtags(&$item) {
 
 		$basetag = str_replace('_',' ',substr($tag,1));
 
-		$newtag = '#[url=' . App::get_baseurl() . '/search?tag=' . rawurlencode($basetag) . ']' . $basetag . '[/url]';
+		$newtag = '#[url=' . System::baseUrl() . '/search?tag=' . rawurlencode($basetag) . ']' . $basetag . '[/url]';
 
 		$item["body"] = str_replace($tag, $newtag, $item["body"]);
 
@@ -1325,13 +1325,13 @@ function tag_deliver($uid, $item_id) {
 
 	$item = $i[0];
 
-	$link = normalise_link(App::get_baseurl() . '/profile/' . $u[0]['nickname']);
+	$link = normalise_link(System::baseUrl() . '/profile/' . $u[0]['nickname']);
 
 	/*
 	 * Diaspora uses their own hardwired link URL in @-tags
 	 * instead of the one we supply with webfinger
 	 */
-	$dlink = normalise_link(App::get_baseurl() . '/u/' . $u[0]['nickname']);
+	$dlink = normalise_link(System::baseUrl() . '/u/' . $u[0]['nickname']);
 
 	$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism', $item['body'], $matches, PREG_SET_ORDER);
 	if ($cnt) {
@@ -1428,13 +1428,13 @@ function tgroup_check($uid, $item) {
 	$community_page = (($u[0]['page-flags'] == PAGE_COMMUNITY) ? true : false);
 	$prvgroup = (($u[0]['page-flags'] == PAGE_PRVGROUP) ? true : false);
 
-	$link = normalise_link(App::get_baseurl() . '/profile/' . $u[0]['nickname']);
+	$link = normalise_link(System::baseUrl() . '/profile/' . $u[0]['nickname']);
 
 	/*
 	 * Diaspora uses their own hardwired link URL in @-tags
 	 * instead of the one we supply with webfinger
 	 */
-	$dlink = normalise_link(App::get_baseurl() . '/u/' . $u[0]['nickname']);
+	$dlink = normalise_link(System::baseUrl() . '/u/' . $u[0]['nickname']);
 
 	$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism', $item['body'], $matches, PREG_SET_ORDER);
 	if ($cnt) {
@@ -1699,7 +1699,7 @@ function new_follower($importer, $contact, $datarray, $item, $sharing = false) {
 					'to_name'      => $r[0]['username'],
 					'to_email'     => $r[0]['email'],
 					'uid'          => $r[0]['uid'],
-					'link'		   => App::get_baseurl() . '/notifications/intro',
+					'link'		   => System::baseUrl() . '/notifications/intro',
 					'source_name'  => ((strlen(stripslashes($contact_record['name']))) ? stripslashes($contact_record['name']) : t('[Name Withheld]')),
 					'source_link'  => $contact_record['url'],
 					'source_photo' => $contact_record['photo'],
@@ -1785,7 +1785,7 @@ function fix_private_photos($s, $uid, $item = null, $cid = 0) {
 	$a = get_app();
 
 	logger('fix_private_photos: check for photos', LOGGER_DEBUG);
-	$site = substr(App::get_baseurl(),strpos(App::get_baseurl(),'://'));
+	$site = substr(System::baseUrl(),strpos(System::baseUrl(),'://'));
 
 	$orig_body = $s;
 	$new_body = '';
@@ -2077,7 +2077,7 @@ function drop_item($id, $interactive = true) {
 			return 0;
 		}
 		notice( t('Item not found.') . EOL);
-		goaway(App::get_baseurl() . '/' . $_SESSION['return_url']);
+		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
 	}
 
 	$item = $r[0];
@@ -2129,7 +2129,7 @@ function drop_item($id, $interactive = true) {
 		}
 		// Now check how the user responded to the confirmation query
 		if ($_REQUEST['canceled']) {
-			goaway(App::get_baseurl() . '/' . $_SESSION['return_url']);
+			goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
 		}
 
 		logger('delete item: ' . $item['id'], LOGGER_DEBUG);
@@ -2254,14 +2254,14 @@ function drop_item($id, $interactive = true) {
 		if (! $interactive) {
 			return $owner;
 		}
-		goaway(App::get_baseurl() . '/' . $_SESSION['return_url']);
+		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
 		//NOTREACHED
 	} else {
 		if (! $interactive) {
 			return 0;
 		}
 		notice( t('Permission denied.') . EOL);
-		goaway(App::get_baseurl() . '/' . $_SESSION['return_url']);
+		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
 		//NOTREACHED
 	}
 

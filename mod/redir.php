@@ -22,7 +22,7 @@ function redir_init(App $a) {
 			);
 
 			if((! dbm::is_result($r)) || ($r[0]['network'] !== NETWORK_DFRN))
-				goaway(z_root());
+				goaway(System::baseUrl());
 
 			$cid = $r[0]['id'];
 		}
@@ -35,7 +35,7 @@ function redir_init(App $a) {
 			);
 
 			if((! dbm::is_result($r)) || ($r[0]['network'] !== NETWORK_DFRN))
-				goaway(z_root());
+				goaway(System::baseUrl());
 		}
 
 		$dfrn_id = $orig_id = (($r[0]['issued-id']) ? $r[0]['issued-id'] : $r[0]['dfrn-id']);
@@ -67,7 +67,7 @@ function redir_init(App $a) {
 	}
 
 	if (local_user()) {
-		$handle = $a->user['nickname'] . '@' . substr(App::get_baseurl(),strpos(App::get_baseurl(),'://')+3);
+		$handle = $a->user['nickname'] . '@' . substr(System::baseUrl(),strpos(System::baseUrl(),'://')+3);
 	}
 	if (remote_user()) {
 		$handle = $_SESSION['handle'];
@@ -78,5 +78,5 @@ function redir_init(App $a) {
 		goaway($url);
 	}
 
-	goaway(z_root());
+	goaway(System::baseUrl());
 }

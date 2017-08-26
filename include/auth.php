@@ -20,7 +20,7 @@ if (isset($_COOKIE["Friendica"])) {
 			if ($data->hash != cookie_hash($r[0])) {
 				logger("Hash for user ".$data->uid." doesn't fit.");
 				nuke_session();
-				goaway(z_root());
+				goaway(System::baseUrl());
 			}
 
 			// Renew the cookie
@@ -51,7 +51,7 @@ if (isset($_SESSION) && x($_SESSION,'authenticated') && (!x($_POST,'auth-params'
 		call_hooks("logging_out");
 		nuke_session();
 		info(t('Logged out.').EOL);
-		goaway(z_root());
+		goaway(System::baseUrl());
 	}
 
 	if (x($_SESSION,'visitor_id') && !x($_SESSION,'uid')) {
@@ -73,7 +73,7 @@ if (isset($_SESSION) && x($_SESSION,'authenticated') && (!x($_POST,'auth-params'
 			logger('Session address changed. Paranoid setting in effect, blocking session. '.
 				$_SESSION['addr'].' != '.$_SERVER['REMOTE_ADDR']);
 			nuke_session();
-			goaway(z_root());
+			goaway(System::baseUrl());
 		}
 
 		$r = q("SELECT `user`.*, `user`.`pubkey` as `upubkey`, `user`.`prvkey` as `uprvkey`
@@ -83,7 +83,7 @@ if (isset($_SESSION) && x($_SESSION,'authenticated') && (!x($_POST,'auth-params'
 
 		if (!dbm::is_result($r)) {
 			nuke_session();
-			goaway(z_root());
+			goaway(System::baseUrl());
 		}
 
 		// Make sure to refresh the last login time for the user if the user
@@ -122,7 +122,7 @@ if (isset($_SESSION) && x($_SESSION,'authenticated') && (!x($_POST,'auth-params'
 			if ($noid || strpos($temp_string,'@') || !validate_url($temp_string)) {
 				$a = get_app();
 				notice(t('Login failed.').EOL);
-				goaway(z_root());
+				goaway(System::baseUrl());
 				// NOTREACHED
 			}
 
@@ -134,7 +134,7 @@ if (isset($_SESSION) && x($_SESSION,'authenticated') && (!x($_POST,'auth-params'
 				$openid->identity = $openid_url;
 				$_SESSION['openid'] = $openid_url;
 				$_SESSION['remember'] = $_POST['remember'];
-				$openid->returnUrl = App::get_baseurl(true).'/openid';
+				$openid->returnUrl = System::baseUrl(true).'/openid';
 				goaway($openid->authUrl());
 			} catch (Exception $e) {
 				notice(t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.').'<br /><br >'.t('The error message was:').' '.$e->getMessage());
@@ -184,7 +184,7 @@ if (isset($_SESSION) && x($_SESSION,'authenticated') && (!x($_POST,'auth-params'
 		if (!$record || !count($record)) {
 			logger('authenticate: failed login attempt: '.notags(trim($_POST['username'])).' from IP '.$_SERVER['REMOTE_ADDR']);
 			notice(t('Login failed.').EOL);
-			goaway(z_root());
+			goaway(System::baseUrl());
 		}
 
 		if (! $_POST['remember']) {

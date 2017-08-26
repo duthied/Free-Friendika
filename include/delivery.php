@@ -300,7 +300,7 @@ function delivery_run(&$argv, &$argc){
 
 				// perform local delivery if we are on the same site
 
-				if (link_compare($basepath,App::get_baseurl())) {
+				if (link_compare($basepath,System::baseUrl())) {
 
 					$nickname = basename($contact['url']);
 					if ($contact['issued-id']) {

@@ -63,15 +63,15 @@ if (!$install) {
 	if ($a->max_processes_reached() || $a->maxload_reached()) {
 		header($_SERVER["SERVER_PROTOCOL"] . ' 503 Service Temporarily Unavailable');
 		header('Retry-After: 120');
-		header('Refresh: 120; url=' . App::get_baseurl() . "/" . $a->query_string);
+		header('Refresh: 120; url=' . System::baseUrl() . "/" . $a->query_string);
 		die("System is currently unavailable. Please try again later");
 	}
 
 	if (get_config('system', 'force_ssl') && ($a->get_scheme() == "http") &&
 		(intval(get_config('system', 'ssl_policy')) == SSL_POLICY_FULL) &&
-		(substr(App::get_baseurl(), 0, 8) == "https://")) {
+		(substr(System::baseUrl(), 0, 8) == "https://")) {
 		header("HTTP/1.1 302 Moved Temporarily");
-		header("Location: " . App::get_baseurl() . "/" . $a->query_string);
+		header("Location: " . System::baseUrl() . "/" . $a->query_string);
 		exit();
 	}
 
@@ -155,7 +155,7 @@ if ((x($_GET,'zrl')) && (!$install && !$maintenance)) {
  *
  */
 
-// header('Link: <' . App::get_baseurl() . '/amcd>; rel="acct-mgmt";');
+// header('Link: <' . System::baseUrl() . '/amcd>; rel="acct-mgmt";');
 
 if (x($_COOKIE["Friendica"]) || (x($_SESSION,'authenticated')) || (x($_POST,'auth-params')) || ($a->module === 'login')) {
 	require("include/auth.php");
@@ -295,7 +295,7 @@ if (strlen($a->module)) {
 
 		if ((x($_SERVER,'QUERY_STRING')) && ($_SERVER['QUERY_STRING'] === 'q=internal_error.html') && isset($dreamhost_error_hack)) {
 			logger('index.php: dreamhost_error_hack invoked. Original URI =' . $_SERVER['REQUEST_URI']);
-			goaway(App::get_baseurl() . $_SERVER['REQUEST_URI']);
+			goaway(System::baseUrl() . $_SERVER['REQUEST_URI']);
 		}
 
 		logger('index.php: page not found: ' . $_SERVER['REQUEST_URI'] . ' ADDRESS: ' . $_SERVER['REMOTE_ADDR'] . ' QUERY: ' . $_SERVER['QUERY_STRING'], LOGGER_DEBUG);

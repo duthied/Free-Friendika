@@ -21,7 +21,7 @@ function delegate_content(App $a) {
 		// delegated admins can view but not change delegation permissions
 
 		if (x($_SESSION,'submanage') && intval($_SESSION['submanage'])) {
-			goaway(App::get_baseurl() . '/delegate');
+			goaway(System::baseUrl() . '/delegate');
 		}
 
 		$id = $a->argv[2];
@@ -32,7 +32,7 @@ function delegate_content(App $a) {
 		if (dbm::is_result($r)) {
 			$r = q("select id from contact where uid = %d and nurl = '%s' limit 1",
 				intval(local_user()),
-				dbesc(normalise_link(App::get_baseurl() . '/profile/' . $r[0]['nickname']))
+				dbesc(normalise_link(System::baseUrl() . '/profile/' . $r[0]['nickname']))
 			);
 			if (dbm::is_result($r)) {
 				q("insert into manage ( uid, mid ) values ( %d , %d ) ",
@@ -41,21 +41,21 @@ function delegate_content(App $a) {
 				);
 			}
 		}
-		goaway(App::get_baseurl() . '/delegate');
+		goaway(System::baseUrl() . '/delegate');
 	}
 
 	if ($a->argc > 2 && $a->argv[1] === 'remove' && intval($a->argv[2])) {
 
 		// delegated admins can view but not change delegation permissions
 		if (x($_SESSION,'submanage') && intval($_SESSION['submanage'])) {
-			goaway(App::get_baseurl() . '/delegate');
+			goaway(System::baseUrl() . '/delegate');
 		}
 
 		q("DELETE FROM `manage` WHERE `uid` = %d AND `mid` = %d LIMIT 1",
 			intval($a->argv[2]),
 			intval(local_user())
 		);
-		goaway(App::get_baseurl() . '/delegate');
+		goaway(System::baseUrl() . '/delegate');
 
 	}
 
@@ -95,7 +95,7 @@ function delegate_content(App $a) {
 
 	$r = q("select nurl from contact where substring_index(contact.nurl,'/',3) = '%s'
 		and contact.uid = %d and contact.self = 0 and network = '%s' ",
-		dbesc(normalise_link(App::get_baseurl())),
+		dbesc(normalise_link(System::baseUrl())),
 		intval(local_user()),
 		dbesc(NETWORK_DFRN)
 	);
@@ -131,7 +131,7 @@ function delegate_content(App $a) {
 
 	$o = replace_macros(get_markup_template('delegate.tpl'),array(
 		'$header' => t('Delegate Page Management'),
-		'$base' => App::get_baseurl(),
+		'$base' => System::baseUrl(),
 		'$desc' => t('Delegates are able to manage all aspects of this account/page except for basic account settings. Please do not delegate your personal account to anybody that you do not trust completely.'),
 		'$head_managers' => t('Existing Page Managers'),
 		'$managers' => $full_managers,

@@ -2,7 +2,7 @@
 <html>
 <head>
   <title><?php if(x($page,'title')) echo $page['title'] ?></title>
-  <script>var baseurl="<?php echo Friendica\App::get_baseurl() ?>";</script>
+  <script>var baseurl="<?php echo Friendica\Core\System::baseUrl() ?>";</script>
   <?php if(x($page,'htmlhead')) echo $page['htmlhead'] ?>
 </head>
 <body>

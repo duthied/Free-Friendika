@@ -27,7 +27,7 @@ function notification($params) {
 
 	$banner = t('Friendica Notification');
 	$product = FRIENDICA_PLATFORM;
-	$siteurl = App::get_baseurl(true);
+	$siteurl = System::baseUrl(true);
 	$thanks = t('Thank You,');
 	$sitename = $a->config['sitename'];
 	if (!x($a->config['admin_name']))
@@ -67,7 +67,7 @@ function notification($params) {
 	$additional_mail_header .= "X-Friendica-Platform: ".FRIENDICA_PLATFORM."\n";
 	$additional_mail_header .= "X-Friendica-Version: ".FRIENDICA_VERSION."\n";
 	$additional_mail_header .= "List-ID: <notification.".$hostname.">\n";
-	$additional_mail_header .= "List-Archive: <".App::get_baseurl()."/notifications/system>\n";
+	$additional_mail_header .= "List-Archive: <".System::baseUrl()."/notifications/system>\n";
 
 	if (array_key_exists('item', $params)) {
 		$title = $params['item']['title'];
@@ -503,7 +503,7 @@ function notification($params) {
 		}
 
 
-		$itemlink = App::get_baseurl().'/notify/view/'.$notify_id;
+		$itemlink = System::baseUrl().'/notify/view/'.$notify_id;
 		$msg = replace_macros($epreamble, array('$itemlink' => $itemlink));
 		$msg_cache = format_notification_message($datarray['name_cache'], strip_tags(bbcode($msg)));
 		$r = q("UPDATE `notify` SET `msg` = '%s', `msg_cache` = '%s' WHERE `id` = %d AND `uid` = %d",
@@ -674,7 +674,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$profiles[] = $owner[0]["url"];
 
 	// Notifications from Diaspora are often with an URL in the Diaspora format
-	$profiles[] = App::get_baseurl()."/u/".$user[0]["nickname"];
+	$profiles[] = System::baseUrl()."/u/".$user[0]["nickname"];
 
 	$profiles2 = array();
 
@@ -728,7 +728,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$params["to_email"] = $user[0]["email"];
 	$params["item"] = $item[0];
 	$params["parent"] = $item[0]["parent"];
-	$params["link"] = App::get_baseurl().'/display/'.urlencode($item[0]["guid"]);
+	$params["link"] = System::baseUrl().'/display/'.urlencode($item[0]["guid"]);
 	$params["otype"] = 'item';
 	$params["source_name"] = $item[0]["author-name"];
 	$params["source_link"] = $item[0]["author-link"];

@@ -85,9 +85,9 @@ function fbrowser_content(App $a) {
 					$scale = $rr['loq'];
 
 				return array(
-					App::get_baseurl() . '/photos/' . $a->user['nickname'] . '/image/' . $rr['resource-id'],
+					System::baseUrl() . '/photos/' . $a->user['nickname'] . '/image/' . $rr['resource-id'],
 					$filename_e,
-					App::get_baseurl() . '/photo/' . $rr['resource-id'] . '-' . $scale . '.'. $ext
+					System::baseUrl() . '/photo/' . $rr['resource-id'] . '-' . $scale . '.'. $ext
 				);
 			}
 			$files = array_map("_map_files1", $r);
@@ -96,7 +96,7 @@ function fbrowser_content(App $a) {
 
 			$o =  replace_macros($tpl, array(
 				'$type'     => 'image',
-				'$baseurl'  => App::get_baseurl(),
+				'$baseurl'  => System::baseUrl(),
 				'$path'     => $path,
 				'$folders'  => $albums,
 				'$files'    => $files,
@@ -123,7 +123,7 @@ function fbrowser_content(App $a) {
 						$filename_e = $rr['filename'];
 					}
 
-					return array( App::get_baseurl() . '/attach/' . $rr['id'], $filename_e, App::get_baseurl() . '/images/icons/16/' . $filetype . '.png');
+					return array( System::baseUrl() . '/attach/' . $rr['id'], $filename_e, System::baseUrl() . '/images/icons/16/' . $filetype . '.png');
 				}
 				$files = array_map("_map_files2", $files);
 
@@ -131,7 +131,7 @@ function fbrowser_content(App $a) {
 				$tpl = get_markup_template($template_file);
 				$o = replace_macros($tpl, array(
 					'$type'     => 'file',
-					'$baseurl'  => App::get_baseurl(),
+					'$baseurl'  => System::baseUrl(),
 					'$path'     => array( array( "", t("Files")) ),
 					'$folders'  => false,
 					'$files'    =>$files,

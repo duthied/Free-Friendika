@@ -15,7 +15,7 @@ function navigation_content(App $a) {
 
 	$tpl = get_markup_template('navigation.tpl');
 	return replace_macros($tpl, array(
-		'$baseurl' => App::get_baseurl(),
+		'$baseurl' => System::baseUrl(),
 		'$sitelocation' => $nav_info['sitelocation'],
 		'$nav' => $nav_info['nav'],
 		'$banner' =>  $nav_info['banner'],

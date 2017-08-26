@@ -11,7 +11,7 @@ function lostpass_post(App $a) {
 
 	$loginame = notags(trim($_POST['login-name']));
 	if(! $loginame)
-		goaway(z_root());
+		goaway(System::baseUrl());
 
 	$r = q("SELECT * FROM `user` WHERE ( `email` = '%s' OR `nickname` = '%s' ) AND `verified` = 1 AND `blocked` = 0 LIMIT 1",
 		dbesc($loginame),
@@ -20,7 +20,7 @@ function lostpass_post(App $a) {
 
 	if (! dbm::is_result($r)) {
 		notice( t('No valid account found.') . EOL);
-		goaway(z_root());
+		goaway(System::baseUrl());
 	}
 
 	$uid = $r[0]['uid'];
@@ -39,7 +39,7 @@ function lostpass_post(App $a) {
 
 
 	$sitename = $a->config['sitename'];
-	$resetlink = App::get_baseurl() . '/lostpass?verify=' . $new_password;
+	$resetlink = System::baseUrl() . '/lostpass?verify=' . $new_password;
 
 	$preamble = deindent(t('
 		Dear %1$s,
@@ -66,7 +66,7 @@ function lostpass_post(App $a) {
 		Login Name:	%3$s'));
 
 	$preamble = sprintf($preamble, $username, $sitename);
-	$body = sprintf($body, $resetlink, App::get_baseurl(), $email);
+	$body = sprintf($body, $resetlink, System::baseUrl(), $email);
 
 	notification(array(
 		'type' => "SYSTEM_EMAIL",
@@ -75,7 +75,7 @@ function lostpass_post(App $a) {
 		'preamble'=> $preamble,
 		'body' => $body));
 
-	goaway(z_root());
+	goaway(System::baseUrl());
 
 }
 
@@ -114,10 +114,10 @@ function lostpass_content(App $a) {
 				'$lbl2' => t('Your password has been reset as requested.'),
 				'$lbl3' => t('Your new password is'),
 				'$lbl4' => t('Save or copy your new password - and then'),
-				'$lbl5' => '<a href="' . App::get_baseurl() . '">' . t('click here to login') . '</a>.',
+				'$lbl5' => '<a href="' . System::baseUrl() . '">' . t('click here to login') . '</a>.',
 				'$lbl6' => t('Your password may be changed from the <em>Settings</em> page after successful login.'),
 				'$newpass' => $new_password,
-				'$baseurl' => App::get_baseurl()
+				'$baseurl' => System::baseUrl()
 
 			));
 				info("Your password has been reset." . EOL);
@@ -142,7 +142,7 @@ function lostpass_content(App $a) {
 			'));
 
 			$preamble = sprintf($preamble, $username);
-			$body = sprintf($body, App::get_baseurl(), $email, $new_password);
+			$body = sprintf($body, System::baseUrl(), $email, $new_password);
 
 			notification(array(
 				'type' => "SYSTEM_EMAIL",

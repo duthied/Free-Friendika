@@ -106,7 +106,7 @@ function network_init(App $a) {
 
 			$redir_url = ($net_queries ? $net_baseurl."?".$net_queries : $net_baseurl);
 
-			goaway(App::get_baseurl() . $redir_url);
+			goaway(System::baseUrl() . $redir_url);
 		}
 	}
 

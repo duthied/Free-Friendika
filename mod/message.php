@@ -27,17 +27,17 @@ function message_init(App $a) {
 		'$tabs'=>$tabs,
 		'$new'=>$new,
 	));
-	$base = App::get_baseurl();
+	$base = System::baseUrl();
 
 	$head_tpl = get_markup_template('message-head.tpl');
 	$a->page['htmlhead'] .= replace_macros($head_tpl,array(
-		'$baseurl' => App::get_baseurl(true),
+		'$baseurl' => System::baseUrl(true),
 		'$base' => $base
 	));
 
 	$end_tpl = get_markup_template('message-end.tpl');
 	$a->page['end'] .= replace_macros($end_tpl,array(
-		'$baseurl' => App::get_baseurl(true),
+		'$baseurl' => System::baseUrl(true),
 		'$base' => $base
 	));
 
@@ -139,7 +139,7 @@ function item_redir_and_replace_images($body, $images, $cid) {
 
 	for($i = 0; $i < count($images); $i++) {
 		$search = '/\[url\=(.*?)\]\[!#saved_image' . $i . '#!\]\[\/url\]' . '/is';
-		$replace = '[url=' . z_path() . '/redir/' . $cid
+		$replace = '[url=' . System::baseUrl() . '/redir/' . $cid
 		           . '?f=1&url=' . '$1' . '][!#saved_image' . $i . '#!][/url]' ;
 
 		$img_end = strpos($origbody, '[!#saved_image' . $i . '#!][/url]') + strlen('[!#saved_image' . $i . '#!][/url]');
@@ -175,7 +175,7 @@ function message_content(App $a) {
 		return;
 	}
 
-	$myprofile = App::get_baseurl().'/profile/' . $a->user['nickname'];
+	$myprofile = System::baseUrl().'/profile/' . $a->user['nickname'];
 
 	$tpl = get_markup_template('mail_head.tpl');
 	$header = replace_macros($tpl, array(
@@ -226,7 +226,7 @@ function message_content(App $a) {
 			if ($r) {
 				info( t('Message deleted.') . EOL );
 			}
-			//goaway(App::get_baseurl(true) . '/message' );
+			//goaway(System::baseUrl(true) . '/message' );
 			goaway($_SESSION['return_url']);
 		}
 		else {
@@ -257,7 +257,7 @@ function message_content(App $a) {
 				if($r)
 					info( t('Conversation removed.') . EOL );
 			}
-			//goaway(App::get_baseurl(true) . '/message' );
+			//goaway(System::baseUrl(true) . '/message' );
 			goaway($_SESSION['return_url']);
 		}
 
@@ -269,14 +269,14 @@ function message_content(App $a) {
 
 		$tpl = get_markup_template('msg-header.tpl');
 		$a->page['htmlhead'] .= replace_macros($tpl, array(
-			'$baseurl' => App::get_baseurl(true),
+			'$baseurl' => System::baseUrl(true),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => t('Please enter a link URL:')
 		));
 
 		$tpl = get_markup_template('msg-end.tpl');
 		$a->page['end'] .= replace_macros($tpl, array(
-			'$baseurl' => App::get_baseurl(true),
+			'$baseurl' => System::baseUrl(true),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => t('Please enter a link URL:')
 		));
@@ -416,14 +416,14 @@ function message_content(App $a) {
 
 		$tpl = get_markup_template('msg-header.tpl');
 		$a->page['htmlhead'] .= replace_macros($tpl, array(
-			'$baseurl' => App::get_baseurl(true),
+			'$baseurl' => System::baseUrl(true),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => t('Please enter a link URL:')
 		));
 
 		$tpl = get_markup_template('msg-end.tpl');
 		$a->page['end'] .= replace_macros($tpl, array(
-			'$baseurl' => App::get_baseurl(true),
+			'$baseurl' => System::baseUrl(true),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => t('Please enter a link URL:')
 		));
@@ -556,7 +556,7 @@ function render_messages(array $msg, $t) {
 	$tpl = get_markup_template($t);
 	$rslt = '';
 
-	$myprofile = App::get_baseurl().'/profile/' . $a->user['nickname'];
+	$myprofile = System::baseUrl().'/profile/' . $a->user['nickname'];
 
 	foreach($msg as $rr) {
 

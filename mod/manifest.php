@@ -16,7 +16,7 @@ function manifest_content(App $a) {
 	}
 
 	$o = replace_macros($tpl, array(
-		'$baseurl' => App::get_baseurl(),
+		'$baseurl' => System::baseUrl(),
 		'$touch_icon' => $touch_icon,
 		'$title' => Config::get('config', 'sitename', 'Friendica'),
 	));

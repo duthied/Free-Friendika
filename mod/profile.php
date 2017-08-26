@@ -16,7 +16,7 @@ function profile_init(App $a) {
 	else {
 		$r = q("select nickname from user where blocked = 0 and account_expired = 0 and account_removed = 0 and verified = 1 order by rand() limit 1");
 		if (dbm::is_result($r)) {
-			goaway(App::get_baseurl() . '/profile/' . $r[0]['nickname']);
+			goaway(System::baseUrl() . '/profile/' . $r[0]['nickname']);
 		}
 		else {
 			logger('profile error: mod_profile ' . $a->query_string, LOGGER_DEBUG);
@@ -59,16 +59,16 @@ function profile_init(App $a) {
 	}
 
 	$a->page['htmlhead'] .= '<meta name="dfrn-global-visibility" content="' . (($a->profile['net-publish']) ? 'true' : 'false') . '" />' . "\r\n" ;
-	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . App::get_baseurl() . '/dfrn_poll/' . $which .'" />' . "\r\n" ;
+	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/dfrn_poll/' . $which .'" />' . "\r\n" ;
 	$uri = urlencode('acct:' . $a->profile['nickname'] . '@' . $a->get_hostname() . (($a->path) ? '/' . $a->path : ''));
-	$a->page['htmlhead'] .= '<link rel="lrdd" type="application/xrd+xml" href="' . App::get_baseurl() . '/xrd/?uri=' . $uri . '" />' . "\r\n";
-	header('Link: <' . App::get_baseurl() . '/xrd/?uri=' . $uri . '>; rel="lrdd"; type="application/xrd+xml"', false);
+	$a->page['htmlhead'] .= '<link rel="lrdd" type="application/xrd+xml" href="' . System::baseUrl() . '/xrd/?uri=' . $uri . '" />' . "\r\n";
+	header('Link: <' . System::baseUrl() . '/xrd/?uri=' . $uri . '>; rel="lrdd"; type="application/xrd+xml"', false);
 
 	$dfrn_pages = array('request', 'confirm', 'notify', 'poll');
 	foreach ($dfrn_pages as $dfrn) {
-		$a->page['htmlhead'] .= "<link rel=\"dfrn-{$dfrn}\" href=\"".App::get_baseurl()."/dfrn_{$dfrn}/{$which}\" />\r\n";
+		$a->page['htmlhead'] .= "<link rel=\"dfrn-{$dfrn}\" href=\"".System::baseUrl()."/dfrn_{$dfrn}/{$which}\" />\r\n";
 	}
-	$a->page['htmlhead'] .= "<link rel=\"dfrn-poco\" href=\"".App::get_baseurl()."/poco/{$which}\" />\r\n";
+	$a->page['htmlhead'] .= "<link rel=\"dfrn-poco\" href=\"".System::baseUrl()."/poco/{$which}\" />\r\n";
 
 }
 
@@ -180,8 +180,8 @@ function profile_content(App $a, $update = 0) {
 		$commpage = (($a->profile['page-flags'] == PAGE_COMMUNITY) ? true : false);
 		$commvisitor = (($commpage && $remote_contact == true) ? true : false);
 
-		$a->page['aside'] .= posted_date_widget(App::get_baseurl(true) . '/profile/' . $a->profile['nickname'],$a->profile['profile_uid'],true);
-		$a->page['aside'] .= categories_widget(App::get_baseurl(true) . '/profile/' . $a->profile['nickname'],(x($category) ? xmlify($category) : ''));
+		$a->page['aside'] .= posted_date_widget(System::baseUrl(true) . '/profile/' . $a->profile['nickname'],$a->profile['profile_uid'],true);
+		$a->page['aside'] .= categories_widget(System::baseUrl(true) . '/profile/' . $a->profile['nickname'],(x($category) ? xmlify($category) : ''));
 
 		if (can_write_wall($a,$a->profile['profile_uid'])) {
 

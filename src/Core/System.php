@@ -1,8 +1,6 @@
 <?php
 namespace Friendica\Core;
 
-use dba;
-use dbm;
 use Friendica\App;
 
 /**

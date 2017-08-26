@@ -151,7 +151,7 @@ class FKOAuth1 extends OAuthServer {
 		$_SESSION['mobile-theme'] = get_pconfig($record['uid'], 'system', 'mobile_theme');
 		$_SESSION['authenticated'] = 1;
 		$_SESSION['page_flags'] = $record['page-flags'];
-		$_SESSION['my_url'] = App::get_baseurl() . '/profile/' . $record['nickname'];
+		$_SESSION['my_url'] = System::baseUrl() . '/profile/' . $record['nickname'];
 		$_SESSION['addr'] = $_SERVER['REMOTE_ADDR'];
 		$_SESSION["allow_api"] = true;
 

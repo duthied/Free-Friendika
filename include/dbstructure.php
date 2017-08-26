@@ -90,11 +90,11 @@ function update_fail($update_id, $error_message) {
 	$email_tpl = get_intltext_template("update_fail_eml.tpl");
 	$email_msg = replace_macros($email_tpl, array(
 		'$sitename' => $a->config['sitename'],
-		'$siteurl' =>  App::get_baseurl(),
+		'$siteurl' =>  System::baseUrl(),
 		'$update' => DB_UPDATE_VERSION,
 		'$error' => sprintf(t('Update %s failed. See error logs.'), DB_UPDATE_VERSION)
 	));
-	$subject=sprintf(t('Update Error at %s'), App::get_baseurl());
+	$subject=sprintf(t('Update Error at %s'), System::baseUrl());
 	require_once('include/email.php');
 	$subject = email_header_encode($subject,'UTF-8');
 	mail($a->config['admin_email'], $subject, $email_msg,

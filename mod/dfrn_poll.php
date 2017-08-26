@@ -78,7 +78,7 @@ function dfrn_poll_init(App $a) {
 				$my_id = '0:' . $dfrn_id;
 				break;
 			default:
-				goaway(z_root());
+				goaway(System::baseUrl());
 				break; // NOTREACHED
 		}
 
@@ -122,9 +122,9 @@ function dfrn_poll_init(App $a) {
 				}
 			}
 			$profile = $r[0]['nickname'];
-			goaway((strlen($destination_url)) ? $destination_url : App::get_baseurl() . '/profile/' . $profile);
+			goaway((strlen($destination_url)) ? $destination_url : System::baseUrl() . '/profile/' . $profile);
 		}
-		goaway(z_root());
+		goaway(System::baseUrl());
 
 	}
 
@@ -322,7 +322,7 @@ function dfrn_poll_post(App $a) {
 			$my_id = '0:' . $dfrn_id;
 			break;
 		default:
-			goaway(z_root());
+			goaway(System::baseUrl());
 			break; // NOTREACHED
 	}
 
@@ -447,7 +447,7 @@ function dfrn_poll_content(App $a) {
 				$my_id = '0:' . $dfrn_id;
 				break;
 			default:
-				goaway(z_root());
+				goaway(System::baseUrl());
 				break; // NOTREACHED
 		}
 
@@ -511,14 +511,14 @@ function dfrn_poll_content(App $a) {
 
 			switch($destination_url) {
 				case 'profile':
-					$dest = App::get_baseurl() . '/profile/' . $profile . '?f=&tab=profile';
+					$dest = System::baseUrl() . '/profile/' . $profile . '?f=&tab=profile';
 					break;
 				case 'photos':
-					$dest = App::get_baseurl() . '/photos/' . $profile;
+					$dest = System::baseUrl() . '/photos/' . $profile;
 					break;
 				case 'status':
 				case '':
-					$dest = App::get_baseurl() . '/profile/' . $profile;
+					$dest = System::baseUrl() . '/profile/' . $profile;
 					break;
 				default:
 					$appendix = (strstr($destination_url, '?') ? '&f=&redir=1' : '?f=&redir=1');

@@ -278,7 +278,7 @@ function update_threads_mention() {
 	$users = q("SELECT `uid`, `nickname` FROM `user` ORDER BY `uid`");
 
 	foreach ($users AS $user) {
-		$self = normalise_link(App::get_baseurl() . '/profile/' . $user['nickname']);
+		$self = normalise_link(System::baseUrl() . '/profile/' . $user['nickname']);
 		$selfhttps = str_replace("http://", "https://", $self);
 		$parents = q("SELECT DISTINCT(`parent`) FROM `item` WHERE `uid` = %d AND
 				((`owner-link` IN ('%s', '%s')) OR (`author-link` IN ('%s', '%s')))",

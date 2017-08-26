@@ -1,5 +1,7 @@
 <?php
 
+use Friendica\Core\System;
+
 require_once('include/config.php');
 require_once('include/network.php');
 require_once('include/plugin.php');
@@ -66,7 +68,7 @@ function create_user($arr) {
 			require_once('library/openid.php');
 			$openid = new LightOpenID;
 			$openid->identity = $openid_url;
-			$openid->returnUrl = z_root() . '/openid';
+			$openid->returnUrl = System::baseUrl() . '/openid';
 			$openid->required = array('namePerson/friendly', 'contact/email', 'namePerson');
 			$openid->optional = array('namePerson/first','media/image/aspect11','media/image/default');
 			try {
@@ -237,8 +239,8 @@ function create_user($arr) {
 			t('default'),
 			1,
 			dbesc($username),
-			dbesc(z_root() . "/photo/profile/{$newuid}.jpg"),
-			dbesc(z_root() . "/photo/avatar/{$newuid}.jpg"),
+			dbesc(System::baseUrl() . "/photo/profile/{$newuid}.jpg"),
+			dbesc(System::baseUrl() . "/photo/avatar/{$newuid}.jpg"),
 			intval($publish),
 			intval($netpublish)
 
@@ -368,17 +370,17 @@ function user_create_self_contact($uid) {
 		datetime_convert(),
 		dbesc($user['username']),
 		dbesc($user['nickname']),
-		dbesc(z_root()."/photo/profile/".$user['uid'].".jpg"),
-		dbesc(z_root()."/photo/avatar/".$user['uid'].".jpg"),
-		dbesc(z_root()."/photo/micro/".$user['uid'].".jpg"),
-		dbesc(z_root()."/profile/".$user['nickname']),
-		dbesc(normalise_link(z_root()."/profile/".$user['nickname'])),
-		dbesc($user['nickname'].'@'.substr(z_root(), strpos(z_root(),'://') + 3)),
-		dbesc(z_root()."/dfrn_request/".$user['nickname']),
-		dbesc(z_root()."/dfrn_notify/".$user['nickname']),
-		dbesc(z_root()."/dfrn_poll/".$user['nickname']),
-		dbesc(z_root()."/dfrn_confirm/".$user['nickname']),
-		dbesc(z_root()."/poco/".$user['nickname']),
+		dbesc(System::baseUrl()."/photo/profile/".$user['uid'].".jpg"),
+		dbesc(System::baseUrl()."/photo/avatar/".$user['uid'].".jpg"),
+		dbesc(System::baseUrl()."/photo/micro/".$user['uid'].".jpg"),
+		dbesc(System::baseUrl()."/profile/".$user['nickname']),
+		dbesc(normalise_link(System::baseUrl()."/profile/".$user['nickname'])),
+		dbesc($user['nickname'].'@'.substr(System::baseUrl(), strpos(System::baseUrl(),'://') + 3)),
+		dbesc(System::baseUrl()."/dfrn_request/".$user['nickname']),
+		dbesc(System::baseUrl()."/dfrn_notify/".$user['nickname']),
+		dbesc(System::baseUrl()."/dfrn_poll/".$user['nickname']),
+		dbesc(System::baseUrl()."/dfrn_confirm/".$user['nickname']),
+		dbesc(System::baseUrl()."/poco/".$user['nickname']),
 		dbesc(datetime_convert()),
 		dbesc(datetime_convert()),
 		dbesc(datetime_convert())

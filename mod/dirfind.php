@@ -206,7 +206,7 @@ function dirfind_content(App $a, $prefix = "") {
 						$photo_menu = array();
 					}
 				} else {
-					$connlnk = App::get_baseurl().'/follow/?url='.(($jj->connect) ? $jj->connect : $jj->url);
+					$connlnk = System::baseUrl().'/follow/?url='.(($jj->connect) ? $jj->connect : $jj->url);
 					$conntxt = t('Connect');
 					$photo_menu = array(
 						'profile' => array(t("View Profile"), zrl($jj->url)),

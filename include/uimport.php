@@ -124,7 +124,7 @@ function import_account(App $a, $file) {
 	}
 
 	$oldbaseurl = $account['baseurl'];
-	$newbaseurl = App::get_baseurl();
+	$newbaseurl = System::baseUrl();
 	$olduid = $account['user']['uid'];
 
 	unset($account['user']['uid']);
@@ -278,5 +278,5 @@ function import_account(App $a, $file) {
 	proc_run(PRIORITY_HIGH, 'include/notifier.php', 'relocate', $newuid);
 
 	info(t("Done. You can now login with your username and password"));
-	goaway(App::get_baseurl() . "/login");
+	goaway(System::baseUrl() . "/login");
 }

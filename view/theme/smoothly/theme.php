@@ -18,7 +18,7 @@ function smoothly_init(App $a) {
 
 	$cssFile = null;
 	$ssl_state = null;
-	$baseurl = App::get_baseurl($ssl_state);
+	$baseurl = System::baseUrl($ssl_state);
 	$a->page['htmlhead'] .= <<< EOT
 
 <script>
@@ -108,7 +108,7 @@ if (! function_exists('_js_in_foot')) {
 		*/
 		$a = get_app();
 		$ssl_state = null;
-		$baseurl = App::get_baseurl($ssl_state);
+		$baseurl = System::baseUrl($ssl_state);
 		$bottom['$baseurl'] = $baseurl;
 		$tpl = get_markup_template('bottom.tpl');
 

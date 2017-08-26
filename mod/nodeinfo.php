@@ -13,7 +13,7 @@ require_once 'include/plugin.php';
 
 function nodeinfo_wellknown(App $a) {
 	$nodeinfo = array('links' => array(array('rel' => 'http://nodeinfo.diaspora.software/ns/schema/1.0',
-					'href' => App::get_baseurl().'/nodeinfo/1.0')));
+					'href' => System::baseUrl().'/nodeinfo/1.0')));
 
 	header('Content-type: application/json; charset=utf-8');
 	echo json_encode($nodeinfo, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
