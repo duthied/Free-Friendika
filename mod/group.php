@@ -6,6 +6,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function group_init(App $a) {
 	if (local_user()) {
@@ -30,12 +31,12 @@ function group_post(App $a) {
 			info(t('Group created.') . EOL);
 			$r = group_byname(local_user(), $name);
 			if ($r) {
-				goaway(App::get_baseurl() . '/group/' . $r);
+				goaway(System::baseUrl() . '/group/' . $r);
 			}
 		} else {
 			notice(t('Could not create group.') . EOL);
 		}
-		goaway(App::get_baseurl() . '/group');
+		goaway(System::baseUrl() . '/group');
 		return; // NOTREACHED
 	}
 
@@ -48,7 +49,7 @@ function group_post(App $a) {
 		);
 		if (! dbm::is_result($r)) {
 			notice(t('Group not found.') . EOL);
-			goaway(App::get_baseurl() . '/contacts');
+			goaway(System::baseUrl() . '/contacts');
 			return; // NOTREACHED
 		}
 		$group = $r[0];
@@ -126,7 +127,7 @@ function group_content(App $a) {
 				notice(t('Unable to remove group.') . EOL);
 			}
 		}
-		goaway(App::get_baseurl() . '/group');
+		goaway(System::baseUrl() . '/group');
 		// NOTREACHED
 	}
 
@@ -153,7 +154,7 @@ function group_content(App $a) {
 
 		if (! dbm::is_result($r)) {
 			notice(t('Group not found.') . EOL);
-			goaway(App::get_baseurl() . '/contacts');
+			goaway(System::baseUrl() . '/contacts');
 		}
 
 		$group = $r[0];

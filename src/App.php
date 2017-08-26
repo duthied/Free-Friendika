@@ -370,11 +370,6 @@ class App {
 	 * @return string Friendica server base URL
 	 */
 	function get_baseurl($ssl = false) {
-		// Is the function called statically?
-		if (!(isset($this) && get_class($this) == __CLASS__)) {
-			return self::$a->get_baseurl($ssl);
-		}
-
 		$scheme = $this->scheme;
 
 		if (Config::get('system', 'ssl_policy') == SSL_POLICY_FULL) {
@@ -521,7 +516,7 @@ class App {
 
 		$tpl = get_markup_template('head.tpl');
 		$this->page['htmlhead'] = replace_macros($tpl, array(
-				'$baseurl' => $this->get_baseurl(), // FIXME for z_path!!!!
+				'$baseurl' => $this->get_baseurl(),
 				'$local_user' => local_user(),
 				'$generator' => 'Friendica' . ' ' . FRIENDICA_VERSION,
 				'$delitem' => t('Delete this item?'),
@@ -541,7 +536,7 @@ class App {
 		}
 		$tpl = get_markup_template('end.tpl');
 		$this->page['end'] = replace_macros($tpl, array(
-				'$baseurl' => $this->get_baseurl() // FIXME for z_path!!!!
+				'$baseurl' => $this->get_baseurl()
 			)) . $this->page['end'];
 	}
 
@@ -581,11 +576,6 @@ class App {
 	 * @return string The cleaned url
 	 */
 	function remove_baseurl($orig_url) {
-
-		// Is the function called statically?
-		if (!(isset($this) && get_class($this) == __CLASS__)) {
-			return self::$a->remove_baseurl($orig_url);
-		}
 
 		// Remove the hostname from the url if it is an internal link
 		$nurl = normalise_link($orig_url);

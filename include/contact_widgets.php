@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 use Friendica\Core\Config;
 
 require_once 'include/contact_selectors.php';
@@ -264,7 +265,7 @@ function common_friends_visitor_widget($profile_uid) {
 
 	return replace_macros(get_markup_template('remote_friends_common.tpl'), array(
 		'$desc' =>  sprintf( tt("%d contact in common", "%d contacts in common", $t), $t),
-		'$base' => App::get_baseurl(),
+		'$base' => System::baseUrl(),
 		'$uid' => $profile_uid,
 		'$cid' => (($cid) ? $cid : '0'),
 		'$linkmore' => (($t > 5) ? 'true' : ''),

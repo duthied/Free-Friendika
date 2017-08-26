@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once 'include/probe.php';
 require_once 'include/follow.php';
@@ -66,7 +67,7 @@ function follow_content(App $a) {
 		$request = $ret["request"];
 		$tpl = get_markup_template('dfrn_request.tpl');
 	} else {
-		$request = App::get_baseurl()."/follow";
+		$request = System::baseUrl()."/follow";
 		$tpl = get_markup_template('auto_request.tpl');
 	}
 
@@ -182,13 +183,13 @@ function follow_post(App $a) {
 		}
 		goaway($return_url);
 	} elseif ($result['cid']) {
-		goaway(App::get_baseurl().'/contacts/'.$result['cid']);
+		goaway(System::baseUrl().'/contacts/'.$result['cid']);
 	}
 
 	info( t('Contact added').EOL);
 
 	if (strstr($return_url,'contacts')) {
-		goaway(App::get_baseurl().'/contacts/'.$contact_id);
+		goaway(System::baseUrl().'/contacts/'.$contact_id);
 	}
 
 	goaway($return_url);

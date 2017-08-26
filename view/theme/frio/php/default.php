@@ -17,9 +17,9 @@
 <head>
 	<title><?php if(x($page,'title')) echo $page['title'] ?></title>
 	<meta request="<?php echo htmlspecialchars($_REQUEST['pagename']) ?>">
-	<script>var baseurl="<?php echo Friendica\App::get_baseurl() ?>";</script>
+	<script>var baseurl="<?php echo Friendica\Core\System::baseUrl() ?>";</script>
 	<script>var frio="<?php echo "view/theme/frio"; ?>";</script>
-	<?php $baseurl = Friendica\App::get_baseurl(); ?>
+	<?php $baseurl = Friendica\Core\System::baseUrl(); ?>
 	<?php $frio = "view/theme/frio"; ?>
 	<?php
 		// Because we use minimal for modals the header and the included js stuff should be only loaded

@@ -5,6 +5,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Network\Probe;
 
@@ -611,7 +612,7 @@ function avatar_img($email) {
 	call_hooks('avatar_lookup', $avatar);
 
 	if (! $avatar['success']) {
-		$avatar['url'] = App::get_baseurl() . '/images/person-175.jpg';
+		$avatar['url'] = System::baseUrl() . '/images/person-175.jpg';
 	}
 
 	logger('Avatar: ' . $avatar['email'] . ' ' . $avatar['url'], LOGGER_DEBUG);
@@ -660,7 +661,7 @@ function scale_external_images($srctext, $include_link = true, $scale_replace = 
 		foreach ($matches as $mtch) {
 			logger('scale_external_image: ' . $mtch[1]);
 
-			$hostname = str_replace('www.','',substr(App::get_baseurl(),strpos(App::get_baseurl(),'://')+3));
+			$hostname = str_replace('www.','',substr(System::baseUrl(),strpos(System::baseUrl(),'://')+3));
 			if (stristr($mtch[1],$hostname)) {
 				continue;
 			}

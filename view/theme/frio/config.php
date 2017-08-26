@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once('view/theme/frio/php/Image.php');
 
@@ -65,7 +66,7 @@ function frio_form($arr) {
 	$t = get_markup_template('theme_settings.tpl');
 	$o .= replace_macros($t, array(
 		'$submit'		=> t('Submit'),
-		'$baseurl'		=> App::get_baseurl(),
+		'$baseurl'		=> System::baseUrl(),
 		'$title'		=> t("Theme settings"),
 		'$schema'		=> array('frio_schema',		t("Select scheme"),			$arr["schema"], '', $scheme_choices),
 		'$nav_bg'		=> array_key_exists("nav_bg", $disable) ? "" : array('frio_nav_bg',		t('Navigation bar background color'),	$arr['nav_bg']),

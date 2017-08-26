@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once "include/Photo.php";
 
@@ -17,7 +18,7 @@ function install_init(App $a) {
 	// We overwrite current theme css, because during install we could not have a working mod_rewrite
 	// so we could not have a css at all. Here we set a static css file for the install procedure pages
 	$a->config['system']['theme'] = "../install";
-	$a->theme['stylesheet'] = App::get_baseurl()."/view/install/style.css";
+	$a->theme['stylesheet'] = System::baseUrl()."/view/install/style.css";
 
 	global $install_wizard_pass;
 	if (x($_POST, 'pass')) {
@@ -203,7 +204,7 @@ function install_content(App $a) {
 				'$next' => t('Next'),
 				'$reload' => t('Check again'),
 				'$phpath' => $phpath,
-				'$baseurl' => App::get_baseurl(),
+				'$baseurl' => System::baseUrl(),
 			));
 			return $o;
 		}; break;
@@ -237,7 +238,7 @@ function install_content(App $a) {
 
 				'$lbl_10' => t('Please select a default timezone for your website'),
 
-				'$baseurl' => App::get_baseurl(),
+				'$baseurl' => System::baseUrl(),
 
 				'$phpath' => $phpath,
 
@@ -277,7 +278,7 @@ function install_content(App $a) {
 
 				'$timezone' => field_timezone('timezone', t('Please select a default timezone for your website'), $timezone, ''),
 				'$language' => array('language', t('System Language:'), 'en', t('Set the default language for your Friendica installation interface and to send emails.'), $lang_choices),
-				'$baseurl' => App::get_baseurl(),
+				'$baseurl' => System::baseUrl(),
 
 
 
@@ -479,10 +480,10 @@ function check_htaccess(&$checks) {
 	$status = true;
 	$help = "";
 	if (function_exists('curl_init')) {
-		$test = fetch_url(App::get_baseurl()."/install/testrewrite");
+		$test = fetch_url(System::baseUrl()."/install/testrewrite");
 
 		if ($test != "ok") {
-			$test = fetch_url(normalise_link(App::get_baseurl()."/install/testrewrite"));
+			$test = fetch_url(normalise_link(System::baseUrl()."/install/testrewrite"));
 		}
 
 		if ($test != "ok") {
@@ -542,7 +543,7 @@ function load_database($db) {
 }
 
 function what_next() {
-	$baseurl = App::get_baseurl();
+	$baseurl = System::baseUrl();
 	return
 		t('<h1>What next</h1>')
 		."<p>".t('IMPORTANT: You will need to [manually] setup a scheduled task for the poller.')

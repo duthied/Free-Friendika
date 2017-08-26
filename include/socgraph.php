@@ -8,6 +8,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Network\Probe;
 
@@ -243,7 +244,7 @@ function sanitize_gcontact($gcontact) {
 	$alternate = poco_alternate_ostatus_url($gcontact['url']);
 
 	// The global contacts should contain the original picture, not the cached one
-	if (($gcontact['generation'] != 1) && stristr(normalise_link($gcontact['photo']), normalise_link(App::get_baseurl()."/photo/"))) {
+	if (($gcontact['generation'] != 1) && stristr(normalise_link($gcontact['photo']), normalise_link(System::baseUrl()."/photo/"))) {
 		$gcontact['photo'] = "";
 	}
 
@@ -1633,9 +1634,9 @@ function update_suggestions() {
 	$done = array();
 
 	/// @TODO Check if it is really neccessary to poll the own server
-	poco_load(0, 0, 0, App::get_baseurl() . '/poco');
+	poco_load(0, 0, 0, System::baseUrl() . '/poco');
 
-	$done[] = App::get_baseurl() . '/poco';
+	$done[] = System::baseUrl() . '/poco';
 
 	if (strlen(get_config('system','directory'))) {
 		$x = fetch_url(get_server()."/pubsites");
@@ -2320,7 +2321,7 @@ function update_gcontact_for_user($uid) {
 
 	// The "addr" field was added in 3.4.3 so it can be empty for older users
 	if ($r[0]["addr"] != "") {
-		$addr = $r[0]["nickname"].'@'.str_replace(array("http://", "https://"), "", App::get_baseurl());
+		$addr = $r[0]["nickname"].'@'.str_replace(array("http://", "https://"), "", System::baseUrl());
 	} else {
 		$addr = $r[0]["addr"];
 	}
@@ -2331,7 +2332,7 @@ function update_gcontact_for_user($uid) {
 			"notify" => $r[0]["notify"], "url" => $r[0]["url"],
 			"hide" => ($r[0]["hidewall"] || !$r[0]["net-publish"]),
 			"nick" => $r[0]["nickname"], "addr" => $addr,
-			"connect" => $addr, "server_url" => App::get_baseurl(),
+			"connect" => $addr, "server_url" => System::baseUrl(),
 			"generation" => 1, "network" => NETWORK_DFRN);
 
 	update_gcontact($gcontact);
@@ -2390,7 +2391,7 @@ function gs_fetch_users($server) {
 					"nick" => $user->nickname,
 					"about" => $user->bio,
 					"network" => NETWORK_OSTATUS,
-					"photo" => App::get_baseurl()."/images/person-175.jpg");
+					"photo" => System::baseUrl()."/images/person-175.jpg");
 			get_gcontact_id($contact);
 		}
 	}

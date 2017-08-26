@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 /**
  * @brief Calculate the hash that is needed for the "Friendica" cookie
@@ -50,8 +51,8 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 	$_SESSION['mobile-theme'] = get_pconfig($user_record['uid'], 'system', 'mobile_theme');
 	$_SESSION['authenticated'] = 1;
 	$_SESSION['page_flags'] = $user_record['page-flags'];
-	$_SESSION['my_url'] = App::get_baseurl() . '/profile/' . $user_record['nickname'];
-	$_SESSION['my_address'] = $user_record['nickname'] . '@' . substr(App::get_baseurl(),strpos(App::get_baseurl(),'://')+3);
+	$_SESSION['my_url'] = System::baseUrl() . '/profile/' . $user_record['nickname'];
+	$_SESSION['my_address'] = $user_record['nickname'] . '@' . substr(System::baseUrl(),strpos(System::baseUrl(),'://')+3);
 	$_SESSION['addr'] = $_SERVER['REMOTE_ADDR'];
 
 	$a->user = $user_record;
@@ -147,7 +148,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		call_hooks('logged_in', $a->user);
 
 		if (($a->module !== 'home') && isset($_SESSION['return_url'])) {
-			goaway(App::get_baseurl() . '/' . $_SESSION['return_url']);
+			goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
 		}
 	}
 }
@@ -428,7 +429,7 @@ function check_form_security_token_redirectOnErr($err_redirect, $typename = '', 
 		logger('check_form_security_token failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
 		logger('check_form_security_token failed: _REQUEST data: ' . print_r($_REQUEST, true), LOGGER_DATA);
 		notice( check_form_security_std_err_msg() );
-		goaway(App::get_baseurl() . $err_redirect );
+		goaway(System::baseUrl() . $err_redirect );
 	}
 }
 function check_form_security_token_ForbiddenOnErr($typename = '', $formname = 'form_security_token') {

@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function toggle_mobile_init(App $a) {
 
@@ -13,7 +14,7 @@ function toggle_mobile_init(App $a) {
 	if (isset($_GET['address'])) {
 		$address = $_GET['address'];
 	} else {
-		$address = App::get_baseurl();
+		$address = System::baseUrl();
 	}
 
 	goaway($address);

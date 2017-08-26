@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function uexport_init(App $a) {
 	if (!local_user()) {
@@ -42,7 +43,7 @@ function uexport_content(App $a) {
 
 	$tpl = get_markup_template("uexport.tpl");
 	return replace_macros($tpl, array(
-		'$baseurl' => App::get_baseurl(),
+		'$baseurl' => System::baseUrl(),
 		'$title' => t('Export personal data'),
 		'$options' => $options
 	));
@@ -113,7 +114,7 @@ function uexport_account($a) {
 	$output = array(
 		'version' => FRIENDICA_VERSION,
 		'schema' => DB_UPDATE_VERSION,
-		'baseurl' => App::get_baseurl(),
+		'baseurl' => System::baseUrl(),
 		'user' => $user,
 		'contact' => $contact,
 		'profile' => $profile,

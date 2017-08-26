@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once('library/openid.php');
 
@@ -8,7 +9,7 @@ function openid_content(App $a) {
 
 	$noid = get_config('system','no_openid');
 	if($noid)
-		goaway(z_root());
+		goaway(System::baseUrl());
 
 	logger('mod_openid ' . print_r($_REQUEST,true), LOGGER_DATA);
 
@@ -22,7 +23,7 @@ function openid_content(App $a) {
 
 			if(! strlen($authid)) {
 				logger( t('OpenID protocol error. No ID returned.') . EOL);
-				goaway(z_root());
+				goaway(System::baseUrl());
 			}
 
 			// NOTE: we search both for normalised and non-normalised form of $authid
@@ -50,7 +51,7 @@ function openid_content(App $a) {
 				// just in case there was no return url set
 				// and we fell through
 
-				goaway(z_root());
+				goaway(System::baseUrl());
 			}
 
 			// Successful OpenID login - but we can't match it to an existing account.
@@ -58,7 +59,7 @@ function openid_content(App $a) {
 
 			if ($a->config['register_policy'] == REGISTER_CLOSED) {
 				notice( t('Account not found and OpenID registration is not permitted on this site.') . EOL);
-				goaway(z_root());
+				goaway(System::baseUrl());
 			}
 
 			unset($_SESSION['register']);
@@ -102,12 +103,12 @@ function openid_content(App $a) {
 
 			$args .= '&openid_url=' . urlencode(notags(trim($authid)));
 
-			goaway(App::get_baseurl() . '/register?' . $args);
+			goaway(System::baseUrl() . '/register?' . $args);
 
 			// NOTREACHED
 		}
 	}
 	notice( t('Login failed.') . EOL);
-	goaway(z_root());
+	goaway(System::baseUrl());
 	// NOTREACHED
 }

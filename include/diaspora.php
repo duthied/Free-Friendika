@@ -9,6 +9,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 use Friendica\Core\Config;
 
 require_once 'include/items.php';
@@ -1654,7 +1655,7 @@ class Diaspora {
 
 		$ulink = "[url=".$contact["url"]."]".$contact["name"]."[/url]";
 		$alink = "[url=".$parent_item["author-link"]."]".$parent_item["author-name"]."[/url]";
-		$plink = "[url=".App::get_baseurl()."/display/".urlencode($guid)."]".t("status")."[/url]";
+		$plink = "[url=".System::baseUrl()."/display/".urlencode($guid)."]".t("status")."[/url]";
 
 		return sprintf($bodyverb, $ulink, $alink, $plink);
 	}
@@ -1669,7 +1670,7 @@ class Diaspora {
 	 */
 	private static function construct_like_object($importer, $parent_item) {
 		$objtype = ACTIVITY_OBJ_NOTE;
-		$link = '<link rel="alternate" type="text/html" href="'.App::get_baseurl()."/display/".$importer["nickname"]."/".$parent_item["id"].'" />';
+		$link = '<link rel="alternate" type="text/html" href="'.System::baseUrl()."/display/".$importer["nickname"]."/".$parent_item["id"].'" />';
 		$parent_body = $parent_item["body"];
 
 		$xmldata = array("object" => array("type" => $objtype,
@@ -2363,7 +2364,7 @@ class Diaspora {
 			return false;
 		}
 
-		$orig_url = App::get_baseurl()."/display/".$original_item["guid"];
+		$orig_url = System::baseUrl()."/display/".$original_item["guid"];
 
 		$datarray = array();
 
@@ -2653,7 +2654,7 @@ class Diaspora {
 			$nick = $contact["nick"];
 		}
 
-		return $nick."@".substr(App::get_baseurl(), strpos(App::get_baseurl(),"://") + 3);
+		return $nick."@".substr(System::baseUrl(), strpos(System::baseUrl(),"://") + 3);
 	}
 
 
@@ -3620,9 +3621,9 @@ class Diaspora {
 		$first = ((strpos($profile['name'],' ')
 			? trim(substr($profile['name'],0,strpos($profile['name'],' '))) : $profile['name']));
 		$last = (($first === $profile['name']) ? '' : trim(substr($profile['name'], strlen($first))));
-		$large = App::get_baseurl().'/photo/custom/300/'.$profile['uid'].'.jpg';
-		$medium = App::get_baseurl().'/photo/custom/100/'.$profile['uid'].'.jpg';
-		$small = App::get_baseurl().'/photo/custom/50/'  .$profile['uid'].'.jpg';
+		$large = System::baseUrl().'/photo/custom/300/'.$profile['uid'].'.jpg';
+		$medium = System::baseUrl().'/photo/custom/100/'.$profile['uid'].'.jpg';
+		$small = System::baseUrl().'/photo/custom/50/'  .$profile['uid'].'.jpg';
 		$searchable = (($profile['publish'] && $profile['net-publish']) ? 'true' : 'false');
 
 		if ($searchable === 'true') {

@@ -21,6 +21,7 @@
 require_once(__DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
 
 use Friendica\App;
+use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Util\Lock;
 
@@ -551,31 +552,16 @@ function system_unavailable() {
 	killme();
 }
 
-function clean_urls() {
-	$a = get_app();
-	return true;
-}
-
-function z_path() {
-	$base = App::get_baseurl();
-
-	if (!clean_urls()) {
-		$base .= '/?q=';
-	}
-
-	return $base;
-}
-
 /**
  * @brief Returns the baseurl.
  *
- * @see App::get_baseurl()
+ * @see System::baseUrl()
  *
  * @return string
- * @TODO Maybe super-flous and deprecated? Seems to only wrap App::get_baseurl()
+ * @TODO Function is deprecated and only used in some addons
  */
 function z_root() {
-	return App::get_baseurl();
+	return System::baseUrl();
 }
 
 /**
@@ -628,10 +614,10 @@ function check_url(App $a) {
 	// We will only change the url to an ip address if there is no existing setting
 
 	if (!x($url)) {
-		$url = set_config('system', 'url', App::get_baseurl());
+		$url = set_config('system', 'url', System::baseUrl());
 	}
-	if ((!link_compare($url, App::get_baseurl())) && (!preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $a->get_hostname))) {
-		$url = set_config('system', 'url', App::get_baseurl());
+	if ((!link_compare($url, System::baseUrl())) && (!preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $a->get_hostname))) {
+		$url = set_config('system', 'url', System::baseUrl());
 	}
 
 	return;
@@ -913,7 +899,7 @@ function killme() {
  */
 function goaway($s) {
 	if (!strstr(normalise_link($s), "http://")) {
-		$s = App::get_baseurl() . "/" . $s;
+		$s = System::baseUrl() . "/" . $s;
 	}
 
 	header("Location: $s");

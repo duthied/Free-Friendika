@@ -6,6 +6,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 /**
  * @brief uninstalls an addon.
@@ -401,10 +402,10 @@ function get_theme_screenshot($theme) {
 	$exts = array('.png','.jpg');
 	foreach ($exts as $ext) {
 		if (file_exists('view/theme/' . $theme . '/screenshot' . $ext)) {
-			return(App::get_baseurl() . '/view/theme/' . $theme . '/screenshot' . $ext);
+			return(System::baseUrl() . '/view/theme/' . $theme . '/screenshot' . $ext);
 		}
 	}
-	return(App::get_baseurl() . '/images/blank.png');
+	return(System::baseUrl() . '/images/blank.png');
 }
 
 // install and uninstall theme

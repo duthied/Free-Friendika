@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once("include/diaspora.php");
 
@@ -183,7 +184,7 @@ function do_like($item_id, $verb) {
 		$post_type = t('event');
 	}
 	$objtype = $item['resource-id'] ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE ;
-	$link = xmlify('<link rel="alternate" type="text/html" href="' . App::get_baseurl() . '/display/' . $owner_self_contact['nick'] . '/' . $item['id'] . '" />' . "\n") ;
+	$link = xmlify('<link rel="alternate" type="text/html" href="' . System::baseUrl() . '/display/' . $owner_self_contact['nick'] . '/' . $item['id'] . '" />' . "\n") ;
 	$body = $item['body'];
 
 	$obj = <<< EOT
@@ -200,7 +201,7 @@ EOT;
 
 	$ulink = '[url=' . $author_contact['url'] . ']' . $author_contact['name'] . '[/url]';
 	$alink = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
-	$plink = '[url=' . App::get_baseurl() . '/display/' . $owner_self_contact['nick'] . '/' . $item['id'] . ']' . $post_type . '[/url]';
+	$plink = '[url=' . System::baseUrl() . '/display/' . $owner_self_contact['nick'] . '/' . $item['id'] . ']' . $post_type . '[/url]';
 
 	$new_item = array(
 		'guid'          => get_guid(32),

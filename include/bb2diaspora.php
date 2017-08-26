@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 use Friendica\Network\Probe;
 
 use League\HTMLToMarkdown\HtmlConverter;
@@ -241,7 +242,7 @@ function format_event_diaspora($ev) {
 			$ev['start'] , $bd_format ))
 			:  day_translate(datetime_convert('UTC', 'UTC',
 			$ev['start'] , $bd_format)))
-		.  '](' . App::get_baseurl() . '/localtime/?f=&time=' . urlencode(datetime_convert('UTC','UTC',$ev['start'])) . ")\n";
+		.  '](' . System::baseUrl() . '/localtime/?f=&time=' . urlencode(datetime_convert('UTC','UTC',$ev['start'])) . ")\n";
 
 	if (! $ev['nofinish']) {
 		$o .= t('Finishes:') . ' ' . '['
@@ -249,7 +250,7 @@ function format_event_diaspora($ev) {
 				$ev['finish'] , $bd_format ))
 				:  day_translate(datetime_convert('UTC', 'UTC',
 				$ev['finish'] , $bd_format )))
-			. '](' . App::get_baseurl() . '/localtime/?f=&time=' . urlencode(datetime_convert('UTC','UTC',$ev['finish'])) . ")\n";
+			. '](' . System::baseUrl() . '/localtime/?f=&time=' . urlencode(datetime_convert('UTC','UTC',$ev['finish'])) . ")\n";
 	}
 
 	if (strlen($ev['location'])) {

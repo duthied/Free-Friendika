@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once('include/datetime.php');
 
@@ -37,7 +38,7 @@ function localtime_content(App $a) {
 		$o .= '<p>' . sprintf( t('Converted localtime: %s'),$a->data['mod-localtime']) . '</p>';
 
 
-	$o .= '<form action ="' . App::get_baseurl() . '/localtime?f=&time=' . $t . '" method="post" >';
+	$o .= '<form action ="' . System::baseUrl() . '/localtime?f=&time=' . $t . '" method="post" >';
 
 	$o .= '<p>' . t('Please select your timezone:') . '</p>';
 

@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function nav(App $a) {
 
@@ -30,7 +31,7 @@ function nav(App $a) {
 	$tpl = get_markup_template('nav.tpl');
 
 	$a->page['nav'] .= replace_macros($tpl, array(
-		'$baseurl' => App::get_baseurl(),
+		'$baseurl' => System::baseUrl(),
 		'$sitelocation' => $nav_info['sitelocation'],
 		'$nav' => $nav_info['nav'],
 		'$banner' => $nav_info['banner'],
@@ -67,7 +68,7 @@ function nav_info(App $a)
 
 	$myident = ((is_array($a->user) && isset($a->user['nickname'])) ? $a->user['nickname'] . '@' : '');
 
-	$sitelocation = $myident . substr(App::get_baseurl($ssl_state), strpos(App::get_baseurl($ssl_state), '//') + 2 );
+	$sitelocation = $myident . substr(System::baseUrl($ssl_state), strpos(System::baseUrl($ssl_state), '//') + 2 );
 
 	// nav links: array of array('href', 'text', 'extra css classes', 'title')
 	$nav = array();

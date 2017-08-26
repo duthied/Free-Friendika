@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once('include/datetime.php');
 require_once('include/bbcode.php');
@@ -182,7 +183,7 @@ function ping_init(App $a)
 		$intro_count = count($intros1) + count($intros2);
 		$intros = $intros1 + $intros2;
 
-		$myurl = App::get_baseurl() . '/profile/' . $a->user['nickname'] ;
+		$myurl = System::baseUrl() . '/profile/' . $a->user['nickname'] ;
 		$mails = qu("SELECT `id`, `from-name`, `from-url`, `from-photo`, `created` FROM `mail`
 			WHERE `uid` = %d AND `seen` = 0 AND `from-url` != '%s' ",
 			intval(local_user()),
@@ -265,7 +266,7 @@ function ping_init(App $a)
 		if (dbm::is_result($intros)) {
 			foreach ($intros as $intro) {
 				$notif = array(
-					'href'    => App::get_baseurl() . '/notifications/intros/' . $intro['id'],
+					'href'    => System::baseUrl() . '/notifications/intros/' . $intro['id'],
 					'name'    => $intro['name'],
 					'url'     => $intro['url'],
 					'photo'   => $intro['photo'],
@@ -280,7 +281,7 @@ function ping_init(App $a)
 		if (dbm::is_result($mails)) {
 			foreach ($mails as $mail) {
 				$notif = array(
-					'href'    => App::get_baseurl() . '/message/' . $mail['id'],
+					'href'    => System::baseUrl() . '/message/' . $mail['id'],
 					'name'    => $mail['from-name'],
 					'url'     => $mail['from-url'],
 					'photo'   => $mail['from-photo'],
@@ -295,7 +296,7 @@ function ping_init(App $a)
 		if (dbm::is_result($regs)) {
 			foreach ($regs as $reg) {
 				$notif = array(
-					'href'    => App::get_baseurl() . '/admin/users/',
+					'href'    => System::baseUrl() . '/admin/users/',
 					'name'    => $reg['name'],
 					'url'     => $reg['url'],
 					'photo'   => $reg['micro'],
@@ -472,7 +473,7 @@ function ping_get_notifications($uid)
 				);
 			}
 
-			$notification["href"] = App::get_baseurl() . "/notify/view/" . $notification["id"];
+			$notification["href"] = System::baseUrl() . "/notify/view/" . $notification["id"];
 
 			if ($notification["visible"] && !$notification["spam"] &&
 				!$notification["deleted"] && !is_array($result[$notification["parent"]])) {

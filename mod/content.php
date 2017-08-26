@@ -16,6 +16,7 @@
 // and 10-20 milliseconds to fetch all the child items.
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function content_content(App $a, $update = 0) {
 
@@ -118,7 +119,7 @@ function content_content(App $a, $update = 0) {
 			if($update)
 				killme();
 			notice( t('No such group') . EOL );
-			goaway(App::get_baseurl(true) . '/network');
+			goaway(System::baseUrl(true) . '/network');
 			// NOTREACHED
 		}
 
@@ -198,7 +199,7 @@ function content_content(App $a, $update = 0) {
 	}
 
 	if($conv) {
-		$myurl = App::get_baseurl() . '/profile/'. $a->user['nickname'];
+		$myurl = System::baseUrl() . '/profile/'. $a->user['nickname'];
 		$myurl = substr($myurl,strpos($myurl,'://')+3);
 		$myurl = str_replace('www.','',$myurl);
 		$diasp_url = str_replace('/profile/','/u/',$myurl);
@@ -510,8 +511,8 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 					'like' => '',
 					'dislike' => '',
 					'comment' => '',
-					//'conv' => (($preview) ? '' : array('href'=> App::get_baseurl($ssl_state) . '/display/' . $nickname . '/' . $item['id'], 'title'=> t('View in context'))),
-					'conv' => (($preview) ? '' : array('href'=> App::get_baseurl($ssl_state).'/display/'.$item['guid'], 'title'=> t('View in context'))),
+					//'conv' => (($preview) ? '' : array('href'=> System::baseUrl($ssl_state) . '/display/' . $nickname . '/' . $item['id'], 'title'=> t('View in context'))),
+					'conv' => (($preview) ? '' : array('href'=> System::baseUrl($ssl_state).'/display/'.$item['guid'], 'title'=> t('View in context'))),
 					'previewing' => $previewing,
 					'wait' => t('Please wait'),
 				);
@@ -744,7 +745,7 @@ function render_content(App $a, $items, $mode, $update, $preview = false) {
 				}
 
 				if (local_user() && link_compare($a->contact['url'],$item['author-link'])) {
-					$edpost = array(App::get_baseurl($ssl_state)."/editpost/".$item['id'], t("Edit"));
+					$edpost = array(System::baseUrl($ssl_state)."/editpost/".$item['id'], t("Edit"));
 				} else {
 					$edpost = false;
 				}

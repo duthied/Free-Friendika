@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once('include/enotify.php');
 require_once('include/user.php');
@@ -39,7 +40,7 @@ function user_allow($hash) {
 		intval($user[0]['uid'])
 	);
 	if (dbm::is_result($r) && $r[0]['net-publish']) {
-		$url = App::get_baseurl() . '/profile/' . $user[0]['nickname'];
+		$url = System::baseUrl() . '/profile/' . $user[0]['nickname'];
 		if ($url && strlen(get_config('system','directory'))) {
 			proc_run(PRIORITY_LOW, "include/directory.php", $url);
 		}
@@ -50,7 +51,7 @@ function user_allow($hash) {
 	send_register_open_eml(
 		$user[0]['email'],
 		$a->config['sitename'],
-		App::get_baseurl(),
+		System::baseUrl(),
 		$user[0]['username'],
 		$register[0]['password']);
 
@@ -118,13 +119,13 @@ function regmod_content(App $a) {
 
 	if ($cmd === 'deny') {
 		user_deny($hash);
-		goaway(App::get_baseurl()."/admin/users/");
+		goaway(System::baseUrl()."/admin/users/");
 		killme();
 	}
 
 	if ($cmd === 'allow') {
 		user_allow($hash);
-		goaway(App::get_baseurl()."/admin/users/");
+		goaway(System::baseUrl()."/admin/users/");
 		killme();
 	}
 }

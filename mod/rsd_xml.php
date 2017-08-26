@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function rsd_xml_content(App $a)
 {
@@ -11,7 +12,7 @@ function rsd_xml_content(App $a)
     <engineName>Friendica</engineName>
     <engineLink>http://friendica.com/</engineLink>
     <apis>
-      <api name="Twitter" preferred="true" apiLink="'.App::get_baseurl().'/api/" blogID="">
+      <api name="Twitter" preferred="true" apiLink="'.System::baseUrl().'/api/" blogID="">
         <settings>
           <docs>http://status.net/wiki/TwitterCompatibleAPI</docs>
           <setting name="OAuth">false</setting>

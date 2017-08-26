@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function starred_init(App $a) {
 
@@ -48,7 +49,7 @@ function starred_init(App $a) {
 			$rand = "?$rand";
 		}
 
-		goaway(App::get_baseurl() . "/" . $return_path . $rand);
+		goaway(System::baseUrl() . "/" . $return_path . $rand);
 	}
 
 	// the json doesn't really matter, it will either be 0 or 1

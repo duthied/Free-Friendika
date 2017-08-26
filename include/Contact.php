@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 use Friendica\Network\Probe;
 
 // Included here for completeness, but this is a very dangerous operation.
@@ -33,7 +34,7 @@ function user_remove($uid) {
 	if($uid == local_user()) {
 		unset($_SESSION['authenticated']);
 		unset($_SESSION['uid']);
-		goaway(App::get_baseurl());
+		goaway(System::baseUrl());
 	}
 }
 
@@ -401,7 +402,7 @@ function contact_photo_menu($contact, $uid = 0)
 	$sparkle = false;
 	if ($contact['network'] === NETWORK_DFRN) {
 		$sparkle = true;
-		$profile_link = App::get_baseurl() . '/redir/' . $contact['id'];
+		$profile_link = System::baseUrl() . '/redir/' . $contact['id'];
 	} else {
 		$profile_link = $contact['url'];
 	}
@@ -417,17 +418,17 @@ function contact_photo_menu($contact, $uid = 0)
 	}
 
 	if (in_array($contact['network'], array(NETWORK_DFRN, NETWORK_DIASPORA))) {
-		$pm_url = App::get_baseurl() . '/message/new/' . $contact['id'];
+		$pm_url = System::baseUrl() . '/message/new/' . $contact['id'];
 	}
 
 	if ($contact['network'] == NETWORK_DFRN) {
-		$poke_link = App::get_baseurl() . '/poke/?f=&c=' . $contact['id'];
+		$poke_link = System::baseUrl() . '/poke/?f=&c=' . $contact['id'];
 	}
 
-	$contact_url = App::get_baseurl() . '/contacts/' . $contact['id'];
+	$contact_url = System::baseUrl() . '/contacts/' . $contact['id'];
 
-	$posts_link = App::get_baseurl() . '/contacts/' . $contact['id'] . '/posts';
-	$contact_drop_link = App::get_baseurl() . '/contacts/' . $contact['id'] . '/drop?confirm=1';
+	$posts_link = System::baseUrl() . '/contacts/' . $contact['id'] . '/posts';
+	$contact_drop_link = System::baseUrl() . '/contacts/' . $contact['id'] . '/drop?confirm=1';
 
 	/**
 	 * menu array:

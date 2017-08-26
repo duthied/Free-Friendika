@@ -7,6 +7,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once('include/event.php');
 require_once('include/redir.php');
@@ -78,7 +79,7 @@ function cal_content(App $a) {
 
 	$htpl = get_markup_template('event_head.tpl');
 	$a->page['htmlhead'] .= replace_macros($htpl,array(
-		'$baseurl' => App::get_baseurl(),
+		'$baseurl' => System::baseUrl(),
 		'$module_url' => '/cal/' . $a->data['user']['nickname'],
 		'$modparams' => 2,
 		'$i18n' => $i18n,
@@ -86,7 +87,7 @@ function cal_content(App $a) {
 
 	$etpl = get_markup_template('event_end.tpl');
 	$a->page['end'] .= replace_macros($etpl,array(
-		'$baseurl' => App::get_baseurl(),
+		'$baseurl' => System::baseUrl(),
 	));
 
 	$o ="";
@@ -228,7 +229,7 @@ function cal_content(App $a) {
 			foreach ($r as $rr) {
 				$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'j') : datetime_convert('UTC','UTC',$rr['start'],'j'));
 				if (! x($links,$j)) {
-					$links[$j] = App::get_baseurl() . '/' . $a->cmd . '#link-' . $j;
+					$links[$j] = System::baseUrl() . '/' . $a->cmd . '#link-' . $j;
 				}
 			}
 		}
@@ -267,12 +268,12 @@ function cal_content(App $a) {
 		}
 
 		$o = replace_macros($tpl, array(
-			'$baseurl'	=> App::get_baseurl(),
+			'$baseurl'	=> System::baseUrl(),
 			'$tabs'		=> $tabs,
 			'$title'	=> t('Events'),
 			'$view'		=> t('View'),
-			'$previous'	=> array(App::get_baseurl()."/events/$prevyear/$prevmonth", t('Previous'),'',''),
-			'$next'		=> array(App::get_baseurl()."/events/$nextyear/$nextmonth", t('Next'),'',''),
+			'$previous'	=> array(System::baseUrl()."/events/$prevyear/$prevmonth", t('Previous'),'',''),
+			'$next'		=> array(System::baseUrl()."/events/$nextyear/$nextmonth", t('Next'),'',''),
 			'$calendar' => cal($y,$m,$links, ' eventcal'),
 
 			'$events'	=> $events,

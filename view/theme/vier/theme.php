@@ -10,6 +10,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once "include/plugin.php";
 require_once "include/socgraph.php";
@@ -129,7 +130,7 @@ function vier_community_info() {
 	$show_lastusers  = get_vier_config("show_lastusers", 1);
 
 	// get_baseurl
-	$url = App::get_baseurl($ssl_state);
+	$url = System::baseUrl($ssl_state);
 	$aside['$url'] = $url;
 
 	// comunity_profiles
@@ -235,7 +236,7 @@ function vier_community_info() {
 					'name'         => $contact['name'],
 					'cid'          => $contact['id'],
 					'selected'     => $selected,
-					'micro'        => App::remove_baseurl(proxy_url($contact['micro'], false, PROXY_SIZE_MICRO)),
+					'micro'        => System::removedBaseUrl(proxy_url($contact['micro'], false, PROXY_SIZE_MICRO)),
 					'id'           => ++$id,
 				);
 				$entries[] = $entry;

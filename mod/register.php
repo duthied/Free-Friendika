@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once('include/enotify.php');
 require_once('include/bbcode.php');
@@ -67,7 +68,7 @@ function register_post(App $a) {
 	$user = $result['user'];
 
 	if($netpublish && $a->config['register_policy'] != REGISTER_APPROVE) {
-		$url = App::get_baseurl() . '/profile/' . $user['nickname'];
+		$url = System::baseUrl() . '/profile/' . $user['nickname'];
 		proc_run(PRIORITY_LOW, "include/directory.php", $url);
 	}
 
@@ -88,13 +89,13 @@ function register_post(App $a) {
 			$res = send_register_open_eml(
 				$user['email'],
 				$a->config['sitename'],
-				App::get_baseurl(),
+				System::baseUrl(),
 				$user['username'],
 				$result['password']);
 
 			if($res) {
 				info( t('Registration successful. Please check your email for further instructions.') . EOL ) ;
-				goaway(z_root());
+				goaway(System::baseUrl());
 			} else {
 				notice(
 					sprintf(
@@ -106,13 +107,13 @@ function register_post(App $a) {
 			}
 		} else {
 			info( t('Registration successful.') . EOL ) ;
-			goaway(z_root());
+			goaway(System::baseUrl());
 		}
 	}
 	elseif($a->config['register_policy'] == REGISTER_APPROVE) {
 		if(! strlen($a->config['admin_email'])) {
 			notice( t('Your registration can not be processed.') . EOL);
-			goaway(z_root());
+			goaway(System::baseUrl());
 		}
 
 		$hash = random_string();
@@ -145,9 +146,9 @@ function register_post(App $a) {
 				'source_name' => $user['username'],
 				'source_mail' => $user['email'],
 				'source_nick' => $user['nickname'],
-				'source_link' => App::get_baseurl()."/admin/users/",
-				'link' => App::get_baseurl()."/admin/users/",
-				'source_photo' => App::get_baseurl() . "/photo/avatar/".$user['uid'].".jpg",
+				'source_link' => System::baseUrl()."/admin/users/",
+				'link' => System::baseUrl()."/admin/users/",
+				'source_photo' => System::baseUrl() . "/photo/avatar/".$user['uid'].".jpg",
 				'to_email' => $admin['email'],
 				'uid' => $admin['uid'],
 				'language' => ($admin['language']?$admin['language']:'en'),
@@ -161,7 +162,7 @@ function register_post(App $a) {
 				$user['username']);
 
 		info( t('Your registration is pending approval by the site owner.') . EOL ) ;
-		goaway(z_root());
+		goaway(System::baseUrl());
 
 
 	}

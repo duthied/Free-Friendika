@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once('include/security.php');
 require_once('include/bbcode.php');
@@ -93,7 +94,7 @@ function mood_init(App $a) {
 	$item_id = item_store($arr);
 	if($item_id) {
 		q("UPDATE `item` SET `plink` = '%s' WHERE `uid` = %d AND `id` = %d",
-			dbesc(App::get_baseurl() . '/display/' . $poster['nickname'] . '/' . $item_id),
+			dbesc(System::baseUrl() . '/display/' . $poster['nickname'] . '/' . $item_id),
 			intval($uid),
 			intval($item_id)
 		);

@@ -1,9 +1,10 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function create_tags_from_item($itemid) {
-	$profile_base = App::get_baseurl();
+	$profile_base = System::baseUrl();
 	$profile_data = parse_url($profile_base);
 	$profile_base_friendica = $profile_data['host'].$profile_data['path']."/profile/";
 	$profile_base_diaspora = $profile_data['host'].$profile_data['path']."/u/";

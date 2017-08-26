@@ -4,6 +4,7 @@ This file is part of the Diaspora protocol. It is used for fetching single publi
 */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once("include/crypto.php");
 require_once("include/diaspora.php");
@@ -30,7 +31,7 @@ function fetch_init(App $a) {
 			$parts = parse_url($r[0]["author-link"]);
 			$host = $parts["scheme"]."://".$parts["host"];
 
-			if (normalise_link($host) != normalise_link(App::get_baseurl())) {
+			if (normalise_link($host) != normalise_link(System::baseUrl())) {
 				$location = $host."/fetch/".$a->argv[1]."/".urlencode($guid);
 
 				header("HTTP/1.1 301 Moved Permanently");

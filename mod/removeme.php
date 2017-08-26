@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function removeme_post(App $a) {
 
@@ -37,7 +38,7 @@ function removeme_post(App $a) {
 function removeme_content(App $a) {
 
 	if (! local_user()) {
-		goaway(z_root());
+		goaway(System::baseUrl());
 	}
 
 	$hash = random_string();
@@ -49,7 +50,7 @@ function removeme_content(App $a) {
 
 	$tpl = get_markup_template('removeme.tpl');
 	$o .= replace_macros($tpl, array(
-		'$basedir' => App::get_baseurl(),
+		'$basedir' => System::baseUrl(),
 		'$hash' => $hash,
 		'$title' => t('Remove My Account'),
 		'$desc' => t('This will completely remove your account. Once this has been done it is not recoverable.'),

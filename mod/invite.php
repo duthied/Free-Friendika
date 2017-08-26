@@ -8,6 +8,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once('include/email.php');
 
@@ -123,7 +124,7 @@ function invite_content(App $a) {
 		if ($a->config['register_policy'] == REGISTER_CLOSED) {
 			$linktxt = sprintf( t('Visit %s for a list of public sites that you can join. Friendica members on other sites can all connect with each other, as well as with members of many other social networks.'), $dirloc . '/servers');
 		} else {
-			$linktxt = sprintf( t('To accept this invitation, please visit and register at %s or any other public Friendica website.'), App::get_baseurl())
+			$linktxt = sprintf( t('To accept this invitation, please visit and register at %s or any other public Friendica website.'), System::baseUrl())
 			. "\r\n" . "\r\n" . sprintf( t('Friendica sites all inter-connect to create a huge privacy-enhanced social web that is owned and controlled by its members. They can also connect with many traditional social networks. See %s for a list of alternate Friendica sites you can join.'),$dirloc . '/servers');
 		}
 	} else { // there is no global directory URL defined
@@ -131,7 +132,7 @@ function invite_content(App $a) {
 			$o = t('Our apologies. This system is not currently configured to connect with other public sites or invite members.');
 			return $o;
 		} else {
-			$linktxt = sprintf( t('To accept this invitation, please visit and register at %s.'), App::get_baseurl()
+			$linktxt = sprintf( t('To accept this invitation, please visit and register at %s.'), System::baseUrl()
 			. "\r\n" . "\r\n" . t('Friendica sites all inter-connect to create a huge privacy-enhanced social web that is owned and controlled by its members. They can also connect with many traditional social networks.'));
 		}
 	}
@@ -144,7 +145,7 @@ function invite_content(App $a) {
 		'$default_message'     => t('You are cordially invited to join me and other close friends on Friendica - and help us to create a better social web.') . "\r\n" . "\r\n"
 			. $linktxt
 			. "\r\n" . "\r\n" . (($invonly) ? t('You will need to supply this invitation code: $invite_code') . "\r\n" . "\r\n" : '') .t('Once you have registered, please connect with me via my profile page at:')
-			. "\r\n" . "\r\n" . App::get_baseurl() . '/profile/' . $a->user['nickname']
+			. "\r\n" . "\r\n" . System::baseUrl() . '/profile/' . $a->user['nickname']
 			. "\r\n" . "\r\n" . t('For more information about the Friendica project and why we feel it is important, please visit http://friendi.ca') . "\r\n" . "\r\n"  ,
 		'$submit'              => t('Submit')
 	));

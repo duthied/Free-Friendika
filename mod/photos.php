@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Network\Probe;
 
@@ -95,7 +96,7 @@ function photos_init(App $a) {
 				'$title'    => t('Photo Albums'),
 				'$recent'   => t('Recent Photos'),
 				'$albums'   => $albums['albums'],
-				'$baseurl'  => z_root(),
+				'$baseurl'  => System::baseUrl(),
 				'$upload'   => array(t('Upload New Photos'), 'photos/' . $a->data['user']['nickname'] . '/upload'),
 				'$can_post' => $can_post
 			));
@@ -373,7 +374,7 @@ function photos_post(App $a) {
 				create_tags_from_itemuri($i[0]['uri'], $page_owner_uid);
 				delete_thread_uri($i[0]['uri'], $page_owner_uid);
 
-				$url = App::get_baseurl();
+				$url = System::baseUrl();
 				$drop_id = intval($i[0]['id']);
 
 				// Update the photo albums cache
@@ -525,8 +526,8 @@ function photos_post(App $a) {
 			$arr['visible']       = $visibility;
 			$arr['origin']        = 1;
 
-			$arr['body']          = '[url=' . App::get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $p[0]['resource-id'] . ']'
-						. '[img]' . App::get_baseurl() . '/photo/' . $p[0]['resource-id'] . '-' . $p[0]['scale'] . '.'. $ext . '[/img]'
+			$arr['body']          = '[url=' . System::baseUrl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $p[0]['resource-id'] . ']'
+						. '[img]' . System::baseUrl() . '/photo/' . $p[0]['resource-id'] . '-' . $p[0]['scale'] . '.'. $ext . '[/img]'
 						. '[/url]';
 
 			$item_id = item_store($arr);
@@ -640,7 +641,7 @@ function photos_post(App $a) {
 						}
 					} elseif (strpos($tag, '#') === 0) {
 						$tagname = substr($tag, 1);
-						$str_tags .= '#[url=' . App::get_baseurl() . "/search?tag=" . $tagname . ']' . $tagname . '[/url]';
+						$str_tags .= '#[url=' . System::baseUrl() . "/search?tag=" . $tagname . ']' . $tagname . '[/url]';
 					}
 				}
 			}
@@ -712,8 +713,8 @@ function photos_post(App $a) {
 					$arr['tag']           = $tagged[4];
 					$arr['inform']        = $tagged[2];
 					$arr['origin']        = 1;
-					$arr['body']          = sprintf( t('%1$s was tagged in %2$s by %3$s'), '[url=' . $tagged[1] . ']' . $tagged[0] . '[/url]', '[url=' . App::get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . t('a photo') . '[/url]', '[url=' . $owner_record['url'] . ']' . $owner_record['name'] . '[/url]') ;
-					$arr['body'] .= "\n\n" . '[url=' . App::get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . '[img]' . App::get_baseurl() . "/photo/" . $p[0]['resource-id'] . '-' . $best . '.' . $ext . '[/img][/url]' . "\n" ;
+					$arr['body']          = sprintf( t('%1$s was tagged in %2$s by %3$s'), '[url=' . $tagged[1] . ']' . $tagged[0] . '[/url]', '[url=' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . t('a photo') . '[/url]', '[url=' . $owner_record['url'] . ']' . $owner_record['name'] . '[/url]') ;
+					$arr['body'] .= "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . '[img]' . System::baseUrl() . "/photo/" . $p[0]['resource-id'] . '-' . $best . '.' . $ext . '[/img][/url]' . "\n" ;
 
 					$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $tagged[0] . '</title><id>' . $tagged[1] . '/' . $tagged[0] . '</id>';
 					$arr['object'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . $tagged[1] . '" />' . "\n");
@@ -723,8 +724,8 @@ function photos_post(App $a) {
 					$arr['object'] .= '</link></object>' . "\n";
 
 					$arr['target'] = '<target><type>' . ACTIVITY_OBJ_IMAGE . '</type><title>' . $p[0]['desc'] . '</title><id>'
-						. App::get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . '</id>';
-					$arr['target'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . App::get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . '" />' . "\n" . '<link rel="preview" type="'.$p[0]['type'].'" href="' . App::get_baseurl() . "/photo/" . $p[0]['resource-id'] . '-' . $best . '.' . $ext . '" />') . '</link></target>';
+						. System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . '</id>';
+					$arr['target'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . '" />' . "\n" . '<link rel="preview" type="'.$p[0]['type'].'" href="' . System::baseUrl() . "/photo/" . $p[0]['resource-id'] . '-' . $best . '.' . $ext . '" />') . '</link></target>';
 
 					$item_id = item_store($arr);
 					if ($item_id) {
@@ -942,8 +943,8 @@ function photos_post(App $a) {
 	$arr['visible']       = $visible;
 	$arr['origin']        = 1;
 
-	$arr['body']          = '[url=' . App::get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo_hash . ']'
-				. '[img]' . App::get_baseurl() . "/photo/{$photo_hash}-{$smallest}.".$ph->getExt() . '[/img]'
+	$arr['body']          = '[url=' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo_hash . ']'
+				. '[img]' . System::baseUrl() . "/photo/{$photo_hash}-{$smallest}.".$ph->getExt() . '[/img]'
 				. '[/url]';
 
 	$item_id = item_store($arr);

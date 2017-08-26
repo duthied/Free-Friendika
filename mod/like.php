@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once('include/security.php');
 require_once('include/bbcode.php');
@@ -26,7 +27,7 @@ function like_content(App $a) {
 	// See if we've been passed a return path to redirect to
 	$return_path = ((x($_REQUEST,'return')) ? $_REQUEST['return'] : '');
 
-	like_content_return(App::get_baseurl(), $return_path);
+	like_content_return(System::baseUrl(), $return_path);
 	killme(); // NOTREACHED
 //	return; // NOTREACHED
 }

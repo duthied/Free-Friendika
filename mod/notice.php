@@ -3,6 +3,7 @@
 /* identi.ca -> friendica items permanent-url compatibility */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function notice_init(App $a) {
 
@@ -10,7 +11,7 @@ function notice_init(App $a) {
 	$r = q("SELECT `user`.`nickname` FROM `user` LEFT JOIN `item` ON `item`.`uid` = `user`.`uid` WHERE `item`.`id` = %d", intval($id));
 	if (dbm::is_result($r)) {
 		$nick = $r[0]['nickname'];
-		$url = App::get_baseurl() . "/display/$nick/$id";
+		$url = System::baseUrl() . "/display/$nick/$id";
 		goaway($url);
 	} else {
 		$a->error = 404;

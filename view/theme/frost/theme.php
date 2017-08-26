@@ -10,6 +10,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function frost_init(App $a) {
 	$a->videowidth = 400;
@@ -23,8 +24,8 @@ function frost_content_loaded(App $a) {
 	// I could do this in style.php, but by having the CSS in a file the browser will cache it,
 	// making pages load faster
 	if( $a->module === 'home' || $a->module === 'login' || $a->module === 'register' || $a->module === 'lostpass' ) {
-		//$a->page['htmlhead'] = str_replace('$stylesheet', App::get_baseurl() . '/view/theme/frost/login-style.css', $a->page['htmlhead']);
-		$a->theme['stylesheet'] = App::get_baseurl() . '/view/theme/frost/login-style.css';
+		//$a->page['htmlhead'] = str_replace('$stylesheet', System::baseUrl() . '/view/theme/frost/login-style.css', $a->page['htmlhead']);
+		$a->theme['stylesheet'] = System::baseUrl() . '/view/theme/frost/login-style.css';
 	}
 
 	if ( $a->module === 'login' ) {

@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once 'include/probe.php';
 require_once 'include/follow.php';
@@ -50,7 +51,7 @@ function ostatus_subscribe_content(App $a) {
 	$total = sizeof($friends);
 
 	if ($counter >= $total) {
-		$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL='.App::get_baseurl().'/settings/connectors">';
+		$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL='.System::baseUrl().'/settings/connectors">';
 		del_pconfig($uid, "ostatus", "legacy_friends");
 		del_pconfig($uid, "ostatus", "legacy_contact");
 		$o .= t("Done");
@@ -79,7 +80,7 @@ function ostatus_subscribe_content(App $a) {
 
 	$o .= "<p>".t("Keep this window open until done.")."</p>";
 
-	$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL='.App::get_baseurl().'/ostatus_subscribe?counter='.$counter.'">';
+	$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL='.System::baseUrl().'/ostatus_subscribe?counter='.$counter.'">';
 
 	return $o;
 }

@@ -5,6 +5,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function theme_content(App $a) {
 	if (!local_user()) {
@@ -111,7 +112,7 @@ function vier_form(App $a, $style, $show_pages, $show_profiles, $show_helpers, $
 	$t = get_markup_template("theme_settings.tpl");
 	$o .= replace_macros($t, array(
 		'$submit' => t('Submit'),
-		'$baseurl' => App::get_baseurl(),
+		'$baseurl' => System::baseUrl(),
 		'$title' => t("Theme settings"),
 		'$style' => array('vier_style',t ('Set style'),$style,'',$styles),
 		'$show_pages' => array('vier_show_pages', t('Community Pages'), $show_pages, '', $show_or_not),

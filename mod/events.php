@@ -5,6 +5,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once 'include/bbcode.php';
 require_once 'include/datetime.php';
@@ -90,7 +91,7 @@ function events_post(App $a) {
 	$type     = 'event';
 
 	$action = ($event_id == '') ? 'new' : "event/" . $event_id;
-	$onerror_url = App::get_baseurl() . "/events/" . $action . "?summary=$summary&description=$desc&location=$location&start=$start_text&finish=$finish_text&adjust=$adjust&nofinish=$nofinish";
+	$onerror_url = System::baseUrl() . "/events/" . $action . "?summary=$summary&description=$desc&location=$location&start=$start_text&finish=$finish_text&adjust=$adjust&nofinish=$nofinish";
 
 	if (strcmp($finish, $start) < 0 && !$nofinish) {
 		notice(t('Event can not end before it has started.') . EOL);
@@ -190,7 +191,7 @@ function events_content(App $a) {
 	}
 
 	if ($a->argc == 1) {
-		$_SESSION['return_url'] = App::get_baseurl() . '/' . $a->cmd;
+		$_SESSION['return_url'] = System::baseUrl() . '/' . $a->cmd;
 	}
 
 	if (($a->argc > 2) && ($a->argv[1] === 'ignore') && intval($a->argv[2])) {
@@ -218,7 +219,7 @@ function events_content(App $a) {
 
 	$htpl = get_markup_template('event_head.tpl');
 	$a->page['htmlhead'] .= replace_macros($htpl, array(
-		'$baseurl' => App::get_baseurl(),
+		'$baseurl' => System::baseUrl(),
 		'$module_url' => '/events',
 		'$modparams' => 1,
 		'$i18n' => $i18n,
@@ -226,7 +227,7 @@ function events_content(App $a) {
 
 	$etpl = get_markup_template('event_end.tpl');
 	$a->page['end'] .= replace_macros($etpl, array(
-		'$baseurl' => App::get_baseurl(),
+		'$baseurl' => System::baseUrl(),
 	));
 
 	$o = '';
@@ -337,7 +338,7 @@ function events_content(App $a) {
 			foreach ($r as $rr) {
 				$j = (($rr['adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $rr['start'], 'j') : datetime_convert('UTC', 'UTC', $rr['start'], 'j'));
 				if (! x($links,$j)) {
-					$links[$j] = App::get_baseurl() . '/' . $a->cmd . '#link-' . $j;
+					$links[$j] = System::baseUrl() . '/' . $a->cmd . '#link-' . $j;
 				}
 			}
 		}
@@ -372,13 +373,13 @@ function events_content(App $a) {
 		}
 
 		$o = replace_macros($tpl, array(
-			'$baseurl'   => App::get_baseurl(),
+			'$baseurl'   => System::baseUrl(),
 			'$tabs'      => $tabs,
 			'$title'     => t('Events'),
 			'$view'      => t('View'),
-			'$new_event' => array(App::get_baseurl() . '/events/new', t('Create New Event'), '', ''),
-			'$previous'  => array(App::get_baseurl() . '/events/$prevyear/$prevmonth', t('Previous'), '', ''),
-			'$next'      => array(App::get_baseurl() . '/events/$nextyear/$nextmonth', t('Next'), '', ''),
+			'$new_event' => array(System::baseUrl() . '/events/new', t('Create New Event'), '', ''),
+			'$previous'  => array(System::baseUrl() . '/events/$prevyear/$prevmonth', t('Previous'), '', ''),
+			'$next'      => array(System::baseUrl() . '/events/$nextyear/$nextmonth', t('Next'), '', ''),
 			'$calendar'  => cal($y, $m, $links, ' eventcal'),
 
 			'$events'    => $events,
@@ -476,7 +477,7 @@ function events_content(App $a) {
 		$tpl = get_markup_template('event_form.tpl');
 
 		$o .= replace_macros($tpl,array(
-			'$post' => App::get_baseurl() . '/events',
+			'$post' => System::baseUrl() . '/events',
 			'$eid' => $eid,
 			'$cid' => $cid,
 			'$uri' => $uri,
@@ -533,6 +534,6 @@ function events_content(App $a) {
 			info(t('Event removed') . EOL);
 		}
 
-		goaway(App::get_baseurl() . '/events');
+		goaway(System::baseUrl() . '/events');
 	}
 }

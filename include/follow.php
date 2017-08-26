@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once 'include/probe.php';
 require_once 'include/socgraph.php';
@@ -109,7 +110,7 @@ function new_contact($uid,$url,$interactive = false) {
 	if ($ret['network'] === NETWORK_DFRN) {
 		if ($interactive) {
 			if (strlen($a->path)) {
-				$myaddr = bin2hex(App::get_baseurl() . '/profile/' . $a->user['nickname']);
+				$myaddr = bin2hex(System::baseUrl() . '/profile/' . $a->user['nickname']);
 			} else {
 				$myaddr = bin2hex($a->user['nickname'] . '@' . $a->get_hostname());
 			}

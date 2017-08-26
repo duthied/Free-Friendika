@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function noscrape_init(App $a) {
 
@@ -36,7 +37,7 @@ function noscrape_init(App $a) {
 		'addr'     => $a->profile['addr'],
 		'nick'     => $which,
 		'key'      => $a->profile['pubkey'],
-		'homepage' => App::get_baseurl()."/profile/{$which}",
+		'homepage' => System::baseUrl()."/profile/{$which}",
 		'comm'     => (x($a->profile,'page-flags')) && ($a->profile['page-flags'] == PAGE_COMMUNITY),
 		'photo'    => $r[0]["photo"],
 		'tags'     => $keywords
@@ -71,7 +72,7 @@ function noscrape_init(App $a) {
 
 	$dfrn_pages = array('request', 'confirm', 'notify', 'poll');
 	foreach ($dfrn_pages as $dfrn) {
-		$json_info["dfrn-{$dfrn}"] = App::get_baseurl()."/dfrn_{$dfrn}/{$which}";
+		$json_info["dfrn-{$dfrn}"] = System::baseUrl()."/dfrn_{$dfrn}/{$which}";
 	}
 
 	//Output all the JSON!

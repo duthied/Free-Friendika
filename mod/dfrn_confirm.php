@@ -19,6 +19,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 use Friendica\Network\Probe;
 
 require_once 'include/enotify.php';
@@ -196,7 +197,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 			$params['public_key'] = $public_key;
 
 
-			$my_url = App::get_baseurl() . '/profile/' . $user[0]['nickname'];
+			$my_url = System::baseUrl() . '/profile/' . $user[0]['nickname'];
 
 			openssl_public_encrypt($my_url, $params['source_url'], $site_pubkey);
 			$params['source_url'] = bin2hex($params['source_url']);
@@ -507,7 +508,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 		// do anything special with this new friend.
 
 		if ($handsfree === null) {
-			goaway(App::get_baseurl() . '/contacts/' . intval($contact_id));
+			goaway(System::baseUrl() . '/contacts/' . intval($contact_id));
 		} else {
 			return;
 		}
@@ -669,7 +670,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 		if (dbm::is_result($r)) {
 			$photo = $r[0]['photo'];
 		} else {
-			$photo = App::get_baseurl() . '/images/person-175.jpg';
+			$photo = System::baseUrl() . '/images/person-175.jpg';
 		}
 
 		require_once 'include/Photo.php';
@@ -734,7 +735,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 				'to_name'      => $r[0]['username'],
 				'to_email'     => $r[0]['email'],
 				'uid'          => $r[0]['uid'],
-				'link'		   => App::get_baseurl() . '/contacts/' . $dfrn_record,
+				'link'		   => System::baseUrl() . '/contacts/' . $dfrn_record,
 				'source_name'  => ((strlen(stripslashes($r[0]['name']))) ? stripslashes($r[0]['name']) : t('[Name Withheld]')),
 				'source_link'  => $r[0]['url'],
 				'source_photo' => $r[0]['photo'],
@@ -809,7 +810,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 
 	// somebody arrived here by mistake or they are fishing. Send them to the homepage.
 
-	goaway(z_root());
+	goaway(System::baseUrl());
 	// NOTREACHED
 
 }

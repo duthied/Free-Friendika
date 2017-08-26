@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once('include/socgraph.php');
 require_once('include/Contact.php');
@@ -65,7 +66,7 @@ function allfriends_content(App $a) {
 			$photo_menu = contact_photo_menu ($rr);
 		}
 		else {
-			$connlnk = App::get_baseurl() . '/follow/?url=' . $rr['url'];
+			$connlnk = System::baseUrl() . '/follow/?url=' . $rr['url'];
 			$photo_menu = array(
 				'profile' => array(t("View Profile"), zrl($rr['url'])),
 				'follow' => array(t("Connect/Follow"), $connlnk)

@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once('include/NotificationsManager.php');
 
@@ -23,14 +24,14 @@ function notify_init(App $a) {
 				$guid = basename($urldata["path"]);
 				$itemdata = get_item_id($guid, local_user());
 				if ($itemdata["id"] != 0) {
-					$note['link'] = App::get_baseurl().'/display/'.$itemdata["nick"].'/'.$itemdata["id"];
+					$note['link'] = System::baseUrl().'/display/'.$itemdata["nick"].'/'.$itemdata["id"];
 				}
 			}
 
 			goaway($note['link']);
 		}
 
-		goaway(App::get_baseurl(true));
+		goaway(System::baseUrl(true));
 	}
 
 	if ($a->argc > 2 && $a->argv[1] === 'mark' && $a->argv[2] === 'all' ) {
@@ -58,7 +59,7 @@ function notify_content(App $a) {
 	if (dbm::is_result($r) > 0) {
 		foreach ($r as $it) {
 			$notif_content .= replace_macros($not_tpl,array(
-				'$item_link' => App::get_baseurl(true).'/notify/view/'. $it['id'],
+				'$item_link' => System::baseUrl(true).'/notify/view/'. $it['id'],
 				'$item_image' => $it['photo'],
 				'$item_text' => strip_tags(bbcode($it['msg'])),
 				'$item_when' => relative_date($it['date'])

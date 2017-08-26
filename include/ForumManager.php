@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 /**
  * @file include/ForumManager.php
@@ -106,7 +107,7 @@ class ForumManager {
 					'name' => $contact['name'],
 					'cid' => $contact['id'],
 					'selected' 	=> $selected,
-					'micro' => App::remove_baseurl(proxy_url($contact['micro'], false, PROXY_SIZE_MICRO)),
+					'micro' => System::removedBaseUrl(proxy_url($contact['micro'], false, PROXY_SIZE_MICRO)),
 					'id' => ++$id,
 				);
 				$entries[] = $entry;

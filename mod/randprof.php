@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function randprof_init(App $a) {
 	require_once('include/Contact.php');
@@ -11,5 +12,5 @@ function randprof_init(App $a) {
 		goaway(zrl($x));
 	}
 
-	goaway(App::get_baseurl() . '/profile');
+	goaway(System::baseUrl() . '/profile');
 }

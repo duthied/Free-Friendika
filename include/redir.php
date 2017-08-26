@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function auto_redir(App $a, $contact_nick) {
 
@@ -22,7 +23,7 @@ function auto_redir(App $a, $contact_nick) {
 		//
 		// We also have to make sure that I'm a legitimate contact--I'm not blocked or pending.
 
-		$baseurl = App::get_baseurl();
+		$baseurl = System::baseUrl();
 		$domain_st = strpos($baseurl, "://");
 		if ($domain_st === false)
 			return;

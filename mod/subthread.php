@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once('include/security.php');
 require_once('include/bbcode.php');
@@ -88,7 +89,7 @@ function subthread_content(App $a) {
 
 	$post_type = (($item['resource-id']) ? t('photo') : t('status'));
 	$objtype = (($item['resource-id']) ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE );
-	$link = xmlify('<link rel="alternate" type="text/html" href="' . App::get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
+	$link = xmlify('<link rel="alternate" type="text/html" href="' . System::baseUrl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
 	$body = $item['body'];
 
 	$obj = <<< EOT
@@ -130,7 +131,7 @@ EOT;
 
 	$ulink = '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
 	$alink = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
-	$plink = '[url=' . App::get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . ']' . $post_type . '[/url]';
+	$plink = '[url=' . System::baseUrl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . ']' . $post_type . '[/url]';
 	$arr['body'] =  sprintf( $bodyverb, $ulink, $alink, $plink );
 
 	$arr['verb'] = $activity;

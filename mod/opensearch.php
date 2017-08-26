@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function opensearch_content(App $a) {
 
@@ -9,7 +10,7 @@ function opensearch_content(App $a) {
 	header("Content-type: application/opensearchdescription+xml");
 
 	$o = replace_macros($tpl, array(
-		'$baseurl' => App::get_baseurl(),
+		'$baseurl' => System::baseUrl(),
 		'$nodename' => $a->get_hostname(),
 	));
 

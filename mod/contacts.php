@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 use Friendica\Network\Probe;
 
 require_once 'include/Contact.php';
@@ -84,16 +85,16 @@ function contacts_init(App $a) {
 		'$networks_widget' => $networks_widget
 	));
 
-	$base = z_root();
+	$base = System::baseUrl();
 	$tpl = get_markup_template("contacts-head.tpl");
 	$a->page['htmlhead'] .= replace_macros($tpl,array(
-		'$baseurl' => App::get_baseurl(true),
+		'$baseurl' => System::baseUrl(true),
 		'$base' => $base
 	));
 
 	$tpl = get_markup_template("contacts-end.tpl");
 	$a->page['end'] .= replace_macros($tpl,array(
-		'$baseurl' => App::get_baseurl(true),
+		'$baseurl' => System::baseUrl(true),
 		'$base' => $base
 	));
 
@@ -493,10 +494,10 @@ function contacts_content(App $a) {
 		$contact = $a->data['contact'];
 
 		$a->page['htmlhead'] .= replace_macros(get_markup_template('contact_head.tpl'), array(
-			'$baseurl' => App::get_baseurl(true),
+			'$baseurl' => System::baseUrl(true),
 		));
 		$a->page['end'] .= replace_macros(get_markup_template('contact_end.tpl'), array(
-			'$baseurl' => App::get_baseurl(true),
+			'$baseurl' => System::baseUrl(true),
 		));
 
 		require_once 'include/contact_selectors.php';
@@ -575,7 +576,7 @@ function contacts_content(App $a) {
 
 		if (in_array($contact['network'], array(NETWORK_DIASPORA, NETWORK_OSTATUS)) &&
 			($contact['rel'] == CONTACT_IS_FOLLOWER))
-			$follow = App::get_baseurl(true)."/follow?url=".urlencode($contact["url"]);
+			$follow = System::baseUrl(true)."/follow?url=".urlencode($contact["url"]);
 
 		// Load contactact related actions like hide, suggest, delete and others
 		$contact_actions = contact_actions($contact);
@@ -801,7 +802,7 @@ function contacts_content(App $a) {
 
 	$tpl = get_markup_template("contacts-template.tpl");
 	$o .= replace_macros($tpl, array(
-		'$baseurl' => z_root(),
+		'$baseurl' => System::baseUrl(),
 		'$header' => t('Contacts') . (($nets) ? ' - ' . network_to_name($nets) : ''),
 		'$tabs' => $t,
 		'$total' => $total,

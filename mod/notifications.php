@@ -6,6 +6,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once("include/NotificationsManager.php");
 require_once("include/contact_selectors.php");
@@ -14,7 +15,7 @@ require_once("include/network.php");
 function notifications_post(App $a) {
 
 	if (! local_user()) {
-		goaway(z_root());
+		goaway(System::baseUrl());
 	}
 
 	$request_id = (($a->argc > 1) ? $a->argv[1] : 0);

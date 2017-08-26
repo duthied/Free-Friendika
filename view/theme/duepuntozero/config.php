@@ -5,6 +5,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function theme_content(App $a) {
 	if (!local_user()) {
@@ -62,7 +63,7 @@ function clean_form(App $a, &$colorset, $user) {
 	/// @TODO No need for adding string here, $o is not defined
 	$o .= replace_macros($t, array(
 		'$submit'   => t('Submit'),
-		'$baseurl'  => App::get_baseurl(),
+		'$baseurl'  => System::baseUrl(),
 		'$title'    => t("Theme settings"),
 		'$colorset' => array('duepuntozero_colorset', t('Variations'), $color, '', $colorset),
 	));

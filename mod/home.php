@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 if(! function_exists('home_init')) {
 function home_init(App $a) {
@@ -9,11 +10,11 @@ function home_init(App $a) {
 	call_hooks('home_init',$ret);
 
 	if (local_user() && ($a->user['nickname'])) {
-		goaway(App::get_baseurl()."/network");
+		goaway(System::baseUrl()."/network");
 	}
 
 	if (strlen(get_config('system','singleuser'))) {
-		goaway(App::get_baseurl()."/profile/" . get_config('system','singleuser'));
+		goaway(System::baseUrl()."/profile/" . get_config('system','singleuser'));
 	}
 
 }}
@@ -33,7 +34,7 @@ function home_content(App $a) {
 	/// @TODO No absolute path used, maybe risky (security)
 	if (file_exists('home.html')) {
 		if (file_exists('home.css')) {
-			$a->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="'.App::get_baseurl().'/home.css'.'" media="all" />';
+			$a->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="'.System::baseUrl().'/home.css'.'" media="all" />';
 		}
 
 		$o .= file_get_contents('home.html');

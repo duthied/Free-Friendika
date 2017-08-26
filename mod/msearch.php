@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function msearch_post(App $a) {
 
@@ -31,8 +32,8 @@ function msearch_post(App $a) {
 		foreach($r as $rr)
 			$results[] = array(
 				'name' => $rr['name'],
-				'url' => App::get_baseurl() . '/profile/' . $rr['nickname'],
-				'photo' => App::get_baseurl() . '/photo/avatar/' . $rr['uid'] . '.jpg',
+				'url' => System::baseUrl() . '/profile/' . $rr['nickname'],
+				'photo' => System::baseUrl() . '/photo/avatar/' . $rr['uid'] . '.jpg',
 				'tags' => str_replace(array(',','  '),array(' ',' '),$rr['pub_keywords'])
 			);
 	}

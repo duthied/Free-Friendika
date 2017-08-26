@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function hcard_init(App $a) {
 
@@ -43,14 +44,14 @@ function hcard_init(App $a) {
 	}
 
 	$a->page['htmlhead'] .= '<meta name="dfrn-global-visibility" content="' . (($a->profile['net-publish']) ? 'true' : 'false') . '" />' . "\r\n" ;
-	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . App::get_baseurl() . '/dfrn_poll/' . $which .'" />' . "\r\n" ;
+	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/dfrn_poll/' . $which .'" />' . "\r\n" ;
 	$uri = urlencode('acct:' . $a->profile['nickname'] . '@' . $a->get_hostname() . (($a->path) ? '/' . $a->path : ''));
-	$a->page['htmlhead'] .= '<link rel="lrdd" type="application/xrd+xml" href="' . App::get_baseurl() . '/xrd/?uri=' . $uri . '" />' . "\r\n";
-	header('Link: <' . App::get_baseurl() . '/xrd/?uri=' . $uri . '>; rel="lrdd"; type="application/xrd+xml"', false);
+	$a->page['htmlhead'] .= '<link rel="lrdd" type="application/xrd+xml" href="' . System::baseUrl() . '/xrd/?uri=' . $uri . '" />' . "\r\n";
+	header('Link: <' . System::baseUrl() . '/xrd/?uri=' . $uri . '>; rel="lrdd"; type="application/xrd+xml"', false);
 
 	$dfrn_pages = array('request', 'confirm', 'notify', 'poll');
 	foreach ($dfrn_pages as $dfrn) {
-		$a->page['htmlhead'] .= "<link rel=\"dfrn-{$dfrn}\" href=\"".App::get_baseurl()."/dfrn_{$dfrn}/{$which}\" />\r\n";
+		$a->page['htmlhead'] .= "<link rel=\"dfrn-{$dfrn}\" href=\"".System::baseUrl()."/dfrn_{$dfrn}/{$which}\" />\r\n";
 	}
 
 }

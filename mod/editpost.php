@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once('include/acl_selectors.php');
 
@@ -36,7 +37,7 @@ function editpost_content(App $a) {
 
 	$tpl = get_markup_template('jot-header.tpl');
 	$a->page['htmlhead'] .= replace_macros($tpl, array(
-		'$baseurl' => App::get_baseurl(),
+		'$baseurl' => System::baseUrl(),
 		'$ispublic' => '&nbsp;', // t('Visible to <strong>everybody</strong>'),
 		'$geotag' => $geotag,
 		'$nickname' => $a->user['nickname']
@@ -44,7 +45,7 @@ function editpost_content(App $a) {
 
 	$tpl = get_markup_template('jot-end.tpl');
 	$a->page['end'] .= replace_macros($tpl, array(
-		'$baseurl' => App::get_baseurl(),
+		'$baseurl' => System::baseUrl(),
 		'$ispublic' => '&nbsp;', // t('Visible to <strong>everybody</strong>'),
 		'$geotag' => $geotag,
 		'$nickname' => $a->user['nickname']
@@ -118,7 +119,7 @@ function editpost_content(App $a) {
 		'$ptyp' => $itm[0]['type'],
 		'$content' => undo_post_tagging($itm[0]['body']),
 		'$post_id' => $post_id,
-		'$baseurl' => App::get_baseurl(),
+		'$baseurl' => System::baseUrl(),
 		'$defloc' => $a->user['default-location'],
 		'$visitor' => 'none',
 		'$pvisit' => 'none',

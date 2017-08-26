@@ -8,6 +8,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 $frio = "view/theme/frio";
 
@@ -20,7 +21,7 @@ function frio_init(App $a) {
 
 	set_template_engine($a, 'smarty3');
 
-	$baseurl = App::get_baseurl();
+	$baseurl = System::baseUrl();
 
 	$style = get_pconfig(local_user(), 'frio', 'style');
 

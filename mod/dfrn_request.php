@@ -13,6 +13,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 use Friendica\Network\Probe;
 
 require_once 'include/enotify.php';
@@ -53,7 +54,7 @@ function dfrn_request_post(App $a) {
 
 
 	if(x($_POST, 'cancel')) {
-		goaway(z_root());
+		goaway(System::baseUrl());
 	}
 
 
@@ -195,9 +196,9 @@ function dfrn_request_post(App $a) {
 					if (isset($photo))
 						update_contact_avatar($photo, local_user(), $r[0]["id"], true);
 
-					$forwardurl = App::get_baseurl()."/contacts/".$r[0]['id'];
+					$forwardurl = System::baseUrl()."/contacts/".$r[0]['id'];
 				} else {
-					$forwardurl = App::get_baseurl()."/contacts";
+					$forwardurl = System::baseUrl()."/contacts";
 				}
 
 				/*
@@ -225,7 +226,7 @@ function dfrn_request_post(App $a) {
  		// invalid/bogus request
 
 		notice( t('Unrecoverable protocol error.') . EOL );
-		goaway(z_root());
+		goaway(System::baseUrl());
 		return; // NOTREACHED
 	}
 
@@ -506,19 +507,19 @@ function dfrn_request_post(App $a) {
 			else {
 				if (! validate_url($url)) {
 					notice( t('Invalid profile URL.') . EOL);
-					goaway(App::get_baseurl() . '/' . $a->cmd);
+					goaway(System::baseUrl() . '/' . $a->cmd);
 					return; // NOTREACHED
 				}
 
 				if (! allowed_url($url)) {
 					notice( t('Disallowed profile URL.') . EOL);
-					goaway(App::get_baseurl() . '/' . $a->cmd);
+					goaway(System::baseUrl() . '/' . $a->cmd);
 					return; // NOTREACHED
 				}
 
 				if (blocked_url($url)) {
 					notice( t('Blocked domain') . EOL);
-					goaway(App::get_baseurl() . '/' . $a->cmd);
+					goaway(System::baseUrl() . '/' . $a->cmd);
 					return; // NOTREACHED
 				}
 
@@ -526,7 +527,7 @@ function dfrn_request_post(App $a) {
 
 				if (! count($parms)) {
 					notice( t('Profile location is not valid or does not contain profile information.') . EOL );
-					goaway(App::get_baseurl() . '/' . $a->cmd);
+					goaway(System::baseUrl() . '/' . $a->cmd);
 				}
 				else {
 					if (! x($parms,'fn')) {
@@ -616,7 +617,7 @@ function dfrn_request_post(App $a) {
 
 			// "Homecoming" - send the requestor back to their site to record the introduction.
 
-			$dfrn_url = bin2hex(App::get_baseurl() . '/profile/' . $nickname);
+			$dfrn_url = bin2hex(System::baseUrl() . '/profile/' . $nickname);
 			$aes_allow = ((function_exists('openssl_encrypt')) ? 1 : 0);
 
 			goaway($parms['dfrn-request'] . "?dfrn_url=$dfrn_url"
@@ -645,7 +646,7 @@ function dfrn_request_post(App $a) {
 
 				$uri = urlencode($uri);
 			} else {
-				$uri = App::get_baseurl().'/profile/'.$nickname;
+				$uri = System::baseUrl().'/profile/'.$nickname;
 			}
 
 			$url = str_replace('{uri}', $uri, $url);
@@ -755,7 +756,7 @@ function dfrn_request_content(App $a) {
 						'to_name'      => $r[0]['username'],
 						'to_email'     => $r[0]['email'],
 						'uid'          => $r[0]['uid'],
-						'link'         => App::get_baseurl() . '/notifications/intros',
+						'link'         => System::baseUrl() . '/notifications/intros',
 						'source_name'  => ((strlen(stripslashes($r[0]['name']))) ? stripslashes($r[0]['name']) : t('[Name Withheld]')),
 						'source_link'  => $r[0]['url'],
 						'source_photo' => $r[0]['photo'],
@@ -819,16 +820,16 @@ function dfrn_request_content(App $a) {
 			$myaddr = $_GET['address'];
 		} elseif (local_user()) {
 			if (strlen($a->path)) {
-				$myaddr = App::get_baseurl() . '/profile/' . $a->user['nickname'];
+				$myaddr = System::baseUrl() . '/profile/' . $a->user['nickname'];
 			} else {
-				$myaddr = $a->user['nickname'] . '@' . substr(z_root(), strpos(z_root(),'://') + 3 );
+				$myaddr = $a->user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(),'://') + 3 );
 			}
 		} else {
 			// last, try a zrl
 			$myaddr = get_my_url();
 		}
 
-		$target_addr = $a->profile['nickname'] . '@' . substr(z_root(), strpos(z_root(),'://') + 3 );
+		$target_addr = $a->profile['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(),'://') + 3 );
 
 
 		/*

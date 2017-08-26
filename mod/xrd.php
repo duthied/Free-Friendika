@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once('include/crypto.php');
 
@@ -36,14 +37,14 @@ function xrd_init(App $a) {
 
 	$tpl = get_markup_template('xrd_diaspora.tpl');
 	$dspr = replace_macros($tpl,array(
-		'$baseurl' => App::get_baseurl(),
+		'$baseurl' => System::baseUrl(),
 		'$dspr_guid' => $r['guid'],
 		'$dspr_key' => base64_encode(pemtorsa($r['pubkey']))
 	));
 
 	$tpl = get_markup_template('xrd_person.tpl');
 
-	$profile_url = App::get_baseurl().'/profile/'.$r['nickname'];
+	$profile_url = System::baseUrl().'/profile/'.$r['nickname'];
 
 	if ($acct) {
 		$alias = $profile_url;
@@ -61,15 +62,15 @@ function xrd_init(App $a) {
 		'$accturi'     => $uri,
 		'$alias'       => $alias,
 		'$profile_url' => $profile_url,
-		'$hcard_url'   => App::get_baseurl() . '/hcard/'         . $r['nickname'],
-		'$atom'        => App::get_baseurl() . '/dfrn_poll/'     . $r['nickname'],
-		'$zot_post'    => App::get_baseurl() . '/post/'          . $r['nickname'],
-		'$poco_url'    => App::get_baseurl() . '/poco/'          . $r['nickname'],
-		'$photo'       => App::get_baseurl() . '/photo/profile/' . $r['uid']      . '.jpg',
+		'$hcard_url'   => System::baseUrl() . '/hcard/'         . $r['nickname'],
+		'$atom'        => System::baseUrl() . '/dfrn_poll/'     . $r['nickname'],
+		'$zot_post'    => System::baseUrl() . '/post/'          . $r['nickname'],
+		'$poco_url'    => System::baseUrl() . '/poco/'          . $r['nickname'],
+		'$photo'       => System::baseUrl() . '/photo/profile/' . $r['uid']      . '.jpg',
 		'$dspr'        => $dspr,
-		'$salmon'      => App::get_baseurl() . '/salmon/'        . $r['nickname'],
-		'$salmen'      => App::get_baseurl() . '/salmon/'        . $r['nickname'] . '/mention',
-		'$subscribe'   => App::get_baseurl() . '/follow?url={uri}',
+		'$salmon'      => System::baseUrl() . '/salmon/'        . $r['nickname'],
+		'$salmen'      => System::baseUrl() . '/salmon/'        . $r['nickname'] . '/mention',
+		'$subscribe'   => System::baseUrl() . '/follow?url={uri}',
 		'$modexp'      => 'data:application/magic-public-key,'  . $salmon_key,
 		'$bigkey'      => salmon_key($r['pubkey']),
 	));

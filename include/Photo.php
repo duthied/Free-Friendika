@@ -5,6 +5,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once("include/photos.php");
 
@@ -857,9 +858,9 @@ function import_profile_photo($photo, $uid, $cid, $quit_on_error = false) {
 
 		$suffix = '?ts='.time();
 
-		$photo = App::get_baseurl() . '/photo/' . $hash . '-4.' . $img->getExt() . $suffix;
-		$thumb = App::get_baseurl() . '/photo/' . $hash . '-5.' . $img->getExt() . $suffix;
-		$micro = App::get_baseurl() . '/photo/' . $hash . '-6.' . $img->getExt() . $suffix;
+		$photo = System::baseUrl() . '/photo/' . $hash . '-4.' . $img->getExt() . $suffix;
+		$thumb = System::baseUrl() . '/photo/' . $hash . '-5.' . $img->getExt() . $suffix;
+		$micro = System::baseUrl() . '/photo/' . $hash . '-6.' . $img->getExt() . $suffix;
 
 		// Remove the cached photo
 		$a = get_app();
@@ -888,9 +889,9 @@ function import_profile_photo($photo, $uid, $cid, $quit_on_error = false) {
 	}
 
 	if ($photo_failure) {
-		$photo = App::get_baseurl() . '/images/person-175.jpg';
-		$thumb = App::get_baseurl() . '/images/person-80.jpg';
-		$micro = App::get_baseurl() . '/images/person-48.jpg';
+		$photo = System::baseUrl() . '/images/person-175.jpg';
+		$thumb = System::baseUrl() . '/images/person-80.jpg';
+		$micro = System::baseUrl() . '/images/person-48.jpg';
 	}
 
 	return(array($photo,$thumb,$micro));
@@ -1079,18 +1080,18 @@ function store_photo(App $a, $uid, $imagedata = "", $url = "") {
 		return(array());
 	}
 
-	$image = array("page" => App::get_baseurl().'/photos/'.$page_owner_nick.'/image/'.$hash,
-			"full" => App::get_baseurl()."/photo/{$hash}-0.".$ph->getExt());
+	$image = array("page" => System::baseUrl().'/photos/'.$page_owner_nick.'/image/'.$hash,
+			"full" => System::baseUrl()."/photo/{$hash}-0.".$ph->getExt());
 
 	if ($width > 800 || $height > 800) {
-		$image["large"] = App::get_baseurl()."/photo/{$hash}-0.".$ph->getExt();
+		$image["large"] = System::baseUrl()."/photo/{$hash}-0.".$ph->getExt();
 	}
 
 	if ($width > 640 || $height > 640) {
 		$ph->scaleImage(640);
 		$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 1, 0, $defperm);
 		if ($r) {
-			$image["medium"] = App::get_baseurl()."/photo/{$hash}-1.".$ph->getExt();
+			$image["medium"] = System::baseUrl()."/photo/{$hash}-1.".$ph->getExt();
 		}
 	}
 
@@ -1098,7 +1099,7 @@ function store_photo(App $a, $uid, $imagedata = "", $url = "") {
 		$ph->scaleImage(320);
 		$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 2, 0, $defperm);
 		if ($r) {
-			$image["small"] = App::get_baseurl()."/photo/{$hash}-2.".$ph->getExt();
+			$image["small"] = System::baseUrl()."/photo/{$hash}-2.".$ph->getExt();
 		}
 	}
 
@@ -1123,7 +1124,7 @@ function store_photo(App $a, $uid, $imagedata = "", $url = "") {
 
 		$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 3, 0, $defperm);
 		if ($r) {
-			$image["thumb"] = App::get_baseurl()."/photo/{$hash}-3.".$ph->getExt();
+			$image["thumb"] = System::baseUrl()."/photo/{$hash}-3.".$ph->getExt();
 		}
 	}
 

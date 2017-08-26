@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function filerm_content(App $a) {
 
@@ -25,7 +26,7 @@ function filerm_content(App $a) {
 	}
 
 	if (x($_SESSION,'return_url')) {
-		goaway(App::get_baseurl() . '/' . $_SESSION['return_url']);
+		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
 	}
 
 	killme();
