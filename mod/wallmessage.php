@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use \Friendica\Core\System;
 
 require_once('include/message.php');
 
@@ -111,14 +112,14 @@ function wallmessage_content(App $a) {
 
 	$tpl = get_markup_template('wallmsg-header.tpl');
 	$a->page['htmlhead'] .= replace_macros($tpl, array(
-		'$baseurl' => $a->get_baseurl(true),
+		'$baseurl' => System::baseUrl(true),
 		'$nickname' => $user['nickname'],
 		'$linkurl' => t('Please enter a link URL:')
 	));
 
 	$tpl = get_markup_template('wallmsg-end.tpl');
 	$a->page['end'] .= replace_macros($tpl, array(
-		'$baseurl' => $a->get_baseurl(true),
+		'$baseurl' => System::baseUrl(true),
 		'$nickname' => $user['nickname'],
 		'$linkurl' => t('Please enter a link URL:')
 	));
