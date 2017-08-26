@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 /**
  * @brief Calculate the hash that is needed for the "Friendica" cookie

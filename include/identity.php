@@ -4,6 +4,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once 'include/ForumManager.php';
 require_once 'include/bbcode.php';

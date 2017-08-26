@@ -8,6 +8,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function quattro_init(App $a) {
 	$a->page['htmlhead'] .= '<script src="'.App::get_baseurl().'/view/theme/quattro/tinycon.min.js"></script>';

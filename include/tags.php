@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function create_tags_from_item($itemid) {
 	$profile_base = App::get_baseurl();

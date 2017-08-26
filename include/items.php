@@ -5,6 +5,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 use Friendica\ParseUrl;
 use Friendica\Util\Lock;
 use Friendica\Core\Config;

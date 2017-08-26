@@ -9,6 +9,7 @@ namespace Friendica\Network;
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 use Friendica\Core\Config;
 
 use dbm;

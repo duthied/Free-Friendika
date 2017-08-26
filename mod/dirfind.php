@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once 'include/contact_widgets.php';
 require_once 'include/probe.php';

@@ -2,6 +2,7 @@
 // Based upon "Privacy Image Cache" by Tobias Hößl <https://github.com/CatoTH/>
 
 use Friendica\App;
+use Friendica\Core\System;
 
 define('PROXY_DEFAULT_TIME', 86400); // 1 Day
 

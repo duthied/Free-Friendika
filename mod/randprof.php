@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function randprof_init(App $a) {
 	require_once('include/Contact.php');

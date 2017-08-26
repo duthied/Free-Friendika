@@ -5,6 +5,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function theme_content(App $a) {
 	if (!local_user()) {

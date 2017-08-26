@@ -10,6 +10,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function frost_init(App $a) {
 	$a->videowidth = 400;

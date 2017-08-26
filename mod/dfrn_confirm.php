@@ -19,6 +19,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 use Friendica\Network\Probe;
 
 require_once 'include/enotify.php';

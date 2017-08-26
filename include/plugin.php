@@ -6,6 +6,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 /**
  * @brief uninstalls an addon.

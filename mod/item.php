@@ -16,6 +16,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 require_once 'include/crypto.php';
 require_once 'include/enotify.php';

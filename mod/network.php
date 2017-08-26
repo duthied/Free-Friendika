@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function network_init(App $a) {
 	if (! local_user()) {

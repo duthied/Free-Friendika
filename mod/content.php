@@ -16,6 +16,7 @@
 // and 10-20 milliseconds to fetch all the child items.
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function content_content(App $a, $update = 0) {
 

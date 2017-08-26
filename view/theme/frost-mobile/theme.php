@@ -10,6 +10,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function frost_mobile_init(App $a) {
 	$a->sourcename = 'Friendica mobile web';

@@ -11,6 +11,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 
 function smoothly_init(App $a) {
 	set_template_engine($a, 'smarty3');
