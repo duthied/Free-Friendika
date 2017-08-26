@@ -666,7 +666,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	}
 
 	if (($arr['author-link'] == "") && ($arr['owner-link'] == "")) {
-		logger("Both author-link and owner-link are empty. Called by: " . App::callstack(), LOGGER_DEBUG);
+		logger("Both author-link and owner-link are empty. Called by: " . System::callstack(), LOGGER_DEBUG);
 	}
 
 	if ($arr['plink'] == "") {

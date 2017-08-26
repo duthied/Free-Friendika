@@ -1650,7 +1650,7 @@ class ostatus {
 	 *
 	 * @return string activity
 	 */
-	function construct_verb($item) {
+	private static function construct_verb($item) {
 		if ($item['verb'])
 			return $item['verb'];
 		return ACTIVITY_POST;
@@ -1663,7 +1663,7 @@ class ostatus {
 	 *
 	 * @return string Object type
 	 */
-	function construct_objecttype($item) {
+	private static function construct_objecttype($item) {
 		if (in_array($item['object-type'], array(ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_COMMENT)))
 			return $item['object-type'];
 		return ACTIVITY_OBJ_NOTE;

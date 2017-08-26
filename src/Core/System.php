@@ -46,9 +46,33 @@ class System {
 	 *
 	 * @return string The cleaned url
 	 */
-        function removedBaseUrl($orig_url) {
+	public static function removedBaseUrl($orig_url) {
 		self::init();
 		return self::$a->remove_baseurl($orig_url);
+	}
+
+	/**
+	 * @brief Returns a string with a callstack. Can be used for logging.
+	 *
+	 * @return string
+	 */
+	public static function callstack($depth = 4) {
+		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $depth + 2);
+
+		// We remove the first two items from the list since they contain data that we don't need.
+		array_shift($trace);
+		array_shift($trace);
+
+		$callstack = array();
+		foreach ($trace AS $func) {
+			if (!empty($func['class'])) {
+				$callstack[] = $func['class'].'::'.$func['function'];
+			} else {
+				$callstack[] = $func['function'];
+			}
+		}
+
+		return implode(', ', $callstack);
 	}
 
 	/// @todo Move the following functions from boot.php
