@@ -47,7 +47,14 @@ ACL.prototype.remove_mention = function(id) {
 		return;
 	}
 	var nick = this.data[id].nick;
-	var searchText = "@" + nick + "+" + id + " ";
+	var addr = this.data[id].addr;
+
+	if (addr != "") {
+		var searchText = "@" + addr + " ";
+	} else {
+		var searchText = "@" + nick + "+" + id + " ";
+	}
+
 	var start = this.element.val().indexOf(searchText);
 	if (start < 0) {
 		return;
@@ -61,7 +68,14 @@ ACL.prototype.add_mention = function(id) {
 		return;
 	}
 	var nick = this.data[id].nick;
-	var searchText =  "@" + nick + "+" + id + " ";
+	var addr = this.data[id].addr;
+
+	if (addr != "") {
+		var searchText = "@" + addr + " ";
+	} else {
+		var searchText = "@" + nick + "+" + id + " ";
+	}
+
 	if (this.element.val().indexOf( searchText) >= 0 ) {
 		return;
 	}
