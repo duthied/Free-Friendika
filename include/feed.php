@@ -346,11 +346,9 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 			}
 			$item["body"] = html2bbcode($body);
 
-			if ($item["body"] == "") {
-				if ($item["title"] != '') {
-					$item["body"] = $item["title"];
-					$item["title"] = '';
-				}
+			if (($item["body"] == '') && ($item["title"] != '')) {
+				$item["body"] = $item["title"];
+				$item["title"] = '';
 			}
 
 			if (!strstr($item["body"], '[url') && ($item['plink'] != '')) {
