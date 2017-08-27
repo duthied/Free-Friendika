@@ -338,12 +338,22 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 			if ($body == "") {
 				$body = trim($xpath->evaluate('atom:summary/text()', $entry)->item(0)->nodeValue);
 			}
+
 			// remove the content of the title if it is identically to the body
 			// This helps with auto generated titles e.g. from tumblr
 			if (title_is_body($item["title"], $body)) {
 				$item["title"] = "";
 			}
 			$item["body"] = html2bbcode($body);
+
+			if (($item["body"] == '') && ($item["title"] != '')) {
+				$item["body"] = $item["title"];
+				$item["title"] = '';
+			}
+
+			if (!strstr($item["body"], '[url') && ($item['plink'] != '')) {
+				$item["body"] .= "[hr][url]".$item['plink']."[/url]";
+			}
 		}
 
 		if (!$simulate) {
