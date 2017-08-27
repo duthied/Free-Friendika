@@ -1331,11 +1331,10 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 
 			$tag["url"] = best_link_url($item, $sp, $tag["url"]);
 
-			if ($orig_tag != $tag["url"]) {
-				$item['body'] = str_replace($orig_tag, $tag["url"], $item['body']);
-			}
-
 			if ($tag["type"] == TERM_HASHTAG) {
+				if ($orig_tag != $tag["url"]) {
+					$item['body'] = str_replace($orig_tag, $tag["url"], $item['body']);
+				}
 				$hashtags[] = "#<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
 				$prefix = "#";
 			} elseif ($tag["type"] == TERM_MENTION) {
