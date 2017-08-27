@@ -352,7 +352,7 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 			}
 
 			if (!strstr($item["body"], '[url') && ($item['plink'] != '')) {
-				$item["body"] .= "\n[hr]\n[url]".$item['plink']."[/url]";
+				$item["body"] .= "[hr][url]".$item['plink']."[/url]";
 			}
 		}
 
