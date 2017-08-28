@@ -2415,6 +2415,63 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
 .event-buttons .plink-event-link {
     margin-left: 20px;
 }
+
+/* Photos Pages */
+#photo-photo {
+    position: relative;
+}
+.photo-next-link, .photo-prev-link {
+    height: 64px;
+    margin-top: -32px;
+    opacity: 0;
+    position: absolute;
+    top: 50%;
+    transform: translateZ(0);
+    transition: opacity .2s;
+    /*width: 27px;*/
+    width: 100px;
+    z-index: 11;
+    font-size: 64px;
+    color: #fff;
+    text-shadow:
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
+}
+.photo-next-link > i, .photo-prev-link > i {
+    vertical-align: super;
+}
+.photo-next-link > i {
+    float: right;
+}
+.photo-prev-link {
+    left: 20px;
+}
+.photo-next-link {
+    right: 20px;
+}
+#photo-photo:hover .photo-next-link,
+#photo-photo:hover .photo-prev-link {
+    opacity: 0.4;
+}
+#photo-photo .photo-next-link:hover,
+#photo-photo .photo-prev-link:hover {
+    opacity: 1;
+    color: #fff;
+}
+.photo-comment-wrapper .comment {
+    position: relative;
+}
+.photo-comment-wrapper .wall-item-content {
+    color: #555;
+    font-size: 13px;
+}
+.photo-comment-wrapper .comment-wwedit-wrapper,
+.photo-comment-wrapper .wall-item-outside-wrapper.media:first-child {
+    margin-top: 15px;
+}
+
 /* Profiles Page */
 .profile-listing-table {
     display: table;
