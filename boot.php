@@ -947,6 +947,10 @@ function public_contact() {
  * @return int|bool visitor_id or false
  */
 function remote_user() {
+	// You cannot be both local and remote
+	if (local_user()) {
+		return false;
+	}
 	if ((x($_SESSION, 'authenticated')) && (x($_SESSION, 'visitor_id'))) {
 		return intval($_SESSION['visitor_id']);
 	}
