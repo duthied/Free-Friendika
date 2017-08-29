@@ -1425,6 +1425,7 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 					$title .= ' ' . $mtch[2] . ' ' . t('bytes');
 
 					if (($filetype == 'image') AND ($item['network'] == NETWORK_OSTATUS)) {
+						/// @todo Respect the spoiler for mastodon
 						$icon = '<img class="attached" src="'.$the_url.'" alt="" title="'.$title.'">';
 						$s .= '<br><a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attached" target="_blank" >' . $icon . '</a>';
 					} else {

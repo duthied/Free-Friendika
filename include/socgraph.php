@@ -1146,6 +1146,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 		}
 
 		// Test for Mastodon
+		$orig_version = $version;
 		$serverret = z_fetch_url($server_url."/api/v1/instance");
 		if ($serverret["success"] && ($serverret["body"] != '')) {
 			$data = json_decode($serverret["body"]);
@@ -1156,6 +1157,9 @@ function poco_check_server($server_url, $network = "", $force = false) {
 				$info = $data->description;
 				$network = NETWORK_OSTATUS;
 			}
+		}
+		if (strstr($orig_version, 'Pleroma')) {
+			$platform = 'Pleroma';
 		}
 	}
 
@@ -1169,7 +1173,9 @@ function poco_check_server($server_url, $network = "", $force = false) {
 				$version = $data->version;
 				$network = NETWORK_DIASPORA;
 			}
-			$site_name = $data->site_name;
+			if (!empty($data->site_name)) {
+				$site_name = $data->site_name;
+			}
 			switch ($data->register_policy) {
 				case "REGISTER_OPEN":
 					$register_policy = REGISTER_OPEN;
@@ -1249,9 +1255,11 @@ function poco_check_server($server_url, $network = "", $force = false) {
 				$version = preg_replace("=(.+)-(.{4,})=ism", "$1", $version);
 			}
 
-			$site_name = $data->name;
+			if (!empty($data->name)) {
+				$site_name = $data->name;
+			}
 
-			if (isset($data->network)) {
+			if (!empty($data->network)) {
 				$platform = $data->network;
 			}
 
