@@ -1139,39 +1139,41 @@ class Probe {
 			$data["addr"] = str_replace('acct:', '', $webfinger["subject"]);
 		}
 		$pubkey = "";
-		foreach ($webfinger["links"] as $link) {
-			if (($link["rel"] == "http://webfinger.net/rel/profile-page")
-				&& ($link["type"] == "text/html")
-				&& ($link["href"] != "")
-			) {
-				$data["url"] = $link["href"];
-			} elseif (($link["rel"] == "salmon") && ($link["href"] != "")) {
-				$data["notify"] = $link["href"];
-			} elseif (($link["rel"] == NAMESPACE_FEED) && ($link["href"] != "")) {
-				$data["poll"] = $link["href"];
-			} elseif (($link["rel"] == "magic-public-key") && ($link["href"] != "")) {
-				$pubkey = $link["href"];
+		if (is_array($webfinger["links"])) {
+			foreach ($webfinger["links"] as $link) {
+				if (($link["rel"] == "http://webfinger.net/rel/profile-page")
+					&& ($link["type"] == "text/html")
+					&& ($link["href"] != "")
+				) {
+					$data["url"] = $link["href"];
+				} elseif (($link["rel"] == "salmon") && ($link["href"] != "")) {
+					$data["notify"] = $link["href"];
+				} elseif (($link["rel"] == NAMESPACE_FEED) && ($link["href"] != "")) {
+					$data["poll"] = $link["href"];
+				} elseif (($link["rel"] == "magic-public-key") && ($link["href"] != "")) {
+					$pubkey = $link["href"];
 
-				if (substr($pubkey, 0, 5) === 'data:') {
-					if (strstr($pubkey, ',')) {
-						$pubkey = substr($pubkey, strpos($pubkey, ',') + 1);
-					} else {
-						$pubkey = substr($pubkey, 5);
+					if (substr($pubkey, 0, 5) === 'data:') {
+						if (strstr($pubkey, ',')) {
+							$pubkey = substr($pubkey, strpos($pubkey, ',') + 1);
+						} else {
+							$pubkey = substr($pubkey, 5);
+						}
+					} elseif (normalise_link($pubkey) == 'http://') {
+						$ret = z_fetch_url($pubkey);
+						if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+							return false;
+						}
+						$pubkey = $ret['body'];
 					}
-				} elseif (normalise_link($pubkey) == 'http://') {
-					$ret = z_fetch_url($pubkey);
-					if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
-						return false;
+
+					$key = explode(".", $pubkey);
+
+					if (sizeof($key) >= 3) {
+						$m = base64url_decode($key[1]);
+						$e = base64url_decode($key[2]);
+						$data["pubkey"] = metopem($m, $e);
 					}
-					$pubkey = $ret['body'];
-				}
-
-				$key = explode(".", $pubkey);
-
-				if (sizeof($key) >= 3) {
-					$m = base64url_decode($key[1]);
-					$e = base64url_decode($key[2]);
-					$data["pubkey"] = metopem($m, $e);
 				}
 			}
 		}
