@@ -238,7 +238,7 @@
 		</div>
 		<div class="pull-right">
 			<ul class="nav navbar-nav navbar-right">
-				<li><a href="register" data-toggle="tooltip" title="{{$nav.register.3}}"><i class="fa fa-street-view fa-fw"></i></a></li>
+				{{if $nav.register}}<li><a href="register" data-toggle="tooltip" title="{{$nav.register.3}}"><i class="fa fa-street-view fa-fw"></i></a></li>{{/if}}
 				<li>
 					<a href="login?mode=none" id="nav-login"
 						data-toggle="tooltip" title="{{$nav.login.3}}">
