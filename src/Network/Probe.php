@@ -392,16 +392,25 @@ class Probe {
 						'about' => $data['about'],
 						'notify' => $data['notify'],
 						'network' => $data['network'],
-						'server_url' => $data['baseurl'],
-						'updated' => dbm::date());
+						'server_url' => $data['baseurl']);
+
+				$fieldnames = array();
 
 				foreach ($fields AS $key => $val) {
 					if (empty($val)) {
 						unset($fields[$key]);
+					} else {
+						$fieldnames[] = $key;
 					}
 				}
 
-				dba::update('gcontact', $fields, array('nurl' => normalise_link($data["url"])));
+				$fields['updated'] = dbm::date();
+
+				$condition = array('nurl' => normalise_link($data["url"]));
+
+				$old_fields = dba::select('gcontact', $fieldnames, $condition, array('limit' => 1));
+
+				dba::update('gcontact', $fields, $condition, $old_fields);
 
 				$fields = array('name' => $data['name'],
 						'nick' => $data['nick'],
@@ -420,14 +429,21 @@ class Probe {
 						'network' => $data['network'],
 						'success_update' => dbm::date());
 
+				$fieldnames = array();
+
 				foreach ($fields AS $key => $val) {
 					if (empty($val)) {
 						unset($fields[$key]);
+					} else {
+						$fieldnames[] = $key;
 					}
 				}
 
 				$condition = array('nurl' => normalise_link($data["url"]), 'self' => false, 'uid' => 0);
-				dba::update('contact', $fields, $condition);
+
+				$old_fields = dba::select('contact', $fieldnames, $condition, array('limit' => 1));
+
+				dba::update('contact', $fields, $condition, $old_fields);
 			}
 		}
 

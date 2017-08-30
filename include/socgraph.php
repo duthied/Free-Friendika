@@ -2200,6 +2200,10 @@ function update_gcontact($contact) {
 		$contact["updated"] = dbm::date();
 	}
 
+	if ($contact["network"] == NETWORK_TWITTER) {
+		$contact["server_url"] = 'http://twitter.com';
+	}
+
 	if ($contact["server_url"] == "") {
 		$data = Probe::uri($contact["url"]);
 		if ($data["network"] != NETWORK_PHANTOM) {
