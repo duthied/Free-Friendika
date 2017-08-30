@@ -4,7 +4,8 @@
  
     <hm:Host>{{$zhost}}</hm:Host>
  
-    <Link rel='lrdd' type='application/xrd+xml' template='{{$domain}}/xrd/?uri={uri}' />
+    <Link rel='lrdd' type='application/xrd+xml' template='{{$domain}}/xrd?uri={uri}' />
+    <Link rel='lrdd' type='application/json' template='{{$domain}}/.well-known/webfinger?resource={uri}' />
     <Link rel='acct-mgmt' href='{{$domain}}/amcd' />
     <Link rel='http://services.mozilla.com/amcd/0.1' href='{{$domain}}/amcd' />
 	<Link rel="http://oexchange.org/spec/0.8/rel/resident-target" type="application/xrd+xml" 
