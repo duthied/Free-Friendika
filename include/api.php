@@ -1818,7 +1818,7 @@ $called_api = null;
 			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
 				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 			WHERE `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-			AND NOT `item`.`private` AND `item`.`allow_cid` = '' AND `item`.`allow`.`gid` = ''
+			AND NOT `item`.`private` AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = ''
 			AND `item`.`deny_cid` = '' AND `item`.`deny_gid` = ''
 			$sql_extra
 			AND `item`.`id`=%d",
