@@ -2201,21 +2201,9 @@ function update_gcontact($contact) {
 	}
 
 	if ($contact["server_url"] == "") {
-		$server_url = $contact["url"];
-
-		$server_url = matching_url($server_url, $contact["alias"]);
-		if ($server_url != "") {
-			$contact["server_url"] = $server_url;
-		}
-
-		$server_url = matching_url($server_url, $contact["photo"]);
-		if ($server_url != "") {
-			$contact["server_url"] = $server_url;
-		}
-
-		$server_url = matching_url($server_url, $contact["notify"]);
-		if ($server_url != "") {
-			$contact["server_url"] = $server_url;
+		$data = Probe::uri($contact["url"]);
+		if ($data["network"] != NETWORK_PHANTOM) {
+			$contact["server_url"] = $data['baseurl'];
 		}
 	} else {
 		$contact["server_url"] = normalise_link($contact["server_url"]);
