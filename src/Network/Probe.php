@@ -12,6 +12,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 
+use dba;
 use dbm;
 use Cache;
 use xml;
@@ -381,19 +382,68 @@ class Probe {
 				&& $data["addr"]
 				&& $data["poll"]
 			) {
-				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `url` = '%s', `addr` = '%s',
-						`notify` = '%s', `poll` = '%s', `alias` = '%s', `success_update` = '%s'
-					WHERE `nurl` = '%s' AND NOT `self` AND `uid` = 0",
-					dbesc($data["name"]),
-					dbesc($data["nick"]),
-					dbesc($data["url"]),
-					dbesc($data["addr"]),
-					dbesc($data["notify"]),
-					dbesc($data["poll"]),
-					dbesc($data["alias"]),
-					dbesc(datetime_convert()),
-					dbesc(normalise_link($data['url']))
-				);
+				$fields = array('name' => $data['name'],
+						'nick' => $data['nick'],
+						'url' => $data['url'],
+						'addr' => $data['addr'],
+						'photo' => $data['photo'],
+						'keywords' => $data['keywords'],
+						'location' => $data['location'],
+						'about' => $data['about'],
+						'notify' => $data['notify'],
+						'network' => $data['network'],
+						'server_url' => $data['baseurl']);
+
+				$fieldnames = array();
+
+				foreach ($fields AS $key => $val) {
+					if (empty($val)) {
+						unset($fields[$key]);
+					} else {
+						$fieldnames[] = $key;
+					}
+				}
+
+				$fields['updated'] = dbm::date();
+
+				$condition = array('nurl' => normalise_link($data["url"]));
+
+				$old_fields = dba::select('gcontact', $fieldnames, $condition, array('limit' => 1));
+
+				dba::update('gcontact', $fields, $condition, $old_fields);
+
+				$fields = array('name' => $data['name'],
+						'nick' => $data['nick'],
+						'url' => $data['url'],
+						'addr' => $data['addr'],
+						'alias' => $data['alias'],
+						'keywords' => $data['keywords'],
+						'location' => $data['location'],
+						'about' => $data['about'],
+						'batch' => $data['batch'],
+						'notify' => $data['notify'],
+						'poll' => $data['poll'],
+						'request' => $data['request'],
+						'confirm' => $data['confirm'],
+						'poco' => $data['poco'],
+						'network' => $data['network'],
+						'success_update' => dbm::date());
+
+				$fieldnames = array();
+
+				foreach ($fields AS $key => $val) {
+					if (empty($val)) {
+						unset($fields[$key]);
+					} else {
+						$fieldnames[] = $key;
+					}
+				}
+
+				$condition = array('nurl' => normalise_link($data["url"]), 'self' => false, 'uid' => 0);
+
+				$old_fields = dba::select('contact', $fieldnames, $condition, array('limit' => 1));
+
+				dba::update('contact', $fields, $condition, $old_fields);
 			}
 		}
 
@@ -647,6 +697,10 @@ class Probe {
 			return false;
 		}
 		$data = $ret['body'];
+
+		// This is a bugfix for this issue: https://github.com/redmatrix/hubzilla/issues/851
+		// $data = str_replace('&url=', '&amp;url=', $data);
+		// we have to decide if we want to create a workaround - or we wait for an update
 
 		$xrd = parse_xml_string($data, false);
 
