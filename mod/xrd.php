@@ -106,7 +106,6 @@ function xrd_xml($a, $uri, $alias, $profile_url, $r) {
 		'$salmen'      => System::baseUrl() . '/salmon/'        . $r['nickname'] . '/mention',
 		'$subscribe'   => System::baseUrl() . '/follow?url={uri}',
 		'$modexp'      => 'data:application/magic-public-key,'  . $salmon_key,
-		'$bigkey'      => salmon_key($r['pubkey']),
 	));
 
 	$arr = array('user' => $r, 'xml' => $o);
