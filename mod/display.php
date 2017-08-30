@@ -382,11 +382,9 @@ function display_content(App $a, $update = 0) {
 		}
 	}
 
-	$r = dba::p(item_query()." AND `item`.`uid` = ?
-		AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = ?)
+	$r = dba::p(item_query()."AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = ?)
 		$sql_extra
 		ORDER BY `parent` DESC, `gravity` ASC, `id` ASC",
-		$a->profile['uid'],
 		$item_id
 	);
 
@@ -484,12 +482,11 @@ function display_content(App $a, $update = 0) {
 
 		return $o;
 	}
-
 	$r = dba::fetch_first("SELECT `id`,`deleted` FROM `item` WHERE `id` = ? OR `uri` = ? LIMIT 1",
 		$item_id,
 		$item_id
 	);
-	if ($r) {
+	if (dbm::is_result($r)) {
 		if ($r['deleted']) {
 			notice(t('Item has been removed.') . EOL);
 		} else {
