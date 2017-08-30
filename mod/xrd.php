@@ -78,7 +78,7 @@ function xrd_json($a, $uri, $alias, $profile_url, $r) {
 					array('rel' => 'http://salmon-protocol.org/ns/salmon-mention', 'href' => System::baseUrl().'/salmon/'.$r['nickname'].'/mention'),
 					array('rel' => 'http://ostatus.org/schema/1.0/subscribe', 'template' => System::baseUrl().'/follow?url={uri}'),
 					array('rel' => 'magic-public-key', 'href' => 'data:application/magic-public-key,'.$salmon_key)
-));
+	));
 	echo json_encode($json);
 	killme();
 }
