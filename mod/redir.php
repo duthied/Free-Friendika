@@ -21,9 +21,12 @@ function redir_init(App $a) {
 				intval(local_user())
 			);
 
-			if (!dbm::is_result($r) || ($r[0]['network'] !== NETWORK_DFRN))
+			if (!dbm::is_result($r)) {
 				goaway(System::baseUrl());
-
+			}
+			if ($r[0]['network'] !== NETWORK_DFRN) {
+				goaway(($url != '' ? $url : $r[0]['url']));
+			}
 			$cid = $r[0]['id'];
 		} else {
 			$cid = $a->argv[1];
@@ -37,7 +40,7 @@ function redir_init(App $a) {
 				goaway(System::baseUrl());
 			}
 			if ($r[0]['network'] !== NETWORK_DFRN) {
-				goaway($r[0]['url']);
+				goaway(($url != '' ? $url : $r[0]['url']));
 			}
 		}
 
