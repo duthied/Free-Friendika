@@ -84,7 +84,7 @@ else
 		<div class="container">
 			<div class="row">
 <?php
-				if(($_REQUEST['pagename'] != "register") && ($_REQUEST['pagename'] != "lostpass") && ($_REQUEST['pagename'] != "login") && ($_SERVER['REQUEST_URI'] != "/"))
+				if(($_REQUEST['pagename'] != "lostpass") && ($_SERVER['REQUEST_URI'] != "/"))
 				{
 					echo"
 					<aside class=\"col-lg-3 col-md-3 offcanvas-sm offcanvas-xs\">

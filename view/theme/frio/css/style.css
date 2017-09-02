@@ -2679,6 +2679,15 @@ section.help-content-wrapper li {
     font-size: 0.96em;
 }
 
+/* Register Page*/
+#register-openid-wrapper, #register-name-wrapper, #register-invite-wrapper, #profile-publish-wrapper {
+    margin-top: 20px;
+}
+#register-openid-end, #register-nickname-end
+{
+    margin-top: 40px;
+}
+
 /*
 * Overwriting for transparency and other colors
 */
