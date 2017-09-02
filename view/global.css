@@ -59,12 +59,18 @@ span.connector {
   padding-bottom: 5px;
   margin-top: 10px;
 }
-.type-link:after, .type-video:after {
-    content: ".";
-    display: block;
-    height: 0;
-    clear: both;
-    visibility: hidden;
+
+.type-link:after, .type-video:after,
+.oembed.video:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
+.type-video .oembed.video:after {
+  float: left;
 }
 
 .wall-item-container .wall-item-content .type-link img,
@@ -93,6 +99,7 @@ span.connector {
   font-size: 13px;
   line-height: normal;
 }
+
 .type-link .oembed, .type-video .oembed {
   font-size: 18px;
   font-weight: 300;
@@ -121,6 +128,11 @@ span.connector {
   float: none;
 }
 
+.oembed.video .embed_video > div {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
 .embed_rich {
   display: block;
   transition: height .75s;

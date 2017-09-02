@@ -1662,6 +1662,38 @@ code > .hl-main {
 .hl-main ol {
     line-height: 1.7;
 }
+.type-link img.attachment-image {
+    width: 100%;
+}
+.type-link blockquote, .type-video blockquote {
+    margin: 0;
+    padding: 10px 0;
+}
+.oembed.video .embed_video > div::before {
+    font-family: FontAwesome;
+    font-weight: normal;
+    font-style: normal;
+    display: inline-block;
+    text-decoration: inherit;
+    vertical-align: top;
+    font-size: 3em;
+    content: "\f01d";
+    color: #fff;
+    bottom: 0px;
+    right: 10px;
+    position: absolute;
+}
+.oembed.video .embed_video > div {
+    background-color: rgba(0,0,0,0.2);
+    -webkit-transition: all 0.25s ease-in-out;
+    -moz-transition: all 0.25s ease-in-out;
+    -o-transition: all 0.25s ease-in-out;
+    -ms-transition: all 0.25s ease-in-out;
+    transition: all 0.25s ease-in-out;
+}
+.oembed.video .embed_video > div:hover {
+    background-color: rgba(0,0,0,0);
+}
 .wall-item-tags,
 .itemedited {
     margin-top: 10px;
