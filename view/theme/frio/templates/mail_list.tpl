@@ -4,8 +4,8 @@
 
 		<div class="media">
 			<div class="pull-left contact-photo-wrapper">
-				<a href="{{$from_url}}">
-					<img class="media-object" src="{{$from_photo}}" alt="{{$from_name}}" />
+				<a href="{{$from_url}}" title="{{$from_addr}}">
+					<img class="media-object" src="{{$from_photo}}" alt="{{$from_name}}" title="{{$from_addr}}" />
 				</a>
 			</div>
 			<div class="media-body">

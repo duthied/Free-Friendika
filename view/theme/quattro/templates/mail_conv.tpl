@@ -23,7 +23,7 @@
 		<div class="wall-item-actions">
 			<div class="wall-item-actions-author">
 				<a href="{{$mail.from_url}}" target="redir"
-                                class="wall-item-name-link"><span
+                                class="wall-item-name-link" title="{{$mail.from_addr}}"><span
                                 class="wall-item-name{{$mail.sparkle}}">{{$mail.from_name}}</span></a>
                                 <span class="wall-item-ago" title="{{$mail.date}}">{{$mail.ago}}</span>
 			</div>
@@ -47,7 +47,7 @@
 
 <div class="mail-conv-outside-wrapper">
 	<div class="mail-conv-sender" >
-		<a href="{{$mail.from_url}}" class="mail-conv-sender-url" ><img class="mframe mail-conv-sender-photo{{$mail.sparkle}}" src="{{$mail.from_photo}}" heigth="80" width="80" alt="{{$mail.from_name}}" /></a>
+		<a href="{{$mail.from_url}}" title="{{$mail.from_addr}}" class="mail-conv-sender-url" ><img class="mframe mail-conv-sender-photo{{$mail.sparkle}}" src="{{$mail.from_photo}}" heigth="80" width="80" alt="{{$mail.from_name}}" title="{{$mail.from_addr}}" /></a>
 	</div>
 	<div class="mail-conv-detail" >
 		<div class="mail-conv-sender-name" >{{$mail.from_name}}</div>
