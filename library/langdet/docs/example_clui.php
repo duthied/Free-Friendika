@@ -4,7 +4,7 @@
  * example usage (CLI)
  *
  * @package Text_LanguageDetect
- * @version CVS: $Id: example_clui.php 322305 2012-01-15 00:04:17Z clockwerx $
+ * @version CVS: $Id$
  */
 
 require_once 'Text/LanguageDetect.php';
