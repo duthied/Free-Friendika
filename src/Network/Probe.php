@@ -83,16 +83,13 @@ class Probe {
 	}
 
 	/**
-	 * @brief Probes for XRD data
+	 * @brief Probes for webfinger path via "host-meta"
 	 *
 	 * @param string $host The host part of an url
 	 *
-	 * @return array
-	 *      'lrdd' => Link to LRDD endpoint
-	 *      'lrdd-xml' => Link to LRDD endpoint in XML format
-	 *      'lrdd-json' => Link to LRDD endpoint in JSON format
+	 * @return array with template and type of the webfinger template for JSON or XML
 	 */
-	private static function xrd($host) {
+	private static function hostMeta($host) {
 
 		// Reset the static variable
 		self::$baseurl = '';
@@ -109,6 +106,7 @@ class Probe {
 		if ($ret['success']) {
 			$xml = $ret['body'];
 			$xrd = parse_xml_string($xml, false);
+			$host_url = 'https://'.$host;
 		}
 
 		if (!is_object($xrd)) {
@@ -119,6 +117,7 @@ class Probe {
 			}
 			$xml = $ret['body'];
 			$xrd = parse_xml_string($xml, false);
+			$host_url = 'http://'.$host;
 		}
 		if (!is_object($xrd)) {
 			logger("No xrd object found for ".$host, LOGGER_DEBUG);
@@ -131,7 +130,11 @@ class Probe {
 			return array();
 		}
 
-		$xrd_data = array();
+		$lrdd = array();
+		// The following webfinger path is defined in RFC 7033 https://tools.ietf.org/html/rfc7033
+		// Problem is that Hubzilla currently doesn't provide all data in the JSON webfinger
+		// compared to the XML webfinger. So this is commented out by now.
+		// $lrdd = array("application/jrd+json" => $host_url.'/.well-known/webfinger?resource={uri}');
 
 		foreach ($links["xrd"]["link"] as $value => $link) {
 			if (!empty($link["@attributes"])) {
@@ -142,16 +145,10 @@ class Probe {
 				continue;
 			}
 
-			if (($attributes["rel"] == "lrdd")
-				&& ($attributes["type"] == "application/xrd+xml")
-			) {
-				$xrd_data["lrdd-xml"] = $attributes["template"];
-			} elseif (($attributes["rel"] == "lrdd")
-				&& ($attributes["type"] == "application/json")
-			) {
-				$xrd_data["lrdd-json"] = $attributes["template"];
-			} elseif ($attributes["rel"] == "lrdd") {
-				$xrd_data["lrdd"] = $attributes["template"];
+			if (($attributes["rel"] == "lrdd") && !empty($attributes["template"])) {
+				$type = (empty($attributes["type"]) ? '' : $attributes["type"]);
+
+				$lrdd[$type] = $attributes["template"];
 			}
 		}
 
@@ -159,7 +156,7 @@ class Probe {
 
 		logger("Probing successful for ".$host, LOGGER_DEBUG);
 
-		return $xrd_data;
+		return $lrdd;
 	}
 
 	/**
@@ -217,7 +214,7 @@ class Probe {
 	 */
 	public static function lrdd($uri) {
 
-		$lrdd = self::xrd($uri);
+		$lrdd = self::hostMeta($uri);
 		$webfinger = null;
 
 		if (is_bool($lrdd)) {
@@ -240,7 +237,7 @@ class Probe {
 			$nick = array_pop($path_parts);
 
 			do {
-				$lrdd = self::xrd($host);
+				$lrdd = self::hostMeta($host);
 				$host .= "/".array_shift($path_parts);
 			} while (!$lrdd && (sizeof($path_parts) > 0));
 		}
@@ -250,21 +247,17 @@ class Probe {
 			return array();
 		}
 
-		foreach ($lrdd as $key => $link) {
+		foreach ($lrdd AS $type => $template) {
 			if ($webfinger) {
 				continue;
 			}
 
-			if (!in_array($key, array("lrdd", "lrdd-xml", "lrdd-json"))) {
-				continue;
-			}
-
-			$path = str_replace('{uri}', urlencode($uri), $link);
-			$webfinger = self::webfinger($path);
+			$path = str_replace('{uri}', urlencode($uri), $template);
+			$webfinger = self::webfinger($path, $type);
 
 			if (!$webfinger && (strstr($uri, "@"))) {
-				$path = str_replace('{uri}', urlencode("acct:".$uri), $link);
-				$webfinger = self::webfinger($path);
+				$path = str_replace('{uri}', urlencode("acct:".$uri), $template);
+				$webfinger = self::webfinger($path, $type);
 			}
 
 			// Special treatment for Mastodon
@@ -276,8 +269,8 @@ class Probe {
 
 				$addr = $nick."@".$host;
 
-				$path = str_replace('{uri}', urlencode("acct:".$addr), $link);
-				$webfinger = self::webfinger($path);
+				$path = str_replace('{uri}', urlencode("acct:".$addr), $template);
+				$webfinger = self::webfinger($path, $type);
 			}
 		}
 
@@ -481,7 +474,7 @@ class Probe {
 	 *
 	 * @return array fixed webfinger data
 	 */
-	private static function fixOstatus($webfinger, $lrdd) {
+	private static function fixOstatus($webfinger, $lrdd, $type) {
 		if (empty($webfinger['links']) || empty($webfinger['subject'])) {
 			return $webfinger;
 		}
@@ -504,7 +497,7 @@ class Probe {
 
 		$url = self::switchScheme($webfinger['subject']);
 		$path = str_replace('{uri}', urlencode($url), $lrdd);
-		$webfinger2 = self::webfinger($path);
+		$webfinger2 = self::webfinger($path, $type);
 
 		// Is the new webfinger detectable as OStatus?
 		if (self::ostatus($webfinger2, true)) {
@@ -537,7 +530,7 @@ class Probe {
 			if ($host == 'twitter.com') {
 				return array("network" => NETWORK_TWITTER);
 			}
-			$lrdd = self::xrd($host);
+			$lrdd = self::hostMeta($host);
 
 			if (is_bool($lrdd)) {
 				return array();
@@ -547,7 +540,7 @@ class Probe {
 
 			while (!$lrdd && (sizeof($path_parts) > 1)) {
 				$host .= "/".array_shift($path_parts);
-				$lrdd = self::xrd($host);
+				$lrdd = self::hostMeta($host);
 			}
 			if (!$lrdd) {
 				logger('No XRD data was found for '.$uri, LOGGER_DEBUG);
@@ -579,7 +572,7 @@ class Probe {
 			if (strpos($uri, '@twitter.com')) {
 				return array("network" => NETWORK_TWITTER);
 			}
-			$lrdd = self::xrd($host);
+			$lrdd = self::hostMeta($host);
 
 			if (is_bool($lrdd)) {
 				return array();
@@ -600,19 +593,17 @@ class Probe {
 
 		/// @todo Do we need the prefix "acct:" or "acct://"?
 
-		foreach ($lrdd as $key => $link) {
+		foreach ($lrdd AS $type => $template) {
 			if ($webfinger) {
 				continue;
 			}
-			if (!in_array($key, array("lrdd", "lrdd-xml", "lrdd-json"))) {
-				continue;
-			}
+
 			// At first try it with the given uri
-			$path = str_replace('{uri}', urlencode($uri), $link);
-			$webfinger = self::webfinger($path);
+			$path = str_replace('{uri}', urlencode($uri), $template);
+			$webfinger = self::webfinger($path, $type);
 
 			// Fix possible problems with GNU Social probing to wrong scheme
-			$webfinger = self::fixOstatus($webfinger, $link);
+			$webfinger = self::fixOstatus($webfinger, $template, $type);
 
 			// We cannot be sure that the detected address was correct, so we don't use the values
 			if ($webfinger && ($uri != $addr)) {
@@ -622,16 +613,17 @@ class Probe {
 
 			// Try webfinger with the address (user@domain.tld)
 			if (!$webfinger) {
-				$path = str_replace('{uri}', urlencode($addr), $link);
-				$webfinger = self::webfinger($path);
+				$path = str_replace('{uri}', urlencode($addr), $template);
+				$webfinger = self::webfinger($path, $type);
 			}
 
 			// Mastodon needs to have it with "acct:"
 			if (!$webfinger) {
-				$path = str_replace('{uri}', urlencode("acct:".$addr), $link);
-				$webfinger = self::webfinger($path);
+				$path = str_replace('{uri}', urlencode("acct:".$addr), $template);
+				$webfinger = self::webfinger($path, $type);
 			}
 		}
+
 		if (!$webfinger) {
 			return self::feed($uri);
 		}
@@ -687,33 +679,31 @@ class Probe {
 	 *
 	 * @return array webfinger data
 	 */
-	private static function webfinger($url) {
+	private static function webfinger($url, $type) {
 
 		$xrd_timeout = Config::get('system', 'xrd_timeout', 20);
 		$redirects = 0;
 
-		$ret = z_fetch_url($url, false, $redirects, array('timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml'));
-		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+		$ret = z_fetch_url($url, false, $redirects, array('timeout' => $xrd_timeout, 'accept_content' => $type));
+			if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
 		}
 		$data = $ret['body'];
 
-		// This is a bugfix for this issue: https://github.com/redmatrix/hubzilla/issues/851
-		// $data = str_replace('&url=', '&amp;url=', $data);
-		// we have to decide if we want to create a workaround - or we wait for an update
-
-		$xrd = parse_xml_string($data, false);
-
-		if (!is_object($xrd)) {
-			// If it is not XML, maybe it is JSON
-			$webfinger = json_decode($data, true);
-
+		$webfinger = json_decode($data, true);
+		if (is_array($webfinger)) {
 			if (!isset($webfinger["links"])) {
 				logger("No json webfinger links for ".$url, LOGGER_DEBUG);
 				return false;
 			}
-
 			return $webfinger;
+		}
+
+		// If it is not JSON, maybe it is XML
+		$xrd = parse_xml_string($data, false);
+		if (!is_object($xrd)) {
+			logger("No webfinger data retrievable for ".$url, LOGGER_DEBUG);
+			return false;
 		}
 
 		$xrd_arr = xml::element_to_array($xrd);
