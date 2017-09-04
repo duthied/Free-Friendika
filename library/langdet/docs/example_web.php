@@ -4,7 +4,7 @@
  * example usage (web)
  *
  * @package Text_LanguageDetect
- * @version CVS: $Id: example_web.php 205493 2006-01-18 00:26:57Z taak $
+ * @version CVS: $Id$
  */
 
 // browsers will encode multi-byte characters wrong unless they think the page is utf8-encoded
