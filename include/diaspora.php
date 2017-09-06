@@ -1013,10 +1013,15 @@ class Diaspora {
 	 * @param array $item The item array
 	 */
 	private static function fetch_guid($item) {
+		preg_replace_callback("=diaspora://.*?/([^\s\]]*)=ism",
+			function ($match) use ($item) {
+				return self::fetch_guid_sub($match, $item);
+			}, $item["body"]);
+
 		preg_replace_callback("&\[url=/posts/([^\[\]]*)\](.*)\[\/url\]&Usi",
-			function ($match) use ($item){
-				return(self::fetch_guid_sub($match, $item));
-			},$item["body"]);
+			function ($match) use ($item) {
+				return self::fetch_guid_sub($match, $item);
+			}, $item["body"]);
 	}
 
 	/**
