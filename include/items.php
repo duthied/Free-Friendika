@@ -939,6 +939,10 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		call_hooks('post_remote', $arr);
 	}
 
+	// This array field is used to trigger some automatic reactions
+	// It is mainly used in the "post_local" hook.
+	unset($arr['api_source']);
+
 	if (x($arr, 'cancel')) {
 		logger('item_store: post cancelled by plugin.');
 		return 0;
@@ -1590,6 +1594,9 @@ function item_is_remote_self($contact, &$datarray) {
 			$datarray['author-name']   = $datarray['owner-name'];
 			$datarray['author-link']   = $datarray['owner-link'];
 			$datarray['author-avatar'] = $datarray['owner-avatar'];
+
+			// Trigger automatic reactions for addons
+			$datarray['api_source'] = true;
 
 			unset($datarray['created']);
 			unset($datarray['edited']);
