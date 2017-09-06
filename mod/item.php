@@ -720,6 +720,9 @@ function item_post(App $a) {
 	$datarray['self']          = $self;
 //	$datarray['prvnets']       = $user['prvnets'];
 
+	// This triggers posts via API and the mirror functions
+	$datarray['api_source'] = $api_source;
+
 	$datarray['parent-uri'] = ($parent == 0) ? $uri : $parent_item['uri'];
 	$datarray['plink'] = System::baseUrl() . '/display/' . urlencode($datarray['guid']);
 	$datarray['last-child'] = 1;
