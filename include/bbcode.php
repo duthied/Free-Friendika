@@ -985,6 +985,10 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	// Handle Diaspora posts
 	$Text = preg_replace_callback("&\[url=/posts/([^\[\]]*)\](.*)\[\/url\]&Usi", 'bb_DiasporaLinks', $Text);
 
+	// Server independent link to posts and comments
+	// See issue: https://github.com/diaspora/diaspora_federation/issues/75
+	$Text = preg_replace("=diaspora://(.*?)/([^\s\]]*)=ism", System::baseUrl()."/display/$2", $Text);
+
 	// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
 //	if ($simplehtml != 7) {
 		if (!$forplaintext) {
