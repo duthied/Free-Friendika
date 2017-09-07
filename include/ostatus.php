@@ -352,7 +352,6 @@ class ostatus {
 			}
 
 			$item["body"] = html2bbcode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue);
-			//$item["body"] = add_page_info_to_body(html2bbcode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue));
 			$item["object-type"] = $xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue;
 			$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
 
