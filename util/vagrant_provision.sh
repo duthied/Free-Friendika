@@ -41,9 +41,7 @@ sudo chmod guo+x /usr/local/bin/vhost
 
 #Install php
 echo ">>> Installing PHP7"
-sudo apt-get install -y php libapache2-mod-php php-cli php-mysql php-curl php-gd php-mbstring
-sudo apt-get install -y imagemagick
-sudo apt-get install -y php-imagick
+sudo apt-get install -y php libapache2-mod-php php-cli php-mysql php-curl php-gd php-mbstring php-xml imagemagick php-imagick
 sudo systemctl restart apache2
 
 
@@ -83,7 +81,7 @@ cp /vagrant/util/htconfig.vagrant.php /vagrant/.htconfig.php
 # create the friendica database
 echo "create database friendica DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci" | mysql -u root -proot
 # import test database
-# $MYSQL -uroot -proot friendica < /vagrant/friendica_test_data.sql
+$MYSQL -uroot -proot friendica < /vagrant/friendica_test_data.sql
 
 # create cronjob - activate if you have enough memory in you dev VM
 # echo "*/10 * * * * cd /vagrant; /usr/bin/php include/poller.php" >> friendicacron
