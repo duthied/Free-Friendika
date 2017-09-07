@@ -351,16 +351,10 @@ class ostatus {
 				continue;
 			}
 
-			$item["body"] = add_page_info_to_body(html2bbcode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue));
+			$item["body"] = html2bbcode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue);
+			//$item["body"] = add_page_info_to_body(html2bbcode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue));
 			$item["object-type"] = $xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue;
 			$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
-
-			// Mastodon Content Warning
-			if (($item["verb"] == ACTIVITY_POST) && $xpath->evaluate('boolean(atom:summary)', $entry)) {
-				$clear_text = $xpath->query('atom:summary/text()', $entry)->item(0)->nodeValue;
-
-				$item["body"] = html2bbcode($clear_text) . '[spoiler]' . $item["body"] . '[/spoiler]';
-			}
 
 			if (($item["object-type"] == ACTIVITY_OBJ_BOOKMARK) || ($item["object-type"] == ACTIVITY_OBJ_EVENT)) {
 				$item["title"] = $xpath->query('atom:title/text()', $entry)->item(0)->nodeValue;
@@ -464,7 +458,6 @@ class ostatus {
 			}
 
 			$self = "";
-			$enclosure = "";
 
 			$links = $xpath->query('atom:link', $entry);
 			if ($links) {
@@ -488,14 +481,18 @@ class ostatus {
 								}
 								break;
 							case "enclosure":
-								$enclosure = $attribute['href'];
-								if (strlen($item["attach"])) {
-									$item["attach"] .= ',';
+								$filetype = strtolower(substr($attribute['type'], 0, strpos($attribute['type'],'/')));
+								if ($filetype == 'image') {
+									$item['body'] .= "\n[img]".$attribute['href'].'[/img]';
+								} else {
+									if (strlen($item["attach"])) {
+										$item["attach"] .= ',';
+									}
+									if (!isset($attribute['length'])) {
+										$attribute['length'] = "0";
+									}
+									$item["attach"] .= '[attach]href="'.$attribute['href'].'" length="'.$attribute['length'].'" type="'.$attribute['type'].'" title="'.$attribute['title'].'"[/attach]';
 								}
-								if (!isset($attribute['length'])) {
-									$attribute['length'] = "0";
-								}
-								$item["attach"] .= '[attach]href="'.$attribute['href'].'" length="'.$attribute['length'].'" type="'.$attribute['type'].'" title="'.$attribute['title'].'"[/attach]';
 								break;
 							case "related":
 								if ($item["object-type"] != ACTIVITY_OBJ_BOOKMARK) {
@@ -521,6 +518,18 @@ class ostatus {
 						}
 					}
 				}
+			}
+
+			// Only add additional data when there is no picture in the post
+			if (!strstr($item["body"],'[/img]')) {
+				$item["body"] = add_page_info_to_body($item["body"]);
+			}
+
+			// Mastodon Content Warning
+			if (($item["verb"] == ACTIVITY_POST) && $xpath->evaluate('boolean(atom:summary)', $entry)) {
+				$clear_text = $xpath->query('atom:summary/text()', $entry)->item(0)->nodeValue;
+
+				$item["body"] = html2bbcode($clear_text) . '[spoiler]' . $item["body"] . '[/spoiler]';
 			}
 
 			$local_id = "";
@@ -601,7 +610,6 @@ class ostatus {
 						foreach ($enclosures AS $link) {
 							$attribute = self::read_attributes($link);
 							if ($href != "") {
-								$enclosure = $attribute['href'];
 								if (strlen($item["attach"])) {
 									$item["attach"] .= ',';
 								}
@@ -614,9 +622,6 @@ class ostatus {
 					}
 				}
 			}
-
-			//if ($enclosure != "")
-			//	$item["body"] .= add_page_info($enclosure);
 
 			if (isset($item["parent-uri"])) {
 				$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s'",
