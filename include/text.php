@@ -748,7 +748,7 @@ function logger($msg, $level = 0) {
 
 	$callers = debug_backtrace();
 	$logline = sprintf("%s@%s\t[%s]:%s:%s:%s\t%s\n",
-			datetime_convert(),
+			datetime_convert('UTC', 'UTC', 'now', 'Y-m-d\TH:i:s\Z'),
 			$process_id,
 			$LOGGER_LEVELS[$level],
 			basename($callers[0]['file']),
