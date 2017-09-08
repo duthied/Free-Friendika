@@ -1182,7 +1182,7 @@ class Diaspora {
 	 * @return array the item record
 	 */
 	private static function parent_item($uid, $guid, $author, $contact) {
-		$r = q("SELECT `id`, `body`, `wall`, `uri`, `private`, `origin`,
+		$r = q("SELECT `id`, `parent`, `body`, `wall`, `uri`, `private`, `origin`,
 				`author-name`, `author-link`, `author-avatar`,
 				`owner-name`, `owner-link`, `owner-avatar`
 			FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
@@ -1776,8 +1776,16 @@ class Diaspora {
 			logger("Stored like ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
 		}
 
+		// like on comments have the comment as parent. So we need to fetch the toplevel parent
+		if ($parent_item["id"] != $parent_item["parent"]) {
+			$toplevel = dba::select('item', array('origin'), array('id' => $parent_item["parent"]), array('limit' => 1));
+			$origin = $toplevel["origin"];
+		} else {
+			$origin = $parent_item["origin"];
+		}
+
 		// If we are the origin of the parent we store the original data and notify our followers
-		if ($message_id && $parent_item["origin"]) {
+		if ($message_id && $origin) {
 
 			// Formerly we stored the signed text, the signature and the author in different fields.
 			// We now store the raw data so that we are more flexible.
