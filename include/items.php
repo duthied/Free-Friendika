@@ -1595,9 +1595,6 @@ function item_is_remote_self($contact, &$datarray) {
 			$datarray['author-link']   = $datarray['owner-link'];
 			$datarray['author-avatar'] = $datarray['owner-avatar'];
 
-			// Trigger automatic reactions for addons
-			$datarray['api_source'] = true;
-
 			unset($datarray['created']);
 			unset($datarray['edited']);
 		}
@@ -1622,6 +1619,13 @@ function item_is_remote_self($contact, &$datarray) {
 	} else {
 		$datarray["app"] = "Feed";
 	}
+
+	// Trigger automatic reactions for addons
+	$datarray['api_source'] = true;
+
+	// We have to tell the hooks who we are - this really should be improved
+	$_SESSION["authenticated"] = true;
+	$_SESSION["uid"] = $contact['uid'];
 
 	return true;
 }
