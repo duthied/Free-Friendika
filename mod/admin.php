@@ -1395,7 +1395,7 @@ function admin_page_users_post(App $a) {
 		$body = sprintf($body, System::baseUrl(), $nu['email'], $result['password'], $a->config['sitename']);
 
 		notification(array(
-			'type' => "SYSTEM_EMAIL",
+			'type' => SYSTEM_EMAIL,
 			'to_email' => $nu['email'],
 			'subject'=> sprintf(t('Registration details for %s'), $a->config['sitename']),
 			'preamble'=> $preamble,
