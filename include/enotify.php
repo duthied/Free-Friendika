@@ -46,12 +46,14 @@ function notification($params) {
 	if (empty($sender_email))
 		$sender_email = t('noreply').'@'.$hostname;
 
-	$user = dba::select('user', array('nickname', 'page-flags'),
+	if ($params['type'] != SYSTEM_EMAIL) {
+		$user = dba::select('user', array('nickname', 'page-flags'),
 			array('uid' => $params['uid']), array('limit' => 1));
 
-	// There is no need to create notifications for forum accounts
-	if (!dbm::is_result($user) || in_array($user["page-flags"], array(PAGE_COMMUNITY, PAGE_PRVGROUP))) {
-		return;
+		// There is no need to create notifications for forum accounts
+		if (!dbm::is_result($user) || in_array($user["page-flags"], array(PAGE_COMMUNITY, PAGE_PRVGROUP))) {
+			return;
+		}
 	}
 	$nickname = $user["nickname"];
 
@@ -366,7 +368,7 @@ function notification($params) {
 		}
 	}
 
-	if ($params['type'] == "SYSTEM_EMAIL") {
+	if ($params['type'] == SYSTEM_EMAIL) {
 		// not part of the notifications.
 		// it just send a mail to the user.
 		// It will be used by the system to send emails to users (like
@@ -517,7 +519,7 @@ function notification($params) {
 	// send email notification if notification preferences permit
 	if ((intval($params['notify_flags']) & intval($params['type']))
 		|| $params['type'] == NOTIFY_SYSTEM
-		|| $params['type'] == "SYSTEM_EMAIL") {
+		|| $params['type'] == SYSTEM_EMAIL) {
 
 		logger('sending notification email');
 
@@ -586,8 +588,8 @@ function notification($params) {
 		call_hooks('enotify_mail', $datarray);
 
 		// check whether sending post content in email notifications is allowed
-		// always true for "SYSTEM_EMAIL"
-		$content_allowed = ((!get_config('system', 'enotify_no_content')) || ($params['type'] == "SYSTEM_EMAIL"));
+		// always true for SYSTEM_EMAIL
+		$content_allowed = ((!get_config('system', 'enotify_no_content')) || ($params['type'] == SYSTEM_EMAIL));
 
 		// load the template for private message notifications
 		$tpl = get_markup_template('email_notify_html.tpl');

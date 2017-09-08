@@ -320,6 +320,8 @@ define ( 'NOTIFY_TAGSHARE', 0x0100 );
 define ( 'NOTIFY_POKE',     0x0200 );
 define ( 'NOTIFY_SHARE',    0x0400 );
 
+define ( 'SYSTEM_EMAIL',    0x4000 );
+
 define ( 'NOTIFY_SYSTEM',   0x8000 );
 /* @}*/
 

@@ -74,7 +74,7 @@ function update_fail($update_id, $error_message) {
 		$body = sprintf($body, $error_message);
 
 		notification(array(
-			'type' => "SYSTEM_EMAIL",
+			'type' => SYSTEM_EMAIL,
 			'to_email' => $admin['email'],
 			'preamble' => $preamble,
 			'body' => $body,
