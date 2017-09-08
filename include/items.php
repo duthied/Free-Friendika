@@ -1598,6 +1598,10 @@ function item_is_remote_self($contact, &$datarray) {
 			// Trigger automatic reactions for addons
 			$datarray['api_source'] = true;
 
+			// We have to tell the hooks who we are - this really should be improved
+			$_SESSION["authenticated"] = true;
+			$_SESSION["uid"] = $contact['uid'];
+
 			unset($datarray['created']);
 			unset($datarray['edited']);
 		}
