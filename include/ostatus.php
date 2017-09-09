@@ -458,6 +458,8 @@ class ostatus {
 
 			$self = "";
 
+			$add_body = "";
+
 			$links = $xpath->query('atom:link', $entry);
 			if ($links) {
 				foreach ($links AS $link) {
@@ -482,7 +484,7 @@ class ostatus {
 							case "enclosure":
 								$filetype = strtolower(substr($attribute['type'], 0, strpos($attribute['type'],'/')));
 								if ($filetype == 'image') {
-									$item['body'] .= "\n[img]".$attribute['href'].'[/img]';
+									$add_body .= "\n[img]".$attribute['href'].'[/img]';
 								} else {
 									if (strlen($item["attach"])) {
 										$item["attach"] .= ',';
@@ -517,18 +519,6 @@ class ostatus {
 						}
 					}
 				}
-			}
-
-			// Only add additional data when there is no picture in the post
-			if (!strstr($item["body"],'[/img]')) {
-				$item["body"] = add_page_info_to_body($item["body"]);
-			}
-
-			// Mastodon Content Warning
-			if (($item["verb"] == ACTIVITY_POST) && $xpath->evaluate('boolean(atom:summary)', $entry)) {
-				$clear_text = $xpath->query('atom:summary/text()', $entry)->item(0)->nodeValue;
-
-				$item["body"] = html2bbcode($clear_text) . '[spoiler]' . $item["body"] . '[/spoiler]';
 			}
 
 			$local_id = "";
@@ -587,7 +577,7 @@ class ostatus {
 					$item["author-link"] = $orig_author["author-link"];
 					$item["author-avatar"] = $orig_author["author-avatar"];
 
-					$item["body"] = add_page_info_to_body(html2bbcode($orig_body));
+					$item["body"] = html2bbcode($orig_body);
 					$item["created"] = $orig_created;
 					$item["edited"] = $orig_edited;
 
@@ -620,6 +610,20 @@ class ostatus {
 						}
 					}
 				}
+			}
+
+			$item["body"] .= $add_body;
+
+			// Only add additional data when there is no picture in the post
+			if (!strstr($item["body"],'[/img]')) {
+				$item["body"] = add_page_info_to_body($item["body"]);
+			}
+
+			// Mastodon Content Warning
+			if (($item["verb"] == ACTIVITY_POST) && $xpath->evaluate('boolean(atom:summary)', $entry)) {
+				$clear_text = $xpath->query('atom:summary/text()', $entry)->item(0)->nodeValue;
+
+				$item["body"] = html2bbcode($clear_text) . '[spoiler]' . $item["body"] . '[/spoiler]';
 			}
 
 			if (isset($item["parent-uri"])) {
