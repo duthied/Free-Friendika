@@ -29,9 +29,6 @@ require_once 'include/cache.php';
  *
  */
 class ostatus {
-	const OSTATUS_DEFAULT_POLL_INTERVAL = 30; // given in minutes
-	const OSTATUS_DEFAULT_POLL_TIMEFRAME = 1440; // given in minutes
-	const OSTATUS_DEFAULT_POLL_TIMEFRAME_MENTIONS = 14400; // given in minutes
 
 	private static $itemlist;
 
@@ -39,7 +36,7 @@ class ostatus {
 	 * @brief Fetches author data
 	 *
 	 * @param object $xpath The xpath object
-	 * @param object $context The xml context of the author detals
+	 * @param object $context The xml context of the author details
 	 * @param array $importer user record of the importing user
 	 * @param array $contact Called by reference, will contain the fetched contact
 	 * @param bool $onlyfetch Only fetch the header without updating the contact entries
@@ -259,20 +256,24 @@ class ostatus {
 	 *
 	 * @param string $xml The XML
 	 * @param array $importer user record of the importing user
-	 * @param $contact
-	 * @param array $hub Called by reference, returns the fetched hub data
+	 * @param array $contact
+	 * @param string $hub Called by reference, returns the fetched hub data
 	 */
 	public static function import($xml, $importer, &$contact, &$hub) {
 		self::process($xml, $importer, $contact, $hub);
 	}
 
 	/**
-	 * @brief Imports an XML string containing OStatus elements
+	 * @brief Internal feed processing
 	 *
 	 * @param string $xml The XML
 	 * @param array $importer user record of the importing user
-	 * @param $contact
-	 * @param array $hub Called by reference, returns the fetched hub data
+	 * @param array $contact
+	 * @param string $hub Called by reference, returns the fetched hub data
+	 * @param boolean $stored Is the post fresh imported or from the database?
+	 * @param boolean $initialize Is it the leading post so that data has to be initialized?
+	 *
+	 * @return boolean Could the XML be processed?
 	 */
 	private static function process($xml, $importer, &$contact, &$hub, $stored = false, $initialize = true) {
 		if ($initialize) {
@@ -465,6 +466,14 @@ class ostatus {
 		return true;
 	}
 
+	/**
+	 * @brief Processes the XML for a post
+	 *
+	 * @param object $xpath The xpath object
+	 * @param object $entry The xml entry that is processed
+	 * @param array $item The item array
+	 * @param array $importer user record of the importing user
+	 */
 	private static function processPost($xpath, $entry, &$item, $importer) {
 		$item["uri"] = $xpath->query('atom:id/text()', $entry)->item(0)->nodeValue;
 		$item["body"] = html2bbcode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue);
@@ -591,6 +600,13 @@ class ostatus {
 		self::$itemlist[] = $item;
 	}
 
+	/**
+	 * @brief Fetch related posts and processes them
+	 *
+	 * @param string $related The link to the related item
+	 * @param string $related_uri The related item in "uri" format
+	 * @param array $importer user record of the importing user
+	 */
 	private static function fetchRelated($related, $related_uri, $importer) {
 		$condition = array('`item-uri` = ? AND `protocol` IN (?, ?)', $related_uri, PROTOCOL_DFRN, PROTOCOL_OSTATUS_SALMON);
 		$conversation = dba::select('conversation', array('source', 'protocol'), $condition,  array('limit' => 1));
@@ -655,6 +671,16 @@ class ostatus {
 		return;
 	}
 
+	/**
+	 * @brief Processes the XML for a repeated post
+	 *
+	 * @param object $xpath The xpath object
+	 * @param object $entry The xml entry that is processed
+	 * @param array $item The item array
+	 * @param array $importer user record of the importing user
+	 *
+	 * @return array with data from links
+	 */
 	private static function processRepeatedItem($xpath, $entry, &$item, $importer) {
 		$activityobjects = $xpath->query('activity:object', $entry)->item(0);
 
@@ -704,6 +730,14 @@ class ostatus {
 		return $link_data;
 	}
 
+	/**
+	 * @brief Processes links in the XML
+	 *
+	 * @param object $links The xml data that contain links
+	 * @param array $item The item array
+	 *
+	 * @return array with data from the links
+	 */
 	private static function processLinks($links, &$item) {
 		$link_data = array('add_body' => '', 'self' => '');
 
