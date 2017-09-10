@@ -614,9 +614,11 @@ class ostatus {
 			$stored = true;
 			$xml = $conversation['source'];
 			if (self::process($xml, $importer, $contact, $hub, $stored, false)) {
+				logger('Got valid cached XML for URI '.$related_uri, LOGGER_DEBUG);
 				return;
 			}
 			if ($conversation['protocol'] == PROTOCOL_OSTATUS_SALMON) {
+				logger('Delete invalid cached XML for URI '.$related_uri, LOGGER_DEBUG);
 				dba::delete('conversation', array('item-uri' => $related_uri));
 			}
 		}
@@ -631,6 +633,7 @@ class ostatus {
 		$xml = '';
 
 		if (stristr($related_data['header'], 'Content-Type: application/atom+xml')) {
+			logger('Directly fetched XML for URI '.$related_uri, LOGGER_DEBUG);
 			$xml = $related_data['body'];
 		}
 
@@ -641,16 +644,22 @@ class ostatus {
 			}
 			$xpath = new DomXPath($doc);
 
+			$atom_file = '';
+
 			$links = $xpath->query('//link');
 			if ($links) {
 				foreach ($links AS $link) {
 					$attribute = self::read_attributes($link);
 					if (($attribute['rel'] == 'alternate') && ($attribute['type'] == 'application/atom+xml')) {
-						$related_atom = z_fetch_url($attribute['href']);
+						$atom_file = $attribute['href'];
+					}
+				}
+				if ($atom_file != '') {
+					$related_atom = z_fetch_url($atom_file);
 
-						if ($related_atom['success']) {
-							$xml = $related_atom['body'];
-						}
+					if ($related_atom['success']) {
+						logger('Fetched XML for URI '.$related_uri, LOGGER_DEBUG);
+						$xml = $related_atom['body'];
 					}
 				}
 			}
@@ -658,15 +667,29 @@ class ostatus {
 
 		// Workaround for older GNU Social servers
 		if (($xml == '') && strstr($related, '/notice/')) {
-			$related_atom = z_fetch_url(str_replace('/notice/', '/api/statuses/show/', $related).',atom');
+			$related_atom = z_fetch_url(str_replace('/notice/', '/api/statuses/show/', $related).'.atom');
 
 			if ($related_atom['success']) {
+				logger('GNU Social workaround to fetch XML for URI '.$related_uri, LOGGER_DEBUG);
+				$xml = $related_atom['body'];
+			}
+		}
+
+		// Even more worse workaround for GNU Social ;-)
+		if ($xml == '') {
+			$related_guess = ostatus::convert_href($related_uri);
+			$related_atom = z_fetch_url(str_replace('/notice/', '/api/statuses/show/', $related_guess).'.atom');
+
+			if ($related_atom['success']) {
+				logger('GNU Social workaround 2 to fetch XML for URI '.$related_uri, LOGGER_DEBUG);
 				$xml = $related_atom['body'];
 			}
 		}
 
 		if ($xml != '') {
 			self::process($xml, $importer, $contact, $hub, $stored, false);
+		} else {
+			logger("XML couldn't be fetched for URI: ".$related_uri." - href: ".$related, LOGGER_DEBUG);
 		}
 		return;
 	}
