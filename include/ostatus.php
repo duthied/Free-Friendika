@@ -31,6 +31,7 @@ require_once 'include/cache.php';
 class ostatus {
 
 	private static $itemlist;
+	private static $conv_list = array();
 
 	/**
 	 * @brief Fetches author data
@@ -278,6 +279,7 @@ class ostatus {
 	private static function process($xml, $importer, &$contact, &$hub, $stored = false, $initialize = true) {
 		if ($initialize) {
 			self::$itemlist = array();
+			self::$conv_list = array();
 		}
 
 		logger("Import OStatus message", LOGGER_DEBUG);
@@ -321,10 +323,19 @@ class ostatus {
 
 		if ($first_child == "feed") {
 			$entries = $xpath->query('/atom:feed/atom:entry');
-			$header["protocol"] = PROTOCOL_OSTATUS_FEED;
 		} else {
 			$entries = $xpath->query('/atom:entry');
+		}
+
+		if ($entries->length == 1) {
+			$doc2 = new DOMDocument();
+			$doc2->loadXML($xml);
+			$doc2->preserveWhiteSpace = false;
+			$doc2->formatOutput = true;
+			$xml2 = $doc2->saveXML();
+
 			$header["protocol"] = PROTOCOL_OSTATUS_SALMON;
+			$header["source"] = $xml2;
 		}
 
 		// Fetch the first author
@@ -332,7 +343,6 @@ class ostatus {
 		$author = self::fetchauthor($xpath, $authordata, $importer, $contact, $stored);
 
 		$entry = $xpath->query('/atom:entry');
-		$header["protocol"] = PROTOCOL_OSTATUS_SALMON;
 
 		// Reverse the order of the entries
 		$entrylist = array();
@@ -405,14 +415,6 @@ class ostatus {
 			if (!in_array($item["verb"], array(ACTIVITY_POST, ACTIVITY_LIKE, ACTIVITY_SHARE))) {
 				logger("Unhandled verb ".$item["verb"]." ".print_r($item, true));
 			}
-
-			$doc2 = new DOMDocument();
-			$doc2->loadXML($xml);
-			$doc2->preserveWhiteSpace = false;
-			$doc2->formatOutput = true;
-			$xml2 = $doc2->saveXML();
-
-			$item["source"] = $xml2;
 
 			self::processPost($xpath, $entry, $item, $importer);
 
@@ -502,10 +504,6 @@ class ostatus {
 			}
 		}
 
-		if (empty($item['conversation-href']) && !empty($item['conversation-uri'])) {
-			$item['conversation-href'] =  $item['conversation-uri'];
-		}
-
 		$related = "";
 
 		$inreplyto = $xpath->query('thr:in-reply-to', $entry);
@@ -585,6 +583,10 @@ class ostatus {
 			$item["body"] = html2bbcode($clear_text) . '[spoiler]' . $item["body"] . '[/spoiler]';
 		}
 
+		if (!empty($item["conversation-href"])) {
+			self::fetchConversation($item['conversation-href'], $item['conversation-uri']);
+		}
+
 		if (isset($item["parent-uri"]) && ($related != '')) {
 			self::FetchRelated($related, $item["parent-uri"], $importer);
 			$item["type"] = 'remote-comment';
@@ -593,11 +595,141 @@ class ostatus {
 			$item["parent-uri"] = $item["uri"];
 		}
 
-		if ($item['author-link'] != '') {
+		if (($item['author-link'] != '') && !empty($header["protocol"])) {
 			$item = store_conversation($item);
 		}
 
 		self::$itemlist[] = $item;
+	}
+
+	/**
+	 * @brief Fetch the conversation for posts
+	 *
+	 * @param string $conversation The link to the conversation
+	 * @param string $conversation_uri The conversation in "uri" format
+	 */
+	private static function fetchConversation($conversation, $conversation_uri) {
+
+		// Ensure that we only store a conversation once in a process
+		if (isset(self::$conv_list[$conversation])) {
+			return;
+		}
+
+		self::$conv_list[$conversation] = true;
+
+		$conversation_data = z_fetch_url($conversation);
+
+		if (!$conversation_data['success']) {
+			return;
+		}
+
+		$xml = '';
+
+		if (stristr($conversation_data['header'], 'Content-Type: application/atom+xml')) {
+			$xml = $conversation_data['body'];
+		}
+
+		if ($xml == '') {
+			$doc = new DOMDocument();
+			if (!@$doc->loadHTML($conversation_data['body'])) {
+				return;
+			}
+			$xpath = new DomXPath($doc);
+
+			$links = $xpath->query('//link');
+			if ($links) {
+				foreach ($links AS $link) {
+					$attribute = ostatus::read_attributes($link);
+					if (($attribute['rel'] == 'alternate') && ($attribute['type'] == 'application/atom+xml')) {
+						$file = $attribute['href'];
+					}
+				}
+				if ($file != '') {
+					$conversation_atom = z_fetch_url($attribute['href']);
+
+					if ($conversation_atom['success']) {
+						$xml = $conversation_atom['body'];
+					}
+				}
+			}
+		}
+
+		if ($xml == '') {
+			return;
+		}
+
+		self::storeConversation($xml, $conversation, $conversation_uri);
+	}
+
+	/**
+	 * @brief Store a feed in several conversation entries
+	 *
+	 * @param string $xml The feed
+	 */
+	private static function storeConversation($xml, $conversation = '', $conversation_uri = '') {
+		$doc = new DOMDocument();
+		@$doc->loadXML($xml);
+
+		$xpath = new DomXPath($doc);
+		$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
+		$xpath->registerNamespace('thr', NAMESPACE_THREAD);
+		$xpath->registerNamespace('ostatus', NAMESPACE_OSTATUS);
+
+		$entries = $xpath->query('/atom:feed/atom:entry');
+
+		// Now store the entries
+		foreach ($entries AS $entry) {
+			$doc2 = new DOMDocument();
+			$doc2->preserveWhiteSpace = false;
+			$doc2->formatOutput = true;
+
+			$conv_data = array();
+
+			$conv_data['protocol'] = PROTOCOL_SPLITTED_CONV;
+			$conv_data['network'] = NETWORK_OSTATUS;
+			$conv_data['uri'] = $xpath->query('atom:id/text()', $entry)->item(0)->nodeValue;
+
+			$inreplyto = $xpath->query('thr:in-reply-to', $entry);
+			if (is_object($inreplyto->item(0))) {
+				foreach ($inreplyto->item(0)->attributes AS $attributes) {
+					if ($attributes->name == "ref") {
+						$conv_data['reply-to-uri'] = $attributes->textContent;
+					}
+				}
+			}
+
+			$conv = $xpath->query('ostatus:conversation/text()', $entry)->item(0)->nodeValue;
+			$conv_data['conversation-uri'] = $conv;
+
+			$conv = $xpath->query('ostatus:conversation', $entry);
+			if (is_object($conv->item(0))) {
+				foreach ($conv->item(0)->attributes AS $attributes) {
+					if ($attributes->name == "ref") {
+						$conv_data['conversation-uri'] = $attributes->textContent;
+					}
+					if ($attributes->name == "href") {
+						$conv_data['conversation-href'] = $attributes->textContent;
+					}
+				}
+			}
+
+			if ($conversation != '') {
+				$conv_data['conversation-uri'] = $conversation;
+			}
+
+			if ($conversation_uri != '') {
+				$conv_data['conversation-uri'] = $conversation_uri;
+			}
+
+			$entry = $doc2->importNode($entry, true);
+
+			$doc2->appendChild($entry);
+
+			$conv_data['source'] = $doc2->saveXML();
+
+			logger('Store conversation data for uri '.$conv_data['uri'], LOGGER_DEBUG);
+			store_conversation($conv_data);
+		}
 	}
 
 	/**
@@ -683,6 +815,17 @@ class ostatus {
 			if ($related_atom['success']) {
 				logger('GNU Social workaround 2 to fetch XML for URI '.$related_uri, LOGGER_DEBUG);
 				$xml = $related_atom['body'];
+			}
+		}
+
+		// Finally we take the data that we fetched from "ostatus:conversation"
+		if ($xml == '') {
+			$condition = array('item-uri' => $related_uri, 'protocol' => PROTOCOL_SPLITTED_CONV);
+			$conversation = dba::select('conversation', array('source'), $condition,  array('limit' => 1));
+			if (dbm::is_result($conversation)) {
+				$stored = true;
+				logger('Got cached XML from conversation for URI '.$related_uri, LOGGER_DEBUG);
+				$xml = $conversation['source'];
 			}
 		}
 
