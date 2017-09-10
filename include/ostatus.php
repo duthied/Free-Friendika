@@ -796,6 +796,36 @@ class ostatus {
 		return $link_data;
 	}
 
+/**
+	 * @brief Create an url out of an uri
+	 *
+	 * @param string $href URI in the format "parameter1:parameter1:..."
+	 *
+	 * @return string URL in the format http(s)://....
+	 */
+	public static function convert_href($href) {
+		$elements = explode(":",$href);
+
+		if ((count($elements) <= 2) || ($elements[0] != "tag"))
+			return $href;
+
+		$server = explode(",", $elements[1]);
+		$conversation = explode("=", $elements[2]);
+
+		if ((count($elements) == 4) && ($elements[2] == "post"))
+			return "http://".$server[0]."/notice/".$elements[3];
+
+		if ((count($conversation) != 2) || ($conversation[1] =="")) {
+			return $href;
+		}
+		if ($elements[3] == "objectType=thread") {
+			return "http://".$server[0]."/conversation/".$conversation[1];
+		} else {
+			return "http://".$server[0]."/notice/".$conversation[1];
+		}
+		return $href;
+	}
+
 	/**
 	 * @brief Checks if the current post is a reshare
 	 *

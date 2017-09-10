@@ -534,6 +534,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	}
 
 	// Converting the plink
+	/// @todo Check if this is really still needed
 	if ($arr['network'] == NETWORK_OSTATUS) {
 		if (isset($arr['plink'])) {
 			$arr['plink'] = ostatus::convert_href($arr['plink']);
