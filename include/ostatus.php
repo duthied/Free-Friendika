@@ -33,28 +33,28 @@ class ostatus {
 	const OSTATUS_DEFAULT_POLL_TIMEFRAME = 1440; // given in minutes
 	const OSTATUS_DEFAULT_POLL_TIMEFRAME_MENTIONS = 14400; // given in minutes
 
-        private static $itemlist;
+	private static $itemlist;
 
-        /**
-         * @brief Imports an XML string containing OStatus elements
-         *
-         * @param string $xml The XML
-         * @param array $importer user record of the importing user
-         * @param $contact
-         * @param array $hub Called by reference, returns the fetched hub data
-         */
+	/**
+	 * @brief Imports an XML string containing OStatus elements
+	 *
+	 * @param string $xml The XML
+	 * @param array $importer user record of the importing user
+	 * @param $contact
+	 * @param array $hub Called by reference, returns the fetched hub data
+	 */
 	public static function import($xml, $importer, &$contact, &$hub) {
 		self::process($xml, $importer, $contact, $hub);
 	}
 
-        /**
-         * @brief Imports an XML string containing OStatus elements
-         *
-         * @param string $xml The XML
-         * @param array $importer user record of the importing user
-         * @param $contact
-         * @param array $hub Called by reference, returns the fetched hub data
-         */
+	/**
+	 * @brief Imports an XML string containing OStatus elements
+	 *
+	 * @param string $xml The XML
+	 * @param array $importer user record of the importing user
+	 * @param $contact
+	 * @param array $hub Called by reference, returns the fetched hub data
+	 */
 	private static function process($xml, $importer, &$contact, &$hub, $stored = false, $initialize = true) {
 		if ($initialize) {
 			self::$itemlist = array();
@@ -78,16 +78,16 @@ class ostatus {
 		$xpath->registerNamespace('ostatus', NAMESPACE_OSTATUS);
 		$xpath->registerNamespace('statusnet', NAMESPACE_STATUSNET);
 
-                $hub = "";
-                $hub_attributes = $xpath->query("/atom:feed/atom:link[@rel='hub']")->item(0)->attributes;
-                if (is_object($hub_attributes)) {
-                        foreach ($hub_attributes AS $hub_attribute) {
-                                if ($hub_attribute->name == "href") {
-                                        $hub = $hub_attribute->textContent;
-                                        logger("Found hub ".$hub, LOGGER_DEBUG);
-                                }
-                        }
-                }
+		$hub = "";
+		$hub_attributes = $xpath->query("/atom:feed/atom:link[@rel='hub']")->item(0)->attributes;
+		if (is_object($hub_attributes)) {
+			foreach ($hub_attributes AS $hub_attribute) {
+				if ($hub_attribute->name == "href") {
+					$hub = $hub_attribute->textContent;
+					logger("Found hub ".$hub, LOGGER_DEBUG);
+				}
+			}
+		}
 
 		$header = array();
 		$header["uid"] = $importer["uid"];
@@ -233,7 +233,7 @@ class ostatus {
 					foreach (self::$itemlist AS $item) {
 						$found = dba::exists('item', array('uid' => $importer["uid"], 'uri' => $item["uri"]));
 						if ($found) {
-			                                logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already exists.", LOGGER_DEBUG);
+							logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already exists.", LOGGER_DEBUG);
 						} else {
 							$ret = item_store($item);
 							logger('Item was stored with return value '.$ret);
