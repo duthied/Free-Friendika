@@ -36,6 +36,225 @@ class ostatus {
 	private static $itemlist;
 
 	/**
+	 * @brief Fetches author data
+	 *
+	 * @param object $xpath The xpath object
+	 * @param object $context The xml context of the author detals
+	 * @param array $importer user record of the importing user
+	 * @param array $contact Called by reference, will contain the fetched contact
+	 * @param bool $onlyfetch Only fetch the header without updating the contact entries
+	 *
+	 * @return array Array of author related entries for the item
+	 */
+	private static function fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch) {
+
+		$author = array();
+		$author["author-link"] = $xpath->evaluate('atom:author/atom:uri/text()', $context)->item(0)->nodeValue;
+		$author["author-name"] = $xpath->evaluate('atom:author/atom:name/text()', $context)->item(0)->nodeValue;
+		$addr = $xpath->evaluate('atom:author/atom:email/text()', $context)->item(0)->nodeValue;
+
+		$aliaslink = $author["author-link"];
+
+		$alternate = $xpath->query("atom:author/atom:link[@rel='alternate']", $context)->item(0)->attributes;
+		if (is_object($alternate)) {
+			foreach ($alternate AS $attributes) {
+				if (($attributes->name == "href") && ($attributes->textContent != "")) {
+					$author["author-link"] = $attributes->textContent;
+				}
+			}
+		}
+
+		$author["contact-id"] = $contact["id"];
+
+		if ($author["author-link"] != "") {
+			if ($aliaslink == "") {
+				$aliaslink = $author["author-link"];
+			}
+
+			$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` IN ('%s', '%s') AND `network` != '%s'",
+				intval($importer["uid"]), dbesc(normalise_link($author["author-link"])),
+				dbesc(normalise_link($aliaslink)), dbesc(NETWORK_STATUSNET));
+
+			if (dbm::is_result($r)) {
+				$contact = $r[0];
+				$author["contact-id"] = $r[0]["id"];
+				$author["author-link"] = $r[0]["url"];
+			}
+		} elseif ($addr != "") {
+			// Should not happen
+			$contact = dba::fetch_first("SELECT * FROM `contact` WHERE `uid` = ? AND `addr` = ? AND `network` != ?",
+					$importer["uid"], $addr, NETWORK_STATUSNET);
+
+			if (dbm::is_result($contact)) {
+				$author["contact-id"] = $contact["id"];
+				$author["author-link"] = $contact["url"];
+			}
+		}
+
+		$avatarlist = array();
+		$avatars = $xpath->query("atom:author/atom:link[@rel='avatar']", $context);
+		foreach ($avatars AS $avatar) {
+			$href = "";
+			$width = 0;
+			foreach ($avatar->attributes AS $attributes) {
+				if ($attributes->name == "href") {
+					$href = $attributes->textContent;
+				}
+				if ($attributes->name == "width") {
+					$width = $attributes->textContent;
+				}
+			}
+			if ($href != "") {
+				$avatarlist[$width] = $href;
+			}
+		}
+		if (count($avatarlist) > 0) {
+			krsort($avatarlist);
+			$author["author-avatar"] = Probe::fixAvatar(current($avatarlist), $author["author-link"]);
+		}
+
+		$displayname = $xpath->evaluate('atom:author/poco:displayName/text()', $context)->item(0)->nodeValue;
+		if ($displayname != "") {
+			$author["author-name"] = $displayname;
+		}
+
+		$author["owner-name"] = $author["author-name"];
+		$author["owner-link"] = $author["author-link"];
+		$author["owner-avatar"] = $author["author-avatar"];
+
+		// Only update the contacts if it is an OStatus contact
+		if ($r && !$onlyfetch && ($contact["network"] == NETWORK_OSTATUS)) {
+
+			// Update contact data
+
+			// This query doesn't seem to work
+			// $value = $xpath->query("atom:link[@rel='salmon']", $context)->item(0)->nodeValue;
+			// if ($value != "")
+			//	$contact["notify"] = $value;
+
+			// This query doesn't seem to work as well - I hate these queries
+			// $value = $xpath->query("atom:link[@rel='self' and @type='application/atom+xml']", $context)->item(0)->nodeValue;
+			// if ($value != "")
+			//	$contact["poll"] = $value;
+
+			$value = $xpath->evaluate('atom:author/atom:uri/text()', $context)->item(0)->nodeValue;
+			if ($value != "")
+				$contact["alias"] = $value;
+
+			$value = $xpath->evaluate('atom:author/poco:displayName/text()', $context)->item(0)->nodeValue;
+			if ($value != "")
+				$contact["name"] = $value;
+
+			$value = $xpath->evaluate('atom:author/poco:preferredUsername/text()', $context)->item(0)->nodeValue;
+			if ($value != "")
+				$contact["nick"] = $value;
+
+			$value = $xpath->evaluate('atom:author/poco:note/text()', $context)->item(0)->nodeValue;
+			if ($value != "")
+				$contact["about"] = html2bbcode($value);
+
+			$value = $xpath->evaluate('atom:author/poco:address/poco:formatted/text()', $context)->item(0)->nodeValue;
+			if ($value != "")
+				$contact["location"] = $value;
+
+			if (($contact["name"] != $r[0]["name"]) || ($contact["nick"] != $r[0]["nick"]) || ($contact["about"] != $r[0]["about"]) ||
+				($contact["alias"] != $r[0]["alias"]) || ($contact["location"] != $r[0]["location"])) {
+
+				logger("Update contact data for contact ".$contact["id"], LOGGER_DEBUG);
+
+				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `alias` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d",
+					dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["alias"]),
+					dbesc($contact["about"]), dbesc($contact["location"]),
+					dbesc(datetime_convert()), intval($contact["id"]));
+			}
+
+			if (isset($author["author-avatar"]) && ($author["author-avatar"] != $r[0]['avatar'])) {
+				logger("Update profile picture for contact ".$contact["id"], LOGGER_DEBUG);
+
+				update_contact_avatar($author["author-avatar"], $importer["uid"], $contact["id"]);
+			}
+
+			// Ensure that we are having this contact (with uid=0)
+			$cid = get_contact($author["author-link"], 0);
+
+			if ($cid) {
+				// Update it with the current values
+				q("UPDATE `contact` SET `url` = '%s', `name` = '%s', `nick` = '%s', `alias` = '%s',
+						`about` = '%s', `location` = '%s',
+						`success_update` = '%s', `last-update` = '%s'
+					WHERE `id` = %d",
+					dbesc($author["author-link"]), dbesc($contact["name"]), dbesc($contact["nick"]),
+					dbesc($contact["alias"]), dbesc($contact["about"]), dbesc($contact["location"]),
+					dbesc(datetime_convert()), dbesc(datetime_convert()), intval($cid));
+
+				// Update the avatar
+				update_contact_avatar($author["author-avatar"], 0, $cid);
+			}
+
+			$contact["generation"] = 2;
+			$contact["hide"] = false; // OStatus contacts are never hidden
+			$contact["photo"] = $author["author-avatar"];
+			$gcid = update_gcontact($contact);
+
+			link_gcontact($gcid, $contact["uid"], $contact["id"]);
+		}
+
+		return $author;
+	}
+
+	/**
+	 * @brief Fetches author data from a given XML string
+	 *
+	 * @param string $xml The XML
+	 * @param array $importer user record of the importing user
+	 *
+	 * @return array Array of author related entries for the item
+	 */
+	public static function salmon_author($xml, $importer) {
+
+		if ($xml == "")
+			return;
+
+		$doc = new DOMDocument();
+		@$doc->loadXML($xml);
+
+		$xpath = new DomXPath($doc);
+		$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
+		$xpath->registerNamespace('thr', NAMESPACE_THREAD);
+		$xpath->registerNamespace('georss', NAMESPACE_GEORSS);
+		$xpath->registerNamespace('activity', NAMESPACE_ACTIVITY);
+		$xpath->registerNamespace('media', NAMESPACE_MEDIA);
+		$xpath->registerNamespace('poco', NAMESPACE_POCO);
+		$xpath->registerNamespace('ostatus', NAMESPACE_OSTATUS);
+		$xpath->registerNamespace('statusnet', NAMESPACE_STATUSNET);
+
+		$entries = $xpath->query('/atom:entry');
+
+		foreach ($entries AS $entry) {
+			// fetch the author
+			$author = self::fetchauthor($xpath, $entry, $importer, $contact, true);
+			return $author;
+		}
+	}
+
+	/**
+	 * @brief Read attributes from element
+	 *
+	 * @param object $element Element object
+	 *
+	 * @return array attributes
+	 */
+	private static function read_attributes($element) {
+		$attribute = array();
+
+		foreach ($element->attributes AS $attributes) {
+			$attribute[$attributes->name] = $attributes->textContent;
+		}
+
+		return $attribute;
+	}
+
+	/**
 	 * @brief Imports an XML string containing OStatus elements
 	 *
 	 * @param string $xml The XML
@@ -541,225 +760,6 @@ class ostatus {
 			}
 		}
 		return $link_data;
-	}
-
-	/**
-	 * @brief Fetches author data
-	 *
-	 * @param object $xpath The xpath object
-	 * @param object $context The xml context of the author detals
-	 * @param array $importer user record of the importing user
-	 * @param array $contact Called by reference, will contain the fetched contact
-	 * @param bool $onlyfetch Only fetch the header without updating the contact entries
-	 *
-	 * @return array Array of author related entries for the item
-	 */
-	private static function fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch) {
-
-		$author = array();
-		$author["author-link"] = $xpath->evaluate('atom:author/atom:uri/text()', $context)->item(0)->nodeValue;
-		$author["author-name"] = $xpath->evaluate('atom:author/atom:name/text()', $context)->item(0)->nodeValue;
-		$addr = $xpath->evaluate('atom:author/atom:email/text()', $context)->item(0)->nodeValue;
-
-		$aliaslink = $author["author-link"];
-
-		$alternate = $xpath->query("atom:author/atom:link[@rel='alternate']", $context)->item(0)->attributes;
-		if (is_object($alternate)) {
-			foreach ($alternate AS $attributes) {
-				if (($attributes->name == "href") && ($attributes->textContent != "")) {
-					$author["author-link"] = $attributes->textContent;
-				}
-			}
-		}
-
-		$author["contact-id"] = $contact["id"];
-
-		if ($author["author-link"] != "") {
-			if ($aliaslink == "") {
-				$aliaslink = $author["author-link"];
-			}
-
-			$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` IN ('%s', '%s') AND `network` != '%s'",
-				intval($importer["uid"]), dbesc(normalise_link($author["author-link"])),
-				dbesc(normalise_link($aliaslink)), dbesc(NETWORK_STATUSNET));
-
-			if (dbm::is_result($r)) {
-				$contact = $r[0];
-				$author["contact-id"] = $r[0]["id"];
-				$author["author-link"] = $r[0]["url"];
-			}
-		} elseif ($addr != "") {
-			// Should not happen
-			$contact = dba::fetch_first("SELECT * FROM `contact` WHERE `uid` = ? AND `addr` = ? AND `network` != ?",
-					$importer["uid"], $addr, NETWORK_STATUSNET);
-
-			if (dbm::is_result($contact)) {
-				$author["contact-id"] = $contact["id"];
-				$author["author-link"] = $contact["url"];
-			}
-		}
-
-		$avatarlist = array();
-		$avatars = $xpath->query("atom:author/atom:link[@rel='avatar']", $context);
-		foreach ($avatars AS $avatar) {
-			$href = "";
-			$width = 0;
-			foreach ($avatar->attributes AS $attributes) {
-				if ($attributes->name == "href") {
-					$href = $attributes->textContent;
-				}
-				if ($attributes->name == "width") {
-					$width = $attributes->textContent;
-				}
-			}
-			if ($href != "") {
-				$avatarlist[$width] = $href;
-			}
-		}
-		if (count($avatarlist) > 0) {
-			krsort($avatarlist);
-			$author["author-avatar"] = Probe::fixAvatar(current($avatarlist), $author["author-link"]);
-		}
-
-		$displayname = $xpath->evaluate('atom:author/poco:displayName/text()', $context)->item(0)->nodeValue;
-		if ($displayname != "") {
-			$author["author-name"] = $displayname;
-		}
-
-		$author["owner-name"] = $author["author-name"];
-		$author["owner-link"] = $author["author-link"];
-		$author["owner-avatar"] = $author["author-avatar"];
-
-		// Only update the contacts if it is an OStatus contact
-		if ($r && !$onlyfetch && ($contact["network"] == NETWORK_OSTATUS)) {
-
-			// Update contact data
-
-			// This query doesn't seem to work
-			// $value = $xpath->query("atom:link[@rel='salmon']", $context)->item(0)->nodeValue;
-			// if ($value != "")
-			//	$contact["notify"] = $value;
-
-			// This query doesn't seem to work as well - I hate these queries
-			// $value = $xpath->query("atom:link[@rel='self' and @type='application/atom+xml']", $context)->item(0)->nodeValue;
-			// if ($value != "")
-			//	$contact["poll"] = $value;
-
-			$value = $xpath->evaluate('atom:author/atom:uri/text()', $context)->item(0)->nodeValue;
-			if ($value != "")
-				$contact["alias"] = $value;
-
-			$value = $xpath->evaluate('atom:author/poco:displayName/text()', $context)->item(0)->nodeValue;
-			if ($value != "")
-				$contact["name"] = $value;
-
-			$value = $xpath->evaluate('atom:author/poco:preferredUsername/text()', $context)->item(0)->nodeValue;
-			if ($value != "")
-				$contact["nick"] = $value;
-
-			$value = $xpath->evaluate('atom:author/poco:note/text()', $context)->item(0)->nodeValue;
-			if ($value != "")
-				$contact["about"] = html2bbcode($value);
-
-			$value = $xpath->evaluate('atom:author/poco:address/poco:formatted/text()', $context)->item(0)->nodeValue;
-			if ($value != "")
-				$contact["location"] = $value;
-
-			if (($contact["name"] != $r[0]["name"]) || ($contact["nick"] != $r[0]["nick"]) || ($contact["about"] != $r[0]["about"]) ||
-				($contact["alias"] != $r[0]["alias"]) || ($contact["location"] != $r[0]["location"])) {
-
-				logger("Update contact data for contact ".$contact["id"], LOGGER_DEBUG);
-
-				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `alias` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d",
-					dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["alias"]),
-					dbesc($contact["about"]), dbesc($contact["location"]),
-					dbesc(datetime_convert()), intval($contact["id"]));
-			}
-
-			if (isset($author["author-avatar"]) && ($author["author-avatar"] != $r[0]['avatar'])) {
-				logger("Update profile picture for contact ".$contact["id"], LOGGER_DEBUG);
-
-				update_contact_avatar($author["author-avatar"], $importer["uid"], $contact["id"]);
-			}
-
-			// Ensure that we are having this contact (with uid=0)
-			$cid = get_contact($author["author-link"], 0);
-
-			if ($cid) {
-				// Update it with the current values
-				q("UPDATE `contact` SET `url` = '%s', `name` = '%s', `nick` = '%s', `alias` = '%s',
-						`about` = '%s', `location` = '%s',
-						`success_update` = '%s', `last-update` = '%s'
-					WHERE `id` = %d",
-					dbesc($author["author-link"]), dbesc($contact["name"]), dbesc($contact["nick"]),
-					dbesc($contact["alias"]), dbesc($contact["about"]), dbesc($contact["location"]),
-					dbesc(datetime_convert()), dbesc(datetime_convert()), intval($cid));
-
-				// Update the avatar
-				update_contact_avatar($author["author-avatar"], 0, $cid);
-			}
-
-			$contact["generation"] = 2;
-			$contact["hide"] = false; // OStatus contacts are never hidden
-			$contact["photo"] = $author["author-avatar"];
-			$gcid = update_gcontact($contact);
-
-			link_gcontact($gcid, $contact["uid"], $contact["id"]);
-		}
-
-		return $author;
-	}
-
-	/**
-	 * @brief Fetches author data from a given XML string
-	 *
-	 * @param string $xml The XML
-	 * @param array $importer user record of the importing user
-	 *
-	 * @return array Array of author related entries for the item
-	 */
-	public static function salmon_author($xml, $importer) {
-
-		if ($xml == "")
-			return;
-
-		$doc = new DOMDocument();
-		@$doc->loadXML($xml);
-
-		$xpath = new DomXPath($doc);
-		$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
-		$xpath->registerNamespace('thr', NAMESPACE_THREAD);
-		$xpath->registerNamespace('georss', NAMESPACE_GEORSS);
-		$xpath->registerNamespace('activity', NAMESPACE_ACTIVITY);
-		$xpath->registerNamespace('media', NAMESPACE_MEDIA);
-		$xpath->registerNamespace('poco', NAMESPACE_POCO);
-		$xpath->registerNamespace('ostatus', NAMESPACE_OSTATUS);
-		$xpath->registerNamespace('statusnet', NAMESPACE_STATUSNET);
-
-		$entries = $xpath->query('/atom:entry');
-
-		foreach ($entries AS $entry) {
-			// fetch the author
-			$author = self::fetchauthor($xpath, $entry, $importer, $contact, true);
-			return $author;
-		}
-	}
-
-	/**
-	 * @brief Read attributes from element
-	 *
-	 * @param object $element Element object
-	 *
-	 * @return array attributes
-	 */
-	private static function read_attributes($element) {
-		$attribute = array();
-
-		foreach ($element->attributes AS $attributes) {
-			$attribute[$attributes->name] = $attributes->textContent;
-		}
-
-		return $attribute;
 	}
 
 	/**
