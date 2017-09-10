@@ -293,7 +293,7 @@ function display_content(App $a, $update = 0) {
 	}
 
 	// We are displaying an "alternate" link if that post was public. See issue 2864
-	$is_public = dba::exists('item', array('id' => $item_id, 'private' => false, 'wall' => true));
+	$is_public = dba::exists('item', array('id' => $item_id, 'private' => false));
 	if ($is_public) {
 		$alternate = System::baseUrl().'/display/'.$nick.'/'.$item_id.'.atom';
 	} else {

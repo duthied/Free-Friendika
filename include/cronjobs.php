@@ -8,7 +8,6 @@ function cronjobs_run(&$argv, &$argc){
 	global $a;
 
 	require_once 'include/datetime.php';
-	require_once 'include/ostatus.php';
 	require_once 'include/post_update.php';
 	require_once 'mod/nodeinfo.php';
 	require_once 'include/photos.php';
@@ -21,19 +20,6 @@ function cronjobs_run(&$argv, &$argc){
 	}
 
 	logger("Starting cronjob ".$argv[1], LOGGER_DEBUG);
-
-	// Check OStatus conversations
-	// Check only conversations with mentions (for a longer time)
-	if ($argv[1] == 'ostatus_mentions') {
-		ostatus::check_conversations(true);
-		return;
-	}
-
-	// Check every conversation
-	if ($argv[1] == 'ostatus_conversations') {
-		ostatus::check_conversations(false);
-		return;
-	}
 
 	// Call possible post update functions
 	// see include/post_update.php for more details
