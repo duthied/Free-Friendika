@@ -328,6 +328,7 @@ class ostatus {
 		}
 
 		if ($entries->length == 1) {
+			// We reformat the XML to make it better readable
 			$doc2 = new DOMDocument();
 			$doc2->loadXML($xml);
 			$doc2->preserveWhiteSpace = false;
@@ -336,6 +337,8 @@ class ostatus {
 
 			$header["protocol"] = PROTOCOL_OSTATUS_SALMON;
 			$header["source"] = $xml2;
+		} elseif (!$initialize) {
+			return false;
 		}
 
 		// Fetch the first author
@@ -349,10 +352,6 @@ class ostatus {
 
 		foreach ($entries AS $entry) {
 			$entrylist[] = $entry;
-		}
-
-		if (!$initialize && (count($entrylist) > 1)) {
-			return false;
 		}
 
 		foreach (array_reverse($entrylist) AS $entry) {
@@ -583,19 +582,23 @@ class ostatus {
 			$item["body"] = html2bbcode($clear_text) . '[spoiler]' . $item["body"] . '[/spoiler]';
 		}
 
+		if (($self != '') && empty($item['protocol'])) {
+			self::fetchSelf($self, $item);
+		}
+
 		if (!empty($item["conversation-href"])) {
 			self::fetchConversation($item['conversation-href'], $item['conversation-uri']);
 		}
 
 		if (isset($item["parent-uri"]) && ($related != '')) {
-			self::FetchRelated($related, $item["parent-uri"], $importer);
+			self::fetchRelated($related, $item["parent-uri"], $importer);
 			$item["type"] = 'remote-comment';
 			$item["gravity"] = GRAVITY_COMMENT;
 		} else {
 			$item["parent-uri"] = $item["uri"];
 		}
 
-		if (($item['author-link'] != '') && !empty($header["protocol"])) {
+		if (($item['author-link'] != '') && !empty($item['protocol'])) {
 			$item = store_conversation($item);
 		}
 
@@ -727,9 +730,51 @@ class ostatus {
 
 			$conv_data['source'] = $doc2->saveXML();
 
+			$condition = array('item-uri' => $conv_data['uri'],'protocol' => PROTOCOL_OSTATUS_FEED);
+			if (dba::exists('conversation', $condition)) {
+				logger('Delete deprecated entry for URI '.$conv_data['uri'], LOGGER_DEBUG);
+				dba::delete('conversation', array('item-uri' => $conv_data['uri']));
+			}
+
 			logger('Store conversation data for uri '.$conv_data['uri'], LOGGER_DEBUG);
 			store_conversation($conv_data);
 		}
+	}
+
+	/**
+	 * @brief Fetch the own post so that it can be stored later
+	 * @param array $item The item array
+	 *
+	 * We want to store the original data for later processing.
+	 * This function is meant for cases where we process a feed with multiple entries.
+	 * In that case we need to fetch the single posts here.
+	 *
+	 * @param string $self The link to the self item
+	 */
+	private static function fetchSelf($self, &$item) {
+		$condition = array('`item-uri` = ? AND `protocol` IN (?, ?)', $self, PROTOCOL_DFRN, PROTOCOL_OSTATUS_SALMON);
+		if (dba::exists('conversation', $condition)) {
+			logger('Conversation '.$item['uri'].' is already stored.');
+			return;
+		}
+
+		$self_data = z_fetch_url($self);
+
+		if (!$self_data['success']) {
+			return;
+		}
+
+		// We reformat the XML to make it better readable
+		$doc = new DOMDocument();
+		$doc->loadXML($self_data['body']);
+		$doc->preserveWhiteSpace = false;
+		$doc->formatOutput = true;
+		$xml = $doc->saveXML();
+
+		$item["protocol"] = PROTOCOL_OSTATUS_SALMON;
+		$item["source"] = $xml;
+
+		logger('Conversation '.$item['uri'].' is now fetched.');
 	}
 
 	/**
