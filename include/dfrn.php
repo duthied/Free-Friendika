@@ -820,6 +820,7 @@ class dfrn {
 	 * @param array $owner Owner record
 	 * @param bool $comment Trigger the sending of the "comment" element
 	 * @param int $cid Contact ID of the recipient
+	 * @param bool $single If set, the entry is created as an XML document with a single "entry" element
 	 *
 	 * @return object XML entry object
 	 * @todo Add type-hints
