@@ -303,7 +303,7 @@ class dfrn {
 				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 			LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`
 			WHERE `item`.`id` = %d AND `item`.`visible` AND NOT `item`.`moderated` AND `item`.`parent` != 0
-			AND `item`.`wall` AND NOT `item`.`private`",
+			AND NOT `item`.`private`",
 			intval($item_id)
 		);
 
@@ -330,12 +330,9 @@ class dfrn {
 
 		$alternatelink = $owner['url'];
 
-		$root = self::add_header($doc, $owner, 'dfrn:owner', $alternatelink, true);
-
 		$type = 'html';
 
-		$entry = self::entry($doc, $type, $item, $owner, true);
-		$root->appendChild($entry);
+		$root = self::entry($doc, $type, $item, $owner, true, 0, true);
 
 		$atom = trim($doc->saveXML());
 		return $atom;
@@ -823,11 +820,12 @@ class dfrn {
 	 * @param array $owner Owner record
 	 * @param bool $comment Trigger the sending of the "comment" element
 	 * @param int $cid Contact ID of the recipient
+	 * @param bool $single If set, the entry is created as an XML document with a single "entry" element
 	 *
 	 * @return object XML entry object
 	 * @todo Add type-hints
 	 */
-	private static function entry($doc, $type, $item, $owner, $comment = false, $cid = 0) {
+	private static function entry($doc, $type, $item, $owner, $comment = false, $cid = 0, $single = false) {
 
 		$mentioned = array();
 
@@ -840,7 +838,22 @@ class dfrn {
 			return xml::create_element($doc, "at:deleted-entry", "", $attributes);
 		}
 
-		$entry = $doc->createElement("entry");
+		if (!$single) {
+			$entry = $doc->createElement("entry");
+		} else {
+			$entry = $doc->createElementNS(NAMESPACE_ATOM1, 'entry');
+			$doc->appendChild($entry);
+
+			$entry->setAttribute("xmlns:thr", NAMESPACE_THREAD);
+			$entry->setAttribute("xmlns:at", NAMESPACE_TOMB);
+			$entry->setAttribute("xmlns:media", NAMESPACE_MEDIA);
+			$entry->setAttribute("xmlns:dfrn", NAMESPACE_DFRN);
+			$entry->setAttribute("xmlns:activity", NAMESPACE_ACTIVITY);
+			$entry->setAttribute("xmlns:georss", NAMESPACE_GEORSS);
+			$entry->setAttribute("xmlns:poco", NAMESPACE_POCO);
+			$entry->setAttribute("xmlns:ostatus", NAMESPACE_OSTATUS);
+			$entry->setAttribute("xmlns:statusnet", NAMESPACE_STATUSNET);
+		}
 
 		if ($item['allow_cid'] || $item['allow_gid'] || $item['deny_cid'] || $item['deny_gid']) {
 			$body = fix_private_photos($item['body'],$owner['uid'],$item,$cid);
@@ -868,10 +881,10 @@ class dfrn {
 		$entry->appendChild($dfrnowner);
 
 		if (($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
-			$parent = q("SELECT `guid` FROM `item` WHERE `id` = %d", intval($item["parent"]));
 			$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
+			$parent = q("SELECT `guid`,`plink` FROM `item` WHERE `uri` = '%s' AND `uid` = %d", dbesc($parent_item), intval($item['uid']));
 			$attributes = array("ref" => $parent_item, "type" => "text/html",
-						"href" => System::baseUrl().'/display/'.$parent[0]['guid'],
+						"href" => $parent[0]['plink'],
 						"dfrn:diaspora_guid" => $parent[0]['guid']);
 			xml::add_element($doc, $entry, "thr:in-reply-to", "", $attributes);
 		}
