@@ -8,6 +8,49 @@ require_once 'include/follow.php';
 require_once 'include/Contact.php';
 require_once 'include/contact_selectors.php';
 
+function unfollow_post(App $a) {
+
+	if (!local_user()) {
+		notice(t('Permission denied.') . EOL);
+		goaway($_SESSION['return_url']);
+		// NOTREACHED
+	}
+
+	if ($_REQUEST['cancel']) {
+		goaway($_SESSION['return_url']);
+	}
+
+	$uid = local_user();
+	$url = notags(trim($_REQUEST['url']));
+	$return_url = $_SESSION['return_url'];
+
+	$condition = array("`uid` = ? AND `rel` = ? AND (`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `network` != ?",
+			$uid, CONTACT_IS_FRIEND, normalise_link($url),
+			normalise_link($url), $url, NETWORK_STATUSNET);
+	$contact = dba::select('contact', array(), $condition, array('limit' => 1));
+
+	if (!dbm::is_result($contact)) {
+		notice(t("Contact wasn't found or can't be unfollowed."));
+	} else {
+		if (in_array($contact['network'], array(NETWORK_OSTATUS))) {
+			$r = q("SELECT `contact`.*, `user`.* FROM `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid`
+				WHERE `user`.`uid` = %d AND `contact`.`self` LIMIT 1",
+				intval($uid)
+			);
+ 			if (dbm::is_result($r)) {
+				$self = ""; // Unused parameter
+				terminate_friendship($r[0], $self, $contact);
+			}
+		}
+		dba::update('contact', array('rel' => CONTACT_IS_FOLLOWER), array('id' => $contact['id']));
+
+		info(t('Contact unfollowed').EOL);
+		goaway(System::baseUrl().'/contacts/'.$contact['id']);
+	}
+	goaway($return_url);
+	// NOTREACHED
+}
+
 function unfollow_content(App $a) {
 
 	if (! local_user()) {
@@ -54,12 +97,6 @@ function unfollow_content(App $a) {
 	// Makes the connection request for friendica contacts easier
 	$_SESSION["fastlane"] = $contact["url"];
 
-	$header = $contact["name"];
-
-	if ($contact["addr"] != "") {
-		$header .= " <".$contact["addr"].">";
-	}
-
 	$header = t("Disconnect/Unfollow");
 
 	$o  = replace_macros($tpl,array(
@@ -100,47 +137,4 @@ function unfollow_content(App $a) {
 	$o .= posts_from_contact_url($a, $contact["url"]);
 
 	return $o;
-}
-
-function unfollow_post(App $a) {
-
-	if (!local_user()) {
-		notice(t('Permission denied.') . EOL);
-		goaway($_SESSION['return_url']);
-		// NOTREACHED
-	}
-
-	if ($_REQUEST['cancel']) {
-		goaway($_SESSION['return_url']);
-	}
-
-	$uid = local_user();
-	$url = notags(trim($_REQUEST['url']));
-	$return_url = $_SESSION['return_url'];
-
-	$condition = array("`uid` = ? AND `rel` = ? AND (`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `network` != ?",
-			$uid, CONTACT_IS_FRIEND, normalise_link($url),
-			normalise_link($url), $url, NETWORK_STATUSNET);
-	$contact = dba::select('contact', array(), $condition, array('limit' => 1));
-
-	if (!dbm::is_result($contact)) {
-		notice(t("Contact wasn't found or can't be unfollowed."));
-	} else {
-		if (in_array($contact['network'], array(NETWORK_OSTATUS))) {
-			$r = q("SELECT `contact`.*, `user`.* FROM `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid`
-				WHERE `user`.`uid` = %d AND `contact`.`self` LIMIT 1",
-				intval($uid)
-			);
- 			if (dbm::is_result($r)) {
-				$self = ""; // Unused parameter
-				terminate_friendship($r[0], $self, $contact);
-			}
-		}
-		dba::update('contact', array('rel' => CONTACT_IS_FOLLOWER), array('id' => $contact['id']));
-
-		info(t('Contact unfollowed').EOL);
-		goaway(System::baseUrl().'/contacts/'.$contact['id']);
-	}
-	goaway($return_url);
-	// NOTREACHED
 }
