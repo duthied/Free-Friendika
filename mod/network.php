@@ -290,7 +290,7 @@ function network_query_get_sel_group(App $a) {
 	return $group;
 }
 
-function networkSetPager($a, $update) {
+function networkPager($a, $update) {
 	if ($update) {
 		// only setup pagination on initial page view
 		return ' LIMIT 100';
@@ -442,7 +442,7 @@ function networkFlatView(App $a, $update = 0) {
 		$sql_post_table = " INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`";
 	}
 
-	$pager_sql = networkSetPager($a, $update);
+	$pager_sql = networkPager($a, $update);
 
 	// show all items unthreaded in reverse created date order
 	$items = q("SELECT %s FROM `item` $sql_post_table %s
@@ -696,8 +696,6 @@ function networkThreadedView(App $a, $update = 0) {
 		$sql_extra3 .= " AND $sql_table.`mention`";
 	}
 
-	$pager_sql = networkSetPager($a, $update);
-
 	// Normal conversation view
 	if ($order === 'post') {
 		$ordering = "`created`";
@@ -718,6 +716,8 @@ function networkThreadedView(App $a, $update = 0) {
 	if (($_GET["offset"] != "")) {
 		$sql_extra3 .= sprintf(" AND $sql_order <= '%s'", dbesc($_GET["offset"]));
 	}
+
+	$pager_sql = networkPager($a, $update);
 
 	switch ($order_mode) {
 		case 'received':
