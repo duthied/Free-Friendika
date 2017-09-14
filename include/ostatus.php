@@ -476,6 +476,12 @@ class ostatus {
 	 */
 	private static function processPost($xpath, $entry, &$item, $importer) {
 		$item["uri"] = $xpath->query('atom:id/text()', $entry)->item(0)->nodeValue;
+
+		if (dba::exists('item', array('uid' => $importer["uid"], 'uri' => $item["uri"]))) {
+			logger('Post with URI '.$item["uri"].' already existed for user '.$importer["uid"].'.');
+			return;
+		}
+
 		$item["body"] = html2bbcode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue);
 		$item["object-type"] = $xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue;
 		if (($item["object-type"] == ACTIVITY_OBJ_BOOKMARK) || ($item["object-type"] == ACTIVITY_OBJ_EVENT)) {
@@ -590,7 +596,12 @@ class ostatus {
 		}
 
 		if (isset($item["parent-uri"]) && ($related != '')) {
-			self::fetchRelated($related, $item["parent-uri"], $importer);
+			if (!dba::exists('item', array('uid' => $importer["uid"], 'uri' => $item['parent-uri']))) {
+				self::fetchRelated($related, $item["parent-uri"], $importer);
+			} else {
+				logger('Reply with URI '.$item["uri"].' already existed for user '.$importer["uid"].'.');
+			}
+
 			$item["type"] = 'remote-comment';
 			$item["gravity"] = GRAVITY_COMMENT;
 		} else {
