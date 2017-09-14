@@ -2233,7 +2233,7 @@ $called_api = null;
 
 		//don't send title to regular StatusNET requests to avoid confusing these apps
 		if (x($_GET, 'getText')) {
-			$ret['title'] = $item['title'] ;
+			$ret['title'] = $item['title'];
 			if ($_GET['getText'] == 'html') {
 				$ret['text'] = bbcode($item['body'], false, false);
 			} elseif ($_GET['getText'] == 'plain') {
@@ -2280,14 +2280,31 @@ $called_api = null;
 				"<h1>", "</h1>", "<h2>", "</h2>",
 				"<h3>", "</h3>", "<h4>", "</h4>",
 				"<h5>", "</h5>", "<h6>", "</h6>");
-		$replace = array("<br>\n", "\n<blockquote>", "</blockquote>\n",
-				"\n<h1>", "</h1>\n", "\n<h2>", "</h2>\n",
-				"\n<h3>", "</h3>\n", "\n<h4>", "</h4>\n",
-				"\n<h5>", "</h5>\n", "\n<h6>", "</h6>\n");
+//		$replace = array(" \n<br>", " \n<blockquote>", "</blockquote>\n ",
+//				" \n<h1>", "</h1>\n ", " \n<h2>", "</h2>\n ",
+//				" \n<h3>", "</h3>\n ", " \n<h4>", "</h4>\n ",
+//				" \n<h5>", "</h5>\n ", " \n<h6>", "</h6>\n ");
+		$replace = array("<br>", "<br><blockquote>", "</blockquote><br>",
+				"<br><h1>", "</h1><br>", "<br><h2>", "</h2><br>",
+				"<br><h3>", "</h3><br>", "<br><h4>", "</h4><br>",
+				"<br><h5>", "</h5><br>", "<br><h6>", "</h6><br>");
 		$statushtml = str_replace($search, $replace, $statushtml);
 
 		if ($item['title'] != "") {
-			$statushtml = "<h4>" . bbcode($item['title']) . "</h4>\n" . $statushtml;
+			$statushtml = "<br><h4>" . bbcode($item['title']) . "</h4><br>" . $statushtml;
+		}
+
+		do {
+			$oldtext = $statushtml;
+			$statushtml = str_replace("<br><br>", "<br>", $statushtml);
+		} while ($oldtext != $statushtml);
+
+		if (substr($statushtml, 0, 4) == '<br>') {
+			$statushtml = substr($statushtml, 4);
+		}
+
+		if (substr($statushtml, 0, -4) == '<br>') {
+			$statushtml = substr($statushtml, -4);
 		}
 
 		// feeds without body should contain the link
