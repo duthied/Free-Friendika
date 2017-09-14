@@ -418,27 +418,26 @@ class ostatus {
 			self::processPost($xpath, $entry, $item, $importer);
 
 			if ($initialize && (count(self::$itemlist) > 0)) {
-				// We will import it everytime, when it is started by our contacts
-				$valid = !empty(self::$itemlist[0]['contact-id']);
-				if (!$valid) {
-					// If not, then it depends on this setting
-					$valid = !Config::get('system','ostatus_full_threads');
-				}
-
-				if ($valid) {
-					// But we will only import complete threads
-					$valid = self::$itemlist[0]['uri'] == self::$itemlist[0]['parent-uri'];
-				}
-
-				if ($valid) {
-					// Never post a thread when the only interaction by our contact was a like
-					$valid = false;
-					$verbs = array(ACTIVITY_POST, ACTIVITY_SHARE);
-					foreach (self::$itemlist AS $item) {
-						if (!empty($item['contact-id']) && in_array($item['verb'], $verbs)) {
-							$valid = true;
+				if (self::$itemlist[0]['uri'] == self::$itemlist[0]['parent-uri']) {
+					// We will import it everytime, when it is started by our contacts
+					$valid = !empty(self::$itemlist[0]['contact-id']);
+					if (!$valid) {
+						// If not, then it depends on this setting
+						$valid = !Config::get('system','ostatus_full_threads');
+					}
+					if ($valid) {
+						// Never post a thread when the only interaction by our contact was a like
+						$valid = false;
+						$verbs = array(ACTIVITY_POST, ACTIVITY_SHARE);
+						foreach (self::$itemlist AS $item) {
+							if (!empty($item['contact-id']) && in_array($item['verb'], $verbs)) {
+								$valid = true;
+							}
 						}
 					}
+				} else {
+					// But we will only import complete threads
+					$valid = dba::exists('item', array('uid' => $importer["uid"], 'uri' => self::$itemlist[0]['parent-uri']));
 				}
 
 				if ($valid) {
