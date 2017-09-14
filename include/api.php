@@ -2276,14 +2276,11 @@ $called_api = null;
 
 		$statushtml = trim(bbcode($body, false, false));
 
+		// Workaround for clients with limited HTML parser functionality
 		$search = array("<br>", "<blockquote>", "</blockquote>",
 				"<h1>", "</h1>", "<h2>", "</h2>",
 				"<h3>", "</h3>", "<h4>", "</h4>",
 				"<h5>", "</h5>", "<h6>", "</h6>");
-//		$replace = array(" \n<br>", " \n<blockquote>", "</blockquote>\n ",
-//				" \n<h1>", "</h1>\n ", " \n<h2>", "</h2>\n ",
-//				" \n<h3>", "</h3>\n ", " \n<h4>", "</h4>\n ",
-//				" \n<h5>", "</h5>\n ", " \n<h6>", "</h6>\n ");
 		$replace = array("<br>", "<br><blockquote>", "</blockquote><br>",
 				"<br><h1>", "</h1><br>", "<br><h2>", "</h2><br>",
 				"<br><h3>", "</h3><br>", "<br><h4>", "</h4><br>",
