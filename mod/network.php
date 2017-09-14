@@ -290,6 +290,13 @@ function network_query_get_sel_group(App $a) {
 	return $group;
 }
 
+/**
+ * @brief Sets the pager data and returns SQL
+ *
+ * @param App $a The global App
+ * @param integer $update Used for the automatic reloading
+ * @return string SQL with the appropriate LIMIT clause
+ */
 function networkPager($a, $update) {
 	if ($update) {
 		// only setup pagination on initial page view
@@ -318,6 +325,11 @@ function networkPager($a, $update) {
 	return sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
 }
 
+/**
+ * @brief Sets items as seen
+ *
+ * @param array $condition The array with the SQL condition
+ */
 function networkSetSeen($condition) {
 	if (empty($condition)) {
 		return;
@@ -330,6 +342,15 @@ function networkSetSeen($condition) {
 	}
 }
 
+/**
+ * @brief Create the conversation HTML
+ *
+ * @param App $a The global App
+ * @param array $items Items of the conversation
+ * @param string $mode Display mode for the conversation
+ * @param integer $update Used for the automatic reloading
+ * @return string HTML of the conversation
+ */
 function networkConversation($a, $items, $mode, $update) {
 	// Set this so that the conversation function can find out contact info for our wall-wall items
 	$a->page_contact = $a->contact;
