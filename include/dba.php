@@ -214,6 +214,16 @@ class dba {
 		}
 	}
 
+	/**
+	 * @brief execute SQL query - deprecated
+	 *
+	 * Please use the dba:: functions instead:
+	 * dba::select, dba::exists, dba::insert
+	 * dba::delete, dba::update, dba::p, dba::e
+	 *
+	 * @param string $sql SQL query
+	 * @return array Query array
+	 */
 	public function q($sql) {
 		$ret = self::p($sql);
 
@@ -366,6 +376,10 @@ class dba {
 	/**
 	 * @brief Executes a prepared statement that returns data
 	 * @usage Example: $r = p("SELECT * FROM `item` WHERE `guid` = ?", $guid);
+	 *
+	 * Please only use it with complicated queries.
+	 * For all regular queries please use dba::select or dba::exists
+	 *
 	 * @param string $sql SQL statement
 	 * @return object statement object
 	 */
@@ -574,6 +588,8 @@ class dba {
 	/**
 	 * @brief Executes a prepared statement like UPDATE or INSERT that doesn't return data
 	 *
+	 * Please use dba::delete, dba::insert, dba::update, ... instead
+	 *
 	 * @param string $sql SQL statement
 	 * @return boolean Was the query successfull? False is returned only if an error occurred
 	 */
@@ -655,6 +671,8 @@ class dba {
 
 	/**
 	 * @brief Fetches the first row
+	 *
+	 * Please use dba::select or dba::select whenever this is possible.
 	 *
 	 * @param string $sql SQL statement
 	 * @return array first row of query
@@ -1159,7 +1177,11 @@ class dba {
 	 * Example:
 	 * $table = "item";
 	 * $fields = array("id", "uri", "uid", "network");
+	 *
 	 * $condition = array("uid" => 1, "network" => 'dspr');
+	 * or:
+	 * $condition = array("`uid` = ? AND `network` IN (?, ?)", 1, 'dfrn', 'dspr');
+	 *
 	 * $params = array("order" => array("id", "received" => true), "limit" => 1);
 	 *
 	 * $data = dba::select($table, $fields, $condition, $params);
@@ -1297,10 +1319,16 @@ function dbesc($str) {
 	}
 }
 
-// Function: q($sql,$args);
-// Description: execute SQL query with printf style args.
-// Example: $r = q("SELECT * FROM `%s` WHERE `uid` = %d",
-//                   'user', 1);
+/**
+ * @brief execute SQL query with printf style args - deprecated
+ *
+ * Please use the dba:: functions instead:
+ * dba::select, dba::exists, dba::insert
+ * dba::delete, dba::update, dba::p, dba::e
+ *
+ * @param $args Query parameters (1 to N parameters of different types)
+ * @return array Query array
+ */
 function q($sql) {
 	global $db;
 
@@ -1336,10 +1364,9 @@ function q($sql) {
 /**
  * @brief Performs a query with "dirty reads" - deprecated
  *
- * By doing dirty reads (reading uncommitted data) no locks are performed
- * This function can be used to fetch data that doesn't need to be reliable.
- *
- * Hadn't worked like expected and does now the same like the other function.
+ * Please use the dba:: functions instead:
+ * dba::select, dba::exists, dba::insert
+ * dba::delete, dba::update, dba::p, dba::e
  *
  * @param $args Query parameters (1 to N parameters of different types)
  * @return array Query array
