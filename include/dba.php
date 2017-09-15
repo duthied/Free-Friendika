@@ -423,6 +423,19 @@ class dba {
 
 		switch (self::$dbo->driver) {
 			case 'pdo':
+				// If there are no arguments we use "query"
+				if (count($args) == 0) {
+					if (!$retval = self::$dbo->db->query($sql)) {
+						$errorInfo = self::$dbo->db->errorInfo();
+						self::$dbo->error = $errorInfo[2];
+						self::$dbo->errorno = $errorInfo[1];
+						$retval = false;
+						break;
+					}
+					self::$dbo->affected_rows = $retval->rowCount();
+					break;
+				}
+
 				if (!$stmt = self::$dbo->db->prepare($sql)) {
 					$errorInfo = self::$dbo->db->errorInfo();
 					self::$dbo->error = $errorInfo[2];
@@ -451,8 +464,8 @@ class dba {
 				$command = strtolower($parts[0]);
 				$can_be_prepared = in_array($command, array('select', 'update', 'insert', 'delete'));
 
-				// The fallback routine currently only works with statements that doesn't return values
-				if (!$can_be_prepared && $called_from_e) {
+				// The fallback routine is called as well when there are no arguments
+				if (!$can_be_prepared || (count($args) == 0)) {
 					$retval = self::$dbo->db->query(self::replace_parameters($sql, $args));
 					if (self::$dbo->db->errno) {
 						self::$dbo->error = self::$dbo->db->error;
@@ -727,6 +740,10 @@ class dba {
 			case 'pdo':
 				return $stmt->fetch(PDO::FETCH_ASSOC);
 			case 'mysqli':
+				if (get_class($stmt) == 'mysqli_result') {
+					return $stmt->fetch_assoc();
+				}
+
 				// This code works, but is slow
 
 				// Bind the result to a result array
@@ -890,13 +907,13 @@ class dba {
 		$definition = db_definition();
 
 		foreach ($definition AS $table => $structure) {
-		        foreach ($structure['fields'] AS $field => $field_struct) {
-		                if (isset($field_struct['relation'])) {
-		                        foreach ($field_struct['relation'] AS $rel_table => $rel_field) {
-		                                self::$relation[$rel_table][$rel_field][$table][] = $field;
-		                        }
-		                }
-		        }
+			foreach ($structure['fields'] AS $field => $field_struct) {
+				if (isset($field_struct['relation'])) {
+					foreach ($field_struct['relation'] AS $rel_table => $rel_field) {
+						self::$relation[$rel_table][$rel_field][$table][] = $field;
+					}
+				}
+			}
 		}
 	}
 
