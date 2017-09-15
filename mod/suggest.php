@@ -39,10 +39,7 @@ function suggest_init(App $a) {
 		}
 		// Now check how the user responded to the confirmation query
 		if (!$_REQUEST['canceled']) {
-			q("INSERT INTO `gcign` ( `uid`, `gcid` ) VALUES ( %d, %d ) ",
-				intval(local_user()),
-				intval($_GET['ignore'])
-			);
+			dba::insert('gcign', array('uid' => local_user(), 'gcid' => $_GET['ignore']));
 		}
 	}
 

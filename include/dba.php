@@ -1400,37 +1400,6 @@ function qu($sql) {
 	return false;
 }
 
-/**
- *
- * Raw db query, no arguments
- *
- */
-function dbq($sql) {
-	global $db;
-
-	if ($db && $db->connected) {
-		$ret = $db->q($sql);
-	} else {
-		$ret = false;
-	}
-	return $ret;
-}
-
-// Caller is responsible for ensuring that any integer arguments to
-// dbesc_array are actually integers and not malformed strings containing
-// SQL injection vectors. All integer array elements should be specifically
-// cast to int to avoid trouble.
-function dbesc_array_cb(&$item, $key) {
-	if (is_string($item))
-		$item = dbesc($item);
-}
-
-function dbesc_array(&$arr) {
-	if (is_array($arr) && count($arr)) {
-		array_walk($arr,'dbesc_array_cb');
-	}
-}
-
 function dba_timer() {
 	return microtime(true);
 }

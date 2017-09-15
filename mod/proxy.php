@@ -142,10 +142,10 @@ function proxy_init(App $a) {
 	$r = array();
 
 	if (!$direct_cache && ($cachefile == '')) {
-		$r = qu("SELECT * FROM `photo` WHERE `resource-id` = '%s' LIMIT 1", $urlhash);
+		$r = dba::select('photo', array('data', 'desc'), array('resource-id' => $urlhash), array('limit' => 1));
 		if (dbm::is_result($r)) {
-			$img_str = $r[0]['data'];
-			$mime = $r[0]['desc'];
+			$img_str = $r['data'];
+			$mime = $r['desc'];
 			if ($mime == '') {
 				$mime = 'image/jpeg';
 			}
@@ -181,23 +181,11 @@ function proxy_init(App $a) {
 				die();
 			}
 
-			q("INSERT INTO `photo`
-			( `uid`, `contact-id`, `guid`, `resource-id`, `created`, `edited`, `filename`, `album`, `height`, `width`, `desc`, `data`, `scale`, `profile`, `allow_cid`, `allow_gid`, `deny_cid`, `deny_gid` )
-			VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', '%s', %d, %d, '%s', '%s', '%s', '%s' )",
-				0, 0, get_guid(), dbesc($urlhash),
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert()),
-				dbesc(basename(dbesc($_REQUEST['url']))),
-				dbesc(''),
-				intval(imagesy($image)),
-				intval(imagesx($image)),
-				$mime,
-				dbesc($img_str),
-				100,
-				intval(0),
-				dbesc(''), dbesc(''), dbesc(''), dbesc('')
-			);
-
+			$fields = array('uid' => 0, 'contact-id' => 0, 'guid' => get_guid(), 'resource-id' => $urlhash, 'created' => datetime_convert(), 'edited' => datetime_convert(),
+				'filename' => basename($_REQUEST['url']), 'type' => '', 'album' => '', 'height' => imagesy($image), 'width' => imagesx($image),
+				'datasize' => 0, 'data' => $img_str, 'scale' => 100, 'profile' => 0,
+				'allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '', 'desc' => $mime);
+			dba::insert('photo', $fields);
 		} else {
 			$img = new Photo($img_str, $mime);
 			if ($img->is_valid() && !$direct_cache && ($cachefile == '')) {
