@@ -672,7 +672,7 @@ class dba {
 	/**
 	 * @brief Fetches the first row
 	 *
-	 * Please use dba::select or dba::select whenever this is possible.
+	 * Please use dba::select or dba::exists whenever this is possible.
 	 *
 	 * @param string $sql SQL statement
 	 * @return array first row of query
