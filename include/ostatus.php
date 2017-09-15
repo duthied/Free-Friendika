@@ -373,7 +373,7 @@ class ostatus {
 			$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
 
 			/// Delete a message
-			if ($item["verb"] == "qvitter-delete-notice" || $item["verb"] == ACTIVITY_DELETE) {
+			if (in_array($item["verb"], array('qvitter-delete-notice', ACTIVITY_DELETE, 'delete'))) {
 				// ignore "Delete" messages (by now)
 				logger("Ignore delete message ".print_r($item, true));
 				continue;
@@ -411,6 +411,8 @@ class ostatus {
 			}
 
 			// http://activitystrea.ms/schema/1.0/rsvp-yes
+			// http://activitystrea.ms/schema/1.0/unfavorite
+			// http://mastodon.social/schema/1.0/block
 			if (!in_array($item["verb"], array(ACTIVITY_POST, ACTIVITY_LIKE, ACTIVITY_SHARE))) {
 				logger("Unhandled verb ".$item["verb"]." ".print_r($item, true));
 			}
@@ -418,27 +420,26 @@ class ostatus {
 			self::processPost($xpath, $entry, $item, $importer);
 
 			if ($initialize && (count(self::$itemlist) > 0)) {
-				// We will import it everytime, when it is started by our contacts
-				$valid = !empty(self::$itemlist[0]['contact-id']);
-				if (!$valid) {
-					// If not, then it depends on this setting
-					$valid = !Config::get('system','ostatus_full_threads');
-				}
-
-				if ($valid) {
-					// But we will only import complete threads
-					$valid = self::$itemlist[0]['uri'] == self::$itemlist[0]['parent-uri'];
-				}
-
-				if ($valid) {
-					// Never post a thread when the only interaction by our contact was a like
-					$valid = false;
-					$verbs = array(ACTIVITY_POST, ACTIVITY_SHARE);
-					foreach (self::$itemlist AS $item) {
-						if (!empty($item['contact-id']) && in_array($item['verb'], $verbs)) {
-							$valid = true;
+				if (self::$itemlist[0]['uri'] == self::$itemlist[0]['parent-uri']) {
+					// We will import it everytime, when it is started by our contacts
+					$valid = !empty(self::$itemlist[0]['contact-id']);
+					if (!$valid) {
+						// If not, then it depends on this setting
+						$valid = !Config::get('system','ostatus_full_threads');
+					}
+					if ($valid) {
+						// Never post a thread when the only interaction by our contact was a like
+						$valid = false;
+						$verbs = array(ACTIVITY_POST, ACTIVITY_SHARE);
+						foreach (self::$itemlist AS $item) {
+							if (!empty($item['contact-id']) && in_array($item['verb'], $verbs)) {
+								$valid = true;
+							}
 						}
 					}
+				} else {
+					// But we will only import complete threads
+					$valid = dba::exists('item', array('uid' => $importer["uid"], 'uri' => self::$itemlist[0]['parent-uri']));
 				}
 
 				if ($valid) {
@@ -477,6 +478,12 @@ class ostatus {
 	 */
 	private static function processPost($xpath, $entry, &$item, $importer) {
 		$item["uri"] = $xpath->query('atom:id/text()', $entry)->item(0)->nodeValue;
+
+		if (dba::exists('item', array('uid' => $importer["uid"], 'uri' => $item["uri"]))) {
+			logger('Post with URI '.$item["uri"].' already existed for user '.$importer["uid"].'.');
+			return;
+		}
+
 		$item["body"] = html2bbcode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue);
 		$item["object-type"] = $xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue;
 		if (($item["object-type"] == ACTIVITY_OBJ_BOOKMARK) || ($item["object-type"] == ACTIVITY_OBJ_EVENT)) {
@@ -591,7 +598,12 @@ class ostatus {
 		}
 
 		if (isset($item["parent-uri"]) && ($related != '')) {
-			self::fetchRelated($related, $item["parent-uri"], $importer);
+			if (!dba::exists('item', array('uid' => $importer["uid"], 'uri' => $item['parent-uri']))) {
+				self::fetchRelated($related, $item["parent-uri"], $importer);
+			} else {
+				logger('Reply with URI '.$item["uri"].' already existed for user '.$importer["uid"].'.');
+			}
+
 			$item["type"] = 'remote-comment';
 			$item["gravity"] = GRAVITY_COMMENT;
 		} else {
