@@ -1361,45 +1361,6 @@ function q($sql) {
 	return $data;
 }
 
-/**
- * @brief Performs a query with "dirty reads" - deprecated
- *
- * Please use the dba:: functions instead:
- * dba::select, dba::exists, dba::insert
- * dba::delete, dba::update, dba::p, dba::e
- *
- * @param $args Query parameters (1 to N parameters of different types)
- * @return array Query array
- */
-function qu($sql) {
-	global $db;
-
-	$args = func_get_args();
-	unset($args[0]);
-
-	if ($db && $db->connected) {
-		$sql = $db->clean_query($sql);
-		$sql = $db->any_value_fallback($sql);
-		$stmt = @vsprintf($sql,$args); // Disabled warnings
-		if ($stmt === false)
-			logger('dba: vsprintf error: ' . print_r(debug_backtrace(),true), LOGGER_DEBUG);
-
-		$db->log_index($stmt);
-
-		$retval = $db->q($stmt);
-		return $retval;
-	}
-
-	/**
-	 *
-	 * This will happen occasionally trying to store the
-	 * session data after abnormal program termination
-	 *
-	 */
-	logger('dba: no database: ' . print_r($args,true));
-	return false;
-}
-
 function dba_timer() {
 	return microtime(true);
 }

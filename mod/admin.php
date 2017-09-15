@@ -457,7 +457,7 @@ function admin_page_federation(App $a) {
 	foreach ($platforms as $p) {
 		// get a total count for the platform, the name and version of the
 		// highest version and the protocol tpe
-		$c = qu('SELECT COUNT(*) AS `total`, ANY_VALUE(`platform`) AS `platform`,
+		$c = q('SELECT COUNT(*) AS `total`, ANY_VALUE(`platform`) AS `platform`,
 				ANY_VALUE(`network`) AS `network`, MAX(`version`) AS `version` FROM `gserver`
 				WHERE `platform` LIKE "%s" AND `last_contact` >= `last_failure`
 				ORDER BY `version` ASC;', $p);
@@ -465,7 +465,7 @@ function admin_page_federation(App $a) {
 
 		// what versions for that platform do we know at all?
 		// again only the active nodes
-		$v = qu('SELECT COUNT(*) AS `total`, `version` FROM `gserver`
+		$v = q('SELECT COUNT(*) AS `total`, `version` FROM `gserver`
 				WHERE `last_contact` >= `last_failure` AND `platform` LIKE "%s"
 				GROUP BY `version`
 				ORDER BY `version`;', $p);
@@ -644,13 +644,13 @@ function admin_page_summary(App $a) {
 
 	logger('accounts: '.print_r($accounts,true),LOGGER_DATA);
 
-	$r = qu("SELECT COUNT(`id`) AS `count` FROM `register`");
+	$r = q("SELECT COUNT(`id`) AS `count` FROM `register`");
 	$pending = $r[0]['count'];
 
-	$r = qu("SELECT COUNT(*) AS `total` FROM `queue` WHERE 1");
+	$r = q("SELECT COUNT(*) AS `total` FROM `queue` WHERE 1");
 	$queue = (($r) ? $r[0]['total'] : 0);
 
-	$r = qu("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE NOT `done`");
+	$r = q("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE NOT `done`");
 	$workerqueue = (($r) ? $r[0]['total'] : 0);
 
 	// We can do better, but this is a quick queue status
@@ -1487,7 +1487,7 @@ function admin_page_users(App $a) {
 
 
 	/* get users */
-	$total = qu("SELECT COUNT(*) AS `total` FROM `user` WHERE 1");
+	$total = q("SELECT COUNT(*) AS `total` FROM `user` WHERE 1");
 	if (count($total)) {
 		$a->set_pager_total($total[0]['total']);
 		$a->set_pager_itemspage(100);
@@ -1522,7 +1522,7 @@ function admin_page_users(App $a) {
 	$sql_order = "`".str_replace('.','`.`',$order)."`";
 	$sql_order_direction = ($order_direction === "+")?"ASC":"DESC";
 
-	$users = qu("SELECT `user`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`account_expired`, `contact`.`last-item` AS `lastitem_date`
+	$users = q("SELECT `user`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`account_expired`, `contact`.`last-item` AS `lastitem_date`
 				FROM `user`
 				INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
 				WHERE `user`.`verified`
