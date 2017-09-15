@@ -2,6 +2,8 @@
 // Session management functions. These provide database storage of PHP
 // session info.
 
+use Friendica\Core\Config;
+
 require_once('include/cache.php');
 
 $session_exists = 0;
@@ -113,6 +115,10 @@ $gc_probability = 50;
 ini_set('session.gc_probability', $gc_probability);
 ini_set('session.use_only_cookies', 1);
 ini_set('session.cookie_httponly', 1);
+
+if (Config::get('system', 'ssl_policy') == SSL_POLICY_FULL) {
+	ini_set('session.cookie_secure', 1);
+}
 
 if (!get_config('system', 'disable_database_session')) {
 	session_set_save_handler('ref_session_open', 'ref_session_close',
