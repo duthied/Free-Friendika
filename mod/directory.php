@@ -71,7 +71,7 @@ function directory_content(App $a) {
 	$publish = ((get_config('system','publish_all')) ? '' : " AND `publish` = 1 " );
 
 
-	$r = $db->q("SELECT COUNT(*) AS `total` FROM `profile`
+	$r = q("SELECT COUNT(*) AS `total` FROM `profile`
 			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 			WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 $sql_extra ");
 	if (dbm::is_result($r))
@@ -81,11 +81,11 @@ function directory_content(App $a) {
 
 	$limit = intval($a->pager['start']).",".intval($a->pager['itemspage']);
 
-	$r = $db->q("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
+	$r = q("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
 			`contact`.`addr`, `contact`.`url` AS profile_url FROM `profile`
 			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
-			WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 AND `contact`.`self` $sql_extra $order LIMIT ".$limit);
+			WHERE `is-default` $publish AND `user`.`blocked` = 0 AND `contact`.`self` $sql_extra $order LIMIT ".$limit);
 	if (dbm::is_result($r)) {
 
 		if (in_array('small', $a->argv)) {
