@@ -391,7 +391,7 @@ class dba {
 			return false;
 		}
 
-		if (substr_count($sql, '?') != count($args)) {
+		if ((substr_count($sql, '?') != count($args)) && (count($args) > 0)) {
 			// Question: Should we continue or stop the query here?
 			logger('Parameter mismatch. Query "'.$sql.'" - Parameters '.print_r($args, true), LOGGER_DEBUG);
 		}
