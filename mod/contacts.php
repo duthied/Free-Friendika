@@ -574,9 +574,15 @@ function contacts_content(App $a) {
 		if ($contact['network'] == NETWORK_DFRN)
 			$profile_select = contact_profile_assign($contact['profile-id'],(($contact['network'] !== NETWORK_DFRN) ? true : false));
 
-		if (in_array($contact['network'], array(NETWORK_DIASPORA, NETWORK_OSTATUS)) &&
-			($contact['rel'] == CONTACT_IS_FOLLOWER))
-			$follow = System::baseUrl(true)."/follow?url=".urlencode($contact["url"]);
+		if (in_array($contact['network'], array(NETWORK_DIASPORA, NETWORK_OSTATUS))) {
+			if ($contact['rel'] == CONTACT_IS_FOLLOWER) {
+				$follow = System::baseUrl(true)."/follow?url=".urlencode($contact["url"]);
+				$follow_text = t("Connect/Follow");
+			} elseif ($contact['rel'] == CONTACT_IS_FRIEND) {
+				$follow = System::baseUrl(true)."/unfollow?url=".urlencode($contact["url"]);
+				$follow_text = t("Disconnect/Unfollow");
+			}
+		}
 
 		// Load contactact related actions like hide, suggest, delete and others
 		$contact_actions = contact_actions($contact);
@@ -613,7 +619,7 @@ function contacts_content(App $a) {
 			'$last_update' => $last_update,
 			'$udnow' => t('Update now'),
 			'$follow' => $follow,
-			'$follow_text' => t("Connect/Follow"),
+			'$follow_text' => $follow_text,
 			'$profile_select' => $profile_select,
 			'$contact_id' => $contact['id'],
 			'$block_text' => (($contact['blocked']) ? t('Unblock') : t('Block') ),

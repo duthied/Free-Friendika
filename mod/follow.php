@@ -8,6 +8,47 @@ require_once 'include/follow.php';
 require_once 'include/Contact.php';
 require_once 'include/contact_selectors.php';
 
+function follow_post(App $a) {
+
+	if (! local_user()) {
+		notice( t('Permission denied.') . EOL);
+		goaway($_SESSION['return_url']);
+		// NOTREACHED
+	}
+
+	if ($_REQUEST['cancel']) {
+		goaway($_SESSION['return_url']);
+	}
+
+	$uid = local_user();
+	$url = notags(trim($_REQUEST['url']));
+	$return_url = $_SESSION['return_url'];
+
+	// Makes the connection request for friendica contacts easier
+	// This is just a precaution if maybe this page is called somewhere directly via POST
+	$_SESSION["fastlane"] = $url;
+
+	$result = new_contact($uid,$url,true);
+
+	if ($result['success'] == false) {
+		if ($result['message']) {
+			notice($result['message']);
+		}
+		goaway($return_url);
+	} elseif ($result['cid']) {
+		goaway(System::baseUrl().'/contacts/'.$result['cid']);
+	}
+
+	info( t('Contact added').EOL);
+
+	if (strstr($return_url,'contacts')) {
+		goaway(System::baseUrl().'/contacts/'.$contact_id);
+	}
+
+	goaway($return_url);
+	// NOTREACHED
+}
+
 function follow_content(App $a) {
 
 	if (! local_user()) {
@@ -99,13 +140,6 @@ function follow_content(App $a) {
 		$r[0]["about"] = "";
 	}
 
-	$header = $ret["name"];
-
-	if ($ret["addr"] != "") {
-		$header .= " <".$ret["addr"].">";
-	}
-
-	//$header .= " (".network_to_name($ret['network'], $ret['url']).")";
 	$header = t("Connect/Follow");
 
 	$o  = replace_macros($tpl,array(
@@ -153,45 +187,4 @@ function follow_content(App $a) {
 	}
 
 	return $o;
-}
-
-function follow_post(App $a) {
-
-	if (! local_user()) {
-		notice( t('Permission denied.') . EOL);
-		goaway($_SESSION['return_url']);
-		// NOTREACHED
-	}
-
-	if ($_REQUEST['cancel']) {
-		goaway($_SESSION['return_url']);
-	}
-
-	$uid = local_user();
-	$url = notags(trim($_REQUEST['url']));
-	$return_url = $_SESSION['return_url'];
-
-	// Makes the connection request for friendica contacts easier
-	// This is just a precaution if maybe this page is called somewhere directly via POST
-	$_SESSION["fastlane"] = $url;
-
-	$result = new_contact($uid,$url,true);
-
-	if ($result['success'] == false) {
-		if ($result['message']) {
-			notice($result['message']);
-		}
-		goaway($return_url);
-	} elseif ($result['cid']) {
-		goaway(System::baseUrl().'/contacts/'.$result['cid']);
-	}
-
-	info( t('Contact added').EOL);
-
-	if (strstr($return_url,'contacts')) {
-		goaway(System::baseUrl().'/contacts/'.$contact_id);
-	}
-
-	goaway($return_url);
-	// NOTREACHED
 }

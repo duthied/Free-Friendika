@@ -352,8 +352,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 				dbesc(NETWORK_DFRN),
 				intval($contact_id)
 			);
-		}
-		else {
+		} else {
 
 			// $network !== NETWORK_DFRN
 
@@ -361,17 +360,15 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 			$notify = (($contact['notify']) ? $contact['notify'] : '');
 			$poll   = (($contact['poll']) ? $contact['poll'] : '');
 
-			if((! $contact['notify']) || (! $contact['poll'])) {
-				$arr = Probe::lrdd($contact['url']);
-				if(count($arr)) {
-					foreach($arr as $link) {
-						if($link['@attributes']['rel'] === 'salmon')
-							$notify = $link['@attributes']['href'];
-						if($link['@attributes']['rel'] === NAMESPACE_FEED)
-							$poll = $link['@attributes']['href'];
-					}
-				}
+			$arr = Probe::uri($contact['url']);
+			if (empty($contact['notify'])) {
+				$notify = $arr['notify'];
 			}
+			if (empty($contact['poll'])) {
+				$poll = $arr['poll'];
+			}
+
+			$addr = $arr['addr'];
 
 			$new_relation = $contact['rel'];
 			$writable = $contact['writable'];
@@ -394,6 +391,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 
 			$r = q("UPDATE `contact` SET `name-date` = '%s',
 				`uri-date` = '%s',
+				`addr` = '%s',
 				`notify` = '%s',
 				`poll` = '%s',
 				`blocked` = 0,
@@ -406,6 +404,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 			",
 				dbesc(datetime_convert()),
 				dbesc(datetime_convert()),
+				dbesc($addr),
 				dbesc($notify),
 				dbesc($poll),
 				dbesc($network),
