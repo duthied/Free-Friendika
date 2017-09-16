@@ -9,27 +9,27 @@ use Friendica\Network\Probe;
 // authorisation to do this.
 
 function user_remove($uid) {
-	if(! $uid)
+	if (!$uid) {
 		return;
+	}
+
 	logger('Removing user: ' . $uid);
 
-	$r = q("select * from user where uid = %d limit 1", intval($uid));
+	$r = dba::select('user', array(), array('uid' => $uid), array("limit" => 1));
 
-	call_hooks('remove_user',$r[0]);
+	call_hooks('remove_user',$r);
 
 	// save username (actually the nickname as it is guaranteed
 	// unique), so it cannot be re-registered in the future.
 
-	q("insert into userd ( username ) values ( '%s' )",
-		$r[0]['nickname']
-	);
+	dba::insert('userd', array('username' => $r['nickname']));
 
 	// The user and related data will be deleted in "cron_expire_and_remove_users" (cronjobs.php)
 	q("UPDATE `user` SET `account_removed` = 1, `account_expires_on` = UTC_TIMESTAMP() WHERE `uid` = %d", intval($uid));
 	proc_run(PRIORITY_HIGH, "include/notifier.php", "removeme", $uid);
 
 	// Send an update to the directory
-	proc_run(PRIORITY_LOW, "include/directory.php", $r[0]['url']);
+	proc_run(PRIORITY_LOW, "include/directory.php", $r['url']);
 
 	if($uid == local_user()) {
 		unset($_SESSION['authenticated']);

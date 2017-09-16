@@ -7,11 +7,6 @@ require_once('include/datetime.php');
 /**
  * @class MySQL database class
  *
- * For debugging, insert 'dbg(1);' anywhere in the program flow.
- * dbg(0); will turn it off. Logging is performed at LOGGER_DATA level.
- * When logging, all binary info is converted to text and html entities are escaped so that
- * the debugging stream is safe to view within both terminals and web pages.
- *
  * This class is for the low level database stuff that does driver specific things.
  */
 
@@ -240,10 +235,6 @@ class dba {
 		}
 
 		return $data;
-	}
-
-	public function dbg($dbg) {
-		$this->debug = $dbg;
 	}
 
 	public function escape($str) {
@@ -1291,24 +1282,6 @@ class dba {
 	}
 }
 
-function printable($s) {
-	$s = preg_replace("~([\x01-\x08\x0E-\x0F\x10-\x1F\x7F-\xFF])~",".", $s);
-	$s = str_replace("\x00",'.',$s);
-	if (x($_SERVER,'SERVER_NAME')) {
-		$s = escape_tags($s);
-	}
-	return $s;
-}
-
-// Procedural functions
-function dbg($state) {
-	global $db;
-
-	if ($db) {
-		$db->dbg($state);
-	}
-}
-
 function dbesc($str) {
 	global $db;
 
@@ -1359,76 +1332,6 @@ function q($sql) {
 	}
 
 	return $data;
-}
-
-/**
- * @brief Performs a query with "dirty reads" - deprecated
- *
- * Please use the dba:: functions instead:
- * dba::select, dba::exists, dba::insert
- * dba::delete, dba::update, dba::p, dba::e
- *
- * @param $args Query parameters (1 to N parameters of different types)
- * @return array Query array
- */
-function qu($sql) {
-	global $db;
-
-	$args = func_get_args();
-	unset($args[0]);
-
-	if ($db && $db->connected) {
-		$sql = $db->clean_query($sql);
-		$sql = $db->any_value_fallback($sql);
-		$stmt = @vsprintf($sql,$args); // Disabled warnings
-		if ($stmt === false)
-			logger('dba: vsprintf error: ' . print_r(debug_backtrace(),true), LOGGER_DEBUG);
-
-		$db->log_index($stmt);
-
-		$retval = $db->q($stmt);
-		return $retval;
-	}
-
-	/**
-	 *
-	 * This will happen occasionally trying to store the
-	 * session data after abnormal program termination
-	 *
-	 */
-	logger('dba: no database: ' . print_r($args,true));
-	return false;
-}
-
-/**
- *
- * Raw db query, no arguments
- *
- */
-function dbq($sql) {
-	global $db;
-
-	if ($db && $db->connected) {
-		$ret = $db->q($sql);
-	} else {
-		$ret = false;
-	}
-	return $ret;
-}
-
-// Caller is responsible for ensuring that any integer arguments to
-// dbesc_array are actually integers and not malformed strings containing
-// SQL injection vectors. All integer array elements should be specifically
-// cast to int to avoid trouble.
-function dbesc_array_cb(&$item, $key) {
-	if (is_string($item))
-		$item = dbesc($item);
-}
-
-function dbesc_array(&$arr) {
-	if (is_array($arr) && count($arr)) {
-		array_walk($arr,'dbesc_array_cb');
-	}
 }
 
 function dba_timer() {

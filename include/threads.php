@@ -16,11 +16,7 @@ function add_thread($itemid, $onlyshadow = false) {
 	$item['iid'] = $itemid;
 
 	if (!$onlyshadow) {
-		$result = dbq("INSERT INTO `thread` (`"
-				.implode("`, `", array_keys($item))
-				."`) VALUES ('"
-				.implode("', '", array_values($item))
-				."')");
+		$result = dba::insert('thread', $item);
 
 		logger("Add thread for item ".$itemid." - ".print_r($result, true), LOGGER_DEBUG);
 	}

@@ -138,21 +138,12 @@ function wall_attach_post(App $a) {
 	$mimetype = z_mime_content_type($filename);
 	$hash = get_guid(64);
 	$created = datetime_convert();
-	$r = q("INSERT INTO `attach` ( `uid`, `hash`, `filename`, `filetype`, `filesize`, `data`, `created`, `edited`, `allow_cid`, `allow_gid`,`deny_cid`, `deny_gid` )
-		VALUES ( %d, '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) ",
-		intval($page_owner_uid),
-		dbesc($hash),
-		dbesc($filename),
-		dbesc($mimetype),
-		intval($filesize),
-		dbesc($filedata),
-		dbesc($created),
-		dbesc($created),
-		dbesc('<' . $page_owner_cid . '>'),
-		dbesc(''),
-		dbesc(''),
-		dbesc('')
-	);
+
+	$fields = array('uid' => $page_owner_uid, 'hash' => $hash, 'filename' => $filename, 'filetype' => $mimetype,
+		'filesize' => $filesize, 'data' => $filedata, 'created' => $created, 'edited' => $created,
+		'allow_cid' => '<' . $page_owner_cid . '>', 'allow_gid' => '','deny_cid' => '', 'deny_gid' => '');
+
+	$r = dba::insert('attach', $fields);
 
 	@unlink($src);
 

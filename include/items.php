@@ -955,7 +955,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	 * An unique index would help - but the limitations of MySQL (maximum size of index values) prevent this.
 	 */
 	if ($arr["uid"] == 0) {
-		$r = qu("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = 0 LIMIT 1", dbesc(trim($arr['uri'])));
+		$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = 0 LIMIT 1", dbesc(trim($arr['uri'])));
 		if (dbm::is_result($r)) {
 			logger('Global item already stored. URI: '.$arr['uri'].' on network '.$arr['network'], LOGGER_DEBUG);
 			return 0;

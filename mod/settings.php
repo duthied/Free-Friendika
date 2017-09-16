@@ -231,17 +231,12 @@ function settings_post(App $a) {
 					intval(local_user())
 				);
 				if (! dbm::is_result($r)) {
-					q("INSERT INTO `mailacct` (`uid`) VALUES (%d)",
-						intval(local_user())
-					);
+					dba::insert('mailacct', array('uid' => local_user()));
 				}
 				if(strlen($mail_pass)) {
 					$pass = '';
 					openssl_public_encrypt($mail_pass,$pass,$a->user['pubkey']);
-					q("UPDATE `mailacct` SET `pass` = '%s' WHERE `uid` = %d",
-						dbesc(bin2hex($pass)),
-						intval(local_user())
-					);
+					dba::update('mailacct', array('pass' => bin2hex($pass)), array('uid' => local_user()));
 				}
 				$r = q("UPDATE `mailacct` SET `server` = '%s', `port` = %d, `ssltype` = '%s', `user` = '%s',
 					`action` = %d, `movetofolder` = '%s',

@@ -35,10 +35,7 @@ function delegate_content(App $a) {
 				dbesc(normalise_link(System::baseUrl() . '/profile/' . $r[0]['nickname']))
 			);
 			if (dbm::is_result($r)) {
-				q("insert into manage ( uid, mid ) values ( %d , %d ) ",
-					intval($a->argv[2]),
-					intval(local_user())
-				);
+				dba::insert('manage', array('uid' => $a->argv[2], 'mid' => local_user()));
 			}
 		}
 		goaway(System::baseUrl() . '/delegate');
