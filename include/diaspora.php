@@ -3526,7 +3526,14 @@ class Diaspora {
 		$itemaddr = self::handle_from_contact($item["contact-id"], $item["gcontact-id"]);
 
 		$msg_type = "retraction";
-		$target_type = "Post";
+
+		if ($item['id'] == $item['parent']) {
+			$target_type = "Post";
+		} elseif ($item["verb"] == ACTIVITY_LIKE) {
+			$target_type = "Like";
+		} else {
+			$target_type = "Comment";
+		}
 
 		$message = array("author" => $itemaddr,
 				"target_guid" => $item['guid'],
