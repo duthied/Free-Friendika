@@ -7,11 +7,6 @@ require_once('include/datetime.php');
 /**
  * @class MySQL database class
  *
- * For debugging, insert 'dbg(1);' anywhere in the program flow.
- * dbg(0); will turn it off. Logging is performed at LOGGER_DATA level.
- * When logging, all binary info is converted to text and html entities are escaped so that
- * the debugging stream is safe to view within both terminals and web pages.
- *
  * This class is for the low level database stuff that does driver specific things.
  */
 
@@ -240,10 +235,6 @@ class dba {
 		}
 
 		return $data;
-	}
-
-	public function dbg($dbg) {
-		$this->debug = $dbg;
 	}
 
 	public function escape($str) {
@@ -1288,24 +1279,6 @@ class dba {
 			case 'mysql':
 				return mysql_free_result($stmt);
 		}
-	}
-}
-
-function printable($s) {
-	$s = preg_replace("~([\x01-\x08\x0E-\x0F\x10-\x1F\x7F-\xFF])~",".", $s);
-	$s = str_replace("\x00",'.',$s);
-	if (x($_SERVER,'SERVER_NAME')) {
-		$s = escape_tags($s);
-	}
-	return $s;
-}
-
-// Procedural functions
-function dbg($state) {
-	global $db;
-
-	if ($db) {
-		$db->dbg($state);
 	}
 }
 
