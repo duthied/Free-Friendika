@@ -1013,7 +1013,8 @@ class Diaspora {
 	 * @param array $item The item array
 	 */
 	private static function fetch_guid($item) {
-		preg_replace_callback("=diaspora://.*?/([^\s\]]*)=ism",
+		$expression = "=diaspora://.*?/post/([0-9A-Za-z\-_@.:]{15,254}[0-9A-Za-z])=ism";
+		preg_replace_callback($expression,
 			function ($match) use ($item) {
 				return self::fetch_guid_sub($match, $item);
 			}, $item["body"]);
