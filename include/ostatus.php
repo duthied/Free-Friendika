@@ -7,6 +7,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Network\Probe;
+use Friendica\Util\Lock;
 
 require_once 'include/Contact.php';
 require_once 'include/threads.php';
@@ -64,28 +65,34 @@ class ostatus {
 
 		$author["contact-id"] = $contact["id"];
 
+		$found = false;
+
 		if ($author["author-link"] != "") {
 			if ($aliaslink == "") {
 				$aliaslink = $author["author-link"];
 			}
 
-			$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` IN ('%s', '%s') AND `network` != '%s'",
-				intval($importer["uid"]), dbesc(normalise_link($author["author-link"])),
-				dbesc(normalise_link($aliaslink)), dbesc(NETWORK_STATUSNET));
+			$condition = array("`uid` = ? AND `nurl` IN (?, ?) AND `network` != ?", $importer["uid"],
+					normalise_link($author["author-link"]), normalise_link($aliaslink), NETWORK_STATUSNET);
+			$r = dba::select('contact', array(), $condition, array('limit' => 1));
 
 			if (dbm::is_result($r)) {
-				$contact = $r[0];
-				$author["contact-id"] = $r[0]["id"];
-				$author["author-link"] = $r[0]["url"];
+				$found = true;
+				$contact = $r;
+				$author["contact-id"] = $r["id"];
+				$author["author-link"] = $r["url"];
 			}
-		} elseif ($addr != "") {
-			// Should not happen
-			$contact = dba::fetch_first("SELECT * FROM `contact` WHERE `uid` = ? AND `addr` = ? AND `network` != ?",
-					$importer["uid"], $addr, NETWORK_STATUSNET);
+		}
 
-			if (dbm::is_result($contact)) {
-				$author["contact-id"] = $contact["id"];
-				$author["author-link"] = $contact["url"];
+		if (!$found && ($addr != "")) {
+			$condition = array("`uid` = ? AND `addr` = ? AND `network` != ?",
+					$importer["uid"], $addr, NETWORK_STATUSNET);
+			$r = dba::select('contact', array(), $condition, array('limit' => 1));
+
+			if (dbm::is_result($r)) {
+				$contact = $r;
+				$author["contact-id"] = $r["id"];
+				$author["author-link"] = $r["url"];
 			}
 		}
 
@@ -176,14 +183,16 @@ class ostatus {
 			$cid = get_contact($author["author-link"], 0);
 
 			if ($cid) {
+				$fields = array('url', 'name', 'nick', 'alias', 'about', 'location');
+				$old_contact = dba::select('contact', $fields, array('id' => $cid), array('limit' => 1));
+
 				// Update it with the current values
-				q("UPDATE `contact` SET `url` = '%s', `name` = '%s', `nick` = '%s', `alias` = '%s',
-						`about` = '%s', `location` = '%s',
-						`success_update` = '%s', `last-update` = '%s'
-					WHERE `id` = %d",
-					dbesc($author["author-link"]), dbesc($contact["name"]), dbesc($contact["nick"]),
-					dbesc($contact["alias"]), dbesc($contact["about"]), dbesc($contact["location"]),
-					dbesc(datetime_convert()), dbesc(datetime_convert()), intval($cid));
+				$fields = array('url' => $author["author-link"], 'name' => $contact["name"],
+						'nick' => $contact["nick"], 'alias' => $contact["alias"],
+						'about' => $contact["about"], 'location' => $contact["location"],
+						'success_update' => datetime_convert(), 'last-update' => datetime_convert());
+
+				dba::update('contact', $fields, array('id' => $cid), $old_contact);
 
 				// Update the avatar
 				update_contact_avatar($author["author-avatar"], 0, $cid);
@@ -370,18 +379,39 @@ class ostatus {
 
 			$item = array_merge($header, $author);
 
+			$item["uri"] = $xpath->query('atom:id/text()', $entry)->item(0)->nodeValue;
+
 			$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
 
-			/// Delete a message
+			// Delete a message
 			if (in_array($item["verb"], array('qvitter-delete-notice', ACTIVITY_DELETE, 'delete'))) {
-				// ignore "Delete" messages (by now)
-				logger("Ignore delete message ".print_r($item, true));
+				self::deleteNotice($item);
 				continue;
+			}
+
+			if (in_array($item["verb"], array(NAMESPACE_OSTATUS."/unfavorite", ACTIVITY_UNFAVORITE))) {
+				// Ignore "Unfavorite" message
+				logger("Ignore unfavorite message ".print_r($item, true), LOGGER_DEBUG);
+				continue;
+			}
+
+			// Deletions come with the same uri, so we check for duplicates after processing deletions
+			if (dba::exists('item', array('uid' => $importer["uid"], 'uri' => $item["uri"]))) {
+				logger('Post with URI '.$item["uri"].' already existed for user '.$importer["uid"].'.', LOGGER_DEBUG);
+				continue;
+			} else {
+				logger('Processing post with URI '.$item["uri"].' for user '.$importer["uid"].'.', LOGGER_DEBUG);
 			}
 
 			if ($item["verb"] == ACTIVITY_JOIN) {
 				// ignore "Join" messages
-				logger("Ignore join message ".print_r($item, true));
+				logger("Ignore join message ".print_r($item, true), LOGGER_DEBUG);
+				continue;
+			}
+
+			if ($item["verb"] == "http://mastodon.social/schema/1.0/block") {
+				// ignore mastodon "block" messages
+				logger("Ignore block message ".print_r($item, true), LOGGER_DEBUG);
 				continue;
 			}
 
@@ -395,12 +425,6 @@ class ostatus {
 				continue;
 			}
 
-			if ($item["verb"] == NAMESPACE_OSTATUS."/unfavorite") {
-				// Ignore "Unfavorite" message
-				logger("Ignore unfavorite message ".print_r($item, true));
-				continue;
-			}
-
 			if ($item["verb"] == ACTIVITY_FAVORITE) {
 				$orig_uri = $xpath->query("activity:object/atom:id", $entry)->item(0)->nodeValue;
 				logger("Favorite ".$orig_uri." ".print_r($item, true));
@@ -411,10 +435,8 @@ class ostatus {
 			}
 
 			// http://activitystrea.ms/schema/1.0/rsvp-yes
-			// http://activitystrea.ms/schema/1.0/unfavorite
-			// http://mastodon.social/schema/1.0/block
 			if (!in_array($item["verb"], array(ACTIVITY_POST, ACTIVITY_LIKE, ACTIVITY_SHARE))) {
-				logger("Unhandled verb ".$item["verb"]." ".print_r($item, true));
+				logger("Unhandled verb ".$item["verb"]." ".print_r($item, true), LOGGER_DEBUG);
 			}
 
 			self::processPost($xpath, $entry, $item, $importer);
@@ -457,15 +479,42 @@ class ostatus {
 						if ($found) {
 							logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already exists.", LOGGER_DEBUG);
 						} else {
-							$ret = item_store($item);
-							logger('Item was stored with return value '.$ret);
+							// We are having duplicated entries. Hopefully this solves it.
+							if (Lock::set('ostatus_process_item_store')) {
+								$ret = item_store($item);
+								Lock::remove('ostatus_process_item_store');
+								logger("Item with uri ".$item["uri"]." for user ".$importer["uid"].' stored. Return value: '.$ret);
+							} else {
+								$ret = item_store($item);
+								logger("We couldn't lock - but tried to store the item anyway. Return value is ".$ret);
+							}
 						}
 					}
 				}
 				self::$itemlist = array();
 			}
+			logger('Processing done for post with URI '.$item["uri"].' for user '.$importer["uid"].'.', LOGGER_DEBUG);
 		}
 		return true;
+	}
+
+	private static function deleteNotice($item) {
+
+		$condition = array('uid' => $item['uid'], 'author-link' => $item['author-link'], 'uri' => $item['uri']);
+		$deleted = dba::select('item', array('id', 'parent-uri'), $condition, array('limit' => 1));
+		if (!dbm::is_result($deleted)) {
+			logger('Item from '.$item['author-link'].' with uri '.$item['uri'].' for user '.$item['uid']." wasn't found. We don't delete it. ");
+			return;
+		}
+
+		// Currently we don't have a central deletion function that we could use in this case. The function "item_drop" doesn't work for that case
+		dba::update('item', array('deleted' => true, 'title' => '', 'body' => '',
+					'edited' => datetime_convert(), 'changed' => datetime_convert()),
+				array('id' => $deleted["id"]));
+
+		delete_thread($deleted["id"], $deleted["parent-uri"]);
+
+		logger('Deleted item with uri '.$item['uri'].' for user '.$item['uid']);
 	}
 
 	/**
@@ -477,13 +526,6 @@ class ostatus {
 	 * @param array $importer user record of the importing user
 	 */
 	private static function processPost($xpath, $entry, &$item, $importer) {
-		$item["uri"] = $xpath->query('atom:id/text()', $entry)->item(0)->nodeValue;
-
-		if (dba::exists('item', array('uid' => $importer["uid"], 'uri' => $item["uri"]))) {
-			logger('Post with URI '.$item["uri"].' already existed for user '.$importer["uid"].'.');
-			return;
-		}
-
 		$item["body"] = html2bbcode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue);
 		$item["object-type"] = $xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue;
 		if (($item["object-type"] == ACTIVITY_OBJ_BOOKMARK) || ($item["object-type"] == ACTIVITY_OBJ_EVENT)) {
@@ -601,7 +643,7 @@ class ostatus {
 			if (!dba::exists('item', array('uid' => $importer["uid"], 'uri' => $item['parent-uri']))) {
 				self::fetchRelated($related, $item["parent-uri"], $importer);
 			} else {
-				logger('Reply with URI '.$item["uri"].' already existed for user '.$importer["uid"].'.');
+				logger('Reply with URI '.$item["uri"].' already existed for user '.$importer["uid"].'.', LOGGER_DEBUG);
 			}
 
 			$item["type"] = 'remote-comment';
@@ -766,7 +808,7 @@ class ostatus {
 	private static function fetchSelf($self, &$item) {
 		$condition = array('`item-uri` = ? AND `protocol` IN (?, ?)', $self, PROTOCOL_DFRN, PROTOCOL_OSTATUS_SALMON);
 		if (dba::exists('conversation', $condition)) {
-			logger('Conversation '.$item['uri'].' is already stored.');
+			logger('Conversation '.$item['uri'].' is already stored.', LOGGER_DEBUG);
 			return;
 		}
 
@@ -786,7 +828,7 @@ class ostatus {
 		$item["protocol"] = PROTOCOL_OSTATUS_SALMON;
 		$item["source"] = $xml;
 
-		logger('Conversation '.$item['uri'].' is now fetched.');
+		logger('Conversation '.$item['uri'].' is now fetched.', LOGGER_DEBUG);
 	}
 
 	/**
