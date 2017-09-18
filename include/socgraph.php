@@ -1158,8 +1158,9 @@ function poco_check_server($server_url, $network = "", $force = false) {
 				$network = NETWORK_OSTATUS;
 			}
 		}
-		if (strstr($orig_version, 'Pleroma')) {
+		if (strstr($orig_version.$version, 'Pleroma')) {
 			$platform = 'Pleroma';
+			$version = trim(str_replace('Pleroma', '', $version));
 		}
 	}
 
