@@ -65,7 +65,7 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 				'subject' => $subject, 'recips' => $handles);
 		$r = dba::insert('conv', $fields);
 
-		$r = dba::select('conv', array('id', array('guid' => $conv_guid, 'uid' => local_user())), array('limit' => 1));
+		$r = dba::select('conv', array('id'), array('guid' => $conv_guid, 'uid' => local_user()), array('limit' => 1));
 		if (dbm::is_result($r))
 			$convid = $r['id'];
 	}
@@ -191,7 +191,7 @@ function send_wallmessage($recipient='', $body='', $subject='', $replyto=''){
 			'subject' => $subject, 'recips' => $handles);
 	$r = dba::insert('conv', $fields);
 
-	$r = dba::select('conv', array('id', array('guid' => $conv_guid, 'uid' => $recipient['uid'])), array('limit' => 1));
+	$r = dba::select('conv', array('id'), array('guid' => $conv_guid, 'uid' => $recipient['uid']), array('limit' => 1));
 	if (!dbm::is_result($r)) {
 		logger('send message: conversation not found.');
 		return -4;
