@@ -674,7 +674,7 @@ class ostatus {
 
 		self::$conv_list[$conversation] = true;
 
-		$conversation_data = z_fetch_url($conversation);
+		$conversation_data = z_fetch_url($conversation, false, $redirects, array('accept_content' => 'application/atom+xml'));
 
 		if (!$conversation_data['success']) {
 			return;
@@ -855,7 +855,7 @@ class ostatus {
 		}
 
 		$stored = false;
-		$related_data = z_fetch_url($related);
+		$related_data = z_fetch_url($related, false, $redirects, array('accept_content' => 'application/atom+xml'));
 
 		if (!$related_data['success']) {
 			return;
