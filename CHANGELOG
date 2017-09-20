@@ -51,3 +51,549 @@ Version 3.5.3 (2017-09-xx)
     3360, 3362, 3391, 3482, 3511, 3512, 3515, 3516, 3529, 3531, 3536, 3545,
     3552, 3553, 3560, 3571, 3589, 3592, 3599, 3615, 3616, 3621, 3624, 3636,
     3645, 3661, 3684, 3685, 3691, 3696, 3699
+
+Version 3.5.2 (2017-06-06)
+  Friendica Core:
+    Updates to the translations (DE, EN-GB, EN-US, ES, IT, PT-BR, RU) [translation teams]
+    Updates to the documentation [annando, beardyunixer, rabuzarus, tobiasd]
+    Updated the nginx example configuration [beardyunixer]
+    Code revision and refactoring [annando, hypolite, Quix0r, rebeka-catalina]
+    Background process is now done by the new worker process [annando]
+    Added support of Composer for dependencies [Hypolite]
+    Added support of Web app manifests [Rudloff]
+    Added basic robot.txt functionality if none exists [Shnoulle]
+    Added server blocklist [Hypolite, tobiasd]
+    Removed mcrypt dependency [annando]
+    Removed unused libraries [annando]
+    Removed Embedly integration [Hypolite]
+    Fixed a bug in the language detection for EN [Hypolite]
+    Fixed a bug in the probing mechanism on old PHP version [annando]
+    Improved API [annando, gerhard6380]
+    Improved Diaspora federation [annando]
+    Improved Mastodon federation [annando, Hypolite]
+    Improved import from OStatus threads [annando]
+    Improved the themes (frio, quattro) [fabrixxm, Hypolite, rabuzarus, Rudloff, strk, tobiasd]
+    Improved maintenance mode [annando]
+    Improved gcontact handling [annando]
+    Improved desktop notifications [rabuzarus]
+    Improved keyboard shortcuts for navigation [Rudloff]
+    Improved the installer [annando]
+    Improved openid handling [strk]
+    Improved php7 support [annando]
+    Improved display of notifications [annando]
+    Improved logging mechanism [beardyunixer]
+    Improved the worker [annando]
+    Behaviour clarification of the group filter / new tab [annando]
+    Old options for the pager and share element were removed [annando]
+    Support of PDO was added [annando]
+    Improved error logging for issues with the database [annando]
+    Improved compatibility to MySQL version 5.7+ [annando]
+
+  Friendica Addons:
+    Updates to the translation (RU) [pztrm]
+    (core) Fix blocking issue for Communityhome [annando]
+    Pledgie addon was updated to remove cert problems [tobiasd]
+    Securemail now uses openpgp-php and phpseclib [fabrixxm]
+    Superblock Configuration [tobiasd]
+    Twitter Connector updated to use with new deletion method [annando]
+
+  Closed Issues:
+    1626, 1720, 2432, 2792, 2833, 2364, 2448, 2496, 2690, 2752, 2775,
+    2803, 2956, 2957, 2961, 2971, 2995, 2999, 3011, 3053, 3107, 3114,
+    3134, 3138, 3142, 3157, 3172, 3189, 3194, 3195, 3198, 3206, 3215,
+    3217, 3220, 3237, 3242, 3255, 3256, 3260, 3268, 3273, 3274, 3285,
+    3288, 3292, 3293, 3300, 3314, 3316, 3317, 3322, 3325, 3327, 3328,
+    3331, 3334, 3336, 3346, 3347, 3358, 3359, 3383, 3387, 3401, 3406,
+    3428, 3440, 3435, 3436, 3452
+
+Version 3.5.1 (2017-03-12)
+  Friendica Core:
+    Updates to the translations (BG, CA, CS, DE, EO, ES, FR, IS, IT, NL, PL, PT-BR, RU, SV) [translation teams]
+    Fix for a potential XSS vector [annando, thanks to Vít Šesták 'v6ak' for reporting the problem]
+    Fix for ghost request notifications on single user instances [Hypolite]
+    Fix user language selection [tobiasd]
+    Fix a problem with communication to Diaspora with set posting locations [annando]
+    Fix schema handling of direct links to a original posting [Rabuzarus]
+    Fix a bug in notification handling [Rabuzarus]
+    Adjustments for the Vagrant VM settings [silke, eelcomaljaars]
+    Improvements to the unliking of prior likes [Hypolite]
+    Improvements to the API and Friendica specific extensions [gerhard6380]
+    Improvements to the Browser Notification functionality [Hypolite]
+    Improvements to the themes [Hypolite, rabuzarus, rebeka-catalina, tobiasd]
+    Improvements to the database handling [annando]
+    Improvements to the admin panel [tobiasd, Hypolite]
+    Improvements to the update process [annando]
+    Improvements to the handling of worker processes [annando]
+    Improvements to the performance [annando, Hypolite]
+    Improvements to the documentation [Hypolite, tobiasd, rabuzarus, beardyunixer, eelcomaljaars]
+    Improvements to the BBCode / Markdown conversation [Hypolite]
+    Improvements to the OStatus protocol implementation [annando]
+    Improvements to the installation wizzard [tobiasd]
+    Improvements to the Diaspora connectivity [annando, Hypolite]
+    Work on PHP7 compatibility [ddorian1]
+    Code cleanup [Hypolite, Quix0r]
+    Initial federation with Mastodon [annando]
+    The worker process can now also be started from the frontend [annando]
+    Deletion of postings is now done in the background [annando]
+    Extension of the DFRN transmitted information fields [annando]
+    Translations of the core are now in /view/lang [Hypolite, tobiasd]
+    Update of the fullCalendar library to 3.0.1 and adjusting the themes [rabuzarus]
+    ping now works with JSON as well [Hypolite]
+    On pending registrations, an email is now send to inform the user about it [tobiasd]
+    On systems where the registration needs approval, a note for the admin can now be written [tobiasd]
+    Meta Information for HTML descriptions is now limited to 160 character [rabuzarus]
+    Removed very old deprecated themes from the repository [silke]
+    Marked frost and frost mobile as deprecated [silke]
+    When creating new postings in the UI, focus is automatically put into the Title field [Hypolite]
+    We are now shipping config files for "tx" (the Transifex client) and the "EditorConfig" addon for many common editors [fabrixxm, tobiasd]
+    The TinyMCE richtext editor was removed [Hypolite]
+    We defined a coding style, PSR-2 with some adjustments
+    Various bugfixes
+
+  Friendica Addons:
+    Updates to the translations (DE, ES, FR, IT, PT-BR) [translation teams]
+    Improvements to the IFTTT addon [Hypolite]
+    Improvements to the language filter addon [strk]
+    Improvements to the pump.io bridge [annando]
+    Improvements to the jappixmini addon [annando]
+    Improvements to the gpluspost addon [annando]
+    Improvements to the performance of the Twitter bridge when using workers [annando]
+    Diaspora Export addon is now working again [annando]
+    Pledgie badge now uses https protocol for embedding [tobiasd]
+    Better posting loop prevention for the Google+/Twitter/GS connectors [annando]
+    One can now configure the message for wppost bridged blog postings [tobiasd]
+    On some pages the result of the Rendertime is not shown anymore [annando]
+    Twitter-bridge now supports quotes and long posts when importing tweets [annando]
+
+  Closed Issues
+    1019, 1163, 1612, 1613, 2103, 2177, 2252, 2260, 2403, 2991, 2614, 
+    2751, 2752, 2772, 2791, 2800, 2804, 2813, 2814, 2816, 2817, 2823, 
+    2850, 2858, 2865, 2892, 2894, 2895, 2907, 2908, 2914, 2015, 2926,
+    2948, 2955, 2958, 2963, 2964, 2968, 2987, 2993, 3020, 3052, 3062,
+    3066, 3091, 3108, 3113, 3116, 3117, 3118, 3126, 3130, 3135, 3155,
+    3160, 3163, 3187, 3196
+
+Version 3.5 (2016-09-13)
+  Friendica Core:
+    NEW Optional local directory with possible federated contacts [annando]
+    NEW Autocompletion for @-mentions and BBCode tags [rabuzarus]
+    NEW Added a composer derived autoloader which allows composer autoloaders in addons/libraries [fabrixxm]
+    NEW theme: frio [rabuzarus, annando, fabrixxm]
+    Enhance .htaccess file (nerdoc, dissolve)
+    Updates to the translations (DE, ES, IS, IT, RU) [translation teams]
+    Updates to the documentation [tobiasd, annando, mexcon, silke, rabuzarus, fabrixxm, Olivier Mehani, gerhard6380, ben utzer]
+    Extended the BBCode by [abstract] tag used for bridged postings to networks with limited character length [annando]
+    Code cleanup [annando, QuixOr]
+    Improvements to the API and Friendica specific extensions [annando, fabrixxm, gerhard6380]
+    Improvements to the RSS/Atom feed import [mexcon]
+    Improvements to the communication with federated networks (Diaspora, Hubzilla, OStatus) [annando]
+    Improvements on the themes (quattro, vier, frost) [rabuzarus, fabrixxm, stieben, annando, Quix0r, tobiasd]
+    Improvements to the ACL dialog [fabrixxm, rabuzarus]
+    Improvements to the database structure and optimization of queries [annando]
+    Improvements to the UI (contacts, hotkeys, remember me, ARIA, code hightlighting) [rabuzarus, annando, tobiasd]
+    Improvements to the background process (poller, worker) [annando]
+    Improvements to the admin panel [tobiasd, annando, fabrixxm]
+    Improvements to the performance [annando]
+    Improvements to the installation wizzard (language selection, RINO version, check required PHP modules, default theme is now vier) [tobiasd]
+    Improvements to the relocation of nodes and accounts [annando]
+    Improvements to the DDoS detection [annando]
+    Improvements to the calendar/events module [annando, rabuzarus]
+    Improvements to OpenID login [strk]
+    Improvements to the ShaShape font [andi]
+    Reworked the implementation of the DFRN, Diaspora protocols [annando]
+    Reworked the notifications code [fabrixxm, rabuzarus, annando]
+    Reworked the p/config code [fabrixxm, rabuzarus]
+    Reworked XML generation [annando]
+    Removed now unused simplepie from library [annando]
+
+  Friendica Addons
+    Updated to the translations (DE, ES, IS, NL, PT BR), [translation teams]
+    Piwik [tobiasd]
+    Twitter Connector [annando]
+    Pumpio Connector [annando]
+    Rendertime [annando]
+    wppost [annando]
+    showmore [rabuzarus]
+    fromgplus [annando]
+    app.net Connector [annando]
+    GNU Social Connector [annando]
+    LDAP [Olivier Mehani]
+    smileybutton [rabuzarus]
+    retriver [mexon]
+    mailstream [mexon]
+    forumdirectory [tobiasd]
+    NEW notifyall (port from Hubzilla) [rabuzarus, tobiasd]
+    DEPRECATED cal (now in core), FB Connector, FB Post Connector, FB Sync
+
+  Closed Issues
+     683,  786,  796,  922, 1261, 1576, 1701, 1769, 1970, 1145, 1494,
+    1728, 1877, 2063, 2059, 2078, 2079, 2133, 2165, 2194, 2229, 2230,
+    2241, 2254, 2242, 2270, 2277, 2339, 2320, 2345, 2352, 2358, 2367,
+    2373, 2376, 2378, 2385, 2395, 2402, 2406, 2433, 2472, 2485, 2492,
+    2506, 2512, 2516, 2539, 2540, 2893, 2597, 2611, 2617, 2629, 2645,
+    2687, 2716, 2757, 2764
+
+Version 3.4.3 (2015-12-22)
+  What's new for the users:
+	Updates to the documentation (silke, tobiasd, annando, rebeka-catalina)
+	Updated translations (tobiasd & translation teams)
+	New "Credits" page (tobiasd)
+	New custom font icon set (tobiasd, Andi Stadler)
+	Support to events attendance. Users can mark their participation to an event (rabuzarus, tobiasd, fabrixxm, annando)
+	Revised templates and used interaction in contacts lists (rabuzarus)
+	Mobile support for Vier theme (annando, fabrixxm)
+	Events editing and deletion from stream (annando)
+	Private forums are mentioned automatically like community forums (rabuzarus)
+	Show profile pictures and pending notifications on manage page (rabuzarus, annando)
+	Show Profile photo album only to owner and authenticated contacts (rabuzarus)
+	User language setting is now between settings in user settings page (fabrixxm)
+	Search for remote users in form of "@user@domain.tld" is supported (issue #1595) (annando)
+	Optionally show geo informations of uploaded photos, backport from Red (rabuzarus)
+	Setting for the first day of the week for events calendar (annando)
+	Reduced profile view with "show more" link (annando)
+	Show more informations to users when following a new contact (annando)
+	Renamed "Statusnet" to "GNU Social" (annando)
+	Image dialog insert link to image page instead of direct image (fabrixxm)
+	In registration page make clear that we only need a 'real-looking' name (issue #1898) (tobiasd, n4rky)
+	Unseen items per groups are shown (issue #1718) (strk, rabuzarus, fabrixxm)
+	Unseen items in forumlist widget (rabuzarus)
+	Preview the last five conversations in private message's sidebar (FlxAlbroscheit, fabrixxm)
+	Don't get notifications about own posts (strk)
+	Profile page shows a "Subscribe to atom feed" link (annando)
+	Contact list shows only contacts from supported networks (ananndo)
+	username@hostname is used instead of full urls (issue #1925) (annando)
+	Various small OStatus improvements (annando)
+	Contact's posts are shown in a dedicated page (annando)
+	Module name is shown in page title to ease browser history navigation (issue #2079) (tobiasd)
+  What's new for admins:
+	Forumlist functionality moved from plugin to core (rabuzarus, annando)
+	Changes on poller/workers limits management (annando)
+	Diaspora and OStatus can be enabled only if requirements are satisfied (annando)
+	Support for additional passwords for ejabberd (annando)
+	Use proxy for profile photos (annando)
+	'Reload active themes' in theme admin page (fabrixxm)	
+	Install routine checks for ImageMagick and GIF support (fabrixxm)
+	Install routine checks for availability of "mcrypt_create_iv()" function, needed for RINO2 (fabrixxm)
+	Only suported themes are shown in admin page (annando)
+	Optimized SQL queries (annando)
+	System perform an optimize pass on tables in cron, with maximum table size and minimum fragmentation level settings (annando)
+	New access keys in profile and contact pages (rabuzarus, annando)
+	Support for a new Diaspora command for post retraction (annando)
+	Show an info message if an empty contact group is shown (issue #1871) (annando)
+	User setting to disable network page autoupdate (issue #1921) (annando)
+	Settings to limit or permit access to crawler to search page (annando)
+  What's new for developers:	
+	Themes can show Events entry in navbar (annando)
+	Themes can now override colorbox (fabrixxm)
+	Updated Vagrant development VM (silke, hauke)
+	New hook 'template_vars' (fabrixxm)
+	$baseurl variable is passed to all templates by default (fabrixxm)
+	OStatus delivery code is moved in new function (annando)
+	Doxygen config file and initial documetation of code (rabuzarus)
+	Full rewrite of util/php2po.php (fabrixxm)
+  Bugfixs:
+	Remote self works again (annando)
+	Fix feeds mistakenly recognized as OStatus (issue #1914) (annando)
+	Report invalid feeds to user (issue #1913) (annando)
+	Fix Update contact data functionality (annando)
+	Fix proxy function with embedded images (annando)
+	Fix Diaspora unidirectional connect request (annando)
+	Fix empty poco response (annando)
+	Fix API for andStatus (issue#1427, AndStatus issue #241) (annando)
+	Fix expiration of items (fabrixxm)
+	Fix javascript contact deletion confirmation dialog (issue #1986) (fabrixxm)
+	Admin wasn't able to change settings of not currently in use themes. Fixed (issue #2022) (fabrixxm)
+	Fix rapid repeated requests to GNUSocial instance (issue #2038) (annando)
+	Fix install routine css when mod_rewrite doesn't works (issue #2071) (fabrixxm)
+	Fix code to be compliant with minimum required PHP version (issue #2066) (fabrixxm, rabuzarus)
+	Fix feedback after succesfull registration (issue #2060) (annando)
+	Fix mention completition popup with TinyMCE (issue #1920) (fabrixxm)
+	Fix photo cache and proxy when installed in subfolder (ddorian1)
+	Fix bbcode conversion of the about text for the profile (issue #1607) (annando)
+	
+
+Version 3.4.2 (2015-09-29)
+
+	Updates to the documentation (tobiasd, silke, annando)
+	Updates to the translations (tobiasd & translation teams)
+	Updates to themes frost-mobile, vier, duepuntozero, quattro (annando, tobiasd)
+	Enancements of the communications via OStatus and Diaspora protocols (annando)
+	Option to automatically follow OStatus contacts was moved from addon to the core (annando)
+	Add tool to import OStatus contacts from an old account (annando)
+	SALMON slaps with OStatus were reworked (annando)
+	Fix for saving searches (rabuzarus)
+	Fix separation of list items in contact editor (issue #1747) (tobiasd)
+	When a picture is uploaded, "don't send a note about this new picture" is now the default behaviour (tobiasd)
+	Show profile url in contact-edit overview listing (issue #1745) (tobiasd)
+	The vagrant VM usage was changed so that the "installation" is now done automatically on the first run. Example users are automatically put into the database (silke)
+	Buttons to insert images or attachment to a post use a popup browser to select a previously uploaded item or upload a new one (fabrixxm, rabuzarus)
+	Improvements in contact handling (annando)
+	Friendica node can now query other nodes about their users and the contact lists (annando)
+	Contact recommendation is done only for recently active users (annando)
+	Admins can opt for search the local DB for contacts instead of the global directory (annando)
+	The global directory is queried in the background to update local DB and improve similar searches in the future. (annando)
+	By communication over the Diaspora protocol, red#matrix sources are now correctly identified, hubzilla is detected (annando)
+	Adopt limitation of usage of "-" in username to avoid conflicts with GNU Social and Diaspora (annando)
+	The [url] tag now also suppots ftp, mailto, gopher links (annando)
+	An "inspect queue" module was added to the admin panel (tobiasd)
+	Fix some missing SQL data escapes (fabrixxm)
+	Improved the accessibility of the web UI for better screen reader compatibility (annando)
+	Added access keys (annando)
+	Support for the public relay server of Diaspora (annando)
+	Support for the new nodeinfo protocol (successor of current statistics.json), addon deprecated as functionality has been moved into the core (annando)
+	Fix issue with moved Friendica profiles and Diaspora communication (issue #1491) (annando)
+	Show more information on contact request page (issue #1739) (annando)
+	Support for newer versions of the Twidere client was enhanced (annando)
+	Support for inline [code] tag usage (fabrixxm)
+	Fix login form in aside (issue #1348) (annando)
+	Show both url-style and webfinger-style identity address in profile (issue #1621) (tobiasd)
+	Add button to reload all active plugins in admin plugins page to ensure new hooks are used (fabrixxm)
+	Make the hardcoded path to global directory configurable (annando)
+	Change default directory to dir.friendi.ca (annando)
+	Improve cache system with granular expire time (annando)
+	Remove oohembed code (issue #1855) (annando)
+	Checks for mcrypt availability before enable or use RINO2 (fabrixm)
+	Fix following email contacts (issue #1896) (annando)
+	Parse BBCode in contact request notification email (annando)
+	
+	
+Version 3.4.1 (2015-07-06)
+
+	Implement server-to-server encryption (RINO) using php-encryption library as "RINO 2", deprecate "RINO 1" (issue #1655) (fabrixxm)
+	Fix connection with Diaspora "freelove" account (issue #1572) (annando)
+	Various SQL speedups (annando)
+	Port of Javascript DatePicker input from RedMatrix (rabuzarus)
+	Port of RedMatrix archive widget (rabuzarus)
+	Load profile owner settings for theme on profile page (rabuzarus)
+	Move HTML code from php into templates (rabuzarus)
+	Theme "frost": add event with doubleclick, event preview (rabuzarus)
+	Delete attachments on item deletion, delete videos from video tab (issue #1574) (fabrixxm)
+	Improvements with reshared Diaspora items (annando)
+	Improvements in OStatus communications: (annando)
+		improve duplicate handling
+		publish comments to post to all PuSH subscribers
+		use correct contact when automatically add @-replies
+		add attachment links as enclosures
+		send salmon notifications to every mentioned person
+		better thread completition
+		support for bookmarks
+		support for events and questions
+		link to items using GUID
+	Fix warning in mod/photo (issue #1638) (rabuzarus)
+	New option to block public access to local directory and poco
+	Fix parsing bbcode [url] tag with fragment identifier (issue #1514) (fabrixxm)
+	Fix HTML for oembeds (issue #1612) (fabrixxm)
+	Add fake fields to API response for better Twitter API compatibility (annando)
+	Fix search in local directory (issue #1657) (annando)
+	Improve OEmbed (issue #1640) (annando)
+	Fix double html encodig in site administration page for sitename and register text (issue #1628) (annando)
+	Fix remote subscription from GNU Social (annando)
+	Fix "{0}" in notifications (issue #1642) (annando)
+	Fix desktop notification (fabrixxm)
+	Fix rewrite test in install wizard with self-signed certificate (annando)
+	Better support for non standard installations of GNU Social (annando)
+	Fix emoticons alt text (tobias)
+	Improve threaded display in Vier theme (annando)
+	Use field templates in photo edit form (fabrixxm)
+	Alllow deletion of any user but yourself (issue #1625) (fabrixxm)
+	Install wizard load htconfig template from template/ folder, remove localized htconfig templates (fabrixxm)
+	Add contact detail to non-js contact drop confirm dialog (issue #1629) (fabrixxm)
+	Return geo coord in API (annando)
+	Improve events reminder: use title, show in colorbox, link using event ID (rabuzarus)
+	Fix spelling in accepted connection notification email (strk)
+	Show image size warning in a human readable format (rabuzarus)
+	Move ACL window in template (rabuzarus)
+	New option "-s" in util/run_xgettext.sh (fabrixxm)
+	Support, but ignore at the moment, delete message from Quitter (annando)
+	Remove google maps from core. Functionality moved to addon "googlemap" alongside "openstreetmap" (issue #1705) (annando)
+	Update to German documentation (Frank Dieckmann, tobias)
+	Updated translations (translation teams, tobias)
+
+Version 3.4 (2015-04-05)
+
+	Optionally, "like" and "dislike" activities don't update thread timestamp (annando)
+	Updated markdown libraries (annando)
+	Updated jQuery (StefOfficiel)
+	Cache zrl verification requests to prevent DSoS (issue #1453) (annando)
+	"Verify SSL" options affects also VERIFYHOST (annando)
+	Better handling of hashtags (annando)
+	Updated translations (translation teams, tobias)
+	Access a contact directly from the contact-manager-page (FlxAlbroscheit)
+	Reworked GUID generation, remove db store (annando)
+	Improve search for tags and terms (annando)
+	Fix OAuth signature (thorsten23)
+	Fix utf8 characters in items (issue #1307) (hauke)
+	Ignore tag-likes char sequences in code blocks (issue #1041) (fabrixxm)
+	Fix sending email to CC recipients (issue #1437) (fabrixxm)
+	Fix signature check of likes from diaspora (issue #905) (mike, annando)
+	Fix pagination urls (issue #1341) (fabrixxm)
+	Add scheme if missing in "web link" dialog (issue #1362) (fabrixxm)
+	Don't detect Facebook and App.net RSS feeds as contacts (issue #1432) (annando)
+	Add cli command to generate database.sql from scheme description (issue #1370) (fabrixxm)
+	Fix warning trying to creating already existing itemcache dir (pztrn)
+	Send update to directory when account is removed (issue #1038) (annando)
+	Fix settings page's aside menu visibility (issue #1459) (fabrixxm)
+	Don't show past events in event reminder in profile page (issue #1306) (annando)
+	Add help text to explain the options for approving contacts (issue #1349) (silke)
+	API set as unseen only posts returned by the call (issue #1063) (annando)
+
+Version 3.3.3 (2015-02-24)
+
+	More separation between php and html in photo album (issue #1258) (rabuzarus)
+	Enhanced community page shows public posts from public contacts of public profiles (annando)
+	Support for IndieAuth/Web-sign-in (hauke)
+	New hooks "emailer_send_prepare" and "emailer_send" (fabrixxm)
+	New hook "oembed_fetch_url" (annando)
+	Add un/ignore function to quattro theme (tobiasd)
+	Enhanced POCO data (annando)
+	Use HTML5 features to validate inputs in install wizard and in some settings fields (tobiasd)
+	Option to receive text-only notification emails (fabrixxm)
+	Better OStatus support (annando)
+	Share-it button support (annando)
+	More reliable reshare from Diaspora (annando)
+	Load more images via proxy (annando)
+	util/typo.php uses "php -l" insead of "eval()" to validate code (fabrixxm)
+	Use $_SERVER array in cli script instead of $argv/$argc (issue #1218) (annando)
+	Updated vagrant setup script (silke)
+	API: support to star/unstar items (fabrixxm)
+	API: attachments for better AndStatus support (annando)
+	Fix missing spaces in photo URLs (issue #920) (annando)
+	Fix avatar for "remote-self" items (annando)
+	Fix encodings issues with scrape functionality (annando)
+	Fix site info scraping when URL points to big file (annando)
+	Fix tools for translations (ddorian1)
+	Fix API login via LDAP (issue #1286) (fabrixxm)
+	Fix to link URL in tabs, pager (issues #1341, #1190) (ddorian1)
+	Fix poke activities translation (fabrixxm)
+	Fix html escaping in templates (fabrixxm)
+	Fix Friendica contacts shown as Diaspora contacts via Poco (annando)
+	Fix shared contacts wrong linking (issue #1388) (annando)
+	Fix email validation (ddorian1)
+	Better documentation for developers (silke)
+
+Version 3.3.2 (2014-12-26)
+
+	Set default value for all not-null fields (fixes SQL warinigs) (annando)
+	Fix item filters in network page (issue #1222) (fabrixxm)
+	Remove reference to an ex Friendica hub from documentation (beardyunixer, tobiasd)
+	API throttling (annando)
+	Use a san-serif font in breathe style of vier theme (silke)
+	Prevent BBCode parsing problems with URLs (annando)
+	Add back tags to posts to Diaspora (annando)
+	Better display of pictures in posts (annando)
+	Fix out of control gprobe process (annando)
+
+Version 3.3.1 (2014-11-06)
+
+	JSONP support for API (fabrixxm)
+	Fixed small bug in direct messages API (fabrixxm)
+	More filter for direct messages API (fabrixxm)
+	New hooks "getsiteinfo", "page_info_data" (annando)
+	Better loop post prevention (annando)
+	Via API, replace data: uri images in plain text version with link to post. (issue #1134) (fabrixxm)
+	Set default location to empty for new users. Suppress warning on user creation (issue #1193) (fabrixxm)
+	Correctly build urls with queries (issue #1190) (fabrixxm)
+	Optionally use keywords in feed as post tags with "remote self" (annando)
+	A blacklist of keywords to not use can be defined (annando)
+	"remote self" works also with Friendica and Diaspora contacts (annando)
+	Show exact post time after 12 hours (FX7)
+	Optionally redirect from non-SSL to SSL (annando)
+	Translation updates
+	Added CHANGELOG
+
+Version 3.3 (2014-10-06)
+
+	API
+	added support in the API to allow image uploads from Twidere
+	support for the diaspora app in Firefox
+
+	Themes
+	Stopped support of unmaintained themes. They will continue to work if enabled but are no longer displayed in the list of themes.
+	Merged all "zero" themes into a theme with variations.
+	new default avatar by Andi Stadler
+
+	Usability
+	network page as default page after login
+	sections on users' settings page are now collapsable
+	automatic updating the network stream was improved
+
+	Interaction
+	ignoring of threads
+	for selected contects one can now get notifications when they post something, useful e.g. for forums
+	After a new friendica contact is added, the user is directed to the contact page of the new contact. (Instead of the remote profile)
+	many improvement on all connectors, new app.net connector
+	the algorithm for shortening postings when posting to limited platforms was improved
+	improvements for the remote_self functionality for RSS/Atom feeds were done
+
+	System stuff
+	no more apc support due problems with PHP 5.5
+	privacy image cache moved from an addon into the core
+	updated the following libraries: smarty 3.1.19, fullcalendar 1.6.4, jquery 1.11, jgrowl 1.3.0
+	added modernizer 2.8.3, better browser support
+	updates to the DB structure for better performance
+	preperations to use PDO in a later release
+	new notification system
+	web interface translations updated, addon translations now also possible separately from the main UI and done for CS, IT, RO, DE
+	vagrant support added for developers
+	some bugs were fixed for the profile import function
+	BBCode handling and reformatting to e.g. markdown was improved
+	Internal PusH server for communication with OStatus contacts
+
+	Addons
+	translation now done at transifex as well
+	"newmemberwidget" adds widget with help links + welcome message to sidebar of network tab for new members
+	new statistics addon to take part in the Diaspora* survey
+	new bidirectional connector for app.net
+	new relay connector for Diaspora*
+	new connector for the buffer service
+	improvements for the connectors with Twitter, StatusNet/GNU Social, pump.io, google+ and facebook
+	improvements to the cal and jappix-mini addons
+
+	Change in the structure of the git repo
+	The "master" branch will now contain stable stuff and hotfixes.
+	The new "develop" branch will contain the latest changes.
+
+Version 3.2
+
+	LICENSE change from Friendica uses now the AGPL
+	Language updates: PT_BR, RU, NB_NO, DE, PL, CS, ZH-CN, IT, CA, FR, NL
+	new languages: BG
+	added a README.translate and updates to the translation utils
+	addons are now translated separately
+	Theme updates: vier, smoothly, diabook, decaf-mobile, dispy, frost, frost-mobile, quattro
+	Bug fixes: #516, #517, #525, #476, #540, #546, #712, #728
+	sample nginx and lighttpd config
+	new default templating engine: smarty3
+	new share element
+	maintenance mode for longer running upgrade tasks
+	small fixed
+		edit profile photo link
+		better caching of pictures
+		threadening for outgoing emails
+		mail import
+		oembed thumbnails
+		SN subscriptions & more SN like behaviour if snautofollow addon is used
+		collect content of SN discussion threads
+		communication with Diaspora*
+		usage of the API
+		search improvements
+		MIME types for attachments
+		support Open Graph and Dublin Core when showing single items
+		better use of APC if present
+		use https versions of videos from youtube and vimeo to make firefox happy
+	fixes to the documentation
+	if a home.html is there, home.css is used as well
+	update included TinyMCE to version 3.5.8, fancybox
+	made more options available in the admin panel that were hidden before
+	show the admin information about when accounts expire in the admin panel
+	improving the install.php script
+	addons now can be members only
+	item object now contains the "edited" information left for the theme designers to show this info in a pretty way
+	improvments to the user-import from exported account files
+	It's now possible to authenticate an ejabberd server against friendica.
+	bugtracker moved to github
+	improvements to MySQL queries
+
+Version 3.1
+
+	See http://friendica.com/node/58
