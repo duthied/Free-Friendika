@@ -584,10 +584,10 @@ function get_contact($url, $uid = 0, $no_update = false) {
 		return 0;
 	}
 
-	$data = Probe::uri($url);
+	$data = Probe::uri($url, "", $uid);
 
 	// Last try in gcontact for unsupported networks
-	if (!in_array($data["network"], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_PUMPIO))) {
+	if (!in_array($data["network"], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_PUMPIO, NETWORK_MAIL))) {
 		if ($uid != 0) {
 			return 0;
 		}

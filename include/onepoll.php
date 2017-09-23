@@ -328,7 +328,7 @@ function onepoll_run(&$argv, &$argc){
 		unlink($cookiejar);
 	} elseif ($contact['network'] === NETWORK_MAIL || $contact['network'] === NETWORK_MAIL2) {
 
-		logger("Mail: Fetching", LOGGER_DEBUG);
+		logger("Mail: Fetching for ".$contact['addr'], LOGGER_DEBUG);
 
 		$mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
 		if ($mail_disabled)
@@ -363,10 +363,10 @@ function onepoll_run(&$argv, &$argc){
 		}
 		if ($mbox) {
 
-			$msgs = email_poll($mbox,$contact['addr']);
+			$msgs = email_poll($mbox, $contact['addr']);
 
 			if (count($msgs)) {
-				logger("Mail: Parsing ".count($msgs)." mails for ".$mailconf[0]['user'], LOGGER_DEBUG);
+				logger("Mail: Parsing ".count($msgs)." mails from ".$contact['addr']." for ".$mailconf[0]['user'], LOGGER_DEBUG);
 
 				$metas = email_msg_meta($mbox,implode(',',$msgs));
 				if (count($metas) != count($msgs)) {
