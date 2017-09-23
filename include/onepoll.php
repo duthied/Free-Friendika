@@ -498,45 +498,35 @@ function onepoll_run(&$argv, &$argc){
 
 						logger("Mail: Importing ".$msg_uid." for ".$mailconf[0]['user']);
 
-						// some mailing lists have the original author as 'from' - add this sender info to msg body.
 						/// @TODO Adding a gravatar for the original author would be cool
 
-						if (! stristr($meta->from,$contact['addr'])) {
-							$from = imap_mime_header_decode($meta->from);
-							$fromdecoded = "";
-							foreach ($from as $frompart) {
-								if ($frompart->charset != "default") {
-									$fromdecoded .= iconv($frompart->charset, 'UTF-8//IGNORE', $frompart->text);
-								} else {
-									$fromdecoded .= $frompart->text;
-								}
-							}
-
-							$fromarr = imap_rfc822_parse_adrlist($fromdecoded, $a->get_hostname());
-
-							$frommail = $fromarr[0]->mailbox."@".$fromarr[0]->host;
-
-							if (isset($fromarr[0]->personal)) {
-								$fromname = $fromarr[0]->personal;
+						$from = imap_mime_header_decode($meta->from);
+						$fromdecoded = "";
+						foreach ($from as $frompart) {
+							if ($frompart->charset != "default") {
+								$fromdecoded .= iconv($frompart->charset, 'UTF-8//IGNORE', $frompart->text);
 							} else {
-								$fromname = $frommail;
+								$fromdecoded .= $frompart->text;
 							}
-
-							//$datarray['body'] = "[b]".t('From: ') . escape_tags($fromdecoded) . "[/b]\n\n" . $datarray['body'];
-
-							$datarray['author-name'] = $fromname;
-							$datarray['author-link'] = "mailto:".$frommail;
-							$datarray['author-avatar'] = $contact['photo'];
-
-							$datarray['owner-name'] = $contact['name'];
-							$datarray['owner-link'] = "mailto:".$contact['addr'];
-							$datarray['owner-avatar'] = $contact['photo'];
-
-						} else {
-							$datarray['author-name'] = $contact['name'];
-							$datarray['author-link'] = 'mailbox';
-							$datarray['author-avatar'] = $contact['photo'];
 						}
+
+						$fromarr = imap_rfc822_parse_adrlist($fromdecoded, $a->get_hostname());
+
+						$frommail = $fromarr[0]->mailbox."@".$fromarr[0]->host;
+
+						if (isset($fromarr[0]->personal)) {
+							$fromname = $fromarr[0]->personal;
+						} else {
+							$fromname = $frommail;
+						}
+
+						$datarray['author-name'] = $fromname;
+						$datarray['author-link'] = "mailto:".$frommail;
+						$datarray['author-avatar'] = $contact['photo'];
+
+						$datarray['owner-name'] = $contact['name'];
+						$datarray['owner-link'] = "mailto:".$contact['addr'];
+						$datarray['owner-avatar'] = $contact['photo'];
 
 						$datarray['uid'] = $importer_uid;
 						$datarray['contact-id'] = $contact['id'];
