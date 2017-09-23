@@ -1183,7 +1183,7 @@ class Diaspora {
 	 * @return array the item record
 	 */
 	private static function parent_item($uid, $guid, $author, $contact) {
-		$r = q("SELECT `id`, `parent`, `body`, `wall`, `uri`, `private`, `origin`,
+		$r = q("SELECT `id`, `parent`, `body`, `wall`, `uri`, `guid`, `private`, `origin`,
 				`author-name`, `author-link`, `author-avatar`,
 				`owner-name`, `owner-link`, `owner-avatar`
 			FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
@@ -1266,26 +1266,38 @@ class Diaspora {
 	 *
 	 * @return string the post link
 	 */
-	private static function plink($addr, $guid) {
+	private static function plink($addr, $guid, $parent_guid = '') {
 		$r = q("SELECT `url`, `nick`, `network` FROM `fcontact` WHERE `addr`='%s' LIMIT 1", dbesc($addr));
 
 		// Fallback
-		if (!$r)
-			return "https://".substr($addr,strpos($addr,"@")+1)."/posts/".$guid;
+		if (!dbm::is_result($r)) {
+			if ($parent_guid != '') {
+				return "https://".substr($addr,strpos($addr,"@") + 1)."/posts/".$parent_guid."#".$guid;
+			} else {
+				return "https://".substr($addr,strpos($addr,"@") + 1)."/posts/".$guid;
+			}
+		}
 
 		// Friendica contacts are often detected as Diaspora contacts in the "fcontact" table
 		// So we try another way as well.
 		$s = q("SELECT `network` FROM `gcontact` WHERE `nurl`='%s' LIMIT 1", dbesc(normalise_link($r[0]["url"])));
-		if ($s)
+		if (dbm::is_result($s)) {
 			$r[0]["network"] = $s[0]["network"];
+		}
 
-		if ($r[0]["network"] == NETWORK_DFRN)
-			return(str_replace("/profile/".$r[0]["nick"]."/", "/display/".$guid, $r[0]["url"]."/"));
+		if ($r[0]["network"] == NETWORK_DFRN) {
+			return str_replace("/profile/".$r[0]["nick"]."/", "/display/".$guid, $r[0]["url"]."/");
+		}
 
-		if (self::is_redmatrix($r[0]["url"]))
+		if (self::is_redmatrix($r[0]["url"])) {
 			return $r[0]["url"]."/?f=&mid=".$guid;
+		}
 
-		return "https://".substr($addr,strpos($addr,"@")+1)."/posts/".$guid;
+		if ($parent_guid != '') {
+			return "https://".substr($addr,strpos($addr,"@")+1)."/posts/".$parent_guid."#".$guid;
+		} else {
+			return "https://".substr($addr,strpos($addr,"@")+1)."/posts/".$guid;
+		}
 	}
 
 	/**
@@ -1458,6 +1470,8 @@ class Diaspora {
 		$datarray["source"] = $xml;
 
 		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = $created_at;
+
+		$datarray["plink"] = self::plink($author, $guid, $parent_item['guid']);
 
 		$body = diaspora2bb($text);
 
