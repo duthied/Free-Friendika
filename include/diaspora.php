@@ -2018,7 +2018,7 @@ class Diaspora {
 
 		$a = get_app();
 
-		if ($contact["rel"] == CONTACT_IS_FOLLOWER && in_array($importer["page-flags"], array(PAGE_FREELOVE))) {
+		if ($contact["rel"] == CONTACT_IS_SHARING) {
 			dba::update('contact', array('rel' => CONTACT_IS_FRIEND, 'writable' => true),
 					array('id' => $contact["id"], 'uid' => $importer["uid"]));
 		}
@@ -2129,8 +2129,8 @@ class Diaspora {
 		// perhaps we were already sharing with this person. Now they're sharing with us.
 		// That makes us friends.
 		if ($contact) {
-			if ($following && $sharing) {
-				logger("Author ".$author." (Contact ".$contact["id"].") wants to have a bidirectional conection.", LOGGER_DEBUG);
+			if ($following) {
+				logger("Author ".$author." (Contact ".$contact["id"].") wants to follow us.", LOGGER_DEBUG);
 				self::receive_request_make_friend($importer, $contact);
 
 				// refetch the contact array
@@ -2138,7 +2138,7 @@ class Diaspora {
 
 				// If we are now friends, we are sending a share message.
 				// Normally we needn't to do so, but the first message could have been vanished.
-				if (in_array($contact["rel"], array(CONTACT_IS_FRIEND, CONTACT_IS_FOLLOWER))) {
+				if (in_array($contact["rel"], array(CONTACT_IS_FRIEND))) {
 					$u = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval($importer["uid"]));
 					if ($u) {
 						logger("Sending share message to author ".$author." - Contact: ".$contact["id"]." - User: ".$importer["uid"], LOGGER_DEBUG);
@@ -2146,9 +2146,10 @@ class Diaspora {
 					}
 				}
 				return true;
-			} else { /// @todo Handle all possible variations of adding and retracting of permissions
-				logger("Author ".$author." (Contact ".$contact["id"].") wants to change the relationship: Following: ".$following." - sharing: ".$sharing. "(By now unsupported)", LOGGER_DEBUG);
-				return false;
+			} else {
+				logger("Author ".$author." doesn't want to follow us anymore.", LOGGER_DEBUG);
+				lose_follower($importer, $contact);
+				return true;
 			}
 		}
 
