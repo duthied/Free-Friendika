@@ -75,7 +75,6 @@ function get_old_attachment_data($body) {
 
 		}
 	}
-
 	return $post;
 }
 
@@ -277,12 +276,12 @@ function get_attached_data($body, $item = array()) {
 		if (count($links) > 1) {
 			// The post will be the type "text", which means a blog post
 			unset($post["type"]);
+			$post["url"] = $plink;
 		}
 
 		if (!isset($post["type"])) {
 			$post["type"] = "text";
 			$post["text"] = trim($body);
-			$post["url"] = $plink;
 		}
 	} elseif (isset($post["url"]) && ($post["type"] == "video")) {
 		$data = ParseUrl::getSiteinfoCached($post["url"], true);
