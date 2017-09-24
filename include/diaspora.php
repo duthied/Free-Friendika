@@ -427,6 +427,18 @@ class Diaspora {
 			}
 		}
 
+		// Process item retractions. This has to be done separated from the other stuff,
+		// since retractions for comments could come even from non followers.
+		if (!empty($fields) && in_array($fields->getName(), array('retraction'))) {
+			$target = notags(unxmlify($fields->target_type));
+			if (in_array($target, array("Comment", "Like", "Post", "Reshare", "StatusMessage"))) {
+				logger('processing retraction for '.$target, LOGGER_DEBUG);
+				$importer = array("uid" => 0, "page-flags" => PAGE_FREELOVE);
+				$message_id = self::dispatch($importer, $msg, $fields);
+				return $message_id;
+			}
+		}
+
 		// Now distribute it to the followers
 		$r = q("SELECT `user`.* FROM `user` WHERE `user`.`uid` IN
 			(SELECT `contact`.`uid` FROM `contact` WHERE `contact`.`network` = '%s' AND `contact`.`addr` = '%s')
@@ -2462,42 +2474,52 @@ class Diaspora {
 			return false;
 		}
 
-		if (!isset($contact["url"])) {
+		if (empty($contact["url"])) {
 			$contact["url"] = $person["url"];
 		}
 
-		$r = q("SELECT `id`, `parent`, `parent-uri`, `author-link` FROM `item` WHERE `guid` = '%s' AND `uid` = %d AND NOT `file` LIKE '%%[%%' LIMIT 1",
-			dbesc($target_guid),
-			intval($importer["uid"])
-		);
-		if (!$r) {
-			logger("Target guid ".$target_guid." was not found for user ".$importer["uid"]);
+		// Fetch items that are about to be deleted
+		$fields = array('uid', 'id', 'parent', 'parent-uri', 'author-link');
+
+		// When we receive a public retraction, we delete every item that we find.
+		if ($importer['uid'] == 0) {
+			$condition = array("`guid` = ? AND NOT `file` LIKE '%%[%%' AND NOT `deleted`", $target_guid);
+		} else {
+			$condition = array("`guid` = ? AND `uid` = ? AND NOT `file` LIKE '%%[%%' AND NOT `deleted`", $target_guid, $importer['uid']);
+		}
+		$r = dba::select('item', $fields, $condition);
+		if (!dbm::is_result($r)) {
+			logger("Target guid ".$target_guid." was not found on this system for user ".$importer['uid'].".");
 			return false;
 		}
 
-		// Check if the sender is the thread owner
-		$p = q("SELECT `id`, `author-link`, `origin` FROM `item` WHERE `id` = %d",
-			intval($r[0]["parent"]));
+		while ($item = dba::fetch($r)) {
+			// Fetch the parent item
+			$parent = dba::select('item', array('author-link', 'origin'), array('id' => $item["parent"]), array('limit' => 1));
 
-		// Only delete it if the parent author really fits
-		if (!link_compare($p[0]["author-link"], $contact["url"]) && !link_compare($r[0]["author-link"], $contact["url"])) {
-			logger("Thread author ".$p[0]["author-link"]." and item author ".$r[0]["author-link"]." don't fit to expected contact ".$contact["url"], LOGGER_DEBUG);
-			return false;
-		}
+			// Only delete it if the parent author really fits
+			if (!link_compare($parent["author-link"], $contact["url"]) && !link_compare($item["author-link"], $contact["url"])) {
+				logger("Thread author ".$parent["author-link"]." and item author ".$item["author-link"]." don't fit to expected contact ".$contact["url"], LOGGER_DEBUG);
+				continue;
+			}
 
-		// Currently we don't have a central deletion function that we could use in this case. The function "item_drop" doesn't work for that case
-		dba::update('item', array('deleted' => true, 'title' => '', 'body' => '',
-					'edited' => datetime_convert(), 'changed' => datetime_convert()),
-				array('id' => $r[0]["id"]));
+			// Currently we don't have a central deletion function that we could use in this case. The function "item_drop" doesn't work for that case
+			dba::update('item', array('deleted' => true, 'title' => '', 'body' => '',
+						'edited' => datetime_convert(), 'changed' => datetime_convert()),
+					array('id' => $item["id"]));
 
-		delete_thread($r[0]["id"], $r[0]["parent-uri"]);
+			// Delete the thread - if it is a starting post and not a comment
+			if ($target_type != 'Comment') {
+				delete_thread($item["id"], $item["parent-uri"]);
+			}
 
-		logger("Deleted target ".$target_guid." (".$r[0]["id"].") from user ".$importer["uid"]." parent: ".$p[0]["id"], LOGGER_DEBUG);
+			logger("Deleted target ".$target_guid." (".$item["id"].") from user ".$item["uid"]." parent: ".$item["parent"], LOGGER_DEBUG);
 
-		// Now check if the retraction needs to be relayed by us
-		if ($p[0]["origin"]) {
-			// notify others
-			proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $r[0]["id"]);
+			// Now check if the retraction needs to be relayed by us
+			if ($parent["origin"]) {
+				// notify others
+				proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $item["id"]);
+			}
 		}
 
 		return true;
