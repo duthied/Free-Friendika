@@ -366,6 +366,11 @@ class ostatus {
 		foreach (array_reverse($entrylist) AS $entry) {
 			// fetch the author
 			$authorelement = $xpath->query('/atom:entry/atom:author', $entry);
+
+			if ($authorelement->length == 0) {
+				$authorelement = $xpath->query('atom:author', $entry);
+			}
+
 			if ($authorelement->length > 0) {
 				$author = self::fetchauthor($xpath, $entry, $importer, $contact, $stored);
 			}
@@ -674,7 +679,7 @@ class ostatus {
 
 		self::$conv_list[$conversation] = true;
 
-		$conversation_data = z_fetch_url($conversation, false, $redirects, array('accept_content' => 'application/atom+xml'));
+		$conversation_data = z_fetch_url($conversation, false, $redirects, array('accept_content' => 'application/atom+xml, text/html'));
 
 		if (!$conversation_data['success']) {
 			return;
@@ -855,7 +860,7 @@ class ostatus {
 		}
 
 		$stored = false;
-		$related_data = z_fetch_url($related, false, $redirects, array('accept_content' => 'application/atom+xml'));
+		$related_data = z_fetch_url($related, false, $redirects, array('accept_content' => 'application/atom+xml, text/html'));
 
 		if (!$related_data['success']) {
 			return;
