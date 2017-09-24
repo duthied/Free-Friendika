@@ -245,13 +245,19 @@ function get_attached_data($body) {
 			}
 		}
 
-		if (preg_match_all("(\[url\]([$URLSearchString]*)\[\/url\])ism", $body, $links,  PREG_SET_ORDER)) {
-			if (count($links) == 1) {
-				$post["type"] = "text";
-				$post["url"] = $links[0][1];
-				$post["text"] = $body;
-			}
+		preg_match_all("(\[url\]([$URLSearchString]*)\[\/url\])ism", $body, $links1,  PREG_SET_ORDER);
+		preg_match_all("(\[url\=([$URLSearchString]*)\].*?\[\/url\])ism", $body, $links2,  PREG_SET_ORDER);
+
+		$links = array_merge($links1, $links2);
+
+		if (count($links) == 1) {
+			$post["url"] = $links[0][1];
 		}
+
+		if (count($links) > 0) {
+			unset($post["type"]);
+		}
+
 		if (!isset($post["type"])) {
 			$post["type"] = "text";
 			$post["text"] = trim($body);
