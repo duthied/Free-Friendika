@@ -2479,7 +2479,7 @@ class Diaspora {
 		}
 
 		// Fetch items that are about to be deleted
-		$fields = array('uid', 'id', 'parent', 'parent-uri');
+		$fields = array('uid', 'id', 'parent', 'parent-uri', 'author-link');
 
 		// When we receive a public retraction, we delete every item that we find.
 		if ($importer['uid'] == 0) {
