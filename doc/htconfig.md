@@ -6,7 +6,8 @@ Config values that can only be set in .htconfig.php
 There are some config values that haven't found their way into the administration page.
 This has several reasons.
 Maybe they are part of a current development that isn't considered stable and will be added later in the administration page when it is considered safe.
-Or it triggers something that isn't expected to be of public interest. Or it is for testing purposes only.
+Or it triggers something that isn't expected to be of public interest.
+Or it is for testing purposes only.
 
 **Attention:** Please be warned that you shouldn't use one of these values without the knowledge what it could trigger.
 Especially don't do that with undocumented values.
@@ -98,7 +99,7 @@ Example: To set the directory value please add this line to your .htconfig.php:
 
 * **upgrade_link** -
 
-## experimentals ##
+## experimental ##
 
 * **exp_themes** (Boolean) - Show experimental themes as well.
 
