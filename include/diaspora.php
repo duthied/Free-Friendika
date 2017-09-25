@@ -287,6 +287,11 @@ class Diaspora {
 			$public = true;
 			$author_link = str_replace('acct:','',$children->header->author_id);
 		} else {
+			// This happens with posts from a relais
+			if (!$importer) {
+				logger("This is no private post in the old format", LOGGER_DEBUG);
+				return false;
+			}
 
 			$encrypted_header = json_decode(base64_decode($children->encrypted_header));
 
