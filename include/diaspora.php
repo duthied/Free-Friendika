@@ -227,7 +227,7 @@ class Diaspora {
 		$basedom = parse_xml_string($xml);
 
 		if (!is_object($basedom)) {
-			logger('Received data does not seem to be an XML. Discarding.');
+			logger('Received data does not seem to be an XML. Discarding. '.$xml);
 			http_status_exit(400);
 		}
 
@@ -287,6 +287,11 @@ class Diaspora {
 			$public = true;
 			$author_link = str_replace('acct:','',$children->header->author_id);
 		} else {
+			// This happens with posts from a relais
+			if (!$importer) {
+				logger("This is no private post in the old format", LOGGER_DEBUG);
+				return false;
+			}
 
 			$encrypted_header = json_decode(base64_decode($children->encrypted_header));
 
