@@ -227,7 +227,7 @@ class Diaspora {
 		$basedom = parse_xml_string($xml);
 
 		if (!is_object($basedom)) {
-			logger('Received data does not seem to be an XML. Discarding.');
+			logger('Received data does not seem to be an XML. Discarding. '.$xml);
 			http_status_exit(400);
 		}
 
