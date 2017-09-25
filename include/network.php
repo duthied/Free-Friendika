@@ -620,20 +620,15 @@ function avatar_img($email) {
 }
 
 
-function parse_xml_string($s,$strict = true) {
+function parse_xml_string($s, $strict = true) {
+	// the "strict" parameter is deactivated
+
 	/// @todo Move this function to the xml class
-	if ($strict) {
-		if (! strstr($s,'<?xml'))
-			return false;
-		$s2 = substr($s,strpos($s,'<?xml'));
-	}
-	else
-		$s2 = $s;
 	libxml_use_internal_errors(true);
 
-	$x = @simplexml_load_string($s2);
-	if (! $x) {
-		logger('libxml: parse: error: ' . $s2, LOGGER_DATA);
+	$x = @simplexml_load_string($s);
+	if (!$x) {
+		logger('libxml: parse: error: ' . $s, LOGGER_DATA);
 		foreach (libxml_get_errors() as $err) {
 			logger('libxml: parse: ' . $err->code." at ".$err->line.":".$err->column." : ".$err->message, LOGGER_DATA);
 		}
