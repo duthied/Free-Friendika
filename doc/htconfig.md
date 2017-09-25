@@ -71,7 +71,7 @@ Example: To set the directory value please add this line to your .htconfig.php:
 * **paranoia** (Boolean) - Log out users if their IP address changed.
 * **permit_crawling** (Boolean) - Restricts the search for not logged in users to one search per minute.
 * **worker_debug** (Boolean) - If enabled, it prints out the number of running processes split by priority.
-* **worker_fetch_limit** - Number of worker tasks that are fetched in a single query. Default is 5.
+* **worker_fetch_limit** - Number of worker tasks that are fetched in a single query. Default is 1.
 * **profiler** (Boolean) - Enable internal timings to help optimize code. Needed for "rendertime" addon. Default is false.
 * **free_crawls** - Number of "free" searches when "permit_crawling" is activated (Default value is 10)
 * **crawl_permit_period** - Period in seconds between allowed searches when the number of free searches is reached and "permit_crawling" is activated (Default value is 60)

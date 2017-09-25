@@ -690,7 +690,7 @@ function find_worker_processes(&$passing_slow) {
 	// The higher the number of parallel workers, the more we prefetch to prevent concurring access
 	// We decrease the limit with the number of entries left in the queue
 	$worker_queues = Config::get("system", "worker_queues", 4);
-	$queue_length = Config::get('system', 'worker_fetch_limit', $worker_queues);
+	$queue_length = Config::get('system', 'worker_fetch_limit', 1);
 	$lower_job_limit = $worker_queues * $queue_length * 2;
 	$jobs = poller_total_entries();
 
