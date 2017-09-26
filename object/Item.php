@@ -96,7 +96,7 @@ class Item extends BaseObject {
 
 		$item = $this->get_data();
 		$edited = false;
-		if (strcmp($item['created'], $item['edited'])<>0) {
+		if (abs(strtotime($item['created']) - strtotime($item['edited'])) > 1) {
 			$edited = array(
 				'label'    => t('This entry was edited'),
 				'date'     => datetime_convert('UTC', date_default_timezone_get(), $item['edited'], 'r'),
