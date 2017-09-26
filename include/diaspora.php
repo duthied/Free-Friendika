@@ -118,7 +118,7 @@ class Diaspora {
 	 */
 	private static function verify_magic_envelope($envelope) {
 
-		$basedom = parse_xml_string($envelope, false);
+		$basedom = parse_xml_string($envelope);
 
 		if (!is_object($basedom)) {
 			logger("Envelope is no XML file");
@@ -309,7 +309,7 @@ class Diaspora {
 			$decrypted = self::aes_decrypt($outer_key, $outer_iv, $ciphertext);
 
 			logger('decrypted: '.$decrypted, LOGGER_DEBUG);
-			$idom = parse_xml_string($decrypted,false);
+			$idom = parse_xml_string($decrypted);
 
 			$inner_iv = base64_decode($idom->iv);
 			$inner_aes_key = base64_decode($idom->aes_key);
@@ -556,7 +556,7 @@ class Diaspora {
 	 */
 	private static function valid_posting($msg) {
 
-		$data = parse_xml_string($msg["message"], false);
+		$data = parse_xml_string($msg["message"]);
 
 		if (!is_object($data)) {
 			logger("No valid XML ".$msg["message"], LOGGER_DEBUG);
@@ -1153,7 +1153,7 @@ class Diaspora {
 				return false;
 		}
 
-		$source_xml = parse_xml_string($x, false);
+		$source_xml = parse_xml_string($x);
 
 		if (!is_object($source_xml))
 			return false;
