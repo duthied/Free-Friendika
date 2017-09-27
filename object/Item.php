@@ -96,6 +96,11 @@ class Item extends BaseObject {
 
 		$item = $this->get_data();
 		$edited = false;
+		// If the time between "created" and "editet" differes we add 
+		// a notices that the post was editet.
+		// Note: In some networks reshared items seem to have (sometimes) a difference
+		// between creation time and edit time of a second. Thats why we add the notice
+		// only if the difference is more than 1 second.
 		if (abs(strtotime($item['created']) - strtotime($item['edited'])) > 1) {
 			$edited = array(
 				'label'    => t('This entry was edited'),
