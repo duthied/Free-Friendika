@@ -1086,6 +1086,11 @@ function proc_run($cmd) {
 	$parameters = json_encode($argv);
 	$found = dba::exists('workerqueue', array('parameter' => $parameters, 'done' => false));
 
+	// Quit if there was a database error - a precaution for the update process to 3.5.3
+	if (dba::errorNo() != 0) {
+		return;
+	}
+
 	if (!$found) {
 		dba::insert('workerqueue', array('parameter' => $parameters, 'created' => $created, 'priority' => $priority));
 	}
