@@ -397,15 +397,24 @@ function uri_to_guid($uri, $host = "") {
 	// We have to avoid that different routines could accidentally create the same value
 	$parsed = parse_url($uri);
 
+	// When the hostname isn't given, we take it from the uri
 	if ($host == "") {
-		$host = $parsed["host"];
+		// Is it in the format data@host.tld?
+		if ((count($parsed) == 1) && strstr($uri, '@')) {
+			$mailparts = explode('@', $uri);
+			$host = array_pop($mailparts);
+		} else {
+			$host = $parsed["host"];
+		}
 	}
 
+	// We use a hash of the hostname as prefix for the guid
 	$guid_prefix = hash("crc32", $host);
 
 	// Remove the scheme to make sure that "https" and "http" doesn't make a difference
 	unset($parsed["scheme"]);
 
+	// Glue it together to be able to make a hash from it
 	$host_id = implode("/", $parsed);
 
 	// We could use any hash algorithm since it isn't a security issue
