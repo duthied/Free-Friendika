@@ -150,6 +150,10 @@ function z_fetch_url($url, $binary = false, &$redirects = 0, $opts = array()) {
 		}
 	}
 
+	if (Config::get('system', 'ipv4_resolve', false)) {
+		curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+	}
+
 	if ($binary) {
 		@curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
 	}
@@ -277,6 +281,10 @@ function post_url($url, $params, $headers = null, &$redirects = 0, $timeout = 0)
 	curl_setopt($ch, CURLOPT_POST, 1);
 	curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
 	curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
+
+	if (Config::get('system', 'ipv4_resolve', false)) {
+		curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+	}
 
 	if (intval($timeout)) {
 		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
