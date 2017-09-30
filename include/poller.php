@@ -889,7 +889,10 @@ function poller_run_cron() {
 	poller_kill_stale_workers();
 }
 
-if (array_search(__file__,get_included_files())===0){
+if (array_search(__file__,get_included_files())===0) {
+	// Check the database structure and possibly fixes it
+	check_db(true);
+
 	poller_run($_SERVER["argv"],$_SERVER["argc"]);
 
 	poller_unclaim_process();

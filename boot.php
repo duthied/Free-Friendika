@@ -591,7 +591,7 @@ function is_ajax() {
 	return (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
 }
 
-function check_db() {
+function check_db($via_worker) {
 
 	$build = get_config('system', 'build');
 	if (!x($build)) {
@@ -600,7 +600,7 @@ function check_db() {
 	}
 	if ($build != DB_UPDATE_VERSION) {
 		// When we cannot execute the database update via the worker, we will do it directly
-		if (!proc_run(PRIORITY_CRITICAL, 'include/dbupdate.php')) {
+		if (!proc_run(PRIORITY_CRITICAL, 'include/dbupdate.php') && $via_worker) {
 			update_db(get_app());
 		}
 	}
