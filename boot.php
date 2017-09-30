@@ -591,6 +591,11 @@ function is_ajax() {
 	return (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
 }
 
+/**
+ * @brief Function to check if request was an AJAX (xmlhttprequest) request.
+ *
+ * @param $via_worker boolean Is the check run via the poller?
+ */
 function check_db($via_worker) {
 
 	$build = get_config('system', 'build');
