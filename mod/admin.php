@@ -626,6 +626,15 @@ function admin_page_summary(App $a) {
 		$warningtext[] = t('The database update failed. Please run "php include/dbstructure.php update" from the command line and have a look at the errors that might appear.');
 	}
 
+	$last_worker_call = Config::get('system', 'last_poller_execution', false);
+	if (!$last_worker_call) {
+		$showwarning = true;
+		$warningtext[] = t('The worker was never executed. Please check your database structure!');
+	} elseif ((strtotime(datetime_convert()) - strtotime($last_worker_call)) > 60 * 60) {
+		$showwarning = true;
+		$warningtext[] = sprintf(t('The last worker execution was on %s UTC. This is older than one hour. Please check your crontab settings.'), $last_worker_call);
+	}
+
 	$r = q("SELECT `page-flags`, COUNT(`uid`) AS `count` FROM `user` GROUP BY `page-flags`");
 	$accounts = array(
 		array(t('Normal Account'), 0),

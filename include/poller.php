@@ -248,7 +248,9 @@ function poller_execute($queue) {
 		poller_exec_function($queue, $funcname, $argv);
 
 		$stamp = (float)microtime(true);
-		dba::update('workerqueue', array('done' => true), array('id' => $queue["id"]));
+		if (dba::update('workerqueue', array('done' => true), array('id' => $queue["id"]))) {
+			Config::set('system', 'last_poller_execution', datetime_convert());
+		}
 		$poller_db_duration = (microtime(true) - $stamp);
 	} else {
 		logger("Function ".$funcname." does not exist");
