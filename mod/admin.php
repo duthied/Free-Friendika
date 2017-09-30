@@ -936,16 +936,16 @@ function admin_page_site_post(App $a) {
 	set_config('system','language', $language);
 	set_config('system','theme', $theme);
 
-	if ($theme_mobile === '---') {
+	if ($theme_mobile == '---') {
 		del_config('system','mobile-theme');
 	} else {
 		set_config('system','mobile-theme', $theme_mobile);
-		}
-		if ($singleuser === '---') {
-			del_config('system','singleuser');
-		} else {
-			set_config('system','singleuser', $singleuser);
-		}
+	}
+	if ($singleuser == '---') {
+		del_config('system','singleuser');
+	} else {
+		set_config('system','singleuser', $singleuser);
+	}
 	set_config('system', 'maximagesize', $maximagesize);
 	set_config('system', 'max_image_length', $maximagelength);
 	set_config('system', 'jpeg_quality', $jpegimagequality);
@@ -1171,11 +1171,11 @@ function admin_page_site(App $a) {
 		'$info'			=> array('info', t('Additional Info'), $info, sprintf(t('For public servers: you can add additional information here that will be listed at %s/siteinfo.'), get_server())),
 		'$language' 		=> array('language', t("System language"), get_config('system','language'), "", $lang_choices),
 		'$theme' 		=> array('theme', t("System theme"), get_config('system','theme'), t("Default system theme - may be over-ridden by user profiles - <a href='#' id='cnftheme'>change theme settings</a>"), $theme_choices),
-		'$theme_mobile' 	=> array('theme_mobile', t("Mobile system theme"), get_config('system','mobile-theme'), t("Theme for mobile devices"), $theme_choices_mobile),
+		'$theme_mobile' 	=> array('theme_mobile', t("Mobile system theme"), Config::get('system', 'mobile-theme', '---'), t("Theme for mobile devices"), $theme_choices_mobile),
 		'$ssl_policy'		=> array('ssl_policy', t("SSL link policy"), (string) intval(get_config('system','ssl_policy')), t("Determines whether generated links should be forced to use SSL"), $ssl_choices),
 		'$force_ssl'		=> array('force_ssl', t("Force SSL"), get_config('system','force_ssl'), t("Force all Non-SSL requests to SSL - Attention: on some systems it could lead to endless loops.")),
 		'$hide_help'		=> array('hide_help', t("Hide help entry from navigation menu"), get_config('system','hide_help'), t("Hides the menu entry for the Help pages from the navigation menu. You can still access it calling /help directly.")),
-		'$singleuser' 		=> array('singleuser', t("Single user instance"), get_config('system','singleuser'), t("Make this instance multi-user or single-user for the named user"), $user_names),
+		'$singleuser' 		=> array('singleuser', t("Single user instance"), Config::get('system', 'singleuser', '---'), t("Make this instance multi-user or single-user for the named user"), $user_names),
 		'$maximagesize'		=> array('maximagesize', t("Maximum image size"), get_config('system','maximagesize'), t("Maximum size in bytes of uploaded images. Default is 0, which means no limits.")),
 		'$maximagelength'	=> array('maximagelength', t("Maximum image length"), get_config('system','max_image_length'), t("Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.")),
 		'$jpegimagequality'	=> array('jpegimagequality', t("JPEG image quality"), get_config('system','jpeg_quality'), t("Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.")),
