@@ -2331,7 +2331,7 @@ class Diaspora {
 			// If it is a reshared post from another network then reformat to avoid display problems with two share elements
 			if (self::is_reshare($r[0]["body"], true)) {
 				$r = array();
-			} elseif (self::is_reshare($r[0]["body"], false)) {
+			} elseif (self::is_reshare($r[0]["body"], false) || strstr($r[0]["body"], "[share")) {
 				$r[0]["body"] = diaspora2bb(bb2diaspora($r[0]["body"]));
 
 				$r[0]["body"] = self::replace_people_guid($r[0]["body"], $r[0]["author-link"]);
