@@ -60,6 +60,10 @@ Q1="GRANT ALL ON *.* TO 'root'@'%' IDENTIFIED BY 'root' WITH GRANT OPTION;"
 Q2="FLUSH PRIVILEGES;"
 SQL="${Q1}${Q2}"
 $MYSQL -uroot -proot -e "$SQL"
+# add a separate database user for friendica
+$MYSQL -uroot -proot -e "CREATE USER 'friendica'@'localhost' identified by 'friendica';"
+$MYSQL -uroot -proot -e "GRANT ALL PRIVILEGES ON friendica.* TO 'friendica'@'localhost';"
+$MYSQL -uroot -proot -e "FLUSH PRIVILEGES"
 systemctl restart mysql
 
 
@@ -84,9 +88,9 @@ echo "create database friendica DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_ge
 $MYSQL -uroot -proot friendica < /vagrant/friendica_test_data.sql
 
 # create cronjob - activate if you have enough memory in you dev VM
-# echo "*/10 * * * * cd /vagrant; /usr/bin/php include/poller.php" >> friendicacron
-# sudo crontab friendicacron
-# sudo rm friendicacron
+echo "*/10 * * * * cd /vagrant; /usr/bin/php include/poller.php" >> friendicacron
+sudo crontab friendicacron
+sudo rm friendicacron
 
 #Optional: checkout addon repositroy
 #sudo git clone https://github.com/friendica/friendica-addons.git /vagrant/addon
