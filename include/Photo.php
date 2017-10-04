@@ -628,92 +628,24 @@ class Photo {
 
 	public function store($uid, $cid, $rid, $filename, $album, $scale, $profile = 0, $allow_cid = '', $allow_gid = '', $deny_cid = '', $deny_gid = '', $desc = '') {
 
-		$r = q("SELECT `guid` FROM `photo` WHERE `resource-id` = '%s' AND `guid` != '' LIMIT 1",
-			dbesc($rid)
-		);
+		$r = dba::select('photo', array('guid'), array("`resource-id` = ? AND `guid` != ?", $rid, ''), array('limit' => 1));
 		if (dbm::is_result($r)) {
-			$guid = $r[0]['guid'];
+			$guid = $r['guid'];
 		} else {
 			$guid = get_guid();
 		}
 
-		$x = q("SELECT `id` FROM `photo` WHERE `resource-id` = '%s' AND `uid` = %d AND `contact-id` = %d AND `scale` = %d LIMIT 1",
-			dbesc($rid),
-			intval($uid),
-			intval($cid),
-			intval($scale)
-		);
-		if (dbm::is_result($x)) {
-			$r = q("UPDATE `photo`
-				SET `uid` = %d,
-				`contact-id` = %d,
-				`guid` = '%s',
-				`resource-id` = '%s',
-				`created` = '%s',
-				`edited` = '%s',
-				`filename` = '%s',
-				`type` = '%s',
-				`album` = '%s',
-				`height` = %d,
-				`width` = %d,
-				`datasize` = %d,
-				`data` = '%s',
-				`scale` = %d,
-				`profile` = %d,
-				`allow_cid` = '%s',
-				`allow_gid` = '%s',
-				`deny_cid` = '%s',
-				`deny_gid` = '%s',
-				`desc` = '%s'
-				WHERE `id` = %d",
+		$x = dba::select('photo', array('id'), array('resource-id' => $rid, 'uid' => $uid, 'contact-id' => $cid, 'scale' => $scale), array('limit' => 1));
 
-				intval($uid),
-				intval($cid),
-				dbesc($guid),
-				dbesc($rid),
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert()),
-				dbesc(basename($filename)),
-				dbesc($this->getType()),
-				dbesc($album),
-				intval($this->getHeight()),
-				intval($this->getWidth()),
-				dbesc(strlen($this->imageString())),
-				dbesc($this->imageString()),
-				intval($scale),
-				intval($profile),
-				dbesc($allow_cid),
-				dbesc($allow_gid),
-				dbesc($deny_cid),
-				dbesc($deny_gid),
-				dbesc($desc),
-				intval($x[0]['id'])
-			);
+		$fields = array('uid' => $uid, 'contact-id' => $cid, 'guid' => $guid, 'resource-id' => $rid, 'created' => datetime_convert(), 'edited' => datetime_convert(),
+				'filename' => basename($filename), 'type' => $this->getType(), 'album' => $album, 'height' => $this->getHeight(), 'width' => $this->getWidth(),
+				'datasize' => strlen($this->imageString()), 'data' => $this->imageString(), 'scale' => $scale, 'profile' => $profile,
+				'allow_cid' => $allow_cid, 'allow_gid' => $allow_gid, 'deny_cid' => $deny_cid, 'deny_gid' => $deny_gid, 'desc' => $desc);
+
+		if (dbm::is_result($x)) {
+			$r = dba::update('photo', $fields, array('id' => $x['id']));
 		} else {
-			$r = q("INSERT INTO `photo`
-				(`uid`, `contact-id`, `guid`, `resource-id`, `created`, `edited`, `filename`, type, `album`, `height`, `width`, `datasize`, `data`, `scale`, `profile`, `allow_cid`, `allow_gid`, `deny_cid`, `deny_gid`, `desc`)
-				VALUES (%d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, '%s', %d, %d, '%s', '%s', '%s', '%s', '%s')",
-				intval($uid),
-				intval($cid),
-				dbesc($guid),
-				dbesc($rid),
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert()),
-				dbesc(basename($filename)),
-				dbesc($this->getType()),
-				dbesc($album),
-				intval($this->getHeight()),
-				intval($this->getWidth()),
-				dbesc(strlen($this->imageString())),
-				dbesc($this->imageString()),
-				intval($scale),
-				intval($profile),
-				dbesc($allow_cid),
-				dbesc($allow_gid),
-				dbesc($deny_cid),
-				dbesc($deny_gid),
-				dbesc($desc)
-			);
+			$r = dba::insert('photo', $fields);
 		}
 
 		return $r;

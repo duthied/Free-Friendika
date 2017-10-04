@@ -188,7 +188,7 @@ function nodeinfo_cron() {
 	}
         logger('cron_start');
 
-	$users = qu("SELECT `user`.`uid`, `user`.`login_date`, `contact`.`last-item`
+	$users = q("SELECT `user`.`uid`, `user`.`login_date`, `contact`.`last-item`
 			FROM `user`
 			INNER JOIN `profile` ON `profile`.`uid` = `user`.`uid` AND `profile`.`is-default`
 			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
@@ -220,7 +220,7 @@ function nodeinfo_cron() {
 			Config::set('nodeinfo', 'active_users_monthly', $active_users_monthly);
 	}
 
-	$posts = qu("SELECT COUNT(*) AS local_posts FROM `thread` WHERE `thread`.`wall` AND `thread`.`uid` != 0");
+	$posts = q("SELECT COUNT(*) AS local_posts FROM `thread` WHERE `thread`.`wall` AND `thread`.`uid` != 0");
 
 	if (!is_array($posts)) {
 		$local_posts = -1;
@@ -231,7 +231,7 @@ function nodeinfo_cron() {
 
         logger('local_posts: '.$local_posts, LOGGER_DEBUG);
 
-	$posts = qu("SELECT COUNT(*) FROM `contact`
+	$posts = q("SELECT COUNT(*) FROM `contact`
 			INNER JOIN `item` ON `item`.`contact-id` = `contact`.`id` AND `item`.`uid` = `contact`.`uid` AND
 				`item`.`id` != `item`.`parent` AND `item`.`network` IN ('%s', '%s', '%s')
 			WHERE `contact`.`self`",

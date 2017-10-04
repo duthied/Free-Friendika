@@ -303,6 +303,9 @@ function poller_exec_function($queue, $funcname, $argv) {
 
 	$up_duration = number_format(microtime(true) - $poller_up_start, 3);
 
+	// Reset global data to avoid interferences
+	unset($_SESSION);
+
 	$funcname($argv, $argc);
 
 	$a->process_id = $old_process_id;

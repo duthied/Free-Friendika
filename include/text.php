@@ -748,7 +748,7 @@ function logger($msg, $level = 0) {
 
 	$callers = debug_backtrace();
 	$logline = sprintf("%s@%s\t[%s]:%s:%s:%s\t%s\n",
-			datetime_convert(),
+			datetime_convert('UTC', 'UTC', 'now', 'Y-m-d\TH:i:s\Z'),
 			$process_id,
 			$LOGGER_LEVELS[$level],
 			basename($callers[0]['file']),
@@ -1424,15 +1424,8 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 					$title = ((strlen(trim($mtch[4]))) ? escape_tags(trim($mtch[4])) : escape_tags($mtch[1]));
 					$title .= ' ' . $mtch[2] . ' ' . t('bytes');
 
-					if (($filetype == 'image') AND ($item['network'] == NETWORK_OSTATUS)) {
-						/// @todo Respect the spoiler for mastodon
-						$icon = '<img class="attached" src="'.$the_url.'" alt="" title="'.$title.'">';
-						$s .= '<br><a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attached" target="_blank" >' . $icon . '</a>';
-					} else {
-						$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
-						$as .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" >' . $icon . '</a>';
-					}
-
+					$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
+					$as .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" >' . $icon . '</a>';
 				}
 			}
 		}

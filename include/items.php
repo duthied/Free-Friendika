@@ -534,6 +534,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	}
 
 	// Converting the plink
+	/// @todo Check if this is really still needed
 	if ($arr['network'] == NETWORK_OSTATUS) {
 		if (isset($arr['plink'])) {
 			$arr['plink'] = ostatus::convert_href($arr['plink']);
@@ -954,7 +955,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	 * An unique index would help - but the limitations of MySQL (maximum size of index values) prevent this.
 	 */
 	if ($arr["uid"] == 0) {
-		$r = qu("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = 0 LIMIT 1", dbesc(trim($arr['uri'])));
+		$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = 0 LIMIT 1", dbesc(trim($arr['uri'])));
 		if (dbm::is_result($r)) {
 			logger('Global item already stored. URI: '.$arr['uri'].' on network '.$arr['network'], LOGGER_DEBUG);
 			return 0;
@@ -1595,9 +1596,6 @@ function item_is_remote_self($contact, &$datarray) {
 			$datarray['author-link']   = $datarray['owner-link'];
 			$datarray['author-avatar'] = $datarray['owner-avatar'];
 
-			// Trigger automatic reactions for addons
-			$datarray['api_source'] = true;
-
 			unset($datarray['created']);
 			unset($datarray['edited']);
 		}
@@ -1622,6 +1620,13 @@ function item_is_remote_self($contact, &$datarray) {
 	} else {
 		$datarray["app"] = "Feed";
 	}
+
+	// Trigger automatic reactions for addons
+	$datarray['api_source'] = true;
+
+	// We have to tell the hooks who we are - this really should be improved
+	$_SESSION["authenticated"] = true;
+	$_SESSION["uid"] = $contact['uid'];
 
 	return true;
 }

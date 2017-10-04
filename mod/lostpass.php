@@ -69,7 +69,7 @@ function lostpass_post(App $a) {
 	$body = sprintf($body, $resetlink, System::baseUrl(), $email);
 
 	notification(array(
-		'type' => "SYSTEM_EMAIL",
+		'type' => SYSTEM_EMAIL,
 		'to_email' => $email,
 		'subject'=> sprintf( t('Password reset requested at %s'),$sitename),
 		'preamble'=> $preamble,
@@ -145,7 +145,7 @@ function lostpass_content(App $a) {
 			$body = sprintf($body, System::baseUrl(), $email, $new_password);
 
 			notification(array(
-				'type' => "SYSTEM_EMAIL",
+				'type' => SYSTEM_EMAIL,
 				'to_email' => $email,
 				'subject'=> sprintf( t('Your password has been changed at %s'),$sitename),
 				'preamble'=> $preamble,

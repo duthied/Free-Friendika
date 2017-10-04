@@ -42,12 +42,6 @@ function cron_run(&$argv, &$argc){
 	// Expire and remove user entries
 	proc_run(PRIORITY_MEDIUM, "include/cronjobs.php", "expire_and_remove_users");
 
-	// Check OStatus conversations
-	proc_run(PRIORITY_MEDIUM, "include/cronjobs.php", "ostatus_mentions");
-
-	// Check every conversation
-	proc_run(PRIORITY_MEDIUM, "include/cronjobs.php", "ostatus_conversations");
-
 	// Call possible post update functions
 	proc_run(PRIORITY_LOW, "include/cronjobs.php", "post_update");
 

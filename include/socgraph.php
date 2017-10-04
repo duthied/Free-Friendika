@@ -1158,8 +1158,9 @@ function poco_check_server($server_url, $network = "", $force = false) {
 				$network = NETWORK_OSTATUS;
 			}
 		}
-		if (strstr($orig_version, 'Pleroma')) {
+		if (strstr($orig_version.$version, 'Pleroma')) {
 			$platform = 'Pleroma';
+			$version = trim(str_replace('Pleroma', '', $version));
 		}
 	}
 
@@ -2238,22 +2239,22 @@ function update_gcontact($contact) {
 
 	if ($update) {
 		logger("Update gcontact for ".$contact["url"], LOGGER_DEBUG);
+		$condition = array('`nurl` = ? AND (`generation` = 0 OR `generation` >= ?)',
+				normalise_link($contact["url"]), $contact["generation"]);
+		$contact["updated"] = dbm::date($contact["updated"]);
 
-		q("UPDATE `gcontact` SET `photo` = '%s', `name` = '%s', `nick` = '%s', `addr` = '%s', `network` = '%s',
-					`birthday` = '%s', `gender` = '%s', `keywords` = '%s', `hide` = %d, `nsfw` = %d,
-					`contact-type` = %d, `alias` = '%s', `notify` = '%s', `url` = '%s',
-					`location` = '%s', `about` = '%s', `generation` = %d, `updated` = '%s',
-					`server_url` = '%s', `connect` = '%s'
-				WHERE `nurl` = '%s' AND (`generation` = 0 OR `generation` >= %d)",
-			dbesc($contact["photo"]), dbesc($contact["name"]), dbesc($contact["nick"]),
-			dbesc($contact["addr"]), dbesc($contact["network"]), dbesc($contact["birthday"]),
-			dbesc($contact["gender"]), dbesc($contact["keywords"]), intval($contact["hide"]),
-			intval($contact["nsfw"]), intval($contact["contact-type"]), dbesc($contact["alias"]),
-			dbesc($contact["notify"]), dbesc($contact["url"]), dbesc($contact["location"]),
-			dbesc($contact["about"]), intval($contact["generation"]), dbesc(dbm::date($contact["updated"])),
-			dbesc($contact["server_url"]), dbesc($contact["connect"]),
-			dbesc(normalise_link($contact["url"])), intval($contact["generation"]));
+		$updated = array('photo' => $contact['photo'], 'name' => $contact['name'],
+				'nick' => $contact['nick'], 'addr' => $contact['addr'],
+				'network' => $contact['network'], 'birthday' => $contact['birthday'],
+				'gender' => $contact['gender'], 'keywords' => $contact['keywords'],
+				'hide' => $contact['hide'], 'nsfw' => $contact['nsfw'],
+				'contact-type' => $contact['contact-type'], 'alias' => $contact['alias'],
+				'notify' => $contact['notify'], 'url' => $contact['url'],
+				'location' => $contact['location'], 'about' => $contact['about'],
+				'generation' => $contact['generation'], 'updated' => $contact['updated'],
+				'server_url' => $contact['server_url'], 'connect' => $contact['connect']);
 
+		dba::update('gcontact', $updated, $condition, $fields);
 
 		// Now update the contact entry with the user id "0" as well.
 		// This is used for the shadow copies of public items.
@@ -2261,20 +2262,25 @@ function update_gcontact($contact) {
 			dbesc(normalise_link($contact["url"])));
 
 		if (dbm::is_result($r)) {
-			logger("Update shadow contact ".$r[0]["id"], LOGGER_DEBUG);
+			logger("Update public contact ".$r[0]["id"], LOGGER_DEBUG);
 
 			update_contact_avatar($contact["photo"], 0, $r[0]["id"]);
 
-			q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `addr` = '%s',
-						`network` = '%s', `bd` = '%s', `gender` = '%s',
-						`keywords` = '%s', `alias` = '%s', `contact-type` = %d,
-						`url` = '%s', `location` = '%s', `about` = '%s'
-					WHERE `id` = %d",
-				dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["addr"]),
-				dbesc($contact["network"]), dbesc($contact["birthday"]), dbesc($contact["gender"]),
-				dbesc($contact["keywords"]), dbesc($contact["alias"]), intval($contact["contact-type"]),
-				dbesc($contact["url"]), dbesc($contact["location"]), dbesc($contact["about"]),
-				intval($r[0]["id"]));
+			$fields = array('name', 'nick', 'addr',
+					'network', 'bd', 'gender',
+					'keywords', 'alias', 'contact-type',
+					'url', 'location', 'about');
+			$old_contact = dba::select('contact', $fields, array('id' => $r[0]["id"]), array('limit' => 1));
+
+			// Update it with the current values
+			$fields = array('name' => $contact['name'], 'nick' => $contact['nick'],
+					'addr' => $contact['addr'], 'network' => $contact['network'],
+					'bd' => $contact['birthday'], 'gender' => $contact['gender'],
+					'keywords' => $contact['keywords'], 'alias' => $contact['alias'],
+					'contact-type' => $contact['contact-type'], 'url' => $contact['url'],
+					'location' => $contact['location'], 'about' => $contact['about']);
+
+			dba::update('contact', $fields, array('id' => $r[0]["id"]), $old_contact);
 		}
 	}
 

@@ -16,11 +16,7 @@ function add_thread($itemid, $onlyshadow = false) {
 	$item['iid'] = $itemid;
 
 	if (!$onlyshadow) {
-		$result = dbq("INSERT INTO `thread` (`"
-				.implode("`, `", array_keys($item))
-				."`) VALUES ('"
-				.implode("', '", array_values($item))
-				."')");
+		$result = dba::insert('thread', $item);
 
 		logger("Add thread for item ".$itemid." - ".print_r($result, true), LOGGER_DEBUG);
 	}
@@ -244,18 +240,19 @@ function delete_thread_uri($itemuri, $uid) {
 function delete_thread($itemid, $itemuri = "") {
 	$item = q("SELECT `uid` FROM `thread` WHERE `iid` = %d", intval($itemid));
 
+	// Using dba::delete at this time could delete the associated item entries
 	$result = q("DELETE FROM `thread` WHERE `iid` = %d", intval($itemid));
 
 	logger("delete_thread: Deleted thread for item ".$itemid." - ".print_r($result, true), LOGGER_DEBUG);
 
 	if ($itemuri != "") {
-		$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND NOT (`uid` IN (%d, 0))",
+		$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND NOT `deleted` AND NOT (`uid` IN (%d, 0))",
 				dbesc($itemuri),
 				intval($item["uid"])
 			);
 		if (!dbm::is_result($r)) {
 			dba::delete('item', array('uri' => $itemuri, 'uid' => 0));
-			logger("delete_thread: Deleted shadow for item ".$itemuri." - ".print_r($result, true), LOGGER_DEBUG);
+			logger("delete_thread: Deleted shadow for item ".$itemuri, LOGGER_DEBUG);
 		}
 	}
 }

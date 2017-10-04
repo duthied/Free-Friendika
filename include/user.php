@@ -404,7 +404,7 @@ function send_register_pending_eml($email, $sitename, $username) {
 	$body = sprintf($body, $username, $sitename);
 
 	return notification(array(
-		'type' => "SYSTEM_EMAIL",
+		'type' => SYSTEM_EMAIL,
 		'to_email' => $email,
 		'subject'=> sprintf( t('Registration at %s'), $sitename),
 		'body' => $body));
@@ -450,7 +450,7 @@ function send_register_open_eml($email, $sitename, $siteurl, $username, $passwor
 		$body = sprintf($body, $email, $sitename, $siteurl, $username, $password);
 
 		return notification(array(
-			'type' => "SYSTEM_EMAIL",
+			'type' => SYSTEM_EMAIL,
 			'to_email' => $email,
 			'subject'=> sprintf( t('Registration details for %s'), $sitename),
 			'preamble'=> $preamble,

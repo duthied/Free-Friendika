@@ -17,13 +17,7 @@ function display_init(App $a) {
 	if ($a->argc == 3) {
 		if (substr($a->argv[2], -5) == '.atom') {
 			$item_id = substr($a->argv[2], 0, -5);
-			$xml = dfrn::itemFeed($item_id);
-			if ($xml == '') {
-				http_status_exit(500);
-			}
-			header("Content-type: application/atom+xml");
-			echo $xml;
-			killme();
+			displayShowFeed($item_id);
 		}
 	}
 
@@ -70,6 +64,12 @@ function display_init(App $a) {
 					AND `item`.`guid` = ? LIMIT 1", $a->argv[1]);
 		}
 		if (dbm::is_result($r)) {
+
+			if (strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
+				logger('Directly serving XML for id '.$r["id"], LOGGER_DEBUG);
+				displayShowFeed($r["id"]);
+			}
+
 			if ($r["id"] != $r["parent"]) {
 				$r = dba::fetch_first("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
@@ -293,7 +293,7 @@ function display_content(App $a, $update = 0) {
 	}
 
 	// We are displaying an "alternate" link if that post was public. See issue 2864
-	$is_public = dba::exists('item', array('id' => $item_id, 'private' => false, 'wall' => true));
+	$is_public = dba::exists('item', array('id' => $item_id, 'private' => false));
 	if ($is_public) {
 		$alternate = System::baseUrl().'/display/'.$nick.'/'.$item_id.'.atom';
 	} else {
@@ -499,3 +499,12 @@ function display_content(App $a, $update = 0) {
 	return $o;
 }
 
+function displayShowFeed($item_id) {
+	$xml = dfrn::itemFeed($item_id);
+	if ($xml == '') {
+		http_status_exit(500);
+	}
+	header("Content-type: application/atom+xml");
+	echo $xml;
+	killme();
+}

@@ -229,8 +229,9 @@ define('PROTOCOL_UNKNOWN',         0);
 define('PROTOCOL_DFRN',            1);
 define('PROTOCOL_DIASPORA',        2);
 define('PROTOCOL_OSTATUS_SALMON',  3);
-define('PROTOCOL_OSTATUS_FEED',    4);
-define('PROTOCOL_GS_CONVERSATION', 5);
+define('PROTOCOL_OSTATUS_FEED',    4); // Deprecated
+define('PROTOCOL_GS_CONVERSATION', 5); // Deprecated
+define('PROTOCOL_SPLITTED_CONV',   6);
 /** @}*/
 
 /**
@@ -320,6 +321,8 @@ define ( 'NOTIFY_TAGSHARE', 0x0100 );
 define ( 'NOTIFY_POKE',     0x0200 );
 define ( 'NOTIFY_SHARE',    0x0400 );
 
+define ( 'SYSTEM_EMAIL',    0x4000 );
+
 define ( 'NOTIFY_SYSTEM',   0x8000 );
 /* @}*/
 
@@ -391,6 +394,7 @@ define ( 'ACTIVITY_POST',        NAMESPACE_ACTIVITY_SCHEMA . 'post' );
 define ( 'ACTIVITY_UPDATE',      NAMESPACE_ACTIVITY_SCHEMA . 'update' );
 define ( 'ACTIVITY_TAG',         NAMESPACE_ACTIVITY_SCHEMA . 'tag' );
 define ( 'ACTIVITY_FAVORITE',    NAMESPACE_ACTIVITY_SCHEMA . 'favorite' );
+define ( 'ACTIVITY_UNFAVORITE',  NAMESPACE_ACTIVITY_SCHEMA . 'unfavorite' );
 define ( 'ACTIVITY_SHARE',       NAMESPACE_ACTIVITY_SCHEMA . 'share' );
 define ( 'ACTIVITY_DELETE',      NAMESPACE_ACTIVITY_SCHEMA . 'delete' );
 

@@ -68,6 +68,11 @@ class Item extends BaseObject {
 					continue;
 				}
 
+				// You can always comment on Diaspora items
+				if (($item['network'] == NETWORK_DIASPORA) && (local_user() == $item['uid'])) {
+					$item['writable'] = true;
+				}
+
 				$item['pagedrop'] = $data['pagedrop'];
 				$child = new Item($item);
 				$this->add_child($child);
@@ -316,18 +321,6 @@ class Item extends BaseObject {
 		}
 
 		if (($item["item_network"] == NETWORK_MAIL) && isset($buttons["like"])) {
-			unset($buttons["like"]);
-		}
-
- 		// Diaspora isn't able to do likes on comments - but Hubzilla does
-		/// @todo When Diaspora will pass this information we will remove these lines
-		if (($item["item_network"] == NETWORK_DIASPORA) && ($indent == 'comment') &&
-			!Diaspora::is_redmatrix($item["owner-link"]) && isset($buttons["like"])) {
-			unset($buttons["like"]);
-		}
-
-		// Facebook can like comments - but it isn't programmed in the connector yet.
-		if (($item["item_network"] == NETWORK_FACEBOOK) && ($indent == 'comment') && isset($buttons["like"])) {
 			unset($buttons["like"]);
 		}
 

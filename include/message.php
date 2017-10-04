@@ -60,22 +60,14 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 
 		$handles = $recip_handle . ';' . $sender_handle;
 
-		$r = q("insert into conv (uid,guid,creator,created,updated,subject,recips) values(%d, '%s', '%s', '%s', '%s', '%s', '%s') ",
-			intval(local_user()),
-			dbesc($conv_guid),
-			dbesc($sender_handle),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			dbesc($subject),
-			dbesc($handles)
-		);
+		$fields = array('uid' => local_user(), 'guid' => $conv_guid, 'creator' => $sender_handle,
+				'created' => datetime_convert(), 'updated' => datetime_convert(),
+				'subject' => $subject, 'recips' => $handles);
+		$r = dba::insert('conv', $fields);
 
-		$r = q("select * from conv where guid = '%s' and uid = %d limit 1",
-			dbesc($conv_guid),
-			intval(local_user())
-		);
+		$r = dba::select('conv', array('id'), array('guid' => $conv_guid, 'uid' => local_user()), array('limit' => 1));
 		if (dbm::is_result($r))
-			$convid = $r[0]['id'];
+			$convid = $r['id'];
 	}
 
 	if (! $convid) {
@@ -194,28 +186,18 @@ function send_wallmessage($recipient='', $body='', $subject='', $replyto=''){
 
 	$handles = $recip_handle . ';' . $sender_handle;
 
-	$r = q("INSERT INTO `conv` (`uid`,`guid`,`creator`,`created`,`updated`,`subject`,`recips`) values(%d, '%s', '%s', '%s', '%s', '%s', '%s') ",
-		intval($recipient['uid']),
-		dbesc($conv_guid),
-		dbesc($sender_handle),
-		dbesc(datetime_convert()),
-		dbesc(datetime_convert()),
-		dbesc($subject),
-		dbesc($handles)
-	);
+	$fields = array('uid' => $recipient['uid'], 'guid' => $conv_guid, 'creator' => $sender_handle,
+			'created' => datetime_convert(), 'updated' => datetime_convert(),
+			'subject' => $subject, 'recips' => $handles);
+	$r = dba::insert('conv', $fields);
 
-	$r = q("SELECT * FROM `conv` WHERE `guid` = '%s' AND `uid` = %d LIMIT 1",
-		dbesc($conv_guid),
-		intval($recipient['uid'])
-	);
-
-
-	if (! dbm::is_result($r)) {
+	$r = dba::select('conv', array('id'), array('guid' => $conv_guid, 'uid' => $recipient['uid']), array('limit' => 1));
+	if (!dbm::is_result($r)) {
 		logger('send message: conversation not found.');
 		return -4;
 	}
 
-	$convid = $r[0]['id'];
+	$convid = $r['id'];
 
 	$r = q("INSERT INTO `mail` ( `uid`, `guid`, `convid`, `from-name`, `from-photo`, `from-url`,
 		`contact-id`, `title`, `body`, `seen`, `reply`, `replied`, `uri`, `parent-uri`, `created`, `unknown`)

@@ -9,27 +9,27 @@ use Friendica\Network\Probe;
 // authorisation to do this.
 
 function user_remove($uid) {
-	if(! $uid)
+	if (!$uid) {
 		return;
+	}
+
 	logger('Removing user: ' . $uid);
 
-	$r = q("select * from user where uid = %d limit 1", intval($uid));
+	$r = dba::select('user', array(), array('uid' => $uid), array("limit" => 1));
 
-	call_hooks('remove_user',$r[0]);
+	call_hooks('remove_user',$r);
 
 	// save username (actually the nickname as it is guaranteed
 	// unique), so it cannot be re-registered in the future.
 
-	q("insert into userd ( username ) values ( '%s' )",
-		$r[0]['nickname']
-	);
+	dba::insert('userd', array('username' => $r['nickname']));
 
 	// The user and related data will be deleted in "cron_expire_and_remove_users" (cronjobs.php)
 	q("UPDATE `user` SET `account_removed` = 1, `account_expires_on` = UTC_TIMESTAMP() WHERE `uid` = %d", intval($uid));
 	proc_run(PRIORITY_HIGH, "include/notifier.php", "removeme", $uid);
 
 	// Send an update to the directory
-	proc_run(PRIORITY_LOW, "include/directory.php", $r[0]['url']);
+	proc_run(PRIORITY_LOW, "include/directory.php", $r['url']);
 
 	if($uid == local_user()) {
 		unset($_SESSION['authenticated']);
@@ -206,6 +206,8 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 		return $cache[$url][$uid];
 	}
 
+	$ssl_url = str_replace('http://', 'https://', $url);
+
 	// Fetch contact data from the contact table for the given user
 	$s = dba::p("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
 			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`
@@ -213,12 +215,30 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 			normalise_link($url), $uid);
 	$r = dba::inArray($s);
 
+	// Fetch contact data from the contact table for the given user, checking with the alias
+	if (!dbm::is_result($r)) {
+		$s = dba::p("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
+				`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`
+			FROM `contact` WHERE `alias` IN (?, ?, ?) AND `uid` = ?",
+				normalise_link($url), $url, $ssl_url, $uid);
+		$r = dba::inArray($s);
+	}
+
 	// Fetch the data from the contact table with "uid=0" (which is filled automatically)
 	if (!dbm::is_result($r)) {
 		$s = dba::p("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
 			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`
 			FROM `contact` WHERE `nurl` = ? AND `uid` = 0",
 				normalise_link($url));
+		$r = dba::inArray($s);
+	}
+
+	// Fetch the data from the contact table with "uid=0" (which is filled automatically) - checked with the alias
+	if (!dbm::is_result($r)) {
+		$s = dba::p("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
+			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`
+			FROM `contact` WHERE `alias` IN (?, ?, ?) AND `uid` = 0",
+				normalise_link($url), $url, $ssl_url);
 		$r = dba::inArray($s);
 	}
 
@@ -542,8 +562,10 @@ function get_contact($url, $uid = 0, $no_update = false) {
 
 	// Then the alias (which could be anything)
 	if (!dbm::is_result($contact)) {
-		$r = dba::p("SELECT `id`, `avatar-date` FROM `contact` WHERE `alias` IN (?, ?) AND `uid` = ? LIMIT 1",
-				$url, normalise_link($url), $uid);
+		// The link could be provided as http although we stored it as https
+		$ssl_url = str_replace('http://', 'https://', $url);
+		$r = dba::p("SELECT `id`, `avatar-date` FROM `contact` WHERE `alias` IN (?, ?, ?) AND `uid` = ? LIMIT 1",
+				$url, normalise_link($url), $ssl_url, $uid);
 		$contact = dba::fetch($r);
 		dba::close($r);
 	}
