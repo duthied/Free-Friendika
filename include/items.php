@@ -364,9 +364,13 @@ function item_add_language_opt(&$arr) {
 		$postopts = "";
 	}
 
+	require_once('library/langdet/Text/LanguageDetect.php');
+
 	$naked_body = preg_replace('/\[(.+?)\]/','', $arr['body']);
-	$LanguageDetect = new Text_LanguageDetect();
-	$lng = $LanguageDetect->detect($naked_body, 3);
+	$l = new Text_LanguageDetect();
+	//$lng = $l->detectConfidence($naked_body);
+	//$arr['postopts'] = (($lng['language']) ? 'lang=' . $lng['language'] . ';' . $lng['confidence'] : '');
+	$lng = $l->detect($naked_body, 3);
 
 	if (sizeof($lng) > 0) {
 		if ($postopts != "") $postopts .= '&'; // arbitrary separator, to be reviewed
