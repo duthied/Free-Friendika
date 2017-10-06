@@ -740,7 +740,10 @@ function fix_contact_ssl_policy(&$contact,$new_policy) {
 	}
 
 	if ($ssl_changed) {
-		dba::update('contact', $contact, array('id' => $contact['id']));
+		$fields = array('url' => $contact['url'], 'request' => $contact['request'],
+				'notify' => $contact['notify'], 'poll' => $contact['poll'],
+				'confirm' => $contact['confirm'], 'poco' => $contact['poco']);
+		dba::update('contact', $fields, array('id' => $contact['id']));
 	}
 }
 
