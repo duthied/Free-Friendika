@@ -297,7 +297,7 @@
 
 						<br/>
 						<div class="form-group pull-right settings-submit-wrapper" >
-							<button type="submit" name="submit" class="btn btn-primary" value="{{$relocate_button|escape:'html'}}">{{$relocate_button|escape:'html'}}</button>
+							<button type="submit" name="resend_relocate" class="btn btn-primary" value="{{$relocate_button|escape:'html'}}">{{$relocate_button|escape:'html'}}</button>
 						</div>
 						<div class="clear"></div>
 					</div>
