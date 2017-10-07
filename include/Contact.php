@@ -696,6 +696,44 @@ function get_contact($url, $uid = 0, $no_update = false) {
 }
 
 /**
+ * @brief Checks if the contact is blocked
+ *
+ * @param int $cid contact id
+ *
+ * @return boolean Is the contact blocked?
+ */
+function blockedContact($cid) {
+	if ($cid == 0) {
+		return false;
+	}
+
+	$blocked = dba::select('contact', array('blocked'), array('id' => $cid), array('limit' => 1));
+	if (!dbm::is_result($blocked)) {
+		return false;
+	}
+	return (bool)$blocked['blocked'];
+}
+
+/**
+ * @brief Checks if the contact is hidden
+ *
+ * @param int $cid contact id
+ *
+ * @return boolean Is the contact hidden?
+ */
+function hiddenContact($cid) {
+	if ($cid == 0) {
+		return false;
+	}
+
+	$hidden = dba::select('contact', array('hidden'), array('id' => $cid), array('limit' => 1));
+	if (!dbm::is_result($hidden)) {
+		return false;
+	}
+	return (bool)$hidden['hidden'];
+}
+
+/**
  * @brief Returns posts from a given gcontact
  *
  * @param App $a argv application class

@@ -32,7 +32,7 @@ function add_thread($itemid, $onlyshadow = false) {
  * @param integer $itemid Item ID that should be added
  */
 function add_shadow_thread($itemid) {
-	$items = q("SELECT `uid`, `wall`, `private`, `moderated`, `visible`, `contact-id`, `deleted`, `network`
+	$items = q("SELECT `uid`, `wall`, `private`, `moderated`, `visible`, `contact-id`, `deleted`, `network`, `author-id`, `owner-id`
 		FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
 
 	if (!dbm::is_result($items)) {
@@ -55,6 +55,11 @@ function add_shadow_thread($itemid) {
 	if (!in_array($item["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""))) {
 		return;
 	}
+
+	// Is the public contact configured as hidden?
+        if (hiddenContact($item["owner-id"]) || hiddenContact($item["author-id"])) {
+                return;
+        }
 
 	// Only do these checks if the post isn't a wall post
 	if (!$item["wall"]) {
