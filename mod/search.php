@@ -57,11 +57,11 @@ function search_init(App $a) {
 				dbesc($search)
 			);
 			if (!dbm::is_result($r)) {
-				dbm::insert('search', array('uid' => local_user(), 'term' => $search));
+				dba::insert('search', array('uid' => local_user(), 'term' => $search));
 			}
 		}
 		if (x($_GET,'remove') && $search) {
-			dbm::delete('search', array('uid' => local_user(), 'term' => $search));
+			dba::delete('search', array('uid' => local_user(), 'term' => $search));
 		}
 
 		$a->page['aside'] .= search_saved_searches();
