@@ -761,8 +761,18 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		$arr["author-id"] = get_contact($arr["author-link"], 0);
 	}
 
+	if (blockedContact($arr["author-id"])) {
+		logger('Contact '.$arr["author-id"].' is blocked, item '.$arr["uri"].' will not be stored');
+		return 0;
+	}
+
 	if ($arr["owner-id"] == 0) {
 		$arr["owner-id"] = get_contact($arr["owner-link"], 0);
+	}
+
+	if (blockedContact($arr["owner-id"])) {
+		logger('Contact '.$arr["owner-id"].' is blocked, item '.$arr["uri"].' will not be stored');
+		return 0;
 	}
 
 	if ($arr['guid'] != "") {
