@@ -28,7 +28,7 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 	}
 
 	$doc = new DOMDocument();
-	@$doc->loadXML($xml);
+	@$doc->loadXML(trim($xml));
 	$xpath = new DomXPath($doc);
 	$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
 	$xpath->registerNamespace('dc', "http://purl.org/dc/elements/1.1/");
