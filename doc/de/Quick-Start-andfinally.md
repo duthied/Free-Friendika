@@ -8,7 +8,7 @@ Hier sind noch einige weitere Dinge, die Dir den Start vereinfachen können.
 **Gruppen**
 
 
-- <a href="http://helpers.pyxis.uberspace.de/profile/helpers">Friendica Support</a> - Probleme?  Dann ist das der Platz, um zu fragen!
+- <a href="http://forum.friendi.ca/profile/helpers">Friendica Support</a> - Probleme?  Dann ist das der Platz, um zu fragen!
 
 **Dokumentation**
 

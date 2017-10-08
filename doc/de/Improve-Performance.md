@@ -7,7 +7,7 @@ Eine kleine Anleitung, um die Performance einer Friendica-Seite zu verbessern.
 
 **Vorab:**
 
-Wenn du Fragen zu den folgenden Anweisungen oder zu anderen Themen hast, dann kannst du jederzeit beim Friendica-Support unter https://helpers.pyxis.uberspace.de/profile/helpers nachfragen.
+Wenn du Fragen zu den folgenden Anweisungen oder zu anderen Themen hast, dann kannst du jederzeit beim Friendica-Support unter https://forum.friendi.ca/profile/helpers nachfragen.
 
 Systemeinstellungen
 ---------------
