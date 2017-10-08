@@ -57,7 +57,7 @@ Friendica - Dokumentation und Ressourcen
 
 **Externe Ressourcen**
 
-* [Haupt-Webseite](http://friendica.com)
+* [Haupt-Webseite](https://friendi.ca)
 * [Mailing Liste](http://librelist.com/browser/friendica/)
 * [Deutsches Friendica-Wiki](http://wiki.toktan.org/doku.php)
 
