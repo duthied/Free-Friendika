@@ -40,7 +40,7 @@ Friendica Documentation and Resources
 
 **External Resources**
 
-* [Main Website](http://friendica.com)
+* [Main Website](https://friendi.ca)
 * [Mailing List Archive](http://librelist.com/browser/friendica/)
 
 **About**

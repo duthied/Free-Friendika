@@ -15,14 +15,14 @@ Contact us
 
 The discussion of Friendica development takes place in the following Friendica forums:
 
-* The main [forum for Friendica development](https://helpers.pyxis.uberspace.de/profile/developers)
+* The main [forum for Friendica development](https://forum.friendi.ca/profile/developers)
 * The [forum for Friendica theme development](https://friendica.eu/profile/ftdevs)
 
 Help other users
 ---
 
 Remember the questions you had when you first tried Friendica?
-A good place to start can be to help new people find their way around Friendica in the [general support forum](https://helpers.pyxis.uberspace.de/profile/helpers).
+A good place to start can be to help new people find their way around Friendica in the [general support forum](https://forum.friendi.ca/prufile/helpers).
 Welcome them, answer their questions, point them to documentation or ping other helpers directly if you can't help but think you know who can.
 
 Translation
@@ -126,7 +126,7 @@ If you want to get involved here:
 * Look at the first steps that were made (e.g. the clean theme).
 Ask us to find out whom to talk to about their experiences.
 * Talk to design people if you know any.
-* Let us know about your plans [in the dev forum](https://helpers.pyxis.uberspace.de/profile/developers) and the [theme developer forum](https://friendica.eu/profile/ftdevs).
+* Let us know about your plans [in the dev forum](https://forum.friendi.ca/profile/developers) and the [theme developer forum](https://friendica.eu/profile/ftdevs).
 Do not worry about cross-posting.
 
 ###Client software

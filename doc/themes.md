@@ -206,7 +206,7 @@ Basically what you have to do is identify which template you have to change so i
 Adopt the CSS of the theme accordingly.
 And iterate the process until you have the theme the way you want it.
 
-*Use the source Luke.* and don't hesitate to ask in @[ftdevs](https://friendica.eu/profile/ftdevs) or @[helpers](https://helpers.pyxis.uberspace.de/profile/helpers).
+*Use the source Luke.* and don't hesitate to ask in @[ftdevs](https://friendica.eu/profile/ftdevs) or @[helpers](https://forum.friendi.ca/profile/helpers).
 
 ## Special Files
 

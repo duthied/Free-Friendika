@@ -5,7 +5,7 @@ Here are some more things to help get you started:
 **Groups**
 
 
-- <a href="http://helpers.pyxis.uberspace.de/profile/helpers">Friendica Support</a> - problems?  This is the place to ask.
+- <a href="http://forum.friendi.ca/profile/helpers">Friendica Support</a> - problems?  This is the place to ask.
 
 **Documentation**
 

@@ -139,7 +139,7 @@ RSS feed of your posts
 
 	Example: Friendica Support 
 	
-	https://helpers.pyxis.uberspace.de/dfrn_poll/helpers
+	https://forum.friendi.ca/dfrn_poll/helpers
 
 RSS feed of the conversations at your site
 
@@ -147,7 +147,7 @@ RSS feed of the conversations at your site
 	
 	Example: Friendica Support 
 	
-	https://helpers.pyxis.uberspace.de/dfrn_poll/helpers/converse
+	https://forum.friendi.ca/dfrn_poll/helpers/converse
 
 <a name="clients"></a>
 
@@ -175,7 +175,7 @@ Depending on the features of the client you might encounter some glitches in usa
 
 ###Where I can find help?
 
-If you have problems with your Friendica page, you can ask the community at the [Friendica Support Group](https://helpers.pyxis.uberspace.de/profile/helpers).
+If you have problems with your Friendica page, you can ask the community at the [Friendica Support Group](https://forum.friendi.ca/profile/helpers).
 If you can't use your default profile you can use an account at a public site [list](https://dir.friendica.social/servers) or you can use the Librelist mailing list.
 If you want to use the mailing list, please just send a mail to friendica AT librelist DOT com.
 

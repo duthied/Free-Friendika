@@ -21,6 +21,6 @@ In diesem Fall nutze einfach den Link oben auf dieser Seite.
 
 Wenn du einige Gruppen hinzugefügt hast, gehe <a href="help/andfinally">weiter zum nächsten Schritt</a>.
 
-<iframe src="http://dir.friendica.com/directory/forum" width="950" height="600"></iframe>
+<iframe src="https://dir.friendica.social/home" width="950" height="600"></iframe>
 
 

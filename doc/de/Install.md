@@ -11,7 +11,7 @@ Diese Funktionalität benötigt ein wenig mehr als die normalen Blogs.
 Nicht jeder PHP/MySQL-Hosting-Anbieter kann Friendica unterstützen. 
 Viele hingegen können es. Aber **bitte** prüfe die Voraussetzungen deines Servers vor der Installation. 
 
-Wenn dir Fehler während der Installation auffallen, sag uns bitte über http://bugs.friendica.com Bescheid. 
+Wenn dir Fehler während der Installation auffallen, sag uns bitte über [github](https://github.com/friendica/issues) Bescheid. 
 Gib uns bitte so viele Infos zu deinem System, wie du kannst, und beschreibe den Fehler mit allen Details und Fehlermeldungen, so dass wir den Fehler zukünftig verhindern können. 
 Aufgrund der großen Anzahl an verschiedenen Betriebssystemen und PHP-Plattformen haben wir nur geringe Kapazitäten, um deine PHP-Installation zu debuggen oder fehlende Module zu ersetzen, aber wir tun unser Bestes, um allgemeine Code-Fehler zu beheben.
 
