@@ -165,7 +165,7 @@ RSS-Feed aller Unterhaltungen auf Deiner Seite
 **Wo finde ich Hilfe?**
 
 Wenn Du Probleme mit Deiner Friendica-Seite hast, dann kannst Du die Community in der [Friendica-Support-Gruppe](https://forum.friendi.ca/profile/helpers) oder im [deutschen Friendica-Support-Forum](http://toktan.org/profile/wiki) fragen oder Dir das [deutsche Wiki](http://wiki.toktan.org/doku.php) anschauen. 
-Wenn Du Deinen Account nicht nutzen kannst, kannst Du entweder einen [Testaccount](http://friendica.com/node/31) bzw. einen Account auf einer öffentlichen Seite ([Liste](http://dir.friendica.com/siteinfo)) nutzen, oder Du wählst die Librelist-mailing-Liste. 
+Wenn Du Deinen Account nicht nutzen kannst, kannst Du entweder einen [Testaccount](https://tryfriendica.de) bzw. einen Account auf einer öffentlichen Seite ([Liste](https://dir.friendica.social/servers)) nutzen, oder Du wählst die Librelist-mailing-Liste. 
 Wenn Du die Mailing-Liste nutzen willst, schicke eine Mail an friendica AT librelist PUNKT com.
 
 Wenn Du ein Theme-Entwickler bist, wirst Du in diesem Forum Hilfe finden: [Friendica Theme Developers](https://friendica.eu/profile/ftdevs).
