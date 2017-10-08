@@ -72,7 +72,7 @@ function friendica_content(App $a) {
 	$o .= '</p>' . PHP_EOL;
 
 	$o .= '<p>';
-	$o .= t('Please visit <a href="http://friendica.com">Friendica.com</a> to learn more about the Friendica project.') . PHP_EOL;
+	$o .= t('Please visit <a href="https://friendi.ca">Friendi.ca</a> to learn more about the Friendica project.') . PHP_EOL;
 	$o .= '</p>' . PHP_EOL;
 
 	$o .= '<p>';
