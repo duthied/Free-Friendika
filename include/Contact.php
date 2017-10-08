@@ -786,22 +786,25 @@ function posts_from_contact_url(App $a, $contact_url) {
 
 	// There are no posts with "uid = 0" with connector networks
 	// This speeds up the query a lot
-	$r = q("SELECT `network`, `id` AS `author-id` FROM `contact`
+	$r = q("SELECT `network`, `id` AS `author-id`, `contact-type` FROM `contact`
 		WHERE `contact`.`nurl` = '%s' AND `contact`.`uid` = 0",
 		dbesc(normalise_link($contact_url)));
+
+	if (!dbm::is_result($r)) {
+		return '';
+	}
+
 	if (in_array($r[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""))) {
 		$sql = "(`item`.`uid` = 0 OR (`item`.`uid` = %d AND NOT `item`.`global`))";
 	} else {
 		$sql = "`item`.`uid` = %d";
 	}
 
-	if (!dbm::is_result($r)) {
-		return '';
-	}
-
 	$author_id = intval($r[0]["author-id"]);
 
-	$r = q(item_query()." AND `item`.`author-id` = %d AND ".$sql.
+	$contact = ($r[0]["contact-type"] = ACCOUNT_TYPE_COMMUNITY ? 'owner-id' : 'author-id');
+
+	$r = q(item_query()." AND `item`.`".$contact."` = %d AND ".$sql.
 		" ORDER BY `item`.`created` DESC LIMIT %d, %d",
 		intval($author_id),
 		intval(local_user()),
