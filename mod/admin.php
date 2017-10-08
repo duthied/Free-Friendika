@@ -363,7 +363,7 @@ function admin_page_blocklist_post(App $a) {
  * This subpage of the admin panel offers the nodes admin to delete an item from
  * the node, given the GUID or the display URL such as http://example.com/display/123456.
  * The item will then be marked as deleted in the database and processed accordingly.
- * 
+ *
  * @param App $a
  * @return string
  */
@@ -1107,7 +1107,7 @@ function admin_page_site(App $a) {
 	/* Banner */
 	$banner = get_config('system','banner');
 	if ($banner == false) {
-		$banner = '<a href="http://friendica.com"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="http://friendica.com">Friendica</a></span>';
+		$banner = '<a href="https://friendi.ca"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>';
 	}
 	$banner = htmlspecialchars($banner);
 	$info = get_config('config','info');
