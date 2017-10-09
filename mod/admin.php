@@ -615,6 +615,17 @@ function admin_page_summary(App $a) {
 		$showwarning = true;
 		$warningtext[] = sprintf(t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php include/dbstructure.php toinnodb</tt> of your Friendica installation for an automatic conversion.<br />'), 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
 	}
+	// Check if github.com/friendica/master/VERSION is higher then
+	// the local version of Friendica.
+	$gitversion = Cache::get("git_friendica_version");
+	if (! isset($gitversion)) {
+		$gitversion = dbesc(trim(fetch_url("https://raw.githubusercontent.com/friendica/friendica/master/VERSION")));
+		Cache::set("git_friendica_version", $gitversion, CACHE_WEEK);
+	}
+	if ( version_compare(FRIENDICA_VERSION, $gitversion)<0) {
+		$warningtext[] = t('There is a new version of friendica available.');
+		$showwarning = true;
+	}
 
 	if (Config::get('system', 'dbupdate', DB_UPDATE_NOT_CHECKED) == DB_UPDATE_NOT_CHECKED) {
 		require_once("include/dbstructure.php");
