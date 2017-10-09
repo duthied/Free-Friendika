@@ -2829,13 +2829,6 @@ class dfrn {
 			return 400;
 		}
 
-		if ($importer["readonly"]) {
-			// We aren't receiving stuff from this person. But we will quietly ignore them
-			// rather than a blatant "go away" message.
-			logger('ignoring contact '.$importer["id"]);
-			return 403;
-		}
-
 		$doc = new DOMDocument();
 		@$doc->loadXML($xml);
 
@@ -2878,11 +2871,7 @@ class dfrn {
 			$accounttype = intval($xpath->evaluate("/atom:feed/dfrn:account_type/text()", $context)->item(0)->nodeValue);
 
 			if ($accounttype != $importer["contact-type"]) {
-				/// @TODO this way is the norm or putting ); at the end of the line?
-				q("UPDATE `contact` SET `contact-type` = %d WHERE `id` = %d",
-					intval($accounttype),
-					intval($importer["id"])
-				);
+				dba::update('contact', array('contact-type' => $accounttype), array('id' => $importer["id"]));
 			}
 		}
 
@@ -2891,10 +2880,21 @@ class dfrn {
 		$forum = intval($xpath->evaluate("/atom:feed/dfrn:community/text()", $context)->item(0)->nodeValue);
 
 		if ($forum != $importer["forum"]) {
-			q("UPDATE `contact` SET `forum` = %d WHERE `forum` != %d AND `id` = %d",
-				intval($forum), intval($forum),
-				intval($importer["id"])
-			);
+			$condition = array('`forum` != ? AND `id` = ?', $forum, $importer["id"]);
+			dba::update('contact', array('forum' => $forum), $condition);
+		}
+
+		// We are processing relocations even if we are ignoring a contact
+		$relocations = $xpath->query("/atom:feed/dfrn:relocate");
+		foreach ($relocations AS $relocation) {
+			self::process_relocation($xpath, $relocation, $importer);
+		}
+
+		if ($importer["readonly"]) {
+			// We aren't receiving stuff from this person. But we will quietly ignore them
+			// rather than a blatant "go away" message.
+			logger('ignoring contact '.$importer["id"]);
+			return 403;
 		}
 
 		$mails = $xpath->query("/atom:feed/dfrn:mail");
@@ -2905,11 +2905,6 @@ class dfrn {
 		$suggestions = $xpath->query("/atom:feed/dfrn:suggest");
 		foreach ($suggestions AS $suggestion) {
 			self::process_suggestion($xpath, $suggestion, $importer);
-		}
-
-		$relocations = $xpath->query("/atom:feed/dfrn:relocate");
-		foreach ($relocations AS $relocation) {
-			self::process_relocation($xpath, $relocation, $importer);
 		}
 
 		$deletions = $xpath->query("/atom:feed/at:deleted-entry");
