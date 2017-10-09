@@ -617,14 +617,16 @@ function admin_page_summary(App $a) {
 	}
 	// Check if github.com/friendica/master/VERSION is higher then
 	// the local version of Friendica.
-	$gitversion = Cache::get("git_friendica_version");
-	if (! isset($gitversion)) {
-		$gitversion = dbesc(trim(fetch_url("https://raw.githubusercontent.com/friendica/friendica/master/VERSION")));
-		Cache::set("git_friendica_version", $gitversion, CACHE_WEEK);
-	}
-	if ( version_compare(FRIENDICA_VERSION, $gitversion)<0) {
-		$warningtext[] = t('There is a new version of Friendica available for download.');
-		$showwarning = true;
+	if (Config::get('system', 'check_new_version')) {
+		$gitversion = Cache::get("git_friendica_version");
+		if (! isset($gitversion)) {
+			$gitversion = dbesc(trim(fetch_url("https://raw.githubusercontent.com/friendica/friendica/master/VERSION")));
+			Cache::set("git_friendica_version", $gitversion, CACHE_WEEK);
+		}
+		if ( version_compare(FRIENDICA_VERSION, $gitversion)<0) {
+			$warningtext[] = t('There is a new version of Friendica available for download.');
+			$showwarning = true;
+		}
 	}
 
 	if (Config::get('system', 'dbupdate', DB_UPDATE_NOT_CHECKED) == DB_UPDATE_NOT_CHECKED) {
@@ -819,6 +821,7 @@ function admin_page_site_post(App $a) {
 	$private_addons			=	((x($_POST,'private_addons'))		? True					: False);
 	$disable_embedded		=	((x($_POST,'disable_embedded'))		? True					: False);
 	$allow_users_remote_self	=	((x($_POST,'allow_users_remote_self'))	? True					: False);
+	$check_new_version	=	((x($_POST,'check_new_version'))	? True					: False);
 
 	$no_multi_reg		=	((x($_POST,'no_multi_reg'))		? True						: False);
 	$no_openid		=	!((x($_POST,'no_openid'))		? True						: False);
@@ -978,6 +981,7 @@ function admin_page_site_post(App $a) {
 	set_config('system', 'enotify_no_content', $enotify_no_content);
 	set_config('system', 'disable_embedded', $disable_embedded);
 	set_config('system', 'allow_users_remote_self', $allow_users_remote_self);
+	set_config('system', 'check_new_version', $check_new_version);
 
 	set_config('system', 'block_extended_register', $no_multi_reg);
 	set_config('system', 'no_openid', $no_openid);
@@ -1211,6 +1215,7 @@ function admin_page_site(App $a) {
 		'$private_addons'	=> array('private_addons', t("Disallow public access to addons listed in the apps menu."), get_config('config','private_addons'), t("Checking this box will restrict addons listed in the apps menu to members only.")),
 		'$disable_embedded'	=> array('disable_embedded', t("Don't embed private images in posts"), get_config('system','disable_embedded'), t("Don't replace locally-hosted private photos in posts with an embedded copy of the image. This means that contacts who receive posts containing private photos will have to authenticate and load each image, which may take a while.")),
 		'$allow_users_remote_self' => array('allow_users_remote_self', t('Allow Users to set remote_self'), get_config('system','allow_users_remote_self'), t('With checking this, every user is allowed to mark every contact as a remote_self in the repair contact dialog. Setting this flag on a contact causes mirroring every posting of that contact in the users stream.')),
+		'$check_new_version' => array('check_new_version', t('Check for new versions'), get_config('system','check_new_version'), t('If this is activated, once weekly github will be checked if there is a new version of Friendica available.')),
 		'$no_multi_reg'		=> array('no_multi_reg', t("Block multiple registrations"),  get_config('system','block_extended_register'), t("Disallow users to register additional accounts for use as pages.")),
 		'$no_openid'		=> array('no_openid', t("OpenID support"), !get_config('system','no_openid'), t("OpenID support for registration and logins.")),
 		'$no_regfullname'	=> array('no_regfullname', t("Fullname check"), !get_config('system','no_regfullname'), t("Force users to register with a space between firstname and lastname in Full name, as an antispam measure")),
