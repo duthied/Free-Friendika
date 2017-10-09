@@ -623,7 +623,7 @@ function admin_page_summary(App $a) {
 		Cache::set("git_friendica_version", $gitversion, CACHE_WEEK);
 	}
 	if ( version_compare(FRIENDICA_VERSION, $gitversion)<0) {
-		$warningtext[] = t('There is a new version of friendica available.');
+		$warningtext[] = t('There is a new version of Friendica available for download.');
 		$showwarning = true;
 	}
 
