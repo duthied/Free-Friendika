@@ -692,11 +692,16 @@ function admin_page_summary(App $a) {
  * @param App $a
  */
 function admin_page_site_post(App $a) {
-	if (!x($_POST,"page_site")) {
+	check_form_security_token_redirectOnErr('/admin/site', 'admin_site');
+
+	if (!empty($_POST['republish_directory'])) {
+		proc_run(PRIORITY_LOW, 'include/directory.php');
 		return;
 	}
 
-	check_form_security_token_redirectOnErr('/admin/site', 'admin_site');
+	if (!x($_POST,"page_site")) {
+		return;
+	}
 
 	// relocate
 	if (x($_POST,'relocate') && x($_POST,'relocate_url') && $_POST['relocate_url'] != "") {
@@ -1152,6 +1157,7 @@ function admin_page_site(App $a) {
 		'$title' => t('Administration'),
 		'$page' => t('Site'),
 		'$submit' => t('Save Settings'),
+		'$republish' => t('Republish users to directory'),
 		'$registration' => t('Registration'),
 		'$upload' => t('File upload'),
 		'$corporate' => t('Policies'),
