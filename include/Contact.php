@@ -607,6 +607,10 @@ function get_contact($url, $uid = 0, $no_update = false) {
 		$data = array_merge($data, $gcontacts);
 	}
 
+	if (!$contact_id && ($data["alias"] != '') && ($data["alias"] != $url)) {
+		$contact_id = get_contact($data["alias"], $uid, true);
+	}
+
 	$url = $data["url"];
 	if (!$contact_id) {
 		dba::insert('contact', array('uid' => $uid, 'created' => datetime_convert(), 'url' => $data["url"],
@@ -658,7 +662,7 @@ function get_contact($url, $uid = 0, $no_update = false) {
 
 	update_contact_avatar($data["photo"], $uid, $contact_id);
 
-	$contact = dba::select('contact', array('addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date'),
+	$contact = dba::select('contact', array('url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date'),
 				array('id' => $contact_id), array('limit' => 1));
 
 	// This condition should always be true
@@ -668,6 +672,8 @@ function get_contact($url, $uid = 0, $no_update = false) {
 
 	$updated = array('addr' => $data['addr'],
 			'alias' => $data['alias'],
+			'url' => $data['url'],
+			'nurl' => normalise_link($data['url']),
 			'name' => $data['name'],
 			'nick' => $data['nick']);
 

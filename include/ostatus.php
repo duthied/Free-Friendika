@@ -62,12 +62,26 @@ class ostatus {
 				}
 			}
 		}
-
 		$author["contact-id"] = $contact["id"];
 
 		$found = false;
 
-		if ($author["author-link"] != "") {
+		if ($aliaslink != '') {
+			$condition = array("`uid` = ? AND `alias` = ? AND `network` != ?",
+					$importer["uid"], $aliaslink, NETWORK_STATUSNET);
+			$r = dba::select('contact', array(), $condition, array('limit' => 1));
+
+			if (dbm::is_result($r)) {
+				$found = true;
+				if ($r['blocked']) {
+					$r['id'] = -1;
+				}
+				$contact = $r;
+				$author["contact-id"] = $r["id"];
+			}
+		}
+
+		if (!$found && ($author["author-link"] != "")) {
 			if ($aliaslink == "") {
 				$aliaslink = $author["author-link"];
 			}
@@ -83,7 +97,6 @@ class ostatus {
 				}
 				$contact = $r;
 				$author["contact-id"] = $r["id"];
-				$author["author-link"] = $r["url"];
 			}
 		}
 
@@ -93,12 +106,12 @@ class ostatus {
 			$r = dba::select('contact', array(), $condition, array('limit' => 1));
 
 			if (dbm::is_result($r)) {
+				$found = true;
 				if ($r['blocked']) {
 					$r['id'] = -1;
 				}
 				$contact = $r;
 				$author["contact-id"] = $r["id"];
-				$author["author-link"] = $r["url"];
 			}
 		}
 
@@ -138,6 +151,9 @@ class ostatus {
 
 			// Update contact data
 
+			$current = $contact;
+			unset($current['name-date']);
+
 			// This query doesn't seem to work
 			// $value = $xpath->query("atom:link[@rel='salmon']", $context)->item(0)->nodeValue;
 			// if ($value != "")
@@ -147,6 +163,9 @@ class ostatus {
 			// $value = $xpath->query("atom:link[@rel='self' and @type='application/atom+xml']", $context)->item(0)->nodeValue;
 			// if ($value != "")
 			//	$contact["poll"] = $value;
+
+			$contact['url'] = $author["author-link"];
+			$contact['nurl'] = normalise_link($contact['url']);
 
 			$value = $xpath->evaluate('atom:author/atom:uri/text()', $context)->item(0)->nodeValue;
 			if ($value != "")
@@ -168,32 +187,25 @@ class ostatus {
 			if ($value != "")
 				$contact["location"] = $value;
 
-			if (($contact["name"] != $r[0]["name"]) || ($contact["nick"] != $r[0]["nick"]) || ($contact["about"] != $r[0]["about"]) ||
-				($contact["alias"] != $r[0]["alias"]) || ($contact["location"] != $r[0]["location"])) {
+			$contact['name-date'] = datetime_convert();
 
-				logger("Update contact data for contact ".$contact["id"], LOGGER_DEBUG);
+			dba::update('contact', $contact, array('id' => $contact["id"]), $current);
 
-				q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `alias` = '%s', `about` = '%s', `location` = '%s', `name-date` = '%s' WHERE `id` = %d",
-					dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["alias"]),
-					dbesc($contact["about"]), dbesc($contact["location"]),
-					dbesc(datetime_convert()), intval($contact["id"]));
-			}
-
-			if (isset($author["author-avatar"]) && ($author["author-avatar"] != $r[0]['avatar'])) {
+			if (!empty($author["author-avatar"]) && ($author["author-avatar"] != $current['avatar'])) {
 				logger("Update profile picture for contact ".$contact["id"], LOGGER_DEBUG);
-
 				update_contact_avatar($author["author-avatar"], $importer["uid"], $contact["id"]);
 			}
 
 			// Ensure that we are having this contact (with uid=0)
-			$cid = get_contact($author["author-link"], 0);
+			$cid = get_contact($aliaslink, 0);
 
 			if ($cid) {
-				$fields = array('url', 'name', 'nick', 'alias', 'about', 'location');
+				$fields = array('url', 'nurl', 'name', 'nick', 'alias', 'about', 'location');
 				$old_contact = dba::select('contact', $fields, array('id' => $cid), array('limit' => 1));
 
 				// Update it with the current values
 				$fields = array('url' => $author["author-link"], 'name' => $contact["name"],
+						'nurl' => normalise_link($author["author-link"]),
 						'nick' => $contact["nick"], 'alias' => $contact["alias"],
 						'about' => $contact["about"], 'location' => $contact["location"],
 						'success_update' => datetime_convert(), 'last-update' => datetime_convert());
