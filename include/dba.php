@@ -126,6 +126,9 @@ class dba {
 		if (!is_object(self::$dbo)) {
 			global $db;
 			self::$dbo = $db;
+			if (!is_object(self::$dbo)) {
+				die('Database is uninitialized!');
+			}
 		}
 	}
 
