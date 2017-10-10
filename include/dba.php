@@ -117,6 +117,19 @@ class dba {
 	}
 
 	/**
+	 * @brief Checks if the database object is initialized
+	 *
+	 * This is a possible bugfix for something that doesn't occur for me.
+	 * There seems to be situations, where the object isn't initialized.
+	 */
+	private static function initialize() {
+		if (!is_object(self::$dbo)) {
+			global $db;
+			self::$dbo = $db;
+		}
+	}
+
+	/**
 	 * @brief Returns the MySQL server version string
 	 *
 	 * This function discriminate between the deprecated mysql API and the current
@@ -375,6 +388,8 @@ class dba {
 	 * @return object statement object
 	 */
 	public static function p($sql) {
+		self::initialize();
+
 		$a = get_app();
 
 		$stamp1 = microtime(true);
@@ -585,6 +600,8 @@ class dba {
 	 * @return boolean Was the query successfull? False is returned only if an error occurred
 	 */
 	public static function e($sql) {
+		self::initialize();
+
 		$a = get_app();
 
 		$stamp = microtime(true);
@@ -635,6 +652,8 @@ class dba {
 	 * @return boolean Are there rows for that condition?
 	 */
 	public static function exists($table, $condition) {
+		self::initialize();
+
 		if (empty($table)) {
 			return false;
 		}
@@ -669,6 +688,8 @@ class dba {
 	 * @return array first row of query
 	 */
 	public static function fetch_first($sql) {
+		self::initialize();
+
 		$params = self::getParam(func_get_args());
 
 		$stmt = self::p($sql, $params);
@@ -690,6 +711,8 @@ class dba {
 	 * @return int Number of rows
 	 */
 	public static function affected_rows() {
+		self::initialize();
+
 		return self::$dbo->affected_rows;
 	}
 
@@ -700,6 +723,8 @@ class dba {
 	 * @return int Number of columns
 	 */
 	public static function columnCount($stmt) {
+		self::initialize();
+
 		if (!is_object($stmt)) {
 			return 0;
 		}
@@ -720,6 +745,8 @@ class dba {
 	 * @return int Number of rows
 	 */
 	public static function num_rows($stmt) {
+		self::initialize();
+
 		if (!is_object($stmt)) {
 			return 0;
 		}
@@ -741,6 +768,8 @@ class dba {
 	 * @return array current row
 	 */
 	public static function fetch($stmt) {
+		self::initialize();
+
 		if (!is_object($stmt)) {
 			return false;
 		}
@@ -795,6 +824,8 @@ class dba {
 	 * @return boolean was the insert successfull?
 	 */
 	public static function insert($table, $param, $on_duplicate_update = false) {
+		self::initialize();
+
 		$sql = "INSERT INTO `".self::$dbo->escape($table)."` (`".implode("`, `", array_keys($param))."`) VALUES (".
 			substr(str_repeat("?, ", count($param)), 0, -2).")";
 
@@ -814,6 +845,8 @@ class dba {
 	 * @return integer Last inserted id
 	 */
 	public static function lastInsertId() {
+		self::initialize();
+
 		switch (self::$dbo->driver) {
 			case 'pdo':
 				$id = self::$dbo->db->lastInsertId();
@@ -838,6 +871,8 @@ class dba {
 	 * @return boolean was the lock successful?
 	 */
 	public static function lock($table) {
+		self::initialize();
+
 		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
 		self::e("SET autocommit=0");
 		$success = self::e("LOCK TABLES `".self::$dbo->escape($table)."` WRITE");
@@ -855,6 +890,8 @@ class dba {
 	 * @return boolean was the unlock successful?
 	 */
 	public static function unlock() {
+		self::initialize();
+
 		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
 		self::e("COMMIT");
 		$success = self::e("UNLOCK TABLES");
@@ -869,6 +906,8 @@ class dba {
 	 * @return boolean Was the command executed successfully?
 	 */
 	public static function transaction() {
+		self::initialize();
+
 		if (!self::e('COMMIT')) {
 			return false;
 		}
@@ -885,6 +924,8 @@ class dba {
 	 * @return boolean Was the command executed successfully?
 	 */
 	public static function commit() {
+		self::initialize();
+
 		if (!self::e('COMMIT')) {
 			return false;
 		}
@@ -898,6 +939,8 @@ class dba {
 	 * @return boolean Was the command executed successfully?
 	 */
 	public static function rollback() {
+		self::initialize();
+
 		if (!self::e('ROLLBACK')) {
 			return false;
 		}
@@ -937,6 +980,7 @@ class dba {
 	 * @return boolean|array was the delete successfull? When $in_process is set: deletion data
 	 */
 	public static function delete($table, $param, $in_process = false, &$callstack = array()) {
+		self::initialize();
 
 		$commands = array();
 
@@ -1100,6 +1144,7 @@ class dba {
 	 * @return boolean was the update successfull?
 	 */
 	public static function update($table, $fields, $condition, $old_fields = array()) {
+		self::initialize();
 
 		$table = self::$dbo->escape($table);
 
@@ -1178,6 +1223,8 @@ class dba {
 	 * $data = dba::select($table, $fields, $condition, $params);
 	 */
 	public static function select($table, $fields = array(), $condition = array(), $params = array()) {
+		self::initialize();
+
 		if ($table == '') {
 			return false;
 		}
@@ -1245,6 +1292,8 @@ class dba {
 	 * @return array Data array
 	 */
 	public static function inArray($stmt, $do_close = true) {
+		self::initialize();
+
 		if (is_bool($stmt)) {
 			return $stmt;
 		}
@@ -1265,6 +1314,8 @@ class dba {
 	 * @return string Error number (0 if no error)
 	 */
 	public static function errorNo() {
+		self::initialize();
+
 		return self::$dbo->errorno;
 	}
 
@@ -1274,6 +1325,8 @@ class dba {
 	 * @return string Error message ('' if no error)
 	 */
 	public static function errorMessage() {
+		self::initialize();
+
 		return self::$dbo->error;
 	}
 
@@ -1284,6 +1337,8 @@ class dba {
 	 * @return boolean was the close successfull?
 	 */
 	public static function close($stmt) {
+		self::initialize();
+
 		if (!is_object($stmt)) {
 			return false;
 		}
