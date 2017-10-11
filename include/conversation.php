@@ -470,7 +470,7 @@ These Fields are not added below (yet). They are here to for bug search.
 		`event`.`summary` AS `event-summary`,`event`.`desc` AS `event-desc`,
 		`event`.`location` AS `event-location`, `event`.`type` AS `event-type`,
 		`event`.`nofinish` AS `event-nofinish`,`event`.`adjust` AS `event-adjust`,
-		`event`.`ignore` AS `event-ignore`";
+		`event`.`ignore` AS `event-ignore`, `event`.`id` AS `event-id`";
 }
 
 /**
