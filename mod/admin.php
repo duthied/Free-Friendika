@@ -64,7 +64,7 @@ function admin_post(App $a)
 			case 'addons':
 				if ($a->argc > 2 &&
 					is_file("addon/" . $a->argv[2] . "/" . $a->argv[2] . ".php")) {
-					@include_once("addon/" . $a->argv[2] . "/" . $a->argv[2] . ".php");
+					include_once "addon/" . $a->argv[2] . "/" . $a->argv[2] . ".php";
 					if (function_exists($a->argv[2] . '_addon_admin_post')) {
 						$func = $a->argv[2] . '_addon_admin_post';
 						$func($a);
@@ -1922,7 +1922,7 @@ function admin_page_addons(App $a)
 
 		$admin_form = "";
 		if (in_array($addon, $a->addons_admin)) {
-			@require_once("addon/$addon/$addon.php");
+			require_once "addon/$addon/$addon.php";
 			$func = $addon . '_addon_admin';
 			$func($a, $admin_form);
 		}
