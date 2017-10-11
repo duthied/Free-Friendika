@@ -132,8 +132,14 @@ class App {
 
 		$hostname = '';
 
-		if (file_exists('.htpreconfig.php')) {
-			include '.htpreconfig.php';
+		if (! static::directory_usable($basepath, false)) {
+			throw new Exception('Basepath ' . $basepath . ' isn\'t usable.');
+		}
+
+		$this->basepath = rtrim($basepath, DIRECTORY_SEPARATOR);
+
+		if (file_exists($this->basepath.DIRECTORY_SEPARATOR.'.htpreconfig.php')) {
+			include $this->basepath.DIRECTORY_SEPARATOR.'.htpreconfig.php';
 		}
 
 		$this->timezone = ((x($default_timezone)) ? $default_timezone : 'UTC');
@@ -200,12 +206,6 @@ class App {
 		if ($hostname != '') {
 			$this->hostname = $hostname;
 		}
-
-		if (! static::directory_usable($basepath, false)) {
-			throw new Exception('Basepath ' . $basepath . ' isn\'t usable.');
-		}
-
-		$this->basepath = rtrim($basepath, DIRECTORY_SEPARATOR);
 
 		set_include_path(
 			get_include_path() . PATH_SEPARATOR
@@ -416,8 +416,8 @@ class App {
 				$this->path = trim($parsed['path'], '\\/');
 			}
 
-			if (file_exists('.htpreconfig.php')) {
-				include '.htpreconfig.php';
+			if (file_exists($this->basepath.DIRECTORY_SEPARATOR.'.htpreconfig.php')) {
+				include $this->basepath.DIRECTORY_SEPARATOR.'.htpreconfig.php';
 			}
 
 			if (Config::get('config', 'hostname') != '') {
