@@ -51,7 +51,7 @@ if (!$install) {
 require_once "include/dba.php";
 
 if (!$install) {
-	$db = new dba($db_host, $db_user, $db_pass, $db_data, $install);
+	dba::connect($db_host, $db_user, $db_pass, $db_data, $install);
 	unset($db_host, $db_user, $db_pass, $db_data);
 
 	/**

@@ -14,11 +14,6 @@ function last_insert_id() {
 	return dba::lastInsertId();
 }
 
-function last_error() {
-	global $db;
-	return $db->error;
-}
-
 /**
  * Remove columns from array $arr that aren't in table $table
  *
@@ -103,7 +98,7 @@ function import_account(App $a, $file) {
 	// check for username
 	$r = q("SELECT uid FROM user WHERE nickname='%s'", $account['user']['nickname']);
 	if ($r === false) {
-		logger("uimport:check nickname : ERROR : " . last_error(), LOGGER_NORMAL);
+		logger("uimport:check nickname : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 		notice(t('Error! Cannot check nickname'));
 		return;
 	}
@@ -114,7 +109,7 @@ function import_account(App $a, $file) {
 	// check if username matches deleted account
 	$r = q("SELECT id FROM userd WHERE username='%s'", $account['user']['nickname']);
 	if ($r === false) {
-		logger("uimport:check nickname : ERROR : " . last_error(), LOGGER_NORMAL);
+		logger("uimport:check nickname : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 		notice(t('Error! Cannot check nickname'));
 		return;
 	}
@@ -144,7 +139,7 @@ function import_account(App $a, $file) {
 	$r = db_import_assoc('user', $account['user']);
 	if ($r === false) {
 		//echo "<pre>"; var_dump($r, $query, mysql_error()); killme();
-		logger("uimport:insert user : ERROR : " . last_error(), LOGGER_NORMAL);
+		logger("uimport:insert user : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 		notice(t("User creation error"));
 		return;
 	}
@@ -165,7 +160,7 @@ function import_account(App $a, $file) {
 		$profile['uid'] = $newuid;
 		$r = db_import_assoc('profile', $profile);
 		if ($r === false) {
-			logger("uimport:insert profile " . $profile['profile-name'] . " : ERROR : " . last_error(), LOGGER_NORMAL);
+			logger("uimport:insert profile " . $profile['profile-name'] . " : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 			info(t("User profile creation error"));
 			dba::delete('user', array('uid' => $newuid));
 			return;
@@ -208,7 +203,7 @@ function import_account(App $a, $file) {
 		$contact['uid'] = $newuid;
 		$r = db_import_assoc('contact', $contact);
 		if ($r === false) {
-			logger("uimport:insert contact " . $contact['nick'] . "," . $contact['network'] . " : ERROR : " . last_error(), LOGGER_NORMAL);
+			logger("uimport:insert contact " . $contact['nick'] . "," . $contact['network'] . " : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 			$errorcount++;
 		} else {
 			$contact['newid'] = last_insert_id();
@@ -222,7 +217,7 @@ function import_account(App $a, $file) {
 		$group['uid'] = $newuid;
 		$r = db_import_assoc('group', $group);
 		if ($r === false) {
-			logger("uimport:insert group " . $group['name'] . " : ERROR : " . last_error(), LOGGER_NORMAL);
+			logger("uimport:insert group " . $group['name'] . " : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 		} else {
 			$group['newid'] = last_insert_id();
 		}
@@ -249,7 +244,7 @@ function import_account(App $a, $file) {
 		if ($import == 2) {
 			$r = db_import_assoc('group_member', $group_member);
 			if ($r === false) {
-				logger("uimport:insert group member " . $group_member['id'] . " : ERROR : " . last_error(), LOGGER_NORMAL);
+				logger("uimport:insert group member " . $group_member['id'] . " : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 			}
 		}
 	}
@@ -266,7 +261,7 @@ function import_account(App $a, $file) {
 		);
 
 		if ($r === false) {
-			logger("uimport:insert photo " . $photo['resource-id'] . "," . $photo['scale'] . " : ERROR : " . last_error(), LOGGER_NORMAL);
+			logger("uimport:insert photo " . $photo['resource-id'] . "," . $photo['scale'] . " : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 		}
 	}
 
@@ -274,7 +269,7 @@ function import_account(App $a, $file) {
 		$pconfig['uid'] = $newuid;
 		$r = db_import_assoc('pconfig', $pconfig);
 		if ($r === false) {
-			logger("uimport:insert pconfig " . $pconfig['id'] . " : ERROR : " . last_error(), LOGGER_NORMAL);
+			logger("uimport:insert pconfig " . $pconfig['id'] . " : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 		}
 	}
 

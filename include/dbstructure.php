@@ -17,10 +17,8 @@ const DB_UPDATE_FAILED = 2;      // Database check failed
  * Converts all tables from MyISAM to InnoDB
  */
 function convert_to_innodb() {
-	global $db;
-
 	$r = q("SELECT `TABLE_NAME` FROM `information_schema`.`tables` WHERE `engine` = 'MyISAM' AND `table_schema` = '%s'",
-		dbesc($db->database_name()));
+		dbesc(dba::database_name()));
 
 	if (!dbm::is_result($r)) {
 		echo t('There are no tables on MyISAM.')."\n";
@@ -33,7 +31,7 @@ function convert_to_innodb() {
 
 		$result = dba::e($sql);
 		if (!dbm::is_result($result)) {
-			print_update_error($db, $sql);
+			print_update_error($sql);
 		}
 	}
 }
@@ -188,20 +186,19 @@ function print_structure($database) {
 /**
  * @brief Print out database error messages
  *
- * @param object $db Database object
  * @param string $message Message to be added to the error message
  *
  * @return string Error message
  */
-function print_update_error($db, $message) {
+function print_update_error($message) {
 	echo sprintf(t("\nError %d occurred during database update:\n%s\n"),
-		$db->errorno, $db->error);
+		dba::errorNo(), dba::errorMessage());
 
 	return t('Errors encountered performing database changes: ').$message.EOL;
 }
 
 function update_structure($verbose, $action, $tables=null, $definition=null) {
-	global $a, $db;
+	global $a;
 
 	if ($action) {
 		Config::set('system', 'maintenance', 1);
@@ -234,8 +231,8 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 	}
 
 	// MySQL >= 5.7.4 doesn't support the IGNORE keyword in ALTER TABLE statements
-	if ((version_compare($db->server_info(), '5.7.4') >= 0) &&
-		!(strpos($db->server_info(), 'MariaDB') !== false)) {
+	if ((version_compare(dba::server_info(), '5.7.4') >= 0) &&
+		!(strpos(dba::server_info(), 'MariaDB') !== false)) {
 		$ignore = '';
 	} else {
 		$ignore = ' IGNORE';
@@ -249,7 +246,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 		if (!isset($database[$name])) {
 			$r = db_create_table($name, $structure["fields"], $verbose, $action, $structure['indexes']);
 			if (!dbm::is_result($r)) {
-				$errors .= print_update_error($db, $name);
+				$errors .= print_update_error($name);
 			}
 			$is_new_table = True;
 		} else {
@@ -446,7 +443,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 					} else {
 						$r = dba::e("CREATE TABLE `".$temp_name."` LIKE `".$name."`;");
 						if (!dbm::is_result($r)) {
-							$errors .= print_update_error($db, $sql3);
+							$errors .= print_update_error($sql3);
 							return $errors;
 						}
 					}
@@ -454,7 +451,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 
 				$r = @dba::e($sql3);
 				if (!dbm::is_result($r)) {
-					$errors .= print_update_error($db, $sql3);
+					$errors .= print_update_error($sql3);
 				}
 				if ($is_unique) {
 					if ($ignore != "") {
@@ -462,17 +459,17 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 					} else {
 						$r = dba::e("INSERT INTO `".$temp_name."` SELECT ".$field_list." FROM `".$name."`".$group_by.";");
 						if (!dbm::is_result($r)) {
-							$errors .= print_update_error($db, $sql3);
+							$errors .= print_update_error($sql3);
 							return $errors;
 						}
 						$r = dba::e("DROP TABLE `".$name."`;");
 						if (!dbm::is_result($r)) {
-							$errors .= print_update_error($db, $sql3);
+							$errors .= print_update_error($sql3);
 							return $errors;
 						}
 						$r = dba::e("RENAME TABLE `".$temp_name."` TO `".$name."`;");
 						if (!dbm::is_result($r)) {
-							$errors .= print_update_error($db, $sql3);
+							$errors .= print_update_error($sql3);
 							return $errors;
 						}
 					}
@@ -522,7 +519,7 @@ function db_field_command($parameters, $create = true) {
 }
 
 function db_create_table($name, $fields, $verbose, $action, $indexes=null) {
-	global $a, $db;
+	global $a;
 
 	$r = true;
 
@@ -1761,18 +1758,16 @@ function db_definition() {
  * run from command line
  */
 function dbstructure_run(&$argv, &$argc) {
-	global $a, $db;
+	global $a;
 
 	if (is_null($a)) {
 		$a = new App(dirname(__DIR__));
 	}
 
-	if (is_null($db)) {
-		@include ".htconfig.php";
-		require_once "include/dba.php";
-		$db = new dba($db_host, $db_user, $db_pass, $db_data);
-		unset($db_host, $db_user, $db_pass, $db_data);
-	}
+	@include ".htconfig.php";
+	require_once "include/dba.php";
+	dba::connect($db_host, $db_user, $db_pass, $db_data);
+	unset($db_host, $db_user, $db_pass, $db_data);
 
 	if ($argc == 2) {
 		switch ($argv[1]) {

@@ -24,8 +24,6 @@ function directory_post(App $a) {
 }
 
 function directory_content(App $a) {
-	global $db;
-
 	require_once("mod/proxy.php");
 
 	if((get_config('system','block_public')) && (! local_user()) && (! remote_user()) ||

@@ -28,7 +28,7 @@ function install_init(App $a) {
 }
 
 function install_post(App $a) {
-	global $install_wizard_pass, $db;
+	global $install_wizard_pass;
 
 	switch($install_wizard_pass) {
 		case 1:
@@ -44,9 +44,7 @@ function install_post(App $a) {
 			$phpath = notags(trim($_POST['phpath']));
 
 			require_once("include/dba.php");
-			unset($db);
-			$db = new dba($dbhost, $dbuser, $dbpass, $dbdata, true);
-			if (!$db->connected) {
+			if (!dba::connect($dbhost, $dbuser, $dbpass, $dbdata, true)) {
 				$a->data['db_conn_failed'] = true;
 			}
 
@@ -65,7 +63,7 @@ function install_post(App $a) {
 			$rino = 2;
 
 			// connect to db
-			$db = new dba($dbhost, $dbuser, $dbpass, $dbdata, true);
+			dba::connect($dbhost, $dbuser, $dbpass, $dbdata, true);
 
 			$tpl = get_markup_template('htconfig.tpl');
 			$txt = replace_macros($tpl,array(
@@ -87,7 +85,7 @@ function install_post(App $a) {
 				$a->data['txt'] = $txt;
 			}
 
-			$errors = load_database($db);
+			$errors = load_database();
 
 
 			if ($errors) {
@@ -103,7 +101,7 @@ function install_post(App $a) {
 
 function install_content(App $a) {
 
-	global $install_wizard_pass, $db;
+	global $install_wizard_pass;
 	$o = '';
 	$wizard_status = "";
 	$install_title = t('Friendica Communications Server - Setup');
@@ -133,7 +131,7 @@ function install_content(App $a) {
 		$db_return_text .= $txt;
 	}
 
-	if ($db && $db->connected) {
+	if (dba::$connected) {
 		$r = q("SELECT COUNT(*) as `total` FROM `user`");
 		if (dbm::is_result($r) && $r[0]['total']) {
 			$tpl = get_markup_template('install.tpl');
@@ -534,7 +532,7 @@ function load_database_rem($v, $i) {
 	}
 }
 
-function load_database($db) {
+function load_database() {
 
 	require_once("include/dbstructure.php");
 	$errors = update_structure(false, true);
