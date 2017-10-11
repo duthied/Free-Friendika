@@ -1760,7 +1760,7 @@ function db_definition() {
 function dbstructure_run(&$argv, &$argc) {
 	global $a;
 
-	if (is_null($a)) {
+	if (empty($a)) {
 		$a = new App(dirname(__DIR__));
 	}
 

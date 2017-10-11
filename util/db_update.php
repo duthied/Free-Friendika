@@ -11,7 +11,9 @@ use Friendica\App;
  */
 require_once("boot.php");
 
-$a = new App(dirname(__DIR__));
+if (empty($a)) {
+	$a = new App(dirname(__DIR__));
+}
 @include(".htconfig.php");
 
 $lang = get_browser_language();

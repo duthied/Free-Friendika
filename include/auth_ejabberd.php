@@ -49,7 +49,7 @@ require_once("boot.php");
 
 global $a;
 
-if (is_null($a)) {
+if (empty($a)) {
 	$a = new App(dirname(__DIR__));
 }
 

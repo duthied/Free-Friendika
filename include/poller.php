@@ -23,7 +23,9 @@ function poller_run($argv, $argc){
 
 	$poller_up_start = microtime(true);
 
-	$a = new App(dirname(__DIR__));
+	if (empty($a)) {
+		$a = new App(dirname(__DIR__));
+	}
 
 	require_once ".htconfig.php";
 	require_once "include/dba.php";

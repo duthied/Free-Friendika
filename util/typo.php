@@ -13,7 +13,9 @@ ini_set('log_errors', '0');
 
 include 'boot.php';
 
-$a = new App(dirname(__DIR__));
+if (empty($a)) {
+	$a = new App(dirname(__DIR__));
+}
 
 if (x($a->config, 'php_path')) {
 	$phpath = $a->config['php_path'];
