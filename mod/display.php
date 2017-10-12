@@ -25,11 +25,13 @@ function display_init(App $a) {
 	if ($a->argc == 2) {
 		$nick = "";
 		$itemuid = 0;
+		$r = false;
 
 		// Does the local user have this item?
 		if (local_user()) {
-			$r = dba::fetch_first("SELECT `id`, `parent`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
-				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
+			$r = dba::fetch_first("SELECT `id`, `parent`, `author-name`, `author-link`,
+						`author-avatar`, `network`, `body`, `uid`, `owner-link`
+				FROM `item` WHERE `visible` AND NOT `deleted` AND NOT `moderated`
 					AND `guid` = ? AND `uid` = ? LIMIT 1", $a->argv[1], local_user());
 			if (dbm::is_result($r)) {
 				$nick = $a->user["nickname"];
@@ -37,32 +39,29 @@ function display_init(App $a) {
 			}
 		}
 
+		// Is it an item with uid=0?
+		if (!dbm::is_result($r)) {
+			$r = dba::fetch_first("SELECT `id`, `parent`, `author-name`, `author-link`,
+						`author-avatar`, `network`, `body`, `uid`, `owner-link`
+				FROM `item` WHERE `visible` AND NOT `deleted` AND NOT `moderated`
+					AND `allow_cid` = ''  AND `allow_gid` = ''
+					AND `deny_cid`  = '' AND `deny_gid`  = ''
+					AND NOT `private` AND `uid` = 0
+					AND `guid` = ? LIMIT 1", $a->argv[1]);
+		}
+
 		// Or is it anywhere on the server?
-		if ($nick == "") {
-			$r = dba::fetch_first("SELECT `user`.`nickname`, `item`.`id`, `item`.`parent`, `item`.`author-name`,
-				`item`.`author-link`, `item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`owner-link`, `item`.`body`
+		if (!dbm::is_result($r)) {
+			$r = dba::fetch_first("SELECT `item`.`id`, `item`.`parent`, `item`.`author-name`, `item`.`author-link`,
+				`item`.`author-avatar`, `item`.`network`, `item`.`body`, `item`.`uid`, `item`.`owner-link`
 				FROM `item` STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 					AND NOT `item`.`private` AND NOT `user`.`hidewall`
 					AND `item`.`guid` = ? LIMIT 1", $a->argv[1]);
-			if (dbm::is_result($r)) {
-				$nick = $r["nickname"];
-				$itemuid = $r["uid"];
-			}
 		}
 
-		// Is it an item with uid=0?
-		if ($nick == "") {
-			$r = dba::fetch_first("SELECT `item`.`id`, `item`.`parent`, `item`.`author-name`, `item`.`author-link`,
-				`item`.`author-avatar`, `item`.`network`, `item`.`uid`, `item`.`owner-link`, `item`.`body`
-				FROM `item` WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
-					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-					AND NOT `item`.`private` AND `item`.`uid` = 0
-					AND `item`.`guid` = ? LIMIT 1", $a->argv[1]);
-		}
 		if (dbm::is_result($r)) {
 
 			if (strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
@@ -74,28 +73,6 @@ function display_init(App $a) {
 				$r = dba::fetch_first("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `id` = ?", $r["parent"]);
-			}
-			if (($itemuid != local_user()) && local_user()) {
-				// Do we know this contact but we haven't got this item?
-				// Copy the wohle thread to our local storage so that we can interact.
-				// We really should change this need for the future since it scales very bad.
-				$contactid = get_contact($r['owner-link'], local_user());
-				if ($contactid) {
-					$items = dba::select('item', array(), array('parent' => $r["id"]), array('order' => array('id')));
-					while ($item = dba::fetch($items)) {
-						$itemcontactid = get_contact($item['owner-link'], local_user());
-						if (!$itemcontactid) {
-							$itemcontactid = $contactid;
-						}
-						unset($item['id']);
-						$item['uid'] = local_user();
-						$item['origin'] = 0;
-						$item['contact-id'] = $itemcontactid;
-						$local_copy = item_store($item, false, false, true);
-						logger("Stored local copy for post ".$item['guid']." under id ".$local_copy, LOGGER_DEBUG);
-					}
-					dba::close($items);
-				}
 			}
 
 			$profiledata = display_fetchauthor($a, $r);
