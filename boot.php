@@ -510,6 +510,11 @@ function startup() {
  */
 function get_app() {
 	global $a;
+
+	if (empty($a)) {
+		$a = new App(dirname(__DIR__));
+	}
+
 	return $a;
 }
 

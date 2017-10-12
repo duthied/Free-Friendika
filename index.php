@@ -20,7 +20,9 @@ use Friendica\Core\Config;
 require_once 'boot.php';
 require_once 'object/BaseObject.php';
 
-$a = new App(__DIR__);
+if (empty($a)) {
+	$a = new App(__DIR__);
+}
 BaseObject::set_app($a);
 
 // We assume that the index.php is called by a frontend process
@@ -51,7 +53,7 @@ if (!$install) {
 require_once "include/dba.php";
 
 if (!$install) {
-	$db = new dba($db_host, $db_user, $db_pass, $db_data, $install);
+	dba::connect($db_host, $db_user, $db_pass, $db_data, $install);
 	unset($db_host, $db_user, $db_pass, $db_data);
 
 	/**

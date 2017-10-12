@@ -7,18 +7,16 @@ require_once("boot.php");
 require_once("include/threads.php");
 
 function shadowupdate_run(&$argv, &$argc){
-	global $a, $db;
+	global $a;
 
-	if (is_null($a)) {
+	if (empty($a)) {
 		$a = new App(dirname(__DIR__));
 	}
 
-	if (is_null($db)) {
-		@include(".htconfig.php");
-		require_once("include/dba.php");
-		$db = new dba($db_host, $db_user, $db_pass, $db_data);
-		unset($db_host, $db_user, $db_pass, $db_data);
-	}
+	@include(".htconfig.php");
+	require_once("include/dba.php");
+	dba::connect($db_host, $db_user, $db_pass, $db_data);
+	unset($db_host, $db_user, $db_pass, $db_data);
 
 	Config::load();
 

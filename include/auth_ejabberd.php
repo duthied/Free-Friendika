@@ -47,18 +47,16 @@ $directory = realpath($directory."/..");
 chdir($directory);
 require_once("boot.php");
 
-global $a, $db;
+global $a;
 
-if (is_null($a)) {
+if (empty($a)) {
 	$a = new App(dirname(__DIR__));
 }
 
-if (is_null($db)) {
-	@include(".htconfig.php");
-	require_once("include/dba.php");
-	$db = new dba($db_host, $db_user, $db_pass, $db_data);
-	unset($db_host, $db_user, $db_pass, $db_data);
-};
+@include(".htconfig.php");
+require_once("include/dba.php");
+dba::connect($db_host, $db_user, $db_pass, $db_data);
+unset($db_host, $db_user, $db_pass, $db_data);
 
 // the logfile to which to write, should be writeable by the user which is running the server
 $sLogFile = get_config('jabber','logfile');
@@ -81,8 +79,6 @@ class exAuth {
 	 * @param boolean $bDebug Debug mode
 	 */
 	public function __construct($sLogFile, $bDebug) {
-		global $db;
-
 		// setter
 		$this->sLogFile 	= $sLogFile;
 		$this->bDebug		= $bDebug;
@@ -96,7 +92,7 @@ class exAuth {
 		// We are connected to the SQL server and are having a log file.
 		do {
 			// Quit if the database connection went down
-			if (!$db->connected()) {
+			if (!dba::connected()) {
 				$this->writeDebugLog("[debug] the database connection went down");
 				return;
 			}

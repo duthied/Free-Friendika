@@ -19,15 +19,17 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 require_once("boot.php");
 
 function poller_run($argv, $argc){
-	global $a, $db, $poller_up_start, $poller_db_duration;
+	global $a, $poller_up_start, $poller_db_duration;
 
 	$poller_up_start = microtime(true);
 
-	$a = new App(dirname(__DIR__));
+	if (empty($a)) {
+		$a = new App(dirname(__DIR__));
+	}
 
-	@include(".htconfig.php");
-	require_once("include/dba.php");
-	$db = new dba($db_host, $db_user, $db_pass, $db_data);
+	require_once ".htconfig.php";
+	require_once "include/dba.php";
+	dba::connect($db_host, $db_user, $db_pass, $db_data);
 	unset($db_host, $db_user, $db_pass, $db_data);
 
 	Config::load();
