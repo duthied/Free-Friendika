@@ -64,7 +64,7 @@ function theme_admin(App $a) {
 	$helperlist = get_config('vier', 'helperlist');
 
 	if ($helperlist == "")
-		$helperlist = "https://helpers.pyxis.uberspace.de/profile/helpers";
+		$helperlist = "https://forum.friendi.ca/profile/helpers";
 
 	$t = get_markup_template("theme_admin_settings.tpl");
 	$o .= replace_macros($t, array(
