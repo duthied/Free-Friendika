@@ -2960,10 +2960,10 @@ class Diaspora {
 	}
 
 	/**
-	 * @brief sends an "unshare"
+	 * @brief sends an account migration
 	 *
 	 * @param array $owner the array of the item owner
-	 * @param array $contact Target of the communication
+	 * @param int $uid User ID
 	 *
 	 * @return int The result of the transmission
 	 */
