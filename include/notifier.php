@@ -149,7 +149,8 @@ function notifier_run(&$argv, &$argc){
 		$relocate = true;
 		$uid = $item_id;
 
-		$recipients_relocate = q("SELECT * FROM contact WHERE uid = %d  AND self = 0 AND network = '%s'" , intval($uid), NETWORK_DFRN);
+		$recipients_relocate = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `self` AND `network` IN ('%s', '%s')",
+					intval($uid), NETWORK_DFRN, NETWORK_DIASPORA);
 	} else {
 		// find ancestors
 		$r = q("SELECT * FROM `item` WHERE `id` = %d AND visible = 1 AND moderated = 0 LIMIT 1",

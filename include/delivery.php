@@ -508,6 +508,9 @@ function delivery_run(&$argv, &$argc){
 					logger('diaspora retract: '.$loc);
 					Diaspora::send_retraction($target_item,$owner,$contact,$public_message);
 					break;
+				} elseif ($relocate) {
+					Diaspora::sendAccountMigration($owner, $contact, $uid);
+					break;
 				} elseif ($followup) {
 					// send comments and likes to owner to relay
 					logger('diaspora followup: '.$loc);

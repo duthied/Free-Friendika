@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\PConfig;
 
 require_once("include/Photo.php");
 define("IMPORT_DEBUG", False);
@@ -124,6 +125,12 @@ function import_account(App $a, $file) {
 	$oldaddr = str_replace('http://', '@', normalise_link($oldbaseurl));
 	$newaddr = str_replace('http://', '@', normalise_link($newbaseurl));
 
+	if (!empty($account['profile']['addr'])) {
+		$old_handle = $account['profile']['addr'];
+	} else {
+		$old_handle = $account['user']['nickname'].$oldaddr;
+	}
+
 	$olduid = $account['user']['uid'];
 
 	unset($account['user']['uid']);
@@ -145,6 +152,8 @@ function import_account(App $a, $file) {
 	}
 	$newuid = last_insert_id();
 	//~ $newuid = 1;
+
+	PConfig::set($newuid, 'system', 'previous_addr', $old_handle);
 
 	// Generate a new guid for the account. Otherwise there will be problems with diaspora
 	q("UPDATE `user` SET `guid` = '%s' WHERE `uid` = %d",
@@ -183,6 +192,7 @@ function import_account(App $a, $file) {
 
 			switch ($contact['network']) {
 				case NETWORK_DFRN:
+				case NETWORK_DIASPORA:
 					//  send relocate message (below)
 					break;
 				case NETWORK_ZOT:
