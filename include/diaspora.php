@@ -11,6 +11,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 
 require_once 'include/items.php';
 require_once 'include/bb2diaspora.php';
@@ -2959,6 +2960,31 @@ class Diaspora {
 	}
 
 	/**
+	 * @brief sends an "unshare"
+	 *
+	 * @param array $owner the array of the item owner
+	 * @param array $contact Target of the communication
+	 *
+	 * @return int The result of the transmission
+	 */
+	public static function sendAccountMigration($owner, $uid) {
+
+		$old_handle = PConfig::get($uid, 'system', 'previous_addr');
+		$profile = self::createProfileData($uid);
+
+		$signed_text = 'AccountMigration:'.$old_handle.':'.$profile['author'];
+		$signature = rsa_sign($signed_text, $owner["uprvkey"], "sha256");
+
+		$message = array("author" => $old_handle,
+				"profile" => $profile,
+				"signature" => $signature);
+
+		logger("Send account migration ".print_r($message, true), LOGGER_DEBUG);
+
+		return self::build_and_transmit($owner, $contact, "account_migration", $message);
+	}
+
+	/**
 	 * @brief Sends a "share" message
 	 *
 	 * @param array $owner the array of the item owner
@@ -3648,25 +3674,13 @@ class Diaspora {
 	}
 
 	/**
-	 * @brief Sends profile data
+	 * @brief Create profile data
 	 *
 	 * @param int $uid The user id
+	 *
+	 * @return array The profile data
 	 */
-	public static function send_profile($uid, $recips = false) {
-
-		if (!$uid)
-			return;
-
-		if (!$recips)
-			$recips = q("SELECT `id`,`name`,`network`,`pubkey`,`notify` FROM `contact` WHERE `network` = '%s'
-				AND `uid` = %d AND `rel` != %d",
-				dbesc(NETWORK_DIASPORA),
-				intval($uid),
-				intval(CONTACT_IS_SHARING)
-			);
-		if (!$recips)
-			return;
-
+	private static function createProfileData($uid) {
 		$r = q("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `user`.*, `user`.`prvkey` AS `uprvkey`, `contact`.`addr`
 			FROM `profile`
 			INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
@@ -3675,8 +3689,9 @@ class Diaspora {
 			intval($uid)
 		);
 
-		if (!$r)
-			return;
+		if (!$r) {
+			return array();
+		}
 
 		$profile = $r[0];
 
@@ -3714,7 +3729,7 @@ class Diaspora {
 			$tags = trim($tags);
 		}
 
-		$message = array("author" => $handle,
+		return array("author" => $handle,
 				"first_name" => $first,
 				"last_name" => $last,
 				"image_url" => $large,
@@ -3727,6 +3742,29 @@ class Diaspora {
 				"searchable" => $searchable,
 				"nsfw" => "false",
 				"tag_string" => $tags);
+	}
+
+	/**
+	 * @brief Sends profile data
+	 *
+	 * @param int $uid The user id
+	 */
+	public static function send_profile($uid, $recips = false) {
+
+		if (!$uid)
+			return;
+
+		if (!$recips)
+			$recips = q("SELECT `id`,`name`,`network`,`pubkey`,`notify` FROM `contact` WHERE `network` = '%s'
+				AND `uid` = %d AND `rel` != %d",
+				dbesc(NETWORK_DIASPORA),
+				intval($uid),
+				intval(CONTACT_IS_SHARING)
+			);
+		if (!$recips)
+			return;
+
+		$message = self::createProfileData($uid);
 
 		foreach ($recips as $recip) {
 			logger("Send updated profile data for user ".$uid." to contact ".$recip["id"], LOGGER_DEBUG);
