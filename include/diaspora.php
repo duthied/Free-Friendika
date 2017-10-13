@@ -1396,9 +1396,9 @@ class Diaspora {
 						$n, dbesc($f[0]),
 						intval($importer["uid"]));
 
-					if ($x === false) {
-						return false;
-					}
+				if ($x === false) {
+					return false;
+				}
 			}
 		}
 
