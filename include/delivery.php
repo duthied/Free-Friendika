@@ -509,7 +509,7 @@ function delivery_run(&$argv, &$argc){
 					Diaspora::send_retraction($target_item,$owner,$contact,$public_message);
 					break;
 				} elseif ($relocate) {
-					Diaspora::sendAccountMigration($owner, $uid);
+					Diaspora::sendAccountMigration($owner, $contact, $uid);
 					break;
 				} elseif ($followup) {
 					// send comments and likes to owner to relay

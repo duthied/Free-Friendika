@@ -2963,17 +2963,18 @@ class Diaspora {
 	 * @brief sends an account migration
 	 *
 	 * @param array $owner the array of the item owner
+	 * @param array $contact Target of the communication
 	 * @param int $uid User ID
 	 *
 	 * @return int The result of the transmission
 	 */
-	public static function sendAccountMigration($owner, $uid) {
+	public static function sendAccountMigration($owner, $contact, $uid) {
 
 		$old_handle = PConfig::get($uid, 'system', 'previous_addr');
 		$profile = self::createProfileData($uid);
 
 		$signed_text = 'AccountMigration:'.$old_handle.':'.$profile['author'];
-		$signature = rsa_sign($signed_text, $owner["uprvkey"], "sha256");
+		$signature = base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
 
 		$message = array("author" => $old_handle,
 				"profile" => $profile,
