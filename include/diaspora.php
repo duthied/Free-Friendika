@@ -1326,12 +1326,11 @@ class Diaspora {
 	 * @brief Receives account migration
 	 *
 	 * @param array $importer Array of the importer user
-	 * @param string $sender The sender of the message
 	 * @param object $data The message object
 	 *
 	 * @return bool Success
 	 */
-	private static function receiveAccountMigration($importer, $sender, $data) {
+	private static function receiveAccountMigration($importer, $data) {
 		$old_handle = notags(unxmlify($data->author));
 		$new_handle = notags(unxmlify($data->profile->author));
 		$signature = notags(unxmlify($data->signature));
