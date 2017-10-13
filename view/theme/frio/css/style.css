@@ -2447,7 +2447,86 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
 .event-buttons .plink-event-link {
     margin-left: 20px;
 }
+.vevent .event-description {
+    padding: 10px 0;
+}
 
+/* Event Cards */
+.event-card-details, .event-card-header {
+    width: 100%;
+}
+.event-card-header, .event-card-left-date {
+    float: left;
+}
+.vevent .event-card-header {
+    display: table;
+}
+.event-card-left-date {
+    width: 60px; /* Das muss wahrscheinlich unterschiedlich sein zwischen calendar und stream */
+}
+.event-card .event-date-wrapper > span {
+    display: block;
+    overflow: hidden;
+    text-align: center;
+    white-space: nowrap;
+}
+.event-card .event-date-wrapper .event-card-short-month {
+    font-size: 13px;
+    text-transform: uppercase;
+}
+.event-card .event-date-wrapper.medium .event-card-short-date {
+    font-size: 24px;
+    line-height: 28px;
+    margin-top: 2px;
+}
+.event-card .event-card-content {
+    width: 100%;
+    padding: 0 5px 0 15px;
+    box-shadow: 1.5px 0 0 0 rgba(0, 0, 0, .1) inset;
+    color: #777;
+    position: relative;
+}
+.event-card .event-card-content .event-map-btn {
+    position: absolute;
+    right: 0;
+    top:0;
+    line-height: 15px;
+}
+.event-card .event-card-title {
+    font-size: 14px;
+    color: #555;
+    line-height: 15px;
+    font-weight: bold;
+}
+.event-card .event-card-location {
+    margin-top: 10px;
+    font-size: 13px;
+}
+.event-card .event-card-location br {
+    content: " ";
+}
+.event-card .event-card-location br::after {
+    content: " ";
+}
+.event-card-profile-name a {
+    color: $link_color;
+}
+.event-card-profile-name a:hover {
+    color: $link_hover_color;
+}
+.event-card .event-card-content .event-location-map {
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+}
+.event-card .event-card-content .event-location-map .map{
+    margin-top: 10px;
+}
+
+.event-card .event-description .seperator {
+    margin-top: 0;
+    box-shadow: 0 1.5px 0 0 rgba(0, 0, 0, .1) inset;
+}
 /* Photos Pages */
 #photo-photo {
     position: relative;
@@ -2885,3 +2964,4 @@ body .tread-wrapper .hovercard:hover .hover-card-content a {
 section .profile-match-wrapper {
     float: left;
 }
+
