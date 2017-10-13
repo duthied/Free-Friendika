@@ -3071,7 +3071,7 @@ class Diaspora {
 
 		logger("Send account migration ".print_r($message, true), LOGGER_DEBUG);
 
-		return self::build_and_transmit($owner, $contact, "account_migration", $message, true);
+		return self::build_and_transmit($owner, $contact, "account_migration", $message);
 	}
 
 	/**
