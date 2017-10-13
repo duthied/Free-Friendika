@@ -2447,8 +2447,18 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
 .event-buttons .plink-event-link {
     margin-left: 20px;
 }
+.vevent .event-summary {
+    font-size: 16px;
+}
 .vevent .event-description {
     padding: 10px 0;
+}
+.vevent .event-location .location {
+    font-size: inherit;
+    color: inherit;
+}
+.modal-body .vevent .event-summary {
+    display: none;
 }
 
 /* Event Cards */
