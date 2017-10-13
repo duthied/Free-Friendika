@@ -12,6 +12,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\Network\Probe;
 
 require_once 'include/items.php';
 require_once 'include/bb2diaspora.php';
@@ -498,6 +499,9 @@ class Diaspora {
 		logger("Received message type ".$type." from ".$sender." for user ".$importer["uid"], LOGGER_DEBUG);
 
 		switch ($type) {
+			case "account_migration":
+				return self::receiveAccountMigration($importer, $fields);
+
 			case "account_deletion":
 				return self::receive_account_deletion($importer, $fields);
 
@@ -1316,6 +1320,92 @@ class Diaspora {
 		} else {
 			return "https://".substr($addr,strpos($addr,"@")+1)."/posts/".$guid;
 		}
+	}
+
+	/**
+	 * @brief Receives account migration
+	 *
+	 * @param array $importer Array of the importer user
+	 * @param string $sender The sender of the message
+	 * @param object $data The message object
+	 *
+	 * @return bool Success
+	 */
+	private static function receiveAccountMigration($importer, $sender, $data) {
+		$old_handle = notags(unxmlify($data->author));
+		$new_handle = notags(unxmlify($data->profile->author));
+		$signature = notags(unxmlify($data->signature));
+
+		$contact = self::contact_by_handle($importer["uid"], $old_handle);
+		if (!$contact) {
+			logger("cannot find contact for sender: ".$old_handle." and user ".$importer["uid"]);
+			return false;
+		}
+
+		logger("Got migration for ".$old_handle.", to ".$new_handle." with user ".$importer["uid"]);
+
+		// Check signature
+		$signed_text = 'AccountMigration:'.$old_handle.':'.$new_handle;
+		$key = self::key($old_handle);
+		if (!rsa_verify($signed_text, $signature, $key, "sha256")) {
+			logger('No valid signature for migration.');
+			return false;
+		}
+
+		// Update the profile
+		self::receive_profile($importer, $data->profile);
+
+		// change the technical stuff in contact and gcontact
+		$data = Probe::uri($new_handle);
+		if ($data['network'] == NETWORK_PHANTOM) {
+			logger('Account for '.$new_handle." couldn't be probed.");
+			return false;
+		}
+
+		$fields = array('url' => $data['url'], 'nurl' => normalise_link($data['url']),
+				'name' => $data['name'], 'nick' => $data['nick'],
+				'addr' => $data['addr'], 'batch' => $data['batch'],
+				'notify' => $data['notify'], 'poll' => $data['poll'],
+				'network' => $data['network']);
+
+		dba::update('contact', $fields, array('addr' => $old_handle));
+
+		$fields = array('url' => $data['url'], 'nurl' => normalise_link($data['url']),
+				'name' => $data['name'], 'nick' => $data['nick'],
+				'addr' => $data['addr'], 'connect' => $data['addr'],
+				'notify' => $data['notify'], 'photo' => $data['photo'],
+				'server_url' => $data['baseurl'], 'network' => $data['network']);
+
+		dba::update('gcontact', $fields, array('addr' => $old_handle));
+
+		logger('Contacts are updated.');
+
+		// update items
+		/// @todo This is an extreme performance killer
+		$fields = array(
+			'owner-link' => array($contact["url"], $data["url"]),
+			'author-link' => array($contact["url"], $data["url"]),
+		);
+		foreach ($fields as $n=>$f) {
+			$r = q("SELECT `id` FROM `item` WHERE `%s` = '%s' AND `uid` = %d LIMIT 1",
+					$n, dbesc($f[0]),
+					intval($importer["uid"]));
+
+			if (dbm::is_result($r)) {
+				$x = q("UPDATE `item` SET `%s` = '%s' WHERE `%s` = '%s' AND `uid` = %d",
+						$n, dbesc($f[1]),
+						$n, dbesc($f[0]),
+						intval($importer["uid"]));
+
+					if ($x === false) {
+						return false;
+					}
+			}
+		}
+
+		logger('Items are updated.');
+
+		return true;
 	}
 
 	/**
@@ -2982,7 +3072,7 @@ class Diaspora {
 
 		logger("Send account migration ".print_r($message, true), LOGGER_DEBUG);
 
-		return self::build_and_transmit($owner, $contact, "account_migration", $message);
+		return self::build_and_transmit($owner, $contact, "account_migration", $message, true);
 	}
 
 	/**
