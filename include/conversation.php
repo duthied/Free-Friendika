@@ -463,7 +463,14 @@ These Fields are not added below (yet). They are here to for bug search.
 		`author`.`thumb` AS `author-thumb`, `owner`.`thumb` AS `owner-thumb`,
 
 		`contact`.`network`, `contact`.`url`, `contact`.`name`, `contact`.`writable`,
-		`contact`.`self`, `contact`.`id` AS `cid`, `contact`.`alias`";
+		`contact`.`self`, `contact`.`id` AS `cid`, `contact`.`alias`,
+
+		`event`.`created` AS `event-created`, `event`.`edited` AS `event-edited`,
+		`event`.`start` AS `event-start`,`event`.`finish` AS `event-finish`,
+		`event`.`summary` AS `event-summary`,`event`.`desc` AS `event-desc`,
+		`event`.`location` AS `event-location`, `event`.`type` AS `event-type`,
+		`event`.`nofinish` AS `event-nofinish`,`event`.`adjust` AS `event-adjust`,
+		`event`.`ignore` AS `event-ignore`, `event`.`id` AS `event-id`";
 }
 
 /**
@@ -473,7 +480,8 @@ function item_joins() {
 	return "STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND
 		(NOT `contact`.`blocked` OR `contact`.`pending`)
 		LEFT JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
-		LEFT JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`owner-id`";
+		LEFT JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`owner-id`
+		LEFT JOIN `event` ON `event-id` = `event`.`id`";
 }
 
 /**
