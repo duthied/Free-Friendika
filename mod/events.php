@@ -442,7 +442,7 @@ function events_content(App $a) {
 		}
 
 		if ($cid || ($mode !== 'new')) {
-			$sh_checked .= ' disabled="disabled" ';
+			$sh_disabled = 'disabled="disabled"';
 		}
 
 		$sdt = ((x($orig_event)) ? $orig_event['start'] : 'now');
@@ -511,7 +511,7 @@ function events_content(App $a) {
 			'$t_orig' => $t_orig,
 			'$summary' => array('summary', t('Title:'), $t_orig, '', '*'),
 			'$sh_text' => t('Share this event'),
-			'$share' => array('share', t('Share this event'), $sh_checked, ''),
+			'$share' => array('share', t('Share this event'), $sh_checked, '', $sh_disabled),
 			'$sh_checked' => $sh_checked,
 			'$nofinish' => array('nofinish', t('Finish date/time is not known or not relevant'), $n_checked),
 			'$adjust' => array('adjust', t('Adjust for viewer timezone'), $a_checked),
