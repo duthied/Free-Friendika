@@ -155,7 +155,7 @@ function mark_for_death($contact) {
 
 function unmark_for_death($contact) {
 
-	$r = q("SELECT `term-date` FROM `contact` WHERE `id` = %d AND `term-date` > '%s'",
+	$r = q("SELECT `term-date` FROM `contact` WHERE `id` = %d AND (`term-date` > '%s' OR `archive`)",
 		intval($contact['id']),
 		dbesc('1000-00-00 00:00:00')
 	);
@@ -166,16 +166,11 @@ function unmark_for_death($contact) {
 	}
 
 	// It's a miracle. Our dead contact has inexplicably come back to life.
-	q("UPDATE `contact` SET `term-date` = '%s' WHERE `id` = %d",
-		dbesc(NULL_DATE),
-		intval($contact['id'])
-	);
+	$fields = array('term-date' => NULL_DATE, 'archive' => false);
+	dba::update('contact', $fields, array('id' => $contact['id']));
 
 	if ($contact['url'] != '') {
-		q("UPDATE `contact` SET `term-date` = '%s' WHERE `nurl` = '%s'",
-			dbesc(NULL_DATE),
-			dbesc(normalise_link($contact['url']))
-		);
+		dba::update('contact', $fields, array('nurl' => normalise_link($contact['url'])));
 	}
 }
 

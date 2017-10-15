@@ -244,7 +244,7 @@ function _contact_update($contact_id) {
 		return;
 
 	if ($r[0]["network"] == NETWORK_OSTATUS) {
-		$result = new_contact($uid, $r[0]["url"], false);
+		$result = new_contact($uid, $r[0]["url"], false, $r[0]["network"]);
 
 		if ($result['success'])
 			$r = q("UPDATE `contact` SET `subhub` = 1 WHERE `id` = %d",
