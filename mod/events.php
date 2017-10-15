@@ -250,6 +250,10 @@ function events_content(App $a) {
 			$mode = 'drop';
 			$event_id = intval($a->argv[2]);
 		}
+		if ($a->argc > 2 && $a->argv[1] == 'copy') {
+			$mode = 'copy';
+			$event_id = intval($a->argv[2]);
+		}
 		if ($a->argv[1] === 'new') {
 			$mode = 'new';
 			$event_id = 0;
@@ -399,7 +403,7 @@ function events_content(App $a) {
 		return $o;
 	}
 
-	if ($mode === 'edit' && $event_id) {
+	if (($mode === 'edit' || $mode === 'copy') && $event_id) {
 		$r = q("SELECT * FROM `event` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($event_id),
 			intval(local_user())
@@ -410,7 +414,7 @@ function events_content(App $a) {
 	}
 
 	// Passed parameters overrides anything found in the DB
-	if ($mode === 'edit' || $mode === 'new') {
+	if ($mode === 'edit' || $mode === 'new' || $mode === 'copy') {
 		if (!x($orig_event)) {$orig_event = array();}
 		// In case of an error the browser is redirected back here, with these parameters filled in with the previous values
 		if (x($_REQUEST, 'nofinish'))    {$orig_event['nofinish']    = $_REQUEST['nofinish'];}
@@ -470,8 +474,15 @@ function events_content(App $a) {
 
 		require_once 'include/acl_selectors.php' ;
 
-		if ($mode === 'new') {
+		if ($mode === 'new' || $mode === 'copy') {
 			$acl = (($cid) ? '' : populate_acl(((x($orig_event)) ? $orig_event : $a->user)));
+		}
+
+		// If we copy an old event, we need to remove the ID and URI
+		// from the orgiginal event.
+		if ($mode === 'copy') {
+			$eid = 0;
+			$uri = '';
 		}
 
 		$tpl = get_markup_template('event_form.tpl');
