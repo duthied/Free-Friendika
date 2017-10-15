@@ -139,52 +139,23 @@ class ParseUrl {
 		$siteinfo["url"] = $url;
 		$siteinfo["type"] = "link";
 
-		$check_cert = Config::get("system", "verifyssl");
-
-		$stamp1 = microtime(true);
-
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_HEADER, 1);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (($check_cert) ? true : false));
-		if ($check_cert) {
-			@curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-		}
-
-		$range = intval(Config::get('system', 'curl_range_bytes', 0));
-
-		if ($range > 0) {
-			curl_setopt($ch, CURLOPT_RANGE, '0-' . $range);
-		}
-
-		$header = curl_exec($ch);
-		$curl_info = @curl_getinfo($ch);
-		curl_close($ch);
-
-		$a->save_timestamp($stamp1, "network");
-
-		if ((($curl_info["http_code"] == "301") || ($curl_info["http_code"] == "302") || ($curl_info["http_code"] == "303") || ($curl_info["http_code"] == "307"))
-			&& (($curl_info["redirect_url"] != "") || ($curl_info["location"] != ""))) {
-			if ($curl_info["redirect_url"] != "") {
-				$siteinfo = self::getSiteinfo($curl_info["redirect_url"], $no_guessing, $do_oembed, ++$count);
-			} else {
-				$siteinfo = self::getSiteinfo($curl_info["location"], $no_guessing, $do_oembed, ++$count);
-			}
+		$data = z_fetch_url($url);
+		if (!$data['success']) {
 			return($siteinfo);
 		}
 
 		// If the file is too large then exit
-		if ($curl_info["download_content_length"] > 1000000) {
+		if ($data["info"]["download_content_length"] > 1000000) {
 			return($siteinfo);
 		}
 
 		// If it isn't a HTML file then exit
-		if (($curl_info["content_type"] != "") && !strstr(strtolower($curl_info["content_type"]), "html")) {
+		if (($data["info"]["content_type"] != "") && !strstr(strtolower($data["info"]["content_type"]), "html")) {
 			return($siteinfo);
 		}
+
+		$header = $data["header"];
+		$body = $data["body"];
 
 		if ($do_oembed) {
 
@@ -215,14 +186,6 @@ class ParseUrl {
 
 		if ($charset == "") {
 			$charset = "utf-8";
-		}
-
-		$pos = strpos($header, "\r\n\r\n");
-
-		if ($pos) {
-			$body = trim(substr($header, $pos));
-		} else {
-			$body = $header;
 		}
 
 		if (($charset != "") && (strtoupper($charset) != "UTF-8")) {
