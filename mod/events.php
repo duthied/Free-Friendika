@@ -441,7 +441,7 @@ function events_content(App $a) {
 			$sh_checked = (($orig_event['allow_cid'] === '<' . local_user() . '>' && (! $orig_event['allow_gid']) && (! $orig_event['deny_cid']) && (! $orig_event['deny_gid'])) ? '' : ' checked="checked" ');
 		}
 
-		if ($cid || ($mode !== 'new')) {
+		if ($cid || $mode === 'edit') {
 			$sh_disabled = 'disabled="disabled"';
 		}
 
@@ -474,6 +474,8 @@ function events_content(App $a) {
 
 		require_once 'include/acl_selectors.php' ;
 
+		$perms = get_acl_permissions($orig_event);
+
 		if ($mode === 'new' || $mode === 'copy') {
 			$acl = (($cid) ? '' : populate_acl(((x($orig_event)) ? $orig_event : $a->user)));
 		}
@@ -489,9 +491,14 @@ function events_content(App $a) {
 
 		$o .= replace_macros($tpl,array(
 			'$post' => System::baseUrl() . '/events',
-			'$eid' => $eid,
-			'$cid' => $cid,
-			'$uri' => $uri,
+			'$eid'  => $eid,
+			'$cid'  => $cid,
+			'$uri'  => $uri,
+
+			'$allow_cid' => json_encode($perms['allow_cid']),
+			'$allow_gid' => json_encode($perms['allow_gid']),
+			'$deny_cid'  => json_encode($perms['deny_cid']),
+			'$deny_gid'  => json_encode($perms['deny_gid']),
 
 			'$title' => t('Event details'),
 			'$desc' => t('Starting date and Title are required.'),

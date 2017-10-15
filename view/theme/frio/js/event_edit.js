@@ -50,6 +50,24 @@ $(document).ready(function() {
 		e.preventDefault();
 	});
 
+	// Construct a new ACL. We need this everytime the 'event-edit-form' is loaded
+	// without page reloading (e.g. closing an old modal and open a new modal).
+	// Otherwise we wouldn't get the ACL data.
+	/// @todo: Try to implement some kind of ACL reloading in acl.js.
+	if (typeof acl !== "undefined") {
+		var eventPerms = document.getElementById('event-edit-form');
+
+		acl = new ACL(
+			baseurl + "/acl",
+			[
+				eventPerms.dataset.allow_cid,
+				eventPerms.dataset.allow_gid,
+				eventPerms.dataset.deny_cid,
+				eventPerms.dataset.deny_gid
+			]
+		);
+	}
+
 });
 
 // Load the html of the actual event and incect the output to the
@@ -62,19 +80,6 @@ function doEventPreview() {
 	$('#event-edit-preview').val(0);
 }
 
-
-// This function load the content of the edit url into a modal.
-function eventEdit(url) {
-	var char = qOrAmp(url);
-	url = url + char + 'mode=none';
-
-	$.get(url, function(data) {
-		$("#modal-body").empty();
-		$("#modal-body").append(data);
-	}).done(function() {
-		loadModalTitle();
-	});
-}
 
 // The following functions show/hide the specific event-edit content 
 // in dependence of the selected nav.
