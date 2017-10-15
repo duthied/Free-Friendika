@@ -1130,6 +1130,9 @@ aside .vcard #wallmessage-link {
     padding-right: 20px;
     margin-left: -14px;
 }
+#nav-short-info .contact-photo-wrapper.media-left {
+    float: left;
+}
 #vcard-short-photo-wrapper img,
 #nav-short-info .contact-wrapper img {
     height: 34px;
