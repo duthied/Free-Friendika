@@ -65,7 +65,7 @@ function fetch_url($url,$binary = false, &$redirects = 0, $timeout = 0, $accept_
  *    string 'body' => fetched content
  */
 function z_fetch_url($url, $binary = false, &$redirects = 0, $opts = array()) {
-	$ret = array('return_code' => 0, 'success' => false, 'header' => '', 'body' => '');
+	$ret = array('return_code' => 0, 'success' => false, 'header' => '', 'info' => '', 'body' => '');
 
 	$stamp1 = microtime(true);
 
@@ -173,6 +173,7 @@ function z_fetch_url($url, $binary = false, &$redirects = 0, $opts = array()) {
 
 	$base = $s;
 	$curl_info = @curl_getinfo($ch);
+	$ret['info'] = $curl_info;
 
 	$http_code = $curl_info['http_code'];
 	logger('fetch_url ' . $url . ': ' . $http_code . " " . $s, LOGGER_DATA);
