@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Network\Probe;
 
 require_once 'include/probe.php';
 require_once 'include/socgraph.php';
@@ -71,7 +72,7 @@ function update_contact($id) {
 
 
 
-function new_contact($uid,$url,$interactive = false) {
+function new_contact($uid, $url, $interactive = false, $network = '') {
 
 	$result = array('cid' => -1, 'success' => false,'message' => '');
 
@@ -102,9 +103,13 @@ function new_contact($uid,$url,$interactive = false) {
 
 	if (x($arr['contact'],'name')) {
 		$ret = $arr['contact'];
+	} else {
+		$ret = Probe::uri($url, $network, $uid, false);
 	}
-	else {
-		$ret = probe_url($url);
+
+	if (($network != '') && ($ret['network'] != $network)) {
+		logger('Expected network '.$network.' does not match actual network '.$ret['network']);
+		return result;
 	}
 
 	if ($ret['network'] === NETWORK_DFRN) {

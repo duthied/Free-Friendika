@@ -66,7 +66,7 @@ function ostatus_subscribe_content(App $a) {
 
 	$data = probe_url($url);
 	if ($data["network"] == NETWORK_OSTATUS) {
-		$result = new_contact($uid,$url,true);
+		$result = new_contact($uid, $url, true, NETWORK_OSTATUS);
 		if ($result["success"]) {
 			$o .= " - ".t("success");
 		} else {
