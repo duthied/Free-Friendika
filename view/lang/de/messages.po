@@ -6846,15 +6846,15 @@ msgstr "Normales Konto"
 
 #: mod/admin.php:640 mod/admin.php:1551
 msgid "Automatic Follower Account"
-msgstr "Automatisc Folgender Account"
+msgstr "Marktschreier-Konto"
 
 #: mod/admin.php:641 mod/admin.php:1552
 msgid "Public Forum Account"
-msgstr "Öffentliche Gemeinschaftsforen Accoun"
+msgstr "Öffentliches Forum Konto"
 
 #: mod/admin.php:642 mod/admin.php:1553
 msgid "Automatic Friend Account"
-msgstr "Automatisches Freundekonto"
+msgstr "Automatische Freunde Seite"
 
 #: mod/admin.php:643
 msgid "Blog Account"
@@ -6862,7 +6862,7 @@ msgstr "Blog-Konto"
 
 #: mod/admin.php:644
 msgid "Private Forum Account"
-msgstr "Private Gemeinschaftsforen Accoun"
+msgstr "Privates Forum Konto"
 
 #: mod/admin.php:666
 msgid "Message queues"
@@ -6874,7 +6874,7 @@ msgstr "Zusammenfassung"
 
 #: mod/admin.php:674
 msgid "Registered users"
-msgstr "Registrierte Nutzer"
+msgstr "Registrierte Nutzer_innen"
 
 #: mod/admin.php:676
 msgid "Pending registrations"
