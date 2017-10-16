@@ -324,7 +324,7 @@ function html2bbcode($message, $basepath = '')
 	$message = trim($message);
 
 	if ($basepath != '') {
-		$message = AddHostname($message, $basepath);
+		$message = addHostname($message, $basepath);
 	}
 
 	return $message;
@@ -374,7 +374,7 @@ function addHostname($body, $basepath) {
 	foreach ($matches AS $match) {
 		$body = preg_replace_callback($match,
 						function ($match) use ($basepath) {
-							return AddHostnameSub($match, $basepath);
+							return addHostnameSub($match, $basepath);
 						}, $body);
 	}
 	return $body;
