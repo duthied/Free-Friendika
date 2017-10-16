@@ -1191,12 +1191,11 @@ function get_mood_verbs() {
 	return $arr;
 }
 
-if (! function_exists('day_translate')) {
 /**
- * Translate days and months names
- *
- * @param string $s
- * @return string
+ * @brief Translate days and months names.
+ * 
+ * @param string $s String with day or month name.
+ * @return string Translated string.
  */
 function day_translate($s) {
 	$ret = str_replace(array('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'),
@@ -1208,8 +1207,23 @@ function day_translate($s) {
 		$ret);
 
 	return $ret;
-}}
+}
 
+/**
+ * @brief Translate short days and months names.
+ * 
+ * @param string $s String with short day or month name.
+ * @return string Translated string.
+ */
+function day_short_translate($s) {
+	$ret = str_replace(array('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'),
+		array(t('Mon'), t('Tue'), t('Wed'), t('Thu'), t('Fri'), t('Sat'), t('Sund')),
+		$s);
+	$ret = str_replace(array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov','Dec'),
+		array(t('Jan'), t('Feb'), t('Mar'), t('Apr'), t('May'), ('Jun'), t('Jul'), t('Aug'), t('Sep'), t('Oct'), t('Nov'), t('Dec')),
+		$ret);
+	return $ret;
+}
 
 if (! function_exists('normalise_link')) {
 /**
@@ -1288,13 +1302,9 @@ function put_item_in_cache(&$item, $update = false) {
 	}
 }
 
-// Given an item array, convert the body element from bbcode to html and add smilie icons.
-// If attach is true, also add icons for item attachments
-
-if (! function_exists('prepare_body')) {
 /**
- * Given an item array, convert the body element from bbcode to html and add smilie icons.
- * If attach is true, also add icons for item attachments
+ * @brief Given an item array, convert the body element from bbcode to html and add smilie icons.
+ * If attach is true, also add icons for item attachments.
  *
  * @param array $item
  * @param boolean $attach
@@ -1313,6 +1323,13 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 	$tags = array();
 	$hashtags = array();
 	$mentions = array();
+
+	// In order to provide theme developers more possibilities, event items
+	// are treated differently.
+	if ($item['object-type'] === ACTIVITY_OBJ_EVENT && isset($item['event-id'])) {
+		$ev = format_event_item($item);
+		return $ev;
+	}
 
 	if (!get_config('system','suppress_tags')) {
 		$taglist = dba::p("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = ? AND `oid` = ? AND `type` IN (?, ?) ORDER BY `tid`",
@@ -1346,10 +1363,10 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 	$item['hashtags'] = $hashtags;
 	$item['mentions'] = $mentions;
 
-	// Update the cached values if there is no "zrl=..." on the links
-	$update = (!local_user() and !remote_user() and ($item["uid"] == 0));
+	// Update the cached values if there is no "zrl=..." on the links.
+	$update = (!local_user() && !remote_user() && ($item["uid"] == 0));
 
-	// Or update it if the current viewer is the intented viewer
+	// Or update it if the current viewer is the intented viewer.
 	if (($item["uid"] == local_user()) && ($item["uid"] != 0)) {
 		$update = true;
 	}
@@ -1362,7 +1379,7 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 	$s = $prep_arr['html'];
 
 	if (! $attach) {
-		// Replace the blockquotes with quotes that are used in mails
+		// Replace the blockquotes with quotes that are used in mails.
 		$mailquote = '<blockquote type="cite" class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">';
 		$s = str_replace(array('<blockquote>', '<blockquote class="spoiler">', '<blockquote class="author">'), array($mailquote, $mailquote, $mailquote), $s);
 		return $s;
@@ -1375,7 +1392,7 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 		foreach ($arr as $r) {
 			$matches = false;
 			$icon = '';
-			$cnt = preg_match_all('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\" title=\"(.*?)\"|',$r,$matches, PREG_SET_ORDER);
+			$cnt = preg_match_all('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\" title=\"(.*?)\"|',$r ,$matches, PREG_SET_ORDER);
 			if ($cnt) {
 				foreach ($matches as $mtch) {
 					$mime = $mtch[3];
@@ -1408,9 +1425,9 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 						));
 					}
 
-					$filetype = strtolower(substr($mime, 0, strpos($mime,'/')));
+					$filetype = strtolower(substr($mime, 0, strpos($mime, '/')));
 					if ($filetype) {
-						$filesubtype = strtolower(substr($mime, strpos($mime,'/') + 1));
+						$filesubtype = strtolower(substr($mime, strpos($mime, '/') + 1));
 						$filesubtype = str_replace('.', '-', $filesubtype);
 					} else {
 						$filetype = 'unkn';
@@ -1430,19 +1447,19 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 		$s .= '<div class="body-attach">'.$as.'<div class="clear"></div></div>';
 	}
 
-	// map
+	// Map.
 	if (strpos($s, '<div class="map">') !== false && x($item, 'coord')) {
 		$x = generate_map(trim($item['coord']));
 		if ($x) {
-			$s = preg_replace('/\<div class\=\"map\"\>/','$0' . $x,$s);
+			$s = preg_replace('/\<div class\=\"map\"\>/', '$0' . $x, $s);
 		}
 	}
 
 
-	// Look for spoiler
+	// Look for spoiler.
 	$spoilersearch = '<blockquote class="spoiler">';
 
-	// Remove line breaks before the spoiler
+	// Remove line breaks before the spoiler.
 	while ((strpos($s, "\n" . $spoilersearch) !== false)) {
 		$s = str_replace("\n" . $spoilersearch, $spoilersearch, $s);
 	}
@@ -1458,7 +1475,7 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 		$s = substr($s, 0, $pos) . $spoilerreplace . substr($s, $pos + strlen($spoilersearch));
 	}
 
-	// Look for quote with author
+	// Look for quote with author.
 	$authorsearch = '<blockquote class="author">';
 
 	while ((strpos($s, $authorsearch) !== false)) {
@@ -1469,7 +1486,7 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 		$s = substr($s, 0, $pos) . $authorreplace . substr($s, $pos + strlen($authorsearch));
 	}
 
-	// replace friendica image url size with theme preference
+	// Replace friendica image url size with theme preference.
 	if (x($a->theme_info, 'item_image_size')){
 		$ps = $a->theme_info['item_image_size'];
 		$s = preg_replace('|(<img[^>]+src="[^"]+/photo/[0-9a-f]+)-[0-9]|', "$1-" . $ps, $s);
@@ -1479,15 +1496,13 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 	call_hooks('prepare_body_final', $prep_arr);
 
 	return $prep_arr['html'];
-}}
+}
 
-
-if (! function_exists('prepare_text')) {
 /**
- * Given a text string, convert from bbcode to html and add smilie icons.
+ * @brief Given a text string, convert from bbcode to html and add smilie icons.
  *
- * @param string $text
- * @return string
+ * @param string $text String with bbcode.
+ * @return string Formattet HTML.
  */
 function prepare_text($text) {
 
@@ -1500,9 +1515,7 @@ function prepare_text($text) {
 	}
 
 	return trim($s);
-}}
-
-
+}
 
 /**
  * return array with details for categories and folders for an item

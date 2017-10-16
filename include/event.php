@@ -12,12 +12,11 @@ require_once 'include/map.php';
 require_once 'include/datetime.php';
 
 function format_event_html($ev, $simple = false) {
-
 	if (! ((is_array($ev)) && count($ev))) {
 		return '';
 	}
 
-	$bd_format = t('l F d, Y \@ g:i A') ; // Friday January 18, 2011 @ 8 AM
+	$bd_format = t('l F d, Y \@ g:i A') ; // Friday January 18, 2011 @ 8 AM.
 
 	$event_start = (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(),
 			$ev['start'] , $bd_format ))
@@ -32,7 +31,7 @@ function format_event_html($ev, $simple = false) {
 	if ($simple) {
 		$o = "<h3>" . bbcode($ev['summary']) . "</h3>";
 
-		$o .= "<p>" . bbcode($ev['desc']) . "</p>";
+		$o .= "<div>" . bbcode($ev['desc']) . "</div>";
 
 		$o .= "<h4>" . t('Starts:') . "</h4><p>" . $event_start . "</p>";
 
@@ -49,29 +48,28 @@ function format_event_html($ev, $simple = false) {
 
 	$o = '<div class="vevent">' . "\r\n";
 
+	$o .= '<div class="summary event-summary">' . bbcode($ev['summary']) . '</div>' . "\r\n";
 
-	$o .= '<p class="summary event-summary">' . bbcode($ev['summary']) . '</p>' . "\r\n";
-
-	$o .= '<p class="description event-description">' . bbcode($ev['desc']) . '</p>' . "\r\n";
-
-	$o .= '<p class="event-start">' . t('Starts:') . ' <abbr class="dtstart" title="'
+	$o .= '<div class="event-start"><span class="event-label">' . t('Starts:') . '</span>&nbsp;<span class="dtstart" title="'
 		. datetime_convert('UTC', 'UTC', $ev['start'], (($ev['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' ))
 		. '" >'.$event_start
-		. '</abbr></p>' . "\r\n";
+		. '</span></div>' . "\r\n";
 
 	if (! $ev['nofinish']) {
-		$o .= '<p class="event-end" >' . t('Finishes:') . ' <abbr class="dtend" title="'
+		$o .= '<div class="event-end" ><span class="event-label">' . t('Finishes:') . '</span>&nbsp;<span class="dtend" title="'
 			. datetime_convert('UTC', 'UTC', $ev['finish'], (($ev['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' ))
 			. '" >'.$event_end
-			. '</abbr></p>' . "\r\n";
+			. '</span></div>' . "\r\n";
 	}
 
-	if (strlen($ev['location'])) {
-		$o .= '<p class="event-location"> ' . t('Location:') . ' <span class="location">'
-			. bbcode($ev['location'])
-			. '</span></p>' . "\r\n";
+	$o .= '<div class="description event-description">' . bbcode($ev['desc']) . '</div>' . "\r\n";
 
-		// Include a map of the location if the [map] BBCode is used
+	if (strlen($ev['location'])) {
+		$o .= '<div class="event-location"><span class="event-label">' . t('Location:') . '</span>&nbsp;<span class="location">'
+			. bbcode($ev['location'])
+			. '</span></div>' . "\r\n";
+
+		// Include a map of the location if the [map] BBCode is used.
 		if (strpos($ev['location'], "[map") !== false) {
 			$map = generate_named_map($ev['location']);
 			if ($map !== $ev['location']) {
@@ -84,6 +82,12 @@ function format_event_html($ev, $simple = false) {
 	return $o;
 }
 
+/**
+ * @brief Convert an array with event data to bbcode.
+ * 
+ * @param array $ev Array which conains the event data.
+ * @return string The event as a bbcode formatted string.
+ */
 function format_event_bbcode($ev) {
 
 	$o = '';
@@ -115,6 +119,13 @@ function format_event_bbcode($ev) {
 	return $o;
 }
 
+/**
+ * @brief Extract bbcode formatted event data from a string
+ *     and convert it to html.
+ * 
+ * @params: string $s The string which should be parsed for event data.
+ * @return string The html output.
+ */
 function bbtovcal($s) {
 	$o = '';
 	$ev = bbtoevent($s);
@@ -126,6 +137,12 @@ function bbtovcal($s) {
 	return $o;
 }
 
+/**
+ * @brief Extract bbcode formatted event data from a string.
+ * 
+ * @params: string $s The string which should be parsed for event data.
+ * @return array The array with the event information.
+ */
 function bbtoevent($s) {
 
 	$ev = array();
@@ -165,7 +182,6 @@ function bbtoevent($s) {
 	return $ev;
 }
 
-
 function sort_by_date($a) {
 
 	usort($a,'ev_compare');
@@ -184,6 +200,15 @@ function ev_compare($a,$b) {
 	return strcmp($date_a, $date_b);
 }
 
+/**
+ * @brief Delete an event from the event table.
+ * 
+ * Note: This function does only delete the event from the event table not its
+ * related entry in the item table.
+ * 
+ * @param int $event_id Event ID.
+ * @return void
+ */
 function event_delete($event_id) {
 	if ($event_id == 0) {
 		return;
@@ -193,6 +218,14 @@ function event_delete($event_id) {
 	logger("Deleted event ".$event_id, LOGGER_DEBUG);
 }
 
+/**
+ * @brief Store the event.
+ * 
+ * Store the event in the event table and create an event item in the item table.
+ * 
+ * @param array $arr Array with event data.
+ * @return int The event id.
+ */
 function event_store($arr) {
 
 	require_once 'include/datetime.php';
@@ -225,7 +258,7 @@ function event_store($arr) {
 	}
 
 
-	// Existing event being modified
+	// Existing event being modified.
 
 	if ($arr['id']) {
 
@@ -298,7 +331,6 @@ function event_store($arr) {
 
 		return $item_id;
 	} else {
-
 		// New event. Store it.
 
 		$r = q("INSERT INTO `event` (`uid`,`cid`,`guid`,`uri`,`created`,`edited`,`start`,`finish`,`summary`, `desc`,`location`,`type`,
@@ -322,7 +354,6 @@ function event_store($arr) {
 			dbesc($arr['allow_gid']),
 			dbesc($arr['deny_cid']),
 			dbesc($arr['deny_gid'])
-
 		);
 
 		$r = q("SELECT * FROM `event` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
@@ -396,9 +427,14 @@ function event_store($arr) {
 	}
 }
 
+/**
+ * @brief Create an array with translation strings used for events.
+ * 
+ * @return array Array with translations strings.
+ */
 function get_event_strings() {
 
-	// First day of the week (0 = Sunday)
+	// First day of the week (0 = Sunday).
 	$firstDay = get_pconfig(local_user(), 'system', 'first_day_of_week');
 	if ($firstDay === false) {
 		$firstDay = 0;
@@ -466,17 +502,17 @@ function get_event_strings() {
 }
 
 /**
- * @brief Removes duplicated birthday events
+ * @brief Removes duplicated birthday events.
  *
- * @param array $dates Array of possibly duplicated events
- * @return array Cleaned events
+ * @param array $dates Array of possibly duplicated events.
+ * @return array Cleaned events.
  *
- * @todo We should replace this with a separate update function if there is some time left
+ * @todo We should replace this with a separate update function if there is some time left.
  */
 function event_remove_duplicates($dates) {
 	$dates2 = array();
 
-	foreach ($dates AS $date) {
+	foreach ($dates as $date) {
 		if ($date['type'] == 'birthday') {
 			$dates2[$date['uid'] . "-" . $date['cid'] . "-" . $date['start']] = $date;
 		} else {
@@ -487,7 +523,7 @@ function event_remove_duplicates($dates) {
 }
 
 /**
- * @brief Get an event by its event ID
+ * @brief Get an event by its event ID.
  *
  * @param type $owner_uid The User ID of the owner of the event
  * @param type $event_params An assoziative array with
@@ -496,7 +532,7 @@ function event_remove_duplicates($dates) {
  * @return array Query result
  */
 function event_by_id($owner_uid = 0, $event_params, $sql_extra = '') {
-	// ownly allow events if there is a valid owner_id
+	// Ownly allow events if there is a valid owner_id.
 	if ($owner_uid == 0) {
 		return;
 	}
@@ -516,26 +552,27 @@ function event_by_id($owner_uid = 0, $event_params, $sql_extra = '') {
 }
 
 /**
- * @brief Get all events in a specific timeframe
+ * @brief Get all events in a specific timeframe.
  *
- * @param int $owner_uid The User ID of the owner of the events
+ * @param int $owner_uid The User ID of the owner of the events.
  * @param array $event_params An assoziative array with
- *	int 'ignored' =>
- *	string 'start' => Start time of the timeframe
- *	string 'finish' => Finish time of the timeframe
- *	string 'adjust_start' =>
+ *	int 'ignored' =><br>
+ *	string 'start' => Start time of the timeframe.<br>
+ *	string 'finish' => Finish time of the timeframe.<br>
+ *	string 'adjust_start' =><br>
  *	string 'adjust_start' =>
  *
- * @param string $sql_extra Additional sql conditions (e.g. permission request)
- * @return array Query results
+ * @param string $sql_extra Additional sql conditions (e.g. permission request).
+ * 
+ * @return array Query results.
  */
 function events_by_date($owner_uid = 0, $event_params, $sql_extra = '') {
-	// Only allow events if there is a valid owner_id
+	// Only allow events if there is a valid owner_id.
 	if ($owner_uid == 0) {
 		return;
 	}
 
-	// Query for the event by date
+	// Query for the event by date.
 	$r = q("SELECT `event`.*, `item`.`id` AS `itemid`,`item`.`plink`,
 				`item`.`author-name`, `item`.`author-avatar`, `item`.`author-link` FROM `event`
 			LEFT JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`
@@ -559,10 +596,10 @@ function events_by_date($owner_uid = 0, $event_params, $sql_extra = '') {
 }
 
 /**
- * @brief Convert an array query results in an arry which could be used by the events template
+ * @brief Convert an array query results in an arry which could be used by the events template.
  *
- * @param array $arr Event query array
- * @return array Event array for the template
+ * @param array $arr Event query array.
+ * @return array Event array for the template.
  */
 function process_events($arr) {
 	$events=array();
@@ -571,7 +608,6 @@ function process_events($arr) {
 	$fmt = t('l, F j');
 	if (count($arr)) {
 		foreach ($arr as $rr) {
-
 			$j = (($rr['adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $rr['start'], 'j') : datetime_convert('UTC', 'UTC', $rr['start'], 'j'));
 			$d = (($rr['adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $rr['start'], $fmt) : datetime_convert('UTC', 'UTC', $rr['start'], $fmt));
 			$d = day_translate($d);
@@ -588,7 +624,7 @@ function process_events($arr) {
 			$last_date = $d;
 
 			// Show edit and drop actions only if the user is the owner of the event and the event
-			// is a real event (no bithdays)
+			// is a real event (no bithdays).
 			if (local_user() && local_user() == $rr['uid'] && $rr['type'] == 'event') {
 				$edit = ((! $rr['cid']) ? array(System::baseUrl() . '/events/event/' . $rr['id'], t('Edit event'), '', '') : null);
 				$drop = array(System::baseUrl() . '/events/drop/' . $rr['id'], t('Delete event'), '', '');
@@ -626,13 +662,13 @@ function process_events($arr) {
 }
 
 /**
- * @brief Format event to export format (ical/csv)
+ * @brief Format event to export format (ical/csv).
  *
- * @param array $events Query result for events
- * @param string $format The output format (ical/csv)
- * @param string $timezone The timezone of the user (not implemented yet)
+ * @param array $events Query result for events.
+ * @param string $format The output format (ical/csv).
+ * @param string $timezone The timezone of the user (not implemented yet).
  *
- * @return string Content according to selected export format
+ * @return string Content according to selected export format.
  */
 function event_format_export ($events, $format = 'ical', $timezone) {
 	if (! ((is_array($events)) && count($events))) {
@@ -640,7 +676,7 @@ function event_format_export ($events, $format = 'ical', $timezone) {
 	}
 
 	switch ($format) {
-		// Format the exported data as a CSV file
+		// Format the exported data as a CSV file.
 		case "csv":
 			header("Content-type: text/csv");
 			$o = '"Subject", "Start Date", "Start Time", "Description", "End Date", "End Time", "Location"' . PHP_EOL;
@@ -661,7 +697,7 @@ function event_format_export ($events, $format = 'ical', $timezone) {
 			}
 			break;
 
-		// Format the exported data as a ics file
+		// Format the exported data as a ics file.
 		case "ical":
 			header("Content-type: text/ics");
 			$o = 'BEGIN:VCALENDAR' . PHP_EOL
@@ -676,7 +712,6 @@ function event_format_export ($events, $format = 'ical', $timezone) {
 			//       but test your solution against http://icalvalid.cloudapp.net/
 			//       also long lines SHOULD be split at 75 characters length
 			foreach ($events as $event) {
-
 				if ($event['adjust'] == 1) {
 					$UTC = 'Z';
 				} else {
@@ -729,32 +764,32 @@ function event_format_export ($events, $format = 'ical', $timezone) {
 }
 
 /**
- * @brief Get all events for a user ID
- *
- *    The query for events is done permission sensitive
+ * @brief Get all events for a user ID.
+ * 
+ *    The query for events is done permission sensitive.
  *    If the user is the owner of the calendar he/she
  *    will get all of his/her available events.
  *    If the user is only a visitor only the public events will
- *    be available
+ *    be available.
  *
- * @param int $uid The user ID
- * @param int $sql_extra Additional sql conditions for permission
+ * @param int $uid The user ID.
+ * @param int $sql_extra Additional sql conditions for permission.
  *
- * @return array Query results
+ * @return array Query results.
  */
 function events_by_uid($uid = 0, $sql_extra = '') {
 	if ($uid == 0) {
 		return;
 	}
 
-	// The permission condition if no condition was transmitted
+	// The permission condition if no condition was transmitted.
 	if ($sql_extra == '') {
 		$sql_extra = " AND `allow_cid` = '' AND `allow_gid` = '' ";
 	}
 
 	// Does the user who requests happen to be the owner of the events
 	// requested? then show all of your events, otherwise only those that
-	// don't have limitations set in allow_cid and allow_gid
+	// don't have limitations set in allow_cid and allow_gid.
 	if (local_user() == $uid) {
 		$r = q("SELECT `start`, `finish`, `adjust`, `summary`, `desc`, `location`, `nofinish`
 			FROM `event` WHERE `uid`= %d AND `cid` = 0 ",
@@ -774,42 +809,42 @@ function events_by_uid($uid = 0, $sql_extra = '') {
 
 /**
  *
- * @param int $uid The user ID
- * @param string $format Output format (ical/csv)
- * @return array With the results
- *	bool 'success' => True if the processing was successful
- *	string 'format' => The output format
- *	string 'extension' => The file extension of the output format
- *	string 'content' => The formatted output content
+ * @param int $uid The user ID.
+ * @param string $format Output format (ical/csv).
+ * @return array With the results:
+ *	bool 'success' => True if the processing was successful,<br>
+ *	string 'format' => The output format,<br>
+ *	string 'extension' => The file extension of the output format,<br>
+ *	string 'content' => The formatted output content.<br>
  *
- * @todo Respect authenticated users with events_by_uid()
+ * @todo Respect authenticated users with events_by_uid().
  */
 function event_export($uid, $format = 'ical') {
 
 	$process = false;
 
-	// We are allowed to show events
-	// get the timezone the user is in
+	// We are allowed to show events.
+	// Get the timezone the user is in.
 	$r = q("SELECT `timezone` FROM `user` WHERE `uid` = %d LIMIT 1", intval($uid));
 	if (dbm::is_result($r)) {
 		$timezone = $r[0]['timezone'];
 	}
 
-	// Get all events which are owned by a uid (respects permissions);
+	// Get all events which are owned by a uid (respects permissions).
 	$events = events_by_uid($uid);
 
-	// We have the events that are available for the requestor
-	// now format the output according to the requested format
+	// We have the events that are available for the requestor.
+	// Now format the output according to the requested format.
 	if (count($events)) {
 		$res = event_format_export($events, $format, $timezone);
 	}
 
-	// If there are results the precess was successfull
+	// If there are results the precess was successfull.
 	if (x($res)) {
 		$process = true;
 	}
 
-	// Get the file extension for the format
+	// Get the file extension for the format.
 	switch ($format) {
 		case "ical":
 			$file_ext = "ics";
@@ -834,33 +869,33 @@ function event_export($uid, $format = 'ical') {
 }
 
 /**
- * @brief Get the events widget
+ * @brief Get the events widget.
  *
- * @return string Formated html of the evens widget
+ * @return string Formated html of the evens widget.
  */
 function widget_events() {
 	$a = get_app();
 
 	$owner_uid = $a->data['user']['uid'];
 	// $a->data is only available if the profile page is visited. If the visited page is not part
-	// of the profile page it should be the personal /events page. So we can use $a->user
+	// of the profile page it should be the personal /events page. So we can use $a->user.
 	$user = ($a->data['user']['nickname'] ? $a->data['user']['nickname'] : $a->user['nickname']);
 
 
-	// The permission testing is a little bit tricky because we have to respect many cases
+	// The permission testing is a little bit tricky because we have to respect many cases.
 
-	// It's not the private events page (we don't get the $owner_uid for /events)
+	// It's not the private events page (we don't get the $owner_uid for /events).
 	if (! local_user() && ! $owner_uid) {
 		return;
 	}
 
 	/*
-	 * Cal logged in user (test permission at foreign profile page)
-	 * If the $owner uid is available we know it is part of one of the profile pages (like /cal)
+	 * Cal logged in user (test permission at foreign profile page).
+	 * If the $owner uid is available we know it is part of one of the profile pages (like /cal).
 	 * So we have to test if if it's the own profile page of the logged in user
 	 * or a foreign one. For foreign profile pages we need to check if the feature
 	 * for exporting the cal is enabled (otherwise the widget would appear for logged in users
-	 * on foreigen profile pages even if the widget is disabled)
+	 * on foreigen profile pages even if the widget is disabled).
 	 */
 	if (intval($owner_uid) && local_user() !== $owner_uid && ! feature_enabled($owner_uid, "export_calendar")) {
 		return;
@@ -868,7 +903,7 @@ function widget_events() {
 
 	/*
 	 * If it's a kind of profile page (intval($owner_uid)) return if the user not logged in and
-	 * export feature isn't enabled
+	 * export feature isn't enabled.
 	 */
 	if (intval($owner_uid) && ! local_user() && ! feature_enabled($owner_uid, "export_calendar")) {
 		return;
@@ -880,4 +915,126 @@ function widget_events() {
 		'$export_csv' => t("Export calendar as csv"),
 		'$user' => $user
 	));
+}
+
+/**
+ * @brief Format an item array with event data to HTML.
+ * 
+ * @param arr $item Array with item and event data.
+ * @return string HTML output.
+ */
+function format_event_item($item) {
+	$same_date = false;
+	$finish    = false;
+
+	// Set the different time formats.
+	$dformat       = t('l F d, Y \@ g:i A'); // Friday January 18, 2011 @ 8:01 AM.
+	$dformat_short = t('D g:i A'); // Fri 8:01 AM.
+	$tformat       = t('g:i A'); // 8:01 AM.
+
+	// Convert the time to different formats.
+	$dtstart_dt = (($item['event-adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $item['event-start'], $dformat)) : day_translate(datetime_convert('UTC', 'UTC', $item['event-start'], $dformat)));
+	$dtstart_title = datetime_convert('UTC', 'UTC', $item['event-start'], (($item['event-adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s'));
+	// Format: Jan till Dec.
+	$month_short = (($item['event-adjust']) ? day_short_translate(datetime_convert('UTC', date_default_timezone_get(), $item['event-start'], 'M')) : day_short_translate(datetime_convert('UTC', 'UTC', $item['event-start'], 'M')));
+	// Format: 1 till 31.
+	$date_short = (($item['event-adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $item['event-start'], 'j') : datetime_convert('UTC', 'UTC', $item['event-start'], 'j'));
+	$start_time = (($item['event-adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $item['event-start'], $tformat) : datetime_convert('UTC', 'UTC', $item['event-start'], $tformat));
+	$start_short = (($item['event-adjust']) ? day_short_translate(datetime_convert('UTC', date_default_timezone_get(), $item['event-start'], $dformat_short)) : day_short_translate(datetime_convert('UTC', 'UTC', $item['event-start'], $dformat_short)));
+
+	// If the option 'nofinisch' isn't set, we need to format the finish date/time.
+	if (!$item['event-nofinish']) {
+		$finish = true;
+		$dtend_dt  = (($item['event-adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $item['event-finish'], $dformat)) : day_translate(datetime_convert('UTC', 'UTC', $item['event-finish'], $dformat)));
+		$dtend_title = datetime_convert('UTC', 'UTC', $item['event-finish'], (($item['event-adjust'])   ? ATOM_TIME : 'Y-m-d\TH:i:s'));
+		$end_short = (($item['event-adjust']) ? day_short_translate(datetime_convert('UTC', date_default_timezone_get(), $item['event-finish'], $dformat_short)) : day_short_translate(datetime_convert('UTC', 'UTC', $item['event-finish'], $dformat_short)));
+		$end_time = (($item['event-adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $item['event-finish'], $tformat) : datetime_convert('UTC', 'UTC', $item['event-finish'], $tformat));
+		// Check if start and finish time is at the same day.
+		if (substr($dtstart_title, 0, 10) === substr($dtend_title, 0, 10)) {
+			$same_date = true;
+		}
+	}
+
+	// Format the event location.
+	$evloc = event_location2array($item['event-location']);
+	$location = array(
+		'name' => prepare_text($evloc['name'])
+	);
+	// Construct the map HTML.
+	if (isset($evloc['address'])) {
+		$location['map'] = '<div class="map">' . generate_named_map($evloc['address']) . '</div>';
+	} elseif (isset($evloc['coordinates'])) {
+		$location['map'] = '<div class="map">' . generate_map(str_replace('/', ' ', $evloc['coordinates'])) . '</div>';
+	}
+
+	$event = replace_macros(get_markup_template('event_stream_item.tpl'), array(
+		'$id'             => $item['event-id'],
+		'$title'          => prepare_text($item['event-summary']),
+		'$dtstart_label'  => t('Starts:'),
+		'$dtstart_title'  => $dtstart_title,
+		'$dtstart_dt'     => $dtstart_dt,
+		'$finish'         => $finish,
+		'$dtend_label'    => t('Finishes:'),
+		'$dtend_title'    => $dtend_title,
+		'$dtend_dt'       => $dtend_dt,
+		'$month_short'    => $month_short,
+		'$date_short'     => $date_short,
+		'$same_date'      => $same_date,
+		'$start_time'     => $start_time,
+		'$start_short'    => $start_short,
+		'$end_time'       => $end_time,
+		'$end_short'      => $end_short,
+		'$author_name'    => $item['author-name'],
+		'$author_link'    => $item['author-link'],
+		'$author_avatar'  => $item['author-avatar'],
+		'$description'	  => prepare_text($item['event-desc']),
+		'$location_label' => t('Location:'),
+		'$show_map_label' => t('Show map'),
+		'$hide_map_label' => t('Hide map'),
+		'$map_btn_label'  => t('Show map'),
+		'$location'       => $location
+	));
+
+	return $event;
+}
+
+/**
+ * @brief Format a string with map bbcode to an array with location data.
+ * 
+ * Note: The string must only contain location data. A string with no bbcode will be
+ * handled as location name.
+ * 
+ * @param string $s The string with the bbcode formatted location data.
+ * 
+ * @return array The array with the location data.
+ *  'name' => The name of the location,<br>
+ * 'address' => The address of the location,<br>
+ * 'coordinates' => Latitude‎ and longitude‎ (e.g. '48.864716,2.349014').<br>
+ */
+function event_location2array($s = '') {
+	if ($s == '') {
+		return;
+	}
+
+	$location = array('name' => $s);
+
+	// Map tag with location name - e.g. [map]Paris[/map].
+	if (strpos($s, '[/map]') !== false) {
+		$found = preg_match("/\[map\](.*?)\[\/map\]/ism", $s, $match);
+		if (intval($found) > 0 && array_key_exists(1, $match)) {
+			$location['address'] =  $match[1];
+			// Remove the map bbcode from the location name.
+			$location['name'] = str_replace($match[0], "", $s);
+		}
+	// Map tag with coordinates - e.g. [map=48.864716,2.349014].
+	} elseif (strpos($s, '[map=') !== false) {
+		$found = preg_match("/\[map=(.*?)\]/ism", $s, $match);
+		if (intval($found) > 0 && array_key_exists(1, $match)) {
+			$location['coordinates'] =  $match[1];
+			// Remove the map bbcode from the location name.
+			$location['name'] = str_replace($match[0], "", $s);
+		}
+	}
+
+	return $location;
 }

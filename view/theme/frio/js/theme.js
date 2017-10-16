@@ -353,6 +353,11 @@ $(document).ready(function(){
 			$("body").removeClass("aside-out");
 		});
 
+	// Event listener for 'Show & hide event map' button in the network stream.
+	$("body").on("click", ".event-map-btn", function() {
+		showHideEventMap(this);
+	});
+
 });
 
 function openClose(theID) {
@@ -375,7 +380,6 @@ function showHide(theID) {
 	}
 }
 
-
 function showHideComments(id) {
 	if( $('#collapsed-comments-' + id).is(':visible')) {
 		$('#collapsed-comments-' + id).slideUp();
@@ -389,6 +393,37 @@ function showHideComments(id) {
 	}
 }
 
+// Show & hide event map in the network stream by button click.
+function showHideEventMap(elm) {
+	// Get the id of the map element - it should be provided through
+	// the atribute "data-map-id".
+	var mapID = elm.getAttribute('data-map-id');
+
+	// Get translation labels.
+	var mapshow = elm.getAttribute('data-show-label');
+	var maphide = elm.getAttribute('data-hide-label');
+
+	// Change the button labels.
+	if (elm.innerText == mapshow) {
+		$('#' + elm.id).text(maphide);
+	} else {
+		$('#' + elm.id).text(mapshow);
+	}
+	// Because maps are iframe elements, we cant hide it through css (display: none).
+	// We solve this issue by putting the map outside the screen with css.
+	// So the first time the 'Show map' button is pressed we move the map
+	// element into the screen area.
+	var mappos = $('#' + mapID).css('position');
+
+	if (mappos === 'absolute') {
+		$('#' + mapID).hide();
+		$('#' + mapID).css({position: 'relative', left: 'auto', top: 'auto'});
+		openClose(mapID);
+	} else {
+		openClose(mapID);
+	}
+	return false;
+}
 
 function justifyPhotos() {
 	justifiedGalleryActive = true;
@@ -505,7 +540,6 @@ function filter_replace(item) {
 		a.on('textComplete:select', function(e, value, strategy) { $(".dropdown-menu.textcomplete-dropdown.media-list").show(); });
 	};
 })( jQuery );
-
 
 // current time in milliseconds, to send each request to make sure
 // we 're not getting 304 response

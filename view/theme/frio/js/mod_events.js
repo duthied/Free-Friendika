@@ -127,17 +127,17 @@ function changeView(action, viewName) {
 function eventHoverBodyTemplate() {
 	var template = '\
 		<div class="event-card-basic-content media">\
-			<div class="hover-card-details">\
-				<div class="hover-card-header left-align">\
-					<div class="event-hover-left-date left-align">\
+			<div class="event-card-details">\
+				<div class="event-card-header">\
+					<div class="event-card-left-date">\
 						<span class="event-date-wrapper medium">\
-							<span class="event-hover-short-month">{5}</span>\
-							<span class="event-hover-short-date">{6}</span>\
+							<span class="event-card-short-month">{5}</span>\
+							<span class="event-card-short-date">{6}</span>\
 						</span>\
 					</div>\
 					<div class="event-card-content media-body">\
-						<div class="event-hover-title">{2}</div>\
-						<div class="event-property"><span class="event-hover-date">{4}</span>{3}\
+						<div class="event-card-title">{2}</div>\
+						<div class="event-property"><span class="event-card-date">{4}</span>{3}\
 						{1}\
 					</div>\
 				</div>\
@@ -150,14 +150,15 @@ function eventHoverBodyTemplate() {
 
 // The template for presenting the event location in the event hover-card
 function eventHoverLocationTemplate() {
-	var template = '<span class="event-hover-location"> {0}</span></div>';
+	var template = '<span role="presentation" aria-hidden="true"> · </span>\
+			<span class="event-card-location"> {0}</span></div>';
 	return template;
 }
 
 function eventHoverProfileNameTemplate() {
 	var template = '\
-			<div class="event-hover-profile-name profile-entry-name">\
-				<span class="left-align1"><a href="{0}" class="userinfo">{1}</a></span>\
+			<div class="event-card-profile-name profile-entry-name">\
+				<a href="{0}" class="userinfo">{1}</a>\
 			</div>';
 	return template;
 }

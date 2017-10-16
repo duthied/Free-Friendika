@@ -179,6 +179,24 @@ blockquote.shared_content {
   border: none;
 }
 
+/* Events */
+.event-summary {
+  margin: 0px 0px 10px 0px;
+  font-weight: bold;
+}
+
+.vevent .event-summary {
+  margin: 0px 0px 10px 0px;
+}
+
+.vevent .event-description {
+  padding: 10px 0;
+}
+
+.event-label {
+  font-weight: bold;
+}
+
 .settings-heading a:after{
   content: ' »';
 }
