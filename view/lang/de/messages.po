@@ -6874,7 +6874,7 @@ msgstr "Zusammenfassung"
 
 #: mod/admin.php:674
 msgid "Registered users"
-msgstr "Registrierte Nutzer_innen"
+msgstr "Registrierte Personen"
 
 #: mod/admin.php:676
 msgid "Pending registrations"
@@ -6902,7 +6902,7 @@ msgstr "Keine Gemeinschaftsseite"
 
 #: mod/admin.php:1075
 msgid "Public postings from users of this site"
-msgstr "Öffentliche Beiträge von Nutzer_innen dieser Seite"
+msgstr "Öffentliche Beiträge von NutzerInnen dieser Seite"
 
 #: mod/admin.php:1076
 msgid "Global community page"
@@ -7514,7 +7514,9 @@ msgid ""
 "contains the name and version of the server, number of users with public "
 "profiles, number of posts and the activated protocols and connectors. See <a"
 " href='http://the-federation.info/'>the-federation.info</a> for details."
-msgstr "Wenn aktiviert, werden allgemeine Informationen über den Server und Nutzungsdaten veröffentlicht. Die Daten beinhalten den Namen sowie die Version des Servers, die Anzahl der Nutzer_innen mit öffentlichen Profilen, die Anzahl der Beiträge sowie aktivierte Protokolle und Connectoren. Für Details bitte <a href='http://the-federation.info/'>the-federation.info</a> aufrufen."
+msgstr "Wenn aktiviert, werden allgemeine Informationen über den Server
+und Nutzungsdaten veröffentlicht. Die Daten beinhalten den Namen sowie
+die Version des Servers, die Anzahl der Personen mit öffentlichen Profilen, die Anzahl der Beiträge sowie aktivierte Protokolle und Connectoren. Für Details bitte <a href='http://the-federation.info/'>the-federation.info</a> aufrufen."
 
 #: mod/admin.php:1233
 msgid "Suppress Tags"
@@ -7597,7 +7599,7 @@ msgstr "Neue Basis-URL"
 msgid ""
 "Change base url for this server. Sends relocate message to all DFRN contacts"
 " of all users."
-msgstr "Ändert die Basis-URL dieses Servers und sendet eine Umzugsmitteilung an alle DFRN Kontakte deiner Nutzer_innen."
+msgstr "Ändert die Basis-URL dieses Servers und sendet eine Umzugsmitteilung an alle DFRN Kontakte deiner NutzerInnen."
 
 #: mod/admin.php:1244
 msgid "RINO Encryption"
