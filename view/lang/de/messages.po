@@ -7514,9 +7514,7 @@ msgid ""
 "contains the name and version of the server, number of users with public "
 "profiles, number of posts and the activated protocols and connectors. See <a"
 " href='http://the-federation.info/'>the-federation.info</a> for details."
-msgstr "Wenn aktiviert, werden allgemeine Informationen über den Server
-und Nutzungsdaten veröffentlicht. Die Daten beinhalten den Namen sowie
-die Version des Servers, die Anzahl der Personen mit öffentlichen Profilen, die Anzahl der Beiträge sowie aktivierte Protokolle und Connectoren. Für Details bitte <a href='http://the-federation.info/'>the-federation.info</a> aufrufen."
+msgstr "Wenn aktiviert, werden allgemeine Informationen über den Server und Nutzungsdaten veröffentlicht. Die Daten beinhalten den Namen sowie die Version des Servers, die Anzahl der Personen mit öffentlichen Profilen, die Anzahl der Beiträge sowie aktivierte Protokolle und Connectoren. Für Details bitte <a href='http://the-federation.info/'>the-federation.info</a> aufrufen."
 
 #: mod/admin.php:1233
 msgid "Suppress Tags"
