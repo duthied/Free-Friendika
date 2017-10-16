@@ -79,7 +79,7 @@ function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 	return($replace);
 }
 
-function html2bbcode($message)
+function html2bbcode($message, $basepath = '')
 {
 
 	$message = str_replace("\r", "", $message);
@@ -90,10 +90,10 @@ function html2bbcode($message)
 		function ($matches) use (&$codeblocks) {
 			$return = '[codeblock-' . count($codeblocks) . ']';
 
-            $prefix = '[code]';
-            if ($matches[1] != '') {
-                $prefix = '[code=' . $matches[1] . ']';
-            }
+			$prefix = '[code]';
+			if ($matches[1] != '') {
+				$prefix = '[code=' . $matches[1] . ']';
+			}
 			$codeblocks[] = $prefix . $matches[2] . '[/code]';
 			return $return;
 		}
@@ -313,15 +313,69 @@ function html2bbcode($message)
 	// Restore code blocks
 	$message = preg_replace_callback('#\[codeblock-([0-9]+)\]#iU',
 		function ($matches) use ($codeblocks) {
-            $return = '';
-            if (isset($codeblocks[intval($matches[1])])) {
-                $return = $codeblocks[$matches[1]];
-            }
+			$return = '';
+			if (isset($codeblocks[intval($matches[1])])) {
+				$return = $codeblocks[$matches[1]];
+			}
 			return $return;
 		}
 	, $message);
 
 	$message = trim($message);
 
+	if ($basepath != '') {
+		$message = addHostname($message, $basepath);
+	}
+
 	return $message;
+}
+
+/**
+ * @brief Sub function to complete incomplete URL
+ *
+ * @param array $matches Result of preg_replace_callback
+ * @param string $basepath Basepath that is used to complete the URL
+ *
+ * @return string The expanded URL
+ */
+function addHostnameSub($matches, $basepath) {
+	$base = parse_url($basepath);
+
+	$link = $matches[0];
+	$url = $matches[1];
+
+	$parts = array_merge($base, parse_url($url));
+	$url2 = unParseUrl($parts);
+
+	return str_replace($url, $url2, $link);
+}
+
+/**
+ * @brief Complete incomplete URLs in BBCode
+ *
+ * @param string $body Body with URLs
+ * @param string $basepath Basepath that is used to complete the URL
+ *
+ * @return string Body with expanded URLs
+ */
+function addHostname($body, $basepath) {
+	$URLSearchString = "^\[\]";
+
+	$matches = array("/\[url\=([$URLSearchString]*)\].*?\[\/url\]/ism",
+			"/\[url\]([$URLSearchString]*)\[\/url\]/ism",
+			"/\[img\=[0-9]*x[0-9]*\](.*?)\[\/img\]/ism",
+			"/\[img\](.*?)\[\/img\]/ism",
+			"/\[zmg\=[0-9]*x[0-9]*\](.*?)\[\/img\]/ism",
+			"/\[zmg\](.*?)\[\/zmg\]/ism",
+			"/\[video\](.*?)\[\/video\]/ism",
+			"/\[audio\](.*?)\[\/audio\]/ism",
+			);
+
+	foreach ($matches AS $match) {
+		$body = preg_replace_callback($match,
+						function ($match) use ($basepath) {
+							return addHostnameSub($match, $basepath);
+						}, $body);
+	}
+	return $body;
 }

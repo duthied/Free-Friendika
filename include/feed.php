@@ -27,6 +27,14 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 		return;
 	}
 
+	if (!empty($contact['poll'])) {
+		$basepath = $contact['poll'];
+	} elseif (!empty($contact['url'])) {
+		$basepath = $contact['url'];
+	} else {
+		$basepath = '';
+	}
+
 	$doc = new DOMDocument();
 	@$doc->loadXML(trim($xml));
 	$xpath = new DomXPath($doc);
@@ -344,7 +352,7 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 			if (title_is_body($item["title"], $body)) {
 				$item["title"] = "";
 			}
-			$item["body"] = html2bbcode($body);
+			$item["body"] = html2bbcode($body, $basepath);
 
 			if (($item["body"] == '') && ($item["title"] != '')) {
 				$item["body"] = $item["title"];
