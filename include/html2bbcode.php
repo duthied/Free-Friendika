@@ -338,7 +338,7 @@ function html2bbcode($message, $basepath = '')
  *
  * @return string The expanded URL
  */
-function AddHostnameSub($matches, $basepath) {
+function addHostnameSub($matches, $basepath) {
 	$base = parse_url($basepath);
 
 	$link = $matches[0];
@@ -358,7 +358,7 @@ function AddHostnameSub($matches, $basepath) {
  *
  * @return string Body with expanded URLs
  */
-function AddHostname($body, $basepath) {
+function addHostname($body, $basepath) {
 	$URLSearchString = "^\[\]";
 
 	$matches = array("/\[url\=([$URLSearchString]*)\].*?\[\/url\]/ism",
