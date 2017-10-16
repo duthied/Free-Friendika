@@ -90,10 +90,10 @@ function html2bbcode($message, $basepath = '')
 		function ($matches) use (&$codeblocks) {
 			$return = '[codeblock-' . count($codeblocks) . ']';
 
-	    $prefix = '[code]';
-	    if ($matches[1] != '') {
-		$prefix = '[code=' . $matches[1] . ']';
-	    }
+			$prefix = '[code]';
+			if ($matches[1] != '') {
+				$prefix = '[code=' . $matches[1] . ']';
+			}
 			$codeblocks[] = $prefix . $matches[2] . '[/code]';
 			return $return;
 		}
@@ -313,10 +313,10 @@ function html2bbcode($message, $basepath = '')
 	// Restore code blocks
 	$message = preg_replace_callback('#\[codeblock-([0-9]+)\]#iU',
 		function ($matches) use ($codeblocks) {
-	    $return = '';
-	    if (isset($codeblocks[intval($matches[1])])) {
-		$return = $codeblocks[$matches[1]];
-	    }
+			$return = '';
+			if (isset($codeblocks[intval($matches[1])])) {
+				$return = $codeblocks[$matches[1]];
+			}
 			return $return;
 		}
 	, $message);
