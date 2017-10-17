@@ -1703,7 +1703,7 @@ function new_follower($importer, $contact, $datarray, $item, $sharing = false) {
 			intval($importer['uid'])
 		);
 
-		if (dbm::is_result($r) && !in_array($r[0]['page-flags'], array(PAGE_SOAPBOX, PAGE_FREELOVE))) {
+		if (dbm::is_result($r) && !in_array($r[0]['page-flags'], array(PAGE_SOAPBOX, PAGE_FREELOVE, PAGE_COMMUNITY))) {
 
 			// create notification
 			$hash = random_string();
@@ -1739,7 +1739,7 @@ function new_follower($importer, $contact, $datarray, $item, $sharing = false) {
 				));
 
 			}
-		} elseif (dbm::is_result($r) && in_array($r[0]['page-flags'], array(PAGE_SOAPBOX, PAGE_FREELOVE))) {
+		} elseif (dbm::is_result($r) && in_array($r[0]['page-flags'], array(PAGE_SOAPBOX, PAGE_FREELOVE, PAGE_COMMUNITY))) {
 			$r = q("UPDATE `contact` SET `pending` = 0 WHERE `uid` = %d AND `url` = '%s' AND `pending` LIMIT 1",
 					intval($importer['uid']),
 					dbesc($url)
