@@ -56,6 +56,9 @@ Assuming you want to convert the German localization which is placed in view/lan
        repository, push it to your fork of the friendica repository at github and
        issue a pull request for that commit.
 
+You should translate the PO files at Transifex.
+Otherwise your work might get lost, when the translation from Transifex is included to the Friendica repository after it was updated there.
+
 Utilities
 ---------
 
