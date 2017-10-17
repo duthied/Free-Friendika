@@ -319,6 +319,30 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 			$item["attach"] .= '[attach]href="'.$href.'" length="'.$length.'" type="'.$type.'"[/attach]';
 		}
 
+		$body = trim($xpath->evaluate('atom:content/text()', $entry)->item(0)->nodeValue);
+
+		if ($body == "") {
+			$body = trim($xpath->evaluate('content:encoded/text()', $entry)->item(0)->nodeValue);
+		}
+		if ($body == "") {
+			$body = trim($xpath->evaluate('description/text()', $entry)->item(0)->nodeValue);
+		}
+		if ($body == "") {
+			$body = trim($xpath->evaluate('atom:summary/text()', $entry)->item(0)->nodeValue);
+		}
+
+		// remove the content of the title if it is identically to the body
+		// This helps with auto generated titles e.g. from tumblr
+		if (title_is_body($item["title"], $body)) {
+			$item["title"] = "";
+		}
+		$item["body"] = html2bbcode($body, $basepath);
+
+		if (($item["body"] == '') && ($item["title"] != '')) {
+			$item["body"] = $item["title"];
+			$item["title"] = '';
+		}
+
 		if ($contact["fetch_further_information"]) {
 			$preview = "";
 
@@ -329,36 +353,33 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 				}
 			}
 
-			$item["body"] = $item["title"].add_page_info($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
-			$item["tag"] = add_page_keywords($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
+			// Remove a possible link to the item itself
+			$item["body"] = str_replace($item["plink"], '', $item["body"]);
+			$item["body"] = preg_replace('/\[url\=\](\w+.*?)\[\/url\]/i', '', $item["body"]);
+
+			// Replace the content when the title is longer than the body
+			$replace = (strlen($item["title"]) > strlen($item["body"]));
+
+			// Replace it, when there is an image in the body
+			if (strstr($item["body"], '[/img]')) {
+				$replace = true;
+			}
+
+			// Replace it, when there is a link in the body
+			if (strstr($item["body"], '[/url]')) {
+				$replace = true;
+			}
+
+			if ($replace) {
+				$item["body"] = $item["title"];
+			}
+			// We always strip the title since it will be added in the page information
 			$item["title"] = "";
+			$item["body"] = $item["body"].add_page_info($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
+			$item["tag"] = add_page_keywords($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
 			$item["object-type"] = ACTIVITY_OBJ_BOOKMARK;
 			unset($item["attach"]);
 		} else {
-			$body = trim($xpath->evaluate('atom:content/text()', $entry)->item(0)->nodeValue);
-
-			if ($body == "") {
-				$body = trim($xpath->evaluate('content:encoded/text()', $entry)->item(0)->nodeValue);
-			}
-			if ($body == "") {
-				$body = trim($xpath->evaluate('description/text()', $entry)->item(0)->nodeValue);
-			}
-			if ($body == "") {
-				$body = trim($xpath->evaluate('atom:summary/text()', $entry)->item(0)->nodeValue);
-			}
-
-			// remove the content of the title if it is identically to the body
-			// This helps with auto generated titles e.g. from tumblr
-			if (title_is_body($item["title"], $body)) {
-				$item["title"] = "";
-			}
-			$item["body"] = html2bbcode($body, $basepath);
-
-			if (($item["body"] == '') && ($item["title"] != '')) {
-				$item["body"] = $item["title"];
-				$item["title"] = '';
-			}
-
 			if (!strstr($item["body"], '[url') && ($item['plink'] != '')) {
 				$item["body"] .= "[hr][url]".$item['plink']."[/url]";
 			}
