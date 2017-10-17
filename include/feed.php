@@ -354,7 +354,6 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 			}
 
 			if (strlen($item["title"]) > strlen($item["body"])) {
-//echo "*".strlen($item["title"]).">".strlen($item["body"])."\n";
 				$item["body"] = $item["title"];
 				$item["title"] = "";
 			}
