@@ -353,7 +353,20 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 				}
 			}
 
-			if (strlen($item["title"]) > strlen($item["body"])) {
+			// Replace the content when the title is longer than the body
+			$replace = (strlen($item["title"]) > strlen($item["body"]));
+
+			// Replace it, when there is an image in the body
+			if (strstr($item["body"], '[/img]')) {
+				$replace = true;
+			}
+
+			// Replace it, when there is a link in the body
+			if (strstr($item["body"], '[/url]')) {
+				$replace = true;
+			}
+
+			if ($replace) {
 				$item["body"] = $item["title"];
 				$item["title"] = "";
 			}
