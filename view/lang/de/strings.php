@@ -1574,7 +1574,7 @@ $a->strings["The database update failed. Please run \"php include/dbstructure.ph
 $a->strings["The worker was never executed. Please check your database structure!"] = "Der Hintergrundprozess (worker) wurde noch nie gestartet. Bitte überprüfe deine Datenbankstruktur.";
 $a->strings["The last worker execution was on %s UTC. This is older than one hour. Please check your crontab settings."] = "Der Hintergrundprozess (worker) wurde zuletzt um %s UTC ausgeführt. Das war vor mehr als einer Stunde. Bitte überprüfe deine crontab Einstellungen.";
 $a->strings["Normal Account"] = "Normales Konto";
-$a->strings["Automatic Follower Account"] = "Marktschreier-Konto";
+$a->strings["Automatic Follower Account"] = "Automatisch folgendes Konto (Marktschreier)";
 $a->strings["Public Forum Account"] = "Öffentliches Forum Konto";
 $a->strings["Automatic Friend Account"] = "Automatische Freunde Seite";
 $a->strings["Blog Account"] = "Blog-Konto";
