@@ -319,6 +319,30 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 			$item["attach"] .= '[attach]href="'.$href.'" length="'.$length.'" type="'.$type.'"[/attach]';
 		}
 
+		$body = trim($xpath->evaluate('atom:content/text()', $entry)->item(0)->nodeValue);
+
+		if ($body == "") {
+			$body = trim($xpath->evaluate('content:encoded/text()', $entry)->item(0)->nodeValue);
+		}
+		if ($body == "") {
+			$body = trim($xpath->evaluate('description/text()', $entry)->item(0)->nodeValue);
+		}
+		if ($body == "") {
+			$body = trim($xpath->evaluate('atom:summary/text()', $entry)->item(0)->nodeValue);
+		}
+
+		// remove the content of the title if it is identically to the body
+		// This helps with auto generated titles e.g. from tumblr
+		if (title_is_body($item["title"], $body)) {
+			$item["title"] = "";
+		}
+		$item["body"] = html2bbcode($body, $basepath);
+
+		if (($item["body"] == '') && ($item["title"] != '')) {
+			$item["body"] = $item["title"];
+			$item["title"] = '';
+		}
+
 		if ($contact["fetch_further_information"]) {
 			$preview = "";
 
@@ -329,36 +353,16 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 				}
 			}
 
-			$item["body"] = $item["title"].add_page_info($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
+			if (strlen($item["title"]) > strlen($item["body"])) {
+//echo "*".strlen($item["title"]).">".strlen($item["body"])."\n";
+				$item["body"] = $item["title"];
+				$item["title"] = "";
+			}
+			$item["body"] = $item["body"].add_page_info($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
 			$item["tag"] = add_page_keywords($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
-			$item["title"] = "";
 			$item["object-type"] = ACTIVITY_OBJ_BOOKMARK;
 			unset($item["attach"]);
 		} else {
-			$body = trim($xpath->evaluate('atom:content/text()', $entry)->item(0)->nodeValue);
-
-			if ($body == "") {
-				$body = trim($xpath->evaluate('content:encoded/text()', $entry)->item(0)->nodeValue);
-			}
-			if ($body == "") {
-				$body = trim($xpath->evaluate('description/text()', $entry)->item(0)->nodeValue);
-			}
-			if ($body == "") {
-				$body = trim($xpath->evaluate('atom:summary/text()', $entry)->item(0)->nodeValue);
-			}
-
-			// remove the content of the title if it is identically to the body
-			// This helps with auto generated titles e.g. from tumblr
-			if (title_is_body($item["title"], $body)) {
-				$item["title"] = "";
-			}
-			$item["body"] = html2bbcode($body, $basepath);
-
-			if (($item["body"] == '') && ($item["title"] != '')) {
-				$item["body"] = $item["title"];
-				$item["title"] = '';
-			}
-
 			if (!strstr($item["body"], '[url') && ($item['plink'] != '')) {
 				$item["body"] .= "[hr][url]".$item['plink']."[/url]";
 			}
