@@ -250,6 +250,10 @@ function events_content(App $a) {
 			$mode = 'drop';
 			$event_id = intval($a->argv[2]);
 		}
+		if ($a->argc > 2 && $a->argv[1] == 'copy') {
+			$mode = 'copy';
+			$event_id = intval($a->argv[2]);
+		}
 		if ($a->argv[1] === 'new') {
 			$mode = 'new';
 			$event_id = 0;
@@ -399,7 +403,7 @@ function events_content(App $a) {
 		return $o;
 	}
 
-	if ($mode === 'edit' && $event_id) {
+	if (($mode === 'edit' || $mode === 'copy') && $event_id) {
 		$r = q("SELECT * FROM `event` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($event_id),
 			intval(local_user())
@@ -410,7 +414,7 @@ function events_content(App $a) {
 	}
 
 	// Passed parameters overrides anything found in the DB
-	if ($mode === 'edit' || $mode === 'new') {
+	if (in_array($mode, array('edit', 'new', 'copy'))) {
 		if (!x($orig_event)) {$orig_event = array();}
 		// In case of an error the browser is redirected back here, with these parameters filled in with the previous values
 		if (x($_REQUEST, 'nofinish'))    {$orig_event['nofinish']    = $_REQUEST['nofinish'];}
@@ -431,17 +435,18 @@ function events_content(App $a) {
 		$cid    = ((x($orig_event)) ? $orig_event['cid']      : 0);
 		$uri    = ((x($orig_event)) ? $orig_event['uri']      : '');
 
-		if (! x($orig_event)) {
-			$sh_checked = '';
-		} else {
+		$sh_disabled = '';
+		$sh_checked  = '';
+
+		if (x($orig_event)) {
 			$sh_checked = (($orig_event['allow_cid'] === '<' . local_user() . '>' && (! $orig_event['allow_gid']) && (! $orig_event['deny_cid']) && (! $orig_event['deny_gid'])) ? '' : ' checked="checked" ');
 		}
 
-		if ($cid || ($mode !== 'new')) {
-			$sh_checked .= ' disabled="disabled" ';
+		if ($cid || $mode === 'edit') {
+			$sh_disabled = 'disabled="disabled"';
 		}
 
-		$sdt = ((x($orig_event)) ? $orig_event['start'] : 'now');
+		$sdt = ((x($orig_event)) ? $orig_event['start']  : 'now');
 		$fdt = ((x($orig_event)) ? $orig_event['finish'] : 'now');
 
 		$tz = date_default_timezone_get();
@@ -470,17 +475,31 @@ function events_content(App $a) {
 
 		require_once 'include/acl_selectors.php' ;
 
-		if ($mode === 'new') {
+		$perms = get_acl_permissions($orig_event);
+
+		if ($mode === 'new' || $mode === 'copy') {
 			$acl = (($cid) ? '' : populate_acl(((x($orig_event)) ? $orig_event : $a->user)));
+		}
+
+		// If we copy an old event, we need to remove the ID and URI
+		// from the original event.
+		if ($mode === 'copy') {
+			$eid = 0;
+			$uri = '';
 		}
 
 		$tpl = get_markup_template('event_form.tpl');
 
 		$o .= replace_macros($tpl,array(
 			'$post' => System::baseUrl() . '/events',
-			'$eid' => $eid,
-			'$cid' => $cid,
-			'$uri' => $uri,
+			'$eid'  => $eid,
+			'$cid'  => $cid,
+			'$uri'  => $uri,
+
+			'$allow_cid' => json_encode($perms['allow_cid']),
+			'$allow_gid' => json_encode($perms['allow_gid']),
+			'$deny_cid'  => json_encode($perms['deny_cid']),
+			'$deny_gid'  => json_encode($perms['deny_gid']),
 
 			'$title' => t('Event details'),
 			'$desc' => t('Starting date and Title are required.'),
@@ -500,7 +519,7 @@ function events_content(App $a) {
 			'$t_orig' => $t_orig,
 			'$summary' => array('summary', t('Title:'), $t_orig, '', '*'),
 			'$sh_text' => t('Share this event'),
-			'$share' => array('share', t('Share this event'), $sh_checked, ''),
+			'$share' => array('share', t('Share this event'), $sh_checked, '', $sh_disabled),
 			'$sh_checked' => $sh_checked,
 			'$nofinish' => array('nofinish', t('Finish date/time is not known or not relevant'), $n_checked),
 			'$adjust' => array('adjust', t('Adjust for viewer timezone'), $a_checked),

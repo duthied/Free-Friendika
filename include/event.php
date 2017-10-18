@@ -627,6 +627,7 @@ function process_events($arr) {
 			// is a real event (no bithdays).
 			if (local_user() && local_user() == $rr['uid'] && $rr['type'] == 'event') {
 				$edit = ((! $rr['cid']) ? array(System::baseUrl() . '/events/event/' . $rr['id'], t('Edit event'), '', '') : null);
+				$copy = ((! $rr['cid']) ? array(System::baseUrl() . '/events/copy/' . $rr['id'], t('Duplicate event'), '', '') : null);
 				$drop = array(System::baseUrl() . '/events/drop/' . $rr['id'], t('Delete event'), '', '');
 			}
 
@@ -650,6 +651,7 @@ function process_events($arr) {
 				'd'        => $d,
 				'edit'     => $edit,
 				'drop'     => $drop,
+				'copy'     => $copy,
 				'is_first' => $is_first,
 				'item'     => $rr,
 				'html'     => $html,
