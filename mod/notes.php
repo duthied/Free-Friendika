@@ -73,7 +73,7 @@ function notes_content(App $a, $update = false) {
 
 	// default permissions - anonymous user
 
-	$sql_extra = " AND `allow_cid` = '<" . $a->contact['id'] . ">' ";
+	$sql_extra = " AND `item`.`allow_cid` = '<" . $a->contact['id'] . ">' ";
 
 	$r = q("SELECT COUNT(*) AS `total`
 		FROM `item` %s
