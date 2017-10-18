@@ -70,16 +70,16 @@
 			{{* The avatar picture and the photo-menu *}}
 			<div class="dropdown pull-left"><!-- Dropdown -->
 				<div class="hidden-sm hidden-xs contact-photo-wrapper mframe{{if $item.owner_url}} wwfrom{{/if}}">
-					<a href="{{$item.profile_url}}" class="userinfo" id="wall-item-photo-menu-{{$item.id}}">
+					<a href="{{$item.profile_url}}" class="userinfo u-url" id="wall-item-photo-menu-{{$item.id}}">
 						<div class="contact-photo-image-wrapper">
 							<img src="{{$item.thumb}}" class="contact-photo media-object {{$item.sparkle}}" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" />
 						</div>
 					</a>
 				</div>
 				<div class="hidden-lg hidden-md contact-photo-wrapper mframe{{if $item.owner_url}} wwfrom{{/if}}">
-					<a href="{{$item.profile_url}}" class="userinfo" id="wall-item-photo-menu-{{$item.id}}">
+					<a href="{{$item.profile_url}}" class="userinfo u-url" id="wall-item-photo-menu-xs-{{$item.id}}">
 						<div class="contact-photo-image-wrapper">
-							<img src="{{$item.thumb}}" class="contact-photo-xs media-object {{$item.sparkle}}" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" />
+							<img src="{{$item.thumb}}" class="contact-photo-xs media-object {{$item.sparkle}}" id="wall-item-photo-xs-{{$item.id}}" alt="{{$item.name}}" />
 						</div>
 					</a>
 				</div>

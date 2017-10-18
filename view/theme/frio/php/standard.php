@@ -106,7 +106,7 @@ $("nav").bind('nav-update', function(e,data)
 <script src="<?=$frio?>/frameworks/justifiedGallery/jquery.justifiedGallery.min.js"></script>
 
 <!-- Modal  -->
-<div id="modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="plan-info" aria-hidden="true">
+<div id="modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
 	<div class="modal-dialog modal-full-screen">
 		<div class="modal-content">
 			<div id="modal-header" class="modal-header">

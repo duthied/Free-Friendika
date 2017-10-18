@@ -21,7 +21,7 @@
 
 	{{* avatar picture *}}
 	<div class="contact-photo-wrapper mframe p-author h-card pull-left">
-		<a class="userinfo" id="wall-item-photo-menu-{{$id}} u-url" href="{{$profile_url}}">
+		<a class="userinfo u-url" id="wall-item-photo-menu-{{$id}}" href="{{$profile_url}}">
 			<div class="contact-photo-image-wrapper">
 				<img src="{{$thumb}}" class="contact-photo-xs media-object p-name u-photo" id="wall-item-photo-{{$item.id}}" alt="{{$name}}" />
 			</div>
