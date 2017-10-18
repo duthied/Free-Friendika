@@ -572,7 +572,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	$expire_interval = Config::get('system', 'dbclean-expire-days', 0);
 
 	$r = dba::select('user', array('expire'), array('uid' => $uid), array("limit" => 1));
-	if (dbm::is_result($r) && ($r['expire'] > 0) && ($r['expire'] < $expire_interval)) {
+	if (dbm::is_result($r) && ($r['expire'] > 0) && (($r['expire'] < $expire_interval) || ($expire_interval == 0))) {
 		$expire_interval = $r['expire'];
 	}
 
