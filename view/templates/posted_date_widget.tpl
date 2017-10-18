@@ -5,8 +5,7 @@ function showHideDates() {
 		$('#posted-date-dropdown').hide();
 		$('#posted-date-collapse').html(window.showMore);
 
-	}
-	else {
+	} else {
 		$('#posted-date-dropdown').show();
 		$('#posted-date-collapse').html(window.showFewer);
 	}
