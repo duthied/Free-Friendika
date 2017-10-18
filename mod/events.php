@@ -414,7 +414,7 @@ function events_content(App $a) {
 	}
 
 	// Passed parameters overrides anything found in the DB
-	if ($mode === 'edit' || $mode === 'new' || $mode === 'copy') {
+	if (in_array($mode, array('edit', 'new', 'copy'))) {
 		if (!x($orig_event)) {$orig_event = array();}
 		// In case of an error the browser is redirected back here, with these parameters filled in with the previous values
 		if (x($_REQUEST, 'nofinish'))    {$orig_event['nofinish']    = $_REQUEST['nofinish'];}
@@ -435,9 +435,10 @@ function events_content(App $a) {
 		$cid    = ((x($orig_event)) ? $orig_event['cid']      : 0);
 		$uri    = ((x($orig_event)) ? $orig_event['uri']      : '');
 
-		if (! x($orig_event)) {
-			$sh_checked = '';
-		} else {
+		$sh_disabled = '';
+		$sh_checked  = '';
+
+		if (x($orig_event)) {
 			$sh_checked = (($orig_event['allow_cid'] === '<' . local_user() . '>' && (! $orig_event['allow_gid']) && (! $orig_event['deny_cid']) && (! $orig_event['deny_gid'])) ? '' : ' checked="checked" ');
 		}
 
@@ -445,7 +446,7 @@ function events_content(App $a) {
 			$sh_disabled = 'disabled="disabled"';
 		}
 
-		$sdt = ((x($orig_event)) ? $orig_event['start'] : 'now');
+		$sdt = ((x($orig_event)) ? $orig_event['start']  : 'now');
 		$fdt = ((x($orig_event)) ? $orig_event['finish'] : 'now');
 
 		$tz = date_default_timezone_get();
@@ -481,7 +482,7 @@ function events_content(App $a) {
 		}
 
 		// If we copy an old event, we need to remove the ID and URI
-		// from the orgiginal event.
+		// from the original event.
 		if ($mode === 'copy') {
 			$eid = 0;
 			$uri = '';
