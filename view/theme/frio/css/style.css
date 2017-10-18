@@ -2463,6 +2463,9 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
 .modal-body .vevent .event-summary {
     display: none;
 }
+#event-preview .vevent .event-summary {
+    display: block;
+}
 
 /* Event Cards */
 .event-card-details, .event-card-header {
@@ -2510,6 +2513,7 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
     color: #555;
     line-height: 15px;
     font-weight: bold;
+    margin: 0;
 }
 .event-card .event-card-location {
     margin-top: 10px;
