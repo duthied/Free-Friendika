@@ -37,8 +37,7 @@
 
 	{{if $description}}
 	<div class="description event-description">
-		<hr class="seperator" />
 		{{$description}}
 	</div>
-{{/if}}
+	{{/if}}
 </div>

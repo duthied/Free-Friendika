@@ -2463,6 +2463,9 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
 .modal-body .vevent .event-summary {
     display: none;
 }
+#event-preview .vevent .event-summary {
+    display: block;
+}
 
 /* Event Cards */
 .event-card-details, .event-card-header {
@@ -2510,6 +2513,7 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
     color: #555;
     line-height: 15px;
     font-weight: bold;
+    margin: 0;
 }
 .event-card .event-card-location {
     margin-top: 10px;
@@ -2535,9 +2539,8 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
 .event-card .event-card-content .event-location-map .map{
     margin-top: 10px;
 }
-
-.event-card .event-description .seperator {
-    margin-top: 0;
+.event-card .description {
+    margin-top: 10px;
     box-shadow: 0 1.5px 0 0 rgba(0, 0, 0, .1) inset;
 }
 /* Photos Pages */
