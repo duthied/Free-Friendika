@@ -169,11 +169,6 @@ function create_user($arr) {
 		return $result;
 	}
 
-	$default_service_class = get_config('system','default_service_class');
-	if(! $default_service_class)
-		$default_service_class = '';
-
-
 	$prvkey = $keys['prvkey'];
 	$pubkey = $keys['pubkey'];
 
@@ -182,9 +177,9 @@ function create_user($arr) {
 	$sprvkey = $sres['prvkey'];
 	$spubkey = $sres['pubkey'];
 
-	$r = q("INSERT INTO `user` ( `guid`, `username`, `password`, `email`, `openid`, `nickname`,
-		`pubkey`, `prvkey`, `spubkey`, `sprvkey`, `register_date`, `verified`, `blocked`, `timezone`, `service_class`, `default-location` )
-		VALUES ( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, 'UTC', '%s', '' )",
+	$r = q("INSERT INTO `user` (`guid`, `username`, `password`, `email`, `openid`, `nickname`,
+		`pubkey`, `prvkey`, `spubkey`, `sprvkey`, `register_date`, `verified`, `blocked`, `timezone`, `default-location`)
+		VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, 'UTC', '')",
 		dbesc(generate_user_guid()),
 		dbesc($username),
 		dbesc($new_password_encoded),
@@ -197,8 +192,7 @@ function create_user($arr) {
 		dbesc($sprvkey),
 		dbesc(datetime_convert()),
 		intval($verified),
-		intval($blocked),
-		dbesc($default_service_class)
+		intval($blocked)
 	);
 
 	if ($r) {

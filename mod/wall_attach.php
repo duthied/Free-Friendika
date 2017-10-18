@@ -114,26 +114,6 @@ function wall_attach_post(App $a) {
 		killme();
 	}
 
-	$limit = service_class_fetch($page_owner_uid,'attach_upload_limit');
-
-        if ($limit) {
-		$r = q("select sum(octet_length(data)) as total from photo where uid = %d and scale = 0 and album != 'Contact Photos' ",
-			intval($page_owner_uid)
-		);
-		$size = $r[0]['total'];
-
-		if (($size + strlen($imagedata)) > $limit) {
-			$msg = upgrade_message(true);
-			if ($r_json) {
-				echo json_encode(array('error'=>$msg));
-			} else {
-				echo  $msg. EOL ;
-			}
-			@unlink($src);
-			killme();
-		}
-	}
-
 	$filedata = @file_get_contents($src);
 	$mimetype = z_mime_content_type($filename);
 	$hash = get_guid(64);

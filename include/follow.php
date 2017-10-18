@@ -197,32 +197,6 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 		$fields = array('rel' => $new_relation, 'subhub' => $subhub, 'readonly' => false);
 		dba::update('contact', $fields, array('id' => $r[0]['id']));
 	} else {
-		// check service class limits
-
-		$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND `pending` = 0 AND `self` = 0",
-			intval($uid)
-		);
-		if (dbm::is_result($r))
-			$total_contacts = $r[0]['total'];
-
-		if (! service_class_allows($uid,'total_contacts',$total_contacts)) {
-			$result['message'] .= upgrade_message();
-			return $result;
-		}
-
-		$r = q("SELECT COUNT(`network`) AS `total` FROM `contact` WHERE `uid` = %d AND `network` = '%s' AND `pending` = 0 AND `self` = 0",
-			intval($uid),
-			dbesc($network)
-		);
-		if (dbm::is_result($r)) {
-			$total_network = $r[0]['total'];
-		}
-
-		if (! service_class_allows($uid,'total_contacts_' . $network,$total_network)) {
-			$result['message'] .= upgrade_message();
-			return $result;
-		}
-
 		$new_relation = ((in_array($ret['network'], array(NETWORK_MAIL))) ? CONTACT_IS_FRIEND : CONTACT_IS_SHARING);
 
 		// create contact record

@@ -947,19 +947,6 @@ function store_photo(App $a, $uid, $imagedata = "", $url = "") {
 		return(array());
 	}
 
-/*
-	$r = q("select sum(octet_length(data)) as total from photo where uid = %d and scale = 0 and album != 'Contact Photos' ",
-		intval($uid)
-	);
-
-	$limit = service_class_fetch($uid,'photo_upload_limit');
-
-	if (($limit !== false) && (($r[0]['total'] + strlen($imagedata)) > $limit)) {
-		logger("Image exceeds personal limit of uid ".$uid, LOGGER_DEBUG);
-		return(array());
-	}
-*/
-
 	$tempfile = tempnam(get_temppath(), "cache");
 
 	$stamp1 = microtime(true);

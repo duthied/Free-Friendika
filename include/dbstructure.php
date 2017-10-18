@@ -1708,7 +1708,6 @@ function db_definition() {
 					"account_expired" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
 					"account_expires_on" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE),
 					"expire_notification_sent" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE),
-					"service_class" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
 					"def_gid" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
 					"allow_cid" => array("type" => "mediumtext"),
 					"allow_gid" => array("type" => "mediumtext"),
