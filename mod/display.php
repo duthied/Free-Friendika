@@ -17,7 +17,14 @@ function display_init(App $a) {
 	if ($a->argc == 3) {
 		if (substr($a->argv[2], -5) == '.atom') {
 			$item_id = substr($a->argv[2], 0, -5);
-			displayShowFeed($item_id);
+			displayShowFeed($item_id, false);
+		}
+	}
+
+	if ($a->argc == 4) {
+		if ($a->argv[3] == 'conversation.atom') {
+			$item_id = $a->argv[2];
+			displayShowFeed($item_id, true);
 		}
 	}
 
@@ -66,7 +73,7 @@ function display_init(App $a) {
 
 			if (strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
 				logger('Directly serving XML for id '.$r["id"], LOGGER_DEBUG);
-				displayShowFeed($r["id"]);
+				displayShowFeed($r["id"], false);
 			}
 
 			if ($r["id"] != $r["parent"]) {
@@ -219,17 +226,18 @@ function display_content(App $a, $update = 0) {
 			$nick = "";
 
 			if (local_user()) {
-				$r = dba::fetch_first("SELECT `id` FROM `item`
+				$r = dba::fetch_first("SELECT `id`, `parent` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `guid` = ? AND `uid` = ?", $a->argv[1], local_user());
 				if (dbm::is_result($r)) {
 					$item_id = $r["id"];
+					$item_parent = $r["parent"];
 					$nick = $a->user["nickname"];
 				}
 			}
 
 			if ($nick == "") {
-				$r = dba::fetch_first("SELECT `user`.`nickname`, `item`.`id` FROM `item` STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
+				$r = dba::fetch_first("SELECT `user`.`nickname`, `item`.`id`, `item`.`parent` FROM `item` STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
@@ -237,11 +245,12 @@ function display_content(App $a, $update = 0) {
 						AND `item`.`guid` = ?", $a->argv[1]);
 				if (dbm::is_result($r)) {
 					$item_id = $r["id"];
+					$item_parent = $r["parent"];
 					$nick = $r["nickname"];
 				}
 			}
 			if ($nick == "") {
-				$r = dba::fetch_first("SELECT `item`.`id` FROM `item`
+				$r = dba::fetch_first("SELECT `item`.`id`, `item`.`parent` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
@@ -249,15 +258,17 @@ function display_content(App $a, $update = 0) {
 						AND `item`.`guid` = ?", $a->argv[1]);
 				if (dbm::is_result($r)) {
 					$item_id = $r["id"];
+					$item_parent = $r["parent"];
 				}
 			}
 		}
 	}
 
 	if ($item_id && !is_numeric($item_id)) {
-		$r = dba::select('item', array('id'), array('uri' => $item_id, 'uid' => $a->profile['uid']), array('limit' => 1));
+		$r = dba::select('item', array('id', 'parent'), array('uri' => $item_id, 'uid' => $a->profile['uid']), array('limit' => 1));
 		if (dbm::is_result($r)) {
 			$item_id = $r["id"];
+			$item_parent = $r["parent"];
 		} else {
 			$item_id = false;
 		}
@@ -273,12 +284,15 @@ function display_content(App $a, $update = 0) {
 	$is_public = dba::exists('item', array('id' => $item_id, 'private' => false));
 	if ($is_public) {
 		$alternate = System::baseUrl().'/display/'.$nick.'/'.$item_id.'.atom';
+		$conversation = System::baseUrl().'/display/'.$nick.'/'.$item_parent.'/conversation.atom';
 	} else {
 		$alternate = '';
+		$conversation = '';
 	}
 
 	$a->page['htmlhead'] .= replace_macros(get_markup_template('display-head.tpl'),
-				array('$alternate' => $alternate));
+				array('$alternate' => $alternate,
+					'$conversation' => $conversation));
 
 	$groups = array();
 
@@ -476,8 +490,8 @@ function display_content(App $a, $update = 0) {
 	return $o;
 }
 
-function displayShowFeed($item_id) {
-	$xml = dfrn::itemFeed($item_id);
+function displayShowFeed($item_id, $conversation) {
+	$xml = dfrn::itemFeed($item_id, $conversation);
 	if ($xml == '') {
 		http_status_exit(500);
 	}
