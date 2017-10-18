@@ -57,22 +57,39 @@ class System {
 	 * @return string
 	 */
 	public static function callstack($depth = 4) {
-		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $depth + 2);
+		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
 		// We remove the first two items from the list since they contain data that we don't need.
 		array_shift($trace);
 		array_shift($trace);
 
 		$callstack = array();
-		foreach ($trace AS $func) {
+		$counter = 0;
+		$previous = array('class' => '', 'function' => '');
+
+		// The ignore list contains all functions that are only wrapper functions
+		$ignore = array('get_config', 'get_pconfig', 'set_config', 'set_pconfig', 'fetch_url', 'probe_url');
+
+		while ($func = array_pop($trace)) {
 			if (!empty($func['class'])) {
-				$callstack[] = $func['class'].'::'.$func['function'];
-			} else {
+				// Don't show multiple calls from the same function (mostly used for "dba" class)
+				if (($previous['class'] != $func['class']) && ($previous['function'] != 'q')) {
+					$classparts = explode("\\", $func['class']);
+					$callstack[] = array_pop($classparts).'::'.$func['function'];
+					$previous = $func;
+				}
+			} elseif (!in_array($func['function'], $ignore)) {
 				$callstack[] = $func['function'];
+				$previous = $func;
 			}
 		}
 
-		return implode(', ', $callstack);
+		$callstack2 = array();
+		while ((count($callstack2) < $depth) && (count($callstack) > 0)) {
+			$callstack2[] = array_pop($callstack);
+		}
+
+		return implode(', ', $callstack2);
 	}
 
 	/// @todo Move the following functions from boot.php
