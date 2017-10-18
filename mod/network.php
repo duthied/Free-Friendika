@@ -37,6 +37,8 @@ function network_init(App $a) {
 	$is_a_date_query = false;
 	if (x($_GET, 'cid') && intval($_GET['cid']) != 0) {
 		$cid = $_GET['cid'];
+		$_GET['nets'] = 'all';
+
 	}
 
 	if ($a->argc > 1) {
