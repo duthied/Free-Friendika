@@ -2,7 +2,9 @@
 <div class="vevent event-card">
 	<div class="vevent-header">
 		<div class="event-card-details">
+			{{* The part with the event data (start, end, location, title *}}
 			<div class="event-card-header">
+				{{* On the left we will present the date in short form (e.g. Oct 15) *}}
 				<div class="event-card-left-date">
 					<span class="event-date-wrapper medium">
 						<span class="event-card-short-month">{{$month_short}}</span>
@@ -11,6 +13,7 @@
 				</div>
 				<div class="event-card-content media-body">
 					<div class="event-title event-card-title summary event-summary">{{$title}}</div>
+					{{* If there is a map, we insert a button for showing/hiding the map *}}
 					{{if $location.map}}<button id="event-map-btn-{{$id}}" class="event-map-btn btn-link fakelink nav nav-pills preferences" data-map-id="event-location-map-{{$id}}" data-show-label="{{$show_map_label}}" data-hide-label="{{$hide_map_label}}">{{$map_btn_label}}</button>{{/if}}
 					<div class="event-property">
 						<span class="event-date">
@@ -35,6 +38,7 @@
 	</div>
 	<div class="clearfix"></div>
 
+	{{* The content of the event description *}}
 	{{if $description}}
 	<div class="description event-description">
 		{{$description}}

@@ -959,9 +959,11 @@ function format_event_item($item) {
 
 	// Format the event location.
 	$evloc = event_location2array($item['event-location']);
-	$location = array(
-		'name' => prepare_text($evloc['name'])
-	);
+	$location = array();
+
+	if (isset($evloc['name'])) {
+		$location['name'] = prepare_text($evloc['name']);
+	}
 	// Construct the map HTML.
 	if (isset($evloc['address'])) {
 		$location['map'] = '<div class="map">' . generate_named_map($evloc['address']) . '</div>';
