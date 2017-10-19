@@ -37,7 +37,6 @@ Example: To set the directory value please add this line to your .htconfig.php:
 * **db_log_index_blacklist** - Blacklist of indexes that shouldn't be watched
 * **dbclean** (Boolean) - Enable the automatic database cleanup process
 * **dbclean-expire-days** (Integer) - Days after which remote items will be deleted. Own items, and marked or filed items are kept.
-* **default_service_class** -
 * **diaspora_test** (Boolean) - For development only. Disables the message transfer.
 * **directory** - The path to global directory. If not set then "http://dir.friendica.social" is used.
 * **disable_email_validation** (Boolean) - Disables the check if a mail address is in a valid format and can be resolved via DNS.
@@ -95,10 +94,6 @@ Example: To set the directory value please add this line to your .htconfig.php:
 * **wall-to-wall_share** (Boolean) - Displays forwarded posts like "wall-to-wall" posts.
 * **worker_cooldown** - Cooldown time after each worker function call. Default value is 0 seconds.
 * **xrd_timeout** - Timeout for fetching the XRD links. Default value is 20 seconds.
-
-## service_class ##
-
-* **upgrade_link** -
 
 ## experimental ##
 

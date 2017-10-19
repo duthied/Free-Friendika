@@ -874,12 +874,7 @@ function settings_content(App $a) {
 
 		$tpl = get_markup_template("settings_connectors.tpl");
 
-		if (! service_class_allows(local_user(),'email_connect')) {
-			$mail_disabled_message = upgrade_bool_message();
-		} else {
-			$mail_disabled_message = (($mail_disabled) ? t('Email access is disabled on this site.') : '');
-		}
-
+		$mail_disabled_message = (($mail_disabled) ? t('Email access is disabled on this site.') : '');
 
 		$o .= replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("settings_connectors"),

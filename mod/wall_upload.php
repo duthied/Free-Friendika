@@ -189,29 +189,6 @@ function wall_upload_post(App $a, $desktopmode = true) {
 		killme();
 	}
 
-
-	$limit = service_class_fetch($page_owner_uid, 'photo_upload_limit');
-
-	if ($limit) {
-		$r = q("SELECT SUM(OCTET_LENGTH(`data`)) AS `total` FROM `photo`
-			WHERE `uid` = %d AND `scale` = 0
-			AND `album` != 'Contact Photos' ",
-			intval($page_owner_uid)
-		);
-		$size = $r[0]['total'];
-
-		if (($size + strlen($imagedata)) > $limit) {
-			$msg = upgrade_message(true);
-			if ($r_json) {
-				echo json_encode(array('error'=>$msg));
-			} else {
-				echo  $msg. EOL;
-			}
-			@unlink($src);
-			killme();
-		}
-	}
-
 	$imagedata = @file_get_contents($src);
 	$ph = new Photo($imagedata, $filetype);
 

@@ -832,24 +832,6 @@ function photos_post(App $a) {
 
 	$imagedata = @file_get_contents($src);
 
-
-	$limit = service_class_fetch($a->data['user']['uid'], 'photo_upload_limit');
-
-	if ($limit) {
-		$r = q("SELECT SUM(OCTET_LENGTH(`data`)) AS `total` FROM `photo` WHERE `uid` = %d AND `scale` = 0 AND `album` != 'Contact Photos'",
-			intval($a->data['user']['uid'])
-		);
-		$size = $r[0]['total'];
-
-		if (($size + strlen($imagedata)) > $limit) {
-			notice( upgrade_message() . EOL );
-			@unlink($src);
-			$foo = 0;
-			call_hooks('photo_post_end',$foo);
-			killme();
-		}
-	}
-
 	$ph = new Photo($imagedata, $type);
 
 	if (! $ph->is_valid()) {
@@ -1145,15 +1127,6 @@ function photos_content(App $a) {
 		));
 
 		$usage_message = '';
-		$limit = service_class_fetch($a->data['user']['uid'], 'photo_upload_limit');
-		if ($limit !== false) {
-
-			$r = q("SELECT SUM(`datasize`) AS `total` FROM `photo` WHERE `uid` = %d AND `scale` = 0 AND `album` != 'Contact Photos'",
-				intval($a->data['user']['uid'])
-			);
-			$usage_message = sprintf(t("You have used %1$.2f Mbytes of %2$.2f Mbytes photo storage."), $r[0]['total'] / 1024000, $limit / 1024000 );
-		}
-
 
 		// Private/public post links for the non-JS ACL form
 		$private_post = 1;

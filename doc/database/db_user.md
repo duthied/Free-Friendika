@@ -38,7 +38,6 @@ Table user
 | account_expired          |                                                                                         | tinyint(1)          | NO   |     | 0                   |                |
 | account_expires_on       | timestamp when account expires and will be deleted                                      | datetime            | NO   |     | 0001-01-01 00:00:00 |                |
 | expire_notification_sent | timestamp of last warning of account expiration                                         | datetime            | NO   |     | 0001-01-01 00:00:00 |                |
-| service_class            | service class for this account, determines what if any limits/restrictions are in place | varchar(32)         | NO   |     |                     |                |
 | def_gid                  |                                                                                         | int(11)             | NO   |     | 0                   |                |
 | allow_cid                | default permission for this user                                                        | mediumtext          | NO   |     | NULL                |                |
 | allow_gid                | default permission for this user                                                        | mediumtext          | NO   |     | NULL                |                |

@@ -1,5 +1,5 @@
 -- ------------------------------------------
--- Friendica 3.5.3-dev (Asparagus)
+-- Friendica 3.6-dev (Asparagus)
 -- DB_UPDATE_VERSION 1234
 -- ------------------------------------------
 
@@ -1084,7 +1084,6 @@ CREATE TABLE IF NOT EXISTS `user` (
 	`account_expired` tinyint(1) NOT NULL DEFAULT 0,
 	`account_expires_on` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
 	`expire_notification_sent` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
-	`service_class` varchar(32) NOT NULL DEFAULT '',
 	`def_gid` int(11) NOT NULL DEFAULT 0,
 	`allow_cid` mediumtext,
 	`allow_gid` mediumtext,
