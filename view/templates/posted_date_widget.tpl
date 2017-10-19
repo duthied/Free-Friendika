@@ -30,21 +30,23 @@ function dateSubmit(dateurl) {
 		<li id="posted-date-selector-year-{{$y}}" class="tool">
 			<a class="datebrowse-link" href="#" onclick="openClose('posted-date-selector-{{$y}}'); return false;">{{$y}}</a>
 		</li>
-		<div id="posted-date-selector-{{$y}}" style="display: none;">
-			<ul class="posted-date-selector-months datebrowse-ul">
+		<li id="posted-date-selector-{{$y}}" class="tool posted-date-selector-months" style="display: none;">
+			<ul class="datebrowse-ul">
 				{{foreach $arr as $d}}
 				<li class="tool">
 					<a class="datebrowse-link" href="#" onclick="dateSubmit('{{$url}}/{{$d.1}}/{{$d.2}}'); return false;">{{$d.0}}</a>
 				</li>
 				{{/foreach}}
 			</ul>
-		</div>
+		</li>
 		{{/foreach}}
 		{{if $cutoff}}
+		</ul>
 		</div>
 		<ul class="datebrowse-ul">
 			<li onclick="showHideDates(); return false;" id="posted-date-collapse" class="fakelink tool">{{$showmore}}</li>
 		</ul>
-		{{/if}}
+		{{else}}
 	</ul>
+	{{/if}}
 </div>

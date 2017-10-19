@@ -1036,15 +1036,22 @@ aside .widget li a:hover {
 }
 
 /* forumlist widget */
-aside #datebrowse-sidebar .posted-date-selector-months{
-    margin-left: 0;
-    margin-bottom: 10px;
+aside > #datebrowse-sidebar li.posted-date-selector-months {
+    margin-bottom: 10px;;
+    padding: 0;
     width: 100%
 }
-aside #datebrowse-sidebar .posted-date-selector-months li{
+aside > #datebrowse-sidebar li.posted-date-selector-months:hover {
+    border-left: none !important;
+    background-color: transparent !important;
+}
+aside > #datebrowse-sidebar .posted-date-selector-months > ul {
+    margin: 0;
+}
+aside > #datebrowse-sidebar .posted-date-selector-months > ul > li{
     padding-left: 30px;
 }
-aside #datebrowse-sidebar .posted-date-selector-months li:hover{
+aside > #datebrowse-sidebar .posted-date-selector-months > ul > li:hover{
     padding-left: 27px;
 }
 
