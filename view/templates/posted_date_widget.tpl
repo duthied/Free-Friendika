@@ -1,12 +1,12 @@
 <script>
 
 function showHideDates() {
-	if( $('#posted-date-dropdown').is(':visible')) {
-		$('#posted-date-dropdown').hide();
+	if( $('#posted-date-selector-drop').is(':visible')) {
+		$('#posted-date-selector-drop').hide();
 		$('#posted-date-collapse').html(window.showMore);
 
 	} else {
-		$('#posted-date-dropdown').show();
+		$('#posted-date-selector-drop').show();
 		$('#posted-date-collapse').html(window.showFewer);
 	}
 }
@@ -22,11 +22,12 @@ function dateSubmit(dateurl) {
 	<h3>{{$title}}</h3>
 	<ul id="posted-date-selector" class="datebrowse-ul">
 		{{foreach $dates as $y => $arr}}
+
 		{{if $y == $cutoff_year}}
 		</ul>
-		<div id="posted-date-dropdown" style="display: none;">
-		<ul id="posted-date-selector-drop" class="datebrowse-ul">
+		<ul id="posted-date-selector-drop" class="datebrowse-ul" style="display: none;">
 		{{/if}} 
+
 		<li id="posted-date-selector-year-{{$y}}" class="tool">
 			<a class="datebrowse-link" href="#" onclick="openClose('posted-date-selector-{{$y}}'); return false;">{{$y}}</a>
 		</li>
@@ -42,7 +43,6 @@ function dateSubmit(dateurl) {
 		{{/foreach}}
 	</ul>
 	{{if $cutoff}}
-	</div>
 	<ul class="datebrowse-ul">
 		<li onclick="showHideDates(); return false;" id="posted-date-collapse" class="fakelink tool">{{$showmore}}</li>
 	</ul>
