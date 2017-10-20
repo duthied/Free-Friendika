@@ -40,13 +40,11 @@ function dateSubmit(dateurl) {
 			</ul>
 		</li>
 		{{/foreach}}
-		{{if $cutoff}}
-		</ul>
-		</div>
-		<ul class="datebrowse-ul">
-			<li onclick="showHideDates(); return false;" id="posted-date-collapse" class="fakelink tool">{{$showmore}}</li>
-		</ul>
-		{{else}}
+	</ul>
+	{{if $cutoff}}
+	</div>
+	<ul class="datebrowse-ul">
+		<li onclick="showHideDates(); return false;" id="posted-date-collapse" class="fakelink tool">{{$showmore}}</li>
 	</ul>
 	{{/if}}
 </div>
