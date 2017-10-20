@@ -29,7 +29,7 @@
 
 {{* Since only the DIV's inside the notification-list are marked with the class "unseen",
 we need some js to transfer this class to the parent li list-elements *}}
-<script>
+<script type="text/javascript">
 $(document).ready(function(){
 	if( $(".notif-item").hasClass("unseen")) {
 		$(".notif-item.unseen").parent("li").addClass("unseen");

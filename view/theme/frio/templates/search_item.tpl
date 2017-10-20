@@ -123,7 +123,7 @@
 
 
 			{{* item content *}}
-			<div itemprop="description" class="wall-item-content {{$item.type}}" id="wall-item-content-{{$item.id}}">
+			<div class="wall-item-content {{$item.type}}" id="wall-item-content-{{$item.id}}">
 				{{* insert some space if it's an top-level post *}}
 				{{if $item.thread_level==1}}
 				<div style="height:10px;">&nbsp;</div> <!-- use padding/margin instead-->

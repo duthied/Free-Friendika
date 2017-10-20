@@ -1,5 +1,5 @@
 
-<script language="javascript" type="text/javascript">
+<script type="text/javascript">
 $(document).ready(function() {
 	// Add contact_filter autocompletion to the search field
 	$("#contacts-search").contact_filter(baseurl + '/acl', 'r', true);

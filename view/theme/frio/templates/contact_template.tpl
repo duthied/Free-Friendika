@@ -11,7 +11,7 @@
 
 						{{* Overlay background on hover the avatar picture *}}
 						<div class="contact-photo-overlay">
-							<span class="contact-photo-overlay-content xl"><i class="fa fa-angle-down"></i></span>
+							<span class="contact-photo-overlay-content xl"><i class="fa fa-angle-down" aria-hidden="true"></i></span>
 						</div>
 					</div>
 
@@ -21,7 +21,7 @@
 
 						{{* Overlay background on hover the avatar picture *}}
 						<div class="contact-photo-overlay">
-							<span class="contact-photo-overlay-content overlay-xs"><i class="fa fa-angle-down"></i></span>
+							<span class="contact-photo-overlay-content overlay-xs"><i class="fa fa-angle-down" aria-hidden="true"></i></span>
 						</div>
 					</div>
 				</button>
@@ -31,11 +31,11 @@
 				<ul class="contact-photo-menu menu-popup dropdown-menu " id="contact-photo-menu-{{$contact.id}}" role="menu" aria-labelledby="contact-photo-menu-{{$contact.id}}">
 					{{foreach $contact.photo_menu as $c}}
 					{{if $c.2}}
-					<li role="menuitem"><a target="redir" href="{{$c.1}}">{{$c.0}}</a></li>
+					<li role="presentation"><a role="menuitem" target="redir" href="{{$c.1}}">{{$c.0}}</a></li>
 					{{elseif $c.3}}
-					<li role="menuitem"><button type="button" class="btn-link" onclick="addToModal('{{$c.1}}')">{{$c.0}}</button></li>
+					<li role="presentation"><button role="menuitem" type="button" class="btn-link" onclick="addToModal('{{$c.1}}')">{{$c.0}}</button></li>
 					{{else}}
-					<li role="menuitem"><a href="{{$c.1}}">{{$c.0}}</a></li>
+					<li role="presentation"><a role="menuitem" href="{{$c.1}}">{{$c.0}}</a></li>
 					{{/if}}
 					{{/foreach}}
 				</ul>
@@ -143,7 +143,7 @@ We use this part to filter the contacts with jquery.textcomplete *}}
 
 							{{* Overlay background on hover the avatar picture *}}
 							<div class="contact-photo-overlay">
-								<span class="contact-photo-overlay-content xl"><i class="fa fa-angle-down"></i></span>
+								<span class="contact-photo-overlay-content xl"><i class="fa fa-angle-down"  aria-hidden="true"></i></span>
 							</div>
 						</div>
 
@@ -153,7 +153,7 @@ We use this part to filter the contacts with jquery.textcomplete *}}
 
 							{{* Overlay background on hover the avatar picture *}}
 							<div class="contact-photo-overlay">
-								<span class="contact-photo-overlay-content overlay-xs"><i class="fa fa-angle-down"></i></span>
+								<span class="contact-photo-overlay-content overlay-xs"><i class="fa fa-angle-down" aria-hidden="true"></i></span>
 							</div>
 						</div>
 					</button>
@@ -163,11 +163,11 @@ We use this part to filter the contacts with jquery.textcomplete *}}
 					<ul class="contact-photo-menu menu-popup dropdown-menu " id="contact-photo-menu-{$id}" role="menu" aria-labelledby="contact-photo-menu-{$id}">
 						{foreach $photo_menu as $c}
 						{if $c.2}
-						<li role="menuitem"><a target="redir" href="{$c.1}">{$c.0}</a></li>
+						<li role="presentation"><a role="menuitem" target="redir" href="{$c.1}">{$c.0}</a></li>
 						{elseif $c.3}
-						<li role="menuitem"><button type="button" class="btn-link" onclick="addToModal('{$c.1}')">{$c.0}</button></li>
+						<li role="presentation"><button role="menuitem" type="button" class="btn-link" onclick="addToModal('{$c.1}')">{$c.0}</button></li>
 						{else}
-						<li role="menuitem"><a href="{$c.1}">{$c.0}</a></li>
+						<li role="presentation"><a role="menuitem" href="{$c.1}">{$c.0}</a></li>
 						{/if}
 						{/foreach}
 					</ul>

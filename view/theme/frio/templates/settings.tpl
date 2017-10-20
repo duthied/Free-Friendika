@@ -13,7 +13,7 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="password-settings">
 					<h4>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#password-settings-collapse" aria-expanded="true" aria-controls="basic-settings-collapse">
+						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#password-settings-collapse" aria-expanded="false" aria-controls="password-settings-collapse">
 							{{$h_pass}}
 						</a>
 					</h4>
@@ -40,7 +40,7 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="basic-settings">
 					<h4>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#basic-settings-collapse" aria-expanded="true" aria-controls="basic-settings-collapse">
+						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#basic-settings-collapse" aria-expanded="false" aria-controls="basic-settings-collapse">
 							{{$h_basic}}
 						</a>
 					</h4>
@@ -68,7 +68,7 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="privacy-settings">
 					<h4>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#privacy-settings-collapse" aria-expanded="true" aria-controls="privacy-settings-collapse">
+						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#privacy-settings-collapse" aria-expanded="false" aria-controls="privacy-settings-collapse">
 							{{$h_prv}}
 						</a>
 					</h4>
@@ -162,7 +162,7 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="notification-settings">
 					<h4>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#notification-settings-collapse" aria-expanded="true" aria-controls="notification-settings-collapse">
+						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#notification-settings-collapse" aria-expanded="false" aria-controls="notification-settings-collapse">
 							{{$h_not}}
 						</a>
 					</h4>
@@ -204,7 +204,7 @@
 							*}}
 
 							{{include file="field_yesno.tpl" field=$desktop_notifications}}
-							<script>
+							<script type="text/javascript">
 								(function(){
 									var elm = $("#id_{{$desktop_notifications.0}}_onoff");
 									var ckbox = $("#id_{{$desktop_notifications.0}}");
@@ -261,7 +261,7 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="additional-account-settings">
 					<h4>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#additional-account-settings-collapse" aria-expanded="true" aria-controls="additional-account-settings-collapse">
+						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#additional-account-settings-collapse" aria-expanded="false" aria-controls="additional-account-settings-collapse">
 							{{$h_advn}}
 						</a>
 					</h4>
@@ -285,7 +285,7 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="relocate-settings">
 					<h4>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#relocate-settings-collapse" aria-expanded="true" aria-controls="relocate-settings-collapse">
+						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#relocate-settings-collapse" aria-expanded="false" aria-controls="relocate-settings-collapse">
 							{{$relocate}}
 						</a>
 					</h4>
@@ -293,7 +293,7 @@
 				<div id="relocate-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="relocate-settings">
 					<div class="section-content-tools-wrapper">
 
-						<div id="settings-pagetype-desc">{{$relocate_text}}</div>
+						<div id="settings-relocate-desc">{{$relocate_text}}</div>
 
 						<br/>
 						<div class="form-group pull-right settings-submit-wrapper" >
@@ -306,4 +306,3 @@
 		</div>
 	</form>
 </div>
-

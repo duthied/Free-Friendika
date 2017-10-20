@@ -17,8 +17,8 @@
 <head>
 	<title><?php if(x($page,'title')) echo $page['title'] ?></title>
 	<meta request="<?php echo htmlspecialchars($_REQUEST['pagename']) ?>">
-	<script>var baseurl="<?php echo Friendica\Core\System::baseUrl() ?>";</script>
-	<script>var frio="<?php echo "view/theme/frio"; ?>";</script>
+	<script  type="text/javascript">var baseurl="<?php echo Friendica\Core\System::baseUrl() ?>";</script>
+	<script type="text/javascript">var frio="<?php echo "view/theme/frio"; ?>";</script>
 	<?php $baseurl = Friendica\Core\System::baseUrl(); ?>
 	<?php $frio = "view/theme/frio"; ?>
 	<?php

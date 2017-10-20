@@ -19,7 +19,7 @@
 		<div id="photo-photo">
 			{{* The photo *}}
 			<div class="photo-container">
-				<a href="{{$photo.href}}" title="{{$photo.title}}"><img src="{{$photo.src}}" /></a>
+				<a href="{{$photo.href}}" title="{{$photo.title}}"><img src="{{$photo.src}}" alt="{{$photo.filename}}"/></a>
 			</div>
 
 			{{* Overlay buttons for previous and next photo *}}

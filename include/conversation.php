@@ -800,6 +800,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 				$tmp_item = array(
 					'template' => $tpl,
 					'id' => (($preview) ? 'P0' : $item['item_id']),
+					'guid' => (($preview) ? 'Q0' : $item['guid']),
 					'network' => $item['item_network'],
 					'network_name' => network_to_name($item['item_network'], $profile_link),
 					'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),

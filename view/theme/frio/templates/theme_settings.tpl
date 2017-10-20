@@ -30,7 +30,7 @@
 {{/foreach}}
 </div>
 
-<script>
+<script type="text/javascript">
 	$(function(){
 		$("#frio_nav_bg, #frio_nav_icon_color, #frio_background_color, #frio_link_color").colorpicker({format: 'hex', align: 'left'});
 
@@ -68,6 +68,6 @@
 </div>
 <div class="clearfix"></div>
 
-<script>
+<script type="text/javascript">
     $(".inputRange").rangeinput();
 </script>

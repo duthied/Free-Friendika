@@ -17,4 +17,4 @@
 	{{$paginate}}
 </div>
 
-<script>$(document).ready(function() { loadingPage = false; justifyPhotos(); });</script>
+<script type="text/javascript">$(document).ready(function() { loadingPage = false; justifyPhotos(); });</script>

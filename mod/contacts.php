@@ -871,7 +871,7 @@ function contacts_tab($a, $contact_id, $active_tab) {
 			'url' => "contacts/".$contact_id,
 			'sel' => (($active_tab == 2)?'active':''),
 			'title' => t('Profile Details'),
-			'id' => 'status-tab',
+			'id' => 'profile-tab',
 			'accesskey' => 'o',
 		)
 	);

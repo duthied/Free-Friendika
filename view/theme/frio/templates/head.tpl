@@ -42,7 +42,7 @@
 
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <link rel="manifest" href="{{$baseurl}}/manifest" />
-<script>
+<script type="text/javascript">
 // Prevents links to switch to Safari in a home screen app - see https://gist.github.com/irae/1042167
 (function(a,b,c){if(c in b&&b[c]){var d,e=a.location,f=/^(a|html)$/i;a.addEventListener("click",function(a){d=a.target;while(!f.test(d.nodeName))d=d.parentNode;"href"in d&&(chref=d.href).replace(e.href,"").indexOf("#")&&(!/^[a-z\+\.\-]+:/i.test(chref)||chref.indexOf(e.protocol+"//"+e.host)===0)&&(a.preventDefault(),e.href=d.href)},!1)}})(document,window.navigator,"standalone");
 </script>
@@ -90,7 +90,7 @@
 <script type="text/javascript" src="view/theme/frio/js/hovercard.js"></script>
 <script type="text/javascript" src="view/theme/frio/js/textedit.js"></script>
 
-<script language="javascript" type="text/javascript">
+<script type="text/javascript">
 	window.showMore = "{{$showmore}}";
 	window.showFewer = "{{$showfewer}}";
 </script>
