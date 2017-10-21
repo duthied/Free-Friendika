@@ -202,12 +202,15 @@ function photo_init(App $a) {
 	if ($public and ($file != "")) {
 		// If the photo path isn't there, try to create it
 		$basepath = $a->get_basepath();
-		if (!is_dir($basepath."/photo"))
-			if (is_writable($basepath))
+		if (!is_dir($basepath."/photo")) {
+			if (is_writable($basepath)) {
 				mkdir($basepath."/photo");
+			}
+		}
 
-		if (is_dir($basepath."/photo"))
+		if (is_dir($basepath."/photo")) {
 			file_put_contents($basepath."/photo/".$file, $data);
+		}
 	}
 
 	killme();
