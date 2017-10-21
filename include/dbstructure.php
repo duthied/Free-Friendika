@@ -412,17 +412,18 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 
 			if ($verbose) {
 				// Ensure index conversion to unique removes duplicates
-				if ($is_unique) {
+				if ($is_unique && ($temp_name != $name)) {
 					if ($ignore != "") {
 						echo "SET session old_alter_table=1;\n";
 					} else {
+						echo "DROP TABLE IF EXISTS `".$temp_name."`;\n";
 						echo "CREATE TABLE `".$temp_name."` LIKE `".$name."`;\n";
 					}
 				}
 
 				echo $sql3."\n";
 
-				if ($is_unique) {
+				if ($is_unique && ($temp_name != $name)) {
 					if ($ignore != "") {
 						echo "SET session old_alter_table=0;\n";
 					} else {
@@ -437,10 +438,16 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 				Config::set('system', 'maintenance_reason', sprintf(t('%s: updating %s table.'), dbm::date().' '.date('e'), $name));
 
 				// Ensure index conversion to unique removes duplicates
-				if ($is_unique) {
+				if ($is_unique && ($temp_name != $name)) {
 					if ($ignore != "") {
 						dba::e("SET session old_alter_table=1;");
 					} else {
+						dba::e("DROP TABLE IF EXISTS `".$temp_name."`;");
+						if (!dbm::is_result($r)) {
+							$errors .= print_update_error($sql3);
+							return $errors;
+						}
+
 						$r = dba::e("CREATE TABLE `".$temp_name."` LIKE `".$name."`;");
 						if (!dbm::is_result($r)) {
 							$errors .= print_update_error($sql3);
@@ -453,7 +460,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 				if (!dbm::is_result($r)) {
 					$errors .= print_update_error($sql3);
 				}
-				if ($is_unique) {
+				if ($is_unique && ($temp_name != $name)) {
 					if ($ignore != "") {
 						dba::e("SET session old_alter_table=0;");
 					} else {
