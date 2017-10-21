@@ -500,10 +500,10 @@ a.sidebar-group-element {
   margin-bottom: 3px;
 }
 
-.posted-date-selector-months {
-  margin-left: 10px;
+#datebrowse-sidebar .datebrowse-ul .posted-date-selector-months {
+    padding: 0;
+    margin-left: 10px;
 }
-
 #sidebar-ungrouped, .side-link {
   padding-top: 5px;
 }
