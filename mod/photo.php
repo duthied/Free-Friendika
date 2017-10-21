@@ -163,8 +163,8 @@ function photo_init(App $a) {
 		}
 	}
 
-	// Resize only if its not a GIF
-	if ($mimetype != "image/gif") {
+	// Resize only if its not a GIF and it is supported by the library
+	if (($mimetype != "image/gif") && in_array($mimetype, Photo::supportedTypes())) {
 		$ph = new Photo($data, $mimetype);
 		if ($ph->is_valid()) {
 			if (isset($customres) && $customres > 0 && $customres < 500) {
