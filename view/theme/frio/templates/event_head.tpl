@@ -6,7 +6,7 @@
 <script type="text/javascript" src="{{$baseurl}}/library/fullcalendar/fullcalendar.min.js"></script>
 <script type="text/javascript" src="view/theme/frio/js/mod_events.js"></script>
 
-<script language="javascript" type="text/javascript">
+<script type="text/javascript">
 	// pass php translation strings to js variables/arrays so we can make use of it in js files
 	aStr.monthNames = [
 		'{{$i18n.January|escape:'quotes'}}',
@@ -71,8 +71,7 @@
 	var moduleUrl = '{{$module_url}}';
 	var modparams = {{$modparams}}
 
-</script>
-<script language="javascript" type="text/javascript">
+
 	$(document).ready(function() {
 		$("#comment-edit-text-desc").bbco_autocomplete('bbcode');
 	});

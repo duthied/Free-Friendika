@@ -10,12 +10,13 @@
 					{{if $group.cid}}
 						<div class="checkbox pull-right group-checkbox ">
 							<input type="checkbox"
+								id="sidebar-group-checkbox-{{$group.id}}"
 								class="{{if $group.selected}}ticked{{else}}unticked {{/if}} action"
 								onclick="contactgroupChangeMember('{{$group.id}}','{{$group.cid}}');return true;"
 								{{if $group.ismember}}checked="checked"{{/if}}
 								aria-checked="{{if $group.ismember}}true{{else}}false{{/if}}"
 							/>
-							<label for="group-{{$group.id}}"></label>
+							<label for="sidebar-group-checkbox-{{$group.id}}"></label>
 							<div class="clearfix"></div>
 						</div>
 					{{/if}}

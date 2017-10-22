@@ -33,7 +33,7 @@ function frio_init(App $a) {
 	// variable so the js scripts can use this information
 	if($a->is_mobile || $a->is_tablet) {
 		$a->page["htmlhead"] .= <<< EOT
-			<script>
+			<script type="text/javascript">
 				var is_mobile = 1;
 			</script>
 EOT;

@@ -26,4 +26,4 @@
 	{{$paginate}}
 </div>
 
-<script>$(document).ready(function() { loadingPage = false; justifyPhotos('photo-album-contents-{{$album_id}}'); });</script>
+<script type="text/javascript">$(document).ready(function() { loadingPage = false; justifyPhotos('photo-album-contents-{{$album_id}}'); });</script>

@@ -2,8 +2,8 @@
 <div id="follow-sidebar" class="widget">
 	<h3>{{$connect}}</h3>
 
-	<div id="connect-desc">{{$desc}}</div> {{* The description *}}
-	<form action="follow" method="get" >
+	<form action="follow" method="get">
+		<label for="side-follow-url" id="connect-desc">{{$desc}}</label>
 		{{* The input field - For visual consistence we are using a search input field*}}
 		<div class="form-group form-group-search">
 			<input id="side-follow-url" class="search-input form-control form-search" type="text" name="url" value="{{$value|escape:'html'}}" placeholder="{{$hint|escape:'html'}}" data-toggle="tooltip" title="{{$hint|escape:'html'}}" />

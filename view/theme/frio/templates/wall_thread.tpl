@@ -245,7 +245,7 @@ as the value of $top_child_total (this is done at the end of this file)
 		{{if $item.thread_level==1}}<hr />{{/if}}
 
 		{{* item content *}}
-		<div itemprop="description" class="wall-item-content {{$item.type}}" id="wall-item-content-{{$item.id}}">
+		<div class="wall-item-content {{$item.type}}" id="wall-item-content-{{$item.id}}">
 			{{* insert some space if it's an top-level post *}}
 			{{if $item.thread_level==1}}
 			<div style="height:10px;">&nbsp;</div> <!-- use padding/margin instead-->
@@ -323,7 +323,7 @@ as the value of $top_child_total (this is done at the end of this file)
 						{{if $item.vote.like OR $item.vote.dislike OR $item.comment}}
 					<span role="presentation" class="separator">•</span>
 						{{/if}}
-					<button type="button" class="btn-link button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-retweet" aria-hidden="true"></i>&nbsp;{{$item.vote.share.1}}</a>
+					<button type="button" class="btn-link button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-retweet" aria-hidden="true"></i>&nbsp;{{$item.vote.share.1}}</button>
 					{{/if}}
 				{{/if}}
 				<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />

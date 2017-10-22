@@ -36,7 +36,7 @@
 		{{* We put the contact batch actions in a dropdown menu *}}
 		<ul class="nav nav-pills preferences">
 			<li class="dropdown pull-right">
-				<button type="button" class="btn btn-link btn-sm dropdown-toggle" id="BatchActionDropdownMenuTools" data-toggle="dropdown" aria-expanded="true">
+				<button type="button" class="btn btn-link btn-sm dropdown-toggle" id="BatchActionDropdownMenuTools" data-toggle="dropdown" aria-expanded="false">
 					<i class="fa fa-angle-down"></i>&nbsp;{{$h_batch_actions}}
 				</button>
 				<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="BatchActionDropdownMenuTools">
@@ -64,7 +64,7 @@
 	{{$paginate}}
 </div>
 
-<script>
+<script type="text/javascript">
  $(document).ready(function() {
   // javascript dialog to batch actions
   $(".batch-action").click(function(e){

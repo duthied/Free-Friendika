@@ -1,5 +1,6 @@
-<script language="javascript" type="text/javascript"
-	  src="{{$baseurl}}/view/theme/frio/js/event_edit.js"></script>
+
+<script type="text/javascript" src="{{$baseurl}}/view/theme/frio/js/event_edit.js"></script>
+
 <div id="event-form-wrapper">
 	<h3 class="heading">{{$title}}</h3>
 
@@ -180,7 +181,7 @@
 	</div>
 </div>
 
-<script language="javascript" type="text/javascript">
+<script type="text/javascript">
 	$(document).ready( function() {
 		// disable finish date input if it isn't available
 		enableDisableFinishDate();

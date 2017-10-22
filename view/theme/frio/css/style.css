@@ -1185,6 +1185,10 @@ aside #follow-sidebar input {
     height: 30px;
     background-position: 10px 5px;
 }
+aside #peoplefind-sidebar label,
+aside #follow-sidebar label {
+    font-weight: normal;
+}
 aside #peoplefind-sidebar .form-group-search .form-button-search,
 aside #follow-sidebar .form-group-search .form-button-search {
     padding: 2px 8px;
@@ -1270,7 +1274,7 @@ section #jotOpen {
 #jot-text-wrap textarea {
     min-height: 100px;
 }
-#profile-jot-wrapper button#jot-submit {
+#profile-jot-wrapper button#profile-jot-submit {
     margin-top: 5px;
 }
 #profile-jot-wrapper #character-counter {

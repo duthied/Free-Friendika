@@ -1,6 +1,6 @@
 <div id="sidebar-photos-albums" class="widget">
 	<h3>{{$title}}</h3>
-	<ul role=menu" class="sidebar-photos-albums-ul">
+	<ul role="menubar" class="sidebar-photos-albums-ul">
 		<li role="menuitem" class="sidebar-photos-albums-li">
 			<a href="{{$baseurl}}/photos/{{$nick}}" class="sidebar-photos-albums-element" title="{{$title}}" >{{$recent}}</a>
 		</li>

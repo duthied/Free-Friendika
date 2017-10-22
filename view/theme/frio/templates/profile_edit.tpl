@@ -6,25 +6,25 @@
 	<div id="profile-edit-links">
 		<ul class="nav nav-pills preferences">
 			<li class="dropdown pull-right">
-				<button type="button" class="btn btn-link btn-sm dropdown-toggle" id="profile-edit-links-dropdown" data-toggle="dropdown" aria-expanded="true">
+				<button type="button" class="btn btn-link btn-sm dropdown-toggle" id="profile-edit-links-dropdown" data-toggle="dropdown" aria-expanded="false">
 					<i class="fa fa-angle-down"  aria-hidden="true"></i>&nbsp;{{$profile_action}}
 				</button>
 				<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="profile-edit-links-dropdown">
-					<li role="menuitem"><a href="profile_photo" id="profile-photo_upload-link" title="{{$profpic|escape:'html'}}"><i class="fa fa-user"  aria-hidden="true"></i>&nbsp;{{$profpic}}</a></li>
-					<li role="menuitem"><button type="button" class="btn-link" id="profile-photo_upload-link" title="{{$profpic|escape:'html'}}" onclick="openClose('profile-photo-upload-section');"><i class="fa fa-user" aria-hidden="true"></i>&nbsp;{{$profpic}}</button></li>
+					<li role="presentation"><a role="menuitem" href="profile_photo" id="profile-photo_upload-link" title="{{$profpic|escape:'html'}}"><i class="fa fa-user" aria-hidden="true"></i>&nbsp;{{$profpic}}</a></li>
+					<li role="presentation"><button role="menuitem" type="button" class="btn-link" id="profile-photo_upload-link-new" title="{{$profpic|escape:'html'}}" onclick="openClose('profile-photo-upload-section');"><i class="fa fa-user" aria-hidden="true"></i>&nbsp;{{$profpic}}</button></li>
 					{{if ! $is_default}}
-					<li class="nav-item"><a href="profperm/{{$profile_id}}" id="profile-edit-visibility-link" title="{{$editvis}}"><i class="fa fa-pencil"  aria-hidden="true"></i>&nbsp;{{$editvis}}</a>
+					<li role="presentation" class="nav-item"><a role="menuitem" href="profperm/{{$profile_id}}" id="profile-edit-visibility-link" title="{{$editvis}}"><i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;{{$editvis}}</a>
 					</li>
 					{{/if}}
-					<li role="separator" class="divider"></li>
-					<li role="menuitem"><a href="profile/{{$profile_id}}/view?tab=profile" id="profile-edit-view-link" title="{{$viewprof|escape:'html'}}">{{$viewprof}}</a></li>
+					<li role="presentation" class="divider"></li>
+					<li role="presentation"><a role="menuitem" href="profile/{{$profile_id}}/view?tab=profile" id="profile-edit-view-link" title="{{$viewprof|escape:'html'}}">{{$viewprof}}</a></li>
 					{{if $profile_clone_link}}
-					<li role="separator"class="divider"></li>
-					<li role="menuitem"><a href="{{$profile_clone_link}}" id="profile-edit-clone-link" title="{{$cr_prof|escape:'html'}}">{{$cl_prof}}</a></li>
+					<li role="presentation" class="divider"></li>
+					<li role="presentation"><a role="menuitem" href="{{$profile_clone_link}}" id="profile-edit-clone-link" title="{{$cr_prof|escape:'html'}}">{{$cl_prof}}</a></li>
 					{{/if}}
 					{{if !$is_default}}
-					<li role="separator" class="divider"></li>
-					<li role="menuitem"><a href="{{$profile_drop_link}}" id="profile-edit-drop-link" title="{{$del_prof|escape:'html'}}"><i class="fa fa-trash" aria-hidden="true"></i>&nbsp;{{$del_prof}}</a></li>
+					<li role="presentation" class="divider"></li>
+					<li role="presentation"><a role="menuitem" href="{{$profile_drop_link}}" id="profile-edit-drop-link" title="{{$del_prof|escape:'html'}}"><i class="fa fa-trash" aria-hidden="true"></i>&nbsp;{{$del_prof}}</a></li>
 					{{/if}}
 				</ul>
 			</li>
@@ -113,7 +113,7 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="location">
 					<h4>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#location-collapse" aria-expanded="true" aria-controls="location-collapse">
+						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#location-collapse" aria-expanded="false" aria-controls="location-collapse">
 							{{$lbl_location_section}}
 						</a>
 					</h4>
@@ -159,7 +159,7 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="relation">
 					<h4>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#relation-collapse" aria-expanded="true" aria-controls="relation-collapse">
+						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#relation-collapse" aria-expanded="false" aria-controls="relation-collapse">
 							{{$lbl_relation_section}}
 						</a>
 					</h4>
@@ -194,7 +194,7 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="miscellaneous">
 					<h4>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#miscellaneous-collapse" aria-expanded="true" aria-controls="miscellaneous-collapse">
+						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#miscellaneous-collapse" aria-expanded="false" aria-controls="miscellaneous-collapse">
 							{{$lbl_miscellaneous_section}}
 						</a>
 					</h4>
@@ -332,7 +332,7 @@
 	</form>
 </div>
 
-<script language="javascript" type="text/javascript">
+<script type="text/javascript">
 	Fill_Country('{{$country_name.2}}');
 	Fill_States('{{$region.2}}');
 

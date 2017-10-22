@@ -1,4 +1,4 @@
-<script>
+<script type="text/javascript">
 	// update pending count //
 	$(function(){
 		$("nav").bind('nav-update', function(e,data){

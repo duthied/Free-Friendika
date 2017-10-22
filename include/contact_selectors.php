@@ -7,7 +7,7 @@ function contact_profile_assign($current,$foreign_net) {
 
 	$disabled = (($foreign_net) ? ' disabled="true" ' : '');
 
-	$o .= "<select id=\"contact-profile-selector\" class=\"form-control\" $disabled name=\"profile-assign\" />\r\n";
+	$o .= "<select id=\"contact-profile-selector\" class=\"form-control\" $disabled name=\"profile-assign\" >\r\n";
 
 	$r = q("SELECT `id`, `profile-name`, `is-default` FROM `profile` WHERE `uid` = %d",
 			intval($_SESSION['uid']));

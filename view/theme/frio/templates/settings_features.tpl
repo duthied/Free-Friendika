@@ -11,7 +11,7 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="{{$g}}-settings-title">
 					<h4>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#{{$g}}-settings-content" aria-expanded="true" aria-controls="{{$g}}-settings-collapse">
+						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#{{$g}}-settings-content" aria-expanded="true" aria-controls="{{$g}}-settings-content">
 							{{$f.0}}
 						</a>
 					</h4>

@@ -6,7 +6,7 @@
 		<li>
 			<ul class="tabs  flex-nav" role="menu" >
 			{{foreach $tabs as $tab}}
-				<li id="{{$tab.id}}" role="menuitem" {{if $tab.sel}} class="{{$tab.sel}}" {{/if}}><a href="{{$tab.url}}" {{if $tab.title}} title="{{$tab.title}}"{{/if}}>{{$tab.label}}</a></li>
+				<li id="{{$tab.id}}" role="presentation" {{if $tab.sel}} class="{{$tab.sel}}" {{/if}}><a role="menuitem" href="{{$tab.url}}" {{if $tab.title}} title="{{$tab.title}}"{{/if}}>{{$tab.label}}</a></li>
 			{{/foreach}}
 			</ul>
 		</li>
@@ -15,9 +15,9 @@
 			doesn't fit in the available space. This is done through flexMenu.js *}}
 		<li class="pull-right">
 			<ul class="tabs tabs-extended" role="menu">
-				<li role="menuitem" class="dropdown flex-target">
-					<button type="button" class="btn-link dropdown-toggle" id="dropdownMenuTools" data-toggle="dropdown" aria-expanded="true">
-						<i class="fa fa-chevron-down"></i>
+				<li role="presentation" class="dropdown flex-target">
+					<button type="button" class="btn-link dropdown-toggle" id="dropdownMenuTools" data-toggle="dropdown" aria-expanded="false">
+						<i class="fa fa-chevron-down" aria-hidden="true"></i>
 					</button>
 				</li>
 			 </ul>
@@ -31,7 +31,7 @@
 			<ul class="tabs" role="menu">
 				{{foreach $tabs as $tab}}
 					{{if $tab.sel}}
-					<li id="{{$tab.id}}-xs" role="menuitem" {{if $tab.sel}} class="{{$tab.sel}}" {{/if}}><a href="{{$tab.url}}" {{if $tab.title}} title="{{$tab.title}}"{{/if}}>{{$tab.label}}</a></li>
+					<li id="{{$tab.id}}-xs" role="presentation" {{if $tab.sel}} class="{{$tab.sel}}" {{/if}}><a role="menuitem" href="{{$tab.url}}" {{if $tab.title}} title="{{$tab.title}}"{{/if}}>{{$tab.label}}</a></li>
 					{{else}}
 					{{$exttabs[]=$tab}}
 					{{/if}}
@@ -45,12 +45,12 @@
 		<li class="pull-right">
 			<ul class="tabs tabs-extended">
 				<li class="dropdown">
-					<button type="button" class="btn-link dropdown-toggle" id="dropdownMenuTools-xs" data-toggle="dropdown" aria-expanded="true">
-						<i class="fa fa-chevron-down"></i>
+					<button type="button" class="btn-link dropdown-toggle" id="dropdownMenuTools-xs" data-toggle="dropdown" aria-expanded="false">
+						<i class="fa fa-chevron-down" aria-hidden="true"></i>
 					</button>
 					<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dropdownMenuTools">
 						{{foreach $exttabs as $tab}}
-						<li id="{{$tab.id}}-xs" role="menuitem" {{if $tab.sel}} class="{{$tab.sel}}" {{/if}}><a href="{{$tab.url}}" {{if $tab.title}} title="{{$tab.title}}"{{/if}}>{{$tab.label}}</a></li>
+						<li id="{{$tab.id}}-xs" role="presentation" {{if $tab.sel}} class="{{$tab.sel}}" {{/if}}><a role="menuitem" href="{{$tab.url}}" {{if $tab.title}} title="{{$tab.title}}"{{/if}}>{{$tab.label}}</a></li>
 						{{/foreach}}
 					</ul>
 				</li>

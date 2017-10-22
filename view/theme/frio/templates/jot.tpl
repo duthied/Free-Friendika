@@ -16,20 +16,20 @@
 				{{* Mark the first list entry as active because it is the first which is active after opening
 					the modal. Changing of the activity status is done by js in jot.tpl-header *}}
 				<li class="active" role="presentation">
-					<a href="#profile-jot-wrapper" class="jot-text-lnk jot-nav-lnk" id="jot-text-lnk" role="tab" aria-controls="profile-jot-wrapper" aria-selected="true">{{$message}}</a>
+					<a href="#profile-jot-wrapper" class="jot-text-lnk jot-nav-lnk" id="jot-text-lnk" role="tab" aria-controls="profile-jot-wrapper">{{$message}}</a>
 				</li>
 				{{if $acl}}
 				<li role="presentation">
-					<a href="#profile-jot-acl-wrapper" class="jot-perms-lnk jot-nav-lnk" id="jot-perms-lnk" role="tab" aria-controls="profile-jot-acl-wrapper" aria-selected="false">{{$shortpermset}}</a>
+					<a href="#profile-jot-acl-wrapper" class="jot-perms-lnk jot-nav-lnk" id="jot-perms-lnk" role="tab" aria-controls="profile-jot-acl-wrapper">{{$shortpermset}}</a>
 				</li>
 				{{/if}}
 				{{if $preview}}
 				<li role="presentation">
-					<a href="#jot-preview-content" class="jot-preview-lnk jot-nav-lnk" id="jot-preview-lnk" role="tab" aria-controls="jot-preview-content" aria-selected="false">{{$preview}}</a>
+					<a href="#jot-preview-content" class="jot-preview-lnk jot-nav-lnk" id="jot-preview-lnk" role="tab" aria-controls="jot-preview-content">{{$preview}}</a>
 				</li>
 				{{/if}}
 				<li role="presentation">
-					<a href="#jot-fbrowser-wrapper" class="jot-browser-lnk jot-nav-lnk" id="jot-browser-link" role="tab" aria-controls="jot-fbrowser-wrapper" aria-selected="false">{{$browser}}</a>
+					<a href="#jot-fbrowser-wrapper" class="jot-browser-lnk jot-nav-lnk" id="jot-browser-link" role="tab" aria-controls="jot-fbrowser-wrapper">{{$browser}}</a>
 				</li>
 			</ul>
 
@@ -40,20 +40,20 @@
 					{{* mark the first list entry as active because it is the first which is active after opening
 					the modal. Changing of the activity status is done by js in jot.tpl-header *}}
 					<li role="presentation" style="display: none;">
-						<button class="jot-text-lnk btn-link jot-nav-lnk jot-nav-lnk-mobile" id="jot-text-lnk-mobile" aria-controls="profile-jot-wrapper" role="menuitem" aria-selected="true">{{$message}}</button>
+						<button class="jot-text-lnk btn-link jot-nav-lnk jot-nav-lnk-mobile" id="jot-text-lnk-mobile" aria-controls="profile-jot-wrapper" role="menuitem">{{$message}}</button>
 					</li>
 					{{if $acl}}
 					<li role="presentation">
-						<button class="jot-perms-lnk btn-link jot-nav-lnk jot-nav-lnk-mobile" id="jot-perms-lnk-mobile" aria-controls="profile-jot-acl-wrapper" role="menuitem" aria-selected="false">{{$shortpermset}}</button>
+						<button class="jot-perms-lnk btn-link jot-nav-lnk jot-nav-lnk-mobile" id="jot-perms-lnk-mobile" aria-controls="profile-jot-acl-wrapper" role="menuitem">{{$shortpermset}}</button>
 					</li>
 					{{/if}}
 					{{if $preview}}
 					<li role="presentation">
-						<button class="jot-preview-lnk btn-link jot-nav-lnk jot-nav-lnk-mobile" id="jot-preview-lnk-mobile" aria-controls="jot-preview-content" role="menuitem" aria-selected="false">{{$preview}}</button>
+						<button class="jot-preview-lnk btn-link jot-nav-lnk jot-nav-lnk-mobile" id="jot-preview-lnk-mobile" aria-controls="jot-preview-content" role="menuitem">{{$preview}}</button>
 					</li>
 					{{/if}}
 					<li role="presentation">
-						<button class="jot-browser-lnk-mobile btn-link jot-nav-lnk jot-nav-lnk-mobile" id="jot-browser-lnk-mobile" aria-controls="jot-fbrowser-wrapper" role="menuitem" aria-selected="false">{{$browser}}</button>
+						<button class="jot-browser-lnk-mobile btn-link jot-nav-lnk jot-nav-lnk-mobile" id="jot-browser-lnk-mobile" aria-controls="jot-fbrowser-wrapper" role="menuitem">{{$browser}}</button>
 					</li>
 				</ul>
 			</div>
@@ -88,26 +88,26 @@
 
 					{{* The jot text field in which the post text is inserted *}}
 					<div id="jot-text-wrap">
-					<textarea rows="2" cols="64" class="profile-jot-text form-control text-autosize" id="profile-jot-text" name="body" placeholder="{{$share}}" onFocus="jotTextOpenUI(this);" onBlur="jotTextCloseUI(this);" style="min-width:100%; max-width:100%;">{{if $content}}{{$content}}{{/if}}</textarea>
+						<textarea rows="2" cols="64" class="profile-jot-text form-control text-autosize" id="profile-jot-text" name="body" placeholder="{{$share}}" onFocus="jotTextOpenUI(this);" onBlur="jotTextCloseUI(this);" style="min-width:100%; max-width:100%;">{{if $content}}{{$content}}{{/if}}</textarea>
 					</div>
 
 					<ul id="profile-jot-submit-wrapper" class="jothidden nav nav-pills">
-						<li><button type="button" class="btn-link" id="profile-link"  ondragenter="return linkdropper(event);" ondragover="return linkdropper(event);" ondrop="linkdrop(event);" onclick="jotGetLink();" title="{{$weblink}}"><i class="fa fa-link"></i></button></li>
-						<li><button type="button" class="btn-link" id="profile-video" onclick="jotVideoURL();" title="{{$video}}"><i class="fa fa-film"></i></button></li>
-						<li><button type="button" class="btn-link" id="profile-audio" onclick="jotAudioURL();" title="{{$audio}}"><i class="fa fa-music"></i></button></li>
-						<li><button type="button" class="btn-link" id="profile-location" onclick="jotGetLocation();" title="{{$setloc}}"><i class="fa fa-map-marker"></i></button></li>
+						<li role="presentation"><button type="button" class="btn-link" id="profile-link"  ondragenter="return linkdropper(event);" ondragover="return linkdropper(event);" ondrop="linkdrop(event);" onclick="jotGetLink();" title="{{$weblink}}"><i class="fa fa-link"></i></button></li>
+						<li role="presentation"><button type="button" class="btn-link" id="profile-video" onclick="jotVideoURL();" title="{{$video}}"><i class="fa fa-film" aria-hidden="true"></i></button></li>
+						<li role="presentation"><button type="button" class="btn-link" id="profile-audio" onclick="jotAudioURL();" title="{{$audio}}"><i class="fa fa-music" aria-hidden="true"></i></button></li>
+						<li role="presentation"><button type="button" class="btn-link" id="profile-location" onclick="jotGetLocation();" title="{{$setloc}}"><i class="fa fa-map-marker" aria-hidden="true"></i></button></li>
 						<!-- TODO: waiting for a better placement
 						<li><button type="button" class="btn-link" id="profile-nolocation" onclick="jotClearLocation();" title="{{$noloc}}">{{$shortnoloc}}</button></li>
 						-->
 
-						<li class="pull-right"><button class="btn btn-primary" id="jot-submit" type="submit" id="profile-jot-submit" name="submit" ><i class="fa fa-slideshare fa-fw"></i> {{$share}}</button></li>
-						<li id="character-counter" class="grey jothidden text-info pull-right"></li>
-						<div id="profile-rotator-wrapper" style="display: {{$visitor}};" >
-							<img id="profile-rotator" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait}}" style="display: none;" />
-						</div>
-						<div id="profile-jot-plugin-wrapper">
+						<li role="presentation" class="pull-right"><button class="btn btn-primary" type="submit" id="profile-jot-submit" name="submit" ><i class="fa fa-slideshare fa-fw" aria-hidden="true"></i> {{$share}}</button></li>
+						<li role="presentation" id="character-counter" class="grey jothidden text-info pull-right"></li>
+						<li role="presentation" id="profile-rotator-wrapper" class="pull-right" style="display: {{$visitor}};" >
+							<img role="presentation" id="profile-rotator" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait}}" style="display: none;" />
+						</li>
+						<li role="presentation" id="profile-jot-plugin-wrapper">
 							{{$jotplugins}}
-						</div>
+						</li>
 					</ul>
 
 				</div>
@@ -121,7 +121,7 @@
 
 			<div id="jot-fbrowser-wrapper" class="minimize" aria-labelledby="jot-browser-link" role="tabpanel" aria-hidden="true"></div>
 
-			{{if $content}}<script>initEditor();</script>{{/if}}
+			{{if $content}}<script type="text/javascript">initEditor();</script>{{/if}}
 		</div>
 	</div>
 </div>
@@ -141,7 +141,7 @@ can load different content into the jot moadl (e.g. the item edit jot)
 </div>
 
 
-<script language="javascript" type="text/javascript">
+<script type="text/javascript">
 	$('iframe').load(function() {
 		this.style.height = this.contentWindow.document.body.offsetHeight + 'px';
 	});
