@@ -803,7 +803,7 @@ function posts_from_contact_url(App $a, $contact_url) {
 
 	$author_id = intval($r[0]["author-id"]);
 
-	$contact = ($r[0]["contact-type"] = ACCOUNT_TYPE_COMMUNITY ? 'owner-id' : 'author-id');
+	$contact = ($r[0]["contact-type"] == ACCOUNT_TYPE_COMMUNITY ? 'owner-id' : 'author-id');
 
 	$r = q(item_query()." AND `item`.`".$contact."` = %d AND ".$sql.
 		" ORDER BY `item`.`created` DESC LIMIT %d, %d",
