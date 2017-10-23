@@ -26,7 +26,7 @@ class Photo {
 	/**
 	 * @brief supported mimetypes and corresponding file extensions
 	 */
-	static function supportedTypes() {
+	public static function supportedTypes() {
 		if (class_exists('Imagick')) {
 
 			// Imagick::queryFormats won't help us a lot there...
@@ -49,7 +49,7 @@ class Photo {
 
 	public function __construct($data, $type=null) {
 		$this->imagick = class_exists('Imagick');
-		$this->types = $this->supportedTypes();
+		$this->types = static::supportedTypes();
 		if (!array_key_exists($type, $this->types)){
 			$type='image/jpeg';
 		}
