@@ -60,6 +60,13 @@
 			theme: 'theme-frio',
 		});
 
+		// The position of the slider is wrong calculated on hidden elements.
+		// So set an event listener toggle and update the jRange value.
+		$(document).on('click', '#custom-settings-title a', function() {
+			var bgTransp = $('#frio_contentbg_transp').val();
+			$('.slider-input').jRange('setValue', bgTransp);
+		});
+
 	});
 </script>
 
