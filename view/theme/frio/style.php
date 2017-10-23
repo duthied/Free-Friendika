@@ -60,6 +60,9 @@ if (! $a->install) {
 if ($_REQUEST['schema']) {
 	$schema = $_REQUEST['schema'];
 }
+
+$schema = basename($schema);
+
 if (($schema) && ($schema != '---')) {
 	if (file_exists('view/theme/frio/schema/' . $schema . '.php')) {
 		$schemefile = 'view/theme/frio/schema/' . $schema . '.php';
