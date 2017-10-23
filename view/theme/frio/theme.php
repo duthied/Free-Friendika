@@ -37,7 +37,7 @@ function frio_init(App $a) {
 				var is_mobile = 1;
 			</script>
 EOT;
-			}
+}
 
 	if ($style == "")
 		$style = get_config('frio', 'style');
