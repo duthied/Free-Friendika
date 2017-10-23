@@ -26,7 +26,7 @@ class Photo {
 	/**
 	 * @brief supported mimetypes and corresponding file extensions
 	 */
-	static public function supportedTypes() {
+	public static function supportedTypes() {
 		if (class_exists('Imagick')) {
 
 			// Imagick::queryFormats won't help us a lot there...
