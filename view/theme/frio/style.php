@@ -1,6 +1,7 @@
 <?php
 require_once 'view/theme/frio/php/PHPColors/Color.php';
 
+use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 
 $schemecss = "";
@@ -28,6 +29,25 @@ if (! $a->install) {
 		// In this case we store the present time.
 		if (empty($modified)) {
 			PConfig::set($uid, 'frio', 'css_modified', time());
+		}
+	} else {
+		Config::load('frio');
+
+		// Load frios system config.
+		$schema           = Config::get("frio", "schema");
+		$nav_bg           = Config::get("frio", "nav_bg");
+		$nav_icon_color   = Config::get("frio", "nav_icon_color");
+		$link_color       = Config::get("frio", "link_color");
+		$bgcolor          = Config::get("frio", "background_color");
+		$contentbg_transp = Config::get("frio", "contentbg_transp");
+		$background_image = Config::get("frio", "background_image");
+		$bg_image_option  = Config::get("frio", "bg_image_option");
+		$modified         = Config::get("frio", "css_modified");
+
+		// There is maybe the case that the user did never modify the theme settings.
+		// In this case we store the present time.
+		if (empty($modified)) {
+			Config::set('frio', 'css_modified', time());
 		}
 	}
 }

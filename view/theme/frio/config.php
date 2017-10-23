@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 
@@ -24,24 +25,59 @@ function theme_post(App $a) {
 	}
 }
 
+function theme_admin_post(App $a) {
+	if (!local_user()) {
+		return;
+	}
+
+	if (isset($_POST['frio-settings-submit'])) {
+		Config::set('frio', 'schema',           $_POST["frio_schema"]);
+		Config::set('frio', 'nav_bg',           $_POST["frio_nav_bg"]);
+		Config::set('frio', 'nav_icon_color',   $_POST["frio_nav_icon_color"]);
+		Config::set('frio', 'link_color',       $_POST["frio_link_color"]);
+		Config::set('frio', 'background_color', $_POST["frio_background_color"]);
+		Config::set('frio', 'contentbg_transp', $_POST["frio_contentbg_transp"]);
+		Config::set('frio', 'background_image', $_POST["frio_background_image"]);
+		Config::set('frio', 'bg_image_option',  $_POST["frio_bg_image_option"]);
+		Config::set('frio', 'css_modified',     time());
+	}
+}
+
 function theme_content(App $a) {
 	if (!local_user()) {
 		return;
 	}
 	$arr = array();
 
-	$arr["schema"]           = PConfig::get(local_user(),'frio', 'schema');
-	$arr["nav_bg"]           = PConfig::get(local_user(),'frio', 'nav_bg');
-	$arr["nav_icon_color"]   = PConfig::get(local_user(),'frio', 'nav_icon_color');
-	$arr["link_color"]       = PConfig::get(local_user(),'frio', 'link_color');
-	$arr["bgcolor"]          = PConfig::get(local_user(),'frio', 'background_color');
-	$arr["contentbg_transp"] = PConfig::get(local_user(),'frio', 'contentbg_transp');
-	$arr["background_image"] = PConfig::get(local_user(),'frio', 'background_image');
-	$arr["bg_image_option"]  = PConfig::get(local_user(),'frio', 'bg_image_option');
+	$arr["schema"]           = PConfig::get(local_user(), 'frio', 'schema');
+	$arr["nav_bg"]           = PConfig::get(local_user(), 'frio', 'nav_bg');
+	$arr["nav_icon_color"]   = PConfig::get(local_user(), 'frio', 'nav_icon_color');
+	$arr["link_color"]       = PConfig::get(local_user(), 'frio', 'link_color');
+	$arr["bgcolor"]          = PConfig::get(local_user(), 'frio', 'background_color');
+	$arr["contentbg_transp"] = PConfig::get(local_user(), 'frio', 'contentbg_transp');
+	$arr["background_image"] = PConfig::get(local_user(), 'frio', 'background_image');
+	$arr["bg_image_option"]  = PConfig::get(local_user(), 'frio', 'bg_image_option');
 
 	return frio_form($arr);
 }
 
+function theme_admin(App $a) {
+	if (!local_user()) {
+		return;
+	}
+	$arr = array();
+
+	$arr["schema"]           = Config::get('frio', 'schema');
+	$arr["nav_bg"]           = Config::get('frio', 'nav_bg');
+	$arr["nav_icon_color"]   = Config::get('frio', 'nav_icon_color');
+	$arr["link_color"]       = Config::get('frio', 'link_color');
+	$arr["bgcolor"]          = Config::get('frio', 'background_color');
+	$arr["contentbg_transp"] = Config::get('frio', 'contentbg_transp');
+	$arr["background_image"] = Config::get('frio', 'background_image');
+	$arr["bg_image_option"]  = Config::get('frio', 'bg_image_option');
+
+	return frio_form($arr);
+}
 
 function frio_form($arr) {
 	require_once("view/theme/frio/php/schema.php");
