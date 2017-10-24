@@ -2880,7 +2880,7 @@ $called_api = null;
 			$sql_extra = " AND false ";
 		}
 
-		$r = q("SELECT `nurl` FROM `contact` WHERE `uid` = %d AND NOT `self` AND (NOT `blocked` OR `pending`) $sql_extra",
+		$r = q("SELECT `nurl` FROM `contact` WHERE `uid` = %d AND NOT `self` AND (NOT `blocked` OR `pending`) $sql_extra ORDER BY `nick`",
 			intval(api_user())
 		);
 
