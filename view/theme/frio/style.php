@@ -61,7 +61,9 @@ if ($_REQUEST['schema']) {
 	$schema = $_REQUEST['schema'];
 }
 
-$schema = basename($schema);
+// Sanitize the data.
+$schema = !empty($schema) ? basename($schema) : "";
+
 
 if (($schema) && ($schema != '---')) {
 	if (file_exists('view/theme/frio/schema/' . $schema . '.php')) {
@@ -96,7 +98,7 @@ $bgcolor          = (empty($bgcolor)          ? "#ededed"      : $bgcolor);
 $background_image = (empty($background_image) ? 'img/none.jpg' : $background_image);
 $modified         = (empty($modified)         ? time()         :$modified);
 
-$contentbg_transp = ((isset($contentbg_transp) && $contentbg_transp != "") ?  $contentbg_transp : 100);
+$contentbg_transp = ((isset($contentbg_transp) && $contentbg_transp != "") ? $contentbg_transp : 100);
 
 // Calculate some colors in dependance of existing colors.
 // Some colors are calculated to don't have too many selection
