@@ -31,7 +31,7 @@
 </div>
 
 <script type="text/javascript">
-	$(function(){
+	$(document).ready(function() {
 		$("#frio_nav_bg, #frio_nav_icon_color, #frio_background_color, #frio_link_color").colorpicker({format: 'hex', align: 'left'});
 
 		// show image options when user user starts to type the address of the image
@@ -58,6 +58,13 @@
 			width: '100%',
 			showLabels: true,
 			theme: 'theme-frio',
+		});
+
+		// The position of the slider is wrong calculated on hidden elements.
+		// So set an event listener toggle and update the jRange value.
+		$(document).on('click', '#custom-settings-title a', function() {
+			var bgTransp = $('#frio_contentbg_transp').val();
+			$('.slider-input').jRange('setValue', bgTransp);
 		});
 
 	});

@@ -2817,6 +2817,14 @@ section.help-content-wrapper li {
     font-size: 0.96em;
 }
 
+/*Admin Page*/
+#adminpage #frio_background_image .image-select {
+    display: none;
+}
+#adminpage #frio_background_image.input-group {
+    display: block;
+}
+
 /* Register Page*/
 #register-openid-wrapper, #register-name-wrapper, #register-invite-wrapper, #profile-publish-wrapper {
     margin-top: 20px;
