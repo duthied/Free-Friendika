@@ -905,7 +905,7 @@ function login($register = false, $hiddens = false) {
  */
 function killme() {
 	if (!get_app()->is_backend()) {
-		@session_write_close();
+		session_write_close();
 	}
 
 	exit();
