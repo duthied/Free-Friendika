@@ -43,7 +43,7 @@ define ( 'FRIENDICA_PLATFORM',     'Friendica');
 define ( 'FRIENDICA_CODENAME',     'Asparagus');
 define ( 'FRIENDICA_VERSION',      '3.6-dev' );
 define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1234      );
+define ( 'DB_UPDATE_VERSION',      1235      );
 
 /**
  * @brief Constant with a HTML line break.
@@ -905,7 +905,7 @@ function login($register = false, $hiddens = false) {
  */
 function killme() {
 	if (!get_app()->is_backend()) {
-		session_write_close();
+		@session_write_close();
 	}
 
 	exit();

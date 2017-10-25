@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.6-dev (Asparagus)
--- DB_UPDATE_VERSION 1234
+-- DB_UPDATE_VERSION 1235
 -- ------------------------------------------
 
 
@@ -184,8 +184,8 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	 INDEX `addr_uid` (`addr`(32),`uid`),
 	 INDEX `nurl_uid` (`nurl`(32),`uid`),
 	 INDEX `nick_uid` (`nick`(32),`uid`),
-	 INDEX `dfrn-id` (`dfrn-id`),
-	 INDEX `issued-id` (`issued-id`)
+	 INDEX `dfrn-id` (`dfrn-id`(64)),
+	 INDEX `issued-id` (`issued-id`(64))
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --
@@ -529,11 +529,11 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`rendered-html` mediumtext,
 	`global` tinyint(1) NOT NULL DEFAULT 0,
 	 PRIMARY KEY(`id`),
-	 INDEX `guid` (`guid`),
-	 INDEX `uri` (`uri`),
+	 INDEX `guid` (`guid`(191)),
+	 INDEX `uri` (`uri`(191)),
 	 INDEX `parent` (`parent`),
-	 INDEX `parent-uri` (`parent-uri`),
-	 INDEX `extid` (`extid`),
+	 INDEX `parent-uri` (`parent-uri`(191)),
+	 INDEX `extid` (`extid`(191)),
 	 INDEX `uid_id` (`uid`,`id`),
 	 INDEX `uid_contactid_id` (`uid`,`contact-id`,`id`),
 	 INDEX `uid_created` (`uid`,`created`),
@@ -546,7 +546,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `authorid_created` (`author-id`,`created`),
 	 INDEX `ownerid` (`owner-id`),
 	 INDEX `uid_uri` (`uid`,`uri`(190)),
-	 INDEX `resource-id` (`resource-id`),
+	 INDEX `resource-id` (`resource-id`(191)),
 	 INDEX `contactid_allowcid_allowpid_denycid_denygid` (`contact-id`,`allow_cid`(10),`allow_gid`(10),`deny_cid`(10),`deny_gid`(10)),
 	 INDEX `uid_type_changed` (`uid`,`type`(190),`changed`),
 	 INDEX `contactid_verb` (`contact-id`,`verb`(190)),
@@ -568,7 +568,7 @@ CREATE TABLE IF NOT EXISTS `item_id` (
 	`service` varchar(255) NOT NULL DEFAULT '',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
-	 INDEX `sid` (`sid`),
+	 INDEX `sid` (`sid`(32)),
 	 INDEX `service` (`service`(32)),
 	 INDEX `iid` (`iid`)
 ) DEFAULT COLLATE utf8mb4_general_ci;
@@ -610,7 +610,7 @@ CREATE TABLE IF NOT EXISTS `mail` (
 	 INDEX `convid` (`convid`),
 	 INDEX `uri` (`uri`(64)),
 	 INDEX `parent-uri` (`parent-uri`(64)),
-	 INDEX `contactid` (`contact-id`)
+	 INDEX `contactid` (`contact-id`(32))
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --
@@ -961,7 +961,7 @@ CREATE TABLE IF NOT EXISTS `spam` (
 	 INDEX `uid` (`uid`),
 	 INDEX `spam` (`spam`),
 	 INDEX `ham` (`ham`),
-	 INDEX `term` (`term`)
+	 INDEX `term` (`term`(32))
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --

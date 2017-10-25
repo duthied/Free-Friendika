@@ -130,10 +130,8 @@ function table_structure($table) {
 			}
 
 			$column = $index["Column_name"];
-			// On utf8mb4 a varchar index can only have a length of 191
-			// The "show index" command sometimes returns this value although this value wasn't added manually.
-			// Because we don't want to add this number to every index, we ignore bigger numbers
-			if (($index["Sub_part"] != "") && (($index["Sub_part"] < 191) || ($index["Key_name"] == "PRIMARY"))) {
+
+			if (($index["Sub_part"] != "")) {
 				$column .= "(".$index["Sub_part"].")";
 			}
 
@@ -817,8 +815,8 @@ function db_definition() {
 					"addr_uid" => array("addr(32)", "uid"),
 					"nurl_uid" => array("nurl(32)", "uid"),
 					"nick_uid" => array("nick(32)", "uid"),
-					"dfrn-id" => array("dfrn-id"),
-					"issued-id" => array("issued-id"),
+					"dfrn-id" => array("dfrn-id(64)"),
+					"issued-id" => array("issued-id(64)"),
 					)
 			);
 	$database["conv"] = array(
@@ -1162,11 +1160,11 @@ function db_definition() {
 					),
 			"indexes" => array(
 					"PRIMARY" => array("id"),
-					"guid" => array("guid"),
-					"uri" => array("uri"),
+					"guid" => array("guid(191)"),
+					"uri" => array("uri(191)"),
 					"parent" => array("parent"),
-					"parent-uri" => array("parent-uri"),
-					"extid" => array("extid"),
+					"parent-uri" => array("parent-uri(191)"),
+					"extid" => array("extid(191)"),
 					"uid_id" => array("uid","id"),
 					"uid_contactid_id" => array("uid","contact-id","id"),
 					"uid_created" => array("uid","created"),
@@ -1179,7 +1177,7 @@ function db_definition() {
 					"authorid_created" => array("author-id","created"),
 					"ownerid" => array("owner-id"),
 					"uid_uri" => array("uid", "uri(190)"),
-					"resource-id" => array("resource-id"),
+					"resource-id" => array("resource-id(191)"),
 					"contactid_allowcid_allowpid_denycid_denygid" => array("contact-id","allow_cid(10)","allow_gid(10)","deny_cid(10)","deny_gid(10)"), //
 					"uid_type_changed" => array("uid","type(190)","changed"),
 					"contactid_verb" => array("contact-id","verb(190)"),
@@ -1201,7 +1199,7 @@ function db_definition() {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"uid" => array("uid"),
-					"sid" => array("sid"),
+					"sid" => array("sid(32)"),
 					"service" => array("service(32)"),
 					"iid" => array("iid"),
 					)
@@ -1243,7 +1241,7 @@ function db_definition() {
 					"convid" => array("convid"),
 					"uri" => array("uri(64)"),
 					"parent-uri" => array("parent-uri(64)"),
-					"contactid" => array("contact-id"),
+					"contactid" => array("contact-id(32)"),
 					)
 			);
 	$database["mailacct"] = array(
@@ -1594,7 +1592,7 @@ function db_definition() {
 					"uid" => array("uid"),
 					"spam" => array("spam"),
 					"ham" => array("ham"),
-					"term" => array("term"),
+					"term" => array("term(32)"),
 					)
 			);
 	$database["term"] = array(
