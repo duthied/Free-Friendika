@@ -1093,7 +1093,6 @@ class Probe {
 	 * @return array Diaspora data
 	 */
 	private static function diaspora($webfinger) {
-
 		$hcard_url = "";
 		$data = array();
 		foreach ($webfinger["links"] as $link) {
@@ -1129,6 +1128,8 @@ class Probe {
 			foreach ($webfinger["aliases"] as $alias) {
 				if (normalise_link($alias) != normalise_link($data["url"]) && ! strstr($alias, "@")) {
 					$data["alias"] = $alias;
+				} elseif (substr($alias, 0, 5) == 'acct:') {
+					$data["addr"] = substr($alias, 5);
 				}
 			}
 		}
