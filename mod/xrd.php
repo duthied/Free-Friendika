@@ -24,7 +24,7 @@ function xrd_init(App $a) {
 
 	if(substr($uri,0,4) === 'http') {
 		$acct = false;
-		$name = basename($uri);
+		$name = ltrim(basename($uri), '~');
 	} else {
 		$acct = true;
 		$local = str_replace('acct:', '', $uri);

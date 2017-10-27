@@ -1134,7 +1134,8 @@ class Diaspora {
 			return false;
 
 		// This will work for new Diaspora servers and Friendica servers from 3.5
-		$source_url = $server."/fetch/post/".$guid;
+		$source_url = $server."/fetch/post/".urlencode($guid);
+
 		logger("Fetch post from ".$source_url, LOGGER_DEBUG);
 
 		$envelope = fetch_url($source_url);
@@ -1150,7 +1151,7 @@ class Diaspora {
 
 		// This will work for older Diaspora and Friendica servers
 		if (!$x) {
-			$source_url = $server."/p/".$guid.".xml";
+			$source_url = $server."/p/".urlencode($guid).".xml";
 			logger("Fetch post from ".$source_url, LOGGER_DEBUG);
 
 			$x = fetch_url($source_url);
