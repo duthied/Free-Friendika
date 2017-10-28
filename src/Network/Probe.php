@@ -778,6 +778,10 @@ class Probe {
 			$data["nick"] = $json["nick"];
 		}
 
+		if (!empty($json["guid"])) {
+			$data["guid"] = $json["guid"];
+		}
+
 		if (!empty($json["comm"])) {
 			$data["community"] = $json["comm"];
 		}
@@ -905,7 +909,6 @@ class Probe {
 	 * @return array DFRN data
 	 */
 	private static function dfrn($webfinger) {
-
 		$hcard_url = "";
 		$data = array();
 		foreach ($webfinger["links"] as $link) {
@@ -937,7 +940,9 @@ class Probe {
 
 		if (is_array($webfinger["aliases"])) {
 			foreach ($webfinger["aliases"] as $alias) {
-				if (substr($alias, 0, 5) == 'acct:') {
+				if (normalise_link($alias) != normalise_link($data["url"]) && ! strstr($alias, "@")) {
+					$data["alias"] = $alias;
+				} elseif (substr($alias, 0, 5) == 'acct:') {
 					$data["addr"] = substr($alias, 5);
 				}
 			}
@@ -1134,6 +1139,10 @@ class Probe {
 			}
 		}
 
+		if (!empty($webfinger["subject"]) && (substr($webfinger["subject"], 0, 5) == 'acct:')) {
+			$data["addr"] = substr($webfinger["subject"], 5);
+		}
+
 		// Fetch further information from the hcard
 		$data = self::pollHcard($hcard_url, $data);
 
@@ -1172,17 +1181,20 @@ class Probe {
 	 */
 	private static function ostatus($webfinger, $short = false) {
 		$data = array();
+
 		if (is_array($webfinger["aliases"])) {
 			foreach ($webfinger["aliases"] as $alias) {
-				if (strstr($alias, "@")) {
+				if (strstr($alias, "@") && !strstr(normalise_link($alias), "http://")) {
 					$data["addr"] = str_replace('acct:', '', $alias);
 				}
 			}
 		}
 
-		if (is_string($webfinger["subject"]) && strstr($webfinger["subject"], "@")) {
+		if (is_string($webfinger["subject"]) && strstr($webfinger["subject"], "@") &&
+			!strstr(normalise_link($webfinger["subject"]), "http://")) {
 			$data["addr"] = str_replace('acct:', '', $webfinger["subject"]);
 		}
+
 		$pubkey = "";
 		if (is_array($webfinger["links"])) {
 			foreach ($webfinger["links"] as $link) {

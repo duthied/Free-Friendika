@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0"> 
 	<Subject>{{$accturi}}</Subject>
- 	<Alias>{{$profile_url}}</Alias>
+	<Alias>{{$profile_url}}</Alias>
 	<Alias>{{$alias}}</Alias>
  
     <Link rel="http://purl.org/macgirvin/dfrn/1.0"

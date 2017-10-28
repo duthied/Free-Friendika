@@ -22,16 +22,14 @@ function xrd_init(App $a) {
 		}
 	}
 
-	if(substr($uri,0,4) === 'http') {
-		$acct = false;
+	if (substr($uri, 0, 4) === 'http') {
 		$name = ltrim(basename($uri), '~');
 	} else {
-		$acct = true;
 		$local = str_replace('acct:', '', $uri);
-		if(substr($local,0,2) == '//')
+		if (substr($local, 0, 2) == '//')
 			$local = substr($local, 2);
 
-		$name = substr($local, 0, strpos($local,'@'));
+		$name = substr($local, 0, strpos($local, '@'));
 	}
 
 	$r = dba::select('user', array(), array('nickname' => $name), array('limit' => 1));
@@ -41,20 +39,17 @@ function xrd_init(App $a) {
 
 	$profile_url = System::baseUrl().'/profile/'.$r['nickname'];
 
-	if ($acct) {
-		$alias = $profile_url;
-	} else {
-		$alias = 'acct:'.$r['nickname'].'@'.$a->get_hostname();
+	$alias = str_replace('/profile/', '/~', $profile_url);
 
-		if ($a->get_path()) {
-			$alias .= '/'.$a->get_path();
-		}
+	$addr = 'acct:'.$r['nickname'].'@'.$a->get_hostname();
+	if ($a->get_path()) {
+		$addr .= '/'.$a->get_path();
 	}
 
 	if ($mode == 'xml') {
-		xrd_xml($a, $uri, $alias, $profile_url, $r);
+		xrd_xml($a, $addr, $alias, $profile_url, $r);
 	} else {
-		xrd_json($a, $uri, $alias, $profile_url, $r);
+		xrd_json($a, $addr, $alias, $profile_url, $r);
 	}
 }
 
@@ -65,7 +60,7 @@ function xrd_json($a, $uri, $alias, $profile_url, $r) {
 	header("Content-type: application/json; charset=utf-8");
 
 	$json = array('subject' => $uri,
-			'aliases' => array($alias),
+			'aliases' => array($alias, $profile_url),
 			'links' => array(array('rel' => NAMESPACE_DFRN, 'href' => $profile_url),
 					array('rel' => NAMESPACE_FEED, 'type' => 'application/atom+xml', 'href' => System::baseUrl().'/dfrn_poll/'.$r['nickname']),
 					array('rel' => 'http://webfinger.net/rel/profile-page', 'type' => 'text/html', 'href' => $profile_url),

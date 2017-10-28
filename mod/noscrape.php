@@ -36,6 +36,7 @@ function noscrape_init(App $a) {
 		'fn'       => $a->profile['name'],
 		'addr'     => $a->profile['addr'],
 		'nick'     => $which,
+		'guid'     => $a->profile['guid'],
 		'key'      => $a->profile['pubkey'],
 		'homepage' => System::baseUrl()."/profile/{$which}",
 		'comm'     => (x($a->profile,'page-flags')) && ($a->profile['page-flags'] == PAGE_COMMUNITY),
