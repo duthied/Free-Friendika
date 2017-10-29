@@ -222,10 +222,15 @@ class dba {
 	}
 
 	public static function connected() {
+		$connected = false;
+
 		switch (self::$driver) {
 			case 'pdo':
-				// Not sure if this really is working like expected
-				$connected = (self::$db->getAttribute(PDO::ATTR_CONNECTION_STATUS) != "");
+				$r = dba::p("SELECT 1");
+				if (dbm::is_result($r)) {
+					$row = dba::inArray($r);
+					$connected = ($row[0]['1'] == '1');
+				}
 				break;
 			case 'mysqli':
 				$connected = self::$db->ping();
