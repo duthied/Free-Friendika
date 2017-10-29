@@ -106,13 +106,11 @@ function load_translation_table($lang) {
 
 	$a->strings = array();
 	// load enabled plugins strings
-	$plugins = q("SELECT name FROM addon WHERE installed=1;");
-	if ($plugins!==false) {
-		foreach ($plugins as $p) {
-			$name = $p['name'];
-			if (file_exists("addon/$name/lang/$lang/strings.php")) {
-				include("addon/$name/lang/$lang/strings.php");
-			}
+	$plugins = dba::select('addon', array('name'), array('installed' => true));
+	while ($p = dba::fetch($plugins)) {
+		$name = $p['name'];
+		if (file_exists("addon/$name/lang/$lang/strings.php")) {
+			include("addon/$name/lang/$lang/strings.php");
 		}
 	}
 
