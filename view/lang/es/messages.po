@@ -37,7 +37,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-10-13 07:26+0200\n"
-"PO-Revision-Date: 2017-10-25 18:19+0000\n"
+"PO-Revision-Date: 2017-10-29 11:28+0000\n"
 "Last-Translator: Albert\n"
 "Language-Team: Spanish (http://www.transifex.com/Friendica/friendica/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -6265,7 +6265,7 @@ msgstr "Página de Amistad autómatica"
 msgid ""
 "Account for a popular profile that automatically approves contact requests "
 "as \"Friends\"."
-msgstr ""
+msgstr "Cuenta para un perfil popular que aprueba automáticamente las solicitudes de contacto como «Friends»."
 
 #: mod/settings.php:1148
 msgid "Private Forum [Experimental]"
@@ -6273,7 +6273,7 @@ msgstr "Foro privado [Experimental]"
 
 #: mod/settings.php:1149
 msgid "Requires manual approval of contact requests."
-msgstr ""
+msgstr "Requiere aprobación manual de solicitudes de contacto."
 
 #: mod/settings.php:1160
 msgid "OpenID:"
@@ -6289,7 +6289,7 @@ msgstr "¿Quieres publicar tu perfil predeterminado en el directorio local del s
 
 #: mod/settings.php:1168
 msgid "Your profile may be visible in public."
-msgstr ""
+msgstr "Su perfil puede ser visible en público."
 
 #: mod/settings.php:1174
 msgid "Publish your default profile in the global social directory?"
@@ -6607,7 +6607,7 @@ msgstr "Inspeccionar cola"
 
 #: mod/admin.php:178 mod/admin.php:298
 msgid "Server Blocklist"
-msgstr ""
+msgstr "Lista de bloqueo del servidor"
 
 #: mod/admin.php:179 mod/admin.php:550
 msgid "Federation Statistics"
@@ -6615,7 +6615,7 @@ msgstr "Estadísticas de federación"
 
 #: mod/admin.php:180 mod/admin.php:375
 msgid "Delete Item"
-msgstr ""
+msgstr "Eliminar Artículo"
 
 #: mod/admin.php:194 mod/admin.php:205 mod/admin.php:2119
 msgid "Logs"
@@ -6647,7 +6647,7 @@ msgstr "Registro de usuarios esperando la confirmación"
 
 #: mod/admin.php:289
 msgid "The blocked domain"
-msgstr ""
+msgstr "El dominio bloqueado"
 
 #: mod/admin.php:290 mod/admin.php:308 mod/friendica.php:116
 msgid "Reason for the block"
@@ -6655,15 +6655,15 @@ msgstr "Razón para el bloqueo"
 
 #: mod/admin.php:290 mod/admin.php:303
 msgid "The reason why you blocked this domain."
-msgstr ""
+msgstr "La razón por la que bloqueó este dominio."
 
 #: mod/admin.php:291
 msgid "Delete domain"
-msgstr ""
+msgstr "Eliminar dominio"
 
 #: mod/admin.php:291
 msgid "Check to delete this entry from the blocklist"
-msgstr ""
+msgstr "Marca para eliminar esta entrada de la lista de bloqueo"
 
 #: mod/admin.php:297 mod/admin.php:374 mod/admin.php:549 mod/admin.php:583
 #: mod/admin.php:671 mod/admin.php:1156 mod/admin.php:1600 mod/admin.php:1718
@@ -6678,52 +6678,52 @@ msgid ""
 "network that are not allowed to interact with your node. For all entered "
 "domains you should also give a reason why you have blocked the remote "
 "server."
-msgstr ""
+msgstr "Esta página se puede usar para definir una lista negra de servidores de la red federada a los que no se les permite interactuar con su nodo. Para todos los dominios ingresados, también debe dar una razón por la que ha bloqueado el servidor remoto."
 
 #: mod/admin.php:300
 msgid ""
 "The list of blocked servers will be made publically available on the "
 "/friendica page so that your users and people investigating communication "
 "problems can find the reason easily."
-msgstr ""
+msgstr "La lista de servidores bloqueados estará disponible públicamente en la página /friendica para que los usuarios y las personas que investiguen los problemas de comunicación puedan encontrar fácilmente la razón.."
 
 #: mod/admin.php:301
 msgid "Add new entry to block list"
-msgstr ""
+msgstr "Agregar nueva entrada a la lista de bloqueo"
 
 #: mod/admin.php:302
 msgid "Server Domain"
-msgstr ""
+msgstr "Dominio del servidor"
 
 #: mod/admin.php:302
 msgid ""
 "The domain of the new server to add to the block list. Do not include the "
 "protocol."
-msgstr ""
+msgstr "El dominio del nuevo servidor para añadir a la lista de bloqueo. No incluye el protocolo."
 
 #: mod/admin.php:303
 msgid "Block reason"
-msgstr ""
+msgstr "Lazón del bloqueo"
 
 #: mod/admin.php:304
 msgid "Add Entry"
-msgstr ""
+msgstr "Añadir Entrada"
 
 #: mod/admin.php:305
 msgid "Save changes to the blocklist"
-msgstr ""
+msgstr "Guardar cambios en la lista de bloqueo"
 
 #: mod/admin.php:306
 msgid "Current Entries in the Blocklist"
-msgstr ""
+msgstr "Entradas actuales en la lista de bloqueo"
 
 #: mod/admin.php:309
 msgid "Delete entry from blocklist"
-msgstr ""
+msgstr "Eliminar entrada de la lista de bloqueo"
 
 #: mod/admin.php:312
 msgid "Delete entry from blocklist?"
-msgstr ""
+msgstr "¿Eliminar entrada de la lista de bloqueo?"
 
 #: mod/admin.php:337
 msgid "Server added to blocklist."
