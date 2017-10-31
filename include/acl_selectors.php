@@ -478,9 +478,18 @@ function acl_lookup(App $a, $out_type = 'json') {
 			intval(local_user())
 		);
 		$contact_count = (int)$r[0]['c'];
-	}
-	elseif ($type == 'm') {
-
+	} elseif ($type == 'f') {
+		// autocomplete for editor mentions of forums
+		$r = q("SELECT COUNT(*) AS c FROM `contact`
+				WHERE `uid` = %d AND NOT `self`
+				AND NOT `blocked` AND NOT `pending` AND NOT `archive`
+				AND (`forum` OR `prv`)
+				AND `success_update` >= `failure_update`
+				AND `notify` != '' $sql_extra2" ,
+			intval(local_user())
+		);
+		$contact_count = (int)$r[0]['c'];
+	} elseif ($type == 'm') {
 		// autocomplete for Private Messages
 
 		$r = q("SELECT COUNT(*) AS c FROM `contact`
@@ -495,8 +504,7 @@ function acl_lookup(App $a, $out_type = 'json') {
 		);
 		$contact_count = (int)$r[0]['c'];
 
-	}
-	elseif ($type == 'a') {
+	} elseif ($type == 'a') {
 
 		// autocomplete for Contacts
 
@@ -570,8 +578,17 @@ function acl_lookup(App $a, $out_type = 'json') {
 			intval(local_user()),
 			dbesc(NETWORK_STATUSNET)
 		);
-	}
-	elseif ($type == 'm') {
+	} elseif ($type == 'f') {
+		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
+			WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
+			AND `success_update` >= `failure_update` AND NOT (`network` IN ('%s'))
+			AND (`forum` OR `prv`)
+			$sql_extra2
+			ORDER BY `name` ASC ",
+			intval(local_user()),
+			dbesc(NETWORK_STATUSNET)
+		);
+	} elseif ($type == 'm') {
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr` FROM `contact`
 			WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive`
 			AND `success_update` >= `failure_update` AND `network` IN ('%s','%s','%s')

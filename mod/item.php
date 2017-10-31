@@ -557,7 +557,11 @@ function item_post(App $a) {
 						INNER JOIN `item` ON `item`.`contact-id` = `contact`.`id` AND `contact`.`url` = `item`.`author-link`
 						WHERE `item`.`id` = `item`.`parent` AND `item`.`parent` = %d", intval($parent));
 		if (dbm::is_result($toplevel_parent)) {
-			$toplevel_contact = '@' . $toplevel_parent[0]['nick'] . '+' . $toplevel_parent[0]['id'];
+			if (!empty($toplevel_parent[0]['addr'])) {
+				$toplevel_contact = '@' . $toplevel_parent[0]['addr'];
+			} else {
+				$toplevel_contact = '@' . $toplevel_parent[0]['nick'] . '+' . $toplevel_parent[0]['id'];
+			}
 		} else {
 			$toplevel_parent = q("SELECT `author-link`, `author-name` FROM `item` WHERE `id` = `parent` AND `parent` = %d", intval($parent));
 			$toplevel_contact = '@[url=' . $toplevel_parent[0]['author-link'] . ']' . $toplevel_parent[0]['author-name'] . '[/url]';
@@ -575,7 +579,9 @@ function item_post(App $a) {
 	if (count($tags)) {
 		foreach ($tags as $tag) {
 
-			if (strpos($tag, '#') === 0) {
+			$tag_type = substr($tag, 0, 1);
+
+			if ($tag_type == '#') {
 				continue;
 			}
 
@@ -599,14 +605,15 @@ function item_post(App $a) {
 			if ($success['replaced']) {
 				$tagged[] = $tag;
 			}
-			if (is_array($success['contact']) && intval($success['contact']['prv'])) {
+			// When the forum is private or the forum is addressed with a "!" make the post private
+			if (is_array($success['contact']) && ($success['contact']['prv'] || ($tag_type == '!'))) {
 				$private_forum = true;
 				$private_id = $success['contact']['id'];
 			}
 		}
 	}
 
-	if (($private_forum) && (! $parent) && (! $private)) {
+	if ($private_forum && !$parent && !$private) {
 		// we tagged a private forum in a top level post and the message was public.
 		// Restrict it.
 		$private = 1;
@@ -1107,9 +1114,11 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 
 	$replaced = false;
 	$r = null;
+	$tag_type = '@';
 
 	//is it a person tag?
-	if (strpos($tag, '@') === 0) {
+	if ((strpos($tag, '@') === 0) || (strpos($tag, '!') === 0)) {
+		$tag_type = substr($tag, 0, 1);
 		//is it already replaced?
 		if (strpos($tag, '[url=')) {
 			//append tag to str_tags
@@ -1121,7 +1130,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			}
 
 			// Checking for the alias that is used for OStatus
-			$pattern = "/@\[url\=(.*?)\](.*?)\[\/url\]/ism";
+			$pattern = "/[@!]\[url\=(.*?)\](.*?)\[\/url\]/ism";
 			if (preg_match($pattern, $tag, $matches)) {
 
 				$r = q("SELECT `alias`, `name` FROM `contact` WHERE `nurl` = '%s' AND `alias` != '' AND `uid` = 0",
@@ -1282,12 +1291,11 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 
 		//if there is an url for this persons profile
 		if (isset($profile) && ($newname != "")) {
-
 			$replaced = true;
 			// create profile link
 			$profile = str_replace(',', '%2c', $profile);
-			$newtag = '@[url=' . $profile . ']' . $newname . '[/url]';
-			$body = str_replace('@' . $name, $newtag, $body);
+			$newtag = $tag_type.'[url=' . $profile . ']' . $newname . '[/url]';
+			$body = str_replace($tag_type . $name, $newtag, $body);
 			// append tag to str_tags
 			if (! stristr($str_tags, $newtag)) {
 				if (strlen($str_tags)) {
