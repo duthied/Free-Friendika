@@ -203,6 +203,15 @@ function string2bb(element) {
 			template: contact_format,
 		};
 
+		// Autocomplete forums
+		forums = {
+			match: /(^|\s)(!\!*)([^ \n]+)$/,
+			index: 3,
+			search: function(term, callback) { contact_search(term, callback, backend_url, 'f'); },
+			replace: editor_replace,
+			template: contact_format,
+		};
+
 		// Autocomplete smilies e.g. ":like"
 		smilies = {
 			match: /(^|\s)(:[a-z]{2,})$/,
@@ -213,7 +222,7 @@ function string2bb(element) {
 		};
 
 		this.attr('autocomplete','off');
-		this.textcomplete([contacts,smilies], {className:'acpopup', zIndex:10000});
+		this.textcomplete([contacts, forums, smilies], {className:'acpopup', zIndex:10000});
 	};
 })( jQuery );
 

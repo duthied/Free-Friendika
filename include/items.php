@@ -853,7 +853,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 			 * The original author commented, but as this is a comment, the permissions
 			 * weren't fixed up so it will still show the comment as private unless we fix it here.
 			 */
-			if ((intval($r[0]['forum_mode']) == 1) && (! $r[0]['private'])) {
+			if ((intval($r[0]['forum_mode']) == 1) && $r[0]['private']) {
 				$arr['private'] = 0;
 			}
 
