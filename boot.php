@@ -904,8 +904,14 @@ function login($register = false, $hiddens = false) {
  * @brief Used to end the current process, after saving session state.
  */
 function killme() {
+	global $session_exists;
+
 	if (!get_app()->is_backend()) {
-		session_write_close();
+		if (!$session_exists) {
+			session_abort();
+		} else {
+			session_write_close();
+		}
 	}
 
 	exit();
