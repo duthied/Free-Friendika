@@ -455,7 +455,7 @@ function display_content(App $a, $update = 0) {
 		$a->page['htmlhead'] .= '<meta name="twitter:card" content="summary" />'."\n";
 		$a->page['htmlhead'] .= '<meta name="twitter:title" content="'.$title.'" />'."\n";
 		$a->page['htmlhead'] .= '<meta name="twitter:description" content="'.$description.'" />'."\n";
-		$a->page['htmlhead'] .= '<meta name="twitter:image" content="'.$image.'" />'."\n";
+		$a->page['htmlhead'] .= '<meta name="twitter:image" content="'.System::baseUrl().'/'.$image.'" />'."\n";
 		$a->page['htmlhead'] .= '<meta name="twitter:url" content="'.$s[0]["plink"].'" />'."\n";
 
 		// Dublin Core
@@ -465,7 +465,7 @@ function display_content(App $a, $update = 0) {
 		// Open Graph
 		$a->page['htmlhead'] .= '<meta property="og:type" content="website" />'."\n";
 		$a->page['htmlhead'] .= '<meta property="og:title" content="'.$title.'" />'."\n";
-		$a->page['htmlhead'] .= '<meta property="og:image" content="'.$image.'" />'."\n";
+		$a->page['htmlhead'] .= '<meta property="og:image" content="'.System::baseUrl().'/'.$image.'" />'."\n";
 		$a->page['htmlhead'] .= '<meta property="og:url" content="'.$s[0]["plink"].'" />'."\n";
 		$a->page['htmlhead'] .= '<meta property="og:description" content="'.$description.'" />'."\n";
 		$a->page['htmlhead'] .= '<meta name="og:article:author" content="'.$author_name.'" />'."\n";
