@@ -340,6 +340,8 @@ function html2bbcode($message, $basepath = '')
  */
 function addHostnameSub($matches, $basepath) {
 	$base = parse_url($basepath);
+	unset($base['query']);
+	unset($base['fragment']);
 
 	$link = $matches[0];
 	$url = $matches[1];
