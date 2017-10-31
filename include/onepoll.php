@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 
 require_once 'include/follow.php';
 
@@ -156,8 +157,6 @@ function onepoll_run(&$argv, &$argc) {
 	logger("onepoll: poll: ({$contact['id']}) IMPORTER: {$importer['name']}, CONTACT: {$contact['name']}");
 
 	if ($contact['network'] === NETWORK_DFRN) {
-
-
 		$idtosend = $orig_id = (($contact['dfrn-id']) ? $contact['dfrn-id'] : $contact['issued-id']);
 		if (intval($contact['duplex']) && $contact['dfrn-id']) {
 			$idtosend = '0:' . $orig_id;
@@ -171,7 +170,7 @@ function onepoll_run(&$argv, &$argc) {
 
 		// But this may be our first communication, so set the writable flag if it isn't set already.
 
-		if (! intval($contact['writable'])) {
+		if (!intval($contact['writable'])) {
 			$fields = array('writable' => true);
 			dba::update('contact', $fields, array('id' => $contact['id']));
 		}
@@ -238,11 +237,11 @@ function onepoll_run(&$argv, &$argc) {
 			unmark_for_death($contact);
 		}
 
-		if ((intval($res->status) != 0) || (! strlen($res->challenge)) || (! strlen($res->dfrn_id))) {
+		if ((intval($res->status) != 0) || !strlen($res->challenge) || !strlen($res->dfrn_id)) {
 			return;
 		}
 
-		if (((float) $res->dfrn_version > 2.21) && ($contact['poco'] == '')) {
+		if (((float)$res->dfrn_version > 2.21) && ($contact['poco'] == '')) {
 			$fields = array('poco' => str_replace('/profile/', '/poco/', $contact['url']));
 			dba::update('contact', $fields, array('id' => $contact['id']));
 		}
@@ -254,7 +253,7 @@ function onepoll_run(&$argv, &$argc) {
 
 		$final_dfrn_id = '';
 
-		if (($contact['duplex']) && strlen($contact['prvkey'])) {
+		if ($contact['duplex'] && strlen($contact['prvkey'])) {
 			openssl_private_decrypt($sent_dfrn_id, $final_dfrn_id, $contact['prvkey']);
 			openssl_private_decrypt($challenge, $postvars['challenge'], $contact['prvkey']);
 		} else {
@@ -321,8 +320,9 @@ function onepoll_run(&$argv, &$argc) {
 		logger("Mail: Fetching for ".$contact['addr'], LOGGER_DEBUG);
 
 		$mail_disabled = ((function_exists('imap_open') && (! Config::get('system', 'imap_disabled'))) ? 0 : 1);
-		if ($mail_disabled)
+		if ($mail_disabled) {
 			return;
+		}
 
 		logger("Mail: Enabled", LOGGER_DEBUG);
 
@@ -332,7 +332,7 @@ function onepoll_run(&$argv, &$argc) {
 		$condition = array("`server` != '' AND `uid` = ?", $importer_uid);
 		$mailconf = dba::select('mailacct', array(), $condition, array('limit' => 1));
 		if (dbm::is_result($x) && dbm::is_result($mailconf)) {
-		    $mailbox = construct_mailbox_name($mailconf);
+			$mailbox = construct_mailbox_name($mailconf);
 			$password = '';
 			openssl_private_decrypt(hex2bin($mailconf['pass']), $password, $x['prvkey']);
 			$mbox = email_connect($mailbox, $mailconf['user'], $password);
@@ -346,8 +346,8 @@ function onepoll_run(&$argv, &$argc) {
 				logger("Mail: Connection error ".$mailconf['user']." ".print_r(imap_errors(), true));
 			}
 		}
-		if ($mbox) {
 
+		if ($mbox) {
 			$msgs = email_poll($mbox, $contact['addr']);
 
 			if (count($msgs)) {
@@ -400,8 +400,9 @@ function onepoll_run(&$argv, &$argc) {
 								case 3:
 									logger("Mail: Moving ".$msg_uid." to ".$mailconf['movetofolder']." for ".$mailconf['user']);
 									imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
-									if ($mailconf['movetofolder'] != "")
+									if ($mailconf['movetofolder'] != "") {
 										imap_mail_move($mbox, $msg_uid, $mailconf['movetofolder'], FT_UID);
+									}
 									break;
 							}
 							continue;
@@ -409,11 +410,10 @@ function onepoll_run(&$argv, &$argc) {
 
 
 						// look for a 'references' or an 'in-reply-to' header and try to match with a parent item we have locally.
-
-	//					$raw_refs = ((x($headers, 'references')) ? str_replace("\t", '', $headers['references']) : '');
 						$raw_refs = ((property_exists($meta, 'references')) ? str_replace("\t", '', $meta->references) : '');
-						if (! trim($raw_refs))
+						if (! trim($raw_refs)) {
 							$raw_refs = ((property_exists($meta, 'in_reply_to')) ? str_replace("\t", '', $meta->in_reply_to) : '');
+						}
 						$raw_refs = trim($raw_refs);  // Don't allow a blank reference in $refs_arr
 
 						if ($raw_refs) {
@@ -424,12 +424,11 @@ function onepoll_run(&$argv, &$argc) {
 								}
 							}
 							$qstr = implode(',', $refs_arr);
-							$r = q("SELECT `uri` , `parent-uri` FROM `item` USE INDEX (`uid_uri`) WHERE `uri` IN ($qstr) AND `uid` = %d LIMIT 1",
+							$r = q("SELECT `parent-uri` FROM `item` USE INDEX (`uid_uri`) WHERE `uri` IN ($qstr) AND `uid` = %d LIMIT 1",
 								intval($importer_uid)
 							);
 							if (dbm::is_result($r)) {
 								$datarray['parent-uri'] = $r[0]['parent-uri'];  // Set the parent as the top-level item
-								//$datarray['parent-uri'] = $r[0]['uri'];
 							}
 						}
 
@@ -457,21 +456,22 @@ function onepoll_run(&$argv, &$argc) {
 						$datarray['title'] = RemoveReply($datarray['title']);
 
 						// If it seems to be a reply but a header couldn't be found take the last message with matching subject
-						if (!x($datarray, 'parent-uri') && $reply) {
-							$r = q("SELECT `uri` , `parent-uri` FROM `item` WHERE `title` = \"%s\" AND `uid` = %d AND `network` = '%s' ORDER BY `created` DESC LIMIT 1",
+						if (empty($datarray['parent-uri']) && $reply) {
+							$r = q("SELECT `parent-uri` FROM `item` WHERE `title` = \"%s\" AND `uid` = %d AND `network` = '%s' ORDER BY `created` DESC LIMIT 1",
 								dbesc(protect_sprintf($datarray['title'])),
 								intval($importer_uid),
 								dbesc(NETWORK_MAIL));
-							if (dbm::is_result($r))
-								$datarray['parent-uri'] = $r['parent-uri'];
+							if (dbm::is_result($r)) {
+								$datarray['parent-uri'] = $r[0]['parent-uri'];
+							}
 						}
 
-						if (! x($datarray, 'parent-uri'))
+						if (empty($datarray['parent-uri'])) {
 							$datarray['parent-uri'] = $datarray['uri'];
-
+						}
 
 						$r = email_get_msg($mbox, $msg_uid, $reply);
-						if (! $r) {
+						if (!$r) {
 							logger("Mail: can't fetch msg ".$msg_uid." for ".$mailconf['user']);
 							continue;
 						}
@@ -512,9 +512,10 @@ function onepoll_run(&$argv, &$argc) {
 
 						$datarray['uid'] = $importer_uid;
 						$datarray['contact-id'] = $contact['id'];
-						if ($datarray['parent-uri'] === $datarray['uri'])
+						if ($datarray['parent-uri'] === $datarray['uri']) {
 							$datarray['private'] = 1;
-						if (($contact['network'] === NETWORK_MAIL) && (! get_pconfig($importer_uid, 'system', 'allow_public_email_replies'))) {
+						}
+						if (($contact['network'] === NETWORK_MAIL) && (!PConfig::get($importer_uid, 'system', 'allow_public_email_replies'))) {
 							$datarray['private'] = 1;
 							$datarray['allow_cid'] = '<' . $contact['id'] . '>';
 						}
@@ -541,8 +542,9 @@ function onepoll_run(&$argv, &$argc) {
 							case 3:
 								logger("Mail: Moving ".$msg_uid." to ".$mailconf['movetofolder']." for ".$mailconf['user']);
 								imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
-								if ($mailconf['movetofolder'] != "")
+								if ($mailconf['movetofolder'] != "") {
 									imap_mail_move($mbox, $msg_uid, $mailconf['movetofolder'], FT_UID);
+								}
 								break;
 						}
 					}
@@ -591,7 +593,7 @@ function onepoll_run(&$argv, &$argc) {
 
 		logger("Contact ".$contact['id']." returned hub: ".$hub." Network: ".$contact['network']." Relation: ".$contact['rel']." Update: ".$hub_update);
 
-		if ((strlen($hub)) && ($hub_update) && (($contact['rel'] != CONTACT_IS_FOLLOWER) || $contact['network'] == NETWORK_FEED) ) {
+		if (strlen($hub) && $hub_update && (($contact['rel'] != CONTACT_IS_FOLLOWER) || $contact['network'] == NETWORK_FEED)) {
 			logger('poller: hub ' . $hubmode . ' : ' . $hub . ' contact name : ' . $contact['name'] . ' local user : ' . $importer['name']);
 			$hubs = explode(',', $hub);
 			if (count($hubs)) {
