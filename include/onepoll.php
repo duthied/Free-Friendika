@@ -2,24 +2,25 @@
 
 use Friendica\Core\Config;
 
-require_once('include/follow.php');
+require_once 'include/follow.php';
 
 function RemoveReply($subject) {
-	while (in_array(strtolower(substr($subject, 0, 3)), array("re:", "aw:")))
+	while (in_array(strtolower(substr($subject, 0, 3)), array("re:", "aw:"))) {
 		$subject = trim(substr($subject, 4));
+	}
 
-	return($subject);
+	return $subject;
 }
 
-function onepoll_run(&$argv, &$argc){
+function onepoll_run(&$argv, &$argc) {
 	global $a;
 
-	require_once('include/datetime.php');
-	require_once('include/items.php');
-	require_once('include/Contact.php');
-	require_once('include/email.php');
-	require_once('include/socgraph.php');
-	require_once('include/queue_fn.php');
+	require_once 'include/datetime.php';
+	require_once 'include/items.php';
+	require_once 'include/Contact.php';
+	require_once 'include/email.php';
+	require_once 'include/socgraph.php';
+	require_once 'include/queue_fn.php';
 
 	logger('onepoll: start');
 
@@ -37,7 +38,7 @@ function onepoll_run(&$argv, &$argc){
 		$force = true;
 	}
 
-	if (! $contact_id) {
+	if (!$contact_id) {
 		logger('onepoll: no contact');
 		return;
 	}
@@ -49,8 +50,8 @@ function onepoll_run(&$argv, &$argc){
 	// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
 
 	$contacts = q("SELECT `contact`.* FROM `contact`
-		WHERE ( `rel` = %d OR `rel` = %d ) AND `poll` != ''
-		AND NOT `network` IN ( '%s', '%s' )
+		WHERE (`rel` = %d OR `rel` = %d) AND `poll` != ''
+		AND NOT `network` IN ('%s', '%s')
 		AND `contact`.`id` = %d
 		AND `self` = 0 AND `contact`.`blocked` = 0 AND `contact`.`readonly` = 0
 		AND `contact`.`archive` = 0 LIMIT 1",
@@ -61,11 +62,14 @@ function onepoll_run(&$argv, &$argc){
 		intval($contact_id)
 	);
 
-	if (! count($contacts)) {
+	if (!count($contacts)) {
+		logger('Contact not found or cannot be used.');
 		return;
 	}
 
 	$contact = $contacts[0];
+
+	$importer_uid = $contact['uid'];
 
 	// load current friends if possible.
 	if (($contact['poco'] != "") && ($contact['success_update'] > $contact['failure_update'])) {
@@ -75,7 +79,7 @@ function onepoll_run(&$argv, &$argc){
 		);
 		if (dbm::is_result($r)) {
 			if (!$r[0]['total']) {
-				poco_load($contact['id'],$importer_uid,0,$contact['poco']);
+				poco_load($contact['id'], $importer_uid, 0, $contact['poco']);
 			}
 		}
 	}
@@ -87,18 +91,10 @@ function onepoll_run(&$argv, &$argc){
 			$last_updated = poco_last_updated($contact["url"]);
 			$updated = datetime_convert();
 			if ($last_updated) {
-				q("UPDATE `contact` SET `last-item` = '%s', `last-update` = '%s', `success_update` = '%s' WHERE `id` = %d",
-					dbesc($last_updated),
-					dbesc($updated),
-					dbesc($updated),
-					intval($contact['id'])
-				);
+				$fields = array('last-item' => $last_updated, 'last-update' => $updated, 'success_update' => $updated);
+				dba::update('contact', $fields, array('id' => $contact['id']));
 			} else {
-				q("UPDATE `contact` SET `last-update` = '%s', `failure_update` = '%s' WHERE `id` = %d",
-					dbesc($updated),
-					dbesc($updated),
-					intval($contact['id'])
-				);
+				dba::update('contact', array('last-update' => $updated, 'failure_update' => $updated), array('id' => $contact['id']));
 			}
 		}
 		return;
@@ -109,33 +105,20 @@ function onepoll_run(&$argv, &$argc){
 	$t = $contact['last-update'];
 
 	if ($contact['subhub']) {
-		$poll_interval = get_config('system','pushpoll_frequency');
+		$poll_interval = Config::get('system', 'pushpoll_frequency');
 		$contact['priority'] = (($poll_interval !== false) ? intval($poll_interval) : 3);
 		$hub_update = false;
 
-		if (datetime_convert('UTC','UTC', 'now') > datetime_convert('UTC','UTC', $t . " + 1 day")) {
+		if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + 1 day")) {
 			$hub_update = true;
 		}
 	} else {
 		$hub_update = false;
 	}
 
-	$importer_uid = $contact['uid'];
-
-	$r = q("SELECT `contact`.*, `user`.`page-flags` FROM `contact` INNER JOIN `user` on `contact`.`uid` = `user`.`uid` WHERE `user`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
-		intval($importer_uid)
-	);
-	if (!dbm::is_result($r)) {
-		return;
-	}
-
-	$importer = $r[0];
-
-	logger("onepoll: poll: ({$contact['id']}) IMPORTER: {$importer['name']}, CONTACT: {$contact['name']}");
-
 	$last_update = (($contact['last-update'] <= NULL_DATE)
-		? datetime_convert('UTC','UTC','now - 7 days', ATOM_TIME)
-		: datetime_convert('UTC','UTC',$contact['last-update'], ATOM_TIME)
+		? datetime_convert('UTC', 'UTC', 'now - 7 days', ATOM_TIME)
+		: datetime_convert('UTC', 'UTC', $contact['last-update'], ATOM_TIME)
 	);
 
 	// Update the contact entry
@@ -147,11 +130,30 @@ function onepoll_run(&$argv, &$argc){
 
 		if (!update_contact($contact["id"])) {
 			mark_for_death($contact);
+			logger('Contact is marked dead');
 			return;
 		} else {
 			unmark_for_death($contact);
 		}
 	}
+
+	if ($importer_uid == 0) {
+		logger('Ignore public contacts');
+		return;
+	}
+
+	$r = q("SELECT `contact`.*, `user`.`page-flags` FROM `contact` INNER JOIN `user` on `contact`.`uid` = `user`.`uid` WHERE `user`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
+		intval($importer_uid)
+	);
+
+	if (!dbm::is_result($r)) {
+		logger('No self contact for user '.$importer_uid);
+		return;
+	}
+
+	$importer = $r[0];
+
+	logger("onepoll: poll: ({$contact['id']}) IMPORTER: {$importer['name']}, CONTACT: {$contact['name']}");
 
 	if ($contact['network'] === NETWORK_DFRN) {
 
@@ -170,7 +172,8 @@ function onepoll_run(&$argv, &$argc){
 		// But this may be our first communication, so set the writable flag if it isn't set already.
 
 		if (! intval($contact['writable'])) {
-			q("UPDATE `contact` SET `writable` = 1 WHERE `id` = %d", intval($contact['id']));
+			$fields = array('writable' => true);
+			dba::update('contact', $fields, array('id' => $contact['id']));
 		}
 
 		$url = $contact['poll'] . '?dfrn_id=' . $idtosend
@@ -191,7 +194,7 @@ function onepoll_run(&$argv, &$argc){
 		logger('onepoll: handshake with url ' . $url . ' returns xml: ' . $handshake_xml, LOGGER_DATA);
 
 
-		if ((! strlen($handshake_xml)) || ($html_code >= 400) || (! $html_code)) {
+		if (!strlen($handshake_xml) || ($html_code >= 400) || !$html_code) {
 			logger("poller: $url appears to be dead - marking for death ");
 
 			// dead connection - might be a transient event, or this might
@@ -201,25 +204,20 @@ function onepoll_run(&$argv, &$argc){
 			mark_for_death($contact);
 
 			// set the last-update so we don't keep polling
-			$r = q("UPDATE `contact` SET `last-update` = '%s', `failure_update` = '%s' WHERE `id` = %d",
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert()),
-				intval($contact['id'])
-			);
+			$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
+			dba::update('contact', $fields, array('id' => $contact['id']));
 
 			return;
 		}
 
-		if (! strstr($handshake_xml,'<')) {
+		if (! strstr($handshake_xml, '<')) {
 			logger('poller: response from ' . $url . ' did not contain XML.');
 
 			mark_for_death($contact);
 
-			$r = q("UPDATE `contact` SET `last-update` = '%s', `failure_update` = '%s' WHERE `id` = %d",
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert()),
-				intval($contact['id'])
-			);
+			$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
+			dba::update('contact', $fields, array('id' => $contact['id']));
+
 			return;
 		}
 
@@ -231,13 +229,9 @@ function onepoll_run(&$argv, &$argc){
 
 			// we may not be friends anymore. Will keep trying for one month.
 			// set the last-update so we don't keep polling
+			$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
+			dba::update('contact', $fields, array('id' => $contact['id']));
 
-
-			$r = q("UPDATE `contact` SET `last-update` = '%s', `failure_update` = '%s' WHERE `id` = %d",
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert()),
-				intval($contact['id'])
-			);
 			mark_for_death($contact);
 		} elseif ($contact['term-date'] > NULL_DATE) {
 			logger("poller: $url back from the dead - removing mark for death");
@@ -249,10 +243,8 @@ function onepoll_run(&$argv, &$argc){
 		}
 
 		if (((float) $res->dfrn_version > 2.21) && ($contact['poco'] == '')) {
-			q("update contact set poco = '%s' where id = %d",
-				dbesc(str_replace('/profile/','/poco/', $contact['url'])),
-				intval($contact['id'])
-			);
+			$fields = array('poco' => str_replace('/profile/', '/poco/', $contact['url']));
+			dba::update('contact', $fields, array('id' => $contact['id']));
 		}
 
 		$postvars = array();
@@ -263,17 +255,17 @@ function onepoll_run(&$argv, &$argc){
 		$final_dfrn_id = '';
 
 		if (($contact['duplex']) && strlen($contact['prvkey'])) {
-			openssl_private_decrypt($sent_dfrn_id,$final_dfrn_id,$contact['prvkey']);
-			openssl_private_decrypt($challenge,$postvars['challenge'],$contact['prvkey']);
+			openssl_private_decrypt($sent_dfrn_id, $final_dfrn_id, $contact['prvkey']);
+			openssl_private_decrypt($challenge, $postvars['challenge'], $contact['prvkey']);
 		} else {
-			openssl_public_decrypt($sent_dfrn_id,$final_dfrn_id,$contact['pubkey']);
-			openssl_public_decrypt($challenge,$postvars['challenge'],$contact['pubkey']);
+			openssl_public_decrypt($sent_dfrn_id, $final_dfrn_id, $contact['pubkey']);
+			openssl_public_decrypt($challenge, $postvars['challenge'], $contact['pubkey']);
 		}
 
 		$final_dfrn_id = substr($final_dfrn_id, 0, strpos($final_dfrn_id, '.'));
 
-		if (strpos($final_dfrn_id,':') == 1) {
-			$final_dfrn_id = substr($final_dfrn_id,2);
+		if (strpos($final_dfrn_id, ':') == 1) {
+			$final_dfrn_id = substr($final_dfrn_id, 2);
 		}
 
 		if ($final_dfrn_id != $orig_id) {
@@ -286,7 +278,7 @@ function onepoll_run(&$argv, &$argc){
 		$postvars['dfrn_version'] = DFRN_PROTOCOL_VERSION;
 		$postvars['perm'] = 'rw';
 
-		$xml = post_url($contact['poll'],$postvars);
+		$xml = post_url($contact['poll'], $postvars);
 
 	} elseif (($contact['network'] === NETWORK_OSTATUS)
 		|| ($contact['network'] === NETWORK_DIASPORA)
@@ -304,10 +296,8 @@ function onepoll_run(&$argv, &$argc){
 		}
 
 		if ($stat_writeable != $contact['writable']) {
-			q("UPDATE `contact` SET `writable` = %d WHERE `id` = %d",
-				intval($stat_writeable),
-				intval($contact['id'])
-			);
+			$fields = array('writable' => $stat_writeable);
+			dba::update('contact', $fields, array('id' => $contact['id']));
 		}
 
 		// Are we allowed to import from this person?
@@ -330,35 +320,30 @@ function onepoll_run(&$argv, &$argc){
 
 		logger("Mail: Fetching for ".$contact['addr'], LOGGER_DEBUG);
 
-		$mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
+		$mail_disabled = ((function_exists('imap_open') && (! Config::get('system', 'imap_disabled'))) ? 0 : 1);
 		if ($mail_disabled)
 			return;
 
 		logger("Mail: Enabled", LOGGER_DEBUG);
 
 		$mbox = null;
-		$x = q("SELECT `prvkey` FROM `user` WHERE `uid` = %d LIMIT 1",
-			intval($importer_uid)
-		);
-		$mailconf = q("SELECT * FROM `mailacct` WHERE `server` != '' AND `uid` = %d LIMIT 1",
-			intval($importer_uid)
-		);
-		if (count($x) && count($mailconf)) {
-		    $mailbox = construct_mailbox_name($mailconf[0]);
+		$x = dba::select('user', array('prvkey'), array('uid' => $importer_uid), array('limit' => 1));
+
+		$condition = array("`server` != '' AND `uid` = ?", $importer_uid);
+		$mailconf = dba::select('mailacct', array(), $condition, array('limit' => 1));
+		if (dbm::is_result($x) && dbm::is_result($mailconf)) {
+		    $mailbox = construct_mailbox_name($mailconf);
 			$password = '';
-			openssl_private_decrypt(hex2bin($mailconf[0]['pass']),$password,$x[0]['prvkey']);
-			$mbox = email_connect($mailbox,$mailconf[0]['user'],$password);
+			openssl_private_decrypt(hex2bin($mailconf['pass']), $password, $x['prvkey']);
+			$mbox = email_connect($mailbox, $mailconf['user'], $password);
 			unset($password);
-			logger("Mail: Connect to " . $mailconf[0]['user']);
+			logger("Mail: Connect to " . $mailconf['user']);
 			if ($mbox) {
-				q("UPDATE `mailacct` SET `last_check` = '%s' WHERE `id` = %d AND `uid` = %d",
-					dbesc(datetime_convert()),
-					intval($mailconf[0]['id']),
-					intval($importer_uid)
-				);
-				logger("Mail: Connected to " . $mailconf[0]['user']);
+				$fields = array('last_check' => datetime_convert());
+				dba::update('mailacct', $fields, array('id' => $mailconf['id']));
+				logger("Mail: Connected to " . $mailconf['user']);
 			} else {
-				logger("Mail: Connection error ".$mailconf[0]['user']." ".print_r(imap_errors(), true));
+				logger("Mail: Connection error ".$mailconf['user']." ".print_r(imap_errors(), true));
 			}
 		}
 		if ($mbox) {
@@ -366,11 +351,11 @@ function onepoll_run(&$argv, &$argc){
 			$msgs = email_poll($mbox, $contact['addr']);
 
 			if (count($msgs)) {
-				logger("Mail: Parsing ".count($msgs)." mails from ".$contact['addr']." for ".$mailconf[0]['user'], LOGGER_DEBUG);
+				logger("Mail: Parsing ".count($msgs)." mails from ".$contact['addr']." for ".$mailconf['user'], LOGGER_DEBUG);
 
-				$metas = email_msg_meta($mbox,implode(',',$msgs));
+				$metas = email_msg_meta($mbox,implode(',', $msgs));
 				if (count($metas) != count($msgs)) {
-					logger("onepoll: for " . $mailconf[0]['user'] . " there are ". count($msgs) . " messages but received " . count($metas) . " metas", LOGGER_DEBUG);
+					logger("onepoll: for " . $mailconf['user'] . " there are ". count($msgs) . " messages but received " . count($metas) . " metas", LOGGER_DEBUG);
 				} else {
 					$msgs = array_combine($msgs, $metas);
 
@@ -380,46 +365,43 @@ function onepoll_run(&$argv, &$argc){
 						$datarray = array();
 						$datarray['verb'] = ACTIVITY_POST;
 						$datarray['object-type'] = ACTIVITY_OBJ_NOTE;
-	//					$meta = email_msg_meta($mbox,$msg_uid);
-	//					$headers = email_msg_headers($mbox,$msg_uid);
+	//					$meta = email_msg_meta($mbox, $msg_uid);
+	//					$headers = email_msg_headers($mbox, $msg_uid);
 
-						$datarray['uri'] = msgid2iri(trim($meta->message_id,'<>'));
+						$datarray['uri'] = msgid2iri(trim($meta->message_id, '<>'));
 
 						// Have we seen it before?
-						$r = q("SELECT * FROM `item` WHERE `uid` = %d AND `uri` = '%s' LIMIT 1",
-							intval($importer_uid),
-							dbesc($datarray['uri'])
-						);
+						$fields = array('deleted', 'id');
+						$condition = array('uid' => $importer_uid, 'uri' => $datarray['uri']);
+						$r = dba::select('item', $fields, $condition, array('limit' => 1));
 
 						if (dbm::is_result($r)) {
-							logger("Mail: Seen before ".$msg_uid." for ".$mailconf[0]['user']." UID: ".$importer_uid." URI: ".$datarray['uri'],LOGGER_DEBUG);
+							logger("Mail: Seen before ".$msg_uid." for ".$mailconf['user']." UID: ".$importer_uid." URI: ".$datarray['uri'],LOGGER_DEBUG);
 
 							// Only delete when mails aren't automatically moved or deleted
-							if (($mailconf[0]['action'] != 1) && ($mailconf[0]['action'] != 3))
-								if ($meta->deleted && ! $r[0]['deleted']) {
-									q("UPDATE `item` SET `deleted` = 1, `changed` = '%s' WHERE `id` = %d",
-										dbesc(datetime_convert()),
-										intval($r[0]['id'])
-									);
+							if (($mailconf['action'] != 1) && ($mailconf['action'] != 3))
+								if ($meta->deleted && ! $r['deleted']) {
+									$fields = array('deleted' => true, 'changed' => datetime_convert());
+									dba::update('item', $fields, array('id' => $r['id']));
 								}
 
-							switch ($mailconf[0]['action']) {
+							switch ($mailconf['action']) {
 								case 0:
-									logger("Mail: Seen before ".$msg_uid." for ".$mailconf[0]['user'].". Doing nothing.", LOGGER_DEBUG);
+									logger("Mail: Seen before ".$msg_uid." for ".$mailconf['user'].". Doing nothing.", LOGGER_DEBUG);
 									break;
 								case 1:
-									logger("Mail: Deleting ".$msg_uid." for ".$mailconf[0]['user']);
+									logger("Mail: Deleting ".$msg_uid." for ".$mailconf['user']);
 									imap_delete($mbox, $msg_uid, FT_UID);
 									break;
 								case 2:
-									logger("Mail: Mark as seen ".$msg_uid." for ".$mailconf[0]['user']);
+									logger("Mail: Mark as seen ".$msg_uid." for ".$mailconf['user']);
 									imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
 									break;
 								case 3:
-									logger("Mail: Moving ".$msg_uid." to ".$mailconf[0]['movetofolder']." for ".$mailconf[0]['user']);
+									logger("Mail: Moving ".$msg_uid." to ".$mailconf['movetofolder']." for ".$mailconf['user']);
 									imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
-									if ($mailconf[0]['movetofolder'] != "")
-										imap_mail_move($mbox, $msg_uid, $mailconf[0]['movetofolder'], FT_UID);
+									if ($mailconf['movetofolder'] != "")
+										imap_mail_move($mbox, $msg_uid, $mailconf['movetofolder'], FT_UID);
 									break;
 							}
 							continue;
@@ -428,20 +410,20 @@ function onepoll_run(&$argv, &$argc){
 
 						// look for a 'references' or an 'in-reply-to' header and try to match with a parent item we have locally.
 
-	//					$raw_refs = ((x($headers,'references')) ? str_replace("\t",'',$headers['references']) : '');
-						$raw_refs = ((property_exists($meta,'references')) ? str_replace("\t",'',$meta->references) : '');
+	//					$raw_refs = ((x($headers, 'references')) ? str_replace("\t", '', $headers['references']) : '');
+						$raw_refs = ((property_exists($meta, 'references')) ? str_replace("\t", '', $meta->references) : '');
 						if (! trim($raw_refs))
-							$raw_refs = ((property_exists($meta,'in_reply_to')) ? str_replace("\t",'',$meta->in_reply_to) : '');
+							$raw_refs = ((property_exists($meta, 'in_reply_to')) ? str_replace("\t", '', $meta->in_reply_to) : '');
 						$raw_refs = trim($raw_refs);  // Don't allow a blank reference in $refs_arr
 
 						if ($raw_refs) {
 							$refs_arr = explode(' ', $raw_refs);
 							if (count($refs_arr)) {
 								for ($x = 0; $x < count($refs_arr); $x ++) {
-									$refs_arr[$x] = "'" . msgid2iri(str_replace(array('<','>',' '),array('','',''),dbesc($refs_arr[$x]))) . "'";
+									$refs_arr[$x] = "'" . msgid2iri(str_replace(array('<', '>', ' '),array('', '', ''),dbesc($refs_arr[$x]))) . "'";
 								}
 							}
-							$qstr = implode(',',$refs_arr);
+							$qstr = implode(',', $refs_arr);
 							$r = q("SELECT `uri` , `parent-uri` FROM `item` USE INDEX (`uid_uri`) WHERE `uri` IN ($qstr) AND `uid` = %d LIMIT 1",
 								intval($importer_uid)
 							);
@@ -464,7 +446,7 @@ function onepoll_run(&$argv, &$argc){
 						$datarray['title'] = notags(trim($datarray['title']));
 
 						//$datarray['title'] = notags(trim($meta->subject));
-						$datarray['created'] = datetime_convert('UTC','UTC',$meta->date);
+						$datarray['created'] = datetime_convert('UTC', 'UTC', $meta->date);
 
 						// Is it a reply?
 						$reply = ((substr(strtolower($datarray['title']), 0, 3) == "re:") ||
@@ -475,28 +457,28 @@ function onepoll_run(&$argv, &$argc){
 						$datarray['title'] = RemoveReply($datarray['title']);
 
 						// If it seems to be a reply but a header couldn't be found take the last message with matching subject
-						if (!x($datarray,'parent-uri') && $reply) {
+						if (!x($datarray, 'parent-uri') && $reply) {
 							$r = q("SELECT `uri` , `parent-uri` FROM `item` WHERE `title` = \"%s\" AND `uid` = %d AND `network` = '%s' ORDER BY `created` DESC LIMIT 1",
 								dbesc(protect_sprintf($datarray['title'])),
 								intval($importer_uid),
 								dbesc(NETWORK_MAIL));
 							if (dbm::is_result($r))
-								$datarray['parent-uri'] = $r[0]['parent-uri'];
+								$datarray['parent-uri'] = $r['parent-uri'];
 						}
 
-						if (! x($datarray,'parent-uri'))
+						if (! x($datarray, 'parent-uri'))
 							$datarray['parent-uri'] = $datarray['uri'];
 
 
-						$r = email_get_msg($mbox,$msg_uid, $reply);
+						$r = email_get_msg($mbox, $msg_uid, $reply);
 						if (! $r) {
-							logger("Mail: can't fetch msg ".$msg_uid." for ".$mailconf[0]['user']);
+							logger("Mail: can't fetch msg ".$msg_uid." for ".$mailconf['user']);
 							continue;
 						}
 						$datarray['body'] = escape_tags($r['body']);
 						$datarray['body'] = limit_body_size($datarray['body']);
 
-						logger("Mail: Importing ".$msg_uid." for ".$mailconf[0]['user']);
+						logger("Mail: Importing ".$msg_uid." for ".$mailconf['user']);
 
 						/// @TODO Adding a gravatar for the original author would be cool
 
@@ -532,75 +514,67 @@ function onepoll_run(&$argv, &$argc){
 						$datarray['contact-id'] = $contact['id'];
 						if ($datarray['parent-uri'] === $datarray['uri'])
 							$datarray['private'] = 1;
-						if (($contact['network'] === NETWORK_MAIL) && (! get_pconfig($importer_uid,'system','allow_public_email_replies'))) {
+						if (($contact['network'] === NETWORK_MAIL) && (! get_pconfig($importer_uid, 'system', 'allow_public_email_replies'))) {
 							$datarray['private'] = 1;
 							$datarray['allow_cid'] = '<' . $contact['id'] . '>';
 						}
 
 						$stored_item = item_store($datarray);
-						q("UPDATE `item` SET `last-child` = 0 WHERE `parent-uri` = '%s' AND `uid` = %d",
-							dbesc($datarray['parent-uri']),
-							intval($importer_uid)
-						);
-						q("UPDATE `item` SET `last-child` = 1 WHERE `id` = %d",
-							intval($stored_item)
-						);
-						switch ($mailconf[0]['action']) {
+
+						$condition = array('parent-uri' => $datarray['parent-uri'], 'uid' => $importer_uid);
+						dba::update('item', array('last-child' => false), $condition);
+
+						dba::update('item', array('last-child' => true), array('id' => $stored_item));
+
+						switch ($mailconf['action']) {
 							case 0:
-								logger("Mail: Seen before ".$msg_uid." for ".$mailconf[0]['user'].". Doing nothing.", LOGGER_DEBUG);
+								logger("Mail: Seen before ".$msg_uid." for ".$mailconf['user'].". Doing nothing.", LOGGER_DEBUG);
 								break;
 							case 1:
-								logger("Mail: Deleting ".$msg_uid." for ".$mailconf[0]['user']);
+								logger("Mail: Deleting ".$msg_uid." for ".$mailconf['user']);
 								imap_delete($mbox, $msg_uid, FT_UID);
 								break;
 							case 2:
-								logger("Mail: Mark as seen ".$msg_uid." for ".$mailconf[0]['user']);
+								logger("Mail: Mark as seen ".$msg_uid." for ".$mailconf['user']);
 								imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
 								break;
 							case 3:
-								logger("Mail: Moving ".$msg_uid." to ".$mailconf[0]['movetofolder']." for ".$mailconf[0]['user']);
+								logger("Mail: Moving ".$msg_uid." to ".$mailconf['movetofolder']." for ".$mailconf['user']);
 								imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
-								if ($mailconf[0]['movetofolder'] != "")
-									imap_mail_move($mbox, $msg_uid, $mailconf[0]['movetofolder'], FT_UID);
+								if ($mailconf['movetofolder'] != "")
+									imap_mail_move($mbox, $msg_uid, $mailconf['movetofolder'], FT_UID);
 								break;
 						}
 					}
 				}
 			} else {
-				logger("Mail: no mails for ".$mailconf[0]['user']);
+				logger("Mail: no mails for ".$mailconf['user']);
 			}
 
-			logger("Mail: closing connection for ".$mailconf[0]['user']);
+			logger("Mail: closing connection for ".$mailconf['user']);
 			imap_close($mbox);
 		}
-	} elseif ($contact['network'] === NETWORK_FACEBOOK) {
-		// This is picked up by the Facebook plugin on a cron hook.
-		// Ignored here.
-	} elseif ($contact['network'] === NETWORK_PUMPIO) {
-		// This is picked up by the pump.io plugin on a cron hook.
-		// Ignored here.
 	}
 
 	if ($xml) {
 		logger('poller: received xml : ' . $xml, LOGGER_DATA);
-		if (! strstr($xml,'<')) {
+		if (!strstr($xml, '<')) {
 			logger('poller: post_handshake: response from ' . $url . ' did not contain XML.');
-			$r = q("UPDATE `contact` SET `last-update` = '%s',  `failure_update` = '%s' WHERE `id` = %d",
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert()),
-				intval($contact['id'])
-			);
+
+			$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
+			dba::update('contact', $fields, array('id' => $contact['id']));
+
 			return;
 		}
 
 
 		logger("Consume feed of contact ".$contact['id']);
 
-		consume_feed($xml,$importer,$contact,$hub,1,1);
+		consume_feed($xml, $importer, $contact, $hub, 1, 1);
 
 		// do it twice. Ensures that children of parents which may be later in the stream aren't tossed
 
-		consume_feed($xml,$importer,$contact,$hub,1,2);
+		consume_feed($xml, $importer, $contact, $hub, 1, 2);
 
 		$hubmode = 'subscribe';
 		if ($contact['network'] === NETWORK_DFRN || $contact['blocked'] || $contact['readonly']) {
@@ -623,45 +597,25 @@ function onepoll_run(&$argv, &$argc){
 			if (count($hubs)) {
 				foreach ($hubs as $h) {
 					$h = trim($h);
-					if (! strlen($h)) {
+					if (!strlen($h)) {
 						continue;
 					}
-					subscribe_to_hub($h,$importer,$contact,$hubmode);
+					subscribe_to_hub($h, $importer, $contact, $hubmode);
 				}
 			}
 		}
 
 		$updated = datetime_convert();
 
-		$r = q("UPDATE `contact` SET `last-update` = '%s', `success_update` = '%s' WHERE `id` = %d",
-			dbesc($updated),
-			dbesc($updated),
-			intval($contact['id'])
-		);
-
-		q("UPDATE `gcontact` SET `last_contact` = '%s' WHERE `nurl` = '%s'",
-			dbesc($updated),
-			dbesc($contact['nurl'])
-		);
-
+		dba::update('contact', array('last-update' => $updated, 'success_update' => $updated), array('id' => $contact['id']));
+		dba::update('gcontact', array('last_contact' => $updated), array('nurl' => $contact['nurl']));
 	} elseif (in_array($contact["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_FEED))) {
 		$updated = datetime_convert();
 
-		$r = q("UPDATE `contact` SET `last-update` = '%s', `failure_update` = '%s' WHERE `id` = %d",
-			dbesc($updated),
-			dbesc($updated),
-			intval($contact['id'])
-		);
-
-		q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
-			dbesc($updated),
-			dbesc($contact['nurl'])
-		);
+		dba::update('contact', array('last-update' => $updated, 'failure_update' => $updated), array('id' => $contact['id']));
+		dba::update('gcontact', array('last_failure' => $updated), array('nurl' => $contact['nurl']));
 	} else {
-		$r = q("UPDATE `contact` SET `last-update` = '%s' WHERE `id` = %d",
-			dbesc($updated),
-			intval($contact['id'])
-		);
+		dba::update('contact', array('last-update' => $updated), array('id' => $contact['id']));
 	}
 
 	return;
