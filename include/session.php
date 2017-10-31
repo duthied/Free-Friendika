@@ -24,17 +24,17 @@ function ref_session_read($id) {
 	if (is_object($memcache)) {
 		$data = $memcache->get(get_app()->get_hostname().":session:".$id);
 		if (!is_bool($data)) {
+			$session_exists = true;
 			return $data;
 		}
 		logger("no data for session $id", LOGGER_TRACE);
 		return '';
 	}
 
-	$r = q("SELECT `data` FROM `session` WHERE `sid`= '%s'", dbesc($id));
-
+	$r = dba::select('session', array('data'), array('sid' => $id), array('limit' => 1));
 	if (dbm::is_result($r)) {
 		$session_exists = true;
-		return $r[0]['data'];
+		return $r['data'];
 	} else {
 		logger("no data for session $id", LOGGER_TRACE);
 	}
@@ -73,15 +73,12 @@ function ref_session_write($id, $data) {
 	}
 
 	if ($session_exists) {
-		$r = q("UPDATE `session`
-				SET `data` = '%s', `expire` = '%s'
-				WHERE `sid` = '%s'
-				AND (`data` != '%s' OR `expire` != '%s')",
-				dbesc($data), dbesc($expire), dbesc($id), dbesc($data), dbesc($expire));
+		$fields = array('data' => $data, 'expire' => $expire);
+		$condition = array("WHERE `sid` = ? AND (`data` != ? OR `expire` != ?)", $id, $data, $expire);
+		dba::update('session', $fields, $condition);
 	} else {
-		$r = q("INSERT INTO `session`
-				SET `sid` = '%s', `expire` = '%s', `data` = '%s'",
-				dbesc($id), dbesc($default_expire), dbesc($data));
+		$fields = array('sid' => $id, 'expire' => $default_expire, 'data' => $data);
+		dba::insert('session', $fields);
 	}
 
 	return true;
@@ -99,14 +96,12 @@ function ref_session_destroy($id) {
 		return true;
 	}
 
-	q("DELETE FROM `session` WHERE `sid` = '%s'", dbesc($id));
-
+	dba::delete('session', array('sid' => $id));
 	return true;
 }
 
 function ref_session_gc($expire) {
-	q("DELETE FROM `session` WHERE `expire` < %d", dbesc(time()));
-
+	dba::delete('session', array("`expire` < ?", time()));
 	return true;
 }
 
