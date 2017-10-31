@@ -74,7 +74,7 @@ function ref_session_write($id, $data) {
 
 	if ($session_exists) {
 		$fields = array('data' => $data, 'expire' => $expire);
-		$condition = array("WHERE `sid` = ? AND (`data` != ? OR `expire` != ?)", $id, $data, $expire);
+		$condition = array("`sid` = ? AND (`data` != ? OR `expire` != ?)", $id, $data, $expire);
 		dba::update('session', $fields, $condition);
 	} else {
 		$fields = array('sid' => $id, 'expire' => $default_expire, 'data' => $data);
