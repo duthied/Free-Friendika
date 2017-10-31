@@ -58,6 +58,11 @@ Also, if the forum is a public forum, your posting will be public for the all in
 If your post is private you must also explicitly include the group in the post permissions (to allow the forum "contact" to see the post) **and** mention it in a tag (which redistributes the post to the forum members).
 Posting privately to a public forum, will result in your posting being displayed on the forum wall, but not on yours.
 
+Additionally it is possible to address a forum with the exclamation mark.
+In the example above this means that you can address the bicycle forum via !bicycle.
+The difference to the @ is that the post will only be sent to the addressed forum.
+This also means that you shouldn't address multiple forums in a single post in that way since it will only be distributed by one the forums.
+
 You may also post to a community forum by posting a "wall-to-wall" post using secure cross-site authentication.
 
 Comments which are relayed to community forums will be relayed back to the original post creator.
