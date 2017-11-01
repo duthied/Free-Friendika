@@ -1988,6 +1988,81 @@ class dfrn {
 	}
 
 	/**
+	 * @brief Check and possibly rewrite a post if it was a dedicated forum post
+	 *
+	 * @param array $item the new item record
+	 *
+	 * @return boolean Was the post be rewritten?
+	 */
+	private static function rewriteDedicatedForumPost($item) {
+		$fields = array('author-link', 'allow_cid', 'contact-id', 'private', 'wall', 'id', 'parent');
+		$condition = array('uri' => $item['uri'], 'uid' => $item['uid']);
+		$existing = dba::select('item', $fields, $condition, array('limit' => 1));
+		if (!dbm::is_result($existing)) {
+			return false;
+		}
+
+		// Only rewrite if the former post was a private starting post
+		if (!$existing['wall'] || !$existing['private'] || ($existing['id'] != $existing['parent'])) {
+			return false;
+		}
+
+		// Is the post only directed to a sigle forum
+		if ($existing['allow_cid'] != '<'.$item['contact-id'].'>') {
+			return false;
+		}
+
+		$fields = array('id');
+		$condition = array('uid' => $item['uid'], 'self' => true);
+		$self = dba::select('contact', $fields, $condition, array('limit' => 1));
+		if (!dbm::is_result($self)) {
+			return false;
+		}
+
+		// is the original item created by the "self" user.
+		if ($self['id'] != $existing['contact-id']) {
+			return false;
+		}
+
+		$fields = array('forum', 'prv');
+		$condition = array('id' => $item['contact-id']);
+		$contact = dba::select('contact', $fields, $condition, array('limit' => 1));
+		if (!dbm::is_result($contact)) {
+			return false;
+		}
+
+		// Is the post from a forum?
+		if (!$contact['forum'] && !$contact['prv']) {
+			return false;
+		}
+
+		/// @todo There is an ugly downside of this whole rewrite process: These items loose the ability to be edited by the user.
+		logger('Item '.$item['uri'].' will be rewritten.', LOGGER_DEBUG);
+
+		$item = store_conversation($item);
+		unset($fields['dsprsig']);
+
+		// Rewrite to a public post if it comes from a public forum
+		if ($contact['forum']) {
+			$item['allow_cid'] = '';
+			$item['allow_gid'] = '';
+			$item['deny_cid'] = '';
+			$item['deny_gid'] = '';
+			$item['private'] = false;
+		}
+
+		$item['wall'] = false;
+
+		$item["owner-id"] = get_contact($item["owner-link"], 0);
+
+		$condition = array('uri' => $item["uri"], 'uid' => $item["uid"]);
+		dba::update('item', $item, $condition);
+
+		add_thread($existing['id']);
+		return true;
+	}
+
+	/**
 	 * @brief Updates an item
 	 *
 	 * @param array $current the current item record
@@ -2006,15 +2081,15 @@ class dfrn {
 				return false;
 			}
 
-			$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `edited` = '%s', `changed` = '%s' WHERE `uri` = '%s' AND `uid` IN (0, %d)",
-				dbesc($item["title"]),
-				dbesc($item["body"]),
-				dbesc($item["tag"]),
-				dbesc(datetime_convert("UTC","UTC",$item["edited"])),
-				dbesc(datetime_convert()),
-				dbesc($item["uri"]),
-				intval($importer["importer_uid"])
-			);
+			if (!self::rewriteDedicatedForumPost($item)) {
+				$fields = array('title' => $item["title"], 'body' => $item["body"],
+						'tag' => $item["tag"], 'changed' => datetime_convert(),
+						'edited' => datetime_convert("UTC", "UTC", $item["edited"]));
+
+				$condition = array("`uri` = ? AND `uid` IN (0, ?)", $item["uri"], $importer["importer_uid"]);
+				dba::update('item', $fields, $condition);
+			}
+
 			create_tags_from_itemuri($item["uri"], $importer["importer_uid"]);
 			update_thread_uri($item["uri"], $importer["importer_uid"]);
 
