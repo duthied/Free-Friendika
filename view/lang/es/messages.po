@@ -37,7 +37,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-10-13 07:26+0200\n"
-"PO-Revision-Date: 2017-10-29 11:28+0000\n"
+"PO-Revision-Date: 2017-11-01 11:06+0000\n"
 "Last-Translator: Albert\n"
 "Language-Team: Spanish (http://www.transifex.com/Friendica/friendica/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -6727,40 +6727,40 @@ msgstr "¿Eliminar entrada de la lista de bloqueo?"
 
 #: mod/admin.php:337
 msgid "Server added to blocklist."
-msgstr ""
+msgstr "Servidor añadido a la lista de bloqueo."
 
 #: mod/admin.php:353
 msgid "Site blocklist updated."
-msgstr ""
+msgstr "Lista de bloqueo del sitio actualizada."
 
 #: mod/admin.php:376
 msgid "Delete this Item"
-msgstr ""
+msgstr "Eliminar este artículo"
 
 #: mod/admin.php:377
 msgid ""
 "On this page you can delete an item from your node. If the item is a top "
 "level posting, the entire thread will be deleted."
-msgstr ""
+msgstr "En esta página, puede eliminar un artículo de su nodo. Si el artículo es una publicación de nivel superior, se eliminará todo el hilo."
 
 #: mod/admin.php:378
 msgid ""
 "You need to know the GUID of the item. You can find it e.g. by looking at "
 "the display URL. The last part of http://example.com/display/123456 is the "
 "GUID, here 123456."
-msgstr ""
+msgstr "Usted debe conocer el GUID del artículo. Puedes encontrarlo, por ejemplo. mirando la URL visible. La última parte de http://example.com/display/123456 es el GUID, aquí 123456."
 
 #: mod/admin.php:379
 msgid "GUID"
-msgstr ""
+msgstr "GUID"
 
 #: mod/admin.php:379
 msgid "The GUID of the item you want to delete."
-msgstr ""
+msgstr "El GUID del artículo que quiere eliminar."
 
 #: mod/admin.php:416
 msgid "Item marked for deletion."
-msgstr ""
+msgstr "Artículo marcado para eliminación."
 
 #: mod/admin.php:480
 msgid "unknown"
@@ -6820,25 +6820,25 @@ msgid ""
 "converting the table engines. You may also use the command <tt>php "
 "include/dbstructure.php toinnodb</tt> of your Friendica installation for an "
 "automatic conversion.<br />"
-msgstr ""
+msgstr "Su DB aún funciona con las tablas MyISAM. Debe cambiar el tipo de motor a InnoDB. Como Friendica usará las características únicas de InnoDB en el futuro, ¡debería cambiar esto! Vea <a href=\"%s\">aquí</a>para ver una guía que puede ser útil para convertir los motores de tabla. También puede usar el comando <tt>php include/dbstructure.php toinnodb</tt> de si instalación de Friendica para una conversión automática.<br />"
 
 #: mod/admin.php:625
 msgid ""
 "The database update failed. Please run \"php include/dbstructure.php "
 "update\" from the command line and have a look at the errors that might "
 "appear."
-msgstr ""
+msgstr "La actualización de la base de datos falló. Por favor, ejecute «actualización php include/dbstructure.php» desde la línea de comando y eche un vistazo a los errores que pueden aparecer."
 
 #: mod/admin.php:631
 msgid "The worker was never executed. Please check your database structure!"
-msgstr ""
+msgstr "El trabajador nunca fue ejecutado. ¡Revise la estructura de su base de datos, por favor!"
 
 #: mod/admin.php:634
 #, php-format
 msgid ""
 "The last worker execution was on %s UTC. This is older than one hour. Please"
 " check your crontab settings."
-msgstr ""
+msgstr "La última ejecución del trabajador estaba en %s UTC. Esto es anterior a una hora. Revise tu configuración de crontab, por favor."
 
 #: mod/admin.php:639 mod/admin.php:1550
 msgid "Normal Account"
@@ -6846,11 +6846,11 @@ msgstr "Cuenta normal"
 
 #: mod/admin.php:640 mod/admin.php:1551
 msgid "Automatic Follower Account"
-msgstr ""
+msgstr "Cuenta de Seguimiento Automático"
 
 #: mod/admin.php:641 mod/admin.php:1552
 msgid "Public Forum Account"
-msgstr ""
+msgstr "Cuenta del Foro Pública"
 
 #: mod/admin.php:642 mod/admin.php:1553
 msgid "Automatic Friend Account"
@@ -6862,7 +6862,7 @@ msgstr "Cuenta de blog"
 
 #: mod/admin.php:644
 msgid "Private Forum Account"
-msgstr ""
+msgstr "Cuenta del Foro Privada"
 
 #: mod/admin.php:666
 msgid "Message queues"
@@ -6974,7 +6974,7 @@ msgstr "Certificación personal, usa SSL solo para enlaces locales (no recomenda
 
 #: mod/admin.php:1159
 msgid "Republish users to directory"
-msgstr ""
+msgstr "Volver a publicar usuarios en el directorio"
 
 #: mod/admin.php:1161
 msgid "File upload"
@@ -7423,13 +7423,13 @@ msgstr "Carga máxima del sistema antes de que el frontend cancele el servicio -
 
 #: mod/admin.php:1221
 msgid "Minimal Memory"
-msgstr ""
+msgstr "Memoria Mínima"
 
 #: mod/admin.php:1221
 msgid ""
 "Minimal free memory in MB for the poller. Needs access to /proc/meminfo - "
 "default 0 (deactivated)."
-msgstr ""
+msgstr "Memoria libre mínima en MB para la encuesta. Necesita acceso a /proc/meminfo - estándar 0 (desactivado)."
 
 #: mod/admin.php:1222
 msgid "Maximum table size for optimization"
@@ -7650,7 +7650,7 @@ msgid ""
 "to call %s/worker on a regular basis via an external cron job. You should "
 "only enable this option if you cannot utilize cron/scheduled jobs on your "
 "server."
-msgstr ""
+msgstr "Cuando está habilitado, el proceso del Trabajador se activa cuando se realiza el acceso a la parte trasera (ej. mensajes entregados). En sitios más pequeños es posible que desee llamar a %s/worker de forma regular a través de un trabajo cron externo. Solo debe habilitar esta opción si no puede utilizar los trabajos cron/scheduled en su servidor."
 
 #: mod/admin.php:1279
 msgid "Update has been marked successful"
@@ -8108,7 +8108,7 @@ msgstr "Recaudar informacion y palabras claves"
 
 #: mod/contacts.php:592 mod/unfollow.php:100
 msgid "Disconnect/Unfollow"
-msgstr ""
+msgstr "Desconectar/Dejar de seguir"
 
 #: mod/contacts.php:602
 msgid "Contact"
@@ -8131,7 +8131,7 @@ msgstr "Información del Contacto / Notas"
 
 #: mod/contacts.php:608
 msgid "Their personal note"
-msgstr ""
+msgstr "Su nota personal"
 
 #: mod/contacts.php:610
 msgid "Edit contact notes"
@@ -8365,7 +8365,7 @@ msgstr "ejecutándose en la dirección web"
 msgid ""
 "Please visit <a href=\"https://friendi.ca\">Friendi.ca</a> to learn more "
 "about the Friendica project."
-msgstr ""
+msgstr "Visite <a href=\"https://friendi.ca\">Friendi.ca</a> para aprender más sobre el proyecto Friendica, por favor."
 
 #: mod/friendica.php:79
 msgid "Bug reports and issues: please visit"
@@ -8511,7 +8511,7 @@ msgid ""
 "will not be able to run the background processing. See <a "
 "href='https://github.com/friendica/friendica/blob/master/doc/Install.md#set-"
 "up-the-poller'>'Setup the poller'</a>"
-msgstr ""
+msgstr "Si no tiene una versión de línea de comando de PHP instalada en el servidor, no podrá ejecutar el procesamiento en segundo plano. Vea <a href='https://github.com/friendica/friendica/blob/master/doc/Install.md#set-up-the-poller'>«Configurar el sondeo»</a>"
 
 #: mod/install.php:323
 msgid "PHP executable path"
@@ -8583,7 +8583,7 @@ msgstr "Módulo PHP OpenSSL"
 
 #: mod/install.php:390
 msgid "PDO or MySQLi PHP module"
-msgstr ""
+msgstr "Módulo PDO o MySQLi PHP"
 
 #: mod/install.php:391
 msgid "mb_string PHP module"
@@ -8621,11 +8621,11 @@ msgstr "Error: El módulo de PHP openssl es necesario, pero  no está instalado.
 
 #: mod/install.php:417
 msgid "Error: PDO or MySQLi PHP module required but not installed."
-msgstr ""
+msgstr "Error: Módulo PDO o MySQLi PHP requerido pero no instalado."
 
 #: mod/install.php:421
 msgid "Error: The MySQL driver for PDO is not installed."
-msgstr ""
+msgstr "Error: El dispositivo MySQL para PDO no está instalado."
 
 #: mod/install.php:425
 msgid "Error: mb_string PHP module required but not installed."
@@ -8824,19 +8824,19 @@ msgstr "Objetos taggeado con: %s"
 
 #: mod/unfollow.php:33
 msgid "Contact wasn't found or can't be unfollowed."
-msgstr ""
+msgstr "El contacto no fue encontrado o no puede ser dejado de seguir."
 
 #: mod/unfollow.php:47
 msgid "Contact unfollowed"
-msgstr ""
+msgstr "Contacto no seguido"
 
 #: mod/unfollow.php:73
 msgid "You aren't a friend of this contact."
-msgstr ""
+msgstr "Usted no es amigo de este contacto."
 
 #: mod/unfollow.php:79
 msgid "Unfollowing is currently not supported by your network."
-msgstr ""
+msgstr "Dejar de Seguir no es compatible con su red actualmente."
 
 #: object/Item.php:353
 msgid "via"
