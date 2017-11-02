@@ -285,6 +285,25 @@ function notifier_run(&$argv, &$argc){
 		if ($parent['origin']) {
 			$relay_to_owner = false;
 		}
+
+		// Special treatment for forum posts
+		if (($target_item['author-link'] != $target_item['owner-link']) &&
+			($owner['id'] != $target_item['contact-id']) &&
+			($target_item['uri'] === $target_item['parent-uri'])) {
+
+			$fields = array('forum', 'prv');
+			$condition = array('id' => $target_item['contact-id']);
+			$contact = dba::select('contact', $fields, $condition, array('limit' => 1));
+			if (!dbm::is_result($contact)) {
+				// Should never happen
+				return false;
+			}
+
+			// Is the post from a forum?
+			if ($contact['forum'] || $contact['prv']) {
+				$relay_to_owner = true;
+			}
+		}
 		if ($relay_to_owner) {
 			logger('notifier: followup '.$target_item["guid"], LOGGER_DEBUG);
 			// local followup to remote post
