@@ -215,6 +215,9 @@ function notifier_run(&$argv, &$argc){
 	// Do a PuSH
 	$push_notify = false;
 
+	// Deliver directly to a forum, don't PuSH
+	$direct_forum_delivery = false;
+
 	// fill this in with a single salmon slap if applicable
 	$slap = '';
 
@@ -302,6 +305,7 @@ function notifier_run(&$argv, &$argc){
 			// Is the post from a forum?
 			if ($contact['forum'] || $contact['prv']) {
 				$relay_to_owner = true;
+				$direct_forum_delivery = true;
 			}
 		}
 		if ($relay_to_owner) {
@@ -337,6 +341,11 @@ function notifier_run(&$argv, &$argc){
 					}
 				}
 			}
+
+			if ($direct_forum_delivery) {
+				$push_notify = false;
+			}
+
 			logger("Notify ".$target_item["guid"]." via PuSH: ".($push_notify?"Yes":"No"), LOGGER_DEBUG);
 		} else {
 			$followup = false;

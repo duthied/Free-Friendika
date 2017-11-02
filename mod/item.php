@@ -576,6 +576,7 @@ function item_post(App $a) {
 
 	$private_forum = false;
 	$only_to_forum = false;
+	$forum_contact = array();
 
 	if (count($tags)) {
 		foreach ($tags as $tag) {
@@ -608,18 +609,29 @@ function item_post(App $a) {
 			}
 			// When the forum is private or the forum is addressed with a "!" make the post private
 			if (is_array($success['contact']) && ($success['contact']['prv'] || ($tag_type == '!'))) {
-				$private_forum = true;
+				$private_forum = $success['contact']['prv'];
 				$only_to_forum = ($tag_type == '!');
 				$private_id = $success['contact']['id'];
+				$forum_contact = $success['contact'];
 			}
 		}
 	}
 
-	if ($private_forum && !$parent && (!$private || $only_to_forum)) {
-		// we tagged a private forum in a top level post and the message was public.
-		// Restrict it.
-		$private = 1;
-		$str_contact_allow = '<' . $private_id . '>';
+	if (!$parent && count($forum_contact) && ($private_forum || $only_to_forum)) {
+		// we tagged a forum in a top level post. Now we change the post
+		$private = $private_forum;
+
+		$str_group_allow = '';
+		$str_contact_deny = '';
+		$str_group_deny = '';
+		if ($private_forum) {
+			$str_contact_allow = '<' . $private_id . '>';
+		} else {
+			$str_contact_allow = '';
+		}
+		$contact_id = $private_id;
+		$contact_record = $forum_contact;
+		$_REQUEST['origin'] = false;
 	}
 
 	$attachments = '';
@@ -643,7 +655,7 @@ function item_post(App $a) {
 
 	$wall = 0;
 
-	if ($post_type === 'wall' || $post_type === 'wall-comment') {
+	if (($post_type === 'wall' || $post_type === 'wall-comment') && !count($forum_contact)) {
 		$wall = 1;
 	}
 
@@ -971,7 +983,7 @@ function item_post(App $a) {
 			intval($parent),
 			intval($post_id));
 
-		if ($contact_record != $author) {
+		if (($contact_record != $author) && !count($forum_contact)) {
 			notification(array(
 				'type'         => NOTIFY_WALL,
 				'notify_flags' => $user['notify-flags'],
