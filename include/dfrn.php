@@ -2007,7 +2007,7 @@ class dfrn {
 			return false;
 		}
 
-		// Is the post only directed to a sigle forum
+		// Is the post only directed to a single forum?
 		if ($existing['allow_cid'] != '<'.$item['contact-id'].'>') {
 			return false;
 		}
