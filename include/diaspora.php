@@ -3569,11 +3569,11 @@ class Diaspora {
 		// Split the signed text
 		$signed_parts = explode(";", $signature['signed_text']);
 
-		if ($item["deleted"])
+		if ($item["deleted"]) {
 			$message = array("author" => $signature['signer'],
 					"target_guid" => $signed_parts[0],
 					"target_type" => $signed_parts[1]);
-		elseif ($item['verb'] === ACTIVITY_LIKE)
+		} elseif (in_array($item["verb"], array(ACTIVITY_LIKE, ACTIVITY_DISLIKE))) {
 			$message = array("author" => $signed_parts[4],
 					"guid" => $signed_parts[1],
 					"parent_guid" => $signed_parts[3],
@@ -3581,7 +3581,7 @@ class Diaspora {
 					"positive" => $signed_parts[0],
 					"author_signature" => $signature['signature'],
 					"parent_author_signature" => "");
-		else {
+		} else {
 			// Remove the comment guid
 			$guid = array_shift($signed_parts);
 
@@ -3616,12 +3616,13 @@ class Diaspora {
 	 */
 	public static function send_relay($item, $owner, $contact, $public_batch = false) {
 
-		if ($item["deleted"])
+		if ($item["deleted"]) {
 			return self::send_retraction($item, $owner, $contact, $public_batch, true);
-		elseif ($item['verb'] === ACTIVITY_LIKE)
+		} elseif (in_array($item["verb"], array(ACTIVITY_LIKE, ACTIVITY_DISLIKE))) {
 			$type = "like";
-		else
+		} else {
 			$type = "comment";
+		}
 
 		logger("Got relayable data ".$type." for item ".$item["guid"]." (".$item["id"].")", LOGGER_DEBUG);
 
@@ -3688,7 +3689,7 @@ class Diaspora {
 
 		if ($item['id'] == $item['parent']) {
 			$target_type = "Post";
-		} elseif ($item["verb"] == ACTIVITY_LIKE) {
+		} elseif (in_array($item["verb"], array(ACTIVITY_LIKE, ACTIVITY_DISLIKE))) {
 			$target_type = "Like";
 		} else {
 			$target_type = "Comment";
