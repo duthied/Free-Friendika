@@ -127,7 +127,6 @@ class Item extends BaseObject {
 			? t('Private Message')
 			: false);
 		$shareable = ((($conv->get_profile_owner() == local_user()) && ($item['private'] != 1)) ? true : false);
-
 		if (local_user() && link_compare($a->contact['url'],$item['author-link'])) {
 			if ($item["event-id"] != 0) {
 				$edpost = array("events/event/".$item['event-id'], t("Edit"));
