@@ -2058,7 +2058,7 @@ class dfrn {
 		$condition = array('uri' => $item["uri"], 'uid' => $item["uid"]);
 		dba::update('item', $item, $condition);
 
-		add_thread($existing['id']);
+		add_shadow_thread($existing['id']);
 		return true;
 	}
 
