@@ -613,6 +613,12 @@ function item_post(App $a) {
 				$only_to_forum = ($tag_type == '!');
 				$private_id = $success['contact']['id'];
 				$forum_contact = $success['contact'];
+			} elseif (is_array($success['contact']) && $success['contact']['forum'] &&
+				($str_contact_allow == '<' . $success['contact']['id'] . '>')) {
+				$private_forum = false;
+				$only_to_forum = true;
+				$private_id = $success['contact']['id'];
+				$forum_contact = $success['contact'];
 			}
 		}
 	}
@@ -1186,7 +1192,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			// Is it in format @user@domain.tld or @http://domain.tld/...?
 
 			// First check the contact table for the address
-			$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network`, `notify` FROM `contact`
+			$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network`, `notify`, `forum`, `prv` FROM `contact`
 				WHERE `addr` = '%s' AND `uid` = %d AND
 					(`network` != '%s' OR (`notify` != '' AND `alias` != ''))
 				LIMIT 1",
@@ -1197,7 +1203,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 
 			// Then check in the contact table for the url
 			if (!dbm::is_result($r)) {
-				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network`, `notify` FROM `contact`
+				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network`, `notify`, `forum`, `prv` FROM `contact`
 					WHERE `nurl` = '%s' AND `uid` = %d AND
 						(`network` != '%s' OR (`notify` != '' AND `alias` != ''))
 					LIMIT 1",
