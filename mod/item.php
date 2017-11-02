@@ -575,6 +575,7 @@ function item_post(App $a) {
 	$tagged = array();
 
 	$private_forum = false;
+	$only_to_forum = false;
 
 	if (count($tags)) {
 		foreach ($tags as $tag) {
@@ -608,12 +609,13 @@ function item_post(App $a) {
 			// When the forum is private or the forum is addressed with a "!" make the post private
 			if (is_array($success['contact']) && ($success['contact']['prv'] || ($tag_type == '!'))) {
 				$private_forum = true;
+				$only_to_forum = ($tag_type == '!');
 				$private_id = $success['contact']['id'];
 			}
 		}
 	}
 
-	if ($private_forum && !$parent && !$private) {
+	if ($private_forum && !$parent && (!$private || $only_to_forum)) {
 		// we tagged a private forum in a top level post and the message was public.
 		// Restrict it.
 		$private = 1;
