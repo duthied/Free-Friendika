@@ -940,17 +940,17 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 
 	// Remove all hashtag addresses
 	if ((!$tryoembed || $simplehtml) && !in_array($simplehtml, array(3, 7))) {
-		$Text = preg_replace("/([#@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $Text);
+		$Text = preg_replace("/([#@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $Text);
 	} elseif ($simplehtml == 3) {
-		$Text = preg_replace("/([@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
+		$Text = preg_replace("/([@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
 			'$1<a href="$2">$3</a>',
 			$Text);
 	} elseif ($simplehtml == 7) {
-		$Text = preg_replace("/([@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
+		$Text = preg_replace("/([@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
 			'$1<span class="vcard"><a href="$2" class="url" title="$3"><span class="fn nickname mention">$3</span></a></span>',
 			$Text);
 	} elseif (!$simplehtml) {
-		$Text = preg_replace("/([@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
+		$Text = preg_replace("/([@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
 			'$1<a href="$2" class="userinfo mention" title="$3">$3</a>',
 			$Text);
 	}
@@ -962,13 +962,13 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 				"[bookmark=$1]$2[/bookmark]", $Text);
 
 	if (in_array($simplehtml, array(2, 6, 7, 8, 9))) {
-		$Text = preg_replace_callback("/([^#@])\[url\=([^\]]*)\](.*?)\[\/url\]/ism", "bb_expand_links", $Text);
-		//$Text = preg_replace("/[^#@]\[url\=([^\]]*)\](.*?)\[\/url\]/ism", ' $2 [url]$1[/url]', $Text);
+		$Text = preg_replace_callback("/([^#@!])\[url\=([^\]]*)\](.*?)\[\/url\]/ism", "bb_expand_links", $Text);
+		//$Text = preg_replace("/[^#@!]\[url\=([^\]]*)\](.*?)\[\/url\]/ism", ' $2 [url]$1[/url]', $Text);
 		$Text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", ' $2 [url]$1[/url]',$Text);
 	}
 
 	if ($simplehtml == 5) {
-		$Text = preg_replace("/[^#@]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '[url]$1[/url]', $Text);
+		$Text = preg_replace("/[^#@!]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '[url]$1[/url]', $Text);
 	}
 
 	// Perform URL Search

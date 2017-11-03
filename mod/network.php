@@ -577,9 +577,9 @@ function networkThreadedView(App $a, $update = 0) {
 			$contact = dba::select('contact', array('addr', 'nick'), $condition, array('limit' => 1));
 			if (dbm::is_result($contact)) {
 				if ($contact["addr"] != '') {
-					$content = "@".$contact["addr"];
+					$content = "!".$contact["addr"];
 				} else {
-					$content = "@".$contact["nick"]."+".$cid;
+					$content = "!".$contact["nick"]."+".$cid;
 				}
 			}
 		}

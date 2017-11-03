@@ -307,7 +307,7 @@ class exAuth {
 	 */
 	private function writeLog($sMessage) {
 		if (is_resource($this->rLogFile))
-			fwrite($this->rLogFile, date("r")." ".$sMessage."\n");
+			fwrite($this->rLogFile, date("r")." ".getmypid()." ".$sMessage."\n");
 	}
 
 	/**
