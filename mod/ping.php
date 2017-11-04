@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\PConfig;
 
 require_once('include/datetime.php');
 require_once('include/bbcode.php');
@@ -477,7 +478,11 @@ function ping_get_notifications($uid)
 
 			if ($notification["visible"] && !$notification["spam"] &&
 				!$notification["deleted"] && !is_array($result[$notification["parent"]])) {
-				$result[$notification["parent"]] = $notification;
+				if (PConfig::get(local_user(), 'system', 'detailled_notif')) {
+					$result[$notification["id"]] = $notification;
+				} else {
+					$result[$notification["parent"]] = $notification;
+				}
 			}
 		}
 	} while ((count($result) < 50) && !$quit);

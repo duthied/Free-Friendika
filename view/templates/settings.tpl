@@ -135,6 +135,7 @@
 </div>
 
 {{include file="field_checkbox.tpl" field=$email_textonly}}
+{{include file="field_checkbox.tpl" field=$detailled_notif}}
 
 
 <!--
