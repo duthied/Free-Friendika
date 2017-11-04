@@ -19,7 +19,6 @@ Example: To set the directory value please add this line to your .htconfig.php:
 
 ## jabber ##
 * **debug** (Boolean) - Enable debug level for the jabber account synchronisation.
-* **logfile** - Logfile for the jabber account synchronisation.
 
 ## system ##
 
