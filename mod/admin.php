@@ -616,13 +616,9 @@ function admin_page_summary(App $a) {
 		$warningtext[] = sprintf(t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php include/dbstructure.php toinnodb</tt> of your Friendica installation for an automatic conversion.<br />'), 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
 	}
 	// Check if github.com/friendica/master/VERSION is higher then
-	// the local version of Friendica.
+	// the local version of Friendica. Check is opt-in, source may be master or devel branch
 	if (Config::get('system', 'check_new_version')) {
-		$gitversion = Cache::get("git_friendica_version");
-		if (! isset($gitversion)) {
-			$gitversion = dbesc(trim(fetch_url("https://raw.githubusercontent.com/friendica/friendica/master/VERSION")));
-			Cache::set("git_friendica_version", $gitversion, CACHE_WEEK);
-		}
+		$gitversion = Config::get('system','git_friendica_version');
 		if ( version_compare(FRIENDICA_VERSION, $gitversion)<0) {
 			$warningtext[] = t('There is a new version of Friendica available for download.');
 			$showwarning = true;
@@ -981,7 +977,7 @@ function admin_page_site_post(App $a) {
 	set_config('system', 'enotify_no_content', $enotify_no_content);
 	set_config('system', 'disable_embedded', $disable_embedded);
 	set_config('system', 'allow_users_remote_self', $allow_users_remote_self);
-	set_config('system', 'check_new_version', $check_new_version);
+	set_config('system', 'check_new_version_url', $check_new_version_url);
 
 	set_config('system', 'block_extended_register', $no_multi_reg);
 	set_config('system', 'no_openid', $no_openid);
@@ -1151,6 +1147,12 @@ function admin_page_site(App $a) {
 		SSL_POLICY_SELFSIGN => t("Self-signed certificate, use SSL for local links only (discouraged)")
 	);
 
+	$check_git_version_choices = array(
+		"none" => t("Don't check"),
+		"https://raw.githubusercontent.com/friendica/friendica/master/VERSION" => t("check the stable version"),
+		"https://raw.githubusercontent.com/friendica/friendica/develop/VERSION" => t("check the development version")
+	);
+
 	if ($a->config['hostname'] == "") {
 		$a->config['hostname'] = $a->get_hostname();
 	}
@@ -1246,6 +1248,7 @@ function admin_page_site(App $a) {
 
 		'$nodeinfo'		=> array('nodeinfo', t("Publish server information"), get_config('system','nodeinfo'), t("If enabled, general server and usage data will be published. The data contains the name and version of the server, number of users with public profiles, number of posts and the activated protocols and connectors. See <a href='http://the-federation.info/'>the-federation.info</a> for details.")),
 
+		'$checknreversionurl' => array('check_new_version_url', t("Check upstream version"), get_config('system', 'check_new_version_url'), t("Enables checking for new Friendica versions at github. If there is a new version, you will be informed in the admin panel overview."), $check_git_version_choices),
 		'$suppress_tags'	=> array('suppress_tags', t("Suppress Tags"), get_config('system','suppress_tags'), t("Suppress showing a list of hashtags at the end of the posting.")),
 		'$itemcache'		=> array('itemcache', t("Path to item cache"), get_config('system','itemcache'), t("The item caches buffers generated bbcode and external images.")),
 		'$itemcache_duration' 	=> array('itemcache_duration', t("Cache duration in seconds"), get_config('system','itemcache_duration'), t("How long should the cache files be hold? Default value is 86400 seconds (One day). To disable the item cache, set the value to -1.")),
