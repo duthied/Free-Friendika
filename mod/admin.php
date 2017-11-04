@@ -817,7 +817,6 @@ function admin_page_site_post(App $a) {
 	$private_addons			=	((x($_POST,'private_addons'))		? True					: False);
 	$disable_embedded		=	((x($_POST,'disable_embedded'))		? True					: False);
 	$allow_users_remote_self	=	((x($_POST,'allow_users_remote_self'))	? True					: False);
-	$check_new_version	=	((x($_POST,'check_new_version'))	? True					: False);
 
 	$no_multi_reg		=	((x($_POST,'no_multi_reg'))		? True						: False);
 	$no_openid		=	!((x($_POST,'no_openid'))		? True						: False);
