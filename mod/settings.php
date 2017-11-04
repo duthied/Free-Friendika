@@ -521,10 +521,8 @@ function settings_post(App $a) {
 		return;
 	}
 
-	if ($timezone != $a->user['timezone']) {
-		if (strlen($timezone)) {
-			date_default_timezone_set($timezone);
-		}
+	if (($timezone != $a->user['timezone']) && strlen($timezone)) {
+		date_default_timezone_set($timezone);
 	}
 
 	$str_group_allow   = perms2str($_POST['group_allow']);
