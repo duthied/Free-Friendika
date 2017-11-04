@@ -110,7 +110,6 @@
 	{{include file="field_checkbox.tpl" field=$private_addons}}
 	{{include file="field_checkbox.tpl" field=$disable_embedded}}
 	{{include file="field_checkbox.tpl" field=$allow_users_remote_self}}
-	{{include file="field_checkbox.tpl" field=$check_new_version}}
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	<h3>{{$advanced}}</h3>
