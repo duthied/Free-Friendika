@@ -33,6 +33,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
 
 if (sizeof($_SERVER["argv"]) == 0)
 	die();
@@ -58,42 +59,30 @@ require_once("include/dba.php");
 dba::connect($db_host, $db_user, $db_pass, $db_data);
 unset($db_host, $db_user, $db_pass, $db_data);
 
-// the logfile to which to write, should be writeable by the user which is running the server
-$sLogFile = get_config('jabber','logfile');
-
-// set true to debug if needed
-$bDebug	= get_config('jabber','debug');
-
-$oAuth = new exAuth($sLogFile, $bDebug);
+$oAuth = new exAuth();
 
 class exAuth {
-	private $sLogFile;
 	private $bDebug;
-
-	private $rLogFile;
 
 	/**
 	 * @brief Create the class and do the authentification studd
 	 *
-	 * @param string $sLogFile The logfile name
 	 * @param boolean $bDebug Debug mode
 	 */
-	public function __construct($sLogFile, $bDebug) {
+	public function __construct() {
 		// setter
-		$this->sLogFile 	= $sLogFile;
-		$this->bDebug		= $bDebug;
+		$this->bDebug = (int)Config::get('jabber', 'debug');
 
-		// Open the logfile if the logfile name is defined
-		if ($this->sLogFile != '')
-			$this->rLogFile = fopen($this->sLogFile, "a") || die("Error opening log file: ". $this->sLogFile);
 
-		$this->writeLog("[exAuth] start");
+		openlog('auth_ejabberd', LOG_PID, LOG_USER);
 
-		// We are connected to the SQL server and are having a log file.
+		$this->writeLog(LOG_NOTICE, "start");
+
+		// We are connected to the SQL server.
 		do {
 			// Quit if the database connection went down
 			if (!dba::connected()) {
-				$this->writeDebugLog("[debug] the database connection went down");
+				$this->writeLog(LOG_ERR, "the database connection went down");
 				return;
 			}
 
@@ -103,13 +92,13 @@ class exAuth {
 
 			// No data? Then quit
 			if ($iLength == 0) {
-				$this->writeDebugLog("[debug] we got no data");
+				$this->writeLog(LOG_ERR, "we got no data, quitting");
 				return;
 			}
 
 			// Fetching the data
 			$sData = fgets(STDIN, $iLength + 1);
-			$this->writeDebugLog("[debug] received data: ". $sData);
+			$this->writeLog(LOG_DEBUG, "received data: ". $sData);
 			$aCommand = explode(":", $sData);
 			if (is_array($aCommand)) {
 				switch ($aCommand[0]) {
@@ -123,17 +112,17 @@ class exAuth {
 						break;
 					case "setpass":
 						// We don't accept the setting of passwords here
-						$this->writeLog("[exAuth] setpass command disabled");
+						$this->writeLog(LOG_NOTICE, "setpass command disabled");
 						fwrite(STDOUT, pack("nn", 2, 0));
 						break;
 					default:
 						// We don't know the given command
-						$this->writeLog("[exAuth] unknown command ". $aCommand[0]);
+						$this->writeLog(LOG_NOTICE, "unknown command ". $aCommand[0]);
 						fwrite(STDOUT, pack("nn", 2, 0));
 						break;
 				}
 			} else {
-				$this->writeDebugLog("[debug] invalid command string");
+				$this->writeLog(LOG_NOTICE, "invalid command string ".$sData);
 				fwrite(STDOUT, pack("nn", 2, 0));
 			}
 		} while (true);
@@ -149,19 +138,19 @@ class exAuth {
 
 		// Check if there is a username
 		if (!isset($aCommand[1])) {
-			$this->writeLog("[exAuth] invalid isuser command, no username given");
+			$this->writeLog(LOG_NOTICE, "invalid isuser command, no username given");
 			fwrite(STDOUT, pack("nn", 2, 0));
 			return;
 		}
 
 		// Now we check if the given user is valid
 		$sUser = str_replace(array("%20", "(a)"), array(" ", "@"), $aCommand[1]);
-		$this->writeDebugLog("[debug] checking isuser for ". $sUser."@".$aCommand[2]);
 
 		// Does the hostname match? So we try directly
 		if ($a->get_hostname() == $aCommand[2]) {
+			$this->writeLog(LOG_INFO, "internal user check for ". $sUser."@".$aCommand[2]);
 			$sQuery = "SELECT `uid` FROM `user` WHERE `nickname`='".dbesc($sUser)."'";
-			$this->writeDebugLog("[debug] using query ". $sQuery);
+			$this->writeLog(LOG_DEBUG, "using query ". $sQuery);
 			$r = q($sQuery);
 			$found = dbm::is_result($r);
 		} else {
@@ -175,11 +164,11 @@ class exAuth {
 
 		if ($found) {
 			// The user is okay
-			$this->writeLog("[exAuth] valid user: ". $sUser);
+			$this->writeLog(LOG_NOTICE, "valid user: ". $sUser);
 			fwrite(STDOUT, pack("nn", 2, 1));
 		} else {
 			// The user isn't okay
-			$this->writeLog("[exAuth] invalid user: ". $sUser);
+			$this->writeLog(LOG_WARNING, "invalid user: ". $sUser);
 			fwrite(STDOUT, pack("nn", 2, 0));
 		}
 	}
@@ -194,6 +183,8 @@ class exAuth {
 	 * @return boolean Was the user found?
 	 */
 	private function check_user($host, $user, $ssl) {
+
+		$this->writeLog(LOG_INFO, "external user check for ".$user."@".$host);
 
 		$url = ($ssl ? "https":"http")."://".$host."/noscrape/".$user;
 
@@ -222,30 +213,31 @@ class exAuth {
 
 		// check user authentication
 		if (sizeof($aCommand) != 4) {
-			$this->writeLog("[exAuth] invalid auth command, data missing");
+			$this->writeLog(LOG_NOTICE, "invalid auth command, data missing");
 			fwrite(STDOUT, pack("nn", 2, 0));
 			return;
 		}
 
 		// We now check if the password match
 		$sUser = str_replace(array("%20", "(a)"), array(" ", "@"), $aCommand[1]);
-		$this->writeDebugLog("[debug] doing auth for ".$sUser."@".$aCommand[2]);
 
 		// Does the hostname match? So we try directly
 		if ($a->get_hostname() == $aCommand[2]) {
+			$this->writeLog(LOG_INFO, "internal auth for ".$sUser."@".$aCommand[2]);
+
 			$sQuery = "SELECT `uid`, `password` FROM `user` WHERE `nickname`='".dbesc($sUser)."'";
-			$this->writeDebugLog("[debug] using query ". $sQuery);
+			$this->writeLog(LOG_DEBUG, "using query ". $sQuery);
 			if ($oResult = q($sQuery)) {
 				$uid = $oResult[0]["uid"];
 				$Error = ($oResult[0]["password"] != hash('whirlpool',$aCommand[3]));
 			} else {
-				$this->writeLog("[MySQL] invalid query: ". $sQuery);
+				$this->writeLog(LOG_WARNING, "invalid query: ". $sQuery);
 				$Error = true;
 				$uid = -1;
 			}
 			if ($Error) {
 				$oConfig = q("SELECT `v` FROM `pconfig` WHERE `uid` = %d AND `cat` = 'xmpp' AND `k`='password' LIMIT 1;", intval($uid));
-				$this->writeLog("[exAuth] got password ".$oConfig[0]["v"]);
+				$this->writeLog(LOG_INFO, "check against alternate password for ".$sUser."@".$aCommand[2]);
 				$Error = ($aCommand[3] != $oConfig[0]["v"]);
 			}
 		} else {
@@ -258,10 +250,10 @@ class exAuth {
 		}
 
 		if ($Error) {
-			$this->writeLog("[exAuth] authentification failed for user ".$sUser."@". $aCommand[2]);
+			$this->writeLog(LOG_WARNING, "authentification failed for user ".$sUser."@". $aCommand[2]);
 			fwrite(STDOUT, pack("nn", 2, 0));
 		} else {
-			$this->writeLog("[exAuth] authentificated user ".$sUser."@".$aCommand[2]);
+			$this->writeLog(LOG_NOTICE, "authentificated user ".$sUser."@".$aCommand[2]);
 			fwrite(STDOUT, pack("nn", 2, 1));
 		}
 	}
@@ -277,8 +269,6 @@ class exAuth {
 	 * @return boolean Are the credentials okay?
 	 */
 	private function check_credentials($host, $user, $password, $ssl) {
-		$this->writeDebugLog("[debug] check credentials for user ".$user." on ".$host);
-
 		$url = ($ssl ? "https":"http")."://".$host."/api/account/verify_credentials.json";
 
 		$ch = curl_init();
@@ -295,39 +285,29 @@ class exAuth {
 		$http_code = $curl_info["http_code"];
 		curl_close($ch);
 
-		$this->writeDebugLog("[debug] got HTTP code ".$http_code);
+		$this->writeLog(LOG_INFO, "external auth for ".$user."@".$host." returned ".$http_code);
 
 		return ($http_code == 200);
 	}
 
 	/**
-	 * @brief write data to the logfile
+	 * @brief write data to the syslog
 	 *
-	 * @param string $sMessage The logfile message
+	 * @param integer $loglevel The syslog loglevel
+	 * @param string $sMessage The syslog message
 	 */
-	private function writeLog($sMessage) {
-		if (is_resource($this->rLogFile))
-			fwrite($this->rLogFile, date("r")." ".getmypid()." ".$sMessage."\n");
+	private function writeLog($loglevel, $sMessage) {
+		if (!$this->bDebug && ($loglevel >= LOG_DEBUG)) {
+			return;
+		}
+		syslog($loglevel, $sMessage);
 	}
 
 	/**
-	 * @brief write debug data to the logfile
-	 *
-	 * @param string $sMessage The logfile message
-	 */
-	private function writeDebugLog($sMessage) {
-		if ($this->bDebug)
-			$this->writeLog($sMessage);
-	}
-
-	/**
-	 * @brief destroy the class
+	 * @brief destroy the class, close the syslog connection.
 	 */
 	public function __destruct() {
-		// close the log file
-		$this->writeLog("[exAuth] stop");
-
-		if (is_resource($this->rLogFile))
-			fclose($this->rLogFile);
+		$this->writeLog(LOG_NOTICE, "stop");
+		closelog();
 	}
 }
