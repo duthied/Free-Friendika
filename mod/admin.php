@@ -856,6 +856,7 @@ function admin_page_site_post(App $a) {
 	$proxy_disabled		=	((x($_POST,'proxy_disabled'))		? True						: False);
 	$only_tag_search	=	((x($_POST,'only_tag_search'))		? True						: False);
 	$rino			=	((x($_POST,'rino'))			? intval($_POST['rino'])			: 0);
+  $check_new_version_url	=	((x($_POST, 'check_new_version_url'))	?	notags(trim($_POST['check_new_version_url']))	: 'none');
 	$worker_queues		=	((x($_POST,'worker_queues'))		? intval($_POST['worker_queues'])		: 4);
 	$worker_dont_fork	=	((x($_POST,'worker_dont_fork'))		? True						: False);
 	$worker_fastlane	=	((x($_POST,'worker_fastlane'))		? True						: False);
