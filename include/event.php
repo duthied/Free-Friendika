@@ -971,7 +971,7 @@ function format_event_item($item) {
 		$location['map'] = '<div class="map">' . generate_map(str_replace('/', ' ', $evloc['coordinates'])) . '</div>';
 	}
 
-	// Format the profile link
+	// Construct the profile link (magic-auth).
 	$sp = false;
 	$profile_link = best_link_url($item, $sp);
 
