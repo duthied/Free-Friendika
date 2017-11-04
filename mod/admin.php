@@ -617,7 +617,7 @@ function admin_page_summary(App $a) {
 	}
 	// Check if github.com/friendica/master/VERSION is higher then
 	// the local version of Friendica. Check is opt-in, source may be master or devel branch
-	if (Config::get('system', 'check_new_version')) {
+	if (! Config::get('system', 'check_new_version_url', 'none') == 'none' ) {
 		$gitversion = Config::get('system','git_friendica_version');
 		if ( version_compare(FRIENDICA_VERSION, $gitversion)<0) {
 			$warningtext[] = t('There is a new version of Friendica available for download.');
