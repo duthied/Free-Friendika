@@ -971,6 +971,14 @@ function format_event_item($item) {
 		$location['map'] = '<div class="map">' . generate_map(str_replace('/', ' ', $evloc['coordinates'])) . '</div>';
 	}
 
+	// Construct the profile link (magic-auth).
+	$sp = false;
+	$profile_link = best_link_url($item, $sp);
+
+	if (!$sp) {
+		$profile_link = zrl($profile_link);
+	}
+
 	$event = replace_macros(get_markup_template('event_stream_item.tpl'), array(
 		'$id'             => $item['event-id'],
 		'$title'          => prepare_text($item['event-summary']),
@@ -989,9 +997,9 @@ function format_event_item($item) {
 		'$end_time'       => $end_time,
 		'$end_short'      => $end_short,
 		'$author_name'    => $item['author-name'],
-		'$author_link'    => $item['author-link'],
+		'$author_link'    => $profile_link,
 		'$author_avatar'  => $item['author-avatar'],
-		'$description'	  => prepare_text($item['event-desc']),
+		'$description'    => prepare_text($item['event-desc']),
 		'$location_label' => t('Location:'),
 		'$show_map_label' => t('Show map'),
 		'$hide_map_label' => t('Hide map'),
