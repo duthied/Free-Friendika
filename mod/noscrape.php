@@ -45,6 +45,7 @@ function noscrape_init(App $a) {
 	);
 
 	if (is_array($a->profile) && !$a->profile['hide-friends']) {
+		/// @todo What should this value tell us?
 		$r = q("SELECT `gcontact`.`updated` FROM `contact` INNER JOIN `gcontact` WHERE `gcontact`.`nurl` = `contact`.`nurl` AND `self` AND `uid` = %d LIMIT 1",
 			intval($a->profile['uid']));
 		if (dbm::is_result($r)) {
@@ -62,6 +63,23 @@ function noscrape_init(App $a) {
 			$json_info["contacts"] = intval($r[0]['total']);
 		}
 	}
+
+	// We display the last activity (post or login), reduced to year and week number
+	$last_active = 0;
+	$condition = array('uid' => $a->profile['uid'], 'self' => true);
+	$contact = dba::select('contact', array('last-item'), $condition, array('limit' => 1));
+	if (dbm::is_result($contact)) {
+		$last_active = strtotime($contact['last-item']);
+	}
+
+	$condition = array('uid' => $a->profile['uid']);
+	$user = dba::select('user', array('login_date'), $condition, array('limit' => 1));
+	if (dbm::is_result($user)) {
+		if ($last_active < strtotime($user['login_date'])) {
+			$last_active = strtotime($user['login_date']);
+		}
+	}
+	$json_info["last-activity"] = date("o-W", $last_active);
 
 	//These are optional fields.
 	$profile_fields = array('pdesc', 'locality', 'region', 'postal-code', 'country-name', 'gender', 'marital', 'about');
