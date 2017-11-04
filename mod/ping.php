@@ -478,7 +478,7 @@ function ping_get_notifications($uid)
 
 			if ($notification["visible"] && !$notification["spam"] &&
 				!$notification["deleted"] && !is_array($result[$notification["parent"]])) {
-				if (PConfig::get(local_user(), 'system', 'detailled_notif')) {
+				if (PConfig::get(local_user(), 'system', 'detailed_notif')) {
 					$result[$notification["id"]] = $notification;
 				} else {
 					$result[$notification["parent"]] = $notification;

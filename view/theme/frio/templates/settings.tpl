@@ -194,7 +194,7 @@
 							</div>
 
 							{{include file="field_checkbox.tpl" field=$email_textonly}}
-							{{include file="field_checkbox.tpl" field=$detailled_notif}}
+							{{include file="field_checkbox.tpl" field=$detailed_notif}}
 
 							{{* commented out because it was commented out in the original template
 							<div class="field">

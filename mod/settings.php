@@ -436,7 +436,7 @@ function settings_post(App $a) {
 	$post_profilechange   = (($_POST['post_profilechange'] == 1) ? 1: 0);
 
 	$email_textonly   = (($_POST['email_textonly'] == 1) ? 1 : 0);
-	$detailled_notif  = (($_POST['detailled_notif'] == 1) ? 1 : 0);
+	$detailed_notif   = (($_POST['detailed_notif'] == 1) ? 1 : 0);
 
 	$notify = 0;
 
@@ -562,7 +562,7 @@ function settings_post(App $a) {
 	PConfig::set(local_user(), 'system', 'post_profilechange', $post_profilechange);
 
 	PConfig::set(local_user(), 'system', 'email_textonly', $email_textonly);
-	PConfig::set(local_user(), 'system', 'detailled_notif', $detailled_notif);
+	PConfig::set(local_user(), 'system', 'detailed_notif', $detailed_notif);
 
 	if ($page_flags == PAGE_PRVGROUP) {
 		$hidewall = 1;
@@ -1335,8 +1335,8 @@ function settings_content(App $a) {
 									PConfig::get(local_user(), 'system', 'email_textonly'),
 									t('Send text only notification emails, without the html part')),
 
-		'$detailled_notif' => array('detailled_notif', t('Show detailled notifications'),
-									PConfig::get(local_user(), 'system', 'detailled_notif'),
+		'$detailed_notif' => array('detailed_notif', t('Show detailled notifications'),
+									PConfig::get(local_user(), 'system', 'detailed_notif'),
 									t('Per default the notificiation are condensed to a single notification per item. When enabled, every notification is displayed.')),
 
 		'$h_advn' => t('Advanced Account/Page Type Settings'),
