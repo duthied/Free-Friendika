@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 
 require_once('include/security.php');
 require_once('include/bbcode.php');
@@ -214,7 +215,7 @@ EOT;
 
 	call_hooks('post_local_end', $arr);
 
-	proc_run(PRIORITY_HIGH, "include/notifier.php", "tag", $post_id);
+	Worker::add(PRIORITY_HIGH, "notifier", "tag", $post_id);
 
 	killme();
 

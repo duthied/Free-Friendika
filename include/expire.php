@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\Core\Config;
+use Friendica\Core\Worker;
 
 function expire_run(&$argv, &$argc){
 	global $a;
@@ -47,14 +48,14 @@ function expire_run(&$argv, &$argc){
 
 	logger('expire: start');
 
-	proc_run(array('priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true),
-			'include/expire.php', 'delete');
+	Worker::add(array('priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true),
+			'expire', 'delete');
 
 	$r = dba::p("SELECT `uid`, `username` FROM `user` WHERE `expire` != 0");
 	while ($row = dba::fetch($r)) {
 		logger('Calling expiry for user '.$row['uid'].' ('.$row['username'].')', LOGGER_DEBUG);
-		proc_run(array('priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true),
-				'include/expire.php', (int)$row['uid']);
+		Worker::add(array('priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true),
+				'expire', (int)$row['uid']);
 	}
 	dba::close($r);
 
@@ -63,8 +64,8 @@ function expire_run(&$argv, &$argc){
 	if (is_array($a->hooks) && array_key_exists('expire', $a->hooks)) {
 		foreach ($a->hooks['expire'] as $hook) {
 			logger("Calling expire hook for '" . $hook[1] . "'", LOGGER_DEBUG);
-			proc_run(array('priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true),
-					'include/expire.php', 'hook', $hook[1]);
+			Worker::add(array('priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true),
+					'expire', 'hook', $hook[1]);
 		}
 	}
 

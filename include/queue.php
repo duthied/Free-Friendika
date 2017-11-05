@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\Core\Config;
+use Friendica\Core\Worker;
 
 require_once 'include/queue_fn.php';
 require_once 'include/dfrn.php';
@@ -27,7 +28,7 @@ function queue_run(&$argv, &$argc) {
 		logger('queue: start');
 
 		// Handling the pubsubhubbub requests
-		proc_run(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), 'include/pubsubpublish.php');
+		Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), 'pubsubpublish');
 
 		$r = q("SELECT `queue`.*, `contact`.`name`, `contact`.`uid` FROM `queue`
 			INNER JOIN `contact` ON `queue`.`cid` = `contact`.`id`
@@ -52,7 +53,7 @@ function queue_run(&$argv, &$argc) {
 		if (dbm::is_result($r)) {
 			foreach ($r as $q_item) {
 				logger('Call queue for id '.$q_item['id']);
-				proc_run(array('priority' => PRIORITY_LOW, 'dont_fork' => true), "include/queue.php", (int)$q_item['id']);
+				Worker::add(array('priority' => PRIORITY_LOW, 'dont_fork' => true), "queue", (int)$q_item['id']);
 			}
 		}
 		return;

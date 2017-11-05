@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 
 require_once("include/Photo.php");
 
@@ -129,10 +130,10 @@ function profile_photo_post(App $a) {
 				// Update global directory in background
 				$url = System::baseUrl() . '/profile/' . $a->user['nickname'];
 				if ($url && strlen(get_config('system','directory'))) {
-					proc_run(PRIORITY_LOW, "include/directory.php", $url);
+					Worker::add(PRIORITY_LOW, "directory", $url);
 				}
 
-				proc_run(PRIORITY_LOW, 'include/profile_update.php', local_user());
+				Worker::add(PRIORITY_LOW, 'profile_update', local_user());
 			} else {
 				notice( t('Unable to process image') . EOL);
 			}
@@ -229,7 +230,7 @@ function profile_photo_content(App $a) {
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
 			if ($url && strlen(get_config('system','directory'))) {
-				proc_run(PRIORITY_LOW, "include/directory.php", $url);
+				Worker::add(PRIORITY_LOW, "directory", $url);
 			}
 
 			goaway(System::baseUrl() . '/profiles');

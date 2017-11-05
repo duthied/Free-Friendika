@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 
 require_once('include/security.php');
 require_once('include/bbcode.php');
@@ -98,13 +99,13 @@ function mood_init(App $a) {
 			intval($uid),
 			intval($item_id)
 		);
-		proc_run(PRIORITY_HIGH, "include/notifier.php", "tag", $item_id);
+		Worker::add(PRIORITY_HIGH, "notifier", "tag", $item_id);
 	}
 
 
 	call_hooks('post_local_end', $arr);
 
-	proc_run(PRIORITY_HIGH, "include/notifier.php", "like", $post_id);
+	Worker::add(PRIORITY_HIGH, "notifier", "like", $post_id);
 
 	return;
 }

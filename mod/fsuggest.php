@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Worker;
 
 function fsuggest_post(App $a) {
 
@@ -59,7 +60,7 @@ function fsuggest_post(App $a) {
 					intval($fsuggest_id),
 					intval(local_user())
 				);
-				proc_run(PRIORITY_HIGH, 'include/notifier.php', 'suggest', $fsuggest_id);
+				Worker::add(PRIORITY_HIGH, 'notifier', 'suggest', $fsuggest_id);
 			}
 
 			info( t('Friend suggestion sent.') . EOL);

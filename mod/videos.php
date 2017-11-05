@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 
 require_once('include/items.php');
 require_once('include/acl_selectors.php');
@@ -170,7 +171,7 @@ function videos_post(App $a) {
 				$drop_id = intval($i[0]['id']);
 
 				if ($i[0]['visible']) {
-					proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
+					Worker::add(PRIORITY_HIGH, "notifier", "drop", $drop_id);
 				}
 			}
 		}

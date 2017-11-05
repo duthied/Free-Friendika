@@ -4,6 +4,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 
 function send_message($recipient=0, $body='', $subject='', $replyto=''){
 
@@ -143,7 +144,7 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 	}
 
 	if ($post_id) {
-		proc_run(PRIORITY_HIGH, "include/notifier.php", "mail", $post_id);
+		Worker::add(PRIORITY_HIGH, "notifier", "mail", $post_id);
 		return intval($post_id);
 	} else {
 		return -3;

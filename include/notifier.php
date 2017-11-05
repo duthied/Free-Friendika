@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\Worker;
 
 require_once 'include/queue_fn.php';
 require_once 'include/html2plain.php';
@@ -19,7 +20,7 @@ require_once 'include/salmon.php';
 /*
  * The notifier is typically called with:
  *
- *		proc_run(PRIORITY_HIGH, "include/notifier.php", COMMAND, ITEM_ID);
+ *		Worker::add(PRIORITY_HIGH, "notifier", COMMAND, ITEM_ID);
  *
  * where COMMAND is one of the following:
  *
@@ -375,7 +376,7 @@ function notifier_run(&$argv, &$argc){
 			// a delivery fork. private groups (forum_mode == 2) do not uplink
 
 			if ((intval($parent['forum_mode']) == 1) && (! $top_level) && ($cmd !== 'uplink')) {
-				proc_run($a->queue['priority'], 'include/notifier.php', 'uplink', $item_id);
+				Worker::add($a->queue['priority'], 'notifier', 'uplink', $item_id);
 			}
 
 			$conversants = array();
@@ -514,8 +515,8 @@ function notifier_run(&$argv, &$argc){
 			}
 			logger("Deliver ".$target_item["guid"]." to ".$contact['url']." via network ".$contact['network'], LOGGER_DEBUG);
 
-			proc_run(array('priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true),
-					'include/delivery.php', $cmd, $item_id, (int)$contact['id']);
+			Worker::add(array('priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true),
+					'delivery', $cmd, $item_id, (int)$contact['id']);
 		}
 	}
 
@@ -579,8 +580,8 @@ function notifier_run(&$argv, &$argc){
 
 				if ((! $mail) && (! $fsuggest) && (! $followup)) {
 					logger('notifier: delivery agent: '.$rr['name'].' '.$rr['id'].' '.$rr['network'].' '.$target_item["guid"]);
-					proc_run(array('priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true),
-							'include/delivery.php', $cmd, $item_id, (int)$rr['id']);
+					Worker::add(array('priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true),
+							'delivery', $cmd, $item_id, (int)$rr['id']);
 				}
 			}
 		}
@@ -599,8 +600,8 @@ function notifier_run(&$argv, &$argc){
 		logger('Activating internal PuSH for item '.$item_id, LOGGER_DEBUG);
 
 		// Handling the pubsubhubbub requests
-		proc_run(array('priority' => PRIORITY_HIGH, 'created' => $a->queue['created'], 'dont_fork' => true),
-				'include/pubsubpublish.php');
+		Worker::add(array('priority' => PRIORITY_HIGH, 'created' => $a->queue['created'], 'dont_fork' => true),
+				'pubsubpublish');
 	}
 
 	logger('notifier: calling hooks', LOGGER_DEBUG);

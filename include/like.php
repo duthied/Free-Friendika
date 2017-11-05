@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 
 require_once("include/diaspora.php");
 
@@ -166,7 +167,7 @@ function do_like($item_id, $verb) {
 		);
 
 		$like_item_id = $like_item['id'];
-		proc_run(PRIORITY_HIGH, "include/notifier.php", "like", $like_item_id);
+		Worker::add(PRIORITY_HIGH, "notifier", "like", $like_item_id);
 
 		if (!$event_verb_flag || $like_item['verb'] == $activity) {
 			return true;
@@ -253,7 +254,7 @@ EOT;
 
 	call_hooks('post_local_end', $new_item);
 
-	proc_run(PRIORITY_HIGH, "include/notifier.php", "like", $new_item_id);
+	Worker::add(PRIORITY_HIGH, "notifier", "like", $new_item_id);
 
 	return true;
 }

@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 use Friendica\Network\Probe;
 
 require_once 'include/Contact.php';
@@ -497,10 +498,10 @@ function profiles_post(App $a) {
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
 			if ($url && strlen(get_config('system', 'directory'))) {
-				proc_run(PRIORITY_LOW, "include/directory.php", $url);
+				Worker::add(PRIORITY_LOW, "directory", $url);
 			}
 
-			proc_run(PRIORITY_LOW, 'include/profile_update.php', local_user());
+			Worker::add(PRIORITY_LOW, 'profile_update', local_user());
 
 			// Update the global contact for the user
 			update_gcontact_for_user(local_user());
@@ -594,7 +595,7 @@ function profile_activity($changed, $value) {
 
 	$i = item_store($arr);
 	if ($i) {
-		proc_run(PRIORITY_HIGH, "include/notifier.php", "activity", $i);
+		Worker::add(PRIORITY_HIGH, "notifier", "activity", $i);
 	}
 }
 

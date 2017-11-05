@@ -42,6 +42,15 @@ function poller_run($argv, $argc) {
 
 	load_hooks();
 
+	// At first check the maximum load. We shouldn't continue with a high load
+	if ($a->maxload_reached()) {
+		logger('Pre check: maximum load reached, quitting.', LOGGER_DEBUG);
+		return;
+	}
+
+	// We now start the process. This is done after the load check since this could increase the load.
+	$a->start_process();
+
 	$run_cron = (($argc <= 1) || ($argv[1] != "no_cron"));
 
 	Worker::processQueue($run_cron);

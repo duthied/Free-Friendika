@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 use Friendica\Network\Probe;
 
 // Included here for completeness, but this is a very dangerous operation.
@@ -26,10 +27,10 @@ function user_remove($uid) {
 
 	// The user and related data will be deleted in "cron_expire_and_remove_users" (cronjobs.php)
 	q("UPDATE `user` SET `account_removed` = 1, `account_expires_on` = UTC_TIMESTAMP() WHERE `uid` = %d", intval($uid));
-	proc_run(PRIORITY_HIGH, "include/notifier.php", "removeme", $uid);
+	Worker::add(PRIORITY_HIGH, "notifier", "removeme", $uid);
 
 	// Send an update to the directory
-	proc_run(PRIORITY_LOW, "include/directory.php", $r['url']);
+	Worker::add(PRIORITY_LOW, "directory", $r['url']);
 
 	if($uid == local_user()) {
 		unset($_SESSION['authenticated']);
@@ -60,7 +61,7 @@ function contact_remove($id) {
 	dba::delete('contact', array('id' => $id));
 
 	// Delete the rest in the background
-	proc_run(PRIORITY_LOW, 'include/remove_contact.php', $id);
+	Worker::add(PRIORITY_LOW, 'remove_contact', $id);
 }
 
 
@@ -305,7 +306,7 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 
 	if ((($profile["addr"] == "") || ($profile["name"] == "")) && ($profile["gid"] != 0) &&
 		in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
-		proc_run(PRIORITY_LOW, "include/update_gcontact.php", $profile["gid"]);
+		Worker::add(PRIORITY_LOW, "update_gcontact", $profile["gid"]);
 	}
 
 	// Show contact details of Diaspora contacts only if connected

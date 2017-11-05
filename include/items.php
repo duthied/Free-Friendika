@@ -9,6 +9,7 @@ use Friendica\Core\System;
 use Friendica\ParseUrl;
 use Friendica\Util\Lock;
 use Friendica\Core\Config;
+use Friendica\Core\Worker;
 
 require_once 'include/bbcode.php';
 require_once 'include/oembed.php';
@@ -1142,7 +1143,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	check_item_notification($current_post, $uid);
 
 	if ($notify) {
-		proc_run(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "include/notifier.php", $notify_type, $current_post);
+		Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "notifier", $notify_type, $current_post);
 	}
 
 	return $current_post;
@@ -1425,7 +1426,7 @@ function tag_deliver($uid, $item_id) {
 	);
 	update_thread($item_id);
 
-	proc_run(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), 'include/notifier.php', 'tgroup', $item_id);
+	Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), 'notifier', 'tgroup', $item_id);
 
 }
 
@@ -2065,8 +2066,7 @@ function item_expire($uid, $days, $network = "", $force = false) {
 		drop_item($item['id'], false);
 	}
 
-	proc_run(array('priority' => PRIORITY_LOW, 'dont_fork' => true), "include/notifier.php", "expire", $uid);
-
+	Worker::add(array('priority' => PRIORITY_LOW, 'dont_fork' => true), "notifier", "expire", $uid);
 }
 
 /// @TODO type-hint is array
@@ -2088,7 +2088,7 @@ function drop_items($items) {
 	// multiple threads may have been deleted, send an expire notification
 
 	if ($uid) {
-		proc_run(array('priority' => PRIORITY_LOW, 'dont_fork' => true), "include/notifier.php", "expire", $uid);
+		Worker::add(array('priority' => PRIORITY_LOW, 'dont_fork' => true), "notifier", "expire", $uid);
 	}
 }
 
@@ -2280,7 +2280,7 @@ function drop_item($id, $interactive = true) {
 		$drop_id = intval($item['id']);
 		$priority = ($interactive ? PRIORITY_HIGH : PRIORITY_LOW);
 
-		proc_run(array('priority' => $priority, 'dont_fork' => true), "include/notifier.php", "drop", $drop_id);
+		Worker::add(array('priority' => $priority, 'dont_fork' => true), "notifier", "drop", $drop_id);
 
 		if (! $interactive) {
 			return $owner;

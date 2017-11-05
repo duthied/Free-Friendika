@@ -12,6 +12,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\Core\Worker;
 use Friendica\Network\Probe;
 
 require_once 'include/items.php';
@@ -1605,7 +1606,7 @@ class Diaspora {
 			dba::insert('sign', array('iid' => $message_id, 'signed_text' => json_encode($data)));
 
 			// notify others
-			proc_run(PRIORITY_HIGH, "include/notifier.php", "comment-import", $message_id);
+			Worker::add(PRIORITY_HIGH, "notifier", "comment-import", $message_id);
 		}
 
 		return true;
@@ -1915,7 +1916,7 @@ class Diaspora {
 			dba::insert('sign', array('iid' => $message_id, 'signed_text' => json_encode($data)));
 
 			// notify others
-			proc_run(PRIORITY_HIGH, "include/notifier.php", "comment-import", $message_id);
+			Worker::add(PRIORITY_HIGH, "notifier", "comment-import", $message_id);
 		}
 
 		return true;
@@ -2191,7 +2192,7 @@ class Diaspora {
 
 				$i = item_store($arr);
 				if ($i)
-					proc_run(PRIORITY_HIGH, "include/notifier.php", "activity", $i);
+					Worker::add(PRIORITY_HIGH, "notifier", "activity", $i);
 			}
 		}
 	}
@@ -2614,7 +2615,7 @@ class Diaspora {
 			// Now check if the retraction needs to be relayed by us
 			if ($parent["origin"]) {
 				// notify others
-				proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $item["id"]);
+				Worker::add(PRIORITY_HIGH, "notifier", "drop", $item["id"]);
 			}
 		}
 

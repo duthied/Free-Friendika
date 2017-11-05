@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\Core\Config;
+use Friendica\Core\Worker;
 
 function cronhooks_run(&$argv, &$argc) {
 	global $a;
@@ -41,7 +42,7 @@ function cronhooks_run(&$argv, &$argc) {
 	if (is_array($a->hooks) && array_key_exists("cron", $a->hooks)) {
 		foreach ($a->hooks["cron"] as $hook) {
 			logger("Calling cronhooks for '" . $hook[1] . "'", LOGGER_DEBUG);
-			proc_run(PRIORITY_MEDIUM, "include/cronhooks.php", $hook[1]);
+			Worker::add(PRIORITY_MEDIUM, "cronhooks", $hook[1]);
 		}
 	}
 

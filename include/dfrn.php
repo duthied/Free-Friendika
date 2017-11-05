@@ -9,6 +9,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 
 require_once("include/Contact.php");
 require_once("include/ostatus.php");
@@ -2019,7 +2020,7 @@ class dfrn {
 			$changed = true;
 
 			if ($entrytype == DFRN_REPLY_RC) {
-				proc_run(PRIORITY_HIGH, "include/notifier.php","comment-import", $current["id"]);
+				Worker::add(PRIORITY_HIGH, "notifier","comment-import", $current["id"]);
 			}
 		}
 
@@ -2652,7 +2653,7 @@ class dfrn {
 
 				if ($posted_id && $parent && ($entrytype == DFRN_REPLY_RC)) {
 					logger("Notifying followers about comment ".$posted_id, LOGGER_DEBUG);
-					proc_run(PRIORITY_HIGH, "include/notifier.php", "comment-import", $posted_id);
+					Worker::add(PRIORITY_HIGH, "notifier", "comment-import", $posted_id);
 				}
 
 				return true;
@@ -2834,7 +2835,7 @@ class dfrn {
 
 				if ($entrytype == DFRN_REPLY_RC) {
 					logger("Notifying followers about deletion of post " . $item["id"], LOGGER_DEBUG);
-					proc_run(PRIORITY_HIGH, "include/notifier.php","drop", $item["id"]);
+					Worker::add(PRIORITY_HIGH, "notifier","drop", $item["id"]);
 				}
 			}
 		}

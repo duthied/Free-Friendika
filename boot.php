@@ -611,7 +611,7 @@ function check_db($via_worker) {
 	}
 	if ($build != DB_UPDATE_VERSION) {
 		// When we cannot execute the database update via the worker, we will do it directly
-		if (!proc_run(PRIORITY_CRITICAL, 'include/dbupdate.php') && $via_worker) {
+		if (!Worker::add(PRIORITY_CRITICAL, 'dbupdate') && $via_worker) {
 			update_db(get_app());
 		}
 	}
@@ -1031,8 +1031,10 @@ function get_max_import_size() {
 }
 
 /**
- * @brief Wrap calls to proc_close(proc_open()) and call hook
- * 	so plugins can take part in process :)
+ * @brief deprecated function to add actions to the workerqueue
+ *
+ * Please user Worker::add instead. This function here is only needed, since it is still called by the twitter addon.
+ * It can be safely removed after the next release.
  *
  * @param (integer|array) priority or parameter array, $cmd atrings are deprecated and are ignored
  *
@@ -1085,7 +1087,6 @@ function proc_run($cmd) {
 	}
 
 	$priority = PRIORITY_MEDIUM;
-	$dont_fork = get_config("system", "worker_dont_fork");
 	$created = datetime_convert();
 
 	if (is_int($run_parameter)) {
@@ -1096,9 +1097,6 @@ function proc_run($cmd) {
 		}
 		if (isset($run_parameter['created'])) {
 			$created = $run_parameter['created'];
-		}
-		if (isset($run_parameter['dont_fork'])) {
-			$dont_fork = $run_parameter['dont_fork'];
 		}
 	}
 
@@ -1116,29 +1114,6 @@ function proc_run($cmd) {
 	if (!$found) {
 		dba::insert('workerqueue', array('parameter' => $parameters, 'created' => $created, 'priority' => $priority));
 	}
-
-	// Should we quit and wait for the poller to be called as a cronjob?
-	if ($dont_fork) {
-		return true;
-	}
-
-	// If there is a lock then we don't have to check for too much worker
-	if (!Lock::set('poller_worker', 0)) {
-		return true;
-	}
-
-	// If there are already enough workers running, don't fork another one
-	$quit = Worker::tooMuchWorkers();
-	Lock::remove('poller_worker');
-
-	if ($quit) {
-		return true;
-	}
-
-	// Now call the poller to execute the jobs that we just added to the queue
-	$args = array("include/poller.php", "no_cron");
-
-	$a->proc_run($args);
 
 	return true;
 }

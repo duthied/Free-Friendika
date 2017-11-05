@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\Core\Config;
+use Friendica\Core\Worker;
 
 function cron_run(&$argv, &$argc){
 	global $a;
@@ -31,31 +32,31 @@ function cron_run(&$argv, &$argc){
 	logger('cron: start');
 
 	// run queue delivery process in the background
-	proc_run(PRIORITY_NEGLIGIBLE, "include/queue.php");
+	Worker::add(PRIORITY_NEGLIGIBLE, "queue");
 
 	// run the process to discover global contacts in the background
-	proc_run(PRIORITY_LOW, "include/discover_poco.php");
+	Worker::add(PRIORITY_LOW, "discover_poco");
 
 	// run the process to update locally stored global contacts in the background
-	proc_run(PRIORITY_LOW, "include/discover_poco.php", "checkcontact");
+	Worker::add(PRIORITY_LOW, "discover_poco", "checkcontact");
 
 	// Expire and remove user entries
-	proc_run(PRIORITY_MEDIUM, "include/cronjobs.php", "expire_and_remove_users");
+	Worker::add(PRIORITY_MEDIUM, "cronjobs", "expire_and_remove_users");
 
 	// Call possible post update functions
-	proc_run(PRIORITY_LOW, "include/cronjobs.php", "post_update");
+	Worker::add(PRIORITY_LOW, "cronjobs", "post_update");
 
 	// update nodeinfo data
-	proc_run(PRIORITY_LOW, "include/cronjobs.php", "nodeinfo");
+	Worker::add(PRIORITY_LOW, "cronjobs", "nodeinfo");
 
 	// Clear cache entries
-	proc_run(PRIORITY_LOW, "include/cronjobs.php", "clear_cache");
+	Worker::add(PRIORITY_LOW, "cronjobs", "clear_cache");
 
 	// Repair missing Diaspora values in contacts
-	proc_run(PRIORITY_LOW, "include/cronjobs.php", "repair_diaspora");
+	Worker::add(PRIORITY_LOW, "cronjobs", "repair_diaspora");
 
 	// Repair entries in the database
-	proc_run(PRIORITY_LOW, "include/cronjobs.php", "repair_database");
+	Worker::add(PRIORITY_LOW, "cronjobs", "repair_database");
 
 	// once daily run birthday_updates and then expire in background
 	$d1 = get_config('system', 'last_expire_day');
@@ -63,19 +64,19 @@ function cron_run(&$argv, &$argc){
 
 	if ($d2 != intval($d1)) {
 
-		proc_run(PRIORITY_LOW, "include/cronjobs.php", "update_contact_birthdays");
+		Worker::add(PRIORITY_LOW, "cronjobs", "update_contact_birthdays");
 
-		proc_run(PRIORITY_LOW, "include/discover_poco.php", "update_server");
+		Worker::add(PRIORITY_LOW, "discover_poco", "update_server");
 
-		proc_run(PRIORITY_LOW, "include/discover_poco.php", "suggestions");
+		Worker::add(PRIORITY_LOW, "discover_poco", "suggestions");
 
 		set_config('system', 'last_expire_day', $d2);
 
-		proc_run(PRIORITY_LOW, 'include/expire.php');
+		Worker::add(PRIORITY_LOW, 'expire');
 
-		proc_run(PRIORITY_MEDIUM, 'include/dbclean.php');
+		Worker::add(PRIORITY_MEDIUM, 'dbclean');
 
-		proc_run(PRIORITY_LOW, "include/cronjobs.php", "update_photo_albums");
+		Worker::add(PRIORITY_LOW, "cronjobs", "update_photo_albums");
 
 		// Delete all done workerqueue entries
 		dba::delete('workerqueue', array('`done` AND `executed` < UTC_TIMESTAMP() - INTERVAL 12 HOUR'));
@@ -247,7 +248,7 @@ function cron_poll_contacts($argc, $argv) {
 			} else {
 				$priority = PRIORITY_LOW;
 			}
-			proc_run(array('priority' => $priority, 'dont_fork' => true), 'include/onepoll.php', (int)$contact['id']);
+			Worker::add(array('priority' => $priority, 'dont_fork' => true), 'onepoll', (int)$contact['id']);
 		}
 	}
 }

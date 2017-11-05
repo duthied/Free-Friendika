@@ -10,7 +10,7 @@ use dba;
 use dbm;
 
 /**
- * @file include/Core/Worker.php
+ * @file src/Core/Worker.php
  *
  * @brief Contains the class for all worker relevant stuff
  */
@@ -33,15 +33,6 @@ class Worker {
 		$a = get_app();
 
 		self::$up_start = microtime(true);
-
-		// At first check the maximum load. We shouldn't continue with a high load
-		if ($a->maxload_reached()) {
-			logger('Pre check: maximum load reached, quitting.', LOGGER_DEBUG);
-			return;
-		}
-
-		// We now start the process. This is done after the load check since this could increase the load.
-		$a->start_process();
 
 		// Kill stale processes every 5 minutes
 		$last_cleanup = Config::get('system', 'poller_last_cleaned', 0);
@@ -212,7 +203,7 @@ class Worker {
 
 		// The script could be provided as full path or only with the function name
 		if ($include == basename($include)) {
-			$func = "include/".$include.".php";
+			$include = "include/".$include.".php";
 		}
 
 		if (!validate_include($include)) {
@@ -868,13 +859,13 @@ class Worker {
 		logger('Add cron entries', LOGGER_DEBUG);
 
 		// Check for spooled items
-		self::add(PRIORITY_HIGH, "include/spool_post.php");
+		self::add(PRIORITY_HIGH, "spool_post");
 
 		// Run the cron job that calls all other jobs
-		self::add(PRIORITY_MEDIUM, "include/cron.php");
+		self::add(PRIORITY_MEDIUM, "cron");
 
 		// Run the cronhooks job separately from cron for being able to use a different timing
-		self::add(PRIORITY_MEDIUM, "include/cronhooks.php");
+		self::add(PRIORITY_MEDIUM, "cronhooks");
 
 		// Cleaning dead processes
 		self::killStaleWorkers();
@@ -886,8 +877,8 @@ class Worker {
 	 * @param (integer|array) priority or parameter array, $cmd atrings are deprecated and are ignored
 	 *
 	 * next args are passed as $cmd command line
-	 * or: Worker::add(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
-	 * or: Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "include/create_shadowentry.php", $post_id);
+	 * or: Worker::add(PRIORITY_HIGH, "notifier", "drop", $drop_id);
+	 * or: Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "create_shadowentry", $post_id);
 	 *
 	 * @note $cmd and string args are surrounded with ""
 	 *
@@ -897,8 +888,6 @@ class Worker {
 	 * @return boolean "false" if proc_run couldn't be executed
 	 */
 	public static function add($cmd) {
-		$a = get_app();
-
 		$proc_args = func_get_args();
 
 		$args = array();
@@ -985,8 +974,7 @@ class Worker {
 
 		// Now call the poller to execute the jobs that we just added to the queue
 		$args = array("include/poller.php", "no_cron");
-
-		$a->proc_run($args);
+		get_app()->proc_run($args);
 
 		return true;
 	}
