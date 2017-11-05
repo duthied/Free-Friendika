@@ -20,8 +20,8 @@
  */
 //the space is needed for windows include paths with trailing backslash
 // http://pear.php.net/bugs/bug.php?id=19482
-if ('D:\Mes Projets\Friendica\friendica\vendor/pear-pear.php.net/PEAR ' != '@'.'include_path'.'@ ') {
-    ini_set('include_path', trim('D:\Mes Projets\Friendica\friendica\vendor/pear-pear.php.net/PEAR '). PATH_SEPARATOR .  get_include_path());
+if ('D:\Mes Projets\Friendica\friendica\friendica\vendor/pear-pear.php.net/PEAR ' != '@'.'include_path'.'@ ') {
+    ini_set('include_path', trim('D:\Mes Projets\Friendica\friendica\friendica\vendor/pear-pear.php.net/PEAR '). PATH_SEPARATOR .  get_include_path());
     $raw = false;
 } else {
     // this is a raw, uninstalled pear, either a cvs checkout, or php distro
