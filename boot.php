@@ -22,6 +22,7 @@ require_once(__DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'a
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 use Friendica\Core\Config;
 use Friendica\Util\Lock;
 
@@ -1127,7 +1128,7 @@ function proc_run($cmd) {
 	}
 
 	// If there are already enough workers running, don't fork another one
-	$quit = poller_too_much_workers();
+	$quit = Worker::tooMuchWorkers();
 	Lock::remove('poller_worker');
 
 	if ($quit) {
