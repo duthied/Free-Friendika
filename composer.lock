@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "802372ddf124ef949e80dd8dc1d38797",
+    "content-hash": "a87f82da9a0256ca85c839e83a5c26f0",
     "packages": [
         {
             "name": "ezyang/htmlpurifier",
@@ -116,16 +116,16 @@
         },
         {
             "name": "mobiledetect/mobiledetectlib",
-            "version": "2.8.25",
+            "version": "2.8.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/serbanghita/Mobile-Detect.git",
-                "reference": "f0896b5c7274d1450023b0b376240be902c3251c"
+                "reference": "a0ed86c9d7c04ae27fa6418b55e3beb04dfe3297"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/serbanghita/Mobile-Detect/zipball/f0896b5c7274d1450023b0b376240be902c3251c",
-                "reference": "f0896b5c7274d1450023b0b376240be902c3251c",
+                "url": "https://api.github.com/repos/serbanghita/Mobile-Detect/zipball/a0ed86c9d7c04ae27fa6418b55e3beb04dfe3297",
+                "reference": "a0ed86c9d7c04ae27fa6418b55e3beb04dfe3297",
                 "shasum": ""
             },
             "require": {
@@ -164,14 +164,14 @@
                 "mobile detector",
                 "php mobile detect"
             ],
-            "time": "2017-03-29T13:59:30+00:00"
+            "time": "2017-08-29T18:23:54+00:00"
         },
         {
             "name": "pear-pear.php.net/Archive_Tar",
-            "version": "1.4.2",
+            "version": "1.4.3",
             "dist": {
                 "type": "file",
-                "url": "https://pear.php.net/get/Archive_Tar-1.4.2.tgz",
+                "url": "https://pear.php.net/get/Archive_Tar-1.4.3.tgz",
                 "reference": null,
                 "shasum": null
             },
@@ -179,7 +179,7 @@
                 "php": ">=5.2.0.0"
             },
             "replace": {
-                "pear-pear/archive_tar": "== 1.4.2.0"
+                "pear-pear/archive_tar": "== 1.4.3.0"
             },
             "type": "pear-library",
             "autoload": {
@@ -226,10 +226,10 @@
         },
         {
             "name": "pear-pear.php.net/PEAR",
-            "version": "1.10.4",
+            "version": "1.10.5",
             "dist": {
                 "type": "file",
-                "url": "https://pear.php.net/get/PEAR-1.10.4.tgz",
+                "url": "https://pear.php.net/get/PEAR-1.10.5.tgz",
                 "reference": null,
                 "shasum": null
             },
@@ -247,7 +247,7 @@
                 "pear-pear.php.net/pear_frontend_web": "<=0.4.0.0"
             },
             "replace": {
-                "pear-pear/pear": "== 1.10.4.0"
+                "pear-pear/pear": "== 1.10.5.0"
             },
             "type": "pear-library",
             "autoload": {
@@ -356,10 +356,10 @@
         },
         {
             "name": "pear-pear.php.net/XML_Util",
-            "version": "1.4.2",
+            "version": "1.4.3",
             "dist": {
                 "type": "file",
-                "url": "https://pear.php.net/get/XML_Util-1.4.2.tgz",
+                "url": "https://pear.php.net/get/XML_Util-1.4.3.tgz",
                 "reference": null,
                 "shasum": null
             },
@@ -368,7 +368,7 @@
                 "php": ">=5.4.0.0"
             },
             "replace": {
-                "pear-pear/xml_util": "== 1.4.2.0"
+                "pear-pear/xml_util": "== 1.4.3.0"
             },
             "type": "pear-library",
             "autoload": {
@@ -383,6 +383,50 @@
                 "BSD License"
             ],
             "description": "Selection of methods that are often needed when working with XML documents.  Functionality includes creating of attribute lists from arrays, creation of tags, validation of XML names and more."
+        },
+        {
+            "name": "pear/text_languagedetect",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pear/Text_LanguageDetect.git",
+                "reference": "bb9ff6f4970f686fac59081e916b456021fe7ba6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pear/Text_LanguageDetect/zipball/bb9ff6f4970f686fac59081e916b456021fe7ba6",
+                "reference": "bb9ff6f4970f686fac59081e916b456021fe7ba6",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "*"
+            },
+            "suggest": {
+                "ext-mbstring": "May require the mbstring PHP extension"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Text": "./"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "include-path": [
+                "./"
+            ],
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Nicholas Pisarro",
+                    "email": "taak@php.net",
+                    "role": "Lead"
+                }
+            ],
+            "description": "Identify human languages from text samples",
+            "homepage": "http://pear.php.net/package/Text_LanguageDetect",
+            "time": "2017-03-02T16:14:08+00:00"
         }
     ],
     "packages-dev": [],

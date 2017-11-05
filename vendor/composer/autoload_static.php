@@ -33,6 +33,13 @@ class ComposerStaticInitFriendica
     );
 
     public static $prefixesPsr0 = array (
+        'T' => 
+        array (
+            'Text' => 
+            array (
+                0 => __DIR__ . '/..' . '/pear/text_languagedetect',
+            ),
+        ),
         'H' => 
         array (
             'HTMLPurifier' => 
@@ -56,8 +63,10 @@ class ComposerStaticInitFriendica
         'Friendica\\App' => __DIR__ . '/../..' . '/src/App.php',
         'Friendica\\Core\\Config' => __DIR__ . '/../..' . '/src/Core/Config.php',
         'Friendica\\Core\\PConfig' => __DIR__ . '/../..' . '/src/Core/PConfig.php',
+        'Friendica\\Core\\System' => __DIR__ . '/../..' . '/src/Core/System.php',
         'Friendica\\Network\\Probe' => __DIR__ . '/../..' . '/src/Network/Probe.php',
         'Friendica\\ParseUrl' => __DIR__ . '/../..' . '/src/ParseUrl.php',
+        'Friendica\\Util\\Lock' => __DIR__ . '/../..' . '/src/Util/Lock.php',
         'HTMLPurifier' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.php',
         'HTMLPurifier_Arborize' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Arborize.php',
         'HTMLPurifier_AttrCollections' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/AttrCollections.php',
@@ -415,6 +424,12 @@ class ComposerStaticInitFriendica
         'Text_Highlighter_SQL' => __DIR__ . '/..' . '/pear-pear.php.net/Text_Highlighter/Text/Highlighter/SQL.php',
         'Text_Highlighter_VBSCRIPT' => __DIR__ . '/..' . '/pear-pear.php.net/Text_Highlighter/Text/Highlighter/VBSCRIPT.php',
         'Text_Highlighter_XML' => __DIR__ . '/..' . '/pear-pear.php.net/Text_Highlighter/Text/Highlighter/XML.php',
+        'Text_LanguageDetect' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect.php',
+        'Text_LanguageDetectTest' => __DIR__ . '/..' . '/pear/text_languagedetect/tests/Text_LanguageDetectTest.php',
+        'Text_LanguageDetect_Exception' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect/Exception.php',
+        'Text_LanguageDetect_ISO639' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect/ISO639.php',
+        'Text_LanguageDetect_ISO639Test' => __DIR__ . '/..' . '/pear/text_languagedetect/tests/Text_LanguageDetect_ISO639Test.php',
+        'Text_LanguageDetect_Parser' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect/Parser.php',
         'XML_Parser' => __DIR__ . '/..' . '/pear-pear.php.net/XML_Parser/XML/Parser.php',
         'XML_Parser_Error' => __DIR__ . '/..' . '/pear-pear.php.net/XML_Parser/XML/Parser.php',
         'XML_Parser_Simple' => __DIR__ . '/..' . '/pear-pear.php.net/XML_Parser/XML/Parser/Simple.php',
