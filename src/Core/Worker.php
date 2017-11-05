@@ -141,9 +141,9 @@ class Worker {
 	 * @return integer Number of non executed entries in the worker queue
 	 */
 	private static function totalEntries() {
-		$s = q("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE `executed` <= '%s' AND NOT `done`", dbesc(NULL_DATE));
+		$s = dba::fetch_first("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE `executed` <= ? AND NOT `done`", NULL_DATE);
 		if (dbm::is_result($s)) {
-			return $s[0]["total"];
+			return $s["total"];
 		} else {
 			return 0;
 		}
@@ -155,9 +155,10 @@ class Worker {
 	 * @return integer Number of active poller processes
 	 */
 	private static function highestPriority() {
-		$s = q("SELECT `priority` FROM `workerqueue` WHERE `executed` <= '%s' AND NOT `done` ORDER BY `priority` LIMIT 1", dbesc(NULL_DATE));
+		$condition = array("`executed` <= ? AND NOT `done`", NULL_DATE);
+		$s = dba::select('workerqueue', array('priority'), $condition, array('limit' => 1, 'order' => array('priority')));
 		if (dbm::is_result($s)) {
-			return $s[0]["priority"];
+			return $s["priority"];
 		} else {
 			return 0;
 		}
@@ -171,9 +172,8 @@ class Worker {
 	 * @return integer Is there a process running with that priority?
 	 */
 	private static function processWithPriorityActive($priority) {
-		$s = q("SELECT `id` FROM `workerqueue` WHERE `priority` <= %d AND `executed` > '%s' AND NOT `done` LIMIT 1",
-				intval($priority), dbesc(NULL_DATE));
-		return dbm::is_result($s);
+		$condition = array("`priority` <= ? AND `executed` > ? AND NOT `done`", $priority, NULL_DATE);
+		return dba::exists('workerqueue', $condition);
 	}
 
 	/**
@@ -404,32 +404,29 @@ class Worker {
 
 		if ($max == 0) {
 			// the maximum number of possible user connections can be a system variable
-			$r = q("SHOW VARIABLES WHERE `variable_name` = 'max_user_connections'");
+			$r = dba::fetch_first("SHOW VARIABLES WHERE `variable_name` = 'max_user_connections'");
 			if (dbm::is_result($r)) {
-				$max = $r[0]["Value"];
+				$max = $r["Value"];
 			}
 			// Or it can be granted. This overrides the system variable
-			$r = q("SHOW GRANTS");
-			if (dbm::is_result($r)) {
-				foreach ($r AS $grants) {
-					$grant = array_pop($grants);
-					if (stristr($grant, "GRANT USAGE ON")) {
-						if (preg_match("/WITH MAX_USER_CONNECTIONS (\d*)/", $grant, $match)) {
-							$max = $match[1];
-						}
+			$r = dba::p('SHOW GRANTS');
+			while ($grants = dba::fetch($r)) {
+				$grant = array_pop($grants);
+				if (stristr($grant, "GRANT USAGE ON")) {
+					if (preg_match("/WITH MAX_USER_CONNECTIONS (\d*)/", $grant, $match)) {
+						$max = $match[1];
 					}
 				}
 			}
+			dba::close($r);
 		}
 
 		// If $max is set we will use the processlist to determine the current number of connections
 		// The processlist only shows entries of the current user
 		if ($max != 0) {
-			$r = q("SHOW PROCESSLIST");
-			if (!dbm::is_result($r)) {
-				return false;
-			}
-			$used = count($r);
+			$r = dba::p('SHOW PROCESSLIST');
+			$used = dba::num_rows($r);
+			dba::close($r);
 
 			logger("Connection usage (user values): ".$used."/".$max, LOGGER_DEBUG);
 
@@ -443,19 +440,19 @@ class Worker {
 
 		// We will now check for the system values.
 		// This limit could be reached although the user limits are fine.
-		$r = q("SHOW VARIABLES WHERE `variable_name` = 'max_connections'");
+		$r = dba::fetch_first("SHOW VARIABLES WHERE `variable_name` = 'max_connections'");
 		if (!dbm::is_result($r)) {
 			return false;
 		}
-		$max = intval($r[0]["Value"]);
+		$max = intval($r["Value"]);
 		if ($max == 0) {
 			return false;
 		}
-		$r = q("SHOW STATUS WHERE `variable_name` = 'Threads_connected'");
+		$r = dba::fetch_first("SHOW STATUS WHERE `variable_name` = 'Threads_connected'");
 		if (!dbm::is_result($r)) {
 			return false;
 		}
-		$used = intval($r[0]["Value"]);
+		$used = intval($r["Value"]);
 		if ($used == 0) {
 			return false;
 		}
@@ -612,9 +609,9 @@ class Worker {
 	 * @return integer Number of active poller processes
 	 */
 	private static function activeWorkers() {
-		$workers = q("SELECT COUNT(*) AS `processes` FROM `process` WHERE `command` = 'Worker.php'");
+		$workers = dba::fetch_first("SELECT COUNT(*) AS `processes` FROM `process` WHERE `command` = 'Worker.php'");
 
-		return $workers[0]["processes"];
+		return $workers["processes"];
 	}
 
 	/**
@@ -627,21 +624,22 @@ class Worker {
 	 * @return bool We let pass a slower process than $highest_priority
 	 */
 	private static function passingSlow(&$highest_priority) {
-
 		$highest_priority = 0;
 
-		$r = q("SELECT `priority`
-			FROM `process`
-			INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid` AND NOT `done`");
+		$r = dba::p("SELECT `priority`
+				FROM `process`
+				INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid` AND NOT `done`");
 
 		// No active processes at all? Fine
 		if (!dbm::is_result($r)) {
 			return false;
 		}
 		$priorities = array();
-		foreach ($r AS $line) {
+		while ($line = dba::fetch($r)) {
 			$priorities[] = $line["priority"];
 		}
+		dba::close($r);
+
 		// Should not happen
 		if (count($priorities) == 0) {
 			return false;
@@ -755,11 +753,12 @@ class Worker {
 		$stamp = (float)microtime(true);
 
 		// There can already be jobs for us in the queue.
-		$r = q("SELECT * FROM `workerqueue` WHERE `pid` = %d AND NOT `done`", intval(getmypid()));
+		$r = dba::select('workerqueue', array(), array('pid' => getmypid(), 'done' => false));
 		if (dbm::is_result($r)) {
 			self::$db_duration += (microtime(true) - $stamp);
-			return $r;
+			return dba::inArray($r);
 		}
+		dba::close($r);
 
 		$stamp = (float)microtime(true);
 		if (!Lock::set('poller_worker_process')) {
@@ -774,9 +773,10 @@ class Worker {
 		Lock::remove('poller_worker_process');
 
 		if ($found) {
-			$r = q("SELECT * FROM `workerqueue` WHERE `pid` = %d AND NOT `done`", intval(getmypid()));
+			$r = dba::select('workerqueue', array(), array('pid' => getmypid(), 'done' => false));
+			return dba::inArray($r);
 		}
-		return $r;
+		return false;
 	}
 
 	/**
@@ -841,9 +841,9 @@ class Worker {
 
 		self::clearProcesses();
 
-		$workers = q("SELECT COUNT(*) AS `processes` FROM `process` WHERE `command` = 'worker.php'");
+		$workers = dba::fetch_first("SELECT COUNT(*) AS `processes` FROM `process` WHERE `command` = 'worker.php'");
 
-		if ($workers[0]["processes"] == 0) {
+		if ($workers["processes"] == 0) {
 			self::callWorker();
 		}
 	}
@@ -855,8 +855,9 @@ class Worker {
 		$timeout = Config::get("system", "frontend_worker_timeout", 10);
 
 		/// @todo We should clean up the corresponding workerqueue entries as well
-		q("DELETE FROM `process` WHERE `created` < '%s' AND `command` = 'worker.php'",
-			dbesc(datetime_convert('UTC','UTC',"now - ".$timeout." minutes")));
+		$condition = array("`created` < ? AND `command` = 'worker.php'",
+				datetime_convert('UTC','UTC',"now - ".$timeout." minutes"));
+		dba::delete('process', $condition);
 	}
 
 	/**
