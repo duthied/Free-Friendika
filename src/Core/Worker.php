@@ -4,6 +4,7 @@ namespace Friendica\Core;
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Core\Worker;
 use Friendica\Util\Lock;
 
 use dba;
@@ -33,6 +34,15 @@ class Worker {
 		$a = get_app();
 
 		self::$up_start = microtime(true);
+
+		// At first check the maximum load. We shouldn't continue with a high load
+		if ($a->maxload_reached()) {
+			logger('Pre check: maximum load reached, quitting.', LOGGER_DEBUG);
+			return;
+		}
+
+		// We now start the process. This is done after the load check since this could increase the load.
+		$a->start_process();
 
 		// Kill stale processes every 5 minutes
 		$last_cleanup = Config::get('system', 'poller_last_cleaned', 0);
@@ -589,8 +599,7 @@ class Worker {
 			// Are there fewer workers running as possible? Then fork a new one.
 			if (!Config::get("system", "worker_dont_fork") && ($queues > ($active + 1)) && ($entries > 1)) {
 				logger("Active workers: ".$active."/".$queues." Fork a new worker.", LOGGER_DEBUG);
-				$args = array("include/poller.php", "no_cron");
-				get_app()->proc_run($args);
+				self::spawnWorker();
 			}
 		}
 
@@ -603,7 +612,7 @@ class Worker {
 	 * @return integer Number of active poller processes
 	 */
 	private static function activeWorkers() {
-		$workers = q("SELECT COUNT(*) AS `processes` FROM `process` WHERE `command` = 'poller.php'");
+		$workers = q("SELECT COUNT(*) AS `processes` FROM `process` WHERE `command` = 'Worker.php'");
 
 		return $workers[0]["processes"];
 	}
@@ -821,9 +830,7 @@ class Worker {
 			self::runCron();
 
 			logger('Call poller', LOGGER_DEBUG);
-
-			$args = array("include/poller.php", "no_cron");
-			get_app()->proc_run($args);
+			self::spawnWorker();
 			return;
 		}
 
@@ -869,6 +876,11 @@ class Worker {
 
 		// Cleaning dead processes
 		self::killStaleWorkers();
+	}
+
+	public static function spawnWorker() {
+		$args = array("include/poller.php", "no_cron");
+		get_app()->proc_run($args);
 	}
 
 	/**
@@ -973,8 +985,7 @@ class Worker {
 		}
 
 		// Now call the poller to execute the jobs that we just added to the queue
-		$args = array("include/poller.php", "no_cron");
-		get_app()->proc_run($args);
+		self::spawnWorker();
 
 		return true;
 	}

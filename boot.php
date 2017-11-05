@@ -22,7 +22,6 @@ require_once(__DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'a
 
 use Friendica\App;
 use Friendica\Core\System;
-use Friendica\Core\Worker;
 use Friendica\Core\Config;
 use Friendica\Util\Lock;
 
@@ -1028,6 +1027,18 @@ function info($s) {
 function get_max_import_size() {
 	$a = get_app();
 	return ((x($a->config, 'max_import_size')) ? $a->config['max_import_size'] : 0 );
+}
+
+/**
+ * @brief compatibilty wrapper for Worker::add function
+ *
+ * @param (integer|array) priority or parameter array, $cmd atrings are deprecated and are ignored
+ *
+ * @return boolean "false" if proc_run couldn't be executed
+ */
+function proc_run() {
+	$proc_args = func_get_args();
+	call_user_func_array('Friendica\Core\Worker::add', $proc_args);
 }
 
 function current_theme() {
