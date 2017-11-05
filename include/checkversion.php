@@ -26,7 +26,7 @@ function checkversion_run () {
 		return;
 	}
 	$gitversion = dbesc(trim(fetch_url($checkurl)));
-	Config::set('system', 'git_friendica_version');
+	Config::set('system', 'git_friendica_version', $gitversion);
 
 	logger('checkversion: end');
 
