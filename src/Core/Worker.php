@@ -13,7 +13,7 @@ use dbm;
 /**
  * @file src/Core/Worker.php
  *
- * @brief Contains the class for all worker relevant stuff
+ * @brief Contains the class for the worker background job processing
  */
 
 /**
