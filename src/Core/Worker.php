@@ -887,7 +887,7 @@ class Worker {
 	/**
 	 * @brief Adds tasks to the worker queue
 	 *
-	 * @param (integer|array) priority or parameter array, $cmd atrings are deprecated and are ignored
+	 * @param (integer|array) priority or parameter array, strings are deprecated and are ignored
 	 *
 	 * next args are passed as $cmd command line
 	 * or: Worker::add(PRIORITY_HIGH, "notifier", "drop", $drop_id);
