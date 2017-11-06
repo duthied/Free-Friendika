@@ -164,6 +164,12 @@ However these aren't looked upon favourably in the security community because th
 If you wish, you can turn on strict certificate checking.
 This will mean you cannot connect (at all) to self-signed SSL sites.
 
+#### Check upstream version
+
+If this option is enabled your Friendica node will check the upstream version once per day from the github repository.
+You can select if the stable version or the development version should be checked out.
+If there is a new version published, you will get notified in the admin panel summary page.
+
 ### Auto Discovered Contact Directory
 
 ### Performance
