@@ -1032,7 +1032,7 @@ function get_max_import_size() {
 /**
  * @brief compatibilty wrapper for Worker::add function
  *
- * @param (integer|array) priority or parameter array, $cmd atrings are deprecated and are ignored
+ * @param (integer|array) priority or parameter array, strings are deprecated and are ignored
  *
  * @return boolean "false" if proc_run couldn't be executed
  */
