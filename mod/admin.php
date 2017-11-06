@@ -1149,8 +1149,8 @@ function admin_page_site(App $a) {
 
 	$check_git_version_choices = array(
 		"none" => t("Don't check"),
-		"https://raw.githubusercontent.com/friendica/friendica/master/VERSION" => t("check the stable version"),
-		"https://raw.githubusercontent.com/friendica/friendica/develop/VERSION" => t("check the development version")
+		"master" => t("check the stable version"),
+		"develop" => t("check the development version")
 	);
 
 	if ($a->config['hostname'] == "") {
