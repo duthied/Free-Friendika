@@ -21,14 +21,23 @@ function checkversion_run () {
 
 	$checkurl = Config::get('system', 'check_new_version_url', 'none');
 
-	// check for new versions at all?
-	if ($checkurl == 'none' ) {
+	switch ($checkurl) {
+	case 'master': 
+		$checked_url = 'https://raw.githubusercontent.com/friendica/friendica/master/VERSION'; 
+		break;
+	case 'develop': 
+		$checked_url = 'https://raw.githubusercontent.com/friendica/friendica/develop/VERSION'; 
+		break;
+	default: 
+		// don't check
 		return;
-	}
-	$checkurl = "https://raw.githubusercontent.com/friendica/friendica/".$checkurl."/VERSION";
-	logger("Checking VERSION from: ".$checkurl, LOGGER_DEBUG);
-	$gitversion = dbesc(trim(fetch_url($checkurl)));
+}
+	logger("Checking VERSION from: ".$checked_url, LOGGER_DEBUG);
+
+	// fetch the VERSION file
+	$gitversion = dbesc(trim(fetch_url($checked_url)));
 	logger("Upstream VERSION is: ".$gitversion, LOGGER_DEBUG);
+
 	Config::set('system', 'git_friendica_version', $gitversion);
 
 	logger('checkversion: end');
