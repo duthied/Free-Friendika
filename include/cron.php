@@ -81,7 +81,7 @@ function cron_run(&$argv, &$argc){
 		dba::delete('workerqueue', array('`done` AND `executed` < UTC_TIMESTAMP() - INTERVAL 12 HOUR'));
 
 		// check upstream version?
-		proc_run(PRIORITY_LOW, 'include/checkversion.php');
+		Worker::add(PRIORITY_LOW, 'checkversion');
 	}
 
 	// Poll contacts

@@ -22,7 +22,7 @@ function checkversion_run () {
 	$checkurl = Config::get('system', 'check_new_version_url', 'none');
 
 	// check for new versions at all?
-	if ( $checkurl == 'none' ) {
+	if ($checkurl == 'none' ) {
 		return;
 	}
 	$gitversion = dbesc(trim(fetch_url($checkurl)));

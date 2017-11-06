@@ -619,7 +619,7 @@ function admin_page_summary(App $a) {
 	// the local version of Friendica. Check is opt-in, source may be master or devel branch
 	if (Config::get('system', 'check_new_version_url', 'none') != 'none' ) {
 		$gitversion = Config::get('system','git_friendica_version');
-		if ( version_compare(FRIENDICA_VERSION, $gitversion)<0) {
+		if (version_compare(FRIENDICA_VERSION, $gitversion)<0) {
 			$warningtext[] = t('There is a new version of Friendica available for download.');
 			$showwarning = true;
 		}
@@ -856,7 +856,7 @@ function admin_page_site_post(App $a) {
 	$proxy_disabled		=	((x($_POST,'proxy_disabled'))		? True						: False);
 	$only_tag_search	=	((x($_POST,'only_tag_search'))		? True						: False);
 	$rino			=	((x($_POST,'rino'))			? intval($_POST['rino'])			: 0);
-  $check_new_version_url	=	((x($_POST, 'check_new_version_url'))	?	notags(trim($_POST['check_new_version_url']))	: 'none');
+	$check_new_version_url	=	((x($_POST, 'check_new_version_url'))	?	notags(trim($_POST['check_new_version_url']))	: 'none');
 	$worker_queues		=	((x($_POST,'worker_queues'))		? intval($_POST['worker_queues'])		: 4);
 	$worker_dont_fork	=	((x($_POST,'worker_dont_fork'))		? True						: False);
 	$worker_fastlane	=	((x($_POST,'worker_fastlane'))		? True						: False);
