@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 
 require_once('include/enotify.php');
 require_once('include/bbcode.php');
@@ -69,7 +70,7 @@ function register_post(App $a) {
 
 	if($netpublish && $a->config['register_policy'] != REGISTER_APPROVE) {
 		$url = System::baseUrl() . '/profile/' . $user['nickname'];
-		proc_run(PRIORITY_LOW, "include/directory.php", $url);
+		Worker::add(PRIORITY_LOW, "directory", $url);
 	}
 
 	$using_invites = get_config('system','invitation_only');

@@ -5,6 +5,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 
 require_once 'include/ForumManager.php';
 require_once 'include/bbcode.php';
@@ -888,7 +889,7 @@ function zrl_init(App $a) {
 			return;
 		}
 
-		proc_run(PRIORITY_LOW, 'include/gprobe.php', $tmp_str);
+		Worker::add(PRIORITY_LOW, 'gprobe', $tmp_str);
 		$arr = array('zrl' => $tmp_str, 'url' => $a->cmd);
 		call_hooks('zrl_init', $arr);
 	}

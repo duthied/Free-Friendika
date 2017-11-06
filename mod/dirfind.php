@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 
 require_once 'include/contact_widgets.php';
 require_once 'include/probe.php';
@@ -164,7 +165,7 @@ function dirfind_content(App $a, $prefix = "") {
 			}
 
 			// Add found profiles from the global directory to the local directory
-			proc_run(PRIORITY_LOW, 'include/discover_poco.php', "dirsearch", urlencode($search));
+			Worker::add(PRIORITY_LOW, 'discover_poco', "dirsearch", urlencode($search));
 		} else {
 
 			$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');

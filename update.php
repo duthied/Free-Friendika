@@ -2,6 +2,8 @@
 
 define('UPDATE_VERSION' , 1235);
 
+use Friendica\Core\Worker;
+
 /**
  *
  * update.php - automatic system update
@@ -1596,7 +1598,7 @@ function update_1169() {
 	if (!$r)
 		return UPDATE_FAILED;
 
-	proc_run(PRIORITY_LOW, "include/threadupdate.php");
+	Worker::add(PRIORITY_LOW, "threadupdate");
 
 	return UPDATE_SUCCESS;
 }
@@ -1637,7 +1639,7 @@ function update_1178() {
 		set_config('system','community_page_style', CP_NO_COMMUNITY_PAGE);
 
 	// Update the central item storage with uid=0
-	proc_run(PRIORITY_LOW, "include/threadupdate.php");
+	Worker::add(PRIORITY_LOW, "threadupdate");
 
 	return UPDATE_SUCCESS;
 }
@@ -1645,7 +1647,7 @@ function update_1178() {
 function update_1180() {
 
 	// Fill the new fields in the term table.
-	proc_run(PRIORITY_LOW, "include/tagupdate.php");
+	Worker::add(PRIORITY_LOW, "tagupdate");
 
 	return UPDATE_SUCCESS;
 }

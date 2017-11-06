@@ -10,6 +10,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Core\Worker;
 use Friendica\Network\Probe;
 
 require_once 'include/datetime.php';
@@ -39,7 +40,7 @@ require_once 'include/Photo.php';
  */
 function poco_load($cid, $uid = 0, $zcid = 0, $url = null) {
 	// Call the function "poco_load_worker" via the worker
-	proc_run(PRIORITY_LOW, "include/discover_poco.php", "poco_load", (int)$cid, (int)$uid, (int)$zcid, $url);
+	Worker::add(PRIORITY_LOW, "discover_poco", "poco_load", (int)$cid, (int)$uid, (int)$zcid, $url);
 }
 
 /**
@@ -1702,7 +1703,7 @@ function poco_fetch_serverlist($poco) {
 		$r = q("SELECT `nurl` FROM `gserver` WHERE `nurl` = '%s'", dbesc(normalise_link($server_url)));
 		if (!dbm::is_result($r)) {
 			logger("Call server check for server ".$server_url, LOGGER_DEBUG);
-			proc_run(PRIORITY_LOW, "include/discover_poco.php", "server", $server_url);
+			Worker::add(PRIORITY_LOW, "discover_poco", "server", $server_url);
 		}
 	}
 }
@@ -1724,7 +1725,7 @@ function poco_discover_federation() {
 		$servers = json_decode($serverdata);
 
 		foreach ($servers->pods as $server) {
-			proc_run(PRIORITY_LOW, "include/discover_poco.php", "server", "https://".$server->host);
+			Worker::add(PRIORITY_LOW, "discover_poco", "server", "https://".$server->host);
 		}
 	}
 
@@ -1737,7 +1738,7 @@ function poco_discover_federation() {
 
 			foreach ($servers as $server) {
 				$url = (is_null($server->https_score) ? 'http' : 'https').'://'.$server->name;
-				proc_run(PRIORITY_LOW, "include/discover_poco.php", "server", $url);
+				Worker::add(PRIORITY_LOW, "discover_poco", "server", $url);
 			}
 		}
 	}
@@ -1847,7 +1848,7 @@ function poco_discover($complete = false) {
 			}
 
 			logger('Update directory from server '.$server['url'].' with ID '.$server['id'], LOGGER_DEBUG);
-			proc_run(PRIORITY_LOW, "include/discover_poco.php", "update_server_directory", (int)$server['id']);
+			Worker::add(PRIORITY_LOW, "discover_poco", "update_server_directory", (int)$server['id']);
 
 			if (!$complete && (--$no_of_queries == 0)) {
 				break;
@@ -2125,7 +2126,7 @@ function get_gcontact_id($contact) {
 
 	if ($doprobing) {
 		logger("Last Contact: ". $last_contact_str." - Last Failure: ".$last_failure_str." - Checking: ".$contact["url"], LOGGER_DEBUG);
-		proc_run(PRIORITY_LOW, 'include/gprobe.php', $contact["url"]);
+		Worker::add(PRIORITY_LOW, 'gprobe', $contact["url"]);
 	}
 
 	return $gcontact_id;

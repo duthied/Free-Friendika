@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 
@@ -353,8 +354,8 @@ function settings_post(App $a) {
 
 	check_form_security_token_redirectOnErr('/settings', 'settings');
 
-	if (x($_POST, 'resend_relocate')) {
-		proc_run(PRIORITY_HIGH, 'include/notifier.php', 'relocate', local_user());
+	if (x($_POST,'resend_relocate')) {
+		Worker::add(PRIORITY_HIGH, 'notifier', 'relocate', local_user());
 		info(t("Relocate message has been send to your contacts"));
 		goaway('settings');
 	}
@@ -641,11 +642,11 @@ function settings_post(App $a) {
 		// Update global directory in background
 		$url = $_SESSION['my_url'];
 		if ($url && strlen(Config::get('system', 'directory'))) {
-			proc_run(PRIORITY_LOW, "include/directory.php", $url);
+			Worker::add(PRIORITY_LOW, "directory", $url);
 		}
 	}
 
-	proc_run(PRIORITY_LOW, 'include/profile_update.php', local_user());
+	Worker::add(PRIORITY_LOW, 'profile_update', local_user());
 
 	// Update the global contact for the user
 	update_gcontact_for_user(local_user());

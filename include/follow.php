@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 use Friendica\Network\Probe;
 
 require_once 'include/probe.php';
@@ -250,7 +251,7 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 
 	// pull feed and consume it, which should subscribe to the hub.
 
-	proc_run(PRIORITY_HIGH, "include/onepoll.php", $contact_id, "force");
+	Worker::add(PRIORITY_HIGH, "onepoll", $contact_id, "force");
 
 	$r = q("SELECT `contact`.*, `user`.* FROM `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid`
 			WHERE `user`.`uid` = %d AND `contact`.`self` LIMIT 1",

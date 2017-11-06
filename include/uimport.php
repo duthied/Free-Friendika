@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\PConfig;
+use Friendica\Core\Worker;
 
 require_once("include/Photo.php");
 define("IMPORT_DEBUG", False);
@@ -284,7 +285,7 @@ function import_account(App $a, $file) {
 	}
 
 	// send relocate messages
-	proc_run(PRIORITY_HIGH, 'include/notifier.php', 'relocate', $newuid);
+	Worker::add(PRIORITY_HIGH, 'notifier', 'relocate', $newuid);
 
 	info(t("Done. You can now login with your username and password"));
 	goaway(System::baseUrl() . "/login");

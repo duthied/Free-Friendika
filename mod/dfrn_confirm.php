@@ -20,6 +20,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 use Friendica\Network\Probe;
 
 require_once 'include/enotify.php';
@@ -494,7 +495,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 
 					$i = item_store($arr);
 					if($i)
-						proc_run(PRIORITY_HIGH, "include/notifier.php", "activity", $i);
+						Worker::add(PRIORITY_HIGH, "notifier", "activity", $i);
 				}
 			}
 		}
@@ -796,7 +797,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 
 					$i = item_store($arr);
 					if($i)
-						proc_run(PRIORITY_HIGH, "include/notifier.php", "activity", $i);
+						Worker::add(PRIORITY_HIGH, "notifier", "activity", $i);
 
 				}
 			}

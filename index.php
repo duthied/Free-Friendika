@@ -16,6 +16,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Core\Worker;
 
 require_once 'boot.php';
 require_once 'object/BaseObject.php';
@@ -105,9 +106,7 @@ if (!$a->is_backend()) {
 	session_start();
 	$a->save_timestamp($stamp1, "parser");
 } else {
-	require_once "include/poller.php";
-
-	call_worker_if_idle();
+	Worker::executeIfIdle();
 }
 
 /**

@@ -9,6 +9,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Core\Worker;
 
 require_once 'include/HTTPExceptions.php';
 require_once 'include/bbcode.php';
@@ -3761,10 +3762,10 @@ $called_api = null;
 		//$user = api_get_user(get_app());
 		$url = System::baseUrl() . '/profile/' . get_app()->user['nickname'];
 		if ($url && strlen(get_config('system', 'directory'))) {
-			proc_run(PRIORITY_LOW, "include/directory.php", $url);
+			Worker::add(PRIORITY_LOW, "directory", $url);
 		}
 
-		proc_run(PRIORITY_LOW, 'include/profile_update.php', api_user());
+		Worker::add(PRIORITY_LOW, 'profile_update', api_user());
 
 		// output for client
 		if ($data) {

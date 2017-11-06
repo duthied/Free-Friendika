@@ -610,7 +610,7 @@ function check_db($via_worker) {
 	}
 	if ($build != DB_UPDATE_VERSION) {
 		// When we cannot execute the database update via the worker, we will do it directly
-		if (!proc_run(PRIORITY_CRITICAL, 'include/dbupdate.php') && $via_worker) {
+		if (!Worker::add(PRIORITY_CRITICAL, 'dbupdate') && $via_worker) {
 			update_db(get_app());
 		}
 	}
@@ -1030,116 +1030,15 @@ function get_max_import_size() {
 }
 
 /**
- * @brief Wrap calls to proc_close(proc_open()) and call hook
- * 	so plugins can take part in process :)
+ * @brief compatibilty wrapper for Worker::add function
  *
- * @param (integer|array) priority or parameter array, $cmd atrings are deprecated and are ignored
- *
- * next args are passed as $cmd command line
- * or: proc_run(PRIORITY_HIGH, "include/notifier.php", "drop", $drop_id);
- * or: proc_run(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "include/create_shadowentry.php", $post_id);
- *
- * @note $cmd and string args are surrounded with ""
- *
- * @hooks 'proc_run'
- * 	array $arr
+ * @param (integer|array) priority or parameter array, strings are deprecated and are ignored
  *
  * @return boolean "false" if proc_run couldn't be executed
  */
-function proc_run($cmd) {
-
-	$a = get_app();
-
+function proc_run() {
 	$proc_args = func_get_args();
-
-	$args = array();
-	if (!count($proc_args)) {
-		return false;
-	}
-
-	// Preserve the first parameter
-	// It could contain a command, the priority or an parameter array
-	// If we use the parameter array we have to protect it from the following function
-	$run_parameter = array_shift($proc_args);
-
-	// expand any arrays
-	foreach ($proc_args as $arg) {
-		if (is_array($arg)) {
-			foreach ($arg as $n) {
-				$args[] = $n;
-			}
-		} else {
-			$args[] = $arg;
-		}
-	}
-
-	// Now we add the run parameters back to the array
-	array_unshift($args, $run_parameter);
-
-	$arr = array('args' => $args, 'run_cmd' => true);
-
-	call_hooks("proc_run", $arr);
-	if (!$arr['run_cmd'] || ! count($args)) {
-		return true;
-	}
-
-	$priority = PRIORITY_MEDIUM;
-	$dont_fork = get_config("system", "worker_dont_fork");
-	$created = datetime_convert();
-
-	if (is_int($run_parameter)) {
-		$priority = $run_parameter;
-	} elseif (is_array($run_parameter)) {
-		if (isset($run_parameter['priority'])) {
-			$priority = $run_parameter['priority'];
-		}
-		if (isset($run_parameter['created'])) {
-			$created = $run_parameter['created'];
-		}
-		if (isset($run_parameter['dont_fork'])) {
-			$dont_fork = $run_parameter['dont_fork'];
-		}
-	}
-
-	$argv = $args;
-	array_shift($argv);
-
-	$parameters = json_encode($argv);
-	$found = dba::exists('workerqueue', array('parameter' => $parameters, 'done' => false));
-
-	// Quit if there was a database error - a precaution for the update process to 3.5.3
-	if (dba::errorNo() != 0) {
-		return false;
-	}
-
-	if (!$found) {
-		dba::insert('workerqueue', array('parameter' => $parameters, 'created' => $created, 'priority' => $priority));
-	}
-
-	// Should we quit and wait for the poller to be called as a cronjob?
-	if ($dont_fork) {
-		return true;
-	}
-
-	// If there is a lock then we don't have to check for too much worker
-	if (!Lock::set('poller_worker', 0)) {
-		return true;
-	}
-
-	// If there are already enough workers running, don't fork another one
-	$quit = poller_too_much_workers();
-	Lock::remove('poller_worker');
-
-	if ($quit) {
-		return true;
-	}
-
-	// Now call the poller to execute the jobs that we just added to the queue
-	$args = array("include/poller.php", "no_cron");
-
-	$a->proc_run($args);
-
-	return true;
+	call_user_func_array('Friendica\Core\Worker::add', $proc_args);
 }
 
 function current_theme() {

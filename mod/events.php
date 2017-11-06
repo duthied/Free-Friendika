@@ -6,6 +6,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 
 require_once 'include/bbcode.php';
 require_once 'include/datetime.php';
@@ -177,7 +178,7 @@ function events_post(App $a) {
 	$item_id = event_store($datarray);
 
 	if (! $cid) {
-		proc_run(PRIORITY_HIGH, "include/notifier.php", "event", $item_id);
+		Worker::add(PRIORITY_HIGH, "notifier", "event", $item_id);
 	}
 
 	goaway($_SESSION['return_url']);

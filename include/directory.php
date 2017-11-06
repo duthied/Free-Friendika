@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\Core\Config;
+use Friendica\Core\Worker;
 
 function directory_run(&$argv, &$argc){
 	$dir = Config::get('system', 'directory');
@@ -37,7 +38,7 @@ function directory_update_all() {
 
 	if (dbm::is_result($r)) {
 		foreach ($r AS $user) {
-			proc_run(PRIORITY_LOW, 'include/directory.php', $user['url']);
+			Worker::add(PRIORITY_LOW, 'directory', $user['url']);
 		}
 	}
 }

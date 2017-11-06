@@ -9,6 +9,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Core\Worker;
 
 require_once("include/enotify.php");
 require_once("include/text.php");
@@ -694,7 +695,7 @@ function admin_page_site_post(App $a) {
 	check_form_security_token_redirectOnErr('/admin/site', 'admin_site');
 
 	if (!empty($_POST['republish_directory'])) {
-		proc_run(PRIORITY_LOW, 'include/directory.php');
+		Worker::add(PRIORITY_LOW, 'directory');
 		return;
 	}
 
@@ -767,7 +768,7 @@ function admin_page_site_post(App $a) {
 		$users = q("SELECT `uid` FROM `user` WHERE `account_removed` = 0 AND `account_expired` = 0");
 
 		foreach ($users as $user) {
-			proc_run(PRIORITY_HIGH, 'include/notifier.php', 'relocate', $user['uid']);
+			Worker::add(PRIORITY_HIGH, 'notifier', 'relocate', $user['uid']);
 		}
 
 		info("Relocation started. Could take a while to complete.");
@@ -855,7 +856,7 @@ function admin_page_site_post(App $a) {
 	// Has the directory url changed? If yes, then resubmit the existing profiles there
 	if ($global_directory != Config::get('system', 'directory') && ($global_directory != '')) {
 		Config::set('system', 'directory', $global_directory);
-		proc_run(PRIORITY_LOW, 'include/directory.php');
+		Worker::add(PRIORITY_LOW, 'directory');
 	}
 
 	if ($a->get_path() != "") {

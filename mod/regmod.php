@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 
 require_once('include/enotify.php');
 require_once('include/user.php');
@@ -42,7 +43,7 @@ function user_allow($hash) {
 	if (dbm::is_result($r) && $r[0]['net-publish']) {
 		$url = System::baseUrl() . '/profile/' . $user[0]['nickname'];
 		if ($url && strlen(get_config('system','directory'))) {
-			proc_run(PRIORITY_LOW, "include/directory.php", $url);
+			Worker::add(PRIORITY_LOW, "directory", $url);
 		}
 	}
 

@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 use Friendica\Network\Probe;
 
 require_once 'include/Contact.php';
@@ -251,7 +252,7 @@ function _contact_update($contact_id) {
 				intval($contact_id));
 	} else
 		// pull feed and consume it, which should subscribe to the hub.
-		proc_run(PRIORITY_HIGH, "include/onepoll.php", $contact_id, "force");
+		Worker::add(PRIORITY_HIGH, "onepoll", $contact_id, "force");
 }
 
 function _contact_update_profile($contact_id) {

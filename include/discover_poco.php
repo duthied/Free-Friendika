@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\Core\Config;
+use Friendica\Core\Worker;
 
 require_once 'include/probe.php';
 require_once 'include/socgraph.php';
@@ -118,7 +119,7 @@ function update_server() {
 		}
 		logger('Update server status for server '.$server["url"], LOGGER_DEBUG);
 
-		proc_run(PRIORITY_LOW, "include/discover_poco.php", "server", $server["url"]);
+		Worker::add(PRIORITY_LOW, "discover_poco", "server", $server["url"]);
 
 		if (++$updated > 250) {
 			return;
@@ -177,7 +178,7 @@ function discover_users() {
 
 		if ((($server_url == "") && ($user["network"] == NETWORK_FEED)) || $force_update || poco_check_server($server_url, $user["network"])) {
 			logger('Check profile '.$user["url"]);
-			proc_run(PRIORITY_LOW, "include/discover_poco.php", "check_profile", $user["url"]);
+			Worker::add(PRIORITY_LOW, "discover_poco", "check_profile", $user["url"]);
 
 			if (++$checked > 100) {
 				return;
