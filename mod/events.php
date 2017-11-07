@@ -5,6 +5,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 
@@ -469,7 +470,7 @@ function events_content(App $a) {
 		$fhour   = ((x($orig_event)) ? datetime_convert('UTC', $tz, $fdt, 'H') : 0);
 		$fminute = ((x($orig_event)) ? datetime_convert('UTC', $tz, $fdt, 'i') : 0);
 
-		$f = get_config('system','event_input_format');
+		$f = Config::get('system','event_input_format');
 		if (! $f) {
 			$f = 'ymd';
 		}

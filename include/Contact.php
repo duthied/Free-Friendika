@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Network\Probe;
@@ -50,7 +51,7 @@ function contact_remove($id) {
 		return;
 	}
 
-	$archive = get_pconfig($r[0]['uid'], 'system','archive_removed_contacts');
+	$archive = PConfig::get($r[0]['uid'], 'system','archive_removed_contacts');
 	if ($archive) {
 		q("update contact set `archive` = 1, `network` = 'none', `writable` = 0 where id = %d",
 			intval($id)

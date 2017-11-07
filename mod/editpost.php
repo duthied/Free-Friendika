@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 
 require_once('include/acl_selectors.php');
@@ -62,7 +63,7 @@ function editpost_content(App $a) {
 	$jotplugins = '';
 	$jotnets = '';
 
-	$mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
+	$mail_disabled = ((function_exists('imap_open') && (! Config::get('system','imap_disabled'))) ? 0 : 1);
 
 	$mail_enabled = false;
 	$pubmail_enabled = false;

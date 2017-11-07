@@ -6,6 +6,8 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 
 define('REQUEST_TOKEN_DURATION', 300);
@@ -92,7 +94,7 @@ class FKOAuthDataStore extends OAuthDataStore {
     $ret=Null;
 
     // get user for this verifier
-    $uverifier = get_config("oauth", $verifier);
+    $uverifier = Config::get("oauth", $verifier);
     logger(__function__.":".$verifier.",".$uverifier);
     if (is_null($verifier) || ($uverifier!==false)){
 
@@ -114,11 +116,11 @@ class FKOAuthDataStore extends OAuthDataStore {
 
 
 	if (!is_null($ret) && $uverifier!==false){
-		del_config("oauth", $verifier);
-	/*	$apps = get_pconfig($uverifier, "oauth", "apps");
+		Config::delete("oauth", $verifier);
+	/*	$apps = PConfig::get($uverifier, "oauth", "apps");
 		if ($apps===false) $apps=array();
 		$apps[] = $consumer->key;
-		set_pconfig($uverifier, "oauth", "apps", $apps);*/
+		PConfig::set($uverifier, "oauth", "apps", $apps);*/
 	}
 
     return $ret;
@@ -148,7 +150,7 @@ class FKOAuth1 extends OAuthServer {
 		}
 		$_SESSION['uid'] = $record['uid'];
 		$_SESSION['theme'] = $record['theme'];
-		$_SESSION['mobile-theme'] = get_pconfig($record['uid'], 'system', 'mobile_theme');
+		$_SESSION['mobile-theme'] = PConfig::get($record['uid'], 'system', 'mobile_theme');
 		$_SESSION['authenticated'] = 1;
 		$_SESSION['page_flags'] = $record['page-flags'];
 		$_SESSION['my_url'] = System::baseUrl() . '/profile/' . $record['nickname'];

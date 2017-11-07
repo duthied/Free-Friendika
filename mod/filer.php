@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\PConfig;
 
 require_once('include/security.php');
 require_once('include/bbcode.php');
@@ -22,7 +23,7 @@ function filer_content(App $a) {
 		file_tag_save_file(local_user(),$item_id,$term);
 	} else {
 		// return filer dialog
-		$filetags = get_pconfig(local_user(),'system','filetags');
+		$filetags = PConfig::get(local_user(),'system','filetags');
 		$filetags = file_tag_file_to_list($filetags,'file');
                 $filetags = explode(",", $filetags);
 

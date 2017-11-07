@@ -5,6 +5,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 
 require_once 'include/bbcode.php';
@@ -435,7 +436,7 @@ function event_store($arr) {
 function get_event_strings() {
 
 	// First day of the week (0 = Sunday).
-	$firstDay = get_pconfig(local_user(), 'system', 'first_day_of_week');
+	$firstDay = PConfig::get(local_user(), 'system', 'first_day_of_week');
 	if ($firstDay === false) {
 		$firstDay = 0;
 	}

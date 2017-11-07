@@ -42,7 +42,7 @@ class Diaspora {
 	 */
 	public static function relay_list() {
 
-		$serverdata = get_config("system", "relay_server");
+		$serverdata = Config::get("system", "relay_server");
 		if ($serverdata == "")
 			return array();
 
@@ -411,7 +411,7 @@ class Diaspora {
 	 */
 	public static function dispatch_public($msg) {
 
-		$enabled = intval(get_config("system", "diaspora_enabled"));
+		$enabled = intval(Config::get("system", "diaspora_enabled"));
 		if (!$enabled) {
 			logger("diaspora is disabled");
 			return false;
@@ -740,7 +740,7 @@ class Diaspora {
 
 		if (!$person || $update) {
 			logger("create or refresh", LOGGER_DEBUG);
-			$r = probe_url($handle, PROBE_DIASPORA);
+			$r = Probe::uri($handle, NETWORK_DIASPORA);
 
 			// Note that Friendica contacts will return a "Diaspora person"
 			// if Diaspora connectivity is enabled on their server
@@ -2151,7 +2151,7 @@ class Diaspora {
 			intval($importer["uid"])
 		);
 
-		if ($r && !$r[0]["hide-friends"] && !$contact["hidden"] && intval(get_pconfig($importer["uid"], "system", "post_newfriend"))) {
+		if ($r && !$r[0]["hide-friends"] && !$contact["hidden"] && intval(PConfig::get($importer["uid"], "system", "post_newfriend"))) {
 
 			$self = q("SELECT * FROM `contact` WHERE `self` AND `uid` = %d LIMIT 1",
 				intval($importer["uid"])
@@ -2942,7 +2942,7 @@ class Diaspora {
 
 		$a = get_app();
 
-		$enabled = intval(get_config("system", "diaspora_enabled"));
+		$enabled = intval(Config::get("system", "diaspora_enabled"));
 		if (!$enabled)
 			return 200;
 
@@ -2958,7 +2958,7 @@ class Diaspora {
 		if (!$queue_run && was_recently_delayed($contact["id"])) {
 			$return_code = 0;
 		} else {
-			if (!intval(get_config("system", "diaspora_test"))) {
+			if (!intval(Config::get("system", "diaspora_test"))) {
 				$content_type = (($public_batch) ? "application/magic-envelope+xml" : "application/json");
 
 				post_url($dest_url."/", $envelope, array("Content-Type: ".$content_type));

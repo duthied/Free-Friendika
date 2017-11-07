@@ -1,9 +1,10 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 
 function apps_content(App $a) {
-	$privateaddons = get_config('config', 'private_addons');
+	$privateaddons = Config::get('config', 'private_addons');
 	if ($privateaddons === "1") {
 		if (! local_user()) {
 			info(t('You must be logged in to use addons. '));

@@ -23,7 +23,7 @@ function cli_startup() {
 
 	Config::load();
 
-	$a->set_baseurl(get_config('system','url'));
+	$a->set_baseurl(Config::get('system','url'));
 
 	load_hooks();
 }

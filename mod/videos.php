@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 
@@ -15,7 +16,7 @@ function videos_init(App $a) {
 	if($a->argc > 1)
 		auto_redir($a, $a->argv[1]);
 
-	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
 		return;
 	}
 
@@ -198,7 +199,7 @@ function videos_content(App $a) {
 	// videos/name/video/xxxxx/edit
 
 
-	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
 		notice( t('Public access denied.') . EOL);
 		return;
 	}

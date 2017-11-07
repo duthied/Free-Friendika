@@ -130,7 +130,7 @@ The selected 1st part will be saved in the database by the theme_post function.
         // if the one specific submit button was pressed then proceed
         if (isset($_POST['duepuntozero-settings-submit'])){
             // and save the selection key into the personal config of the user
-            set_pconfig(local_user(), 'duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
+            PConfig::set(local_user(), 'duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
         }
     }
 
@@ -138,9 +138,9 @@ Now that this information is set in the database, what should friendica do with 
 For this, have a look at the theme.php file of the *duepunto zero*.
 There you'll find somethink alike
 
-        $colorset = get_pconfig( local_user(), 'duepuntozero','colorset');
+        $colorset = PConfig::get( local_user(), 'duepuntozero','colorset');
         if (!$colorset)
-            $colorset = get_config('duepuntozero', 'colorset');
+            $colorset = Config::get('duepuntozero', 'colorset');
         if ($colorset) {
             if ($colorset == 'greenzero')
                 $a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/greenzero.css" type="text/css" media="screen" />'."\n";

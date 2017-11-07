@@ -21,8 +21,8 @@
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
 <?php
 	if(x($page,'nav')) {
-	echo	str_replace("~config.sitename~",get_config('config','sitename'),
-			str_replace("~system.banner~",get_config('system','banner'),
+	echo	str_replace("~config.sitename~",Friendica\Core\Config::get('config','sitename'),
+			str_replace("~system.banner~",Friendica\Core\Config::get('system','banner'),
 			$page['nav']
 	));};
 ?>

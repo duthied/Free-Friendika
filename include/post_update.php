@@ -3,6 +3,8 @@
  * @file include/post_update.php
  */
 
+use Friendica\Core\Config;
+
 /**
  * @brief Calls the post update functions
  */
@@ -33,7 +35,7 @@ function post_update() {
 function post_update_1192() {
 
 	// Was the script completed?
-	if (get_config("system", "post_update_version") >= 1192)
+	if (Config::get("system", "post_update_version") >= 1192)
 		return true;
 
 	// Check if the first step is done (Setting "gcontact-id" in the item table)
@@ -46,7 +48,7 @@ function post_update_1192() {
 				(`thread`.`uid` IN (SELECT `uid` from `user`) OR `thread`.`uid` = 0)");
 
 		if ($r && ($r[0]["total"] == 0)) {
-			set_config("system", "post_update_version", 1192);
+			Config::set("system", "post_update_version", 1192);
 			return true;
 		}
 
@@ -85,23 +87,23 @@ function post_update_1192() {
 function post_update_1194() {
 
 	// Was the script completed?
-	if (get_config("system", "post_update_version") >= 1194)
+	if (Config::get("system", "post_update_version") >= 1194)
 		return true;
 
 	logger("Start", LOGGER_DEBUG);
 
-	$end_id = get_config("system", "post_update_1194_end");
+	$end_id = Config::get("system", "post_update_1194_end");
 	if (!$end_id) {
 		$r = q("SELECT `id` FROM `item` WHERE `uid` != 0 ORDER BY `id` DESC LIMIT 1");
 		if ($r) {
-			set_config("system", "post_update_1194_end", $r[0]["id"]);
-			$end_id = get_config("system", "post_update_1194_end");
+			Config::set("system", "post_update_1194_end", $r[0]["id"]);
+			$end_id = Config::get("system", "post_update_1194_end");
 		}
 	}
 
 	logger("End ID: ".$end_id, LOGGER_DEBUG);
 
-	$start_id = get_config("system", "post_update_1194_start");
+	$start_id = Config::get("system", "post_update_1194_start");
 
 	$query1 = "SELECT `item`.`id` FROM `item` ";
 
@@ -119,12 +121,12 @@ function post_update_1194() {
 		intval($start_id), intval($end_id),
 		dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS));
 	if (!$r) {
-		set_config("system", "post_update_version", 1194);
+		Config::set("system", "post_update_version", 1194);
 		logger("Update is done", LOGGER_DEBUG);
 		return true;
 	} else {
-		set_config("system", "post_update_1194_start", $r[0]["id"]);
-		$start_id = get_config("system", "post_update_1194_start");
+		Config::set("system", "post_update_1194_start", $r[0]["id"]);
+		$start_id = Config::get("system", "post_update_1194_start");
 	}
 
 	logger("Start ID: ".$start_id, LOGGER_DEBUG);
@@ -157,7 +159,7 @@ function post_update_1194() {
 function post_update_1198() {
 
 	// Was the script completed?
-	if (get_config("system", "post_update_version") >= 1198)
+	if (Config::get("system", "post_update_version") >= 1198)
 		return true;
 
 	logger("Start", LOGGER_DEBUG);
@@ -172,7 +174,7 @@ function post_update_1198() {
 				(`thread`.`uid` IN (SELECT `uid` from `user`) OR `thread`.`uid` = 0)");
 
 		if ($r && ($r[0]["total"] == 0)) {
-			set_config("system", "post_update_version", 1198);
+			Config::set("system", "post_update_version", 1198);
 			logger("Done", LOGGER_DEBUG);
 			return true;
 		}
@@ -186,7 +188,7 @@ function post_update_1198() {
 
 		logger("Updated threads", LOGGER_DEBUG);
 		if (dbm::is_result($r)) {
-			set_config("system", "post_update_version", 1198);
+			Config::set("system", "post_update_version", 1198);
 			logger("Done", LOGGER_DEBUG);
 			return true;
 		}
@@ -234,7 +236,7 @@ function post_update_1198() {
  */
 function post_update_1206() {
 	// Was the script completed?
-	if (get_config("system", "post_update_version") >= 1206)
+	if (Config::get("system", "post_update_version") >= 1206)
 		return true;
 
 	logger("Start", LOGGER_DEBUG);
@@ -254,7 +256,7 @@ function post_update_1206() {
 		}
 	}
 
-	set_config("system", "post_update_version", 1206);
+	Config::set("system", "post_update_version", 1206);
 	logger("Done", LOGGER_DEBUG);
 	return true;
 }

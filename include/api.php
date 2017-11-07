@@ -297,7 +297,7 @@ $called_api = null;
 					$duration = (float) (microtime(true) - $stamp);
 					logger("API call duration: " . round($duration, 2) . "\t" . $a->query_string, LOGGER_DEBUG);
 
-					if (get_config("system", "profiler")) {
+					if (Config::get("system", "profiler")) {
 						$duration = microtime(true)-$a->performance["start"];
 
 						/// @TODO round() really everywhere?
@@ -312,7 +312,7 @@ $called_api = null;
 							LOGGER_DEBUG
 						);
 
-						if (get_config("rendertime", "callstack")) {
+						if (Config::get("rendertime", "callstack")) {
 							$o = "Database Read:\n";
 							foreach ($a->callstack["database"] AS $func => $time) {
 								$time = round($time, 3);
@@ -1084,7 +1084,7 @@ $called_api = null;
 			$_REQUEST['type'] = 'net-comment';
 		} else {
 			// Check for throttling (maximum posts per day, week and month)
-			$throttle_day = get_config('system','throttle_limit_day');
+			$throttle_day = Config::get('system','throttle_limit_day');
 			if ($throttle_day > 0) {
 				$datefrom = date("Y-m-d H:i:s", time() - 24*60*60);
 
@@ -1105,7 +1105,7 @@ $called_api = null;
 				}
 			}
 
-			$throttle_week = get_config('system','throttle_limit_week');
+			$throttle_week = Config::get('system','throttle_limit_week');
 			if ($throttle_week > 0) {
 				$datefrom = date("Y-m-d H:i:s", time() - 24*60*60*7);
 
@@ -1126,7 +1126,7 @@ $called_api = null;
 				}
 			}
 
-			$throttle_month = get_config('system','throttle_limit_month');
+			$throttle_month = Config::get('system','throttle_limit_month');
 			if ($throttle_month > 0) {
 				$datefrom = date("Y-m-d H:i:s", time() - 24*60*60*30);
 
@@ -2464,7 +2464,7 @@ $called_api = null;
 				if ($image) {
 					// If image cache is activated, then use the following sizes:
 					// thumb  (150), small (340), medium (600) and large (1024)
-					if (!get_config("system", "proxy_disabled")) {
+					if (!Config::get("system", "proxy_disabled")) {
 						$media_url = proxy_url($url);
 
 						$sizes = array();
@@ -3761,7 +3761,7 @@ $called_api = null;
 		// Update global directory in background
 		//$user = api_get_user(get_app());
 		$url = System::baseUrl() . '/profile/' . get_app()->user['nickname'];
-		if ($url && strlen(get_config('system', 'directory'))) {
+		if ($url && strlen(Config::get('system', 'directory'))) {
 			Worker::add(PRIORITY_LOW, "directory", $url);
 		}
 
@@ -3854,7 +3854,7 @@ $called_api = null;
 			throw new InternalServerErrorException("image size exceeds PHP config settings, file was rejected by server");
 		}
 		// check against max upload size within Friendica instance
-		$maximagesize = get_config('system', 'maximagesize');
+		$maximagesize = Config::get('system', 'maximagesize');
 		if (($maximagesize) && ($filesize > $maximagesize)) {
 			$formattedBytes = formatBytes($maximagesize);
 			throw new InternalServerErrorException("image size exceeds Friendica config setting (uploaded size: $formattedBytes)");
@@ -3872,7 +3872,7 @@ $called_api = null;
 		@unlink($src);
 
 		// check max length of images on server
-		$max_length = get_config('system', 'max_image_length');
+		$max_length = Config::get('system', 'max_image_length');
 		if (! $max_length) {
 			$max_length = MAX_IMAGE_LENGTH;
 		}
@@ -4947,7 +4947,7 @@ $called_api = null;
 
 		// retrieve general information about profiles for user
 		$multi_profiles = feature_enabled(api_user(),'multi_profiles');
-		$directory = get_config('system', 'directory');
+		$directory = Config::get('system', 'directory');
 
 		// get data of the specified profile id or all profiles of the user if not specified
 		if ($profileid != 0) {

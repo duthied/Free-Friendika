@@ -2,6 +2,8 @@
 
 define('UPDATE_VERSION' , 1235);
 
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
 
 /**
@@ -1075,7 +1077,7 @@ ADD INDEX ( `hash` ) ");
 }
 
 function update_1123() {
-set_config('system','allowed_themes','dispy,quattro,testbubble,vier,darkbubble,darkzero,duepuntozero,greenzero,purplezero,quattro-green,slackr');
+Config::set('system','allowed_themes','dispy,quattro,testbubble,vier,darkbubble,darkzero,duepuntozero,greenzero,purplezero,quattro-green,slackr');
 }
 
 function update_1124() {
@@ -1389,14 +1391,14 @@ function update_1157() {
 }
 
 function update_1158() {
-	set_config('system', 'maintenance', 1);
+	Config::set('system', 'maintenance', 1);
 
 	// Wait for 15 seconds for current requests to
 	// clear before locking up the database
 	sleep(15);
 
 	$r = q("CREATE INDEX event_id ON item(`event-id`)");
-	set_config('system', 'maintenance', 0);
+	Config::set('system', 'maintenance', 0);
 
 	if($r)
 		return UPDATE_SUCCESS;
@@ -1417,14 +1419,14 @@ function update_1159() {
 }
 
 function update_1160() {
-	set_config('system', 'maintenance', 1);
+	Config::set('system', 'maintenance', 1);
 
 	// Wait for 15 seconds for current requests to
 	// clear before locking up the database
 	sleep(15);
 
 	$r = q("ALTER TABLE `item` ADD `mention` TINYINT(1) NOT NULL DEFAULT '0', ADD INDEX (`mention`)");
-	set_config('system', 'maintenance', 0);
+	Config::set('system', 'maintenance', 0);
 
 	if(!$r)
 		return UPDATE_FAILED;
@@ -1449,18 +1451,18 @@ function update_1162() {
 }
 
 function update_1163() {
-	set_config('system', 'maintenance', 1);
+	Config::set('system', 'maintenance', 1);
 
 	$r = q("ALTER TABLE `item` ADD `network` char(32) NOT NULL");
 
-	set_config('system', 'maintenance', 0);
+	Config::set('system', 'maintenance', 0);
 	if(!$r)
 		return UPDATE_FAILED;
 
 	return UPDATE_SUCCESS;
 }
 function update_1164() {
-	set_config('system', 'maintenance', 1);
+	Config::set('system', 'maintenance', 1);
 
 	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '' AND `contact`.`uid` = `item`.`uid`)",
 		NETWORK_DFRN);
@@ -1507,7 +1509,7 @@ function update_1164() {
 	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
 		NETWORK_TWITTER, NETWORK_TWITTER);
 
-	set_config('system', 'maintenance', 0);
+	Config::set('system', 'maintenance', 0);
 
 	return UPDATE_SUCCESS;
 }
@@ -1635,8 +1637,8 @@ function update_1177() {
 }
 
 function update_1178() {
-	if (get_config('system','no_community_page'))
-		set_config('system','community_page_style', CP_NO_COMMUNITY_PAGE);
+	if (Config::get('system','no_community_page'))
+		Config::set('system','community_page_style', CP_NO_COMMUNITY_PAGE);
 
 	// Update the central item storage with uid=0
 	Worker::add(PRIORITY_LOW, "threadupdate");
@@ -1654,10 +1656,10 @@ function update_1180() {
 
 function update_1188() {
 
-	if (strlen(get_config('system','directory_submit_url')) &&
-		!strlen(get_config('system','directory'))) {
-		set_config('system','directory', dirname(get_config('system','directory_submit_url')));
-		del_config('system','directory_submit_url');
+	if (strlen(Config::get('system','directory_submit_url')) &&
+		!strlen(Config::get('system','directory'))) {
+		Config::set('system','directory', dirname(Config::get('system','directory_submit_url')));
+		Config::delete('system','directory_submit_url');
 	}
 
 	return UPDATE_SUCCESS;
@@ -1667,11 +1669,11 @@ function update_1190() {
 
 	require_once('include/plugin.php');
 
-	set_config('system', 'maintenance', 1);
+	Config::set('system', 'maintenance', 1);
 
 	if (plugin_enabled('forumlist')) {
 		$plugin = 'forumlist';
-		$plugins = get_config('system','addon');
+		$plugins = Config::get('system','addon');
 		$plugins_arr = array();
 
 		if ($plugins) {
@@ -1684,7 +1686,7 @@ function update_1190() {
 				// since uninstall_plugin() don't work here
 				q("DELETE FROM `addon` WHERE `name` = 'forumlist' ");
 				q("DELETE FROM `hook` WHERE `file` = 'addon/forumlist/forumlist.php' ");
-				set_config('system','addon', implode(", ",$plugins_arr));
+				Config::set('system','addon', implode(", ",$plugins_arr));
 			}
 		}
 	}
@@ -1703,25 +1705,25 @@ function update_1190() {
 			$value = $rr['v'];
 
 			if ($key === 'randomise')
-				del_pconfig($uid,$family,$key);
+				PConfig::delete($uid,$family,$key);
 
 			if ($key === 'show_on_profile') {
 				if ($value)
-					set_pconfig($uid,feature,forumlist_profile,$value);
+					PConfig::set($uid,feature,forumlist_profile,$value);
 
-				del_pconfig($uid,$family,$key);
+				PConfig::delete($uid,$family,$key);
 			}
 
 			if ($key === 'show_on_network') {
 				if ($value)
-					set_pconfig($uid,feature,forumlist_widget,$value);
+					PConfig::set($uid,feature,forumlist_widget,$value);
 
-				del_pconfig($uid,$family,$key);
+				PConfig::delete($uid,$family,$key);
 			}
 		}
 	}
 
-	set_config('system', 'maintenance', 0);
+	Config::set('system', 'maintenance', 0);
 
 	return UPDATE_SUCCESS;
 

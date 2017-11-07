@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\Core\Config;
+use Friendica\Network\Probe;
 
 require_once 'include/probe.php';
 require_once 'include/socgraph.php';
@@ -31,7 +32,7 @@ function gprobe_run(&$argv, &$argc){
 			}
 		}
 
-		$arr = probe_url($url);
+		$arr = Probe::uri($url);
 
 		if (is_null($result)) {
 			Cache::set("gprobe:".$urlparts["host"], $arr);

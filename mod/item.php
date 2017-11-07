@@ -16,8 +16,10 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Network\Probe;
 
 require_once 'include/crypto.php';
 require_once 'include/enotify.php';
@@ -27,7 +29,6 @@ require_once 'include/files.php';
 require_once 'include/threads.php';
 require_once 'include/text.php';
 require_once 'include/items.php';
-require_once 'include/probe.php';
 require_once 'include/diaspora.php';
 require_once 'include/Contact.php';
 
@@ -146,7 +147,7 @@ function item_post(App $a) {
 				$parent_contact = get_contact_details_by_url($thrparent[0]["author-link"]);
 
 				if (!isset($parent_contact["nick"])) {
-					$probed_contact = probe_url($thrparent[0]["author-link"]);
+					$probed_contact = Probe::uri($thrparent[0]["author-link"]);
 					if ($probed_contact["network"] != NETWORK_FEED) {
 						$parent_contact = $probed_contact;
 						$parent_contact["nurl"] = normalise_link($probed_contact["url"]);
@@ -328,7 +329,7 @@ function item_post(App $a) {
 		// if using the API, we won't see pubmail_enable - figure out if it should be set
 
 		if ($api_source && $profile_uid && $profile_uid == local_user() && (! $private)) {
-			$mail_disabled = ((function_exists('imap_open') && (! get_config('system', 'imap_disabled'))) ? 0 : 1);
+			$mail_disabled = ((function_exists('imap_open') && (! Config::get('system', 'imap_disabled'))) ? 0 : 1);
 			if (! $mail_disabled) {
 				/// @TODO Check if only pubmail is loaded, * loads all columns
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
@@ -1163,7 +1164,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 				if (dbm::is_result($r)) {
 					$data = $r[0];
 				} else {
-					$data = probe_url($matches[1]);
+					$data = Probe::uri($matches[1]);
 				}
 
 				if ($data["alias"] != "") {
@@ -1235,7 +1236,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			}
 
 			if (!dbm::is_result($r)) {
-				$probed = probe_url($name);
+				$probed = Probe::uri($name);
 				if ($result['network'] != NETWORK_PHANTOM) {
 					update_gcontact($probed);
 					$r = q("SELECT `url`, `name`, `nick`, `network`, `alias`, `notify` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",

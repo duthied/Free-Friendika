@@ -31,7 +31,7 @@ text { font:12px Dialog; }
 <text x="904" y="854" style="font:13px Open Sans">----------------------------------------------</text>
 <text x="904" y="900" style="font:13px Open Sans">- Cleanup old introductions that remain blocked + Cleanup </text>
 <text x="904" y="923" style="font:13px Open Sans">any old email intros - which will have a greater lifetime</text>
-<text x="904" y="969" style="font:13px Open Sans">- probe_url Bobs posted dfrn_url and get the network with </text>
+<text x="904" y="969" style="font:13px Open Sans">- Probe::uri Bobs posted dfrn_url and get the network with </text>
 <text x="904" y="992" style="font:13px Open Sans">webfinger_dfrn</text>
 <text x="904" y="1038" style="font:13px Open Sans">- try to select all contact data of Bob (contact table) by the </text>
 <text x="904" y="1061" style="font:13px Open Sans">url ($_POST['dfrn_url] and profile uid ($a-&gt;profile['uid']) </text>

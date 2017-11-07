@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 
 require_once('include/attach.php');
 require_once('include/datetime.php');
@@ -84,7 +85,7 @@ function wall_attach_post(App $a) {
 	$filename = basename($_FILES['userfile']['name']);
 	$filesize = intval($_FILES['userfile']['size']);
 
-	$maxfilesize = get_config('system','maxfilesize');
+	$maxfilesize = Config::get('system','maxfilesize');
 
 	/* Found html code written in text field of form,
 	 * when trying to upload a file with filesize

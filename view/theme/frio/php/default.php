@@ -6,6 +6,9 @@
 ?>
 <!DOCTYPE html >
 <?php
+	use Friendica\Core\Config;
+	use Friendica\Core\PConfig;
+	use Friendica\Core\System;
 	require_once('view/theme/frio/php/frio_boot.php');
 
 //	$minimal = is_modal();
@@ -17,9 +20,9 @@
 <head>
 	<title><?php if(x($page,'title')) echo $page['title'] ?></title>
 	<meta request="<?php echo htmlspecialchars($_REQUEST['pagename']) ?>">
-	<script  type="text/javascript">var baseurl="<?php echo Friendica\Core\System::baseUrl() ?>";</script>
+	<script  type="text/javascript">var baseurl="<?php echo System::baseUrl() ?>";</script>
 	<script type="text/javascript">var frio="<?php echo "view/theme/frio"; ?>";</script>
-	<?php $baseurl = Friendica\Core\System::baseUrl(); ?>
+	<?php $baseurl = System::baseUrl(); ?>
 	<?php $frio = "view/theme/frio"; ?>
 	<?php
 		// Because we use minimal for modals the header and the included js stuff should be only loaded
@@ -37,14 +40,14 @@
 		if (is_null($uid)) {
 			$uid = get_theme_uid();
 		}
-		$schema = get_pconfig($uid, 'frio', 'schema');
+		$schema = PConfig::get($uid, 'frio', 'schema');
 		if (($schema) && ($schema != '---')) {
 			if (file_exists('view/theme/frio/schema/'.$schema.'.php')) {
 				$schemefile = 'view/theme/frio/schema/'.$schema.'.php';
 				require_once($schemefile);
 			}
 		} else {
-			$nav_bg = get_pconfig($uid, 'frio', 'nav_bg');
+			$nav_bg = PConfig::get($uid, 'frio', 'nav_bg');
 		}
 		if (!$nav_bg) {
 			$nav_bg = "#708fa0";
@@ -66,8 +69,8 @@ else
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
 <?php
 	if(x($page,'nav') && (!$minimal)){
-	echo	str_replace("~config.sitename~",get_config('config','sitename'),
-			str_replace("~system.banner~",get_config('system','banner'),
+	echo	str_replace("~config.sitename~",Config::get('config','sitename'),
+			str_replace("~system.banner~",Config::get('system','banner'),
 			$page['nav']
 	));};
 

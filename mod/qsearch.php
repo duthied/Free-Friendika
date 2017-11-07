@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 
 function qsearch_init(App $a) {
 
@@ -8,7 +9,7 @@ function qsearch_init(App $a) {
 		killme();
 	}
 
-	$limit = (get_config('system','qsearch_limit') ? intval(get_config('system','qsearch_limit')) : 100);
+	$limit = (Config::get('system','qsearch_limit') ? intval(Config::get('system','qsearch_limit')) : 100);
 
 	$search = ((x($_GET,'s')) ? notags(trim(urldecode($_GET['s']))) : '');
 

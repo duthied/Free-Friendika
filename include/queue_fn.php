@@ -1,5 +1,7 @@
 <?php
 
+use Friendica\Core\Config;
+
 function update_queue_time($id) {
 	logger('queue: requeue item ' . $id);
 	q("UPDATE `queue` SET `last` = '%s' WHERE `id` = %d",
@@ -48,12 +50,12 @@ function was_recently_delayed($cid) {
 
 function add_to_queue($cid,$network,$msg,$batch = false) {
 
-	$max_queue = get_config('system','max_contact_queue');
+	$max_queue = Config::get('system','max_contact_queue');
 	if ($max_queue < 1) {
 		$max_queue = 500;
 	}
 
-	$batch_queue = get_config('system','max_batch_queue');
+	$batch_queue = Config::get('system','max_batch_queue');
 	if ($batch_queue < 1) {
 		$batch_queue = 1000;
 	}

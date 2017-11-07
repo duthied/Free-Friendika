@@ -8,6 +8,8 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 
 $frio = "view/theme/frio";
@@ -23,7 +25,7 @@ function frio_init(App $a) {
 
 	$baseurl = System::baseUrl();
 
-	$style = get_pconfig(local_user(), 'frio', 'style');
+	$style = PConfig::get(local_user(), 'frio', 'style');
 
 	$frio = "view/theme/frio";
 
@@ -40,7 +42,7 @@ EOT;
 }
 
 	if ($style == "")
-		$style = get_config('frio', 'style');
+		$style = Config::get('frio', 'style');
 }
 
 function frio_install() {

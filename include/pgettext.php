@@ -3,7 +3,7 @@
 /**
  * @brief translation support
  *
- * Get the language setting directly from system variables, bypassing get_config()
+ * Get the language setting directly from system variables, bypassing Config::get()
  * as database may not yet be configured.
  *
  * If possible, we use the value from the browser.

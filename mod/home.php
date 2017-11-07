@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 
 if(! function_exists('home_init')) {
@@ -13,8 +14,8 @@ function home_init(App $a) {
 		goaway(System::baseUrl()."/network");
 	}
 
-	if (strlen(get_config('system','singleuser'))) {
-		goaway(System::baseUrl()."/profile/" . get_config('system','singleuser'));
+	if (strlen(Config::get('system','singleuser'))) {
+		goaway(System::baseUrl()."/profile/" . Config::get('system','singleuser'));
 	}
 
 }}

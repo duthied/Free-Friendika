@@ -1,9 +1,10 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Network\Probe;
 
-require_once 'include/probe.php';
 require_once 'include/follow.php';
 
 function ostatus_subscribe_content(App $a) {
@@ -22,13 +23,13 @@ function ostatus_subscribe_content(App $a) {
 
 	$counter = intval($_REQUEST['counter']);
 
-	if (get_pconfig($uid, "ostatus", "legacy_friends") == "") {
+	if (PConfig::get($uid, "ostatus", "legacy_friends") == "") {
 
 		if ($_REQUEST["url"] == "") {
 			return $o.t("No contact provided.");
 		}
 
-		$contact = probe_url($_REQUEST["url"]);
+		$contact = Probe::uri($_REQUEST["url"]);
 
 		if (!$contact) {
 			return $o.t("Couldn't fetch information for contact.");
@@ -43,17 +44,17 @@ function ostatus_subscribe_content(App $a) {
 			return $o.t("Couldn't fetch friends for contact.");
 		}
 
-		set_pconfig($uid, "ostatus", "legacy_friends", $data["body"]);
+		PConfig::set($uid, "ostatus", "legacy_friends", $data["body"]);
 	}
 
-	$friends = json_decode(get_pconfig($uid, "ostatus", "legacy_friends"));
+	$friends = json_decode(PConfig::get($uid, "ostatus", "legacy_friends"));
 
 	$total = sizeof($friends);
 
 	if ($counter >= $total) {
 		$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL='.System::baseUrl().'/settings/connectors">';
-		del_pconfig($uid, "ostatus", "legacy_friends");
-		del_pconfig($uid, "ostatus", "legacy_contact");
+		PConfig::delete($uid, "ostatus", "legacy_friends");
+		PConfig::delete($uid, "ostatus", "legacy_contact");
 		$o .= t("Done");
 		return $o;
 	}
@@ -64,7 +65,7 @@ function ostatus_subscribe_content(App $a) {
 
 	$o .= "<p>".$counter."/".$total.": ".$url;
 
-	$data = probe_url($url);
+	$data = Probe::uri($url);
 	if ($data["network"] == NETWORK_OSTATUS) {
 		$result = new_contact($uid, $url, true, NETWORK_OSTATUS);
 		if ($result["success"]) {

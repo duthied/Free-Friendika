@@ -1,5 +1,7 @@
 <?php
 
+use Friendica\Core\PConfig;
+
 require_once('include/email.php');
 
 class Emailer {
@@ -22,7 +24,7 @@ class Emailer {
 
 		$email_textonly = False;
 		if (x($params,"uid")) {
-			$email_textonly = get_pconfig($params['uid'], "system", "email_textonly");
+			$email_textonly = PConfig::get($params['uid'], "system", "email_textonly");
 		}
 
 		$fromName = email_header_encode(html_entity_decode($params['fromName'],ENT_QUOTES,'UTF-8'),'UTF-8');

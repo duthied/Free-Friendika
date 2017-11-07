@@ -154,7 +154,7 @@ class Cache {
 	public static function clear($max_level = CACHE_MONTH) {
 
 		// Clear long lasting cache entries only once a day
-		if (get_config("system", "cache_cleared_day") < time() - self::duration(CACHE_DAY)) {
+		if (Config::get("system", "cache_cleared_day") < time() - self::duration(CACHE_DAY)) {
 			if ($max_level == CACHE_MONTH) {
 				q("DELETE FROM `cache` WHERE `updated` < '%s' AND `expire_mode` = %d",
 					dbesc(datetime_convert('UTC','UTC',"now - 30 days")), intval(CACHE_MONTH));
@@ -169,42 +169,42 @@ class Cache {
 				q("DELETE FROM `cache` WHERE `updated` < '%s' AND `expire_mode` = %d",
 				dbesc(datetime_convert('UTC','UTC',"now - 1 days")), intval(CACHE_DAY));
 			}
-			set_config("system", "cache_cleared_day", time());
+			Config::set("system", "cache_cleared_day", time());
 		}
 
-		if (($max_level <= CACHE_HOUR) && (get_config("system", "cache_cleared_hour")) < time() - self::duration(CACHE_HOUR)) {
+		if (($max_level <= CACHE_HOUR) && (Config::get("system", "cache_cleared_hour")) < time() - self::duration(CACHE_HOUR)) {
 			q("DELETE FROM `cache` WHERE `updated` < '%s' AND `expire_mode` = %d",
 				dbesc(datetime_convert('UTC','UTC',"now - 1 hours")), intval(CACHE_HOUR));
 
-			set_config("system", "cache_cleared_hour", time());
+			Config::set("system", "cache_cleared_hour", time());
 		}
 
-		if (($max_level <= CACHE_HALF_HOUR) && (get_config("system", "cache_cleared_half_hour")) < time() - self::duration(CACHE_HALF_HOUR)) {
+		if (($max_level <= CACHE_HALF_HOUR) && (Config::get("system", "cache_cleared_half_hour")) < time() - self::duration(CACHE_HALF_HOUR)) {
 			q("DELETE FROM `cache` WHERE `updated` < '%s' AND `expire_mode` = %d",
 				dbesc(datetime_convert('UTC','UTC',"now - 30 minutes")), intval(CACHE_HALF_HOUR));
 
-			set_config("system", "cache_cleared_half_hour", time());
+			Config::set("system", "cache_cleared_half_hour", time());
 		}
 
-		if (($max_level <= CACHE_QUARTER_HOUR) && (get_config("system", "cache_cleared_quarter_hour")) < time() - self::duration(CACHE_QUARTER_HOUR)) {
+		if (($max_level <= CACHE_QUARTER_HOUR) && (Config::get("system", "cache_cleared_quarter_hour")) < time() - self::duration(CACHE_QUARTER_HOUR)) {
 			q("DELETE FROM `cache` WHERE `updated` < '%s' AND `expire_mode` = %d",
 				dbesc(datetime_convert('UTC','UTC',"now - 15 minutes")), intval(CACHE_QUARTER_HOUR));
 
-			set_config("system", "cache_cleared_quarter_hour", time());
+			Config::set("system", "cache_cleared_quarter_hour", time());
 		}
 
-		if (($max_level <= CACHE_FIVE_MINUTES) && (get_config("system", "cache_cleared_five_minute")) < time() - self::duration(CACHE_FIVE_MINUTES)) {
+		if (($max_level <= CACHE_FIVE_MINUTES) && (Config::get("system", "cache_cleared_five_minute")) < time() - self::duration(CACHE_FIVE_MINUTES)) {
 			q("DELETE FROM `cache` WHERE `updated` < '%s' AND `expire_mode` = %d",
 				dbesc(datetime_convert('UTC','UTC',"now - 5 minutes")), intval(CACHE_FIVE_MINUTES));
 
-			set_config("system", "cache_cleared_five_minute", time());
+			Config::set("system", "cache_cleared_five_minute", time());
 		}
 
-		if (($max_level <= CACHE_MINUTE) && (get_config("system", "cache_cleared_minute")) < time() - self::duration(CACHE_MINUTE)) {
+		if (($max_level <= CACHE_MINUTE) && (Config::get("system", "cache_cleared_minute")) < time() - self::duration(CACHE_MINUTE)) {
 			q("DELETE FROM `cache` WHERE `updated` < '%s' AND `expire_mode` = %d",
 				dbesc(datetime_convert('UTC','UTC',"now - 1 minutes")), intval(CACHE_MINUTE));
 
-			set_config("system", "cache_cleared_minute", time());
+			Config::set("system", "cache_cleared_minute", time());
 		}
 	}
 }

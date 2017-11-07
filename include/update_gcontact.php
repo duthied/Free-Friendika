@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\Core\Config;
+use Friendica\Network\Probe;
 
 function update_gcontact_run(&$argv, &$argc) {
 	global $a;
@@ -29,7 +30,7 @@ function update_gcontact_run(&$argv, &$argc) {
 		return;
 	}
 
-	$data = probe_url($r[0]["url"]);
+	$data = Probe::uri($r[0]["url"]);
 
 	if (!in_array($data["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
 		if ($r[0]["server_url"] != "")

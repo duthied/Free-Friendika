@@ -1,6 +1,8 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 
@@ -20,7 +22,7 @@ function register_post(App $a) {
 	$arr = array('post' => $_POST);
 	call_hooks('register_post', $arr);
 
-	$max_dailies = intval(get_config('system','max_daily_registrations'));
+	$max_dailies = intval(Config::get('system','max_daily_registrations'));
 	if($max_dailies) {
 		$r = q("select count(*) as total from user where register_date > UTC_TIMESTAMP - INTERVAL 1 day");
 		if($r && $r[0]['total'] >= $max_dailies) {
@@ -73,8 +75,8 @@ function register_post(App $a) {
 		Worker::add(PRIORITY_LOW, "directory", $url);
 	}
 
-	$using_invites = get_config('system','invitation_only');
-	$num_invites   = get_config('system','number_invites');
+	$using_invites = Config::get('system','invitation_only');
+	$num_invites   = Config::get('system','number_invites');
 	$invite_id  = ((x($_POST,'invite_id'))  ? notags(trim($_POST['invite_id']))  : '');
 
 
@@ -82,7 +84,7 @@ function register_post(App $a) {
 
 		if($using_invites && $invite_id) {
 			q("delete * from register where hash = '%s' limit 1", dbesc($invite_id));
-			set_pconfig($user['uid'],'system','invites_remaining',$num_invites);
+			PConfig::set($user['uid'],'system','invites_remaining',$num_invites);
 		}
 
 		// Only send a password mail when the password wasn't manually provided
@@ -130,7 +132,7 @@ function register_post(App $a) {
 		// invite system
 		if($using_invites && $invite_id) {
 			q("delete * from register where hash = '%s' limit 1", dbesc($invite_id));
-			set_pconfig($user['uid'],'system','invites_remaining',$num_invites);
+			PConfig::set($user['uid'],'system','invites_remaining',$num_invites);
 		}
 
 		// send email to admins
@@ -183,7 +185,7 @@ function register_content(App $a) {
 	// even with closed registrations, unless specifically prohibited by site policy.
 	// 'block_extended_register' blocks all registrations, period.
 
-	$block = get_config('system','block_extended_register');
+	$block = Config::get('system','block_extended_register');
 
 	if(local_user() && ($block)) {
 		notice("Permission denied." . EOL);
@@ -195,7 +197,7 @@ function register_content(App $a) {
 		return;
 	}
 
-	$max_dailies = intval(get_config('system','max_daily_registrations'));
+	$max_dailies = intval(Config::get('system','max_daily_registrations'));
 	if($max_dailies) {
 		$r = q("select count(*) as total from user where register_date > UTC_TIMESTAMP - INTERVAL 1 day");
 		if($r && $r[0]['total'] >= $max_dailies) {
@@ -218,7 +220,7 @@ function register_content(App $a) {
 	$photo        = ((x($_POST,'photo'))        ? $_POST['photo']        : ((x($_GET,'photo'))        ? hex2bin($_GET['photo'])        : ''));
 	$invite_id    = ((x($_POST,'invite_id'))    ? $_POST['invite_id']    : ((x($_GET,'invite_id'))    ? $_GET['invite_id']             : ''));
 
-	$noid = get_config('system','no_openid');
+	$noid = Config::get('system','no_openid');
 
 	if($noid) {
 		$oidhtml = '';
@@ -237,7 +239,7 @@ function register_content(App $a) {
 
 	$realpeople = ''; // t('Members of this network prefer to communicate with real people who use their real names.');
 
-	if(get_config('system','publish_all')) {
+	if(Config::get('system','publish_all')) {
 		$profile_publish_reg = '<input type="hidden" name="profile_publish_reg" value="1" />';
 	}
 	else {
@@ -267,7 +269,7 @@ function register_content(App $a) {
 
 	$o = replace_macros($o, array(
 		'$oidhtml' => $oidhtml,
-		'$invitations' => get_config('system','invitation_only'),
+		'$invitations' => Config::get('system','invitation_only'),
 		'$permonly' => $a->config['register_policy'] == REGISTER_APPROVE,
 		'$permonlybox' => array('permonlybox', t('Note for the admin'), '', t('Leave a message for the admin, why you want to join this node')),
 		'$invite_desc' => t('Membership on this site is by invitation only.'),

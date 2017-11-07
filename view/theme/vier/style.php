@@ -1,10 +1,14 @@
 <?php
+
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
+
 $uid = get_theme_uid();
 
-$style = get_pconfig($uid, 'vier', 'style');
+$style = PConfig::get($uid, 'vier', 'style');
 
 if ($style == "")
-	$style = get_config('vier', 'style');
+	$style = Config::get('vier', 'style');
 
 if ($style == "")
 	$style = "plus";
