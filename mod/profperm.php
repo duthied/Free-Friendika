@@ -34,11 +34,9 @@ function profperm_content(App $a) {
 	// Switch to text mod interface if we have more than 'n' contacts or group members
 
 	$switchtotext = PConfig::get(local_user(),'system','groupedit_image_limit');
-	if($switchtotext === false)
-		$switchtotext = Config::get('system','groupedit_image_limit');
-	if($switchtotext === false)
-		$switchtotext = 400;
-
+	if (is_null($switchtotext)) {
+		$switchtotext = Config::get('system','groupedit_image_limit', 400);
+	}
 
 	if(($a->argc > 2) && intval($a->argv[1]) && intval($a->argv[2])) {
 		$r = q("SELECT `id` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `self` = 0
