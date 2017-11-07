@@ -621,7 +621,7 @@ function admin_page_summary(App $a) {
 	if (Config::get('system', 'check_new_version_url', 'none') != 'none' ) {
 		$gitversion = Config::get('system','git_friendica_version');
 		if (version_compare(FRIENDICA_VERSION, $gitversion) < 0) {
-			$warningtext[] = t('There is a new version of Friendica available for download.');
+			$warningtext[] = sprintf(t('There is a new version of Friendica available for download. Your current version is %1$s, upstream version is %2$s'), $FRIENDICA_VERSION, $gitversion);
 			$showwarning = true;
 		}
 	}
