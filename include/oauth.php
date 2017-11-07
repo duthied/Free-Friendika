@@ -116,7 +116,7 @@ class FKOAuthDataStore extends OAuthDataStore {
 
 
 	if (!is_null($ret) && $uverifier!==false){
-		del_config("oauth", $verifier);
+		Config::delele("oauth", $verifier);
 	/*	$apps = PConfig::get($uverifier, "oauth", "apps");
 		if ($apps===false) $apps=array();
 		$apps[] = $consumer->key;

@@ -1659,7 +1659,7 @@ function update_1188() {
 	if (strlen(Config::get('system','directory_submit_url')) &&
 		!strlen(Config::get('system','directory'))) {
 		Config::set('system','directory', dirname(Config::get('system','directory_submit_url')));
-		del_config('system','directory_submit_url');
+		Config::delete('system','directory_submit_url');
 	}
 
 	return UPDATE_SUCCESS;
@@ -1705,20 +1705,20 @@ function update_1190() {
 			$value = $rr['v'];
 
 			if ($key === 'randomise')
-				del_pconfig($uid,$family,$key);
+				PConfig::delete($uid,$family,$key);
 
 			if ($key === 'show_on_profile') {
 				if ($value)
 					PConfig::set($uid,feature,forumlist_profile,$value);
 
-				del_pconfig($uid,$family,$key);
+				PConfig::delete($uid,$family,$key);
 			}
 
 			if ($key === 'show_on_network') {
 				if ($value)
 					PConfig::set($uid,feature,forumlist_widget,$value);
 
-				del_pconfig($uid,$family,$key);
+				PConfig::delete($uid,$family,$key);
 			}
 		}
 	}

@@ -7,7 +7,6 @@ use Friendica\Core\Worker;
 use Friendica\Network\Probe;
 
 require_once 'include/contact_widgets.php';
-require_once 'include/probe.php';
 require_once 'include/socgraph.php';
 require_once 'include/Contact.php';
 require_once 'include/contact_selectors.php';

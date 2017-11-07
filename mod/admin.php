@@ -944,7 +944,7 @@ function admin_page_site_post(App $a) {
 	}
 
 	if ($info == "") {
-		del_config('config','info');
+		Config::delete('config','info');
 	} else {
 		Config::set('config','info',$info);
 	}
@@ -952,12 +952,12 @@ function admin_page_site_post(App $a) {
 	Config::set('system','theme', $theme);
 
 	if ($theme_mobile == '---') {
-		del_config('system','mobile-theme');
+		Config::delete('system','mobile-theme');
 	} else {
 		Config::set('system','mobile-theme', $theme_mobile);
 	}
 	if ($singleuser == '---') {
-		del_config('system','singleuser');
+		Config::delete('system','singleuser');
 	} else {
 		Config::set('system','singleuser', $singleuser);
 	}
@@ -1048,7 +1048,7 @@ function admin_page_site(App $a) {
 	if (strlen(Config::get('system','directory_submit_url')) &&
 		!strlen(Config::get('system','directory'))) {
 			Config::set('system','directory', dirname(Config::get('system','directory_submit_url')));
-			del_config('system','directory_submit_url');
+			Config::delete('system','directory_submit_url');
 	}
 
 	/* Installed themes */
@@ -2239,7 +2239,7 @@ function admin_page_features_post(App $a) {
 			if (x($_POST, $featurelock)) {
 				Config::set('feature_lock', $feature, $val);
 			} else {
-				del_config('feature_lock', $feature);
+				Config::delete('feature_lock', $feature);
 			}
 		}
 	}
