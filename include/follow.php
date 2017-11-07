@@ -6,7 +6,6 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Network\Probe;
 
-require_once 'include/probe.php';
 require_once 'include/socgraph.php';
 require_once 'include/group.php';
 require_once 'include/salmon.php';

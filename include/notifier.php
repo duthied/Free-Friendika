@@ -7,7 +7,6 @@ use Friendica\Network\Probe;
 
 require_once 'include/queue_fn.php';
 require_once 'include/html2plain.php';
-require_once 'include/probe.php';
 require_once 'include/diaspora.php';
 require_once 'include/ostatus.php';
 require_once 'include/salmon.php';

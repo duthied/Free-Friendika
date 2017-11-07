@@ -168,8 +168,6 @@ function send_wallmessage($recipient='', $body='', $subject='', $replyto=''){
 	$convid = 0;
 	$reply = false;
 
-	require_once 'include/probe.php';
-
 	$me = Probe::uri($replyto);
 
 	if (! $me['name']) {

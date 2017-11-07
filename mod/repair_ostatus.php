@@ -3,7 +3,6 @@
 use Friendica\App;
 use Friendica\Core\System;
 
-require_once 'include/probe.php';
 require_once 'include/follow.php';
 
 function repair_ostatus_content(App $a) {
