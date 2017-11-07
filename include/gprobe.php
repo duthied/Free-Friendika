@@ -3,7 +3,6 @@
 use Friendica\Core\Config;
 use Friendica\Network\Probe;
 
-require_once 'include/probe.php';
 require_once 'include/socgraph.php';
 require_once 'include/datetime.php';
 

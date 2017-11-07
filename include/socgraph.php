@@ -14,7 +14,6 @@ use Friendica\Core\Worker;
 use Friendica\Network\Probe;
 
 require_once 'include/datetime.php';
-require_once 'include/probe.php';
 require_once 'include/network.php';
 require_once 'include/html2bbcode.php';
 require_once 'include/Contact.php';

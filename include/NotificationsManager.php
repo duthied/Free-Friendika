@@ -9,7 +9,6 @@ use Friendica\Core\Pconfig;
 use Friendica\Core\System;
 
 require_once 'include/html2plain.php';
-require_once 'include/probe.php';
 require_once 'include/datetime.php';
 require_once 'include/bbcode.php';
 require_once 'include/Contact.php';
