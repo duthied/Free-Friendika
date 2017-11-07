@@ -16,11 +16,11 @@ use Friendica\Core\PConfig;
 function feature_enabled($uid, $feature) {
 	$x = Config::get('feature_lock', $feature);
 
-	if ($x === false) {
+	if (is_null($x)) {
 		$x = PConfig::get($uid, 'feature', $feature);
-		if ($x === false) {
+		if (is_null($x)) {
 			$x = Config::get('feature', $feature);
-			if ($x === false) {
+			if (is_null($x)) {
 				$x = get_feature_default($feature);
 			}
 		}
