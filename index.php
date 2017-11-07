@@ -51,8 +51,6 @@ if (!$install) {
  *
  */
 
-use Friendica\Core\Config;
-
 require_once "include/dba.php";
 
 if (!$install) {
