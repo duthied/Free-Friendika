@@ -280,10 +280,7 @@ function timesel($format, $h, $m, $id = 'timepicker') {
 function datetimesel($format, $min, $max, $default, $label, $id = 'datetimepicker', $pickdate = true, $picktime = true, $minfrom = '', $maxfrom = '', $required = false) {
 
 	// First day of the week (0 = Sunday)
-	$firstDay = PConfig::get(local_user(), 'system', 'first_day_of_week');
-	if ($firstDay === false) {
-		$firstDay=0;
-	}
+	$firstDay = PConfig::get(local_user(), 'system', 'first_day_of_week', 0);
 
 	$lang = substr(get_browser_language(), 0, 2);
 
