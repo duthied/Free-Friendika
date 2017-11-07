@@ -1,5 +1,6 @@
 <?php
 
+use Friendica\Core\Config;
 use Friendica\Core\System;
 
 require_once('include/config.php');
@@ -18,8 +19,8 @@ function create_user($arr) {
 	$a = get_app();
 	$result = array('success' => false, 'user' => null, 'password' => '', 'message' => '');
 
-	$using_invites = get_config('system','invitation_only');
-	$num_invites   = get_config('system','number_invites');
+	$using_invites = Config::get('system','invitation_only');
+	$num_invites   = Config::get('system','number_invites');
 
 
 	$invite_id  = ((x($arr,'invite_id'))  ? notags(trim($arr['invite_id']))  : '');
@@ -35,7 +36,7 @@ function create_user($arr) {
 	$verified   = ((x($arr,'verified'))   ? intval($arr['verified']) : 0);
 
 	$publish    = ((x($arr,'profile_publish_reg') && intval($arr['profile_publish_reg'])) ? 1 : 0);
-	$netpublish = ((strlen(get_config('system','directory'))) ? $publish : 0);
+	$netpublish = ((strlen(Config::get('system','directory'))) ? $publish : 0);
 
 	if ($password1 != $confirm) {
 		$result['message'] .= t('Passwords do not match. Password unchanged.') . EOL;
@@ -101,7 +102,7 @@ function create_user($arr) {
 
 	// So now we are just looking for a space in the full name.
 
-	$loose_reg = get_config('system','no_regfullname');
+	$loose_reg = Config::get('system','no_regfullname');
 	if(! $loose_reg) {
 		$username = mb_convert_case($username,MB_CASE_TITLE,'UTF-8');
 		if(! strpos($username,' '))
@@ -268,7 +269,7 @@ function create_user($arr) {
 			);
 		}
 
-		if(get_config('system', 'newuser_private') && $def_gid) {
+		if(Config::get('system', 'newuser_private') && $def_gid) {
 			q("UPDATE `user` SET `allow_gid` = '%s' WHERE `uid` = %d",
 				dbesc("<" . $def_gid . ">"),
 				intval($newuid)

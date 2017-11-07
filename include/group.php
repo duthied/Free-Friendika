@@ -1,5 +1,6 @@
 <?php
 
+use Friendica\Core\PConfig;
 
 function group_add($uid,$name) {
 
@@ -385,7 +386,7 @@ function get_default_group($uid, $network = "") {
 	$default_group = 0;
 
 	if ($network == NETWORK_OSTATUS)
-		$default_group = get_pconfig($uid, "ostatus", "default_group");
+		$default_group = PConfig::get($uid, "ostatus", "default_group");
 
 	if ($default_group != 0)
 		return $default_group;

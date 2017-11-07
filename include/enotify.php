@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 
 require_once('include/Emailer.php');
@@ -589,7 +590,7 @@ function notification($params) {
 
 		// check whether sending post content in email notifications is allowed
 		// always true for SYSTEM_EMAIL
-		$content_allowed = ((!get_config('system', 'enotify_no_content')) || ($params['type'] == SYSTEM_EMAIL));
+		$content_allowed = ((!Config::get('system', 'enotify_no_content')) || ($params['type'] == SYSTEM_EMAIL));
 
 		// load the template for private message notifications
 		$tpl = get_markup_template('email_notify_html.tpl');

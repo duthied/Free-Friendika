@@ -1781,9 +1781,9 @@ function dbstructure_run(&$argv, &$argc) {
 			case "update":
 				update_structure(true, true);
 
-				$build = get_config('system','build');
+				$build = Config::get('system','build');
 				if (!x($build)) {
-					set_config('system', 'build', DB_UPDATE_VERSION);
+					Config::set('system', 'build', DB_UPDATE_VERSION);
 					$build = DB_UPDATE_VERSION;
 				}
 
@@ -1798,7 +1798,7 @@ function dbstructure_run(&$argv, &$argc) {
 					}
 				}
 
-				set_config('system','build',DB_UPDATE_VERSION);
+				Config::set('system','build',DB_UPDATE_VERSION);
 				return;
 			case "dumpsql":
 				print_structure(db_definition());

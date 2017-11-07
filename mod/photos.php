@@ -22,7 +22,7 @@ function photos_init(App $a) {
 		auto_redir($a, $a->argv[1]);
 	}
 
-	if ((get_config('system', 'block_public')) && (! local_user()) && (! remote_user())) {
+	if ((Config::get('system', 'block_public')) && (! local_user()) && (! remote_user())) {
 		return;
 	}
 
@@ -811,7 +811,7 @@ function photos_post(App $a) {
 
 	logger('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes', LOGGER_DEBUG);
 
-	$maximagesize = get_config('system','maximagesize');
+	$maximagesize = Config::get('system','maximagesize');
 
 	if (($maximagesize) && ($filesize > $maximagesize)) {
 		notice( sprintf(t('Image exceeds size limit of %s'), formatBytes($maximagesize)) . EOL);
@@ -847,7 +847,7 @@ function photos_post(App $a) {
 	$exif = $ph->orient($src);
 	@unlink($src);
 
-	$max_length = get_config('system', 'max_image_length');
+	$max_length = Config::get('system', 'max_image_length');
 	if (! $max_length) {
 		$max_length = MAX_IMAGE_LENGTH;
 	}
@@ -961,7 +961,7 @@ function photos_content(App $a) {
 	// photos/name/image/xxxxx/edit
 
 
-	if ((get_config('system', 'block_public')) && (! local_user()) && (! remote_user())) {
+	if ((Config::get('system', 'block_public')) && (! local_user()) && (! remote_user())) {
 		notice( t('Public access denied.') . EOL);
 		return;
 	}

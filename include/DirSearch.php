@@ -5,6 +5,7 @@
  * @brief This file includes the DirSearch class with directory related functions
  */
 
+use Friendica\Core\Config;
 
 /**
  * @brief This class handels directory related functions
@@ -22,12 +23,12 @@ class DirSearch {
 
 		if($search) {
 			// check supported networks
-			if (get_config('system','diaspora_enabled'))
+			if (Config::get('system','diaspora_enabled'))
 				$diaspora = NETWORK_DIASPORA;
 			else
 				$diaspora = NETWORK_DFRN;
 
-			if (!get_config('system','ostatus_disabled'))
+			if (!Config::get('system','ostatus_disabled'))
 				$ostatus = NETWORK_OSTATUS;
 			else
 				$ostatus = NETWORK_DFRN;

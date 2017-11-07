@@ -1513,7 +1513,7 @@ class ostatus {
 			$contact = owner;
 
 		if (!isset($contact["poll"])) {
-			$data = probe_url($url);
+			$data = Probe::uri($url);
 			$contact["poll"] = $data["poll"];
 
 			if (!$contact["alias"])

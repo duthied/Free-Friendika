@@ -8,6 +8,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 
@@ -442,11 +443,11 @@ class dfrn {
 	public static function relocate($owner, $uid) {
 
 		/* get site pubkey. this could be a new installation with no site keys*/
-		$pubkey = get_config('system','site_pubkey');
+		$pubkey = Config::get('system','site_pubkey');
 		if (! $pubkey) {
 			$res = new_keypair(1024);
-			set_config('system','site_prvkey', $res['prvkey']);
-			set_config('system','site_pubkey', $res['pubkey']);
+			Config::set('system','site_prvkey', $res['prvkey']);
+			Config::set('system','site_pubkey', $res['pubkey']);
 		}
 
 		$rp = q("SELECT `resource-id` , `scale`, type FROM `photo`
@@ -478,7 +479,7 @@ class dfrn {
 		xml::add_element($doc, $relocate, "dfrn:confirm", $owner['confirm']);
 		xml::add_element($doc, $relocate, "dfrn:notify", $owner['notify']);
 		xml::add_element($doc, $relocate, "dfrn:poll", $owner['poll']);
-		xml::add_element($doc, $relocate, "dfrn:sitepubkey", get_config('system','site_pubkey'));
+		xml::add_element($doc, $relocate, "dfrn:sitepubkey", Config::get('system','site_pubkey'));
 
 		$root->appendChild($relocate);
 
@@ -1103,12 +1104,12 @@ class dfrn {
 			$idtosend = '1:' . $orig_id;
 		}
 
-		$rino = get_config('system', 'rino_encrypt');
+		$rino = Config::get('system', 'rino_encrypt');
 		$rino = intval($rino);
 
 		logger("Local rino version: ". $rino, LOGGER_DEBUG);
 
-		$ssl_val = intval(get_config('system','ssl_policy'));
+		$ssl_val = intval(Config::get('system','ssl_policy'));
 		$ssl_policy = '';
 
 		switch ($ssl_val) {

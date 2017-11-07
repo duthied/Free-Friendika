@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Network\Probe;
@@ -15,7 +16,7 @@ require_once 'include/diaspora.php';
 
 function update_contact($id) {
 	/*
-	Warning: Never ever fetch the public key via probe_url and write it into the contacts.
+	Warning: Never ever fetch the public key via Probe::uri and write it into the contacts.
 	This will reliably kill your communication with Friendica contacts.
 	*/
 
@@ -23,9 +24,9 @@ function update_contact($id) {
 	if (!$r)
 		return false;
 
-	$ret = probe_url($r[0]["url"]);
+	$ret = Probe::uri($r[0]["url"]);
 
-	// If probe_url fails the network code will be different
+	// If Probe::uri fails the network code will be different
 	if ($ret["network"] != $r[0]["network"])
 		return false;
 
@@ -125,7 +126,7 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 
 			// NOTREACHED
 		}
-	} elseif (get_config('system','dfrn_only')) {
+	} elseif (Config::get('system','dfrn_only')) {
 		$result['message'] = t('This site is not configured to allow communications with other networks.') . EOL;
 		$result['message'] != t('No compatible communication protocols or feeds were discovered.') . EOL;
 		return $result;
@@ -156,7 +157,7 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 		return $result;
 	}
 
-	if ($ret['network'] === NETWORK_OSTATUS && get_config('system','ostatus_disabled')) {
+	if ($ret['network'] === NETWORK_OSTATUS && Config::get('system','ostatus_disabled')) {
 		$result['message'] .= t('The profile address specified belongs to a network which has been disabled on this site.') . EOL;
 		$ret['notify'] = '';
 	}

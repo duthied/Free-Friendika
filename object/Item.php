@@ -2,6 +2,9 @@
 if(class_exists('Item'))
 	return;
 
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
+
 require_once('object/BaseObject.php');
 require_once('include/text.php');
 require_once('include/diaspora.php');
@@ -52,7 +55,7 @@ class Item extends BaseObject {
 		$ssl_state = ((local_user()) ? true : false);
 		$this->redirect_url = 'redir/' . $this->get_data_value('cid') ;
 
-		if (get_config('system','thread_allow') && $a->theme_thread_allow && !$this->is_toplevel()) {
+		if (Config::get('system','thread_allow') && $a->theme_thread_allow && !$this->is_toplevel()) {
 			$this->threaded = true;
 		}
 
@@ -663,7 +666,7 @@ class Item extends BaseObject {
 	 */
 	private function get_comment_box($indent) {
 		$a = $this->get_app();
-		if (!$this->is_toplevel() && !(get_config('system','thread_allow') && $a->theme_thread_allow)) {
+		if (!$this->is_toplevel() && !(Config::get('system','thread_allow') && $a->theme_thread_allow)) {
 			return '';
 		}
 
@@ -682,7 +685,7 @@ class Item extends BaseObject {
 			 * This should be better if done by a hook
 			 */
 			if (in_array('qcomment',$a->plugins)) {
-				$qc = ((local_user()) ? get_pconfig(local_user(),'qcomment','words') : null);
+				$qc = ((local_user()) ? PConfig::get(local_user(),'qcomment','words') : null);
 				$qcomment = (($qc) ? explode("\n",$qc) : null);
 			}
 			$comment_box = replace_macros($template,array(

@@ -18,9 +18,9 @@ function cronhooks_run(&$argv, &$argc) {
 		return;
 	}
 
-	$last = get_config('system', 'last_cronhook');
+	$last = Config::get('system', 'last_cronhook');
 
-	$poll_interval = intval(get_config('system', 'cronhook_interval'));
+	$poll_interval = intval(Config::get('system', 'cronhook_interval'));
 	if (! $poll_interval) {
 		$poll_interval = 9;
 	}
@@ -33,7 +33,7 @@ function cronhooks_run(&$argv, &$argc) {
 		}
 	}
 
-	$a->set_baseurl(get_config('system', 'url'));
+	$a->set_baseurl(Config::get('system', 'url'));
 
 	logger('cronhooks: start');
 
@@ -48,7 +48,7 @@ function cronhooks_run(&$argv, &$argc) {
 
 	logger('cronhooks: end');
 
-	set_config('system', 'last_cronhook', time());
+	Config::set('system', 'last_cronhook', time());
 
 	return;
 }

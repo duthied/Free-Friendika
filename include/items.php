@@ -9,6 +9,7 @@ use Friendica\Core\System;
 use Friendica\ParseUrl;
 use Friendica\Util\Lock;
 use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
 
 require_once 'include/bbcode.php';
@@ -1062,7 +1063,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 
 	// update the commented timestamp on the parent
 	// Only update "commented" if it is really a comment
-	if (($arr['verb'] == ACTIVITY_POST) || !get_config("system", "like_no_comment")) {
+	if (($arr['verb'] == ACTIVITY_POST) || !Config::get("system", "like_no_comment")) {
 		dba::update('item', array('commented' => datetime_convert(), 'changed' => datetime_convert()), array('id' => $parent_id));
 	} else {
 		dba::update('item', array('changed' => datetime_convert()), array('id' => $parent_id));
@@ -1783,7 +1784,7 @@ function subscribe_to_hub($url, $importer, $contact, $hubmode = 'subscribe') {
 		return;
 	}
 
-	$push_url = get_config('system','url') . '/pubsub/' . $r[0]['nickname'] . '/' . $contact['id'];
+	$push_url = Config::get('system','url') . '/pubsub/' . $r[0]['nickname'] . '/' . $contact['id'];
 
 	// Use a single verify token, even if multiple hubs
 	$verify_token = ((strlen($contact['hub-verify'])) ? $contact['hub-verify'] : random_string());
@@ -1806,7 +1807,7 @@ function subscribe_to_hub($url, $importer, $contact, $hubmode = 'subscribe') {
 
 function fix_private_photos($s, $uid, $item = null, $cid = 0) {
 
-	if (get_config('system','disable_embedded')) {
+	if (Config::get('system','disable_embedded')) {
 		return $s;
 	}
 
@@ -1991,7 +1992,7 @@ function item_expire($uid, $days, $network = "", $force = false) {
 	 * $expire_network_only = save your own wall posts
 	 * and just expire conversations started by others
 	 */
-	$expire_network_only = get_pconfig($uid,'expire', 'network_only');
+	$expire_network_only = PConfig::get($uid,'expire', 'network_only');
 	$sql_extra = ((intval($expire_network_only)) ? " AND wall = 0 " : "");
 
 	if ($network != "") {
@@ -2020,7 +2021,7 @@ function item_expire($uid, $days, $network = "", $force = false) {
 		return;
 	}
 
-	$expire_items = get_pconfig($uid, 'expire', 'items');
+	$expire_items = PConfig::get($uid, 'expire', 'items');
 	$expire_items = (($expire_items === false) ? 1 : intval($expire_items)); // default if not set: 1
 
 	// Forcing expiring of items - but not notes and marked items
@@ -2028,13 +2029,13 @@ function item_expire($uid, $days, $network = "", $force = false) {
 		$expire_items = true;
 	}
 
-	$expire_notes = get_pconfig($uid, 'expire', 'notes');
+	$expire_notes = PConfig::get($uid, 'expire', 'notes');
 	$expire_notes = (($expire_notes === false) ? 1 : intval($expire_notes)); // default if not set: 1
 
-	$expire_starred = get_pconfig($uid, 'expire', 'starred');
+	$expire_starred = PConfig::get($uid, 'expire', 'starred');
 	$expire_starred = (($expire_starred === false) ? 1 : intval($expire_starred)); // default if not set: 1
 
-	$expire_photos = get_pconfig($uid, 'expire', 'photos');
+	$expire_photos = PConfig::get($uid, 'expire', 'photos');
 	$expire_photos = (($expire_photos === false) ? 0 : intval($expire_photos)); // default if not set: 0
 
 	logger('User '.$uid.': expire: # items=' . count($r). "; expire items: $expire_items, expire notes: $expire_notes, expire starred: $expire_starred, expire photos: $expire_photos");
@@ -2385,11 +2386,11 @@ function posted_date_widget($url, $uid, $wall) {
 	// For former Facebook folks that left because of "timeline"
 	/*
 	 * @TODO old-lost code?
-	if ($wall && intval(get_pconfig($uid, 'system', 'no_wall_archive_widget')))
+	if ($wall && intval(PConfig::get($uid, 'system', 'no_wall_archive_widget')))
 		return $o;
 	*/
 
-	$visible_years = get_pconfig($uid,'system','archive_visible_years');
+	$visible_years = PConfig::get($uid,'system','archive_visible_years');
 	if (! $visible_years) {
 		$visible_years = 5;
 	}

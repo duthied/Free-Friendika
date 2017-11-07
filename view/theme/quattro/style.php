@@ -1,14 +1,18 @@
 <?php
+
+	use Friendica\Core\Config;
+	use Friendica\Core\PConfig;
+
 	$uid = get_theme_uid();
 
 	$color=false;
 	$quattro_align=false;
-	$site_color = get_config("quattro","color");
-	$site_quattro_align = get_config("quattro", "align" );
+	$site_color = Config::get("quattro","color");
+	$site_quattro_align = Config::get("quattro", "align" );
 	
 	if ($uid) {
-		$color = get_pconfig( $uid, "quattro","color");
-		$quattro_align = get_pconfig( $uid, 'quattro', 'align' );
+		$color = PConfig::get( $uid, "quattro","color");
+		$quattro_align = PConfig::get( $uid, 'quattro', 'align' );
 	}
 	
 	if ($color===false) $color=$site_color;
@@ -36,14 +40,14 @@
     $textarea_font_size = false;
     $post_font_size = false;
     
-    $site_textarea_font_size = get_config("quattro","tfs");
-    $site_post_font_size = get_config("quattro","pfs");
+    $site_textarea_font_size = Config::get("quattro","tfs");
+    $site_post_font_size = Config::get("quattro","pfs");
     if ($site_textarea_font_size===false) $site_textarea_font_size="20";
     if ($site_post_font_size===false) $site_post_font_size="12";
     
    	if ($uid) {
-        $textarea_font_size = get_pconfig( $uid, "quattro","tfs");
-        $post_font_size = get_pconfig( $uid, "quattro","pfs");    
+        $textarea_font_size = PConfig::get( $uid, "quattro","tfs");
+        $post_font_size = PConfig::get( $uid, "quattro","pfs");    
 	} 
     
     if ($textarea_font_size===false) $textarea_font_size = $site_textarea_font_size;

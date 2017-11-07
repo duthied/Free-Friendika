@@ -816,7 +816,7 @@ class Worker {
 				return;
 			}
 
-			set_config("system", "worker_started", time());
+			Config::set("system", "worker_started", time());
 
 			// Do we have enough running workers? Then we quit here.
 			if (self::tooMuchWorkers()) {
@@ -935,7 +935,7 @@ class Worker {
 		}
 
 		$priority = PRIORITY_MEDIUM;
-		$dont_fork = get_config("system", "worker_dont_fork");
+		$dont_fork = Config::get("system", "worker_dont_fork");
 		$created = datetime_convert();
 
 		if (is_int($run_parameter)) {

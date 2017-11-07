@@ -33,7 +33,7 @@ if (isset($_COOKIE["Friendica"])) {
 			if (!isset($_SESSION) || !isset($_SESSION['authenticated'])) {
 				authenticate_success($r[0]);
 
-				if (get_config('system','paranoia'))
+				if (Config::get('system','paranoia'))
 					$_SESSION['addr'] = $data->ip;
 			}
 		}
@@ -67,7 +67,7 @@ if (isset($_SESSION) && x($_SESSION,'authenticated') && (!x($_POST,'auth-params'
 
 		// already logged in user returning
 
-		$check = get_config('system','paranoia');
+		$check = Config::get('system','paranoia');
 		// extra paranoia - if the IP changed, log them out
 		if ($check && ($_SESSION['addr'] != $_SERVER['REMOTE_ADDR'])) {
 			logger('Session address changed. Paranoid setting in effect, blocking session. '.
@@ -109,7 +109,7 @@ if (isset($_SESSION) && x($_SESSION,'authenticated') && (!x($_POST,'auth-params'
 		if ((x($_POST,'openid_url')) && strlen($_POST['openid_url']) ||
 		   (x($_POST,'username')) && strlen($_POST['username'])) {
 
-			$noid = get_config('system','no_openid');
+			$noid = Config::get('system','no_openid');
 
 			$openid_url = trim((strlen($_POST['openid_url'])?$_POST['openid_url']:$_POST['username']));
 

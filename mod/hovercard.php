@@ -9,6 +9,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
 
 require_once("include/socgraph.php");
 require_once("include/Contact.php");
@@ -23,7 +24,7 @@ function hovercard_content() {
 	$datatype	=	(x($_REQUEST,'datatype')	?$_REQUEST['datatype']		: "json");
 
 	// Get out if the system doesn't have public access allowed
-	if(intval(get_config('system','block_public')))
+	if(intval(Config::get('system','block_public')))
 		http_status_exit(401);
 
 	// Return the raw content of the template. We use this to make templates usable for js functions.

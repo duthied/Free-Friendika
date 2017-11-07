@@ -115,7 +115,7 @@ if (Config::get('system', 'ssl_policy') == SSL_POLICY_FULL) {
 	ini_set('session.cookie_secure', 1);
 }
 
-if (!get_config('system', 'disable_database_session')) {
+if (!Config::get('system', 'disable_database_session')) {
 	session_set_save_handler('ref_session_open', 'ref_session_close',
 				'ref_session_read', 'ref_session_write',
 				'ref_session_destroy', 'ref_session_gc');

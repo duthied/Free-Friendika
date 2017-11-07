@@ -2,6 +2,7 @@
 
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Network\Probe;
 
 require_once 'include/probe.php';
 require_once 'include/socgraph.php';
@@ -81,17 +82,17 @@ function discover_poco_run(&$argv, &$argc) {
 		logger($result, LOGGER_DEBUG);
 	} elseif ($mode == 3) {
 		update_suggestions();
-	} elseif (($mode == 2) && get_config('system','poco_completion')) {
+	} elseif (($mode == 2) && Config::get('system','poco_completion')) {
 		discover_users();
-	} elseif (($mode == 1) && ($search != "") && get_config('system','poco_local_search')) {
+	} elseif (($mode == 1) && ($search != "") && Config::get('system','poco_local_search')) {
 		discover_directory($search);
 		gs_search_user($search);
-	} elseif (($mode == 0) && ($search == "") && (get_config('system','poco_discovery') > 0)) {
+	} elseif (($mode == 0) && ($search == "") && (Config::get('system','poco_discovery') > 0)) {
 		// Query Friendica and Hubzilla servers for their users
 		poco_discover();
 
 		// Query GNU Social servers for their users ("statistics" addon has to be enabled on the GS server)
-		if (!get_config('system','ostatus_disabled'))
+		if (!Config::get('system','ostatus_disabled'))
 			gs_discover();
 	}
 
@@ -234,7 +235,7 @@ function discover_directory($search) {
 				logger("Friendica server ".$server_url." seems to be okay.", LOGGER_DEBUG);
 			}
 
-			$data = probe_url($jj->url);
+			$data = Probe::uri($jj->url);
 			if ($data["network"] == NETWORK_DFRN) {
 				logger("Profile ".$jj->url." is reachable (".$search.")", LOGGER_DEBUG);
 				logger("Add profile ".$jj->url." to local directory (".$search.")", LOGGER_DEBUG);
@@ -283,7 +284,7 @@ function gs_search_user($search) {
 	/// @TODO AS is considered as a notation for constants (as they usually being written all upper-case)
 	/// @TODO find all those and convert to all lower-case which is a keyword then
 	foreach ($contacts->data AS $user) {
-		$contact = probe_url($user->site_address."/".$user->name);
+		$contact = Probe::uri($user->site_address."/".$user->name);
 		if ($contact["network"] != NETWORK_PHANTOM) {
 			$contact["about"] = $user->description;
 			update_gcontact($contact);

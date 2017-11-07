@@ -7,6 +7,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
 
 require_once('include/items.php');
 require_once('include/dfrn.php');
@@ -138,7 +139,7 @@ function dfrn_notify_post(App $a) {
 		xml_status(0, 'relationship dissolved');
 	}
 
-	$rino = get_config('system', 'rino_encrypt');
+	$rino = Config::get('system', 'rino_encrypt');
 	$rino = intval($rino);
 
 	logger("Local rino version: " .  $rino, LOGGER_DEBUG);
@@ -312,7 +313,7 @@ function dfrn_notify_content(App $a) {
 		$encrypted_id = bin2hex($encrypted_id);
 
 
-		$rino = get_config('system', 'rino_encrypt');
+		$rino = Config::get('system', 'rino_encrypt');
 		$rino = intval($rino);
 
 		logger("Local rino version: ". $rino, LOGGER_DEBUG);

@@ -51,6 +51,8 @@ if (!$install) {
  *
  */
 
+use Friendica\Core\Config;
+
 require_once "include/dba.php";
 
 if (!$install) {
@@ -70,8 +72,8 @@ if (!$install) {
 		die("System is currently unavailable. Please try again later");
 	}
 
-	if (get_config('system', 'force_ssl') && ($a->get_scheme() == "http") &&
-		(intval(get_config('system', 'ssl_policy')) == SSL_POLICY_FULL) &&
+	if (Config::get('system', 'force_ssl') && ($a->get_scheme() == "http") &&
+		(intval(Config::get('system', 'ssl_policy')) == SSL_POLICY_FULL) &&
 		(substr(System::baseUrl(), 0, 8) == "https://")) {
 		header("HTTP/1.1 302 Moved Temporarily");
 		header("Location: " . System::baseUrl() . "/" . $a->query_string);
@@ -82,7 +84,7 @@ if (!$install) {
 	load_hooks();
 	call_hooks('init_1');
 
-	$maintenance = get_config('system', 'maintenance');
+	$maintenance = Config::get('system', 'maintenance');
 }
 
 $lang = get_browser_language();
@@ -204,7 +206,7 @@ if ($install && $a->module!="view") {
 nav_set_selected('nothing');
 
 //Don't populate apps_menu if apps are private
-$privateapps = get_config('config','private_addons');
+$privateapps = Config::get('config','private_addons');
 if ((local_user()) || (! $privateapps === "1")) {
 	$arr = array('app_menu' => $a->apps);
 
@@ -251,7 +253,7 @@ if (strlen($a->module)) {
 		$a->module = "login";
 	}
 
-	$privateapps = get_config('config','private_addons');
+	$privateapps = Config::get('config','private_addons');
 
 	if (is_array($a->plugins) && in_array($a->module,$a->plugins) && file_exists("addon/{$a->module}/{$a->module}.php")) {
 		//Check if module is an app and if public access to apps is allowed or not

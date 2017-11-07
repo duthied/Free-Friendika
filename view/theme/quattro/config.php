@@ -5,6 +5,8 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 
 function theme_content(App $a) {
@@ -12,10 +14,10 @@ function theme_content(App $a) {
 		return;
 	}
 
-	$align = get_pconfig(local_user(), 'quattro', 'align' );
-	$color = get_pconfig(local_user(), 'quattro', 'color' );
-	$tfs = get_pconfig(local_user(),"quattro","tfs");
-	$pfs = get_pconfig(local_user(),"quattro","pfs");
+	$align = PConfig::get(local_user(), 'quattro', 'align' );
+	$color = PConfig::get(local_user(), 'quattro', 'color' );
+	$tfs = PConfig::get(local_user(),"quattro","tfs");
+	$pfs = PConfig::get(local_user(),"quattro","pfs");
 
 	return quattro_form($a,$align, $color, $tfs, $pfs);
 }
@@ -26,28 +28,28 @@ function theme_post(App $a) {
 	}
 
 	if (isset($_POST['quattro-settings-submit'])){
-		set_pconfig(local_user(), 'quattro', 'align', $_POST['quattro_align']);
-		set_pconfig(local_user(), 'quattro', 'color', $_POST['quattro_color']);
-		set_pconfig(local_user(), 'quattro', 'tfs', $_POST['quattro_tfs']);
-		set_pconfig(local_user(), 'quattro', 'pfs', $_POST['quattro_pfs']);
+		PConfig::set(local_user(), 'quattro', 'align', $_POST['quattro_align']);
+		PConfig::set(local_user(), 'quattro', 'color', $_POST['quattro_color']);
+		PConfig::set(local_user(), 'quattro', 'tfs', $_POST['quattro_tfs']);
+		PConfig::set(local_user(), 'quattro', 'pfs', $_POST['quattro_pfs']);
 	}
 }
 
 function theme_admin(App $a) {
-	$align = get_config('quattro', 'align' );
-	$color = get_config('quattro', 'color' );
-	$tfs = get_config("quattro","tfs");
-	$pfs = get_config("quattro","pfs");
+	$align = Config::get('quattro', 'align' );
+	$color = Config::get('quattro', 'color' );
+	$tfs = Config::get("quattro","tfs");
+	$pfs = Config::get("quattro","pfs");
 
 	return quattro_form($a,$align, $color, $tfs, $pfs);
 }
 
 function theme_admin_post(App $a) {
 	if (isset($_POST['quattro-settings-submit'])){
-		set_config('quattro', 'align', $_POST['quattro_align']);
-		set_config('quattro', 'color', $_POST['quattro_color']);
-		set_config('quattro', 'tfs', $_POST['quattro_tfs']);
-		set_config('quattro', 'pfs', $_POST['quattro_pfs']);
+		Config::set('quattro', 'align', $_POST['quattro_align']);
+		Config::set('quattro', 'color', $_POST['quattro_color']);
+		Config::set('quattro', 'tfs', $_POST['quattro_tfs']);
+		Config::set('quattro', 'pfs', $_POST['quattro_pfs']);
 	}
 }
 

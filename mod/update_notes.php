@@ -6,6 +6,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\PConfig;
 
 require_once("mod/notes.php");
 
@@ -34,7 +35,7 @@ function update_notes_content(App $a) {
 	$replace = "<img\${1} dst=\"\${2}\"";
 	$text = preg_replace($pattern, $replace, $text);
 
-	if (get_pconfig(local_user(), "system", "bandwith_saver")) {
+	if (PConfig::get(local_user(), "system", "bandwith_saver")) {
 		$replace = "<br />".t("[Embedded content - reload page to view]")."<br />";
 		$pattern = "/<\s*audio[^>]*>(.*?)<\s*\/\s*audio>/i";
 		$text = preg_replace($pattern, $replace, $text);

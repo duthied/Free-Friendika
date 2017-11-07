@@ -5,6 +5,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
 
 require_once("include/uimport.php");
 
@@ -45,7 +46,7 @@ function uimport_content(App $a) {
 		return;
 	}
 
-	$max_dailies = intval(get_config('system', 'max_daily_registrations'));
+	$max_dailies = intval(Config::get('system', 'max_daily_registrations'));
 	if ($max_dailies) {
 		$r = q("select count(*) as total from user where register_date > UTC_TIMESTAMP - INTERVAL 1 day");
 		if ($r && $r[0]['total'] >= $max_dailies) {

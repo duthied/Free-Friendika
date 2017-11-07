@@ -24,7 +24,7 @@ function expire_run(&$argv, &$argc){
 		logger('Delete expired items - done', LOGGER_DEBUG);
 
 		// make this optional as it could have a performance impact on large sites
-		if (intval(get_config('system', 'optimize_items'))) {
+		if (intval(Config::get('system', 'optimize_items'))) {
 			q("OPTIMIZE TABLE `item`");
 		}
 		return;

@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 
 require_once("include/contact_selectors.php");
 require_once("mod/contacts.php");
@@ -127,7 +128,7 @@ function crepair_content(App $a) {
 
 	$returnaddr = "contacts/$cid";
 
-	$allow_remote_self = get_config('system','allow_users_remote_self');
+	$allow_remote_self = Config::get('system','allow_users_remote_self');
 
 	// Disable remote self for everything except feeds.
 	// There is an issue when you repeat an item from maybe twitter and you got comments from friendica and twitter

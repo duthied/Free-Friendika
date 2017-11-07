@@ -1,6 +1,8 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 
 require_once "include/template_processor.php";
@@ -718,9 +720,9 @@ function logger($msg, $level = 0) {
 		return;
 	}
 
-	$debugging = get_config('system','debugging');
-	$logfile   = get_config('system','logfile');
-	$loglevel = intval(get_config('system','loglevel'));
+	$debugging = Config::get('system','debugging');
+	$logfile   = Config::get('system','logfile');
+	$loglevel = intval(Config::get('system','loglevel'));
 
 	if (
 		! $debugging
@@ -790,7 +792,7 @@ function dlogger($msg, $level = 0) {
 		return;
 	}
 
-	$logfile = get_config('system','dlogfile');
+	$logfile = Config::get('system','dlogfile');
 
 	if (! $logfile) {
 		return;
@@ -934,7 +936,7 @@ function contact_block() {
 	$o = '';
 	$a = get_app();
 
-	$shown = get_pconfig($a->profile['uid'],'system','display_friend_count');
+	$shown = PConfig::get($a->profile['uid'],'system','display_friend_count');
 	if ($shown === false) {
 		$shown = 24;
 	}
@@ -1096,7 +1098,7 @@ function search($s, $id = 'search-box', $url = 'search', $save = false, $aside =
 					t("Tags"),
 					t("Contacts"));
 
-		if (get_config('system','poco_local_search')) {
+		if (Config::get('system','poco_local_search')) {
 			$values['$searchoption'][] = t("Forums");
 		}
 	}
@@ -1114,7 +1116,7 @@ if (! function_exists('valid_email')) {
 function valid_email($x){
 
 	/// @TODO Removed because Fabio told me so.
-	//if (get_config('system','disable_email_validation'))
+	//if (Config::get('system','disable_email_validation'))
 	//	return true;
 	return preg_match('/^[_a-zA-Z0-9\-\+]+(\.[_a-zA-Z0-9\-\+]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/', $x);
 }}
@@ -1282,7 +1284,7 @@ function redir_private_images($a, &$item)
 function put_item_in_cache(&$item, $update = false) {
 
 	if (($item["rendered-hash"] != hash("md5", $item["body"])) || ($item["rendered-hash"] == "") ||
-		($item["rendered-html"] == "") || get_config("system", "ignore_cache")) {
+		($item["rendered-html"] == "") || Config::get("system", "ignore_cache")) {
 
 		// The function "redir_private_images" changes the body.
 		// I'm not sure if we should store it permanently, so we save the old value.
@@ -1331,7 +1333,7 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 		return $ev;
 	}
 
-	if (!get_config('system','suppress_tags')) {
+	if (!Config::get('system','suppress_tags')) {
 		$taglist = dba::p("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = ? AND `oid` = ? AND `type` IN (?, ?) ORDER BY `tid`",
 				intval(TERM_OBJ_POST), intval($item['id']), intval(TERM_HASHTAG), intval(TERM_MENTION));
 
@@ -1979,7 +1981,7 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 	if ($file_old == $file_new)
 		return true;
 
-	$saved = get_pconfig($uid,'system','filetags');
+	$saved = PConfig::get($uid,'system','filetags');
 	if (strlen($saved)) {
 		if ($type == 'file') {
 			$lbracket = '[';
@@ -2030,13 +2032,13 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 		}
 
 		if ($saved != $filetags_updated) {
-			set_pconfig($uid, 'system', 'filetags', $filetags_updated);
+			PConfig::set($uid, 'system', 'filetags', $filetags_updated);
 		}
 		return true;
 	}
 	else
 		if (strlen($file_new)) {
-			set_pconfig($uid, 'system', 'filetags', $file_new);
+			PConfig::set($uid, 'system', 'filetags', $file_new);
 		}
 		return true;
 }
@@ -2062,9 +2064,9 @@ function file_tag_save_file($uid, $item, $file) {
 
 		create_files_from_item($item);
 
-		$saved = get_pconfig($uid,'system','filetags');
+		$saved = PConfig::get($uid,'system','filetags');
 		if ((! strlen($saved)) || (! stristr($saved, '[' . file_tag_encode($file) . ']'))) {
-			set_pconfig($uid, 'system', 'filetags', $saved . '[' . file_tag_encode($file) . ']');
+			PConfig::set($uid, 'system', 'filetags', $saved . '[' . file_tag_encode($file) . ']');
 		}
 		info( t('Item filed') );
 	}
@@ -2110,8 +2112,8 @@ function file_tag_unsave_file($uid, $item, $file, $cat = false) {
 		intval($uid));
 
 	if (! dbm::is_result($r)) {
-		$saved = get_pconfig($uid,'system','filetags');
-		set_pconfig($uid, 'system', 'filetags', str_replace($pattern, '', $saved));
+		$saved = PConfig::get($uid,'system','filetags');
+		PConfig::set($uid, 'system', 'filetags', str_replace($pattern, '', $saved));
 	}
 
 	return true;

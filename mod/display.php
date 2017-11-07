@@ -1,13 +1,14 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 
 require_once('include/dfrn.php');
 
 function display_init(App $a) {
 
-	if ((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if ((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
 		return;
 	}
 
@@ -198,7 +199,7 @@ function display_fetchauthor($a, $item) {
 
 function display_content(App $a, $update = 0) {
 
-	if ((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if ((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
 		notice(t('Public access denied.') . EOL);
 		return;
 	}

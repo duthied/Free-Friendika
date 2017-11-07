@@ -5,12 +5,13 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
 
 require_once("include/plugin.php");
 
 function statistics_json_init(App $a) {
 
-	if (!get_config("system", "nodeinfo")) {
+	if (!Config::get("system", "nodeinfo")) {
 		http_status_exit(404);
 		killme();
 	}
@@ -20,10 +21,10 @@ function statistics_json_init(App $a) {
 		"network" => FRIENDICA_PLATFORM,
 		"version" => FRIENDICA_VERSION . "-" . DB_UPDATE_VERSION,
 		"registrations_open" => ($a->config['register_policy'] != 0),
-		"total_users" => get_config('nodeinfo', 'total_users'),
-		"active_users_halfyear" => get_config('nodeinfo', 'active_users_halfyear'),
-		"active_users_monthly" => get_config('nodeinfo', 'active_users_monthly'),
-		"local_posts" => get_config('nodeinfo', 'local_posts')
+		"total_users" => Config::get('nodeinfo', 'total_users'),
+		"active_users_halfyear" => Config::get('nodeinfo', 'active_users_halfyear'),
+		"active_users_monthly" => Config::get('nodeinfo', 'active_users_monthly'),
+		"local_posts" => Config::get('nodeinfo', 'local_posts')
 	);
 
 	$statistics["services"] = array();

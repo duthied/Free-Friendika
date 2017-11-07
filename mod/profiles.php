@@ -1,6 +1,8 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Network\Probe;
@@ -323,7 +325,7 @@ function profiles_post(App $a) {
 
 		$hide_friends = (($_POST['hide-friends'] == 1) ? 1: 0);
 
-		set_pconfig(local_user(), 'system', 'detailled_profile', (($_POST['detailled_profile'] == 1) ? 1: 0));
+		PConfig::set(local_user(), 'system', 'detailled_profile', (($_POST['detailled_profile'] == 1) ? 1: 0));
 
 		$changes = array();
 		$value = '';
@@ -497,7 +499,7 @@ function profiles_post(App $a) {
 
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
-			if ($url && strlen(get_config('system', 'directory'))) {
+			if ($url && strlen(Config::get('system', 'directory'))) {
 				Worker::add(PRIORITY_LOW, "directory", $url);
 			}
 
@@ -517,11 +519,11 @@ function profile_activity($changed, $value) {
 		return;
 	}
 
-	if ($a->user['hidewall'] || get_config('system', 'block_public')) {
+	if ($a->user['hidewall'] || Config::get('system', 'block_public')) {
 		return;
 	}
 
-	if (! get_pconfig(local_user(), 'system', 'post_profilechange')) {
+	if (! PConfig::get(local_user(), 'system', 'post_profilechange')) {
 		return;
 	}
 
@@ -648,9 +650,9 @@ function profiles_content(App $a) {
 		$personal_account = !(in_array($a->user["page-flags"],
 					array(PAGE_COMMUNITY, PAGE_PRVGROUP)));
 
-		$detailled_profile = (get_pconfig(local_user(), 'system', 'detailled_profile') AND $personal_account);
+		$detailled_profile = (PConfig::get(local_user(), 'system', 'detailled_profile') AND $personal_account);
 
-		$f = get_config('system', 'birthday_input_format');
+		$f = Config::get('system', 'birthday_input_format');
 		if (! $f) {
 			$f = 'ymd';
 		}

@@ -14,6 +14,8 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 
 /**
@@ -156,8 +158,8 @@ class Smilies {
 	 * @return string HML Output of the Smilie
 	 */
 	public static function replace($s, $sample = false, $no_images = false) {
-		if(intval(get_config('system','no_smilies'))
-			|| (local_user() && intval(get_pconfig(local_user(),'system','no_smilies'))))
+		if(intval(Config::get('system','no_smilies'))
+			|| (local_user() && intval(PConfig::get(local_user(),'system','no_smilies'))))
 			return $s;
 
 		$s = preg_replace_callback('/<pre>(.*?)<\/pre>/ism','self::encode',$s);
