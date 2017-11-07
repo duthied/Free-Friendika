@@ -4,6 +4,8 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 
@@ -71,12 +73,12 @@ function profile_load(App $a, $nickname, $profile = 0, $profiledata = array()) {
 	$a->profile = $pdata;
 	$a->profile_uid = $pdata['profile_uid'];
 
-	$a->profile['mobile-theme'] = get_pconfig($a->profile['profile_uid'], 'system', 'mobile_theme');
+	$a->profile['mobile-theme'] = PConfig::get($a->profile['profile_uid'], 'system', 'mobile_theme');
 	$a->profile['network'] = NETWORK_DFRN;
 
 	$a->page['title'] = $a->profile['name'] . " @ " . $a->config['sitename'];
 
-		if (!$profiledata  && !get_pconfig(local_user(),'system','always_my_theme'))
+		if (!$profiledata  && !PConfig::get(local_user(),'system','always_my_theme'))
 			$_SESSION['theme'] = $a->profile['theme'];
 
 	$_SESSION['mobile-theme'] = $a->profile['mobile-theme'];
@@ -102,7 +104,7 @@ function profile_load(App $a, $nickname, $profile = 0, $profiledata = array()) {
 		));
 	}
 
-	$block = (((get_config('system','block_public')) && (! local_user()) && (! remote_user())) ? true : false);
+	$block = (((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) ? true : false);
 
 	/**
 	 * @todo
@@ -929,7 +931,7 @@ function zrl($s, $force = false) {
  */
 function get_theme_uid() {
 	$uid = ((!empty($_REQUEST['puid'])) ? intval($_REQUEST['puid']) : 0);
-	if ((local_user()) && ((get_pconfig(local_user(), 'system', 'always_my_theme')) || (! $uid))) {
+	if ((local_user()) && ((PConfig::get(local_user(), 'system', 'always_my_theme')) || (! $uid))) {
 		return local_user();
 	}
 

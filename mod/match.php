@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 
 require_once('include/text.php');
@@ -48,7 +49,7 @@ function match_content(App $a) {
 		if($a->pager['page'] != 1)
 			$params['p'] = $a->pager['page'];
 
-		if(strlen(get_config('system','directory')))
+		if(strlen(Config::get('system','directory')))
 			$x = post_url(get_server().'/msearch', $params);
 		else
 			$x = post_url(System::baseUrl() . '/msearch', $params);

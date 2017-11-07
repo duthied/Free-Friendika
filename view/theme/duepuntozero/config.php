@@ -5,6 +5,8 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 
 function theme_content(App $a) {
@@ -12,7 +14,7 @@ function theme_content(App $a) {
 		return;
 	}
 
-	$colorset = get_pconfig( local_user(), 'duepuntozero', 'colorset');
+	$colorset = PConfig::get( local_user(), 'duepuntozero', 'colorset');
 	$user = true;
 
 	return clean_form($a, $colorset, $user);
@@ -24,12 +26,12 @@ function theme_post(App $a) {
 	}
 
 	if (isset($_POST['duepuntozero-settings-submit'])){
-		set_pconfig(local_user(), 'duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
+		PConfig::set(local_user(), 'duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
 	}
 }
 
 function theme_admin(App $a) {
-	$colorset = get_config( 'duepuntozero', 'colorset');
+	$colorset = Config::get( 'duepuntozero', 'colorset');
 	$user = false;
 
 	return clean_form($a, $colorset, $user);
@@ -37,7 +39,7 @@ function theme_admin(App $a) {
 
 function theme_admin_post(App $a) {
 	if (isset($_POST['duepuntozero-settings-submit'])){
-		set_config('duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
+		Config::set('duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
 	}
 }
 
@@ -54,9 +56,9 @@ function clean_form(App $a, &$colorset, $user) {
 	);
 
 	if ($user) {
-		$color = get_pconfig(local_user(), 'duepuntozero', 'colorset');
+		$color = PConfig::get(local_user(), 'duepuntozero', 'colorset');
 	} else {
-		$color = get_config( 'duepuntozero', 'colorset');
+		$color = Config::get( 'duepuntozero', 'colorset');
 	}
 
 	$t = get_markup_template("theme_settings.tpl" );

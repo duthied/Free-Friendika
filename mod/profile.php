@@ -1,6 +1,8 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 
 require_once('include/contact_widgets.php');
@@ -37,7 +39,7 @@ function profile_init(App $a) {
 
 	profile_load($a,$which,$profile);
 
-	$blocked = (((get_config('system','block_public')) && (! local_user()) && (! remote_user())) ? true : false);
+	$blocked = (((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) ? true : false);
 	$userblock = (($a->profile['hidewall'] && (! local_user()) && (! remote_user())) ? true : false);
 
 	if((x($a->profile,'page-flags')) && ($a->profile['page-flags'] == PAGE_COMMUNITY)) {
@@ -95,7 +97,7 @@ function profile_content(App $a, $update = 0) {
 		$category = ((x($_GET,'category')) ? $_GET['category'] : '');
 	}
 
-	if (get_config('system','block_public') && (! local_user()) && (! remote_user())) {
+	if (Config::get('system','block_public') && (! local_user()) && (! remote_user())) {
 		return login();
 	}
 
@@ -272,10 +274,10 @@ function profile_content(App $a, $update = 0) {
 		//  check if we serve a mobile device and get the user settings
 		//  accordingly
 		if ($a->is_mobile) {
-			$itemspage_network = get_pconfig(local_user(),'system','itemspage_mobile_network');
+			$itemspage_network = PConfig::get(local_user(),'system','itemspage_mobile_network');
 			$itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 10);
 		} else {
-			$itemspage_network = get_pconfig(local_user(),'system','itemspage_network');
+			$itemspage_network = PConfig::get(local_user(),'system','itemspage_network');
 			$itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 20);
 		}
 		//  now that we have the user settings, see if the theme forces
@@ -328,7 +330,7 @@ function profile_content(App $a, $update = 0) {
 		$items = array();
 	}
 
-	if($is_owner && (! $update) && (! get_config('theme','hide_eventlist'))) {
+	if($is_owner && (! $update) && (! Config::get('theme','hide_eventlist'))) {
 		$o .= get_birthdays();
 		$o .= get_events();
 	}

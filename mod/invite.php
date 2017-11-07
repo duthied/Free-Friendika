@@ -8,6 +8,8 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 
 require_once('include/email.php');
@@ -21,12 +23,12 @@ function invite_post(App $a) {
 
 	check_form_security_token_redirectOnErr('/', 'send_invite');
 
-	$max_invites = intval(get_config('system','max_invites'));
+	$max_invites = intval(Config::get('system','max_invites'));
 	if (! $max_invites) {
 		$max_invites = 50;
 	}
 
-	$current_invites = intval(get_pconfig(local_user(),'system','sent_invites'));
+	$current_invites = intval(PConfig::get(local_user(),'system','sent_invites'));
 	if ($current_invites > $max_invites) {
 		notice( t('Total invitation limit exceeded.') . EOL);
 		return;
@@ -38,9 +40,9 @@ function invite_post(App $a) {
 
 	$total = 0;
 
-	if (get_config('system','invitation_only')) {
+	if (Config::get('system','invitation_only')) {
 		$invonly = true;
-		$x = get_pconfig(local_user(),'system','invites_remaining');
+		$x = PConfig::get(local_user(),'system','invites_remaining');
 		if ((! $x) && (! is_site_admin())) {
 			return;
 		}
@@ -67,7 +69,7 @@ function invite_post(App $a) {
 			if (! is_site_admin()) {
 				$x --;
 				if ($x >= 0) {
-					set_pconfig(local_user(),'system','invites_remaining',$x);
+					PConfig::set(local_user(),'system','invites_remaining',$x);
 				} else {
 					return;
 				}
@@ -85,7 +87,7 @@ function invite_post(App $a) {
 		if ($res) {
 			$total ++;
 			$current_invites ++;
-			set_pconfig(local_user(),'system','sent_invites',$current_invites);
+			PConfig::set(local_user(),'system','sent_invites',$current_invites);
 			if($current_invites > $max_invites) {
 				notice( t('Invitation limit exceeded. Please contact your site administrator.') . EOL);
 				return;
@@ -110,16 +112,16 @@ function invite_content(App $a) {
 	$tpl = get_markup_template('invite.tpl');
 	$invonly = false;
 
-	if (get_config('system','invitation_only')) {
+	if (Config::get('system','invitation_only')) {
 		$invonly = true;
-		$x = get_pconfig(local_user(),'system','invites_remaining');
+		$x = PConfig::get(local_user(),'system','invites_remaining');
 		if ((! $x) && (! is_site_admin())) {
 			notice( t('You have no more invitations available') . EOL);
 			return '';
 		}
 	}
 
-	$dirloc = get_config('system','directory');
+	$dirloc = Config::get('system','directory');
 	if (strlen($dirloc)) {
 		if ($a->config['register_policy'] == REGISTER_CLOSED) {
 			$linktxt = sprintf( t('Visit %s for a list of public sites that you can join. Friendica members on other sites can all connect with each other, as well as with members of many other social networks.'), $dirloc . '/servers');

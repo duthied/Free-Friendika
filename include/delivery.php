@@ -335,7 +335,7 @@ function delivery_run(&$argv, &$argc){
 							$x[0]['writable'] = 1;
 						}
 
-						$ssl_policy = get_config('system','ssl_policy');
+						$ssl_policy = Config::get('system','ssl_policy');
 						fix_contact_ssl_policy($x[0],$ssl_policy);
 
 						// If we are setup as a soapbox we aren't accepting top level posts from this person
@@ -375,7 +375,7 @@ function delivery_run(&$argv, &$argc){
 				if ($owner['prvnets']) {
 					break;
 				}
-				if (get_config('system','ostatus_disabled') || get_config('system','dfrn_only')) {
+				if (Config::get('system','ostatus_disabled') || Config::get('system','dfrn_only')) {
 					break;
 				}
 
@@ -386,7 +386,7 @@ function delivery_run(&$argv, &$argc){
 			case NETWORK_MAIL:
 			case NETWORK_MAIL2:
 
-				if (get_config('system','dfrn_only')) {
+				if (Config::get('system','dfrn_only')) {
 					break;
 				}
 				// WARNING: does not currently convert to RFC2047 header encodings, etc.
@@ -489,7 +489,7 @@ function delivery_run(&$argv, &$argc){
 
 				logger('delivery: diaspora batch deliver: '.$loc);
 
-				if (get_config('system','dfrn_only') || (!get_config('system','diaspora_enabled')))
+				if (Config::get('system','dfrn_only') || (!Config::get('system','diaspora_enabled')))
 					break;
 
 				if ($mail) {

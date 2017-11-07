@@ -124,26 +124,26 @@ function z_fetch_url($url, $binary = false, &$redirects = 0, $opts = array()) {
 	if (x($opts, 'timeout')) {
 		@curl_setopt($ch, CURLOPT_TIMEOUT, $opts['timeout']);
 	} else {
-		$curl_time = intval(get_config('system', 'curl_timeout'));
+		$curl_time = intval(Config::get('system', 'curl_timeout'));
 		@curl_setopt($ch, CURLOPT_TIMEOUT, (($curl_time !== false) ? $curl_time : 60));
 	}
 
 	// by default we will allow self-signed certs
 	// but you can override this
 
-	$check_cert = get_config('system', 'verifyssl');
+	$check_cert = Config::get('system', 'verifyssl');
 	@curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (($check_cert) ? true : false));
 
 	if ($check_cert) {
 		@curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 	}
 
-	$proxy = get_config('system', 'proxy');
+	$proxy = Config::get('system', 'proxy');
 
 	if (strlen($proxy)) {
 		@curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, 1);
 		@curl_setopt($ch, CURLOPT_PROXY, $proxy);
-		$proxyuser = @get_config('system', 'proxyuser');
+		$proxyuser = @Config::get('system', 'proxyuser');
 
 		if (strlen($proxyuser)) {
 			@curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxyuser);
@@ -299,7 +299,7 @@ function post_url($url, $params, $headers = null, &$redirects = 0, $timeout = 0)
 	if (intval($timeout)) {
 		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 	} else {
-		$curl_time = intval(get_config('system', 'curl_timeout'));
+		$curl_time = intval(Config::get('system', 'curl_timeout'));
 		curl_setopt($ch, CURLOPT_TIMEOUT, (($curl_time !== false) ? $curl_time : 60));
 	}
 
@@ -317,19 +317,19 @@ function post_url($url, $params, $headers = null, &$redirects = 0, $timeout = 0)
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 	}
 
-	$check_cert = get_config('system', 'verifyssl');
+	$check_cert = Config::get('system', 'verifyssl');
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (($check_cert) ? true : false));
 
 	if ($check_cert) {
 		@curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 	}
 
-	$proxy = get_config('system', 'proxy');
+	$proxy = Config::get('system', 'proxy');
 
 	if (strlen($proxy)) {
 		curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, 1);
 		curl_setopt($ch, CURLOPT_PROXY, $proxy);
-		$proxyuser = get_config('system', 'proxyuser');
+		$proxyuser = Config::get('system', 'proxyuser');
 		if (strlen($proxyuser)) {
 			curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxyuser);
 		}
@@ -465,7 +465,7 @@ function http_status_exit($val, $description = array()) {
  * @return boolean True if it's a valid URL, fals if something wrong with it
  */
 function validate_url(&$url) {
-	if (get_config('system','disable_url_validation'))
+	if (Config::get('system','disable_url_validation'))
 		return true;
 
 	// no naked subdomains (allow localhost for tests)
@@ -493,7 +493,7 @@ function validate_url(&$url) {
  */
 function validate_email($addr) {
 
-	if (get_config('system','disable_email_validation'))
+	if (Config::get('system','disable_email_validation'))
 		return true;
 
 	if (! strpos($addr,'@'))
@@ -598,7 +598,7 @@ function allowed_email($email) {
 		return false;
 	}
 
-	$str_allowed = get_config('system','allowed_email');
+	$str_allowed = Config::get('system','allowed_email');
 	if (! $str_allowed) {
 		return true;
 	}
@@ -658,7 +658,7 @@ function parse_xml_string($s, $strict = true) {
 function scale_external_images($srctext, $include_link = true, $scale_replace = false) {
 
 	// Suppress "view full size"
-	if (intval(get_config('system','no_view_full_size'))) {
+	if (intval(Config::get('system','no_view_full_size'))) {
 		$include_link = false;
 	}
 
@@ -915,11 +915,11 @@ function original_url($url, $depth = 1, $fetchbody = false) {
 function short_link($url) {
 	require_once('library/slinky.php');
 	$slinky = new Slinky($url);
-	$yourls_url = get_config('yourls','url1');
+	$yourls_url = Config::get('yourls','url1');
 	if ($yourls_url) {
-		$yourls_username = get_config('yourls','username1');
-		$yourls_password = get_config('yourls', 'password1');
-		$yourls_ssl = get_config('yourls', 'ssl1');
+		$yourls_username = Config::get('yourls','username1');
+		$yourls_password = Config::get('yourls', 'password1');
+		$yourls_ssl = Config::get('yourls', 'ssl1');
 		$yourls = new Slinky_YourLS();
 		$yourls->set('username', $yourls_username);
 		$yourls->set('password', $yourls_password);

@@ -5,6 +5,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
 
 /*
  * require boot.php
@@ -23,7 +24,7 @@ require_once("include/dba.php");
 dba::connect($db_host, $db_user, $db_pass, $db_data, false);
 unset($db_host, $db_user, $db_pass, $db_data);
 
-$build = get_config('system', 'build');
+$build = Config::get('system', 'build');
 
 echo "Old DB VERSION: " . $build . "\n";
 echo "New DB VERSION: " . DB_UPDATE_VERSION . "\n";

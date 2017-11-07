@@ -5,6 +5,8 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 
 function theme_content(App $a) {
@@ -16,10 +18,10 @@ function theme_content(App $a) {
 		return;
 	}
 
-	$style = get_pconfig(local_user(), 'vier', 'style');
+	$style = PConfig::get(local_user(), 'vier', 'style');
 
 	if ($style == "") {
-		$style = get_config('vier', 'style');
+		$style = Config::get('vier', 'style');
 	}
 
 	if ($style == "") {
@@ -43,13 +45,13 @@ function theme_post(App $a) {
 	}
 
 	if (isset($_POST['vier-settings-submit'])){
-		set_pconfig(local_user(), 'vier', 'style', $_POST['vier_style']);
-		set_pconfig(local_user(), 'vier', 'show_pages', $_POST['vier_show_pages']);
-		set_pconfig(local_user(), 'vier', 'show_profiles', $_POST['vier_show_profiles']);
-		set_pconfig(local_user(), 'vier', 'show_helpers', $_POST['vier_show_helpers']);
-		set_pconfig(local_user(), 'vier', 'show_services', $_POST['vier_show_services']);
-		set_pconfig(local_user(), 'vier', 'show_friends', $_POST['vier_show_friends']);
-		set_pconfig(local_user(), 'vier', 'show_lastusers', $_POST['vier_show_lastusers']);
+		PConfig::set(local_user(), 'vier', 'style', $_POST['vier_style']);
+		PConfig::set(local_user(), 'vier', 'show_pages', $_POST['vier_show_pages']);
+		PConfig::set(local_user(), 'vier', 'show_profiles', $_POST['vier_show_profiles']);
+		PConfig::set(local_user(), 'vier', 'show_helpers', $_POST['vier_show_helpers']);
+		PConfig::set(local_user(), 'vier', 'show_services', $_POST['vier_show_services']);
+		PConfig::set(local_user(), 'vier', 'show_friends', $_POST['vier_show_friends']);
+		PConfig::set(local_user(), 'vier', 'show_lastusers', $_POST['vier_show_lastusers']);
 	}
 }
 
@@ -59,9 +61,9 @@ function theme_admin(App $a) {
 	if (!function_exists('get_vier_config'))
 		return;
 
-	$style = get_config('vier', 'style');
+	$style = Config::get('vier', 'style');
 
-	$helperlist = get_config('vier', 'helperlist');
+	$helperlist = Config::get('vier', 'helperlist');
 
 	if ($helperlist == "")
 		$helperlist = "https://forum.friendi.ca/profile/helpers";
@@ -85,14 +87,14 @@ function theme_admin(App $a) {
 
 function theme_admin_post(App $a) {
 	if (isset($_POST['vier-settings-submit'])){
-		set_config('vier', 'style', $_POST['vier_style']);
-		set_config('vier', 'show_pages', $_POST['vier_show_pages']);
-		set_config('vier', 'show_profiles', $_POST['vier_show_profiles']);
-		set_config('vier', 'show_helpers', $_POST['vier_show_helpers']);
-		set_config('vier', 'show_services', $_POST['vier_show_services']);
-		set_config('vier', 'show_friends', $_POST['vier_show_friends']);
-		set_config('vier', 'show_lastusers', $_POST['vier_show_lastusers']);
-		set_config('vier', 'helperlist', $_POST['vier_helperlist']);
+		Config::set('vier', 'style', $_POST['vier_style']);
+		Config::set('vier', 'show_pages', $_POST['vier_show_pages']);
+		Config::set('vier', 'show_profiles', $_POST['vier_show_profiles']);
+		Config::set('vier', 'show_helpers', $_POST['vier_show_helpers']);
+		Config::set('vier', 'show_services', $_POST['vier_show_services']);
+		Config::set('vier', 'show_friends', $_POST['vier_show_friends']);
+		Config::set('vier', 'show_lastusers', $_POST['vier_show_lastusers']);
+		Config::set('vier', 'helperlist', $_POST['vier_helperlist']);
 	}
 }
 

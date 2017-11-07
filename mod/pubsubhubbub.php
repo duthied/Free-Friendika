@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 
 function post_var($name) {
 	return (x($_POST, $name)) ? notags(trim($_POST[$name])) : '';
@@ -9,7 +10,7 @@ function post_var($name) {
 function pubsubhubbub_init(App $a) {
 	// PuSH subscription must be considered "public" so just block it
 	// if public access isn't enabled.
-	if (get_config('system', 'block_public')) {
+	if (Config::get('system', 'block_public')) {
 		http_status_exit(403);
 	}
 

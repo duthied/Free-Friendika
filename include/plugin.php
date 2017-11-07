@@ -6,6 +6,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 
 /**
@@ -72,7 +73,7 @@ function install_plugin($plugin) {
 
 if (! function_exists('reload_plugins')) {
 function reload_plugins() {
-	$plugins = get_config('system','addon');
+	$plugins = Config::get('system','addon');
 	if (strlen($plugins)) {
 
 		$r = q("SELECT * FROM `addon` WHERE `installed` = 1");

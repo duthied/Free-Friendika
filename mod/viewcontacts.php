@@ -1,13 +1,14 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 
 require_once('include/Contact.php');
 require_once('include/contact_selectors.php');
 
 function viewcontacts_init(App $a) {
 
-	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
 		return;
 	}
 
@@ -35,7 +36,7 @@ function viewcontacts_init(App $a) {
 function viewcontacts_content(App $a) {
 	require_once("mod/proxy.php");
 
-	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
 		notice( t('Public access denied.') . EOL);
 		return;
 	}

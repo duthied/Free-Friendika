@@ -1556,11 +1556,11 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 
 	$network = array(NETWORK_DFRN);
 
-	if (get_config('system','diaspora_enabled')) {
+	if (Config::get('system','diaspora_enabled')) {
 		$network[] = NETWORK_DIASPORA;
 	}
 
-	if (!get_config('system','ostatus_disabled')) {
+	if (!Config::get('system','ostatus_disabled')) {
 		$network[] = NETWORK_OSTATUS;
 	}
 
@@ -1648,7 +1648,7 @@ function update_suggestions() {
 
 	$done[] = System::baseUrl() . '/poco';
 
-	if (strlen(get_config('system','directory'))) {
+	if (strlen(Config::get('system','directory'))) {
 		$x = fetch_url(get_server()."/pubsites");
 		if ($x) {
 			$j = json_decode($x);
@@ -1709,7 +1709,7 @@ function poco_fetch_serverlist($poco) {
 }
 
 function poco_discover_federation() {
-	$last = get_config('poco','last_federation_discovery');
+	$last = Config::get('poco','last_federation_discovery');
 
 	if ($last) {
 		$next = $last + (24 * 60 * 60);
@@ -1746,7 +1746,7 @@ function poco_discover_federation() {
 	// Currently disabled, since the service isn't available anymore.
 	// It is not removed since I hope that there will be a successor.
 	// Discover GNU Social Servers.
-	//if (!get_config('system','ostatus_disabled')) {
+	//if (!Config::get('system','ostatus_disabled')) {
 	//	$serverdata = "http://gstools.org/api/get_open_instances/";
 
 	//	$result = z_fetch_url($serverdata);
@@ -1758,7 +1758,7 @@ function poco_discover_federation() {
 	//	}
 	//}
 
-	set_config('poco','last_federation_discovery', time());
+	Config::set('poco','last_federation_discovery', time());
 }
 
 function poco_discover_single_server($id) {
@@ -1783,9 +1783,9 @@ function poco_discover_single_server($id) {
 
 		poco_discover_server($data, 2);
 
-		if (get_config('system','poco_discovery') > 1) {
+		if (Config::get('system','poco_discovery') > 1) {
 
-			$timeframe = get_config('system','poco_discovery_since');
+			$timeframe = Config::get('system','poco_discovery_since');
 			if ($timeframe == 0) {
 				$timeframe = 30;
 			}
@@ -1803,7 +1803,7 @@ function poco_discover_single_server($id) {
 				$success = poco_discover_server(json_decode($retdata["body"]));
 			}
 
-			if (!$success && (get_config('system','poco_discovery') > 2)) {
+			if (!$success && (Config::get('system','poco_discovery') > 2)) {
 				logger("Fetch contacts from users of the server ".$server["nurl"], LOGGER_DEBUG);
 				poco_discover_server_users($data, $server);
 			}
@@ -1830,7 +1830,7 @@ function poco_discover($complete = false) {
 
 	$no_of_queries = 5;
 
-	$requery_days = intval(get_config("system", "poco_requery_days"));
+	$requery_days = intval(Config::get("system", "poco_requery_days"));
 
 	if ($requery_days == 0) {
 		$requery_days = 7;
@@ -2036,7 +2036,7 @@ function clean_contact_url($url) {
  */
 function fix_alternate_contact_address(&$contact) {
 	if (($contact["network"] == NETWORK_OSTATUS) && poco_alternate_ostatus_url($contact["url"])) {
-		$data = probe_url($contact["url"]);
+		$data = Probe::uri($contact["url"]);
 		if ($contact["network"] == NETWORK_OSTATUS) {
 			logger("Fix primary url from ".$contact["url"]." to ".$data["url"]." - Called by: ".System::callstack(), LOGGER_DEBUG);
 			$contact["url"] = $data["url"];
@@ -2294,7 +2294,7 @@ function update_gcontact($contact) {
  * @param str $url profile link
  */
 function update_gcontact_from_probe($url) {
-	$data = probe_url($url);
+	$data = Probe::uri($url);
 
 	if (in_array($data["network"], array(NETWORK_PHANTOM))) {
 		logger("Invalid network for contact url ".$data["url"]." - Called by: ".System::callstack(), LOGGER_DEBUG);
@@ -2410,7 +2410,7 @@ function gs_fetch_users($server) {
  */
 function gs_discover() {
 
-	$requery_days = intval(get_config("system", "poco_requery_days"));
+	$requery_days = intval(Config::get("system", "poco_requery_days"));
 
 	$last_update = date("c", time() - (60 * 60 * 24 * $requery_days));
 

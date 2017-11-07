@@ -5,6 +5,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
 
 require_once "include/contact_selectors.php";
 require_once "include/contact_widgets.php";
@@ -332,7 +333,7 @@ function populate_acl($user = null, $show_jotnets = false) {
 
 	$jotnets = '';
 	if ($show_jotnets) {
-		$mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
+		$mail_disabled = ((function_exists('imap_open') && (! Config::get('system','imap_disabled'))) ? 0 : 1);
 
 		$mail_enabled = false;
 		$pubmail_enabled = false;
@@ -757,12 +758,12 @@ function navbar_complete(App $a) {
 
 //	logger('navbar_complete');
 
-	if ((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if ((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
 		return;
 	}
 
 	// check if searching in the local global contact table is enabled
-	$localsearch = get_config('system','poco_local_search');
+	$localsearch = Config::get('system','poco_local_search');
 
 	$search = $prefix.notags(trim($_REQUEST['search']));
 	$mode = $_REQUEST['smode'];

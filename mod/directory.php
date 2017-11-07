@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 
 function directory_init(App $a) {
 	$a->set_pager_itemspage(60);
@@ -26,8 +27,8 @@ function directory_post(App $a) {
 function directory_content(App $a) {
 	require_once("mod/proxy.php");
 
-	if((get_config('system','block_public')) && (! local_user()) && (! remote_user()) ||
-		(get_config('system','block_local_dir')) && (! local_user()) && (! remote_user())) {
+	if((Config::get('system','block_public')) && (! local_user()) && (! remote_user()) ||
+		(Config::get('system','block_local_dir')) && (! local_user()) && (! remote_user())) {
 		notice( t('Public access denied.') . EOL);
 		return;
 	}
@@ -41,7 +42,7 @@ function directory_content(App $a) {
 		$search = ((x($_GET,'search')) ? notags(trim(rawurldecode($_GET['search']))) : '');
 
 	$gdirpath = '';
-	$dirurl = get_config('system','directory');
+	$dirurl = Config::get('system','directory');
 	if(strlen($dirurl)) {
 		$gdirpath = zrl($dirurl,true);
 	}
@@ -66,7 +67,7 @@ function directory_content(App $a) {
 				(`profile`.`prv_keywords` LIKE '%$search%'))";
 	}
 
-	$publish = ((get_config('system','publish_all')) ? '' : " AND `publish` = 1 " );
+	$publish = ((Config::get('system','publish_all')) ? '' : " AND `publish` = 1 " );
 
 
 	$r = q("SELECT COUNT(*) AS `total` FROM `profile`

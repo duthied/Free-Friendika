@@ -1,8 +1,10 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Network\Probe;
 
 require_once 'include/contact_widgets.php';
 require_once 'include/probe.php';
@@ -32,7 +34,7 @@ function dirfind_content(App $a, $prefix = "") {
 	$community = false;
 	$discover_user = false;
 
-	$local = get_config('system','poco_local_search');
+	$local = Config::get('system','poco_local_search');
 
 	$search = $prefix.notags(trim($_REQUEST['search']));
 
@@ -41,7 +43,7 @@ function dirfind_content(App $a, $prefix = "") {
 		$header = sprintf( t('People Search - %s'), $search);
 		if ((valid_email($search) && validate_email($search)) ||
 			(substr(normalise_link($search), 0, 7) == "http://")) {
-			$user_data = probe_url($search);
+			$user_data = Probe::uri($search);
 			$discover_user = (in_array($user_data["network"], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)));
 		}
 	}
@@ -90,13 +92,13 @@ function dirfind_content(App $a, $prefix = "") {
 			$perpage = 80;
 			$startrec = (($a->pager['page']) * $perpage) - $perpage;
 
-			if (get_config('system','diaspora_enabled')) {
+			if (Config::get('system','diaspora_enabled')) {
 				$diaspora = NETWORK_DIASPORA;
 			} else {
 				$diaspora = NETWORK_DFRN;
 			}
 
-			if (!get_config('system','ostatus_disabled')) {
+			if (!Config::get('system','ostatus_disabled')) {
 				$ostatus = NETWORK_OSTATUS;
 			} else {
 				$ostatus = NETWORK_DFRN;
@@ -170,7 +172,7 @@ function dirfind_content(App $a, $prefix = "") {
 
 			$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
 
-			if(strlen(get_config('system','directory')))
+			if(strlen(Config::get('system','directory')))
 				$x = fetch_url(get_server().'/lsearch?f=' . $p .  '&search=' . urlencode($search));
 
 			$j = json_decode($x);

@@ -1,5 +1,7 @@
 <?php
 
+use Friendica\Core\Config;
+
 require_once 'library/ASNValue.class.php';
 require_once 'library/asn1.php';
 
@@ -146,7 +148,7 @@ function new_keypair($bits) {
 		'encrypt_key'      => false
 	);
 
-	$conf = get_config('system', 'openssl_conf_file');
+	$conf = Config::get('system', 'openssl_conf_file');
 	if ($conf) {
 		$openssl_options['config'] = $conf;
 	}

@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 
 require_once('include/items.php');
@@ -38,7 +39,7 @@ function dfrn_poll_init(App $a) {
 	$hidewall = false;
 
 	if(($dfrn_id === '') && (! x($_POST,'dfrn_id'))) {
-		if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+		if((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
 			http_status_exit(403);
 		}
 

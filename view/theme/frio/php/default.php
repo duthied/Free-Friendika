@@ -37,14 +37,14 @@
 		if (is_null($uid)) {
 			$uid = get_theme_uid();
 		}
-		$schema = get_pconfig($uid, 'frio', 'schema');
+		$schema = Friendica\Core\PConfig::get($uid, 'frio', 'schema');
 		if (($schema) && ($schema != '---')) {
 			if (file_exists('view/theme/frio/schema/'.$schema.'.php')) {
 				$schemefile = 'view/theme/frio/schema/'.$schema.'.php';
 				require_once($schemefile);
 			}
 		} else {
-			$nav_bg = get_pconfig($uid, 'frio', 'nav_bg');
+			$nav_bg = Friendica\Core\PConfig::get($uid, 'frio', 'nav_bg');
 		}
 		if (!$nav_bg) {
 			$nav_bg = "#708fa0";
@@ -66,8 +66,8 @@ else
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
 <?php
 	if(x($page,'nav') && (!$minimal)){
-	echo	str_replace("~config.sitename~",get_config('config','sitename'),
-			str_replace("~system.banner~",get_config('system','banner'),
+	echo	str_replace("~config.sitename~",Friendica\Core\Config::get('config','sitename'),
+			str_replace("~system.banner~",Friendica\Core\Config::get('system','banner'),
 			$page['nav']
 	));};
 

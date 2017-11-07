@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 
 require_once("include/bbcode.php");
 require_once('include/security.php');
@@ -85,12 +86,12 @@ function search_post(App $a) {
 
 function search_content(App $a) {
 
-	if (get_config('system','block_public') && !local_user() && !remote_user()) {
+	if (Config::get('system','block_public') && !local_user() && !remote_user()) {
 		notice(t('Public access denied.') . EOL);
 		return;
 	}
 
-	if (get_config('system','local_search') && !local_user() && !remote_user()) {
+	if (Config::get('system','local_search') && !local_user() && !remote_user()) {
 		http_status_exit(403,
 				array("title" => t("Public access denied."),
 					"description" => t("Only logged in users are permitted to perform a search.")));
@@ -99,15 +100,15 @@ function search_content(App $a) {
 		//return;
 	}
 
-	if (get_config('system','permit_crawling') && !local_user() && !remote_user()) {
+	if (Config::get('system','permit_crawling') && !local_user() && !remote_user()) {
 		// Default values:
 		// 10 requests are "free", after the 11th only a call per minute is allowed
 
-		$free_crawls = intval(get_config('system','free_crawls'));
+		$free_crawls = intval(Config::get('system','free_crawls'));
 		if ($free_crawls == 0)
 			$free_crawls = 10;
 
-		$crawl_permit_period = intval(get_config('system','crawl_permit_period'));
+		$crawl_permit_period = intval(Config::get('system','crawl_permit_period'));
 		if ($crawl_permit_period == 0)
 			$crawl_permit_period = 10;
 
@@ -176,7 +177,7 @@ function search_content(App $a) {
 	if (! $search)
 		return $o;
 
-	if (get_config('system','only_tag_search'))
+	if (Config::get('system','only_tag_search'))
 		$tag = true;
 
 	// Here is the way permissions work in the search module...

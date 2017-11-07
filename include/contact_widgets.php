@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 
 require_once 'include/contact_selectors.php';
 
@@ -24,8 +25,8 @@ function findpeople_widget() {
 	$a = get_app();
 	$global_dir = Config::get('system', 'directory');
 
-	if (get_config('system', 'invitation_only')) {
-		$x = get_pconfig(local_user(), 'system', 'invites_remaining');
+	if (Config::get('system', 'invitation_only')) {
+		$x = PConfig::get(local_user(), 'system', 'invites_remaining');
 		if ($x || is_site_admin()) {
 			$a->page['aside'] .= '<div class="side-link" id="side-invite-remain">'
 			. sprintf( tt('%d invitation available', '%d invitations available', $x), $x)
@@ -74,11 +75,11 @@ function unavailable_networks() {
 		$networks[] = NETWORK_TWITTER;
 	}
 
-	if (get_config("system", "ostatus_disabled")) {
+	if (Config::get("system", "ostatus_disabled")) {
 		$networks[] = NETWORK_OSTATUS;
 	}
 
-	if (!get_config("system", "diaspora_enabled")) {
+	if (!Config::get("system", "diaspora_enabled")) {
 		$networks[] = NETWORK_DIASPORA;
 	}
 
@@ -148,7 +149,7 @@ function fileas_widget($baseurl, $selected = '') {
 		return '';
 	}
 
-	$saved = get_pconfig(local_user(), 'system', 'filetags');
+	$saved = PConfig::get(local_user(), 'system', 'filetags');
 	if (! strlen($saved)) {
 		return;
 	}
@@ -182,7 +183,7 @@ function categories_widget($baseurl, $selected = '') {
 		return '';
 	}
 
-	$saved = get_pconfig($a->profile['profile_uid'], 'system', 'filetags');
+	$saved = PConfig::get($a->profile['profile_uid'], 'system', 'filetags');
 	if (! strlen($saved)) {
 		return;
 	}

@@ -5,13 +5,14 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
 
 require_once('include/salmon.php');
 require_once('include/crypto.php');
 require_once('include/diaspora.php');
 
 function receive_post(App $a) {
-	$enabled = intval(get_config('system', 'diaspora_enabled'));
+	$enabled = intval(Config::get('system', 'diaspora_enabled'));
 	if (!$enabled) {
 		logger('mod-diaspora: disabled');
 		http_status_exit(500);

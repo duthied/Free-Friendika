@@ -1,6 +1,8 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 
 require_once "include/bbcode.php";
@@ -517,7 +519,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 	$arr_blocked = null;
 
 	if (local_user()) {
-		$str_blocked = get_pconfig(local_user(), 'system', 'blocked');
+		$str_blocked = PConfig::get(local_user(), 'system', 'blocked');
 		if ($str_blocked) {
 			$arr_blocked = explode(',', $str_blocked);
 			for ($x = 0; $x < count($arr_blocked); $x ++) {
@@ -1363,7 +1365,7 @@ function get_item_children($arr, $parent) {
 	$a = get_app();
 	foreach ($arr as $item) {
 		if ($item['id'] != $item['parent']) {
-			if (get_config('system', 'thread_allow') && $a->theme_thread_allow) {
+			if (Config::get('system', 'thread_allow') && $a->theme_thread_allow) {
 				// Fallback to parent-uri if thr-parent is not set
 				$thr_parent = $item['thr-parent'];
 				if ($thr_parent == '') {

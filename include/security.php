@@ -1,6 +1,8 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 
 /**
@@ -11,7 +13,7 @@ use Friendica\Core\System;
  * @return string Hashed data
  */
 function cookie_hash($user) {
-	return(hash("sha256", get_config("system", "site_prvkey").
+	return(hash("sha256", Config::get("system", "site_prvkey").
 				$user["uprvkey"].
 				$user["password"]));
 }
@@ -38,7 +40,7 @@ function new_cookie($time, $user = array()) {
 	}
 
 	setcookie("Friendica", $value, $time, "/", "",
-		(get_config('system', 'ssl_policy') == SSL_POLICY_FULL), true);
+		(Config::get('system', 'ssl_policy') == SSL_POLICY_FULL), true);
 
 }
 
@@ -48,7 +50,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 
 	$_SESSION['uid'] = $user_record['uid'];
 	$_SESSION['theme'] = $user_record['theme'];
-	$_SESSION['mobile-theme'] = get_pconfig($user_record['uid'], 'system', 'mobile_theme');
+	$_SESSION['mobile-theme'] = PConfig::get($user_record['uid'], 'system', 'mobile_theme');
 	$_SESSION['authenticated'] = 1;
 	$_SESSION['page_flags'] = $user_record['page-flags'];
 	$_SESSION['my_url'] = System::baseUrl() . '/profile/' . $user_record['nickname'];

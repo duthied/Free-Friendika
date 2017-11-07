@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Network\Probe;
 
 require_once 'include/queue_fn.php';
 require_once 'include/html2plain.php';
@@ -426,7 +427,7 @@ function notifier_run(&$argv, &$argc){
 			if (dbm::is_result($r)) {
 				$probed_contact = $r[0];
 			} else {
-				$probed_contact = probe_url($thr_parent[0]['author-link']);
+				$probed_contact = Probe::uri($thr_parent[0]['author-link']);
 			}
 
 			if ($probed_contact["notify"] != "") {
@@ -441,7 +442,7 @@ function notifier_run(&$argv, &$argc){
 			if (dbm::is_result($r)) {
 				$probed_contact = $r[0];
 			} else {
-				$probed_contact = probe_url($thr_parent[0]['owner-link']);
+				$probed_contact = Probe::uri($thr_parent[0]['owner-link']);
 			}
 
 			if ($probed_contact["notify"] != "") {
@@ -455,7 +456,7 @@ function notifier_run(&$argv, &$argc){
 				//logger('Checking tag '.$x, LOGGER_DEBUG);
 				$matches = null;
 				if (preg_match('/@\[url=([^\]]*)\]/',$x,$matches)) {
-						$probed_contact = probe_url($matches[1]);
+						$probed_contact = Probe::uri($matches[1]);
 					if ($probed_contact["notify"] != "") {
 						logger('Notify mentioned user '.$probed_contact["url"].': '.$probed_contact["notify"]);
 						$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
@@ -474,7 +475,7 @@ function notifier_run(&$argv, &$argc){
 
 	// If this is a public message and pubmail is set on the parent, include all your email contacts
 
-	$mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
+	$mail_disabled = ((function_exists('imap_open') && (!Config::get('system','imap_disabled'))) ? 0 : 1);
 
 	if (! $mail_disabled) {
 		if ((! strlen($target_item['allow_cid'])) && (! strlen($target_item['allow_gid']))
@@ -524,7 +525,7 @@ function notifier_run(&$argv, &$argc){
 	// They are especially used for notifications to OStatus users that don't follow us.
 
 	if ($slap && count($url_recipients) && ($public_message || $push_notify) && $normal_mode) {
-		if (!get_config('system','dfrn_only')) {
+		if (!Config::get('system','dfrn_only')) {
 			foreach ($url_recipients as $url) {
 				if ($url) {
 					logger('notifier: urldelivery: ' . $url);

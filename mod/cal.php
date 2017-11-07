@@ -7,6 +7,8 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 
 require_once('include/event.php');
@@ -16,7 +18,7 @@ function cal_init(App $a) {
 	if($a->argc > 1)
 		auto_redir($a, $a->argv[1]);
 
-	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
 		return;
 	}
 
@@ -71,7 +73,7 @@ function cal_content(App $a) {
 	nav_set_selected('events');
 
 	// First day of the week (0 = Sunday)
-	$firstDay = get_pconfig(local_user(),'system','first_day_of_week');
+	$firstDay = PConfig::get(local_user(),'system','first_day_of_week');
 	if ($firstDay === false) $firstDay=0;
 
 	// get the translation strings for the callendar
@@ -250,7 +252,7 @@ function cal_content(App $a) {
 		if (x($_GET,'id')){
 			$tpl =  get_markup_template("event.tpl");
 		} else {
-//			if (get_config('experimentals','new_calendar')==1){
+//			if (Config::get('experimentals','new_calendar')==1){
 				$tpl = get_markup_template("events_js.tpl");
 //			} else {
 //				$tpl = get_markup_template("events.tpl");

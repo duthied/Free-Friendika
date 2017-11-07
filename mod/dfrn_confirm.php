@@ -19,6 +19,8 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Network\Probe;
@@ -249,7 +251,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 				return;
 			}
 
-			if(strlen($leading_junk) && get_config('system','debugging')) {
+			if(strlen($leading_junk) && Config::get('system','debugging')) {
 
 					// This might be more common. Mixed error text and some XML.
 					// If we're configured for debugging, show the text. Proceed in either case.
@@ -746,7 +748,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 
 		// Send a new friend post if we are allowed to...
 
-		if($page && intval(get_pconfig($local_uid,'system','post_joingroup'))) {
+		if($page && intval(PConfig::get($local_uid,'system','post_joingroup'))) {
 			$r = q("SELECT `hide-friends` FROM `profile` WHERE `uid` = %d AND `is-default` = 1 LIMIT 1",
 				intval($local_uid)
 			);

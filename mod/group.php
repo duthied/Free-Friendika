@@ -6,6 +6,8 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 
 function group_init(App $a) {
@@ -81,9 +83,9 @@ function group_content(App $a) {
 
 	// Switch to text mode interface if we have more than 'n' contacts or group members
 
-	$switchtotext = get_pconfig(local_user(), 'system', 'groupedit_image_limit');
+	$switchtotext = PConfig::get(local_user(), 'system', 'groupedit_image_limit');
 	if ($switchtotext === false) {
-		$switchtotext = get_config('system', 'groupedit_image_limit');
+		$switchtotext = Config::get('system', 'groupedit_image_limit');
 	}
 	if ($switchtotext === false) {
 		$switchtotext = 400;

@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 
@@ -42,7 +43,7 @@ function user_allow($hash) {
 	);
 	if (dbm::is_result($r) && $r[0]['net-publish']) {
 		$url = System::baseUrl() . '/profile/' . $user[0]['nickname'];
-		if ($url && strlen(get_config('system','directory'))) {
+		if ($url && strlen(Config::get('system','directory'))) {
 			Worker::add(PRIORITY_LOW, "directory", $url);
 		}
 	}

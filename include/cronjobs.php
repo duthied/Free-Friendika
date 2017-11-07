@@ -112,7 +112,7 @@ function cron_expire_and_remove_users() {
  */
 function cron_clear_cache(App $a) {
 
-	$last = get_config('system','cache_last_cleared');
+	$last = Config::get('system','cache_last_cleared');
 
 	if ($last) {
 		$next = $last + (3600); // Once per hour
@@ -138,10 +138,10 @@ function cron_clear_cache(App $a) {
 	clear_cache($a->get_basepath()."/view/smarty3/compiled", $a->get_basepath()."/view/smarty3/compiled");
 
 	// clear cache for image proxy
-	if (!get_config("system", "proxy_disabled")) {
+	if (!Config::get("system", "proxy_disabled")) {
 		clear_cache($a->get_basepath(), $a->get_basepath()."/proxy");
 
-		$cachetime = get_config('system','proxy_cache_time');
+		$cachetime = Config::get('system','proxy_cache_time');
 		if (!$cachetime) {
 			$cachetime = PROXY_DEFAULT_TIME;
 		}
@@ -155,13 +155,13 @@ function cron_clear_cache(App $a) {
 	q("DELETE FROM `parsed_url` WHERE `created` < NOW() - INTERVAL 3 MONTH");
 
 	// Maximum table size in megabyte
-	$max_tablesize = intval(get_config('system','optimize_max_tablesize')) * 1000000;
+	$max_tablesize = intval(Config::get('system','optimize_max_tablesize')) * 1000000;
 	if ($max_tablesize == 0) {
 		$max_tablesize = 100 * 1000000; // Default are 100 MB
 	}
 	if ($max_tablesize > 0) {
 		// Minimum fragmentation level in percent
-		$fragmentation_level = intval(get_config('system','optimize_fragmentation')) / 100;
+		$fragmentation_level = intval(Config::get('system','optimize_fragmentation')) / 100;
 		if ($fragmentation_level == 0) {
 			$fragmentation_level = 0.3; // Default value is 30%
 		}
@@ -196,7 +196,7 @@ function cron_clear_cache(App $a) {
 		}
 	}
 
-	set_config('system','cache_last_cleared', time());
+	Config::set('system','cache_last_cleared', time());
 }
 
 /**

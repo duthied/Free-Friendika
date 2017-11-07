@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 
 function nav(App $a) {
@@ -114,7 +115,7 @@ function nav_info(App $a)
 
 	$help_url = 'help';
 
-	if (! get_config('system', 'hide_help')) {
+	if (!Config::get('system', 'hide_help')) {
 		$nav['help'] = array($help_url, t('Help'), '', t('Help and documentation'));
 	}
 
@@ -122,7 +123,7 @@ function nav_info(App $a)
 		$nav['apps'] = array('apps', t('Apps'), '', t('Addon applications, utilities, games'));
 	}
 
-	if (local_user() || !get_config('system', 'local_search')) {
+	if (local_user() || !Config::get('system', 'local_search')) {
 		$nav['search'] = array('search', t('Search'), '', t('Search site content'));
 
 		$nav['searchoption'] = array(
@@ -130,21 +131,21 @@ function nav_info(App $a)
 						t('Tags'),
 						t('Contacts'));
 
-		if (get_config('system', 'poco_local_search')) {
+		if (Config::get('system', 'poco_local_search')) {
 			$nav['searchoption'][] = t('Forums');
 		}
 	}
 
 	$gdirpath = 'directory';
 
-	if (strlen(get_config('system', 'singleuser'))) {
-		$gdir = get_config('system', 'directory');
+	if (strlen(Config::get('system', 'singleuser'))) {
+		$gdir = Config::get('system', 'directory');
 		if (strlen($gdir)) {
 			$gdirpath = zrl($gdir, true);
 		}
-	} elseif (get_config('system', 'community_page_style') == CP_USERS_ON_SERVER) {
+	} elseif (Config::get('system', 'community_page_style') == CP_USERS_ON_SERVER) {
 		$nav['community'] = array('community', t('Community'), '', t('Conversations on this site'));
-	} elseif (get_config('system', 'community_page_style') == CP_GLOBAL_COMMUNITY) {
+	} elseif (Config::get('system', 'community_page_style') == CP_GLOBAL_COMMUNITY) {
 		$nav['community'] = array('community', t('Community'), '', t('Conversations on the network'));
 	}
 
@@ -203,7 +204,7 @@ function nav_info(App $a)
 	$nav['navigation'] = array('navigation/', t('Navigation'), '', t('Site map'));
 
 	// Provide a banner/logo/whatever
-	$banner = get_config('system', 'banner');
+	$banner = Config::get('system', 'banner');
 	if ($banner === false) {
 		$banner = '<a href="https://friendi.ca"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>';
 	}

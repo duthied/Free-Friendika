@@ -23,6 +23,7 @@ require_once(__DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'a
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Util\Lock;
 
 require_once 'include/config.php';
@@ -603,9 +604,9 @@ function is_ajax() {
  */
 function check_db($via_worker) {
 
-	$build = get_config('system', 'build');
+	$build = Config::get('system', 'build');
 	if (!x($build)) {
-		set_config('system', 'build', DB_UPDATE_VERSION);
+		Config::set('system', 'build', DB_UPDATE_VERSION);
 		$build = DB_UPDATE_VERSION;
 	}
 	if ($build != DB_UPDATE_VERSION) {
@@ -622,7 +623,7 @@ function check_db($via_worker) {
  */
 function check_url(App $a) {
 
-	$url = get_config('system', 'url');
+	$url = Config::get('system', 'url');
 
 	// if the url isn't set or the stored url is radically different
 	// than the currently visited url, store the current value accordingly.
@@ -631,10 +632,10 @@ function check_url(App $a) {
 	// We will only change the url to an ip address if there is no existing setting
 
 	if (!x($url)) {
-		$url = set_config('system', 'url', System::baseUrl());
+		$url = Config::set('system', 'url', System::baseUrl());
 	}
 	if ((!link_compare($url, System::baseUrl())) && (!preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $a->get_hostname))) {
-		$url = set_config('system', 'url', System::baseUrl());
+		$url = Config::set('system', 'url', System::baseUrl());
 	}
 
 	return;
@@ -644,9 +645,9 @@ function check_url(App $a) {
  * @brief Automatic database updates
  */
 function update_db(App $a) {
-	$build = get_config('system', 'build');
+	$build = Config::get('system', 'build');
 	if (!x($build)) {
-		$build = set_config('system', 'build', DB_UPDATE_VERSION);
+		$build = Config::set('system', 'build', DB_UPDATE_VERSION);
 	}
 
 	if ($build != DB_UPDATE_VERSION) {
@@ -664,12 +665,12 @@ function update_db(App $a) {
 			if (DB_UPDATE_VERSION == UPDATE_VERSION) {
 				// Compare the current structure with the defined structure
 
-				$t = get_config('database', 'dbupdate_' . DB_UPDATE_VERSION);
+				$t = Config::get('database', 'dbupdate_' . DB_UPDATE_VERSION);
 				if ($t !== false) {
 					return;
 				}
 
-				set_config('database', 'dbupdate_' . DB_UPDATE_VERSION, time());
+				Config::set('database', 'dbupdate_' . DB_UPDATE_VERSION, time());
 
 				// run old update routine (wich could modify the schema and
 				// conflits with new routine)
@@ -693,7 +694,7 @@ function update_db(App $a) {
 					);
 					return;
 				} else {
-					set_config('database', 'dbupdate_' . DB_UPDATE_VERSION, 'success');
+					Config::set('database', 'dbupdate_' . DB_UPDATE_VERSION, 'success');
 				}
 
 				// run any left update_nnnn functions in update.php
@@ -720,11 +721,11 @@ function run_update_function($x) {
 		// If the update fails or times-out completely you may need to
 		// delete the config entry to try again.
 
-		$t = get_config('database', 'update_' . $x);
+		$t = Config::get('database', 'update_' . $x);
 		if ($t !== false) {
 			return false;
 		}
-		set_config('database', 'update_' . $x, time());
+		Config::set('database', 'update_' . $x, time());
 
 		// call the specific update
 
@@ -739,13 +740,13 @@ function run_update_function($x) {
 			);
 			return false;
 		} else {
-			set_config('database', 'update_' . $x, 'success');
-			set_config('system', 'build', $x + 1);
+			Config::set('database', 'update_' . $x, 'success');
+			Config::set('system', 'build', $x + 1);
 			return true;
 		}
 	} else {
-		set_config('database', 'update_' . $x, 'success');
-		set_config('system', 'build', $x + 1);
+		Config::set('database', 'update_' . $x, 'success');
+		Config::set('system', 'build', $x + 1);
 		return true;
 	}
 	return true;
@@ -774,7 +775,7 @@ function check_plugins(App $a) {
 		$installed = array();
 	}
 
-	$plugins = get_config('system', 'addon');
+	$plugins = Config::get('system', 'addon');
 	$plugins_arr = array();
 
 	if ($plugins) {
@@ -852,7 +853,7 @@ function login($register = false, $hiddens = false) {
 		);
 	}
 
-	$noid = get_config('system', 'no_openid');
+	$noid = Config::get('system', 'no_openid');
 
 	$dest_url = $a->query_string;
 
@@ -1007,7 +1008,7 @@ function notice($s) {
 function info($s) {
 	$a = get_app();
 
-	if (local_user() && get_pconfig(local_user(), 'system', 'ignore_info')) {
+	if (local_user() && PConfig::get(local_user(), 'system', 'ignore_info')) {
 		return;
 	}
 
@@ -1063,7 +1064,7 @@ function current_theme() {
 	// This works only if the user is on the same server
 
 	if ($page_theme && local_user() && (local_user() != $a->profile_uid)) {
-		if (get_pconfig(local_user(), 'system', 'always_my_theme')) {
+		if (PConfig::get(local_user(), 'system', 'always_my_theme')) {
 			$page_theme = null;
 		}
 	}
@@ -1304,7 +1305,7 @@ function random_digits($digits) {
 }
 
 function get_server() {
-	$server = get_config("system", "directory");
+	$server = Config::get("system", "directory");
 
 	if ($server == "") {
 		$server = "http://dir.friendica.social";
@@ -1316,7 +1317,7 @@ function get_server() {
 function get_temppath() {
 	$a = get_app();
 
-	$temppath = get_config("system", "temppath");
+	$temppath = Config::get("system", "temppath");
 
 	if (($temppath != "") && App::directory_usable($temppath)) {
 		// We have a temp path and it is usable
@@ -1340,7 +1341,7 @@ function get_temppath() {
 
 		if (App::directory_usable($new_temppath)) {
 			// The new path is usable, we are happy
-			set_config("system", "temppath", $new_temppath);
+			Config::set("system", "temppath", $new_temppath);
 			return $new_temppath;
 		} else {
 			// We can't create a subdirectory, strange.
@@ -1389,7 +1390,7 @@ function clear_cache($basepath = "", $path = "") {
 		return;
 	}
 
-	$cachetime = (int) get_config('system', 'itemcache_duration');
+	$cachetime = (int) Config::get('system', 'itemcache_duration');
 	if ($cachetime == 0) {
 		$cachetime = 86400;
 	}
@@ -1412,12 +1413,12 @@ function clear_cache($basepath = "", $path = "") {
 
 function get_itemcachepath() {
 	// Checking, if the cache is deactivated
-	$cachetime = (int) get_config('system', 'itemcache_duration');
+	$cachetime = (int) Config::get('system', 'itemcache_duration');
 	if ($cachetime < 0) {
 		return "";
 	}
 
-	$itemcache = get_config('system', 'itemcache');
+	$itemcache = Config::get('system', 'itemcache');
 	if (($itemcache != "") && App::directory_usable($itemcache)) {
 		return App::realpath($itemcache);
 	}
@@ -1431,7 +1432,7 @@ function get_itemcachepath() {
 		}
 
 		if (App::directory_usable($itemcache)) {
-			set_config("system", "itemcache", $itemcache);
+			Config::set("system", "itemcache", $itemcache);
 			return $itemcache;
 		}
 	}
@@ -1444,7 +1445,7 @@ function get_itemcachepath() {
  * @return string Spool path
  */
 function get_spoolpath() {
-	$spoolpath = get_config('system', 'spoolpath');
+	$spoolpath = Config::get('system', 'spoolpath');
 	if (($spoolpath != "") && App::directory_usable($spoolpath)) {
 		// We have a spool path and it is usable
 		return $spoolpath;
@@ -1462,7 +1463,7 @@ function get_spoolpath() {
 
 		if (App::directory_usable($spoolpath)) {
 			// The new path is usable, we are happy
-			set_config("system", "spoolpath", $spoolpath);
+			Config::set("system", "spoolpath", $spoolpath);
 			return $spoolpath;
 		} else {
 			// We can't create a subdirectory, strange.
@@ -1574,7 +1575,7 @@ function argv($x) {
  */
 function infinite_scroll_data($module) {
 
-	if (get_pconfig(local_user(), 'system', 'infinite_scroll')
+	if (PConfig::get(local_user(), 'system', 'infinite_scroll')
 		&& ($module == "network") && ($_GET["mode"] != "minimal")) {
 
 		// get the page number

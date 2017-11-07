@@ -5,6 +5,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 
 require_once("include/photos.php");
@@ -119,7 +120,7 @@ class Photo {
 			 */
 			switch($this->getType()){
 				case "image/png":
-					$quality = get_config('system', 'png_quality');
+					$quality = Config::get('system', 'png_quality');
 					if ((! $quality) || ($quality > 9)) {
 						$quality = PNG_QUALITY;
 					}
@@ -135,7 +136,7 @@ class Photo {
 					$this->image->setCompressionQuality($quality);
 					break;
 				case "image/jpeg":
-					$quality = get_config('system', 'jpeg_quality');
+					$quality = Config::get('system', 'jpeg_quality');
 					if ((! $quality) || ($quality > 100)) {
 						$quality = JPEG_QUALITY;
 					}
@@ -605,14 +606,14 @@ class Photo {
 
 		switch($this->getType()){
 			case "image/png":
-				$quality = get_config('system', 'png_quality');
+				$quality = Config::get('system', 'png_quality');
 				if ((!$quality) || ($quality > 9)) {
 					$quality = PNG_QUALITY;
 				}
 				imagepng($this->image, null, $quality);
 				break;
 			case "image/jpeg":
-				$quality = get_config('system', 'jpeg_quality');
+				$quality = Config::get('system', 'jpeg_quality');
 				if ((!$quality) || ($quality > 100)) {
 					$quality = JPEG_QUALITY;
 				}
@@ -940,7 +941,7 @@ function store_photo(App $a, $uid, $imagedata = "", $url = "") {
 		$a->save_timestamp($stamp1, "file");
 	}
 
-	$maximagesize = get_config('system', 'maximagesize');
+	$maximagesize = Config::get('system', 'maximagesize');
 
 	if (($maximagesize) && (strlen($imagedata) > $maximagesize)) {
 		logger("Image exceeds size limit of ".$maximagesize, LOGGER_DEBUG);
@@ -972,7 +973,7 @@ function store_photo(App $a, $uid, $imagedata = "", $url = "") {
 	$ph->orient($tempfile);
 	unlink($tempfile);
 
-	$max_length = get_config('system', 'max_image_length');
+	$max_length = Config::get('system', 'max_image_length');
 	if (! $max_length) {
 		$max_length = MAX_IMAGE_LENGTH;
 	}

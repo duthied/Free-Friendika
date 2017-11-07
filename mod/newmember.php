@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 
 function newmember_content(App $a) {
 
@@ -26,7 +27,7 @@ function newmember_content(App $a) {
 	$o .= '<h4>' . t('Connecting') . '</h4>';
 	$o .= '<ul>';
 
-	$mail_disabled = ((function_exists('imap_open') && (!get_config('system', 'imap_disabled'))) ? 0 : 1);
+	$mail_disabled = ((function_exists('imap_open') && (!Config::get('system', 'imap_disabled'))) ? 0 : 1);
 
 	if (!$mail_disabled) {
 		$o .= '<li>' . '<a target="newmember" href="settings/connectors">' . t('Importing Emails') . '</a><br />' . t('Enter your email access information on your Connector Settings page if you wish to import and interact with friends or mailing lists from your email INBOX') . '</li>' . EOL;
@@ -40,7 +41,7 @@ function newmember_content(App $a) {
 	$o .= '<ul>';
 	$o .= '<li>' . '<a target="newmember" href="contacts">' . t('Group Your Contacts') . '</a><br />' . t('Once you have made some friends, organize them into private conversation groups from the sidebar of your Contacts page and then you can interact with each group privately on your Network page.') . '</li>' . EOL;
 
-	if (get_config('system', 'newuser_private')) {
+	if (Config::get('system', 'newuser_private')) {
 		$o .= '<li>' . '<a target="newmember" href="help/Groups-and-Privacy">' . t("Why Aren't My Posts Public?") . '</a><br />' . t("Friendica respects your privacy. By default, your posts will only show up to people you've added as friends. For more information, see the help section from the link above.") . '</li>' . EOL;
 	}
 

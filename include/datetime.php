@@ -5,6 +5,7 @@
  */
 
 use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 
 /**
  * @brief Two-level sort for timezones.
@@ -178,7 +179,7 @@ function datetime_convert($from = 'UTC', $to = 'UTC', $s = 'now', $fmt = "Y-m-d 
 function dob($dob) {
 	list($year,$month,$day) = sscanf($dob,'%4d-%2d-%2d');
 
-	$f = get_config('system', 'birthday_input_format');
+	$f = Config::get('system', 'birthday_input_format');
 	if (! $f) {
 		$f = 'ymd';
 	}
@@ -279,7 +280,7 @@ function timesel($format, $h, $m, $id = 'timepicker') {
 function datetimesel($format, $min, $max, $default, $label, $id = 'datetimepicker', $pickdate = true, $picktime = true, $minfrom = '', $maxfrom = '', $required = false) {
 
 	// First day of the week (0 = Sunday)
-	$firstDay = get_pconfig(local_user(), 'system', 'first_day_of_week');
+	$firstDay = PConfig::get(local_user(), 'system', 'first_day_of_week');
 	if ($firstDay === false) {
 		$firstDay=0;
 	}

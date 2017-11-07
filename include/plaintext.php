@@ -6,6 +6,7 @@
 
 use Friendica\App;
 use Friendica\ParseUrl;
+use Friendica\Core\PConfig;
 
 require_once("include/Photo.php");
 require_once("include/bbcode.php");
@@ -449,7 +450,7 @@ function plaintext(App $a, $b, $limit = 0, $includedlinks = false, $htmlmode = 2
 			// Which purpose has this line? It is now uncommented, but left as a reminder
 			//} elseif (strpos($b["body"], "[share") !== false) {
 			//	$post["url"] = $b["plink"];
-			} elseif (get_pconfig($b["uid"], "system", "no_intelligent_shortening")) {
+			} elseif (PConfig::get($b["uid"], "system", "no_intelligent_shortening")) {
 				$post["url"] = $b["plink"];
 			}
 			$msg = shortenmsg($msg, $limit);

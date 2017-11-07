@@ -1,11 +1,15 @@
 <?php
+
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
+
 if (file_exists("$THEMEPATH/style.css")){
     echo file_get_contents("$THEMEPATH/style.css");
 }
 $uid = get_theme_uid();
 
-$s_colorset = get_config('duepuntozero','colorset');
-$colorset = get_pconfig( $uid, 'duepuntozero', 'colorset');
+$s_colorset = Config::get('duepuntozero','colorset');
+$colorset = PConfig::get( $uid, 'duepuntozero', 'colorset');
 if (!x($colorset))
     $colorset = $s_colorset;
 

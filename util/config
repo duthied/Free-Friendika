@@ -3,17 +3,19 @@
 
 // Red config utility
 
+use Friendica\Core\Config;
+
 require_once('include/cli_startup.php');
 
 cli_startup();
 
 if($argc > 3) {
-	set_config($argv[1],$argv[2],$argv[3]);
-	echo "config[{$argv[1]}][{$argv[2]}] = " . get_config($argv[1],$argv[2]) . "\n";
+	Config::set($argv[1],$argv[2],$argv[3]);
+	echo "config[{$argv[1]}][{$argv[2]}] = " . Config::get($argv[1],$argv[2]) . "\n";
 }
 
 if($argc == 3) {
-	echo "config[{$argv[1]}][{$argv[2]}] = " . get_config($argv[1],$argv[2]) . "\n";
+	echo "config[{$argv[1]}][{$argv[2]}] = " . Config::get($argv[1],$argv[2]) . "\n";
 }
 
 if($argc == 2) {

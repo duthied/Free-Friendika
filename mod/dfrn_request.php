@@ -13,6 +13,8 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Network\Probe;
 
@@ -367,8 +369,8 @@ function dfrn_request_post(App $a) {
 			$network = NETWORK_MAIL2;
 			$rel     = CONTACT_IS_FOLLOWER;
 
-			$mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
-			if(get_config('system','dfrn_only'))
+			$mail_disabled = ((function_exists('imap_open') && (! Config::get('system','imap_disabled'))) ? 0 : 1);
+			if(Config::get('system','dfrn_only'))
 				$mail_disabled = 1;
 
 			if(! $mail_disabled) {
@@ -452,7 +454,7 @@ function dfrn_request_post(App $a) {
 
 		} else {
 			// Detect the network
-			$data = probe_url($url);
+			$data = Probe::uri($url);
 			$network = $data["network"];
 
 			// Canonicalise email-style profile locator
@@ -773,7 +775,7 @@ function dfrn_request_content(App $a) {
 						'dfrn_id'  => $r[0]['issued-id'],
 						'intro_id' => $intro[0]['id'],
 						'duplex'   => (($r[0]['page-flags'] == PAGE_FREELOVE) ? 1 : 0),
-						'activity' => intval(get_pconfig($r[0]['uid'],'system','post_newfriend'))
+						'activity' => intval(PConfig::get($r[0]['uid'],'system','post_newfriend'))
 					);
 					dfrn_confirm_post($a,$handsfree);
 				}
@@ -800,8 +802,8 @@ function dfrn_request_content(App $a) {
 		 * Normal web request. Display our user's introduction form.
 		 */
 
-		if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
-			if(! get_config('system','local_block')) {
+		if((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
+			if(! Config::get('system','local_block')) {
 				notice( t('Public access denied.') . EOL);
 				return;
 			}
@@ -850,9 +852,9 @@ function dfrn_request_content(App $a) {
 
 		// see if we are allowed to have NETWORK_MAIL2 contacts
 
-		$mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
+		$mail_disabled = ((function_exists('imap_open') && (! Config::get('system','imap_disabled'))) ? 0 : 1);
 
-		if (get_config('system','dfrn_only')) {
+		if (Config::get('system','dfrn_only')) {
 			$mail_disabled = 1;
 		}
 

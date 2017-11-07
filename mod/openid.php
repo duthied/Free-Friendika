@@ -1,13 +1,14 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 
 require_once('library/openid.php');
 
 function openid_content(App $a) {
 
-	$noid = get_config('system','no_openid');
+	$noid = Config::get('system','no_openid');
 	if($noid)
 		goaway(System::baseUrl());
 

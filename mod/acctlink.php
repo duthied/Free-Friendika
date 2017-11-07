@@ -1,14 +1,13 @@
 <?php
 
 use Friendica\App;
-
-require_once 'include/probe.php';
+use Friendica\Network\Probe;
 
 function acctlink_init(App $a) {
 
 	if(x($_GET,'addr')) {
 		$addr = trim($_GET['addr']);
-		$res = probe_url($addr);
+		$res = Probe::uri($addr);
 		//logger('acctlink: ' . print_r($res,true));
 		if($res['url']) {
 			goaway($res['url']);

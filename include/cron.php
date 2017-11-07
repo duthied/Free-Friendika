@@ -14,9 +14,9 @@ function cron_run(&$argv, &$argc){
 		return;
 	}
 
-	$last = get_config('system', 'last_cron');
+	$last = Config::get('system', 'last_cron');
 
-	$poll_interval = intval(get_config('system', 'cron_interval'));
+	$poll_interval = intval(Config::get('system', 'cron_interval'));
 	if (! $poll_interval) {
 		$poll_interval = 10;
 	}
@@ -59,7 +59,7 @@ function cron_run(&$argv, &$argc){
 	Worker::add(PRIORITY_LOW, "cronjobs", "repair_database");
 
 	// once daily run birthday_updates and then expire in background
-	$d1 = get_config('system', 'last_expire_day');
+	$d1 = Config::get('system', 'last_expire_day');
 	$d2 = intval(datetime_convert('UTC', 'UTC', 'now', 'd'));
 
 	if ($d2 != intval($d1)) {
@@ -70,7 +70,7 @@ function cron_run(&$argv, &$argc){
 
 		Worker::add(PRIORITY_LOW, "discover_poco", "suggestions");
 
-		set_config('system', 'last_expire_day', $d2);
+		Config::set('system', 'last_expire_day', $d2);
 
 		Worker::add(PRIORITY_LOW, 'expire');
 
@@ -90,7 +90,7 @@ function cron_run(&$argv, &$argc){
 
 	logger('cron: end');
 
-	set_config('system', 'last_cron', time());
+	Config::set('system', 'last_cron', time());
 
 	return;
 }
@@ -135,7 +135,7 @@ function cron_poll_contacts($argc, $argv) {
 	// and which have a polling address and ignore Diaspora since
 	// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
 
-	$abandon_days = intval(get_config('system', 'account_abandon_days'));
+	$abandon_days = intval(Config::get('system', 'account_abandon_days'));
 	if ($abandon_days < 1) {
 		$abandon_days = 0;
 	}
@@ -194,7 +194,7 @@ function cron_poll_contacts($argc, $argv) {
 				 * This also lets us update our subscription to the hub, and add or replace hubs in case it
 				 * changed. We will only update hubs once a day, regardless of 'pushpoll_frequency'.
 				 */
-				$poll_interval = get_config('system', 'pushpoll_frequency');
+				$poll_interval = Config::get('system', 'pushpoll_frequency');
 				$contact['priority'] = (($poll_interval !== false) ? intval($poll_interval) : 3);
 			}
 

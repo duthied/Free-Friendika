@@ -5,6 +5,7 @@
  *  or for formatting notifications
  */
 
+use Friendica\Core\Pconfig;
 use Friendica\Core\System;
 
 require_once 'include/html2plain.php';
@@ -781,7 +782,7 @@ class NotificationsManager {
 					'name' => $it['fname'],
 					'url' => zrl($it['furl']),
 					'hidden' => $it['hidden'] == 1,
-					'post_newfriend' => (intval(get_pconfig(local_user(),'system','post_newfriend')) ? '1' : 0),
+					'post_newfriend' => (intval(PConfig::get(local_user(),'system','post_newfriend')) ? '1' : 0),
 
 					'knowyou' => $knowyou,
 					'note' => $it['note'],
@@ -814,7 +815,7 @@ class NotificationsManager {
 					'keywords' => $it['gkeywords'],
 					'gender' => $it['ggender'],
 					'hidden' => $it['hidden'] == 1,
-					'post_newfriend' => (intval(get_pconfig(local_user(),'system','post_newfriend')) ? '1' : 0),
+					'post_newfriend' => (intval(PConfig::get(local_user(),'system','post_newfriend')) ? '1' : 0),
 					'url' => $it['url'],
 					'zrl' => zrl($it['url']),
 					'addr' => $it['gaddr'],

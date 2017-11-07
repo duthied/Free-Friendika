@@ -1,9 +1,10 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Network\Probe;
 
-require_once 'include/probe.php';
 require_once 'include/follow.php';
 require_once 'include/Contact.php';
 require_once 'include/contact_selectors.php';
@@ -77,16 +78,16 @@ function follow_content(App $a) {
 		// NOTREACHED
 	}
 
-	$ret = probe_url($url);
+	$ret = Probe::uri($url);
 
-	if (($ret["network"] == NETWORK_DIASPORA) && !get_config('system','diaspora_enabled')) {
+	if (($ret["network"] == NETWORK_DIASPORA) && !Config::get('system','diaspora_enabled')) {
 		notice( t("Diaspora support isn't enabled. Contact can't be added.") . EOL);
 		$submit = "";
 		//goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
 
-	if (($ret["network"] == NETWORK_OSTATUS) && get_config('system','ostatus_disabled')) {
+	if (($ret["network"] == NETWORK_OSTATUS) && Config::get('system','ostatus_disabled')) {
 		notice( t("OStatus support is disabled. Contact can't be added.") . EOL);
 		$submit = "";
 		//goaway($_SESSION['return_url']);

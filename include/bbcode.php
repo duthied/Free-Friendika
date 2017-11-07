@@ -913,7 +913,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	$Text = str_replace("\r\n", "\n", $Text);
 
 	// removing multiplicated newlines
-	if (get_config("system", "remove_multiplicated_lines")) {
+	if (Config::get("system", "remove_multiplicated_lines")) {
 		$search = array("\n\n\n", "\n ", " \n", "[/quote]\n\n", "\n[/quote]", "[/li]\n", "\n[li]", "\n[ul]", "[/ul]\n", "\n\n[share ", "[/attachment]\n",
 				"\n[h1]", "[/h1]\n", "\n[h2]", "[/h2]\n", "\n[h3]", "[/h3]\n", "\n[h4]", "[/h4]\n", "\n[h5]", "[/h5]\n", "\n[h6]", "[/h6]\n");
 		$replace = array("\n\n", "\n", "\n", "[/quote]\n", "[/quote]", "[/li]", "[li]", "[ul]", "[/ul]", "\n[share ", "[/attachment]",

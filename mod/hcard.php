@@ -1,11 +1,12 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 
 function hcard_init(App $a) {
 
-	$blocked = (((get_config('system','block_public')) && (! local_user()) && (! remote_user())) ? true : false);
+	$blocked = (((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) ? true : false);
 
 	if ($a->argc > 1) {
 		$which = $a->argv[1];
