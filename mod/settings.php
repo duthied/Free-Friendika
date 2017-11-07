@@ -953,7 +953,7 @@ function settings_content(App $a) {
 				$is_experimental = file_exists('view/theme/' . $th . '/experimental');
 				$unsupported = file_exists('view/theme/' . $th . '/unsupported');
 				$is_mobile = file_exists('view/theme/' . $th . '/mobile');
-				if (!$is_experimental || ($is_experimental && (Config::get('experimentals', 'exp_themes')==1 || Config::get('experimentals', 'exp_themes')===false))) {
+				if (!$is_experimental || ($is_experimental && (Config::get('experimentals', 'exp_themes')==1 || is_null(Config::get('experimentals', 'exp_themes'))))) {
 					$theme_name = (($is_experimental) ?  sprintf("%s - \x28Experimental\x29", $f) : $f);
 					if ($is_mobile) {
 						$mobile_themes[$f]=$theme_name;
@@ -978,24 +978,14 @@ function settings_content(App $a) {
 		$itemspage_mobile_network = intval(PConfig::get(local_user(), 'system', 'itemspage_mobile_network'));
 		$itemspage_mobile_network = (($itemspage_mobile_network > 0 && $itemspage_mobile_network < 101) ? $itemspage_mobile_network : 20); // default if not set: 20 items
 
-		$nosmile = PConfig::get(local_user(), 'system', 'no_smilies');
-		$nosmile = (($nosmile===false)? '0': $nosmile); // default if not set: 0
-
-		$first_day_of_week = PConfig::get(local_user(), 'system', 'first_day_of_week');
-		$first_day_of_week = (($first_day_of_week===false)? '0': $first_day_of_week); // default if not set: 0
+		$nosmile = PConfig::get(local_user(), 'system', 'no_smilies', 0);
+		$first_day_of_week = PConfig::get(local_user(), 'system', 'first_day_of_week', 0);
 		$weekdays = array(0 => t("Sunday"), 1 => t("Monday"));
 
-		$noinfo = PConfig::get(local_user(), 'system', 'ignore_info');
-		$noinfo = (($noinfo===false)? '0': $noinfo); // default if not set: 0
-
-		$infinite_scroll = PConfig::get(local_user(), 'system', 'infinite_scroll');
-		$infinite_scroll = (($infinite_scroll===false)? '0': $infinite_scroll); // default if not set: 0
-
-		$no_auto_update = PConfig::get(local_user(), 'system', 'no_auto_update');
-		$no_auto_update = (($no_auto_update===false)? '0': $no_auto_update); // default if not set: 0
-
-		$bandwidth_saver = PConfig::get(local_user(), 'system', 'bandwidth_saver');
-		$bandwidth_saver = (($bandwidth_saver === false) ? '0' : $bandwidth_saver); // default if not set: 0
+		$noinfo = PConfig::get(local_user(), 'system', 'ignore_info', 0);
+		$infinite_scroll = PConfig::get(local_user(), 'system', 'infinite_scroll', 0);
+		$no_auto_update = PConfig::get(local_user(), 'system', 'no_auto_update', 0);
+		$bandwidth_saver = PConfig::get(local_user(), 'system', 'bandwidth_saver', 0);
 
 		$theme_config = "";
 		if (($themeconfigfile = get_theme_config_file($theme_selected)) != null) {

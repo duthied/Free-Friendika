@@ -161,13 +161,13 @@ class ParseUrl {
 
 			$oembed_data = oembed_fetch_url($url);
 
-			if (!in_array($oembed_data->type, array("error", "rich"))) {
+			if (!in_array($oembed_data->type, array("error", "rich", ""))) {
 				$siteinfo["type"] = $oembed_data->type;
 			}
 
 			if (($oembed_data->type == "link") && ($siteinfo["type"] != "photo")) {
 				if (isset($oembed_data->title)) {
-					$siteinfo["title"] = $oembed_data->title;
+					$siteinfo["title"] = trim($oembed_data->title);
 				}
 				if (isset($oembed_data->description)) {
 					$siteinfo["text"] = trim($oembed_data->description);
@@ -240,7 +240,7 @@ class ParseUrl {
 
 		$list = $xpath->query("//title");
 		if ($list->length > 0) {
-			$siteinfo["title"] = $list->item(0)->nodeValue;
+			$siteinfo["title"] = trim($list->item(0)->nodeValue);
 		}
 
 		//$list = $xpath->query("head/meta[@name]");
@@ -258,10 +258,10 @@ class ParseUrl {
 			if ($attr["content"] != "") {
 				switch (strtolower($attr["name"])) {
 					case "fulltitle":
-						$siteinfo["title"] = $attr["content"];
+						$siteinfo["title"] = trim($attr["content"]);
 						break;
 					case "description":
-						$siteinfo["text"] = $attr["content"];
+						$siteinfo["text"] = trim($attr["content"]);
 						break;
 					case "thumbnail":
 						$siteinfo["image"] = $attr["content"];
@@ -278,16 +278,16 @@ class ParseUrl {
 						}
 						break;
 					case "twitter:description":
-						$siteinfo["text"] = $attr["content"];
+						$siteinfo["text"] = trim($attr["content"]);
 						break;
 					case "twitter:title":
-						$siteinfo["title"] = $attr["content"];
+						$siteinfo["title"] = trim($attr["content"]);
 						break;
 					case "dc.title":
-						$siteinfo["title"] = $attr["content"];
+						$siteinfo["title"] = trim($attr["content"]);
 						break;
 					case "dc.description":
-						$siteinfo["text"] = $attr["content"];
+						$siteinfo["text"] = trim($attr["content"]);
 						break;
 					case "keywords":
 						$keywords = explode(",", $attr["content"]);
@@ -329,10 +329,10 @@ class ParseUrl {
 						$siteinfo["image"] = $attr["content"];
 						break;
 					case "og:title":
-						$siteinfo["title"] = $attr["content"];
+						$siteinfo["title"] = trim($attr["content"]);
 						break;
 					case "og:description":
-						$siteinfo["text"] = $attr["content"];
+						$siteinfo["text"] = trim($attr["content"]);
 						break;
 				}
 			}

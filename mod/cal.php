@@ -73,8 +73,7 @@ function cal_content(App $a) {
 	nav_set_selected('events');
 
 	// First day of the week (0 = Sunday)
-	$firstDay = PConfig::get(local_user(),'system','first_day_of_week');
-	if ($firstDay === false) $firstDay=0;
+	$firstDay = PConfig::get(local_user(),'system','first_day_of_week', 0);
 
 	// get the translation strings for the callendar
 	$i18n = get_event_strings();
