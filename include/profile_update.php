@@ -1,5 +1,5 @@
 <?php
-require_once('include/diaspora.php');
+use Friendica\Protocol\Diaspora;
 
 function profile_update_run(&$argv, &$argc) {
 	if ($argc != 2) {

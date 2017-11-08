@@ -5,10 +5,10 @@ namespace Friendica;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\Database\Dbm;
 
 use Cache;
 use dba;
-use dbm;
 
 use Detection\MobileDetect;
 
@@ -706,7 +706,7 @@ class App {
 		dba::transaction();
 
 		$r = q('SELECT `pid` FROM `process` WHERE `pid` = %d', intval(getmypid()));
-		if (!dbm::is_result($r)) {
+		if (!Dbm::is_result($r)) {
 			dba::insert('process', array('pid' => getmypid(), 'command' => $command, 'created' => datetime_convert()));
 		}
 		dba::commit();
@@ -719,7 +719,7 @@ class App {
 		dba::transaction();
 
 		$r = q('SELECT `pid` FROM `process`');
-		if (dbm::is_result($r)) {
+		if (Dbm::is_result($r)) {
 			foreach ($r AS $process) {
 				if (!posix_kill($process['pid'], 0)) {
 					q('DELETE FROM `process` WHERE `pid` = %d', intval($process['pid']));
@@ -806,7 +806,7 @@ class App {
 			}
 		}
 
-		$processlist = dbm::processlist();
+		$processlist = Dbm::processlist();
 		if ($processlist['list'] != '') {
 			logger('Processcheck: Processes: ' . $processlist['amount'] . ' - Processlist: ' . $processlist['list'], LOGGER_DEBUG);
 

@@ -3,8 +3,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
-
-require_once('include/dfrn.php');
+use Friendica\Protocol\Dfrn;
 
 function display_init(App $a) {
 
@@ -492,7 +491,7 @@ function display_content(App $a, $update = 0) {
 }
 
 function displayShowFeed($item_id, $conversation) {
-	$xml = dfrn::itemFeed($item_id, $conversation);
+	$xml = Dfrn::itemFeed($item_id, $conversation);
 	if ($xml == '') {
 		http_status_exit(500);
 	}

@@ -3,12 +3,12 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Protocol\Diaspora;
+use Friendica\Protocol\Dfrn;
 
 require_once 'include/queue_fn.php';
 require_once 'include/html2plain.php';
-require_once 'include/diaspora.php';
 require_once 'include/ostatus.php';
-require_once 'include/dfrn.php';
 
 function delivery_run(&$argv, &$argc){
 	global $a;
@@ -243,12 +243,12 @@ function delivery_run(&$argv, &$argc){
 
 				if ($mail) {
 					$item['body'] = fix_private_photos($item['body'],$owner['uid'],null,$message[0]['contact-id']);
-					$atom = dfrn::mail($item, $owner);
+					$atom = Dfrn::mail($item, $owner);
 				} elseif ($fsuggest) {
-					$atom = dfrn::fsuggest($item, $owner);
+					$atom = Dfrn::fsuggest($item, $owner);
 					q("DELETE FROM `fsuggest` WHERE `id` = %d LIMIT 1", intval($item['id']));
 				} elseif ($relocate) {
-					$atom = dfrn::relocate($owner, $uid);
+					$atom = Dfrn::relocate($owner, $uid);
 				} elseif ($followup) {
 					$msgitems = array();
 					foreach ($items as $item) {  // there is only one item
@@ -260,7 +260,7 @@ function delivery_run(&$argv, &$argc){
 							$msgitems[] = $item;
 						}
 					}
-					$atom = dfrn::entries($msgitems,$owner);
+					$atom = Dfrn::entries($msgitems,$owner);
 				} else {
 					$msgitems = array();
 					foreach ($items as $item) {
@@ -289,7 +289,7 @@ function delivery_run(&$argv, &$argc){
 							$msgitems[] = $item;
 						}
 					}
-					$atom = dfrn::entries($msgitems,$owner);
+					$atom = Dfrn::entries($msgitems,$owner);
 				}
 
 				logger('notifier entry: '.$contact["url"].' '.$target_item["guid"].' entry: '.$atom, LOGGER_DEBUG);
@@ -343,13 +343,13 @@ function delivery_run(&$argv, &$argc){
 							break;
 						}
 						logger('mod-delivery: local delivery');
-						dfrn::import($atom, $x[0]);
+						Dfrn::import($atom, $x[0]);
 						break;
 					}
 				}
 
 				if (!was_recently_delayed($contact['id'])) {
-					$deliver_status = dfrn::deliver($owner,$contact,$atom);
+					$deliver_status = Dfrn::deliver($owner,$contact,$atom);
 				} else {
 					$deliver_status = (-1);
 				}

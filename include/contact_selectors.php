@@ -1,5 +1,6 @@
 <?php
-require_once('include/diaspora.php');
+
+use Friendica\Protocol\Diaspora;
 
 function contact_profile_assign($current,$foreign_net) {
 

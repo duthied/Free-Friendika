@@ -9,6 +9,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Core\NotificationsManager;
 use Friendica\Core\Worker;
 
 require_once 'include/HTTPExceptions.php';
@@ -28,7 +29,6 @@ require_once 'mod/proxy.php';
 require_once 'include/message.php';
 require_once 'include/group.php';
 require_once 'include/like.php';
-require_once 'include/NotificationsManager.php';
 require_once 'include/plaintext.php';
 require_once 'include/xml.php';
 

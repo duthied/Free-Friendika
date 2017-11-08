@@ -5,8 +5,7 @@ This file is part of the Diaspora protocol. It is used for fetching single publi
 
 use Friendica\App;
 use Friendica\Core\System;
-
-require_once("include/diaspora.php");
+use Friendica\Protocol\Diaspora;
 
 function p_init($a){
 	if ($a->argc != 2) {

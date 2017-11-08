@@ -20,6 +20,7 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Network\Probe;
+use Friendica\Protocol\Diaspora;
 
 require_once 'include/crypto.php';
 require_once 'include/enotify.php';
@@ -29,7 +30,6 @@ require_once 'include/files.php';
 require_once 'include/threads.php';
 require_once 'include/text.php';
 require_once 'include/items.php';
-require_once 'include/diaspora.php';
 require_once 'include/Contact.php';
 
 function item_post(App $a) {

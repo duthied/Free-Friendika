@@ -4,10 +4,10 @@ if(class_exists('Item'))
 
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\Protocol\Diaspora;
 
 require_once('object/BaseObject.php');
 require_once('include/text.php');
-require_once('include/diaspora.php');
 require_once('boot.php');
 
 /**

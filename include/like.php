@@ -3,8 +3,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
-
-require_once("include/diaspora.php");
+use Friendica\Protocol\Diaspora;
 
 /**
  * @brief add/remove activity to an item

@@ -1,9 +1,8 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\NotificationsManager;
 use Friendica\Core\System;
-
-require_once('include/NotificationsManager.php');
 
 function notify_init(App $a) {
 	if (! local_user()) {

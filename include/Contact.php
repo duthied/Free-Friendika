@@ -5,6 +5,8 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Network\Probe;
+use Friendica\Protocol\Diaspora;
+use Friendica\Protocol\Dfrn;
 
 // Included here for completeness, but this is a very dangerous operation.
 // It is the caller's responsibility to confirm the requestor's intent and
@@ -90,11 +92,9 @@ function terminate_friendship($user,$self,$contact) {
 			slapper($user,$contact['notify'],$slap);
 		}
 	} elseif ($contact['network'] === NETWORK_DIASPORA) {
-		require_once 'include/diaspora.php';
 		Diaspora::send_unshare($user,$contact);
 	} elseif ($contact['network'] === NETWORK_DFRN) {
-		require_once 'include/dfrn.php';
-		dfrn::deliver($user,$contact,'placeholder', 1);
+		Dfrn::deliver($user,$contact,'placeholder', 1);
 	}
 
 }
