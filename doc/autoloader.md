@@ -104,7 +104,7 @@ class Dfrn {
 
 mail_post($a){
 	...
-	Friendica\DFRN::mail($item, $owner);
+	Friendica\Protocol\DFRN::mail($item, $owner);
 	...
 }
 ```

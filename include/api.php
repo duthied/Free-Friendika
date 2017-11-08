@@ -12,6 +12,7 @@ use Friendica\Core\Config;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Protocol\Diaspora;
 
 require_once 'include/HTTPExceptions.php';
 require_once 'include/bbcode.php';

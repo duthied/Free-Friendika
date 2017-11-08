@@ -80,7 +80,7 @@ if (\DBM::is_result($r)) {
 ````php
 namespace Friendica\Core;
 
-use \dbm;
+use Friendica\Database\DBM;
 
 if (DBM::is_result($r)) {
     ...
