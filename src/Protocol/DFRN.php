@@ -16,6 +16,7 @@ use Friendica\Database\DBM;
 
 use dba;
 use DOMDocument;
+use DomXPath;
 
 require_once("include/Contact.php");
 require_once("include/ostatus.php");

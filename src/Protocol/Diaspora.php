@@ -19,6 +19,7 @@ use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 
 use dba;
+use SimpleXMLElement;
 
 require_once 'include/items.php';
 require_once 'include/bb2diaspora.php';
