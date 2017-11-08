@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Database\DBM;
 
 function notes_init(App $a) {
 
@@ -85,7 +86,7 @@ function notes_content(App $a, $update = false) {
 
 	);
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$a->set_pager_total($r[0]['total']);
 		$a->set_pager_itemspage(40);
 	}
@@ -105,7 +106,7 @@ function notes_content(App $a, $update = false) {
 	$parents_arr = array();
 	$parents_str = '';
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach($r as $rr)
 			$parents_arr[] = $rr['item_id'];
 		$parents_str = implode(', ', $parents_arr);
@@ -119,7 +120,7 @@ function notes_content(App $a, $update = false) {
 			dbesc($parents_str)
 		);
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$items = conv_sort($r,"`commented`");
 
 			$o .= conversation($a,$items,'notes',$update);

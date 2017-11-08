@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 function notify_init(App $a) {
 	if (! local_user()) {
@@ -55,7 +56,7 @@ function notify_content(App $a) {
 	require_once('include/bbcode.php');
 
 	$r = $nm->getAll(array('seen'=>0));
-	if (dbm::is_result($r) > 0) {
+	if (DBM::is_result($r) > 0) {
 		foreach ($r as $it) {
 			$notif_content .= replace_macros($not_tpl,array(
 				'$item_link' => System::baseUrl(true).'/notify/view/'. $it['id'],

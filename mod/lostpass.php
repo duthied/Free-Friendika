@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once('include/email.php');
 require_once('include/enotify.php');
@@ -18,7 +19,7 @@ function lostpass_post(App $a) {
 		dbesc($loginame)
 	);
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		notice( t('No valid account found.') . EOL);
 		goaway(System::baseUrl());
 	}
@@ -90,7 +91,7 @@ function lostpass_content(App $a) {
 		$r = q("SELECT * FROM `user` WHERE `pwdreset` = '%s' LIMIT 1",
 			dbesc($hash)
 		);
-		if (! dbm::is_result($r)) {
+		if (! DBM::is_result($r)) {
 			$o =  t("Request could not be verified. \x28You may have previously submitted it.\x29 Password reset failed.");
 			return $o;
 		}
@@ -106,7 +107,7 @@ function lostpass_content(App $a) {
 			intval($uid)
 		);
 
-		/// @TODO Is dbm::is_result() okay here?
+		/// @TODO Is DBM::is_result() okay here?
 		if ($r) {
 			$tpl = get_markup_template('pwdreset.tpl');
 			$o .= replace_macros($tpl,array(

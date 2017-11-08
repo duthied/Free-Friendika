@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once "include/template_processor.php";
 require_once "include/friendica_smarty.php";
@@ -525,7 +526,7 @@ function photo_new_resource() {
 			dbesc($resource)
 		);
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$found = true;
 		}
 	} while ($found == true);
@@ -956,7 +957,7 @@ function contact_block() {
 			dbesc(NETWORK_OSTATUS),
 			dbesc(NETWORK_DIASPORA)
 	);
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$total = intval($r[0]['total']);
 	}
 	if (! $total) {
@@ -975,7 +976,7 @@ function contact_block() {
 				dbesc(NETWORK_DIASPORA),
 				intval($shown)
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$contacts = array();
 			foreach ($r AS $contact) {
 				$contacts[] = $contact["id"];
@@ -983,7 +984,7 @@ function contact_block() {
 			$r = q("SELECT `id`, `uid`, `addr`, `url`, `name`, `thumb`, `network` FROM `contact` WHERE `id` IN (%s)",
 				dbesc(implode(",", $contacts)));
 
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$contacts = sprintf( tt('%d Contact','%d Contacts', $total),$total);
 				$micropro = Array();
 				foreach ($r as $rr) {
@@ -1669,7 +1670,7 @@ function generate_user_guid() {
 		$x = q("SELECT `uid` FROM `user` WHERE `guid` = '%s' LIMIT 1",
 			dbesc($guid)
 		);
-		if (! dbm::is_result($x)) {
+		if (! DBM::is_result($x)) {
 			$found = false;
 		}
 	} while ($found == true);
@@ -2023,7 +2024,7 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 				intval($termtype),
 				intval($uid));
 
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				unset($deleted_tags[$key]);
 			}
 			else {
@@ -2053,7 +2054,7 @@ function file_tag_save_file($uid, $item, $file) {
 		intval($item),
 		intval($uid)
 	);
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		if (! stristr($r[0]['file'],'[' . file_tag_encode($file) . ']')) {
 			q("UPDATE `item` SET `file` = '%s' WHERE `id` = %d AND `uid` = %d",
 				dbesc($r[0]['file'] . '[' . file_tag_encode($file) . ']'),
@@ -2093,7 +2094,7 @@ function file_tag_unsave_file($uid, $item, $file, $cat = false) {
 		intval($item),
 		intval($uid)
 	);
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		return false;
 	}
 
@@ -2111,7 +2112,7 @@ function file_tag_unsave_file($uid, $item, $file, $cat = false) {
 		intval($termtype),
 		intval($uid));
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		$saved = PConfig::get($uid,'system','filetags');
 		PConfig::set($uid, 'system', 'filetags', str_replace($pattern, '', $saved));
 	}

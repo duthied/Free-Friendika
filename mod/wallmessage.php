@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use \Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once('include/message.php');
 
@@ -25,7 +26,7 @@ function wallmessage_post(App $a) {
 		dbesc($recipient)
 	);
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		logger('wallmessage: no recipient');
 		return;
 	}
@@ -88,7 +89,7 @@ function wallmessage_content(App $a) {
 		dbesc($recipient)
 	);
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		notice( t('No recipient.') . EOL);
 		logger('wallmessage: no recipient');
 		return;

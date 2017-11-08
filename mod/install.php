@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once "include/Photo.php";
 
@@ -133,7 +134,7 @@ function install_content(App $a) {
 
 	if (dba::$connected) {
 		$r = q("SELECT COUNT(*) as `total` FROM `user`");
-		if (dbm::is_result($r) && $r[0]['total']) {
+		if (DBM::is_result($r) && $r[0]['total']) {
 			$tpl = get_markup_template('install.tpl');
 			return replace_macros($tpl, array(
 				'$title' => $install_title,

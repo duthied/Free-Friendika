@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 
 function qsearch_init(App $a) {
 
@@ -27,7 +28,7 @@ function qsearch_init(App $a) {
 		intval($limit)
 	);
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 
 		foreach($r as $rr)
 			$results[] = array( 0, (int) $rr['id'], $rr['name'], '', '');
@@ -42,7 +43,7 @@ function qsearch_init(App $a) {
 	);
 
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 
 		foreach($r as $rr)
 			$results[] = array( (int) $rr['id'], 0, $rr['name'],$rr['url'],$rr['photo']);

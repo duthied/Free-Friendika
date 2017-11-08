@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once('include/Emailer.php');
 require_once('include/email.php');
@@ -52,7 +53,7 @@ function notification($params) {
 			array('uid' => $params['uid']), array('limit' => 1));
 
 		// There is no need to create notifications for forum accounts
-		if (!dbm::is_result($user) || in_array($user["page-flags"], array(PAGE_COMMUNITY, PAGE_PRVGROUP))) {
+		if (!DBM::is_result($user) || in_array($user["page-flags"], array(PAGE_COMMUNITY, PAGE_PRVGROUP))) {
 			return;
 		}
 	}
@@ -423,7 +424,7 @@ function notification($params) {
 			$hash = random_string();
 			$r = q("SELECT `id` FROM `notify` WHERE `hash` = '%s' LIMIT 1",
 				dbesc($hash));
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$dups = true;
 			}
 		} while ($dups == true);
@@ -743,17 +744,17 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 			intval($item[0]['contact-id']),
 			intval($uid)
 		);
-		$send_notification = dbm::is_result($r);
+		$send_notification = DBM::is_result($r);
 
 		if (!$send_notification) {
 			$tags = q("SELECT `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` = %d AND `uid` = %d",
 				intval(TERM_OBJ_POST), intval($itemid), intval(TERM_MENTION), intval($uid));
 
-			if (dbm::is_result($tags)) {
+			if (DBM::is_result($tags)) {
 				foreach ($tags AS $tag) {
 					$r = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `notify_new_posts`",
 						normalise_link($tag["url"]), intval($uid));
-					if (dbm::is_result($r))
+					if (DBM::is_result($r))
 						$send_notification = true;
 				}
 			}

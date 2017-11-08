@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 
 require_once("include/Photo.php");
 define("IMPORT_DEBUG", False);
@@ -104,7 +105,7 @@ function import_account(App $a, $file) {
 		notice(t('Error! Cannot check nickname'));
 		return;
 	}
-	if (dbm::is_result($r) > 0) {
+	if (DBM::is_result($r) > 0) {
 		notice(sprintf(t("User '%s' already exists on this server!"), $account['user']['nickname']));
 		return;
 	}
@@ -115,7 +116,7 @@ function import_account(App $a, $file) {
 		notice(t('Error! Cannot check nickname'));
 		return;
 	}
-	if (dbm::is_result($r) > 0) {
+	if (DBM::is_result($r) > 0) {
 		notice(sprintf(t("User '%s' already exists on this server!"), $account['user']['nickname']));
 		return;
 	}

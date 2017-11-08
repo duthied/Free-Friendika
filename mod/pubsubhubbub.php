@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 
 function post_var($name) {
 	return (x($_POST, $name)) ? notags(trim($_POST[$name])) : '';
@@ -63,7 +64,7 @@ function pubsubhubbub_init(App $a) {
 			   " AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
 			   dbesc($nick));
 
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			logger('pubsubhubbub: local account not found: ' . $nick);
 			http_status_exit(404);
 		}
@@ -81,7 +82,7 @@ function pubsubhubbub_init(App $a) {
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `blocked`".
 			   " AND NOT `pending` AND `self` LIMIT 1",
 			   intval($owner['uid']));
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			logger('pubsubhubbub: contact not found.');
 			http_status_exit(404);
 		}
@@ -140,7 +141,7 @@ function pubsubhubbub_init(App $a) {
 
 			// if we are just updating an old subscription, keep the
 			// old values for push and last_update
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$last_update = $r[0]['last_update'];
 				$push_flag = $r[0]['push'];
 			}

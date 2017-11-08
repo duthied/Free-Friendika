@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 
 require_once('include/items.php');
 require_once('include/ostatus.php');
@@ -34,7 +35,7 @@ function handle_pubsubhubbub($id) {
 	global $a;
 
 	$r = q("SELECT * FROM `push_subscriber` WHERE `id` = %d", intval($id));
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		return;
 	}
 

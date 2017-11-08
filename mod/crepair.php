@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 
 require_once("include/contact_selectors.php");
 require_once("mod/contacts.php");
@@ -19,7 +20,7 @@ function crepair_init(App $a) {
 			intval(local_user()),
 			intval($contact_id)
 		);
-		if (! dbm::is_result($r)) {
+		if (! DBM::is_result($r)) {
 			$contact_id = 0;
 		}
 	}
@@ -48,7 +49,7 @@ function crepair_post(App $a) {
 		);
 	}
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		return;
 	}
 
@@ -116,7 +117,7 @@ function crepair_content(App $a) {
 		);
 	}
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		notice( t('Contact not found.') . EOL);
 		return;
 	}

@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Database\DBM;
 
 require_once('include/Contact.php');
 require_once('include/socgraph.php');
@@ -32,11 +33,11 @@ function nogroup_content(App $a) {
 
 	require_once('include/Contact.php');
 	$r = contacts_not_grouped(local_user());
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$a->set_pager_total($r[0]['total']);
 	}
 	$r = contacts_not_grouped(local_user(),$a->pager['start'],$a->pager['itemspage']);
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
 
 			$contact_details = get_contact_details_by_url($rr['url'], local_user(), $rr);

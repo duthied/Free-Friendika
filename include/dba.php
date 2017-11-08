@@ -1,7 +1,7 @@
 <?php
 use \Friendica\Core\System;
+use Friendica\Database\DBM;
 
-require_once("dbm.php");
 require_once('include/datetime.php');
 
 /**
@@ -176,7 +176,7 @@ class dba {
 		}
 
 		$r = self::p("EXPLAIN ".$query);
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			return;
 		}
 
@@ -227,7 +227,7 @@ class dba {
 		switch (self::$driver) {
 			case 'pdo':
 				$r = dba::p("SELECT 1");
-				if (dbm::is_result($r)) {
+				if (DBM::is_result($r)) {
 					$row = dba::inArray($r);
 					$connected = ($row[0]['1'] == '1');
 				}

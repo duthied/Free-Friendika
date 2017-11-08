@@ -15,7 +15,7 @@ use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
-use Friendica\Database\Dbm;
+use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 
 use dba;
@@ -459,7 +459,7 @@ class Diaspora {
 			dbesc($msg["author"])
 		);
 
-		if (Dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			foreach ($r as $rr) {
 				logger("delivering to: ".$rr["username"]);
 				self::dispatch($rr, $msg, $fields);
@@ -840,7 +840,7 @@ class Diaspora {
 			$r = q("SELECT `addr` FROM `gcontact` WHERE `id` = %d AND `addr` != ''",
 				intval($gcontact_id));
 
-			if (Dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				return strtolower($r[0]["addr"]);
 			}
 		}
@@ -848,7 +848,7 @@ class Diaspora {
 		$r = q("SELECT `network`, `addr`, `self`, `url`, `nick` FROM `contact` WHERE `id` = %d",
 			intval($contact_id));
 
-		if (Dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$contact = $r[0];
 
 			logger("contact 'self' = ".$contact['self']." 'url' = ".$contact['url'], LOGGER_DEBUG);
@@ -882,7 +882,7 @@ class Diaspora {
 			dbesc($fcontact_guid)
 		);
 
-		if (Dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			return $r[0]['url'];
 		}
 
@@ -905,7 +905,7 @@ class Diaspora {
 			dbesc($handle)
 		);
 
-		if (Dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			return $r[0];
 		} else {
 			/*
@@ -918,7 +918,7 @@ class Diaspora {
 				/// @TODO Contact retrieval should be encapsulated into an "entity" class like `Contact`
 				$r = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1", intval($cid));
 
-				if (Dbm::is_result($r)) {
+				if (DBM::is_result($r)) {
 					return $r[0];
 				}
 			}
@@ -931,7 +931,7 @@ class Diaspora {
 			intval($uid),
 			dbesc($nurl_sql)
 		);
-		if (Dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			return $r[0];
 		}
 
@@ -1026,7 +1026,7 @@ class Diaspora {
 			dbesc($guid)
 		);
 
-		if (Dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			logger("message ".$guid." already exists for user ".$uid);
 			return $r[0]["id"];
 		}
@@ -1298,7 +1298,7 @@ class Diaspora {
 		$r = q("SELECT `url`, `nick`, `network` FROM `fcontact` WHERE `addr`='%s' LIMIT 1", dbesc($addr));
 
 		// Fallback
-		if (!Dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			if ($parent_guid != '') {
 				return "https://".substr($addr,strpos($addr,"@") + 1)."/posts/".$parent_guid."#".$guid;
 			} else {
@@ -1309,7 +1309,7 @@ class Diaspora {
 		// Friendica contacts are often detected as Diaspora contacts in the "fcontact" table
 		// So we try another way as well.
 		$s = q("SELECT `network` FROM `gcontact` WHERE `nurl`='%s' LIMIT 1", dbesc(normalise_link($r[0]["url"])));
-		if (Dbm::is_result($s)) {
+		if (DBM::is_result($s)) {
 			$r[0]["network"] = $s[0]["network"];
 		}
 
@@ -1396,7 +1396,7 @@ class Diaspora {
 					$n, dbesc($f[0]),
 					intval($importer["uid"]));
 
-			if (Dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$x = q("UPDATE `item` SET `%s` = '%s' WHERE `%s` = '%s' AND `uid` = %d",
 						$n, dbesc($f[1]),
 						$n, dbesc($f[0]),
@@ -1450,7 +1450,7 @@ class Diaspora {
 	private static function get_uri_from_guid($author, $guid, $onlyfound = false) {
 
 		$r = q("SELECT `uri` FROM `item` WHERE `guid` = '%s' LIMIT 1", dbesc($guid));
-		if (Dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			return $r[0]["uri"];
 		} elseif (!$onlyfound) {
 			return $author.":".$guid;
@@ -1470,7 +1470,7 @@ class Diaspora {
 	private static function get_guid_from_uri($uri, $uid) {
 
 		$r = q("SELECT `guid` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1", dbesc($uri), intval($uid));
-		if (Dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			return $r[0]["guid"];
 		} else {
 			return false;
@@ -1487,10 +1487,10 @@ class Diaspora {
 	private static function importer_for_guid($guid) {
 		$item = dba::fetch_first("SELECT `uid` FROM `item` WHERE `origin` AND `guid` = ? LIMIT 1", $guid);
 
-		if (Dbm::is_result($item)) {
+		if (DBM::is_result($item)) {
 			logger("Found user ".$item['uid']." as owner of item ".$guid, LOGGER_DEBUG);
 			$contact = dba::fetch_first("SELECT * FROM `contact` WHERE `self` AND `uid` = ?", $item['uid']);
-			if (Dbm::is_result($contact)) {
+			if (DBM::is_result($contact)) {
 				return $contact;
 			}
 		}
@@ -1664,7 +1664,7 @@ class Diaspora {
 			dbesc($msg_guid),
 			intval($importer["uid"])
 		);
-		if (Dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			logger("duplicate message already delivered.", LOGGER_DEBUG);
 			return false;
 		}
@@ -1977,7 +1977,7 @@ class Diaspora {
 			dbesc($guid),
 			intval($importer["uid"])
 		);
-		if (Dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			logger("duplicate message already delivered.", LOGGER_DEBUG);
 			return false;
 		}
@@ -2419,7 +2419,7 @@ class Diaspora {
 				FROM `item` WHERE `guid` = '%s' AND `visible` AND NOT `deleted` AND `body` != '' LIMIT 1",
 			dbesc($guid));
 
-		if (Dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			logger("reshared message ".$guid." already exists on system.");
 
 			// Maybe it is already a reshared item?
@@ -2441,7 +2441,7 @@ class Diaspora {
 			}
 		}
 
-		if (!Dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			$server = "https://".substr($orig_author, strpos($orig_author, "@") + 1);
 			logger("1st try: reshared message ".$guid." will be fetched via SSL from the server ".$server);
 			$item_id = self::store_by_guid($guid, $server);
@@ -2458,7 +2458,7 @@ class Diaspora {
 					FROM `item` WHERE `id` = %d AND `visible` AND NOT `deleted` AND `body` != '' LIMIT 1",
 					intval($item_id));
 
-				if (Dbm::is_result($r)) {
+				if (DBM::is_result($r)) {
 					// If it is a reshared post from another network then reformat to avoid display problems with two share elements
 					if (self::is_reshare($r[0]["body"], false)) {
 						$r[0]["body"] = diaspora2bb(bb2diaspora($r[0]["body"]));
@@ -2589,7 +2589,7 @@ class Diaspora {
 			$condition = array("`guid` = ? AND `uid` = ? AND NOT `file` LIKE '%%[%%' AND NOT `deleted`", $target_guid, $importer['uid']);
 		}
 		$r = dba::select('item', $fields, $condition);
-		if (!Dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			logger("Target guid ".$target_guid." was not found on this system for user ".$importer['uid'].".");
 			return false;
 		}
@@ -3231,7 +3231,7 @@ class Diaspora {
 	private static function build_event($event_id) {
 
 		$r = q("SELECT `guid`, `uid`, `start`, `finish`, `nofinish`, `summary`, `desc`, `location`, `adjust` FROM `event` WHERE `id` = %d", intval($event_id));
-		if (!Dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			return array();
 		}
 
@@ -3240,14 +3240,14 @@ class Diaspora {
 		$eventdata = array();
 
 		$r = q("SELECT `timezone` FROM `user` WHERE `uid` = %d", intval($event['uid']));
-		if (!Dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			return array();
 		}
 
 		$user = $r[0];
 
 		$r = q("SELECT `addr`, `nick` FROM `contact` WHERE `uid` = %d AND `self`", intval($event['uid']));
-		if (!Dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			return array();
 		}
 
@@ -3424,7 +3424,7 @@ class Diaspora {
 
 		$p = q("SELECT `guid`, `uri`, `parent-uri` FROM `item` WHERE `uri` = '%s' LIMIT 1",
 			dbesc($item["thr-parent"]));
-		if (!Dbm::is_result($p))
+		if (!DBM::is_result($p))
 			return false;
 
 		$parent = $p[0];
@@ -3456,7 +3456,7 @@ class Diaspora {
 
 		$p = q("SELECT `guid`, `uri`, `parent-uri` FROM `item` WHERE `uri` = '%s' LIMIT 1",
 			dbesc($item["thr-parent"]));
-		if (!Dbm::is_result($p))
+		if (!DBM::is_result($p))
 			return false;
 
 		$parent = $p[0];
@@ -3505,7 +3505,7 @@ class Diaspora {
 			intval($item["parent"])
 		);
 
-		if (!Dbm::is_result($p))
+		if (!DBM::is_result($p))
 			return false;
 
 		$parent = $p[0];
@@ -3727,7 +3727,7 @@ class Diaspora {
 			intval($item["uid"])
 		);
 
-		if (!Dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			logger("conversation not found.");
 			return;
 		}
@@ -3886,14 +3886,14 @@ class Diaspora {
 		}
 
 		$r = q("SELECT `prvkey` FROM `user` WHERE `uid` = %d LIMIT 1", intval($contact['uid']));
-		if (!Dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			return false;
 		}
 
 		$contact["uprvkey"] = $r[0]['prvkey'];
 
 		$r = q("SELECT * FROM `item` WHERE `id` = %d LIMIT 1", intval($post_id));
-		if (!Dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			return false;
 		}
 

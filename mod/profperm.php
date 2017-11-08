@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\Database\DBM;
 
 function profperm_init(App $a) {
 
@@ -47,7 +48,7 @@ function profperm_content(App $a) {
 			intval($a->argv[2]),
 			intval(local_user())
 		);
-		if (dbm::is_result($r))
+		if (DBM::is_result($r))
 			$change = intval($a->argv[2]);
 	}
 
@@ -57,7 +58,7 @@ function profperm_content(App $a) {
 			intval($a->argv[1]),
 			intval(local_user())
 		);
-		if (! dbm::is_result($r)) {
+		if (! DBM::is_result($r)) {
 			notice( t('Invalid profile identifier.') . EOL );
 			return;
 		}
@@ -69,7 +70,7 @@ function profperm_content(App $a) {
 		);
 
 		$ingroup = array();
-		if (dbm::is_result($r))
+		if (DBM::is_result($r))
 			foreach($r as $member)
 				$ingroup[] = $member['id'];
 
@@ -99,7 +100,7 @@ function profperm_content(App $a) {
 			$members = $r;
 
 			$ingroup = array();
-			if (dbm::is_result($r))
+			if (DBM::is_result($r))
 				foreach($r as $member)
 					$ingroup[] = $member['id'];
 		}
@@ -143,7 +144,7 @@ function profperm_content(App $a) {
 			dbesc(NETWORK_DFRN)
 		);
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$textmode = (($switchtotext && (count($r) > $switchtotext)) ? true : false);
 			foreach($r as $member) {
 				if(! in_array($member['id'],$ingroup)) {

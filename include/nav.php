@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 function nav(App $a) {
 
@@ -92,7 +93,7 @@ function nav_info(App $a)
 		// user info
 		$r = dba::select('contact', array('micro'), array('uid' => $a->user['uid'], 'self' => true), array('limit' => 1));
 		$userinfo = array(
-			'icon' => (dbm::is_result($r) ? $a->remove_baseurl($r['micro']) : 'images/person-48.jpg'),
+			'icon' => (DBM::is_result($r) ? $a->remove_baseurl($r['micro']) : 'images/person-48.jpg'),
 			'name' => $a->user['username'],
 		);
 	} else {

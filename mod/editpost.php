@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once('include/acl_selectors.php');
 
@@ -27,7 +28,7 @@ function editpost_content(App $a) {
 		intval(local_user())
 	);
 
-	if (! dbm::is_result($itm)) {
+	if (! DBM::is_result($itm)) {
 		notice( t('Item not found') . EOL);
 		return;
 	}
@@ -72,7 +73,7 @@ function editpost_content(App $a) {
 		$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
 			intval(local_user())
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$mail_enabled = true;
 			if(intval($r[0]['pubmail']))
 				$pubmail_enabled = true;

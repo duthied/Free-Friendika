@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once('library/openid.php');
 
@@ -40,7 +41,7 @@ function openid_content(App $a) {
 				dbesc($authid), dbesc(normalise_openid($authid))
 			);
 
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 
 				// successful OpenID login
 

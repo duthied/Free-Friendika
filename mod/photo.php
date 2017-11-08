@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Database\DBM;
 
 require_once('include/security.php');
 require_once('include/Photo.php');
@@ -80,7 +81,7 @@ function photo_init(App $a) {
 			intval($resolution),
 			intval($uid)
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$data = $r[0]['data'];
 			$mimetype = $r[0]['type'];
 		}
@@ -111,7 +112,7 @@ function photo_init(App $a) {
 			dbesc($photo),
 			intval($resolution)
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 
 			$sql_extra = permissions_sql($r[0]['uid']);
 
@@ -122,9 +123,9 @@ function photo_init(App $a) {
 				intval($resolution)
 			);
 
-			$public = (dbm::is_result($r)) && ($r[0]['allow_cid'] == '') && ($r[0]['allow_gid'] == '') && ($r[0]['deny_cid']  == '') && ($r[0]['deny_gid']  == '');
+			$public = (DBM::is_result($r)) && ($r[0]['allow_cid'] == '') && ($r[0]['allow_gid'] == '') && ($r[0]['deny_cid']  == '') && ($r[0]['deny_gid']  == '');
 
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$resolution = $r[0]['scale'];
 				$data = $r[0]['data'];
 				$mimetype = $r[0]['type'];

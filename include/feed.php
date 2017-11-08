@@ -1,4 +1,5 @@
 <?php
+use Friendica\Database\DBM;
 require_once("include/html2bbcode.php");
 require_once("include/items.php");
 
@@ -235,7 +236,7 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 		if (!$simulate) {
 			$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' AND `network` IN ('%s', '%s')",
 				intval($importer["uid"]), dbesc($item["uri"]), dbesc(NETWORK_FEED), dbesc(NETWORK_DFRN));
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$r[0]["id"], LOGGER_DEBUG);
 				continue;
 			}

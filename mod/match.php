@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once('include/text.php');
 require_once('include/socgraph.php');
@@ -33,7 +34,7 @@ function match_content(App $a) {
 	$r = q("SELECT `pub_keywords`, `prv_keywords` FROM `profile` WHERE `is-default` = 1 AND `uid` = %d LIMIT 1",
 		intval(local_user())
 	);
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		return;
 	}
 	if(! $r[0]['pub_keywords'] && (! $r[0]['prv_keywords'])) {

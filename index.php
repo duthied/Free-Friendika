@@ -17,6 +17,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 
 require_once 'boot.php';
 require_once 'object/BaseObject.php';
@@ -117,7 +118,7 @@ if (x($_SESSION,'authenticated') && !x($_SESSION,'language')) {
 	// we didn't loaded user data yet, but we need user language
 	$r = dba::select('user', array('language'), array('uid' => $_SESSION['uid']), array('limit' => 1));
 	$_SESSION['language'] = $lang;
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$_SESSION['language'] = $r['language'];
 	}
 }

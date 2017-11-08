@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\Database\DBM;
 
 require_once 'include/contact_selectors.php';
 
@@ -233,11 +234,11 @@ function common_friends_visitor_widget($profile_uid) {
 		if (get_my_url()) {
 			$r = dba::select('contact', array('id'),
 					array('nurl' => normalise_link(get_my_url()), 'uid' => $profile_uid), array('limit' => 1));
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$cid = $r['id'];
 			} else {
 				$r = dba::select('gcontact', array('id'), array('nurl' => normalise_link(get_my_url())), array('limit' => 1));
-				if (dbm::is_result($r))
+				if (DBM::is_result($r))
 					$zcid = $r['id'];
 			}
 		}

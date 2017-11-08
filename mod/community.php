@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 
 function community_init(App $a) {
 	if (! local_user()) {
@@ -45,7 +46,7 @@ function community_content(App $a, $update = 0) {
 
 	$r = community_getitems($a->pager['start'], $a->pager['itemspage']);
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		info( t('No results.') . EOL);
 		return $o;
 	}

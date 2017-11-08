@@ -2,6 +2,7 @@
 
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 
 require_once 'include/socgraph.php';
@@ -107,7 +108,7 @@ function discover_poco_run(&$argv, &$argc) {
 function update_server() {
 	$r = q("SELECT `url`, `created`, `last_failure`, `last_contact` FROM `gserver` ORDER BY rand()");
 
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		return;
 	}
 
@@ -213,7 +214,7 @@ function discover_directory($search) {
 		foreach ($j->results as $jj) {
 			// Check if the contact already exists
 			$exists = q("SELECT `id`, `last_contact`, `last_failure`, `updated` FROM `gcontact` WHERE `nurl` = '%s'", normalise_link($jj->url));
-			if (dbm::is_result($exists)) {
+			if (DBM::is_result($exists)) {
 				logger("Profile ".$jj->url." already exists (".$search.")", LOGGER_DEBUG);
 
 				if (($exists[0]["last_contact"] < $exists[0]["last_failure"]) &&

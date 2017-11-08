@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 function add_thread($itemid, $onlyshadow = false) {
 	$items = q("SELECT `uid`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`,
@@ -35,7 +36,7 @@ function add_shadow_thread($itemid) {
 	$items = q("SELECT `uid`, `wall`, `private`, `moderated`, `visible`, `contact-id`, `deleted`, `network`, `author-id`, `owner-id`
 		FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
 
-	if (!dbm::is_result($items)) {
+	if (!DBM::is_result($items)) {
 		return;
 	}
 
@@ -67,7 +68,7 @@ function add_shadow_thread($itemid) {
 		$r = q("SELECT `hide-friends` FROM `profile` WHERE `is-default` AND `uid` = %d AND NOT `hide-friends`",
 			$item['uid']);
 
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			return;
 		}
 
@@ -75,14 +76,14 @@ function add_shadow_thread($itemid) {
 		$r = q("SELECT `id` FROM `contact` WHERE NOT `hidden` AND NOT `blocked` AND `id` = %d",
 			$item['contact-id']);
 
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			return;
 		}
 	}
 
 	// Only add a shadow, if the profile isn't hidden
 	$r = q("SELECT `uid` FROM `user` where `uid` = %d AND NOT `hidewall`", $item['uid']);
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		return;
 	}
 
@@ -94,7 +95,7 @@ function add_shadow_thread($itemid) {
 		$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = 0 LIMIT 1",
 			dbesc($item['uri']));
 
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			// Preparing public shadow (removing user specific data)
 			require_once("include/items.php");
 			require_once("include/Contact.php");
@@ -129,7 +130,7 @@ function add_shadow_entry($itemid) {
 
 	$items = q("SELECT * FROM `item` WHERE `id` = %d", intval($itemid));
 
-	if (!dbm::is_result($items)) {
+	if (!DBM::is_result($items)) {
 		return;
 	}
 
@@ -147,12 +148,12 @@ function add_shadow_entry($itemid) {
 
 	// Is there a shadow parent?
 	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = 0 LIMIT 1", dbesc($item['parent-uri']));
-	if (!dbm::is_result($r))
+	if (!DBM::is_result($r))
 		return;
 
 	// Is there already a shadow entry?
 	$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = 0 LIMIT 1", dbesc($item['uri']));
-	if (dbm::is_result($r))
+	if (DBM::is_result($r))
 		return;
 
 	// Preparing public shadow (removing user specific data)
@@ -179,7 +180,7 @@ function add_shadow_entry($itemid) {
 function update_thread_uri($itemuri, $uid) {
 	$messages = q("SELECT `id` FROM `item` WHERE uri ='%s' AND uid=%d", dbesc($itemuri), intval($uid));
 
-	if (dbm::is_result($messages)) {
+	if (DBM::is_result($messages)) {
 		foreach ($messages as $message) {
 			update_thread($message["id"]);
 		}
@@ -190,7 +191,7 @@ function update_thread($itemid, $setmention = false) {
 	$items = q("SELECT `uid`, `guid`, `title`, `body`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`, `moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`, `gcontact-id`,
 			`deleted`, `origin`, `forum_mode`, `network`, `rendered-html`, `rendered-hash` FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
 
-	if (!dbm::is_result($items)) {
+	if (!DBM::is_result($items)) {
 		return;
 	}
 
@@ -218,7 +219,7 @@ function update_thread($itemid, $setmention = false) {
 	// Updating a shadow item entry
 	$items = q("SELECT `id` FROM `item` WHERE `guid` = '%s' AND `uid` = 0 LIMIT 1", dbesc($item["guid"]));
 
-	if (!dbm::is_result($items)) {
+	if (!DBM::is_result($items)) {
 		return;
 	}
 
@@ -235,7 +236,7 @@ function update_thread($itemid, $setmention = false) {
 function delete_thread_uri($itemuri, $uid) {
 	$messages = q("SELECT `id` FROM `item` WHERE uri ='%s' AND uid=%d", dbesc($itemuri), intval($uid));
 
-	if (dbm::is_result($messages)) {
+	if (DBM::is_result($messages)) {
 		foreach ($messages as $message) {
 			delete_thread($message["id"], $itemuri);
 		}
@@ -245,7 +246,7 @@ function delete_thread_uri($itemuri, $uid) {
 function delete_thread($itemid, $itemuri = "") {
 	$item = q("SELECT `uid` FROM `thread` WHERE `iid` = %d", intval($itemid));
 
-	if (!dbm::is_result($item)) {
+	if (!DBM::is_result($item)) {
 		logger('No thread found for id '.$itemid, LOGGER_DEBUG);
 		return;
 	}
@@ -260,7 +261,7 @@ function delete_thread($itemid, $itemuri = "") {
 				dbesc($itemuri),
 				intval($item["uid"])
 			);
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			dba::delete('item', array('uri' => $itemuri, 'uid' => 0));
 			logger("delete_thread: Deleted shadow for item ".$itemuri, LOGGER_DEBUG);
 		}

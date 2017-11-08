@@ -10,6 +10,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 
 require_once("include/enotify.php");
 require_once("include/text.php");
@@ -612,7 +613,7 @@ function admin_page_summary(App $a) {
 		dbesc(dba::database_name()));
 	$showwarning = false;
 	$warningtext = array();
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$showwarning = true;
 		$warningtext[] = sprintf(t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php include/dbstructure.php toinnodb</tt> of your Friendica installation for an automatic conversion.<br />'), 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
 	}
@@ -1337,7 +1338,7 @@ function admin_page_dbsync(App $a) {
 
 	$failed = array();
 	$r = q("SELECT `k`, `v` FROM `config` WHERE `cat` = 'database' ");
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
 			$upd = intval(substr($rr['k'],7));
 			if ($upd < 1139 || $rr['v'] === 'success') {

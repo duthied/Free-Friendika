@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once('include/socgraph.php');
 require_once('include/Contact.php');
@@ -31,7 +32,7 @@ function allfriends_content(App $a) {
 		intval(local_user())
 	);
 
-	if (! dbm::is_result($c)) {
+	if (! DBM::is_result($c)) {
 		return;
 	}
 
@@ -45,7 +46,7 @@ function allfriends_content(App $a) {
 
 	$r = all_friends(local_user(), $cid, $a->pager['start'], $a->pager['itemspage']);
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		$o .= t('No friends to display.');
 		return $o;
 	}

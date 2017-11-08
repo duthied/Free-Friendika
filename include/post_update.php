@@ -4,6 +4,7 @@
  */
 
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 
 /**
  * @brief Calls the post update functions
@@ -187,7 +188,7 @@ function post_update_1198() {
 				(`thread`.`uid` IN (SELECT `uid` from `user`) OR `thread`.`uid` = 0)");
 
 		logger("Updated threads", LOGGER_DEBUG);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			Config::set("system", "post_update_version", 1198);
 			logger("Done", LOGGER_DEBUG);
 			return true;
@@ -245,7 +246,7 @@ function post_update_1206() {
 		FROM `user`
 		INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`");
 
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		return false;
 	}
 	foreach ($r AS $user) {

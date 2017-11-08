@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once("include/text.php");
 
@@ -18,7 +19,7 @@ function manage_post(App $a) {
 		$r = q("select * from user where uid = %d limit 1",
 			intval($_SESSION['submanage'])
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$uid = intval($r[0]['uid']);
 			$orig_record = $r[0];
 		}
@@ -38,7 +39,7 @@ function manage_post(App $a) {
 	$limited_id = 0;
 	$original_id = $uid;
 
-	if (dbm::is_result($submanage)) {
+	if (DBM::is_result($submanage)) {
 		foreach ($submanage as $m) {
 			if ($identity == $m['mid']) {
 				$limited_id = $m['mid'];
@@ -59,7 +60,7 @@ function manage_post(App $a) {
 		);
 	}
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		return;
 	}
 
@@ -128,21 +129,21 @@ function manage_content(App $a) {
 		$r = q("SELECT DISTINCT(`parent`) FROM `notify` WHERE `uid` = %d AND NOT `seen` AND NOT (`type` IN (%d, %d))",
 			intval($id['uid']), intval(NOTIFY_INTRO), intval(NOTIFY_MAIL));
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$notifications = sizeof($r);
 		}
 
 		$r = q("SELECT DISTINCT(`convid`) FROM `mail` WHERE `uid` = %d AND NOT `seen`",
 			intval($id['uid']));
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$notifications = $notifications + sizeof($r);
 		}
 
 		$r = q("SELECT COUNT(*) AS `introductions` FROM `intro` WHERE NOT `blocked` AND NOT `ignore` AND `uid` = %d",
 			intval($id['uid']));
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$notifications = $notifications + $r[0]["introductions"];
 		}
 

@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Database\DBM;
 
 require_once('include/socgraph.php');
 require_once('include/Contact.php');
@@ -34,14 +35,14 @@ function common_content(App $a) {
 			intval($cid),
 			intval($uid)
 		);
-		/// @TODO Handle $c with dbm::is_result()
+		/// @TODO Handle $c with DBM::is_result()
 		$a->page['aside'] = "";
 		profile_load($a, "", 0, get_contact_details_by_url($c[0]["url"]));
 	} else {
 		$c = q("SELECT `name`, `url`, `photo` FROM `contact` WHERE `self` = 1 AND `uid` = %d LIMIT 1",
 			intval($uid)
 		);
-		/// @TODO Handle $c with dbm::is_result()
+		/// @TODO Handle $c with DBM::is_result()
 
 		$vcard_widget .= replace_macros(get_markup_template("vcard-widget.tpl"),array(
 			'$name' => htmlentities($c[0]['name']),
@@ -55,7 +56,7 @@ function common_content(App $a) {
 		$a->page['aside'] .= $vcard_widget;
 	}
 
-	if (! dbm::is_result($c)) {
+	if (! DBM::is_result($c)) {
 		return;
 	}
 
@@ -65,13 +66,13 @@ function common_content(App $a) {
 				dbesc(normalise_link(get_my_url())),
 				intval($profile_uid)
 			);
-			if (dbm::is_result($r))
+			if (DBM::is_result($r))
 				$cid = $r[0]['id'];
 			else {
 				$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 					dbesc(normalise_link(get_my_url()))
 				);
-				if (dbm::is_result($r))
+				if (DBM::is_result($r))
 					$zcid = $r[0]['id'];
 			}
 		}
@@ -102,7 +103,7 @@ function common_content(App $a) {
 	}
 
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		return $o;
 	}
 

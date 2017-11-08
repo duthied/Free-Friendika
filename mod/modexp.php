@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Database\DBM;
 
 require_once('library/asn1.php');
 
@@ -14,7 +15,7 @@ function modexp_init(App $a) {
 			dbesc($nick)
 	);
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		killme();
 	}
 

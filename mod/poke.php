@@ -17,6 +17,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 
 require_once('include/security.php');
 require_once('include/bbcode.php');
@@ -59,7 +60,7 @@ function poke_init(App $a) {
 		intval($uid)
 	);
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		logger('poke: no contact ' . $contact_id);
 		return;
 	}
@@ -73,7 +74,7 @@ function poke_init(App $a) {
 			intval($parent),
 			intval($uid)
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$parent_uri = $r[0]['uri'];
 			$private    = $r[0]['private'];
 			$allow_cid  = $r[0]['allow_cid'];
@@ -166,7 +167,7 @@ function poke_content(App $a) {
 			intval($_GET['c']),
 			intval(local_user())
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$name = $r[0]['name'];
 			$id = $r[0]['id'];
 		}

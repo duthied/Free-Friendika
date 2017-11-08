@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 function starred_init(App $a) {
 
@@ -23,7 +24,7 @@ function starred_init(App $a) {
 		intval(local_user()),
 		intval($message_id)
 	);
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		killme();
 	}
 

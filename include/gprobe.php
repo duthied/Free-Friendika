@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 
 require_once 'include/socgraph.php';
@@ -18,7 +19,7 @@ function gprobe_run(&$argv, &$argc){
 
 	logger("gprobe start for ".normalise_link($url), LOGGER_DEBUG);
 
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 
 		// Is it a DDoS attempt?
 		$urlparts = parse_url($url);
@@ -45,7 +46,7 @@ function gprobe_run(&$argv, &$argc){
 			dbesc(normalise_link($url))
 		);
 	}
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		// Check for accessibility and do a poco discovery
 		if (poco_last_updated($r[0]['url'], true) && ($r[0]["network"] == NETWORK_DFRN))
 			poco_load(0,0,$r[0]['id'], str_replace('/profile/','/poco/',$r[0]['url']));

@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 
 require_once('include/api.php');
 
@@ -17,7 +18,7 @@ function oauth_get_client($request){
 			AND `tokens`.`id`='%s' AND `tokens`.`scope`='request'",
 			dbesc($token));
 
-	if (!dbm::is_result($r))
+	if (!DBM::is_result($r))
 		return null;
 
 	return $r[0];
