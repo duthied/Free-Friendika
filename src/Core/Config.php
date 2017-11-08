@@ -1,15 +1,15 @@
 <?php
+/**
+ * System Configuration Class
+ *
+ * @file include/Core/Config.php
+ *
+ * @brief Contains the class with methods for system configuration
+ */
 namespace Friendica\Core;
 
 use Friendica\Database\DBM;
 use dba;
-
-/**
- * @file include/Core/Config.php
- *
- *  @brief Contains the class with methods for system configuration
- */
-
 
 /**
  * @brief Arbitrary sytem configuration storage
@@ -87,7 +87,6 @@ class Config {
 		$a = get_app();
 
 		if (!$refresh) {
-
 			// Do we have the cached value? Then return it
 			if (isset(self::$cache[$family][$key])) {
 				if (self::$cache[$family][$key] === '!<unset>!') {
@@ -108,7 +107,6 @@ class Config {
 			self::$in_db[$family][$key] = true;
 			return $val;
 		} elseif (isset($a->config[$family][$key])) {
-
 			// Assign the value (mostly) from the .htconfig.php to the cache
 			self::$cache[$family][$key] = $a->config[$family][$key];
 			self::$in_db[$family][$key] = false;
