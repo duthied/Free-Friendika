@@ -24,6 +24,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\Core\Worker;
 use Friendica\Util\Lock;
 
 require_once 'include/network.php';
