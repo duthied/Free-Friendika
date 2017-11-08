@@ -7,12 +7,12 @@
 
 	$color = false;
 	$quattro_align = false;
-	$site_color = Config::get("quattro", "color", "dark);
+	$site_color = Config::get("quattro", "color", "dark");
 	$site_quattro_align = Config::get("quattro", "align", false);
 
 	if ($uid) {
-		$color = PConfig::get($uid, "quattro", "color");
-		$quattro_align = PConfig::get($uid, 'quattro', 'align');
+		$color = PConfig::get($uid, "quattro", "color", false);
+		$quattro_align = PConfig::get($uid, 'quattro', 'align', false);
 	}
 
 	if ($color === false) {

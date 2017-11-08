@@ -2234,7 +2234,7 @@ function admin_page_features_post(App $a) {
 			} else {
 				$val = 0;
 			}
-			Config::set('feature',$feature,$val);
+			Config::set('feature', $feature, $val);
 
 			if (x($_POST, $featurelock)) {
 				Config::set('feature_lock', $feature, $val);
