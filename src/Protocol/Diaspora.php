@@ -18,6 +18,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 
+use Cache;
 use dba;
 use SimpleXMLElement;
 use xml;
@@ -30,7 +31,6 @@ require_once 'include/socgraph.php';
 require_once 'include/group.php';
 require_once 'include/datetime.php';
 require_once 'include/queue_fn.php';
-require_once 'include/cache.php';
 
 /**
  * @brief This class contain functions to create and send Diaspora XML files
