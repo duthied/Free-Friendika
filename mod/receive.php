@@ -6,10 +6,10 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Protocol\Diaspora;
 
 require_once('include/salmon.php');
 require_once('include/crypto.php');
-require_once('include/diaspora.php');
 
 function receive_post(App $a) {
 	$enabled = intval(Config::get('system', 'diaspora_enabled'));

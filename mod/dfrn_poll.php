@@ -3,10 +3,10 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Protocol\Dfrn;
 
 require_once('include/items.php');
 require_once('include/auth.php');
-require_once('include/dfrn.php');
 require_once('include/ostatus.php');
 
 function dfrn_poll_init(App $a) {
@@ -58,7 +58,7 @@ function dfrn_poll_init(App $a) {
 
 		logger('dfrn_poll: public feed request from ' . $_SERVER['REMOTE_ADDR'] . ' for ' . $user);
 		header("Content-type: application/atom+xml");
-		echo dfrn::feed('', $user,$last_update, 0, $hidewall);
+		echo Dfrn::feed('', $user,$last_update, 0, $hidewall);
 		killme();
 	}
 
@@ -387,7 +387,7 @@ function dfrn_poll_post(App $a) {
 		}
 
 		header("Content-type: application/atom+xml");
-		$o = dfrn::feed($dfrn_id, $a->argv[1], $last_update, $direction);
+		$o = Dfrn::feed($dfrn_id, $a->argv[1], $last_update, $direction);
 		echo $o;
 		killme();
 

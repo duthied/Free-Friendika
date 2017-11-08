@@ -6,9 +6,9 @@
  */
 
 use Friendica\App;
+use Friendica\Core\NotificationsManager;
 use Friendica\Core\System;
 
-require_once("include/NotificationsManager.php");
 require_once("include/contact_selectors.php");
 require_once("include/network.php");
 

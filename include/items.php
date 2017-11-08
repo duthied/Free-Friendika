@@ -11,6 +11,7 @@ use Friendica\Util\Lock;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
+use Friendica\Protocol\Dfrn;
 
 require_once 'include/bbcode.php';
 require_once 'include/oembed.php';
@@ -29,7 +30,6 @@ require_once 'include/feed.php';
 require_once 'include/Contact.php';
 require_once 'mod/share.php';
 require_once 'include/enotify.php';
-require_once 'include/dfrn.php';
 require_once 'include/group.php';
 
 /// @TODO one day with composer autoloader no more needed
@@ -1564,7 +1564,7 @@ function consume_feed($xml, $importer, &$contact, &$hub, $datedir = 0, $pass = 0
 		);
 		if (dbm::is_result($r)) {
 			logger("Now import the DFRN feed");
-			dfrn::import($xml, $r[0], true);
+			Dfrn::import($xml, $r[0], true);
 			return;
 		}
 	}

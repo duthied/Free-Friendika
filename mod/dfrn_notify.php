@@ -8,9 +8,9 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Protocol\Dfrn;
 
 require_once('include/items.php');
-require_once('include/dfrn.php');
 require_once('include/event.php');
 
 require_once('library/defuse/php-encryption-1.2.1/Crypto.php');
@@ -180,7 +180,7 @@ function dfrn_notify_post(App $a) {
 				 *we got a key. old code send only the key, without RINO version.
 				 * we assume RINO 1 if key and no RINO version
 				 */
-				$data = dfrn::aes_decrypt(hex2bin($data), $final_key);
+				$data = Dfrn::aes_decrypt(hex2bin($data), $final_key);
 				break;
 			case 2:
 				try {
@@ -212,7 +212,7 @@ function dfrn_notify_post(App $a) {
 		logger('rino: decrypted data: ' . $data, LOGGER_DATA);
 	}
 
-	$ret = dfrn::import($data, $importer);
+	$ret = Dfrn::import($data, $importer);
 	xml_status($ret, 'Processed');
 
 	// NOTREACHED

@@ -5,13 +5,13 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Network\Probe;
+use Friendica\Protocol\Diaspora;
 
 require_once 'include/socgraph.php';
 require_once 'include/group.php';
 require_once 'include/salmon.php';
 require_once 'include/ostatus.php';
 require_once 'include/Photo.php';
-require_once 'include/diaspora.php';
 
 function update_contact($id) {
 	/*

@@ -24,6 +24,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Network\Probe;
+use Friendica\Protocol\Diaspora;
 
 require_once 'include/enotify.php';
 require_once 'include/group.php';
@@ -438,7 +439,6 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 		if ((isset($new_relation) && $new_relation == CONTACT_IS_FRIEND)) {
 
 			if (($contact) && ($contact['network'] === NETWORK_DIASPORA)) {
-				require_once 'include/diaspora.php';
 				$ret = Diaspora::send_share($user[0],$r[0]);
 				logger('share returns: ' . $ret);
 			}

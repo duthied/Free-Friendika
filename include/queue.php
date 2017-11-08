@@ -2,9 +2,10 @@
 
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Protocol\Diaspora;
+use Friendica\Protocol\Dfrn;
 
 require_once 'include/queue_fn.php';
-require_once 'include/dfrn.php';
 require_once 'include/datetime.php';
 require_once 'include/items.php';
 require_once 'include/bbcode.php';
@@ -63,7 +64,6 @@ function queue_run(&$argv, &$argc) {
 	// delivering
 
 	require_once 'include/salmon.php';
-	require_once 'include/diaspora.php';
 
 	$r = q("SELECT * FROM `queue` WHERE `id` = %d LIMIT 1",
 		intval($queue_id));
@@ -129,7 +129,7 @@ function queue_run(&$argv, &$argc) {
 	switch ($contact['network']) {
 		case NETWORK_DFRN:
 			logger('queue: dfrndelivery: item '.$q_item['id'].' for '.$contact['name'].' <'.$contact['url'].'>');
-			$deliver_status = dfrn::deliver($owner, $contact, $data);
+			$deliver_status = Dfrn::deliver($owner, $contact, $data);
 
 			if ($deliver_status == (-1)) {
 				update_queue_time($q_item['id']);
