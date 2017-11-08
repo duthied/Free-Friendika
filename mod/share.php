@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Database\DBM;
 
 function share_init(App $a) {
 
@@ -15,7 +16,7 @@ function share_init(App $a) {
 		intval($post_id),
 		intval(local_user())
 	);
-	if(! dbm::is_result($r) || ($r[0]['private'] == 1))
+	if(! DBM::is_result($r) || ($r[0]['private'] == 1))
 		killme();
 
 	if (strpos($r[0]['body'], "[/share]") !== false) {

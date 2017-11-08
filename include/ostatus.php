@@ -6,6 +6,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 use Friendica\Util\Lock;
 
@@ -70,7 +71,7 @@ class ostatus {
 					$importer["uid"], $aliaslink, NETWORK_STATUSNET);
 			$r = dba::select('contact', array(), $condition, array('limit' => 1));
 
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$found = true;
 				if ($r['blocked']) {
 					$r['id'] = -1;
@@ -89,7 +90,7 @@ class ostatus {
 					normalise_link($author["author-link"]), normalise_link($aliaslink), NETWORK_STATUSNET);
 			$r = dba::select('contact', array(), $condition, array('limit' => 1));
 
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$found = true;
 				if ($r['blocked']) {
 					$r['id'] = -1;
@@ -104,7 +105,7 @@ class ostatus {
 					$importer["uid"], $addr, NETWORK_STATUSNET);
 			$r = dba::select('contact', array(), $condition, array('limit' => 1));
 
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$found = true;
 				if ($r['blocked']) {
 					$r['id'] = -1;
@@ -529,7 +530,7 @@ class ostatus {
 
 		$condition = array('uid' => $item['uid'], 'author-link' => $item['author-link'], 'uri' => $item['uri']);
 		$deleted = dba::select('item', array('id', 'parent-uri'), $condition, array('limit' => 1));
-		if (!dbm::is_result($deleted)) {
+		if (!DBM::is_result($deleted)) {
 			logger('Item from '.$item['author-link'].' with uri '.$item['uri'].' for user '.$item['uid']." wasn't found. We don't delete it. ");
 			return;
 		}
@@ -868,7 +869,7 @@ class ostatus {
 	private static function fetchRelated($related, $related_uri, $importer) {
 		$condition = array('`item-uri` = ? AND `protocol` IN (?, ?)', $related_uri, PROTOCOL_DFRN, PROTOCOL_OSTATUS_SALMON);
 		$conversation = dba::select('conversation', array('source', 'protocol'), $condition,  array('limit' => 1));
-		if (dbm::is_result($conversation)) {
+		if (DBM::is_result($conversation)) {
 			$stored = true;
 			$xml = $conversation['source'];
 			if (self::process($xml, $importer, $contact, $hub, $stored, false)) {
@@ -948,7 +949,7 @@ class ostatus {
 		if ($xml == '') {
 			$condition = array('item-uri' => $related_uri, 'protocol' => PROTOCOL_SPLITTED_CONV);
 			$conversation = dba::select('conversation', array('source'), $condition,  array('limit' => 1));
-			if (dbm::is_result($conversation)) {
+			if (DBM::is_result($conversation)) {
 				$stored = true;
 				logger('Got cached XML from conversation for URI '.$related_uri, LOGGER_DEBUG);
 				$xml = $conversation['source'];
@@ -1336,7 +1337,7 @@ class ostatus {
 	private static function add_author($doc, $owner) {
 
 		$r = q("SELECT `homepage`, `publish` FROM `profile` WHERE `uid` = %d AND `is-default` LIMIT 1", intval($owner["uid"]));
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$profile = $r[0];
 		}
 		$author = $doc->createElement("author");
@@ -1493,22 +1494,22 @@ class ostatus {
 
 		$r = q("SELECT * FROM `contact` WHERE `nurl` = '%s' AND `uid` IN (0, %d) ORDER BY `uid` DESC LIMIT 1",
 			dbesc(normalise_link($url)), intval($owner["uid"]));
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$contact = $r[0];
 			$contact["uid"] = -1;
 		}
 
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			$r = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 				dbesc(normalise_link($url)));
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$contact = $r[0];
 				$contact["uid"] = -1;
 				$contact["success_update"] = $contact["updated"];
 			}
 		}
 
-		if (!dbm::is_result($r))
+		if (!DBM::is_result($r))
 			$contact = owner;
 
 		if (!isset($contact["poll"])) {
@@ -1547,7 +1548,7 @@ class ostatus {
 		$r = q("SELECT * FROM `item` WHERE `uid` = %d AND `guid` = '%s' AND NOT `private` AND `network` IN ('%s', '%s', '%s') LIMIT 1",
 			intval($owner["uid"]), dbesc($repeated_guid),
 			dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS));
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$repeated_item = $r[0];
 		} else {
 			return false;
@@ -1702,7 +1703,7 @@ class ostatus {
 		$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s'",
 			intval($owner['uid']), dbesc(normalise_link($contact["url"])));
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$connect_id = $r[0]['id'];
 		} else {
 			$connect_id = 0;
@@ -1886,7 +1887,7 @@ class ostatus {
 
 			if (isset($parent_item)) {
 				$r = dba::fetch_first("SELECT `conversation-uri`, `conversation-href` FROM `conversation` WHERE `item-uri` = ?", $parent_item);
-				if (dbm::is_result($r)) {
+				if (DBM::is_result($r)) {
 					if ($r['conversation-uri'] != '') {
 						$conversation_uri = $r['conversation-uri'];
 					}
@@ -1996,7 +1997,7 @@ class ostatus {
 				FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
 				WHERE `contact`.`self` AND `user`.`nickname` = '%s' LIMIT 1",
 				dbesc($owner_nick));
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			return;
 		}
 

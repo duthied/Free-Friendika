@@ -7,6 +7,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once("include/photos.php");
 
@@ -630,7 +631,7 @@ class Photo {
 	public function store($uid, $cid, $rid, $filename, $album, $scale, $profile = 0, $allow_cid = '', $allow_gid = '', $deny_cid = '', $deny_gid = '', $desc = '') {
 
 		$r = dba::select('photo', array('guid'), array("`resource-id` = ? AND `guid` != ?", $rid, ''), array('limit' => 1));
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$guid = $r['guid'];
 		} else {
 			$guid = get_guid();
@@ -643,7 +644,7 @@ class Photo {
 				'datasize' => strlen($this->imageString()), 'data' => $this->imageString(), 'scale' => $scale, 'profile' => $profile,
 				'allow_cid' => $allow_cid, 'allow_gid' => $allow_gid, 'deny_cid' => $deny_cid, 'deny_gid' => $deny_gid, 'desc' => $desc);
 
-		if (dbm::is_result($x)) {
+		if (DBM::is_result($x)) {
 			$r = dba::update('photo', $fields, array('id' => $x['id']));
 		} else {
 			$r = dba::insert('photo', $fields);
@@ -713,7 +714,7 @@ function guess_image_type($filename, $fromcurl=false) {
  */
 function update_contact_avatar($avatar, $uid, $cid, $force = false) {
 	$r = q("SELECT `avatar`, `photo`, `thumb`, `micro`, `nurl` FROM `contact` WHERE `id` = %d LIMIT 1", intval($cid));
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		return false;
 	} else {
 		$data = array($r[0]["photo"], $r[0]["thumb"], $r[0]["micro"]);
@@ -730,7 +731,7 @@ function update_contact_avatar($avatar, $uid, $cid, $force = false) {
 			// Update the public contact (contact id = 0)
 			if ($uid != 0) {
 				$pcontact = dba::select('contact', array('id'), array('nurl' => $r[0]['nurl']), array('limit' => 1));
-				if (dbm::is_result($pcontact)) {
+				if (DBM::is_result($pcontact)) {
 					update_contact_avatar($avatar, 0, $pcontact['id'], $force);
 				}
 			}
@@ -748,7 +749,7 @@ function import_profile_photo($photo, $uid, $cid, $quit_on_error = false) {
 		intval($uid),
 		intval($cid)
 	);
-	if (dbm::is_result($r) && strlen($r[0]['resource-id'])) {
+	if (DBM::is_result($r) && strlen($r[0]['resource-id'])) {
 		$hash = $r[0]['resource-id'];
 	} else {
 		$hash = photo_new_resource();
@@ -919,7 +920,7 @@ function store_photo(App $a, $uid, $imagedata = "", $url = "") {
 		WHERE `user`.`uid` = %d AND `user`.`blocked` = 0 AND `contact`.`self` = 1 LIMIT 1",
 		intval($uid));
 
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		logger("Can't detect user data for uid ".$uid, LOGGER_DEBUG);
 		return(array());
 	}

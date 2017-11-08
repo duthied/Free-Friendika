@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 function msearch_post(App $a) {
 
@@ -17,7 +18,7 @@ function msearch_post(App $a) {
 		dbesc($search)
 	);
 
-	if (dbm::is_result($r))
+	if (DBM::is_result($r))
 		$total = $r[0]['total'];
 
 	$results = array();
@@ -28,7 +29,7 @@ function msearch_post(App $a) {
 		intval($perpage)
 	);
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach($r as $rr)
 			$results[] = array(
 				'name' => $rr['name'],

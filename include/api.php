@@ -11,6 +11,7 @@ use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 
 require_once 'include/HTTPExceptions.php';
 require_once 'include/bbcode.php';
@@ -211,7 +212,7 @@ $called_api = null;
 				dbesc(trim($user)),
 				dbesc($encrypted)
 			);
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$record = $r[0];
 			}
 		}
@@ -460,7 +461,7 @@ $called_api = null;
 	function api_unique_id_to_url($id) {
 		$r = dba::select('contact', array('url'), array('uid' => 0, 'id' => $id), array('limit' => 1));
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			return $r["url"];
 		} else {
 			return false;
@@ -591,14 +592,14 @@ $called_api = null;
 		api_best_nickname($uinfo);
 
 		// if the contact wasn't found, fetch it from the contacts with uid = 0
-		if (!dbm::is_result($uinfo)) {
+		if (!DBM::is_result($uinfo)) {
 			$r = array();
 
 			if ($url != "") {
 				$r = q("SELECT * FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s' LIMIT 1", dbesc(normalise_link($url)));
 			}
 
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$network_name = network_to_name($r[0]['network'], $r[0]['url']);
 
 				// If no nick where given, extract it from the address
@@ -1092,7 +1093,7 @@ $called_api = null;
 					AND `created` > '%s' AND `id` = `parent`",
 					intval(api_user()), dbesc($datefrom));
 
-				if (dbm::is_result($r)) {
+				if (DBM::is_result($r)) {
 					$posts_day = $r[0]["posts_day"];
 				} else {
 					$posts_day = 0;
@@ -1113,7 +1114,7 @@ $called_api = null;
 					AND `created` > '%s' AND `id` = `parent`",
 					intval(api_user()), dbesc($datefrom));
 
-				if (dbm::is_result($r)) {
+				if (DBM::is_result($r)) {
 					$posts_week = $r[0]["posts_week"];
 				} else {
 					$posts_week = 0;
@@ -1134,7 +1135,7 @@ $called_api = null;
 					AND `created` > '%s' AND `id` = `parent`",
 					intval(api_user()), dbesc($datefrom));
 
-				if (dbm::is_result($r)) {
+				if (DBM::is_result($r)) {
 					$posts_month = $r[0]["posts_month"];
 				} else {
 					$posts_month = 0;
@@ -1163,7 +1164,7 @@ $called_api = null;
 		if (requestdata('media_ids')) {
 			$r = q("SELECT `resource-id`, `scale`, `nickname`, `type` FROM `photo` INNER JOIN `user` ON `user`.`uid` = `photo`.`uid` WHERE `resource-id` IN (SELECT `resource-id` FROM `photo` WHERE `id` = %d) AND `scale` > 0 AND `photo`.`uid` = %d ORDER BY `photo`.`width` DESC LIMIT 1",
 				intval(requestdata('media_ids')), api_user());
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$phototypes = Photo::supportedTypes();
 				$ext = $phototypes[$r[0]['type']];
 				$_REQUEST['body'] .= "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $r[0]['nickname'] . '/image/' . $r[0]['resource-id'] . ']';
@@ -1258,7 +1259,7 @@ $called_api = null;
 				dbesc(normalise_link($user_info['url']))
 		);
 
-		if (dbm::is_result($lastwall)) {
+		if (DBM::is_result($lastwall)) {
 			$lastwall = $lastwall[0];
 
 			$in_reply_to = api_in_reply_to($lastwall);
@@ -1356,7 +1357,7 @@ $called_api = null;
 				dbesc(normalise_link($user_info['url']))
 		);
 
-		if (dbm::is_result($lastwall)) {
+		if (DBM::is_result($lastwall)) {
 			$lastwall = $lastwall[0];
 
 			$in_reply_to = api_in_reply_to($lastwall);
@@ -1428,11 +1429,11 @@ $called_api = null;
 		if (x($_GET, 'q')) {
 			$r = q("SELECT id FROM `contact` WHERE `uid` = 0 AND `name` = '%s'", dbesc($_GET["q"]));
 
-			if (!dbm::is_result($r)) {
+			if (!DBM::is_result($r)) {
 				$r = q("SELECT `id` FROM `contact` WHERE `uid` = 0 AND `nick` = '%s'", dbesc($_GET["q"]));
 			}
 
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$k = 0;
 				foreach ($r AS $user) {
 					$user_info = api_get_user($a, $user["id"], "json");
@@ -1681,7 +1682,7 @@ $called_api = null;
 		);
 
 		/// @TODO How about copying this to above methods which don't check $r ?
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			throw new BadRequestException("There is no status with this id.");
 		}
 
@@ -1736,7 +1737,7 @@ $called_api = null;
 		logger('API: api_conversation_show: '.$id);
 
 		$r = q("SELECT `parent` FROM `item` WHERE `id` = %d", intval($id));
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$id = $r[0]["parent"];
 		}
 
@@ -1769,7 +1770,7 @@ $called_api = null;
 			intval($start), intval($count)
 		);
 
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			throw new BadRequestException("There is no status with this id.");
 		}
 
@@ -1827,7 +1828,7 @@ $called_api = null;
 		);
 
 		/// @TODO other style than above functions!
-		if (dbm::is_result($r) && $r[0]['body'] != "") {
+		if (DBM::is_result($r) && $r[0]['body'] != "") {
 			if (strpos($r[0]['body'], "[/share]") !== false) {
 				$pos = strpos($r[0]['body'], "[share");
 				$post = substr($r[0]['body'], $pos);
@@ -2093,7 +2094,7 @@ $called_api = null;
 		$item = q("SELECT * FROM `item` WHERE `id`=%d AND `uid`=%d LIMIT 1",
 				$itemid, api_user());
 
-		if (!dbm::is_result($item) || count($item) == 0) {
+		if (!DBM::is_result($item) || count($item) == 0) {
 			throw new BadRequestException("Invalid item.");
 		}
 
@@ -3004,7 +3005,7 @@ $called_api = null;
 			intval(api_user())
 		);
 
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			return;
 		}
 
@@ -3138,7 +3139,7 @@ $called_api = null;
 			intval($id));
 
 		// error message if specified id is not in database
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			if ($verbose == "true") {
 				$answer = array('result' => 'error', 'message' => 'message id not in database');
 				return api_format_data("direct_messages_delete", $type, array('$result' => $answer));
@@ -3229,7 +3230,7 @@ $called_api = null;
 				intval($since_id),
 				intval($start),	intval($count)
 		);
-		if ($verbose == "true" && !dbm::is_result($r)) {
+		if ($verbose == "true" && !DBM::is_result($r)) {
 			$answer = array('result' => 'error', 'message' => 'no mails available');
 			return api_format_data("direct_messages_all", $type, array('$result' => $answer));
 		}
@@ -3334,7 +3335,7 @@ $called_api = null;
 		$r = q("SELECT DISTINCT `resource-id` FROM `photo` WHERE `uid` = %d AND `album` = '%s'",
 				intval(api_user()),
 				dbesc($album));
-		if (!dbm::is_result($r))
+		if (!DBM::is_result($r))
 			throw new BadRequestException("album not available");
 
 		// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
@@ -3345,7 +3346,7 @@ $called_api = null;
 						dbesc($rr['resource-id'])
 						);
 
-			if (!dbm::is_result($photo_item)) {
+			if (!DBM::is_result($photo_item)) {
 				throw new InternalServerErrorException("problem with deleting items occured");
 			}
 			drop_item($photo_item[0]['id'],false);
@@ -3391,7 +3392,7 @@ $called_api = null;
 		$r = q("SELECT `id` FROM `photo` WHERE `uid` = %d AND `album` = '%s'",
 				intval(api_user()),
 				dbesc($album));
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			throw new BadRequestException("album not available");
 		}
 		// now let's update all photos to the albumname
@@ -3431,7 +3432,7 @@ $called_api = null;
 			'image/gif' => 'gif'
 		);
 		$data = array('photo'=>array());
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			foreach ($r as $rr) {
 				$photo = array();
 				$photo['id'] = $rr['resource-id'];
@@ -3500,7 +3501,7 @@ $called_api = null;
 					intval(api_user()),
 					dbesc($photo_id),
 					dbesc($album));
-			if (!dbm::is_result($r)) {
+			if (!DBM::is_result($r)) {
 				throw new BadRequestException("photo not available");
 			}
 		}
@@ -3620,7 +3621,7 @@ $called_api = null;
 				intval(api_user()),
 				dbesc($photo_id)
 			);
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			throw new BadRequestException("photo not available");
 		}
 		// now we can perform on the deletion of the photo
@@ -3636,7 +3637,7 @@ $called_api = null;
 				dbesc($photo_id)
 				);
 
-			if (!dbm::is_result($photo_item)) {
+			if (!DBM::is_result($photo_item)) {
 				throw new InternalServerErrorException("problem with deleting items occured");
 			}
 			// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
@@ -3699,7 +3700,7 @@ $called_api = null;
 				intval(api_user()),
 				intval($profileid));
 			// error message if specified profile id is not in database
-			if (!dbm::is_result($r)) {
+			if (!DBM::is_result($r)) {
 				throw new BadRequestException("profile_id not available");
 			}
 			$is_default_profile = $r['profile'];
@@ -3804,7 +3805,7 @@ $called_api = null;
 			$contact = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d",
 							intval($cid),
 							intval(api_user()));
-			$contact_not_found |= !dbm::is_result($contact);
+			$contact_not_found |= !DBM::is_result($contact);
 		}
 		return $contact_not_found;
 	}
@@ -4020,7 +4021,7 @@ $called_api = null;
 		);
 
 		// prepare output data for photo
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$data = array('photo' => $r[0]);
 			$data['photo']['id'] = $data['photo']['resource-id'];
 			if ($scale !== false) {
@@ -4129,7 +4130,7 @@ $called_api = null;
 			intval(api_user())
 		);
 
-		if ((! dbm::is_result($r)) || ($r[0]['network'] !== NETWORK_DFRN)) {
+		if ((! DBM::is_result($r)) || ($r[0]['network'] !== NETWORK_DFRN)) {
 			throw new BadRequestException("Unknown contact");
 		}
 
@@ -4276,7 +4277,7 @@ $called_api = null;
 		$r = q("SELECT `nick` FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s'",
 			dbesc(normalise_link($profile)));
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$nick = $r[0]["nick"];
 		}
 
@@ -4284,7 +4285,7 @@ $called_api = null;
 			$r = q("SELECT `nick` FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s'",
 				dbesc(normalise_link($profile)));
 
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$nick = $r[0]["nick"];
 			}
 		}
@@ -4355,7 +4356,7 @@ $called_api = null;
 				intval($item['uid']),
 				dbesc($item['thr-parent']));
 
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$in_reply_to['status_id'] = intval($r[0]['id']);
 			} else {
 				$in_reply_to['status_id'] = intval($item['parent']);
@@ -4369,7 +4370,7 @@ $called_api = null;
 				intval($in_reply_to['status_id'])
 			);
 
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				if ($r[0]['nick'] == "") {
 					$r[0]['nick'] = api_get_nick($r[0]["url"]);
 				}
@@ -4503,7 +4504,7 @@ $called_api = null;
 				intval($uid),
 				intval($gid));
 			// error message if specified gid is not in database
-			if (!dbm::is_result($r))
+			if (!DBM::is_result($r))
 				throw new BadRequestException("gid not available");
 		}
 		else
@@ -4558,7 +4559,7 @@ $called_api = null;
 			intval($uid),
 			intval($gid));
 		// error message if specified gid is not in database
-		if (!dbm::is_result($r))
+		if (!DBM::is_result($r))
 			throw new BadRequestException('gid not available');
 
 		// get data of the specified group id and group name
@@ -4567,7 +4568,7 @@ $called_api = null;
 			intval($gid),
 			dbesc($name));
 		// error message if specified gid is not in database
-		if (!dbm::is_result($rname))
+		if (!DBM::is_result($rname))
 			throw new BadRequestException('wrong group name');
 
 		// delete group
@@ -4606,7 +4607,7 @@ $called_api = null;
 			intval($uid),
 			dbesc($name));
 		// error message if specified group name already exists
-		if (dbm::is_result($rname))
+		if (DBM::is_result($rname))
 			throw new BadRequestException('group name already exists');
 
 		// check if specified group name is a deleted group
@@ -4614,7 +4615,7 @@ $called_api = null;
 			intval($uid),
 			dbesc($name));
 		// error message if specified group name already exists
-		if (dbm::is_result($rname))
+		if (DBM::is_result($rname))
 			$reactivate_group = true;
 
 		// create group
@@ -4845,7 +4846,7 @@ $called_api = null;
 			intval($uid));
 
 		// error message if specified id is not in database
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			$answer = array('result' => 'error', 'message' => 'message id not in database');
 			return api_format_data("direct_messages_setseen", $type, array('$result' => $answer));
 		}
@@ -4903,7 +4904,7 @@ $called_api = null;
 		$profile_url = $user_info["url"];
 
 		// message if nothing was found
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			$success = array('success' => false, 'search_results' => 'problem with query');
 		} elseif (count($r) == 0) {
 			$success = array('success' => false, 'search_results' => 'nothing found');
@@ -4956,7 +4957,7 @@ $called_api = null;
 				intval($profileid));
 
 			// error message if specified gid is not in database
-			if (!dbm::is_result($r)) {
+			if (!DBM::is_result($r)) {
 				throw new BadRequestException("profile_id not available");
 			}
 		} else {

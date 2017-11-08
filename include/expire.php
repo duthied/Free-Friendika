@@ -2,6 +2,7 @@
 
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 
 function expire_run(&$argv, &$argc){
 	global $a;
@@ -30,7 +31,7 @@ function expire_run(&$argv, &$argc){
 		return;
 	} elseif (($argc == 2) && (intval($argv[1]) > 0)) {
 		$user = dba::select('user', array('uid', 'username', 'expire'), array('uid' => $argv[1]), array('limit' => 1));
-		if (dbm::is_result($user)) {
+		if (DBM::is_result($user)) {
 			logger('Expire items for user '.$user['uid'].' ('.$user['username'].') - interval: '.$user['expire'], LOGGER_DEBUG);
 			item_expire($user['uid'], $user['expire']);
 			logger('Expire items for user '.$user['uid'].' ('.$user['username'].') - done ', LOGGER_DEBUG);

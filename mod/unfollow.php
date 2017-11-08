@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once 'include/follow.php';
 require_once 'include/Contact.php';
@@ -28,7 +29,7 @@ function unfollow_post(App $a) {
 			normalise_link($url), $url, NETWORK_STATUSNET);
 	$contact = dba::select('contact', array(), $condition, array('limit' => 1));
 
-	if (!dbm::is_result($contact)) {
+	if (!DBM::is_result($contact)) {
 		notice(t("Contact wasn't found or can't be unfollowed."));
 	} else {
 		if (in_array($contact['network'], array(NETWORK_OSTATUS, NETWORK_DIASPORA))) {
@@ -36,7 +37,7 @@ function unfollow_post(App $a) {
 				WHERE `user`.`uid` = %d AND `contact`.`self` LIMIT 1",
 				intval($uid)
 			);
- 			if (dbm::is_result($r)) {
+ 			if (DBM::is_result($r)) {
 				$self = ""; // Unused parameter
 				terminate_friendship($r[0], $self, $contact);
 			}
@@ -68,7 +69,7 @@ function unfollow_content(App $a) {
 			normalise_link($url), $url, NETWORK_STATUSNET);
 	$contact = dba::select('contact', array('url', 'network', 'addr', 'name'), $condition, array('limit' => 1));
 
-	if (!dbm::is_result($contact)) {
+	if (!DBM::is_result($contact)) {
 		notice(t("You aren't a friend of this contact.").EOL);
 		$submit = "";
 		// NOTREACHED

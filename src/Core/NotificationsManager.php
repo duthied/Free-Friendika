@@ -8,7 +8,7 @@ namespace Friendica\Core;
 
 use Friendica\Core\Pconfig;
 use Friendica\Core\System;
-use Friendica\Database\Dbm;
+use Friendica\Database\DBM;
 
 require_once 'include/html2plain.php';
 require_once 'include/datetime.php';
@@ -95,7 +95,7 @@ class NotificationsManager {
 				intval(local_user())
 			);
 
-		if (Dbm::is_result($r))
+		if (DBM::is_result($r))
 			return $this->_set_extra($r);
 
 		return false;
@@ -112,7 +112,7 @@ class NotificationsManager {
 			intval($id),
 			intval(local_user())
 		);
-		if (Dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			return $this->_set_extra($r)[0];
 		}
 		return null;
@@ -215,7 +215,7 @@ class NotificationsManager {
 		$notif = array();
 		$arr = array();
 
-		if (Dbm::is_result($notifs)) {
+		if (DBM::is_result($notifs)) {
 
 			foreach ($notifs as $it) {
 				// Because we use different db tables for the notification query
@@ -386,7 +386,7 @@ class NotificationsManager {
 			intval(local_user())
 		);
 
-		if (Dbm::is_result($r))
+		if (DBM::is_result($r))
 			return $r[0]['total'];
 
 		return 0;
@@ -429,7 +429,7 @@ class NotificationsManager {
 				intval($limit)
 		);
 
-		if (Dbm::is_result($r))
+		if (DBM::is_result($r))
 			$notifs = $this->formatNotifs($r, $ident);
 
 		$arr = array (
@@ -458,7 +458,7 @@ class NotificationsManager {
 			intval(local_user())
 		);
 
-		if (Dbm::is_result($r))
+		if (DBM::is_result($r))
 			return $r[0]['total'];
 
 		return 0;
@@ -494,7 +494,7 @@ class NotificationsManager {
 			intval($limit)
 		);
 
-		if (Dbm::is_result($r))
+		if (DBM::is_result($r))
 			$notifs = $this->formatNotifs($r, $ident);
 
 		$arr = array (
@@ -548,7 +548,7 @@ class NotificationsManager {
 			intval(local_user())
 		);
 
-		if (Dbm::is_result($r))
+		if (DBM::is_result($r))
 			return $r[0]['total'];
 
 		return 0;
@@ -592,7 +592,7 @@ class NotificationsManager {
 				intval($limit)
 		);
 
-		if (Dbm::is_result($r))
+		if (DBM::is_result($r))
 			$notifs = $this->formatNotifs($r, $ident);
 
 		$arr = array (
@@ -624,7 +624,7 @@ class NotificationsManager {
 			intval(local_user())
 		);
 
-		if (Dbm::is_result($r))
+		if (DBM::is_result($r))
 			return $r[0]['total'];
 
 		return 0;
@@ -666,7 +666,7 @@ class NotificationsManager {
 				intval($limit)
 		);
 
-		if (Dbm::is_result($r))
+		if (DBM::is_result($r))
 			$notifs = $this->formatNotifs($r, $ident);
 
 		$arr = array (
@@ -696,7 +696,7 @@ class NotificationsManager {
 				intval($_SESSION['uid'])
 		);
 
-		if (Dbm::is_result($r))
+		if (DBM::is_result($r))
 			return $r[0]['total'];
 
 		return 0;
@@ -743,7 +743,7 @@ class NotificationsManager {
 				intval($limit)
 		);
 
-		if (Dbm::is_result($r))
+		if (DBM::is_result($r))
 			$notifs = $this->formatIntros($r);
 
 		$arr = array (

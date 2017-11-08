@@ -2,6 +2,7 @@
 
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once('include/network.php');
 require_once('include/plugin.php');
@@ -125,7 +126,7 @@ function create_user($arr) {
 		$r = q("SELECT * FROM `user` WHERE `email` = '%s' LIMIT 1",
 			dbesc($email)
 		);
-		if (dbm::is_result($r))
+		if (DBM::is_result($r))
 			$result['message'] .= t('Cannot use that email.') . EOL;
 	}
 
@@ -138,7 +139,7 @@ function create_user($arr) {
 		WHERE `nickname` = '%s' LIMIT 1",
 		dbesc($nickname)
 	);
-	if (dbm::is_result($r))
+	if (DBM::is_result($r))
 		$result['message'] .= t('Nickname is already registered. Please choose another.') . EOL;
 
 	// Check deleted accounts that had this nickname. Doesn't matter to us,
@@ -148,7 +149,7 @@ function create_user($arr) {
 		WHERE `username` = '%s' LIMIT 1",
 		dbesc($nickname)
 	);
-	if (dbm::is_result($r))
+	if (DBM::is_result($r))
 		$result['message'] .= t('Nickname was once registered here and may not be re-used. Please choose another.') . EOL;
 
 	if(strlen($result['message'])) {
@@ -201,7 +202,7 @@ function create_user($arr) {
 			dbesc($username),
 			dbesc($new_password_encoded)
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$u = $r[0];
 			$newuid = intval($r[0]['uid']);
 		}
@@ -220,7 +221,7 @@ function create_user($arr) {
 		WHERE `nickname` = '%s' ",
 		dbesc($nickname)
 	);
-	if ((dbm::is_result($r)) && (count($r) > 1) && $newuid) {
+	if ((DBM::is_result($r)) && (count($r) > 1) && $newuid) {
 		$result['message'] .= t('Nickname is already registered. Please choose another.') . EOL;
 		dba::delete('user', array('uid' => $newuid));
 		return $result;
@@ -259,7 +260,7 @@ function create_user($arr) {
 			intval($newuid),
 			dbesc(t('Friends'))
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$def_gid = $r[0]['id'];
 
 			q("UPDATE `user` SET `def_gid` = %d WHERE `uid` = %d",
@@ -346,12 +347,12 @@ function user_create_self_contact($uid) {
 
 	// Only create the entry if it doesn't exist yet
 	$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `self`", intval($uid));
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		return;
 	}
 
 	$r = q("SELECT `uid`, `username`, `nickname` FROM `user` WHERE `uid` = %d", intval($uid));
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		return;
 	}
 

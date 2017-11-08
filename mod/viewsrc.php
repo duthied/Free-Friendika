@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Database\DBM;
 
 function viewsrc_content(App $a) {
 
@@ -25,7 +26,7 @@ function viewsrc_content(App $a) {
 		dbesc($item_id)
 	);
 
-	if (dbm::is_result($r))
+	if (DBM::is_result($r))
 		if(is_ajax()) {
 			echo str_replace("\n",'<br />',$r[0]['body']);
 			killme();

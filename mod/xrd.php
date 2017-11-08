@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once('include/crypto.php');
 
@@ -33,7 +34,7 @@ function xrd_init(App $a) {
 	}
 
 	$r = dba::select('user', array(), array('nickname' => $name), array('limit' => 1));
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		killme();
 	}
 

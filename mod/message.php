@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once('include/acl_selectors.php');
 require_once('include/message.php');
@@ -231,7 +232,7 @@ function message_content(App $a) {
 				intval($a->argv[2]),
 				intval(local_user())
 			);
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$parent = $r[0]['parent-uri'];
 				$convid = $r[0]['convid'];
 
@@ -288,21 +289,21 @@ function message_content(App $a) {
 				intval(local_user()),
 				intval($a->argv[2])
 			);
-			if (!dbm::is_result($r)) {
+			if (!DBM::is_result($r)) {
 				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' LIMIT 1",
 					intval(local_user()),
 					dbesc(normalise_link(base64_decode($a->argv[2])))
 				);
 			}
 
-			if (!dbm::is_result($r)) {
+			if (!DBM::is_result($r)) {
 				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `addr` = '%s' LIMIT 1",
 					intval(local_user()),
 					dbesc(base64_decode($a->argv[2]))
 				);
 			}
 
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$prename = $r[0]['name'];
 				$preurl = $r[0]['url'];
 				$preid = $r[0]['id'];
@@ -354,13 +355,13 @@ function message_content(App $a) {
 			intval(local_user())
 		);
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$a->set_pager_total($r[0]['total']);
 		}
 
 		$r = get_messages(local_user(), $a->pager['start'], $a->pager['itemspage']);
 
-		if (! dbm::is_result($r)) {
+		if (! DBM::is_result($r)) {
 			info( t('No messages.') . EOL);
 			return $o;
 		}
@@ -382,7 +383,7 @@ function message_content(App $a) {
 			intval(local_user()),
 			intval($a->argv[1])
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$contact_id = $r[0]['contact-id'];
 			$convid = $r[0]['convid'];
 

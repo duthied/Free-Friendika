@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Database\DBM;
 
 require_once('include/security.php');
 
@@ -18,7 +19,7 @@ function attach_init(App $a) {
 	$r = q("SELECT * FROM `attach` WHERE `id` = %d LIMIT 1",
 		intval($item_id)
 	);
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		notice( t('Item was not found.'). EOL);
 		return;
 	}
@@ -31,7 +32,7 @@ function attach_init(App $a) {
 		dbesc($item_id)
 	);
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}

@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\Database\DBM;
 
 require_once 'include/conversation.php';
 require_once 'include/group.php';
@@ -497,9 +498,9 @@ function networkThreadedView(App $a, $update = 0) {
 	$rawmode = (isset($_GET["mode"]) AND ($_GET["mode"] == "raw"));
 
 	if (isset($_GET["last_received"]) && isset($_GET["last_commented"]) && isset($_GET["last_created"]) && isset($_GET["last_id"])) {
-		$last_received = dbm::date($_GET["last_received"]);
-		$last_commented = dbm::date($_GET["last_commented"]);
-		$last_created = dbm::date($_GET["last_created"]);
+		$last_received = DBM::date($_GET["last_received"]);
+		$last_commented = DBM::date($_GET["last_commented"]);
+		$last_created = DBM::date($_GET["last_created"]);
 		$last_id = intval($_GET["last_id"]);
 	} else {
 		$last_received = '';
@@ -575,7 +576,7 @@ function networkThreadedView(App $a, $update = 0) {
 			// If $cid belongs to a communitity forum or a privat goup,.add a mention to the status editor
 			$condition = array("`id` = ? AND (`forum` OR `prv`)", $cid);
 			$contact = dba::select('contact', array('addr', 'nick'), $condition, array('limit' => 1));
-			if (dbm::is_result($contact)) {
+			if (DBM::is_result($contact)) {
 				if ($contact["addr"] != '') {
 					$content = "!".$contact["addr"];
 				} else {
@@ -628,7 +629,7 @@ function networkThreadedView(App $a, $update = 0) {
 
 	if ($group) {
 		$r = dba::select('group', array('name'), array('id' => $group, 'uid' => $_SESSION['uid']), array('limit' => 1));
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			if ($update)
 				killme();
 			notice(t('No such group') . EOL);
@@ -643,7 +644,7 @@ function networkThreadedView(App $a, $update = 0) {
 
 			$contact_str = implode(',',$contacts);
 			$self = dba::select('contact', array('id'), array('uid' => $_SESSION['uid'], 'self' => true), array('limit' => 1));
-			if (dbm::is_result($self)) {
+			if (DBM::is_result($self)) {
 				$contact_str_self = $self["id"];
 			}
 
@@ -664,7 +665,7 @@ function networkThreadedView(App $a, $update = 0) {
 				'forum', 'prv', 'contact-type', 'addr', 'thumb', 'location');
 		$condition = array("`id` = ? AND (NOT `blocked` OR `pending`)", $cid);
 		$r = dba::select('contact', $fields, $condition, array('limit' => 1));
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$sql_extra = " AND ".$sql_table.".`contact-id` = ".intval($cid);
 
 			$entries[0] = array(
@@ -808,7 +809,7 @@ function networkThreadedView(App $a, $update = 0) {
 	$parents_str = '';
 	$date_offset = "";
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
 			if (!in_array($rr['item_id'],$parents_arr)) {
 				$parents_arr[] = $rr['item_id'];
@@ -835,7 +836,7 @@ function networkThreadedView(App $a, $update = 0) {
 				$parents
 			);
 
-			if (dbm::is_result($thread_items)) {
+			if (DBM::is_result($thread_items)) {
 				$items = array_merge($items, dba::inArray($thread_items));
 			}
 		}

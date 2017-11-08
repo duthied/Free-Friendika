@@ -5,6 +5,7 @@
  */
 
 use Friendica\App;
+use Friendica\Database\DBM;
 
 require_once('include/salmon.php');
 require_once('include/crypto.php');
@@ -24,7 +25,7 @@ function post_post(App $a) {
 				AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
 			dbesc($nickname)
 		);
-		if (! dbm::is_result($r)) {
+		if (! DBM::is_result($r)) {
 			http_status_exit(500);
 		}
 

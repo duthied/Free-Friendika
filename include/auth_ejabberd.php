@@ -34,6 +34,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 
 if (sizeof($_SERVER["argv"]) == 0)
 	die();
@@ -152,7 +153,7 @@ class exAuth {
 			$sQuery = "SELECT `uid` FROM `user` WHERE `nickname`='".dbesc($sUser)."'";
 			$this->writeLog(LOG_DEBUG, "using query ". $sQuery);
 			$r = q($sQuery);
-			$found = dbm::is_result($r);
+			$found = DBM::is_result($r);
 		} else {
 			$found = false;
 		}

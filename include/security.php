@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 /**
  * @brief Calculate the hash that is needed for the "Friendica" cookie
@@ -87,14 +88,14 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		$r = dba::fetch_first("SELECT * FROM `user` WHERE `uid` = ? LIMIT 1",
 			intval($_SESSION['submanage'])
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$master_record = $r;
 		}
 	}
 
 	$r = dba::select('user', array('uid', 'username', 'nickname'),
 		array('password' => $master_record['password'], 'email' => $master_record['email'], 'account_removed' => false));
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$a->identities = dba::inArray($r);
 	} else {
 		$a->identities = array();
@@ -106,7 +107,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		WHERE `user`.`account_removed` = 0 AND `manage`.`uid` = ?",
 		$master_record['uid']
 	);
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$a->identities = array_merge($a->identities, dba::inArray($r));
 	}
 
@@ -118,7 +119,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 	}
 
 	$r = dba::fetch_first("SELECT * FROM `contact` WHERE `uid` = ? AND `self` LIMIT 1", $_SESSION['uid']);
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$a->contact = $r;
 		$a->cid = $r['id'];
 		$_SESSION['cid'] = $a->cid;
@@ -209,7 +210,7 @@ function can_write_wall(App $a, $owner) {
 				intval(PAGE_COMMUNITY)
 			);
 
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$verified = 2;
 				return true;
 			}
@@ -259,7 +260,7 @@ function permissions_sql($owner_id, $remote_verified = false, $groups = null) {
 				intval($remote_user),
 				intval($owner_id)
 			);
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$remote_verified = true;
 				$groups = init_groups_visitor($remote_user);
 			}
@@ -338,7 +339,7 @@ function item_permissions_sql($owner_id, $remote_verified = false, $groups = nul
 				intval($remote_user),
 				intval($owner_id)
 			);
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$remote_verified = true;
 				$groups = init_groups_visitor($remote_user);
 			}
@@ -456,7 +457,7 @@ function init_groups_visitor($contact_id) {
 		WHERE `contact-id` = %d ",
 		intval($contact_id)
 	);
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r as $rr)
 			$groups[] = $rr['gid'];
 	}

@@ -2,6 +2,7 @@
 
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 
 function directory_run(&$argv, &$argc){
 	$dir = Config::get('system', 'directory');
@@ -36,7 +37,7 @@ function directory_update_all() {
 			WHERE `contact`.`self` AND `profile`.`net-publish` AND `profile`.`is-default` AND
 				NOT `user`.`account_expired` AND `user`.`verified`");
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r AS $user) {
 			Worker::add(PRIORITY_LOW, 'directory', $user['url']);
 		}

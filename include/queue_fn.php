@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 
 function update_queue_time($id) {
 	logger('queue: requeue item ' . $id);
@@ -33,7 +34,7 @@ function was_recently_delayed($cid) {
 		intval($cid)
 	);
 
-	$was_delayed = dbm::is_result($r);
+	$was_delayed = DBM::is_result($r);
 
 	// We set "term-date" to a current date if the communication has problems.
 	// If the communication works again we reset this value.
@@ -41,7 +42,7 @@ function was_recently_delayed($cid) {
 		$r = q("SELECT `term-date` FROM `contact` WHERE `id` = %d AND `term-date` <= '1000-01-01' LIMIT 1",
 			intval($cid)
 		);
-		$was_delayed = !dbm::is_result($r);
+		$was_delayed = !DBM::is_result($r);
 	}
 
 	return $was_delayed;
@@ -64,7 +65,7 @@ function add_to_queue($cid,$network,$msg,$batch = false) {
 		WHERE `queue`.`cid` = %d AND `contact`.`self` = 0 ",
 		intval($cid)
 	);
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		if ($batch &&  ($r[0]['total'] > $batch_queue)) {
 			logger('add_to_queue: too many queued items for batch server ' . $cid . ' - discarding message');
 			return;

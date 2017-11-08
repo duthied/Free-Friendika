@@ -11,6 +11,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 
 require_once 'include/datetime.php';
@@ -59,7 +60,7 @@ function poco_load_worker($cid, $uid, $zcid, $url) {
 			$r = q("select `poco`, `uid` from `contact` where `id` = %d limit 1",
 				intval($cid)
 			);
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$url = $r[0]['poco'];
 				$uid = $r[0]['uid'];
 			}
@@ -252,7 +253,7 @@ function sanitize_gcontact($gcontact) {
 		$r = q("SELECT `network` FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s' AND `network` != '' AND `network` != '%s' LIMIT 1",
 			dbesc(normalise_link($gcontact['url'])), dbesc(NETWORK_STATUSNET)
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$gcontact['network'] = $r[0]["network"];
 		}
 
@@ -260,7 +261,7 @@ function sanitize_gcontact($gcontact) {
 			$r = q("SELECT `network`, `url` FROM `contact` WHERE `uid` = 0 AND `alias` IN ('%s', '%s') AND `network` != '' AND `network` != '%s' LIMIT 1",
 				dbesc($gcontact['url']), dbesc(normalise_link($gcontact['url'])), dbesc(NETWORK_STATUSNET)
 			);
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$gcontact['network'] = $r[0]["network"];
 			}
 		}
@@ -273,7 +274,7 @@ function sanitize_gcontact($gcontact) {
 		dbesc(normalise_link($gcontact['url']))
 	);
 
-	if (dbm::is_result($x)) {
+	if (DBM::is_result($x)) {
 		if (!isset($gcontact['network']) && ($x[0]["network"] != NETWORK_STATUSNET)) {
 			$gcontact['network'] = $x[0]["network"];
 		}
@@ -305,7 +306,7 @@ function sanitize_gcontact($gcontact) {
 		if ($alternate && ($gcontact['network'] == NETWORK_OSTATUS)) {
 			// Delete the old entry - if it exists
 			$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($orig_profile)));
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				q("DELETE FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($orig_profile)));
 				q("DELETE FROM `glink` WHERE `gcid` = %d", intval($r[0]["id"]));
 			}
@@ -360,7 +361,7 @@ function link_gcontact($gcid, $uid = 0, $cid = 0, $zcid = 0) {
 		intval($zcid)
 	);
 
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		q("INSERT INTO `glink` (`cid`, `uid`, `gcid`, `zcid`, `updated`) VALUES (%d, %d, %d, %d, '%s') ",
 			intval($cid),
 			intval($uid),
@@ -454,7 +455,7 @@ function poco_detect_server($profile) {
 
 	$r = q("SELECT `id` FROM `gserver` WHERE `nurl` = '%s' AND `last_contact` > `last_failure`",
 		dbesc(normalise_link($server_url)));
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		return $server_url;
 	}
 
@@ -476,7 +477,7 @@ function poco_last_updated($profile, $force = false) {
 	$gcontacts = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s'",
 			dbesc(normalise_link($profile)));
 
-	if (!dbm::is_result($gcontacts)) {
+	if (!DBM::is_result($gcontacts)) {
 		return false;
 	}
 
@@ -688,7 +689,7 @@ function poco_last_updated($profile, $force = false) {
 		}
 	}
 	q("UPDATE `gcontact` SET `updated` = '%s', `last_contact` = '%s' WHERE `nurl` = '%s'",
-		dbesc(dbm::date($last_updated)), dbesc(dbm::date()), dbesc(normalise_link($profile)));
+		dbesc(DBM::date($last_updated)), dbesc(DBM::date()), dbesc(normalise_link($profile)));
 
 	if (($gcontacts[0]["generation"] == 0)) {
 		q("UPDATE `gcontact` SET `generation` = 9 WHERE `nurl` = '%s'",
@@ -970,7 +971,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 	}
 
 	$servers = q("SELECT * FROM `gserver` WHERE `nurl` = '%s'", dbesc(normalise_link($server_url)));
-	if (dbm::is_result($servers)) {
+	if (DBM::is_result($servers)) {
 
 		if ($servers[0]["created"] <= NULL_DATE) {
 			q("UPDATE `gserver` SET `created` = '%s' WHERE `nurl` = '%s'",
@@ -1023,7 +1024,7 @@ function poco_check_server($server_url, $network = "", $force = false) {
 
 	// Quit if there is a timeout.
 	// But we want to make sure to only quit if we are mostly sure that this server url fits.
-	if (dbm::is_result($servers) && ($orig_server_url == $server_url) &&
+	if (DBM::is_result($servers) && ($orig_server_url == $server_url) &&
 		($serverret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
 		logger("Connection to server ".$server_url." timed out.", LOGGER_DEBUG);
 		dba::update('gserver', array('last_failure' => datetime_convert()), array('nurl' => normalise_link($server_url)));
@@ -1417,7 +1418,7 @@ function count_common_friends($uid, $cid) {
 	);
 
 	// logger("count_common_friends: $uid $cid {$r[0]['total']}");
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		return $r[0]['total'];
 	}
 	return 0;
@@ -1450,7 +1451,7 @@ function common_friends($uid, $cid, $start = 0, $limit = 9999, $shuffle = false)
 		intval($limit)
 	);
 
-	/// @TODO Check all calling-findings of this function if they properly use dbm::is_result()
+	/// @TODO Check all calling-findings of this function if they properly use DBM::is_result()
 	return $r;
 
 }
@@ -1466,7 +1467,7 @@ function count_common_friends_zcid($uid, $zcid) {
 		intval($uid)
 	);
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		return $r[0]['total'];
 	}
 	return 0;
@@ -1492,7 +1493,7 @@ function common_friends_zcid($uid, $zcid, $start = 0, $limit = 9999, $shuffle = 
 		intval($limit)
 	);
 
-	/// @TODO Check all calling-findings of this function if they properly use dbm::is_result()
+	/// @TODO Check all calling-findings of this function if they properly use DBM::is_result()
 	return $r;
 
 }
@@ -1508,7 +1509,7 @@ function count_all_friends($uid, $cid) {
 		intval($uid)
 	);
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		return $r[0]['total'];
 	}
 	return 0;
@@ -1532,7 +1533,7 @@ function all_friends($uid, $cid, $start = 0, $limit = 80) {
 		intval($limit)
 	);
 
-	/// @TODO Check all calling-findings of this function if they properly use dbm::is_result()
+	/// @TODO Check all calling-findings of this function if they properly use DBM::is_result()
 	return $r;
 }
 
@@ -1587,7 +1588,7 @@ function suggestion_query($uid, $start = 0, $limit = 80) {
 		intval($limit)
 	);
 
-	if (dbm::is_result($r) && count($r) >= ($limit -1)) {
+	if (DBM::is_result($r) && count($r) >= ($limit -1)) {
 		/*
 		 * Uncommented because the result of the queries are to big to store it in the cache.
 		 * We need to decide if we want to change the db column type or if we want to delete it.
@@ -1670,7 +1671,7 @@ function update_suggestions() {
 		dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA)
 	);
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
 			$base = substr($rr['poco'],0,strrpos($rr['poco'],'/'));
 			if (! in_array($base,$done)) {
@@ -1700,7 +1701,7 @@ function poco_fetch_serverlist($poco) {
 		$server_url = str_replace("/index.php", "", $server->url);
 
 		$r = q("SELECT `nurl` FROM `gserver` WHERE `nurl` = '%s'", dbesc(normalise_link($server_url)));
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			logger("Call server check for server ".$server_url, LOGGER_DEBUG);
 			Worker::add(PRIORITY_LOW, "discover_poco", "server", $server_url);
 		}
@@ -1762,7 +1763,7 @@ function poco_discover_federation() {
 
 function poco_discover_single_server($id) {
 	$r = q("SELECT `poco`, `nurl`, `url`, `network` FROM `gserver` WHERE `id` = %d", intval($id));
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		return false;
 	}
 
@@ -1837,7 +1838,7 @@ function poco_discover($complete = false) {
 	$last_update = date("c", time() - (60 * 60 * 24 * $requery_days));
 
 	$r = q("SELECT `id`, `url`, `network` FROM `gserver` WHERE `last_contact` >= `last_failure` AND `poco` != '' AND `last_poco_query` < '%s' ORDER BY RAND()", dbesc($last_update));
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r as $server) {
 
 			if (!poco_check_server($server["url"], $server["network"])) {
@@ -2083,7 +2084,7 @@ function get_gcontact_id($contact) {
 	$r = q("SELECT `id`, `last_contact`, `last_failure`, `network` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 		dbesc(normalise_link($contact["url"])));
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$gcontact_id = $r[0]["id"];
 
 		// Update every 90 days
@@ -2115,7 +2116,7 @@ function get_gcontact_id($contact) {
 		$r = q("SELECT `id`, `network` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 2",
 			dbesc(normalise_link($contact["url"])));
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$gcontact_id = $r[0]["id"];
 
 			$doprobing = in_array($r[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""));
@@ -2198,7 +2199,7 @@ function update_gcontact($contact) {
 	fix_alternate_contact_address($contact);
 
 	if (!isset($contact["updated"])) {
-		$contact["updated"] = dbm::date();
+		$contact["updated"] = DBM::date();
 	}
 
 	if ($contact["network"] == NETWORK_TWITTER) {
@@ -2241,7 +2242,7 @@ function update_gcontact($contact) {
 		logger("Update gcontact for ".$contact["url"], LOGGER_DEBUG);
 		$condition = array('`nurl` = ? AND (`generation` = 0 OR `generation` >= ?)',
 				normalise_link($contact["url"]), $contact["generation"]);
-		$contact["updated"] = dbm::date($contact["updated"]);
+		$contact["updated"] = DBM::date($contact["updated"]);
 
 		$updated = array('photo' => $contact['photo'], 'name' => $contact['name'],
 				'nick' => $contact['nick'], 'addr' => $contact['addr'],
@@ -2261,7 +2262,7 @@ function update_gcontact($contact) {
 		$r = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = 0 ORDER BY `id` LIMIT 1",
 			dbesc(normalise_link($contact["url"])));
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			logger("Update public contact ".$r[0]["id"], LOGGER_DEBUG);
 
 			update_contact_avatar($contact["photo"], 0, $r[0]["id"]);
@@ -2416,7 +2417,7 @@ function gs_discover() {
 	$r = q("SELECT `nurl`, `url` FROM `gserver` WHERE `last_contact` >= `last_failure` AND `network` = '%s' AND `last_poco_query` < '%s' ORDER BY RAND() LIMIT 5",
 		dbesc(NETWORK_OSTATUS), dbesc($last_update));
 
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		return;
 	}
 
@@ -2436,7 +2437,7 @@ function poco_serverlist() {
 		ORDER BY `last_contact`
 		LIMIT 1000",
 		dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS));
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		return false;
 	}
 

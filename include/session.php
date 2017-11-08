@@ -3,6 +3,7 @@
 // session info.
 
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 
 require_once('include/cache.php');
 
@@ -32,7 +33,7 @@ function ref_session_read($id) {
 	}
 
 	$r = dba::select('session', array('data'), array('sid' => $id), array('limit' => 1));
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$session_exists = true;
 		return $r['data'];
 	} else {

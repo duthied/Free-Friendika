@@ -11,7 +11,7 @@ namespace Friendica\Network;
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
-use Friendica\Database\Dbm;
+use Friendica\Database\DBM;
 
 use dba;
 use Cache;
@@ -397,7 +397,7 @@ class Probe {
 					}
 				}
 
-				$fields['updated'] = Dbm::date();
+				$fields['updated'] = DBM::date();
 
 				$condition = array('nurl' => normalise_link($data["url"]));
 
@@ -420,7 +420,7 @@ class Probe {
 						'confirm' => $data['confirm'],
 						'poco' => $data['poco'],
 						'network' => $data['network'],
-						'success_update' => Dbm::date());
+						'success_update' => DBM::date());
 
 				$fieldnames = array();
 
@@ -1501,7 +1501,7 @@ class Probe {
 
 			$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1", intval($uid));
 
-			if (Dbm::is_result($x) && Dbm::is_result($r)) {
+			if (DBM::is_result($x) && DBM::is_result($r)) {
 				$mailbox = construct_mailbox_name($r[0]);
 				$password = '';
 				openssl_private_decrypt(hex2bin($r[0]['pass']), $password, $x[0]['prvkey']);

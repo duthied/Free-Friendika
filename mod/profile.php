@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once('include/contact_widgets.php');
 require_once('include/redir.php');
@@ -17,7 +18,7 @@ function profile_init(App $a) {
 		$which = htmlspecialchars($a->argv[1]);
 	else {
 		$r = q("select nickname from user where blocked = 0 and account_expired = 0 and account_removed = 0 and verified = 1 order by rand() limit 1");
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			goaway(System::baseUrl() . '/profile/' . $r[0]['nickname']);
 		}
 		else {
@@ -139,7 +140,7 @@ function profile_content(App $a, $update = 0) {
 			intval($contact_id),
 			intval($a->profile['profile_uid'])
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$contact = $r[0];
 			$remote_contact = true;
 		}
@@ -240,7 +241,7 @@ function profile_content(App $a, $update = 0) {
 			intval($a->profile['profile_uid'])
 		);
 
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			return '';
 		}
 
@@ -267,7 +268,7 @@ function profile_content(App $a, $update = 0) {
 			intval(PAGE_COMMUNITY),
 			intval(PAGE_PRVGROUP));
 
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			$sql_extra3 = sprintf(" AND `thread`.`contact-id` = %d ", intval(intval($a->profile['contact_id'])));
 		}
 
@@ -313,7 +314,7 @@ function profile_content(App $a, $update = 0) {
 	// search for new items (update routine)
 	$_SESSION['last_updated'][$last_updated_key] = time();
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach($r as $rr)
 			$parents_arr[] = $rr['item_id'];
 		$parents_str = implode(', ', $parents_arr);

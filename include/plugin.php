@@ -8,6 +8,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 /**
  * @brief uninstalls an addon.
@@ -77,7 +78,7 @@ function reload_plugins() {
 	if (strlen($plugins)) {
 
 		$r = q("SELECT * FROM `addon` WHERE `installed` = 1");
-		if (dbm::is_result($r))
+		if (DBM::is_result($r))
 			$installed = $r;
 		else
 			$installed = array();
@@ -144,7 +145,7 @@ function register_hook($hook,$file,$function,$priority=0) {
 		dbesc($file),
 		dbesc($function)
 	);
-	if (dbm::is_result($r))
+	if (DBM::is_result($r))
 		return true;
 
 	$r = dba::insert('hook', array('hook' => $hook, 'file' => $file, 'function' => $function, 'priority' => $priority));

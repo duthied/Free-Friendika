@@ -10,6 +10,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once('include/event.php');
 require_once('include/redir.php');
@@ -130,7 +131,7 @@ function cal_content(App $a) {
 			intval($contact_id),
 			intval($a->profile['profile_uid'])
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$contact = $r[0];
 			$remote_contact = true;
 		}
@@ -225,7 +226,7 @@ function cal_content(App $a) {
 
 		$links = array();
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$r = sort_by_date($r);
 			foreach ($r as $rr) {
 				$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'j') : datetime_convert('UTC','UTC',$rr['start'],'j'));
@@ -239,7 +240,7 @@ function cal_content(App $a) {
 		$events=array();
 
 		// transform the event in a usable array
-		if (dbm::is_result($r))
+		if (DBM::is_result($r))
 			$r = sort_by_date($r);
 			$events = process_events($r);
 

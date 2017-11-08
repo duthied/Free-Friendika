@@ -25,6 +25,7 @@ use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 use Friendica\Util\Lock;
 
 require_once 'include/network.php';
@@ -769,7 +770,7 @@ function run_update_function($x) {
 function check_plugins(App $a) {
 
 	$r = q("SELECT * FROM `addon` WHERE `installed` = 1");
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$installed = $r;
 	} else {
 		$installed = array();
@@ -1055,7 +1056,7 @@ function current_theme() {
 		$r = q("select theme from user where uid = %d limit 1",
 			intval($a->profile_uid)
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$page_theme = $r[0]['theme'];
 		}
 	}
@@ -1177,7 +1178,7 @@ function feed_birthday($uid, $tz) {
 			intval($uid)
 	);
 
-	if (dbm::is_result($p)) {
+	if (DBM::is_result($p)) {
 		$tmp_dob = substr($p[0]['dob'], 5);
 		if (intval($tmp_dob)) {
 			$y = datetime_convert($tz, $tz, 'now', 'Y');

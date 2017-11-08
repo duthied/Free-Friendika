@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\PConfig;
+use Friendica\Database\DBM;
 
 require_once('include/salmon.php');
 require_once('include/ostatus.php');
@@ -34,7 +35,7 @@ function salmon_post(App $a) {
 	$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
 		dbesc($nick)
 	);
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		http_status_exit(500);
 	}
 
@@ -158,7 +159,7 @@ function salmon_post(App $a) {
 		dbesc(normalise_link($author_link)),
 		intval($importer['uid'])
 	);
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		logger('mod-salmon: Author unknown to us.');
 		if(PConfig::get($importer['uid'],'system','ostatus_autofriend')) {
 			$result = new_contact($importer['uid'],$author_link);
@@ -177,8 +178,8 @@ function salmon_post(App $a) {
 	// Have we ignored the person?
 	// If so we can not accept this post.
 
-	//if((dbm::is_result($r)) && (($r[0]['readonly']) || ($r[0]['rel'] == CONTACT_IS_FOLLOWER) || ($r[0]['blocked']))) {
-	if (dbm::is_result($r) && $r[0]['blocked']) {
+	//if((DBM::is_result($r)) && (($r[0]['readonly']) || ($r[0]['rel'] == CONTACT_IS_FOLLOWER) || ($r[0]['blocked']))) {
+	if (DBM::is_result($r) && $r[0]['blocked']) {
 		logger('mod-salmon: Ignoring this author.');
 		http_status_exit(202);
 		// NOTREACHED
@@ -187,7 +188,7 @@ function salmon_post(App $a) {
 	// Placeholder for hub discovery.
 	$hub = '';
 
-	$contact_rec = ((dbm::is_result($r)) ? $r[0] : null);
+	$contact_rec = ((DBM::is_result($r)) ? $r[0] : null);
 
 	ostatus::import($data,$importer,$contact_rec, $hub);
 

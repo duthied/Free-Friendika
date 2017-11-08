@@ -2,6 +2,7 @@
 
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\Database\DBM;
 
 require_once 'include/follow.php';
 
@@ -78,7 +79,7 @@ function onepoll_run(&$argv, &$argc) {
 			WHERE `cid` = %d AND updated > UTC_TIMESTAMP() - INTERVAL 1 DAY",
 			intval($contact['id'])
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			if (!$r[0]['total']) {
 				poco_load($contact['id'], $importer_uid, 0, $contact['poco']);
 			}
@@ -147,7 +148,7 @@ function onepoll_run(&$argv, &$argc) {
 		intval($importer_uid)
 	);
 
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		logger('No self contact for user '.$importer_uid);
 		return;
 	}
@@ -331,7 +332,7 @@ function onepoll_run(&$argv, &$argc) {
 
 		$condition = array("`server` != '' AND `uid` = ?", $importer_uid);
 		$mailconf = dba::select('mailacct', array(), $condition, array('limit' => 1));
-		if (dbm::is_result($x) && dbm::is_result($mailconf)) {
+		if (DBM::is_result($x) && DBM::is_result($mailconf)) {
 			$mailbox = construct_mailbox_name($mailconf);
 			$password = '';
 			openssl_private_decrypt(hex2bin($mailconf['pass']), $password, $x['prvkey']);
@@ -375,7 +376,7 @@ function onepoll_run(&$argv, &$argc) {
 						$condition = array('uid' => $importer_uid, 'uri' => $datarray['uri']);
 						$r = dba::select('item', $fields, $condition, array('limit' => 1));
 
-						if (dbm::is_result($r)) {
+						if (DBM::is_result($r)) {
 							logger("Mail: Seen before ".$msg_uid." for ".$mailconf['user']." UID: ".$importer_uid." URI: ".$datarray['uri'],LOGGER_DEBUG);
 
 							// Only delete when mails aren't automatically moved or deleted
@@ -427,7 +428,7 @@ function onepoll_run(&$argv, &$argc) {
 							$r = q("SELECT `parent-uri` FROM `item` USE INDEX (`uid_uri`) WHERE `uri` IN ($qstr) AND `uid` = %d LIMIT 1",
 								intval($importer_uid)
 							);
-							if (dbm::is_result($r)) {
+							if (DBM::is_result($r)) {
 								$datarray['parent-uri'] = $r[0]['parent-uri'];  // Set the parent as the top-level item
 							}
 						}
@@ -461,7 +462,7 @@ function onepoll_run(&$argv, &$argc) {
 								dbesc(protect_sprintf($datarray['title'])),
 								intval($importer_uid),
 								dbesc(NETWORK_MAIL));
-							if (dbm::is_result($r)) {
+							if (DBM::is_result($r)) {
 								$datarray['parent-uri'] = $r[0]['parent-uri'];
 							}
 						}

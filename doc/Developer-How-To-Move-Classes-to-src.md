@@ -73,7 +73,7 @@ If there are only a handful of references to a single non-namespaced class, just
 ````php
 namespace Friendica\Core;
 ...
-if (\dbm::is_result($r)) {
+if (\DBM::is_result($r)) {
     ...
 }
 ````
@@ -82,7 +82,7 @@ namespace Friendica\Core;
 
 use \dbm;
 
-if (dbm::is_result($r)) {
+if (DBM::is_result($r)) {
     ...
 }
 ````

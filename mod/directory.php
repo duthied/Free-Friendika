@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 
 function directory_init(App $a) {
 	$a->set_pager_itemspage(60);
@@ -73,7 +74,7 @@ function directory_content(App $a) {
 	$r = q("SELECT COUNT(*) AS `total` FROM `profile`
 			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 			WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 $sql_extra ");
-	if (dbm::is_result($r))
+	if (DBM::is_result($r))
 		$a->set_pager_total($r[0]['total']);
 
 	$order = " ORDER BY `name` ASC ";
@@ -85,7 +86,7 @@ function directory_content(App $a) {
 			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
 			WHERE `is-default` $publish AND `user`.`blocked` = 0 AND `contact`.`self` $sql_extra $order LIMIT ".$limit);
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 
 		if (in_array('small', $a->argv)) {
 			$photo = 'thumb';

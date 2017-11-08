@@ -7,6 +7,7 @@
 
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\Database\DBM;
 
 class Cache {
 	/**
@@ -104,7 +105,7 @@ class Cache {
 			dbesc($key)
 		);
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$cached = $r[0]['v'];
 			$value = @unserialize($cached);
 

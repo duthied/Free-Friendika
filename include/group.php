@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\Core\PConfig;
+use Friendica\Database\DBM;
 
 function group_add($uid,$name) {
 
@@ -41,7 +42,7 @@ function group_rmv($uid,$name) {
 			intval($uid),
 			dbesc($name)
 		);
-		if (dbm::is_result($r))
+		if (DBM::is_result($r))
 			$group_id = $r[0]['id'];
 		if (! $group_id)
 			return false;
@@ -103,7 +104,7 @@ function group_byname($uid,$name) {
 		intval($uid),
 		dbesc($name)
 	);
-	if (dbm::is_result($r))
+	if (DBM::is_result($r))
 		return $r[0]['id'];
 	return false;
 }
@@ -136,11 +137,11 @@ function group_add_member($uid,$name,$member,$gid = 0) {
 		intval($gid),
 		intval($member)
 	);
-	if (dbm::is_result($r))
+	if (DBM::is_result($r))
 		return true;	// You might question this, but
 				// we indicate success because the group member was in fact created
 				// -- It was just created at another time
- 	if (! dbm::is_result($r)) {
+ 	if (! DBM::is_result($r)) {
 		$r = dba::insert('group_member', array('uid' => $uid, 'gid' => $gid, 'contact-id' => $member));
 	}
 	return $r;
@@ -157,7 +158,7 @@ function group_get_members($gid) {
 			intval($gid),
 			intval(local_user())
 		);
-		if (dbm::is_result($r))
+		if (DBM::is_result($r))
 			$ret = $r;
 	}
 	return $ret;
@@ -174,7 +175,7 @@ function group_public_members($gid) {
 			intval(local_user()),
 			dbesc(NETWORK_OSTATUS)
 		);
-		if (dbm::is_result($r))
+		if (DBM::is_result($r))
 			$ret = count($r);
 	}
 	return $ret;
@@ -190,7 +191,7 @@ function mini_group_select($uid,$gid = 0, $label = "") {
 		intval($uid)
 	);
 	$grps[] = array('name' => '', 'id' => '0', 'selected' => '');
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
 			$grps[] = array('name' => $rr['name'], 'id' => $rr['id'], 'selected' => (($gid == $rr['id']) ? 'true' : ''));
 		}
@@ -248,7 +249,7 @@ function group_side($every="contacts",$each="group",$editmode = "standard", $gro
 		$member_of = groups_containing(local_user(),$cid);
 	}
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
 			$selected = (($group_id == $rr['id']) ? ' group-selected' : '');
 
@@ -309,7 +310,7 @@ function expand_groups($a,$check_dead = false, $use_gcontact = false) {
 
 
 	$ret = array();
-	if (dbm::is_result($r))
+	if (DBM::is_result($r))
 		foreach ($r as $rr)
 			$ret[] = $rr['contact-id'];
 	if ($check_dead && !$use_gcontact) {
@@ -338,7 +339,7 @@ function groups_containing($uid,$c) {
 	);
 
 	$ret = array();
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
 			$ret[] = $rr['gid'];
 		}

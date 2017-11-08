@@ -6,6 +6,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 
 require_once "include/contact_selectors.php";
 require_once "include/contact_widgets.php";
@@ -36,7 +37,7 @@ function group_select($selname,$selclass,$preselected = false,$size = 4) {
 
 	call_hooks($a->module . '_pre_' . $selname, $arr);
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
 			if ((is_array($preselected)) && in_array($rr['id'], $preselected)) {
 				$selected = " selected=\"selected\" ";
@@ -159,7 +160,7 @@ function contact_selector($selname, $selclass, $preselected = false, $options) {
 
 	call_hooks($a->module . '_pre_' . $selname, $arr);
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
 			if ((is_array($preselected)) && in_array($rr['id'], $preselected)) {
 				$selected = " selected=\"selected\" ";
@@ -239,7 +240,7 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 
 	$receiverlist = array();
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
 			if ((is_array($preselected)) && in_array($rr['id'], $preselected)) {
 				$selected = " selected=\"selected\" ";
@@ -286,7 +287,7 @@ function prune_deadguys($arr) {
 
 	$r = q("SELECT `id` FROM `contact` WHERE `id` IN ( " . $str . ") AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0 ");
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$ret = array();
 		foreach ($r as $rr) {
 			$ret[] = intval($rr['id']);
@@ -342,7 +343,7 @@ function populate_acl($user = null, $show_jotnets = false) {
 			$r = q("SELECT `pubmail` FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
 				intval(local_user())
 			);
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$mail_enabled = true;
 				if (intval($r[0]['pubmail'])) {
 					$pubmail_enabled = true;
@@ -635,7 +636,7 @@ function acl_lookup(App $a, $out_type = 'json') {
 	}
 
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$forums = array();
 		foreach ($r as $g) {
 			$entry = array(
@@ -689,7 +690,7 @@ function acl_lookup(App $a, $out_type = 'json') {
 				dbesc($search),
 				implode("', '", $known_contacts)
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			foreach ($r as $row) {
 				$contact = get_contact_details_by_url($row['author-link']);
 

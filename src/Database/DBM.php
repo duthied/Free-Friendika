@@ -1,10 +1,13 @@
 <?php
+namespace Friendica\Database;
+
+use dba;
 /**
  * @brief This class contain functions for the database management
  *
  * This class contains functions that doesn't need to know if pdo, mysqli or whatever is used.
  */
-class dbm {
+class DBM {
 	/**
 	 * @brief Return a list of database processes
 	 *

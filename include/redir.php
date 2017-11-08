@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 function auto_redir(App $a, $contact_nick) {
 
@@ -39,7 +40,7 @@ function auto_redir(App $a, $contact_nick) {
 				dbesc($nurl)
 		);
 
-		if ((! dbm::is_result($r)) || $r[0]['id'] == remote_user()) {
+		if ((! DBM::is_result($r)) || $r[0]['id'] == remote_user()) {
 			return;
 		}
 
@@ -51,7 +52,7 @@ function auto_redir(App $a, $contact_nick) {
 		       dbesc($baseurl)
 		);
 
-		if (! dbm::is_result($r)) {
+		if (! DBM::is_result($r)) {
 			return;
 		}
 

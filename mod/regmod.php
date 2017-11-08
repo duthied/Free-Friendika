@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 
 require_once('include/enotify.php');
 require_once('include/user.php');
@@ -17,7 +18,7 @@ function user_allow($hash) {
 	);
 
 
-	if (! dbm::is_result($register)) {
+	if (! DBM::is_result($register)) {
 		return false;
 	}
 
@@ -25,7 +26,7 @@ function user_allow($hash) {
 		intval($register[0]['uid'])
 	);
 
-	if (! dbm::is_result($user)) {
+	if (! DBM::is_result($user)) {
 		killme();
 	}
 
@@ -41,7 +42,7 @@ function user_allow($hash) {
 	$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `is-default` = 1",
 		intval($user[0]['uid'])
 	);
-	if (dbm::is_result($r) && $r[0]['net-publish']) {
+	if (DBM::is_result($r) && $r[0]['net-publish']) {
 		$url = System::baseUrl() . '/profile/' . $user[0]['nickname'];
 		if ($url && strlen(Config::get('system','directory'))) {
 			Worker::add(PRIORITY_LOW, "directory", $url);
@@ -77,7 +78,7 @@ function user_deny($hash) {
 		dbesc($hash)
 	);
 
-	if (!dbm::is_result($register)) {
+	if (!DBM::is_result($register)) {
 		return false;
 	}
 

@@ -8,6 +8,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 
 require_once 'include/bbcode.php';
 require_once 'include/datetime.php';
@@ -339,7 +340,7 @@ function events_content(App $a) {
 
 		$links = array();
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$r = sort_by_date($r);
 			foreach ($r as $rr) {
 				$j = (($rr['adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $rr['start'], 'j') : datetime_convert('UTC', 'UTC', $rr['start'], 'j'));
@@ -352,7 +353,7 @@ function events_content(App $a) {
 		$events = array();
 
 		// transform the event in a usable array
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$r = sort_by_date($r);
 			$events = process_events($r);
 		}
@@ -410,7 +411,7 @@ function events_content(App $a) {
 			intval($event_id),
 			intval(local_user())
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$orig_event = $r[0];
 		}
 	}
@@ -545,7 +546,7 @@ function events_content(App $a) {
 		$ev = event_by_id(local_user(), $params);
 
 		// Delete only real events (no birthdays)
-		if (dbm::is_result($ev) && $ev[0]['type'] == 'event') {
+		if (DBM::is_result($ev) && $ev[0]['type'] == 'event') {
 			$del = drop_item($ev[0]['itemid'], false);
 		}
 

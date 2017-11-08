@@ -2,6 +2,7 @@
 
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 
 function cron_run(&$argv, &$argc){
 	global $a;
@@ -161,7 +162,7 @@ function cron_poll_contacts($argc, $argv) {
 		dbesc(NETWORK_MAIL2)
 	);
 
-	if (!dbm::is_result($contacts)) {
+	if (!DBM::is_result($contacts)) {
 		return;
 	}
 
@@ -171,7 +172,7 @@ function cron_poll_contacts($argc, $argv) {
 			intval($c['id'])
 		);
 
-		if (!dbm::is_result($res)) {
+		if (!DBM::is_result($res)) {
 			continue;
 		}
 

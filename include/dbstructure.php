@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 
 require_once "boot.php";
 require_once "include/text.php";
@@ -20,7 +21,7 @@ function convert_to_innodb() {
 	$r = q("SELECT `TABLE_NAME` FROM `information_schema`.`tables` WHERE `engine` = 'MyISAM' AND `table_schema` = '%s'",
 		dbesc(dba::database_name()));
 
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		echo t('There are no tables on MyISAM.')."\n";
 		return;
 	}
@@ -30,7 +31,7 @@ function convert_to_innodb() {
 		echo $sql."\n";
 
 		$result = dba::e($sql);
-		if (!dbm::is_result($result)) {
+		if (!DBM::is_result($result)) {
 			print_update_error($sql);
 		}
 	}
@@ -50,7 +51,7 @@ function update_fail($update_id, $error_message) {
 	);
 
 	// No valid result?
-	if (!dbm::is_result($adminlist)) {
+	if (!DBM::is_result($adminlist)) {
 		logger(sprintf('Cannot notify administrators about update_id=%d, error_message=%s', $update_id, $error_message), LOGGER_NORMAL);
 
 		// Don't continue
@@ -114,7 +115,7 @@ function table_structure($table) {
 
 	$table_status = q("SHOW TABLE STATUS WHERE `name` = '%s'", $table);
 
-	if (dbm::is_result($table_status)) {
+	if (DBM::is_result($table_status)) {
 		$table_status = $table_status[0];
 	} else {
 		$table_status = array();
@@ -123,7 +124,7 @@ function table_structure($table) {
 	$fielddata = array();
 	$indexdata = array();
 
-	if (dbm::is_result($indexes))
+	if (DBM::is_result($indexes))
 		foreach ($indexes AS $index) {
 			if ($index['Key_name'] != 'PRIMARY' && $index['Non_unique'] == '0' && !isset($indexdata[$index["Key_name"]])) {
 				$indexdata[$index["Key_name"]] = array('UNIQUE');
@@ -137,7 +138,7 @@ function table_structure($table) {
 
 			$indexdata[$index["Key_name"]][] = $column;
 		}
-	if (dbm::is_result($structures)) {
+	if (DBM::is_result($structures)) {
 		foreach ($structures AS $field) {
 			$fielddata[$field["Field"]]["type"] = $field["Type"];
 			if ($field["Null"] == "NO") {
@@ -157,7 +158,7 @@ function table_structure($table) {
 			}
 		}
 	}
-	if (dbm::is_result($full_columns)) {
+	if (DBM::is_result($full_columns)) {
 		foreach ($full_columns AS $column) {
 			$fielddata[$column["Field"]]["Collation"] = $column["Collation"];
 		}
@@ -200,7 +201,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 
 	if ($action) {
 		Config::set('system', 'maintenance', 1);
-		Config::set('system', 'maintenance_reason', sprintf(t(': Database update'), dbm::date().' '.date('e')));
+		Config::set('system', 'maintenance_reason', sprintf(t(': Database update'), DBM::date().' '.date('e')));
 	}
 
 	$errors = false;
@@ -214,7 +215,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 		$tables = q("SHOW TABLES");
 	}
 
-	if (dbm::is_result($tables)) {
+	if (DBM::is_result($tables)) {
 		foreach ($tables AS $table) {
 			$table = current($table);
 
@@ -243,7 +244,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 		$sql3 = "";
 		if (!isset($database[$name])) {
 			$r = db_create_table($name, $structure["fields"], $verbose, $action, $structure['indexes']);
-			if (!dbm::is_result($r)) {
+			if (!DBM::is_result($r)) {
 				$errors .= print_update_error($name);
 			}
 			$is_new_table = True;
@@ -433,7 +434,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 			}
 
 			if ($action) {
-				Config::set('system', 'maintenance_reason', sprintf(t('%s: updating %s table.'), dbm::date().' '.date('e'), $name));
+				Config::set('system', 'maintenance_reason', sprintf(t('%s: updating %s table.'), DBM::date().' '.date('e'), $name));
 
 				// Ensure index conversion to unique removes duplicates
 				if ($is_unique && ($temp_name != $name)) {
@@ -441,13 +442,13 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 						dba::e("SET session old_alter_table=1;");
 					} else {
 						dba::e("DROP TABLE IF EXISTS `".$temp_name."`;");
-						if (!dbm::is_result($r)) {
+						if (!DBM::is_result($r)) {
 							$errors .= print_update_error($sql3);
 							return $errors;
 						}
 
 						$r = dba::e("CREATE TABLE `".$temp_name."` LIKE `".$name."`;");
-						if (!dbm::is_result($r)) {
+						if (!DBM::is_result($r)) {
 							$errors .= print_update_error($sql3);
 							return $errors;
 						}
@@ -455,7 +456,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 				}
 
 				$r = @dba::e($sql3);
-				if (!dbm::is_result($r)) {
+				if (!DBM::is_result($r)) {
 					$errors .= print_update_error($sql3);
 				}
 				if ($is_unique && ($temp_name != $name)) {
@@ -463,17 +464,17 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 						dba::e("SET session old_alter_table=0;");
 					} else {
 						$r = dba::e("INSERT INTO `".$temp_name."` SELECT ".$field_list." FROM `".$name."`".$group_by.";");
-						if (!dbm::is_result($r)) {
+						if (!DBM::is_result($r)) {
 							$errors .= print_update_error($sql3);
 							return $errors;
 						}
 						$r = dba::e("DROP TABLE `".$name."`;");
-						if (!dbm::is_result($r)) {
+						if (!DBM::is_result($r)) {
 							$errors .= print_update_error($sql3);
 							return $errors;
 						}
 						$r = dba::e("RENAME TABLE `".$temp_name."` TO `".$name."`;");
-						if (!dbm::is_result($r)) {
+						if (!DBM::is_result($r)) {
 							$errors .= print_update_error($sql3);
 							return $errors;
 						}
