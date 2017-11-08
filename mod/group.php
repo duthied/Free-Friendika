@@ -84,11 +84,8 @@ function group_content(App $a) {
 	// Switch to text mode interface if we have more than 'n' contacts or group members
 
 	$switchtotext = PConfig::get(local_user(), 'system', 'groupedit_image_limit');
-	if ($switchtotext === false) {
-		$switchtotext = Config::get('system', 'groupedit_image_limit');
-	}
-	if ($switchtotext === false) {
-		$switchtotext = 400;
+	if (is_null($switchtotext)) {
+		$switchtotext = Config::get('system', 'groupedit_image_limit', 400);
 	}
 
 	$tpl = get_markup_template('group_edit.tpl');

@@ -2021,22 +2021,16 @@ function item_expire($uid, $days, $network = "", $force = false) {
 		return;
 	}
 
-	$expire_items = PConfig::get($uid, 'expire', 'items');
-	$expire_items = (($expire_items === false) ? 1 : intval($expire_items)); // default if not set: 1
+	$expire_items = PConfig::get($uid, 'expire', 'items', 1);
 
 	// Forcing expiring of items - but not notes and marked items
 	if ($force) {
 		$expire_items = true;
 	}
 
-	$expire_notes = PConfig::get($uid, 'expire', 'notes');
-	$expire_notes = (($expire_notes === false) ? 1 : intval($expire_notes)); // default if not set: 1
-
-	$expire_starred = PConfig::get($uid, 'expire', 'starred');
-	$expire_starred = (($expire_starred === false) ? 1 : intval($expire_starred)); // default if not set: 1
-
-	$expire_photos = PConfig::get($uid, 'expire', 'photos');
-	$expire_photos = (($expire_photos === false) ? 0 : intval($expire_photos)); // default if not set: 0
+	$expire_notes = PConfig::get($uid, 'expire', 'notes', 1);
+	$expire_starred = PConfig::get($uid, 'expire', 'starred', 1);
+	$expire_photos = PConfig::get($uid, 'expire', 'photos', 0);
 
 	logger('User '.$uid.': expire: # items=' . count($r). "; expire items: $expire_items, expire notes: $expire_notes, expire starred: $expire_starred, expire photos: $expire_photos");
 

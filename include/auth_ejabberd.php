@@ -79,7 +79,7 @@ class exAuth {
 		$this->writeLog(LOG_NOTICE, "start");
 
 		// We are connected to the SQL server.
-		do {
+		while (!feof(STDIN)) {
 			// Quit if the database connection went down
 			if (!dba::connected()) {
 				$this->writeLog(LOG_ERR, "the database connection went down");
@@ -125,7 +125,7 @@ class exAuth {
 				$this->writeLog(LOG_NOTICE, "invalid command string ".$sData);
 				fwrite(STDOUT, pack("nn", 2, 0));
 			}
-		} while (true);
+		}
 	}
 
 	/**
