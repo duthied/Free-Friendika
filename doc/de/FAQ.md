@@ -12,6 +12,7 @@ Nutzer
 * **[Was passiert, wenn ein Account gelöscht ist? Ist dieser richtig gelöscht?](help/FAQ#removed)**
 * **[Kann ich einem hashtag folgen?](help/FAQ#hashtag)**
 * **[Wie kann ich einen RSS-Feed meiner Netzwerkseite (Stream) erstellen?](help/FAQ#rss)**
+* **[Gibt es Clients für Friendica?](help/FAQ#clients)**
 * **[Wo finde ich Hilfe?](help/FAQ#help)**
 
 Admins
@@ -159,6 +160,31 @@ RSS-Feed aller Unterhaltungen auf Deiner Seite
 	Beispiel: Friendica Support 
 	
 	https://forum.friendi.ca/dfrn_poll/helpers/converse
+
+<a name="clients">
+
+### Gibt es Clients für Friendica?
+
+Friendica verwendet eine [Twitter/GNU Social](help/api) kompatible API.
+Das bedeutet, dass du jeden Twitter/GNU Social Client verwenden kannst in dem du den API Pfad entsprechend änderst.
+
+Hier ist eine Liste von Clients bei denen dies möglich ist, bzw. die speziell für Friendica entwickelt werden:
+
+* Android
+  * [Friendiqa](https://github.com/lubuwest/friendiqa) (ydie APK Datei findest du in den gelisteten Dateien im Repository)
+  * AndStatus
+  * Twidere
+  * Mustard and Mustard-Mod
+* SailfishOS
+  * [Friendly](https://openrepos.net/content/fabrixxm/friendly#comment-form)
+* Linux
+  * Hotot
+  * Choqok
+* MacOS X
+  * Hotot
+* Windows
+  * [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) für Windows 10
+  * Hotot
 
 <a name="help"></a>
 
