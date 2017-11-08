@@ -2273,7 +2273,7 @@ function admin_page_features(App $a) {
 			$arr[$fname][0] = $fdata[0];
 			foreach (array_slice($fdata,1) as $f) {
 
-				$set = Config::get('feature',$f[0], $f[3]);
+				$set = Config::get('feature', $f[0], $f[3]);
 				$arr[$fname][1][] = array(
 					array('feature_' .$f[0],$f[1],$set,$f[2],array(t('Off'), t('On'))),
 					array('featurelock_' .$f[0],sprintf(t('Lock feature %s'),$f[1]),(($f[4] !== false) ? "1" : ''),'',array(t('Off'), t('On')))
