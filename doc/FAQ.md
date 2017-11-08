@@ -27,7 +27,7 @@ User
 *****
 <a name="ssl"></a>
 
-###Why do I get warnings about SSL certificates?
+### Why do I get warnings about SSL certificates?
 
 SSL (Secure Socket Layer) is a technology to encrypt data transfer between computers.
 Sometimes your browser warns you about a missing or invalid certificate.
@@ -41,7 +41,7 @@ We recommend to talk to the admin(s) of the affected friendica server. (Admins, 
 
 <a name="upload"></a>
 
-###How can I upload images, files, links, videos and sound files to posts?
+### How can I upload images, files, links, videos and sound files to posts?
 
 You can upload images from your computer using the [editor](help/Text_editor).
 An overview of all uploaded images is listed at *yourpage.com/photos/profilename*.
@@ -71,7 +71,7 @@ See Wikipedia for more of them ([video](http://en.wikipedia.org/wiki/HTML5_video
 
 <a name="avatars"></a>
 
-###Is it possible to have different avatars per profile?
+### Is it possible to have different avatars per profile?
 
 Yes. On your Edit/Manage Profiles page, you will find a "change profile photo" link.
 Clicking this will take you to a page where you can upload a photograph and select which profile it will be associated with.
@@ -79,7 +79,7 @@ To avoid privacy leakage, we only display the photograph associated with your de
 
 <a name="contacts"></a>
 
-###What is the difference between blocked|ignored|archived|hidden contacts?
+### What is the difference between blocked|ignored|archived|hidden contacts?
 
 We prevent direct communication with **blocked contacts**.
 They are not included in delivery, and their own posts to you are not imported.
@@ -102,7 +102,7 @@ However a hidden contact will appear normally in conversations and this may expo
 
 <a name="removed"></a>
 
-###What happens when an account is removed? Is it truly deleted?
+### What happens when an account is removed? Is it truly deleted?
 
 If you delete your account, we will immediately remove all your content on **your** server.
 
@@ -115,7 +115,7 @@ After that, your account is deleted.
 
 <a name="hashtag"></a>
 
-###Can I follow a hashtag?
+### Can I follow a hashtag?
 
 No. The act of 'following' a hashtags is an interesting technology, but presents a few issues.
 
@@ -129,7 +129,7 @@ Instead, we offer other mechanisms for wide-area conversations while retaining a
 
 <a name="rss"></a>
 
-###How to create a RSS feed of the stream?
+### How to create a RSS feed of the stream?
 
 If you want to share your public page via rss you can use one of the following links:
 
@@ -151,29 +151,32 @@ RSS feed of the conversations at your site
 
 <a name="clients"></a>
 
-###Are there any clients for friendica I can use?
+### Are there any clients for friendica I can use?
 
 Friendica is using a [Twitter/GNU Social compatible API](help/api), which means you can use any Twitter/GNU Social client for your plattform as long as you can change the API path in its settings.
 Here is a list of known working clients:
 
 * Android
-  * Friendica Client for Android
+  * [Friendiqa](https://github.com/lubuwest/friendiqa) (you can find the APK file in the listed files in the repository)
   * AndStatus
   * Twidere
   * Mustard and Mustard-Mod
+* SailfishOS
+  * [Friendly](https://openrepos.net/content/fabrixxm/friendly#comment-form)
 * Linux
   * Hotot
   * Choqok
 * MacOS X
   * Hotot
 * Windows
+  * [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) for Windows 10
   * Hotot
 
 Depending on the features of the client you might encounter some glitches in usability, like being limited in the length of your postings to 140 characters and having no access to the [permission settings](help/Groups-and-Privacy).
 
 <a name="help"></a>
 
-###Where I can find help?
+### Where I can find help?
 
 If you have problems with your Friendica page, you can ask the community at the [Friendica Support Group](https://forum.friendi.ca/profile/helpers).
 If you can't use your default profile you can use an account at a public site [list](https://dir.friendica.social/servers) or you can use the Librelist mailing list.
@@ -186,13 +189,13 @@ Admin
 *****
 <a name="multiple"></a>
 
-###Can I configure multiple domains with the same code instance?
+### Can I configure multiple domains with the same code instance?
 
 No, this function is no longer supported as of Friendica 3.3 onwards.
 
 <a name="sources"></a>
 
-###Where can I find the source code of friendica, addons and themes?
+### Where can I find the source code of friendica, addons and themes?
 
 You can find the main respository [here](https://github.com/friendica/friendica).
 There you will always find the current stable version of friendica.
@@ -202,12 +205,12 @@ Addons are listed at [this page](https://github.com/friendica/friendica-addons).
 If you are searching for new themes, you can find them at [Friendica-Themes.com](http://friendica-themes.com/) 
 
 <a name="adminaccount1"></a>
-###I've changed my email address now the admin panel is gone?
+### I've changed my email address now the admin panel is gone?
 
 Have a look into your <tt>.htconfig.php</tt> and fix your email address there.
 
 <a name="adminaccount2"></a>
-###Can there be more then one admin for a node?
+### Can there be more then one admin for a node?
 
 Yes. You just have to list more then one email address in the
 <tt>.htconfig.php</tt> file. The listed emails need to be separated by a comma.
