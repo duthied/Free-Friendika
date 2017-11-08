@@ -17,9 +17,10 @@ use Friendica\Database\DBM;
 use dba;
 use DOMDocument;
 use DomXPath;
+use ostatus;
+use xml;
 
 require_once("include/Contact.php");
-require_once("include/ostatus.php");
 require_once("include/enotify.php");
 require_once("include/threads.php");
 require_once("include/socgraph.php");
@@ -31,7 +32,6 @@ require_once("include/text.php");
 require_once("include/oembed.php");
 require_once("include/html2bbcode.php");
 require_once("include/bbcode.php");
-require_once("include/xml.php");
 
 /**
  * @brief This class contain functions to create and send DFRN XML files
