@@ -10,11 +10,11 @@ namespace Friendica\Network;
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 
 use dba;
-use Cache;
 use xml;
 
 use DomXPath;

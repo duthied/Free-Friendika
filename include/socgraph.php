@@ -9,6 +9,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;

@@ -4,6 +4,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Cache;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
@@ -23,30 +24,28 @@ require_once 'include/follow.php';
 require_once 'include/api.php';
 require_once 'mod/proxy.php';
 require_once 'include/xml.php';
-require_once 'include/cache.php';
 
 /**
  * @brief This class contain functions for the OStatus protocol
- *
  */
-class ostatus {
-
+class ostatus
+{
 	private static $itemlist;
 	private static $conv_list = array();
 
 	/**
 	 * @brief Fetches author data
 	 *
-	 * @param object $xpath The xpath object
-	 * @param object $context The xml context of the author details
-	 * @param array $importer user record of the importing user
-	 * @param array $contact Called by reference, will contain the fetched contact
-	 * @param bool $onlyfetch Only fetch the header without updating the contact entries
+	 * @param object $xpath     The xpath object
+	 * @param object $context   The xml context of the author details
+	 * @param array  $importer  user record of the importing user
+	 * @param array  $contact   Called by reference, will contain the fetched contact
+	 * @param bool   $onlyfetch Only fetch the header without updating the contact entries
 	 *
 	 * @return array Array of author related entries for the item
 	 */
-	private static function fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch) {
-
+	private static function fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
+	{
 		$author = array();
 		$author["author-link"] = $xpath->evaluate('atom:author/atom:uri/text()', $context)->item(0)->nodeValue;
 		$author["author-name"] = $xpath->evaluate('atom:author/atom:name/text()', $context)->item(0)->nodeValue;
@@ -56,7 +55,7 @@ class ostatus {
 
 		$alternate = $xpath->query("atom:author/atom:link[@rel='alternate']", $context)->item(0)->attributes;
 		if (is_object($alternate)) {
-			foreach ($alternate AS $attributes) {
+			foreach ($alternate as $attributes) {
 				if (($attributes->name == "href") && ($attributes->textContent != "")) {
 					$author["author-link"] = $attributes->textContent;
 				}
@@ -117,10 +116,10 @@ class ostatus {
 
 		$avatarlist = array();
 		$avatars = $xpath->query("atom:author/atom:link[@rel='avatar']", $context);
-		foreach ($avatars AS $avatar) {
+		foreach ($avatars as $avatar) {
 			$href = "";
 			$width = 0;
-			foreach ($avatar->attributes AS $attributes) {
+			foreach ($avatar->attributes as $attributes) {
 				if ($attributes->name == "href") {
 					$href = $attributes->textContent;
 				}
@@ -148,7 +147,6 @@ class ostatus {
 
 		// Only update the contacts if it is an OStatus contact
 		if ($r && ($r['id'] > 0) && !$onlyfetch && ($contact["network"] == NETWORK_OSTATUS)) {
-
 			// This contact is vital, so we awake it from the dead
 			unmark_for_death($contact);
 
@@ -233,13 +231,13 @@ class ostatus {
 	/**
 	 * @brief Fetches author data from a given XML string
 	 *
-	 * @param string $xml The XML
-	 * @param array $importer user record of the importing user
+	 * @param string $xml      The XML
+	 * @param array  $importer user record of the importing user
 	 *
 	 * @return array Array of author related entries for the item
 	 */
-	public static function salmon_author($xml, $importer) {
-
+	public static function salmon_author($xml, $importer)
+	{
 		if ($xml == "")
 			return;
 
@@ -258,7 +256,7 @@ class ostatus {
 
 		$entries = $xpath->query('/atom:entry');
 
-		foreach ($entries AS $entry) {
+		foreach ($entries as $entry) {
 			// fetch the author
 			$author = self::fetchauthor($xpath, $entry, $importer, $contact, true);
 			return $author;
@@ -272,10 +270,11 @@ class ostatus {
 	 *
 	 * @return array attributes
 	 */
-	private static function read_attributes($element) {
+	private static function read_attributes($element)
+	{
 		$attribute = array();
 
-		foreach ($element->attributes AS $attributes) {
+		foreach ($element->attributes as $attributes) {
 			$attribute[$attributes->name] = $attributes->textContent;
 		}
 
@@ -285,28 +284,30 @@ class ostatus {
 	/**
 	 * @brief Imports an XML string containing OStatus elements
 	 *
-	 * @param string $xml The XML
-	 * @param array $importer user record of the importing user
-	 * @param array $contact
-	 * @param string $hub Called by reference, returns the fetched hub data
+	 * @param string $xml      The XML
+	 * @param array  $importer user record of the importing user
+	 * @param array  $contact  contact
+	 * @param string $hub      Called by reference, returns the fetched hub data
 	 */
-	public static function import($xml, $importer, &$contact, &$hub) {
+	public static function import($xml, $importer, &$contact, &$hub)
+	{
 		self::process($xml, $importer, $contact, $hub);
 	}
 
 	/**
 	 * @brief Internal feed processing
 	 *
-	 * @param string $xml The XML
-	 * @param array $importer user record of the importing user
-	 * @param array $contact
-	 * @param string $hub Called by reference, returns the fetched hub data
-	 * @param boolean $stored Is the post fresh imported or from the database?
+	 * @param string  $xml        The XML
+	 * @param array   $importer   user record of the importing user
+	 * @param array   $contact
+	 * @param string  $hub        Called by reference, returns the fetched hub data
+	 * @param boolean $stored     Is the post fresh imported or from the database?
 	 * @param boolean $initialize Is it the leading post so that data has to be initialized?
 	 *
 	 * @return boolean Could the XML be processed?
 	 */
-	private static function process($xml, $importer, &$contact, &$hub, $stored = false, $initialize = true) {
+	private static function process($xml, $importer, &$contact, &$hub, $stored = false, $initialize = true)
+	{
 		if ($initialize) {
 			self::$itemlist = array();
 			self::$conv_list = array();
@@ -333,7 +334,7 @@ class ostatus {
 		$hub = "";
 		$hub_attributes = $xpath->query("/atom:feed/atom:link[@rel='hub']")->item(0)->attributes;
 		if (is_object($hub_attributes)) {
-			foreach ($hub_attributes AS $hub_attribute) {
+			foreach ($hub_attributes as $hub_attribute) {
 				if ($hub_attribute->name == "href") {
 					$hub = $hub_attribute->textContent;
 					logger("Found hub ".$hub, LOGGER_DEBUG);
@@ -380,11 +381,11 @@ class ostatus {
 		// Reverse the order of the entries
 		$entrylist = array();
 
-		foreach ($entries AS $entry) {
+		foreach ($entries as $entry) {
 			$entrylist[] = $entry;
 		}
 
-		foreach (array_reverse($entrylist) AS $entry) {
+		foreach (array_reverse($entrylist) as $entry) {
 			// fetch the author
 			$authorelement = $xpath->query('/atom:entry/atom:author', $entry);
 
@@ -473,13 +474,13 @@ class ostatus {
 					$valid = !empty(self::$itemlist[0]['contact-id']);
 					if (!$valid) {
 						// If not, then it depends on this setting
-						$valid = !Config::get('system','ostatus_full_threads');
+						$valid = !Config::get('system', 'ostatus_full_threads');
 					}
 					if ($valid) {
 						// Never post a thread when the only interaction by our contact was a like
 						$valid = false;
 						$verbs = array(ACTIVITY_POST, ACTIVITY_SHARE);
-						foreach (self::$itemlist AS $item) {
+						foreach (self::$itemlist as $item) {
 							if (!empty($item['contact-id']) && in_array($item['verb'], $verbs)) {
 								$valid = true;
 							}
@@ -500,7 +501,7 @@ class ostatus {
 							$default_contact = $item['contact-id'];
 						}
 					}
-					foreach (self::$itemlist AS $item) {
+					foreach (self::$itemlist as $item) {
 						$found = dba::exists('item', array('uid' => $importer["uid"], 'uri' => $item["uri"]));
 						if ($found) {
 							logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already exists.", LOGGER_DEBUG);
@@ -526,8 +527,8 @@ class ostatus {
 		return true;
 	}
 
-	private static function deleteNotice($item) {
-
+	private static function deleteNotice($item)
+	{
 		$condition = array('uid' => $item['uid'], 'author-link' => $item['author-link'], 'uri' => $item['uri']);
 		$deleted = dba::select('item', array('id', 'parent-uri'), $condition, array('limit' => 1));
 		if (!DBM::is_result($deleted)) {
@@ -536,9 +537,12 @@ class ostatus {
 		}
 
 		// Currently we don't have a central deletion function that we could use in this case. The function "item_drop" doesn't work for that case
-		dba::update('item', array('deleted' => true, 'title' => '', 'body' => '',
+		dba::update(
+			'item',
+			array('deleted' => true, 'title' => '', 'body' => '',
 					'edited' => datetime_convert(), 'changed' => datetime_convert()),
-				array('id' => $deleted["id"]));
+			array('id' => $deleted["id"])
+		);
 
 		delete_thread($deleted["id"], $deleted["parent-uri"]);
 
@@ -548,12 +552,13 @@ class ostatus {
 	/**
 	 * @brief Processes the XML for a post
 	 *
-	 * @param object $xpath The xpath object
-	 * @param object $entry The xml entry that is processed
-	 * @param array $item The item array
-	 * @param array $importer user record of the importing user
+	 * @param object $xpath    The xpath object
+	 * @param object $entry    The xml entry that is processed
+	 * @param array  $item     The item array
+	 * @param array  $importer user record of the importing user
 	 */
-	private static function processPost($xpath, $entry, &$item, $importer) {
+	private static function processPost($xpath, $entry, &$item, $importer)
+	{
 		$item["body"] = html2bbcode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue);
 		$item["object-type"] = $xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue;
 		if (($item["object-type"] == ACTIVITY_OBJ_BOOKMARK) || ($item["object-type"] == ACTIVITY_OBJ_EVENT)) {
@@ -570,7 +575,7 @@ class ostatus {
 
 		$conv = $xpath->query('ostatus:conversation', $entry);
 		if (is_object($conv->item(0))) {
-			foreach ($conv->item(0)->attributes AS $attributes) {
+			foreach ($conv->item(0)->attributes as $attributes) {
 				if ($attributes->name == "ref") {
 					$item['conversation-uri'] = $attributes->textContent;
 				}
@@ -584,7 +589,7 @@ class ostatus {
 
 		$inreplyto = $xpath->query('thr:in-reply-to', $entry);
 		if (is_object($inreplyto->item(0))) {
-			foreach ($inreplyto->item(0)->attributes AS $attributes) {
+			foreach ($inreplyto->item(0)->attributes as $attributes) {
 				if ($attributes->name == "ref") {
 					$item["parent-uri"] = $attributes->textContent;
 				}
@@ -601,8 +606,8 @@ class ostatus {
 
 		$categories = $xpath->query('atom:category', $entry);
 		if ($categories) {
-			foreach ($categories AS $category) {
-				foreach ($category->attributes AS $attributes) {
+			foreach ($categories as $category) {
+				foreach ($category->attributes as $attributes) {
 					if ($attributes->name == "term") {
 						$term = $attributes->textContent;
 						if (strlen($item["tag"])) {
@@ -628,7 +633,7 @@ class ostatus {
 
 		$notice_info = $xpath->query('statusnet:notice_info', $entry);
 		if ($notice_info && ($notice_info->length > 0)) {
-			foreach ($notice_info->item(0)->attributes AS $attributes) {
+			foreach ($notice_info->item(0)->attributes as $attributes) {
 				if ($attributes->name == "source") {
 					$item["app"] = strip_tags($attributes->textContent);
 				}
@@ -648,7 +653,7 @@ class ostatus {
 		$item["body"] .= $add_body;
 
 		// Only add additional data when there is no picture in the post
-		if (!strstr($item["body"],'[/img]')) {
+		if (!strstr($item["body"], '[/img]')) {
 			$item["body"] = add_page_info_to_body($item["body"]);
 		}
 
@@ -690,11 +695,11 @@ class ostatus {
 	/**
 	 * @brief Fetch the conversation for posts
 	 *
-	 * @param string $conversation The link to the conversation
+	 * @param string $conversation     The link to the conversation
 	 * @param string $conversation_uri The conversation in "uri" format
 	 */
-	private static function fetchConversation($conversation, $conversation_uri) {
-
+	private static function fetchConversation($conversation, $conversation_uri)
+	{
 		// Ensure that we only store a conversation once in a process
 		if (isset(self::$conv_list[$conversation])) {
 			return;
@@ -723,7 +728,7 @@ class ostatus {
 
 			$links = $xpath->query('//link');
 			if ($links) {
-				foreach ($links AS $link) {
+				foreach ($links as $link) {
 					$attribute = ostatus::read_attributes($link);
 					if (($attribute['rel'] == 'alternate') && ($attribute['type'] == 'application/atom+xml')) {
 						$file = $attribute['href'];
@@ -749,9 +754,12 @@ class ostatus {
 	/**
 	 * @brief Store a feed in several conversation entries
 	 *
-	 * @param string $xml The feed
+	 * @param string $xml              The feed
+	 * @param string $conversation     conversation
+	 * @param string $conversation_uri conversation uri
 	 */
-	private static function storeConversation($xml, $conversation = '', $conversation_uri = '') {
+	private static function storeConversation($xml, $conversation = '', $conversation_uri = '')
+	{
 		$doc = new DOMDocument();
 		@$doc->loadXML($xml);
 
@@ -763,7 +771,7 @@ class ostatus {
 		$entries = $xpath->query('/atom:feed/atom:entry');
 
 		// Now store the entries
-		foreach ($entries AS $entry) {
+		foreach ($entries as $entry) {
 			$doc2 = new DOMDocument();
 			$doc2->preserveWhiteSpace = false;
 			$doc2->formatOutput = true;
@@ -776,7 +784,7 @@ class ostatus {
 
 			$inreplyto = $xpath->query('thr:in-reply-to', $entry);
 			if (is_object($inreplyto->item(0))) {
-				foreach ($inreplyto->item(0)->attributes AS $attributes) {
+				foreach ($inreplyto->item(0)->attributes as $attributes) {
 					if ($attributes->name == "ref") {
 						$conv_data['reply-to-uri'] = $attributes->textContent;
 					}
@@ -788,7 +796,7 @@ class ostatus {
 
 			$conv = $xpath->query('ostatus:conversation', $entry);
 			if (is_object($conv->item(0))) {
-				foreach ($conv->item(0)->attributes AS $attributes) {
+				foreach ($conv->item(0)->attributes as $attributes) {
 					if ($attributes->name == "ref") {
 						$conv_data['conversation-uri'] = $attributes->textContent;
 					}
@@ -825,7 +833,7 @@ class ostatus {
 
 	/**
 	 * @brief Fetch the own post so that it can be stored later
-	 * @param array $item The item array
+	 * @param array  $item The item array
 	 *
 	 * We want to store the original data for later processing.
 	 * This function is meant for cases where we process a feed with multiple entries.
@@ -833,7 +841,8 @@ class ostatus {
 	 *
 	 * @param string $self The link to the self item
 	 */
-	private static function fetchSelf($self, &$item) {
+	private static function fetchSelf($self, &$item)
+	{
 		$condition = array('`item-uri` = ? AND `protocol` IN (?, ?)', $self, PROTOCOL_DFRN, PROTOCOL_OSTATUS_SALMON);
 		if (dba::exists('conversation', $condition)) {
 			logger('Conversation '.$item['uri'].' is already stored.', LOGGER_DEBUG);
@@ -862,11 +871,12 @@ class ostatus {
 	/**
 	 * @brief Fetch related posts and processes them
 	 *
-	 * @param string $related The link to the related item
+	 * @param string $related     The link to the related item
 	 * @param string $related_uri The related item in "uri" format
-	 * @param array $importer user record of the importing user
+	 * @param array  $importer    user record of the importing user
 	 */
-	private static function fetchRelated($related, $related_uri, $importer) {
+	private static function fetchRelated($related, $related_uri, $importer)
+	{
 		$condition = array('`item-uri` = ? AND `protocol` IN (?, ?)', $related_uri, PROTOCOL_DFRN, PROTOCOL_OSTATUS_SALMON);
 		$conversation = dba::select('conversation', array('source', 'protocol'), $condition,  array('limit' => 1));
 		if (DBM::is_result($conversation)) {
@@ -907,7 +917,7 @@ class ostatus {
 
 			$links = $xpath->query('//link');
 			if ($links) {
-				foreach ($links AS $link) {
+				foreach ($links as $link) {
 					$attribute = self::read_attributes($link);
 					if (($attribute['rel'] == 'alternate') && ($attribute['type'] == 'application/atom+xml')) {
 						$atom_file = $attribute['href'];
@@ -967,14 +977,15 @@ class ostatus {
 	/**
 	 * @brief Processes the XML for a repeated post
 	 *
-	 * @param object $xpath The xpath object
-	 * @param object $entry The xml entry that is processed
-	 * @param array $item The item array
-	 * @param array $importer user record of the importing user
+	 * @param object $xpath    The xpath object
+	 * @param object $entry    The xml entry that is processed
+	 * @param array  $item     The item array
+	 * @param array  $importer user record of the importing user
 	 *
 	 * @return array with data from links
 	 */
-	private static function processRepeatedItem($xpath, $entry, &$item, $importer) {
+	private static function processRepeatedItem($xpath, $entry, &$item, $importer)
+	{
 		$activityobjects = $xpath->query('activity:object', $entry)->item(0);
 
 		if (!is_object($activityobjects)) {
@@ -1013,7 +1024,7 @@ class ostatus {
 
 		$inreplyto = $xpath->query('thr:in-reply-to', $activityobjects);
 		if (is_object($inreplyto->item(0))) {
-			foreach ($inreplyto->item(0)->attributes AS $attributes) {
+			foreach ($inreplyto->item(0)->attributes as $attributes) {
 				if ($attributes->name == "ref") {
 					$item["parent-uri"] = $attributes->textContent;
 				}
@@ -1027,22 +1038,24 @@ class ostatus {
 	 * @brief Processes links in the XML
 	 *
 	 * @param object $links The xml data that contain links
-	 * @param array $item The item array
+	 * @param array  $item  The item array
 	 *
 	 * @return array with data from the links
 	 */
-	private static function processLinks($links, &$item) {
+	private static function processLinks($links, &$item)
+	{
 		$link_data = array('add_body' => '', 'self' => '');
 
-		foreach ($links AS $link) {
+		foreach ($links as $link) {
 			$attribute = self::read_attributes($link);
 
 			if (($attribute['rel'] != "") && ($attribute['href'] != "")) {
 				switch ($attribute['rel']) {
 					case "alternate":
 						$item["plink"] = $attribute['href'];
-						if (($item["object-type"] == ACTIVITY_OBJ_QUESTION) ||
-							($item["object-type"] == ACTIVITY_OBJ_EVENT)) {
+						if (($item["object-type"] == ACTIVITY_OBJ_QUESTION)
+							|| ($item["object-type"] == ACTIVITY_OBJ_EVENT)
+						) {
 							$item["body"] .= add_page_info($attribute['href']);
 						}
 						break;
@@ -1054,7 +1067,7 @@ class ostatus {
 						}
 						break;
 					case "enclosure":
-						$filetype = strtolower(substr($attribute['type'], 0, strpos($attribute['type'],'/')));
+						$filetype = strtolower(substr($attribute['type'], 0, strpos($attribute['type'], '/')));
 						if ($filetype == 'image') {
 							$link_data['add_body'] .= "\n[img]".$attribute['href'].'[/img]';
 						} else {
@@ -1089,15 +1102,16 @@ class ostatus {
 		return $link_data;
 	}
 
-/**
+	/**
 	 * @brief Create an url out of an uri
 	 *
 	 * @param string $href URI in the format "parameter1:parameter1:..."
 	 *
 	 * @return string URL in the format http(s)://....
 	 */
-	public static function convert_href($href) {
-		$elements = explode(":",$href);
+	public static function convert_href($href)
+	{
+		$elements = explode(":", $href);
 
 		if ((count($elements) <= 2) || ($elements[0] != "tag"))
 			return $href;
@@ -1126,7 +1140,8 @@ class ostatus {
 	 *
 	 * @return string The guid if the post is a reshare
 	 */
-	private static function get_reshared_guid($item) {
+	private static function get_reshared_guid($item)
+	{
 		$body = trim($item["body"]);
 
 		// Skip if it isn't a pure repeated messages
@@ -1138,7 +1153,7 @@ class ostatus {
 		if (strlen($body) > (strrpos($body, "[/share]") + 8))
 			return "";
 
-		$attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","$1",$body);
+		$attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "$1", $body);
 		// Skip if there is no shared message in there
 		if ($body == $attributes)
 			return false;
@@ -1162,14 +1177,16 @@ class ostatus {
 	 *
 	 * @return string The cleaned body
 	 */
-	private static function format_picture_post($body) {
+	private static function format_picture_post($body)
+	{
 		$siteinfo = get_attached_data($body);
 
 		if (($siteinfo["type"] == "photo")) {
-			if (isset($siteinfo["preview"]))
+			if (isset($siteinfo["preview"])) {
 				$preview = $siteinfo["preview"];
-			else
+			} else {
 				$preview = $siteinfo["image"];
+			}
 
 			// Is it a remote picture? Then make a smaller preview here
 			$preview = proxy_url($preview, false, PROXY_SIZE_SMALL);
@@ -1178,10 +1195,11 @@ class ostatus {
 			$preview = str_replace(array("-0.jpg", "-0.png"), array("-2.jpg", "-2.png"), $preview);
 			$preview = str_replace(array("-1.jpg", "-1.png"), array("-2.jpg", "-2.png"), $preview);
 
-			if (isset($siteinfo["url"]))
+			if (isset($siteinfo["url"])) {
 				$url = $siteinfo["url"];
-			else
+			} else {
 				$url = $siteinfo["image"];
+			}
 
 			$body = trim($siteinfo["text"])." [url]".$url."[/url]\n[img]".$preview."[/img]";
 		}
@@ -1192,13 +1210,13 @@ class ostatus {
 	/**
 	 * @brief Adds the header elements to the XML document
 	 *
-	 * @param object $doc XML document
-	 * @param array $owner Contact data of the poster
+	 * @param object $doc   XML document
+	 * @param array  $owner Contact data of the poster
 	 *
 	 * @return object header root element
 	 */
-	private static function add_header($doc, $owner) {
-
+	private static function add_header($doc, $owner)
+	{
 		$a = get_app();
 
 		$root = $doc->createElementNS(NAMESPACE_ATOM1, 'feed');
@@ -1254,10 +1272,12 @@ class ostatus {
 	/**
 	 * @brief Add the link to the push hubs to the XML document
 	 *
-	 * @param object $doc XML document
+	 * @param object $doc  XML document
 	 * @param object $root XML root element where the hub links are added
+	 * @param object $nick nick
 	 */
-	public static function hublinks($doc, $root, $nick) {
+	public static function hublinks($doc, $root, $nick)
+	{
 		$h = System::baseUrl() . '/pubsubhubbub/'.$nick;
 		xml::add_element($doc, $root, "link", "", array("href" => $h, "rel" => "hub"));
 	}
@@ -1265,11 +1285,12 @@ class ostatus {
 	/**
 	 * @brief Adds attachement data to the XML document
 	 *
-	 * @param object $doc XML document
+	 * @param object $doc  XML document
 	 * @param object $root XML root element where the hub links are added
-	 * @param array $item Data of the item that is to be posted
+	 * @param array  $item Data of the item that is to be posted
 	 */
-	private static function get_attachment($doc, $root, $item) {
+	private static function get_attachment($doc, $root, $item)
+	{
 		$o = "";
 		$siteinfo = get_attached_data($item["body"]);
 
@@ -1329,13 +1350,13 @@ class ostatus {
 	/**
 	 * @brief Adds the author element to the XML document
 	 *
-	 * @param object $doc XML document
-	 * @param array $owner Contact data of the poster
+	 * @param object $doc   XML document
+	 * @param array  $owner Contact data of the poster
 	 *
 	 * @return object author element
 	 */
-	private static function add_author($doc, $owner) {
-
+	private static function add_author($doc, $owner)
+	{
 		$r = q("SELECT `homepage`, `publish` FROM `profile` WHERE `uid` = %d AND `is-default` LIMIT 1", intval($owner["uid"]));
 		if (DBM::is_result($r)) {
 			$profile = $r[0];
@@ -1402,8 +1423,7 @@ class ostatus {
 	 * @TODO Picture attachments should look like this:
 	 *	<a href="https://status.pirati.ca/attachment/572819" title="https://status.pirati.ca/file/heluecht-20151202T222602-rd3u49p.gif"
 	 *	class="attachment thumbnail" id="attachment-572819" rel="nofollow external">https://status.pirati.ca/attachment/572819</a>
-	 *
-	*/
+	 */
 
 	/**
 	 * @brief Returns the given activity if present - otherwise returns the "post" activity
@@ -1412,7 +1432,8 @@ class ostatus {
 	 *
 	 * @return string activity
 	 */
-	private static function construct_verb($item) {
+	private static function construct_verb($item)
+	{
 		if ($item['verb'])
 			return $item['verb'];
 		return ACTIVITY_POST;
@@ -1425,7 +1446,8 @@ class ostatus {
 	 *
 	 * @return string Object type
 	 */
-	private static function construct_objecttype($item) {
+	private static function construct_objecttype($item)
+	{
 		if (in_array($item['object-type'], array(ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_COMMENT)))
 			return $item['object-type'];
 		return ACTIVITY_OBJ_NOTE;
@@ -1434,14 +1456,15 @@ class ostatus {
 	/**
 	 * @brief Adds an entry element to the XML document
 	 *
-	 * @param object $doc XML document
-	 * @param array $item Data of the item that is to be posted
-	 * @param array $owner Contact data of the poster
-	 * @param bool $toplevel
+	 * @param object $doc      XML document
+	 * @param array  $item     Data of the item that is to be posted
+	 * @param array  $owner    Contact data of the poster
+	 * @param bool   $toplevel optional default false
 	 *
 	 * @return object Entry element
 	 */
-	private static function entry($doc, $item, $owner, $toplevel = false) {
+	private static function entry($doc, $item, $owner, $toplevel = false)
+	{
 		$repeated_guid = self::get_reshared_guid($item);
 		if ($repeated_guid != "")
 			$xml = self::reshare_entry($doc, $item, $owner, $repeated_guid, $toplevel);
@@ -1461,23 +1484,20 @@ class ostatus {
 	/**
 	 * @brief Adds a source entry to the XML document
 	 *
-	 * @param object $doc XML document
-	 * @param array $contact Array of the contact that is added
+	 * @param object $doc     XML document
+	 * @param array  $contact Array of the contact that is added
 	 *
 	 * @return object Source element
 	 */
-	private static function source_entry($doc, $contact) {
+	private static function source_entry($doc, $contact)
+	{
 		$source = $doc->createElement("source");
 		xml::add_element($doc, $source, "id", $contact["poll"]);
 		xml::add_element($doc, $source, "title", $contact["name"]);
-		xml::add_element($doc, $source, "link", "", array("rel" => "alternate",
-								"type" => "text/html",
-								"href" => $contact["alias"]));
-		xml::add_element($doc, $source, "link", "", array("rel" => "self",
-								"type" => "application/atom+xml",
-								"href" => $contact["poll"]));
+		xml::add_element($doc, $source, "link", "", array("rel" => "alternate", "type" => "text/html", "href" => $contact["alias"]));
+		xml::add_element($doc, $source, "link", "", array("rel" => "self", "type" => "application/atom+xml", "href" => $contact["poll"]));
 		xml::add_element($doc, $source, "icon", $contact["photo"]);
-		xml::add_element($doc, $source, "updated", datetime_convert("UTC","UTC",$contact["success_update"]."+00:00",ATOM_TIME));
+		xml::add_element($doc, $source, "updated", datetime_convert("UTC", "UTC", $contact["success_update"]."+00:00", ATOM_TIME));
 
 		return $source;
 	}
@@ -1485,23 +1505,28 @@ class ostatus {
 	/**
 	 * @brief Fetches contact data from the contact or the gcontact table
 	 *
-	 * @param string $url URL of the contact
-	 * @param array $owner Contact data of the poster
+	 * @param string $url   URL of the contact
+	 * @param array  $owner Contact data of the poster
 	 *
 	 * @return array Contact array
 	 */
 	private static function contact_entry($url, $owner) {
 
-		$r = q("SELECT * FROM `contact` WHERE `nurl` = '%s' AND `uid` IN (0, %d) ORDER BY `uid` DESC LIMIT 1",
-			dbesc(normalise_link($url)), intval($owner["uid"]));
+		$r = q(
+			"SELECT * FROM `contact` WHERE `nurl` = '%s' AND `uid` IN (0, %d) ORDER BY `uid` DESC LIMIT 1",
+			dbesc(normalise_link($url)),
+			intval($owner["uid"])
+		);
 		if (DBM::is_result($r)) {
 			$contact = $r[0];
 			$contact["uid"] = -1;
 		}
 
 		if (!DBM::is_result($r)) {
-			$r = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
-				dbesc(normalise_link($url)));
+			$r = q(
+				"SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
+				dbesc(normalise_link($url))
+			);
 			if (DBM::is_result($r)) {
 				$contact = $r[0];
 				$contact["uid"] = -1;
@@ -1509,19 +1534,22 @@ class ostatus {
 			}
 		}
 
-		if (!DBM::is_result($r))
+		if (!DBM::is_result($r)) {
 			$contact = owner;
+		}
 
 		if (!isset($contact["poll"])) {
 			$data = Probe::uri($url);
 			$contact["poll"] = $data["poll"];
 
-			if (!$contact["alias"])
+			if (!$contact["alias"]) {
 				$contact["alias"] = $data["alias"];
+			}
 		}
 
-		if (!isset($contact["alias"]))
+		if (!isset($contact["alias"])) {
 			$contact["alias"] = $contact["url"];
+		}
 
 		return $contact;
 	}
@@ -1529,25 +1557,30 @@ class ostatus {
 	/**
 	 * @brief Adds an entry element with reshared content
 	 *
-	 * @param object $doc XML document
-	 * @param array $item Data of the item that is to be posted
-	 * @param array $owner Contact data of the poster
-	 * @param $repeated_guid
-	 * @param bool $toplevel Is it for en entry element (false) or a feed entry (true)?
+	 * @param object $doc           XML document
+	 * @param array  $item          Data of the item that is to be posted
+	 * @param array  $owner         Contact data of the poster
+	 * @param        $repeated_guid
+	 * @param bool   $toplevel      Is it for en entry element (false) or a feed entry (true)?
 	 *
 	 * @return object Entry element
 	 */
-	private static function reshare_entry($doc, $item, $owner, $repeated_guid, $toplevel) {
-
+	private static function reshare_entry($doc, $item, $owner, $repeated_guid, $toplevel)
+	{
 		if (($item["id"] != $item["parent"]) && (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
 			logger("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", LOGGER_DEBUG);
 		}
 
 		$title = self::entry_header($doc, $entry, $owner, $toplevel);
 
-		$r = q("SELECT * FROM `item` WHERE `uid` = %d AND `guid` = '%s' AND NOT `private` AND `network` IN ('%s', '%s', '%s') LIMIT 1",
-			intval($owner["uid"]), dbesc($repeated_guid),
-			dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS));
+		$r = q(
+			"SELECT * FROM `item` WHERE `uid` = %d AND `guid` = '%s' AND NOT `private` AND `network` IN ('%s', '%s', '%s') LIMIT 1",
+			intval($owner["uid"]),
+			dbesc($repeated_guid),
+			dbesc(NETWORK_DFRN),
+			dbesc(NETWORK_DIASPORA),
+			dbesc(NETWORK_OSTATUS)
+		);
 		if (DBM::is_result($r)) {
 			$repeated_item = $r[0];
 		} else {
@@ -1596,15 +1629,15 @@ class ostatus {
 	/**
 	 * @brief Adds an entry element with a "like"
 	 *
-	 * @param object $doc XML document
-	 * @param array $item Data of the item that is to be posted
-	 * @param array $owner Contact data of the poster
-	 * @param bool $toplevel Is it for en entry element (false) or a feed entry (true)?
+	 * @param object $doc      XML document
+	 * @param array  $item     Data of the item that is to be posted
+	 * @param array  $owner    Contact data of the poster
+	 * @param bool   $toplevel Is it for en entry element (false) or a feed entry (true)?
 	 *
 	 * @return object Entry element with "like"
 	 */
-	private static function like_entry($doc, $item, $owner, $toplevel) {
-
+	private static function like_entry($doc, $item, $owner, $toplevel)
+	{
 		if (($item["id"] != $item["parent"]) && (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
 			logger("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", LOGGER_DEBUG);
 		}
@@ -1616,8 +1649,11 @@ class ostatus {
 
 		$as_object = $doc->createElement("activity:object");
 
-		$parent = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `uid` = %d",
-			dbesc($item["thr-parent"]), intval($item["uid"]));
+		$parent = q(
+			"SELECT * FROM `item` WHERE `uri` = '%s' AND `uid` = %d",
+			dbesc($item["thr-parent"]),
+			intval($item["uid"])
+		);
 		$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 
 		xml::add_element($doc, $as_object, "activity:object-type", self::construct_objecttype($parent[0]));
@@ -1634,14 +1670,14 @@ class ostatus {
 	/**
 	 * @brief Adds the person object element to the XML document
 	 *
-	 * @param object $doc XML document
-	 * @param array $owner Contact data of the poster
-	 * @param array $contact Contact data of the target
+	 * @param object $doc     XML document
+	 * @param array  $owner   Contact data of the poster
+	 * @param array  $contact Contact data of the target
 	 *
 	 * @return object author element
 	 */
-	private static function add_person_object($doc, $owner, $contact) {
-
+	private static function add_person_object($doc, $owner, $contact)
+	{
 		$object = $doc->createElement("activity:object");
 		xml::add_element($doc, $object, "activity:object-type", ACTIVITY_OBJ_PERSON);
 
@@ -1679,10 +1715,10 @@ class ostatus {
 	/**
 	 * @brief Adds a follow/unfollow entry element
 	 *
-	 * @param object $doc XML document
-	 * @param array $item Data of the follow/unfollow message
-	 * @param array $owner Contact data of the poster
-	 * @param bool $toplevel Is it for en entry element (false) or a feed entry (true)?
+	 * @param object $doc      XML document
+	 * @param array  $item     Data of the follow/unfollow message
+	 * @param array  $owner    Contact data of the poster
+	 * @param bool   $toplevel Is it for en entry element (false) or a feed entry (true)?
 	 *
 	 * @return object Entry element
 	 */
@@ -1700,8 +1736,11 @@ class ostatus {
 			$item['follow'] = $contact['alias'];
 		}
 
-		$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s'",
-			intval($owner['uid']), dbesc(normalise_link($contact["url"])));
+		$r = q(
+			"SELECT `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s'",
+			intval($owner['uid']),
+			dbesc(normalise_link($contact["url"]))
+		);
 
 		if (DBM::is_result($r)) {
 			$connect_id = $r[0]['id'];
@@ -1719,8 +1758,8 @@ class ostatus {
 			$action = "unfollow";
 		}
 
-		$item["uri"] = $item['parent-uri'] = $item['thr-parent'] =
-				'tag:'.get_app()->get_hostname().
+		$item["uri"] = $item['parent-uri'] = $item['thr-parent']
+				= 'tag:'.get_app()->get_hostname().
 				','.date('Y-m-d').':'.$action.':'.$owner['uid'].
 				':person:'.$connect_id.':'.$item['created'];
 
@@ -1741,15 +1780,15 @@ class ostatus {
 	/**
 	 * @brief Adds a regular entry element
 	 *
-	 * @param object $doc XML document
-	 * @param array $item Data of the item that is to be posted
-	 * @param array $owner Contact data of the poster
-	 * @param bool $toplevel Is it for en entry element (false) or a feed entry (true)?
+	 * @param object $doc      XML document
+	 * @param array  $item     Data of the item that is to be posted
+	 * @param array  $owner    Contact data of the poster
+	 * @param bool   $toplevel Is it for en entry element (false) or a feed entry (true)?
 	 *
 	 * @return object Entry element
 	 */
-	private static function note_entry($doc, $item, $owner, $toplevel) {
-
+	private static function note_entry($doc, $item, $owner, $toplevel)
+	{
 		if (($item["id"] != $item["parent"]) && (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
 			logger("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", LOGGER_DEBUG);
 		}
@@ -1768,14 +1807,15 @@ class ostatus {
 	/**
 	 * @brief Adds a header element to the XML document
 	 *
-	 * @param object $doc XML document
-	 * @param object $entry The entry element where the elements are added
-	 * @param array $owner Contact data of the poster
-	 * @param bool $toplevel Is it for en entry element (false) or a feed entry (true)?
+	 * @param object $doc      XML document
+	 * @param object $entry    The entry element where the elements are added
+	 * @param array  $owner    Contact data of the poster
+	 * @param bool   $toplevel Is it for en entry element (false) or a feed entry (true)?
 	 *
 	 * @return string The title for the element
 	 */
-	private static function entry_header($doc, &$entry, $owner, $toplevel) {
+	private static function entry_header($doc, &$entry, $owner, $toplevel)
+	{
 		/// @todo Check if this title stuff is really needed (I guess not)
 		if (!$toplevel) {
 			$entry = $doc->createElement("entry");
@@ -1803,18 +1843,19 @@ class ostatus {
 	/**
 	 * @brief Adds elements to the XML document
 	 *
-	 * @param object $doc XML document
-	 * @param object $entry Entry element where the content is added
-	 * @param array $item Data of the item that is to be posted
-	 * @param array $owner Contact data of the poster
-	 * @param string $title Title for the post
-	 * @param string $verb The activity verb
-	 * @param bool $complete Add the "status_net" element?
+	 * @param object $doc      XML document
+	 * @param object $entry    Entry element where the content is added
+	 * @param array  $item     Data of the item that is to be posted
+	 * @param array  $owner    Contact data of the poster
+	 * @param string $title    Title for the post
+	 * @param string $verb     The activity verb
+	 * @param bool   $complete Add the "status_net" element?
 	 */
-	private static function entry_content($doc, $entry, $item, $owner, $title, $verb = "", $complete = true) {
-
-		if ($verb == "")
+	private static function entry_content($doc, $entry, $item, $owner, $title, $verb = "", $complete = true)
+	{
+		if ($verb == "") {
 			$verb = self::construct_verb($item);
+		}
 
 		xml::add_element($doc, $entry, "id", $item["uri"]);
 		xml::add_element($doc, $entry, "title", $title);
@@ -1829,37 +1870,41 @@ class ostatus {
 		xml::add_element($doc, $entry, "content", $body, array("type" => "html"));
 
 		xml::add_element($doc, $entry, "link", "", array("rel" => "alternate", "type" => "text/html",
-								"href" => System::baseUrl()."/display/".$item["guid"]));
+			"href" => System::baseUrl()."/display/".$item["guid"])
+		);
 
-		if ($complete && ($item["id"] > 0))
+		if ($complete && ($item["id"] > 0)) {
 			xml::add_element($doc, $entry, "status_net", "", array("notice_id" => $item["id"]));
+		}
 
 		xml::add_element($doc, $entry, "activity:verb", $verb);
 
-		xml::add_element($doc, $entry, "published", datetime_convert("UTC","UTC",$item["created"]."+00:00",ATOM_TIME));
-		xml::add_element($doc, $entry, "updated", datetime_convert("UTC","UTC",$item["edited"]."+00:00",ATOM_TIME));
+		xml::add_element($doc, $entry, "published", datetime_convert("UTC", "UTC", $item["created"]."+00:00", ATOM_TIME));
+		xml::add_element($doc, $entry, "updated", datetime_convert("UTC", "UTC", $item["edited"]."+00:00", ATOM_TIME));
 	}
 
 	/**
 	 * @brief Adds the elements at the foot of an entry to the XML document
 	 *
-	 * @param object $doc XML document
-	 * @param object $entry The entry element where the elements are added
-	 * @param array $item Data of the item that is to be posted
-	 * @param array $owner Contact data of the poster
-	 * @param $complete
+	 * @param object $doc      XML document
+	 * @param object $entry    The entry element where the elements are added
+	 * @param array  $item     Data of the item that is to be posted
+	 * @param array  $owner    Contact data of the poster
+	 * @param bool   $complete default true
 	 */
-	private static function entry_footer($doc, $entry, $item, $owner, $complete = true) {
-
+	private static function entry_footer($doc, $entry, $item, $owner, $complete = true)
+	{
 		$mentioned = array();
 
 		if (($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
 			$parent = q("SELECT `guid`, `author-link`, `owner-link` FROM `item` WHERE `id` = %d", intval($item["parent"]));
 			$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 
-			$thrparent = q("SELECT `guid`, `author-link`, `owner-link`, `plink` FROM `item` WHERE `uid` = %d AND `uri` = '%s'",
-					intval($owner["uid"]),
-					dbesc($parent_item));
+			$thrparent = q(
+				"SELECT `guid`, `author-link`, `owner-link`, `plink` FROM `item` WHERE `uid` = %d AND `uri` = '%s'",
+				intval($owner["uid"]),
+				dbesc($parent_item)
+			);
 			if ($thrparent) {
 				$mentioned[$thrparent[0]["author-link"]] = $thrparent[0]["author-link"];
 				$mentioned[$thrparent[0]["owner-link"]] = $thrparent[0]["owner-link"];
@@ -1909,31 +1954,43 @@ class ostatus {
 
 		$tags = item_getfeedtags($item);
 
-		if (count($tags))
-			foreach ($tags as $t)
-				if ($t[0] == "@")
+		if (count($tags)) {
+			foreach ($tags as $t) {
+				if ($t[0] == "@") {
 					$mentioned[$t[1]] = $t[1];
+				}
+			}
+		}
 
 		// Make sure that mentions are accepted (GNU Social has problems with mixing HTTP and HTTPS)
 		$newmentions = array();
-		foreach ($mentioned AS $mention) {
+		foreach ($mentioned as $mention) {
 			$newmentions[str_replace("http://", "https://", $mention)] = str_replace("http://", "https://", $mention);
 			$newmentions[str_replace("https://", "http://", $mention)] = str_replace("https://", "http://", $mention);
 		}
 		$mentioned = $newmentions;
 
-		foreach ($mentioned AS $mention) {
-			$r = q("SELECT `forum`, `prv` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s'",
+		foreach ($mentioned as $mention) {
+			$r = q(
+				"SELECT `forum`, `prv` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s'",
 				intval($owner["uid"]),
-				dbesc(normalise_link($mention)));
-			if ($r[0]["forum"] || $r[0]["prv"])
-				xml::add_element($doc, $entry, "link", "", array("rel" => "mentioned",
-											"ostatus:object-type" => ACTIVITY_OBJ_GROUP,
-											"href" => $mention));
-			else
-				xml::add_element($doc, $entry, "link", "", array("rel" => "mentioned",
-											"ostatus:object-type" => ACTIVITY_OBJ_PERSON,
-											"href" => $mention));
+				dbesc(normalise_link($mention))
+			);
+			if ($r[0]["forum"] || $r[0]["prv"]) {
+				xml::add_element($doc, $entry, "link", "",
+					array(
+						"rel" => "mentioned",
+						"ostatus:object-type" => ACTIVITY_OBJ_GROUP,
+						"href" => $mention)
+				);
+			} else {
+				xml::add_element($doc, $entry, "link", "",
+					array(
+						"rel" => "mentioned",
+						"ostatus:object-type" => ACTIVITY_OBJ_PERSON,
+						"href" => $mention)
+				);
+			}
 		}
 
 		if (!$item["private"]) {
@@ -1945,10 +2002,13 @@ class ostatus {
 			xml::add_element($doc, $entry, "mastodon:scope", "public");
 		}
 
-		if (count($tags))
-			foreach ($tags as $t)
-				if ($t[0] != "@")
+		if (count($tags)) {
+			foreach ($tags as $t) {
+				if ($t[0] != "@") {
 					xml::add_element($doc, $entry, "category", "", array("term" => $t[2]));
+				}
+			}
+		}
 
 		self::get_attachment($doc, $entry, $item);
 
@@ -1959,11 +2019,13 @@ class ostatus {
 
 			$attributes = array("local_id" => $item["id"], "source" => $app);
 
-			if (isset($parent["id"]))
+			if (isset($parent["id"])) {
 				$attributes["repeat_of"] = $parent["id"];
+			}
 
-			if ($item["coord"] != "")
+			if ($item["coord"] != "") {
 				xml::add_element($doc, $entry, "georss:point", $item["coord"]);
+			}
 
 			xml::add_element($doc, $entry, "statusnet:notice_info", "", $attributes);
 		}
@@ -1972,14 +2034,15 @@ class ostatus {
 	/**
 	 * @brief Creates the XML feed for a given nickname
 	 *
-	 * @param App $a The application class
-	 * @param string $owner_nick Nickname of the feed owner
-	 * @param string $last_update Date of the last update
-	 * @param integer $max_items Number of maximum items to fetch
+	 * @param object  $a           The application class
+	 * @param string  $owner_nick  Nickname of the feed owner
+	 * @param string  $last_update Date of the last update
+	 * @param integer $max_items   Number of maximum items to fetch
 	 *
 	 * @return string XML feed
 	 */
-	public static function feed(App $a, $owner_nick, &$last_update, $max_items = 300) {
+	public static function feed(App $a, $owner_nick, &$last_update, $max_items = 300)
+	{
 		$stamp = microtime(true);
 
 		$cachekey = "ostatus:feed:".$owner_nick.":".$last_update;
@@ -1993,10 +2056,12 @@ class ostatus {
 			return $result['feed'];
 		}
 
-		$r = q("SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`
+		$r = q(
+			"SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`
 				FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
 				WHERE `contact`.`self` AND `user`.`nickname` = '%s' LIMIT 1",
-				dbesc($owner_nick));
+			dbesc($owner_nick)
+		);
 		if (!DBM::is_result($r)) {
 			return;
 		}
@@ -2007,26 +2072,28 @@ class ostatus {
 			$last_update = 'now -30 days';
 		}
 
-		$check_date = datetime_convert('UTC','UTC',$last_update,'Y-m-d H:i:s');
+		$check_date = datetime_convert('UTC', 'UTC', $last_update, 'Y-m-d H:i:s');
 		$authorid = get_contact($owner["url"], 0);
 
-		$items = q("SELECT `item`.*, `item`.`id` AS `item_id` FROM `item` USE INDEX (`uid_contactid_created`)
+		$items = q(
+			"SELECT `item`.*, `item`.`id` AS `item_id` FROM `item` USE INDEX (`uid_contactid_created`)
 				STRAIGHT_JOIN `thread` ON `thread`.`iid` = `item`.`parent`
 				WHERE `item`.`uid` = %d AND `item`.`contact-id` = %d AND
 					`item`.`author-id` = %d AND `item`.`created` > '%s' AND
 					NOT `item`.`deleted` AND NOT `item`.`private` AND
 					`thread`.`network` IN ('%s', '%s')
 				ORDER BY `item`.`created` DESC LIMIT %d",
-				intval($owner["uid"]), intval($owner["id"]),
-				intval($authorid), dbesc($check_date),
-				dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN), intval($max_items));
+			intval($owner["uid"]), intval($owner["id"]),
+			intval($authorid), dbesc($check_date),
+			dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN), intval($max_items)
+		);
 
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
 
 		$root = self::add_header($doc, $owner);
 
-		foreach ($items AS $item) {
+		foreach ($items as $item) {
 			if (Config::get('system', 'ostatus_debug')) {
 				$item['body'] .= '🍼';
 			}
@@ -2051,13 +2118,13 @@ class ostatus {
 	/**
 	 * @brief Creates the XML for a salmon message
 	 *
-	 * @param array $item Data of the item that is to be posted
+	 * @param array $item  Data of the item that is to be posted
 	 * @param array $owner Contact data of the poster
 	 *
 	 * @return string XML for the salmon
 	 */
-	public static function salmon($item,$owner) {
-
+	public static function salmon($item, $owner)
+	{
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
 

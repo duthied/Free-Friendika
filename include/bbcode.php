@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Cache;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 
