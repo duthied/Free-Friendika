@@ -1296,26 +1296,20 @@ class DFRN
 				case 2:
 					// RINO 2 based on php-encryption
 					try {
-						$key = Crypto::createNewRandomKey();
-					} catch (CryptoTestFailed $ex) {
+						$key = \Defuse\Crypto\Key::createNewRandomKey();
+					} catch (\Defuse\Crypto\Exception\CryptoException $ex) {
 						logger('Cannot safely create a key');
 						return -4;
-					} catch (CannotPerformOperation $ex) {
-						logger('Cannot safely create a key');
-						return -5;
 					}
 					try {
-						$data = Crypto::encrypt($postvars['data'], $key);
-					} catch (CryptoTestFailed $ex) {
+						$data = \Defuse\Crypto\Crypto::encrypt($postvars['data'], $key);
+					} catch (\Defuse\Crypto\Exception\CryptoException $ex) {
 						logger('Cannot safely perform encryption');
 						return -6;
-					} catch (CannotPerformOperation $ex) {
-						logger('Cannot safely perform encryption');
-						return -7;
 					}
 					break;
 				default:
-					logger("rino: invalid requested verision '$rino_remote_version'");
+					logger("rino: invalid requested version '$rino_remote_version'");
 					return -8;
 			}
 
