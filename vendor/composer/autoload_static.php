@@ -7,6 +7,7 @@ namespace Composer\Autoload;
 class ComposerStaticInitFriendica
 {
     public static $files = array (
+        '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
         '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
     );
 
@@ -19,6 +20,10 @@ class ComposerStaticInitFriendica
         array (
             'Friendica\\' => 10,
         ),
+        'D' => 
+        array (
+            'Defuse\\Crypto\\' => 14,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
@@ -29,6 +34,10 @@ class ComposerStaticInitFriendica
         'Friendica\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
+        ),
+        'Defuse\\Crypto\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/defuse/php-encryption/src',
         ),
     );
 
@@ -59,13 +68,32 @@ class ComposerStaticInitFriendica
     public static $classMap = array (
         'Archive_Tar' => __DIR__ . '/..' . '/pear-pear.php.net/Archive_Tar/Archive/Tar.php',
         'Console_Getopt' => __DIR__ . '/..' . '/pear-pear.php.net/Console_Getopt/Console/Getopt.php',
+        'Defuse\\Crypto\\Core' => __DIR__ . '/..' . '/defuse/php-encryption/src/Core.php',
+        'Defuse\\Crypto\\Crypto' => __DIR__ . '/..' . '/defuse/php-encryption/src/Crypto.php',
+        'Defuse\\Crypto\\DerivedKeys' => __DIR__ . '/..' . '/defuse/php-encryption/src/DerivedKeys.php',
+        'Defuse\\Crypto\\Encoding' => __DIR__ . '/..' . '/defuse/php-encryption/src/Encoding.php',
+        'Defuse\\Crypto\\Exception\\BadFormatException' => __DIR__ . '/..' . '/defuse/php-encryption/src/Exception/BadFormatException.php',
+        'Defuse\\Crypto\\Exception\\CryptoException' => __DIR__ . '/..' . '/defuse/php-encryption/src/Exception/CryptoException.php',
+        'Defuse\\Crypto\\Exception\\EnvironmentIsBrokenException' => __DIR__ . '/..' . '/defuse/php-encryption/src/Exception/EnvironmentIsBrokenException.php',
+        'Defuse\\Crypto\\Exception\\IOException' => __DIR__ . '/..' . '/defuse/php-encryption/src/Exception/IOException.php',
+        'Defuse\\Crypto\\Exception\\WrongKeyOrModifiedCiphertextException' => __DIR__ . '/..' . '/defuse/php-encryption/src/Exception/WrongKeyOrModifiedCiphertextException.php',
+        'Defuse\\Crypto\\File' => __DIR__ . '/..' . '/defuse/php-encryption/src/File.php',
+        'Defuse\\Crypto\\Key' => __DIR__ . '/..' . '/defuse/php-encryption/src/Key.php',
+        'Defuse\\Crypto\\KeyOrPassword' => __DIR__ . '/..' . '/defuse/php-encryption/src/KeyOrPassword.php',
+        'Defuse\\Crypto\\KeyProtectedByPassword' => __DIR__ . '/..' . '/defuse/php-encryption/src/KeyProtectedByPassword.php',
+        'Defuse\\Crypto\\RuntimeTests' => __DIR__ . '/..' . '/defuse/php-encryption/src/RuntimeTests.php',
         'Detection\\MobileDetect' => __DIR__ . '/..' . '/mobiledetect/mobiledetectlib/namespaced/Detection/MobileDetect.php',
         'Friendica\\App' => __DIR__ . '/../..' . '/src/App.php',
         'Friendica\\Core\\Config' => __DIR__ . '/../..' . '/src/Core/Config.php',
+        'Friendica\\Core\\NotificationsManager' => __DIR__ . '/../..' . '/src/Core/NotificationsManager.php',
         'Friendica\\Core\\PConfig' => __DIR__ . '/../..' . '/src/Core/PConfig.php',
         'Friendica\\Core\\System' => __DIR__ . '/../..' . '/src/Core/System.php',
+        'Friendica\\Core\\Worker' => __DIR__ . '/../..' . '/src/Core/Worker.php',
+        'Friendica\\Database\\DBM' => __DIR__ . '/../..' . '/src/Database/DBM.php',
         'Friendica\\Network\\Probe' => __DIR__ . '/../..' . '/src/Network/Probe.php',
         'Friendica\\ParseUrl' => __DIR__ . '/../..' . '/src/ParseUrl.php',
+        'Friendica\\Protocol\\DFRN' => __DIR__ . '/../..' . '/src/Protocol/DFRN.php',
+        'Friendica\\Protocol\\Diaspora' => __DIR__ . '/../..' . '/src/Protocol/Diaspora.php',
         'Friendica\\Util\\Lock' => __DIR__ . '/../..' . '/src/Util/Lock.php',
         'HTMLPurifier' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.php',
         'HTMLPurifier_Arborize' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Arborize.php',

@@ -11,10 +11,8 @@ use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Protocol\DFRN;
 
-require_once('include/items.php');
-require_once('include/event.php');
-
-require_once('library/defuse/php-encryption-1.2.1/Crypto.php');
+require_once 'include/items.php';
+require_once 'include/event.php';
 
 function dfrn_notify_post(App $a) {
 	logger(__function__, LOGGER_TRACE);
@@ -185,8 +183,9 @@ function dfrn_notify_post(App $a) {
 				break;
 			case 2:
 				try {
-					$data = Crypto::decrypt(hex2bin($data), $final_key);
-				} catch (InvalidCiphertext $ex) { // VERY IMPORTANT
+					$FinalKey = \Defuse\Crypto\Key::loadFromAsciiSafeString(bin2hex($final_key));
+					$data = \Defuse\Crypto\Crypto::decrypt(hex2bin($data), $FinalKey);
+				} catch (\Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException $ex) { // VERY IMPORTANT
 					/*
 					 * Either:
 					 *   1. The ciphertext was modified by the attacker,
@@ -196,12 +195,9 @@ function dfrn_notify_post(App $a) {
 					 */
 					logger('The ciphertext has been tampered with!');
 					xml_status(0, 'The ciphertext has been tampered with!');
-				} catch (Ex\CryptoTestFailed $ex) {
+				} catch (\Defuse\Crypto\Exception\EnvironmentIsBrokenException $ex) {
 					logger('Cannot safely perform dencryption');
 					xml_status(0, 'CryptoTestFailed');
-				} catch (Ex\CannotPerformOperation $ex) {
-					logger('Cannot safely perform decryption');
-					xml_status(0, 'Cannot safely perform decryption');
 				}
 				break;
 			default:
