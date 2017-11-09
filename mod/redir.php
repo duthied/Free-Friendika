@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 function redir_init(App $a) {
 
@@ -21,7 +22,7 @@ function redir_init(App $a) {
 				intval(local_user())
 			);
 
-			if (!dbm::is_result($r)) {
+			if (!DBM::is_result($r)) {
 				goaway(System::baseUrl());
 			}
 			if ($r[0]['network'] !== NETWORK_DFRN) {
@@ -36,7 +37,7 @@ function redir_init(App $a) {
 				intval(local_user())
 			);
 
-			if (!dbm::is_result($r)) {
+			if (!DBM::is_result($r)) {
 				goaway(System::baseUrl());
 			}
 			if ($r[0]['network'] !== NETWORK_DFRN) {

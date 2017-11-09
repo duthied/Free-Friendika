@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 
 require_once('include/security.php');
 require_once('include/bbcode.php');
@@ -30,7 +31,7 @@ function tagger_content(App $a) {
 		dbesc($item_id)
 	);
 
-	if(! $item_id || (! dbm::is_result($r))) {
+	if(! $item_id || (! DBM::is_result($r))) {
 		logger('tagger: no item ' . $item_id);
 		return;
 	}
@@ -42,7 +43,7 @@ function tagger_content(App $a) {
 	$r = q("select `nickname`,`blocktags` from user where uid = %d limit 1",
 		intval($owner_uid)
 	);
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$owner_nick = $r[0]['nickname'];
 		$blocktags = $r[0]['blocktags'];
 	}
@@ -53,7 +54,7 @@ function tagger_content(App $a) {
 	$r = q("select * from contact where self = 1 and uid = %d limit 1",
 		intval(local_user())
 	);
-	if (dbm::is_result($r))
+	if (DBM::is_result($r))
 			$contact = $r[0];
 	else {
 		logger('tagger: no contact_id');
@@ -182,7 +183,7 @@ EOT;
 	$r = q("select `tag`,`id`,`uid` from item where `origin` = 1 AND `uri` = '%s' LIMIT 1",
 		dbesc($item['uri'])
 	);
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$x = q("SELECT `blocktags` FROM `user` WHERE `uid` = %d limit 1",
 			intval($r[0]['uid'])
 		);

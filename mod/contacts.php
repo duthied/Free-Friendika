@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 
 require_once 'include/Contact.php';
@@ -24,7 +25,7 @@ function contacts_init(App $a) {
 			intval(local_user()),
 			intval($contact_id)
 		);
-		if (! dbm::is_result($r)) {
+		if (! DBM::is_result($r)) {
 			$contact_id = 0;
 		}
 	}
@@ -183,7 +184,7 @@ function contacts_post(App $a) {
 			intval($profile_id),
 			intval(local_user())
 		);
-		if (! dbm::is_result($r)) {
+		if (! DBM::is_result($r)) {
 			notice( t('Could not locate selected profile.') . EOL);
 			return;
 		}
@@ -225,7 +226,7 @@ function contacts_post(App $a) {
 		intval($contact_id),
 		intval(local_user())
 	);
-	if($r && dbm::is_result($r))
+	if($r && DBM::is_result($r))
 		$a->data['contact'] = $r[0];
 
 	return;
@@ -352,7 +353,7 @@ function _contact_drop($contact_id, $orig_record) {
 		WHERE `user`.`uid` = %d AND `contact`.`self` LIMIT 1",
 		intval($a->user['uid'])
 	);
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		return;
 	}
 
@@ -794,7 +795,7 @@ function contacts_content(App $a) {
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
 		WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 ",
 		intval($_SESSION['uid']));
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$a->set_pager_total($r[0]['total']);
 		$total = $r[0]['total'];
 	}
@@ -809,7 +810,7 @@ function contacts_content(App $a) {
 
 	$contacts = array();
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
 			$contacts[] = _contact_detail_for_template($rr);
 		}

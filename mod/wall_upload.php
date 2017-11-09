@@ -12,6 +12,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 
 require_once 'include/Photo.php';
 
@@ -32,7 +33,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 				dbesc($nick)
 			);
 
-			if (! dbm::is_result($r)) {
+			if (! DBM::is_result($r)) {
 				if ($r_json) {
 					echo json_encode(array('error'=>t('Invalid request.')));
 					killme();
@@ -88,7 +89,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 					intval($contact_id),
 					intval($page_owner_uid)
 				);
-				if (dbm::is_result($r)) {
+				if (DBM::is_result($r)) {
 					$can_post = true;
 					$visitor = $contact_id;
 				}

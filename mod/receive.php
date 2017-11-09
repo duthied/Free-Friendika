@@ -6,10 +6,11 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
+use Friendica\Protocol\Diaspora;
 
 require_once('include/salmon.php');
 require_once('include/crypto.php');
-require_once('include/diaspora.php');
 
 function receive_post(App $a) {
 	$enabled = intval(Config::get('system', 'diaspora_enabled'));
@@ -30,7 +31,7 @@ function receive_post(App $a) {
 		$guid = $a->argv[2];
 
 		$importer = dba::select('user', array(), array('guid' => $guid, 'account_expired' => false, 'account_removed' => false), array('limit' => 1));
-		if (!dbm::is_result($importer)) {
+		if (!DBM::is_result($importer)) {
 			http_status_exit(500);
 		}
 	}

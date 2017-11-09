@@ -5,6 +5,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 
 function poco_init(App $a) {
 	$system_mode = false;
@@ -18,7 +19,7 @@ function poco_init(App $a) {
 	}
 	if (! x($user)) {
 		$c = q("SELECT * FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1");
-		if (! dbm::is_result($c)) {
+		if (! DBM::is_result($c)) {
 			http_status_exit(401);
 		}
 		$system_mode = true;
@@ -60,7 +61,7 @@ function poco_init(App $a) {
 			where `user`.`nickname` = '%s' and `profile`.`is-default` = 1 limit 1",
 			dbesc($user)
 		);
-		if (! dbm::is_result($users) || $users[0]['hidewall'] || $users[0]['hide-friends']) {
+		if (! DBM::is_result($users) || $users[0]['hidewall'] || $users[0]['hide-friends']) {
 			http_status_exit(404);
 		}
 
@@ -100,7 +101,7 @@ function poco_init(App $a) {
 			dbesc(NETWORK_STATUSNET)
 		);
 	}
-	if (dbm::is_result($contacts)) {
+	if (DBM::is_result($contacts)) {
 		$totalResults = intval($contacts[0]['total']);
 	} else {
 		$totalResults = 0;
@@ -195,7 +196,7 @@ function poco_init(App $a) {
 	}
 
 	if (is_array($contacts)) {
-		if (dbm::is_result($contacts)) {
+		if (DBM::is_result($contacts)) {
 			foreach ($contacts as $contact) {
 				if (! isset($contact['generation'])) {
 					if ($global) {

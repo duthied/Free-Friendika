@@ -9,9 +9,9 @@ namespace Friendica\Util;
  */
 
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 use Memcache;
 use dba;
-use dbm;
 
 /**
  * @brief This class contain Functions for preventing parallel execution of functions
@@ -121,7 +121,7 @@ class Lock {
 			dba::lock('locks');
 			$lock = dba::select('locks', array('locked', 'pid'), array('name' => $fn_name), array('limit' => 1));
 
-			if (dbm::is_result($lock)) {
+			if (DBM::is_result($lock)) {
 				if ($lock['locked']) {
 					// When the process id isn't used anymore, we can safely claim the lock for us.
 					if (!posix_kill($lock['pid'], 0)) {
@@ -136,7 +136,7 @@ class Lock {
 					dba::update('locks', array('locked' => true, 'pid' => getmypid()), array('name' => $fn_name));
 					$got_lock = true;
 				}
-			} elseif (!dbm::is_result($lock)) {
+			} elseif (!DBM::is_result($lock)) {
 				dba::insert('locks', array('name' => $fn_name, 'locked' => true, 'pid' => getmypid()));
 				$got_lock = true;
 			}

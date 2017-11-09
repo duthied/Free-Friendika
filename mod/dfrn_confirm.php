@@ -23,7 +23,9 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 use Friendica\Network\Probe;
+use Friendica\Protocol\Diaspora;
 
 require_once 'include/enotify.php';
 require_once 'include/group.php';
@@ -127,7 +129,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 			intval($uid)
 		);
 
-		if (! dbm::is_result($r)) {
+		if (! DBM::is_result($r)) {
 			logger('Contact not found in DB.');
 			notice( t('Contact not found.') . EOL );
 			notice( t('This may occasionally happen if contact was requested by both persons and it has already been approved.') . EOL );
@@ -418,7 +420,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 			);
 		}
 
-		/// @TODO is dbm::is_result() working here?
+		/// @TODO is DBM::is_result() working here?
 		if ($r === false) {
 			notice( t('Unable to set contact photo.') . EOL);
 		}
@@ -428,7 +430,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 			intval($contact_id)
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$contact = $r[0];
 		} else {
 			$contact = null;
@@ -438,7 +440,6 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 		if ((isset($new_relation) && $new_relation == CONTACT_IS_FRIEND)) {
 
 			if (($contact) && ($contact['network'] === NETWORK_DIASPORA)) {
-				require_once 'include/diaspora.php';
 				$ret = Diaspora::send_share($user[0],$r[0]);
 				logger('share returns: ' . $ret);
 			}
@@ -449,7 +450,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 				intval($uid)
 			);
 
-			if((dbm::is_result($r)) && ($r[0]['hide-friends'] == 0) && ($activity) && (! $hidden)) {
+			if((DBM::is_result($r)) && ($r[0]['hide-friends'] == 0) && ($activity) && (! $hidden)) {
 
 				require_once 'include/items.php';
 
@@ -560,7 +561,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 		$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' LIMIT 1",
 			dbesc($node));
 
-		if (! dbm::is_result($r)) {
+		if (! DBM::is_result($r)) {
 			$message = sprintf(t('No user record found for \'%s\' '), $node);
 			xml_status(3,$message); // failure
 			// NOTREACHED
@@ -591,7 +592,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 			dbesc($decrypted_source_url),
 			intval($local_uid)
 		);
-		if (!dbm::is_result($ret)) {
+		if (!DBM::is_result($ret)) {
 			if (strstr($decrypted_source_url,'http:')) {
 				$newurl = str_replace('http:','https:',$decrypted_source_url);
 			} else {
@@ -602,7 +603,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 				dbesc($newurl),
 				intval($local_uid)
 			);
-			if (!dbm::is_result($ret)) {
+			if (!DBM::is_result($ret)) {
 				// this is either a bogus confirmation (?) or we deleted the original introduction.
 				$message = t('Contact record was not found for you on our site.');
 				xml_status(3,$message);
@@ -637,7 +638,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 		$r = q("SELECT * FROM `contact` WHERE `dfrn-id` = '%s' LIMIT 1",
 			dbesc($decrypted_dfrn_id)
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$message = t('The ID provided by your system is a duplicate on our system. It should work if you try again.');
 			xml_status(1,$message); // Birthday paradox - duplicate dfrn-id
 			// NOTREACHED
@@ -648,7 +649,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 			dbesc($dfrn_pubkey),
 			intval($dfrn_record)
 		);
-		if (! dbm::is_result($r)) {
+		if (! DBM::is_result($r)) {
 			$message = t('Unable to set your contact credentials on our system.');
 			xml_status(3,$message);
 		}
@@ -669,7 +670,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 		$r = q("SELECT `photo` FROM `contact` WHERE `id` = %d LIMIT 1",
 			intval($dfrn_record));
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$photo = $r[0]['photo'];
 		} else {
 			$photo = System::baseUrl() . '/images/person-175.jpg';
@@ -725,10 +726,10 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 			intval($dfrn_record)
 		);
 
-		if (dbm::is_result($r))
+		if (DBM::is_result($r))
 			$combined = $r[0];
 
-		if((dbm::is_result($r)) && ($r[0]['notify-flags'] & NOTIFY_CONFIRM)) {
+		if((DBM::is_result($r)) && ($r[0]['notify-flags'] & NOTIFY_CONFIRM)) {
 			$mutual = ($new_relation == CONTACT_IS_FRIEND);
 			notification(array(
 				'type'         => NOTIFY_CONFIRM,
@@ -753,7 +754,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 				intval($local_uid)
 			);
 
-			if((dbm::is_result($r)) && ($r[0]['hide-friends'] == 0)) {
+			if((DBM::is_result($r)) && ($r[0]['hide-friends'] == 0)) {
 
 				require_once 'include/items.php';
 

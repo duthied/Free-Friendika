@@ -3,8 +3,8 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
-
-require_once('include/dfrn.php');
+use Friendica\Database\DBM;
+use Friendica\Protocol\DFRN;
 
 function display_init(App $a) {
 
@@ -41,14 +41,14 @@ function display_init(App $a) {
 						`author-avatar`, `network`, `body`, `uid`, `owner-link`
 				FROM `item` WHERE `visible` AND NOT `deleted` AND NOT `moderated`
 					AND `guid` = ? AND `uid` = ? LIMIT 1", $a->argv[1], local_user());
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$nick = $a->user["nickname"];
 				$itemuid = local_user();
 			}
 		}
 
 		// Is it an item with uid=0?
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			$r = dba::fetch_first("SELECT `id`, `parent`, `author-name`, `author-link`,
 						`author-avatar`, `network`, `body`, `uid`, `owner-link`
 				FROM `item` WHERE `visible` AND NOT `deleted` AND NOT `moderated`
@@ -59,7 +59,7 @@ function display_init(App $a) {
 		}
 
 		// Or is it anywhere on the server?
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			$r = dba::fetch_first("SELECT `item`.`id`, `item`.`parent`, `item`.`author-name`, `item`.`author-link`,
 				`item`.`author-avatar`, `item`.`network`, `item`.`body`, `item`.`uid`, `item`.`owner-link`
 				FROM `item` STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
@@ -70,7 +70,7 @@ function display_init(App $a) {
 					AND `item`.`guid` = ? LIMIT 1", $a->argv[1]);
 		}
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 
 			if (strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
 				logger('Directly serving XML for id '.$r["id"], LOGGER_DEBUG);
@@ -94,7 +94,7 @@ function display_init(App $a) {
 						WHERE `user`.`nickname` = ? AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
 						$nickname
 					);
-					if (dbm::is_result($r)) {
+					if (DBM::is_result($r)) {
 						$profiledata = $r;
 					}
 					$profiledata["network"] = NETWORK_DFRN;
@@ -230,7 +230,7 @@ function display_content(App $a, $update = 0) {
 				$r = dba::fetch_first("SELECT `id`, `parent` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `guid` = ? AND `uid` = ?", $a->argv[1], local_user());
-				if (dbm::is_result($r)) {
+				if (DBM::is_result($r)) {
 					$item_id = $r["id"];
 					$item_parent = $r["parent"];
 					$nick = $a->user["nickname"];
@@ -244,7 +244,7 @@ function display_content(App $a, $update = 0) {
 						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 						AND NOT `item`.`private` AND NOT `user`.`hidewall`
 						AND `item`.`guid` = ?", $a->argv[1]);
-				if (dbm::is_result($r)) {
+				if (DBM::is_result($r)) {
 					$item_id = $r["id"];
 					$item_parent = $r["parent"];
 					$nick = $r["nickname"];
@@ -257,7 +257,7 @@ function display_content(App $a, $update = 0) {
 						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 						AND NOT `item`.`private` AND `item`.`uid` = 0
 						AND `item`.`guid` = ?", $a->argv[1]);
-				if (dbm::is_result($r)) {
+				if (DBM::is_result($r)) {
 					$item_id = $r["id"];
 					$item_parent = $r["parent"];
 				}
@@ -267,7 +267,7 @@ function display_content(App $a, $update = 0) {
 
 	if ($item_id && !is_numeric($item_id)) {
 		$r = dba::select('item', array('id', 'parent'), array('uri' => $item_id, 'uid' => $a->profile['uid']), array('limit' => 1));
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$item_id = $r["id"];
 			$item_parent = $r["parent"];
 		} else {
@@ -317,7 +317,7 @@ function display_content(App $a, $update = 0) {
 			$contact_id,
 			$a->profile['uid']
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$contact = $r;
 			$remote_contact = true;
 		}
@@ -331,7 +331,7 @@ function display_content(App $a, $update = 0) {
 	}
 
 	$r = dba::fetch_first("SELECT * FROM `contact` WHERE `uid` = ? AND `self` LIMIT 1", $a->profile['uid']);
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$a->page_contact = $r;
 	}
 	$is_owner = ((local_user()) && (local_user() == $a->profile['profile_uid']) ? true : false);
@@ -380,7 +380,7 @@ function display_content(App $a, $update = 0) {
 		$item_id
 	);
 
-	if (!dbm::is_result($r) && local_user()) {
+	if (!DBM::is_result($r) && local_user()) {
 		// Check if this is another person's link to a post that we have
 		$r = dba::fetch_first("SELECT `item`.uri FROM `item`
 			WHERE (`item`.`id` = ? OR `item`.`uri` = ?)
@@ -388,7 +388,7 @@ function display_content(App $a, $update = 0) {
 			$item_id,
 			$item_id
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$item_uri = $r['uri'];
 
 			$r = dba::p(item_query()." AND `item`.`uid` = ?
@@ -401,12 +401,12 @@ function display_content(App $a, $update = 0) {
 		}
 	}
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$s = dba::inArray($r);
 
 		if ((local_user()) && (local_user() == $a->profile['uid'])) {
 			$unseen = dba::select('item', array('id'), array('parent' => $s[0]['parent'], 'unseen' => true), array('limit' => 1));
-			if (dbm::is_result($unseen)) {
+			if (DBM::is_result($unseen)) {
 				dba::update('item', array('unseen' => false), array('parent' => $s[0]['parent'], 'unseen' => true));
 			}
 		}
@@ -478,7 +478,7 @@ function display_content(App $a, $update = 0) {
 		$item_id,
 		$item_id
 	);
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		if ($r['deleted']) {
 			notice(t('Item has been removed.') . EOL);
 		} else {
@@ -492,7 +492,7 @@ function display_content(App $a, $update = 0) {
 }
 
 function displayShowFeed($item_id, $conversation) {
-	$xml = dfrn::itemFeed($item_id, $conversation);
+	$xml = DFRN::itemFeed($item_id, $conversation);
 	if ($xml == '') {
 		http_status_exit(500);
 	}

@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 /**
  * @file include/ForumManager.php
@@ -93,7 +94,7 @@ class ForumManager {
 		$total = count($contacts);
 		$visible_forums = 10;
 
-		if (dbm::is_result($contacts)) {
+		if (DBM::is_result($contacts)) {
 
 			$id = 0;
 

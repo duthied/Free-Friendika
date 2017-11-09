@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 
 require_once('include/items.php');
 require_once('include/acl_selectors.php');
@@ -148,7 +149,7 @@ function videos_post(App $a) {
 			dbesc($video_id)
 		);
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			q("DELETE FROM `attach` WHERE `uid` = %d AND `id` = '%s'",
 				intval(local_user()),
 				dbesc($video_id)
@@ -158,7 +159,7 @@ function videos_post(App $a) {
 				intval(local_user())
 			);
 			//echo "<pre>"; var_dump($i); killme();
-			if (dbm::is_result($i)) {
+			if (DBM::is_result($i)) {
 				q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
 					dbesc(datetime_convert()),
 					dbesc(datetime_convert()),
@@ -268,7 +269,7 @@ function videos_content(App $a) {
 					intval($contact_id),
 					intval($owner_uid)
 				);
-				if (dbm::is_result($r)) {
+				if (DBM::is_result($r)) {
 					$can_post = true;
 					$contact = $r[0];
 					$remote_contact = true;
@@ -296,7 +297,7 @@ function videos_content(App $a) {
 				intval($contact_id),
 				intval($owner_uid)
 			);
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$contact = $r[0];
 				$remote_contact = true;
 			}
@@ -356,7 +357,7 @@ function videos_content(App $a) {
 		$sql_extra GROUP BY hash",
 		intval($a->data['user']['uid'])
 	);
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$a->set_pager_total(count($r));
 		$a->set_pager_itemspage(20);
 	}
@@ -374,7 +375,7 @@ function videos_content(App $a) {
 
 
 	$videos = array();
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
 			if ($a->theme['template_engine'] === 'internal') {
 				$alt_e = template_escape($rr['filename']);

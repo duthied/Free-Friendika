@@ -8,6 +8,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 
 require_once 'include/ForumManager.php';
 require_once 'include/bbcode.php';
@@ -143,7 +144,7 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0) {
 		foreach ($_SESSION['remote'] as $visitor) {
 			if ($visitor['uid'] == $uid) {
 				$r = dba::select('contact', array('profile-id'), array('id' => $visitor['cid']), array('limit' => 1));
-				if (dbm::is_result($r)) {
+				if (DBM::is_result($r)) {
 					$profile = $r['profile-id'];
 				}
 				break;
@@ -167,7 +168,7 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0) {
 				$profile_int
 		);
 	}
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		$r = dba::fetch_first("SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` as `contact_photo`,
 				`contact`.`thumb` AS `contact_thumb`, `contact`.`micro` AS `contact_micro`,
 				`profile`.`uid` AS `profile_uid`, `profile`.*,
@@ -303,7 +304,7 @@ function profile_sidebar($profile, $block = 0) {
 			'entries' => array(),
 		);
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 
 			foreach ($r as $rr) {
 				$profile['menu']['entries'][] = array(
@@ -382,7 +383,7 @@ function profile_sidebar($profile, $block = 0) {
 		if (is_array($a->profile) && !$a->profile['hide-friends']) {
 			$r = q("SELECT `gcontact`.`updated` FROM `contact` INNER JOIN `gcontact` WHERE `gcontact`.`nurl` = `contact`.`nurl` AND `self` AND `uid` = %d LIMIT 1",
 				intval($a->profile['uid']));
-			if (dbm::is_result($r))
+			if (DBM::is_result($r))
 				$updated =  date("c", strtotime($r[0]['updated']));
 
 			$r = q("SELECT COUNT(*) AS `total` FROM `contact`
@@ -395,7 +396,7 @@ function profile_sidebar($profile, $block = 0) {
 				dbesc(NETWORK_DIASPORA),
 				dbesc(NETWORK_OSTATUS)
 			);
-			if (dbm::is_result($r))
+			if (DBM::is_result($r))
 				$contacts = intval($r[0]['total']);
 		}
 	}
@@ -479,12 +480,12 @@ function get_birthdays() {
 				datetime_convert('UTC','UTC','now + 6 days'),
 				datetime_convert('UTC','UTC','now')
 		);
-		if (dbm::is_result($s)) {
+		if (DBM::is_result($s)) {
 			$r = dba::inArray($s);
 			Cache::set($cachekey, $r, CACHE_HOUR);
 		}
 	}
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$total = 0;
 		$now = strtotime('now');
 		$cids = array();
@@ -569,7 +570,7 @@ function get_events() {
 
 	$r = array();
 
-	if (dbm::is_result($s)) {
+	if (DBM::is_result($s)) {
 		$now = strtotime('now');
 		$istoday = false;
 

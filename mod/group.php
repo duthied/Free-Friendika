@@ -9,6 +9,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 function group_init(App $a) {
 	if (local_user()) {
@@ -49,7 +50,7 @@ function group_post(App $a) {
 			intval($a->argv[1]),
 			intval(local_user())
 		);
-		if (! dbm::is_result($r)) {
+		if (! DBM::is_result($r)) {
 			notice(t('Group not found.') . EOL);
 			goaway(System::baseUrl() . '/contacts');
 			return; // NOTREACHED
@@ -116,7 +117,7 @@ function group_content(App $a) {
 
 			$result = null;
 
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$result = group_rmv(local_user(), $r[0]['name']);
 			}
 
@@ -137,7 +138,7 @@ function group_content(App $a) {
 			intval($a->argv[2]),
 			intval(local_user())
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$change = intval($a->argv[2]);
 		}
 	}
@@ -151,7 +152,7 @@ function group_content(App $a) {
 			intval(local_user())
 		);
 
-		if (! dbm::is_result($r)) {
+		if (! DBM::is_result($r)) {
 			notice(t('Group not found.') . EOL);
 			goaway(System::baseUrl() . '/contacts');
 		}
@@ -240,7 +241,7 @@ function group_content(App $a) {
 		intval(local_user())
 	);
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		// Format the data of the contacts who aren't in the contact group
 		foreach ($r as $member) {
 			if (! in_array($member['id'], $preselected)) {

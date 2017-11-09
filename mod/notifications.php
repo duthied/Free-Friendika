@@ -6,9 +6,10 @@
  */
 
 use Friendica\App;
+use Friendica\Core\NotificationsManager;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
-require_once("include/NotificationsManager.php");
 require_once("include/contact_selectors.php");
 require_once("include/network.php");
 
@@ -30,7 +31,7 @@ function notifications_post(App $a) {
 			intval(local_user())
 		);
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$intro_id = $r[0]['id'];
 			$contact_id = $r[0]['contact-id'];
 		}

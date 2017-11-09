@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\PConfig;
+use Friendica\Database\DBM;
 
 require_once('include/datetime.php');
 require_once('include/bbcode.php');
@@ -130,7 +131,7 @@ function ping_init(App $a)
 			intval(local_user()), intval(local_user())
 		);
 
-		if (dbm::is_result($items_unseen)) {
+		if (DBM::is_result($items_unseen)) {
 			$arr = array('items' => $items_unseen);
 			call_hooks('network_ping', $arr);
 
@@ -147,7 +148,7 @@ function ping_init(App $a)
 			if (intval(feature_enabled(local_user(), 'groups'))) {
 				// Find out how unseen network posts are spread across groups
 				$group_counts = groups_count_unseen();
-				if (dbm::is_result($group_counts)) {
+				if (DBM::is_result($group_counts)) {
 					foreach ($group_counts as $group_count) {
 						if ($group_count['count'] > 0) {
 							$groups_unseen[] = $group_count;
@@ -158,7 +159,7 @@ function ping_init(App $a)
 
 			if (intval(feature_enabled(local_user(), 'forumlist_widget'))) {
 				$forum_counts = ForumManager::count_unseen_items();
-				if (dbm::is_result($forums_counts)) {
+				if (DBM::is_result($forums_counts)) {
 					foreach ($forums_counts as $forum_count) {
 						if ($forum_count['count'] > 0) {
 							$forums_unseen[] = $forum_count;
@@ -197,7 +198,7 @@ function ping_init(App $a)
 				FROM `contact` RIGHT JOIN `register` ON `register`.`uid` = `contact`.`uid`
 				WHERE `contact`.`self` = 1");
 
-			if (dbm::is_result($regs)) {
+			if (DBM::is_result($regs)) {
 				$register_count = $regs[0]['total'];
 			}
 		}
@@ -212,12 +213,12 @@ function ping_init(App $a)
 				dbesc(datetime_convert('UTC', 'UTC', 'now + 7 days')),
 				dbesc(datetime_convert('UTC', 'UTC', 'now'))
 			);
-			if (dbm::is_result($ev)) {
+			if (DBM::is_result($ev)) {
 				Cache::set($cachekey, $ev, CACHE_HOUR);
 			}
 		}
 
-		if (dbm::is_result($ev)) {
+		if (DBM::is_result($ev)) {
 			$all_events = count($ev);
 
 			if ($all_events) {
@@ -255,7 +256,7 @@ function ping_init(App $a)
 		$data['birthdays']        = $birthdays;
 		$data['birthdays-today']  = $birthdays_today;
 
-		if (dbm::is_result($notifs)) {
+		if (DBM::is_result($notifs)) {
 			foreach ($notifs as $notif) {
 				if ($notif['seen'] == 0) {
 					$sysnotify_count ++;
@@ -264,7 +265,7 @@ function ping_init(App $a)
 		}
 
 		// merge all notification types in one array
-		if (dbm::is_result($intros)) {
+		if (DBM::is_result($intros)) {
 			foreach ($intros as $intro) {
 				$notif = array(
 					'href'    => System::baseUrl() . '/notifications/intros/' . $intro['id'],
@@ -279,7 +280,7 @@ function ping_init(App $a)
 			}
 		}
 
-		if (dbm::is_result($mails)) {
+		if (DBM::is_result($mails)) {
 			foreach ($mails as $mail) {
 				$notif = array(
 					'href'    => System::baseUrl() . '/message/' . $mail['id'],
@@ -294,7 +295,7 @@ function ping_init(App $a)
 			}
 		}
 
-		if (dbm::is_result($regs)) {
+		if (DBM::is_result($regs)) {
 			foreach ($regs as $reg) {
 				$notif = array(
 					'href'    => System::baseUrl() . '/admin/users/',
@@ -330,7 +331,7 @@ function ping_init(App $a)
 		};
 		usort($notifs, $sort_function);
 
-		if (dbm::is_result($notifs)) {
+		if (DBM::is_result($notifs)) {
 			// Are the nofications called from the regular process or via the friendica app?
 			$regularnotifications = (intval($_GET['uid']) && intval($_GET['_']));
 

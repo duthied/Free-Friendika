@@ -4,14 +4,15 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 use Friendica\Network\Probe;
+use Friendica\Protocol\Diaspora;
 
 require_once 'include/socgraph.php';
 require_once 'include/group.php';
 require_once 'include/salmon.php';
 require_once 'include/ostatus.php';
 require_once 'include/Photo.php';
-require_once 'include/diaspora.php';
 
 function update_contact($id) {
 	/*
@@ -186,12 +187,12 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 		dbesc($ret['network'])
 	);
 
-	if (!dbm::is_result($r))
+	if (!DBM::is_result($r))
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` = '%s' LIMIT 1",
 			intval($uid), dbesc(normalise_link($url)), dbesc($ret['network'])
 	);
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		// update contact
 		$new_relation = (($r[0]['rel'] == CONTACT_IS_FOLLOWER) ? CONTACT_IS_FRIEND : CONTACT_IS_SHARING);
 
@@ -232,7 +233,7 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 		intval($uid)
 	);
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		$result['message'] .=  t('Unable to retrieve contact information.') . EOL;
 		return $result;
 	}
@@ -258,7 +259,7 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 			intval($uid)
 	);
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		if (($contact['network'] == NETWORK_OSTATUS) && (strlen($contact['notify']))) {
 			// create a follow slap
 			$item = array();

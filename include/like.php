@@ -3,8 +3,8 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
-
-require_once("include/diaspora.php");
+use Friendica\Database\DBM;
+use Friendica\Protocol\Diaspora;
 
 /**
  * @brief add/remove activity to an item
@@ -72,7 +72,7 @@ function do_like($item_id, $verb) {
 		dbesc($item_id)
 	);
 
-	if (! $item_id || ! dbm::is_result($items)) {
+	if (! $item_id || ! DBM::is_result($items)) {
 		logger('like: unknown item ' . $item_id);
 		return false;
 	}
@@ -90,7 +90,7 @@ function do_like($item_id, $verb) {
 		AND `contact`.`uid` = %d",
 		intval($item['uid'])
 	);
-	if (dbm::is_result($owners)) {
+	if (DBM::is_result($owners)) {
 		$owner_self_contact = $owners[0];
 	} else {
 		logger('like: unknown owner ' . $item['uid']);
@@ -103,7 +103,7 @@ function do_like($item_id, $verb) {
 	$contacts = q("SELECT * FROM `contact` WHERE `id` = %d",
 		intval($author_id)
 	);
-	if (dbm::is_result($contacts)) {
+	if (DBM::is_result($contacts)) {
 		$author_contact = $contacts[0];
 	} else {
 		logger('like: unknown author ' . $author_id);
@@ -120,7 +120,7 @@ function do_like($item_id, $verb) {
 		$contacts = q("SELECT * FROM `contact` WHERE `id` = %d",
 			intval($item_contact_id)
 		);
-		if (dbm::is_result($contacts)) {
+		if (DBM::is_result($contacts)) {
 			$item_contact = $contacts[0];
 		} else {
 			logger('like: unknown item contact ' . $item_contact_id);
@@ -150,7 +150,7 @@ function do_like($item_id, $verb) {
 	);
 
 	// If it exists, mark it as deleted
-	if (dbm::is_result($existing_like)) {
+	if (DBM::is_result($existing_like)) {
 		$like_item = $existing_like[0];
 
 		// Already voted, undo it

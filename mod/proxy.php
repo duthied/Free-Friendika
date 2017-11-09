@@ -4,6 +4,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 define('PROXY_DEFAULT_TIME', 86400); // 1 Day
 
@@ -144,7 +145,7 @@ function proxy_init(App $a) {
 
 	if (!$direct_cache && ($cachefile == '')) {
 		$r = dba::select('photo', array('data', 'desc'), array('resource-id' => $urlhash), array('limit' => 1));
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$img_str = $r['data'];
 			$mime = $r['desc'];
 			if ($mime == '') {
@@ -153,7 +154,7 @@ function proxy_init(App $a) {
 		}
 	}
 
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		// It shouldn't happen but it does - spaces in URL
 		$_REQUEST['url'] = str_replace(' ', '+', $_REQUEST['url']);
 		$redirects = 0;

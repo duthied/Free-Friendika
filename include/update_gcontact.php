@@ -2,6 +2,7 @@
 
 use Friendica\Core\Config;
 use Friendica\Network\Probe;
+use Friendica\Database\DBM;
 
 function update_gcontact_run(&$argv, &$argc) {
 	global $a;
@@ -21,7 +22,7 @@ function update_gcontact_run(&$argv, &$argc) {
 
 	$r = q("SELECT * FROM `gcontact` WHERE `id` = %d", intval($contact_id));
 
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		return;
 	}
 

@@ -9,6 +9,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 define('REQUEST_TOKEN_DURATION', 300);
 define('ACCESS_TOKEN_DURATION', 31536000);
@@ -28,7 +29,7 @@ class FKOAuthDataStore extends OAuthDataStore {
 		$r = q("SELECT client_id, pw, redirect_uri FROM clients WHERE client_id='%s'",
 			dbesc($consumer_key)
 		);
-		if (dbm::is_result($r))
+		if (DBM::is_result($r))
 			return new OAuthConsumer($r[0]['client_id'],$r[0]['pw'],$r[0]['redirect_uri']);
 		return null;
   }
@@ -40,7 +41,7 @@ class FKOAuthDataStore extends OAuthDataStore {
 			dbesc($token_type),
 			dbesc($token)
 		);
-		if (dbm::is_result($r)){
+		if (DBM::is_result($r)){
 			$ot=new OAuthToken($r[0]['id'],$r[0]['secret']);
 			$ot->scope=$r[0]['scope'];
 			$ot->expires = $r[0]['expires'];
@@ -57,7 +58,7 @@ class FKOAuthDataStore extends OAuthDataStore {
 			dbesc($nonce),
 			intval($timestamp)
 		);
-		if (dbm::is_result($r))
+		if (DBM::is_result($r))
 			return new OAuthToken($r[0]['id'],$r[0]['secret']);
 		return null;
   }
@@ -141,7 +142,7 @@ class FKOAuth1 extends OAuthServer {
 		$r = q("SELECT * FROM `user` WHERE uid=%d AND `blocked` = 0 AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 LIMIT 1",
 			intval($uid)
 		);
-		if (dbm::is_result($r)){
+		if (DBM::is_result($r)){
 			$record = $r[0];
 		} else {
 		   logger('FKOAuth1::loginUser failure: ' . print_r($_SERVER,true), LOGGER_DEBUG);
@@ -167,7 +168,7 @@ class FKOAuth1 extends OAuthServer {
 
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %s AND `self` = 1 LIMIT 1",
 			intval($_SESSION['uid']));
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$a->contact = $r[0];
 			$a->cid = $r[0]['id'];
 			$_SESSION['cid'] = $a->cid;
@@ -224,7 +225,7 @@ class FKOAuth2 extends OAuth2 {
 		$r = q("SELECT client_id, expires, scope FROM tokens WHERE id = '%s'",
 				dbesc($oauth_token));
 
-		if (dbm::is_result($r))
+		if (DBM::is_result($r))
 			return $r[0];
 		return null;
 	}
@@ -252,7 +253,7 @@ class FKOAuth2 extends OAuth2 {
 		$r = q("SELECT id, client_id, redirect_uri, expires, scope FROM auth_codes WHERE id = '%s'",
 				dbesc($code));
 
-		if (dbm::is_result($r))
+		if (DBM::is_result($r))
 			return $r[0];
 		return null;
 	}

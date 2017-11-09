@@ -1,12 +1,14 @@
 <?php
 /**
- * @file include/NotificationsManager.php
+ * @file src/Core/NotificationsManager.php
  * @brief Methods for read and write notifications from/to database
  *  or for formatting notifications
  */
+namespace Friendica\Core;
 
 use Friendica\Core\Pconfig;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once 'include/html2plain.php';
 require_once 'include/datetime.php';
@@ -17,10 +19,15 @@ require_once 'include/Contact.php';
  * @brief Methods for read and write notifications from/to database
  *  or for formatting notifications
  */
-class NotificationsManager {
+class NotificationsManager
+{
 	private $a;
 
-	public function __construct() {
+	/**
+	 * Constructor
+	 */
+	public function __construct()
+	{
 		$this->a = get_app();
 	}
 
@@ -36,14 +43,15 @@ class NotificationsManager {
 	 *  - msg_html: message as html string
 	 *  - msg_plain: message as plain text string
 	 */
-	private function _set_extra($notes) {
+	private function _set_extra($notes)
+	{
 		$rets = array();
-		foreach($notes as $n) {
-			$local_time = datetime_convert('UTC',date_default_timezone_get(),$n['date']);
+		foreach ($notes as $n) {
+			$local_time = datetime_convert('UTC', date_default_timezone_get(), $n['date']);
 			$n['timestamp'] = strtotime($local_time);
 			$n['date_rel'] = relative_date($n['date']);
 				$n['msg_html'] = bbcode($n['msg'], false, false, false, false);
-				$n['msg_plain'] = explode("\n",trim(html2plain($n['msg_html'], 0)))[0];
+				$n['msg_plain'] = explode("\n", trim(html2plain($n['msg_html'], 0)))[0];
 
 			$rets[] = $n;
 		}
@@ -54,16 +62,18 @@ class NotificationsManager {
 	/**
 	 * @brief Get all notifications for local_user()
 	 *
-	 * @param array $filter optional Array "column name"=>value: filter query by columns values
-	 * @param string $order optional Space separated list of column to sort by. prepend name with "+" to sort ASC, "-" to sort DESC. Default to "-date"
-	 * @param string $limit optional Query limits
+	 * @param array  $filter optional Array "column name"=>value: filter query by columns values
+	 * @param string $order  optional Space separated list of column to sort by.
+	 *                       Prepend name with "+" to sort ASC, "-" to sort DESC. Default to "-date"
+	 * @param string $limit  optional Query limits
 	 *
 	 * @return array of results or false on errors
 	 */
-	public function getAll($filter = array(), $order="-date", $limit="") {
+	public function getAll($filter = array(), $order = "-date", $limit = "")
+	{
 		$filter_str = array();
 		$filter_sql = "";
-		foreach($filter as $column => $value) {
+		foreach ($filter as $column => $value) {
 			$filter_str[] = sprintf("`%s` = '%s'", $column, dbesc($value));
 		}
 		if (count($filter_str)>0) {
@@ -72,29 +82,31 @@ class NotificationsManager {
 
 		$aOrder = explode(" ", $order);
 		$asOrder = array();
-		foreach($aOrder as $o) {
+		foreach ($aOrder as $o) {
 			$dir = "asc";
 			if ($o[0]==="-") {
 				$dir = "desc";
-				$o = substr($o,1);
+				$o = substr($o, 1);
 			}
 			if ($o[0]==="+") {
 				$dir = "asc";
-				$o = substr($o,1);
+				$o = substr($o, 1);
 			}
 			$asOrder[] = "$o $dir";
 		}
 		$order_sql = implode(", ", $asOrder);
 
-		if($limit!="")
+		if ($limit != "") {
 			$limit = " LIMIT ".$limit;
-
-			$r = q("SELECT * FROM `notify` WHERE `uid` = %d $filter_sql ORDER BY $order_sql $limit",
+		}
+			$r = q(
+				"SELECT * FROM `notify` WHERE `uid` = %d $filter_sql ORDER BY $order_sql $limit",
 				intval(local_user())
 			);
 
-		if (dbm::is_result($r))
+		if (DBM::is_result($r)) {
 			return $this->_set_extra($r);
+		}
 
 		return false;
 	}
@@ -102,15 +114,17 @@ class NotificationsManager {
 	/**
 	 * @brief Get one note for local_user() by $id value
 	 *
-	 * @param int $id
+	 * @param int $id identity
 	 * @return array note values or null if not found
 	 */
-	public function getByID($id) {
-		$r = q("SELECT * FROM `notify` WHERE `id` = %d AND `uid` = %d LIMIT 1",
+	public function getByID($id)
+	{
+		$r = q(
+			"SELECT * FROM `notify` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($id),
 			intval(local_user())
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			return $this->_set_extra($r)[0];
 		}
 		return null;
@@ -119,12 +133,14 @@ class NotificationsManager {
 	/**
 	 * @brief set seen state of $note of local_user()
 	 *
-	 * @param array $note
-	 * @param bool $seen optional true or false, default true
+	 * @param array $note note array
+	 * @param bool  $seen optional true or false, default true
 	 * @return bool true on success, false on errors
 	 */
-	public function setSeen($note, $seen = true) {
-		return q("UPDATE `notify` SET `seen` = %d WHERE ( `link` = '%s' OR ( `parent` != 0 AND `parent` = %d AND `otype` = '%s' )) AND `uid` = %d",
+	public function setSeen($note, $seen = true)
+	{
+		return q(
+			"UPDATE `notify` SET `seen` = %d WHERE ( `link` = '%s' OR ( `parent` != 0 AND `parent` = %d AND `otype` = '%s' )) AND `uid` = %d",
 			intval($seen),
 			dbesc($note['link']),
 			intval($note['parent']),
@@ -139,8 +155,10 @@ class NotificationsManager {
 	 * @param bool $seen optional true or false. default true
 	 * @return bool true on success, false on error
 	 */
-	public function setAllSeen($seen = true) {
-		return q("UPDATE `notify` SET `seen` = %d WHERE `uid` = %d",
+	public function setAllSeen($seen = true)
+	{
+		return q(
+			"UPDATE `notify` SET `seen` = %d WHERE `uid` = %d",
 			intval($seen),
 			intval(local_user())
 		);
@@ -151,7 +169,8 @@ class NotificationsManager {
 	 *
 	 * @return array with with notifications TabBar data
 	 */
-	public function getTabs() {
+	public function getTabs()
+	{
 		$tabs = array(
 			array(
 				'label' => t('System'),
@@ -196,8 +215,8 @@ class NotificationsManager {
 	/**
 	 * @brief Format the notification query in an usable array
 	 *
-	 * @param array $notifs The array from the db query
-	 * @param string $ident The notifications identifier (e.g. network)
+	 * @param array  $notifs The array from the db query
+	 * @param string $ident  The notifications identifier (e.g. network)
 	 * @return array
 	 *	string 'label' => The type of the notification
 	 *	string 'link' => URL to the source
@@ -208,13 +227,12 @@ class NotificationsManager {
 	 *	string 'ago' => T relative date of the notification
 	 *	bool 'seen' => Is the notification marked as "seen"
 	 */
-	private function formatNotifs($notifs, $ident = "") {
-
+	private function formatNotifs($notifs, $ident = "")
+	{
 		$notif = array();
 		$arr = array();
 
-		if (dbm::is_result($notifs)) {
-
+		if (DBM::is_result($notifs)) {
 			foreach ($notifs as $it) {
 				// Because we use different db tables for the notification query
 				// we have sometimes $it['unseen'] and sometimes $it['seen].
@@ -255,11 +273,10 @@ class NotificationsManager {
 									: sprintf(t("%s commented on %s's post"), $it['author-name'], $it['pname']));
 						$default_item_when = datetime_convert('UTC', date_default_timezone_get(), $it['created'], 'r');
 						$default_item_ago = relative_date($it['created']);
-
 				}
 
 				// Transform the different types of notification in an usable array
-				switch ($it['verb']){
+				switch ($it['verb']) {
 					case ACTIVITY_LIKE:
 						$notif = array(
 							'label' => 'like',
@@ -360,7 +377,6 @@ class NotificationsManager {
 		}
 
 		return $arr;
-
 	}
 
 	/**
@@ -370,13 +386,16 @@ class NotificationsManager {
 	 *	which aren't marked as "seen"
 	 * @return int Number of network notifications
 	 */
-	private function networkTotal($seen = 0) {
+	private function networkTotal($seen = 0)
+	{
 		$sql_seen = "";
 
-		if($seen === 0)
+		if ($seen === 0) {
 			$sql_seen = " AND `item`.`unseen` = 1 ";
+		}
 
-		$r = q("SELECT COUNT(*) AS `total`
+		$r = q(
+			"SELECT COUNT(*) AS `total`
 				FROM `item` INNER JOIN `item` AS `pitem` ON `pitem`.`id`=`item`.`parent`
 				WHERE `item`.`visible` = 1 AND `pitem`.`parent` != 0 AND
 				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 0
@@ -384,8 +403,9 @@ class NotificationsManager {
 			intval(local_user())
 		);
 
-		if (dbm::is_result($r))
+		if (DBM::is_result($r)) {
 			return $r[0]['total'];
+		}
 
 		return 0;
 	}
@@ -396,25 +416,28 @@ class NotificationsManager {
 	 * @param int|string $seen
 	 *	If 0 only include notifications into the query
 	 *	which aren't marked as "seen"
-	 * @param int $start Start the query at this point
-	 * @param int $limit Maximum number of query results
+	 * @param int        $start Start the query at this point
+	 * @param int        $limit Maximum number of query results
 	 *
 	 * @return array with
 	 *	string 'ident' => Notification identifier
 	 *	int 'total' => Total number of available network notifications
 	 *	array 'notifications' => Network notifications
 	 */
-	public function networkNotifs($seen = 0, $start = 0, $limit = 80) {
+	public function networkNotifs($seen = 0, $start = 0, $limit = 80)
+	{
 		$ident = 'network';
 		$total = $this->networkTotal($seen);
 		$notifs = array();
 		$sql_seen = "";
 
-		if($seen === 0)
+		if ($seen === 0) {
 			$sql_seen = " AND `item`.`unseen` = 1 ";
+		}
 
 
-		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`, `item`.`unseen`,
+		$r = q(
+			"SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`, `item`.`unseen`,
 				`item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object` AS `object`,
 				`pitem`.`author-name` AS `pname`, `pitem`.`author-link` AS `plink`, `pitem`.`guid` AS `pguid`
 			FROM `item` INNER JOIN `item` AS `pitem` ON `pitem`.`id`=`item`.`parent`
@@ -422,13 +445,14 @@ class NotificationsManager {
 				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 0
 				$sql_seen
 			ORDER BY `item`.`created` DESC LIMIT %d, %d ",
-				intval(local_user()),
-				intval($start),
-				intval($limit)
+			intval(local_user()),
+			intval($start),
+			intval($limit)
 		);
 
-		if (dbm::is_result($r))
+		if (DBM::is_result($r)) {
 			$notifs = $this->formatNotifs($r, $ident);
+		}
 
 		$arr = array (
 			'notifications' => $notifs,
@@ -446,18 +470,22 @@ class NotificationsManager {
 	 *	which aren't marked as "seen"
 	 * @return int Number of system notifications
 	 */
-	private function systemTotal($seen = 0) {
+	private function systemTotal($seen = 0)
+	{
 		$sql_seen = "";
 
-		if($seen === 0)
+		if ($seen === 0) {
 			$sql_seen = " AND `seen` = 0 ";
+		}
 
-		$r = q("SELECT COUNT(*) AS `total` FROM `notify` WHERE `uid` = %d $sql_seen",
+		$r = q(
+			"SELECT COUNT(*) AS `total` FROM `notify` WHERE `uid` = %d $sql_seen",
 			intval(local_user())
 		);
 
-		if (dbm::is_result($r))
+		if (DBM::is_result($r)) {
 			return $r[0]['total'];
+		}
 
 		return 0;
 	}
@@ -468,32 +496,36 @@ class NotificationsManager {
 	 * @param int|string $seen
 	 *	If 0 only include notifications into the query
 	 *	which aren't marked as "seen"
-	 * @param int $start Start the query at this point
-	 * @param int $limit Maximum number of query results
+	 * @param int        $start Start the query at this point
+	 * @param int        $limit Maximum number of query results
 	 *
 	 * @return array with
 	 *	string 'ident' => Notification identifier
 	 *	int 'total' => Total number of available system notifications
 	 *	array 'notifications' => System notifications
 	 */
-	public function systemNotifs($seen = 0, $start = 0, $limit = 80) {
+	public function systemNotifs($seen = 0, $start = 0, $limit = 80)
+	{
 		$ident = 'system';
 		$total = $this->systemTotal($seen);
 		$notifs = array();
 		$sql_seen = "";
 
-		if($seen === 0)
+		if ($seen === 0) {
 			$sql_seen = " AND `seen` = 0 ";
+		}
 
-		$r = q("SELECT `id`, `url`, `photo`, `msg`, `date`, `seen` FROM `notify`
+		$r = q(
+			"SELECT `id`, `url`, `photo`, `msg`, `date`, `seen` FROM `notify`
 				WHERE `uid` = %d $sql_seen ORDER BY `date` DESC LIMIT %d, %d ",
 			intval(local_user()),
 			intval($start),
 			intval($limit)
 		);
 
-		if (dbm::is_result($r))
+		if (DBM::is_result($r)) {
 			$notifs = $this->formatNotifs($r, $ident);
+		}
 
 		$arr = array (
 			'notifications' => $notifs,
@@ -509,12 +541,14 @@ class NotificationsManager {
 	 *
 	 * @return string The additional sql query
 	 */
-	private function _personal_sql_extra() {
+	private function _personal_sql_extra()
+	{
 		$myurl = System::baseUrl(true) . '/profile/'. $this->a->user['nickname'];
-		$myurl = substr($myurl,strpos($myurl,'://')+3);
-		$myurl = str_replace(array('www.','.'),array('','\\.'),$myurl);
-		$diasp_url = str_replace('/profile/','/u/',$myurl);
-		$sql_extra = sprintf(" AND ( `item`.`author-link` regexp '%s' OR `item`.`tag` regexp '%s' OR `item`.`tag` regexp '%s' ) ",
+		$myurl = substr($myurl, strpos($myurl, '://') + 3);
+		$myurl = str_replace(array('www.','.'), array('','\\.'), $myurl);
+		$diasp_url = str_replace('/profile/', '/u/', $myurl);
+		$sql_extra = sprintf(
+			" AND ( `item`.`author-link` regexp '%s' OR `item`.`tag` regexp '%s' OR `item`.`tag` regexp '%s' ) ",
 			dbesc($myurl . '$'),
 			dbesc($myurl . '\\]'),
 			dbesc($diasp_url . '\\]')
@@ -530,14 +564,17 @@ class NotificationsManager {
 	 *	which aren't marked as "seen"
 	 * @return int Number of personal notifications
 	 */
-	private function personalTotal($seen = 0) {
+	private function personalTotal($seen = 0)
+	{
 		$sql_seen = "";
 		$sql_extra = $this->_personal_sql_extra();
 
-		if($seen === 0)
+		if ($seen === 0) {
 			$sql_seen = " AND `item`.`unseen` = 1 ";
+		}
 
-		$r = q("SELECT COUNT(*) AS `total`
+		$r = q(
+			"SELECT COUNT(*) AS `total`
 				FROM `item` INNER JOIN `item` AS `pitem` ON  `pitem`.`id`=`item`.`parent`
 				WHERE `item`.`visible` = 1
 				$sql_extra
@@ -546,8 +583,9 @@ class NotificationsManager {
 			intval(local_user())
 		);
 
-		if (dbm::is_result($r))
+		if (DBM::is_result($r)) {
 			return $r[0]['total'];
+		}
 
 		return 0;
 	}
@@ -558,25 +596,28 @@ class NotificationsManager {
 	 * @param int|string $seen
 	 *	If 0 only include notifications into the query
 	 *	which aren't marked as "seen"
-	 * @param int $start Start the query at this point
-	 * @param int $limit Maximum number of query results
+	 * @param int        $start Start the query at this point
+	 * @param int        $limit Maximum number of query results
 	 *
 	 * @return array with
 	 *	string 'ident' => Notification identifier
 	 *	int 'total' => Total number of available personal notifications
 	 *	array 'notifications' => Personal notifications
 	 */
-	public function personalNotifs($seen = 0, $start = 0, $limit = 80) {
+	public function personalNotifs($seen = 0, $start = 0, $limit = 80)
+	{
 		$ident = 'personal';
 		$total = $this->personalTotal($seen);
 		$sql_extra = $this->_personal_sql_extra();
 		$notifs = array();
 		$sql_seen = "";
 
-		if($seen === 0)
+		if ($seen === 0) {
 			$sql_seen = " AND `item`.`unseen` = 1 ";
+		}
 
-		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`, `item`.`unseen`,
+		$r = q(
+			"SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`, `item`.`unseen`,
 				`item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object` AS `object`,
 				`pitem`.`author-name` AS `pname`, `pitem`.`author-link` AS `plink`, `pitem`.`guid` AS `pguid`
 			FROM `item` INNER JOIN `item` AS `pitem` ON  `pitem`.`id`=`item`.`parent`
@@ -584,14 +625,15 @@ class NotificationsManager {
 				$sql_extra
 				$sql_seen
 				AND `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 0
-			ORDER BY `item`.`created` DESC LIMIT %d, %d " ,
-				intval(local_user()),
-				intval($start),
-				intval($limit)
+			ORDER BY `item`.`created` DESC LIMIT %d, %d ",
+			intval(local_user()),
+			intval($start),
+			intval($limit)
 		);
 
-		if (dbm::is_result($r))
+		if (DBM::is_result($r)) {
 			$notifs = $this->formatNotifs($r, $ident);
+		}
 
 		$arr = array (
 			'notifications' => $notifs,
@@ -609,21 +651,25 @@ class NotificationsManager {
 	 *	which aren't marked as "seen"
 	 * @return int Number of home notifications
 	 */
-	private function homeTotal($seen = 0) {
+	private function homeTotal($seen = 0)
+	{
 		$sql_seen = "";
 
-		if($seen === 0)
+		if ($seen === 0) {
 			$sql_seen = " AND `item`.`unseen` = 1 ";
+		}
 
-		$r = q("SELECT COUNT(*) AS `total` FROM `item`
+		$r = q(
+			"SELECT COUNT(*) AS `total` FROM `item`
 				WHERE `item`.`visible` = 1 AND
 				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 1
 				$sql_seen",
 			intval(local_user())
 		);
 
-		if (dbm::is_result($r))
+		if (DBM::is_result($r)) {
 			return $r[0]['total'];
+		}
 
 		return 0;
 	}
@@ -634,24 +680,27 @@ class NotificationsManager {
 	 * @param int|string $seen
 	 *	If 0 only include notifications into the query
 	 *	which aren't marked as "seen"
-	 * @param int $start Start the query at this point
-	 * @param int $limit Maximum number of query results
+	 * @param int        $start Start the query at this point
+	 * @param int        $limit Maximum number of query results
 	 *
 	 * @return array with
 	 *	string 'ident' => Notification identifier
 	 *	int 'total' => Total number of available home notifications
 	 *	array 'notifications' => Home notifications
 	 */
-	public function homeNotifs($seen = 0, $start = 0, $limit = 80) {
+	public function homeNotifs($seen = 0, $start = 0, $limit = 80)
+	{
 		$ident = 'home';
 		$total = $this->homeTotal($seen);
 		$notifs = array();
 		$sql_seen = "";
 
-		if($seen === 0)
+		if ($seen === 0) {
 			$sql_seen = " AND `item`.`unseen` = 1 ";
+		}
 
-		$r = q("SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`, `item`.`unseen`,
+		$r = q(
+			"SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`, `item`.`unseen`,
 				`item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object` AS `object`,
 				`pitem`.`author-name` AS `pname`, `pitem`.`author-link` AS `plink`, `pitem`.`guid` AS `pguid`
 			FROM `item` INNER JOIN `item` AS `pitem` ON `pitem`.`id`=`item`.`parent`
@@ -659,13 +708,14 @@ class NotificationsManager {
 				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 1
 				$sql_seen
 			ORDER BY `item`.`created` DESC LIMIT %d, %d ",
-				intval(local_user()),
-				intval($start),
-				intval($limit)
+			intval(local_user()),
+			intval($start),
+			intval($limit)
 		);
 
-		if (dbm::is_result($r))
+		if (DBM::is_result($r)) {
 			$notifs = $this->formatNotifs($r, $ident);
+		}
 
 		$arr = array (
 			'notifications' => $notifs,
@@ -683,19 +733,23 @@ class NotificationsManager {
 	 *	which aren't marked as ignored
 	 * @return int Number of introductions
 	 */
-	private function introTotal($all = false) {
+	private function introTotal($all = false)
+	{
 		$sql_extra = "";
 
-		if(!$all)
+		if (!$all) {
 			$sql_extra = " AND `ignore` = 0 ";
+		}
 
-		$r = q("SELECT COUNT(*) AS `total` FROM `intro`
+		$r = q(
+			"SELECT COUNT(*) AS `total` FROM `intro`
 			WHERE `intro`.`uid` = %d $sql_extra AND `intro`.`blocked` = 0 ",
-				intval($_SESSION['uid'])
+			intval($_SESSION['uid'])
 		);
 
-		if (dbm::is_result($r))
+		if (DBM::is_result($r)) {
 			return $r[0]['total'];
+		}
 
 		return 0;
 	}
@@ -720,11 +774,13 @@ class NotificationsManager {
 		$notifs = array();
 		$sql_extra = "";
 
-		if(!$all)
+		if (!$all) {
 			$sql_extra = " AND `ignore` = 0 ";
+		}
 
 		/// @todo Fetch contact details by "get_contact_details_by_url" instead of queries to contact, fcontact and gcontact
-		$r = q("SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*,
+		$r = q(
+			"SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*,
 				`fcontact`.`name` AS `fname`, `fcontact`.`url` AS `furl`,
 				`fcontact`.`photo` AS `fphoto`, `fcontact`.`request` AS `frequest`,
 				`gcontact`.`location` AS `glocation`, `gcontact`.`about` AS `gabout`,
@@ -736,13 +792,14 @@ class NotificationsManager {
 				LEFT JOIN `fcontact` ON `intro`.`fid` = `fcontact`.`id`
 			WHERE `intro`.`uid` = %d $sql_extra AND `intro`.`blocked` = 0
 			LIMIT %d, %d",
-				intval($_SESSION['uid']),
-				intval($start),
-				intval($limit)
+			intval($_SESSION['uid']),
+			intval($start),
+			intval($limit)
 		);
 
-		if (dbm::is_result($r))
+		if (DBM::is_result($r)) {
 			$notifs = $this->formatIntros($r);
+		}
 
 		$arr = array (
 			'ident' => $ident,
@@ -759,16 +816,16 @@ class NotificationsManager {
 	 * @param array $intros The array from the db query
 	 * @return array with the introductions
 	 */
-	private function formatIntros($intros) {
+	private function formatIntros($intros)
+	{
 		$knowyou = '';
 
-		foreach($intros as $it) {
+		foreach ($intros as $it) {
 			// There are two kind of introduction. Contacts suggested by other contacts and normal connection requests.
 			// We have to distinguish between these two because they use different data.
 
 			// Contact suggestions
-			if($it['fid']) {
-
+			if ($it['fid']) {
 				$return_addr = bin2hex($this->a->user['nickname'] . '@' . $this->a->get_hostname() . (($this->a->path) ? '/' . $this->a->path : ''));
 
 				$intro = array(
@@ -777,25 +834,23 @@ class NotificationsManager {
 					'intro_id' => $it['intro_id'],
 					'madeby' => $it['name'],
 					'contact_id' => $it['contact-id'],
-					'photo' => ((x($it,'fphoto')) ? proxy_url($it['fphoto'], false, PROXY_SIZE_SMALL) : "images/person-175.jpg"),
+					'photo' => ((x($it, 'fphoto')) ? proxy_url($it['fphoto'], false, PROXY_SIZE_SMALL) : "images/person-175.jpg"),
 					'name' => $it['fname'],
 					'url' => zrl($it['furl']),
 					'hidden' => $it['hidden'] == 1,
-					'post_newfriend' => (intval(PConfig::get(local_user(),'system','post_newfriend')) ? '1' : 0),
-
+					'post_newfriend' => (intval(PConfig::get(local_user(), 'system', 'post_newfriend')) ? '1' : 0),
 					'knowyou' => $knowyou,
 					'note' => $it['note'],
 					'request' => $it['frequest'] . '?addr=' . $return_addr,
 
 				);
 
-			// Normal connection requests
+				// Normal connection requests
 			} else {
-
 				$it = $this->getMissingIntroData($it);
 
 				// Don't show these data until you are connected. Diaspora is doing the same.
-				if($it['gnetwork'] === NETWORK_DIASPORA) {
+				if ($it['gnetwork'] === NETWORK_DIASPORA) {
 					$it['glocation'] = "";
 					$it['gabout'] = "";
 					$it['ggender'] = "";
@@ -807,14 +862,14 @@ class NotificationsManager {
 					'uid' => $_SESSION['uid'],
 					'intro_id' => $it['intro_id'],
 					'contact_id' => $it['contact-id'],
-					'photo' => ((x($it,'photo')) ? proxy_url($it['photo'], false, PROXY_SIZE_SMALL) : "images/person-175.jpg"),
+					'photo' => ((x($it, 'photo')) ? proxy_url($it['photo'], false, PROXY_SIZE_SMALL) : "images/person-175.jpg"),
 					'name' => $it['name'],
 					'location' => bbcode($it['glocation'], false, false),
 					'about' => bbcode($it['gabout'], false, false),
 					'keywords' => $it['gkeywords'],
 					'gender' => $it['ggender'],
 					'hidden' => $it['hidden'] == 1,
-					'post_newfriend' => (intval(PConfig::get(local_user(),'system','post_newfriend')) ? '1' : 0),
+					'post_newfriend' => (intval(PConfig::get(local_user(), 'system', 'post_newfriend')) ? '1' : 0),
 					'url' => $it['url'],
 					'zrl' => zrl($it['url']),
 					'addr' => $it['gaddr'],
@@ -838,7 +893,8 @@ class NotificationsManager {
 	 *
 	 * @return array The array with the intro data
 	 */
-	private function getMissingIntroData($arr) {
+	private function getMissingIntroData($arr)
+	{
 		// If the network and the addr isn't available from the gcontact
 		// table entry, take the one of the contact table entry
 		if ($arr['gnetwork'] == "") {

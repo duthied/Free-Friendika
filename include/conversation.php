@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once "include/bbcode.php";
 require_once "include/acl_selectors.php";
@@ -122,7 +123,7 @@ function localize_item(&$item) {
 			WHERE `item`.`contact-id`=`contact`.`id`
 			AND `item`.`uri`='%s'",
 			dbesc($item['parent-uri']));
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			return;
 		}
 		$obj = $r[0];
@@ -273,7 +274,7 @@ function localize_item(&$item) {
 			AND `item`.`uri`='%s'",
 			dbesc($item['parent-uri']));
 
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			return;
 		}
 
@@ -329,7 +330,7 @@ function localize_item(&$item) {
 					intval($item['uid'])
 			);
 
-			if (dbm::is_result($r) && $r[0]['plink']) {
+			if (DBM::is_result($r) && $r[0]['plink']) {
 				$target = $r[0];
 				$Bname = $target['author-name'];
 				$Blink = $target['author-link'];
@@ -941,7 +942,7 @@ function best_link_url($item, &$sparkle, $url = '') {
 		$r = dba::select('contact', array('id'),
 			array('network' => NETWORK_DFRN, 'uid' => local_user(), 'nurl' => normalise_link($clean_url), 'pending' => false),
 			array('limit' => 1));
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$best_url = 'redir/' . $r['id'];
 			$sparkle = true;
 			if ($url != '') {
@@ -992,7 +993,7 @@ function item_photo_menu($item) {
 	$network = '';
 	$rel = 0;
 	$r = dba::select('contact', array('id', 'network', 'rel'), array('uid' => local_user(), 'nurl' => normalise_link($item['author-link'])), array('limit' => 1));
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$cid = $r['id'];
 		$network = $r['network'];
 		$rel = $r['rel'];

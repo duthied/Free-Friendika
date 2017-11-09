@@ -3,12 +3,13 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
+use Friendica\Protocol\Diaspora;
+use Friendica\Protocol\DFRN;
 
 require_once 'include/queue_fn.php';
 require_once 'include/html2plain.php';
-require_once 'include/diaspora.php';
 require_once 'include/ostatus.php';
-require_once 'include/dfrn.php';
 
 function delivery_run(&$argv, &$argc){
 	global $a;
@@ -95,7 +96,7 @@ function delivery_run(&$argv, &$argc){
 				intval($item_id)
 			);
 
-			if ((!dbm::is_result($r)) || (!intval($r[0]['parent']))) {
+			if ((!DBM::is_result($r)) || (!intval($r[0]['parent']))) {
 				continue;
 			}
 
@@ -155,7 +156,7 @@ function delivery_run(&$argv, &$argc){
 			intval($uid)
 		);
 
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			continue;
 		}
 
@@ -226,7 +227,7 @@ function delivery_run(&$argv, &$argc){
 			intval($contact_id)
 		);
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$contact = $r[0];
 		}
 		if ($contact['self']) {
@@ -243,12 +244,12 @@ function delivery_run(&$argv, &$argc){
 
 				if ($mail) {
 					$item['body'] = fix_private_photos($item['body'],$owner['uid'],null,$message[0]['contact-id']);
-					$atom = dfrn::mail($item, $owner);
+					$atom = DFRN::mail($item, $owner);
 				} elseif ($fsuggest) {
-					$atom = dfrn::fsuggest($item, $owner);
+					$atom = DFRN::fsuggest($item, $owner);
 					q("DELETE FROM `fsuggest` WHERE `id` = %d LIMIT 1", intval($item['id']));
 				} elseif ($relocate) {
-					$atom = dfrn::relocate($owner, $uid);
+					$atom = DFRN::relocate($owner, $uid);
 				} elseif ($followup) {
 					$msgitems = array();
 					foreach ($items as $item) {  // there is only one item
@@ -260,7 +261,7 @@ function delivery_run(&$argv, &$argc){
 							$msgitems[] = $item;
 						}
 					}
-					$atom = dfrn::entries($msgitems,$owner);
+					$atom = DFRN::entries($msgitems,$owner);
 				} else {
 					$msgitems = array();
 					foreach ($items as $item) {
@@ -289,7 +290,7 @@ function delivery_run(&$argv, &$argc){
 							$msgitems[] = $item;
 						}
 					}
-					$atom = dfrn::entries($msgitems,$owner);
+					$atom = DFRN::entries($msgitems,$owner);
 				}
 
 				logger('notifier entry: '.$contact["url"].' '.$target_item["guid"].' entry: '.$atom, LOGGER_DEBUG);
@@ -343,13 +344,13 @@ function delivery_run(&$argv, &$argc){
 							break;
 						}
 						logger('mod-delivery: local delivery');
-						dfrn::import($atom, $x[0]);
+						DFRN::import($atom, $x[0]);
 						break;
 					}
 				}
 
 				if (!was_recently_delayed($contact['id'])) {
-					$deliver_status = dfrn::deliver($owner,$contact,$atom);
+					$deliver_status = DFRN::deliver($owner,$contact,$atom);
 				} else {
 					$deliver_status = (-1);
 				}
@@ -405,7 +406,7 @@ function delivery_run(&$argv, &$argc){
 							intval($argv[2]),
 							intval($uid)
 						);
-						if (dbm::is_result($r))
+						if (DBM::is_result($r))
 							$it = $r[0];
 					}
 					if (!$it)
@@ -462,14 +463,14 @@ function delivery_run(&$argv, &$argc){
 								dbesc($it['parent-uri']),
 								intval($uid));
 
-							if (dbm::is_result($r) && ($r[0]['title'] != '')) {
+							if (DBM::is_result($r) && ($r[0]['title'] != '')) {
 								$subject = $r[0]['title'];
 							} else {
 								$r = q("SELECT `title` FROM `item` WHERE `parent-uri` = '%s' AND `uid` = %d LIMIT 1",
 									dbesc($it['parent-uri']),
 									intval($uid));
 
-								if (dbm::is_result($r) && ($r[0]['title'] != ''))
+								if (DBM::is_result($r) && ($r[0]['title'] != ''))
 									$subject = $r[0]['title'];
 							}
 						}

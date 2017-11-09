@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once('include/security.php');
 require_once('include/bbcode.php');
@@ -22,7 +23,7 @@ function subthread_content(App $a) {
 		dbesc($item_id)
 	);
 
-	if(! $item_id || (! dbm::is_result($r))) {
+	if(! $item_id || (! DBM::is_result($r))) {
 		logger('subthread: no item ' . $item_id);
 		return;
 	}
@@ -43,7 +44,7 @@ function subthread_content(App $a) {
 			intval($item['contact-id']),
 			intval($item['uid'])
 		);
-		if (! dbm::is_result($r)) {
+		if (! DBM::is_result($r)) {
 			return;
 		}
 		if (! $r[0]['self']) {
@@ -57,7 +58,7 @@ function subthread_content(App $a) {
 		WHERE `contact`.`self` = 1 AND `contact`.`uid` = %d LIMIT 1",
 		intval($owner_uid)
 	);
-	if (dbm::is_result($r))
+	if (DBM::is_result($r))
 		$owner = $r[0];
 
 	if (! $owner) {
@@ -78,7 +79,7 @@ function subthread_content(App $a) {
 			intval($_SESSION['visitor_id']),
 			intval($owner_uid)
 		);
-		if (dbm::is_result($r))
+		if (DBM::is_result($r))
 			$contact = $r[0];
 	}
 	if (! $contact) {

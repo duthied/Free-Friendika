@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 
 function friendica_init(App $a) {
 	if ($a->argv[1] == "json"){
@@ -27,7 +28,7 @@ function friendica_init(App $a) {
 		$visible_plugins = array();
 		if (is_array($a->plugins) && count($a->plugins)) {
 			$r = q("SELECT * FROM `addon` WHERE `hidden` = 0");
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				foreach($r as $rr) {
 					$visible_plugins[] = $rr['name'];
 				}
@@ -85,7 +86,7 @@ function friendica_content(App $a) {
 	$visible_plugins = array();
 	if (is_array($a->plugins) && count($a->plugins)) {
 		$r = q("SELECT * FROM `addon` WHERE `hidden` = 0");
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			foreach($r as $rr) {
 				$visible_plugins[] = $rr['name'];
 			}

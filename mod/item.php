@@ -19,7 +19,9 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 use Friendica\Network\Probe;
+use Friendica\Protocol\Diaspora;
 
 require_once 'include/crypto.php';
 require_once 'include/enotify.php';
@@ -29,7 +31,6 @@ require_once 'include/files.php';
 require_once 'include/threads.php';
 require_once 'include/text.php';
 require_once 'include/items.php';
-require_once 'include/diaspora.php';
 require_once 'include/Contact.php';
 
 function item_post(App $a) {
@@ -107,7 +108,7 @@ function item_post(App $a) {
 		}
 
 		// if this isn't the real parent of the conversation, find it
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$parid = $r[0]['parent'];
 			$parent_uri = $r[0]['uri'];
 			if ($r[0]['id'] != $r[0]['parent']) {
@@ -117,7 +118,7 @@ function item_post(App $a) {
 			}
 		}
 
-		if (! dbm::is_result($r)) {
+		if (! DBM::is_result($r)) {
 			notice( t('Unable to locate original post.') . EOL);
 			if (x($_REQUEST, 'return')) {
 				goaway($return_path);
@@ -136,13 +137,13 @@ function item_post(App $a) {
 				intval($parent_item['contact-id']),
 				intval($uid)
 			);
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$parent_contact = $r[0];
 			}
 
 			// If the contact id doesn't fit with the contact, then set the contact to null
 			$thrparent = q("SELECT `author-link`, `network` FROM `item` WHERE `uri` = '%s' LIMIT 1", dbesc($thr_parent));
-			if (dbm::is_result($thrparent) && ($thrparent[0]["network"] === NETWORK_OSTATUS)
+			if (DBM::is_result($thrparent) && ($thrparent[0]["network"] === NETWORK_OSTATUS)
 				&& (normalise_link($parent_contact["url"]) != normalise_link($thrparent[0]["author-link"]))) {
 				$parent_contact = get_contact_details_by_url($thrparent[0]["author-link"]);
 
@@ -184,7 +185,7 @@ function item_post(App $a) {
 			intval($profile_uid)
 		);
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			logger("Message with URI ".$message_id." already exists for user ".$profile_uid, LOGGER_DEBUG);
 			return;
 		}
@@ -226,7 +227,7 @@ function item_post(App $a) {
 			intval($profile_uid),
 			intval($post_id)
 		);
-		if (! dbm::is_result($i)) {
+		if (! DBM::is_result($i)) {
 			killme();
 		}
 		$orig_post = $i[0];
@@ -237,7 +238,7 @@ function item_post(App $a) {
 	$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 		intval($profile_uid)
 	);
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$user = $r[0];
 	}
 
@@ -335,7 +336,7 @@ function item_post(App $a) {
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
 					intval(local_user())
 				);
-				if (dbm::is_result($r) && intval($r[0]['pubmail'])) {
+				if (DBM::is_result($r) && intval($r[0]['pubmail'])) {
 					$pubmail_enabled = true;
 				}
 			}
@@ -392,7 +393,7 @@ function item_post(App $a) {
 		}
 	}
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$author = $r[0];
 		$contact_id = $author['id'];
 	}
@@ -405,7 +406,7 @@ function item_post(App $a) {
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 1 LIMIT 1",
 			intval($profile_uid)
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$contact_record = $r[0];
 		}
 	}
@@ -456,7 +457,7 @@ function item_post(App $a) {
 					intval($profile_uid)
 				);
 
-				if (! dbm::is_result($r)) {
+				if (! DBM::is_result($r)) {
 					continue;
 				}
 
@@ -488,7 +489,7 @@ function item_post(App $a) {
 					intval($profile_uid),
 					intval($attach)
 				);
-				if (dbm::is_result($r)) {
+				if (DBM::is_result($r)) {
 					$r = q("UPDATE `attach` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'
 						WHERE `uid` = %d AND `id` = %d",
 						dbesc($str_contact_allow),
@@ -558,7 +559,7 @@ function item_post(App $a) {
 		$toplevel_parent = q("SELECT `contact`.* FROM `contact`
 						INNER JOIN `item` ON `item`.`contact-id` = `contact`.`id` AND `contact`.`url` = `item`.`author-link`
 						WHERE `item`.`id` = `item`.`parent` AND `item`.`parent` = %d", intval($parent));
-		if (dbm::is_result($toplevel_parent)) {
+		if (DBM::is_result($toplevel_parent)) {
 			if (!empty($toplevel_parent[0]['addr'])) {
 				$toplevel_contact = '@' . $toplevel_parent[0]['addr'];
 			} else {
@@ -651,7 +652,7 @@ function item_post(App $a) {
 				intval($profile_uid),
 				intval($mtch)
 			);
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				if (strlen($attachments)) {
 					$attachments .= ',';
 				}
@@ -760,7 +761,7 @@ function item_post(App $a) {
 	$datarray['protocol'] = PROTOCOL_DFRN;
 
 	$r = dba::fetch_first("SELECT `conversation-uri`, `conversation-href` FROM `conversation` WHERE `item-uri` = ?", $datarray['parent-uri']);
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		if ($r['conversation-uri'] != '') {
 			$datarray['conversation-uri'] = $r['conversation-uri'];
 		}
@@ -919,7 +920,7 @@ function item_post(App $a) {
 		intval($datarray['visible'])
 	);
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$post_id = dba::lastInsertId();
 	} else {
 		logger('mod_item: unable to create post.');
@@ -1157,11 +1158,11 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 
 				$r = q("SELECT `alias`, `name` FROM `contact` WHERE `nurl` = '%s' AND `alias` != '' AND `uid` = 0",
 					normalise_link($matches[1]));
-				if (!dbm::is_result($r)) {
+				if (!DBM::is_result($r)) {
 					$r = q("SELECT `alias`, `name` FROM `gcontact` WHERE `nurl` = '%s' AND `alias` != ''",
 						normalise_link($matches[1]));
 				}
-				if (dbm::is_result($r)) {
+				if (DBM::is_result($r)) {
 					$data = $r[0];
 				} else {
 					$data = Probe::uri($matches[1]);
@@ -1204,7 +1205,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			);
 
 			// Then check in the contact table for the url
-			if (!dbm::is_result($r)) {
+			if (!DBM::is_result($r)) {
 				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network`, `notify`, `forum`, `prv` FROM `contact`
 					WHERE `nurl` = '%s' AND `uid` = %d AND
 						(`network` != '%s' OR (`notify` != '' AND `alias` != ''))
@@ -1216,7 +1217,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			}
 
 			// Then check in the global contacts for the address
-			if (!dbm::is_result($r)) {
+			if (!DBM::is_result($r)) {
 				$r = q("SELECT `url`, `nick`, `name`, `alias`, `network`, `notify` FROM `gcontact`
 					WHERE `addr` = '%s' AND (`network` != '%s' OR (`notify` != '' AND `alias` != ''))
 					LIMIT 1",
@@ -1226,7 +1227,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			}
 
 			// Then check in the global contacts for the url
-			if (!dbm::is_result($r)) {
+			if (!DBM::is_result($r)) {
 				$r = q("SELECT `url`, `nick`, `name`, `alias`, `network`, `notify` FROM `gcontact`
 					WHERE `nurl` = '%s' AND (`network` != '%s' OR (`notify` != '' AND `alias` != ''))
 					LIMIT 1",
@@ -1235,7 +1236,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 				);
 			}
 
-			if (!dbm::is_result($r)) {
+			if (!DBM::is_result($r)) {
 				$probed = Probe::uri($name);
 				if ($result['network'] != NETWORK_PHANTOM) {
 					update_gcontact($probed);
@@ -1256,7 +1257,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			}
 
 			// select someone by attag or nick and the name passed in the current network
-			if(!dbm::is_result($r) && ($network != ""))
+			if(!DBM::is_result($r) && ($network != ""))
 				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `network` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
 						dbesc($name),
 						dbesc($name),
@@ -1265,7 +1266,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 				);
 
 			//select someone from this user's contacts by name in the current network
-			if (!dbm::is_result($r) && ($network != "")) {
+			if (!DBM::is_result($r) && ($network != "")) {
 				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `name` = '%s' AND `network` = '%s' AND `uid` = %d LIMIT 1",
 						dbesc($name),
 						dbesc($network),
@@ -1274,7 +1275,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			}
 
 			// select someone by attag or nick and the name passed in
-			if(!dbm::is_result($r)) {
+			if(!DBM::is_result($r)) {
 				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
 						dbesc($name),
 						dbesc($name),
@@ -1283,7 +1284,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			}
 
 			// select someone from this user's contacts by name
-			if(!dbm::is_result($r)) {
+			if(!DBM::is_result($r)) {
 				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
 						dbesc($name),
 						intval($profile_uid)
@@ -1291,7 +1292,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			}
 		}
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			if (strlen($inform) && (isset($r[0]["notify"]) || isset($r[0]["id"]))) {
 				$inform .= ',';
 			}

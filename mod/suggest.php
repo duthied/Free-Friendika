@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once('include/socgraph.php');
 require_once('include/contact_widgets.php');
@@ -67,7 +68,7 @@ function suggest_content(App $a) {
 
 	$r = suggestion_query(local_user());
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		$o .= t('No suggestions available. If this is a new site, please try again in 24 hours.');
 		return $o;
 	}

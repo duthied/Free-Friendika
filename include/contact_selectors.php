@@ -1,5 +1,7 @@
 <?php
-require_once('include/diaspora.php');
+
+use Friendica\Database\DBM;
+use Friendica\Protocol\Diaspora;
 
 function contact_profile_assign($current,$foreign_net) {
 
@@ -12,7 +14,7 @@ function contact_profile_assign($current,$foreign_net) {
 	$r = q("SELECT `id`, `profile-name`, `is-default` FROM `profile` WHERE `uid` = %d",
 			intval($_SESSION['uid']));
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
 			$selected = (($rr['id'] == $current || ($current == 0 && $rr['is-default'] == 1)) ? " selected=\"selected\" " : "");
 			$o .= "<option value=\"{$rr['id']}\" $selected >{$rr['profile-name']}</option>\r\n";
@@ -105,7 +107,7 @@ function network_to_name($s, $profile = "") {
 				INNER JOIN `gserver` ON `gserver`.`nurl` = `gcontact`.`server_url`
 				WHERE `gcontact`.`nurl` = ? AND `platform` != ''", normalise_link($profile));
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$networkname = $r['platform'];
 		}
 	}

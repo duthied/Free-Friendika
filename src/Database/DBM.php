@@ -1,10 +1,18 @@
 <?php
 /**
+ * @file src/Database/DBM.php
+ */
+namespace Friendica\Database;
+
+use dba;
+
+/**
  * @brief This class contain functions for the database management
  *
  * This class contains functions that doesn't need to know if pdo, mysqli or whatever is used.
  */
-class dbm {
+class DBM
+{
 	/**
 	 * @brief Return a list of database processes
 	 *
@@ -12,7 +20,8 @@ class dbm {
 	 *      'list' => List of processes, separated in their different states
 	 *      'amount' => Number of concurrent database processes
 	 */
-	public static function processlist() {
+	public static function processlist()
+	{
 		$r = q("SHOW PROCESSLIST");
 		$s = array();
 
@@ -30,8 +39,9 @@ class dbm {
 
 		$statelist = "";
 		foreach ($states AS $state => $usage) {
-			if ($statelist != "")
+			if ($statelist != "") {
 				$statelist .= ", ";
+			}
 			$statelist .= $state.": ".$usage;
 		}
 		return(array("list" => $statelist, "amount" => $processes));
@@ -40,10 +50,12 @@ class dbm {
 	/**
 	 * Checks if $array is a filled array with at least one entry.
 	 *
-	 * @param       $array  mixed   A filled array with at least one entry
-	 * @return      Whether $array is a filled array or an object with rows
+	 * @param mixed $array A filled array with at least one entry
+	 *
+	 * @return boolean Whether $array is a filled array or an object with rows
 	 */
-	public static function is_result($array) {
+	public static function is_result($array)
+	{
 		// It could be a return value from an update statement
 		if (is_bool($array)) {
 			return $array;
@@ -59,12 +71,12 @@ class dbm {
 	/**
 	 * @brief Callback function for "esc_array"
 	 *
-	 * @param mixed $value Array value
-	 * @param string $key Array key
+	 * @param mixed   $value         Array value
+	 * @param string  $key           Array key
 	 * @param boolean $add_quotation add quotation marks for string values
 	 */
-	private static function esc_array_callback(&$value, $key, $add_quotation) {
-
+	private static function esc_array_callback(&$value, $key, $add_quotation)
+	{
 		if (!$add_quotation) {
 			if (is_bool($value)) {
 				$value = ($value ? '1' : '0');
@@ -86,10 +98,11 @@ class dbm {
 	/**
 	 * @brief Escapes a whole array
 	 *
-	 * @param mixed $arr Array with values to be escaped
+	 * @param mixed   $arr           Array with values to be escaped
 	 * @param boolean $add_quotation add quotation marks for string values
 	 */
-	public static function esc_array(&$arr, $add_quotation = false) {
+	public static function esc_array(&$arr, $add_quotation = false)
+	{
 		array_walk($arr, 'self::esc_array_callback', $add_quotation);
 	}
 
@@ -97,9 +110,11 @@ class dbm {
 	 * Checks Converts any date string into a SQL compatible date string
 	 *
 	 * @param string $date a date string in any format
+	 *
 	 * @return string SQL style date string
 	 */
-	public static function date($date = 'now') {
+	public static function date($date = 'now')
+	{
 		$timestamp = strtotime($date);
 
 		// Don't allow lower date strings as '0001-01-01 00:00:00'

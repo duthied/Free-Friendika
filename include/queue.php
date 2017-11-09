@@ -2,9 +2,11 @@
 
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
+use Friendica\Protocol\Diaspora;
+use Friendica\Protocol\DFRN;
 
 require_once 'include/queue_fn.php';
-require_once 'include/dfrn.php';
 require_once 'include/datetime.php';
 require_once 'include/items.php';
 require_once 'include/bbcode.php';
@@ -34,7 +36,7 @@ function queue_run(&$argv, &$argc) {
 			INNER JOIN `contact` ON `queue`.`cid` = `contact`.`id`
 			WHERE `queue`.`created` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			foreach ($r as $rr) {
 				logger('Removing expired queue item for ' . $rr['name'] . ', uid=' . $rr['uid']);
 				logger('Expired queue data: ' . $rr['content'], LOGGER_DATA);
@@ -50,7 +52,7 @@ function queue_run(&$argv, &$argc) {
 
 		call_hooks('queue_predeliver', $a, $r);
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			foreach ($r as $q_item) {
 				logger('Call queue for id '.$q_item['id']);
 				Worker::add(array('priority' => PRIORITY_LOW, 'dont_fork' => true), "queue", (int)$q_item['id']);
@@ -63,12 +65,11 @@ function queue_run(&$argv, &$argc) {
 	// delivering
 
 	require_once 'include/salmon.php';
-	require_once 'include/diaspora.php';
 
 	$r = q("SELECT * FROM `queue` WHERE `id` = %d LIMIT 1",
 		intval($queue_id));
 
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		return;
 	}
 
@@ -78,7 +79,7 @@ function queue_run(&$argv, &$argc) {
 		intval($q_item['cid'])
 	);
 
-	if (!dbm::is_result($c)) {
+	if (!DBM::is_result($c)) {
 		remove_queue_item($q_item['id']);
 		return;
 	}
@@ -114,7 +115,7 @@ function queue_run(&$argv, &$argc) {
 		FROM `user` WHERE `uid` = %d LIMIT 1",
 		intval($c[0]['uid'])
 	);
-	if (!dbm::is_result($u)) {
+	if (!DBM::is_result($u)) {
 		remove_queue_item($q_item['id']);
 		return;
 	}
@@ -129,7 +130,7 @@ function queue_run(&$argv, &$argc) {
 	switch ($contact['network']) {
 		case NETWORK_DFRN:
 			logger('queue: dfrndelivery: item '.$q_item['id'].' for '.$contact['name'].' <'.$contact['url'].'>');
-			$deliver_status = dfrn::deliver($owner, $contact, $data);
+			$deliver_status = DFRN::deliver($owner, $contact, $data);
 
 			if ($deliver_status == (-1)) {
 				update_queue_time($q_item['id']);

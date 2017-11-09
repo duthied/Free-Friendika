@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once('include/bbcode.php');
 
@@ -23,7 +24,7 @@ function tagrm_post(App $a) {
 		intval(local_user())
 	);
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 	}
 
@@ -72,7 +73,7 @@ function tagrm_content(App $a) {
 		intval(local_user())
 	);
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 	}
 

@@ -7,6 +7,7 @@
 use Friendica\App;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 require_once 'include/bbcode.php';
 require_once 'include/map.php';
@@ -254,7 +255,7 @@ function event_store($arr) {
 		);
 	}
 
-	if (dbm::is_result($c)) {
+	if (DBM::is_result($c)) {
 		$contact = $c[0];
 	}
 
@@ -269,7 +270,7 @@ function event_store($arr) {
 			intval($arr['id']),
 			intval($arr['uid'])
 		);
-		if ((! dbm::is_result($r)) || ($r[0]['edited'] === $arr['edited'])) {
+		if ((! DBM::is_result($r)) || ($r[0]['edited'] === $arr['edited'])) {
 
 			// Nothing has changed. Grab the item id to return.
 
@@ -277,7 +278,7 @@ function event_store($arr) {
 				intval($arr['id']),
 				intval($arr['uid'])
 			);
-			return ((dbm::is_result($r)) ? $r[0]['id'] : 0);
+			return ((DBM::is_result($r)) ? $r[0]['id'] : 0);
 		}
 
 		// The event changed. Update it.
@@ -310,7 +311,7 @@ function event_store($arr) {
 			intval($arr['id']),
 			intval($arr['uid'])
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$object = '<object><type>' . xmlify(ACTIVITY_OBJ_EVENT) . '</type><title></title><id>' . xmlify($arr['uri']) . '</id>';
 			$object .= '<content>' . xmlify(format_event_bbcode($arr)) . '</content>';
 			$object .= '</object>' . "\n";
@@ -361,7 +362,7 @@ function event_store($arr) {
 			dbesc($arr['uri']),
 			intval($arr['uid'])
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$event = $r[0];
 		}
 
@@ -404,7 +405,7 @@ function event_store($arr) {
 		$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 			intval($arr['uid'])
 		);
-		//if (dbm::is_result($r))
+		//if (DBM::is_result($r))
 		//	$plink = System::baseUrl() . '/display/' . $r[0]['nickname'] . '/' . $item_id;
 
 
@@ -547,7 +548,7 @@ function event_by_id($owner_uid = 0, $event_params, $sql_extra = '') {
 		intval($event_params["event_id"])
 	);
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		return event_remove_duplicates($r);
 	}
 }
@@ -591,7 +592,7 @@ function events_by_date($owner_uid = 0, $event_params, $sql_extra = '') {
 			dbesc($event_params["adjust_finish"])
 	);
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		return event_remove_duplicates($r);
 	}
 }
@@ -805,7 +806,7 @@ function events_by_uid($uid = 0, $sql_extra = '') {
 		);
 	}
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		return $r;
 	}
 }
@@ -829,7 +830,7 @@ function event_export($uid, $format = 'ical') {
 	// We are allowed to show events.
 	// Get the timezone the user is in.
 	$r = q("SELECT `timezone` FROM `user` WHERE `uid` = %d LIMIT 1", intval($uid));
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$timezone = $r[0]['timezone'];
 	}
 

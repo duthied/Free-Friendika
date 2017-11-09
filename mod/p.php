@@ -5,8 +5,8 @@ This file is part of the Diaspora protocol. It is used for fetching single publi
 
 use Friendica\App;
 use Friendica\Core\System;
-
-require_once("include/diaspora.php");
+use Friendica\Database\DBM;
+use Friendica\Protocol\Diaspora;
 
 function p_init($a){
 	if ($a->argc != 2) {
@@ -52,7 +52,7 @@ function p_init($a){
 	$r = q("SELECT `user`.`prvkey`, `contact`.`addr`, `user`.`nickname`, `contact`.`nick` FROM `user`
 		INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
 		WHERE `user`.`uid` = %d", intval($item[0]["uid"]));
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		header($_SERVER["SERVER_PROTOCOL"].' 404 '.t('Not Found'));
 		killme();
 	}

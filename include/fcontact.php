@@ -1,6 +1,6 @@
 <?php
 
-
+use Friendica\Database\DBM;
 
 function fcontact_store($url,$name,$photo) {
 
@@ -10,16 +10,16 @@ function fcontact_store($url,$name,$photo) {
 		dbesc($nurl)
 	);
 
-	if (dbm::is_result($r))
+	if (DBM::is_result($r))
 		return $r[0]['id'];
 
 	$r = dba::insert('fcontact', array('url' => $nurl, 'name' => $name, 'photo' => $photo));
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$r = q("SELECT `id` FROM `fcontact` WHERE `url` = '%s' LIMIT 1",
 			dbesc($nurl)
 		);
-		if (dbm::is_result($r))
+		if (DBM::is_result($r))
 			return $r[0]['id'];
 	}
 

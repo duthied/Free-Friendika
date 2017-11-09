@@ -3,10 +3,11 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
+use Friendica\Protocol\DFRN;
 
 require_once('include/items.php');
 require_once('include/auth.php');
-require_once('include/dfrn.php');
 require_once('include/ostatus.php');
 
 function dfrn_poll_init(App $a) {
@@ -58,7 +59,7 @@ function dfrn_poll_init(App $a) {
 
 		logger('dfrn_poll: public feed request from ' . $_SERVER['REMOTE_ADDR'] . ' for ' . $user);
 		header("Content-type: application/atom+xml");
-		echo dfrn::feed('', $user,$last_update, 0, $hidewall);
+		echo DFRN::feed('', $user,$last_update, 0, $hidewall);
 		killme();
 	}
 
@@ -90,7 +91,7 @@ function dfrn_poll_init(App $a) {
 			dbesc($a->argv[1])
 		);
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 
 			$s = fetch_url($r[0]['poll'] . '?dfrn_id=' . $my_id . '&type=profile-check');
 
@@ -137,7 +138,7 @@ function dfrn_poll_init(App $a) {
 			$r = q("SELECT * FROM `profile_check` WHERE `sec` = '%s' ORDER BY `expire` DESC LIMIT 1",
 				dbesc($sec)
 			);
-			if (! dbm::is_result($r)) {
+			if (! DBM::is_result($r)) {
 				xml_status(3, 'No ticket');
 				// NOTREACHED
 			}
@@ -148,7 +149,7 @@ function dfrn_poll_init(App $a) {
 			$c = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 				intval($r[0]['cid'])
 			);
-			if (! dbm::is_result($c)) {
+			if (! DBM::is_result($c)) {
 				xml_status(3, 'No profile');
 			}
 			$contact = $c[0];
@@ -201,7 +202,7 @@ function dfrn_poll_init(App $a) {
 			q("DELETE FROM `profile_check` WHERE `expire` < " . intval(time()));
 			$r = q("SELECT * FROM `profile_check` WHERE `dfrn_id` = '%s' ORDER BY `expire` DESC",
 				dbesc($dfrn_id));
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				xml_status(1);
 				return; // NOTREACHED
 			}
@@ -234,7 +235,7 @@ function dfrn_poll_post(App $a) {
 			$r = q("SELECT * FROM `profile_check` WHERE `sec` = '%s' ORDER BY `expire` DESC LIMIT 1",
 				dbesc($sec)
 			);
-			if (! dbm::is_result($r)) {
+			if (! DBM::is_result($r)) {
 				xml_status(3, 'No ticket');
 				// NOTREACHED
 			}
@@ -245,7 +246,7 @@ function dfrn_poll_post(App $a) {
 			$c = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 				intval($r[0]['cid'])
 			);
-			if (! dbm::is_result($c)) {
+			if (! DBM::is_result($c)) {
 				xml_status(3, 'No profile');
 			}
 			$contact = $c[0];
@@ -295,7 +296,7 @@ function dfrn_poll_post(App $a) {
 		dbesc($challenge)
 	);
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		killme();
 	}
 
@@ -331,7 +332,7 @@ function dfrn_poll_post(App $a) {
 	$r = q("SELECT * FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 $sql_extra LIMIT 1");
 
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		killme();
 	}
 
@@ -348,7 +349,7 @@ function dfrn_poll_post(App $a) {
 		$reputation = 0;
 		$text = '';
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$reputation = $r[0]['rating'];
 			$text = $r[0]['reason'];
 
@@ -387,7 +388,7 @@ function dfrn_poll_post(App $a) {
 		}
 
 		header("Content-type: application/atom+xml");
-		$o = dfrn::feed($dfrn_id, $a->argv[1], $last_update, $direction);
+		$o = DFRN::feed($dfrn_id, $a->argv[1], $last_update, $direction);
 		echo $o;
 		killme();
 
@@ -461,7 +462,7 @@ function dfrn_poll_content(App $a) {
 			dbesc($nickname)
 		);
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 
 			$challenge = '';
 			$encrypted_id = '';
@@ -508,7 +509,7 @@ function dfrn_poll_content(App $a) {
 				));
 			}
 
-			$profile = ((dbm::is_result($r) && $r[0]['nickname']) ? $r[0]['nickname'] : $nickname);
+			$profile = ((DBM::is_result($r) && $r[0]['nickname']) ? $r[0]['nickname'] : $nickname);
 
 			switch($destination_url) {
 				case 'profile':

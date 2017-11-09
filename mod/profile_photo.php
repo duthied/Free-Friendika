@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 
 require_once("include/Photo.php");
 
@@ -35,7 +36,7 @@ function profile_photo_post(App $a) {
 				intval($_REQUEST['profile']),
 				intval(local_user())
 			);
-			if (dbm::is_result($r) && (! intval($r[0]['is-default'])))
+			if (DBM::is_result($r) && (! intval($r[0]['is-default'])))
 				$is_default_profile = 0;
 		}
 
@@ -66,7 +67,7 @@ function profile_photo_post(App $a) {
 			dbesc(local_user()),
 			intval($scale));
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 
 			$base_image = $r[0];
 
@@ -202,7 +203,7 @@ function profile_photo_content(App $a) {
 			intval(local_user()),
 			dbesc($resource_id)
 			);
-		if (!dbm::is_result($r)){
+		if (!DBM::is_result($r)){
 			notice( t('Permission denied.') . EOL );
 			return;
 		}

@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Database\DBM;
 
 function lockview_content(App $a) {
 
@@ -22,7 +23,7 @@ function lockview_content(App $a) {
 		dbesc($type),
 		intval($item_id)
 	);
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		killme();
 	}
 	$item = $r[0];
@@ -54,7 +55,7 @@ function lockview_content(App $a) {
 		$r = q("SELECT `name` FROM `group` WHERE `id` IN ( %s )",
 			dbesc(implode(', ', $allowed_groups))
 		);
-		if (dbm::is_result($r))
+		if (DBM::is_result($r))
 			foreach($r as $rr)
 				$l[] = '<b>' . $rr['name'] . '</b>';
 	}
@@ -62,7 +63,7 @@ function lockview_content(App $a) {
 		$r = q("SELECT `name` FROM `contact` WHERE `id` IN ( %s )",
 			dbesc(implode(', ',$allowed_users))
 		);
-		if (dbm::is_result($r))
+		if (DBM::is_result($r))
 			foreach($r as $rr)
 				$l[] = $rr['name'];
 
@@ -72,7 +73,7 @@ function lockview_content(App $a) {
 		$r = q("SELECT `name` FROM `group` WHERE `id` IN ( %s )",
 			dbesc(implode(', ', $deny_groups))
 		);
-		if (dbm::is_result($r))
+		if (DBM::is_result($r))
 			foreach($r as $rr)
 				$l[] = '<b><strike>' . $rr['name'] . '</strike></b>';
 	}
@@ -80,7 +81,7 @@ function lockview_content(App $a) {
 		$r = q("SELECT `name` FROM `contact` WHERE `id` IN ( %s )",
 			dbesc(implode(', ',$deny_users))
 		);
-		if (dbm::is_result($r))
+		if (DBM::is_result($r))
 			foreach($r as $rr)
 				$l[] = '<strike>' . $rr['name'] . '</strike>';
 

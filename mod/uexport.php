@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
 
 function uexport_init(App $a) {
 	if (!local_user()) {
@@ -52,7 +53,7 @@ function uexport_content(App $a) {
 function _uexport_multirow($query) {
 	$result = array();
 	$r = q($query);
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
 			$p = array();
 			foreach ($rr as $k => $v) {
@@ -67,7 +68,7 @@ function _uexport_multirow($query) {
 function _uexport_row($query) {
 	$result = array();
 	$r = q($query);
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
 			foreach ($rr as $k => $v) {
 				$result[$k] = $v;
@@ -139,7 +140,7 @@ function uexport_all(App $a) {
 	$r = q("SELECT count(*) as `total` FROM `item` WHERE `uid` = %d ",
 		intval(local_user())
 	);
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$total = $r[0]['total'];
 	}
 	// chunk the output to avoid exhausting memory

@@ -8,9 +8,10 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
+use Friendica\Protocol\DFRN;
 
 require_once('include/items.php');
-require_once('include/dfrn.php');
 require_once('include/event.php');
 
 require_once('library/defuse/php-encryption-1.2.1/Crypto.php');
@@ -46,7 +47,7 @@ function dfrn_notify_post(App $a) {
 		dbesc($dfrn_id),
 		dbesc($challenge)
 	);
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		logger('dfrn_notify: could not match challenge to dfrn_id ' . $dfrn_id . ' challenge=' . $challenge);
 		xml_status(3, 'Could not match challenge');
 	}
@@ -94,7 +95,7 @@ function dfrn_notify_post(App $a) {
 		dbesc($a->argv[1])
 	);
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		logger('dfrn_notify: contact not found for dfrn_id ' . $dfrn_id);
 		xml_status(3, 'Contact not found');
 		//NOTREACHED
@@ -180,7 +181,7 @@ function dfrn_notify_post(App $a) {
 				 *we got a key. old code send only the key, without RINO version.
 				 * we assume RINO 1 if key and no RINO version
 				 */
-				$data = dfrn::aes_decrypt(hex2bin($data), $final_key);
+				$data = DFRN::aes_decrypt(hex2bin($data), $final_key);
 				break;
 			case 2:
 				try {
@@ -212,7 +213,7 @@ function dfrn_notify_post(App $a) {
 		logger('rino: decrypted data: ' . $data, LOGGER_DATA);
 	}
 
-	$ret = dfrn::import($data, $importer);
+	$ret = DFRN::import($data, $importer);
 	xml_status($ret, 'Processed');
 
 	// NOTREACHED
@@ -284,7 +285,7 @@ function dfrn_notify_content(App $a) {
 				dbesc($a->argv[1])
 		);
 
-		if (! dbm::is_result($r)) {
+		if (! DBM::is_result($r)) {
 			$status = 1;
 		}
 

@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 
 function cronjobs_run(&$argv, &$argc){
@@ -78,7 +79,7 @@ function cronjobs_run(&$argv, &$argc){
  */
 function cron_update_photo_albums() {
 	$r = q("SELECT `uid` FROM `user` WHERE NOT `account_expired` AND NOT `account_removed`");
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		return;
 	}
 
@@ -98,7 +99,7 @@ function cron_expire_and_remove_users() {
 
 	// delete user records for recently removed accounts
 	$r = q("SELECT * FROM `user` WHERE `account_removed` AND `account_expires_on` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r as $user) {
 			dba::delete('user', array('uid' => $user['uid']));
 		}
@@ -211,7 +212,7 @@ function cron_repair_diaspora(App $a) {
 	$r = q("SELECT `id`, `url` FROM `contact`
 		WHERE `network` = '%s' AND (`batch` = '' OR `notify` = '' OR `poll` = '' OR pubkey = '')
 			ORDER BY RAND() LIMIT 50", dbesc(NETWORK_DIASPORA));
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		return;
 	}
 
@@ -246,7 +247,7 @@ function cron_repair_database() {
 	// Sometimes there seem to be issues where the "self" contact vanishes.
 	// We haven't found the origin of the problem by now.
 	$r = q("SELECT `uid` FROM `user` WHERE NOT EXISTS (SELECT `uid` FROM `contact` WHERE `contact`.`uid` = `user`.`uid` AND `contact`.`self`)");
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r AS $user) {
 			logger('Create missing self contact for user '.$user['uid']);
 			user_create_self_contact($user['uid']);
@@ -262,7 +263,7 @@ function cron_repair_database() {
 
 	// Update the global contacts for local users
 	$r = q("SELECT `uid` FROM `user` WHERE `verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired`");
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r AS $user) {
 			update_gcontact_for_user($user["uid"]);
 		}

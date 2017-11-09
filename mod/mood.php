@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 
 require_once('include/security.php');
 require_once('include/bbcode.php');
@@ -40,7 +41,7 @@ function mood_init(App $a) {
 			intval($parent),
 			intval($uid)
 		);
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			$parent_uri = $r[0]['uri'];
 			$private    = $r[0]['private'];
 			$allow_cid  = $r[0]['allow_cid'];

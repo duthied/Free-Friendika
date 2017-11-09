@@ -4,10 +4,11 @@ if(class_exists('Item'))
 
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\Database\DBM;
+use Friendica\Protocol\Diaspora;
 
 require_once('object/BaseObject.php');
 require_once('include/text.php');
-require_once('include/diaspora.php');
 require_once('boot.php');
 
 /**
@@ -255,7 +256,7 @@ class Item extends BaseObject {
 					'starred'   =>  t('starred'),
 				);
 				$r = dba::select('thread', array('ignored'), array('uid' => $item['uid'], 'iid' => $item['id']), array('limit' => 1));
-				if (dbm::is_result($r)) {
+				if (DBM::is_result($r)) {
 					$ignore = array(
 						'do'        => t("ignore thread"),
 						'undo'      => t("unignore thread"),

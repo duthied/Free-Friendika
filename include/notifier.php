@@ -3,11 +3,12 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 use Friendica\Network\Probe;
+use Friendica\Protocol\Diaspora;
 
 require_once 'include/queue_fn.php';
 require_once 'include/html2plain.php';
-require_once 'include/diaspora.php';
 require_once 'include/ostatus.php';
 require_once 'include/salmon.php';
 
@@ -158,7 +159,7 @@ function notifier_run(&$argv, &$argc){
 			intval($item_id)
 		);
 
-		if ((! dbm::is_result($r)) || (! intval($r[0]['parent']))) {
+		if ((! DBM::is_result($r)) || (! intval($r[0]['parent']))) {
 			return;
 		}
 
@@ -199,7 +200,7 @@ function notifier_run(&$argv, &$argc){
 		intval($uid)
 	);
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		return;
 	}
 
@@ -298,7 +299,7 @@ function notifier_run(&$argv, &$argc){
 			$fields = array('forum', 'prv');
 			$condition = array('id' => $target_item['contact-id']);
 			$contact = dba::select('contact', $fields, $condition, array('limit' => 1));
-			if (!dbm::is_result($contact)) {
+			if (!DBM::is_result($contact)) {
 				// Should never happen
 				return false;
 			}
@@ -335,7 +336,7 @@ function notifier_run(&$argv, &$argc){
 						intval($uid),
 						dbesc(NETWORK_DFRN)
 					);
-					if (dbm::is_result($r)) {
+					if (DBM::is_result($r)) {
 						foreach ($r as $rr) {
 							$recipients_followup[] = $rr['id'];
 						}
@@ -423,7 +424,7 @@ function notifier_run(&$argv, &$argc){
 			$r = q("SELECT `url`, `notify` FROM `contact` WHERE `nurl`='%s' AND `uid` IN (0, %d) AND `notify` != ''",
 				dbesc(normalise_link($thr_parent[0]['author-link'])),
 				intval($uid));
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$probed_contact = $r[0];
 			} else {
 				$probed_contact = Probe::uri($thr_parent[0]['author-link']);
@@ -438,7 +439,7 @@ function notifier_run(&$argv, &$argc){
 			$r = q("SELECT `url`, `notify` FROM `contact` WHERE `nurl`='%s' AND `uid` IN (0, %d) AND `notify` != ''",
 				dbesc(normalise_link($thr_parent[0]['owner-link'])),
 				intval($uid));
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$probed_contact = $r[0];
 			} else {
 				$probed_contact = Probe::uri($thr_parent[0]['owner-link']);
@@ -484,7 +485,7 @@ function notifier_run(&$argv, &$argc){
 				intval($uid),
 				dbesc(NETWORK_MAIL)
 			);
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				foreach ($r as $rr) {
 					$recipients[] = $rr['id'];
 				}
@@ -508,7 +509,7 @@ function notifier_run(&$argv, &$argc){
 
 	// delivery loop
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		foreach ($r as $contact) {
 			if ($contact['self']) {
 				continue;
@@ -565,7 +566,7 @@ function notifier_run(&$argv, &$argc){
 
 		$r = array_merge($r2,$r1,$r0);
 
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			logger('pubdeliver '.$target_item["guid"].': '.print_r($r,true), LOGGER_DEBUG);
 
 			foreach ($r as $rr) {

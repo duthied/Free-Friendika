@@ -4,7 +4,10 @@ use Friendica\App;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 use Friendica\Network\Probe;
+use Friendica\Protocol\Diaspora;
+use Friendica\Protocol\DFRN;
 
 // Included here for completeness, but this is a very dangerous operation.
 // It is the caller's responsibility to confirm the requestor's intent and
@@ -47,7 +50,7 @@ function contact_remove($id) {
 	$r = q("SELECT `uid` FROM `contact` WHERE `id` = %d AND NOT `self` LIMIT 1",
 		intval($id)
 	);
-	if (!dbm::is_result($r) || !intval($r[0]['uid'])) {
+	if (!DBM::is_result($r) || !intval($r[0]['uid'])) {
 		return;
 	}
 
@@ -90,11 +93,9 @@ function terminate_friendship($user,$self,$contact) {
 			slapper($user,$contact['notify'],$slap);
 		}
 	} elseif ($contact['network'] === NETWORK_DIASPORA) {
-		require_once 'include/diaspora.php';
 		Diaspora::send_unshare($user,$contact);
 	} elseif ($contact['network'] === NETWORK_DFRN) {
-		require_once 'include/dfrn.php';
-		dfrn::deliver($user,$contact,'placeholder', 1);
+		DFRN::deliver($user,$contact,'placeholder', 1);
 	}
 
 }
@@ -163,7 +164,7 @@ function unmark_for_death($contact) {
 	);
 
 	// We don't need to update, we never marked this contact as dead
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		return;
 	}
 
@@ -213,7 +214,7 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 	$r = dba::inArray($s);
 
 	// Fetch contact data from the contact table for the given user, checking with the alias
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		$s = dba::p("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
 				`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`
 			FROM `contact` WHERE `alias` IN (?, ?, ?) AND `uid` = ?",
@@ -222,7 +223,7 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 	}
 
 	// Fetch the data from the contact table with "uid=0" (which is filled automatically)
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		$s = dba::p("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
 			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`
 			FROM `contact` WHERE `nurl` = ? AND `uid` = 0",
@@ -231,7 +232,7 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 	}
 
 	// Fetch the data from the contact table with "uid=0" (which is filled automatically) - checked with the alias
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		$s = dba::p("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
 			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`
 			FROM `contact` WHERE `alias` IN (?, ?, ?) AND `uid` = 0",
@@ -240,7 +241,7 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 	}
 
 	// Fetch the data from the gcontact table
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		$s = dba::p("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `zid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, '' AS `xmpp`,
 			`keywords`, `gender`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, `community` AS `forum`, 0 AS `prv`, `community`, `contact-type`, `birthday`, 0 AS `self`
 			FROM `gcontact` WHERE `nurl` = ?",
@@ -248,7 +249,7 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 		$r = dba::inArray($s);
 	}
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		// If there is more than one entry we filter out the connector networks
 		if (count($r) > 1) {
 			foreach ($r AS $id => $result) {
@@ -351,20 +352,20 @@ function get_contact_details_by_addr($addr, $uid = -1) {
 			dbesc($addr), intval($uid));
 
 	// Fetch the data from the contact table with "uid=0" (which is filled automatically)
-	if (!dbm::is_result($r))
+	if (!DBM::is_result($r))
 		$r = q("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
 			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`
 			FROM `contact` WHERE `addr` = '%s' AND `uid` = 0",
 				dbesc($addr));
 
 	// Fetch the data from the gcontact table
-	if (!dbm::is_result($r))
+	if (!DBM::is_result($r))
 		$r = q("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `zid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, '' AS `xmpp`,
 			`keywords`, `gender`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, `community` AS `forum`, 0 AS `prv`, `community`, `contact-type`, `birthday`, 0 AS `self`
 			FROM `gcontact` WHERE `addr` = '%s'",
 				dbesc($addr));
 
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		$data = Probe::uri($addr);
 
 		$profile = get_contact_details_by_url($data['url'], $uid);
@@ -486,7 +487,7 @@ function random_profile() {
 			ORDER BY rand() LIMIT 1",
 		dbesc(NETWORK_DFRN));
 
-	if (dbm::is_result($r))
+	if (DBM::is_result($r))
 		return dirname($r[0]['url']);
 	return '';
 }
@@ -553,12 +554,12 @@ function get_contact($url, $uid = 0, $no_update = false) {
 	$contact = dba::select('contact', array('id', 'avatar-date'), array('nurl' => normalise_link($url), 'uid' => $uid), array('limit' => 1));
 
 	// Then the addr (nick@server.tld)
-	if (!dbm::is_result($contact)) {
+	if (!DBM::is_result($contact)) {
 		$contact = dba::select('contact', array('id', 'avatar-date'), array('addr' => $url, 'uid' => $uid), array('limit' => 1));
 	}
 
 	// Then the alias (which could be anything)
-	if (!dbm::is_result($contact)) {
+	if (!DBM::is_result($contact)) {
 		// The link could be provided as http although we stored it as https
 		$ssl_url = str_replace('http://', 'https://', $url);
 		$r = dba::p("SELECT `id`, `avatar-date` FROM `contact` WHERE `alias` IN (?, ?, ?) AND `uid` = ? LIMIT 1",
@@ -567,7 +568,7 @@ function get_contact($url, $uid = 0, $no_update = false) {
 		dba::close($r);
 	}
 
-	if (dbm::is_result($contact)) {
+	if (DBM::is_result($contact)) {
 		$contact_id = $contact["id"];
 
 		// Update the contact every 7 days
@@ -597,7 +598,7 @@ function get_contact($url, $uid = 0, $no_update = false) {
 		// Get data from the gcontact table
 		$gcontacts = dba::select('gcontact', array('name', 'nick', 'url', 'photo', 'addr', 'alias', 'network'),
 						array('nurl' => normalise_link($url)), array('limit' => 1));
-		if (!dbm::is_result($gcontacts)) {
+		if (!DBM::is_result($gcontacts)) {
 			return 0;
 		}
 
@@ -626,7 +627,7 @@ function get_contact($url, $uid = 0, $no_update = false) {
 		$contacts = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d ORDER BY `id` LIMIT 2",
 				dbesc(normalise_link($data["url"])),
 				intval($uid));
-		if (!dbm::is_result($contacts)) {
+		if (!DBM::is_result($contacts)) {
 			return 0;
 		}
 
@@ -635,7 +636,7 @@ function get_contact($url, $uid = 0, $no_update = false) {
 		// Update the newly created contact from data in the gcontact table
 		$gcontact = dba::select('gcontact', array('location', 'about', 'keywords', 'gender'),
 					array('nurl' => normalise_link($data["url"])), array('limit' => 1));
-		if (dbm::is_result($gcontact)) {
+		if (DBM::is_result($gcontact)) {
 			// Only use the information when the probing hadn't fetched these values
 			if ($data['keywords'] != '') {
 				unset($gcontact['keywords']);
@@ -663,7 +664,7 @@ function get_contact($url, $uid = 0, $no_update = false) {
 				array('id' => $contact_id), array('limit' => 1));
 
 	// This condition should always be true
-	if (!dbm::is_result($contact)) {
+	if (!DBM::is_result($contact)) {
 		return $contact_id;
 	}
 
@@ -711,7 +712,7 @@ function blockedContact($cid) {
 	}
 
 	$blocked = dba::select('contact', array('blocked'), array('id' => $cid), array('limit' => 1));
-	if (!dbm::is_result($blocked)) {
+	if (!DBM::is_result($blocked)) {
 		return false;
 	}
 	return (bool)$blocked['blocked'];
@@ -730,7 +731,7 @@ function hiddenContact($cid) {
 	}
 
 	$hidden = dba::select('contact', array('hidden'), array('id' => $cid), array('limit' => 1));
-	if (!dbm::is_result($hidden)) {
+	if (!DBM::is_result($hidden)) {
 		return false;
 	}
 	return (bool)$hidden['hidden'];
@@ -793,7 +794,7 @@ function posts_from_contact_url(App $a, $contact_url) {
 		WHERE `contact`.`nurl` = '%s' AND `contact`.`uid` = 0",
 		dbesc(normalise_link($contact_url)));
 
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		return '';
 	}
 

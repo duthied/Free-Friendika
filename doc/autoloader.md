@@ -104,7 +104,7 @@ class Dfrn {
 
 mail_post($a){
 	...
-	Friendica\dfrn::mail($item, $owner);
+	Friendica\Protocol\DFRN::mail($item, $owner);
 	...
 }
 ```
@@ -125,12 +125,12 @@ switch($contact['network']) {
 	case NETWORK_DFRN:
 		if ($mail) {
 			$item['body'] = ...
-			$atom = Dfrn::mail($item, $owner);
+			$atom = DFRN::mail($item, $owner);
 		} elseif ($fsuggest) {
-			$atom = Dfrn::fsuggest($item, $owner);
+			$atom = DFRN::fsuggest($item, $owner);
 			q("DELETE FROM `fsuggest` WHERE `id` = %d LIMIT 1", intval($item['id']));
 		} elseif ($relocate)
-			$atom = Dfrn::relocate($owner, $uid);
+			$atom = DFRN::relocate($owner, $uid);
 [...]
 ```
 

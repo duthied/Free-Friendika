@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 
 require_once("include/bbcode.php");
 require_once('include/security.php');
@@ -19,7 +20,7 @@ function search_saved_searches() {
 		intval(local_user())
 	);
 
-	if (dbm::is_result($r)) {
+	if (DBM::is_result($r)) {
 		$saved = array();
 		foreach ($r as $rr) {
 			$saved[] = array(
@@ -57,7 +58,7 @@ function search_init(App $a) {
 				intval(local_user()),
 				dbesc($search)
 			);
-			if (!dbm::is_result($r)) {
+			if (!DBM::is_result($r)) {
 				dba::insert('search', array('uid' => local_user(), 'term' => $search));
 			}
 		}
@@ -212,7 +213,7 @@ function search_content(App $a) {
 				intval($a->pager['start']), intval($a->pager['itemspage']));
 	}
 
-	if (! dbm::is_result($r)) {
+	if (! DBM::is_result($r)) {
 		info( t('No results.') . EOL);
 		return $o;
 	}

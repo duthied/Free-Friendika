@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 
 require_once('include/Contact.php');
 require_once('include/contact_selectors.php');
@@ -20,7 +21,7 @@ function viewcontacts_init(App $a) {
 			dbesc($nick)
 		);
 
-		if (! dbm::is_result($r)) {
+		if (! DBM::is_result($r)) {
 			return;
 		}
 
@@ -60,7 +61,7 @@ function viewcontacts_content(App $a) {
 		dbesc(NETWORK_DIASPORA),
 		dbesc(NETWORK_OSTATUS)
 	);
-	if (dbm::is_result($r))
+	if (DBM::is_result($r))
 		$a->set_pager_total($r[0]['total']);
 
 	$r = q("SELECT * FROM `contact`
@@ -75,7 +76,7 @@ function viewcontacts_content(App $a) {
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
 	);
-	if (!dbm::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		info(t('No contacts.').EOL);
 		return $o;
 	}

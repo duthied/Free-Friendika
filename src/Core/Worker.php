@@ -5,10 +5,10 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Database\DBM;
 use Friendica\Util\Lock;
 
 use dba;
-use dbm;
 
 /**
  * @file src/Core/Worker.php
@@ -142,7 +142,7 @@ class Worker {
 	 */
 	private static function totalEntries() {
 		$s = dba::fetch_first("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE `executed` <= ? AND NOT `done`", NULL_DATE);
-		if (dbm::is_result($s)) {
+		if (DBM::is_result($s)) {
 			return $s["total"];
 		} else {
 			return 0;
@@ -157,7 +157,7 @@ class Worker {
 	private static function highestPriority() {
 		$condition = array("`executed` <= ? AND NOT `done`", NULL_DATE);
 		$s = dba::select('workerqueue', array('priority'), $condition, array('limit' => 1, 'order' => array('priority')));
-		if (dbm::is_result($s)) {
+		if (DBM::is_result($s)) {
 			return $s["priority"];
 		} else {
 			return 0;
@@ -405,7 +405,7 @@ class Worker {
 		if ($max == 0) {
 			// the maximum number of possible user connections can be a system variable
 			$r = dba::fetch_first("SHOW VARIABLES WHERE `variable_name` = 'max_user_connections'");
-			if (dbm::is_result($r)) {
+			if (DBM::is_result($r)) {
 				$max = $r["Value"];
 			}
 			// Or it can be granted. This overrides the system variable
@@ -441,7 +441,7 @@ class Worker {
 		// We will now check for the system values.
 		// This limit could be reached although the user limits are fine.
 		$r = dba::fetch_first("SHOW VARIABLES WHERE `variable_name` = 'max_connections'");
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			return false;
 		}
 		$max = intval($r["Value"]);
@@ -449,7 +449,7 @@ class Worker {
 			return false;
 		}
 		$r = dba::fetch_first("SHOW STATUS WHERE `variable_name` = 'Threads_connected'");
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			return false;
 		}
 		$used = intval($r["Value"]);
@@ -631,7 +631,7 @@ class Worker {
 				INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid` AND NOT `done`");
 
 		// No active processes at all? Fine
-		if (!dbm::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			return false;
 		}
 		$priorities = array();
@@ -754,7 +754,7 @@ class Worker {
 
 		// There can already be jobs for us in the queue.
 		$r = dba::select('workerqueue', array(), array('pid' => getmypid(), 'done' => false));
-		if (dbm::is_result($r)) {
+		if (DBM::is_result($r)) {
 			self::$db_duration += (microtime(true) - $stamp);
 			return dba::inArray($r);
 		}
