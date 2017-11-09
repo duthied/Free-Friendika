@@ -1,88 +1,79 @@
 php-encryption
 ===============
 
+This is a class for doing symmetric encryption in PHP. **Requires PHP 5.4 or newer.**
+
 [![Build Status](https://travis-ci.org/defuse/php-encryption.svg?branch=master)](https://travis-ci.org/defuse/php-encryption)
 
-This is a library for encrypting data with a key or password in PHP. **It
-requires PHP 5.4 or newer.** The current version is v2.0.0, which is expected to
-remain stable and supported by its authors with security and bugfixes until at
-least January 1st, 2019.
+Implementation
+--------------
 
-The library is a joint effort between [Taylor Hornby](https://defuse.ca/) and
-[Scott Arciszewski](https://paragonie.com/blog/author/scott-arcizewski) as well
-as numerous open-source contributors.
+Messages are encrypted with AES-128 in CBC mode and are authenticated with
+HMAC-SHA256 (Encrypt-then-Mac). PKCS7 padding is used to pad the message to
+a multiple of the block size. HKDF is used to split the user-provided key into
+two keys: one for encryption, and the other for authentication. It is
+implemented using the `openssl_` and `hash_hmac` functions.
 
-What separates this library from other PHP encryption libraries is, firstly,
-that it is secure. The authors used to encounter insecure PHP encryption code on
-a daily basis, so they created this library to bring more security to the
-ecosystem. Secondly, this library is "difficult to misuse." Like
-[libsodium](https://github.com/jedisct1/libsodium), its API is designed to be
-easy to use in a secure way and hard to use in an insecure way.
+Warning
+--------
 
-Dependencies
-------------
+This is new code, and it hasn't received much review by experts. I have spent
+many hours making it as secure as possible (extensive runtime tests, secure
+coding practices), and auditing it for problems, but I may have missed some
+issues. So be careful. Don't trust it with your life. Check out the open GitHub
+issues for a list of known issues. If you find a problem with this library,
+please report it by opening a GitHub issue.
 
-This library requres no special dependencies except for PHP 5.4 or newer with
-the OpenSSL extensions enabled (this is the default). It uses
-[random\_compat](https://github.com/paragonie/random_compat), which is bundled
-in with this library so that your users will not need to follow any special
-installation steps.
+That said, you're probably much better off using this library than any other
+encryption library written in PHP. 
 
-Getting Started
-----------------
+Philosophy
+-----------
 
-Start with the [**Tutorial**](docs/Tutorial.md). You can find instructions for
-obtaining this library's code securely in the [Installing and
-Verifying](docs/InstallingAndVerifying.md) documentation.
+This library was created after noticing how much insecure PHP encryption code
+there is. I once did a Google search for "php encryption" and found insecure
+code or advice on 9 of the top 10 results.
 
-After you've read the tutorial and got the code, refer to the formal
-documentation for each of the classes this library provides:
+Encryption is becoming an essential component of modern websites. This library
+aims to fulfil a subset of that need: Authenticated symmetric encryption of
+short strings, given a random key.
 
-- [Crypto](docs/classes/Crypto.md)
-- [File](docs/classes/File.md)
-- [Key](docs/classes/Key.md)
-- [KeyProtectedByPassword](docs/classes/KeyProtectedByPassword.md)
+This library is developed around several core values:
 
-If you encounter difficulties, see the [FAQ](docs/FAQ.md) answers. The fixes to
-the most commonly-reported problems are explained there.
+- Rule #1: Security is prioritized over everything else.
 
-If you're a cryptographer and want to understand the nitty-gritty details of how
-this library works, look at the [Cryptography Details](docs/CryptoDetails.md)
-documentation.
+    > Whenever there is a conflict between security and some other property,
+    > security will be favored. For example, the library has runtime tests,
+    > which make it slower, but will hopefully stop it from encrypting stuff
+    > if the platform it's running on is broken.
 
-If you're interested in contributing to this library, see the [Internal
-Developer Documentation](docs/InternalDeveloperDocs.md).
+- Rule #2: It should be difficult to misuse the library.
 
-Examples
----------
+    > We assume the developers using this library have no experience with
+    > cryptography. We only assume that they know that the "key" is something
+    > you need to encrypt and decrypt the messages, and that it must be
+    > protected. Whenever possible, the library should refuse to encrypt or
+    > decrypt messages when it is not being used correctly.
 
-If the documentation is not enough for you to understand how to use this
-library, then you can look at an example project that uses this library:
+- Rule #3: The library aims only to be compatible with itself.
 
-- [encutil](https://github.com/defuse/encutil)
-- [fileencrypt](https://github.com/tsusanka/fileencrypt)
+    > Other PHP encryption libraries try to support every possible type of
+    > encryption, even the insecure ones (e.g. ECB mode). Because there are so
+    > many options, inexperienced developers must make decisions between
+    > things like "CBC" mode and "ECB" mode, knowing nothing about either one,
+    > which inevitably creates vulnerabilities.
 
-Security Audit Status
----------------------
+    > This library will only support one secure mode. A developer using this
+    > library will call "encrypt" and "decrypt" not caring about how they are
+    > implemented.
 
-This code has not been subjected to a formal, paid, security audit. However, it
-has received lots of review from members of the PHP security community, and the
-authors are experienced with cryptography. In all likelihood, you are safer
-using this library than almost any other encryption library for PHP.
+- Rule #4: The library should consist of a single PHP file and nothing more.
 
-If you use this library as a part of your business and would like to help fund
-a formal audit, please [contact Taylor Hornby](https://defuse.ca/contact.htm).
+    > Some PHP encryption libraries, like libsodium-php [1], are not
+    > straightforward to install and cannot packaged with "just download and
+    > extract" applications. This library will always be just one PHP file
+    > that you can put in your source tree and require().
 
-Public Keys
-------------
+References:
 
-The GnuPG public key used to sign releases is available in
-[dist/signingkey.asc](https://github.com/defuse/php-encryption/raw/master/dist/signingkey.asc). Its fingerprint is:
-
-```
-2FA6 1D8D 99B9 2658 6BAC  3D53 385E E055 A129 1538
-```
-
-You can verify it against the Taylor Hornby's [contact
-page](https://defuse.ca/contact.htm) and
-[twitter](https://twitter.com/DefuseSec/status/723741424253059074).
+    [1] https://github.com/jedisct1/libsodium-php

@@ -2,34 +2,19 @@
     "name": "defuse/php-encryption",
     "description": "Secure PHP Encryption Library",
     "license": "MIT",
-    "keywords": ["security", "encryption", "AES", "openssl", "cipher", "cryptography", "symmetric key cryptography", "crypto", "encrypt", "authenticated encryption"],
+    "keywords": ["security", "encryption", "AES", "mcrypt", "cipher"],
     "authors": [
         {
             "name": "Taylor Hornby",
-            "email": "taylor@defuse.ca",
-            "homepage": "https://defuse.ca/"
-        },
-        {
-            "name": "Scott Arciszewski",
-            "email": "info@paragonie.com",
-            "homepage": "https://paragonie.com"
+            "email": "havoc@defuse.ca"
         }
     ],
     "autoload": {
-        "psr-4": {
-            "Defuse\\Crypto\\": "src"
-        }
+        "files": ["Crypto.php"]
     },
     "require": {
-        "paragonie/random_compat": "~2.0",
+        "php":  ">=5.4.0",
         "ext-openssl": "*",
-        "php":  ">=5.4.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^4|^5",
-        "nikic/php-parser": "^2.0|^3.0"
-    },
-    "bin": [
-        "bin/generate-defuse-key"
-    ]
+        "ext-mcrypt":  "*"
+    }
 }

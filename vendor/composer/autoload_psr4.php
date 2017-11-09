@@ -8,5 +8,4 @@ $baseDir = dirname($vendorDir);
 return array(
     'League\\HTMLToMarkdown\\' => array($vendorDir . '/league/html-to-markdown/src'),
     'Friendica\\' => array($baseDir . '/src'),
-    'Defuse\\Crypto\\' => array($vendorDir . '/defuse/php-encryption/src'),
 );
