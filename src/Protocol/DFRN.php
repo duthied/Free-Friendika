@@ -1296,17 +1296,22 @@ class DFRN
 				case 2:
 					// RINO 2 based on php-encryption
 					try {
-						$KeyObject = \Defuse\Crypto\Key::createNewRandomKey();
-					} catch (\Defuse\Crypto\Exception\CryptoException $ex) {
+						$key = \Crypto::createNewRandomKey();
+					} catch (\CryptoTestFailedException $ex) {
 						logger('Cannot safely create a key');
 						return -4;
+					} catch (\CannotPerformOperationException $ex) {
+						logger('Cannot safely create a key');
+						return -5;
 					}
 					try {
-						$data = \Defuse\Crypto\Crypto::encrypt($postvars['data'], $KeyObject);
-						$key = $KeyObject->saveToAsciiSafeString();
-					} catch (\Defuse\Crypto\Exception\CryptoException $ex) {
+						$data = \Crypto::encrypt($postvars['data'], $key);
+					} catch (\CryptoTestFailedException $ex) {
 						logger('Cannot safely perform encryption');
 						return -6;
+					} catch (\CannotPerformOperationException $ex) {
+						logger('Cannot safely perform encryption');
+						return -7;
 					}
 					break;
 				default:

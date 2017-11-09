@@ -444,35 +444,31 @@
         "homepage": "http://pear.php.net/package/Text_LanguageDetect"
     },
     {
-        "name": "paragonie/random_compat",
-        "version": "v2.0.11",
-        "version_normalized": "2.0.11.0",
+        "name": "defuse/php-encryption",
+        "version": "v1.2.1",
+        "version_normalized": "1.2.1.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/paragonie/random_compat.git",
-            "reference": "5da4d3c796c275c55f057af5a643ae297d96b4d8"
+            "url": "https://github.com/defuse/php-encryption.git",
+            "reference": "b87737b2eec06b13f025cabea847338fa203d1b4"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/paragonie/random_compat/zipball/5da4d3c796c275c55f057af5a643ae297d96b4d8",
-            "reference": "5da4d3c796c275c55f057af5a643ae297d96b4d8",
+            "url": "https://api.github.com/repos/defuse/php-encryption/zipball/b87737b2eec06b13f025cabea847338fa203d1b4",
+            "reference": "b87737b2eec06b13f025cabea847338fa203d1b4",
             "shasum": ""
         },
         "require": {
-            "php": ">=5.2.0"
+            "ext-mcrypt": "*",
+            "ext-openssl": "*",
+            "php": ">=5.4.0"
         },
-        "require-dev": {
-            "phpunit/phpunit": "4.*|5.*"
-        },
-        "suggest": {
-            "ext-libsodium": "Provides a modern crypto API that can be used to generate random bytes."
-        },
-        "time": "2017-09-27T21:40:39+00:00",
+        "time": "2015-03-14T20:27:45+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
             "files": [
-                "lib/random.php"
+                "Crypto.php"
             ]
         },
         "notification-url": "https://packagist.org/downloads/",
@@ -481,81 +477,17 @@
         ],
         "authors": [
             {
-                "name": "Paragon Initiative Enterprises",
-                "email": "security@paragonie.com",
-                "homepage": "https://paragonie.com"
-            }
-        ],
-        "description": "PHP 5.x polyfill for random_bytes() and random_int() from PHP 7",
-        "keywords": [
-            "csprng",
-            "pseudorandom",
-            "random"
-        ]
-    },
-    {
-        "name": "defuse/php-encryption",
-        "version": "v2.1.0",
-        "version_normalized": "2.1.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/defuse/php-encryption.git",
-            "reference": "5176f5abb38d3ea8a6e3ac6cd3bbb54d8185a689"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/defuse/php-encryption/zipball/5176f5abb38d3ea8a6e3ac6cd3bbb54d8185a689",
-            "reference": "5176f5abb38d3ea8a6e3ac6cd3bbb54d8185a689",
-            "shasum": ""
-        },
-        "require": {
-            "ext-openssl": "*",
-            "paragonie/random_compat": "~2.0",
-            "php": ">=5.4.0"
-        },
-        "require-dev": {
-            "nikic/php-parser": "^2.0|^3.0",
-            "phpunit/phpunit": "^4|^5"
-        },
-        "time": "2017-05-18T21:28:48+00:00",
-        "bin": [
-            "bin/generate-defuse-key"
-        ],
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "Defuse\\Crypto\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
                 "name": "Taylor Hornby",
-                "email": "taylor@defuse.ca",
-                "homepage": "https://defuse.ca/"
-            },
-            {
-                "name": "Scott Arciszewski",
-                "email": "info@paragonie.com",
-                "homepage": "https://paragonie.com"
+                "email": "havoc@defuse.ca"
             }
         ],
         "description": "Secure PHP Encryption Library",
         "keywords": [
             "aes",
-            "authenticated encryption",
             "cipher",
-            "crypto",
-            "cryptography",
-            "encrypt",
             "encryption",
-            "openssl",
-            "security",
-            "symmetric key cryptography"
+            "mcrypt",
+            "security"
         ]
     }
 ]
