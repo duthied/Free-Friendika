@@ -183,9 +183,8 @@ function dfrn_notify_post(App $a) {
 				break;
 			case 2:
 				try {
-					$FinalKey = \Defuse\Crypto\Key::loadFromAsciiSafeString(bin2hex($final_key));
-					$data = \Defuse\Crypto\Crypto::decrypt(hex2bin($data), $FinalKey);
-				} catch (\Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException $ex) { // VERY IMPORTANT
+					$data = \Crypto::decrypt(hex2bin($data), $final_key);
+				} catch (\InvalidCiphertextException $ex) { // VERY IMPORTANT
 					/*
 					 * Either:
 					 *   1. The ciphertext was modified by the attacker,
@@ -195,9 +194,12 @@ function dfrn_notify_post(App $a) {
 					 */
 					logger('The ciphertext has been tampered with!');
 					xml_status(0, 'The ciphertext has been tampered with!');
-				} catch (\Defuse\Crypto\Exception\EnvironmentIsBrokenException $ex) {
+				} catch (\CryptoTestFailedException $ex) {
 					logger('Cannot safely perform dencryption');
 					xml_status(0, 'CryptoTestFailed');
+				} catch (\CannotPerformOperationException $ex) {
+					logger('Cannot safely perform decryption');
+					xml_status(0, 'Cannot safely perform decryption');
 				}
 				break;
 			default:
