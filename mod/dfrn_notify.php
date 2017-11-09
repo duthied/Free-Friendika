@@ -183,7 +183,8 @@ function dfrn_notify_post(App $a) {
 				break;
 			case 2:
 				try {
-					$data = \Defuse\Crypto\Crypto::decrypt(hex2bin($data), $final_key);
+					$FinalKey = \Defuse\Crypto\Key::loadFromAsciiSafeString($final_key);
+					$data = \Defuse\Crypto\Crypto::decrypt(hex2bin($data), $FinalKey);
 				} catch (\Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException $ex) { // VERY IMPORTANT
 					/*
 					 * Either:
