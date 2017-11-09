@@ -68,7 +68,7 @@ function queue_run(&$argv, &$argc)
 
 	// delivering
 
-	include_once 'include/salmon.php';
+	require_once 'include/salmon.php';
 
 	$r = q(
 		"SELECT * FROM `queue` WHERE `id` = %d LIMIT 1",

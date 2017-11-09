@@ -95,7 +95,7 @@ function profile_load(App $a, $nickname, $profile = 0, $profiledata = array())
 
 	$theme_info_file = "view/theme/" . current_theme() . "/theme.php";
 	if (file_exists($theme_info_file)) {
-		include_once $theme_info_file;
+		require_once $theme_info_file;
 	}
 
 	if (! (x($a->page, 'aside'))) {
@@ -579,7 +579,7 @@ function get_birthdays()
 
 function get_events()
 {
-	include_once 'include/bbcode.php';
+	require_once 'include/bbcode.php';
 
 	$a = get_app();
 
