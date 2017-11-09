@@ -1649,20 +1649,11 @@ class DFRN
 					`addr` = '%s', `keywords` = '%s', `bdyear` = '%s', `bd` = '%s', `hidden` = %d,
 					`xmpp` = '%s', `name-date`  = '%s', `uri-date` = '%s'
 					WHERE `id` = %d AND `network` = '%s'",
-					dbesc($contact["name"]),
-					dbesc($contact["nick"]),
-					dbesc($contact["about"]),
-					dbesc($contact["location"]),
-					dbesc($contact["addr"]),
-					dbesc($contact["keywords"]),
-					dbesc($contact["bdyear"]),
-					dbesc($contact["bd"]),
-					intval($contact["hidden"]),
-					dbesc($contact["xmpp"]),
-					dbesc(DBM::date($contact["name-date"])),
-					dbesc(DBM::date($contact["uri-date"])),
-					intval($contact["id"]),
-					dbesc($contact["network"])
+					dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["about"]),	dbesc($contact["location"]),
+					dbesc($contact["addr"]), dbesc($contact["keywords"]), dbesc($contact["bdyear"]),
+					dbesc($contact["bd"]), intval($contact["hidden"]), dbesc($contact["xmpp"]),
+					dbesc(DBM::date($contact["name-date"])), dbesc(DBM::date($contact["uri-date"])),
+					intval($contact["id"]),	dbesc($contact["network"])
 				);
 			}
 
@@ -1913,8 +1904,7 @@ class DFRN
 			intval(0)
 		);
 
-		notification(
-			array(
+		notification(array(
 			"type"         => NOTIFY_SUGGEST,
 			"notify_flags" => $importer["notify-flags"],
 			"language"     => $importer["language"],
