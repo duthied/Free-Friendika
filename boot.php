@@ -18,10 +18,11 @@
  * easily as email does today.
  */
 
-require_once(__DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
@@ -34,18 +35,17 @@ require_once 'include/text.php';
 require_once 'include/datetime.php';
 require_once 'include/pgettext.php';
 require_once 'include/nav.php';
-require_once 'include/cache.php';
 require_once 'include/features.php';
 require_once 'include/identity.php';
 require_once 'update.php';
 require_once 'include/dbstructure.php';
 require_once 'include/poller.php';
 
-define ( 'FRIENDICA_PLATFORM',     'Friendica');
-define ( 'FRIENDICA_CODENAME',     'Asparagus');
-define ( 'FRIENDICA_VERSION',      '3.6-dev' );
-define ( 'DFRN_PROTOCOL_VERSION',  '2.23'    );
-define ( 'DB_UPDATE_VERSION',      1235      );
+define('FRIENDICA_PLATFORM',     'Friendica');
+define('FRIENDICA_CODENAME',     'Asparagus');
+define('FRIENDICA_VERSION',      '3.6-dev');
+define('DFRN_PROTOCOL_VERSION',  '2.23');
+define('DB_UPDATE_VERSION',      1235);
 
 /**
  * @brief Constant with a HTML line break.
@@ -54,8 +54,8 @@ define ( 'DB_UPDATE_VERSION',      1235      );
  * feed for the source.
  * This can be used in HTML and JavaScript where needed a line break.
  */
-define ( 'EOL',                    "<br />\r\n"     );
-define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
+define('EOL',                    "<br />\r\n");
+define('ATOM_TIME',              'Y-m-d\TH:i:s\Z');
 
 /**
  * @brief Image storage quality.
@@ -65,17 +65,15 @@ define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z' );
  * $a->config['system']['jpeg_quality'] = n;
  * in .htconfig.php, where n is netween 1 and 100, and with very poor results
  * below about 50
- *
  */
-define ( 'JPEG_QUALITY',            100  );
+define('JPEG_QUALITY',            100);
 
 /**
  * $a->config['system']['png_quality'] from 0 (uncompressed) to 9
  */
-define ( 'PNG_QUALITY',             8  );
+define('PNG_QUALITY',             8);
 
 /**
- *
  * An alternate way of limiting picture upload sizes. Specify the maximum pixel
  * length that pictures are allowed to be (for non-square pictures, it will apply
  * to the longest side). Pictures longer than this length will be resized to be
@@ -88,14 +86,13 @@ define ( 'PNG_QUALITY',             8  );
  *
  * If you don't want to set a maximum length, set to -1. The default value is
  * defined by 'MAX_IMAGE_LENGTH' below.
- *
  */
-define ( 'MAX_IMAGE_LENGTH',        -1  );
+define('MAX_IMAGE_LENGTH',        -1);
 
 /**
  * Not yet used
  */
-define ( 'DEFAULT_DB_ENGINE',  'InnoDB' );
+define('DEFAULT_DB_ENGINE',  'InnoDB');
 
 /**
  * @name SSL Policy
@@ -103,9 +100,9 @@ define ( 'DEFAULT_DB_ENGINE',  'InnoDB' );
  * SSL redirection policies
  * @{
  */
-define ( 'SSL_POLICY_NONE',         0 );
-define ( 'SSL_POLICY_FULL',         1 );
-define ( 'SSL_POLICY_SELFSIGN',     2 );
+define('SSL_POLICY_NONE',         0);
+define('SSL_POLICY_FULL',         1);
+define('SSL_POLICY_SELFSIGN',     2);
 /* @}*/
 
 /**
@@ -114,11 +111,11 @@ define ( 'SSL_POLICY_SELFSIGN',     2 );
  * log levels
  * @{
  */
-define ( 'LOGGER_NORMAL',          0 );
-define ( 'LOGGER_TRACE',           1 );
-define ( 'LOGGER_DEBUG',           2 );
-define ( 'LOGGER_DATA',            3 );
-define ( 'LOGGER_ALL',             4 );
+define('LOGGER_NORMAL',          0);
+define('LOGGER_TRACE',           1);
+define('LOGGER_DEBUG',           2);
+define('LOGGER_DATA',            3);
+define('LOGGER_ALL',             4);
 /* @}*/
 
 /**
@@ -127,14 +124,14 @@ define ( 'LOGGER_ALL',             4 );
  * Cache levels
  * @{
  */
-define ( 'CACHE_MONTH',            0 );
-define ( 'CACHE_WEEK',             1 );
-define ( 'CACHE_DAY',              2 );
-define ( 'CACHE_HOUR',             3 );
-define ( 'CACHE_HALF_HOUR',        4 );
-define ( 'CACHE_QUARTER_HOUR',     5 );
-define ( 'CACHE_FIVE_MINUTES',     6 );
-define ( 'CACHE_MINUTE',           7 );
+define('CACHE_MONTH',            0);
+define('CACHE_WEEK',             1);
+define('CACHE_DAY',              2);
+define('CACHE_HOUR',             3);
+define('CACHE_HALF_HOUR',        4);
+define('CACHE_QUARTER_HOUR',     5);
+define('CACHE_FIVE_MINUTES',     6);
+define('CACHE_MINUTE',           7);
 /* @}*/
 
 /**
@@ -143,10 +140,12 @@ define ( 'CACHE_MINUTE',           7 );
  * Registration policies
  * @{
  */
-define ( 'REGISTER_CLOSED',        0 );
-define ( 'REGISTER_APPROVE',       1 );
-define ( 'REGISTER_OPEN',          2 );
-/** @}*/
+define('REGISTER_CLOSED',        0);
+define('REGISTER_APPROVE',       1);
+define('REGISTER_OPEN',          2);
+/**
+ * @}
+*/
 
 /**
  * @name Contact_is
@@ -154,10 +153,12 @@ define ( 'REGISTER_OPEN',          2 );
  * Relationship types
  * @{
  */
-define ( 'CONTACT_IS_FOLLOWER', 1);
-define ( 'CONTACT_IS_SHARING',  2);
-define ( 'CONTACT_IS_FRIEND',   3);
-/** @}*/
+define('CONTACT_IS_FOLLOWER', 1);
+define('CONTACT_IS_SHARING',  2);
+define('CONTACT_IS_FRIEND',   3);
+/**
+ *  @}
+ */
 
 /**
  * @name Update
@@ -165,9 +166,11 @@ define ( 'CONTACT_IS_FRIEND',   3);
  * DB update return values
  * @{
  */
-define ( 'UPDATE_SUCCESS', 0);
-define ( 'UPDATE_FAILED',  1);
-/** @}*/
+define('UPDATE_SUCCESS', 0);
+define('UPDATE_FAILED',  1);
+/**
+ * @}
+ */
 
 /**
  * @name page/profile types
@@ -180,13 +183,15 @@ define ( 'UPDATE_FAILED',  1);
  *
  * @{
  */
-define ( 'PAGE_NORMAL',            0 );
-define ( 'PAGE_SOAPBOX',           1 );
-define ( 'PAGE_COMMUNITY',         2 );
-define ( 'PAGE_FREELOVE',          3 );
-define ( 'PAGE_BLOG',              4 );
-define ( 'PAGE_PRVGROUP',          5 );
-/** @}*/
+define('PAGE_NORMAL',            0);
+define('PAGE_SOAPBOX',           1);
+define('PAGE_COMMUNITY',         2);
+define('PAGE_FREELOVE',          3);
+define('PAGE_BLOG',              4);
+define('PAGE_PRVGROUP',          5);
+/**
+ * @}
+ */
 
 /**
  * @name account types
@@ -204,11 +209,13 @@ define ( 'PAGE_PRVGROUP',          5 );
  *	Associated page types: PAGE_COMMUNITY, PAGE_PRVGROUP
  * @{
  */
-define ( 'ACCOUNT_TYPE_PERSON',      0 );
-define ( 'ACCOUNT_TYPE_ORGANISATION',1 );
-define ( 'ACCOUNT_TYPE_NEWS',        2 );
-define ( 'ACCOUNT_TYPE_COMMUNITY',   3 );
-/** @}*/
+define('ACCOUNT_TYPE_PERSON',      0);
+define('ACCOUNT_TYPE_ORGANISATION', 1);
+define('ACCOUNT_TYPE_NEWS',        2);
+define('ACCOUNT_TYPE_COMMUNITY',   3);
+/**
+ * @}
+ */
 
 /**
  * @name CP
@@ -216,10 +223,12 @@ define ( 'ACCOUNT_TYPE_COMMUNITY',   3 );
  * Type of the community page
  * @{
  */
-define ( 'CP_NO_COMMUNITY_PAGE',   -1 );
-define ( 'CP_USERS_ON_SERVER',     0 );
-define ( 'CP_GLOBAL_COMMUNITY',    1 );
-/** @}*/
+define('CP_NO_COMMUNITY_PAGE',   -1);
+define('CP_USERS_ON_SERVER',     0);
+define('CP_GLOBAL_COMMUNITY',    1);
+/**
+ * @}
+ */
 
 /**
  * @name Protocols
@@ -234,7 +243,9 @@ define('PROTOCOL_OSTATUS_SALMON',  3);
 define('PROTOCOL_OSTATUS_FEED',    4); // Deprecated
 define('PROTOCOL_GS_CONVERSATION', 5); // Deprecated
 define('PROTOCOL_SPLITTED_CONV',   6);
-/** @}*/
+/**
+ * @}
+ */
 
 /**
  * @name Network
@@ -242,28 +253,30 @@ define('PROTOCOL_SPLITTED_CONV',   6);
  * Network and protocol family types
  * @{
  */
-define ( 'NETWORK_DFRN',             'dfrn');    // Friendica, Mistpark, other DFRN implementations
-define ( 'NETWORK_ZOT',              'zot!');    // Zot!
-define ( 'NETWORK_OSTATUS',          'stat');    // status.net, identi.ca, GNU-social, other OStatus implementations
-define ( 'NETWORK_FEED',             'feed');    // RSS/Atom feeds with no known "post/notify" protocol
-define ( 'NETWORK_DIASPORA',         'dspr');    // Diaspora
-define ( 'NETWORK_MAIL',             'mail');    // IMAP/POP
-define ( 'NETWORK_MAIL2',            'mai2');    // extended IMAP/POP
-define ( 'NETWORK_FACEBOOK',         'face');    // Facebook API
-define ( 'NETWORK_LINKEDIN',         'lnkd');    // LinkedIn
-define ( 'NETWORK_XMPP',             'xmpp');    // XMPP
-define ( 'NETWORK_MYSPACE',          'mysp');    // MySpace
-define ( 'NETWORK_GPLUS',            'goog');    // Google+
-define ( 'NETWORK_PUMPIO',           'pump');    // pump.io
-define ( 'NETWORK_TWITTER',          'twit');    // Twitter
-define ( 'NETWORK_DIASPORA2',        'dspc');    // Diaspora connector
-define ( 'NETWORK_STATUSNET',        'stac');    // Statusnet connector
-define ( 'NETWORK_APPNET',           'apdn');    // app.net
-define ( 'NETWORK_NEWS',             'nntp');    // Network News Transfer Protocol
-define ( 'NETWORK_ICALENDAR',        'ical');    // iCalendar
-define ( 'NETWORK_PNUT',             'pnut');    // pnut.io
-define ( 'NETWORK_PHANTOM',          'unkn');    // Place holder
-/** @}*/
+define('NETWORK_DFRN',             'dfrn');    // Friendica, Mistpark, other DFRN implementations
+define('NETWORK_ZOT',              'zot!');    // Zot!
+define('NETWORK_OSTATUS',          'stat');    // status.net, identi.ca, GNU-social, other OStatus implementations
+define('NETWORK_FEED',             'feed');    // RSS/Atom feeds with no known "post/notify" protocol
+define('NETWORK_DIASPORA',         'dspr');    // Diaspora
+define('NETWORK_MAIL',             'mail');    // IMAP/POP
+define('NETWORK_MAIL2',            'mai2');    // extended IMAP/POP
+define('NETWORK_FACEBOOK',         'face');    // Facebook API
+define('NETWORK_LINKEDIN',         'lnkd');    // LinkedIn
+define('NETWORK_XMPP',             'xmpp');    // XMPP
+define('NETWORK_MYSPACE',          'mysp');    // MySpace
+define('NETWORK_GPLUS',            'goog');    // Google+
+define('NETWORK_PUMPIO',           'pump');    // pump.io
+define('NETWORK_TWITTER',          'twit');    // Twitter
+define('NETWORK_DIASPORA2',        'dspc');    // Diaspora connector
+define('NETWORK_STATUSNET',        'stac');    // Statusnet connector
+define('NETWORK_APPNET',           'apdn');    // app.net
+define('NETWORK_NEWS',             'nntp');    // Network News Transfer Protocol
+define('NETWORK_ICALENDAR',        'ical');    // iCalendar
+define('NETWORK_PNUT',             'pnut');    // pnut.io
+define('NETWORK_PHANTOM',          'unkn');    // Place holder
+/**
+ * @}
+ */
 
 /**
  * These numbers are used in stored permissions
@@ -298,12 +311,12 @@ $netgroup_ids = array(
 /**
  * Maximum number of "people who like (or don't like) this"  that we will list by name
  */
-define ( 'MAX_LIKERS',    75);
+define('MAX_LIKERS',    75);
 
 /**
  * Communication timeout
  */
-define ( 'ZCURL_TIMEOUT' , (-1));
+define('ZCURL_TIMEOUT', (-1));
 
 /**
  * @name Notify
@@ -311,21 +324,21 @@ define ( 'ZCURL_TIMEOUT' , (-1));
  * Email notification options
  * @{
  */
-define ( 'NOTIFY_INTRO',    0x0001 );
-define ( 'NOTIFY_CONFIRM',  0x0002 );
-define ( 'NOTIFY_WALL',     0x0004 );
-define ( 'NOTIFY_COMMENT',  0x0008 );
-define ( 'NOTIFY_MAIL',     0x0010 );
-define ( 'NOTIFY_SUGGEST',  0x0020 );
-define ( 'NOTIFY_PROFILE',  0x0040 );
-define ( 'NOTIFY_TAGSELF',  0x0080 );
-define ( 'NOTIFY_TAGSHARE', 0x0100 );
-define ( 'NOTIFY_POKE',     0x0200 );
-define ( 'NOTIFY_SHARE',    0x0400 );
+define('NOTIFY_INTRO',    0x0001);
+define('NOTIFY_CONFIRM',  0x0002);
+define('NOTIFY_WALL',     0x0004);
+define('NOTIFY_COMMENT',  0x0008);
+define('NOTIFY_MAIL',     0x0010);
+define('NOTIFY_SUGGEST',  0x0020);
+define('NOTIFY_PROFILE',  0x0040);
+define('NOTIFY_TAGSELF',  0x0080);
+define('NOTIFY_TAGSHARE', 0x0100);
+define('NOTIFY_POKE',     0x0200);
+define('NOTIFY_SHARE',    0x0400);
 
-define ( 'SYSTEM_EMAIL',    0x4000 );
+define('SYSTEM_EMAIL',    0x4000);
 
-define ( 'NOTIFY_SYSTEM',   0x8000 );
+define('NOTIFY_SYSTEM',   0x8000);
 /* @}*/
 
 
@@ -335,17 +348,17 @@ define ( 'NOTIFY_SYSTEM',   0x8000 );
  * Tag/term types
  * @{
  */
-define ( 'TERM_UNKNOWN',   0 );
-define ( 'TERM_HASHTAG',   1 );
-define ( 'TERM_MENTION',   2 );
-define ( 'TERM_CATEGORY',  3 );
-define ( 'TERM_PCATEGORY', 4 );
-define ( 'TERM_FILE',      5 );
-define ( 'TERM_SAVEDSEARCH', 6 );
-define ( 'TERM_CONVERSATION', 7 );
+define('TERM_UNKNOWN',   0);
+define('TERM_HASHTAG',   1);
+define('TERM_MENTION',   2);
+define('TERM_CATEGORY',  3);
+define('TERM_PCATEGORY', 4);
+define('TERM_FILE',      5);
+define('TERM_SAVEDSEARCH', 6);
+define('TERM_CONVERSATION', 7);
 
-define ( 'TERM_OBJ_POST',  1 );
-define ( 'TERM_OBJ_PHOTO', 2 );
+define('TERM_OBJ_POST',  1);
+define('TERM_OBJ_PHOTO', 2);
 
 /**
  * @name Namespaces
@@ -353,22 +366,22 @@ define ( 'TERM_OBJ_PHOTO', 2 );
  * Various namespaces we may need to parse
  * @{
  */
-define ( 'NAMESPACE_ZOT',             'http://purl.org/zot' );
-define ( 'NAMESPACE_DFRN' ,           'http://purl.org/macgirvin/dfrn/1.0' );
-define ( 'NAMESPACE_THREAD' ,         'http://purl.org/syndication/thread/1.0' );
-define ( 'NAMESPACE_TOMB' ,           'http://purl.org/atompub/tombstones/1.0' );
-define ( 'NAMESPACE_ACTIVITY',        'http://activitystrea.ms/spec/1.0/' );
-define ( 'NAMESPACE_ACTIVITY_SCHEMA', 'http://activitystrea.ms/schema/1.0/' );
-define ( 'NAMESPACE_MEDIA',           'http://purl.org/syndication/atommedia' );
-define ( 'NAMESPACE_SALMON_ME',       'http://salmon-protocol.org/ns/magic-env' );
-define ( 'NAMESPACE_OSTATUSSUB',      'http://ostatus.org/schema/1.0/subscribe' );
-define ( 'NAMESPACE_GEORSS',          'http://www.georss.org/georss' );
-define ( 'NAMESPACE_POCO',            'http://portablecontacts.net/spec/1.0' );
-define ( 'NAMESPACE_FEED',            'http://schemas.google.com/g/2010#updates-from' );
-define ( 'NAMESPACE_OSTATUS',         'http://ostatus.org/schema/1.0' );
-define ( 'NAMESPACE_STATUSNET',       'http://status.net/schema/api/1/' );
-define ( 'NAMESPACE_ATOM1',           'http://www.w3.org/2005/Atom' );
-define ( 'NAMESPACE_MASTODON',        'http://mastodon.social/schema/1.0' );
+define('NAMESPACE_ZOT',             'http://purl.org/zot');
+define('NAMESPACE_DFRN',            'http://purl.org/macgirvin/dfrn/1.0');
+define('NAMESPACE_THREAD',          'http://purl.org/syndication/thread/1.0');
+define('NAMESPACE_TOMB',            'http://purl.org/atompub/tombstones/1.0');
+define('NAMESPACE_ACTIVITY',        'http://activitystrea.ms/spec/1.0/');
+define('NAMESPACE_ACTIVITY_SCHEMA', 'http://activitystrea.ms/schema/1.0/');
+define('NAMESPACE_MEDIA',           'http://purl.org/syndication/atommedia');
+define('NAMESPACE_SALMON_ME',       'http://salmon-protocol.org/ns/magic-env');
+define('NAMESPACE_OSTATUSSUB',      'http://ostatus.org/schema/1.0/subscribe');
+define('NAMESPACE_GEORSS',          'http://www.georss.org/georss');
+define('NAMESPACE_POCO',            'http://portablecontacts.net/spec/1.0');
+define('NAMESPACE_FEED',            'http://schemas.google.com/g/2010#updates-from');
+define('NAMESPACE_OSTATUS',         'http://ostatus.org/schema/1.0');
+define('NAMESPACE_STATUSNET',       'http://status.net/schema/api/1/');
+define('NAMESPACE_ATOM1',           'http://www.w3.org/2005/Atom');
+define('NAMESPACE_MASTODON',        'http://mastodon.social/schema/1.0');
 /* @}*/
 
 /**
@@ -377,46 +390,46 @@ define ( 'NAMESPACE_MASTODON',        'http://mastodon.social/schema/1.0' );
  * Activity stream defines
  * @{
  */
-define ( 'ACTIVITY_LIKE',        NAMESPACE_ACTIVITY_SCHEMA . 'like' );
-define ( 'ACTIVITY_DISLIKE',     NAMESPACE_DFRN            . '/dislike' );
-define ( 'ACTIVITY_ATTEND',      NAMESPACE_ZOT             . '/activity/attendyes' );
-define ( 'ACTIVITY_ATTENDNO',    NAMESPACE_ZOT             . '/activity/attendno' );
-define ( 'ACTIVITY_ATTENDMAYBE', NAMESPACE_ZOT             . '/activity/attendmaybe' );
+define('ACTIVITY_LIKE',        NAMESPACE_ACTIVITY_SCHEMA . 'like');
+define('ACTIVITY_DISLIKE',     NAMESPACE_DFRN            . '/dislike');
+define('ACTIVITY_ATTEND',      NAMESPACE_ZOT             . '/activity/attendyes');
+define('ACTIVITY_ATTENDNO',    NAMESPACE_ZOT             . '/activity/attendno');
+define('ACTIVITY_ATTENDMAYBE', NAMESPACE_ZOT             . '/activity/attendmaybe');
 
-define ( 'ACTIVITY_OBJ_HEART',   NAMESPACE_DFRN            . '/heart' );
+define('ACTIVITY_OBJ_HEART',   NAMESPACE_DFRN            . '/heart');
 
-define ( 'ACTIVITY_FRIEND',      NAMESPACE_ACTIVITY_SCHEMA . 'make-friend' );
-define ( 'ACTIVITY_REQ_FRIEND',  NAMESPACE_ACTIVITY_SCHEMA . 'request-friend' );
-define ( 'ACTIVITY_UNFRIEND',    NAMESPACE_ACTIVITY_SCHEMA . 'remove-friend' );
-define ( 'ACTIVITY_FOLLOW',      NAMESPACE_ACTIVITY_SCHEMA . 'follow' );
-define ( 'ACTIVITY_UNFOLLOW',    NAMESPACE_ACTIVITY_SCHEMA . 'stop-following' );
-define ( 'ACTIVITY_JOIN',        NAMESPACE_ACTIVITY_SCHEMA . 'join' );
+define('ACTIVITY_FRIEND',      NAMESPACE_ACTIVITY_SCHEMA . 'make-friend');
+define('ACTIVITY_REQ_FRIEND',  NAMESPACE_ACTIVITY_SCHEMA . 'request-friend');
+define('ACTIVITY_UNFRIEND',    NAMESPACE_ACTIVITY_SCHEMA . 'remove-friend');
+define('ACTIVITY_FOLLOW',      NAMESPACE_ACTIVITY_SCHEMA . 'follow');
+define('ACTIVITY_UNFOLLOW',    NAMESPACE_ACTIVITY_SCHEMA . 'stop-following');
+define('ACTIVITY_JOIN',        NAMESPACE_ACTIVITY_SCHEMA . 'join');
 
-define ( 'ACTIVITY_POST',        NAMESPACE_ACTIVITY_SCHEMA . 'post' );
-define ( 'ACTIVITY_UPDATE',      NAMESPACE_ACTIVITY_SCHEMA . 'update' );
-define ( 'ACTIVITY_TAG',         NAMESPACE_ACTIVITY_SCHEMA . 'tag' );
-define ( 'ACTIVITY_FAVORITE',    NAMESPACE_ACTIVITY_SCHEMA . 'favorite' );
-define ( 'ACTIVITY_UNFAVORITE',  NAMESPACE_ACTIVITY_SCHEMA . 'unfavorite' );
-define ( 'ACTIVITY_SHARE',       NAMESPACE_ACTIVITY_SCHEMA . 'share' );
-define ( 'ACTIVITY_DELETE',      NAMESPACE_ACTIVITY_SCHEMA . 'delete' );
+define('ACTIVITY_POST',        NAMESPACE_ACTIVITY_SCHEMA . 'post');
+define('ACTIVITY_UPDATE',      NAMESPACE_ACTIVITY_SCHEMA . 'update');
+define('ACTIVITY_TAG',         NAMESPACE_ACTIVITY_SCHEMA . 'tag');
+define('ACTIVITY_FAVORITE',    NAMESPACE_ACTIVITY_SCHEMA . 'favorite');
+define('ACTIVITY_UNFAVORITE',  NAMESPACE_ACTIVITY_SCHEMA . 'unfavorite');
+define('ACTIVITY_SHARE',       NAMESPACE_ACTIVITY_SCHEMA . 'share');
+define('ACTIVITY_DELETE',      NAMESPACE_ACTIVITY_SCHEMA . 'delete');
 
-define ( 'ACTIVITY_POKE',        NAMESPACE_ZOT . '/activity/poke' );
-define ( 'ACTIVITY_MOOD',        NAMESPACE_ZOT . '/activity/mood' );
+define('ACTIVITY_POKE',        NAMESPACE_ZOT . '/activity/poke');
+define('ACTIVITY_MOOD',        NAMESPACE_ZOT . '/activity/mood');
 
-define ( 'ACTIVITY_OBJ_BOOKMARK', NAMESPACE_ACTIVITY_SCHEMA . 'bookmark' );
-define ( 'ACTIVITY_OBJ_COMMENT', NAMESPACE_ACTIVITY_SCHEMA . 'comment' );
-define ( 'ACTIVITY_OBJ_NOTE',    NAMESPACE_ACTIVITY_SCHEMA . 'note' );
-define ( 'ACTIVITY_OBJ_PERSON',  NAMESPACE_ACTIVITY_SCHEMA . 'person' );
-define ( 'ACTIVITY_OBJ_IMAGE',   NAMESPACE_ACTIVITY_SCHEMA . 'image' );
-define ( 'ACTIVITY_OBJ_PHOTO',   NAMESPACE_ACTIVITY_SCHEMA . 'photo' );
-define ( 'ACTIVITY_OBJ_VIDEO',   NAMESPACE_ACTIVITY_SCHEMA . 'video' );
-define ( 'ACTIVITY_OBJ_P_PHOTO', NAMESPACE_ACTIVITY_SCHEMA . 'profile-photo' );
-define ( 'ACTIVITY_OBJ_ALBUM',   NAMESPACE_ACTIVITY_SCHEMA . 'photo-album' );
-define ( 'ACTIVITY_OBJ_EVENT',   NAMESPACE_ACTIVITY_SCHEMA . 'event' );
-define ( 'ACTIVITY_OBJ_GROUP',   NAMESPACE_ACTIVITY_SCHEMA . 'group' );
-define ( 'ACTIVITY_OBJ_TAGTERM', NAMESPACE_DFRN            . '/tagterm' );
-define ( 'ACTIVITY_OBJ_PROFILE', NAMESPACE_DFRN            . '/profile' );
-define ( 'ACTIVITY_OBJ_QUESTION', 'http://activityschema.org/object/question' );
+define('ACTIVITY_OBJ_BOOKMARK', NAMESPACE_ACTIVITY_SCHEMA . 'bookmark');
+define('ACTIVITY_OBJ_COMMENT', NAMESPACE_ACTIVITY_SCHEMA . 'comment');
+define('ACTIVITY_OBJ_NOTE',    NAMESPACE_ACTIVITY_SCHEMA . 'note');
+define('ACTIVITY_OBJ_PERSON',  NAMESPACE_ACTIVITY_SCHEMA . 'person');
+define('ACTIVITY_OBJ_IMAGE',   NAMESPACE_ACTIVITY_SCHEMA . 'image');
+define('ACTIVITY_OBJ_PHOTO',   NAMESPACE_ACTIVITY_SCHEMA . 'photo');
+define('ACTIVITY_OBJ_VIDEO',   NAMESPACE_ACTIVITY_SCHEMA . 'video');
+define('ACTIVITY_OBJ_P_PHOTO', NAMESPACE_ACTIVITY_SCHEMA . 'profile-photo');
+define('ACTIVITY_OBJ_ALBUM',   NAMESPACE_ACTIVITY_SCHEMA . 'photo-album');
+define('ACTIVITY_OBJ_EVENT',   NAMESPACE_ACTIVITY_SCHEMA . 'event');
+define('ACTIVITY_OBJ_GROUP',   NAMESPACE_ACTIVITY_SCHEMA . 'group');
+define('ACTIVITY_OBJ_TAGTERM', NAMESPACE_DFRN            . '/tagterm');
+define('ACTIVITY_OBJ_PROFILE', NAMESPACE_DFRN            . '/profile');
+define('ACTIVITY_OBJ_QUESTION', 'http://activityschema.org/object/question');
 /* @}*/
 
 /**
@@ -425,9 +438,9 @@ define ( 'ACTIVITY_OBJ_QUESTION', 'http://activityschema.org/object/question' );
  * Item weight for query ordering
  * @{
  */
-define ( 'GRAVITY_PARENT',       0);
-define ( 'GRAVITY_LIKE',         3);
-define ( 'GRAVITY_COMMENT',      6);
+define('GRAVITY_PARENT',       0);
+define('GRAVITY_LIKE',         3);
+define('GRAVITY_COMMENT',      6);
 /* @}*/
 
 /**
@@ -436,12 +449,12 @@ define ( 'GRAVITY_COMMENT',      6);
  * Process priority for the worker
  * @{
  */
-define('PRIORITY_UNDEFINED',  0);
-define('PRIORITY_CRITICAL',  10);
-define('PRIORITY_HIGH',      20);
-define('PRIORITY_MEDIUM',    30);
-define('PRIORITY_LOW',       40);
-define('PRIORITY_NEGLIGIBLE',50);
+define('PRIORITY_UNDEFINED',   0);
+define('PRIORITY_CRITICAL',   10);
+define('PRIORITY_HIGH',       20);
+define('PRIORITY_MEDIUM',     30);
+define('PRIORITY_LOW',        40);
+define('PRIORITY_NEGLIGIBLE', 50);
 /* @}*/
 
 /**
@@ -459,7 +472,7 @@ define('SR_SCOPE_TAGS', 'tags');
 /**
  * Lowest possible date time value
  */
-define ('NULL_DATE', '0001-01-01 00:00:00');
+define('NULL_DATE', '0001-01-01 00:00:00');
 
 // Normally this constant is defined - but not if "pcntl" isn't installed
 if (!defined("SIGTERM")) {
@@ -471,16 +484,15 @@ if (!defined("SIGTERM")) {
  * See here: http://php.net/manual/en/curl.constants.php#117928
  */
 if (!defined('CURLE_OPERATION_TIMEDOUT')) {
-        define('CURLE_OPERATION_TIMEDOUT', CURLE_OPERATION_TIMEOUTED);
+	define('CURLE_OPERATION_TIMEDOUT', CURLE_OPERATION_TIMEOUTED);
 }
 /**
- *
  * Reverse the effect of magic_quotes_gpc if it is enabled.
  * Please disable magic_quotes_gpc so we don't have to do this.
  * See http://php.net/manual/en/security.magicquotes.disabling.php
- *
  */
-function startup() {
+function startup()
+{
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
 
 	set_time_limit(0);
@@ -510,7 +522,8 @@ function startup() {
  *
  * Useful in functions which require it but don't get it passed to them
  */
-function get_app() {
+function get_app()
+{
 	global $a;
 
 	if (empty($a)) {
@@ -530,12 +543,13 @@ function get_app() {
  * e.g. x('') or x(0) returns 0;
  *
  * @param string|array $s variable to check
- * @param string $k key inside the array to check
+ * @param string       $k key inside the array to check
  *
  * @return bool|int
  */
-function x($s, $k = NULL) {
-	if ($k != NULL) {
+function x($s, $k = null)
+{
+	if ($k != null) {
 		if ((is_array($s)) && (array_key_exists($k, $s))) {
 			if ($s[$k]) {
 				return (int) 1;
@@ -557,8 +571,9 @@ function x($s, $k = NULL) {
 /**
  * @brief Called from db initialisation if db is dead.
  */
-function system_unavailable() {
-	include('system_unavailable.php');
+function system_unavailable()
+{
+	include 'system_unavailable.php';
 	system_down();
 	killme();
 }
@@ -571,18 +586,20 @@ function system_unavailable() {
  * @return string
  * @TODO Function is deprecated and only used in some addons
  */
-function z_root() {
+function z_root()
+{
 	return System::baseUrl();
 }
 
 /**
  * @brief Return absolut URL for given $path.
  *
- * @param string $path
+ * @param string $path given path
  *
  * @return string
  */
-function absurl($path) {
+function absurl($path)
+{
 	if (strpos($path, '/') === 0) {
 		return z_path() . $path;
 	}
@@ -594,17 +611,18 @@ function absurl($path) {
  *
  * @return boolean
  */
-function is_ajax() {
+function is_ajax()
+{
 	return (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
 }
 
 /**
  * @brief Function to check if request was an AJAX (xmlhttprequest) request.
  *
- * @param $via_worker boolean Is the check run via the poller?
+ * @param boolean $via_worker boolean Is the check run via the poller?
  */
-function check_db($via_worker) {
-
+function check_db($via_worker)
+{
 	$build = Config::get('system', 'build');
 	if (!x($build)) {
 		Config::set('system', 'build', DB_UPDATE_VERSION);
@@ -621,9 +639,11 @@ function check_db($via_worker) {
 /**
  * Sets the base url for use in cmdline programs which don't have
  * $_SERVER variables
+ *
+ * @param object $a App
  */
-function check_url(App $a) {
-
+function check_url(App $a)
+{
 	$url = Config::get('system', 'url');
 
 	// if the url isn't set or the stored url is radically different
@@ -644,8 +664,10 @@ function check_url(App $a) {
 
 /**
  * @brief Automatic database updates
+ * @param object $a App
  */
-function update_db(App $a) {
+function update_db(App $a)
+{
 	$build = Config::get('system', 'build');
 	if (!x($build)) {
 		$build = Config::set('system', 'build', DB_UPDATE_VERSION);
@@ -712,9 +734,9 @@ function update_db(App $a) {
 	return;
 }
 
-function run_update_function($x) {
+function run_update_function($x)
+{
 	if (function_exists('update_' . $x)) {
-
 		// There could be a lot of processes running or about to run.
 		// We want exactly one process to run the update command.
 		// So store the fact that we're taking responsibility
@@ -764,11 +786,10 @@ function run_update_function($x) {
  * Then go through the config list and if we have a plugin that isn't installed,
  * call the install procedure and add it to the database.
  *
- * @param App $a
- *
+ * @param object $a App
  */
-function check_plugins(App $a) {
-
+function check_plugins(App $a)
+{
 	$r = q("SELECT * FROM `addon` WHERE `installed` = 1");
 	if (DBM::is_result($r)) {
 		$installed = $r;
@@ -810,7 +831,8 @@ function check_plugins(App $a) {
 	return;
 }
 
-function get_guid($size = 16, $prefix = "") {
+function get_guid($size = 16, $prefix = "")
+{
 	if ($prefix == "") {
 		$a = get_app();
 		$prefix = hash("crc32", $a->get_hostname());
@@ -832,18 +854,17 @@ function get_guid($size = 16, $prefix = "") {
 /**
  * @brief Wrapper for adding a login box.
  *
- * @param bool $register
- *	If $register == true provide a registration link.
- *	This will most always depend on the value of $a->config['register_policy'].
- * @param bool $hiddens
+ * @param bool $register If $register == true provide a registration link.
+ *						 This will most always depend on the value of $a->config['register_policy'].
+ * @param bool $hiddens  optional
  *
- * @return string
- *	Returns the complete html for inserting into the page
+ * @return string Returns the complete html for inserting into the page
  *
  * @hooks 'login_hook'
  *	string $o
  */
-function login($register = false, $hiddens = false) {
+function login($register = false, $hiddens = false)
+{
 	$a = get_app();
 	$o = "";
 	$reg = false;
@@ -861,17 +882,21 @@ function login($register = false, $hiddens = false) {
 	if (local_user()) {
 		$tpl = get_markup_template("logout.tpl");
 	} else {
-		$a->page['htmlhead'] .= replace_macros(get_markup_template("login_head.tpl"), array(
+		$a->page['htmlhead'] .= replace_macros(
+			get_markup_template("login_head.tpl"),
+			array(
 			'$baseurl' => $a->get_baseurl(true)
-		));
+			)
+		);
 
 		$tpl = get_markup_template("login.tpl");
 		$_SESSION['return_url'] = $a->query_string;
 		$a->module = 'login';
 	}
 
-	$o .= replace_macros($tpl, array(
-
+	$o .= replace_macros(
+		$tpl,
+		array(
 		'$dest_url'     => $dest_url,
 		'$logout'       => t('Logout'),
 		'$login'        => t('Login'),
@@ -895,7 +920,8 @@ function login($register = false, $hiddens = false) {
 
 		'$privacytitle' => t('Website Privacy Policy'),
 		'$privacylink'  => t('privacy policy'),
-	));
+		)
+	);
 
 	call_hooks('login_hook', $o);
 
@@ -905,7 +931,8 @@ function login($register = false, $hiddens = false) {
 /**
  * @brief Used to end the current process, after saving session state.
  */
-function killme() {
+function killme()
+{
 	global $session_exists;
 
 	if (!get_app()->is_backend()) {
@@ -922,7 +949,8 @@ function killme() {
 /**
  * @brief Redirect to another URL and terminate this process.
  */
-function goaway($s) {
+function goaway($s)
+{
 	if (!strstr(normalise_link($s), "http://")) {
 		$s = System::baseUrl() . "/" . $s;
 	}
@@ -936,7 +964,8 @@ function goaway($s) {
  *
  * @return int|bool user id or false
  */
-function local_user() {
+function local_user()
+{
 	if (x($_SESSION, 'authenticated') && x($_SESSION, 'uid')) {
 		return intval($_SESSION['uid']);
 	}
@@ -948,7 +977,8 @@ function local_user() {
  *
  * @return int|bool public contact id or false
  */
-function public_contact() {
+function public_contact()
+{
 	static $public_contact_id = false;
 
 	if (!$public_contact_id && x($_SESSION, 'authenticated')) {
@@ -971,7 +1001,8 @@ function public_contact() {
  *
  * @return int|bool visitor_id or false
  */
-function remote_user() {
+function remote_user()
+{
 	// You cannot be both local and remote
 	if (local_user()) {
 		return false;
@@ -989,7 +1020,8 @@ function remote_user() {
  *
  * @param string $s - Text of notice
  */
-function notice($s) {
+function notice($s)
+{
 	$a = get_app();
 	if (!x($_SESSION, 'sysmsg')) {
 		$_SESSION['sysmsg'] = array();
@@ -1006,7 +1038,8 @@ function notice($s) {
  *
  * @param string $s - Text of notice
  */
-function info($s) {
+function info($s)
+{
 	$a = get_app();
 
 	if (local_user() && PConfig::get(local_user(), 'system', 'ignore_info')) {
@@ -1026,7 +1059,8 @@ function info($s) {
  *
  * @return int
  */
-function get_max_import_size() {
+function get_max_import_size()
+{
 	$a = get_app();
 	return ((x($a->config, 'max_import_size')) ? $a->config['max_import_size'] : 0 );
 }
@@ -1038,12 +1072,14 @@ function get_max_import_size() {
  *
  * @return boolean "false" if proc_run couldn't be executed
  */
-function proc_run() {
+function proc_run()
+{
 	$proc_args = func_get_args();
 	call_user_func_array('Friendica\Core\Worker::add', $proc_args);
 }
 
-function current_theme() {
+function current_theme()
+{
 	$app_base_themes = array('duepuntozero', 'dispy', 'quattro');
 
 	$a = get_app();
@@ -1053,7 +1089,8 @@ function current_theme() {
 	// Find the theme that belongs to the user whose stuff we are looking at
 
 	if ($a->profile_uid && ($a->profile_uid != local_user())) {
-		$r = q("select theme from user where uid = %d limit 1",
+		$r = q(
+			"select theme from user where uid = %d limit 1",
 			intval($a->profile_uid)
 		);
 		if (DBM::is_result($r)) {
@@ -1107,15 +1144,17 @@ function current_theme() {
 		}
 	}
 
-	if ($theme_name &&
-		(file_exists('view/theme/' . $theme_name . '/style.css') ||
-		file_exists('view/theme/' . $theme_name . '/style.php'))) {
+	if ($theme_name
+		&& (file_exists('view/theme/' . $theme_name . '/style.css')
+		|| file_exists('view/theme/' . $theme_name . '/style.php'))
+	) {
 		return($theme_name);
 	}
 
 	foreach ($app_base_themes as $t) {
-		if (file_exists('view/theme/' . $t . '/style.css') ||
-			file_exists('view/theme/' . $t . '/style.php')) {
+		if (file_exists('view/theme/' . $t . '/style.css')
+			|| file_exists('view/theme/' . $t . '/style.php')
+		) {
 			return($t);
 		}
 	}
@@ -1135,7 +1174,8 @@ function current_theme() {
  *
  * @return string
  */
-function current_theme_url() {
+function current_theme_url()
+{
 	$a = get_app();
 
 	$t = current_theme();
@@ -1148,10 +1188,9 @@ function current_theme_url() {
 	return('view/theme/' . $t . '/style.css');
 }
 
-function feed_birthday($uid, $tz) {
-
+function feed_birthday($uid, $tz)
+{
 	/**
-	 *
 	 * Determine the next birthday, but only if the birthday is published
 	 * in the default profile. We _could_ also look for a private profile that the
 	 * recipient can see, but somebody could get mad at us if they start getting
@@ -1166,7 +1205,6 @@ function feed_birthday($uid, $tz) {
 	 * viewer's timezone also, but first we are going to convert it from the birthday
 	 * person's timezone to GMT - so the viewer may find the birthday starting at
 	 * 6:00PM the day before, but that will correspond to midnight to the birthday person.
-	 *
 	 */
 	$birthday = '';
 
@@ -1174,8 +1212,9 @@ function feed_birthday($uid, $tz) {
 		$tz = 'UTC';
 	}
 
-	$p = q("SELECT `dob` FROM `profile` WHERE `is-default` = 1 AND `uid` = %d LIMIT 1",
-			intval($uid)
+	$p = q(
+		"SELECT `dob` FROM `profile` WHERE `is-default` = 1 AND `uid` = %d LIMIT 1",
+		intval($uid)
 	);
 
 	if (DBM::is_result($p)) {
@@ -1200,7 +1239,8 @@ function feed_birthday($uid, $tz) {
  *
  * @return bool true if user is an admin
  */
-function is_site_admin() {
+function is_site_admin()
+{
 	$a = get_app();
 
 	$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
@@ -1215,12 +1255,13 @@ function is_site_admin() {
 /**
  * @brief Returns querystring as string from a mapped array.
  *
- * @param array $params mapped array with query parameters
- * @param string $name of parameter, default null
+ * @param array  $params mapped array with query parameters
+ * @param string $name   of parameter, default null
  *
  * @return string
  */
-function build_querystring($params, $name = null) {
+function build_querystring($params, $name = null)
+{
 	$ret = "";
 	foreach ($params as $key => $val) {
 		if (is_array($val)) {
@@ -1244,7 +1285,8 @@ function build_querystring($params, $name = null) {
 	return $ret;
 }
 
-function explode_querystring($query) {
+function explode_querystring($query)
+{
 	$arg_st = strpos($query, '?');
 	if ($arg_st !== false) {
 		$base = substr($query, 0, $arg_st);
@@ -1280,7 +1322,8 @@ function explode_querystring($query) {
  *
  * Taken from http://webcheatsheet.com/php/get_current_page_url.php
  */
-function curPageURL() {
+function curPageURL()
+{
 	$pageURL = 'http';
 	if ($_SERVER["HTTPS"] == "on") {
 		$pageURL .= "s";
@@ -1296,7 +1339,8 @@ function curPageURL() {
 	return $pageURL;
 }
 
-function random_digits($digits) {
+function random_digits($digits)
+{
 	$rn = '';
 	for ($i = 0; $i < $digits; $i++) {
 		/// @TODO rand() is different to mt_rand() and maybe lesser "random"
@@ -1305,7 +1349,8 @@ function random_digits($digits) {
 	return $rn;
 }
 
-function get_server() {
+function get_server()
+{
 	$server = Config::get("system", "directory");
 
 	if ($server == "") {
@@ -1315,7 +1360,8 @@ function get_server() {
 	return($server);
 }
 
-function get_temppath() {
+function get_temppath()
+{
 	$a = get_app();
 
 	$temppath = Config::get("system", "temppath");
@@ -1355,7 +1401,8 @@ function get_temppath() {
 	return '';
 }
 
-function get_cachefile($file, $writemode = true) {
+function get_cachefile($file, $writemode = true)
+{
 	$cache = get_itemcachepath();
 
 	if ((!$cache) || (!is_dir($cache))) {
@@ -1377,7 +1424,8 @@ function get_cachefile($file, $writemode = true) {
 	return $cachepath;
 }
 
-function clear_cache($basepath = "", $path = "") {
+function clear_cache($basepath = "", $path = "")
+{
 	if ($path == "") {
 		$basepath = get_itemcachepath();
 		$path = $basepath;
@@ -1412,7 +1460,8 @@ function clear_cache($basepath = "", $path = "") {
 	}
 }
 
-function get_itemcachepath() {
+function get_itemcachepath()
+{
 	// Checking, if the cache is deactivated
 	$cachetime = (int) Config::get('system', 'itemcache_duration');
 	if ($cachetime < 0) {
@@ -1445,7 +1494,8 @@ function get_itemcachepath() {
  *
  * @return string Spool path
  */
-function get_spoolpath() {
+function get_spoolpath()
+{
 	$spoolpath = Config::get('system', 'spoolpath');
 	if (($spoolpath != "") && App::directory_usable($spoolpath)) {
 		// We have a spool path and it is usable
@@ -1478,22 +1528,25 @@ function get_spoolpath() {
 }
 
 /// @deprecated
-function set_template_engine(App $a, $engine = 'internal') {
-/// @note This function is no longer necessary, but keep it as a wrapper to the class method
-/// to avoid breaking themes again unnecessarily
-/// @TODO maybe output a warning here so the theme developer can see it? PHP won't show such warnings like Java does.
+function set_template_engine(App $a, $engine = 'internal')
+{
+	/// @note This function is no longer necessary, but keep it as a wrapper to the class method
+	/// to avoid breaking themes again unnecessarily
+	/// @TODO maybe output a warning here so the theme developer can see it? PHP won't show such warnings like Java does.
 
 	$a->set_template_engine($engine);
 }
 
 if (!function_exists('exif_imagetype')) {
-	function exif_imagetype($file) {
+	function exif_imagetype($file)
+	{
 		$size = getimagesize($file);
 		return $size[2];
 	}
 }
 
-function validate_include(&$file) {
+function validate_include(&$file)
+{
 	$orig_file = $file;
 
 	$file = realpath($file);
@@ -1524,7 +1577,8 @@ function validate_include(&$file) {
 	return ($valid);
 }
 
-function current_load() {
+function current_load()
+{
 	if (!function_exists('sys_getloadavg')) {
 		return false;
 	}
@@ -1543,7 +1597,8 @@ function current_load() {
  *
  * @return int
  */
-function argc() {
+function argc()
+{
 	return get_app()->argc;
 }
 
@@ -1553,7 +1608,8 @@ function argc() {
  * @param int $x argv key
  * @return string Value of the argv key
  */
-function argv($x) {
+function argv($x)
+{
 	if (array_key_exists($x, get_app()->argv)) {
 		return get_app()->argv[$x];
 	}
@@ -1574,11 +1630,11 @@ function argv($x) {
  * 	'pageno' => $pageno The number of the actual page
  * 	'reload_uri' => $reload_uri The URI of the content we have to load
  */
-function infinite_scroll_data($module) {
-
+function infinite_scroll_data($module)
+{
 	if (PConfig::get(local_user(), 'system', 'infinite_scroll')
-		&& ($module == "network") && ($_GET["mode"] != "minimal")) {
-
+		&& ($module == "network") && ($_GET["mode"] != "minimal")
+	) {
 		// get the page number
 		if (is_string($_GET["page"])) {
 			$pageno = $_GET["page"];
@@ -1589,7 +1645,7 @@ function infinite_scroll_data($module) {
 		$reload_uri = "";
 
 		// try to get the uri from which we load the content
-		foreach ($_GET AS $param => $value) {
+		foreach ($_GET as $param => $value) {
 			if (($param != "page") && ($param != "q")) {
 				$reload_uri .= "&" . $param . "=" . urlencode($value);
 			}

@@ -3,7 +3,7 @@
  * @file include/photos.php
  * @brief Functions related to photo handling.
  */
-
+use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 

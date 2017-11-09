@@ -4,6 +4,7 @@
 // https://web.archive.org/web/20160405005550/http://portablecontacts.net/draft-spec.html
 
 use Friendica\App;
+use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 

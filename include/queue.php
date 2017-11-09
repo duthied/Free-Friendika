@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * @file include/queue.php
+ */
+use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -11,9 +14,9 @@ require_once 'include/datetime.php';
 require_once 'include/items.php';
 require_once 'include/bbcode.php';
 require_once 'include/socgraph.php';
-require_once 'include/cache.php';
 
-function queue_run(&$argv, &$argc) {
+function queue_run(&$argv, &$argc)
+{
 	global $a;
 
 	if ($argc > 1) {
@@ -26,15 +29,16 @@ function queue_run(&$argv, &$argc) {
 	$cachekey_server = 'queue_run:server:';
 
 	if (!$queue_id) {
-
 		logger('queue: start');
 
 		// Handling the pubsubhubbub requests
 		Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), 'pubsubpublish');
 
-		$r = q("SELECT `queue`.*, `contact`.`name`, `contact`.`uid` FROM `queue`
+		$r = q(
+			"SELECT `queue`.*, `contact`.`name`, `contact`.`uid` FROM `queue`
 			INNER JOIN `contact` ON `queue`.`cid` = `contact`.`id`
-			WHERE `queue`.`created` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
+			WHERE `queue`.`created` < UTC_TIMESTAMP() - INTERVAL 3 DAY"
+		);
 
 		if (DBM::is_result($r)) {
 			foreach ($r as $rr) {
@@ -66,8 +70,10 @@ function queue_run(&$argv, &$argc) {
 
 	require_once 'include/salmon.php';
 
-	$r = q("SELECT * FROM `queue` WHERE `id` = %d LIMIT 1",
-		intval($queue_id));
+	$r = q(
+		"SELECT * FROM `queue` WHERE `id` = %d LIMIT 1",
+		intval($queue_id)
+	);
 
 	if (!DBM::is_result($r)) {
 		return;
@@ -75,7 +81,8 @@ function queue_run(&$argv, &$argc) {
 
 	$q_item = $r[0];
 
-	$c = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
+	$c = q(
+		"SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 		intval($q_item['cid'])
 	);
 
@@ -111,7 +118,8 @@ function queue_run(&$argv, &$argc) {
 		}
 	}
 
-	$u = q("SELECT `user`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`
+	$u = q(
+		"SELECT `user`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`
 		FROM `user` WHERE `uid` = %d LIMIT 1",
 		intval($c[0]['uid'])
 	);
@@ -176,7 +184,6 @@ function queue_run(&$argv, &$argc) {
 				update_queue_time($q_item['id']);
 			}
 			break;
-
 	}
 	logger('Deliver status '.(int)$deliver_status.' for item '.$q_item['id'].' to '.$contact['name'].' <'.$contact['url'].'>');
 

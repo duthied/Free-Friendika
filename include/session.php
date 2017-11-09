@@ -1,27 +1,28 @@
 <?php
-// Session management functions. These provide database storage of PHP
-// session info.
-
+/**
+ * Session management functions. These provide database storage of PHP session info.
+ */
+use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
-
-require_once('include/cache.php');
 
 $session_exists = 0;
 $session_expire = 180000;
 
-function ref_session_open($s, $n) {
+function ref_session_open($s, $n)
+{
 	return true;
 }
 
-function ref_session_read($id) {
+function ref_session_read($id)
+{
 	global $session_exists;
 
 	if (!x($id)) {
 		return '';
 	}
 
-	$memcache = cache::memcache();
+	$memcache = Cache::memcache();
 	if (is_object($memcache)) {
 		$data = $memcache->get(get_app()->get_hostname().":session:".$id);
 		if (!is_bool($data)) {
@@ -50,13 +51,14 @@ function ref_session_read($id) {
  * on the case. Uses the $session_expire global for existing session, 5 minutes
  * for newly created session.
  *
- * @global bool $session_exists Whether a session with the given id already exists
- * @global int $session_expire Session expiration delay in seconds
- * @param string $id Session ID with format: [a-z0-9]{26}
- * @param string $data Serialized session data
+ * @global bool   $session_exists Whether a session with the given id already exists
+ * @global int    $session_expire Session expiration delay in seconds
+ * @param  string $id   Session ID with format: [a-z0-9]{26}
+ * @param  string $data Serialized session data
  * @return boolean Returns false if parameters are missing, true otherwise
  */
-function ref_session_write($id, $data) {
+function ref_session_write($id, $data)
+{
 	global $session_exists, $session_expire;
 
 	if (!$id || !$data) {
@@ -66,7 +68,7 @@ function ref_session_write($id, $data) {
 	$expire = time() + $session_expire;
 	$default_expire = time() + 300;
 
-	$memcache = cache::memcache();
+	$memcache = Cache::memcache();
 	$a = get_app();
 	if (is_object($memcache) && is_object($a)) {
 		$memcache->set($a->get_hostname().":session:".$id, $data, MEMCACHE_COMPRESSED, $expire);
@@ -85,12 +87,14 @@ function ref_session_write($id, $data) {
 	return true;
 }
 
-function ref_session_close() {
+function ref_session_close()
+{
 	return true;
 }
 
-function ref_session_destroy($id) {
-	$memcache = cache::memcache();
+function ref_session_destroy($id)
+{
+	$memcache = Cache::memcache();
 
 	if (is_object($memcache)) {
 		$memcache->delete(get_app()->get_hostname().":session:".$id);
@@ -101,7 +105,8 @@ function ref_session_destroy($id) {
 	return true;
 }
 
-function ref_session_gc($expire) {
+function ref_session_gc($expire)
+{
 	dba::delete('session', array("`expire` < ?", time()));
 	return true;
 }
@@ -117,7 +122,9 @@ if (Config::get('system', 'ssl_policy') == SSL_POLICY_FULL) {
 }
 
 if (!Config::get('system', 'disable_database_session')) {
-	session_set_save_handler('ref_session_open', 'ref_session_close',
-				'ref_session_read', 'ref_session_write',
-				'ref_session_destroy', 'ref_session_gc');
+	session_set_save_handler(
+		'ref_session_open', 'ref_session_close',
+		'ref_session_read', 'ref_session_write',
+		'ref_session_destroy', 'ref_session_gc'
+	);
 }

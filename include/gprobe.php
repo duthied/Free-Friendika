@@ -1,5 +1,5 @@
 <?php
-
+use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;

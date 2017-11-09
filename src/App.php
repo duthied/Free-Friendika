@@ -3,11 +3,11 @@
 namespace Friendica;
 
 use Friendica\Core\System;
+use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 
-use Cache;
 use dba;
 
 use Detection\MobileDetect;
