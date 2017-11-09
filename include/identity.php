@@ -489,7 +489,7 @@ function get_birthdays()
 		return $o;
 	}
 
-	/**
+	/*
 	 * $mobile_detect = new Mobile_Detect();
 	 * $is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
 	 *		if ($is_mobile)
@@ -587,7 +587,7 @@ function get_events()
 		return $o;
 	}
 
-	/**
+	/*
 	 *	$mobile_detect = new Mobile_Detect();
 	 *		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
 	 *		if ($is_mobile)
