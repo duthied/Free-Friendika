@@ -1305,7 +1305,7 @@ class DFRN
 						return -5;
 					}
 					try {
-						$data = Crypto::encrypt($postvars['data'], $key);
+						$data = \Crypto::encrypt($postvars['data'], $key);
 					} catch (\CryptoTestFailedException $ex) {
 						logger('Cannot safely perform encryption');
 						return -6;
