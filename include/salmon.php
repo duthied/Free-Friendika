@@ -1,10 +1,14 @@
 <?php
-
+/**
+ * @file include/salmon.php
+ */
 use Friendica\Network\Probe;
+use Friendica\Util\XML;
 
 require_once 'include/crypto.php';
 
-function get_salmon_key($uri, $keyhash) {
+function get_salmon_key($uri, $keyhash)
+{
 	$ret = array();
 
 	logger('Fetching salmon key for '.$uri);
@@ -42,7 +46,6 @@ function get_salmon_key($uri, $keyhash) {
 	logger('Key located: ' . print_r($ret, true));
 
 	if (count($ret) == 1) {
-
 		// We only found one one key so we don't care if the hash matches.
 		// If it's the wrong key we'll find out soon enough because
 		// message verification will fail. This also covers some older
@@ -64,8 +67,8 @@ function get_salmon_key($uri, $keyhash) {
 
 
 
-function slapper($owner, $url, $slap) {
-
+function slapper($owner, $url, $slap)
+{
 	// does contact have a salmon endpoint?
 
 	if (! strlen($url)) {
@@ -109,7 +112,7 @@ function slapper($owner, $url, $slap) {
 
 	$namespaces = array("me" => "http://salmon-protocol.org/ns/magic-env");
 
-	$salmon = xml::from_array($xmldata, $xml, false, $namespaces);
+	$salmon = XML::from_array($xmldata, $xml, false, $namespaces);
 
 	// slap them
 	post_url($url, $salmon, array(
@@ -123,7 +126,6 @@ function slapper($owner, $url, $slap) {
 	// check for success, e.g. 2xx
 
 	if ($return_code > 299) {
-
 		logger('GNU Social salmon failed. Falling back to compliant mode');
 
 		// Now try the compliant mode that normally isn't used for GNU Social
@@ -136,7 +138,7 @@ function slapper($owner, $url, $slap) {
 
 		$namespaces = array("me" => "http://salmon-protocol.org/ns/magic-env");
 
-		$salmon = xml::from_array($xmldata, $xml, false, $namespaces);
+		$salmon = XML::from_array($xmldata, $xml, false, $namespaces);
 
 		// slap them
 		post_url($url, $salmon, array(
@@ -159,13 +161,13 @@ function slapper($owner, $url, $slap) {
 
 		$namespaces = array("me" => "http://salmon-protocol.org/ns/magic-env");
 
-		$salmon = xml::from_array($xmldata, $xml, false, $namespaces);
+		$salmon = XML::from_array($xmldata, $xml, false, $namespaces);
 
 		// slap them
 		post_url($url, $salmon, array(
 			'Content-type: application/magic-envelope+xml',
-			'Content-length: ' . strlen($salmon)
-		));
+			'Content-length: ' . strlen($salmon))
+		);
 		$return_code = $a->get_curl_code();
 	}
 

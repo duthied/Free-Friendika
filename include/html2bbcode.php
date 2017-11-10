@@ -8,7 +8,7 @@
  * 					https://github.com/annando/Syncom
  */
 
-require_once("include/xml.php");
+use Friendica\Util\XML;
 
 function node2bbcode(&$doc, $oldnode, $attributes, $startbb, $endbb)
 {
@@ -26,11 +26,12 @@ function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 
 	$list = $xpath->query("//".$oldnode);
 	foreach ($list as $oldNode) {
-
 		$attr = array();
-		if ($oldNode->attributes->length)
-			foreach ($oldNode->attributes as $attribute)
+		if ($oldNode->attributes->length) {
+			foreach ($oldNode->attributes as $attribute) {
 				$attr[$attribute->name] = $attribute->value;
+			}
+		}
 
 		$replace = true;
 
@@ -39,23 +40,22 @@ function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 		$i = 0;
 
 		foreach ($attributes as $attribute => $value) {
-
 			$startbb = str_replace('\x01'.++$i, '$1', $startbb);
-
 			if (strpos('*'.$startbb, '$1') > 0) {
-
 				if ($replace && (@$attr[$attribute] != '')) {
-
 					$startbb = preg_replace($value, $startbb, $attr[$attribute], -1, $count);
 
 					// If nothing could be changed
-					if ($count == 0)
+					if ($count == 0) {
 						$replace = false;
-				} else
+					}
+				} else {
 					$replace = false;
+				}
 			} else {
-				if (@$attr[$attribute] != $value)
+				if (@$attr[$attribute] != $value) {
 					$replace = false;
+				}
 			}
 		}
 
@@ -86,7 +86,8 @@ function html2bbcode($message, $basepath = '')
 
 	// Removing code blocks before the whitespace removal processing below
 	$codeblocks = [];
-	$message = preg_replace_callback('#<pre><code(?: class="([^"]*)")?>(.*)</code></pre>#iUs',
+	$message = preg_replace_callback(
+		'#<pre><code(?: class="([^"]*)")?>(.*)</code></pre>#iUs',
 		function ($matches) use (&$codeblocks) {
 			$return = '[codeblock-' . count($codeblocks) . ']';
 
@@ -96,18 +97,21 @@ function html2bbcode($message, $basepath = '')
 			}
 			$codeblocks[] = $prefix . $matches[2] . '[/code]';
 			return $return;
-		}
-	, $message);
+		},
+		$message
+	);
 
-	$message = str_replace(array(
-					"<li><p>",
-					"</p></li>",
-				),
-				array(
-					"<li>",
-					"</li>",
-				),
-				$message);
+	$message = str_replace(
+		array(
+			"<li><p>",
+			"</p></li>",
+		),
+		array(
+			"<li>",
+			"</li>",
+		),
+		$message
+	);
 
 	// remove namespaces
 	$message = preg_replace('=<(\w+):(.+?)>=', '<removeme>', $message);
@@ -120,17 +124,18 @@ function html2bbcode($message, $basepath = '')
 
 	@$doc->loadHTML($message);
 
-	xml::deleteNode($doc, 'style');
-	xml::deleteNode($doc, 'head');
-	xml::deleteNode($doc, 'title');
-	xml::deleteNode($doc, 'meta');
-	xml::deleteNode($doc, 'xml');
-	xml::deleteNode($doc, 'removeme');
+	XML::deleteNode($doc, 'style');
+	XML::deleteNode($doc, 'head');
+	XML::deleteNode($doc, 'title');
+	XML::deleteNode($doc, 'meta');
+	XML::deleteNode($doc, 'xml');
+	XML::deleteNode($doc, 'removeme');
 
 	$xpath = new DomXPath($doc);
 	$list = $xpath->query("//pre");
-	foreach ($list as $node)
+	foreach ($list as $node) {
 		$node->nodeValue = str_replace("\n", "\r", $node->nodeValue);
+	}
 
 	$message = $doc->saveHTML();
 	$message = str_replace(array("\n<", ">\n", "\r", "\n", "\xC3\x82\xC2\xA0"), array("<", ">", "<br />", " ", ""), $message);
@@ -158,7 +163,7 @@ function html2bbcode($message, $basepath = '')
 	node2bbcode($doc, 'font', array('face'=>'/([\w ]+)/'), '[font=$1]', '[/font]');
 	node2bbcode($doc, 'font', array('size'=>'/(\d+)/'), '[size=$1]', '[/size]');
 	node2bbcode($doc, 'font', array('color'=>'/(.+)/'), '[color=$1]', '[/color]');
-*/
+	*/
 	// Untested
 	//node2bbcode($doc, 'span', array('style'=>'/.*font-size:\s*(.+?)[,;].*font-family:\s*(.+?)[,;].*color:\s*(.+?)[,;].*/'), '[size=$1][font=$2][color=$3]', '[/color][/font][/size]');
 	//node2bbcode($doc, 'span', array('style'=>'/.*font-size:\s*(\d+)[,;].*/'), '[size=$1]', '[/size]');
@@ -281,45 +286,52 @@ function html2bbcode($message, $basepath = '')
 
 	do {
 		$oldmessage = $message;
-		$message = str_replace(array(
-					"[/size]\n\n",
-					"\n[hr]",
-					"[hr]\n",
-					"\n[list",
-					"[/list]\n",
-					"\n[/",
-					"[list]\n",
-					"[list=1]\n",
-					"\n[*]"),
-				array(
-					"[/size]\n",
-					"[hr]",
-					"[hr]",
-					"[list",
-					"[/list]",
-					"[/",
-					"[list]",
-					"[list=1]",
-					"[*]"),
-				$message);
+		$message = str_replace(
+			array(
+				"[/size]\n\n",
+				"\n[hr]",
+				"[hr]\n",
+				"\n[list",
+				"[/list]\n",
+				"\n[/",
+				"[list]\n",
+				"[list=1]\n",
+				"\n[*]"),
+			array(
+				"[/size]\n",
+				"[hr]",
+				"[hr]",
+				"[list",
+				"[/list]",
+				"[/",
+				"[list]",
+				"[list=1]",
+				"[*]"),
+			$message
+		);
 	} while ($message != $oldmessage);
 
-	$message = str_replace(array('[b][b]', '[/b][/b]', '[i][i]', '[/i][/i]'),
-		array('[b]', '[/b]', '[i]', '[/i]'), $message);
+	$message = str_replace(
+		array('[b][b]', '[/b][/b]', '[i][i]', '[/i][/i]'),
+		array('[b]', '[/b]', '[i]', '[/i]'),
+		$message
+	);
 
 	// Handling Yahoo style of mails
 	$message = str_replace('[hr][b]From:[/b]', '[quote][b]From:[/b]', $message);
 
 	// Restore code blocks
-	$message = preg_replace_callback('#\[codeblock-([0-9]+)\]#iU',
+	$message = preg_replace_callback(
+		'#\[codeblock-([0-9]+)\]#iU',
 		function ($matches) use ($codeblocks) {
 			$return = '';
 			if (isset($codeblocks[intval($matches[1])])) {
 				$return = $codeblocks[$matches[1]];
 			}
 			return $return;
-		}
-	, $message);
+		},
+		$message
+	);
 
 	$message = trim($message);
 
@@ -333,12 +345,13 @@ function html2bbcode($message, $basepath = '')
 /**
  * @brief Sub function to complete incomplete URL
  *
- * @param array $matches Result of preg_replace_callback
+ * @param array  $matches  Result of preg_replace_callback
  * @param string $basepath Basepath that is used to complete the URL
  *
  * @return string The expanded URL
  */
-function addHostnameSub($matches, $basepath) {
+function addHostnameSub($matches, $basepath)
+{
 	$base = parse_url($basepath);
 	unset($base['query']);
 	unset($base['fragment']);
@@ -355,12 +368,13 @@ function addHostnameSub($matches, $basepath) {
 /**
  * @brief Complete incomplete URLs in BBCode
  *
- * @param string $body Body with URLs
+ * @param string $body     Body with URLs
  * @param string $basepath Basepath that is used to complete the URL
  *
  * @return string Body with expanded URLs
  */
-function addHostname($body, $basepath) {
+function addHostname($body, $basepath)
+{
 	$URLSearchString = "^\[\]";
 
 	$matches = array("/\[url\=([$URLSearchString]*)\].*?\[\/url\]/ism",
@@ -373,11 +387,14 @@ function addHostname($body, $basepath) {
 			"/\[audio\](.*?)\[\/audio\]/ism",
 			);
 
-	foreach ($matches AS $match) {
-		$body = preg_replace_callback($match,
-						function ($match) use ($basepath) {
-							return addHostnameSub($match, $basepath);
-						}, $body);
+	foreach ($matches as $match) {
+		$body = preg_replace_callback(
+			$match,
+			function ($match) use ($basepath) {
+				return addHostnameSub($match, $basepath);
+			},
+			$body
+		);
 	}
 	return $body;
 }

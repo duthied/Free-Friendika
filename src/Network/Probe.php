@@ -13,10 +13,9 @@ use Friendica\Core\System;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\Util\XML;
 
 use dba;
-use xml;
-
 use DomXPath;
 use DOMDocument;
 
@@ -124,7 +123,7 @@ class Probe {
 			return array();
 		}
 
-		$links = xml::element_to_array($xrd);
+		$links = XML::element_to_array($xrd);
 		if (!isset($links["xrd"]["link"])) {
 			logger("No xrd data found for ".$host, LOGGER_DEBUG);
 			return array();
@@ -706,7 +705,7 @@ class Probe {
 			return false;
 		}
 
-		$xrd_arr = xml::element_to_array($xrd);
+		$xrd_arr = XML::element_to_array($xrd);
 		if (!isset($xrd_arr["xrd"]["link"])) {
 			logger("No XML webfinger links for ".$url, LOGGER_DEBUG);
 			return false;
