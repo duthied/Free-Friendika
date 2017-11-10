@@ -285,7 +285,7 @@ function register_content(App $a) {
 		'$oidlabel'  => $oidlabel,
 		'$openid'    => $openid_url,
 		'$namelabel' => t('Your Full Name ' . "\x28" . 'e.g. Joe Smith, real or real-looking' . "\x29" . ': '),
-		'$addrlabel' => t('Your Email Address: '),
+		'$addrlabel' => t('Your Email Address: (Initial information will be send there, so this has to be an existing address.)'),
 		'$passwords' => $passwords,
 		'$password1' => array('password1', t('New Password:'), '', t('Leave empty for an auto generated password.')),
 		'$password2' => array('confirm', t('Confirm:'), '', ''),
