@@ -1,12 +1,12 @@
 <?php
 
 /**
- * @file xrc/Util/Xml.php
+ * @file src/Util/Xml.php
  */
 namespace Friendica\Util;
 
 use DomXPath;
-use SimpleXmMLElement;
+use SimpleXMLElement;
 
 /**
  * @brief This class contain methods to work with XML data
@@ -24,8 +24,8 @@ class Xml
 	 *
 	 * @return string The created XML
 	 */
-	public static function from_array($array, &$xml, $remove_header = false, $namespaces = array(), $root = true) {
-
+	public static function from_array($array, &$xml, $remove_header = false, $namespaces = array(), $root = true)
+	{
 		if ($root) {
 			foreach ($array as $key => $value) {
 				foreach ($namespaces as $nskey => $nsvalue) {
