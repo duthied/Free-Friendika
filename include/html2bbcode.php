@@ -8,8 +8,7 @@
  * 					https://github.com/annando/Syncom
  */
 
-use Friendica\Util\Xml;
-
+use Friendica\Util\XML;
 
 function node2bbcode(&$doc, $oldnode, $attributes, $startbb, $endbb)
 {
@@ -27,11 +26,12 @@ function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 
 	$list = $xpath->query("//".$oldnode);
 	foreach ($list as $oldNode) {
-
 		$attr = array();
-		if ($oldNode->attributes->length)
-			foreach ($oldNode->attributes as $attribute)
+		if ($oldNode->attributes->length) {
+			foreach ($oldNode->attributes as $attribute) {
 				$attr[$attribute->name] = $attribute->value;
+			}
+		}
 
 		$replace = true;
 
@@ -40,23 +40,22 @@ function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 		$i = 0;
 
 		foreach ($attributes as $attribute => $value) {
-
 			$startbb = str_replace('\x01'.++$i, '$1', $startbb);
-
 			if (strpos('*'.$startbb, '$1') > 0) {
-
 				if ($replace && (@$attr[$attribute] != '')) {
-
 					$startbb = preg_replace($value, $startbb, $attr[$attribute], -1, $count);
 
 					// If nothing could be changed
-					if ($count == 0)
+					if ($count == 0) {
 						$replace = false;
-				} else
+					}
+				} else {
 					$replace = false;
+				}
 			} else {
-				if (@$attr[$attribute] != $value)
+				if (@$attr[$attribute] != $value) {
 					$replace = false;
+				}
 			}
 		}
 
@@ -125,12 +124,12 @@ function html2bbcode($message, $basepath = '')
 
 	@$doc->loadHTML($message);
 
-	Xml::deleteNode($doc, 'style');
-	Xml::deleteNode($doc, 'head');
-	Xml::deleteNode($doc, 'title');
-	Xml::deleteNode($doc, 'meta');
-	Xml::deleteNode($doc, 'xml');
-	Xml::deleteNode($doc, 'removeme');
+	XML::deleteNode($doc, 'style');
+	XML::deleteNode($doc, 'head');
+	XML::deleteNode($doc, 'title');
+	XML::deleteNode($doc, 'meta');
+	XML::deleteNode($doc, 'xml');
+	XML::deleteNode($doc, 'removeme');
 
 	$xpath = new DomXPath($doc);
 	$list = $xpath->query("//pre");

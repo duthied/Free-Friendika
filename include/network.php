@@ -8,7 +8,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Network\Probe;
-use Friendica\Util\Xml;
+use Friendica\Util\XML;
 
 /**
  * @brief Curl wrapper
@@ -414,7 +414,7 @@ function xml_status($st, $message = '')
 
 	$xmldata = array("result" => $result);
 
-	echo Xml::from_array($xmldata, $xml);
+	echo XML::from_array($xmldata, $xml);
 
 	killme();
 }
@@ -570,7 +570,8 @@ function allowed_url($url)
  * Checks if the provided url domain is on the domain blocklist.
  * Returns true if it is or malformed URL, false if not.
  *
- * @param  string $url The url to check the domain from
+ * @param string $url The url to check the domain from
+ *
  * @return boolean
  */
 function blocked_url($url)

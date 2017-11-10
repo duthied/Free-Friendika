@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file src/Util/Xml.php
+ * @file src/Util/XML.php
  */
 namespace Friendica\Util;
 
@@ -11,7 +11,7 @@ use SimpleXMLElement;
 /**
  * @brief This class contain methods to work with XML data
  */
-class Xml
+class XML
 {
 	/**
 	 * @brief Creates an XML structure out of a given array

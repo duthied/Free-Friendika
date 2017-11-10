@@ -17,7 +17,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
-use Friendica\Util\Xml;
+use Friendica\Util\XML;
 
 use dba;
 use SimpleXMLElement;
@@ -672,7 +672,7 @@ class Diaspora
 			if (!in_array($fieldname, array("parent_author_signature", "target_author_signature"))
 				|| ($orig_type == "relayable_retraction")
 			) {
-				Xml::copy($entry, $fields, $fieldname);
+				XML::copy($entry, $fields, $fieldname);
 			}
 		}
 
@@ -1912,7 +1912,7 @@ class Diaspora
 						"title" => "",
 						"content" => $parent_body));
 
-		return Xml::from_array($xmldata, $xml, true);
+		return XML::from_array($xmldata, $xml, true);
 	}
 
 	/**
@@ -2344,7 +2344,7 @@ class Diaspora
 						"id" => $contact["url"]."/".$contact["name"],
 						"link" => $link));
 
-		return Xml::from_array($xmldata, $xml, true);
+		return XML::from_array($xmldata, $xml, true);
 	}
 
 	/**
@@ -3039,7 +3039,7 @@ class Diaspora
 
 		$namespaces = array("me" => "http://salmon-protocol.org/ns/magic-env");
 
-		return Xml::from_array($xmldata, $xml, false, $namespaces);
+		return XML::from_array($xmldata, $xml, false, $namespaces);
 	}
 
 	/**
@@ -3172,7 +3172,7 @@ class Diaspora
 	{
 		$data = array($type => $message);
 
-		return Xml::from_array($data, $xml);
+		return XML::from_array($data, $xml);
 	}
 
 	/**

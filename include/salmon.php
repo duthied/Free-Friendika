@@ -3,7 +3,7 @@
  * @file include/salmon.php
  */
 use Friendica\Network\Probe;
-use Friendica\Util\Xml;
+use Friendica\Util\XML;
 
 require_once 'include/crypto.php';
 
@@ -112,7 +112,7 @@ function slapper($owner, $url, $slap)
 
 	$namespaces = array("me" => "http://salmon-protocol.org/ns/magic-env");
 
-	$salmon = Xml::from_array($xmldata, $xml, false, $namespaces);
+	$salmon = XML::from_array($xmldata, $xml, false, $namespaces);
 
 	// slap them
 	post_url($url, $salmon, array(
@@ -138,7 +138,7 @@ function slapper($owner, $url, $slap)
 
 		$namespaces = array("me" => "http://salmon-protocol.org/ns/magic-env");
 
-		$salmon = Xml::from_array($xmldata, $xml, false, $namespaces);
+		$salmon = XML::from_array($xmldata, $xml, false, $namespaces);
 
 		// slap them
 		post_url($url, $salmon, array(
@@ -161,13 +161,13 @@ function slapper($owner, $url, $slap)
 
 		$namespaces = array("me" => "http://salmon-protocol.org/ns/magic-env");
 
-		$salmon = Xml::from_array($xmldata, $xml, false, $namespaces);
+		$salmon = XML::from_array($xmldata, $xml, false, $namespaces);
 
 		// slap them
 		post_url($url, $salmon, array(
 			'Content-type: application/magic-envelope+xml',
-			'Content-length: ' . strlen($salmon)
-		));
+			'Content-length: ' . strlen($salmon))
+		);
 		$return_code = $a->get_curl_code();
 	}
 

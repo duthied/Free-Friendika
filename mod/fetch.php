@@ -6,7 +6,7 @@ This file is part of the Diaspora protocol. It is used for fetching single publi
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Protocol\Diaspora;
-use Friendica\Util\Xml;
+use Friendica\Util\XML;
 
 require_once "include/crypto.php";
 

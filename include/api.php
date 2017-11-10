@@ -13,7 +13,7 @@ use Friendica\Core\NotificationsManager;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Protocol\Diaspora;
-use Friendica\Util\Xml;
+use Friendica\Util\XML;
 
 require_once 'include/HTTPExceptions.php';
 require_once 'include/bbcode.php';
@@ -901,7 +901,7 @@ function api_create_xml($data, $root_element)
 
 	$data3 = array($root_element => $data2);
 
-	$ret = Xml::from_array($data3, $xml, false, $namespaces);
+	$ret = XML::from_array($data3, $xml, false, $namespaces);
 	return $ret;
 }
 

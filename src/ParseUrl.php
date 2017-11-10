@@ -6,7 +6,7 @@
 namespace Friendica;
 
 use Friendica\Core\Config;
-use Friendica\Util\Xml;
+use Friendica\Util\XML;
 
 use dba;
 use DomXPath;
@@ -203,17 +203,17 @@ class ParseUrl
 		$doc = new DOMDocument();
 		@$doc->loadHTML($body);
 
-		Xml::deleteNode($doc, "style");
-		Xml::deleteNode($doc, "script");
-		Xml::deleteNode($doc, "option");
-		Xml::deleteNode($doc, "h1");
-		Xml::deleteNode($doc, "h2");
-		Xml::deleteNode($doc, "h3");
-		Xml::deleteNode($doc, "h4");
-		Xml::deleteNode($doc, "h5");
-		Xml::deleteNode($doc, "h6");
-		Xml::deleteNode($doc, "ol");
-		Xml::deleteNode($doc, "ul");
+		XML::deleteNode($doc, "style");
+		XML::deleteNode($doc, "script");
+		XML::deleteNode($doc, "option");
+		XML::deleteNode($doc, "h1");
+		XML::deleteNode($doc, "h2");
+		XML::deleteNode($doc, "h3");
+		XML::deleteNode($doc, "h4");
+		XML::deleteNode($doc, "h5");
+		XML::deleteNode($doc, "h6");
+		XML::deleteNode($doc, "ol");
+		XML::deleteNode($doc, "ul");
 
 		$xpath = new DomXPath($doc);
 
