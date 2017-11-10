@@ -28,8 +28,6 @@ function community_content(App $a, $update = 0) {
 	require_once('include/security.php');
 	require_once('include/conversation.php');
 
-
-	$o .= '<h3>' . t('Community') . '</h3>';
 	if (! $update) {
 		nav_set_selected('community');
 	}
@@ -83,9 +81,15 @@ function community_content(App $a, $update = 0) {
 
 	$o .= conversation($a, $s, 'community', $update);
 
-        $o .= alt_pager($a, count($r));
+	$o .= alt_pager($a, count($r));
 
-	return $o;
+	$t = get_markup_template( "community.tpl" );
+	return replace_macros($t, array(
+		'$content' => $o,
+		'$header' => t("Community"),
+		'$show_global_community_hint' => (Config::get('system', 'community_page_style') == CP_GLOBAL_COMMUNITY && Config::get('system', 'show_global_community_hint')),
+		'$global_community_hint' => t("This comunity stream shows all public messages arriving on this node. They do not reflect the opinion of the nodes users.")
+	));
 }
 
 function community_getitems($start, $itemspage) {
