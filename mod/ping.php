@@ -7,13 +7,13 @@ use Friendica\Core\Cache;
 use Friendica\Core\System;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
+use Friendica\Util\Xml;
 
 require_once 'include/datetime.php';
 require_once 'include/bbcode.php';
 require_once 'include/ForumManager.php';
 require_once 'include/group.php';
 require_once 'mod/proxy.php';
-require_once 'include/xml.php';
 require_once 'include/enotify.php';
 
 /**
@@ -114,7 +114,7 @@ function ping_init(App $a)
 				}
 			} else {
 				header("Content-type: text/xml");
-				echo xml::from_array($data, $xml);
+				echo Xml::from_array($data, $xml);
 			}
 			killme();
 		}
@@ -411,7 +411,7 @@ function ping_init(App $a)
 		$data = ping_format_xml_data($data, $sysnotify_count, $notifications, $sysmsgs, $sysmsgs_info, $groups_unseen, $forums_unseen);
 
 		header("Content-type: text/xml");
-		echo xml::from_array(array("result" => $data), $xml);
+		echo Xml::from_array(array("result" => $data), $xml);
 	}
 
 	killme();
