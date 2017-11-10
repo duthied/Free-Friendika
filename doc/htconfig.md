@@ -87,6 +87,7 @@ Example: To set the directory value please add this line to your .htconfig.php:
 * **remove_multiplicated_lines** (Boolean) - If enabled, multiple linefeeds in items are stripped to a single one.
 * **show_unsupported_addons** (Boolean) - Show all addons including the unsupported ones.
 * **show_unsupported_themes** (Boolean) - Show all themes including the unsupported ones.
+* **show_global_community_hint** (Boolean) - When the global community page is enabled, use this option to display a hint above the stream, that this is a collection of all public top-level postings that arrive on your node.
 * **throttle_limit_day** - Maximum number of posts that a user can send per day with the API.
 * **throttle_limit_week** - Maximum number of posts that a user can send per week with the API.
 * **throttle_limit_month** - Maximum number of posts that a user can send per month with the API.
