@@ -88,7 +88,7 @@ function community_content(App $a, $update = 0) {
 		'$content' => $o,
 		'$header' => t("Community"),
 		'$show_global_community_hint' => (Config::get('system', 'community_page_style') == CP_GLOBAL_COMMUNITY && Config::get('system', 'show_global_community_hint')),
-		'$global_community_hint' => t("“This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users.”")
+		'$global_community_hint' => t("This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users.")
 	));
 }
 
