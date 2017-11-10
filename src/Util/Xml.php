@@ -5,6 +5,9 @@
  */
 namespace Friendica\Util;
 
+use DomXPath;
+use SimpleXmMLElement;
+
 /**
  * @brief This class contain methods to work with XML data
  */
