@@ -6,7 +6,6 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 
-require_once "include/template_processor.php";
 require_once "include/friendica_smarty.php";
 require_once "include/Smilies.php";
 require_once "include/map.php";

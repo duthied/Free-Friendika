@@ -16,7 +16,7 @@ function frost_init(App $a) {
 	$a->videowidth = 400;
 	$a->videoheight = 330;
 	$a->theme_thread_allow = false;
-	set_template_engine($a, 'smarty3');
+	$a->set_template_engine('smarty3');
 }
 
 function frost_content_loaded(App $a) {

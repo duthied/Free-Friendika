@@ -1527,15 +1527,6 @@ function get_spoolpath()
 	return "";
 }
 
-/// @deprecated
-function set_template_engine(App $a, $engine = 'internal')
-{
-	/// @note This function is no longer necessary, but keep it as a wrapper to the class method
-	/// to avoid breaking themes again unnecessarily
-	/// @TODO maybe output a warning here so the theme developer can see it? PHP won't show such warnings like Java does.
-
-	$a->set_template_engine($engine);
-}
 
 if (!function_exists('exif_imagetype')) {
 	function exif_imagetype($file)
