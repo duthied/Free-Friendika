@@ -22,7 +22,7 @@ function frio_init(App $a) {
 	// disable the events module link in the profile tab
 	$a->theme_events_in_profile = false;
 
-	set_template_engine($a, 'smarty3');
+	$a->set_template_engine('smarty3');
 
 	$baseurl = System::baseUrl();
 

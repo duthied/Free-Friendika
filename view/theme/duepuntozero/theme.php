@@ -6,7 +6,7 @@ use Friendica\Core\PConfig;
 
 function duepuntozero_init(App $a) {
 
-set_template_engine($a, 'smarty3');
+$a->set_template_engine('smarty3');
 
     $colorset = PConfig::get( local_user(), 'duepuntozero','colorset');
     if (!$colorset)

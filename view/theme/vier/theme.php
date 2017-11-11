@@ -23,7 +23,7 @@ function vier_init(App $a) {
 
 	$a->theme_events_in_profile = false;
 
-	set_template_engine($a, 'smarty3');
+	$a->set_template_engine('smarty3');
 
 	if ($a->argv[0].$a->argv[1] === "profile".$a->user['nickname'] || $a->argv[0] === "network" && local_user()) {
 		vier_community_info();
