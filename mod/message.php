@@ -1,12 +1,12 @@
 <?php
 
 use Friendica\App;
+use Friendica\Content\Smilies;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 
-require_once('include/acl_selectors.php');
-require_once('include/message.php');
-require_once('include/Smilies.php');
+require_once 'include/acl_selectors.php';
+require_once 'include/message.php';
 
 function message_init(App $a) {
 

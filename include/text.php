@@ -1,13 +1,13 @@
 <?php
 
 use Friendica\App;
+use Friendica\Content\Smilies;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 
 require_once "include/friendica_smarty.php";
-require_once "include/Smilies.php";
 require_once "include/map.php";
 require_once "mod/proxy.php";
 

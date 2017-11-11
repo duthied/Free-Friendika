@@ -4,10 +4,10 @@
  * @file mod/smilies.php
  */
 use Friendica\App;
+use Friendica\Content\Smilies;
 
-require_once("include/Smilies.php");
-
-function smilies_content(App $a) {
+function smilies_content(App $a)
+{
 	if ($a->argv[1] === "json") {
 		$tmp = Smilies::get_list();
 		$results = array();
