@@ -437,10 +437,7 @@ function event_store($arr) {
 function get_event_strings() {
 
 	// First day of the week (0 = Sunday).
-	$firstDay = PConfig::get(local_user(), 'system', 'first_day_of_week');
-	if ($firstDay === false) {
-		$firstDay = 0;
-	}
+	$firstDay = PConfig::get(local_user(), 'system', 'first_day_of_week', 0);
 
 	$i18n = array(
 			"firstDay" => $firstDay,
