@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Content\Smilies;
 use Friendica\Core\Cache;
 use Friendica\Core\System;
 use Friendica\Core\Config;
@@ -11,7 +12,6 @@ require_once 'include/map.php';
 require_once 'mod/proxy.php';
 require_once 'include/Contact.php';
 require_once 'include/plaintext.php';
-require_once 'include/Smilies.php';
 
 function bb_PictureCacheExt($matches) {
 	if (strpos($matches[3], "data:image/") === 0) {

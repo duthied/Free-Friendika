@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file include/Smilies.php
+ * @file src/Content/Smilies.php
  * @brief This file contains the Smilies class which contains functions to handle smiles
  *
  * @todo Use the shortcodes from here:
@@ -12,6 +12,7 @@
  * Have also a look here:
  * https://www.webpagefx.com/tools/emoji-cheat-sheet/
  */
+namespace Friendica\Content;
 
 use Friendica\App;
 use Friendica\Core\Config;
@@ -22,18 +23,19 @@ use Friendica\Core\System;
  * This class contains functions to handle smiles
  */
 
-class Smilies {
-
+class Smilies
+{
 	/**
 	 * @brief Replaces/adds the emoticon list
 	 *
 	 * This function should be used whenever emoticons are added
 	 *
-	 * @param array $b Array of emoticons
-	 * @param string $smiley The text smilie
+	 * @param array  $b              Array of emoticons
+	 * @param string $smiley         The text smilie
 	 * @param string $representation The replacement
 	 */
-	public static function add(&$b, $smiley, $representation) {
+	public static function add(&$b, $smiley, $representation)
+	{
 		$found = array_search($smiley, $b['texts']);
 
 		if (!is_int($found)) {
@@ -55,8 +57,8 @@ class Smilies {
 	 *
 	 * @hook smilie ('texts' => smilies texts array, 'icons' => smilies html array)
 	 */
-	public static function get_list() {
-
+	public static function get_list()
+	{
 		$texts =  array(
 			'&lt;3',
 			'&lt;/3',
@@ -151,26 +153,29 @@ class Smilies {
 	 * function from being executed by the prepare_text() routine when preparing
 	 * bbcode source for HTML display
 	 *
-	 * @param string $s Text that should be replaced
+	 * @param string  $s         Text that should be replaced
 	 * @param boolean $sample
 	 * @param boolean $no_images Only replace emoticons without images
 	 *
 	 * @return string HML Output of the Smilie
 	 */
-	public static function replace($s, $sample = false, $no_images = false) {
-		if(intval(Config::get('system','no_smilies'))
-			|| (local_user() && intval(PConfig::get(local_user(),'system','no_smilies'))))
+	public static function replace($s, $sample = false, $no_images = false)
+	{
+		if (intval(Config::get('system', 'no_smilies'))
+			|| (local_user() && intval(PConfig::get(local_user(), 'system', 'no_smilies')))
+		) {
 			return $s;
+		}
 
-		$s = preg_replace_callback('/<pre>(.*?)<\/pre>/ism','self::encode',$s);
-		$s = preg_replace_callback('/<code>(.*?)<\/code>/ism','self::encode',$s);
+		$s = preg_replace_callback('/<pre>(.*?)<\/pre>/ism', 'self::encode', $s);
+		$s = preg_replace_callback('/<code>(.*?)<\/code>/ism', 'self::encode', $s);
 
 		$params = self::get_list();
 
 		if ($no_images) {
 			$cleaned = array('texts' => array(), 'icons' => array());
 			$icons = $params['icons'];
-			foreach ($icons AS $key => $icon) {
+			foreach ($icons as $key => $icon) {
 				if (!strstr($icon, '<img ')) {
 					$cleaned['texts'][] = $params['texts'][$key];
 					$cleaned['icons'][] = $params['icons'][$key];
@@ -181,29 +186,30 @@ class Smilies {
 
 		$params['string'] = $s;
 
-		if($sample) {
+		if ($sample) {
 			$s = '<div class="smiley-sample">';
-			for($x = 0; $x < count($params['texts']); $x ++) {
+			for ($x = 0; $x < count($params['texts']); $x ++) {
 				$s .= '<dl><dt>' . $params['texts'][$x] . '</dt><dd>' . $params['icons'][$x] . '</dd></dl>';
 			}
-		}
-		else {
-			$params['string'] = preg_replace_callback('/&lt;(3+)/','self::preg_heart',$params['string']);
-			$s = str_replace($params['texts'],$params['icons'],$params['string']);
+		} else {
+			$params['string'] = preg_replace_callback('/&lt;(3+)/', 'self::preg_heart', $params['string']);
+			$s = str_replace($params['texts'], $params['icons'], $params['string']);
 		}
 
-		$s = preg_replace_callback('/<pre>(.*?)<\/pre>/ism','self::decode',$s);
-		$s = preg_replace_callback('/<code>(.*?)<\/code>/ism','self::decode',$s);
+		$s = preg_replace_callback('/<pre>(.*?)<\/pre>/ism', 'self::decode', $s);
+		$s = preg_replace_callback('/<code>(.*?)<\/code>/ism', 'self::decode', $s);
 
 		return $s;
 	}
 
-	private static function encode($m) {
-		return(str_replace($m[1],base64url_encode($m[1]),$m[0]));
+	private static function encode($m)
+	{
+		return(str_replace($m[1], base64url_encode($m[1]), $m[0]));
 	}
 
-	private static function decode($m) {
-		return(str_replace($m[1],base64url_decode($m[1]),$m[0]));
+	private static function decode($m)
+	{
+		return(str_replace($m[1], base64url_decode($m[1]), $m[0]));
 	}
 
 
@@ -211,17 +217,21 @@ class Smilies {
 	 * @brief expand <3333 to the correct number of hearts
 	 *
 	 * @param string $x
+	 *
 	 * @return string HTML Output
 	 *
 	 * @todo: Rework because it doesn't work correctly
 	 */
-	private static function preg_heart($x) {
-		if(strlen($x[1]) == 1)
+	private static function preg_heart($x)
+	{
+		if (strlen($x[1]) == 1) {
 			return $x[0];
+		}
 		$t = '';
-		for($cnt = 0; $cnt < strlen($x[1]); $cnt ++)
+		for ($cnt = 0; $cnt < strlen($x[1]); $cnt ++) {
 			$t .= '<img class="smiley" src="' . System::baseUrl() . '/images/smiley-heart.gif" alt="&lt;3" />';
-		$r =  str_replace($x[0],$t,$x[0]);
+		}
+		$r =  str_replace($x[0], $t, $x[0]);
 		return $r;
 	}
 }
