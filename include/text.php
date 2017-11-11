@@ -12,7 +12,6 @@ require_once "include/Smilies.php";
 require_once "include/map.php";
 require_once "mod/proxy.php";
 
-if (! function_exists('replace_macros')) {
 /**
  * This is our template processor
  *
@@ -41,24 +40,22 @@ function replace_macros($s, $r) {
 	$a->save_timestamp($stamp1, "rendering");
 
 	return $output;
-}}
+}
 
 
 // random string, there are 86 characters max in text mode, 128 for hex
 // output is urlsafe
 
-define('RANDOM_STRING_HEX',  0x00 );
-define('RANDOM_STRING_TEXT', 0x01 );
+define('RANDOM_STRING_HEX',  0x00);
+define('RANDOM_STRING_TEXT', 0x01);
 
-if (! function_exists('random_string')) {
 function random_string($size = 64, $type = RANDOM_STRING_HEX) {
 	// generate a bit of entropy and run it through the whirlpool
 	$s = hash('whirlpool', (string) rand() . uniqid(rand(),true) . (string) rand(), (($type == RANDOM_STRING_TEXT) ? true : false));
 	$s = (($type == RANDOM_STRING_TEXT) ? str_replace("\n", "", base64url_encode($s,true)) : $s);
-	return(substr($s,0,$size));
-}}
+	return substr($s,0,$size);
+}
 
-if (! function_exists('notags')) {
 /**
  * This is our primary input filter.
  *
@@ -80,12 +77,10 @@ function notags($string) {
 	return str_replace(array("<", ">"), array('[', ']'), $string);
 
 //  High-bit filter no longer used
-//	return(str_replace(array("<",">","\xBA","\xBC","\xBE"), array('[',']','','',''), $string));
-}}
+//	return str_replace(array("<",">","\xBA","\xBC","\xBE"), array('[',']','','',''), $string);
+}
 
 
-
-if (! function_exists('escape_tags')) {
 /**
  * use this on "body" or "content" input where angle chars shouldn't be removed,
  * and allow them to be safely displayed.
@@ -94,13 +89,9 @@ if (! function_exists('escape_tags')) {
  */
 function escape_tags($string) {
 	return htmlspecialchars($string, ENT_COMPAT, 'UTF-8', false);
-}}
+}
 
 
-// generate a string that's random, but usually pronounceable.
-// used to generate initial passwords
-
-if (! function_exists('autoname')) {
 /**
  * generate a string that's random, but usually pronounceable.
  * used to generate initial passwords
@@ -180,13 +171,9 @@ function autoname($len) {
 		$word = substr($word, 0, -1);
 	}
 	return $word;
-}}
+}
 
 
-// escape text ($str) for XML transport
-// returns escaped text.
-
-if (! function_exists('xmlify')) {
 /**
  * escape text ($str) for XML transport
  * @param string $str
@@ -200,7 +187,7 @@ function xmlify($str) {
 	for ($x = 0; $x < $len; $x ++) {
 		$char = mb_substr($str,$x,1);
 
-		switch( $char ) {
+		switch($char) {
 
 			case "\r" :
 				break;
@@ -237,10 +224,10 @@ function xmlify($str) {
 	$buffer = htmlspecialchars($str, ENT_QUOTES, "UTF-8");
 	$buffer = trim($buffer);
 
-	return($buffer);
-}}
+	return $buffer;
+}
 
-if (! function_exists('unxmlify')) {
+
 /**
  * undo an xmlify
  * @param string $s xml escaped text
@@ -258,25 +245,7 @@ function unxmlify($s) {
 	*/
 	$ret = htmlspecialchars_decode($s, ENT_QUOTES);
 	return $ret;
-}}
-
-if (! function_exists('hex2bin')) {
-/**
- * convenience wrapper, reverse the operation "bin2hex"
- * @param string $s
- * @return number
- */
-function hex2bin($s) {
-	if (! (is_string($s) && strlen($s))) {
-		return '';
-	}
-
-	if (! ctype_xdigit($s)) {
-		return $s;
-	}
-
-	return pack("H*",$s);
-}}
+}
 
 
 /**
@@ -364,7 +333,7 @@ function paginate_data(App $a, $count = null) {
 	return $data;
 }
 
-if (! function_exists('paginate')) {
+
 /**
  * Automatic pagination.
  *
@@ -386,9 +355,9 @@ function paginate(App $a) {
 	$tpl = get_markup_template("paginate.tpl");
 	return replace_macros($tpl, array("pager" => $data));
 
-}}
+}
 
-if (! function_exists('alt_pager')) {
+
 /**
  * Alternative pager
  * @param App $a App instance
@@ -401,9 +370,9 @@ function alt_pager(App $a, $i) {
 	$tpl = get_markup_template("paginate.tpl");
 	return replace_macros($tpl, array('pager' => $data));
 
-}}
+}
 
-if (! function_exists('scroll_loader')) {
+
 /**
  * Loader for infinite scrolling
  * @return string html for loader
@@ -414,9 +383,9 @@ function scroll_loader() {
 		'wait' => t('Loading more entries...'),
 		'end' => t('The end')
 	));
-}}
+}
 
-if (! function_exists('expand_acl')) {
+
 /**
  * Turn user/group ACLs stored as angle bracketed text into arrays
  *
@@ -438,9 +407,9 @@ function expand_acl($s) {
 		}
 	}
 	return $ret;
-}}
+}
 
-if (! function_exists('sanitise_acl')) {
+
 /**
  * Wrap ACL elements in angle brackets for storage
  * @param string $item
@@ -451,10 +420,9 @@ function sanitise_acl(&$item) {
 	} else {
 		unset($item);
 	}
-}}
+}
 
 
-if (! function_exists('perms2str')) {
 /**
  * Convert an ACL array to a storable string
  *
@@ -477,10 +445,9 @@ function perms2str($p) {
 		$ret = implode('', $tmp);
 	}
 	return $ret;
-}}
+}
 
 
-if (! function_exists('item_new_uri')) {
 /**
  * generate a guaranteed unique (for this domain) item ID for ATOM
  * safe from birthday paradox
@@ -505,12 +472,9 @@ function item_new_uri($hostname, $uid, $guid = "") {
 	} while ($dups == true);
 
 	return $uri;
-}}
+}
 
-// Generate a guaranteed unique photo ID.
-// safe from birthday paradox
 
-if (! function_exists('photo_new_resource')) {
 /**
  * Generate a guaranteed unique photo ID.
  * safe from birthday paradox
@@ -532,10 +496,9 @@ function photo_new_resource() {
 	} while ($found == true);
 
 	return $resource;
-}}
+}
 
 
-if (! function_exists('load_view_file')) {
 /**
  * @deprecated
  * wrapper to load a view template, checking for alternate
@@ -573,9 +536,9 @@ function load_view_file($s) {
 	$content = file_get_contents($s);
 	$a->save_timestamp($stamp1, "file");
 	return $content;
-}}
+}
 
-if (! function_exists('get_intltext_template')) {
+
 /**
  * load a view template, checking for alternate
  * languages before falling back to the default
@@ -613,9 +576,9 @@ function get_intltext_template($s) {
 		$a->save_timestamp($stamp1, "file");
 		return $content;
 	}
-}}
+}
 
-if (! function_exists('get_markup_template')) {
+
 /**
  * load template $s
  *
@@ -638,9 +601,9 @@ function get_markup_template($s, $root = '') {
 	$a->save_timestamp($stamp1, "file");
 
 	return $template;
-}}
+}
 
-if (! function_exists("get_template_file")) {
+
 /**
  *
  * @param App $a
@@ -667,10 +630,9 @@ function get_template_file($a, $filename, $root = '') {
 	}
 
 	return $template_file;
-}}
+}
 
 
-if (! function_exists('attribute_contains')) {
 /**
  *  for html,xml parsing - let's say you've got
  *  an attribute foobar="class1 class2 class3"
@@ -688,9 +650,9 @@ if (! function_exists('attribute_contains')) {
 function attribute_contains($attr, $s) {
 	$a = explode(' ', $attr);
 	return (count($a) && in_array($s,$a));
-}}
+}
 
-if (! function_exists('logger')) {
+
 /* setup int->string log level map */
 $LOGGER_LEVELS = array();
 
@@ -761,7 +723,7 @@ function logger($msg, $level = 0) {
 	$stamp1 = microtime(true);
 	@file_put_contents($logfile, $logline, FILE_APPEND);
 	$a->save_timestamp($stamp1, "file");
-}}
+}
 
 /**
  * @brief An alternative logger for development.
@@ -828,7 +790,7 @@ function dlogger($msg, $level = 0) {
 	$a->save_timestamp($stamp1, "file");
 }
 
-if (! function_exists('activity_match')) {
+
 /**
  * Compare activity uri. Knows about activity namespace.
  *
@@ -838,7 +800,7 @@ if (! function_exists('activity_match')) {
  */
 function activity_match($haystack,$needle) {
 	return (($haystack === $needle) || ((basename($needle) === $haystack) && strstr($needle, NAMESPACE_ACTIVITY_SCHEMA)));
-}}
+}
 
 
 /**
@@ -912,9 +874,6 @@ function get_tags($string) {
 }
 
 
-//
-
-if (! function_exists('qp')) {
 /**
  * quick and dirty quoted_printable encoding
  *
@@ -923,9 +882,9 @@ if (! function_exists('qp')) {
  */
 function qp($s) {
 	return str_replace("%", "=", rawurlencode($s));
-}}
+}
 
-if (! function_exists('contact_block')) {
+
 /**
  * Get html for contact block.
  *
@@ -937,12 +896,12 @@ function contact_block() {
 	$o = '';
 	$a = get_app();
 
-	$shown = PConfig::get($a->profile['uid'],'system','display_friend_count', 24);
+	$shown = PConfig::get($a->profile['uid'], 'system', 'display_friend_count', 24);
 	if ($shown == 0) {
 		return;
 	}
 
-	if ((! is_array($a->profile)) || ($a->profile['hide-friends'])) {
+	if (!is_array($a->profile) || $a->profile['hide-friends']) {
 		return $o;
 	}
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
@@ -957,7 +916,7 @@ function contact_block() {
 	if (DBM::is_result($r)) {
 		$total = intval($r[0]['total']);
 	}
-	if (! $total) {
+	if (!$total) {
 		$contacts = t('No contacts');
 		$micropro = null;
 	} else {
@@ -982,7 +941,7 @@ function contact_block() {
 				dbesc(implode(",", $contacts)));
 
 			if (DBM::is_result($r)) {
-				$contacts = sprintf( tt('%d Contact','%d Contacts', $total),$total);
+				$contacts = sprintf(tt('%d Contact','%d Contacts', $total),$total);
 				$micropro = Array();
 				foreach ($r as $rr) {
 					$micropro[] = micropro($rr,true,'mpfriend');
@@ -1004,7 +963,8 @@ function contact_block() {
 	call_hooks('contact_block_end', $arr);
 	return $o;
 
-}}
+}
+
 
 /**
  * @brief Format contacts as picture links or as texxt links
@@ -1066,9 +1026,6 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 	));
 }
 
-
-
-if (! function_exists('search')) {
 /**
  * search box
  *
@@ -1102,9 +1059,8 @@ function search($s, $id = 'search-box', $url = 'search', $save = false, $aside =
 	}
 
 	return replace_macros(get_markup_template('searchbox.tpl'), $values);
-}}
+}
 
-if (! function_exists('valid_email')) {
 /**
  * Check if $x is a valid email string
  *
@@ -1117,10 +1073,9 @@ function valid_email($x){
 	//if (Config::get('system','disable_email_validation'))
 	//	return true;
 	return preg_match('/^[_a-zA-Z0-9\-\+]+(\.[_a-zA-Z0-9\-\+]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/', $x);
-}}
+}
 
 
-if (! function_exists('linkify')) {
 /**
  * Replace naked text hyperlink with HTML formatted hyperlink
  *
@@ -1130,7 +1085,7 @@ function linkify($s) {
 	$s = preg_replace("/(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\'\%\$\!\+]*)/", ' <a href="$1" target="_blank">$1</a>', $s);
 	$s = preg_replace("/\<(.*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism",'<$1$2=$3&$4>',$s);
 	return $s;
-}}
+}
 
 
 /**
@@ -1146,12 +1101,12 @@ function get_poke_verbs() {
 	// value is array containing past tense verb, translation of present, translation of past
 
 	$arr = array(
-		'poke' => array( 'poked', t('poke'), t('poked')),
-		'ping' => array( 'pinged', t('ping'), t('pinged')),
-		'prod' => array( 'prodded', t('prod'), t('prodded')),
-		'slap' => array( 'slapped', t('slap'), t('slapped')),
-		'finger' => array( 'fingered', t('finger'), t('fingered')),
-		'rebuff' => array( 'rebuffed', t('rebuff'), t('rebuffed')),
+		'poke' => array('poked', t('poke'), t('poked')),
+		'ping' => array('pinged', t('ping'), t('pinged')),
+		'prod' => array('prodded', t('prod'), t('prodded')),
+		'slap' => array('slapped', t('slap'), t('slapped')),
+		'finger' => array('fingered', t('finger'), t('fingered')),
+		'rebuff' => array('rebuffed', t('rebuff'), t('rebuffed')),
 	);
 	call_hooks('poke_verbs', $arr);
 	return $arr;
@@ -1199,11 +1154,11 @@ function get_mood_verbs() {
  */
 function day_translate($s) {
 	$ret = str_replace(array('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'),
-		array( t('Monday'), t('Tuesday'), t('Wednesday'), t('Thursday'), t('Friday'), t('Saturday'), t('Sunday')),
+		array(t('Monday'), t('Tuesday'), t('Wednesday'), t('Thursday'), t('Friday'), t('Saturday'), t('Sunday')),
 		$s);
 
 	$ret = str_replace(array('January','February','March','April','May','June','July','August','September','October','November','December'),
-		array( t('January'), t('February'), t('March'), t('April'), t('May'), t('June'), t('July'), t('August'), t('September'), t('October'), t('November'), t('December')),
+		array(t('January'), t('February'), t('March'), t('April'), t('May'), t('June'), t('July'), t('August'), t('September'), t('October'), t('November'), t('December')),
 		$ret);
 
 	return $ret;
@@ -1225,7 +1180,7 @@ function day_short_translate($s) {
 	return $ret;
 }
 
-if (! function_exists('normalise_link')) {
+
 /**
  * Normalize url
  *
@@ -1235,11 +1190,9 @@ if (! function_exists('normalise_link')) {
 function normalise_link($url) {
 	$ret = str_replace(array('https:', '//www.'), array('http:', '//'), $url);
 	return rtrim($ret,'/');
-}}
+}
 
 
-
-if (! function_exists('link_compare')) {
 /**
  * Compare two URLs to see if they are the same, but ignore
  * slight but hopefully insignificant differences such as if one
@@ -1253,7 +1206,8 @@ if (! function_exists('link_compare')) {
  */
 function link_compare($a, $b) {
 	return (strcasecmp(normalise_link($a), normalise_link($b)) === 0);
-}}
+}
+
 
 /**
  * @brief Find any non-embedded images in private items and add redir links to them
@@ -1595,7 +1549,7 @@ function get_cats_and_terms($item) {
 	return array($categories, $folders);
 }
 
-if (! function_exists('get_plink')) {
+
 /**
  * get private link for item
  * @param array $item
@@ -1629,9 +1583,9 @@ function get_plink($item) {
 	}
 
 	return $ret;
-}}
+}
 
-if (! function_exists('unamp')) {
+
 /**
  * replace html amp entity with amp char
  * @param string $s
@@ -1639,23 +1593,23 @@ if (! function_exists('unamp')) {
  */
 function unamp($s) {
 	return str_replace('&amp;', '&', $s);
-}}
+}
 
 
-if (! function_exists('return_bytes')) {
 /**
  * return number of bytes in size (K, M, G)
  * @param string $size_str
  * @return number
  */
-function return_bytes ($size_str) {
+function return_bytes($size_str) {
 	switch (substr ($size_str, -1)) {
 		case 'M': case 'm': return (int)$size_str * 1048576;
 		case 'K': case 'k': return (int)$size_str * 1024;
 		case 'G': case 'g': return (int)$size_str * 1073741824;
 		default: return $size_str;
 	}
-}}
+}
+
 
 /**
  * @return string
@@ -1722,73 +1676,6 @@ function base64url_decode($s) {
 	return base64_decode(strtr($s,'-_','+/'));
 }
 
-
-if (!function_exists('str_getcsv')) {
-	/**
-	 * Parse csv string
-	 *
-	 * @param string $input
-	 * @param string $delimiter
-	 * @param string $enclosure
-	 * @param string $escape
-	 * @param string $eol
-	 * @return boolean|array False on error, otherwise array[row][column]
-	 */
-function str_getcsv($input, $delimiter = ',', $enclosure = '"', $escape = '\\', $eol = '\n') {
-	if (is_string($input) && !empty($input)) {
-		$output = array();
-		$tmp    = preg_split("/".$eol."/",$input);
-		if (is_array($tmp) && !empty($tmp)) {
-			while (list($line_num, $line) = each($tmp)) {
-				if (preg_match("/".$escape.$enclosure."/",$line)) {
-					while ($strlen = strlen($line)) {
-						$pos_delimiter       = strpos($line,$delimiter);
-						$pos_enclosure_start = strpos($line,$enclosure);
-						if (
-							is_int($pos_delimiter) && is_int($pos_enclosure_start)
-							&& ($pos_enclosure_start < $pos_delimiter)
-							) {
-							$enclosed_str = substr($line,1);
-							$pos_enclosure_end = strpos($enclosed_str,$enclosure);
-							$enclosed_str = substr($enclosed_str,0,$pos_enclosure_end);
-							$output[$line_num][] = $enclosed_str;
-							$offset = $pos_enclosure_end+3;
-						} else {
-							if (empty($pos_delimiter) && empty($pos_enclosure_start)) {
-								$output[$line_num][] = substr($line,0);
-								$offset = strlen($line);
-							} else {
-								$output[$line_num][] = substr($line,0,$pos_delimiter);
-								$offset = (
-									!empty($pos_enclosure_start)
-									&& ($pos_enclosure_start < $pos_delimiter)
-									)
-									?$pos_enclosure_start
-									:$pos_delimiter+1;
-							}
-						}
-						$line = substr($line,$offset);
-					}
-				} else {
-					$line = preg_split("/".$delimiter."/",$line);
-
-					/*
-					 * Validating against pesky extra line breaks creating false rows.
-					 */
-					if (is_array($line) && !empty($line[0])) {
-						$output[$line_num] = $line;
-				}
-				}
-			}
-			return $output;
-		} else {
-		return false;
-		}
-	} else {
-		return false;
-	}
-}
-}
 
 /**
  * return div element with class 'clear'
@@ -1919,9 +1806,9 @@ function file_tag_decode($s) {
 function file_tag_file_query($table,$s,$type = 'file') {
 
 	if ($type == 'file') {
-		$str = preg_quote( '[' . str_replace('%', '%%', file_tag_encode($s)) . ']' );
+		$str = preg_quote('[' . str_replace('%', '%%', file_tag_encode($s)) . ']');
 	} else {
-		$str = preg_quote( '<' . str_replace('%', '%%', file_tag_encode($s)) . '>' );
+		$str = preg_quote('<' . str_replace('%', '%%', file_tag_encode($s)) . '>');
 	}
 	return " AND " . (($table) ? dbesc($table) . '.' : '') . "file regexp '" . dbesc($str) . "' ";
 }
@@ -1980,7 +1867,7 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 		return true;
 	}
 
-	$saved = PConfig::get($uid,'system','filetags');
+	$saved = PConfig::get($uid, 'system', 'filetags');
 	if (strlen($saved)) {
 		if ($type == 'file') {
 			$lbracket = '[';
@@ -2059,11 +1946,11 @@ function file_tag_save_file($uid, $item, $file) {
 
 		create_files_from_item($item);
 
-		$saved = PConfig::get($uid,'system','filetags');
-		if ((! strlen($saved)) || (! stristr($saved, '[' . file_tag_encode($file) . ']'))) {
+		$saved = PConfig::get($uid, 'system', 'filetags');
+		if (!strlen($saved) || !stristr($saved, '[' . file_tag_encode($file) . ']')) {
 			PConfig::set($uid, 'system', 'filetags', $saved . '[' . file_tag_encode($file) . ']');
 		}
-		info( t('Item filed') );
+		info(t('Item filed'));
 	}
 	return true;
 }
@@ -2106,8 +1993,8 @@ function file_tag_unsave_file($uid, $item, $file, $cat = false) {
 		intval($termtype),
 		intval($uid));
 
-	if (! DBM::is_result($r)) {
-		$saved = PConfig::get($uid,'system','filetags');
+	if (!DBM::is_result($r)) {
+		$saved = PConfig::get($uid, 'system', 'filetags');
 		PConfig::set($uid, 'system', 'filetags', str_replace($pattern, '', $saved));
 	}
 
