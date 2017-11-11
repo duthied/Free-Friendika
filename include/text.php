@@ -937,10 +937,7 @@ function contact_block() {
 	$o = '';
 	$a = get_app();
 
-	$shown = PConfig::get($a->profile['uid'],'system','display_friend_count');
-	if ($shown === false) {
-		$shown = 24;
-	}
+	$shown = PConfig::get($a->profile['uid'],'system','display_friend_count', 24);
 	if ($shown == 0) {
 		return;
 	}
@@ -1976,11 +1973,12 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 	// $file_old - categories previously associated with an item
 	// $file_new - new list of categories for an item
 
-	if (! intval($uid))
+	if (!intval($uid)) {
 		return false;
-
-	if ($file_old == $file_new)
+	}
+	if ($file_old == $file_new) {
 		return true;
+	}
 
 	$saved = PConfig::get($uid,'system','filetags');
 	if (strlen($saved)) {
@@ -1988,8 +1986,7 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 			$lbracket = '[';
 			$rbracket = ']';
 			$termtype = TERM_FILE;
-		}
-		else {
+		} else {
 			$lbracket = '<';
 			$rbracket = '>';
 			$termtype = TERM_CATEGORY;
@@ -2026,8 +2023,7 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 
 			if (DBM::is_result($r)) {
 				unset($deleted_tags[$key]);
-			}
-			else {
+			} else {
 				$filetags_updated = str_replace($lbracket . file_tag_encode($tag) . $rbracket,'',$filetags_updated);
 			}
 		}
@@ -2036,12 +2032,10 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 			PConfig::set($uid, 'system', 'filetags', $filetags_updated);
 		}
 		return true;
+	} elseif (strlen($file_new)) {
+		PConfig::set($uid, 'system', 'filetags', $file_new);
 	}
-	else
-		if (strlen($file_new)) {
-			PConfig::set($uid, 'system', 'filetags', $file_new);
-		}
-		return true;
+	return true;
 }
 
 function file_tag_save_file($uid, $item, $file) {
