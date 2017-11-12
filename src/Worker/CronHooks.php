@@ -5,7 +5,7 @@ use Friendica\Core\Config;
 use Friendica\Core\Worker;
 
 Class CronHooks {
-	static public function execute($hook = '') {
+	public static function execute($hook = '') {
 		global $a;
 
 		require_once 'include/datetime.php';

@@ -252,7 +252,7 @@ function _contact_update($contact_id) {
 				intval($contact_id));
 	} else
 		// pull feed and consume it, which should subscribe to the hub.
-		Worker::add(PRIORITY_HIGH, "onepoll", $contact_id, "force");
+		Worker::add(PRIORITY_HIGH, "OnePoll", $contact_id, "force");
 }
 
 function _contact_update_profile($contact_id) {

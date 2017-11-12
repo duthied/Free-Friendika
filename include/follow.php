@@ -252,7 +252,7 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 
 	// pull feed and consume it, which should subscribe to the hub.
 
-	Worker::add(PRIORITY_HIGH, "onepoll", $contact_id, "force");
+	Worker::add(PRIORITY_HIGH, "OnePoll", $contact_id, "force");
 
 	$r = q("SELECT `contact`.*, `user`.* FROM `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid`
 			WHERE `user`.`uid` = %d AND `contact`.`self` LIMIT 1",
