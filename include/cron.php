@@ -252,7 +252,7 @@ function cron_poll_contacts($argc, $argv) {
 			} else {
 				$priority = PRIORITY_LOW;
 			}
-			Worker::add(array('priority' => $priority, 'dont_fork' => true), 'onepoll', (int)$contact['id']);
+			Worker::add(array('priority' => $priority, 'dont_fork' => true), 'OnePoll', (int)$contact['id']);
 		}
 	}
 }
