@@ -241,7 +241,7 @@ class Worker {
 
 		// The script could be provided as full path or only with the function name
 		if ($include == basename($include)) {
-			$include = "worker/".$include.".php";
+			$include = "include/".$include.".php";
 		}
 
 		if (!validate_include($include)) {
