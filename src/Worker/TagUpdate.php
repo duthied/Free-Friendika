@@ -1,6 +1,10 @@
 <?php
+namespace Friendica\Worker;
+
 require_once("include/tags.php");
 
-function tagupdate_run(&$argv, &$argc){
-	update_items();
+class TagUpdate {
+	public static function execute() {
+		update_items();
+	}
 }
