@@ -308,7 +308,7 @@ function get_contact_details_by_url($url, $uid = -1, $default = array()) {
 
 	if ((($profile["addr"] == "") || ($profile["name"] == "")) && ($profile["gid"] != 0) &&
 		in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
-		Worker::add(PRIORITY_LOW, "update_gcontact", $profile["gid"]);
+		Worker::add(PRIORITY_LOW, "UpdateGContact", $profile["gid"]);
 	}
 
 	// Show contact details of Diaspora contacts only if connected

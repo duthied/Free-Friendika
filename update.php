@@ -1601,7 +1601,7 @@ function update_1169() {
 	if (!$r)
 		return UPDATE_FAILED;
 
-	Worker::add(PRIORITY_LOW, "threadupdate");
+	Worker::add(PRIORITY_LOW, "ThreadUpdate");
 
 	return UPDATE_SUCCESS;
 }
@@ -1650,7 +1650,7 @@ function update_1178() {
 function update_1180() {
 
 	// Fill the new fields in the term table.
-	Worker::add(PRIORITY_LOW, "tagupdate");
+	Worker::add(PRIORITY_LOW, "TagUpdate");
 
 	return UPDATE_SUCCESS;
 }
