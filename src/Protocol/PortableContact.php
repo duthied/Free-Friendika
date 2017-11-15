@@ -1602,7 +1602,7 @@ class PortableContact
 
 				try {
 					$gcontact = GlobalContact::sanitize($gcontact);
-					update_gcontact($gcontact);
+					GlobalContact::update($gcontact);
 				} catch (Exception $e) {
 					logger($e->getMessage(), LOGGER_DEBUG);
 				}
