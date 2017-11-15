@@ -1133,9 +1133,8 @@ function item_content(App $a) {
  *
  * @return boolean true if replaced, false if not replaced
  */
-function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $network = "") {
-	require_once 'include/socgraph.php';
-
+function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $network = "")
+{
 	$replaced = false;
 	$r = null;
 	$tag_type = '@';

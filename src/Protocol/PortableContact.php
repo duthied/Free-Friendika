@@ -17,6 +17,10 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
+use dba;
+use DOMDocument;
+use DomXPath;
+use Exception;
 
 require_once 'include/datetime.php';
 require_once 'include/network.php';
@@ -210,21 +214,21 @@ class PortableContact
 		);
 	}
 
-	function poco_reachable($profile, $server = "", $network = "", $force = false) {
-
+	public static function reachable($profile, $server = "", $network = "", $force = false)
+	{
 		if ($server == "") {
-			$server = poco_detect_server($profile);
+			$server = self::detectServer($profile);
 		}
 
 		if ($server == "") {
 			return true;
 		}
 
-		return poco_check_server($server, $network, $force);
+		return self::checkServer($server, $network, $force);
 	}
 
-	function poco_detect_server($profile) {
-
+	public static function detectServer($profile)
+	{
 		// Try to detect the server path based upon some known standard paths
 		$server_url = "";
 
@@ -283,8 +287,11 @@ class PortableContact
 			return "";
 		}
 
-		$r = q("SELECT `id` FROM `gserver` WHERE `nurl` = '%s' AND `last_contact` > `last_failure`",
-			dbesc(normalise_link($server_url)));
+		$r = q(
+			"SELECT `id` FROM `gserver` WHERE `nurl` = '%s' AND `last_contact` > `last_failure`",
+			dbesc(normalise_link($server_url))
+		);
+
 		if (DBM::is_result($r)) {
 			return $server_url;
 		}
@@ -298,14 +305,17 @@ class PortableContact
 		return $server_url;
 	}
 
-	function poco_alternate_ostatus_url($url) {
+	public static function alternateOStatusUrl($url)
+	{
 		return(preg_match("=https?://.+/user/\d+=ism", $url, $matches));
 	}
 
-	function poco_last_updated($profile, $force = false) {
-
-		$gcontacts = q("SELECT * FROM `gcontact` WHERE `nurl` = '%s'",
-				dbesc(normalise_link($profile)));
+	public static function lastUpdated($profile, $force = false)
+	{
+		$gcontacts = q(
+			"SELECT * FROM `gcontact` WHERE `nurl` = '%s'",
+			dbesc(normalise_link($profile))
+		);
 
 		if (!DBM::is_result($gcontacts)) {
 			return false;
@@ -318,7 +328,7 @@ class PortableContact
 		}
 
 		if ($force) {
-			$server_url = normalise_link(poco_detect_server($profile));
+			$server_url = normalise_link(self::detectServer($profile));
 		}
 
 		if (($server_url == '') && ($gcontacts[0]["server_url"] != "")) {
@@ -326,7 +336,7 @@ class PortableContact
 		}
 
 		if (!$force && (($server_url == '') || ($gcontacts[0]["server_url"] == $gcontacts[0]["nurl"]))) {
-			$server_url = normalise_link(poco_detect_server($profile));
+			$server_url = normalise_link(self::detectServer($profile));
 		}
 
 		if (!in_array($gcontacts[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_FEED, NETWORK_OSTATUS, ""))) {
@@ -335,10 +345,13 @@ class PortableContact
 		}
 
 		if ($server_url != "") {
-			if (!poco_check_server($server_url, $gcontacts[0]["network"], $force)) {
+			if (!self::checkServer($server_url, $gcontacts[0]["network"], $force)) {
 				if ($force) {
-					q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
-						dbesc(datetime_convert()), dbesc(normalise_link($profile)));
+					q(
+						"UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
+						dbesc(datetime_convert()),
+						dbesc(normalise_link($profile))
+					);
 				}
 
 				logger("Profile ".$profile.": Server ".$server_url." wasn't reachable.", LOGGER_DEBUG);
@@ -348,8 +361,10 @@ class PortableContact
 		}
 
 		if (in_array($gcontacts[0]["network"], array("", NETWORK_FEED))) {
-			$server = q("SELECT `network` FROM `gserver` WHERE `nurl` = '%s' AND `network` != ''",
-				dbesc(normalise_link($server_url)));
+			$server = q(
+				"SELECT `network` FROM `gserver` WHERE `nurl` = '%s' AND `network` != ''",
+				dbesc(normalise_link($server_url))
+			);
 
 			if ($server) {
 				$contact['network'] = $server[0]["network"];
@@ -360,7 +375,6 @@ class PortableContact
 
 		// noscrape is really fast so we don't cache the call.
 		if (($server_url != "") && ($gcontacts[0]["nick"] != "")) {
-
 			//  Use noscrape if possible
 			$server = q("SELECT `noscrape`, `network` FROM `gserver` WHERE `nurl` = '%s' AND `noscrape` != ''", dbesc(normalise_link($server_url)));
 
@@ -368,7 +382,6 @@ class PortableContact
 				$noscraperet = z_fetch_url($server[0]["noscrape"]."/".$gcontacts[0]["nick"]);
 
 				if ($noscraperet["success"] && ($noscraperet["body"] != "")) {
-
 					$noscrape = json_decode($noscraperet["body"], true);
 
 					if (is_array($noscrape)) {
@@ -418,8 +431,11 @@ class PortableContact
 						GlobalContact::update($contact);
 
 						if (trim($noscrape["updated"]) != "") {
-							q("UPDATE `gcontact` SET `last_contact` = '%s' WHERE `nurl` = '%s'",
-								dbesc(datetime_convert()), dbesc(normalise_link($profile)));
+							q(
+								"UPDATE `gcontact` SET `last_contact` = '%s' WHERE `nurl` = '%s'",
+								dbesc(datetime_convert()),
+								dbesc(normalise_link($profile))
+							);
 
 							logger("Profile ".$profile." was last updated at ".$noscrape["updated"]." (noscrape)", LOGGER_DEBUG);
 
@@ -431,7 +447,7 @@ class PortableContact
 		}
 
 		// If we only can poll the feed, then we only do this once a while
-		if (!$force && !poco_do_update($gcontacts[0]["created"], $gcontacts[0]["updated"], $gcontacts[0]["last_failure"], $gcontacts[0]["last_contact"])) {
+		if (!$force && !self::updateNeeded($gcontacts[0]["created"], $gcontacts[0]["updated"], $gcontacts[0]["last_failure"], $gcontacts[0]["last_contact"])) {
 			logger("Profile ".$profile." was last updated at ".$gcontacts[0]["updated"]." (cached)", LOGGER_DEBUG);
 
 			GlobalContact::update($contact);
@@ -442,7 +458,7 @@ class PortableContact
 
 		// Is the profile link the alternate OStatus link notation? (http://domain.tld/user/4711)
 		// Then check the other link and delete this one
-		if (($data["network"] == NETWORK_OSTATUS) && poco_alternate_ostatus_url($profile)
+		if (($data["network"] == NETWORK_OSTATUS) && self::alternateOStatusUrl($profile)
 			&& (normalise_link($profile) == normalise_link($data["alias"]))
 			&& (normalise_link($profile) != normalise_link($data["url"]))
 		) {
@@ -458,7 +474,7 @@ class PortableContact
 				$gcontact = GlobalContact::sanitize($gcontact);
 				GlobalContact::update($gcontact);
 
-				poco_last_updated($data["url"], $force);
+				self::lastUpdated($data["url"], $force);
 			} catch (Exception $e) {
 				logger($e->getMessage(), LOGGER_DEBUG);
 			}
@@ -468,8 +484,11 @@ class PortableContact
 		}
 
 		if (($data["poll"] == "") || (in_array($data["network"], array(NETWORK_FEED, NETWORK_PHANTOM)))) {
-			q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
-				dbesc(datetime_convert()), dbesc(normalise_link($profile)));
+			q(
+				"UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
+				dbesc(datetime_convert()),
+				dbesc(normalise_link($profile))
+			);
 
 			logger("Profile ".$profile." wasn't reachable (profile)", LOGGER_DEBUG);
 			return false;
@@ -484,8 +503,11 @@ class PortableContact
 		$feedret = z_fetch_url($data["poll"]);
 
 		if (!$feedret["success"]) {
-			q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
-				dbesc(datetime_convert()), dbesc(normalise_link($profile)));
+			q(
+				"UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
+				dbesc(datetime_convert()),
+				dbesc(normalise_link($profile))
+			);
 
 			logger("Profile ".$profile." wasn't reachable (no feed)", LOGGER_DEBUG);
 			return false;
@@ -518,12 +540,18 @@ class PortableContact
 				$last_updated = NULL_DATE;
 			}
 		}
-		q("UPDATE `gcontact` SET `updated` = '%s', `last_contact` = '%s' WHERE `nurl` = '%s'",
-			dbesc(DBM::date($last_updated)), dbesc(DBM::date()), dbesc(normalise_link($profile)));
+		q(
+			"UPDATE `gcontact` SET `updated` = '%s', `last_contact` = '%s' WHERE `nurl` = '%s'",
+			dbesc(DBM::date($last_updated)),
+			dbesc(DBM::date()),
+			dbesc(normalise_link($profile))
+		);
 
 		if (($gcontacts[0]["generation"] == 0)) {
-			q("UPDATE `gcontact` SET `generation` = 9 WHERE `nurl` = '%s'",
-				dbesc(normalise_link($profile)));
+			q(
+				"UPDATE `gcontact` SET `generation` = 9 WHERE `nurl` = '%s'",
+				dbesc(normalise_link($profile))
+			);
 		}
 
 		logger("Profile ".$profile." was last updated at ".$last_updated, LOGGER_DEBUG);
@@ -531,7 +559,8 @@ class PortableContact
 		return($last_updated);
 	}
 
-	function poco_do_update($created, $updated, $last_failure, $last_contact) {
+	public static function updateNeeded($created, $updated, $last_failure, $last_contact)
+	{
 		$now = strtotime(datetime_convert());
 
 		if ($updated > $last_contact) {
@@ -575,7 +604,8 @@ class PortableContact
 		return true;
 	}
 
-	function poco_to_boolean($val) {
+	public static function toBoolean($val)
+	{
 		if (($val == "true") || ($val == 1)) {
 			return true;
 		} elseif (($val == "false") || ($val == 0)) {
@@ -591,7 +621,8 @@ class PortableContact
 	 * @param object $data POCO data
 	 * @return array Server data
 	 */
-	function poco_detect_poco_data($data) {
+	public static function detectPocoData($data)
+	{
 		$server = false;
 
 		if (!isset($data->entry)) {
@@ -627,7 +658,8 @@ class PortableContact
 	 * @param string $server_url address of the server
 	 * @return array Server data
 	 */
-	function poco_fetch_nodeinfo($server_url) {
+	public static function fetchNodeinfo($server_url)
+	{
 		$serverret = z_fetch_url($server_url."/.well-known/nodeinfo");
 		if (!$serverret["success"]) {
 			return false;
@@ -734,7 +766,8 @@ class PortableContact
 	 * @param string $body Front page of the server
 	 * @return array Server data
 	 */
-	function poco_detect_server_type($body) {
+	public static function detectServerType($body)
+	{
 		$server = false;
 
 		$doc = new DOMDocument();
@@ -790,8 +823,8 @@ class PortableContact
 		return $server;
 	}
 
-	function poco_check_server($server_url, $network = "", $force = false) {
-
+	public static function checkServer($server_url, $network = "", $force = false)
+	{
 		// Unify the server address
 		$server_url = trim($server_url, "/");
 		$server_url = str_replace("/index.php", "", $server_url);
@@ -802,10 +835,12 @@ class PortableContact
 
 		$servers = q("SELECT * FROM `gserver` WHERE `nurl` = '%s'", dbesc(normalise_link($server_url)));
 		if (DBM::is_result($servers)) {
-
 			if ($servers[0]["created"] <= NULL_DATE) {
-				q("UPDATE `gserver` SET `created` = '%s' WHERE `nurl` = '%s'",
-					dbesc(datetime_convert()), dbesc(normalise_link($server_url)));
+				q(
+					"UPDATE `gserver` SET `created` = '%s' WHERE `nurl` = '%s'",
+					dbesc(datetime_convert()),
+					dbesc(normalise_link($server_url))
+				);
 			}
 			$poco = $servers[0]["poco"];
 			$noscrape = $servers[0]["noscrape"];
@@ -822,7 +857,7 @@ class PortableContact
 			$info = $servers[0]["info"];
 			$register_policy = $servers[0]["register_policy"];
 
-			if (!$force && !poco_do_update($servers[0]["created"], "", $last_failure, $last_contact)) {
+			if (!$force && !self::updateNeeded($servers[0]["created"], "", $last_failure, $last_contact)) {
 				logger("Use cached data for server ".$server_url, LOGGER_DEBUG);
 				return ($last_contact >= $last_failure);
 			}
@@ -862,7 +897,7 @@ class PortableContact
 		}
 
 		// Maybe the page is unencrypted only?
-		$xmlobj = @simplexml_load_string($serverret["body"],'SimpleXMLElement',0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
+		$xmlobj = @simplexml_load_string($serverret["body"], 'SimpleXMLElement', 0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
 		if (!$serverret["success"] || ($serverret["body"] == "") || (@sizeof($xmlobj) == 0) || !is_object($xmlobj)) {
 			$server_url = str_replace("https://", "http://", $server_url);
 
@@ -876,7 +911,7 @@ class PortableContact
 				return false;
 			}
 
-			$xmlobj = @simplexml_load_string($serverret["body"],'SimpleXMLElement',0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
+			$xmlobj = @simplexml_load_string($serverret["body"], 'SimpleXMLElement', 0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
 		}
 
 		if (!$serverret["success"] || ($serverret["body"] == "") || (sizeof($xmlobj) == 0) || !is_object($xmlobj)) {
@@ -903,7 +938,7 @@ class PortableContact
 				$data = json_decode($serverret["body"]);
 				if (isset($data->totalResults)) {
 					$poco = $server_url."/poco";
-					$server = poco_detect_poco_data($data);
+					$server = self::detectPocoData($data);
 					if ($server) {
 						$platform = $server['platform'];
 						$network = $server['network'];
@@ -921,7 +956,7 @@ class PortableContact
 			if (!$serverret["success"] || ($serverret["body"] == "")) {
 				$failure = true;
 			} else {
-				$server = poco_detect_server_type($serverret["body"]);
+				$server = self::detectServerType($serverret["body"]);
 				if ($server) {
 					$platform = $server['platform'];
 					$network = $server['network'];
@@ -929,11 +964,11 @@ class PortableContact
 					$site_name = $server['site_name'];
 				}
 
-				$lines = explode("\n",$serverret["header"]);
+				$lines = explode("\n", $serverret["header"]);
 				if (count($lines)) {
-					foreach($lines as $line) {
+					foreach ($lines as $line) {
 						$line = trim($line);
-						if (stristr($line,'X-Diaspora-Version:')) {
+						if (stristr($line, 'X-Diaspora-Version:')) {
 							$platform = "Diaspora";
 							$version = trim(str_replace("X-Diaspora-Version:", "", $line));
 							$version = trim(str_replace("x-diaspora-version:", "", $version));
@@ -942,7 +977,7 @@ class PortableContact
 							$version = $versionparts[0];
 						}
 
-						if (stristr($line,'Server: Mastodon')) {
+						if (stristr($line, 'Server: Mastodon')) {
 							$platform = "Mastodon";
 							$network = NETWORK_OSTATUS;
 						}
@@ -1059,9 +1094,9 @@ class PortableContact
 
 						$site_name = $data->site->name;
 
-						$data->site->closed = poco_to_boolean($data->site->closed);
-						$data->site->private = poco_to_boolean($data->site->private);
-						$data->site->inviteonly = poco_to_boolean($data->site->inviteonly);
+						$data->site->closed = self::toBoolean($data->site->closed);
+						$data->site->private = self::toBoolean($data->site->private);
+						$data->site->inviteonly = self::toBoolean($data->site->inviteonly);
 
 						if (!$data->site->closed && !$data->site->private and $data->site->inviteonly) {
 							$register_policy = REGISTER_APPROVE;
@@ -1109,7 +1144,7 @@ class PortableContact
 
 		// Query nodeinfo. Working for (at least) Diaspora and Friendica.
 		if (!$failure) {
-			$server = poco_fetch_nodeinfo($server_url);
+			$server = self::fetchNodeinfo($server_url);
 			if ($server) {
 				$register_policy = $server['register_policy'];
 
@@ -1195,7 +1230,8 @@ class PortableContact
 		$platform = strip_tags($platform);
 
 		if ($servers) {
-			q("UPDATE `gserver` SET `url` = '%s', `version` = '%s', `site_name` = '%s', `info` = '%s', `register_policy` = %d, `poco` = '%s', `noscrape` = '%s',
+			q(
+				"UPDATE `gserver` SET `url` = '%s', `version` = '%s', `site_name` = '%s', `info` = '%s', `register_policy` = %d, `poco` = '%s', `noscrape` = '%s',
 				`network` = '%s', `platform` = '%s', `last_contact` = '%s', `last_failure` = '%s' WHERE `nurl` = '%s'",
 				dbesc($server_url),
 				dbesc($version),
@@ -1211,22 +1247,23 @@ class PortableContact
 				dbesc(normalise_link($server_url))
 			);
 		} elseif (!$failure) {
-			q("INSERT INTO `gserver` (`url`, `nurl`, `version`, `site_name`, `info`, `register_policy`, `poco`, `noscrape`, `network`, `platform`, `created`, `last_contact`, `last_failure`)
+			q(
+				"INSERT INTO `gserver` (`url`, `nurl`, `version`, `site_name`, `info`, `register_policy`, `poco`, `noscrape`, `network`, `platform`, `created`, `last_contact`, `last_failure`)
 						VALUES ('%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-					dbesc($server_url),
-					dbesc(normalise_link($server_url)),
-					dbesc($version),
-					dbesc($site_name),
-					dbesc($info),
-					intval($register_policy),
-					dbesc($poco),
-					dbesc($noscrape),
-					dbesc($network),
-					dbesc($platform),
-					dbesc(datetime_convert()),
-					dbesc($last_contact),
-					dbesc($last_failure),
-					dbesc(datetime_convert())
+				dbesc($server_url),
+				dbesc(normalise_link($server_url)),
+				dbesc($version),
+				dbesc($site_name),
+				dbesc($info),
+				intval($register_policy),
+				dbesc($poco),
+				dbesc($noscrape),
+				dbesc($network),
+				dbesc($platform),
+				dbesc(datetime_convert()),
+				dbesc($last_contact),
+				dbesc($last_failure),
+				dbesc(datetime_convert())
 			);
 		}
 		logger("End discovery for server " . $server_url, LOGGER_DEBUG);
@@ -1238,12 +1275,18 @@ class PortableContact
 	 * @brief Returns a list of all known servers
 	 * @return array List of server urls
 	 */
-	function poco_serverlist() {
-		$r = q("SELECT `url`, `site_name` AS `displayName`, `network`, `platform`, `version` FROM `gserver`
+	public static function serverlist()
+	{
+		$r = q(
+			"SELECT `url`, `site_name` AS `displayName`, `network`, `platform`, `version` FROM `gserver`
 			WHERE `network` IN ('%s', '%s', '%s') AND `last_contact` > `last_failure`
 			ORDER BY `last_contact`
 			LIMIT 1000",
-			dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS));
+			dbesc(NETWORK_DFRN),
+			dbesc(NETWORK_DIASPORA),
+			dbesc(NETWORK_OSTATUS)
+		);
+
 		if (!DBM::is_result($r)) {
 			return false;
 		}
@@ -1256,7 +1299,8 @@ class PortableContact
 	 *
 	 * @param string $poco URL to the POCO endpoint
 	 */
-	function poco_fetch_serverlist($poco) {
+	public static function fetchServerlist($poco)
+	{
 		$serverret = z_fetch_url($poco."/@server");
 		if (!$serverret["success"]) {
 			return;
@@ -1278,8 +1322,9 @@ class PortableContact
 		}
 	}
 
-	function poco_discover_federation() {
-		$last = Config::get('poco','last_federation_discovery');
+	public static function discoverFederation()
+	{
+		$last = Config::get('poco', 'last_federation_discovery');
 
 		if ($last) {
 			$next = $last + (24 * 60 * 60);
@@ -1300,7 +1345,7 @@ class PortableContact
 		}
 
 		// Disvover Mastodon servers
-		if (!Config::get('system','ostatus_disabled')) {
+		if (!Config::get('system', 'ostatus_disabled')) {
 			$serverdata = fetch_url("https://instances.mastodon.xyz/instances.json");
 
 			if ($serverdata) {
@@ -1324,14 +1369,15 @@ class PortableContact
 		//		$servers = json_decode($result["body"]);
 
 		//		foreach($servers->data as $server)
-		//			poco_check_server($server->instance_address);
+		//			self::checkServer($server->instance_address);
 		//	}
 		//}
 
-		Config::set('poco','last_federation_discovery', time());
+		Config::set('poco', 'last_federation_discovery', time());
 	}
 
-	function poco_discover_single_server($id) {
+	public static function discoverSingleServer($id)
+	{
 		$r = q("SELECT `poco`, `nurl`, `url`, `network` FROM `gserver` WHERE `id` = %d", intval($id));
 		if (!DBM::is_result($r)) {
 			return false;
@@ -1340,7 +1386,7 @@ class PortableContact
 		$server = $r[0];
 
 		// Discover new servers out there (Works from Friendica version 3.5.2)
-		poco_fetch_serverlist($server["poco"]);
+		self::fetchServerlist($server["poco"]);
 
 		// Fetch all users from the other server
 		$url = $server["poco"]."/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation";
@@ -1351,11 +1397,10 @@ class PortableContact
 		if ($retdata["success"]) {
 			$data = json_decode($retdata["body"]);
 
-			poco_discover_server($data, 2);
+			self::discoverServer($data, 2);
 
-			if (Config::get('system','poco_discovery') > 1) {
-
-				$timeframe = Config::get('system','poco_discovery_since');
+			if (Config::get('system', 'poco_discovery') > 1) {
+				$timeframe = Config::get('system', 'poco_discovery_since');
 				if ($timeframe == 0) {
 					$timeframe = 30;
 				}
@@ -1370,12 +1415,12 @@ class PortableContact
 				$retdata = z_fetch_url($url);
 				if ($retdata["success"]) {
 					logger("Fetch all global contacts from the server ".$server["nurl"], LOGGER_DEBUG);
-					$success = poco_discover_server(json_decode($retdata["body"]));
+					$success = self::discoverServer(json_decode($retdata["body"]));
 				}
 
-				if (!$success && (Config::get('system','poco_discovery') > 2)) {
+				if (!$success && (Config::get('system', 'poco_discovery') > 2)) {
 					logger("Fetch contacts from users of the server ".$server["nurl"], LOGGER_DEBUG);
-					poco_discover_server_users($data, $server);
+					self::discoverServerUsers($data, $server);
 				}
 			}
 
@@ -1384,7 +1429,7 @@ class PortableContact
 			return true;
 		} else {
 			// If the server hadn't replied correctly, then force a sanity check
-			poco_check_server($server["url"], $server["network"], true);
+			self::checkServer($server["url"], $server["network"], true);
 
 			// If we couldn't reach the server, we will try it some time later
 			q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
@@ -1393,10 +1438,10 @@ class PortableContact
 		}
 	}
 
-	function poco_discover($complete = false) {
-
+	public static function discover($complete = false)
+	{
 		// Update the server list
-		poco_discover_federation();
+		self::discoverFederation();
 
 		$no_of_queries = 5;
 
@@ -1410,8 +1455,7 @@ class PortableContact
 		$r = q("SELECT `id`, `url`, `network` FROM `gserver` WHERE `last_contact` >= `last_failure` AND `poco` != '' AND `last_poco_query` < '%s' ORDER BY RAND()", dbesc($last_update));
 		if (DBM::is_result($r)) {
 			foreach ($r as $server) {
-
-				if (!poco_check_server($server["url"], $server["network"])) {
+				if (!self::checkServer($server["url"], $server["network"])) {
 					// The server is not reachable? Okay, then we will try it later
 					q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
 					continue;
@@ -1427,8 +1471,8 @@ class PortableContact
 		}
 	}
 
-	function poco_discover_server_users($data, $server) {
-
+	public static function discoverServerUsers($data, $server)
+	{
 		if (!isset($data->entry)) {
 			return;
 		}
@@ -1452,14 +1496,14 @@ class PortableContact
 
 				$retdata = z_fetch_url($url);
 				if ($retdata["success"]) {
-					poco_discover_server(json_decode($retdata["body"]), 3);
+					self::discoverServer(json_decode($retdata["body"]), 3);
 				}
 			}
 		}
 	}
 
-	function poco_discover_server($data, $default_generation = 0) {
-
+	public static function discoverServer($data, $default_generation = 0)
+	{
 		if (!isset($data->entry) || !count($data->entry)) {
 			return false;
 		}
@@ -1524,11 +1568,11 @@ class PortableContact
 				$gender = $entry->gender;
 			}
 
-			if(isset($entry->generation) && ($entry->generation > 0)) {
+			if (isset($entry->generation) && ($entry->generation > 0)) {
 				$generation = ++$entry->generation;
 			}
 
-			if(isset($entry->contactType) && ($entry->contactType >= 0)) {
+			if (isset($entry->contactType) && ($entry->contactType >= 0)) {
 				$contact_type = $entry->contactType;
 			}
 

@@ -7,6 +7,7 @@ use Friendica\App;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\Protocol\PortableContact;
 
 function poco_init(App $a) {
 	$system_mode = false;
@@ -32,9 +33,8 @@ function poco_init(App $a) {
 	$global = false;
 
 	if ($a->argc > 1 && $a->argv[1] === '@server') {
-		require_once 'include/socgraph.php';
 		// List of all servers that this server knows
-		$ret = poco_serverlist();
+		$ret = PortableContact::serverlist();
 		header('Content-type: application/json');
 		echo json_encode($ret);
 		killme();

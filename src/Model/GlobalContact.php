@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file src/Model/GlobalContact.php
  * @brief This file includes the GlobalContact class with directory related functions
@@ -169,7 +168,7 @@ class GlobalContact
 			$gcontact['url'] = self::cleanContactUrl($gcontact['url']);
 		}
 
-		$alternate = poco_alternate_ostatus_url($gcontact['url']);
+		$alternate = PortableContact::alternateOStatusUrl($gcontact['url']);
 
 		// The global contacts should contain the original picture, not the cached one
 		if (($gcontact['generation'] != 1) && stristr(normalise_link($gcontact['photo']), normalise_link(System::baseUrl()."/photo/"))) {
@@ -223,7 +222,7 @@ class GlobalContact
 		}
 
 		if ((!isset($gcontact['network']) || !isset($gcontact['name']) || !isset($gcontact['addr']) || !isset($gcontact['photo']) || !isset($gcontact['server_url']) || $alternate)
-			&& poco_reachable($gcontact['url'], $gcontact['server_url'], $gcontact['network'], false)
+			&& PortableContact::reachable($gcontact['url'], $gcontact['server_url'], $gcontact['network'], false)
 		) {
 			$data = Probe::uri($gcontact['url']);
 
@@ -257,7 +256,7 @@ class GlobalContact
 
 		if (!isset($gcontact['server_url'])) {
 			// We check the server url to be sure that it is a real one
-			$server_url = poco_detect_server($gcontact['url']);
+			$server_url = PortableContact::detectServer($gcontact['url']);
 
 			// We are now sure that it is a correct URL. So we use it in the future
 			if ($server_url != "") {
@@ -266,7 +265,7 @@ class GlobalContact
 		}
 
 		// The server URL doesn't seem to be valid, so we don't store it.
-		if (!poco_check_server($gcontact['server_url'], $gcontact['network'])) {
+		if (!PortableContact::checkServer($gcontact['server_url'], $gcontact['network'])) {
 			$gcontact['server_url'] = "";
 		}
 
@@ -524,7 +523,7 @@ class GlobalContact
 				$j = json_decode($x);
 				if ($j->entries) {
 					foreach ($j->entries as $entry) {
-						poco_check_server($entry->url);
+						PortableContact::checkServer($entry->url);
 
 						$url = $entry->url . '/poco';
 						if (! in_array($url, $done)) {
@@ -591,7 +590,7 @@ class GlobalContact
 	 */
 	public static function fixAlternateContactAddress(&$contact)
 	{
-		if (($contact["network"] == NETWORK_OSTATUS) && poco_alternate_ostatus_url($contact["url"])) {
+		if (($contact["network"] == NETWORK_OSTATUS) && PortableContact::alternateOStatusUrl($contact["url"])) {
 			$data = Probe::uri($contact["url"]);
 			if ($contact["network"] == NETWORK_OSTATUS) {
 				logger("Fix primary url from ".$contact["url"]." to ".$data["url"]." - Called by: ".System::callstack(), LOGGER_DEBUG);

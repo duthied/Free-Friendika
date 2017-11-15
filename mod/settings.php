@@ -1,14 +1,16 @@
 <?php
-
+/**
+ * @file mod/settings.php
+ */
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
+use Friendica\Model\GlobalContact;
 
-require_once('include/group.php');
-require_once('include/socgraph.php');
+require_once 'include/group.php';
 
 function get_theme_config_file($theme) {
 	$a = get_app();

@@ -7,7 +7,6 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 
-require_once 'include/socgraph.php';
 require_once 'include/Contact.php';
 require_once 'include/contact_selectors.php';
 require_once 'mod/contacts.php';

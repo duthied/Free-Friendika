@@ -55,7 +55,7 @@ function discover_poco_run(&$argv, &$argc)
 
 	if ($mode == 8) {
 		if ($argv[2] != "") {
-			poco_last_updated($argv[2], true);
+			PortableContact::lastUpdated($argv[2], true);
 		}
 	} elseif ($mode == 7) {
 		if ($argc == 6) {
@@ -65,7 +65,7 @@ function discover_poco_run(&$argv, &$argc)
 		}
 		PortableContact::load(intval($argv[2]), intval($argv[3]), intval($argv[4]), $url);
 	} elseif ($mode == 6) {
-		poco_discover_single_server(intval($argv[2]));
+		PortableContact::discoverSingleServer(intval($argv[2]));
 	} elseif ($mode == 5) {
 		update_server();
 	} elseif ($mode == 4) {
@@ -78,7 +78,7 @@ function discover_poco_run(&$argv, &$argc)
 			return;
 		}
 		$result = "Checking server ".$server_url." - ";
-		$ret = poco_check_server($server_url);
+		$ret = PortableContact::checkServer($server_url);
 		if ($ret) {
 			$result .= "success";
 		} else {
@@ -94,11 +94,12 @@ function discover_poco_run(&$argv, &$argc)
 		gs_search_user($search);
 	} elseif (($mode == 0) && ($search == "") && (Config::get('system', 'poco_discovery') > 0)) {
 		// Query Friendica and Hubzilla servers for their users
-		poco_discover();
+		PortableContact::discover();
 
 		// Query GNU Social servers for their users ("statistics" addon has to be enabled on the GS server)
-		if (!Config::get('system', 'ostatus_disabled'))
+		if (!Config::get('system', 'ostatus_disabled')) {
 			GlobalContact::gsDiscover();
+		}
 	}
 
 	logger('end '.$search);
@@ -120,7 +121,7 @@ function update_server() {
 	$updated = 0;
 
 	foreach ($r AS $server) {
-		if (!poco_do_update($server["created"], "", $server["last_failure"], $server["last_contact"])) {
+		if (!PortableContact::updateNeeded($server["created"], "", $server["last_failure"], $server["last_contact"])) {
 			continue;
 		}
 		logger('Update server status for server '.$server["url"], LOGGER_DEBUG);
@@ -172,7 +173,7 @@ function discover_users() {
 			continue;
 		}
 
-		$server_url = poco_detect_server($user["url"]);
+		$server_url = PortableContact::detectServer($user["url"]);
 		$force_update = false;
 
 		if ($user["server_url"] != "") {
@@ -182,7 +183,7 @@ function discover_users() {
 			$server_url = $user["server_url"];
 		}
 
-		if ((($server_url == "") && ($user["network"] == NETWORK_FEED)) || $force_update || poco_check_server($server_url, $user["network"])) {
+		if ((($server_url == "") && ($user["network"] == NETWORK_FEED)) || $force_update || PortableContact::checkServer($server_url, $user["network"])) {
 			logger('Check profile '.$user["url"]);
 			Worker::add(PRIORITY_LOW, "discover_poco", "check_profile", $user["url"]);
 
@@ -227,13 +228,13 @@ function discover_directory($search) {
 					continue;
 				}
 				// Update the contact
-				poco_last_updated($jj->url);
+				PortableContact::lastUpdated($jj->url);
 				continue;
 			}
 
-			$server_url = poco_detect_server($jj->url);
+			$server_url = PortableContact::detectServer($jj->url);
 			if ($server_url != '') {
-				if (!poco_check_server($server_url)) {
+				if (!PortableContact::checkServer($server_url)) {
 					logger("Friendica server ".$server_url." doesn't answer.", LOGGER_DEBUG);
 					continue;
 				}

@@ -12,7 +12,6 @@ use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
 
 require_once 'include/Contact.php';
-require_once 'include/socgraph.php';
 
 function profiles_init(App $a) {
 
@@ -755,7 +754,6 @@ function profiles_content(App $a) {
 
 		return $o;
 	} else {
-
 		// If we don't support multi profiles, don't display this list.
 		if (!feature_enabled(local_user(), 'multi_profiles')) {
 			$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`=1",

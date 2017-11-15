@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @file include/follow.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
@@ -7,8 +9,8 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
+use Friendica\Protocol\PortableContact;
 
-require_once 'include/socgraph.php';
 require_once 'include/group.php';
 require_once 'include/salmon.php';
 require_once 'include/ostatus.php';
@@ -57,7 +59,7 @@ function update_contact($id) {
 	);
 
 	// Update the corresponding gcontact entry
-	poco_last_updated($ret["url"]);
+	PortableContact::lastUpdated($ret["url"]);
 
 	return true;
 }

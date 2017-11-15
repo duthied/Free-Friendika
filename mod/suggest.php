@@ -7,7 +7,6 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 
-require_once 'include/socgraph.php';
 require_once 'include/contact_widgets.php';
 
 function suggest_init(App $a) {

@@ -12,7 +12,6 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Model\GlobalContact;
 
-require_once "include/socgraph.php";
 require_once "include/Contact.php";
 
 function hovercard_init(App $a) {
