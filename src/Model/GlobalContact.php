@@ -7,6 +7,7 @@ namespace Friendica\Model;
 
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
