@@ -1,9 +1,12 @@
 <?php
-
+/**
+ * @file include cronjobs.php
+ */
 use Friendica\App;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
 
 function cronjobs_run(&$argv, &$argc){
@@ -266,7 +269,7 @@ function cron_repair_database() {
 	$r = q("SELECT `uid` FROM `user` WHERE `verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired`");
 	if (DBM::is_result($r)) {
 		foreach ($r AS $user) {
-			update_gcontact_for_user($user["uid"]);
+			GlobalContact::updateForUser($user["uid"]);
 		}
 	}
 

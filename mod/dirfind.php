@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
 
 require_once 'include/contact_widgets.php';
@@ -79,7 +80,7 @@ function dirfind_content(App $a, $prefix = "") {
 
 			// Add the contact to the global contacts if it isn't already in our system
 			if (($contact["cid"] == 0) && ($contact["zid"] == 0) && ($contact["gid"] == 0)) {
-				update_gcontact($user_data);
+				GlobalContact::update($user_data);
 			}
 		} elseif ($local) {
 

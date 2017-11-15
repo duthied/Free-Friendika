@@ -1,15 +1,19 @@
 <?php
+/**
+ * @file include/discover_poco.php
+ */
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
+use Friendica\Protocol\PortableContact;
 
-require_once 'include/socgraph.php';
 require_once 'include/datetime.php';
 
-function discover_poco_run(&$argv, &$argc) {
-
+function discover_poco_run(&$argv, &$argc)
+{
 	/*
 	This function can be called in these ways:
 	- dirsearch <search pattern>: Searches for "search pattern" in the directory. "search pattern" is url encoded.
@@ -18,7 +22,7 @@ function discover_poco_run(&$argv, &$argc) {
 	- server <poco url>: Searches for the poco server list. "poco url" is base64 encoded.
 	- update_server: Frequently check the first 250 servers for vitality.
 	- update_server_directory: Discover the given server id for their contacts
-	- poco_load: Load POCO data from a given POCO address
+	- PortableContact::load: Load POCO data from a given POCO address
 	- check_profile: Update remote profile data
 	*/
 
@@ -35,7 +39,7 @@ function discover_poco_run(&$argv, &$argc) {
 		$mode = 5;
 	} elseif (($argc == 3) && ($argv[1] == "update_server_directory")) {
 		$mode = 6;
-	} elseif (($argc > 5) && ($argv[1] == "poco_load")) {
+	} elseif (($argc > 5) && ($argv[1] == "load")) {
 		$mode = 7;
 	} elseif (($argc == 3) && ($argv[1] == "check_profile")) {
 		$mode = 8;
@@ -43,7 +47,8 @@ function discover_poco_run(&$argv, &$argc) {
 		$search = "";
 		$mode = 0;
 	} else {
-		die("Unknown or missing parameter ".$argv[1]."\n");
+		logger("Unknown or missing parameter ".$argv[1]."\n");
+		return;
 	}
 
 	logger('start '.$search);
@@ -58,7 +63,7 @@ function discover_poco_run(&$argv, &$argc) {
 		} else {
 			$url = '';
 		}
-		poco_load_worker(intval($argv[2]), intval($argv[3]), intval($argv[4]), $url);
+		PortableContact::load(intval($argv[2]), intval($argv[3]), intval($argv[4]), $url);
 	} elseif ($mode == 6) {
 		poco_discover_single_server(intval($argv[2]));
 	} elseif ($mode == 5) {
@@ -81,19 +86,19 @@ function discover_poco_run(&$argv, &$argc) {
 		}
 		logger($result, LOGGER_DEBUG);
 	} elseif ($mode == 3) {
-		update_suggestions();
-	} elseif (($mode == 2) && Config::get('system','poco_completion')) {
+		GlobalContact::updateSuggestions();
+	} elseif (($mode == 2) && Config::get('system', 'poco_completion')) {
 		discover_users();
-	} elseif (($mode == 1) && ($search != "") && Config::get('system','poco_local_search')) {
+	} elseif (($mode == 1) && ($search != "") && Config::get('system', 'poco_local_search')) {
 		discover_directory($search);
 		gs_search_user($search);
-	} elseif (($mode == 0) && ($search == "") && (Config::get('system','poco_discovery') > 0)) {
+	} elseif (($mode == 0) && ($search == "") && (Config::get('system', 'poco_discovery') > 0)) {
 		// Query Friendica and Hubzilla servers for their users
 		poco_discover();
 
 		// Query GNU Social servers for their users ("statistics" addon has to be enabled on the GS server)
-		if (!Config::get('system','ostatus_disabled'))
-			gs_discover();
+		if (!Config::get('system', 'ostatus_disabled'))
+			GlobalContact::gsDiscover();
 	}
 
 	logger('end '.$search);
@@ -246,7 +251,7 @@ function discover_directory($search) {
 
 				$data["server_url"] = $data["baseurl"];
 
-				update_gcontact($data);
+				GlobalContact::update($data);
 			} else {
 				logger("Profile ".$jj->url." is not responding or no Friendica contact - but network ".$data["network"], LOGGER_DEBUG);
 			}
@@ -287,7 +292,7 @@ function gs_search_user($search) {
 		$contact = Probe::uri($user->site_address."/".$user->name);
 		if ($contact["network"] != NETWORK_PHANTOM) {
 			$contact["about"] = $user->description;
-			update_gcontact($contact);
+			GlobalContact::update($contact);
 		}
 	}
 }

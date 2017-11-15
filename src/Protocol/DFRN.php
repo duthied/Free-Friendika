@@ -12,6 +12,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Model\GlobalContact;
 use Friendica\Database\DBM;
 use Friendica\Util\XML;
 
@@ -1675,9 +1676,9 @@ class DFRN
 			$poco["photo"] = $author["avatar"];
 			$poco["hide"] = $hide;
 			$poco["contact-type"] = $contact["contact-type"];
-			$gcid = update_gcontact($poco);
+			$gcid = GlobalContact::update($poco);
 
-			link_gcontact($gcid, $importer["uid"], $contact["id"]);
+			GlobalContact::link($gcid, $importer["uid"], $contact["id"]);
 		}
 
 		return($author);

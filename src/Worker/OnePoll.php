@@ -4,11 +4,13 @@ namespace Friendica\Worker;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
+use Friendica\Protocol\PortableContact;
 use dba;
 
 require_once 'include/follow.php';
 
-Class OnePoll {
+Class OnePoll
+{
 	public static function execute($contact_id = 0, $command = '') {
 		global $a;
 
@@ -16,7 +18,6 @@ Class OnePoll {
 		require_once 'include/items.php';
 		require_once 'include/Contact.php';
 		require_once 'include/email.php';
-		require_once 'include/socgraph.php';
 		require_once 'include/queue_fn.php';
 
 		logger('onepoll: start');
@@ -72,7 +73,7 @@ Class OnePoll {
 			);
 			if (DBM::is_result($r)) {
 				if (!$r[0]['total']) {
-					poco_load($contact['id'], $importer_uid, 0, $contact['poco']);
+					PortableContact::loadWorker($contact['id'], $importer_uid, 0, $contact['poco']);
 				}
 			}
 		}

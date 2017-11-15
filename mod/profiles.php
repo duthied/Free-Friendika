@@ -1,11 +1,14 @@
 <?php
-
+/**
+ * @file mod/profiles.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
 
 require_once 'include/Contact.php';
@@ -507,7 +510,7 @@ function profiles_post(App $a) {
 			Worker::add(PRIORITY_LOW, 'profile_update', local_user());
 
 			// Update the global contact for the user
-			update_gcontact_for_user(local_user());
+			GlobalContact::updateForUser(local_user());
 		}
 	}
 }

@@ -7,10 +7,10 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\Model\GlobalContact;
 
 require_once "include/contact_selectors.php";
 require_once "include/contact_widgets.php";
-require_once "include/DirSearch.php";
 require_once "include/features.php";
 require_once "mod/proxy.php";
 
@@ -59,10 +59,9 @@ function group_select($selname,$selclass,$preselected = false,$size = 4) {
 	return $o;
 }
 
-/// @TODO after an optional parameter, no mandadory parameter can follow
 /// @TODO find proper type-hints
-function contact_selector($selname, $selclass, $preselected = false, $options) {
-
+function contact_selector($selname, $selclass, $options, $preselected = false)
+{
 	$a = get_app();
 
 	$mutual = false;
@@ -779,7 +778,7 @@ function navbar_complete(App $a) {
 	}
 
 	if ($localsearch) {
-		$x = DirSearch::global_search_by_name($search, $mode);
+		$x = GlobalContact::searchByName($search, $mode);
 		return $x;
 	}
 
