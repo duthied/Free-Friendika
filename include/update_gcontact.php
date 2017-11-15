@@ -1,13 +1,14 @@
 <?php
-
+/**
+ * @file include/update_gcontact.php
+ */
 use Friendica\Core\Config;
-use Friendica\Network\Probe;
 use Friendica\Database\DBM;
+use Friendica\Network\Probe;
+use Friendica\Protocol\PortableContact;
 
 function update_gcontact_run(&$argv, &$argc) {
 	global $a;
-
-	require_once 'include/socgraph.php';
 
 	logger('update_gcontact: start');
 
@@ -34,7 +35,7 @@ function update_gcontact_run(&$argv, &$argc) {
 
 	if (!in_array($data["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
 		if ($r[0]["server_url"] != "")
-			poco_check_server($r[0]["server_url"], $r[0]["network"]);
+			PortableContact::checkServer($r[0]["server_url"], $r[0]["network"]);
 
 		q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `id` = %d",
 			dbesc(datetime_convert()), intval($contact_id));

@@ -1,12 +1,14 @@
 <?php
-
+/**
+ * @file include/common.php
+ */
 use Friendica\App;
 use Friendica\Database\DBM;
+use Friendica\Model\GlobalContact;
 
-require_once('include/socgraph.php');
-require_once('include/Contact.php');
-require_once('include/contact_selectors.php');
-require_once('mod/contacts.php');
+require_once 'include/Contact.php';
+require_once 'include/contact_selectors.php';
+require_once 'mod/contacts.php';
 
 function common_content(App $a) {
 
@@ -83,23 +85,23 @@ function common_content(App $a) {
 	}
 
 	if ($cid) {
-		$t = count_common_friends($uid, $cid);
+		$t = GlobalContact::countCommonFriends($uid, $cid);
 	} else {
-		$t = count_common_friends_zcid($uid, $zcid);
+		$t = GlobalContact::countCommonFriendsZcid($uid, $zcid);
 	}
 
 	if (count($t)) {
 		$a->set_pager_total($t);
 	} else {
-		notice( t('No contacts in common.') . EOL);
+		notice(t('No contacts in common.') . EOL);
 		return $o;
 	}
 
 
 	if ($cid) {
-		$r = common_friends($uid, $cid, $a->pager['start'], $a->pager['itemspage']);
+		$r = GlobalContact::commonFriends($uid, $cid, $a->pager['start'], $a->pager['itemspage']);
 	} else {
-		$r = common_friends_zcid($uid, $zcid, $a->pager['start'], $a->pager['itemspage']);
+		$r = GlobalContact::commonFriendsZcid($uid, $zcid, $a->pager['start'], $a->pager['itemspage']);
 	}
 
 

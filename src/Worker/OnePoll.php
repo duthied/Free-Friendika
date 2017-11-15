@@ -1,14 +1,19 @@
 <?php
+/**
+ * @file src/Worker/OnePoll.php
+ */
 namespace Friendica\Worker;
 
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
+use Friendica\Protocol\PortableContact;
 use dba;
 
 require_once 'include/follow.php';
 
-Class OnePoll {
+Class OnePoll
+{
 	public static function execute($contact_id = 0, $command = '') {
 		global $a;
 
@@ -16,7 +21,6 @@ Class OnePoll {
 		require_once 'include/items.php';
 		require_once 'include/Contact.php';
 		require_once 'include/email.php';
-		require_once 'include/socgraph.php';
 		require_once 'include/queue_fn.php';
 
 		logger('onepoll: start');
@@ -72,7 +76,7 @@ Class OnePoll {
 			);
 			if (DBM::is_result($r)) {
 				if (!$r[0]['total']) {
-					poco_load($contact['id'], $importer_uid, 0, $contact['poco']);
+					PortableContact::loadWorker($contact['id'], $importer_uid, 0, $contact['poco']);
 				}
 			}
 		}
@@ -80,8 +84,8 @@ Class OnePoll {
 		/// @TODO Check why we don't poll the Diaspora feed at the moment (some guid problem in the items?)
 		/// @TODO Check whether this is possible with Redmatrix
 		if ($contact["network"] == NETWORK_DIASPORA) {
-			if (poco_do_update($contact["created"], $contact["last-item"], $contact["failure_update"], $contact["success_update"])) {
-				$last_updated = poco_last_updated($contact["url"]);
+			if (PortableContact::updateNeeded($contact["created"], $contact["last-item"], $contact["failure_update"], $contact["success_update"])) {
+				$last_updated = PortableContact::lastUpdated($contact["url"]);
 				$updated = datetime_convert();
 				if ($last_updated) {
 					$fields = array('last-item' => $last_updated, 'last-update' => $updated, 'success_update' => $updated);
@@ -116,7 +120,7 @@ Class OnePoll {
 
 		// Update the contact entry
 		if (($contact['network'] === NETWORK_OSTATUS) || ($contact['network'] === NETWORK_DIASPORA) || ($contact['network'] === NETWORK_DFRN)) {
-			if (!poco_reachable($contact['url'])) {
+			if (!PortableContact::reachable($contact['url'])) {
 				logger("Skipping probably dead contact ".$contact['url']);
 				return;
 			}

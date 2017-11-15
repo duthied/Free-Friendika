@@ -4,10 +4,10 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
 
 require_once 'include/Contact.php';
-require_once 'include/socgraph.php';
 require_once 'include/contact_selectors.php';
 require_once 'mod/proxy.php';
 require_once 'include/Photo.php';
@@ -312,7 +312,7 @@ function _contact_update_profile($contact_id) {
 	update_contact_avatar($data['photo'], local_user(), $contact_id, true);
 
 	// Update the entry in the gcontact table
-	update_gcontact_from_probe($data["url"]);
+	GlobalContact::updateFromProbe($data["url"]);
 }
 
 function _contact_block($contact_id, $orig_record) {
@@ -561,12 +561,12 @@ function contacts_content(App $a) {
 
 		$nettype = sprintf( t('Network type: %s'),network_to_name($contact['network'], $contact["url"]));
 
-		//$common = count_common_friends(local_user(),$contact['id']);
+		//$common = GlobalContact::countCommonFriends(local_user(),$contact['id']);
 		//$common_text = (($common) ? sprintf( tt('%d contact in common','%d contacts in common', $common),$common) : '');
 
 		$polling = (($contact['network'] === NETWORK_MAIL | $contact['network'] === NETWORK_FEED) ? 'polling' : '');
 
-		//$x = count_all_friends(local_user(), $contact['id']);
+		//$x = GlobalContact::countAllFriends(local_user(), $contact['id']);
 		//$all_friends = (($x) ? t('View all contacts') : '');
 
 		// tabs
@@ -878,7 +878,7 @@ function contacts_tab($a, $contact_id, $active_tab) {
 	);
 
 	// Show this tab only if there is visible friend list
-	$x = count_all_friends(local_user(), $contact_id);
+	$x = GlobalContact::countAllFriends(local_user(), $contact_id);
 	if ($x)
 		$tabs[] = array('label'=>t('Contacts'),
 				'url' => "allfriends/".$contact_id,
@@ -888,7 +888,7 @@ function contacts_tab($a, $contact_id, $active_tab) {
 				'accesskey' => 't');
 
 	// Show this tab only if there is visible common friend list
-	$common = count_common_friends(local_user(),$contact_id);
+	$common = GlobalContact::countCommonFriends(local_user(), $contact_id);
 	if ($common)
 		$tabs[] = array('label'=>t('Common Friends'),
 				'url' => "common/loc/".local_user()."/".$contact_id,

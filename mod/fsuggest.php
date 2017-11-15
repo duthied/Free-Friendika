@@ -74,38 +74,44 @@ function fsuggest_post(App $a) {
 
 
 
-function fsuggest_content(App $a) {
-
-	require_once('include/acl_selectors.php');
+function fsuggest_content(App $a)
+{
+	require_once 'include/acl_selectors.php';
 
 	if (! local_user()) {
-		notice( t('Permission denied.') . EOL);
+		notice(t('Permission denied.') . EOL);
 		return;
 	}
 
-	if($a->argc != 2)
+	if ($a->argc != 2) {
 		return;
+	}
 
 	$contact_id = intval($a->argv[1]);
 
-	$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
+	$r = q(
+		"SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 		intval($contact_id),
 		intval(local_user())
 	);
 	if (! DBM::is_result($r)) {
-		notice( t('Contact not found.') . EOL);
+		notice(t('Contact not found.') . EOL);
 		return;
 	}
 	$contact = $r[0];
 
 	$o = '<h3>' . t('Suggest Friends') . '</h3>';
 
-	$o .= '<div id="fsuggest-desc" >' . sprintf( t('Suggest a friend for %s'), $contact['name']) . '</div>';
+	$o .= '<div id="fsuggest-desc" >' . sprintf(t('Suggest a friend for %s'), $contact['name']) . '</div>';
 
 	$o .= '<form id="fsuggest-form" action="fsuggest/' . $contact_id . '" method="post" >';
 
-	$o .= contact_selector('suggest','suggest-select', false,
-		array('size' => 4, 'exclude' => $contact_id, 'networks' => 'DFRN_ONLY', 'single' => true));
+	$o .= contact_selector(
+		'suggest',
+		'suggest-select',
+		array('size' => 4, 'exclude' => $contact_id, 'networks' => 'DFRN_ONLY', 'single' => true),
+		false
+	);
 
 
 	$o .= '<div id="fsuggest-submit-wrapper"><input id="fsuggest-submit" type="submit" name="submit" value="' . t('Submit') . '" /></div>';

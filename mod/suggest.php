@@ -1,11 +1,13 @@
 <?php
-
+/**
+ * @file mod/suggest.php
+ */
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\GlobalContact;
 
-require_once('include/socgraph.php');
-require_once('include/contact_widgets.php');
+require_once 'include/contact_widgets.php';
 
 function suggest_init(App $a) {
 	if (! local_user()) {
@@ -66,7 +68,7 @@ function suggest_content(App $a) {
 	$a->page['aside'] .= follow_widget();
 
 
-	$r = suggestion_query(local_user());
+	$r = GlobalContact::suggestionQuery(local_user());
 
 	if (! DBM::is_result($r)) {
 		$o .= t('No suggestions available. If this is a new site, please try again in 24 hours.');
