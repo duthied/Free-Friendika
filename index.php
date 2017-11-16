@@ -1,26 +1,21 @@
 <?php
-
-
 /**
- *
+ * @file index.php
  * Friendica
- *
  */
 
 /**
- *
- * bootstrap the application
- *
+ * Bootstrap the application
  */
 
 use Friendica\App;
+use Friendica\Core\BaseObject;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 
 require_once 'boot.php';
-require_once 'object/BaseObject.php';
 
 if (empty($a)) {
 	$a = new App(__DIR__);
@@ -32,11 +27,9 @@ BaseObject::set_app($a);
 $a->backend = false;
 
 /**
- *
  * Load the configuration file which contains our DB credentials.
  * Ignore errors. If the file doesn't exist or is empty, we are running in
  * installation mode.
- *
  */
 
 $install = ((file_exists('.htconfig.php') && filesize('.htconfig.php')) ? false : true);
