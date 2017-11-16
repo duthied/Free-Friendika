@@ -6,10 +6,10 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
+use Friendica\Protocol\OStatus;
 
 require_once 'include/queue_fn.php';
 require_once 'include/html2plain.php';
-require_once 'include/ostatus.php';
 require_once 'include/salmon.php';
 
 /*
@@ -225,7 +225,7 @@ function notifier_run(&$argv, &$argc){
 
 	if (! ($mail || $fsuggest || $relocate)) {
 
-		$slap = ostatus::salmon($target_item,$owner);
+		$slap = OStatus::salmon($target_item, $owner);
 
 		require_once 'include/group.php';
 

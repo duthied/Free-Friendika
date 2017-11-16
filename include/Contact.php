@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @file include/Contact.php
+ */
 use Friendica\App;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
@@ -8,6 +10,7 @@ use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
+use Friendica\Protocol\OStatus;
 
 // Included here for completeness, but this is a very dangerous operation.
 // It is the caller's responsibility to confirm the requestor's intent and
@@ -79,14 +82,11 @@ function terminate_friendship($user,$self,$contact) {
 	require_once 'include/datetime.php';
 
 	if ($contact['network'] === NETWORK_OSTATUS) {
-
-		require_once 'include/ostatus.php';
-
 		// create an unfollow slap
 		$item = array();
 		$item['verb'] = NAMESPACE_OSTATUS."/unfollow";
 		$item['follow'] = $contact["url"];
-		$slap = ostatus::salmon($item, $user);
+		$slap = OStatus::salmon($item, $user);
 
 		if ((x($contact,'notify')) && (strlen($contact['notify']))) {
 			require_once 'include/salmon.php';
