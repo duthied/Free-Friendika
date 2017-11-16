@@ -1,7 +1,10 @@
 <?php
-
+/**
+ * @file include/conversation.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\Conversation;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -860,7 +863,6 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 			// Normal View
 			$page_template = get_markup_template("threaded_conversation.tpl");
 
-			require_once 'object/Conversation.php';
 			require_once 'object/Item.php';
 
 			$conv = new Conversation($mode, $preview);
