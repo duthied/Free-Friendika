@@ -158,7 +158,7 @@ class Conversation extends BaseObject
 				continue;
 			}
 
-			$item_data = $item->get_template_data($conv_responses);
+			$item_data = $item->getTemplateData($conv_responses);
 
 			if (!$item_data) {
 				logger('[ERROR] Conversation::get_template_data : Failed to get item template data ('. $item->getId() .').', LOGGER_DEBUG);
