@@ -1,15 +1,19 @@
 <?php
-if(class_exists('Item'))
+/**
+ * @file object/Item.php
+ */
+if (class_exists('Item')) {
 	return;
+}
 
+use Friendica\Core\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Protocol\Diaspora;
 
-require_once('object/BaseObject.php');
-require_once('include/text.php');
-require_once('boot.php');
+require_once 'include/text.php';
+require_once 'boot.php';
 
 /**
  * An item

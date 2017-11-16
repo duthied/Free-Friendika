@@ -1,11 +1,16 @@
 <?php
-if(class_exists('Conversation'))
+/**
+ * @file object/Conversation.php
+ */
+if (class_exists('Conversation')) {
 	return;
+}
 
-require_once('boot.php');
-require_once('object/BaseObject.php');
-require_once('object/Item.php');
-require_once('include/text.php');
+use Friendica\Core\BaseObject;
+
+require_once 'boot.php';
+require_once 'object/Item.php';
+require_once 'include/text.php';
 
 /**
  * A list of threads
