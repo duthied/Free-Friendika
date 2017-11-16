@@ -9,9 +9,9 @@ if (class_exists('Conversation')) {
 }
 
 use Friendica\Core\BaseObject;
+use Friendica\Core\Item;
 
 require_once 'boot.php';
-require_once 'object/Item.php';
 require_once 'include/text.php';
 
 /**
@@ -107,32 +107,32 @@ class Conversation extends BaseObject
 	 */
 	public function add_thread($item)
 	{
-		$item_id = $item->get_id();
+		$item_id = $item->getId();
 
 		if (!$item_id) {
 			logger('[ERROR] Conversation::add_thread : Item has no ID!!', LOGGER_DEBUG);
 			return false;
 		}
 
-		if ($this->get_thread($item->get_id())) {
-			logger('[WARN] Conversation::add_thread : Thread already exists ('. $item->get_id() .').', LOGGER_DEBUG);
+		if ($this->get_thread($item->getId())) {
+			logger('[WARN] Conversation::add_thread : Thread already exists ('. $item->getId() .').', LOGGER_DEBUG);
 			return false;
 		}
 
 		/*
 		 * Only add will be displayed
 		 */
-		if ($item->get_data_value('network') === NETWORK_MAIL && local_user() != $item->get_data_value('uid')) {
-			logger('[WARN] Conversation::add_thread : Thread is a mail ('. $item->get_id() .').', LOGGER_DEBUG);
+		if ($item->getDataValue('network') === NETWORK_MAIL && local_user() != $item->getDataValue('uid')) {
+			logger('[WARN] Conversation::add_thread : Thread is a mail ('. $item->getId() .').', LOGGER_DEBUG);
 			return false;
 		}
 
-		if ($item->get_data_value('verb') === ACTIVITY_LIKE || $item->get_data_value('verb') === ACTIVITY_DISLIKE) {
-			logger('[WARN] Conversation::add_thread : Thread is a (dis)like ('. $item->get_id() .').', LOGGER_DEBUG);
+		if ($item->getDataValue('verb') === ACTIVITY_LIKE || $item->getDataValue('verb') === ACTIVITY_DISLIKE) {
+			logger('[WARN] Conversation::add_thread : Thread is a (dis)like ('. $item->getId() .').', LOGGER_DEBUG);
 			return false;
 		}
 
-		$item->set_conversation($this);
+		$item->setConversation($this);
 		$this->threads[] = $item;
 
 		return end($this->threads);
@@ -154,13 +154,14 @@ class Conversation extends BaseObject
 		$i = 0;
 
 		foreach ($this->threads as $item) {
-			if($item->get_data_value('network') === NETWORK_MAIL && local_user() != $item->get_data_value('uid'))
+			if ($item->getDataValue('network') === NETWORK_MAIL && local_user() != $item->getDataValue('uid')) {
 				continue;
+			}
 
 			$item_data = $item->get_template_data($conv_responses);
 
 			if (!$item_data) {
-				logger('[ERROR] Conversation::get_template_data : Failed to get item template data ('. $item->get_id() .').', LOGGER_DEBUG);
+				logger('[ERROR] Conversation::get_template_data : Failed to get item template data ('. $item->getId() .').', LOGGER_DEBUG);
 				return false;
 			}
 			$result[] = $item_data;
@@ -179,7 +180,7 @@ class Conversation extends BaseObject
 	private function get_thread($id)
 	{
 		foreach ($this->threads as $item) {
-			if ($item->get_id() == $id) {
+			if ($item->getId() == $id) {
 				return $item;
 			}
 		}
