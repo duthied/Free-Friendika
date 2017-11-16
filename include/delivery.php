@@ -9,7 +9,7 @@ use Friendica\Protocol\DFRN;
 
 require_once 'include/queue_fn.php';
 require_once 'include/html2plain.php';
-require_once 'include/ostatus.php';
+//require_once 'include/ostatus.php';
 
 function delivery_run(&$argv, &$argc){
 	global $a;
