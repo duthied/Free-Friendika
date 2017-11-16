@@ -9,11 +9,11 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
+use Friendica\Protocol\OStatus;
 use Friendica\Protocol\PortableContact;
 
 require_once 'include/group.php';
 require_once 'include/salmon.php';
-require_once 'include/ostatus.php';
 require_once 'include/Photo.php';
 
 function update_contact($id) {
@@ -267,7 +267,7 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 			$item = array();
 			$item['verb'] = ACTIVITY_FOLLOW;
 			$item['follow'] = $contact["url"];
-			$slap = ostatus::salmon($item, $r[0]);
+			$slap = OStatus::salmon($item, $r[0]);
 			slapper($r[0], $contact['notify'], $slap);
 		}
 

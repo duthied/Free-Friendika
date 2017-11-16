@@ -1,15 +1,18 @@
 <?php
-
+/**
+ * @file include/pubsubpublish.php
+ */
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Protocol\OStatus;
 
-require_once('include/items.php');
-require_once('include/ostatus.php');
+require_once 'include/items.php';
 
-function pubsubpublish_run(&$argv, &$argc){
+function pubsubpublish_run(&$argv, &$argc)
+{
 	global $a;
 
 	if ($argc > 1) {
@@ -47,7 +50,7 @@ function handle_pubsubhubbub($id) {
 	logger("Generate feed of user ".$rr['nickname']." to ".$rr['callback_url']." - last updated ".$rr['last_update'], LOGGER_DEBUG);
 
 	$last_update = $rr['last_update'];
-	$params = ostatus::feed($a, $rr['nickname'], $last_update);
+	$params = OStatus::feed($a, $rr['nickname'], $last_update);
 
 	if (!$params) {
 		return;

@@ -14,12 +14,12 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Model\GlobalContact;
 use Friendica\Database\DBM;
+use Friendica\Protocol\OStatus;
 use Friendica\Util\XML;
 
 use dba;
 use DOMDocument;
 use DomXPath;
-use ostatus;
 
 require_once "include/Contact.php";
 require_once "include/enotify.php";
@@ -554,7 +554,7 @@ class DFRN
 
 		if ($public) {
 			// DFRN itself doesn't uses this. But maybe someone else wants to subscribe to the public feed.
-			ostatus::hublinks($doc, $root, $owner["nick"]);
+			OStatus::hublinks($doc, $root, $owner["nick"]);
 
 			$attributes = array("rel" => "salmon", "href" => System::baseUrl()."/salmon/".$owner["nick"]);
 			XML::add_element($doc, $root, "link", "", $attributes);

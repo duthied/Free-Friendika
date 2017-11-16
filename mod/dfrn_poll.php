@@ -1,14 +1,16 @@
 <?php
-
+/**
+ * @file mod/dfrn_poll.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Protocol\DFRN;
+use Friendica\Protocol\OStatus;
 
-require_once('include/items.php');
-require_once('include/auth.php');
-require_once('include/ostatus.php');
+require_once 'include/items.php';
+require_once 'include/auth.php';
 
 function dfrn_poll_init(App $a) {
 	$dfrn_id         = ((x($_GET,'dfrn_id'))         ? $_GET['dfrn_id']              : '');
@@ -25,7 +27,7 @@ function dfrn_poll_init(App $a) {
 	if (($a->argc > 1) && ($dfrn_id == '') && !strstr($_SERVER["HTTP_USER_AGENT"], 'Friendica')) {
 		$nickname = $a->argv[1];
 		header("Content-type: application/atom+xml");
-		echo ostatus::feed($a, $nickname, $last_update, 10);
+		echo OStatus::feed($a, $nickname, $last_update, 10);
 		killme();
 	}
 

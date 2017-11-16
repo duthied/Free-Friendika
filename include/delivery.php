@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @file include/delivery.php
+ */
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
@@ -9,7 +11,6 @@ use Friendica\Protocol\DFRN;
 
 require_once 'include/queue_fn.php';
 require_once 'include/html2plain.php';
-require_once 'include/ostatus.php';
 
 function delivery_run(&$argv, &$argc){
 	global $a;

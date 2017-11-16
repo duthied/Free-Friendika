@@ -13,6 +13,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Protocol\DFRN;
+use Friendica\Protocol\OStatus;
 use Friendica\Util\Lock;
 
 require_once 'include/bbcode.php';
@@ -26,7 +27,6 @@ require_once 'include/text.php';
 require_once 'include/email.php';
 require_once 'include/threads.php';
 require_once 'include/plaintext.php';
-require_once 'include/ostatus.php';
 require_once 'include/feed.php';
 require_once 'include/Contact.php';
 require_once 'mod/share.php';
@@ -542,9 +542,9 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	/// @todo Check if this is really still needed
 	if ($arr['network'] == NETWORK_OSTATUS) {
 		if (isset($arr['plink'])) {
-			$arr['plink'] = ostatus::convert_href($arr['plink']);
+			$arr['plink'] = OStatus::convertHref($arr['plink']);
 		} elseif (isset($arr['uri'])) {
-			$arr['plink'] = ostatus::convert_href($arr['uri']);
+			$arr['plink'] = OStatus::convertHref($arr['uri']);
 		}
 	}
 
@@ -1532,7 +1532,7 @@ function consume_feed($xml, $importer, &$contact, &$hub, $datedir = 0, $pass = 0
 			//$tempfile = tempnam(get_temppath(), "ostatus2");
 			//file_put_contents($tempfile, $xml);
 			logger("Consume OStatus messages ", LOGGER_DEBUG);
-			ostatus::import($xml, $importer, $contact, $hub);
+			OStatus::import($xml, $importer, $contact, $hub);
 		}
 		return;
 	}

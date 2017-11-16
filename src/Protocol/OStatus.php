@@ -1,7 +1,8 @@
 <?php
 /**
- * @file include/ostatus.php
+ * @file src/Protocol/OStatus.php
  */
+namespace Friendica\Protocol;
 
 use Friendica\App;
 use Friendica\Core\Cache;
@@ -12,6 +13,9 @@ use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
 use Friendica\Util\Lock;
 use Friendica\Util\XML;
+use dba;
+use DOMDocument;
+use DomXPath;
 
 require_once 'include/Contact.php';
 require_once 'include/threads.php';
@@ -28,7 +32,7 @@ require_once 'mod/proxy.php';
 /**
  * @brief This class contain functions for the OStatus protocol
  */
-class ostatus
+class OStatus
 {
 	private static $itemlist;
 	private static $conv_list = array();
@@ -44,7 +48,7 @@ class ostatus
 	 *
 	 * @return array Array of author related entries for the item
 	 */
-	private static function fetchauthor($xpath, $context, $importer, &$contact, $onlyfetch)
+	private static function fetchAuthor($xpath, $context, $importer, &$contact, $onlyfetch)
 	{
 		$author = array();
 		$author["author-link"] = $xpath->evaluate('atom:author/atom:uri/text()', $context)->item(0)->nodeValue;
@@ -241,7 +245,7 @@ class ostatus
 	 *
 	 * @return array Array of author related entries for the item
 	 */
-	public static function salmon_author($xml, $importer)
+	public static function salmonAuthor($xml, $importer)
 	{
 		if ($xml == "") {
 			return;
@@ -264,7 +268,7 @@ class ostatus
 
 		foreach ($entries as $entry) {
 			// fetch the author
-			$author = self::fetchauthor($xpath, $entry, $importer, $contact, true);
+			$author = self::fetchAuthor($xpath, $entry, $importer, $contact, true);
 			return $author;
 		}
 	}
@@ -276,7 +280,7 @@ class ostatus
 	 *
 	 * @return array attributes
 	 */
-	private static function read_attributes($element)
+	private static function readAttributes($element)
 	{
 		$attribute = array();
 
@@ -380,7 +384,7 @@ class ostatus
 
 		// Fetch the first author
 		$authordata = $xpath->query('//author')->item(0);
-		$author = self::fetchauthor($xpath, $authordata, $importer, $contact, $stored);
+		$author = self::fetchAuthor($xpath, $authordata, $importer, $contact, $stored);
 
 		$entry = $xpath->query('/atom:entry');
 
@@ -400,7 +404,7 @@ class ostatus
 			}
 
 			if ($authorelement->length > 0) {
-				$author = self::fetchauthor($xpath, $entry, $importer, $contact, $stored);
+				$author = self::fetchAuthor($xpath, $entry, $importer, $contact, $stored);
 			}
 
 			$value = $xpath->evaluate('atom:author/poco:preferredUsername/text()', $entry)->item(0)->nodeValue;
@@ -542,7 +546,8 @@ class ostatus
 			return;
 		}
 
-		// Currently we don't have a central deletion function that we could use in this case. The function "item_drop" doesn't work for that case
+		// Currently we don't have a central deletion function that we could use in this case
+		// The function "item_drop" doesn't work for that case
 		dba::update(
 			'item',
 			array('deleted' => true, 'title' => '', 'body' => '',
@@ -735,7 +740,7 @@ class ostatus
 			$links = $xpath->query('//link');
 			if ($links) {
 				foreach ($links as $link) {
-					$attribute = ostatus::read_attributes($link);
+					$attribute = self::readAttributes($link);
 					if (($attribute['rel'] == 'alternate') && ($attribute['type'] == 'application/atom+xml')) {
 						$file = $attribute['href'];
 					}
@@ -924,7 +929,7 @@ class ostatus
 			$links = $xpath->query('//link');
 			if ($links) {
 				foreach ($links as $link) {
-					$attribute = self::read_attributes($link);
+					$attribute = self::readAttributes($link);
 					if (($attribute['rel'] == 'alternate') && ($attribute['type'] == 'application/atom+xml')) {
 						$atom_file = $attribute['href'];
 					}
@@ -952,7 +957,7 @@ class ostatus
 
 		// Even more worse workaround for GNU Social ;-)
 		if ($xml == '') {
-			$related_guess = ostatus::convert_href($related_uri);
+			$related_guess = OStatus::convertHref($related_uri);
 			$related_atom = z_fetch_url(str_replace('/notice/', '/api/statuses/show/', $related_guess).'.atom');
 
 			if ($related_atom['success']) {
@@ -1012,7 +1017,7 @@ class ostatus
 		$orig_edited = $xpath->query('atom:updated/text()', $activityobjects)->item(0)->nodeValue;
 
 		$orig_contact = $contact;
-		$orig_author = self::fetchauthor($xpath, $activityobjects, $importer, $orig_contact, false);
+		$orig_author = self::fetchAuthor($xpath, $activityobjects, $importer, $orig_contact, false);
 
 		$item["author-name"] = $orig_author["author-name"];
 		$item["author-link"] = $orig_author["author-link"];
@@ -1053,7 +1058,7 @@ class ostatus
 		$link_data = array('add_body' => '', 'self' => '');
 
 		foreach ($links as $link) {
-			$attribute = self::read_attributes($link);
+			$attribute = self::readAttributes($link);
 
 			if (($attribute['rel'] != "") && ($attribute['href'] != "")) {
 				switch ($attribute['rel']) {
@@ -1115,7 +1120,7 @@ class ostatus
 	 *
 	 * @return string URL in the format http(s)://....
 	 */
-	public static function convert_href($href)
+	public static function convertHref($href)
 	{
 		$elements = explode(":", $href);
 
@@ -1148,7 +1153,7 @@ class ostatus
 	 *
 	 * @return string The guid if the post is a reshare
 	 */
-	private static function get_reshared_guid($item)
+	private static function getResharedGuid($item)
 	{
 		$body = trim($item["body"]);
 
@@ -1190,7 +1195,7 @@ class ostatus
 	 *
 	 * @return string The cleaned body
 	 */
-	private static function format_picture_post($body)
+	private static function formatPicturePost($body)
 	{
 		$siteinfo = get_attached_data($body);
 
@@ -1228,7 +1233,7 @@ class ostatus
 	 *
 	 * @return object header root element
 	 */
-	private static function add_header($doc, $owner)
+	private static function addHeader($doc, $owner)
 	{
 		$a = get_app();
 
@@ -1252,7 +1257,7 @@ class ostatus
 		XML::add_element($doc, $root, "logo", $owner["photo"]);
 		XML::add_element($doc, $root, "updated", datetime_convert("UTC", "UTC", "now", ATOM_TIME));
 
-		$author = self::add_author($doc, $owner);
+		$author = self::addAuthor($doc, $owner);
 		$root->appendChild($author);
 
 		$attributes = array("href" => $owner["url"], "rel" => "alternate", "type" => "text/html");
@@ -1302,7 +1307,7 @@ class ostatus
 	 * @param object $root XML root element where the hub links are added
 	 * @param array  $item Data of the item that is to be posted
 	 */
-	private static function get_attachment($doc, $root, $item)
+	private static function getAttachment($doc, $root, $item)
 	{
 		$o = "";
 		$siteinfo = get_attached_data($item["body"]);
@@ -1368,7 +1373,7 @@ class ostatus
 	 *
 	 * @return object author element
 	 */
-	private static function add_author($doc, $owner)
+	private static function addAuthor($doc, $owner)
 	{
 		$r = q("SELECT `homepage`, `publish` FROM `profile` WHERE `uid` = %d AND `is-default` LIMIT 1", intval($owner["uid"]));
 		if (DBM::is_result($r)) {
@@ -1445,7 +1450,7 @@ class ostatus
 	 *
 	 * @return string activity
 	 */
-	private static function construct_verb($item)
+	private static function constructVerb($item)
 	{
 		if ($item['verb']) {
 			return $item['verb'];
@@ -1461,7 +1466,7 @@ class ostatus
 	 *
 	 * @return string Object type
 	 */
-	private static function construct_objecttype($item)
+	private static function constructObjecttype($item)
 	{
 		if (in_array($item['object-type'], array(ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_COMMENT)))
 			return $item['object-type'];
@@ -1480,9 +1485,9 @@ class ostatus
 	 */
 	private static function entry($doc, $item, $owner, $toplevel = false)
 	{
-		$repeated_guid = self::get_reshared_guid($item);
+		$repeated_guid = self::getResharedGuid($item);
 		if ($repeated_guid != "") {
-			$xml = self::reshare_entry($doc, $item, $owner, $repeated_guid, $toplevel);
+			$xml = self::reshareEntry($doc, $item, $owner, $repeated_guid, $toplevel);
 		}
 
 		if ($xml) {
@@ -1490,11 +1495,11 @@ class ostatus
 		}
 
 		if ($item["verb"] == ACTIVITY_LIKE) {
-			return self::like_entry($doc, $item, $owner, $toplevel);
+			return self::likeEntry($doc, $item, $owner, $toplevel);
 		} elseif (in_array($item["verb"], array(ACTIVITY_FOLLOW, NAMESPACE_OSTATUS."/unfollow"))) {
-			return self::follow_entry($doc, $item, $owner, $toplevel);
+			return self::followEntry($doc, $item, $owner, $toplevel);
 		} else {
-			return self::note_entry($doc, $item, $owner, $toplevel);
+			return self::noteEntry($doc, $item, $owner, $toplevel);
 		}
 	}
 
@@ -1506,7 +1511,7 @@ class ostatus
 	 *
 	 * @return object Source element
 	 */
-	private static function source_entry($doc, $contact)
+	private static function sourceEntry($doc, $contact)
 	{
 		$source = $doc->createElement("source");
 		XML::add_element($doc, $source, "id", $contact["poll"]);
@@ -1527,7 +1532,7 @@ class ostatus
 	 *
 	 * @return array Contact array
 	 */
-	private static function contact_entry($url, $owner)
+	private static function contactEntry($url, $owner)
 	{
 		$r = q(
 			"SELECT * FROM `contact` WHERE `nurl` = '%s' AND `uid` IN (0, %d) ORDER BY `uid` DESC LIMIT 1",
@@ -1582,13 +1587,13 @@ class ostatus
 	 *
 	 * @return object Entry element
 	 */
-	private static function reshare_entry($doc, $item, $owner, $repeated_guid, $toplevel)
+	private static function reshareEntry($doc, $item, $owner, $repeated_guid, $toplevel)
 	{
 		if (($item["id"] != $item["parent"]) && (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
 			logger("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", LOGGER_DEBUG);
 		}
 
-		$title = self::entry_header($doc, $entry, $owner, $toplevel);
+		$title = self::entryHeader($doc, $entry, $owner, $toplevel);
 
 		$r = q(
 			"SELECT * FROM `item` WHERE `uid` = %d AND `guid` = '%s' AND NOT `private` AND `network` IN ('%s', '%s', '%s') LIMIT 1",
@@ -1603,42 +1608,42 @@ class ostatus
 		} else {
 			return false;
 		}
-		$contact = self::contact_entry($repeated_item['author-link'], $owner);
+		$contact = self::contactEntry($repeated_item['author-link'], $owner);
 
 		$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 
 		$title = $owner["nick"]." repeated a notice by ".$contact["nick"];
 
-		self::entry_content($doc, $entry, $item, $owner, $title, ACTIVITY_SHARE, false);
+		self::entryContent($doc, $entry, $item, $owner, $title, ACTIVITY_SHARE, false);
 
 		$as_object = $doc->createElement("activity:object");
 
 		XML::add_element($doc, $as_object, "activity:object-type", NAMESPACE_ACTIVITY_SCHEMA."activity");
 
-		self::entry_content($doc, $as_object, $repeated_item, $owner, "", "", false);
+		self::entryContent($doc, $as_object, $repeated_item, $owner, "", "", false);
 
-		$author = self::add_author($doc, $contact);
+		$author = self::addAuthor($doc, $contact);
 		$as_object->appendChild($author);
 
 		$as_object2 = $doc->createElement("activity:object");
 
-		XML::add_element($doc, $as_object2, "activity:object-type", self::construct_objecttype($repeated_item));
+		XML::add_element($doc, $as_object2, "activity:object-type", self::constructObjecttype($repeated_item));
 
 		$title = sprintf("New comment by %s", $contact["nick"]);
 
-		self::entry_content($doc, $as_object2, $repeated_item, $owner, $title);
+		self::entryContent($doc, $as_object2, $repeated_item, $owner, $title);
 
 		$as_object->appendChild($as_object2);
 
-		self::entry_footer($doc, $as_object, $item, $owner, false);
+		self::entryFooter($doc, $as_object, $item, $owner, false);
 
-		$source = self::source_entry($doc, $contact);
+		$source = self::sourceEntry($doc, $contact);
 
 		$as_object->appendChild($source);
 
 		$entry->appendChild($as_object);
 
-		self::entry_footer($doc, $entry, $item, $owner);
+		self::entryFooter($doc, $entry, $item, $owner);
 
 		return $entry;
 	}
@@ -1653,16 +1658,16 @@ class ostatus
 	 *
 	 * @return object Entry element with "like"
 	 */
-	private static function like_entry($doc, $item, $owner, $toplevel)
+	private static function likeEntry($doc, $item, $owner, $toplevel)
 	{
 		if (($item["id"] != $item["parent"]) && (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
 			logger("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", LOGGER_DEBUG);
 		}
 
-		$title = self::entry_header($doc, $entry, $owner, $toplevel);
+		$title = self::entryHeader($doc, $entry, $owner, $toplevel);
 
 		$verb = NAMESPACE_ACTIVITY_SCHEMA."favorite";
-		self::entry_content($doc, $entry, $item, $owner, "Favorite", $verb, false);
+		self::entryContent($doc, $entry, $item, $owner, "Favorite", $verb, false);
 
 		$as_object = $doc->createElement("activity:object");
 
@@ -1673,13 +1678,13 @@ class ostatus
 		);
 		$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 
-		XML::add_element($doc, $as_object, "activity:object-type", self::construct_objecttype($parent[0]));
+		XML::add_element($doc, $as_object, "activity:object-type", self::constructObjecttype($parent[0]));
 
-		self::entry_content($doc, $as_object, $parent[0], $owner, "New entry");
+		self::entryContent($doc, $as_object, $parent[0], $owner, "New entry");
 
 		$entry->appendChild($as_object);
 
-		self::entry_footer($doc, $entry, $item, $owner);
+		self::entryFooter($doc, $entry, $item, $owner);
 
 		return $entry;
 	}
@@ -1693,7 +1698,7 @@ class ostatus
 	 *
 	 * @return object author element
 	 */
-	private static function add_person_object($doc, $owner, $contact)
+	private static function addPersonObject($doc, $owner, $contact)
 	{
 		$object = $doc->createElement("activity:object");
 		XML::add_element($doc, $object, "activity:object-type", ACTIVITY_OBJ_PERSON);
@@ -1739,7 +1744,7 @@ class ostatus
 	 *
 	 * @return object Entry element
 	 */
-	private static function follow_entry($doc, $item, $owner, $toplevel)
+	private static function followEntry($doc, $item, $owner, $toplevel)
 	{
 		$item["id"] = $item["parent"] = 0;
 		$item["created"] = $item["edited"] = date("c");
@@ -1782,14 +1787,14 @@ class ostatus
 
 		$item["body"] = sprintf($message, $owner["nick"], $contact["nick"]);
 
-		self::entry_header($doc, $entry, $owner, $toplevel);
+		self::entryHeader($doc, $entry, $owner, $toplevel);
 
-		self::entry_content($doc, $entry, $item, $owner, $title);
+		self::entryContent($doc, $entry, $item, $owner, $title);
 
-		$object = self::add_person_object($doc, $owner, $contact);
+		$object = self::addPersonObject($doc, $owner, $contact);
 		$entry->appendChild($object);
 
-		self::entry_footer($doc, $entry, $item, $owner);
+		self::entryFooter($doc, $entry, $item, $owner);
 
 		return $entry;
 	}
@@ -1804,19 +1809,19 @@ class ostatus
 	 *
 	 * @return object Entry element
 	 */
-	private static function note_entry($doc, $item, $owner, $toplevel)
+	private static function noteEntry($doc, $item, $owner, $toplevel)
 	{
 		if (($item["id"] != $item["parent"]) && (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
 			logger("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", LOGGER_DEBUG);
 		}
 
-		$title = self::entry_header($doc, $entry, $owner, $toplevel);
+		$title = self::entryHeader($doc, $entry, $owner, $toplevel);
 
 		XML::add_element($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
 
-		self::entry_content($doc, $entry, $item, $owner, $title);
+		self::entryContent($doc, $entry, $item, $owner, $title);
 
-		self::entry_footer($doc, $entry, $item, $owner);
+		self::entryFooter($doc, $entry, $item, $owner);
 
 		return $entry;
 	}
@@ -1831,7 +1836,7 @@ class ostatus
 	 *
 	 * @return string The title for the element
 	 */
-	private static function entry_header($doc, &$entry, $owner, $toplevel)
+	private static function entryHeader($doc, &$entry, $owner, $toplevel)
 	{
 		/// @todo Check if this title stuff is really needed (I guess not)
 		if (!$toplevel) {
@@ -1849,7 +1854,7 @@ class ostatus
 			$entry->setAttribute("xmlns:statusnet", NAMESPACE_STATUSNET);
 			$entry->setAttribute("xmlns:mastodon", NAMESPACE_MASTODON);
 
-			$author = self::add_author($doc, $owner);
+			$author = self::addAuthor($doc, $owner);
 			$entry->appendChild($author);
 
 			$title = sprintf("New comment by %s", $owner["nick"]);
@@ -1868,16 +1873,16 @@ class ostatus
 	 * @param string $verb     The activity verb
 	 * @param bool   $complete Add the "status_net" element?
 	 */
-	private static function entry_content($doc, $entry, $item, $owner, $title, $verb = "", $complete = true)
+	private static function entryContent($doc, $entry, $item, $owner, $title, $verb = "", $complete = true)
 	{
 		if ($verb == "") {
-			$verb = self::construct_verb($item);
+			$verb = self::constructVerb($item);
 		}
 
 		XML::add_element($doc, $entry, "id", $item["uri"]);
 		XML::add_element($doc, $entry, "title", $title);
 
-		$body = self::format_picture_post($item['body']);
+		$body = self::formatPicturePost($item['body']);
 
 		if ($item['title'] != "") {
 			$body = "[b]".$item['title']."[/b]\n\n".$body;
@@ -1910,7 +1915,7 @@ class ostatus
 	 * @param array  $owner    Contact data of the poster
 	 * @param bool   $complete default true
 	 */
-	private static function entry_footer($doc, $entry, $item, $owner, $complete = true)
+	private static function entryFooter($doc, $entry, $item, $owner, $complete = true)
 	{
 		$mentioned = array();
 
@@ -2028,7 +2033,7 @@ class ostatus
 			}
 		}
 
-		self::get_attachment($doc, $entry, $item);
+		self::getAttachment($doc, $entry, $item);
 
 		if ($complete && ($item["id"] > 0)) {
 			$app = $item["app"];
@@ -2110,7 +2115,7 @@ class ostatus
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
 
-		$root = self::add_header($doc, $owner);
+		$root = self::addHeader($doc, $owner);
 
 		foreach ($items as $item) {
 			if (Config::get('system', 'ostatus_debug')) {
