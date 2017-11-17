@@ -1,7 +1,11 @@
 <?php
-
+/**
+ * @file include/conversation.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\Conversation;
+use Friendica\Core\Item;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -860,9 +864,6 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 			// Normal View
 			$page_template = get_markup_template("threaded_conversation.tpl");
 
-			require_once 'object/Conversation.php';
-			require_once 'object/Item.php';
-
 			$conv = new Conversation($mode, $preview);
 
 			/*
@@ -1531,7 +1532,7 @@ function get_responses($conv_responses, $response_verbs, $ob, $item) {
 		if (count($ret[$v]['list']) > MAX_LIKERS) {
 			$ret[$v]['list_part'] = array_slice($ret[$v]['list'], 0, MAX_LIKERS);
 			array_push($ret[$v]['list_part'], '<a href="#" data-toggle="modal" data-target="#' . $v . 'Modal-'
-				. (($ob) ? $ob->get_id() : $item['id']) . '"><b>' . t('View all') . '</b></a>');
+				. (($ob) ? $ob->getId() : $item['id']) . '"><b>' . t('View all') . '</b></a>');
 		} else {
 			$ret[$v]['list_part'] = '';
 		}
