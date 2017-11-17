@@ -68,7 +68,7 @@ function contact_remove($id) {
 	dba::delete('contact', array('id' => $id));
 
 	// Delete the rest in the background
-	Worker::add(PRIORITY_LOW, 'remove_contact', $id);
+	Worker::add(PRIORITY_LOW, 'RemoveContact', $id);
 }
 
 
