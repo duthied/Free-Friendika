@@ -4,10 +4,6 @@
  */
 namespace Friendica\Core;
 
-if (class_exists('Item')) {
-	return;
-}
-
 use Friendica\Core\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;

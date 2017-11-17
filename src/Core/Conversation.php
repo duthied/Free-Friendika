@@ -4,10 +4,6 @@
  */
 namespace Friendica\Core;
 
-if (class_exists('Conversation')) {
-	return;
-}
-
 use Friendica\Core\BaseObject;
 use Friendica\Core\Item;
 
