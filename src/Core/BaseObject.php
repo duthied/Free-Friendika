@@ -4,10 +4,6 @@
  */
 namespace Friendica\Core;
 
-if (class_exists('BaseObject')) {
-	return;
-}
-
 require_once 'boot.php';
 
 /**
