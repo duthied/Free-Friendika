@@ -78,7 +78,7 @@ Class Cron {
 
 			Worker::add(PRIORITY_LOW, 'expire');
 
-			Worker::add(PRIORITY_MEDIUM, 'dbclean');
+			Worker::add(PRIORITY_MEDIUM, 'DBClean');
 
 			Worker::add(PRIORITY_LOW, "cronjobs", "update_photo_albums");
 
