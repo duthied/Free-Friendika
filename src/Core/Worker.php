@@ -899,7 +899,7 @@ class Worker {
 		logger('Add cron entries', LOGGER_DEBUG);
 
 		// Check for spooled items
-		self::add(PRIORITY_HIGH, "spool_post");
+		self::add(PRIORITY_HIGH, "SpoolPost");
 
 		// Run the cron job that calls all other jobs
 		self::add(PRIORITY_MEDIUM, "Cron");
