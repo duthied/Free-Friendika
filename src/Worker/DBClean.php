@@ -4,6 +4,8 @@
  * @brief The script is called from time to time to clean the database entries and remove orphaned data.
  */
 
+namespace Friendica\Worker;
+
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use dba;

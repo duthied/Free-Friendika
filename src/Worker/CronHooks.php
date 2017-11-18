@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file src/Worker/CronHooks.php
+ */
+
 namespace Friendica\Worker;
 
 use Friendica\Core\Config;
