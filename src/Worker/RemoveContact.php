@@ -6,6 +6,7 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Config;
+use dba;
 
 class RemoveContact {
 	public static function execute($id) {

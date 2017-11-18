@@ -4,6 +4,7 @@ namespace Friendica\Worker;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use dba;
 
 Class Cron {
 	public static function execute($parameter = '', $generation = 0) {
