@@ -169,7 +169,7 @@ function dirfind_content(App $a, $prefix = "") {
 			}
 
 			// Add found profiles from the global directory to the local directory
-			Worker::add(PRIORITY_LOW, 'discover_poco', "dirsearch", urlencode($search));
+			Worker::add(PRIORITY_LOW, 'DiscoverPoCo', "dirsearch", urlencode($search));
 		} else {
 
 			$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');

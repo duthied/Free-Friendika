@@ -42,10 +42,10 @@ Class Cron {
 		Worker::add(PRIORITY_NEGLIGIBLE, "queue");
 
 		// run the process to discover global contacts in the background
-		Worker::add(PRIORITY_LOW, "discover_poco");
+		Worker::add(PRIORITY_LOW, "DiscoverPoCo");
 
 		// run the process to update locally stored global contacts in the background
-		Worker::add(PRIORITY_LOW, "discover_poco", "checkcontact");
+		Worker::add(PRIORITY_LOW, "DiscoverPoCo", "checkcontact");
 
 		// Expire and remove user entries
 		Worker::add(PRIORITY_MEDIUM, "CronJobs", "expire_and_remove_users");
@@ -73,9 +73,9 @@ Class Cron {
 
 			Worker::add(PRIORITY_LOW, "CronJobs", "update_contact_birthdays");
 
-			Worker::add(PRIORITY_LOW, "discover_poco", "update_server");
+			Worker::add(PRIORITY_LOW, "DiscoverPoCo", "update_server");
 
-			Worker::add(PRIORITY_LOW, "discover_poco", "suggestions");
+			Worker::add(PRIORITY_LOW, "DiscoverPoCo", "suggestions");
 
 			Config::set('system', 'last_expire_day', $d2);
 
