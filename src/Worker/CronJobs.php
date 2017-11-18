@@ -2,6 +2,9 @@
 /**
  * @file src/worker/CronJobs.php
  */
+
+namespace Friendica\Worker;
+
 use Friendica\App;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
