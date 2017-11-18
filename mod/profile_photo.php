@@ -132,7 +132,7 @@ function profile_photo_post(App $a) {
 				// Update global directory in background
 				$url = System::baseUrl() . '/profile/' . $a->user['nickname'];
 				if ($url && strlen(Config::get('system','directory'))) {
-					Worker::add(PRIORITY_LOW, "directory", $url);
+					Worker::add(PRIORITY_LOW, "Directory", $url);
 				}
 
 				Worker::add(PRIORITY_LOW, 'profile_update', local_user());
@@ -232,7 +232,7 @@ function profile_photo_content(App $a) {
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
 			if ($url && strlen(Config::get('system','directory'))) {
-				Worker::add(PRIORITY_LOW, "directory", $url);
+				Worker::add(PRIORITY_LOW, "Directory", $url);
 			}
 
 			goaway(System::baseUrl() . '/profiles');

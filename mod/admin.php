@@ -705,7 +705,7 @@ function admin_page_site_post(App $a) {
 	check_form_security_token_redirectOnErr('/admin/site', 'admin_site');
 
 	if (!empty($_POST['republish_directory'])) {
-		Worker::add(PRIORITY_LOW, 'directory');
+		Worker::add(PRIORITY_LOW, 'Directory');
 		return;
 	}
 
@@ -867,7 +867,7 @@ function admin_page_site_post(App $a) {
 	// Has the directory url changed? If yes, then resubmit the existing profiles there
 	if ($global_directory != Config::get('system', 'directory') && ($global_directory != '')) {
 		Config::set('system', 'directory', $global_directory);
-		Worker::add(PRIORITY_LOW, 'directory');
+		Worker::add(PRIORITY_LOW, 'Directory');
 	}
 
 	if ($a->get_path() != "") {
