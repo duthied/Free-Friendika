@@ -1,11 +1,11 @@
 <?php
 /**
- * @file src/Core/Conversation.php
+ * @file src/Object/Conversation.php
  */
-namespace Friendica\Core;
+namespace Friendica\Object;
 
-use Friendica\Core\BaseObject;
-use Friendica\Core\Item;
+use Friendica\BaseObject;
+use Friendica\Object\Item;
 
 require_once 'boot.php';
 require_once 'include/text.php';
@@ -48,7 +48,7 @@ class Conversation extends BaseObject
 			return;
 		}
 
-		$a = $this->getApp();
+		$a = self::getApp();
 
 		switch ($mode) {
 			case 'network':
@@ -165,7 +165,7 @@ class Conversation extends BaseObject
 	 */
 	public function getTemplateData($conv_responses)
 	{
-		$a = get_app();
+		$a = self::getApp();
 		$result = array();
 		$i = 0;
 

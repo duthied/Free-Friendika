@@ -9,7 +9,7 @@
  */
 
 use Friendica\App;
-use Friendica\Core\BaseObject;
+use Friendica\BaseObject;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;

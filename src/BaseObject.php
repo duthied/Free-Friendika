@@ -1,8 +1,8 @@
 <?php
 /**
- * @file src/Core/BaseObject.php
+ * @file src/BaseObject.php
  */
-namespace Friendica\Core;
+namespace Friendica;
 
 require_once 'boot.php';
 
@@ -22,13 +22,13 @@ class BaseObject
 	 *
 	 * @return object
 	 */
-	public function getApp()
+	public static function getApp()
 	{
 		if (self::$app) {
 			return self::$app;
 		}
 
-		self::$app = boot::get_app();
+		self::$app = get_app();
 
 		return self::$app;
 	}

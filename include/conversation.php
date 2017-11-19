@@ -4,11 +4,11 @@
  */
 use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\Conversation;
-use Friendica\Core\Item;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Object\Conversation;
+use Friendica\Object\Item;
 
 require_once "include/bbcode.php";
 require_once "include/acl_selectors.php";
