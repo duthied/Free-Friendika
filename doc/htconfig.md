@@ -50,8 +50,8 @@ Example: To set the directory value please add this line to your .htconfig.php:
 * **local_block** (Boolean) - Used in conjunction with "block_public".
 * **local_search** (Boolean) - Blocks search for users who are not logged in to prevent crawlers from blocking your system.
 * **local_tags** (Boolean) - If activated, all hashtags will point to the local server.
-* **max_connections** - The maximum number of database connections which can be in use before the poller process is deferred to it's next interval.  When the system can't detect the maximum numbers of connection then this value can be used.
-* **max_connections_level** - The maximum level of connections that are allowed to let the poller start. It is a percentage value. Default value is 75.
+* **max_connections** - The maximum number of database connections which can be in use before the worker process is deferred to it's next interval.  When the system can't detect the maximum numbers of connection then this value can be used.
+* **max_connections_level** - The maximum level of connections that are allowed to let the worker start. It is a percentage value. Default value is 75.
 * **max_contact_queue** - Default value is 500.
 * **max_batch_queue** - Default value is 1000.
 * **max_processes_backend** - Maximum number of concurrent database processes for background tasks. Default value is 5.

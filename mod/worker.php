@@ -1,7 +1,7 @@
 <?php
 /**
  * @file mod/worker.php
- * @brief Module for running the poller as frontend process
+ * @brief Module for running the worker as frontend process
  */
 
 use Friendica\Core\Worker;

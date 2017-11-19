@@ -21,7 +21,7 @@ Salmon-Benachrichtigungen kommen via mod/salmon.php an.
 
 PuSh-Feeds (pubsubhubbub) kommen via mod/pubsub.php an.
 
-DFRN-poll Feed-Imports kommen via include/poller.php als geplanter Task an, das implementiert die lokale Bearbeitung (local side) des DFRN-Protokolls. 
+DFRN-poll Feed-Imports kommen via src/Worker/OnePoll.php als geplanter Task an, das implementiert die lokale Bearbeitung (local side) des DFRN-Protokolls.
 
 
 ### Szenario #1. Bob schreibt eine öffentliche Statusnachricht

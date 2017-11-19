@@ -108,7 +108,7 @@ class Worker {
 				}
 			}
 
-			// To avoid the quitting of multiple pollers only one poller at a time will execute the check
+			// To avoid the quitting of multiple workers only one worker at a time will execute the check
 			if (Lock::set('poller_worker', 0)) {
 				$stamp = (float)microtime(true);
 				// Count active workers and compare them with a maximum value that depends on the load
@@ -126,7 +126,7 @@ class Worker {
 				self::$db_duration += (microtime(true) - $stamp);
 			}
 
-			// Quit the poller once every 5 minutes
+			// Quit the worker once every 5 minutes
 			if (time() > ($starttime + 300)) {
 				logger('Process lifetime reached, quitting.', LOGGER_DEBUG);
 				return;
@@ -152,7 +152,7 @@ class Worker {
 	/**
 	 * @brief Returns the highest priority in the worker queue that isn't executed
 	 *
-	 * @return integer Number of active poller processes
+	 * @return integer Number of active worker processes
 	 */
 	private static function highestPriority() {
 		$condition = array("`executed` <= ? AND NOT `done`", NULL_DATE);
@@ -431,7 +431,7 @@ class Worker {
 		// Fetch the max value from the config. This is needed when the system cannot detect the correct value by itself.
 		$max = Config::get("system", "max_connections");
 
-		// Fetch the percentage level where the poller will get active
+		// Fetch the percentage level where the worker will get active
 		$maxlevel = Config::get("system", "max_connections_level", 75);
 
 		if ($max == 0) {
@@ -636,9 +636,9 @@ class Worker {
 	}
 
 	/**
-	 * @brief Returns the number of active poller processes
+	 * @brief Returns the number of active worker processes
 	 *
-	 * @return integer Number of active poller processes
+	 * @return integer Number of active worker processes
 	 */
 	private static function activeWorkers() {
 		$workers = dba::fetch_first("SELECT COUNT(*) AS `processes` FROM `process` WHERE `command` = 'Worker.php'");
@@ -840,7 +840,7 @@ class Worker {
 			return;
 		}
 
-		// Do we have "proc_open"? Then we can fork the poller
+		// Do we have "proc_open"? Then we can fork the worker
 		if (function_exists("proc_open")) {
 			// When was the last time that we called the worker?
 			// Less than one minute? Then we quit
@@ -861,7 +861,7 @@ class Worker {
 
 			self::runCron();
 
-			logger('Call poller', LOGGER_DEBUG);
+			logger('Call worker', LOGGER_DEBUG);
 			self::spawnWorker();
 			return;
 		}
@@ -912,7 +912,7 @@ class Worker {
 	}
 
 	public static function spawnWorker() {
-		$args = array("include/poller.php", "no_cron");
+		$args = array("scripts/worker.php", "no_cron");
 		get_app()->proc_run($args);
 	}
 
@@ -999,7 +999,7 @@ class Worker {
 			dba::insert('workerqueue', array('parameter' => $parameters, 'created' => $created, 'priority' => $priority));
 		}
 
-		// Should we quit and wait for the poller to be called as a cronjob?
+		// Should we quit and wait for the worker to be called as a cronjob?
 		if ($dont_fork) {
 			return true;
 		}
@@ -1017,7 +1017,7 @@ class Worker {
 			return true;
 		}
 
-		// Now call the poller to execute the jobs that we just added to the queue
+		// Now call the worker to execute the jobs that we just added to the queue
 		self::spawnWorker();
 
 		return true;
