@@ -189,7 +189,7 @@ function import_account(App $a, $file) {
 			}
 		}
 		if ($contact['uid'] == $olduid && $contact['self'] == '0') {
-			// set contacts 'avatar-date' to NULL_DATE to let poller to update urls
+			// set contacts 'avatar-date' to NULL_DATE to let worker to update urls
 			$contact["avatar-date"] = NULL_DATE;
 
 			switch ($contact['network']) {

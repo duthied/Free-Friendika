@@ -105,14 +105,14 @@ tables, so that you can start fresh.
 8. Set up a cron job or scheduled task to run the poller once every 5-10 
 minutes to pick up the recent "public" postings of your friends. Example:
 
-	cd /base/directory; /path/to/php include/poller.php
+	cd /base/directory; /path/to/php scripts/worker.php
 
 Change "/base/directory", and "/path/to/php" as appropriate for your situation.
 
 If you are using a Linux server, run "crontab -e" and add a line like the 
 one shown, substituting for your unique paths and settings:
 
-*/10 * * * *	cd /home/myname/mywebsite; /usr/bin/php include/poller.php
+*/10 * * * *	cd /home/myname/mywebsite; /usr/bin/php scripts/worker.php
 
 You can generally find the location of PHP by executing "which php". If you 
 have troubles with this section please contact your hosting provider for 
@@ -285,14 +285,14 @@ cron by using something like
 
  */10 * * * * cd /var/www/friendica/friendica/ && sudo -u www-data /usr/bin/php
 -d suhosin.executor.func.blacklist=none -d suhosin.executor.eval.blacklist=none
--f include/poller.php
+-f scripts/worker.php
 
 This worked well for simple test cases, but the friendica-cron still failed with
 a fatal error:
 suhosin[22962]: ALERT - function within blacklist called: proc_open() (attacker
 'REMOTE_ADDR not set', file '/var/www/friendica/friendica/boot.php', line 1341)
 
-After a while I noticed, that include/poller.php calls further php script via
+After a while I noticed, that scripts/worker.php calls further php script via
 proc_open. These scripts themselves also use proc_open and fail, because they
 are NOT called with -d suhosin.executor.func.blacklist=none.
 

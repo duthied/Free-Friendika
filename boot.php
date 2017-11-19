@@ -618,7 +618,7 @@ function is_ajax()
 /**
  * @brief Function to check if request was an AJAX (xmlhttprequest) request.
  *
- * @param boolean $via_worker boolean Is the check run via the poller?
+ * @param boolean $via_worker boolean Is the check run via the worker?
  */
 function check_db($via_worker)
 {
