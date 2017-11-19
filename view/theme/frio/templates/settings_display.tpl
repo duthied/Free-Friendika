@@ -75,6 +75,7 @@
 						{{include file="field_checkbox.tpl" field=$noinfo}}
 						{{include file="field_checkbox.tpl" field=$infinite_scroll}}
 						{{include file="field_checkbox.tpl" field=$bandwidth_saver}}
+						{{include file="field_checkbox.tpl" field=$smart_threading}}
 
 						<div class="form-group pull-right settings-submit-wrapper" >
 							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>

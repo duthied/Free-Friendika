@@ -1361,13 +1361,23 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false) {
 	return $o;
 }
 
-
-function get_item_children($arr, $parent) {
-	$children = array();
-	$a = get_app();
-	foreach ($arr as $item) {
+/**
+ * Returns all the children in the given item list of the given parent, recusrsively
+ * or not.
+ *
+ * @brief Returns all the children in the given item list of the given parent
+ *
+ * @param array $item_list
+ * @param array $parent
+ * @param bool $recursive
+ * @return type
+ */
+function get_item_children(array $item_list, array $parent, $recursive = true)
+{
+	$children = [];
+	foreach ($item_list as $item) {
 		if ($item['id'] != $item['parent']) {
-			if (Config::get('system', 'thread_allow') && $a->theme_thread_allow) {
+			if ($recursive) {
 				// Fallback to parent-uri if thr-parent is not set
 				$thr_parent = $item['thr-parent'];
 				if ($thr_parent == '') {
@@ -1375,7 +1385,7 @@ function get_item_children($arr, $parent) {
 				}
 
 				if ($thr_parent == $parent['uri']) {
-					$item['children'] = get_item_children($arr, $item);
+					$item['children'] = get_item_children($item_list, $item);
 					$children[] = $item;
 				}
 			} elseif ($item['parent'] == $parent['id']) {
@@ -1386,54 +1396,128 @@ function get_item_children($arr, $parent) {
 	return $children;
 }
 
-/// @TODO Add type-hint
-function sort_item_children($items) {
+/**
+ * @brief Recursively sorts a tree-like item array
+ *
+ * @param array $items
+ * @return array
+ */
+function sort_item_children(array $items)
+{
 	$result = $items;
 	usort($result, 'sort_thr_created_rev');
 	foreach ($result as $k => $i) {
-		if (count($result[$k]['children'])) {
+		if (isset($result[$k]['children'])) {
 			$result[$k]['children'] = sort_item_children($result[$k]['children']);
 		}
 	}
 	return $result;
 }
 
-/// @TODO Add type-hint
-function add_children_to_list($children, &$arr) {
-	foreach ($children as $y) {
-		$arr[] = $y;
-		if (count($y['children'])) {
-			add_children_to_list($y['children'], $arr);
+/**
+ * @brief Recursively add all children items at the top level of a list
+ *
+ * @param array $children List of items to append
+ * @param array $item_list
+ */
+function add_children_to_list(array $children, array &$item_list)
+{
+	foreach ($children as $child) {
+		$item_list[] = $child;
+		if (isset($child['children'])) {
+			add_children_to_list($child['children'], $item_list);
 		}
 	}
 }
 
-/// @TODO Add type-hint
-function conv_sort($arr, $order) {
-
-	if ((!(is_array($arr) && count($arr)))) {
-		return array();
+/**
+ * This recursive function takes the item tree structure created by conv_sort() and
+ * flatten the extraneous depth levels when people reply sequentially, removing the
+ * stairs effect in threaded conversations limiting the available content width.
+ *
+ * The basic principle is the following: if a post item has only one reply and is
+ * the last reply of its parent, then the reply is moved to the parent.
+ *
+ * This process is rendered somewhat more complicated because items can be either
+ * replies or likes, and these don't factor at all in the reply count/last reply.
+ *
+ * @brief Selectively flattens a tree-like item structure to prevent threading stairs
+ *
+ * @param array $parent A tree-like array of items
+ * @return array
+ */
+function smart_flatten_conversation(array $parent)
+{
+	if (! isset($parent['children']) || count($parent['children']) == 0) {
+		return $parent;
 	}
 
-	$parents = array();
-	$children = array();
-	$newarr = array();
+	// We use a for loop to ensure we process the newly-moved items
+	for ($i = 0; $i < count($parent['children']); $i++) {
+		$child = $parent['children'][$i];
 
-	/*
-	 * This is a preparation for having two different items with the same uri in one thread
-	 * This will otherwise lead to an endless loop.
-	 */
-	foreach ($arr as $x) {
-		if (!isset($newarr[$x['uri']])) {
-			$newarr[$x['uri']] = $x;
+		if (isset($child['children']) && count($child['children'])) {
+			// This helps counting only the regular posts
+			$count_post_closure = function($var) {
+				return $var['verb'] === ACTIVITY_POST;
+			};
+
+			$child_post_count = count(array_filter($child['children'], $count_post_closure));
+
+			$remaining_post_count = count(array_filter(array_slice($parent['children'], $i), $count_post_closure));
+
+			// If there's only one child's children post and this is the last child post
+			if ($child_post_count == 1 && $remaining_post_count == 1) {
+
+				// Searches the post item in the children
+				$j = 0;
+				while($child['children'][$j]['verb'] !== ACTIVITY_POST && $j < count($child['children'])) {
+					$j ++;
+				}
+
+				$moved_item = $child['children'][$j];
+				unset($parent['children'][$i]['children'][$j]);
+				$parent['children'][] = $moved_item;
+			} else {
+				$parent['children'][$i] = smart_flatten_conversation($child);
+			}
 		}
 	}
 
-	$arr = $newarr;
+	return $parent;
+}
 
-	foreach ($arr as $x) {
-		if ($x['id'] == $x['parent']) {
-			$parents[] = $x;
+
+/**
+ * Expands a flat list of items into corresponding tree-like conversation structures,
+ * sort the top-level posts either on "created" or "commented", and finally
+ * append all the items at the top level (???)
+ *
+ * @brief Expands a flat item list into a conversation array for display
+ *
+ * @param array  $item_list A list of items belonging to one or more conversations
+ * @param string $order     Either on "created" or "commented"
+ * @return array
+ */
+function conv_sort(array $item_list, $order)
+{
+	$parents = [];
+
+	if (!(is_array($item_list) && count($item_list))) {
+		return $parents;
+	}
+
+	$item_array = [];
+
+	// Dedupes the item list on the uri to prevent infinite loops
+	foreach ($item_list as $item) {
+		$item_array[$item['uri']] = $item;
+	}
+
+	// Extract the top level items
+	foreach ($item_array as $item) {
+		if ($item['id'] == $item['parent']) {
+			$parents[] = $item;
 		}
 	}
 
@@ -1443,71 +1527,67 @@ function conv_sort($arr, $order) {
 		usort($parents, 'sort_thr_commented');
 	}
 
-	if (count($parents)) {
-		foreach ($parents as $i => $_x) {
-			$parents[$i]['children'] = get_item_children($arr, $_x);
+	$thread_allowed = Config::get('system', 'thread_allow') && get_app()->theme_thread_allow;
+
+	foreach ($parents as $i => $parent) {
+		$parents[$i]['children'] = get_item_children($item_array, $parent, $thread_allowed);
+	}
+
+	foreach ($parents as $i => $parent) {
+		$parents[$i]['children'] = sort_item_children($parents[$i]['children']);
+	}
+
+	if ($thread_allowed && PConfig::get(local_user(), 'system', 'smart_threading', 0)) {
+		foreach ($parents as $i => $parent) {
+			$parents[$i] = smart_flatten_conversation($parent);
 		}
 	}
 
-	/// @TODO Old-lost code?
-	/*foreach ($arr as $x) {
-		if ($x['id'] != $x['parent']) {
-			$p = find_thread_parent_index($parents,$x);
-			if ($p !== false)
-				$parents[$p]['children'][] = $x;
-		}
-	}*/
-	if (count($parents)) {
-		foreach ($parents as $k => $v) {
-			if (count($parents[$k]['children'])) {
-				$parents[$k]['children'] = sort_item_children($parents[$k]['children']);
-				/// @TODO Old-lost code?
-				/*$y = $parents[$k]['children'];
-				usort($y,'sort_thr_created_rev');
-				$parents[$k]['children'] = $y;*/
-			}
+	/// @TODO: Stop recusrsively adding all children back to the top level (!!!)
+	/// However, this apparently ensures responses (likes, attendance) display (?!)
+	foreach ($parents as $parent) {
+		if (count($parent['children'])) {
+			add_children_to_list($parent['children'], $parents);
 		}
 	}
 
-	$ret = array();
-	if (count($parents)) {
-		foreach ($parents as $x) {
-			$ret[] = $x;
-			if (count($x['children'])) {
-				add_children_to_list($x['children'], $ret);
-				/// @TODO Old-lost code?
-				/*foreach ($x['children'] as $y)
-					$ret[] = $y;*/
-			}
-		}
-	}
-
-	return $ret;
+	return $parents;
 }
 
-/// @TODO Add type-hint
-function sort_thr_created($a, $b) {
+/**
+ * @brief usort() callback to sort item arrays by the created key
+ *
+ * @param array $a
+ * @param array $b
+ * @return int
+ */
+function sort_thr_created(array $a, array $b)
+{
 	return strcmp($b['created'], $a['created']);
 }
 
-/// @TODO Add type-hint
-function sort_thr_created_rev($a, $b) {
+/**
+ * @brief usort() callback to reverse sort item arrays by the created key
+ *
+ * @param array $a
+ * @param array $b
+ * @return int
+ */
+function sort_thr_created_rev(array $a, array $b)
+{
 	return strcmp($a['created'], $b['created']);
 }
 
-/// @TODO Add type-hint
-function sort_thr_commented($a, $b) {
+/**
+ * @brief usort() callback to sort item arrays by the commented key
+ *
+ * @param array $a
+ * @param array $b
+ * @return type
+ */
+function sort_thr_commented(array $a, array $b)
+{
 	return strcmp($b['commented'], $a['commented']);
-}
-
-/// @TODO Add type-hint
-function find_thread_parent_index($arr, $x) {
-	foreach ($arr as $k => $v) {
-		if ($v['id'] == $x['parent']) {
-			return $k;
-		}
-	}
-	return false;
 }
 
 /// @TODO Add type-hint
