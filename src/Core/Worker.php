@@ -912,7 +912,7 @@ class Worker {
 	}
 
 	public static function spawnWorker() {
-		$args = array("include/poller.php", "no_cron");
+		$args = array("scripts/worker.php", "no_cron");
 		get_app()->proc_run($args);
 	}
 

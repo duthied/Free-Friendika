@@ -1064,18 +1064,6 @@ function get_max_import_size()
 	return ((x($a->config, 'max_import_size')) ? $a->config['max_import_size'] : 0 );
 }
 
-/**
- * @brief compatibilty wrapper for Worker::add function
- *
- * @param (integer|array) priority or parameter array, strings are deprecated and are ignored
- *
- * @return boolean "false" if proc_run couldn't be executed
- */
-function proc_run()
-{
-	$proc_args = func_get_args();
-	call_user_func_array('Friendica\Core\Worker::add', $proc_args);
-}
 
 function current_theme()
 {
