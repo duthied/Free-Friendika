@@ -167,7 +167,7 @@ function do_like($item_id, $verb) {
 		);
 
 		$like_item_id = $like_item['id'];
-		Worker::add(PRIORITY_HIGH, "notifier", "like", $like_item_id);
+		Worker::add(PRIORITY_HIGH, "Notifier", "like", $like_item_id);
 
 		if (!$event_verb_flag || $like_item['verb'] == $activity) {
 			return true;
@@ -254,7 +254,7 @@ EOT;
 
 	call_hooks('post_local_end', $new_item);
 
-	Worker::add(PRIORITY_HIGH, "notifier", "like", $new_item_id);
+	Worker::add(PRIORITY_HIGH, "Notifier", "like", $new_item_id);
 
 	return true;
 }

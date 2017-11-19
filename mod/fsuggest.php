@@ -61,7 +61,7 @@ function fsuggest_post(App $a) {
 					intval($fsuggest_id),
 					intval(local_user())
 				);
-				Worker::add(PRIORITY_HIGH, 'notifier', 'suggest', $fsuggest_id);
+				Worker::add(PRIORITY_HIGH, 'Notifier', 'suggest', $fsuggest_id);
 			}
 
 			info( t('Friend suggestion sent.') . EOL);

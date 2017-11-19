@@ -360,7 +360,7 @@ function settings_post(App $a) {
 	check_form_security_token_redirectOnErr('/settings', 'settings');
 
 	if (x($_POST,'resend_relocate')) {
-		Worker::add(PRIORITY_HIGH, 'notifier', 'relocate', local_user());
+		Worker::add(PRIORITY_HIGH, 'Notifier', 'relocate', local_user());
 		info(t("Relocate message has been send to your contacts"));
 		goaway('settings');
 	}

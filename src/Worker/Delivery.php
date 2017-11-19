@@ -1,7 +1,10 @@
 <?php
 /**
- * @file include/delivery.php
+ * @file src/Worker/Delivery.php
  */
+
+namespace Friendica\Worker;
+
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
@@ -11,31 +14,18 @@ use Friendica\Protocol\DFRN;
 
 require_once 'include/queue_fn.php';
 require_once 'include/html2plain.php';
+require_once 'include/datetime.php';
+require_once 'include/items.php';
+require_once 'include/bbcode.php';
+require_once 'include/email.php';
 
-function delivery_run(&$argv, &$argc){
-	global $a;
+/// @todo This is some ugly code that needs to be split into several methods
 
-	require_once 'include/datetime.php';
-	require_once 'include/items.php';
-	require_once 'include/bbcode.php';
-	require_once 'include/email.php';
+class Delivery {
+	public static function execute($cmd, $item_id, $contact_id) {
+		global $a;
 
-	if ($argc < 3) {
-		return;
-	}
-
-	logger('delivery: invoked: '. print_r($argv,true), LOGGER_DEBUG);
-
-	$cmd        = $argv[1];
-	$item_id    = intval($argv[2]);
-
-	for ($x = 3; $x < $argc; $x ++) {
-
-		$contact_id = intval($argv[$x]);
-
-		if (!$item_id || !$contact_id) {
-			continue;
-		}
+		logger('delivery: invoked: '.$cmd.': '.$item_id.' to '.$contact_id, LOGGER_DEBUG);
 
 		$expire = false;
 		$mail = false;
@@ -72,7 +62,7 @@ function delivery_run(&$argv, &$argc){
 			$uid = $item_id;
 			$item_id = 0;
 			if (!count($items)) {
-				continue;
+				return;
 			}
 		} elseif ($cmd === 'suggest') {
 			$normal_mode = false;
@@ -97,8 +87,8 @@ function delivery_run(&$argv, &$argc){
 				intval($item_id)
 			);
 
-			if ((!DBM::is_result($r)) || (!intval($r[0]['parent']))) {
-				continue;
+			if (!DBM::is_result($r) || !intval($r[0]['parent'])) {
+				return;
 			}
 
 			$target_item = $r[0];
@@ -112,7 +102,7 @@ function delivery_run(&$argv, &$argc){
 			);
 
 			if (!count($items)) {
-				continue;
+				return;
 			}
 
 			$icontacts = null;
@@ -129,7 +119,7 @@ function delivery_run(&$argv, &$argc){
 				);
 			}
 			if ( !($icontacts && count($icontacts))) {
-				continue;
+				return;
 			}
 
 			// avoid race condition with deleting entries
@@ -158,12 +148,12 @@ function delivery_run(&$argv, &$argc){
 		);
 
 		if (!DBM::is_result($r)) {
-			continue;
+			return;
 		}
 
 		$owner = $r[0];
 
-		$walltowall = ((($top_level) && ($owner['id'] != $items[0]['contact-id'])) ? true : false);
+		$walltowall = (($top_level && ($owner['id'] != $items[0]['contact-id'])) ? true : false);
 
 		$public_message = true;
 
@@ -232,7 +222,7 @@ function delivery_run(&$argv, &$argc){
 			$contact = $r[0];
 		}
 		if ($contact['self']) {
-			continue;
+			return;
 		}
 		$deliver_status = 0;
 
@@ -255,7 +245,7 @@ function delivery_run(&$argv, &$argc){
 					$msgitems = array();
 					foreach ($items as $item) {  // there is only one item
 						if (!$item['parent']) {
-							continue;
+							return;
 						}
 						if ($item['id'] == $item_id) {
 							logger('followup: item: '. print_r($item,true), LOGGER_DATA);
@@ -267,17 +257,17 @@ function delivery_run(&$argv, &$argc){
 					$msgitems = array();
 					foreach ($items as $item) {
 						if (!$item['parent']) {
-							continue;
+							return;
 						}
 
 						// private emails may be in included in public conversations. Filter them.
 						if ($public_message && $item['private']) {
-							continue;
+							return;
 						}
 
 						$item_contact = get_item_contact($item,$icontacts);
 						if (!$item_contact) {
-							continue;
+							return;
 						}
 
 						if ($normal_mode) {
@@ -404,7 +394,7 @@ function delivery_run(&$argv, &$argc){
 						$it = $items[0];
 					} else {
 						$r = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-							intval($argv[2]),
+							intval($item_id),
 							intval($uid)
 						);
 						if (DBM::is_result($r))
@@ -490,7 +480,7 @@ function delivery_run(&$argv, &$argc){
 
 				logger('delivery: diaspora batch deliver: '.$loc);
 
-				if (Config::get('system','dfrn_only') || (!Config::get('system','diaspora_enabled')))
+				if (Config::get('system','dfrn_only') || !Config::get('system','diaspora_enabled'))
 					break;
 
 				if ($mail) {
@@ -536,7 +526,7 @@ function delivery_run(&$argv, &$argc){
 			default:
 				break;
 		}
-	}
 
-	return;
+		return;
+	}
 }

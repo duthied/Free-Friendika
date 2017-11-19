@@ -100,13 +100,13 @@ function mood_init(App $a) {
 			intval($uid),
 			intval($item_id)
 		);
-		Worker::add(PRIORITY_HIGH, "notifier", "tag", $item_id);
+		Worker::add(PRIORITY_HIGH, "Notifier", "tag", $item_id);
 	}
 
 
 	call_hooks('post_local_end', $arr);
 
-	Worker::add(PRIORITY_HIGH, "notifier", "like", $post_id);
+	Worker::add(PRIORITY_HIGH, "Notifier", "like", $post_id);
 
 	return;
 }

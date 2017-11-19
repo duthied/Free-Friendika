@@ -34,7 +34,7 @@ function user_remove($uid) {
 
 	// The user and related data will be deleted in "cron_expire_and_remove_users" (cronjobs.php)
 	q("UPDATE `user` SET `account_removed` = 1, `account_expires_on` = UTC_TIMESTAMP() WHERE `uid` = %d", intval($uid));
-	Worker::add(PRIORITY_HIGH, "notifier", "removeme", $uid);
+	Worker::add(PRIORITY_HIGH, "Notifier", "removeme", $uid);
 
 	// Send an update to the directory
 	Worker::add(PRIORITY_LOW, "Directory", $r['url']);

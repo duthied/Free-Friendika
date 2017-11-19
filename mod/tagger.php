@@ -216,7 +216,7 @@ EOT;
 
 	call_hooks('post_local_end', $arr);
 
-	Worker::add(PRIORITY_HIGH, "notifier", "tag", $post_id);
+	Worker::add(PRIORITY_HIGH, "Notifier", "tag", $post_id);
 
 	killme();
 

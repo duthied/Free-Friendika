@@ -1696,7 +1696,7 @@ class Diaspora
 			dba::insert('sign', array('iid' => $message_id, 'signed_text' => json_encode($data)));
 
 			// notify others
-			Worker::add(PRIORITY_HIGH, "notifier", "comment-import", $message_id);
+			Worker::add(PRIORITY_HIGH, "Notifier", "comment-import", $message_id);
 		}
 
 		return true;
@@ -2024,7 +2024,7 @@ class Diaspora
 			dba::insert('sign', array('iid' => $message_id, 'signed_text' => json_encode($data)));
 
 			// notify others
-			Worker::add(PRIORITY_HIGH, "notifier", "comment-import", $message_id);
+			Worker::add(PRIORITY_HIGH, "Notifier", "comment-import", $message_id);
 		}
 
 		return true;
@@ -2320,7 +2320,7 @@ class Diaspora
 
 				$i = item_store($arr);
 				if ($i) {
-					Worker::add(PRIORITY_HIGH, "notifier", "activity", $i);
+					Worker::add(PRIORITY_HIGH, "Notifier", "activity", $i);
 				}
 			}
 		}
@@ -2768,7 +2768,7 @@ class Diaspora
 			// Now check if the retraction needs to be relayed by us
 			if ($parent["origin"]) {
 				// notify others
-				Worker::add(PRIORITY_HIGH, "notifier", "drop", $item["id"]);
+				Worker::add(PRIORITY_HIGH, "Notifier", "drop", $item["id"]);
 			}
 		}
 

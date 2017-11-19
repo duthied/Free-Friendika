@@ -600,7 +600,7 @@ function profile_activity($changed, $value) {
 
 	$i = item_store($arr);
 	if ($i) {
-		Worker::add(PRIORITY_HIGH, "notifier", "activity", $i);
+		Worker::add(PRIORITY_HIGH, "Notifier", "activity", $i);
 	}
 }
 

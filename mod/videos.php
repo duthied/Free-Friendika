@@ -173,7 +173,7 @@ function videos_post(App $a) {
 				$drop_id = intval($i[0]['id']);
 
 				if ($i[0]['visible']) {
-					Worker::add(PRIORITY_HIGH, "notifier", "drop", $drop_id);
+					Worker::add(PRIORITY_HIGH, "Notifier", "drop", $drop_id);
 				}
 			}
 		}
