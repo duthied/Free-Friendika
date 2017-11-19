@@ -381,7 +381,7 @@ class GlobalContact
 		if (DBM::is_result($r)) {
 			return $r[0]['total'];
 		}
-		
+
 		return 0;
 	}
 

@@ -5,8 +5,8 @@ use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Object\Contact;
 
-require_once("include/contact_selectors.php");
-require_once("mod/contacts.php");
+require_once 'include/contact_selectors.php';
+require_once 'mod/contacts.php';
 
 function crepair_init(App $a) {
 	if (! local_user()) {
