@@ -102,7 +102,7 @@ tables, so that you can start fresh.
 ****************************************************************************
 ****************************************************************************
 
-8. Set up a cron job or scheduled task to run the poller once every 5-10 
+8. Set up a cron job or scheduled task to run the worker once every 5-10 
 minutes to pick up the recent "public" postings of your friends. Example:
 
 	cd /base/directory; /path/to/php scripts/worker.php
