@@ -5,6 +5,7 @@ use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 
 require_once 'include/conversation.php';
 require_once 'include/group.php';

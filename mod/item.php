@@ -22,6 +22,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
+use Friendica\Object\Contact;
 use Friendica\Protocol\Diaspora;
 
 require_once 'include/crypto.php';

@@ -12,6 +12,7 @@ use Friendica\Core\Config;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\XML;
 

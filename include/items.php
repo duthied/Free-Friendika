@@ -12,6 +12,7 @@ use Friendica\Core\Worker;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
+use Friendica\Object\Contact;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Lock;

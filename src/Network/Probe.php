@@ -13,6 +13,7 @@ use Friendica\Core\System;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\Object\Profile;
 use Friendica\Util\XML;
 
 use dba;

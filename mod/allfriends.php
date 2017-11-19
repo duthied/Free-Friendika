@@ -6,6 +6,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
+use Friendica\Object\Contact;
 
 require_once 'include/Contact.php';
 require_once 'include/contact_selectors.php';

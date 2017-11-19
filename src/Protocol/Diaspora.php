@@ -18,6 +18,8 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
+use Friendica\Object\Contact;
+use Friendica\Object\Profile;
 use Friendica\Util\XML;
 
 use dba;

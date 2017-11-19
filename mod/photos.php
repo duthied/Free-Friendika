@@ -6,6 +6,7 @@ use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
+use Friendica\Object\Contact;
 
 require_once 'include/Photo.php';
 require_once 'include/photos.php';

@@ -6,6 +6,7 @@
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
+use Friendica\Object\Contact;
 
 /**
  * @brief Calls the post update functions

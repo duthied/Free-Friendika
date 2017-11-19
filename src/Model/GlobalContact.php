@@ -10,6 +10,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
+use Friendica\Object\Profile;
 use Friendica\Protocol\PortableContact;
 use dba;
 use Exception;

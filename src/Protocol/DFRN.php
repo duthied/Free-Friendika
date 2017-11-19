@@ -12,8 +12,10 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
-use Friendica\Model\GlobalContact;
 use Friendica\Database\DBM;
+use Friendica\Model\GlobalContact;
+use Friendica\Object\Contact;
+use Friendica\Object\Profile;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\XML;
 

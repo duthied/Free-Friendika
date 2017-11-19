@@ -11,6 +11,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
+use Friendica\Object\Contact;
 use Friendica\Util\Lock;
 use Friendica\Util\XML;
 use dba;

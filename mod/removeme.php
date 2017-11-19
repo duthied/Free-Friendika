@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Model\User;
 
 function removeme_post(App $a) {
 

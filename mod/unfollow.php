@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 
 require_once 'include/follow.php';
 require_once 'include/Contact.php';

@@ -9,6 +9,7 @@ namespace Friendica\Core;
 use Friendica\Core\Pconfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 
 require_once 'include/html2plain.php';
 require_once 'include/datetime.php';

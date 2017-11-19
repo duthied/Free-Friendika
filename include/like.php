@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 use Friendica\Protocol\Diaspora;
 
 /**

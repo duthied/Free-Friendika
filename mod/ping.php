@@ -7,6 +7,7 @@ use Friendica\Core\Cache;
 use Friendica\Core\System;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 use Friendica\Util\XML;
 
 require_once 'include/datetime.php';

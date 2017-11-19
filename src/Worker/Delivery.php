@@ -9,6 +9,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
 
