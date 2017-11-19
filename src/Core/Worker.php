@@ -969,7 +969,11 @@ class Worker
 		self::killStaleWorkers();
 	}
 
-	public static function spawnWorker() {
+	/**
+	 * @return void
+	 */
+	public static function spawnWorker()
+	{
 		$args = array("scripts/worker.php", "no_cron");
 		get_app()->proc_run($args);
 	}
