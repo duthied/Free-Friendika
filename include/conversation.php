@@ -1362,20 +1362,19 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false) {
 }
 
 /**
- * Returns all the children in the given item list of the given parent, recusrsively
- * or not.
+ * Plucks the children of the given parent from a given item list.
  *
- * @brief Returns all the children in the given item list of the given parent
+ * @brief Plucks all the children in the given item list of the given parent
  *
  * @param array $item_list
  * @param array $parent
  * @param bool $recursive
  * @return type
  */
-function get_item_children(array $item_list, array $parent, $recursive = true)
+function get_item_children(array &$item_list, array $parent, $recursive = true)
 {
 	$children = [];
-	foreach ($item_list as $item) {
+	foreach ($item_list as $i => $item) {
 		if ($item['id'] != $item['parent']) {
 			if ($recursive) {
 				// Fallback to parent-uri if thr-parent is not set
@@ -1387,9 +1386,11 @@ function get_item_children(array $item_list, array $parent, $recursive = true)
 				if ($thr_parent == $parent['uri']) {
 					$item['children'] = get_item_children($item_list, $item);
 					$children[] = $item;
+					unset($item_list[$i]);
 				}
 			} elseif ($item['parent'] == $parent['id']) {
 				$children[] = $item;
+				unset($item_list[$i]);
 			}
 		}
 	}
@@ -1529,8 +1530,14 @@ function conv_sort(array $item_list, $order)
 
 	$thread_allowed = Config::get('system', 'thread_allow') && get_app()->theme_thread_allow;
 
+	/*
+	 * Plucks children from the item_array, second pass collects eventual orphan
+	 * items and add them as children of their top-level post.
+	 */
 	foreach ($parents as $i => $parent) {
-		$parents[$i]['children'] = get_item_children($item_array, $parent, $thread_allowed);
+		$parents[$i]['children'] =
+			get_item_children($item_array, $parent, $thread_allowed)
+			+ get_item_children($item_array, $parent, false);
 	}
 
 	foreach ($parents as $i => $parent) {
