@@ -134,6 +134,8 @@ class Cache
 	 * @param string  $key      The key to the cached data
 	 * @param mixed   $value    The value that is about to be stored
 	 * @param integer $duration The cache lifespan
+	 *
+	 * @return void
 	 */
 	public static function set($key, $value, $duration = CACHE_MONTH)
 	{
@@ -159,6 +161,8 @@ class Cache
 	 * @brief Remove outdated data from the cache
 	 *
 	 * @param integer $max_level The maximum cache level that is to be cleared
+	 *
+	 * @return void
 	 */
 	public static function clear($max_level = CACHE_MONTH)
 	{

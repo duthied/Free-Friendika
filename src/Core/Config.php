@@ -21,8 +21,8 @@ use dba;
  * There are a few places in the code (such as the admin panel) where boolean
  * configurations need to be fixed as of 10/08/2011.
  */
-class Config {
-
+class Config
+{
 	private static $cache;
 	private static $in_db;
 
@@ -32,12 +32,12 @@ class Config {
 	 * All configuration values of the system are stored in global cache
 	 * which is available under the global variable $a->config
 	 *
-	 * @param string $family
-	 *  The category of the configuration value
+	 * @param string $family The category of the configuration value
+	 *
 	 * @return void
 	 */
-	public static function load($family = "config") {
-
+	public static function load($family = "config")
+	{
 		// We don't preload "system" anymore.
 		// This reduces the number of database reads a lot.
 		if ($family === 'system') {
@@ -72,18 +72,15 @@ class Config {
 	 * local config cache, pull it into the cache so we don't have
 	 * to hit the DB again for this item.
 	 *
-	 * @param string $family
-	 *  The category of the configuration value
-	 * @param string $key
-	 *  The configuration key to query
-	 * @param mixed $default_value optional
-	 *  The value to return if key is not set (default: null)
-	 * @param boolean $refresh optional
-	 *  If true the config is loaded from the db and not from the cache (default: false)
+	 * @param string  $family        The category of the configuration value
+	 * @param string  $key           The configuration key to query
+	 * @param mixed   $default_value optional, The value to return if key is not set (default: null)
+	 * @param boolean $refresh       optional, If true the config is loaded from the db and not from the cache (default: false)
+	 *
 	 * @return mixed Stored value or null if it does not exist
 	 */
-	public static function get($family, $key, $default_value = null, $refresh = false) {
-
+	public static function get($family, $key, $default_value = null, $refresh = false)
+	{
 		$a = get_app();
 
 		if (!$refresh) {
@@ -128,15 +125,14 @@ class Config {
 	 *
 	 * Note: Please do not store booleans - convert to 0/1 integer values!
 	 *
-	 * @param string $family
-	 *  The category of the configuration value
-	 * @param string $key
-	 *  The configuration key to set
-	 * @param string $value
-	 *  The value to store
+	 * @param string $family The category of the configuration value
+	 * @param string $key    The configuration key to set
+	 * @param string $value  The value to store
+	 *
 	 * @return mixed Stored $value or false if the database update failed
 	 */
-	public static function set($family, $key, $value) {
+	public static function set($family, $key, $value)
+	{
 		$a = get_app();
 
 		// We store our setting values in a string variable.
@@ -177,14 +173,13 @@ class Config {
 	 * Removes the configured value from the stored cache in $a->config
 	 * and removes it from the database.
 	 *
-	 * @param string $family
-	 *  The category of the configuration value
-	 * @param string $key
-	 *  The configuration key to delete
+	 * @param string $family The category of the configuration value
+	 * @param string $key    The configuration key to delete
+	 *
 	 * @return mixed
 	 */
-	public static function delete($family, $key) {
-
+	public static function delete($family, $key)
+	{
 		if (isset(self::$cache[$family][$key])) {
 			unset(self::$cache[$family][$key]);
 			unset(self::$in_db[$family][$key]);

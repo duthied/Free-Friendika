@@ -905,11 +905,11 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 
 				if ($item['id'] == $item['parent']) {
 					$item_object = new Item($item);
-					$conv->add_thread($item_object);
+					$conv->addThread($item_object);
 				}
 			}
 
-			$threads = $conv->get_template_data($conv_responses);
+			$threads = $conv->getTemplateData($conv_responses);
 
 			if (!$threads) {
 				logger('[ERROR] conversation : Failed to get template data.', LOGGER_DEBUG);

@@ -39,9 +39,14 @@ class Item extends BaseObject
 	private $threaded = false;
 	private $visiting = false;
 
+	/**
+	 * Constructor
+	 *
+	 * @param array $data data array
+	 */
 	public function __construct($data)
 	{
-		$a = $this->get_app();
+		$a = $this->getApp();
 
 		$this->data = $data;
 		$this->setTemplate('wall');
@@ -92,9 +97,11 @@ class Item extends BaseObject
 	/**
 	 * Get data in a form usable by a conversation template
 	 *
-	 * Returns:
-	 *      _ The data requested on success
-	 *      _ false on failure
+	 * @param object  $conv_responses conversation responses
+	 * @param integer $thread_level   default = 1
+	 *
+	 * @return mixed The data requested on success
+	 *               false on failure
 	 */
 	public function getTemplateData($conv_responses, $thread_level = 1)
 	{
@@ -102,7 +109,7 @@ class Item extends BaseObject
 
 		$result = array();
 
-		$a = $this->get_app();
+		$a = $this->getApp();
 
 		$item = $this->getData();
 		$edited = false;
@@ -136,7 +143,7 @@ class Item extends BaseObject
 			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
 			? t('Private Message')
 			: false);
-		$shareable = ((($conv->get_profile_owner() == local_user()) && ($item['private'] != 1)) ? true : false);
+		$shareable = ((($conv->getProfileOwner() == local_user()) && ($item['private'] != 1)) ? true : false);
 		if (local_user() && link_compare($a->contact['url'], $item['author-link'])) {
 			if ($item["event-id"] != 0) {
 				$edpost = array("events/event/".$item['event-id'], t("Edit"));
@@ -153,12 +160,12 @@ class Item extends BaseObject
 
 		$drop = array(
 			'dropping' => $dropping,
-			'pagedrop' => ((feature_enabled($conv->get_profile_owner(), 'multi_delete')) ? $item['pagedrop'] : ''),
+			'pagedrop' => ((feature_enabled($conv->getProfileOwner(), 'multi_delete')) ? $item['pagedrop'] : ''),
 			'select'   => t('Select'),
 			'delete'   => t('Delete'),
 		);
 
-		$filer = (($conv->get_profile_owner() == local_user()) ? t("save to folder") : false);
+		$filer = (($conv->getProfileOwner() == local_user()) ? t("save to folder") : false);
 
 		$diff_author    = ((link_compare($item['url'], $item['author-link'])) ? false : true);
 		$profile_name   = htmlentities(((strlen($item['author-name'])) && $diff_author) ? $item['author-name'] : $item['name']);
@@ -179,7 +186,7 @@ class Item extends BaseObject
 		}
 
 		if (!isset($item['author-thumb']) || ($item['author-thumb'] == "")) {
-			$author_contact = get_contact_details_by_url($item['author-link'], $conv->get_profile_owner());
+			$author_contact = get_contact_details_by_url($item['author-link'], $conv->getProfileOwner());
 			if ($author_contact["thumb"]) {
 				$item['author-thumb'] = $author_contact["thumb"];
 			} else {
@@ -188,7 +195,7 @@ class Item extends BaseObject
 		}
 
 		if (!isset($item['owner-thumb']) || ($item['owner-thumb'] == "")) {
-			$owner_contact = get_contact_details_by_url($item['owner-link'], $conv->get_profile_owner());
+			$owner_contact = get_contact_details_by_url($item['owner-link'], $conv->getProfileOwner());
 			if ($owner_contact["thumb"]) {
 				$item['owner-thumb'] = $owner_contact["thumb"];
 			} else {
@@ -223,7 +230,7 @@ class Item extends BaseObject
 			$response_verbs[] = 'attendyes';
 			$response_verbs[] = 'attendno';
 			$response_verbs[] = 'attendmaybe';
-			if ($conv->is_writable()) {
+			if ($conv->isWritable()) {
 				$isevent = true;
 				$attend = array( t('I will attend'), t('I will not attend'), t('I might attend'));
 			}
@@ -247,7 +254,7 @@ class Item extends BaseObject
 		}
 
 		if ($this->isToplevel()) {
-			if ($conv->get_profile_owner() == local_user()) {
+			if ($conv->getProfileOwner() == local_user()) {
 				$isstarred = (($item['starred']) ? "starred" : "unstarred");
 
 				$star = array(
@@ -271,7 +278,7 @@ class Item extends BaseObject
 				}
 
 				$tagger = '';
-				if (feature_enabled($conv->get_profile_owner(), 'commtag')) {
+				if (feature_enabled($conv->getProfileOwner(), 'commtag')) {
 					$tagger = array(
 						'add'   => t("add tag"),
 						'class' => "",
@@ -282,10 +289,10 @@ class Item extends BaseObject
 			$indent = 'comment';
 		}
 
-		if ($conv->is_writable()) {
+		if ($conv->isWritable()) {
 			$buttons = array(
 				'like' => array( t("I like this \x28toggle\x29"), t("like")),
-				'dislike' => ((feature_enabled($conv->get_profile_owner(), 'dislike')) ? array( t("I don't like this \x28toggle\x29"), t("dislike")) : ''),
+				'dislike' => ((feature_enabled($conv->getProfileOwner(), 'dislike')) ? array( t("I don't like this \x28toggle\x29"), t("dislike")) : ''),
 			);
 			if ($shareable) {
 				$buttons['share'] = array( t('Share this'), t('share'));
@@ -379,12 +386,12 @@ class Item extends BaseObject
 			'owner_photo'     => $a->remove_baseurl(proxy_url($item['owner-thumb'], false, PROXY_SIZE_THUMB)),
 			'owner_name'      => htmlentities($owner_name_e),
 			'plink'           => get_plink($item),
-			'edpost'          => ((feature_enabled($conv->get_profile_owner(), 'edit_posts')) ? $edpost : ''),
+			'edpost'          => ((feature_enabled($conv->getProfileOwner(), 'edit_posts')) ? $edpost : ''),
 			'isstarred'       => $isstarred,
-			'star'            => ((feature_enabled($conv->get_profile_owner(), 'star_posts')) ? $star : ''),
-			'ignore'          => ((feature_enabled($conv->get_profile_owner(), 'ignore_posts')) ? $ignore : ''),
+			'star'            => ((feature_enabled($conv->getProfileOwner(), 'star_posts')) ? $star : ''),
+			'ignore'          => ((feature_enabled($conv->getProfileOwner(), 'ignore_posts')) ? $ignore : ''),
 			'tagger'          => $tagger,
-			'filer'           => ((feature_enabled($conv->get_profile_owner(), 'filing')) ? $filer : ''),
+			'filer'           => ((feature_enabled($conv->getProfileOwner(), 'filing')) ? $filer : ''),
 			'drop'            => $drop,
 			'vote'            => $buttons,
 			'like'            => $responses['like']['output'],
@@ -392,7 +399,7 @@ class Item extends BaseObject
 			'responses'       => $responses,
 			'switchcomment'   => t('Comment'),
 			'comment'         => $comment,
-			'previewing'      => ($conv->is_preview() ? ' preview ' : ''),
+			'previewing'      => ($conv->isPreview() ? ' preview ' : ''),
 			'wait'            => t('Please wait'),
 			'thread_level'    => $thread_level,
 			'edited'          => $edited,
@@ -449,11 +456,17 @@ class Item extends BaseObject
 		return $result;
 	}
 
+	/**
+	 * @return integer
+	 */
 	public function getId()
 	{
 		return $this->getDataValue('id');
 	}
 
+	/**
+	 * @return boolean
+	 */
 	public function isThreaded()
 	{
 		return $this->threaded;
@@ -461,6 +474,10 @@ class Item extends BaseObject
 
 	/**
 	 * Add a child item
+	 *
+	 * @param object $item The child item to add
+	 *
+	 * @return mixed
 	 */
 	public function addChild(Item $item)
 	{
@@ -489,6 +506,10 @@ class Item extends BaseObject
 
 	/**
 	 * Get a child by its ID
+	 *
+	 * @param integer $id The child id
+	 *
+	 * @return mixed
 	 */
 	public function getChild($id)
 	{
@@ -502,7 +523,9 @@ class Item extends BaseObject
 	}
 
 	/**
-	 * Get all ou children
+	 * Get all our children
+	 *
+	 * @return object
 	 */
 	public function getChildren()
 	{
@@ -511,6 +534,10 @@ class Item extends BaseObject
 
 	/**
 	 * Set our parent
+	 *
+	 * @param object $item The item to set as parent
+	 *
+	 * @return void
 	 */
 	protected function setParent($item)
 	{
@@ -525,6 +552,8 @@ class Item extends BaseObject
 
 	/**
 	 * Remove our parent
+	 *
+	 * @return void
 	 */
 	protected function removeParent()
 	{
@@ -534,6 +563,10 @@ class Item extends BaseObject
 
 	/**
 	 * Remove a child
+	 *
+	 * @param object $item The child to be removed
+	 *
+	 * @return boolean Success or failure
 	 */
 	public function removeChild($item)
 	{
@@ -553,6 +586,8 @@ class Item extends BaseObject
 
 	/**
 	 * Get parent item
+	 *
+	 * @return object
 	 */
 	protected function getParent()
 	{
@@ -560,11 +595,15 @@ class Item extends BaseObject
 	}
 
 	/**
-	 * set conversation
+	 * Set conversation
+	 *
+	 * @param object $conv The conversation
+	 *
+	 * @return void
 	 */
 	public function setConversation($conv)
 	{
-		$previous_mode = ($this->conversation ? $this->conversation->get_mode() : '');
+		$previous_mode = ($this->conversation ? $this->conversation->getMode() : '');
 
 		$this->conversation = $conv;
 
@@ -575,7 +614,9 @@ class Item extends BaseObject
 	}
 
 	/**
-	 * get conversation
+	 * Get conversation
+	 *
+	 * @return object
 	 */
 	public function getConversation()
 	{
@@ -586,6 +627,8 @@ class Item extends BaseObject
 	 * Get raw data
 	 *
 	 * We shouldn't need this
+	 *
+	 * @return array
 	 */
 	public function getData()
 	{
@@ -595,9 +638,10 @@ class Item extends BaseObject
 	/**
 	 * Get a data value
 	 *
-	 * Returns:
-	 *      _ value on success
-	 *      _ false on failure
+	 * @param object $name key
+	 *
+	 * @return mixed value on success
+	 *               false on failure
 	 */
 	public function getDataValue($name)
 	{
@@ -611,6 +655,10 @@ class Item extends BaseObject
 
 	/**
 	 * Set template
+	 *
+	 * @param object $name template name
+	 *
+	 * @return void
 	 */
 	private function setTemplate($name)
 	{
@@ -624,6 +672,8 @@ class Item extends BaseObject
 
 	/**
 	 * Get template
+	 *
+	 * @return object
 	 */
 	private function getTemplate()
 	{
@@ -632,6 +682,8 @@ class Item extends BaseObject
 
 	/**
 	 * Check if this is a toplevel post
+	 *
+	 * @return boolean
 	 */
 	private function isToplevel()
 	{
@@ -640,6 +692,8 @@ class Item extends BaseObject
 
 	/**
 	 * Check if this is writable
+	 *
+	 * @return boolean
 	 */
 	private function isWritable()
 	{
@@ -650,18 +704,20 @@ class Item extends BaseObject
 			// and community forums even if somebody else wrote the post.
 
 			// bug #517 - this fixes for conversation owner
-			if ($conv->get_mode() == 'profile' && $conv->get_profile_owner() == local_user()) {
+			if ($conv->getMode() == 'profile' && $conv->getProfileOwner() == local_user()) {
 				return true;
 			}
 
 			// this fixes for visitors
-			return ($this->writable || ($this->isVisiting() && $conv->get_mode() == 'profile'));
+			return ($this->writable || ($this->isVisiting() && $conv->getMode() == 'profile'));
 		}
 		return $this->writable;
 	}
 
 	/**
 	 * Count the total of our descendants
+	 *
+	 * @return integer
 	 */
 	private function countDescendants()
 	{
@@ -678,6 +734,8 @@ class Item extends BaseObject
 
 	/**
 	 * Get the template for the comment box
+	 *
+	 * @return string
 	 */
 	private function getCommentBoxTemplate()
 	{
@@ -687,13 +745,14 @@ class Item extends BaseObject
 	/**
 	 * Get the comment box
 	 *
-	 * Returns:
-	 *      _ The comment box string (empty if no comment box)
-	 *      _ false on failure
+	 * @param string $indent Indent value
+	 *
+	 * @return mixed The comment box string (empty if no comment box)
+	 *               false on failure
 	 */
 	private function getCommentBox($indent)
 	{
-		$a = $this->get_app();
+		$a = $this->getApp();
 		if (!$this->isToplevel() && !(Config::get('system', 'thread_allow') && $a->theme_thread_allow)) {
 			return '';
 		}
@@ -702,11 +761,11 @@ class Item extends BaseObject
 		$conv = $this->getConversation();
 		$template = get_markup_template($this->getCommentBoxTemplate());
 		$ww = '';
-		if (($conv->get_mode() === 'network') && $this->isWallToWall()) {
+		if (($conv->getMode() === 'network') && $this->isWallToWall()) {
 			$ww = 'ww';
 		}
 
-		if ($conv->is_writable() && $this->isWritable()) {
+		if ($conv->isWritable() && $this->isWritable()) {
 			$qc = $qcomment =  null;
 
 			/*
@@ -723,13 +782,13 @@ class Item extends BaseObject
 				array(
 				'$return_path' => $a->query_string,
 				'$threaded'    => $this->isThreaded(),
-				// '$jsreload'    => (($conv->get_mode() === 'display') ? $_SESSION['return_url'] : ''),
+				// '$jsreload'    => (($conv->getMode() === 'display') ? $_SESSION['return_url'] : ''),
 				'$jsreload'    => '',
-				'$type'        => (($conv->get_mode() === 'profile') ? 'wall-comment' : 'net-comment'),
+				'$type'        => (($conv->getMode() === 'profile') ? 'wall-comment' : 'net-comment'),
 				'$id'          => $this->getId(),
 				'$parent'      => $this->getId(),
 				'$qcomment'    => $qcomment,
-				'$profile_uid' =>  $conv->get_profile_owner(),
+				'$profile_uid' =>  $conv->getProfileOwner(),
 				'$mylink'      => $a->remove_baseurl($a->contact['url']),
 				'$mytitle'     => t('This is you'),
 				'$myphoto'     => $a->remove_baseurl($a->contact['thumb']),
@@ -743,10 +802,10 @@ class Item extends BaseObject
 				'$edimg'       => t('Image'),
 				'$edurl'       => t('Link'),
 				'$edvideo'     => t('Video'),
-				'$preview'     => ((feature_enabled($conv->get_profile_owner(), 'preview')) ? t('Preview') : ''),
+				'$preview'     => ((feature_enabled($conv->getProfileOwner(), 'preview')) ? t('Preview') : ''),
 				'$indent'      => $indent,
 				'$sourceapp'   => t($a->sourcename),
-				'$ww'          => (($conv->get_mode() === 'network') ? $ww : ''),
+				'$ww'          => (($conv->getMode() === 'network') ? $ww : ''),
 				'$rand_num'    => random_digits(12))
 			);
 		}
@@ -754,6 +813,9 @@ class Item extends BaseObject
 		return $comment_box;
 	}
 
+	/**
+	 * @return string
+	 */
 	private function getRedirectUrl()
 	{
 		return $this->redirect_url;
@@ -761,15 +823,17 @@ class Item extends BaseObject
 
 	/**
 	 * Check if we are a wall to wall item and set the relevant properties
+	 *
+	 * @return void
 	 */
 	protected function checkWallToWall()
 	{
-		$a = $this->get_app();
+		$a = $this->getApp();
 		$conv = $this->getConversation();
 		$this->wall_to_wall = false;
 
 		if ($this->isToplevel()) {
-			if ($conv->get_mode() !== 'profile') {
+			if ($conv->getMode() !== 'profile') {
 				if ($this->getDataValue('wall') && !$this->getDataValue('self')) {
 					// On the network page, I am the owner. On the display page it will be the profile owner.
 					// This will have been stored in $a->page_contact by our calling page.
@@ -819,26 +883,41 @@ class Item extends BaseObject
 		}
 	}
 
+	/**
+	 * @return boolean
+	 */
 	private function isWallToWall()
 	{
 		return $this->wall_to_wall;
 	}
 
+	/**
+	 * @return string
+	 */
 	private function getOwnerUrl()
 	{
 		return $this->owner_url;
 	}
 
+	/**
+	 * @return string
+	 */
 	private function getOwnerPhoto()
 	{
 		return $this->owner_photo;
 	}
 
+	/**
+	 * @return string
+	 */
 	private function getOwnerName()
 	{
 		return $this->owner_name;
 	}
 
+	/**
+	 * @return boolean
+	 */
 	private function isVisiting()
 	{
 		return $this->visiting;
