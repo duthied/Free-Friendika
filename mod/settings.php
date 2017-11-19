@@ -651,7 +651,7 @@ function settings_post(App $a) {
 		}
 	}
 
-	Worker::add(PRIORITY_LOW, 'profile_update', local_user());
+	Worker::add(PRIORITY_LOW, 'ProfileUpdate', local_user());
 
 	// Update the global contact for the user
 	GlobalContact::updateForUser(local_user());

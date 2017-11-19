@@ -3873,7 +3873,7 @@ function api_account_update_profile_image($type)
 		Worker::add(PRIORITY_LOW, "Directory", $url);
 	}
 
-	Worker::add(PRIORITY_LOW, 'profile_update', api_user());
+	Worker::add(PRIORITY_LOW, 'ProfileUpdate', api_user());
 
 	// output for client
 	if ($data) {

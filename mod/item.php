@@ -1064,7 +1064,7 @@ function item_post(App $a) {
 	// We now do it in the background to save some time.
 	// This is important in interactive environments like the frontend or the API.
 	// We don't fork a new process since this is done anyway with the following command
-	Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "create_shadowentry", $post_id);
+	Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "CreateShadowentry", $post_id);
 
 	// Call the background process that is delivering the item to the receivers
 	Worker::add(PRIORITY_HIGH, "notifier", $notify_type, $post_id);

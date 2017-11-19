@@ -923,7 +923,7 @@ class Worker {
 	 *
 	 * next args are passed as $cmd command line
 	 * or: Worker::add(PRIORITY_HIGH, "notifier", "drop", $drop_id);
-	 * or: Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "create_shadowentry", $post_id);
+	 * or: Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "CreateShadowentry", $post_id);
 	 *
 	 * @note $cmd and string args are surrounded with ""
 	 *
