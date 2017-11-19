@@ -778,7 +778,7 @@ function admin_page_site_post(App $a) {
 		$users = q("SELECT `uid` FROM `user` WHERE `account_removed` = 0 AND `account_expired` = 0");
 
 		foreach ($users as $user) {
-			Worker::add(PRIORITY_HIGH, 'notifier', 'relocate', $user['uid']);
+			Worker::add(PRIORITY_HIGH, 'Notifier', 'relocate', $user['uid']);
 		}
 
 		info("Relocation started. Could take a while to complete.");

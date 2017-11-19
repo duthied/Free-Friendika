@@ -135,7 +135,7 @@ function profile_photo_post(App $a) {
 					Worker::add(PRIORITY_LOW, "Directory", $url);
 				}
 
-				Worker::add(PRIORITY_LOW, 'profile_update', local_user());
+				Worker::add(PRIORITY_LOW, 'ProfileUpdate', local_user());
 			} else {
 				notice( t('Unable to process image') . EOL);
 			}

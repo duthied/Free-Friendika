@@ -688,7 +688,7 @@ class GlobalContact
 
 		if ($doprobing) {
 			logger("Last Contact: ". $last_contact_str." - Last Failure: ".$last_failure_str." - Checking: ".$contact["url"], LOGGER_DEBUG);
-			Worker::add(PRIORITY_LOW, 'gprobe', $contact["url"]);
+			Worker::add(PRIORITY_LOW, 'GProbe', $contact["url"]);
 		}
 
 		return $gcontact_id;

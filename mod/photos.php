@@ -306,7 +306,7 @@ function photos_post(App $a) {
 					// send the notification upstream/downstream as the case may be
 
 					if ($rr['visible']) {
-						Worker::add(PRIORITY_HIGH, "notifier", "drop", $drop_id);
+						Worker::add(PRIORITY_HIGH, "Notifier", "drop", $drop_id);
 					}
 				}
 			}
@@ -383,7 +383,7 @@ function photos_post(App $a) {
 				photo_albums($page_owner_uid, true);
 
 				if ($i[0]['visible']) {
-					Worker::add(PRIORITY_HIGH, "notifier", "drop", $drop_id);
+					Worker::add(PRIORITY_HIGH, "Notifier", "drop", $drop_id);
 				}
 			}
 		}
@@ -731,7 +731,7 @@ function photos_post(App $a) {
 
 					$item_id = item_store($arr);
 					if ($item_id) {
-						Worker::add(PRIORITY_HIGH, "notifier", "tag", $item_id);
+						Worker::add(PRIORITY_HIGH, "Notifier", "tag", $item_id);
 					}
 				}
 			}
@@ -936,7 +936,7 @@ function photos_post(App $a) {
 	photo_albums($page_owner_uid, true);
 
 	if ($visible) {
-		Worker::add(PRIORITY_HIGH, "notifier", 'wall-new', $item_id);
+		Worker::add(PRIORITY_HIGH, "Notifier", 'wall-new', $item_id);
 	}
 
 	call_hooks('photo_post_end',intval($item_id));

@@ -145,7 +145,7 @@ function send_message($recipient=0, $body='', $subject='', $replyto=''){
 	}
 
 	if ($post_id) {
-		Worker::add(PRIORITY_HIGH, "notifier", "mail", $post_id);
+		Worker::add(PRIORITY_HIGH, "Notifier", "mail", $post_id);
 		return intval($post_id);
 	} else {
 		return -3;

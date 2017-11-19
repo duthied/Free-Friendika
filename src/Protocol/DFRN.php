@@ -2106,7 +2106,7 @@ class DFRN
 			$changed = true;
 
 			if ($entrytype == DFRN_REPLY_RC) {
-				Worker::add(PRIORITY_HIGH, "notifier", "comment-import", $current["id"]);
+				Worker::add(PRIORITY_HIGH, "Notifier", "comment-import", $current["id"]);
 			}
 		}
 
@@ -2752,7 +2752,7 @@ class DFRN
 
 				if ($posted_id && $parent && ($entrytype == DFRN_REPLY_RC)) {
 					logger("Notifying followers about comment ".$posted_id, LOGGER_DEBUG);
-					Worker::add(PRIORITY_HIGH, "notifier", "comment-import", $posted_id);
+					Worker::add(PRIORITY_HIGH, "Notifier", "comment-import", $posted_id);
 				}
 
 				return true;
@@ -2940,7 +2940,7 @@ class DFRN
 
 				if ($entrytype == DFRN_REPLY_RC) {
 					logger("Notifying followers about deletion of post " . $item["id"], LOGGER_DEBUG);
-					Worker::add(PRIORITY_HIGH, "notifier", "drop", $item["id"]);
+					Worker::add(PRIORITY_HIGH, "Notifier", "drop", $item["id"]);
 				}
 			}
 		}

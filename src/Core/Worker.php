@@ -922,8 +922,8 @@ class Worker {
 	 * @param (integer|array) priority or parameter array, strings are deprecated and are ignored
 	 *
 	 * next args are passed as $cmd command line
-	 * or: Worker::add(PRIORITY_HIGH, "notifier", "drop", $drop_id);
-	 * or: Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "create_shadowentry", $post_id);
+	 * or: Worker::add(PRIORITY_HIGH, "Notifier", "drop", $drop_id);
+	 * or: Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "CreateShadowEntry", $post_id);
 	 *
 	 * @note $cmd and string args are surrounded with ""
 	 *

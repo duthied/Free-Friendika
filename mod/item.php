@@ -834,7 +834,7 @@ function item_post(App $a) {
 		// update filetags in pconfig
 		file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
 
-		Worker::add(PRIORITY_HIGH, "notifier", 'edit_post', $post_id);
+		Worker::add(PRIORITY_HIGH, "Notifier", 'edit_post', $post_id);
 		if ((x($_REQUEST, 'return')) && strlen($return_path)) {
 			logger('return: ' . $return_path);
 			goaway($return_path);
@@ -1064,10 +1064,10 @@ function item_post(App $a) {
 	// We now do it in the background to save some time.
 	// This is important in interactive environments like the frontend or the API.
 	// We don't fork a new process since this is done anyway with the following command
-	Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "create_shadowentry", $post_id);
+	Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "CreateShadowEntry", $post_id);
 
 	// Call the background process that is delivering the item to the receivers
-	Worker::add(PRIORITY_HIGH, "notifier", $notify_type, $post_id);
+	Worker::add(PRIORITY_HIGH, "Notifier", $notify_type, $post_id);
 
 	logger('post_complete');
 

@@ -39,7 +39,7 @@ Class Cron {
 		logger('cron: start');
 
 		// run queue delivery process in the background
-		Worker::add(PRIORITY_NEGLIGIBLE, "queue");
+		Worker::add(PRIORITY_NEGLIGIBLE, "Queue");
 
 		// run the process to discover global contacts in the background
 		Worker::add(PRIORITY_LOW, "DiscoverPoCo");
@@ -79,7 +79,7 @@ Class Cron {
 
 			Config::set('system', 'last_expire_day', $d2);
 
-			Worker::add(PRIORITY_LOW, 'expire');
+			Worker::add(PRIORITY_LOW, 'Expire');
 
 			Worker::add(PRIORITY_MEDIUM, 'DBClean');
 

@@ -939,7 +939,7 @@ function zrl_init(App $a)
 			return;
 		}
 
-		Worker::add(PRIORITY_LOW, 'gprobe', $tmp_str);
+		Worker::add(PRIORITY_LOW, 'GProbe', $tmp_str);
 		$arr = array('zrl' => $tmp_str, 'url' => $a->cmd);
 		call_hooks('zrl_init', $arr);
 	}

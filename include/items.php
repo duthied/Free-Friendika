@@ -1138,7 +1138,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	check_item_notification($current_post, $uid);
 
 	if ($notify) {
-		Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "notifier", $notify_type, $current_post);
+		Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "Notifier", $notify_type, $current_post);
 	}
 
 	return $current_post;
@@ -1421,7 +1421,7 @@ function tag_deliver($uid, $item_id) {
 	);
 	update_thread($item_id);
 
-	Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), 'notifier', 'tgroup', $item_id);
+	Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), 'Notifier', 'tgroup', $item_id);
 
 }
 
@@ -2055,7 +2055,7 @@ function item_expire($uid, $days, $network = "", $force = false) {
 		drop_item($item['id'], false);
 	}
 
-	Worker::add(array('priority' => PRIORITY_LOW, 'dont_fork' => true), "notifier", "expire", $uid);
+	Worker::add(array('priority' => PRIORITY_LOW, 'dont_fork' => true), "Notifier", "expire", $uid);
 }
 
 /// @TODO type-hint is array
@@ -2077,7 +2077,7 @@ function drop_items($items) {
 	// multiple threads may have been deleted, send an expire notification
 
 	if ($uid) {
-		Worker::add(array('priority' => PRIORITY_LOW, 'dont_fork' => true), "notifier", "expire", $uid);
+		Worker::add(array('priority' => PRIORITY_LOW, 'dont_fork' => true), "Notifier", "expire", $uid);
 	}
 }
 
@@ -2269,7 +2269,7 @@ function drop_item($id, $interactive = true) {
 		$drop_id = intval($item['id']);
 		$priority = ($interactive ? PRIORITY_HIGH : PRIORITY_LOW);
 
-		Worker::add(array('priority' => $priority, 'dont_fork' => true), "notifier", "drop", $drop_id);
+		Worker::add(array('priority' => $priority, 'dont_fork' => true), "Notifier", "drop", $drop_id);
 
 		if (! $interactive) {
 			return $owner;

@@ -360,7 +360,7 @@ function settings_post(App $a) {
 	check_form_security_token_redirectOnErr('/settings', 'settings');
 
 	if (x($_POST,'resend_relocate')) {
-		Worker::add(PRIORITY_HIGH, 'notifier', 'relocate', local_user());
+		Worker::add(PRIORITY_HIGH, 'Notifier', 'relocate', local_user());
 		info(t("Relocate message has been send to your contacts"));
 		goaway('settings');
 	}
@@ -651,7 +651,7 @@ function settings_post(App $a) {
 		}
 	}
 
-	Worker::add(PRIORITY_LOW, 'profile_update', local_user());
+	Worker::add(PRIORITY_LOW, 'ProfileUpdate', local_user());
 
 	// Update the global contact for the user
 	GlobalContact::updateForUser(local_user());

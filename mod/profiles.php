@@ -506,7 +506,7 @@ function profiles_post(App $a) {
 				Worker::add(PRIORITY_LOW, "Directory", $url);
 			}
 
-			Worker::add(PRIORITY_LOW, 'profile_update', local_user());
+			Worker::add(PRIORITY_LOW, 'ProfileUpdate', local_user());
 
 			// Update the global contact for the user
 			GlobalContact::updateForUser(local_user());
@@ -600,7 +600,7 @@ function profile_activity($changed, $value) {
 
 	$i = item_store($arr);
 	if ($i) {
-		Worker::add(PRIORITY_HIGH, "notifier", "activity", $i);
+		Worker::add(PRIORITY_HIGH, "Notifier", "activity", $i);
 	}
 }
 

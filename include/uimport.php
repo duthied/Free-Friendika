@@ -286,7 +286,7 @@ function import_account(App $a, $file) {
 	}
 
 	// send relocate messages
-	Worker::add(PRIORITY_HIGH, 'notifier', 'relocate', $newuid);
+	Worker::add(PRIORITY_HIGH, 'Notifier', 'relocate', $newuid);
 
 	info(t("Done. You can now login with your username and password"));
 	goaway(System::baseUrl() . "/login");
