@@ -602,7 +602,7 @@ function notifier_run(&$argv, &$argc){
 
 		// Handling the pubsubhubbub requests
 		Worker::add(array('priority' => PRIORITY_HIGH, 'created' => $a->queue['created'], 'dont_fork' => true),
-				'pubsubpublish');
+				'PubSubPublish');
 	}
 
 	logger('notifier: calling hooks', LOGGER_DEBUG);

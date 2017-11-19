@@ -28,7 +28,7 @@ class Queue {
 			logger('queue: start');
 
 			// Handling the pubsubhubbub requests
-			Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), 'pubsubpublish');
+			Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), 'PubSubPublish');
 
 			$r = q(
 				"SELECT `queue`.*, `contact`.`name`, `contact`.`uid` FROM `queue`
