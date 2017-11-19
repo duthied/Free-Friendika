@@ -6,7 +6,11 @@
 use Friendica\App;
 use Friendica\Content\Smilies;
 
-function smiliesContent(App $a)
+/**
+ * @param object $a App
+ * @return mixed
+ */
+function smilies_content(App $a)
 {
 	if ($a->argv[1] === "json") {
 		$tmp = Smilies::getList();
