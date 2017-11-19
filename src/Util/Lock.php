@@ -1,11 +1,12 @@
 <?php
-
+/**
+ * @file src/Util/Lock.php
+ */
 namespace Friendica\Util;
 
 /**
  * @file src/Util/Lock.php
  * @brief Functions for preventing parallel execution of functions
- *
  */
 
 use Friendica\Core\Config;
@@ -16,7 +17,8 @@ use dba;
 /**
  * @brief This class contain Functions for preventing parallel execution of functions
  */
-class Lock {
+class Lock
+{
 	private static $semaphore = array();
 
 	/**
@@ -24,7 +26,8 @@ class Lock {
 	 *
 	 * @return object|boolean The memcache object - or "false" if not successful
 	 */
-	private static function connectMemcache() {
+	private static function connectMemcache()
+	{
 		if (!function_exists('memcache_connect')) {
 			return false;
 		}
@@ -52,7 +55,8 @@ class Lock {
 	 *
 	 * @return ressource the semaphore key
 	 */
-	private static function semaphoreKey($fn_name) {
+	private static function semaphoreKey($fn_name)
+	{
 		$temp = get_temppath();
 
 		$file = $temp.'/'.$fn_name.'.sem';
@@ -67,12 +71,13 @@ class Lock {
 	/**
 	 * @brief Sets a lock for a given name
 	 *
-	 * @param string $fn_name Name of the lock
+	 * @param string  $fn_name Name of the lock
 	 * @param integer $timeout Seconds until we give up
 	 *
 	 * @return boolean Was the lock successful?
 	 */
-	public static function set($fn_name, $timeout = 120) {
+	public static function set($fn_name, $timeout = 120)
+	{
 		$got_lock = false;
 		$start = time();
 
@@ -155,8 +160,10 @@ class Lock {
 	 * @brief Removes a lock if it was set by us
 	 *
 	 * @param string $fn_name Name of the lock
+	 * @return mixed
 	 */
-	public static function remove($fn_name) {
+	public static function remove($fn_name)
+	{
 		if (function_exists('sem_get') && version_compare(PHP_VERSION, '5.6.1', '>=')) {
 			if (empty(self::$semaphore[$fn_name])) {
 				return false;
@@ -186,8 +193,10 @@ class Lock {
 
 	/**
 	 * @brief Removes all lock that were set by us
+	 * @return void
 	 */
-	public static function removeAll() {
+	public static function removeAll()
+	{
 		$memcache = self::connectMemcache();
 		if (is_object($memcache)) {
 			// We cannot delete all cache entries, but this doesn't matter with memcache

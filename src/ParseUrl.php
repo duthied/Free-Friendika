@@ -454,6 +454,7 @@ class ParseUrl
 	 *
 	 * @param string $tag The pure tag name
 	 * @param int    $k   Counter for internal use
+	 * @return void
 	 */
 	private static function arrAddHashes(&$tag, $k)
 	{

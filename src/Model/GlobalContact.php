@@ -94,6 +94,7 @@ class GlobalContact
 	 * @param integer $uid  User ID
 	 * @param integer $cid  Contact ID
 	 * @param integer $zcid Global Contact ID
+	 * @return void
 	 */
 	public static function link($gcid, $uid = 0, $cid = 0, $zcid = 0)
 	{
@@ -142,6 +143,7 @@ class GlobalContact
 	 *  2: Contacts of profiles on this server
 	 *  3: Contacts of contacts of profiles on this server
 	 *  4: ...
+	 * @return array $gcontact
 	 */
 	public static function sanitize($gcontact)
 	{
@@ -273,6 +275,11 @@ class GlobalContact
 		return $gcontact;
 	}
 
+	/**
+	 * @param integer $uid id
+	 * @param integer $cid id
+	 * @return integer
+	 */
 	public static function countCommonFriends($uid, $cid)
 	{
 		$r = q(
@@ -295,6 +302,11 @@ class GlobalContact
 		return 0;
 	}
 
+	/**
+	 * @param integer $uid  id
+	 * @param integer $zcid zcid
+	 * @return integer
+	 */
 	public static function countCommonFriendsZcid($uid, $zcid)
 	{
 		$r = q(
@@ -313,6 +325,14 @@ class GlobalContact
 		return 0;
 	}
 
+	/**
+	 * @param object  $uid     user
+	 * @param object  $cid     cid
+	 * @param integer $start   optional, default 0
+	 * @param integer $limit   optional, default 9999
+	 * @param boolean $shuffle optional, default false
+	 * @return object
+	 */
 	public static function commonFriends($uid, $cid, $start = 0, $limit = 9999, $shuffle = false)
 	{
 		if ($shuffle) {
@@ -343,7 +363,15 @@ class GlobalContact
 		return $r;
 	}
 
-	function commonFriendsZcid($uid, $zcid, $start = 0, $limit = 9999, $shuffle = false)
+	/**
+	 * @param object  $uid     user
+	 * @param object  $zcid    zcid
+	 * @param integer $start   optional, default 0
+	 * @param integer $limit   optional, default 9999
+	 * @param boolean $shuffle optional, default false
+	 * @return object
+	 */
+	public static function commonFriendsZcid($uid, $zcid, $start = 0, $limit = 9999, $shuffle = false)
 	{
 		if ($shuffle) {
 			$sql_extra = " order by rand() ";
@@ -367,6 +395,11 @@ class GlobalContact
 		return $r;
 	}
 
+	/**
+	 * @param object $uid user
+	 * @param object $cid cid
+	 * @return integer
+	 */
 	public static function countAllFriends($uid, $cid)
 	{
 		$r = q(
@@ -385,7 +418,13 @@ class GlobalContact
 		return 0;
 	}
 
-
+	/**
+	 * @param object  $uid   user
+	 * @param object  $cid   cid
+	 * @param integer $start optional, default 0
+	 * @param integer $limit optional, default 80
+	 * @return object
+	 */
 	public static function allFriends($uid, $cid, $start = 0, $limit = 80)
 	{
 		$r = q(
@@ -407,6 +446,12 @@ class GlobalContact
 		return $r;
 	}
 
+	/**
+	 * @param object  $uid   user
+	 * @param integer $start optional, default 0
+	 * @param integer $limit optional, default 80
+	 * @return array
+	 */
 	public static function suggestionQuery($uid, $start = 0, $limit = 80)
 	{
 		if (!$uid) {
@@ -507,6 +552,9 @@ class GlobalContact
 		return $list;
 	}
 
+	/**
+	 * @return void
+	 */
 	public static function updateSuggestions()
 	{
 		$a = get_app();
@@ -588,6 +636,7 @@ class GlobalContact
 	 * @brief Replace alternate OStatus user format with the primary one
 	 *
 	 * @param arr $contact contact array (called by reference)
+	 * @return void
 	 */
 	public static function fixAlternateContactAddress(&$contact)
 	{
@@ -859,6 +908,7 @@ class GlobalContact
 	 * @brief Updates the gcontact entry from probe
 	 *
 	 * @param str $url profile link
+	 * @return void
 	 */
 	public static function updateFromProbe($url)
 	{
@@ -878,6 +928,7 @@ class GlobalContact
 	 * @brief Update the gcontact entry for a given user id
 	 *
 	 * @param int $uid User ID
+	 * @return void
 	 */
 	public static function updateForUser($uid)
 	{
@@ -923,6 +974,7 @@ class GlobalContact
 	 * If the "Statistics" plugin is enabled (See http://gstools.org/ for details) we query user data with this.
 	 *
 	 * @param str $server Server address
+	 * @return void
 	 */
 	public static function fetchGsUsers($server)
 	{
@@ -978,7 +1030,7 @@ class GlobalContact
 
 	/**
 	 * @brief Asking GNU Social server on a regular base for their user data
-	 *
+	 * @return void
 	 */
 	public static function discoverGsUsers()
 	{
