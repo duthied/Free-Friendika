@@ -115,8 +115,6 @@ function display_init(App $a) {
 
 function display_fetchauthor($a, $item) {
 
-	require_once("include/Contact.php");
-
 	$profiledata = array();
 	$profiledata["uid"] = -1;
 	$profiledata["nickname"] = $item["author-name"];

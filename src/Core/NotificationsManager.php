@@ -14,7 +14,6 @@ use Friendica\Object\Contact;
 require_once 'include/html2plain.php';
 require_once 'include/datetime.php';
 require_once 'include/bbcode.php';
-require_once 'include/Contact.php';
 
 /**
  * @brief Methods for read and write notifications from/to database

@@ -23,7 +23,6 @@ use dba;
 use DOMDocument;
 use DomXPath;
 
-require_once "include/Contact.php";
 require_once "include/enotify.php";
 require_once "include/threads.php";
 require_once "include/items.php";

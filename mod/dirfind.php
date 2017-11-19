@@ -12,7 +12,6 @@ use Friendica\Object\Contact;
 use Friendica\Protocol\PortableContact;
 
 require_once 'include/contact_widgets.php';
-require_once 'include/Contact.php';
 require_once 'include/contact_selectors.php';
 require_once 'mod/contacts.php';
 

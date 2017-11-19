@@ -128,7 +128,6 @@ function dfrn_notify_post(App $a) {
 	logger('dfrn_notify: data: ' . $data, LOGGER_DATA);
 
 	if ($dissolve == 1) {
-		require_once('include/Contact.php');
 		// Relationship is dissolved permanently
 		Contact::remove($importer['id']);
 		logger('relationship dissolved : ' . $importer['name'] . ' dissolved ' . $importer['username']);

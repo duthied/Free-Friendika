@@ -20,7 +20,6 @@ Class OnePoll
 
 		require_once 'include/datetime.php';
 		require_once 'include/items.php';
-		require_once 'include/Contact.php';
 		require_once 'include/email.php';
 		require_once 'include/queue_fn.php';
 

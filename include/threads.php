@@ -99,7 +99,6 @@ function add_shadow_thread($itemid) {
 		if (!DBM::is_result($r)) {
 			// Preparing public shadow (removing user specific data)
 			require_once("include/items.php");
-			require_once("include/Contact.php");
 
 			unset($item[0]['id']);
 			$item[0]['uid'] = 0;
@@ -159,7 +158,6 @@ function add_shadow_entry($itemid) {
 
 	// Preparing public shadow (removing user specific data)
 	require_once("include/items.php");
-	require_once("include/Contact.php");
 
 	unset($item['id']);
 	$item['uid'] = 0;

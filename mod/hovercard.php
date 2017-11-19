@@ -11,8 +11,6 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Model\GlobalContact;
-
-require_once "include/Contact.php";
 use Friendica\Object\Contact;
 
 function hovercard_init(App $a) {

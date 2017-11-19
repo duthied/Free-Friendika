@@ -124,7 +124,6 @@ class Notifier {
 			if (!$r) {
 				return;
 			}
-			require_once 'include/Contact.php';
 			foreach ($r as $contact) {
 				Contact::terminateFriendship($user, $contact);
 			}

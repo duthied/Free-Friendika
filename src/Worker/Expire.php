@@ -17,7 +17,6 @@ class Expire {
 
 		require_once('include/datetime.php');
 		require_once('include/items.php');
-		require_once('include/Contact.php');
 
 		load_hooks();
 

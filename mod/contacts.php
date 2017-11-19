@@ -8,7 +8,6 @@ use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
 use Friendica\Object\Contact;
 
-require_once 'include/Contact.php';
 require_once 'include/contact_selectors.php';
 require_once 'mod/proxy.php';
 require_once 'include/Photo.php';

@@ -10,8 +10,6 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
-
-require_once 'include/Contact.php';
 use Friendica\Object\Profile;
 
 function profiles_init(App $a) {

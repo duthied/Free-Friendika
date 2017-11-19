@@ -11,7 +11,6 @@ require_once 'include/oembed.php';
 require_once 'include/event.php';
 require_once 'include/map.php';
 require_once 'mod/proxy.php';
-require_once 'include/Contact.php';
 require_once 'include/plaintext.php';
 
 function bb_PictureCacheExt($matches) {

@@ -1444,7 +1444,6 @@ function admin_page_users_post(App $a) {
 		notice(sprintf(tt("%s user blocked/unblocked", "%s users blocked/unblocked", count($users)), count($users)));
 	}
 	if (x($_POST,'page_users_delete')) {
-		require_once("include/Contact.php");
 		foreach ($users as $uid) {
 			User::remove($uid);
 		}
@@ -1492,7 +1491,6 @@ function admin_page_users(App $a) {
 			case "delete":
 				check_form_security_token_redirectOnErr('/admin/users', 'admin_users', 't');
 				// delete user
-				require_once("include/Contact.php");
 				User::remove($uid);
 
 				notice(sprintf(t("User '%s' deleted"), $user[0]['username']).EOL);

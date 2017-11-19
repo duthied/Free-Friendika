@@ -29,7 +29,6 @@ require_once 'include/email.php';
 require_once 'include/threads.php';
 require_once 'include/plaintext.php';
 require_once 'include/feed.php';
-require_once 'include/Contact.php';
 require_once 'mod/share.php';
 require_once 'include/enotify.php';
 require_once 'include/group.php';

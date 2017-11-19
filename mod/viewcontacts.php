@@ -5,7 +5,6 @@ use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Object\Contact;
 
-require_once('include/Contact.php');
 require_once('include/contact_selectors.php');
 
 function viewcontacts_init(App $a) {

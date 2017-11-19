@@ -33,7 +33,6 @@ require_once 'include/files.php';
 require_once 'include/threads.php';
 require_once 'include/text.php';
 require_once 'include/items.php';
-require_once 'include/Contact.php';
 
 function item_post(App $a) {
 

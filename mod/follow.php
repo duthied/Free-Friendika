@@ -7,7 +7,6 @@ use Friendica\Network\Probe;
 use Friendica\Object\Contact;
 
 require_once 'include/follow.php';
-require_once 'include/Contact.php';
 require_once 'include/contact_selectors.php';
 
 function follow_post(App $a) {

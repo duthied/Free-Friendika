@@ -6,7 +6,6 @@ use Friendica\App;
 use Friendica\Database\DBM;
 use Friendica\Object\Contact;
 
-require_once 'include/Contact.php';
 require_once 'include/contact_selectors.php';
 
 function nogroup_init(App $a)
@@ -32,7 +31,6 @@ function nogroup_content(App $a)
 		return '';
 	}
 
-	require_once 'include/Contact.php';
 	$r = Contact::getUngroupedList(local_user());
 	if (DBM::is_result($r)) {
 		$a->set_pager_total($r[0]['total']);

@@ -513,7 +513,6 @@ if (!function_exists('conversation')) {
 function conversation(App $a, $items, $mode, $update, $preview = false) {
 
 	require_once 'include/bbcode.php';
-	require_once 'include/Contact.php';
 	require_once 'mod/proxy.php';
 
 	$ssl_state = ((local_user()) ? true : false);
