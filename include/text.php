@@ -30,7 +30,7 @@ function replace_macros($s, $r) {
 
 	$t = $a->template_engine();
 	try {
-		$output = $t->replace_macros($s, $r);
+		$output = $t->replaceMacros($s, $r);
 	} catch (Exception $e) {
 		echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
 		killme();
@@ -591,7 +591,7 @@ function get_markup_template($s, $root = '') {
 	$a = get_app();
 	$t = $a->template_engine();
 	try {
-		$template = $t->get_template_file($s, $root);
+		$template = $t->getTemplateFile($s, $root);
 	} catch (Exception $e) {
 		echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
 		killme();
