@@ -58,13 +58,13 @@ class Expire {
 		logger('expire: start');
 
 		Worker::add(array('priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true),
-				'expire', 'delete');
+				'Expire', 'delete');
 
 		$r = dba::p("SELECT `uid`, `username` FROM `user` WHERE `expire` != 0");
 		while ($row = dba::fetch($r)) {
 			logger('Calling expiry for user '.$row['uid'].' ('.$row['username'].')', LOGGER_DEBUG);
 			Worker::add(array('priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true),
-					'expire', (int)$row['uid']);
+					'Expire', (int)$row['uid']);
 		}
 		dba::close($r);
 
@@ -74,7 +74,7 @@ class Expire {
 			foreach ($a->hooks['expire'] as $hook) {
 				logger("Calling expire hook for '" . $hook[1] . "'", LOGGER_DEBUG);
 				Worker::add(array('priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true),
-						'expire', 'hook', $hook[1]);
+						'Expire', 'hook', $hook[1]);
 			}
 		}
 

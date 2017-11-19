@@ -39,7 +39,7 @@ Class Cron {
 		logger('cron: start');
 
 		// run queue delivery process in the background
-		Worker::add(PRIORITY_NEGLIGIBLE, "queue");
+		Worker::add(PRIORITY_NEGLIGIBLE, "Queue");
 
 		// run the process to discover global contacts in the background
 		Worker::add(PRIORITY_LOW, "DiscoverPoCo");
