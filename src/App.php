@@ -295,7 +295,7 @@ class App {
 		// Register template engines
 		$dc = get_declared_classes();
 		foreach ($dc as $k) {
-			if (in_array('ITemplateEngine', class_implements($k))) {
+			if (in_array('Friendica\Render\ITemplateEngine', class_implements($k))) {
 				$this->register_template_engine($k);
 			}
 		}

@@ -1,6 +1,7 @@
 <?php
 
-require_once "object/TemplateEngine.php";
+use Friendica\Render\ITemplateEngine;
+
 require_once("library/Smarty/libs/Smarty.class.php");
 require_once "include/plugin.php";
 
@@ -54,13 +55,13 @@ class FriendicaSmartyEngine implements ITemplateEngine {
 	}
 
 	// ITemplateEngine interface
-	public function replace_macros($s, $r) {
+	public function replaceMacros($s, $r) {
 		$template = '';
 		if (gettype($s) === 'string') {
 			$template = $s;
 			$s = new FriendicaSmarty();
 		}
-		
+
 		$r['$APP'] = get_app();
 
 		// "middleware": inject variables into templates
@@ -80,7 +81,7 @@ class FriendicaSmartyEngine implements ITemplateEngine {
 		return $s->parsed($template);
 	}
 
-	public function get_template_file($file, $root=''){
+	public function getTemplateFile($file, $root=''){
 		$a = get_app();
 		$template_file = get_template_file($a, SMARTY3_TEMPLATE_FOLDER.'/'.$file, $root);
 		$template = new FriendicaSmarty();
