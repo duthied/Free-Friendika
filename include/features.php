@@ -125,7 +125,7 @@ function get_features($filtered = true) {
 			$kquantity = count($arr[$k]);
 			for ($y = 0; $y < $kquantity; $y ++) {
 				if (is_array($arr[$k][$y])) {
-					if ($arr[$k][$y][4] === false) {
+					if (is_null($arr[$k][$y][4])) {
 						$has_items = true;
 					}
 					else {
