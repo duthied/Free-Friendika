@@ -79,7 +79,7 @@ Class Cron {
 
 			Config::set('system', 'last_expire_day', $d2);
 
-			Worker::add(PRIORITY_LOW, 'expire');
+			Worker::add(PRIORITY_LOW, 'Expire');
 
 			Worker::add(PRIORITY_MEDIUM, 'DBClean');
 
