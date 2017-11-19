@@ -72,7 +72,7 @@ function register_post(App $a) {
 
 	if($netpublish && $a->config['register_policy'] != REGISTER_APPROVE) {
 		$url = System::baseUrl() . '/profile/' . $user['nickname'];
-		Worker::add(PRIORITY_LOW, "directory", $url);
+		Worker::add(PRIORITY_LOW, "Directory", $url);
 	}
 
 	$using_invites = Config::get('system','invitation_only');

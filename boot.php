@@ -39,7 +39,6 @@ require_once 'include/features.php';
 require_once 'include/identity.php';
 require_once 'update.php';
 require_once 'include/dbstructure.php';
-require_once 'include/poller.php';
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Asparagus');
@@ -630,7 +629,7 @@ function check_db($via_worker)
 	}
 	if ($build != DB_UPDATE_VERSION) {
 		// When we cannot execute the database update via the worker, we will do it directly
-		if (!Worker::add(PRIORITY_CRITICAL, 'dbupdate') && $via_worker) {
+		if (!Worker::add(PRIORITY_CRITICAL, 'DBUpdate') && $via_worker) {
 			update_db(get_app());
 		}
 	}

@@ -1,9 +1,13 @@
 <?php
+/**
+ * @file src/Worker/Cron.php
+ */
 namespace Friendica\Worker;
 
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use dba;
 
 Class Cron {
 	public static function execute($parameter = '', $generation = 0) {
@@ -38,28 +42,28 @@ Class Cron {
 		Worker::add(PRIORITY_NEGLIGIBLE, "queue");
 
 		// run the process to discover global contacts in the background
-		Worker::add(PRIORITY_LOW, "discover_poco");
+		Worker::add(PRIORITY_LOW, "DiscoverPoCo");
 
 		// run the process to update locally stored global contacts in the background
-		Worker::add(PRIORITY_LOW, "discover_poco", "checkcontact");
+		Worker::add(PRIORITY_LOW, "DiscoverPoCo", "checkcontact");
 
 		// Expire and remove user entries
-		Worker::add(PRIORITY_MEDIUM, "cronjobs", "expire_and_remove_users");
+		Worker::add(PRIORITY_MEDIUM, "CronJobs", "expire_and_remove_users");
 
 		// Call possible post update functions
-		Worker::add(PRIORITY_LOW, "cronjobs", "post_update");
+		Worker::add(PRIORITY_LOW, "CronJobs", "post_update");
 
 		// update nodeinfo data
-		Worker::add(PRIORITY_LOW, "cronjobs", "nodeinfo");
+		Worker::add(PRIORITY_LOW, "CronJobs", "nodeinfo");
 
 		// Clear cache entries
-		Worker::add(PRIORITY_LOW, "cronjobs", "clear_cache");
+		Worker::add(PRIORITY_LOW, "CronJobs", "clear_cache");
 
 		// Repair missing Diaspora values in contacts
-		Worker::add(PRIORITY_LOW, "cronjobs", "repair_diaspora");
+		Worker::add(PRIORITY_LOW, "CronJobs", "repair_diaspora");
 
 		// Repair entries in the database
-		Worker::add(PRIORITY_LOW, "cronjobs", "repair_database");
+		Worker::add(PRIORITY_LOW, "CronJobs", "repair_database");
 
 		// once daily run birthday_updates and then expire in background
 		$d1 = Config::get('system', 'last_expire_day');
@@ -67,19 +71,19 @@ Class Cron {
 
 		if ($d2 != intval($d1)) {
 
-			Worker::add(PRIORITY_LOW, "cronjobs", "update_contact_birthdays");
+			Worker::add(PRIORITY_LOW, "CronJobs", "update_contact_birthdays");
 
-			Worker::add(PRIORITY_LOW, "discover_poco", "update_server");
+			Worker::add(PRIORITY_LOW, "DiscoverPoCo", "update_server");
 
-			Worker::add(PRIORITY_LOW, "discover_poco", "suggestions");
+			Worker::add(PRIORITY_LOW, "DiscoverPoCo", "suggestions");
 
 			Config::set('system', 'last_expire_day', $d2);
 
 			Worker::add(PRIORITY_LOW, 'expire');
 
-			Worker::add(PRIORITY_MEDIUM, 'dbclean');
+			Worker::add(PRIORITY_MEDIUM, 'DBClean');
 
-			Worker::add(PRIORITY_LOW, "cronjobs", "update_photo_albums");
+			Worker::add(PRIORITY_LOW, "CronJobs", "update_photo_albums");
 
 			// Delete all done workerqueue entries
 			dba::delete('workerqueue', array('`done` AND `executed` < UTC_TIMESTAMP() - INTERVAL 12 HOUR'));

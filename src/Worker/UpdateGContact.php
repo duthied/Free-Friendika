@@ -2,6 +2,8 @@
 /**
  * @file src/Worker/UpdateGcontact.php
  */
+namespace Friendica\Worker;
+
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;

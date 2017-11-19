@@ -37,7 +37,7 @@ function user_remove($uid) {
 	Worker::add(PRIORITY_HIGH, "notifier", "removeme", $uid);
 
 	// Send an update to the directory
-	Worker::add(PRIORITY_LOW, "directory", $r['url']);
+	Worker::add(PRIORITY_LOW, "Directory", $r['url']);
 
 	if($uid == local_user()) {
 		unset($_SESSION['authenticated']);
@@ -68,7 +68,7 @@ function contact_remove($id) {
 	dba::delete('contact', array('id' => $id));
 
 	// Delete the rest in the background
-	Worker::add(PRIORITY_LOW, 'remove_contact', $id);
+	Worker::add(PRIORITY_LOW, 'RemoveContact', $id);
 }
 
 

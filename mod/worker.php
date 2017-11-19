@@ -3,7 +3,6 @@
  * @file mod/worker.php
  * @brief Module for running the poller as frontend process
  */
-require_once("include/poller.php");
 
 use Friendica\Core\Worker;
 use Friendica\Core\Config;

@@ -3870,7 +3870,7 @@ function api_account_update_profile_image($type)
 	//$user = api_get_user(get_app());
 	$url = System::baseUrl() . '/profile/' . get_app()->user['nickname'];
 	if ($url && strlen(Config::get('system', 'directory'))) {
-		Worker::add(PRIORITY_LOW, "directory", $url);
+		Worker::add(PRIORITY_LOW, "Directory", $url);
 	}
 
 	Worker::add(PRIORITY_LOW, 'profile_update', api_user());

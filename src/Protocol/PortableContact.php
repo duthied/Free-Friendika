@@ -51,7 +51,7 @@ class PortableContact
 	public static function loadWorker($cid, $uid = 0, $zcid = 0, $url = null)
 	{
 		// Call the function "load" via the worker
-		Worker::add(PRIORITY_LOW, "discover_poco", "load", (int)$cid, (int)$uid, (int)$zcid, $url);
+		Worker::add(PRIORITY_LOW, "DiscoverPoCo", "load", (int)$cid, (int)$uid, (int)$zcid, $url);
 	}
 
 	/**
@@ -1317,7 +1317,7 @@ class PortableContact
 			$r = q("SELECT `nurl` FROM `gserver` WHERE `nurl` = '%s'", dbesc(normalise_link($server_url)));
 			if (!DBM::is_result($r)) {
 				logger("Call server check for server ".$server_url, LOGGER_DEBUG);
-				Worker::add(PRIORITY_LOW, "discover_poco", "server", $server_url);
+				Worker::add(PRIORITY_LOW, "DiscoverPoCo", "server", $server_url);
 			}
 		}
 	}
@@ -1340,7 +1340,7 @@ class PortableContact
 			$servers = json_decode($serverdata);
 
 			foreach ($servers->pods as $server) {
-				Worker::add(PRIORITY_LOW, "discover_poco", "server", "https://".$server->host);
+				Worker::add(PRIORITY_LOW, "DiscoverPoCo", "server", "https://".$server->host);
 			}
 		}
 
@@ -1353,7 +1353,7 @@ class PortableContact
 
 				foreach ($servers as $server) {
 					$url = (is_null($server->https_score) ? 'http' : 'https').'://'.$server->name;
-					Worker::add(PRIORITY_LOW, "discover_poco", "server", $url);
+					Worker::add(PRIORITY_LOW, "DiscoverPoCo", "server", $url);
 				}
 			}
 		}
@@ -1462,7 +1462,7 @@ class PortableContact
 				}
 
 				logger('Update directory from server '.$server['url'].' with ID '.$server['id'], LOGGER_DEBUG);
-				Worker::add(PRIORITY_LOW, "discover_poco", "update_server_directory", (int)$server['id']);
+				Worker::add(PRIORITY_LOW, "DiscoverPoCo", "update_server_directory", (int)$server['id']);
 
 				if (!$complete && (--$no_of_queries == 0)) {
 					break;
