@@ -1362,11 +1362,14 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false) {
 }
 
 /**
- * Returns all the children in the given item list of the given parent. If threading
- * is allowed, does it recursively.
+ * Returns all the children in the given item list of the given parent, recusrsively
+ * or not.
+ *
+ * @brief Returns all the children in the given item list of the given parent
  *
  * @param array $item_list
  * @param array $parent
+ * @param bool $recursive
  * @return type
  */
 function get_item_children(array $item_list, array $parent, $recursive = true)
@@ -1394,7 +1397,7 @@ function get_item_children(array $item_list, array $parent, $recursive = true)
 }
 
 /**
- * Recursively sorts a tree-like item array
+ * @brief Recursively sorts a tree-like item array
  *
  * @param array $items
  * @return array
@@ -1412,7 +1415,7 @@ function sort_item_children(array $items)
 }
 
 /**
- * Recursively add all children items at the top level of a list
+ * @brief Recursively add all children items at the top level of a list
  *
  * @param array $children List of items to append
  * @param array $item_list
@@ -1437,6 +1440,8 @@ function add_children_to_list(array $children, array &$item_list)
  *
  * This process is rendered somewhat more complicated because items can be either
  * replies or likes, and these don't factor at all in the reply count/last reply.
+ *
+ * @brief Selectively flattens a tree-like item structure to prevent threading stairs
  *
  * @param array $parent A tree-like array of items
  * @return array
@@ -1487,6 +1492,8 @@ function smart_flatten_conversation(array $parent)
  * Expands a flat list of items into corresponding tree-like conversation structures,
  * sort the top-level posts either on "created" or "commented", and finally
  * append all the items at the top level (???)
+ *
+ * @brief Expands a flat item list into a conversation array for display
  *
  * @param array  $item_list A list of items belonging to one or more conversations
  * @param string $order     Either on "created" or "commented"
@@ -1548,7 +1555,7 @@ function conv_sort(array $item_list, $order)
 }
 
 /**
- * usort() callback to sort item arrays by the created key
+ * @brief usort() callback to sort item arrays by the created key
  *
  * @param array $a
  * @param array $b
@@ -1560,7 +1567,7 @@ function sort_thr_created(array $a, array $b)
 }
 
 /**
- * usort() callback to reverse sort item arrays by the created key
+ * @brief usort() callback to reverse sort item arrays by the created key
  *
  * @param array $a
  * @param array $b
@@ -1572,7 +1579,7 @@ function sort_thr_created_rev(array $a, array $b)
 }
 
 /**
- * usort() callback to sort item arrays by the commented key
+ * @brief usort() callback to sort item arrays by the commented key
  *
  * @param array $a
  * @param array $b
