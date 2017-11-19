@@ -23,22 +23,32 @@ class Conversation extends BaseObject
 	private $profile_owner = 0;
 	private $preview = false;
 
+	/**
+	 * Constructor
+	 *
+	 * @param string  $mode    The mode
+	 * @param boolean $preview boolean value
+	 */
 	public function __construct($mode, $preview)
 	{
-		$this->set_mode($mode);
+		$this->setMode($mode);
 		$this->preview = $preview;
 	}
 
 	/**
 	 * Set the mode we'll be displayed on
+	 *
+	 * @param string $mode The mode to set
+	 *
+	 * @return void
 	 */
-	private function set_mode($mode)
+	private function setMode($mode)
 	{
-		if ($this->get_mode() == $mode) {
+		if ($this->getMode() == $mode) {
 			return;
 		}
 
-		$a = $this->get_app();
+		$a = $this->getApp();
 
 		switch ($mode) {
 			case 'network':
@@ -55,7 +65,7 @@ class Conversation extends BaseObject
 				$this->writable = can_write_wall($a, $this->profile_owner);
 				break;
 			default:
-				logger('[ERROR] Conversation::set_mode : Unhandled mode ('. $mode .').', LOGGER_DEBUG);
+				logger('[ERROR] Conversation::setMode : Unhandled mode ('. $mode .').', LOGGER_DEBUG);
 				return false;
 				break;
 		}
@@ -64,32 +74,40 @@ class Conversation extends BaseObject
 
 	/**
 	 * Get mode
+	 *
+	 * @return string
 	 */
-	public function get_mode()
+	public function getMode()
 	{
 		return $this->mode;
 	}
 
 	/**
 	 * Check if page is writable
+	 *
+	 * @return boolean
 	 */
-	public function is_writable()
+	public function isWritable()
 	{
 		return $this->writable;
 	}
 
 	/**
 	 * Check if page is a preview
+	 *
+	 * @return boolean
 	 */
-	public function is_preview()
+	public function isPreview()
 	{
 		return $this->preview;
 	}
 
 	/**
 	 * Get profile owner
+	 *
+	 * @return integer
 	 */
-	public function get_profile_owner()
+	public function getProfileOwner()
 	{
 		return $this->profile_owner;
 	}
@@ -97,21 +115,22 @@ class Conversation extends BaseObject
 	/**
 	 * Add a thread to the conversation
 	 *
-	 * Returns:
-	 *      _ The inserted item on success
-	 *      _ false on failure
+	 * @param object $item The item to insert
+	 *
+	 * @return mixed The inserted item on success
+	 *               false on failure
 	 */
-	public function add_thread($item)
+	public function addThread($item)
 	{
 		$item_id = $item->getId();
 
 		if (!$item_id) {
-			logger('[ERROR] Conversation::add_thread : Item has no ID!!', LOGGER_DEBUG);
+			logger('[ERROR] Conversation::addThread : Item has no ID!!', LOGGER_DEBUG);
 			return false;
 		}
 
-		if ($this->get_thread($item->getId())) {
-			logger('[WARN] Conversation::add_thread : Thread already exists ('. $item->getId() .').', LOGGER_DEBUG);
+		if ($this->getThread($item->getId())) {
+			logger('[WARN] Conversation::addThread : Thread already exists ('. $item->getId() .').', LOGGER_DEBUG);
 			return false;
 		}
 
@@ -119,12 +138,12 @@ class Conversation extends BaseObject
 		 * Only add will be displayed
 		 */
 		if ($item->getDataValue('network') === NETWORK_MAIL && local_user() != $item->getDataValue('uid')) {
-			logger('[WARN] Conversation::add_thread : Thread is a mail ('. $item->getId() .').', LOGGER_DEBUG);
+			logger('[WARN] Conversation::addThread : Thread is a mail ('. $item->getId() .').', LOGGER_DEBUG);
 			return false;
 		}
 
 		if ($item->getDataValue('verb') === ACTIVITY_LIKE || $item->getDataValue('verb') === ACTIVITY_DISLIKE) {
-			logger('[WARN] Conversation::add_thread : Thread is a (dis)like ('. $item->getId() .').', LOGGER_DEBUG);
+			logger('[WARN] Conversation::addThread : Thread is a (dis)like ('. $item->getId() .').', LOGGER_DEBUG);
 			return false;
 		}
 
@@ -139,13 +158,14 @@ class Conversation extends BaseObject
 	 *
 	 * We should find a way to avoid using those arguments (at least most of them)
 	 *
-	 * Returns:
-	 *      _ The data requested on success
-	 *      _ false on failure
+	 * @param object $conv_responses data
+	 *
+	 * @return mixed The data requested on success
+	 *               false on failure
 	 */
-	public function get_template_data($conv_responses)
+	public function getTemplateData($conv_responses)
 	{
-		$a = get_app();
+		$a = getApp();
 		$result = array();
 		$i = 0;
 
@@ -157,7 +177,7 @@ class Conversation extends BaseObject
 			$item_data = $item->getTemplateData($conv_responses);
 
 			if (!$item_data) {
-				logger('[ERROR] Conversation::get_template_data : Failed to get item template data ('. $item->getId() .').', LOGGER_DEBUG);
+				logger('[ERROR] Conversation::getTemplateData : Failed to get item template data ('. $item->getId() .').', LOGGER_DEBUG);
 				return false;
 			}
 			$result[] = $item_data;
@@ -169,11 +189,12 @@ class Conversation extends BaseObject
 	/**
 	 * Get a thread based on its item id
 	 *
-	 * Returns:
-	 *      _ The found item on success
-	 *      _ false on failure
+	 * @param integer $id Item id
+	 *
+	 * @return mixed The found item on success
+	 *               false on failure
 	 */
-	private function get_thread($id)
+	private function getThread($id)
 	{
 		foreach ($this->threads as $item) {
 			if ($item->getId() == $id) {

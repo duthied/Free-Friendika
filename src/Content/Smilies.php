@@ -33,6 +33,8 @@ class Smilies
 	 * @param array  $b              Array of emoticons
 	 * @param string $smiley         The text smilie
 	 * @param string $representation The replacement
+	 *
+	 * @return void
 	 */
 	public static function add(&$b, $smiley, $representation)
 	{
@@ -57,7 +59,7 @@ class Smilies
 	 *
 	 * @hook smilie ('texts' => smilies texts array, 'icons' => smilies html array)
 	 */
-	public static function get_list()
+	public static function getList()
 	{
 		$texts =  array(
 			'&lt;3',
@@ -154,7 +156,7 @@ class Smilies
 	 * bbcode source for HTML display
 	 *
 	 * @param string  $s         Text that should be replaced
-	 * @param boolean $sample
+	 * @param boolean $sample    optional, default false
 	 * @param boolean $no_images Only replace emoticons without images
 	 *
 	 * @return string HML Output of the Smilie
@@ -170,7 +172,7 @@ class Smilies
 		$s = preg_replace_callback('/<pre>(.*?)<\/pre>/ism', 'self::encode', $s);
 		$s = preg_replace_callback('/<code>(.*?)<\/code>/ism', 'self::encode', $s);
 
-		$params = self::get_list();
+		$params = self::getList();
 
 		if ($no_images) {
 			$cleaned = array('texts' => array(), 'icons' => array());
@@ -192,7 +194,7 @@ class Smilies
 				$s .= '<dl><dt>' . $params['texts'][$x] . '</dt><dd>' . $params['icons'][$x] . '</dd></dl>';
 			}
 		} else {
-			$params['string'] = preg_replace_callback('/&lt;(3+)/', 'self::preg_heart', $params['string']);
+			$params['string'] = preg_replace_callback('/&lt;(3+)/', 'self::pregHeart', $params['string']);
 			$s = str_replace($params['texts'], $params['icons'], $params['string']);
 		}
 
@@ -202,11 +204,21 @@ class Smilies
 		return $s;
 	}
 
+	/**
+	 * @param string $m string
+	 *
+	 * @return string base64 encoded string
+	 */
 	private static function encode($m)
 	{
 		return(str_replace($m[1], base64url_encode($m[1]), $m[0]));
 	}
 
+	/**
+	 * @param string $m string
+	 *
+	 * @return string base64 decoded string
+	 */
 	private static function decode($m)
 	{
 		return(str_replace($m[1], base64url_decode($m[1]), $m[0]));
@@ -216,13 +228,13 @@ class Smilies
 	/**
 	 * @brief expand <3333 to the correct number of hearts
 	 *
-	 * @param string $x
+	 * @param string $x string
 	 *
 	 * @return string HTML Output
 	 *
 	 * @todo: Rework because it doesn't work correctly
 	 */
-	private static function preg_heart($x)
+	private static function pregHeart($x)
 	{
 		if (strlen($x[1]) == 1) {
 			return $x[0];

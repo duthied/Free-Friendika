@@ -322,7 +322,7 @@ class NotificationsManager
 							'link' => System::baseUrl(true).'/display/'.$it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
-							'text' => sprintf( t("%s is not attending %s's event"), $it['author-name'], $it['pname']),
+							'text' => sprintf(t("%s is not attending %s's event"), $it['author-name'], $it['pname']),
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
@@ -381,9 +381,9 @@ class NotificationsManager
 
 	/**
 	 * @brief Total number of network notifications
-	 * @param int|string $seen
-	 *	If 0 only include notifications into the query
-	 *	which aren't marked as "seen"
+	 * @param int|string $seen If 0 only include notifications into the query
+	 *	                       which aren't marked as "seen"
+	 *
 	 * @return int Number of network notifications
 	 */
 	private function networkTotal($seen = 0)
@@ -413,9 +413,8 @@ class NotificationsManager
 	/**
 	 * @brief Get network notifications
 	 *
-	 * @param int|string $seen
-	 *	If 0 only include notifications into the query
-	 *	which aren't marked as "seen"
+	 * @param int|string $seen  If 0 only include notifications into the query
+	 *	                        which aren't marked as "seen"
 	 * @param int        $start Start the query at this point
 	 * @param int        $limit Maximum number of query results
 	 *
@@ -465,9 +464,9 @@ class NotificationsManager
 
 	/**
 	 * @brief Total number of system notifications
-	 * @param int|string $seen
-	 *	If 0 only include notifications into the query
-	 *	which aren't marked as "seen"
+	 * @param int|string $seen If 0 only include notifications into the query
+	 *	                       which aren't marked as "seen"
+	 *
 	 * @return int Number of system notifications
 	 */
 	private function systemTotal($seen = 0)
@@ -493,9 +492,8 @@ class NotificationsManager
 	/**
 	 * @brief Get system notifications
 	 *
-	 * @param int|string $seen
-	 *	If 0 only include notifications into the query
-	 *	which aren't marked as "seen"
+	 * @param int|string $seen  If 0 only include notifications into the query
+	 *	                        which aren't marked as "seen"
 	 * @param int        $start Start the query at this point
 	 * @param int        $limit Maximum number of query results
 	 *
@@ -541,7 +539,7 @@ class NotificationsManager
 	 *
 	 * @return string The additional sql query
 	 */
-	private function _personal_sql_extra()
+	private function personalSqlExtra()
 	{
 		$myurl = System::baseUrl(true) . '/profile/'. $this->a->user['nickname'];
 		$myurl = substr($myurl, strpos($myurl, '://') + 3);
@@ -559,15 +557,15 @@ class NotificationsManager
 
 	/**
 	 * @brief Total number of personal notifications
-	 * @param int|string $seen
-	 *	If 0 only include notifications into the query
-	 *	which aren't marked as "seen"
+	 * @param int|string $seen If 0 only include notifications into the query
+	 *	                       which aren't marked as "seen"
+	 *
 	 * @return int Number of personal notifications
 	 */
 	private function personalTotal($seen = 0)
 	{
 		$sql_seen = "";
-		$sql_extra = $this->_personal_sql_extra();
+		$sql_extra = $this->personalSqlExtra();
 
 		if ($seen === 0) {
 			$sql_seen = " AND `item`.`unseen` = 1 ";
@@ -579,7 +577,7 @@ class NotificationsManager
 				WHERE `item`.`visible` = 1
 				$sql_extra
 				$sql_seen
-				AND `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 0 " ,
+				AND `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 0 ",
 			intval(local_user())
 		);
 
@@ -593,9 +591,8 @@ class NotificationsManager
 	/**
 	 * @brief Get personal notifications
 	 *
-	 * @param int|string $seen
-	 *	If 0 only include notifications into the query
-	 *	which aren't marked as "seen"
+	 * @param int|string $seen  If 0 only include notifications into the query
+	 *	                        which aren't marked as "seen"
 	 * @param int        $start Start the query at this point
 	 * @param int        $limit Maximum number of query results
 	 *
@@ -608,7 +605,7 @@ class NotificationsManager
 	{
 		$ident = 'personal';
 		$total = $this->personalTotal($seen);
-		$sql_extra = $this->_personal_sql_extra();
+		$sql_extra = $this->personalSqlExtra();
 		$notifs = array();
 		$sql_seen = "";
 
@@ -646,9 +643,9 @@ class NotificationsManager
 
 	/**
 	 * @brief Total number of home notifications
-	 * @param int|string $seen
-	 *	If 0 only include notifications into the query
-	 *	which aren't marked as "seen"
+	 * @param int|string $seen If 0 only include notifications into the query
+	 *	                       which aren't marked as "seen"
+	 *
 	 * @return int Number of home notifications
 	 */
 	private function homeTotal($seen = 0)
@@ -677,9 +674,8 @@ class NotificationsManager
 	/**
 	 * @brief Get home notifications
 	 *
-	 * @param int|string $seen
-	 *	If 0 only include notifications into the query
-	 *	which aren't marked as "seen"
+	 * @param int|string $seen  If 0 only include notifications into the query
+	 *	                        which aren't marked as "seen"
 	 * @param int        $start Start the query at this point
 	 * @param int        $limit Maximum number of query results
 	 *
@@ -728,9 +724,9 @@ class NotificationsManager
 
 	/**
 	 * @brief Total number of introductions
-	 * @param bool $all
-	 *	If false only include introductions into the query
-	 *	which aren't marked as ignored
+	 * @param bool $all If false only include introductions into the query
+	 *	                which aren't marked as ignored
+	 *
 	 * @return int Number of introductions
 	 */
 	private function introTotal($all = false)
@@ -757,18 +753,18 @@ class NotificationsManager
 	/**
 	 * @brief Get introductions
 	 *
-	 * @param bool $all
-	 *	If false only include introductions into the query
-	 *	which aren't marked as ignored
-	 * @param int $start Start the query at this point
-	 * @param int $limit Maximum number of query results
+	 * @param bool $all   If false only include introductions into the query
+	 *	                  which aren't marked as ignored
+	 * @param int  $start Start the query at this point
+	 * @param int  $limit Maximum number of query results
 	 *
 	 * @return array with
 	 *	string 'ident' => Notification identifier
 	 *	int 'total' => Total number of available introductions
 	 *	array 'notifications' => Introductions
 	 */
-	public function introNotifs($all = false, $start = 0, $limit = 80) {
+	public function introNotifs($all = false, $start = 0, $limit = 80)
+	{
 		$ident = 'introductions';
 		$total = $this->introTotal($seen);
 		$notifs = array();

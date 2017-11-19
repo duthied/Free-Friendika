@@ -19,8 +19,10 @@ class BaseObject
 	 * Get the app
 	 *
 	 * Same as get_app from boot.php
+	 *
+	 * @return object
 	 */
-	public function get_app()
+	public function getApp()
 	{
 		if (self::$app) {
 			return self::$app;
@@ -35,8 +37,10 @@ class BaseObject
 	 * Set the app
 	 *
 	 * @param object $app App
+	 *
+	 * @return void
 	 */
-	public static function set_app($app)
+	public static function setApp($app)
 	{
 		self::$app = $app;
 	}
