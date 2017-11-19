@@ -190,7 +190,7 @@ Class OnePoll
 
 
 			if (!strlen($handshake_xml) || ($html_code >= 400) || !$html_code) {
-				logger("poller: $url appears to be dead - marking for death ");
+				logger("$url appears to be dead - marking for death ");
 
 				// dead connection - might be a transient event, or this might
 				// mean the software was uninstalled or the domain expired.
@@ -206,7 +206,7 @@ Class OnePoll
 			}
 
 			if (!strstr($handshake_xml, '<')) {
-				logger('poller: response from ' . $url . ' did not contain XML.');
+				logger('response from ' . $url . ' did not contain XML.');
 
 				Contact::markForArchival($contact);
 
@@ -220,7 +220,7 @@ Class OnePoll
 			$res = parse_xml_string($handshake_xml);
 
 			if (intval($res->status) == 1) {
-				logger("poller: $url replied status 1 - marking for death ");
+				logger("$url replied status 1 - marking for death ");
 
 				// we may not be friends anymore. Will keep trying for one month.
 				// set the last-update so we don't keep polling
@@ -229,7 +229,7 @@ Class OnePoll
 
 				Contact::markForArchival($contact);
 			} elseif ($contact['term-date'] > NULL_DATE) {
-				logger("poller: $url back from the dead - removing mark for death");
+				logger("$url back from the dead - removing mark for death");
 				Contact::unmarkForArchival($contact);
 			}
 
@@ -264,7 +264,7 @@ Class OnePoll
 			}
 
 			if ($final_dfrn_id != $orig_id) {
-				logger('poller: ID did not decode: ' . $contact['id'] . ' orig: ' . $orig_id . ' final: ' . $final_dfrn_id);
+				logger('ID did not decode: ' . $contact['id'] . ' orig: ' . $orig_id . ' final: ' . $final_dfrn_id);
 				// did not decode properly - cannot trust this site
 				return;
 			}
@@ -555,9 +555,9 @@ Class OnePoll
 		}
 
 		if ($xml) {
-			logger('poller: received xml : ' . $xml, LOGGER_DATA);
+			logger('received xml : ' . $xml, LOGGER_DATA);
 			if (!strstr($xml, '<')) {
-				logger('poller: post_handshake: response from ' . $url . ' did not contain XML.');
+				logger('post_handshake: response from ' . $url . ' did not contain XML.');
 
 				$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
 				dba::update('contact', $fields, array('id' => $contact['id']));
@@ -590,7 +590,7 @@ Class OnePoll
 			logger("Contact ".$contact['id']." returned hub: ".$hub." Network: ".$contact['network']." Relation: ".$contact['rel']." Update: ".$hub_update);
 
 			if (strlen($hub) && $hub_update && (($contact['rel'] != CONTACT_IS_FOLLOWER) || $contact['network'] == NETWORK_FEED)) {
-				logger('poller: hub ' . $hubmode . ' : ' . $hub . ' contact name : ' . $contact['name'] . ' local user : ' . $importer['name']);
+				logger('hub ' . $hubmode . ' : ' . $hub . ' contact name : ' . $contact['name'] . ' local user : ' . $importer['name']);
 				$hubs = explode(',', $hub);
 				if (count($hubs)) {
 					foreach ($hubs as $h) {

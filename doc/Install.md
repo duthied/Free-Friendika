@@ -94,19 +94,19 @@ Registration errors should all be recoverable automatically.
 If you get any *critical* failure at this point, it generally indicates the database was not installed correctly.
 You might wish to move/rename .htconfig.php to another name and empty (called 'dropping') the database tables, so that you can start fresh.
 
-###Set up the poller
+###Set up the worker
 
-Set up a cron job or scheduled task to run the poller once every 5-10 minutes in order to perform background processing.
+Set up a cron job or scheduled task to run the worker once every 5-10 minutes in order to perform background processing.
 Example:
 
-    cd /base/directory; /path/to/php include/poller.php
+    cd /base/directory; /path/to/php scripts/worker.php
 
 Change "/base/directory", and "/path/to/php" as appropriate for your situation.
 
 If you are using a Linux server, run "crontab -e" and add a line like the
 one shown, substituting for your unique paths and settings:
 
-    */10 * * * * cd /home/myname/mywebsite; /usr/bin/php include/poller.php
+    */10 * * * * cd /home/myname/mywebsite; /usr/bin/php scripts/worker.php
 
 You can generally find the location of PHP by executing "which php".
 If you run into trouble with this section please contact your hosting provider for assistance.

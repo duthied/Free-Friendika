@@ -19,7 +19,7 @@ Salmon notifications arrive via mod/salmon.php.
 
 Push (pubsubhubbub) feeds arrive via mod/pubsub.php
 
-DFRN-poll feed imports arrive via include/poller.php as a scheduled task, this implements the local side of the DFRN-poll protocol.  
+DFRN-poll feed imports arrive via src/Worker/OnePoll.php as a scheduled task, this implements the local side of the DFRN-poll protocol.
 
 ### Scenario #1. Bob posts a public status message
 
@@ -28,7 +28,7 @@ There are two paths it can take - as a bbcode path to DFRN clients, and converte
 When a PuSH hub is operational, dfrn-poll clients prefer to receive their information through the PuSH channel.
 They will fall back on a daily poll in case the hub has delivery issues (this is quite common when using the default Google reference hub).
 If there is no specified hub or hubs, DFRN clients will poll at a configurable (per-contact) rate at up to 5-minute intervals.
-Feeds retrieved via dfrn-poll are bbcode and may also contain private conversations which the poller has permissions to see. 
+Feeds retrieved via dfrn-poll are bbcode and may also contain private conversations which the worker has permissions to see.
 
 ### Scenario #2. Jack replies to Bob's public message. Jack is on the Friendica/DFRN network.
 

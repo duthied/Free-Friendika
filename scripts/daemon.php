@@ -1,7 +1,7 @@
 <?php
 /**
  * @file util/daemon.php
- * @brief Run the poller from a daemon.
+ * @brief Run the worker from a daemon.
  *
  * This script was taken from http://php.net/manual/en/function.pcntl-fork.php
  */
@@ -90,8 +90,8 @@ while (true) {
 	// Just to be sure that this script really runs endlessly
 	set_time_limit(0);
 
-	// Call the poller
-	$cmdline = $php.' include/poller.php';
+	// Call the worker
+	$cmdline = $php.' scripts/worker.php';
 
 	exec($cmdline);
 
