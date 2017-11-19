@@ -984,10 +984,10 @@ function public_contact()
 	if (!$public_contact_id && x($_SESSION, 'authenticated')) {
 		if (x($_SESSION, 'my_address')) {
 			// Local user
-			$public_contact_id = intval(get_contact($_SESSION['my_address'], 0));
+			$public_contact_id = intval(Contact::getIdForURL($_SESSION['my_address'], 0));
 		} elseif (x($_SESSION, 'visitor_home')) {
 			// Remote user
-			$public_contact_id = intval(get_contact($_SESSION['visitor_home'], 0));
+			$public_contact_id = intval(Contact::getIdForURL($_SESSION['visitor_home'], 0));
 		}
 	} elseif (!x($_SESSION, 'authenticated')) {
 		$public_contact_id = false;

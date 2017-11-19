@@ -491,7 +491,7 @@ function profiles_post(App $a) {
 		}
 
 		if ($is_default) {
-			$location = formatted_location(array("locality" => $locality, "region" => $region, "country-name" => $country_name));
+			$location = Profile::formatLocation(array("locality" => $locality, "region" => $region, "country-name" => $country_name));
 
 			q("UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `self` AND `uid` = %d",
 				dbesc($about),

@@ -177,7 +177,7 @@ function follow_content(App $a) {
 	));
 
 	$a->page['aside'] = "";
-	profile_load($a, "", 0, get_contact_details_by_url($ret["url"]));
+	profile_load($a, "", 0, Contact::getDetailsByURL($ret["url"]));
 
 	if ($gcontact_id <> 0) {
 		$o .= replace_macros(get_markup_template('section_title.tpl'),
@@ -185,7 +185,7 @@ function follow_content(App $a) {
 		));
 
 		// Show last public posts
-		$o .= posts_from_contact_url($a, $ret["url"]);
+		$o .= Contact::getPostsFromUrl($ret["url"]);
 	}
 
 	return $o;

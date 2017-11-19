@@ -59,7 +59,7 @@ function contacts_init(App $a) {
 			'$addr' => (($a->data['contact']['addr'] != "") ? ($a->data['contact']['addr']) : ""),
 			'$network_name' => $networkname,
 			'$network' => t('Network:'),
-			'$account_type' => account_type($a->data['contact'])
+			'$account_type' => Contact::getAccountType($a->data['contact'])
 		));
 
 		$finpeople_widget = '';
@@ -132,7 +132,7 @@ function contacts_batch_actions(App $a) {
 			if ($r) $count_actions++;
 		}
 		if (x($_POST, 'contacts_batch_drop')) {
-			_contact_drop($contact_id, $orig_record);
+			_contact_drop($orig_record);
 			$count_actions++;
 		}
 	}
@@ -347,7 +347,9 @@ function _contact_archive($contact_id, $orig_record) {
 	}
 	return $r;
 }
-function _contact_drop($contact_id, $orig_record) {
+
+function _contact_drop($orig_record)
+{
 	$a = get_app();
 
 	$r = q("SELECT `contact`.*, `user`.* FROM `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid`
@@ -358,9 +360,8 @@ function _contact_drop($contact_id, $orig_record) {
 		return;
 	}
 
-	$self = ""; // Unused parameter
-	terminate_friendship($r[0], $self, $orig_record);
-	contact_remove($orig_record['id']);
+	Contact::terminateFriendship($r[0], $orig_record);
+	Contact::remove($orig_record['id']);
 }
 
 
@@ -480,7 +481,7 @@ function contacts_content(App $a) {
 				}
 			}
 
-			_contact_drop($contact_id, $orig_record[0]);
+			_contact_drop($orig_record[0]);
 			info( t('Contact has been removed.') . EOL );
 			if (x($_SESSION,'return_url')) {
 				goaway('' . $_SESSION['return_url']);
@@ -654,7 +655,7 @@ function contacts_content(App $a) {
 			'$url' => $url,
 			'$profileurllabel' => t('Profile URL'),
 			'$profileurl' => $contact['url'],
-			'$account_type' => account_type($contact),
+			'$account_type' => Contact::getAccountType($contact),
 			'$location' => bbcode($contact["location"]),
 			'$location_label' => t("Location:"),
 			'$xmpp' => bbcode($contact["xmpp"]),
@@ -917,7 +918,7 @@ function contact_posts($a, $contact_id) {
 	if ($r) {
 		$contact = $r[0];
 		$a->page['aside'] = "";
-		profile_load($a, "", 0, get_contact_details_by_url($contact["url"]));
+		profile_load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
 	} else
 		$profile = "";
 
@@ -925,7 +926,7 @@ function contact_posts($a, $contact_id) {
 
 	$o .= $tab_str;
 
-	$o .= posts_from_contact_url($a, $contact["url"]);
+	$o .= Contact::getPostsFromUrl($contact["url"]);
 
 	return $o;
 }
@@ -960,14 +961,14 @@ function _contact_detail_for_template($rr){
 	return array(
 		'img_hover' => sprintf( t('Visit %s\'s profile [%s]'),$rr['name'],$rr['url']),
 		'edit_hover' => t('Edit contact'),
-		'photo_menu' => contact_photo_menu($rr),
+		'photo_menu' => Contact::photoMenu($rr),
 		'id' => $rr['id'],
 		'alt_text' => $alt_text,
 		'dir_icon' => $dir_icon,
 		'thumb' => proxy_url($rr['thumb'], false, PROXY_SIZE_THUMB),
 		'name' => htmlentities($rr['name']),
 		'username' => htmlentities($rr['name']),
-		'account_type' => account_type($rr),
+		'account_type' => Contact::getAccountType($rr),
 		'sparkle' => $sparkle,
 		'itemurl' => (($rr['addr'] != "") ? $rr['addr'] : $rr['url']),
 		'url' => $url,

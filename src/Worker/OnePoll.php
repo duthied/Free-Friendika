@@ -127,11 +127,11 @@ Class OnePoll
 			}
 
 			if (!update_contact($contact["id"])) {
-				mark_for_death($contact);
+				Contact::markForArchival($contact);
 				logger('Contact is marked dead');
 				return;
 			} else {
-				unmark_for_death($contact);
+				Contact::unmarkForArchival($contact);
 			}
 		}
 
@@ -197,7 +197,7 @@ Class OnePoll
 				// mean the software was uninstalled or the domain expired.
 				// Will keep trying for one month.
 
-				mark_for_death($contact);
+				Contact::markForArchival($contact);
 
 				// set the last-update so we don't keep polling
 				$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
@@ -209,7 +209,7 @@ Class OnePoll
 			if (!strstr($handshake_xml, '<')) {
 				logger('poller: response from ' . $url . ' did not contain XML.');
 
-				mark_for_death($contact);
+				Contact::markForArchival($contact);
 
 				$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
 				dba::update('contact', $fields, array('id' => $contact['id']));
@@ -228,10 +228,10 @@ Class OnePoll
 				$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
 				dba::update('contact', $fields, array('id' => $contact['id']));
 
-				mark_for_death($contact);
+				Contact::markForArchival($contact);
 			} elseif ($contact['term-date'] > NULL_DATE) {
 				logger("poller: $url back from the dead - removing mark for death");
-				unmark_for_death($contact);
+				Contact::unmarkForArchival($contact);
 			}
 
 			if ((intval($res->status) != 0) || !strlen($res->challenge) || !strlen($res->dfrn_id)) {

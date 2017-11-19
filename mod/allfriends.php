@@ -40,7 +40,7 @@ function allfriends_content(App $a) {
 	}
 
 	$a->page['aside'] = "";
-	profile_load($a, "", 0, get_contact_details_by_url($c[0]["url"]));
+	profile_load($a, "", 0, Contact::getDetailsByURL($c[0]["url"]));
 
 	$total = GlobalContact::countAllFriends(local_user(), $cid);
 
@@ -59,7 +59,7 @@ function allfriends_content(App $a) {
 	foreach ($r as $rr) {
 
 		//get further details of the contact
-		$contact_details = get_contact_details_by_url($rr['url'], $uid, $rr);
+		$contact_details = Contact::getDetailsByURL($rr['url'], $uid, $rr);
 
 		$photo_menu = '';
 
@@ -67,7 +67,7 @@ function allfriends_content(App $a) {
 		// If the contact is not common to the user, Connect/Follow' will be added to the photo menu
 		if ($rr[cid]) {
 			$rr[id] = $rr[cid];
-			$photo_menu = contact_photo_menu ($rr);
+			$photo_menu = Contact::photoMenu ($rr);
 		}
 		else {
 			$connlnk = System::baseUrl() . '/follow/?url=' . $rr['url'];
@@ -86,7 +86,7 @@ function allfriends_content(App $a) {
 			'details'      => $contact_details['location'],
 			'tags'         => $contact_details['keywords'],
 			'about'        => $contact_details['about'],
-			'account_type' => account_type($contact_details),
+			'account_type' => Contact::getAccountType($contact_details),
 			'network'      => network_to_name($contact_details['network'], $contact_details['url']),
 			'photo_menu'   => $photo_menu,
 			'conntxt'      => t('Connect'),

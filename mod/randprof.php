@@ -7,7 +7,7 @@ use Friendica\Model\GlobalContact;
 function randprof_init(App $a) {
 	require_once('include/Contact.php');
 
-	$x = random_profile();
+	$x = GlobalContact::getRandomUrl();
 
 	if ($x) {
 		goaway(zrl($x));

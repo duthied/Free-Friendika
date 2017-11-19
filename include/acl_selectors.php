@@ -692,7 +692,7 @@ function acl_lookup(App $a, $out_type = 'json') {
 		);
 		if (DBM::is_result($r)) {
 			foreach ($r as $row) {
-				$contact = get_contact_details_by_url($row['author-link']);
+				$contact = Contact::getDetailsByURL($row['author-link']);
 
 				if (count($contact) > 0) {
 					$unknown_contacts[] = array(

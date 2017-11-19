@@ -401,7 +401,7 @@ class PortableContact
 							}
 						}
 
-						$location = formatted_location($noscrape);
+						$location = Profile::formatLocation($noscrape);
 						if ($location) {
 							$contact["location"] = $location;
 						}

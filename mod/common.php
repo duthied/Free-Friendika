@@ -40,7 +40,7 @@ function common_content(App $a) {
 		);
 		/// @TODO Handle $c with DBM::is_result()
 		$a->page['aside'] = "";
-		profile_load($a, "", 0, get_contact_details_by_url($c[0]["url"]));
+		profile_load($a, "", 0, Contact::getDetailsByURL($c[0]["url"]));
 	} else {
 		$c = q("SELECT `name`, `url`, `photo` FROM `contact` WHERE `self` = 1 AND `uid` = %d LIMIT 1",
 			intval($uid)
@@ -115,14 +115,14 @@ function common_content(App $a) {
 	foreach ($r as $rr) {
 
 		//get further details of the contact
-		$contact_details = get_contact_details_by_url($rr['url'], $uid);
+		$contact_details = Contact::getDetailsByURL($rr['url'], $uid);
 
 		// $rr['id'] is needed to use contact_photo_menu()
 		/// @TODO Adding '/" here avoids E_NOTICE on missing constants
 		$rr['id'] = $rr['cid'];
 
 		$photo_menu = '';
-		$photo_menu = contact_photo_menu($rr);
+		$photo_menu = Contact::photoMenu($rr);
 
 		$entry = array(
 			'url'          => $rr['url'],
@@ -133,7 +133,7 @@ function common_content(App $a) {
 			'details'      => $contact_details['location'],
 			'tags'         => $contact_details['keywords'],
 			'about'        => $contact_details['about'],
-			'account_type' => account_type($contact_details),
+			'account_type' => Contact::getAccountType($contact_details),
 			'network'      => network_to_name($contact_details['network'], $contact_details['url']),
 			'photo_menu'   => $photo_menu,
 			'id'           => ++$id,

@@ -52,14 +52,14 @@ function hovercard_content() {
 	$nurl = normalise_link(GlobalContact::cleanContactUrl($profileurl));
 	if($nurl) {
 		// Search for contact data
-		$contact = get_contact_details_by_url($nurl);
+		$contact = Contact::getDetailsByURL($nurl);
 	}
 	if(!is_array($contact))
 		return;
 
 	// Get the photo_menu - the menu if possible contact actions
 	if(local_user())
-		$actions = contact_photo_menu($contact);
+		$actions = Contact::photoMenu($contact);
 
 
 	// Move the contact data to the profile array so we can deliver it to
@@ -81,7 +81,7 @@ function hovercard_content() {
 //		'server_url' => $contact["server_url"],
 		'bd' => (($contact["birthday"] <= '0001-01-01') ? "" : $contact["birthday"]),
 //		'generation' => $contact["generation"],
-		'account_type' => account_type($contact),
+		'account_type' => Contact::getAccountType($contact),
 		'actions' => $actions,
 	);
 	if($datatype == "html") {

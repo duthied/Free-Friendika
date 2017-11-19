@@ -162,7 +162,7 @@ function directory_content(App $a) {
 				'img_hover' => $rr['name'],
 				'name' => $rr['name'],
 				'details' => $details,
-				'account_type' => account_type($rr),
+				'account_type' => Contact::getAccountType($rr),
 				'profile' => $profile,
 				'location' => $location_e,
 				'tags' => $rr['pub_keywords'],

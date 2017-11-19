@@ -950,7 +950,7 @@ class Diaspora
 			 * We haven't found it?
 			 * We use another function for it that will possibly create a contact entry.
 			 */
-			$cid = get_contact($handle, $uid);
+			$cid = Contact::getIdForURL($handle, $uid);
 
 			if ($cid > 0) {
 				/// @TODO Contact retrieval should be encapsulated into an "entity" class like `Contact`
@@ -1342,7 +1342,7 @@ class Diaspora
 
 			// We are receiving content from a user that possibly is about to be terminated
 			// This means the user is vital, so we remove a possible termination date.
-			unmark_for_death($r[0]);
+			Contact::unmarkForArchival($r[0]);
 		} else {
 			$cid = $contact["id"];
 			$network = NETWORK_DIASPORA;
@@ -1521,7 +1521,7 @@ class Diaspora
 		}
 
 		// We now remove the contact
-		contact_remove($contact["id"]);
+		Contact::remove($contact["id"]);
 		return true;
 	}
 
@@ -2810,7 +2810,7 @@ class Diaspora
 			case "Person":
 				/// @todo What should we do with an "unshare"?
 				// Removing the contact isn't correct since we still can read the public items
-				contact_remove($contact["id"]);
+				Contact::remove($contact["id"]);
 				return true;
 
 			default:
@@ -3151,11 +3151,11 @@ class Diaspora
 				add_to_queue($contact["id"], NETWORK_DIASPORA, $envelope, $public_batch);
 
 				// The message could not be delivered. We mark the contact as "dead"
-				mark_for_death($contact);
+				Contact::markForArchival($contact);
 			}
 		} elseif (($return_code >= 200) && ($return_code <= 299)) {
 			// We successfully delivered a message, the contact is alive
-			unmark_for_death($contact);
+			Contact::unmarkForArchival($contact);
 		}
 
 		return(($return_code) ? $return_code : (-1));
@@ -3291,7 +3291,7 @@ class Diaspora
 	 *
 	 * @return int The result of the transmission
 	 */
-	public static function send_unshare($owner, $contact)
+	public static function sendUnshare($owner, $contact)
 	{
 		$message = array("author" => self::my_handle($owner),
 				"recipient" => $contact["addr"],
@@ -4007,7 +4007,7 @@ class Diaspora
 			$about = $profile['about'];
 			$about = strip_tags(bbcode($about));
 
-			$location = formatted_location($profile);
+			$location = Profile::formatLocation($profile);
 			$tags = '';
 			if ($profile['pub_keywords']) {
 				$kw = str_replace(',', ' ', $profile['pub_keywords']);

@@ -793,7 +793,7 @@ class Probe {
 			}
 		}
 
-		$location = formatted_location($json);
+		$location = Profile::formatLocation($json);
 		if ($location) {
 			$data["location"] = $location;
 		}

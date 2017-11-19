@@ -895,7 +895,7 @@ class GlobalContact
 			intval($uid)
 		);
 
-		$location = formatted_location(
+		$location = Profile::formatLocation(
 			array("locality" => $r[0]["locality"], "region" => $r[0]["region"], "country-name" => $r[0]["country-name"])
 		);
 
@@ -1001,5 +1001,17 @@ class GlobalContact
 			self::fetchGsUsers($server["url"]);
 			q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
 		}
+	}
+
+	public static function getRandomUrl() {
+		$r = q("SELECT `url` FROM `gcontact` WHERE `network` = '%s'
+					AND `last_contact` >= `last_failure`
+					AND `updated` > UTC_TIMESTAMP - INTERVAL 1 MONTH
+				ORDER BY rand() LIMIT 1",
+			dbesc(NETWORK_DFRN));
+
+		if (DBM::is_result($r))
+			return dirname($r[0]['url']);
+		return '';
 	}
 }

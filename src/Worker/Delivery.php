@@ -354,10 +354,10 @@ class Delivery {
 					add_to_queue($contact['id'],NETWORK_DFRN,$atom);
 
 					// The message could not be delivered. We mark the contact as "dead"
-					mark_for_death($contact);
+					Contact::markForArchival($contact);
 				} else {
 					// We successfully delivered a message, the contact is alive
-					unmark_for_death($contact);
+					Contact::unmarkForArchival($contact);
 				}
 
 				break;

@@ -350,7 +350,7 @@ function ping_init(App $a)
 					$notif['message'] = str_replace("{0}", $notif['name'], $notif['message']);
 				}
 
-				$contact = get_contact_details_by_url($notif['url']);
+				$contact = Contact::getDetailsByURL($notif['url']);
 				if (isset($contact['micro'])) {
 					$notif['photo'] = proxy_url($contact['micro'], false, PROXY_SIZE_MICRO);
 				} else {

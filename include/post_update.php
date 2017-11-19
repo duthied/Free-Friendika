@@ -210,8 +210,8 @@ function post_update_1198() {
 
 	// Set the "gcontact-id" in the item table and add a new gcontact entry if needed
 	foreach ($item_arr AS $item) {
-		$author_id = get_contact($item["author-link"], 0);
-		$owner_id = get_contact($item["owner-link"], 0);
+		$author_id = Contact::getIdForURL($item["author-link"], 0);
+		$owner_id = Contact::getIdForURL($item["owner-link"], 0);
 
 		if ($author_id == 0)
 			$author_id = -1;

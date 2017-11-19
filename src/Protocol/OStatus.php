@@ -153,7 +153,7 @@ class OStatus
 		// Only update the contacts if it is an OStatus contact
 		if ($r && ($r['id'] > 0) && !$onlyfetch && ($contact["network"] == NETWORK_OSTATUS)) {
 			// This contact is vital, so we awake it from the dead
-			unmark_for_death($contact);
+			Contact::unmarkForArchival($contact);
 
 			// Update contact data
 
@@ -208,7 +208,7 @@ class OStatus
 			}
 
 			// Ensure that we are having this contact (with uid=0)
-			$cid = get_contact($aliaslink, 0);
+			$cid = Contact::getIdForURL($aliaslink, 0);
 
 			if ($cid) {
 				$fields = array('url', 'nurl', 'name', 'nick', 'alias', 'about', 'location');
@@ -2098,7 +2098,7 @@ class OStatus
 		}
 
 		$check_date = datetime_convert('UTC', 'UTC', $last_update, 'Y-m-d H:i:s');
-		$authorid = get_contact($owner["url"], 0);
+		$authorid = Contact::getIdForURL($owner["url"], 0);
 
 		$items = q(
 			"SELECT `item`.*, `item`.`id` AS `item_id` FROM `item` USE INDEX (`uid_contactid_created`)

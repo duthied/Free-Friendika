@@ -87,7 +87,7 @@ function match_content(App $a)
 						'follow' => array(t("Connect/Follow"), $connlnk)
 					);
 
-					$contact_details = get_contact_details_by_url($jj->url, local_user());
+					$contact_details = Contact::getDetailsByURL($jj->url, local_user());
 
 					$entry = array(
 						'url' => zrl($jj->url),
@@ -96,7 +96,7 @@ function match_content(App $a)
 						'details'       => $contact_details['location'],
 						'tags'          => $contact_details['keywords'],
 						'about'         => $contact_details['about'],
-						'account_type'  => account_type($contact_details),
+						'account_type'  => Contact::getAccountType($contact_details),
 						'thumb' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),
 						'inttxt' => ' ' . t('is interested in:'),
 						'conntxt' => t('Connect'),

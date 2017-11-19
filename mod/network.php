@@ -677,7 +677,7 @@ function networkThreadedView(App $a, $update = 0) {
 				'details' => $r['location'],
 			);
 
-			$entries[0]["account_type"] = account_type($r);
+			$entries[0]["account_type"] = Contact::getAccountType($r);
 
 			$o = replace_macros(get_markup_template("viewcontact_template.tpl"),array(
 				'contacts' => $entries,

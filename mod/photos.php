@@ -46,7 +46,7 @@ function photos_init(App $a) {
 
 		$profile = get_profiledata_by_nick($nick, $a->profile_uid);
 
-		$account_type = account_type($profile);
+		$account_type = Contact::getAccountType($profile);
 
 		$tpl = get_markup_template("vcard-widget.tpl");
 

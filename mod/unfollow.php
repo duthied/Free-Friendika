@@ -39,8 +39,7 @@ function unfollow_post(App $a) {
 				intval($uid)
 			);
  			if (DBM::is_result($r)) {
-				$self = ""; // Unused parameter
-				terminate_friendship($r[0], $self, $contact);
+				Contact::terminateFriendship($r[0], $contact);
 			}
 		}
 		dba::update('contact', array('rel' => CONTACT_IS_FOLLOWER), array('id' => $contact['id']));
@@ -128,14 +127,14 @@ function unfollow_content(App $a) {
 	));
 
 	$a->page['aside'] = "";
-	profile_load($a, "", 0, get_contact_details_by_url($contact["url"]));
+	profile_load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
 
 	$o .= replace_macros(get_markup_template('section_title.tpl'),
 					array('$title' => t('Status Messages and Posts')
 	));
 
 	// Show last public posts
-	$o .= posts_from_contact_url($a, $contact["url"]);
+	$o .= Contact::getPostsFromUrl($contact["url"]);
 
 	return $o;
 }

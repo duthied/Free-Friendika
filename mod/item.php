@@ -147,7 +147,7 @@ function item_post(App $a) {
 			$thrparent = q("SELECT `author-link`, `network` FROM `item` WHERE `uri` = '%s' LIMIT 1", dbesc($thr_parent));
 			if (DBM::is_result($thrparent) && ($thrparent[0]["network"] === NETWORK_OSTATUS)
 				&& (normalise_link($parent_contact["url"]) != normalise_link($thrparent[0]["author-link"]))) {
-				$parent_contact = get_contact_details_by_url($thrparent[0]["author-link"]);
+				$parent_contact = Contact::getDetailsByURL($thrparent[0]["author-link"]);
 
 				if (!isset($parent_contact["nick"])) {
 					$probed_contact = Probe::uri($thrparent[0]["author-link"]);
@@ -704,11 +704,11 @@ function item_post(App $a) {
 	$datarray['owner-name']    = $contact_record['name'];
 	$datarray['owner-link']    = $contact_record['url'];
 	$datarray['owner-avatar']  = $contact_record['thumb'];
-	$datarray['owner-id']      = get_contact($datarray['owner-link'], 0);
+	$datarray['owner-id']      = Contact::getIdForURL($datarray['owner-link'], 0);
 	$datarray['author-name']   = $author['name'];
 	$datarray['author-link']   = $author['url'];
 	$datarray['author-avatar'] = $author['thumb'];
-	$datarray['author-id']     = get_contact($datarray['author-link'], 0);
+	$datarray['author-id']     = Contact::getIdForURL($datarray['author-link'], 0);
 	$datarray['created']       = datetime_convert();
 	$datarray['edited']        = datetime_convert();
 	$datarray['commented']     = datetime_convert();

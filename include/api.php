@@ -650,7 +650,7 @@ function api_get_user(App $a, $contact_id = null, $type = "json")
 				'notifications' => false,
 				'statusnet_profile_url' => $r[0]["url"],
 				'uid' => 0,
-				'cid' => get_contact($r[0]["url"], api_user(), true),
+				'cid' => Contact::getIdForURL($r[0]["url"], api_user(), true),
 				'self' => 0,
 				'network' => $r[0]["network"],
 			);
@@ -738,7 +738,7 @@ function api_get_user(App $a, $contact_id = null, $type = "json")
 
 	$network_name = network_to_name($uinfo[0]['network'], $uinfo[0]['url']);
 
-	$pcontact_id  = get_contact($uinfo[0]['url'], 0, true);
+	$pcontact_id  = Contact::getIdForURL($uinfo[0]['url'], 0, true);
 
 	$ret = array(
 		'id' => intval($pcontact_id),

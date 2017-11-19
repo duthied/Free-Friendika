@@ -30,7 +30,7 @@ function removeme_post(App $a) {
 
 	if ((strlen($a->user['password'])) && ($encrypted === $a->user['password'])) {
 		require_once('include/Contact.php');
-		user_remove($a->user['uid']);
+		User::remove($a->user['uid']);
 		// NOTREACHED
 	}
 

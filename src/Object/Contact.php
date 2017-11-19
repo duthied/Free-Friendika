@@ -538,7 +538,7 @@ class Contact extends BaseObject
 	 *
 	 * @return integer Contact ID
 	 */
-	public static function getIdForUrl($url, $uid = 0, $no_update = false)
+	public static function getIdForURL($url, $uid = 0, $no_update = false)
 	{
 		logger("Get contact data for url " . $url . " and user " . $uid . " - " . System::callstack(), LOGGER_DEBUG);
 
@@ -603,7 +603,7 @@ class Contact extends BaseObject
 		}
 
 		if (!$contact_id && ($data["alias"] != '') && ($data["alias"] != $url)) {
-			$contact_id = self::getIdForUrl($data["alias"], $uid, true);
+			$contact_id = self::getIdForURL($data["alias"], $uid, true);
 		}
 
 		$url = $data["url"];

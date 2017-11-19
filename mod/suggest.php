@@ -88,7 +88,7 @@ function suggest_content(App $a) {
 			'hide' => array(t('Ignore/Hide'), $ignlnk)
 		);
 
-		$contact_details = get_contact_details_by_url($rr["url"], local_user(), $rr);
+		$contact_details = Contact::getDetailsByURL($rr["url"], local_user(), $rr);
 
 		$entry = array(
 			'url' => zrl($rr['url']),
@@ -99,7 +99,7 @@ function suggest_content(App $a) {
 			'details'       => $contact_details['location'],
 			'tags'          => $contact_details['keywords'],
 			'about'         => $contact_details['about'],
-			'account_type'  => account_type($contact_details),
+			'account_type'  => Contact::getAccountType($contact_details),
 			'ignlnk' => $ignlnk,
 			'ignid' => $rr['id'],
 			'conntxt' => t('Connect'),

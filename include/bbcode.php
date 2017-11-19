@@ -493,9 +493,9 @@ function bb_ShareAttributes($share, $simplehtml) {
 	// We only call this so that a previously unknown contact can be added.
 	// This is important for the function "get_contact_details_by_url".
 	// This function then can fetch an entry from the contact table.
-	get_contact($profile, 0);
+	Contact::getIdForURL($profile, 0);
 
-	$data = get_contact_details_by_url($profile);
+	$data = Contact::getDetailsByURL($profile);
 
 	if (isset($data["name"]) && ($data["name"] != "") && isset($data["addr"]) && ($data["addr"] != ""))
 	        $userid_compact = $data["name"]." (".$data["addr"].")";

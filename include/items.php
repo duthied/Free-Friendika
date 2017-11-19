@@ -719,12 +719,12 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		 * This is done only for comments (See below explanation at "gcontact-id")
 		 */
 		if ($arr['parent-uri'] != $arr['uri']) {
-			$arr["contact-id"] = get_contact($arr['author-link'], $uid);
+			$arr["contact-id"] = Contact::getIdForURL($arr['author-link'], $uid);
 		}
 
 		// If not present then maybe the owner was found
 		if ($arr["contact-id"] == 0) {
-			$arr["contact-id"] = get_contact($arr['owner-link'], $uid);
+			$arr["contact-id"] = Contact::getIdForURL($arr['owner-link'], $uid);
 		}
 
 		// Still missing? Then use the "self" contact of the current user
@@ -755,19 +755,19 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	}
 
 	if ($arr["author-id"] == 0) {
-		$arr["author-id"] = get_contact($arr["author-link"], 0);
+		$arr["author-id"] = Contact::getIdForURL($arr["author-link"], 0);
 	}
 
-	if (blockedContact($arr["author-id"])) {
+	if (Contact::isBlocked($arr["author-id"])) {
 		logger('Contact '.$arr["author-id"].' is blocked, item '.$arr["uri"].' will not be stored');
 		return 0;
 	}
 
 	if ($arr["owner-id"] == 0) {
-		$arr["owner-id"] = get_contact($arr["owner-link"], 0);
+		$arr["owner-id"] = Contact::getIdForURL($arr["owner-link"], 0);
 	}
 
-	if (blockedContact($arr["owner-id"])) {
+	if (Contact::isBlocked($arr["owner-id"])) {
 		logger('Contact '.$arr["owner-id"].' is blocked, item '.$arr["uri"].' will not be stored');
 		return 0;
 	}
@@ -1751,7 +1751,7 @@ function lose_follower($importer, $contact, array $datarray = array(), $item = "
 	if (($contact['rel'] == CONTACT_IS_FRIEND) || ($contact['rel'] == CONTACT_IS_SHARING)) {
 		dba::update('contact', array('rel' => CONTACT_IS_SHARING), array('id' => $contact['id']));
 	} else {
-		contact_remove($contact['id']);
+		Contact::remove($contact['id']);
 	}
 }
 
@@ -1760,7 +1760,7 @@ function lose_sharer($importer, $contact, array $datarray = array(), $item = "")
 	if (($contact['rel'] == CONTACT_IS_FRIEND) || ($contact['rel'] == CONTACT_IS_FOLLOWER)) {
 		dba::update('contact', array('rel' => CONTACT_IS_FOLLOWER), array('id' => $contact['id']));
 	} else {
-		contact_remove($contact['id']);
+		Contact::remove($contact['id']);
 	}
 }
 

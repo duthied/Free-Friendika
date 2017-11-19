@@ -120,19 +120,13 @@ class Notifier {
 
 			$user = $r[0];
 
-			$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1", intval($item_id));
-			if (!$r)
-				return;
-
-			$self = $r[0];
-
 			$r = q("SELECT * FROM `contact` WHERE NOT `self` AND `uid` = %d", intval($item_id));
 			if (!$r) {
 				return;
 			}
 			require_once 'include/Contact.php';
 			foreach ($r as $contact) {
-				terminate_friendship($user, $self, $contact);
+				Contact::terminateFriendship($user, $contact);
 			}
 			return;
 		} elseif ($cmd === 'relocate') {

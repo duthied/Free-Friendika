@@ -346,7 +346,7 @@ function profile_sidebar($profile, $block = 0)
 	}
 
 	// Fetch the account type
-	$account_type = account_type($profile);
+	$account_type = Contact::getAccountType($profile);
 
 	if ((x($profile, 'address') == 1)
 		|| (x($profile, 'location') == 1)
