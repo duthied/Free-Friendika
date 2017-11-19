@@ -13,14 +13,14 @@
  * Installation:
  *
  *	- Change it's owner to whichever user is running the server, ie. ejabberd
- *	  $ chown ejabberd:ejabberd /path/to/friendica/include/auth_ejabberd.php
+ *	  $ chown ejabberd:ejabberd /path/to/friendica/scripts/auth_ejabberd.php
  *
  * 	- Change the access mode so it is readable only to the user ejabberd and has exec
- *	  $ chmod 700 /path/to/friendica/include/auth_ejabberd.php
+ *	  $ chmod 700 /path/to/friendica/scripts/auth_ejabberd.php
  *
  *	- Edit your ejabberd.cfg file, comment out your auth_method and add:
  *	  {auth_method, external}.
- *	  {extauth_program, "/path/to/friendica/include/auth_ejabberd.php"}.
+ *	  {extauth_program, "/path/to/friendica/script/auth_ejabberd.php"}.
  *
  *	- Restart your ejabberd service, you should be able to login with your friendica auth info
  *
@@ -47,16 +47,13 @@ if (substr($directory, 0, 1) != "/")
 $directory = realpath($directory."/..");
 
 chdir($directory);
-require_once("boot.php");
 
-global $a;
+require_once "boot.php";
+require_once "include/dba.php";
 
-if (empty($a)) {
-	$a = new App(dirname(__DIR__));
-}
+$a = new App(dirname(__DIR__));
 
 @include(".htconfig.php");
-require_once("include/dba.php");
 dba::connect($db_host, $db_user, $db_pass, $db_data);
 unset($db_host, $db_user, $db_pass, $db_data);
 
