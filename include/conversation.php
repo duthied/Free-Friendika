@@ -1459,7 +1459,7 @@ function smart_flatten_conversation(array $parent)
 		if (isset($child['children']) && count($child['children'])) {
 			// This helps counting only the regular posts
 			$count_post_closure = function($var) {
-				return $var['verb'] === 'http://activitystrea.ms/schema/1.0/post';
+				return $var['verb'] === ACTIVITY_POST;
 			};
 
 			$child_post_count = count(array_filter($child['children'], $count_post_closure));
@@ -1471,7 +1471,7 @@ function smart_flatten_conversation(array $parent)
 
 				// Searches the post item in the children
 				$j = 0;
-				while($child['children'][$j]['verb'] !== 'http://activitystrea.ms/schema/1.0/post' && $j < count($child['children'])) {
+				while($child['children'][$j]['verb'] !== ACTIVITY_POST && $j < count($child['children'])) {
 					$j ++;
 				}
 
