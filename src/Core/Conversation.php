@@ -165,7 +165,7 @@ class Conversation extends BaseObject
 	 */
 	public function getTemplateData($conv_responses)
 	{
-		$a = getApp();
+		$a = get_app();
 		$result = array();
 		$i = 0;
 
