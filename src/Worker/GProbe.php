@@ -1,7 +1,10 @@
 <?php
 /**
- * @file include/gprobe.php
+ * @file src/Worker/GProbe.php
  */
+
+namespace Friendica\Worker;
+
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
@@ -12,7 +15,7 @@ use Friendica\Protocol\PortableContact;
 require_once 'include/datetime.php';
 
 class GProbe {
-	function execute($url = '')
+	public static function execute($url = '')
 	{
 		if (empty($url)) {
 			return;
