@@ -1054,15 +1054,23 @@ class GlobalContact
 		}
 	}
 
-	public static function getRandomUrl() {
-		$r = q("SELECT `url` FROM `gcontact` WHERE `network` = '%s'
+	/**
+	 * @return string
+	 */
+	public static function getRandomUrl()
+	{
+		$r = q(
+			"SELECT `url` FROM `gcontact` WHERE `network` = '%s'
 					AND `last_contact` >= `last_failure`
 					AND `updated` > UTC_TIMESTAMP - INTERVAL 1 MONTH
 				ORDER BY rand() LIMIT 1",
-			dbesc(NETWORK_DFRN));
+			dbesc(NETWORK_DFRN)
+		);
 
-		if (DBM::is_result($r))
+		if (DBM::is_result($r)) {
 			return dirname($r[0]['url']);
+		}
+
 		return '';
 	}
 }
