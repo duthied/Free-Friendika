@@ -1,7 +1,10 @@
 <?php
 /**
- * @file include/queue.php
+ * @file src/Worker/Queue.php
  */
+
+namespace Friendica\Worker;
+
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
