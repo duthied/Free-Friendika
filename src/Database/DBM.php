@@ -27,7 +27,7 @@ class DBM
 
 		$processes = 0;
 		$states = array();
-		foreach ($r AS $process) {
+		foreach ($r as $process) {
 			$state = trim($process["State"]);
 
 			// Filter out all non blocking processes
@@ -38,7 +38,7 @@ class DBM
 		}
 
 		$statelist = "";
-		foreach ($states AS $state => $usage) {
+		foreach ($states as $state => $usage) {
 			if ($statelist != "") {
 				$statelist .= ", ";
 			}
@@ -74,6 +74,7 @@ class DBM
 	 * @param mixed   $value         Array value
 	 * @param string  $key           Array key
 	 * @param boolean $add_quotation add quotation marks for string values
+	 * @return void
 	 */
 	private static function esc_array_callback(&$value, $key, $add_quotation)
 	{
@@ -100,6 +101,7 @@ class DBM
 	 *
 	 * @param mixed   $arr           Array with values to be escaped
 	 * @param boolean $add_quotation add quotation marks for string values
+	 * @return void
 	 */
 	public static function esc_array(&$arr, $add_quotation = false)
 	{

@@ -1,11 +1,12 @@
 <?php
-
+/**
+ * @file src/Network/Probe.php
+ */
 namespace Friendica\Network;
 
 /**
  * @file src/Network/Probe.php
  * @brief Functions for probing URL
- *
  */
 
 use Friendica\App;
@@ -28,8 +29,8 @@ require_once 'include/network.php';
  * @brief This class contain functions for probing URL
  *
  */
-class Probe {
-
+class Probe
+{
 	private static $baseurl;
 
 	/**
@@ -39,7 +40,8 @@ class Probe {
 	 *
 	 * @return array Ordered data
 	 */
-	private static function rearrangeData($data) {
+	private static function rearrangeData($data)
+	{
 		$fields = array("name", "nick", "guid", "url", "addr", "alias",
 				"photo", "community", "keywords", "location", "about",
 				"batch", "notify", "poll", "request", "confirm", "poco",
@@ -67,7 +69,8 @@ class Probe {
 	 *
 	 * @return bool Does the testes hostname belongs to the own server?
 	 */
-	private static function ownHost($host) {
+	private static function ownHost($host)
+	{
 		$own_host = get_app()->get_hostname();
 
 		$parts = parse_url($host);
@@ -89,8 +92,8 @@ class Probe {
 	 *
 	 * @return array with template and type of the webfinger template for JSON or XML
 	 */
-	private static function hostMeta($host) {
-
+	private static function hostMeta($host)
+	{
 		// Reset the static variable
 		self::$baseurl = '';
 
@@ -174,13 +177,13 @@ class Probe {
 	 * amended 7/9/2011 to return an hcard which could save potentially loading
 	 * a lengthy content page to scrape dfrn attributes
 	 *
-	 * @param string $webbie Address that should be probed
+	 * @param string $webbie    Address that should be probed
 	 * @param string $hcard_url Link to the hcard - is returned by reference
 	 *
 	 * @return string profile link
 	 */
-	public static function webfingerDfrn($webbie, &$hcard_url) {
-
+	public static function webfingerDfrn($webbie, &$hcard_url)
+	{
 		$profile_link = '';
 
 		$links = self::lrdd($webbie);
@@ -212,8 +215,8 @@ class Probe {
 	 *
 	 * @return array uri data
 	 */
-	public static function lrdd($uri) {
-
+	public static function lrdd($uri)
+	{
 		$lrdd = self::hostMeta($uri);
 		$webfinger = null;
 
@@ -247,7 +250,7 @@ class Probe {
 			return array();
 		}
 
-		foreach ($lrdd AS $type => $template) {
+		foreach ($lrdd as $type => $template) {
 			if ($webfinger) {
 				continue;
 			}
@@ -299,15 +302,15 @@ class Probe {
 	/**
 	 * @brief Fetch information (protocol endpoints and user information) about a given uri
 	 *
-	 * @param string $uri Address that should be probed
-	 * @param string $network Test for this specific network
-	 * @param integer $uid User ID for the probe (only used for mails)
-	 * @param boolean $cache Use cached values?
+	 * @param string  $uri     Address that should be probed
+	 * @param string  $network Test for this specific network
+	 * @param integer $uid     User ID for the probe (only used for mails)
+	 * @param boolean $cache   Use cached values?
 	 *
 	 * @return array uri data
 	 */
-	public static function uri($uri, $network = "", $uid = -1, $cache = true) {
-
+	public static function uri($uri, $network = "", $uid = -1, $cache = true)
+	{
 		if ($cache) {
 			$result = Cache::get("Probe::uri:".$network.":".$uri);
 			if (!is_null($result)) {
@@ -389,7 +392,7 @@ class Probe {
 
 				$fieldnames = array();
 
-				foreach ($fields AS $key => $val) {
+				foreach ($fields as $key => $val) {
 					if (empty($val)) {
 						unset($fields[$key]);
 					} else {
@@ -424,7 +427,7 @@ class Probe {
 
 				$fieldnames = array();
 
-				foreach ($fields AS $key => $val) {
+				foreach ($fields as $key => $val) {
 					if (empty($val)) {
 						unset($fields[$key]);
 					} else {
@@ -450,7 +453,8 @@ class Probe {
 	 *
 	 * @return string switched URL
 	 */
-	private static function switchScheme($url) {
+	private static function switchScheme($url)
+	{
 		$parts = parse_url($url);
 
 		if (!isset($parts['scheme'])) {
@@ -469,12 +473,14 @@ class Probe {
 	/**
 	 * @brief Checks if a profile url should be OStatus but only provides partial information
 	 *
-	 * @param array $webfinger Webfinger data
-	 * @param string $lrdd Path template for webfinger request
+	 * @param array  $webfinger Webfinger data
+	 * @param string $lrdd      Path template for webfinger request
+	 * @param string $type      type
 	 *
 	 * @return array fixed webfinger data
 	 */
-	private static function fixOstatus($webfinger, $lrdd, $type) {
+	private static function fixOStatus($webfinger, $lrdd, $type)
+	{
 		if (empty($webfinger['links']) || empty($webfinger['subject'])) {
 			return $webfinger;
 		}
@@ -512,13 +518,14 @@ class Probe {
 	 *
 	 * This function is only called by the "uri" function that adds caching and rearranging of data.
 	 *
-	 * @param string $uri Address that should be probed
-	 * @param string $network Test for this specific network
-	 * @param integer $uid User ID for the probe (only used for mails)
+	 * @param string  $uri     Address that should be probed
+	 * @param string  $network Test for this specific network
+	 * @param integer $uid     User ID for the probe (only used for mails)
 	 *
 	 * @return array uri data
 	 */
-	private static function detect($uri, $network, $uid) {
+	private static function detect($uri, $network, $uid)
+	{
 		$parts = parse_url($uri);
 
 		if (!empty($parts["scheme"]) && !empty($parts["host"]) && !empty($parts["path"])) {
@@ -552,7 +559,6 @@ class Probe {
 			$nick = ltrim($nick, '@');
 
 			$addr = $nick."@".$host;
-
 		} elseif (strstr($uri, '@')) {
 			// If the URI starts with "mailto:" then jump directly to the mail detection
 			if (strpos($uri, 'mailto:') !== false) {
@@ -583,7 +589,6 @@ class Probe {
 				return self::mail($uri, $uid);
 			}
 			$addr = $uri;
-
 		} else {
 			logger("Uri ".$uri." was not detectable", LOGGER_DEBUG);
 			return false;
@@ -593,7 +598,7 @@ class Probe {
 
 		/// @todo Do we need the prefix "acct:" or "acct://"?
 
-		foreach ($lrdd AS $type => $template) {
+		foreach ($lrdd as $type => $template) {
 			if ($webfinger) {
 				continue;
 			}
@@ -603,7 +608,7 @@ class Probe {
 			$webfinger = self::webfinger($path, $type);
 
 			// Fix possible problems with GNU Social probing to wrong scheme
-			$webfinger = self::fixOstatus($webfinger, $template, $type);
+			$webfinger = self::fixOStatus($webfinger, $template, $type);
 
 			// We cannot be sure that the detected address was correct, so we don't use the values
 			if ($webfinger && ($uri != $addr)) {
@@ -675,17 +680,18 @@ class Probe {
 	 *
 	 * For details see RFC 7033: <https://tools.ietf.org/html/rfc7033>
 	 *
-	 * @param string $url Address that should be probed
+	 * @param string $url  Address that should be probed
+	 * @param string $type type
 	 *
 	 * @return array webfinger data
 	 */
-	private static function webfinger($url, $type) {
-
+	private static function webfinger($url, $type)
+	{
 		$xrd_timeout = Config::get('system', 'xrd_timeout', 20);
 		$redirects = 0;
 
 		$ret = z_fetch_url($url, false, $redirects, array('timeout' => $xrd_timeout, 'accept_content' => $type));
-			if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
 		}
 		$data = $ret['body'];
@@ -745,11 +751,12 @@ class Probe {
 	 * This functionality was originally created for the directory.
 	 *
 	 * @param string $noscrape_url Link to the noscrape page
-	 * @param array $data The already fetched data
+	 * @param array  $data         The already fetched data
 	 *
 	 * @return array noscrape data
 	 */
-	private static function pollNoscrape($noscrape_url, $data) {
+	private static function pollNoscrape($noscrape_url, $data)
+	{
 		$ret = z_fetch_url($noscrape_url);
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
@@ -836,7 +843,8 @@ class Probe {
 	 *
 	 * @return int Number of errors
 	 */
-	public static function validDfrn($data) {
+	public static function validDfrn($data)
+	{
 		$errors = 0;
 		if (!isset($data['key'])) {
 			$errors ++;
@@ -863,8 +871,8 @@ class Probe {
 	 *
 	 * @return array profile data
 	 */
-	public static function profile($profile_link) {
-
+	public static function profile($profile_link)
+	{
 		$data = array();
 
 		logger("Check profile ".$profile_link, LOGGER_DEBUG);
@@ -908,7 +916,8 @@ class Probe {
 	 *
 	 * @return array DFRN data
 	 */
-	private static function dfrn($webfinger) {
+	private static function dfrn($webfinger)
+	{
 		$hcard_url = "";
 		$data = array();
 		foreach ($webfinger["links"] as $link) {
@@ -974,13 +983,14 @@ class Probe {
 	/**
 	 * @brief Poll the hcard page (Diaspora and Friendica specific)
 	 *
-	 * @param string $hcard_url Link to the hcard page
-	 * @param array $data The already fetched data
-	 * @param boolean $dfrn Poll DFRN specific data
+	 * @param string  $hcard_url Link to the hcard page
+	 * @param array   $data      The already fetched data
+	 * @param boolean $dfrn      Poll DFRN specific data
 	 *
 	 * @return array hcard data
 	 */
-	private static function pollHcard($hcard_url, $data, $dfrn = false) {
+	private static function pollHcard($hcard_url, $data, $dfrn = false)
+	{
 		$ret = z_fetch_url($hcard_url);
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
@@ -1097,7 +1107,8 @@ class Probe {
 	 *
 	 * @return array Diaspora data
 	 */
-	private static function diaspora($webfinger) {
+	private static function diaspora($webfinger)
+	{
 		$hcard_url = "";
 		$data = array();
 		foreach ($webfinger["links"] as $link) {
@@ -1175,11 +1186,12 @@ class Probe {
 	 * @brief Check for OStatus contact
 	 *
 	 * @param array $webfinger Webfinger data
-	 * @param bool $short Short detection mode
+	 * @param bool  $short     Short detection mode
 	 *
 	 * @return array|bool OStatus data or "false" on error or "true" on short mode
 	 */
-	private static function ostatus($webfinger, $short = false) {
+	private static function ostatus($webfinger, $short = false)
+	{
 		$data = array();
 
 		if (is_array($webfinger["aliases"])) {
@@ -1190,8 +1202,9 @@ class Probe {
 			}
 		}
 
-		if (is_string($webfinger["subject"]) && strstr($webfinger["subject"], "@") &&
-			!strstr(normalise_link($webfinger["subject"]), "http://")) {
+		if (is_string($webfinger["subject"]) && strstr($webfinger["subject"], "@")
+			&& !strstr(normalise_link($webfinger["subject"]), "http://")
+		) {
 			$data["addr"] = str_replace('acct:', '', $webfinger["subject"]);
 		}
 
@@ -1299,8 +1312,8 @@ class Probe {
 	 *
 	 * @return array profile data
 	 */
-	private static function pumpioProfileData($profile_link) {
-
+	private static function pumpioProfileData($profile_link)
+	{
 		$doc = new DOMDocument();
 		if (!@$doc->loadHTMLFile($profile_link)) {
 			return false;
@@ -1339,8 +1352,8 @@ class Probe {
 	 *
 	 * @return array pump.io data
 	 */
-	private static function pumpio($webfinger) {
-
+	private static function pumpio($webfinger)
+	{
 		$data = array();
 		foreach ($webfinger["links"] as $link) {
 			if (($link["rel"] == "http://webfinger.net/rel/profile-page")
@@ -1387,7 +1400,8 @@ class Probe {
 	 *
 	 * @return string feed link
 	 */
-	private static function getFeedLink($url) {
+	private static function getFeedLink($url)
+	{
 		$doc = new DOMDocument();
 
 		if (!@$doc->loadHTMLFile($url)) {
@@ -1425,12 +1439,13 @@ class Probe {
 	/**
 	 * @brief Check for feed contact
 	 *
-	 * @param string $url Profile link
+	 * @param string  $url   Profile link
 	 * @param boolean $probe Do a probe if the page contains a feed link
 	 *
 	 * @return array feed data
 	 */
-	private static function feed($url, $probe = true) {
+	private static function feed($url, $probe = true)
+	{
 		$ret = z_fetch_url($url);
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
@@ -1485,13 +1500,13 @@ class Probe {
 	/**
 	 * @brief Check for mail contact
 	 *
-	 * @param string $uri Profile link
+	 * @param string  $uri Profile link
 	 * @param integer $uid User ID
 	 *
 	 * @return array mail data
 	 */
-	private static function mail($uri, $uid) {
-
+	private static function mail($uri, $uid)
+	{
 		if (!validate_email($uri)) {
 			return false;
 		}
@@ -1568,11 +1583,12 @@ class Probe {
 	 * @brief Mix two paths together to possibly fix missing parts
 	 *
 	 * @param string $avatar Path to the avatar
-	 * @param string $base Another path that is hopefully complete
+	 * @param string $base   Another path that is hopefully complete
 	 *
 	 * @return string fixed avatar path
 	 */
-	public static function fixAvatar($avatar, $base) {
+	public static function fixAvatar($avatar, $base)
+	{
 		$base_parts = parse_url($base);
 
 		// Remove all parts that could create a problem

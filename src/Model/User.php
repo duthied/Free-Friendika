@@ -17,6 +17,10 @@ require_once 'plugin.php';
  */
 class User
 {
+	/**
+	 * @param object $uid user to remove
+	 * @return void
+	 */
 	public static function remove($uid)
 	{
 		if (!$uid) {
