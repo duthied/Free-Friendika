@@ -115,7 +115,7 @@ function ping_init(App $a)
 				}
 			} else {
 				header("Content-type: text/xml");
-				echo XML::from_array($data, $xml);
+				echo XML::fromArray($data, $xml);
 			}
 			killme();
 		}
@@ -412,7 +412,7 @@ function ping_init(App $a)
 		$data = ping_format_xml_data($data, $sysnotify_count, $notifications, $sysmsgs, $sysmsgs_info, $groups_unseen, $forums_unseen);
 
 		header("Content-type: text/xml");
-		echo XML::from_array(array("result" => $data), $xml);
+		echo XML::fromArray(array("result" => $data), $xml);
 	}
 
 	killme();

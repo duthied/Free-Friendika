@@ -1913,7 +1913,7 @@ class Diaspora
 						"title" => "",
 						"content" => $parent_body));
 
-		return XML::from_array($xmldata, $xml, true);
+		return XML::fromArray($xmldata, $xml, true);
 	}
 
 	/**
@@ -2345,7 +2345,7 @@ class Diaspora
 						"id" => $contact["url"]."/".$contact["name"],
 						"link" => $link));
 
-		return XML::from_array($xmldata, $xml, true);
+		return XML::fromArray($xmldata, $xml, true);
 	}
 
 	/**
@@ -3040,7 +3040,7 @@ class Diaspora
 
 		$namespaces = array("me" => "http://salmon-protocol.org/ns/magic-env");
 
-		return XML::from_array($xmldata, $xml, false, $namespaces);
+		return XML::fromArray($xmldata, $xml, false, $namespaces);
 	}
 
 	/**
@@ -3173,7 +3173,7 @@ class Diaspora
 	{
 		$data = array($type => $message);
 
-		return XML::from_array($data, $xml);
+		return XML::fromArray($data, $xml);
 	}
 
 	/**
