@@ -533,7 +533,11 @@ class Worker
 
 		while ($entry = dba::fetch($entries)) {
 			if (!posix_kill($entry["pid"], 0)) {
-				dba::update('workerqueue', array('executed' => NULL_DATE, 'pid' => 0), array('id' => $entry["id"]));
+				dba::update(
+					'workerqueue',
+					array('executed' => NULL_DATE, 'pid' => 0),
+					array('id' => $entry["id"])
+				);
 			} else {
 				// Kill long running processes
 				// Check if the priority is in a valid range
