@@ -3,9 +3,10 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 
-require_once("include/contact_selectors.php");
-require_once("mod/contacts.php");
+require_once 'include/contact_selectors.php';
+require_once 'mod/contacts.php';
 
 function crepair_init(App $a) {
 	if (! local_user()) {
@@ -31,7 +32,7 @@ function crepair_init(App $a) {
 	if($contact_id) {
 		$a->data['contact'] = $r[0];
 		$contact = $r[0];
-		profile_load($a, "", 0, get_contact_details_by_url($contact["url"]));
+		profile_load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
 	}
 }
 

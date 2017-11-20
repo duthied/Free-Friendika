@@ -10,6 +10,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
+use Friendica\Object\Profile;
 use Friendica\Protocol\PortableContact;
 use dba;
 use Exception;
@@ -17,7 +18,6 @@ use Exception;
 require_once 'include/datetime.php';
 require_once 'include/network.php';
 require_once 'include/html2bbcode.php';
-require_once 'include/Contact.php';
 require_once 'include/Photo.php';
 
 /**
@@ -381,7 +381,7 @@ class GlobalContact
 		if (DBM::is_result($r)) {
 			return $r[0]['total'];
 		}
-		
+
 		return 0;
 	}
 
@@ -894,7 +894,7 @@ class GlobalContact
 			intval($uid)
 		);
 
-		$location = formatted_location(
+		$location = Profile::formatLocation(
 			array("locality" => $r[0]["locality"], "region" => $r[0]["region"], "country-name" => $r[0]["country-name"])
 		);
 
@@ -1000,5 +1000,17 @@ class GlobalContact
 			self::fetchGsUsers($server["url"]);
 			q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
 		}
+	}
+
+	public static function getRandomUrl() {
+		$r = q("SELECT `url` FROM `gcontact` WHERE `network` = '%s'
+					AND `last_contact` >= `last_failure`
+					AND `updated` > UTC_TIMESTAMP - INTERVAL 1 MONTH
+				ORDER BY rand() LIMIT 1",
+			dbesc(NETWORK_DFRN));
+
+		if (DBM::is_result($r))
+			return dirname($r[0]['url']);
+		return '';
 	}
 }

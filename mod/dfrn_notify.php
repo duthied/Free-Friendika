@@ -9,6 +9,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 use Friendica\Protocol\DFRN;
 
 require_once 'include/items.php';
@@ -127,13 +128,8 @@ function dfrn_notify_post(App $a) {
 	logger('dfrn_notify: data: ' . $data, LOGGER_DATA);
 
 	if ($dissolve == 1) {
-
-		/*
-		 * Relationship is dissolved permanently
-		 */
-
-		require_once('include/Contact.php');
-		contact_remove($importer['id']);
+		// Relationship is dissolved permanently
+		Contact::remove($importer['id']);
 		logger('relationship dissolved : ' . $importer['name'] . ' dissolved ' . $importer['username']);
 		xml_status(0, 'relationship dissolved');
 	}

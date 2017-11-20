@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Model\User;
 
 function removeme_post(App $a) {
 
@@ -28,8 +29,7 @@ function removeme_post(App $a) {
 	$encrypted = hash('whirlpool',trim($_POST['qxz_password']));
 
 	if ((strlen($a->user['password'])) && ($encrypted === $a->user['password'])) {
-		require_once('include/Contact.php');
-		user_remove($a->user['uid']);
+		User::remove($a->user['uid']);
 		// NOTREACHED
 	}
 

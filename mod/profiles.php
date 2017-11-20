@@ -10,8 +10,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
-
-require_once 'include/Contact.php';
+use Friendica\Object\Profile;
 
 function profiles_init(App $a) {
 
@@ -490,7 +489,7 @@ function profiles_post(App $a) {
 		}
 
 		if ($is_default) {
-			$location = formatted_location(array("locality" => $locality, "region" => $region, "country-name" => $country_name));
+			$location = Profile::formatLocation(array("locality" => $locality, "region" => $region, "country-name" => $country_name));
 
 			q("UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `self` AND `uid` = %d",
 				dbesc($about),

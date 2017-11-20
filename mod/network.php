@@ -5,6 +5,7 @@ use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 
 require_once 'include/conversation.php';
 require_once 'include/group.php';
@@ -676,7 +677,7 @@ function networkThreadedView(App $a, $update = 0) {
 				'details' => $r['location'],
 			);
 
-			$entries[0]["account_type"] = account_type($r);
+			$entries[0]["account_type"] = Contact::getAccountType($r);
 
 			$o = replace_macros(get_markup_template("viewcontact_template.tpl"),array(
 				'contacts' => $entries,

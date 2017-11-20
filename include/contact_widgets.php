@@ -1,6 +1,5 @@
 <?php
 
-use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
@@ -22,8 +21,6 @@ function follow_widget($value = "") {
 }
 
 function findpeople_widget() {
-	require_once 'include/Contact.php';
-
 	$a = get_app();
 	$global_dir = Config::get('system', 'directory');
 

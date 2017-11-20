@@ -5,12 +5,12 @@ use Friendica\Content\Smilies;
 use Friendica\Core\Cache;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Object\Contact;
 
 require_once 'include/oembed.php';
 require_once 'include/event.php';
 require_once 'include/map.php';
 require_once 'mod/proxy.php';
-require_once 'include/Contact.php';
 require_once 'include/plaintext.php';
 
 function bb_PictureCacheExt($matches) {
@@ -492,9 +492,9 @@ function bb_ShareAttributes($share, $simplehtml) {
 	// We only call this so that a previously unknown contact can be added.
 	// This is important for the function "get_contact_details_by_url".
 	// This function then can fetch an entry from the contact table.
-	get_contact($profile, 0);
+	Contact::getIdForURL($profile, 0);
 
-	$data = get_contact_details_by_url($profile);
+	$data = Contact::getDetailsByURL($profile);
 
 	if (isset($data["name"]) && ($data["name"] != "") && isset($data["addr"]) && ($data["addr"] != ""))
 	        $userid_compact = $data["name"]." (".$data["addr"].")";

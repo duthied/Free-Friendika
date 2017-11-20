@@ -5,6 +5,7 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 
 require_once('include/items.php');
 require_once('include/acl_selectors.php');
@@ -39,7 +40,7 @@ function videos_init(App $a) {
 
 		$profile = get_profiledata_by_nick($nick, $a->profile_uid);
 
-		$account_type = account_type($profile);
+		$account_type = Contact::getAccountType($profile);
 
 		$tpl = get_markup_template("vcard-widget.tpl");
 

@@ -10,6 +10,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 
 require_once 'include/ForumManager.php';
 require_once 'include/bbcode.php';
@@ -345,7 +346,7 @@ function profile_sidebar($profile, $block = 0)
 	}
 
 	// Fetch the account type
-	$account_type = account_type($profile);
+	$account_type = Contact::getAccountType($profile);
 
 	if ((x($profile, 'address') == 1)
 		|| (x($profile, 'location') == 1)

@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 use Friendica\Protocol\Diaspora;
 
 /**
@@ -115,7 +116,7 @@ function do_like($item_id, $verb) {
 		$item_contact_id = $owner_self_contact['id'];
 		$item_contact = $owner_self_contact;
 	} else {
-		$item_contact_id = get_contact($author_contact['url'], $item['uid']);
+		$item_contact_id = Contact::getIdForURL($author_contact['url'], $item['uid']);
 
 		$contacts = q("SELECT * FROM `contact` WHERE `id` = %d",
 			intval($item_contact_id)

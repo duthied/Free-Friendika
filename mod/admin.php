@@ -11,10 +11,11 @@ use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\User;
 
-require_once("include/enotify.php");
-require_once("include/text.php");
-require_once('include/items.php');
+require_once 'include/enotify.php';
+require_once 'include/text.php';
+require_once 'include/items.php';
 
 /**
  * @brief Process send data from the admin panels subpages
@@ -1443,9 +1444,8 @@ function admin_page_users_post(App $a) {
 		notice(sprintf(tt("%s user blocked/unblocked", "%s users blocked/unblocked", count($users)), count($users)));
 	}
 	if (x($_POST,'page_users_delete')) {
-		require_once("include/Contact.php");
 		foreach ($users as $uid) {
-			user_remove($uid);
+			User::remove($uid);
 		}
 		notice(sprintf(tt("%s user deleted", "%s users deleted", count($users)), count($users)));
 	}
@@ -1491,8 +1491,7 @@ function admin_page_users(App $a) {
 			case "delete":
 				check_form_security_token_redirectOnErr('/admin/users', 'admin_users', 't');
 				// delete user
-				require_once("include/Contact.php");
-				user_remove($uid);
+				User::remove($uid);
 
 				notice(sprintf(t("User '%s' deleted"), $user[0]['username']).EOL);
 				break;

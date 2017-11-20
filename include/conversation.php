@@ -4,11 +4,12 @@
  */
 use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\Conversation;
-use Friendica\Core\Item;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
+use Friendica\Object\Conversation;
+use Friendica\Object\Item;
 
 require_once "include/bbcode.php";
 require_once "include/acl_selectors.php";
@@ -512,7 +513,6 @@ if (!function_exists('conversation')) {
 function conversation(App $a, $items, $mode, $update, $preview = false) {
 
 	require_once 'include/bbcode.php';
-	require_once 'include/Contact.php';
 	require_once 'mod/proxy.php';
 
 	$ssl_state = ((local_user()) ? true : false);
@@ -733,7 +733,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 				}
 
 				if (!x($item, 'author-thumb') || ($item['author-thumb'] == "")) {
-					$author_contact = get_contact_details_by_url($item['author-link'], $profile_owner);
+					$author_contact = Contact::getDetailsByURL($item['author-link'], $profile_owner);
 					if ($author_contact["thumb"]) {
 						$item['author-thumb'] = $author_contact["thumb"];
 					} else {
@@ -742,7 +742,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 				}
 
 				if (!isset($item['owner-thumb']) || ($item['owner-thumb'] == "")) {
-					$owner_contact = get_contact_details_by_url($item['owner-link'], $profile_owner);
+					$owner_contact = Contact::getDetailsByURL($item['owner-link'], $profile_owner);
 					if ($owner_contact["thumb"]) {
 						$item['owner-thumb'] = $owner_contact["thumb"];
 					} else {

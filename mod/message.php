@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Content\Smilies;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 
 require_once 'include/acl_selectors.php';
 require_once 'include/message.php';
@@ -461,7 +462,7 @@ function message_content(App $a) {
 				$to_name_e = $message['name'];
 			}
 
-			$contact = get_contact_details_by_url($message['from-url']);
+			$contact = Contact::getDetailsByURL($message['from-url']);
 			if (isset($contact["thumb"]))
 				$from_photo = $contact["thumb"];
 			else
@@ -575,7 +576,7 @@ function render_messages(array $msg, $t) {
 			$to_name_e = $rr['name'];
 		}
 
-		$contact = get_contact_details_by_url($rr['url']);
+		$contact = Contact::getDetailsByURL($rr['url']);
 		if (isset($contact["thumb"]))
 			$from_photo = $contact["thumb"];
 		else

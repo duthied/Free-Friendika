@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Network\Probe;
+use Friendica\Object\Contact;
 
 use League\HTMLToMarkdown\HtmlConverter;
 
@@ -23,7 +24,7 @@ function diaspora_mention2bb($match) {
 		return;
 	}
 
-	$data = get_contact_details_by_addr($match[2]);
+	$data = Contact::getDetailsByAddr($match[2]);
 
 	$name = $match[1];
 
@@ -96,7 +97,7 @@ function diaspora2bb($s) {
  */
 function diaspora_mentions($match) {
 
-	$contact = get_contact_details_by_url($match[3]);
+	$contact = Contact::getDetailsByURL($match[3]);
 
 	if (!x($contact, 'addr')) {
 		$contact = Probe::uri($match[3]);

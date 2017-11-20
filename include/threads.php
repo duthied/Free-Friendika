@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 
 function add_thread($itemid, $onlyshadow = false) {
 	$items = q("SELECT `uid`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`,
@@ -58,7 +59,7 @@ function add_shadow_thread($itemid) {
 	}
 
 	// Is the public contact configured as hidden?
-        if (hiddenContact($item["owner-id"]) || hiddenContact($item["author-id"])) {
+        if (Contact::isHidden($item["owner-id"]) || Contact::isHidden($item["author-id"])) {
                 return;
         }
 
@@ -98,13 +99,12 @@ function add_shadow_thread($itemid) {
 		if (!DBM::is_result($r)) {
 			// Preparing public shadow (removing user specific data)
 			require_once("include/items.php");
-			require_once("include/Contact.php");
 
 			unset($item[0]['id']);
 			$item[0]['uid'] = 0;
 			$item[0]['origin'] = 0;
 			$item[0]['wall'] = 0;
-			$item[0]['contact-id'] = get_contact($item[0]['author-link'], 0);
+			$item[0]['contact-id'] = Contact::getIdForURL($item[0]['author-link'], 0);
 
 			if (in_array($item[0]['type'], array("net-comment", "wall-comment"))) {
 				$item[0]['type'] = 'remote-comment';
@@ -158,13 +158,12 @@ function add_shadow_entry($itemid) {
 
 	// Preparing public shadow (removing user specific data)
 	require_once("include/items.php");
-	require_once("include/Contact.php");
 
 	unset($item['id']);
 	$item['uid'] = 0;
 	$item['origin'] = 0;
 	$item['wall'] = 0;
-	$item['contact-id'] = get_contact($item['author-link'], 0);
+	$item['contact-id'] = Contact::getIdForURL($item['author-link'], 0);
 
 	if (in_array($item['type'], array("net-comment", "wall-comment"))) {
 		$item['type'] = 'remote-comment';

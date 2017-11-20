@@ -1,14 +1,14 @@
 <?php
 /**
- * @file src/Core/Item.php
+ * @file src/Object/Item.php
  */
-namespace Friendica\Core;
+namespace Friendica\Object;
 
-use Friendica\Core\BaseObject;
+use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
-use Friendica\Protocol\Diaspora;
+use Friendica\Object\Contact;
 use dba;
 
 require_once 'include/text.php';
@@ -46,7 +46,7 @@ class Item extends BaseObject
 	 */
 	public function __construct($data)
 	{
-		$a = $this->getApp();
+		$a = self::getApp();
 
 		$this->data = $data;
 		$this->setTemplate('wall');
@@ -109,7 +109,7 @@ class Item extends BaseObject
 
 		$result = array();
 
-		$a = $this->getApp();
+		$a = self::getApp();
 
 		$item = $this->getData();
 		$edited = false;
@@ -186,7 +186,7 @@ class Item extends BaseObject
 		}
 
 		if (!isset($item['author-thumb']) || ($item['author-thumb'] == "")) {
-			$author_contact = get_contact_details_by_url($item['author-link'], $conv->getProfileOwner());
+			$author_contact = Contact::getDetailsByURL($item['author-link'], $conv->getProfileOwner());
 			if ($author_contact["thumb"]) {
 				$item['author-thumb'] = $author_contact["thumb"];
 			} else {
@@ -195,7 +195,7 @@ class Item extends BaseObject
 		}
 
 		if (!isset($item['owner-thumb']) || ($item['owner-thumb'] == "")) {
-			$owner_contact = get_contact_details_by_url($item['owner-link'], $conv->getProfileOwner());
+			$owner_contact = Contact::getDetailsByURL($item['owner-link'], $conv->getProfileOwner());
 			if ($owner_contact["thumb"]) {
 				$item['owner-thumb'] = $owner_contact["thumb"];
 			} else {
@@ -752,7 +752,7 @@ class Item extends BaseObject
 	 */
 	private function getCommentBox($indent)
 	{
-		$a = $this->getApp();
+		$a = self::getApp();
 		if (!$this->isToplevel() && !(Config::get('system', 'thread_allow') && $a->theme_thread_allow)) {
 			return '';
 		}
@@ -828,7 +828,7 @@ class Item extends BaseObject
 	 */
 	protected function checkWallToWall()
 	{
-		$a = $this->getApp();
+		$a = self::getApp();
 		$conv = $this->getConversation();
 		$this->wall_to_wall = false;
 

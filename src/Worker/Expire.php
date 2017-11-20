@@ -15,9 +15,8 @@ class Expire {
 	public static function execute($param = '', $hook_name = '') {
 		global $a;
 
-		require_once('include/datetime.php');
-		require_once('include/items.php');
-		require_once('include/Contact.php');
+		require_once 'include/datetime.php';
+		require_once 'include/items.php';
 
 		load_hooks();
 

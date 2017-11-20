@@ -9,14 +9,12 @@
 
 namespace Friendica\Protocol;
 
-use Friendica\App;
-use Friendica\Core\System;
-use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
+use Friendica\Object\Profile;
 use dba;
 use DOMDocument;
 use DomXPath;
@@ -25,7 +23,6 @@ use Exception;
 require_once 'include/datetime.php';
 require_once 'include/network.php';
 require_once 'include/html2bbcode.php';
-require_once 'include/Contact.php';
 require_once 'include/Photo.php';
 
 class PortableContact
@@ -400,7 +397,7 @@ class PortableContact
 							}
 						}
 
-						$location = formatted_location($noscrape);
+						$location = Profile::formatLocation($noscrape);
 						if ($location) {
 							$contact["location"] = $location;
 						}

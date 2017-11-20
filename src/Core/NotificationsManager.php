@@ -9,11 +9,11 @@ namespace Friendica\Core;
 use Friendica\Core\Pconfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 
 require_once 'include/html2plain.php';
 require_once 'include/datetime.php';
 require_once 'include/bbcode.php';
-require_once 'include/Contact.php';
 
 /**
  * @brief Methods for read and write notifications from/to database
@@ -774,7 +774,7 @@ class NotificationsManager
 			$sql_extra = " AND `ignore` = 0 ";
 		}
 
-		/// @todo Fetch contact details by "get_contact_details_by_url" instead of queries to contact, fcontact and gcontact
+		/// @todo Fetch contact details by "Contact::getDetailsByUrl" instead of queries to contact, fcontact and gcontact
 		$r = q(
 			"SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*,
 				`fcontact`.`name` AS `fname`, `fcontact`.`url` AS `furl`,
@@ -903,7 +903,7 @@ class NotificationsManager
 		// If the network and addr is still not available
 		// get the missing data data from other sources
 		if ($arr['gnetwork'] == "" || $arr['gaddr'] == "") {
-			$ret = get_contact_details_by_url($arr['url']);
+			$ret = Contact::getDetailsByURL($arr['url']);
 
 			if ($arr['gnetwork'] == "" && $ret['network'] != "") {
 				$arr['gnetwork'] = $ret['network'];

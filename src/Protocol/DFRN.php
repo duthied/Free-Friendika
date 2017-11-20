@@ -12,8 +12,10 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
-use Friendica\Model\GlobalContact;
 use Friendica\Database\DBM;
+use Friendica\Model\GlobalContact;
+use Friendica\Object\Contact;
+use Friendica\Object\Profile;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\XML;
 
@@ -21,7 +23,6 @@ use dba;
 use DOMDocument;
 use DomXPath;
 
-require_once "include/Contact.php";
 require_once "include/enotify.php";
 require_once "include/threads.php";
 require_once "include/items.php";
@@ -706,7 +707,7 @@ class DFRN
 			if (trim($profile["locality"].$profile["region"].$profile["country-name"]) != "") {
 				$element = $doc->createElement("poco:address");
 
-				XML::add_element($doc, $element, "poco:formatted", formatted_location($profile));
+				XML::add_element($doc, $element, "poco:formatted", Profile::formatLocation($profile));
 
 				if (trim($profile["locality"]) != "") {
 					XML::add_element($doc, $element, "poco:locality", $profile["locality"]);
@@ -740,8 +741,7 @@ class DFRN
 	 */
 	private static function add_entry_author($doc, $element, $contact_url, $item)
 	{
-
-		$contact = get_contact_details_by_url($contact_url, $item["uid"]);
+		$contact = Contact::getDetailsByURL($contact_url, $item["uid"]);
 
 		$author = $doc->createElement($element);
 		XML::add_element($doc, $author, "name", $contact["name"]);
@@ -1371,8 +1371,7 @@ class DFRN
 
 		if ($contact['term-date'] > NULL_DATE) {
 			logger("dfrn_deliver: $url back from the dead - removing mark for death");
-			include_once 'include/Contact.php';
-			unmark_for_death($contact);
+			Contact::unmarkForArchival($contact);
 		}
 
 		$res = parse_xml_string($xml);
