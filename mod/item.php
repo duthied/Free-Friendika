@@ -24,6 +24,7 @@ use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
 use Friendica\Object\Contact;
 use Friendica\Protocol\Diaspora;
+use Friendica\Util\Emailer;
 
 require_once 'include/crypto.php';
 require_once 'include/enotify.php';
@@ -1036,13 +1037,13 @@ function item_post(App $a) {
 				$message = '<html><body>' . $link . $html . $disclaimer . '</body></html>';
 				include_once 'include/html2plain.php';
 				$params = array (
-				    'fromName' => $a->user['username'],
-				    'fromEmail' => $a->user['email'],
-				    'toEmail' => $addr,
-				    'replyTo' => $a->user['email'],
-				    'messageSubject' => $subject,
-				    'htmlVersion' => $message,
-				    'textVersion' => html2plain($html.$disclaimer),
+				'fromName' => $a->user['username'],
+				'fromEmail' => $a->user['email'],
+				'toEmail' => $addr,
+				'replyTo' => $a->user['email'],
+				'messageSubject' => $subject,
+				'htmlVersion' => $message,
+				'textVersion' => html2plain($html.$disclaimer),
 				);
 				Emailer::send($params);
 			}
