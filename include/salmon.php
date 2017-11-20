@@ -112,7 +112,7 @@ function slapper($owner, $url, $slap)
 
 	$namespaces = array("me" => "http://salmon-protocol.org/ns/magic-env");
 
-	$salmon = XML::from_array($xmldata, $xml, false, $namespaces);
+	$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
 	// slap them
 	post_url($url, $salmon, array(
@@ -138,7 +138,7 @@ function slapper($owner, $url, $slap)
 
 		$namespaces = array("me" => "http://salmon-protocol.org/ns/magic-env");
 
-		$salmon = XML::from_array($xmldata, $xml, false, $namespaces);
+		$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
 		// slap them
 		post_url($url, $salmon, array(
@@ -161,7 +161,7 @@ function slapper($owner, $url, $slap)
 
 		$namespaces = array("me" => "http://salmon-protocol.org/ns/magic-env");
 
-		$salmon = XML::from_array($xmldata, $xml, false, $namespaces);
+		$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
 		// slap them
 		post_url($url, $salmon, array(

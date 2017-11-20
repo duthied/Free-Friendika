@@ -127,7 +127,7 @@ class Probe
 			return array();
 		}
 
-		$links = XML::element_to_array($xrd);
+		$links = XML::elementToArray($xrd);
 		if (!isset($links["xrd"]["link"])) {
 			logger("No xrd data found for ".$host, LOGGER_DEBUG);
 			return array();
@@ -712,7 +712,7 @@ class Probe
 			return false;
 		}
 
-		$xrd_arr = XML::element_to_array($xrd);
+		$xrd_arr = XML::elementToArray($xrd);
 		if (!isset($xrd_arr["xrd"]["link"])) {
 			logger("No XML webfinger links for ".$url, LOGGER_DEBUG);
 			return false;

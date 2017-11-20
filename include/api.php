@@ -902,7 +902,7 @@ function api_create_xml($data, $root_element)
 
 	$data3 = array($root_element => $data2);
 
-	$ret = XML::from_array($data3, $xml, false, $namespaces);
+	$ret = XML::fromArray($data3, $xml, false, $namespaces);
 	return $ret;
 }
 

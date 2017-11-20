@@ -403,17 +403,17 @@ class DFRN
 		$mail = $doc->createElement("dfrn:mail");
 		$sender = $doc->createElement("dfrn:sender");
 
-		XML::add_element($doc, $sender, "dfrn:name", $owner['name']);
-		XML::add_element($doc, $sender, "dfrn:uri", $owner['url']);
-		XML::add_element($doc, $sender, "dfrn:avatar", $owner['thumb']);
+		XML::addElement($doc, $sender, "dfrn:name", $owner['name']);
+		XML::addElement($doc, $sender, "dfrn:uri", $owner['url']);
+		XML::addElement($doc, $sender, "dfrn:avatar", $owner['thumb']);
 
 		$mail->appendChild($sender);
 
-		XML::add_element($doc, $mail, "dfrn:id", $item['uri']);
-		XML::add_element($doc, $mail, "dfrn:in-reply-to", $item['parent-uri']);
-		XML::add_element($doc, $mail, "dfrn:sentdate", datetime_convert('UTC', 'UTC', $item['created'] . '+00:00' , ATOM_TIME));
-		XML::add_element($doc, $mail, "dfrn:subject", $item['title']);
-		XML::add_element($doc, $mail, "dfrn:content", $item['body']);
+		XML::addElement($doc, $mail, "dfrn:id", $item['uri']);
+		XML::addElement($doc, $mail, "dfrn:in-reply-to", $item['parent-uri']);
+		XML::addElement($doc, $mail, "dfrn:sentdate", datetime_convert('UTC', 'UTC', $item['created'] . '+00:00' , ATOM_TIME));
+		XML::addElement($doc, $mail, "dfrn:subject", $item['title']);
+		XML::addElement($doc, $mail, "dfrn:content", $item['body']);
 
 		$root->appendChild($mail);
 
@@ -438,11 +438,11 @@ class DFRN
 
 		$suggest = $doc->createElement("dfrn:suggest");
 
-		XML::add_element($doc, $suggest, "dfrn:url", $item['url']);
-		XML::add_element($doc, $suggest, "dfrn:name", $item['name']);
-		XML::add_element($doc, $suggest, "dfrn:photo", $item['photo']);
-		XML::add_element($doc, $suggest, "dfrn:request", $item['request']);
-		XML::add_element($doc, $suggest, "dfrn:note", $item['note']);
+		XML::addElement($doc, $suggest, "dfrn:url", $item['url']);
+		XML::addElement($doc, $suggest, "dfrn:name", $item['name']);
+		XML::addElement($doc, $suggest, "dfrn:photo", $item['photo']);
+		XML::addElement($doc, $suggest, "dfrn:request", $item['request']);
+		XML::addElement($doc, $suggest, "dfrn:note", $item['note']);
 
 		$root->appendChild($suggest);
 
@@ -490,18 +490,18 @@ class DFRN
 
 		$relocate = $doc->createElement("dfrn:relocate");
 
-		XML::add_element($doc, $relocate, "dfrn:url", $owner['url']);
-		XML::add_element($doc, $relocate, "dfrn:name", $owner['name']);
-		XML::add_element($doc, $relocate, "dfrn:addr", $owner['addr']);
-		XML::add_element($doc, $relocate, "dfrn:avatar", $owner['avatar']);
-		XML::add_element($doc, $relocate, "dfrn:photo", $photos[4]);
-		XML::add_element($doc, $relocate, "dfrn:thumb", $photos[5]);
-		XML::add_element($doc, $relocate, "dfrn:micro", $photos[6]);
-		XML::add_element($doc, $relocate, "dfrn:request", $owner['request']);
-		XML::add_element($doc, $relocate, "dfrn:confirm", $owner['confirm']);
-		XML::add_element($doc, $relocate, "dfrn:notify", $owner['notify']);
-		XML::add_element($doc, $relocate, "dfrn:poll", $owner['poll']);
-		XML::add_element($doc, $relocate, "dfrn:sitepubkey", Config::get('system','site_pubkey'));
+		XML::addElement($doc, $relocate, "dfrn:url", $owner['url']);
+		XML::addElement($doc, $relocate, "dfrn:name", $owner['name']);
+		XML::addElement($doc, $relocate, "dfrn:addr", $owner['addr']);
+		XML::addElement($doc, $relocate, "dfrn:avatar", $owner['avatar']);
+		XML::addElement($doc, $relocate, "dfrn:photo", $photos[4]);
+		XML::addElement($doc, $relocate, "dfrn:thumb", $photos[5]);
+		XML::addElement($doc, $relocate, "dfrn:micro", $photos[6]);
+		XML::addElement($doc, $relocate, "dfrn:request", $owner['request']);
+		XML::addElement($doc, $relocate, "dfrn:confirm", $owner['confirm']);
+		XML::addElement($doc, $relocate, "dfrn:notify", $owner['notify']);
+		XML::addElement($doc, $relocate, "dfrn:poll", $owner['poll']);
+		XML::addElement($doc, $relocate, "dfrn:sitepubkey", Config::get('system','site_pubkey'));
 
 		$root->appendChild($relocate);
 
@@ -540,17 +540,17 @@ class DFRN
 		$root->setAttribute("xmlns:ostatus", NAMESPACE_OSTATUS);
 		$root->setAttribute("xmlns:statusnet", NAMESPACE_STATUSNET);
 
-		XML::add_element($doc, $root, "id", System::baseUrl()."/profile/".$owner["nick"]);
-		XML::add_element($doc, $root, "title", $owner["name"]);
+		XML::addElement($doc, $root, "id", System::baseUrl()."/profile/".$owner["nick"]);
+		XML::addElement($doc, $root, "title", $owner["name"]);
 
 		$attributes = array("uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION."-".DB_UPDATE_VERSION);
-		XML::add_element($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
+		XML::addElement($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
 
 		$attributes = array("rel" => "license", "href" => "http://creativecommons.org/licenses/by/3.0/");
-		XML::add_element($doc, $root, "link", "", $attributes);
+		XML::addElement($doc, $root, "link", "", $attributes);
 
 		$attributes = array("rel" => "alternate", "type" => "text/html", "href" => $alternatelink);
-		XML::add_element($doc, $root, "link", "", $attributes);
+		XML::addElement($doc, $root, "link", "", $attributes);
 
 
 		if ($public) {
@@ -558,26 +558,26 @@ class DFRN
 			OStatus::hublinks($doc, $root, $owner["nick"]);
 
 			$attributes = array("rel" => "salmon", "href" => System::baseUrl()."/salmon/".$owner["nick"]);
-			XML::add_element($doc, $root, "link", "", $attributes);
+			XML::addElement($doc, $root, "link", "", $attributes);
 
 			$attributes = array("rel" => "http://salmon-protocol.org/ns/salmon-replies", "href" => System::baseUrl()."/salmon/".$owner["nick"]);
-			XML::add_element($doc, $root, "link", "", $attributes);
+			XML::addElement($doc, $root, "link", "", $attributes);
 
 			$attributes = array("rel" => "http://salmon-protocol.org/ns/salmon-mention", "href" => System::baseUrl()."/salmon/".$owner["nick"]);
-			XML::add_element($doc, $root, "link", "", $attributes);
+			XML::addElement($doc, $root, "link", "", $attributes);
 		}
 
 		// For backward compatibility we keep this element
 		if ($owner['page-flags'] == PAGE_COMMUNITY) {
-			XML::add_element($doc, $root, "dfrn:community", 1);
+			XML::addElement($doc, $root, "dfrn:community", 1);
 		}
 
 		// The former element is replaced by this one
-		XML::add_element($doc, $root, "dfrn:account_type", $owner["account-type"]);
+		XML::addElement($doc, $root, "dfrn:account_type", $owner["account-type"]);
 
 		/// @todo We need a way to transmit the different page flags like "PAGE_PRVGROUP"
 
-		XML::add_element($doc, $root, "updated", datetime_convert("UTC", "UTC", "now", ATOM_TIME));
+		XML::addElement($doc, $root, "updated", datetime_convert("UTC", "UTC", "now", ATOM_TIME));
 
 		$author = self::add_author($doc, $owner, $authorelement, $public);
 		$root->appendChild($author);
@@ -621,9 +621,9 @@ class DFRN
 			$attributes = array("dfrn:updated" => $namdate);
 		}
 
-		XML::add_element($doc, $author, "name", $owner["name"], $attributes);
-		XML::add_element($doc, $author, "uri", System::baseUrl().'/profile/'.$owner["nickname"], $attributes);
-		XML::add_element($doc, $author, "dfrn:handle", $owner["addr"], $attributes);
+		XML::addElement($doc, $author, "name", $owner["name"], $attributes);
+		XML::addElement($doc, $author, "uri", System::baseUrl().'/profile/'.$owner["nickname"], $attributes);
+		XML::addElement($doc, $author, "dfrn:handle", $owner["addr"], $attributes);
 
 		$attributes = array("rel" => "photo", "type" => "image/jpeg",
 					"media:width" => 175, "media:height" => 175, "href" => $owner['photo']);
@@ -632,13 +632,13 @@ class DFRN
 			$attributes["dfrn:updated"] = $picdate;
 		}
 
-		XML::add_element($doc, $author, "link", "", $attributes);
+		XML::addElement($doc, $author, "link", "", $attributes);
 
 		$attributes["rel"] = "avatar";
-		XML::add_element($doc, $author, "link", "", $attributes);
+		XML::addElement($doc, $author, "link", "", $attributes);
 
 		if ($hidewall) {
-			XML::add_element($doc, $author, "dfrn:hide", "true");
+			XML::addElement($doc, $author, "dfrn:hide", "true");
 		}
 
 		// The following fields will only be generated if the data isn't meant for a public feed
@@ -649,7 +649,7 @@ class DFRN
 		$birthday = feed_birthday($owner['uid'], $owner['timezone']);
 
 		if ($birthday) {
-			XML::add_element($doc, $author, "dfrn:birthday", $birthday);
+			XML::addElement($doc, $author, "dfrn:birthday", $birthday);
 		}
 
 		// Only show contact details when we are allowed to
@@ -665,26 +665,26 @@ class DFRN
 		if (DBM::is_result($r)) {
 			$profile = $r[0];
 
-			XML::add_element($doc, $author, "poco:displayName", $profile["name"]);
-			XML::add_element($doc, $author, "poco:updated", $namdate);
+			XML::addElement($doc, $author, "poco:displayName", $profile["name"]);
+			XML::addElement($doc, $author, "poco:updated", $namdate);
 
 			if (trim($profile["dob"]) > '0001-01-01') {
-				XML::add_element($doc, $author, "poco:birthday", "0000-".date("m-d", strtotime($profile["dob"])));
+				XML::addElement($doc, $author, "poco:birthday", "0000-".date("m-d", strtotime($profile["dob"])));
 			}
 
-			XML::add_element($doc, $author, "poco:note", $profile["about"]);
-			XML::add_element($doc, $author, "poco:preferredUsername", $profile["nickname"]);
+			XML::addElement($doc, $author, "poco:note", $profile["about"]);
+			XML::addElement($doc, $author, "poco:preferredUsername", $profile["nickname"]);
 
 			$savetz = date_default_timezone_get();
 			date_default_timezone_set($profile["timezone"]);
-			XML::add_element($doc, $author, "poco:utcOffset", date("P"));
+			XML::addElement($doc, $author, "poco:utcOffset", date("P"));
 			date_default_timezone_set($savetz);
 
 			if (trim($profile["homepage"]) != "") {
 				$urls = $doc->createElement("poco:urls");
-				XML::add_element($doc, $urls, "poco:type", "homepage");
-				XML::add_element($doc, $urls, "poco:value", $profile["homepage"]);
-				XML::add_element($doc, $urls, "poco:primary", "true");
+				XML::addElement($doc, $urls, "poco:type", "homepage");
+				XML::addElement($doc, $urls, "poco:value", $profile["homepage"]);
+				XML::addElement($doc, $urls, "poco:primary", "true");
 				$author->appendChild($urls);
 			}
 
@@ -692,33 +692,33 @@ class DFRN
 				$keywords = explode(",", $profile["pub_keywords"]);
 
 				foreach ($keywords as $keyword) {
-					XML::add_element($doc, $author, "poco:tags", trim($keyword));
+					XML::addElement($doc, $author, "poco:tags", trim($keyword));
 				}
 			}
 
 			if (trim($profile["xmpp"]) != "") {
 				$ims = $doc->createElement("poco:ims");
-				XML::add_element($doc, $ims, "poco:type", "xmpp");
-				XML::add_element($doc, $ims, "poco:value", $profile["xmpp"]);
-				XML::add_element($doc, $ims, "poco:primary", "true");
+				XML::addElement($doc, $ims, "poco:type", "xmpp");
+				XML::addElement($doc, $ims, "poco:value", $profile["xmpp"]);
+				XML::addElement($doc, $ims, "poco:primary", "true");
 				$author->appendChild($ims);
 			}
 
 			if (trim($profile["locality"].$profile["region"].$profile["country-name"]) != "") {
 				$element = $doc->createElement("poco:address");
 
-				XML::add_element($doc, $element, "poco:formatted", Profile::formatLocation($profile));
+				XML::addElement($doc, $element, "poco:formatted", Profile::formatLocation($profile));
 
 				if (trim($profile["locality"]) != "") {
-					XML::add_element($doc, $element, "poco:locality", $profile["locality"]);
+					XML::addElement($doc, $element, "poco:locality", $profile["locality"]);
 				}
 
 				if (trim($profile["region"]) != "") {
-					XML::add_element($doc, $element, "poco:region", $profile["region"]);
+					XML::addElement($doc, $element, "poco:region", $profile["region"]);
 				}
 
 				if (trim($profile["country-name"]) != "") {
-					XML::add_element($doc, $element, "poco:country", $profile["country-name"]);
+					XML::addElement($doc, $element, "poco:country", $profile["country-name"]);
 				}
 
 				$author->appendChild($element);
@@ -744,9 +744,9 @@ class DFRN
 		$contact = Contact::getDetailsByURL($contact_url, $item["uid"]);
 
 		$author = $doc->createElement($element);
-		XML::add_element($doc, $author, "name", $contact["name"]);
-		XML::add_element($doc, $author, "uri", $contact["url"]);
-		XML::add_element($doc, $author, "dfrn:handle", $contact["addr"]);
+		XML::addElement($doc, $author, "name", $contact["name"]);
+		XML::addElement($doc, $author, "uri", $contact["url"]);
+		XML::addElement($doc, $author, "dfrn:handle", $contact["addr"]);
 
 		/// @Todo
 		/// - Check real image type and image size
@@ -757,7 +757,7 @@ class DFRN
 				"media:width" => 80,
 				"media:height" => 80,
 				"href" => $contact["photo"]);
-		XML::add_element($doc, $author, "link", "", $attributes);
+		XML::addElement($doc, $author, "link", "", $attributes);
 
 		$attributes = array(
 				"rel" => "avatar",
@@ -765,7 +765,7 @@ class DFRN
 				"media:width" => 80,
 				"media:height" => 80,
 				"href" => $contact["photo"]);
-		XML::add_element($doc, $author, "link", "", $attributes);
+		XML::addElement($doc, $author, "link", "", $attributes);
 
 		return $author;
 	}
@@ -790,13 +790,13 @@ class DFRN
 				return false;
 			}
 			if ($r->type) {
-				XML::add_element($doc, $entry, "activity:object-type", $r->type);
+				XML::addElement($doc, $entry, "activity:object-type", $r->type);
 			}
 			if ($r->id) {
-				XML::add_element($doc, $entry, "id", $r->id);
+				XML::addElement($doc, $entry, "id", $r->id);
 			}
 			if ($r->title) {
-				XML::add_element($doc, $entry, "title", $r->title);
+				XML::addElement($doc, $entry, "title", $r->title);
 			}
 
 			if ($r->link) {
@@ -815,16 +815,16 @@ class DFRN
 							foreach ($link->attributes() as $parameter => $value) {
 								$attributes[$parameter] = $value;
 							}
-							XML::add_element($doc, $entry, "link", "", $attributes);
+							XML::addElement($doc, $entry, "link", "", $attributes);
 						}
 					}
 				} else {
 					$attributes = array("rel" => "alternate", "type" => "text/html", "href" => $r->link);
-					XML::add_element($doc, $entry, "link", "", $attributes);
+					XML::addElement($doc, $entry, "link", "", $attributes);
 				}
 			}
 			if ($r->content) {
-				XML::add_element($doc, $entry, "content", bbcode($r->content), array("type" => "html"));
+				XML::addElement($doc, $entry, "content", bbcode($r->content), array("type" => "html"));
 			}
 
 			return $entry;
@@ -863,7 +863,7 @@ class DFRN
 						$attributes["title"] = trim($matches[4]);
 					}
 
-					XML::add_element($doc, $root, "link", "", $attributes);
+					XML::addElement($doc, $root, "link", "", $attributes);
 				}
 			}
 		}
@@ -893,7 +893,7 @@ class DFRN
 
 		if ($item['deleted']) {
 			$attributes = array("ref" => $item['uri'], "when" => datetime_convert('UTC', 'UTC', $item['edited'] . '+00:00', ATOM_TIME));
-			return XML::create_element($doc, "at:deleted-entry", "", $attributes);
+			return XML::createElement($doc, "at:deleted-entry", "", $attributes);
 		}
 
 		if (!$single) {
@@ -944,7 +944,7 @@ class DFRN
 			$attributes = array("ref" => $parent_item, "type" => "text/html",
 						"href" => $parent[0]['plink'],
 						"dfrn:diaspora_guid" => $parent[0]['guid']);
-			XML::add_element($doc, $entry, "thr:in-reply-to", "", $attributes);
+			XML::addElement($doc, $entry, "thr:in-reply-to", "", $attributes);
 		}
 
 		// Add conversation data. This is used for OStatus
@@ -967,23 +967,23 @@ class DFRN
 				"href" => $conversation_href,
 				"ref" => $conversation_uri);
 
-		XML::add_element($doc, $entry, "ostatus:conversation", $conversation_uri, $attributes);
+		XML::addElement($doc, $entry, "ostatus:conversation", $conversation_uri, $attributes);
 
-		XML::add_element($doc, $entry, "id", $item["uri"]);
-		XML::add_element($doc, $entry, "title", $item["title"]);
+		XML::addElement($doc, $entry, "id", $item["uri"]);
+		XML::addElement($doc, $entry, "title", $item["title"]);
 
-		XML::add_element($doc, $entry, "published", datetime_convert("UTC", "UTC", $item["created"] . "+00:00", ATOM_TIME));
-		XML::add_element($doc, $entry, "updated", datetime_convert("UTC", "UTC", $item["edited"] . "+00:00", ATOM_TIME));
+		XML::addElement($doc, $entry, "published", datetime_convert("UTC", "UTC", $item["created"] . "+00:00", ATOM_TIME));
+		XML::addElement($doc, $entry, "updated", datetime_convert("UTC", "UTC", $item["edited"] . "+00:00", ATOM_TIME));
 
 		// "dfrn:env" is used to read the content
-		XML::add_element($doc, $entry, "dfrn:env", base64url_encode($body, true));
+		XML::addElement($doc, $entry, "dfrn:env", base64url_encode($body, true));
 
 		// The "content" field is not read by the receiver. We could remove it when the type is "text"
 		// We keep it at the moment, maybe there is some old version that doesn't read "dfrn:env"
-		XML::add_element($doc, $entry, "content", (($type == 'html') ? $htmlbody : $body), array("type" => $type));
+		XML::addElement($doc, $entry, "content", (($type == 'html') ? $htmlbody : $body), array("type" => $type));
 
 		// We save this value in "plink". Maybe we should read it from there as well?
-		XML::add_element(
+		XML::addElement(
 			$doc,
 			$entry,
 			"link",
@@ -995,50 +995,50 @@ class DFRN
 		// "comment-allow" is some old fashioned stuff for old Friendica versions.
 		// It is included in the rewritten code for completeness
 		if ($comment) {
-			XML::add_element($doc, $entry, "dfrn:comment-allow", intval($item['last-child']));
+			XML::addElement($doc, $entry, "dfrn:comment-allow", intval($item['last-child']));
 		}
 
 		if ($item['location']) {
-			XML::add_element($doc, $entry, "dfrn:location", $item['location']);
+			XML::addElement($doc, $entry, "dfrn:location", $item['location']);
 		}
 
 		if ($item['coord']) {
-			XML::add_element($doc, $entry, "georss:point", $item['coord']);
+			XML::addElement($doc, $entry, "georss:point", $item['coord']);
 		}
 
 		if (($item['private']) || strlen($item['allow_cid']) || strlen($item['allow_gid']) || strlen($item['deny_cid']) || strlen($item['deny_gid'])) {
-			XML::add_element($doc, $entry, "dfrn:private", (($item['private']) ? $item['private'] : 1));
+			XML::addElement($doc, $entry, "dfrn:private", (($item['private']) ? $item['private'] : 1));
 		}
 
 		if ($item['extid']) {
-			XML::add_element($doc, $entry, "dfrn:extid", $item['extid']);
+			XML::addElement($doc, $entry, "dfrn:extid", $item['extid']);
 		}
 
 		if ($item['bookmark']) {
-			XML::add_element($doc, $entry, "dfrn:bookmark", "true");
+			XML::addElement($doc, $entry, "dfrn:bookmark", "true");
 		}
 
 		if ($item['app']) {
-			XML::add_element($doc, $entry, "statusnet:notice_info", "", array("local_id" => $item['id'], "source" => $item['app']));
+			XML::addElement($doc, $entry, "statusnet:notice_info", "", array("local_id" => $item['id'], "source" => $item['app']));
 		}
 
-		XML::add_element($doc, $entry, "dfrn:diaspora_guid", $item["guid"]);
+		XML::addElement($doc, $entry, "dfrn:diaspora_guid", $item["guid"]);
 
 		// The signed text contains the content in Markdown, the sender handle and the signatur for the content
 		// It is needed for relayed comments to Diaspora.
 		if ($item['signed_text']) {
 			$sign = base64_encode(json_encode(array('signed_text' => $item['signed_text'],'signature' => $item['signature'],'signer' => $item['signer'])));
-			XML::add_element($doc, $entry, "dfrn:diaspora_signature", $sign);
+			XML::addElement($doc, $entry, "dfrn:diaspora_signature", $sign);
 		}
 
-		XML::add_element($doc, $entry, "activity:verb", construct_verb($item));
+		XML::addElement($doc, $entry, "activity:verb", construct_verb($item));
 
 		if ($item['object-type'] != "") {
-			XML::add_element($doc, $entry, "activity:object-type", $item['object-type']);
+			XML::addElement($doc, $entry, "activity:object-type", $item['object-type']);
 		} elseif ($item['id'] == $item['parent']) {
-			XML::add_element($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
+			XML::addElement($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
 		} else {
-			XML::add_element($doc, $entry, "activity:object-type", ACTIVITY_OBJ_COMMENT);
+			XML::addElement($doc, $entry, "activity:object-type", ACTIVITY_OBJ_COMMENT);
 		}
 
 		$actobj = self::create_activity($doc, "activity:object", $item['object']);
@@ -1056,7 +1056,7 @@ class DFRN
 		if (count($tags)) {
 			foreach ($tags as $t) {
 				if (($type != 'html') || ($t[0] != "@")) {
-					XML::add_element($doc, $entry, "category", "", array("scheme" => "X-DFRN:".$t[0].":".$t[1], "term" => $t[2]));
+					XML::addElement($doc, $entry, "category", "", array("scheme" => "X-DFRN:".$t[0].":".$t[1], "term" => $t[2]));
 				}
 			}
 		}
@@ -1077,7 +1077,7 @@ class DFRN
 			);
 
 			if (DBM::is_result($r) && ($r[0]["forum"] || $r[0]["prv"])) {
-				XML::add_element(
+				XML::addElement(
 					$doc,
 					$entry,
 					"link",
@@ -1087,7 +1087,7 @@ class DFRN
 							"href" => $mention)
 				);
 			} else {
-				XML::add_element(
+				XML::addElement(
 					$doc,
 					$entry,
 					"link",
@@ -1704,7 +1704,7 @@ class DFRN
 		$obj_element = $obj_doc->createElementNS(NAMESPACE_ATOM1, $element);
 
 		$activity_type = $xpath->query("activity:object-type/text()", $activity)->item(0)->nodeValue;
-		XML::add_element($obj_doc, $obj_element, "type", $activity_type);
+		XML::addElement($obj_doc, $obj_element, "type", $activity_type);
 
 		$id = $xpath->query("atom:id", $activity)->item(0);
 		if (is_object($id)) {

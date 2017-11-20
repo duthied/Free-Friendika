@@ -1250,39 +1250,39 @@ class OStatus
 		$root->setAttribute("xmlns:mastodon", NAMESPACE_MASTODON);
 
 		$attributes = array("uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION."-".DB_UPDATE_VERSION);
-		XML::add_element($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
-		XML::add_element($doc, $root, "id", System::baseUrl()."/profile/".$owner["nick"]);
-		XML::add_element($doc, $root, "title", sprintf("%s timeline", $owner["name"]));
-		XML::add_element($doc, $root, "subtitle", sprintf("Updates from %s on %s", $owner["name"], $a->config["sitename"]));
-		XML::add_element($doc, $root, "logo", $owner["photo"]);
-		XML::add_element($doc, $root, "updated", datetime_convert("UTC", "UTC", "now", ATOM_TIME));
+		XML::addElement($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
+		XML::addElement($doc, $root, "id", System::baseUrl()."/profile/".$owner["nick"]);
+		XML::addElement($doc, $root, "title", sprintf("%s timeline", $owner["name"]));
+		XML::addElement($doc, $root, "subtitle", sprintf("Updates from %s on %s", $owner["name"], $a->config["sitename"]));
+		XML::addElement($doc, $root, "logo", $owner["photo"]);
+		XML::addElement($doc, $root, "updated", datetime_convert("UTC", "UTC", "now", ATOM_TIME));
 
 		$author = self::addAuthor($doc, $owner);
 		$root->appendChild($author);
 
 		$attributes = array("href" => $owner["url"], "rel" => "alternate", "type" => "text/html");
-		XML::add_element($doc, $root, "link", "", $attributes);
+		XML::addElement($doc, $root, "link", "", $attributes);
 
 		/// @TODO We have to find out what this is
 		/// $attributes = array("href" => System::baseUrl()."/sup",
 		///		"rel" => "http://api.friendfeed.com/2008/03#sup",
 		///		"type" => "application/json");
-		/// XML::add_element($doc, $root, "link", "", $attributes);
+		/// XML::addElement($doc, $root, "link", "", $attributes);
 
 		self::hublinks($doc, $root, $owner["nick"]);
 
 		$attributes = array("href" => System::baseUrl()."/salmon/".$owner["nick"], "rel" => "salmon");
-		XML::add_element($doc, $root, "link", "", $attributes);
+		XML::addElement($doc, $root, "link", "", $attributes);
 
 		$attributes = array("href" => System::baseUrl()."/salmon/".$owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-replies");
-		XML::add_element($doc, $root, "link", "", $attributes);
+		XML::addElement($doc, $root, "link", "", $attributes);
 
 		$attributes = array("href" => System::baseUrl()."/salmon/".$owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-mention");
-		XML::add_element($doc, $root, "link", "", $attributes);
+		XML::addElement($doc, $root, "link", "", $attributes);
 
 		$attributes = array("href" => System::baseUrl()."/api/statuses/user_timeline/".$owner["nick"].".atom",
 				"rel" => "self", "type" => "application/atom+xml");
-		XML::add_element($doc, $root, "link", "", $attributes);
+		XML::addElement($doc, $root, "link", "", $attributes);
 
 		return $root;
 	}
@@ -1297,7 +1297,7 @@ class OStatus
 	public static function hublinks($doc, $root, $nick)
 	{
 		$h = System::baseUrl() . '/pubsubhubbub/'.$nick;
-		XML::add_element($doc, $root, "link", "", array("href" => $h, "rel" => "hub"));
+		XML::addElement($doc, $root, "link", "", array("href" => $h, "rel" => "hub"));
 	}
 
 	/**
@@ -1319,7 +1319,7 @@ class OStatus
 						"href" => $siteinfo["image"],
 						"type" => $imgdata["mime"],
 						"length" => intval($imgdata["size"]));
-				XML::add_element($doc, $root, "link", "", $attributes);
+				XML::addElement($doc, $root, "link", "", $attributes);
 				break;
 			case 'video':
 				$attributes = array("rel" => "enclosure",
@@ -1327,7 +1327,7 @@ class OStatus
 						"type" => "text/html; charset=UTF-8",
 						"length" => "",
 						"title" => $siteinfo["title"]);
-				XML::add_element($doc, $root, "link", "", $attributes);
+				XML::addElement($doc, $root, "link", "", $attributes);
 				break;
 			default:
 				break;
@@ -1340,7 +1340,7 @@ class OStatus
 					"type" => $imgdata["mime"],
 					"length" => intval($imgdata["size"]));
 
-			XML::add_element($doc, $root, "link", "", $attributes);
+			XML::addElement($doc, $root, "link", "", $attributes);
 		}
 
 		$arr = explode('[/attach],', $item['attach']);
@@ -1359,7 +1359,7 @@ class OStatus
 					if (trim($matches[4]) != "") {
 						$attributes["title"] = trim($matches[4]);
 					}
-					XML::add_element($doc, $root, "link", "", $attributes);
+					XML::addElement($doc, $root, "link", "", $attributes);
 				}
 			}
 		}
@@ -1380,15 +1380,15 @@ class OStatus
 			$profile = $r[0];
 		}
 		$author = $doc->createElement("author");
-		XML::add_element($doc, $author, "id", $owner["url"]);
-		XML::add_element($doc, $author, "activity:object-type", ACTIVITY_OBJ_PERSON);
-		XML::add_element($doc, $author, "uri", $owner["url"]);
-		XML::add_element($doc, $author, "name", $owner["nick"]);
-		XML::add_element($doc, $author, "email", $owner["addr"]);
-		XML::add_element($doc, $author, "summary", bbcode($owner["about"], false, false, 7));
+		XML::addElement($doc, $author, "id", $owner["url"]);
+		XML::addElement($doc, $author, "activity:object-type", ACTIVITY_OBJ_PERSON);
+		XML::addElement($doc, $author, "uri", $owner["url"]);
+		XML::addElement($doc, $author, "name", $owner["nick"]);
+		XML::addElement($doc, $author, "email", $owner["addr"]);
+		XML::addElement($doc, $author, "summary", bbcode($owner["about"], false, false, 7));
 
 		$attributes = array("rel" => "alternate", "type" => "text/html", "href" => $owner["url"]);
-		XML::add_element($doc, $author, "link", "", $attributes);
+		XML::addElement($doc, $author, "link", "", $attributes);
 
 		$attributes = array(
 				"rel" => "avatar",
@@ -1396,7 +1396,7 @@ class OStatus
 				"media:width" => 175,
 				"media:height" => 175,
 				"href" => $owner["photo"]);
-		XML::add_element($doc, $author, "link", "", $attributes);
+		XML::addElement($doc, $author, "link", "", $attributes);
 
 		if (isset($owner["thumb"])) {
 			$attributes = array(
@@ -1405,34 +1405,34 @@ class OStatus
 					"media:width" => 80,
 					"media:height" => 80,
 					"href" => $owner["thumb"]);
-			XML::add_element($doc, $author, "link", "", $attributes);
+			XML::addElement($doc, $author, "link", "", $attributes);
 		}
 
-		XML::add_element($doc, $author, "poco:preferredUsername", $owner["nick"]);
-		XML::add_element($doc, $author, "poco:displayName", $owner["name"]);
-		XML::add_element($doc, $author, "poco:note", bbcode($owner["about"], false, false, 7));
+		XML::addElement($doc, $author, "poco:preferredUsername", $owner["nick"]);
+		XML::addElement($doc, $author, "poco:displayName", $owner["name"]);
+		XML::addElement($doc, $author, "poco:note", bbcode($owner["about"], false, false, 7));
 
 		if (trim($owner["location"]) != "") {
 			$element = $doc->createElement("poco:address");
-			XML::add_element($doc, $element, "poco:formatted", $owner["location"]);
+			XML::addElement($doc, $element, "poco:formatted", $owner["location"]);
 			$author->appendChild($element);
 		}
 
 		if (trim($profile["homepage"]) != "") {
 			$urls = $doc->createElement("poco:urls");
-			XML::add_element($doc, $urls, "poco:type", "homepage");
-			XML::add_element($doc, $urls, "poco:value", $profile["homepage"]);
-			XML::add_element($doc, $urls, "poco:primary", "true");
+			XML::addElement($doc, $urls, "poco:type", "homepage");
+			XML::addElement($doc, $urls, "poco:value", $profile["homepage"]);
+			XML::addElement($doc, $urls, "poco:primary", "true");
 			$author->appendChild($urls);
 		}
 
 		if (count($profile)) {
-			XML::add_element($doc, $author, "followers", "", array("url" => System::baseUrl()."/viewcontacts/".$owner["nick"]));
-			XML::add_element($doc, $author, "statusnet:profile_info", "", array("local_id" => $owner["uid"]));
+			XML::addElement($doc, $author, "followers", "", array("url" => System::baseUrl()."/viewcontacts/".$owner["nick"]));
+			XML::addElement($doc, $author, "statusnet:profile_info", "", array("local_id" => $owner["uid"]));
 		}
 
 		if ($profile["publish"]) {
-			XML::add_element($doc, $author, "mastodon:scope", "public");
+			XML::addElement($doc, $author, "mastodon:scope", "public");
 		}
 		return $author;
 	}
@@ -1514,12 +1514,12 @@ class OStatus
 	private static function sourceEntry($doc, $contact)
 	{
 		$source = $doc->createElement("source");
-		XML::add_element($doc, $source, "id", $contact["poll"]);
-		XML::add_element($doc, $source, "title", $contact["name"]);
-		XML::add_element($doc, $source, "link", "", array("rel" => "alternate", "type" => "text/html", "href" => $contact["alias"]));
-		XML::add_element($doc, $source, "link", "", array("rel" => "self", "type" => "application/atom+xml", "href" => $contact["poll"]));
-		XML::add_element($doc, $source, "icon", $contact["photo"]);
-		XML::add_element($doc, $source, "updated", datetime_convert("UTC", "UTC", $contact["success_update"]."+00:00", ATOM_TIME));
+		XML::addElement($doc, $source, "id", $contact["poll"]);
+		XML::addElement($doc, $source, "title", $contact["name"]);
+		XML::addElement($doc, $source, "link", "", array("rel" => "alternate", "type" => "text/html", "href" => $contact["alias"]));
+		XML::addElement($doc, $source, "link", "", array("rel" => "self", "type" => "application/atom+xml", "href" => $contact["poll"]));
+		XML::addElement($doc, $source, "icon", $contact["photo"]);
+		XML::addElement($doc, $source, "updated", datetime_convert("UTC", "UTC", $contact["success_update"]."+00:00", ATOM_TIME));
 
 		return $source;
 	}
@@ -1618,7 +1618,7 @@ class OStatus
 
 		$as_object = $doc->createElement("activity:object");
 
-		XML::add_element($doc, $as_object, "activity:object-type", NAMESPACE_ACTIVITY_SCHEMA."activity");
+		XML::addElement($doc, $as_object, "activity:object-type", NAMESPACE_ACTIVITY_SCHEMA."activity");
 
 		self::entryContent($doc, $as_object, $repeated_item, $owner, "", "", false);
 
@@ -1627,7 +1627,7 @@ class OStatus
 
 		$as_object2 = $doc->createElement("activity:object");
 
-		XML::add_element($doc, $as_object2, "activity:object-type", self::constructObjecttype($repeated_item));
+		XML::addElement($doc, $as_object2, "activity:object-type", self::constructObjecttype($repeated_item));
 
 		$title = sprintf("New comment by %s", $contact["nick"]);
 
@@ -1678,7 +1678,7 @@ class OStatus
 		);
 		$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 
-		XML::add_element($doc, $as_object, "activity:object-type", self::constructObjecttype($parent[0]));
+		XML::addElement($doc, $as_object, "activity:object-type", self::constructObjecttype($parent[0]));
 
 		self::entryContent($doc, $as_object, $parent[0], $owner, "New entry");
 
@@ -1701,18 +1701,18 @@ class OStatus
 	private static function addPersonObject($doc, $owner, $contact)
 	{
 		$object = $doc->createElement("activity:object");
-		XML::add_element($doc, $object, "activity:object-type", ACTIVITY_OBJ_PERSON);
+		XML::addElement($doc, $object, "activity:object-type", ACTIVITY_OBJ_PERSON);
 
 		if ($contact['network'] == NETWORK_PHANTOM) {
-			XML::add_element($doc, $object, "id", $contact['url']);
+			XML::addElement($doc, $object, "id", $contact['url']);
 			return $object;
 		}
 
-		XML::add_element($doc, $object, "id", $contact["alias"]);
-		XML::add_element($doc, $object, "title", $contact["nick"]);
+		XML::addElement($doc, $object, "id", $contact["alias"]);
+		XML::addElement($doc, $object, "title", $contact["nick"]);
 
 		$attributes = array("rel" => "alternate", "type" => "text/html", "href" => $contact["url"]);
-		XML::add_element($doc, $object, "link", "", $attributes);
+		XML::addElement($doc, $object, "link", "", $attributes);
 
 		$attributes = array(
 				"rel" => "avatar",
@@ -1720,14 +1720,14 @@ class OStatus
 				"media:width" => 175,
 				"media:height" => 175,
 				"href" => $contact["photo"]);
-		XML::add_element($doc, $object, "link", "", $attributes);
+		XML::addElement($doc, $object, "link", "", $attributes);
 
-		XML::add_element($doc, $object, "poco:preferredUsername", $contact["nick"]);
-		XML::add_element($doc, $object, "poco:displayName", $contact["name"]);
+		XML::addElement($doc, $object, "poco:preferredUsername", $contact["nick"]);
+		XML::addElement($doc, $object, "poco:displayName", $contact["name"]);
 
 		if (trim($contact["location"]) != "") {
 			$element = $doc->createElement("poco:address");
-			XML::add_element($doc, $element, "poco:formatted", $contact["location"]);
+			XML::addElement($doc, $element, "poco:formatted", $contact["location"]);
 			$object->appendChild($element);
 		}
 
@@ -1817,7 +1817,7 @@ class OStatus
 
 		$title = self::entryHeader($doc, $entry, $owner, $toplevel);
 
-		XML::add_element($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
+		XML::addElement($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
 
 		self::entryContent($doc, $entry, $item, $owner, $title);
 
@@ -1879,8 +1879,8 @@ class OStatus
 			$verb = self::constructVerb($item);
 		}
 
-		XML::add_element($doc, $entry, "id", $item["uri"]);
-		XML::add_element($doc, $entry, "title", $title);
+		XML::addElement($doc, $entry, "id", $item["uri"]);
+		XML::addElement($doc, $entry, "title", $title);
 
 		$body = self::formatPicturePost($item['body']);
 
@@ -1890,20 +1890,25 @@ class OStatus
 
 		$body = bbcode($body, false, false, 7);
 
-		XML::add_element($doc, $entry, "content", $body, array("type" => "html"));
+		XML::addElement($doc, $entry, "content", $body, array("type" => "html"));
 
-		XML::add_element($doc, $entry, "link", "", array("rel" => "alternate", "type" => "text/html",
+		XML::addElement(
+			$doc,
+			$entry,
+			"link",
+			"",
+			array("rel" => "alternate", "type" => "text/html",
 			"href" => System::baseUrl()."/display/".$item["guid"])
 		);
 
 		if ($complete && ($item["id"] > 0)) {
-			XML::add_element($doc, $entry, "status_net", "", array("notice_id" => $item["id"]));
+			XML::addElement($doc, $entry, "status_net", "", array("notice_id" => $item["id"]));
 		}
 
-		XML::add_element($doc, $entry, "activity:verb", $verb);
+		XML::addElement($doc, $entry, "activity:verb", $verb);
 
-		XML::add_element($doc, $entry, "published", datetime_convert("UTC", "UTC", $item["created"]."+00:00", ATOM_TIME));
-		XML::add_element($doc, $entry, "updated", datetime_convert("UTC", "UTC", $item["edited"]."+00:00", ATOM_TIME));
+		XML::addElement($doc, $entry, "published", datetime_convert("UTC", "UTC", $item["created"]."+00:00", ATOM_TIME));
+		XML::addElement($doc, $entry, "updated", datetime_convert("UTC", "UTC", $item["edited"]."+00:00", ATOM_TIME));
 	}
 
 	/**
@@ -1941,12 +1946,12 @@ class OStatus
 			$attributes = array(
 					"ref" => $parent_item,
 					"href" => $parent_plink);
-			XML::add_element($doc, $entry, "thr:in-reply-to", "", $attributes);
+			XML::addElement($doc, $entry, "thr:in-reply-to", "", $attributes);
 
 			$attributes = array(
 					"rel" => "related",
 					"href" => $parent_plink);
-			XML::add_element($doc, $entry, "link", "", $attributes);
+			XML::addElement($doc, $entry, "link", "", $attributes);
 		}
 
 		if (intval($item["parent"]) > 0) {
@@ -1965,14 +1970,14 @@ class OStatus
 				}
 			}
 
-			XML::add_element($doc, $entry, "link", "", array("rel" => "ostatus:conversation", "href" => $conversation_href));
+			XML::addElement($doc, $entry, "link", "", array("rel" => "ostatus:conversation", "href" => $conversation_href));
 
 			$attributes = array(
 					"href" => $conversation_href,
 					"local_id" => $item["parent"],
 					"ref" => $conversation_uri);
 
-			XML::add_element($doc, $entry, "ostatus:conversation", $conversation_uri, $attributes);
+			XML::addElement($doc, $entry, "ostatus:conversation", $conversation_uri, $attributes);
 		}
 
 		$tags = item_getfeedtags($item);
@@ -2000,14 +2005,14 @@ class OStatus
 				dbesc(normalise_link($mention))
 			);
 			if ($r[0]["forum"] || $r[0]["prv"]) {
-				XML::add_element($doc, $entry, "link", "",
+				XML::addElement($doc, $entry, "link", "",
 					array(
 						"rel" => "mentioned",
 						"ostatus:object-type" => ACTIVITY_OBJ_GROUP,
 						"href" => $mention)
 				);
 			} else {
-				XML::add_element($doc, $entry, "link", "",
+				XML::addElement($doc, $entry, "link", "",
 					array(
 						"rel" => "mentioned",
 						"ostatus:object-type" => ACTIVITY_OBJ_PERSON,
@@ -2017,18 +2022,18 @@ class OStatus
 		}
 
 		if (!$item["private"]) {
-			XML::add_element($doc, $entry, "link", "", array("rel" => "ostatus:attention",
+			XML::addElement($doc, $entry, "link", "", array("rel" => "ostatus:attention",
 									"href" => "http://activityschema.org/collection/public"));
-			XML::add_element($doc, $entry, "link", "", array("rel" => "mentioned",
+			XML::addElement($doc, $entry, "link", "", array("rel" => "mentioned",
 									"ostatus:object-type" => "http://activitystrea.ms/schema/1.0/collection",
 									"href" => "http://activityschema.org/collection/public"));
-			XML::add_element($doc, $entry, "mastodon:scope", "public");
+			XML::addElement($doc, $entry, "mastodon:scope", "public");
 		}
 
 		if (count($tags)) {
 			foreach ($tags as $t) {
 				if ($t[0] != "@") {
-					XML::add_element($doc, $entry, "category", "", array("term" => $t[2]));
+					XML::addElement($doc, $entry, "category", "", array("term" => $t[2]));
 				}
 			}
 		}
@@ -2048,10 +2053,10 @@ class OStatus
 			}
 
 			if ($item["coord"] != "") {
-				XML::add_element($doc, $entry, "georss:point", $item["coord"]);
+				XML::addElement($doc, $entry, "georss:point", $item["coord"]);
 			}
 
-			XML::add_element($doc, $entry, "statusnet:notice_info", "", $attributes);
+			XML::addElement($doc, $entry, "statusnet:notice_info", "", $attributes);
 		}
 	}
 

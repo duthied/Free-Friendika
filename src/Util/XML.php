@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file src/Util/XML.php
  */
@@ -24,7 +23,7 @@ class XML
 	 *
 	 * @return string The created XML
 	 */
-	public static function from_array($array, &$xml, $remove_header = false, $namespaces = array(), $root = true)
+	public static function fromArray($array, &$xml, $remove_header = false, $namespaces = array(), $root = true)
 	{
 		if ($root) {
 			foreach ($array as $key => $value) {
@@ -34,7 +33,7 @@ class XML
 
 				if (is_array($value)) {
 					$root = new SimpleXMLElement("<".$key."/>");
-					self::from_array($value, $root, $remove_header, $namespaces, false);
+					self::fromArray($value, $root, $remove_header, $namespaces, false);
 				} else {
 					$root = new SimpleXMLElement("<".$key.">".xmlify($value)."</".$key.">");
 				}
@@ -106,7 +105,7 @@ class XML
 				$element = $xml->addChild($key, xmlify($value), $namespace);
 			} elseif (is_array($value)) {
 				$element = $xml->addChild($key, null, $namespace);
-				self::from_array($value, $element, $remove_header, $namespaces, false);
+				self::fromArray($value, $element, $remove_header, $namespaces, false);
 			}
 		}
 	}
@@ -117,6 +116,7 @@ class XML
 	 * @param object $source      The XML source
 	 * @param object $target      The XML target
 	 * @param string $elementname Name of the XML element of the target
+	 * @return void
 	 */
 	public static function copy(&$source, &$target, $elementname)
 	{
@@ -140,7 +140,7 @@ class XML
 	 *
 	 * @return object XML element object
 	 */
-	public static function create_element($doc, $element, $value = "", $attributes = array())
+	public static function createElement($doc, $element, $value = "", $attributes = array())
 	{
 		$element = $doc->createElement($element, xmlify($value));
 
@@ -160,10 +160,11 @@ class XML
 	 * @param string $element    XML element name
 	 * @param string $value      XML value
 	 * @param array  $attributes array containing the attributes
+	 * @return void
 	 */
-	public static function add_element($doc, $parent, $element, $value = "", $attributes = array())
+	public static function addElement($doc, $parent, $element, $value = "", $attributes = array())
 	{
-		$element = self::create_element($doc, $element, $value, $attributes);
+		$element = self::createElement($doc, $element, $value, $attributes);
 		$parent->appendChild($element);
 	}
 
@@ -177,7 +178,7 @@ class XML
 	 *
 	 * @return array | sring The array from the xml element or the string
 	 */
-	public static function element_to_array($xml_element, &$recursion_depth=0)
+	public static function elementToArray($xml_element, &$recursion_depth = 0)
 	{
 		// If we're getting too deep, bail out
 		if ($recursion_depth > 512) {
@@ -200,7 +201,7 @@ class XML
 
 			foreach ($xml_element as $key => $value) {
 				$recursion_depth++;
-				$result_array[strtolower($key)]	= self::element_to_array($value, $recursion_depth);
+				$result_array[strtolower($key)]	= self::elementToArray($value, $recursion_depth);
 				$recursion_depth--;
 			}
 
@@ -220,13 +221,13 @@ class XML
 	/**
 	 * @brief Convert the given XML text to an array in the XML structure.
 	 *
-	 * Xml::to_array() will convert the given XML text to an array in the XML structure.
+	 * Xml::toArray() will convert the given XML text to an array in the XML structure.
 	 * Link: http://www.bin-co.com/php/scripts/xml2array/
 	 * Portions significantly re-written by mike@macgirvin.com for Friendica
 	 * (namespaces, lowercase tags, get_attribute default changed, more...)
 	 *
-	 * Examples: $array =  Xml::to_array(file_get_contents('feed.xml'));
-	 *		$array =  Xml::to_array(file_get_contents('feed.xml', true, 1, 'attribute'));
+	 * Examples: $array =  Xml::toArray(file_get_contents('feed.xml'));
+	 *		$array =  Xml::toArray(file_get_contents('feed.xml', true, 1, 'attribute'));
 	 *
 	 * @param object  $contents       The XML text
 	 * @param boolean $namespaces     True or false include namespace information
@@ -238,14 +239,14 @@ class XML
 	 *
 	 * @return array The parsed XML in an array form. Use print_r() to see the resulting array structure.
 	 */
-	public static function to_array($contents, $namespaces = true, $get_attributes = 1, $priority = 'attribute')
+	public static function toArray($contents, $namespaces = true, $get_attributes = 1, $priority = 'attribute')
 	{
 		if (!$contents) {
 			return array();
 		}
 
 		if (!function_exists('xml_parser_create')) {
-			logger('Xml::to_array: parser function missing');
+			logger('Xml::toArray: parser function missing');
 			return array();
 		}
 
@@ -260,7 +261,7 @@ class XML
 		}
 
 		if (! $parser) {
-			logger('Xml::to_array: xml_parser_create: no resource');
+			logger('Xml::toArray: xml_parser_create: no resource');
 			return array();
 		}
 
@@ -272,7 +273,7 @@ class XML
 		@xml_parser_free($parser);
 
 		if (! $xml_values) {
-			logger('Xml::to_array: libxml: parse error: ' . $contents, LOGGER_DATA);
+			logger('Xml::toArray: libxml: parse error: ' . $contents, LOGGER_DATA);
 			foreach (libxml_get_errors() as $err) {
 				logger('libxml: parse: ' . $err->code . " at " . $err->line . ":" . $err->column . " : " . $err->message, LOGGER_DATA);
 			}
@@ -402,6 +403,7 @@ class XML
 	 *
 	 * @param object $doc  XML document
 	 * @param string $node Node name
+	 * @return void
 	 */
 	public static function deleteNode(&$doc, $node)
 	{
