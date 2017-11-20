@@ -1892,13 +1892,8 @@ class OStatus
 
 		XML::addElement($doc, $entry, "content", $body, array("type" => "html"));
 
-		XML::addElement(
-			$doc,
-			$entry,
-			"link",
-			"",
-			array("rel" => "alternate", "type" => "text/html",
-			"href" => System::baseUrl()."/display/".$item["guid"])
+		XML::addElement($doc, $entry, "link", "", array("rel" => "alternate", "type" => "text/html",
+								"href" => System::baseUrl()."/display/".$item["guid"])
 		);
 
 		if ($complete && ($item["id"] > 0)) {
