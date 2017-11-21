@@ -202,13 +202,13 @@ function ping_init(App $a)
 
 		if ($a->config['register_policy'] == REGISTER_APPROVE && is_site_admin()) {
 			$regs = q(
-				"SELECT `contact`.`name`, `contact`.`url`, `contact`.`micro`, `register`.`created`, COUNT(*) AS `total`
+				"SELECT `contact`.`name`, `contact`.`url`, `contact`.`micro`, `register`.`created`
 				FROM `contact` RIGHT JOIN `register` ON `register`.`uid` = `contact`.`uid`
 				WHERE `contact`.`self` = 1"
 			);
 
 			if (DBM::is_result($regs)) {
-				$register_count = $regs[0]['total'];
+				$register_count = count($regs);
 			}
 		}
 
