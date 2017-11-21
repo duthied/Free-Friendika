@@ -4,6 +4,7 @@
  */
 
 use Friendica\App;
+use Friendica\Content\ForumManager;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
@@ -12,7 +13,6 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Object\Contact;
 
-require_once 'include/ForumManager.php';
 require_once 'include/bbcode.php';
 require_once 'mod/proxy.php';
 
@@ -795,7 +795,7 @@ function advanced_profile(App $a)
 
 		//show subcribed forum if it is enabled in the usersettings
 		if (feature_enabled($uid, 'forumlist_profile')) {
-			$profile['forumlist'] = array( t('Forums:'), ForumManager::profile_advanced($uid));
+			$profile['forumlist'] = array( t('Forums:'), ForumManager::profileAdvanced($uid));
 		}
 
 		if ($a->profile['uid'] == local_user()) {

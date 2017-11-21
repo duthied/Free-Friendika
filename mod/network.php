@@ -1,6 +1,9 @@
 <?php
-
+/**
+ * @file mod/network.php
+ */
 use Friendica\App;
+use Friendica\Content\ForumManager;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
@@ -11,7 +14,6 @@ require_once 'include/conversation.php';
 require_once 'include/group.php';
 require_once 'include/contact_widgets.php';
 require_once 'include/items.php';
-require_once 'include/ForumManager.php';
 require_once 'include/acl_selectors.php';
 
 function network_init(App $a) {
@@ -152,7 +154,7 @@ function network_init(App $a) {
 	}
 
 	$a->page['aside'] .= (feature_enabled(local_user(),'groups') ? group_side('network/0','network','standard',$group_id) : '');
-	$a->page['aside'] .= (feature_enabled(local_user(),'forumlist_widget') ? ForumManager::widget(local_user(),$cid) : '');
+	$a->page['aside'] .= (feature_enabled(local_user(), 'forumlist_widget') ? ForumManager::widget(local_user(), $cid) : '');
 	$a->page['aside'] .= posted_date_widget('network',local_user(),false);
 	$a->page['aside'] .= networks_widget('network',(x($_GET, 'nets') ? $_GET['nets'] : ''));
 	$a->page['aside'] .= saved_searches($search);

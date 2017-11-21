@@ -10,6 +10,7 @@
  */
 
 use Friendica\App;
+use Friendica\Content\ForumManager;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
@@ -210,9 +211,6 @@ function vier_community_info() {
 
 	//Community_Pages at right_aside
 	if ($show_pages && local_user()) {
-
-		require_once 'include/ForumManager.php';
-
 		if (x($_GET, 'cid') && intval($_GET['cid']) != 0) {
 			$cid = $_GET['cid'];
 		}
@@ -220,16 +218,14 @@ function vier_community_info() {
 		//sort by last updated item
 		$lastitem = true;
 
-		$contacts = ForumManager::get_list($a->user['uid'],true,$lastitem, true);
+		$contacts = ForumManager::getList($a->user['uid'], $lastitem, true, true);
 		$total = count($contacts);
 		$visible_forums = 10;
 
 		if (count($contacts)) {
-
 			$id = 0;
 
 			foreach ($contacts as $contact) {
-
 				$selected = (($cid == $contact['id']) ? ' forum-selected' : '');
 
 				$entry = array(
@@ -247,14 +243,16 @@ function vier_community_info() {
 
 			$tpl = get_markup_template('widget_forumlist_right.tpl');
 
-			$page .= replace_macros($tpl, array(
-				'$title'          => t('Forums'),
-				'$forums'         => $entries,
-				'$link_desc'      => t('External link to forum'),
-				'$total'          => $total,
-				'$visible_forums' => $visible_forums,
-				'$showmore'       => t('show more'),
-			));
+			$page .= replace_macros(
+				$tpl,
+				array(
+					'$title'          => t('Forums'),
+					'$forums'         => $entries,
+					'$link_desc'      => t('External link to forum'),
+					'$total'          => $total,
+					'$visible_forums' => $visible_forums,
+					'$showmore'       => t('show more'))
+			);
 
 			$aside['$page'] = $page;
 		}
