@@ -147,7 +147,6 @@ function import_account(App $a, $file) {
 	// import user
 	$r = db_import_assoc('user', $account['user']);
 	if ($r === false) {
-		//echo "<pre>"; var_dump($r, $query, mysql_error()); killme();
 		logger("uimport:insert user : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 		notice(t("User creation error"));
 		return;
