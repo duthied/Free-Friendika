@@ -1,39 +1,37 @@
 <?php
+/**
+ * @file src/Content/ForumManager.php
+ * @brief ForumManager class with its methods related to forum functionality
+ */
+namespace Friendica\Content;
 
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use dba;
 
 /**
- * @file include/ForumManager.php
- * @brief ForumManager class with its methods related to forum functionality *
+ * @brief This class handles methods related to the forum functionality
  */
-
-/**
- * @brief This class handles metheods related to the forum functionality
- */
-class ForumManager {
-
+class ForumManager
+{
 	/**
 	 * @brief Function to list all forums a user is connected with
 	 *
-	 * @param int $uid of the profile owner
-	 * @param boolean $showhidden
-	 *	Show frorums which are not hidden
-	 * @param boolean $lastitem
-	 *	Sort by lastitem
-	 * @param boolean $showprivate
-	 *	Show private groups
+	 * @param int     $uid         of the profile owner
+	 * @param boolean $lastitem    Sort by lastitem
+	 * @param boolean $showhidden  Show frorums which are not hidden
+	 * @param boolean $showprivate Show private groups
 	 *
-	 * @returns array
+	 * @return array
 	 *	'url'	=> forum url
 	 *	'name'	=> forum name
 	 *	'id'	=> number of the key from the array
 	 *	'micro' => contact photo in format micro
 	 *	'thumb' => contact photo in format thumb
 	 */
-	public static function get_list($uid, $showhidden = true, $lastitem, $showprivate = false) {
-
+	public static function getList($uid, $lastitem, $showhidden = true, $showprivate = false)
+	{
 		$forumlist = array();
 
 		$order = (($showhidden) ? '' : ' AND NOT `hidden` ');
@@ -43,16 +41,19 @@ class ForumManager {
 			$select = '(`forum` OR `prv`)';
 		}
 
-		$contacts = dba::p("SELECT `contact`.`id`, `contact`.`url`, `contact`.`name`, `contact`.`micro`, `contact`.`thumb` FROM `contact`
+		$contacts = dba::p(
+			"SELECT `contact`.`id`, `contact`.`url`, `contact`.`name`, `contact`.`micro`, `contact`.`thumb`
+			FROM `contact`
 				WHERE `network`= 'dfrn' AND $select AND `uid` = ?
 				AND NOT `blocked` AND NOT `hidden` AND NOT `pending` AND NOT `archive`
 				AND `success_update` > `failure_update`
-				$order ",
-				$uid
+			$order ",
+			$uid
 		);
 
-		if (!$contacts)
+		if (!$contacts) {
 			return($forumlist);
+		}
 
 		while ($contact = dba::fetch($contacts)) {
 			$forumlist[] = array(
@@ -76,30 +77,28 @@ class ForumManager {
 	 * in the settings, it appears at the notwork page sidebar
 	 *
 	 * @param int $uid The ID of the User
-	 * @param int $cid
-	 *	The contact id which is used to mark a forum as "selected"
+	 * @param int $cid The contact id which is used to mark a forum as "selected"
 	 * @return string
 	 */
-	public static function widget($uid,$cid = 0) {
-
-		if(! intval(feature_enabled(local_user(),'forumlist_widget')))
+	public static function widget($uid, $cid = 0)
+	{
+		if (! intval(feature_enabled(local_user(), 'forumlist_widget'))) {
 			return;
+		}
 
 		$o = '';
 
 		//sort by last updated item
 		$lastitem = true;
 
-		$contacts = self::get_list($uid,true,$lastitem, true);
+		$contacts = self::getList($uid, $lastitem, true, true);
 		$total = count($contacts);
 		$visible_forums = 10;
 
 		if (DBM::is_result($contacts)) {
-
 			$id = 0;
 
-			foreach($contacts as $contact) {
-
+			foreach ($contacts as $contact) {
 				$selected = (($cid == $contact['id']) ? ' forum-selected' : '');
 
 				$entry = array(
@@ -116,14 +115,16 @@ class ForumManager {
 
 			$tpl = get_markup_template('widget_forumlist.tpl');
 
-			$o .= replace_macros($tpl,array(
-				'$title'	=> t('Forums'),
-				'$forums'	=> $entries,
-				'$link_desc'	=> t('External link to forum'),
-				'$total'	=> $total,
-				'$visible_forums' => $visible_forums,
-				'$showmore'	=> t('show more'),
-			));
+			$o .= replace_macros(
+				$tpl,
+				array(
+					'$title'	=> t('Forums'),
+					'$forums'	=> $entries,
+					'$link_desc'	=> t('External link to forum'),
+					'$total'	=> $total,
+					'$visible_forums' => $visible_forums,
+					'$showmore'	=> t('show more'))
+			);
 		}
 
 		return $o;
@@ -137,13 +138,13 @@ class ForumManager {
 	 *
 	 * @param int $uid The ID of the User
 	 * @return string
-	 *
 	 */
-	public static function profile_advanced($uid) {
-
-		$profile = intval(feature_enabled($uid,'forumlist_profile'));
-		if(! $profile)
+	public static function profileAdvanced($uid)
+	{
+		$profile = intval(feature_enabled($uid, 'forumlist_profile'));
+		if (! $profile) {
 			return;
+		}
 
 		$o = '';
 
@@ -153,20 +154,22 @@ class ForumManager {
 		//don't sort by last updated item
 		$lastitem = false;
 
-		$contacts = self::get_list($uid,false,$lastitem,false);
+		$contacts = self::getList($uid, $lastitem, false, false);
 
 		$total_shown = 0;
 
-		foreach($contacts as $contact) {
-			$forumlist .= micropro($contact,false,'forumlist-profile-advanced');
+		foreach ($contacts as $contact) {
+			$forumlist .= micropro($contact, false, 'forumlist-profile-advanced');
 			$total_shown ++;
-			if($total_shown == $show_total)
+			if ($total_shown == $show_total) {
 				break;
+			}
 		}
 
-		if(count($contacts) > 0)
+		if (count($contacts) > 0) {
 			$o .= $forumlist;
 			return $o;
+		}
 	}
 
 	/**
@@ -178,10 +181,11 @@ class ForumManager {
 	 *	'id' => contact id
 	 *	'name' => contact/forum name
 	 *	'count' => counted unseen forum items
-	 *
 	 */
-	public static function count_unseen_items() {
-		$r = q("SELECT `contact`.`id`, `contact`.`name`, COUNT(*) AS `count` FROM `item`
+	public static function countUnseenItems()
+	{
+		$r = q(
+			"SELECT `contact`.`id`, `contact`.`name`, COUNT(*) AS `count` FROM `item`
 				INNER JOIN `contact` ON `item`.`contact-id` = `contact`.`id`
 				WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted` AND `item`.`unseen`
 				AND `contact`.`network`= 'dfrn' AND (`contact`.`forum` OR `contact`.`prv`)
@@ -194,5 +198,4 @@ class ForumManager {
 
 		return $r;
 	}
-
 }

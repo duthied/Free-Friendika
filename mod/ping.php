@@ -3,6 +3,7 @@
  * @file include/ping.php
  */
 use Friendica\App;
+use Friendica\Content\ForumManager;
 use Friendica\Core\Cache;
 use Friendica\Core\System;
 use Friendica\Core\PConfig;
@@ -12,7 +13,6 @@ use Friendica\Util\XML;
 
 require_once 'include/datetime.php';
 require_once 'include/bbcode.php';
-require_once 'include/ForumManager.php';
 require_once 'include/group.php';
 require_once 'mod/proxy.php';
 require_once 'include/enotify.php';
@@ -162,7 +162,7 @@ function ping_init(App $a)
 			}
 
 			if (intval(feature_enabled(local_user(), 'forumlist_widget'))) {
-				$forum_counts = ForumManager::count_unseen_items();
+				$forum_counts = ForumManager::countUnseenItems();
 				if (DBM::is_result($forums_counts)) {
 					foreach ($forums_counts as $forum_count) {
 						if ($forum_count['count'] > 0) {
