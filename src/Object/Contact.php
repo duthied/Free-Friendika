@@ -21,12 +21,15 @@ use dba;
 require_once 'boot.php';
 require_once 'include/text.php';
 
+/**
+ * @brief functions for interacting with a contact
+ */
 class Contact extends BaseObject
 {
 	/**
 	 * @brief Marks a contact for removal
 	 *
-	 * @param int $id
+	 * @param int $id contact id
 	 * @return null
 	 */
 	public static function remove($id)
@@ -56,7 +59,7 @@ class Contact extends BaseObject
 	/**
 	 * @brief Sends an unfriend message. Does not remove the contact
 	 *
-	 * @param array $user User unfriending
+	 * @param array $user    User unfriending
 	 * @param array $contact Contact unfriended
 	 */
 	public static function terminateFriendship(array $user, array $contact)
@@ -88,7 +91,7 @@ class Contact extends BaseObject
 	 * This provides for the possibility that their database is temporarily messed
 	 * up or some other transient event and that there's a possibility we could recover from it.
 	 *
-	 * @param array $contact
+	 * @param array $contact contact to mark for archival
 	 * @return type
 	 */
 	public static function markForArchival(array $contact)
@@ -110,7 +113,6 @@ class Contact extends BaseObject
 				);
 			}
 		} else {
-
 			/* @todo
 			 * We really should send a notification to the owner after 2-3 weeks
 			 * so they won't be surprised when the contact vanishes and can take
@@ -120,7 +122,6 @@ class Contact extends BaseObject
 			/// @todo Check for contact vitality via probing
 			$expiry = $contact['term-date'] . ' + 32 days ';
 			if (datetime_convert() > datetime_convert('UTC', 'UTC', $expiry)) {
-
 				/* Relationship is really truly dead. archive them rather than
 				 * delete, though if the owner tries to unarchive them we'll start
 				 * the whole process over again.
@@ -143,7 +144,7 @@ class Contact extends BaseObject
 	 *
 	 * @see Contact::markForArchival()
 	 *
-	 * @param array $contact
+	 * @param array $contact contact to be unmarked for archival
 	 * @return null
 	 */
 	public static function unmarkForArchival(array $contact)
@@ -172,9 +173,9 @@ class Contact extends BaseObject
 	 * The function looks at several places (contact table and gcontact table) for the contact
 	 * It caches its result for the same script execution to prevent duplicate calls
 	 *
-	 * @param string $url The profile link
-	 * @param int $uid User id
-	 * @param array $default If not data was found take this data as default value
+	 * @param string $url     The profile link
+	 * @param int    $uid     User id
+	 * @param array  $default If not data was found take this data as default value
 	 *
 	 * @return array Contact data
 	 */
@@ -237,7 +238,7 @@ class Contact extends BaseObject
 		if (DBM::is_result($r)) {
 			// If there is more than one entry we filter out the connector networks
 			if (count($r) > 1) {
-				foreach ($r AS $id => $result) {
+				foreach ($r as $id => $result) {
 					if ($result["network"] == NETWORK_STATUSNET) {
 						unset($r[$id]);
 					}
@@ -291,8 +292,9 @@ class Contact extends BaseObject
 			$profile["micro"] = $profile["thumb"];
 		}
 
-		if ((($profile["addr"] == "") || ($profile["name"] == "")) && ($profile["gid"] != 0) &&
-			in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
+		if ((($profile["addr"] == "") || ($profile["name"] == "")) && ($profile["gid"] != 0)
+			&& in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))
+		) {
 			Worker::add(PRIORITY_LOW, "UpdateGContact", $profile["gid"]);
 		}
 
@@ -315,7 +317,7 @@ class Contact extends BaseObject
 	 * The function looks at several places (contact table and gcontact table) for the contact
 	 *
 	 * @param string $addr The profile link
-	 * @param int $uid User id
+	 * @param int    $uid  User id
 	 *
 	 * @return array Contact data
 	 */
@@ -362,8 +364,8 @@ class Contact extends BaseObject
 	/**
 	 * @brief Returns the data array for the photo menu of a given contact
 	 *
-	 * @param array $contact
-	 * @param int $uid
+	 * @param array $contact contact
+	 * @param int   $uid     optional, default 0
 	 * @return array
 	 */
 	public static function photoMenu(array $contact, $uid = 0)
@@ -386,7 +388,7 @@ class Contact extends BaseObject
 		if ($contact['uid'] != $uid) {
 			if ($uid == 0) {
 				$profile_link = zrl($contact['url']);
-				$menu = Array('profile' => array(t('View Profile'), $profile_link, true));
+				$menu = array('profile' => array(t('View Profile'), $profile_link, true));
 
 				return $menu;
 			}
@@ -438,7 +440,7 @@ class Contact extends BaseObject
 		$contact_drop_link = System::baseUrl() . '/contacts/' . $contact['id'] . '/drop?confirm=1';
 
 		/**
-		 * menu array:
+		 * Menu array:
 		 * "name" => [ "Label", "link", (bool)Should the link opened in a new tab? ]
 		 */
 		$menu = array(
@@ -459,7 +461,7 @@ class Contact extends BaseObject
 
 		$menucondensed = array();
 
-		foreach ($menu AS $menuname => $menuitem) {
+		foreach ($menu as $menuname => $menuitem) {
 			if ($menuitem[1] != '') {
 				$menucondensed[$menuname] = $menuitem;
 			}
@@ -469,14 +471,15 @@ class Contact extends BaseObject
 	}
 
 	/**
+	 * @brief Returns ungrouped contact count or list for user
+	 *
 	 * Returns either the total number of ungrouped contacts for the given user
 	 * id or a paginated list of ungrouped contacts.
 	 *
-	 * @brief Returns ungrouped contact count or list for user
+	 * @param int $uid   uid
+	 * @param int $start optional, default 0
+	 * @param int $count optional, default 0
 	 *
-	 * @param int $uid
-	 * @param int $start
-	 * @param int $count
 	 * @return array
 	 */
 	public static function getUngroupedList($uid, $start = 0, $count = 0)
@@ -532,8 +535,8 @@ class Contact extends BaseObject
 	 * Fourth, we update the existing record with the new data (avatar, alias, nick)
 	 * if there's any updates
 	 *
-	 * @param string $url Contact URL
-	 * @param integer $uid The user id for the contact (0 = public contact)
+	 * @param string  $url       Contact URL
+	 * @param integer $uid       The user id for the contact (0 = public contact)
 	 * @param boolean $no_update Don't update the contact
 	 *
 	 * @return integer Contact ID
@@ -735,7 +738,6 @@ class Contact extends BaseObject
 	/**
 	 * @brief Returns posts from a given contact url
 	 *
-	 * @param App $a argv application class
 	 * @param string $contact_url Contact URL
 	 *
 	 * @return string posts in HTML
