@@ -251,7 +251,7 @@ function delete_thread($itemid, $itemuri = "") {
 	}
 
 	// Using dba::delete at this time could delete the associated item entries
-	$result = q("DELETE FROM `thread` WHERE `iid` = %d", intval($itemid));
+	$result = dba::e("DELETE FROM `thread` WHERE `iid` = ?", $itemid);
 
 	logger("delete_thread: Deleted thread for item ".$itemid." - ".print_r($result, true), LOGGER_DEBUG);
 

@@ -1016,16 +1016,12 @@ class dba {
 	public static function update($table, $fields, $condition, $old_fields = array()) {
 		$table = self::escape($table);
 
-		if (count($condition) > 0) {
-			$array_element = each($condition);
-			$array_key = $array_element['key'];
-			if (is_int($array_key)) {
-				$condition_string = " WHERE ".array_shift($condition);
-			} else {
-				$condition_string = " WHERE `".implode("` = ? AND `", array_keys($condition))."` = ?";
-			}
+		$array_element = each($condition);
+		$array_key = $array_element['key'];
+		if (is_int($array_key)) {
+			$condition_string = " WHERE ".array_shift($condition);
 		} else {
-			$condition_string = "";
+			$condition_string = " WHERE `".implode("` = ? AND `", array_keys($condition))."` = ?";
 		}
 
 		if (is_bool($old_fields)) {
