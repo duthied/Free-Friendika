@@ -2,6 +2,8 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 
 function create_tags_from_item($itemid) {
 	$profile_base = System::baseUrl();
@@ -147,4 +149,124 @@ function update_items() {
 	}
 
 	dba::close($messages);
+}
+
+// Tag cloud functions - need to be adpated to this database format
+function tagadelic($uid, $count = 0, $authors = '', $owner = '', $flags = 0, $type = TERM_HASHTAG) {
+	require_once('include/security.php');
+
+	$item_condition = item_condition();
+	$sql_options = item_permissions_sql($uid);
+	$count = intval($count);
+	if ($flags) {
+		if ($flags === 'wall') {
+			$sql_options .= " AND `item`.`wall` ";
+		}
+	}
+	if ($authors) {
+		if (!is_array($authors)) {
+			$authors = array($authors);
+		}
+		$sql_options .= " AND `item`.`author-id` IN (".implode(',', $authors).") ";
+	}
+	if ($owner) {
+		$sql_options .= " AND `item`.`owner-id` = ".intval($owner)." ";
+	}
+
+	// Fetch tags
+	$r = q("SELECT `term`, COUNT(`term`) AS `total` FROM `term`
+		LEFT JOIN `item` ON `term`.`oid` = `item`.`id`
+		WHERE `term`.`uid` = %d AND `term`.`type` = %d
+		AND `term`.`otype` = %d AND `item`.`private` = 0
+		$sql_options AND $item_condition
+		GROUP BY `term` ORDER BY `total` DESC %s",
+		intval($uid),
+		intval($type),
+		intval(TERM_OBJ_POST),
+		((intval($count)) ? "LIMIT $count" : '')
+	);
+	if(!DBM::is_result($r)) {
+		return array();
+	}
+		
+	return tag_calc($r);
+}
+
+function wtagblock($uid, $count = 0, $authors = '', $owner = '', $flags = 0, $type = TERM_HASHTAG) {
+	$o = '';
+	$r = tagadelic($uid, $count, $authors, $owner, $flags, $type);
+	if($r) {
+		foreach ($r as $rr) {
+			$tag['level'] = $rr[2];
+			$tag['url'] = urlencode($rr[0]);
+			$tag['name'] = $rr[0];
+
+			$tags[] = $tag;
+		}
+
+		$tpl = get_markup_template("tagblock_widget.tpl");
+		$o = replace_macros($tpl, array(
+			'$title' => t('Tags'),
+			'$tags'  => $tags
+		));
+
+	}
+	return $o;
+}
+
+function tag_calc($arr) {
+	$tags = array();
+	$min = 1e9;
+	$max = -1e9;
+	$x = 0;
+
+	if (!$arr) {
+		return array();
+	}
+
+	foreach ($arr as $rr) {
+		$tags[$x][0] = $rr['term'];
+		$tags[$x][1] = log($rr['total']);
+		$tags[$x][2] = 0;
+		$min = min($min, $tags[$x][1]);
+		$max = max($max, $tags[$x][1]);
+		$x ++;
+	}
+
+	usort($tags, 'self::tags_sort');
+	$range = max(.01, $max - $min) * 1.0001;
+
+	for ($x = 0; $x < count($tags); $x ++) {
+		$tags[$x][2] = 1 + floor(9 * ($tags[$x][1] - $min) / $range);
+	}
+
+	return $tags;
+}
+
+function tags_sort($a,$b) {
+	if (strtolower($a[0]) == strtolower($b[0])) {
+		return 0;
+	}
+	return((strtolower($a[0]) < strtolower($b[0])) ? -1 : 1);
+}
+
+
+function tagcloud_wall_widget($arr = array()) {
+	$a = get_app();
+
+	if(!$a->profile['profile_uid'] || !$a->profile['url']) {
+		return "";
+	}
+
+	$limit = ((array_key_exists('limit', $arr)) ? intval($arr['limit']) : 50);
+	if(feature_enabled($a->profile['profile_uid'], 'tagadelic')) {
+		$owner_id = Contact::getIdForURL($a->profile['url']);
+		logger("public contact id: ".$owner_id);
+		if(!$owner_id) {
+			return "";
+		}
+		return wtagblock($a->profile['profile_uid'], $limit, '', $owner_id, 'wall');
+	}
+
+	return "";
 }

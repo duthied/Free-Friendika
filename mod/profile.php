@@ -185,6 +185,7 @@ function profile_content(App $a, $update = 0) {
 
 		$a->page['aside'] .= posted_date_widget(System::baseUrl(true) . '/profile/' . $a->profile['nickname'],$a->profile['profile_uid'],true);
 		$a->page['aside'] .= categories_widget(System::baseUrl(true) . '/profile/' . $a->profile['nickname'],(x($category) ? xmlify($category) : ''));
+		$a->page['aside'] .= tagcloud_wall_widget();
 
 		if (can_write_wall($a,$a->profile['profile_uid'])) {
 

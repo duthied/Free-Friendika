@@ -522,3 +522,49 @@ td.pendingnote > p > span {
 .invalid-src:after,
 .invalid-href:after { content: '⚠️'}
 img.invalid-src:after { vertical-align: top;}
+
+/* Tag cloud */
+.tag1, .tag1:hover {
+  font-size: 0.9em ;
+  color: DarkGray;
+}
+.tag2, .tag2:hover {
+  font-size: 1.0em;
+  color: LawnGreen;
+}
+.tag3, .tag3:hover {
+  font-size: 1.1em;
+  color: DarkOrange;
+}
+.tag4, .tag4:hover {
+  font-size: 1.2em;
+  color: Red;
+}
+.tag5, .tag5:hover {
+  font-size: 1.3em;
+  color: Gold;
+}
+.tag6, .tag6:hover {
+  font-size: 1.4em;
+  color: Teal;
+}
+.tag7, .tag7:hover {
+  font-size: 1.5em;
+  color: DarkMagenta;
+}
+.tag8, .tag8:hover {
+  font-size: 1.6em;
+  color: DarkGoldenRod;
+}
+.tag9, .tag9:hover {
+  font-size: 1.7em;
+  color: DarkBlue;
+}
+.tag10 .tag10:hover {
+  font-size: 1.8em;
+  color: DeepPink;
+}
+.tag1:hover, .tag2:hover, .tag3:hover, .tag4:hover, .tag5:hover,
+.tag6:hover, .tag7:hover, .tag8:hover, .tag9:hover, .tag10:hover {
+  text-decoration: underline;
+}

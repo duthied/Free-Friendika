@@ -1238,6 +1238,11 @@ aside #group-sidebar li .group-edit-tool:first-child {
     width: 75px;
     border-radius: 4px;
 }
+
+/* Tag cloud widget */
+.tagblock.widget > .tags {
+    text-align: center;
+}
 /* Section */
 section ul.tabs {
     display: none !important;
