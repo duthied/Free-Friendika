@@ -151,8 +151,7 @@ function update_items() {
 	dba::close($messages);
 }
 
-// Tag cloud functions - need to be adpated to this database format
-function tagadelic($uid, $count = 0, $authors = '', $owner = '', $flags = 0, $type = TERM_HASHTAG) {
+function tagadelic($uid, $count = 0, $owner = 0, $flags = 0, $type = TERM_HASHTAG) {
 	require_once('include/security.php');
 
 	$item_condition = item_condition();
@@ -163,12 +162,7 @@ function tagadelic($uid, $count = 0, $authors = '', $owner = '', $flags = 0, $ty
 			$sql_options .= " AND `item`.`wall` ";
 		}
 	}
-	if ($authors) {
-		if (!is_array($authors)) {
-			$authors = array($authors);
-		}
-		$sql_options .= " AND `item`.`author-id` IN (".implode(',', $authors).") ";
-	}
+
 	if ($owner) {
 		$sql_options .= " AND `item`.`owner-id` = ".intval($owner)." ";
 	}
@@ -192,9 +186,9 @@ function tagadelic($uid, $count = 0, $authors = '', $owner = '', $flags = 0, $ty
 	return tag_calc($r);
 }
 
-function wtagblock($uid, $count = 0, $authors = '', $owner = '', $flags = 0, $type = TERM_HASHTAG) {
+function wtagblock($uid, $count = 0,$owner = 0, $flags = 0, $type = TERM_HASHTAG) {
 	$o = '';
-	$r = tagadelic($uid, $count, $authors, $owner, $flags, $type);
+	$r = tagadelic($uid, $count, $owner, $flags, $type);
 	if($r) {
 		foreach ($r as $rr) {
 			$tag['level'] = $rr[2];
@@ -233,7 +227,7 @@ function tag_calc($arr) {
 		$x ++;
 	}
 
-	usort($tags, 'self::tags_sort');
+	usort($tags, 'tags_sort');
 	$range = max(.01, $max - $min) * 1.0001;
 
 	for ($x = 0; $x < count($tags); $x ++) {
@@ -259,13 +253,14 @@ function tagcloud_wall_widget($arr = array()) {
 	}
 
 	$limit = ((array_key_exists('limit', $arr)) ? intval($arr['limit']) : 50);
+
 	if(feature_enabled($a->profile['profile_uid'], 'tagadelic')) {
 		$owner_id = Contact::getIdForURL($a->profile['url']);
-		logger("public contact id: ".$owner_id);
+
 		if(!$owner_id) {
 			return "";
 		}
-		return wtagblock($a->profile['profile_uid'], $limit, '', $owner_id, 'wall');
+		return wtagblock($a->profile['profile_uid'], $limit, $owner_id, 'wall');
 	}
 
 	return "";

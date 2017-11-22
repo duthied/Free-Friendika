@@ -1240,7 +1240,7 @@ aside #group-sidebar li .group-edit-tool:first-child {
 }
 
 /* Tag cloud widget */
-.tagblock.widget > .tags {
+.tagblock.widget > .tag-cloud {
     text-align: center;
 }
 /* Section */

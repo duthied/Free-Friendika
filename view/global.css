@@ -564,7 +564,9 @@ img.invalid-src:after { vertical-align: top;}
   font-size: 1.8em;
   color: DeepPink;
 }
-.tag1:hover, .tag2:hover, .tag3:hover, .tag4:hover, .tag5:hover,
-.tag6:hover, .tag7:hover, .tag8:hover, .tag9:hover, .tag10:hover {
+.tags > a:hover {
   text-decoration: underline;
+}
+.tag-cloud {
+  word-wrap: break-word;
 }
