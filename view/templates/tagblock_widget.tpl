@@ -5,7 +5,7 @@
 	<div class="tag-cloud">
 		{{foreach $tags as $tag}}
 		<span class="tags">
-			<span class="tag{{$tag.level}}">#</span><a href="search?f=&tag={{$tag.url}}" class="tag{{$tag.level}}">{{$tag.name}}</a>
+			<span class="tag{{$tag.level}}">#</span><a href="{{$tag.url}}" class="tag{{$tag.level}}">{{$tag.name}}</a>
 		</span>
 		{{/foreach}}
 	</div>

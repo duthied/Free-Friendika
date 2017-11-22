@@ -151,7 +151,7 @@ function update_items() {
 	dba::close($messages);
 }
 
-function tagadelic($uid, $count = 0, $owner = 0, $flags = 0, $type = TERM_HASHTAG) {
+function tagadelic($uid, $count = 0, $owner_id = 0, $flags = 0, $type = TERM_HASHTAG) {
 	require_once('include/security.php');
 
 	$item_condition = item_condition();
@@ -163,8 +163,8 @@ function tagadelic($uid, $count = 0, $owner = 0, $flags = 0, $type = TERM_HASHTA
 		}
 	}
 
-	if ($owner) {
-		$sql_options .= " AND `item`.`owner-id` = ".intval($owner)." ";
+	if ($owner_id) {
+		$sql_options .= " AND `item`.`owner-id` = ".intval($owner_id)." ";
 	}
 
 	// Fetch tags
@@ -186,13 +186,21 @@ function tagadelic($uid, $count = 0, $owner = 0, $flags = 0, $type = TERM_HASHTA
 	return tag_calc($r);
 }
 
-function wtagblock($uid, $count = 0,$owner = 0, $flags = 0, $type = TERM_HASHTAG) {
+function wtagblock($uid, $count = 0,$owner_id = 0, $flags = 0, $type = TERM_HASHTAG) {
 	$o = '';
-	$r = tagadelic($uid, $count, $owner, $flags, $type);
-	if($r) {
+	$r = tagadelic($uid, $count, $owner_id, $flags, $type);
+	if($r && $owner_id) {
+		$contact = dba::select(
+			"contact",
+			array("url"),
+			array("id" => $owner_id),
+			array("limit" => 1)
+		);
+		$url = System::removedBaseUrl($contact['url']);
+
 		foreach ($r as $rr) {
 			$tag['level'] = $rr[2];
-			$tag['url'] = urlencode($rr[0]);
+			$tag['url'] = $url."?tag=".urlencode($rr[0]);
 			$tag['name'] = $rr[0];
 
 			$tags[] = $tag;

@@ -98,6 +98,8 @@ function profile_content(App $a, $update = 0) {
 		$category = ((x($_GET,'category')) ? $_GET['category'] : '');
 	}
 
+	$hashtags = (x($_GET, 'tag') ? $_GET['tag'] : '');
+
 	if (Config::get('system','block_public') && (! local_user()) && (! remote_user())) {
 		return login();
 	}
@@ -253,6 +255,11 @@ function profile_content(App $a, $update = 0) {
 			$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
 				dbesc(protect_sprintf($category)), intval(TERM_OBJ_POST), intval(TERM_CATEGORY), intval($a->profile['profile_uid']));
 			//$sql_extra .= protect_sprintf(file_tag_file_query('item',$category,'category'));
+		}
+
+		if (x($hashtags)) {
+			$sql_post_table .= sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
+				dbesc(protect_sprintf($hashtags)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), intval($a->profile['profile_uid']));
 		}
 
 		if ($datequery) {
