@@ -713,6 +713,12 @@ class dba {
 	 * @return boolean was the insert successfull?
 	 */
 	public static function insert($table, $param, $on_duplicate_update = false) {
+
+		if (empty($table) || empty($param)) {
+			logger('Table and fields have to be set');
+			return false;
+		}
+
 		$sql = "INSERT INTO `".self::escape($table)."` (`".implode("`, `", array_keys($param))."`) VALUES (".
 			substr(str_repeat("?, ", count($param)), 0, -2).")";
 
@@ -852,6 +858,12 @@ class dba {
 	 * @return boolean|array was the delete successfull? When $in_process is set: deletion data
 	 */
 	public static function delete($table, $param, $in_process = false, &$callstack = array()) {
+
+		if (empty($table) || empty($param)) {
+			logger('Table and condition have to be set');
+			return false;
+		}
+
 		$commands = array();
 
 		// Create a key for the loop prevention
@@ -1014,6 +1026,12 @@ class dba {
 	 * @return boolean was the update successfull?
 	 */
 	public static function update($table, $fields, $condition, $old_fields = array()) {
+
+		if (empty($table) || empty($fields) || empty($condition)) {
+			logger('Table, fields and condition have to be set');
+			return false;
+		}
+
 		$table = self::escape($table);
 
 		$array_element = each($condition);
