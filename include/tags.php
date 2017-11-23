@@ -171,8 +171,8 @@ function tagadelic($uid, $count = 0, $owner_id = 0, $flags = 0, $type = TERM_HAS
 	$r = q("SELECT `term`, COUNT(`term`) AS `total` FROM `term`
 		LEFT JOIN `item` ON `term`.`oid` = `item`.`id`
 		WHERE `term`.`uid` = %d AND `term`.`type` = %d
-		AND `term`.`otype` = %d AND `item`.`private` = 0
-		$sql_options AND $item_condition
+		AND `term`.`otype` = %d
+		AND $item_condition $sql_options
 		GROUP BY `term` ORDER BY `total` DESC %s",
 		intval($uid),
 		intval($type),
