@@ -175,7 +175,7 @@ function dfrn_notify_post(App $a) {
 				 *we got a key. old code send only the key, without RINO version.
 				 * we assume RINO 1 if key and no RINO version
 				 */
-				$data = DFRN::aes_decrypt(hex2bin($data), $final_key);
+				$data = DFRN::aesDecrypt(hex2bin($data), $final_key);
 				break;
 			case 2:
 				try {

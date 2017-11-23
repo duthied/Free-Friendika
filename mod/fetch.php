@@ -68,12 +68,12 @@ function fetch_init(App $a)
 	}
 	$user = $r[0];
 
-	$status = Diaspora::build_status($item[0], $user);
-	$xml = Diaspora::build_post_xml($status["type"], $status["message"]);
+	$status = Diaspora::buildStatus($item[0], $user);
+	$xml = Diaspora::buildPostXml($status["type"], $status["message"]);
 
 	// Send the envelope
 	header("Content-Type: application/magic-envelope+xml; charset=utf-8");
-	echo Diaspora::build_magic_envelope($xml, $user);
+	echo Diaspora::buildMagicEnvelope($xml, $user);
 
 	killme();
 }

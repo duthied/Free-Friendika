@@ -49,14 +49,14 @@ function receive_post(App $a) {
 		}
 
 		logger('mod-diaspora: message is in the new format', LOGGER_DEBUG);
-		$msg = Diaspora::decode_raw($importer, $postdata);
+		$msg = Diaspora::decodeRaw($importer, $postdata);
 	} else {
 		logger('mod-diaspora: decode message in the old format', LOGGER_DEBUG);
 		$msg = Diaspora::decode($importer, $xml);
 
 		if ($public && !$msg) {
 			logger('mod-diaspora: decode message in the new format', LOGGER_DEBUG);
-			$msg = Diaspora::decode_raw($importer, $xml);
+			$msg = Diaspora::decodeRaw($importer, $xml);
 		}
 	}
 
@@ -72,7 +72,7 @@ function receive_post(App $a) {
 
 	$ret = true;
 	if ($public) {
-		Diaspora::dispatch_public($msg);
+		Diaspora::dispatchPublic($msg);
 	} else {
 		$ret = Diaspora::dispatch($importer, $msg);
 	}

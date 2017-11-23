@@ -247,7 +247,7 @@ EOT;
 	}
 
 	// Save the author information for the like in case we need to relay to Diaspora
-	Diaspora::store_like_signature($item_contact, $new_item_id);
+	Diaspora::storeLikeSignature($item_contact, $new_item_id);
 
 	$new_item['id'] = $new_item_id;
 
