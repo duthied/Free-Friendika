@@ -382,9 +382,9 @@ class Contact extends BaseObject
 				return $menu;
 			}
 
-			$r = dba::select('contact', array(), array('nurl' => $contact['nurl'], 'network' => $contact['network'], 'uid' => $uid));
+			$r = dba::select('contact', array(), array('nurl' => $contact['nurl'], 'network' => $contact['network'], 'uid' => $uid), array('limit' => 1));
 			if ($r) {
-				return self::photoMenu(dba::fetch($r), $uid);
+				return self::photoMenu($r, $uid);
 			} else {
 				$profile_link = zrl($contact['url']);
 				$connlnk = 'follow/?url=' . $contact['url'];
@@ -721,8 +721,7 @@ class Contact extends BaseObject
 
 		// There are no posts with "uid = 0" with connector networks
 		// This speeds up the query a lot
-		$s = dba::select('contact', array('network', 'id AS author-id', 'contact-type'), array('nurl' => normalise_link($contact_url), 'uid' => 0));
-		$r = dba::inArray($s);
+		$r = dba::select('contact', array('network', 'id AS author-id', 'contact-type'), array('nurl' => normalise_link($contact_url), 'uid' => 0), array('limit' => 1));
 
 		if (!DBM::is_result($r)) {
 			return '';
