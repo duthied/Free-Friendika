@@ -722,7 +722,7 @@ class App {
 		if (DBM::is_result($r)) {
 			foreach ($r AS $process) {
 				if (!posix_kill($process['pid'], 0)) {
-					q('DELETE FROM `process` WHERE `pid` = %d', intval($process['pid']));
+					dba::delete('process', array('pid' => $process['pid']));
 				}
 			}
 		}
@@ -733,7 +733,7 @@ class App {
 	 * @brief Remove the active process from the "process" table
 	 */
 	function end_process() {
-		q('DELETE FROM `process` WHERE `pid` = %d', intval(getmypid()));
+		dba::delete('process', array('pid' => getmypid()));
 	}
 
 	function get_useragent() {

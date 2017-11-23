@@ -216,7 +216,7 @@ function event_delete($event_id) {
 		return;
 	}
 
-	q("DELETE FROM `event` WHERE `id` = %d", intval($event_id));
+	dba::delete('event', array('id' => $event_id));
 	logger("Deleted event ".$event_id, LOGGER_DEBUG);
 }
 

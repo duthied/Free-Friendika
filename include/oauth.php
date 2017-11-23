@@ -113,7 +113,7 @@ class FKOAuthDataStore extends OAuthDataStore {
 	}
 
 
-	q("DELETE FROM tokens WHERE id='%s'", $token->key);
+	dba::delete('tokens', array('id' => $token->key));
 
 
 	if (!is_null($ret) && $uverifier!==false){

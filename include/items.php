@@ -2122,7 +2122,7 @@ function drop_item($id, $interactive = true) {
 	}
 
 
-	if ((local_user() == $item['uid']) || ($contact_id) || (! $interactive)) {
+	if ((local_user() == $item['uid']) || $contact_id || !$interactive) {
 
 		// Check if we should do HTML-based delete confirmation
 		if ($_REQUEST['confirm']) {
@@ -2189,30 +2189,18 @@ function drop_item($id, $interactive = true) {
 		 * generate a resource-id and therefore aren't intimately linked to the item.
 		 */
 		if (strlen($item['resource-id'])) {
-			q("DELETE FROM `photo` WHERE `resource-id` = '%s' AND `uid` = %d ",
-				dbesc($item['resource-id']),
-				intval($item['uid'])
-			);
-			// ignore the result
+			dba::delete('photo', array('resource-id' => $item['resource-id'], 'uid' => $item['uid']));
 		}
 
 		// If item is a link to an event, nuke the event record.
 		if (intval($item['event-id'])) {
-			q("DELETE FROM `event` WHERE `id` = %d AND `uid` = %d",
-				intval($item['event-id']),
-				intval($item['uid'])
-			);
-			// ignore the result
+			dba::delete('event', array('id' => $item['event-id'], 'uid' => $item['uid']));
 		}
 
 		// If item has attachments, drop them
 		foreach (explode(", ", $item['attach']) as $attach) {
 			preg_match("|attach/(\d+)|", $attach, $matches);
-			q("DELETE FROM `attach` WHERE `id` = %d AND `uid` = %d",
-				intval($matches[1]),
-				local_user()
-			);
-			// ignore the result
+			dba::delete('attach', array('id' => $matches[1], 'uid' => $item['uid']));
 		}
 
 		// The new code splits the queries since the mysql optimizer really has bad problems with subqueries
