@@ -37,6 +37,7 @@ namespace Friendica\Util;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
+use dba;
 
 require_once 'include/dba.php';
 
