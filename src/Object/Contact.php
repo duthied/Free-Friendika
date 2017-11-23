@@ -35,8 +35,7 @@ class Contact extends BaseObject
 	public static function remove($id)
 	{
 		// We want just to make sure that we don't delete our "self" contact
-		$condition = array('`id` = ? AND NOT `self`', $id);
-		$r = dba::select('contact', array('uid'), $condition, array('limit' => 1));
+		$r = dba::select('contact', array('uid'), array('id' => $id, 'self' => false), array('limit' => 1));
 
 		if (!DBM::is_result($r) || !intval($r['uid'])) {
 			return;
@@ -44,7 +43,7 @@ class Contact extends BaseObject
 
 		$archive = PConfig::get($r['uid'], 'system', 'archive_removed_contacts');
 		if ($archive) {
-			dba::update('contact', array('archive' => 1, 'network' => 'none', 'writable' => 0), array('id' => $id));
+			dba::update('contact', array('archive' => true, 'network' => 'none', 'writable' => false), array('id' => $id));
 			return;
 		}
 
@@ -104,7 +103,7 @@ class Contact extends BaseObject
 			dba::update('contact', array('term-date' => datetime_convert()), array('id' => $contact['id']));
 
 			if ($contact['url'] != '') {
-				dba::update('contact', array('term-date' => datetime_convert()), array('nurl' => normalise_link($contact['url']), 'term-date' <= NULL_DATE));
+				dba::update('contact', array('term-date' => datetime_convert()), array('`nurl` = ? AND `term-date` <= 1000-00-00', normalise_link($contact['url'])));
 			}
 		} else {
 			/* @todo
@@ -140,10 +139,10 @@ class Contact extends BaseObject
 	public static function unmarkForArchival(array $contact)
 	{
 		$condition = array('`id` => ? AND (`term-date` > ? OR `archive`)', $contact[`id`], NULL_DATE);
-		$r = dba::select('contact', array('term-date'), $condition);
+		$exists = dba::exists('contact', $condition);
 
 		// We don't need to update, we never marked this contact for archival
-		if (!DBM::is_result($r)) {
+		if (!$exists) {
 			return;
 		}
 
@@ -474,17 +473,36 @@ class Contact extends BaseObject
 	public static function getUngroupedList($uid, $start = 0, $count = 0)
 	{
 		if (!$count) {
-			$fields = array('COUNT(*) AS `total`');
-			$condition = array('`uid` = ? AND `self` = 0 AND `id` NOT IN (SELECT DISTINCT(`contact-id`)	FROM `group_member`	WHERE `uid` = ?', $uid, $uid);
-			$r = dba::select('contact', $fields, $condition);
-
-			return dba::inArray($r);
+			$r = q(
+				"SELECT COUNT(*) AS `total`
+				 FROM `contact`
+				 WHERE `uid` = %d
+				 AND `self` = 0
+				 AND `id` NOT IN (
+					SELECT DISTINCT(`contact-id`)
+					FROM `group_member`
+					WHERE `uid` = %d
+				) ", intval($uid), intval($uid)
+			);
+			
+			return $r;
 		}
 
-		$innerCondition = array('`id` NOT IN (SELECT DISTINCT(`contact-id`) FROM `group_member` WHERE `uid` = ?', $uid);
-		$r = dba::select('contact', array(), array('uid' => $uid, 'self' => 0, $innerCondition, 'blocked' => 0, 'pending' => 0), array('limit ?, ?', $start, $count));
+		$r = q(
+			"SELECT *
+			FROM `contact`
+			WHERE `uid` = %d
+			AND `self` = 0
+			AND `id` NOT IN (
+				SELECT DISTINCT(`contact-id`)
+				FROM `group_member` WHERE `uid` = %d
+			)
+			AND `blocked` = 0
+			AND `pending` = 0
+			LIMIT %d, %d", intval($uid), intval($uid), intval($start), intval($count)
+		);
 
-		return dba::inArray($r);
+		return $r;
 	}
 
 	/**
@@ -721,21 +739,22 @@ class Contact extends BaseObject
 
 		// There are no posts with "uid = 0" with connector networks
 		// This speeds up the query a lot
-		$r = dba::select('contact', array('network', 'id AS author-id', 'contact-type'), array('nurl' => normalise_link($contact_url), 'uid' => 0), array('limit' => 1));
+		$r = q("SELECT `network`, `id` AS `author-id`, `contact-type` FROM `contact`
+			WHERE `contact`.`nurl` = '%s' AND `contact`.`uid` = 0", dbesc(normalise_link($contact_url)));
 
 		if (!DBM::is_result($r)) {
 			return '';
 		}
 
-		if (in_array($r["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""))) {
+		if (in_array($r[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""))) {
 			$sql = "(`item`.`uid` = 0 OR (`item`.`uid` = %d AND NOT `item`.`global`))";
 		} else {
 			$sql = "`item`.`uid` = %d";
 		}
 
-		$author_id = intval($r["author-id"]);
+		$author_id = intval($r[0]["author-id"]);
 
-		$contact = ($r["contact-type"] == ACCOUNT_TYPE_COMMUNITY ? 'owner-id' : 'author-id');
+		$contact = ($r[0]["contact-type"] == ACCOUNT_TYPE_COMMUNITY ? 'owner-id' : 'author-id');
 
 		$r = q(item_query() . " AND `item`.`" . $contact . "` = %d AND " . $sql .
 			" ORDER BY `item`.`created` DESC LIMIT %d, %d", intval($author_id), intval(local_user()), intval($a->pager['start']), intval($a->pager['itemspage'])
