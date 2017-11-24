@@ -103,7 +103,7 @@ class Contact extends BaseObject
 			dba::update('contact', array('term-date' => datetime_convert()), array('id' => $contact['id']));
 
 			if ($contact['url'] != '') {
-				dba::update('contact', array('term-date' => datetime_convert()), array('`nurl` = ? AND `term-date` <= 1000-00-00', normalise_link($contact['url'])));
+				dba::update('contact', array('term-date' => datetime_convert()), array('`nurl` = ? AND `term-date` <= ?', normalise_link($contact['url']), NULL_DATE));
 			}
 		} else {
 			/* @todo
@@ -484,7 +484,7 @@ class Contact extends BaseObject
 					WHERE `uid` = %d
 				) ", intval($uid), intval($uid)
 			);
-			
+
 			return $r;
 		}
 
@@ -501,7 +501,7 @@ class Contact extends BaseObject
 			AND `pending` = 0
 			LIMIT %d, %d", intval($uid), intval($uid), intval($start), intval($count)
 		);
-
+		
 		return $r;
 	}
 
