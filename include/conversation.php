@@ -1536,8 +1536,8 @@ function conv_sort(array $item_list, $order)
 	 */
 	foreach ($parents as $i => $parent) {
 		$parents[$i]['children'] =
-			get_item_children($item_array, $parent, $thread_allowed)
-			+ get_item_children($item_array, $parent, false);
+			array_merge(get_item_children($item_array, $parent, $thread_allowed),
+				get_item_children($item_array, $parent, false));
 	}
 
 	foreach ($parents as $i => $parent) {
