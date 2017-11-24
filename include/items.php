@@ -426,7 +426,7 @@ function uri_to_guid($uri, $host = "") {
  * @return array Item array with removed conversation data
  */
 function store_conversation($arr) {
-	if (in_array($arr['network'], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
+	if (in_array($arr['network'], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)) && !empty($arr['uri'])) {
 		$conversation = array('item-uri' => $arr['uri'], 'received' => DBM::date());
 
 		if (isset($arr['parent-uri']) && ($arr['parent-uri'] != $arr['uri'])) {

@@ -138,7 +138,7 @@ class Contact extends BaseObject
 	 */
 	public static function unmarkForArchival(array $contact)
 	{
-		$condition = array('`id` => ? AND (`term-date` > ? OR `archive`)', $contact[`id`], NULL_DATE);
+		$condition = array('`id` = ? AND (`term-date` > ? OR `archive`)', $contact[`id`], NULL_DATE);
 		$exists = dba::exists('contact', $condition);
 
 		// We don't need to update, we never marked this contact for archival
@@ -613,7 +613,7 @@ class Contact extends BaseObject
 				'readonly' => 0, 'pending' => 0)
 			);
 
-			$s = dba::select('contact', array('id'), array('nurl' => normalise_link($data["url"]), 'uid' => $uid), array('order' => 'id', 'limit' => 2));
+			$s = dba::select('contact', array('id'), array('nurl' => normalise_link($data["url"]), 'uid' => $uid), array('order' => array('id'), 'limit' => 2));
 			$contacts = dba::inArray($s);
 			if (!DBM::is_result($contacts)) {
 				return 0;
