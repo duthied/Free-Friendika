@@ -734,6 +734,8 @@ class Contact extends BaseObject
 	 */
 	public static function getPostsFromUrl($contact_url)
 	{
+		$a = self::getApp();
+
 		require_once 'include/conversation.php';
 
 		// There are no posts with "uid = 0" with connector networks
@@ -759,7 +761,6 @@ class Contact extends BaseObject
 			" ORDER BY `item`.`created` DESC LIMIT %d, %d", intval($author_id), intval(local_user()), intval($a->pager['start']), intval($a->pager['itemspage'])
 		);
 
-		$a = self::getApp();
 
 		$o = conversation($a, $r, 'community', false);
 
