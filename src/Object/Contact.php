@@ -501,7 +501,6 @@ class Contact extends BaseObject
 			AND `pending` = 0
 			LIMIT %d, %d", intval($uid), intval($uid), intval($start), intval($count)
 		);
-		
 		return $r;
 	}
 
