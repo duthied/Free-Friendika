@@ -985,7 +985,7 @@ function item_post(App $a) {
 
 
 		// Store the comment signature information in case we need to relay to Diaspora
-		Diaspora::store_comment_signature($datarray, $author, ($self ? $user['prvkey'] : false), $post_id);
+		Diaspora::storeCommentSignature($datarray, $author, ($self ? $user['prvkey'] : false), $post_id);
 
 	} else {
 		$parent = $post_id;

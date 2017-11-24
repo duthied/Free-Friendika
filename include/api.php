@@ -4291,7 +4291,7 @@ function api_share_as_retweet(&$item)
 {
 	$body = trim($item["body"]);
 
-	if (Diaspora::is_reshare($body, false)===false) {
+	if (Diaspora::isReshare($body, false)===false) {
 		return false;
 	}
 
@@ -4299,7 +4299,7 @@ function api_share_as_retweet(&$item)
 	$attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "$1", $body);
 	/*
 		* Skip if there is no shared message in there
-		* we already checked this in diaspora::is_reshare()
+		* we already checked this in diaspora::isReshare()
 		* but better one more than one less...
 		*/
 	if ($body == $attributes) {
