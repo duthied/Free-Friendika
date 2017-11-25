@@ -52,7 +52,10 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 		$data["title"] = str_replace(array("http://", "https://"), "", $data["title"]);
 	}
 
-	if (((strpos($data["text"], "[img=") !== false) || (strpos($data["text"], "[img]") !== false)) && ($data["image"] != "")) {
+	if (((strpos($data["text"], "[img=") !== false)
+		|| (strpos($data["text"], "[img]") !== false)
+		|| Config::get('system', 'always_show_preview'))
+		&& ($data["image"] != "")) {
 		$data["preview"] = $data["image"];
 		$data["image"] = "";
 	}
