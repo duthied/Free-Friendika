@@ -577,7 +577,7 @@ function contacts_content(App $a) {
 
 		if ($contact['network'] == NETWORK_FEED) {
 			$fetch_further_information = array('fetch_further_information', t('Fetch further information for feeds'), $contact['fetch_further_information'], t('Fetch further information for feeds'),
-									array('0'=>t('Disabled'), '1'=>t('Fetch information'), '2'=>t('Fetch information and keywords')));
+									array('0' => t('Disabled'), '1' => t('Fetch information'), '3' => t('Fetch keywords'), '2' => t('Fetch information and keywords')));
 		}
 		if (in_array($contact['network'], array(NETWORK_FEED, NETWORK_MAIL, NETWORK_MAIL2)))
 			$poll_interval = contact_poll_interval($contact['priority'],(! $poll_enabled));
