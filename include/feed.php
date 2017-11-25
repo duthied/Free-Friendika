@@ -344,7 +344,7 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 			$item["title"] = '';
 		}
 
-		if ($contact["fetch_further_information"]) {
+		if (!empty($contact["fetch_further_information"]) && ($contact["fetch_further_information"] < 3)) {
 			$preview = "";
 
 			// Handle enclosures and treat them as preview picture
@@ -383,6 +383,9 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 		} else {
 			if (!strstr($item["body"], '[url') && ($item['plink'] != '')) {
 				$item["body"] .= "[hr][url]".$item['plink']."[/url]";
+			}
+			if ($contact["fetch_further_information"] == 3) {
+				$item["tag"] = add_page_keywords($item["plink"], false, $preview, true, $contact["ffi_keyword_blacklist"]);
 			}
 		}
 
