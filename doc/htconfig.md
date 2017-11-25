@@ -23,6 +23,7 @@ Example: To set the directory value please add this line to your .htconfig.php:
 ## system ##
 
 * **allowed_link_protocols** (Array) - Allowed protocols in links URLs, add at your own risk. http is always allowed.
+* **always_show_preview** (Boolean) - Only show small preview picures. Default value is false.
 * **birthday_input_format** - Default value is "ymd".
 * **block_local_dir** (Boolean) - Blocks the access to the directory of the local users.
 * **auth_cookie_lifetime** (Integer) - Number of days that should pass without any activity before a user who chose "Remember me" when logging in is considered logged out. Defaults to 7.
