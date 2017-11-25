@@ -485,7 +485,7 @@ class Delivery {
 					break;
 
 				if ($mail) {
-					Diaspora::send_mail($item,$owner,$contact);
+					Diaspora::sendMail($item,$owner,$contact);
 					break;
 				}
 
@@ -498,7 +498,7 @@ class Delivery {
 				if (($target_item['deleted']) && (($target_item['uri'] === $target_item['parent-uri']) || $followup)) {
 					// top-level retraction
 					logger('diaspora retract: '.$loc);
-					Diaspora::send_retraction($target_item,$owner,$contact,$public_message);
+					Diaspora::sendRetraction($target_item,$owner,$contact,$public_message);
 					break;
 				} elseif ($relocate) {
 					Diaspora::sendAccountMigration($owner, $contact, $uid);
@@ -506,17 +506,17 @@ class Delivery {
 				} elseif ($followup) {
 					// send comments and likes to owner to relay
 					logger('diaspora followup: '.$loc);
-					Diaspora::send_followup($target_item,$owner,$contact,$public_message);
+					Diaspora::sendFollowup($target_item,$owner,$contact,$public_message);
 					break;
 				} elseif ($target_item['uri'] !== $target_item['parent-uri']) {
 					// we are the relay - send comments, likes and relayable_retractions to our conversants
 					logger('diaspora relay: '.$loc);
-					Diaspora::send_relay($target_item,$owner,$contact,$public_message);
+					Diaspora::sendRelay($target_item,$owner,$contact,$public_message);
 					break;
 				} elseif ($top_level && !$walltowall) {
 					// currently no workable solution for sending walltowall
 					logger('diaspora status: '.$loc);
-					Diaspora::send_status($target_item,$owner,$contact,$public_message);
+					Diaspora::sendStatus($target_item,$owner,$contact,$public_message);
 					break;
 				}
 

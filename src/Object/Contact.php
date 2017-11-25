@@ -21,29 +21,29 @@ use dba;
 require_once 'boot.php';
 require_once 'include/text.php';
 
+/**
+ * @brief functions for interacting with a contact
+ */
 class Contact extends BaseObject
 {
 	/**
 	 * @brief Marks a contact for removal
 	 *
-	 * @param int $id
+	 * @param int $id contact id
 	 * @return null
 	 */
 	public static function remove($id)
 	{
 		// We want just to make sure that we don't delete our "self" contact
-		$r = q(
-			"SELECT `uid` FROM `contact` WHERE `id` = %d AND NOT `self` LIMIT 1", intval($id)
-		);
-		if (!DBM::is_result($r) || !intval($r[0]['uid'])) {
+		$r = dba::select('contact', array('uid'), array('id' => $id, 'self' => false), array('limit' => 1));
+
+		if (!DBM::is_result($r) || !intval($r['uid'])) {
 			return;
 		}
 
-		$archive = PConfig::get($r[0]['uid'], 'system', 'archive_removed_contacts');
+		$archive = PConfig::get($r['uid'], 'system', 'archive_removed_contacts');
 		if ($archive) {
-			q(
-				"UPDATE `contact` SET `archive` = 1, `network` = 'none', `writable` = 0 WHERE id = %d", intval($id)
-			);
+			dba::update('contact', array('archive' => true, 'network' => 'none', 'writable' => false), array('id' => $id));
 			return;
 		}
 
@@ -56,8 +56,9 @@ class Contact extends BaseObject
 	/**
 	 * @brief Sends an unfriend message. Does not remove the contact
 	 *
-	 * @param array $user User unfriending
+	 * @param array $user    User unfriending
 	 * @param array $contact Contact unfriended
+	 * @return void
 	 */
 	public static function terminateFriendship(array $user, array $contact)
 	{
@@ -88,7 +89,7 @@ class Contact extends BaseObject
 	 * This provides for the possibility that their database is temporarily messed
 	 * up or some other transient event and that there's a possibility we could recover from it.
 	 *
-	 * @param array $contact
+	 * @param array $contact contact to mark for archival
 	 * @return type
 	 */
 	public static function markForArchival(array $contact)
@@ -99,18 +100,12 @@ class Contact extends BaseObject
 		}
 
 		if ($contact['term-date'] <= NULL_DATE) {
-			q(
-				"UPDATE `contact` SET `term-date` = '%s' WHERE `id` = %d", dbesc(datetime_convert()), intval($contact['id'])
-			);
+			dba::update('contact', array('term-date' => datetime_convert()), array('id' => $contact['id']));
 
 			if ($contact['url'] != '') {
-				q(
-					"UPDATE `contact` SET `term-date` = '%s'
-				WHERE `nurl` = '%s' AND `term-date` <= '1000-00-00'", dbesc(datetime_convert()), dbesc(normalise_link($contact['url']))
-				);
+				dba::update('contact', array('term-date' => datetime_convert()), array('`nurl` = ? AND `term-date` <= ?', normalise_link($contact['url']), NULL_DATE));
 			}
 		} else {
-
 			/* @todo
 			 * We really should send a notification to the owner after 2-3 weeks
 			 * so they won't be surprised when the contact vanishes and can take
@@ -120,19 +115,14 @@ class Contact extends BaseObject
 			/// @todo Check for contact vitality via probing
 			$expiry = $contact['term-date'] . ' + 32 days ';
 			if (datetime_convert() > datetime_convert('UTC', 'UTC', $expiry)) {
-
 				/* Relationship is really truly dead. archive them rather than
 				 * delete, though if the owner tries to unarchive them we'll start
 				 * the whole process over again.
 				 */
-				q(
-					"UPDATE `contact` SET `archive` = 1 WHERE `id` = %d", intval($contact['id'])
-				);
+				dba::update('contact', array('archive' => 1), array('id' => $contact['id']));
 
 				if ($contact['url'] != '') {
-					q(
-						"UPDATE `contact` SET `archive` = 1 WHERE `nurl` = '%s'", dbesc(normalise_link($contact['url']))
-					);
+					dba::update('contact', array('archive' => 1), array('nurl' => normalise_link($contact['url'])));
 				}
 			}
 		}
@@ -143,17 +133,16 @@ class Contact extends BaseObject
 	 *
 	 * @see Contact::markForArchival()
 	 *
-	 * @param array $contact
+	 * @param array $contact contact to be unmarked for archival
 	 * @return null
 	 */
 	public static function unmarkForArchival(array $contact)
 	{
-		$r = q(
-			"SELECT `term-date` FROM `contact` WHERE `id` = %d AND (`term-date` > '%s' OR `archive`)", intval($contact['id']), dbesc('1000-00-00 00:00:00')
-		);
+		$condition = array('`id` = ? AND (`term-date` > ? OR `archive`)', $contact[`id`], NULL_DATE);
+		$exists = dba::exists('contact', $condition);
 
 		// We don't need to update, we never marked this contact for archival
-		if (!DBM::is_result($r)) {
+		if (!$exists) {
 			return;
 		}
 
@@ -172,9 +161,9 @@ class Contact extends BaseObject
 	 * The function looks at several places (contact table and gcontact table) for the contact
 	 * It caches its result for the same script execution to prevent duplicate calls
 	 *
-	 * @param string $url The profile link
-	 * @param int $uid User id
-	 * @param array $default If not data was found take this data as default value
+	 * @param string $url     The profile link
+	 * @param int    $uid     User id
+	 * @param array  $default If not data was found take this data as default value
 	 *
 	 * @return array Contact data
 	 */
@@ -237,7 +226,7 @@ class Contact extends BaseObject
 		if (DBM::is_result($r)) {
 			// If there is more than one entry we filter out the connector networks
 			if (count($r) > 1) {
-				foreach ($r AS $id => $result) {
+				foreach ($r as $id => $result) {
 					if ($result["network"] == NETWORK_STATUSNET) {
 						unset($r[$id]);
 					}
@@ -291,8 +280,9 @@ class Contact extends BaseObject
 			$profile["micro"] = $profile["thumb"];
 		}
 
-		if ((($profile["addr"] == "") || ($profile["name"] == "")) && ($profile["gid"] != 0) &&
-			in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
+		if ((($profile["addr"] == "") || ($profile["name"] == "")) && ($profile["gid"] != 0)
+			&& in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))
+		) {
 			Worker::add(PRIORITY_LOW, "UpdateGContact", $profile["gid"]);
 		}
 
@@ -315,7 +305,7 @@ class Contact extends BaseObject
 	 * The function looks at several places (contact table and gcontact table) for the contact
 	 *
 	 * @param string $addr The profile link
-	 * @param int $uid User id
+	 * @param int    $uid  User id
 	 *
 	 * @return array Contact data
 	 */
@@ -362,8 +352,8 @@ class Contact extends BaseObject
 	/**
 	 * @brief Returns the data array for the photo menu of a given contact
 	 *
-	 * @param array $contact
-	 * @param int $uid
+	 * @param array $contact contact
+	 * @param int   $uid     optional, default 0
 	 * @return array
 	 */
 	public static function photoMenu(array $contact, $uid = 0)
@@ -386,14 +376,14 @@ class Contact extends BaseObject
 		if ($contact['uid'] != $uid) {
 			if ($uid == 0) {
 				$profile_link = zrl($contact['url']);
-				$menu = Array('profile' => array(t('View Profile'), $profile_link, true));
+				$menu = array('profile' => array(t('View Profile'), $profile_link, true));
 
 				return $menu;
 			}
 
-			$r = q("SELECT * FROM `contact` WHERE `nurl` = '%s' AND `network` = '%s' AND `uid` = %d", dbesc($contact['nurl']), dbesc($contact['network']), intval($uid));
+			$r = dba::select('contact', array(), array('nurl' => $contact['nurl'], 'network' => $contact['network'], 'uid' => $uid), array('limit' => 1));
 			if ($r) {
-				return self::photoMenu($r[0], $uid);
+				return self::photoMenu($r, $uid);
 			} else {
 				$profile_link = zrl($contact['url']);
 				$connlnk = 'follow/?url=' . $contact['url'];
@@ -438,7 +428,7 @@ class Contact extends BaseObject
 		$contact_drop_link = System::baseUrl() . '/contacts/' . $contact['id'] . '/drop?confirm=1';
 
 		/**
-		 * menu array:
+		 * Menu array:
 		 * "name" => [ "Label", "link", (bool)Should the link opened in a new tab? ]
 		 */
 		$menu = array(
@@ -459,7 +449,7 @@ class Contact extends BaseObject
 
 		$menucondensed = array();
 
-		foreach ($menu AS $menuname => $menuitem) {
+		foreach ($menu as $menuname => $menuitem) {
 			if ($menuitem[1] != '') {
 				$menucondensed[$menuname] = $menuitem;
 			}
@@ -469,14 +459,15 @@ class Contact extends BaseObject
 	}
 
 	/**
+	 * @brief Returns ungrouped contact count or list for user
+	 *
 	 * Returns either the total number of ungrouped contacts for the given user
 	 * id or a paginated list of ungrouped contacts.
 	 *
-	 * @brief Returns ungrouped contact count or list for user
+	 * @param int $uid   uid
+	 * @param int $start optional, default 0
+	 * @param int $count optional, default 0
 	 *
-	 * @param int $uid
-	 * @param int $start
-	 * @param int $count
 	 * @return array
 	 */
 	public static function getUngroupedList($uid, $start = 0, $count = 0)
@@ -510,7 +501,6 @@ class Contact extends BaseObject
 			AND `pending` = 0
 			LIMIT %d, %d", intval($uid), intval($uid), intval($start), intval($count)
 		);
-
 		return $r;
 	}
 
@@ -532,8 +522,8 @@ class Contact extends BaseObject
 	 * Fourth, we update the existing record with the new data (avatar, alias, nick)
 	 * if there's any updates
 	 *
-	 * @param string $url Contact URL
-	 * @param integer $uid The user id for the contact (0 = public contact)
+	 * @param string  $url       Contact URL
+	 * @param integer $uid       The user id for the contact (0 = public contact)
 	 * @param boolean $no_update Don't update the contact
 	 *
 	 * @return integer Contact ID
@@ -561,7 +551,7 @@ class Contact extends BaseObject
 		if (!DBM::is_result($contact)) {
 			// The link could be provided as http although we stored it as https
 			$ssl_url = str_replace('http://', 'https://', $url);
-			$r = dba::p("SELECT `id`, `avatar-date` FROM `contact` WHERE `alias` IN (?, ?, ?) AND `uid` = ? LIMIT 1", $url, normalise_link($url), $ssl_url, $uid);
+			$r = dba::select('contact', array('id', 'avatar-date'), array('`alias` IN (?, ?, ?) AND `uid` = ?', $url, normalise_link($url), $ssl_url, $uid), array('limit' => 1));
 			$contact = dba::fetch($r);
 			dba::close($r);
 		}
@@ -608,7 +598,8 @@ class Contact extends BaseObject
 
 		$url = $data["url"];
 		if (!$contact_id) {
-			dba::insert('contact', array('uid' => $uid, 'created' => datetime_convert(), 'url' => $data["url"],
+			dba::insert(
+				'contact', array('uid' => $uid, 'created' => datetime_convert(), 'url' => $data["url"],
 				'nurl' => normalise_link($data["url"]), 'addr' => $data["addr"],
 				'alias' => $data["alias"], 'notify' => $data["notify"], 'poll' => $data["poll"],
 				'name' => $data["name"], 'nick' => $data["nick"], 'photo' => $data["photo"],
@@ -619,9 +610,11 @@ class Contact extends BaseObject
 				'confirm' => $data["confirm"], 'poco' => $data["poco"],
 				'name-date' => datetime_convert(), 'uri-date' => datetime_convert(),
 				'avatar-date' => datetime_convert(), 'writable' => 1, 'blocked' => 0,
-				'readonly' => 0, 'pending' => 0));
+				'readonly' => 0, 'pending' => 0)
+			);
 
-			$contacts = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d ORDER BY `id` LIMIT 2", dbesc(normalise_link($data["url"])), intval($uid));
+			$s = dba::select('contact', array('id'), array('nurl' => normalise_link($data["url"]), 'uid' => $uid), array('order' => array('id'), 'limit' => 2));
+			$contacts = dba::inArray($s);
 			if (!DBM::is_result($contacts)) {
 				return 0;
 			}
@@ -735,19 +728,20 @@ class Contact extends BaseObject
 	/**
 	 * @brief Returns posts from a given contact url
 	 *
-	 * @param App $a argv application class
 	 * @param string $contact_url Contact URL
 	 *
 	 * @return string posts in HTML
 	 */
 	public static function getPostsFromUrl($contact_url)
 	{
+		$a = self::getApp();
+
 		require_once 'include/conversation.php';
 
 		// There are no posts with "uid = 0" with connector networks
 		// This speeds up the query a lot
 		$r = q("SELECT `network`, `id` AS `author-id`, `contact-type` FROM `contact`
-		WHERE `contact`.`nurl` = '%s' AND `contact`.`uid` = 0", dbesc(normalise_link($contact_url)));
+			WHERE `contact`.`nurl` = '%s' AND `contact`.`uid` = 0", dbesc(normalise_link($contact_url)));
 
 		if (!DBM::is_result($r)) {
 			return '';
@@ -767,7 +761,6 @@ class Contact extends BaseObject
 			" ORDER BY `item`.`created` DESC LIMIT %d, %d", intval($author_id), intval(local_user()), intval($a->pager['start']), intval($a->pager['itemspage'])
 		);
 
-		$a = self::getApp();
 
 		$o = conversation($a, $r, 'community', false);
 
@@ -790,8 +783,7 @@ class Contact extends BaseObject
 		// "page-flags" is a field in the user table,
 		// "forum" and "prv" are used in the contact table. They stand for PAGE_COMMUNITY and PAGE_PRVGROUP.
 		// "community" is used in the gcontact table and is true if the contact is PAGE_COMMUNITY or PAGE_PRVGROUP.
-		if (
-			(isset($contact['page-flags']) && (intval($contact['page-flags']) == PAGE_COMMUNITY))
+		if ((isset($contact['page-flags']) && (intval($contact['page-flags']) == PAGE_COMMUNITY))
 			|| (isset($contact['page-flags']) && (intval($contact['page-flags']) == PAGE_PRVGROUP))
 			|| (isset($contact['forum']) && intval($contact['forum']))
 			|| (isset($contact['prv']) && intval($contact['prv']))

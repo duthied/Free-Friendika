@@ -298,6 +298,7 @@ class OStatus
 	 * @param array  $importer user record of the importing user
 	 * @param array  $contact  contact
 	 * @param string $hub      Called by reference, returns the fetched hub data
+	 * @return void
 	 */
 	public static function import($xml, $importer, &$contact, &$hub)
 	{
@@ -309,7 +310,7 @@ class OStatus
 	 *
 	 * @param string  $xml        The XML
 	 * @param array   $importer   user record of the importing user
-	 * @param array   $contact
+	 * @param array   $contact    contact
 	 * @param string  $hub        Called by reference, returns the fetched hub data
 	 * @param boolean $stored     Is the post fresh imported or from the database?
 	 * @param boolean $initialize Is it the leading post so that data has to be initialized?
@@ -537,6 +538,10 @@ class OStatus
 		return true;
 	}
 
+	/**
+	 * @param object $item item
+	 * @return void
+	 */
 	private static function deleteNotice($item)
 	{
 		$condition = array('uid' => $item['uid'], 'author-link' => $item['author-link'], 'uri' => $item['uri']);
@@ -567,6 +572,7 @@ class OStatus
 	 * @param object $entry    The xml entry that is processed
 	 * @param array  $item     The item array
 	 * @param array  $importer user record of the importing user
+	 * @return void
 	 */
 	private static function processPost($xpath, $entry, &$item, $importer)
 	{
@@ -708,6 +714,7 @@ class OStatus
 	 *
 	 * @param string $conversation     The link to the conversation
 	 * @param string $conversation_uri The conversation in "uri" format
+	 * @return void
 	 */
 	private static function fetchConversation($conversation, $conversation_uri)
 	{
@@ -768,6 +775,7 @@ class OStatus
 	 * @param string $xml              The feed
 	 * @param string $conversation     conversation
 	 * @param string $conversation_uri conversation uri
+	 * @return void
 	 */
 	private static function storeConversation($xml, $conversation = '', $conversation_uri = '')
 	{
@@ -844,13 +852,14 @@ class OStatus
 
 	/**
 	 * @brief Fetch the own post so that it can be stored later
-	 * @param array  $item The item array
 	 *
 	 * We want to store the original data for later processing.
 	 * This function is meant for cases where we process a feed with multiple entries.
 	 * In that case we need to fetch the single posts here.
 	 *
 	 * @param string $self The link to the self item
+	 * @param array  $item The item array
+	 * @return void
 	 */
 	private static function fetchSelf($self, &$item)
 	{
@@ -885,6 +894,7 @@ class OStatus
 	 * @param string $related     The link to the related item
 	 * @param string $related_uri The related item in "uri" format
 	 * @param array  $importer    user record of the importing user
+	 * @return void
 	 */
 	private static function fetchRelated($related, $related_uri, $importer)
 	{
@@ -1293,6 +1303,7 @@ class OStatus
 	 * @param object $doc  XML document
 	 * @param object $root XML root element where the hub links are added
 	 * @param object $nick nick
+	 * @return void
 	 */
 	public static function hublinks($doc, $root, $nick)
 	{
@@ -1306,6 +1317,7 @@ class OStatus
 	 * @param object $doc  XML document
 	 * @param object $root XML root element where the hub links are added
 	 * @param array  $item Data of the item that is to be posted
+	 * @return void
 	 */
 	private static function getAttachment($doc, $root, $item)
 	{
@@ -1582,7 +1594,7 @@ class OStatus
 	 * @param object $doc           XML document
 	 * @param array  $item          Data of the item that is to be posted
 	 * @param array  $owner         Contact data of the poster
-	 * @param        $repeated_guid
+	 * @param string $repeated_guid guid
 	 * @param bool   $toplevel      Is it for en entry element (false) or a feed entry (true)?
 	 *
 	 * @return object Entry element
@@ -1872,6 +1884,7 @@ class OStatus
 	 * @param string $title    Title for the post
 	 * @param string $verb     The activity verb
 	 * @param bool   $complete Add the "status_net" element?
+	 * @return void
 	 */
 	private static function entryContent($doc, $entry, $item, $owner, $title, $verb = "", $complete = true)
 	{
@@ -1914,6 +1927,7 @@ class OStatus
 	 * @param array  $item     Data of the item that is to be posted
 	 * @param array  $owner    Contact data of the poster
 	 * @param bool   $complete default true
+	 * @return void
 	 */
 	private static function entryFooter($doc, $entry, $item, $owner, $complete = true)
 	{

@@ -155,14 +155,15 @@ class CronJobs {
 			if (!$cachetime) {
 				$cachetime = PROXY_DEFAULT_TIME;
 			}
-			q('DELETE FROM `photo` WHERE `uid` = 0 AND `resource-id` LIKE "pic:%%" AND `created` < NOW() - INTERVAL %d SECOND', $cachetime);
+			$condition = array('`uid` = 0 AND `resource-id` LIKE "pic:%" AND `created` < NOW() - INTERVAL ? SECOND', $cachetime);
+			dba::delete('photo', $condition);
 		}
 
-		// Delete the cached OEmbed entries that are older than one year
-		q("DELETE FROM `oembed` WHERE `created` < NOW() - INTERVAL 3 MONTH");
+		// Delete the cached OEmbed entries that are older than three month
+		dba::delete('oembed', array("`created` < NOW() - INTERVAL 3 MONTH"));
 
-		// Delete the cached "parse_url" entries that are older than one year
-		q("DELETE FROM `parsed_url` WHERE `created` < NOW() - INTERVAL 3 MONTH");
+		// Delete the cached "parse_url" entries that are older than three month
+		dba::delete('parsed_url', array("`created` < NOW() - INTERVAL 3 MONTH"));
 
 		// Maximum table size in megabyte
 		$max_tablesize = intval(Config::get('system','optimize_max_tablesize')) * 1000000;

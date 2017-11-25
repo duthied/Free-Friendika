@@ -207,7 +207,8 @@ function add_page_info_data($data) {
 		$preview = str_replace(array("[", "]"), array("&#91;", "&#93;"), htmlentities($data["images"][0]["src"], ENT_QUOTES, 'UTF-8', false));
 		// if the preview picture is larger than 500 pixels then show it in a larger mode
 		// But only, if the picture isn't higher than large (To prevent huge posts)
-		if (($data["images"][0]["width"] >= 500) && ($data["images"][0]["width"] >= $data["images"][0]["height"])) {
+		if (!Config::get('system', 'always_show_preview') && ($data["images"][0]["width"] >= 500)
+			&& ($data["images"][0]["width"] >= $data["images"][0]["height"])) {
 			$text .= " image='".$preview."'";
 		} else {
 			$text .= " preview='".$preview."'";
@@ -426,7 +427,7 @@ function uri_to_guid($uri, $host = "") {
  * @return array Item array with removed conversation data
  */
 function store_conversation($arr) {
-	if (in_array($arr['network'], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
+	if (in_array($arr['network'], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)) && !empty($arr['uri'])) {
 		$conversation = array('item-uri' => $arr['uri'], 'received' => DBM::date());
 
 		if (isset($arr['parent-uri']) && ($arr['parent-uri'] != $arr['uri'])) {
@@ -2122,7 +2123,7 @@ function drop_item($id, $interactive = true) {
 	}
 
 
-	if ((local_user() == $item['uid']) || ($contact_id) || (! $interactive)) {
+	if ((local_user() == $item['uid']) || $contact_id || !$interactive) {
 
 		// Check if we should do HTML-based delete confirmation
 		if ($_REQUEST['confirm']) {
@@ -2189,30 +2190,18 @@ function drop_item($id, $interactive = true) {
 		 * generate a resource-id and therefore aren't intimately linked to the item.
 		 */
 		if (strlen($item['resource-id'])) {
-			q("DELETE FROM `photo` WHERE `resource-id` = '%s' AND `uid` = %d ",
-				dbesc($item['resource-id']),
-				intval($item['uid'])
-			);
-			// ignore the result
+			dba::delete('photo', array('resource-id' => $item['resource-id'], 'uid' => $item['uid']));
 		}
 
 		// If item is a link to an event, nuke the event record.
 		if (intval($item['event-id'])) {
-			q("DELETE FROM `event` WHERE `id` = %d AND `uid` = %d",
-				intval($item['event-id']),
-				intval($item['uid'])
-			);
-			// ignore the result
+			dba::delete('event', array('id' => $item['event-id'], 'uid' => $item['uid']));
 		}
 
 		// If item has attachments, drop them
 		foreach (explode(", ", $item['attach']) as $attach) {
 			preg_match("|attach/(\d+)|", $attach, $matches);
-			q("DELETE FROM `attach` WHERE `id` = %d AND `uid` = %d",
-				intval($matches[1]),
-				local_user()
-			);
-			// ignore the result
+			dba::delete('attach', array('id' => $matches[1], 'uid' => $item['uid']));
 		}
 
 		// The new code splits the queries since the mysql optimizer really has bad problems with subqueries

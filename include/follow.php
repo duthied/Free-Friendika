@@ -272,7 +272,7 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 		}
 
 		if ($contact['network'] == NETWORK_DIASPORA) {
-			$ret = Diaspora::send_share($a->user,$contact);
+			$ret = Diaspora::sendShare($a->user, $contact);
 			logger('share returns: '.$ret);
 		}
 	}

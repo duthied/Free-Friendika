@@ -14,6 +14,6 @@ class ProfileUpdate {
 			return;
 		}
 
-		Diaspora::send_profile($uid);
+		Diaspora::sendProfile($uid);
 	}
 }

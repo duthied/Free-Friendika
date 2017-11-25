@@ -79,10 +79,7 @@ function group_rmv($uid,$name) {
 		}
 
 		// remove all members
-		$r = q("DELETE FROM `group_member` WHERE `uid` = %d AND `gid` = %d ",
-			intval($uid),
-			intval($group_id)
-		);
+		dba::delete('group_member', array('uid' => $uid, 'pid' => $group_id));
 
 		// remove group
 		$r = q("UPDATE `group` SET `deleted` = 1 WHERE `uid` = %d AND `name` = '%s'",
@@ -109,20 +106,19 @@ function group_byname($uid,$name) {
 	return false;
 }
 
-function group_rmv_member($uid,$name,$member) {
-	$gid = group_byname($uid,$name);
-	if (! $gid)
+function group_rmv_member($uid, $name, $member) {
+	$gid = group_byname($uid, $name);
+
+	if (!$gid) {
 		return false;
-	if (! ( $uid && $gid && $member))
+	}
+
+	if (!($uid && $gid && $member)) {
 		return false;
-	$r = q("DELETE FROM `group_member` WHERE `uid` = %d AND `gid` = %d AND `contact-id` = %d",
-		intval($uid),
-		intval($gid),
-		intval($member)
-	);
+	}
+
+	$r = dba::delete('group_member', array('uid' => $uid, 'gid' => $gid, 'contact-id' => $member));
 	return $r;
-
-
 }
 
 

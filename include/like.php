@@ -163,9 +163,7 @@ function do_like($item_id, $verb) {
 		// Clean up the Diaspora signatures for this like
 		// Go ahead and do it even if Diaspora support is disabled. We still want to clean up
 		// if it had been enabled in the past
-		q("DELETE FROM `sign` WHERE `iid` = %d",
-			intval($like_item['id'])
-		);
+		dba::delete('sign', array('iid' => $like_item['id']));
 
 		$like_item_id = $like_item['id'];
 		Worker::add(PRIORITY_HIGH, "Notifier", "like", $like_item_id);
@@ -249,7 +247,7 @@ EOT;
 	}
 
 	// Save the author information for the like in case we need to relay to Diaspora
-	Diaspora::store_like_signature($item_contact, $new_item_id);
+	Diaspora::storeLikeSignature($item_contact, $new_item_id);
 
 	$new_item['id'] = $new_item_id;
 
