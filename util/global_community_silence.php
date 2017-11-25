@@ -36,11 +36,11 @@ if ($argc != 2 || $argv[1] == "-h" || $argv[1] == "--help" || $argv[1] == "-?") 
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 
-require_once'"boot.php');
-require_once('include/dba.php');
-require_once('include/text.php');
+require_once 'boot.php';
+require_once 'include/dba.php';
+require_once 'include/text.php';
 $a = get_app();
-require_once('.htconfig.php');
+require_once'.htconfig.php';
 
 dba::connect($db_host, $db_user, $db_pass, $db_data);
 unset($db_host, $db_user, $db_pass, $db_data);
