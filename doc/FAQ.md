@@ -157,7 +157,7 @@ Friendica is using a [Twitter/GNU Social compatible API](help/api), which means 
 Here is a list of known working clients:
 
 * Android
-  * [Friendiqa](https://github.com/lubuwest/friendiqa) (you can find the APK file in the listed files in the repository)
+  * [Friendiqa](https://github.com/lubuwest/friendiqa) (available in Google Playstore or from a binary repository you can add to [F-Droid](https://freunde.ma-nic.de/display/3e98eba8185a13c5bdbf3d1539646854))
   * AndStatus
   * Twidere
   * Mustard and Mustard-Mod
