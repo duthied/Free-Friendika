@@ -171,7 +171,7 @@ Das bedeutet, dass du jeden Twitter/GNU Social Client verwenden kannst in dem du
 Hier ist eine Liste von Clients bei denen dies möglich ist, bzw. die speziell für Friendica entwickelt werden:
 
 * Android
-  * [Friendiqa](https://github.com/lubuwest/friendiqa) (ydie APK Datei findest du in den gelisteten Dateien im Repository)
+  * [Friendiqa](https://github.com/lubuwest/friendiqa) (Gibt es im Google Playstore oder als [binary Repository](https://freunde.ma-nic.de/display/3e98eba8185a13c5bdbf3d1539646854) für F-Droid)
   * AndStatus
   * Twidere
   * Mustard and Mustard-Mod
