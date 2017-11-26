@@ -1,3 +1,5 @@
+
+
 <?php
 
 /**
@@ -101,12 +103,13 @@ function theme_admin_post(App $a) {
 /// @TODO $a is no longer used
 function vier_form(App $a, $style, $show_pages, $show_profiles, $show_helpers, $show_services, $show_friends, $show_lastusers) {
 	$styles = array(
-		"plus"=>"Plus",
 		"breathe"=>"Breathe",
-		"dark"=>"Dark",
-		"shadow"=>"Shadow",
 		"netcolour"=>"Coloured Networks",
-		"flat"=>"Flat"
+		"dark"=>"Dark",
+		"flat"=>"Flat",
+		"plus"=>"Plus",
+		"plusminus"=>"Plus Minus",
+		"shadow"=>"Shadow"
 	);
 
 	$show_or_not = array('0'=>t("don't show"),     '1'=>t("show"),);
@@ -126,3 +129,4 @@ function vier_form(App $a, $style, $show_pages, $show_profiles, $show_helpers, $
 	));
 	return $o;
 }
+
