@@ -41,18 +41,28 @@ function replace_macros($s, $r) {
 	return $output;
 }
 
+// PHP < 7 polyfill
+if (!is_callable('intdiv')) {
+	function intdiv($a, $b) {
+		return ($a - $a % $b) / $b;
+	}
+}
 
-// random string, there are 86 characters max in text mode, 128 for hex
-// output is urlsafe
+/**
+ * @brief Generates a pseudo-random string of hexadecimal characters
+ *
+ * Only supports pair numbers of output characters.
+ *
+ * @param int $size
+ * @return string
+ */
+function random_string($size = 64)
+{
+	$bytes = random_bytes(intdiv((int) $size, 2));
 
-define('RANDOM_STRING_HEX',  0x00);
-define('RANDOM_STRING_TEXT', 0x01);
+	$return = bin2hex($bytes);
 
-function random_string($size = 64, $type = RANDOM_STRING_HEX) {
-	// generate a bit of entropy and run it through the whirlpool
-	$s = hash('whirlpool', (string) rand() . uniqid(rand(),true) . (string) rand(), (($type == RANDOM_STRING_TEXT) ? true : false));
-	$s = (($type == RANDOM_STRING_TEXT) ? str_replace("\n", "", base64url_encode($s,true)) : $s);
-	return substr($s,0,$size);
+	return $return;
 }
 
 /**
@@ -1147,7 +1157,7 @@ function get_mood_verbs() {
 
 /**
  * @brief Translate days and months names.
- * 
+ *
  * @param string $s String with day or month name.
  * @return string Translated string.
  */
@@ -1165,7 +1175,7 @@ function day_translate($s) {
 
 /**
  * @brief Translate short days and months names.
- * 
+ *
  * @param string $s String with short day or month name.
  * @return string Translated string.
  */
