@@ -13,13 +13,14 @@ use dba;
 
 /**
  * @brief Arbitrary sytem configuration storage
- * Note:
- * Please do not store booleans - convert to 0/1 integer values
- * The Config::get() functions return boolean false for keys that are unset,
- * and this could lead to subtle bugs.
  *
- * There are a few places in the code (such as the admin panel) where boolean
- * configurations need to be fixed as of 10/08/2011.
+ * Note:
+ * If we ever would decide to return exactly the variable type as entered,
+ * we will have fun with the additional features. :-)
+ *
+ * The config class always returns strings but in the default features
+ * we use a "false" to determine if the config value isn't set.
+ *
  */
 class Config
 {
