@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\Model\User;
 
 require_once 'include/security.php';
 require_once 'include/datetime.php';
@@ -98,41 +99,44 @@ if (isset($_SESSION) && x($_SESSION, 'authenticated') && (!x($_POST, 'auth-param
 	}
 } else {
 	session_unset();
-	if (x($_POST, 'password') && strlen($_POST['password'])) {
-		$encrypted = hash('whirlpool', trim($_POST['password']));
-	} else {
-		if ((x($_POST, 'openid_url')) && strlen($_POST['openid_url']) ||
-			(x($_POST, 'username')) && strlen($_POST['username'])) {
+	if (
+		!(x($_POST, 'password') && strlen($_POST['password']))
+		&& (
+			x($_POST, 'openid_url') && strlen($_POST['openid_url'])
+			|| x($_POST, 'username') && strlen($_POST['username'])
+		)
+	) {
+		$noid = Config::get('system', 'no_openid');
 
-			$noid = Config::get('system', 'no_openid');
+		$openid_url = trim(strlen($_POST['openid_url']) ? $_POST['openid_url'] : $_POST['username']);
 
-			$openid_url = trim((strlen($_POST['openid_url']) ? $_POST['openid_url'] : $_POST['username']));
+		// validate_url alters the calling parameter
 
-			// validate_url alters the calling parameter
-			$temp_string = $openid_url;
+		$temp_string = $openid_url;
 
-			// if it's an email address or doesn't resolve to a URL, fail.
-			if ($noid || strpos($temp_string, '@') || !validate_url($temp_string)) {
-				$a = get_app();
-				notice(t('Login failed.') . EOL);
-				goaway(System::baseUrl());
-				// NOTREACHED
-			}
+		// if it's an email address or doesn't resolve to a URL, fail.
 
-			// Otherwise it's probably an openid.
-			try {
-				require_once('library/openid.php');
-				$openid = new LightOpenID;
-				$openid->identity = $openid_url;
-				$_SESSION['openid'] = $openid_url;
-				$_SESSION['remember'] = $_POST['remember'];
-				$openid->returnUrl = System::baseUrl(true) . '/openid';
-				goaway($openid->authUrl());
-			} catch (Exception $e) {
-				notice(t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . '<br /><br >' . t('The error message was:') . ' ' . $e->getMessage());
-			}
+		if ($noid || strpos($temp_string, '@') || !validate_url($temp_string)) {
+			$a = get_app();
+			notice(t('Login failed.') . EOL);
+			goaway(System::baseUrl());
 			// NOTREACHED
 		}
+
+		// Otherwise it's probably an openid.
+
+		try {
+			require_once('library/openid.php');
+			$openid = new LightOpenID;
+			$openid->identity = $openid_url;
+			$_SESSION['openid'] = $openid_url;
+			$_SESSION['remember'] = $_POST['remember'];
+			$openid->returnUrl = System::baseUrl(true) . '/openid';
+			goaway($openid->authUrl());
+		} catch (Exception $e) {
+			notice(t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . '<br /><br >' . t('The error message was:') . ' ' . $e->getMessage());
+		}
+		// NOTREACHED
 	}
 
 	if (x($_POST, 'auth-params') && $_POST['auth-params'] === 'login') {
@@ -157,18 +161,9 @@ if (isset($_SESSION) && x($_SESSION, 'authenticated') && (!x($_POST, 'auth-param
 		if ($addon_auth['authenticated'] && count($addon_auth['user_record'])) {
 			$record = $addon_auth['user_record'];
 		} else {
-
-			// process normal login request
-
-			$r = q("SELECT `user`.*, `user`.`pubkey` as `upubkey`, `user`.`prvkey` as `uprvkey`
-				FROM `user` WHERE (`email` = '%s' OR `nickname` = '%s')
-				AND `password` = '%s' AND NOT `blocked` AND NOT `account_expired` AND NOT `account_removed` AND `verified` LIMIT 1",
-				dbesc(trim($_POST['username'])),
-				dbesc(trim($_POST['username'])),
-				dbesc($encrypted)
-			);
-			if (DBM::is_result($r)) {
-				$record = $r[0];
+			$user_id = User::authenticate(trim($_POST['username']), trim($_POST['password']));
+			if ($user_id) {
+				$record = dba::select('user', [], ['uid' => $user_id], ['limit' => 1]);
 			}
 		}
 

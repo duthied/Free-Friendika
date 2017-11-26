@@ -37,6 +37,7 @@ namespace Friendica\Util;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
+use Friendica\Model\User;
 use dba;
 
 require_once 'include/dba.php';
@@ -217,8 +218,8 @@ class ExAuth
 
 			$aUser = dba::select('user', ['uid', 'password'], ['nickname' => $sUser], ['limit' => 1]);
 			if (DBM::is_result($aUser)) {
-				$uid = $aUser['uid'];
-				$Error = $aUser['password'] != hash('whirlpool', $aCommand[3]);
+				$uid = User::authenticate($aUser, $aCommand[3]);
+				$Error = $uid === false;
 			} else {
 				$this->writeLog(LOG_WARNING, 'user not found: ' . $sUser);
 				$Error = true;

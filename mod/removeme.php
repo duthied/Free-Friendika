@@ -26,9 +26,7 @@ function removeme_post(App $a)
 		return;
 	}
 
-	$encrypted = hash('whirlpool',trim($_POST['qxz_password']));
-
-	if ((strlen($a->user['password'])) && ($encrypted === $a->user['password'])) {
+	if (User::authenticate($a->user['uid'], trim($_POST['qxz_password']))) {
 		User::remove($a->user['uid']);
 		// NOTREACHED
 	}

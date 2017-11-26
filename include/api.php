@@ -12,6 +12,7 @@ use Friendica\Core\Config;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\ForbiddenException;
@@ -190,7 +191,6 @@ function api_login(App $a)
 
 	$user = $_SERVER['PHP_AUTH_USER'];
 	$password = $_SERVER['PHP_AUTH_PW'];
-	$encrypted = hash('whirlpool', trim($password));
 
 	// allow "user@server" login (but ignore 'server' part)
 	$at = strstr($user, "@", true);
@@ -218,16 +218,9 @@ function api_login(App $a)
 	if (($addon_auth['authenticated']) && (count($addon_auth['user_record']))) {
 		$record = $addon_auth['user_record'];
 	} else {
-		// process normal login request
-		$r = q(
-			"SELECT * FROM `user` WHERE (`email` = '%s' OR `nickname` = '%s')
-			AND `password` = '%s' AND NOT `blocked` AND NOT `account_expired` AND NOT `account_removed` AND `verified` LIMIT 1",
-			dbesc(trim($user)),
-			dbesc(trim($user)),
-			dbesc($encrypted)
-		);
-		if (DBM::is_result($r)) {
-			$record = $r[0];
+		$user_id = User::authenticate(trim($user), trim($password));
+		if ($user_id) {
+			$record = dba::select('user', [], ['uid' => $user_id], ['limit' => 1]);
 		}
 	}
 
