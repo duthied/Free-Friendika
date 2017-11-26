@@ -616,7 +616,7 @@ function update_1075() {
 		foreach ($r as $rr) {
 			$found = true;
 			do {
-				$guid = substr(random_string(),0,16);
+				$guid = random_string(16);
 				$x = q("SELECT `uid` FROM `user` WHERE `guid` = '%s' LIMIT 1",
 					dbesc($guid)
 				);

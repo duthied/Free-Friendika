@@ -41,18 +41,21 @@ function replace_macros($s, $r) {
 	return $output;
 }
 
+/**
+ * @brief Generates a pseudo-random string of hexadecimal characters
+ *
+ * @param int $size
+ * @return string
+ */
+function random_string($size = 64)
+{
+	$byte_size = ceil($size / 2);
 
-// random string, there are 86 characters max in text mode, 128 for hex
-// output is urlsafe
+	$bytes = random_bytes($byte_size);
 
-define('RANDOM_STRING_HEX',  0x00);
-define('RANDOM_STRING_TEXT', 0x01);
+	$return = substr(bin2hex($bytes), 0, $size);
 
-function random_string($size = 64, $type = RANDOM_STRING_HEX) {
-	// generate a bit of entropy and run it through the whirlpool
-	$s = hash('whirlpool', (string) rand() . uniqid(rand(),true) . (string) rand(), (($type == RANDOM_STRING_TEXT) ? true : false));
-	$s = (($type == RANDOM_STRING_TEXT) ? str_replace("\n", "", base64url_encode($s,true)) : $s);
-	return substr($s,0,$size);
+	return $return;
 }
 
 /**
@@ -1147,7 +1150,7 @@ function get_mood_verbs() {
 
 /**
  * @brief Translate days and months names.
- * 
+ *
  * @param string $s String with day or month name.
  * @return string Translated string.
  */
@@ -1165,7 +1168,7 @@ function day_translate($s) {
 
 /**
  * @brief Translate short days and months names.
- * 
+ *
  * @param string $s String with short day or month name.
  * @return string Translated string.
  */
