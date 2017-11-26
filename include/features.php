@@ -114,6 +114,7 @@ function get_features($filtered = true) {
 		'advanced_profile' => array(
 			t('Advanced Profile Settings'),
 			array('forumlist_profile', t('List Forums'),			t('Show visitors public community forums at the Advanced Profile Page'), false, Config::get('feature_lock','forumlist_profile', false)),
+			array('tagadelic',	t('Tag Cloud'),				t('Provide a personal tag cloud on your profile page'), false, Config::get('feature_lock', 'tagadelic')),
 		),
 	);
 

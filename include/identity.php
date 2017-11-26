@@ -169,7 +169,7 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0)
 			"SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` AS `contact_photo`,
 				`contact`.`thumb` AS `contact_thumb`, `contact`.`micro` AS `contact_micro`,
 				`profile`.`uid` AS `profile_uid`, `profile`.*,
-				`contact`.`avatar-date` AS picdate, `contact`.`addr`, `user`.*
+				`contact`.`avatar-date` AS picdate, `contact`.`addr`, `contact`.`url`, `user`.*
 			FROM `profile`
 			INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` AND `contact`.`self`
 			INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
@@ -183,7 +183,7 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0)
 			"SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` as `contact_photo`,
 				`contact`.`thumb` AS `contact_thumb`, `contact`.`micro` AS `contact_micro`,
 				`profile`.`uid` AS `profile_uid`, `profile`.*,
-				`contact`.`avatar-date` AS picdate, `contact`.`addr`, `user`.*
+				`contact`.`avatar-date` AS picdate, `contact`.`addr`, `contact`.`url`, `user`.*
 			FROM `profile`
 			INNER JOIN `contact` ON `contact`.`uid` = `profile`.`uid` AND `contact`.`self`
 			INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
