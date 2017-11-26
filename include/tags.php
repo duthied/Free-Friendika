@@ -186,7 +186,7 @@ function tagadelic($uid, $count = 0, $owner_id = 0, $flags = '', $type = TERM_HA
 		WHERE `term`.`uid` = ? AND `term`.`type` = ?
 		AND `term`.`otype` = ?
 		AND $item_condition $sql_options
-		GROUP BY `term` ORDER BY `total` DESC ? $limit",
+		GROUP BY `term` ORDER BY `total` DESC $limit",
 		$uid,
 		$type,
 		TERM_OBJ_POST
