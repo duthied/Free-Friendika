@@ -39,11 +39,16 @@ function network_init(App $a) {
 	}
 
 	$is_a_date_query = false;
+
+	$group_id = (($a->argc > 1 && is_numeric($a->argv[1])) ? intval($a->argv[1]) : 0);
+
 	if (x($_GET, 'cid') && intval($_GET['cid']) != 0) {
 		$cid = $_GET['cid'];
 		$_GET['nets'] = 'all';
-
+		$group_id = 0;
 	}
+
+	PConfig::set(local_user(), 'network.view', 'group.selected', $group_id);
 
 	if ($a->argc > 1) {
 		for ($x = 1; $x < $a->argc; $x ++) {
@@ -145,9 +150,6 @@ function network_init(App $a) {
 		unset($_GET['nets']);
 	}
 
-	$group_id = (($a->argc > 1 && is_numeric($a->argv[1])) ? intval($a->argv[1]) : 0);
-
-	PConfig::set(local_user(), 'network.view', 'group.selected', $group_id);
 
 	if (!x($a->page, 'aside')) {
 		$a->page['aside'] = '';
