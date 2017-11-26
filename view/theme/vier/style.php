@@ -1,3 +1,5 @@
+
+
 <?php
 
 use Friendica\Core\Config;
@@ -23,6 +25,8 @@ else if ($style == "plus")
 	$stylecssfile = 'view/theme/vier/plus.css';
 else if ($style == "dark")
 	$stylecssfile = 'view/theme/vier/dark.css';
+else if ($style == "plusminus")
+	$stylecssfile = 'view/theme/vier/plusminus.css';
 
 if (file_exists($THEMEPATH."//style.css")) {
 	$stylecss = file_get_contents($THEMEPATH."//style.css")."\n";
@@ -56,3 +60,4 @@ if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) || isset($_SERVER['HTTP_IF_NONE_MA
 	}
 }
 echo $stylecss;
+
