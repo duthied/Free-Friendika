@@ -168,7 +168,8 @@ function tagadelic($uid, $count = 0, $owner_id = 0, $flags = '', $type = TERM_HA
 
 	$item_condition = item_condition();
 	$sql_options = item_permissions_sql($uid);
-	$count = intval($count);
+	$limit = $count ? sprintf("LIMIT %d", intval($count)) : "";
+
 	if ($flags) {
 		if ($flags === 'wall') {
 			$sql_options .= " AND `item`.`wall` ";
@@ -180,16 +181,15 @@ function tagadelic($uid, $count = 0, $owner_id = 0, $flags = '', $type = TERM_HA
 	}
 
 	// Fetch tags
-	$r = q("SELECT `term`, COUNT(`term`) AS `total` FROM `term`
+	$r = dba::p("SELECT `term`, COUNT(`term`) AS `total` FROM `term`
 		LEFT JOIN `item` ON `term`.`oid` = `item`.`id`
-		WHERE `term`.`uid` = %d AND `term`.`type` = %d
-		AND `term`.`otype` = %d
+		WHERE `term`.`uid` = ? AND `term`.`type` = ?
+		AND `term`.`otype` = ?
 		AND $item_condition $sql_options
-		GROUP BY `term` ORDER BY `total` DESC %s",
-		intval($uid),
-		intval($type),
-		intval(TERM_OBJ_POST),
-		((intval($count)) ? "LIMIT $count" : '')
+		GROUP BY `term` ORDER BY `total` DESC ? $limit",
+		$uid,
+		$type,
+		TERM_OBJ_POST
 	);
 	if(!DBM::is_result($r)) {
 		return array();
