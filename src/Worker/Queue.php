@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file src/Worker/Queue.php
  */
@@ -19,7 +20,8 @@ require_once 'include/items.php';
 require_once 'include/bbcode.php';
 require_once 'include/salmon.php';
 
-class Queue {
+class Queue
+{
 	public static function execute($queue_id = 0)
 	{
 		global $a;
@@ -57,8 +59,8 @@ class Queue {
 
 			if (DBM::is_result($r)) {
 				foreach ($r as $q_item) {
-					logger('Call queue for id '.$q_item['id']);
-					Worker::add(array('priority' => PRIORITY_LOW, 'dont_fork' => true), "Queue", (int)$q_item['id']);
+					logger('Call queue for id ' . $q_item['id']);
+					Worker::add(array('priority' => PRIORITY_LOW, 'dont_fork' => true), "Queue", (int) $q_item['id']);
 				}
 			}
 			return;
@@ -88,10 +90,10 @@ class Queue {
 			return;
 		}
 
-		$dead = Cache::get($cachekey_deadguy.$c[0]['notify']);
+		$dead = Cache::get($cachekey_deadguy . $c[0]['notify']);
 
 		if (!is_null($dead) && $dead) {
-			logger('queue: skipping known dead url: '.$c[0]['notify']);
+			logger('queue: skipping known dead url: ' . $c[0]['notify']);
 			update_queue_time($q_item['id']);
 			return;
 		}
@@ -99,17 +101,17 @@ class Queue {
 		$server = PortableContact::detectServer($c[0]['url']);
 
 		if ($server != "") {
-			$vital = Cache::get($cachekey_server.$server);
+			$vital = Cache::get($cachekey_server . $server);
 
 			if (is_null($vital)) {
-				logger("Check server ".$server." (".$c[0]["network"].")");
+				logger("Check server " . $server . " (" . $c[0]["network"] . ")");
 
 				$vital = PortableContact::checkServer($server, $c[0]["network"], true);
-				Cache::set($cachekey_server.$server, $vital, CACHE_QUARTER_HOUR);
+				Cache::set($cachekey_server . $server, $vital, CACHE_QUARTER_HOUR);
 			}
 
 			if (!is_null($vital) && !$vital) {
-				logger('queue: skipping dead server: '.$server);
+				logger('queue: skipping dead server: ' . $server);
 				update_queue_time($q_item['id']);
 				return;
 			}
@@ -134,24 +136,24 @@ class Queue {
 
 		switch ($contact['network']) {
 			case NETWORK_DFRN:
-				logger('queue: dfrndelivery: item '.$q_item['id'].' for '.$contact['name'].' <'.$contact['url'].'>');
+				logger('queue: dfrndelivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
 				$deliver_status = DFRN::deliver($owner, $contact, $data);
 
 				if ($deliver_status == (-1)) {
 					update_queue_time($q_item['id']);
-					Cache::set($cachekey_deadguy.$contact['notify'], true, CACHE_QUARTER_HOUR);
+					Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_QUARTER_HOUR);
 				} else {
 					remove_queue_item($q_item['id']);
 				}
 				break;
 			case NETWORK_OSTATUS:
 				if ($contact['notify']) {
-					logger('queue: slapdelivery: item '.$q_item['id'].' for '.$contact['name'].' <'.$contact['url'].'>');
+					logger('queue: slapdelivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
 					$deliver_status = slapper($owner, $contact['notify'], $data);
 
 					if ($deliver_status == (-1)) {
 						update_queue_time($q_item['id']);
-						Cache::set($cachekey_deadguy.$contact['notify'], true, CACHE_QUARTER_HOUR);
+						Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_QUARTER_HOUR);
 					} else {
 						remove_queue_item($q_item['id']);
 					}
@@ -159,12 +161,12 @@ class Queue {
 				break;
 			case NETWORK_DIASPORA:
 				if ($contact['notify']) {
-					logger('queue: diaspora_delivery: item '.$q_item['id'].' for '.$contact['name'].' <'.$contact['url'].'>');
+					logger('queue: diaspora_delivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
 					$deliver_status = Diaspora::transmit($owner, $contact, $data, $public, true);
 
 					if ($deliver_status == (-1)) {
 						update_queue_time($q_item['id']);
-						Cache::set($cachekey_deadguy.$contact['notify'], true, CACHE_QUARTER_HOUR);
+						Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_QUARTER_HOUR);
 					} else {
 						remove_queue_item($q_item['id']);
 					}
@@ -182,7 +184,7 @@ class Queue {
 				}
 				break;
 		}
-		logger('Deliver status '.(int)$deliver_status.' for item '.$q_item['id'].' to '.$contact['name'].' <'.$contact['url'].'>');
+		logger('Deliver status ' . (int) $deliver_status . ' for item ' . $q_item['id'] . ' to ' . $contact['name'] . ' <' . $contact['url'] . '>');
 
 		return;
 	}
