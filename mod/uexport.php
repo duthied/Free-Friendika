@@ -126,7 +126,7 @@ function uexport_account($a) {
 	);
 
 	//echo "<pre>"; var_dump(json_encode($output)); killme();
-	echo json_encode($output);
+	echo json_encode($output, JSON_PARTIAL_OUTPUT_ON_ERROR);
 }
 
 /**
@@ -154,6 +154,6 @@ function uexport_all(App $a) {
 		);
 
 		$output = array('item' => $r);
-		echo json_encode($output) . "\n";
+		echo json_encode($output, JSON_PARTIAL_OUTPUT_ON_ERROR). "\n";
 	}
 }
