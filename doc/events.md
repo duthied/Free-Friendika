@@ -67,10 +67,3 @@ Furthermore they can announce that they will attend, not attend or may-be attend
 If you want to export your public events to ical or csv, you can activate an additional feature in your user settings (Additional features -> General Features -> Export Public Calendar).
 Afterwards a link will be shown in the events page of your profile to access the calendar.
 
-### Addons
-
-#### OpenStreetMap
-
-If this addon is activated on your friendica node, the content of the location field will be matched with the identification service of OSM when you submit the event.
-Should OSM find anything matching, a map for the location will be embedded automatically at the end of the events view.
-

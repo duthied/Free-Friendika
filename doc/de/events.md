@@ -58,9 +58,3 @@ Zusätzlich können sie sagen ob sie teilnehmen, oder vielleicht teilnehmen an d
 Wenn du deine öffentlichen Kalender Einträge exportieren möchtest, kannst du dies in den Einstellungen aktivieren (Einstellungen -> Zusätzliche Features -> Allgemeine Features -> Öffentlichen Kalender exportieren).
 Im Anschluss sind auf der Veranstaltungs-Übersichtsseite zwei Links zu den exportierten Einträgen (im ical oder csv Format) verfügbar.
 
-### Addons
-
-#### OpenStreetMap
-
-Wenn du diese Addon aktivierst auf deinem Frendica-Knoten, wird der Inhalt des Ort-Feldes mit den Identifikations-Service von OpenStreetMap verbunden, wenn du die Veranstaltung postest.
-Wenn Openstreetmap etwas passendes findet, wird eine Karte mit dem Ort automatisch eingebettet, am Ende der Veranstalltungsanzeige.
