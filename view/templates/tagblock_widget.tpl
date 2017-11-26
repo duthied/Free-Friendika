@@ -9,4 +9,5 @@
 		</span>
 		{{/foreach}}
 	</div>
+	<div class="tagblock-widget-end clear"></div>
 </div>
