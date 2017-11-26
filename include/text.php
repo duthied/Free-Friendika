@@ -41,26 +41,19 @@ function replace_macros($s, $r) {
 	return $output;
 }
 
-// PHP < 7 polyfill
-if (!is_callable('intdiv')) {
-	function intdiv($a, $b) {
-		return ($a - $a % $b) / $b;
-	}
-}
-
 /**
  * @brief Generates a pseudo-random string of hexadecimal characters
- *
- * Only supports pair numbers of output characters.
  *
  * @param int $size
  * @return string
  */
 function random_string($size = 64)
 {
-	$bytes = random_bytes(intdiv((int) $size, 2));
+	$byte_size = ceil($size / 2);
 
-	$return = bin2hex($bytes);
+	$bytes = random_bytes($byte_size);
+
+	$return = substr(bin2hex($bytes), 0, $size);
 
 	return $return;
 }
