@@ -1,5 +1,3 @@
-
-
 <?php
 
 use Friendica\Core\Config;
@@ -60,4 +58,3 @@ if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) || isset($_SERVER['HTTP_IF_NONE_MA
 	}
 }
 echo $stylecss;
-

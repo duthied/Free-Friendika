@@ -1,5 +1,3 @@
-
-
 <?php
 
 /**
@@ -129,4 +127,3 @@ function vier_form(App $a, $style, $show_pages, $show_profiles, $show_helpers, $
 	));
 	return $o;
 }
-
