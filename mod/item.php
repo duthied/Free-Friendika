@@ -512,6 +512,8 @@ function item_post(App $a) {
 		}
 	}
 
+	$original_contact_id = $contact_id;
+
 	if (!$parent && count($forum_contact) && ($private_forum || $only_to_forum)) {
 		// we tagged a forum in a top level post. Now we change the post
 		$private = $private_forum;
@@ -548,15 +550,15 @@ function item_post(App $a) {
 			$objecttype = ACTIVITY_OBJ_IMAGE;
 
 			foreach ($images as $image) {
-				if (! stristr($image,System::baseUrl() . '/photo/')) {
+				if (!stristr($image, System::baseUrl() . '/photo/')) {
 					continue;
 				}
 				$image_uri = substr($image,strrpos($image,'/') + 1);
 				$image_uri = substr($image_uri,0, strpos($image_uri,'-'));
-				if (! strlen($image_uri)) {
+				if (!strlen($image_uri)) {
 					continue;
 				}
-				$srch = '<' . intval($contact_id) . '>';
+				$srch = '<' . intval($original_contact_id) . '>';
 
 				$r = q("SELECT `id` FROM `photo` WHERE `allow_cid` = '%s' AND `allow_gid` = '' AND `deny_cid` = '' AND `deny_gid` = ''
 					AND `resource-id` = '%s' AND `uid` = %d LIMIT 1",
@@ -577,7 +579,7 @@ function item_post(App $a) {
 					dbesc($str_group_deny),
 					dbesc($image_uri),
 					intval($profile_uid),
-					dbesc( t('Wall Photos'))
+					dbesc(t('Wall Photos'))
 				);
 			}
 		}
