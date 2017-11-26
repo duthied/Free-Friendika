@@ -423,122 +423,6 @@ function item_post(App $a) {
 		}
 	}
 
-	/*
-	 * When a photo was uploaded into the message using the (profile wall) ajax
-	 * uploader, The permissions are initially set to disallow anybody but the
-	 * owner from seeing it. This is because the permissions may not yet have been
-	 * set for the post. If it's private, the photo permissions should be set
-	 * appropriately. But we didn't know the final permissions on the post until
-	 * now. So now we'll look for links of uploaded messages that are in the
-	 * post and set them to the same permissions as the post itself.
-	 */
-
-	$match = null;
-
-	if ((! $preview) && preg_match_all("/\[img([\=0-9x]*?)\](.*?)\[\/img\]/",$body,$match)) {
-		$images = $match[2];
-		if (count($images)) {
-
-			$objecttype = ACTIVITY_OBJ_IMAGE;
-
-			foreach ($images as $image) {
-				if (! stristr($image,System::baseUrl() . '/photo/')) {
-					continue;
-				}
-				$image_uri = substr($image,strrpos($image,'/') + 1);
-				$image_uri = substr($image_uri,0, strpos($image_uri,'-'));
-				if (! strlen($image_uri)) {
-					continue;
-				}
-				$srch = '<' . intval($contact_id) . '>';
-
-				$r = q("SELECT `id` FROM `photo` WHERE `allow_cid` = '%s' AND `allow_gid` = '' AND `deny_cid` = '' AND `deny_gid` = ''
-					AND `resource-id` = '%s' AND `uid` = %d LIMIT 1",
-					dbesc($srch),
-					dbesc($image_uri),
-					intval($profile_uid)
-				);
-
-				if (! DBM::is_result($r)) {
-					continue;
-				}
-
-				$r = q("UPDATE `photo` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'
-					WHERE `resource-id` = '%s' AND `uid` = %d AND `album` = '%s' ",
-					dbesc($str_contact_allow),
-					dbesc($str_group_allow),
-					dbesc($str_contact_deny),
-					dbesc($str_group_deny),
-					dbesc($image_uri),
-					intval($profile_uid),
-					dbesc( t('Wall Photos'))
-				);
-			}
-		}
-	}
-
-
-	/*
-	 * Next link in any attachment references we find in the post.
-	 */
-	$match = false;
-
-	if ((! $preview) && preg_match_all("/\[attachment\](.*?)\[\/attachment\]/", $body, $match)) {
-		$attaches = $match[1];
-		if (count($attaches)) {
-			foreach ($attaches as $attach) {
-				$r = q("SELECT * FROM `attach` WHERE `uid` = %d AND `id` = %d LIMIT 1",
-					intval($profile_uid),
-					intval($attach)
-				);
-				if (DBM::is_result($r)) {
-					$r = q("UPDATE `attach` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'
-						WHERE `uid` = %d AND `id` = %d",
-						dbesc($str_contact_allow),
-						dbesc($str_group_allow),
-						dbesc($str_contact_deny),
-						dbesc($str_group_deny),
-						intval($profile_uid),
-						intval($attach)
-					);
-				}
-			}
-		}
-	}
-
-	// embedded bookmark or attachment in post? set bookmark flag
-
-	$bookmark = 0;
-	$data = get_attachment_data($body);
-	if (preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $body, $match, PREG_SET_ORDER) || isset($data["type"])) {
-		$objecttype = ACTIVITY_OBJ_BOOKMARK;
-		$bookmark = 1;
-	}
-
-	$body = bb_translate_video($body);
-
-
-	// Fold multi-line [code] sequences
-	$body = preg_replace('/\[\/code\]\s*\[code\]/ism', "\n", $body);
-
-	$body = scale_external_images($body, false);
-
-	// Setting the object type if not defined before
-	if (!$objecttype) {
-		$objecttype = ACTIVITY_OBJ_NOTE; // Default value
-		require_once 'include/plaintext.php';
-		$objectdata = get_attached_data($body);
-
-		if ($post["type"] == "link") {
-			$objecttype = ACTIVITY_OBJ_BOOKMARK;
-		} elseif ($post["type"] == "video") {
-			$objecttype = ACTIVITY_OBJ_VIDEO;
-		} elseif ($post["type"] == "photo") {
-			$objecttype = ACTIVITY_OBJ_IMAGE;
-		}
-
-	}
-
 	// Look for any tags and linkify them
 	$str_tags = '';
 	$inform   = '';
@@ -643,6 +527,122 @@ function item_post(App $a) {
 		$contact_id = $private_id;
 		$contact_record = $forum_contact;
 		$_REQUEST['origin'] = false;
+	}
+
+	/*
+	 * When a photo was uploaded into the message using the (profile wall) ajax
+	 * uploader, The permissions are initially set to disallow anybody but the
+	 * owner from seeing it. This is because the permissions may not yet have been
+	 * set for the post. If it's private, the photo permissions should be set
+	 * appropriately. But we didn't know the final permissions on the post until
+	 * now. So now we'll look for links of uploaded messages that are in the
+	 * post and set them to the same permissions as the post itself.
+	 */
+
+	$match = null;
+
+	if (!$preview && preg_match_all("/\[img([\=0-9x]*?)\](.*?)\[\/img\]/",$body,$match)) {
+		$images = $match[2];
+		if (count($images)) {
+
+			$objecttype = ACTIVITY_OBJ_IMAGE;
+
+			foreach ($images as $image) {
+				if (! stristr($image,System::baseUrl() . '/photo/')) {
+					continue;
+				}
+				$image_uri = substr($image,strrpos($image,'/') + 1);
+				$image_uri = substr($image_uri,0, strpos($image_uri,'-'));
+				if (! strlen($image_uri)) {
+					continue;
+				}
+				$srch = '<' . intval($contact_id) . '>';
+
+				$r = q("SELECT `id` FROM `photo` WHERE `allow_cid` = '%s' AND `allow_gid` = '' AND `deny_cid` = '' AND `deny_gid` = ''
+					AND `resource-id` = '%s' AND `uid` = %d LIMIT 1",
+					dbesc($srch),
+					dbesc($image_uri),
+					intval($profile_uid)
+				);
+
+				if (! DBM::is_result($r)) {
+					continue;
+				}
+
+				$r = q("UPDATE `photo` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'
+					WHERE `resource-id` = '%s' AND `uid` = %d AND `album` = '%s' ",
+					dbesc($str_contact_allow),
+					dbesc($str_group_allow),
+					dbesc($str_contact_deny),
+					dbesc($str_group_deny),
+					dbesc($image_uri),
+					intval($profile_uid),
+					dbesc( t('Wall Photos'))
+				);
+			}
+		}
+	}
+
+
+	/*
+	 * Next link in any attachment references we find in the post.
+	 */
+	$match = false;
+
+	if ((! $preview) && preg_match_all("/\[attachment\](.*?)\[\/attachment\]/", $body, $match)) {
+		$attaches = $match[1];
+		if (count($attaches)) {
+			foreach ($attaches as $attach) {
+				$r = q("SELECT * FROM `attach` WHERE `uid` = %d AND `id` = %d LIMIT 1",
+					intval($profile_uid),
+					intval($attach)
+				);
+				if (DBM::is_result($r)) {
+					$r = q("UPDATE `attach` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'
+						WHERE `uid` = %d AND `id` = %d",
+						dbesc($str_contact_allow),
+						dbesc($str_group_allow),
+						dbesc($str_contact_deny),
+						dbesc($str_group_deny),
+						intval($profile_uid),
+						intval($attach)
+					);
+				}
+			}
+		}
+	}
+
+	// embedded bookmark or attachment in post? set bookmark flag
+
+	$bookmark = 0;
+	$data = get_attachment_data($body);
+	if (preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $body, $match, PREG_SET_ORDER) || isset($data["type"])) {
+		$objecttype = ACTIVITY_OBJ_BOOKMARK;
+		$bookmark = 1;
+	}
+
+	$body = bb_translate_video($body);
+
+
+	// Fold multi-line [code] sequences
+	$body = preg_replace('/\[\/code\]\s*\[code\]/ism', "\n", $body);
+
+	$body = scale_external_images($body, false);
+
+	// Setting the object type if not defined before
+	if (!$objecttype) {
+		$objecttype = ACTIVITY_OBJ_NOTE; // Default value
+		require_once 'include/plaintext.php';
+		$objectdata = get_attached_data($body);
+
+		if ($objectdata["type"] == "link") {
+			$objecttype = ACTIVITY_OBJ_BOOKMARK;
+		} elseif ($objectdata["type"] == "video") {
+			$objecttype = ACTIVITY_OBJ_VIDEO;
+		} elseif ($objectdata["type"] == "photo") {
+			$objecttype = ACTIVITY_OBJ_IMAGE;
+		}
+
 	}
 
 	$attachments = '';
