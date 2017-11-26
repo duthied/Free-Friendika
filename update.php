@@ -1,6 +1,6 @@
 <?php
 
-define('UPDATE_VERSION' , 1236);
+define('UPDATE_VERSION' , 1235);
 
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;

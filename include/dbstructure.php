@@ -1682,7 +1682,6 @@ function db_definition() {
 					"guid" => array("type" => "varchar(64)", "not null" => "1", "default" => ""),
 					"username" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"password" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"legacy_password" => array("type" => "tinyint(1)", "not null" => "1", "default" => "1"),
 					"nickname" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"email" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 					"openid" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
