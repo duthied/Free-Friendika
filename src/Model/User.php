@@ -53,7 +53,7 @@ class User
 			$user = $user_info;
 		}
 
-		if (!DBM::isResult($user) || !isset($user['uid']) || !isset($user['password'])) {
+		if (!DBM::is_result($user) || !isset($user['uid']) || !isset($user['password'])) {
 			return false;
 		}
 
