@@ -16,14 +16,10 @@ use Friendica\Core\PConfig;
 function feature_enabled($uid, $feature) {
 	$x = Config::get('feature_lock', $feature, false);
 
-	if (!$x) {
-		$x = PConfig::get($uid, 'feature', $feature, false);
-		if (!$x) {
-			$x = Config::get('feature', $feature, false);
-			if (!$x) {
-				$x = get_feature_default($feature);
-			}
-		}
+	if ($x === false) {
+		$x = get_feature_default($feature);
+		$x = Config::get('feature', $feature, $x);
+		$x = PConfig::get($uid, 'feature', $feature, $x);
 	}
 
 	$arr = array('uid' => $uid, 'feature' => $feature, 'enabled' => $x);
@@ -125,10 +121,9 @@ function get_features($filtered = true) {
 			$kquantity = count($arr[$k]);
 			for ($y = 0; $y < $kquantity; $y ++) {
 				if (is_array($arr[$k][$y])) {
-					if (!$arr[$k][$y][4]) {
+					if ($arr[$k][$y][4] === false) {
 						$has_items = true;
-					}
-					else {
+					} else {
 						unset($arr[$k][$y]);
 					}
 				}
