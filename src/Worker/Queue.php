@@ -80,33 +80,29 @@ class Queue
 
 		$q_item = $r[0];
 
-		$c = q(
-			"SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
-			intval($q_item['cid'])
-		);
-
-		if (!DBM::is_result($c)) {
+		$contact = dba::select('contact', [], ['id' => intval($q_item['cid'])], ['limit' => 1]);
+		if (!DBM::is_result($contact)) {
 			remove_queue_item($q_item['id']);
 			return;
 		}
 
-		$dead = Cache::get($cachekey_deadguy . $c[0]['notify']);
+		$dead = Cache::get($cachekey_deadguy . $contact['notify']);
 
 		if (!is_null($dead) && $dead) {
-			logger('queue: skipping known dead url: ' . $c[0]['notify']);
+			logger('queue: skipping known dead url: ' . $contact['notify']);
 			update_queue_time($q_item['id']);
 			return;
 		}
 
-		$server = PortableContact::detectServer($c[0]['url']);
+		$server = PortableContact::detectServer($contact['url']);
 
 		if ($server != "") {
 			$vital = Cache::get($cachekey_server . $server);
 
 			if (is_null($vital)) {
-				logger("Check server " . $server . " (" . $c[0]["network"] . ")");
+				logger("Check server " . $server . " (" . $contact["network"] . ")");
 
-				$vital = PortableContact::checkServer($server, $c[0]["network"], true);
+				$vital = PortableContact::checkServer($server, $contact["network"], true);
 				Cache::set($cachekey_server . $server, $vital, CACHE_QUARTER_HOUR);
 			}
 
@@ -117,12 +113,8 @@ class Queue
 			}
 		}
 
-		$u = q(
-			"SELECT `user`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`
-			FROM `user` WHERE `uid` = %d LIMIT 1",
-			intval($c[0]['uid'])
-		);
-		if (!DBM::is_result($u)) {
+		$user = dba::select('user', [], ['uid' => intval($contact['uid'])], ['limit' => 1]);
+		if (!DBM::is_result($user)) {
 			remove_queue_item($q_item['id']);
 			return;
 		}

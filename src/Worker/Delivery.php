@@ -140,7 +140,7 @@ class Delivery {
 			}
 		}
 
-		$r = q("SELECT `contact`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`,
+		$r = q("SELECT `contact`.*, `user`.`prvkey` AS `uprvkey`,
 			`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`,
 			`user`.`page-flags`, `user`.`account-type`, `user`.`prvnets`
 			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`

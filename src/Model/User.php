@@ -78,21 +78,20 @@ class User
 
 		logger('Removing user: ' . $uid);
 
-		$r = dba::select('user', array(), array('uid' => $uid), array("limit" => 1));
+		$user = dba::select('user', [], ['uid' => $uid], ['limit' => 1]);
 
-		call_hooks('remove_user', $r);
+		call_hooks('remove_user', $user);
 
 		// save username (actually the nickname as it is guaranteed
 		// unique), so it cannot be re-registered in the future.
-
-		dba::insert('userd', array('username' => $r['nickname']));
+		dba::insert('userd', ['username' => $user['nickname']]);
 
 		// The user and related data will be deleted in "cron_expire_and_remove_users" (cronjobs.php)
-		q("UPDATE `user` SET `account_removed` = 1, `account_expires_on` = UTC_TIMESTAMP() WHERE `uid` = %d", intval($uid));
+		dba::update('user', ['account_removed' => 1, 'account_expires_on' => datetime_convert()], ['uid' => intval($uid)]);
 		Worker::add(PRIORITY_HIGH, "Notifier", "removeme", $uid);
 
 		// Send an update to the directory
-		Worker::add(PRIORITY_LOW, "Directory", $r['url']);
+		Worker::add(PRIORITY_LOW, "Directory", $user['url']);
 
 		if ($uid == local_user()) {
 			unset($_SESSION['authenticated']);

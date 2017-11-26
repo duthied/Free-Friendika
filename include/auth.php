@@ -13,13 +13,21 @@ require_once 'include/datetime.php';
 if (isset($_COOKIE["Friendica"])) {
 	$data = json_decode($_COOKIE["Friendica"]);
 	if (isset($data->uid)) {
-		$r = q("SELECT `user`.*, `user`.`pubkey` as `upubkey`, `user`.`prvkey` as `uprvkey`
-		FROM `user` WHERE `uid` = %d AND NOT `blocked` AND NOT `account_expired` AND NOT `account_removed` AND `verified` LIMIT 1",
-			intval($data->uid)
+
+		$user = dba::select('user',
+			[],
+			[
+				'uid' => intval($data->uid),
+				'blocked' => 0,
+				'account_expired' => 0,
+				'account_removed' => 0,
+				'verified' => 1,
+			],
+			['limit' => 1]
 		);
 
-		if ($r) {
-			if ($data->hash != cookie_hash($r[0])) {
+		if (DBM::is_result($user)) {
+			if ($data->hash != cookie_hash($user)) {
 				logger("Hash for user " . $data->uid . " doesn't fit.");
 				nuke_session();
 				goaway(System::baseUrl());
@@ -29,11 +37,11 @@ if (isset($_COOKIE["Friendica"])) {
 			// Expires after 7 days by default,
 			// can be set via system.auth_cookie_lifetime
 			$authcookiedays = Config::get('system', 'auth_cookie_lifetime', 7);
-			new_cookie($authcookiedays * 24 * 60 * 60, $r[0]);
+			new_cookie($authcookiedays * 24 * 60 * 60, $user);
 
 			// Do the authentification if not done by now
 			if (!isset($_SESSION) || !isset($_SESSION['authenticated'])) {
-				authenticate_success($r[0]);
+				authenticate_success($user);
 
 				if (Config::get('system', 'paranoia')) {
 					$_SESSION['addr'] = $data->ip;
@@ -75,12 +83,18 @@ if (isset($_SESSION) && x($_SESSION, 'authenticated') && (!x($_POST, 'auth-param
 			goaway(System::baseUrl());
 		}
 
-		$r = q("SELECT `user`.*, `user`.`pubkey` as `upubkey`, `user`.`prvkey` as `uprvkey`
-		FROM `user` WHERE `uid` = %d AND NOT `blocked` AND NOT `account_expired` AND NOT `account_removed` AND `verified` LIMIT 1",
-			intval($_SESSION['uid'])
+		$user = dba::select('user',
+			[],
+			[
+				'uid' => intval($_SESSION['uid']),
+				'blocked' => 0,
+				'account_expired' => 0,
+				'account_removed' => 0,
+				'verified' => 1,
+			],
+			['limit' => 1]
 		);
-
-		if (!DBM::is_result($r)) {
+		if (!DBM::is_result($user)) {
 			nuke_session();
 			goaway(System::baseUrl());
 		}
@@ -95,7 +109,7 @@ if (isset($_SESSION) && x($_SESSION, 'authenticated') && (!x($_POST, 'auth-param
 			$_SESSION['last_login_date'] = datetime_convert('UTC', 'UTC');
 			$login_refresh = true;
 		}
-		authenticate_success($r[0], false, false, $login_refresh);
+		authenticate_success($user, false, false, $login_refresh);
 	}
 } else {
 	session_unset();
