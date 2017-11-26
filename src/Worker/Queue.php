@@ -119,10 +119,9 @@ class Queue
 			return;
 		}
 
-		$data      = $q_item['content'];
-		$public    = $q_item['batch'];
-		$contact   = $c[0];
-		$owner     = $u[0];
+		$data   = $q_item['content'];
+		$public = $q_item['batch'];
+		$owner  = $user;
 
 		$deliver_status = 0;
 
