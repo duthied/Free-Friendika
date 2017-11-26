@@ -17,9 +17,13 @@ function feature_enabled($uid, $feature) {
 	$x = Config::get('feature_lock', $feature, false);
 
 	if ($x === false) {
+		$x = PConfig::get($uid, 'feature', $feature, false);
+	}
+	if ($x === false) {
+		$x = Config::get('feature', $feature, false);
+	}
+	if ($x === false) {
 		$x = get_feature_default($feature);
-		$x = Config::get('feature', $feature, $x);
-		$x = PConfig::get($uid, 'feature', $feature, $x);
 	}
 
 	$arr = array('uid' => $uid, 'feature' => $feature, 'enabled' => $x);
