@@ -9,6 +9,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
+use Friendica\Model\User;
 
 require_once 'include/group.php';
 
@@ -371,7 +372,6 @@ function settings_post(App $a) {
 
 		$newpass = $_POST['password'];
 		$confirm = $_POST['confirm'];
-		$oldpass = hash('whirlpool', $_POST['opassword']);
 
 		$err = false;
 		if ($newpass != $confirm) {
@@ -386,8 +386,7 @@ function settings_post(App $a) {
 
         //  check if the old password was supplied correctly before
         //  changing it to the new value
-        $r = q("SELECT `password` FROM `user`WHERE `uid` = %d LIMIT 1", intval(local_user()));
-        if ($oldpass != $r[0]['password']) {
+        if (User::authenticate(intval(local_user()), $_POST['opassword'])) {
             notice(t('Wrong password.') . EOL);
             $err = true;
         }
@@ -501,22 +500,20 @@ function settings_post(App $a) {
 	if ($email != $a->user['email']) {
 		$email_changed = true;
 		//  check for the correct password
-		$r = q("SELECT `password` FROM `user`WHERE `uid` = %d LIMIT 1", intval(local_user()));
-		$password = hash('whirlpool', $_POST['mpassword']);
-		if ($password != $r[0]['password']) {
+		if (!User::authenticate(intval(local_user()), $_POST['mpassword'])) {
 			$err .= t('Wrong Password') . EOL;
 			$email = $a->user['email'];
 		}
 		//  check the email is valid
 		if (!valid_email($email)) {
-			$err .= t(' Not valid email.');
+			$err .= t('Invalid email.');
 		}
 		//  ensure new email is not the admin mail
 		//if ((x($a->config, 'admin_email')) && (strcasecmp($email, $a->config['admin_email']) == 0)) {
 		if (x($a->config, 'admin_email')) {
 			$adminlist = explode(",", str_replace(" ", "", strtolower($a->config['admin_email'])));
 			if (in_array(strtolower($email), $adminlist)) {
-				$err .= t(' Cannot change to that email.');
+				$err .= t('Cannot change to that email.');
 				$email = $a->user['email'];
 			}
 		}

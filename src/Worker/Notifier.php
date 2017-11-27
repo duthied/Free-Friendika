@@ -108,7 +108,7 @@ class Notifier {
 			$recipients[] = $suggest[0]['cid'];
 			$item = $suggest[0];
 		} elseif ($cmd === 'removeme') {
-			$r = q("SELECT `contact`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`,
+			$r = q("SELECT `contact`.*, `user`.`prvkey` AS `uprvkey`,
 					`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`,
 					`user`.`page-flags`, `user`.`prvnets`, `user`.`account-type`, `user`.`guid`
 				FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
@@ -173,7 +173,7 @@ class Notifier {
 
 		}
 
-		$r = q("SELECT `contact`.*, `user`.`pubkey` AS `upubkey`, `user`.`prvkey` AS `uprvkey`,
+		$r = q("SELECT `contact`.*, `user`.`prvkey` AS `uprvkey`,
 			`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`,
 			`user`.`page-flags`, `user`.`prvnets`, `user`.`account-type`
 			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
