@@ -13,6 +13,7 @@ use Friendica\Database\DBM;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\PortableContact;
+use dba;
 
 require_once 'include/queue_fn.php';
 require_once 'include/datetime.php';
