@@ -87,7 +87,7 @@ class User
 		dba::insert('userd', ['username' => $user['nickname']]);
 
 		// The user and related data will be deleted in "cron_expire_and_remove_users" (cronjobs.php)
-		dba::update('user', ['account_removed' => 1, 'account_expires_on' => datetime_convert()], ['uid' => intval($uid)]);
+		dba::update('user', ['account_removed' => true, 'account_expires_on' => datetime_convert()], ['uid' => $uid]);
 		Worker::add(PRIORITY_HIGH, "Notifier", "removeme", $uid);
 
 		// Send an update to the directory

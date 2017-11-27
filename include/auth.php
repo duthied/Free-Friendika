@@ -17,11 +17,11 @@ if (isset($_COOKIE["Friendica"])) {
 		$user = dba::select('user',
 			[],
 			[
-				'uid' => intval($data->uid),
-				'blocked' => 0,
-				'account_expired' => 0,
-				'account_removed' => 0,
-				'verified' => 1,
+				'uid'             => $data->uid,
+				'blocked'         => false,
+				'account_expired' => false,
+				'account_removed' => false,
+				'verified'        => true,
 			],
 			['limit' => 1]
 		);
@@ -86,11 +86,11 @@ if (isset($_SESSION) && x($_SESSION, 'authenticated') && (!x($_POST, 'auth-param
 		$user = dba::select('user',
 			[],
 			[
-				'uid' => intval($_SESSION['uid']),
-				'blocked' => 0,
-				'account_expired' => 0,
-				'account_removed' => 0,
-				'verified' => 1,
+				'uid'             => $_SESSION['uid'],
+				'blocked'         => false,
+				'account_expired' => false,
+				'account_removed' => false,
+				'verified'        => true,
 			],
 			['limit' => 1]
 		);
