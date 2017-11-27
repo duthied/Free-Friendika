@@ -311,21 +311,12 @@ class Item extends BaseObject
 
 		list($categories, $folders) = get_cats_and_terms($item);
 
-		if ($a->theme['template_engine'] === 'internal') {
-			$body_e       = template_escape($body);
-			$text_e       = strip_tags(template_escape($body));
-			$name_e       = template_escape($profile_name);
-			$title_e      = template_escape($item['title']);
-			$location_e   = template_escape($location);
-			$owner_name_e = template_escape($this->getOwnerName());
-		} else {
-			$body_e       = $body;
-			$text_e       = strip_tags($body);
-			$name_e       = $profile_name;
-			$title_e      = $item['title'];
-			$location_e   = $location;
-			$owner_name_e = $this->getOwnerName();
-		}
+		$body_e       = $body;
+		$text_e       = strip_tags($body);
+		$name_e       = $profile_name;
+		$title_e      = $item['title'];
+		$location_e   = $location;
+		$owner_name_e = $this->getOwnerName();
 
 		// Disable features that aren't available in several networks
 

@@ -450,17 +450,10 @@ function message_content(App $a) {
 			if ($extracted['images'])
 				$message['body'] = item_redir_and_replace_images($extracted['body'], $extracted['images'], $message['contact-id']);
 
-			if ($a->theme['template_engine'] === 'internal') {
-				$from_name_e = template_escape($message['from-name']);
-				$subject_e = template_escape($message['title']);
-				$body_e = template_escape(Smilies::replace(bbcode($message['body'])));
-				$to_name_e = template_escape($message['name']);
-			} else {
-				$from_name_e = $message['from-name'];
-				$subject_e = $message['title'];
-				$body_e = Smilies::replace(bbcode($message['body']));
-				$to_name_e = $message['name'];
-			}
+			$from_name_e = $message['from-name'];
+			$subject_e = $message['title'];
+			$body_e = Smilies::replace(bbcode($message['body']));
+			$to_name_e = $message['name'];
 
 			$contact = Contact::getDetailsByURL($message['from-url']);
 			if (isset($contact["thumb"]))
@@ -492,11 +485,7 @@ function message_content(App $a) {
 
 		$tpl = get_markup_template('mail_display.tpl');
 
-		if ($a->theme['template_engine'] === 'internal') {
-			$subjtxt_e = template_escape($message['title']);
-		} else {
-			$subjtxt_e = $message['title'];
-		}
+		$subjtxt_e = $message['title'];
 
 		$o = replace_macros($tpl, array(
 			'$thread_id' => $a->argv[1],
@@ -566,15 +555,9 @@ function render_messages(array $msg, $t) {
 		else
 			$participants = sprintf(t("%s and You"), $rr['from-name']);
 
-		if ($a->theme['template_engine'] === 'internal') {
-			$subject_e = template_escape((($rr['mailseen']) ? $rr['title'] : '<strong>' . $rr['title'] . '</strong>'));
-			$body_e = template_escape($rr['body']);
-			$to_name_e = template_escape($rr['name']);
-		} else {
-			$subject_e = (($rr['mailseen']) ? $rr['title'] : '<strong>' . $rr['title'] . '</strong>');
-			$body_e = $rr['body'];
-			$to_name_e = $rr['name'];
-		}
+		$subject_e = (($rr['mailseen']) ? $rr['title'] : '<strong>' . $rr['title'] . '</strong>');
+		$body_e = $rr['body'];
+		$to_name_e = $rr['name'];
 
 		$contact = Contact::getDetailsByURL($rr['url']);
 		if (isset($contact["thumb"]))
