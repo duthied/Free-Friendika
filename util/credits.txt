@@ -2,9 +2,11 @@
 Abinoam P. Marques Jr.
 Abrax
 Adam Jurkiewicz
+Adam Magness
 Albert
 Alberto Díaz Tormo
 Alex
+Alexander Fortin
 Alexander Kampmann
 Alexandre Alapetite
 AlfredSK
@@ -80,6 +82,8 @@ Hans Meine
 hauke
 Hauke Altmann
 Hauke Zühl
+Herbert Thielen
+hoergen
 Hubert Kościański
 Hypolite Petovan
 irhen
@@ -118,6 +122,7 @@ Mats Sjöberg
 Matthew Exon
 Matthias
 Matthias Moritz
+Mauro Batini
 Max Weller
 mhnxo
 Michael Johnston
@@ -144,6 +149,7 @@ Radek
 Rafael Garau
 Rainulf Pineda
 Ralph
+Ratten
 rcmaniac
 rebeka-catalina
 repat
@@ -151,6 +157,7 @@ Ricardo Pereira
 RJ Madsen
 Roland Häder
 Rui Andrada
+S.Krumbholz
 Sakałoŭ Alaksiej
 Sam
 Sandro Santilli
