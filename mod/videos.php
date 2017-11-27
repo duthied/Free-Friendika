@@ -378,14 +378,8 @@ function videos_content(App $a) {
 	$videos = array();
 	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
-			if ($a->theme['template_engine'] === 'internal') {
-				$alt_e = template_escape($rr['filename']);
-				$name_e = template_escape($rr['album']);
-			}
-			else {
-				$alt_e = $rr['filename'];
-				$name_e = $rr['album'];
-			}
+			$alt_e = $rr['filename'];
+			$name_e = $rr['album'];
 
 			$videos[] = array(
 				'id'       => $rr['id'],

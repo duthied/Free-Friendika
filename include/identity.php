@@ -443,10 +443,6 @@ function profile_sidebar($profile, $block = 0)
 		$p["photo"] = proxy_url($p["photo"], false, PROXY_SIZE_SMALL);
 	}
 
-	if ($a->theme['template_engine'] === 'internal') {
-		$location = template_escape($location);
-	}
-
 	$tpl = get_markup_template('profile_vcard.tpl');
 	$o .= replace_macros(
 		$tpl,

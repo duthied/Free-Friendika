@@ -143,12 +143,7 @@ function directory_content(App $a) {
 
 			$about = ((x($profile,'about') == 1) ?  t('About:') : False);
 
-			if($a->theme['template_engine'] === 'internal') {
-				$location_e = template_escape($location);
-			}
-			else {
-				$location_e = $location;
-			}
+			$location_e = $location;
 
 			$photo_menu = array(
 				'profile' => array(t("View Profile"), zrl($profile_link))

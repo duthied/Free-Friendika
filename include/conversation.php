@@ -780,25 +780,14 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 
 				list($categories, $folders) = get_cats_and_terms($item);
 
-				if ($a->theme['template_engine'] === 'internal') {
-					$profile_name_e = template_escape($profile_name);
-					$item['title_e'] = template_escape($item['title']);
-					$body_e = template_escape($body);
-					$tags_e = template_escape($tags);
-					$hashtags_e = template_escape($hashtags);
-					$mentions_e = template_escape($mentions);
-					$location_e = template_escape($location);
-					$owner_name_e = template_escape($owner_name);
-				} else {
-					$profile_name_e = $profile_name;
-					$item['title_e'] = $item['title'];
-					$body_e = $body;
-					$tags_e = $tags;
-					$hashtags_e = $hashtags;
-					$mentions_e = $mentions;
-					$location_e = $location;
-					$owner_name_e = $owner_name;
-				}
+				$profile_name_e = $profile_name;
+				$item['title_e'] = $item['title'];
+				$body_e = $body;
+				$tags_e = $tags;
+				$hashtags_e = $hashtags;
+				$mentions_e = $mentions;
+				$location_e = $location;
+				$owner_name_e = $owner_name;
 
 				if ($item['item_network'] == "") {
 					$item['item_network'] = $item['network'];
