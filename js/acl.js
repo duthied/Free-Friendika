@@ -7,12 +7,15 @@ function ACL(backend_url, preset, automention, is_mobile){
 
 	this.kp_timer = null;
 
-	if (preset==undefined) preset = [];
+	if (preset == undefined) {
+		preset = [];
+	}
 	this.allow_cid = (preset[0] || []);
 	this.allow_gid = (preset[1] || []);
 	this.deny_cid  = (preset[2] || []);
 	this.deny_gid  = (preset[3] || []);
 	this.group_uids = [];
+	this.forumCache = null;
 
 	if (this.is_mobile) {
 		this.nw = 1;
@@ -25,7 +28,9 @@ function ACL(backend_url, preset, automention, is_mobile){
 	this.item_tpl = unescape($(".acl-list-item[rel=acl-template]").html());
 	this.showall = $("#acl-showall");
 
-	if (preset.length==0) this.showall.addClass("selected");
+	if (preset.length==0) {
+		this.showall.addClass("selected");
+	}
 
 	/*events*/
 	this.showall.click(this.on_showall.bind(this));
@@ -61,7 +66,7 @@ ACL.prototype.remove_mention = function(id) {
 	}
 	var end = start + searchText.length;
 	this.element.setSelection(start, end).replaceSelectedText('').collapseSelection(false);
-}
+};
 
 ACL.prototype.add_mention = function(id) {
 	if (!this.automention) {
@@ -96,18 +101,18 @@ ACL.prototype.on_submit = function(){
 	$(this.deny_cid).each(function(i,v){
 		aclfields.append("<input type='hidden' name='contact_deny[]' value='"+v+"'>");
 	});
-}
+};
 
 ACL.prototype.search = function(){
 	var srcstr = $("#acl-search").val();
 	this.list_content.html("");
 	this.get(0,100, srcstr);
-}
+};
 
 ACL.prototype.on_search = function(event){
 	if (this.kp_timer) clearTimeout(this.kp_timer);
 	this.kp_timer = setTimeout( this.search.bind(this), 1000);
-}
+};
 
 ACL.prototype.on_showall = function(event){
 	event.preventDefault()
@@ -126,7 +131,7 @@ ACL.prototype.on_showall = function(event){
 	this.update_view();
 
 	return false;
-}
+};
 
 ACL.prototype.on_button_show = function(event){
 	event.preventDefault()
@@ -136,7 +141,8 @@ ACL.prototype.on_button_show = function(event){
 	this.set_allow($(event.target).parent().attr('id'));
 
 	return false;
-}
+};
+
 ACL.prototype.on_button_hide = function(event){
 	event.preventDefault()
 	event.stopImmediatePropagation()
@@ -145,34 +151,50 @@ ACL.prototype.on_button_hide = function(event){
 	this.set_deny($(event.target).parent().attr('id'));
 
 	return false;
-}
+};
 
-ACL.prototype.set_allow = function(itemid){
+ACL.prototype.set_allow = function(itemid) {
 	type = itemid[0];
-	id     = parseInt(itemid.substr(1));
+	id   = parseInt(itemid.substr(1));
 
-	switch(type){
+	switch (type){
 		case "g":
-			if (this.allow_gid.indexOf(id)<0){
-				this.allow_gid.push(id)
+			if (this.allow_gid.indexOf(id) < 0) {
+				this.allow_gid.push(id);
 			}else {
 				this.allow_gid.remove(id);
 			}
-			if (this.deny_gid.indexOf(id)>=0) this.deny_gid.remove(id);
+			if (this.deny_gid.indexOf(id) >= 0) {
+				this.deny_gid.remove(id);
+			}
 			break;
 		case "c":
-			if (this.allow_cid.indexOf(id)<0){
-				this.allow_cid.push(id)
-				if (this.data[id].forum=="1") this.add_mention(id);
+			if (this.allow_cid.indexOf(id) < 0){
+				this.allow_cid.push(id);
+				if (this.data[id].forum == "1") {
+					// If we have select already a forum,
+					// we need to remove the old one (because friendica does
+					// allow only one forum as receiver).
+					if (this.forumCache !== null && this.forumCache !== id) {
+						this.deselectCid(this.forumCache);
+					}
+					// Update the forum cache.
+					this.forumCache = id;
+					this.add_mention(id);
+				}
 			} else {
 				this.allow_cid.remove(id);
-				if (this.data[id].forum=="1") this.remove_mention(id);
+				if (this.data[id].forum == "1") {
+					this.remove_mention(id);
+				}
 			}
-			if (this.deny_cid.indexOf(id)>=0) this.deny_cid.remove(id);
+			if (this.deny_cid.indexOf(id) >=0 ) {
+				this.deny_cid.remove(id);
+			}
 			break;
 	}
 	this.update_view();
-}
+};
 
 ACL.prototype.set_deny = function(itemid){
 	type = itemid[0];
@@ -198,12 +220,12 @@ ACL.prototype.set_deny = function(itemid){
 			break;
 	}
 	this.update_view();
-}
+};
 
 ACL.prototype.is_show_all = function() {
 	return (this.allow_gid.length==0 && this.allow_cid.length==0 &&
 		this.deny_gid.length==0 && this.deny_cid.length==0);
-}
+};
 
 ACL.prototype.update_view = function(){
 	if (this.is_show_all()){
@@ -279,7 +301,6 @@ ACL.prototype.update_view = function(){
 
 }
 
-
 ACL.prototype.get = function(start,count, search){
 	var postdata = {
 		start:start,
@@ -294,7 +315,7 @@ ACL.prototype.get = function(start,count, search){
 		dataType: 'json',
 		success:this.populate.bind(this)
 	});
-}
+};
 
 ACL.prototype.populate = function(data){
 	var height = Math.ceil(data.tot / this.nw) * 42;
@@ -319,5 +340,20 @@ ACL.prototype.populate = function(data){
 	});
 
 	this.update_view();
-}
+};
 
+/**
+ * @brief Deselect previous selected contact.
+ * 
+ * @param {int} id The contact ID.
+ * @returns {void}
+ */
+ACL.prototype.deselectCid = function(id) {
+	if (this.allow_cid.indexOf(id) >= 0) {
+		this.allow_cid.remove(id);
+	}
+	if (this.deny_cid.indexOf(id) >=0 ) {
+		this.deny_cid.remove(id);
+	}
+	this.remove_mention(id);
+};
