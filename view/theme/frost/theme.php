@@ -15,7 +15,6 @@ use Friendica\Core\System;
 function frost_init(App $a) {
 	$a->videowidth = 400;
 	$a->videoheight = 330;
-	$a->theme_thread_allow = false;
 	$a->set_template_engine('smarty3');
 }
 

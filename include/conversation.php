@@ -1517,15 +1517,13 @@ function conv_sort(array $item_list, $order)
 		usort($parents, 'sort_thr_commented');
 	}
 
-	$thread_allowed = Config::get('system', 'thread_allow') && get_app()->theme_thread_allow;
-
 	/*
 	 * Plucks children from the item_array, second pass collects eventual orphan
 	 * items and add them as children of their top-level post.
 	 */
 	foreach ($parents as $i => $parent) {
 		$parents[$i]['children'] =
-			array_merge(get_item_children($item_array, $parent, $thread_allowed),
+			array_merge(get_item_children($item_array, $parent, true),
 				get_item_children($item_array, $parent, false));
 	}
 
@@ -1533,7 +1531,7 @@ function conv_sort(array $item_list, $order)
 		$parents[$i]['children'] = sort_item_children($parents[$i]['children']);
 	}
 
-	if ($thread_allowed && PConfig::get(local_user(), 'system', 'smart_threading', 0)) {
+	if (PConfig::get(local_user(), 'system', 'smart_threading', 0)) {
 		foreach ($parents as $i => $parent) {
 			$parents[$i] = smart_flatten_conversation($parent);
 		}

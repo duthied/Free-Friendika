@@ -814,7 +814,6 @@ function admin_page_site_post(App $a) {
 	$block_public		=	((x($_POST,'block_public'))		? True						: False);
 	$force_publish		=	((x($_POST,'publish_all'))		? True						: False);
 	$global_directory	=	((x($_POST,'directory'))		? notags(trim($_POST['directory']))		: '');
-	$thread_allow		=	((x($_POST,'thread_allow'))		? True						: False);
 	$newuser_private		=	((x($_POST,'newuser_private'))		? True					: False);
 	$enotify_no_content		=	((x($_POST,'enotify_no_content'))	? True					: False);
 	$private_addons			=	((x($_POST,'private_addons'))		? True					: False);
@@ -873,9 +872,6 @@ function admin_page_site_post(App $a) {
 
 	if ($a->get_path() != "") {
 		$diaspora_enabled = false;
-	}
-	if (!$thread_allow) {
-		$ostatus_disabled = true;
 	}
 	if ($ssl_policy != intval(Config::get('system','ssl_policy'))) {
 		if ($ssl_policy == SSL_POLICY_FULL) {
@@ -975,7 +971,6 @@ function admin_page_site_post(App $a) {
 	Config::set('system', 'allowed_email', $allowed_email);
 	Config::set('system', 'block_public', $block_public);
 	Config::set('system', 'publish_all', $force_publish);
-	Config::set('system', 'thread_allow', $thread_allow);
 	Config::set('system', 'newuser_private', $newuser_private);
 	Config::set('system', 'enotify_no_content', $enotify_no_content);
 	Config::set('system', 'disable_embedded', $disable_embedded);
@@ -1214,7 +1209,6 @@ function admin_page_site(App $a) {
 		'$block_public'		=> array('block_public', t("Block public"), Config::get('system','block_public'), t("Check to block public access to all otherwise public personal pages on this site unless you are currently logged in.")),
 		'$force_publish'	=> array('publish_all', t("Force publish"), Config::get('system','publish_all'), t("Check to force all profiles on this site to be listed in the site directory.")),
 		'$global_directory'	=> array('directory', t("Global directory URL"), Config::get('system','directory'), t("URL to the global directory. If this is not set, the global directory is completely unavailable to the application.")),
-		'$thread_allow'		=> array('thread_allow', t("Allow threaded items"), Config::get('system','thread_allow'), t("Allow infinite level threading for items on this site.")),
 		'$newuser_private'	=> array('newuser_private', t("Private posts by default for new users"), Config::get('system','newuser_private'), t("Set default post permissions for all new members to the default privacy group rather than public.")),
 		'$enotify_no_content'	=> array('enotify_no_content', t("Don't include post content in email notifications"), Config::get('system','enotify_no_content'), t("Don't include the content of a post/comment/private message/etc. in the email notifications that are sent out from this site, as a privacy measure.")),
 		'$private_addons'	=> array('private_addons', t("Disallow public access to addons listed in the apps menu."), Config::get('config','private_addons'), t("Checking this box will restrict addons listed in the apps menu to members only.")),

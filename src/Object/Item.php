@@ -66,7 +66,7 @@ class Item extends BaseObject
 		$ssl_state = ((local_user()) ? true : false);
 		$this->redirect_url = 'redir/' . $this->getDataValue('cid');
 
-		if (Config::get('system', 'thread_allow') && $a->theme_thread_allow && !$this->isToplevel()) {
+		if (!$this->isToplevel()) {
 			$this->threaded = true;
 		}
 
@@ -744,9 +744,6 @@ class Item extends BaseObject
 	private function getCommentBox($indent)
 	{
 		$a = self::getApp();
-		if (!$this->isToplevel() && !(Config::get('system', 'thread_allow') && $a->theme_thread_allow)) {
-			return '';
-		}
 
 		$comment_box = '';
 		$conv = $this->getConversation();
