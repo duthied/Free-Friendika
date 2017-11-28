@@ -83,15 +83,8 @@
 	{{include file="field_select.tpl" field=$community_page_style}}
 	{{include file="field_input.tpl" field=$max_author_posts_community_page}}
 
-	{{if $thread_allow.2}}
-		{{include file="field_checkbox.tpl" field=$ostatus_disabled}}
-		{{include file="field_checkbox.tpl" field=$ostatus_full_threads}}
-	{{else}}
-		<div class='field checkbox' id='div_id_{{$ostatus_disabled.0}}'>
-			<label for='id_{{$ostatus_disabled.0}}'>{{$ostatus_disabled.1}}</label>
-			<span id='id_{{$ostatus_disabled.0}}'>{{$ostatus_not_able}}</span>
-		</div>
-	{{/if}}
+	{{include file="field_checkbox.tpl" field=$ostatus_disabled}}
+	{{include file="field_checkbox.tpl" field=$ostatus_full_threads}}
 
 	{{if $diaspora_able}}
 		{{include file="field_checkbox.tpl" field=$diaspora_enabled}}
@@ -104,7 +97,6 @@
 	{{include file="field_checkbox.tpl" field=$dfrn_only}}
 	{{include file="field_input.tpl" field=$global_directory}}
 	<div class="submit"><input type="submit" name="republish_directory" value="{{$republish|escape:'html'}}" /></div>
-	{{include file="field_checkbox.tpl" field=$thread_allow}}
 	{{include file="field_checkbox.tpl" field=$newuser_private}}
 	{{include file="field_checkbox.tpl" field=$enotify_no_content}}
 	{{include file="field_checkbox.tpl" field=$private_addons}}
