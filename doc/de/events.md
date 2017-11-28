@@ -1,6 +1,6 @@
 # Veranstaltungen
 
-* [Home](Zur Startseite der Hilfe)
+* [Zur Startseite der Hilfe](help)
 
 Veranstaltungen sind spezielle Postings.
 Die Veranstaltungen, die Du und deine Kontakte teilen, können unter [/events](/events) auf deiner Instanz aufgefunden werden.
