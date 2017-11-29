@@ -1,36 +1,35 @@
 /* Modifications by https://horche.demkontinuum.de/profile/hoergen */
 
 h1 {
-	font-size: 18px;
-	color: blue;
+  font-size: 18px;
+  color: blue;
 }
 
 h2 {
-	font-size: 16px;
-	color: blue;
-	background-color: #EEEEEE;
+  font-size: 16px;
+  color: blue;
+  background-color: #EEEEEE;
 }
 
 h3 {
-	font-size: 14px;
-	color: blue;
+  font-size: 14px;
+  color: blue;
 }
-h4 {	font-size: 14px;}
+h4 {  font-size: 14px;}
 
 .settings-heading {
-
-	font-size: 18px;
-	color: black;
-	font-weight: bold;
-	background-color: #cfcece;
+  font-size: 18px;
+  color: black;
+  font-weight: bold;
+  background-color: #cfcece;
 }
 
 .setings-contend-block {
-	background-color: white;
+  background-color: white;
 }
 
 #settings-form {
-	background-color: whitesmoke;
+  background-color: whitesmoke;
 }
 
 nav {
@@ -200,31 +199,26 @@ nav #nav-search-box #nav-search-text {
 }
 
 .widget h3 {
-    padding: 0px;
-    margin: 0px;
-    font-size: 14px;
-    font-weight: initial;
-    background-color: #EEEEEE;
-    color: #505050;
-    font-weight: bolder;
+  padding: 0px;
+  margin: 0px;
+  font-size: 14px;
+  font-weight: initial;
+  background-color: #EEEEEE;
+  color: #505050;
+  font-weight: bolder;
 }
 
 /* Timeline */
 
 div.pager, ul.tabs {
-	border-radius:5px;
+  border-radius:5px;
 }
 
 /* Post*/
 
-#profile-jot-form {
-    border-radius: 5px;
-}
+#profile-jot-form { border-radius: 5px; }
 
-.tread-wrapper {
-    border-radius: 5px;
-}
-
+.tread-wrapper { border-radius: 5px; }
 
 /* Post header */
 
@@ -253,98 +247,77 @@ div.pager, ul.tabs {
   transition: all 0.2s ease-in-out;
 }
 
-.dt-published {
-	font-size:10px;
-}
+.dt-published { font-size:10px; }
 
 /* Post content */
 .wall-item-content blockquote {
-	border-left: 2px solid #D2D2D2;
-	margin-top: 10px;
-	margin-bottom:10px;
+  border-left: 2px solid #D2D2D2;
+  margin-top: 10px;
+  margin-bottom:10px;
 }
 
-.wall-item-content strong {
-	color:#565656;
-}
+.wall-item-content strong { color:#565656; }
 
-.wall-item-network {
-	font-size:10px;
-}
+.wall-item-network { font-size:10px; }
 
 .mention { font-size:12px;}
 
-.tag { 
-	font-size:12px;
-}
+.tag { font-size:12px; }
 
 .type-link, .type-video {
-    border-top: 0px solid #D2D2D2;
-    border-bottom: 0px solid #D2D2D2;
-    display: block;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    margin-top: 20px;
+  border-top: 0px solid #D2D2D2;
+  border-bottom: 0px solid #D2D2D2;
+  display: block;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  margin-top: 20px;
 }
 
 .type-link blockquote{
-	border-left: 2px solid #D2D2D2;
-	margin-top: 10px;
-	margin-bottom:10px;
-	padding-left: 5px;
-	font-size:12px;
-
+  border-left: 2px solid #D2D2D2;
+  margin-top: 10px;
+  margin-bottom:10px;
+  padding-left: 5px;
+  font-size:12px;
 }
 
 /* Post footer */
-.wall-item-like { 
-	font-size:12px; 
-}
+.wall-item-like { font-size:12px; }
 
 .wall-item-actions-author{
-	font-size:10px;
-	font-weight:normal;
-	margin-bottom: -0.7em;
-	line-height: 5px;
+  font-size:10px;
+  font-weight:normal;
+  margin-bottom: -0.7em;
+  line-height: 5px;
 }
 
-.wall-item-tags  {
-    font-size:10px;
-}
+.wall-item-tags  { font-size:10px; }
 
 .wall-item-container.comment .contact-photo  { height:25px; width:25px;}
 
-#item-delete-selected {
-	font-size:12px;
-}
+#item-delete-selected { font-size:12px; }
 
 .item-select {
-	width: 1px;
-	height: 1px;
-	background: #000;
-	position: relative;
-	border-radius: 9px;
+  width: 1px;
+  height: 1px;
+  background: #000;
+  position: relative;
+  border-radius: 9px;
 }
-
 
 .contact-menu {
-	font-size:12px; 
-	padding-top:0px;
-	padding-bottom:0px;
+  font-size:12px; 
+  padding-top:0px;
+  padding-bottom:0px;
 }
 
+.wall-item-bottom { font-size: 14px; }
 
-.wall-item-bottom {
-	font-size: 14px; 
-	
-}
 /* comments */
 
 .wall-item-like { font-size:10px; }
 
-.wall-item-container.comment {
-    border-bottom: 0px;
-}
+.wall-item-container.comment { border-bottom: 0px; }
 
 .hide-comments-outer {
   margin-left: 80px;
@@ -356,7 +329,6 @@ div.pager, ul.tabs {
   padding: 8px;
 }
 
-
 .fakelink {
   color: #36c;
   text-decoration: none;
@@ -365,40 +337,32 @@ div.pager, ul.tabs {
 }
 
 /* Calendar */
-.fc-body {
-	background-color: white;
-}
+
+.fc-body { background-color: white; }
 
 .fc-content, .fc-widget {
-	background-color: #a7ecff; 
-	color: black;
-	text-decoration: normal;
+  background-color: #a7ecff; 
+  color: black;
+  text-decoration: normal;
 }
 
 .fc-toolbar {
-    text-align: center;
-    margin-bottom: 1em;
-    background: white;
-}:wq
-
+  text-align: center;
+  margin-bottom: 1em;
+  background: white;
+}
 
 .fc-day-grid-event .fc-time {
-    font-weight: normal;
-    font-size: 10px;
+  font-weight: normal;
+  font-size: 10px;
 }
 
-.fc-title, fc-time {
-	text-decoration: normal;
-}
+.fc-title, fc-time { text-decoration: normal; }
 
-
-.fc-unthemed .fc-today {
-    background: #f9ff97;
-}
-
-
+.fc-unthemed .fc-today { background: #f9ff97; }
 
 /* remove standard-styles */
+
 select {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -412,9 +376,7 @@ option {
   border-top:0px solid #000;
   height:15px;
   font-size:10px;
-
 }
-
 
 /* styling */
 select {
@@ -423,7 +385,4 @@ select {
   box-shadow: 0 0px 0px 0 rgba(0,0,0,0.5);
   height:20px;
 }
-
-
-
 
