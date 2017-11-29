@@ -815,7 +815,7 @@ class Photo
 	 * @param boolean $quit_on_error optional, default false
 	 * @return array
 	 */
-	private function importProfilePhoto($photo, $uid, $cid, $quit_on_error = false)
+	public function importProfilePhoto($photo, $uid, $cid, $quit_on_error = false)
 	{
 		$r = dba::select(
 			'photo',
