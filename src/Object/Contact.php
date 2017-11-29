@@ -477,12 +477,14 @@ class Contact extends BaseObject
 				"SELECT COUNT(*) AS `total`
 				 FROM `contact`
 				 WHERE `uid` = %d
-				 AND `self` = 0
+				 AND NOT `self`
+				 AND NOT `blocked`
+				 AND NOT `pending`
 				 AND `id` NOT IN (
 					SELECT DISTINCT(`contact-id`)
 					FROM `group_member`
 					WHERE `uid` = %d
-				) ", intval($uid), intval($uid)
+				)", intval($uid), intval($uid)
 			);
 
 			return $r;
@@ -492,13 +494,13 @@ class Contact extends BaseObject
 			"SELECT *
 			FROM `contact`
 			WHERE `uid` = %d
-			AND `self` = 0
+			AND NOT `self`
+			AND NOT `blocked`
+			AND NOT `pending`
 			AND `id` NOT IN (
 				SELECT DISTINCT(`contact-id`)
 				FROM `group_member` WHERE `uid` = %d
 			)
-			AND `blocked` = 0
-			AND `pending` = 0
 			LIMIT %d, %d", intval($uid), intval($uid), intval($start), intval($count)
 		);
 		return $r;

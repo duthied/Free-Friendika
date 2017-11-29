@@ -55,7 +55,7 @@ function nogroup_content(App $a)
 				'about'         => $contact_details['about'],
 				'sparkle' => $sparkle,
 				'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
-				'url' => $url,
+				'url' => $rr['url'],
 				'network' => network_to_name($rr['network'], $url),
 			);
 		}
