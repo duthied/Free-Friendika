@@ -12,6 +12,7 @@ use Friendica\Database\DBM;
 require_once 'include/bbcode.php';
 require_once 'include/map.php';
 require_once 'include/datetime.php';
+require_once "include/conversation.php";
 
 function format_event_html($ev, $simple = false) {
 	if (! ((is_array($ev)) && count($ev))) {

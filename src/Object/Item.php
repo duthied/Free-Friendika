@@ -13,6 +13,7 @@ use dba;
 
 require_once 'include/text.php';
 require_once 'boot.php';
+require_once "include/conversation.php";
 
 /**
  * An item
