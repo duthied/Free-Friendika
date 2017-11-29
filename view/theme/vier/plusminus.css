@@ -9,6 +9,7 @@ h2 {
   font-size: 16px;
   color: blue;
   background-color: #EEEEEE;
+  border-radius:5px;
 }
 
 h3 {
@@ -17,20 +18,13 @@ h3 {
 }
 h4 {  font-size: 14px;}
 
-.settings-heading {
-  font-size: 18px;
+h5 {
+  font-size: 16px;
   color: black;
-  font-weight: bold;
   background-color: #cfcece;
+  border-radius:5px;
 }
 
-.setings-contend-block {
-  background-color: white;
-}
-
-#settings-form {
-  background-color: whitesmoke;
-}
 
 nav {
   background: #fff;
@@ -201,11 +195,13 @@ nav #nav-search-box #nav-search-text {
 .widget h3 {
   padding: 0px;
   margin: 0px;
+  border-radius:5px;
   font-size: 14px;
   font-weight: initial;
   background-color: #EEEEEE;
   color: #505050;
   font-weight: bolder;
+  width: 100%;
 }
 
 /* Timeline */
@@ -254,6 +250,7 @@ div.pager, ul.tabs {
   border-left: 2px solid #D2D2D2;
   margin-top: 10px;
   margin-bottom:10px;
+  padding-left: 5px;
 }
 
 .wall-item-content strong { color:#565656; }
@@ -289,6 +286,10 @@ div.pager, ul.tabs {
   font-weight:normal;
   margin-bottom: -0.7em;
   line-height: 5px;
+}
+
+.icon-commenting::before {
+    font-size: 17px;
 }
 
 .wall-item-tags  { font-size:10px; }
@@ -374,8 +375,8 @@ select {
 option {
   background:white;
   border-top:0px solid #000;
-  height:15px;
-  font-size:10px;
+  height:18px;
+  font-size:14px;
 }
 
 /* styling */
@@ -386,3 +387,39 @@ select {
   height:20px;
 }
 
+/* Settings */
+
+.ps-theme-default h1,h2,h3,h4,h5{
+  color:black;
+  border-radius:5px;
+}
+
+.settings-heading * {
+  color: black;
+}
+
+.settings-heading {
+  font-size: 18px;
+  font-weight: bold;
+  background-color: #cfcece;
+  border-radius: 5px;
+}
+
+.setings-contend-block {
+  background-color: white;
+}
+
+#settings-form {
+  background-color: whitesmoke;
+}
+
+.field_help {
+  font-size:12px;
+  display: block;
+  margin-left: 20px;
+  color: #666666;
+}
+
+.field label {
+   width: 300px;
+}
