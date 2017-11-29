@@ -19,7 +19,6 @@ use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
 use Friendica\Object\Contact;
-use Friendica\Object\Photo;
 use Friendica\Object\Profile;
 use Friendica\Util\XML;
 
@@ -2211,7 +2210,7 @@ class Diaspora
 			$image_url = "http://".$handle_parts[1].$image_url;
 		}
 
-		Photo::updateContactAvatar($image_url, $importer["uid"], $contact["id"]);
+		Contact::updateAvatar($image_url, $importer["uid"], $contact["id"]);
 
 		// Generic birthday. We don't know the timezone. The year is irrelevant.
 
@@ -2471,7 +2470,7 @@ class Diaspora
 			group_add_member($importer["uid"], "", $contact_record["id"], $def_gid);
 		}
 
-		Photo::updateContactAvatar($ret["photo"], $importer['uid'], $contact_record["id"], true);
+		Contact::updateAvatar($ret["photo"], $importer['uid'], $contact_record["id"], true);
 
 		if ($importer["page-flags"] == PAGE_NORMAL) {
 			logger("Sending intra message for author ".$author.".", LOGGER_DEBUG);
@@ -2494,7 +2493,7 @@ class Diaspora
 
 			logger("Does an automatic friend approval for author ".$author.".", LOGGER_DEBUG);
 
-			Photo::updateContactAvatar($contact_record["photo"], $importer["uid"], $contact_record["id"]);
+			Contact::updateAvatar($contact_record["photo"], $importer["uid"], $contact_record["id"]);
 
 			// technically they are sharing with us (CONTACT_IS_SHARING),
 			// but if our page-type is PAGE_COMMUNITY or PAGE_SOAPBOX

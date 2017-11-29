@@ -2376,7 +2376,7 @@ function api_get_attachments(&$body)
 	$attachments = array();
 
 	foreach ($images[1] as $image) {
-		$imagedata = Photo::getPhotoInfo($image);
+		$imagedata = Photo::getInfoFromURL($image);
 
 		if ($imagedata) {
 			$attachments[] = array("url" => $image, "mimetype" => $imagedata["mime"], "size" => $imagedata["size"]);
@@ -2508,7 +2508,7 @@ function api_get_entitities(&$text, $bbcode)
 
 		$start = iconv_strpos($text, $url, $offset, "UTF-8");
 		if (!($start === false)) {
-			$image = Photo::getPhotoInfo($url);
+			$image = Photo::getInfoFromURL($url);
 			if ($image) {
 				// If image cache is activated, then use the following sizes:
 				// thumb  (150), small (340), medium (600) and large (1024)

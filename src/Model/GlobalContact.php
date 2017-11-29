@@ -10,7 +10,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
-use Friendica\Object\Photo;
+use Friendica\Object\Contact;
 use Friendica\Object\Profile;
 use Friendica\Protocol\PortableContact;
 use dba;
@@ -881,7 +881,7 @@ class GlobalContact
 			if (DBM::is_result($r)) {
 				logger("Update public contact ".$r[0]["id"], LOGGER_DEBUG);
 
-				Photo::updateContactAvatar($contact["photo"], 0, $r[0]["id"]);
+				Contact::updateAvatar($contact["photo"], 0, $r[0]["id"]);
 
 				$fields = array('name', 'nick', 'addr',
 						'network', 'bd', 'gender',

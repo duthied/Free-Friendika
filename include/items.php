@@ -11,7 +11,6 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Object\Contact;
-use Friendica\Object\Photo;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Lock;
@@ -1690,7 +1689,7 @@ function new_follower($importer, $contact, $datarray, $item, $sharing = false) {
 		);
 		if (DBM::is_result($r)) {
 			$contact_record = $r[0];
-			Photo::updateContactAvatar($photo, $importer["uid"], $contact_record["id"], true);
+			Contact::updateAvatar($photo, $importer["uid"], $contact_record["id"], true);
 		}
 
 		/// @TODO Encapsulate this into a function/method

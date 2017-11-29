@@ -1660,7 +1660,7 @@ class DFRN
 				);
 			}
 
-			Photo::updateContactAvatar(
+			Contact::updateAvatar(
 				$author["avatar"],
 				$importer["uid"],
 				$contact["id"],
@@ -2035,7 +2035,7 @@ class DFRN
 			dbesc(normalise_link($old["url"]))
 		);
 
-		Photo::updateContactAvatar($relocate["avatar"], $importer["importer_uid"], $importer["id"], true);
+		Contact::updateAvatar($relocate["avatar"], $importer["importer_uid"], $importer["id"], true);
 
 		if ($x === false) {
 			return false;

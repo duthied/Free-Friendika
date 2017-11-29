@@ -8,7 +8,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
-use Friendica\Object\Photo;
+use Friendica\Object\Contact;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\PortableContact;
@@ -250,7 +250,7 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 	}
 
 	// Update the avatar
-	Photo::updateContactAvatar($ret['photo'], $uid, $contact_id);
+	Contact::updateAvatar($ret['photo'], $uid, $contact_id);
 
 	// pull feed and consume it, which should subscribe to the hub.
 

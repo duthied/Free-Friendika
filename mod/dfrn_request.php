@@ -16,7 +16,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
-use Friendica\Object\Photo;
+use Friendica\Object\Contact;
 
 require_once 'include/enotify.php';
 require_once 'include/group.php';
@@ -195,7 +195,7 @@ function dfrn_request_post(App $a) {
 						group_add_member(local_user(), '', $r[0]['id'], $def_gid);
 
 					if (isset($photo))
-						Photo::updateContactAvatar($photo, local_user(), $r[0]["id"], true);
+						Contact::updateAvatar($photo, local_user(), $r[0]["id"], true);
 
 					$forwardurl = System::baseUrl()."/contacts/".$r[0]['id'];
 				} else {
@@ -586,7 +586,7 @@ function dfrn_request_post(App $a) {
 					);
 					if (DBM::is_result($r)) {
 						$contact_record = $r[0];
-						Photo::updateContactAvatar($photo, $uid, $contact_record["id"], true);
+						Contact::updateAvatar($photo, $uid, $contact_record["id"], true);
 					}
 				}
 

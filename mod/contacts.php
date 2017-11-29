@@ -9,7 +9,6 @@ use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
 use Friendica\Object\Contact;
-use Friendica\Object\Photo;
 
 require_once 'include/contact_selectors.php';
 require_once 'mod/proxy.php';
@@ -311,7 +310,7 @@ function _contact_update_profile($contact_id) {
 	);
 
 	// Update the entry in the contact table
-	Photo::updateContactAvatar($data['photo'], local_user(), $contact_id, true);
+	Contact::updateAvatar($data['photo'], local_user(), $contact_id, true);
 
 	// Update the entry in the gcontact table
 	GlobalContact::updateFromProbe($data["url"]);
