@@ -710,11 +710,11 @@ function scale_external_images($srctext, $include_link = true, $scale_replace = 
 			}
 
 			// guess mimetype from headers or filename
-			$type = guess_image_type($mtch[1], true);
+			$type = Photo::guessImageType($mtch[1], true);
 
 			if ($i) {
 				$ph = new Photo($i, $type);
-				if ($ph->is_valid()) {
+				if ($ph->isValid()) {
 					$orig_width = $ph->getWidth();
 					$orig_height = $ph->getHeight();
 

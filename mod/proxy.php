@@ -131,7 +131,7 @@ function proxy_init(App $a) {
 			// reduce quality - if it isn't a GIF
 			if ($mime != 'image/gif') {
 				$img = new Photo($img_str, $mime);
-				if ($img->is_valid()) {
+				if ($img->isValid()) {
 					$img_str = $img->imageString();
 				}
 			}
@@ -175,7 +175,7 @@ function proxy_init(App $a) {
 			$cachefile = ''; // Clear the cachefile so that the dummy isn't stored
 			$valid = false;
 			$img = new Photo($img_str, 'image/png');
-			if ($img->is_valid()) {
+			if ($img->isValid()) {
 				$img->scaleImage(10);
 				$img_str = $img->imageString();
 			}
@@ -193,7 +193,7 @@ function proxy_init(App $a) {
 			dba::insert('photo', $fields);
 		} else {
 			$img = new Photo($img_str, $mime);
-			if ($img->is_valid() && !$direct_cache && ($cachefile == '')) {
+			if ($img->isValid() && !$direct_cache && ($cachefile == '')) {
 				$img->store(0, 0, $urlhash, $_REQUEST['url'], '', 100);
 			}
 		}
@@ -204,7 +204,7 @@ function proxy_init(App $a) {
 	// reduce quality - if it isn't a GIF
 	if ($mime != 'image/gif') {
 		$img = new Photo($img_str, $mime);
-		if ($img->is_valid()) {
+		if ($img->isValid()) {
 			$img->scaleImage($size);
 			$img_str = $img->imageString();
 		}

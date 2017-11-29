@@ -13,8 +13,11 @@ use Friendica\Database\DBM;
 
 require_once "include/photos.php";
 
-class Photo {
-
+/**
+ * Class to handle Photos
+ */
+class Photo
+{
 	private $image;
 
 	/*
@@ -30,9 +33,9 @@ class Photo {
 	/**
 	 * @brief supported mimetypes and corresponding file extensions
 	 */
-	public static function supportedTypes() {
+	public static function supportedTypes()
+	{
 		if (class_exists('Imagick')) {
-
 			// Imagick::queryFormats won't help us a lot there...
 			// At least, not yet, other parts of friendica uses this array
 			$t = array(
@@ -51,27 +54,38 @@ class Photo {
 		return $t;
 	}
 
-	public function __construct($data, $type=null)
+	/**
+	 * @brief Constructor
+	 * @param object  $data data
+	 * @param boolean $type optional, default null
+	 * @return object
+	 */
+	public function __construct($data, $type = null)
 	{
 		$this->imagick = class_exists('Imagick');
 		$this->types = static::supportedTypes();
-		if (!array_key_exists($type, $this->types)){
+		if (!array_key_exists($type, $this->types)) {
 			$type='image/jpeg';
 		}
 		$this->type = $type;
 
-		if ($this->is_imagick() && $this->load_data($data)) {
+		if ($this->isImagick() && $this->loadData($data)) {
 			return true;
 		} else {
 			// Failed to load with Imagick, fallback
 			$this->imagick = false;
 		}
-		return $this->load_data($data);
+		return $this->loadData($data);
 	}
 
-	public function __destruct() {
+	/**
+	 * @brief Destructor
+	 * @return void
+	 */
+	public function __destruct()
+	{
 		if ($this->image) {
-			if ($this->is_imagick()) {
+			if ($this->isImagick()) {
 				$this->image->clear();
 				$this->image->destroy();
 				return;
@@ -82,7 +96,10 @@ class Photo {
 		}
 	}
 
-	public function is_imagick()
+	/**
+	 * @return boolean
+	 */
+	public function isImagick()
 	{
 		return $this->imagick;
 	}
@@ -91,7 +108,8 @@ class Photo {
 	 * @brief Maps Mime types to Imagick formats
 	 * @return arr With with image formats (mime type as key)
 	 */
-	public function get_FormatsMap() {
+	public function getFormatsMap()
+	{
 		$m = array(
 			'image/jpeg' => 'JPG',
 			'image/png' => 'PNG',
@@ -100,8 +118,13 @@ class Photo {
 		return $m;
 	}
 
-	private function load_data($data) {
-		if ($this->is_imagick()) {
+	/**
+	 * @param object $data data
+	 * @return boolean
+	 */
+	private function loadData($data)
+	{
+		if ($this->isImagick()) {
 			$this->image = new Imagick();
 			try {
 				$this->image->readImageBlob($data);
@@ -113,7 +136,7 @@ class Photo {
 			/*
 			 * Setup the image to the format it will be saved to
 			 */
-			$map = $this->get_FormatsMap();
+			$map = $this->getFormatsMap();
 			$format = $map[$type];
 			$this->image->setFormat($format);
 
@@ -123,7 +146,7 @@ class Photo {
 			/*
 			 * setup the compression here, so we'll do it only once
 			 */
-			switch($this->getType()){
+			switch ($this->getType()) {
 				case "image/png":
 					$quality = Config::get('system', 'png_quality');
 					if ((! $quality) || ($quality > 9)) {
@@ -171,41 +194,57 @@ class Photo {
 		return false;
 	}
 
-	public function is_valid() {
-		if ($this->is_imagick()) {
+	/**
+	 * @return boolean
+	 */
+	public function isValid()
+	{
+		if ($this->isImagick()) {
 			return ($this->image !== false);
 		}
 		return $this->valid;
 	}
 
-	public function getWidth() {
-		if (!$this->is_valid()) {
+	/**
+	 * @return mixed
+	 */
+	public function getWidth()
+	{
+		if (!$this->isValid()) {
 			return false;
 		}
 
-		if ($this->is_imagick()) {
+		if ($this->isImagick()) {
 			return $this->image->getImageWidth();
 		}
 		return $this->width;
 	}
 
-	public function getHeight() {
-		if (!$this->is_valid()) {
+	/**
+	 * @return mixed
+	 */
+	public function getHeight()
+	{
+		if (!$this->isValid()) {
 			return false;
 		}
 
-		if ($this->is_imagick()) {
+		if ($this->isImagick()) {
 			return $this->image->getImageHeight();
 		}
 		return $this->height;
 	}
 
-	public function getImage() {
-		if (!$this->is_valid()) {
+	/**
+	 * @return mixed
+	 */
+	public function getImage()
+	{
+		if (!$this->isValid()) {
 			return false;
 		}
 
-		if ($this->is_imagick()) {
+		if ($this->isImagick()) {
 			/* Clean it */
 			$this->image = $this->image->deconstructImages();
 			return $this->image;
@@ -213,24 +252,37 @@ class Photo {
 		return $this->image;
 	}
 
-	public function getType() {
-		if (!$this->is_valid()) {
+	/**
+	 * @return mixed
+	 */
+	public function getType()
+	{
+		if (!$this->isValid()) {
 			return false;
 		}
 
 		return $this->type;
 	}
 
-	public function getExt() {
-		if (!$this->is_valid()) {
+	/**
+	 * @return mixed
+	 */
+	public function getExt()
+	{
+		if (!$this->isValid()) {
 			return false;
 		}
 
 		return $this->types[$this->getType()];
 	}
 
-	public function scaleImage($max) {
-		if (!$this->is_valid()) {
+	/**
+	 * @param integer $max max dimension
+	 * @return mixed
+	 */
+	public function scaleImage($max)
+	{
+		if (!$this->isValid()) {
 			return false;
 		}
 
@@ -244,7 +296,6 @@ class Photo {
 		}
 
 		if ($width > $max && $height > $max) {
-
 			// very tall image (greater than 16:9)
 			// constrain the width - let the height float.
 
@@ -265,7 +316,6 @@ class Photo {
 				$dest_height = intval(($height * $max) / $width);
 			} else {
 				if ($height > $max) {
-
 					// very tall image (greater than 16:9)
 					// but width is OK - don't do anything
 
@@ -284,7 +334,7 @@ class Photo {
 		}
 
 
-		if ($this->is_imagick()) {
+		if ($this->isImagick()) {
 			/*
 			 * If it is not animated, there will be only one iteration here,
 			 * so don't bother checking
@@ -292,7 +342,6 @@ class Photo {
 			// Don't forget to go back to the first frame
 			$this->image->setFirstIterator();
 			do {
-
 				// FIXME - implement horizantal bias for scaling as in followin GD functions
 				// to allow very tall images to be constrained only horizontally.
 
@@ -322,12 +371,17 @@ class Photo {
 		$this->height = imagesy($this->image);
 	}
 
-	public function rotate($degrees) {
-		if (!$this->is_valid()) {
+	/**
+	 * @param integer $degrees degrees to rotate image
+	 * @return mixed
+	 */
+	public function rotate($degrees)
+	{
+		if (!$this->isValid()) {
 			return false;
 		}
 
-		if ($this->is_imagick()) {
+		if ($this->isImagick()) {
 			$this->image->setFirstIterator();
 			do {
 				$this->image->rotateImage(new ImagickPixel(), -$degrees); // ImageMagick rotates in the opposite direction of imagerotate()
@@ -336,17 +390,23 @@ class Photo {
 		}
 
 		// if script dies at this point check memory_limit setting in php.ini
-		$this->image  = imagerotate($this->image,$degrees,0);
+		$this->image  = imagerotate($this->image, $degrees, 0);
 		$this->width  = imagesx($this->image);
 		$this->height = imagesy($this->image);
 	}
 
-	public function flip($horiz = true, $vert = false) {
-		if (!$this->is_valid()) {
+	/**
+	 * @param boolean $horiz optional, default true
+	 * @param boolean $vert  optional, default false
+	 * @return mixed
+	 */
+	public function flip($horiz = true, $vert = false)
+	{
+		if (!$this->isValid()) {
 			return false;
 		}
 
-		if ($this->is_imagick()) {
+		if ($this->isImagick()) {
 			$this->image->setFirstIterator();
 			do {
 				if ($horiz) {
@@ -375,20 +435,25 @@ class Photo {
 		$this->image = $flipped;
 	}
 
-	public function orient($filename) {
-		if ($this->is_imagick()) {
+	/**
+	 * @param string $filename filename
+	 * @return mixed
+	 */
+	public function orient($filename)
+	{
+		if ($this->isImagick()) {
 			// based off comment on http://php.net/manual/en/imagick.getimageorientation.php
 			$orientation = $this->image->getImageOrientation();
 			switch ($orientation) {
-			case imagick::ORIENTATION_BOTTOMRIGHT:
-				$this->image->rotateimage("#000", 180);
-				break;
-			case imagick::ORIENTATION_RIGHTTOP:
-				$this->image->rotateimage("#000", 90);
-				break;
-			case imagick::ORIENTATION_LEFTBOTTOM:
-				$this->image->rotateimage("#000", -90);
-				break;
+				case imagick::ORIENTATION_BOTTOMRIGHT:
+					$this->image->rotateimage("#000", 180);
+					break;
+				case imagick::ORIENTATION_RIGHTTOP:
+					$this->image->rotateimage("#000", 90);
+					break;
+				case imagick::ORIENTATION_LEFTBOTTOM:
+					$this->image->rotateimage("#000", -90);
+					break;
 			}
 
 			$this->image->setImageOrientation(imagick::ORIENTATION_TOPLEFT);
@@ -396,7 +461,7 @@ class Photo {
 		}
 		// based off comment on http://php.net/manual/en/function.imagerotate.php
 
-		if (!$this->is_valid()) {
+		if (!$this->isValid()) {
 			return false;
 		}
 
@@ -404,15 +469,14 @@ class Photo {
 			return;
 		}
 
-		$exif = @exif_read_data($filename,null,true);
+		$exif = @exif_read_data($filename, null, true);
 		if (!$exif) {
 			return;
 		}
 
 		$ort = $exif['IFD0']['Orientation'];
 
-		switch($ort)
-		{
+		switch ($ort) {
 			case 1: // nothing
 				break;
 
@@ -449,16 +513,17 @@ class Photo {
 
 		//	logger('exif: ' . print_r($exif,true));
 		return $exif;
-
 	}
 
-
-
-	public function scaleImageUp($min) {
-		if (!$this->is_valid()) {
+	/**
+	 * @param integer $min minimum dimension
+	 * @return mixed
+	 */
+	public function scaleImageUp($min)
+	{
+		if (!$this->isValid()) {
 			return false;
 		}
-
 
 		$width = $this->getWidth();
 		$height = $this->getHeight();
@@ -492,7 +557,7 @@ class Photo {
 			}
 		}
 
-		if ($this->is_imagick()) {
+		if ($this->isImagick()) {
 			return $this->scaleImage($dest_width, $dest_height);
 		}
 
@@ -511,14 +576,17 @@ class Photo {
 		$this->height = imagesy($this->image);
 	}
 
-
-
-	public function scaleImageSquare($dim) {
-		if (!$this->is_valid()) {
+	/**
+	 * @param integer $dim dimension
+	 * @return mixed
+	 */
+	public function scaleImageSquare($dim)
+	{
+		if (!$this->isValid()) {
 			return false;
 		}
 
-		if ($this->is_imagick()) {
+		if ($this->isImagick()) {
 			$this->image->setFirstIterator();
 			do {
 				$this->image->scaleImage($dim, $dim);
@@ -541,13 +609,21 @@ class Photo {
 		$this->height = imagesy($this->image);
 	}
 
-
-	public function cropImage($max, $x, $y, $w, $h) {
-		if (!$this->is_valid()) {
+	/**
+	 * @param integer $max maximum
+	 * @param integer $x   x coordinate
+	 * @param integer $y   y coordinate
+	 * @param integer $w   width
+	 * @param integer $h   height
+	 * @return mixed
+	 */
+	public function cropImage($max, $x, $y, $w, $h)
+	{
+		if (!$this->isValid()) {
 			return false;
 		}
 
-		if ($this->is_imagick()) {
+		if ($this->isImagick()) {
 			$this->image->setFirstIterator();
 			do {
 				$this->image->cropImage($w, $h, $x, $y);
@@ -576,8 +652,13 @@ class Photo {
 		$this->height = imagesy($this->image);
 	}
 
-	public function saveImage($path) {
-		if (!$this->is_valid()) {
+	/**
+	 * @param string $path file path
+	 * @return mixed
+	 */
+	public function saveImage($path)
+	{
+		if (!$this->isValid()) {
 			return false;
 		}
 
@@ -590,12 +671,16 @@ class Photo {
 		$a->save_timestamp($stamp1, "file");
 	}
 
-	public function imageString() {
-		if (!$this->is_valid()) {
+	/**
+	 * @return mixed
+	 */
+	public function imageString()
+	{
+		if (!$this->isValid()) {
 			return false;
 		}
 
-		if ($this->is_imagick()) {
+		if ($this->isImagick()) {
 			/* Clean it */
 			$this->image = $this->image->deconstructImages();
 			$string = $this->image->getImagesBlob();
@@ -609,7 +694,7 @@ class Photo {
 		// Enable interlacing
 		imageinterlace($this->image, true);
 
-		switch($this->getType()){
+		switch ($this->getType()) {
 			case "image/png":
 				$quality = Config::get('system', 'png_quality');
 				if ((!$quality) || ($quality > 9)) {
@@ -630,10 +715,23 @@ class Photo {
 		return $string;
 	}
 
-
-
-	public function store($uid, $cid, $rid, $filename, $album, $scale, $profile = 0, $allow_cid = '', $allow_gid = '', $deny_cid = '', $deny_gid = '', $desc = '') {
-
+	/**
+	 * @param integer $uid       uid
+	 * @param integer $cid       cid
+	 * @param integer $rid       rid
+	 * @param string  $filename  filename
+	 * @param string  $album     album name
+	 * @param integer $scale     scale
+	 * @param integer $profile   optional, default = 0
+	 * @param string  $allow_cid optional, default = ''
+	 * @param string  $allow_gid optional, default = ''
+	 * @param string  $deny_cid  optional, default = ''
+	 * @param string  $deny_gid  optional, default = ''
+	 * @param string  $desc      optional, default = ''
+	 * @return object
+	 */
+	public function store($uid, $cid, $rid, $filename, $album, $scale, $profile = 0, $allow_cid = '', $allow_gid = '', $deny_cid = '', $deny_gid = '', $desc = '')
+	{
 		$r = dba::select('photo', array('guid'), array("`resource-id` = ? AND `guid` != ?", $rid, ''), array('limit' => 1));
 		if (DBM::is_result($r)) {
 			$guid = $r['guid'];
@@ -656,417 +754,452 @@ class Photo {
 
 		return $r;
 	}
-}
 
-
-/**
- * Guess image mimetype from filename or from Content-Type header
- *
- * @arg $filename string Image filename
- * @arg $fromcurl boolean Check Content-Type header from curl request
- */
-function guess_image_type($filename, $fromcurl=false) {
-	logger('Photo: guess_image_type: '.$filename . ($fromcurl?' from curl headers':''), LOGGER_DEBUG);
-	$type = null;
-	if ($fromcurl) {
-		$a = get_app();
-		$headers=array();
-		$h = explode("\n",$a->get_curl_headers());
-		foreach ($h as $l) {
-			list($k,$v) = array_map("trim", explode(":", trim($l), 2));
-			$headers[$k] = $v;
-		}
-		if (array_key_exists('Content-Type', $headers))
-			$type = $headers['Content-Type'];
-	}
-	if (is_null($type)){
-		// Guessing from extension? Isn't that... dangerous?
-		if (class_exists('Imagick') && file_exists($filename) && is_readable($filename)) {
-			/**
-			 * Well, this not much better,
-			 * but at least it comes from the data inside the image,
-			 * we won't be tricked by a manipulated extension
-			 */
-			$image = new Imagick($filename);
-			$type = $image->getImageMimeType();
-			$image->setInterlaceScheme(Imagick::INTERLACE_PLANE);
-		} else {
-			$ext = pathinfo($filename, PATHINFO_EXTENSION);
-			$types = Photo::supportedTypes();
-			$type = "image/jpeg";
-			foreach ($types as $m => $e){
-				if ($ext == $e) {
-					$type = $m;
-				}
-			}
-		}
-	}
-	logger('Photo: guess_image_type: type='.$type, LOGGER_DEBUG);
-	return $type;
-
-}
-
-/**
- * @brief Updates the avatar links in a contact only if needed
- *
- * @param string $avatar Link to avatar picture
- * @param int $uid User id of contact owner
- * @param int $cid Contact id
- * @param bool $force force picture update
- *
- * @return array Returns array of the different avatar sizes
- */
-function update_contact_avatar($avatar, $uid, $cid, $force = false) {
-	$r = q("SELECT `avatar`, `photo`, `thumb`, `micro`, `nurl` FROM `contact` WHERE `id` = %d LIMIT 1", intval($cid));
-	if (!DBM::is_result($r)) {
-		return false;
-	} else {
-		$data = array($r[0]["photo"], $r[0]["thumb"], $r[0]["micro"]);
-	}
-
-	if (($r[0]["avatar"] != $avatar) || $force) {
-		$photos = import_profile_photo($avatar, $uid, $cid, true);
-
-		if ($photos) {
-			q("UPDATE `contact` SET `avatar` = '%s', `photo` = '%s', `thumb` = '%s', `micro` = '%s', `avatar-date` = '%s' WHERE `id` = %d",
-				dbesc($avatar), dbesc($photos[0]), dbesc($photos[1]), dbesc($photos[2]),
-				dbesc(datetime_convert()), intval($cid));
-
-			// Update the public contact (contact id = 0)
-			if ($uid != 0) {
-				$pcontact = dba::select('contact', array('id'), array('nurl' => $r[0]['nurl']), array('limit' => 1));
-				if (DBM::is_result($pcontact)) {
-					update_contact_avatar($avatar, 0, $pcontact['id'], $force);
-				}
-			}
-
-			return $photos;
-		}
-	}
-
-	return $data;
-}
-
-function import_profile_photo($photo, $uid, $cid, $quit_on_error = false) {
-
-	$r = q("SELECT `resource-id` FROM `photo` WHERE `uid` = %d AND `contact-id` = %d AND `scale` = 4 AND `album` = 'Contact Photos' LIMIT 1",
-		intval($uid),
-		intval($cid)
-	);
-	if (DBM::is_result($r) && strlen($r[0]['resource-id'])) {
-		$hash = $r[0]['resource-id'];
-	} else {
-		$hash = photo_new_resource();
-	}
-
-	$photo_failure = false;
-
-	$filename = basename($photo);
-	$img_str = fetch_url($photo, true);
-
-	if ($quit_on_error && ($img_str == "")) {
-		return false;
-	}
-
-	$type = guess_image_type($photo, true);
-	$img = new Photo($img_str, $type);
-	if ($img->is_valid()) {
-
-		$img->scaleImageSquare(175);
-
-		$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 4);
-
-		if ($r === false)
-			$photo_failure = true;
-
-		$img->scaleImage(80);
-
-		$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 5);
-
-		if ($r === false)
-			$photo_failure = true;
-
-		$img->scaleImage(48);
-
-		$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 6);
-
-		if ($r === false) {
-			$photo_failure = true;
-		}
-
-		$suffix = '?ts='.time();
-
-		$photo = System::baseUrl() . '/photo/' . $hash . '-4.' . $img->getExt() . $suffix;
-		$thumb = System::baseUrl() . '/photo/' . $hash . '-5.' . $img->getExt() . $suffix;
-		$micro = System::baseUrl() . '/photo/' . $hash . '-6.' . $img->getExt() . $suffix;
-
-		// Remove the cached photo
-		$a = get_app();
-		$basepath = $a->get_basepath();
-
-		if (is_dir($basepath."/photo")) {
-			$filename = $basepath.'/photo/'.$hash.'-4.'.$img->getExt();
-			if (file_exists($filename)) {
-				unlink($filename);
-			}
-			$filename = $basepath.'/photo/'.$hash.'-5.'.$img->getExt();
-			if (file_exists($filename)) {
-				unlink($filename);
-			}
-			$filename = $basepath.'/photo/'.$hash.'-6.'.$img->getExt();
-			if (file_exists($filename)) {
-				unlink($filename);
-			}
-		}
-	} else {
-		$photo_failure = true;
-	}
-
-	if ($photo_failure && $quit_on_error) {
-		return false;
-	}
-
-	if ($photo_failure) {
-		$photo = System::baseUrl() . '/images/person-175.jpg';
-		$thumb = System::baseUrl() . '/images/person-80.jpg';
-		$micro = System::baseUrl() . '/images/person-48.jpg';
-	}
-
-	return(array($photo,$thumb,$micro));
-
-}
-
-function get_photo_info($url) {
-	$data = array();
-
-	$data = Cache::get($url);
-
-	if (is_null($data) || !$data || !is_array($data)) {
-		$img_str = fetch_url($url, true, $redirects, 4);
-		$filesize = strlen($img_str);
-
-		if (function_exists("getimagesizefromstring")) {
-			$data = getimagesizefromstring($img_str);
-		} else {
-			$tempfile = tempnam(get_temppath(), "cache");
-
+	/**
+	 * Guess image mimetype from filename or from Content-Type header
+	 *
+	 * @param string  $filename Image filename
+	 * @param boolean $fromcurl Check Content-Type header from curl request
+	 *
+	 * @return object
+	 */
+	public function guessImageType($filename, $fromcurl = false)
+	{
+		logger('Photo: guessImageType: '.$filename . ($fromcurl?' from curl headers':''), LOGGER_DEBUG);
+		$type = null;
+		if ($fromcurl) {
 			$a = get_app();
-			$stamp1 = microtime(true);
-			file_put_contents($tempfile, $img_str);
-			$a->save_timestamp($stamp1, "file");
-
-			$data = getimagesize($tempfile);
-			unlink($tempfile);
+			$headers=array();
+			$h = explode("\n", $a->get_curl_headers());
+			foreach ($h as $l) {
+				list($k,$v) = array_map("trim", explode(":", trim($l), 2));
+				$headers[$k] = $v;
+			}
+			if (array_key_exists('Content-Type', $headers))
+				$type = $headers['Content-Type'];
 		}
-
-		if ($data) {
-			$data["size"] = $filesize;
+		if (is_null($type)) {
+			// Guessing from extension? Isn't that... dangerous?
+			if (class_exists('Imagick') && file_exists($filename) && is_readable($filename)) {
+				/**
+				 * Well, this not much better,
+				 * but at least it comes from the data inside the image,
+				 * we won't be tricked by a manipulated extension
+				 */
+				$image = new Imagick($filename);
+				$type = $image->getImageMimeType();
+				$image->setInterlaceScheme(Imagick::INTERLACE_PLANE);
+			} else {
+				$ext = pathinfo($filename, PATHINFO_EXTENSION);
+				$types = $this->supportedTypes();
+				$type = "image/jpeg";
+				foreach ($types as $m => $e) {
+					if ($ext == $e) {
+						$type = $m;
+					}
+				}
+			}
 		}
-
-		Cache::set($url, $data);
+		logger('Photo: guessImageType: type='.$type, LOGGER_DEBUG);
+		return $type;
 	}
 
-	return $data;
-}
+	/**
+	 * @brief Updates the avatar links in a contact only if needed
+	 *
+	 * @param string $avatar Link to avatar picture
+	 * @param int    $uid    User id of contact owner
+	 * @param int    $cid    Contact id
+	 * @param bool   $force  force picture update
+	 *
+	 * @return array Returns array of the different avatar sizes
+	 */
+	public function updateContactAvatar($avatar, $uid, $cid, $force = false)
+	{
+		// Limit = 1 returns the row so no need for dba:inArray()
+		$r = dba::select('contact', array('avatar', 'photo', 'thumb', 'micro', 'nurl'), array('id' => $cid), array('limit' => 1));
+		if (!DBM::is_result($r)) {
+			return false;
+		} else {
+			$data = array($r["photo"], $r["thumb"], $r["micro"]);
+		}
 
-function scale_image($width, $height, $max) {
+		if (($r["avatar"] != $avatar) || $force) {
+			$photos = $this->importProfilePhoto($avatar, $uid, $cid, true);
 
-	$dest_width = $dest_height = 0;
+			if ($photos) {
+				dba::update(
+					'contact',
+					array('avatar' => $avatar, 'photo' => $photos[0], 'thumb' => $photos[1], 'micro' => $photos[2], 'avatar-date' => datetime_convert()),
+					array('id' => $cid)
+				);
 
-	if ((!$width) || (!$height)) {
-		return false;
+				// Update the public contact (contact id = 0)
+				if ($uid != 0) {
+					$pcontact = dba::select('contact', array('id'), array('nurl' => $r[0]['nurl']), array('limit' => 1));
+					if (DBM::is_result($pcontact)) {
+						$this->updateContactAvatar($avatar, 0, $pcontact['id'], $force);
+					}
+				}
+
+				return $photos;
+			}
+		}
+
+		return $data;
 	}
 
-	if ($width > $max && $height > $max) {
+	/**
+	 * @param string  $photo         photo
+	 * @param integer $uid           user id
+	 * @param integer $cid           contact id
+	 * @param boolean $quit_on_error optional, default false
+	 * @return array
+	 */
+	private function importProfilePhoto($photo, $uid, $cid, $quit_on_error = false)
+	{
+		$r = dba::select(
+			'photo',
+			array('resource-id'),
+			array('uid' => $uid, 'contact-id' => $cid, 'scale' => 4, 'album' => 'Contact Photos'),
+			array('limit' => 1)
+		);
 
-		// very tall image (greater than 16:9)
-		// constrain the width - let the height float.
-
-		if ((($height * 9) / 16) > $width) {
-			$dest_width = $max;
-			$dest_height = intval(($height * $max) / $width);
-		} elseif ($width > $height) {
-			// else constrain both dimensions
-			$dest_width = $max;
-			$dest_height = intval(($height * $max) / $width);
+		if (DBM::is_result($r) && strlen($r['resource-id'])) {
+			$hash = $r['resource-id'];
 		} else {
-			$dest_width = intval(($width * $max) / $height);
-			$dest_height = $max;
+			$hash = photo_new_resource();
 		}
-	} else {
-		if ($width > $max) {
-			$dest_width = $max;
-			$dest_height = intval(($height * $max) / $width);
+	
+		$photo_failure = false;
+	
+		$filename = basename($photo);
+		$img_str = fetch_url($photo, true);
+	
+		if ($quit_on_error && ($img_str == "")) {
+			return false;
+		}
+	
+		$type = $this->guessImageType($photo, true);
+		$img = new Photo($img_str, $type);
+		if ($img->isValid()) {
+			$img->scaleImageSquare(175);
+	
+			$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 4);
+	
+			if ($r === false) {
+				$photo_failure = true;
+			}
+	
+			$img->scaleImage(80);
+	
+			$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 5);
+	
+			if ($r === false) {
+				$photo_failure = true;
+			}
+	
+			$img->scaleImage(48);
+	
+			$r = $img->store($uid, $cid, $hash, $filename, 'Contact Photos', 6);
+	
+			if ($r === false) {
+				$photo_failure = true;
+			}
+	
+			$suffix = '?ts='.time();
+	
+			$photo = System::baseUrl() . '/photo/' . $hash . '-4.' . $img->getExt() . $suffix;
+			$thumb = System::baseUrl() . '/photo/' . $hash . '-5.' . $img->getExt() . $suffix;
+			$micro = System::baseUrl() . '/photo/' . $hash . '-6.' . $img->getExt() . $suffix;
+	
+			// Remove the cached photo
+			$a = get_app();
+			$basepath = $a->get_basepath();
+	
+			if (is_dir($basepath."/photo")) {
+				$filename = $basepath.'/photo/'.$hash.'-4.'.$img->getExt();
+				if (file_exists($filename)) {
+					unlink($filename);
+				}
+				$filename = $basepath.'/photo/'.$hash.'-5.'.$img->getExt();
+				if (file_exists($filename)) {
+					unlink($filename);
+				}
+				$filename = $basepath.'/photo/'.$hash.'-6.'.$img->getExt();
+				if (file_exists($filename)) {
+					unlink($filename);
+				}
+			}
 		} else {
-			if ($height > $max) {
+			$photo_failure = true;
+		}
+	
+		if ($photo_failure && $quit_on_error) {
+			return false;
+		}
+	
+		if ($photo_failure) {
+			$photo = System::baseUrl() . '/images/person-175.jpg';
+			$thumb = System::baseUrl() . '/images/person-80.jpg';
+			$micro = System::baseUrl() . '/images/person-48.jpg';
+		}
+	
+		return(array($photo, $thumb, $micro));
+	}
 
-				// very tall image (greater than 16:9)
-				// but width is OK - don't do anything
+	/**
+	 * @param string $url url
+	 * @return object
+	 */
+	public function getPhotoInfo($url)
+	{
+		$data = array();
+	
+		$data = Cache::get($url);
+	
+		if (is_null($data) || !$data || !is_array($data)) {
+			$img_str = fetch_url($url, true, $redirects, 4);
+			$filesize = strlen($img_str);
+	
+			if (function_exists("getimagesizefromstring")) {
+				$data = getimagesizefromstring($img_str);
+			} else {
+				$tempfile = tempnam(get_temppath(), "cache");
+	
+				$a = get_app();
+				$stamp1 = microtime(true);
+				file_put_contents($tempfile, $img_str);
+				$a->save_timestamp($stamp1, "file");
+	
+				$data = getimagesize($tempfile);
+				unlink($tempfile);
+			}
+	
+			if ($data) {
+				$data["size"] = $filesize;
+			}
+	
+			Cache::set($url, $data);
+		}
+	
+		return $data;
+	}
 
-				if ((($height * 9) / 16) > $width) {
+	/**
+	 * @param integer $width  width
+	 * @param integer $height height
+	 * @param integer $max    max
+	 * @return array
+	 */
+	public function scaleImageTo($width, $height, $max)
+	{
+		$dest_width = $dest_height = 0;
+	
+		if ((!$width) || (!$height)) {
+			return false;
+		}
+	
+		if ($width > $max && $height > $max) {
+			// very tall image (greater than 16:9)
+			// constrain the width - let the height float.
+	
+			if ((($height * 9) / 16) > $width) {
+				$dest_width = $max;
+				$dest_height = intval(($height * $max) / $width);
+			} elseif ($width > $height) {
+				// else constrain both dimensions
+				$dest_width = $max;
+				$dest_height = intval(($height * $max) / $width);
+			} else {
+				$dest_width = intval(($width * $max) / $height);
+				$dest_height = $max;
+			}
+		} else {
+			if ($width > $max) {
+				$dest_width = $max;
+				$dest_height = intval(($height * $max) / $width);
+			} else {
+				if ($height > $max) {
+					// very tall image (greater than 16:9)
+					// but width is OK - don't do anything
+	
+					if ((($height * 9) / 16) > $width) {
+						$dest_width = $width;
+						$dest_height = $height;
+					} else {
+						$dest_width = intval(($width * $max) / $height);
+						$dest_height = $max;
+					}
+				} else {
 					$dest_width = $width;
 					$dest_height = $height;
-				} else {
-					$dest_width = intval(($width * $max) / $height);
-					$dest_height = $max;
 				}
-			} else {
-				$dest_width = $width;
-				$dest_height = $height;
 			}
 		}
-	}
-	return array("width" => $dest_width, "height" => $dest_height);
-}
-
-function store_photo(App $a, $uid, $imagedata = "", $url = "") {
-	$r = q("SELECT `user`.`nickname`, `user`.`page-flags`, `contact`.`id` FROM `user` INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`
-		WHERE `user`.`uid` = %d AND `user`.`blocked` = 0 AND `contact`.`self` = 1 LIMIT 1",
-		intval($uid));
-
-	if (!DBM::is_result($r)) {
-		logger("Can't detect user data for uid ".$uid, LOGGER_DEBUG);
-		return(array());
+		return array("width" => $dest_width, "height" => $dest_height);
 	}
 
-	$page_owner_nick  = $r[0]['nickname'];
-
-	/// @TODO
-	/// $default_cid      = $r[0]['id'];
-	/// $community_page   = (($r[0]['page-flags'] == PAGE_COMMUNITY) ? true : false);
-
-	if ((strlen($imagedata) == 0) && ($url == "")) {
-		logger("No image data and no url provided", LOGGER_DEBUG);
-		return(array());
-	} elseif (strlen($imagedata) == 0) {
-		logger("Uploading picture from ".$url, LOGGER_DEBUG);
-
+	/**
+	 * @brief This function doesn't seem to be used
+	 * @param object  $a         App
+	 * @param integer $uid       user id
+	 * @param string  $imagedata optional, default empty
+	 * @param string  $url       optional, default empty
+	 * @return array
+	 */
+	private function storePhoto(App $a, $uid, $imagedata = "", $url = "")
+	{
+		$r = q(
+			"SELECT `user`.`nickname`, `user`.`page-flags`, `contact`.`id` FROM `user` INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`
+			WHERE `user`.`uid` = %d AND `user`.`blocked` = 0 AND `contact`.`self` = 1 LIMIT 1",
+			intval($uid)
+		);
+	
+		if (!DBM::is_result($r)) {
+			logger("Can't detect user data for uid ".$uid, LOGGER_DEBUG);
+			return(array());
+		}
+	
+		$page_owner_nick  = $r[0]['nickname'];
+	
+		/// @TODO
+		/// $default_cid      = $r[0]['id'];
+		/// $community_page   = (($r[0]['page-flags'] == PAGE_COMMUNITY) ? true : false);
+	
+		if ((strlen($imagedata) == 0) && ($url == "")) {
+			logger("No image data and no url provided", LOGGER_DEBUG);
+			return(array());
+		} elseif (strlen($imagedata) == 0) {
+			logger("Uploading picture from ".$url, LOGGER_DEBUG);
+	
+			$stamp1 = microtime(true);
+			$imagedata = @file_get_contents($url);
+			$a->save_timestamp($stamp1, "file");
+		}
+	
+		$maximagesize = Config::get('system', 'maximagesize');
+	
+		if (($maximagesize) && (strlen($imagedata) > $maximagesize)) {
+			logger("Image exceeds size limit of ".$maximagesize, LOGGER_DEBUG);
+			return(array());
+		}
+	
+		$tempfile = tempnam(get_temppath(), "cache");
+	
 		$stamp1 = microtime(true);
-		$imagedata = @file_get_contents($url);
+		file_put_contents($tempfile, $imagedata);
 		$a->save_timestamp($stamp1, "file");
-	}
-
-	$maximagesize = Config::get('system', 'maximagesize');
-
-	if (($maximagesize) && (strlen($imagedata) > $maximagesize)) {
-		logger("Image exceeds size limit of ".$maximagesize, LOGGER_DEBUG);
-		return(array());
-	}
-
-	$tempfile = tempnam(get_temppath(), "cache");
-
-	$stamp1 = microtime(true);
-	file_put_contents($tempfile, $imagedata);
-	$a->save_timestamp($stamp1, "file");
-
-	$data = getimagesize($tempfile);
-
-	if (!isset($data["mime"])) {
+	
+		$data = getimagesize($tempfile);
+	
+		if (!isset($data["mime"])) {
+			unlink($tempfile);
+			logger("File is no picture", LOGGER_DEBUG);
+			return(array());
+		}
+	
+		$ph = new Photo($imagedata, $data["mime"]);
+	
+		if (!$ph->isValid()) {
+			unlink($tempfile);
+			logger("Picture is no valid picture", LOGGER_DEBUG);
+			return(array());
+		}
+	
+		$ph->orient($tempfile);
 		unlink($tempfile);
-		logger("File is no picture", LOGGER_DEBUG);
-		return(array());
-	}
-
-	$ph = new Photo($imagedata, $data["mime"]);
-
-	if (!$ph->is_valid()) {
-		unlink($tempfile);
-		logger("Picture is no valid picture", LOGGER_DEBUG);
-		return(array());
-	}
-
-	$ph->orient($tempfile);
-	unlink($tempfile);
-
-	$max_length = Config::get('system', 'max_image_length');
-	if (! $max_length) {
-		$max_length = MAX_IMAGE_LENGTH;
-	}
-	if ($max_length > 0) {
-		$ph->scaleImage($max_length);
-	}
-
-	$width = $ph->getWidth();
-	$height = $ph->getHeight();
-
-	$hash = photo_new_resource();
-
-	$smallest = 0;
-
-	// Pictures are always public by now
-	//$defperm = '<'.$default_cid.'>';
-	$defperm = "";
-	$visitor = 0;
-
-	$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 0, 0, $defperm);
-
-	if (!$r) {
-		logger("Picture couldn't be stored", LOGGER_DEBUG);
-		return(array());
-	}
-
-	$image = array("page" => System::baseUrl().'/photos/'.$page_owner_nick.'/image/'.$hash,
-			"full" => System::baseUrl()."/photo/{$hash}-0.".$ph->getExt());
-
-	if ($width > 800 || $height > 800) {
-		$image["large"] = System::baseUrl()."/photo/{$hash}-0.".$ph->getExt();
-	}
-
-	if ($width > 640 || $height > 640) {
-		$ph->scaleImage(640);
-		$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 1, 0, $defperm);
-		if ($r) {
-			$image["medium"] = System::baseUrl()."/photo/{$hash}-1.".$ph->getExt();
+	
+		$max_length = Config::get('system', 'max_image_length');
+		if (! $max_length) {
+			$max_length = MAX_IMAGE_LENGTH;
 		}
-	}
-
-	if ($width > 320 || $height > 320) {
-		$ph->scaleImage(320);
-		$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 2, 0, $defperm);
-		if ($r) {
-			$image["small"] = System::baseUrl()."/photo/{$hash}-2.".$ph->getExt();
+		if ($max_length > 0) {
+			$ph->scaleImage($max_length);
 		}
-	}
-
-	if ($width > 160 && $height > 160) {
-		$x = 0;
-		$y = 0;
-
-		$min = $ph->getWidth();
-		if ($min > 160) {
-			$x = ($min - 160) / 2;
+	
+		$width = $ph->getWidth();
+		$height = $ph->getHeight();
+	
+		$hash = photo_new_resource();
+	
+		$smallest = 0;
+	
+		// Pictures are always public by now
+		//$defperm = '<'.$default_cid.'>';
+		$defperm = "";
+		$visitor = 0;
+	
+		$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 0, 0, $defperm);
+	
+		if (!$r) {
+			logger("Picture couldn't be stored", LOGGER_DEBUG);
+			return(array());
 		}
-
-		if ($ph->getHeight() < $min) {
-			$min = $ph->getHeight();
-			if ($min > 160) {
-				$y = ($min - 160) / 2;
+	
+		$image = array("page" => System::baseUrl().'/photos/'.$page_owner_nick.'/image/'.$hash,
+				"full" => System::baseUrl()."/photo/{$hash}-0.".$ph->getExt());
+	
+		if ($width > 800 || $height > 800) {
+			$image["large"] = System::baseUrl()."/photo/{$hash}-0.".$ph->getExt();
+		}
+	
+		if ($width > 640 || $height > 640) {
+			$ph->scaleImage(640);
+			$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 1, 0, $defperm);
+			if ($r) {
+				$image["medium"] = System::baseUrl()."/photo/{$hash}-1.".$ph->getExt();
 			}
 		}
-
-		$min = 160;
-		$ph->cropImage(160, $x, $y, $min, $min);
-
-		$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 3, 0, $defperm);
-		if ($r) {
-			$image["thumb"] = System::baseUrl()."/photo/{$hash}-3.".$ph->getExt();
+	
+		if ($width > 320 || $height > 320) {
+			$ph->scaleImage(320);
+			$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 2, 0, $defperm);
+			if ($r) {
+				$image["small"] = System::baseUrl()."/photo/{$hash}-2.".$ph->getExt();
+			}
 		}
+	
+		if ($width > 160 && $height > 160) {
+			$x = 0;
+			$y = 0;
+	
+			$min = $ph->getWidth();
+			if ($min > 160) {
+				$x = ($min - 160) / 2;
+			}
+	
+			if ($ph->getHeight() < $min) {
+				$min = $ph->getHeight();
+				if ($min > 160) {
+					$y = ($min - 160) / 2;
+				}
+			}
+	
+			$min = 160;
+			$ph->cropImage(160, $x, $y, $min, $min);
+	
+			$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 3, 0, $defperm);
+			if ($r) {
+				$image["thumb"] = System::baseUrl()."/photo/{$hash}-3.".$ph->getExt();
+			}
+		}
+	
+		// Set the full image as preview image. This will be overwritten, if the picture is larger than 640.
+		$image["preview"] = $image["full"];
+	
+		// Deactivated, since that would result in a cropped preview, if the picture wasn't larger than 320
+		//if (isset($image["thumb"]))
+		//	$image["preview"] = $image["thumb"];
+	
+		// Unsure, if this should be activated or deactivated
+		//if (isset($image["small"]))
+		//	$image["preview"] = $image["small"];
+	
+		if (isset($image["medium"])) {
+			$image["preview"] = $image["medium"];
+		}
+	
+		return($image);
 	}
-
-	// Set the full image as preview image. This will be overwritten, if the picture is larger than 640.
-	$image["preview"] = $image["full"];
-
-	// Deactivated, since that would result in a cropped preview, if the picture wasn't larger than 320
-	//if (isset($image["thumb"]))
-	//	$image["preview"] = $image["thumb"];
-
-	// Unsure, if this should be activated or deactivated
-	//if (isset($image["small"]))
-	//	$image["preview"] = $image["small"];
-
-	if (isset($image["medium"])) {
-		$image["preview"] = $image["medium"];
-	}
-
-	return($image);
 }

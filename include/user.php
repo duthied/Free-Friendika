@@ -285,23 +285,22 @@ function create_user($arr) {
 		$photo = avatar_img($email);
 
 	// unless there is no avatar-plugin loaded
-	if(strlen($photo)) {
+	if (strlen($photo)) {
 		$photo_failure = false;
 
 		$filename = basename($photo);
-		$img_str = fetch_url($photo,true);
+		$img_str = fetch_url($photo, true);
 		// guess mimetype from headers or filename
-		$type = guess_image_type($photo,true);
+		$type = Photo::guessImageType($photo, true);
 
 
 		$img = new Photo($img_str, $type);
-		if($img->is_valid()) {
-
+		if ($img->isValid()) {
 			$img->scaleImageSquare(175);
 
 			$hash = photo_new_resource();
 
-			$r = $img->store($newuid, 0, $hash, $filename, t('Profile Photos'), 4 );
+			$r = $img->store($newuid, 0, $hash, $filename, t('Profile Photos'), 4);
 
 			if ($r === false) {
 				$photo_failure = true;

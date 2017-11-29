@@ -326,7 +326,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 		 *
 		 */
 
-		update_contact_avatar($contact['photo'],$uid,$contact_id);
+		Photo::updateContactAvatar($contact['photo'],$uid,$contact_id);
 
 		logger('dfrn_confirm: confirm - imported photos');
 
@@ -675,7 +675,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 			$photo = System::baseUrl() . '/images/person-175.jpg';
 		}
 
-		update_contact_avatar($photo,$local_uid,$dfrn_record);
+		Photo::updateContactAvatar($photo,$local_uid,$dfrn_record);
 
 		logger('dfrn_confirm: request - photos imported');
 

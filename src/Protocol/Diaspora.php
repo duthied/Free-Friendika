@@ -2211,7 +2211,7 @@ class Diaspora
 			$image_url = "http://".$handle_parts[1].$image_url;
 		}
 
-		update_contact_avatar($image_url, $importer["uid"], $contact["id"]);
+		Photo::updateContactAvatar($image_url, $importer["uid"], $contact["id"]);
 
 		// Generic birthday. We don't know the timezone. The year is irrelevant.
 
@@ -2471,7 +2471,7 @@ class Diaspora
 			group_add_member($importer["uid"], "", $contact_record["id"], $def_gid);
 		}
 
-		update_contact_avatar($ret["photo"], $importer['uid'], $contact_record["id"], true);
+		Photo::updateContactAvatar($ret["photo"], $importer['uid'], $contact_record["id"], true);
 
 		if ($importer["page-flags"] == PAGE_NORMAL) {
 			logger("Sending intra message for author ".$author.".", LOGGER_DEBUG);
@@ -2494,7 +2494,7 @@ class Diaspora
 
 			logger("Does an automatic friend approval for author ".$author.".", LOGGER_DEBUG);
 
-			update_contact_avatar($contact_record["photo"], $importer["uid"], $contact_record["id"]);
+			Photo::updateContactAvatar($contact_record["photo"], $importer["uid"], $contact_record["id"]);
 
 			// technically they are sharing with us (CONTACT_IS_SHARING),
 			// but if our page-type is PAGE_COMMUNITY or PAGE_SOAPBOX

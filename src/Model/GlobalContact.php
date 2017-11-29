@@ -881,7 +881,7 @@ class GlobalContact
 			if (DBM::is_result($r)) {
 				logger("Update public contact ".$r[0]["id"], LOGGER_DEBUG);
 
-				update_contact_avatar($contact["photo"], 0, $r[0]["id"]);
+				Photo::updateContactAvatar($contact["photo"], 0, $r[0]["id"]);
 
 				$fields = array('name', 'nick', 'addr',
 						'network', 'bd', 'gender',

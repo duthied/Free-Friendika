@@ -1690,7 +1690,7 @@ function new_follower($importer, $contact, $datarray, $item, $sharing = false) {
 		);
 		if (DBM::is_result($r)) {
 			$contact_record = $r[0];
-			update_contact_avatar($photo, $importer["uid"], $contact_record["id"], true);
+			Photo::updateContactAvatar($photo, $importer["uid"], $contact_record["id"], true);
 		}
 
 		/// @TODO Encapsulate this into a function/method
@@ -1877,7 +1877,7 @@ function fix_private_photos($s, $uid, $item = null, $cid = 0) {
 							$height = intval($match[2]);
 
 							$ph = new Photo($data, $type);
-							if ($ph->is_valid()) {
+							if ($ph->isValid()) {
 								$ph->scaleImage(max($width, $height));
 								$data = $ph->imageString();
 								$type = $ph->getType();

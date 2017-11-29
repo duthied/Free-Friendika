@@ -353,7 +353,7 @@ class ParseUrl
 				}
 
 				$src = self::completeUrl($attr["src"], $url);
-				$photodata = get_photo_info($src);
+				$photodata = Photo::getPhotoInfo($src);
 
 				if (($photodata) && ($photodata[0] > 150) && ($photodata[1] > 150)) {
 					if ($photodata[0] > 300) {
@@ -374,7 +374,7 @@ class ParseUrl
 
 			unset($siteinfo["image"]);
 
-			$photodata = get_photo_info($src);
+			$photodata = Photo::getPhotoInfo($src);
 
 			if (($photodata) && ($photodata[0] > 10) && ($photodata[1] > 10)) {
 				$siteinfo["images"][] = array("src" => $src,

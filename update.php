@@ -154,7 +154,7 @@ function update_1014()
 	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
 			$ph = new Photo($rr['data']);
-			if ($ph->is_valid()) {
+			if ($ph->isValid()) {
 				$ph->scaleImage(48);
 				$ph->store($rr['uid'],$rr['contact-id'],$rr['resource-id'],$rr['filename'],$rr['album'],6,(($rr['profile']) ? 1 : 0));
 			}

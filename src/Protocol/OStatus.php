@@ -203,7 +203,7 @@ class OStatus
 
 			if (!empty($author["author-avatar"]) && ($author["author-avatar"] != $current['avatar'])) {
 				logger("Update profile picture for contact ".$contact["id"], LOGGER_DEBUG);
-				update_contact_avatar($author["author-avatar"], $importer["uid"], $contact["id"]);
+				Photo::updateContactAvatar($author["author-avatar"], $importer["uid"], $contact["id"]);
 			}
 
 			// Ensure that we are having this contact (with uid=0)
@@ -223,7 +223,7 @@ class OStatus
 				dba::update('contact', $fields, array('id' => $cid), $old_contact);
 
 				// Update the avatar
-				update_contact_avatar($author["author-avatar"], 0, $cid);
+				Photo::updateContactAvatar($author["author-avatar"], 0, $cid);
 			}
 
 			$contact["generation"] = 2;
@@ -1326,7 +1326,7 @@ class OStatus
 
 		switch ($siteinfo["type"]) {
 			case 'photo':
-				$imgdata = get_photo_info($siteinfo["image"]);
+				$imgdata = Photo::getPhotoInfo($siteinfo["image"]);
 				$attributes = array("rel" => "enclosure",
 						"href" => $siteinfo["image"],
 						"type" => $imgdata["mime"],
@@ -1346,7 +1346,7 @@ class OStatus
 		}
 
 		if (!Config::get('system', 'ostatus_not_attach_preview') && ($siteinfo["type"] != "photo") && isset($siteinfo["image"])) {
-			$imgdata = get_photo_info($siteinfo["image"]);
+			$imgdata = Photo::getPhotoInfo($siteinfo["image"]);
 			$attributes = array("rel" => "enclosure",
 					"href" => $siteinfo["image"],
 					"type" => $imgdata["mime"],

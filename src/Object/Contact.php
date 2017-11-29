@@ -644,7 +644,7 @@ class Contact extends BaseObject
 			}
 		}
 
-		update_contact_avatar($data["photo"], $uid, $contact_id);
+		Photo::updateContactAvatar($data["photo"], $uid, $contact_id);
 
 		$contact = dba::select('contact', array('url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date'), array('id' => $contact_id), array('limit' => 1));
 

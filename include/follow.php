@@ -250,7 +250,7 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 	}
 
 	// Update the avatar
-	update_contact_avatar($ret['photo'],$uid,$contact_id);
+	Photo::updateContactAvatar($ret['photo'], $uid, $contact_id);
 
 	// pull feed and consume it, which should subscribe to the hub.
 
