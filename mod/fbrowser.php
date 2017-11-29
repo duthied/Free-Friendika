@@ -7,8 +7,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
-
-require_once('include/Photo.php');
+use Friendica\Object\Photo;
 
 /**
  * @param App $a

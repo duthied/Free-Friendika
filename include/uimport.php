@@ -1,12 +1,14 @@
 <?php
-
+/**
+ * @file include/uimport.php
+ */
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Object\Photo;
 
-require_once("include/Photo.php");
 define("IMPORT_DEBUG", False);
 
 function last_insert_id() {

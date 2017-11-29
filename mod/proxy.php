@@ -1,10 +1,14 @@
 <?php
-// Based upon "Privacy Image Cache" by Tobias Hößl <https://github.com/CatoTH/>
+/**
+ * @file mod/proxy.php
+ * @brief Based upon "Privacy Image Cache" by Tobias Hößl <https://github.com/CatoTH/>
+ */
 
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Object\Photo;
 
 define('PROXY_DEFAULT_TIME', 86400); // 1 Day
 
@@ -15,7 +19,6 @@ define('PROXY_SIZE_MEDIUM', 'medium');
 define('PROXY_SIZE_LARGE', 'large');
 
 require_once 'include/security.php';
-require_once 'include/Photo.php';
 
 function proxy_init(App $a) {
 	// Pictures are stored in one of the following ways:

@@ -1,8 +1,11 @@
 <?php
-
+/**
+ * @file include/user.php
+ */
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Object\Photo;
 
 require_once 'include/network.php';
 require_once 'include/plugin.php';
@@ -283,7 +286,6 @@ function create_user($arr) {
 
 	// unless there is no avatar-plugin loaded
 	if(strlen($photo)) {
-		require_once('include/Photo.php');
 		$photo_failure = false;
 
 		$filename = basename($photo);

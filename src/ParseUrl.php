@@ -6,6 +6,7 @@
 namespace Friendica;
 
 use Friendica\Core\Config;
+use Friendica\Object\Photo;
 use Friendica\Util\XML;
 
 use dba;
@@ -13,7 +14,6 @@ use DomXPath;
 use DOMDocument;
 
 require_once "include/network.php";
-require_once "include/Photo.php";
 require_once "include/oembed.php";
 
 /**

@@ -1,10 +1,12 @@
 <?php
-
+/**
+ * @file mod/photo.php
+ */
 use Friendica\App;
 use Friendica\Database\DBM;
+use Friendica\Object\Photo;
 
-require_once('include/security.php');
-require_once('include/Photo.php');
+require_once 'include/security.php';
 
 function photo_init(App $a) {
 	global $_SERVER;

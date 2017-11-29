@@ -19,6 +19,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
 use Friendica\Object\Contact;
+use Friendica\Object\Photo;
 use Friendica\Object\Profile;
 use Friendica\Util\XML;
 
@@ -27,7 +28,6 @@ use SimpleXMLElement;
 
 require_once 'include/items.php';
 require_once 'include/bb2diaspora.php';
-require_once 'include/Photo.php';
 require_once 'include/group.php';
 require_once 'include/datetime.php';
 require_once 'include/queue_fn.php';

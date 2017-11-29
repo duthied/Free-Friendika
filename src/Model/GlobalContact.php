@@ -10,6 +10,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
+use Friendica\Object\Photo;
 use Friendica\Object\Profile;
 use Friendica\Protocol\PortableContact;
 use dba;
@@ -18,7 +19,6 @@ use Exception;
 require_once 'include/datetime.php';
 require_once 'include/network.php';
 require_once 'include/html2bbcode.php';
-require_once 'include/Photo.php';
 
 /**
  * @brief This class handles GlobalContact related functions

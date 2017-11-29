@@ -13,8 +13,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
-
-require_once 'include/Photo.php';
+use Friendica\Object\Photo;
 
 function wall_upload_post(App $a, $desktopmode = true) {
 

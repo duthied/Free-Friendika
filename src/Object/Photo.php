@@ -1,8 +1,9 @@
 <?php
 /**
- * @file include/Photo.php
+ * @file src/Object/Photo.php
  * @brief This file contains the Photo class for image processing
  */
+namespace Friendica\Object;
 
 use Friendica\App;
 use Friendica\Core\Cache;
@@ -10,7 +11,7 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 
-require_once("include/photos.php");
+require_once "include/photos.php";
 
 class Photo {
 
@@ -50,7 +51,8 @@ class Photo {
 		return $t;
 	}
 
-	public function __construct($data, $type=null) {
+	public function __construct($data, $type=null)
+	{
 		$this->imagick = class_exists('Imagick');
 		$this->types = static::supportedTypes();
 		if (!array_key_exists($type, $this->types)){
@@ -80,7 +82,8 @@ class Photo {
 		}
 	}
 
-	public function is_imagick() {
+	public function is_imagick()
+	{
 		return $this->imagick;
 	}
 

@@ -6,6 +6,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Object\Photo;
 
 /**
  *
@@ -146,8 +147,8 @@ function update_1013() {
 		AFTER `object` , ADD `target` TEXT NOT NULL AFTER `target-type`");
 }
 
-function update_1014() {
-	require_once('include/Photo.php');
+function update_1014()
+{
 	q("ALTER TABLE `contact` ADD `micro` TEXT NOT NULL AFTER `thumb` ");
 	$r = q("SELECT * FROM `photo` WHERE `scale` = 4");
 	if (DBM::is_result($r)) {

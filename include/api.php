@@ -23,6 +23,7 @@ use Friendica\Network\HTTPException\NotImplementedException;
 use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Network\HTTPException\TooManyRequestsException;
 use Friendica\Object\Contact;
+use Friendica\Object\Photo;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\XML;
 
@@ -32,7 +33,6 @@ require_once 'include/conversation.php';
 require_once 'include/oauth.php';
 require_once 'include/html2plain.php';
 require_once 'mod/share.php';
-require_once 'include/Photo.php';
 require_once 'mod/item.php';
 require_once 'include/security.php';
 require_once 'include/contact_selectors.php';

@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @file mod/contacts.php
+ */
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -7,10 +9,10 @@ use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
 use Friendica\Object\Contact;
+use Friendica\Object\Photo;
 
 require_once 'include/contact_selectors.php';
 require_once 'mod/proxy.php';
-require_once 'include/Photo.php';
 
 function contacts_init(App $a) {
 	if (! local_user()) {

@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @file mod/photos.php
+ */
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
@@ -7,8 +9,8 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 use Friendica\Object\Contact;
+use Friendica\Object\Photo;
 
-require_once 'include/Photo.php';
 require_once 'include/photos.php';
 require_once 'include/items.php';
 require_once 'include/acl_selectors.php';

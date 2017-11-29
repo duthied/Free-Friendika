@@ -11,6 +11,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Object\Photo;
 
 function frost_init(App $a) {
 	$a->videowidth = 400;
@@ -45,8 +46,8 @@ function frost_uninstall() {
 	logger("uninstalled theme frost");
 }
 
-function frost_item_photo_links(App $a, &$body_info) {
-	require_once('include/Photo.php');
+function frost_item_photo_links(App $a, &$body_info)
+{
 	$phototypes = Photo::supportedTypes();
 
 	$occurence = 1;

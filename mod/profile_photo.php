@@ -1,12 +1,13 @@
 <?php
-
+/**
+ * @file mod/profile_photo.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-
-require_once("include/Photo.php");
+use Friendica\Object\Photo;
 
 function profile_photo_init(App $a) {
 

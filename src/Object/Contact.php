@@ -13,6 +13,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
+use Friendica\Object\Photo;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
@@ -642,8 +643,6 @@ class Contact extends BaseObject
 					normalise_link($data["url"]), $contact_id));
 			}
 		}
-
-		require_once 'include/Photo.php';
 
 		update_contact_avatar($data["photo"], $uid, $contact_id);
 

@@ -1,9 +1,7 @@
 <?php
-
 /**
  * @file include/items.php
  */
-
 use Friendica\App;
 use Friendica\ParseUrl;
 use Friendica\Core\Config;
@@ -13,6 +11,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Object\Contact;
+use Friendica\Object\Photo;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Lock;
@@ -21,7 +20,6 @@ require_once 'include/bbcode.php';
 require_once 'include/oembed.php';
 require_once 'include/salmon.php';
 require_once 'include/crypto.php';
-require_once 'include/Photo.php';
 require_once 'include/tags.php';
 require_once 'include/files.php';
 require_once 'include/text.php';

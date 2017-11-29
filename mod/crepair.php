@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Object\Contact;
+use Friendica\Object\Photo;
 
 require_once 'include/contact_selectors.php';
 require_once 'mod/contacts.php';
@@ -86,7 +87,6 @@ function crepair_post(App $a) {
 
 	if($photo) {
 		logger('mod-crepair: updating photo from ' . $photo);
-		require_once("include/Photo.php");
 
 		update_contact_avatar($photo,local_user(),$contact['id']);
 	}

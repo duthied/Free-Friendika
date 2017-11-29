@@ -1,17 +1,15 @@
 <?php
-
 /**
  * @file include/plaintext.php
  */
-
 use Friendica\App;
 use Friendica\ParseUrl;
 use Friendica\Core\PConfig;
+use Friendica\Object\Photo;
 
-require_once("include/Photo.php");
-require_once("include/bbcode.php");
-require_once("include/html2plain.php");
-require_once("include/network.php");
+require_once "include/bbcode.php";
+require_once "include/html2plain.php";
+require_once "include/network.php";
 
 /**
  * @brief Fetches attachment data that were generated the old way
