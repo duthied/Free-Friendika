@@ -10,6 +10,7 @@ use Friendica\Database\DBM;
 require_once "include/friendica_smarty.php";
 require_once "include/map.php";
 require_once "mod/proxy.php";
+require_once "include/conversation.php";
 
 /**
  * This is our template processor
