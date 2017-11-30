@@ -998,4 +998,168 @@ class Photo
 		}
 		return array("width" => $dest_width, "height" => $dest_height);
 	}
+
+	/**
+	 * @brief This function is used by the fromgplus addon
+	 * @param object  $a         App
+	 * @param integer $uid       user id
+	 * @param string  $imagedata optional, default empty
+	 * @param string  $url       optional, default empty
+	 * @return array
+	 */
+	private function storePhoto(App $a, $uid, $imagedata = "", $url = "")
+	{
+		$r = q(
+			"SELECT `user`.`nickname`, `user`.`page-flags`, `contact`.`id` FROM `user` INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`
+			WHERE `user`.`uid` = %d AND `user`.`blocked` = 0 AND `contact`.`self` = 1 LIMIT 1",
+			intval($uid)
+		);
+	
+		if (!DBM::is_result($r)) {
+			logger("Can't detect user data for uid ".$uid, LOGGER_DEBUG);
+			return(array());
+		}
+	
+		$page_owner_nick  = $r[0]['nickname'];
+	
+		/// @TODO
+		/// $default_cid      = $r[0]['id'];
+		/// $community_page   = (($r[0]['page-flags'] == PAGE_COMMUNITY) ? true : false);
+	
+		if ((strlen($imagedata) == 0) && ($url == "")) {
+			logger("No image data and no url provided", LOGGER_DEBUG);
+			return(array());
+		} elseif (strlen($imagedata) == 0) {
+			logger("Uploading picture from ".$url, LOGGER_DEBUG);
+	
+			$stamp1 = microtime(true);
+			$imagedata = @file_get_contents($url);
+			$a->save_timestamp($stamp1, "file");
+		}
+	
+		$maximagesize = Config::get('system', 'maximagesize');
+	
+		if (($maximagesize) && (strlen($imagedata) > $maximagesize)) {
+			logger("Image exceeds size limit of ".$maximagesize, LOGGER_DEBUG);
+			return(array());
+		}
+	
+		$tempfile = tempnam(get_temppath(), "cache");
+	
+		$stamp1 = microtime(true);
+		file_put_contents($tempfile, $imagedata);
+		$a->save_timestamp($stamp1, "file");
+	
+		$data = getimagesize($tempfile);
+	
+		if (!isset($data["mime"])) {
+			unlink($tempfile);
+			logger("File is no picture", LOGGER_DEBUG);
+			return(array());
+		}
+	
+		$ph = new Photo($imagedata, $data["mime"]);
+	
+		if (!$ph->isValid()) {
+			unlink($tempfile);
+			logger("Picture is no valid picture", LOGGER_DEBUG);
+			return(array());
+		}
+	
+		$ph->orient($tempfile);
+		unlink($tempfile);
+	
+		$max_length = Config::get('system', 'max_image_length');
+		if (! $max_length) {
+			$max_length = MAX_IMAGE_LENGTH;
+		}
+
+		if ($max_length > 0) {
+			$ph->scaleImage($max_length);
+		}
+	
+		$width = $ph->getWidth();
+		$height = $ph->getHeight();
+	
+		$hash = photo_new_resource();
+	
+		$smallest = 0;
+	
+		// Pictures are always public by now
+		//$defperm = '<'.$default_cid.'>';
+		$defperm = "";
+		$visitor = 0;
+	
+		$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 0, 0, $defperm);
+	
+		if (!$r) {
+			logger("Picture couldn't be stored", LOGGER_DEBUG);
+			return(array());
+		}
+	
+		$image = array("page" => System::baseUrl().'/photos/'.$page_owner_nick.'/image/'.$hash,
+			"full" => System::baseUrl()."/photo/{$hash}-0.".$ph->getExt());
+	
+		if ($width > 800 || $height > 800) {
+			$image["large"] = System::baseUrl()."/photo/{$hash}-0.".$ph->getExt();
+		}
+	
+		if ($width > 640 || $height > 640) {
+			$ph->scaleImage(640);
+			$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 1, 0, $defperm);
+			if ($r) {
+				$image["medium"] = System::baseUrl()."/photo/{$hash}-1.".$ph->getExt();
+			}
+		}
+	
+		if ($width > 320 || $height > 320) {
+			$ph->scaleImage(320);
+			$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 2, 0, $defperm);
+			if ($r) {
+				$image["small"] = System::baseUrl()."/photo/{$hash}-2.".$ph->getExt();
+			}
+		}
+	
+		if ($width > 160 && $height > 160) {
+			$x = 0;
+			$y = 0;
+		
+			$min = $ph->getWidth();
+			if ($min > 160) {
+				$x = ($min - 160) / 2;
+			}
+		
+			if ($ph->getHeight() < $min) {
+				$min = $ph->getHeight();
+				if ($min > 160) {
+					$y = ($min - 160) / 2;
+				}
+			}
+	
+			$min = 160;
+			$ph->cropImage(160, $x, $y, $min, $min);
+		
+			$r = $ph->store($uid, $visitor, $hash, $tempfile, t('Wall Photos'), 3, 0, $defperm);
+			if ($r) {
+				$image["thumb"] = System::baseUrl()."/photo/{$hash}-3.".$ph->getExt();
+			}
+		}
+	
+		// Set the full image as preview image. This will be overwritten, if the picture is larger than 640.
+		$image["preview"] = $image["full"];
+	
+		// Deactivated, since that would result in a cropped preview, if the picture wasn't larger than 320
+		//if (isset($image["thumb"]))
+		//  $image["preview"] = $image["thumb"];
+	
+		// Unsure, if this should be activated or deactivated
+		//if (isset($image["small"]))
+		//  $image["preview"] = $image["small"];
+	
+		if (isset($image["medium"])) {
+			$image["preview"] = $image["medium"];
+		}
+	
+		return($image);
+	}
 }
