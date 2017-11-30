@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 
 function directory_init(App $a) {
 	$a->set_pager_itemspage(60);
@@ -142,12 +143,7 @@ function directory_content(App $a) {
 
 			$about = ((x($profile,'about') == 1) ?  t('About:') : False);
 
-			if($a->theme['template_engine'] === 'internal') {
-				$location_e = template_escape($location);
-			}
-			else {
-				$location_e = $location;
-			}
+			$location_e = $location;
 
 			$photo_menu = array(
 				'profile' => array(t("View Profile"), zrl($profile_link))
@@ -161,7 +157,7 @@ function directory_content(App $a) {
 				'img_hover' => $rr['name'],
 				'name' => $rr['name'],
 				'details' => $details,
-				'account_type' => account_type($rr),
+				'account_type' => Contact::getAccountType($rr),
 				'profile' => $profile,
 				'location' => $location_e,
 				'tags' => $rr['pub_keywords'],

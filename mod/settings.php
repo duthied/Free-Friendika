@@ -1,14 +1,17 @@
 <?php
-
+/**
+ * @file mod/settings.php
+ */
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
+use Friendica\Model\GlobalContact;
+use Friendica\Model\User;
 
-require_once('include/group.php');
-require_once('include/socgraph.php');
+require_once 'include/group.php';
 
 function get_theme_config_file($theme) {
 	$a = get_app();
@@ -301,6 +304,7 @@ function settings_post(App $a) {
 		$infinite_scroll   = x($_POST, 'infinite_scroll')   ? intval($_POST['infinite_scroll'])    : 0;
 		$no_auto_update    = x($_POST, 'no_auto_update')    ? intval($_POST['no_auto_update'])     : 0;
 		$bandwidth_saver   = x($_POST, 'bandwidth_saver')   ? intval($_POST['bandwidth_saver'])    : 0;
+		$smart_threading   = x($_POST, 'smart_threading')   ? intval($_POST['smart_threading'])    : 0;
 		$nowarn_insecure   = x($_POST, 'nowarn_insecure')   ? intval($_POST['nowarn_insecure'])    : 0;
 		$browser_update    = x($_POST, 'browser_update')    ? intval($_POST['browser_update'])     : 0;
 		if ($browser_update != -1) {
@@ -333,6 +337,7 @@ function settings_post(App $a) {
 		PConfig::set(local_user(), 'system', 'infinite_scroll'         , $infinite_scroll);
 		PConfig::set(local_user(), 'system', 'no_auto_update'          , $no_auto_update);
 		PConfig::set(local_user(), 'system', 'bandwidth_saver'         , $bandwidth_saver);
+		PConfig::set(local_user(), 'system', 'smart_threading'         , $smart_threading);
 
 		if ($theme == $a->user['theme']) {
 			// call theme_post only if theme has not been changed
@@ -356,7 +361,7 @@ function settings_post(App $a) {
 	check_form_security_token_redirectOnErr('/settings', 'settings');
 
 	if (x($_POST,'resend_relocate')) {
-		Worker::add(PRIORITY_HIGH, 'notifier', 'relocate', local_user());
+		Worker::add(PRIORITY_HIGH, 'Notifier', 'relocate', local_user());
 		info(t("Relocate message has been send to your contacts"));
 		goaway('settings');
 	}
@@ -367,7 +372,6 @@ function settings_post(App $a) {
 
 		$newpass = $_POST['password'];
 		$confirm = $_POST['confirm'];
-		$oldpass = hash('whirlpool', $_POST['opassword']);
 
 		$err = false;
 		if ($newpass != $confirm) {
@@ -382,8 +386,7 @@ function settings_post(App $a) {
 
         //  check if the old password was supplied correctly before
         //  changing it to the new value
-        $r = q("SELECT `password` FROM `user`WHERE `uid` = %d LIMIT 1", intval(local_user()));
-        if ($oldpass != $r[0]['password']) {
+        if (User::authenticate(intval(local_user()), $_POST['opassword'])) {
             notice(t('Wrong password.') . EOL);
             $err = true;
         }
@@ -497,22 +500,20 @@ function settings_post(App $a) {
 	if ($email != $a->user['email']) {
 		$email_changed = true;
 		//  check for the correct password
-		$r = q("SELECT `password` FROM `user`WHERE `uid` = %d LIMIT 1", intval(local_user()));
-		$password = hash('whirlpool', $_POST['mpassword']);
-		if ($password != $r[0]['password']) {
+		if (!User::authenticate(intval(local_user()), $_POST['mpassword'])) {
 			$err .= t('Wrong Password') . EOL;
 			$email = $a->user['email'];
 		}
 		//  check the email is valid
 		if (!valid_email($email)) {
-			$err .= t(' Not valid email.');
+			$err .= t('Invalid email.');
 		}
 		//  ensure new email is not the admin mail
 		//if ((x($a->config, 'admin_email')) && (strcasecmp($email, $a->config['admin_email']) == 0)) {
 		if (x($a->config, 'admin_email')) {
 			$adminlist = explode(",", str_replace(" ", "", strtolower($a->config['admin_email'])));
 			if (in_array(strtolower($email), $adminlist)) {
-				$err .= t(' Cannot change to that email.');
+				$err .= t('Cannot change to that email.');
 				$email = $a->user['email'];
 			}
 		}
@@ -643,14 +644,14 @@ function settings_post(App $a) {
 		// Update global directory in background
 		$url = $_SESSION['my_url'];
 		if ($url && strlen(Config::get('system', 'directory'))) {
-			Worker::add(PRIORITY_LOW, "directory", $url);
+			Worker::add(PRIORITY_LOW, "Directory", $url);
 		}
 	}
 
-	Worker::add(PRIORITY_LOW, 'profile_update', local_user());
+	Worker::add(PRIORITY_LOW, 'ProfileUpdate', local_user());
 
 	// Update the global contact for the user
-	update_gcontact_for_user(local_user());
+	GlobalContact::updateForUser(local_user());
 
 	//$_SESSION['theme'] = $theme;
 	if ($email_changed && $a->config['register_policy'] == REGISTER_VERIFY) {
@@ -987,6 +988,7 @@ function settings_content(App $a) {
 		$infinite_scroll = PConfig::get(local_user(), 'system', 'infinite_scroll', 0);
 		$no_auto_update = PConfig::get(local_user(), 'system', 'no_auto_update', 0);
 		$bandwidth_saver = PConfig::get(local_user(), 'system', 'bandwidth_saver', 0);
+		$smart_threading = PConfig::get(local_user(), 'system', 'smart_threading', 0);
 
 		$theme_config = "";
 		if (($themeconfigfile = get_theme_config_file($theme_selected)) != null) {
@@ -1015,6 +1017,7 @@ function settings_content(App $a) {
 			'$infinite_scroll'	=> array('infinite_scroll', t("Infinite scroll"), $infinite_scroll, ''),
 			'$no_auto_update'	=> array('no_auto_update', t("Automatic updates only at the top of the network page"), $no_auto_update, t('When disabled, the network page is updated all the time, which could be confusing while reading.')),
 			'$bandwidth_saver' => array('bandwidth_saver', t('Bandwith Saver Mode'), $bandwidth_saver, t('When enabled, embedded content is not displayed on automatic updates, they only show on page reload.')),
+			'$smart_threading' => array('smart_threading', t('Smart Threading'), $smart_threading, t('When enabled, suppress extraneous thread indentation while keeping it where it matters. Only works if threading is available and enabled.')),
 
 			'$d_tset' => t('General Theme Settings'),
 			'$d_ctset' => t('Custom Theme Settings'),

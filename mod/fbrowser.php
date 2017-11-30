@@ -69,13 +69,7 @@ function fbrowser_content(App $a) {
 				$a = get_app();
 				$types = Photo::supportedTypes();
 				$ext = $types[$rr['type']];
-
-				if($a->theme['template_engine'] === 'internal') {
-					$filename_e = template_escape($rr['filename']);
-				}
-				else {
-					$filename_e = $rr['filename'];
-				}
+				$filename_e = $rr['filename'];
 
 				// Take the largest picture that is smaller or equal 640 pixels
 				$p = q("SELECT `scale` FROM `photo` WHERE `resource-id` = '%s' AND `height` <= 640 AND `width` <= 640 ORDER BY `resource-id`, `scale` LIMIT 1",
@@ -117,14 +111,9 @@ function fbrowser_content(App $a) {
 					$a = get_app();
 					list($m1,$m2) = explode("/",$rr['filetype']);
 					$filetype = ( (file_exists("images/icons/$m1.png"))?$m1:"zip");
+					$filename_e = $rr['filename'];
 
-					if ($a->theme['template_engine'] === 'internal') {
-						$filename_e = template_escape($rr['filename']);
-					} else {
-						$filename_e = $rr['filename'];
-					}
-
-					return array( System::baseUrl() . '/attach/' . $rr['id'], $filename_e, System::baseUrl() . '/images/icons/16/' . $filetype . '.png');
+					return array(System::baseUrl() . '/attach/' . $rr['id'], $filename_e, System::baseUrl() . '/images/icons/16/' . $filetype . '.png');
 				}
 				$files = array_map("_map_files2", $files);
 

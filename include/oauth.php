@@ -113,7 +113,7 @@ class FKOAuthDataStore extends OAuthDataStore {
 	}
 
 
-	q("DELETE FROM tokens WHERE id='%s'", $token->key);
+	dba::delete('tokens', array('id' => $token->key));
 
 
 	if (!is_null($ret) && $uverifier!==false){
@@ -182,93 +182,3 @@ class FKOAuth1 extends OAuthServer {
 	}
 
 }
-/*
-class FKOAuth2 extends OAuth2 {
-
-	private function db_secret($client_secret){
-		return hash('whirlpool',$client_secret);
-	}
-
-	public function addClient($client_id, $client_secret, $redirect_uri) {
-		$client_secret = $this->db_secret($client_secret);
-		$r = q("INSERT INTO clients (client_id, pw, redirect_uri) VALUES ('%s', '%s', '%s')",
-			dbesc($client_id),
-			dbesc($client_secret),
-			dbesc($redirect_uri)
-		);
-
-		return $r;
-	}
-
-	protected function checkClientCredentials($client_id, $client_secret = NULL) {
-		$client_secret = $this->db_secret($client_secret);
-
-		$r = q("SELECT pw FROM clients WHERE client_id = '%s'",
-			dbesc($client_id));
-
-		if ($client_secret === NULL)
-			return $result !== FALSE;
-
-		return $result["client_secret"] == $client_secret;
-	}
-
-	protected function getRedirectUri($client_id) {
-		$r = q("SELECT redirect_uri FROM clients WHERE client_id = '%s'",
-				dbesc($client_id));
-		if ($r === FALSE)
-			return FALSE;
-
-		return isset($r[0]["redirect_uri"]) && $r[0]["redirect_uri"] ? $r[0]["redirect_uri"] : NULL;
-	}
-
-	protected function getAccessToken($oauth_token) {
-		$r = q("SELECT client_id, expires, scope FROM tokens WHERE id = '%s'",
-				dbesc($oauth_token));
-
-		if (DBM::is_result($r))
-			return $r[0];
-		return null;
-	}
-
-
-
-	protected function setAccessToken($oauth_token, $client_id, $expires, $scope = NULL) {
-		$r = q("INSERT INTO tokens (id, client_id, expires, scope) VALUES ('%s', '%s', %d, '%s')",
-				dbesc($oauth_token),
-				dbesc($client_id),
-				intval($expires),
-				dbesc($scope));
-
-		return $r;
-	}
-
-	protected function getSupportedGrantTypes() {
-		return array(
-		  OAUTH2_GRANT_TYPE_AUTH_CODE,
-		);
-	}
-
-
-	protected function getAuthCode($code) {
-		$r = q("SELECT id, client_id, redirect_uri, expires, scope FROM auth_codes WHERE id = '%s'",
-				dbesc($code));
-
-		if (DBM::is_result($r))
-			return $r[0];
-		return null;
-	}
-
-	protected function setAuthCode($code, $client_id, $redirect_uri, $expires, $scope = NULL) {
-		$r = q("INSERT INTO auth_codes
-					(id, client_id, redirect_uri, expires, scope) VALUES
-					('%s', '%s', '%s', %d, '%s')",
-				dbesc($code),
-				dbesc($client_id),
-				dbesc($redirect_uri),
-				intval($expires),
-				dbesc($scope));
-		return $r;
-	}
-
-}
-*/

@@ -1,13 +1,15 @@
 <?php
-
+/**
+ * @file mod/allfriends.php
+ */
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\GlobalContact;
+use Friendica\Object\Contact;
 
-require_once('include/socgraph.php');
-require_once('include/Contact.php');
-require_once('include/contact_selectors.php');
-require_once('mod/contacts.php');
+require_once 'include/contact_selectors.php';
+require_once 'mod/contacts.php';
 
 function allfriends_content(App $a) {
 
@@ -37,14 +39,14 @@ function allfriends_content(App $a) {
 	}
 
 	$a->page['aside'] = "";
-	profile_load($a, "", 0, get_contact_details_by_url($c[0]["url"]));
+	profile_load($a, "", 0, Contact::getDetailsByURL($c[0]["url"]));
 
-	$total = count_all_friends(local_user(), $cid);
+	$total = GlobalContact::countAllFriends(local_user(), $cid);
 
 	if(count($total))
 		$a->set_pager_total($total);
 
-	$r = all_friends(local_user(), $cid, $a->pager['start'], $a->pager['itemspage']);
+	$r = GlobalContact::allFriends(local_user(), $cid, $a->pager['start'], $a->pager['itemspage']);
 
 	if (! DBM::is_result($r)) {
 		$o .= t('No friends to display.');
@@ -56,7 +58,7 @@ function allfriends_content(App $a) {
 	foreach ($r as $rr) {
 
 		//get further details of the contact
-		$contact_details = get_contact_details_by_url($rr['url'], $uid, $rr);
+		$contact_details = Contact::getDetailsByURL($rr['url'], $uid, $rr);
 
 		$photo_menu = '';
 
@@ -64,7 +66,7 @@ function allfriends_content(App $a) {
 		// If the contact is not common to the user, Connect/Follow' will be added to the photo menu
 		if ($rr[cid]) {
 			$rr[id] = $rr[cid];
-			$photo_menu = contact_photo_menu ($rr);
+			$photo_menu = Contact::photoMenu ($rr);
 		}
 		else {
 			$connlnk = System::baseUrl() . '/follow/?url=' . $rr['url'];
@@ -83,7 +85,7 @@ function allfriends_content(App $a) {
 			'details'      => $contact_details['location'],
 			'tags'         => $contact_details['keywords'],
 			'about'        => $contact_details['about'],
-			'account_type' => account_type($contact_details),
+			'account_type' => Contact::getAccountType($contact_details),
 			'network'      => network_to_name($contact_details['network'], $contact_details['url']),
 			'photo_menu'   => $photo_menu,
 			'conntxt'      => t('Connect'),

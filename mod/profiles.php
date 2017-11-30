@@ -1,15 +1,16 @@
 <?php
-
+/**
+ * @file mod/profiles.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
-
-require_once 'include/Contact.php';
-require_once 'include/socgraph.php';
+use Friendica\Object\Profile;
 
 function profiles_init(App $a) {
 
@@ -488,7 +489,7 @@ function profiles_post(App $a) {
 		}
 
 		if ($is_default) {
-			$location = formatted_location(array("locality" => $locality, "region" => $region, "country-name" => $country_name));
+			$location = Profile::formatLocation(array("locality" => $locality, "region" => $region, "country-name" => $country_name));
 
 			q("UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `self` AND `uid` = %d",
 				dbesc($about),
@@ -501,13 +502,13 @@ function profiles_post(App $a) {
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
 			if ($url && strlen(Config::get('system', 'directory'))) {
-				Worker::add(PRIORITY_LOW, "directory", $url);
+				Worker::add(PRIORITY_LOW, "Directory", $url);
 			}
 
-			Worker::add(PRIORITY_LOW, 'profile_update', local_user());
+			Worker::add(PRIORITY_LOW, 'ProfileUpdate', local_user());
 
 			// Update the global contact for the user
-			update_gcontact_for_user(local_user());
+			GlobalContact::updateForUser(local_user());
 		}
 	}
 }
@@ -598,7 +599,7 @@ function profile_activity($changed, $value) {
 
 	$i = item_store($arr);
 	if ($i) {
-		Worker::add(PRIORITY_HIGH, "notifier", "activity", $i);
+		Worker::add(PRIORITY_HIGH, "Notifier", "activity", $i);
 	}
 }
 
@@ -752,7 +753,6 @@ function profiles_content(App $a) {
 
 		return $o;
 	} else {
-
 		// If we don't support multi profiles, don't display this list.
 		if (!feature_enabled(local_user(), 'multi_profiles')) {
 			$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`=1",

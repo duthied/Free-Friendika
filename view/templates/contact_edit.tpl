@@ -1,4 +1,3 @@
-
 <div id="contact-edit-wrapper" >
 
 	{{* Insert Tab-Nav *}}
@@ -40,7 +39,8 @@
 
 						{{if $lost_contact}}<li><div id="lost-contact-message">{{$lost_contact}}</div></li>{{/if}}
 						{{if $insecure}}<li><div id="insecure-message">{{$insecure}}</div></li>	{{/if}}
-						{{if $blocked}}<li><div id="block-message">{{$blocked}}</div></li>{{/if}}
+						{{if $blocked && !$pending}}<li><div id="block-message">{{$blocked}}</div></li>{{/if}}
+						{{if $pending}}<li><div id="pending-message">{{$pending}}</div></li>{{/if}}
 						{{if $ignored}}<li><div id="ignore-message">{{$ignored}}</div></li>{{/if}}
 						{{if $archived}}<li><div id="archive-message">{{$archived}}</div></li>{{/if}}
 					</ul>
@@ -71,7 +71,7 @@
 					{{include file="field_checkbox.tpl" field=$notify}}
 					{{if $fetch_further_information}}
 						{{include file="field_select.tpl" field=$fetch_further_information}}
-						{{if $fetch_further_information.2 == 2 }} {{include file="field_textarea.tpl" field=$ffi_keyword_blacklist}} {{/if}}
+						{{if $fetch_further_information.2 == 2 || $fetch_further_information.2 == 3}} {{include file="field_textarea.tpl" field=$ffi_keyword_blacklist}} {{/if}}
 					{{/if}}
 					{{include file="field_checkbox.tpl" field=$hidden}}
 

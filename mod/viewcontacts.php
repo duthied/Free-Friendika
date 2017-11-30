@@ -3,8 +3,8 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 
-require_once('include/Contact.php');
 require_once('include/contact_selectors.php');
 
 function viewcontacts_init(App $a) {
@@ -100,19 +100,19 @@ function viewcontacts_content(App $a) {
 		else
 			$url = zrl($url);
 
-		$contact_details = get_contact_details_by_url($rr['url'], $a->profile['uid'], $rr);
+		$contact_details = Contact::getDetailsByURL($rr['url'], $a->profile['uid'], $rr);
 
 		$contacts[] = array(
 			'id' => $rr['id'],
 			'img_hover' => sprintf( t('Visit %s\'s profile [%s]'), $contact_details['name'], $rr['url']),
-			'photo_menu' => contact_photo_menu($rr),
+			'photo_menu' => Contact::photoMenu($rr),
 			'thumb' => proxy_url($contact_details['thumb'], false, PROXY_SIZE_THUMB),
 			'name' => htmlentities(substr($contact_details['name'],0,20)),
 			'username' => htmlentities($contact_details['name']),
 			'details'       => $contact_details['location'],
 			'tags'          => $contact_details['keywords'],
 			'about'         => $contact_details['about'],
-			'account_type'  => account_type($contact_details),
+			'account_type'  => Contact::getAccountType($contact_details),
 			'url' => $url,
 			'sparkle' => '',
 			'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),

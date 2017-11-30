@@ -11,10 +11,11 @@ use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\User;
 
-require_once("include/enotify.php");
-require_once("include/text.php");
-require_once('include/items.php');
+require_once 'include/enotify.php';
+require_once 'include/text.php';
+require_once 'include/items.php';
 
 /**
  * @brief Process send data from the admin panels subpages
@@ -705,7 +706,7 @@ function admin_page_site_post(App $a) {
 	check_form_security_token_redirectOnErr('/admin/site', 'admin_site');
 
 	if (!empty($_POST['republish_directory'])) {
-		Worker::add(PRIORITY_LOW, 'directory');
+		Worker::add(PRIORITY_LOW, 'Directory');
 		return;
 	}
 
@@ -778,7 +779,7 @@ function admin_page_site_post(App $a) {
 		$users = q("SELECT `uid` FROM `user` WHERE `account_removed` = 0 AND `account_expired` = 0");
 
 		foreach ($users as $user) {
-			Worker::add(PRIORITY_HIGH, 'notifier', 'relocate', $user['uid']);
+			Worker::add(PRIORITY_HIGH, 'Notifier', 'relocate', $user['uid']);
 		}
 
 		info("Relocation started. Could take a while to complete.");
@@ -813,7 +814,6 @@ function admin_page_site_post(App $a) {
 	$block_public		=	((x($_POST,'block_public'))		? True						: False);
 	$force_publish		=	((x($_POST,'publish_all'))		? True						: False);
 	$global_directory	=	((x($_POST,'directory'))		? notags(trim($_POST['directory']))		: '');
-	$thread_allow		=	((x($_POST,'thread_allow'))		? True						: False);
 	$newuser_private		=	((x($_POST,'newuser_private'))		? True					: False);
 	$enotify_no_content		=	((x($_POST,'enotify_no_content'))	? True					: False);
 	$private_addons			=	((x($_POST,'private_addons'))		? True					: False);
@@ -867,14 +867,11 @@ function admin_page_site_post(App $a) {
 	// Has the directory url changed? If yes, then resubmit the existing profiles there
 	if ($global_directory != Config::get('system', 'directory') && ($global_directory != '')) {
 		Config::set('system', 'directory', $global_directory);
-		Worker::add(PRIORITY_LOW, 'directory');
+		Worker::add(PRIORITY_LOW, 'Directory');
 	}
 
 	if ($a->get_path() != "") {
 		$diaspora_enabled = false;
-	}
-	if (!$thread_allow) {
-		$ostatus_disabled = true;
 	}
 	if ($ssl_policy != intval(Config::get('system','ssl_policy'))) {
 		if ($ssl_policy == SSL_POLICY_FULL) {
@@ -974,7 +971,6 @@ function admin_page_site_post(App $a) {
 	Config::set('system', 'allowed_email', $allowed_email);
 	Config::set('system', 'block_public', $block_public);
 	Config::set('system', 'publish_all', $force_publish);
-	Config::set('system', 'thread_allow', $thread_allow);
 	Config::set('system', 'newuser_private', $newuser_private);
 	Config::set('system', 'enotify_no_content', $enotify_no_content);
 	Config::set('system', 'disable_embedded', $disable_embedded);
@@ -1213,7 +1209,6 @@ function admin_page_site(App $a) {
 		'$block_public'		=> array('block_public', t("Block public"), Config::get('system','block_public'), t("Check to block public access to all otherwise public personal pages on this site unless you are currently logged in.")),
 		'$force_publish'	=> array('publish_all', t("Force publish"), Config::get('system','publish_all'), t("Check to force all profiles on this site to be listed in the site directory.")),
 		'$global_directory'	=> array('directory', t("Global directory URL"), Config::get('system','directory'), t("URL to the global directory. If this is not set, the global directory is completely unavailable to the application.")),
-		'$thread_allow'		=> array('thread_allow', t("Allow threaded items"), Config::get('system','thread_allow'), t("Allow infinite level threading for items on this site.")),
 		'$newuser_private'	=> array('newuser_private', t("Private posts by default for new users"), Config::get('system','newuser_private'), t("Set default post permissions for all new members to the default privacy group rather than public.")),
 		'$enotify_no_content'	=> array('enotify_no_content', t("Don't include post content in email notifications"), Config::get('system','enotify_no_content'), t("Don't include the content of a post/comment/private message/etc. in the email notifications that are sent out from this site, as a privacy measure.")),
 		'$private_addons'	=> array('private_addons', t("Disallow public access to addons listed in the apps menu."), Config::get('config','private_addons'), t("Checking this box will restrict addons listed in the apps menu to members only.")),
@@ -1237,7 +1232,7 @@ function admin_page_site(App $a) {
 		'$timeout'		=> array('timeout', t("Network timeout"), (x(Config::get('system','curl_timeout'))?Config::get('system','curl_timeout'):60), t("Value is in seconds. Set to 0 for unlimited (not recommended).")),
 		'$maxloadavg'		=> array('maxloadavg', t("Maximum Load Average"), ((intval(Config::get('system','maxloadavg')) > 0)?Config::get('system','maxloadavg'):50), t("Maximum system load before delivery and poll processes are deferred - default 50.")),
 		'$maxloadavg_frontend'	=> array('maxloadavg_frontend', t("Maximum Load Average (Frontend)"), ((intval(Config::get('system','maxloadavg_frontend')) > 0)?Config::get('system','maxloadavg_frontend'):50), t("Maximum system load before the frontend quits service - default 50.")),
-		'$min_memory'		=> array('min_memory', t("Minimal Memory"), ((intval(Config::get('system','min_memory')) > 0)?Config::get('system','min_memory'):0), t("Minimal free memory in MB for the poller. Needs access to /proc/meminfo - default 0 (deactivated).")),
+		'$min_memory'		=> array('min_memory', t("Minimal Memory"), ((intval(Config::get('system','min_memory')) > 0)?Config::get('system','min_memory'):0), t("Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 (deactivated).")),
 		'$optimize_max_tablesize'=> array('optimize_max_tablesize', t("Maximum table size for optimization"), $optimize_max_tablesize, t("Maximum table size (in MB) for the automatic optimization - default 100 MB. Enter -1 to disable it.")),
 		'$optimize_fragmentation'=> array('optimize_fragmentation', t("Minimum level of fragmentation"), ((intval(Config::get('system','optimize_fragmentation')) > 0)?Config::get('system','optimize_fragmentation'):30), t("Minimum fragmenation level to start the automatic optimization - default value is 30%.")),
 
@@ -1264,7 +1259,7 @@ function admin_page_site(App $a) {
 		'$rino' 		=> array('rino', t("RINO Encryption"), intval(Config::get('system','rino_encrypt')), t("Encryption layer between nodes."), array("Disabled", "RINO1 (deprecated)", "RINO2")),
 
 		'$worker_queues' 	=> array('worker_queues', t("Maximum number of parallel workers"), Config::get('system','worker_queues'), t("On shared hosters set this to 2. On larger systems, values of 10 are great. Default value is 4.")),
-		'$worker_dont_fork'	=> array('worker_dont_fork', t("Don't use 'proc_open' with the worker"), Config::get('system','worker_dont_fork'), t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of poller calls in your crontab.")),
+		'$worker_dont_fork'	=> array('worker_dont_fork', t("Don't use 'proc_open' with the worker"), Config::get('system','worker_dont_fork'), t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of worker calls in your crontab.")),
 		'$worker_fastlane'	=> array('worker_fastlane', t("Enable fastlane"), Config::get('system','worker_fastlane'), t("When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.")),
 		'$worker_frontend'	=> array('worker_frontend', t('Enable frontend worker'), Config::get('system','frontend_worker'), sprintf(t('When enabled the Worker process is triggered when backend access is performed (e.g. messages being delivered). On smaller sites you might want to call %s/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server.'), System::baseUrl())),
 
@@ -1443,9 +1438,8 @@ function admin_page_users_post(App $a) {
 		notice(sprintf(tt("%s user blocked/unblocked", "%s users blocked/unblocked", count($users)), count($users)));
 	}
 	if (x($_POST,'page_users_delete')) {
-		require_once("include/Contact.php");
 		foreach ($users as $uid) {
-			user_remove($uid);
+			User::remove($uid);
 		}
 		notice(sprintf(tt("%s user deleted", "%s users deleted", count($users)), count($users)));
 	}
@@ -1491,8 +1485,7 @@ function admin_page_users(App $a) {
 			case "delete":
 				check_form_security_token_redirectOnErr('/admin/users', 'admin_users', 't');
 				// delete user
-				require_once("include/Contact.php");
-				user_remove($uid);
+				User::remove($uid);
 
 				notice(sprintf(t("User '%s' deleted"), $user[0]['username']).EOL);
 				break;

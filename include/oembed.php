@@ -28,17 +28,17 @@ function oembed_replacecb($matches){
  * @return bool|object Returns object with embed content or false if no embedable
  *	 content exists
  */
-function oembed_fetch_url($embedurl, $no_rich_type = false){
+function oembed_fetch_url($embedurl, $no_rich_type = false) {
 	$embedurl = trim($embedurl, "'");
 	$embedurl = trim($embedurl, '"');
 
 	$a = get_app();
 
-	$r = q("SELECT * FROM `oembed` WHERE `url` = '%s'",
-		dbesc(normalise_link($embedurl)));
+	$condition = array('url' => normalise_link($embedurl));
+	$r = dba::select('oembed', array('content'), $condition, array('limit' => 1));
 
 	if (DBM::is_result($r)) {
-		$txt = $r[0]["content"];
+		$txt = $r["content"];
 	} else {
 		$txt = Cache::get($a->videowidth . $embedurl);
 	}

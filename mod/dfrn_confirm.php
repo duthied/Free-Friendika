@@ -440,7 +440,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 		if ((isset($new_relation) && $new_relation == CONTACT_IS_FRIEND)) {
 
 			if (($contact) && ($contact['network'] === NETWORK_DIASPORA)) {
-				$ret = Diaspora::send_share($user[0],$r[0]);
+				$ret = Diaspora::sendShare($user[0],$r[0]);
 				logger('share returns: ' . $ret);
 			}
 
@@ -498,7 +498,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 
 					$i = item_store($arr);
 					if($i)
-						Worker::add(PRIORITY_HIGH, "notifier", "activity", $i);
+						Worker::add(PRIORITY_HIGH, "Notifier", "activity", $i);
 				}
 			}
 		}
@@ -800,7 +800,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 
 					$i = item_store($arr);
 					if($i)
-						Worker::add(PRIORITY_HIGH, "notifier", "activity", $i);
+						Worker::add(PRIORITY_HIGH, "Notifier", "activity", $i);
 
 				}
 			}

@@ -69,30 +69,28 @@ If you can successfully access your Friendica instance through https, there are 
 This is the simplest way to enforce site-wide secure access.
 Every time a user tries to access any Friendica page by any mean (manual address bar entry or link), the web server issues a Permanent Redirect response with the secure protocol prepended to the requested URL.
 
-With Apache, simply add the following lines to the [code].htaccess[/code] file in the root folder of your Friendica instance (thanks to [url=https://github.com/AlfredSK]AlfredSK[/url]):
+With Apache, enable the modules rewrite and ssl (with a shared hosting provider, this should be enabled already):
 
-[code]
-#Force SSL connections
+	sudo a2enmod rewrite ssl
 
-RewriteEngine On
-RewriteCond %{SERVER_PORT} 80
-RewriteRule ^(.*)$ https://your.friendica.domain/$1 [R=301,L]
-[/code]
+Add the following lines to the .htaccess file in the root folder of your Friendica instance (thanks to [url=https://github.com/AlfredSK]AlfredSK[/url]):
 
-With nginx, configure your [code]server[/code] directive this way (thanks to [url=https://bjornjohansen.no/redirect-to-https-with-nginx/]Bjørn Johansen[/url]):
+        RewriteEngine On
+        RewriteCond %{SERVER_PORT} 80
+        RewriteRule ^(.*)$ https://your.friendica.domain/$1 [R=301,L]
 
-[code]
-server {
-	listen 80;
-	listen [::]:80;
-	server_name your.friendica.domain;
-	return 301 https://$server_name$request_uri;
-}
-[/code]
+With nginx, configure your server directive this way ([documentation](https://www.nginx.com/blog/creating-nginx-rewrite-rules/)):
+
+        server {
+             listen 80;
+             server_name your.friendica.domain;
+             return 301 https://$server_name$request_uri;
+        }
 
 ### SSL Settings
 
 In the Admin Settings, there are three SSL-related settings:
-- **SSL link policy**: this affects how Friendica generates internal links. If your SSL installation was successful, we recommend "Force all links to SSL" just in case your web server configuration can't be altered like described above.
-- **Force SSL**: This forces all external links to HTTPS, which may solve Mixed-Content issues, but not all websites support HTTPS yet. Use at your own risk.
-- **Verify SSL**: Enabling this will prevent Friendica to interact with self-signed SSL sites. We recommend you leave it on as a self-signed SSL certificate can be a vectorfor a man-in-the-middle attack.
+
+1. **SSL link policy**: this affects how Friendica generates internal links. If your SSL installation was successful, we recommend "Force all links to SSL" just in case your web server configuration can't be altered like described above.
+2. **Force SSL**: This forces all external links to HTTPS, which may solve Mixed-Content issues, but not all websites support HTTPS yet. Use at your own risk.
+3. **Verify SSL**: Enabling this will prevent Friendica to interact with self-signed SSL sites. We recommend you leave it on as a self-signed SSL certificate can be a vectorfor a man-in-the-middle attack.

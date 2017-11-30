@@ -12,10 +12,20 @@ use Friendica\Core\Config;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\User;
+use Friendica\Network\HTTPException;
+use Friendica\Network\HTTPException\BadRequestException;
+use Friendica\Network\HTTPException\ForbiddenException;
+use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Network\HTTPException\MethodNotAllowedException;
+use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Network\HTTPException\NotImplementedException;
+use Friendica\Network\HTTPException\UnauthorizedException;
+use Friendica\Network\HTTPException\TooManyRequestsException;
+use Friendica\Object\Contact;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\XML;
 
-require_once 'include/HTTPExceptions.php';
 require_once 'include/bbcode.php';
 require_once 'include/datetime.php';
 require_once 'include/conversation.php';
@@ -181,7 +191,6 @@ function api_login(App $a)
 
 	$user = $_SERVER['PHP_AUTH_USER'];
 	$password = $_SERVER['PHP_AUTH_PW'];
-	$encrypted = hash('whirlpool', trim($password));
 
 	// allow "user@server" login (but ignore 'server' part)
 	$at = strstr($user, "@", true);
@@ -209,16 +218,9 @@ function api_login(App $a)
 	if (($addon_auth['authenticated']) && (count($addon_auth['user_record']))) {
 		$record = $addon_auth['user_record'];
 	} else {
-		// process normal login request
-		$r = q(
-			"SELECT * FROM `user` WHERE (`email` = '%s' OR `nickname` = '%s')
-			AND `password` = '%s' AND NOT `blocked` AND NOT `account_expired` AND NOT `account_removed` AND `verified` LIMIT 1",
-			dbesc(trim($user)),
-			dbesc(trim($user)),
-			dbesc($encrypted)
-		);
-		if (DBM::is_result($r)) {
-			$record = $r[0];
+		$user_id = User::authenticate(trim($user), trim($password));
+		if ($user_id) {
+			$record = dba::select('user', [], ['uid' => $user_id], ['limit' => 1]);
 		}
 	}
 
@@ -649,7 +651,7 @@ function api_get_user(App $a, $contact_id = null, $type = "json")
 				'notifications' => false,
 				'statusnet_profile_url' => $r[0]["url"],
 				'uid' => 0,
-				'cid' => get_contact($r[0]["url"], api_user(), true),
+				'cid' => Contact::getIdForURL($r[0]["url"], api_user(), true),
 				'self' => 0,
 				'network' => $r[0]["network"],
 			);
@@ -737,7 +739,7 @@ function api_get_user(App $a, $contact_id = null, $type = "json")
 
 	$network_name = network_to_name($uinfo[0]['network'], $uinfo[0]['url']);
 
-	$pcontact_id  = get_contact($uinfo[0]['url'], 0, true);
+	$pcontact_id  = Contact::getIdForURL($uinfo[0]['url'], 0, true);
 
 	$ret = array(
 		'id' => intval($pcontact_id),
@@ -901,7 +903,7 @@ function api_create_xml($data, $root_element)
 
 	$data3 = array($root_element => $data2);
 
-	$ret = XML::from_array($data3, $xml, false, $namespaces);
+	$ret = XML::fromArray($data3, $xml, false, $namespaces);
 	return $ret;
 }
 
@@ -3434,11 +3436,7 @@ function api_fr_photoalbum_delete($type)
 	}
 
 	// now let's delete all photos from the album
-	$result = q(
-		"DELETE FROM `photo` WHERE `uid` = %d AND `album` = '%s'",
-		intval(api_user()),
-		dbesc($album)
-	);
+	$result = dba::delete('photo', array('uid' => api_user(), 'album' => $album));
 
 	// return success of deletion or error message
 	if ($result) {
@@ -3721,11 +3719,7 @@ function api_fr_photo_delete($type)
 		throw new BadRequestException("photo not available");
 	}
 	// now we can perform on the deletion of the photo
-	$result = q(
-		"DELETE FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s'",
-		intval(api_user()),
-		dbesc($photo_id)
-	);
+	$result = dba::delete('photo', array('uid' => api_user(), 'resource-id' => $photo_id));
 
 	// return success of deletion or error message
 	if ($result) {
@@ -3870,10 +3864,10 @@ function api_account_update_profile_image($type)
 	//$user = api_get_user(get_app());
 	$url = System::baseUrl() . '/profile/' . get_app()->user['nickname'];
 	if ($url && strlen(Config::get('system', 'directory'))) {
-		Worker::add(PRIORITY_LOW, "directory", $url);
+		Worker::add(PRIORITY_LOW, "Directory", $url);
 	}
 
-	Worker::add(PRIORITY_LOW, 'profile_update', api_user());
+	Worker::add(PRIORITY_LOW, 'ProfileUpdate', api_user());
 
 	// output for client
 	if ($data) {
@@ -4298,7 +4292,7 @@ function api_share_as_retweet(&$item)
 {
 	$body = trim($item["body"]);
 
-	if (Diaspora::is_reshare($body, false)===false) {
+	if (Diaspora::isReshare($body, false)===false) {
 		return false;
 	}
 
@@ -4306,7 +4300,7 @@ function api_share_as_retweet(&$item)
 	$attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "$1", $body);
 	/*
 		* Skip if there is no shared message in there
-		* we already checked this in diaspora::is_reshare()
+		* we already checked this in diaspora::isReshare()
 		* but better one more than one less...
 		*/
 	if ($body == $attributes) {

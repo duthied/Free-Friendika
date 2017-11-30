@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 use Friendica\Protocol\DFRN;
 
 function display_init(App $a) {
@@ -114,8 +115,6 @@ function display_init(App $a) {
 
 function display_fetchauthor($a, $item) {
 
-	require_once("include/Contact.php");
-
 	$profiledata = array();
 	$profiledata["uid"] = -1;
 	$profiledata["nickname"] = $item["author-name"];
@@ -181,7 +180,7 @@ function display_fetchauthor($a, $item) {
 		$profiledata["about"] = "";
 	}
 
-	$profiledata = get_contact_details_by_url($profiledata["url"], local_user(), $profiledata);
+	$profiledata = Contact::getDetailsByURL($profiledata["url"], local_user(), $profiledata);
 
 	$profiledata["photo"] = System::removedBaseUrl($profiledata["photo"]);
 

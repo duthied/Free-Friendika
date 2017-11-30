@@ -4,14 +4,15 @@
  */
 
 use Friendica\App;
+use Friendica\Content\ForumManager;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 
-require_once 'include/ForumManager.php';
 require_once 'include/bbcode.php';
 require_once 'mod/proxy.php';
 
@@ -168,7 +169,7 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0)
 			"SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` AS `contact_photo`,
 				`contact`.`thumb` AS `contact_thumb`, `contact`.`micro` AS `contact_micro`,
 				`profile`.`uid` AS `profile_uid`, `profile`.*,
-				`contact`.`avatar-date` AS picdate, `contact`.`addr`, `user`.*
+				`contact`.`avatar-date` AS picdate, `contact`.`addr`, `contact`.`url`, `user`.*
 			FROM `profile`
 			INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` AND `contact`.`self`
 			INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
@@ -182,7 +183,7 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0)
 			"SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` as `contact_photo`,
 				`contact`.`thumb` AS `contact_thumb`, `contact`.`micro` AS `contact_micro`,
 				`profile`.`uid` AS `profile_uid`, `profile`.*,
-				`contact`.`avatar-date` AS picdate, `contact`.`addr`, `user`.*
+				`contact`.`avatar-date` AS picdate, `contact`.`addr`, `contact`.`url`, `user`.*
 			FROM `profile`
 			INNER JOIN `contact` ON `contact`.`uid` = `profile`.`uid` AND `contact`.`self`
 			INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
@@ -345,7 +346,7 @@ function profile_sidebar($profile, $block = 0)
 	}
 
 	// Fetch the account type
-	$account_type = account_type($profile);
+	$account_type = Contact::getAccountType($profile);
 
 	if ((x($profile, 'address') == 1)
 		|| (x($profile, 'location') == 1)
@@ -440,10 +441,6 @@ function profile_sidebar($profile, $block = 0)
 
 	if (isset($p["photo"])) {
 		$p["photo"] = proxy_url($p["photo"], false, PROXY_SIZE_SMALL);
-	}
-
-	if ($a->theme['template_engine'] === 'internal') {
-		$location = template_escape($location);
 	}
 
 	$tpl = get_markup_template('profile_vcard.tpl');
@@ -794,7 +791,7 @@ function advanced_profile(App $a)
 
 		//show subcribed forum if it is enabled in the usersettings
 		if (feature_enabled($uid, 'forumlist_profile')) {
-			$profile['forumlist'] = array( t('Forums:'), ForumManager::profile_advanced($uid));
+			$profile['forumlist'] = array( t('Forums:'), ForumManager::profileAdvanced($uid));
 		}
 
 		if ($a->profile['uid'] == local_user()) {
@@ -939,7 +936,7 @@ function zrl_init(App $a)
 			return;
 		}
 
-		Worker::add(PRIORITY_LOW, 'gprobe', $tmp_str);
+		Worker::add(PRIORITY_LOW, 'GProbe', $tmp_str);
 		$arr = array('zrl' => $tmp_str, 'url' => $a->cmd);
 		call_hooks('zrl_init', $arr);
 	}

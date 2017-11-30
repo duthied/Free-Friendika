@@ -20,8 +20,11 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
+use Friendica\Object\Contact;
 use Friendica\Protocol\Diaspora;
+use Friendica\Util\Emailer;
 
 require_once 'include/crypto.php';
 require_once 'include/enotify.php';
@@ -31,7 +34,6 @@ require_once 'include/files.php';
 require_once 'include/threads.php';
 require_once 'include/text.php';
 require_once 'include/items.php';
-require_once 'include/Contact.php';
 
 function item_post(App $a) {
 
@@ -145,7 +147,7 @@ function item_post(App $a) {
 			$thrparent = q("SELECT `author-link`, `network` FROM `item` WHERE `uri` = '%s' LIMIT 1", dbesc($thr_parent));
 			if (DBM::is_result($thrparent) && ($thrparent[0]["network"] === NETWORK_OSTATUS)
 				&& (normalise_link($parent_contact["url"]) != normalise_link($thrparent[0]["author-link"]))) {
-				$parent_contact = get_contact_details_by_url($thrparent[0]["author-link"]);
+				$parent_contact = Contact::getDetailsByURL($thrparent[0]["author-link"]);
 
 				if (!isset($parent_contact["nick"])) {
 					$probed_contact = Probe::uri($thrparent[0]["author-link"]);
@@ -421,122 +423,6 @@ function item_post(App $a) {
 		}
 	}
 
-	/*
-	 * When a photo was uploaded into the message using the (profile wall) ajax
-	 * uploader, The permissions are initially set to disallow anybody but the
-	 * owner from seeing it. This is because the permissions may not yet have been
-	 * set for the post. If it's private, the photo permissions should be set
-	 * appropriately. But we didn't know the final permissions on the post until
-	 * now. So now we'll look for links of uploaded messages that are in the
-	 * post and set them to the same permissions as the post itself.
-	 */
-
-	$match = null;
-
-	if ((! $preview) && preg_match_all("/\[img([\=0-9x]*?)\](.*?)\[\/img\]/",$body,$match)) {
-		$images = $match[2];
-		if (count($images)) {
-
-			$objecttype = ACTIVITY_OBJ_IMAGE;
-
-			foreach ($images as $image) {
-				if (! stristr($image,System::baseUrl() . '/photo/')) {
-					continue;
-				}
-				$image_uri = substr($image,strrpos($image,'/') + 1);
-				$image_uri = substr($image_uri,0, strpos($image_uri,'-'));
-				if (! strlen($image_uri)) {
-					continue;
-				}
-				$srch = '<' . intval($contact_id) . '>';
-
-				$r = q("SELECT `id` FROM `photo` WHERE `allow_cid` = '%s' AND `allow_gid` = '' AND `deny_cid` = '' AND `deny_gid` = ''
-					AND `resource-id` = '%s' AND `uid` = %d LIMIT 1",
-					dbesc($srch),
-					dbesc($image_uri),
-					intval($profile_uid)
-				);
-
-				if (! DBM::is_result($r)) {
-					continue;
-				}
-
-				$r = q("UPDATE `photo` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'
-					WHERE `resource-id` = '%s' AND `uid` = %d AND `album` = '%s' ",
-					dbesc($str_contact_allow),
-					dbesc($str_group_allow),
-					dbesc($str_contact_deny),
-					dbesc($str_group_deny),
-					dbesc($image_uri),
-					intval($profile_uid),
-					dbesc( t('Wall Photos'))
-				);
-			}
-		}
-	}
-
-
-	/*
-	 * Next link in any attachment references we find in the post.
-	 */
-	$match = false;
-
-	if ((! $preview) && preg_match_all("/\[attachment\](.*?)\[\/attachment\]/", $body, $match)) {
-		$attaches = $match[1];
-		if (count($attaches)) {
-			foreach ($attaches as $attach) {
-				$r = q("SELECT * FROM `attach` WHERE `uid` = %d AND `id` = %d LIMIT 1",
-					intval($profile_uid),
-					intval($attach)
-				);
-				if (DBM::is_result($r)) {
-					$r = q("UPDATE `attach` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'
-						WHERE `uid` = %d AND `id` = %d",
-						dbesc($str_contact_allow),
-						dbesc($str_group_allow),
-						dbesc($str_contact_deny),
-						dbesc($str_group_deny),
-						intval($profile_uid),
-						intval($attach)
-					);
-				}
-			}
-		}
-	}
-
-	// embedded bookmark or attachment in post? set bookmark flag
-
-	$bookmark = 0;
-	$data = get_attachment_data($body);
-	if (preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $body, $match, PREG_SET_ORDER) || isset($data["type"])) {
-		$objecttype = ACTIVITY_OBJ_BOOKMARK;
-		$bookmark = 1;
-	}
-
-	$body = bb_translate_video($body);
-
-
-	// Fold multi-line [code] sequences
-	$body = preg_replace('/\[\/code\]\s*\[code\]/ism', "\n", $body);
-
-	$body = scale_external_images($body, false);
-
-	// Setting the object type if not defined before
-	if (!$objecttype) {
-		$objecttype = ACTIVITY_OBJ_NOTE; // Default value
-		require_once 'include/plaintext.php';
-		$objectdata = get_attached_data($body);
-
-		if ($post["type"] == "link") {
-			$objecttype = ACTIVITY_OBJ_BOOKMARK;
-		} elseif ($post["type"] == "video") {
-			$objecttype = ACTIVITY_OBJ_VIDEO;
-		} elseif ($post["type"] == "photo") {
-			$objecttype = ACTIVITY_OBJ_IMAGE;
-		}
-
-	}
-
 	// Look for any tags and linkify them
 	$str_tags = '';
 	$inform   = '';
@@ -626,6 +512,8 @@ function item_post(App $a) {
 		}
 	}
 
+	$original_contact_id = $contact_id;
+
 	if (!$parent && count($forum_contact) && ($private_forum || $only_to_forum)) {
 		// we tagged a forum in a top level post. Now we change the post
 		$private = $private_forum;
@@ -641,6 +529,122 @@ function item_post(App $a) {
 		$contact_id = $private_id;
 		$contact_record = $forum_contact;
 		$_REQUEST['origin'] = false;
+	}
+
+	/*
+	 * When a photo was uploaded into the message using the (profile wall) ajax
+	 * uploader, The permissions are initially set to disallow anybody but the
+	 * owner from seeing it. This is because the permissions may not yet have been
+	 * set for the post. If it's private, the photo permissions should be set
+	 * appropriately. But we didn't know the final permissions on the post until
+	 * now. So now we'll look for links of uploaded messages that are in the
+	 * post and set them to the same permissions as the post itself.
+	 */
+
+	$match = null;
+
+	if (!$preview && preg_match_all("/\[img([\=0-9x]*?)\](.*?)\[\/img\]/",$body,$match)) {
+		$images = $match[2];
+		if (count($images)) {
+
+			$objecttype = ACTIVITY_OBJ_IMAGE;
+
+			foreach ($images as $image) {
+				if (!stristr($image, System::baseUrl() . '/photo/')) {
+					continue;
+				}
+				$image_uri = substr($image,strrpos($image,'/') + 1);
+				$image_uri = substr($image_uri,0, strpos($image_uri,'-'));
+				if (!strlen($image_uri)) {
+					continue;
+				}
+				$srch = '<' . intval($original_contact_id) . '>';
+
+				$r = q("SELECT `id` FROM `photo` WHERE `allow_cid` = '%s' AND `allow_gid` = '' AND `deny_cid` = '' AND `deny_gid` = ''
+					AND `resource-id` = '%s' AND `uid` = %d LIMIT 1",
+					dbesc($srch),
+					dbesc($image_uri),
+					intval($profile_uid)
+				);
+
+				if (! DBM::is_result($r)) {
+					continue;
+				}
+
+				$r = q("UPDATE `photo` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'
+					WHERE `resource-id` = '%s' AND `uid` = %d AND `album` = '%s' ",
+					dbesc($str_contact_allow),
+					dbesc($str_group_allow),
+					dbesc($str_contact_deny),
+					dbesc($str_group_deny),
+					dbesc($image_uri),
+					intval($profile_uid),
+					dbesc(t('Wall Photos'))
+				);
+			}
+		}
+	}
+
+
+	/*
+	 * Next link in any attachment references we find in the post.
+	 */
+	$match = false;
+
+	if ((! $preview) && preg_match_all("/\[attachment\](.*?)\[\/attachment\]/", $body, $match)) {
+		$attaches = $match[1];
+		if (count($attaches)) {
+			foreach ($attaches as $attach) {
+				$r = q("SELECT * FROM `attach` WHERE `uid` = %d AND `id` = %d LIMIT 1",
+					intval($profile_uid),
+					intval($attach)
+				);
+				if (DBM::is_result($r)) {
+					$r = q("UPDATE `attach` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'
+						WHERE `uid` = %d AND `id` = %d",
+						dbesc($str_contact_allow),
+						dbesc($str_group_allow),
+						dbesc($str_contact_deny),
+						dbesc($str_group_deny),
+						intval($profile_uid),
+						intval($attach)
+					);
+				}
+			}
+		}
+	}
+
+	// embedded bookmark or attachment in post? set bookmark flag
+
+	$bookmark = 0;
+	$data = get_attachment_data($body);
+	if (preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $body, $match, PREG_SET_ORDER) || isset($data["type"])) {
+		$objecttype = ACTIVITY_OBJ_BOOKMARK;
+		$bookmark = 1;
+	}
+
+	$body = bb_translate_video($body);
+
+
+	// Fold multi-line [code] sequences
+	$body = preg_replace('/\[\/code\]\s*\[code\]/ism', "\n", $body);
+
+	$body = scale_external_images($body, false);
+
+	// Setting the object type if not defined before
+	if (!$objecttype) {
+		$objecttype = ACTIVITY_OBJ_NOTE; // Default value
+		require_once 'include/plaintext.php';
+		$objectdata = get_attached_data($body);
+
+		if ($objectdata["type"] == "link") {
+			$objecttype = ACTIVITY_OBJ_BOOKMARK;
+		} elseif ($objectdata["type"] == "video") {
+			$objecttype = ACTIVITY_OBJ_VIDEO;
+		} elseif ($objectdata["type"] == "photo") {
+			$objecttype = ACTIVITY_OBJ_IMAGE;
+		}
+
 	}
 
 	$attachments = '';
@@ -702,11 +706,11 @@ function item_post(App $a) {
 	$datarray['owner-name']    = $contact_record['name'];
 	$datarray['owner-link']    = $contact_record['url'];
 	$datarray['owner-avatar']  = $contact_record['thumb'];
-	$datarray['owner-id']      = get_contact($datarray['owner-link'], 0);
+	$datarray['owner-id']      = Contact::getIdForURL($datarray['owner-link'], 0);
 	$datarray['author-name']   = $author['name'];
 	$datarray['author-link']   = $author['url'];
 	$datarray['author-avatar'] = $author['thumb'];
-	$datarray['author-id']     = get_contact($datarray['author-link'], 0);
+	$datarray['author-id']     = Contact::getIdForURL($datarray['author-link'], 0);
 	$datarray['created']       = datetime_convert();
 	$datarray['edited']        = datetime_convert();
 	$datarray['commented']     = datetime_convert();
@@ -737,7 +741,7 @@ function item_post(App $a) {
 	$datarray['postopts']      = $postopts;
 	$datarray['origin']        = $origin;
 	$datarray['moderated']     = $allow_moderated;
-	$datarray['gcontact-id']   = get_gcontact_id(array("url" => $datarray['author-link'], "network" => $datarray['network'],
+	$datarray['gcontact-id']   = GlobalContact::getId(array("url" => $datarray['author-link'], "network" => $datarray['network'],
 							"photo" => $datarray['author-avatar'], "name" => $datarray['author-name']));
 	$datarray['object']        = $object;
 
@@ -833,7 +837,7 @@ function item_post(App $a) {
 		// update filetags in pconfig
 		file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
 
-		Worker::add(PRIORITY_HIGH, "notifier", 'edit_post', $post_id);
+		Worker::add(PRIORITY_HIGH, "Notifier", 'edit_post', $post_id);
 		if ((x($_REQUEST, 'return')) && strlen($return_path)) {
 			logger('return: ' . $return_path);
 			goaway($return_path);
@@ -983,7 +987,7 @@ function item_post(App $a) {
 
 
 		// Store the comment signature information in case we need to relay to Diaspora
-		Diaspora::store_comment_signature($datarray, $author, ($self ? $user['prvkey'] : false), $post_id);
+		Diaspora::storeCommentSignature($datarray, $author, ($self ? $user['prvkey'] : false), $post_id);
 
 	} else {
 		$parent = $post_id;
@@ -1035,13 +1039,13 @@ function item_post(App $a) {
 				$message = '<html><body>' . $link . $html . $disclaimer . '</body></html>';
 				include_once 'include/html2plain.php';
 				$params = array (
-				    'fromName' => $a->user['username'],
-				    'fromEmail' => $a->user['email'],
-				    'toEmail' => $addr,
-				    'replyTo' => $a->user['email'],
-				    'messageSubject' => $subject,
-				    'htmlVersion' => $message,
-				    'textVersion' => html2plain($html.$disclaimer),
+					'fromName' => $a->user['username'],
+					'fromEmail' => $a->user['email'],
+					'toEmail' => $addr,
+					'replyTo' => $a->user['email'],
+					'messageSubject' => $subject,
+					'htmlVersion' => $message,
+					'textVersion' => html2plain($html.$disclaimer)
 				);
 				Emailer::send($params);
 			}
@@ -1063,10 +1067,10 @@ function item_post(App $a) {
 	// We now do it in the background to save some time.
 	// This is important in interactive environments like the frontend or the API.
 	// We don't fork a new process since this is done anyway with the following command
-	Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "create_shadowentry", $post_id);
+	Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "CreateShadowEntry", $post_id);
 
 	// Call the background process that is delivering the item to the receivers
-	Worker::add(PRIORITY_HIGH, "notifier", $notify_type, $post_id);
+	Worker::add(PRIORITY_HIGH, "Notifier", $notify_type, $post_id);
 
 	logger('post_complete');
 
@@ -1132,9 +1136,8 @@ function item_content(App $a) {
  *
  * @return boolean true if replaced, false if not replaced
  */
-function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $network = "") {
-	require_once 'include/socgraph.php';
-
+function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $network = "")
+{
 	$replaced = false;
 	$r = null;
 	$tag_type = '@';
@@ -1239,7 +1242,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			if (!DBM::is_result($r)) {
 				$probed = Probe::uri($name);
 				if ($result['network'] != NETWORK_PHANTOM) {
-					update_gcontact($probed);
+					GlobalContact::update($probed);
 					$r = q("SELECT `url`, `name`, `nick`, `network`, `alias`, `notify` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 						dbesc(normalise_link($probed["url"])));
 				}

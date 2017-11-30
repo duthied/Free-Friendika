@@ -93,18 +93,6 @@ class dba {
 			}
 		}
 
-		if (!self::$connected && function_exists('mysql_connect')) {
-			self::$driver = 'mysql';
-			self::$db = mysql_connect($serveraddr, $user, $pass);
-			if (self::$db && mysql_select_db($db, self::$db)) {
-				self::$connected = true;
-
-				if (isset($a->config["system"]["db_charset"])) {
-					mysql_set_charset($a->config["system"]["db_charset"], self::$db);
-				}
-			}
-		}
-
 		// No suitable SQL driver was found.
 		if (!self::$connected) {
 			self::$db = null;
@@ -133,9 +121,6 @@ class dba {
 					break;
 				case 'mysqli':
 					self::$_server_info = self::$db->server_info;
-					break;
-				case 'mysql':
-					self::$_server_info = mysql_get_server_info(self::$db);
 					break;
 			}
 		}
@@ -216,8 +201,6 @@ class dba {
 				return substr(@self::$db->quote($str, PDO::PARAM_STR), 1, -1);
 			case 'mysqli':
 				return @self::$db->real_escape_string($str);
-			case 'mysql':
-				return @mysql_real_escape_string($str,self::$db);
 		}
 	}
 
@@ -234,9 +217,6 @@ class dba {
 				break;
 			case 'mysqli':
 				$connected = self::$db->ping();
-				break;
-			case 'mysql':
-				$connected = mysql_ping(self::$db);
 				break;
 		}
 		return $connected;
@@ -485,22 +465,6 @@ class dba {
 					self::$affected_rows = $retval->affected_rows;
 				}
 				break;
-			case 'mysql':
-				// For the old "mysql" functions we cannot use prepared statements
-				$retval = mysql_query(self::replace_parameters($sql, $args), self::$db);
-				if (mysql_errno(self::$db)) {
-					self::$error = mysql_error(self::$db);
-					self::$errorno = mysql_errno(self::$db);
-				} else {
-					self::$affected_rows = mysql_affected_rows($retval);
-
-					// Due to missing mysql_* support this here wasn't tested at all
-					// See here: http://php.net/manual/en/function.mysql-num-rows.php
-					if (self::$affected_rows <= 0) {
-						self::$affected_rows = mysql_num_rows($retval);
-					}
-				}
-				break;
 		}
 
 		// We are having an own error logging in the function "e"
@@ -668,8 +632,6 @@ class dba {
 				return $stmt->columnCount();
 			case 'mysqli':
 				return $stmt->field_count;
-			case 'mysql':
-				return mysql_affected_rows($stmt);
 		}
 		return 0;
 	}
@@ -688,8 +650,6 @@ class dba {
 				return $stmt->rowCount();
 			case 'mysqli':
 				return $stmt->num_rows;
-			case 'mysql':
-				return mysql_num_rows($stmt);
 		}
 		return 0;
 	}
@@ -740,8 +700,6 @@ class dba {
 					$columns[$fields[$param]->name] = $col;
 				}
 				return $columns;
-			case 'mysql':
-				return mysql_fetch_array($stmt, MYSQL_ASSOC);
 		}
 	}
 
@@ -755,6 +713,12 @@ class dba {
 	 * @return boolean was the insert successfull?
 	 */
 	public static function insert($table, $param, $on_duplicate_update = false) {
+
+		if (empty($table) || empty($param)) {
+			logger('Table and fields have to be set');
+			return false;
+		}
+
 		$sql = "INSERT INTO `".self::escape($table)."` (`".implode("`, `", array_keys($param))."`) VALUES (".
 			substr(str_repeat("?, ", count($param)), 0, -2).")";
 
@@ -780,9 +744,6 @@ class dba {
 				break;
 			case 'mysqli':
 				$id = self::$db->insert_id;
-				break;
-			case 'mysql':
-				$id = mysql_insert_id(self::$db);
 				break;
 		}
 		return $id;
@@ -897,6 +858,12 @@ class dba {
 	 * @return boolean|array was the delete successfull? When $in_process is set: deletion data
 	 */
 	public static function delete($table, $param, $in_process = false, &$callstack = array()) {
+
+		if (empty($table) || empty($param)) {
+			logger('Table and condition have to be set');
+			return false;
+		}
+
 		$commands = array();
 
 		// Create a key for the loop prevention
@@ -1059,18 +1026,20 @@ class dba {
 	 * @return boolean was the update successfull?
 	 */
 	public static function update($table, $fields, $condition, $old_fields = array()) {
+
+		if (empty($table) || empty($fields) || empty($condition)) {
+			logger('Table, fields and condition have to be set');
+			return false;
+		}
+
 		$table = self::escape($table);
 
-		if (count($condition) > 0) {
-			$array_element = each($condition);
-			$array_key = $array_element['key'];
-			if (is_int($array_key)) {
-				$condition_string = " WHERE ".array_shift($condition);
-			} else {
-				$condition_string = " WHERE `".implode("` = ? AND `", array_keys($condition))."` = ?";
-			}
+		$array_element = each($condition);
+		$array_key = $array_element['key'];
+		if (is_int($array_key)) {
+			$condition_string = " WHERE ".array_shift($condition);
 		} else {
-			$condition_string = "";
+			$condition_string = " WHERE `".implode("` = ? AND `", array_keys($condition))."` = ?";
 		}
 
 		if (is_bool($old_fields)) {
@@ -1250,10 +1219,8 @@ class dba {
 			case 'pdo':
 				return $stmt->closeCursor();
 			case 'mysqli':
-				return $stmt->free_result();
+				$stmt->free_result();
 				return $stmt->close();
-			case 'mysql':
-				return mysql_free_result($stmt);
 		}
 	}
 }

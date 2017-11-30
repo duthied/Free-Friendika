@@ -147,7 +147,6 @@ function import_account(App $a, $file) {
 	// import user
 	$r = db_import_assoc('user', $account['user']);
 	if ($r === false) {
-		//echo "<pre>"; var_dump($r, $query, mysql_error()); killme();
 		logger("uimport:insert user : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 		notice(t("User creation error"));
 		return;
@@ -189,7 +188,7 @@ function import_account(App $a, $file) {
 			}
 		}
 		if ($contact['uid'] == $olduid && $contact['self'] == '0') {
-			// set contacts 'avatar-date' to NULL_DATE to let poller to update urls
+			// set contacts 'avatar-date' to NULL_DATE to let worker to update urls
 			$contact["avatar-date"] = NULL_DATE;
 
 			switch ($contact['network']) {
@@ -286,7 +285,7 @@ function import_account(App $a, $file) {
 	}
 
 	// send relocate messages
-	Worker::add(PRIORITY_HIGH, 'notifier', 'relocate', $newuid);
+	Worker::add(PRIORITY_HIGH, 'Notifier', 'relocate', $newuid);
 
 	info(t("Done. You can now login with your username and password"));
 	goaway(System::baseUrl() . "/login");

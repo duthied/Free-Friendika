@@ -4,10 +4,10 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
+use Friendica\Object\Contact;
 
-require_once 'include/Contact.php';
-require_once 'include/socgraph.php';
 require_once 'include/contact_selectors.php';
 require_once 'mod/proxy.php';
 require_once 'include/Photo.php';
@@ -58,7 +58,7 @@ function contacts_init(App $a) {
 			'$addr' => (($a->data['contact']['addr'] != "") ? ($a->data['contact']['addr']) : ""),
 			'$network_name' => $networkname,
 			'$network' => t('Network:'),
-			'$account_type' => account_type($a->data['contact'])
+			'$account_type' => Contact::getAccountType($a->data['contact'])
 		));
 
 		$finpeople_widget = '';
@@ -131,7 +131,7 @@ function contacts_batch_actions(App $a) {
 			if ($r) $count_actions++;
 		}
 		if (x($_POST, 'contacts_batch_drop')) {
-			_contact_drop($contact_id, $orig_record);
+			_contact_drop($orig_record);
 			$count_actions++;
 		}
 	}
@@ -252,7 +252,7 @@ function _contact_update($contact_id) {
 				intval($contact_id));
 	} else
 		// pull feed and consume it, which should subscribe to the hub.
-		Worker::add(PRIORITY_HIGH, "onepoll", $contact_id, "force");
+		Worker::add(PRIORITY_HIGH, "OnePoll", $contact_id, "force");
 }
 
 function _contact_update_profile($contact_id) {
@@ -312,7 +312,7 @@ function _contact_update_profile($contact_id) {
 	update_contact_avatar($data['photo'], local_user(), $contact_id, true);
 
 	// Update the entry in the gcontact table
-	update_gcontact_from_probe($data["url"]);
+	GlobalContact::updateFromProbe($data["url"]);
 }
 
 function _contact_block($contact_id, $orig_record) {
@@ -346,7 +346,9 @@ function _contact_archive($contact_id, $orig_record) {
 	}
 	return $r;
 }
-function _contact_drop($contact_id, $orig_record) {
+
+function _contact_drop($orig_record)
+{
 	$a = get_app();
 
 	$r = q("SELECT `contact`.*, `user`.* FROM `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid`
@@ -357,9 +359,8 @@ function _contact_drop($contact_id, $orig_record) {
 		return;
 	}
 
-	$self = ""; // Unused parameter
-	terminate_friendship($r[0], $self, $orig_record);
-	contact_remove($orig_record['id']);
+	Contact::terminateFriendship($r[0], $orig_record);
+	Contact::remove($orig_record['id']);
 }
 
 
@@ -479,7 +480,7 @@ function contacts_content(App $a) {
 				}
 			}
 
-			_contact_drop($contact_id, $orig_record[0]);
+			_contact_drop($orig_record[0]);
 			info( t('Contact has been removed.') . EOL );
 			if (x($_SESSION,'return_url')) {
 				goaway('' . $_SESSION['return_url']);
@@ -561,12 +562,12 @@ function contacts_content(App $a) {
 
 		$nettype = sprintf( t('Network type: %s'),network_to_name($contact['network'], $contact["url"]));
 
-		//$common = count_common_friends(local_user(),$contact['id']);
+		//$common = GlobalContact::countCommonFriends(local_user(),$contact['id']);
 		//$common_text = (($common) ? sprintf( tt('%d contact in common','%d contacts in common', $common),$common) : '');
 
 		$polling = (($contact['network'] === NETWORK_MAIL | $contact['network'] === NETWORK_FEED) ? 'polling' : '');
 
-		//$x = count_all_friends(local_user(), $contact['id']);
+		//$x = GlobalContact::countAllFriends(local_user(), $contact['id']);
 		//$all_friends = (($x) ? t('View all contacts') : '');
 
 		// tabs
@@ -575,8 +576,14 @@ function contacts_content(App $a) {
 		$lost_contact = (($contact['archive'] && $contact['term-date'] > NULL_DATE && $contact['term-date'] < datetime_convert('','','now')) ? t('Communications lost with this contact!') : '');
 
 		if ($contact['network'] == NETWORK_FEED) {
-			$fetch_further_information = array('fetch_further_information', t('Fetch further information for feeds'), $contact['fetch_further_information'], t('Fetch further information for feeds'),
-									array('0'=>t('Disabled'), '1'=>t('Fetch information'), '2'=>t('Fetch information and keywords')));
+			$fetch_further_information = array('fetch_further_information',
+							t('Fetch further information for feeds'),
+							$contact['fetch_further_information'],
+							t("Fetch information like preview pictures, title and teaser from the feed item. You can activate this if the feed doesn't contain much text. Keywords are taken from the meta header in the feed item and are posted as hash tags."),
+								array('0' => t('Disabled'),
+									'1' => t('Fetch information'),
+									'3' => t('Fetch keywords'),
+									'2' => t('Fetch information and keywords')));
 		}
 		if (in_array($contact['network'], array(NETWORK_FEED, NETWORK_MAIL, NETWORK_MAIL2)))
 			$poll_interval = contact_poll_interval($contact['priority'],(! $poll_enabled));
@@ -640,6 +647,7 @@ function contacts_content(App $a) {
 			'$blocked' => (($contact['blocked']) ? t('Currently blocked') : ''),
 			'$ignored' => (($contact['readonly']) ? t('Currently ignored') : ''),
 			'$archived' => (($contact['archive']) ? t('Currently archived') : ''),
+			'$pending' => (($contact['pending']) ? t('Awaiting connection acknowledge') : ''),
 			'$hidden' => array('hidden', t('Hide this contact from others'), ($contact['hidden'] == 1), t('Replies/likes to your public posts <strong>may</strong> still be visible')),
 			'$notify' => array('notify', t('Notification for new posts'), ($contact['notify_new_posts'] == 1), t('Send a notification of every new post of this contact')),
 			'$fetch_further_information' => $fetch_further_information,
@@ -653,7 +661,7 @@ function contacts_content(App $a) {
 			'$url' => $url,
 			'$profileurllabel' => t('Profile URL'),
 			'$profileurl' => $contact['url'],
-			'$account_type' => account_type($contact),
+			'$account_type' => Contact::getAccountType($contact),
 			'$location' => bbcode($contact["location"]),
 			'$location_label' => t("Location:"),
 			'$xmpp' => bbcode($contact["xmpp"]),
@@ -878,7 +886,7 @@ function contacts_tab($a, $contact_id, $active_tab) {
 	);
 
 	// Show this tab only if there is visible friend list
-	$x = count_all_friends(local_user(), $contact_id);
+	$x = GlobalContact::countAllFriends(local_user(), $contact_id);
 	if ($x)
 		$tabs[] = array('label'=>t('Contacts'),
 				'url' => "allfriends/".$contact_id,
@@ -888,7 +896,7 @@ function contacts_tab($a, $contact_id, $active_tab) {
 				'accesskey' => 't');
 
 	// Show this tab only if there is visible common friend list
-	$common = count_common_friends(local_user(),$contact_id);
+	$common = GlobalContact::countCommonFriends(local_user(), $contact_id);
 	if ($common)
 		$tabs[] = array('label'=>t('Common Friends'),
 				'url' => "common/loc/".local_user()."/".$contact_id,
@@ -916,7 +924,7 @@ function contact_posts($a, $contact_id) {
 	if ($r) {
 		$contact = $r[0];
 		$a->page['aside'] = "";
-		profile_load($a, "", 0, get_contact_details_by_url($contact["url"]));
+		profile_load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
 	} else
 		$profile = "";
 
@@ -924,7 +932,7 @@ function contact_posts($a, $contact_id) {
 
 	$o .= $tab_str;
 
-	$o .= posts_from_contact_url($a, $contact["url"]);
+	$o .= Contact::getPostsFromUrl($contact["url"]);
 
 	return $o;
 }
@@ -959,14 +967,14 @@ function _contact_detail_for_template($rr){
 	return array(
 		'img_hover' => sprintf( t('Visit %s\'s profile [%s]'),$rr['name'],$rr['url']),
 		'edit_hover' => t('Edit contact'),
-		'photo_menu' => contact_photo_menu($rr),
+		'photo_menu' => Contact::photoMenu($rr),
 		'id' => $rr['id'],
 		'alt_text' => $alt_text,
 		'dir_icon' => $dir_icon,
 		'thumb' => proxy_url($rr['thumb'], false, PROXY_SIZE_THUMB),
 		'name' => htmlentities($rr['name']),
 		'username' => htmlentities($rr['name']),
-		'account_type' => account_type($rr),
+		'account_type' => Contact::getAccountType($rr),
 		'sparkle' => $sparkle,
 		'itemurl' => (($rr['addr'] != "") ? $rr['addr'] : $rr['url']),
 		'url' => $url,

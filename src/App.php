@@ -73,7 +73,6 @@ class App {
 	public $videowidth = 425;
 	public $videoheight = 350;
 	public $force_max_items = 0;
-	public $theme_thread_allow = true;
 	public $theme_events_in_profile = true;
 
 	/**
@@ -87,7 +86,6 @@ class App {
 		'videowidth' => 425,
 		'videoheight' => 350,
 		'force_max_items' => 0,
-		'thread_allow' => true,
 		'stylesheet' => '',
 		'template_engine' => 'smarty3',
 	);
@@ -295,7 +293,7 @@ class App {
 		// Register template engines
 		$dc = get_declared_classes();
 		foreach ($dc as $k) {
-			if (in_array('ITemplateEngine', class_implements($k))) {
+			if (in_array('Friendica\Render\ITemplateEngine', class_implements($k))) {
 				$this->register_template_engine($k);
 			}
 		}
@@ -722,7 +720,7 @@ class App {
 		if (DBM::is_result($r)) {
 			foreach ($r AS $process) {
 				if (!posix_kill($process['pid'], 0)) {
-					q('DELETE FROM `process` WHERE `pid` = %d', intval($process['pid']));
+					dba::delete('process', array('pid' => $process['pid']));
 				}
 			}
 		}
@@ -733,7 +731,7 @@ class App {
 	 * @brief Remove the active process from the "process" table
 	 */
 	function end_process() {
-		q('DELETE FROM `process` WHERE `pid` = %d', intval(getmypid()));
+		dba::delete('process', array('pid' => getmypid()));
 	}
 
 	function get_useragent() {

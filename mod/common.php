@@ -1,12 +1,14 @@
 <?php
-
+/**
+ * @file include/common.php
+ */
 use Friendica\App;
 use Friendica\Database\DBM;
+use Friendica\Model\GlobalContact;
+use Friendica\Object\Contact;
 
-require_once('include/socgraph.php');
-require_once('include/Contact.php');
-require_once('include/contact_selectors.php');
-require_once('mod/contacts.php');
+require_once 'include/contact_selectors.php';
+require_once 'mod/contacts.php';
 
 function common_content(App $a) {
 
@@ -37,7 +39,7 @@ function common_content(App $a) {
 		);
 		/// @TODO Handle $c with DBM::is_result()
 		$a->page['aside'] = "";
-		profile_load($a, "", 0, get_contact_details_by_url($c[0]["url"]));
+		profile_load($a, "", 0, Contact::getDetailsByURL($c[0]["url"]));
 	} else {
 		$c = q("SELECT `name`, `url`, `photo` FROM `contact` WHERE `self` = 1 AND `uid` = %d LIMIT 1",
 			intval($uid)
@@ -83,23 +85,23 @@ function common_content(App $a) {
 	}
 
 	if ($cid) {
-		$t = count_common_friends($uid, $cid);
+		$t = GlobalContact::countCommonFriends($uid, $cid);
 	} else {
-		$t = count_common_friends_zcid($uid, $zcid);
+		$t = GlobalContact::countCommonFriendsZcid($uid, $zcid);
 	}
 
 	if (count($t)) {
 		$a->set_pager_total($t);
 	} else {
-		notice( t('No contacts in common.') . EOL);
+		notice(t('No contacts in common.') . EOL);
 		return $o;
 	}
 
 
 	if ($cid) {
-		$r = common_friends($uid, $cid, $a->pager['start'], $a->pager['itemspage']);
+		$r = GlobalContact::commonFriends($uid, $cid, $a->pager['start'], $a->pager['itemspage']);
 	} else {
-		$r = common_friends_zcid($uid, $zcid, $a->pager['start'], $a->pager['itemspage']);
+		$r = GlobalContact::commonFriendsZcid($uid, $zcid, $a->pager['start'], $a->pager['itemspage']);
 	}
 
 
@@ -112,14 +114,14 @@ function common_content(App $a) {
 	foreach ($r as $rr) {
 
 		//get further details of the contact
-		$contact_details = get_contact_details_by_url($rr['url'], $uid);
+		$contact_details = Contact::getDetailsByURL($rr['url'], $uid);
 
 		// $rr['id'] is needed to use contact_photo_menu()
 		/// @TODO Adding '/" here avoids E_NOTICE on missing constants
 		$rr['id'] = $rr['cid'];
 
 		$photo_menu = '';
-		$photo_menu = contact_photo_menu($rr);
+		$photo_menu = Contact::photoMenu($rr);
 
 		$entry = array(
 			'url'          => $rr['url'],
@@ -130,7 +132,7 @@ function common_content(App $a) {
 			'details'      => $contact_details['location'],
 			'tags'         => $contact_details['keywords'],
 			'about'        => $contact_details['about'],
-			'account_type' => account_type($contact_details),
+			'account_type' => Contact::getAccountType($contact_details),
 			'network'      => network_to_name($contact_details['network'], $contact_details['url']),
 			'photo_menu'   => $photo_menu,
 			'id'           => ++$id,

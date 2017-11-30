@@ -10,20 +10,21 @@
  */
 
 use Friendica\App;
+use Friendica\Content\ForumManager;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\GlobalContact;
 
 require_once "include/plugin.php";
-require_once "include/socgraph.php";
 require_once "mod/proxy.php";
 
 function vier_init(App $a) {
 
 	$a->theme_events_in_profile = false;
 
-	set_template_engine($a, 'smarty3');
+	$a->set_template_engine('smarty3');
 
 	if ($a->argv[0].$a->argv[1] === "profile".$a->user['nickname'] || $a->argv[0] === "network" && local_user()) {
 		vier_community_info();
@@ -138,8 +139,7 @@ function vier_community_info() {
 
 	// comunity_profiles
 	if ($show_profiles) {
-
-		$r = suggestion_query(local_user(), 0, 9);
+		$r = GlobalContact::suggestionQuery(local_user(), 0, 9);
 
 		$tpl = get_markup_template('ch_directory_item.tpl');
 		if (DBM::is_result($r)) {
@@ -211,9 +211,6 @@ function vier_community_info() {
 
 	//Community_Pages at right_aside
 	if ($show_pages && local_user()) {
-
-		require_once 'include/ForumManager.php';
-
 		if (x($_GET, 'cid') && intval($_GET['cid']) != 0) {
 			$cid = $_GET['cid'];
 		}
@@ -221,16 +218,14 @@ function vier_community_info() {
 		//sort by last updated item
 		$lastitem = true;
 
-		$contacts = ForumManager::get_list($a->user['uid'],true,$lastitem, true);
+		$contacts = ForumManager::getList($a->user['uid'], $lastitem, true, true);
 		$total = count($contacts);
 		$visible_forums = 10;
 
 		if (count($contacts)) {
-
 			$id = 0;
 
 			foreach ($contacts as $contact) {
-
 				$selected = (($cid == $contact['id']) ? ' forum-selected' : '');
 
 				$entry = array(
@@ -248,14 +243,16 @@ function vier_community_info() {
 
 			$tpl = get_markup_template('widget_forumlist_right.tpl');
 
-			$page .= replace_macros($tpl, array(
-				'$title'          => t('Forums'),
-				'$forums'         => $entries,
-				'$link_desc'      => t('External link to forum'),
-				'$total'          => $total,
-				'$visible_forums' => $visible_forums,
-				'$showmore'       => t('show more'),
-			));
+			$page .= replace_macros(
+				$tpl,
+				array(
+					'$title'          => t('Forums'),
+					'$forums'         => $entries,
+					'$link_desc'      => t('External link to forum'),
+					'$total'          => $total,
+					'$visible_forums' => $visible_forums,
+					'$showmore'       => t('show more'))
+			);
 
 			$aside['$page'] = $page;
 		}

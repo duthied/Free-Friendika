@@ -1,4 +1,7 @@
 <?php
+/**
+ * @file src/Core/PConfig.php
+ */
 namespace Friendica\Core;
 
 use Friendica\Database\DBM;
@@ -17,8 +20,8 @@ use dba;
  * The PConfig::get() functions return boolean false for keys that are unset,
  * and this could lead to subtle bugs.
  */
-class PConfig {
-
+class PConfig
+{
 	private static $in_db;
 
 	/**
@@ -27,13 +30,13 @@ class PConfig {
 	 * All configuration values of the given user are stored in global cache
 	 * which is available under the global variable $a->config[$uid].
 	 *
-	 * @param string $uid
-	 *  The user_id
-	 * @param string $family
-	 *  The category of the configuration value
+	 * @param string $uid    The user_id
+	 * @param string $family The category of the configuration value
+	 *
 	 * @return void
 	 */
-	public static function load($uid, $family) {
+	public static function load($uid, $family)
+	{
 		$a = get_app();
 
 		$r = dba::select('pconfig', array('v', 'k'), array('cat' => $family, 'uid' => $uid));
@@ -57,20 +60,16 @@ class PConfig {
 	 * Get a particular user's config value from the given category ($family)
 	 * and the $key from a cached storage in $a->config[$uid].
 	 *
-	 * @param string $uid
-	 *  The user_id
-	 * @param string $family
-	 *  The category of the configuration value
-	 * @param string $key
-	 *  The configuration key to query
-	 * @param mixed $default_value optional
-	 *  The value to return if key is not set (default: null)
-	 * @param boolean $refresh optional
-	 *  If true the config is loaded from the db and not from the cache (default: false)
+	 * @param string  $uid           The user_id
+	 * @param string  $family        The category of the configuration value
+	 * @param string  $key           The configuration key to query
+	 * @param mixed   $default_value optional, The value to return if key is not set (default: null)
+	 * @param boolean $refresh       optional, If true the config is loaded from the db and not from the cache (default: false)
+	 *
 	 * @return mixed Stored value or null if it does not exist
 	 */
-	public static function get($uid, $family, $key, $default_value = null, $refresh = false) {
-
+	public static function get($uid, $family, $key, $default_value = null, $refresh = false)
+	{
 		$a = get_app();
 
 		if (!$refresh) {
@@ -112,18 +111,15 @@ class PConfig {
 	 *
 	 * @note Please do not store booleans - convert to 0/1 integer values!
 	 *
-	 * @param string $uid
-	 *  The user_id
-	 * @param string $family
-	 *  The category of the configuration value
-	 * @param string $key
-	 *  The configuration key to set
-	 * @param string $value
-	 *  The value to store
+	 * @param string $uid    The user_id
+	 * @param string $family The category of the configuration value
+	 * @param string $key    The configuration key to set
+	 * @param string $value  The value to store
+	 *
 	 * @return mixed Stored $value or false
 	 */
-	public static function set($uid, $family, $key, $value) {
-
+	public static function set($uid, $family, $key, $value)
+	{
 		$a = get_app();
 
 		// We store our setting values in a string variable.
@@ -157,15 +153,14 @@ class PConfig {
 	 * Removes the configured value from the stored cache in $a->config[$uid]
 	 * and removes it from the database.
 	 *
-	 * @param string $uid The user_id
-	 * @param string $family
-	 *  The category of the configuration value
-	 * @param string $key
-	 *  The configuration key to delete
+	 * @param string $uid    The user_id
+	 * @param string $family The category of the configuration value
+	 * @param string $key    The configuration key to delete
+	 *
 	 * @return mixed
 	 */
-	public static function delete($uid,$family,$key) {
-
+	public static function delete($uid, $family, $key)
+	{
 		$a = get_app();
 
 		if (x($a->config[$uid][$family], $key)) {

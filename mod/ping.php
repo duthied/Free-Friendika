@@ -3,15 +3,16 @@
  * @file include/ping.php
  */
 use Friendica\App;
+use Friendica\Content\ForumManager;
 use Friendica\Core\Cache;
 use Friendica\Core\System;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 use Friendica\Util\XML;
 
 require_once 'include/datetime.php';
 require_once 'include/bbcode.php';
-require_once 'include/ForumManager.php';
 require_once 'include/group.php';
 require_once 'mod/proxy.php';
 require_once 'include/enotify.php';
@@ -114,7 +115,7 @@ function ping_init(App $a)
 				}
 			} else {
 				header("Content-type: text/xml");
-				echo XML::from_array($data, $xml);
+				echo XML::fromArray($data, $xml);
 			}
 			killme();
 		}
@@ -161,7 +162,7 @@ function ping_init(App $a)
 			}
 
 			if (intval(feature_enabled(local_user(), 'forumlist_widget'))) {
-				$forum_counts = ForumManager::count_unseen_items();
+				$forum_counts = ForumManager::countUnseenItems();
 				if (DBM::is_result($forums_counts)) {
 					foreach ($forums_counts as $forum_count) {
 						if ($forum_count['count'] > 0) {
@@ -201,13 +202,13 @@ function ping_init(App $a)
 
 		if ($a->config['register_policy'] == REGISTER_APPROVE && is_site_admin()) {
 			$regs = q(
-				"SELECT `contact`.`name`, `contact`.`url`, `contact`.`micro`, `register`.`created`, COUNT(*) AS `total`
+				"SELECT `contact`.`name`, `contact`.`url`, `contact`.`micro`, `register`.`created`
 				FROM `contact` RIGHT JOIN `register` ON `register`.`uid` = `contact`.`uid`
 				WHERE `contact`.`self` = 1"
 			);
 
 			if (DBM::is_result($regs)) {
-				$register_count = $regs[0]['total'];
+				$register_count = count($regs);
 			}
 		}
 
@@ -349,7 +350,7 @@ function ping_init(App $a)
 					$notif['message'] = str_replace("{0}", $notif['name'], $notif['message']);
 				}
 
-				$contact = get_contact_details_by_url($notif['url']);
+				$contact = Contact::getDetailsByURL($notif['url']);
 				if (isset($contact['micro'])) {
 					$notif['photo'] = proxy_url($contact['micro'], false, PROXY_SIZE_MICRO);
 				} else {
@@ -411,7 +412,7 @@ function ping_init(App $a)
 		$data = ping_format_xml_data($data, $sysnotify_count, $notifications, $sysmsgs, $sysmsgs_info, $groups_unseen, $forums_unseen);
 
 		header("Content-type: text/xml");
-		echo XML::from_array(array("result" => $data), $xml);
+		echo XML::fromArray(array("result" => $data), $xml);
 	}
 
 	killme();

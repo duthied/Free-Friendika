@@ -1,14 +1,16 @@
 <?php
-
+/**
+ * @file mod/salmon.php
+ */
 use Friendica\App;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
+use Friendica\Protocol\OStatus;
 
-require_once('include/salmon.php');
-require_once('include/ostatus.php');
-require_once('include/crypto.php');
-require_once('include/items.php');
-require_once('include/follow.php');
+require_once 'include/salmon.php';
+require_once 'include/crypto.php';
+require_once 'include/items.php';
+require_once 'include/follow.php';
 
 function salmon_return($val) {
 
@@ -89,7 +91,7 @@ function salmon_post(App $a) {
 	// decode the data
 	$data = base64url_decode($data);
 
-	$author = ostatus::salmon_author($data,$importer);
+	$author = OStatus::salmonAuthor($data, $importer);
 	$author_link = $author["author-link"];
 
 	if(! $author_link) {
@@ -190,7 +192,7 @@ function salmon_post(App $a) {
 
 	$contact_rec = ((DBM::is_result($r)) ? $r[0] : null);
 
-	ostatus::import($data,$importer,$contact_rec, $hub);
+	OStatus::import($data, $importer, $contact_rec, $hub);
 
 	http_status_exit(200);
 }

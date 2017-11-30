@@ -62,14 +62,8 @@ Additionally it will be added to their calendar and thus be shown in their event
 Recipients of the event-posting can comment or dis-/like the event, as with a regular posting.
 Furthermore they can announce that they will attend, not attend or may-be attend the event with a single click.
 
-### Addons
+### Calendar Export
 
-#### OpenStreetMap
+If you want to export your public events to ical or csv, you can activate an additional feature in your user settings (Additional features -> General Features -> Export Public Calendar).
+Afterwards a link will be shown in the events page of your profile to access the calendar.
 
-If this addon is activated on your friendica node, the content of the location field will be matched with the identification service of OSM when you submit the event.
-Should OSM find anything matching, a map for the location will be embedded automatically at the end of the events view.
-
-#### Calendar Export
-
-If this addon is activated the public events you have created will be published in ical or csv file.
-The URL of the published file is ``example.com/cal/nickname/export/format`` (where format is either ical of csv).

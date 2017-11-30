@@ -27,6 +27,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 use Friendica\Util\Lock;
 
 require_once 'include/network.php';
@@ -39,7 +40,6 @@ require_once 'include/features.php';
 require_once 'include/identity.php';
 require_once 'update.php';
 require_once 'include/dbstructure.php';
-require_once 'include/poller.php';
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Asparagus');
@@ -619,7 +619,7 @@ function is_ajax()
 /**
  * @brief Function to check if request was an AJAX (xmlhttprequest) request.
  *
- * @param boolean $via_worker boolean Is the check run via the poller?
+ * @param boolean $via_worker boolean Is the check run via the worker?
  */
 function check_db($via_worker)
 {
@@ -630,7 +630,7 @@ function check_db($via_worker)
 	}
 	if ($build != DB_UPDATE_VERSION) {
 		// When we cannot execute the database update via the worker, we will do it directly
-		if (!Worker::add(PRIORITY_CRITICAL, 'dbupdate') && $via_worker) {
+		if (!Worker::add(PRIORITY_CRITICAL, 'DBUpdate') && $via_worker) {
 			update_db(get_app());
 		}
 	}
@@ -984,10 +984,10 @@ function public_contact()
 	if (!$public_contact_id && x($_SESSION, 'authenticated')) {
 		if (x($_SESSION, 'my_address')) {
 			// Local user
-			$public_contact_id = intval(get_contact($_SESSION['my_address'], 0));
+			$public_contact_id = intval(Contact::getIdForURL($_SESSION['my_address'], 0));
 		} elseif (x($_SESSION, 'visitor_home')) {
 			// Remote user
-			$public_contact_id = intval(get_contact($_SESSION['visitor_home'], 0));
+			$public_contact_id = intval(Contact::getIdForURL($_SESSION['visitor_home'], 0));
 		}
 	} elseif (!x($_SESSION, 'authenticated')) {
 		$public_contact_id = false;
@@ -1065,18 +1065,6 @@ function get_max_import_size()
 	return ((x($a->config, 'max_import_size')) ? $a->config['max_import_size'] : 0 );
 }
 
-/**
- * @brief compatibilty wrapper for Worker::add function
- *
- * @param (integer|array) priority or parameter array, strings are deprecated and are ignored
- *
- * @return boolean "false" if proc_run couldn't be executed
- */
-function proc_run()
-{
-	$proc_args = func_get_args();
-	call_user_func_array('Friendica\Core\Worker::add', $proc_args);
-}
 
 function current_theme()
 {
@@ -1527,15 +1515,6 @@ function get_spoolpath()
 	return "";
 }
 
-/// @deprecated
-function set_template_engine(App $a, $engine = 'internal')
-{
-	/// @note This function is no longer necessary, but keep it as a wrapper to the class method
-	/// to avoid breaking themes again unnecessarily
-	/// @TODO maybe output a warning here so the theme developer can see it? PHP won't show such warnings like Java does.
-
-	$a->set_template_engine($engine);
-}
 
 if (!function_exists('exif_imagetype')) {
 	function exif_imagetype($file)

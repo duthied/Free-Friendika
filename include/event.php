@@ -12,6 +12,7 @@ use Friendica\Database\DBM;
 require_once 'include/bbcode.php';
 require_once 'include/map.php';
 require_once 'include/datetime.php';
+require_once "include/conversation.php";
 
 function format_event_html($ev, $simple = false) {
 	if (! ((is_array($ev)) && count($ev))) {
@@ -216,7 +217,7 @@ function event_delete($event_id) {
 		return;
 	}
 
-	q("DELETE FROM `event` WHERE `id` = %d", intval($event_id));
+	dba::delete('event', array('id' => $event_id));
 	logger("Deleted event ".$event_id, LOGGER_DEBUG);
 }
 

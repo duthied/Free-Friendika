@@ -1,16 +1,19 @@
 <?php
-
+/**
+ * @file mod/network.php
+ */
 use Friendica\App;
+use Friendica\Content\ForumManager;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 
 require_once 'include/conversation.php';
 require_once 'include/group.php';
 require_once 'include/contact_widgets.php';
 require_once 'include/items.php';
-require_once 'include/ForumManager.php';
 require_once 'include/acl_selectors.php';
 
 function network_init(App $a) {
@@ -36,11 +39,16 @@ function network_init(App $a) {
 	}
 
 	$is_a_date_query = false;
+
+	$group_id = (($a->argc > 1 && is_numeric($a->argv[1])) ? intval($a->argv[1]) : 0);
+
 	if (x($_GET, 'cid') && intval($_GET['cid']) != 0) {
 		$cid = $_GET['cid'];
 		$_GET['nets'] = 'all';
-
+		$group_id = 0;
 	}
+
+	PConfig::set(local_user(), 'network.view', 'group.selected', $group_id);
 
 	if ($a->argc > 1) {
 		for ($x = 1; $x < $a->argc; $x ++) {
@@ -142,16 +150,13 @@ function network_init(App $a) {
 		unset($_GET['nets']);
 	}
 
-	$group_id = (($a->argc > 1 && is_numeric($a->argv[1])) ? intval($a->argv[1]) : 0);
-
-	PConfig::set(local_user(), 'network.view', 'group.selected', $group_id);
 
 	if (!x($a->page, 'aside')) {
 		$a->page['aside'] = '';
 	}
 
 	$a->page['aside'] .= (feature_enabled(local_user(),'groups') ? group_side('network/0','network','standard',$group_id) : '');
-	$a->page['aside'] .= (feature_enabled(local_user(),'forumlist_widget') ? ForumManager::widget(local_user(),$cid) : '');
+	$a->page['aside'] .= (feature_enabled(local_user(), 'forumlist_widget') ? ForumManager::widget(local_user(), $cid) : '');
 	$a->page['aside'] .= posted_date_widget('network',local_user(),false);
 	$a->page['aside'] .= networks_widget('network',(x($_GET, 'nets') ? $_GET['nets'] : ''));
 	$a->page['aside'] .= saved_searches($search);
@@ -676,7 +681,7 @@ function networkThreadedView(App $a, $update = 0) {
 				'details' => $r['location'],
 			);
 
-			$entries[0]["account_type"] = account_type($r);
+			$entries[0]["account_type"] = Contact::getAccountType($r);
 
 			$o = replace_macros(get_markup_template("viewcontact_template.tpl"),array(
 				'contacts' => $entries,

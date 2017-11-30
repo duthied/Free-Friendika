@@ -6,6 +6,7 @@ use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
+use Friendica\Object\Contact;
 
 require_once 'include/Photo.php';
 require_once 'include/photos.php';
@@ -45,7 +46,7 @@ function photos_init(App $a) {
 
 		$profile = get_profiledata_by_nick($nick, $a->profile_uid);
 
-		$account_type = account_type($profile);
+		$account_type = Contact::getAccountType($profile);
 
 		$tpl = get_markup_template("vcard-widget.tpl");
 
@@ -306,7 +307,7 @@ function photos_post(App $a) {
 					// send the notification upstream/downstream as the case may be
 
 					if ($rr['visible']) {
-						Worker::add(PRIORITY_HIGH, "notifier", "drop", $drop_id);
+						Worker::add(PRIORITY_HIGH, "Notifier", "drop", $drop_id);
 					}
 				}
 			}
@@ -383,7 +384,7 @@ function photos_post(App $a) {
 				photo_albums($page_owner_uid, true);
 
 				if ($i[0]['visible']) {
-					Worker::add(PRIORITY_HIGH, "notifier", "drop", $drop_id);
+					Worker::add(PRIORITY_HIGH, "Notifier", "drop", $drop_id);
 				}
 			}
 		}
@@ -731,7 +732,7 @@ function photos_post(App $a) {
 
 					$item_id = item_store($arr);
 					if ($item_id) {
-						Worker::add(PRIORITY_HIGH, "notifier", "tag", $item_id);
+						Worker::add(PRIORITY_HIGH, "Notifier", "tag", $item_id);
 					}
 				}
 			}
@@ -936,7 +937,7 @@ function photos_post(App $a) {
 	photo_albums($page_owner_uid, true);
 
 	if ($visible) {
-		Worker::add(PRIORITY_HIGH, "notifier", 'wall-new', $item_id);
+		Worker::add(PRIORITY_HIGH, "Notifier", 'wall-new', $item_id);
 	}
 
 	call_hooks('photo_post_end',intval($item_id));
@@ -1154,13 +1155,8 @@ function photos_content(App $a) {
 
 		$tpl = get_markup_template('photos_upload.tpl');
 
-		if ($a->theme['template_engine'] === 'internal') {
-			$albumselect_e = template_escape($albumselect);
-			$aclselect_e = (($visitor) ? '' : template_escape(populate_acl($a->user)));
-		} else {
-			$albumselect_e = $albumselect;
-			$aclselect_e = (($visitor) ? '' : populate_acl($a->user));
-		}
+		$albumselect_e = $albumselect;
+		$aclselect_e = (($visitor) ? '' : populate_acl($a->user));
 
 		$o .= replace_macros($tpl,array(
 			'$pagename' => t('Upload Photos'),
@@ -1235,11 +1231,7 @@ function photos_content(App $a) {
 				if ($can_post) {
 					$edit_tpl = get_markup_template('album_edit.tpl');
 
-					if ($a->theme['template_engine'] === 'internal') {
-						$album_e = template_escape($album);
-					} else {
-						$album_e = $album;
-					}
+					$album_e = $album;
 
 					$o .= replace_macros($edit_tpl,array(
 						'$nametext' => t('New album name: '),
@@ -1276,13 +1268,8 @@ function photos_content(App $a) {
 
 				$ext = $phototypes[$rr['type']];
 
-				if ($a->theme['template_engine'] === 'internal') {
-					$imgalt_e = template_escape($rr['filename']);
-					$desc_e = template_escape($rr['desc']);
-				} else {
-					$imgalt_e = $rr['filename'];
-					$desc_e = $rr['desc'];
-				}
+				$imgalt_e = $rr['filename'];
+				$desc_e = $rr['desc'];
 
 				$photos[] = array(
 					'id' => $rr['id'],
@@ -1547,15 +1534,9 @@ function photos_content(App $a) {
 				$public_post_link = '&public=1';
 			}
 
-			if ($a->theme['template_engine'] === 'internal') {
-				$album_e = template_escape($ph[0]['album']);
-				$caption_e = template_escape($ph[0]['desc']);
-				$aclselect_e = template_escape(populate_acl($ph[0]));
-			} else {
-				$album_e = $ph[0]['album'];
-				$caption_e = $ph[0]['desc'];
-				$aclselect_e = populate_acl($ph[0]);
-			}
+			$album_e = $ph[0]['album'];
+			$caption_e = $ph[0]['desc'];
+			$aclselect_e = populate_acl($ph[0]);
 
 			$edit = replace_macros($edit_tpl, array(
 				'$id' => $ph[0]['id'],
@@ -1707,15 +1688,9 @@ function photos_content(App $a) {
 						'delete' => t('Delete'),
 					);
 
-					if ($a->theme['template_engine'] === 'internal') {
-						$name_e = template_escape($profile_name);
-						$title_e = template_escape($item['title']);
-						$body_e = template_escape(bbcode($item['body']));
-					} else {
-						$name_e = $profile_name;
-						$title_e = $item['title'];
-						$body_e = bbcode($item['body']);
-					}
+					$name_e = $profile_name;
+					$title_e = $item['title'];
+					$body_e = bbcode($item['body']);
 
 					$comments .= replace_macros($template,array(
 						'$id' => $item['item_id'],
@@ -1765,17 +1740,10 @@ function photos_content(App $a) {
 
 		$photo_tpl = get_markup_template('photo_view.tpl');
 
-		if ($a->theme['template_engine'] === 'internal') {
-			$album_e = array($album_link,template_escape($ph[0]['album']));
-			$tags_e = template_escape($tags);
-			$like_e = template_escape($like);
-			$dislike_e = template_escape($dislike);
-		} else {
-			$album_e = array($album_link, $ph[0]['album']);
-			$tags_e = $tags;
-			$like_e = $like;
-			$dislike_e = $dislike;
-		}
+		$album_e = array($album_link, $ph[0]['album']);
+		$tags_e = $tags;
+		$like_e = $like;
+		$dislike_e = $dislike;
 
 		$o .= replace_macros($photo_tpl, array(
 			'$id' => $ph[0]['id'],
@@ -1848,13 +1816,8 @@ function photos_content(App $a) {
 
 			$ext = $phototypes[$rr['type']];
 
-			if ($a->theme['template_engine'] === 'internal') {
-				$alt_e = template_escape($rr['filename']);
-				$name_e = template_escape($rr['album']);
-			} else {
-				$alt_e = $rr['filename'];
-				$name_e = $rr['album'];
-			}
+			$alt_e = $rr['filename'];
+			$name_e = $rr['album'];
 
 			$photos[] = array(
 				'id'		=> $rr['id'],

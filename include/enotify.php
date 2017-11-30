@@ -1,14 +1,16 @@
 <?php
-
+/**
+ * @file include/enotify.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Util\Emailer;
 
-require_once('include/Emailer.php');
-require_once('include/email.php');
-require_once('include/bbcode.php');
-require_once('include/html2bbcode.php');
+require_once 'include/email.php';
+require_once 'include/bbcode.php';
+require_once 'include/html2bbcode.php';
 
 /**
  * @brief Creates a notification entry and possibly sends a mail
@@ -637,7 +639,8 @@ function notification($params) {
 
 		// use the Emailer class to send the message
 
-		return Emailer::send(array(
+		return Emailer::send(
+			array(
 			'uid' => $params['uid'],
 			'fromName' => $sender_name,
 			'fromEmail' => $sender_email,
@@ -646,11 +649,11 @@ function notification($params) {
 			'messageSubject' => $datarray['subject'],
 			'htmlVersion' => $email_html_body,
 			'textVersion' => $email_text_body,
-			'additionalMailHeader' => $datarray['headers'],
-		));
+			'additionalMailHeader' => $datarray['headers'])
+		);
 	}
 
-    return False;
+	return false;
 }
 
 /**

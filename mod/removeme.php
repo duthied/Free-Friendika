@@ -2,22 +2,23 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Model\User;
 
-function removeme_post(App $a) {
-
-	if (! local_user()) {
+function removeme_post(App $a)
+{
+	if (!local_user()) {
 		return;
 	}
 
-	if (x($_SESSION,'submanage') && intval($_SESSION['submanage'])) {
+	if (x($_SESSION, 'submanage') && intval($_SESSION['submanage'])) {
 		return;
 	}
 
-	if ((! x($_POST,'qxz_password')) || (! strlen(trim($_POST['qxz_password'])))) {
+	if ((!x($_POST, 'qxz_password')) || (!strlen(trim($_POST['qxz_password'])))) {
 		return;
 	}
 
-	if ((! x($_POST,'verify')) || (! strlen(trim($_POST['verify'])))) {
+	if ((!x($_POST, 'verify')) || (!strlen(trim($_POST['verify'])))) {
 		return;
 	}
 
@@ -25,19 +26,15 @@ function removeme_post(App $a) {
 		return;
 	}
 
-	$encrypted = hash('whirlpool',trim($_POST['qxz_password']));
-
-	if ((strlen($a->user['password'])) && ($encrypted === $a->user['password'])) {
-		require_once('include/Contact.php');
-		user_remove($a->user['uid']);
+	if (User::authenticate($a->user['uid'], trim($_POST['qxz_password']))) {
+		User::remove($a->user['uid']);
 		// NOTREACHED
 	}
-
 }
 
-function removeme_content(App $a) {
-
-	if (! local_user()) {
+function removeme_content(App $a)
+{
+	if (!local_user()) {
 		goaway(System::baseUrl());
 	}
 
@@ -59,5 +56,4 @@ function removeme_content(App $a) {
 	));
 
 	return $o;
-
 }

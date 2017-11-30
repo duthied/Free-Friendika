@@ -16,19 +16,16 @@ use Friendica\Database\DBM;
  * @param string $plugin name of the addon
  * @return boolean
  */
-if (! function_exists('uninstall_plugin')){
-function uninstall_plugin($plugin){
+function uninstall_plugin($plugin) {
 	logger("Addons: uninstalling " . $plugin);
-	q("DELETE FROM `addon` WHERE `name` = '%s' ",
-		dbesc($plugin)
-	);
+	dba::delete('addon', array('name' => $plugin));
 
 	@include_once('addon/' . $plugin . '/' . $plugin . '.php');
 	if (function_exists($plugin . '_uninstall')) {
 		$func = $plugin . '_uninstall';
 		$func();
 	}
-}}
+}
 
 /**
  * @brief installs an addon.
@@ -36,12 +33,12 @@ function uninstall_plugin($plugin){
  * @param string $plugin name of the addon
  * @return bool
  */
-if (! function_exists('install_plugin')){
 function install_plugin($plugin) {
 	// silently fail if plugin was removed
 
-	if (! file_exists('addon/' . $plugin . '/' . $plugin . '.php'))
+	if (!file_exists('addon/' . $plugin . '/' . $plugin . '.php')) {
 		return false;
+	}
 	logger("Addons: installing " . $plugin);
 	$t = @filemtime('addon/' . $plugin . '/' . $plugin . '.php');
 	@include_once('addon/' . $plugin . '/' . $plugin . '.php');
@@ -62,26 +59,24 @@ function install_plugin($plugin) {
 			dba::update('addon', array('hidden' => true), array('name' => $plugin));
 		}
 		return true;
-	}
-	else {
+	} else {
 		logger("Addons: FAILED installing " . $plugin);
 		return false;
 	}
-
-}}
+}
 
 // reload all updated plugins
 
-if (! function_exists('reload_plugins')) {
 function reload_plugins() {
-	$plugins = Config::get('system','addon');
+	$plugins = Config::get('system', 'addon');
 	if (strlen($plugins)) {
 
 		$r = q("SELECT * FROM `addon` WHERE `installed` = 1");
-		if (DBM::is_result($r))
+		if (DBM::is_result($r)) {
 			$installed = $r;
-		else
+		} else {
 			$installed = array();
+		}
 
 		$parr = explode(',',$plugins);
 
@@ -115,7 +110,7 @@ function reload_plugins() {
 		}
 	}
 
-}}
+}
 
 /**
  * @brief check if addon is enabled
@@ -137,21 +132,17 @@ function plugin_enabled($plugin) {
  * @param int $priority A priority (defaults to 0)
  * @return mixed|bool
  */
-if (! function_exists('register_hook')) {
-function register_hook($hook,$file,$function,$priority=0) {
-
-	$r = q("SELECT * FROM `hook` WHERE `hook` = '%s' AND `file` = '%s' AND `function` = '%s' LIMIT 1",
-		dbesc($hook),
-		dbesc($file),
-		dbesc($function)
-	);
-	if (DBM::is_result($r))
+function register_hook($hook, $file, $function, $priority=0) {
+	$condition = array('hook' => $hook, 'file' => $file, 'function' => $function);
+	$exists = dba::exists('hook', $condition);
+	if ($exists) {
 		return true;
+	}
 
 	$r = dba::insert('hook', array('hook' => $hook, 'file' => $file, 'function' => $function, 'priority' => $priority));
 
 	return $r;
-}}
+}
 
 /**
  * @brief unregisters a hook.
@@ -161,16 +152,11 @@ function register_hook($hook,$file,$function,$priority=0) {
  * @param string $function the name of the function that the hook called
  * @return array
  */
-if (! function_exists('unregister_hook')) {
-function unregister_hook($hook,$file,$function) {
-
-	$r = q("DELETE FROM `hook` WHERE `hook` = '%s' AND `file` = '%s' AND `function` = '%s'",
-		dbesc($hook),
-		dbesc($file),
-		dbesc($function)
-	);
+function unregister_hook($hook, $file, $function) {
+	$condition = array('hook' => $hook, 'file' => $file, 'function' => $function);
+	$r = dba::delete('hook', $condition);
 	return $r;
-}}
+}
 
 
 function load_hooks() {
@@ -224,17 +210,13 @@ function call_single_hook($a, $name, $hook, &$data = null) {
 		$func($a, $data);
 	} else {
 		// remove orphan hooks
-		q("DELETE FROM `hook` WHERE `hook` = '%s' AND `file` = '%s' AND `function` = '%s'",
-			dbesc($name),
-			dbesc($hook[0]),
-			dbesc($hook[1])
-		);
+		$condition = array('hook' => $name, 'file' => $hook[0], 'function' => $hook[1]);
+		dba::delete('hook', $condition);
 	}
 }
 
 //check if an app_menu hook exist for plugin $name.
 //Return true if the plugin is an app
-if (! function_exists('plugin_is_app')) {
 function plugin_is_app($name) {
 	$a = get_app();
 
@@ -246,7 +228,7 @@ function plugin_is_app($name) {
 	}
 
 	return false;
-}}
+}
 
 /**
  * @brief Parse plugin comment in search of plugin infos.
@@ -264,8 +246,7 @@ function plugin_is_app($name) {
  * @return array with the plugin information
  */
 
-if (! function_exists('get_plugin_info')){
-function get_plugin_info($plugin){
+function get_plugin_info($plugin) {
 
 	$a = get_app();
 
@@ -285,14 +266,14 @@ function get_plugin_info($plugin){
 
 	$r = preg_match("|/\*.*\*/|msU", $f, $m);
 
-	if ($r){
+	if ($r) {
 		$ll = explode("\n", $m[0]);
 		foreach ( $ll as $l ) {
 			$l = trim($l,"\t\n\r */");
-			if ($l!=""){
+			if ($l != "") {
 				list($k,$v) = array_map("trim", explode(":",$l,2));
 				$k= strtolower($k);
-				if ($k=="author"){
+				if ($k == "author") {
 					$r=preg_match("|([^<]+)<([^>]+)>|", $v, $m);
 					if ($r) {
 						$info['author'][] = array('name'=>$m[1], 'link'=>$m[2]);
@@ -300,7 +281,7 @@ function get_plugin_info($plugin){
 						$info['author'][] = array('name'=>$v);
 					}
 				} else {
-					if (array_key_exists($k,$info)){
+					if (array_key_exists($k,$info)) {
 						$info[$k]=$v;
 					}
 				}
@@ -310,7 +291,7 @@ function get_plugin_info($plugin){
 
 	}
 	return $info;
-}}
+}
 
 
 /**
@@ -329,8 +310,7 @@ function get_plugin_info($plugin){
  * @return array
  */
 
-if (! function_exists('get_theme_info')){
-function get_theme_info($theme){
+function get_theme_info($theme) {
 	$info=Array(
 		'name' => $theme,
 		'description' => "",
@@ -356,14 +336,14 @@ function get_theme_info($theme){
 
 	$r = preg_match("|/\*.*\*/|msU", $f, $m);
 
-	if ($r){
+	if ($r) {
 		$ll = explode("\n", $m[0]);
 		foreach ( $ll as $l ) {
 			$l = trim($l,"\t\n\r */");
-			if ($l!=""){
+			if ($l != "") {
 				list($k,$v) = array_map("trim", explode(":",$l,2));
 				$k= strtolower($k);
-				if ($k=="author"){
+				if ($k == "author") {
 
 					$r=preg_match("|([^<]+)<([^>]+)>|", $v, $m);
 					if ($r) {
@@ -371,8 +351,7 @@ function get_theme_info($theme){
 					} else {
 						$info['author'][] = array('name'=>$v);
 					}
-				}
-				elseif ($k=="maintainer"){
+				} elseif ($k == "maintainer") {
 					$r=preg_match("|([^<]+)<([^>]+)>|", $v, $m);
 					if ($r) {
 						$info['maintainer'][] = array('name'=>$m[1], 'link'=>$m[2]);
@@ -380,7 +359,7 @@ function get_theme_info($theme){
 						$info['maintainer'][] = array('name'=>$v);
 					}
 				} else {
-					if (array_key_exists($k,$info)){
+					if (array_key_exists($k,$info)) {
 						$info[$k]=$v;
 					}
 				}
@@ -390,7 +369,7 @@ function get_theme_info($theme){
 
 	}
 	return $info;
-}}
+}
 
 /**
  * @brief Returns the theme's screenshot.
@@ -411,8 +390,7 @@ function get_theme_screenshot($theme) {
 }
 
 // install and uninstall theme
-if (! function_exists('uninstall_theme')){
-function uninstall_theme($theme){
+function uninstall_theme($theme) {
 	logger("Addons: uninstalling theme " . $theme);
 
 	include_once("view/theme/$theme/theme.php");
@@ -420,9 +398,8 @@ function uninstall_theme($theme){
 		$func = "{$theme}_uninstall";
 		$func();
 	}
-}}
+}
 
-if (! function_exists('install_theme')){
 function install_theme($theme) {
 	// silently fail if theme was removed
 
@@ -443,7 +420,7 @@ function install_theme($theme) {
 		return false;
 	}
 
-}}
+}
 
 /**
  * @brief Get the full path to relevant theme files by filename

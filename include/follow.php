@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @file include/follow.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
@@ -7,11 +9,11 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
+use Friendica\Protocol\OStatus;
+use Friendica\Protocol\PortableContact;
 
-require_once 'include/socgraph.php';
 require_once 'include/group.php';
 require_once 'include/salmon.php';
-require_once 'include/ostatus.php';
 require_once 'include/Photo.php';
 
 function update_contact($id) {
@@ -57,7 +59,7 @@ function update_contact($id) {
 	);
 
 	// Update the corresponding gcontact entry
-	poco_last_updated($ret["url"]);
+	PortableContact::lastUpdated($ret["url"]);
 
 	return true;
 }
@@ -252,7 +254,7 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 
 	// pull feed and consume it, which should subscribe to the hub.
 
-	Worker::add(PRIORITY_HIGH, "onepoll", $contact_id, "force");
+	Worker::add(PRIORITY_HIGH, "OnePoll", $contact_id, "force");
 
 	$r = q("SELECT `contact`.*, `user`.* FROM `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid`
 			WHERE `user`.`uid` = %d AND `contact`.`self` LIMIT 1",
@@ -265,12 +267,12 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 			$item = array();
 			$item['verb'] = ACTIVITY_FOLLOW;
 			$item['follow'] = $contact["url"];
-			$slap = ostatus::salmon($item, $r[0]);
+			$slap = OStatus::salmon($item, $r[0]);
 			slapper($r[0], $contact['notify'], $slap);
 		}
 
 		if ($contact['network'] == NETWORK_DIASPORA) {
-			$ret = Diaspora::send_share($a->user,$contact);
+			$ret = Diaspora::sendShare($a->user, $contact);
 			logger('share returns: '.$ret);
 		}
 	}

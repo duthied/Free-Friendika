@@ -1,16 +1,16 @@
 <?php
 
 use Friendica\App;
+use Friendica\Content\Smilies;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 
-require_once "include/template_processor.php";
 require_once "include/friendica_smarty.php";
-require_once "include/Smilies.php";
 require_once "include/map.php";
 require_once "mod/proxy.php";
+require_once "include/conversation.php";
 
 /**
  * This is our template processor
@@ -31,7 +31,7 @@ function replace_macros($s, $r) {
 
 	$t = $a->template_engine();
 	try {
-		$output = $t->replace_macros($s, $r);
+		$output = $t->replaceMacros($s, $r);
 	} catch (Exception $e) {
 		echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
 		killme();
@@ -42,18 +42,21 @@ function replace_macros($s, $r) {
 	return $output;
 }
 
+/**
+ * @brief Generates a pseudo-random string of hexadecimal characters
+ *
+ * @param int $size
+ * @return string
+ */
+function random_string($size = 64)
+{
+	$byte_size = ceil($size / 2);
 
-// random string, there are 86 characters max in text mode, 128 for hex
-// output is urlsafe
+	$bytes = random_bytes($byte_size);
 
-define('RANDOM_STRING_HEX',  0x00);
-define('RANDOM_STRING_TEXT', 0x01);
+	$return = substr(bin2hex($bytes), 0, $size);
 
-function random_string($size = 64, $type = RANDOM_STRING_HEX) {
-	// generate a bit of entropy and run it through the whirlpool
-	$s = hash('whirlpool', (string) rand() . uniqid(rand(),true) . (string) rand(), (($type == RANDOM_STRING_TEXT) ? true : false));
-	$s = (($type == RANDOM_STRING_TEXT) ? str_replace("\n", "", base64url_encode($s,true)) : $s);
-	return substr($s,0,$size);
+	return $return;
 }
 
 /**
@@ -592,7 +595,7 @@ function get_markup_template($s, $root = '') {
 	$a = get_app();
 	$t = $a->template_engine();
 	try {
-		$template = $t->get_template_file($s, $root);
+		$template = $t->getTemplateFile($s, $root);
 	} catch (Exception $e) {
 		echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
 		killme();
@@ -1148,7 +1151,7 @@ function get_mood_verbs() {
 
 /**
  * @brief Translate days and months names.
- * 
+ *
  * @param string $s String with day or month name.
  * @return string Translated string.
  */
@@ -1166,7 +1169,7 @@ function day_translate($s) {
 
 /**
  * @brief Translate short days and months names.
- * 
+ *
  * @param string $s String with short day or month name.
  * @return string Translated string.
  */

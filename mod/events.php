@@ -180,7 +180,7 @@ function events_post(App $a) {
 	$item_id = event_store($datarray);
 
 	if (! $cid) {
-		Worker::add(PRIORITY_HIGH, "notifier", "event", $item_id);
+		Worker::add(PRIORITY_HIGH, "Notifier", "event", $item_id);
 	}
 
 	goaway($_SESSION['return_url']);

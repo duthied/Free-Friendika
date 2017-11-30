@@ -45,7 +45,7 @@ function user_allow($hash) {
 	if (DBM::is_result($r) && $r[0]['net-publish']) {
 		$url = System::baseUrl() . '/profile/' . $user[0]['nickname'];
 		if ($url && strlen(Config::get('system','directory'))) {
-			Worker::add(PRIORITY_LOW, "directory", $url);
+			Worker::add(PRIORITY_LOW, "Directory", $url);
 		}
 	}
 

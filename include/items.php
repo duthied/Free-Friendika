@@ -5,14 +5,17 @@
  */
 
 use Friendica\App;
-use Friendica\Core\System;
 use Friendica\ParseUrl;
-use Friendica\Util\Lock;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
+use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\GlobalContact;
+use Friendica\Object\Contact;
 use Friendica\Protocol\DFRN;
+use Friendica\Protocol\OStatus;
+use Friendica\Util\Lock;
 
 require_once 'include/bbcode.php';
 require_once 'include/oembed.php';
@@ -24,11 +27,8 @@ require_once 'include/files.php';
 require_once 'include/text.php';
 require_once 'include/email.php';
 require_once 'include/threads.php';
-require_once 'include/socgraph.php';
 require_once 'include/plaintext.php';
-require_once 'include/ostatus.php';
 require_once 'include/feed.php';
-require_once 'include/Contact.php';
 require_once 'mod/share.php';
 require_once 'include/enotify.php';
 require_once 'include/group.php';
@@ -207,7 +207,8 @@ function add_page_info_data($data) {
 		$preview = str_replace(array("[", "]"), array("&#91;", "&#93;"), htmlentities($data["images"][0]["src"], ENT_QUOTES, 'UTF-8', false));
 		// if the preview picture is larger than 500 pixels then show it in a larger mode
 		// But only, if the picture isn't higher than large (To prevent huge posts)
-		if (($data["images"][0]["width"] >= 500) && ($data["images"][0]["width"] >= $data["images"][0]["height"])) {
+		if (!Config::get('system', 'always_show_preview') && ($data["images"][0]["width"] >= 500)
+			&& ($data["images"][0]["width"] >= $data["images"][0]["height"])) {
 			$text .= " image='".$preview."'";
 		} else {
 			$text .= " preview='".$preview."'";
@@ -426,7 +427,7 @@ function uri_to_guid($uri, $host = "") {
  * @return array Item array with removed conversation data
  */
 function store_conversation($arr) {
-	if (in_array($arr['network'], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
+	if (in_array($arr['network'], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)) && !empty($arr['uri'])) {
 		$conversation = array('item-uri' => $arr['uri'], 'received' => DBM::date());
 
 		if (isset($arr['parent-uri']) && ($arr['parent-uri'] != $arr['uri'])) {
@@ -542,9 +543,9 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	/// @todo Check if this is really still needed
 	if ($arr['network'] == NETWORK_OSTATUS) {
 		if (isset($arr['plink'])) {
-			$arr['plink'] = ostatus::convert_href($arr['plink']);
+			$arr['plink'] = OStatus::convertHref($arr['plink']);
 		} elseif (isset($arr['uri'])) {
-			$arr['plink'] = ostatus::convert_href($arr['uri']);
+			$arr['plink'] = OStatus::convertHref($arr['uri']);
 		}
 	}
 
@@ -718,12 +719,12 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		 * This is done only for comments (See below explanation at "gcontact-id")
 		 */
 		if ($arr['parent-uri'] != $arr['uri']) {
-			$arr["contact-id"] = get_contact($arr['author-link'], $uid);
+			$arr["contact-id"] = Contact::getIdForURL($arr['author-link'], $uid);
 		}
 
 		// If not present then maybe the owner was found
 		if ($arr["contact-id"] == 0) {
-			$arr["contact-id"] = get_contact($arr['owner-link'], $uid);
+			$arr["contact-id"] = Contact::getIdForURL($arr['owner-link'], $uid);
 		}
 
 		// Still missing? Then use the "self" contact of the current user
@@ -745,28 +746,28 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		 * On comments the author is the better choice.
 		 */
 		if ($arr['parent-uri'] === $arr['uri']) {
-			$arr["gcontact-id"] = get_gcontact_id(array("url" => $arr['owner-link'], "network" => $arr['network'],
+			$arr["gcontact-id"] = GlobalContact::getId(array("url" => $arr['owner-link'], "network" => $arr['network'],
 								 "photo" => $arr['owner-avatar'], "name" => $arr['owner-name']));
 		} else {
-			$arr["gcontact-id"] = get_gcontact_id(array("url" => $arr['author-link'], "network" => $arr['network'],
+			$arr["gcontact-id"] = GlobalContact::getId(array("url" => $arr['author-link'], "network" => $arr['network'],
 								 "photo" => $arr['author-avatar'], "name" => $arr['author-name']));
 		}
 	}
 
 	if ($arr["author-id"] == 0) {
-		$arr["author-id"] = get_contact($arr["author-link"], 0);
+		$arr["author-id"] = Contact::getIdForURL($arr["author-link"], 0);
 	}
 
-	if (blockedContact($arr["author-id"])) {
+	if (Contact::isBlocked($arr["author-id"])) {
 		logger('Contact '.$arr["author-id"].' is blocked, item '.$arr["uri"].' will not be stored');
 		return 0;
 	}
 
 	if ($arr["owner-id"] == 0) {
-		$arr["owner-id"] = get_contact($arr["owner-link"], 0);
+		$arr["owner-id"] = Contact::getIdForURL($arr["owner-link"], 0);
 	}
 
-	if (blockedContact($arr["owner-id"])) {
+	if (Contact::isBlocked($arr["owner-id"])) {
 		logger('Contact '.$arr["owner-id"].' is blocked, item '.$arr["uri"].' will not be stored');
 		return 0;
 	}
@@ -1138,7 +1139,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	check_item_notification($current_post, $uid);
 
 	if ($notify) {
-		Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "notifier", $notify_type, $current_post);
+		Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "Notifier", $notify_type, $current_post);
 	}
 
 	return $current_post;
@@ -1421,7 +1422,7 @@ function tag_deliver($uid, $item_id) {
 	);
 	update_thread($item_id);
 
-	Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), 'notifier', 'tgroup', $item_id);
+	Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), 'Notifier', 'tgroup', $item_id);
 
 }
 
@@ -1532,7 +1533,7 @@ function consume_feed($xml, $importer, &$contact, &$hub, $datedir = 0, $pass = 0
 			//$tempfile = tempnam(get_temppath(), "ostatus2");
 			//file_put_contents($tempfile, $xml);
 			logger("Consume OStatus messages ", LOGGER_DEBUG);
-			ostatus::import($xml, $importer, $contact, $hub);
+			OStatus::import($xml, $importer, $contact, $hub);
 		}
 		return;
 	}
@@ -1750,7 +1751,7 @@ function lose_follower($importer, $contact, array $datarray = array(), $item = "
 	if (($contact['rel'] == CONTACT_IS_FRIEND) || ($contact['rel'] == CONTACT_IS_SHARING)) {
 		dba::update('contact', array('rel' => CONTACT_IS_SHARING), array('id' => $contact['id']));
 	} else {
-		contact_remove($contact['id']);
+		Contact::remove($contact['id']);
 	}
 }
 
@@ -1759,7 +1760,7 @@ function lose_sharer($importer, $contact, array $datarray = array(), $item = "")
 	if (($contact['rel'] == CONTACT_IS_FRIEND) || ($contact['rel'] == CONTACT_IS_FOLLOWER)) {
 		dba::update('contact', array('rel' => CONTACT_IS_FOLLOWER), array('id' => $contact['id']));
 	} else {
-		contact_remove($contact['id']);
+		Contact::remove($contact['id']);
 	}
 }
 
@@ -2055,7 +2056,7 @@ function item_expire($uid, $days, $network = "", $force = false) {
 		drop_item($item['id'], false);
 	}
 
-	Worker::add(array('priority' => PRIORITY_LOW, 'dont_fork' => true), "notifier", "expire", $uid);
+	Worker::add(array('priority' => PRIORITY_LOW, 'dont_fork' => true), "Notifier", "expire", $uid);
 }
 
 /// @TODO type-hint is array
@@ -2077,7 +2078,7 @@ function drop_items($items) {
 	// multiple threads may have been deleted, send an expire notification
 
 	if ($uid) {
-		Worker::add(array('priority' => PRIORITY_LOW, 'dont_fork' => true), "notifier", "expire", $uid);
+		Worker::add(array('priority' => PRIORITY_LOW, 'dont_fork' => true), "Notifier", "expire", $uid);
 	}
 }
 
@@ -2122,7 +2123,7 @@ function drop_item($id, $interactive = true) {
 	}
 
 
-	if ((local_user() == $item['uid']) || ($contact_id) || (! $interactive)) {
+	if ((local_user() == $item['uid']) || $contact_id || !$interactive) {
 
 		// Check if we should do HTML-based delete confirmation
 		if ($_REQUEST['confirm']) {
@@ -2189,30 +2190,18 @@ function drop_item($id, $interactive = true) {
 		 * generate a resource-id and therefore aren't intimately linked to the item.
 		 */
 		if (strlen($item['resource-id'])) {
-			q("DELETE FROM `photo` WHERE `resource-id` = '%s' AND `uid` = %d ",
-				dbesc($item['resource-id']),
-				intval($item['uid'])
-			);
-			// ignore the result
+			dba::delete('photo', array('resource-id' => $item['resource-id'], 'uid' => $item['uid']));
 		}
 
 		// If item is a link to an event, nuke the event record.
 		if (intval($item['event-id'])) {
-			q("DELETE FROM `event` WHERE `id` = %d AND `uid` = %d",
-				intval($item['event-id']),
-				intval($item['uid'])
-			);
-			// ignore the result
+			dba::delete('event', array('id' => $item['event-id'], 'uid' => $item['uid']));
 		}
 
 		// If item has attachments, drop them
 		foreach (explode(", ", $item['attach']) as $attach) {
 			preg_match("|attach/(\d+)|", $attach, $matches);
-			q("DELETE FROM `attach` WHERE `id` = %d AND `uid` = %d",
-				intval($matches[1]),
-				local_user()
-			);
-			// ignore the result
+			dba::delete('attach', array('id' => $matches[1], 'uid' => $item['uid']));
 		}
 
 		// The new code splits the queries since the mysql optimizer really has bad problems with subqueries
@@ -2269,7 +2258,7 @@ function drop_item($id, $interactive = true) {
 		$drop_id = intval($item['id']);
 		$priority = ($interactive ? PRIORITY_HIGH : PRIORITY_LOW);
 
-		Worker::add(array('priority' => $priority, 'dont_fork' => true), "notifier", "drop", $drop_id);
+		Worker::add(array('priority' => $priority, 'dont_fork' => true), "Notifier", "drop", $drop_id);
 
 		if (! $interactive) {
 			return $owner;

@@ -7,6 +7,7 @@ namespace Friendica\Core;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
+use dba;
 
 /**
  * @brief Class for storing data for a short time
@@ -106,13 +107,10 @@ class Cache
 		// Frequently clear cache
 		self::clear($duration);
 
-		$r = q(
-			"SELECT `v` FROM `cache` WHERE `k`='%s' LIMIT 1",
-			dbesc($key)
-		);
+		$r = dba::select('cache', array('v'), array('k' => $key), array('limit' => 1));
 
 		if (DBM::is_result($r)) {
-			$cached = $r[0]['v'];
+			$cached = $r['v'];
 			$value = @unserialize($cached);
 
 			// Only return a value if the serialized value is valid.
@@ -134,6 +132,8 @@ class Cache
 	 * @param string  $key      The key to the cached data
 	 * @param mixed   $value    The value that is about to be stored
 	 * @param integer $duration The cache lifespan
+	 *
+	 * @return void
 	 */
 	public static function set($key, $value, $duration = CACHE_MONTH)
 	{
@@ -144,98 +144,86 @@ class Cache
 			$memcache->set(get_app()->get_hostname().":".$key, serialize($value), MEMCACHE_COMPRESSED, self::duration($duration));
 			return;
 		}
-
-		/// @todo store the cache data in the same way like the config data
-		q(
-			"REPLACE INTO `cache` (`k`,`v`,`expire_mode`,`updated`) VALUES ('%s','%s',%d,'%s')",
-			dbesc($key),
-			dbesc(serialize($value)),
-			intval($duration),
-			dbesc(datetime_convert())
-		);
+		$fields = array('v' => serialize($value), 'expire_mode' => $duration, 'updated' => datetime_convert());
+		$condition = array('k' => $key);
+		dba::update('cache', $fields, $condition, true);
 	}
 
 	/**
 	 * @brief Remove outdated data from the cache
 	 *
 	 * @param integer $max_level The maximum cache level that is to be cleared
+	 *
+	 * @return void
 	 */
 	public static function clear($max_level = CACHE_MONTH)
 	{
 		// Clear long lasting cache entries only once a day
 		if (Config::get("system", "cache_cleared_day") < time() - self::duration(CACHE_DAY)) {
 			if ($max_level == CACHE_MONTH) {
-				q(
-					"DELETE FROM `cache` WHERE `updated` < '%s' AND `expire_mode` = %d",
-					dbesc(datetime_convert('UTC', 'UTC', "now - 30 days")),
-					intval(CACHE_MONTH)
-				);
+				$condition = array("`updated` < ? AND `expire_mode` = ?",
+						datetime_convert('UTC', 'UTC', "now - 30 days"),
+						CACHE_MONTH);
+				dba::delete('cache', $condition);
 			}
 
 			if ($max_level <= CACHE_WEEK) {
-				q(
-					"DELETE FROM `cache` WHERE `updated` < '%s' AND `expire_mode` = %d",
-					dbesc(datetime_convert('UTC', 'UTC', "now - 7 days")),
-					intval(CACHE_WEEK)
-				);
+				$condition = array("`updated` < ? AND `expire_mode` = ?",
+						datetime_convert('UTC', 'UTC', "now - 7 days"),
+						CACHE_WEEK);
+				dba::delete('cache', $condition);
 			}
 
 			if ($max_level <= CACHE_DAY) {
-				q(
-					"DELETE FROM `cache` WHERE `updated` < '%s' AND `expire_mode` = %d",
-					dbesc(datetime_convert('UTC', 'UTC', "now - 1 days")),
-					intval(CACHE_DAY)
-				);
+				$condition = array("`updated` < ? AND `expire_mode` = ?",
+						datetime_convert('UTC', 'UTC', "now - 1 days"),
+						CACHE_DAY);
+				dba::delete('cache', $condition);
 			}
 			Config::set("system", "cache_cleared_day", time());
 		}
 
 		if (($max_level <= CACHE_HOUR) && (Config::get("system", "cache_cleared_hour")) < time() - self::duration(CACHE_HOUR)) {
-			q(
-				"DELETE FROM `cache` WHERE `updated` < '%s' AND `expire_mode` = %d",
-				dbesc(datetime_convert('UTC', 'UTC', "now - 1 hours")),
-				intval(CACHE_HOUR)
-			);
+			$condition = array("`updated` < ? AND `expire_mode` = ?",
+					datetime_convert('UTC', 'UTC', "now - 1 hours"),
+					CACHE_HOUR);
+			dba::delete('cache', $condition);
 
 			Config::set("system", "cache_cleared_hour", time());
 		}
 
 		if (($max_level <= CACHE_HALF_HOUR) && (Config::get("system", "cache_cleared_half_hour")) < time() - self::duration(CACHE_HALF_HOUR)) {
-			q(
-				"DELETE FROM `cache` WHERE `updated` < '%s' AND `expire_mode` = %d",
-				dbesc(datetime_convert('UTC', 'UTC', "now - 30 minutes")),
-				intval(CACHE_HALF_HOUR)
-			);
+			$condition = array("`updated` < ? AND `expire_mode` = ?",
+					datetime_convert('UTC', 'UTC', "now - 30 minutes"),
+					CACHE_HALF_HOUR);
+			dba::delete('cache', $condition);
 
 			Config::set("system", "cache_cleared_half_hour", time());
 		}
 
 		if (($max_level <= CACHE_QUARTER_HOUR) && (Config::get("system", "cache_cleared_quarter_hour")) < time() - self::duration(CACHE_QUARTER_HOUR)) {
-			q(
-				"DELETE FROM `cache` WHERE `updated` < '%s' AND `expire_mode` = %d",
-				dbesc(datetime_convert('UTC', 'UTC', "now - 15 minutes")),
-				intval(CACHE_QUARTER_HOUR)
-			);
+			$condition = array("`updated` < ? AND `expire_mode` = ?",
+					datetime_convert('UTC', 'UTC', "now - 15 minutes"),
+					CACHE_QUARTER_HOUR);
+			dba::delete('cache', $condition);
 
 			Config::set("system", "cache_cleared_quarter_hour", time());
 		}
 
 		if (($max_level <= CACHE_FIVE_MINUTES) && (Config::get("system", "cache_cleared_five_minute")) < time() - self::duration(CACHE_FIVE_MINUTES)) {
-			q(
-				"DELETE FROM `cache` WHERE `updated` < '%s' AND `expire_mode` = %d",
-				dbesc(datetime_convert('UTC', 'UTC', "now - 5 minutes")),
-				intval(CACHE_FIVE_MINUTES)
-			);
+			$condition = array("`updated` < ? AND `expire_mode` = ?",
+					datetime_convert('UTC', 'UTC', "now - 5 minutes"),
+					CACHE_FIVE_MINUTES);
+			dba::delete('cache', $condition);
 
 			Config::set("system", "cache_cleared_five_minute", time());
 		}
 
 		if (($max_level <= CACHE_MINUTE) && (Config::get("system", "cache_cleared_minute")) < time() - self::duration(CACHE_MINUTE)) {
-			q(
-				"DELETE FROM `cache` WHERE `updated` < '%s' AND `expire_mode` = %d",
-				dbesc(datetime_convert('UTC', 'UTC', "now - 1 minutes")),
-				intval(CACHE_MINUTE)
-			);
+			$condition = array("`updated` < ? AND `expire_mode` = ?",
+					datetime_convert('UTC', 'UTC', "now - 1 minutes"),
+					CACHE_MINUTE);
+			dba::delete('cache', $condition);
 
 			Config::set("system", "cache_cleared_minute", time());
 		}

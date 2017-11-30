@@ -15,7 +15,7 @@ use Friendica\Database\DBM;
  */
 function cookie_hash($user) {
 	return(hash("sha256", Config::get("system", "site_prvkey").
-				$user["uprvkey"].
+				$user["prvkey"].
 				$user["password"]));
 }
 

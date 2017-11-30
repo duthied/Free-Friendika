@@ -11,7 +11,7 @@ Friendica - Dokumentation und Ressourcen
 	* [Beiträge kommentieren, einordnen und löschen](help/Text_comment)
 	* [Profile](help/Profiles)
 	* [Referenz der Accesskeys](help/Accesskeys)
-    * [Veranstaltungen](help/events) (EN)
+    * [Veranstaltungen](help/events)
 * Du und andere Nutzer
 	* [Konnektoren (Connectors)](help/Connectors)
 	* [Freunde finden](help/Making-Friends)

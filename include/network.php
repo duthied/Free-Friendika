@@ -414,7 +414,7 @@ function xml_status($st, $message = '')
 
 	$xmldata = array("result" => $result);
 
-	echo XML::from_array($xmldata, $xml);
+	echo XML::fromArray($xmldata, $xml);
 
 	killme();
 }

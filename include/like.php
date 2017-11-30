@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 use Friendica\Protocol\Diaspora;
 
 /**
@@ -115,7 +116,7 @@ function do_like($item_id, $verb) {
 		$item_contact_id = $owner_self_contact['id'];
 		$item_contact = $owner_self_contact;
 	} else {
-		$item_contact_id = get_contact($author_contact['url'], $item['uid']);
+		$item_contact_id = Contact::getIdForURL($author_contact['url'], $item['uid']);
 
 		$contacts = q("SELECT * FROM `contact` WHERE `id` = %d",
 			intval($item_contact_id)
@@ -162,12 +163,10 @@ function do_like($item_id, $verb) {
 		// Clean up the Diaspora signatures for this like
 		// Go ahead and do it even if Diaspora support is disabled. We still want to clean up
 		// if it had been enabled in the past
-		q("DELETE FROM `sign` WHERE `iid` = %d",
-			intval($like_item['id'])
-		);
+		dba::delete('sign', array('iid' => $like_item['id']));
 
 		$like_item_id = $like_item['id'];
-		Worker::add(PRIORITY_HIGH, "notifier", "like", $like_item_id);
+		Worker::add(PRIORITY_HIGH, "Notifier", "like", $like_item_id);
 
 		if (!$event_verb_flag || $like_item['verb'] == $activity) {
 			return true;
@@ -248,13 +247,13 @@ EOT;
 	}
 
 	// Save the author information for the like in case we need to relay to Diaspora
-	Diaspora::store_like_signature($item_contact, $new_item_id);
+	Diaspora::storeLikeSignature($item_contact, $new_item_id);
 
 	$new_item['id'] = $new_item_id;
 
 	call_hooks('post_local_end', $new_item);
 
-	Worker::add(PRIORITY_HIGH, "notifier", "like", $new_item_id);
+	Worker::add(PRIORITY_HIGH, "Notifier", "like", $new_item_id);
 
 	return true;
 }

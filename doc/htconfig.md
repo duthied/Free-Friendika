@@ -23,6 +23,7 @@ Example: To set the directory value please add this line to your .htconfig.php:
 ## system ##
 
 * **allowed_link_protocols** (Array) - Allowed protocols in links URLs, add at your own risk. http is always allowed.
+* **always_show_preview** (Boolean) - Only show small preview picures. Default value is false.
 * **birthday_input_format** - Default value is "ymd".
 * **block_local_dir** (Boolean) - Blocks the access to the directory of the local users.
 * **auth_cookie_lifetime** (Integer) - Number of days that should pass without any activity before a user who chose "Remember me" when logging in is considered logged out. Defaults to 7.
@@ -50,8 +51,8 @@ Example: To set the directory value please add this line to your .htconfig.php:
 * **local_block** (Boolean) - Used in conjunction with "block_public".
 * **local_search** (Boolean) - Blocks search for users who are not logged in to prevent crawlers from blocking your system.
 * **local_tags** (Boolean) - If activated, all hashtags will point to the local server.
-* **max_connections** - The maximum number of database connections which can be in use before the poller process is deferred to it's next interval.  When the system can't detect the maximum numbers of connection then this value can be used.
-* **max_connections_level** - The maximum level of connections that are allowed to let the poller start. It is a percentage value. Default value is 75.
+* **max_connections** - The maximum number of database connections which can be in use before the worker process is deferred to it's next interval.  When the system can't detect the maximum numbers of connection then this value can be used.
+* **max_connections_level** - The maximum level of connections that are allowed to let the worker start. It is a percentage value. Default value is 75.
 * **max_contact_queue** - Default value is 500.
 * **max_batch_queue** - Default value is 1000.
 * **max_processes_backend** - Maximum number of concurrent database processes for background tasks. Default value is 5.

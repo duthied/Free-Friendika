@@ -11,9 +11,10 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 
-require_once('include/event.php');
-require_once('include/redir.php');
+require_once 'include/event.php';
+require_once 'include/redir.php';
 
 function cal_init(App $a) {
 	if($a->argc > 1)
@@ -46,7 +47,7 @@ function cal_init(App $a) {
 
 		$profile = get_profiledata_by_nick($nick, $a->profile_uid);
 
-		$account_type = account_type($profile);
+		$account_type = Contact::getAccountType($profile);
 
 		$tpl = get_markup_template("vcard-widget.tpl");
 

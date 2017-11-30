@@ -4,13 +4,12 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 
-require_once('include/network.php');
-require_once('include/plugin.php');
-require_once('include/text.php');
-require_once('include/pgettext.php');
-require_once('include/datetime.php');
-require_once('include/enotify.php');
-
+require_once 'include/network.php';
+require_once 'include/plugin.php';
+require_once 'include/text.php';
+require_once 'include/pgettext.php';
+require_once 'include/datetime.php';
+require_once 'include/enotify.php';
 
 function create_user($arr) {
 
@@ -388,7 +387,7 @@ function user_create_self_contact($uid) {
  * @param string $email
  * @param string $sitename
  * @param string $username
- * @return NULL|boolean from notification() and email() inherited 
+ * @return NULL|boolean from notification() and email() inherited
  */
 function send_register_pending_eml($email, $sitename, $username) {
 	$body = deindent(t('

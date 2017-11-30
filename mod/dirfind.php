@@ -1,14 +1,17 @@
 <?php
-
+/**
+ * @file mod/dirfind.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
+use Friendica\Object\Contact;
+use Friendica\Protocol\PortableContact;
 
 require_once 'include/contact_widgets.php';
-require_once 'include/socgraph.php';
-require_once 'include/Contact.php';
 require_once 'include/contact_selectors.php';
 require_once 'mod/contacts.php';
 
@@ -72,14 +75,14 @@ function dirfind_content(App $a, $prefix = "") {
 			$objresult->tags = "";
 			$objresult->network = $user_data["network"];
 
-			$contact = get_contact_details_by_url($user_data["url"], local_user());
+			$contact = Contact::getDetailsByURL($user_data["url"], local_user());
 			$objresult->cid = $contact["cid"];
 
 			$j->results[] = $objresult;
 
 			// Add the contact to the global contacts if it isn't already in our system
 			if (($contact["cid"] == 0) && ($contact["zid"] == 0) && ($contact["gid"] == 0)) {
-				update_gcontact($user_data);
+				GlobalContact::update($user_data);
 			}
 		} elseif ($local) {
 
@@ -142,11 +145,11 @@ function dirfind_content(App $a, $prefix = "") {
 			$j->items_page = $perpage;
 			$j->page = $a->pager['page'];
 			foreach ($results AS $result) {
-				if (poco_alternate_ostatus_url($result["url"])) {
+				if (PortableContact::alternateOStatusUrl($result["url"])) {
 					continue;
 				}
 
-				$result = get_contact_details_by_url($result["url"], local_user(), $result);
+				$result = Contact::getDetailsByURL($result["url"], local_user(), $result);
 
 				if ($result["name"] == "") {
 					$urlparts = parse_url($result["url"]);
@@ -166,7 +169,7 @@ function dirfind_content(App $a, $prefix = "") {
 			}
 
 			// Add found profiles from the global directory to the local directory
-			Worker::add(PRIORITY_LOW, 'discover_poco', "dirsearch", urlencode($search));
+			Worker::add(PRIORITY_LOW, 'DiscoverPoCo', "dirsearch", urlencode($search));
 		} else {
 
 			$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
@@ -190,7 +193,7 @@ function dirfind_content(App $a, $prefix = "") {
 
 				$alt_text = "";
 
-				$contact_details = get_contact_details_by_url($jj->url, local_user());
+				$contact_details = Contact::getDetailsByURL($jj->url, local_user());
 
 				$itemurl = (($contact_details["addr"] != "") ? $contact_details["addr"] : $jj->url);
 
@@ -201,7 +204,7 @@ function dirfind_content(App $a, $prefix = "") {
 					$contact = q("SELECT * FROM `contact` WHERE `id` = %d",
 							intval($jj->cid));
 					if ($contact) {
-						$photo_menu = contact_photo_menu($contact[0]);
+						$photo_menu = Contact::photoMenu($contact[0]);
 						$details = _contact_detail_for_template($contact[0]);
 						$alt_text = $details['alt_text'];
 					} else {
@@ -231,7 +234,7 @@ function dirfind_content(App $a, $prefix = "") {
 					'details'       => $contact_details['location'],
 					'tags'          => $contact_details['keywords'],
 					'about'         => $contact_details['about'],
-					'account_type'  => account_type($contact_details),
+					'account_type'  => Contact::getAccountType($contact_details),
 					'network' => network_to_name($jj->network, $jj->url),
 					'id' => ++$id,
 				);

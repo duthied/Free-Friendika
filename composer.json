@@ -18,7 +18,8 @@
 		"league/html-to-markdown": "~4.4.1",
 		"defuse/php-encryption": "1.*",
 		"pear/Text_LanguageDetect": "1.*",
-		"pear-pear.php.net/Text_Highlighter": "*"
+		"pear-pear.php.net/Text_Highlighter": "*",
+		"paragonie/random_compat": "^2.0"
 	},
 	"repositories": [
         {

@@ -5,6 +5,7 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Object\Contact;
 
 require_once('include/items.php');
 require_once('include/acl_selectors.php');
@@ -39,7 +40,7 @@ function videos_init(App $a) {
 
 		$profile = get_profiledata_by_nick($nick, $a->profile_uid);
 
-		$account_type = account_type($profile);
+		$account_type = Contact::getAccountType($profile);
 
 		$tpl = get_markup_template("vcard-widget.tpl");
 
@@ -173,7 +174,7 @@ function videos_post(App $a) {
 				$drop_id = intval($i[0]['id']);
 
 				if ($i[0]['visible']) {
-					Worker::add(PRIORITY_HIGH, "notifier", "drop", $drop_id);
+					Worker::add(PRIORITY_HIGH, "Notifier", "drop", $drop_id);
 				}
 			}
 		}
@@ -377,14 +378,8 @@ function videos_content(App $a) {
 	$videos = array();
 	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
-			if ($a->theme['template_engine'] === 'internal') {
-				$alt_e = template_escape($rr['filename']);
-				$name_e = template_escape($rr['album']);
-			}
-			else {
-				$alt_e = $rr['filename'];
-				$name_e = $rr['album'];
-			}
+			$alt_e = $rr['filename'];
+			$name_e = $rr['album'];
 
 			$videos[] = array(
 				'id'       => $rr['id'],

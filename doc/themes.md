@@ -172,7 +172,7 @@ The content of this file should be something like
         $a-> theme_info = array(
             'extends' => 'duepuntozero'.
         );
-        set_template_engine($a, 'smarty3');
+        $a->set_template_engine('smarty3');
         /* and more stuff e.g. the JavaScript function for the header */
     }
 
@@ -253,7 +253,7 @@ So in the case of quattro it is
 
     function quattro_init(App $a) {
       $a->theme_info = array();
-      set_template_engine($a, 'smarty3');
+      $a->set_template_engine('smarty3');
     }
 
 Here we have set the basic theme information, in this case they are empty.

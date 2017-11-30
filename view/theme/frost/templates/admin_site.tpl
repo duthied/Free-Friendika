@@ -43,7 +43,6 @@
 	{{include file="field_checkbox.tpl" field=$diaspora_enabled}}
 	{{include file="field_checkbox.tpl" field=$dfrn_only}}
 	{{include file="field_input.tpl" field=$global_directory}}
-	{{include file="field_checkbox.tpl" field=$thread_allow}}
 	{{include file="field_checkbox.tpl" field=$newuser_private}}
 	{{include file="field_checkbox.tpl" field=$enotify_no_content}}
 	{{include file="field_checkbox.tpl" field=$private_addons}}	
