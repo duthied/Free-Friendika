@@ -839,7 +839,7 @@ class Photo
 			return false;
 		}
 	
-		$type = $this->guessImageType($photo, true);
+		$type = self::guessImageType($photo, true);
 		$img = new Photo($img_str, $type);
 		if ($img->isValid()) {
 			$img->scaleImageSquare(175);
