@@ -112,7 +112,7 @@ class Photo
 	 * @brief Maps Mime types to Imagick formats
 	 * @return arr With with image formats (mime type as key)
 	 */
-	public function getFormatsMap()
+	public static function getFormatsMap()
 	{
 		$m = array(
 			'image/jpeg' => 'JPG',
@@ -140,7 +140,7 @@ class Photo
 			/*
 			 * Setup the image to the format it will be saved to
 			 */
-			$map = $this->getFormatsMap();
+			$map = self::getFormatsMap();
 			$format = $map[$type];
 			$this->image->setFormat($format);
 
@@ -767,7 +767,7 @@ class Photo
 	 *
 	 * @return object
 	 */
-	public function guessImageType($filename, $fromcurl = false)
+	public static function guessImageType($filename, $fromcurl = false)
 	{
 		logger('Photo: guessImageType: '.$filename . ($fromcurl?' from curl headers':''), LOGGER_DEBUG);
 		$type = null;
@@ -795,7 +795,7 @@ class Photo
 				$image->setInterlaceScheme(Imagick::INTERLACE_PLANE);
 			} else {
 				$ext = pathinfo($filename, PATHINFO_EXTENSION);
-				$types = $this->supportedTypes();
+				$types = self::supportedTypes();
 				$type = "image/jpeg";
 				foreach ($types as $m => $e) {
 					if ($ext == $e) {
@@ -815,7 +815,7 @@ class Photo
 	 * @param boolean $quit_on_error optional, default false
 	 * @return array
 	 */
-	public function importProfilePhoto($photo, $uid, $cid, $quit_on_error = false)
+	public static function importProfilePhoto($photo, $uid, $cid, $quit_on_error = false)
 	{
 		$r = dba::select(
 			'photo',
@@ -911,7 +911,7 @@ class Photo
 	 * @param string $url url
 	 * @return object
 	 */
-	public function getInfoFromURL($url)
+	public static function getInfoFromURL($url)
 	{
 		$data = array();
 	
@@ -951,7 +951,7 @@ class Photo
 	 * @param integer $max    max
 	 * @return array
 	 */
-	public function scaleImageTo($width, $height, $max)
+	public static function scaleImageTo($width, $height, $max)
 	{
 		$dest_width = $dest_height = 0;
 	
@@ -1007,7 +1007,7 @@ class Photo
 	 * @param string  $url       optional, default empty
 	 * @return array
 	 */
-	private function storePhoto(App $a, $uid, $imagedata = "", $url = "")
+	public static function storePhoto(App $a, $uid, $imagedata = "", $url = "")
 	{
 		$r = q(
 			"SELECT `user`.`nickname`, `user`.`page-flags`, `contact`.`id` FROM `user` INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`
