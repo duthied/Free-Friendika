@@ -94,8 +94,8 @@ function update_fail($update_id, $error_message) {
 		'$error' => sprintf(t('Update %s failed. See error logs.'), DB_UPDATE_VERSION)
 	));
 	$subject=sprintf(t('Update Error at %s'), System::baseUrl());
-	require_once('include/email.php');
-	$subject = Email::emailHeaderEncode($subject,'UTF-8');
+	
+	$subject = Email::emailHeaderEncode($subject,'UTF-8'); // use Friendica\Protocol\Email;
 	mail($a->config['admin_email'], $subject, $email_msg,
 		'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME']."\n"
 		.'Content-type: text/plain; charset=UTF-8'."\n"

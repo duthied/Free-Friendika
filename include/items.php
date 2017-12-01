@@ -22,7 +22,6 @@ require_once 'include/crypto.php';
 require_once 'include/tags.php';
 require_once 'include/files.php';
 require_once 'include/text.php';
-require_once 'include/email.php';
 require_once 'include/threads.php';
 require_once 'include/plaintext.php';
 require_once 'include/feed.php';
