@@ -149,7 +149,6 @@ function admin_post(App $a)
  */
 function admin_content(App $a)
 {
-
 	if (!is_site_admin()) {
 		return login(false);
 	}
@@ -164,7 +163,7 @@ function admin_content(App $a)
 	//	apc_delete($toDelete);
 	//}
 	// Header stuff
-	$a->page['htmlhead'] .= replace_macros(get_markup_template('admin_settings_head.tpl'), array());
+	$a->page['htmlhead'] .= replace_macros(get_markup_template('admin/settings_head.tpl'), array());
 
 	/*
 	 * Side bar links
@@ -201,7 +200,7 @@ function admin_content(App $a)
 	$aside_tools['diagnostics_probe'] = array('probe/', t('probe address'), 'probe');
 	$aside_tools['diagnostics_webfinger'] = array('webfinger/', t('check webfinger'), 'webfinger');
 
-	$t = get_markup_template("admin_aside.tpl");
+	$t = get_markup_template('admin/aside.tpl');
 	$a->page['aside'] .= replace_macros($t, array(
 		'$admin' => $aside_tools,
 		'$subpages' => $aside_sub,
@@ -213,11 +212,7 @@ function admin_content(App $a)
 		'$admurl' => "admin/"
 	));
 
-
-
-	/*
-	 * Page content
-	 */
+	// Page content
 	$o = '';
 	// urls
 	if ($a->argc > 1) {
@@ -298,7 +293,7 @@ function admin_page_blocklist(App $a)
 			);
 		}
 	}
-	$t = get_markup_template("admin_blocklist.tpl");
+	$t = get_markup_template('admin/blocklist.tpl');
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Server Blocklist'),
@@ -376,7 +371,7 @@ function admin_page_blocklist_post(App $a)
  */
 function admin_page_deleteitem(App $a)
 {
-	$t = get_markup_template("admin_deleteitem.tpl");
+	$t = get_markup_template('admin/deleteitem.tpl');
 
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
@@ -557,7 +552,7 @@ function admin_page_federation(App $a)
 	$hint = t('The <em>Auto Discovered Contact Directory</em> feature is not enabled, it will improve the data displayed here.');
 
 	// load the template, replace the macros and return the page content
-	$t = get_markup_template("admin_federation.tpl");
+	$t = get_markup_template('admin/federation.tpl');
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Federation Statistics'),
@@ -592,7 +587,7 @@ function admin_page_queue(App $a)
 			WHERE `c`.`id` = `q`.`cid`
 			ORDER BY `q`.`cid`, `q`.`created`;");
 
-	$t = get_markup_template("admin_queue.tpl");
+	$t = get_markup_template('admin/queue.tpl');
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Inspect Queue'),
@@ -689,7 +684,7 @@ function admin_page_summary(App $a)
 	$queues = array('label' => t('Message queues'), 'queue' => $queue, 'workerq' => $workerqueue);
 
 
-	$t = get_markup_template("admin_summary.tpl");
+	$t = get_markup_template('admin/summary.tpl');
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Summary'),
@@ -1176,7 +1171,7 @@ function admin_page_site(App $a)
 		$optimize_max_tablesize = 100;
 	}
 
-	$t = get_markup_template("admin_site.tpl");
+	$t = get_markup_template('admin/site.tpl');
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Site'),
@@ -1605,7 +1600,7 @@ function admin_page_users(App $a)
 	$th_users = array_map(null, array(t('Name'), t('Email'), t('Register date'), t('Last login'), t('Last item'), t('Account')), $valid_orders
 	);
 
-	$t = get_markup_template("admin_users.tpl");
+	$t = get_markup_template('admin/users.tpl');
 	$o = replace_macros($t, array(
 		// strings //
 		'$title' => t('Administration'),
@@ -1724,7 +1719,7 @@ function admin_page_plugins(App $a)
 			$func($a, $admin_form);
 		}
 
-		$t = get_markup_template("admin_plugins_details.tpl");
+		$t = get_markup_template('admin/plugins_details.tpl');
 
 		return replace_macros($t, array(
 			'$title' => t('Administration'),
@@ -1785,7 +1780,7 @@ function admin_page_plugins(App $a)
 		}
 	}
 
-	$t = get_markup_template("admin_plugins.tpl");
+	$t = get_markup_template('admin/plugins.tpl');
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Plugins'),
@@ -2001,7 +1996,7 @@ function admin_page_themes(App $a)
 			$screenshot = null;
 		}
 
-		$t = get_markup_template("admin_plugins_details.tpl");
+		$t = get_markup_template('admin/plugins_details.tpl');
 		return replace_macros($t, array(
 			'$title' => t('Administration'),
 			'$page' => t('Themes'),
@@ -2050,7 +2045,7 @@ function admin_page_themes(App $a)
 		}
 	}
 
-	$t = get_markup_template("admin_plugins.tpl");
+	$t = get_markup_template('admin/plugins.tpl');
 	return replace_macros($t, array(
 		'$title'               => t('Administration'),
 		'$page'                => t('Themes'),
@@ -2123,7 +2118,7 @@ function admin_page_logs(App $a)
 		$phplogenabled = t('PHP log currently disabled.');
 	}
 
-	$t = get_markup_template("admin_logs.tpl");
+	$t = get_markup_template('admin/logs.tpl');
 
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
@@ -2164,7 +2159,7 @@ function admin_page_logs(App $a)
  */
 function admin_page_viewlogs(App $a)
 {
-	$t = get_markup_template("admin_viewlogs.tpl");
+	$t = get_markup_template('admin/viewlogs.tpl');
 	$f = Config::get('system', 'logfile');
 	$data = '';
 
@@ -2271,7 +2266,7 @@ function admin_page_features(App $a)
 			}
 		}
 
-		$tpl = get_markup_template("admin_settings_features.tpl");
+		$tpl = get_markup_template('admin/settings_features.tpl');
 		$o .= replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("admin_manage_features"),
 			'$title' => t('Manage Additional Features'),
