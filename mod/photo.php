@@ -1,10 +1,12 @@
 <?php
-
+/**
+ * @file mod/photo.php
+ */
 use Friendica\App;
 use Friendica\Database\DBM;
+use Friendica\Object\Photo;
 
-require_once('include/security.php');
-require_once('include/Photo.php');
+require_once 'include/security.php';
 
 function photo_init(App $a) {
 	global $_SERVER;
@@ -167,7 +169,7 @@ function photo_init(App $a) {
 	// Resize only if its not a GIF and it is supported by the library
 	if (($mimetype != "image/gif") && in_array($mimetype, Photo::supportedTypes())) {
 		$ph = new Photo($data, $mimetype);
-		if ($ph->is_valid()) {
+		if ($ph->isValid()) {
 			if (isset($customres) && $customres > 0 && $customres < 500) {
 				$ph->scaleImageSquare($customres);
 			}

@@ -15,6 +15,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Object\Contact;
+use Friendica\Object\Photo;
 use Friendica\Object\Profile;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\XML;
@@ -1659,7 +1660,7 @@ class DFRN
 				);
 			}
 
-			update_contact_avatar(
+			Contact::updateAvatar(
 				$author["avatar"],
 				$importer["uid"],
 				$contact["id"],
@@ -2034,7 +2035,7 @@ class DFRN
 			dbesc(normalise_link($old["url"]))
 		);
 
-		update_contact_avatar($relocate["avatar"], $importer["importer_uid"], $importer["id"], true);
+		Contact::updateAvatar($relocate["avatar"], $importer["importer_uid"], $importer["id"], true);
 
 		if ($x === false) {
 			return false;

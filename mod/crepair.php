@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @file mod/crepair.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
@@ -84,18 +86,17 @@ function crepair_post(App $a) {
 		local_user()
 	);
 
-	if($photo) {
+	if ($photo) {
 		logger('mod-crepair: updating photo from ' . $photo);
-		require_once("include/Photo.php");
 
-		update_contact_avatar($photo,local_user(),$contact['id']);
+		Contact::updateAvatar($photo, local_user(), $contact['id']);
 	}
 
-	if($r)
-		info( t('Contact settings applied.') . EOL);
-	else
-		notice( t('Contact update failed.') . EOL);
-
+	if ($r) {
+		info(t('Contact settings applied.') . EOL);
+	} else {
+		notice(t('Contact update failed.') . EOL);
+	}
 
 	return;
 }

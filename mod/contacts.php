@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @file mod/contacts.php
+ */
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -10,7 +12,6 @@ use Friendica\Object\Contact;
 
 require_once 'include/contact_selectors.php';
 require_once 'mod/proxy.php';
-require_once 'include/Photo.php';
 
 function contacts_init(App $a) {
 	if (! local_user()) {
@@ -309,7 +310,7 @@ function _contact_update_profile($contact_id) {
 	);
 
 	// Update the entry in the contact table
-	update_contact_avatar($data['photo'], local_user(), $contact_id, true);
+	Contact::updateAvatar($data['photo'], local_user(), $contact_id, true);
 
 	// Update the entry in the gcontact table
 	GlobalContact::updateFromProbe($data["url"]);
