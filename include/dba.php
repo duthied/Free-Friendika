@@ -1104,7 +1104,8 @@ class dba {
 	 *
 	 * $data = dba::select($table, $fields, $condition, $params);
 	 */
-	public static function select($table, $fields = array(), $condition = array(), $params = array()) {
+	public static function select($table, array $fields = [], array $condition = [], array $params = [])
+	{
 		if ($table == '') {
 			return false;
 		}
@@ -1115,17 +1116,7 @@ class dba {
 			$select_fields = "*";
 		}
 
-		if (count($condition) > 0) {
-			$array_element = each($condition);
-			$array_key = $array_element['key'];
-			if (is_int($array_key)) {
-				$condition_string = " WHERE ".array_shift($condition);
-			} else {
-				$condition_string = " WHERE `".implode("` = ? AND `", array_keys($condition))."` = ?";
-			}
-		} else {
-			$condition_string = "";
-		}
+		$condition_string = self::buildCondition($condition);
 
 		$param_string = '';
 		$single_row = false;
@@ -1147,6 +1138,11 @@ class dba {
 			$single_row = ($params['limit'] == 1);
 		}
 
+		if (isset($params['limit']) && is_array($params['limit'])) {
+			$param_string .= " LIMIT ".intval($params['limit'][0]).", ".intval($params['limit'][1]);
+			$single_row = ($params['limit'][1] == 1);
+		}
+
 		if (isset($params['only_query']) && $params['only_query']) {
 			$single_row = !$params['only_query'];
 		}
@@ -1164,6 +1160,71 @@ class dba {
 		}
 	}
 
+	/**
+	 * @brief Counts the rows from a table satisfying the provided condition
+	 *
+	 * @param string $table Table name
+	 * @param array $condition array of fields for condition
+	 *
+	 * @return int
+	 *
+	 * Example:
+	 * $table = "item";
+	 *
+	 * $condition = ["uid" => 1, "network" => 'dspr'];
+	 * or:
+	 * $condition = ["`uid` = ? AND `network` IN (?, ?)", 1, 'dfrn', 'dspr'];
+	 *
+	 * $count = dba::count($table, $condition);
+	 */
+	public static function count($table, array $condition = [])
+	{
+		if ($table == '') {
+			return false;
+		}
+
+		$condition_string = self::buildCondition($condition);
+
+		$sql = "SELECT COUNT(*) AS `count` FROM `".$table."`".$condition_string;
+
+		$row = self::fetch_first($sql, $condition);
+
+		return $row['count'];
+	}
+
+	/**
+	 * @brief Returns the SQL condition string built from the provided condition array
+	 *
+	 * This function operates with two modes.
+	 * - Supplied with a filed/value associative array, it builds simple strict
+	 *   equality conditions linked by AND.
+	 * - Supplied with a flat list, the first element is the condition string and
+	 *   the following arguments are the values to be interpolated
+	 *
+	 * $condition = ["uid" => 1, "network" => 'dspr'];
+	 * or:
+	 * $condition = ["`uid` = ? AND `network` IN (?, ?)", 1, 'dfrn', 'dspr'];
+	 *
+	 * In either case, the provided array is left with the parameters only
+	 *
+	 * @param array $condition
+	 * @return string
+	 */
+	private static function buildCondition(array &$condition = [])
+	{
+		$condition_string = '';
+		if (count($condition) > 0) {
+			$array_element = each($condition);
+			$array_key = $array_element['key'];
+			if (is_int($array_key)) {
+				$condition_string = " WHERE ".array_shift($condition);
+			} else {
+				$condition_string = " WHERE `".implode("` = ? AND `", array_keys($condition))."` = ?";
+			}
+		}
+
+		return $condition_string;
+	}
 
 	/**
 	 * @brief Fills an array with data from a query
