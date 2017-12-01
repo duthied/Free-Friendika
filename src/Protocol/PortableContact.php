@@ -14,6 +14,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
+use Friendica\Object\Photo;
 use Friendica\Object\Profile;
 use dba;
 use DOMDocument;
@@ -23,7 +24,6 @@ use Exception;
 require_once 'include/datetime.php';
 require_once 'include/network.php';
 require_once 'include/html2bbcode.php';
-require_once 'include/Photo.php';
 
 class PortableContact
 {

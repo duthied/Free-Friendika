@@ -1,17 +1,15 @@
 <?php
-
 /**
  * @file include/plaintext.php
  */
-
 use Friendica\App;
 use Friendica\ParseUrl;
 use Friendica\Core\PConfig;
+use Friendica\Object\Photo;
 
-require_once("include/Photo.php");
-require_once("include/bbcode.php");
-require_once("include/html2plain.php");
-require_once("include/network.php");
+require_once "include/bbcode.php";
+require_once "include/html2plain.php";
+require_once "include/network.php";
 
 /**
  * @brief Fetches attachment data that were generated the old way
@@ -53,7 +51,7 @@ function get_old_attachment_data($body) {
 
 			if (preg_match("/\[img\]([$URLSearchString]*)\[\/img\]/ism", $attacheddata, $matches)) {
 
-				$picturedata = get_photo_info($matches[1]);
+				$picturedata = Photo::getInfoFromURL($matches[1]);
 
 				if (($picturedata[0] >= 500) && ($picturedata[0] >= $picturedata[1]))
 					$post["image"] = $matches[1];
@@ -223,7 +221,7 @@ function get_attached_data($body, $item = array()) {
 					$post["preview"] = $pictures[0][2];
 					$post["text"] = str_replace($pictures[0][0], "", $body);
 				} else {
-					$imgdata = get_photo_info($pictures[0][1]);
+					$imgdata = Photo::getInfoFromURL($pictures[0][1]);
 					if (substr($imgdata["mime"], 0, 6) == "image/") {
 						$post["type"] = "photo";
 						$post["image"] = $pictures[0][1];

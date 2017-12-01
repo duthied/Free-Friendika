@@ -1,10 +1,11 @@
 <?php
-
+/**
+ * @file mod/install.php
+ */
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-
-require_once "include/Photo.php";
+use Friendica\Object\Photo;
 
 $install_wizard_pass = 1;
 

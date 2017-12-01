@@ -5,7 +5,6 @@
  *
  * @todo Automatically detect if incoming data is HTML or BBCode
  */
-
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
@@ -23,6 +22,7 @@ use Friendica\Network\HTTPException\NotImplementedException;
 use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Network\HTTPException\TooManyRequestsException;
 use Friendica\Object\Contact;
+use Friendica\Object\Photo;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\XML;
 
@@ -32,7 +32,6 @@ require_once 'include/conversation.php';
 require_once 'include/oauth.php';
 require_once 'include/html2plain.php';
 require_once 'mod/share.php';
-require_once 'include/Photo.php';
 require_once 'mod/item.php';
 require_once 'include/security.php';
 require_once 'include/contact_selectors.php';
@@ -2377,7 +2376,7 @@ function api_get_attachments(&$body)
 	$attachments = array();
 
 	foreach ($images[1] as $image) {
-		$imagedata = get_photo_info($image);
+		$imagedata = Photo::getInfoFromURL($image);
 
 		if ($imagedata) {
 			$attachments[] = array("url" => $image, "mimetype" => $imagedata["mime"], "size" => $imagedata["size"]);
@@ -2509,7 +2508,7 @@ function api_get_entitities(&$text, $bbcode)
 
 		$start = iconv_strpos($text, $url, $offset, "UTF-8");
 		if (!($start === false)) {
-			$image = get_photo_info($url);
+			$image = Photo::getInfoFromURL($url);
 			if ($image) {
 				// If image cache is activated, then use the following sizes:
 				// thumb  (150), small (340), medium (600) and large (1024)
@@ -2517,19 +2516,19 @@ function api_get_entitities(&$text, $bbcode)
 					$media_url = proxy_url($url);
 
 					$sizes = array();
-					$scale = scale_image($image[0], $image[1], 150);
+					$scale = Photo::scaleImageTo($image[0], $image[1], 150);
 					$sizes["thumb"] = array("w" => $scale["width"], "h" => $scale["height"], "resize" => "fit");
 
 					if (($image[0] > 150) || ($image[1] > 150)) {
-						$scale = scale_image($image[0], $image[1], 340);
+						$scale = Photo::scaleImageTo($image[0], $image[1], 340);
 						$sizes["small"] = array("w" => $scale["width"], "h" => $scale["height"], "resize" => "fit");
 					}
 
-					$scale = scale_image($image[0], $image[1], 600);
+					$scale = Photo::scaleImageTo($image[0], $image[1], 600);
 					$sizes["medium"] = array("w" => $scale["width"], "h" => $scale["height"], "resize" => "fit");
 
 					if (($image[0] > 600) || ($image[1] > 600)) {
-						$scale = scale_image($image[0], $image[1], 1024);
+						$scale = Photo::scaleImageTo($image[0], $image[1], 1024);
 						$sizes["large"] = array("w" => $scale["width"], "h" => $scale["height"], "resize" => "fit");
 					}
 				} else {
@@ -3946,7 +3945,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 	}
 
 	if ($filetype == "") {
-		$filetype=guess_image_type($filename);
+		$filetype=Photo::guessImageType($filename);
 	}
 	$imagedata = getimagesize($src);
 	if ($imagedata) {
@@ -3971,7 +3970,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 	// create Photo instance with the data of the image
 	$imagedata = @file_get_contents($src);
 	$ph = new Photo($imagedata, $filetype);
-	if (! $ph->is_valid()) {
+	if (! $ph->isValid()) {
 		throw new InternalServerErrorException("unable to process image data");
 	}
 

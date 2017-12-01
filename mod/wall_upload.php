@@ -13,8 +13,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
-
-require_once 'include/Photo.php';
+use Friendica\Object\Photo;
 
 function wall_upload_post(App $a, $desktopmode = true) {
 
@@ -163,7 +162,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 	}
 
 	if ($filetype=="") {
-		$filetype=guess_image_type($filename);
+		$filetype=Photo::guessImageType($filename);
 	}
 
 	// If there is a temp name, then do a manual check
@@ -193,7 +192,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 	$imagedata = @file_get_contents($src);
 	$ph = new Photo($imagedata, $filetype);
 
-	if (! $ph->is_valid()) {
+	if (! $ph->isValid()) {
 		$msg = t('Unable to process image.');
 		if ($r_json) {
 			echo json_encode(array('error'=>$msg));

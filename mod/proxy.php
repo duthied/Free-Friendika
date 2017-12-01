@@ -1,10 +1,14 @@
 <?php
-// Based upon "Privacy Image Cache" by Tobias Hößl <https://github.com/CatoTH/>
+/**
+ * @file mod/proxy.php
+ * @brief Based upon "Privacy Image Cache" by Tobias Hößl <https://github.com/CatoTH/>
+ */
 
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Object\Photo;
 
 define('PROXY_DEFAULT_TIME', 86400); // 1 Day
 
@@ -15,7 +19,6 @@ define('PROXY_SIZE_MEDIUM', 'medium');
 define('PROXY_SIZE_LARGE', 'large');
 
 require_once 'include/security.php';
-require_once 'include/Photo.php';
 
 function proxy_init(App $a) {
 	// Pictures are stored in one of the following ways:
@@ -128,7 +131,7 @@ function proxy_init(App $a) {
 			// reduce quality - if it isn't a GIF
 			if ($mime != 'image/gif') {
 				$img = new Photo($img_str, $mime);
-				if ($img->is_valid()) {
+				if ($img->isValid()) {
 					$img_str = $img->imageString();
 				}
 			}
@@ -172,7 +175,7 @@ function proxy_init(App $a) {
 			$cachefile = ''; // Clear the cachefile so that the dummy isn't stored
 			$valid = false;
 			$img = new Photo($img_str, 'image/png');
-			if ($img->is_valid()) {
+			if ($img->isValid()) {
 				$img->scaleImage(10);
 				$img_str = $img->imageString();
 			}
@@ -190,7 +193,7 @@ function proxy_init(App $a) {
 			dba::insert('photo', $fields);
 		} else {
 			$img = new Photo($img_str, $mime);
-			if ($img->is_valid() && !$direct_cache && ($cachefile == '')) {
+			if ($img->isValid() && !$direct_cache && ($cachefile == '')) {
 				$img->store(0, 0, $urlhash, $_REQUEST['url'], '', 100);
 			}
 		}
@@ -201,7 +204,7 @@ function proxy_init(App $a) {
 	// reduce quality - if it isn't a GIF
 	if ($mime != 'image/gif') {
 		$img = new Photo($img_str, $mime);
-		if ($img->is_valid()) {
+		if ($img->isValid()) {
 			$img->scaleImage($size);
 			$img_str = $img->imageString();
 		}

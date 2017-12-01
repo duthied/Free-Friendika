@@ -25,6 +25,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
+use Friendica\Object\Contact;
 use Friendica\Protocol\Diaspora;
 
 require_once 'include/enotify.php';
@@ -325,9 +326,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 		 *
 		 */
 
-		require_once 'include/Photo.php';
-
-		update_contact_avatar($contact['photo'],$uid,$contact_id);
+		Contact::updateAvatar($contact['photo'], $uid, $contact_id);
 
 		logger('dfrn_confirm: confirm - imported photos');
 
@@ -676,9 +675,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 			$photo = System::baseUrl() . '/images/person-175.jpg';
 		}
 
-		require_once 'include/Photo.php';
-
-		update_contact_avatar($photo,$local_uid,$dfrn_record);
+		Contact::updateAvatar($photo,$local_uid,$dfrn_record);
 
 		logger('dfrn_confirm: request - photos imported');
 
