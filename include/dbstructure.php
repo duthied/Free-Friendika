@@ -95,7 +95,7 @@ function update_fail($update_id, $error_message) {
 	));
 	$subject=sprintf(t('Update Error at %s'), System::baseUrl());
 	require_once('include/email.php');
-	$subject = email_header_encode($subject,'UTF-8');
+	$subject = Email::emailHeaderEncode($subject,'UTF-8');
 	mail($a->config['admin_email'], $subject, $email_msg,
 		'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME']."\n"
 		.'Content-type: text/plain; charset=UTF-8'."\n"

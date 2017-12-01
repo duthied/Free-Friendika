@@ -10,6 +10,7 @@ use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Model\User;
+use Friendica\Protocol\Email;
 
 require_once 'include/group.php';
 
@@ -259,12 +260,12 @@ function settings_post(App $a) {
 				);
 				if (DBM::is_result($r)) {
 					$eacct = $r[0];
-					require_once('include/email.php');
-					$mb = construct_mailbox_name($eacct);
+					$mb = Email::constructMailboxName($eacct);
+
 					if (strlen($eacct['server'])) {
 						$dcrpass = '';
 						openssl_private_decrypt(hex2bin($eacct['pass']), $dcrpass, $a->user['prvkey']);
-						$mbox = email_connect($mb, $mail_user, $dcrpass);
+						$mbox = Email::emailConnect($mb, $mail_user, $dcrpass);
 						unset($dcrpass);
 						if (!$mbox) {
 							$failed = true;

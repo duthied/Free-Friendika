@@ -8,6 +8,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Object\Contact;
+use Friendica\Protocol\Email;
 use Friendica\Protocol\PortableContact;
 use dba;
 
@@ -20,7 +21,6 @@ Class OnePoll
 
 		require_once 'include/datetime.php';
 		require_once 'include/items.php';
-		require_once 'include/email.php';
 		require_once 'include/queue_fn.php';
 
 		logger('onepoll: start');
@@ -328,10 +328,10 @@ Class OnePoll
 			$condition = array("`server` != '' AND `uid` = ?", $importer_uid);
 			$mailconf = dba::select('mailacct', array(), $condition, array('limit' => 1));
 			if (DBM::is_result($x) && DBM::is_result($mailconf)) {
-				$mailbox = construct_mailbox_name($mailconf);
+				$mailbox = Email::constructMailboxName($mailconf);
 				$password = '';
 				openssl_private_decrypt(hex2bin($mailconf['pass']), $password, $x['prvkey']);
-				$mbox = email_connect($mailbox, $mailconf['user'], $password);
+				$mbox = Email::emailConnect($mailbox, $mailconf['user'], $password);
 				unset($password);
 				logger("Mail: Connect to " . $mailconf['user']);
 				if ($mbox) {
@@ -344,12 +344,12 @@ Class OnePoll
 			}
 
 			if ($mbox) {
-				$msgs = email_poll($mbox, $contact['addr']);
+				$msgs = Email::emailPoll($mbox, $contact['addr']);
 
 				if (count($msgs)) {
 					logger("Mail: Parsing ".count($msgs)." mails from ".$contact['addr']." for ".$mailconf['user'], LOGGER_DEBUG);
 
-					$metas = email_msg_meta($mbox,implode(',', $msgs));
+					$metas = Email::emailMsgMeta($mbox,implode(',', $msgs));
 					if (count($metas) != count($msgs)) {
 						logger("onepoll: for " . $mailconf['user'] . " there are ". count($msgs) . " messages but received " . count($metas) . " metas", LOGGER_DEBUG);
 					} else {
@@ -361,10 +361,10 @@ Class OnePoll
 							$datarray = array();
 							$datarray['verb'] = ACTIVITY_POST;
 							$datarray['object-type'] = ACTIVITY_OBJ_NOTE;
-		//					$meta = email_msg_meta($mbox, $msg_uid);
-		//					$headers = email_msg_headers($mbox, $msg_uid);
+							// $meta = Email::emailMsgMeta($mbox, $msg_uid);
+							// $headers = email_msg_headers($mbox, $msg_uid);
 
-							$datarray['uri'] = msgid2iri(trim($meta->message_id, '<>'));
+							$datarray['uri'] = Email::msgid2iri(trim($meta->message_id, '<>'));
 
 							// Have we seen it before?
 							$fields = array('deleted', 'id');
@@ -416,7 +416,7 @@ Class OnePoll
 								$refs_arr = explode(' ', $raw_refs);
 								if (count($refs_arr)) {
 									for ($x = 0; $x < count($refs_arr); $x ++) {
-										$refs_arr[$x] = "'" . msgid2iri(str_replace(array('<', '>', ' '),array('', '', ''),dbesc($refs_arr[$x]))) . "'";
+										$refs_arr[$x] = "'" . Email::msgid2iri(str_replace(array('<', '>', ' '),array('', '', ''),dbesc($refs_arr[$x]))) . "'";
 									}
 								}
 								$qstr = implode(',', $refs_arr);
@@ -466,7 +466,7 @@ Class OnePoll
 								$datarray['parent-uri'] = $datarray['uri'];
 							}
 
-							$r = email_get_msg($mbox, $msg_uid, $reply);
+							$r = Email::emailGetMsg($mbox, $msg_uid, $reply);
 							if (!$r) {
 								logger("Mail: can't fetch msg ".$msg_uid." for ".$mailconf['user']);
 								continue;

@@ -11,8 +11,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
-
-require_once('include/email.php');
+use Friendica\Protocol\Email;
 
 function invite_post(App $a) {
 
@@ -78,7 +77,7 @@ function invite_post(App $a) {
 			$nmessage = $message;
 		}
 
-		$res = mail($recip, email_header_encode( t('Please join us on Friendica'),'UTF-8'),
+		$res = mail($recip, Email::emailHeaderEncode(t('Please join us on Friendica'),'UTF-8'),
 			$nmessage,
 			"From: " . $a->user['email'] . "\n"
 			. 'Content-type: text/plain; charset=UTF-8' . "\n"

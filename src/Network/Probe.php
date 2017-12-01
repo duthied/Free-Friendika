@@ -15,6 +15,7 @@ use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Object\Profile;
+use Friendica\Protocol\Email;
 use Friendica\Util\XML;
 
 use dba;
@@ -22,7 +23,6 @@ use DomXPath;
 use DOMDocument;
 
 require_once 'include/feed.php';
-require_once 'include/email.php';
 require_once 'include/network.php';
 
 /**
@@ -1517,16 +1517,16 @@ class Probe
 			$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1", intval($uid));
 
 			if (DBM::is_result($x) && DBM::is_result($r)) {
-				$mailbox = construct_mailbox_name($r[0]);
+				$mailbox = Email::constructMailboxName($r[0]);
 				$password = '';
 				openssl_private_decrypt(hex2bin($r[0]['pass']), $password, $x[0]['prvkey']);
-				$mbox = email_connect($mailbox, $r[0]['user'], $password);
+				$mbox = Email::emailConnect($mailbox, $r[0]['user'], $password);
 				if (!mbox) {
 					return false;
 				}
 			}
 
-			$msgs = email_poll($mbox, $uri);
+			$msgs = Email::emailPoll($mbox, $uri);
 			logger('searching '.$uri.', '.count($msgs).' messages found.', LOGGER_DEBUG);
 
 			if (!count($msgs)) {
@@ -1546,7 +1546,7 @@ class Probe
 		$data["notify"]  = 'smtp '.random_string();
 		$data["poll"]    = 'email '.random_string();
 
-		$x = email_msg_meta($mbox, $msgs[0]);
+		$x = Email::emailMsgMeta($mbox, $msgs[0]);
 		if (stristr($x[0]->from, $uri)) {
 			$adr = imap_rfc822_parse_adrlist($x[0]->from, '');
 		} elseif (stristr($x[0]->to, $uri)) {
