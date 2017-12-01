@@ -10,6 +10,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
+use Friendica\Object\Contact;
 use Friendica\Object\Profile;
 use Friendica\Protocol\PortableContact;
 use dba;
@@ -18,7 +19,6 @@ use Exception;
 require_once 'include/datetime.php';
 require_once 'include/network.php';
 require_once 'include/html2bbcode.php';
-require_once 'include/Photo.php';
 
 /**
  * @brief This class handles GlobalContact related functions
@@ -881,7 +881,7 @@ class GlobalContact
 			if (DBM::is_result($r)) {
 				logger("Update public contact ".$r[0]["id"], LOGGER_DEBUG);
 
-				update_contact_avatar($contact["photo"], 0, $r[0]["id"]);
+				Contact::updateAvatar($contact["photo"], 0, $r[0]["id"]);
 
 				$fields = array('name', 'nick', 'addr',
 						'network', 'bd', 'gender',

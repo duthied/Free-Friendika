@@ -1,12 +1,13 @@
 <?php
-
+/**
+ * @file mod/profile_photo.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-
-require_once("include/Photo.php");
+use Friendica\Object\Photo;
 
 function profile_photo_init(App $a) {
 
@@ -72,7 +73,7 @@ function profile_photo_post(App $a) {
 			$base_image = $r[0];
 
 			$im = new Photo($base_image['data'], $base_image['type']);
-			if($im->is_valid()) {
+			if ($im->isValid()) {
 				$im->cropImage(175,$srcX,$srcY,$srcW,$srcH);
 
 				$r = $im->store(local_user(), 0, $base_image['resource-id'],$base_image['filename'], t('Profile Photos'), 4, $is_default_profile);
@@ -150,13 +151,13 @@ function profile_photo_post(App $a) {
 	$filesize = intval($_FILES['userfile']['size']);
 	$filetype = $_FILES['userfile']['type'];
 	if ($filetype == "") {
-		$filetype = guess_image_type($filename);
+		$filetype = Photo::guessImageType($filename);
 	}
 
-	$maximagesize = Config::get('system','maximagesize');
+	$maximagesize = Config::get('system', 'maximagesize');
 
 	if (($maximagesize) && ($filesize > $maximagesize)) {
-		notice( sprintf(t('Image exceeds size limit of %s'), formatBytes($maximagesize)) . EOL);
+		notice(sprintf(t('Image exceeds size limit of %s'), formatBytes($maximagesize)) . EOL);
 		@unlink($src);
 		return;
 	}
@@ -164,8 +165,8 @@ function profile_photo_post(App $a) {
 	$imagedata = @file_get_contents($src);
 	$ph = new Photo($imagedata, $filetype);
 
-	if (! $ph->is_valid()) {
-		notice( t('Unable to process image.') . EOL );
+	if (! $ph->isValid()) {
+		notice(t('Unable to process image.') . EOL);
 		@unlink($src);
 		return;
 	}

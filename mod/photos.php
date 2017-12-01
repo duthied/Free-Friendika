@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @file mod/photos.php
+ */
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
@@ -7,8 +9,8 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 use Friendica\Object\Contact;
+use Friendica\Object\Photo;
 
-require_once 'include/Photo.php';
 require_once 'include/photos.php';
 require_once 'include/items.php';
 require_once 'include/acl_selectors.php';
@@ -422,7 +424,7 @@ function photos_post(App $a) {
 			);
 			if (DBM::is_result($r)) {
 				$ph = new Photo($r[0]['data'], $r[0]['type']);
-				if ($ph->is_valid()) {
+				if ($ph->isValid()) {
 					$rotate_deg = ( (intval($_POST['rotate']) == 1) ? 270 : 90 );
 					$ph->rotate($rotate_deg);
 
@@ -808,7 +810,7 @@ function photos_post(App $a) {
 		$type       = $_FILES['userfile']['type'];
 	}
 	if ($type == "") {
-		$type = guess_image_type($filename);
+		$type = Photo::guessImageType($filename);
 	}
 
 	logger('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes', LOGGER_DEBUG);
@@ -837,7 +839,7 @@ function photos_post(App $a) {
 
 	$ph = new Photo($imagedata, $type);
 
-	if (! $ph->is_valid()) {
+	if (! $ph->isValid()) {
 		logger('mod/photos.php: photos_post(): unable to process image' , LOGGER_DEBUG);
 		notice( t('Unable to process image.') . EOL );
 		@unlink($src);

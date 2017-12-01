@@ -12,6 +12,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Object\Photo;
 
 $frio = "view/theme/frio";
 
@@ -79,9 +80,8 @@ function frio_uninstall() {
  * @param App $a Unused but required by hook definition
  * @param array $body_info The item and its html output
  */
-function frio_item_photo_links(App $a, &$body_info) {
-	require_once('include/Photo.php');
-
+function frio_item_photo_links(App $a, &$body_info)
+{
 	$phototypes = Photo::supportedTypes();
 	$occurence = 1;
 	$p = bb_find_open_close($body_info['html'], "<a", ">");

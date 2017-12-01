@@ -1,13 +1,12 @@
 <?php
-
 /**
  * @file include/network.php
  */
-
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Network\Probe;
+use Friendica\Object\Photo;
 use Friendica\Util\XML;
 
 /**
@@ -687,7 +686,6 @@ function scale_external_images($srctext, $include_link = true, $scale_replace = 
 	$matches = null;
 	$c = preg_match_all('/\[img.*?\](.*?)\[\/img\]/ism', $s, $matches, PREG_SET_ORDER);
 	if ($c) {
-		require_once 'include/Photo.php';
 		foreach ($matches as $mtch) {
 			logger('scale_external_image: ' . $mtch[1]);
 
@@ -712,11 +710,11 @@ function scale_external_images($srctext, $include_link = true, $scale_replace = 
 			}
 
 			// guess mimetype from headers or filename
-			$type = guess_image_type($mtch[1], true);
+			$type = Photo::guessImageType($mtch[1], true);
 
 			if ($i) {
 				$ph = new Photo($i, $type);
-				if ($ph->is_valid()) {
+				if ($ph->isValid()) {
 					$orig_width = $ph->getWidth();
 					$orig_height = $ph->getHeight();
 

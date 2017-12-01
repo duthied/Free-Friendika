@@ -13,6 +13,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
+use Friendica\Object\Photo;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
@@ -645,9 +646,7 @@ class Contact extends BaseObject
 			}
 		}
 
-		require_once 'include/Photo.php';
-
-		update_contact_avatar($data["photo"], $uid, $contact_id);
+		self::updateAvatar($data["photo"], $uid, $contact_id);
 
 		$contact = dba::select('contact', array('url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date'), array('id' => $contact_id), array('limit' => 1));
 
@@ -846,5 +845,50 @@ class Contact extends BaseObject
 		$return = dba::update('contact', ['blocked' => false], ['id' => $uid]);
 
 		return $return;
+  }
+
+  /**
+   * @brief Updates the avatar links in a contact only if needed
+	 *
+	 * @param string $avatar Link to avatar picture
+	 * @param int    $uid    User id of contact owner
+	 * @param int    $cid    Contact id
+	 * @param bool   $force  force picture update
+	 *
+	 * @return array Returns array of the different avatar sizes
+	 */
+	public static function updateAvatar($avatar, $uid, $cid, $force = false)
+	{
+		// Limit = 1 returns the row so no need for dba:inArray()
+		$r = dba::select('contact', array('avatar', 'photo', 'thumb', 'micro', 'nurl'), array('id' => $cid), array('limit' => 1));
+		if (!DBM::is_result($r)) {
+			return false;
+		} else {
+			$data = array($r["photo"], $r["thumb"], $r["micro"]);
+		}
+
+		if (($r["avatar"] != $avatar) || $force) {
+			$photos = Photo::importProfilePhoto($avatar, $uid, $cid, true);
+
+			if ($photos) {
+				dba::update(
+					'contact',
+					array('avatar' => $avatar, 'photo' => $photos[0], 'thumb' => $photos[1], 'micro' => $photos[2], 'avatar-date' => datetime_convert()),
+					array('id' => $cid)
+				);
+
+				// Update the public contact (contact id = 0)
+				if ($uid != 0) {
+					$pcontact = dba::select('contact', array('id'), array('nurl' => $r[0]['nurl']), array('limit' => 1));
+					if (DBM::is_result($pcontact)) {
+						self::updateAvatar($avatar, 0, $pcontact['id'], $force);
+					}
+				}
+
+				return $photos;
+			}
+		}
+
+		return $data;
 	}
 }
