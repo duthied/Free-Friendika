@@ -7,6 +7,7 @@
 require_once 'include/dbstructure.php';
 
 use Friendica\App;
+use Friendica\Core\Config;
 
 $a = new App(dirname(__DIR__));
 
