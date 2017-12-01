@@ -8,8 +8,17 @@ require_once 'include/html2plain.php';
 require_once 'include/msgclean.php';
 require_once 'include/quoteconvert.php';
 
+/**
+ * @brief Email class
+ */
 class Email
 {
+	/**
+	 * @param string $mailbox  The mailbox name
+	 * @param string $username The username
+	 * @param string $password The password
+	 * @return object
+	 */
 	public static function emailConnect($mailbox, $username, $password)
 	{
 		if (! function_exists('imap_open')) {
@@ -21,26 +30,31 @@ class Email
 		return $mbox;
 	}
 
+	/**
+	 * @param object $mbox       mailbox
+	 * @param string $email_addr email
+	 * @return array
+	 */
 	public static function emailPoll($mbox, $email_addr)
 	{
 		if (! ($mbox && $email_addr))
 			return array();
 
-		$search1 = @imap_search($mbox,'FROM "' . $email_addr . '"', SE_UID);
+		$search1 = @imap_search($mbox, 'FROM "' . $email_addr . '"', SE_UID);
 		if (!$search1) {
 			$search1 = array();
 		} else {
 			logger("Found mails from ".$email_addr, LOGGER_DEBUG);
 		}
 
-		$search2 = @imap_search($mbox,'TO "' . $email_addr . '"', SE_UID);
+		$search2 = @imap_search($mbox, 'TO "' . $email_addr . '"', SE_UID);
 		if (!$search2) {
 			$search2 = array();
 		} else {
 			logger("Found mails to ".$email_addr, LOGGER_DEBUG);
 		}
 
-		$search3 = @imap_search($mbox,'CC "' . $email_addr . '"', SE_UID);
+		$search3 = @imap_search($mbox, 'CC "' . $email_addr . '"', SE_UID);
 		if (!$search3) {
 			$search3 = array();
 		} else {
@@ -52,6 +66,10 @@ class Email
 		return $res;
 	}
 
+	/**
+	 * @param array $mailacct mail account
+	 * @return object
+	 */
 	public static function constructMailboxName($mailacct)
 	{
 		$ret = '{' . $mailacct['server'] . ((intval($mailacct['port'])) ? ':' . $mailacct['port'] : '');
@@ -60,14 +78,20 @@ class Email
 		return $ret;
 	}
 
+	/**
+	 * @param object  $mbox mailbox
+	 * @param integer $uid  user id
+	 * @return mixed
+	 */
 	public static function emailMsgMeta($mbox, $uid)
 	{
-		$ret = (($mbox && $uid) ? @imap_fetch_overview($mbox,$uid,FT_UID) : array(array())); // POSSIBLE CLEANUP --> array(array()) is probably redundant now
-		return ((count($ret)) ? $ret : array());
+		$ret = (($mbox && $uid) ? @imap_fetch_overview($mbox, $uid, FT_UID) : array(array())); // POSSIBLE CLEANUP --> array(array()) is probably redundant now
+		return (count($ret)) ? $ret : array();
 	}
 
 	/**
 	 * @brief Check addons, not called from main friendica project
+	 * I don't see it in addons either
 	 */
 	function email_msg_headers($mbox, $uid) {
 		$raw_header = (($mbox && $uid) ? @imap_fetchheader($mbox,$uid,FT_UID) : '');
@@ -90,34 +114,41 @@ class Email
 		return $ret;
 	}
 
+	/**
+	 * @param object  $mbox  mailbox
+	 * @param integer $uid   user id
+	 * @param string  $reply reply
+	 * @return array
+	 */
 	public static function emailGetMsg($mbox, $uid, $reply)
 	{
 		$ret = array();
 
-		$struc = (($mbox && $uid) ? @imap_fetchstructure($mbox,$uid,FT_UID) : null);
+		$struc = (($mbox && $uid) ? @imap_fetchstructure($mbox, $uid, FT_UID) : null);
 
-		if (! $struc)
+		if (! $struc) {
 			return $ret;
+		}
 
 		if (! $struc->parts) {
-			$ret['body'] = self::emailGetPart($mbox,$uid,$struc,0, 'html');
+			$ret['body'] = self::emailGetPart($mbox, $uid, $struc, 0, 'html');
 			$html = $ret['body'];
 
-			if (trim($ret['body']) == '')
-				$ret['body'] = self::emailGetPart($mbox,$uid,$struc,0, 'plain');
-			else
+			if (trim($ret['body']) == '') {
+				$ret['body'] = self::emailGetPart($mbox, $uid, $struc, 0, 'plain');
+			} else {
 				$ret['body'] = html2bbcode($ret['body']);
-		}
-		else {
+			}
+		} else {
 			$text = '';
 			$html = '';
 			foreach ($struc->parts as $ptop => $p) {
-				$x = self::emailGetPart($mbox,$uid,$p,$ptop + 1, 'plain');
+				$x = self::emailGetPart($mbox, $uid, $p, $ptop + 1, 'plain');
 				if ($x) {
 					$text .= $x;
 				}
 
-				$x = self::emailGetPart($mbox,$uid,$p,$ptop + 1, 'html');
+				$x = self::emailGetPart($mbox, $uid, $p, $ptop + 1, 'html');
 				if ($x) {
 					$html .= $x;
 				}
@@ -145,7 +176,14 @@ class Email
 
 	// At the moment - only return plain/text.
 	// Later we'll repackage inline images as data url's and make the HTML safe
-
+	/**
+	 * @param object  $mbox    mailbox
+	 * @param integer $uid     user id
+	 * @param object  $p       parts
+	 * @param integer $partno  part number
+	 * @param string  $subtype sub type
+	 * @return string
+	 */
 	private static function emailGetPart($mbox, $uid, $p, $partno, $subtype)
 	{
 		// $partno = '1', '2', '2.1', '2.1.3', etc for multipart, 0 if simple
@@ -155,24 +193,30 @@ class Email
 
 		// DECODE DATA
 		$data = ($partno)
-			? @imap_fetchbody($mbox,$uid,$partno, FT_UID|FT_PEEK)
-		: @imap_body($mbox,$uid,FT_UID|FT_PEEK);
+			? @imap_fetchbody($mbox, $uid, $partno, FT_UID|FT_PEEK)
+		: @imap_body($mbox, $uid, FT_UID|FT_PEEK);
 
 		// Any part may be encoded, even plain text messages, so check everything.
-		if ($p->encoding==4)
+		if ($p->encoding==4) {
 			$data = quoted_printable_decode($data);
-		elseif ($p->encoding==3)
+		} elseif ($p->encoding==3) {
 			$data = base64_decode($data);
+		}
 
 		// PARAMETERS
 		// get all parameters, like charset, filenames of attachments, etc.
 		$params = array();
-		if ($p->parameters)
-			foreach ($p->parameters as $x)
+		if ($p->parameters) {
+			foreach ($p->parameters as $x) {
 				$params[strtolower($x->attribute)] = $x->value;
-		if (isset($p->dparameters) && $p->dparameters)
-			foreach ($p->dparameters as $x)
+			}
+		}
+
+		if (isset($p->dparameters) && $p->dparameters) {
+			foreach ($p->dparameters as $x) {
 				$params[strtolower($x->attribute)] = $x->value;
+			}
+		}
 
 		// ATTACHMENT
 		// Any part with a filename is an attachment,
@@ -192,8 +236,9 @@ class Email
 			if (strtolower($p->subtype)==$subtype) {
 				$data = iconv($params['charset'], 'UTF-8//IGNORE', $data);
 				return (trim($data) ."\n\n");
-			} else
+			} else {
 				$data = '';
+			}
 
 			// $htmlmsg .= $data ."<br><br>";
 			$charset = $params['charset'];  // assume all parts are same charset
@@ -211,8 +256,8 @@ class Email
 		// SUBPART RECURSION
 		if (isset($p->parts) && $p->parts) {
 			$x = "";
-			foreach ($p->parts as $partno0=>$p2) {
-				$x .=  self::emailGetPart($mbox,$uid,$p2,$partno . '.' . ($partno0+1), $subtype);  // 1.2, 1.2.1, etc.
+			foreach ($p->parts as $partno0 => $p2) {
+				$x .=  self::emailGetPart($mbox, $uid, $p2, $partno . '.' . ($partno0+1), $subtype);  // 1.2, 1.2.1, etc.
 				//if ($x) {
 				//	return $x;
 				//}
@@ -221,6 +266,11 @@ class Email
 		}
 	}
 
+	/**
+	 * @param string $in_str  in string
+	 * @param string $charset character set
+	 * @return string
+	 */
 	public static function emailHeaderEncode($in_str, $charset)
 	{
 		$out_str = $in_str;
@@ -232,11 +282,11 @@ class Email
 			}
 		}
 
-		if (! $need_to_convert)
+		if (! $need_to_convert) {
 			return $in_str;
+		}
 
 		if ($out_str && $charset) {
-
 			// define start delimimter, end delimiter and spacer
 			$end = "?=";
 			$start = "=?" . $charset . "?B?";
@@ -266,7 +316,7 @@ class Email
 
 			// remove trailing spacer and
 			// add start and end delimiters
-			$spacer = preg_quote($spacer,'/');
+			$spacer = preg_quote($spacer, '/');
 			$out_str = preg_replace("/" . $spacer . "$/", "", $out_str);
 			$out_str = $start . $out_str . $end;
 		}
@@ -274,8 +324,15 @@ class Email
 	}
 
 	/**
-	 * emailSend is used by NETWORK_EMAIL and NETWORK_EMAIL2 code
+	 * Function emailSend is used by NETWORK_EMAIL and NETWORK_EMAIL2 code
 	 * (not to notify the user, but to send items to email contacts)
+	 *
+	 * @param string $addr    address
+	 * @param string $subject subject
+	 * @param string $headers headers
+	 * @param array  $item    item
+	 *
+	 * @return void
 	 *
 	 * @todo This could be changed to use the Emailer class
 	 */
@@ -313,21 +370,33 @@ class Email
 		mail($addr, $subject, $body, $headers);
 	}
 
+	/**
+	 * @param string $iri string
+	 * @return string
+	 */
 	public static function iri2msgid($iri)
 	{
-		if (!strpos($iri, "@"))
+		if (!strpos($iri, "@")) {
 			$msgid = preg_replace("/urn:(\S+):(\S+)\.(\S+):(\d+):(\S+)/i", "urn!$1!$4!$5@$2.$3", $iri);
-		else
+		} else {
 			$msgid = $iri;
+		}
+
 		return($msgid);
 	}
 
+	/**
+	 * @param string $msgid msgid
+	 * @return string
+	 */
 	public static function msgid2iri($msgid)
 	{
-		if (strpos($msgid, "@"))
+		if (strpos($msgid, "@")) {
 			$iri = preg_replace("/urn!(\S+)!(\d+)!(\S+)@(\S+)\.(\S+)/i", "urn:$1:$4.$5:$2:$3", $msgid);
-		else
+		} else {
 			$iri = $msgid;
+		}
+		
 		return($iri);
 	}
 }

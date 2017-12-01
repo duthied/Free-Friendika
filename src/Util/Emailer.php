@@ -8,7 +8,7 @@ use Friendica\Core\PConfig;
 use Friendica\Protocol\Email;
 
 /**
- * @breif class to handle emailing
+ * @brief class to handle emailing
  */
 class Emailer
 {

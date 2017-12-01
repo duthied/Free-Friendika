@@ -1,12 +1,10 @@
 <?php
-
 /**
- * module: invite.php
+ * Module: invite.php
  *
- * send email invitations to join social network
+ * Send email invitations to join social network
  *
  */
-
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;

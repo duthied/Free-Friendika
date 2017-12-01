@@ -1,4 +1,7 @@
 <?php
+/**
+ * @file mod/item.php
+ */
 
 /*
  * This is the POST destination for most all locally posted
@@ -14,7 +17,6 @@
  * Posts that originate externally or do not fall into the above
  * posting categories go through item_store() instead of this function.
  */
-
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
