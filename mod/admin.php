@@ -11,6 +11,8 @@ use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\User;
+use Friendica\Network\Probe;
+use Friendica\Object\Contact;
 
 require_once 'include/enotify.php';
 require_once 'include/text.php';
@@ -117,6 +119,9 @@ function admin_post(App $a)
 			case 'dbsync':
 				admin_page_dbsync_post($a);
 				break;
+			case 'contactblock':
+				admin_page_contactblock_post($a);
+				break;
 			case 'blocklist':
 				admin_page_blocklist_post($a);
 				break;
@@ -179,6 +184,7 @@ function admin_content(App $a)
 		'features'     => array("admin/features/"    , t("Additional features")  , "features"),
 		'dbsync'       => array("admin/dbsync/"      , t('DB updates')           , "dbsync"),
 		'queue'        => array("admin/queue/"       , t('Inspect Queue')        , "queue"),
+		'contactblock' => array("admin/contactblock/", t('Contact Blocklist')    , "contactblock"),
 		'blocklist'    => array("admin/blocklist/"   , t('Server Blocklist')     , "blocklist"),
 		'federation'   => array("admin/federation/"  , t('Federation Statistics'), "federation"),
 		'deleteitem'   => array("admin/deleteitem/"  , t('Delete Item')          , 'deleteitem'),
@@ -246,6 +252,9 @@ function admin_content(App $a)
 				break;
 			case 'federation':
 				$o = admin_page_federation($a);
+				break;
+			case 'contactblock':
+				$o = admin_page_contactblock($a);
 				break;
 			case 'blocklist':
 				$o = admin_page_blocklist($a);
@@ -357,6 +366,90 @@ function admin_page_blocklist_post(App $a)
 	goaway('admin/blocklist');
 
 	return; // NOTREACHED
+}
+
+/**
+ * @brief Process data send by the contact block admin page
+ *
+ * @param App $a
+ */
+function admin_page_contactblock_post(App $a)
+{
+	$contact_url = x($_POST, 'contact_url') ? $_POST['contact_url'] : '';
+	$contacts    = x($_POST, 'contacts')    ? $_POST['contacts']    : [];
+
+	check_form_security_token_redirectOnErr('/admin/contactblock', 'admin_contactblock');
+
+	if (x($_POST, 'page_contactblock_block')) {
+		$net = Probe::uri($contact_url);
+		if (in_array($net['network'], array(NETWORK_PHANTOM, NETWORK_MAIL))) {
+			notice(t('This contact doesn\'t seem to exist.'));
+		}
+		$nurl = normalise_link($net['url']);
+		$r = dba::select('contact', ['id'], ['nurl' => $nurl, 'uid' => 0], ['limit' => 1]);
+		if (DBM::is_result($r)) {
+			Contact::block($r['id']);
+			notice(t('The contact has been blocked from the node'));
+		} else {
+			notice(t('Could not find any contact entry for this URL (%s)', $nurl));
+		}
+	}
+	if (x($_POST, 'page_contactblock_unblock')) {
+		foreach ($contacts as $uid) {
+			Contact::unblock($uid);
+		}
+		notice(tt("%s contact unblocked", "%s contacts unblocked", count($contacts)));
+	}
+	goaway('admin/contactblock');
+	return; // NOTREACHED
+}
+
+/**
+ * @brief Admin panel for server-wide contact block
+ *
+ * @param App $a
+ * @return string
+ */
+function admin_page_contactblock(App $a)
+{
+	$condition = ['uid' => 0, 'blocked' => true];
+
+	$total = dba::count('contact', $condition);
+
+	$a->set_pager_total($total);
+	$a->set_pager_itemspage(30);
+
+	$statement = dba::select('contact', [], $condition, ['limit' => [$a->pager['start'], $a->pager['itemspage']]]);
+
+	$contacts = dba::inArray($statement);
+
+	$t = get_markup_template('admin/contactblock.tpl');
+	$o = replace_macros($t, array(
+		// strings //
+		'$title'       => t('Administration'),
+		'$page'        => t('Remote Contact Blocklist'),
+		'$description' => t('This page allows you to prevent any message from a remote contact to reach your node. However, your node must have knowledge of the contact before you can block it.'),
+		'$submit'      => t('Block Remote Contact'),
+		'$select_all'  => t('select all'),
+		'$select_none' => t('select none'),
+		'$block'       => t('Block'),
+		'$unblock'     => t('Unblock'),
+		'$no_data'     => t('No remote contact is blocked from this node.'),
+
+		'$h_contacts'  => t('Blocked Remote Contacts'),
+		'$h_newblock'  => t('Block New Remote Contact'),
+		'$th_contacts' => [t('Photo'), t('Name'), t('Address'), t('Profile URL')],
+
+		'$form_security_token' => get_form_security_token("admin_contactblock"),
+
+		// values //
+		'$baseurl'    => System::baseUrl(true),
+
+		'$contacts'   => $contacts,
+		'$paginate'   => paginate($a),
+		'$contacturl' => ['contact_url', t("Profile URL"), '', t("URL of the remote contact to block.")],
+	));
+	return $o;
 }
 
 /**
