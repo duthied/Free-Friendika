@@ -821,4 +821,30 @@ class Contact extends BaseObject
 
 		return $account_type;
 	}
+
+	/**
+	 * @brief Blocks a contact
+	 *
+	 * @param int $uid
+	 * @return bool
+	 */
+	public static function block($uid)
+	{
+		$return = dba::update('contact', ['blocked' => true], ['id' => $uid]);
+
+		return $return;
+	}
+
+	/**
+	 * @brief Unblocks a contact
+	 *
+	 * @param int $uid
+	 * @return bool
+	 */
+	public static function unblock($uid)
+	{
+		$return = dba::update('contact', ['blocked' => false], ['id' => $uid]);
+
+		return $return;
+	}
 }
