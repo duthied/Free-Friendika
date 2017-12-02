@@ -1473,9 +1473,6 @@ function update_1164() {
 		NETWORK_DFRN, NETWORK_DFRN);
 
 	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
-		NETWORK_ZOT, NETWORK_ZOT);
-
-	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
 		NETWORK_OSTATUS, NETWORK_OSTATUS);
 
 	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",

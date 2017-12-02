@@ -1678,8 +1678,8 @@ function new_follower($importer, $contact, $datarray, $item, $sharing = false) {
 			dbesc($name),
 			dbesc($nick),
 			dbesc($photo),
-			dbesc(($sharing) ? NETWORK_ZOT : NETWORK_OSTATUS),
-			intval(($sharing) ? CONTACT_IS_SHARING : CONTACT_IS_FOLLOWER)
+			dbesc(NETWORK_OSTATUS),
+			intval(CONTACT_IS_FOLLOWER)
 		);
 		$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `pending` = 1 LIMIT 1",
 				intval($importer['uid']),
