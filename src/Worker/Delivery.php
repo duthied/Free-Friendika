@@ -12,13 +12,13 @@ use Friendica\Database\DBM;
 use Friendica\Object\Contact;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
+use Friendica\Protocol\Email;
 
 require_once 'include/queue_fn.php';
 require_once 'include/html2plain.php';
 require_once 'include/datetime.php';
 require_once 'include/items.php';
 require_once 'include/bbcode.php';
-require_once 'include/email.php';
 
 /// @todo This is some ugly code that needs to be split into several methods
 
@@ -418,36 +418,36 @@ class Delivery {
 					if ($r1 && $r1[0]['reply_to'])
 						$reply_to = $r1[0]['reply_to'];
 
-					$subject  = (($it['title']) ? email_header_encode($it['title'],'UTF-8') : t("\x28no subject\x29")) ;
+					$subject  = (($it['title']) ? Email::encodeHeader($it['title'],'UTF-8') : t("\x28no subject\x29")) ;
 
 					// only expose our real email address to true friends
 
 					if (($contact['rel'] == CONTACT_IS_FRIEND) && !$contact['blocked']) {
 						if ($reply_to) {
-							$headers  = 'From: '.email_header_encode($local_user[0]['username'],'UTF-8').' <'.$reply_to.'>'."\n";
+							$headers  = 'From: '.Email::encodeHeader($local_user[0]['username'],'UTF-8').' <'.$reply_to.'>'."\n";
 							$headers .= 'Sender: '.$local_user[0]['email']."\n";
 						} else {
-							$headers  = 'From: '.email_header_encode($local_user[0]['username'],'UTF-8').' <'.$local_user[0]['email'].'>'."\n";
+							$headers  = 'From: '.Email::encodeHeader($local_user[0]['username'],'UTF-8').' <'.$local_user[0]['email'].'>'."\n";
 						}
 					} else {
-						$headers  = 'From: '. email_header_encode($local_user[0]['username'],'UTF-8') .' <'. t('noreply') .'@'.$a->get_hostname() .'>'. "\n";
+						$headers  = 'From: '. Email::encodeHeader($local_user[0]['username'],'UTF-8') .' <'. t('noreply') .'@'.$a->get_hostname() .'>'. "\n";
 					}
 
 					//if ($reply_to)
 					//	$headers .= 'Reply-to: '.$reply_to . "\n";
 
-					$headers .= 'Message-Id: <'. iri2msgid($it['uri']).'>'. "\n";
+					$headers .= 'Message-Id: <'. Email::iri2msgid($it['uri']).'>'. "\n";
 
 					//logger("Mail: uri: ".$it['uri']." parent-uri ".$it['parent-uri'], LOGGER_DEBUG);
 					//logger("Mail: Data: ".print_r($it, true), LOGGER_DEBUG);
 					//logger("Mail: Data: ".print_r($it, true), LOGGER_DATA);
 
 					if ($it['uri'] !== $it['parent-uri']) {
-						$headers .= "References: <".iri2msgid($it["parent-uri"]).">";
+						$headers .= "References: <".Email::iri2msgid($it["parent-uri"]).">";
 
 						// If Threading is enabled, write down the correct parent
 						if (($it["thr-parent"] != "") && ($it["thr-parent"] != $it["parent-uri"]))
-							$headers .= " <".iri2msgid($it["thr-parent"]).">";
+							$headers .= " <".Email::iri2msgid($it["thr-parent"]).">";
 						$headers .= "\n";
 
 						if (!$it['title']) {
@@ -469,7 +469,7 @@ class Delivery {
 						if (strncasecmp($subject,'RE:',3))
 							$subject = 'Re: '.$subject;
 					}
-					email_send($addr, $subject, $headers, $it);
+					Email::send($addr, $subject, $headers, $it);
 				}
 				break;
 

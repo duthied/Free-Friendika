@@ -19,7 +19,6 @@ require_once 'include/salmon.php';
 require_once 'include/datetime.php';
 require_once 'include/items.php';
 require_once 'include/bbcode.php';
-require_once 'include/email.php';
 
 /*
  * This file was at one time responsible for doing all deliveries, but this caused

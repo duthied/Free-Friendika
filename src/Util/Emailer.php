@@ -5,11 +5,10 @@
 namespace Friendica\Util;
 
 use Friendica\Core\PConfig;
-
-require_once 'include/email.php';
+use Friendica\Protocol\Email;
 
 /**
- * @breif class to handle emailing
+ * @brief class to handle emailing
  */
 class Emailer
 {
@@ -38,8 +37,8 @@ class Emailer
 			$email_textonly = PConfig::get($params['uid'], "system", "email_textonly");
 		}
 
-		$fromName = email_header_encode(html_entity_decode($params['fromName'], ENT_QUOTES, 'UTF-8'), 'UTF-8');
-		$messageSubject = email_header_encode(html_entity_decode($params['messageSubject'], ENT_QUOTES, 'UTF-8'), 'UTF-8');
+		$fromName = Email::encodeHeader(html_entity_decode($params['fromName'], ENT_QUOTES, 'UTF-8'), 'UTF-8');
+		$messageSubject = Email::encodeHeader(html_entity_decode($params['messageSubject'], ENT_QUOTES, 'UTF-8'), 'UTF-8');
 
 		// generate a mime boundary
 		$mimeBoundary   =rand(0, 9)."-"

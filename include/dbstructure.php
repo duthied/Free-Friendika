@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @file include/dbstructure.php
+ */
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
@@ -77,30 +79,10 @@ function update_fail($update_id, $error_message) {
 			'to_email' => $admin['email'],
 			'preamble' => $preamble,
 			'body' => $body,
-			'language' => $lang,
-		));
+			'language' => $lang)
+		);
 	}
 
-
-
-
-	/*
-	 @TODO deprecated code?
-	$email_tpl = get_intltext_template("update_fail_eml.tpl");
-	$email_msg = replace_macros($email_tpl, array(
-		'$sitename' => $a->config['sitename'],
-		'$siteurl' =>  System::baseUrl(),
-		'$update' => DB_UPDATE_VERSION,
-		'$error' => sprintf(t('Update %s failed. See error logs.'), DB_UPDATE_VERSION)
-	));
-	$subject=sprintf(t('Update Error at %s'), System::baseUrl());
-	require_once('include/email.php');
-	$subject = email_header_encode($subject,'UTF-8');
-	mail($a->config['admin_email'], $subject, $email_msg,
-		'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME']."\n"
-		.'Content-type: text/plain; charset=UTF-8'."\n"
-		.'Content-transfer-encoding: 8bit');
-	*/
 	//try the logger
 	logger("CRITICAL: Database structure update failed: ".$retval);
 }
