@@ -1032,9 +1032,9 @@ function item_post(App $a) {
 				$disclaimer .= sprintf( t('You may visit them online at %s'), System::baseUrl() . '/profile/' . $a->user['nickname']) . EOL;
 				$disclaimer .= t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
 				if (!$datarray['title']=='') {
-					$subject = Email::emailHeaderEncode($datarray['title'], 'UTF-8');
+					$subject = Email::encodeHeader($datarray['title'], 'UTF-8');
 				} else {
-					$subject = Email::emailHeaderEncode('[Friendica]' . ' ' . sprintf( t('%s posted an update.'), $a->user['username']), 'UTF-8');
+					$subject = Email::encodeHeader('[Friendica]' . ' ' . sprintf( t('%s posted an update.'), $a->user['username']), 'UTF-8');
 				}
 				$link = '<a href="' . System::baseUrl() . '/profile/' . $a->user['nickname'] . '"><img src="' . $author['thumb'] . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
 				$html    = prepare_body($datarray);

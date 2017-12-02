@@ -75,7 +75,7 @@ function invite_post(App $a) {
 			$nmessage = $message;
 		}
 
-		$res = mail($recip, Email::emailHeaderEncode(t('Please join us on Friendica'),'UTF-8'),
+		$res = mail($recip, Email::encodeHeader(t('Please join us on Friendica'),'UTF-8'),
 			$nmessage,
 			"From: " . $a->user['email'] . "\n"
 			. 'Content-type: text/plain; charset=UTF-8' . "\n"

@@ -37,8 +37,8 @@ class Emailer
 			$email_textonly = PConfig::get($params['uid'], "system", "email_textonly");
 		}
 
-		$fromName = Email::emailHeaderEncode(html_entity_decode($params['fromName'], ENT_QUOTES, 'UTF-8'), 'UTF-8');
-		$messageSubject = Email::emailHeaderEncode(html_entity_decode($params['messageSubject'], ENT_QUOTES, 'UTF-8'), 'UTF-8');
+		$fromName = Email::encodeHeader(html_entity_decode($params['fromName'], ENT_QUOTES, 'UTF-8'), 'UTF-8');
+		$messageSubject = Email::encodeHeader(html_entity_decode($params['messageSubject'], ENT_QUOTES, 'UTF-8'), 'UTF-8');
 
 		// generate a mime boundary
 		$mimeBoundary   =rand(0, 9)."-"

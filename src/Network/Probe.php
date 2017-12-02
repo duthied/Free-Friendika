@@ -1520,13 +1520,13 @@ class Probe
 				$mailbox = Email::constructMailboxName($r[0]);
 				$password = '';
 				openssl_private_decrypt(hex2bin($r[0]['pass']), $password, $x[0]['prvkey']);
-				$mbox = Email::emailConnect($mailbox, $r[0]['user'], $password);
+				$mbox = Email::connect($mailbox, $r[0]['user'], $password);
 				if (!mbox) {
 					return false;
 				}
 			}
 
-			$msgs = Email::emailPoll($mbox, $uri);
+			$msgs = Email::poll($mbox, $uri);
 			logger('searching '.$uri.', '.count($msgs).' messages found.', LOGGER_DEBUG);
 
 			if (!count($msgs)) {
@@ -1546,7 +1546,7 @@ class Probe
 		$data["notify"]  = 'smtp '.random_string();
 		$data["poll"]    = 'email '.random_string();
 
-		$x = Email::emailMsgMeta($mbox, $msgs[0]);
+		$x = Email::messageMeta($mbox, $msgs[0]);
 		if (stristr($x[0]->from, $uri)) {
 			$adr = imap_rfc822_parse_adrlist($x[0]->from, '');
 		} elseif (stristr($x[0]->to, $uri)) {

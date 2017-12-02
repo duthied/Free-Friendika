@@ -418,19 +418,19 @@ class Delivery {
 					if ($r1 && $r1[0]['reply_to'])
 						$reply_to = $r1[0]['reply_to'];
 
-					$subject  = (($it['title']) ? Email::emailHeaderEncode($it['title'],'UTF-8') : t("\x28no subject\x29")) ;
+					$subject  = (($it['title']) ? Email::encodeHeader($it['title'],'UTF-8') : t("\x28no subject\x29")) ;
 
 					// only expose our real email address to true friends
 
 					if (($contact['rel'] == CONTACT_IS_FRIEND) && !$contact['blocked']) {
 						if ($reply_to) {
-							$headers  = 'From: '.Email::emailHeaderEncode($local_user[0]['username'],'UTF-8').' <'.$reply_to.'>'."\n";
+							$headers  = 'From: '.Email::encodeHeader($local_user[0]['username'],'UTF-8').' <'.$reply_to.'>'."\n";
 							$headers .= 'Sender: '.$local_user[0]['email']."\n";
 						} else {
-							$headers  = 'From: '.Email::emailHeaderEncode($local_user[0]['username'],'UTF-8').' <'.$local_user[0]['email'].'>'."\n";
+							$headers  = 'From: '.Email::encodeHeader($local_user[0]['username'],'UTF-8').' <'.$local_user[0]['email'].'>'."\n";
 						}
 					} else {
-						$headers  = 'From: '. Email::emailHeaderEncode($local_user[0]['username'],'UTF-8') .' <'. t('noreply') .'@'.$a->get_hostname() .'>'. "\n";
+						$headers  = 'From: '. Email::encodeHeader($local_user[0]['username'],'UTF-8') .' <'. t('noreply') .'@'.$a->get_hostname() .'>'. "\n";
 					}
 
 					//if ($reply_to)
@@ -469,7 +469,7 @@ class Delivery {
 						if (strncasecmp($subject,'RE:',3))
 							$subject = 'Re: '.$subject;
 					}
-					Email::emailSend($addr, $subject, $headers, $it);
+					Email::send($addr, $subject, $headers, $it);
 				}
 				break;
 

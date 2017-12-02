@@ -19,7 +19,7 @@ class Email
 	 * @param string $password The password
 	 * @return object
 	 */
-	public static function emailConnect($mailbox, $username, $password)
+	public static function connect($mailbox, $username, $password)
 	{
 		if (! function_exists('imap_open')) {
 			return false;
@@ -35,7 +35,7 @@ class Email
 	 * @param string $email_addr email
 	 * @return array
 	 */
-	public static function emailPoll($mbox, $email_addr)
+	public static function poll($mbox, $email_addr)
 	{
 		if (! ($mbox && $email_addr))
 			return array();
@@ -83,35 +83,10 @@ class Email
 	 * @param integer $uid  user id
 	 * @return mixed
 	 */
-	public static function emailMsgMeta($mbox, $uid)
+	public static function messageMeta($mbox, $uid)
 	{
 		$ret = (($mbox && $uid) ? @imap_fetch_overview($mbox, $uid, FT_UID) : array(array())); // POSSIBLE CLEANUP --> array(array()) is probably redundant now
 		return (count($ret)) ? $ret : array();
-	}
-
-	/**
-	 * @brief Check addons, not called from main friendica project
-	 * I don't see it in addons either
-	 */
-	function email_msg_headers($mbox, $uid) {
-		$raw_header = (($mbox && $uid) ? @imap_fetchheader($mbox,$uid,FT_UID) : '');
-		$raw_header = str_replace("\r",'',$raw_header);
-		$ret = array();
-		$h = explode("\n",$raw_header);
-		if (count($h))
-		foreach ($h as $line ) {
-			if (preg_match("/^[a-zA-Z]/", $line)) {
-				$key = substr($line,0,strpos($line,':'));
-				$value = substr($line,strpos($line,':')+1);
-
-				$last_entry = strtolower($key);
-				$ret[$last_entry] = trim($value);
-			}
-			else {
-				$ret[$last_entry] .= ' ' . trim($line);
-			}
-		}
-		return $ret;
 	}
 
 	/**
@@ -120,7 +95,7 @@ class Email
 	 * @param string  $reply reply
 	 * @return array
 	 */
-	public static function emailGetMsg($mbox, $uid, $reply)
+	public static function getMessage($mbox, $uid, $reply)
 	{
 		$ret = array();
 
@@ -131,11 +106,11 @@ class Email
 		}
 
 		if (! $struc->parts) {
-			$ret['body'] = self::emailGetPart($mbox, $uid, $struc, 0, 'html');
+			$ret['body'] = self::messageGetPart($mbox, $uid, $struc, 0, 'html');
 			$html = $ret['body'];
 
 			if (trim($ret['body']) == '') {
-				$ret['body'] = self::emailGetPart($mbox, $uid, $struc, 0, 'plain');
+				$ret['body'] = self::messageGetPart($mbox, $uid, $struc, 0, 'plain');
 			} else {
 				$ret['body'] = html2bbcode($ret['body']);
 			}
@@ -143,12 +118,12 @@ class Email
 			$text = '';
 			$html = '';
 			foreach ($struc->parts as $ptop => $p) {
-				$x = self::emailGetPart($mbox, $uid, $p, $ptop + 1, 'plain');
+				$x = self::messageGetPart($mbox, $uid, $p, $ptop + 1, 'plain');
 				if ($x) {
 					$text .= $x;
 				}
 
-				$x = self::emailGetPart($mbox, $uid, $p, $ptop + 1, 'html');
+				$x = self::messageGetPart($mbox, $uid, $p, $ptop + 1, 'html');
 				if ($x) {
 					$html .= $x;
 				}
@@ -184,7 +159,7 @@ class Email
 	 * @param string  $subtype sub type
 	 * @return string
 	 */
-	private static function emailGetPart($mbox, $uid, $p, $partno, $subtype)
+	private static function messageGetPart($mbox, $uid, $p, $partno, $subtype)
 	{
 		// $partno = '1', '2', '2.1', '2.1.3', etc for multipart, 0 if simple
 		global $htmlmsg,$plainmsg,$charset,$attachments;
@@ -257,7 +232,7 @@ class Email
 		if (isset($p->parts) && $p->parts) {
 			$x = "";
 			foreach ($p->parts as $partno0 => $p2) {
-				$x .=  self::emailGetPart($mbox, $uid, $p2, $partno . '.' . ($partno0+1), $subtype);  // 1.2, 1.2.1, etc.
+				$x .=  self::messageGetPart($mbox, $uid, $p2, $partno . '.' . ($partno0+1), $subtype);  // 1.2, 1.2.1, etc.
 				//if ($x) {
 				//	return $x;
 				//}
@@ -271,7 +246,7 @@ class Email
 	 * @param string $charset character set
 	 * @return string
 	 */
-	public static function emailHeaderEncode($in_str, $charset)
+	public static function encodeHeader($in_str, $charset)
 	{
 		$out_str = $in_str;
 		$need_to_convert = false;
@@ -324,7 +299,7 @@ class Email
 	}
 
 	/**
-	 * Function emailSend is used by NETWORK_EMAIL and NETWORK_EMAIL2 code
+	 * Function send is used by NETWORK_EMAIL and NETWORK_EMAIL2 code
 	 * (not to notify the user, but to send items to email contacts)
 	 *
 	 * @param string $addr    address
@@ -336,7 +311,7 @@ class Email
 	 *
 	 * @todo This could be changed to use the Emailer class
 	 */
-	public static function emailSend($addr, $subject, $headers, $item)
+	public static function send($addr, $subject, $headers, $item)
 	{
 		//$headers .= 'MIME-Version: 1.0' . "\n";
 		//$headers .= 'Content-Type: text/html; charset=UTF-8' . "\n";

@@ -331,7 +331,7 @@ Class OnePoll
 				$mailbox = Email::constructMailboxName($mailconf);
 				$password = '';
 				openssl_private_decrypt(hex2bin($mailconf['pass']), $password, $x['prvkey']);
-				$mbox = Email::emailConnect($mailbox, $mailconf['user'], $password);
+				$mbox = Email::connect($mailbox, $mailconf['user'], $password);
 				unset($password);
 				logger("Mail: Connect to " . $mailconf['user']);
 				if ($mbox) {
@@ -344,12 +344,12 @@ Class OnePoll
 			}
 
 			if ($mbox) {
-				$msgs = Email::emailPoll($mbox, $contact['addr']);
+				$msgs = Email::poll($mbox, $contact['addr']);
 
 				if (count($msgs)) {
 					logger("Mail: Parsing ".count($msgs)." mails from ".$contact['addr']." for ".$mailconf['user'], LOGGER_DEBUG);
 
-					$metas = Email::emailMsgMeta($mbox,implode(',', $msgs));
+					$metas = Email::messageMeta($mbox, implode(',', $msgs));
 					if (count($metas) != count($msgs)) {
 						logger("onepoll: for " . $mailconf['user'] . " there are ". count($msgs) . " messages but received " . count($metas) . " metas", LOGGER_DEBUG);
 					} else {
@@ -361,8 +361,7 @@ Class OnePoll
 							$datarray = array();
 							$datarray['verb'] = ACTIVITY_POST;
 							$datarray['object-type'] = ACTIVITY_OBJ_NOTE;
-							// $meta = Email::emailMsgMeta($mbox, $msg_uid);
-							// $headers = email_msg_headers($mbox, $msg_uid);
+							// $meta = Email::messageMeta($mbox, $msg_uid);
 
 							$datarray['uri'] = Email::msgid2iri(trim($meta->message_id, '<>'));
 
@@ -466,7 +465,7 @@ Class OnePoll
 								$datarray['parent-uri'] = $datarray['uri'];
 							}
 
-							$r = Email::emailGetMsg($mbox, $msg_uid, $reply);
+							$r = Email::getMessage($mbox, $msg_uid, $reply);
 							if (!$r) {
 								logger("Mail: can't fetch msg ".$msg_uid." for ".$mailconf['user']);
 								continue;

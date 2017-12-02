@@ -265,7 +265,7 @@ function settings_post(App $a) {
 					if (strlen($eacct['server'])) {
 						$dcrpass = '';
 						openssl_private_decrypt(hex2bin($eacct['pass']), $dcrpass, $a->user['prvkey']);
-						$mbox = Email::emailConnect($mb, $mail_user, $dcrpass);
+						$mbox = Email::connect($mb, $mail_user, $dcrpass);
 						unset($dcrpass);
 						if (!$mbox) {
 							$failed = true;
