@@ -17,6 +17,7 @@ use Friendica\Object\Photo;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
+use Friendica\Protocol\Salmon;
 use dba;
 
 require_once 'boot.php';
@@ -71,8 +72,7 @@ class Contact extends BaseObject
 			$slap = OStatus::salmon($item, $user);
 
 			if ((x($contact, 'notify')) && (strlen($contact['notify']))) {
-				require_once 'include/salmon.php';
-				slapper($user, $contact['notify'], $slap);
+				Salmon::slapper($user, $contact['notify'], $slap);
 			}
 		} elseif ($contact['network'] === NETWORK_DIASPORA) {
 			Diaspora::sendUnshare($user, $contact);
