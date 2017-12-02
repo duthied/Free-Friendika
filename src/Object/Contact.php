@@ -822,7 +822,33 @@ class Contact extends BaseObject
 	}
 
 	/**
-	 * @brief Updates the avatar links in a contact only if needed
+	 * @brief Blocks a contact
+	 *
+	 * @param int $uid
+	 * @return bool
+	 */
+	public static function block($uid)
+	{
+		$return = dba::update('contact', ['blocked' => true], ['id' => $uid]);
+
+		return $return;
+	}
+
+	/**
+	 * @brief Unblocks a contact
+	 *
+	 * @param int $uid
+	 * @return bool
+	 */
+	public static function unblock($uid)
+	{
+		$return = dba::update('contact', ['blocked' => false], ['id' => $uid]);
+
+		return $return;
+  }
+
+  /**
+   * @brief Updates the avatar links in a contact only if needed
 	 *
 	 * @param string $avatar Link to avatar picture
 	 * @param int    $uid    User id of contact owner

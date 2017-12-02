@@ -120,48 +120,90 @@ function load_translation_table($lang) {
 
 }}
 
-// translate string if translation exists
-
-if (! function_exists('t')) {
-function t($s) {
-
+/**
+ * @brief Return the localized version of the provided string with optional string interpolation
+ *
+ * This function takes a english string as parameter, and if a localized version
+ * exists for the current language, substitutes it before performing an eventual
+ * string interpolation (sprintf) with additional optional arguments.
+ *
+ * Usages:
+ * - t('This is an example')
+ * - t('URL %s returned no result', $url)
+ * - t('Current version: %s, new version: %s', $current_version, $new_version)
+ *
+ * @param string $s
+ * @return string
+ */
+function t($s)
+{
 	$a = get_app();
 
-	if (x($a->strings,$s)) {
+	if (x($a->strings, $s)) {
 		$t = $a->strings[$s];
-		return is_array($t)?$t[0]:$t;
+		$s = is_array($t) ? $t[0] : $t;
 	}
-	return $s;
-}}
+	if (func_num_args() > 1) {
+		$args = array_slice(func_get_args(), 1);
+		$s = @vsprintf($s, $args);
+	}
 
-if (! function_exists('tt')){
-function tt($singular, $plural, $count){
+	return $s;
+}
+
+/**
+ * @brief Return the localized version of a singular/plural string with optional string interpolation
+ *
+ * This function takes two english strings as parameters, singular and plural, as
+ * well as a count. If a localized version exists for the current language, they
+ * are used instead. Discrimination between singular and plural is done using the
+ * localized function if any or the default one. Finally, a string interpolation
+ * is performed using the count as parameter.
+ *
+ * Usages:
+ * - tt('Like', 'Likes', $count)
+ * - tt("%s user deleted", "%s users deleted", count($users))
+ *
+ * @global type $lang
+ * @param string $singular
+ * @param string $plural
+ * @param int $count
+ * @return string
+ */
+function tt($singular, $plural, $count)
+{
 	global $lang;
 	$a = get_app();
 
-	if (x($a->strings,$singular)) {
+	if (x($a->strings, $singular)) {
 		$t = $a->strings[$singular];
-		$f = 'string_plural_select_' . str_replace('-','_',$lang);
-		if (! function_exists($f))
-			$f = 'string_plural_select_default';
-		$k = $f($count);
-		return is_array($t)?$t[$k]:$t;
+		if (is_array($t)) {
+			$plural_function = 'string_plural_select_' . str_replace('-', '_', $lang);
+			if (function_exists($plural_function)) {
+				$plural_function = 'string_plural_select_default';
+			}
+			$i = $plural_function($count);
+			$s = $t[$i];
+		} else {
+			$s = $t;
+		}
+	} elseif (string_plural_select_default($count)) {
+		$s = $plural;
+	} else {
+		$s = $singular;
 	}
 
-	if ($count!=1){
-		return $plural;
-	} else {
-		return $singular;
-	}
-}}
+	$s = @sprintf($s, $count);
+
+	return $s;
+}
 
 // provide a fallback which will not collide with
 // a function defined in any language file
-
-if (! function_exists('string_plural_select_default')) {
-function string_plural_select_default($n) {
-	return ($n != 1);
-}}
+function string_plural_select_default($n)
+{
+	return $n != 1;
+}
 
 
 
