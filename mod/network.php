@@ -42,6 +42,7 @@ function network_init(App $a) {
 
 	$group_id = (($a->argc > 1 && is_numeric($a->argv[1])) ? intval($a->argv[1]) : 0);
 
+	$cid = 0;
 	if (x($_GET, 'cid') && intval($_GET['cid']) != 0) {
 		$cid = $_GET['cid'];
 		$_GET['nets'] = 'all';
@@ -883,17 +884,19 @@ function networkThreadedView(App $a, $update = 0) {
  * @param App $a The global App
  * @return string Html of the networktab
  */
-function network_tabs(App $a) {
+function network_tabs(App $a)
+{
 	// item filter tabs
 	/// @TODO fix this logic, reduce duplication
 	/// $a->page['content'] .= '<div class="tabs-wrapper">';
-
 	list($no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active) = network_query_get_sel_tab($a);
-	// if no tabs are selected, defaults to comments
-	if ($no_active=='active') $all_active='active';
 
-	$cmd = (($datequery) ? '' : $a->cmd);
-	$len_naked_cmd = strlen(str_replace('/new','',$cmd));
+	// if no tabs are selected, defaults to comments
+	if ($no_active == 'active') {
+		$all_active = 'active';
+	}
+
+	$cmd = $a->cmd;
 
 	// tabs
 	$tabs = array(
