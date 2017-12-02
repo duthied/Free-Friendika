@@ -11,7 +11,6 @@ use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\User;
-use Friendica\Network\Probe;
 use Friendica\Object\Contact;
 
 require_once 'include/enotify.php';
@@ -33,8 +32,6 @@ require_once 'include/items.php';
  */
 function admin_post(App $a)
 {
-
-
 	if (!is_site_admin()) {
 		return;
 	}
