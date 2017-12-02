@@ -1,4 +1,3 @@
-
 <script>
 	function selectall(cls) {
 		$('.' + cls).prop('checked', true);

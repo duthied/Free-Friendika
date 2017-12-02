@@ -441,6 +441,7 @@ function admin_page_contactblock(App $a)
 		'$baseurl'    => System::baseUrl(true),
 
 		'$contacts'   => $contacts,
+		'$total_contacts' => tt('%s total blocked contact', '%s total blocked contacts', $total),
 		'$paginate'   => paginate($a),
 		'$contacturl' => ['contact_url', t("Profile URL"), '', t("URL of the remote contact to block.")],
 	));

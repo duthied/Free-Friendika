@@ -1,14 +1,4 @@
-
-<script>
-	function selectall(cls) {
-		$('.' + cls).prop('checked', true);
-		return false;
-	}
-	function selectnone(cls) {
-		$('.' + cls).prop('checked', false);
-		return false;
-	}
-</script>
+<script type="text/javascript" src="view/theme/frio/js/mod_admin.js"></script>
 <div id="adminpage">
 	<h1>{{$title}} - {{$page}}</h1>
 	<p>{{$description}}</p>
@@ -20,7 +10,7 @@
 		<table id="contactblock" class="table table-condensed table-striped">
 			<thead>
 				<tr>
-					<th></th>
+					<th><input type="checkbox" class="select contacts_ckbx" data-select-class="contacts_ckbx" data-select-all="{{$select_all}}"  data-select-none="{{$select_none}}" title="{{$select_all}}"/></th>
 						{{foreach $th_contacts as $th}}
 					<th>
 						{{$th}}
@@ -39,10 +29,17 @@
 				</tr>
 				{{/foreach}}
 			</tbody>
+			<tfoot>
+				<tr>
+					<td><input type="checkbox" class="select contacts_ckbx" data-select-class="contacts_ckbx" data-select-all="{{$select_all}}"  data-select-none="{{$select_none}}" title="{{$select_all}}"/></td>
+					<td colspan="3">
+						{{$total_contacts}}
+					</td>
+				</tr>
+			</tfoot>
 		</table>
-		<p><a href="#" onclick="return selectall('contacts_ckbx');">{{$select_all}}</a> | <a href="#" onclick="return selectnone('contacts_ckbx');">{{$select_none}}</a></p>
+		<div class="submit"><button type="submit" class="btn btn-small btn-default" name="page_contactblock_unblock" value="1">{{$unblock|escape:'html'}}</button></div>
 		{{$paginate}}
-		<div class="submit"><input type="submit" name="page_contactblock_unblock" value="{{$unblock|escape:'html'}}" /></div>
 	{{else}}
 		<p>{{$no_data|escape:'html'}}</p>
 	{{/if}}
@@ -58,6 +55,6 @@
 				</tr>
 			</tbody>
 		</table>
-		<div class="submit"><input type="submit" name="page_contactblock_block" value="{{$submit|escape:'html'}}" /></div>
+		<div class="submit"><button type="submit" class="btn btn-primary" name="page_contactblock_block" value="1">{{$submit|escape:'html'}}</button></div>
 	</form>
 </div>
