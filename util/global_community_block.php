@@ -32,14 +32,13 @@ use Friendica\BaseObject;
 use Friendica\Object\Contact;
 
 require_once 'boot.php';
+require_once 'include/dba.php';
+require_once 'include/text.php';
 
 $a = get_app();;
 BaseObject::setApp($a);
 
 require_once '.htconfig.php';
-require_once 'include/dba.php';
-require_once 'include/text.php';
-
 dba::connect($db_host, $db_user, $db_pass, $db_data);
 unset($db_host, $db_user, $db_pass, $db_data);
 
