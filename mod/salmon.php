@@ -6,8 +6,8 @@ use Friendica\App;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Protocol\OStatus;
+use Friendica\Protocol\Salmon;
 
-require_once 'include/salmon.php';
 require_once 'include/crypto.php';
 require_once 'include/items.php';
 require_once 'include/follow.php';
@@ -103,7 +103,7 @@ function salmon_post(App $a) {
 
 	logger('mod-salmon: Fetching key for ' . $author_link);
 
-	$key = get_salmon_key($author_link,$keyhash);
+	$key = Salmon::getKey($author_link, $keyhash);
 
 	if(! $key) {
 		logger('mod-salmon: Could not retrieve author key.');

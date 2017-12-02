@@ -17,7 +17,6 @@ use Friendica\Util\Lock;
 
 require_once 'include/bbcode.php';
 require_once 'include/oembed.php';
-require_once 'include/salmon.php';
 require_once 'include/crypto.php';
 require_once 'include/tags.php';
 require_once 'include/files.php';

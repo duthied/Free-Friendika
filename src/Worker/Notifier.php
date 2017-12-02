@@ -11,11 +11,11 @@ use Friendica\Network\Probe;
 use Friendica\Object\Contact;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
+use Friendica\Protocol\Salmon;
 use dba;
 
 require_once 'include/queue_fn.php';
 require_once 'include/html2plain.php';
-require_once 'include/salmon.php';
 require_once 'include/datetime.php';
 require_once 'include/items.php';
 require_once 'include/bbcode.php';
@@ -505,11 +505,11 @@ class Notifier {
 		// They are especially used for notifications to OStatus users that don't follow us.
 
 		if ($slap && count($url_recipients) && ($public_message || $push_notify) && $normal_mode) {
-			if (!Config::get('system','dfrn_only')) {
+			if (!Config::get('system', 'dfrn_only')) {
 				foreach ($url_recipients as $url) {
 					if ($url) {
 						logger('notifier: urldelivery: ' . $url);
-						$deliver_status = slapper($owner,$url,$slap);
+						$deliver_status = Salmon::slapper($owner, $url, $slap);
 						/// @TODO Redeliver/queue these items on failure, though there is no contact record
 					}
 				}

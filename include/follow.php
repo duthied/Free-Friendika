@@ -12,9 +12,9 @@ use Friendica\Object\Contact;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\PortableContact;
+use Friendica\Protocol\Salmon;
 
 require_once 'include/group.php';
-require_once 'include/salmon.php';
 
 function update_contact($id) {
 	/*
@@ -268,7 +268,7 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 			$item['verb'] = ACTIVITY_FOLLOW;
 			$item['follow'] = $contact["url"];
 			$slap = OStatus::salmon($item, $r[0]);
-			slapper($r[0], $contact['notify'], $slap);
+			Salmon::slapper($r[0], $contact['notify'], $slap);
 		}
 
 		if ($contact['network'] == NETWORK_DIASPORA) {

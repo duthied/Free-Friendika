@@ -1,9 +1,7 @@
 <?php
-
 /**
  * @file src/Worker/Queue.php
  */
-
 namespace Friendica\Worker;
 
 use Friendica\Core\Cache;
@@ -13,13 +11,13 @@ use Friendica\Database\DBM;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\PortableContact;
+use Friendica\Protocol\Salmon;
 use dba;
 
 require_once 'include/queue_fn.php';
 require_once 'include/datetime.php';
 require_once 'include/items.php';
 require_once 'include/bbcode.php';
-require_once 'include/salmon.php';
 
 class Queue
 {
@@ -141,7 +139,7 @@ class Queue
 			case NETWORK_OSTATUS:
 				if ($contact['notify']) {
 					logger('queue: slapdelivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
-					$deliver_status = slapper($owner, $contact['notify'], $data);
+					$deliver_status = Salmon::slapper($owner, $contact['notify'], $data);
 
 					if ($deliver_status == (-1)) {
 						update_queue_time($q_item['id']);
