@@ -381,17 +381,12 @@ function admin_page_contactblock_post(App $a)
 	check_form_security_token_redirectOnErr('/admin/contactblock', 'admin_contactblock');
 
 	if (x($_POST, 'page_contactblock_block')) {
-		$net = Probe::uri($contact_url);
-		if (in_array($net['network'], array(NETWORK_PHANTOM, NETWORK_MAIL))) {
-			notice(t('This contact doesn\'t seem to exist.'));
-		}
-		$nurl = normalise_link($net['url']);
-		$r = dba::select('contact', ['id'], ['nurl' => $nurl, 'uid' => 0], ['limit' => 1]);
-		if (DBM::is_result($r)) {
-			Contact::block($r['id']);
+		$contact_id = Contact::getIdForURL($contact_url, 0);
+		if ($contact_id) {
+			Contact::block($contact_id);
 			notice(t('The contact has been blocked from the node'));
 		} else {
-			notice(t('Could not find any contact entry for this URL (%s)', $nurl));
+			notice(t('Could not find any contact entry for this URL (%s)', $contact_url));
 		}
 	}
 	if (x($_POST, 'page_contactblock_unblock')) {
@@ -428,7 +423,7 @@ function admin_page_contactblock(App $a)
 		// strings //
 		'$title'       => t('Administration'),
 		'$page'        => t('Remote Contact Blocklist'),
-		'$description' => t('This page allows you to prevent any message from a remote contact to reach your node. However, your node must have knowledge of the contact before you can block it.'),
+		'$description' => t('This page allows you to prevent any message from a remote contact to reach your node.'),
 		'$submit'      => t('Block Remote Contact'),
 		'$select_all'  => t('select all'),
 		'$select_none' => t('select none'),
