@@ -1,6 +1,6 @@
 <?php
 
-/* identi.ca -> friendica items permanent-url compatibility */
+/* GNU Social -> friendica items permanent-url compatibility */
 
 use Friendica\App;
 use Friendica\Core\System;

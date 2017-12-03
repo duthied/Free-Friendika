@@ -198,9 +198,6 @@ function import_account(App $a, $file) {
 				case NETWORK_DIASPORA:
 					//  send relocate message (below)
 					break;
-				case NETWORK_MAIL2:
-					/// @TODO ?
-					break;
 				case NETWORK_FEED:
 				case NETWORK_MAIL:
 					// Nothing to do

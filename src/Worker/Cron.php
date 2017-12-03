@@ -158,7 +158,7 @@ Class Cron {
 				FROM `user`
 				STRAIGHT_JOIN `contact`
 				ON `contact`.`uid` = `user`.`uid` AND `contact`.`rel` IN (%d, %d) AND `contact`.`poll` != ''
-					AND `contact`.`network` IN ('%s', '%s', '%s', '%s', '%s', '%s') $sql_extra
+					AND `contact`.`network` IN ('%s', '%s', '%s', '%s', '%s') $sql_extra
 					AND NOT `contact`.`self` AND NOT `contact`.`blocked` AND NOT `contact`.`readonly`
 					AND NOT `contact`.`archive`
 				WHERE NOT `user`.`account_expired` AND NOT `user`.`account_removed` $abandon_sql",
@@ -168,8 +168,7 @@ Class Cron {
 			dbesc(NETWORK_OSTATUS),
 			dbesc(NETWORK_DIASPORA),
 			dbesc(NETWORK_FEED),
-			dbesc(NETWORK_MAIL),
-			dbesc(NETWORK_MAIL2)
+			dbesc(NETWORK_MAIL)
 		);
 
 		if (!DBM::is_result($contacts)) {

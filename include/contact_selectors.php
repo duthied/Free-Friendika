@@ -85,7 +85,6 @@ function network_to_name($s, $profile = "") {
 		NETWORK_LINKEDIN => t('LinkedIn'),
 		NETWORK_XMPP     => t('XMPP/IM'),
 		NETWORK_MYSPACE  => t('MySpace'),
-		NETWORK_MAIL2    => t('Email'),
 		NETWORK_GPLUS    => t('Google+'),
 		NETWORK_PUMPIO   => t('pump.io'),
 		NETWORK_TWITTER  => t('Twitter'),
