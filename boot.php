@@ -254,24 +254,24 @@ define('PROTOCOL_SPLITTED_CONV',   6);
  * @{
  */
 define('NETWORK_DFRN',             'dfrn');    // Friendica, Mistpark, other DFRN implementations
-define('NETWORK_ZOT',              'zot!');    // Zot!
-define('NETWORK_OSTATUS',          'stat');    // status.net, identi.ca, GNU-social, other OStatus implementations
+define('NETWORK_ZOT',              'zot!');    // Zot! - Currently unsupported
+define('NETWORK_OSTATUS',          'stat');    // GNU-social, Pleroma, Mastodon, other OStatus implementations
 define('NETWORK_FEED',             'feed');    // RSS/Atom feeds with no known "post/notify" protocol
 define('NETWORK_DIASPORA',         'dspr');    // Diaspora
 define('NETWORK_MAIL',             'mail');    // IMAP/POP
 define('NETWORK_FACEBOOK',         'face');    // Facebook API
 define('NETWORK_LINKEDIN',         'lnkd');    // LinkedIn
-define('NETWORK_XMPP',             'xmpp');    // XMPP
-define('NETWORK_MYSPACE',          'mysp');    // MySpace
+define('NETWORK_XMPP',             'xmpp');    // XMPP - Currently unsupported
+define('NETWORK_MYSPACE',          'mysp');    // MySpace - Currently unsupported
 define('NETWORK_GPLUS',            'goog');    // Google+
 define('NETWORK_PUMPIO',           'pump');    // pump.io
 define('NETWORK_TWITTER',          'twit');    // Twitter
 define('NETWORK_DIASPORA2',        'dspc');    // Diaspora connector
 define('NETWORK_STATUSNET',        'stac');    // Statusnet connector
-define('NETWORK_APPNET',           'apdn');    // app.net
-define('NETWORK_NEWS',             'nntp');    // Network News Transfer Protocol
-define('NETWORK_ICALENDAR',        'ical');    // iCalendar
-define('NETWORK_PNUT',             'pnut');    // pnut.io
+define('NETWORK_APPNET',           'apdn');    // app.net - Dead protocol
+define('NETWORK_NEWS',             'nntp');    // Network News Transfer Protocol - Currently unsupported
+define('NETWORK_ICALENDAR',        'ical');    // iCalendar - Currently unsupported
+define('NETWORK_PNUT',             'pnut');    // pnut.io - Currently unsupported
 define('NETWORK_PHANTOM',          'unkn');    // Place holder
 /**
  * @}

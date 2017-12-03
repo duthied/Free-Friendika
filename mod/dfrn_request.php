@@ -727,7 +727,7 @@ function dfrn_request_content(App $a) {
 
 		$o = replace_macros($tpl,array(
 			'$header' => t('Friend/Connection Request'),
-			'$desc' => t('Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@identi.ca'),
+			'$desc' => t('Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@gnusocial.de'),
 			'$pls_answer' => t('Please answer the following:'),
 			'$does_know_you' => array('knowyou', sprintf(t('Does %s know you?'),$a->profile['name']), false, '', array(t('No'), t('Yes'))),
 			/*'$does_know' => sprintf( t('Does %s know you?'),$a->profile['name']),
@@ -736,8 +736,8 @@ function dfrn_request_content(App $a) {
 			'$add_note' => t('Add a personal note:'),
 			'$page_desc' => $page_desc,
 			'$friendica' => t('Friendica'),
-			'$statusnet' => t('StatusNet/Federated Social Web'),
-			'$diaspora' => t('Diaspora'),
+			'$statusnet' => t('GNU Social (Pleroma, Mastodon)'),
+			'$diaspora' => t('Diaspora (Socialhome, Hubzilla)'),
 			'$diasnote' => sprintf (t(' - please do not use this form.  Instead, enter %s into your Diaspora search bar.'),$target_addr),
 			'$your_address' => t('Your Identity Address:'),
 			'$invite_desc' => $invite_desc,
