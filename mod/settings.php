@@ -383,8 +383,8 @@ function settings_post(App $a) {
 			$err = true;
         }
 
-        if (User::authenticate(intval(local_user()), $_POST['opassword'])) {
         //  check if the old password was supplied correctly before changing it to the new value
+        if (!User::authenticate(intval(local_user()), $_POST['opassword'])) {
             notice(t('Wrong password.') . EOL);
             $err = true;
         }
