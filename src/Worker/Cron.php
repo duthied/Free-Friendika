@@ -153,17 +153,20 @@ Class Cron {
 			: ''
 		);
 
-		$contacts = q("SELECT `contact`.`id` FROM `user`
+		$contacts = q("SELECT `contact`.`id`, `contact`.`nick`, `contact`.`name`, `contact`.`network`,
+					`contact`.`last-update`, `contact`.`priority`, `contact`.`subhub`
+				FROM `user`
 				STRAIGHT_JOIN `contact`
 				ON `contact`.`uid` = `user`.`uid` AND `contact`.`rel` IN (%d, %d) AND `contact`.`poll` != ''
-					AND `contact`.`network` IN ('%s', '%s', '%s', '%s') $sql_extra
+					AND `contact`.`network` IN ('%s', '%s', '%s', '%s', '%s') $sql_extra
 					AND NOT `contact`.`self` AND NOT `contact`.`blocked` AND NOT `contact`.`readonly`
 					AND NOT `contact`.`archive`
-				WHERE NOT `user`.`account_expired` AND NOT `user`.`account_removed` $abandon_sql ORDER BY RAND()",
+				WHERE NOT `user`.`account_expired` AND NOT `user`.`account_removed` $abandon_sql",
 			intval(CONTACT_IS_SHARING),
 			intval(CONTACT_IS_FRIEND),
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_OSTATUS),
+			dbesc(NETWORK_DIASPORA),
 			dbesc(NETWORK_FEED),
 			dbesc(NETWORK_MAIL)
 		);
@@ -172,94 +175,81 @@ Class Cron {
 			return;
 		}
 
-		foreach ($contacts as $c) {
+		foreach ($contacts as $contact) {
 
-			$res = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
-				intval($c['id'])
-			);
-
-			if (!DBM::is_result($res)) {
-				continue;
+			if ($manual_id) {
+				$contact['last-update'] = NULL_DATE;
 			}
 
-			foreach ($res as $contact) {
-
-				$xml = false;
-
-				if ($manual_id) {
-					$contact['last-update'] = NULL_DATE;
-				}
-
-				if (in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS))) {
-					$contact['priority'] = 2;
-				}
-
-				if ($contact['subhub'] && in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS))) {
-					/*
-					 * We should be getting everything via a hub. But just to be sure, let's check once a day.
-					 * (You can make this more or less frequent if desired by setting 'pushpoll_frequency' appropriately)
-					 * This also lets us update our subscription to the hub, and add or replace hubs in case it
-					 * changed. We will only update hubs once a day, regardless of 'pushpoll_frequency'.
-					 */
-					$poll_interval = Config::get('system', 'pushpoll_frequency');
-					$contact['priority'] = (($poll_interval !== false) ? intval($poll_interval) : 3);
-				}
-
-				if (($contact['priority'] >= 0) && !$force) {
-					$update = false;
-
-					$t = $contact['last-update'];
-
-					/*
-					 * Based on $contact['priority'], should we poll this site now? Or later?
-					 */
-					switch ($contact['priority']) {
-						case 5:
-							if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + 1 month")) {
-								$update = true;
-							}
-							break;
-						case 4:
-							if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + 1 week")) {
-								$update = true;
-							}
-							break;
-						case 3:
-							if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + 1 day")) {
-								$update = true;
-							}
-							break;
-						case 2:
-							if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + 12 hour")) {
-								$update = true;
-							}
-							break;
-						case 1:
-							if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + 1 hour")) {
-								$update = true;
-							}
-							break;
-						case 0:
-						default:
-							if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + ".$min_poll_interval." minute")) {
-								$update = true;
-							}
-							break;
-					}
-					if (!$update) {
-						continue;
-					}
-				}
-
-				logger("Polling " . $contact["network"] . " " . $contact["id"] . " " . $contact["nick"] . " " . $contact["name"]);
-
-				if (($contact['network'] == NETWORK_FEED) && ($contact['priority'] <= 3)) {
-					$priority = PRIORITY_MEDIUM;
-				} else {
-					$priority = PRIORITY_LOW;
-				}
-				Worker::add(array('priority' => $priority, 'dont_fork' => true), 'OnePoll', (int)$contact['id']);
+			if (in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS))) {
+				$contact['priority'] = 2;
 			}
+
+			if ($contact['subhub'] && in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS))) {
+				/*
+				 * We should be getting everything via a hub. But just to be sure, let's check once a day.
+				 * (You can make this more or less frequent if desired by setting 'pushpoll_frequency' appropriately)
+				 * This also lets us update our subscription to the hub, and add or replace hubs in case it
+				 * changed. We will only update hubs once a day, regardless of 'pushpoll_frequency'.
+				 */
+				$poll_interval = Config::get('system', 'pushpoll_frequency');
+				$contact['priority'] = (($poll_interval !== false) ? intval($poll_interval) : 3);
+			}
+
+			if (($contact['priority'] >= 0) && !$force) {
+				$update = false;
+
+				$t = $contact['last-update'];
+
+				/*
+				 * Based on $contact['priority'], should we poll this site now? Or later?
+				 */
+				switch ($contact['priority']) {
+					case 5:
+						if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + 1 month")) {
+							$update = true;
+						}
+						break;
+					case 4:
+						if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + 1 week")) {
+							$update = true;
+						}
+						break;
+					case 3:
+						if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + 1 day")) {
+							$update = true;
+						}
+						break;
+					case 2:
+						if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + 12 hour")) {
+							$update = true;
+						}
+						break;
+					case 1:
+						if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + 1 hour")) {
+							$update = true;
+						}
+						break;
+					case 0:
+					default:
+						if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + ".$min_poll_interval." minute")) {
+							$update = true;
+						}
+						break;
+				}
+				if (!$update) {
+					continue;
+				}
+			}
+
+			logger("Polling " . $contact["network"] . " " . $contact["id"] . " " . $contact["nick"] . " " . $contact["name"]);
+
+			if (($contact['network'] == NETWORK_FEED) && ($contact['priority'] <= 3)) {
+				$priority = PRIORITY_MEDIUM;
+			} else {
+				$priority = PRIORITY_LOW;
+			}
+			Worker::add(array('priority' => $priority, 'dont_fork' => true), 'OnePoll', (int)$contact['id']);
 		}
 	}
 }
