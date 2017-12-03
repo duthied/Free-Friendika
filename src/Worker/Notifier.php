@@ -447,7 +447,7 @@ class Notifier {
 				// It only makes sense to distribute answers to OStatus messages to Friendica and OStatus - but not Diaspora
 				$sql_extra = " AND `network` IN ('".NETWORK_OSTATUS."', '".NETWORK_DFRN."')";
 			} else {
-				$sql_extra = " AND `network` IN ('".NETWORK_OSTATUS."', '".NETWORK_DFRN."', '".NETWORK_DIASPORA."', '".NETWORK_MAIL."', '".NETWORK_MAIL2."')";
+				$sql_extra = " AND `network` IN ('".NETWORK_OSTATUS."', '".NETWORK_DFRN."', '".NETWORK_DIASPORA."', '".NETWORK_MAIL."')";
 			}
 		} else {
 			$public_message = false;
@@ -537,9 +537,8 @@ class Notifier {
 			}
 
 			$r2 = q("SELECT `id`, `name`,`network` FROM `contact`
-				WHERE `network` in ('%s', '%s') AND `uid` = %d AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `rel` != %d",
+				WHERE `network` in ('%s') AND `uid` = %d AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `rel` != %d",
 				dbesc(NETWORK_DFRN),
-				dbesc(NETWORK_MAIL2),
 				intval($owner['uid']),
 				intval(CONTACT_IS_SHARING)
 			);

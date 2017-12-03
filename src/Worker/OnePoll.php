@@ -311,7 +311,7 @@ Class OnePoll
 			$xml = $ret['body'];
 
 			unlink($cookiejar);
-		} elseif ($contact['network'] === NETWORK_MAIL || $contact['network'] === NETWORK_MAIL2) {
+		} elseif ($contact['network'] === NETWORK_MAIL) {
 
 			logger("Mail: Fetching for ".$contact['addr'], LOGGER_DEBUG);
 

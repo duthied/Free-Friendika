@@ -156,18 +156,16 @@ Class Cron {
 		$contacts = q("SELECT `contact`.`id` FROM `user`
 				STRAIGHT_JOIN `contact`
 				ON `contact`.`uid` = `user`.`uid` AND `contact`.`rel` IN (%d, %d) AND `contact`.`poll` != ''
-					AND `contact`.`network` IN ('%s', '%s', '%s', '%s', '%s', '%s') $sql_extra
+					AND `contact`.`network` IN ('%s', '%s', '%s', '%s') $sql_extra
 					AND NOT `contact`.`self` AND NOT `contact`.`blocked` AND NOT `contact`.`readonly`
 					AND NOT `contact`.`archive`
 				WHERE NOT `user`.`account_expired` AND NOT `user`.`account_removed` $abandon_sql ORDER BY RAND()",
 			intval(CONTACT_IS_SHARING),
 			intval(CONTACT_IS_FRIEND),
 			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_ZOT),
 			dbesc(NETWORK_OSTATUS),
 			dbesc(NETWORK_FEED),
-			dbesc(NETWORK_MAIL),
-			dbesc(NETWORK_MAIL2)
+			dbesc(NETWORK_MAIL)
 		);
 
 		if (!DBM::is_result($contacts)) {
@@ -192,11 +190,11 @@ Class Cron {
 					$contact['last-update'] = NULL_DATE;
 				}
 
-				if (in_array($contact['network'], array(NETWORK_DFRN, NETWORK_ZOT, NETWORK_OSTATUS))) {
+				if (in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS))) {
 					$contact['priority'] = 2;
 				}
 
-				if ($contact['subhub'] && in_array($contact['network'], array(NETWORK_DFRN, NETWORK_ZOT, NETWORK_OSTATUS))) {
+				if ($contact['subhub'] && in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS))) {
 					/*
 					 * We should be getting everything via a hub. But just to be sure, let's check once a day.
 					 * (You can make this more or less frequent if desired by setting 'pushpoll_frequency' appropriately)

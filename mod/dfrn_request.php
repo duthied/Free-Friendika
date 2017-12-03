@@ -292,15 +292,12 @@ function dfrn_request_post(App $a) {
 		 *
 		 * Cleanup old introductions that remain blocked.
 		 * Also remove the contact record, but only if there is no existing relationship
-		 * Do not remove email contacts as these may be awaiting email verification
 		 */
 
 		$r = q("SELECT `intro`.*, `intro`.`id` AS `iid`, `contact`.`id` AS `cid`, `contact`.`rel`
 			FROM `intro` LEFT JOIN `contact` on `intro`.`contact-id` = `contact`.`id`
 			WHERE `intro`.`blocked` = 1 AND `contact`.`self` = 0
-			AND `contact`.`network` != '%s'
-			AND `intro`.`datetime` < UTC_TIMESTAMP() - INTERVAL 30 MINUTE ",
-			dbesc(NETWORK_MAIL2)
+			AND `intro`.`datetime` < UTC_TIMESTAMP() - INTERVAL 30 MINUTE "
 		);
 		if (DBM::is_result($r)) {
 			foreach ($r as $rr) {
@@ -315,32 +312,6 @@ function dfrn_request_post(App $a) {
 			}
 		}
 
-		/*
-		 *
-		 * Cleanup any old email intros - which will have a greater lifetime
-		 */
-
-		$r = q("SELECT `intro`.*, `intro`.`id` AS `iid`, `contact`.`id` AS `cid`, `contact`.`rel`
-			FROM `intro` LEFT JOIN `contact` on `intro`.`contact-id` = `contact`.`id`
-			WHERE `intro`.`blocked` = 1 AND `contact`.`self` = 0
-			AND `contact`.`network` = '%s'
-			AND `intro`.`datetime` < UTC_TIMESTAMP() - INTERVAL 3 DAY ",
-			dbesc(NETWORK_MAIL2)
-		);
-		if (DBM::is_result($r)) {
-			foreach ($r as $rr) {
-				if(! $rr['rel']) {
-					q("DELETE FROM `contact` WHERE `id` = %d AND NOT `self`",
-						intval($rr['cid'])
-					);
-				}
-				q("DELETE FROM `intro` WHERE `id` = %d",
-					intval($rr['iid'])
-				);
-			}
-		}
-
-		$email_follow = (x($_POST,'email_follow') ? intval($_POST['email_follow']) : 0);
 		$real_name = (x($_POST,'realname') ? notags(trim($_POST['realname'])) : '');
 
 		$url = trim($_POST['dfrn_url']);
@@ -351,125 +322,25 @@ function dfrn_request_post(App $a) {
 
 		$hcard = '';
 
-		if($email_follow) {
+		// Detect the network
+		$data = Probe::uri($url);
+		$network = $data["network"];
 
-			if(! validate_email($url)) {
-				notice( t('Invalid email address.') . EOL);
-				return;
+		// Canonicalise email-style profile locator
+		$url = Probe::webfingerDfrn($url,$hcard);
+
+		if (substr($url,0,5) === 'stat:') {
+
+			// Every time we detect the remote subscription we define this as OStatus.
+			// We do this even if it is not OStatus.
+			// we only need to pass this through another section of the code.
+			if ($network != NETWORK_DIASPORA) {
+				$network = NETWORK_OSTATUS;
 			}
 
-			$addr    = $url;
-			$name    = ($realname) ? $realname : $addr;
-			$nick    = substr($addr,0,strpos($addr,'@'));
-			$url     = 'http://' . substr($addr,strpos($addr,'@') + 1);
-			$nurl    = normalise_url($host);
-			$poll    = 'email ' . random_string();
-			$notify  = 'smtp ' . random_string();
-			$network = NETWORK_MAIL2;
-			$rel     = CONTACT_IS_FOLLOWER;
-
-			$mail_disabled = ((function_exists('imap_open') && (! Config::get('system','imap_disabled'))) ? 0 : 1);
-			if(Config::get('system','dfrn_only'))
-				$mail_disabled = 1;
-
-			if(! $mail_disabled) {
-				$failed = false;
-				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
-					intval($uid)
-				);
-
-				if (! DBM::is_result($r)) {
-					notice( t('This account has not been configured for email. Request failed.') . EOL);
-					return;
-				}
-			}
-
-			$r = q("insert into contact ( uid, created, addr, name, nick, url, nurl, poll, notify, blocked, pending, network, rel )
-				values( %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', %d ) ",
-				intval($uid),
-				dbesc(datetime_convert()),
-				dbesc($addr),
-				dbesc($name),
-				dbesc($nick),
-				dbesc($url),
-				dbesc($nurl),
-				dbesc($poll),
-				dbesc($notify),
-				intval($blocked),
-				intval($pending),
-				dbesc($network),
-				intval($rel)
-			);
-
-			$r = q("SELECT `id`, `network` FROM `contact` WHERE `poll` = '%s' AND `uid` = %d LIMIT 1",
-				dbesc($poll),
-				intval($uid)
-			);
-			if (DBM::is_result($r)) {
-				$contact_id = $r[0]['id'];
-
-				$def_gid = get_default_group($uid, $r[0]["network"]);
-				if (intval($def_gid))
-					group_add_member($uid, '', $contact_id, $def_gid);
-
-				$photo = avatar_img($addr);
-
-				$r = q("UPDATE `contact` SET
-					`photo` = '%s',
-					`thumb` = '%s',
-					`micro` = '%s',
-					`name-date` = '%s',
-					`uri-date` = '%s',
-					`avatar-date` = '%s',
-					`hidden` = 0,
-					WHERE `id` = %d
-				",
-					dbesc($photos[0]),
-					dbesc($photos[1]),
-					dbesc($photos[2]),
-					dbesc(datetime_convert()),
-					dbesc(datetime_convert()),
-					dbesc(datetime_convert()),
-					intval($contact_id)
-				);
-			}
-
-			// contact is created. Now create an introduction
-
-			$hash = random_string();
-
-			$r = q("INSERT INTO `intro` ( `uid`, `contact-id`, knowyou, note, hash, datetime, blocked )
-				VALUES( %d , %d, %d, '%s', '%s', '%s', %d ) ",
-				intval($uid),
-				intval($contact_id),
-				((x($_POST,'knowyou') && ($_POST['knowyou'] == 1)) ? 1 : 0),
-				dbesc(notags(trim($_POST['dfrn-request-message']))),
-				dbesc($hash),
-				dbesc(datetime_convert()),
-				1
-			);
-
-			// Next send an email verify form to the requestor.
-
+			$url = substr($url,5);
 		} else {
-			// Detect the network
-			$data = Probe::uri($url);
-			$network = $data["network"];
-
-			// Canonicalise email-style profile locator
-			$url = Probe::webfingerDfrn($url,$hcard);
-
-			if (substr($url,0,5) === 'stat:') {
-
-				// Every time we detect the remote subscription we define this as OStatus.
-				// We do this even if it is not OStatus.
-				// we only need to pass this through another section of the code.
-				if ($network != NETWORK_DIASPORA)
-					$network = NETWORK_OSTATUS;
-
-				$url = substr($url,5);
-			} else
-				$network = NETWORK_DFRN;
+			$network = NETWORK_DFRN;
 		}
 
 		logger('dfrn_request: url: ' . $url . ',network=' . $network, LOGGER_DEBUG);
@@ -849,27 +720,6 @@ function dfrn_request_content(App $a) {
 
 		$page_desc = t("Please enter your 'Identity Address' from one of the following supported communications networks:");
 
-		// see if we are allowed to have NETWORK_MAIL2 contacts
-
-		$mail_disabled = ((function_exists('imap_open') && (! Config::get('system','imap_disabled'))) ? 0 : 1);
-
-		if (Config::get('system','dfrn_only')) {
-			$mail_disabled = 1;
-		}
-
-		if (! $mail_disabled) {
-			$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
-				intval($a->profile['uid'])
-			);
-			if (! DBM::is_result($r)) {
-				$mail_disabled = 1;
-			}
-		}
-
-		// "coming soon" is disabled for now
-		//$emailnet = (($mail_disabled) ? '' : t("<strike>Connect as an email follower</strike> \x28Coming soon\x29"));
-		$emailnet = "";
-
 		$invite_desc = sprintf(
 			t('If you are not yet a member of the free social web, <a href="%s/siteinfo">follow this link to find a public Friendica site and join us today</a>.'),
 			get_server()
@@ -877,7 +727,7 @@ function dfrn_request_content(App $a) {
 
 		$o = replace_macros($tpl,array(
 			'$header' => t('Friend/Connection Request'),
-			'$desc' => t('Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@identi.ca'),
+			'$desc' => t('Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@gnusocial.de'),
 			'$pls_answer' => t('Please answer the following:'),
 			'$does_know_you' => array('knowyou', sprintf(t('Does %s know you?'),$a->profile['name']), false, '', array(t('No'), t('Yes'))),
 			/*'$does_know' => sprintf( t('Does %s know you?'),$a->profile['name']),
@@ -886,12 +736,11 @@ function dfrn_request_content(App $a) {
 			'$add_note' => t('Add a personal note:'),
 			'$page_desc' => $page_desc,
 			'$friendica' => t('Friendica'),
-			'$statusnet' => t('StatusNet/Federated Social Web'),
-			'$diaspora' => t('Diaspora'),
+			'$statusnet' => t('GNU Social (Pleroma, Mastodon)'),
+			'$diaspora' => t('Diaspora (Socialhome, Hubzilla)'),
 			'$diasnote' => sprintf (t(' - please do not use this form.  Instead, enter %s into your Diaspora search bar.'),$target_addr),
 			'$your_address' => t('Your Identity Address:'),
 			'$invite_desc' => $invite_desc,
-			'$emailnet' => $emailnet,
 			'$submit' => t('Submit Request'),
 			'$cancel' => t('Cancel'),
 			'$nickname' => $a->argv[1],

@@ -376,7 +376,6 @@ class Delivery {
 				break;
 
 			case NETWORK_MAIL:
-			case NETWORK_MAIL2:
 
 				if (Config::get('system','dfrn_only')) {
 					break;

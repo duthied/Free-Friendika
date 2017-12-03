@@ -498,10 +498,9 @@ function acl_lookup(App $a, $out_type = 'json') {
 				WHERE `uid` = %d AND NOT `self`
 				AND NOT `blocked` AND NOT `pending` AND NOT `archive`
 				AND `success_update` >= `failure_update`
-				AND `network` IN ('%s','%s','%s') $sql_extra2" ,
+				AND `network` IN ('%s', '%s') $sql_extra2" ,
 			intval(local_user()),
 			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_ZOT),
 			dbesc(NETWORK_DIASPORA)
 		);
 		$contact_count = (int)$r[0]['c'];
@@ -593,12 +592,11 @@ function acl_lookup(App $a, $out_type = 'json') {
 	} elseif ($type == 'm') {
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr` FROM `contact`
 			WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive`
-			AND `success_update` >= `failure_update` AND `network` IN ('%s','%s','%s')
+			AND `success_update` >= `failure_update` AND `network` IN ('%s', '%s')
 			$sql_extra2
 			ORDER BY `name` ASC ",
 			intval(local_user()),
 			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_ZOT),
 			dbesc(NETWORK_DIASPORA)
 		);
 	} elseif ($type == 'a') {
