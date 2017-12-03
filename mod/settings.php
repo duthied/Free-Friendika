@@ -348,7 +348,6 @@ function settings_post(App $a) {
 			}
 		}
 
-
 		$r = q("UPDATE `user` SET `theme` = '%s' WHERE `uid` = %d",
 				dbesc($theme),
 				intval(local_user())
@@ -370,7 +369,6 @@ function settings_post(App $a) {
 	call_hooks('settings_post', $_POST);
 
 	if (x($_POST, 'password') || x($_POST, 'confirm')) {
-
 		$newpass = $_POST['password'];
 		$confirm = $_POST['confirm'];
 
@@ -385,9 +383,8 @@ function settings_post(App $a) {
 			$err = true;
         }
 
-        //  check if the old password was supplied correctly before
-        //  changing it to the new value
         if (User::authenticate(intval(local_user()), $_POST['opassword'])) {
+        //  check if the old password was supplied correctly before changing it to the new value
             notice(t('Wrong password.') . EOL);
             $err = true;
         }
@@ -398,13 +395,13 @@ function settings_post(App $a) {
 				dbesc($password),
 				intval(local_user())
 			);
-			if ($r)
+			if ($r) {
 				info(t('Password changed.') . EOL);
-			else
+			} else {
 				notice(t('Password update failed. Please try again.') . EOL);
+			}
 		}
 	}
-
 
 	$username         = ((x($_POST, 'username'))   ? notags(trim($_POST['username']))     : '');
 	$email            = ((x($_POST, 'email'))      ? notags(trim($_POST['email']))        : '');
