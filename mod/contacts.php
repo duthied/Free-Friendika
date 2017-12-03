@@ -559,7 +559,7 @@ function contacts_content(App $a) {
 		}
 		$lblsuggest = (($contact['network'] === NETWORK_DFRN) ? t('Suggest friends') : '');
 
-		$poll_enabled = in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_FEED, NETWORK_MAIL, NETWORK_MAIL2));
+		$poll_enabled = in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_FEED, NETWORK_MAIL));
 
 		$nettype = sprintf( t('Network type: %s'),network_to_name($contact['network'], $contact["url"]));
 
@@ -586,7 +586,7 @@ function contacts_content(App $a) {
 									'3' => t('Fetch keywords'),
 									'2' => t('Fetch information and keywords')));
 		}
-		if (in_array($contact['network'], array(NETWORK_FEED, NETWORK_MAIL, NETWORK_MAIL2)))
+		if (in_array($contact['network'], array(NETWORK_FEED, NETWORK_MAIL)))
 			$poll_interval = contact_poll_interval($contact['priority'],(! $poll_enabled));
 
 		if ($contact['network'] == NETWORK_DFRN)
@@ -994,7 +994,7 @@ function _contact_detail_for_template($rr){
  */
 function contact_actions($contact) {
 
-	$poll_enabled = in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_FEED, NETWORK_MAIL, NETWORK_MAIL2));
+	$poll_enabled = in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_FEED, NETWORK_MAIL));
 	$contact_action = array();
 
 	// Provide friend suggestion only for Friendica contacts

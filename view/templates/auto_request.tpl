@@ -7,7 +7,6 @@
 <li><a href="http://friendica.com" title="{{$friendica}}">{{$friendica}}</a></li>
 <li><a href="http://joindiaspora.com" title="{{$diaspora}}">{{$diaspora}}</a> {{$diasnote}}</li>
 <li><a href="http://ostatus.org" title="{{$public_net}}" >{{$statusnet}}</a></li>
-{{if $emailnet}}<li>{{$emailnet}}</li>{{/if}}
 </ul>
 </p>
 <p>

@@ -259,7 +259,6 @@ define('NETWORK_OSTATUS',          'stat');    // status.net, identi.ca, GNU-soc
 define('NETWORK_FEED',             'feed');    // RSS/Atom feeds with no known "post/notify" protocol
 define('NETWORK_DIASPORA',         'dspr');    // Diaspora
 define('NETWORK_MAIL',             'mail');    // IMAP/POP
-define('NETWORK_MAIL2',            'mai2');    // extended IMAP/POP
 define('NETWORK_FACEBOOK',         'face');    // Facebook API
 define('NETWORK_LINKEDIN',         'lnkd');    // LinkedIn
 define('NETWORK_XMPP',             'xmpp');    // XMPP
@@ -290,7 +289,6 @@ $netgroup_ids = array(
 	NETWORK_FEED     => (-4),
 	NETWORK_DIASPORA => (-5),
 	NETWORK_MAIL     => (-6),
-	NETWORK_MAIL2    => (-7),
 	NETWORK_FACEBOOK => (-8),
 	NETWORK_LINKEDIN => (-9),
 	NETWORK_XMPP     => (-10),

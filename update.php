@@ -1485,9 +1485,6 @@ function update_1164() {
 		NETWORK_MAIL, NETWORK_MAIL);
 
 	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
-		NETWORK_MAIL2, NETWORK_MAIL2);
-
-	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
 		NETWORK_FACEBOOK, NETWORK_FACEBOOK);
 
 	$r = q("UPDATE `item` SET `network`='%s' WHERE `contact-id` IN (SELECT `id` FROM`contact` WHERE `network` = '%s' AND `contact`.`uid` = `item`.`uid`)",
