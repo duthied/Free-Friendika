@@ -162,7 +162,7 @@ class Item extends BaseObject
 
 		$drop = array(
 			'dropping' => $dropping,
-			'pagedrop' => ((Features::isEnabled($conv->getProfileOwner(), 'multi_delete')) ? $item['pagedrop'] : ''),
+			'pagedrop' => ((Feature::isEnabled($conv->getProfileOwner(), 'multi_delete')) ? $item['pagedrop'] : ''),
 			'select'   => t('Select'),
 			'delete'   => t('Delete'),
 		);
@@ -280,7 +280,7 @@ class Item extends BaseObject
 				}
 
 				$tagger = '';
-				if (Features::isEnabled($conv->getProfileOwner(), 'commtag')) {
+				if (Feature::isEnabled($conv->getProfileOwner(), 'commtag')) {
 					$tagger = array(
 						'add'   => t("add tag"),
 						'class' => "",
@@ -294,7 +294,7 @@ class Item extends BaseObject
 		if ($conv->isWritable()) {
 			$buttons = array(
 				'like' => array( t("I like this \x28toggle\x29"), t("like")),
-				'dislike' => ((Features::isEnabled($conv->getProfileOwner(), 'dislike')) ? array( t("I don't like this \x28toggle\x29"), t("dislike")) : ''),
+				'dislike' => ((Feature::isEnabled($conv->getProfileOwner(), 'dislike')) ? array( t("I don't like this \x28toggle\x29"), t("dislike")) : ''),
 			);
 			if ($shareable) {
 				$buttons['share'] = array( t('Share this'), t('share'));
@@ -379,12 +379,12 @@ class Item extends BaseObject
 			'owner_photo'     => $a->remove_baseurl(proxy_url($item['owner-thumb'], false, PROXY_SIZE_THUMB)),
 			'owner_name'      => htmlentities($owner_name_e),
 			'plink'           => get_plink($item),
-			'edpost'          => ((Features::isEnabled($conv->getProfileOwner(), 'edit_posts')) ? $edpost : ''),
+			'edpost'          => ((Feature::isEnabled($conv->getProfileOwner(), 'edit_posts')) ? $edpost : ''),
 			'isstarred'       => $isstarred,
-			'star'            => ((Features::isEnabled($conv->getProfileOwner(), 'star_posts')) ? $star : ''),
-			'ignore'          => ((Features::isEnabled($conv->getProfileOwner(), 'ignore_posts')) ? $ignore : ''),
+			'star'            => ((Feature::isEnabled($conv->getProfileOwner(), 'star_posts')) ? $star : ''),
+			'ignore'          => ((Feature::isEnabled($conv->getProfileOwner(), 'ignore_posts')) ? $ignore : ''),
 			'tagger'          => $tagger,
-			'filer'           => ((Features::isEnabled($conv->getProfileOwner(), 'filing')) ? $filer : ''),
+			'filer'           => ((Feature::isEnabled($conv->getProfileOwner(), 'filing')) ? $filer : ''),
 			'drop'            => $drop,
 			'vote'            => $buttons,
 			'like'            => $responses['like']['output'],
@@ -792,7 +792,7 @@ class Item extends BaseObject
 				'$edimg'       => t('Image'),
 				'$edurl'       => t('Link'),
 				'$edvideo'     => t('Video'),
-				'$preview'     => ((Features::isEnabled($conv->getProfileOwner(), 'preview')) ? t('Preview') : ''),
+				'$preview'     => ((Feature::isEnabled($conv->getProfileOwner(), 'preview')) ? t('Preview') : ''),
 				'$indent'      => $indent,
 				'$sourceapp'   => t($a->sourcename),
 				'$ww'          => (($conv->getMode() === 'network') ? $ww : ''),

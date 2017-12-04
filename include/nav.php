@@ -193,7 +193,7 @@ function nav_info(App $a)
 
 		$nav['settings'] = array('settings', t('Settings'), '', t('Account settings'));
 
-		if (Features::isEnabled(local_user(), 'multi_profiles')) {
+		if (Feature::isEnabled(local_user(), 'multi_profiles')) {
 			$nav['profiles'] = array('profiles', t('Profiles'), '', t('Manage/Edit Profiles'));
 		}
 

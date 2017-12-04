@@ -301,7 +301,7 @@ function cal_content(App $a) {
 
 		// Test permissions
 		// Respect the export feature setting for all other /cal pages if it's not the own profile
-		if( ((local_user() !== intval($owner_uid))) && ! Features::isEnabled($owner_uid, "export_calendar")) {
+		if( ((local_user() !== intval($owner_uid))) && ! Feature::isEnabled($owner_uid, "export_calendar")) {
 			notice( t('Permission denied.') . EOL);
 			goaway('cal/' . $nick);
 		}

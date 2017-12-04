@@ -310,7 +310,7 @@ function profile_sidebar($profile, $block = 0)
 	}
 
 	// show edit profile to yourself
-	if (!$is_contact && $profile['uid'] == local_user() && Features::isEnabled(local_user(), 'multi_profiles')) {
+	if (!$is_contact && $profile['uid'] == local_user() && Feature::isEnabled(local_user(), 'multi_profiles')) {
 		$profile['edit'] = array(System::baseUrl(). '/profiles', t('Profiles'),"", t('Manage/edit profiles'));
 		$r = q(
 			"SELECT * FROM `profile` WHERE `uid` = %d",
@@ -337,7 +337,7 @@ function profile_sidebar($profile, $block = 0)
 			}
 		}
 	}
-	if (!$is_contact && $profile['uid'] == local_user() && !Features::isEnabled(local_user(), 'multi_profiles')) {
+	if (!$is_contact && $profile['uid'] == local_user() && !Feature::isEnabled(local_user(), 'multi_profiles')) {
 		$profile['edit'] = array(System::baseUrl(). '/profiles/'.$profile['id'], t('Edit profile'),"", t('Edit profile'));
 		$profile['menu'] = array(
 			'chg_photo' => t('Change profile photo'),
@@ -791,7 +791,7 @@ function advanced_profile(App $a)
 		}
 
 		//show subcribed forum if it is enabled in the usersettings
-		if (Features::isEnabled($uid, 'forumlist_profile')) {
+		if (Feature::isEnabled($uid, 'forumlist_profile')) {
 			$profile['forumlist'] = array( t('Forums:'), ForumManager::profileAdvanced($uid));
 		}
 

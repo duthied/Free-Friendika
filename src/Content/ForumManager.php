@@ -83,7 +83,7 @@ class ForumManager
 	 */
 	public static function widget($uid, $cid = 0)
 	{
-		if (! intval(Features::isEnabled(local_user(), 'forumlist_widget'))) {
+		if (! intval(Feature::isEnabled(local_user(), 'forumlist_widget'))) {
 			return;
 		}
 
@@ -142,7 +142,7 @@ class ForumManager
 	 */
 	public static function profileAdvanced($uid)
 	{
-		$profile = intval(Features::isEnabled($uid, 'forumlist_profile'));
+		$profile = intval(Feature::isEnabled($uid, 'forumlist_profile'));
 		if (! $profile) {
 			return;
 		}

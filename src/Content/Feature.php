@@ -1,6 +1,6 @@
 <?php
 /**
- * @file src/Content/Features.php
+ * @file src/Content/Feature.php
  * @brief Features management
  */
 namespace Friendica\Content;
@@ -8,7 +8,9 @@ namespace Friendica\Content;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 
-class Features
+require_once 'include/plugin.php';
+
+class Feature
 {
 	/**
 	 * @brief check if feature is enabled
@@ -40,7 +42,8 @@ class Features
 	 * @param string $feature
 	 * @return boolean
 	 */
-	private static function getDefault($feature) {
+	private static function getDefault($feature)
+	{
 		$f = self::get();
 		foreach ($f as $cat) {
 			foreach ($cat as $feat) {
@@ -62,8 +65,8 @@ class Features
 	 *
 	 * @return array
 	 */
-	public static function get($filtered = true) {
-
+	public static function get($filtered = true)
+	{
 		$arr = array(
 
 			// General
@@ -142,7 +145,7 @@ class Features
 			}
 		}
 
-		call_hooks('get',$arr);
+		call_hooks('get', $arr);
 		return $arr;
 	}
 }

@@ -150,7 +150,7 @@ function ping_init(App $a)
 		}
 
 		if ($network_count) {
-			if (intval(Features::isEnabled(local_user(), 'groups'))) {
+			if (intval(Feature::isEnabled(local_user(), 'groups'))) {
 				// Find out how unseen network posts are spread across groups
 				$group_counts = groups_count_unseen();
 				if (DBM::is_result($group_counts)) {
@@ -162,7 +162,7 @@ function ping_init(App $a)
 				}
 			}
 
-			if (intval(Features::isEnabled(local_user(), 'forumlist_widget'))) {
+			if (intval(Feature::isEnabled(local_user(), 'forumlist_widget'))) {
 				$forum_counts = ForumManager::countUnseenItems();
 				if (DBM::is_result($forums_counts)) {
 					foreach ($forums_counts as $forum_count) {

@@ -916,7 +916,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 		'$mode' => $mode,
 		'$user' => $a->user,
 		'$threads' => $threads,
-		'$dropping' => ($page_dropping && Features::isEnabled(local_user(), 'multi_delete') ? t('Delete Selected Items') : False),
+		'$dropping' => ($page_dropping && Feature::isEnabled(local_user(), 'multi_delete') ? t('Delete Selected Items') : False),
 	));
 
 	return $o;
@@ -1306,7 +1306,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false) {
 		'$title' => $x['title'],
 		'$placeholdertitle' => t('Set title'),
 		'$category' => $x['category'],
-		'$placeholdercategory' => (Features::isEnabled(local_user(), 'categories') ? t('Categories (comma-separated list)') : ''),
+		'$placeholdercategory' => (Feature::isEnabled(local_user(), 'categories') ? t('Categories (comma-separated list)') : ''),
 		'$wait' => t('Please wait'),
 		'$permset' => t('Permission settings'),
 		'$shortpermset' => t('permissions'),
@@ -1322,7 +1322,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false) {
 		'$lockstate' => $x['lockstate'],
 		'$bang' => $x['bang'],
 		'$profile_uid' => $x['profile_uid'],
-		'$preview' => ((Features::isEnabled($x['profile_uid'],'preview')) ? t('Preview') : ''),
+		'$preview' => ((Feature::isEnabled($x['profile_uid'],'preview')) ? t('Preview') : ''),
 		'$jotplugins' => $jotplugins,
 		'$notes_cid' => $notes_cid,
 		'$sourceapp' => t($a->sourcename),

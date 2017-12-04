@@ -2291,7 +2291,7 @@ function admin_page_features_post(App $a)
 	logger('postvars: ' . print_r($_POST, true), LOGGER_DATA);
 
 	$arr = array();
-	$features = Features::get(false);
+	$features = Feature::get(false);
 
 	foreach ($features as $fname => $fdata) {
 		foreach (array_slice($fdata, 1) as $f) {
@@ -2336,7 +2336,7 @@ function admin_page_features(App $a)
 {
 	if ((argc() > 1) && (argv(1) === 'features')) {
 		$arr = array();
-		$features = Features::get(false);
+		$features = Feature::get(false);
 
 		foreach ($features as $fname => $fdata) {
 			$arr[$fname] = array();

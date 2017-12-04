@@ -157,8 +157,8 @@ function network_init(App $a) {
 		$a->page['aside'] = '';
 	}
 
-	$a->page['aside'] .= (Features::isEnabled(local_user(),'groups') ? group_side('network/0','network','standard',$group_id) : '');
-	$a->page['aside'] .= (Features::isEnabled(local_user(), 'forumlist_widget') ? ForumManager::widget(local_user(), $cid) : '');
+	$a->page['aside'] .= (Feature::isEnabled(local_user(),'groups') ? group_side('network/0','network','standard',$group_id) : '');
+	$a->page['aside'] .= (Feature::isEnabled(local_user(), 'forumlist_widget') ? ForumManager::widget(local_user(), $cid) : '');
 	$a->page['aside'] .= posted_date_widget('network',local_user(),false);
 	$a->page['aside'] .= networks_widget('network',(x($_GET, 'nets') ? $_GET['nets'] : ''));
 	$a->page['aside'] .= saved_searches($search);
@@ -167,7 +167,7 @@ function network_init(App $a) {
 
 function saved_searches($search) {
 
-	if (!Features::isEnabled(local_user(),'savedsearch')) {
+	if (!Feature::isEnabled(local_user(),'savedsearch')) {
 		return '';
 	}
 
@@ -919,7 +919,7 @@ function network_tabs(App $a)
 		),
 	);
 
-	if (Features::isEnabled(local_user(),'personal_tab')) {
+	if (Feature::isEnabled(local_user(),'personal_tab')) {
 		$tabs[] = array(
 			'label'	=> t('Personal'),
 			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
@@ -930,7 +930,7 @@ function network_tabs(App $a)
 		);
 	}
 
-	if (Features::isEnabled(local_user(),'new_tab')) {
+	if (Feature::isEnabled(local_user(),'new_tab')) {
 		$tabs[] = array(
 			'label'	=> t('New'),
 			'url'	=> 'network/new' . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : ''),
@@ -941,7 +941,7 @@ function network_tabs(App $a)
 		);
 	}
 
-	if (Features::isEnabled(local_user(),'link_tab')) {
+	if (Feature::isEnabled(local_user(),'link_tab')) {
 		$tabs[] = array(
 			'label'	=> t('Shared Links'),
 			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&bmark=1',
@@ -952,7 +952,7 @@ function network_tabs(App $a)
 		);
 	}
 
-	if (Features::isEnabled(local_user(),'star_posts')) {
+	if (Feature::isEnabled(local_user(),'star_posts')) {
 		$tabs[] = array(
 			'label'	=> t('Starred'),
 			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&star=1',

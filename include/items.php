@@ -2356,7 +2356,7 @@ function posted_dates($uid, $wall) {
 function posted_date_widget($url, $uid, $wall) {
 	$o = '';
 
-	if (! Features::isEnabled($uid, 'archives')) {
+	if (! Feature::isEnabled($uid, 'archives')) {
 		return $o;
 	}
 

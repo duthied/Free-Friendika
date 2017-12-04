@@ -17,7 +17,7 @@ function search_saved_searches() {
 
 	$o = '';
 
-	if (! Features::isEnabled(local_user(),'savedsearch'))
+	if (! Feature::isEnabled(local_user(),'savedsearch'))
 		return $o;
 
 	$r = q("SELECT `id`,`term` FROM `search` WHERE `uid` = %d",
