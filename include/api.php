@@ -13,6 +13,7 @@ use Friendica\Core\NotificationsManager;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\User;
+use Friendica\Network\FKOAuth1;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\ForbiddenException;
@@ -30,7 +31,6 @@ use Friendica\Util\XML;
 require_once 'include/bbcode.php';
 require_once 'include/datetime.php';
 require_once 'include/conversation.php';
-require_once 'include/oauth.php';
 require_once 'include/html2plain.php';
 require_once 'mod/share.php';
 require_once 'mod/item.php';
@@ -159,10 +159,9 @@ function api_login(App $a)
 {
 	// login with oauth
 	try {
-		$oauth = new FKOAuth1();
-		list($consumer,$token) = $oauth->verify_request(OAuthRequest::from_request());
+		list($consumer, $token) = FKOAuth1::verify_request(OAuthRequest::from_request());
 		if (!is_null($token)) {
-			$oauth->loginUser($token->uid);
+			FKOAuth1::loginUser($token->uid);
 			call_hooks('logged_in', $a->user);
 			return;
 		}
@@ -3365,8 +3364,7 @@ api_register_func('api/direct_messages', 'api_direct_messages_inbox', true);
 function api_oauth_request_token($type)
 {
 	try {
-		$oauth = new FKOAuth1();
-		$r = $oauth->fetch_request_token(OAuthRequest::from_request());
+		$r = FKOAuth1::fetch_request_token(OAuthRequest::from_request());
 	} catch (Exception $e) {
 		echo "error=" . OAuthUtil::urlencode_rfc3986($e->getMessage());
 		killme();
@@ -3378,8 +3376,7 @@ function api_oauth_request_token($type)
 function api_oauth_access_token($type)
 {
 	try {
-		$oauth = new FKOAuth1();
-		$r = $oauth->fetch_access_token(OAuthRequest::from_request());
+		$r = FKOAuth1::fetch_access_token(OAuthRequest::from_request());
 	} catch (Exception $e) {
 		echo "error=". OAuthUtil::urlencode_rfc3986($e->getMessage());
 		killme();
