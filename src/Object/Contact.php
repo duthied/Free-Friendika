@@ -145,6 +145,7 @@ class Contact extends BaseObject
 		if ($contact['archive']) {
 			return;
 		}
+
 		if ($contact['term-date'] <= NULL_DATE) {
 			dba::update('contact', array('term-date' => datetime_convert()), array('id' => $contact['id']));
 
