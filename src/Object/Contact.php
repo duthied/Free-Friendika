@@ -185,7 +185,7 @@ class Contact extends BaseObject
 	 */
 	public static function unmarkForArchival(array $contact)
 	{
-		$condition = array('`id` = ? AND (`term-date` > ? OR `archive`)', $contact[`id`], NULL_DATE);
+		$condition = array('`id` = ? AND (`term-date` > ? OR `archive`)', $contact['id'], NULL_DATE);
 		$exists = dba::exists('contact', $condition);
 
 		// We don't need to update, we never marked this contact for archival
