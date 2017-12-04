@@ -13,6 +13,7 @@ use Friendica\Core\NotificationsManager;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\User;
+use Friendica\Network\FKOAuth1;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\ForbiddenException;
@@ -25,7 +26,6 @@ use Friendica\Network\HTTPException\TooManyRequestsException;
 use Friendica\Object\Contact;
 use Friendica\Object\Photo;
 use Friendica\Protocol\Diaspora;
-use Friendica\Protocol\FKOAuth1;
 use Friendica\Util\XML;
 
 require_once 'include/bbcode.php';
