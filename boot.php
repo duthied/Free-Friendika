@@ -36,7 +36,6 @@ require_once 'include/text.php';
 require_once 'include/datetime.php';
 require_once 'include/pgettext.php';
 require_once 'include/nav.php';
-require_once 'include/features.php';
 require_once 'include/identity.php';
 require_once 'update.php';
 require_once 'include/dbstructure.php';

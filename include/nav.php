@@ -1,6 +1,9 @@
 <?php
-
+/**
+ * @file include/nav.php
+ */
 use Friendica\App;
+use Friendica\Content\Features;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -190,7 +193,7 @@ function nav_info(App $a)
 
 		$nav['settings'] = array('settings', t('Settings'), '', t('Account settings'));
 
-		if (feature_enabled(local_user(), 'multi_profiles')) {
+		if (Features::isEnabled(local_user(), 'multi_profiles')) {
 			$nav['profiles'] = array('profiles', t('Profiles'), '', t('Manage/Edit Profiles'));
 		}
 

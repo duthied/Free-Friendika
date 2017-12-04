@@ -5,6 +5,7 @@
  */
 
 use Friendica\App;
+use Friendica\Content\Features;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -899,7 +900,7 @@ function widget_events() {
 	 * for exporting the cal is enabled (otherwise the widget would appear for logged in users
 	 * on foreigen profile pages even if the widget is disabled).
 	 */
-	if (intval($owner_uid) && local_user() !== $owner_uid && ! feature_enabled($owner_uid, "export_calendar")) {
+	if (intval($owner_uid) && local_user() !== $owner_uid && ! Features::isEnabled($owner_uid, "export_calendar")) {
 		return;
 	}
 
@@ -907,7 +908,7 @@ function widget_events() {
 	 * If it's a kind of profile page (intval($owner_uid)) return if the user not logged in and
 	 * export feature isn't enabled.
 	 */
-	if (intval($owner_uid) && ! local_user() && ! feature_enabled($owner_uid, "export_calendar")) {
+	if (intval($owner_uid) && ! local_user() && ! Features::isEnabled($owner_uid, "export_calendar")) {
 		return;
 	}
 

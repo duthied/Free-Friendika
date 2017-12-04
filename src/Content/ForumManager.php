@@ -6,6 +6,7 @@
 namespace Friendica\Content;
 
 use Friendica\App;
+use Friendica\Content\Features;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use dba;
@@ -82,7 +83,7 @@ class ForumManager
 	 */
 	public static function widget($uid, $cid = 0)
 	{
-		if (! intval(feature_enabled(local_user(), 'forumlist_widget'))) {
+		if (! intval(Features::isEnabled(local_user(), 'forumlist_widget'))) {
 			return;
 		}
 
@@ -141,7 +142,7 @@ class ForumManager
 	 */
 	public static function profileAdvanced($uid)
 	{
-		$profile = intval(feature_enabled($uid, 'forumlist_profile'));
+		$profile = intval(Features::isEnabled($uid, 'forumlist_profile'));
 		if (! $profile) {
 			return;
 		}

@@ -1,20 +1,23 @@
 <?php
-
+/**
+ * @file mod/search.php
+ */
 use Friendica\App;
+use Friendica\Content\Features;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 
-require_once("include/bbcode.php");
-require_once('include/security.php');
-require_once('include/conversation.php');
-require_once('mod/dirfind.php');
+require_once "include/bbcode.php";
+require_once 'include/security.php';
+require_once 'include/conversation.php';
+require_once 'mod/dirfind.php';
 
 function search_saved_searches() {
 
 	$o = '';
 
-	if (! feature_enabled(local_user(),'savedsearch'))
+	if (! Features::isEnabled(local_user(),'savedsearch'))
 		return $o;
 
 	$r = q("SELECT `id`,`term` FROM `search` WHERE `uid` = %d",

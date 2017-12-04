@@ -3,6 +3,7 @@
  * @file mod/profiles.php
  */
 use Friendica\App;
+use Friendica\Content\Features;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
@@ -673,10 +674,10 @@ function profiles_content(App $a) {
 				array(t('No'), t('Yes')) //Off - On strings
 			),
 
-			'$multi_profiles'		=> feature_enabled(local_user(), 'multi_profiles'),
+			'$multi_profiles'		=> Features::isEnabled(local_user(), 'multi_profiles'),
 			'$form_security_token'		=> get_form_security_token("profile_edit"),
 			'$form_security_token_photo'	=> get_form_security_token("profile_photo"),
-			'$profile_clone_link'		=> ((feature_enabled(local_user(), 'multi_profiles')) ? 'profiles/clone/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_clone") : ""),
+			'$profile_clone_link'		=> ((Features::isEnabled(local_user(), 'multi_profiles')) ? 'profiles/clone/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_clone") : ""),
 			'$profile_drop_link'		=> 'profiles/drop/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_drop"),
 
 			'$profile_action' => t('Profile Actions'),
@@ -754,7 +755,7 @@ function profiles_content(App $a) {
 		return $o;
 	} else {
 		// If we don't support multi profiles, don't display this list.
-		if (!feature_enabled(local_user(), 'multi_profiles')) {
+		if (!Features::isEnabled(local_user(), 'multi_profiles')) {
 			$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `is-default`=1",
 				local_user()
 			);

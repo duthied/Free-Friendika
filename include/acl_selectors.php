@@ -1,10 +1,9 @@
 <?php
-
 /**
  * @file include/acl_selectors.php
  */
-
 use Friendica\App;
+use Friendica\Content\Features;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
@@ -12,9 +11,7 @@ use Friendica\Object\Contact;
 
 require_once "include/contact_selectors.php";
 require_once "include/contact_widgets.php";
-require_once "include/features.php";
 require_once "mod/proxy.php";
-
 
 /**
  * @package acl_selectors
@@ -380,7 +377,7 @@ function populate_acl($user = null, $show_jotnets = false) {
 		'$aclModalTitle' => t('Permissions'),
 		'$aclModalDismiss' => t('Close'),
 		'$features' => array(
-		'aclautomention' => (feature_enabled($user['uid'], "aclautomention") ? "true" : "false")
+		'aclautomention' => (Features::isEnabled($user['uid'], "aclautomention") ? "true" : "false")
 		),
 	));
 
