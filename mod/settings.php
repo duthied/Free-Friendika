@@ -3,6 +3,7 @@
  * @file mod/settings.php
  */
 use Friendica\App;
+use Friendica\Content\Feature;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Core\Config;
@@ -52,7 +53,7 @@ function settings_init(App $a) {
 		),
 	);
 
-	if (get_features()) {
+	if (Feature::get()) {
 		$tabs[] =	array(
 					'label'	=> t('Additional features'),
 					'url' 	=> 'settings/features',
@@ -784,12 +785,12 @@ function settings_content(App $a) {
 	if (($a->argc > 1) && ($a->argv[1] === 'features')) {
 
 		$arr = array();
-		$features = get_features();
+		$features = Feature::get();
 		foreach ($features as $fname => $fdata) {
 			$arr[$fname] = array();
 			$arr[$fname][0] = $fdata[0];
 			foreach (array_slice($fdata,1) as $f) {
-				$arr[$fname][1][] = array('feature_' .$f[0], $f[1],((intval(feature_enabled(local_user(), $f[0]))) ? "1" : ''), $f[2],array(t('Off'), t('On')));
+				$arr[$fname][1][] = array('feature_' .$f[0], $f[1],((intval(Feature::isEnabled(local_user(), $f[0]))) ? "1" : ''), $f[2],array(t('Off'), t('On')));
 			}
 		}
 
