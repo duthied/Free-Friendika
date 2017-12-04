@@ -3,7 +3,7 @@
  * @file mod/network.php
  */
 use Friendica\App;
-use Friendica\Content\Features;
+use Friendica\Content\Feature;
 use Friendica\Content\ForumManager;
 use Friendica\Core\System;
 use Friendica\Core\Config;

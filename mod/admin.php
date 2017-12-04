@@ -5,7 +5,7 @@
  * @brief Friendica admin
  */
 use Friendica\App;
-use Friendica\Content\Features;
+use Friendica\Content\Feature;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;

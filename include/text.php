@@ -3,7 +3,7 @@
  * @file include/text.php
  */
 use Friendica\App;
-use Friendica\Content\Features;
+use Friendica\Content\Feature;
 use Friendica\Content\Smilies;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;

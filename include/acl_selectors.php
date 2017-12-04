@@ -3,7 +3,7 @@
  * @file include/acl_selectors.php
  */
 use Friendica\App;
-use Friendica\Content\Features;
+use Friendica\Content\Feature;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;

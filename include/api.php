@@ -6,7 +6,7 @@
  * @todo Automatically detect if incoming data is HTML or BBCode
  */
 use Friendica\App;
-use Friendica\Content\Features;
+use Friendica\Content\Feature;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\NotificationsManager;

@@ -6,7 +6,7 @@
 namespace Friendica\Content;
 
 use Friendica\App;
-use Friendica\Content\Features;
+use Friendica\Content\Feature;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use dba;

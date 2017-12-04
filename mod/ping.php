@@ -3,7 +3,7 @@
  * @file include/ping.php
  */
 use Friendica\App;
-use Friendica\Content\Features;
+use Friendica\Content\Feature;
 use Friendica\Content\ForumManager;
 use Friendica\Core\Cache;
 use Friendica\Core\System;

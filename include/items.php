@@ -4,7 +4,7 @@
  */
 use Friendica\App;
 use Friendica\ParseUrl;
-use Friendica\Content\Features;
+use Friendica\Content\Feature;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;

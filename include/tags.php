@@ -3,7 +3,7 @@
  * @file include/tags.php
  */
 use Friendica\App;
-use Friendica\Content\Features;
+use Friendica\Content\Feature;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Object\Contact;

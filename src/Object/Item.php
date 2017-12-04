@@ -5,7 +5,7 @@
 namespace Friendica\Object;
 
 use Friendica\BaseObject;
-use Friendica\Content\Features;
+use Friendica\Content\Feature;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
