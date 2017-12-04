@@ -2,13 +2,13 @@
 /**
  * @file src/Protocol/OAuth1.php
  */
-namespace Friendica\Protocol;
+namespace Friendica\Network;
 
 use Friendica\App;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-use Friendica\Protocol\FKOAuthDataStore;
+use Friendica\Network\FKOAuthDataStore;
 use dba;
 
 require_once "library/OAuth1.php";
@@ -70,10 +70,7 @@ class FKOAuth1 extends OAuthServer
 			$_SESSION['cid'] = $a->cid;
 		}
 
-		dba::q("UPDATE `user` SET `login_date` = '%s' WHERE `uid` = %d",
-			dbesc(datetime_convert()),
-			intval($_SESSION['uid'])
-		);
+		dba::update('user', ['login_date' => datetime_convert()], ['uid' => $_SESSION['uid']]);
 
 		call_hooks('logged_in', $a->user);
 	}

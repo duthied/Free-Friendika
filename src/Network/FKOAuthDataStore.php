@@ -5,7 +5,7 @@
  * Based on oauth2-php <http://code.google.com/p/oauth2-php/>
  *
  */
-namespace Friendica\Protocol;
+namespace Friendica\Network;
 
 use Friendica\App;
 use Friendica\Core\Config;
