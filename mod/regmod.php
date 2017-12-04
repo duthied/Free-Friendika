@@ -6,8 +6,6 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 
-require_once('include/user.php');
-
 require_once 'include/enotify.php';
 
 function user_allow($hash)
@@ -52,7 +50,7 @@ function user_allow($hash)
 
 	push_lang($register[0]['language']);
 
-	send_register_open_eml(
+	User::sendRegisterOpenEmail(
 		$user[0]['email'],
 		$a->config['sitename'],
 		System::baseUrl(),

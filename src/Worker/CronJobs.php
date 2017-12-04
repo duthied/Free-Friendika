@@ -12,6 +12,7 @@ use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
+use Friendica\Object\Contact;
 use Friendica\Protocol\PortableContact;
 use dba;
 
@@ -263,8 +264,8 @@ class CronJobs
 		$r = q("SELECT `uid` FROM `user` WHERE NOT EXISTS (SELECT `uid` FROM `contact` WHERE `contact`.`uid` = `user`.`uid` AND `contact`.`self`)");
 		if (DBM::is_result($r)) {
 			foreach ($r AS $user) {
-				user_create_self_contact($user['uid']);
 				logger('Create missing self contact for user ' . $user['uid']);
+				Contact::createSelfFromUserId($user['uid']);
 			}
 		}
 

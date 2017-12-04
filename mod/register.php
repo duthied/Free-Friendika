@@ -5,8 +5,8 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Model\User;
 
-require_once('include/user.php');
 require_once 'include/enotify.php';
 require_once 'include/bbcode.php';
 
@@ -61,7 +61,7 @@ function register_post(App $a) {
 	$arr['verified'] = $verified;
 	$arr['language'] = get_browser_language();
 
-	$result = create_user($arr);
+	$result = User::create($arr);
 
 	if(! $result['success']) {
 		notice($result['message']);
@@ -89,7 +89,7 @@ function register_post(App $a) {
 
 		// Only send a password mail when the password wasn't manually provided
 		if (!x($_POST,'password1') || !x($_POST,'confirm')) {
-			$res = send_register_open_eml(
+			$res = User::sendRegisterOpenEmail(
 				$user['email'],
 				$a->config['sitename'],
 				System::baseUrl(),
@@ -159,7 +159,7 @@ function register_post(App $a) {
 			));
 		}
 		// send notification to the user, that the registration is pending
-		send_register_pending_eml(
+		User::sendRegisterPendingEmail(
 				$user['email'],
 				$a->config['sitename'],
 				$user['username']);
