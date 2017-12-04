@@ -1151,7 +1151,8 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
  * @param array $arr Contains the just posted item record
  */
 function item_set_last_item($arr) {
-	$contact = dba::select('contact', [], ['id' => $arr['contact-id']], ['limit' => 1]);
+	// Unarchive the author
+	$contact = dba::select('contact', [], ['id' => $arr["author-link"]], ['limit' => 1]);
 	if ($contact['term-date'] > NULL_DATE) {
 		 Contact::unmarkForArchival($contact);
 	}
