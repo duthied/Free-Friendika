@@ -4,6 +4,7 @@
  */
 use Friendica\App;
 use Friendica\ParseUrl;
+use Friendica\Content\Feature;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
@@ -2359,7 +2360,7 @@ function posted_dates($uid, $wall) {
 function posted_date_widget($url, $uid, $wall) {
 	$o = '';
 
-	if (! feature_enabled($uid, 'archives')) {
+	if (! Feature::isEnabled($uid, 'archives')) {
 		return $o;
 	}
 

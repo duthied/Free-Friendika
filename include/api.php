@@ -6,6 +6,7 @@
  * @todo Automatically detect if incoming data is HTML or BBCode
  */
 use Friendica\App;
+use Friendica\Content\Feature;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\NotificationsManager;
@@ -5100,7 +5101,7 @@ function api_friendica_profile_show($type)
 	$profileid = (x($_REQUEST, 'profile_id') ? $_REQUEST['profile_id'] : 0);
 
 	// retrieve general information about profiles for user
-	$multi_profiles = feature_enabled(api_user(), 'multi_profiles');
+	$multi_profiles = Feature::isEnabled(api_user(), 'multi_profiles');
 	$directory = Config::get('system', 'directory');
 
 	// get data of the specified profile id or all profiles of the user if not specified

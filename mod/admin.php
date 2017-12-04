@@ -1,11 +1,11 @@
 <?php
-
 /**
  * @file mod/admin.php
  *
  * @brief Friendica admin
  */
 use Friendica\App;
+use Friendica\Content\Feature;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
@@ -1466,9 +1466,7 @@ function admin_page_users_post(App $a)
 	check_form_security_token_redirectOnErr('/admin/users', 'admin_users');
 
 	if (!($nu_name === "") && !($nu_email === "") && !($nu_nickname === "")) {
-		require_once 'include/user.php';
-
-		$result = create_user(array('username' => $nu_name, 'email' => $nu_email,
+		$result = User::create(array('username' => $nu_name, 'email' => $nu_email,
 			'nickname' => $nu_nickname, 'verified' => 1, 'language' => $nu_language));
 		if (!$result['success']) {
 			notice($result['message']);
@@ -2293,7 +2291,7 @@ function admin_page_features_post(App $a)
 	logger('postvars: ' . print_r($_POST, true), LOGGER_DATA);
 
 	$arr = array();
-	$features = get_features(false);
+	$features = Feature::get(false);
 
 	foreach ($features as $fname => $fdata) {
 		foreach (array_slice($fdata, 1) as $f) {
@@ -2338,7 +2336,7 @@ function admin_page_features(App $a)
 {
 	if ((argc() > 1) && (argv(1) === 'features')) {
 		$arr = array();
-		$features = get_features(false);
+		$features = Feature::get(false);
 
 		foreach ($features as $fname => $fdata) {
 			$arr[$fname] = array();
