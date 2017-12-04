@@ -157,13 +157,11 @@ Class Cron {
 					`contact`.`last-update`, `contact`.`priority`, `contact`.`subhub`
 				FROM `user`
 				STRAIGHT_JOIN `contact`
-				ON `contact`.`uid` = `user`.`uid` AND `contact`.`rel` IN (%d, %d) AND `contact`.`poll` != ''
+				ON `contact`.`uid` = `user`.`uid` AND `contact`.`poll` != ''
 					AND `contact`.`network` IN ('%s', '%s', '%s', '%s', '%s') $sql_extra
 					AND NOT `contact`.`self` AND NOT `contact`.`blocked` AND NOT `contact`.`readonly`
 					AND NOT `contact`.`archive`
 				WHERE NOT `user`.`account_expired` AND NOT `user`.`account_removed` $abandon_sql",
-			intval(CONTACT_IS_SHARING),
-			intval(CONTACT_IS_FRIEND),
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_OSTATUS),
 			dbesc(NETWORK_DIASPORA),

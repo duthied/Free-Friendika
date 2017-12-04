@@ -42,29 +42,11 @@ Class OnePoll
 
 		$d = datetime_convert();
 
-		// Only poll from those with suitable relationships,
-		// and which have a polling address and ignore Diaspora since
-		// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
-
-		$contacts = q("SELECT `contact`.* FROM `contact`
-			WHERE (`rel` = %d OR `rel` = %d) AND `poll` != ''
-			AND NOT `network` IN ('%s', '%s')
-			AND `contact`.`id` = %d
-			AND `self` = 0 AND `contact`.`blocked` = 0 AND `contact`.`readonly` = 0
-			AND `contact`.`archive` = 0 LIMIT 1",
-			intval(CONTACT_IS_SHARING),
-			intval(CONTACT_IS_FRIEND),
-			dbesc(NETWORK_FACEBOOK),
-			dbesc(NETWORK_PUMPIO),
-			intval($contact_id)
-		);
-
-		if (!count($contacts)) {
+		$contact = dba::select('contact', [], ['id' => $contact_id], ['limit' => 1]);
+		if (!DBM::is_result($contact)) {
 			logger('Contact not found or cannot be used.');
 			return;
 		}
-
-		$contact = $contacts[0];
 
 		$importer_uid = $contact['uid'];
 
@@ -81,14 +63,13 @@ Class OnePoll
 			}
 		}
 
-		/// @TODO Check why we don't poll the Diaspora feed at the moment (some guid problem in the items?)
-		/// @TODO Check whether this is possible with Redmatrix
-		if ($contact["network"] == NETWORK_DIASPORA) {
+		// Diaspora users and followers we only check if they still exist.
+		if (($contact["network"] == NETWORK_DIASPORA) || ($contact["rel"] == CONTACT_IS_FOLLOWER)) {
 			if (PortableContact::updateNeeded($contact["created"], $contact["last-item"], $contact["failure_update"], $contact["success_update"])) {
 				$last_updated = PortableContact::lastUpdated($contact["url"]);
 				$updated = datetime_convert();
 				if ($last_updated) {
-					logger('Diaspora contact '.$contact['id'].' had last update on '.$last_updated, LOGGER_DEBUG);
+					logger('Contact '.$contact['id'].' had last update on '.$last_updated, LOGGER_DEBUG);
 
 					// The last public item can be older than the last item we got
 					if ($last_updated < $contact['last-item']) {
@@ -101,7 +82,7 @@ Class OnePoll
 				} else {
 					dba::update('contact', array('last-update' => $updated, 'failure_update' => $updated), array('id' => $contact['id']));
 					Contact::markForArchival($contact);
-					logger('Diaspora contact '.$contact['id'].' is marked for archival', LOGGER_DEBUG);
+					logger('Contact '.$contact['id'].' is marked for archival', LOGGER_DEBUG);
 				}
 			}
 			return;
@@ -334,6 +315,7 @@ Class OnePoll
 
 			$cookiejar = tempnam(get_temppath(), 'cookiejar-onepoll-');
 			$ret = z_fetch_url($contact['poll'], false, $redirects, array('cookiejar' => $cookiejar));
+			unlink($cookiejar);
 
 			if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 				// set the last-update so we don't keep polling
@@ -344,7 +326,6 @@ Class OnePoll
 
 			$xml = $ret['body'];
 
-			unlink($cookiejar);
 		} elseif ($contact['network'] === NETWORK_MAIL) {
 
 			logger("Mail: Fetching for ".$contact['addr'], LOGGER_DEBUG);
@@ -643,11 +624,13 @@ Class OnePoll
 
 			dba::update('contact', array('last-update' => $updated, 'success_update' => $updated), array('id' => $contact['id']));
 			dba::update('gcontact', array('last_contact' => $updated), array('nurl' => $contact['nurl']));
+			Contact::unmarkForArchival($contact);
 		} elseif (in_array($contact["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_FEED))) {
 			$updated = datetime_convert();
 
 			dba::update('contact', array('last-update' => $updated, 'failure_update' => $updated), array('id' => $contact['id']));
 			dba::update('gcontact', array('last_failure' => $updated), array('nurl' => $contact['nurl']));
+			Contact::markForArchival($contact);
 		} else {
 			dba::update('contact', array('last-update' => $updated), array('id' => $contact['id']));
 		}
