@@ -83,9 +83,8 @@ class FKOAuthDataStore extends OAuthDataStore
 	 */
 	public static function lookup_nonce($consumer, $token, $nonce, $timestamp)
 	{
-		$s = dba::select('tokens', array('id', 'secret'), array('client_id' => $consumer->key, 'id' => $nonce, 'expires' => $timestamp));
-		$r = dba::inArray($s);
-		
+		$r = dba::select('tokens', ['id', 'secret'], ['client_id' => $consumer->key, 'id' => $nonce, 'expires' => $timestamp], ['limit' => 1]);
+				
 		if (DBM::is_result($r)) {
 			return new OAuthToken($r[0]['id'], $r[0]['secret']);
 		}
