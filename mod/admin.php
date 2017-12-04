@@ -1466,9 +1466,7 @@ function admin_page_users_post(App $a)
 	check_form_security_token_redirectOnErr('/admin/users', 'admin_users');
 
 	if (!($nu_name === "") && !($nu_email === "") && !($nu_nickname === "")) {
-		require_once 'include/user.php';
-
-		$result = create_user(array('username' => $nu_name, 'email' => $nu_email,
+		$result = User::create(array('username' => $nu_name, 'email' => $nu_email,
 			'nickname' => $nu_nickname, 'verified' => 1, 'language' => $nu_language));
 		if (!$result['success']) {
 			notice($result['message']);

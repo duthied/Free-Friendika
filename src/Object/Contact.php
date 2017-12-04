@@ -29,6 +29,52 @@ require_once 'include/text.php';
 class Contact extends BaseObject
 {
 	/**
+	 * Creates the self-contact for the provided user id
+	 *
+	 * @param int $uid
+	 * @return bool Operation success
+	 */
+	public static function createSelfFromUserId($uid)
+	{
+		// Only create the entry if it doesn't exist yet
+		if (dba::exists('contact', ['uid' => intval($uid), 'self'])) {
+			return true;
+		}
+
+		$user = dba::select('user', ['uid', 'username', 'nickname'], ['uid' => intval($uid)], ['limit' => 1]);
+		if (!DBM::is_result($user)) {
+			return false;
+		}
+
+		$return = dba::insert('contact', [
+			'uid'         => $user['uid'],
+			'created'     => datetime_convert(),
+			'self'        => 1,
+			'name'        => $user['username'],
+			'nick'        => $user['nickname'],
+			'photo'       => System::baseUrl() . '/photo/profile/' . $user['uid'] . '.jpg',
+			'thumb'       => System::baseUrl() . '/photo/avatar/'  . $user['uid'] . '.jpg',
+			'micro'       => System::baseUrl() . '/photo/micro/'   . $user['uid'] . '.jpg',
+			'blocked'     => 0,
+			'pending'     => 0,
+			'url'         => System::baseUrl() . '/profile/' . $user['nickname'],
+			'nurl'        => normalise_link(System::baseUrl() . '/profile/' . $user['nickname']),
+			'addr'        => $user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3),
+			'request'     => System::baseUrl() . '/dfrn_request/' . $user['nickname'],
+			'notify'      => System::baseUrl() . '/dfrn_notify/'  . $user['nickname'],
+			'poll'        => System::baseUrl() . '/dfrn_poll/'    . $user['nickname'],
+			'confirm'     => System::baseUrl() . '/dfrn_confirm/' . $user['nickname'],
+			'poco'        => System::baseUrl() . '/poco/'         . $user['nickname'],
+			'name-date'   => datetime_convert(),
+			'uri-date'    => datetime_convert(),
+			'avatar-date' => datetime_convert(),
+			'closeness'   => 0
+		]);
+
+		return $return;
+	}
+
+	/**
 	 * @brief Marks a contact for removal
 	 *
 	 * @param int $id contact id
