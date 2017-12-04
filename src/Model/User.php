@@ -20,6 +20,19 @@ require_once 'include/plugin.php';
  */
 class User
 {
+	/**
+	 * @brief Authenticate a user with a clear text password
+	 *
+	 * User info can be any of the following:
+	 * - User DB object
+	 * - User Id
+	 * - User email or username or nickname
+	 * - User array with at least the uid and the hashed password
+	 *
+	 * @param mixed $user_info
+	 * @param string $password
+	 * @return boolean
+	 */
 	public static function authenticate($user_info, $password)
 	{
 		if (is_object($user_info)) {

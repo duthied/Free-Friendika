@@ -6,9 +6,9 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 
-require_once('include/enotify.php');
-require_once('include/bbcode.php');
 require_once('include/user.php');
+require_once 'include/enotify.php';
+require_once 'include/bbcode.php';
 
 if(! function_exists('register_post')) {
 function register_post(App $a) {

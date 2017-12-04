@@ -6,11 +6,12 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 
-require_once('include/enotify.php');
 require_once('include/user.php');
 
-function user_allow($hash) {
+require_once 'include/enotify.php';
 
+function user_allow($hash)
+{
 	$a = get_app();
 
 	$register = q("SELECT * FROM `register` WHERE `hash` = '%s' LIMIT 1",
@@ -18,7 +19,7 @@ function user_allow($hash) {
 	);
 
 
-	if (! DBM::is_result($register)) {
+	if (!DBM::is_result($register)) {
 		return false;
 	}
 
@@ -26,7 +27,7 @@ function user_allow($hash) {
 		intval($register[0]['uid'])
 	);
 
-	if (! DBM::is_result($user)) {
+	if (!DBM::is_result($user)) {
 		killme();
 	}
 
@@ -44,7 +45,7 @@ function user_allow($hash) {
 	);
 	if (DBM::is_result($r) && $r[0]['net-publish']) {
 		$url = System::baseUrl() . '/profile/' . $user[0]['nickname'];
-		if ($url && strlen(Config::get('system','directory'))) {
+		if ($url && strlen(Config::get('system', 'directory'))) {
 			Worker::add(PRIORITY_LOW, "Directory", $url);
 		}
 	}
@@ -60,20 +61,17 @@ function user_allow($hash) {
 
 	pop_lang();
 
-	if($res) {
-		info( t('Account approved.') . EOL );
+	if ($res) {
+		info(t('Account approved.') . EOL);
 		return true;
 	}
-
 }
-
 
 // This does not have to go through user_remove() and save the nickname
 // permanently against re-registration, as the person was not yet
 // allowed to have friends on this system
-
-function user_deny($hash) {
-
+function user_deny($hash)
+{
 	$register = q("SELECT * FROM `register` WHERE `hash` = '%s' LIMIT 1",
 		dbesc($hash)
 	);
@@ -91,23 +89,22 @@ function user_deny($hash) {
 
 	notice(sprintf(t('Registration revoked for %s'), $user[0]['username']) . EOL);
 	return true;
-
 }
 
-function regmod_content(App $a) {
-
+function regmod_content(App $a)
+{
 	global $lang;
 
 	$_SESSION['return_url'] = $a->cmd;
 
-	if (! local_user()) {
-		info( t('Please login.') . EOL);
+	if (!local_user()) {
+		info(t('Please login.') . EOL);
 		$o .= '<br /><br />' . login(($a->config['register_policy'] == REGISTER_CLOSED) ? 0 : 1);
 		return $o;
 	}
 
-	if ((!is_site_admin()) || (x($_SESSION,'submanage') && intval($_SESSION['submanage']))) {
-		notice( t('Permission denied.') . EOL);
+	if ((!is_site_admin()) || (x($_SESSION, 'submanage') && intval($_SESSION['submanage']))) {
+		notice(t('Permission denied.') . EOL);
 		return '';
 	}
 
@@ -115,20 +112,18 @@ function regmod_content(App $a) {
 		killme();
 	}
 
-	$cmd  = $a->argv[1];
+	$cmd = $a->argv[1];
 	$hash = $a->argv[2];
-
-
 
 	if ($cmd === 'deny') {
 		user_deny($hash);
-		goaway(System::baseUrl()."/admin/users/");
+		goaway(System::baseUrl() . "/admin/users/");
 		killme();
 	}
 
 	if ($cmd === 'allow') {
 		user_allow($hash);
-		goaway(System::baseUrl()."/admin/users/");
+		goaway(System::baseUrl() . "/admin/users/");
 		killme();
 	}
 }
