@@ -29,19 +29,22 @@ class FKOAuth1 extends OAuthServer
 		$this->add_signature_method(new OAuthSignatureMethod_HMAC_SHA1());
 	}
 
-	function loginUser($uid)
+	/**
+	 * @param string $uid user id
+	 * @return void
+	 */
+	public static function loginUser($uid)
 	{
 		logger("FKOAuth1::loginUser $uid");
 		$a = get_app();
-		$r = q("SELECT * FROM `user` WHERE uid=%d AND `blocked` = 0 AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 LIMIT 1",
-			intval($uid)
-		);
-		if (DBM::is_result($r)){
-			$record = $r[0];
+		$r = dba::select('user', array(), array('uid' => $uid, 'blocked' => 0, 'account_expired' => 0, 'account_removed' => 0, 'verified' => 1), array('limit' => 1));
+
+		if (DBM::is_result($r)) {
+			$record = $r;
 		} else {
-		   logger('FKOAuth1::loginUser failure: ' . print_r($_SERVER,true), LOGGER_DEBUG);
-		    header('HTTP/1.0 401 Unauthorized');
-		    die('This api requires login');
+			logger('FKOAuth1::loginUser failure: ' . print_r($_SERVER, true), LOGGER_DEBUG);
+			header('HTTP/1.0 401 Unauthorized');
+			die('This api requires login');
 		}
 		$_SESSION['uid'] = $record['uid'];
 		$_SESSION['theme'] = $record['theme'];
@@ -52,7 +55,6 @@ class FKOAuth1 extends OAuthServer
 		$_SESSION['addr'] = $_SERVER['REMOTE_ADDR'];
 		$_SESSION["allow_api"] = true;
 
-		//notice( t("Welcome back ") . $record['username'] . EOL);
 		$a->user = $record;
 
 		if (strlen($a->user['timezone'])) {
@@ -60,14 +62,15 @@ class FKOAuth1 extends OAuthServer
 			$a->timezone = $a->user['timezone'];
 		}
 
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %s AND `self` = 1 LIMIT 1",
-			intval($_SESSION['uid']));
+		$r = dba::select('contact', array(), array('uid' => $_SESSION['uid'], 'self' => 1), array('limit' => 1));
+		
 		if (DBM::is_result($r)) {
-			$a->contact = $r[0];
-			$a->cid = $r[0]['id'];
+			$a->contact = $r;
+			$a->cid = $r['id'];
 			$_SESSION['cid'] = $a->cid;
 		}
-		q("UPDATE `user` SET `login_date` = '%s' WHERE `uid` = %d",
+
+		dba::q("UPDATE `user` SET `login_date` = '%s' WHERE `uid` = %d",
 			dbesc(datetime_convert()),
 			intval($_SESSION['uid'])
 		);
