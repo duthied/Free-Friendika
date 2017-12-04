@@ -99,7 +99,7 @@ class Contact extends BaseObject
 		if ($contact['archive']) {
 			return;
 		}
-
+logger('Blubb-m: '.$contact['id'].' - '.System::callstack());
 		if ($contact['term-date'] <= NULL_DATE) {
 			dba::update('contact', array('term-date' => datetime_convert()), array('id' => $contact['id']));
 
@@ -139,6 +139,7 @@ class Contact extends BaseObject
 	 */
 	public static function unmarkForArchival(array $contact)
 	{
+//logger('Blubb-m: '.$contact['id'].' - '.System::callstack());
 		$condition = array('`id` = ? AND (`term-date` > ? OR `archive`)', $contact[`id`], NULL_DATE);
 		$exists = dba::exists('contact', $condition);
 

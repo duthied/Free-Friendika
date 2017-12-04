@@ -1165,6 +1165,10 @@ function item_set_last_item($arr) {
 	if ($update) {
 		dba::update('contact', array('success_update' => $arr['received'], 'last-item' => $arr['received']),
 			array('id' => $arr['contact-id']));
+		$contact = dba::select('contact', [], ['id' => $arr['contact-id']], ['limit' => 1]);
+		if ($contact['term-date'] > NULL_DATE) {
+			 Contact::unmarkForArchival($contact);
+		}
 	}
 	// Now do the same for the system wide contacts with uid=0
 	if (!$arr['private']) {
