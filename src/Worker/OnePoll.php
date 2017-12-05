@@ -653,7 +653,7 @@ Class OnePoll
 	 * @param array $fields The fields that are updated
 	 */
 	private static function updateContact($contact, $fields) {
-			dba::update('contact', $fields, array('id' => $contact['id']));
-			dba::update('contact', $fields, array('uid' => 0, 'nurl' => $contact['nurl']));
+		dba::update('contact', $fields, array('id' => $contact['id']));
+		dba::update('contact', $fields, array('uid' => 0, 'nurl' => $contact['nurl']));
 	}
 }
