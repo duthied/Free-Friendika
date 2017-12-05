@@ -910,23 +910,6 @@ CREATE TABLE IF NOT EXISTS `sign` (
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --
--- TABLE spam
---
-CREATE TABLE IF NOT EXISTS `spam` (
-	`id` int(11) NOT NULL auto_increment,
-	`uid` int(11) NOT NULL DEFAULT 0,
-	`spam` int(11) NOT NULL DEFAULT 0,
-	`ham` int(11) NOT NULL DEFAULT 0,
-	`term` varchar(255) NOT NULL DEFAULT '',
-	`date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
-	 PRIMARY KEY(`id`),
-	 INDEX `uid` (`uid`),
-	 INDEX `spam` (`spam`),
-	 INDEX `ham` (`ham`),
-	 INDEX `term` (`term`(32))
-) DEFAULT COLLATE utf8mb4_general_ci;
-
---
 -- TABLE term
 --
 CREATE TABLE IF NOT EXISTS `term` (
