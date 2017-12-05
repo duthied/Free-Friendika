@@ -36,7 +36,7 @@ class FKOAuthDataStore extends OAuthDataStore
 	 * @param string $consumer_key key
 	 * @return mixed
 	 */
-	public static function lookup_consumer($consumer_key)
+	public function lookup_consumer($consumer_key)
 	{
 		logger(__function__.":".$consumer_key);
 		
@@ -56,7 +56,7 @@ class FKOAuthDataStore extends OAuthDataStore
 	 * @param string $token      token
 	 * @return mixed
 	 */
-	public static function lookup_token($consumer, $token_type, $token)
+	public function lookup_token($consumer, $token_type, $token)
 	{
 		logger(__function__.":".$consumer.", ". $token_type.", ".$token);
 		
@@ -81,7 +81,7 @@ class FKOAuthDataStore extends OAuthDataStore
 	 * @param string $timestamp timestamp
 	 * @return mixed
 	 */
-	public static function lookup_nonce($consumer, $token, $nonce, $timestamp)
+	public function lookup_nonce($consumer, $token, $nonce, $timestamp)
 	{
 		$r = dba::select('tokens', ['id', 'secret'], ['client_id' => $consumer->key, 'id' => $nonce, 'expires' => $timestamp], ['limit' => 1]);
 				
@@ -97,7 +97,7 @@ class FKOAuthDataStore extends OAuthDataStore
 	 * @param string $callback optional, default null
 	 * @return mixed
 	 */
-	public static function new_request_token($consumer, $callback = null)
+	public function new_request_token($consumer, $callback = null)
 	{
 		logger(__function__.":".$consumer.", ". $callback);
 		$key = self::genToken();
@@ -132,7 +132,7 @@ class FKOAuthDataStore extends OAuthDataStore
 	 * @param string $verifier optional, defult null
 	 * @return object
 	 */
-	public static function new_access_token($token, $consumer, $verifier = null)
+	public function new_access_token($token, $consumer, $verifier = null)
 	{
 		logger(__function__.":".$token.", ". $consumer.", ". $verifier);
 
