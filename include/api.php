@@ -157,11 +157,12 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
  */
 function api_login(App $a)
 {
+	$oauth1 = new FKOAuth1();
 	// login with oauth
 	try {
-		list($consumer, $token) = FKOAuth1::verify_request(OAuthRequest::from_request());
+		list($consumer, $token) = $oauth1->verify_request(OAuthRequest::from_request());
 		if (!is_null($token)) {
-			FKOAuth1::loginUser($token->uid);
+			$oauth1->loginUser($token->uid);
 			call_hooks('logged_in', $a->user);
 			return;
 		}
@@ -3363,8 +3364,9 @@ api_register_func('api/direct_messages', 'api_direct_messages_inbox', true);
 
 function api_oauth_request_token($type)
 {
+	$oauth1 = new FKOAuth1();
 	try {
-		$r = FKOAuth1::fetch_request_token(OAuthRequest::from_request());
+		$r = $oauth1->fetch_request_token(OAuthRequest::from_request());
 	} catch (Exception $e) {
 		echo "error=" . OAuthUtil::urlencode_rfc3986($e->getMessage());
 		killme();
@@ -3375,8 +3377,9 @@ function api_oauth_request_token($type)
 
 function api_oauth_access_token($type)
 {
+	$oauth1 = new FKOAuth1();
 	try {
-		$r = FKOAuth1::fetch_access_token(OAuthRequest::from_request());
+		$r = $oauth1->fetch_access_token(OAuthRequest::from_request());
 	} catch (Exception $e) {
 		echo "error=". OAuthUtil::urlencode_rfc3986($e->getMessage());
 		killme();
