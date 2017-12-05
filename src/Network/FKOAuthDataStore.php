@@ -87,7 +87,7 @@ class FKOAuthDataStore extends OAuthDataStore
 		$r = dba::select('tokens', ['id', 'secret'], ['client_id' => $consumer->key, 'id' => $nonce, 'expires' => $timestamp], ['limit' => 1]);
 				
 		if (DBM::is_result($r)) {
-			return new OAuthToken($r[0]['id'], $r[0]['secret']);
+			return new OAuthToken($r['id'], $r['secret']);
 		}
 
 		return null;
