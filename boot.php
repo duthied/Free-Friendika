@@ -44,7 +44,7 @@ define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Asparagus');
 define('FRIENDICA_VERSION',      '3.6-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
-define('DB_UPDATE_VERSION',      1235);
+define('DB_UPDATE_VERSION',      1236);
 
 /**
  * @brief Constant with a HTML line break.
@@ -686,7 +686,7 @@ function update_db(App $a)
 				// Compare the current structure with the defined structure
 
 				$t = Config::get('database', 'dbupdate_' . DB_UPDATE_VERSION);
-				if ($t !== false) {
+				if (!is_null($t)) {
 					return;
 				}
 

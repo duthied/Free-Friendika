@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.6-dev (Asparagus)
--- DB_UPDATE_VERSION 1235
+-- DB_UPDATE_VERSION 1236
 -- ------------------------------------------
 
 
@@ -216,7 +216,8 @@ CREATE TABLE IF NOT EXISTS `conversation` (
 	`source` mediumtext,
 	`received` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
 	 PRIMARY KEY(`item-uri`),
-	 INDEX `conversation-uri` (`conversation-uri`)
+	 INDEX `conversation-uri` (`conversation-uri`),
+	 INDEX `received` (`received`)
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --

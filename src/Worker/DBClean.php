@@ -21,10 +21,10 @@ class DBClean {
 		$days = Config::get('system', 'dbclean-expire-days', 0);
 
 		if ($stage == 0) {
-			for ($i = 1; $i <= 9; $i++) {
+			for ($i = 1; $i <= 10; $i++) {
 				// Execute the background script for a step when it isn't finished.
 				// Execute step 8 and 9 only when $days is defined.
-				if (!Config::get('system', 'finished-dbclean-'.$i, false) && (($i < 8) || ($days > 0))) {
+				if (!Config::get('system', 'finished-dbclean-'.$i, false) && (($i < 8) || ($i > 9) || ($days > 0))) {
 					Worker::add(PRIORITY_LOW, 'DBClean', $i);
 				}
 			}
@@ -39,15 +39,16 @@ class DBClean {
 	 *
 	 * Values for $stage:
 	 * ------------------
-	 * 1:	Old global item entries from item table without user copy.
-	 * 2:	Items without parents.
-	 * 3:	Orphaned data from thread table.
-	 * 4:	Orphaned data from notify table.
-	 * 5:	Orphaned data from notify-threads table.
-	 * 6:	Orphaned data from sign table.
-	 * 7:	Orphaned data from term table.
-	 * 8:	Expired threads.
-	 * 9:	Old global item entries from expired threads
+	 *  1:	Old global item entries from item table without user copy.
+	 *  2:	Items without parents.
+	 *  3:	Orphaned data from thread table.
+	 *  4:	Orphaned data from notify table.
+	 *  5:	Orphaned data from notify-threads table.
+	 *  6:	Orphaned data from sign table.
+	 *  7:	Orphaned data from term table.
+	 *  8:	Expired threads.
+	 *  9:	Old global item entries from expired threads.
+	 * 10:	Old conversations.
 	 */
 	private static function removeOrphans($stage = 0) {
 		global $db;
@@ -293,6 +294,27 @@ class DBClean {
 			logger("Done deleting ".$count." old global item entries from expired threads. Last ID: ".$last_id);
 
 			Config::set('system', 'dbclean-last-id-9', $last_id);
+		} elseif ($stage == 10) {
+			$last_id = Config::get('system', 'dbclean-last-id-10', 0);
+
+			logger("Deleting old conversations. Last created: ".$last_id);
+			$r = dba::p("SELECT `received`, `item-uri` FROM `conversation`
+					WHERE `received` < UTC_TIMESTAMP() - INTERVAL 90 DAY
+					ORDER BY `received` LIMIT ".intval($limit));
+			$count = dba::num_rows($r);
+			if ($count > 0) {
+				logger("found old conversations: ".$count);
+				while ($orphan = dba::fetch($r)) {
+					$last_id = $orphan["received"];
+					dba::delete('conversation', array('item-uri' => $orphan["item-uri"]));
+				}
+			} else {
+				logger("No old conversations found");
+			}
+			dba::close($r);
+			logger("Done deleting ".$count." conversations. Last created: ".$last_id);
+
+			Config::set('system', 'dbclean-last-id-10', $last_id);
 		}
 
 		// Call it again if not all entries were purged
