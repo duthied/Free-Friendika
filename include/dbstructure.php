@@ -831,6 +831,7 @@ function db_definition() {
 			"indexes" => array(
 					"PRIMARY" => array("item-uri"),
 					"conversation-uri" => array("conversation-uri"),
+					"received" => array("received"),
 					)
 			);
 	$database["event"] = array(
