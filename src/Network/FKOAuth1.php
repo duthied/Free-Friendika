@@ -10,6 +10,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Network\FKOAuthDataStore;
 use dba;
+use OAuthServer;
 
 require_once "library/OAuth1.php";
 require_once "include/plugin.php";
