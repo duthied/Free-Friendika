@@ -77,10 +77,10 @@ Class OnePoll
 					}
 
 					$fields = array('last-item' => $last_updated, 'last-update' => $updated, 'success_update' => $updated);
-					dba::update('contact', $fields, array('id' => $contact['id']));
+					self::updateContact($contact, $fields);
 					Contact::unmarkForArchival($contact);
 				} else {
-					dba::update('contact', array('last-update' => $updated, 'failure_update' => $updated), array('id' => $contact['id']));
+					self::updateContact($contact, array('last-update' => $updated, 'failure_update' => $updated));
 					Contact::markForArchival($contact);
 					logger('Contact '.$contact['id'].' is marked for archival', LOGGER_DEBUG);
 				}
@@ -206,7 +206,7 @@ Class OnePoll
 
 				// set the last-update so we don't keep polling
 				$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
-				dba::update('contact', $fields, array('id' => $contact['id']));
+				self::updateContact($contact, $fields);
 				return;
 			}
 
@@ -216,7 +216,7 @@ Class OnePoll
 				Contact::markForArchival($contact);
 
 				$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
-				dba::update('contact', $fields, array('id' => $contact['id']));
+				self::updateContact($contact, $fields);
 				return;
 			}
 
@@ -229,7 +229,7 @@ Class OnePoll
 				// we may not be friends anymore. Will keep trying for one month.
 				// set the last-update so we don't keep polling
 				$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
-				dba::update('contact', $fields, array('id' => $contact['id']));
+				self::updateContact($contact, $fields);
 
 				Contact::markForArchival($contact);
 			} elseif ($contact['term-date'] > NULL_DATE) {
@@ -577,7 +577,7 @@ Class OnePoll
 				logger('post_handshake: response from ' . $url . ' did not contain XML.');
 
 				$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
-				dba::update('contact', $fields, array('id' => $contact['id']));
+				self::updateContact($contact, $fields);
 				Contact::markForArchival($contact);
 				return;
 			}
@@ -622,13 +622,13 @@ Class OnePoll
 
 			$updated = datetime_convert();
 
-			dba::update('contact', array('last-update' => $updated, 'success_update' => $updated), array('id' => $contact['id']));
+			self::updateContact($contact, array('last-update' => $updated, 'success_update' => $updated));
 			dba::update('gcontact', array('last_contact' => $updated), array('nurl' => $contact['nurl']));
 			Contact::unmarkForArchival($contact);
 		} elseif (in_array($contact["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_FEED))) {
 			$updated = datetime_convert();
 
-			dba::update('contact', array('last-update' => $updated, 'failure_update' => $updated), array('id' => $contact['id']));
+			self::updateContact($contact, array('last-update' => $updated, 'failure_update' => $updated));
 			dba::update('gcontact', array('last_failure' => $updated), array('nurl' => $contact['nurl']));
 			Contact::markForArchival($contact);
 		} else {
@@ -644,5 +644,16 @@ Class OnePoll
 		}
 
 		return $subject;
+	}
+
+	/**
+	 * @brief Updates a personal contact entry and the public contact entry
+	 *
+	 * @param array $contact The personal contact entry
+	 * @param array $fields The fields that are updated
+	 */
+	private static function updateContact($contact, $fields) {
+			dba::update('contact', $fields, array('id' => $contact['id']));
+			dba::update('contact', $fields, array('uid' => 0, 'nurl' => $contact['nurl']));
 	}
 }
