@@ -11,6 +11,8 @@ use Friendica\Database\DBM;
 use Friendica\Network\FKOAuthDataStore;
 use dba;
 use OAuthServer;
+use OAuthSignatureMethod_PLAINTEXT;
+use OAuthSignatureMethod_HMAC_SHA1;
 
 require_once "library/OAuth1.php";
 require_once "include/plugin.php";
