@@ -275,29 +275,6 @@ CREATE TABLE IF NOT EXISTS `fcontact` (
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --
--- TABLE ffinder
---
-CREATE TABLE IF NOT EXISTS `ffinder` (
-	`id` int(10) unsigned NOT NULL auto_increment,
-	`uid` int(10) unsigned NOT NULL DEFAULT 0,
-	`cid` int(10) unsigned NOT NULL DEFAULT 0,
-	`fid` int(10) unsigned NOT NULL DEFAULT 0,
-	 PRIMARY KEY(`id`)
-) DEFAULT COLLATE utf8mb4_general_ci;
-
---
--- TABLE fserver
---
-CREATE TABLE IF NOT EXISTS `fserver` (
-	`id` int(11) NOT NULL auto_increment,
-	`server` varchar(255) NOT NULL DEFAULT '',
-	`posturl` varchar(255) NOT NULL DEFAULT '',
-	`key` text,
-	 PRIMARY KEY(`id`),
-	 INDEX `server` (`server`(32))
-) DEFAULT COLLATE utf8mb4_general_ci;
-
---
 -- TABLE fsuggest
 --
 CREATE TABLE IF NOT EXISTS `fsuggest` (

@@ -888,29 +888,6 @@ function db_definition() {
 					"url" => array("UNIQUE", "url(190)"),
 					)
 			);
-	$database["ffinder"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"uid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0", "relation" => array("user" => "uid")),
-					"cid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0", "relation" => array("contact" => "id")),
-					"fid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0", "relation" => array("fcontact" => "id")),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					)
-			);
-	$database["fserver"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"server" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"posturl" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"key" => array("type" => "text"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"server" => array("server(32)"),
-					)
-			);
 	$database["fsuggest"] = array(
 			"fields" => array(
 					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
