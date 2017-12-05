@@ -1149,22 +1149,6 @@ function db_definition() {
 					"uid_ownerlink" => array("uid","owner-link(190)"),
 					)
 			);
-	$database["item_id"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"iid" => array("type" => "int(11)", "not null" => "1", "default" => "0", "relation" => array("item" => "id")),
-					"uid" => array("type" => "int(11)", "not null" => "1", "default" => "0", "relation" => array("user" => "uid")),
-					"sid" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"service" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"uid" => array("uid"),
-					"sid" => array("sid(32)"),
-					"service" => array("service(32)"),
-					"iid" => array("iid"),
-					)
-			);
 	$database["locks"] = array(
 			"fields" => array(
 					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
@@ -1537,23 +1521,6 @@ function db_definition() {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"iid" => array("UNIQUE", "iid"),
-					)
-			);
-	$database["spam"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"uid" => array("type" => "int(11)", "not null" => "1", "default" => "0", "relation" => array("user" => "uid")),
-					"spam" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
-					"ham" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
-					"term" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"date" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"uid" => array("uid"),
-					"spam" => array("spam"),
-					"ham" => array("ham"),
-					"term" => array("term(32)"),
 					)
 			);
 	$database["term"] = array(

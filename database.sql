@@ -536,22 +536,6 @@ CREATE TABLE IF NOT EXISTS `item` (
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --
--- TABLE item_id
---
-CREATE TABLE IF NOT EXISTS `item_id` (
-	`id` int(11) NOT NULL auto_increment,
-	`iid` int(11) NOT NULL DEFAULT 0,
-	`uid` int(11) NOT NULL DEFAULT 0,
-	`sid` varchar(255) NOT NULL DEFAULT '',
-	`service` varchar(255) NOT NULL DEFAULT '',
-	 PRIMARY KEY(`id`),
-	 INDEX `uid` (`uid`),
-	 INDEX `sid` (`sid`(32)),
-	 INDEX `service` (`service`(32)),
-	 INDEX `iid` (`iid`)
-) DEFAULT COLLATE utf8mb4_general_ci;
-
---
 -- TABLE locks
 --
 CREATE TABLE IF NOT EXISTS `locks` (
