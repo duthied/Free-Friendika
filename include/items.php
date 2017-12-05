@@ -1157,6 +1157,14 @@ function item_set_last_item($arr) {
 		 Contact::unmarkForArchival($contact);
 	}
 
+	// Unarchive the contact if it is a toplevel posting
+	if ($arr["parent-uri"] === $arr["uri"]) {
+		$contact = dba::select('contact', [], ['id' => $arr["contact-id"]], ['limit' => 1]);
+		if ($contact['term-date'] > NULL_DATE) {
+			 Contact::unmarkForArchival($contact);
+		}
+	}
+
 	$update = (!$arr['private'] && (($arr["author-link"] === $arr["owner-link"]) || ($arr["parent-uri"] === $arr["uri"])));
 
 	// Is it a forum? Then we don't care about the rules from above

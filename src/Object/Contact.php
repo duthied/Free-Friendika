@@ -141,8 +141,8 @@ class Contact extends BaseObject
 	 */
 	public static function markForArchival(array $contact)
 	{
-		// Contact already archived, nothing to do
-		if ($contact['archive']) {
+		// Contact already archived or "self" contact? => nothing to do
+		if ($contact['archive'] || $contact['self']) {
 			return;
 		}
 
@@ -150,7 +150,7 @@ class Contact extends BaseObject
 			dba::update('contact', array('term-date' => datetime_convert()), array('id' => $contact['id']));
 
 			if ($contact['url'] != '') {
-				dba::update('contact', array('term-date' => datetime_convert()), array('`nurl` = ? AND `term-date` <= ?', normalise_link($contact['url']), NULL_DATE));
+				dba::update('contact', array('term-date' => datetime_convert()), array('`nurl` = ? AND `term-date` <= ? AND NOT `self`', normalise_link($contact['url']), NULL_DATE));
 			}
 		} else {
 			/* @todo
@@ -169,7 +169,7 @@ class Contact extends BaseObject
 				dba::update('contact', array('archive' => 1), array('id' => $contact['id']));
 
 				if ($contact['url'] != '') {
-					dba::update('contact', array('archive' => 1), array('nurl' => normalise_link($contact['url'])));
+					dba::update('contact', array('archive' => 1), array('nurl' => normalise_link($contact['url']), 'self' => false));
 				}
 			}
 		}
