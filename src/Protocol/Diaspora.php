@@ -1339,10 +1339,6 @@ class Diaspora
 		if ($r) {
 			$cid = $r[0]["id"];
 			$network = $r[0]["network"];
-
-			// We are receiving content from a user that possibly is about to be terminated
-			// This means the user is vital, so we remove a possible termination date.
-			Contact::unmarkForArchival($r[0]);
 		} else {
 			$cid = $contact["id"];
 			$network = NETWORK_DIASPORA;
