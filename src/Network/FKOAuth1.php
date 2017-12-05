@@ -34,7 +34,7 @@ class FKOAuth1 extends OAuthServer
 	 * @param string $uid user id
 	 * @return void
 	 */
-	public static function loginUser($uid)
+	public function loginUser($uid)
 	{
 		logger("FKOAuth1::loginUser $uid");
 		$a = get_app();
