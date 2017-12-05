@@ -12,6 +12,7 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use dba;
+use OAuthDataStore;
 
 define('REQUEST_TOKEN_DURATION', 300);
 define('ACCESS_TOKEN_DURATION', 31536000);
