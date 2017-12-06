@@ -742,7 +742,7 @@ function run_update_function($x)
 		// delete the config entry to try again.
 
 		$t = Config::get('database', 'update_' . $x);
-		if ($t !== false) {
+		if (!is_null($t)) {
 			return false;
 		}
 		Config::set('database', 'update_' . $x, time());

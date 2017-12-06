@@ -26,9 +26,11 @@ class Feature
 		if ($x === false) {
 			$x = PConfig::get($uid, 'feature', $feature, false);
 		}
+
 		if ($x === false) {
 			$x = Config::get('feature', $feature, false);
 		}
+
 		if ($x === false) {
 			$x = self::getDefault($feature);
 		}

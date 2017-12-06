@@ -209,7 +209,7 @@ function nav_info(App $a)
 
 	// Provide a banner/logo/whatever
 	$banner = Config::get('system', 'banner');
-	if ($banner === false) {
+	if (is_null($banner)) {
 		$banner = '<a href="https://friendi.ca"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>';
 	}
 

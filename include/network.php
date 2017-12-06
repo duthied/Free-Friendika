@@ -126,8 +126,8 @@ function z_fetch_url($url, $binary = false, &$redirects = 0, $opts = array())
 	if (x($opts, 'timeout')) {
 		@curl_setopt($ch, CURLOPT_TIMEOUT, $opts['timeout']);
 	} else {
-		$curl_time = intval(Config::get('system', 'curl_timeout'));
-		@curl_setopt($ch, CURLOPT_TIMEOUT, (($curl_time !== false) ? $curl_time : 60));
+		$curl_time = Config::get('system', 'curl_timeout', 60);
+		@curl_setopt($ch, CURLOPT_TIMEOUT, intval($curl_time));
 	}
 
 	// by default we will allow self-signed certs
@@ -302,8 +302,8 @@ function post_url($url, $params, $headers = null, &$redirects = 0, $timeout = 0)
 	if (intval($timeout)) {
 		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 	} else {
-		$curl_time = intval(Config::get('system', 'curl_timeout'));
-		curl_setopt($ch, CURLOPT_TIMEOUT, (($curl_time !== false) ? $curl_time : 60));
+		$curl_time = Config::get('system', 'curl_timeout', 60);
+		curl_setopt($ch, CURLOPT_TIMEOUT, intval($curl_time));
 	}
 
 	if (defined('LIGHTTPD')) {
