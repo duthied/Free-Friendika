@@ -153,14 +153,13 @@ Class Cron {
 			: ''
 		);
 
-		$contacts = q("SELECT `contact`.`id`, `contact`.`nick`, `contact`.`name`, `contact`.`network`,
-					`contact`.`last-update`, `contact`.`priority`, `contact`.`subhub`
+		$contacts = q("SELECT `contact`.`id`, `contact`.`nick`, `contact`.`name`, `contact`.`network`, `contact`.`archive`,
+					`contact`.`last-update`, `contact`.`priority`, `contact`.`rel`, `contact`.`subhub`
 				FROM `user`
 				STRAIGHT_JOIN `contact`
 				ON `contact`.`uid` = `user`.`uid` AND `contact`.`poll` != ''
 					AND `contact`.`network` IN ('%s', '%s', '%s', '%s', '%s') $sql_extra
-					AND NOT `contact`.`self` AND NOT `contact`.`blocked` AND NOT `contact`.`readonly`
-					AND NOT `contact`.`archive`
+					AND NOT `contact`.`self` AND NOT `contact`.`blocked`
 				WHERE NOT `user`.`account_expired` AND NOT `user`.`account_removed` $abandon_sql",
 			dbesc(NETWORK_DFRN),
 			dbesc(NETWORK_OSTATUS),
@@ -179,6 +178,7 @@ Class Cron {
 				$contact['last-update'] = NULL_DATE;
 			}
 
+			// Friendica and OStatus are checked once a day
 			if (in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS))) {
 				$contact['priority'] = 2;
 			}
@@ -191,7 +191,17 @@ Class Cron {
 				 * changed. We will only update hubs once a day, regardless of 'pushpoll_frequency'.
 				 */
 				$poll_interval = Config::get('system', 'pushpoll_frequency');
-				$contact['priority'] = (($poll_interval !== false) ? intval($poll_interval) : 3);
+				$contact['priority'] = (!is_null($poll_interval) ? intval($poll_interval) : 3);
+			}
+
+			// Check Diaspora contacts or followers once a week
+			if (($contact["network"] == NETWORK_DIASPORA) || ($contact["rel"] == CONTACT_IS_FOLLOWER)) {
+				$contact['priority'] = 4;
+			}
+
+			// Check archived contacts once a month
+			if ($contact['archive']) {
+				$contact['priority'] = 5;
 			}
 
 			if (($contact['priority'] >= 0) && !$force) {
@@ -240,13 +250,16 @@ Class Cron {
 				}
 			}
 
-			logger("Polling " . $contact["network"] . " " . $contact["id"] . " " . $contact["nick"] . " " . $contact["name"]);
-
 			if (($contact['network'] == NETWORK_FEED) && ($contact['priority'] <= 3)) {
 				$priority = PRIORITY_MEDIUM;
+			} elseif ($contact['archive']) {
+				$priority = PRIORITY_NEGLIGIBLE;
 			} else {
 				$priority = PRIORITY_LOW;
 			}
+
+			logger("Polling " . $contact["network"] . " " . $contact["id"] . " " . $contact['priority'] . " " . $contact["nick"] . " " . $contact["name"]);
+
 			Worker::add(array('priority' => $priority, 'dont_fork' => true), 'OnePoll', (int)$contact['id']);
 		}
 	}

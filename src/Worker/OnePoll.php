@@ -63,27 +63,25 @@ Class OnePoll
 			}
 		}
 
-		// Diaspora users and followers we only check if they still exist.
-		if (($contact["network"] == NETWORK_DIASPORA) || ($contact["rel"] == CONTACT_IS_FOLLOWER)) {
-			if (PortableContact::updateNeeded($contact["created"], $contact["last-item"], $contact["failure_update"], $contact["success_update"])) {
-				$last_updated = PortableContact::lastUpdated($contact["url"]);
-				$updated = datetime_convert();
-				if ($last_updated) {
-					logger('Contact '.$contact['id'].' had last update on '.$last_updated, LOGGER_DEBUG);
+		// Diaspora users, archived users and followers are only checked if they still exist.
+		if ($contact['archive'] || ($contact["network"] == NETWORK_DIASPORA) || ($contact["rel"] == CONTACT_IS_FOLLOWER)) {
+			$last_updated = PortableContact::lastUpdated($contact["url"]);
+			$updated = datetime_convert();
+			if ($last_updated) {
+				logger('Contact '.$contact['id'].' had last update on '.$last_updated, LOGGER_DEBUG);
 
-					// The last public item can be older than the last item we got
-					if ($last_updated < $contact['last-item']) {
-						$last_updated = $contact['last-item'];
-					}
-
-					$fields = array('last-item' => $last_updated, 'last-update' => $updated, 'success_update' => $updated);
-					self::updateContact($contact, $fields);
-					Contact::unmarkForArchival($contact);
-				} else {
-					self::updateContact($contact, array('last-update' => $updated, 'failure_update' => $updated));
-					Contact::markForArchival($contact);
-					logger('Contact '.$contact['id'].' is marked for archival', LOGGER_DEBUG);
+				// The last public item can be older than the last item we got
+				if ($last_updated < $contact['last-item']) {
+					$last_updated = $contact['last-item'];
 				}
+
+				$fields = array('last-item' => $last_updated, 'last-update' => $updated, 'success_update' => $updated);
+				self::updateContact($contact, $fields);
+				Contact::unmarkForArchival($contact);
+			} else {
+				self::updateContact($contact, array('last-update' => $updated, 'failure_update' => $updated));
+				Contact::markForArchival($contact);
+				logger('Contact '.$contact['id'].' is marked for archival', LOGGER_DEBUG);
 			}
 			return;
 		}
