@@ -23,15 +23,15 @@ class Feature
 	{
 		$x = Config::get('feature_lock', $feature, false);
 
-		if (is_null($x)) {
+		if ($x === false) {
 			$x = PConfig::get($uid, 'feature', $feature, false);
 		}
 
-		if (is_null($x)) {
+		if ($x === false) {
 			$x = Config::get('feature', $feature, false);
 		}
 
-		if (is_null($x)) {
+		if ($x === false) {
 			$x = self::getDefault($feature);
 		}
 
