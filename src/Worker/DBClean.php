@@ -17,9 +17,6 @@ class DBClean {
 			return;
 		}
 
-		// Get the expire days for step 8 and 9
-		$days = Config::get('system', 'dbclean-expire-days', 0);
-
 		if ($stage == 0) {
 			self::forkCleanProcess();
 		} else {
@@ -31,6 +28,9 @@ class DBClean {
 	 * @brief Fork the different DBClean processes
 	 */
 	private static function forkCleanProcess() {
+		// Get the expire days for step 8 and 9
+		$days = Config::get('system', 'dbclean-expire-days', 0);
+
 		for ($i = 1; $i <= 10; $i++) {
 			// Execute the background script for a step when it isn't finished.
 			// Execute step 8 and 9 only when $days is defined.
