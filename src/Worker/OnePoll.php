@@ -92,7 +92,7 @@ Class OnePoll
 
 		if ($contact['subhub']) {
 			$poll_interval = Config::get('system', 'pushpoll_frequency');
-			$contact['priority'] = (($poll_interval !== false) ? intval($poll_interval) : 3);
+			$contact['priority'] = ((!is_null($poll_interval)) ? intval($poll_interval) : 3);
 			$hub_update = false;
 
 			if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + 1 day")) {
