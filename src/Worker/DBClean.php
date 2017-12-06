@@ -333,10 +333,5 @@ class DBClean {
 
 			Config::set('system', 'dbclean-last-id-10', $last_id);
 		}
-
-		// Call it again if not all entries were purged
-		//if ($count > 0) {
-		//	Worker::add(PRIORITY_MEDIUM, 'DBClean');
-		//}
 	}
 }
