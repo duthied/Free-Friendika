@@ -46,6 +46,7 @@ Example: To set the directory value please add this line to your .htconfig.php:
 * **frontend_worker_timeout** - Value in minutes after we think that a frontend task was killed by the webserver. Default value is 10.
 * **hsts** (Boolean) - Enables the sending of HTTP Strict Transport Security headers
 * **ignore_cache** (Boolean) - For development only. Disables the item cache.
+* **instances_social_key** - Key to the API of https://instances.social which retrieves data about mastodon servers. See https://instances.social/api/token to get an API key.
 * **ipv4_resolve** (Boolean) - Resolve IPV4 addresses only. Don't resolve to IPV6. Default value is false.
 * **like_no_comment** (Boolean) - Don't update the "commented" value of an item when it is liked.
 * **local_block** (Boolean) - Used in conjunction with "block_public".
