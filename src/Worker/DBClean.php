@@ -21,15 +21,22 @@ class DBClean {
 		$days = Config::get('system', 'dbclean-expire-days', 0);
 
 		if ($stage == 0) {
-			for ($i = 1; $i <= 10; $i++) {
-				// Execute the background script for a step when it isn't finished.
-				// Execute step 8 and 9 only when $days is defined.
-				if (!Config::get('system', 'finished-dbclean-'.$i, false) && (($i < 8) || ($i > 9) || ($days > 0))) {
-					Worker::add(PRIORITY_LOW, 'DBClean', $i);
-				}
-			}
+			self::forkCleanProcess();
 		} else {
 			self::removeOrphans($stage);
+		}
+	}
+
+	/**
+	 * @brief Fork the different DBClean processes
+	 */
+	private static function forkCleanProcess() {
+		for ($i = 1; $i <= 10; $i++) {
+			// Execute the background script for a step when it isn't finished.
+			// Execute step 8 and 9 only when $days is defined.
+			if (!Config::get('system', 'finished-dbclean-'.$i, false) && (($i < 8) || ($i > 9) || ($days > 0))) {
+				Worker::add(PRIORITY_LOW, 'DBClean', $i);
+			}
 		}
 	}
 
@@ -50,7 +57,7 @@ class DBClean {
 	 *  9:	Old global item entries from expired threads.
 	 * 10:	Old conversations.
 	 */
-	private static function removeOrphans($stage = 0) {
+	private static function removeOrphans($stage) {
 		global $db;
 
 		$count = 0;
@@ -76,6 +83,7 @@ class DBClean {
 					$last_id = $orphan["id"];
 					dba::delete('item', array('id' => $orphan["id"]));
 				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 1, $last_id);
 			} else {
 				logger("No global item orphans found");
 			}
@@ -97,6 +105,7 @@ class DBClean {
 					$last_id = $orphan["id"];
 					dba::delete('item', array('id' => $orphan["id"]));
 				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 2, $last_id);
 			} else {
 				logger("No item orphans without parents found");
 			}
@@ -122,6 +131,7 @@ class DBClean {
 					$last_id = $orphan["iid"];
 					dba::delete('thread', array('iid' => $orphan["iid"]));
 				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 3, $last_id);
 			} else {
 				logger("No thread orphans found");
 			}
@@ -147,6 +157,7 @@ class DBClean {
 					$last_id = $orphan["id"];
 					dba::delete('notify', array('iid' => $orphan["iid"]));
 				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 4, $last_id);
 			} else {
 				logger("No notify orphans found");
 			}
@@ -172,6 +183,7 @@ class DBClean {
 					$last_id = $orphan["id"];
 					dba::delete('notify-threads', array('id' => $orphan["id"]));
 				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 5, $last_id);
 			} else {
 				logger("No notify-threads orphans found");
 			}
@@ -197,6 +209,7 @@ class DBClean {
 					$last_id = $orphan["id"];
 					dba::delete('sign', array('iid' => $orphan["iid"]));
 				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 6, $last_id);
 			} else {
 				logger("No sign orphans found");
 			}
@@ -222,6 +235,7 @@ class DBClean {
 					$last_id = $orphan["tid"];
 					dba::delete('term', array('oid' => $orphan["oid"]));
 				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 7, $last_id);
 			} else {
 				logger("No term orphans found");
 			}
@@ -260,6 +274,7 @@ class DBClean {
 					$last_id = $thread["iid"];
 					dba::delete('thread', array('iid' => $thread["iid"]));
 				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 8, $last_id);
 			} else {
 				logger("No expired threads found");
 			}
@@ -287,6 +302,7 @@ class DBClean {
 					$last_id = $orphan["id"];
 					dba::delete('item', array('id' => $orphan["id"]));
 				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 9, $last_id);
 			} else {
 				logger("No global item entries from expired threads");
 			}
@@ -308,6 +324,7 @@ class DBClean {
 					$last_id = $orphan["received"];
 					dba::delete('conversation', array('item-uri' => $orphan["item-uri"]));
 				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 10, $last_id);
 			} else {
 				logger("No old conversations found");
 			}
@@ -318,8 +335,8 @@ class DBClean {
 		}
 
 		// Call it again if not all entries were purged
-		if (($stage != 0) && ($count > 0)) {
-			Worker::add(PRIORITY_MEDIUM, 'dbclean');
-		}
+		//if ($count > 0) {
+		//	Worker::add(PRIORITY_MEDIUM, 'DBClean');
+		//}
 	}
 }
