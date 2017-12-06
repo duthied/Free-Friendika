@@ -2233,7 +2233,6 @@ function drop_item($id, $interactive = true) {
 
 		// Now delete them
 		if ($parentid != "") {
-			$r = q("DELETE FROM `item_id` WHERE `iid` IN (%s)", dbesc($parentid));
 			$r = q("DELETE FROM `sign` WHERE `iid` IN (%s)", dbesc($parentid));
 		}
 
