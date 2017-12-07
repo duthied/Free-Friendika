@@ -992,16 +992,18 @@ class Diaspora
 		 * That makes us friends.
 		 * Normally this should have handled by getting a request - but this could get lost
 		 */
-		if (!$is_comment && $contact["rel"] == CONTACT_IS_FOLLOWER && in_array($importer["page-flags"], array(PAGE_FREELOVE))) {
-			dba::update(
-				'contact',
-				array('rel' => CONTACT_IS_FRIEND, 'writable' => true),
-				array('id' => $contact["id"], 'uid' => $contact["uid"])
-			);
-
-			$contact["rel"] = CONTACT_IS_FRIEND;
-			logger("defining user ".$contact["nick"]." as friend");
-		}
+		// It is deactivated by now, due to side effects. See issue https://github.com/friendica/friendica/pull/4033
+		// It is not removed by now. Possibly the code is needed?
+		//if (!$is_comment && $contact["rel"] == CONTACT_IS_FOLLOWER && in_array($importer["page-flags"], array(PAGE_FREELOVE))) {
+		//	dba::update(
+		//		'contact',
+		//		array('rel' => CONTACT_IS_FRIEND, 'writable' => true),
+		//		array('id' => $contact["id"], 'uid' => $contact["uid"])
+		//	);
+		//
+		//	$contact["rel"] = CONTACT_IS_FRIEND;
+		//	logger("defining user ".$contact["nick"]." as friend");
+		//}
 
 		// We don't seem to like that person
 		if ($contact["blocked"] || $contact["readonly"] || $contact["archive"]) {
