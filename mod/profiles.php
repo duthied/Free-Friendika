@@ -9,7 +9,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Model\GlobalContact;
+use Friendica\Model\GContact;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 
@@ -509,7 +509,7 @@ function profiles_post(App $a) {
 			Worker::add(PRIORITY_LOW, 'ProfileUpdate', local_user());
 
 			// Update the global contact for the user
-			GlobalContact::updateForUser(local_user());
+			GContact::updateForUser(local_user());
 		}
 	}
 }

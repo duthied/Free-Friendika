@@ -23,7 +23,7 @@ require_once 'include/html2bbcode.php';
 /**
  * @brief This class handles GlobalContact related functions
  */
-class GlobalContact
+class GContact
 {
 	/**
 	 * @brief Search global contact table by nick or name

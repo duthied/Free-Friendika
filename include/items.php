@@ -11,7 +11,7 @@ use Friendica\Core\Worker;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
-use Friendica\Model\GlobalContact;
+use Friendica\Model\GContact;
 use Friendica\Object\Image;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
@@ -742,10 +742,10 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		 * On comments the author is the better choice.
 		 */
 		if ($arr['parent-uri'] === $arr['uri']) {
-			$arr["gcontact-id"] = GlobalContact::getId(array("url" => $arr['owner-link'], "network" => $arr['network'],
+			$arr["gcontact-id"] = GContact::getId(array("url" => $arr['owner-link'], "network" => $arr['network'],
 								 "photo" => $arr['owner-avatar'], "name" => $arr['owner-name']));
 		} else {
-			$arr["gcontact-id"] = GlobalContact::getId(array("url" => $arr['author-link'], "network" => $arr['network'],
+			$arr["gcontact-id"] = GContact::getId(array("url" => $arr['author-link'], "network" => $arr['network'],
 								 "photo" => $arr['author-avatar'], "name" => $arr['author-name']));
 		}
 	}

@@ -17,7 +17,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
-use Friendica\Model\GlobalContact;
+use Friendica\Model\GContact;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Util\XML;
@@ -2247,9 +2247,9 @@ class Diaspora
 					"addr" => $author, "nick" => $nick, "keywords" => $keywords,
 					"hide" => !$searchable, "nsfw" => $nsfw);
 
-		$gcid = GlobalContact::update($gcontact);
+		$gcid = GContact::update($gcontact);
 
-		GlobalContact::link($gcid, $importer["uid"], $contact["id"]);
+		GContact::link($gcid, $importer["uid"], $contact["id"]);
 
 		logger("Profile of contact ".$contact["id"]." stored for user ".$importer["uid"], LOGGER_DEBUG);
 
