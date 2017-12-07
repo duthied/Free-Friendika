@@ -7,7 +7,7 @@ use Friendica\Content\Feature;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
-use Friendica\Model\GlobalContact;
+use Friendica\Model\GContact;
 
 require_once "include/contact_selectors.php";
 require_once "include/contact_widgets.php";
@@ -774,7 +774,7 @@ function navbar_complete(App $a) {
 	}
 
 	if ($localsearch) {
-		$x = GlobalContact::searchByName($search, $mode);
+		$x = GContact::searchByName($search, $mode);
 		return $x;
 	}
 

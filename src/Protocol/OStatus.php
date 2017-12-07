@@ -10,7 +10,7 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
-use Friendica\Model\GlobalContact;
+use Friendica\Model\GContact;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Util\Lock;
@@ -226,9 +226,9 @@ class OStatus
 			$contact["generation"] = 2;
 			$contact["hide"] = false; // OStatus contacts are never hidden
 			$contact["photo"] = $author["author-avatar"];
-			$gcid = GlobalContact::update($contact);
+			$gcid = GContact::update($contact);
 
-			GlobalContact::link($gcid, $contact["uid"], $contact["id"]);
+			GContact::link($gcid, $contact["uid"], $contact["id"]);
 		}
 
 		return $author;

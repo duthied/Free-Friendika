@@ -8,7 +8,7 @@ use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Model\GlobalContact;
+use Friendica\Model\GContact;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 
@@ -90,7 +90,7 @@ class DiscoverPoCo {
 			}
 			logger($result, LOGGER_DEBUG);
 		} elseif ($mode == 3) {
-			GlobalContact::updateSuggestions();
+			GContact::updateSuggestions();
 		} elseif (($mode == 2) && Config::get('system', 'poco_completion')) {
 			self::discoverUsers();
 		} elseif (($mode == 1) && ($search != "") && Config::get('system', 'poco_local_search')) {
@@ -102,7 +102,7 @@ class DiscoverPoCo {
 
 			// Query GNU Social servers for their users ("statistics" addon has to be enabled on the GS server)
 			if (!Config::get('system', 'ostatus_disabled')) {
-				GlobalContact::discoverGsUsers();
+				GContact::discoverGsUsers();
 			}
 		}
 
@@ -256,7 +256,7 @@ class DiscoverPoCo {
 
 					$data["server_url"] = $data["baseurl"];
 
-					GlobalContact::update($data);
+					GContact::update($data);
 				} else {
 					logger("Profile ".$jj->url." is not responding or no Friendica contact - but network ".$data["network"], LOGGER_DEBUG);
 				}
@@ -297,7 +297,7 @@ class DiscoverPoCo {
 			$contact = Probe::uri($user->site_address."/".$user->name);
 			if ($contact["network"] != NETWORK_PHANTOM) {
 				$contact["about"] = $user->description;
-				GlobalContact::update($contact);
+				GContact::update($contact);
 			}
 		}
 	}
