@@ -9,7 +9,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
-use Friendica\Object\Contact;
+use Friendica\Model\Contact;
 use Friendica\Protocol\DFRN;
 
 require_once 'include/items.php';

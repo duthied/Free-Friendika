@@ -5,8 +5,8 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Contact;
 use Friendica\Model\GlobalContact;
-use Friendica\Object\Contact;
 
 require_once 'include/contact_widgets.php';
 

@@ -29,7 +29,7 @@ if ($argc != 2 || $argv[1] == "-h" || $argv[1] == "--help" || $argv[1] == "-?") 
 }
 
 use Friendica\BaseObject;
-use Friendica\Object\Contact;
+use Friendica\Model\Contact;
 
 require_once 'boot.php';
 require_once 'include/dba.php';

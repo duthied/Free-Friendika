@@ -10,8 +10,8 @@ use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\Contact;
 use Friendica\Model\User;
-use Friendica\Object\Contact;
 
 require_once 'include/enotify.php';
 require_once 'include/text.php';

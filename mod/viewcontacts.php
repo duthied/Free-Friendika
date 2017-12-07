@@ -3,7 +3,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
-use Friendica\Object\Contact;
+use Friendica\Model\Contact;
 
 require_once('include/contact_selectors.php');
 

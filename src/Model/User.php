@@ -11,8 +11,8 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\Contact;
 use Friendica\Model\Photo;
-use Friendica\Object\Contact;
 use Friendica\Object\Image;
 use dba;
 

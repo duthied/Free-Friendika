@@ -5,7 +5,7 @@ use Friendica\Content\Smilies;
 use Friendica\Core\Cache;
 use Friendica\Core\System;
 use Friendica\Core\Config;
-use Friendica\Object\Contact;
+use Friendica\Model\Contact;
 
 require_once 'include/oembed.php';
 require_once 'include/event.php';

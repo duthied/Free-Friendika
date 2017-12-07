@@ -6,7 +6,7 @@ use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-use Friendica\Object\Contact;
+use Friendica\Model\Contact;
 
 function create_tags_from_item($itemid) {
 	$profile_base = System::baseUrl();
@@ -157,13 +157,13 @@ function update_items() {
 /**
  * @brief Get alphabetical sorted array of used tags/terms of an user including
  * a weighting by frequency of use.
- * 
+ *
  * @param int $uid      The user ID.
  * @param int $count    Max number of displayed tags/terms.
  * @param int $owner_id The contact id of the owner of the tagged items.
  * @param string $flags Special item flags.
  * @param int $type     The tag/term type.
- * 
+ *
  * @return arr          Alphabetical sorted array of used tags of an user.
  */
 function tagadelic($uid, $count = 0, $owner_id = 0, $flags = '', $type = TERM_HASHTAG) {
@@ -197,19 +197,19 @@ function tagadelic($uid, $count = 0, $owner_id = 0, $flags = '', $type = TERM_HA
 	if(!DBM::is_result($r)) {
 		return array();
 	}
-		
+
 	return tag_calc($r);
 }
 
 /**
  * @brief Construct a tag/term cloud block for an user.
- * 
+ *
  * @param int $uid      The user ID.
  * @param int $count    Max number of displayed tags/terms.
  * @param int $owner_id The contact ID of the owner of the tagged items.
  * @param string $flags Special item flags.
  * @param int $type     The tag/term type.
- * 
+ *
  * @return string       HTML formatted output.
  */
 function wtagblock($uid, $count = 0,$owner_id = 0, $flags = '', $type = TERM_HASHTAG) {
@@ -244,7 +244,7 @@ function wtagblock($uid, $count = 0,$owner_id = 0, $flags = '', $type = TERM_HAS
 
 /**
  * @brief Calculate weighting of tags according to the frequency of use.
- * 
+ *
  * @param array $arr Array of tags/terms with tag/term name and total count of use.
  * @return array     Alphabetical sorted array of used tags/terms of an user.
  */
@@ -279,10 +279,10 @@ function tag_calc($arr) {
 
 /**
  * @brief Compare function to sort tags/terms alphabetically.
- * 
+ *
  * @param type $a
  * @param type $b
- * 
+ *
  * @return int
  */
 function tags_sort($a, $b) {
@@ -294,7 +294,7 @@ function tags_sort($a, $b) {
 
 /**
  * @brief Insert a tag cloud widget for the present profile.
- * 
+ *
  * @param int     $limit Max number of displayed tags.
  * @return string HTML formattat output.
  */
