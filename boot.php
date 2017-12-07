@@ -411,7 +411,6 @@ define('ACTIVITY_SHARE',       NAMESPACE_ACTIVITY_SCHEMA . 'share');
 define('ACTIVITY_DELETE',      NAMESPACE_ACTIVITY_SCHEMA . 'delete');
 
 define('ACTIVITY_POKE',        NAMESPACE_ZOT . '/activity/poke');
-define('ACTIVITY_MOOD',        NAMESPACE_ZOT . '/activity/mood');
 
 define('ACTIVITY_OBJ_BOOKMARK', NAMESPACE_ACTIVITY_SCHEMA . 'bookmark');
 define('ACTIVITY_OBJ_COMMENT', NAMESPACE_ACTIVITY_SCHEMA . 'comment');

@@ -258,20 +258,6 @@ function localize_item(&$item) {
 		$item['body'] = sprintf($txt, $A, $B). "\n\n\n" . $Bphoto;
 
 	}
-	if (stristr($item['verb'], ACTIVITY_MOOD)) {
-		$verb = urldecode(substr($item['verb'], strpos($item['verb'], '#') + 1));
-		if (! $verb) {
-			return;
-		}
-
-		$Aname = $item['author-name'];
-		$Alink = $item['author-link'];
-		$A = '[url=' . zrl($Alink) . ']' . $Aname . '[/url]';
-
-		$txt = t('%1$s is currently %2$s');
-
-		$item['body'] = sprintf($txt, $A, t($verb));
-	}
 
 	if (activity_match($item['verb'], ACTIVITY_TAG)) {
 		/// @TODO may hurt performance "joining" two tables + asterisk

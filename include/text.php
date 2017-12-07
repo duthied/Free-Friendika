@@ -1119,40 +1119,6 @@ function get_poke_verbs() {
 }
 
 /**
- * Load moods
- * @return array index is mood, value is translated mood
- * @hook mood_verbs moods array
- */
-function get_mood_verbs() {
-
-	$arr = array(
-		'happy'      => t('happy'),
-		'sad'        => t('sad'),
-		'mellow'     => t('mellow'),
-		'tired'      => t('tired'),
-		'perky'      => t('perky'),
-		'angry'      => t('angry'),
-		'stupefied'  => t('stupified'),
-		'puzzled'    => t('puzzled'),
-		'interested' => t('interested'),
-		'bitter'     => t('bitter'),
-		'cheerful'   => t('cheerful'),
-		'alive'      => t('alive'),
-		'annoyed'    => t('annoyed'),
-		'anxious'    => t('anxious'),
-		'cranky'     => t('cranky'),
-		'disturbed'  => t('disturbed'),
-		'frustrated' => t('frustrated'),
-		'motivated'  => t('motivated'),
-		'relaxed'    => t('relaxed'),
-		'surprised'  => t('surprised'),
-	);
-
-	call_hooks('mood_verbs', $arr);
-	return $arr;
-}
-
-/**
  * @brief Translate days and months names.
  *
  * @param string $s String with day or month name.
