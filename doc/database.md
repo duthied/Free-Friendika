@@ -17,8 +17,6 @@ Database Tables
 | [conversation](help/database/db_conversation)        | Raw data and structure information for messages  |
 | [event](help/database/db_event)                      | Events                                           |
 | [fcontact](help/database/db_fcontact)                | friend suggestion stuff                          |
-| [ffinder](help/database/db_ffinder)                  | friend suggestion stuff                          |
-| [fserver](help/database/db_fserver)                  |                                                  |
 | [fsuggest](help/database/db_fsuggest)                | friend suggestion stuff                          |
 | [gcign](help/database/db_gcign)                      | contacts ignored by friend suggestions           |
 | [gcontact](help/database/db_gcontact)                | global contacts                                  |
