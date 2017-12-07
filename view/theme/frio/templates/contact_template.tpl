@@ -139,7 +139,7 @@ We use this part to filter the contacts with jquery.textcomplete *}}
 
 					<button type="button" class="btn btn-link dropdown-toggle" id="contact-photo-menu-{$id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						<div class="contact-photo-image-wrapper hidden-xs">
-							<img class="contact-photo media-object xl" src="{$thumb}" {11} alt="{$name}" />
+							<img class="contact-photo media-object xl" src="{{$contact.thumb}}" {11} alt="{{$contact.name}}" />
 
 							{{* Overlay background on hover the avatar picture *}}
 							<div class="contact-photo-overlay">
@@ -149,7 +149,7 @@ We use this part to filter the contacts with jquery.textcomplete *}}
 
 						{{* use a smaller picture on very small displays (e.g. mobiles) *}}
 						<div class="contact-photo-image-wrapper hidden-lg hidden-md hidden-sm">
-							<img class="contact-photo-xs media-object" src="{$thumb}" {11} alt="{$name}" />
+							<img class="contact-photo-xs media-object" src="{{$contact.thumb}}" {11} alt="{{$contact.name}}" />
 
 							{{* Overlay background on hover the avatar picture *}}
 							<div class="contact-photo-overlay">
