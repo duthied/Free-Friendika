@@ -10,8 +10,8 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
+use Friendica\Model\Profile;
 use Friendica\Network\Probe;
-use Friendica\Object\Profile;
 
 function profiles_init(App $a) {
 

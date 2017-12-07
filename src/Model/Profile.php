@@ -1,14 +1,12 @@
 <?php
 
 /**
- * @file src/Object/Profile.php
+ * @file src/Model/Profile.php
  */
 
-namespace Friendica\Object;
+namespace Friendica\Model;
 
-use Friendica\BaseObject;
-
-class Profile extends BaseObject
+class Profile
 {
 	/**
 	 * @brief Returns a formatted location string from the given profile array

@@ -14,7 +14,7 @@ use Friendica\Core\System;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
-use Friendica\Object\Profile;
+use Friendica\Model\Profile;
 use Friendica\Protocol\Email;
 use Friendica\Util\XML;
 
