@@ -3,8 +3,8 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Model\Contact;
 use Friendica\Network\Probe;
-use Friendica\Object\Contact;
 
 require_once 'include/follow.php';
 require_once 'include/contact_selectors.php';

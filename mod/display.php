@@ -4,7 +4,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-use Friendica\Object\Contact;
+use Friendica\Model\Contact;
 use Friendica\Protocol\DFRN;
 
 function display_init(App $a) {

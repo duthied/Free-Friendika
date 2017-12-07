@@ -6,9 +6,9 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\Contact;
 use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
-use Friendica\Object\Contact;
 
 require_once 'include/contact_selectors.php';
 require_once 'mod/proxy.php';

@@ -6,9 +6,9 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Model\Contact;
 use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
-use Friendica\Object\Contact;
 use Friendica\Protocol\PortableContact;
 
 require_once 'include/contact_widgets.php';

@@ -8,7 +8,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-use Friendica\Object\Contact;
+use Friendica\Model\Contact;
 use Friendica\Object\Conversation;
 use Friendica\Object\Item;
 

@@ -10,8 +10,8 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Model\Contact;
 use Friendica\Model\GlobalContact;
-use Friendica\Object\Contact;
 
 function hovercard_init(App $a) {
 	// Just for testing purposes

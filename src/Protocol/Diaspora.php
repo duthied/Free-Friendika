@@ -16,10 +16,10 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\Contact;
 use Friendica\Model\GlobalContact;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
-use Friendica\Object\Contact;
 use Friendica\Util\XML;
 
 use dba;

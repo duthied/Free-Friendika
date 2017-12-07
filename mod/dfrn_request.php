@@ -15,8 +15,8 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Contact;
 use Friendica\Network\Probe;
-use Friendica\Object\Contact;
 
 require_once 'include/enotify.php';
 require_once 'include/group.php';
