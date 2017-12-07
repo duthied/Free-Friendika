@@ -1,10 +1,9 @@
 <?php
-
 /**
  * @file include/acl_selectors.php
  */
-
 use Friendica\App;
+use Friendica\Content\Feature;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
@@ -12,9 +11,7 @@ use Friendica\Object\Contact;
 
 require_once "include/contact_selectors.php";
 require_once "include/contact_widgets.php";
-require_once "include/features.php";
 require_once "mod/proxy.php";
-
 
 /**
  * @package acl_selectors
@@ -380,7 +377,7 @@ function populate_acl($user = null, $show_jotnets = false) {
 		'$aclModalTitle' => t('Permissions'),
 		'$aclModalDismiss' => t('Close'),
 		'$features' => array(
-		'aclautomention' => (feature_enabled($user['uid'], "aclautomention") ? "true" : "false")
+		'aclautomention' => (Feature::isEnabled($user['uid'], "aclautomention") ? "true" : "false")
 		),
 	));
 
@@ -498,10 +495,9 @@ function acl_lookup(App $a, $out_type = 'json') {
 				WHERE `uid` = %d AND NOT `self`
 				AND NOT `blocked` AND NOT `pending` AND NOT `archive`
 				AND `success_update` >= `failure_update`
-				AND `network` IN ('%s','%s','%s') $sql_extra2" ,
+				AND `network` IN ('%s', '%s') $sql_extra2" ,
 			intval(local_user()),
 			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_ZOT),
 			dbesc(NETWORK_DIASPORA)
 		);
 		$contact_count = (int)$r[0]['c'];
@@ -593,12 +589,11 @@ function acl_lookup(App $a, $out_type = 'json') {
 	} elseif ($type == 'm') {
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr` FROM `contact`
 			WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive`
-			AND `success_update` >= `failure_update` AND `network` IN ('%s','%s','%s')
+			AND `success_update` >= `failure_update` AND `network` IN ('%s', '%s')
 			$sql_extra2
 			ORDER BY `name` ASC ",
 			intval(local_user()),
 			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_ZOT),
 			dbesc(NETWORK_DIASPORA)
 		);
 	} elseif ($type == 'a') {

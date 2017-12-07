@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.6-dev (Asparagus)
--- DB_UPDATE_VERSION 1235
+-- DB_UPDATE_VERSION 1236
 -- ------------------------------------------
 
 
@@ -216,7 +216,8 @@ CREATE TABLE IF NOT EXISTS `conversation` (
 	`source` mediumtext,
 	`received` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
 	 PRIMARY KEY(`item-uri`),
-	 INDEX `conversation-uri` (`conversation-uri`)
+	 INDEX `conversation-uri` (`conversation-uri`),
+	 INDEX `received` (`received`)
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --
@@ -271,29 +272,6 @@ CREATE TABLE IF NOT EXISTS `fcontact` (
 	 PRIMARY KEY(`id`),
 	 INDEX `addr` (`addr`(32)),
 	 UNIQUE INDEX `url` (`url`(190))
-) DEFAULT COLLATE utf8mb4_general_ci;
-
---
--- TABLE ffinder
---
-CREATE TABLE IF NOT EXISTS `ffinder` (
-	`id` int(10) unsigned NOT NULL auto_increment,
-	`uid` int(10) unsigned NOT NULL DEFAULT 0,
-	`cid` int(10) unsigned NOT NULL DEFAULT 0,
-	`fid` int(10) unsigned NOT NULL DEFAULT 0,
-	 PRIMARY KEY(`id`)
-) DEFAULT COLLATE utf8mb4_general_ci;
-
---
--- TABLE fserver
---
-CREATE TABLE IF NOT EXISTS `fserver` (
-	`id` int(11) NOT NULL auto_increment,
-	`server` varchar(255) NOT NULL DEFAULT '',
-	`posturl` varchar(255) NOT NULL DEFAULT '',
-	`key` text,
-	 PRIMARY KEY(`id`),
-	 INDEX `server` (`server`(32))
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --
@@ -555,22 +533,6 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `uid_eventid` (`uid`,`event-id`),
 	 INDEX `uid_authorlink` (`uid`,`author-link`(190)),
 	 INDEX `uid_ownerlink` (`uid`,`owner-link`(190))
-) DEFAULT COLLATE utf8mb4_general_ci;
-
---
--- TABLE item_id
---
-CREATE TABLE IF NOT EXISTS `item_id` (
-	`id` int(11) NOT NULL auto_increment,
-	`iid` int(11) NOT NULL DEFAULT 0,
-	`uid` int(11) NOT NULL DEFAULT 0,
-	`sid` varchar(255) NOT NULL DEFAULT '',
-	`service` varchar(255) NOT NULL DEFAULT '',
-	 PRIMARY KEY(`id`),
-	 INDEX `uid` (`uid`),
-	 INDEX `sid` (`sid`(32)),
-	 INDEX `service` (`service`(32)),
-	 INDEX `iid` (`iid`)
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --
@@ -945,23 +907,6 @@ CREATE TABLE IF NOT EXISTS `sign` (
 	`signer` varchar(255) NOT NULL DEFAULT '',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `iid` (`iid`)
-) DEFAULT COLLATE utf8mb4_general_ci;
-
---
--- TABLE spam
---
-CREATE TABLE IF NOT EXISTS `spam` (
-	`id` int(11) NOT NULL auto_increment,
-	`uid` int(11) NOT NULL DEFAULT 0,
-	`spam` int(11) NOT NULL DEFAULT 0,
-	`ham` int(11) NOT NULL DEFAULT 0,
-	`term` varchar(255) NOT NULL DEFAULT '',
-	`date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
-	 PRIMARY KEY(`id`),
-	 INDEX `uid` (`uid`),
-	 INDEX `spam` (`spam`),
-	 INDEX `ham` (`ham`),
-	 INDEX `term` (`term`(32))
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --

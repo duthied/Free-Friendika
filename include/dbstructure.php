@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @file include/dbstructure.php
+ */
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
@@ -77,30 +79,10 @@ function update_fail($update_id, $error_message) {
 			'to_email' => $admin['email'],
 			'preamble' => $preamble,
 			'body' => $body,
-			'language' => $lang,
-		));
+			'language' => $lang)
+		);
 	}
 
-
-
-
-	/*
-	 @TODO deprecated code?
-	$email_tpl = get_intltext_template("update_fail_eml.tpl");
-	$email_msg = replace_macros($email_tpl, array(
-		'$sitename' => $a->config['sitename'],
-		'$siteurl' =>  System::baseUrl(),
-		'$update' => DB_UPDATE_VERSION,
-		'$error' => sprintf(t('Update %s failed. See error logs.'), DB_UPDATE_VERSION)
-	));
-	$subject=sprintf(t('Update Error at %s'), System::baseUrl());
-	require_once('include/email.php');
-	$subject = email_header_encode($subject,'UTF-8');
-	mail($a->config['admin_email'], $subject, $email_msg,
-		'From: ' . 'Administrator' . '@' . $_SERVER['SERVER_NAME']."\n"
-		.'Content-type: text/plain; charset=UTF-8'."\n"
-		.'Content-transfer-encoding: 8bit');
-	*/
 	//try the logger
 	logger("CRITICAL: Database structure update failed: ".$retval);
 }
@@ -849,6 +831,7 @@ function db_definition() {
 			"indexes" => array(
 					"PRIMARY" => array("item-uri"),
 					"conversation-uri" => array("conversation-uri"),
+					"received" => array("received"),
 					)
 			);
 	$database["event"] = array(
@@ -903,29 +886,6 @@ function db_definition() {
 					"PRIMARY" => array("id"),
 					"addr" => array("addr(32)"),
 					"url" => array("UNIQUE", "url(190)"),
-					)
-			);
-	$database["ffinder"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"uid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0", "relation" => array("user" => "uid")),
-					"cid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0", "relation" => array("contact" => "id")),
-					"fid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0", "relation" => array("fcontact" => "id")),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					)
-			);
-	$database["fserver"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"server" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"posturl" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"key" => array("type" => "text"),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"server" => array("server(32)"),
 					)
 			);
 	$database["fsuggest"] = array(
@@ -1187,22 +1147,6 @@ function db_definition() {
 					"uid_eventid" => array("uid","event-id"),
 					"uid_authorlink" => array("uid","author-link(190)"),
 					"uid_ownerlink" => array("uid","owner-link(190)"),
-					)
-			);
-	$database["item_id"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"iid" => array("type" => "int(11)", "not null" => "1", "default" => "0", "relation" => array("item" => "id")),
-					"uid" => array("type" => "int(11)", "not null" => "1", "default" => "0", "relation" => array("user" => "uid")),
-					"sid" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"service" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"uid" => array("uid"),
-					"sid" => array("sid(32)"),
-					"service" => array("service(32)"),
-					"iid" => array("iid"),
 					)
 			);
 	$database["locks"] = array(
@@ -1577,23 +1521,6 @@ function db_definition() {
 			"indexes" => array(
 					"PRIMARY" => array("id"),
 					"iid" => array("UNIQUE", "iid"),
-					)
-			);
-	$database["spam"] = array(
-			"fields" => array(
-					"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-					"uid" => array("type" => "int(11)", "not null" => "1", "default" => "0", "relation" => array("user" => "uid")),
-					"spam" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
-					"ham" => array("type" => "int(11)", "not null" => "1", "default" => "0"),
-					"term" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
-					"date" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE),
-					),
-			"indexes" => array(
-					"PRIMARY" => array("id"),
-					"uid" => array("uid"),
-					"spam" => array("spam"),
-					"ham" => array("ham"),
-					"term" => array("term(32)"),
 					)
 			);
 	$database["term"] = array(

@@ -8,6 +8,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Object\Contact;
+use Friendica\Protocol\Email;
 use Friendica\Protocol\PortableContact;
 use dba;
 
@@ -20,10 +21,9 @@ Class OnePoll
 
 		require_once 'include/datetime.php';
 		require_once 'include/items.php';
-		require_once 'include/email.php';
 		require_once 'include/queue_fn.php';
 
-		logger('onepoll: start');
+		logger('start');
 
 		$manual_id  = 0;
 		$generation = 0;
@@ -36,35 +36,17 @@ Class OnePoll
 		}
 
 		if (!$contact_id) {
-			logger('onepoll: no contact');
+			logger('no contact');
 			return;
 		}
 
 		$d = datetime_convert();
 
-		// Only poll from those with suitable relationships,
-		// and which have a polling address and ignore Diaspora since
-		// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
-
-		$contacts = q("SELECT `contact`.* FROM `contact`
-			WHERE (`rel` = %d OR `rel` = %d) AND `poll` != ''
-			AND NOT `network` IN ('%s', '%s')
-			AND `contact`.`id` = %d
-			AND `self` = 0 AND `contact`.`blocked` = 0 AND `contact`.`readonly` = 0
-			AND `contact`.`archive` = 0 LIMIT 1",
-			intval(CONTACT_IS_SHARING),
-			intval(CONTACT_IS_FRIEND),
-			dbesc(NETWORK_FACEBOOK),
-			dbesc(NETWORK_PUMPIO),
-			intval($contact_id)
-		);
-
-		if (!count($contacts)) {
+		$contact = dba::select('contact', [], ['id' => $contact_id], ['limit' => 1]);
+		if (!DBM::is_result($contact)) {
 			logger('Contact not found or cannot be used.');
 			return;
 		}
-
-		$contact = $contacts[0];
 
 		$importer_uid = $contact['uid'];
 
@@ -81,18 +63,25 @@ Class OnePoll
 			}
 		}
 
-		/// @TODO Check why we don't poll the Diaspora feed at the moment (some guid problem in the items?)
-		/// @TODO Check whether this is possible with Redmatrix
-		if ($contact["network"] == NETWORK_DIASPORA) {
-			if (PortableContact::updateNeeded($contact["created"], $contact["last-item"], $contact["failure_update"], $contact["success_update"])) {
-				$last_updated = PortableContact::lastUpdated($contact["url"]);
-				$updated = datetime_convert();
-				if ($last_updated) {
-					$fields = array('last-item' => $last_updated, 'last-update' => $updated, 'success_update' => $updated);
-					dba::update('contact', $fields, array('id' => $contact['id']));
-				} else {
-					dba::update('contact', array('last-update' => $updated, 'failure_update' => $updated), array('id' => $contact['id']));
+		// Diaspora users, archived users and followers are only checked if they still exist.
+		if ($contact['archive'] || ($contact["network"] == NETWORK_DIASPORA) || ($contact["rel"] == CONTACT_IS_FOLLOWER)) {
+			$last_updated = PortableContact::lastUpdated($contact["url"]);
+			$updated = datetime_convert();
+			if ($last_updated) {
+				logger('Contact '.$contact['id'].' had last update on '.$last_updated, LOGGER_DEBUG);
+
+				// The last public item can be older than the last item we got
+				if ($last_updated < $contact['last-item']) {
+					$last_updated = $contact['last-item'];
 				}
+
+				$fields = array('last-item' => $last_updated, 'last-update' => $updated, 'success_update' => $updated);
+				self::updateContact($contact, $fields);
+				Contact::unmarkForArchival($contact);
+			} else {
+				self::updateContact($contact, array('last-update' => $updated, 'failure_update' => $updated));
+				Contact::markForArchival($contact);
+				logger('Contact '.$contact['id'].' is marked for archival', LOGGER_DEBUG);
 			}
 			return;
 		}
@@ -102,8 +91,8 @@ Class OnePoll
 		$t = $contact['last-update'];
 
 		if ($contact['subhub']) {
-			$poll_interval = Config::get('system', 'pushpoll_frequency');
-			$contact['priority'] = (($poll_interval !== false) ? intval($poll_interval) : 3);
+			$poll_interval = Config::get('system', 'pushpoll_frequency', 3);
+			$contact['priority'] = intval($poll_interval);
 			$hub_update = false;
 
 			if (datetime_convert('UTC', 'UTC', 'now') > datetime_convert('UTC', 'UTC', $t . " + 1 day")) {
@@ -122,12 +111,18 @@ Class OnePoll
 		if (($contact['network'] === NETWORK_OSTATUS) || ($contact['network'] === NETWORK_DIASPORA) || ($contact['network'] === NETWORK_DFRN)) {
 			if (!PortableContact::reachable($contact['url'])) {
 				logger("Skipping probably dead contact ".$contact['url']);
+
+				// set the last-update so we don't keep polling
+				dba::update('contact', ['last-update' => datetime_convert()], ['id' => $contact['id']]);
 				return;
 			}
 
 			if (!update_contact($contact["id"])) {
 				Contact::markForArchival($contact);
 				logger('Contact is marked dead');
+
+				// set the last-update so we don't keep polling
+				dba::update('contact', ['last-update' => datetime_convert()], ['id' => $contact['id']]);
 				return;
 			} else {
 				Contact::unmarkForArchival($contact);
@@ -136,6 +131,9 @@ Class OnePoll
 
 		if ($importer_uid == 0) {
 			logger('Ignore public contacts');
+
+			// set the last-update so we don't keep polling
+			dba::update('contact', ['last-update' => datetime_convert()], ['id' => $contact['id']]);
 			return;
 		}
 
@@ -145,12 +143,15 @@ Class OnePoll
 
 		if (!DBM::is_result($r)) {
 			logger('No self contact for user '.$importer_uid);
+
+			// set the last-update so we don't keep polling
+			dba::update('contact', ['last-update' => datetime_convert()], ['id' => $contact['id']]);
 			return;
 		}
 
 		$importer = $r[0];
 
-		logger("onepoll: poll: ({$contact['id']}) IMPORTER: {$importer['name']}, CONTACT: {$contact['name']}");
+		logger("poll: ({$contact['network']}-{$contact['id']}) IMPORTER: {$importer['name']}, CONTACT: {$contact['name']}");
 
 		if ($contact['network'] === NETWORK_DFRN) {
 			$idtosend = $orig_id = (($contact['dfrn-id']) ? $contact['dfrn-id'] : $contact['issued-id']);
@@ -179,6 +180,9 @@ Class OnePoll
 			$ret = z_fetch_url($url);
 
 			if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+				// set the last-update so we don't keep polling
+				dba::update('contact', ['last-update' => datetime_convert()], ['id' => $contact['id']]);
+				Contact::markForArchival($contact);
 				return;
 			}
 
@@ -186,7 +190,7 @@ Class OnePoll
 
 			$html_code = $a->get_curl_code();
 
-			logger('onepoll: handshake with url ' . $url . ' returns xml: ' . $handshake_xml, LOGGER_DATA);
+			logger('handshake with url ' . $url . ' returns xml: ' . $handshake_xml, LOGGER_DATA);
 
 
 			if (!strlen($handshake_xml) || ($html_code >= 400) || !$html_code) {
@@ -200,8 +204,7 @@ Class OnePoll
 
 				// set the last-update so we don't keep polling
 				$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
-				dba::update('contact', $fields, array('id' => $contact['id']));
-
+				self::updateContact($contact, $fields);
 				return;
 			}
 
@@ -211,8 +214,7 @@ Class OnePoll
 				Contact::markForArchival($contact);
 
 				$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
-				dba::update('contact', $fields, array('id' => $contact['id']));
-
+				self::updateContact($contact, $fields);
 				return;
 			}
 
@@ -225,7 +227,7 @@ Class OnePoll
 				// we may not be friends anymore. Will keep trying for one month.
 				// set the last-update so we don't keep polling
 				$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
-				dba::update('contact', $fields, array('id' => $contact['id']));
+				self::updateContact($contact, $fields);
 
 				Contact::markForArchival($contact);
 			} elseif ($contact['term-date'] > NULL_DATE) {
@@ -234,6 +236,8 @@ Class OnePoll
 			}
 
 			if ((intval($res->status) != 0) || !strlen($res->challenge) || !strlen($res->dfrn_id)) {
+				// set the last-update so we don't keep polling
+				dba::update('contact', ['last-update' => datetime_convert()], ['id' => $contact['id']]);
 				return;
 			}
 
@@ -264,8 +268,12 @@ Class OnePoll
 			}
 
 			if ($final_dfrn_id != $orig_id) {
-				logger('ID did not decode: ' . $contact['id'] . ' orig: ' . $orig_id . ' final: ' . $final_dfrn_id);
 				// did not decode properly - cannot trust this site
+				logger('ID did not decode: ' . $contact['id'] . ' orig: ' . $orig_id . ' final: ' . $final_dfrn_id);
+
+				// set the last-update so we don't keep polling
+				dba::update('contact', ['last-update' => datetime_convert()], ['id' => $contact['id']]);
+				Contact::markForArchival($contact);
 				return;
 			}
 
@@ -298,25 +306,33 @@ Class OnePoll
 			// Are we allowed to import from this person?
 
 			if ($contact['rel'] == CONTACT_IS_FOLLOWER || $contact['blocked'] || $contact['readonly']) {
+				// set the last-update so we don't keep polling
+				dba::update('contact', ['last-update' => datetime_convert()], ['id' => $contact['id']]);
 				return;
 			}
 
 			$cookiejar = tempnam(get_temppath(), 'cookiejar-onepoll-');
 			$ret = z_fetch_url($contact['poll'], false, $redirects, array('cookiejar' => $cookiejar));
+			unlink($cookiejar);
 
 			if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+				// set the last-update so we don't keep polling
+				dba::update('contact', ['last-update' => datetime_convert()], ['id' => $contact['id']]);
+				Contact::markForArchival($contact);
 				return;
 			}
 
 			$xml = $ret['body'];
 
-			unlink($cookiejar);
-		} elseif ($contact['network'] === NETWORK_MAIL || $contact['network'] === NETWORK_MAIL2) {
+		} elseif ($contact['network'] === NETWORK_MAIL) {
 
 			logger("Mail: Fetching for ".$contact['addr'], LOGGER_DEBUG);
 
 			$mail_disabled = ((function_exists('imap_open') && (! Config::get('system', 'imap_disabled'))) ? 0 : 1);
 			if ($mail_disabled) {
+				// set the last-update so we don't keep polling
+				dba::update('contact', ['last-update' => datetime_convert()], ['id' => $contact['id']]);
+				Contact::markForArchival($contact);
 				return;
 			}
 
@@ -328,10 +344,10 @@ Class OnePoll
 			$condition = array("`server` != '' AND `uid` = ?", $importer_uid);
 			$mailconf = dba::select('mailacct', array(), $condition, array('limit' => 1));
 			if (DBM::is_result($x) && DBM::is_result($mailconf)) {
-				$mailbox = construct_mailbox_name($mailconf);
+				$mailbox = Email::constructMailboxName($mailconf);
 				$password = '';
 				openssl_private_decrypt(hex2bin($mailconf['pass']), $password, $x['prvkey']);
-				$mbox = email_connect($mailbox, $mailconf['user'], $password);
+				$mbox = Email::connect($mailbox, $mailconf['user'], $password);
 				unset($password);
 				logger("Mail: Connect to " . $mailconf['user']);
 				if ($mbox) {
@@ -344,14 +360,14 @@ Class OnePoll
 			}
 
 			if ($mbox) {
-				$msgs = email_poll($mbox, $contact['addr']);
+				$msgs = Email::poll($mbox, $contact['addr']);
 
 				if (count($msgs)) {
 					logger("Mail: Parsing ".count($msgs)." mails from ".$contact['addr']." for ".$mailconf['user'], LOGGER_DEBUG);
 
-					$metas = email_msg_meta($mbox,implode(',', $msgs));
+					$metas = Email::messageMeta($mbox, implode(',', $msgs));
 					if (count($metas) != count($msgs)) {
-						logger("onepoll: for " . $mailconf['user'] . " there are ". count($msgs) . " messages but received " . count($metas) . " metas", LOGGER_DEBUG);
+						logger("for " . $mailconf['user'] . " there are ". count($msgs) . " messages but received " . count($metas) . " metas", LOGGER_DEBUG);
 					} else {
 						$msgs = array_combine($msgs, $metas);
 
@@ -361,10 +377,9 @@ Class OnePoll
 							$datarray = array();
 							$datarray['verb'] = ACTIVITY_POST;
 							$datarray['object-type'] = ACTIVITY_OBJ_NOTE;
-		//					$meta = email_msg_meta($mbox, $msg_uid);
-		//					$headers = email_msg_headers($mbox, $msg_uid);
+							// $meta = Email::messageMeta($mbox, $msg_uid);
 
-							$datarray['uri'] = msgid2iri(trim($meta->message_id, '<>'));
+							$datarray['uri'] = Email::msgid2iri(trim($meta->message_id, '<>'));
 
 							// Have we seen it before?
 							$fields = array('deleted', 'id');
@@ -416,7 +431,7 @@ Class OnePoll
 								$refs_arr = explode(' ', $raw_refs);
 								if (count($refs_arr)) {
 									for ($x = 0; $x < count($refs_arr); $x ++) {
-										$refs_arr[$x] = "'" . msgid2iri(str_replace(array('<', '>', ' '),array('', '', ''),dbesc($refs_arr[$x]))) . "'";
+										$refs_arr[$x] = "'" . Email::msgid2iri(str_replace(array('<', '>', ' '),array('', '', ''),dbesc($refs_arr[$x]))) . "'";
 									}
 								}
 								$qstr = implode(',', $refs_arr);
@@ -466,7 +481,7 @@ Class OnePoll
 								$datarray['parent-uri'] = $datarray['uri'];
 							}
 
-							$r = email_get_msg($mbox, $msg_uid, $reply);
+							$r = Email::getMessage($mbox, $msg_uid, $reply);
 							if (!$r) {
 								logger("Mail: can't fetch msg ".$msg_uid." for ".$mailconf['user']);
 								continue;
@@ -560,8 +575,8 @@ Class OnePoll
 				logger('post_handshake: response from ' . $url . ' did not contain XML.');
 
 				$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
-				dba::update('contact', $fields, array('id' => $contact['id']));
-
+				self::updateContact($contact, $fields);
+				Contact::markForArchival($contact);
 				return;
 			}
 
@@ -605,13 +620,15 @@ Class OnePoll
 
 			$updated = datetime_convert();
 
-			dba::update('contact', array('last-update' => $updated, 'success_update' => $updated), array('id' => $contact['id']));
+			self::updateContact($contact, array('last-update' => $updated, 'success_update' => $updated));
 			dba::update('gcontact', array('last_contact' => $updated), array('nurl' => $contact['nurl']));
+			Contact::unmarkForArchival($contact);
 		} elseif (in_array($contact["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_FEED))) {
 			$updated = datetime_convert();
 
-			dba::update('contact', array('last-update' => $updated, 'failure_update' => $updated), array('id' => $contact['id']));
+			self::updateContact($contact, array('last-update' => $updated, 'failure_update' => $updated));
 			dba::update('gcontact', array('last_failure' => $updated), array('nurl' => $contact['nurl']));
+			Contact::markForArchival($contact);
 		} else {
 			dba::update('contact', array('last-update' => $updated), array('id' => $contact['id']));
 		}
@@ -625,5 +642,16 @@ Class OnePoll
 		}
 
 		return $subject;
+	}
+
+	/**
+	 * @brief Updates a personal contact entry and the public contact entry
+	 *
+	 * @param array $contact The personal contact entry
+	 * @param array $fields The fields that are updated
+	 */
+	private static function updateContact($contact, $fields) {
+		dba::update('contact', $fields, array('id' => $contact['id']));
+		dba::update('contact', $fields, array('uid' => 0, 'nurl' => $contact['nurl']));
 	}
 }

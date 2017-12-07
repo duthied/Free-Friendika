@@ -94,7 +94,6 @@ function xrd_xml($a, $uri, $alias, $profile_url, $r) {
 		'$profile_url' => $profile_url,
 		'$hcard_url'   => System::baseUrl() . '/hcard/'         . $r['nickname'],
 		'$atom'        => System::baseUrl() . '/dfrn_poll/'     . $r['nickname'],
-		'$zot_post'    => System::baseUrl() . '/post/'          . $r['nickname'],
 		'$poco_url'    => System::baseUrl() . '/poco/'          . $r['nickname'],
 		'$photo'       => System::baseUrl() . '/photo/profile/' . $r['uid']      . '.jpg',
 		'$baseurl' => System::baseUrl(),

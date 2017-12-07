@@ -5,10 +5,9 @@
 <p id="dfrn-request-intro">
 {{$page_desc}}<br />
 <ul id="dfrn-request-networks">
-<li><a href="http://friendica.com" title="{{$friendica}}">{{$friendica}}</a></li>
-<li><a href="http://joindiaspora.com" title="{{$diaspora}}">{{$diaspora}}</a> {{$diasnote}}</li>
-<li><a href="http://ostatus.org" title="{{$public_net}}" >{{$statusnet}}</a></li>
-{{if $emailnet}}<li>{{$emailnet}}</li>{{/if}}
+<li><a href="http://friendi.ca" title="{{$friendica}}">{{$friendica}}</a></li>
+<li><a href="https://diasporafoundation.org" title="{{$diaspora}}">{{$diaspora}}</a> {{$diasnote}}</li>
+<li><a href="https://gnu.io/social/" title="{{$statusnet}}" >{{$statusnet}}</a></li>
 </ul>
 {{$invite_desc}}
 </p>

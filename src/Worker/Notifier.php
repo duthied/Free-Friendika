@@ -11,15 +11,14 @@ use Friendica\Network\Probe;
 use Friendica\Object\Contact;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
+use Friendica\Protocol\Salmon;
 use dba;
 
 require_once 'include/queue_fn.php';
 require_once 'include/html2plain.php';
-require_once 'include/salmon.php';
 require_once 'include/datetime.php';
 require_once 'include/items.php';
 require_once 'include/bbcode.php';
-require_once 'include/email.php';
 
 /*
  * This file was at one time responsible for doing all deliveries, but this caused
@@ -448,7 +447,7 @@ class Notifier {
 				// It only makes sense to distribute answers to OStatus messages to Friendica and OStatus - but not Diaspora
 				$sql_extra = " AND `network` IN ('".NETWORK_OSTATUS."', '".NETWORK_DFRN."')";
 			} else {
-				$sql_extra = " AND `network` IN ('".NETWORK_OSTATUS."', '".NETWORK_DFRN."', '".NETWORK_DIASPORA."', '".NETWORK_MAIL."', '".NETWORK_MAIL2."')";
+				$sql_extra = " AND `network` IN ('".NETWORK_OSTATUS."', '".NETWORK_DFRN."', '".NETWORK_DIASPORA."', '".NETWORK_MAIL."')";
 			}
 		} else {
 			$public_message = false;
@@ -506,11 +505,11 @@ class Notifier {
 		// They are especially used for notifications to OStatus users that don't follow us.
 
 		if ($slap && count($url_recipients) && ($public_message || $push_notify) && $normal_mode) {
-			if (!Config::get('system','dfrn_only')) {
+			if (!Config::get('system', 'dfrn_only')) {
 				foreach ($url_recipients as $url) {
 					if ($url) {
 						logger('notifier: urldelivery: ' . $url);
-						$deliver_status = slapper($owner,$url,$slap);
+						$deliver_status = Salmon::slapper($owner, $url, $slap);
 						/// @TODO Redeliver/queue these items on failure, though there is no contact record
 					}
 				}
@@ -538,9 +537,8 @@ class Notifier {
 			}
 
 			$r2 = q("SELECT `id`, `name`,`network` FROM `contact`
-				WHERE `network` in ('%s', '%s') AND `uid` = %d AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `rel` != %d",
+				WHERE `network` in ('%s') AND `uid` = %d AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `rel` != %d",
 				dbesc(NETWORK_DFRN),
-				dbesc(NETWORK_MAIL2),
 				intval($owner['uid']),
 				intval(CONTACT_IS_SHARING)
 			);

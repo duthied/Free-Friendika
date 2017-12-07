@@ -151,11 +151,8 @@ class OStatus
 
 		// Only update the contacts if it is an OStatus contact
 		if ($r && ($r['id'] > 0) && !$onlyfetch && ($contact["network"] == NETWORK_OSTATUS)) {
-			// This contact is vital, so we awake it from the dead
-			Contact::unmarkForArchival($contact);
 
 			// Update contact data
-
 			$current = $contact;
 			unset($current['name-date']);
 

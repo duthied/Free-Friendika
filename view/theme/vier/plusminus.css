@@ -1,5 +1,7 @@
 /* Modifications by https://horche.demkontinuum.de/profile/hoergen */
 
+body { background-color: whitesmoke; }
+
 h1 {
   font-size: 18px;
   color: blue;
@@ -247,15 +249,25 @@ div.pager, ul.tabs {
 
 /* Post content */
 .wall-item-content blockquote {
-  border-left: 2px solid #D2D2D2;
+  border-left: 0px;
   margin-top: 10px;
   margin-bottom:10px;
   padding-left: 5px;
 }
 
+.wall-item-container .wall-item-content {
+  font-size: 14px;
+}
+
 .wall-item-content strong { color:#565656; }
 
 .wall-item-network { font-size:10px; }
+
+.contact-photo-wrapper .mframe .p-author .h-card {
+  width: 65px;
+}
+
+.shared-time { font-size: 10px; }
 
 .mention { font-size:12px;}
 
@@ -268,14 +280,29 @@ div.pager, ul.tabs {
   padding-top: 5px;
   padding-bottom: 5px;
   margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .type-link blockquote{
-  border-left: 2px solid #D2D2D2;
+  border-left: 0px;
   margin-top: 10px;
   margin-bottom:10px;
-  padding-left: 5px;
+  padding-left: 0px;
   font-size:12px;
+}
+
+.type-link .oembed, .type-video .oembed {
+  font-size: 14px;
+  font-weight: 300;
+  line-height: normal;
+}
+
+.shared_header {
+  min-height: 32px;;
+  color: #999;
+  border-top: 0px;
+  padding-top: 5px;
+  margin-top: 5px;
 }
 
 /* Post footer */
@@ -313,6 +340,10 @@ div.pager, ul.tabs {
 }
 
 .wall-item-bottom { font-size: 14px; }
+
+.icon::before {
+  width: 10px;
+}
 
 /* comments */
 
@@ -421,5 +452,57 @@ select {
 }
 
 .field label {
-   width: 300px;
+  width: 300px;
 }
+
+/* popup */
+
+ul.menu-popup {
+  width: 16em;
+}
+
+ul.menu-popup a {
+  padding: 0 0 0 5px;
+}
+
+/* Growl Popup */
+
+.jGrowl, .notice * {
+  color: white;
+}
+
+/* Buttons */
+
+input[type=submit] {
+  padding:0px 20px; 
+  color:white;
+  background:#6c82ff; 
+  border:1px solid darkgrey;
+  cursor:pointer;
+  -webkit-border-radius: 5px;
+  border-radius: 5px; 
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  box-shadow: 2px 2px 15px 0 rgba(0,0,0,0.24);
+}
+
+input[type=submit]:hover {
+  background:#0026ff; 
+
+}
+
+input[type=text], input[type=password], input[type=email], input[type=url] {
+  padding:2px 2px; 
+  background:white; 
+  border:1px solid darkgrey;
+  cursor:pointer;
+  -webkit-border-radius: 5px;
+  border-radius: 5px; 
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+}
+
+input[type=text]:focus, input[type=password]:focus, input[type=email]:focus, input[type=url]:focus {
+  background-color:#eef3ff;
+}
+

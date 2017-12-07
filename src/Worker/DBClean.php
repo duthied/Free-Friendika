@@ -17,19 +17,26 @@ class DBClean {
 			return;
 		}
 
+		if ($stage == 0) {
+			self::forkCleanProcess();
+		} else {
+			self::removeOrphans($stage);
+		}
+	}
+
+	/**
+	 * @brief Fork the different DBClean processes
+	 */
+	private static function forkCleanProcess() {
 		// Get the expire days for step 8 and 9
 		$days = Config::get('system', 'dbclean-expire-days', 0);
 
-		if ($stage == 0) {
-			for ($i = 1; $i <= 9; $i++) {
-				// Execute the background script for a step when it isn't finished.
-				// Execute step 8 and 9 only when $days is defined.
-				if (!Config::get('system', 'finished-dbclean-'.$i, false) && (($i < 8) || ($days > 0))) {
-					Worker::add(PRIORITY_LOW, 'DBClean', $i);
-				}
+		for ($i = 1; $i <= 10; $i++) {
+			// Execute the background script for a step when it isn't finished.
+			// Execute step 8 and 9 only when $days is defined.
+			if (!Config::get('system', 'finished-dbclean-'.$i, false) && (($i < 8) || ($i > 9) || ($days > 0))) {
+				Worker::add(PRIORITY_LOW, 'DBClean', $i);
 			}
-		} else {
-			self::removeOrphans($stage);
 		}
 	}
 
@@ -39,17 +46,18 @@ class DBClean {
 	 *
 	 * Values for $stage:
 	 * ------------------
-	 * 1:	Old global item entries from item table without user copy.
-	 * 2:	Items without parents.
-	 * 3:	Orphaned data from thread table.
-	 * 4:	Orphaned data from notify table.
-	 * 5:	Orphaned data from notify-threads table.
-	 * 6:	Orphaned data from sign table.
-	 * 7:	Orphaned data from term table.
-	 * 8:	Expired threads.
-	 * 9:	Old global item entries from expired threads
+	 *  1:	Old global item entries from item table without user copy.
+	 *  2:	Items without parents.
+	 *  3:	Orphaned data from thread table.
+	 *  4:	Orphaned data from notify table.
+	 *  5:	Orphaned data from notify-threads table.
+	 *  6:	Orphaned data from sign table.
+	 *  7:	Orphaned data from term table.
+	 *  8:	Expired threads.
+	 *  9:	Old global item entries from expired threads.
+	 * 10:	Old conversations.
 	 */
-	private static function removeOrphans($stage = 0) {
+	private static function removeOrphans($stage) {
 		global $db;
 
 		$count = 0;
@@ -75,6 +83,7 @@ class DBClean {
 					$last_id = $orphan["id"];
 					dba::delete('item', array('id' => $orphan["id"]));
 				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 1, $last_id);
 			} else {
 				logger("No global item orphans found");
 			}
@@ -96,6 +105,7 @@ class DBClean {
 					$last_id = $orphan["id"];
 					dba::delete('item', array('id' => $orphan["id"]));
 				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 2, $last_id);
 			} else {
 				logger("No item orphans without parents found");
 			}
@@ -121,6 +131,7 @@ class DBClean {
 					$last_id = $orphan["iid"];
 					dba::delete('thread', array('iid' => $orphan["iid"]));
 				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 3, $last_id);
 			} else {
 				logger("No thread orphans found");
 			}
@@ -146,6 +157,7 @@ class DBClean {
 					$last_id = $orphan["id"];
 					dba::delete('notify', array('iid' => $orphan["iid"]));
 				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 4, $last_id);
 			} else {
 				logger("No notify orphans found");
 			}
@@ -171,6 +183,7 @@ class DBClean {
 					$last_id = $orphan["id"];
 					dba::delete('notify-threads', array('id' => $orphan["id"]));
 				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 5, $last_id);
 			} else {
 				logger("No notify-threads orphans found");
 			}
@@ -196,6 +209,7 @@ class DBClean {
 					$last_id = $orphan["id"];
 					dba::delete('sign', array('iid' => $orphan["iid"]));
 				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 6, $last_id);
 			} else {
 				logger("No sign orphans found");
 			}
@@ -221,6 +235,7 @@ class DBClean {
 					$last_id = $orphan["tid"];
 					dba::delete('term', array('oid' => $orphan["oid"]));
 				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 7, $last_id);
 			} else {
 				logger("No term orphans found");
 			}
@@ -259,6 +274,7 @@ class DBClean {
 					$last_id = $thread["iid"];
 					dba::delete('thread', array('iid' => $thread["iid"]));
 				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 8, $last_id);
 			} else {
 				logger("No expired threads found");
 			}
@@ -286,6 +302,7 @@ class DBClean {
 					$last_id = $orphan["id"];
 					dba::delete('item', array('id' => $orphan["id"]));
 				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 9, $last_id);
 			} else {
 				logger("No global item entries from expired threads");
 			}
@@ -293,11 +310,28 @@ class DBClean {
 			logger("Done deleting ".$count." old global item entries from expired threads. Last ID: ".$last_id);
 
 			Config::set('system', 'dbclean-last-id-9', $last_id);
-		}
+		} elseif ($stage == 10) {
+			$last_id = Config::get('system', 'dbclean-last-id-10', 0);
 
-		// Call it again if not all entries were purged
-		if (($stage != 0) && ($count > 0)) {
-			Worker::add(PRIORITY_MEDIUM, 'dbclean');
+			logger("Deleting old conversations. Last created: ".$last_id);
+			$r = dba::p("SELECT `received`, `item-uri` FROM `conversation`
+					WHERE `received` < UTC_TIMESTAMP() - INTERVAL 90 DAY
+					ORDER BY `received` LIMIT ".intval($limit));
+			$count = dba::num_rows($r);
+			if ($count > 0) {
+				logger("found old conversations: ".$count);
+				while ($orphan = dba::fetch($r)) {
+					$last_id = $orphan["received"];
+					dba::delete('conversation', array('item-uri' => $orphan["item-uri"]));
+				}
+				Worker::add(PRIORITY_MEDIUM, 'DBClean', 10, $last_id);
+			} else {
+				logger("No old conversations found");
+			}
+			dba::close($r);
+			logger("Done deleting ".$count." conversations. Last created: ".$last_id);
+
+			Config::set('system', 'dbclean-last-id-10', $last_id);
 		}
 	}
 }

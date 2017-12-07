@@ -1,6 +1,9 @@
 <?php
-
+/**
+ * @file include/text.php
+ */
 use Friendica\App;
+use Friendica\Content\Feature;
 use Friendica\Content\Smilies;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
@@ -1046,7 +1049,7 @@ function search($s, $id = 'search-box', $url = 'search', $save = false, $aside =
 			'$action_url' => $url,
 			'$search_label' => t('Search'),
 			'$save_label' => t('Save'),
-			'$savedsearch' => feature_enabled(local_user(),'savedsearch'),
+			'$savedsearch' => Feature::isEnabled(local_user(),'savedsearch'),
 			'$search_hint' => t('@name, !forum, #tags, content'),
 		);
 

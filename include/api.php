@@ -6,12 +6,14 @@
  * @todo Automatically detect if incoming data is HTML or BBCode
  */
 use Friendica\App;
+use Friendica\Content\Feature;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\User;
+use Friendica\Network\FKOAuth1;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\ForbiddenException;
@@ -29,7 +31,6 @@ use Friendica\Util\XML;
 require_once 'include/bbcode.php';
 require_once 'include/datetime.php';
 require_once 'include/conversation.php';
-require_once 'include/oauth.php';
 require_once 'include/html2plain.php';
 require_once 'mod/share.php';
 require_once 'mod/item.php';
@@ -156,12 +157,12 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
  */
 function api_login(App $a)
 {
+	$oauth1 = new FKOAuth1();
 	// login with oauth
 	try {
-		$oauth = new FKOAuth1();
-		list($consumer,$token) = $oauth->verify_request(OAuthRequest::from_request());
+		list($consumer, $token) = $oauth1->verify_request(OAuthRequest::from_request());
 		if (!is_null($token)) {
-			$oauth->loginUser($token->uid);
+			$oauth1->loginUser($token->uid);
 			call_hooks('logged_in', $a->user);
 			return;
 		}
@@ -3363,9 +3364,9 @@ api_register_func('api/direct_messages', 'api_direct_messages_inbox', true);
 
 function api_oauth_request_token($type)
 {
+	$oauth1 = new FKOAuth1();
 	try {
-		$oauth = new FKOAuth1();
-		$r = $oauth->fetch_request_token(OAuthRequest::from_request());
+		$r = $oauth1->fetch_request_token(OAuthRequest::from_request());
 	} catch (Exception $e) {
 		echo "error=" . OAuthUtil::urlencode_rfc3986($e->getMessage());
 		killme();
@@ -3376,9 +3377,9 @@ function api_oauth_request_token($type)
 
 function api_oauth_access_token($type)
 {
+	$oauth1 = new FKOAuth1();
 	try {
-		$oauth = new FKOAuth1();
-		$r = $oauth->fetch_access_token(OAuthRequest::from_request());
+		$r = $oauth1->fetch_access_token(OAuthRequest::from_request());
 	} catch (Exception $e) {
 		echo "error=". OAuthUtil::urlencode_rfc3986($e->getMessage());
 		killme();
@@ -5100,7 +5101,7 @@ function api_friendica_profile_show($type)
 	$profileid = (x($_REQUEST, 'profile_id') ? $_REQUEST['profile_id'] : 0);
 
 	// retrieve general information about profiles for user
-	$multi_profiles = feature_enabled(api_user(), 'multi_profiles');
+	$multi_profiles = Feature::isEnabled(api_user(), 'multi_profiles');
 	$directory = Config::get('system', 'directory');
 
 	// get data of the specified profile id or all profiles of the user if not specified

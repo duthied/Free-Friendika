@@ -1,4 +1,7 @@
 <?php
+/**
+ * @file mod/item.php
+ */
 
 /*
  * This is the POST destination for most all locally posted
@@ -14,7 +17,6 @@
  * Posts that originate externally or do not fall into the above
  * posting categories go through item_store() instead of this function.
  */
-
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
@@ -24,11 +26,11 @@ use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
 use Friendica\Object\Contact;
 use Friendica\Protocol\Diaspora;
+use Friendica\Protocol\Email;
 use Friendica\Util\Emailer;
 
 require_once 'include/crypto.php';
 require_once 'include/enotify.php';
-require_once 'include/email.php';
 require_once 'include/tags.php';
 require_once 'include/files.php';
 require_once 'include/threads.php';
@@ -1030,9 +1032,9 @@ function item_post(App $a) {
 				$disclaimer .= sprintf( t('You may visit them online at %s'), System::baseUrl() . '/profile/' . $a->user['nickname']) . EOL;
 				$disclaimer .= t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
 				if (!$datarray['title']=='') {
-					$subject = email_header_encode($datarray['title'], 'UTF-8');
+					$subject = Email::encodeHeader($datarray['title'], 'UTF-8');
 				} else {
-					$subject = email_header_encode('[Friendica]' . ' ' . sprintf( t('%s posted an update.'), $a->user['username']), 'UTF-8');
+					$subject = Email::encodeHeader('[Friendica]' . ' ' . sprintf( t('%s posted an update.'), $a->user['username']), 'UTF-8');
 				}
 				$link = '<a href="' . System::baseUrl() . '/profile/' . $a->user['nickname'] . '"><img src="' . $author['thumb'] . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
 				$html    = prepare_body($datarray);

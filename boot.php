@@ -36,7 +36,6 @@ require_once 'include/text.php';
 require_once 'include/datetime.php';
 require_once 'include/pgettext.php';
 require_once 'include/nav.php';
-require_once 'include/features.php';
 require_once 'include/identity.php';
 require_once 'update.php';
 require_once 'include/dbstructure.php';
@@ -45,7 +44,7 @@ define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Asparagus');
 define('FRIENDICA_VERSION',      '3.6-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
-define('DB_UPDATE_VERSION',      1235);
+define('DB_UPDATE_VERSION',      1236);
 
 /**
  * @brief Constant with a HTML line break.
@@ -254,25 +253,24 @@ define('PROTOCOL_SPLITTED_CONV',   6);
  * @{
  */
 define('NETWORK_DFRN',             'dfrn');    // Friendica, Mistpark, other DFRN implementations
-define('NETWORK_ZOT',              'zot!');    // Zot!
-define('NETWORK_OSTATUS',          'stat');    // status.net, identi.ca, GNU-social, other OStatus implementations
+define('NETWORK_ZOT',              'zot!');    // Zot! - Currently unsupported
+define('NETWORK_OSTATUS',          'stat');    // GNU-social, Pleroma, Mastodon, other OStatus implementations
 define('NETWORK_FEED',             'feed');    // RSS/Atom feeds with no known "post/notify" protocol
 define('NETWORK_DIASPORA',         'dspr');    // Diaspora
 define('NETWORK_MAIL',             'mail');    // IMAP/POP
-define('NETWORK_MAIL2',            'mai2');    // extended IMAP/POP
 define('NETWORK_FACEBOOK',         'face');    // Facebook API
 define('NETWORK_LINKEDIN',         'lnkd');    // LinkedIn
-define('NETWORK_XMPP',             'xmpp');    // XMPP
-define('NETWORK_MYSPACE',          'mysp');    // MySpace
+define('NETWORK_XMPP',             'xmpp');    // XMPP - Currently unsupported
+define('NETWORK_MYSPACE',          'mysp');    // MySpace - Currently unsupported
 define('NETWORK_GPLUS',            'goog');    // Google+
 define('NETWORK_PUMPIO',           'pump');    // pump.io
 define('NETWORK_TWITTER',          'twit');    // Twitter
 define('NETWORK_DIASPORA2',        'dspc');    // Diaspora connector
 define('NETWORK_STATUSNET',        'stac');    // Statusnet connector
-define('NETWORK_APPNET',           'apdn');    // app.net
-define('NETWORK_NEWS',             'nntp');    // Network News Transfer Protocol
-define('NETWORK_ICALENDAR',        'ical');    // iCalendar
-define('NETWORK_PNUT',             'pnut');    // pnut.io
+define('NETWORK_APPNET',           'apdn');    // app.net - Dead protocol
+define('NETWORK_NEWS',             'nntp');    // Network News Transfer Protocol - Currently unsupported
+define('NETWORK_ICALENDAR',        'ical');    // iCalendar - Currently unsupported
+define('NETWORK_PNUT',             'pnut');    // pnut.io - Currently unsupported
 define('NETWORK_PHANTOM',          'unkn');    // Place holder
 /**
  * @}
@@ -290,7 +288,6 @@ $netgroup_ids = array(
 	NETWORK_FEED     => (-4),
 	NETWORK_DIASPORA => (-5),
 	NETWORK_MAIL     => (-6),
-	NETWORK_MAIL2    => (-7),
 	NETWORK_FACEBOOK => (-8),
 	NETWORK_LINKEDIN => (-9),
 	NETWORK_XMPP     => (-10),
@@ -689,7 +686,7 @@ function update_db(App $a)
 				// Compare the current structure with the defined structure
 
 				$t = Config::get('database', 'dbupdate_' . DB_UPDATE_VERSION);
-				if ($t !== false) {
+				if (!is_null($t)) {
 					return;
 				}
 
@@ -745,7 +742,7 @@ function run_update_function($x)
 		// delete the config entry to try again.
 
 		$t = Config::get('database', 'update_' . $x);
-		if ($t !== false) {
+		if (!is_null($t)) {
 			return false;
 		}
 		Config::set('database', 'update_' . $x, time());

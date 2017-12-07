@@ -3,6 +3,7 @@
  * @file mod/settings.php
  */
 use Friendica\App;
+use Friendica\Content\Feature;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Core\Config;
@@ -10,6 +11,7 @@ use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Model\User;
+use Friendica\Protocol\Email;
 
 require_once 'include/group.php';
 
@@ -51,7 +53,7 @@ function settings_init(App $a) {
 		),
 	);
 
-	if (get_features()) {
+	if (Feature::get()) {
 		$tabs[] =	array(
 					'label'	=> t('Additional features'),
 					'url' 	=> 'settings/features',
@@ -259,12 +261,12 @@ function settings_post(App $a) {
 				);
 				if (DBM::is_result($r)) {
 					$eacct = $r[0];
-					require_once('include/email.php');
-					$mb = construct_mailbox_name($eacct);
+					$mb = Email::constructMailboxName($eacct);
+
 					if (strlen($eacct['server'])) {
 						$dcrpass = '';
 						openssl_private_decrypt(hex2bin($eacct['pass']), $dcrpass, $a->user['prvkey']);
-						$mbox = email_connect($mb, $mail_user, $dcrpass);
+						$mbox = Email::connect($mb, $mail_user, $dcrpass);
 						unset($dcrpass);
 						if (!$mbox) {
 							$failed = true;
@@ -347,7 +349,6 @@ function settings_post(App $a) {
 			}
 		}
 
-
 		$r = q("UPDATE `user` SET `theme` = '%s' WHERE `uid` = %d",
 				dbesc($theme),
 				intval(local_user())
@@ -369,7 +370,6 @@ function settings_post(App $a) {
 	call_hooks('settings_post', $_POST);
 
 	if (x($_POST, 'password') || x($_POST, 'confirm')) {
-
 		$newpass = $_POST['password'];
 		$confirm = $_POST['confirm'];
 
@@ -384,9 +384,8 @@ function settings_post(App $a) {
 			$err = true;
         }
 
-        //  check if the old password was supplied correctly before
-        //  changing it to the new value
-        if (User::authenticate(intval(local_user()), $_POST['opassword'])) {
+        //  check if the old password was supplied correctly before changing it to the new value
+        if (!User::authenticate(intval(local_user()), $_POST['opassword'])) {
             notice(t('Wrong password.') . EOL);
             $err = true;
         }
@@ -397,13 +396,13 @@ function settings_post(App $a) {
 				dbesc($password),
 				intval(local_user())
 			);
-			if ($r)
+			if ($r) {
 				info(t('Password changed.') . EOL);
-			else
+			} else {
 				notice(t('Password update failed. Please try again.') . EOL);
+			}
 		}
 	}
-
 
 	$username         = ((x($_POST, 'username'))   ? notags(trim($_POST['username']))     : '');
 	$email            = ((x($_POST, 'email'))      ? notags(trim($_POST['email']))        : '');
@@ -786,12 +785,12 @@ function settings_content(App $a) {
 	if (($a->argc > 1) && ($a->argv[1] === 'features')) {
 
 		$arr = array();
-		$features = get_features();
+		$features = Feature::get();
 		foreach ($features as $fname => $fdata) {
 			$arr[$fname] = array();
 			$arr[$fname][0] = $fdata[0];
 			foreach (array_slice($fdata,1) as $f) {
-				$arr[$fname][1][] = array('feature_' .$f[0], $f[1],((intval(feature_enabled(local_user(), $f[0]))) ? "1" : ''), $f[2],array(t('Off'), t('On')));
+				$arr[$fname][1][] = array('feature_' .$f[0], $f[1],((intval(Feature::isEnabled(local_user(), $f[0]))) ? "1" : ''), $f[2],array(t('Off'), t('On')));
 			}
 		}
 

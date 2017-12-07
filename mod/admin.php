@@ -1,17 +1,17 @@
 <?php
-
- /**
+/**
  * @file mod/admin.php
  *
  * @brief Friendica admin
  */
-
 use Friendica\App;
+use Friendica\Content\Feature;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\User;
+use Friendica\Object\Contact;
 
 require_once 'include/enotify.php';
 require_once 'include/text.php';
@@ -30,16 +30,15 @@ require_once 'include/items.php';
  * @param App $a
  *
  */
-function admin_post(App $a) {
-
-
+function admin_post(App $a)
+{
 	if (!is_site_admin()) {
 		return;
 	}
 
 	// do not allow a page manager to access the admin panel at all.
 
-	if (x($_SESSION,'submanage') && intval($_SESSION['submanage'])) {
+	if (x($_SESSION, 'submanage') && intval($_SESSION['submanage'])) {
 		return;
 	}
 
@@ -54,14 +53,14 @@ function admin_post(App $a) {
 				break;
 			case 'plugins':
 				if ($a->argc > 2 &&
-					is_file("addon/".$a->argv[2]."/".$a->argv[2].".php")) {
-						@include_once("addon/".$a->argv[2]."/".$a->argv[2].".php");
-						if (function_exists($a->argv[2].'_plugin_admin_post')) {
-							$func = $a->argv[2].'_plugin_admin_post';
-							$func($a);
-						}
+					is_file("addon/" . $a->argv[2] . "/" . $a->argv[2] . ".php")) {
+					@include_once("addon/" . $a->argv[2] . "/" . $a->argv[2] . ".php");
+					if (function_exists($a->argv[2] . '_plugin_admin_post')) {
+						$func = $a->argv[2] . '_plugin_admin_post';
+						$func($a);
+					}
 				}
-				goaway('admin/plugins/'.$a->argv[2]);
+				goaway('admin/plugins/' . $a->argv[2]);
 				return; // NOTREACHED
 				break;
 			case 'themes':
@@ -75,7 +74,9 @@ function admin_post(App $a) {
 
 				$theme = $a->argv[2];
 				if (is_file("view/theme/$theme/config.php")) {
-					function __call_theme_admin_post(App $a, $theme) {
+
+					function __call_theme_admin_post(App $a, $theme)
+					{
 						$orig_theme = $a->theme;
 						$orig_page = $a->page;
 						$orig_session_theme = $_SESSION['theme'];
@@ -84,7 +85,7 @@ function admin_post(App $a) {
 						$_SESSION['theme'] = $theme;
 
 
-						$init = $theme."_init";
+						$init = $theme . "_init";
 						if (function_exists($init)) {
 							$init($a);
 						}
@@ -103,7 +104,7 @@ function admin_post(App $a) {
 				if (is_ajax()) {
 					return;
 				}
-				goaway('admin/themes/'.$theme);
+				goaway('admin/themes/' . $theme);
 				return;
 				break;
 			case 'features':
@@ -114,6 +115,9 @@ function admin_post(App $a) {
 				break;
 			case 'dbsync':
 				admin_page_dbsync_post($a);
+				break;
+			case 'contactblock':
+				admin_page_contactblock_post($a);
 				break;
 			case 'blocklist':
 				admin_page_blocklist_post($a);
@@ -145,13 +149,13 @@ function admin_post(App $a) {
  * @param App $a
  * @return string
  */
-function admin_content(App $a) {
-
+function admin_content(App $a)
+{
 	if (!is_site_admin()) {
 		return login(false);
 	}
 
-	if (x($_SESSION,'submanage') && intval($_SESSION['submanage'])) {
+	if (x($_SESSION, 'submanage') && intval($_SESSION['submanage'])) {
 		return "";
 	}
 
@@ -160,9 +164,8 @@ function admin_content(App $a) {
 	//	$toDelete = new APCIterator('user', APC_ITER_VALUE);
 	//	apc_delete($toDelete);
 	//}
-
 	// Header stuff
-	$a->page['htmlhead'] .= replace_macros(get_markup_template('admin_settings_head.tpl'), array());
+	$a->page['htmlhead'] .= replace_macros(get_markup_template('admin/settings_head.tpl'), array());
 
 	/*
 	 * Side bar links
@@ -171,25 +174,26 @@ function admin_content(App $a) {
 	// array(url, name, extra css classes)
 	// not part of $aside to make the template more adjustable
 	$aside_sub = array(
-		'site'	 =>	array("admin/site/", t("Site") , "site"),
-		'users'	 =>	array("admin/users/", t("Users") , "users"),
-		'plugins'=>	array("admin/plugins/", t("Plugins") , "plugins"),
-		'themes' =>	array("admin/themes/", t("Themes") , "themes"),
-		'features' =>	array("admin/features/", t("Additional features") , "features"),
-		'dbsync' => 	array("admin/dbsync/", t('DB updates'), "dbsync"),
-		'queue'	 =>	array("admin/queue/", t('Inspect Queue'), "queue"),
-		'blocklist' => array("admin/blocklist/", t('Server Blocklist'), "blocklist"),
-		'federation' => array("admin/federation/", t('Federation Statistics'), "federation"),
-		'deleteitem' => array("admin/deleteitem/", t('Delete Item'), 'deleteitem'),
+		'site'         => array("admin/site/"        , t("Site")                 , "site"),
+		'users'        => array("admin/users/"       , t("Users")                , "users"),
+		'plugins'      => array("admin/plugins/"     , t("Plugins")              , "plugins"),
+		'themes'       => array("admin/themes/"      , t("Themes")               , "themes"),
+		'features'     => array("admin/features/"    , t("Additional features")  , "features"),
+		'dbsync'       => array("admin/dbsync/"      , t('DB updates')           , "dbsync"),
+		'queue'        => array("admin/queue/"       , t('Inspect Queue')        , "queue"),
+		'contactblock' => array("admin/contactblock/", t('Contact Blocklist')    , "contactblock"),
+		'blocklist'    => array("admin/blocklist/"   , t('Server Blocklist')     , "blocklist"),
+		'federation'   => array("admin/federation/"  , t('Federation Statistics'), "federation"),
+		'deleteitem'   => array("admin/deleteitem/"  , t('Delete Item')          , 'deleteitem'),
 	);
 
 	/* get plugins admin page */
 
 	$r = q("SELECT `name` FROM `addon` WHERE `plugin_admin` = 1 ORDER BY `name`");
-	$aside_tools['plugins_admin']=array();
+	$aside_tools['plugins_admin'] = array();
 	foreach ($r as $h) {
-		$plugin =$h['name'];
-		$aside_tools['plugins_admin'][] = array("admin/plugins/".$plugin, $plugin, "plugin");
+		$plugin = $h['name'];
+		$aside_tools['plugins_admin'][] = array("admin/plugins/" . $plugin, $plugin, "plugin");
 		// temp plugins with admin
 		$a->plugins_admin[] = $plugin;
 	}
@@ -199,7 +203,7 @@ function admin_content(App $a) {
 	$aside_tools['diagnostics_probe'] = array('probe/', t('probe address'), 'probe');
 	$aside_tools['diagnostics_webfinger'] = array('webfinger/', t('check webfinger'), 'webfinger');
 
-	$t = get_markup_template("admin_aside.tpl");
+	$t = get_markup_template('admin/aside.tpl');
 	$a->page['aside'] .= replace_macros($t, array(
 		'$admin' => $aside_tools,
 		'$subpages' => $aside_sub,
@@ -208,14 +212,10 @@ function admin_content(App $a) {
 		'$logtxt' => t('Logs'),
 		'$diagnosticstxt' => t('diagnostics'),
 		'$h_pending' => t('User registrations waiting for confirmation'),
-		'$admurl'=> "admin/"
+		'$admurl' => "admin/"
 	));
 
-
-
-	/*
-	 * Page content
-	 */
+	// Page content
 	$o = '';
 	// urls
 	if ($a->argc > 1) {
@@ -250,6 +250,9 @@ function admin_content(App $a) {
 			case 'federation':
 				$o = admin_page_federation($a);
 				break;
+			case 'contactblock':
+				$o = admin_page_contactblock($a);
+				break;
 			case 'blocklist':
 				$o = admin_page_blocklist($a);
 				break;
@@ -283,19 +286,20 @@ function admin_content(App $a) {
  * @param App $a
  * @return string
  */
-function admin_page_blocklist(App $a) {
+function admin_page_blocklist(App $a)
+{
 	$blocklist = Config::get('system', 'blocklist');
 	$blocklistform = array();
 	if (is_array($blocklist)) {
-		foreach($blocklist as $id => $b) {
+		foreach ($blocklist as $id => $b) {
 			$blocklistform[] = array(
 				'domain' => array("domain[$id]", t('Blocked domain'), $b['domain'], '', t('The blocked domain'), 'required', '', ''),
-				'reason' => array("reason[$id]", t("Reason for the block"), $b['reason'], t('The reason why you blocked this domain.').'('.$b['domain'].')', 'required', '', ''),
-				'delete' => array("delete[$id]", t("Delete domain").' ('.$b['domain'].')', False , t("Check to delete this entry from the blocklist"))
+				'reason' => array("reason[$id]", t("Reason for the block"), $b['reason'], t('The reason why you blocked this domain.') . '(' . $b['domain'] . ')', 'required', '', ''),
+				'delete' => array("delete[$id]", t("Delete domain") . ' (' . $b['domain'] . ')', False, t("Check to delete this entry from the blocklist"))
 			);
 		}
 	}
-	$t = get_markup_template("admin_blocklist.tpl");
+	$t = get_markup_template('admin/blocklist.tpl');
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Server Blocklist'),
@@ -313,7 +317,7 @@ function admin_page_blocklist(App $a) {
 		'$entries' => $blocklistform,
 		'$baseurl' => System::baseUrl(true),
 		'$confirm_delete' => t('Delete entry from blocklist?'),
-		'$form_security_token'	=> get_form_security_token("admin_blocklist")
+		'$form_security_token' => get_form_security_token("admin_blocklist")
 	));
 }
 
@@ -322,8 +326,9 @@ function admin_page_blocklist(App $a) {
  *
  * @param App $a
  */
-function admin_page_blocklist_post(App $a) {
-	if (!x($_POST,"page_blocklist_save") && (!x($_POST['page_blocklist_edit']))) {
+function admin_page_blocklist_post(App $a)
+{
+	if (!x($_POST, "page_blocklist_save") && (!x($_POST['page_blocklist_edit']))) {
 		return;
 	}
 
@@ -337,7 +342,7 @@ function admin_page_blocklist_post(App $a) {
 			'reason' => notags(trim($_POST['newentry_reason']))
 		);
 		Config::set('system', 'blocklist', $blocklist);
-		info(t('Server added to blocklist.').EOL);
+		info(t('Server added to blocklist.') . EOL);
 	} else {
 		// Edit the entries from blocklist
 		$blocklist = array();
@@ -353,11 +358,91 @@ function admin_page_blocklist_post(App $a) {
 			}
 		}
 		Config::set('system', 'blocklist', $blocklist);
-		info(t('Site blocklist updated.').EOL);
+		info(t('Site blocklist updated.') . EOL);
 	}
 	goaway('admin/blocklist');
 
 	return; // NOTREACHED
+}
+
+/**
+ * @brief Process data send by the contact block admin page
+ *
+ * @param App $a
+ */
+function admin_page_contactblock_post(App $a)
+{
+	$contact_url = x($_POST, 'contact_url') ? $_POST['contact_url'] : '';
+	$contacts    = x($_POST, 'contacts')    ? $_POST['contacts']    : [];
+
+	check_form_security_token_redirectOnErr('/admin/contactblock', 'admin_contactblock');
+
+	if (x($_POST, 'page_contactblock_block')) {
+		$contact_id = Contact::getIdForURL($contact_url, 0);
+		if ($contact_id) {
+			Contact::block($contact_id);
+			notice(t('The contact has been blocked from the node'));
+		} else {
+			notice(t('Could not find any contact entry for this URL (%s)', $contact_url));
+		}
+	}
+	if (x($_POST, 'page_contactblock_unblock')) {
+		foreach ($contacts as $uid) {
+			Contact::unblock($uid);
+		}
+		notice(tt("%s contact unblocked", "%s contacts unblocked", count($contacts)));
+	}
+	goaway('admin/contactblock');
+	return; // NOTREACHED
+}
+
+/**
+ * @brief Admin panel for server-wide contact block
+ *
+ * @param App $a
+ * @return string
+ */
+function admin_page_contactblock(App $a)
+{
+	$condition = ['uid' => 0, 'blocked' => true];
+
+	$total = dba::count('contact', $condition);
+
+	$a->set_pager_total($total);
+	$a->set_pager_itemspage(30);
+
+	$statement = dba::select('contact', [], $condition, ['limit' => [$a->pager['start'], $a->pager['itemspage']]]);
+
+	$contacts = dba::inArray($statement);
+
+	$t = get_markup_template('admin/contactblock.tpl');
+	$o = replace_macros($t, array(
+		// strings //
+		'$title'       => t('Administration'),
+		'$page'        => t('Remote Contact Blocklist'),
+		'$description' => t('This page allows you to prevent any message from a remote contact to reach your node.'),
+		'$submit'      => t('Block Remote Contact'),
+		'$select_all'  => t('select all'),
+		'$select_none' => t('select none'),
+		'$block'       => t('Block'),
+		'$unblock'     => t('Unblock'),
+		'$no_data'     => t('No remote contact is blocked from this node.'),
+
+		'$h_contacts'  => t('Blocked Remote Contacts'),
+		'$h_newblock'  => t('Block New Remote Contact'),
+		'$th_contacts' => [t('Photo'), t('Name'), t('Address'), t('Profile URL')],
+
+		'$form_security_token' => get_form_security_token("admin_contactblock"),
+
+		// values //
+		'$baseurl'    => System::baseUrl(true),
+
+		'$contacts'   => $contacts,
+		'$total_contacts' => tt('%s total blocked contact', '%s total blocked contacts', $total),
+		'$paginate'   => paginate($a),
+		'$contacturl' => ['contact_url', t("Profile URL"), '', t("URL of the remote contact to block.")],
+	));
+	return $o;
 }
 
 /**
@@ -370,8 +455,9 @@ function admin_page_blocklist_post(App $a) {
  * @param App $a
  * @return string
  */
-function admin_page_deleteitem(App $a) {
-	$t = get_markup_template("admin_deleteitem.tpl");
+function admin_page_deleteitem(App $a)
+{
+	$t = get_markup_template('admin/deleteitem.tpl');
 
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
@@ -381,9 +467,10 @@ function admin_page_deleteitem(App $a) {
 		'$intro2' => t('You need to know the GUID of the item. You can find it e.g. by looking at the display URL. The last part of http://example.com/display/123456 is the GUID, here 123456.'),
 		'$deleteitemguid' => array('deleteitemguid', t("GUID"), '', t("The GUID of the item you want to delete."), 'required', 'autofocus'),
 		'$baseurl' => System::baseUrl(),
-		'$form_security_token'	=> get_form_security_token("admin_deleteitem")
+		'$form_security_token' => get_form_security_token("admin_deleteitem")
 	));
 }
+
 /**
  * @brief Process send data from Admin Delete Item Page
  *
@@ -392,7 +479,8 @@ function admin_page_deleteitem(App $a) {
  *
  * @param App $a
  */
-function admin_page_deleteitem_post(App $a) {
+function admin_page_deleteitem_post(App $a)
+{
 	if (!x($_POST['page_deleteitem_submit'])) {
 		return;
 	}
@@ -404,19 +492,19 @@ function admin_page_deleteitem_post(App $a) {
 		// The GUID should not include a "/", so if there is one, we got an URL
 		// and the last part of it is most likely the GUID.
 		if (strpos($guid, '/')) {
-			$guid = substr($guid, strrpos($guid, '/')+1);
+			$guid = substr($guid, strrpos($guid, '/') + 1);
 		}
 		// Now that we have the GUID get all IDs of the associated entries in the
 		// item table of the DB and drop those items, which will also delete the
 		// associated threads.
-		$r = dba::select('item', array('id'), array('guid'=>$guid));
+		$r = dba::select('item', array('id'), array('guid' => $guid));
 		while ($row = dba::fetch($r)) {
 			drop_item($row['id'], false);
 		}
 		dba::close($r);
 	}
 
-	info(t('Item marked for deletion.').EOL);
+	info(t('Item marked for deletion.') . EOL);
 	goaway('admin/deleteitem');
 	return; // NOTREACHED
 }
@@ -435,7 +523,8 @@ function admin_page_deleteitem_post(App $a) {
  * @param App $a
  * @return string
  */
-function admin_page_federation(App $a) {
+function admin_page_federation(App $a)
+{
 	// get counts on active friendica, diaspora, redmatrix, hubzilla, gnu
 	// social and statusnet nodes this node is knowing
 	//
@@ -445,15 +534,17 @@ function admin_page_federation(App $a) {
 	// Add more platforms if you like, when one returns 0 known nodes it is not
 	// displayed on the stats page.
 	$platforms = array('Friendi%%a', 'Diaspora', '%%red%%', 'Hubzilla', 'BlaBlaNet', 'GNU Social', 'StatusNet', 'Mastodon', 'Pleroma');
-	$colors    = array('Friendi%%a' => '#ffc018',     // orange from the logo
-			   'Diaspora'  => '#a1a1a1',     // logo is black and white, makes a gray
-			   '%%red%%'   => '#c50001',     // fire red from the logo
-			   'Hubzilla'  => '#43488a',     // blue from the logo
-			   'BlaBlaNet' => '#3B5998',     // blue from the navbar at blablanet-dot-com
-			   'GNU Social'=> '#a22430',     // dark red from the logo
-			   'StatusNet' => '#789240',     // the green from the logo (red and blue have already others
-			   'Mastodon'  => '#1a9df9',    // blue from the Mastodon logo
-			   'Pleroma'  => '#E46F0F');    // Orange from the text that is used on Pleroma instances
+	$colors = array(
+		'Friendi%%a' => '#ffc018', // orange from the logo
+		'Diaspora'   => '#a1a1a1', // logo is black and white, makes a gray
+		'%%red%%'    => '#c50001', // fire red from the logo
+		'Hubzilla'   => '#43488a', // blue from the logo
+		'BlaBlaNet'  => '#3B5998', // blue from the navbar at blablanet-dot-com
+		'GNU Social' => '#a22430', // dark red from the logo
+		'StatusNet'  => '#789240', // the green from the logo (red and blue have already others
+		'Mastodon'   => '#1a9df9', // blue from the Mastodon logo
+		'Pleroma'    => '#E46F0F'  // Orange from the text that is used on Pleroma instances
+	);
 	$counts = array();
 	$total = 0;
 
@@ -480,7 +571,7 @@ function admin_page_federation(App $a) {
 		// to the version string for the displayed list.
 		foreach ($v as $key => $value) {
 			if ($v[$key]['version'] == '') {
-				$v[$key] = array('total'=>$v[$key]['total'], 'version'=>t('unknown'));
+				$v[$key] = array('total' => $v[$key]['total'], 'version' => t('unknown'));
 			}
 		}
 		// in the DB the Diaspora versions have the format x.x.x.x-xx the last
@@ -503,7 +594,7 @@ function admin_page_federation(App $a) {
 				}
 			}
 			foreach ($newV as $key => $value) {
-				array_push($newVv, array('total'=>$value, 'version'=>$key));
+				array_push($newVv, array('total' => $value, 'version' => $key));
 			}
 			$v = $newVv;
 		}
@@ -517,9 +608,9 @@ function admin_page_federation(App $a) {
 			foreach ($v as $vv) {
 				$newVC = $vv['total'];
 				$newVV = $vv['version'];
-				$lastDot = strrpos($newVV,'.');
-				$len = strlen($newVV)-1;
-				if (($lastDot == $len-4) && (!strrpos($newVV,'-rc') == $len-3)) {
+				$lastDot = strrpos($newVV, '.');
+				$len = strlen($newVV) - 1;
+				if (($lastDot == $len - 4) && (!strrpos($newVV, '-rc') == $len - 3)) {
 					$newVV = substr($newVV, 0, $lastDot);
 				}
 				if (isset($newV[$newVV])) {
@@ -529,7 +620,7 @@ function admin_page_federation(App $a) {
 				}
 			}
 			foreach ($newV as $key => $value) {
-				array_push($newVv, array('total'=>$value, 'version'=>$key));
+				array_push($newVv, array('total' => $value, 'version' => $key));
 			}
 			$v = $newVv;
 		}
@@ -539,7 +630,7 @@ function admin_page_federation(App $a) {
 
 		// the 3rd array item is needed for the JavaScript graphs as JS does
 		// not like some characters in the names of variables...
-		$counts[$p]=array($c[0], $v, str_replace(array(' ','%'),'',$p), $colors[$p]);
+		$counts[$p] = array($c[0], $v, str_replace(array(' ', '%'), '', $p), $colors[$p]);
 	}
 
 	// some helpful text
@@ -547,7 +638,7 @@ function admin_page_federation(App $a) {
 	$hint = t('The <em>Auto Discovered Contact Directory</em> feature is not enabled, it will improve the data displayed here.');
 
 	// load the template, replace the macros and return the page content
-	$t = get_markup_template("admin_federation.tpl");
+	$t = get_markup_template('admin/federation.tpl');
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Federation Statistics'),
@@ -574,14 +665,15 @@ function admin_page_federation(App $a) {
  * @param App $a
  * @return string
  */
-function admin_page_queue(App $a) {
+function admin_page_queue(App $a)
+{
 	// get content from the queue table
 	$r = q("SELECT `c`.`name`, `c`.`nurl`, `q`.`id`, `q`.`network`, `q`.`created`, `q`.`last`
 			FROM `queue` AS `q`, `contact` AS `c`
 			WHERE `c`.`id` = `q`.`cid`
 			ORDER BY `q`.`cid`, `q`.`created`;");
 
-	$t = get_markup_template("admin_queue.tpl");
+	$t = get_markup_template('admin/queue.tpl');
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Inspect Queue'),
@@ -608,10 +700,10 @@ function admin_page_queue(App $a) {
  * @param App $a
  * @return string
  */
-function admin_page_summary(App $a) {
+function admin_page_summary(App $a)
+{
 	// are there MyISAM tables in the DB? If so, trigger a warning message
-	$r = q("SELECT `engine` FROM `information_schema`.`tables` WHERE `engine` = 'myisam' AND `table_schema` = '%s' LIMIT 1",
-		dbesc(dba::database_name()));
+	$r = q("SELECT `engine` FROM `information_schema`.`tables` WHERE `engine` = 'myisam' AND `table_schema` = '%s' LIMIT 1", dbesc(dba::database_name()));
 	$showwarning = false;
 	$warningtext = array();
 	if (DBM::is_result($r)) {
@@ -620,8 +712,8 @@ function admin_page_summary(App $a) {
 	}
 	// Check if github.com/friendica/master/VERSION is higher then
 	// the local version of Friendica. Check is opt-in, source may be master or devel branch
-	if (Config::get('system', 'check_new_version_url', 'none') != 'none' ) {
-		$gitversion = Config::get('system','git_friendica_version');
+	if (Config::get('system', 'check_new_version_url', 'none') != 'none') {
+		$gitversion = Config::get('system', 'git_friendica_version');
 		if (version_compare(FRIENDICA_VERSION, $gitversion) < 0) {
 			$warningtext[] = sprintf(t('There is a new version of Friendica available for download. Your current version is %1$s, upstream version is %2$s'), $FRIENDICA_VERSION, $gitversion);
 			$showwarning = true;
@@ -656,13 +748,13 @@ function admin_page_summary(App $a) {
 		array(t('Private Forum Account'), 0)
 	);
 
-	$users=0;
+	$users = 0;
 	foreach ($r as $u) {
 		$accounts[$u['page-flags']][1] = $u['count'];
 		$users+= $u['count'];
 	}
 
-	logger('accounts: '.print_r($accounts,true),LOGGER_DATA);
+	logger('accounts: ' . print_r($accounts, true), LOGGER_DATA);
 
 	$r = q("SELECT COUNT(`id`) AS `count` FROM `register`");
 	$pending = $r[0]['count'];
@@ -678,7 +770,7 @@ function admin_page_summary(App $a) {
 	$queues = array('label' => t('Message queues'), 'queue' => $queue, 'workerq' => $workerqueue);
 
 
-	$t = get_markup_template("admin_summary.tpl");
+	$t = get_markup_template('admin/summary.tpl');
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Summary'),
@@ -690,7 +782,7 @@ function admin_page_summary(App $a) {
 		'$baseurl' => System::baseUrl(),
 		'$platform' => FRIENDICA_PLATFORM,
 		'$codename' => FRIENDICA_CODENAME,
-		'$build' =>  Config::get('system','build'),
+		'$build' => Config::get('system', 'build'),
 		'$plugins' => array(t('Active plugins'), $a->plugins),
 		'$showwarning' => $showwarning,
 		'$warningtext' => $warningtext
@@ -702,7 +794,8 @@ function admin_page_summary(App $a) {
  *
  * @param App $a
  */
-function admin_page_site_post(App $a) {
+function admin_page_site_post(App $a)
+{
 	check_form_security_token_redirectOnErr('/admin/site', 'admin_site');
 
 	if (!empty($_POST['republish_directory'])) {
@@ -710,17 +803,17 @@ function admin_page_site_post(App $a) {
 		return;
 	}
 
-	if (!x($_POST,"page_site")) {
+	if (!x($_POST, "page_site")) {
 		return;
 	}
 
 	// relocate
-	if (x($_POST,'relocate') && x($_POST,'relocate_url') && $_POST['relocate_url'] != "") {
+	if (x($_POST, 'relocate') && x($_POST, 'relocate_url') && $_POST['relocate_url'] != "") {
 		$new_url = $_POST['relocate_url'];
-		$new_url = rtrim($new_url,"/");
+		$new_url = rtrim($new_url, "/");
 
 		$parsed = @parse_url($new_url);
-		if (!$parsed || (!x($parsed,'host') || !x($parsed,'scheme'))) {
+		if (!$parsed || (!x($parsed, 'host') || !x($parsed, 'scheme'))) {
 			notice(t("Can not parse base url. Must have at least <scheme>://<domain>"));
 			goaway('admin/site');
 		}
@@ -736,7 +829,8 @@ function admin_page_site_post(App $a) {
 		$new_host = str_replace("http://", "@", normalise_link($new_url));
 		$old_host = str_replace("http://", "@", normalise_link($old_url));
 
-		function update_table($table_name, $fields, $old_url, $new_url) {
+		function update_table($table_name, $fields, $old_url, $new_url)
+		{
 			global $a;
 
 			$dbold = dbesc($old_url);
@@ -754,26 +848,25 @@ function admin_page_site_post(App $a) {
 			$q = sprintf("UPDATE %s SET %s;", $table_name, $upds);
 			$r = q($q);
 			if (!$r) {
-				notice("Failed updating '$table_name': ".dba::errorMessage());
+				notice("Failed updating '$table_name': " . dba::errorMessage());
 				goaway('admin/site');
 			}
 		}
-
 		// update tables
 		// update profile links in the format "http://server.tld"
 		update_table("profile", array('photo', 'thumb'), $old_url, $new_url);
 		update_table("term", array('url'), $old_url, $new_url);
-		update_table("contact", array('photo','thumb','micro','url','nurl','alias','request','notify','poll','confirm','poco', 'avatar'), $old_url, $new_url);
-		update_table("gcontact", array('url','nurl','photo','server_url','notify','alias'), $old_url, $new_url);
-		update_table("item", array('owner-link','owner-avatar','author-link','author-avatar','body','plink','tag'), $old_url, $new_url);
+		update_table("contact", array('photo', 'thumb', 'micro', 'url', 'nurl', 'alias', 'request', 'notify', 'poll', 'confirm', 'poco', 'avatar'), $old_url, $new_url);
+		update_table("gcontact", array('url', 'nurl', 'photo', 'server_url', 'notify', 'alias'), $old_url, $new_url);
+		update_table("item", array('owner-link', 'owner-avatar', 'author-link', 'author-avatar', 'body', 'plink', 'tag'), $old_url, $new_url);
 
 		// update profile addresses in the format "user@server.tld"
 		update_table("contact", array('addr'), $old_host, $new_host);
-		update_table("gcontact", array('connect','addr'), $old_host, $new_host);
+		update_table("gcontact", array('connect', 'addr'), $old_host, $new_host);
 
 		// update config
 		$a->set_baseurl($new_url);
-		Config::set('system','url',$new_url);
+		Config::set('system', 'url', $new_url);
 
 		// send relocate
 		$users = q("SELECT `uid` FROM `user` WHERE `account_removed` = 0 AND `account_expired` = 0");
@@ -873,7 +966,7 @@ function admin_page_site_post(App $a) {
 	if ($a->get_path() != "") {
 		$diaspora_enabled = false;
 	}
-	if ($ssl_policy != intval(Config::get('system','ssl_policy'))) {
+	if ($ssl_policy != intval(Config::get('system', 'ssl_policy'))) {
 		if ($ssl_policy == SSL_POLICY_FULL) {
 			q("UPDATE `contact` SET
 				`url`     = REPLACE(`url`    , 'http:' , 'https:'),
@@ -912,52 +1005,50 @@ function admin_page_site_post(App $a) {
 			);
 		}
 	}
-	Config::set('system','ssl_policy',$ssl_policy);
-	Config::set('system','maxloadavg',$maxloadavg);
-	Config::set('system','maxloadavg_frontend',$maxloadavg_frontend);
-	Config::set('system','min_memory',$min_memory);
-	Config::set('system','optimize_max_tablesize',$optimize_max_tablesize);
-	Config::set('system','optimize_fragmentation',$optimize_fragmentation);
-	Config::set('system','poco_completion',$poco_completion);
-	Config::set('system','poco_requery_days',$poco_requery_days);
-	Config::set('system','poco_discovery',$poco_discovery);
-	Config::set('system','poco_discovery_since',$poco_discovery_since);
-	Config::set('system','poco_local_search',$poco_local_search);
-	Config::set('system','nodeinfo',$nodeinfo);
-	Config::set('config','sitename',$sitename);
-	Config::set('config','hostname',$hostname);
-	Config::set('config','sender_email', $sender_email);
-	Config::set('system','suppress_tags',$suppress_tags);
-	Config::set('system','shortcut_icon',$shortcut_icon);
-	Config::set('system','touch_icon',$touch_icon);
+	Config::set('system', 'ssl_policy', $ssl_policy);
+	Config::set('system', 'maxloadavg', $maxloadavg);
+	Config::set('system', 'maxloadavg_frontend', $maxloadavg_frontend);
+	Config::set('system', 'min_memory', $min_memory);
+	Config::set('system', 'optimize_max_tablesize', $optimize_max_tablesize);
+	Config::set('system', 'optimize_fragmentation', $optimize_fragmentation);
+	Config::set('system', 'poco_completion', $poco_completion);
+	Config::set('system', 'poco_requery_days', $poco_requery_days);
+	Config::set('system', 'poco_discovery', $poco_discovery);
+	Config::set('system', 'poco_discovery_since', $poco_discovery_since);
+	Config::set('system', 'poco_local_search', $poco_local_search);
+	Config::set('system', 'nodeinfo', $nodeinfo);
+	Config::set('config', 'sitename', $sitename);
+	Config::set('config', 'hostname', $hostname);
+	Config::set('config', 'sender_email', $sender_email);
+	Config::set('system', 'suppress_tags', $suppress_tags);
+	Config::set('system', 'shortcut_icon', $shortcut_icon);
+	Config::set('system', 'touch_icon', $touch_icon);
 
 	if ($banner == "") {
 		// don't know why, but del_config doesn't work...
-		q("DELETE FROM `config` WHERE `cat` = '%s' AND `k` = '%s' LIMIT 1",
-			dbesc("system"),
-			dbesc("banner")
+		q("DELETE FROM `config` WHERE `cat` = '%s' AND `k` = '%s' LIMIT 1", dbesc("system"), dbesc("banner")
 		);
 	} else {
-		Config::set('system','banner', $banner);
+		Config::set('system', 'banner', $banner);
 	}
 
 	if ($info == "") {
-		Config::delete('config','info');
+		Config::delete('config', 'info');
 	} else {
-		Config::set('config','info',$info);
+		Config::set('config', 'info', $info);
 	}
-	Config::set('system','language', $language);
-	Config::set('system','theme', $theme);
+	Config::set('system', 'language', $language);
+	Config::set('system', 'theme', $theme);
 
 	if ($theme_mobile == '---') {
-		Config::delete('system','mobile-theme');
+		Config::delete('system', 'mobile-theme');
 	} else {
-		Config::set('system','mobile-theme', $theme_mobile);
+		Config::set('system', 'mobile-theme', $theme_mobile);
 	}
 	if ($singleuser == '---') {
-		Config::delete('system','singleuser');
+		Config::delete('system', 'singleuser');
 	} else {
-		Config::set('system','singleuser', $singleuser);
+		Config::set('system', 'singleuser', $singleuser);
 	}
 	Config::set('system', 'maximagesize', $maximagesize);
 	Config::set('system', 'max_image_length', $maximagelength);
@@ -1023,10 +1114,9 @@ function admin_page_site_post(App $a) {
 	Config::set('system', 'frontend_worker', $worker_frontend);
 	Config::set('system', 'rino_encrypt', $rino);
 
-	info(t('Site settings updated.').EOL);
+	info(t('Site settings updated.') . EOL);
 	goaway('admin/site');
 	return; // NOTREACHED
-
 }
 
 /**
@@ -1037,15 +1127,15 @@ function admin_page_site_post(App $a) {
  * @param  App $a
  * @return string
  */
-function admin_page_site(App $a) {
-
+function admin_page_site(App $a)
+{
 	/* Installed langs */
 	$lang_choices = get_available_languages();
 
-	if (strlen(Config::get('system','directory_submit_url')) &&
-		!strlen(Config::get('system','directory'))) {
-			Config::set('system','directory', dirname(Config::get('system','directory_submit_url')));
-			Config::delete('system','directory_submit_url');
+	if (strlen(Config::get('system', 'directory_submit_url')) &&
+		!strlen(Config::get('system', 'directory'))) {
+		Config::set('system', 'directory', dirname(Config::get('system', 'directory_submit_url')));
+		Config::delete('system', 'directory_submit_url');
 	}
 
 	/* Installed themes */
@@ -1058,8 +1148,9 @@ function admin_page_site(App $a) {
 		$allowed_theme_list = Config::get('system', 'allowed_themes');
 
 		foreach ($files as $file) {
-			if (intval(file_exists($file.'/unsupported')))
+			if (intval(file_exists($file . '/unsupported'))) {
 				continue;
+			}
 
 			$f = basename($file);
 
@@ -1068,9 +1159,9 @@ function admin_page_site(App $a) {
 				continue;
 			}
 
-			$theme_name = ((file_exists($file.'/experimental')) ?  sprintf("%s - \x28Experimental\x29", $f) : $f);
+			$theme_name = ((file_exists($file . '/experimental')) ? sprintf("%s - \x28Experimental\x29", $f) : $f);
 
-			if (file_exists($file.'/mobile')) {
+			if (file_exists($file . '/mobile')) {
 				$theme_choices_mobile[$f] = $theme_name;
 			} else {
 				$theme_choices[$f] = $theme_name;
@@ -1083,7 +1174,7 @@ function admin_page_site(App $a) {
 		CP_NO_COMMUNITY_PAGE => t("No community page"),
 		CP_USERS_ON_SERVER => t("Public postings from users of this site"),
 		CP_GLOBAL_COMMUNITY => t("Global community page")
-		);
+	);
 
 	/* OStatus conversation poll choices */
 	$ostatus_poll_choices = array(
@@ -1093,21 +1184,21 @@ function admin_page_site(App $a) {
 		"60" => t("Hourly"),
 		"720" => t("Twice daily"),
 		"1440" => t("Daily")
-		);
+	);
 
 	$poco_discovery_choices = array(
 		"0" => t("Disabled"),
 		"1" => t("Users"),
 		"2" => t("Users, Global Contacts"),
 		"3" => t("Users, Global Contacts/fallback"),
-		);
+	);
 
 	$poco_discovery_since_choices = array(
 		"30" => t("One month"),
 		"91" => t("Three months"),
 		"182" => t("Half a year"),
 		"365" => t("One year"),
-		);
+	);
 
 	/* get user names to make the install a personal install of X */
 	$user_names = array();
@@ -1118,12 +1209,12 @@ function admin_page_site(App $a) {
 	}
 
 	/* Banner */
-	$banner = Config::get('system','banner');
+	$banner = Config::get('system', 'banner');
 	if ($banner == false) {
 		$banner = '<a href="https://friendi.ca"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>';
 	}
 	$banner = htmlspecialchars($banner);
-	$info = Config::get('config','info');
+	$info = Config::get('config', 'info');
 	$info = htmlspecialchars($info);
 
 	// Automatically create temporary paths
@@ -1156,7 +1247,7 @@ function admin_page_site(App $a) {
 	}
 	$diaspora_able = ($a->get_path() == "");
 
-	$optimize_max_tablesize = Config::get('system','optimize_max_tablesize', 100);
+	$optimize_max_tablesize = Config::get('system', 'optimize_max_tablesize', 100);
 
 	if ($optimize_max_tablesize < -1) {
 		$optimize_max_tablesize = -1;
@@ -1166,7 +1257,7 @@ function admin_page_site(App $a) {
 		$optimize_max_tablesize = 100;
 	}
 
-	$t = get_markup_template("admin_site.tpl");
+	$t = get_markup_template('admin/site.tpl');
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Site'),
@@ -1179,7 +1270,7 @@ function admin_page_site(App $a) {
 		'$portable_contacts' => t('Auto Discovered Contact Directory'),
 		'$performance' => t('Performance'),
 		'$worker_title' => t('Worker'),
-		'$relocate'=> t('Relocate - WARNING: advanced function. Could make this server unreachable.'),
+		'$relocate' => t('Relocate - WARNING: advanced function. Could make this server unreachable.'),
 		'$baseurl' => System::baseUrl(true),
 		// name, label, value, help string, extra data...
 		'$sitename' 		=> array('sitename', t("Site name"), $a->config['sitename'],''),
@@ -1188,7 +1279,7 @@ function admin_page_site(App $a) {
 		'$banner'		=> array('banner', t("Banner/Logo"), $banner, ""),
 		'$shortcut_icon'	=> array('shortcut_icon', t("Shortcut icon"), Config::get('system','shortcut_icon'),  t("Link to an icon that will be used for browsers.")),
 		'$touch_icon'		=> array('touch_icon', t("Touch icon"), Config::get('system','touch_icon'),  t("Link to an icon that will be used for tablets and mobiles.")),
-		'$info'			=> array('info', t('Additional Info'), $info, sprintf(t('For public servers: you can add additional information here that will be listed at %s/siteinfo.'), get_server())),
+		'$info'			=> array('info', t('Additional Info'), $info, sprintf(t('For public servers: you can add additional information here that will be listed at %s/servers.'), get_server())),
 		'$language' 		=> array('language', t("System language"), Config::get('system','language'), "", $lang_choices),
 		'$theme' 		=> array('theme', t("System theme"), Config::get('system','theme'), t("Default system theme - may be over-ridden by user profiles - <a href='#' id='cnftheme'>change theme settings</a>"), $theme_choices),
 		'$theme_mobile' 	=> array('theme_mobile', t("Mobile system theme"), Config::get('system', 'mobile-theme', '---'), t("Theme for mobile devices"), $theme_choices_mobile),
@@ -1264,9 +1355,7 @@ function admin_page_site(App $a) {
 		'$worker_frontend'	=> array('worker_frontend', t('Enable frontend worker'), Config::get('system','frontend_worker'), sprintf(t('When enabled the Worker process is triggered when backend access is performed (e.g. messages being delivered). On smaller sites you might want to call %s/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server.'), System::baseUrl())),
 
 		'$form_security_token'	=> get_form_security_token("admin_site")
-
 	));
-
 }
 
 /**
@@ -1280,18 +1369,18 @@ function admin_page_site(App $a) {
  *
  * @param App $a
  * @return string
- **/
-function admin_page_dbsync(App $a) {
-
+ * */
+function admin_page_dbsync(App $a)
+{
 	$o = '';
 
 	if ($a->argc > 3 && intval($a->argv[3]) && $a->argv[2] === 'mark') {
-		Config::set('database', 'update_'.intval($a->argv[3]), 'success');
-		$curr = Config::get('system','build');
+		Config::set('database', 'update_' . intval($a->argv[3]), 'success');
+		$curr = Config::get('system', 'build');
 		if (intval($curr) == intval($a->argv[3])) {
-			Config::set('system','build',intval($curr) + 1);
+			Config::set('system', 'build', intval($curr) + 1);
 		}
-		info(t('Update has been marked successful').EOL);
+		info(t('Update has been marked successful') . EOL);
 		goaway('admin/dbsync');
 	}
 
@@ -1299,11 +1388,10 @@ function admin_page_dbsync(App $a) {
 		require_once("include/dbstructure.php");
 		$retval = update_structure(false, true);
 		if (!$retval) {
-			$o .= sprintf(t("Database structure update %s was successfully applied."), DB_UPDATE_VERSION)."<br />";
-			Config::set('database', 'dbupdate_'.DB_UPDATE_VERSION, 'success');
+			$o .= sprintf(t("Database structure update %s was successfully applied."), DB_UPDATE_VERSION) . "<br />";
+			Config::set('database', 'dbupdate_' . DB_UPDATE_VERSION, 'success');
 		} else {
-			$o .= sprintf(t("Executing of database structure update %s failed with error: %s"),
-					DB_UPDATE_VERSION, $retval)."<br />";
+			$o .= sprintf(t("Executing of database structure update %s failed with error: %s"), DB_UPDATE_VERSION, $retval) . "<br />";
 		}
 		if ($a->argv[2] === 'check') {
 			return $o;
@@ -1311,22 +1399,21 @@ function admin_page_dbsync(App $a) {
 	}
 
 	if ($a->argc > 2 && intval($a->argv[2])) {
-		require_once('update.php');
-		$func = 'update_'.intval($a->argv[2]);
+		require_once 'update.php';
+		$func = 'update_' . intval($a->argv[2]);
 		if (function_exists($func)) {
 			$retval = $func();
 			if ($retval === UPDATE_FAILED) {
 				$o .= sprintf(t("Executing %s failed with error: %s"), $func, $retval);
-			}
-			elseif ($retval === UPDATE_SUCCESS) {
+			} elseif ($retval === UPDATE_SUCCESS) {
 				$o .= sprintf(t('Update %s was successfully applied.', $func));
-				Config::set('database',$func, 'success');
+				Config::set('database', $func, 'success');
 			} else {
 				$o .= sprintf(t('Update %s did not return a status. Unknown if it succeeded.'), $func);
 			}
 		} else {
-			$o .= sprintf(t('There was no additional update function %s that needed to be called.'), $func)."<br />";
-			Config::set('database',$func, 'success');
+			$o .= sprintf(t('There was no additional update function %s that needed to be called.'), $func) . "<br />";
+			Config::set('database', $func, 'success');
 		}
 		return $o;
 	}
@@ -1335,32 +1422,31 @@ function admin_page_dbsync(App $a) {
 	$r = q("SELECT `k`, `v` FROM `config` WHERE `cat` = 'database' ");
 	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
-			$upd = intval(substr($rr['k'],7));
+			$upd = intval(substr($rr['k'], 7));
 			if ($upd < 1139 || $rr['v'] === 'success') {
 				continue;
 			}
 			$failed[] = $upd;
 		}
 	}
-	if (! count($failed)) {
-		$o = replace_macros(get_markup_template('structure_check.tpl'),array(
-			'$base'   => System::baseUrl(true),
+	if (!count($failed)) {
+		$o = replace_macros(get_markup_template('structure_check.tpl'), array(
+			'$base' => System::baseUrl(true),
 			'$banner' => t('No failed updates.'),
-			'$check'  => t('Check database structure'),
+			'$check' => t('Check database structure'),
 		));
 	} else {
-		$o = replace_macros(get_markup_template('failed_updates.tpl'),array(
-			'$base'   => System::baseUrl(true),
+		$o = replace_macros(get_markup_template('failed_updates.tpl'), array(
+			'$base' => System::baseUrl(true),
 			'$banner' => t('Failed Updates'),
-			'$desc'   => t('This does not include updates prior to 1139, which did not return a status.'),
-			'$mark'   => t('Mark success (if update was manually applied)'),
-			'$apply'  => t('Attempt to execute this update step automatically'),
+			'$desc' => t('This does not include updates prior to 1139, which did not return a status.'),
+			'$mark' => t('Mark success (if update was manually applied)'),
+			'$apply' => t('Attempt to execute this update step automatically'),
 			'$failed' => $failed
 		));
 	}
 
 	return $o;
-
 }
 
 /**
@@ -1368,7 +1454,8 @@ function admin_page_dbsync(App $a) {
  *
  * @param App $a
  */
-function admin_page_users_post(App $a) {
+function admin_page_users_post(App $a)
+{
 	$pending     = (x($_POST, 'pending')           ? $_POST['pending']           : array());
 	$users       = (x($_POST, 'user')              ? $_POST['user']		      : array());
 	$nu_name     = (x($_POST, 'new_user_name')     ? $_POST['new_user_name']     : '');
@@ -1379,11 +1466,9 @@ function admin_page_users_post(App $a) {
 	check_form_security_token_redirectOnErr('/admin/users', 'admin_users');
 
 	if (!($nu_name === "") && !($nu_email === "") && !($nu_nickname === "")) {
-		require_once('include/user.php');
-
-		$result = create_user(array('username'=>$nu_name, 'email'=>$nu_email,
-			'nickname'=>$nu_nickname, 'verified'=>1, 'language'=>$nu_language));
-		if (! $result['success']) {
+		$result = User::create(array('username' => $nu_name, 'email' => $nu_email,
+			'nickname' => $nu_nickname, 'verified' => 1, 'language' => $nu_language));
+		if (!$result['success']) {
 			notice($result['message']);
 			return;
 		}
@@ -1423,34 +1508,32 @@ function admin_page_users_post(App $a) {
 		notification(array(
 			'type' => SYSTEM_EMAIL,
 			'to_email' => $nu['email'],
-			'subject'=> sprintf(t('Registration details for %s'), $a->config['sitename']),
-			'preamble'=> $preamble,
+			'subject' => sprintf(t('Registration details for %s'), $a->config['sitename']),
+			'preamble' => $preamble,
 			'body' => $body));
-
 	}
 
-	if (x($_POST,'page_users_block')) {
+	if (x($_POST, 'page_users_block')) {
 		foreach ($users as $uid) {
-			q("UPDATE `user` SET `blocked` = 1-`blocked` WHERE `uid` = %s",
-				intval($uid)
+			q("UPDATE `user` SET `blocked` = 1-`blocked` WHERE `uid` = %s", intval($uid)
 			);
 		}
 		notice(sprintf(tt("%s user blocked/unblocked", "%s users blocked/unblocked", count($users)), count($users)));
 	}
-	if (x($_POST,'page_users_delete')) {
+	if (x($_POST, 'page_users_delete')) {
 		foreach ($users as $uid) {
 			User::remove($uid);
 		}
 		notice(sprintf(tt("%s user deleted", "%s users deleted", count($users)), count($users)));
 	}
 
-	if (x($_POST,'page_users_approve')) {
+	if (x($_POST, 'page_users_approve')) {
 		require_once("mod/regmod.php");
 		foreach ($pending as $hash) {
 			user_allow($hash);
 		}
 	}
-	if (x($_POST,'page_users_deny')) {
+	if (x($_POST, 'page_users_deny')) {
 		require_once("mod/regmod.php");
 		foreach ($pending as $hash) {
 			user_deny($hash);
@@ -1472,35 +1555,33 @@ function admin_page_users_post(App $a) {
  * @param App $a
  * @return string
  */
-function admin_page_users(App $a) {
-	if ($a->argc>2) {
+function admin_page_users(App $a)
+{
+	if ($a->argc > 2) {
 		$uid = $a->argv[3];
 		$user = q("SELECT `username`, `blocked` FROM `user` WHERE `uid` = %d", intval($uid));
 		if (count($user) == 0) {
-			notice('User not found'.EOL);
+			notice('User not found' . EOL);
 			goaway('admin/users');
 			return ''; // NOTREACHED
 		}
-		switch($a->argv[2]) {
+		switch ($a->argv[2]) {
 			case "delete":
 				check_form_security_token_redirectOnErr('/admin/users', 'admin_users', 't');
 				// delete user
 				User::remove($uid);
 
-				notice(sprintf(t("User '%s' deleted"), $user[0]['username']).EOL);
+				notice(sprintf(t("User '%s' deleted"), $user[0]['username']) . EOL);
 				break;
 			case "block":
 				check_form_security_token_redirectOnErr('/admin/users', 'admin_users', 't');
-				q("UPDATE `user` SET `blocked` = %d WHERE `uid` = %s",
-					intval(1-$user[0]['blocked']),
-					intval($uid)
+				q("UPDATE `user` SET `blocked` = %d WHERE `uid` = %s", intval(1 - $user[0]['blocked']), intval($uid)
 				);
-				notice(sprintf(($user[0]['blocked']?t("User '%s' unblocked"):t("User '%s' blocked")) , $user[0]['username']).EOL);
+				notice(sprintf(($user[0]['blocked'] ? t("User '%s' unblocked") : t("User '%s' blocked")), $user[0]['username']) . EOL);
 				break;
 		}
 		goaway('admin/users');
 		return ''; // NOTREACHED
-
 	}
 
 	/* get pending */
@@ -1529,31 +1610,29 @@ function admin_page_users(App $a) {
 
 	$order = "contact.name";
 	$order_direction = "+";
-	if (x($_GET,'o')) {
+	if (x($_GET, 'o')) {
 		$new_order = $_GET['o'];
 		if ($new_order[0] === "-") {
 			$order_direction = "-";
-			$new_order = substr($new_order,1);
+			$new_order = substr($new_order, 1);
 		}
 
 		if (in_array($new_order, $valid_orders)) {
 			$order = $new_order;
 		}
-		if (x($_GET,'d')) {
+		if (x($_GET, 'd')) {
 			$new_direction = $_GET['d'];
 		}
 	}
-	$sql_order = "`".str_replace('.','`.`',$order)."`";
-	$sql_order_direction = ($order_direction === "+")?"ASC":"DESC";
+	$sql_order = "`" . str_replace('.', '`.`', $order) . "`";
+	$sql_order_direction = ($order_direction === "+") ? "ASC" : "DESC";
 
 	$users = q("SELECT `user`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`account_expired`, `contact`.`last-item` AS `lastitem_date`
 				FROM `user`
 				INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
 				WHERE `user`.`verified`
-				ORDER BY $sql_order $sql_order_direction LIMIT %d, %d",
-				intval($a->pager['start']),
-				intval($a->pager['itemspage'])
-				);
+				ORDER BY $sql_order $sql_order_direction LIMIT %d, %d", intval($a->pager['start']), intval($a->pager['itemspage'])
+	);
 
 	//echo "<pre>$users"; killme();
 
@@ -1563,7 +1642,7 @@ function admin_page_users(App $a) {
 			t('Normal Account'),
 			t('Automatic Follower Account'),
 			t('Public Forum Account'),
-						t('Automatic Friend Account')
+			t('Automatic Friend Account')
 		);
 		$e['page-flags'] = $accounts[$e['page-flags']];
 		$e['register_date'] = relative_date($e['register_date']);
@@ -1572,7 +1651,7 @@ function admin_page_users(App $a) {
 		//$e['is_admin'] = ($e['email'] === $a->config['admin_email']);
 		$e['is_admin'] = in_array($e['email'], $adminlist);
 		$e['is_deletable'] = (intval($e['uid']) != local_user());
-		$e['deleted'] = ($e['account_removed']?relative_date($e['account_expires_on']):False);
+		$e['deleted'] = ($e['account_removed'] ? relative_date($e['account_expires_on']) : False);
 		return $e;
 	};
 	$users = array_map($_setup_users, $users);
@@ -1587,7 +1666,7 @@ function admin_page_users(App $a) {
 	while (count($users)) {
 		$new_user = array();
 		foreach (array_pop($users) as $k => $v) {
-			$k = str_replace('-','_',$k);
+			$k = str_replace('-', '_', $k);
 			$new_user[$k] = $v;
 		}
 		if ($new_user['deleted']) {
@@ -1602,12 +1681,10 @@ function admin_page_users(App $a) {
 		array_push($users, array_pop($tmp_users));
 	}
 
-	$th_users = array_map(null,
-		array(t('Name'), t('Email'), t('Register date'), t('Last login'), t('Last item'),  t('Account')),
-		$valid_orders
+	$th_users = array_map(null, array(t('Name'), t('Email'), t('Register date'), t('Last login'), t('Last item'), t('Account')), $valid_orders
 	);
 
-	$t = get_markup_template("admin_users.tpl");
+	$t = get_markup_template('admin/users.tpl');
 	$o = replace_macros($t, array(
 		// strings //
 		'$title' => t('Administration'),
@@ -1617,7 +1694,7 @@ function admin_page_users(App $a) {
 		'$h_pending' => t('User registrations waiting for confirm'),
 		'$h_deleted' => t('User waiting for permanent deletion'),
 		'$th_pending' => array(t('Request date'), t('Name'), t('Email')),
-		'$no_pending' =>  t('No registrations.'),
+		'$no_pending' => t('No registrations.'),
 		'$pendingnotetext' => t('Note from the user'),
 		'$approve' => t('Approve'),
 		'$deny' => t('Deny'),
@@ -1653,7 +1730,6 @@ function admin_page_users(App $a) {
 	return $o;
 }
 
-
 /**
  * @brief Plugins admin page
  *
@@ -1670,8 +1746,8 @@ function admin_page_users(App $a) {
  * @param App $a
  * @return string
  */
-function admin_page_plugins(App $a) {
-
+function admin_page_plugins(App $a)
+{
 	/*
 	 * Single plugin
 	 */
@@ -1682,7 +1758,7 @@ function admin_page_plugins(App $a) {
 			return '';
 		}
 
-		if (x($_GET,"a") && $_GET['a']=="t") {
+		if (x($_GET, "a") && $_GET['a'] == "t") {
 			check_form_security_token_redirectOnErr('/admin/plugins', 'admin_themes', 't');
 
 			// Toggle plugin status
@@ -1696,7 +1772,7 @@ function admin_page_plugins(App $a) {
 				install_plugin($plugin);
 				info(sprintf(t("Plugin %s enabled."), $plugin));
 			}
-			Config::set("system","addon", implode(", ",$a->plugins));
+			Config::set("system", "addon", implode(", ", $a->plugins));
 			goaway('admin/plugins');
 			return ''; // NOTREACHED
 		}
@@ -1705,27 +1781,29 @@ function admin_page_plugins(App $a) {
 		require_once('library/markdown.php');
 
 		if (in_array($plugin, $a->plugins)) {
-			$status="on"; $action= t("Disable");
+			$status = "on";
+			$action = t("Disable");
 		} else {
-			$status="off"; $action= t("Enable");
+			$status = "off";
+			$action = t("Enable");
 		}
 
-		$readme=Null;
+		$readme = Null;
 		if (is_file("addon/$plugin/README.md")) {
 			$readme = file_get_contents("addon/$plugin/README.md");
 			$readme = Markdown($readme, false);
 		} elseif (is_file("addon/$plugin/README")) {
-			$readme = "<pre>". file_get_contents("addon/$plugin/README") ."</pre>";
+			$readme = "<pre>" . file_get_contents("addon/$plugin/README") . "</pre>";
 		}
 
-		$admin_form="";
+		$admin_form = "";
 		if (is_array($a->plugins_admin) && in_array($plugin, $a->plugins_admin)) {
 			@require_once("addon/$plugin/$plugin.php");
-			$func = $plugin.'_plugin_admin';
+			$func = $plugin . '_plugin_admin';
 			$func($a, $admin_form);
 		}
 
-		$t = get_markup_template("admin_plugins_details.tpl");
+		$t = get_markup_template('admin/plugins_details.tpl');
 
 		return replace_macros($t, array(
 			'$title' => t('Administration'),
@@ -1750,17 +1828,14 @@ function admin_page_plugins(App $a) {
 		));
 	}
 
-
-
 	/*
 	 * List plugins
 	 */
-
-	if (x($_GET,"a") && $_GET['a']=="r") {
-		check_form_security_token_redirectOnErr(System::baseUrl().'/admin/plugins', 'admin_themes', 't');
+	if (x($_GET, "a") && $_GET['a'] == "r") {
+		check_form_security_token_redirectOnErr(System::baseUrl() . '/admin/plugins', 'admin_themes', 't');
 		reload_plugins();
 		info("Plugins reloaded");
-		goaway(System::baseUrl().'/admin/plugins');
+		goaway(System::baseUrl() . '/admin/plugins');
 	}
 
 	$plugins = array();
@@ -1768,12 +1843,12 @@ function admin_page_plugins(App $a) {
 	if ($files) {
 		foreach ($files as $file) {
 			if (is_dir($file)) {
-				list($tmp, $id)=array_map("trim", explode("/",$file));
+				list($tmp, $id) = array_map("trim", explode("/", $file));
 				$info = get_plugin_info($id);
 				$show_plugin = true;
 
 				// If the addon is unsupported, then only show it, when it is enabled
-				if ((strtolower($info["status"]) == "unsupported") && !in_array($id,  $a->plugins)) {
+				if ((strtolower($info["status"]) == "unsupported") && !in_array($id, $a->plugins)) {
 					$show_plugin = false;
 				}
 
@@ -1783,13 +1858,13 @@ function admin_page_plugins(App $a) {
 				}
 
 				if ($show_plugin) {
-					$plugins[] = array($id, (in_array($id,  $a->plugins)?"on":"off") , $info);
+					$plugins[] = array($id, (in_array($id, $a->plugins) ? "on" : "off"), $info);
 				}
 			}
 		}
 	}
 
-	$t = get_markup_template("admin_plugins.tpl");
+	$t = get_markup_template('admin/plugins.tpl');
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Plugins'),
@@ -1809,14 +1884,14 @@ function admin_page_plugins(App $a) {
  * @param string $th
  * @param int $result
  */
-function toggle_theme(&$themes,$th,&$result) {
-	for($x = 0; $x < count($themes); $x ++) {
+function toggle_theme(&$themes, $th, &$result)
+{
+	for ($x = 0; $x < count($themes); $x ++) {
 		if ($themes[$x]['name'] === $th) {
 			if ($themes[$x]['allowed']) {
 				$themes[$x]['allowed'] = 0;
 				$result = 0;
-			}
-			else {
+			} else {
 				$themes[$x]['allowed'] = 1;
 				$result = 1;
 			}
@@ -1829,13 +1904,13 @@ function toggle_theme(&$themes,$th,&$result) {
  * @param string $th
  * @return int
  */
-function theme_status($themes,$th) {
-	for($x = 0; $x < count($themes); $x ++) {
+function theme_status($themes, $th)
+{
+	for ($x = 0; $x < count($themes); $x ++) {
 		if ($themes[$x]['name'] === $th) {
 			if ($themes[$x]['allowed']) {
 				return 1;
-			}
-			else {
+			} else {
 				return 0;
 			}
 		}
@@ -1843,12 +1918,12 @@ function theme_status($themes,$th) {
 	return 0;
 }
 
-
 /**
  * @param array $themes
  * @return string
  */
-function rebuild_theme_table($themes) {
+function rebuild_theme_table($themes)
+{
 	$o = '';
 	if (count($themes)) {
 		foreach ($themes as $th) {
@@ -1862,7 +1937,6 @@ function rebuild_theme_table($themes) {
 	}
 	return $o;
 }
-
 
 /**
  * @brief Themes admin page
@@ -1880,10 +1954,10 @@ function rebuild_theme_table($themes) {
  * @param App $a
  * @return string
  */
-function admin_page_themes(App $a) {
-
-	$allowed_themes_str = Config::get('system','allowed_themes');
-	$allowed_themes_raw = explode(',',$allowed_themes_str);
+function admin_page_themes(App $a)
+{
+	$allowed_themes_str = Config::get('system', 'allowed_themes');
+	$allowed_themes_raw = explode(',', $allowed_themes_str);
 	$allowed_themes = array();
 	if (count($allowed_themes_raw)) {
 		foreach ($allowed_themes_raw as $x) {
@@ -1900,16 +1974,16 @@ function admin_page_themes(App $a) {
 			$f = basename($file);
 
 			// Is there a style file?
-			$theme_files = glob('view/theme/'.$f.'/style.*');
+			$theme_files = glob('view/theme/' . $f . '/style.*');
 
 			// If not then quit
 			if (count($theme_files) == 0) {
 				continue;
 			}
 
-			$is_experimental = intval(file_exists($file.'/experimental'));
-			$is_supported = 1-(intval(file_exists($file.'/unsupported')));
-			$is_allowed = intval(in_array($f,$allowed_themes));
+			$is_experimental = intval(file_exists($file . '/experimental'));
+			$is_supported = 1 - (intval(file_exists($file . '/unsupported')));
+			$is_allowed = intval(in_array($f, $allowed_themes));
 
 			if ($is_allowed || $is_supported || Config::get("system", "show_unsupported_themes")) {
 				$themes[] = array('name' => $f, 'experimental' => $is_experimental, 'supported' => $is_supported, 'allowed' => $is_allowed);
@@ -1917,7 +1991,7 @@ function admin_page_themes(App $a) {
 		}
 	}
 
-	if (! count($themes)) {
+	if (!count($themes)) {
 		notice(t('No themes found.'));
 		return '';
 	}
@@ -1928,38 +2002,40 @@ function admin_page_themes(App $a) {
 
 	if ($a->argc == 3) {
 		$theme = $a->argv[2];
-		if (! is_dir("view/theme/$theme")) {
+		if (!is_dir("view/theme/$theme")) {
 			notice(t("Item not found."));
 			return '';
 		}
 
-		if (x($_GET,"a") && $_GET['a']=="t") {
+		if (x($_GET, "a") && $_GET['a'] == "t") {
 			check_form_security_token_redirectOnErr('/admin/themes', 'admin_themes', 't');
 
 			// Toggle theme status
 
-			toggle_theme($themes,$theme,$result);
+			toggle_theme($themes, $theme, $result);
 			$s = rebuild_theme_table($themes);
 			if ($result) {
 				install_theme($theme);
-				info(sprintf('Theme %s enabled.',$theme));
+				info(sprintf('Theme %s enabled.', $theme));
 			} else {
 				uninstall_theme($theme);
-				info(sprintf('Theme %s disabled.',$theme));
+				info(sprintf('Theme %s disabled.', $theme));
 			}
 
-			Config::set('system','allowed_themes',$s);
+			Config::set('system', 'allowed_themes', $s);
 			goaway('admin/themes');
 			return ''; // NOTREACHED
 		}
 
 		// display theme details
-		require_once('library/markdown.php');
+		require_once 'library/markdown.php';
 
-		if (theme_status($themes,$theme)) {
-			$status="on"; $action= t("Disable");
+		if (theme_status($themes, $theme)) {
+			$status = "on";
+			$action = t("Disable");
 		} else {
-			$status="off"; $action= t("Enable");
+			$status = "off";
+			$action = t("Enable");
 		}
 
 		$readme = Null;
@@ -1967,12 +2043,14 @@ function admin_page_themes(App $a) {
 			$readme = file_get_contents("view/theme/$theme/README.md");
 			$readme = Markdown($readme, false);
 		} elseif (is_file("view/theme/$theme/README")) {
-			$readme = "<pre>". file_get_contents("view/theme/$theme/README") ."</pre>";
+			$readme = "<pre>" . file_get_contents("view/theme/$theme/README") . "</pre>";
 		}
 
 		$admin_form = "";
 		if (is_file("view/theme/$theme/config.php")) {
-			function __get_theme_admin_form(App $a, $theme) {
+
+			function __get_theme_admin_form(App $a, $theme)
+			{
 				$orig_theme = $a->theme;
 				$orig_page = $a->page;
 				$orig_session_theme = $_SESSION['theme'];
@@ -1981,7 +2059,7 @@ function admin_page_themes(App $a) {
 				$_SESSION['theme'] = $theme;
 
 
-				$init = $theme."_init";
+				$init = $theme . "_init";
 				if (function_exists($init)) {
 					$init($a);
 				}
@@ -1998,11 +2076,11 @@ function admin_page_themes(App $a) {
 		}
 
 		$screenshot = array(get_theme_screenshot($theme), t('Screenshot'));
-		if (! stristr($screenshot[0],$theme)) {
+		if (!stristr($screenshot[0], $theme)) {
 			$screenshot = null;
 		}
 
-		$t = get_markup_template("admin_plugins_details.tpl");
+		$t = get_markup_template('admin/plugins_details.tpl');
 		return replace_macros($t, array(
 			'$title' => t('Administration'),
 			'$page' => t('Themes'),
@@ -2026,8 +2104,8 @@ function admin_page_themes(App $a) {
 
 
 	// reload active themes
-	if (x($_GET,"a") && $_GET['a']=="r") {
-		check_form_security_token_redirectOnErr(System::baseUrl().'/admin/themes', 'admin_themes', 't');
+	if (x($_GET, "a") && $_GET['a'] == "r") {
+		check_form_security_token_redirectOnErr(System::baseUrl() . '/admin/themes', 'admin_themes', 't');
 		if ($themes) {
 			foreach ($themes as $th) {
 				if ($th['allowed']) {
@@ -2037,7 +2115,7 @@ function admin_page_themes(App $a) {
 			}
 		}
 		info("Themes reloaded");
-		goaway(System::baseUrl().'/admin/themes');
+		goaway(System::baseUrl() . '/admin/themes');
 	}
 
 	/*
@@ -2047,12 +2125,11 @@ function admin_page_themes(App $a) {
 	$xthemes = array();
 	if ($themes) {
 		foreach ($themes as $th) {
-			$xthemes[] = array($th['name'],(($th['allowed']) ? "on" : "off"), get_theme_info($th['name']));
+			$xthemes[] = array($th['name'], (($th['allowed']) ? "on" : "off"), get_theme_info($th['name']));
 		}
 	}
 
-
-	$t = get_markup_template("admin_plugins.tpl");
+	$t = get_markup_template('admin/plugins.tpl');
 	return replace_macros($t, array(
 		'$title'               => t('Administration'),
 		'$page'                => t('Themes'),
@@ -2069,23 +2146,23 @@ function admin_page_themes(App $a) {
 	));
 }
 
-
 /**
  * @brief Prosesses data send by Logs admin page
  *
  * @param App $a
  */
-function admin_page_logs_post(App $a) {
-	if (x($_POST,"page_logs")) {
+function admin_page_logs_post(App $a)
+{
+	if (x($_POST, "page_logs")) {
 		check_form_security_token_redirectOnErr('/admin/logs', 'admin_logs');
 
 		$logfile   = ((x($_POST,'logfile'))   ? notags(trim($_POST['logfile']))  : '');
 		$debugging = ((x($_POST,'debugging')) ? true                             : false);
 		$loglevel  = ((x($_POST,'loglevel'))  ? intval(trim($_POST['loglevel'])) : 0);
 
-		Config::set('system','logfile', $logfile);
-		Config::set('system','debugging',  $debugging);
-		Config::set('system','loglevel', $loglevel);
+		Config::set('system', 'logfile', $logfile);
+		Config::set('system', 'debugging', $debugging);
+		Config::set('system', 'loglevel', $loglevel);
 	}
 
 	info(t("Log settings updated."));
@@ -2109,8 +2186,8 @@ function admin_page_logs_post(App $a) {
  * @param App $a
  * @return string
  */
-function admin_page_logs(App $a) {
-
+function admin_page_logs(App $a)
+{
 	$log_choices = array(
 		LOGGER_NORMAL	=> 'Normal',
 		LOGGER_TRACE	=> 'Trace',
@@ -2125,7 +2202,7 @@ function admin_page_logs(App $a) {
 		$phplogenabled = t('PHP log currently disabled.');
 	}
 
-	$t = get_markup_template("admin_logs.tpl");
+	$t = get_markup_template('admin/logs.tpl');
 
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
@@ -2133,13 +2210,11 @@ function admin_page_logs(App $a) {
 		'$submit' => t('Save Settings'),
 		'$clear' => t('Clear'),
 		'$baseurl' => System::baseUrl(true),
-		'$logname' =>  Config::get('system','logfile'),
-
+		'$logname' => Config::get('system', 'logfile'),
 		// name, label, value, help string, extra data...
-		'$debugging' => array('debugging', t("Enable Debugging"),Config::get('system','debugging'), ""),
-		'$logfile' => array('logfile', t("Log file"), Config::get('system','logfile'), t("Must be writable by web server. Relative to your Friendica top-level directory.")),
-		'$loglevel' => array('loglevel', t("Log level"), Config::get('system','loglevel'), "", $log_choices),
-
+		'$debugging' => array('debugging', t("Enable Debugging"), Config::get('system', 'debugging'), ""),
+		'$logfile' => array('logfile', t("Log file"), Config::get('system', 'logfile'), t("Must be writable by web server. Relative to your Friendica top-level directory.")),
+		'$loglevel' => array('loglevel', t("Log level"), Config::get('system', 'loglevel'), "", $log_choices),
 		'$form_security_token' => get_form_security_token("admin_logs"),
 		'$phpheader' => t("PHP logging"),
 		'$phphint' => t("To enable logging of PHP errors and warnings you can add the following to the .htconfig.php file of your installation. The filename set in the 'error_log' line is relative to the friendica top-level directory and must be writeable by the web server. The option '1' for 'log_errors' and 'display_errors' is to enable these options, set to '0' to disable them."),
@@ -2166,9 +2241,10 @@ function admin_page_logs(App $a) {
  * @param App $a
  * @return string
  */
-function admin_page_viewlogs(App $a) {
-	$t = get_markup_template("admin_viewlogs.tpl");
-	$f = Config::get('system','logfile');
+function admin_page_viewlogs(App $a)
+{
+	$t = get_markup_template('admin/viewlogs.tpl');
+	$f = Config::get('system', 'logfile');
 	$data = '';
 
 	if (!file_exists($f)) {
@@ -2184,11 +2260,11 @@ function admin_page_viewlogs(App $a) {
 				if ($size > 5000000 || $size < 0) {
 					$size = 5000000;
 				}
-				$seek = fseek($fp,0-$size,SEEK_END);
+				$seek = fseek($fp, 0 - $size, SEEK_END);
 				if ($seek === 0) {
-					$data = escape_tags(fread($fp,$size));
-					while (! feof($fp)) {
-						$data .= escape_tags(fread($fp,4096));
+					$data = escape_tags(fread($fp, $size));
+					while (!feof($fp)) {
+						$data .= escape_tags(fread($fp, 4096));
 					}
 				}
 			}
@@ -2199,7 +2275,7 @@ function admin_page_viewlogs(App $a) {
 		'$title' => t('Administration'),
 		'$page' => t('View Logs'),
 		'$data' => $data,
-		'$logname' =>  Config::get('system','logfile')
+		'$logname' => Config::get('system', 'logfile')
 	));
 }
 
@@ -2208,14 +2284,14 @@ function admin_page_viewlogs(App $a) {
  *
  * @param App $a
  */
-function admin_page_features_post(App $a) {
-
+function admin_page_features_post(App $a)
+{
 	check_form_security_token_redirectOnErr('/admin/features', 'admin_manage_features');
 
-	logger('postvars: '.print_r($_POST,true),LOGGER_DATA);
+	logger('postvars: ' . print_r($_POST, true), LOGGER_DATA);
 
 	$arr = array();
-	$features = get_features(false);
+	$features = Feature::get(false);
 
 	foreach ($features as $fname => $fdata) {
 		foreach (array_slice($fdata, 1) as $f) {
@@ -2256,26 +2332,25 @@ function admin_page_features_post(App $a) {
  * @param App $a
  * @return string
  */
-function admin_page_features(App $a) {
-
+function admin_page_features(App $a)
+{
 	if ((argc() > 1) && (argv(1) === 'features')) {
 		$arr = array();
-		$features = get_features(false);
+		$features = Feature::get(false);
 
 		foreach ($features as $fname => $fdata) {
 			$arr[$fname] = array();
 			$arr[$fname][0] = $fdata[0];
-			foreach (array_slice($fdata,1) as $f) {
-
+			foreach (array_slice($fdata, 1) as $f) {
 				$set = Config::get('feature', $f[0], $f[3]);
 				$arr[$fname][1][] = array(
-					array('feature_' .$f[0],$f[1],$set,$f[2],array(t('Off'), t('On'))),
-					array('featurelock_' .$f[0],sprintf(t('Lock feature %s'),$f[1]),(($f[4] !== false) ? "1" : ''),'',array(t('Off'), t('On')))
+					array('feature_' . $f[0], $f[1], $set, $f[2], array(t('Off'), t('On'))),
+					array('featurelock_' . $f[0], sprintf(t('Lock feature %s'), $f[1]), (($f[4] !== false) ? "1" : ''), '', array(t('Off'), t('On')))
 				);
 			}
 		}
 
-		$tpl = get_markup_template("admin_settings_features.tpl");
+		$tpl = get_markup_template('admin/settings_features.tpl');
 		$o .= replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("admin_manage_features"),
 			'$title' => t('Manage Additional Features'),

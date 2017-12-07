@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * @file include/contact_widgets.php
+ */
+use Friendica\Content\Feature;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
@@ -105,7 +108,7 @@ function networks_widget($baseurl, $selected = '') {
 		return '';
 	}
 
-	if (!feature_enabled(local_user(), 'networks')) {
+	if (!Feature::isEnabled(local_user(), 'networks')) {
 		return '';
 	}
 
@@ -144,7 +147,7 @@ function fileas_widget($baseurl, $selected = '') {
 		return '';
 	}
 
-	if (! feature_enabled(local_user(), 'filing')) {
+	if (! Feature::isEnabled(local_user(), 'filing')) {
 		return '';
 	}
 
@@ -178,7 +181,7 @@ function categories_widget($baseurl, $selected = '') {
 
 	$a = get_app();
 
-	if (! feature_enabled($a->profile['profile_uid'], 'categories')) {
+	if (! Feature::isEnabled($a->profile['profile_uid'], 'categories')) {
 		return '';
 	}
 

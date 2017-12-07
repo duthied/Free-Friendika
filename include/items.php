@@ -4,6 +4,7 @@
  */
 use Friendica\App;
 use Friendica\ParseUrl;
+use Friendica\Content\Feature;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
@@ -17,12 +18,10 @@ use Friendica\Util\Lock;
 
 require_once 'include/bbcode.php';
 require_once 'include/oembed.php';
-require_once 'include/salmon.php';
 require_once 'include/crypto.php';
 require_once 'include/tags.php';
 require_once 'include/files.php';
 require_once 'include/text.php';
-require_once 'include/email.php';
 require_once 'include/threads.php';
 require_once 'include/plaintext.php';
 require_once 'include/feed.php';
@@ -1152,6 +1151,19 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
  * @param array $arr Contains the just posted item record
  */
 function item_set_last_item($arr) {
+	// Unarchive the author
+	$contact = dba::select('contact', [], ['id' => $arr["author-link"]], ['limit' => 1]);
+	if ($contact['term-date'] > NULL_DATE) {
+		 Contact::unmarkForArchival($contact);
+	}
+
+	// Unarchive the contact if it is a toplevel posting
+	if ($arr["parent-uri"] === $arr["uri"]) {
+		$contact = dba::select('contact', [], ['id' => $arr["contact-id"]], ['limit' => 1]);
+		if ($contact['term-date'] > NULL_DATE) {
+			 Contact::unmarkForArchival($contact);
+		}
+	}
 
 	$update = (!$arr['private'] && (($arr["author-link"] === $arr["owner-link"]) || ($arr["parent-uri"] === $arr["uri"])));
 
@@ -1680,8 +1692,8 @@ function new_follower($importer, $contact, $datarray, $item, $sharing = false) {
 			dbesc($name),
 			dbesc($nick),
 			dbesc($photo),
-			dbesc(($sharing) ? NETWORK_ZOT : NETWORK_OSTATUS),
-			intval(($sharing) ? CONTACT_IS_SHARING : CONTACT_IS_FOLLOWER)
+			dbesc(NETWORK_OSTATUS),
+			intval(CONTACT_IS_FOLLOWER)
 		);
 		$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `pending` = 1 LIMIT 1",
 				intval($importer['uid']),
@@ -2221,7 +2233,6 @@ function drop_item($id, $interactive = true) {
 
 		// Now delete them
 		if ($parentid != "") {
-			$r = q("DELETE FROM `item_id` WHERE `iid` IN (%s)", dbesc($parentid));
 			$r = q("DELETE FROM `sign` WHERE `iid` IN (%s)", dbesc($parentid));
 		}
 
@@ -2357,7 +2368,7 @@ function posted_dates($uid, $wall) {
 function posted_date_widget($url, $uid, $wall) {
 	$o = '';
 
-	if (! feature_enabled($uid, 'archives')) {
+	if (! Feature::isEnabled($uid, 'archives')) {
 		return $o;
 	}
 

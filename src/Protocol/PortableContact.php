@@ -1343,14 +1343,17 @@ class PortableContact
 
 		// Disvover Mastodon servers
 		if (!Config::get('system', 'ostatus_disabled')) {
-			$serverdata = fetch_url("https://instances.mastodon.xyz/instances.json");
-
-			if ($serverdata) {
-				$servers = json_decode($serverdata);
-
-				foreach ($servers as $server) {
-					$url = (is_null($server->https_score) ? 'http' : 'https').'://'.$server->name;
-					Worker::add(PRIORITY_LOW, "DiscoverPoCo", "server", $url);
+			$accesstoken = Config::get('system', 'instances_social_key');
+			if (!empty($accesstoken)) {
+				$api = 'https://instances.social/api/1.0/instances/list?count=0';
+				$header = array('Authorization: Bearer '.$accesstoken);
+				$serverdata = z_fetch_url($api, false, $redirects, ['headers' => $header]);
+				if ($serverdata['success']) {
+				        $servers = json_decode($serverdata['body']);
+				        foreach ($servers->instances as $server) {
+						$url = (is_null($server->https_score) ? 'http' : 'https').'://'.$server->name;
+						Worker::add(PRIORITY_LOW, "DiscoverPoCo", "server", $url);
+					}
 				}
 			}
 		}

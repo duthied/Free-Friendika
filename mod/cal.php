@@ -5,8 +5,8 @@
  *	This calendar is for profile visitors and contains only the events
  *	of the profile owner
  */
-
 use Friendica\App;
+use Friendica\Content\Feature;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
@@ -301,7 +301,7 @@ function cal_content(App $a) {
 
 		// Test permissions
 		// Respect the export feature setting for all other /cal pages if it's not the own profile
-		if( ((local_user() !== intval($owner_uid))) && ! feature_enabled($owner_uid, "export_calendar")) {
+		if( ((local_user() !== intval($owner_uid))) && ! Feature::isEnabled($owner_uid, "export_calendar")) {
 			notice( t('Permission denied.') . EOL);
 			goaway('cal/' . $nick);
 		}

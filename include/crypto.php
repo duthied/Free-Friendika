@@ -91,9 +91,9 @@ function metopem($m, $e) {
 	return $key;
 }
 
-function pubrsatome($key,&$m,&$e) {
-	require_once('library/asn1.php');
-	require_once('include/salmon.php');
+function pubrsatome($key, &$m, &$e)
+{
+	require_once 'library/asn1.php';
 
 	$lines = explode("\n", $key);
 	unset($lines[0]);
@@ -117,8 +117,8 @@ function pemtorsa($key) {
 	return metorsa($m, $e);
 }
 
-function pemtome($key, &$m, &$e) {
-	require_once('include/salmon.php');
+function pemtome($key, &$m, &$e)
+{
 	$lines = explode("\n", $key);
 	unset($lines[0]);
 	unset($lines[count($lines)]);

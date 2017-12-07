@@ -1,6 +1,9 @@
 <?php
-
+/**
+ * @file include/tags.php
+ */
 use Friendica\App;
+use Friendica\Content\Feature;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Object\Contact;
@@ -302,7 +305,7 @@ function tagcloud_wall_widget($limit = 50) {
 		return "";
 	}
 
-	if(feature_enabled($a->profile['profile_uid'], 'tagadelic')) {
+	if(Feature::isEnabled($a->profile['profile_uid'], 'tagadelic')) {
 		$owner_id = Contact::getIdForURL($a->profile['url']);
 
 		if(!$owner_id) {

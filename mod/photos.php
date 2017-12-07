@@ -3,6 +3,7 @@
  * @file mod/photos.php
  */
 use Friendica\App;
+use Friendica\Content\Feature;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
@@ -895,7 +896,7 @@ function photos_post(App $a) {
 
 	/// @TODO merge these 2 if() into one?
 	if ($exif && $exif['GPS']) {
-		if (feature_enabled($channel_id,'photo_location')) {
+		if (Feature::isEnabled($channel_id,'photo_location')) {
 			$lat = getGps($exif['GPS']['GPSLatitude'], $exif['GPS']['GPSLatitudeRef']);
 			$lon = getGps($exif['GPS']['GPSLongitude'], $exif['GPS']['GPSLongitudeRef']);
 		}
@@ -1584,7 +1585,7 @@ function photos_content(App $a) {
 				$likebuttons = replace_macros($like_tpl, array(
 					'$id' => $link_item['id'],
 					'$likethis' => t("I like this \x28toggle\x29"),
-					'$nolike' => (feature_enabled(local_user(), 'dislike') ? t("I don't like this \x28toggle\x29") : ''),
+					'$nolike' => (Feature::isEnabled(local_user(), 'dislike') ? t("I don't like this \x28toggle\x29") : ''),
 					'$wait' => t('Please wait'),
 					'$return_path' => $a->query_string,
 				));
@@ -1735,7 +1736,7 @@ function photos_content(App $a) {
 
 
 		$response_verbs = array('like');
-		if (feature_enabled($owner_uid, 'dislike')) {
+		if (Feature::isEnabled($owner_uid, 'dislike')) {
 			$response_verbs[] = 'dislike';
 		}
 		$responses = get_responses($conv_responses,$response_verbs, '', $link_item);

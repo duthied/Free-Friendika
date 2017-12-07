@@ -1,7 +1,7 @@
 <?php
-
 /**
- * Diaspora endpoint
+ * @file mod/receive.php
+ * @brief Diaspora endpoint
  */
 
 use Friendica\App;
@@ -9,10 +9,14 @@ use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Protocol\Diaspora;
 
-require_once('include/salmon.php');
-require_once('include/crypto.php');
+require_once 'include/crypto.php';
 
-function receive_post(App $a) {
+/**
+ * @param object $a App
+ * @return void
+ */
+function receive_post(App $a)
+{
 	$enabled = intval(Config::get('system', 'diaspora_enabled'));
 	if (!$enabled) {
 		logger('mod-diaspora: disabled');
@@ -44,7 +48,7 @@ function receive_post(App $a) {
 
 	if (!$xml) {
 		$postdata = file_get_contents("php://input");
-	        if ($postdata == '') {
+		if ($postdata == '') {
 			http_status_exit(500);
 		}
 
@@ -80,4 +84,3 @@ function receive_post(App $a) {
 	http_status_exit(($ret) ? 200 : 500);
 	// NOTREACHED
 }
-
