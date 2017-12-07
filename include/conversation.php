@@ -840,7 +840,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 			// Normal View
 			$page_template = get_markup_template("threaded_conversation.tpl");
 
-			$conv = new Conversation($mode, $preview);
+			$conv = new Thread($mode, $preview);
 
 			/*
 			 * get all the topmost parents
