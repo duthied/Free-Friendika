@@ -1178,7 +1178,7 @@ function day_translate($s) {
  */
 function day_short_translate($s) {
 	$ret = str_replace(array('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'),
-		array(t('Mon'), t('Tue'), t('Wed'), t('Thu'), t('Fri'), t('Sat'), t('Sund')),
+		array(t('Mon'), t('Tue'), t('Wed'), t('Thu'), t('Fri'), t('Sat'), t('Sun')),
 		$s);
 	$ret = str_replace(array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov','Dec'),
 		array(t('Jan'), t('Feb'), t('Mar'), t('Apr'), t('May'), ('Jun'), t('Jul'), t('Aug'), t('Sep'), t('Oct'), t('Nov'), t('Dec')),
