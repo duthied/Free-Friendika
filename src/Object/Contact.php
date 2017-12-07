@@ -694,7 +694,8 @@ class Contact extends BaseObject
 
 		self::updateAvatar($data["photo"], $uid, $contact_id);
 
-		$contact = dba::select('contact', array('url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date'), array('id' => $contact_id), array('limit' => 1));
+		$fields = array('url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'pubkey');
+		$contact = dba::select('contact', $fields, array('id' => $contact_id), array('limit' => 1));
 
 		// This condition should always be true
 		if (!DBM::is_result($contact)) {
@@ -707,6 +708,13 @@ class Contact extends BaseObject
 			'nurl' => normalise_link($data['url']),
 			'name' => $data['name'],
 			'nick' => $data['nick']);
+
+		// Only fill the pubkey if it was empty before. We have to prevent identity theft.
+		if (!empty($contact['pubkey'])) {
+			unset($contact['pubkey']);
+		} else {
+			$updated['pubkey'] = $data['pubkey'];
+		}
 
 		if ($data['keywords'] != '') {
 			$updated['keywords'] = $data['keywords'];
