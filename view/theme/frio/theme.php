@@ -12,7 +12,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-use Friendica\Object\Photo;
+use Friendica\Object\Image;
 
 $frio = "view/theme/frio";
 
@@ -82,7 +82,7 @@ function frio_uninstall() {
  */
 function frio_item_photo_links(App $a, &$body_info)
 {
-	$phototypes = Photo::supportedTypes();
+	$phototypes = Image::supportedTypes();
 	$occurence = 1;
 	$p = bb_find_open_close($body_info['html'], "<a", ">");
 

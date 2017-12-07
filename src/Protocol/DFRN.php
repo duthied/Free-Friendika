@@ -14,9 +14,9 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
+use Friendica\Model\Profile;
 use Friendica\Object\Contact;
-use Friendica\Object\Photo;
-use Friendica\Object\Profile;
+use Friendica\Object\Image;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\XML;
 
@@ -476,7 +476,7 @@ class DFRN
 			$uid
 		);
 		$photos = array();
-		$ext = Photo::supportedTypes();
+		$ext = Image::supportedTypes();
 
 		foreach ($rp as $p) {
 			$photos[$p['scale']] = System::baseUrl().'/photo/'.$p['resource-id'].'-'.$p['scale'].'.'.$ext[$p['type']];

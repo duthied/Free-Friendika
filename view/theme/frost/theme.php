@@ -11,7 +11,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
-use Friendica\Object\Photo;
+use Friendica\Object\Image;
 
 function frost_init(App $a) {
 	$a->videowidth = 400;
@@ -48,7 +48,7 @@ function frost_uninstall() {
 
 function frost_item_photo_links(App $a, &$body_info)
 {
-	$phototypes = Photo::supportedTypes();
+	$phototypes = Image::supportedTypes();
 
 	$occurence = 1;
 	$p = bb_find_open_close($body_info['html'], "<a", ">");

@@ -14,7 +14,6 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
-use Friendica\Object\Photo;
 use Friendica\Object\Profile;
 use dba;
 use DOMDocument;
