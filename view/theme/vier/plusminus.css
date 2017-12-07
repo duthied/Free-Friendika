@@ -263,6 +263,10 @@ div.pager, ul.tabs {
 
 .wall-item-network { font-size:10px; }
 
+.contact-photo-wrapper .mframe .p-author .h-card {
+  width: 65px;
+}
+
 .shared-time { font-size: 10px; }
 
 .mention { font-size:12px;}
@@ -459,5 +463,46 @@ ul.menu-popup {
 
 ul.menu-popup a {
   padding: 0 0 0 5px;
+}
+
+/* Growl Popup */
+
+.jGrowl, .notice * {
+  color: white;
+}
+
+/* Buttons */
+
+input[type=submit] {
+  padding:0px 20px; 
+  color:white;
+  background:#6c82ff; 
+  border:1px solid darkgrey;
+  cursor:pointer;
+  -webkit-border-radius: 5px;
+  border-radius: 5px; 
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  box-shadow: 2px 2px 15px 0 rgba(0,0,0,0.24);
+}
+
+input[type=submit]:hover {
+  background:#0026ff; 
+
+}
+
+input[type=text], input[type=password], input[type=email], input[type=url] {
+  padding:2px 2px; 
+  background:white; 
+  border:1px solid darkgrey;
+  cursor:pointer;
+  -webkit-border-radius: 5px;
+  border-radius: 5px; 
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+}
+
+input[type=text]:focus, input[type=password]:focus, input[type=email]:focus, input[type=url]:focus {
+  background-color:#eef3ff;
 }
 
