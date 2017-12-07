@@ -12,9 +12,9 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\GlobalContact;
 use Friendica\Object\Contact;
+use Friendica\Object\Image;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
-use Friendica\Util\Lock;
 
 require_once 'include/bbcode.php';
 require_once 'include/oembed.php';
@@ -1887,11 +1887,11 @@ function fix_private_photos($s, $uid, $item = null, $cid = 0) {
 							$width = intval($match[1]);
 							$height = intval($match[2]);
 
-							$ph = new Photo($data, $type);
-							if ($ph->isValid()) {
-								$ph->scaleImage(max($width, $height));
-								$data = $ph->imageString();
-								$type = $ph->getType();
+							$Image = new Image($data, $type);
+							if ($Image->isValid()) {
+								$Image->scaleDown(max($width, $height));
+								$data = $Image->asString();
+								$type = $Image->getType();
 							}
 						}
 
