@@ -594,7 +594,7 @@ class Image
 		if ($this->isImagick()) {
 			$this->image->setFirstIterator();
 			do {
-				$this->image->scaleDown($dim, $dim);
+				$this->image->scaleImage($dim, $dim);
 			} while ($this->image->nextImage());
 			return;
 		}
