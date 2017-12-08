@@ -1,19 +1,18 @@
 <?php
 
 /**
- * @file src/Object/Contact.php
+ * @file src/Model/Contact.php
  */
 
-namespace Friendica\Object;
+namespace Friendica\Model;
 
-use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
-use Friendica\Object\Photo;
+use Friendica\Object\Image;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
@@ -922,7 +921,7 @@ class Contact extends BaseObject
 		}
 
 		if (($r["avatar"] != $avatar) || $force) {
-			$photos = Photo::importProfilePhoto($avatar, $uid, $cid, true);
+			$photos = Image::importProfilePhoto($avatar, $uid, $cid, true);
 
 			if ($photos) {
 				dba::update(

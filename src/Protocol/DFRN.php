@@ -13,10 +13,10 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Model\GlobalContact;
-use Friendica\Object\Contact;
-use Friendica\Object\Photo;
-use Friendica\Object\Profile;
+use Friendica\Model\Contact;
+use Friendica\Model\GContact;
+use Friendica\Model\Profile;
+use Friendica\Object\Image;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\XML;
 
@@ -476,7 +476,7 @@ class DFRN
 			$uid
 		);
 		$photos = array();
-		$ext = Photo::supportedTypes();
+		$ext = Image::supportedTypes();
 
 		foreach ($rp as $p) {
 			$photos[$p['scale']] = System::baseUrl().'/photo/'.$p['resource-id'].'-'.$p['scale'].'.'.$ext[$p['type']];
@@ -1678,9 +1678,9 @@ class DFRN
 			$poco["photo"] = $author["avatar"];
 			$poco["hide"] = $hide;
 			$poco["contact-type"] = $contact["contact-type"];
-			$gcid = GlobalContact::update($poco);
+			$gcid = GContact::update($poco);
 
-			GlobalContact::link($gcid, $importer["uid"], $contact["id"]);
+			GContact::link($gcid, $importer["uid"], $contact["id"]);
 		}
 
 		return($author);

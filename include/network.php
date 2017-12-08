@@ -6,7 +6,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Network\Probe;
-use Friendica\Object\Photo;
+use Friendica\Object\Image;
 use Friendica\Util\XML;
 
 /**
@@ -710,18 +710,18 @@ function scale_external_images($srctext, $include_link = true, $scale_replace = 
 			}
 
 			// guess mimetype from headers or filename
-			$type = Photo::guessImageType($mtch[1], true);
+			$type = Image::guessType($mtch[1], true);
 
 			if ($i) {
-				$ph = new Photo($i, $type);
-				if ($ph->isValid()) {
-					$orig_width = $ph->getWidth();
-					$orig_height = $ph->getHeight();
+				$Image = new Image($i, $type);
+				if ($Image->isValid()) {
+					$orig_width = $Image->getWidth();
+					$orig_height = $Image->getHeight();
 
 					if ($orig_width > 640 || $orig_height > 640) {
-						$ph->scaleImage(640);
-						$new_width = $ph->getWidth();
-						$new_height = $ph->getHeight();
+						$Image->scaleDown(640);
+						$new_width = $Image->getWidth();
+						$new_height = $Image->getHeight();
 						logger('scale_external_images: ' . $orig_width . '->' . $new_width . 'w ' . $orig_height . '->' . $new_height . 'h' . ' match: ' . $mtch[0], LOGGER_DEBUG);
 						$s = str_replace(
 							$mtch[0],

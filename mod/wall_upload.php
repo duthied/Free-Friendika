@@ -13,7 +13,8 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
-use Friendica\Object\Photo;
+use Friendica\Model\Photo;
+use Friendica\Object\Image;
 
 function wall_upload_post(App $a, $desktopmode = true) {
 
@@ -161,8 +162,8 @@ function wall_upload_post(App $a, $desktopmode = true) {
 		$filetype = "";
 	}
 
-	if ($filetype=="") {
-		$filetype=Photo::guessImageType($filename);
+	if ($filetype == "") {
+		$filetype = Image::guessType($filename);
 	}
 
 	// If there is a temp name, then do a manual check
@@ -190,9 +191,9 @@ function wall_upload_post(App $a, $desktopmode = true) {
 	}
 
 	$imagedata = @file_get_contents($src);
-	$ph = new Photo($imagedata, $filetype);
+	$Image = new Image($imagedata, $filetype);
 
-	if (! $ph->isValid()) {
+	if (! $Image->isValid()) {
 		$msg = t('Unable to process image.');
 		if ($r_json) {
 			echo json_encode(array('error'=>$msg));
@@ -203,7 +204,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 		killme();
 	}
 
-	$ph->orient($src);
+	$Image->orient($src);
 	@unlink($src);
 
 	$max_length = Config::get('system', 'max_image_length');
@@ -211,12 +212,12 @@ function wall_upload_post(App $a, $desktopmode = true) {
 		$max_length = MAX_IMAGE_LENGTH;
 	}
 	if ($max_length > 0) {
-		$ph->scaleImage($max_length);
+		$Image->scaleDown($max_length);
 		logger("File upload: Scaling picture to new size " . $max_length, LOGGER_DEBUG);
 	}
 
-	$width = $ph->getWidth();
-	$height = $ph->getHeight();
+	$width = $Image->getWidth();
+	$height = $Image->getHeight();
 
 	$hash = photo_new_resource();
 
@@ -229,7 +230,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 
 	$defperm = '<' . $default_cid . '>';
 
-	$r = $ph->store($page_owner_uid, $visitor, $hash, $filename, $album, 0, 0, $defperm);
+	$r = Photo::store($Image, $page_owner_uid, $visitor, $hash, $filename, $album, 0, 0, $defperm);
 
 	if (! $r) {
 		$msg = t('Image upload failed.');
@@ -242,16 +243,16 @@ function wall_upload_post(App $a, $desktopmode = true) {
 	}
 
 	if ($width > 640 || $height > 640) {
-		$ph->scaleImage(640);
-		$r = $ph->store($page_owner_uid, $visitor, $hash, $filename, $album, 1, 0, $defperm);
+		$Image->scaleDown(640);
+		$r = Photo::store($Image, $page_owner_uid, $visitor, $hash, $filename, $album, 1, 0, $defperm);
 		if ($r) {
 			$smallest = 1;
 		}
 	}
 
 	if ($width > 320 || $height > 320) {
-		$ph->scaleImage(320);
-		$r = $ph->store($page_owner_uid, $visitor, $hash, $filename, $album, 2, 0, $defperm);
+		$Image->scaleDown(320);
+		$r = Photo::store($Image, $page_owner_uid, $visitor, $hash, $filename, $album, 2, 0, $defperm);
 		if ($r && ($smallest == 0)) {
 			$smallest = 2;
 		}
@@ -280,8 +281,8 @@ function wall_upload_post(App $a, $desktopmode = true) {
 		$picture["height"]    = $r[0]["height"];
 		$picture["type"]      = $r[0]["type"];
 		$picture["albumpage"] = System::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $hash;
-		$picture["picture"]   = System::baseUrl() . "/photo/{$hash}-0." . $ph->getExt();
-		$picture["preview"]   = System::baseUrl() . "/photo/{$hash}-{$smallest}." . $ph->getExt();
+		$picture["picture"]   = System::baseUrl() . "/photo/{$hash}-0." . $Image->getExt();
+		$picture["preview"]   = System::baseUrl() . "/photo/{$hash}-{$smallest}." . $Image->getExt();
 
 		if ($r_json) {
 			echo json_encode(array('picture'=>$picture));
@@ -299,9 +300,9 @@ function wall_upload_post(App $a, $desktopmode = true) {
 /* mod Waitman Gobble NO WARRANTY */
 	// if we get the signal then return the image url info in BBCODE
 	if ($_REQUEST['hush']!='yeah') {
-		echo  "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $hash . '][img]' . System::baseUrl() . "/photo/{$hash}-{$smallest}.".$ph->getExt()."[/img][/url]\n\n";
+		echo  "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $hash . '][img]' . System::baseUrl() . "/photo/{$hash}-{$smallest}.".$Image->getExt()."[/img][/url]\n\n";
 	} else {
-		$m = '[url='.System::baseUrl().'/photos/'.$page_owner_nick.'/image/'.$hash.'][img]'.System::baseUrl()."/photo/{$hash}-{$smallest}.".$ph->getExt()."[/img][/url]";
+		$m = '[url='.System::baseUrl().'/photos/'.$page_owner_nick.'/image/'.$hash.'][img]'.System::baseUrl()."/photo/{$hash}-{$smallest}.".$Image->getExt()."[/img][/url]";
 		return($m);
 	}
 /* mod Waitman Gobble NO WARRANTY */

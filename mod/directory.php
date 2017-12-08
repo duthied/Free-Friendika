@@ -3,7 +3,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
-use Friendica\Object\Contact;
+use Friendica\Model\Contact;
 
 function directory_init(App $a) {
 	$a->set_pager_itemspage(60);

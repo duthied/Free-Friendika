@@ -12,6 +12,8 @@ use Friendica\Core\Config;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\Contact;
+use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Network\FKOAuth1;
 use Friendica\Network\HTTPException;
@@ -23,8 +25,7 @@ use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Network\HTTPException\NotImplementedException;
 use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Network\HTTPException\TooManyRequestsException;
-use Friendica\Object\Contact;
-use Friendica\Object\Photo;
+use Friendica\Object\Image;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\XML;
 
@@ -1192,7 +1193,7 @@ function api_statuses_update($type)
 			api_user()
 		);
 		if (DBM::is_result($r)) {
-			$phototypes = Photo::supportedTypes();
+			$phototypes = Image::supportedTypes();
 			$ext = $phototypes[$r[0]['type']];
 			$_REQUEST['body'] .= "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $r[0]['nickname'] . '/image/' . $r[0]['resource-id'] . ']';
 			$_REQUEST['body'] .= '[img]' . System::baseUrl() . '/photo/' . $r[0]['resource-id'] . '-' . $r[0]['scale'] . '.' . $ext . '[/img][/url]';
@@ -2377,7 +2378,7 @@ function api_get_attachments(&$body)
 	$attachments = array();
 
 	foreach ($images[1] as $image) {
-		$imagedata = Photo::getInfoFromURL($image);
+		$imagedata = Image::getInfoFromURL($image);
 
 		if ($imagedata) {
 			$attachments[] = array("url" => $image, "mimetype" => $imagedata["mime"], "size" => $imagedata["size"]);
@@ -2509,7 +2510,7 @@ function api_get_entitities(&$text, $bbcode)
 
 		$start = iconv_strpos($text, $url, $offset, "UTF-8");
 		if (!($start === false)) {
-			$image = Photo::getInfoFromURL($url);
+			$image = Image::getInfoFromURL($url);
 			if ($image) {
 				// If image cache is activated, then use the following sizes:
 				// thumb  (150), small (340), medium (600) and large (1024)
@@ -2517,19 +2518,19 @@ function api_get_entitities(&$text, $bbcode)
 					$media_url = proxy_url($url);
 
 					$sizes = array();
-					$scale = Photo::scaleImageTo($image[0], $image[1], 150);
+					$scale = Image::getScalingDimensions($image[0], $image[1], 150);
 					$sizes["thumb"] = array("w" => $scale["width"], "h" => $scale["height"], "resize" => "fit");
 
 					if (($image[0] > 150) || ($image[1] > 150)) {
-						$scale = Photo::scaleImageTo($image[0], $image[1], 340);
+						$scale = Image::getScalingDimensions($image[0], $image[1], 340);
 						$sizes["small"] = array("w" => $scale["width"], "h" => $scale["height"], "resize" => "fit");
 					}
 
-					$scale = Photo::scaleImageTo($image[0], $image[1], 600);
+					$scale = Image::getScalingDimensions($image[0], $image[1], 600);
 					$sizes["medium"] = array("w" => $scale["width"], "h" => $scale["height"], "resize" => "fit");
 
 					if (($image[0] > 600) || ($image[1] > 600)) {
-						$scale = Photo::scaleImageTo($image[0], $image[1], 1024);
+						$scale = Image::getScalingDimensions($image[0], $image[1], 1024);
 						$sizes["large"] = array("w" => $scale["width"], "h" => $scale["height"], "resize" => "fit");
 					}
 				} else {
@@ -3946,7 +3947,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 	}
 
 	if ($filetype == "") {
-		$filetype=Photo::guessImageType($filename);
+		$filetype=Image::guessType($filename);
 	}
 	$imagedata = getimagesize($src);
 	if ($imagedata) {
@@ -3970,13 +3971,13 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 	// create Photo instance with the data of the image
 	$imagedata = @file_get_contents($src);
-	$ph = new Photo($imagedata, $filetype);
-	if (! $ph->isValid()) {
+	$Image = new Image($imagedata, $filetype);
+	if (! $Image->isValid()) {
 		throw new InternalServerErrorException("unable to process image data");
 	}
 
 	// check orientation of image
-	$ph->orient($src);
+	$Image->orient($src);
 	@unlink($src);
 
 	// check max length of images on server
@@ -3985,11 +3986,11 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		$max_length = MAX_IMAGE_LENGTH;
 	}
 	if ($max_length > 0) {
-		$ph->scaleImage($max_length);
+		$Image->scaleDown($max_length);
 		logger("File upload: Scaling picture to new size " . $max_length, LOGGER_DEBUG);
 	}
-	$width = $ph->getWidth();
-	$height = $ph->getHeight();
+	$width = $Image->getWidth();
+	$height = $Image->getHeight();
 
 	// create a new resource-id if not already provided
 	$hash = ($photo_id == null) ? photo_new_resource() : $photo_id;
@@ -3998,21 +3999,21 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		// upload normal image (scales 0, 1, 2)
 		logger("photo upload: starting new photo upload", LOGGER_DEBUG);
 
-		$r =$ph->store(local_user(), $visitor, $hash, $filename, $album, 0, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+		$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 0, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 		if (! $r) {
 			logger("photo upload: image upload with scale 0 (original size) failed");
 		}
 		if ($width > 640 || $height > 640) {
-			$ph->scaleImage(640);
-			$r = $ph->store(local_user(), $visitor, $hash, $filename, $album, 1, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$Image->scaleDown(640);
+			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 1, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (! $r) {
 				logger("photo upload: image upload with scale 1 (640x640) failed");
 			}
 		}
 
 		if ($width > 320 || $height > 320) {
-			$ph->scaleImage(320);
-			$r = $ph->store(local_user(), $visitor, $hash, $filename, $album, 2, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$Image->scaleDown(320);
+			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 2, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (! $r) {
 				logger("photo upload: image upload with scale 2 (320x320) failed");
 			}
@@ -4023,29 +4024,29 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		logger("photo upload: starting new profile image upload", LOGGER_DEBUG);
 
 		if ($width > 175 || $height > 175) {
-			$ph->scaleImage(175);
-			$r = $ph->store(local_user(), $visitor, $hash, $filename, $album, 4, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$Image->scaleDown(175);
+			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 4, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (! $r) {
 				logger("photo upload: profile image upload with scale 4 (175x175) failed");
 			}
 		}
 
 		if ($width > 80 || $height > 80) {
-			$ph->scaleImage(80);
-			$r = $ph->store(local_user(), $visitor, $hash, $filename, $album, 5, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$Image->scaleDown(80);
+			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 5, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (! $r) {
 				logger("photo upload: profile image upload with scale 5 (80x80) failed");
 			}
 		}
 
 		if ($width > 48 || $height > 48) {
-			$ph->scaleImage(48);
-			$r = $ph->store(local_user(), $visitor, $hash, $filename, $album, 6, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$Image->scaleDown(48);
+			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 6, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (! $r) {
 				logger("photo upload: profile image upload with scale 6 (48x48) failed");
 			}
 		}
-		$ph->__destruct();
+		$Image->__destruct();
 		logger("photo upload: new profile image upload ended", LOGGER_DEBUG);
 	}
 

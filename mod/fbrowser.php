@@ -7,7 +7,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
-use Friendica\Object\Photo;
+use Friendica\Object\Image;
 
 /**
  * @param App $a
@@ -66,7 +66,7 @@ function fbrowser_content(App $a) {
 
 			function _map_files1($rr){
 				$a = get_app();
-				$types = Photo::supportedTypes();
+				$types = Image::supportedTypes();
 				$ext = $types[$rr['type']];
 				$filename_e = $rr['filename'];
 

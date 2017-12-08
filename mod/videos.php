@@ -5,7 +5,7 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Object\Contact;
+use Friendica\Model\Contact;
 
 require_once('include/items.php');
 require_once('include/acl_selectors.php');

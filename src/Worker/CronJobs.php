@@ -10,9 +10,9 @@ use Friendica\App;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
-use Friendica\Model\GlobalContact;
+use Friendica\Model\Contact;
+use Friendica\Model\GContact;
 use Friendica\Network\Probe;
-use Friendica\Object\Contact;
 use Friendica\Protocol\PortableContact;
 use dba;
 
@@ -280,7 +280,7 @@ class CronJobs
 		$r = q("SELECT `uid` FROM `user` WHERE `verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired`");
 		if (DBM::is_result($r)) {
 			foreach ($r AS $user) {
-				GlobalContact::updateForUser($user["uid"]);
+				GContact::updateForUser($user["uid"]);
 			}
 		}
 

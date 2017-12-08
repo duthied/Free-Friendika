@@ -12,10 +12,9 @@ namespace Friendica\Protocol;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Model\GlobalContact;
+use Friendica\Model\GContact;
+use Friendica\Model\Profile;
 use Friendica\Network\Probe;
-use Friendica\Object\Photo;
-use Friendica\Object\Profile;
 use dba;
 use DOMDocument;
 use DomXPath;
@@ -193,10 +192,10 @@ class PortableContact
 					"generation" => $generation);
 
 			try {
-				$gcontact = GlobalContact::sanitize($gcontact);
-				$gcid = GlobalContact::update($gcontact);
+				$gcontact = GContact::sanitize($gcontact);
+				$gcid = GContact::update($gcontact);
 
-				GlobalContact::link($gcid, $uid, $cid, $zcid);
+				GContact::link($gcid, $uid, $cid, $zcid);
 			} catch (Exception $e) {
 				logger($e->getMessage(), LOGGER_DEBUG);
 			}
@@ -425,7 +424,7 @@ class PortableContact
 
 						$contact = array_merge($contact, $noscrape);
 
-						GlobalContact::update($contact);
+						GContact::update($contact);
 
 						if (trim($noscrape["updated"]) != "") {
 							q(
@@ -447,7 +446,7 @@ class PortableContact
 		if (!$force && !self::updateNeeded($gcontacts[0]["created"], $gcontacts[0]["updated"], $gcontacts[0]["last_failure"], $gcontacts[0]["last_contact"])) {
 			logger("Profile ".$profile." was last updated at ".$gcontacts[0]["updated"]." (cached)", LOGGER_DEBUG);
 
-			GlobalContact::update($contact);
+			GContact::update($contact);
 			return $gcontacts[0]["updated"];
 		}
 
@@ -468,8 +467,8 @@ class PortableContact
 			$gcontact["server_url"] = $data["baseurl"];
 
 			try {
-				$gcontact = GlobalContact::sanitize($gcontact);
-				GlobalContact::update($gcontact);
+				$gcontact = GContact::sanitize($gcontact);
+				GContact::update($gcontact);
 
 				self::lastUpdated($data["url"], $force);
 			} catch (Exception $e) {
@@ -495,7 +494,7 @@ class PortableContact
 
 		$contact["server_url"] = $data["baseurl"];
 
-		GlobalContact::update($contact);
+		GContact::update($contact);
 
 		$feedret = z_fetch_url($data["poll"]);
 
@@ -1601,8 +1600,8 @@ class PortableContact
 						"generation" => $generation);
 
 				try {
-					$gcontact = GlobalContact::sanitize($gcontact);
-					GlobalContact::update($gcontact);
+					$gcontact = GContact::sanitize($gcontact);
+					GContact::update($gcontact);
 				} catch (Exception $e) {
 					logger($e->getMessage(), LOGGER_DEBUG);
 				}

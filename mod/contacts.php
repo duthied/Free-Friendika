@@ -6,9 +6,9 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Model\GlobalContact;
+use Friendica\Model\Contact;
+use Friendica\Model\GContact;
 use Friendica\Network\Probe;
-use Friendica\Object\Contact;
 
 require_once 'include/contact_selectors.php';
 require_once 'mod/proxy.php';
@@ -313,7 +313,7 @@ function _contact_update_profile($contact_id) {
 	Contact::updateAvatar($data['photo'], local_user(), $contact_id, true);
 
 	// Update the entry in the gcontact table
-	GlobalContact::updateFromProbe($data["url"]);
+	GContact::updateFromProbe($data["url"]);
 }
 
 function _contact_block($contact_id, $orig_record) {
@@ -887,7 +887,7 @@ function contacts_tab($a, $contact_id, $active_tab) {
 	);
 
 	// Show this tab only if there is visible friend list
-	$x = GlobalContact::countAllFriends(local_user(), $contact_id);
+	$x = GContact::countAllFriends(local_user(), $contact_id);
 	if ($x)
 		$tabs[] = array('label'=>t('Contacts'),
 				'url' => "allfriends/".$contact_id,
@@ -897,7 +897,7 @@ function contacts_tab($a, $contact_id, $active_tab) {
 				'accesskey' => 't');
 
 	// Show this tab only if there is visible common friend list
-	$common = GlobalContact::countCommonFriends(local_user(), $contact_id);
+	$common = GContact::countCommonFriends(local_user(), $contact_id);
 	if ($common)
 		$tabs[] = array('label'=>t('Common Friends'),
 				'url' => "common/loc/".local_user()."/".$contact_id,

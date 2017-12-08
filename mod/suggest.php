@@ -5,8 +5,8 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-use Friendica\Model\GlobalContact;
-use Friendica\Object\Contact;
+use Friendica\Model\Contact;
+use Friendica\Model\GContact;
 
 require_once 'include/contact_widgets.php';
 
@@ -69,7 +69,7 @@ function suggest_content(App $a) {
 	$a->page['aside'] .= follow_widget();
 
 
-	$r = GlobalContact::suggestionQuery(local_user());
+	$r = GContact::suggestionQuery(local_user());
 
 	if (! DBM::is_result($r)) {
 		$o .= t('No suggestions available. If this is a new site, please try again in 24 hours.');
