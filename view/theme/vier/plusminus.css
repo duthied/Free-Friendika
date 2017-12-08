@@ -206,17 +206,35 @@ nav #nav-search-box #nav-search-text {
   width: 100%;
 }
 
+
+/* Left Widget Column */
+
+#search-submit, #search-save {
+  font-size:10px;
+}
+
+
 /* Timeline */
+
+.profile-jot-text {
+  border-radius:5px;
+}
+
+.profile-jot-text:focus {
+  background-color:#eef3ff;
+}
 
 div.pager, ul.tabs {
   border-radius:5px;
 }
+
 
 /* Post*/
 
 #profile-jot-form { border-radius: 5px; }
 
 .tread-wrapper { border-radius: 5px; }
+
 
 /* Post header */
 
@@ -246,6 +264,7 @@ div.pager, ul.tabs {
 }
 
 .dt-published { font-size:10px; }
+
 
 /* Post content */
 .wall-item-content blockquote {
@@ -305,8 +324,16 @@ div.pager, ul.tabs {
   margin-top: 5px;
 }
 
+
 /* Post footer */
 .wall-item-like { font-size:12px; }
+
+.wall-item-actions{
+  font-size:10px;
+  font-weight:normal;
+  margin-bottom: -0.7em;
+  line-height: 5px;
+}
 
 .wall-item-actions-author{
   font-size:10px;
@@ -345,7 +372,8 @@ div.pager, ul.tabs {
   width: 10px;
 }
 
-/* comments */
+
+/* Comments */
 
 .wall-item-like { font-size:10px; }
 
@@ -367,6 +395,13 @@ div.pager, ul.tabs {
   font-size: 10px; 
   cursor: pointer;
 }
+
+.icon.s10.lock.fakelink {
+  color: #999;
+  width:80px;
+  vertical-align:top;
+}
+
 
 /* Calendar */
 
@@ -411,11 +446,21 @@ option {
 }
 
 /* styling */
-select {
-  border: 1px solid #bbb;
-  background-color: lightgrey;
-  box-shadow: 0 0px 0px 0 rgba(0,0,0,0.5);
-  height:20px;
+
+select{
+  background-image:
+    linear-gradient(45deg, transparent 50%, gray 50%),
+    linear-gradient(135deg, gray 50%, transparent 50%),
+    linear-gradient(to right, #ccc, #ccc);
+  background-position: right center;
+  background-size:
+    9px 9px,
+    9px 9px,
+    15px 2.5em;
+  background-repeat: no-repeat;
+  background-color: #eef3ff;
+  border: 1px solid;
+  border-color: grey;
 }
 
 /* Settings */
@@ -441,7 +486,39 @@ select {
 }
 
 #settings-form {
+  background-color: #ededed;
+}
+
+.ps-container.ps-theme-default h4{
+  font-weight:bold;
   background-color: whitesmoke;
+}
+
+.ps-container.ps-theme-default.ps-active-y h4{
+  background-color:#EEE;
+}
+#adminpage {
+  background-color: #ededed;
+}
+#adminpage h3{
+  font-size:20px;
+  font-weight:bold;
+  background-color: whitesmoke;
+  padding-top:30px;
+}
+
+#adminpage h1{
+  font-size:20px;
+  font-weight:bold;
+  background-color: whitesmoke;
+}
+
+#adminpage textarea {
+  width: 700px;
+}
+
+.field input {
+  width:700px;
 }
 
 .field_help {
@@ -455,6 +532,29 @@ select {
   width: 300px;
 }
 
+
+/* Admin user page */
+
+#users {
+  font-size: 12px; 
+}
+
+.users_ckbx {
+  width:20px;
+}
+
+.icon.block.dim:after {
+  content: '\259E';
+  color: darkgrey;
+  background-color: rgb(229, 229, 229);
+}
+
+td.checkbox, td.tools{
+  width:22px;
+  background-color: rgb(229, 229, 229);
+}
+
+
 /* popup */
 
 ul.menu-popup {
@@ -465,11 +565,13 @@ ul.menu-popup a {
   padding: 0 0 0 5px;
 }
 
+
 /* Growl Popup */
 
 .jGrowl, .notice * {
   color: white;
 }
+
 
 /* Buttons */
 
