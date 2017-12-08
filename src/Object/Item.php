@@ -46,7 +46,7 @@ class Item extends BaseObject
 	 *
 	 * @param array $data data array
 	 */
-	public function __construct($data)
+	public function __construct(array $data)
 	{
 		$a = self::getApp();
 
