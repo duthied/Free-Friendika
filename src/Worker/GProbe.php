@@ -8,7 +8,7 @@ namespace Friendica\Worker;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
-use Friendica\Model\GContact;
+use Friendica\Model\GlobalContact;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 
@@ -47,7 +47,7 @@ class GProbe {
 			}
 
 			if (!in_array($arr["network"], array(NETWORK_FEED, NETWORK_PHANTOM))) {
-				GContact::update($arr);
+				GlobalContact::update($arr);
 			}
 
 			$r = q(

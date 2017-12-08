@@ -5,7 +5,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-use Friendica\Object\Image;
+use Friendica\Object\Photo;
 
 $install_wizard_pass = 1;
 
@@ -503,7 +503,7 @@ function check_imagik(&$checks) {
 
 	if (class_exists('Imagick')) {
 		$imagick = true;
-		$supported = Image::supportedTypes();
+		$supported = Photo::supportedTypes();
 		if (array_key_exists('image/gif', $supported)) {
 			$gif = true;
 		}

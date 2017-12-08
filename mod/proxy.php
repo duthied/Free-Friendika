@@ -8,8 +8,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-use Friendica\Model\Photo;
-use Friendica\Object\Image;
+use Friendica\Object\Photo;
 
 define('PROXY_DEFAULT_TIME', 86400); // 1 Day
 
@@ -131,9 +130,9 @@ function proxy_init(App $a) {
 
 			// reduce quality - if it isn't a GIF
 			if ($mime != 'image/gif') {
-				$Image = new Image($img_str, $mime);
-				if ($Image->isValid()) {
-					$img_str = $Image->asString();
+				$img = new Photo($img_str, $mime);
+				if ($img->isValid()) {
+					$img_str = $img->imageString();
 				}
 			}
 
@@ -175,10 +174,10 @@ function proxy_init(App $a) {
 			$mime = 'image/png';
 			$cachefile = ''; // Clear the cachefile so that the dummy isn't stored
 			$valid = false;
-			$Image = new Image($img_str, 'image/png');
-			if ($Image->isValid()) {
-				$Image->scaleDown(10);
-				$img_str = $Image->asString();
+			$img = new Photo($img_str, 'image/png');
+			if ($img->isValid()) {
+				$img->scaleImage(10);
+				$img_str = $img->imageString();
 			}
 		} elseif ($mime != 'image/jpeg' && !$direct_cache && $cachefile == '') {
 			$image = @imagecreatefromstring($img_str);
@@ -193,9 +192,9 @@ function proxy_init(App $a) {
 				'allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '', 'desc' => $mime);
 			dba::insert('photo', $fields);
 		} else {
-			$Image = new Image($img_str, $mime);
-			if ($Image->isValid() && !$direct_cache && ($cachefile == '')) {
-				Photo::store($Image, 0, 0, $urlhash, $_REQUEST['url'], '', 100);
+			$img = new Photo($img_str, $mime);
+			if ($img->isValid() && !$direct_cache && ($cachefile == '')) {
+				$img->store(0, 0, $urlhash, $_REQUEST['url'], '', 100);
 			}
 		}
 	}
@@ -204,10 +203,10 @@ function proxy_init(App $a) {
 
 	// reduce quality - if it isn't a GIF
 	if ($mime != 'image/gif') {
-		$Image = new Image($img_str, $mime);
-		if ($Image->isValid()) {
-			$Image->scaleDown($size);
-			$img_str = $Image->asString();
+		$img = new Photo($img_str, $mime);
+		if ($img->isValid()) {
+			$img->scaleImage($size);
+			$img_str = $img->imageString();
 		}
 	}
 

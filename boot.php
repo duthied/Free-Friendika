@@ -27,7 +27,8 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Model\Contact;
+use Friendica\Object\Contact;
+use Friendica\Util\Lock;
 
 require_once 'include/network.php';
 require_once 'include/plugin.php';

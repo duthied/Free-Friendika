@@ -6,7 +6,7 @@
 namespace Friendica;
 
 use Friendica\Core\Config;
-use Friendica\Object\Image;
+use Friendica\Object\Photo;
 use Friendica\Util\XML;
 
 use dba;
@@ -353,7 +353,7 @@ class ParseUrl
 				}
 
 				$src = self::completeUrl($attr["src"], $url);
-				$photodata = Image::getInfoFromURL($src);
+				$photodata = Photo::getInfoFromURL($src);
 
 				if (($photodata) && ($photodata[0] > 150) && ($photodata[1] > 150)) {
 					if ($photodata[0] > 300) {
@@ -374,7 +374,7 @@ class ParseUrl
 
 			unset($siteinfo["image"]);
 
-			$photodata = Image::getInfoFromURL($src);
+			$photodata = Photo::getInfoFromURL($src);
 
 			if (($photodata) && ($photodata[0] > 10) && ($photodata[1] > 10)) {
 				$siteinfo["images"][] = array("src" => $src,

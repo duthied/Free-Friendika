@@ -4,7 +4,7 @@
  */
 use Friendica\App;
 use Friendica\Database\DBM;
-use Friendica\Object\Image;
+use Friendica\Object\Photo;
 
 require_once 'include/security.php';
 
@@ -75,7 +75,7 @@ function photo_init(App $a) {
 
 		$uid = str_replace(array('.jpg', '.png', '.gif'), array('', '', ''), $person);
 
-		foreach (Image::supportedTypes() AS $m => $e) {
+		foreach (Photo::supportedTypes() AS $m => $e) {
 			$uid = str_replace('.'.$e, '', $uid);
 		}
 
@@ -100,7 +100,7 @@ function photo_init(App $a) {
 		$resolution = 0;
 		$photo = str_replace(array('.jpg', '.png', '.gif'), array('', '', ''), $photo);
 
-		foreach (Image::supportedTypes() AS $m => $e) {
+		foreach (Photo::supportedTypes() AS $m => $e) {
 			$photo = str_replace('.'.$e, '', $photo);
 		}
 
@@ -167,14 +167,14 @@ function photo_init(App $a) {
 	}
 
 	// Resize only if its not a GIF and it is supported by the library
-	if (($mimetype != "image/gif") && in_array($mimetype, Image::supportedTypes())) {
-		$Image = new Image($data, $mimetype);
-		if ($Image->isValid()) {
+	if (($mimetype != "image/gif") && in_array($mimetype, Photo::supportedTypes())) {
+		$ph = new Photo($data, $mimetype);
+		if ($ph->isValid()) {
 			if (isset($customres) && $customres > 0 && $customres < 500) {
-				$Image->scaleToSquare($customres);
+				$ph->scaleImageSquare($customres);
 			}
-			$data = $Image->asString();
-			$mimetype = $Image->getType();
+			$data = $ph->imageString();
+			$mimetype = $ph->getType();
 		}
 	}
 

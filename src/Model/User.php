@@ -11,9 +11,8 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Model\Contact;
-use Friendica\Model\Photo;
-use Friendica\Object\Image;
+use Friendica\Object\Contact;
+use Friendica\Object\Photo;
 use dba;
 
 require_once 'boot.php';
@@ -382,32 +381,32 @@ class User
 			$filename = basename($photo);
 			$img_str = fetch_url($photo, true);
 			// guess mimetype from headers or filename
-			$type = Image::guessType($photo, true);
+			$type = Photo::guessImageType($photo, true);
 
 
-			$Image = new Image($img_str, $type);
-			if ($Image->isValid()) {
-				$Image->scaleToSquare(175);
+			$img = new Photo($img_str, $type);
+			if ($img->isValid()) {
+				$img->scaleImageSquare(175);
 
 				$hash = photo_new_resource();
 
-				$r = Photo::store($Image, $newuid, 0, $hash, $filename, t('Profile Photos'), 4);
+				$r = $img->store($newuid, 0, $hash, $filename, t('Profile Photos'), 4);
 
 				if ($r === false) {
 					$photo_failure = true;
 				}
 
-				$Image->scaleDown(80);
+				$img->scaleImage(80);
 
-				$r = Photo::store($Image, $newuid, 0, $hash, $filename, t('Profile Photos'), 5);
+				$r = $img->store($newuid, 0, $hash, $filename, t('Profile Photos'), 5);
 
 				if ($r === false) {
 					$photo_failure = true;
 				}
 
-				$Image->scaleDown(48);
+				$img->scaleImage(48);
 
-				$r = Photo::store($Image, $newuid, 0, $hash, $filename, t('Profile Photos'), 6);
+				$r = $img->store($newuid, 0, $hash, $filename, t('Profile Photos'), 6);
 
 				if ($r === false) {
 					$photo_failure = true;
