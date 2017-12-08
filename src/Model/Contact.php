@@ -12,7 +12,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
-use Friendica\Object\Image;
+use Friendica\Model\Photo;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
@@ -921,7 +921,7 @@ class Contact extends BaseObject
 		}
 
 		if (($r["avatar"] != $avatar) || $force) {
-			$photos = Image::importProfilePhoto($avatar, $uid, $cid, true);
+			$photos = Photo::importProfilePhoto($avatar, $uid, $cid, true);
 
 			if ($photos) {
 				dba::update(
