@@ -350,7 +350,7 @@ class Image
 				// FIXME - implement horizantal bias for scaling as in followin GD functions
 				// to allow very tall images to be constrained only horizontally.
 
-				$this->image->scaleDown($dest_width, $dest_height);
+				$this->image->scaleImage($dest_width, $dest_height);
 			} while ($this->image->nextImage());
 
 			// These may not be necessary any more
