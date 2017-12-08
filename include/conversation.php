@@ -10,7 +10,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Object\Thread;
-use Friendica\Object\Item;
+use Friendica\Object\Post;
 
 require_once "include/bbcode.php";
 require_once "include/acl_selectors.php";
@@ -880,7 +880,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 				$item['pagedrop'] = $page_dropping;
 
 				if ($item['id'] == $item['parent']) {
-					$item_object = new Item($item);
+					$item_object = new Post($item);
 					$conv->addParent($item_object);
 				}
 			}

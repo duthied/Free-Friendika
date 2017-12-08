@@ -5,7 +5,7 @@
 namespace Friendica\Object;
 
 use Friendica\BaseObject;
-use Friendica\Object\Item;
+use Friendica\Object\Post;
 
 require_once 'boot.php';
 require_once 'include/text.php';
@@ -120,7 +120,7 @@ class Thread extends BaseObject
 	 * @return mixed The inserted item on success
 	 *               false on failure
 	 */
-	public function addParent($item)
+	public function addParent(Post $item)
 	{
 		$item_id = $item->getId();
 
