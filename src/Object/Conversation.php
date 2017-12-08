@@ -1,6 +1,6 @@
 <?php
 /**
- * @file src/Object/Thread.php
+ * @file src/Object/Conversation.php
  */
 namespace Friendica\Object;
 
@@ -15,9 +15,9 @@ require_once 'include/text.php';
  *
  * We should think about making this a SPL Iterator
  */
-class Thread extends BaseObject
+class Conversation extends BaseObject
 {
-	private $parents = array();
+	private $threads = array();
 	private $mode = null;
 	private $writable = false;
 	private $profile_owner = 0;
@@ -120,7 +120,7 @@ class Thread extends BaseObject
 	 * @return mixed The inserted item on success
 	 *               false on failure
 	 */
-	public function addParent($item)
+	public function addThread($item)
 	{
 		$item_id = $item->getId();
 
@@ -129,7 +129,7 @@ class Thread extends BaseObject
 			return false;
 		}
 
-		if ($this->getParent($item->getId())) {
+		if ($this->getThread($item->getId())) {
 			logger('[WARN] Conversation::addThread : Thread already exists ('. $item->getId() .').', LOGGER_DEBUG);
 			return false;
 		}
@@ -147,10 +147,10 @@ class Thread extends BaseObject
 			return false;
 		}
 
-		$item->setThread($this);
-		$this->parents[] = $item;
+		$item->setConversation($this);
+		$this->threads[] = $item;
 
-		return end($this->parents);
+		return end($this->threads);
 	}
 
 	/**
@@ -169,7 +169,7 @@ class Thread extends BaseObject
 		$result = array();
 		$i = 0;
 
-		foreach ($this->parents as $item) {
+		foreach ($this->threads as $item) {
 			if ($item->getDataValue('network') === NETWORK_MAIL && local_user() != $item->getDataValue('uid')) {
 				continue;
 			}
@@ -194,9 +194,9 @@ class Thread extends BaseObject
 	 * @return mixed The found item on success
 	 *               false on failure
 	 */
-	private function getParent($id)
+	private function getThread($id)
 	{
-		foreach ($this->parents as $item) {
+		foreach ($this->threads as $item) {
 			if ($item->getId() == $id) {
 				return $item;
 			}

@@ -8,10 +8,9 @@ use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Model\Contact;
-use Friendica\Model\Photo;
 use Friendica\Network\Probe;
-use Friendica\Object\Image;
+use Friendica\Object\Contact;
+use Friendica\Object\Photo;
 
 require_once 'include/photos.php';
 require_once 'include/items.php';
@@ -137,7 +136,7 @@ function photos_post(App $a) {
 	logger('mod_photos: REQUEST ' . print_r($_REQUEST,true), LOGGER_DATA);
 	logger('mod_photos: FILES '   . print_r($_FILES,true), LOGGER_DATA);
 
-	$phototypes = Image::supportedTypes();
+	$phototypes = Photo::supportedTypes();
 
 	$can_post  = false;
 	$visitor   = 0;
@@ -425,16 +424,16 @@ function photos_post(App $a) {
 				intval($page_owner_uid)
 			);
 			if (DBM::is_result($r)) {
-				$Image = new Image($r[0]['data'], $r[0]['type']);
-				if ($Image->isValid()) {
+				$ph = new Photo($r[0]['data'], $r[0]['type']);
+				if ($ph->isValid()) {
 					$rotate_deg = ( (intval($_POST['rotate']) == 1) ? 270 : 90 );
-					$Image->rotate($rotate_deg);
+					$ph->rotate($rotate_deg);
 
-					$width  = $Image->getWidth();
-					$height = $Image->getHeight();
+					$width  = $ph->getWidth();
+					$height = $ph->getHeight();
 
 					$x = q("UPDATE `photo` SET `data` = '%s', `height` = %d, `width` = %d WHERE `resource-id` = '%s' AND `uid` = %d AND `scale` = 0",
-						dbesc($Image->asString()),
+						dbesc($ph->imageString()),
 						intval($height),
 						intval($width),
 						dbesc($resource_id),
@@ -442,12 +441,12 @@ function photos_post(App $a) {
 					);
 
 					if ($width > 640 || $height > 640) {
-						$Image->scaleDown(640);
-						$width  = $Image->getWidth();
-						$height = $Image->getHeight();
+						$ph->scaleImage(640);
+						$width  = $ph->getWidth();
+						$height = $ph->getHeight();
 
 						$x = q("UPDATE `photo` SET `data` = '%s', `height` = %d, `width` = %d WHERE `resource-id` = '%s' AND `uid` = %d AND `scale` = 1",
-							dbesc($Image->asString()),
+							dbesc($ph->imageString()),
 							intval($height),
 							intval($width),
 							dbesc($resource_id),
@@ -456,12 +455,12 @@ function photos_post(App $a) {
 					}
 
 					if ($width > 320 || $height > 320) {
-						$Image->scaleDown(320);
-						$width  = $Image->getWidth();
-						$height = $Image->getHeight();
+						$ph->scaleImage(320);
+						$width  = $ph->getWidth();
+						$height = $ph->getHeight();
 
 						$x = q("UPDATE `photo` SET `data` = '%s', `height` = %d, `width` = %d WHERE `resource-id` = '%s' AND `uid` = %d AND `scale` = 2",
-							dbesc($Image->asString()),
+							dbesc($ph->imageString()),
 							intval($height),
 							intval($width),
 							dbesc($resource_id),
@@ -812,7 +811,7 @@ function photos_post(App $a) {
 		$type       = $_FILES['userfile']['type'];
 	}
 	if ($type == "") {
-		$type = Image::guessType($filename);
+		$type = Photo::guessImageType($filename);
 	}
 
 	logger('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes', LOGGER_DEBUG);
@@ -839,9 +838,9 @@ function photos_post(App $a) {
 
 	$imagedata = @file_get_contents($src);
 
-	$Image = new Image($imagedata, $type);
+	$ph = new Photo($imagedata, $type);
 
-	if (! $Image->isValid()) {
+	if (! $ph->isValid()) {
 		logger('mod/photos.php: photos_post(): unable to process image' , LOGGER_DEBUG);
 		notice( t('Unable to process image.') . EOL );
 		@unlink($src);
@@ -850,7 +849,7 @@ function photos_post(App $a) {
 		killme();
 	}
 
-	$exif = $Image->orient($src);
+	$exif = $ph->orient($src);
 	@unlink($src);
 
 	$max_length = Config::get('system', 'max_image_length');
@@ -858,17 +857,17 @@ function photos_post(App $a) {
 		$max_length = MAX_IMAGE_LENGTH;
 	}
 	if ($max_length > 0) {
-		$Image->scaleDown($max_length);
+		$ph->scaleImage($max_length);
 	}
 
-	$width  = $Image->getWidth();
-	$height = $Image->getHeight();
+	$width  = $ph->getWidth();
+	$height = $ph->getHeight();
 
 	$smallest = 0;
 
 	$photo_hash = photo_new_resource();
 
-	$r = Photo::store($Image, $page_owner_uid, $visitor, $photo_hash, $filename, $album, 0 , 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
+	$r = $ph->store($page_owner_uid, $visitor, $photo_hash, $filename, $album, 0 , 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 
 	if (! $r) {
 		logger('mod/photos.php: photos_post(): image store failed' , LOGGER_DEBUG);
@@ -877,14 +876,14 @@ function photos_post(App $a) {
 	}
 
 	if ($width > 640 || $height > 640) {
-		$Image->scaleDown(640);
-		Photo::store($Image, $page_owner_uid, $visitor, $photo_hash, $filename, $album, 1, 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
+		$ph->scaleImage(640);
+		$ph->store($page_owner_uid, $visitor, $photo_hash, $filename, $album, 1, 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 		$smallest = 1;
 	}
 
 	if ($width > 320 || $height > 320) {
-		$Image->scaleDown(320);
-		Photo::store($Image, $page_owner_uid, $visitor, $photo_hash, $filename, $album, 2, 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
+		$ph->scaleImage(320);
+		$ph->store($page_owner_uid, $visitor, $photo_hash, $filename, $album, 2, 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 		$smallest = 2;
 	}
 
@@ -933,7 +932,7 @@ function photos_post(App $a) {
 	$arr['origin']        = 1;
 
 	$arr['body']          = '[url=' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo_hash . ']'
-				. '[img]' . System::baseUrl() . "/photo/{$photo_hash}-{$smallest}.".$Image->getExt() . '[/img]'
+				. '[img]' . System::baseUrl() . "/photo/{$photo_hash}-{$smallest}.".$ph->getExt() . '[/img]'
 				. '[/url]';
 
 	$item_id = item_store($arr);
@@ -981,7 +980,7 @@ function photos_content(App $a) {
 		return;
 	}
 
-	$phototypes = Image::supportedTypes();
+	$phototypes = Photo::supportedTypes();
 
 	$_SESSION['photo_return'] = $a->cmd;
 

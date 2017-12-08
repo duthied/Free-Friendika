@@ -7,8 +7,7 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Model\Photo;
-use Friendica\Object\Image;
+use Friendica\Object\Photo;
 
 function profile_photo_init(App $a) {
 
@@ -73,27 +72,27 @@ function profile_photo_post(App $a) {
 
 			$base_image = $r[0];
 
-			$Image = new Image($base_image['data'], $base_image['type']);
-			if ($Image->isValid()) {
-				$Image->crop(175,$srcX,$srcY,$srcW,$srcH);
+			$im = new Photo($base_image['data'], $base_image['type']);
+			if ($im->isValid()) {
+				$im->cropImage(175,$srcX,$srcY,$srcW,$srcH);
 
-				$r = Photo::store($Image, local_user(), 0, $base_image['resource-id'],$base_image['filename'], t('Profile Photos'), 4, $is_default_profile);
+				$r = $im->store(local_user(), 0, $base_image['resource-id'],$base_image['filename'], t('Profile Photos'), 4, $is_default_profile);
 
 				if ($r === false) {
 					notice ( sprintf(t('Image size reduction [%s] failed.'),"175") . EOL );
 				}
 
-				$Image->scaleDown(80);
+				$im->scaleImage(80);
 
-				$r = Photo::store($Image, local_user(), 0, $base_image['resource-id'],$base_image['filename'], t('Profile Photos'), 5, $is_default_profile);
+				$r = $im->store(local_user(), 0, $base_image['resource-id'],$base_image['filename'], t('Profile Photos'), 5, $is_default_profile);
 
 				if ($r === false) {
 					notice( sprintf(t('Image size reduction [%s] failed.'),"80") . EOL );
 				}
 
-				$Image->scaleDown(48);
+				$im->scaleImage(48);
 
-				$r = Photo::store($Image, local_user(), 0, $base_image['resource-id'],$base_image['filename'], t('Profile Photos'), 6, $is_default_profile);
+				$r = $im->store(local_user(), 0, $base_image['resource-id'],$base_image['filename'], t('Profile Photos'), 6, $is_default_profile);
 
 				if ($r === false) {
 					notice( sprintf(t('Image size reduction [%s] failed.'),"48") . EOL );
@@ -108,15 +107,15 @@ function profile_photo_post(App $a) {
 					);
 
 					$r = q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s'  WHERE `self` AND `uid` = %d",
-						dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-4.' . $Image->getExt()),
-						dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-5.' . $Image->getExt()),
-						dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-6.' . $Image->getExt()),
+						dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-4.' . $im->getExt()),
+						dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-5.' . $im->getExt()),
+						dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-6.' . $im->getExt()),
 						intval(local_user())
 					);
 				} else {
 					$r = q("update profile set photo = '%s', thumb = '%s' where id = %d and uid = %d",
-						dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-4.' . $Image->getExt()),
-						dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-5.' . $Image->getExt()),
+						dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-4.' . $im->getExt()),
+						dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-5.' . $im->getExt()),
 						intval($_REQUEST['profile']),
 						intval(local_user())
 					);
@@ -152,7 +151,7 @@ function profile_photo_post(App $a) {
 	$filesize = intval($_FILES['userfile']['size']);
 	$filetype = $_FILES['userfile']['type'];
 	if ($filetype == "") {
-		$filetype = Image::guessType($filename);
+		$filetype = Photo::guessImageType($filename);
 	}
 
 	$maximagesize = Config::get('system', 'maximagesize');
@@ -164,7 +163,7 @@ function profile_photo_post(App $a) {
 	}
 
 	$imagedata = @file_get_contents($src);
-	$ph = new Image($imagedata, $filetype);
+	$ph = new Photo($imagedata, $filetype);
 
 	if (! $ph->isValid()) {
 		notice(t('Unable to process image.') . EOL);
@@ -240,7 +239,7 @@ function profile_photo_content(App $a) {
 			goaway(System::baseUrl() . '/profiles');
 			return; // NOTREACHED
 		}
-		$ph = new Image($r[0]['data'], $r[0]['type']);
+		$ph = new Photo($r[0]['data'], $r[0]['type']);
 		profile_photo_crop_ui_head($a, $ph);
 		// go ahead as we have jus uploaded a new photo to crop
 	}
@@ -289,22 +288,22 @@ function profile_photo_content(App $a) {
 
 
 if(! function_exists('profile_photo_crop_ui_head')) {
-function profile_photo_crop_ui_head(App $a, Image $Image) {
+function profile_photo_crop_ui_head(App $a, $ph) {
 	$max_length = Config::get('system','max_image_length');
 	if (! $max_length) {
 		$max_length = MAX_IMAGE_LENGTH;
 	}
 	if ($max_length > 0) {
-		$Image->scaleDown($max_length);
+		$ph->scaleImage($max_length);
 	}
 
-	$width = $Image->getWidth();
-	$height = $Image->getHeight();
+	$width = $ph->getWidth();
+	$height = $ph->getHeight();
 
 	if ($width < 175 || $height < 175) {
-		$Image->scaleUp(200);
-		$width = $Image->getWidth();
-		$height = $Image->getHeight();
+		$ph->scaleImageUp(200);
+		$width = $ph->getWidth();
+		$height = $ph->getHeight();
 	}
 
 	$hash = photo_new_resource();
@@ -312,7 +311,7 @@ function profile_photo_crop_ui_head(App $a, Image $Image) {
 
 	$smallest = 0;
 
-	$r = Photo::store($Image, local_user(), 0 , $hash, $filename, t('Profile Photos'), 0 );
+	$r = $ph->store(local_user(), 0 , $hash, $filename, t('Profile Photos'), 0 );
 
 	if ($r) {
 		info( t('Image uploaded successfully.') . EOL );
@@ -321,8 +320,8 @@ function profile_photo_crop_ui_head(App $a, Image $Image) {
 	}
 
 	if ($width > 640 || $height > 640) {
-		$Image->scaleDown(640);
-		$r = Photo::store($Image, local_user(), 0 , $hash, $filename, t('Profile Photos'), 1 );
+		$ph->scaleImage(640);
+		$r = $ph->store(local_user(), 0 , $hash, $filename, t('Profile Photos'), 1 );
 
 		if ($r === false) {
 			notice( sprintf(t('Image size reduction [%s] failed.'),"640") . EOL );
@@ -333,7 +332,7 @@ function profile_photo_crop_ui_head(App $a, Image $Image) {
 
 	$a->config['imagecrop'] = $hash;
 	$a->config['imagecrop_resolution'] = $smallest;
-	$a->config['imagecrop_ext'] = $Image->getExt();
+	$a->config['imagecrop_ext'] = $ph->getExt();
 	$a->page['htmlhead'] .= replace_macros(get_markup_template("crophead.tpl"), array());
 	$a->page['end'] .= replace_macros(get_markup_template("cropend.tpl"), array());
 	return;

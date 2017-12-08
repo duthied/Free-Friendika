@@ -6,8 +6,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Model\Photo;
-use Friendica\Object\Image;
+use Friendica\Object\Photo;
 
 /**
  *
@@ -154,10 +153,10 @@ function update_1014()
 	$r = q("SELECT * FROM `photo` WHERE `scale` = 4");
 	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
-			$Image = new Image($rr['data']);
-			if ($Image->isValid()) {
-				$Image->scaleDown(48);
-				Photo::store($Image, $rr['uid'],$rr['contact-id'],$rr['resource-id'],$rr['filename'],$rr['album'],6,(($rr['profile']) ? 1 : 0));
+			$ph = new Photo($rr['data']);
+			if ($ph->isValid()) {
+				$ph->scaleImage(48);
+				$ph->store($rr['uid'],$rr['contact-id'],$rr['resource-id'],$rr['filename'],$rr['album'],6,(($rr['profile']) ? 1 : 0));
 			}
 		}
 	}

@@ -2,10 +2,10 @@
 
 use Friendica\App;
 use Friendica\Core\System;
-use Friendica\Model\GContact;
+use Friendica\Model\GlobalContact;
 
 function randprof_init(App $a) {
-	$x = GContact::getRandomUrl();
+	$x = GlobalContact::getRandomUrl();
 
 	if ($x) {
 		goaway(zrl($x));

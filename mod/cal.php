@@ -11,7 +11,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-use Friendica\Model\Contact;
+use Friendica\Object\Contact;
 
 require_once 'include/event.php';
 require_once 'include/redir.php';

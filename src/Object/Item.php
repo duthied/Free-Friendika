@@ -1,24 +1,25 @@
 <?php
 /**
- * @file src/Object/Post.php
+ * @file src/Object/Item.php
  */
 namespace Friendica\Object;
 
 use Friendica\BaseObject;
 use Friendica\Content\Feature;
+use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
-use Friendica\Model\Contact;
+use Friendica\Object\Contact;
 use dba;
 
 require_once 'include/text.php';
 require_once 'boot.php';
-require_once 'include/conversation.php';
+require_once "include/conversation.php";
 
 /**
  * An item
  */
-class Post extends BaseObject
+class Item extends BaseObject
 {
 	private $data = array();
 	private $template = null;
@@ -31,7 +32,7 @@ class Post extends BaseObject
 	private $writable = false;
 	private $children = array();
 	private $parent = null;
-	private $thread = null;
+	private $conversation = null;
 	private $redirect_url = null;
 	private $owner_url = '';
 	private $owner_photo = '';
@@ -138,7 +139,7 @@ class Post extends BaseObject
 		$osparkle = '';
 		$total_children = $this->countDescendants();
 
-		$conv = $this->getThread();
+		$conv = $this->getConversation();
 
 		$lock = ((($item['private'] == 1) || (($item['uid'] == local_user()) && (strlen($item['allow_cid']) || strlen($item['allow_gid'])
 			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
@@ -539,7 +540,7 @@ class Post extends BaseObject
 		}
 
 		$this->parent = $item;
-		$this->setThread($item->getThread());
+		$this->setConversation($item->getConversation());
 	}
 
 	/**
@@ -550,7 +551,7 @@ class Post extends BaseObject
 	protected function removeParent()
 	{
 		$this->parent = null;
-		$this->thread = null;
+		$this->conversation = null;
 	}
 
 	/**
@@ -593,15 +594,15 @@ class Post extends BaseObject
 	 *
 	 * @return void
 	 */
-	public function setThread($conv)
+	public function setConversation($conv)
 	{
-		$previous_mode = ($this->thread ? $this->thread->getMode() : '');
+		$previous_mode = ($this->conversation ? $this->conversation->getMode() : '');
 
-		$this->thread = $conv;
+		$this->conversation = $conv;
 
 		// Set it on our children too
 		foreach ($this->getChildren() as $child) {
-			$child->setThread($conv);
+			$child->setConversation($conv);
 		}
 	}
 
@@ -610,9 +611,9 @@ class Post extends BaseObject
 	 *
 	 * @return object
 	 */
-	public function getThread()
+	public function getConversation()
 	{
-		return $this->thread;
+		return $this->conversation;
 	}
 
 	/**
@@ -689,7 +690,7 @@ class Post extends BaseObject
 	 */
 	private function isWritable()
 	{
-		$conv = $this->getThread();
+		$conv = $this->getConversation();
 
 		if ($conv) {
 			// This will allow us to comment on wall-to-wall items owned by our friends
@@ -747,7 +748,7 @@ class Post extends BaseObject
 		$a = self::getApp();
 
 		$comment_box = '';
-		$conv = $this->getThread();
+		$conv = $this->getConversation();
 		$template = get_markup_template($this->getCommentBoxTemplate());
 		$ww = '';
 		if (($conv->getMode() === 'network') && $this->isWallToWall()) {
@@ -818,7 +819,7 @@ class Post extends BaseObject
 	protected function checkWallToWall()
 	{
 		$a = self::getApp();
-		$conv = $this->getThread();
+		$conv = $this->getConversation();
 		$this->wall_to_wall = false;
 
 		if ($this->isToplevel()) {
@@ -886,6 +887,14 @@ class Post extends BaseObject
 	private function getOwnerUrl()
 	{
 		return $this->owner_url;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getOwnerPhoto()
+	{
+		return $this->owner_photo;
 	}
 
 	/**

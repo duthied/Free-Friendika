@@ -7,7 +7,7 @@ namespace Friendica\Worker;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
-use Friendica\Model\Contact;
+use Friendica\Object\Contact;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\PortableContact;
 use dba;
