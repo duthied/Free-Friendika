@@ -89,7 +89,7 @@ class Post extends BaseObject
 				}
 
 				$item['pagedrop'] = $data['pagedrop'];
-				$child = new Item($item);
+				$child = new Post($item);
 				$this->addChild($child);
 			}
 		}
@@ -471,14 +471,14 @@ class Post extends BaseObject
 	 *
 	 * @return mixed
 	 */
-	public function addChild(Item $item)
+	public function addChild(Post $item)
 	{
 		$item_id = $item->getId();
 		if (!$item_id) {
-			logger('[ERROR] Item::addChild : Item has no ID!!', LOGGER_DEBUG);
+			logger('[ERROR] Post::addChild : Item has no ID!!', LOGGER_DEBUG);
 			return false;
 		} elseif ($this->getChild($item->getId())) {
-			logger('[WARN] Item::addChild : Item already exists ('. $item->getId() .').', LOGGER_DEBUG);
+			logger('[WARN] Post::addChild : Item already exists ('. $item->getId() .').', LOGGER_DEBUG);
 			return false;
 		}
 		/*
