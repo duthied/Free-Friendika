@@ -9,9 +9,9 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\Contact;
+use Friendica\Model\Profile;
 use Friendica\Network\Probe;
-use Friendica\Object\Contact;
-use Friendica\Object\Profile;
 use Friendica\Protocol\PortableContact;
 use dba;
 use Exception;
@@ -23,7 +23,7 @@ require_once 'include/html2bbcode.php';
 /**
  * @brief This class handles GlobalContact related functions
  */
-class GlobalContact
+class GContact
 {
 	/**
 	 * @brief Search global contact table by nick or name

@@ -1,11 +1,11 @@
 <?php
 /**
- * @file src/Object/Conversation.php
+ * @file src/Object/Thread.php
  */
 namespace Friendica\Object;
 
 use Friendica\BaseObject;
-use Friendica\Object\Item;
+use Friendica\Object\Post;
 
 require_once 'boot.php';
 require_once 'include/text.php';
@@ -15,9 +15,9 @@ require_once 'include/text.php';
  *
  * We should think about making this a SPL Iterator
  */
-class Conversation extends BaseObject
+class Thread extends BaseObject
 {
-	private $threads = array();
+	private $parents = array();
 	private $mode = null;
 	private $writable = false;
 	private $profile_owner = 0;
@@ -120,7 +120,7 @@ class Conversation extends BaseObject
 	 * @return mixed The inserted item on success
 	 *               false on failure
 	 */
-	public function addThread($item)
+	public function addParent(Post $item)
 	{
 		$item_id = $item->getId();
 
@@ -129,7 +129,7 @@ class Conversation extends BaseObject
 			return false;
 		}
 
-		if ($this->getThread($item->getId())) {
+		if ($this->getParent($item->getId())) {
 			logger('[WARN] Conversation::addThread : Thread already exists ('. $item->getId() .').', LOGGER_DEBUG);
 			return false;
 		}
@@ -147,10 +147,10 @@ class Conversation extends BaseObject
 			return false;
 		}
 
-		$item->setConversation($this);
-		$this->threads[] = $item;
+		$item->setThread($this);
+		$this->parents[] = $item;
 
-		return end($this->threads);
+		return end($this->parents);
 	}
 
 	/**
@@ -169,7 +169,7 @@ class Conversation extends BaseObject
 		$result = array();
 		$i = 0;
 
-		foreach ($this->threads as $item) {
+		foreach ($this->parents as $item) {
 			if ($item->getDataValue('network') === NETWORK_MAIL && local_user() != $item->getDataValue('uid')) {
 				continue;
 			}
@@ -194,9 +194,9 @@ class Conversation extends BaseObject
 	 * @return mixed The found item on success
 	 *               false on failure
 	 */
-	private function getThread($id)
+	private function getParent($id)
 	{
-		foreach ($this->threads as $item) {
+		foreach ($this->parents as $item) {
 			if ($item->getId() == $id) {
 				return $item;
 			}

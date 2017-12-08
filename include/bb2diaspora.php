@@ -2,8 +2,8 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Model\Contact;
 use Friendica\Network\Probe;
-use Friendica\Object\Contact;
 
 use League\HTMLToMarkdown\HtmlConverter;
 

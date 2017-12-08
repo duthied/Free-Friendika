@@ -5,8 +5,8 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-use Friendica\Model\GlobalContact;
-use Friendica\Object\Contact;
+use Friendica\Model\Contact;
+use Friendica\Model\GContact;
 
 require_once 'include/contact_selectors.php';
 require_once 'mod/contacts.php';
@@ -41,12 +41,12 @@ function allfriends_content(App $a) {
 	$a->page['aside'] = "";
 	profile_load($a, "", 0, Contact::getDetailsByURL($c[0]["url"]));
 
-	$total = GlobalContact::countAllFriends(local_user(), $cid);
+	$total = GContact::countAllFriends(local_user(), $cid);
 
 	if(count($total))
 		$a->set_pager_total($total);
 
-	$r = GlobalContact::allFriends(local_user(), $cid, $a->pager['start'], $a->pager['itemspage']);
+	$r = GContact::allFriends(local_user(), $cid, $a->pager['start'], $a->pager['itemspage']);
 
 	if (! DBM::is_result($r)) {
 		$o .= t('No friends to display.');

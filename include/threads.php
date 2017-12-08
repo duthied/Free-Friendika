@@ -3,7 +3,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-use Friendica\Object\Contact;
+use Friendica\Model\Contact;
 
 function add_thread($itemid, $onlyshadow = false) {
 	$items = q("SELECT `uid`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`,

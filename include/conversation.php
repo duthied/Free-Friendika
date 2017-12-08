@@ -8,9 +8,9 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-use Friendica\Object\Contact;
-use Friendica\Object\Conversation;
-use Friendica\Object\Item;
+use Friendica\Model\Contact;
+use Friendica\Object\Thread;
+use Friendica\Object\Post;
 
 require_once "include/bbcode.php";
 require_once "include/acl_selectors.php";
@@ -840,7 +840,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 			// Normal View
 			$page_template = get_markup_template("threaded_conversation.tpl");
 
-			$conv = new Conversation($mode, $preview);
+			$conv = new Thread($mode, $preview);
 
 			/*
 			 * get all the topmost parents
@@ -880,8 +880,8 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 				$item['pagedrop'] = $page_dropping;
 
 				if ($item['id'] == $item['parent']) {
-					$item_object = new Item($item);
-					$conv->addThread($item_object);
+					$item_object = new Post($item);
+					$conv->addParent($item_object);
 				}
 			}
 

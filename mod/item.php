@@ -22,9 +22,9 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Model\GlobalContact;
+use Friendica\Model\Contact;
+use Friendica\Model\GContact;
 use Friendica\Network\Probe;
-use Friendica\Object\Contact;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 use Friendica\Util\Emailer;
@@ -743,7 +743,7 @@ function item_post(App $a) {
 	$datarray['postopts']      = $postopts;
 	$datarray['origin']        = $origin;
 	$datarray['moderated']     = $allow_moderated;
-	$datarray['gcontact-id']   = GlobalContact::getId(array("url" => $datarray['author-link'], "network" => $datarray['network'],
+	$datarray['gcontact-id']   = GContact::getId(array("url" => $datarray['author-link'], "network" => $datarray['network'],
 							"photo" => $datarray['author-avatar'], "name" => $datarray['author-name']));
 	$datarray['object']        = $object;
 
@@ -1244,7 +1244,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			if (!DBM::is_result($r)) {
 				$probed = Probe::uri($name);
 				if ($result['network'] != NETWORK_PHANTOM) {
-					GlobalContact::update($probed);
+					GContact::update($probed);
 					$r = q("SELECT `url`, `name`, `nick`, `network`, `alias`, `notify` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 						dbesc(normalise_link($probed["url"])));
 				}

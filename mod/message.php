@@ -4,7 +4,7 @@ use Friendica\App;
 use Friendica\Content\Smilies;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-use Friendica\Object\Contact;
+use Friendica\Model\Contact;
 
 require_once 'include/acl_selectors.php';
 require_once 'include/message.php';

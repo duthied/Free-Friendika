@@ -10,8 +10,8 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Model\GlobalContact;
-use Friendica\Object\Contact;
+use Friendica\Model\Contact;
+use Friendica\Model\GContact;
 
 function hovercard_init(App $a) {
 	// Just for testing purposes
@@ -47,7 +47,7 @@ function hovercard_content() {
 	}
 
 	// if it's the url containing https it should be converted to http
-	$nurl = normalise_link(GlobalContact::cleanContactUrl($profileurl));
+	$nurl = normalise_link(GContact::cleanContactUrl($profileurl));
 	if($nurl) {
 		// Search for contact data
 		$contact = Contact::getDetailsByURL($nurl);

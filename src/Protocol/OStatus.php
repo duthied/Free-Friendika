@@ -9,10 +9,10 @@ use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-use Friendica\Model\GlobalContact;
+use Friendica\Model\Contact;
+use Friendica\Model\GContact;
 use Friendica\Network\Probe;
-use Friendica\Object\Contact;
-use Friendica\Object\Photo;
+use Friendica\Object\Image;
 use Friendica\Util\Lock;
 use Friendica\Util\XML;
 use dba;
@@ -226,9 +226,9 @@ class OStatus
 			$contact["generation"] = 2;
 			$contact["hide"] = false; // OStatus contacts are never hidden
 			$contact["photo"] = $author["author-avatar"];
-			$gcid = GlobalContact::update($contact);
+			$gcid = GContact::update($contact);
 
-			GlobalContact::link($gcid, $contact["uid"], $contact["id"]);
+			GContact::link($gcid, $contact["uid"], $contact["id"]);
 		}
 
 		return $author;
@@ -1323,7 +1323,7 @@ class OStatus
 
 		switch ($siteinfo["type"]) {
 			case 'photo':
-				$imgdata = Photo::getInfoFromURL($siteinfo["image"]);
+				$imgdata = Image::getInfoFromURL($siteinfo["image"]);
 				$attributes = array("rel" => "enclosure",
 						"href" => $siteinfo["image"],
 						"type" => $imgdata["mime"],
@@ -1343,7 +1343,7 @@ class OStatus
 		}
 
 		if (!Config::get('system', 'ostatus_not_attach_preview') && ($siteinfo["type"] != "photo") && isset($siteinfo["image"])) {
-			$imgdata = Photo::getInfoFromURL($siteinfo["image"]);
+			$imgdata = Image::getInfoFromURL($siteinfo["image"]);
 			$attributes = array("rel" => "enclosure",
 					"href" => $siteinfo["image"],
 					"type" => $imgdata["mime"],

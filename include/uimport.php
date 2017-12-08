@@ -7,7 +7,8 @@ use Friendica\Core\System;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Object\Photo;
+use Friendica\Model\Photo;
+use Friendica\Object\Image;
 
 define("IMPORT_DEBUG", False);
 
@@ -260,8 +261,9 @@ function import_account(App $a, $file) {
 		$photo['uid'] = $newuid;
 		$photo['data'] = hex2bin($photo['data']);
 
-		$p = new Photo($photo['data'], $photo['type']);
-		$r = $p->store(
+		$Image = new Image($photo['data'], $photo['type']);
+		$r = Photo::store(
+				$Image,
 				$photo['uid'], $photo['contact-id'], //0
 				$photo['resource-id'], $photo['filename'], $photo['album'], $photo['scale'], $photo['profile'], //1
 				$photo['allow_cid'], $photo['allow_gid'], $photo['deny_cid'], $photo['deny_gid']

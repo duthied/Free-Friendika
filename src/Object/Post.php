@@ -1,25 +1,24 @@
 <?php
 /**
- * @file src/Object/Item.php
+ * @file src/Object/Post.php
  */
 namespace Friendica\Object;
 
 use Friendica\BaseObject;
 use Friendica\Content\Feature;
-use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
-use Friendica\Object\Contact;
+use Friendica\Model\Contact;
 use dba;
 
 require_once 'include/text.php';
 require_once 'boot.php';
-require_once "include/conversation.php";
+require_once 'include/conversation.php';
 
 /**
  * An item
  */
-class Item extends BaseObject
+class Post extends BaseObject
 {
 	private $data = array();
 	private $template = null;
@@ -32,7 +31,7 @@ class Item extends BaseObject
 	private $writable = false;
 	private $children = array();
 	private $parent = null;
-	private $conversation = null;
+	private $thread = null;
 	private $redirect_url = null;
 	private $owner_url = '';
 	private $owner_photo = '';
@@ -46,7 +45,7 @@ class Item extends BaseObject
 	 *
 	 * @param array $data data array
 	 */
-	public function __construct($data)
+	public function __construct(array $data)
 	{
 		$a = self::getApp();
 
@@ -90,7 +89,7 @@ class Item extends BaseObject
 				}
 
 				$item['pagedrop'] = $data['pagedrop'];
-				$child = new Item($item);
+				$child = new Post($item);
 				$this->addChild($child);
 			}
 		}
@@ -139,7 +138,7 @@ class Item extends BaseObject
 		$osparkle = '';
 		$total_children = $this->countDescendants();
 
-		$conv = $this->getConversation();
+		$conv = $this->getThread();
 
 		$lock = ((($item['private'] == 1) || (($item['uid'] == local_user()) && (strlen($item['allow_cid']) || strlen($item['allow_gid'])
 			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
@@ -472,14 +471,14 @@ class Item extends BaseObject
 	 *
 	 * @return mixed
 	 */
-	public function addChild(Item $item)
+	public function addChild(Post $item)
 	{
 		$item_id = $item->getId();
 		if (!$item_id) {
-			logger('[ERROR] Item::addChild : Item has no ID!!', LOGGER_DEBUG);
+			logger('[ERROR] Post::addChild : Item has no ID!!', LOGGER_DEBUG);
 			return false;
 		} elseif ($this->getChild($item->getId())) {
-			logger('[WARN] Item::addChild : Item already exists ('. $item->getId() .').', LOGGER_DEBUG);
+			logger('[WARN] Post::addChild : Item already exists ('. $item->getId() .').', LOGGER_DEBUG);
 			return false;
 		}
 		/*
@@ -540,7 +539,7 @@ class Item extends BaseObject
 		}
 
 		$this->parent = $item;
-		$this->setConversation($item->getConversation());
+		$this->setThread($item->getThread());
 	}
 
 	/**
@@ -551,7 +550,7 @@ class Item extends BaseObject
 	protected function removeParent()
 	{
 		$this->parent = null;
-		$this->conversation = null;
+		$this->thread = null;
 	}
 
 	/**
@@ -594,15 +593,15 @@ class Item extends BaseObject
 	 *
 	 * @return void
 	 */
-	public function setConversation($conv)
+	public function setThread($conv)
 	{
-		$previous_mode = ($this->conversation ? $this->conversation->getMode() : '');
+		$previous_mode = ($this->thread ? $this->thread->getMode() : '');
 
-		$this->conversation = $conv;
+		$this->thread = $conv;
 
 		// Set it on our children too
 		foreach ($this->getChildren() as $child) {
-			$child->setConversation($conv);
+			$child->setThread($conv);
 		}
 	}
 
@@ -611,9 +610,9 @@ class Item extends BaseObject
 	 *
 	 * @return object
 	 */
-	public function getConversation()
+	public function getThread()
 	{
-		return $this->conversation;
+		return $this->thread;
 	}
 
 	/**
@@ -690,7 +689,7 @@ class Item extends BaseObject
 	 */
 	private function isWritable()
 	{
-		$conv = $this->getConversation();
+		$conv = $this->getThread();
 
 		if ($conv) {
 			// This will allow us to comment on wall-to-wall items owned by our friends
@@ -748,7 +747,7 @@ class Item extends BaseObject
 		$a = self::getApp();
 
 		$comment_box = '';
-		$conv = $this->getConversation();
+		$conv = $this->getThread();
 		$template = get_markup_template($this->getCommentBoxTemplate());
 		$ww = '';
 		if (($conv->getMode() === 'network') && $this->isWallToWall()) {
@@ -819,7 +818,7 @@ class Item extends BaseObject
 	protected function checkWallToWall()
 	{
 		$a = self::getApp();
-		$conv = $this->getConversation();
+		$conv = $this->getThread();
 		$this->wall_to_wall = false;
 
 		if ($this->isToplevel()) {
@@ -887,14 +886,6 @@ class Item extends BaseObject
 	private function getOwnerUrl()
 	{
 		return $this->owner_url;
-	}
-
-	/**
-	 * @return string
-	 */
-	private function getOwnerPhoto()
-	{
-		return $this->owner_photo;
 	}
 
 	/**
