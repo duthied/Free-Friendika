@@ -25,7 +25,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-27 09:19+0100\n"
-"PO-Revision-Date: 2017-12-04 22:20+0000\n"
+"PO-Revision-Date: 2017-12-09 18:18+0000\n"
 "Last-Translator: Thecross\n"
 "Language-Team: French (http://www.transifex.com/Friendica/friendica/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -561,7 +561,7 @@ msgstr "Entrez un nom ou un centre d'intérêt"
 #: mod/follow.php:144 mod/match.php:87 mod/suggest.php:87
 #: src/Object/Contact.php:392
 msgid "Connect/Follow"
-msgstr "Connecter/Suivre"
+msgstr "Se connecter/Suivre"
 
 #: include/contact_widgets.php:40
 msgid "Examples: Robert Morgenstein, Fishing"
@@ -4893,7 +4893,7 @@ msgstr "Récupérer informations"
 
 #: mod/contacts.php:600 mod/unfollow.php:99
 msgid "Disconnect/Unfollow"
-msgstr ""
+msgstr "Se déconnecter/Ne plus suivre"
 
 #: mod/contacts.php:610
 msgid "Contact"
@@ -5089,7 +5089,7 @@ msgstr "Résultats pour : %s"
 
 #: mod/contacts.php:842 mod/settings.php:163 mod/settings.php:722
 msgid "Update"
-msgstr "Mises-à-jour"
+msgstr "Mises à jour"
 
 #: mod/contacts.php:845 mod/contacts.php:1037
 msgid "Archive"
@@ -5661,7 +5661,7 @@ msgstr "Impossible de détecter le type de réseau. Le contact ne peut pas être
 
 #: mod/friendica.php:71
 msgid "This is Friendica, version"
-msgstr "Motorisé par Friendica version"
+msgstr "Service reposant sur Friendica version"
 
 #: mod/friendica.php:72
 msgid "running at web location"
@@ -7774,7 +7774,7 @@ msgstr "Supprimer le compte"
 
 #: mod/settings.php:160
 msgid "Missing some important data!"
-msgstr "Il manque certaines informations importantes!"
+msgstr "Il manque certaines informations importantes !"
 
 #: mod/settings.php:270
 msgid "Failed to connect with email account using the settings provided."
@@ -7782,7 +7782,7 @@ msgstr "Impossible de se connecter au compte courriel configuré."
 
 #: mod/settings.php:275
 msgid "Email settings updated."
-msgstr "Réglages de courriel mis-à-jour."
+msgstr "Réglages de courriel mis à jour."
 
 #: mod/settings.php:291
 msgid "Features updated"
@@ -7822,11 +7822,11 @@ msgstr "Mauvais mot de passe"
 
 #: mod/settings.php:512
 msgid " Not valid email."
-msgstr " Email invalide."
+msgstr " Adresse électronique invalide."
 
 #: mod/settings.php:519
 msgid " Cannot change to that email."
-msgstr " Impossible de changer pour cet email."
+msgstr " Impossible de changer pour cette adresse électronique."
 
 #: mod/settings.php:575
 msgid "Private forum has no privacy permissions. Using default privacy group."
@@ -8044,7 +8044,7 @@ msgstr ""
 
 #: mod/settings.php:1013
 msgid "Update browser every xx seconds"
-msgstr "Mettre-à-jour l'affichage toutes les xx secondes"
+msgstr "Mettre à jour l'affichage toutes les xx secondes"
 
 #: mod/settings.php:1013
 msgid "Minimum of 10 seconds. Enter -1 to disable it."
@@ -8052,7 +8052,7 @@ msgstr "Minimum de 10 secondes. Saisir -1 pour désactiver."
 
 #: mod/settings.php:1014
 msgid "Number of items to display per page:"
-msgstr "Nombre d’éléments par page:"
+msgstr "Nombre d’éléments par page :"
 
 #: mod/settings.php:1014 mod/settings.php:1015
 msgid "Maximum of 100 items"
@@ -8060,11 +8060,11 @@ msgstr "Maximum de 100 éléments"
 
 #: mod/settings.php:1015
 msgid "Number of items to display per page when viewed from mobile device:"
-msgstr "Nombre d'éléments a afficher par page pour un appareil mobile"
+msgstr "Nombre d'éléments à afficher par page pour un appareil mobile"
 
 #: mod/settings.php:1016
 msgid "Don't show emoticons"
-msgstr "Ne pas afficher les émoticônes (smileys grahiques)"
+msgstr "Ne pas afficher les émoticônes"
 
 #: mod/settings.php:1017
 msgid "Calendar"
@@ -8084,23 +8084,23 @@ msgstr "Défilement infini"
 
 #: mod/settings.php:1021
 msgid "Automatic updates only at the top of the network page"
-msgstr "Mises à jour automatiques seulement en haut de la page du réseau."
+msgstr "Mises à jour automatiques seulement en haut de la page du réseau"
 
 #: mod/settings.php:1021
 msgid ""
 "When disabled, the network page is updated all the time, which could be "
 "confusing while reading."
-msgstr ""
+msgstr "Si désactivé, la page Réseau est mise à jour en permanence, ce qui peut rendre la lecture difficile."
 
 #: mod/settings.php:1022
 msgid "Bandwith Saver Mode"
-msgstr ""
+msgstr "Limiter le transfert de données"
 
 #: mod/settings.php:1022
 msgid ""
 "When enabled, embedded content is not displayed on automatic updates, they "
 "only show on page reload."
-msgstr ""
+msgstr "Si activé, le contenu intégré aux pages est mis à jour uniquement lors du rafraîchissement manuel des pages : il n'est plus mis à jour lors des rafraîchissements automatiques."
 
 #: mod/settings.php:1023
 msgid "Smart Threading"
@@ -8132,23 +8132,23 @@ msgstr "Réglages du thème graphique"
 
 #: mod/settings.php:1094
 msgid "Account Types"
-msgstr ""
+msgstr "Type de compte"
 
 #: mod/settings.php:1095
 msgid "Personal Page Subtypes"
-msgstr ""
+msgstr "Sous-catégories de page personnelle"
 
 #: mod/settings.php:1096
 msgid "Community Forum Subtypes"
-msgstr ""
+msgstr "Sous-catégories de forums communautaires"
 
 #: mod/settings.php:1103
 msgid "Personal Page"
-msgstr ""
+msgstr "Page personnelle"
 
 #: mod/settings.php:1104
 msgid "Account for a personal profile."
-msgstr ""
+msgstr "Compte pour profil personnel."
 
 #: mod/settings.php:1107
 msgid "Organisation Page"
@@ -8162,7 +8162,7 @@ msgstr ""
 
 #: mod/settings.php:1111
 msgid "News Page"
-msgstr ""
+msgstr "Page d'informations"
 
 #: mod/settings.php:1112
 msgid ""
@@ -8200,21 +8200,21 @@ msgstr ""
 
 #: mod/settings.php:1127
 msgid "Public Forum"
-msgstr ""
+msgstr "Forum public"
 
 #: mod/settings.php:1128
 msgid "Automatically approves all contact requests."
-msgstr ""
+msgstr "Les demandes de participation au forum sont automatiquement acceptées."
 
 #: mod/settings.php:1131
 msgid "Automatic Friend Page"
-msgstr "Compte d'\"amitié automatique\""
+msgstr "Compte d' \"amitié automatique\""
 
 #: mod/settings.php:1132
 msgid ""
 "Account for a popular profile that automatically approves contact requests "
 "as \"Friends\"."
-msgstr ""
+msgstr "Compte qui accepte automatiquement les demandes d'ajout en tant qu'ami."
 
 #: mod/settings.php:1135
 msgid "Private Forum [Experimental]"
@@ -8222,7 +8222,7 @@ msgstr "Forum privé [expérimental]"
 
 #: mod/settings.php:1136
 msgid "Requires manual approval of contact requests."
-msgstr ""
+msgstr "Les demandes de participation au forum nécessitent une approbation."
 
 #: mod/settings.php:1147
 msgid "OpenID:"
@@ -8341,7 +8341,7 @@ msgstr "Mot de passe :"
 
 #: mod/settings.php:1269
 msgid "Basic Settings"
-msgstr "Réglages basiques"
+msgstr "Réglages de base"
 
 #: mod/settings.php:1271
 msgid "Email Address:"
