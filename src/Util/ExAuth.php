@@ -270,7 +270,9 @@ class ExAuth
 	 */
 	private function checkCredentials($host, $user, $password, $ssl)
 	{
-		$url = ($ssl ? 'https' : 'http') . '://' . $host . '/api/account/verify_credentials.json';
+		$this->writeLog(LOG_INFO, 'external credential check for ' . $user . '@' . $host);
+
+		$url = ($ssl ? 'https' : 'http') . '://' . $host . '/api/account/verify_credentials.json?skip_status=true';
 
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
