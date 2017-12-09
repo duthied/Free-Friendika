@@ -11,6 +11,7 @@ class Pidfile
 {
 	private $file;
 	private $running;
+	private $pid;
 
 	/**
 	 * @param string $dir  path
@@ -19,18 +20,19 @@ class Pidfile
 	 */
 	public function __construct($dir, $name)
 	{
-		$this->_file = "$dir/$name.pid";
+		$this->file = "$dir/$name";
+		$this->running = false;
 
-		if (file_exists($this->_file)) {
-			$pid = trim(@file_get_contents($this->file));
-			if (($pid != "") && posix_kill($pid, 0)) {
+		if (file_exists($this->file)) {
+			$this->pid = trim(@file_get_contents($this->file));
+			if (($this->pid != "") && posix_kill($this->pid, 0)) {
 				$this->running = true;
 			}
 		}
 
-		if (! $this->running) {
-			$pid = getmypid();
-			file_put_contents($this->file, $pid);
+		if (!$this->running) {
+			$this->pid = getmypid();
+			file_put_contents($this->file, $this->pid);
 		}
 	}
 
@@ -39,34 +41,46 @@ class Pidfile
 	 */
 	public function __destruct()
 	{
-		if ((! $this->running) && file_exists($this->file)) {
+		if (!$this->running && file_exists($this->file)) {
 			@unlink($this->file);
 		}
 	}
 
 	/**
-	 * @return boolean
+	 * @brief Check if a process with this pid file is already running
+	 * @return boolean Is it running?
 	 */
-	public static function isRunning()
+	public function isRunning()
 	{
-		return self::$running;
+		return $this->running;
 	}
 
 	/**
-	 * @return object
+	 * @brief Return the pid of the process
+	 * @return boolean process id
 	 */
-	public static function runningTime()
+	public function pid()
 	{
-		return time() - @filectime(self::$file);
+		return $this->pid;
 	}
 
 	/**
+	 * @brief Returns the seconds that the old process was running
+	 * @return integer run time of the old process
+	 */
+	public function runningTime()
+	{
+		return time() - @filectime($this->file);
+	}
+
+	/**
+	 * @brief Kills the old process
 	 * @return boolean
 	 */
-	public static function kill()
+	public function kill()
 	{
-		if (file_exists(self::$file)) {
-			return posix_kill(file_get_contents(self::$file), SIGTERM);
+		if (!empty($this->pid)) {
+			return posix_kill($this->pid, SIGTERM);
 		}
 	}
 }

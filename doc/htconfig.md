@@ -19,6 +19,7 @@ Example: To set the directory value please add this line to your .htconfig.php:
 
 ## jabber ##
 * **debug** (Boolean) - Enable debug level for the jabber account synchronisation.
+* **lockpath** - Must be writable by the ejabberd process. if set then it will prevent the running of multiple processes.
 
 ## system ##
 
