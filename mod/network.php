@@ -13,7 +13,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 
 require_once 'include/conversation.php';
-require_once 'include/group.php';
 require_once 'include/contact_widgets.php';
 require_once 'include/items.php';
 require_once 'include/acl_selectors.php';

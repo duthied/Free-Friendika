@@ -208,8 +208,6 @@ class Notifier {
 
 			$slap = OStatus::salmon($target_item, $owner);
 
-			require_once 'include/group.php';
-
 			$parent = $items[0];
 
 			$thr_parent = q("SELECT `network`, `author-link`, `owner-link` FROM `item` WHERE `uri` = '%s' AND `uid` = %d",

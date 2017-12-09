@@ -29,7 +29,6 @@ use SimpleXMLElement;
 
 require_once 'include/items.php';
 require_once 'include/bb2diaspora.php';
-require_once 'include/group.php';
 require_once 'include/datetime.php';
 require_once 'include/queue_fn.php';
 

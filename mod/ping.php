@@ -15,7 +15,6 @@ use Friendica\Util\XML;
 
 require_once 'include/datetime.php';
 require_once 'include/bbcode.php';
-require_once 'include/group.php';
 require_once 'mod/proxy.php';
 require_once 'include/enotify.php';
 

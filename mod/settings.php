@@ -14,8 +14,6 @@ use Friendica\Model\Group;
 use Friendica\Model\User;
 use Friendica\Protocol\Email;
 
-require_once 'include/group.php';
-
 function get_theme_config_file($theme) {
 	$a = get_app();
 	$base_theme = $a->theme_info['extends'];

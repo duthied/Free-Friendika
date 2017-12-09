@@ -5,7 +5,6 @@
 use Friendica\App;
 use Friendica\Core\PConfig;
 
-require_once("include/group.php");
 require_once "mod/display.php";
 
 function update_display_content(App $a)

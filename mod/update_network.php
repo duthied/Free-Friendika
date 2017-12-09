@@ -5,7 +5,6 @@
 use Friendica\App;
 use Friendica\Core\PConfig;
 
-require_once("include/group.php");
 require_once "mod/network.php";
 
 function update_network_content(App $a)

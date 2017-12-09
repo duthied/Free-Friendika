@@ -31,7 +31,6 @@ use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
 
 require_once 'include/enotify.php';
-require_once 'include/group.php';
 
 function dfrn_confirm_post(App $a, $handsfree = null) {
 

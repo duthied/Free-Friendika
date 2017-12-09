@@ -2,8 +2,6 @@
 
 use Friendica\App;
 use Friendica\Database\DBM;
-
-require_once('include/group.php');
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 

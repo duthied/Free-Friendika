@@ -16,8 +16,6 @@ use Friendica\Protocol\OStatus;
 use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Salmon;
 
-require_once 'include/group.php';
-
 function update_contact($id) {
 	/*
 	Warning: Never ever fetch the public key via Probe::uri and write it into the contacts.

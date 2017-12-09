@@ -32,7 +32,6 @@ function contacts_init(App $a) {
 		}
 	}
 
-	require_once 'include/group.php';
 	require_once 'include/contact_widgets.php';
 
 	if ($_GET['nets'] == "all") {
