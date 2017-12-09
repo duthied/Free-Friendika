@@ -13,6 +13,7 @@ use Friendica\Core\NotificationsManager;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Group;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Network\FKOAuth1;
@@ -4645,7 +4646,7 @@ function api_friendica_group_show($type)
 
 	// loop through all groups and retrieve all members for adding data in the user array
 	foreach ($r as $rr) {
-		$members = group_get_members($rr['id']);
+		$members = Contact::getByGroupId($rr['id']);
 		$users = array();
 
 		if ($type == "xml") {
@@ -4713,7 +4714,7 @@ function api_friendica_group_delete($type)
 	}
 
 	// delete group
-	$ret = group_rmv($uid, $name);
+	$ret = Group::removeByName($uid, $name);
 	if ($ret) {
 		// return success
 		$success = array('success' => $ret, 'gid' => $gid, 'name' => $name, 'status' => 'deleted', 'wrong users' => array());
@@ -4764,9 +4765,9 @@ function api_friendica_group_create($type)
 		$reactivate_group = true;
 
 	// create group
-	$ret = group_add($uid, $name);
+	$ret = Group::create($uid, $name);
 	if ($ret) {
-		$gid = group_byname($uid, $name);
+		$gid = Group::getIdByName($uid, $name);
 	} else {
 		throw new BadRequestException('other API error');
 	}
@@ -4783,7 +4784,7 @@ function api_friendica_group_create($type)
 			intval($uid)
 		);
 		if (count($contact))
-			$result = group_add_member($uid, $name, $cid, $gid);
+			$result = Group::create_member($uid, $name, $cid, $gid);
 		else {
 			$erroraddinguser = true;
 			$errorusers[] = $cid;
@@ -4822,14 +4823,14 @@ function api_friendica_group_update($type)
 		throw new BadRequestException('gid not specified');
 
 	// remove members
-	$members = group_get_members($gid);
+	$members = Contact::getByGroupId($gid);
 	foreach ($members as $member) {
 		$cid = $member['id'];
 		foreach ($users as $user) {
 			$found = ($user['cid'] == $cid ? true : false);
 		}
 		if (!$found) {
-			$ret = group_rmv_member($uid, $name, $cid);
+			$ret = Group::removeMemberByName($uid, $name, $cid);
 		}
 	}
 
@@ -4846,7 +4847,7 @@ function api_friendica_group_update($type)
 		);
 
 		if (count($contact)) {
-			$result = group_add_member($uid, $name, $cid, $gid);
+			$result = Group::create_member($uid, $name, $cid, $gid);
 		} else {
 			$erroraddinguser = true;
 			$errorusers[] = $cid;

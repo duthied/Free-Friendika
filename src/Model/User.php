@@ -376,8 +376,7 @@ class User
 
 			// Create a group with no members. This allows somebody to use it
 			// right away as a default group for new contacts.
-
-			group_add($newuid, t('Friends'));
+			Group::create($newuid, t('Friends'));
 
 			$r = q("SELECT `id` FROM `group` WHERE `uid` = %d AND `name` = '%s'",
 				intval($newuid),

@@ -10,6 +10,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Model\GContact;
+use Friendica\Model\Group;
 use Friendica\Model\User;
 use Friendica\Protocol\Email;
 
@@ -834,7 +835,7 @@ function settings_content(App $a) {
 		$default_group = PConfig::get(local_user(), 'ostatus', 'default_group');
 		$legacy_contact = PConfig::get(local_user(), 'ostatus', 'legacy_contact');
 
-		$settings_connectors .= mini_group_select(local_user(), $default_group, t("Default group for OStatus contacts"));
+		$settings_connectors .= Group::displayGroupSelection(local_user(), $default_group, t("Default group for OStatus contacts"));
 
 		/// @TODO Found to much different usage to test empty/non-empty strings (e.g. empty(), trim() == '') which is wanted?
 		if ($legacy_contact != "") {
@@ -1218,8 +1219,7 @@ function settings_content(App $a) {
 		'network_only' => array('expire_network_only',  t("Only expire posts by others:"), $expire_network_only, '', array(t('No'), t('Yes'))),
 	);
 
-	require_once('include/group.php');
-	$group_select = mini_group_select(local_user(), $a->user['def_gid']);
+	$group_select = Group::displayGroupSelection(local_user(), $a->user['def_gid']);
 
 	// Private/public post links for the non-JS ACL form
 	$private_post = 1;

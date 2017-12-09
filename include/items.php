@@ -12,6 +12,8 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Model\Group;
+use Friendica\Model\User;
 use Friendica\Object\Image;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
@@ -1720,11 +1722,7 @@ function new_follower($importer, $contact, $datarray, $item, $sharing = false) {
 							'hash' => $hash, 'datetime' => datetime_convert()));
 			}
 
-			$def_gid = get_default_group($importer['uid'], $contact_record["network"]);
-
-			if (intval($def_gid)) {
-				group_add_member($importer['uid'], '', $contact_record['id'], $def_gid);
-			}
+			Group::addMember(User::getDefaultGroup($importer['uid'], $contact_record["network"]), $contact_record['id']);
 
 			if (($r[0]['notify-flags'] & NOTIFY_INTRO) &&
 				in_array($r[0]['page-flags'], array(PAGE_NORMAL))) {
@@ -1958,9 +1956,9 @@ function compare_permissions($obj1, $obj2) {
 /// @TODO type-hint is array
 function enumerate_permissions($obj) {
 	$allow_people = expand_acl($obj['allow_cid']);
-	$allow_groups = expand_groups(expand_acl($obj['allow_gid']));
+	$allow_groups = Group::expand(expand_acl($obj['allow_gid']));
 	$deny_people  = expand_acl($obj['deny_cid']);
-	$deny_groups  = expand_groups(expand_acl($obj['deny_gid']));
+	$deny_groups  = Group::expand(expand_acl($obj['deny_gid']));
 	$recipients   = array_unique(array_merge($allow_people, $allow_groups));
 	$deny         = array_unique(array_merge($deny_people, $deny_groups));
 	$recipients   = array_diff($recipients, $deny);

@@ -8,6 +8,8 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Group;
+use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
@@ -244,10 +246,7 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 	$contact_id  = $r[0]['id'];
 	$result['cid'] = $contact_id;
 
-	$def_gid = get_default_group($uid, $contact["network"]);
-	if (intval($def_gid)) {
-		group_add_member($uid, '', $contact_id, $def_gid);
-	}
+	Group::addMember(User::getDefaultGroup($uid, $contact["network"]), $contact_id);
 
 	// Update the avatar
 	Contact::updateAvatar($ret['photo'], $uid, $contact_id);

@@ -10,6 +10,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Group;
 
 require_once 'include/conversation.php';
 require_once 'include/group.php';
@@ -157,7 +158,7 @@ function network_init(App $a) {
 		$a->page['aside'] = '';
 	}
 
-	$a->page['aside'] .= (Feature::isEnabled(local_user(),'groups') ? group_side('network/0','network','standard',$group_id) : '');
+	$a->page['aside'] .= (Feature::isEnabled(local_user(),'groups') ? Group::sidebarWidget('network/0','network','standard',$group_id) : '');
 	$a->page['aside'] .= (Feature::isEnabled(local_user(), 'forumlist_widget') ? ForumManager::widget(local_user(), $cid) : '');
 	$a->page['aside'] .= posted_date_widget('network',local_user(),false);
 	$a->page['aside'] .= networks_widget('network',(x($_GET, 'nets') ? $_GET['nets'] : ''));
@@ -567,7 +568,7 @@ function networkThreadedView(App $a, $update = 0) {
 		$o .= $tabs;
 
 		if ($group) {
-			if (($t = group_public_members($group)) && !PConfig::get(local_user(),'system','nowarn_insecure')) {
+			if (($t = Contact::getOStatusCountByGroupId($group)) && !PConfig::get(local_user(), 'system', 'nowarn_insecure')) {
 				notice(sprintf(tt("Warning: This group contains %s member from a network that doesn't allow non public messages.",
 						"Warning: This group contains %s members from a network that doesn't allow non public messages.",
 						$t), $t).EOL);
@@ -644,7 +645,7 @@ function networkThreadedView(App $a, $update = 0) {
 			// NOTREACHED
 		}
 
-		$contacts = expand_groups(array($group));
+		$contacts = Group::expand(array($group));
 
 		if ((is_array($contacts)) && count($contacts)) {
 			$contact_str_self = "";

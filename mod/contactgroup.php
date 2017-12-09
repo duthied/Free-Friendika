@@ -4,6 +4,8 @@ use Friendica\App;
 use Friendica\Database\DBM;
 
 require_once('include/group.php');
+use Friendica\Model\Contact;
+use Friendica\Model\Group;
 
 function contactgroup_content(App $a)
 {
@@ -31,7 +33,7 @@ function contactgroup_content(App $a)
 		}
 
 		$group = $r[0];
-		$members = group_get_members($group['id']);
+		$members = Contact::getByGroupId($group['id']);
 		$preselected = array();
 		if (count($members)) {
 			foreach ($members as $member) {
@@ -39,12 +41,11 @@ function contactgroup_content(App $a)
 			}
 		}
 
-		if($change) {
-			if(in_array($change,$preselected)) {
-				group_rmv_member(local_user(),$group['name'],$change);
-			}
-			else {
-				group_add_member(local_user(),$group['name'],$change);
+		if ($change) {
+			if (in_array($change, $preselected)) {
+				Group::removeMember($group['id'], $change);
+			} else {
+				Group::addMember($group['id'], $change);
 			}
 		}
 	}
