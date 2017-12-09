@@ -46,7 +46,6 @@ class ExAuth
 {
 	private $bDebug;
 	private $host;
-	private $pidfile;
 
 	/**
 	 * @brief Create the class
@@ -313,21 +312,18 @@ class ExAuth
 			return;
 		}
 
-		$this->pidfile = new Pidfile($lockpath, $host);
-		if ($this->pidfile->isRunning()) {
-			$oldpid = $this->pidfile->pid();
-			$this->writeLog(LOG_INFO, 'Process ' . $oldpid . ' was running for ' . $this->pidfile->runningTime() . ' seconds and will now be killed');
-			$this->pidfile->kill();
-
-			// Wait until the other process is hopefully killed
-			sleep(2);
-
-			$this->pidfile = new Pidfile($lockpath, $host);
-			if ($oldpid == $this->pidfile->pid()) {
-				$this->writeLog(LOG_ERR, 'Process ' . $oldpid . "wasn't killed in time. We now quit our process.");
+		$file = $lockpath . DIRECTORY_SEPARATOR . $host;
+		if (Pidfile::isRunningProcess($file)) {
+			if (PidFile::killProcess($file)) {
+				$this->writeLog(LOG_INFO, 'Old process was successfully killed');
+			} else {
+				$this->writeLog(LOG_ERR, "The old Process wasn't killed in time. We now quit our process.");
 				die();
 			}
 		}
+
+		// Now it is safe to create the pid file
+		Pidfile::create($file);
 	}
 
 	/**

@@ -9,78 +9,100 @@ namespace Friendica\Util;
  */
 class Pidfile
 {
-	private $file;
-	private $running;
-	private $pid;
-
 	/**
-	 * @param string $dir  path
-	 * @param string $name filename
-	 * @return void
+	 * @brief Read the pid from a given pid file
+	 *
+	 * @param string $file Filename of pid file
+	 *
+	 * @return boolean|string PID or "false" if not existent
 	 */
-	public function __construct($dir, $name)
-	{
-		$this->file = "$dir/$name";
-		$this->running = false;
-
-		if (file_exists($this->file)) {
-			$this->pid = trim(@file_get_contents($this->file));
-			if (($this->pid != "") && posix_kill($this->pid, 0)) {
-				$this->running = true;
-			}
+	static private function pidFromFile($file) {
+		if (!file_exists($file)) {
+			return false;
 		}
 
-		if (!$this->running) {
-			$this->pid = getmypid();
-			file_put_contents($this->file, $this->pid);
-		}
+		return trim(@file_get_contents($file));
 	}
 
 	/**
-	 * @return void
-	 */
-	public function __destruct()
-	{
-		if (!$this->running && file_exists($this->file)) {
-			@unlink($this->file);
-		}
-	}
-
-	/**
-	 * @brief Check if a process with this pid file is already running
+	 * @brief Is there a running process with the given pid file
+	 *
+	 * @param string $file Filename of pid file
+	 *
 	 * @return boolean Is it running?
 	 */
-	public function isRunning()
-	{
-		return $this->running;
-	}
+	static public function isRunningProcess($file) {
+		$pid = self::pidFromFile($file);
 
-	/**
-	 * @brief Return the pid of the process
-	 * @return boolean process id
-	 */
-	public function pid()
-	{
-		return $this->pid;
-	}
-
-	/**
-	 * @brief Returns the seconds that the old process was running
-	 * @return integer run time of the old process
-	 */
-	public function runningTime()
-	{
-		return time() - @filectime($this->file);
-	}
-
-	/**
-	 * @brief Kills the old process
-	 * @return boolean
-	 */
-	public function kill()
-	{
-		if (!empty($this->pid)) {
-			return posix_kill($this->pid, SIGTERM);
+		if (!$pid) {
+			return false;
 		}
+
+		// Is the process running?
+		$running = posix_kill($pid, 0);
+
+		// If not, then we will kill the stale file
+		if (!$running) {
+			self::delete($file);
+		}
+		return $running;
+	}
+
+	/**
+	 * @brief Kills a process from a given pid file
+	 *
+	 * @param string $file Filename of pid file
+	 *
+	 * @return boolean Was it killed successfully?
+	 */
+	static public function killProcess($file) {
+		$pid = self::pidFromFile($file);
+
+		// We don't have a process id? then we quit
+		if (!$pid) {
+			return false;
+		}
+
+		// We now kill the process
+		$killed = posix_kill($pid, SIGTERM);
+
+		// If we killed the process successfully, we can remove the pidfile
+		if ($killed) {
+			self::delete($file);
+		}
+		return $killed;
+	}
+
+	/**
+	 * @brief Creates a pid file
+	 *
+	 * @param string $file Filename of pid file
+	 *
+	 * @return boolean|string PID or "false" if not created
+	 */
+	static public function create($file) {
+		$pid = self::pidFromFile($file);
+
+		// We have a process id? then we quit
+		if ($pid) {
+			return false;
+		}
+
+		$pid = getmypid();
+		file_put_contents($file, $pid);
+
+		// Now we check if everything is okay
+		return self::pidFromFile($file);
+	}
+
+	/**
+	 * @brief Deletes a given pid file
+	 *
+	 * @param string $file Filename of pid file
+	 *
+	 * @return boolean Is it running?
+	 */
+	static public function delete($file) {
+		return @unlink($file);
 	}
 }
