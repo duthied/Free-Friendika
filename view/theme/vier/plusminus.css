@@ -18,6 +18,7 @@ h3 {
   font-size: 14px;
   color: blue;
 }
+
 h4 {  font-size: 14px;}
 
 h5 {
@@ -26,7 +27,6 @@ h5 {
   background-color: #cfcece;
   border-radius:5px;
 }
-
 
 nav {
   background: #fff;
@@ -555,6 +555,39 @@ td.checkbox, td.tools{
 }
 
 
+/* Settings - Plugin */
+
+.settings-block.fakelink h3{
+  font-size:16px;
+  font-weight:bold;
+  background-color: lightgrey;
+}
+
+#settings_blockem_expanded h3 {
+  font-size:16px;
+  font-weight:bold;
+  background-color: lightgrey;
+}
+
+#settings_langfilter_expanded h3{
+  font-size:16px;
+  font-weight:bold;
+  background-color: lightgrey;
+}
+
+#settings_showmore_expanded h3 {
+  font-size:16px;
+  font-weight:bold;
+  background-color: lightgrey;
+}
+
+#settings_startpage_expanded h3 {
+  font-size:16px;
+  font-weight:bold;
+  background-color: lightgrey;
+}
+
+
 /* popup */
 
 ul.menu-popup {
@@ -590,14 +623,13 @@ input[type=submit] {
 
 input[type=submit]:hover {
   background:#0026ff; 
-
 }
 
 input[type=text], input[type=password], input[type=email], input[type=url] {
   padding:2px 2px; 
   background:white; 
   border:1px solid darkgrey;
-  cursor:pointer;
+  cursor:text;
   -webkit-border-radius: 5px;
   border-radius: 5px; 
   -webkit-transition-duration: 0.4s; /* Safari */
