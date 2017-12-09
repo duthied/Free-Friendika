@@ -194,8 +194,9 @@ function dfrn_request_post(App $a) {
 					if(intval($def_gid))
 						group_add_member(local_user(), '', $r[0]['id'], $def_gid);
 
-					if (isset($photo))
+					if (isset($photo)) {
 						Contact::updateAvatar($photo, local_user(), $r[0]["id"], true);
+					}
 
 					$forwardurl = System::baseUrl()."/contacts/".$r[0]['id'];
 				} else {

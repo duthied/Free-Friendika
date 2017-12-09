@@ -508,7 +508,6 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 
 		// Let's send our user to the contact editor in case they want to
 		// do anything special with this new friend.
-
 		if ($handsfree === null) {
 			goaway(System::baseUrl() . '/contacts/' . intval($contact_id));
 		} else {

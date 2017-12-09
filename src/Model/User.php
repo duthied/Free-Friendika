@@ -225,7 +225,6 @@ class User
 		}
 
 		// So now we are just looking for a space in the full name.
-
 		$loose_reg = Config::get('system', 'no_regfullname');
 		if (!$loose_reg) {
 			$username = mb_convert_case($username, MB_CASE_TITLE, 'UTF-8');
@@ -233,7 +232,6 @@ class User
 				$result['message'] .= t("That doesn't appear to be your full \x28First Last\x29 name.") . EOL;
 			}
 		}
-
 
 		if (!allowed_email($email)) {
 			$result['message'] .= t('Your email domain is not among those allowed on this site.') . EOL;

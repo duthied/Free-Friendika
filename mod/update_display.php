@@ -5,19 +5,18 @@
 use Friendica\App;
 use Friendica\Core\PConfig;
 
-require_once("mod/display.php");
 require_once("include/group.php");
+require_once "mod/display.php";
 
-function update_display_content(App $a) {
-
+function update_display_content(App $a)
+{
 	$profile_uid = intval($_GET["p"]);
 
 	header("Content-type: text/html");
 	echo "<!DOCTYPE html><html><body>\r\n";
 	echo "<section>";
 
-
-	$text = display_content($a,$profile_uid);
+	$text = display_content($a, $profile_uid);
 	$pattern = "/<img([^>]*) src=\"([^\"]*)\"/";
 	$replace = "<img\${1} dst=\"\${2}\"";
 	$text = preg_replace($pattern, $replace, $text);

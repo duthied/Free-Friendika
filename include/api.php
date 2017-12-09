@@ -4674,7 +4674,9 @@ function api_friendica_group_delete($type)
 {
 	$a = get_app();
 
-	if (api_user() === false) throw new ForbiddenException();
+	if (api_user() === false) {
+		throw new ForbiddenException();
+	}
 
 	// params
 	$user_info = api_get_user($a);
@@ -4683,8 +4685,9 @@ function api_friendica_group_delete($type)
 	$uid = $user_info['uid'];
 
 	// error if no gid specified
-	if ($gid == 0 || $name == "")
+	if ($gid == 0 || $name == "") {
 		throw new BadRequestException('gid or name not specified');
+	}
 
 	// get data of the specified group id
 	$r = q(
@@ -4693,8 +4696,9 @@ function api_friendica_group_delete($type)
 		intval($gid)
 	);
 	// error message if specified gid is not in database
-	if (!DBM::is_result($r))
+	if (!DBM::is_result($r)) {
 		throw new BadRequestException('gid not available');
+	}
 
 	// get data of the specified group id and group name
 	$rname = q(
@@ -4704,8 +4708,9 @@ function api_friendica_group_delete($type)
 		dbesc($name)
 	);
 	// error message if specified gid is not in database
-	if (!DBM::is_result($rname))
+	if (!DBM::is_result($rname)) {
 		throw new BadRequestException('wrong group name');
+	}
 
 	// delete group
 	$ret = group_rmv($uid, $name);
