@@ -28,6 +28,66 @@ require_once 'include/text.php';
 class Contact extends BaseObject
 {
 	/**
+	 * @brief Returns a list of contacts belonging in a group
+	 *
+	 * @param int $gid
+	 * @return array
+	 */
+	public static function getByGroupId($gid)
+	{
+		$return = [];
+		if (intval($gid)) {
+			$stmt = dba::p('SELECT `group_member`.`contact-id`, `contact`.*
+				FROM `contact`
+				INNER JOIN `group_member`
+					ON `contact`.`id` = `group_member`.`contact-id`
+				WHERE `gid` = ?
+				AND `group_member`.`uid` = ?
+				AND NOT `contact`.`self`
+				AND NOT `contact`.`blocked`
+				AND NOT `contact`.`pending`
+				ORDER BY `contact`.`name` ASC',
+				$gid,
+				local_user()
+			);
+			if (DBM::is_result($stmt)) {
+				$return = dba::inArray($stmt);
+			}
+		}
+
+		return $return;
+	}
+
+	/**
+	 * @brief Returns the count of OStatus contacts in a group
+	 *
+	 * @param int $gid
+	 * @return int
+	 */
+	public static function getOStatusCountByGroupId($gid)
+	{
+		$return = 0;
+		if (intval($gid)) {
+			$contacts = dba::fetch_first('SELECT COUNT(*) AS `count`
+				FROM `contact`
+				INNER JOIN `group_member`
+					ON `contact`.`id` = `group_member`.`contact-id`
+				WHERE `gid` = ?
+				AND `group_member`.`uid` = ?
+				AND `contact`.`network` = ?
+				AND `contact`.`notify` != ""',
+				$gid,
+				local_user(),
+				NETWORK_OSTATUS
+			);
+			$return = $contacts['count'];
+		}
+
+		return $return;
+	}
+
+
+	/**
 	 * Creates the self-contact for the provided user id
 	 *
 	 * @param int $uid
