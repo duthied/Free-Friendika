@@ -45,6 +45,7 @@ require_once 'include/dba.php';
 class ExAuth
 {
 	private $bDebug;
+	private $host;
 
 	/**
 	 * @brief Create the class
@@ -133,6 +134,10 @@ class ExAuth
 			return;
 		}
 
+		// We only allow one process per hostname. So we set a lock file
+		// Problem: We get the firstname after the first auth - not before
+		$this->setHost($aCommand[2]);
+
 		// Now we check if the given user is valid
 		$sUser = str_replace(array('%20', '(a)'), array(' ', '@'), $aCommand[1]);
 
@@ -209,6 +214,10 @@ class ExAuth
 			return;
 		}
 
+		// We only allow one process per hostname. So we set a lock file
+		// Problem: We get the firstname after the first auth - not before
+		$this->setHost($aCommand[2]);
+
 		// We now check if the password match
 		$sUser = str_replace(array('%20', '(a)'), array(' ', '@'), $aCommand[1]);
 
@@ -260,7 +269,9 @@ class ExAuth
 	 */
 	private function checkCredentials($host, $user, $password, $ssl)
 	{
-		$url = ($ssl ? 'https' : 'http') . '://' . $host . '/api/account/verify_credentials.json';
+		$this->writeLog(LOG_INFO, 'external credential check for ' . $user . '@' . $host);
+
+		$url = ($ssl ? 'https' : 'http') . '://' . $host . '/api/account/verify_credentials.json?skip_status=true';
 
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -279,6 +290,40 @@ class ExAuth
 		$this->writeLog(LOG_INFO, 'external auth for ' . $user . '@' . $host . ' returned ' . $http_code);
 
 		return $http_code == 200;
+	}
+
+	/**
+	 * @brief Set the hostname for this process
+	 *
+	 * @param string $host The hostname
+	 */
+	private function setHost($host)
+	{
+		if (!empty($this->host)) {
+			return;
+		}
+
+		$this->writeLog(LOG_INFO, 'Hostname for process ' . getmypid() . ' is ' . $host);
+
+		$this->host = $host;
+
+		$lockpath = Config::get('jabber', 'lockpath');
+		if (is_null($lockpath)) {
+			return;
+		}
+
+		$file = $lockpath . DIRECTORY_SEPARATOR . $host;
+		if (Pidfile::isRunningProcess($file)) {
+			if (PidFile::killProcess($file)) {
+				$this->writeLog(LOG_INFO, 'Old process was successfully killed');
+			} else {
+				$this->writeLog(LOG_ERR, "The old Process wasn't killed in time. We now quit our process.");
+				die();
+			}
+		}
+
+		// Now it is safe to create the pid file
+		Pidfile::create($file);
 	}
 
 	/**
