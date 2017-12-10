@@ -10,11 +10,12 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Contact;
+use Friendica\Model\Group;
 
 function group_init(App $a) {
 	if (local_user()) {
-		require_once 'include/group.php';
-		$a->page['aside'] = group_side('contacts', 'group', 'extended', (($a->argc > 1) ? intval($a->argv[1]) : 0));
+		$a->page['aside'] = Group::sidebarWidget('contacts', 'group', 'extended', (($a->argc > 1) ? intval($a->argv[1]) : 0));
 	}
 }
 
@@ -29,10 +30,10 @@ function group_post(App $a) {
 		check_form_security_token_redirectOnErr('/group/new', 'group_edit');
 
 		$name = notags(trim($_POST['groupname']));
-		$r = group_add(local_user(), $name);
+		$r = Group::create(local_user(), $name);
 		if ($r) {
 			info(t('Group created.') . EOL);
-			$r = group_byname(local_user(), $name);
+			$r = Group::getIdByName(local_user(), $name);
 			if ($r) {
 				goaway(System::baseUrl() . '/group/' . $r);
 			}
@@ -69,7 +70,7 @@ function group_post(App $a) {
 			}
 		}
 
-		$a->page['aside'] = group_side();
+		$a->page['aside'] = Group::sidebarWidget();
 	}
 	return;
 }
@@ -118,7 +119,7 @@ function group_content(App $a) {
 			$result = null;
 
 			if (DBM::is_result($r)) {
-				$result = group_rmv(local_user(), $r[0]['name']);
+				$result = Group::removeByName(local_user(), $r[0]['name']);
 			}
 
 			if ($result) {
@@ -158,7 +159,7 @@ function group_content(App $a) {
 		}
 
 		$group = $r[0];
-		$members = group_get_members($group['id']);
+		$members = Contact::getByGroupId($group['id']);
 		$preselected = array();
 		$entry = array();
 		$id = 0;
@@ -171,12 +172,12 @@ function group_content(App $a) {
 
 		if ($change) {
 			if (in_array($change, $preselected)) {
-				group_rmv_member(local_user(), $group['name'], $change);
+				Group::removeMember($group['id'], $change);
 			} else {
-				group_add_member(local_user(), $group['name'], $change);
+				Group::create_member(local_user(), $group['name'], $change);
 			}
 
-			$members = group_get_members($group['id']);
+			$members = Contact::getByGroupId($group['id']);
 			$preselected = array();
 			if (count($members)) {
 				foreach ($members as $member) {
@@ -233,7 +234,7 @@ function group_content(App $a) {
 
 			$groupeditor['members'][] = $entry;
 		} else {
-			group_rmv_member(local_user(), $group['name'], $member['id']);
+			Group::removeMember($group['id'], $member['id']);
 		}
 	}
 

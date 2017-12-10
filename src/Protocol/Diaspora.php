@@ -18,7 +18,9 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Model\Group;
 use Friendica\Model\Profile;
+use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Util\XML;
 
@@ -27,7 +29,6 @@ use SimpleXMLElement;
 
 require_once 'include/items.php';
 require_once 'include/bb2diaspora.php';
-require_once 'include/group.php';
 require_once 'include/datetime.php';
 require_once 'include/queue_fn.php';
 
@@ -37,7 +38,6 @@ require_once 'include/queue_fn.php';
  */
 class Diaspora
 {
-
 	/**
 	 * @brief Return a list of relay servers
 	 *
@@ -2462,11 +2462,7 @@ class Diaspora
 
 		logger("Author ".$author." was added as contact number ".$contact_record["id"].".", LOGGER_DEBUG);
 
-		$def_gid = get_default_group($importer['uid'], $ret["network"]);
-
-		if (intval($def_gid)) {
-			group_add_member($importer["uid"], "", $contact_record["id"], $def_gid);
-		}
+		Group::addMember(User::getDefaultGroup($importer['uid'], $ret["network"]), $contact_record['id']);
 
 		Contact::updateAvatar($ret["photo"], $importer['uid'], $contact_record["id"], true);
 

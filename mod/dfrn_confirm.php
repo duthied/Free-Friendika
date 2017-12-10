@@ -25,11 +25,12 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Group;
+use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
 
 require_once 'include/enotify.php';
-require_once 'include/group.php';
 
 function dfrn_confirm_post(App $a, $handsfree = null) {
 
@@ -502,13 +503,10 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 			}
 		}
 
-		$def_gid = get_default_group($uid, $contact["network"]);
-		if($contact && intval($def_gid))
-			group_add_member($uid, '', $contact['id'], $def_gid);
+		Group::addMember(User::getDefaultGroup($uid, $contact["network"]), $contact['id']);
 
 		// Let's send our user to the contact editor in case they want to
 		// do anything special with this new friend.
-
 		if ($handsfree === null) {
 			goaway(System::baseUrl() . '/contacts/' . intval($contact_id));
 		} else {

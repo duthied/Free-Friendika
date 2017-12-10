@@ -8,10 +8,12 @@
 namespace Friendica\Model;
 
 use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Group;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
 use dba;
@@ -19,7 +21,6 @@ use dba;
 require_once 'boot.php';
 require_once 'include/crypto.php';
 require_once 'include/enotify.php';
-require_once 'include/group.php';
 require_once 'include/network.php';
 require_once 'library/openid.php';
 require_once 'include/pgettext.php';
@@ -30,6 +31,36 @@ require_once 'include/text.php';
  */
 class User
 {
+	/**
+	 * @brief Returns the default group for a given user and network
+	 *
+	 * @param int $uid User id
+	 * @param string $network network name
+	 *
+	 * @return int group id
+	 */
+	public static function getDefaultGroup($uid, $network = '')
+	{
+		$default_group = 0;
+
+		if ($network == NETWORK_OSTATUS) {
+			$default_group = PConfig::get($uid, "ostatus", "default_group");
+		}
+
+		if ($default_group != 0) {
+			return $default_group;
+		}
+
+		$user = dba::select('user', ['def_gid'], ['uid' => $uid], ['limit' => 1]);
+
+		if (DBM::is_result($user)) {
+			$default_group = $user["def_gid"];
+		}
+
+		return $default_group;
+	}
+
+
 	/**
 	 * @brief Authenticate a user with a clear text password
 	 *
@@ -193,7 +224,6 @@ class User
 		}
 
 		// So now we are just looking for a space in the full name.
-
 		$loose_reg = Config::get('system', 'no_regfullname');
 		if (!$loose_reg) {
 			$username = mb_convert_case($username, MB_CASE_TITLE, 'UTF-8');
@@ -201,7 +231,6 @@ class User
 				$result['message'] .= t("That doesn't appear to be your full \x28First Last\x29 name.") . EOL;
 			}
 		}
-
 
 		if (!allowed_email($email)) {
 			$result['message'] .= t('Your email domain is not among those allowed on this site.') . EOL;
@@ -346,8 +375,7 @@ class User
 
 			// Create a group with no members. This allows somebody to use it
 			// right away as a default group for new contacts.
-
-			group_add($newuid, t('Friends'));
+			Group::create($newuid, t('Friends'));
 
 			$r = q("SELECT `id` FROM `group` WHERE `uid` = %d AND `name` = '%s'",
 				intval($newuid),

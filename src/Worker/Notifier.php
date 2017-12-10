@@ -8,6 +8,7 @@ use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Group;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
@@ -207,8 +208,6 @@ class Notifier {
 
 			$slap = OStatus::salmon($target_item, $owner);
 
-			require_once 'include/group.php';
-
 			$parent = $items[0];
 
 			$thr_parent = q("SELECT `network`, `author-link`, `owner-link` FROM `item` WHERE `uri` = '%s' AND `uid` = %d",
@@ -349,9 +348,9 @@ class Notifier {
 				}
 
 				$allow_people = expand_acl($parent['allow_cid']);
-				$allow_groups = expand_groups(expand_acl($parent['allow_gid']),true);
+				$allow_groups = Group::expand(expand_acl($parent['allow_gid']),true);
 				$deny_people  = expand_acl($parent['deny_cid']);
-				$deny_groups  = expand_groups(expand_acl($parent['deny_gid']));
+				$deny_groups  = Group::expand(expand_acl($parent['deny_gid']));
 
 				// if our parent is a public forum (forum_mode == 1), uplink to the origional author causing
 				// a delivery fork. private groups (forum_mode == 2) do not uplink

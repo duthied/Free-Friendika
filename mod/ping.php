@@ -10,11 +10,11 @@ use Friendica\Core\System;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Group;
 use Friendica\Util\XML;
 
 require_once 'include/datetime.php';
 require_once 'include/bbcode.php';
-require_once 'include/group.php';
 require_once 'mod/proxy.php';
 require_once 'include/enotify.php';
 
@@ -152,7 +152,7 @@ function ping_init(App $a)
 		if ($network_count) {
 			if (intval(Feature::isEnabled(local_user(), 'groups'))) {
 				// Find out how unseen network posts are spread across groups
-				$group_counts = groups_count_unseen();
+				$group_counts = Group::countUnseen();
 				if (DBM::is_result($group_counts)) {
 					foreach ($group_counts as $group_count) {
 						if ($group_count['count'] > 0) {

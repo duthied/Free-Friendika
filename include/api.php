@@ -13,6 +13,7 @@ use Friendica\Core\NotificationsManager;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Group;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Network\FKOAuth1;
@@ -41,7 +42,6 @@ require_once 'include/html2bbcode.php';
 require_once 'mod/wall_upload.php';
 require_once 'mod/proxy.php';
 require_once 'include/message.php';
-require_once 'include/group.php';
 require_once 'include/like.php';
 require_once 'include/plaintext.php';
 
@@ -4645,7 +4645,7 @@ function api_friendica_group_show($type)
 
 	// loop through all groups and retrieve all members for adding data in the user array
 	foreach ($r as $rr) {
-		$members = group_get_members($rr['id']);
+		$members = Contact::getByGroupId($rr['id']);
 		$users = array();
 
 		if ($type == "xml") {
@@ -4674,7 +4674,9 @@ function api_friendica_group_delete($type)
 {
 	$a = get_app();
 
-	if (api_user() === false) throw new ForbiddenException();
+	if (api_user() === false) {
+		throw new ForbiddenException();
+	}
 
 	// params
 	$user_info = api_get_user($a);
@@ -4683,8 +4685,9 @@ function api_friendica_group_delete($type)
 	$uid = $user_info['uid'];
 
 	// error if no gid specified
-	if ($gid == 0 || $name == "")
+	if ($gid == 0 || $name == "") {
 		throw new BadRequestException('gid or name not specified');
+	}
 
 	// get data of the specified group id
 	$r = q(
@@ -4693,8 +4696,9 @@ function api_friendica_group_delete($type)
 		intval($gid)
 	);
 	// error message if specified gid is not in database
-	if (!DBM::is_result($r))
+	if (!DBM::is_result($r)) {
 		throw new BadRequestException('gid not available');
+	}
 
 	// get data of the specified group id and group name
 	$rname = q(
@@ -4704,11 +4708,12 @@ function api_friendica_group_delete($type)
 		dbesc($name)
 	);
 	// error message if specified gid is not in database
-	if (!DBM::is_result($rname))
+	if (!DBM::is_result($rname)) {
 		throw new BadRequestException('wrong group name');
+	}
 
 	// delete group
-	$ret = group_rmv($uid, $name);
+	$ret = Group::removeByName($uid, $name);
 	if ($ret) {
 		// return success
 		$success = array('success' => $ret, 'gid' => $gid, 'name' => $name, 'status' => 'deleted', 'wrong users' => array());
@@ -4759,9 +4764,9 @@ function api_friendica_group_create($type)
 		$reactivate_group = true;
 
 	// create group
-	$ret = group_add($uid, $name);
+	$ret = Group::create($uid, $name);
 	if ($ret) {
-		$gid = group_byname($uid, $name);
+		$gid = Group::getIdByName($uid, $name);
 	} else {
 		throw new BadRequestException('other API error');
 	}
@@ -4778,7 +4783,7 @@ function api_friendica_group_create($type)
 			intval($uid)
 		);
 		if (count($contact))
-			$result = group_add_member($uid, $name, $cid, $gid);
+			$result = Group::create_member($uid, $name, $cid, $gid);
 		else {
 			$erroraddinguser = true;
 			$errorusers[] = $cid;
@@ -4817,14 +4822,14 @@ function api_friendica_group_update($type)
 		throw new BadRequestException('gid not specified');
 
 	// remove members
-	$members = group_get_members($gid);
+	$members = Contact::getByGroupId($gid);
 	foreach ($members as $member) {
 		$cid = $member['id'];
 		foreach ($users as $user) {
 			$found = ($user['cid'] == $cid ? true : false);
 		}
 		if (!$found) {
-			$ret = group_rmv_member($uid, $name, $cid);
+			$ret = Group::removeMemberByName($uid, $name, $cid);
 		}
 	}
 
@@ -4841,7 +4846,7 @@ function api_friendica_group_update($type)
 		);
 
 		if (count($contact)) {
-			$result = group_add_member($uid, $name, $cid, $gid);
+			$result = Group::create_member($uid, $name, $cid, $gid);
 		} else {
 			$erroraddinguser = true;
 			$errorusers[] = $cid;

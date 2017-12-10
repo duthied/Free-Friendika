@@ -5,11 +5,10 @@
 use Friendica\App;
 use Friendica\Core\PConfig;
 
-require_once("mod/network.php");
-require_once("include/group.php");
+require_once "mod/network.php";
 
-function update_network_content(App $a) {
-
+function update_network_content(App $a)
+{
 	$profile_uid = intval($_GET["p"]);
 
 	header("Content-type: text/html");
@@ -27,7 +26,7 @@ function update_network_content(App $a) {
 	$text = preg_replace($pattern, $replace, $text);
 
 	if (PConfig::get(local_user(), "system", "bandwith_saver")) {
-		$replace = "<br />".t("[Embedded content - reload page to view]")."<br />";
+		$replace = "<br />" . t("[Embedded content - reload page to view]") . "<br />";
 		$pattern = "/<\s*audio[^>]*>(.*?)<\s*\/\s*audio>/i";
 		$text = preg_replace($pattern, $replace, $text);
 		$pattern = "/<\s*video[^>]*>(.*?)<\s*\/\s*video>/i";

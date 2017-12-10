@@ -159,8 +159,6 @@ class Delivery {
 		$public_message = true;
 
 		if (!($mail || $fsuggest || $relocate)) {
-			require_once 'include/group.php';
-
 			$parent = $items[0];
 
 			// This is IMPORTANT!!!!

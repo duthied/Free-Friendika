@@ -16,10 +16,11 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Group;
+use Friendica\Model\User;
 use Friendica\Network\Probe;
 
 require_once 'include/enotify.php';
-require_once 'include/group.php';
 
 function dfrn_request_init(App $a)
 {
@@ -190,12 +191,11 @@ function dfrn_request_post(App $a) {
 					$parms['key'] // this was already escaped
 				);
 				if (DBM::is_result($r)) {
-					$def_gid = get_default_group(local_user(), $r[0]["network"]);
-					if(intval($def_gid))
-						group_add_member(local_user(), '', $r[0]['id'], $def_gid);
+					Group::addMember(User::getDefaultGroup($uid, $r[0]["network"]), $r[0]['id']);
 
-					if (isset($photo))
+					if (isset($photo)) {
 						Contact::updateAvatar($photo, local_user(), $r[0]["id"], true);
+					}
 
 					$forwardurl = System::baseUrl()."/contacts/".$r[0]['id'];
 				} else {

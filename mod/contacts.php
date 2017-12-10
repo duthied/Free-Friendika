@@ -8,6 +8,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Model\Group;
 use Friendica\Network\Probe;
 
 require_once 'include/contact_selectors.php';
@@ -31,7 +32,6 @@ function contacts_init(App $a) {
 		}
 	}
 
-	require_once 'include/group.php';
 	require_once 'include/contact_widgets.php';
 
 	if ($_GET['nets'] == "all") {
@@ -77,7 +77,7 @@ function contacts_init(App $a) {
 		$findpeople_widget .= findpeople_widget();
 	}
 
-	$groups_widget .= group_side('contacts','group','full',0,$contact_id);
+	$groups_widget .= Group::sidebarWidget('contacts','group','full',0,$contact_id);
 
 	$a->page['aside'] .= replace_macros(get_markup_template("contacts-widget-sidebar.tpl"),array(
 		'$vcard_widget' => $vcard_widget,

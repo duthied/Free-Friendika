@@ -5,6 +5,7 @@
 use Friendica\App;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Group;
 
 require_once 'include/contact_selectors.php';
 
@@ -14,14 +15,13 @@ function nogroup_init(App $a)
 		return;
 	}
 
-	require_once 'include/group.php';
 	require_once 'include/contact_widgets.php';
 
 	if (! x($a->page, 'aside')) {
 		$a->page['aside'] = '';
 	}
 
-	$a->page['aside'] .= group_side('contacts', 'group', 'extended', 0, $contact_id);
+	$a->page['aside'] .= Group::sidebarWidget('contacts', 'group', 'extended');
 }
 
 function nogroup_content(App $a)
