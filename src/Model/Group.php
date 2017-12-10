@@ -209,7 +209,7 @@ class Group extends BaseObject
 	 */
 	public static function addMember($gid, $cid)
 	{
-		if (!($gid && $cid)) {
+		if (!$gid || !$cid) {
 			return false;
 		}
 
@@ -233,11 +233,7 @@ class Group extends BaseObject
 	 */
 	public static function removeMember($gid, $cid)
 	{
-		if (!$gid) {
-			return false;
-		}
-
-		if (!($gid && $cid)) {
+		if (!$gid || !$cid) {
 			return false;
 		}
 
@@ -275,7 +271,7 @@ class Group extends BaseObject
 	 */
 	public static function expand($group_ids, $check_dead = false, $use_gcontact = false)
 	{
-		if (!(is_array($group_ids) && count($group_ids))) {
+		if (!is_array($group_ids) || !count($group_ids)) {
 			return [];
 		}
 
@@ -292,11 +288,9 @@ class Group extends BaseObject
 			$stmt = dba::select('group_member', ['contact-id'], $condition_array);
 		}
 
-		$return = array();
-		if (DBM::is_result($stmt)) {
-			while($group_member = dba::fetch($stmt)) {
-				$return[] = $group_member['contact-id'];
-			}
+		$return = [];
+		while($group_member = dba::fetch($stmt)) {
+			$return[] = $group_member['contact-id'];
 		}
 
 		if ($check_dead && !$use_gcontact) {
@@ -318,7 +312,7 @@ class Group extends BaseObject
 	{
 		$o = '';
 
-		$groups = dba::select('group', [], ['deleted' => 0, 'uid' => $uid], ['order' => ['name' => 'ASC']]);
+		$stmt = dba::select('group', [], ['deleted' => 0, 'uid' => $uid], ['order' => ['name' => 'ASC']]);
 
 		$display_groups = [
 			[
@@ -327,7 +321,7 @@ class Group extends BaseObject
 				'selected' => ''
 			]
 		];
-		foreach ($groups as $group) {
+		while ($group = dba::fetch($stmt)) {
 			$display_groups[] = [
 				'name' => $group['name'],
 				'id' => $group['id'],
@@ -377,36 +371,34 @@ class Group extends BaseObject
 			]
 		];
 
-		$groups = dba::select('group', [], ['deleted' => 0, 'uid' => local_user()], ['order' => ['name' => 'ASC']]);
+		$stmt = dba::select('group', [], ['deleted' => 0, 'uid' => local_user()], ['order' => ['name' => 'ASC']]);
 
 		$member_of = array();
 		if ($cid) {
 			$member_of = self::getByContactIdForUserId(local_user(), $cid);
 		}
 
-		if (DBM::is_result($groups)) {
-			foreach ($groups as $group) {
-				$selected = (($group_id == $group['id']) ? ' group-selected' : '');
+		while ($group = dba::fetch($stmt)) {
+			$selected = (($group_id == $group['id']) ? ' group-selected' : '');
 
-				if ($editmode == 'full') {
-					$groupedit = [
-						'href' => 'group/' . $group['id'],
-						'title' => t('edit'),
-					];
-				} else {
-					$groupedit = null;
-				}
-
-				$display_groups[] = [
-					'id'   => $group['id'],
-					'cid'  => $cid,
-					'text' => $group['name'],
-					'href' => $each . '/' . $group['id'],
-					'edit' => $groupedit,
-					'selected' => $selected,
-					'ismember' => in_array($group['id'], $member_of),
+			if ($editmode == 'full') {
+				$groupedit = [
+					'href' => 'group/' . $group['id'],
+					'title' => t('edit'),
 				];
+			} else {
+				$groupedit = null;
 			}
+
+			$display_groups[] = [
+				'id'   => $group['id'],
+				'cid'  => $cid,
+				'text' => $group['name'],
+				'href' => $each . '/' . $group['id'],
+				'edit' => $groupedit,
+				'selected' => $selected,
+				'ismember' => in_array($group['id'], $member_of),
+			];
 		}
 
 		$tpl = get_markup_template('group_side.tpl');
