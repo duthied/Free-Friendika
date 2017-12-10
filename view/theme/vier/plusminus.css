@@ -151,6 +151,10 @@ div.jGrowl div.info {
   content: '# ';
 }
 
+.event-list:hover {
+  background-color: white;
+}
+
 div.pager, ul.tabs {
   font-weight: initial;
 }
