@@ -133,6 +133,24 @@ div.jGrowl div.info {
   font-weight: initial;
 }
 
+#event-notice {
+  font-size: 14px;
+  font-weight: initial;
+  border:1px solid lightgrey;
+}
+
+.event-list {
+  font-size: 14px;
+  padding-left: 15px;
+  margin: 5px 0;
+  background-color: whitesmoke;
+}
+
+.event-list a::before{
+  color:grey;
+  content: '# ';
+}
+
 div.pager, ul.tabs {
   font-weight: initial;
 }
@@ -407,10 +425,34 @@ div.pager, ul.tabs {
 
 .fc-body { background-color: white; }
 
+#new-event-link a {
+  text-decoration: none;
+  padding:0px 10px; 
+  color:white;
+  background:#6c82ff; 
+  border:1px solid darkgrey;
+  cursor:pointer;
+  -webkit-border-radius: 5px;
+  border-radius: 5px; 
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  box-shadow: 2px 2px 15px 0 rgba(0,0,0,0.24);
+}
+
+#new-event-link a:hover {
+  background:#0026ff; 
+}
+
 .fc-content, .fc-widget {
   background-color: #a7ecff; 
   color: black;
   text-decoration: normal;
+}
+
+.fc-center h2 {
+  font-size:22px;
+  font-weight:bold;
+  background-color:white;
 }
 
 .fc-toolbar {
@@ -427,6 +469,29 @@ div.pager, ul.tabs {
 .fc-title, fc-time { text-decoration: normal; }
 
 .fc-unthemed .fc-today { background: #f9ff97; }
+
+#comment-edit-text-desc {
+  width:700px;
+  padding: 5px 5px;
+  border-radius:5px;
+  border: 1px solid grey;
+}
+
+#comment-edit-text-desc:focus {
+  background-color:#eef3ff;
+}
+
+#comment-edit-text-location {
+  width:700px;
+  padding: 5px 5px;
+  border-radius:5px;
+  border: 1px solid grey;
+}
+
+#comment-edit-text-location:focus {
+  background-color:#eef3ff;
+}
+
 
 /* remove standard-styles */
 
@@ -609,7 +674,7 @@ ul.menu-popup a {
 /* Buttons */
 
 input[type=submit] {
-  padding:0px 20px; 
+  padding:0px 10px; 
   color:white;
   background:#6c82ff; 
   border:1px solid darkgrey;
@@ -639,4 +704,3 @@ input[type=text], input[type=password], input[type=email], input[type=url] {
 input[type=text]:focus, input[type=password]:focus, input[type=email]:focus, input[type=url]:focus {
   background-color:#eef3ff;
 }
-
