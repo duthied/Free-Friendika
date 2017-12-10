@@ -62,21 +62,13 @@ class Group extends BaseObject
 	 */
 	private static function getByContactIdForUserId($uid, $cid)
 	{
-		$stmt = dba::p('SELECT `id`
-			FROM `group`
-			INNER JOIN `group_member`
-				ON `group_member`.`gid` = `group`.`id`
-			WHERE `group`.`uid` = ?
-			AND `group_member`.`contact-id` = ?',
-			$uid,
-			$cid
-		);
+		$condition = ['uid' => $uid, 'contact-id' => $cid];
+		$stmt = dba::select('group_member', ['gid'], $condition);
 
 		$return = [];
-		if (DBM::is_result($stmt)) {
-			while($group = dba::fetch($stmt)) {
-				$return[] = $group['id'];
-			}
+
+		while ($group = dba::fetch($stmt)) {
+			$return[] = $group['gid'];
 		}
 
 		return $return;
