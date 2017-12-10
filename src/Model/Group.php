@@ -312,7 +312,7 @@ class Group extends BaseObject
 	{
 		$o = '';
 
-		$stmt = dba::select('group', [], ['deleted' => 0, 'uid' => $uid], ['order' => ['name' => 'ASC']]);
+		$stmt = dba::select('group', [], ['deleted' => 0, 'uid' => $uid], ['order' => ['name']]);
 
 		$display_groups = [
 			[
@@ -371,7 +371,7 @@ class Group extends BaseObject
 			]
 		];
 
-		$stmt = dba::select('group', [], ['deleted' => 0, 'uid' => local_user()], ['order' => ['name' => 'ASC']]);
+		$stmt = dba::select('group', [], ['deleted' => 0, 'uid' => local_user()], ['order' => ['name']]);
 
 		$member_of = array();
 		if ($cid) {
