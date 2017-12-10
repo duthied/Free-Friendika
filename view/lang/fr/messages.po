@@ -25,7 +25,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-27 09:19+0100\n"
-"PO-Revision-Date: 2017-12-09 18:18+0000\n"
+"PO-Revision-Date: 2017-12-09 23:14+0000\n"
 "Last-Translator: Thecross\n"
 "Language-Team: French (http://www.transifex.com/Friendica/friendica/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -628,7 +628,7 @@ msgstr "montrer plus"
 #: include/conversation.php:143 include/conversation.php:295
 #: include/like.php:184 include/text.php:1783
 msgid "event"
-msgstr "évènement"
+msgstr "événement"
 
 #: include/conversation.php:146 include/conversation.php:156
 #: include/conversation.php:298 include/conversation.php:307
@@ -3025,7 +3025,7 @@ msgid ""
 "\n"
 "\n"
 "\t\tThank you and welcome to %2$s."
-msgstr "\n\t\tVoici vos informations de connexion :\n\t\t\tAdresse :\t%3$s\n\t\t\tIdentifiant :\t%1$s\n\t\t\tMot de passe :\t%5$s\n\n\t\tVous pourrez changer votre mot de passe dans les paramètres de votre compte une fois connecté.\n\n\t\tProfitez-en pour prendre le temps de passer en revue les autres paramètres de votre compte.\n\n\t\tVous pourrez aussi ajouter quelques informations élémentaires à votre profil par défaut (sur la page « Profils ») pour permettre à d’autres personnes de vous trouver facilement.\n\n\t\tNous recommandons de préciser votre nom complet, d’ajouter une photo et quelques mots-clefs (c’est très utile pour découvrir de nouveaux amis), et peut-être aussi d’indiquer au moins le pays dans lequel vous vivez, à défaut d’être plus précis.\n\n\t\tNous respectons pleinement votre droit à une vie privée, et vous n’avez aucune obligation de donner toutes ces informations. Mais si vous êtes nouveau et ne connaissez encore personne ici, cela peut vous aider à vous faire de nouveaux amis intéressants.\n\n\n\t\tMerci et bienvenu sur %2$s."
+msgstr "\n\t\tVoici vos informations de connexion :\n\t\t\tAdresse :\t%3$s\n\t\t\tIdentifiant :\t%1$s\n\t\t\tMot de passe :\t%5$s\n\n\t\tVous pourrez changer votre mot de passe dans les paramètres de votre compte une fois connecté.\n\n\t\tProfitez-en pour prendre le temps de passer en revue les autres paramètres de votre compte.\n\n\t\tVous pourrez aussi ajouter quelques informations élémentaires à votre profil par défaut (sur la page « Profils ») pour permettre à d’autres personnes de vous trouver facilement.\n\n\t\tNous recommandons de préciser votre nom complet, d’ajouter une photo et quelques mots-clefs (c’est très utile pour découvrir de nouveaux amis), et peut-être aussi d’indiquer le pays dans lequel vous vivez, à défaut d’être plus précis.\n\n\t\tNous respectons pleinement votre droit à une vie privée, et vous n’avez aucune obligation de donner toutes ces informations. Mais si vous êtes nouveau et ne connaissez encore personne ici, cela peut vous aider à vous faire de nouveaux amis.\n\n\n\t\tMerci et bienvenue sur %2$s."
 
 #: include/user.php:450 mod/admin.php:1432
 #, php-format
@@ -6321,7 +6321,7 @@ msgid ""
 "\n"
 "\t\tSite Location:\t%2$s\n"
 "\t\tLogin Name:\t%3$s"
-msgstr "\n\t\tSuivez ce lien pour confirmer votre identité :\n\n\t\t%1$s\n\n\t\tVous recevrez alors a message contenant votre nouveau mot de passe.\n\t\tVous pourrez changer ce mot de passe depuis les paramètres de votre compte une fois connecté.\n\n\t\tInformations de connexion :\n\n\t\tAdresse :\t%2$s\n\t\tIdentifiant :\t%3$s"
+msgstr "\n\t\tSuivez ce lien pour confirmer votre identité :\n\n\t\t%1$s\n\n\t\tVous recevrez alors un message contenant votre nouveau mot de passe.\n\t\tVous pourrez changer ce mot de passe depuis les paramètres de votre compte une fois connecté.\n\n\t\tInformations de connexion :\n\n\t\tAdresse :\t%2$s\n\t\tIdentifiant :\t%3$s"
 
 #: mod/lostpass.php:75
 #, php-format
