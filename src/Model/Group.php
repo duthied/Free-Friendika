@@ -125,7 +125,7 @@ class Group extends BaseObject
 	 */
 	public static function getIdByName($uid, $name)
 	{
-		if ((! $uid) || (! strlen($name))) {
+		if (!$uid || !strlen($name)) {
 			return false;
 		}
 
