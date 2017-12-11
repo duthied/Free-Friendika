@@ -385,7 +385,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 
 			$field_list = '';
 			if ($is_unique && $ignore == '') {
-				foreach ($structure['fields'] AS $fieldname => $parameters) {
+				foreach ($database[$name]["fields"] AS $fieldname => $parameters) {
 					$field_list .= 'ANY_VALUE(`' . $fieldname . '`),';
 				}
 				$field_list = rtrim($field_list, ',');
@@ -408,7 +408,7 @@ function update_structure($verbose, $action, $tables=null, $definition=null) {
 					if ($ignore != "") {
 						echo "SET session old_alter_table=0;\n";
 					} else {
-						echo "INSERT INTO `".$temp_name."` SELECT ".$field_list." FROM `".$name."`".$group_by.";\n";
+						echo "INSERT INTO `".$temp_name."` SELECT ".dba::any_value_fallback($field_list)." FROM `".$name."`".$group_by.";\n";
 						echo "DROP TABLE `".$name."`;\n";
 						echo "RENAME TABLE `".$temp_name."` TO `".$name."`;\n";
 					}
