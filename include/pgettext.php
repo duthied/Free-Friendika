@@ -14,7 +14,6 @@ use Friendica\Core\Config;
 
 require_once "include/dba.php";
 
-if (! function_exists('get_browser_language')) {
 /**
  * @brief get the prefered language from the HTTP_ACCEPT_LANGUAGE header
  */
@@ -55,7 +54,7 @@ function get_browser_language() {
 
 	// in case none matches, get the system wide configured language, or fall back to English
 	return Config::get('system', 'language', 'en');
-}}
+}
 
 
 function push_lang($language) {
@@ -93,7 +92,6 @@ function pop_lang() {
 
 // l
 
-if (! function_exists('load_translation_table')) {
 /**
  * load string translation table for alternate language
  *
@@ -118,7 +116,7 @@ function load_translation_table($lang) {
 		include("view/lang/$lang/strings.php");
 	}
 
-}}
+}
 
 /**
  * @brief Return the localized version of the provided string with optional string interpolation

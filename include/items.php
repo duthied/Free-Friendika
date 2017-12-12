@@ -42,7 +42,6 @@ function construct_verb($item) {
  *		The purpose of this function is to apply system message length limits to
  *		imported messages without including any embedded photos in the length
  */
-if (! function_exists('limit_body_size')) {
 function limit_body_size($body) {
 
 //	logger('limit_body_size: start', LOGGER_DEBUG);
@@ -125,7 +124,7 @@ function limit_body_size($body) {
 	} else {
 		return $body;
 	}
-}}
+}
 
 function title_is_body($title, $body) {
 
