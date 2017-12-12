@@ -1,5 +1,7 @@
 <?php
 use Friendica\Database\DBM;
+use Friendica\Core\System;
+
 require_once("include/html2bbcode.php");
 require_once("include/items.php");
 
@@ -320,6 +322,18 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 			$item["attach"] .= '[attach]href="'.$href.'" length="'.$length.'" type="'.$type.'"[/attach]';
 		}
 
+		$tags = '';
+		$categories = $xpath->query("category", $entry);
+		foreach ($categories AS $category) {
+			$hashtag = $category->nodeValue;
+                        if ($tags != '') {
+                                $tags .= ', ';
+                        }
+
+                        $taglink = "#[url=" . System::baseUrl() . "/search?tag=" . rawurlencode($hashtag) . "]" . $hashtag . "[/url]";
+                        $tags .= $taglink;
+		}
+
 		$body = trim($xpath->evaluate('atom:content/text()', $entry)->item(0)->nodeValue);
 
 		if ($body == "") {
@@ -381,11 +395,16 @@ function feed_import($xml,$importer,&$contact, &$hub, $simulate = false) {
 			$item["object-type"] = ACTIVITY_OBJ_BOOKMARK;
 			unset($item["attach"]);
 		} else {
+			if ($contact["fetch_further_information"] == 3) {
+				if (!empty($tags)) {
+					$item["tag"] = $tags;
+				} else {
+					$item["tag"] = add_page_keywords($item["plink"], false, $preview, true, $contact["ffi_keyword_blacklist"]);
+				}
+				$item["body"] .= "\n".$item['tag'];
+			}
 			if (!strstr($item["body"], '[url') && ($item['plink'] != '')) {
 				$item["body"] .= "[hr][url]".$item['plink']."[/url]";
-			}
-			if ($contact["fetch_further_information"] == 3) {
-				$item["tag"] = add_page_keywords($item["plink"], false, $preview, true, $contact["ffi_keyword_blacklist"]);
 			}
 		}
 
