@@ -15,12 +15,6 @@ use Friendica\Object\Post;
 require_once "include/bbcode.php";
 require_once "include/acl_selectors.php";
 
-/*
- * Note: the code in 'item_extract_images' and 'item_redir_and_replace_images'
- * is identical to the code in mod/message.php for 'item_extract_images' and
- * 'item_redir_and_replace_images'
- */
-if (! function_exists('item_extract_images')) {
 function item_extract_images($body) {
 
 	$saved_image = array();
@@ -62,9 +56,8 @@ function item_extract_images($body) {
 	$new_body = $new_body . $orig_body;
 
 	return array('body' => $new_body, 'images' => $saved_image);
-}}
+}
 
-if (! function_exists('item_redir_and_replace_images')) {
 function item_redir_and_replace_images($body, $images, $cid) {
 
 	$origbody = $body;
@@ -104,7 +97,7 @@ function item_redir_and_replace_images($body, $images, $cid) {
 		$cnt++;
 	}
 	return $newbody;
-}}
+}
 
 /**
  * Render actions localized
@@ -486,7 +479,6 @@ function item_condition() {
 	return "`item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`";
 }
 
-if (!function_exists('conversation')) {
 /**
  * "Render" a conversation or list of items for HTML display.
  * There are two major forms of display:
@@ -906,7 +898,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 	));
 
 	return $o;
-}}
+}
 
 function best_link_url($item, &$sparkle, $url = '') {
 
@@ -1036,7 +1028,6 @@ function item_photo_menu($item) {
 	return $o;
 }
 
-if (! function_exists('builtin_activity_puller')) {
 /**
  * @brief Checks item to see if it is one of the builtin activities (like/dislike, event attendance, consensus items, etc.)
  * Increments the count of each matching activity and adds a link to the author as needed.
@@ -1112,9 +1103,8 @@ function builtin_activity_puller($item, &$conv_responses) {
 			return;
 		}
 	}
-}}
+}
 
-if (! function_exists('format_like')) {
 /**
  * Format the vote text for a profile item
  * @param int $cnt = number of people who vote the item
@@ -1205,7 +1195,7 @@ function format_like($cnt, array $arr, $type, $id) {
 	$o .= $expanded;
 
 	return $o;
-}}
+}
 
 function status_editor(App $a, $x, $notes_cid = 0, $popup = false) {
 	$o = '';

@@ -8,6 +8,7 @@ use Friendica\Model\Contact;
 
 require_once 'include/acl_selectors.php';
 require_once 'include/message.php';
+require_once 'include/conversation.php';
 
 function message_init(App $a) {
 
@@ -87,83 +88,6 @@ function message_post(App $a) {
 		goaway($_SESSION['return_url']);
 
 }
-
-// Note: the code in 'item_extract_images' and 'item_redir_and_replace_images'
-// is identical to the code in include/conversation.php
-if (! function_exists('item_extract_images')) {
-function item_extract_images($body) {
-
-	$saved_image = array();
-	$orig_body = $body;
-	$new_body = '';
-
-	$cnt = 0;
-	$img_start = strpos($orig_body, '[img');
-	$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
-	$img_end = ($img_start !== false ? strpos(substr($orig_body, $img_start), '[/img]') : false);
-	while(($img_st_close !== false) && ($img_end !== false)) {
-
-		$img_st_close++; // make it point to AFTER the closing bracket
-		$img_end += $img_start;
-
-		if (! strcmp(substr($orig_body, $img_start + $img_st_close, 5), 'data:')) {
-			// This is an embedded image
-
-			$saved_image[$cnt] = substr($orig_body, $img_start + $img_st_close, $img_end - ($img_start + $img_st_close));
-			$new_body = $new_body . substr($orig_body, 0, $img_start) . '[!#saved_image' . $cnt . '#!]';
-
-			$cnt++;
-		} else
-			$new_body = $new_body . substr($orig_body, 0, $img_end + strlen('[/img]'));
-
-		$orig_body = substr($orig_body, $img_end + strlen('[/img]'));
-
-		if ($orig_body === false) // in case the body ends on a closing image tag
-			$orig_body = '';
-
-		$img_start = strpos($orig_body, '[img');
-		$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
-		$img_end = ($img_start !== false ? strpos(substr($orig_body, $img_start), '[/img]') : false);
-	}
-
-	$new_body = $new_body . $orig_body;
-
-	return array('body' => $new_body, 'images' => $saved_image);
-}}
-
-if (! function_exists('item_redir_and_replace_images')) {
-function item_redir_and_replace_images($body, $images, $cid) {
-
-	$origbody = $body;
-	$newbody = '';
-
-	for($i = 0; $i < count($images); $i++) {
-		$search = '/\[url\=(.*?)\]\[!#saved_image' . $i . '#!\]\[\/url\]' . '/is';
-		$replace = '[url=' . System::baseUrl() . '/redir/' . $cid
-		           . '?f=1&url=' . '$1' . '][!#saved_image' . $i . '#!][/url]' ;
-
-		$img_end = strpos($origbody, '[!#saved_image' . $i . '#!][/url]') + strlen('[!#saved_image' . $i . '#!][/url]');
-		$process_part = substr($origbody, 0, $img_end);
-		$origbody = substr($origbody, $img_end);
-
-		$process_part = preg_replace($search, $replace, $process_part);
-		$newbody = $newbody . $process_part;
-	}
-	$newbody = $newbody . $origbody;
-
-	$cnt = 0;
-	foreach ($images as $image) {
-		// We're depending on the property of 'foreach' (specified on the PHP website) that
-		// it loops over the array starting from the first element and going sequentially
-		// to the last element
-		$newbody = str_replace('[!#saved_image' . $cnt . '#!]', '[img]' . $image . '[/img]', $newbody);
-		$cnt++;
-	}
-
-	return $newbody;
-}}
-
-
 
 function message_content(App $a) {
 

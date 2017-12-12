@@ -376,7 +376,6 @@ function bb_tag_preg_replace($pattern, $replace, $name, $s) {
 	return $string;
 }
 
-if (! function_exists('bb_extract_images')) {
 function bb_extract_images($body) {
 
 	$saved_image = array();
@@ -418,9 +417,8 @@ function bb_extract_images($body) {
 	$new_body = $new_body . $orig_body;
 
 	return array('body' => $new_body, 'images' => $saved_image);
-}}
+}
 
-if (! function_exists('bb_replace_images')) {
 function bb_replace_images($body, $images) {
 
 	$newbody = $body;
@@ -435,7 +433,7 @@ function bb_replace_images($body, $images) {
 	}
 
 	return $newbody;
-}}
+}
 
 function bb_ShareAttributes($share, $simplehtml) {
 	$attributes = $share[2];

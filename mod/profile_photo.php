@@ -178,7 +178,6 @@ function profile_photo_post(App $a) {
 }
 
 
-if(! function_exists('profile_photo_content')) {
 function profile_photo_content(App $a) {
 
 	if (! local_user()) {
@@ -285,10 +284,9 @@ function profile_photo_content(App $a) {
 	}
 
 	return; // NOTREACHED
-}}
+}
 
 
-if(! function_exists('profile_photo_crop_ui_head')) {
 function profile_photo_crop_ui_head(App $a, Image $Image) {
 	$max_length = Config::get('system','max_image_length');
 	if (! $max_length) {
@@ -337,5 +335,4 @@ function profile_photo_crop_ui_head(App $a, Image $Image) {
 	$a->page['htmlhead'] .= replace_macros(get_markup_template("crophead.tpl"), array());
 	$a->page['end'] .= replace_macros(get_markup_template("cropend.tpl"), array());
 	return;
-}}
-
+}
