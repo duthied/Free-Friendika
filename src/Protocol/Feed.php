@@ -9,6 +9,8 @@ namespace Friendica\Protocol;
 use Friendica\Database\DBM;
 use Friendica\Core\System;
 use dba;
+use DOMDocument;
+use DomXPath;
 
 require_once("include/html2bbcode.php");
 require_once("include/items.php");
