@@ -9,9 +9,9 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Util\Map;
 
 require_once "include/friendica_smarty.php";
-require_once "include/map.php";
 require_once "mod/proxy.php";
 require_once "include/conversation.php";
 
@@ -1372,7 +1372,7 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 
 	// Map.
 	if (strpos($s, '<div class="map">') !== false && x($item, 'coord')) {
-		$x = generate_map(trim($item['coord']));
+		$x = Map::byCoordinates(trim($item['coord']));
 		if ($x) {
 			$s = preg_replace('/\<div class\=\"map\"\>/', '$0' . $x, $s);
 		}

@@ -9,9 +9,9 @@ use Friendica\Content\Feature;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Util\Map;
 
 require_once 'include/bbcode.php';
-require_once 'include/map.php';
 require_once 'include/datetime.php';
 require_once "include/conversation.php";
 
@@ -75,7 +75,7 @@ function format_event_html($ev, $simple = false) {
 
 		// Include a map of the location if the [map] BBCode is used.
 		if (strpos($ev['location'], "[map") !== false) {
-			$map = generate_named_map($ev['location']);
+			$map = Map::byLocation($ev['location']);
 			if ($map !== $ev['location']) {
 				$o.= $map;
 			}
@@ -967,9 +967,9 @@ function format_event_item($item) {
 	}
 	// Construct the map HTML.
 	if (isset($evloc['address'])) {
-		$location['map'] = '<div class="map">' . generate_named_map($evloc['address']) . '</div>';
+		$location['map'] = '<div class="map">' . Map::byLocation($evloc['address']) . '</div>';
 	} elseif (isset($evloc['coordinates'])) {
-		$location['map'] = '<div class="map">' . generate_map(str_replace('/', ' ', $evloc['coordinates'])) . '</div>';
+		$location['map'] = '<div class="map">' . Map::byCoordinates(str_replace('/', ' ', $evloc['coordinates'])) . '</div>';
 	}
 
 	// Construct the profile link (magic-auth).

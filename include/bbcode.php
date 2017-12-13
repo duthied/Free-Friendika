@@ -6,10 +6,10 @@ use Friendica\Core\Cache;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Model\Contact;
+use Friendica\Util\Map;
 
 require_once 'include/oembed.php';
 require_once 'include/event.php';
-require_once 'include/map.php';
 require_once 'mod/proxy.php';
 require_once 'include/plaintext.php';
 
@@ -33,11 +33,11 @@ function bb_PictureCache($matches) {
 
 function bb_map_coords($match) {
 	// the extra space in the following line is intentional
-	return str_replace($match[0], '<div class="map"  >' . generate_map(str_replace('/', ' ', $match[1])) . '</div>', $match[0]);
+	return str_replace($match[0], '<div class="map"  >' . Map::byCoordinates(str_replace('/', ' ', $match[1])) . '</div>', $match[0]);
 }
 function bb_map_location($match) {
 	// the extra space in the following line is intentional
-	return str_replace($match[0], '<div class="map"  >' . generate_named_map($match[1]) . '</div>', $match[0]);
+	return str_replace($match[0], '<div class="map"  >' . Map::byLocation($match[1]) . '</div>', $match[0]);
 }
 
 function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
