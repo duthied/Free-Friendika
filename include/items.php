@@ -17,6 +17,7 @@ use Friendica\Model\User;
 use Friendica\Object\Image;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
+use Friendica\Protocol\Feed;
 
 require_once 'include/bbcode.php';
 require_once 'include/oembed.php';
@@ -1550,7 +1551,7 @@ function consume_feed($xml, $importer, &$contact, &$hub, $datedir = 0, $pass = 0
 	if ($contact['network'] === NETWORK_FEED) {
 		if ($pass < 2) {
 			logger("Consume feeds", LOGGER_DEBUG);
-			feed_import($xml, $importer, $contact, $hub);
+			Feed::import($xml, $importer, $contact, $hub);
 		}
 		return;
 	}
