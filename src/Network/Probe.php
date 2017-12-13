@@ -16,13 +16,13 @@ use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Model\Profile;
 use Friendica\Protocol\Email;
+use Friendica\Protocol\Feed;
 use Friendica\Util\XML;
 
 use dba;
 use DomXPath;
 use DOMDocument;
 
-require_once 'include/feed.php';
 require_once 'include/network.php';
 
 /**
@@ -1267,7 +1267,7 @@ class Probe
 			return false;
 		}
 		$feed = $ret['body'];
-		$feed_data = feed_import($feed, $dummy1, $dummy2, $dummy3, true);
+		$feed_data = Feed::import($feed, $dummy1, $dummy2, $dummy3, true);
 		if (!$feed_data) {
 			return false;
 		}
@@ -1451,7 +1451,7 @@ class Probe
 			return false;
 		}
 		$feed = $ret['body'];
-		$feed_data = feed_import($feed, $dummy1, $dummy2, $dummy3, true);
+		$feed_data = Feed::import($feed, $dummy1, $dummy2, $dummy3, true);
 
 		if (!$feed_data) {
 			if (!$probe) {

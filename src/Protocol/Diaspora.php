@@ -1,6 +1,6 @@
 <?php
 /**
- * @file include/diaspora.php
+ * @file src/Protocol/diaspora.php
  * @brief The implementation of the diaspora protocol
  *
  * The new protocol is described here: http://diaspora.github.io/diaspora_federation/index.html
