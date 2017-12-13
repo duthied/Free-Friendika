@@ -47,6 +47,9 @@ class Group extends BaseObject
 			}
 
 			$return = dba::insert('group', ['uid' => $uid, 'name' => $name]);
+			if ($return) {
+				$return = dba::lastInsertId();
+			}
 		}
 		return $return;
 	}
