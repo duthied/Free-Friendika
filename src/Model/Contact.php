@@ -96,11 +96,11 @@ class Contact extends BaseObject
 	public static function createSelfFromUserId($uid)
 	{
 		// Only create the entry if it doesn't exist yet
-		if (dba::exists('contact', ['uid' => intval($uid), 'self'])) {
+		if (dba::exists('contact', ['uid' => $uid, 'self' => true])) {
 			return true;
 		}
 
-		$user = dba::select('user', ['uid', 'username', 'nickname'], ['uid' => intval($uid)], ['limit' => 1]);
+		$user = dba::select('user', ['uid', 'username', 'nickname'], ['uid' => $uid], ['limit' => 1]);
 		if (!DBM::is_result($user)) {
 			return false;
 		}

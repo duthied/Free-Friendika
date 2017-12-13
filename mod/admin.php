@@ -1466,13 +1466,20 @@ function admin_page_users_post(App $a)
 	check_form_security_token_redirectOnErr('/admin/users', 'admin_users');
 
 	if (!($nu_name === "") && !($nu_email === "") && !($nu_nickname === "")) {
-		$result = User::create(array('username' => $nu_name, 'email' => $nu_email,
-			'nickname' => $nu_nickname, 'verified' => 1, 'language' => $nu_language));
-		if (!$result['success']) {
-			notice($result['message']);
+		try {
+			$result = User::create([
+				'username' => $nu_name,
+				'email' => $nu_email,
+				'nickname' => $nu_nickname,
+				'verified' => 1,
+				'language' => $nu_language
+			]);
+		} catch (Exception $ex) {
+			notice($ex->getMessage());
 			return;
 		}
-		$nu = $result['user'];
+
+		$user = $result['user'];
 		$preamble = deindent(t('
 			Dear %1$s,
 				the administrator of %2$s has set up an account for you.'));
@@ -1502,12 +1509,12 @@ function admin_page_users_post(App $a)
 
 			Thank you and welcome to %4$s.'));
 
-		$preamble = sprintf($preamble, $nu['username'], $a->config['sitename']);
-		$body = sprintf($body, System::baseUrl(), $nu['email'], $result['password'], $a->config['sitename']);
+		$preamble = sprintf($preamble, $user['username'], $a->config['sitename']);
+		$body = sprintf($body, System::baseUrl(), $user['email'], $result['password'], $a->config['sitename']);
 
 		notification(array(
 			'type' => SYSTEM_EMAIL,
-			'to_email' => $nu['email'],
+			'to_email' => $user['email'],
 			'subject' => sprintf(t('Registration details for %s'), $a->config['sitename']),
 			'preamble' => $preamble,
 			'body' => $body));
@@ -1587,8 +1594,8 @@ function admin_page_users(App $a)
 	/* get pending */
 	$pending = q("SELECT `register`.*, `contact`.`name`, `user`.`email`
 				 FROM `register`
-				 LEFT JOIN `contact` ON `register`.`uid` = `contact`.`uid`
-				 LEFT JOIN `user` ON `register`.`uid` = `user`.`uid`;");
+				 INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
+				 INNER JOIN `user` ON `register`.`uid` = `user`.`uid`;");
 
 
 	/* get users */

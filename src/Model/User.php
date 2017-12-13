@@ -17,6 +17,7 @@ use Friendica\Model\Group;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
 use dba;
+use Exception;
 
 require_once 'boot.php';
 require_once 'include/crypto.php';
@@ -134,11 +135,12 @@ class User
 	 *
 	 * @param array $data
 	 * @return string
+	 * @throw Exception
 	 */
 	public static function create(array $data)
 	{
 		$a = get_app();
-		$result = array('success' => false, 'user' => null, 'password' => '', 'message' => '');
+		$return = ['user' => null, 'password' => ''];
 
 		$using_invites = Config::get('system', 'invitation_only');
 		$num_invites   = Config::get('system', 'number_invites');
@@ -159,9 +161,8 @@ class User
 		$netpublish = strlen(Config::get('system', 'directory')) ? $publish : 0;
 
 		if ($password1 != $confirm) {
-			$result['message'] .= t('Passwords do not match. Password unchanged.') . EOL;
-			return $result;
-		} elseif ($password1 != "") {
+			throw new Exception(t('Passwords do not match. Password unchanged.'));
+		} elseif ($password1 != '') {
 			$password = $password1;
 		}
 
@@ -169,21 +170,18 @@ class User
 
 		if ($using_invites) {
 			if (!$invite_id) {
-				$result['message'] .= t('An invitation is required.') . EOL;
-				return $result;
+				throw new Exception(t('An invitation is required.'));
 			}
-			$r = q("SELECT * FROM `register` WHERE `hash` = '%s' LIMIT 1", dbesc($invite_id));
-			if (!results($r)) {
-				$result['message'] .= t('Invitation could not be verified.') . EOL;
-				return $result;
+
+			if (!dba::exists('register', ['hash' => $invite_id])) {
+				throw new Exception(t('Invitation could not be verified.'));
 			}
 		}
 
 		if (!x($username) || !x($email) || !x($nickname)) {
 			if ($openid_url) {
 				if (!validate_url($tmp_str)) {
-					$result['message'] .= t('Invalid OpenID url') . EOL;
-					return $result;
+					throw new Exception(t('Invalid OpenID url'));
 				}
 				$_SESSION['register'] = 1;
 				$_SESSION['openid'] = $openid_url;
@@ -196,15 +194,13 @@ class User
 				try {
 					$authurl = $openid->authUrl();
 				} catch (Exception $e) {
-					$result['message'] .= t("We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.") . EOL . EOL . t("The error message was:") . $e->getMessage() . EOL;
-					return $result;
+					throw new Exception(t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . EOL . EOL . t('The error message was:') . $e->getMessage(), 0, $e);
 				}
 				goaway($authurl);
 				// NOTREACHED
 			}
 
-			notice(t('Please enter the required information.') . EOL);
-			return;
+			throw new Exception(t('Please enter the required information.'));
 		}
 
 		if (!validate_url($tmp_str)) {
@@ -217,10 +213,10 @@ class User
 		$username = preg_replace('/ +/', ' ', $username);
 
 		if (mb_strlen($username) > 48) {
-			$result['message'] .= t('Please use a shorter name.') . EOL;
+			throw new Exception(t('Please use a shorter name.'));
 		}
 		if (mb_strlen($username) < 3) {
-			$result['message'] .= t('Name too short.') . EOL;
+			throw new Exception(t('Name too short.'));
 		}
 
 		// So now we are just looking for a space in the full name.
@@ -228,72 +224,52 @@ class User
 		if (!$loose_reg) {
 			$username = mb_convert_case($username, MB_CASE_TITLE, 'UTF-8');
 			if (!strpos($username, ' ')) {
-				$result['message'] .= t("That doesn't appear to be your full \x28First Last\x29 name.") . EOL;
+				throw new Exception(t("That doesn't appear to be your full \x28First Last\x29 name."));
 			}
 		}
 
 		if (!allowed_email($email)) {
-			$result['message'] .= t('Your email domain is not among those allowed on this site.') . EOL;
+			throw new Exception(t('Your email domain is not among those allowed on this site.'));
 		}
 
 		if (!valid_email($email) || !validate_email($email)) {
-			$result['message'] .= t('Not a valid email address.') . EOL;
+			throw new Exception(t('Not a valid email address.'));
+		}
+
+		if (dba::exists('user', ['email' => $email])) {
+			throw new Exception(t('Cannot use that email.'));
 		}
 
 		// Disallow somebody creating an account using openid that uses the admin email address,
 		// since openid bypasses email verification. We'll allow it if there is not yet an admin account.
-
-		$adminlist = explode(",", str_replace(" ", "", strtolower($a->config['admin_email'])));
-
-		//if((x($a->config,'admin_email')) && (strcasecmp($email,$a->config['admin_email']) == 0) && strlen($openid_url)) {
-		if (x($a->config, 'admin_email') && in_array(strtolower($email), $adminlist) && strlen($openid_url)) {
-			$r = q("SELECT * FROM `user` WHERE `email` = '%s' LIMIT 1",
-				dbesc($email)
-			);
-			if (DBM::is_result($r)) {
-				$result['message'] .= t('Cannot use that email.') . EOL;
+		if (x($a->config, 'admin_email') && strlen($openid_url)) {
+			$adminlist = explode(',', str_replace(' ', '', strtolower($a->config['admin_email'])));
+			if (in_array(strtolower($email), $adminlist)) {
+				throw new Exception(t('Cannot use that email.'));
 			}
 		}
 
 		$nickname = $data['nickname'] = strtolower($nickname);
 
-		if (!preg_match("/^[a-z0-9][a-z0-9\_]*$/", $nickname)) {
-			$result['message'] .= t('Your "nickname" can only contain "a-z", "0-9" and "_".') . EOL;
+		if (!preg_match('/^[a-z0-9][a-z0-9\_]*$/', $nickname)) {
+			throw new Exception(t('Your "nickname" can only contain "a-z", "0-9" and "_".'));
 		}
 
-		$r = q("SELECT `uid` FROM `user`
-			WHERE `nickname` = '%s' LIMIT 1",
-			dbesc($nickname)
-		);
-		if (DBM::is_result($r)) {
-			$result['message'] .= t('Nickname is already registered. Please choose another.') . EOL;
-		}
-
-		// Check deleted accounts that had this nickname. Doesn't matter to us,
-		// but could be a security issue for federated platforms.
-
-		$r = q("SELECT * FROM `userd`
-			WHERE `username` = '%s' LIMIT 1",
-			dbesc($nickname)
-		);
-		if (DBM::is_result($r)) {
-			$result['message'] .= t('Nickname was once registered here and may not be re-used. Please choose another.') . EOL;
-		}
-
-		if (strlen($result['message'])) {
-			return $result;
+		// Check existing and deleted accounts for this nickname.
+		if (dba::exists('user', ['nickname' => $nickname])
+			|| dba::exists('userd', ['username' => $nickname])
+		) {
+			throw new Exception(t('Nickname is already registered. Please choose another.'));
 		}
 
 		$new_password = strlen($password) ? $password : autoname(6) . mt_rand(100, 9999);
 		$new_password_encoded = hash('whirlpool', $new_password);
 
-		$result['password'] = $new_password;
+		$return['password'] = $new_password;
 
 		$keys = new_keypair(4096);
-
 		if ($keys === false) {
-			$result['message'] .= t('SERIOUS ERROR: Generation of security keys failed.') . EOL;
-			return $result;
+			throw new Exception(t('SERIOUS ERROR: Generation of security keys failed.'));
 		}
 
 		$prvkey = $keys['prvkey'];
@@ -304,99 +280,82 @@ class User
 		$sprvkey = $sres['prvkey'];
 		$spubkey = $sres['pubkey'];
 
-		$r = q("INSERT INTO `user` (`guid`, `username`, `password`, `email`, `openid`, `nickname`,
-			`pubkey`, `prvkey`, `spubkey`, `sprvkey`, `register_date`, `verified`, `blocked`, `timezone`, `default-location`)
-			VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, 'UTC', '')",
-			dbesc(generate_user_guid()),
-			dbesc($username),
-			dbesc($new_password_encoded),
-			dbesc($email),
-			dbesc($openid_url),
-			dbesc($nickname),
-			dbesc($pubkey),
-			dbesc($prvkey),
-			dbesc($spubkey),
-			dbesc($sprvkey),
-			dbesc(datetime_convert()),
-			intval($verified),
-			intval($blocked)
-		);
+		$insert_result = dba::insert('user', [
+			'guid'     => generate_user_guid(),
+			'username' => $username,
+			'password' => $new_password_encoded,
+			'email'    => $email,
+			'openid'   => $openid_url,
+			'nickname' => $nickname,
+			'pubkey'   => $pubkey,
+			'prvkey'   => $prvkey,
+			'spubkey'  => $spubkey,
+			'sprvkey'  => $sprvkey,
+			'verified' => $verified,
+			'blocked'  => $blocked,
+			'timezone' => 'UTC',
+			'register_date' => datetime_convert(),
+			'default-location' => ''
+		]);
 
-		if ($r) {
-			$r = q("SELECT * FROM `user`
-				WHERE `username` = '%s' AND `password` = '%s' LIMIT 1",
-				dbesc($username),
-				dbesc($new_password_encoded)
-			);
-			if (DBM::is_result($r)) {
-				$u = $r[0];
-				$newuid = intval($r[0]['uid']);
-			}
+		if ($insert_result) {
+			$uid = dba::lastInsertId();
+			$user = dba::select('user', [], ['uid' => $uid], ['limit' => 1]);
 		} else {
-			$result['message'] .= t('An error occurred during registration. Please try again.') . EOL;
-			return $result;
+			throw new Exception(t('An error occurred during registration. Please try again.'));
 		}
 
-		/**
-		 * if somebody clicked submit twice very quickly, they could end up with two accounts
-		 * due to race condition. Remove this one.
-		 */
-		$r = q("SELECT `uid` FROM `user`
-			WHERE `nickname` = '%s' ",
-			dbesc($nickname)
-		);
-		if (DBM::is_result($r) && count($r) > 1 && $newuid) {
-			$result['message'] .= t('Nickname is already registered. Please choose another.') . EOL;
-			dba::delete('user', array('uid' => $newuid));
-			return $result;
+		if (!$uid) {
+			throw new Exception(t('An error occurred during registration. Please try again.'));
 		}
 
-		if (x($newuid) !== false) {
-			$r = q("INSERT INTO `profile` ( `uid`, `profile-name`, `is-default`, `name`, `photo`, `thumb`, `publish`, `net-publish` )
-				VALUES ( %d, '%s', %d, '%s', '%s', '%s', %d, %d ) ",
-				intval($newuid),
-				t('default'),
-				1,
-				dbesc($username),
-				dbesc(System::baseUrl() . "/photo/profile/{$newuid}.jpg"),
-				dbesc(System::baseUrl() . "/photo/avatar/{$newuid}.jpg"),
-				intval($publish),
-				intval($netpublish)
-			);
-			if ($r === false) {
-				$result['message'] .= t('An error occurred creating your default profile. Please try again.') . EOL;
-				// Start fresh next time.
-				dba::delete('user', array('uid' => $newuid));
-				return $result;
-			}
+		// if somebody clicked submit twice very quickly, they could end up with two accounts
+		// due to race condition. Remove this one.
+		$user_count = dba::count('user', ['nickname' => $nickname]);
+		if ($user_count > 1) {
+			dba::delete('user', ['uid' => $uid]);
 
-			// Create the self contact
-			Contact::createSelfFromUserId($newuid);
-
-			// Create a group with no members. This allows somebody to use it
-			// right away as a default group for new contacts.
-			Group::create($newuid, t('Friends'));
-
-			$r = q("SELECT `id` FROM `group` WHERE `uid` = %d AND `name` = '%s'",
-				intval($newuid),
-				dbesc(t('Friends'))
-			);
-			if (DBM::is_result($r)) {
-				$def_gid = $r[0]['id'];
-
-				q("UPDATE `user` SET `def_gid` = %d WHERE `uid` = %d",
-					intval($r[0]['id']),
-					intval($newuid)
-				);
-			}
-
-			if (Config::get('system', 'newuser_private') && $def_gid) {
-				q("UPDATE `user` SET `allow_gid` = '%s' WHERE `uid` = %d",
-					dbesc("<" . $def_gid . ">"),
-					intval($newuid)
-				);
-			}
+			throw new Exception(t('Nickname is already registered. Please choose another.'));
 		}
+
+		$insert_result = dba::insert('profile', [
+			'uid' => $uid,
+			'name' => $username,
+			'photo' => System::baseUrl() . "/photo/profile/{$uid}.jpg",
+			'thumb' => System::baseUrl() . "/photo/avatar/{$uid}.jpg",
+			'publish' => $publish,
+			'is-default' => 1,
+			'net-publish' => $netpublish,
+			'profile-name' => t('default')
+		]);
+		if (!$insert_result) {
+			dba::delete('user', ['uid' => $uid]);
+
+			throw new Exception(t('An error occurred creating your default profile. Please try again.'));
+		}
+
+		// Create the self contact
+		if (!Contact::createSelfFromUserId($uid)) {
+			dba::delete('user', ['uid' => $uid]);
+
+			throw new Exception(t('An error occurred creating your self contact. Please try again.'));
+		}
+
+		// Create a group with no members. This allows somebody to use it
+		// right away as a default group for new contacts.
+		$def_gid = Group::create($uid, t('Friends'));
+		if (!$def_gid) {
+			dba::delete('user', ['uid' => $uid]);
+
+			throw new Exception(t('An error occurred creating your default contact group. Please try again.'));
+		}
+
+		$fields = ['def_gid' => $def_gid];
+		if (Config::get('system', 'newuser_private') && $def_gid) {
+			$fields['allow_gid'] = '<' . $def_gid . '>';
+		}
+
+		dba::update('user', $fields, ['uid' => $uid]);
 
 		// if we have no OpenID photo try to look up an avatar
 		if (!strlen($photo)) {
@@ -412,14 +371,13 @@ class User
 			// guess mimetype from headers or filename
 			$type = Image::guessType($photo, true);
 
-
 			$Image = new Image($img_str, $type);
 			if ($Image->isValid()) {
 				$Image->scaleToSquare(175);
 
 				$hash = photo_new_resource();
 
-				$r = Photo::store($Image, $newuid, 0, $hash, $filename, t('Profile Photos'), 4);
+				$r = Photo::store($Image, $uid, 0, $hash, $filename, t('Profile Photos'), 4);
 
 				if ($r === false) {
 					$photo_failure = true;
@@ -427,7 +385,7 @@ class User
 
 				$Image->scaleDown(80);
 
-				$r = Photo::store($Image, $newuid, 0, $hash, $filename, t('Profile Photos'), 5);
+				$r = Photo::store($Image, $uid, 0, $hash, $filename, t('Profile Photos'), 5);
 
 				if ($r === false) {
 					$photo_failure = true;
@@ -435,24 +393,21 @@ class User
 
 				$Image->scaleDown(48);
 
-				$r = Photo::store($Image, $newuid, 0, $hash, $filename, t('Profile Photos'), 6);
+				$r = Photo::store($Image, $uid, 0, $hash, $filename, t('Profile Photos'), 6);
 
 				if ($r === false) {
 					$photo_failure = true;
 				}
 
 				if (!$photo_failure) {
-					q("UPDATE `photo` SET `profile` = 1 WHERE `resource-id` = '%s' ",
-						dbesc($hash)
-					);
+					dba::update('photo', ['profile' => 1], ['resource-id' => $hash]);
 				}
 			}
 		}
 
-		call_hooks('register_account', $newuid);
+		call_hooks('register_account', $uid);
 
-		$result['success'] = true;
-		$result['user'] = $u;
+		$result['user'] = $user;
 		return $result;
 	}
 
