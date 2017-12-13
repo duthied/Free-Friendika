@@ -59,10 +59,10 @@ function register_post(App $a)
 	$arr['verified'] = $verified;
 	$arr['language'] = get_browser_language();
 
-	$result = User::create($arr);
-
-	if (!$result['success']) {
-		notice($result['message']);
+	try {
+		$result = User::create($arr);
+	} catch (Exception $e) {
+		notice($e->getMessage());
 		return;
 	}
 
