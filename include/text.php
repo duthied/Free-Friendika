@@ -1068,17 +1068,14 @@ function search($s, $id = 'search-box', $url = 'search', $save = false, $aside =
 }
 
 /**
- * Check if $x is a valid email string
+ * @brief Check for a valid email string
  *
- * @param string $x
+ * @param string $email_address
  * @return boolean
  */
-function valid_email($x){
-
-	/// @TODO Removed because Fabio told me so.
-	//if (Config::get('system','disable_email_validation'))
-	//	return true;
-	return preg_match('/^[_a-zA-Z0-9\-\+]+(\.[_a-zA-Z0-9\-\+]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/', $x);
+function valid_email($email_address)
+{
+	return preg_match('/^[_a-zA-Z0-9\-\+]+(\.[_a-zA-Z0-9\-\+]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/', $email_address);
 }
 
 
