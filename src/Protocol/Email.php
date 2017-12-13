@@ -5,7 +5,6 @@
 namespace Friendica\Protocol;
 
 require_once 'include/html2plain.php';
-require_once 'include/quoteconvert.php';
 
 /**
  * @brief Email class
