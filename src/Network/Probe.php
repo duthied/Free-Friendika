@@ -23,7 +23,6 @@ use dba;
 use DomXPath;
 use DOMDocument;
 
-require_once 'include/feed.php';
 require_once 'include/network.php';
 
 /**

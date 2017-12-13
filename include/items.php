@@ -27,7 +27,6 @@ require_once 'include/files.php';
 require_once 'include/text.php';
 require_once 'include/threads.php';
 require_once 'include/plaintext.php';
-require_once 'include/feed.php';
 require_once 'mod/share.php';
 require_once 'include/enotify.php';
 
