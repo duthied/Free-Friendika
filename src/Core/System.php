@@ -100,6 +100,20 @@ class System
 		return implode(', ', $callstack2);
 	}
 
+	/**
+	 * @brief Called from db initialisation when db is dead.
+	 */
+	static public function unavailable() {
+echo <<< EOT
+<html>
+	<head><title>System Unavailable</title></head>
+	<body>Apologies but this site is unavailable at the moment. Please try again later.</body>
+</html>
+EOT;
+
+		killme();
+	}
+
 	/// @todo Move the following functions from boot.php
 	/*
 	function get_guid($size = 16, $prefix = "")

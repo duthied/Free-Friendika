@@ -564,16 +564,6 @@ function x($s, $k = null)
 }
 
 /**
- * @brief Called from db initialisation if db is dead.
- */
-function system_unavailable()
-{
-	include 'system_unavailable.php';
-	system_down();
-	killme();
-}
-
-/**
  * @brief Returns the baseurl.
  *
  * @see System::baseUrl()

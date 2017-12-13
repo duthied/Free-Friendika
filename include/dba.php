@@ -97,7 +97,7 @@ class dba {
 		if (!self::$connected) {
 			self::$db = null;
 			if (!$install) {
-				system_unavailable();
+				System::unavailable();
 			}
 		}
 		$a->save_timestamp($stamp1, "network");
