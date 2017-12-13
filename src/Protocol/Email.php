@@ -5,8 +5,6 @@
 namespace Friendica\Protocol;
 
 require_once 'include/html2plain.php';
-require_once 'include/msgclean.php';
-require_once 'include/quoteconvert.php';
 
 /**
  * @brief Email class
@@ -21,7 +19,7 @@ class Email
 	 */
 	public static function connect($mailbox, $username, $password)
 	{
-		if (! function_exists('imap_open')) {
+		if (!function_exists('imap_open')) {
 			return false;
 		}
 
@@ -37,8 +35,9 @@ class Email
 	 */
 	public static function poll($mbox, $email_addr)
 	{
-		if (! ($mbox && $email_addr))
+		if (!$mbox || !$email_addr) {
 			return array();
+		}
 
 		$search1 = @imap_search($mbox, 'FROM "' . $email_addr . '"', SE_UID);
 		if (!$search1) {
@@ -101,11 +100,11 @@ class Email
 
 		$struc = (($mbox && $uid) ? @imap_fetchstructure($mbox, $uid, FT_UID) : null);
 
-		if (! $struc) {
+		if (!$struc) {
 			return $ret;
 		}
 
-		if (! $struc->parts) {
+		if (!$struc->parts) {
 			$ret['body'] = self::messageGetPart($mbox, $uid, $struc, 0, 'html');
 			$html = $ret['body'];
 
@@ -135,16 +134,16 @@ class Email
 			}
 		}
 
-		$ret['body'] = removegpg($ret['body']);
-		$msg = removesig($ret['body']);
+		$ret['body'] = self::removeGPG($ret['body']);
+		$msg = self::removeSig($ret['body']);
 		$ret['body'] = $msg['body'];
-		$ret['body'] = convertquote($ret['body'], $reply);
+		$ret['body'] = self::convertQuote($ret['body'], $reply);
 
 		if (trim($html) != '') {
-			$ret['body'] = removelinebreak($ret['body']);
+			$ret['body'] = self::removeLinebreak($ret['body']);
 		}
 
-		$ret['body'] = unifyattributionline($ret['body']);
+		$ret['body'] = self::unifyAttributionLine($ret['body']);
 
 		return $ret;
 	}
@@ -172,9 +171,9 @@ class Email
 		: @imap_body($mbox, $uid, FT_UID|FT_PEEK);
 
 		// Any part may be encoded, even plain text messages, so check everything.
-		if ($p->encoding==4) {
+		if ($p->encoding == 4) {
 			$data = quoted_printable_decode($data);
-		} elseif ($p->encoding==3) {
+		} elseif ($p->encoding == 3) {
 			$data = base64_decode($data);
 		}
 
@@ -257,7 +256,7 @@ class Email
 			}
 		}
 
-		if (! $need_to_convert) {
+		if (!$need_to_convert) {
 			return $in_str;
 		}
 
@@ -357,7 +356,7 @@ class Email
 			$msgid = $iri;
 		}
 
-		return($msgid);
+		return $msgid;
 	}
 
 	/**
@@ -371,7 +370,348 @@ class Email
 		} else {
 			$iri = $msgid;
 		}
-		
-		return($iri);
+
+		return $iri;
+	}
+
+	private static function saveReplace($pattern, $replace, $text)
+	{
+		$save = $text;
+
+		$text = preg_replace($pattern, $replace, $text);
+
+		if ($text == '') {
+			$text = $save;
+		}
+		return $text;
+	}
+
+	private static function unifyAttributionLine($message)
+	{
+		$quotestr = array('quote', 'spoiler');
+		foreach ($quotestr as $quote) {
+			$message = self::saveReplace('/----- Original Message -----\s.*?From: "([^<"].*?)" <(.*?)>\s.*?To: (.*?)\s*?Cc: (.*?)\s*?Sent: (.*?)\s.*?Subject: ([^\n].*)\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+			$message = self::saveReplace('/----- Original Message -----\s.*?From: "([^<"].*?)" <(.*?)>\s.*?To: (.*?)\s*?Sent: (.*?)\s.*?Subject: ([^\n].*)\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+
+			$message = self::saveReplace('/-------- Original-Nachricht --------\s*\['.$quote.'\]\nDatum: (.*?)\nVon: (.*?) <(.*?)>\nAn: (.*?)\nBetreff: (.*?)\n/i', "[".$quote."='$2']\n", $message);
+			$message = self::saveReplace('/-------- Original-Nachricht --------\s*\['.$quote.'\]\sDatum: (.*?)\s.*Von: "([^<"].*?)" <(.*?)>\s.*An: (.*?)\n.*/i', "[".$quote."='$2']\n", $message);
+			$message = self::saveReplace('/-------- Original-Nachricht --------\s*\['.$quote.'\]\nDatum: (.*?)\nVon: (.*?)\nAn: (.*?)\nBetreff: (.*?)\n/i', "[".$quote."='$2']\n", $message);
+
+			$message = self::saveReplace('/-----Urspr.*?ngliche Nachricht-----\sVon: "([^<"].*?)" <(.*?)>\s.*Gesendet: (.*?)\s.*An: (.*?)\s.*Betreff: ([^\n].*?).*:\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+			$message = self::saveReplace('/-----Urspr.*?ngliche Nachricht-----\sVon: "([^<"].*?)" <(.*?)>\s.*Gesendet: (.*?)\s.*An: (.*?)\s.*Betreff: ([^\n].*?)\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+
+			$message = self::saveReplace('/Am (.*?), schrieb (.*?):\s*\['.$quote.'\]/i', "[".$quote."='$2']\n", $message);
+
+			$message = self::saveReplace('/Am .*?, \d+ .*? \d+ \d+:\d+:\d+ \+\d+\sschrieb\s(.*?)\s<(.*?)>:\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+
+			$message = self::saveReplace('/Am (.*?) schrieb (.*?) <(.*?)>:\s*\['.$quote.'\]/i', "[".$quote."='$2']\n", $message);
+			$message = self::saveReplace('/Am (.*?) schrieb <(.*?)>:\s*\['.$quote.'\]/i', "[".$quote."='$2']\n", $message);
+			$message = self::saveReplace('/Am (.*?) schrieb (.*?):\s*\['.$quote.'\]/i', "[".$quote."='$2']\n", $message);
+			$message = self::saveReplace('/Am (.*?) schrieb (.*?)\n(.*?):\s*\['.$quote.'\]/i', "[".$quote."='$2']\n", $message);
+
+			$message = self::saveReplace('/(\d+)\/(\d+)\/(\d+) ([^<"].*?) <(.*?)>\s*\['.$quote.'\]/i', "[".$quote."='$4']\n", $message);
+
+			$message = self::saveReplace('/On .*?, \d+ .*? \d+ \d+:\d+:\d+ \+\d+\s(.*?)\s<(.*?)>\swrote:\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+
+			$message = self::saveReplace('/On (.*?) at (.*?), (.*?)\s<(.*?)>\swrote:\s*\['.$quote.'\]/i', "[".$quote."='$3']\n", $message);
+			$message = self::saveReplace('/On (.*?)\n([^<].*?)\s<(.*?)>\swrote:\s*\['.$quote.'\]/i', "[".$quote."='$2']\n", $message);
+			$message = self::saveReplace('/On (.*?), (.*?), (.*?)\s<(.*?)>\swrote:\s*\['.$quote.'\]/i', "[".$quote."='$3']\n", $message);
+			$message = self::saveReplace('/On ([^,].*?), (.*?)\swrote:\s*\['.$quote.'\]/i', "[".$quote."='$2']\n", $message);
+			$message = self::saveReplace('/On (.*?), (.*?)\swrote\s*\['.$quote.'\]/i', "[".$quote."='$2']\n", $message);
+
+			// Der loescht manchmal den Body - was eigentlich unmoeglich ist
+			$message = self::saveReplace('/On (.*?),(.*?),(.*?),(.*?), (.*?) wrote:\s*\['.$quote.'\]/i', "[".$quote."='$5']\n", $message);
+
+			$message = self::saveReplace('/Zitat von ([^<].*?) <(.*?)>:\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+
+			$message = self::saveReplace('/Quoting ([^<].*?) <(.*?)>:\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+
+			$message = self::saveReplace('/From: "([^<"].*?)" <(.*?)>\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+			$message = self::saveReplace('/From: <(.*?)>\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+
+			$message = self::saveReplace('/Du \(([^)].*?)\) schreibst:\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+
+			$message = self::saveReplace('/--- (.*?) <.*?> schrieb am (.*?):\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+			$message = self::saveReplace('/--- (.*?) schrieb am (.*?):\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+
+			$message = self::saveReplace('/\* (.*?) <(.*?)> hat geschrieben:\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+
+			$message = self::saveReplace('/(.*?) <(.*?)> schrieb (.*?)\):\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+			$message = self::saveReplace('/(.*?) <(.*?)> schrieb am (.*?) um (.*):\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+			$message = self::saveReplace('/(.*?) schrieb am (.*?) um (.*):\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+			$message = self::saveReplace('/(.*?) \((.*?)\) schrieb:\s*\['.$quote.'\]/i', "[".$quote."='$2']\n", $message);
+			$message = self::saveReplace('/(.*?) schrieb:\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+
+			$message = self::saveReplace('/(.*?) <(.*?)> writes:\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+			$message = self::saveReplace('/(.*?) \((.*?)\) writes:\s*\['.$quote.'\]/i', "[".$quote."='$2']\n", $message);
+			$message = self::saveReplace('/(.*?) writes:\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+
+			$message = self::saveReplace('/\* (.*?) wrote:\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+			$message = self::saveReplace('/(.*?) wrote \(.*?\):\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+			$message = self::saveReplace('/(.*?) wrote:\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+
+			$message = self::saveReplace('/([^<].*?) <.*?> hat am (.*?)\sum\s(.*)\sgeschrieben:\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+
+			$message = self::saveReplace('/(\d+)\/(\d+)\/(\d+) ([^<"].*?) <(.*?)>:\s*\['.$quote.'\]/i', "[".$quote."='$4']\n", $message);
+			$message = self::saveReplace('/(\d+)\/(\d+)\/(\d+) (.*?) <(.*?)>\s*\['.$quote.'\]/i', "[".$quote."='$4']\n", $message);
+			$message = self::saveReplace('/(\d+)\/(\d+)\/(\d+) <(.*?)>:\s*\['.$quote.'\]/i', "[".$quote."='$4']\n", $message);
+			$message = self::saveReplace('/(\d+)\/(\d+)\/(\d+) <(.*?)>\s*\['.$quote.'\]/i', "[".$quote."='$4']\n", $message);
+
+			$message = self::saveReplace('/(.*?) <(.*?)> schrubselte:\s*\['.$quote.'\]/i', "[".$quote."='$1']\n", $message);
+			$message = self::saveReplace('/(.*?) \((.*?)\) schrubselte:\s*\['.$quote.'\]/i', "[".$quote."='$2']\n", $message);
+		}
+		return $message;
+	}
+
+	private static function removeGPG($message)
+	{
+		$pattern = '/(.*)\s*-----BEGIN PGP SIGNED MESSAGE-----\s*[\r\n].*Hash:.*?[\r\n](.*)'.
+			'[\r\n]\s*-----BEGIN PGP SIGNATURE-----\s*[\r\n].*'.
+			'[\r\n]\s*-----END PGP SIGNATURE-----(.*)/is';
+
+		preg_match($pattern, $message, $result);
+
+		$cleaned = trim($result[1].$result[2].$result[3]);
+
+		$cleaned = str_replace(array("\n- --\n", "\n- -"), array("\n-- \n", "\n-"), $cleaned);
+
+		if ($cleaned == '') {
+			$cleaned = $message;
+		}
+
+		return $cleaned;
+	}
+
+	private static function removeSig($message)
+	{
+		$sigpos = strrpos($message, "\n-- \n");
+		$quotepos = strrpos($message, "[/quote]");
+
+		if ($sigpos == 0) {
+			// Especially for web.de who are using that as a separator
+			$message = str_replace("\n___________________________________________________________\n", "\n-- \n", $message);
+			$sigpos = strrpos($message, "\n-- \n");
+			$quotepos = strrpos($message, "[/quote]");
+		}
+
+		// When the signature separator is inside a quote, we don't separate
+		if (($sigpos < $quotepos) && ($sigpos != 0)) {
+			return array('body' => $message, 'sig' => '');
+		}
+
+		$pattern = '/(.*)[\r\n]-- [\r\n](.*)/is';
+
+		preg_match($pattern, $message, $result);
+
+		if (($result[1] != '') && ($result[2] != '')) {
+			$cleaned = trim($result[1])."\n";
+			$sig = trim($result[2]);
+		} else {
+			$cleaned = $message;
+			$sig = '';
+		}
+
+		return array('body' => $cleaned, 'sig' => $sig);
+	}
+
+	private static function removeLinebreak($message)
+	{
+		$arrbody = explode("\n", trim($message));
+
+		$lines = array();
+		$lineno = 0;
+
+		foreach ($arrbody as $i => $line) {
+			$currquotelevel = 0;
+			$currline = $line;
+			while ((strlen($currline)>0) && ((substr($currline, 0, 1) == '>')
+				|| (substr($currline, 0, 1) == ' '))) {
+				if (substr($currline, 0, 1) == '>') {
+					$currquotelevel++;
+				}
+
+				$currline = ltrim(substr($currline, 1));
+			}
+
+			$quotelevel = 0;
+			$nextline = trim($arrbody[$i+1]);
+			while ((strlen($nextline)>0) && ((substr($nextline, 0, 1) == '>')
+				|| (substr($nextline, 0, 1) == ' '))) {
+				if (substr($nextline, 0, 1) == '>') {
+					$quotelevel++;
+				}
+
+				$nextline = ltrim(substr($nextline, 1));
+			}
+
+			$firstword = strpos($nextline.' ', ' ');
+
+			$specialchars = ((substr(trim($nextline), 0, 1) == '-') ||
+					(substr(trim($nextline), 0, 1) == '=') ||
+					(substr(trim($nextline), 0, 1) == '*') ||
+					(substr(trim($nextline), 0, 1) == '·') ||
+					(substr(trim($nextline), 0, 4) == '[url') ||
+					(substr(trim($nextline), 0, 5) == '[size') ||
+					(substr(trim($nextline), 0, 7) == 'http://') ||
+					(substr(trim($nextline), 0, 8) == 'https://'));
+
+			if (!$specialchars) {
+				$specialchars = ((substr(rtrim($line), -1) == '-') ||
+						(substr(rtrim($line), -1) == '=') ||
+						(substr(rtrim($line), -1) == '*') ||
+						(substr(rtrim($line), -1) == '·') ||
+						(substr(rtrim($line), -6) == '[/url]') ||
+						(substr(rtrim($line), -7) == '[/size]'));
+			}
+
+			if ($lines[$lineno] != '') {
+				if (substr($lines[$lineno], -1) != ' ') {
+					$lines[$lineno] .= ' ';
+				}
+
+				while ((strlen($line)>0) && ((substr($line, 0, 1) == '>')
+					|| (substr($line, 0, 1) == ' '))) {
+
+					$line = ltrim(substr($line, 1));
+				}
+			}
+
+			$lines[$lineno] .= $line;
+			if (((substr($line, -1, 1) != ' '))
+				|| ($quotelevel != $currquotelevel)) {
+				$lineno++;
+				}
+		}
+		return implode("\n", $lines);
+	}
+
+	private static function convertQuote($body, $reply)
+	{
+		// Convert Quotes
+		$arrbody = explode("\n", trim($body));
+		$arrlevel = array();
+
+		for ($i = 0; $i < count($arrbody); $i++) {
+			$quotelevel = 0;
+			$quoteline = $arrbody[$i];
+
+			while ((strlen($quoteline)>0) and ((substr($quoteline, 0, 1) == '>')
+				|| (substr($quoteline, 0, 1) == ' '))) {
+				if (substr($quoteline, 0, 1) == '>')
+					$quotelevel++;
+
+				$quoteline = ltrim(substr($quoteline, 1));
+			}
+
+			$arrlevel[$i] = $quotelevel;
+			$arrbody[$i] = $quoteline;
+		}
+
+		$quotelevel = 0;
+		$previousquote = 0;
+		$arrbodyquoted = array();
+
+		for ($i = 0; $i < count($arrbody); $i++) {
+			$previousquote = $quotelevel;
+			$quotelevel = $arrlevel[$i];
+			$currline = $arrbody[$i];
+
+			while ($previousquote < $quotelevel) {
+				if ($sender != '') {
+					$quote = "[quote title=$sender]";
+					$sender = '';
+				} else
+					$quote = "[quote]";
+
+				$arrbody[$i] = $quote.$arrbody[$i];
+				$previousquote++;
+			}
+
+			while ($previousquote > $quotelevel) {
+				$arrbody[$i] = '[/quote]'.$arrbody[$i];
+				$previousquote--;
+			}
+
+			$arrbodyquoted[] = $arrbody[$i];
+		}
+		while ($quotelevel > 0) {
+			$arrbodyquoted[] = '[/quote]';
+			$quotelevel--;
+		}
+
+		$body = implode("\n", $arrbodyquoted);
+
+		if (strlen($body) > 0) {
+			$body = $body."\n\n";
+		}
+
+		if ($reply) {
+			$body = self::removeToFu($body);
+		}
+
+		return $body;
+	}
+
+	private static function removeToFu($message)
+	{
+		$message = trim($message);
+
+		do {
+			$oldmessage = $message;
+			$message = preg_replace('=\[/quote\][\s](.*?)\[quote\]=i', '$1', $message);
+			$message = str_replace("[/quote][quote]", "", $message);
+		} while ($message != $oldmessage);
+
+		$quotes = array();
+
+		$startquotes = 0;
+
+		$start = 0;
+
+		while (($pos = strpos($message, '[quote', $start)) > 0) {
+			$quotes[$pos] = -1;
+			$start = $pos + 7;
+			$startquotes++;
+		}
+
+		$endquotes = 0;
+		$start = 0;
+
+		while (($pos = strpos($message, '[/quote]', $start)) > 0) {
+			$start = $pos + 7;
+			$endquotes++;
+		}
+
+		while ($endquotes < $startquotes) {
+			$message .= '[/quote]';
+			++$endquotes;
+		}
+
+		$start = 0;
+
+		while (($pos = strpos($message, '[/quote]', $start)) > 0) {
+			$quotes[$pos] = 1;
+			$start = $pos + 7;
+		}
+
+		if (strtolower(substr($message, -8)) != '[/quote]')
+			return($message);
+
+		krsort($quotes);
+
+		$quotelevel = 0;
+		$quotestart = 0;
+		foreach ($quotes as $index => $quote) {
+			$quotelevel += $quote;
+
+			if (($quotelevel == 0) and ($quotestart == 0))
+				$quotestart = $index;
+		}
+
+		if ($quotestart != 0) {
+			$message = trim(substr($message, 0, $quotestart))."\n[spoiler]".substr($message, $quotestart+7, -8).'[/spoiler]';
+		}
+
+		return $message;
 	}
 }
