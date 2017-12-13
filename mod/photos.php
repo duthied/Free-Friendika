@@ -1488,7 +1488,7 @@ function photos_content(App $a) {
 			}
 
 			if ($link_item['coord']) {
-				$map = generate_map($link_item['coord']);
+				$map = Map::byCoordinates($link_item['coord']);
 			}
 		}
 
