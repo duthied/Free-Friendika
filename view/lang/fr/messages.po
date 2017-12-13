@@ -25,7 +25,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-27 09:19+0100\n"
-"PO-Revision-Date: 2017-12-09 23:14+0000\n"
+"PO-Revision-Date: 2017-12-11 22:07+0000\n"
 "Last-Translator: Thecross\n"
 "Language-Team: French (http://www.transifex.com/Friendica/friendica/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -1291,7 +1291,7 @@ msgstr "Merci de visiter %s pour voir la conversation et/ou y répondre."
 #: include/enotify.php:186
 #, php-format
 msgid "[Friendica:Notify] %s posted to your profile wall"
-msgstr "[Friendica:Notification] %s a posté sur votre mur de profil"
+msgstr "[Friendica:Notification] %s a posté sur votre mur"
 
 #: include/enotify.php:188
 #, php-format
@@ -7686,7 +7686,7 @@ msgid ""
 "Choose a profile nickname. This must begin with a text character. Your "
 "profile address on this site will then be "
 "'<strong>nickname@$sitename</strong>'."
-msgstr "Choisissez un pseudo. Celui devra commencer par une lettre. L'adresse de votre profil en découlera sous la forme '&lt;strong&gt;pseudo@$sitename&lt;/strong&gt;'."
+msgstr "Choisissez un pseudo. Il doit commencer par une lettre. L'adresse de votre profil sera alors '<strong>nickname@$sitename</strong>'."
 
 #: mod/register.php:293
 msgid "Choose a nickname: "
@@ -7802,7 +7802,7 @@ msgstr "Mauvais mot de passe."
 
 #: mod/settings.php:402
 msgid "Password changed."
-msgstr "Mots de passe changés."
+msgstr "Mot de passe changé."
 
 #: mod/settings.php:404
 msgid "Password update failed. Please try again."
@@ -8084,7 +8084,7 @@ msgstr "Défilement infini"
 
 #: mod/settings.php:1021
 msgid "Automatic updates only at the top of the network page"
-msgstr "Mises à jour automatiques seulement en haut de la page du réseau"
+msgstr "Mises à jour automatiques seulement en haut de la page Réseau"
 
 #: mod/settings.php:1021
 msgid ""
@@ -8611,7 +8611,7 @@ msgstr ""
 #: mod/update_community.php:22 mod/update_display.php:26
 #: mod/update_network.php:30 mod/update_notes.php:39 mod/update_profile.php:38
 msgid "[Embedded content - reload page to view]"
-msgstr "[contenu incorporé - rechargez la page pour le voir]"
+msgstr "[Ccontenu incorporé - rechargez la page pour le voir]"
 
 #: mod/videos.php:131
 msgid "Do you really want to delete this video?"
@@ -8750,11 +8750,11 @@ msgstr "Défaut"
 
 #: view/theme/frio/config.php:104
 msgid "Note"
-msgstr ""
+msgstr "Remarque"
 
 #: view/theme/frio/config.php:104
 msgid "Check image permissions if all users are allowed to visit the image"
-msgstr "Vérifiez que tous les utilisateurs du site sont autorisé à accéder à l'image."
+msgstr "Vérifiez que tous les utilisateurs du site sont autorisés à accéder à l'image."
 
 #: view/theme/frio/config.php:111
 msgid "Select scheme"
@@ -8934,7 +8934,7 @@ msgstr ""
 
 #: src/Object/Contact.php:810
 msgid "News"
-msgstr ""
+msgstr "Nouvelles"
 
 #: src/Object/Contact.php:813
 msgid "Forum"
@@ -8942,7 +8942,7 @@ msgstr "Forum"
 
 #: src/Object/Item.php:123
 msgid "This entry was edited"
-msgstr "Cette entrée à été édité"
+msgstr "Cette entrée a été éditée"
 
 #: src/Object/Item.php:168
 msgid "save to folder"
@@ -8962,7 +8962,7 @@ msgstr "Je vais peut-être participer"
 
 #: src/Object/Item.php:261
 msgid "add star"
-msgstr "mett en avant"
+msgstr "mettre en avant"
 
 #: src/Object/Item.php:262
 msgid "remove star"
