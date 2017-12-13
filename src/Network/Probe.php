@@ -24,6 +24,7 @@ use DomXPath;
 use DOMDocument;
 
 require_once 'include/network.php';
+require_once "include/crypto.php";
 
 /**
  * @brief This class contain functions for probing URL
