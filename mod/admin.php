@@ -1594,8 +1594,8 @@ function admin_page_users(App $a)
 	/* get pending */
 	$pending = q("SELECT `register`.*, `contact`.`name`, `user`.`email`
 				 FROM `register`
-				 JOIN `contact` ON `register`.`uid` = `contact`.`uid`
-				 JOIN `user` ON `register`.`uid` = `user`.`uid`;");
+				 INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
+				 INNER JOIN `user` ON `register`.`uid` = `user`.`uid`;");
 
 
 	/* get users */
