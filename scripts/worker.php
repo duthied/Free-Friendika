@@ -44,7 +44,7 @@ $a->set_baseurl(Config::get('system', 'url'));
 
 load_hooks();
 
-$spawn = (($_SERVER["argc"] <= 1) || ($_SERVER["argv"][1] == "spawn"));
+$spawn = (($_SERVER["argc"] == 2) && ($_SERVER["argv"][1] == "spawn"));
 
 if ($spawn) {
 	Worker::spawnWorker();
