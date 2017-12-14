@@ -33,14 +33,14 @@ use Friendica\Object\Image;
  * The DB_UPDATE_VERSION will always be one greater than the last numbered script in this file.
  *
  * If you change the database schema, the following are required:
- *    1. Update the file include/dbstructure.php to match the new schema.
+ *    1. Update the file src/Database/DBStructure.php to match the new schema.
  *    2. If there is a need for a post procession, update this file by adding a new function at the end with the number of the current DB_UPDATE_VERSION.
  *       This function should perform some post procession steps but no database updates.
  *    3. Increment the DB_UPDATE_VERSION in boot.php *AND* the UPDATE_VERSION in this file to match it
  *    4. TEST the upgrade prior to checkin and filing a pull request.
  *
  * IMPORTANT!
- * NEVER do a database change anymore in the update functions! Only do this in the file include/dbstructure.php!
+ * NEVER do a database change anymore in the update functions! Only do this in the file src/Database/DBStructure.php!
  */
 
 
@@ -1609,7 +1609,7 @@ ATTENTION!
 
 All following update functions are ONLY for jobs that need to run AFTER the database changes are applied.
 
-Database changes are ONLY applied in the file include/dbstructure.php.
+Database changes are ONLY applied in the file src/Database/DBStructure.php.
 */
 
 function update_1177() {

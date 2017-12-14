@@ -10,12 +10,6 @@ use Friendica\Database\DBM;
 require_once "boot.php";
 require_once "include/text.php";
 
-define('NEW_UPDATE_ROUTINE_VERSION', 1170);
-
-const DB_UPDATE_NOT_CHECKED = 0; // Database check wasn't executed before
-const DB_UPDATE_SUCCESSFUL = 1;  // Database check was successful
-const DB_UPDATE_FAILED = 2;      // Database check failed
-
 /*
  * Converts all tables from MyISAM to InnoDB
  */

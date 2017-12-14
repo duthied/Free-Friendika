@@ -10,6 +10,7 @@ use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Database\DBStructure;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
 
@@ -708,7 +709,7 @@ function admin_page_summary(App $a)
 	$warningtext = array();
 	if (DBM::is_result($r)) {
 		$showwarning = true;
-		$warningtext[] = sprintf(t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php include/dbstructure.php toinnodb</tt> of your Friendica installation for an automatic conversion.<br />'), 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
+		$warningtext[] = sprintf(t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php scripts/dbstructure.php toinnodb</tt> of your Friendica installation for an automatic conversion.<br />'), 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
 	}
 	// Check if github.com/friendica/master/VERSION is higher then
 	// the local version of Friendica. Check is opt-in, source may be master or devel branch
@@ -721,12 +722,11 @@ function admin_page_summary(App $a)
 	}
 
 	if (Config::get('system', 'dbupdate', DB_UPDATE_NOT_CHECKED) == DB_UPDATE_NOT_CHECKED) {
-		require_once("include/dbstructure.php");
-		update_structure(false, true);
+		DBStructure::updateStructure(false, true);
 	}
 	if (Config::get('system', 'dbupdate') == DB_UPDATE_FAILED) {
 		$showwarning = true;
-		$warningtext[] = t('The database update failed. Please run "php include/dbstructure.php update" from the command line and have a look at the errors that might appear.');
+		$warningtext[] = t('The database update failed. Please run "php scripts/dbstructure.php update" from the command line and have a look at the errors that might appear.');
 	}
 
 	$last_worker_call = Config::get('system', 'last_poller_execution', false);
@@ -1385,8 +1385,7 @@ function admin_page_dbsync(App $a)
 	}
 
 	if (($a->argc > 2) && (intval($a->argv[2]) || ($a->argv[2] === 'check'))) {
-		require_once("include/dbstructure.php");
-		$retval = update_structure(false, true);
+		$retval = DBStructure::updateStructure(false, true);
 		if (!$retval) {
 			$o .= sprintf(t("Database structure update %s was successfully applied."), DB_UPDATE_VERSION) . "<br />";
 			Config::set('database', 'dbupdate_' . DB_UPDATE_VERSION, 'success');

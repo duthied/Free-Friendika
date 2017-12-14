@@ -5,10 +5,9 @@
  * @brief Does database updates from the command line
  */
 
-require_once 'include/dbstructure.php';
-
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Database\DBStructure;
 
 $a = new App(dirname(__DIR__));
 
@@ -20,10 +19,10 @@ unset($db_host, $db_user, $db_pass, $db_data);
 if ($_SERVER["argc"] == 2) {
 	switch ($_SERVER["argv"][1]) {
 		case "dryrun":
-			update_structure(true, false);
+			DBStructure::updateStructure(true, false);
 			return;
 		case "update":
-			update_structure(true, true);
+			DBStructure::updateStructure(true, true);
 
 			$build = Config::get('system','build');
 			if (!x($build)) {
@@ -45,10 +44,10 @@ if ($_SERVER["argc"] == 2) {
 			Config::set('system','build',DB_UPDATE_VERSION);
 			return;
 		case "dumpsql":
-			print_structure(db_definition());
+			DBStructure::printStructure(db_definition());
 			return;
 		case "toinnodb":
-			convert_to_innodb();
+			DBStructure::convertToInnoDB();
 			return;
 	}
 }
