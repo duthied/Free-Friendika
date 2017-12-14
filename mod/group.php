@@ -174,7 +174,7 @@ function group_content(App $a) {
 			if (in_array($change, $preselected)) {
 				Group::removeMember($group['id'], $change);
 			} else {
-				Group::create_member(local_user(), $group['name'], $change);
+				Group::addMember($group['id'], $change);
 			}
 
 			$members = Contact::getByGroupId($group['id']);
