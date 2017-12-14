@@ -28,6 +28,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Database\DBStructure;
 
 require_once 'include/network.php';
 require_once 'include/plugin.php';
@@ -37,13 +38,20 @@ require_once 'include/pgettext.php';
 require_once 'include/nav.php';
 require_once 'include/identity.php';
 require_once 'update.php';
-require_once 'include/dbstructure.php';
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Asparagus');
 define('FRIENDICA_VERSION',      '3.6-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('DB_UPDATE_VERSION',      1236);
+define('NEW_UPDATE_ROUTINE_VERSION', 1170);
+
+/**
+ * @brief Constants for the database update check
+ */
+const DB_UPDATE_NOT_CHECKED = 0; // Database check wasn't executed before
+const DB_UPDATE_SUCCESSFUL = 1;  // Database check was successful
+const DB_UPDATE_FAILED = 2;      // Database check failed
 
 /**
  * @brief Constant with a HTML line break.
@@ -694,9 +702,9 @@ function update_db(App $a)
 
 				// run new update routine
 				// it update the structure in one call
-				$retval = update_structure(false, true);
+				$retval = DBStructure::update(false, true);
 				if ($retval) {
-					update_fail(
+					DBStructure::updateFail(
 						DB_UPDATE_VERSION,
 						$retval
 					);
@@ -742,7 +750,7 @@ function run_update_function($x)
 
 		if ($retval) {
 			//send the administrator an e-mail
-			update_fail(
+			DBStructure::updateFail(
 				$x,
 				sprintf(t('Update %s failed. See error logs.'), $x)
 			);

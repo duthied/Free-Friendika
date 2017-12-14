@@ -1,6 +1,7 @@
 <?php
-use \Friendica\Core\System;
+use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Database\DBStructure;
 
 require_once('include/datetime.php');
 
@@ -829,12 +830,12 @@ class dba {
 	/**
 	 * @brief Build the array with the table relations
 	 *
-	 * The array is build from the database definitions in dbstructure.php
+	 * The array is build from the database definitions in DBStructure.php
 	 *
 	 * This process must only be started once, since the value is cached.
 	 */
 	private static function build_relation_data() {
-		$definition = db_definition();
+		$definition = DBStructure::definition();
 
 		foreach ($definition AS $table => $structure) {
 			foreach ($structure['fields'] AS $field => $field_struct) {

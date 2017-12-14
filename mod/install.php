@@ -5,6 +5,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
 
 $install_wizard_pass = 1;
@@ -535,9 +536,7 @@ function load_database_rem($v, $i) {
 }
 
 function load_database() {
-
-	require_once("include/dbstructure.php");
-	$errors = update_structure(false, true);
+	$errors = DBStructure::update(false, true);
 
 	return $errors;
 }
