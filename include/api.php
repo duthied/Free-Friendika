@@ -4783,7 +4783,7 @@ function api_friendica_group_create($type)
 			intval($uid)
 		);
 		if (count($contact))
-			$result = Group::create_member($uid, $name, $cid, $gid);
+			$result = Group::addMember($gid, $cid);
 		else {
 			$erroraddinguser = true;
 			$errorusers[] = $cid;
@@ -4846,7 +4846,7 @@ function api_friendica_group_update($type)
 		);
 
 		if (count($contact)) {
-			$result = Group::create_member($uid, $name, $cid, $gid);
+			$result = Group::addMember($gid, $cid);
 		} else {
 			$erroraddinguser = true;
 			$errorusers[] = $cid;
