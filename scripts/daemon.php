@@ -1,6 +1,7 @@
+#!/usr/bin/env php
 <?php
 /**
- * @file util/daemon.php
+ * @file scripts/daemon.php
  * @brief Run the worker from a daemon.
  *
  * This script was taken from http://php.net/manual/en/function.pcntl-fork.php
@@ -25,7 +26,19 @@ if (!isset($mode)) {
 	die("Please use either 'start', 'stop' or 'status'.\n");
 }
 
-@include(".htconfig.php");
+if (empty($_SERVER["argv"][0])) {
+	die("Unexpected script behaviour. This message should never occur.\n");
+}
+
+// Fetch the base directory
+$directory = dirname($_SERVER["argv"][0]);
+
+if (substr($directory, 0, 1) != "/") {
+	$directory = $_SERVER["PWD"]."/".$directory;
+}
+$directory = realpath($directory."/..");
+
+@include($directory."/.htconfig.php");
 
 if (!isset($pidfile)) {
 	die('Please specify a pid file in the variable $pidfile in the .htconfig.php. For example:'."\n".
@@ -93,7 +106,20 @@ while (true) {
 	// Call the worker
 	$cmdline = $php.' scripts/worker.php';
 
-	exec($cmdline);
+	$executed = false;
+
+	if (function_exists('proc_open')) {
+		$resource = proc_open($cmdline . ' &', array(), $foo, $directory);
+
+		if (is_resource($resource)) {
+			$executed = true;
+			proc_close($resource);
+		}
+	}
+
+	if (!$executed) {
+		exec($cmdline.' spawn');
+	}
 
 	// Now sleep for 5 minutes
 	sleep(300);
