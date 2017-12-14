@@ -153,7 +153,9 @@ class DBStructure {
 		return array("fields" => $fielddata, "indexes" => $indexdata, "table_status" => $table_status);
 	}
 
-	public static function printStructure($database) {
+	public static function printStructure() {
+		$database = self::definition();
+
 		echo "-- ------------------------------------------\n";
 		echo "-- ".FRIENDICA_PLATFORM." ".FRIENDICA_VERSION." (".FRIENDICA_CODENAME,")\n";
 		echo "-- DB_UPDATE_VERSION ".DB_UPDATE_VERSION."\n";

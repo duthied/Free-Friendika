@@ -46,7 +46,7 @@ if ($_SERVER["argc"] == 2) {
 			Config::set('system','build',DB_UPDATE_VERSION);
 			return;
 		case "dumpsql":
-			DBStructure::printStructure(DBStructure::definition());
+			DBStructure::printStructure();
 			return;
 		case "toinnodb":
 			DBStructure::convertToInnoDB();
