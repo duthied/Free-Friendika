@@ -182,7 +182,7 @@ class DBStructure {
 		return t('Errors encountered performing database changes: ').$message.EOL;
 	}
 
-	public static function updateStructure($verbose, $action, $tables = null, $definition = null) {
+	public static function update($verbose, $action, $tables = null, $definition = null) {
 		if ($action) {
 			Config::set('system', 'maintenance', 1);
 			Config::set('system', 'maintenance_reason', sprintf(t(': Database update'), DBM::date().' '.date('e')));

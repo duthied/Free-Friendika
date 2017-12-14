@@ -702,7 +702,7 @@ function update_db(App $a)
 
 				// run new update routine
 				// it update the structure in one call
-				$retval = DBStructure::updateStructure(false, true);
+				$retval = DBStructure::update(false, true);
 				if ($retval) {
 					DBStructure::updateFail(
 						DB_UPDATE_VERSION,

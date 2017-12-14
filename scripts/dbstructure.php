@@ -21,10 +21,10 @@ unset($db_host, $db_user, $db_pass, $db_data);
 if ($_SERVER["argc"] == 2) {
 	switch ($_SERVER["argv"][1]) {
 		case "dryrun":
-			DBStructure::updateStructure(true, false);
+			DBStructure::update(true, false);
 			return;
 		case "update":
-			DBStructure::updateStructure(true, true);
+			DBStructure::update(true, true);
 
 			$build = Config::get('system','build');
 			if (!x($build)) {
