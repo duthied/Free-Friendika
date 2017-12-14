@@ -1,4 +1,10 @@
+#!/usr/bin/env php
 <?php
+/**
+ * @file scripts/worker.php
+ * @brief Starts the background processing
+ */
+
 use Friendica\App;
 use Friendica\Core\Worker;
 use Friendica\Core\Config;
@@ -38,7 +44,15 @@ $a->set_baseurl(Config::get('system', 'url'));
 
 load_hooks();
 
+$spawn = (($_SERVER["argc"] <= 1) || ($_SERVER["argv"][1] == "spawn"));
+
+if ($spawn) {
+	Worker::spawnWorker();
+	killme();
+}
+
 $run_cron = (($_SERVER["argc"] <= 1) || ($_SERVER["argv"][1] != "no_cron"));
+
 Worker::processQueue($run_cron);
 
 Worker::unclaimProcess();
