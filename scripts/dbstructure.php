@@ -9,10 +9,12 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Database\DBStructure;
 
+require_once "boot.php";
+require_once "include/dba.php";
+
 $a = new App(dirname(__DIR__));
 
 @include ".htconfig.php";
-require_once "include/dba.php";
 dba::connect($db_host, $db_user, $db_pass, $db_data);
 unset($db_host, $db_user, $db_pass, $db_data);
 
@@ -44,7 +46,7 @@ if ($_SERVER["argc"] == 2) {
 			Config::set('system','build',DB_UPDATE_VERSION);
 			return;
 		case "dumpsql":
-			DBStructure::printStructure(db_definition());
+			DBStructure::printStructure(DBStructure::definition());
 			return;
 		case "toinnodb":
 			DBStructure::convertToInnoDB();
