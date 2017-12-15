@@ -1,24 +1,20 @@
 
 <div class="contact-wrapper media" id="contact-entry-wrapper-{{$contact.id}}">
 
-		{{* This is a wrapper for the contact picture and the dropdown menu with contact relating actions *}}
+		{{* This is a wrapper for the contact picture *}}
 		<div class="contact-photo-wrapper dropdown media-left">
 			<div class="contact-entry-photo mframe" id="contact-entry-photo-{{$contact.id}}">
 
-				<button type="button" class="btn btn-link dropdown-toggle" id="contact-photo-menu-{{$contact.id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					<div class="contact-photo-image-wrapper hidden-xs">
-						<img class="contact-photo media-object xl" src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" />
+				<div class="contact-photo-image-wrapper hidden-xs">
+					<img class="contact-photo media-object xl" src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" />
+				</div>
 
-						{{* Overlay background on hover the avatar picture *}}
-						<div class="contact-photo-overlay">
-							<span class="contact-photo-overlay-content xl"><i class="fa fa-angle-down" aria-hidden="true"></i></span>
-						</div>
-					</div>
-
+				{{* For very small displays we use a drobdown menu for contact relating actions *}}
+				<button type="button" class="btn btn-link dropdown-toggle visible-xs" id="contact-photo-menu-button-{{$contact.id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					{{* use a smaller picture on very small displays (e.g. mobiles) *}}
-					<div class="contact-photo-image-wrapper hidden-lg hidden-md hidden-sm">
+					<div class="contact-photo-image-wrapper visible-xs">
 						<img class="contact-photo-xs media-object" src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" />
-
+						
 						{{* Overlay background on hover the avatar picture *}}
 						<div class="contact-photo-overlay">
 							<span class="contact-photo-overlay-content overlay-xs"><i class="fa fa-angle-down" aria-hidden="true"></i></span>
@@ -28,7 +24,7 @@
 
 
 				{{if $contact.photo_menu}}
-				<ul class="contact-photo-menu menu-popup dropdown-menu " id="contact-photo-menu-{{$contact.id}}" role="menu" aria-labelledby="contact-photo-menu-{{$contact.id}}">
+				<ul class="contact-photo-menu menu-popup dropdown-menu hidden-lg hidden-md hidden-sm" id="contact-photo-menu-{{$contact.id}}" role="menu" aria-labelledby="contact-photo-menu-{{$contact.id}}">
 					{{foreach $contact.photo_menu as $c}}
 					{{if $c.2}}
 					<li role="presentation"><a role="menuitem" target="redir" href="{{$c.1}}">{{$c.0}}</a></li>
@@ -133,22 +129,18 @@ We use this part to filter the contacts with jquery.textcomplete *}}
 <div class="javascript-template" rel="contact-template" style="display: none">
 	<div class="contact-wrapper media" id="contact-entry-wrapper-{$id}">
 
-			{{* This is a wrapper for the contact picture and the dropdown menu with contact relating actions *}}
+			{{* This is a wrapper for the contact picture *}}
 			<div class="contact-photo-wrapper dropdown media-left">
 				<div class="contact-entry-photo mframe" id="contact-entry-photo-{$id}">
 
-					<button type="button" class="btn btn-link dropdown-toggle" id="contact-photo-menu-{$id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						<div class="contact-photo-image-wrapper hidden-xs">
-							<img class="contact-photo media-object xl" src="{{$contact.thumb}}" {11} alt="{{$contact.name}}" />
+					<div class="contact-photo-image-wrapper hidden-xs">
+						<img class="contact-photo media-object xl" src="{{$contact.thumb}}" {11} alt="{{$contact.name}}" />
+					</div>
 
-							{{* Overlay background on hover the avatar picture *}}
-							<div class="contact-photo-overlay">
-								<span class="contact-photo-overlay-content xl"><i class="fa fa-angle-down"  aria-hidden="true"></i></span>
-							</div>
-						</div>
-
+					{{* For very small displays we use a drobdown menu for contact relating actions *}}
+					<button type="button" class="btn btn-link dropdown-toggle visible-xs" id="contact-photo-menu-button{$id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						{{* use a smaller picture on very small displays (e.g. mobiles) *}}
-						<div class="contact-photo-image-wrapper hidden-lg hidden-md hidden-sm">
+						<div class="contact-photo-image-wrapper visible-xs">
 							<img class="contact-photo-xs media-object" src="{{$contact.thumb}}" {11} alt="{{$contact.name}}" />
 
 							{{* Overlay background on hover the avatar picture *}}
@@ -160,7 +152,7 @@ We use this part to filter the contacts with jquery.textcomplete *}}
 
 
 					{if $photo_menu}
-					<ul class="contact-photo-menu menu-popup dropdown-menu " id="contact-photo-menu-{$id}" role="menu" aria-labelledby="contact-photo-menu-{$id}">
+					<ul class="contact-photo-menu menu-popup dropdown-menu hidden-lg hidden-md hidden-sm" id="contact-photo-menu-{$id}" role="menu" aria-labelledby="contact-photo-menu-{$id}">
 						{foreach $photo_menu as $c}
 						{if $c.2}
 						<li role="presentation"><a role="menuitem" target="redir" href="{$c.1}">{$c.0}</a></li>

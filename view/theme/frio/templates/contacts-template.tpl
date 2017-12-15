@@ -1,4 +1,8 @@
 
+<script type="text/javascript">
+	var dropContact = "{{$contact_drop_confirm}}";
+</script>
+
 {{$tabs}}
 
 <div id="contacts" class="generic-page-wrapper">
@@ -42,7 +46,7 @@
 				<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="BatchActionDropdownMenuTools">
 				{{foreach $batch_actions as $n=>$l}}
 					<li role="menuitem">
-						{{* call the js batch_submit_handler. Have a look at the buttom of this file *}}
+						{{* call the js batch_submit_handler. Have a look at the file mod_contacts.js *}}
 						<button type="button" class="btn-link" onclick="batch_submit_handler('{{$n}}', '{{$l}}')">{{$l}}</button>
 					</li>
 				{{/foreach}}
@@ -58,53 +62,8 @@
 			{{/foreach}}
 			</ul>
 		</div>
-		<div id="contact-edit-end"></div>
+		<div id="contact-edit-end" class="clear"></div>
 	</form>
 
 	{{$paginate}}
 </div>
-
-<script type="text/javascript">
- $(document).ready(function() {
-  // javascript dialog to batch actions
-  $(".batch-action").click(function(e){
-    if (confirm($(this).attr('value')+" ?")) {
-     return true;
-    } else {
-     e.preventDefault();
-     return false;
-    }
-  });
-
-  // add javascript confirm dialog to "drop" links. Plain html url have "?confirm=1" to show confirmation form, we need to remove it
-  $(".drop").each(function() {
-   $(this).attr('href', $(this).attr('href').replace("confirm=1","") );
-   $(this).click(function(e){
-    if (confirm("{{$contact_drop_confirm}}")) {
-     return true;
-    } else {
-     e.preventDefault();
-     return false;
-    }
-   });
-
-  });
- });
-
-/**
- * @brief This function submits the form with the batch action values
- *
- * @param string name The name of the batch action
- * @param string value If it isn't empty the action will be posted
- */
-function batch_submit_handler(name, value) {
-    // set the value of the hidden input element with the name batch_submit
-    document.batch_actions_submit.batch_submit.value=value;
-    // change the name of the input element from batch_submit according to the
-    // name which is transmitted to this function
-    document.batch_actions_submit.batch_submit.name=name;
-    // transmit the form
-    document.batch_actions_submit.submit() ;
-}
- </script>
-

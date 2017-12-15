@@ -8,10 +8,6 @@
 {{include file="section_title.tpl"}}
 
 
-{{if $findterm}}
-<h4 class="search-heading">{{$finding}} {{$findterm}}</h4>
-{{/if}}
-
 {{* The search input field to search for contacts *}}
 <div id="directory-search-wrapper">
 	<form id="directory-search-form" class="navbar-form" role="search" action="directory" method="get" >
@@ -30,7 +26,7 @@
 
 <hr>
 
-<div id="directory-search-end"></div>
+<div id="directory-search-end" class="clear"></div>
 
 {{* format each contact with the contact_template.tpl *}}
 <ul id="viewcontact_wrapper" class="viewcontact_wrapper media-list">
