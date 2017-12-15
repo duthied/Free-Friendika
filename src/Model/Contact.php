@@ -606,7 +606,7 @@ class Contact extends BaseObject
 			AND `id` NOT IN (
 				SELECT DISTINCT(`contact-id`)
 				FROM `group_member`
-				JOIN `group` ON `group`.`id` = `group_member`.`gid`
+				INNER JOIN `group` ON `group`.`id` = `group_member`.`gid`
 				WHERE `group`.`uid` = %d
 			)
 			LIMIT %d, %d", intval($uid), intval($uid), intval($start), intval($count)
