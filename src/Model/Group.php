@@ -96,8 +96,7 @@ class Group extends BaseObject
 					AND `contact-id` IN
 						(SELECT `contact-id`
 						FROM `group_member`
-						WHERE `group_member`.`gid` = `group`.`id`
-						AND `group_member`.`uid` = ?)
+						WHERE `group_member`.`gid` = `group`.`id`)
 					) AS `count`
 				FROM `group`
 				WHERE `group`.`uid` = ?;",

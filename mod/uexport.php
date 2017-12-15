@@ -109,7 +109,7 @@ function uexport_account($a) {
 	);
 
 	$group_member = _uexport_multirow(
-		sprintf("SELECT * FROM `group_member` WHERE uid = %d", intval(local_user()))
+		sprintf("SELECT `group_member`.`gid`, `group_member`.`contact-id` FROM `group_member` INNER JOIN `group` ON `group`.`id` = `group_member`.`gid` WHERE `group`.`uid` = %d", intval(local_user()))
 	);
 
 	$output = array(

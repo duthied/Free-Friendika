@@ -42,7 +42,7 @@ class Contact extends BaseObject
 				INNER JOIN `group_member`
 					ON `contact`.`id` = `group_member`.`contact-id`
 				WHERE `gid` = ?
-				AND `group_member`.`uid` = ?
+				AND `contact`.`uid` = ?
 				AND NOT `contact`.`self`
 				AND NOT `contact`.`blocked`
 				AND NOT `contact`.`pending`
@@ -73,7 +73,7 @@ class Contact extends BaseObject
 				INNER JOIN `group_member`
 					ON `contact`.`id` = `group_member`.`contact-id`
 				WHERE `gid` = ?
-				AND `group_member`.`uid` = ?
+				AND `contact`.`uid` = ?
 				AND `contact`.`network` = ?
 				AND `contact`.`notify` != ""',
 				$gid,
@@ -605,7 +605,9 @@ class Contact extends BaseObject
 			AND NOT `pending`
 			AND `id` NOT IN (
 				SELECT DISTINCT(`contact-id`)
-				FROM `group_member` WHERE `uid` = %d
+				FROM `group_member`
+				JOIN `group` ON `group`.`id` = `group_member`.`gid`
+				WHERE `group`.`uid` = %d
 			)
 			LIMIT %d, %d", intval($uid), intval($uid), intval($start), intval($count)
 		);
