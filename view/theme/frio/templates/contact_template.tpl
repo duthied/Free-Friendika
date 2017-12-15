@@ -14,14 +14,13 @@
 					{{* use a smaller picture on very small displays (e.g. mobiles) *}}
 					<div class="contact-photo-image-wrapper visible-xs">
 						<img class="contact-photo-xs media-object" src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" />
-						
+
 						{{* Overlay background on hover the avatar picture *}}
 						<div class="contact-photo-overlay">
 							<span class="contact-photo-overlay-content overlay-xs"><i class="fa fa-angle-down" aria-hidden="true"></i></span>
 						</div>
 					</div>
 				</button>
-
 
 				{{if $contact.photo_menu}}
 				<ul class="contact-photo-menu menu-popup dropdown-menu hidden-lg hidden-md hidden-sm" id="contact-photo-menu-{{$contact.id}}" role="menu" aria-labelledby="contact-photo-menu-{{$contact.id}}">
@@ -149,7 +148,6 @@ We use this part to filter the contacts with jquery.textcomplete *}}
 							</div>
 						</div>
 					</button>
-
 
 					{if $photo_menu}
 					<ul class="contact-photo-menu menu-popup dropdown-menu hidden-lg hidden-md hidden-sm" id="contact-photo-menu-{$id}" role="menu" aria-labelledby="contact-photo-menu-{$id}">
