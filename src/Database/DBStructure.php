@@ -996,7 +996,8 @@ class DBStructure {
 				"indexes" => array(
 						"PRIMARY" => array("id"),
 						"contactid" => array("contact-id"),
-						"gid_contactid" => array("gid", "contact-id"),
+						"gid" => array("gid"),
+						"gid_contactid" => array("UNIQUE", "gid", "contact-id"),
 						)
 				);
 		$database["gserver"] = array(
