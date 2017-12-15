@@ -990,15 +990,13 @@ class DBStructure {
 		$database["group_member"] = array(
 				"fields" => array(
 						"id" => array("type" => "int(10) unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
-						"uid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0", "relation" => array("user" => "uid")),
 						"gid" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0", "relation" => array("group" => "id")),
 						"contact-id" => array("type" => "int(10) unsigned", "not null" => "1", "default" => "0", "relation" => array("contact" => "id")),
 						),
 				"indexes" => array(
 						"PRIMARY" => array("id"),
 						"contactid" => array("contact-id"),
-						"gid_contactid" => array("gid", "contact-id"),
-						"uid_gid_contactid" => array("UNIQUE", "uid", "gid", "contact-id"),
+						"gid_contactid" => array("UNIQUE", "gid", "contact-id"),
 						)
 				);
 		$database["gserver"] = array(

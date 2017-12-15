@@ -232,8 +232,6 @@ function import_account(App $a, $file) {
 	}
 
 	foreach ($account['group_member'] as &$group_member) {
-		$group_member['uid'] = $newuid;
-
 		$import = 0;
 		foreach ($account['group'] as $group) {
 			if ($group['id'] == $group_member['gid'] && isset($group['newid'])) {

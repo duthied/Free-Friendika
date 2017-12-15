@@ -529,7 +529,7 @@ function acl_lookup(App $a, $out_type = 'json') {
 		// This can be done when we can delete cache entries via wildcard
 		$r = q("SELECT `group`.`id`, `group`.`name`, GROUP_CONCAT(DISTINCT `group_member`.`contact-id` SEPARATOR ',') AS uids
 				FROM `group`
-				INNER JOIN `group_member` ON `group_member`.`gid`=`group`.`id` AND `group_member`.`uid` = `group`.`uid`
+				INNER JOIN `group_member` ON `group_member`.`gid`=`group`.`id`
 				WHERE NOT `group`.`deleted` AND `group`.`uid` = %d
 					$sql_extra
 				GROUP BY `group`.`name`, `group`.`id`
