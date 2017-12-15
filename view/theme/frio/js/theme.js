@@ -520,24 +520,31 @@ function filter_replace(item) {
 	return item.name;
 }
 
-(function( $ ) {
+(function($) {
 	$.fn.contact_filter = function(backend_url, typ, autosubmit, onselect) {
-		if(typeof typ === 'undefined') typ = '';
-		if(typeof autosubmit === 'undefined') autosubmit = false;
+		if (typeof typ === 'undefined') {
+			typ = '';
+		}
+
+		if (typeof autosubmit === 'undefined') {
+			autosubmit = false;
+		}
 
 		// Autocomplete contacts
 		contacts = {
 			match: /(^)([^\n]+)$/,
 			index: 2,
-			search: function(term, callback) { contact_search(term, callback, backend_url, typ); },
+			search: function(term, callback) {contact_search(term, callback, backend_url, typ);},
 			replace: filter_replace,
-			template: contact_filter,
+			template: contact_filter
 		};
 
 		this.attr('autocomplete','off');
 		var a = this.textcomplete([contacts], {className:'accontacts', appendTo: '#contact-list'});
 
-		a.on('textComplete:select', function(e, value, strategy) { $(".dropdown-menu.textcomplete-dropdown.media-list").show(); });
+		a.on('textComplete:select', function(e, value, strategy) {
+			$(".dropdown-menu.textcomplete-dropdown.media-list").show();
+		});
 	};
 })( jQuery );
 
