@@ -57,15 +57,12 @@ class Group extends BaseObject
 	/**
 	 * @brief Get a list of group ids a contact belongs to
 	 *
-	 * @todo Get rid of $uid, the contact id already bears the information
-	 *
-	 * @param int $uid
 	 * @param int $cid
 	 * @return array
 	 */
-	private static function getByContactIdForUserId($uid, $cid)
+	private static function getIdsByContactId($cid)
 	{
-		$condition = ['uid' => $uid, 'contact-id' => $cid];
+		$condition = ['contact-id' => $cid];
 		$stmt = dba::select('group_member', ['gid'], $condition);
 
 		$return = [];
@@ -369,7 +366,7 @@ class Group extends BaseObject
 
 		$member_of = array();
 		if ($cid) {
-			$member_of = self::getByContactIdForUserId(local_user(), $cid);
+			$member_of = self::getIdsByContactId($cid);
 		}
 
 		while ($group = dba::fetch($stmt)) {
