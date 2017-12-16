@@ -1662,6 +1662,71 @@ function api_statuses_public_timeline($type)
 api_register_func('api/statuses/public_timeline', 'api_statuses_public_timeline', true);
 
 /**
+ * @brief Returns the list of public federated posts this node knows about
+ *
+ * @param string $type Return format: json, xml, atom, rss
+ * @return array|string
+ * @throws ForbiddenException
+ */
+function api_statuses_networkpublic_timeline($type)
+{
+	$a = get_app();
+
+	if (api_user() === false) {
+		throw new ForbiddenException();
+	}
+
+	$user_info = api_get_user($a);
+
+	$since_id        = x($_REQUEST, 'since_id')        ? $_REQUEST['since_id']        : 0;
+	$max_id          = x($_REQUEST, 'max_id')          ? $_REQUEST['max_id']          : 0;
+
+	// pagination
+	$count = x($_REQUEST, 'count') ? $_REQUEST['count']   : 20;
+	$page  = x($_REQUEST, 'page')  ? $_REQUEST['page']    : 1;
+	if ($page < 1) {
+		$page = 1;
+	}
+	$start = ($page - 1) * $count;
+
+	$sql_extra = '';
+	if ($max_id > 0) {
+		$sql_extra = 'AND `item`.`id` <= ' . intval($max_id);
+	}
+
+	$r = dba::p("SELECT " . item_fieldlists() . "
+		FROM `thread`
+		INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
+		" . item_joins() . "
+		WHERE `thread`.`uid` = 0
+		AND `verb` = ?
+		AND `item`.`id` > ?
+		$sql_extra
+		ORDER BY `thread`.`created` DESC
+		LIMIT " . intval($start) . ", " . intval($count),
+		ACTIVITY_POST,
+		$since_id
+	);
+
+	$r = dba::inArray($r);
+
+	$ret = api_format_items($r, $user_info, false, $type);
+
+	$data = array('status' => $ret);
+	switch ($type) {
+		case "atom":
+		case "rss":
+			$data = api_rss_extra($a, $data, $user_info);
+			break;
+	}
+
+	return api_format_data("statuses", $type, $data);
+}
+
+/// @TODO move to top of file or somewhere better
+api_register_func('api/statuses/networkpublic_timeline', 'api_statuses_networkpublic_timeline', true);
+
+/**
  * @TODO nothing to say?
  */
 function api_statuses_show($type)
