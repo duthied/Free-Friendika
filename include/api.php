@@ -2019,6 +2019,13 @@ function api_statuses_mentions($type)
 api_register_func('api/statuses/mentions', 'api_statuses_mentions', true);
 api_register_func('api/statuses/replies', 'api_statuses_mentions', true);
 
+/**
+ * @brief Returns a user's public timeline
+ *
+ * @param string $type Either "json" or "xml"
+ * @return string|array
+ * @throws ForbiddenException
+ */
 function api_statuses_user_timeline($type)
 {
 	$a = get_app();
@@ -2028,7 +2035,6 @@ function api_statuses_user_timeline($type)
 	}
 
 	$user_info = api_get_user($a);
-	// get last network messages
 
 	logger(
 		"api_statuses_user_timeline: api_user: ". api_user() .
@@ -2037,18 +2043,18 @@ function api_statuses_user_timeline($type)
 		LOGGER_DEBUG
 	);
 
-	// params
-	$count = (x($_REQUEST, 'count') ? $_REQUEST['count'] : 20);
-	$page = (x($_REQUEST, 'page') ? $_REQUEST['page'] -1 : 0);
-	if ($page < 0) {
-		$page = 0;
-	}
-	$since_id = (x($_REQUEST, 'since_id') ? $_REQUEST['since_id'] : 0);
-	//$since_id = 0;//$since_id = (x($_REQUEST, 'since_id')?$_REQUEST['since_id'] : 0);
-	$exclude_replies = (x($_REQUEST, 'exclude_replies') ? 1 : 0);
-	$conversation_id = (x($_REQUEST, 'conversation_id') ? $_REQUEST['conversation_id'] : 0);
+	$since_id        = x($_REQUEST, 'since_id')        ? $_REQUEST['since_id']        : 0;
+	$max_id          = x($_REQUEST, 'max_id')          ? $_REQUEST['max_id']          : 0;
+	$exclude_replies = x($_REQUEST, 'exclude_replies') ? 1                            : 0;
+	$conversation_id = x($_REQUEST, 'conversation_id') ? $_REQUEST['conversation_id'] : 0;
 
-	$start = $page * $count;
+	// pagination
+	$count = x($_REQUEST, 'count') ? $_REQUEST['count'] : 20;
+	$page  = x($_REQUEST, 'page')  ? $_REQUEST['page']  : 1;
+	if ($page < 1) {
+		$page = 1;
+	}
+	$start = ($page - 1) * $count;
 
 	$sql_extra = '';
 	if ($user_info['self'] == 1) {
@@ -2058,8 +2064,13 @@ function api_statuses_user_timeline($type)
 	if ($exclude_replies > 0) {
 		$sql_extra .= ' AND `item`.`parent` = `item`.`id`';
 	}
+
 	if ($conversation_id > 0) {
 		$sql_extra .= ' AND `item`.`parent` = ' . intval($conversation_id);
+	}
+
+	if ($max_id > 0) {
+		$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
 	}
 
 	$r = q(
@@ -2074,7 +2085,7 @@ function api_statuses_user_timeline($type)
 		AND `item`.`contact-id` = %d
 		AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
 		$sql_extra
-		AND `item`.`id`>%d
+		AND `item`.`id` > %d
 		ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
 		intval(api_user()),
 		dbesc(ACTIVITY_POST),
