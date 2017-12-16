@@ -407,8 +407,8 @@ class User
 
 		call_hooks('register_account', $uid);
 
-		$result['user'] = $user;
-		return $result;
+		$return['user'] = $user;
+		return $return;
 	}
 
 	/**
