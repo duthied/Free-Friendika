@@ -1612,39 +1612,61 @@ function api_statuses_public_timeline($type)
 
 	$start = $page * $count;
 
-	if ($max_id > 0) {
-		$sql_extra = 'AND `item`.`id` <= ' . intval($max_id);
-	}
-	if ($exclude_replies > 0) {
-		$sql_extra .= ' AND `item`.`parent` = `item`.`id`';
-	}
-	if ($conversation_id > 0) {
-		$sql_extra .= ' AND `item`.`parent` = ' . intval($conversation_id);
-	}
+	if ($exclude_replies && !$conversation_id) {
+		if ($max_id > 0) {
+			$sql_extra = 'AND `thread`.`iid` <= ' . intval($max_id);
+		}
 
-	$r = q(
-		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`self`, `contact`.`writable`,
-		`contact`.`id` AS `cid`,
-		`user`.`nickname`, `user`.`hidewall`
-		FROM `item`
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-		STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
-			AND NOT `user`.`hidewall`
-		WHERE `verb` = '%s' AND `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-		AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
-		AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-		AND NOT `item`.`private` AND `item`.`wall`
-		$sql_extra
-		AND `item`.`id`>%d
-		ORDER BY `item`.`id` DESC LIMIT %d, %d ",
-		dbesc(ACTIVITY_POST),
-		intval($since_id),
-		intval($start),
-		intval($count)
-	);
+		$r = dba::p("SELECT " . item_fieldlists() . "
+			FROM `thread`
+			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
+			" . item_joins() . "
+			STRAIGHT_JOIN `user` ON `user`.`uid` = `thread`.`uid`
+				AND NOT `user`.`hidewall`
+			AND `verb` = ?
+			AND NOT `thread`.`private`
+			AND `thread`.`wall`
+			AND `thread`.`visible`
+			AND NOT `thread`.`deleted`
+			AND NOT `thread`.`moderated`
+			AND `thread`.`iid` > ?
+			$sql_extra
+			ORDER BY `thread`.`iid` DESC
+			LIMIT " . intval($start) . ", " . intval($count),
+			ACTIVITY_POST,
+			$since_id
+		);
+
+		$r = dba::inArray($r);
+	} else {
+		if ($max_id > 0) {
+			$sql_extra = 'AND `item`.`id` <= ' . intval($max_id);
+		}
+		if ($conversation_id > 0) {
+			$sql_extra .= ' AND `item`.`parent` = ' . intval($conversation_id);
+		}
+
+		$r = dba::p("SELECT " . item_fieldlists() . "
+			FROM `item`
+			" . item_joins() . "
+			STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
+				AND NOT `user`.`hidewall`
+			AND `verb` = ?
+			AND NOT `item`.`private`
+			AND `item`.`wall`
+			AND `item`.`visible`
+			AND NOT `item`.`deleted`
+			AND NOT `item`.`moderated`
+			AND `item`.`id` > ?
+			$sql_extra
+			ORDER BY `item`.`id` DESC
+			LIMIT " . intval($start) . ", " . intval($count),
+			ACTIVITY_POST,
+			$since_id
+		);
+
+		$r = dba::inArray($r);
+	}
 
 	$ret = api_format_items($r, $user_info, false, $type);
 
@@ -1697,11 +1719,15 @@ function api_statuses_networkpublic_timeline($type)
 
 	$r = dba::p("SELECT " . item_fieldlists() . "
 		FROM `thread`
-		INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
+		STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
 		" . item_joins() . "
 		WHERE `thread`.`uid` = 0
 		AND `verb` = ?
-		AND `item`.`id` > ?
+		AND NOT `thread`.`private`
+		AND `thread`.`visible`
+		AND NOT `thread`.`deleted`
+		AND NOT `thread`.`moderated`
+		AND `thread`.`iid` > ?
 		$sql_extra
 		ORDER BY `thread`.`iid` DESC
 		LIMIT " . intval($start) . ", " . intval($count),
