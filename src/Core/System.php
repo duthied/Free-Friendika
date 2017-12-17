@@ -4,7 +4,7 @@
  */
 namespace Friendica\Core;
 
-use Friendica\App;
+use Friendica\BaseObject;
 
 /**
  * @file include/Core/System.php
@@ -16,23 +16,8 @@ use Friendica\App;
 /**
  * @brief System methods
  */
-class System
+class System extends BaseObject
 {
-	private static $a;
-
-	/**
-	 * @brief Initializes the static class variable
-	 * @return void
-	 */
-	private static function init()
-	{
-		global $a;
-
-		if (!is_object(self::$a)) {
-			self::$a = $a;
-		}
-	}
-
 	/**
 	 * @brief Retrieves the Friendica instance base URL
 	 *
@@ -41,8 +26,7 @@ class System
 	 */
 	public static function baseUrl($ssl = false)
 	{
-		self::init();
-		return self::$a->get_baseurl($ssl);
+		return self::getApp()->get_baseurl($ssl);
 	}
 
 	/**
@@ -54,8 +38,7 @@ class System
 	 */
 	public static function removedBaseUrl($orig_url)
 	{
-		self::init();
-		return self::$a->remove_baseurl($orig_url);
+		return self::getApp()->remove_baseurl($orig_url);
 	}
 
 	/**
