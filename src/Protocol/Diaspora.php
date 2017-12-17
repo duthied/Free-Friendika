@@ -4067,6 +4067,7 @@ class Diaspora
 
 		foreach ($recips as $recip) {
 			logger("Send updated profile data for user ".$uid." to contact ".$recip["id"], LOGGER_DEBUG);
+			/// @fixme $profile isn't available here
 			self::buildAndTransmit($profile, $recip, "profile", $message, false, "", true);
 		}
 	}

@@ -25,6 +25,7 @@ class Directory {
 
 		$dir .= "/submit";
 
+		/// @fixme $argv is unavailable here
 		$arr = array('url' => $argv[1]);
 
 		call_hooks('globaldir_update', $arr);
