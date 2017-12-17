@@ -1024,9 +1024,7 @@ class OStatus
 		$orig_created = $xpath->query('atom:published/text()', $activityobjects)->item(0)->nodeValue;
 		$orig_edited = $xpath->query('atom:updated/text()', $activityobjects)->item(0)->nodeValue;
 
-		/// @fixme $contact is unavailable here
-		$orig_contact = $contact;
-		$orig_author = self::fetchAuthor($xpath, $activityobjects, $importer, $orig_contact, false);
+		$orig_author = self::fetchAuthor($xpath, $activityobjects, $importer, $dummy, false);
 
 		$item["author-name"] = $orig_author["author-name"];
 		$item["author-link"] = $orig_author["author-link"];
