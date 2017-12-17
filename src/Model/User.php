@@ -34,6 +34,37 @@ require_once 'include/text.php';
 class User
 {
 	/**
+	 * @brief Get owner data by user id
+	 *
+	 * @param int $uid
+	 * @return boolean|array
+	 */
+	public static function getOwnerDataById($uid) {
+		$r = dba::p("SELECT
+			`contact`.*,
+			`user`.`prvkey` AS `uprvkey`,
+			`user`.`timezone`,
+			`user`.`nickname`,
+			`user`.`sprvkey`,
+			`user`.`spubkey`,
+			`user`.`page-flags`,
+			`user`.`account-type`,
+			`user`.`prvnets`
+			FROM `contact`
+			INNER JOIN `user`
+				ON `user`.`uid` = `contact`.`uid`
+			WHERE `contact`.`uid` = ?
+			AND `contact`.`self` = 1
+			LIMIT 1",
+			$uid
+		);
+		if (!DBM::is_result($r)) {
+			return false;
+		}
+		return $r[0];
+	}
+
+	/**
 	 * @brief Returns the default group for a given user and network
 	 *
 	 * @param int $uid User id

@@ -4051,28 +4051,10 @@ class Diaspora
 			return;
 		}
 
-		$r = dba::p("SELECT
-			`contact`.*,
-			`user`.`prvkey` AS `uprvkey`,
-			`user`.`timezone`,
-			`user`.`nickname`,
-			`user`.`sprvkey`,
-			`user`.`spubkey`,
-			`user`.`page-flags`,
-			`user`.`account-type`,
-			`user`.`prvnets`
-			FROM `contact`
-			INNER JOIN `user`
-				ON `user`.`uid` = `contact`.`uid`
-			WHERE `contact`.`uid` = ?
-			AND `contact`.`self` = 1
-			LIMIT 1",
-			$uid
-		);
-		if (!DBM::is_result($r)) {
+		$owner = User::getOwnerDataById($uid);
+		if (!$owner) {
 			return;
 		}
-		$owner = $r[0];
 
 		if (!$recips) {
 			$recips = q(
