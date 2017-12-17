@@ -817,7 +817,7 @@ class PortableContact
 		}
 
 		/// @fixme $element is unavailable here
-		$server["site_name"] = $xpath->evaluate($element."//head/title/text()")->item(0)->nodeValue;
+		$server["site_name"] = $xpath->evaluate("//head/title/text()")->item(0)->nodeValue;
 		return $server;
 	}
 
