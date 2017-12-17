@@ -851,13 +851,15 @@ function killme()
 /**
  * @brief Redirect to another URL and terminate this process.
  */
-function goaway($s)
+function goaway($path)
 {
-	if (!strstr(normalise_link($s), "http://")) {
-		$s = System::baseUrl() . "/" . $s;
+	if (strstr(normalise_link($path), 'http://')) {
+		$url = $path;
+	} else {
+		$url = System::baseUrl() . '/' . ltrim($path, '/');
 	}
 
-	header("Location: $s");
+	header("Location: $url");
 	killme();
 }
 
