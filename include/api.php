@@ -1691,7 +1691,7 @@ function api_statuses_networkpublic_timeline($type)
 
 	$sql_extra = '';
 	if ($max_id > 0) {
-		$sql_extra = 'AND `item`.`id` <= ' . intval($max_id);
+		$sql_extra = 'AND `thread`.`iid` <= ' . intval($max_id);
 	}
 
 	$r = dba::p("SELECT " . item_fieldlists() . "
@@ -1702,7 +1702,7 @@ function api_statuses_networkpublic_timeline($type)
 		AND `verb` = ?
 		AND `item`.`id` > ?
 		$sql_extra
-		ORDER BY `thread`.`created` DESC
+		ORDER BY `thread`.`iid` DESC
 		LIMIT " . intval($start) . ", " . intval($count),
 		ACTIVITY_POST,
 		$since_id
