@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.6-dev (Asparagus)
--- DB_UPDATE_VERSION 1236
+-- DB_UPDATE_VERSION 1237
 -- ------------------------------------------
 
 
@@ -374,13 +374,11 @@ CREATE TABLE IF NOT EXISTS `group` (
 --
 CREATE TABLE IF NOT EXISTS `group_member` (
 	`id` int(10) unsigned NOT NULL auto_increment,
-	`uid` int(10) unsigned NOT NULL DEFAULT 0,
 	`gid` int(10) unsigned NOT NULL DEFAULT 0,
 	`contact-id` int(10) unsigned NOT NULL DEFAULT 0,
 	 PRIMARY KEY(`id`),
 	 INDEX `contactid` (`contact-id`),
-	 INDEX `gid_contactid` (`gid`,`contact-id`),
-	 UNIQUE INDEX `uid_gid_contactid` (`uid`,`gid`,`contact-id`)
+	 UNIQUE INDEX `gid_contactid` (`gid`,`contact-id`)
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --
