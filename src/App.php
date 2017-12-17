@@ -312,10 +312,8 @@ class App {
 	 *
 	 * @return string
 	 */
-	public static function get_basepath() {
-		if (isset($this)) {
-			$basepath = $this->basepath;
-		}
+	public function get_basepath() {
+		$basepath = $this->basepath;
 
 		if (! $basepath) {
 			$basepath = Config::get('system', 'basepath');

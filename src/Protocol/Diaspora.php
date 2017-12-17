@@ -1094,7 +1094,7 @@ class Diaspora
 		preg_replace_callback(
 			$expression,
 			function ($match) use ($item) {
-				return self::fetchGuidSub($match, $item);
+				self::fetchGuidSub($match, $item);
 			},
 			$item["body"]
 		);
@@ -1102,7 +1102,7 @@ class Diaspora
 		preg_replace_callback(
 			"&\[url=/posts/([^\[\]]*)\](.*)\[\/url\]&Usi",
 			function ($match) use ($item) {
-				return self::fetchGuidSub($match, $item);
+				self::fetchGuidSub($match, $item);
 			},
 			$item["body"]
 		);

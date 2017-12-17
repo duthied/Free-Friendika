@@ -32,7 +32,7 @@ class Feed {
 	 *
 	 * @return array In simulation mode it returns the header and the first item
 	 */
-	function import($xml, $importer, &$contact, &$hub, $simulate = false) {
+	public static function import($xml, $importer, &$contact, &$hub, $simulate = false) {
 
 		$a = get_app();
 
