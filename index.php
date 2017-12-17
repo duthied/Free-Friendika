@@ -14,6 +14,7 @@ use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Module\Login;
 
 require_once 'boot.php';
 
@@ -148,9 +149,7 @@ if ((x($_GET, 'zrl')) && (!$install && !$maintenance)) {
 
 // header('Link: <' . System::baseUrl() . '/amcd>; rel="acct-mgmt";');
 
-if (x($_COOKIE["Friendica"]) || (x($_SESSION, 'authenticated')) || (x($_POST, 'auth-params')) || ($a->module === 'login')) {
-	require "include/auth.php";
-}
+Login::sessionAuth();
 
 if (! x($_SESSION, 'authenticated')) {
 	header('X-Account-Management-Status: none');

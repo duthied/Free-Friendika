@@ -6,13 +6,15 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Module\Login;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
 
 require_once 'include/items.php';
-require_once 'include/auth.php';
 
 function dfrn_poll_init(App $a) {
+	Login::sessionAuth();
+
 	$dfrn_id         = ((x($_GET,'dfrn_id'))         ? $_GET['dfrn_id']              : '');
 	$type            = ((x($_GET,'type'))            ? $_GET['type']                 : 'data');
 	$last_update     = ((x($_GET,'last_update'))     ? $_GET['last_update']          : '');
