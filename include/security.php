@@ -5,6 +5,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Group;
 
 /**
  * @brief Calculate the hash that is needed for the "Friendica" cookie
@@ -263,7 +264,7 @@ function permissions_sql($owner_id, $remote_verified = false, $groups = null)
 			);
 			if (DBM::is_result($r)) {
 				$remote_verified = true;
-				$groups = init_groups_visitor($remote_user);
+				$groups = Group::getIdsByContactId($remote_user);
 			}
 		}
 
@@ -325,7 +326,7 @@ function item_permissions_sql($owner_id, $remote_verified = false, $groups = nul
 			);
 			if (DBM::is_result($r)) {
 				$remote_verified = true;
-				$groups = init_groups_visitor($remote_user);
+				$groups = Group::getIdsByContactId($remote_user);
 			}
 		}
 		if ($remote_verified) {
@@ -424,22 +425,3 @@ function check_form_security_token_ForbiddenOnErr($typename = '', $formname = 'f
 		killme();
 	}
 }
-
-// Returns an array of group id's this contact is a member of.
-// This array will only contain group id's related to the uid of this
-// DFRN contact. They are *not* neccessarily unique across the entire site.
-
-
-if (! function_exists('init_groups_visitor')) {
-function init_groups_visitor($contact_id) {
-	$groups = array();
-	$r = q("SELECT `gid` FROM `group_member`
-		WHERE `contact-id` = %d ",
-		intval($contact_id)
-	);
-	if (DBM::is_result($r)) {
-		foreach ($r as $rr)
-			$groups[] = $rr['gid'];
-	}
-	return $groups;
-}}

@@ -14,6 +14,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Model\Group;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Object\Image;
@@ -167,7 +168,7 @@ class DFRN
 
 			$contact = $r[0];
 			include_once 'include/security.php';
-			$groups = init_groups_visitor($contact['id']);
+			$groups = Group::getIdsByContactId($contact['id']);
 
 			if (count($groups)) {
 				for ($x = 0; $x < count($groups); $x ++)

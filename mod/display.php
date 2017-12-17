@@ -5,6 +5,7 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Group;
 use Friendica\Protocol\DFRN;
 
 function display_init(App $a) {
@@ -270,7 +271,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	}
 
 	if ($contact_id) {
-		$groups = init_groups_visitor($contact_id);
+		$groups = Group::getIdsByContactId($contact_id);
 		$r = dba::fetch_first("SELECT * FROM `contact` WHERE `id` = ? AND `uid` = ? LIMIT 1",
 			$contact_id,
 			$a->profile['uid']

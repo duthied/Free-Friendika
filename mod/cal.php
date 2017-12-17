@@ -12,6 +12,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Group;
 
 require_once 'include/event.php';
 require_once 'include/redir.php';
@@ -127,7 +128,7 @@ function cal_content(App $a) {
 		}
 	}
 	if($contact_id) {
-		$groups = init_groups_visitor($contact_id);
+		$groups = Group::getIdsByContactId($contact_id);
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($contact_id),
 			intval($a->profile['profile_uid'])
