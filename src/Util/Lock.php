@@ -64,7 +64,7 @@ class Lock
 		$file = $temp.'/'.$fn_name.'.sem';
 
 		if (!file_exists($file)) {
-			file_put_contents($file, $function);
+			file_put_contents($file, $fn_name);
 		}
 
 		return ftok($file, 'f');

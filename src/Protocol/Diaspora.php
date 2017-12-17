@@ -665,7 +665,6 @@ class Diaspora
 			} elseif (!in_array($fieldname, array("author_signature", "parent_author_signature", "target_author_signature"))) {
 				if ($signed_data != "") {
 					$signed_data .= ";";
-					$signed_data_parent .= ";";
 				}
 
 				$signed_data .= $entry;
@@ -2311,16 +2310,16 @@ class Diaspora
 				$A = "[url=".$self[0]["url"]."]".$self[0]["name"]."[/url]";
 				$B = "[url=".$contact["url"]."]".$contact["name"]."[/url]";
 				$BPhoto = "[url=".$contact["url"]."][img]".$contact["thumb"]."[/img][/url]";
-				$arr["body"] = sprintf(t("%1$s is now friends with %2$s"), $A, $B)."\n\n\n".$Bphoto;
+				$arr["body"] = sprintf(t('%1$s is now friends with %2$s'), $A, $B)."\n\n\n".$BPhoto;
 
 				$arr["object"] = self::constructNewFriendObject($contact);
 
 				$arr["last-child"] = 1;
 
-				$arr["allow_cid"] = $user[0]["allow_cid"];
-				$arr["allow_gid"] = $user[0]["allow_gid"];
-				$arr["deny_cid"]  = $user[0]["deny_cid"];
-				$arr["deny_gid"]  = $user[0]["deny_gid"];
+				$arr["allow_cid"] = $self[0]["allow_cid"];
+				$arr["allow_gid"] = $self[0]["allow_gid"];
+				$arr["deny_cid"]  = $self[0]["deny_cid"];
+				$arr["deny_gid"]  = $self[0]["deny_gid"];
 
 				$i = item_store($arr);
 				if ($i) {
@@ -3209,7 +3208,7 @@ class Diaspora
 			$return_code = self::transmit($owner, $contact, $envelope, $public_batch, false, $guid);
 		}
 
-		logger("guid: ".$item["guid"]." result ".$return_code, LOGGER_DEBUG);
+		logger("guid: ".$guid." result ".$return_code, LOGGER_DEBUG);
 
 		return $return_code;
 	}

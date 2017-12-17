@@ -160,7 +160,7 @@ class ForumManager
 		$contacts = self::getList($uid, $lastitem, false, false);
 
 		$total_shown = 0;
-
+		$forumlist = '';
 		foreach ($contacts as $contact) {
 			$forumlist .= micropro($contact, false, 'forumlist-profile-advanced');
 			$total_shown ++;

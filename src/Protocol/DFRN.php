@@ -2500,6 +2500,7 @@ class DFRN
 
 		/// @todo Do we really need this check for HTML elements? (It was copied from the old function)
 		if ((strpos($item['body'], '<') !== false) && (strpos($item['body'], '>') !== false)) {
+			$base_url = get_app()->get_baseurl();
 			$item['body'] = reltoabs($item['body'], $base_url);
 
 			$item['body'] = html2bb_video($item['body']);
@@ -3014,7 +3015,7 @@ class DFRN
 
 		// The account type is new since 3.5.1
 		if ($xpath->query("/atom:feed/dfrn:account_type")->length > 0) {
-			$accounttype = intval($xpath->evaluate("/atom:feed/dfrn:account_type/text()", $context)->item(0)->nodeValue);
+			$accounttype = intval($xpath->evaluate("/atom:feed/dfrn:account_type/text()")->item(0)->nodeValue);
 
 			if ($accounttype != $importer["contact-type"]) {
 				dba::update('contact', array('contact-type' => $accounttype), array('id' => $importer["id"]));
@@ -3023,7 +3024,7 @@ class DFRN
 
 		// is it a public forum? Private forums aren't supported with this method
 		// This is deprecated since 3.5.1
-		$forum = intval($xpath->evaluate("/atom:feed/dfrn:community/text()", $context)->item(0)->nodeValue);
+		$forum = intval($xpath->evaluate("/atom:feed/dfrn:community/text()")->item(0)->nodeValue);
 
 		if ($forum != $importer["forum"]) {
 			$condition = array('`forum` != ? AND `id` = ?', $forum, $importer["id"]);

@@ -631,6 +631,7 @@ Class OnePoll
 			dba::update('gcontact', array('last_failure' => $updated), array('nurl' => $contact['nurl']));
 			Contact::markForArchival($contact);
 		} else {
+			$updated = datetime_convert();
 			dba::update('contact', array('last-update' => $updated), array('id' => $contact['id']));
 		}
 

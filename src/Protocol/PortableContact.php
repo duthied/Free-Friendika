@@ -816,7 +816,7 @@ class PortableContact
 			return false;
 		}
 
-		$server["site_name"] = $xpath->evaluate($element."//head/title/text()", $context)->item(0)->nodeValue;
+		$server["site_name"] = $xpath->evaluate($element."//head/title/text()")->item(0)->nodeValue;
 		return $server;
 	}
 

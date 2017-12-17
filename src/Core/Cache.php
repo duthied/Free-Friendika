@@ -107,7 +107,7 @@ class Cache
 		}
 
 		// Frequently clear cache
-		self::clear($duration);
+		self::clear();
 
 		$r = dba::select('cache', array('v'), array('k' => $key), array('limit' => 1));
 

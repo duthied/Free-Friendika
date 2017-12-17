@@ -139,8 +139,13 @@ class Group extends BaseObject
 			return false;
 		}
 
+		$group = dba::select('group', ['uid'], ['gid' => $gid], ['limit' => 1]);
+		if (!DBM::is_result($group)) {
+			return false;
+		}
+
 		// remove group from default posting lists
-		$user = dba::select('user', ['def_gid', 'allow_gid', 'deny_gid'], ['uid' => $uid], ['limit' => 1]);
+		$user = dba::select('user', ['def_gid', 'allow_gid', 'deny_gid'], ['uid' => $group['uid']], ['limit' => 1]);
 		if (DBM::is_result($user)) {
 			$change = false;
 
@@ -158,7 +163,7 @@ class Group extends BaseObject
 			}
 
 			if ($change) {
-				dba::update('user', $user, ['uid' => $uid]);
+				dba::update('user', $user, ['uid' => $group['uid']]);
 			}
 		}
 

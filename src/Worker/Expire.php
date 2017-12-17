@@ -50,7 +50,7 @@ class Expire {
 			foreach ($a->hooks["expire"] as $hook) {
 				if ($hook[1] == $hook_name) {
 					logger("Calling expire hook '" . $hook[1] . "'", LOGGER_DEBUG);
-					call_single_hook($a, $name, $hook, $data);
+					call_single_hook($a, $hook_name, $hook, $data);
 				}
 			}
 			return;

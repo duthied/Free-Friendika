@@ -767,7 +767,7 @@ class NotificationsManager
 	public function introNotifs($all = false, $start = 0, $limit = 80)
 	{
 		$ident = 'introductions';
-		$total = $this->introTotal($seen);
+		$total = $this->introTotal($all);
 		$notifs = array();
 		$sql_extra = "";
 

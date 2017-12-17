@@ -292,11 +292,11 @@ class XML
 		// Go through the tags.
 		$repeated_tag_index = array(); // Multiple tags with same name will be turned into an array
 		foreach ($xml_values as $data) {
-			unset($attributes, $value); // Remove existing values, or there will be trouble
-
-			// This command will extract these variables into the foreach scope
-			// tag(string), type(string), level(int), attributes(array).
-			extract($data); // We could use the array by itself, but this cooler.
+			$tag        = $data['tag'];
+			$type       = $data['type'];
+			$level      = $data['level'];
+			$attributes = isset($data['attributes']) ? $data['attributes'] : null;
+			$value      = isset($data['value']) ? $data['value'] : null;
 
 			$result = array();
 			$attributes_data = array();

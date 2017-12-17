@@ -127,7 +127,7 @@ class Feed {
 				if ($value != "") {
 					$author["author-nick"] = $value;
 				}
-				$value = $xpath->evaluate('atom:author/poco:address/poco:formatted/text()', $context)->item(0)->nodeValue;
+				$value = $xpath->evaluate('atom:author/poco:address/poco:formatted/text()')->item(0)->nodeValue;
 				if ($value != "") {
 					$author["author-location"] = $value;
 				}
@@ -298,9 +298,6 @@ class Feed {
 			}
 			if ($creator != "") {
 				$item["author-name"] = $creator;
-			}
-			if ($pubDate != "") {
-				$item["edited"] = $item["created"] = $pubDate;
 			}
 			$creator = $xpath->query('dc:creator/text()', $entry)->item(0)->nodeValue;
 
