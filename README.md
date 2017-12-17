@@ -16,20 +16,20 @@ Join today and [get your Friendica profile!](https://dir.friendica.social/server
 
 ### Friendica Screenshots
 
-| ![Alt text](/images/screenshots/friendica-frio-mobile-profle-1.png?raw=true "Frio theme in mobile browser") ![Alt text](/images/screenshots/friendica-frio-mobile-profle-2.png?raw=true "Frio theme in mobile browser")
+| ![Frio theme in mobile browser](/images/screenshots/friendica-frio-mobile-profle-1.png?raw=true "Frio theme in mobile browser") ![Frio theme in mobile browser](/images/screenshots/friendica-frio-mobile-profle-2.png?raw=true "Frio theme in mobile browser")
 |:--:|
-|*Frio theme in mobile browser. Timeline and composer view.*|
-|![Alt text](/images/screenshots/friendica-frio-green-profle-1.png?raw=true "Frio theme in desktop browser")
-|*Frio theme in desktop browser. Timeline view, contact info popped up, control menu open.*|
-|![Alt text](/images/screenshots/friendica-frio-green-profle-2.png?raw=true "Frio theme in desktop browser")
+|*Frio theme, mobile browser. Timeline and composer view.*|
+|![Frio theme in desktop browser](/images/screenshots/friendica-frio-green-profle-1.png?raw=true "Frio theme in desktop browser")
+|*Frio theme, desktop browser. Timeline view, contact info popped up, control menu open.*|
+|![Frio theme in desktop browser](/images/screenshots/friendica-frio-green-profle-2.png?raw=true "Frio theme in desktop browser")
 |*Frio theme, desktop browser. Menu open for controlling individual posts.*|
-|![Alt text](/images/screenshots/friendica-frio-red-profle-3.png?raw=true "Frio theme in desktop browser")
+|![Frio theme in desktop browser](/images/screenshots/friendica-frio-red-profle-3.png?raw=true "Frio theme in desktop browser")
 |*Frio theme, desktop browser. Profile view, notification menu open.*|
-|![Alt text](/images/screenshots/friendica-frio-red-profle-2.png?raw=true "Frio theme in desktop browser")
+|![Frio theme in desktop browser](/images/screenshots/friendica-frio-red-profle-2.png?raw=true "Frio theme in desktop browser")
 |*Number of new posts, in total and by group.*|
-|![Alt text](/images/screenshots/friendica-frio-red-profle-1.png?raw=true "Frio theme in desktop browser")
+|![Frio theme in desktop browser](/images/screenshots/friendica-frio-red-profle-1.png?raw=true "Frio theme in desktop browser")
 |*Calender with popup of event.*|
-|![Alt text](/images/screenshots/friendica-vier-profile.png?raw=true "Vier theme in desktop browser")
-|*Vier theme in desktop browser. Public timeline view.*|
-|![Alt text](/images/screenshots/friendica-vier-community.png?raw=true "Vier theme in desktop browser")
+|![Vier theme in desktop browser](/images/screenshots/friendica-vier-profile.png?raw=true "Vier theme in desktop browser")
+|*Vier theme, desktop browser. Public timeline view.*|
+|![Vier theme in desktop browser](/images/screenshots/friendica-vier-community.png?raw=true "Vier theme in desktop browser")
 |*Vier theme, desktop browser. Community post displayed.*|
