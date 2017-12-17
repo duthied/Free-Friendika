@@ -13,10 +13,11 @@ use Friendica\Database\DBM;
  *
  * @return string Hashed data
  */
-function cookie_hash($user) {
-	return(hash("sha256", Config::get("system", "site_prvkey").
-				$user["prvkey"].
-				$user["password"]));
+function cookie_hash($user)
+{
+	return(hash("sha256", Config::get("system", "site_prvkey") .
+			$user["prvkey"] .
+			$user["password"]));
 }
 
 /**
@@ -25,28 +26,35 @@ function cookie_hash($user) {
  * @param int $time
  * @param array $user Record from "user" table
  */
-function new_cookie($time, $user = array()) {
-
+function new_cookie($time, $user = array())
+{
 	if ($time != 0) {
 		$time = $time + time();
 	}
 
 	if ($user) {
 		$value = json_encode(array("uid" => $user["uid"],
-					"hash" => cookie_hash($user),
-					"ip" => $_SERVER['REMOTE_ADDR']));
-	}
-	else {
+			"hash" => cookie_hash($user),
+			"ip" => $_SERVER['REMOTE_ADDR']));
+	} else {
 		$value = "";
 	}
 
-	setcookie("Friendica", $value, $time, "/", "",
-		(Config::get('system', 'ssl_policy') == SSL_POLICY_FULL), true);
-
+	setcookie("Friendica", $value, $time, "/", "", (Config::get('system', 'ssl_policy') == SSL_POLICY_FULL), true);
 }
 
-function authenticate_success($user_record, $login_initial = false, $interactive = false, $login_refresh = false) {
-
+/**
+ * @brief Sets the provided user's authenticated session
+ *
+ * @todo Should be moved to Friendica\Core\Session once it's created
+ *
+ * @param type $user_record
+ * @param type $login_initial
+ * @param type $interactive
+ * @param type $login_refresh
+ */
+function authenticate_success($user_record, $login_initial = false, $interactive = false, $login_refresh = false)
+{
 	$a = get_app();
 
 	$_SESSION['uid'] = $user_record['uid'];
@@ -55,7 +63,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 	$_SESSION['authenticated'] = 1;
 	$_SESSION['page_flags'] = $user_record['page-flags'];
 	$_SESSION['my_url'] = System::baseUrl() . '/profile/' . $user_record['nickname'];
-	$_SESSION['my_address'] = $user_record['nickname'] . '@' . substr(System::baseUrl(),strpos(System::baseUrl(),'://')+3);
+	$_SESSION['my_address'] = $user_record['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
 	$_SESSION['addr'] = $_SERVER['REMOTE_ADDR'];
 
 	$a->user = $user_record;
@@ -64,10 +72,10 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		if ($a->user['login_date'] <= NULL_DATE) {
 			$_SESSION['return_url'] = 'profile_photo/new';
 			$a->module = 'profile_photo';
-			info( t("Welcome ") . $a->user['username'] . EOL);
-			info( t('Please upload a profile photo.') . EOL);
+			info(t("Welcome ") . $a->user['username'] . EOL);
+			info(t('Please upload a profile photo.') . EOL);
 		} else {
-			info( t("Welcome back ") . $a->user['username'] . EOL);
+			info(t("Welcome back ") . $a->user['username'] . EOL);
 		}
 	}
 
@@ -84,7 +92,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 
 	$master_record = $a->user;
 
-	if ((x($_SESSION,'submanage')) && intval($_SESSION['submanage'])) {
+	if ((x($_SESSION, 'submanage')) && intval($_SESSION['submanage'])) {
 		$r = dba::fetch_first("SELECT * FROM `user` WHERE `uid` = ? LIMIT 1",
 			intval($_SESSION['submanage'])
 		);
@@ -112,10 +120,10 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 	}
 
 	if ($login_initial) {
-		logger('auth_identities: ' . print_r($a->identities,true), LOGGER_DEBUG);
+		logger('auth_identities: ' . print_r($a->identities, true), LOGGER_DEBUG);
 	}
 	if ($login_refresh) {
-		logger('auth_identities refresh: ' . print_r($a->identities,true), LOGGER_DEBUG);
+		logger('auth_identities refresh: ' . print_r($a->identities, true), LOGGER_DEBUG);
 	}
 
 	$r = dba::fetch_first("SELECT * FROM `contact` WHERE `uid` = ? AND `self` LIMIT 1", $_SESSION['uid']);
@@ -125,7 +133,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		$_SESSION['cid'] = $a->cid;
 	}
 
-	header('X-Account-Management-Status: active; name="' . $a->user['username'] . '"; id="' . $a->user['nickname'] .'"');
+	header('X-Account-Management-Status: active; name="' . $a->user['username'] . '"; id="' . $a->user['nickname'] . '"');
 
 	if ($login_initial || $login_refresh) {
 		dba::update('user', array('login_date' => datetime_convert()), array('uid' => $_SESSION['uid']));
@@ -141,7 +149,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		// The cookie will be renewed automatically.
 		// The week ensures that sessions will expire after some inactivity.
 		if ($_SESSION['remember']) {
-			logger('Injecting cookie for remembered user '. $_SESSION['remember_user']['nickname']);
+			logger('Injecting cookie for remembered user ' . $_SESSION['remember_user']['nickname']);
 			new_cookie(604800, $user_record);
 			unset($_SESSION['remember']);
 		}
@@ -156,13 +164,11 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 	}
 }
 
-
-
-function can_write_wall(App $a, $owner) {
-
+function can_write_wall(App $a, $owner)
+{
 	static $verified = 0;
 
-	if ((! (local_user())) && (! (remote_user()))) {
+	if (!local_user() && !remote_user()) {
 		return false;
 	}
 
@@ -173,10 +179,8 @@ function can_write_wall(App $a, $owner) {
 	}
 
 	if (remote_user()) {
-
 		// use remembered decision and avoid a DB lookup for each and every display item
 		// DO NOT use this function if there are going to be multiple owners
-
 		// We have a contact-id for an authenticated remote user, this block determines if the contact
 		// belongs to this page owner, and has the necessary permissions to post content
 
@@ -196,7 +200,7 @@ function can_write_wall(App $a, $owner) {
 				}
 			}
 
-			if (! $cid) {
+			if (!$cid) {
 				return false;
 			}
 
@@ -213,8 +217,7 @@ function can_write_wall(App $a, $owner) {
 			if (DBM::is_result($r)) {
 				$verified = 2;
 				return true;
-			}
-			else {
+			} else {
 				$verified = 1;
 			}
 		}
@@ -223,9 +226,8 @@ function can_write_wall(App $a, $owner) {
 	return false;
 }
 
-
-function permissions_sql($owner_id, $remote_verified = false, $groups = null) {
-
+function permissions_sql($owner_id, $remote_verified = false, $groups = null)
+{
 	$local_user = local_user();
 	$remote_user = remote_user();
 
@@ -243,8 +245,7 @@ function permissions_sql($owner_id, $remote_verified = false, $groups = null) {
 	/**
 	 * Profile owner - everything is visible
 	 */
-
-	if (($local_user) && ($local_user == $owner_id)) {
+	if ($local_user && $local_user == $owner_id) {
 		$sql = '';
 	} elseif ($remote_user) {
 		/*
@@ -255,7 +256,7 @@ function permissions_sql($owner_id, $remote_verified = false, $groups = null) {
 		 * done this and passed the groups into this function.
 		 */
 
-		if (! $remote_verified) {
+		if (!$remote_verified) {
 			$r = q("SELECT id FROM contact WHERE id = %d AND uid = %d AND blocked = 0 LIMIT 1",
 				intval($remote_user),
 				intval($owner_id)
@@ -265,8 +266,8 @@ function permissions_sql($owner_id, $remote_verified = false, $groups = null) {
 				$groups = init_groups_visitor($remote_user);
 			}
 		}
-		if ($remote_verified) {
 
+		if ($remote_verified) {
 			$gs = '<<>>'; // should be impossible to match
 
 			if (is_array($groups) && count($groups)) {
@@ -274,20 +275,6 @@ function permissions_sql($owner_id, $remote_verified = false, $groups = null) {
 					$gs .= '|<' . intval($g) . '>';
 			}
 
-			/*
-			 * @TODO old-lost code found?
-			$sql = sprintf(
-				" AND ( allow_cid = '' OR allow_cid REGEXP '<%d>' )
-				  AND ( deny_cid  = '' OR  NOT deny_cid REGEXP '<%d>' )
-				  AND ( allow_gid = '' OR allow_gid REGEXP '%s' )
-				  AND ( deny_gid  = '' OR NOT deny_gid REGEXP '%s')
-				",
-				intval($remote_user),
-				intval($remote_user),
-				dbesc($gs),
-				dbesc($gs)
-			);
-			*/
 			$sql = sprintf(
 				" AND ( NOT (deny_cid REGEXP '<%d>' OR deny_gid REGEXP '%s')
 				  AND ( allow_cid REGEXP '<%d>' OR allow_gid REGEXP '%s' OR ( allow_cid = '' AND allow_gid = '') )
@@ -303,13 +290,12 @@ function permissions_sql($owner_id, $remote_verified = false, $groups = null) {
 	return $sql;
 }
 
-
-function item_permissions_sql($owner_id, $remote_verified = false, $groups = null) {
-
+function item_permissions_sql($owner_id, $remote_verified = false, $groups = null)
+{
 	$local_user = local_user();
 	$remote_user = remote_user();
 
-	/**
+	/*
 	 * Construct permissions
 	 *
 	 * default permissions - anonymous user
@@ -321,9 +307,7 @@ function item_permissions_sql($owner_id, $remote_verified = false, $groups = nul
 			 AND `item`.private = 0
 	";
 
-	/**
-	 * Profile owner - everything is visible
-	 */
+	// Profile owner - everything is visible
 	if ($local_user && ($local_user == $owner_id)) {
 		$sql = '';
 	} elseif ($remote_user) {
@@ -334,7 +318,7 @@ function item_permissions_sql($owner_id, $remote_verified = false, $groups = nul
 		 * If pre-verified, the caller is expected to have already
 		 * done this and passed the groups into this function.
 		 */
-		if (! $remote_verified) {
+		if (!$remote_verified) {
 			$r = q("SELECT id FROM contact WHERE id = %d AND uid = %d AND blocked = 0 LIMIT 1",
 				intval($remote_user),
 				intval($owner_id)
@@ -355,16 +339,6 @@ function item_permissions_sql($owner_id, $remote_verified = false, $groups = nul
 			}
 
 			$sql = sprintf(
-				/*" AND ( private = 0 OR ( private in (1,2) AND wall = 1 AND ( allow_cid = '' OR allow_cid REGEXP '<%d>' )
-				  AND ( deny_cid  = '' OR  NOT deny_cid REGEXP '<%d>' )
-				  AND ( allow_gid = '' OR allow_gid REGEXP '%s' )
-				  AND ( deny_gid  = '' OR NOT deny_gid REGEXP '%s')))
-				",
-				intval($remote_user),
-				intval($remote_user),
-				dbesc($gs),
-				dbesc($gs)
-*/
 				" AND ( `item`.private = 0 OR ( `item`.private in (1,2) AND `item`.`wall` = 1
 				  AND ( NOT (`item`.deny_cid REGEXP '<%d>' OR `item`.deny_gid REGEXP '%s')
 				  AND ( `item`.allow_cid REGEXP '<%d>' OR `item`.allow_gid REGEXP '%s' OR ( `item`.allow_cid = '' AND `item`.allow_gid = '')))))
@@ -380,7 +354,6 @@ function item_permissions_sql($owner_id, $remote_verified = false, $groups = nul
 	return $sql;
 }
 
-
 /*
  * Functions used to protect against Cross-Site Request Forgery
  * The security token has to base on at least one value that an attacker can't know - here it's the session ID and the private key.
@@ -392,7 +365,8 @@ function item_permissions_sql($owner_id, $remote_verified = false, $groups = nul
  *    Actually, important actions should not be triggered by Links / GET-Requests at all, but somethimes they still are,
  *    so this mechanism brings in some damage control (the attacker would be able to forge a request to a form of this type, but not to forms of other types).
  */
-function get_form_security_token($typename = '') {
+function get_form_security_token($typename = '')
+{
 	$a = get_app();
 
 	$timestamp = time();
@@ -401,7 +375,8 @@ function get_form_security_token($typename = '') {
 	return $timestamp . '.' . $sec_hash;
 }
 
-function check_form_security_token($typename = '', $formname = 'form_security_token') {
+function check_form_security_token($typename = '', $formname = 'form_security_token')
+{
 	if (!x($_REQUEST, $formname)) {
 		return false;
 	}
@@ -423,19 +398,24 @@ function check_form_security_token($typename = '', $formname = 'form_security_to
 	return ($sec_hash == $x[1]);
 }
 
-function check_form_security_std_err_msg() {
+function check_form_security_std_err_msg()
+{
 	return t('The form security token was not correct. This probably happened because the form has been opened for too long (>3 hours) before submitting it.') . EOL;
 }
-function check_form_security_token_redirectOnErr($err_redirect, $typename = '', $formname = 'form_security_token') {
+
+function check_form_security_token_redirectOnErr($err_redirect, $typename = '', $formname = 'form_security_token')
+{
 	if (!check_form_security_token($typename, $formname)) {
 		$a = get_app();
 		logger('check_form_security_token failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
 		logger('check_form_security_token failed: _REQUEST data: ' . print_r($_REQUEST, true), LOGGER_DATA);
-		notice( check_form_security_std_err_msg() );
-		goaway(System::baseUrl() . $err_redirect );
+		notice(check_form_security_std_err_msg());
+		goaway(System::baseUrl() . $err_redirect);
 	}
 }
-function check_form_security_token_ForbiddenOnErr($typename = '', $formname = 'form_security_token') {
+
+function check_form_security_token_ForbiddenOnErr($typename = '', $formname = 'form_security_token')
+{
 	if (!check_form_security_token($typename, $formname)) {
 		$a = get_app();
 		logger('check_form_security_token failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
