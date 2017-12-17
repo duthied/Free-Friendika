@@ -1324,8 +1324,9 @@ function api_status_show($type)
 			'retweeted' => false,
 			'possibly_sensitive' => false,
 			'lang' => "",
-			'statusnet_html'		=> $converted["html"],
-			'statusnet_conversation_id'	=> $lastwall['parent'],
+			'statusnet_html' => $converted["html"],
+			'statusnet_conversation_id' => $lastwall['parent'],
+			'external_url' => System::baseUrl() . "/display/" . $lastwall['guid'],
 		);
 
 		if (count($converted["attachments"]) > 0) {
@@ -1413,7 +1414,8 @@ function api_users_show($type)
 			$geo => null,
 			'favorited' => $lastwall['starred'] ? true : false,
 			'statusnet_html' => $converted["html"],
-			'statusnet_conversation_id'	=> $lastwall['parent'],
+			'statusnet_conversation_id' => $lastwall['parent'],
+			'external_url' => System::baseUrl() . "/display/" . $lastwall['guid'],
 		);
 
 		if (count($converted["attachments"]) > 0) {
@@ -2844,8 +2846,9 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 			'user' =>  $status_user ,
 			'friendica_owner' => $owner_user,
 			//'entities' => NULL,
-			'statusnet_html'		=> $converted["html"],
-			'statusnet_conversation_id'	=> $item['parent'],
+			'statusnet_html' => $converted["html"],
+			'statusnet_conversation_id' => $item['parent'],
+			'external_url' => System::baseUrl() . "/display/" . $item['guid'],
 			'friendica_activities' => api_format_items_activities($item, $type),
 		);
 
