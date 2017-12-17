@@ -198,8 +198,6 @@ class User
 			$password = $password1;
 		}
 
-		$tmp_str = $openid_url;
-
 		if ($using_invites) {
 			if (!$invite_id) {
 				throw new Exception(t('An invitation is required.'));
@@ -212,7 +210,7 @@ class User
 
 		if (!x($username) || !x($email) || !x($nickname)) {
 			if ($openid_url) {
-				if (!validate_url($tmp_str)) {
+				if (!validate_url($openid_url)) {
 					throw new Exception(t('Invalid OpenID url'));
 				}
 				$_SESSION['register'] = 1;
@@ -235,7 +233,7 @@ class User
 			throw new Exception(t('Please enter the required information.'));
 		}
 
-		if (!validate_url($tmp_str)) {
+		if (!validate_url($openid_url)) {
 			$openid_url = '';
 		}
 

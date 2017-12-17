@@ -932,11 +932,12 @@ function get_my_url()
 
 function zrl_init(App $a)
 {
-	$tmp_str = get_my_url();
-	if (validate_url($tmp_str)) {
+	$my_url = get_my_url();
+	$my_url = validate_url($my_url);
+	if ($my_url) {
 		// Is it a DDoS attempt?
 		// The check fetches the cached value from gprobe to reduce the load for this system
-		$urlparts = parse_url($tmp_str);
+		$urlparts = parse_url($my_url);
 
 		$result = Cache::get("gprobe:" . $urlparts["host"]);
 		if ((!is_null($result)) && (in_array($result["network"], array(NETWORK_FEED, NETWORK_PHANTOM)))) {
@@ -944,8 +945,8 @@ function zrl_init(App $a)
 			return;
 		}
 
-		Worker::add(PRIORITY_LOW, 'GProbe', $tmp_str);
-		$arr = array('zrl' => $tmp_str, 'url' => $a->cmd);
+		Worker::add(PRIORITY_LOW, 'GProbe', $my_url);
+		$arr = array('zrl' => $my_url, 'url' => $a->cmd);
 		call_hooks('zrl_init', $arr);
 	}
 }

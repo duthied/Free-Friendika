@@ -377,7 +377,8 @@ function dfrn_request_post(App $a) {
 				);
 			}
 			else {
-				if (! validate_url($url)) {
+				$url = validate_url($url);
+				if (! $url) {
 					notice( t('Invalid profile URL.') . EOL);
 					goaway(System::baseUrl() . '/' . $a->cmd);
 					return; // NOTREACHED
