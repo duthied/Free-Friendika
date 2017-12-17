@@ -486,9 +486,8 @@ function api_unique_id_to_url($id)
  *
  * @param object     $a          App
  * @param int|string $contact_id Contact ID or URL
- * @param string     $type       Return type (for errors)
  */
-function api_get_user(App $a, $contact_id = null, $type = "json")
+function api_get_user(App $a, $contact_id = null)
 {
 	global $called_api;
 
@@ -2912,11 +2911,16 @@ function api_lists_list($type)
 api_register_func('api/lists/list', 'api_lists_list', true);
 
 /**
- * https://dev.twitter.com/docs/api/1/get/statuses/friends
- * This function is deprecated by Twitter
- * returns: json, xml
+ * @brief Returns either the friends of the follower list
+ *
+ * Note: Considers friends and followers lists to be private and won't return
+ * anything if any user_id parameter is passed.
+ *
+ * @param string $qtype Either "friends" or "followers"
+ * @return boolean|array
+ * @throws ForbiddenException
  */
-function api_statuses_f($type, $qtype)
+function api_statuses_f($qtype)
 {
 	$a = get_app();
 
@@ -2924,9 +2928,17 @@ function api_statuses_f($type, $qtype)
 		throw new ForbiddenException();
 	}
 
+	// pagination
+	$count = x($_GET, 'count') ? $_GET['count'] : 20;
+	$page = x($_GET, 'page') ? $_GET['page'] : 1;
+	if ($page < 1) {
+		$page = 1;
+	}
+	$start = ($page - 1) * $count;
+
 	$user_info = api_get_user($a);
 
-	if (x($_GET, 'cursor') && $_GET['cursor']=='undefined') {
+	if (x($_GET, 'cursor') && $_GET['cursor'] == 'undefined') {
 		/* this is to stop Hotot to load friends multiple times
 		*  I'm not sure if I'm missing return something or
 		*  is a bug in hotot. Workaround, meantime
@@ -2950,8 +2962,17 @@ function api_statuses_f($type, $qtype)
 	}
 
 	$r = q(
-		"SELECT `nurl` FROM `contact` WHERE `uid` = %d AND NOT `self` AND (NOT `blocked` OR `pending`) $sql_extra ORDER BY `nick`",
-		intval(api_user())
+		"SELECT `nurl`
+		FROM `contact`
+		WHERE `uid` = %d
+		AND NOT `self`
+		AND (NOT `blocked` OR `pending`)
+		$sql_extra
+		ORDER BY `nick`
+		LIMIT %d, %d",
+		intval(api_user()),
+		intval($start),
+		intval($count)
 	);
 
 	$ret = array();
@@ -2967,21 +2988,37 @@ function api_statuses_f($type, $qtype)
 	}
 
 	return array('user' => $ret);
-
 }
 
+
+/**
+ * @brief Returns the list of friends of the provided user
+ *
+ * @deprecated By Twitter API in favor of friends/list
+ *
+ * @param string $type Either "json" or "xml"
+ * @return boolean|string|array
+ */
 function api_statuses_friends($type)
 {
-	$data =  api_statuses_f($type, "friends");
+	$data =  api_statuses_f("friends");
 	if ($data === false) {
 		return false;
 	}
 	return api_format_data("users", $type, $data);
 }
 
+/**
+ * @brief Returns the list of friends of the provided user
+ *
+ * @deprecated By Twitter API in favor of friends/list
+ *
+ * @param string $type Either "json" or "xml"
+ * @return boolean|string|array
+ */
 function api_statuses_followers($type)
 {
-	$data = api_statuses_f($type, "followers");
+	$data = api_statuses_f("followers");
 	if ($data === false) {
 		return false;
 	}
