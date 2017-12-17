@@ -30,6 +30,7 @@ use Exception;
 class App {
 
 	public $module_loaded = false;
+	public $module_class = null;
 	public $query_string;
 	public $config;
 	public $page;

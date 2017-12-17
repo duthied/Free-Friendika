@@ -220,7 +220,6 @@ if ((local_user()) || (! $privateapps === "1")) {
  * so within the module init and/or post functions and then invoke killme() to terminate
  * further processing.
  */
-
 if (strlen($a->module)) {
 
 	/**
@@ -252,11 +251,17 @@ if (strlen($a->module)) {
 		}
 	}
 
+	// Controller class routing
+	if (! $a->module_loaded && class_exists('Friendica\\Module\\' . ucfirst($a->module))) {
+		$a->module_class = 'Friendica\\Module\\' . ucfirst($a->module);
+		$a->module_loaded = true;
+	}
+
 	/**
 	 * If not, next look for a 'standard' program module in the 'mod' directory
 	 */
 
-	if ((! $a->module_loaded) && (file_exists("mod/{$a->module}.php"))) {
+	if (! $a->module_loaded && file_exists("mod/{$a->module}.php")) {
 		include_once "mod/{$a->module}.php";
 		$a->module_loaded = true;
 	}
@@ -321,7 +326,10 @@ if ($a->module_loaded) {
 	$a->page['page_title'] = $a->module;
 	$placeholder = '';
 
-	if (function_exists($a->module . '_init')) {
+	if ($a->module_class) {
+		call_hooks($a->module . '_mod_init', $placeholder);
+		call_user_func([$a->module_class, 'init']);
+	} else if (function_exists($a->module . '_init')) {
 		call_hooks($a->module . '_mod_init', $placeholder);
 		$func = $a->module . '_init';
 		$func($a);
@@ -332,27 +340,36 @@ if ($a->module_loaded) {
 		$func($a);
 	}
 
-	if (($_SERVER['REQUEST_METHOD'] === 'POST') && (! $a->error)
-		&& (function_exists($a->module . '_post'))
-		&& (! x($_POST, 'auth-params'))
-	) {
+	if (! $a->error && $_SERVER['REQUEST_METHOD'] === 'POST') {
 		call_hooks($a->module . '_mod_post', $_POST);
-		$func = $a->module . '_post';
-		$func($a);
+		if ($a->module_class) {
+			call_user_func([$a->module_class, 'post']);
+		} else if (function_exists($a->module . '_post')) {
+			$func = $a->module . '_post';
+			$func($a);
+		}
 	}
 
-	if ((! $a->error) && (function_exists($a->module . '_afterpost'))) {
+	if (! $a->error) {
 		call_hooks($a->module . '_mod_afterpost', $placeholder);
-		$func = $a->module . '_afterpost';
-		$func($a);
+		if ($a->module_class) {
+			call_user_func([$a->module_class, 'afterpost']);
+		} else if (function_exists($a->module . '_afterpost')) {
+			$func = $a->module . '_afterpost';
+			$func($a);
+		}
 	}
 
-	if ((! $a->error) && (function_exists($a->module . '_content'))) {
+	if (! $a->error) {
 		$arr = array('content' => $a->page['content']);
 		call_hooks($a->module . '_mod_content', $arr);
 		$a->page['content'] = $arr['content'];
-		$func = $a->module . '_content';
-		$arr = array('content' => $func($a));
+		if ($a->module_class) {
+			$arr = array('content' => call_user_func([$a->module_class, 'content']));
+		} else if (function_exists($a->module . '_content')) {
+			$func = $a->module . '_content';
+			$arr = array('content' => $func($a));
+		}
 		call_hooks($a->module . '_mod_aftercontent', $arr);
 		$a->page['content'] .= $arr['content'];
 	}
