@@ -17,6 +17,8 @@ use OAuthDataStore;
 define('REQUEST_TOKEN_DURATION', 300);
 define('ACCESS_TOKEN_DURATION', 31536000);
 
+require_once 'include/dba.php';
+
 require_once "library/OAuth1.php";
 require_once "library/oauth2-php/lib/OAuth2.inc";
 
@@ -45,7 +47,7 @@ class FKOAuthDataStore extends OAuthDataStore
 		$r = dba::inArray($r);
 
 		if (DBM::is_result($r)) {
-			return new OAuthConsumer($r[0]['client_id'], $r[0]['pw'], $r[0]['redirect_uri']);
+			return new \OAuthConsumer($r[0]['client_id'], $r[0]['pw'], $r[0]['redirect_uri']);
 		}
 
 		return null;
@@ -65,7 +67,7 @@ class FKOAuthDataStore extends OAuthDataStore
 		$r = dba::inArray($s);
 
 		if (DBM::is_result($r)) {
-			$ot=new OAuthToken($r[0]['id'], $r[0]['secret']);
+			$ot = new \OAuthToken($r[0]['id'], $r[0]['secret']);
 			$ot->scope = $r[0]['scope'];
 			$ot->expires = $r[0]['expires'];
 			$ot->uid = $r[0]['uid'];
@@ -87,7 +89,7 @@ class FKOAuthDataStore extends OAuthDataStore
 		$r = dba::select('tokens', ['id', 'secret'], ['client_id' => $consumer->key, 'id' => $nonce, 'expires' => $timestamp], ['limit' => 1]);
 				
 		if (DBM::is_result($r)) {
-			return new OAuthToken($r['id'], $r['secret']);
+			return new \OAuthToken($r['id'], $r['secret']);
 		}
 
 		return null;
@@ -124,7 +126,7 @@ class FKOAuthDataStore extends OAuthDataStore
 			return null;
 		}
 
-		return new OAuthToken($key, $sec);
+		return new \OAuthToken($key, $sec);
 	}
 
 	/**
@@ -163,7 +165,7 @@ class FKOAuthDataStore extends OAuthDataStore
 			);
 
 			if ($r) {
-				$ret = new OAuthToken($key, $sec);
+				$ret = new \OAuthToken($key, $sec);
 			}
 		}
 

@@ -7,6 +7,8 @@ namespace Friendica\Core;
 use Friendica\Database\DBM;
 use dba;
 
+require_once 'include/dba.php';
+
 /**
  * @file include/Core/PConfig.php
  * @brief contains the class with methods for the management

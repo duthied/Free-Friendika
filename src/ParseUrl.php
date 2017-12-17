@@ -10,9 +10,10 @@ use Friendica\Object\Image;
 use Friendica\Util\XML;
 
 use dba;
-use DomXPath;
+use DOMXPath;
 use DOMDocument;
 
+require_once 'include/dba.php';
 require_once "include/network.php";
 require_once "include/oembed.php";
 
@@ -215,7 +216,7 @@ class ParseUrl
 		XML::deleteNode($doc, "ol");
 		XML::deleteNode($doc, "ul");
 
-		$xpath = new DomXPath($doc);
+		$xpath = new DOMXPath($doc);
 
 		$list = $xpath->query("//meta[@content]");
 		foreach ($list as $node) {

@@ -27,6 +27,7 @@ use Friendica\Util\XML;
 use dba;
 use SimpleXMLElement;
 
+require_once 'include/dba.php';
 require_once 'include/items.php';
 require_once 'include/bb2diaspora.php';
 require_once 'include/datetime.php';

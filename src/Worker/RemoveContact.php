@@ -8,6 +8,8 @@ namespace Friendica\Worker;
 use Friendica\Core\Config;
 use dba;
 
+require_once 'include/dba.php';
+
 class RemoveContact {
 	public static function execute($id) {
 

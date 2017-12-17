@@ -12,7 +12,9 @@ use Friendica\Database\DBM;
 use Friendica\Object\Image;
 use dba;
 
+require_once 'include/dba.php';
 require_once "include/photos.php";
+
 /**
  * Class to handle photo dabatase table
  */

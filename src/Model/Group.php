@@ -11,6 +11,7 @@ use Friendica\Database\DBM;
 use dba;
 
 require_once 'boot.php';
+require_once 'include/dba.php';
 require_once 'include/text.php';
 
 /**

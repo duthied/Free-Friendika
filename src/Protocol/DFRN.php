@@ -8,7 +8,6 @@
  */
 namespace Friendica\Protocol;
 
-use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -22,8 +21,10 @@ use Friendica\Util\XML;
 
 use dba;
 use DOMDocument;
-use DomXPath;
+use DOMXPath;
 
+require_once 'boot.php';
+require_once 'include/dba.php';
 require_once "include/enotify.php";
 require_once "include/threads.php";
 require_once "include/items.php";
@@ -1298,7 +1299,7 @@ class DFRN
 				case 2:
 					// RINO 2 based on php-encryption
 					try {
-						$key = \Crypto::createNewRandomKey();
+						$key = \Crypto::CreateNewRandomKey();
 					} catch (\CryptoTestFailedException $ex) {
 						logger('Cannot safely create a key');
 						return -4;
@@ -1307,7 +1308,7 @@ class DFRN
 						return -5;
 					}
 					try {
-						$data = \Crypto::encrypt($postvars['data'], $key);
+						$data = \Crypto::Encrypt($postvars['data'], $key);
 					} catch (\CryptoTestFailedException $ex) {
 						logger('Cannot safely perform encryption');
 						return -6;
@@ -2505,13 +2506,13 @@ class DFRN
 
 			$item['body'] = oembed_html2bbcode($item['body']);
 
-			$config = HTMLPurifier_Config::createDefault();
+			$config = \HTMLPurifier_Config::createDefault();
 			$config->set('Cache.DefinitionImpl', null);
 
 			// we shouldn't need a whitelist, because the bbcode converter
 			// will strip out any unsupported tags.
 
-			$purifier = new HTMLPurifier($config);
+			$purifier = new \HTMLPurifier($config);
 			$item['body'] = $purifier->purify($item['body']);
 
 			$item['body'] = @html2bbcode($item['body']);
@@ -2977,7 +2978,7 @@ class DFRN
 		$doc = new DOMDocument();
 		@$doc->loadXML($xml);
 
-		$xpath = new DomXPath($doc);
+		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace("atom", NAMESPACE_ATOM1);
 		$xpath->registerNamespace("thr", NAMESPACE_THREAD);
 		$xpath->registerNamespace("at", NAMESPACE_TOMB);

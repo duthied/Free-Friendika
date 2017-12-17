@@ -41,6 +41,7 @@ use Friendica\Model\User;
 use dba;
 
 require_once 'include/dba.php';
+require_once 'include/dba.php';
 
 class ExAuth
 {
@@ -313,7 +314,7 @@ class ExAuth
 		}
 
 		$file = $lockpath . DIRECTORY_SEPARATOR . $host;
-		if (Pidfile::isRunningProcess($file)) {
+		if (PidFile::isRunningProcess($file)) {
 			if (PidFile::killProcess($file)) {
 				$this->writeLog(LOG_INFO, 'Old process was successfully killed');
 			} else {
@@ -323,7 +324,7 @@ class ExAuth
 		}
 
 		// Now it is safe to create the pid file
-		Pidfile::create($file);
+		PidFile::create($file);
 	}
 
 	/**

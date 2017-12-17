@@ -14,6 +14,8 @@ use Friendica\Database\DBM;
 use Memcache;
 use dba;
 
+require_once 'include/dba.php';
+
 /**
  * @brief This class contain Functions for preventing parallel execution of functions
  */

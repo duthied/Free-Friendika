@@ -11,6 +11,8 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use dba;
 
+require_once 'include/dba.php';
+
 class Expire {
 	public static function execute($param = '', $hook_name = '') {
 		global $a;

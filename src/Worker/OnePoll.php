@@ -12,6 +12,7 @@ use Friendica\Protocol\Email;
 use Friendica\Protocol\PortableContact;
 use dba;
 
+require_once 'include/dba.php';
 require_once 'include/follow.php';
 
 Class OnePoll

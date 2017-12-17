@@ -17,8 +17,9 @@ use Friendica\Util\Lock;
 use Friendica\Util\XML;
 use dba;
 use DOMDocument;
-use DomXPath;
+use DOMXPath;
 
+require_once 'include/dba.php';
 require_once 'include/threads.php';
 require_once 'include/html2bbcode.php';
 require_once 'include/bbcode.php';
@@ -251,7 +252,7 @@ class OStatus
 		$doc = new DOMDocument();
 		@$doc->loadXML($xml);
 
-		$xpath = new DomXPath($doc);
+		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
 		$xpath->registerNamespace('thr', NAMESPACE_THREAD);
 		$xpath->registerNamespace('georss', NAMESPACE_GEORSS);
@@ -329,7 +330,7 @@ class OStatus
 		$doc = new DOMDocument();
 		@$doc->loadXML($xml);
 
-		$xpath = new DomXPath($doc);
+		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
 		$xpath->registerNamespace('thr', NAMESPACE_THREAD);
 		$xpath->registerNamespace('georss', NAMESPACE_GEORSS);
@@ -739,7 +740,7 @@ class OStatus
 			if (!@$doc->loadHTML($conversation_data['body'])) {
 				return;
 			}
-			$xpath = new DomXPath($doc);
+			$xpath = new DOMXPath($doc);
 
 			$links = $xpath->query('//link');
 			if ($links) {
@@ -779,7 +780,7 @@ class OStatus
 		$doc = new DOMDocument();
 		@$doc->loadXML($xml);
 
-		$xpath = new DomXPath($doc);
+		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
 		$xpath->registerNamespace('thr', NAMESPACE_THREAD);
 		$xpath->registerNamespace('ostatus', NAMESPACE_OSTATUS);
@@ -929,7 +930,7 @@ class OStatus
 			if (!@$doc->loadHTML($related_data['body'])) {
 				return;
 			}
-			$xpath = new DomXPath($doc);
+			$xpath = new DOMXPath($doc);
 
 			$atom_file = '';
 

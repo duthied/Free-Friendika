@@ -11,6 +11,8 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use dba;
 
+require_once 'include/dba.php';
+
 /**
  * @brief This class handles methods related to the forum functionality
  */

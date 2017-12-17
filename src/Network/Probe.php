@@ -20,9 +20,10 @@ use Friendica\Protocol\Feed;
 use Friendica\Util\XML;
 
 use dba;
-use DomXPath;
+use DOMXPath;
 use DOMDocument;
 
+require_once 'include/dba.php';
 require_once 'include/network.php';
 require_once "include/crypto.php";
 

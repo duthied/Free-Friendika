@@ -10,10 +10,11 @@ use Friendica\Database\DBM;
 use Friendica\Core\System;
 use dba;
 use DOMDocument;
-use DomXPath;
+use DOMXPath;
 
-require_once("include/html2bbcode.php");
-require_once("include/items.php");
+require_once 'include/dba.php';
+require_once 'include/html2bbcode.php';
+require_once 'include/items.php';
 
 /**
  * @brief This class contain functions to import feeds
@@ -55,7 +56,7 @@ class Feed {
 
 		$doc = new DOMDocument();
 		@$doc->loadXML(trim($xml));
-		$xpath = new DomXPath($doc);
+		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
 		$xpath->registerNamespace('dc', "http://purl.org/dc/elements/1.1/");
 		$xpath->registerNamespace('content', "http://purl.org/rss/1.0/modules/content/");

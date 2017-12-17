@@ -9,6 +9,8 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use dba;
 
+require_once 'include/dba.php';
+
 Class Cron {
 	public static function execute($parameter = '', $generation = 0) {
 		global $a;

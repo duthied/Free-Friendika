@@ -9,6 +9,8 @@ use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use dba;
 
+require_once 'include/dba.php';
+
 /**
  * @brief Class for storing data for a short time
  */
@@ -32,7 +34,7 @@ class Cache
 		$memcache_host = Config::get('system', 'memcache_host', '127.0.0.1');
 		$memcache_port = Config::get('system', 'memcache_port', 11211);
 
-		$memcache = new Memcache;
+		$memcache = new \Memcache;
 
 		if (!$memcache->connect($memcache_host, $memcache_port)) {
 			return false;

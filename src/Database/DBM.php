@@ -6,6 +6,8 @@ namespace Friendica\Database;
 
 use dba;
 
+require_once 'include/dba.php';
+
 /**
  * @brief This class contain functions for the database management
  *

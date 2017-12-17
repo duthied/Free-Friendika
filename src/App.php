@@ -14,6 +14,9 @@ use Detection\MobileDetect;
 
 use Exception;
 
+require_once 'boot.php';
+require_once 'include/dba.php';
+
 /**
  *
  * class: App

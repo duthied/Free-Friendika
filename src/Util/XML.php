@@ -4,7 +4,7 @@
  */
 namespace Friendica\Util;
 
-use DomXPath;
+use DOMXPath;
 use SimpleXMLElement;
 
 /**
@@ -407,7 +407,7 @@ class XML
 	 */
 	public static function deleteNode(&$doc, $node)
 	{
-		$xpath = new DomXPath($doc);
+		$xpath = new DOMXPath($doc);
 		$list = $xpath->query("//".$node);
 		foreach ($list as $child) {
 			$child->parentNode->removeChild($child);

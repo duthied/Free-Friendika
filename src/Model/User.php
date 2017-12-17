@@ -21,6 +21,7 @@ use Exception;
 
 require_once 'boot.php';
 require_once 'include/crypto.php';
+require_once 'include/dba.php';
 require_once 'include/enotify.php';
 require_once 'include/network.php';
 require_once 'library/openid.php';
@@ -186,7 +187,7 @@ class User
 				$_SESSION['register'] = 1;
 				$_SESSION['openid'] = $openid_url;
 
-				$openid = new LightOpenID;
+				$openid = new \LightOpenID;
 				$openid->identity = $openid_url;
 				$openid->returnUrl = System::baseUrl() . '/openid';
 				$openid->required = array('namePerson/friendly', 'contact/email', 'namePerson');

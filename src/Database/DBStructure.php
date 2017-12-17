@@ -9,6 +9,8 @@ use Friendica\Database\DBM;
 use dba;
 
 require_once "boot.php";
+require_once 'include/dba.php';
+require_once 'include/enotify.php';
 require_once "include/text.php";
 
 /**
@@ -565,7 +567,7 @@ class DBStructure {
 	private static function createIndex($indexname, $fieldnames, $method = "ADD") {
 		$method = strtoupper(trim($method));
 		if ($method!="" && $method!="ADD") {
-			throw new Exception("Invalid parameter 'method' in self::createIndex(): '$method'");
+			throw new \Exception("Invalid parameter 'method' in self::createIndex(): '$method'");
 		}
 
 		if ($fieldnames[0] == "UNIQUE") {
