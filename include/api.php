@@ -470,12 +470,12 @@ function api_rss_extra(App $a, $arr, $user_info)
  * @return bool|string
  * 		Contact url or False if contact id is unknown
  */
-function api_unique_id_to_url($id)
+function api_unique_id_to_nurl($id)
 {
-	$r = dba::select('contact', array('url'), array('uid' => 0, 'id' => $id), array('limit' => 1));
+	$r = dba::select('contact', array('nurl'), array('uid' => 0, 'id' => $id), array('limit' => 1));
 
 	if (DBM::is_result($r)) {
-		return $r["url"];
+		return $r["nurl"];
 	} else {
 		return false;
 	}
@@ -510,7 +510,7 @@ function api_get_user(App $a, $contact_id = null)
 
 	// Searching for contact id with uid = 0
 	if (!is_null($contact_id) && (intval($contact_id) != 0)) {
-		$user = dbesc(api_unique_id_to_url($contact_id));
+		$user = dbesc(api_unique_id_to_nurl($contact_id));
 
 		if ($user == "") {
 			throw new BadRequestException("User not found.");
@@ -524,7 +524,7 @@ function api_get_user(App $a, $contact_id = null)
 	}
 
 	if (is_null($user) && x($_GET, 'user_id')) {
-		$user = dbesc(api_unique_id_to_url($_GET['user_id']));
+		$user = dbesc(api_unique_id_to_nurl($_GET['user_id']));
 
 		if ($user == "") {
 			throw new BadRequestException("User not found.");
@@ -558,7 +558,7 @@ function api_get_user(App $a, $contact_id = null)
 		$argid = count($called_api);
 		list($user, $null) = explode(".", $a->argv[$argid]);
 		if (is_numeric($user)) {
-			$user = dbesc(api_unique_id_to_url($user));
+			$user = dbesc(api_unique_id_to_nurl($user));
 
 			if ($user == "") {
 				return false;
