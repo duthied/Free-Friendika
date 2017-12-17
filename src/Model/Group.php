@@ -98,7 +98,6 @@ class Group extends BaseObject
 				FROM `group`
 				WHERE `group`.`uid` = ?;",
 			local_user(),
-			local_user(),
 			local_user()
 		);
 
