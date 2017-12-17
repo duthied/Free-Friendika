@@ -4051,6 +4051,29 @@ class Diaspora
 			return;
 		}
 
+		$r = dba::p("SELECT
+			`contact`.*,
+			`user`.`prvkey` AS `uprvkey`,
+			`user`.`timezone`,
+			`user`.`nickname`,
+			`user`.`sprvkey`,
+			`user`.`spubkey`,
+			`user`.`page-flags`,
+			`user`.`account-type`,
+			`user`.`prvnets`
+			FROM `contact`
+			INNER JOIN `user`
+				ON `user`.`uid` = `contact`.`uid`
+			WHERE `contact`.`uid` = ?
+			AND `contact`.`self` = 1
+			LIMIT 1",
+			$uid
+		);
+		if (!DBM::is_result($r)) {
+			return;
+		}
+		$owner = $r[0];
+
 		if (!$recips) {
 			$recips = q(
 				"SELECT `id`,`name`,`network`,`pubkey`,`notify` FROM `contact` WHERE `network` = '%s'
@@ -4069,8 +4092,7 @@ class Diaspora
 
 		foreach ($recips as $recip) {
 			logger("Send updated profile data for user ".$uid." to contact ".$recip["id"], LOGGER_DEBUG);
-			/// @fixme $profile isn't available here
-			self::buildAndTransmit($profile, $recip, "profile", $message, false, "", true);
+			self::buildAndTransmit($owner, $recip, "profile", $message, false, "", true);
 		}
 	}
 
