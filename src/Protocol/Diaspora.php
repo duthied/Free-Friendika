@@ -2316,10 +2316,12 @@ class Diaspora
 
 				$arr["last-child"] = 1;
 
-				$arr["allow_cid"] = $self[0]["allow_cid"];
-				$arr["allow_gid"] = $self[0]["allow_gid"];
-				$arr["deny_cid"]  = $self[0]["deny_cid"];
-				$arr["deny_gid"]  = $self[0]["deny_gid"];
+				$user = dba::select('user', ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'], ['uid' => $importer["uid"]], ['limit' => 1]);
+
+				$arr["allow_cid"] = $user["allow_cid"];
+				$arr["allow_gid"] = $user["allow_gid"];
+				$arr["deny_cid"]  = $user["deny_cid"];
+				$arr["deny_gid"]  = $user["deny_gid"];
 
 				$i = item_store($arr);
 				if ($i) {
