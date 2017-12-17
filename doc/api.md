@@ -339,6 +339,15 @@ Friendica doesn't allow showing the friends of other users.
 * trim_user
 
 ---
+### statuses/networkpublic_timeline (*; AUTH)
+#### Parameters
+* count: Items per page (default: 20)
+* page: page number
+* since_id: minimum id
+* max_id: maximum id
+* include_entities: "true" shows entities for pictures and links (Default: false)
+
+---
 ### statuses/replies (*; AUTH)
 #### Parameters
 * count: Items per page (default: 20)
