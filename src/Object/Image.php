@@ -142,7 +142,7 @@ class Image
 			 * Setup the image to the format it will be saved to
 			 */
 			$map = self::getFormatsMap();
-			$format = $map[$type];
+			$format = $map[$this->type];
 			$this->image->setFormat($format);
 
 			// Always coalesce, if it is not a multi-frame image it won't hurt anyway
@@ -338,42 +338,7 @@ class Image
 			}
 		}
 
-
-		if ($this->isImagick()) {
-			/*
-			 * If it is not animated, there will be only one iteration here,
-			 * so don't bother checking
-			 */
-			// Don't forget to go back to the first frame
-			$this->image->setFirstIterator();
-			do {
-				// FIXME - implement horizantal bias for scaling as in followin GD functions
-				// to allow very tall images to be constrained only horizontally.
-
-				$this->image->scaleImage($dest_width, $dest_height);
-			} while ($this->image->nextImage());
-
-			// These may not be necessary any more
-			$this->width  = $this->image->getImageWidth();
-			$this->height = $this->image->getImageHeight();
-
-			return;
-		}
-
-
-		$dest = imagecreatetruecolor($dest_width, $dest_height);
-		imagealphablending($dest, false);
-		imagesavealpha($dest, true);
-		if ($this->type=='image/png') {
-			imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
-		}
-		imagecopyresampled($dest, $this->image, 0, 0, 0, 0, $dest_width, $dest_height, $width, $height);
-		if ($this->image) {
-			imagedestroy($this->image);
-		}
-		$this->image = $dest;
-		$this->width  = imagesx($this->image);
-		$this->height = imagesy($this->image);
+		return $this->scale($dest_width, $dest_height);
 	}
 
 	/**
@@ -562,23 +527,7 @@ class Image
 			}
 		}
 
-		if ($this->isImagick()) {
-			return $this->scaleDown($dest_width, $dest_height);
-		}
-
-		$dest = imagecreatetruecolor($dest_width, $dest_height);
-		imagealphablending($dest, false);
-		imagesavealpha($dest, true);
-		if ($this->type=='image/png') {
-			imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
-		}
-		imagecopyresampled($dest, $this->image, 0, 0, 0, 0, $dest_width, $dest_height, $width, $height);
-		if ($this->image) {
-			imagedestroy($this->image);
-		}
-		$this->image = $dest;
-		$this->width  = imagesx($this->image);
-		$this->height = imagesy($this->image);
+		return $this->scale($dest_width, $dest_height);
 	}
 
 	/**
@@ -591,27 +540,59 @@ class Image
 			return false;
 		}
 
-		if ($this->isImagick()) {
-			$this->image->setFirstIterator();
-			do {
-				$this->image->scaleImage($dim, $dim);
-			} while ($this->image->nextImage());
-			return;
+		return $this->scale($dim, $dim);
+	}
+
+	/**
+	 * @brief Scale image to target dimensions
+	 *
+	 * @param int $dest_width
+	 * @param int $dest_height
+	 * @return boolean
+	 */
+	private function scale($dest_width, $dest_height)
+	{
+		if (!$this->isValid()) {
+			return false;
 		}
 
-		$dest = imagecreatetruecolor($dim, $dim);
-		imagealphablending($dest, false);
-		imagesavealpha($dest, true);
-		if ($this->type=='image/png') {
-			imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
+		if ($this->isImagick()) {
+			/*
+			 * If it is not animated, there will be only one iteration here,
+			 * so don't bother checking
+			 */
+			// Don't forget to go back to the first frame
+			$this->image->setFirstIterator();
+			do {
+				// FIXME - implement horizontal bias for scaling as in following GD functions
+				// to allow very tall images to be constrained only horizontally.
+				$this->image->scaleImage($dest_width, $dest_height);
+			} while ($this->image->nextImage());
+
+			// These may not be necessary anymore
+			$this->width  = $this->image->getImageWidth();
+			$this->height = $this->image->getImageHeight();
+		} else {
+			$dest = imagecreatetruecolor($dest_width, $dest_height);
+			imagealphablending($dest, false);
+			imagesavealpha($dest, true);
+
+			if ($this->type=='image/png') {
+				imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
+			}
+
+			imagecopyresampled($dest, $this->image, 0, 0, 0, 0, $dest_width, $dest_height, $this->width, $this->height);
+
+			if ($this->image) {
+				imagedestroy($this->image);
+			}
+
+			$this->image = $dest;
+			$this->width  = imagesx($this->image);
+			$this->height = imagesy($this->image);
 		}
-		imagecopyresampled($dest, $this->image, 0, 0, 0, 0, $dim, $dim, $this->width, $this->height);
-		if ($this->image) {
-			imagedestroy($this->image);
-		}
-		$this->image = $dest;
-		$this->width  = imagesx($this->image);
-		$this->height = imagesy($this->image);
+
+		return true;
 	}
 
 	/**
