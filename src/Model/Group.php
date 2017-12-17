@@ -131,7 +131,7 @@ class Group extends BaseObject
 	/**
 	 * @brief Mark a group as deleted
 	 *
-	 * @param type $gid
+	 * @param int $gid
 	 * @return boolean
 	 */
 	public static function remove($gid) {
@@ -176,9 +176,9 @@ class Group extends BaseObject
 	 *
 	 * @deprecated Use Group::remove instead
 	 *
-	 * @param type $uid
-	 * @param type $name
-	 * @return type
+	 * @param int $uid
+	 * @param string $name
+	 * @return bool
 	 */
 	public static function removeByName($uid, $name) {
 		$return = false;

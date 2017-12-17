@@ -636,7 +636,7 @@ class GContact
 	/**
 	 * @brief Replace alternate OStatus user format with the primary one
 	 *
-	 * @param arr $contact contact array (called by reference)
+	 * @param array $contact contact array (called by reference)
 	 * @return void
 	 */
 	public static function fixAlternateContactAddress(&$contact)
@@ -656,7 +656,7 @@ class GContact
 	/**
 	 * @brief Fetch the gcontact id, add an entry if not existed
 	 *
-	 * @param arr $contact contact array
+	 * @param array $contact contact array
 	 *
 	 * @return bool|int Returns false if not found, integer if contact was found
 	 */
@@ -747,7 +747,7 @@ class GContact
 	/**
 	 * @brief Updates the gcontact table from a given array
 	 *
-	 * @param arr $contact contact array
+	 * @param array $contact contact array
 	 *
 	 * @return bool|int Returns false if not found, integer if contact was found
 	 */
@@ -908,7 +908,7 @@ class GContact
 	/**
 	 * @brief Updates the gcontact entry from probe
 	 *
-	 * @param str $url profile link
+	 * @param string $url profile link
 	 * @return void
 	 */
 	public static function updateFromProbe($url)
@@ -974,7 +974,7 @@ class GContact
 	 *
 	 * If the "Statistics" plugin is enabled (See http://gstools.org/ for details) we query user data with this.
 	 *
-	 * @param str $server Server address
+	 * @param string $server Server address
 	 * @return void
 	 */
 	public static function fetchGsUsers($server)

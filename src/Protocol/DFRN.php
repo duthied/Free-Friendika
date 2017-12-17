@@ -1443,7 +1443,7 @@ class DFRN
 	 * @param bool   $onlyfetch Should the data only be fetched or should it update the contact record as well
 	 * @param string $xml       optional, default empty
 	 *
-	 * @return Returns an array with relevant data of the author
+	 * @return array Relevant data of the author
 	 * @todo Find good type-hints for all parameter
 	 */
 	private static function fetchauthor($xpath, $context, $importer, $element, $onlyfetch, $xml = "")
@@ -1692,7 +1692,7 @@ class DFRN
 	 *
 	 * @param object $xpath    XPath object
 	 * @param object $activity Activity object
-	 * @param text   $element  element name
+	 * @param string $element  element name
 	 *
 	 * @return string XML string
 	 * @todo Find good type-hints for all parameter
@@ -2963,9 +2963,9 @@ class DFRN
 	/**
 	 * @brief Imports a DFRN message
 	 *
-	 * @param text  $xml          The DFRN message
-	 * @param array $importer     Record of the importer user mixed with contact of the content
-	 * @param bool  $sort_by_date Is used when feeds are polled
+	 * @param string $xml          The DFRN message
+	 * @param array  $importer     Record of the importer user mixed with contact of the content
+	 * @param bool   $sort_by_date Is used when feeds are polled
 	 * @return integer Import status
 	 * @todo set proper type-hints
 	 */

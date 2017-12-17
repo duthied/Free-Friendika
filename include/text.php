@@ -1701,7 +1701,7 @@ function array_xmlify($val){
 
 
 /**
- * transorm link href and img src from relative to absolute
+ * transform link href and img src from relative to absolute
  *
  * @param string $text
  * @param string $base base url

@@ -928,10 +928,12 @@ class Diaspora
 	/**
 	 * @brief Get a contact id for a given handle
 	 *
+	 * @todo Move to Friendica\Model\Contact
+	 *
 	 * @param int    $uid    The user id
 	 * @param string $handle The handle in the format user@domain.tld
 	 *
-	 * @return The contact id
+	 * @return int Contact id
 	 */
 	private static function contactByHandle($uid, $handle)
 	{
@@ -1113,7 +1115,7 @@ class Diaspora
 	 * @param string $body        The item body to replace links from
 	 * @param string $author_link The author link for missing local contact fallback
 	 *
-	 * @return the replaced string
+	 * @return string the replaced string
 	 */
 	public static function replacePeopleGuid($body, $author_link)
 	{

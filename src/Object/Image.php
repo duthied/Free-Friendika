@@ -111,7 +111,7 @@ class Image
 
 	/**
 	 * @brief Maps Mime types to Imagick formats
-	 * @return arr With with image formats (mime type as key)
+	 * @return array With with image formats (mime type as key)
 	 */
 	public static function getFormatsMap()
 	{

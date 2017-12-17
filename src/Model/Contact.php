@@ -197,7 +197,7 @@ class Contact extends BaseObject
 	 * up or some other transient event and that there's a possibility we could recover from it.
 	 *
 	 * @param array $contact contact to mark for archival
-	 * @return type
+	 * @return null
 	 */
 	public static function markForArchival(array $contact)
 	{

@@ -619,7 +619,7 @@ class App {
 	 * If $name is not defined, return engine defined by theme,
 	 * or default
 	 *
-	 * @param strin $name Template engine name
+	 * @param string $name Template engine name
 	 * @return object Template Engine instance
 	 */
 	function template_engine($name = '') {
