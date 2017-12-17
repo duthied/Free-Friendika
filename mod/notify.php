@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Module\Login;
 
 function notify_init(App $a) {
 	if (! local_user()) {
@@ -45,7 +46,7 @@ function notify_init(App $a) {
 
 function notify_content(App $a) {
 	if (! local_user()) {
-		return login();
+		return Login::form();
 	}
 
 	$nm = new NotificationsManager();

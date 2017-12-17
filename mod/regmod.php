@@ -6,6 +6,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\User;
+use Friendica\Module\Login;
 
 require_once 'include/enotify.php';
 
@@ -94,11 +95,9 @@ function regmod_content(App $a)
 {
 	global $lang;
 
-	$_SESSION['return_url'] = $a->cmd;
-
 	if (!local_user()) {
 		info(t('Please login.') . EOL);
-		$o .= '<br /><br />' . login(($a->config['register_policy'] == REGISTER_CLOSED) ? 0 : 1);
+		$o .= '<br /><br />' . Login::form($a->query_string, $a->config['register_policy'] == REGISTER_CLOSED ? 0 : 1);
 		return $o;
 	}
 

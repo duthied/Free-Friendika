@@ -11,6 +11,7 @@ use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Module\Login;
 
 require_once 'include/conversation.php';
 require_once 'include/contact_widgets.php';
@@ -380,8 +381,7 @@ function networkConversation($a, $items, $mode, $update) {
 
 function network_content(App $a, $update = 0) {
 	if (!local_user()) {
-		$_SESSION['return_url'] = $a->query_string;
-		return login(false);
+		return Login::form();
 	}
 
 	/// @TODO Is this really necessary? $a is already available to hooks

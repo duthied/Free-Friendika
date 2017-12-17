@@ -19,6 +19,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\User;
+use Friendica\Module\Login;
 use Friendica\Network\Probe;
 
 require_once 'include/enotify.php';
@@ -481,15 +482,14 @@ function dfrn_request_content(App $a)
 		if (!local_user()) {
 			info(t("Please login to confirm introduction.") . EOL);
 			/* setup the return URL to come back to this page if they use openid */
-			$_SESSION['return_url'] = $a->query_string;
-			return login();
+			return Login::form();
 		}
 
 		// Edge case, but can easily happen in the wild. This person is authenticated,
 		// but not as the person who needs to deal with this request.
 		if ($a->user['nickname'] != $a->argv[1]) {
-			return login();
 			notice(t("Incorrect identity currently logged in. Please login to <strong>this</strong> profile.") . EOL);
+			return Login::form();
 		}
 
 		$dfrn_url = notags(trim(hex2bin($_GET['dfrn_url'])));

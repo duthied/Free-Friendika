@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\Module\Login;
 
 require_once('include/api.php');
 
@@ -87,8 +88,8 @@ function api_content(App $a)
 
 		if (!local_user()) {
 			/// @TODO We need login form to redirect to this page
-			notice( t('Please login to continue.') . EOL );
-			return login(false,$request->get_parameters());
+			notice(t('Please login to continue.') . EOL);
+			return Login::form($a->query_string, false, $request->get_parameters());
 		}
 		//FKOAuth1::loginUser(4);
 

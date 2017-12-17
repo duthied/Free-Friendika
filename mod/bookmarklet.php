@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Module\Login;
 
 require_once('include/conversation.php');
 require_once('include/items.php');
@@ -14,8 +15,8 @@ function bookmarklet_init(App $a)
 function bookmarklet_content(App $a)
 {
 	if (!local_user()) {
-		$o .= login(($a->config['register_policy'] == REGISTER_CLOSED) ? false : true);
 		$o = '<h2>' . t('Login') . '</h2>';
+		$o .= Login::form($a->query_string, $a->config['register_policy'] == REGISTER_CLOSED ? false : true);
 		return $o;
 	}
 

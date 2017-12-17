@@ -425,3 +425,13 @@ function check_form_security_token_ForbiddenOnErr($typename = '', $formname = 'f
 		killme();
 	}
 }
+
+/**
+ * @brief Kills the "Friendica" cookie and all session data
+ */
+function nuke_session()
+{
+	new_cookie(-3600); // make sure cookie is deleted on browser close, as a security measure
+	session_unset();
+	session_destroy();
+}

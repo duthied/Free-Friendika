@@ -198,12 +198,3 @@ if (isset($_SESSION) && x($_SESSION, 'authenticated') && (!x($_POST, 'auth-param
 	}
 }
 
-/**
- * @brief Kills the "Friendica" cookie and all session data
- */
-function nuke_session()
-{
-	new_cookie(-3600); // make sure cookie is deleted on browser close, as a security measure
-	session_unset();
-	session_destroy();
-}
