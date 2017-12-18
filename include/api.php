@@ -1526,7 +1526,7 @@ function api_search($type)
 		"SELECT ".item_fieldlists()."
 		FROM `item` ".item_joins()."
 		WHERE ".item_condition()." AND (`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))
-		AND `item`.`body` REGEXP ?
+		AND `item`.`body` LIKE CONCAT('%',?,'%')
 		$sql_extra
 		AND `item`.`id`>?
 		ORDER BY `item`.`id` DESC LIMIT ".intval($start)." ,".intval($count)." ",
