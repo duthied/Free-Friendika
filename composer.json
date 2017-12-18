@@ -8,7 +8,7 @@
 		"ostatus",
 		"diaspora"
 	],
-	"licence": "GNU-Affero",
+	"license": "AGPL-3.0+",
 	"support": {
 		"issues": "https://github.com/friendica/friendica/issues"
 	},
