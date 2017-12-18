@@ -56,7 +56,7 @@ It's a command-line tool that downloads required libraries into the `vendor` fol
 * [Using Composer](help/Composer)
 * [How To Move Classes to `src`](help/Developer-How-To-Move-Classes-to-src)
 
-###Coding standards
+### Coding standards
 
 For the sake of consistency between contribution and general code readability, Friendica follows the widespread [PSR-2 coding standards](http://www.php-fig.org/psr/psr-2/) to the exception of a few rules.
 Here's a few primers if you are new to Friendica or to the PSR-2 coding standards:
@@ -73,7 +73,7 @@ There are a few tools you can use to check or fix your files before you commit.
 
 For documentation we use the standard of *one sentence per line* for the `md` files in the `/doc` and `/doc/$lng` subdirectories.
 
-####Check with [PHP Code Sniffer](https://github.com/squizlabs/PHP_CodeSniffer)
+#### Check with [PHP Code Sniffer](https://github.com/squizlabs/PHP_CodeSniffer)
 
 This tool checks your files against a variety of coding standards, including PSR-2, and ouputs a report of all the standard violations.
 You can simply install it through PEAR: `pear install PHP_CodeSniffer`
@@ -84,7 +84,7 @@ Once it is installed and available in your PATH, here's the command to run befor
 The output is a list of all the coding standards violations that you should fix before committing your work.
 Additionally, `phpcs` integrates with a few IDEs (Eclipse, Netbeans, PHPStorm...) so that you don't have to fiddle with the command line.
 
-####Fix with PHP Code Beautifier and Fixer (phpbcf) included in PHP Code Sniffer
+#### Fix with PHP Code Beautifier and Fixer (phpbcf) included in PHP Code Sniffer
 
 If you're getting a massive list of standards violations when running `phpcs`, it can be annoying to fix all the violations by hand.
 Thankfully, PHP Code Sniffer is shipped with an automatic code fixer that can take care of the tedious task for you.
@@ -94,7 +94,7 @@ Here's the command to automatically fix the files you created/modified:
 
 If the command-line tools `diff` and `patch` are unavailabe for you, `phpcbf` can use slightly slower PHP equivalents by using the `--no-patch` argument.
 
-###Code documentation
+### Code documentation
 
 If you are interested in having the documentation of the Friendica code outside of the code files, you can use [Doxygen](http://doxygen.org) to generate it.
 The configuration file for Doxygen is located in the `util` directory of the project sources.
@@ -107,7 +107,7 @@ You can browse these files with any browser.
 
 If you find missing documentation, don't hesitate to contact us and write it down to enhance the code documentation.
 
-###Issues
+### Issues
 
 Have a look at our [issue tracker](https://github.com/friendica/friendica) on github!
 
@@ -117,7 +117,7 @@ Have a look at our [issue tracker](https://github.com/friendica/friendica) on gi
  * There is a *Junior Job* label for issues we think might be a good point to start with.
    But you don't have to limit yourself to those issues.
 
-###Web interface
+### Web interface
 
 The thing many people want most is a better interface, preferably a responsive Friendica theme.
 This is a piece of work!
@@ -129,7 +129,7 @@ Ask us to find out whom to talk to about their experiences.
 * Let us know about your plans [in the dev forum](https://forum.friendi.ca/profile/developers) or the [theme developer forum](https://friendica.eu/profile/ftdevs).
 Do not worry about cross-posting.
 
-###Client software
+### Client software
 
 As Friendica is using a [Twitter/GNU Social compatible API](help/api) any of the clients for those platforms should work with Friendica as well.
 Furthermore there are several client projects, especially for use with Friendica.
