@@ -1535,12 +1535,7 @@ function api_search($type)
 		intval($since_id)
 	);
 
-	$statuses = array();
-	while ($row = dba::fetch($r)) {
-		$statuses[] = $row;
-	}
-
-	$data['status'] = api_format_items($statuses, api_get_user(get_app()));
+	$data['status'] = api_format_items(dba::inArray($r), api_get_user(get_app()));
 
 	return api_format_data("statuses", $type, $data);
 }
