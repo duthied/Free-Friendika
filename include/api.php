@@ -1530,9 +1530,9 @@ function api_search($type)
 		$sql_extra
 		AND `item`.`id`>?
 		ORDER BY `item`.`id` DESC LIMIT ".intval($start)." ,".intval($count)." ",
-		intval(api_user()),
+		api_user(),
 		$_REQUEST['q'],
-		intval($since_id)
+		$since_id
 	);
 
 	$data['status'] = api_format_items(dba::inArray($r), api_get_user(get_app()));
