@@ -3055,12 +3055,19 @@ function api_statuses_f($qtype)
 		$sql_extra = " AND false ";
 	}
 
+	if ($qtype == 'blocks') {
+		$sql_blocked = 'AND `blocked`';
+	} else {
+		$sql_blocked = 'AND NOT `blocked`';
+	}
+
 	$r = q(
 		"SELECT `nurl`
 		FROM `contact`
 		WHERE `uid` = %d
 		AND NOT `self`
-		AND (NOT `blocked` OR `pending`)
+		$sql_blocked
+		AND NOT `pending`
 		$sql_extra
 		ORDER BY `nick`
 		LIMIT %d, %d",
@@ -3122,6 +3129,28 @@ function api_statuses_followers($type)
 /// @TODO move to top of file or somewhere better
 api_register_func('api/statuses/friends', 'api_statuses_friends', true);
 api_register_func('api/statuses/followers', 'api_statuses_followers', true);
+
+/**
+ * Returns the list of blocked users
+ *
+ * @see https://developer.twitter.com/en/docs/accounts-and-users/mute-block-report-users/api-reference/get-blocks-list
+ *
+ * @param string $type Either "json" or "xml"
+ *
+ * @return boolean|string|array
+ * @throws UnauthorizedException
+ */
+function api_blocks_list($type)
+{
+	$data =  api_statuses_f('blocks');
+	if ($data === false) {
+		return false;
+	}
+	return api_format_data("users", $type, $data);
+}
+
+/// @TODO move to top of file or somewhere better
+api_register_func('api/blocks/list', 'api_blocks_list', true);
 
 function api_statusnet_config($type)
 {
