@@ -11,6 +11,8 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use dba;
 
+require_once 'include/dba.php';
+
 /**
  * @brief This class handles methods related to the forum functionality
  */
@@ -158,7 +160,7 @@ class ForumManager
 		$contacts = self::getList($uid, $lastitem, false, false);
 
 		$total_shown = 0;
-
+		$forumlist = '';
 		foreach ($contacts as $contact) {
 			$forumlist .= micropro($contact, false, 'forumlist-profile-advanced');
 			$total_shown ++;

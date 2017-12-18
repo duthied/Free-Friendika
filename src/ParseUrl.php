@@ -10,9 +10,10 @@ use Friendica\Object\Image;
 use Friendica\Util\XML;
 
 use dba;
-use DomXPath;
+use DOMXPath;
 use DOMDocument;
 
+require_once 'include/dba.php';
 require_once "include/network.php";
 require_once "include/oembed.php";
 
@@ -24,10 +25,10 @@ class ParseUrl
 	/**
 	 * @brief Search for chached embeddable data of an url otherwise fetch it
 	 *
-	 * @param type $url         The url of the page which should be scraped
-	 * @param type $no_guessing If true the parse doens't search for
+	 * @param string $url         The url of the page which should be scraped
+	 * @param bool $no_guessing If true the parse doens't search for
 	 *                          preview pictures
-	 * @param type $do_oembed   The false option is used by the function fetch_oembed()
+	 * @param bool $do_oembed   The false option is used by the function fetch_oembed()
 	 *                          to avoid endless loops
 	 *
 	 * @return array which contains needed data for embedding
@@ -88,12 +89,12 @@ class ParseUrl
 	 * like \<title\>Awesome Title\</title\> or
 	 * \<meta name="description" content="An awesome description"\>
 	 *
-	 * @param type $url         The url of the page which should be scraped
-	 * @param type $no_guessing If true the parse doens't search for
+	 * @param string $url         The url of the page which should be scraped
+	 * @param bool $no_guessing If true the parse doens't search for
 	 *                          preview pictures
-	 * @param type $do_oembed   The false option is used by the function fetch_oembed()
+	 * @param bool $do_oembed   The false option is used by the function fetch_oembed()
 	 *                          to avoid endless loops
-	 * @param type $count       Internal counter to avoid endless loops
+	 * @param int $count       Internal counter to avoid endless loops
 	 *
 	 * @return array which contains needed data for embedding
 	 *    string 'url' => The url of the parsed page
@@ -215,7 +216,7 @@ class ParseUrl
 		XML::deleteNode($doc, "ol");
 		XML::deleteNode($doc, "ul");
 
-		$xpath = new DomXPath($doc);
+		$xpath = new DOMXPath($doc);
 
 		$list = $xpath->query("//meta[@content]");
 		foreach ($list as $node) {

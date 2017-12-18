@@ -11,6 +11,7 @@ use Friendica\Database\DBM;
 use dba;
 
 require_once 'boot.php';
+require_once 'include/dba.php';
 require_once 'include/text.php';
 
 /**
@@ -130,7 +131,7 @@ class Group extends BaseObject
 	/**
 	 * @brief Mark a group as deleted
 	 *
-	 * @param type $gid
+	 * @param int $gid
 	 * @return boolean
 	 */
 	public static function remove($gid) {
@@ -138,8 +139,13 @@ class Group extends BaseObject
 			return false;
 		}
 
+		$group = dba::select('group', ['uid'], ['gid' => $gid], ['limit' => 1]);
+		if (!DBM::is_result($group)) {
+			return false;
+		}
+
 		// remove group from default posting lists
-		$user = dba::select('user', ['def_gid', 'allow_gid', 'deny_gid'], ['uid' => $uid], ['limit' => 1]);
+		$user = dba::select('user', ['def_gid', 'allow_gid', 'deny_gid'], ['uid' => $group['uid']], ['limit' => 1]);
 		if (DBM::is_result($user)) {
 			$change = false;
 
@@ -157,7 +163,7 @@ class Group extends BaseObject
 			}
 
 			if ($change) {
-				dba::update('user', $user, ['uid' => $uid]);
+				dba::update('user', $user, ['uid' => $group['uid']]);
 			}
 		}
 
@@ -175,9 +181,9 @@ class Group extends BaseObject
 	 *
 	 * @deprecated Use Group::remove instead
 	 *
-	 * @param type $uid
-	 * @param type $name
-	 * @return type
+	 * @param int $uid
+	 * @param string $name
+	 * @return bool
 	 */
 	public static function removeByName($uid, $name) {
 		$return = false;

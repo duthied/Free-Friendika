@@ -21,6 +21,7 @@ use Exception;
 
 require_once 'boot.php';
 require_once 'include/crypto.php';
+require_once 'include/dba.php';
 require_once 'include/enotify.php';
 require_once 'include/network.php';
 require_once 'library/openid.php';
@@ -32,6 +33,37 @@ require_once 'include/text.php';
  */
 class User
 {
+	/**
+	 * @brief Get owner data by user id
+	 *
+	 * @param int $uid
+	 * @return boolean|array
+	 */
+	public static function getOwnerDataById($uid) {
+		$r = dba::p("SELECT
+			`contact`.*,
+			`user`.`prvkey` AS `uprvkey`,
+			`user`.`timezone`,
+			`user`.`nickname`,
+			`user`.`sprvkey`,
+			`user`.`spubkey`,
+			`user`.`page-flags`,
+			`user`.`account-type`,
+			`user`.`prvnets`
+			FROM `contact`
+			INNER JOIN `user`
+				ON `user`.`uid` = `contact`.`uid`
+			WHERE `contact`.`uid` = ?
+			AND `contact`.`self` = 1
+			LIMIT 1",
+			$uid
+		);
+		if (!DBM::is_result($r)) {
+			return false;
+		}
+		return $r[0];
+	}
+
 	/**
 	 * @brief Returns the default group for a given user and network
 	 *
@@ -186,7 +218,7 @@ class User
 				$_SESSION['register'] = 1;
 				$_SESSION['openid'] = $openid_url;
 
-				$openid = new LightOpenID;
+				$openid = new \LightOpenID;
 				$openid->identity = $openid_url;
 				$openid->returnUrl = System::baseUrl() . '/openid';
 				$openid->required = array('namePerson/friendly', 'contact/email', 'namePerson');

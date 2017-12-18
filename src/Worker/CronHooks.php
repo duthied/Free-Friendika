@@ -18,7 +18,7 @@ Class CronHooks {
 			foreach ($a->hooks["cron"] as $single_hook) {
 				if ($single_hook[1] == $hook) {
 					logger("Calling cron hook '" . $hook . "'", LOGGER_DEBUG);
-					call_single_hook($a, $name, $single_hook, $data);
+					call_single_hook($a, $hook, $single_hook);
 				}
 			}
 			return;

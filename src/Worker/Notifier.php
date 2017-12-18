@@ -15,6 +15,7 @@ use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
 use dba;
 
+require_once 'include/dba.php';
 require_once 'include/queue_fn.php';
 require_once 'include/html2plain.php';
 require_once 'include/datetime.php';

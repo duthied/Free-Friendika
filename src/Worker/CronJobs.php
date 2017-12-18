@@ -16,6 +16,10 @@ use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use dba;
 
+require_once 'include/dba.php';
+require_once 'include/post_update.php';
+require_once 'mod/nodeinfo.php';
+
 class CronJobs
 {
 	public static function execute($command = '')

@@ -10,6 +10,8 @@ use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use dba;
 
+require_once 'include/dba.php';
+
 class DBClean {
 	public static function execute($stage = 0) {
 

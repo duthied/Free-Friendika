@@ -11,6 +11,8 @@ namespace Friendica\Core;
 use Friendica\Database\DBM;
 use dba;
 
+require_once 'include/dba.php';
+
 /**
  * @brief Arbitrary sytem configuration storage
  *

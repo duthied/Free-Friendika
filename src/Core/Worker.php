@@ -13,6 +13,8 @@ use Friendica\Util\Lock;
 
 use dba;
 
+require_once 'include/dba.php';
+
 /**
  * @file src/Core/Worker.php
  *

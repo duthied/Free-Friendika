@@ -14,6 +14,8 @@ use Friendica\Database\DBM;
 use Memcache;
 use dba;
 
+require_once 'include/dba.php';
+
 /**
  * @brief This class contain Functions for preventing parallel execution of functions
  */
@@ -62,7 +64,7 @@ class Lock
 		$file = $temp.'/'.$fn_name.'.sem';
 
 		if (!file_exists($file)) {
-			file_put_contents($file, $function);
+			file_put_contents($file, $fn_name);
 		}
 
 		return ftok($file, 'f');

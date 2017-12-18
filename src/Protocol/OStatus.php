@@ -17,8 +17,9 @@ use Friendica\Util\Lock;
 use Friendica\Util\XML;
 use dba;
 use DOMDocument;
-use DomXPath;
+use DOMXPath;
 
+require_once 'include/dba.php';
 require_once 'include/threads.php';
 require_once 'include/html2bbcode.php';
 require_once 'include/bbcode.php';
@@ -251,7 +252,7 @@ class OStatus
 		$doc = new DOMDocument();
 		@$doc->loadXML($xml);
 
-		$xpath = new DomXPath($doc);
+		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
 		$xpath->registerNamespace('thr', NAMESPACE_THREAD);
 		$xpath->registerNamespace('georss', NAMESPACE_GEORSS);
@@ -329,7 +330,7 @@ class OStatus
 		$doc = new DOMDocument();
 		@$doc->loadXML($xml);
 
-		$xpath = new DomXPath($doc);
+		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
 		$xpath->registerNamespace('thr', NAMESPACE_THREAD);
 		$xpath->registerNamespace('georss', NAMESPACE_GEORSS);
@@ -739,7 +740,7 @@ class OStatus
 			if (!@$doc->loadHTML($conversation_data['body'])) {
 				return;
 			}
-			$xpath = new DomXPath($doc);
+			$xpath = new DOMXPath($doc);
 
 			$links = $xpath->query('//link');
 			if ($links) {
@@ -779,7 +780,7 @@ class OStatus
 		$doc = new DOMDocument();
 		@$doc->loadXML($xml);
 
-		$xpath = new DomXPath($doc);
+		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
 		$xpath->registerNamespace('thr', NAMESPACE_THREAD);
 		$xpath->registerNamespace('ostatus', NAMESPACE_OSTATUS);
@@ -929,7 +930,7 @@ class OStatus
 			if (!@$doc->loadHTML($related_data['body'])) {
 				return;
 			}
-			$xpath = new DomXPath($doc);
+			$xpath = new DOMXPath($doc);
 
 			$atom_file = '';
 
@@ -1023,8 +1024,7 @@ class OStatus
 		$orig_created = $xpath->query('atom:published/text()', $activityobjects)->item(0)->nodeValue;
 		$orig_edited = $xpath->query('atom:updated/text()', $activityobjects)->item(0)->nodeValue;
 
-		$orig_contact = $contact;
-		$orig_author = self::fetchAuthor($xpath, $activityobjects, $importer, $orig_contact, false);
+		$orig_author = self::fetchAuthor($xpath, $activityobjects, $importer, $dummy, false);
 
 		$item["author-name"] = $orig_author["author-name"];
 		$item["author-link"] = $orig_author["author-link"];

@@ -4,7 +4,7 @@
  */
 namespace Friendica\Util;
 
-use DomXPath;
+use DOMXPath;
 use SimpleXMLElement;
 
 /**
@@ -176,7 +176,7 @@ class XML
 	 * @param integer $recursion_depth recursion counter for internal use - default 0
 	 *                                 internal use, recursion counter
 	 *
-	 * @return array | sring The array from the xml element or the string
+	 * @return array | string The array from the xml element or the string
 	 */
 	public static function elementToArray($xml_element, &$recursion_depth = 0)
 	{
@@ -292,11 +292,11 @@ class XML
 		// Go through the tags.
 		$repeated_tag_index = array(); // Multiple tags with same name will be turned into an array
 		foreach ($xml_values as $data) {
-			unset($attributes, $value); // Remove existing values, or there will be trouble
-
-			// This command will extract these variables into the foreach scope
-			// tag(string), type(string), level(int), attributes(array).
-			extract($data); // We could use the array by itself, but this cooler.
+			$tag        = $data['tag'];
+			$type       = $data['type'];
+			$level      = $data['level'];
+			$attributes = isset($data['attributes']) ? $data['attributes'] : null;
+			$value      = isset($data['value']) ? $data['value'] : null;
 
 			$result = array();
 			$attributes_data = array();
@@ -407,7 +407,7 @@ class XML
 	 */
 	public static function deleteNode(&$doc, $node)
 	{
-		$xpath = new DomXPath($doc);
+		$xpath = new DOMXPath($doc);
 		$list = $xpath->query("//".$node);
 		foreach ($list as $child) {
 			$child->parentNode->removeChild($child);

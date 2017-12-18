@@ -17,9 +17,10 @@ use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use dba;
 use DOMDocument;
-use DomXPath;
+use DOMXPath;
 use Exception;
 
+require_once 'include/dba.php';
 require_once 'include/datetime.php';
 require_once 'include/network.php';
 require_once 'include/html2bbcode.php';
@@ -512,7 +513,7 @@ class PortableContact
 		$doc = new DOMDocument();
 		@$doc->loadXML($feedret["body"]);
 
-		$xpath = new DomXPath($doc);
+		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('atom', "http://www.w3.org/2005/Atom");
 
 		$entries = $xpath->query('/atom:feed/atom:entry');
@@ -768,7 +769,7 @@ class PortableContact
 
 		$doc = new DOMDocument();
 		@$doc->loadHTML($body);
-		$xpath = new DomXPath($doc);
+		$xpath = new DOMXPath($doc);
 
 		$list = $xpath->query("//meta[@name]");
 
@@ -815,7 +816,7 @@ class PortableContact
 			return false;
 		}
 
-		$server["site_name"] = $xpath->evaluate($element."//head/title/text()", $context)->item(0)->nodeValue;
+		$server["site_name"] = $xpath->evaluate("//head/title/text()")->item(0)->nodeValue;
 		return $server;
 	}
 

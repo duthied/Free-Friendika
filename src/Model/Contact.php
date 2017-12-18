@@ -20,6 +20,7 @@ use Friendica\Protocol\Salmon;
 use dba;
 
 require_once 'boot.php';
+require_once 'include/dba.php';
 require_once 'include/text.php';
 
 /**
@@ -196,7 +197,7 @@ class Contact extends BaseObject
 	 * up or some other transient event and that there's a possibility we could recover from it.
 	 *
 	 * @param array $contact contact to mark for archival
-	 * @return type
+	 * @return null
 	 */
 	public static function markForArchival(array $contact)
 	{

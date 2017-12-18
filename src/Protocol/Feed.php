@@ -10,10 +10,11 @@ use Friendica\Database\DBM;
 use Friendica\Core\System;
 use dba;
 use DOMDocument;
-use DomXPath;
+use DOMXPath;
 
-require_once("include/html2bbcode.php");
-require_once("include/items.php");
+require_once 'include/dba.php';
+require_once 'include/html2bbcode.php';
+require_once 'include/items.php';
 
 /**
  * @brief This class contain functions to import feeds
@@ -31,7 +32,7 @@ class Feed {
 	 *
 	 * @return array In simulation mode it returns the header and the first item
 	 */
-	function import($xml, $importer, &$contact, &$hub, $simulate = false) {
+	public static function import($xml, $importer, &$contact, &$hub, $simulate = false) {
 
 		$a = get_app();
 
@@ -55,7 +56,7 @@ class Feed {
 
 		$doc = new DOMDocument();
 		@$doc->loadXML(trim($xml));
-		$xpath = new DomXPath($doc);
+		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
 		$xpath->registerNamespace('dc', "http://purl.org/dc/elements/1.1/");
 		$xpath->registerNamespace('content', "http://purl.org/rss/1.0/modules/content/");
@@ -126,7 +127,7 @@ class Feed {
 				if ($value != "") {
 					$author["author-nick"] = $value;
 				}
-				$value = $xpath->evaluate('atom:author/poco:address/poco:formatted/text()', $context)->item(0)->nodeValue;
+				$value = $xpath->evaluate('atom:author/poco:address/poco:formatted/text()')->item(0)->nodeValue;
 				if ($value != "") {
 					$author["author-location"] = $value;
 				}
@@ -297,9 +298,6 @@ class Feed {
 			}
 			if ($creator != "") {
 				$item["author-name"] = $creator;
-			}
-			if ($pubDate != "") {
-				$item["edited"] = $item["created"] = $pubDate;
 			}
 			$creator = $xpath->query('dc:creator/text()', $entry)->item(0)->nodeValue;
 

@@ -12,6 +12,7 @@ use Friendica\Protocol\Email;
 use Friendica\Protocol\PortableContact;
 use dba;
 
+require_once 'include/dba.php';
 require_once 'include/follow.php';
 
 Class OnePoll
@@ -630,6 +631,7 @@ Class OnePoll
 			dba::update('gcontact', array('last_failure' => $updated), array('nurl' => $contact['nurl']));
 			Contact::markForArchival($contact);
 		} else {
+			$updated = datetime_convert();
 			dba::update('contact', array('last-update' => $updated), array('id' => $contact['id']));
 		}
 

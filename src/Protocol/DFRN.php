@@ -8,7 +8,6 @@
  */
 namespace Friendica\Protocol;
 
-use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -22,8 +21,10 @@ use Friendica\Util\XML;
 
 use dba;
 use DOMDocument;
-use DomXPath;
+use DOMXPath;
 
+require_once 'boot.php';
+require_once 'include/dba.php';
 require_once "include/enotify.php";
 require_once "include/threads.php";
 require_once "include/items.php";
@@ -1298,7 +1299,7 @@ class DFRN
 				case 2:
 					// RINO 2 based on php-encryption
 					try {
-						$key = \Crypto::createNewRandomKey();
+						$key = \Crypto::CreateNewRandomKey();
 					} catch (\CryptoTestFailedException $ex) {
 						logger('Cannot safely create a key');
 						return -4;
@@ -1307,7 +1308,7 @@ class DFRN
 						return -5;
 					}
 					try {
-						$data = \Crypto::encrypt($postvars['data'], $key);
+						$data = \Crypto::Encrypt($postvars['data'], $key);
 					} catch (\CryptoTestFailedException $ex) {
 						logger('Cannot safely perform encryption');
 						return -6;
@@ -1442,7 +1443,7 @@ class DFRN
 	 * @param bool   $onlyfetch Should the data only be fetched or should it update the contact record as well
 	 * @param string $xml       optional, default empty
 	 *
-	 * @return Returns an array with relevant data of the author
+	 * @return array Relevant data of the author
 	 * @todo Find good type-hints for all parameter
 	 */
 	private static function fetchauthor($xpath, $context, $importer, $element, $onlyfetch, $xml = "")
@@ -1691,7 +1692,7 @@ class DFRN
 	 *
 	 * @param object $xpath    XPath object
 	 * @param object $activity Activity object
-	 * @param text   $element  element name
+	 * @param string $element  element name
 	 *
 	 * @return string XML string
 	 * @todo Find good type-hints for all parameter
@@ -2499,19 +2500,20 @@ class DFRN
 
 		/// @todo Do we really need this check for HTML elements? (It was copied from the old function)
 		if ((strpos($item['body'], '<') !== false) && (strpos($item['body'], '>') !== false)) {
+			$base_url = get_app()->get_baseurl();
 			$item['body'] = reltoabs($item['body'], $base_url);
 
 			$item['body'] = html2bb_video($item['body']);
 
 			$item['body'] = oembed_html2bbcode($item['body']);
 
-			$config = HTMLPurifier_Config::createDefault();
+			$config = \HTMLPurifier_Config::createDefault();
 			$config->set('Cache.DefinitionImpl', null);
 
 			// we shouldn't need a whitelist, because the bbcode converter
 			// will strip out any unsupported tags.
 
-			$purifier = new HTMLPurifier($config);
+			$purifier = new \HTMLPurifier($config);
 			$item['body'] = $purifier->purify($item['body']);
 
 			$item['body'] = @html2bbcode($item['body']);
@@ -2962,9 +2964,9 @@ class DFRN
 	/**
 	 * @brief Imports a DFRN message
 	 *
-	 * @param text  $xml          The DFRN message
-	 * @param array $importer     Record of the importer user mixed with contact of the content
-	 * @param bool  $sort_by_date Is used when feeds are polled
+	 * @param string $xml          The DFRN message
+	 * @param array  $importer     Record of the importer user mixed with contact of the content
+	 * @param bool   $sort_by_date Is used when feeds are polled
 	 * @return integer Import status
 	 * @todo set proper type-hints
 	 */
@@ -2977,7 +2979,7 @@ class DFRN
 		$doc = new DOMDocument();
 		@$doc->loadXML($xml);
 
-		$xpath = new DomXPath($doc);
+		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace("atom", NAMESPACE_ATOM1);
 		$xpath->registerNamespace("thr", NAMESPACE_THREAD);
 		$xpath->registerNamespace("at", NAMESPACE_TOMB);
@@ -3013,7 +3015,7 @@ class DFRN
 
 		// The account type is new since 3.5.1
 		if ($xpath->query("/atom:feed/dfrn:account_type")->length > 0) {
-			$accounttype = intval($xpath->evaluate("/atom:feed/dfrn:account_type/text()", $context)->item(0)->nodeValue);
+			$accounttype = intval($xpath->evaluate("/atom:feed/dfrn:account_type/text()")->item(0)->nodeValue);
 
 			if ($accounttype != $importer["contact-type"]) {
 				dba::update('contact', array('contact-type' => $accounttype), array('id' => $importer["id"]));
@@ -3022,7 +3024,7 @@ class DFRN
 
 		// is it a public forum? Private forums aren't supported with this method
 		// This is deprecated since 3.5.1
-		$forum = intval($xpath->evaluate("/atom:feed/dfrn:community/text()", $context)->item(0)->nodeValue);
+		$forum = intval($xpath->evaluate("/atom:feed/dfrn:community/text()")->item(0)->nodeValue);
 
 		if ($forum != $importer["forum"]) {
 			$condition = array('`forum` != ? AND `id` = ?', $forum, $importer["id"]);

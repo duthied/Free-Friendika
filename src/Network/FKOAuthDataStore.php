@@ -1,10 +1,12 @@
 <?php
+
 /**
  * @file src/Protocol/FKOAuthDataStore.php
  * OAuth server
  * Based on oauth2-php <http://code.google.com/p/oauth2-php/>
  *
  */
+
 namespace Friendica\Network;
 
 use Friendica\App;
@@ -16,6 +18,8 @@ use OAuthDataStore;
 
 define('REQUEST_TOKEN_DURATION', 300);
 define('ACCESS_TOKEN_DURATION', 31536000);
+
+require_once 'include/dba.php';
 
 require_once "library/OAuth1.php";
 require_once "library/oauth2-php/lib/OAuth2.inc";
@@ -39,13 +43,13 @@ class FKOAuthDataStore extends OAuthDataStore
 	 */
 	public function lookup_consumer($consumer_key)
 	{
-		logger(__function__.":".$consumer_key);
-		
+		logger(__function__ . ":" . $consumer_key);
+
 		$s = dba::select('clients', array('client_id', 'pw', 'redirect_uri'), array('client_id' => $consumer_key));
-		$r = dba::inArray($r);
+		$r = dba::inArray($s);
 
 		if (DBM::is_result($r)) {
-			return new OAuthConsumer($r[0]['client_id'], $r[0]['pw'], $r[0]['redirect_uri']);
+			return new \OAuthConsumer($r[0]['client_id'], $r[0]['pw'], $r[0]['redirect_uri']);
 		}
 
 		return null;
@@ -59,13 +63,13 @@ class FKOAuthDataStore extends OAuthDataStore
 	 */
 	public function lookup_token($consumer, $token_type, $token)
 	{
-		logger(__function__.":".$consumer.", ". $token_type.", ".$token);
-		
+		logger(__function__ . ":" . $consumer . ", " . $token_type . ", " . $token);
+
 		$s = dba::select('tokens', array('id', 'secret', 'scope', 'expires', 'uid'), array('client_id' => $consumer->key, 'scope' => $token_type, 'id' => $token));
 		$r = dba::inArray($s);
 
 		if (DBM::is_result($r)) {
-			$ot=new OAuthToken($r[0]['id'], $r[0]['secret']);
+			$ot = new \OAuthToken($r[0]['id'], $r[0]['secret']);
 			$ot->scope = $r[0]['scope'];
 			$ot->expires = $r[0]['expires'];
 			$ot->uid = $r[0]['uid'];
@@ -85,9 +89,9 @@ class FKOAuthDataStore extends OAuthDataStore
 	public function lookup_nonce($consumer, $token, $nonce, $timestamp)
 	{
 		$r = dba::select('tokens', ['id', 'secret'], ['client_id' => $consumer->key, 'id' => $nonce, 'expires' => $timestamp], ['limit' => 1]);
-				
+
 		if (DBM::is_result($r)) {
-			return new OAuthToken($r['id'], $r['secret']);
+			return new \OAuthToken($r['id'], $r['secret']);
 		}
 
 		return null;
@@ -100,7 +104,7 @@ class FKOAuthDataStore extends OAuthDataStore
 	 */
 	public function new_request_token($consumer, $callback = null)
 	{
-		logger(__function__.":".$consumer.", ". $callback);
+		logger(__function__ . ":" . $consumer . ", " . $callback);
 		$key = self::genToken();
 		$sec = self::genToken();
 
@@ -117,14 +121,14 @@ class FKOAuthDataStore extends OAuthDataStore
 				'secret' => $sec,
 				'client_id' => $k,
 				'scope' => 'request',
-				'expires' => UNIX_TIMESTAMP() + REQUEST_TOKEN_DURATION)
+				'expires' => time() + REQUEST_TOKEN_DURATION)
 		);
 
 		if (!$r) {
 			return null;
 		}
 
-		return new OAuthToken($key, $sec);
+		return new \OAuthToken($key, $sec);
 	}
 
 	/**
@@ -135,7 +139,7 @@ class FKOAuthDataStore extends OAuthDataStore
 	 */
 	public function new_access_token($token, $consumer, $verifier = null)
 	{
-		logger(__function__.":".$token.", ". $consumer.", ". $verifier);
+		logger(__function__ . ":" . $token . ", " . $consumer . ", " . $verifier);
 
 		// return a new access token attached to this consumer
 		// for the user associated with this token if the request token
@@ -146,9 +150,9 @@ class FKOAuthDataStore extends OAuthDataStore
 
 		// get user for this verifier
 		$uverifier = Config::get("oauth", $verifier);
-		logger(__function__.":".$verifier.",".$uverifier);
+		logger(__function__ . ":" . $verifier . "," . $uverifier);
 
-		if (is_null($verifier) || ($uverifier!==false)) {
+		if (is_null($verifier) || ($uverifier !== false)) {
 			$key = self::genToken();
 			$sec = self::genToken();
 			$r = dba::insert(
@@ -158,18 +162,16 @@ class FKOAuthDataStore extends OAuthDataStore
 					'secret' => $sec,
 					'client_id' => $consumer->key,
 					'scope' => 'access',
-					'expires' => UNIX_TIMESTAMP() + ACCESS_TOKEN_DURATION,
+					'expires' => time() + ACCESS_TOKEN_DURATION,
 					'uid' => $uverifier)
 			);
 
 			if ($r) {
-				$ret = new OAuthToken($key, $sec);
+				$ret = new \OAuthToken($key, $sec);
 			}
 		}
 
-
 		dba::delete('tokens', array('id' => $token->key));
-
 
 		if (!is_null($ret) && !is_null($uverifier)) {
 			Config::delete("oauth", $verifier);

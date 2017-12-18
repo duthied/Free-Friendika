@@ -6,11 +6,12 @@
  */
 namespace Friendica\Core;
 
-use Friendica\Core\Pconfig;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 
+require_once 'include/dba.php';
 require_once 'include/html2plain.php';
 require_once 'include/datetime.php';
 require_once 'include/bbcode.php';
@@ -766,7 +767,7 @@ class NotificationsManager
 	public function introNotifs($all = false, $start = 0, $limit = 80)
 	{
 		$ident = 'introductions';
-		$total = $this->introTotal($seen);
+		$total = $this->introTotal($all);
 		$notifs = array();
 		$sql_extra = "";
 

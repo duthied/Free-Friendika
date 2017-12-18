@@ -11,6 +11,8 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use dba;
 
+require_once 'include/dba.php';
+
 class Expire {
 	public static function execute($param = '', $hook_name = '') {
 		global $a;
@@ -48,7 +50,7 @@ class Expire {
 			foreach ($a->hooks["expire"] as $hook) {
 				if ($hook[1] == $hook_name) {
 					logger("Calling expire hook '" . $hook[1] . "'", LOGGER_DEBUG);
-					call_single_hook($a, $name, $hook, $data);
+					call_single_hook($a, $hook_name, $hook, $data);
 				}
 			}
 			return;

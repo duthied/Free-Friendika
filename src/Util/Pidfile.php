@@ -7,7 +7,7 @@ namespace Friendica\Util;
 /**
  * @brief Pidfile class
  */
-class Pidfile
+class PidFile
 {
 	/**
 	 * @brief Read the pid from a given pid file

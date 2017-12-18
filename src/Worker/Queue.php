@@ -14,6 +14,7 @@ use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Salmon;
 use dba;
 
+require_once 'include/dba.php';
 require_once 'include/queue_fn.php';
 require_once 'include/datetime.php';
 require_once 'include/items.php';
@@ -54,7 +55,7 @@ class Queue
 			 */
 			$r = q("SELECT `id` FROM `queue` WHERE ((`created` > UTC_TIMESTAMP() - INTERVAL 12 HOUR AND `last` < UTC_TIMESTAMP() - INTERVAL 15 MINUTE) OR (`last` < UTC_TIMESTAMP() - INTERVAL 1 HOUR)) ORDER BY `cid`, `created`");
 
-			call_hooks('queue_predeliver', $a, $r);
+			call_hooks('queue_predeliver', $r);
 
 			if (DBM::is_result($r)) {
 				foreach ($r as $q_item) {
@@ -165,7 +166,7 @@ class Queue
 
 			default:
 				$params = array('owner' => $owner, 'contact' => $contact, 'queue' => $q_item, 'result' => false);
-				call_hooks('queue_deliver', $a, $params);
+				call_hooks('queue_deliver', $params);
 
 				if ($params['result']) {
 					remove_queue_item($q_item['id']);

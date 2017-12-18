@@ -268,7 +268,7 @@ class DiscoverPoCo {
 	/**
 	 * @brief Search for GNU Social user with gstools.org
 	 *
-	 * @param str $search User name
+	 * @param string $search User name
 	 */
 	private static function gsSearchUser($search) {
 

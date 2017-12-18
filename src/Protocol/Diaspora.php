@@ -27,6 +27,7 @@ use Friendica\Util\XML;
 use dba;
 use SimpleXMLElement;
 
+require_once 'include/dba.php';
 require_once 'include/items.php';
 require_once 'include/bb2diaspora.php';
 require_once 'include/datetime.php';
@@ -664,7 +665,6 @@ class Diaspora
 			} elseif (!in_array($fieldname, array("author_signature", "parent_author_signature", "target_author_signature"))) {
 				if ($signed_data != "") {
 					$signed_data .= ";";
-					$signed_data_parent .= ";";
 				}
 
 				$signed_data .= $entry;
@@ -927,10 +927,12 @@ class Diaspora
 	/**
 	 * @brief Get a contact id for a given handle
 	 *
+	 * @todo Move to Friendica\Model\Contact
+	 *
 	 * @param int    $uid    The user id
 	 * @param string $handle The handle in the format user@domain.tld
 	 *
-	 * @return The contact id
+	 * @return int Contact id
 	 */
 	private static function contactByHandle($uid, $handle)
 	{
@@ -1091,7 +1093,7 @@ class Diaspora
 		preg_replace_callback(
 			$expression,
 			function ($match) use ($item) {
-				return self::fetchGuidSub($match, $item);
+				self::fetchGuidSub($match, $item);
 			},
 			$item["body"]
 		);
@@ -1099,7 +1101,7 @@ class Diaspora
 		preg_replace_callback(
 			"&\[url=/posts/([^\[\]]*)\](.*)\[\/url\]&Usi",
 			function ($match) use ($item) {
-				return self::fetchGuidSub($match, $item);
+				self::fetchGuidSub($match, $item);
 			},
 			$item["body"]
 		);
@@ -1112,7 +1114,7 @@ class Diaspora
 	 * @param string $body        The item body to replace links from
 	 * @param string $author_link The author link for missing local contact fallback
 	 *
-	 * @return the replaced string
+	 * @return string the replaced string
 	 */
 	public static function replacePeopleGuid($body, $author_link)
 	{
@@ -2308,16 +2310,18 @@ class Diaspora
 				$A = "[url=".$self[0]["url"]."]".$self[0]["name"]."[/url]";
 				$B = "[url=".$contact["url"]."]".$contact["name"]."[/url]";
 				$BPhoto = "[url=".$contact["url"]."][img]".$contact["thumb"]."[/img][/url]";
-				$arr["body"] = sprintf(t("%1$s is now friends with %2$s"), $A, $B)."\n\n\n".$Bphoto;
+				$arr["body"] = sprintf(t('%1$s is now friends with %2$s'), $A, $B)."\n\n\n".$BPhoto;
 
 				$arr["object"] = self::constructNewFriendObject($contact);
 
 				$arr["last-child"] = 1;
 
-				$arr["allow_cid"] = $user[0]["allow_cid"];
-				$arr["allow_gid"] = $user[0]["allow_gid"];
-				$arr["deny_cid"]  = $user[0]["deny_cid"];
-				$arr["deny_gid"]  = $user[0]["deny_gid"];
+				$user = dba::select('user', ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'], ['uid' => $importer["uid"]], ['limit' => 1]);
+
+				$arr["allow_cid"] = $user["allow_cid"];
+				$arr["allow_gid"] = $user["allow_gid"];
+				$arr["deny_cid"]  = $user["deny_cid"];
+				$arr["deny_gid"]  = $user["deny_gid"];
 
 				$i = item_store($arr);
 				if ($i) {
@@ -3206,7 +3210,7 @@ class Diaspora
 			$return_code = self::transmit($owner, $contact, $envelope, $public_batch, false, $guid);
 		}
 
-		logger("guid: ".$item["guid"]." result ".$return_code, LOGGER_DEBUG);
+		logger("guid: ".$guid." result ".$return_code, LOGGER_DEBUG);
 
 		return $return_code;
 	}
@@ -4047,6 +4051,11 @@ class Diaspora
 			return;
 		}
 
+		$owner = User::getOwnerDataById($uid);
+		if (!$owner) {
+			return;
+		}
+
 		if (!$recips) {
 			$recips = q(
 				"SELECT `id`,`name`,`network`,`pubkey`,`notify` FROM `contact` WHERE `network` = '%s'
@@ -4065,7 +4074,7 @@ class Diaspora
 
 		foreach ($recips as $recip) {
 			logger("Send updated profile data for user ".$uid." to contact ".$recip["id"], LOGGER_DEBUG);
-			self::buildAndTransmit($profile, $recip, "profile", $message, false, "", true);
+			self::buildAndTransmit($owner, $recip, "profile", $message, false, "", true);
 		}
 	}
 

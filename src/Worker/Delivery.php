@@ -10,6 +10,7 @@ use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\User;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Email;
@@ -140,19 +141,10 @@ class Delivery {
 			}
 		}
 
-		$r = q("SELECT `contact`.*, `user`.`prvkey` AS `uprvkey`,
-			`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`,
-			`user`.`page-flags`, `user`.`account-type`, `user`.`prvnets`
-			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
-			WHERE `contact`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
-			intval($uid)
-		);
-
-		if (!DBM::is_result($r)) {
+		$owner = User::getOwnerDataById($uid);
+		if (!$owner) {
 			return;
 		}
-
-		$owner = $r[0];
 
 		$walltowall = (($top_level && ($owner['id'] != $items[0]['contact-id'])) ? true : false);
 
