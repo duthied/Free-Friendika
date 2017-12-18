@@ -1500,48 +1500,47 @@ function api_search($type)
 {
 	$data = array();
 
-	if (x($_REQUEST, 'q')) {
-		if (x($_REQUEST, 'rpp')) {
-			$count = $_REQUEST['rpp'];
-		} elseif (x($_REQUEST, 'count')) {
-			$count = $_REQUEST['count'];
-		} else {
-			$count = 15;
-		}
-
-		$since_id = (x($_REQUEST, 'since_id') ? $_REQUEST['since_id'] : 0);
-		$max_id = (x($_REQUEST, 'max_id') ? $_REQUEST['max_id'] : 0);
-		$page = (x($_REQUEST, 'page') ? $_REQUEST['page'] - 1 : 0);
-
-		$start = $page * $count;
-
-		if ($max_id > 0) {
-			$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
-		}
-
-		$r = q(
-			"SELECT %s
-			FROM `item` %s
-			WHERE %s AND (`item`.`uid` = 0 OR (`item`.`uid` = %s AND NOT `item`.`global`))
-			AND `item`.`body` REGEXP '%s'
-			$sql_extra
-			AND `item`.`id`>%d
-			GROUP BY `item`.`uri`, `item`.`id`
-			ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
-			item_fieldlists(),
-			item_joins(),
-			item_condition(),
-			intval(local_user()),
-			dbesc(protect_sprintf(preg_quote($_REQUEST['q']))),
-			intval($since_id),
-			intval($start),
-			intval($count)
-		);
-
-		$data['status'] = api_format_items($r, api_get_user(get_app()));
-	} else {
+	if (!x($_REQUEST, 'q')) {
 		throw new BadRequestException("q parameter is required.");
 	}
+
+	if (x($_REQUEST, 'rpp')) {
+		$count = $_REQUEST['rpp'];
+	} elseif (x($_REQUEST, 'count')) {
+		$count = $_REQUEST['count'];
+	} else {
+		$count = 15;
+	}
+
+	$since_id = (x($_REQUEST, 'since_id') ? $_REQUEST['since_id'] : 0);
+	$max_id = (x($_REQUEST, 'max_id') ? $_REQUEST['max_id'] : 0);
+	$page = (x($_REQUEST, 'page') ? $_REQUEST['page'] - 1 : 0);
+
+	$start = $page * $count;
+
+	if ($max_id > 0) {
+		$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
+	}
+
+	$r = dba::p(
+		"SELECT ".item_fieldlists()."
+		FROM `item` ".item_joins()."
+		WHERE ".item_condition()." AND (`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))
+		AND `item`.`body` REGEXP ?
+		$sql_extra
+		AND `item`.`id`>?
+		ORDER BY `item`.`id` DESC LIMIT ".intval($start)." ,".intval($count)." ",
+		intval(api_user()),
+		$_REQUEST['q'],
+		intval($since_id)
+	);
+
+	$statuses = array();
+	while ($row = dba::fetch($r)) {
+		$statuses[] = $row;
+	}
+
+	$data['status'] = api_format_items($statuses, api_get_user(get_app()));
 
 	return api_format_data("statuses", $type, $data);
 }
