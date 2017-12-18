@@ -1486,6 +1486,71 @@ function api_users_search($type)
 api_register_func('api/users/search', 'api_users_search');
 
 /**
+ * Returns statuses that match a specified query.
+ *
+ * @see https://developer.twitter.com/en/docs/tweets/search/api-reference/get-search-tweets
+ *
+ * @param string $type Return format: json, xml, atom, rss
+ *
+ * @return array|string
+ * @throws UnauthorizedException
+ * @throws BadRequestException
+ */
+function api_search($type)
+{
+	$data = array();
+
+	if (x($_REQUEST, 'q')) {
+		if (x($_REQUEST, 'rpp')) {
+			$count = $_REQUEST['rpp'];
+		} elseif (x($_REQUEST, 'count')) {
+			$count = $_REQUEST['count'];
+		} else {
+			$count = 15;
+		}
+
+		$since_id = (x($_REQUEST, 'since_id') ? $_REQUEST['since_id'] : 0);
+		$max_id = (x($_REQUEST, 'max_id') ? $_REQUEST['max_id'] : 0);
+		$page = (x($_REQUEST, 'page') ? $_REQUEST['page'] - 1 : 0);
+
+		$start = $page * $count;
+
+		if ($max_id > 0) {
+			$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
+		}
+
+		$r = q(
+			"SELECT %s
+			FROM `item` %s
+			WHERE %s AND (`item`.`uid` = 0 OR (`item`.`uid` = %s AND NOT `item`.`global`))
+			AND `item`.`body` REGEXP '%s'
+			$sql_extra
+			AND `item`.`id`>%d
+			GROUP BY `item`.`uri`, `item`.`id`
+			ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
+			item_fieldlists(),
+			item_joins(),
+			item_condition(),
+			intval(local_user()),
+			dbesc(protect_sprintf(preg_quote($_REQUEST['q']))),
+			intval($since_id),
+			intval($start),
+			intval($count)
+		);
+
+		$data['status'] = api_format_items($r, api_get_user(get_app()));
+	} else {
+		throw new BadRequestException("q parameter is required.");
+	}
+
+	return api_format_data("statuses", $type, $data);
+}
+
+/// @TODO move to top of file or somewhere better
+api_register_func('api/search/tweets', 'api_search', true);
+api_register_func('api/search', 'api_search', true);
+
+/**
  *
  * http://developer.twitter.com/doc/get/statuses/home_timeline
  *

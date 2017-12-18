@@ -450,6 +450,24 @@ It shows all direct answers (excluding the original post) to a given id.
 Friendica doesn't allow showing followers of other users.
 
 ---
+### search (*; AUTH)
+#### Parameters
+* q: search query
+* page: the page number (starting at 1) to return
+* rpp: the number of statuses to return per page
+* count: alias for the rpp parameter
+* since_id: returns statuses with ids greater than the given id
+* max_id: returns statuses with ids lower or equal to the given id
+
+#### Unsupported parameters
+* geocode
+* lang
+* locale
+* result_type
+* until
+* include_entities
+
+---
 ### users/search (*)
 #### Parameters
 * q: name of the user
