@@ -66,7 +66,7 @@ Class OnePoll
 
 		// Diaspora users, archived users and followers are only checked if they still exist.
 		if ($contact['archive'] || ($contact["network"] == NETWORK_DIASPORA) || ($contact["rel"] == CONTACT_IS_FOLLOWER)) {
-			$last_updated = PortableContact::lastUpdated($contact["url"]);
+			$last_updated = PortableContact::lastUpdated($contact["url"], true);
 			$updated = datetime_convert();
 			if ($last_updated) {
 				logger('Contact '.$contact['id'].' had last update on '.$last_updated, LOGGER_DEBUG);
