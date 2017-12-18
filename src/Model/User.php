@@ -40,7 +40,7 @@ class User
 	 * @return boolean|array
 	 */
 	public static function getOwnerDataById($uid) {
-		$r = dba::p("SELECT
+		$r = dba::fetch_first("SELECT
 			`contact`.*,
 			`user`.`prvkey` AS `uprvkey`,
 			`user`.`timezone`,
@@ -54,14 +54,14 @@ class User
 			INNER JOIN `user`
 				ON `user`.`uid` = `contact`.`uid`
 			WHERE `contact`.`uid` = ?
-			AND `contact`.`self` = 1
+			AND `contact`.`self`
 			LIMIT 1",
 			$uid
 		);
 		if (!DBM::is_result($r)) {
 			return false;
 		}
-		return $r[0];
+		return $r;
 	}
 
 	/**
