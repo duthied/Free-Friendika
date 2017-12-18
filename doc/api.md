@@ -279,6 +279,19 @@ Friendica doesn't allow showing the friends of other users.
 * include_entities: "true" shows entities for pictures and links (Default: false)
 
 ---
+### blocks/list (*; AUTH)
+
+#### Parameters
+
+* include_entities: "true" shows entities for pictures and links (Default: false)
+* count: Items per page (default: 20).
+* page: page number
+
+#### Unsupported parameters
+* cursor
+* skip_status
+
+---
 ### statuses/friends_timeline (*; AUTH)
 #### Parameters
 * count: Items per page (default: 20)
@@ -941,7 +954,6 @@ The following API calls from the Twitter API are not implemented in either Frien
 * account/update_delivery_device
 * account/update_profile
 * account/update_profile_background_image
-* blocks/list
 * blocks/ids
 * users/lookup
 * users/show
