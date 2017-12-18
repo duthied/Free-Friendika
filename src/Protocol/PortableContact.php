@@ -722,6 +722,10 @@ class PortableContact
 			}
 		}
 
+		if (!empty($nodeinfo->usage->users->total)) {
+			$server['registered-users'] = $nodeinfo->usage->users->total;
+		}
+
 		$diaspora = false;
 		$friendica = false;
 		$gnusocial = false;
@@ -853,6 +857,7 @@ class PortableContact
 			$site_name = $servers[0]["site_name"];
 			$info = $servers[0]["info"];
 			$register_policy = $servers[0]["register_policy"];
+			$registered_users = $servers[0]["registered-users"];
 
 			if (!$force && !self::updateNeeded($servers[0]["created"], "", $last_failure, $last_contact)) {
 				logger("Use cached data for server ".$server_url, LOGGER_DEBUG);
@@ -866,6 +871,7 @@ class PortableContact
 			$site_name = "";
 			$info = "";
 			$register_policy = -1;
+			$registered_users = 0;
 
 			$last_contact = NULL_DATE;
 			$last_failure = NULL_DATE;
@@ -928,12 +934,18 @@ class PortableContact
 			$register_policy = -1;
 		}
 
+		if (!$failure) {
+			// This will be too low, but better than no value at all.
+			$registered_users = dba::count('gcontact', ['server_url' => normalise_link($server_url)]);
+		}
+
 		// Look for poco
 		if (!$failure) {
 			$serverret = z_fetch_url($server_url."/poco");
 			if ($serverret["success"]) {
 				$data = json_decode($serverret["body"]);
 				if (isset($data->totalResults)) {
+					$registered_users = $data->totalResults;
 					$poco = $server_url."/poco";
 					$server = self::detectPocoData($data);
 					if ($server) {
@@ -1020,6 +1032,9 @@ class PortableContact
 					$info = $data->description;
 					$network = NETWORK_OSTATUS;
 				}
+				if (!empty($data->stats->user_count)) {
+					$registered_users = $data->stats->user_count;
+				}
 			}
 			if (strstr($orig_version.$version, 'Pleroma')) {
 				$platform = 'Pleroma';
@@ -1039,6 +1054,9 @@ class PortableContact
 				}
 				if (!empty($data->site_name)) {
 					$site_name = $data->site_name;
+				}
+				if (!empty($data->channels_total)) {
+					$registered_users = $data->channels_total;
 				}
 				switch ($data->register_policy) {
 					case "REGISTER_OPEN":
@@ -1160,6 +1178,10 @@ class PortableContact
 				if (isset($server['site_name'])) {
 					$site_name = $server['site_name'];
 				}
+
+				if (isset($server['registered-users'])) {
+					$registered_users = $server['registered-users'];
+				}
 			}
 		}
 
@@ -1227,41 +1249,20 @@ class PortableContact
 		$platform = strip_tags($platform);
 
 		if ($servers) {
-			q(
-				"UPDATE `gserver` SET `url` = '%s', `version` = '%s', `site_name` = '%s', `info` = '%s', `register_policy` = %d, `poco` = '%s', `noscrape` = '%s',
-				`network` = '%s', `platform` = '%s', `last_contact` = '%s', `last_failure` = '%s' WHERE `nurl` = '%s'",
-				dbesc($server_url),
-				dbesc($version),
-				dbesc($site_name),
-				dbesc($info),
-				intval($register_policy),
-				dbesc($poco),
-				dbesc($noscrape),
-				dbesc($network),
-				dbesc($platform),
-				dbesc($last_contact),
-				dbesc($last_failure),
-				dbesc(normalise_link($server_url))
-			);
+			$fields = ['url' => $server_url, 'version' => $version,
+					'site_name' => $site_name, 'info' => $info, 'register_policy' => $register_policy,
+					'poco' => $poco, 'noscrape' => $noscrape, 'network' => $network,
+					'platform' => $platform, 'registered-users' => $registered_users,
+					'last_contact' => $last_contact, 'last_failure' => last_failure];
+			dba::update('gserver', $fields, ['nurl' => normalise_link($server_url)]);
 		} elseif (!$failure) {
-			q(
-				"INSERT INTO `gserver` (`url`, `nurl`, `version`, `site_name`, `info`, `register_policy`, `poco`, `noscrape`, `network`, `platform`, `created`, `last_contact`, `last_failure`)
-						VALUES ('%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-				dbesc($server_url),
-				dbesc(normalise_link($server_url)),
-				dbesc($version),
-				dbesc($site_name),
-				dbesc($info),
-				intval($register_policy),
-				dbesc($poco),
-				dbesc($noscrape),
-				dbesc($network),
-				dbesc($platform),
-				dbesc(datetime_convert()),
-				dbesc($last_contact),
-				dbesc($last_failure),
-				dbesc(datetime_convert())
-			);
+			$fields = ['url' => $server_url, 'nurl' => normalise_link($server_url), 'version' => $version,
+					'site_name' => $site_name, 'info' => $info, 'register_policy' => $register_policy,
+					'poco' => $poco, 'noscrape' => $noscrape, 'network' => $network,
+					'platform' => $platform, 'registered-users' => $registered_users,
+					'created' => datetime_convert(),
+					'last_contact' => $last_contact, 'last_failure' => last_failure];
+			dba::insert('gserver', $fields);
 		}
 		logger("End discovery for server " . $server_url, LOGGER_DEBUG);
 
