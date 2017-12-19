@@ -1525,8 +1525,7 @@ api_register_func('api/users/search', 'api_users_search');
  * @param string $type Return format: json or xml
  *
  * @return array|string
- * @throws UnauthorizedException
- * @throws NotFoundException
+ * @throws NotFoundException if the results are empty.
  */
 function api_users_lookup($type)
 {
@@ -1558,8 +1557,7 @@ api_register_func('api/users/lookup', 'api_users_lookup', true);
  * @param string $type Return format: json, xml, atom, rss
  *
  * @return array|string
- * @throws UnauthorizedException
- * @throws BadRequestException
+ * @throws BadRequestException if the "q" parameter is missing.
  */
 function api_search($type)
 {
@@ -3263,7 +3261,6 @@ api_register_func('api/statuses/followers', 'api_statuses_followers', true);
  * @param string $type Either "json" or "xml"
  *
  * @return boolean|string|array
- * @throws UnauthorizedException
  */
 function api_blocks_list($type)
 {
@@ -3285,7 +3282,6 @@ api_register_func('api/blocks/list', 'api_blocks_list', true);
  * @param string $type Either "json" or "xml"
  *
  * @return boolean|string|array
- * @throws UnauthorizedException
  */
 function api_friendships_incoming($type)
 {
@@ -5489,6 +5485,37 @@ function api_friendica_profile_show($type)
 	return api_format_data("friendica_profiles", $type, array('$result' => $result));
 }
 api_register_func('api/friendica/profile/show', 'api_friendica_profile_show', true, API_METHOD_GET);
+
+/**
+ * Returns a list of saved searches.
+ *
+ * @see https://developer.twitter.com/en/docs/accounts-and-users/manage-account-settings/api-reference/get-saved_searches-list
+ *
+ * @param  string $type Return format: json or xml
+ *
+ * @return string|array
+ */
+function api_saved_searches_list($type)
+{
+	$terms = dba::select('search', array('id', 'term'), array('uid' => local_user()));
+
+	$result = array();
+	while ($term = $terms->fetch()) {
+		$result[] = array(
+			'name' => $term['term'],
+			'query' => $term['term'],
+			'id_str' => $term['id'],
+			'id' => intval($term['id'])
+		);
+	}
+
+	dba::close($terms);
+
+	return api_format_data("terms", $type, array('terms' => $result));
+}
+
+/// @TODO move to top of file or somwhere better
+api_register_func('api/saved_searches/list', 'api_saved_searches_list', true);
 
 /*
 @TODO Maybe open to implement?
