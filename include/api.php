@@ -1494,14 +1494,22 @@ api_register_func('api/users/search', 'api_users_search');
  *
  * @return array|string
  * @throws UnauthorizedException
+ * @throws NotFoundException
  */
 function api_users_lookup($type)
 {
 	$users = array();
-	foreach (explode(',', $_REQUEST['user_id']) as $id) {
-		if (!empty($id)) {
-			$users[] = api_get_user(get_app(), $id);
+
+	if (x($_REQUEST['user_id'])) {
+		foreach (explode(',', $_REQUEST['user_id']) as $id) {
+			if (!empty($id)) {
+				$users[] = api_get_user(get_app(), $id);
+			}
 		}
+	}
+
+	if (empty($users)) {
+		throw new NotFoundException;
 	}
 
 	return api_format_data("users", $type, array('users' => $users));
