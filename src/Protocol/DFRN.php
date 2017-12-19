@@ -347,7 +347,7 @@ class DFRN
 			if (!$owner) {
 				killme();
 			}
-		else {
+		} else {
 			$owner = ['uid' => 0, 'nick' => '_feed_'];
 		}
 
