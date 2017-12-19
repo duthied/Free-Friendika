@@ -1525,8 +1525,7 @@ api_register_func('api/users/search', 'api_users_search');
  * @param string $type Return format: json or xml
  *
  * @return array|string
- * @throws UnauthorizedException
- * @throws NotFoundException
+ * @throws NotFoundException if the results are empty.
  */
 function api_users_lookup($type)
 {
@@ -1558,8 +1557,7 @@ api_register_func('api/users/lookup', 'api_users_lookup', true);
  * @param string $type Return format: json, xml, atom, rss
  *
  * @return array|string
- * @throws UnauthorizedException
- * @throws BadRequestException
+ * @throws BadRequestException if the "q" parameter is missing.
  */
 function api_search($type)
 {
@@ -3263,7 +3261,6 @@ api_register_func('api/statuses/followers', 'api_statuses_followers', true);
  * @param string $type Either "json" or "xml"
  *
  * @return boolean|string|array
- * @throws UnauthorizedException
  */
 function api_blocks_list($type)
 {
@@ -3285,7 +3282,6 @@ api_register_func('api/blocks/list', 'api_blocks_list', true);
  * @param string $type Either "json" or "xml"
  *
  * @return boolean|string|array
- * @throws UnauthorizedException
  */
 function api_friendships_incoming($type)
 {
@@ -5498,7 +5494,6 @@ api_register_func('api/friendica/profile/show', 'api_friendica_profile_show', tr
  * @param  string $type Return format: json or xml
  *
  * @return string|array
- * @throws UnauthorizedException
  */
 function api_saved_searches_list($type)
 {
