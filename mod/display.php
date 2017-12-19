@@ -30,10 +30,11 @@ function display_init(App $a) {
 		}
 	}
 
+	$r = false;
+
 	// If there is only one parameter, then check if this parameter could be a guid
 	if ($a->argc == 2) {
 		$nick = "";
-		$itemuid = 0;
 		$r = false;
 
 		// Does the local user have this item?
@@ -44,7 +45,6 @@ function display_init(App $a) {
 					AND `guid` = ? AND `uid` = ? LIMIT 1", $a->argv[1], local_user());
 			if (DBM::is_result($r)) {
 				$nick = $a->user["nickname"];
-				$itemuid = local_user();
 			}
 		}
 
@@ -71,42 +71,51 @@ function display_init(App $a) {
 					AND `item`.`guid` = ? LIMIT 1", $a->argv[1]);
 		}
 
-		if (DBM::is_result($r)) {
-
-			if (strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
-				logger('Directly serving XML for id '.$r["id"], LOGGER_DEBUG);
-				displayShowFeed($r["id"], false);
-			}
-
-			if ($r["id"] != $r["parent"]) {
-				$r = dba::fetch_first("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
-					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-						AND `id` = ?", $r["parent"]);
-			}
-
-			$profiledata = display_fetchauthor($a, $r);
-
-			if (strstr(normalise_link($profiledata["url"]), normalise_link(System::baseUrl()))) {
-				$nickname = str_replace(normalise_link(System::baseUrl())."/profile/", "", normalise_link($profiledata["url"]));
-
-				if (($nickname != $a->user["nickname"])) {
-					$r = dba::fetch_first("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
-						INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-						WHERE `user`.`nickname` = ? AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
-						$nickname
-					);
-					if (DBM::is_result($r)) {
-						$profiledata = $r;
-					}
-					$profiledata["network"] = NETWORK_DFRN;
-				} else {
-					$profiledata = array();
-				}
-			}
-		} else {
+		if (!DBM::is_result($r)) {
 			$a->error = 404;
 			notice(t('Item not found.') . EOL);
 			return;
+		}
+	} elseif (($a->argc == 3) && ($nick == '_feed_')) {
+		$r = dba::fetch_first("SELECT `id`, `parent`, `author-name`, `author-link`,
+					`author-avatar`, `network`, `body`, `uid`, `owner-link`
+			FROM `item` WHERE `visible` AND NOT `deleted` AND NOT `moderated`
+				AND `allow_cid` = ''  AND `allow_gid` = ''
+				AND `deny_cid`  = '' AND `deny_gid`  = ''
+				AND NOT `private` AND `uid` = 0
+				AND `id` = ? LIMIT 1", $a->argv[2]);
+	}
+
+	if (DBM::is_result($r)) {
+		if (strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
+			logger('Directly serving XML for id '.$r["id"], LOGGER_DEBUG);
+			displayShowFeed($r["id"], false);
+		}
+
+		if ($r["id"] != $r["parent"]) {
+			$r = dba::fetch_first("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
+				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
+					AND `id` = ?", $r["parent"]);
+		}
+
+		$profiledata = display_fetchauthor($a, $r);
+
+		if (strstr(normalise_link($profiledata["url"]), normalise_link(System::baseUrl()))) {
+			$nickname = str_replace(normalise_link(System::baseUrl())."/profile/", "", normalise_link($profiledata["url"]));
+
+			if (($nickname != $a->user["nickname"])) {
+				$r = dba::fetch_first("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
+					INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
+					WHERE `user`.`nickname` = ? AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
+					$nickname
+				);
+				if (DBM::is_result($r)) {
+					$profiledata = $r;
+				}
+				$profiledata["network"] = NETWORK_DFRN;
+			} else {
+				$profiledata = array();
+			}
 		}
 	}
 
@@ -223,6 +232,7 @@ function display_content(App $a, $update = 0) {
 		$item_id = (($a->argc > 2) ? $a->argv[2] : 0);
 
 		if ($a->argc == 2) {
+			$item_parent = 0;
 			$nick = "";
 
 			if (local_user()) {
@@ -236,7 +246,19 @@ function display_content(App $a, $update = 0) {
 				}
 			}
 
-			if ($nick == "") {
+			if ($item_parent == 0) {
+				$r = dba::fetch_first("SELECT `item`.`id`, `item`.`parent` FROM `item`
+					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
+						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
+						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
+						AND NOT `item`.`private` AND `item`.`uid` = 0
+						AND `item`.`guid` = ?", $a->argv[1]);
+				if (DBM::is_result($r)) {
+					$item_id = $r["id"];
+					$item_parent = $r["parent"];
+				}
+			}
+			if ($item_parent == 0) {
 				$r = dba::fetch_first("SELECT `user`.`nickname`, `item`.`id`, `item`.`parent` FROM `item` STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
@@ -247,18 +269,6 @@ function display_content(App $a, $update = 0) {
 					$item_id = $r["id"];
 					$item_parent = $r["parent"];
 					$nick = $r["nickname"];
-				}
-			}
-			if ($nick == "") {
-				$r = dba::fetch_first("SELECT `item`.`id`, `item`.`parent` FROM `item`
-					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
-						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-						AND NOT `item`.`private` AND `item`.`uid` = 0
-						AND `item`.`guid` = ?", $a->argv[1]);
-				if (DBM::is_result($r)) {
-					$item_id = $r["id"];
-					$item_parent = $r["parent"];
 				}
 			}
 		}
@@ -283,6 +293,10 @@ function display_content(App $a, $update = 0) {
 	// We are displaying an "alternate" link if that post was public. See issue 2864
 	$is_public = dba::exists('item', array('id' => $item_id, 'private' => false));
 	if ($is_public) {
+		// For the atom feed the nickname doesn't matter at all, we only need the item id.
+		if ($nick == '') {
+			$nick = '_feed_';
+		}
 		$alternate = System::baseUrl().'/display/'.$nick.'/'.$item_id.'.atom';
 		$conversation = System::baseUrl().'/display/'.$nick.'/'.$item_parent.'/conversation.atom';
 	} else {
