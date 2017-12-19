@@ -860,6 +860,13 @@ class PortableContact
 		$orig_last_failure = $last_failure;
 		$orig_last_contact = $last_contact;
 
+		// Mastodon uses the "@" for user profiles.
+		// But this can be misunderstood.
+		if (parse_url($server_url, PHP_URL_USER) != '') {
+			dba::update('gserver', array('last_failure' => datetime_convert()), array('nurl' => normalise_link($server_url)));
+			return false;
+		}
+
 		// Check if the page is accessible via SSL.
 		$orig_server_url = $server_url;
 		$server_url = str_replace("http://", "https://", $server_url);
@@ -914,11 +921,6 @@ class PortableContact
 		if (!$failure) {
 			// This will be too low, but better than no value at all.
 			$registered_users = dba::count('gcontact', ['server_url' => normalise_link($server_url)]);
-
-			// Every server has got an admin account at least
-			if ($registered_users == 0) {
-				$registered_users = 1;
-			}
 		}
 
 		// Look for poco
@@ -1211,6 +1213,11 @@ class PortableContact
 					}
 				}
 			}
+		}
+
+		// Every server has got at least an admin account
+		if (!$failure && ($registered_users == 0)) {
+			$registered_users = 1;
 		}
 
 		if ($possible_failure && !$failure) {
