@@ -1229,7 +1229,7 @@ class PortableContact
 				'site_name' => $site_name, 'info' => $info, 'register_policy' => $register_policy,
 				'poco' => $poco, 'noscrape' => $noscrape, 'network' => $network,
 				'platform' => $platform, 'registered-users' => $registered_users,
-				'last_contact' => $last_contact, 'last_failure' => last_failure];
+				'last_contact' => $last_contact, 'last_failure' => $last_failure];
 
 		if ($found) {
 			dba::update('gserver', $fields, ['nurl' => normalise_link($server_url)]);
