@@ -609,6 +609,12 @@ Friendica doesn't allow showing followers of other users.
 
 ---
 
+### search/tweets (*; AUTH)
+
+This is an alias for `search`.
+
+---
+
 ### users/search (*)
 
 #### Parameters
@@ -1186,7 +1192,6 @@ The following API calls from the Twitter API are not implemented in either Frien
 * statuses/retweeters/ids
 * statuses/lookup
 * direct_messages/show
-* search/tweets
 * friendships/no_retweets/ids
 * friendships/outgoing
 * friendships/update
