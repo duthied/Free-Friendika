@@ -548,15 +548,17 @@ function admin_page_federation(App $a)
 	);
 	$counts = array();
 	$total = 0;
+	$users = 0;
 
 	foreach ($platforms as $p) {
 		// get a total count for the platform, the name and version of the
 		// highest version and the protocol tpe
-		$c = q('SELECT COUNT(*) AS `total`, ANY_VALUE(`platform`) AS `platform`,
+		$c = q('SELECT COUNT(*) AS `total`, SUM(`registered-users`) AS `users`, ANY_VALUE(`platform`) AS `platform`,
 				ANY_VALUE(`network`) AS `network`, MAX(`version`) AS `version` FROM `gserver`
 				WHERE `platform` LIKE "%s" AND `last_contact` >= `last_failure`
 				ORDER BY `version` ASC;', $p);
-		$total = $total + $c[0]['total'];
+		$total += $c[0]['total'];
+		$users += $c[0]['users'];
 
 		// what versions for that platform do we know at all?
 		// again only the active nodes
@@ -648,7 +650,7 @@ function admin_page_federation(App $a)
 		'$autoactive' => Config::get('system', 'poco_completion'),
 		'$counts' => $counts,
 		'$version' => FRIENDICA_VERSION,
-		'$legendtext' => sprintf(t('Currently this node is aware of %d nodes from the following platforms:'), $total),
+		'$legendtext' => sprintf(t('Currently this node is aware of %d nodes with %d registered users from the following platforms:'), $total, $users),
 		'$baseurl' => System::baseUrl(),
 	));
 }

@@ -909,6 +909,11 @@ class PortableContact
 		if (!$failure) {
 			// This will be too low, but better than no value at all.
 			$registered_users = dba::count('gcontact', ['server_url' => normalise_link($server_url)]);
+
+			// Every server has got an admin account at least
+			if ($registered_users == 0) {
+				$registered_users = 1;
+			}
 		}
 
 		// Look for poco
