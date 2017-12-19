@@ -928,14 +928,8 @@ function login($register = false, $hiddens = false)
  */
 function killme()
 {
-	global $session_exists;
-
 	if (!get_app()->is_backend()) {
-		if (!$session_exists) {
-			session_abort();
-		} else {
-			session_write_close();
-		}
+		session_write_close();
 	}
 
 	exit();

@@ -61,8 +61,12 @@ function ref_session_write($id, $data)
 {
 	global $session_exists, $session_expire;
 
-	if (!$id || !$data) {
+	if (!$id) {
 		return false;
+	}
+
+	if (!$data) {
+		return true;
 	}
 
 	$expire = time() + $session_expire;
