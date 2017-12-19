@@ -785,10 +785,10 @@ function api_get_user(App $a, $contact_id = null)
 		$theme_info = dba::select('user', ['theme'], ['uid' => $ret['uid']], ['limit' => 1]);
 		if ($theme_info['theme'] === 'frio') {
 			$schema = PConfig::get($ret['uid'], 'frio', 'schema');
-			if (($schema) && ($schema != '---')) {
+			if ($schema && ($schema != '---')) {
 				if (file_exists('view/theme/frio/schema/'.$schema.'.php')) {
 					$schemefile = 'view/theme/frio/schema/'.$schema.'.php';
-					require_once($schemefile);
+					require_once $schemefile;
 				}
 			} else {
 				$nav_bg = PConfig::get($ret['uid'], 'frio', 'nav_bg');
