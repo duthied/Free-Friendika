@@ -5490,6 +5490,36 @@ function api_friendica_profile_show($type)
 }
 api_register_func('api/friendica/profile/show', 'api_friendica_profile_show', true, API_METHOD_GET);
 
+/**
+ * Returns a list of saved searches.
+ *
+ * @see https://developer.twitter.com/en/docs/accounts-and-users/manage-account-settings/api-reference/get-saved_searches-list
+ *
+ * @param  string $type Return format: json or xml
+ *
+ * @return string|array
+ * @throws UnauthorizedException
+ */
+function api_saved_searches_list($type)
+{
+	$terms = dba::select('search', array('id', 'term'), array('uid' => local_user()));
+
+	$result = array();
+	while ($term = $terms->fetch()) {
+		$result[] = array(
+			'name' => $term['term'],
+			'query' => $term['term'],
+			'id_str' => $term['id'],
+			'id' => intval($term['id'])
+		);
+	}
+
+	return api_format_data("terms", $type, array('terms' => $result));
+}
+
+/// @TODO move to top of file or somwhere better
+api_register_func('api/saved_searches/list', 'api_saved_searches_list', true);
+
 /*
 @TODO Maybe open to implement?
 To.Do:

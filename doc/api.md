@@ -615,6 +615,12 @@ This is an alias for `search`.
 
 ---
 
+### saved_searches/list (*; AUTH)
+
+This call does not have any parameter.
+
+---
+
 ### users/search (*)
 
 #### Parameters
@@ -1234,7 +1240,6 @@ The following API calls from the Twitter API are not implemented in either Frien
 * lists/subscriptions
 * lists/members/destroy_all
 * lists/ownerships
-* saved_searches/list
 * saved_searches/show/:id
 * saved_searches/create
 * saved_searches/destroy/:id
