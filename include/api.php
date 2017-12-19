@@ -1518,6 +1518,39 @@ function api_users_search($type)
 api_register_func('api/users/search', 'api_users_search');
 
 /**
+ * Return user objects
+ *
+ * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-users-lookup
+ *
+ * @param string $type Return format: json or xml
+ *
+ * @return array|string
+ * @throws UnauthorizedException
+ * @throws NotFoundException
+ */
+function api_users_lookup($type)
+{
+	$users = array();
+
+	if (x($_REQUEST['user_id'])) {
+		foreach (explode(',', $_REQUEST['user_id']) as $id) {
+			if (!empty($id)) {
+				$users[] = api_get_user(get_app(), $id);
+			}
+		}
+	}
+
+	if (empty($users)) {
+		throw new NotFoundException;
+	}
+
+	return api_format_data("users", $type, array('users' => $users));
+}
+
+/// @TODO move to top of file or somewhere better
+api_register_func('api/users/lookup', 'api_users_lookup', true);
+
+/**
  * Returns statuses that match a specified query.
  *
  * @see https://developer.twitter.com/en/docs/tweets/search/api-reference/get-search-tweets
@@ -3147,9 +3180,11 @@ function api_statuses_f($qtype)
 	}
 
 	if ($qtype == 'blocks') {
-		$sql_blocked = 'AND `blocked`';
+		$sql_filter = 'AND `blocked` AND NOT `pending`';
+	} elseif ($qtype == 'incoming') {
+		$sql_filter = 'AND `pending`';
 	} else {
-		$sql_blocked = 'AND NOT `blocked`';
+		$sql_filter = 'AND (NOT `blocked` OR `pending`)';
 	}
 
 	$r = q(
@@ -3157,8 +3192,7 @@ function api_statuses_f($qtype)
 		FROM `contact`
 		WHERE `uid` = %d
 		AND NOT `self`
-		$sql_blocked
-		AND NOT `pending`
+		$sql_filter
 		$sql_extra
 		ORDER BY `nick`
 		LIMIT %d, %d",
@@ -3242,6 +3276,34 @@ function api_blocks_list($type)
 
 /// @TODO move to top of file or somewhere better
 api_register_func('api/blocks/list', 'api_blocks_list', true);
+
+/**
+ * Returns the list of pending users IDs
+ *
+ * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-friendships-incoming
+ *
+ * @param string $type Either "json" or "xml"
+ *
+ * @return boolean|string|array
+ * @throws UnauthorizedException
+ */
+function api_friendships_incoming($type)
+{
+	$data =  api_statuses_f('incoming');
+	if ($data === false) {
+		return false;
+	}
+
+	$ids = array();
+	foreach ($data['user'] as $user) {
+		$ids[] = $user['id'];
+	}
+
+	return api_format_data("ids", $type, array('id' => $ids));
+}
+
+/// @TODO move to top of file or somewhere better
+api_register_func('api/friendships/incoming', 'api_friendships_incoming', true);
 
 function api_statusnet_config($type)
 {

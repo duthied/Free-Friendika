@@ -504,6 +504,15 @@ Friendica doesn't allow showing followers of other users.
 
 Friendica doesn't allow showing friends of other users.
 
+---
+### users/lookup (*; AUTH)
+
+#### Parameters
+* user_id: list of ids to lookup
+
+#### Unsupported parameters
+* screen_name
+* include_entities
 
 ---
 ### account/update_profile_image (POST; AUTH)
@@ -939,6 +948,12 @@ General description of profile data in API returns:
 * description ... homepage: different data fields from 'profile' table in database
 * users: array with the users allowed to view this profile (empty if is_default=true)
 
+---
+### friendships/incoming (*; AUTH)
+
+#### Unsupported parameters
+* cursor
+* stringify_ids
 
 ---
 ## Not Implemented API calls
@@ -963,7 +978,6 @@ The following API calls from the Twitter API are not implemented in either Frien
 * direct_messages/show
 * search/tweets
 * friendships/no_retweets/ids
-* friendships/incoming
 * friendships/outgoing
 * friendships/update
 * friends/list
@@ -973,7 +987,6 @@ The following API calls from the Twitter API are not implemented in either Frien
 * account/update_profile
 * account/update_profile_background_image
 * blocks/ids
-* users/lookup
 * users/show
 * users/search
 * account/remove_profile_banner
