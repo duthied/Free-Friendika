@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.6-dev (Asparagus)
--- DB_UPDATE_VERSION 1237
+-- DB_UPDATE_VERSION 1238
 -- ------------------------------------------
 
 
@@ -392,6 +392,7 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 	`site_name` varchar(255) NOT NULL DEFAULT '',
 	`info` text,
 	`register_policy` tinyint(1) NOT NULL DEFAULT 0,
+	`registered-users` int(10) NOT NULL DEFAULT 0,
 	`poco` varchar(255) NOT NULL DEFAULT '',
 	`noscrape` varchar(255) NOT NULL DEFAULT '',
 	`network` varchar(32) NOT NULL DEFAULT '',

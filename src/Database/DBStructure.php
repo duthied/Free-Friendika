@@ -1010,6 +1010,7 @@ class DBStructure {
 						"site_name" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 						"info" => array("type" => "text"),
 						"register_policy" => array("type" => "tinyint(1)", "not null" => "1", "default" => "0"),
+						"registered-users" => array("type" => "int(10)", "not null" => "1", "default" => "0"),
 						"poco" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 						"noscrape" => array("type" => "varchar(255)", "not null" => "1", "default" => ""),
 						"network" => array("type" => "varchar(32)", "not null" => "1", "default" => ""),
