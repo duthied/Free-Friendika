@@ -782,11 +782,7 @@ function api_get_user(App $a, $contact_id = null)
 
 	// If this is a local user and it uses Frio, we can get its color preferences.
 	if ($ret['self']) {
-		$r = dba::p(
-			"select theme from user where uid = ? limit 1",
-			$ret['uid']
-		);
-		$theme_info = $r->fetch();
+		$theme_info = dba::select('user', ['theme'], ['uid' => $ret['uid']], ['limit' => 1]);
 		if ($theme_info['theme'] === 'frio') {
 			$schema = PConfig::get($ret['uid'], 'frio', 'schema');
 			if (($schema) && ($schema != '---')) {
