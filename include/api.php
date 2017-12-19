@@ -5514,6 +5514,8 @@ function api_saved_searches_list($type)
 		);
 	}
 
+	dba::close($terms);
+
 	return api_format_data("terms", $type, array('terms' => $result));
 }
 
