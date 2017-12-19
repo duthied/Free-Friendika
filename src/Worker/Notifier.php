@@ -9,6 +9,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
@@ -76,7 +77,7 @@ class Notifier {
 			$message = q("SELECT * FROM `mail` WHERE `id` = %d LIMIT 1",
 					intval($item_id)
 			);
-			if (! count($message)) {
+			if (!count($message)) {
 				return;
 			}
 			$uid = $message[0]['uid'];
@@ -92,7 +93,7 @@ class Notifier {
 			);
 			$uid = $item_id;
 			$item_id = 0;
-			if (! count($items)) {
+			if (!count($items)) {
 				return;
 			}
 		} elseif ($cmd === 'suggest') {
@@ -102,7 +103,7 @@ class Notifier {
 			$suggest = q("SELECT * FROM `fsuggest` WHERE `id` = %d LIMIT 1",
 				intval($item_id)
 			);
-			if (! count($suggest)) {
+			if (!count($suggest)) {
 				return;
 			}
 			$uid = $suggest[0]['uid'];
@@ -115,9 +116,9 @@ class Notifier {
 				FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
 					WHERE `contact`.`uid` = %d AND `contact`.`self` LIMIT 1",
 					intval($item_id));
-			if (!$r)
+			if (!$r) {
 				return;
-
+			}
 			$user = $r[0];
 
 			$r = q("SELECT * FROM `contact` WHERE NOT `self` AND `uid` = %d", intval($item_id));
@@ -137,30 +138,28 @@ class Notifier {
 						intval($uid), NETWORK_DFRN, NETWORK_DIASPORA);
 		} else {
 			// find ancestors
-			$r = q("SELECT * FROM `item` WHERE `id` = %d AND visible = 1 AND moderated = 0 LIMIT 1",
-				intval($item_id)
-			);
+			$target_item = dba::fetch_first("SELECT `item`.*, `contact`.`uid` AS `cuid` FROM `item`
+						INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+						WHERE `item`.`id` = ? AND `visible` AND NOT `moderated`", $item_id);
 
-			if ((! DBM::is_result($r)) || (! intval($r[0]['parent']))) {
+			if (!DBM::is_result($target_item) || !intval($target_item['parent'])) {
 				return;
 			}
 
-			$target_item = $r[0];
-			$parent_id = intval($r[0]['parent']);
-			$uid = $r[0]['uid'];
-			$updated = $r[0]['edited'];
+			$parent_id = intval($target_item['parent']);
+			$uid = $target_item['cuid'];
+			$updated = $target_item['edited'];
 
 			$items = q("SELECT `item`.*, `sign`.`signed_text`,`sign`.`signature`,`sign`.`signer`
-				FROM `item` LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id` WHERE `parent` = %d AND visible = 1 AND moderated = 0 ORDER BY `id` ASC",
+				FROM `item` LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id` WHERE `parent` = %d AND visible AND NOT moderated ORDER BY `id` ASC",
 				intval($parent_id)
 			);
 
-			if (! count($items)) {
+			if (!count($items)) {
 				return;
 			}
 
 			// avoid race condition with deleting entries
-
 			if ($items[0]['deleted']) {
 				foreach ($items as $item) {
 					$item['deleted'] = 1;
@@ -171,24 +170,14 @@ class Notifier {
 				logger('notifier: top level post');
 				$top_level = true;
 			}
-
 		}
 
-		$r = q("SELECT `contact`.*, `user`.`prvkey` AS `uprvkey`,
-			`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`,
-			`user`.`page-flags`, `user`.`prvnets`, `user`.`account-type`
-			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
-			WHERE `contact`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
-			intval($uid)
-		);
-
-		if (! DBM::is_result($r)) {
+		$owner = User::getOwnerDataById($uid);
+		if (!$owner) {
 			return;
 		}
 
-		$owner = $r[0];
-
-		$walltowall = ((($top_level) && ($owner['id'] != $items[0]['contact-id'])) ? true : false);
+		$walltowall = ($top_level && ($owner['id'] != $items[0]['contact-id']) ? true : false);
 
 		// Should the post be transmitted to Diaspora?
 		$diaspora_delivery = true;
@@ -264,7 +253,7 @@ class Notifier {
 			// we will just use it as a fallback test
 			// later we will be able to use it as the primary test of whether or not to relay.
 
-			if (! $target_item['origin']) {
+			if (!$target_item['origin']) {
 				$relay_to_owner = false;
 			}
 			if ($parent['origin']) {
@@ -306,7 +295,6 @@ class Notifier {
 					$push_notify = true;
 
 				if (($thr_parent && ($thr_parent[0]['network'] == NETWORK_OSTATUS)) || ($parent['network'] == NETWORK_OSTATUS)) {
-
 					$push_notify = true;
 
 					if ($parent["network"] == NETWORK_OSTATUS) {
@@ -336,15 +324,15 @@ class Notifier {
 
 				// don't send deletions onward for other people's stuff
 
-				if ($target_item['deleted'] && (! intval($target_item['wall']))) {
+				if ($target_item['deleted'] && !intval($target_item['wall'])) {
 					logger('notifier: ignoring delete notification for non-wall item');
 					return;
 				}
 
-				if ((strlen($parent['allow_cid']))
-					|| (strlen($parent['allow_gid']))
-					|| (strlen($parent['deny_cid']))
-					|| (strlen($parent['deny_gid']))) {
+				if (strlen($parent['allow_cid'])
+					|| strlen($parent['allow_gid'])
+					|| strlen($parent['deny_cid'])
+					|| strlen($parent['deny_gid'])) {
 					$public_message = false; // private recipients, not public
 				}
 
@@ -356,7 +344,7 @@ class Notifier {
 				// if our parent is a public forum (forum_mode == 1), uplink to the origional author causing
 				// a delivery fork. private groups (forum_mode == 2) do not uplink
 
-				if ((intval($parent['forum_mode']) == 1) && (! $top_level) && ($cmd !== 'uplink')) {
+				if ((intval($parent['forum_mode']) == 1) && !$top_level && ($cmd !== 'uplink')) {
 					Worker::add($a->queue['priority'], 'Notifier', 'uplink', $item_id);
 				}
 
@@ -379,11 +367,11 @@ class Notifier {
 					}
 				}
 
-				if (count($url_recipients))
+				if (count($url_recipients)) {
 					logger('notifier: '.$target_item["guid"].' url_recipients ' . print_r($url_recipients,true));
+				}
 
 				$conversants = array_unique($conversants);
-
 
 				$recipients = array_unique(array_merge($recipients,$allow_people,$allow_groups));
 				$deny = array_unique(array_merge($deny_people,$deny_groups));
@@ -395,7 +383,6 @@ class Notifier {
 			// If the thread parent is OStatus then do some magic to distribute the messages.
 			// We have not only to look at the parent, since it could be a Friendica thread.
 			if (($thr_parent && ($thr_parent[0]['network'] == NETWORK_OSTATUS)) || ($parent['network'] == NETWORK_OSTATUS)) {
-
 				$diaspora_delivery = false;
 
 				logger('Some parent is OStatus for '.$target_item["guid"]." - Author: ".$thr_parent[0]['author-link']." - Owner: ".$thr_parent[0]['owner-link'], LOGGER_DEBUG);
@@ -457,10 +444,10 @@ class Notifier {
 
 		$mail_disabled = ((function_exists('imap_open') && (!Config::get('system','imap_disabled'))) ? 0 : 1);
 
-		if (! $mail_disabled) {
-			if ((! strlen($target_item['allow_cid'])) && (! strlen($target_item['allow_gid']))
-				&& (! strlen($target_item['deny_cid'])) && (! strlen($target_item['deny_gid']))
-				&& (intval($target_item['pubmail']))) {
+		if (!$mail_disabled) {
+			if (!strlen($target_item['allow_cid']) && !strlen($target_item['allow_gid'])
+				&& !strlen($target_item['deny_cid']) && !strlen($target_item['deny_gid'])
+				&& intval($target_item['pubmail'])) {
 				$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `network` = '%s'",
 					intval($uid),
 					dbesc(NETWORK_MAIL)
@@ -558,7 +545,7 @@ class Notifier {
 						continue;
 					}
 
-					if ((! $mail) && (! $fsuggest) && (! $followup)) {
+					if (!$mail && !$fsuggest && !$followup) {
 						logger('notifier: delivery agent: '.$rr['name'].' '.$rr['id'].' '.$rr['network'].' '.$target_item["guid"]);
 						Worker::add(array('priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true),
 								'Delivery', $cmd, $item_id, (int)$rr['id']);

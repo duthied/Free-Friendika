@@ -39,7 +39,7 @@ require_once 'include/items.php';
 
 function item_post(App $a) {
 
-	if ((! local_user()) && (! remote_user()) && (! x($_REQUEST, 'commenter'))) {
+	if (!local_user() && !remote_user() && !x($_REQUEST, 'commenter')) {
 		return;
 	}
 
@@ -81,8 +81,8 @@ function item_post(App $a) {
 	}
 
 	// Is this a reply to something?
-	$parent = ((x($_REQUEST, 'parent')) ? intval($_REQUEST['parent']) : 0);
-	$parent_uri = ((x($_REQUEST, 'parent_uri')) ? trim($_REQUEST['parent_uri']) : '');
+	$parent = (x($_REQUEST, 'parent') ? intval($_REQUEST['parent']) : 0);
+	$parent_uri = (x($_REQUEST, 'parent_uri') ? trim($_REQUEST['parent_uri']) : '');
 
 	$parent_item = null;
 	$parent_contact = null;
@@ -122,7 +122,7 @@ function item_post(App $a) {
 			}
 		}
 
-		if (! DBM::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			notice( t('Unable to locate original post.') . EOL);
 			if (x($_REQUEST, 'return')) {
 				goaway($return_path);
@@ -201,7 +201,7 @@ function item_post(App $a) {
 
 	// First check that the parent exists and it is a wall item.
 
-	if ((x($_REQUEST, 'commenter')) && ((! $parent) || (! $parent_item['wall']))) {
+	if (x($_REQUEST, 'commenter') && (!$parent || !$parent_item['wall'])) {
 		notice(t('Permission denied.') . EOL) ;
 		if (x($_REQUEST, 'return')) {
 			goaway($return_path);
@@ -209,11 +209,14 @@ function item_post(App $a) {
 		killme();
 	}
 
+	// Allow commenting if it is an answer to a public post
+	$allow_comment = ($profile_uid == 0) && $parent && in_array($parent_item['network'], [NETWORK_OSTATUS, NETWORK_DIASPORA]);
+
 	/*
 	 * Now check that it is a page_type of PAGE_BLOG, and that valid personal details
 	 * have been provided, and run any anti-spam plugins
 	 */
-	if ((! can_write_wall($a, $profile_uid)) && (! $allow_moderated)) {
+	if (!(can_write_wall($a, $profile_uid) || $allow_comment) && !$allow_moderated) {
 		notice(t('Permission denied.') . EOL) ;
 		if (x($_REQUEST, 'return')) {
 			goaway($return_path);
@@ -377,11 +380,11 @@ function item_post(App $a) {
 	$self   = false;
 	$contact_id = 0;
 
-	if ((local_user()) && (local_user() == $profile_uid)) {
+	if (local_user() && ((local_user() == $profile_uid) || $allow_comment)) {
 		$self = true;
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 1 LIMIT 1",
+		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1",
 			intval($_SESSION['uid']));
-	} elseif(remote_user()) {
+	} elseif (remote_user()) {
 		if (x($_SESSION, 'remote') && is_array($_SESSION['remote'])) {
 			foreach ($_SESSION['remote'] as $v) {
 				if ($v['uid'] == $profile_uid) {
@@ -404,10 +407,10 @@ function item_post(App $a) {
 
 	// get contact info for owner
 
-	if ($profile_uid == local_user()) {
+	if ($profile_uid == local_user() || $allow_comment) {
 		$contact_record = $author;
 	} else {
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 1 LIMIT 1",
+		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1",
 			intval($profile_uid)
 		);
 		if (DBM::is_result($r)) {
