@@ -10,6 +10,7 @@ use Friendica\Content\Feature;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\NotificationsManager;
+use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
@@ -778,6 +779,37 @@ function api_get_user(App $a, $contact_id = null)
 		'self' => $uinfo[0]['self'],
 		'network' => $uinfo[0]['network'],
 	);
+
+	// If this is a local user and it uses Frio, we can get its color preferences.
+	if ($ret['self']) {
+		$theme_info = dba::select('user', ['theme'], ['uid' => $ret['uid']], ['limit' => 1]);
+		if ($theme_info['theme'] === 'frio') {
+			$schema = PConfig::get($ret['uid'], 'frio', 'schema');
+			if ($schema && ($schema != '---')) {
+				if (file_exists('view/theme/frio/schema/'.$schema.'.php')) {
+					$schemefile = 'view/theme/frio/schema/'.$schema.'.php';
+					require_once $schemefile;
+				}
+			} else {
+				$nav_bg = PConfig::get($ret['uid'], 'frio', 'nav_bg');
+				$link_color = PConfig::get($ret['uid'], 'frio', 'link_color');
+				$bgcolor = PConfig::get($ret['uid'], 'frio', 'background_color');
+			}
+			if (!$nav_bg) {
+				$nav_bg = "#708fa0";
+			}
+			if (!$link_color) {
+				$link_color = "#6fdbe8";
+			}
+			if (!$bgcolor) {
+				$bgcolor = "#ededed";
+			}
+
+			$ret['profile_sidebar_fill_color'] = str_replace('#', '', $nav_bg);
+			$ret['profile_link_color'] = str_replace('#', '', $link_color);
+			$ret['profile_background_color'] = str_replace('#', '', $bgcolor);
+		}
+	}
 
 	return $ret;
 }
