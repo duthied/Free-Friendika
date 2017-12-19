@@ -658,6 +658,11 @@ class PortableContact
 			return false;
 		}
 
+		// When the nodeinfo url isn't on the same host, then there is obviously something wrong
+		if (parse_url($server_url, PHP_URL_HOST) != parse_url($nodeinfo_url, PHP_URL_HOST)) {
+			return false;
+		}
+
 		$serverret = z_fetch_url($nodeinfo_url);
 		if (!$serverret["success"]) {
 			return false;
@@ -932,6 +937,13 @@ class PortableContact
 						$site_name = '';
 					}
 				}
+				// There are servers out there who don't return 404 on a failure
+				// We have to be sure that don't misunderstand this
+				if (is_null($data)) {
+					$poco = "";
+					$noscrape = "";
+					$network = "";
+				}
 			}
 		}
 
@@ -1002,6 +1014,7 @@ class PortableContact
 			$serverret = z_fetch_url($server_url."/api/v1/instance");
 			if ($serverret["success"] && ($serverret["body"] != '')) {
 				$data = json_decode($serverret["body"]);
+
 				if (isset($data->version)) {
 					$platform = "Mastodon";
 					$version = $data->version;
@@ -1107,6 +1120,7 @@ class PortableContact
 			$serverret = z_fetch_url($server_url."/statistics.json");
 			if ($serverret["success"]) {
 				$data = json_decode($serverret["body"]);
+
 				if (isset($data->version)) {
 					$version = $data->version;
 					// Version numbers on statistics.json are presented with additional info, e.g.:
