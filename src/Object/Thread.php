@@ -27,7 +27,8 @@ class Thread extends BaseObject
 	 * Constructor
 	 *
 	 * @param string  $mode    The mode
-	 * @param boolean $preview boolean value
+	 * @param boolean $preview Are we in the preview mode?
+	 * @param boolean $writable Override the writable check
 	 */
 	public function __construct($mode, $preview, $writable = false)
 	{
@@ -39,6 +40,7 @@ class Thread extends BaseObject
 	 * Set the mode we'll be displayed on
 	 *
 	 * @param string $mode The mode to set
+	 * @param boolean $writable Override the writable check
 	 *
 	 * @return void
 	 */
