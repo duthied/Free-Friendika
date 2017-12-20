@@ -3970,7 +3970,7 @@ class Diaspora
 	 *
 	 * @return array The array with "first" and "last"
 	 */
-	private static function splitName($name) {
+	public static function splitName($name) {
 		$name = trim($name);
 
 		// Is the name longer than 64 characters? Then cut the rest of it.
