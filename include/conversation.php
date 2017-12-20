@@ -611,9 +611,12 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 	$page_template = get_markup_template("conversation.tpl");
 
 	if ($items && count($items)) {
-		// Currently disabled. This is a preparation for the ability to comment and share every public item.
-		// $writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], array(NETWORK_OSTATUS, NETWORK_DIASPORA));
-		$writable = false;
+		// Currently behind a config value. This allows the commenting and sharing of every public item.
+		if (Config::get('system', 'comment_public')) {
+			$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], array(NETWORK_OSTATUS, NETWORK_DIASPORA));
+		} else {
+			$writable = false;
+		}
 
 		if ($mode === 'network-new' || $mode === 'search' || $mode === 'community') {
 

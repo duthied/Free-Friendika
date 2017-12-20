@@ -205,9 +205,9 @@ function display_fetchauthor($a, $item) {
 	return($profiledata);
 }
 
-function display_content(App $a, $update = 0) {
+function display_content(App $a, $update = false, $update_uid = 0) {
 
-	if ((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if (Config::get('system','block_public') && !local_user() && !remote_user()) {
 		notice(t('Public access denied.') . EOL);
 		return;
 	}
@@ -227,7 +227,8 @@ function display_content(App $a, $update = 0) {
 
 	if ($update) {
 		$item_id = $_REQUEST['item_id'];
-		$a->profile = array('uid' => intval($update), 'profile_uid' => intval($update));
+		$item = dba::select('item', ['uid'], ['id' => $item_id], ['limit' => 1]);
+		$a->profile = array('uid' => intval($item['uid']), 'profile_uid' => intval($item['uid']));
 	} else {
 		$item_id = (($a->argc > 2) ? $a->argv[2] : 0);
 
@@ -347,9 +348,9 @@ function display_content(App $a, $update = 0) {
 	if (DBM::is_result($r)) {
 		$a->page_contact = $r;
 	}
-	$is_owner = ((local_user()) && (local_user() == $a->profile['profile_uid']) ? true : false);
+	$is_owner = (local_user() && (local_user() == $a->profile['profile_uid']) ? true : false);
 
-	if ($a->profile['hidewall'] && (! $is_owner) && (! $remote_contact)) {
+	if ($a->profile['hidewall'] && !$is_owner && !$remote_contact) {
 		notice(t('Access to this profile has been restricted.') . EOL);
 		return;
 	}
@@ -375,10 +376,9 @@ function display_content(App $a, $update = 0) {
 	$sql_extra = item_permissions_sql($a->profile['uid'],$remote_contact,$groups);
 
 	if ($update) {
-		$r = dba::p("SELECT `id` FROM `item` WHERE `item`.`uid` = ?
-			AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = ?)
+		$r = dba::p("SELECT `id` FROM `item` WHERE
+			`item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = ?)
 			$sql_extra AND `unseen`",
-			$a->profile['uid'],
 			$item_id
 		);
 
@@ -429,7 +429,7 @@ function display_content(App $a, $update = 0) {
 		if (!$update) {
 			$o .= "<script> var netargs = '?f=&nick=" . $nick . "&item_id=" . $item_id . "'; </script>";
 		}
-		$o .= conversation($a, $items, 'display', $update);
+		$o .= conversation($a, $items, 'display', $update_uid);
 
 		// Preparing the meta header
 		require_once('include/bbcode.php');
