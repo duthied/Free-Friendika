@@ -348,7 +348,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	if (DBM::is_result($r)) {
 		$a->page_contact = $r;
 	}
-	$is_owner = (local_user() && (local_user() == $a->profile['profile_uid']) ? true : false);
+	$is_owner = (local_user() && (in_array($a->profile['profile_uid'], [local_user(), 0])) ? true : false);
 
 	if ($a->profile['hidewall'] && !$is_owner && !$remote_contact) {
 		notice(t('Access to this profile has been restricted.') . EOL);
