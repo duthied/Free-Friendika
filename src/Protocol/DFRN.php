@@ -348,7 +348,7 @@ class DFRN
 				killme();
 			}
 		} else {
-			$owner = ['uid' => 0, 'nick' => '_feed_'];
+			$owner = ['uid' => 0, 'nick' => 'feed-item'];
 		}
 
 		$doc = new DOMDocument('1.0', 'utf-8');
