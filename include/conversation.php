@@ -497,7 +497,6 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 	$ssl_state = ((local_user()) ? true : false);
 
 	$profile_owner = 0;
-	$page_writeable = false;
 	$live_update_div = '';
 
 	$arr_blocked = null;
@@ -517,7 +516,6 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 
 	if ($mode === 'network') {
 		$profile_owner = local_user();
-		$page_writeable = true;
 		if (!$update) {
 			/*
 			 * The special div is needed for liveUpdate to kick in for this page.
@@ -545,7 +543,6 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 		}
 	} elseif ($mode === 'profile') {
 		$profile_owner = $a->profile['profile_uid'];
-		$page_writeable = can_write_wall($a,$profile_owner);
 
 		if (!$update) {
 			$tab = notags(trim($_GET['tab']));
@@ -563,7 +560,6 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 		}
 	} elseif ($mode === 'notes') {
 		$profile_owner = local_user();
-		$page_writeable = true;
 		if (!$update) {
 			$live_update_div = '<div id="live-notes"></div>' . "\r\n"
 				. "<script> var profile_uid = " . local_user()
@@ -571,7 +567,6 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 		}
 	} elseif ($mode === 'display') {
 		$profile_owner = $a->profile['uid'];
-		$page_writeable = can_write_wall($a,$profile_owner);
 		if (!$update) {
 			$live_update_div = '<div id="live-display"></div>' . "\r\n"
 				. "<script> var profile_uid = " . $_SESSION['uid'] . ";"
@@ -579,7 +574,6 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 		}
 	} elseif ($mode === 'community') {
 		$profile_owner = 0;
-		$page_writeable = false;
 		if (!$update) {
 			$live_update_div = '<div id="live-community"></div>' . "\r\n"
 				. "<script> var profile_uid = -1; var netargs = '/?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
@@ -617,6 +611,12 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 	$page_template = get_markup_template("conversation.tpl");
 
 	if ($items && count($items)) {
+		// Currently behind a config value. This allows the commenting and sharing of every public item.
+		if (Config::get('system', 'comment_public') && local_user()) {
+			$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], array(NETWORK_OSTATUS, NETWORK_DIASPORA));
+		} else {
+			$writable = false;
+		}
 
 		if ($mode === 'network-new' || $mode === 'search' || $mode === 'community') {
 
@@ -832,7 +832,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 			// Normal View
 			$page_template = get_markup_template("threaded_conversation.tpl");
 
-			$conv = new Thread($mode, $preview);
+			$conv = new Thread($mode, $preview, $writable);
 
 			/*
 			 * get all the topmost parents

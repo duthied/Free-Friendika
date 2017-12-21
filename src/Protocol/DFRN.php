@@ -15,6 +15,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
+use Friendica\Model\User;
 use Friendica\Object\Image;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\XML;
@@ -341,18 +342,14 @@ class DFRN
 		$items = $r;
 		$item = $r[0];
 
-		$r = q(
-			"SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`, `user`.`account-type`
-			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
-			WHERE `contact`.`self` AND `user`.`uid` = %d LIMIT 1",
-			intval($item['uid'])
-		);
-
-		if (!DBM::is_result($r)) {
-			killme();
+		if ($item['uid'] != 0) {
+			$owner = User::getOwnerDataById($item['uid']);
+			if (!$owner) {
+				killme();
+			}
+		} else {
+			$owner = ['uid' => 0, 'nick' => 'feed-item'];
 		}
-
-		$owner = $r[0];
 
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;

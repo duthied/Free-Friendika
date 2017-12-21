@@ -14,6 +14,7 @@ use Friendica\Model\User;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Email;
+use dba;
 
 require_once 'include/queue_fn.php';
 require_once 'include/html2plain.php';
@@ -85,18 +86,17 @@ class Delivery {
 			$uid = $item_id;
 		} else {
 			// find ancestors
-			$r = q("SELECT * FROM `item` WHERE `id` = %d AND visible = 1 AND moderated = 0 LIMIT 1",
-				intval($item_id)
-			);
+			$target_item = dba::fetch_first("SELECT `item`.*, `contact`.`uid` AS `cuid` FROM `item`
+							INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+							WHERE `item`.`id` = ? AND `visible` AND NOT `moderated`", $item_id);
 
-			if (!DBM::is_result($r) || !intval($r[0]['parent'])) {
+			if (!DBM::is_result($target_item) || !intval($target_item['parent'])) {
 				return;
 			}
 
-			$target_item = $r[0];
-			$parent_id = intval($r[0]['parent']);
-			$uid = $r[0]['uid'];
-			$updated = $r[0]['edited'];
+			$parent_id = intval($target_item['parent']);
+			$uid = $target_item['cuid'];
+			$updated = $target_item['edited'];
 
 			$items = q("SELECT `item`.*, `sign`.`signed_text`,`sign`.`signature`,`sign`.`signer`
 				FROM `item` LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id` WHERE `parent` = %d AND visible = 1 AND moderated = 0 ORDER BY `id` ASC",
@@ -150,7 +150,7 @@ class Delivery {
 
 		$public_message = true;
 
-		if (!($mail || $fsuggest || $relocate)) {
+		if (!$mail && !$fsuggest && !$relocate) {
 			$parent = $items[0];
 
 			// This is IMPORTANT!!!!
@@ -195,10 +195,10 @@ class Delivery {
 				$followup = true;
 			}
 
-			if ((strlen($parent['allow_cid']))
-				|| (strlen($parent['allow_gid']))
-				|| (strlen($parent['deny_cid']))
-				|| (strlen($parent['deny_gid']))
+			if (strlen($parent['allow_cid'])
+				|| strlen($parent['allow_gid'])
+				|| strlen($parent['deny_cid'])
+				|| strlen($parent['deny_gid'])
 				|| $parent["private"]) {
 				$public_message = false; // private recipients, not public
 			}
@@ -283,7 +283,6 @@ class Delivery {
 				// perform local delivery if we are on the same site
 
 				if (link_compare($basepath,System::baseUrl())) {
-
 					$nickname = basename($contact['url']);
 					if ($contact['issued-id']) {
 						$sql_extra = sprintf(" AND `dfrn-id` = '%s' ", dbesc($contact['issued-id']));
@@ -378,34 +377,35 @@ class Delivery {
 				}
 
 				if ($cmd === 'wall-new' || $cmd === 'comment-new') {
-
 					$it = null;
 					if ($cmd === 'wall-new') {
 						$it = $items[0];
 					} else {
-						$r = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-							intval($item_id),
-							intval($uid)
+						$r = q("SELECT * FROM `item` WHERE `id` = %d LIMIT 1",
+							intval($item_id)
 						);
-						if (DBM::is_result($r))
+						if (DBM::is_result($r)) {
 							$it = $r[0];
+						}
 					}
-					if (!$it)
+					if (!$it) {
 						break;
-
+					}
 
 					$local_user = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 						intval($uid)
 					);
-					if (!count($local_user))
+					if (!count($local_user)) {
 						break;
+					}
 
 					$reply_to = '';
 					$r1 = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 						intval($uid)
 					);
-					if ($r1 && $r1[0]['reply_to'])
+					if ($r1 && $r1[0]['reply_to']) {
 						$reply_to = $r1[0]['reply_to'];
+					}
 
 					$subject  = (($it['title']) ? Email::encodeHeader($it['title'],'UTF-8') : t("\x28no subject\x29")) ;
 
@@ -435,8 +435,9 @@ class Delivery {
 						$headers .= "References: <".Email::iri2msgid($it["parent-uri"]).">";
 
 						// If Threading is enabled, write down the correct parent
-						if (($it["thr-parent"] != "") && ($it["thr-parent"] != $it["parent-uri"]))
+						if (($it["thr-parent"] != "") && ($it["thr-parent"] != $it["parent-uri"])) {
 							$headers .= " <".Email::iri2msgid($it["thr-parent"]).">";
+						}
 						$headers .= "\n";
 
 						if (!$it['title']) {
@@ -451,39 +452,42 @@ class Delivery {
 									dbesc($it['parent-uri']),
 									intval($uid));
 
-								if (DBM::is_result($r) && ($r[0]['title'] != ''))
+								if (DBM::is_result($r) && ($r[0]['title'] != '')) {
 									$subject = $r[0]['title'];
+								}
 							}
 						}
-						if (strncasecmp($subject,'RE:',3))
+						if (strncasecmp($subject,'RE:',3)) {
 							$subject = 'Re: '.$subject;
+						}
 					}
 					Email::send($addr, $subject, $headers, $it);
 				}
 				break;
 
 			case NETWORK_DIASPORA:
-				if ($public_message)
+				if ($public_message) {
 					$loc = 'public batch '.$contact['batch'];
-				else
+				} else {
 					$loc = $contact['name'];
+				}
 
 				logger('delivery: diaspora batch deliver: '.$loc);
 
-				if (Config::get('system','dfrn_only') || !Config::get('system','diaspora_enabled'))
+				if (Config::get('system','dfrn_only') || !Config::get('system','diaspora_enabled')) {
 					break;
-
+				}
 				if ($mail) {
 					Diaspora::sendMail($item,$owner,$contact);
 					break;
 				}
 
-				if (!$normal_mode)
+				if (!$normal_mode) {
 					break;
-
-				if (!$contact['pubkey'] && !$public_message)
+				}
+				if (!$contact['pubkey'] && !$public_message) {
 					break;
-
+				}
 				if (($target_item['deleted']) && (($target_item['uri'] === $target_item['parent-uri']) || $followup)) {
 					// top-level retraction
 					logger('diaspora retract: '.$loc);

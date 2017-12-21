@@ -8,8 +8,7 @@ use Friendica\Model\Contact;
 use Friendica\Protocol\DFRN;
 
 function display_init(App $a) {
-
-	if ((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
+	if (Config::get('system','block_public') && !local_user() && !remote_user()) {
 		return;
 	}
 
@@ -30,10 +29,11 @@ function display_init(App $a) {
 		}
 	}
 
+	$r = false;
+
 	// If there is only one parameter, then check if this parameter could be a guid
 	if ($a->argc == 2) {
 		$nick = "";
-		$itemuid = 0;
 		$r = false;
 
 		// Does the local user have this item?
@@ -44,7 +44,6 @@ function display_init(App $a) {
 					AND `guid` = ? AND `uid` = ? LIMIT 1", $a->argv[1], local_user());
 			if (DBM::is_result($r)) {
 				$nick = $a->user["nickname"];
-				$itemuid = local_user();
 			}
 		}
 
@@ -53,60 +52,53 @@ function display_init(App $a) {
 			$r = dba::fetch_first("SELECT `id`, `parent`, `author-name`, `author-link`,
 						`author-avatar`, `network`, `body`, `uid`, `owner-link`
 				FROM `item` WHERE `visible` AND NOT `deleted` AND NOT `moderated`
-					AND `allow_cid` = ''  AND `allow_gid` = ''
-					AND `deny_cid`  = '' AND `deny_gid`  = ''
 					AND NOT `private` AND `uid` = 0
 					AND `guid` = ? LIMIT 1", $a->argv[1]);
 		}
 
-		// Or is it anywhere on the server?
 		if (!DBM::is_result($r)) {
-			$r = dba::fetch_first("SELECT `item`.`id`, `item`.`parent`, `item`.`author-name`, `item`.`author-link`,
-				`item`.`author-avatar`, `item`.`network`, `item`.`body`, `item`.`uid`, `item`.`owner-link`
-				FROM `item` STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
-				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
-					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-					AND NOT `item`.`private` AND NOT `user`.`hidewall`
-					AND `item`.`guid` = ? LIMIT 1", $a->argv[1]);
-		}
-
-		if (DBM::is_result($r)) {
-
-			if (strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
-				logger('Directly serving XML for id '.$r["id"], LOGGER_DEBUG);
-				displayShowFeed($r["id"], false);
-			}
-
-			if ($r["id"] != $r["parent"]) {
-				$r = dba::fetch_first("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
-					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-						AND `id` = ?", $r["parent"]);
-			}
-
-			$profiledata = display_fetchauthor($a, $r);
-
-			if (strstr(normalise_link($profiledata["url"]), normalise_link(System::baseUrl()))) {
-				$nickname = str_replace(normalise_link(System::baseUrl())."/profile/", "", normalise_link($profiledata["url"]));
-
-				if (($nickname != $a->user["nickname"])) {
-					$r = dba::fetch_first("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
-						INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-						WHERE `user`.`nickname` = ? AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
-						$nickname
-					);
-					if (DBM::is_result($r)) {
-						$profiledata = $r;
-					}
-					$profiledata["network"] = NETWORK_DFRN;
-				} else {
-					$profiledata = array();
-				}
-			}
-		} else {
 			$a->error = 404;
 			notice(t('Item not found.') . EOL);
 			return;
+		}
+	} elseif (($a->argc == 3) && ($nick == 'feed-item')) {
+		$r = dba::fetch_first("SELECT `id`, `parent`, `author-name`, `author-link`,
+					`author-avatar`, `network`, `body`, `uid`, `owner-link`
+			FROM `item` WHERE `visible` AND NOT `deleted` AND NOT `moderated`
+				AND NOT `private` AND `uid` = 0
+				AND `id` = ? LIMIT 1", $a->argv[2]);
+	}
+
+	if (DBM::is_result($r)) {
+		if (strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
+			logger('Directly serving XML for id '.$r["id"], LOGGER_DEBUG);
+			displayShowFeed($r["id"], false);
+		}
+
+		if ($r["id"] != $r["parent"]) {
+			$r = dba::fetch_first("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
+				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
+					AND `id` = ?", $r["parent"]);
+		}
+
+		$profiledata = display_fetchauthor($a, $r);
+
+		if (strstr(normalise_link($profiledata["url"]), normalise_link(System::baseUrl()))) {
+			$nickname = str_replace(normalise_link(System::baseUrl())."/profile/", "", normalise_link($profiledata["url"]));
+
+			if (($nickname != $a->user["nickname"])) {
+				$r = dba::fetch_first("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
+					INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
+					WHERE `user`.`nickname` = ? AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
+					$nickname
+				);
+				if (DBM::is_result($r)) {
+					$profiledata = $r;
+				}
+				$profiledata["network"] = NETWORK_DFRN;
+			} else {
+				$profiledata = array();
+			}
 		}
 	}
 
@@ -114,7 +106,6 @@ function display_init(App $a) {
 }
 
 function display_fetchauthor($a, $item) {
-
 	$profiledata = array();
 	$profiledata["uid"] = -1;
 	$profiledata["nickname"] = $item["author-name"];
@@ -196,34 +187,27 @@ function display_fetchauthor($a, $item) {
 	return($profiledata);
 }
 
-function display_content(App $a, $update = 0) {
-
-	if ((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
+function display_content(App $a, $update = false, $update_uid = 0) {
+	if (Config::get('system','block_public') && !local_user() && !remote_user()) {
 		notice(t('Public access denied.') . EOL);
 		return;
 	}
 
-	require_once('include/security.php');
-	require_once('include/conversation.php');
-	require_once('include/acl_selectors.php');
-
+	require_once 'include/security.php';
+	require_once 'include/conversation.php';
+	require_once 'include/acl_selectors.php';
 
 	$o = '';
 
 	if ($update) {
-		$nick = $_REQUEST['nick'];
-	} else {
-		$nick = (($a->argc > 1) ? $a->argv[1] : '');
-	}
-
-	if ($update) {
 		$item_id = $_REQUEST['item_id'];
-		$a->profile = array('uid' => intval($update), 'profile_uid' => intval($update));
+		$item = dba::select('item', ['uid'], ['id' => $item_id], ['limit' => 1]);
+		$a->profile = array('uid' => intval($item['uid']), 'profile_uid' => intval($item['uid']));
 	} else {
 		$item_id = (($a->argc > 2) ? $a->argv[2] : 0);
 
 		if ($a->argc == 2) {
-			$nick = "";
+			$item_parent = 0;
 
 			if (local_user()) {
 				$r = dba::fetch_first("SELECT `id`, `parent` FROM `item`
@@ -232,28 +216,12 @@ function display_content(App $a, $update = 0) {
 				if (DBM::is_result($r)) {
 					$item_id = $r["id"];
 					$item_parent = $r["parent"];
-					$nick = $a->user["nickname"];
 				}
 			}
 
-			if ($nick == "") {
-				$r = dba::fetch_first("SELECT `user`.`nickname`, `item`.`id`, `item`.`parent` FROM `item` STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
-					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
-						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-						AND NOT `item`.`private` AND NOT `user`.`hidewall`
-						AND `item`.`guid` = ?", $a->argv[1]);
-				if (DBM::is_result($r)) {
-					$item_id = $r["id"];
-					$item_parent = $r["parent"];
-					$nick = $r["nickname"];
-				}
-			}
-			if ($nick == "") {
+			if ($item_parent == 0) {
 				$r = dba::fetch_first("SELECT `item`.`id`, `item`.`parent` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
-						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 						AND NOT `item`.`private` AND `item`.`uid` = 0
 						AND `item`.`guid` = ?", $a->argv[1]);
 				if (DBM::is_result($r)) {
@@ -261,16 +229,6 @@ function display_content(App $a, $update = 0) {
 					$item_parent = $r["parent"];
 				}
 			}
-		}
-	}
-
-	if ($item_id && !is_numeric($item_id)) {
-		$r = dba::select('item', array('id', 'parent'), array('uri' => $item_id, 'uid' => $a->profile['uid']), array('limit' => 1));
-		if (DBM::is_result($r)) {
-			$item_id = $r["id"];
-			$item_parent = $r["parent"];
-		} else {
-			$item_id = false;
 		}
 	}
 
@@ -283,8 +241,9 @@ function display_content(App $a, $update = 0) {
 	// We are displaying an "alternate" link if that post was public. See issue 2864
 	$is_public = dba::exists('item', array('id' => $item_id, 'private' => false));
 	if ($is_public) {
-		$alternate = System::baseUrl().'/display/'.$nick.'/'.$item_id.'.atom';
-		$conversation = System::baseUrl().'/display/'.$nick.'/'.$item_parent.'/conversation.atom';
+		// For the atom feed the nickname doesn't matter at all, we only need the item id.
+		$alternate = System::baseUrl().'/display/feed-item/'.$item_id.'.atom';
+		$conversation = System::baseUrl().'/display/feed-item/'.$item_parent.'/conversation.atom';
 	} else {
 		$alternate = '';
 		$conversation = '';
@@ -333,22 +292,21 @@ function display_content(App $a, $update = 0) {
 	if (DBM::is_result($r)) {
 		$a->page_contact = $r;
 	}
-	$is_owner = ((local_user()) && (local_user() == $a->profile['profile_uid']) ? true : false);
+	$is_owner = (local_user() && (in_array($a->profile['profile_uid'], [local_user(), 0])) ? true : false);
 
-	if ($a->profile['hidewall'] && (! $is_owner) && (! $remote_contact)) {
+	if ($a->profile['hidewall'] && !$is_owner && !$remote_contact) {
 		notice(t('Access to this profile has been restricted.') . EOL);
 		return;
 	}
 
 	// We need the editor here to be able to reshare an item.
-
 	if ($is_owner) {
 		$x = array(
 			'is_owner' => true,
 			'allow_location' => $a->user['allow_location'],
 			'default_location' => $a->user['default-location'],
 			'nickname' => $a->user['nickname'],
-			'lockstate' => ( (is_array($a->user)) && ((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) || (strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid']))) ? 'lock' : 'unlock'),
+			'lockstate' => (is_array($a->user) && (strlen($a->user['allow_cid']) || strlen($a->user['allow_gid']) || strlen($a->user['deny_cid']) || strlen($a->user['deny_gid'])) ? 'lock' : 'unlock'),
 			'acl' => populate_acl($a->user, true),
 			'bang' => '',
 			'visitor' => 'block',
@@ -358,13 +316,12 @@ function display_content(App $a, $update = 0) {
 		$o .= status_editor($a,$x,0,true);
 	}
 
-	$sql_extra = item_permissions_sql($a->profile['uid'],$remote_contact,$groups);
+	$sql_extra = item_permissions_sql($a->profile['uid'], $remote_contact, $groups);
 
 	if ($update) {
-		$r = dba::p("SELECT `id` FROM `item` WHERE `item`.`uid` = ?
-			AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = ?)
+		$r = dba::p("SELECT `id` FROM `item` WHERE
+			`item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = ?)
 			$sql_extra AND `unseen`",
-			$a->profile['uid'],
 			$item_id
 		);
 
@@ -379,113 +336,80 @@ function display_content(App $a, $update = 0) {
 		$item_id
 	);
 
-	if (!DBM::is_result($r) && local_user()) {
-		// Check if this is another person's link to a post that we have
-		$r = dba::fetch_first("SELECT `item`.uri FROM `item`
-			WHERE (`item`.`id` = ? OR `item`.`uri` = ?)
-			LIMIT 1",
-			$item_id,
-			$item_id
-		);
-		if (DBM::is_result($r)) {
-			$item_uri = $r['uri'];
-
-			$r = dba::p(item_query()." AND `item`.`uid` = ?
-				AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `uri` = ? AND uid = ?)
-				ORDER BY `parent` DESC, `gravity` ASC, `id` ASC",
-				local_user(),
-				$item_uri,
-				local_user()
-			);
-		}
-	}
-
-	if (DBM::is_result($r)) {
-		$s = dba::inArray($r);
-
-		if ((local_user()) && (local_user() == $a->profile['uid'])) {
-			$unseen = dba::select('item', array('id'), array('parent' => $s[0]['parent'], 'unseen' => true), array('limit' => 1));
-			if (DBM::is_result($unseen)) {
-				dba::update('item', array('unseen' => false), array('parent' => $s[0]['parent'], 'unseen' => true));
-			}
-		}
-
-		$items = conv_sort($s, "`commented`");
-
-		if (!$update) {
-			$o .= "<script> var netargs = '?f=&nick=" . $nick . "&item_id=" . $item_id . "'; </script>";
-		}
-		$o .= conversation($a, $items, 'display', $update);
-
-		// Preparing the meta header
-		require_once('include/bbcode.php');
-		require_once("include/html2plain.php");
-		$description = trim(html2plain(bbcode($s[0]["body"], false, false), 0, true));
-		$title = trim(html2plain(bbcode($s[0]["title"], false, false), 0, true));
-		$author_name = $s[0]["author-name"];
-
-		$image = $a->remove_baseurl($s[0]["author-thumb"]);
-
-		if ($title == "") {
-			$title = $author_name;
-		}
-
-		// Limit the description to 160 characters
-		if (strlen($description) > 160) {
-			$description = substr($description, 0, 157) . '...';
-		}
-
-		$description = htmlspecialchars($description, ENT_COMPAT, 'UTF-8', true); // allow double encoding here
-		$title = htmlspecialchars($title, ENT_COMPAT, 'UTF-8', true); // allow double encoding here
-		$author_name = htmlspecialchars($author_name, ENT_COMPAT, 'UTF-8', true); // allow double encoding here
-
-		//<meta name="keywords" content="">
-		$a->page['htmlhead'] .= '<meta name="author" content="'.$author_name.'" />'."\n";
-		$a->page['htmlhead'] .= '<meta name="title" content="'.$title.'" />'."\n";
-		$a->page['htmlhead'] .= '<meta name="fulltitle" content="'.$title.'" />'."\n";
-		$a->page['htmlhead'] .= '<meta name="description" content="'.$description.'" />'."\n";
-
-		// Schema.org microdata
-		$a->page['htmlhead'] .= '<meta itemprop="name" content="'.$title.'" />'."\n";
-		$a->page['htmlhead'] .= '<meta itemprop="description" content="'.$description.'" />'."\n";
-		$a->page['htmlhead'] .= '<meta itemprop="image" content="'.$image.'" />'."\n";
-		$a->page['htmlhead'] .= '<meta itemprop="author" content="'.$author_name.'" />'."\n";
-
-		// Twitter cards
-		$a->page['htmlhead'] .= '<meta name="twitter:card" content="summary" />'."\n";
-		$a->page['htmlhead'] .= '<meta name="twitter:title" content="'.$title.'" />'."\n";
-		$a->page['htmlhead'] .= '<meta name="twitter:description" content="'.$description.'" />'."\n";
-		$a->page['htmlhead'] .= '<meta name="twitter:image" content="'.System::baseUrl().'/'.$image.'" />'."\n";
-		$a->page['htmlhead'] .= '<meta name="twitter:url" content="'.$s[0]["plink"].'" />'."\n";
-
-		// Dublin Core
-		$a->page['htmlhead'] .= '<meta name="DC.title" content="'.$title.'" />'."\n";
-		$a->page['htmlhead'] .= '<meta name="DC.description" content="'.$description.'" />'."\n";
-
-		// Open Graph
-		$a->page['htmlhead'] .= '<meta property="og:type" content="website" />'."\n";
-		$a->page['htmlhead'] .= '<meta property="og:title" content="'.$title.'" />'."\n";
-		$a->page['htmlhead'] .= '<meta property="og:image" content="'.System::baseUrl().'/'.$image.'" />'."\n";
-		$a->page['htmlhead'] .= '<meta property="og:url" content="'.$s[0]["plink"].'" />'."\n";
-		$a->page['htmlhead'] .= '<meta property="og:description" content="'.$description.'" />'."\n";
-		$a->page['htmlhead'] .= '<meta name="og:article:author" content="'.$author_name.'" />'."\n";
-		// article:tag
-
+	if (!DBM::is_result($r)) {
+		notice(t('Item not found.') . EOL);
 		return $o;
 	}
-	$r = dba::fetch_first("SELECT `id`,`deleted` FROM `item` WHERE `id` = ? OR `uri` = ? LIMIT 1",
-		$item_id,
-		$item_id
-	);
-	if (DBM::is_result($r)) {
-		if ($r['deleted']) {
-			notice(t('Item has been removed.') . EOL);
-		} else {
-			notice(t('Permission denied.') . EOL);
+
+	$s = dba::inArray($r);
+
+	if (local_user() && (local_user() == $a->profile['uid'])) {
+		$unseen = dba::select('item', array('id'), array('parent' => $s[0]['parent'], 'unseen' => true), array('limit' => 1));
+		if (DBM::is_result($unseen)) {
+			dba::update('item', array('unseen' => false), array('parent' => $s[0]['parent'], 'unseen' => true));
 		}
-	} else {
-		notice(t('Item not found.') . EOL);
 	}
+
+	$items = conv_sort($s, "`commented`");
+
+	if (!$update) {
+		$o .= "<script> var netargs = '?f=&item_id=" . $item_id . "'; </script>";
+	}
+	$o .= conversation($a, $items, 'display', $update_uid);
+
+	// Preparing the meta header
+	require_once 'include/bbcode.php';
+	require_once 'include/html2plain.php';
+	$description = trim(html2plain(bbcode($s[0]["body"], false, false), 0, true));
+	$title = trim(html2plain(bbcode($s[0]["title"], false, false), 0, true));
+	$author_name = $s[0]["author-name"];
+
+	$image = $a->remove_baseurl($s[0]["author-thumb"]);
+
+	if ($title == "") {
+		$title = $author_name;
+	}
+
+	// Limit the description to 160 characters
+	if (strlen($description) > 160) {
+		$description = substr($description, 0, 157) . '...';
+	}
+
+	$description = htmlspecialchars($description, ENT_COMPAT, 'UTF-8', true); // allow double encoding here
+	$title = htmlspecialchars($title, ENT_COMPAT, 'UTF-8', true); // allow double encoding here
+	$author_name = htmlspecialchars($author_name, ENT_COMPAT, 'UTF-8', true); // allow double encoding here
+
+	//<meta name="keywords" content="">
+	$a->page['htmlhead'] .= '<meta name="author" content="'.$author_name.'" />'."\n";
+	$a->page['htmlhead'] .= '<meta name="title" content="'.$title.'" />'."\n";
+	$a->page['htmlhead'] .= '<meta name="fulltitle" content="'.$title.'" />'."\n";
+	$a->page['htmlhead'] .= '<meta name="description" content="'.$description.'" />'."\n";
+
+	// Schema.org microdata
+	$a->page['htmlhead'] .= '<meta itemprop="name" content="'.$title.'" />'."\n";
+	$a->page['htmlhead'] .= '<meta itemprop="description" content="'.$description.'" />'."\n";
+	$a->page['htmlhead'] .= '<meta itemprop="image" content="'.$image.'" />'."\n";
+	$a->page['htmlhead'] .= '<meta itemprop="author" content="'.$author_name.'" />'."\n";
+
+	// Twitter cards
+	$a->page['htmlhead'] .= '<meta name="twitter:card" content="summary" />'."\n";
+	$a->page['htmlhead'] .= '<meta name="twitter:title" content="'.$title.'" />'."\n";
+	$a->page['htmlhead'] .= '<meta name="twitter:description" content="'.$description.'" />'."\n";
+	$a->page['htmlhead'] .= '<meta name="twitter:image" content="'.System::baseUrl().'/'.$image.'" />'."\n";
+	$a->page['htmlhead'] .= '<meta name="twitter:url" content="'.$s[0]["plink"].'" />'."\n";
+
+	// Dublin Core
+	$a->page['htmlhead'] .= '<meta name="DC.title" content="'.$title.'" />'."\n";
+	$a->page['htmlhead'] .= '<meta name="DC.description" content="'.$description.'" />'."\n";
+
+	// Open Graph
+	$a->page['htmlhead'] .= '<meta property="og:type" content="website" />'."\n";
+	$a->page['htmlhead'] .= '<meta property="og:title" content="'.$title.'" />'."\n";
+	$a->page['htmlhead'] .= '<meta property="og:image" content="'.System::baseUrl().'/'.$image.'" />'."\n";
+	$a->page['htmlhead'] .= '<meta property="og:url" content="'.$s[0]["plink"].'" />'."\n";
+	$a->page['htmlhead'] .= '<meta property="og:description" content="'.$description.'" />'."\n";
+	$a->page['htmlhead'] .= '<meta name="og:article:author" content="'.$author_name.'" />'."\n";
+	// article:tag
 
 	return $o;
 }

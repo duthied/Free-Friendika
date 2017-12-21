@@ -15,7 +15,7 @@ function update_display_content(App $a)
 	echo "<!DOCTYPE html><html><body>\r\n";
 	echo "<section>";
 
-	$text = display_content($a, $profile_uid);
+	$text = display_content($a, true, $profile_uid);
 	$pattern = "/<img([^>]*) src=\"([^\"]*)\"/";
 	$replace = "<img\${1} dst=\"\${2}\"";
 	$text = preg_replace($pattern, $replace, $text);

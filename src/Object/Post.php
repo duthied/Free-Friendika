@@ -145,7 +145,8 @@ class Post extends BaseObject
 			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
 			? t('Private Message')
 			: false);
-		$shareable = ((($conv->getProfileOwner() == local_user()) && ($item['private'] != 1)) ? true : false);
+		$shareable = ((in_array($conv->getProfileOwner(), [0, local_user()]) && ($item['private'] != 1)) ? true : false);
+
 		if (local_user() && link_compare($a->contact['url'], $item['author-link'])) {
 			if ($item["event-id"] != 0) {
 				$edpost = array("events/event/".$item['event-id'], t("Edit"));

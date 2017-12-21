@@ -27,11 +27,12 @@ class Thread extends BaseObject
 	 * Constructor
 	 *
 	 * @param string  $mode    The mode
-	 * @param boolean $preview boolean value
+	 * @param boolean $preview Are we in the preview mode?
+	 * @param boolean $writable Override the writable check
 	 */
-	public function __construct($mode, $preview)
+	public function __construct($mode, $preview, $writable = false)
 	{
-		$this->setMode($mode);
+		$this->setMode($mode, $writable);
 		$this->preview = $preview;
 	}
 
@@ -39,10 +40,11 @@ class Thread extends BaseObject
 	 * Set the mode we'll be displayed on
 	 *
 	 * @param string $mode The mode to set
+	 * @param boolean $writable Override the writable check
 	 *
 	 * @return void
 	 */
-	private function setMode($mode)
+	private function setMode($mode, $writable)
 	{
 		if ($this->getMode() == $mode) {
 			return;
@@ -62,7 +64,7 @@ class Thread extends BaseObject
 				break;
 			case 'display':
 				$this->profile_owner = $a->profile['uid'];
-				$this->writable = can_write_wall($a, $this->profile_owner);
+				$this->writable = can_write_wall($a, $this->profile_owner) || $writable;
 				break;
 			default:
 				logger('[ERROR] Conversation::setMode : Unhandled mode ('. $mode .').', LOGGER_DEBUG);
