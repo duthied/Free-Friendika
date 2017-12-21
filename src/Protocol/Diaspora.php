@@ -4044,9 +4044,9 @@ class Diaspora
 		$profile = $r[0];
 		$handle = $profile["addr"];
 
-		$splitted_name = self::splitName($profile['name']);
-		$first = $splitted_name['first'];
-		$last = $splitted_name['last'];
+		$split_name = self::splitName($profile['name']);
+		$first = $split_name['first'];
+		$last = $split_name['last'];
 
 		$large = System::baseUrl().'/photo/custom/300/'.$profile['uid'].'.jpg';
 		$medium = System::baseUrl().'/photo/custom/100/'.$profile['uid'].'.jpg';

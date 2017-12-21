@@ -375,9 +375,9 @@ function profile_sidebar($profile, $block = 0)
 		$location = $pdesc = $gender = $marital = $homepage = $about = false;
 	}
 
-	$splitted_name = Diaspora::splitName($profile['name']);
-	$firstname = $splitted_name['first'];
-	$lastname = $splitted_name['last'];
+	$split_name = Diaspora::splitName($profile['name']);
+	$firstname = $split_name['first'];
+	$lastname = $split_name['last'];
 
 	if ($profile['guid'] != "") {
 		$diaspora = array(
