@@ -13,6 +13,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Protocol\Diaspora;
 
 require_once 'include/bbcode.php';
 require_once 'mod/proxy.php';
@@ -374,9 +375,9 @@ function profile_sidebar($profile, $block = 0)
 		$location = $pdesc = $gender = $marital = $homepage = $about = false;
 	}
 
-	$firstname = ((strpos($profile['name'], ' '))
-			? trim(substr($profile['name'], 0, strpos($profile['name'], ' '))) : $profile['name']);
-	$lastname = (($firstname === $profile['name']) ? '' : trim(substr($profile['name'], strlen($firstname))));
+	$split_name = Diaspora::splitName($profile['name']);
+	$firstname = $split_name['first'];
+	$lastname = $split_name['last'];
 
 	if ($profile['guid'] != "") {
 		$diaspora = array(
