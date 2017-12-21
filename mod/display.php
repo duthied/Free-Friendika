@@ -197,9 +197,9 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 		return;
 	}
 
-	require_once('include/security.php');
-	require_once('include/conversation.php');
-	require_once('include/acl_selectors.php');
+	require_once 'include/security.php';
+	require_once 'include/conversation.php';
+	require_once 'include/acl_selectors.php';
 
 	$o = '';
 
@@ -364,8 +364,8 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	$o .= conversation($a, $items, 'display', $update_uid);
 
 	// Preparing the meta header
-	require_once('include/bbcode.php');
-	require_once("include/html2plain.php");
+	require_once 'include/bbcode.php';
+	require_once 'include/html2plain.php';
 	$description = trim(html2plain(bbcode($s[0]["body"], false, false), 0, true));
 	$title = trim(html2plain(bbcode($s[0]["title"], false, false), 0, true));
 	$author_name = $s[0]["author-name"];
