@@ -575,7 +575,7 @@ class PortableContact
 		return true;
 	}
 
-	public static function toBoolean($val)
+	private static function toBoolean($val)
 	{
 		if (($val == "true") || ($val == 1)) {
 			return true;
@@ -592,7 +592,7 @@ class PortableContact
 	 * @param object $data POCO data
 	 * @return array Server data
 	 */
-	public static function detectPocoData($data)
+	private static function detectPocoData($data)
 	{
 		$server = false;
 
@@ -629,7 +629,7 @@ class PortableContact
 	 * @param string $server_url address of the server
 	 * @return array Server data
 	 */
-	public static function fetchNodeinfo($server_url)
+	private static function fetchNodeinfo($server_url)
 	{
 		$serverret = z_fetch_url($server_url."/.well-known/nodeinfo");
 		if (!$serverret["success"]) {
@@ -746,7 +746,7 @@ class PortableContact
 	 * @param string $body Front page of the server
 	 * @return array Server data
 	 */
-	public static function detectServerType($body)
+	private static function detectServerType($body)
 	{
 		$server = false;
 
@@ -1292,7 +1292,7 @@ class PortableContact
 	 *
 	 * @param string $poco URL to the POCO endpoint
 	 */
-	public static function fetchServerlist($poco)
+	private static function fetchServerlist($poco)
 	{
 		$serverret = z_fetch_url($poco."/@server");
 		if (!$serverret["success"]) {
@@ -1315,7 +1315,7 @@ class PortableContact
 		}
 	}
 
-	public static function discoverFederation()
+	private static function discoverFederation()
 	{
 		$last = Config::get('poco', 'last_federation_discovery');
 
@@ -1470,7 +1470,7 @@ class PortableContact
 		}
 	}
 
-	public static function discoverServerUsers($data, $server)
+	private static function discoverServerUsers($data, $server)
 	{
 		if (!isset($data->entry)) {
 			return;
@@ -1501,7 +1501,7 @@ class PortableContact
 		}
 	}
 
-	public static function discoverServer($data, $default_generation = 0)
+	private static function discoverServer($data, $default_generation = 0)
 	{
 		if (!isset($data->entry) || !count($data->entry)) {
 			return false;
