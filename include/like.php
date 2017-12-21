@@ -24,7 +24,7 @@ use Friendica\Protocol\Diaspora;
 function do_like($item_id, $verb) {
 	$a = get_app();
 
-	if (! local_user() && ! remote_user()) {
+	if (!local_user() && !remote_user()) {
 		return false;
 	}
 
@@ -73,21 +73,21 @@ function do_like($item_id, $verb) {
 		dbesc($item_id)
 	);
 
-	if (! $item_id || ! DBM::is_result($items)) {
+	if (!$item_id || !DBM::is_result($items)) {
 		logger('like: unknown item ' . $item_id);
 		return false;
 	}
 
 	$item = $items[0];
 
-	if (! can_write_wall($a, $item['uid'])) {
+	if (!can_write_wall($a, $item['uid'])) {
 		logger('like: unable to write on wall ' . $item['uid']);
 		return false;
 	}
 
 	// Retrieves the local post owner
 	$owners = q("SELECT `contact`.* FROM `contact`
-		WHERE `contact`.`self` = 1
+		WHERE `contact`.`self`
 		AND `contact`.`uid` = %d",
 		intval($item['uid'])
 	);
