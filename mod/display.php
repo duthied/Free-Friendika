@@ -52,8 +52,6 @@ function display_init(App $a) {
 			$r = dba::fetch_first("SELECT `id`, `parent`, `author-name`, `author-link`,
 						`author-avatar`, `network`, `body`, `uid`, `owner-link`
 				FROM `item` WHERE `visible` AND NOT `deleted` AND NOT `moderated`
-					AND `allow_cid` = ''  AND `allow_gid` = ''
-					AND `deny_cid`  = '' AND `deny_gid`  = ''
 					AND NOT `private` AND `uid` = 0
 					AND `guid` = ? LIMIT 1", $a->argv[1]);
 		}
@@ -67,8 +65,6 @@ function display_init(App $a) {
 		$r = dba::fetch_first("SELECT `id`, `parent`, `author-name`, `author-link`,
 					`author-avatar`, `network`, `body`, `uid`, `owner-link`
 			FROM `item` WHERE `visible` AND NOT `deleted` AND NOT `moderated`
-				AND `allow_cid` = ''  AND `allow_gid` = ''
-				AND `deny_cid`  = '' AND `deny_gid`  = ''
 				AND NOT `private` AND `uid` = 0
 				AND `id` = ? LIMIT 1", $a->argv[2]);
 	}
@@ -226,8 +222,6 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 			if ($item_parent == 0) {
 				$r = dba::fetch_first("SELECT `item`.`id`, `item`.`parent` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-						AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
-						AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 						AND NOT `item`.`private` AND `item`.`uid` = 0
 						AND `item`.`guid` = ?", $a->argv[1]);
 				if (DBM::is_result($r)) {
