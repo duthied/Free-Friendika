@@ -37,7 +37,6 @@ require_once 'include/datetime.php';
 require_once 'include/pgettext.php';
 require_once 'include/nav.php';
 require_once 'include/identity.php';
-require_once 'update.php';
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Asparagus');
@@ -678,6 +677,8 @@ function update_db(App $a)
 	}
 
 	if ($build != DB_UPDATE_VERSION) {
+		require_once 'update.php';
+
 		$stored = intval($build);
 		$current = intval(DB_UPDATE_VERSION);
 		if ($stored < $current) {
