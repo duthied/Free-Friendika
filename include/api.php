@@ -217,7 +217,7 @@ function api_login(App $a)
 		*/
 	call_hooks('authenticate', $addon_auth);
 
-	if (($addon_auth['authenticated']) && (count($addon_auth['user_record']))) {
+	if ($addon_auth['authenticated'] && count($addon_auth['user_record'])) {
 		$record = $addon_auth['user_record'];
 	} else {
 		$user_id = User::authenticate(trim($user), trim($password));
@@ -226,7 +226,7 @@ function api_login(App $a)
 		}
 	}
 
-	if ((! $record) || (! count($record))) {
+	if (!$record || !count($record)) {
 		logger('API_login failure: ' . print_r($_SERVER, true), LOGGER_DEBUG);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		//header('HTTP/1.0 401 Unauthorized');
@@ -2694,14 +2694,15 @@ function api_get_entitities(&$text, $bbcode)
 	foreach ($ordered_urls as $url) {
 		if ((substr($url["title"], 0, 7) != "http://") && (substr($url["title"], 0, 8) != "https://")
 			&& !strpos($url["title"], "http://") && !strpos($url["title"], "https://")
-		)
+		) {
 			$display_url = $url["title"];
-		else {
+		} else {
 			$display_url = str_replace(array("http://www.", "https://www."), array("", ""), $url["url"]);
 			$display_url = str_replace(array("http://", "https://"), array("", ""), $display_url);
 
-			if (strlen($display_url) > 26)
+			if (strlen($display_url) > 26) {
 				$display_url = substr($display_url, 0, 25)."…";
+			}
 		}
 
 		//$start = strpos($text, $url, $offset);
@@ -3051,12 +3052,13 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 		if ($item["coord"] != "") {
 			$coords = explode(' ', $item["coord"]);
 			if (count($coords) == 2) {
-				if ($type == "json")
+				if ($type == "json") {
 					$status["geo"] = array('type' => 'Point',
 							'coordinates' => array((float) $coords[0],
 										(float) $coords[1]));
-				else // Not sure if this is the official format - if someone founds a documentation we can check
+				} else {// Not sure if this is the official format - if someone founds a documentation we can check
 					$status["georss:point"] = $item["coord"];
+				}
 			}
 		}
 		$ret[] = $status;
@@ -4284,7 +4286,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 	}
 	// check against max upload size within Friendica instance
 	$maximagesize = Config::get('system', 'maximagesize');
-	if (($maximagesize) && ($filesize > $maximagesize)) {
+	if ($maximagesize && ($filesize > $maximagesize)) {
 		$formattedBytes = formatBytes($maximagesize);
 		throw new InternalServerErrorException("image size exceeds Friendica config setting (uploaded size: $formattedBytes)");
 	}
@@ -4866,20 +4868,20 @@ function api_clean_attachments($body)
 {
 	$data = get_attachment_data($body);
 
-	if (!$data)
+	if (!$data) {
 		return $body;
-
+	}
 	$body = "";
 
-	if (isset($data["text"]))
+	if (isset($data["text"])) {
 		$body = $data["text"];
-
-	if (($body == "") && (isset($data["title"])))
+	}
+	if (($body == "") && isset($data["title"])) {
 		$body = $data["title"];
-
-	if (isset($data["url"]))
+	}
+	if (isset($data["url"])) {
 		$body .= "\n".$data["url"];
-
+	}
 	$body .= $data["after"];
 
 	return $body;
@@ -5098,9 +5100,9 @@ function api_friendica_group_create($type)
 			intval($cid),
 			intval($uid)
 		);
-		if (count($contact))
+		if (count($contact)) {
 			$result = Group::addMember($gid, $cid);
-		else {
+		} else {
 			$erroraddinguser = true;
 			$errorusers[] = $cid;
 		}
