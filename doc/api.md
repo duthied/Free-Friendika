@@ -1206,7 +1206,6 @@ The following API calls from the Twitter API are not implemented in either Frien
 * account/settings
 * account/update_delivery_device
 * account/update_profile
-* account/update_profile_background_image
 * blocks/ids
 * users/show
 * users/search
