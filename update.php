@@ -17,20 +17,19 @@ use Friendica\Object\Image;
  * Database structure changes are done in src/Database/DBStructure.php
  *
  * If there is a need for a post process to a structure change, update this file
- * by adding a new function at the end with the number of the current DB_UPDATE_VERSION.
+ * by adding a new function at the end with the number of the new DB_UPDATE_VERSION.
  *
- * The DB_UPDATE_VERSION will always be at least one greater than the last
- * numbered script in this file.
+ * The numbered script in this file has to be exactly like the DB_UPDATE_VERSION
  *
  * Example:
  * You are currently on version 4711 and you are preparing changes that demand an update script.
  *
- * - Create a function "update_4711()" here in the update.php
- * - Apply the needed structural changes in src/Database/DBStructure.php
- * - Set DB_UPDATE_VERSION in boot.php to 4712.
+ * 1. Create a function "update_4712()" here in the update.php
+ * 2. Apply the needed structural changes in src/Database/DBStructure.php
+ * 3. Set DB_UPDATE_VERSION in boot.php to 4712.
  */
 
-function update_1177() {
+function update_1178() {
 	require_once 'mod/profiles.php';
 
 	$profiles = q("SELECT `uid`, `about`, `locality`, `pub_keywords`, `gender` FROM `profile` WHERE `is-default`");
@@ -51,7 +50,7 @@ function update_1177() {
 	}
 }
 
-function update_1178() {
+function update_1179() {
 	if (Config::get('system','no_community_page'))
 		Config::set('system','community_page_style', CP_NO_COMMUNITY_PAGE);
 
@@ -61,7 +60,7 @@ function update_1178() {
 	return UPDATE_SUCCESS;
 }
 
-function update_1180() {
+function update_1181() {
 
 	// Fill the new fields in the term table.
 	Worker::add(PRIORITY_LOW, "TagUpdate");
@@ -69,7 +68,7 @@ function update_1180() {
 	return UPDATE_SUCCESS;
 }
 
-function update_1188() {
+function update_1189() {
 
 	if (strlen(Config::get('system','directory_submit_url')) &&
 		!strlen(Config::get('system','directory'))) {
@@ -80,7 +79,7 @@ function update_1188() {
 	return UPDATE_SUCCESS;
 }
 
-function update_1190() {
+function update_1191() {
 
 	require_once 'include/plugin.php';
 
@@ -144,7 +143,7 @@ function update_1190() {
 
 }
 
-function update_1202() {
+function update_1203() {
 	$r = q("UPDATE `user` SET `account-type` = %d WHERE `page-flags` IN (%d, %d)",
 		dbesc(ACCOUNT_TYPE_COMMUNITY), dbesc(PAGE_COMMUNITY), dbesc(PAGE_PRVGROUP));
 }

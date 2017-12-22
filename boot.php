@@ -706,7 +706,7 @@ function update_db(App $a)
 			}
 
 			// run any left update_nnnn functions in update.php
-			for ($x = $stored; $x < $current; $x ++) {
+			for ($x = $stored + 1; $x <= $current; $x++) {
 				$r = run_update_function($x);
 				if (!$r) {
 					break;
