@@ -4547,8 +4547,8 @@ function prepare_photo_data($type, $scale, $photo_id)
  */
 function api_friendica_remoteauth()
 {
-	$url = ((x($_GET, 'url')) ? $_GET['url'] : '');
-	$c_url = ((x($_GET, 'c_url')) ? $_GET['c_url'] : '');
+	$url = (x($_GET, 'url') ? $_GET['url'] : '');
+	$c_url = (x($_GET, 'c_url') ? $_GET['c_url'] : '');
 
 	if ($url === '' || $c_url === '') {
 		throw new BadRequestException("Wrong parameters.");
@@ -4558,26 +4558,22 @@ function api_friendica_remoteauth()
 
 	// traditional DFRN
 
-	$r = q(
-		"SELECT * FROM `contact` WHERE `id` = %d AND `nurl` = '%s' LIMIT 1",
-		dbesc($c_url),
-		intval(api_user())
-	);
+	$r = dba::select('contact', [], ['uid' => api_user(), 'nurl' => $c_url], ['limit' => 1]);
 
-	if ((! DBM::is_result($r)) || ($r[0]['network'] !== NETWORK_DFRN)) {
+	if (!DBM::is_result($r) || ($r['network'] !== NETWORK_DFRN)) {
 		throw new BadRequestException("Unknown contact");
 	}
 
-	$cid = $r[0]['id'];
+	$cid = $r['id'];
 
-	$dfrn_id = $orig_id = (($r[0]['issued-id']) ? $r[0]['issued-id'] : $r[0]['dfrn-id']);
+	$dfrn_id = $orig_id = (($r['issued-id']) ? $r['issued-id'] : $r['dfrn-id']);
 
-	if ($r[0]['duplex'] && $r[0]['issued-id']) {
-		$orig_id = $r[0]['issued-id'];
+	if ($r['duplex'] && $r['issued-id']) {
+		$orig_id = $r['issued-id'];
 		$dfrn_id = '1:' . $orig_id;
 	}
-	if ($r[0]['duplex'] && $r[0]['dfrn-id']) {
-		$orig_id = $r[0]['dfrn-id'];
+	if ($r['duplex'] && $r['dfrn-id']) {
+		$orig_id = $r['dfrn-id'];
 		$dfrn_id = '0:' . $orig_id;
 	}
 
@@ -4593,10 +4589,10 @@ function api_friendica_remoteauth()
 		intval(time() + 45)
 	);
 
-	logger($r[0]['name'] . ' ' . $sec, LOGGER_DEBUG);
-	$dest = (($url) ? '&destination_url=' . $url : '');
+	logger($r['name'] . ' ' . $sec, LOGGER_DEBUG);
+	$dest = ($url ? '&destination_url=' . $url : '');
 	goaway(
-		$r[0]['poll'] . '?dfrn_id=' . $dfrn_id
+		$r['poll'] . '?dfrn_id=' . $dfrn_id
 		. '&dfrn_version=' . DFRN_PROTOCOL_VERSION
 		. '&type=profile&sec=' . $sec . $dest . $quiet
 	);
