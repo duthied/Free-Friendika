@@ -692,6 +692,23 @@ On error:
 
 ---
 
+### account/update_profile (POST; AUTH)
+
+#### Parameters
+
+* name (optional): full name of the user
+* description (optional): a description of the user
+
+#### Unsupported parameters
+
+* url
+* location
+* profile_link_color
+* include_entities
+* skip_status
+
+---
+
 ### friendships/incoming (*; AUTH)
 
 #### Unsupported parameters
@@ -1205,7 +1222,6 @@ The following API calls from the Twitter API are not implemented in either Frien
 * friendships/lookup
 * account/settings
 * account/update_delivery_device
-* account/update_profile
 * blocks/ids
 * users/show
 * users/search

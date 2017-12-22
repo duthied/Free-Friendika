@@ -4473,6 +4473,39 @@ api_register_func('api/friendica/photo', 'api_fr_photo_detail', true);
 api_register_func('api/account/update_profile_image', 'api_account_update_profile_image', true, API_METHOD_POST);
 
 /**
+ * Update user profile
+ *
+ * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+ *
+ * @return array|string
+ */
+function api_account_update_profile($type)
+{
+	$local_user = local_user();
+	$api_user = api_get_user(get_app());
+
+	if (x($_POST['name'])) {
+		dba::update('profile', ['name' => $_POST['name']], ['uid' => $local_user]);
+		dba::update('user', ['username' => $_POST['name']], ['uid' => $local_user]);
+		dba::update('contact', ['name' => $_POST['name']], ['uid' => $local_user, 'self' => 1]);
+		dba::update('contact', ['name' => $_POST['name']], ['id' => $api_user['id']]);
+	}
+
+	if (x($_POST['description'])) {
+		dba::update('profile', ['about' => $_POST['description']], ['uid' => $local_user]);
+		dba::update('contact', ['about' => $_POST['description']], ['uid' => $local_user, 'self' => 1]);
+		dba::update('contact', ['about' => $_POST['description']], ['id' => $api_user['id']]);
+	}
+
+	Worker::add(PRIORITY_LOW, 'ProfileUpdate', api_user());
+
+	return api_account_verify_credentials($type);
+}
+
+/// @TODO move to top of file or somewhere better
+api_register_func('api/account/update_profile', 'api_account_update_profile', true, API_METHOD_POST);
+
+/**
  *
  * @param string $acl_string
  */
