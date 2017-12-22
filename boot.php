@@ -673,7 +673,8 @@ function update_db(App $a)
 	$build = Config::get('system', 'build');
 
 	if (empty($build)) {
-		$build = Config::set('system', 'build', DB_UPDATE_VERSION);
+		Config::set('system', 'build', DB_UPDATE_VERSION);
+		$build = DB_UPDATE_VERSION;
 	}
 
 	if ($build != DB_UPDATE_VERSION) {
