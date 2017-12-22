@@ -16,7 +16,7 @@ use Friendica\Object\Image;
  *
  * Database structure changes are done in src/Database/DBStructure.php
  *
- * If there is a need for a post procession to a structure change, update this file
+ * If there is a need for a post process to a structure change, update this file
  * by adding a new function at the end with the number of the current DB_UPDATE_VERSION.
  *
  * The DB_UPDATE_VERSION will always be at least one greater than the last
