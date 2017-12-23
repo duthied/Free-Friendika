@@ -1494,7 +1494,7 @@ function api_users_search($type)
 		if (DBM::is_result($r)) {
 			$k = 0;
 			foreach ($r as $user) {
-				$user_info = api_get_user($a, $user["id"], "json");
+				$user_info = api_get_user($a, $user["id"]);
 
 				if ($type == "xml") {
 					$userlist[$k++.":user"] = $user_info;
