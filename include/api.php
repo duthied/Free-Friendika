@@ -217,7 +217,7 @@ function api_login(App $a)
 		*/
 	call_hooks('authenticate', $addon_auth);
 
-	if (($addon_auth['authenticated']) && (count($addon_auth['user_record']))) {
+	if ($addon_auth['authenticated'] && count($addon_auth['user_record'])) {
 		$record = $addon_auth['user_record'];
 	} else {
 		$user_id = User::authenticate(trim($user), trim($password));
@@ -226,7 +226,7 @@ function api_login(App $a)
 		}
 	}
 
-	if ((! $record) || (! count($record))) {
+	if (!$record || !count($record)) {
 		logger('API_login failure: ' . print_r($_SERVER, true), LOGGER_DEBUG);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		//header('HTTP/1.0 401 Unauthorized');
@@ -2694,14 +2694,15 @@ function api_get_entitities(&$text, $bbcode)
 	foreach ($ordered_urls as $url) {
 		if ((substr($url["title"], 0, 7) != "http://") && (substr($url["title"], 0, 8) != "https://")
 			&& !strpos($url["title"], "http://") && !strpos($url["title"], "https://")
-		)
+		) {
 			$display_url = $url["title"];
-		else {
+		} else {
 			$display_url = str_replace(array("http://www.", "https://www."), array("", ""), $url["url"]);
 			$display_url = str_replace(array("http://", "https://"), array("", ""), $display_url);
 
-			if (strlen($display_url) > 26)
+			if (strlen($display_url) > 26) {
 				$display_url = substr($display_url, 0, 25)."…";
+			}
 		}
 
 		//$start = strpos($text, $url, $offset);
@@ -3051,12 +3052,13 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 		if ($item["coord"] != "") {
 			$coords = explode(' ', $item["coord"]);
 			if (count($coords) == 2) {
-				if ($type == "json")
+				if ($type == "json") {
 					$status["geo"] = array('type' => 'Point',
 							'coordinates' => array((float) $coords[0],
 										(float) $coords[1]));
-				else // Not sure if this is the official format - if someone founds a documentation we can check
+				} else {// Not sure if this is the official format - if someone founds a documentation we can check
 					$status["georss:point"] = $item["coord"];
+				}
 			}
 		}
 		$ret[] = $status;
@@ -4284,7 +4286,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 	}
 	// check against max upload size within Friendica instance
 	$maximagesize = Config::get('system', 'maximagesize');
-	if (($maximagesize) && ($filesize > $maximagesize)) {
+	if ($maximagesize && ($filesize > $maximagesize)) {
 		$formattedBytes = formatBytes($maximagesize);
 		throw new InternalServerErrorException("image size exceeds Friendica config setting (uploaded size: $formattedBytes)");
 	}
@@ -4547,8 +4549,8 @@ function prepare_photo_data($type, $scale, $photo_id)
  */
 function api_friendica_remoteauth()
 {
-	$url = ((x($_GET, 'url')) ? $_GET['url'] : '');
-	$c_url = ((x($_GET, 'c_url')) ? $_GET['c_url'] : '');
+	$url = (x($_GET, 'url') ? $_GET['url'] : '');
+	$c_url = (x($_GET, 'c_url') ? $_GET['c_url'] : '');
 
 	if ($url === '' || $c_url === '') {
 		throw new BadRequestException("Wrong parameters.");
@@ -4558,26 +4560,22 @@ function api_friendica_remoteauth()
 
 	// traditional DFRN
 
-	$r = q(
-		"SELECT * FROM `contact` WHERE `id` = %d AND `nurl` = '%s' LIMIT 1",
-		dbesc($c_url),
-		intval(api_user())
-	);
+	$r = dba::select('contact', [], ['uid' => api_user(), 'nurl' => $c_url], ['limit' => 1]);
 
-	if ((! DBM::is_result($r)) || ($r[0]['network'] !== NETWORK_DFRN)) {
+	if (!DBM::is_result($r) || ($r['network'] !== NETWORK_DFRN)) {
 		throw new BadRequestException("Unknown contact");
 	}
 
-	$cid = $r[0]['id'];
+	$cid = $r['id'];
 
-	$dfrn_id = $orig_id = (($r[0]['issued-id']) ? $r[0]['issued-id'] : $r[0]['dfrn-id']);
+	$dfrn_id = $orig_id = (($r['issued-id']) ? $r['issued-id'] : $r['dfrn-id']);
 
-	if ($r[0]['duplex'] && $r[0]['issued-id']) {
-		$orig_id = $r[0]['issued-id'];
+	if ($r['duplex'] && $r['issued-id']) {
+		$orig_id = $r['issued-id'];
 		$dfrn_id = '1:' . $orig_id;
 	}
-	if ($r[0]['duplex'] && $r[0]['dfrn-id']) {
-		$orig_id = $r[0]['dfrn-id'];
+	if ($r['duplex'] && $r['dfrn-id']) {
+		$orig_id = $r['dfrn-id'];
 		$dfrn_id = '0:' . $orig_id;
 	}
 
@@ -4593,10 +4591,10 @@ function api_friendica_remoteauth()
 		intval(time() + 45)
 	);
 
-	logger($r[0]['name'] . ' ' . $sec, LOGGER_DEBUG);
-	$dest = (($url) ? '&destination_url=' . $url : '');
+	logger($r['name'] . ' ' . $sec, LOGGER_DEBUG);
+	$dest = ($url ? '&destination_url=' . $url : '');
 	goaway(
-		$r[0]['poll'] . '?dfrn_id=' . $dfrn_id
+		$r['poll'] . '?dfrn_id=' . $dfrn_id
 		. '&dfrn_version=' . DFRN_PROTOCOL_VERSION
 		. '&type=profile&sec=' . $sec . $dest . $quiet
 	);
@@ -4870,20 +4868,20 @@ function api_clean_attachments($body)
 {
 	$data = get_attachment_data($body);
 
-	if (!$data)
+	if (!$data) {
 		return $body;
-
+	}
 	$body = "";
 
-	if (isset($data["text"]))
+	if (isset($data["text"])) {
 		$body = $data["text"];
-
-	if (($body == "") && (isset($data["title"])))
+	}
+	if (($body == "") && isset($data["title"])) {
 		$body = $data["title"];
-
-	if (isset($data["url"]))
+	}
+	if (isset($data["url"])) {
 		$body .= "\n".$data["url"];
-
+	}
 	$body .= $data["after"];
 
 	return $body;
@@ -5102,9 +5100,9 @@ function api_friendica_group_create($type)
 			intval($cid),
 			intval($uid)
 		);
-		if (count($contact))
+		if (count($contact)) {
 			$result = Group::addMember($gid, $cid);
-		else {
+		} else {
 			$erroraddinguser = true;
 			$errorusers[] = $cid;
 		}
