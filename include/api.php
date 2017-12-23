@@ -3163,10 +3163,10 @@ function api_statuses_f($qtype)
 		return false;
 	}
 
+	$sql_extra = '';
 	if ($qtype == 'friends') {
 		$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(CONTACT_IS_SHARING), intval(CONTACT_IS_FRIEND));
-	}
-	if ($qtype == 'followers') {
+	} elseif ($qtype == 'followers') {
 		$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(CONTACT_IS_FOLLOWER), intval(CONTACT_IS_FRIEND));
 	}
 
