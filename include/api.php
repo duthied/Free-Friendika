@@ -399,7 +399,7 @@ function api_call(App $a)
  *
  * @param string $type Return type (xml, json, rss, as)
  * @param object $e    HTTPException Error object
- * @return strin error message formatted as $type
+ * @return string error message formatted as $type
  */
 function api_error($type, $e)
 {
@@ -946,12 +946,10 @@ function api_create_xml($data, $root_element)
  * @param string $type         Return type (atom, rss, xml, json)
  * @param array  $data         JSON style array
  *
- * @return (string|object) XML data or JSON data
+ * @return (string|object|array) XML data or JSON data
  */
 function api_format_data($root_element, $type, $data)
 {
-	$a = get_app();
-
 	switch ($type) {
 		case "atom":
 		case "rss":
@@ -1496,7 +1494,7 @@ function api_users_search($type)
 		if (DBM::is_result($r)) {
 			$k = 0;
 			foreach ($r as $user) {
-				$user_info = api_get_user($a, $user["id"], "json");
+				$user_info = api_get_user($a, $user["id"]);
 
 				if ($type == "xml") {
 					$userlist[$k++.":user"] = $user_info;
@@ -3167,10 +3165,10 @@ function api_statuses_f($qtype)
 		return false;
 	}
 
+	$sql_extra = '';
 	if ($qtype == 'friends') {
 		$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(CONTACT_IS_SHARING), intval(CONTACT_IS_FRIEND));
-	}
-	if ($qtype == 'followers') {
+	} elseif ($qtype == 'followers') {
 		$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(CONTACT_IS_FOLLOWER), intval(CONTACT_IS_FRIEND));
 	}
 
@@ -3315,7 +3313,7 @@ function api_statusnet_config($type)
 	$private = ((Config::get('system', 'block_public')) ? 'true' : 'false');
 	$textlimit = (string) (($a->config['max_import_size']) ? $a->config['max_import_size'] : 200000);
 	if ($a->config['api_import_size']) {
-		$texlimit = string($a->config['api_import_size']);
+		$textlimit = (string) $a->config['api_import_size'];
 	}
 	$ssl = ((Config::get('system', 'have_ssl')) ? 'true' : 'false');
 	$sslserver = (($ssl === 'true') ? str_replace('http:', 'https:', System::baseUrl()) : '');
@@ -3366,17 +3364,6 @@ function api_ff_ids($type,$qtype)
 	}
 
 	$user_info = api_get_user($a);
-
-	if ($qtype == 'friends') {
-		$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(CONTACT_IS_SHARING), intval(CONTACT_IS_FRIEND));
-	}
-	if ($qtype == 'followers') {
-		$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(CONTACT_IS_FOLLOWER), intval(CONTACT_IS_FRIEND));
-	}
-
-	if (!$user_info["self"]) {
-		$sql_extra = " AND false ";
-	}
 
 	$stringify_ids = (x($_REQUEST, 'stringify_ids') ? $_REQUEST['stringify_ids'] : false);
 
@@ -4605,7 +4592,7 @@ api_register_func('api/friendica/remoteauth', 'api_friendica_remoteauth', true);
  * @brief Return the item shared, if the item contains only the [share] tag
  *
  * @param array $item Sharer item
- * @return array Shared item or false if not a reshare
+ * @return array|false Shared item or false if not a reshare
  */
 function api_share_as_retweet(&$item)
 {
