@@ -3311,7 +3311,7 @@ function api_statusnet_config($type)
 	$private = ((Config::get('system', 'block_public')) ? 'true' : 'false');
 	$textlimit = (string) (($a->config['max_import_size']) ? $a->config['max_import_size'] : 200000);
 	if ($a->config['api_import_size']) {
-		$texlimit = string($a->config['api_import_size']);
+		$textlimit = (string) $a->config['api_import_size'];
 	}
 	$ssl = ((Config::get('system', 'have_ssl')) ? 'true' : 'false');
 	$sslserver = (($ssl === 'true') ? str_replace('http:', 'https:', System::baseUrl()) : '');
