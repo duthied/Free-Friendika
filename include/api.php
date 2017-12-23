@@ -399,7 +399,7 @@ function api_call(App $a)
  *
  * @param string $type Return type (xml, json, rss, as)
  * @param object $e    HTTPException Error object
- * @return strin error message formatted as $type
+ * @return string error message formatted as $type
  */
 function api_error($type, $e)
 {
