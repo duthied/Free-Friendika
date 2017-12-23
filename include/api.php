@@ -4594,7 +4594,7 @@ api_register_func('api/friendica/remoteauth', 'api_friendica_remoteauth', true);
  * @brief Return the item shared, if the item contains only the [share] tag
  *
  * @param array $item Sharer item
- * @return array Shared item or false if not a reshare
+ * @return array|false Shared item or false if not a reshare
  */
 function api_share_as_retweet(&$item)
 {
