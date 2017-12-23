@@ -950,8 +950,6 @@ function api_create_xml($data, $root_element)
  */
 function api_format_data($root_element, $type, $data)
 {
-	$a = get_app();
-
 	switch ($type) {
 		case "atom":
 		case "rss":
