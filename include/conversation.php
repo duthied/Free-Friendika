@@ -574,10 +574,10 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 		}
 	} elseif ($mode === 'community') {
 		$profile_owner = 0;
-		if (!$update) {
-			$live_update_div = '<div id="live-community"></div>' . "\r\n"
-				. "<script> var profile_uid = -1; var netargs = '/?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
-		}
+//		if (!$update) {
+//			$live_update_div = '<div id="live-community"></div>' . "\r\n"
+//				. "<script> var profile_uid = -1; var netargs = '/?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
+//		}
 	} elseif ($mode === 'search') {
 		$live_update_div = '<div id="live-search"></div>' . "\r\n";
 	}
@@ -617,8 +617,10 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 		} else {
 			$writable = false;
 		}
+			$writable = true;
 
-		if ($mode === 'network-new' || $mode === 'search' || $mode === 'community') {
+		if ($mode === 'network-new' || $mode === 'search') {
+// || $mode === 'community') {
 
 			/*
 			 * "New Item View" on network page or search page results

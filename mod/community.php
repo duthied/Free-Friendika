@@ -114,9 +114,34 @@ function community_getpublicitems($start, $itemspage) {
 	$r = dba::p("SELECT ".item_fieldlists()." FROM `thread`
 		INNER JOIN `item` ON `item`.`id` = `thread`.`iid` ".item_joins().
 		"WHERE `thread`.`uid` = 0 AND `verb` = ?
-		ORDER BY `thread`.`created` DESC LIMIT ".intval($start).", ".intval($itemspage),
+		ORDER BY `thread`.`commented` DESC LIMIT ".intval($start).", ".intval($itemspage),
 		ACTIVITY_POST
 	);
 
-	return dba::inArray($r);
+	while ($rr = dba::fetch($r)) {
+		if (!in_array($rr['item_id'], $parents_arr)) {
+			$parents_arr[] = $rr['item_id'];
+		}
+	}
+
+	dba::close();
+
+	$max_comments = Config::get("system", "max_comments", 100);
+
+	$items = array();
+
+	foreach ($parents_arr AS $parents) {
+		$thread_items = dba::p(item_query()." AND `item`.`uid` = 0
+			AND `item`.`parent` = ?
+			ORDER BY `item`.`commented` DESC LIMIT ".intval($max_comments + 1),
+			$parents
+		);
+
+		if (DBM::is_result($thread_items)) {
+			$items = array_merge($items, dba::inArray($thread_items));
+		}
+	}
+	$items = conv_sort($items, "`commented`");
+
+	return $items;
 }
