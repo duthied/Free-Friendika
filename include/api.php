@@ -3363,17 +3363,6 @@ function api_ff_ids($type,$qtype)
 
 	$user_info = api_get_user($a);
 
-	if ($qtype == 'friends') {
-		$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(CONTACT_IS_SHARING), intval(CONTACT_IS_FRIEND));
-	}
-	if ($qtype == 'followers') {
-		$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(CONTACT_IS_FOLLOWER), intval(CONTACT_IS_FRIEND));
-	}
-
-	if (!$user_info["self"]) {
-		$sql_extra = " AND false ";
-	}
-
 	$stringify_ids = (x($_REQUEST, 'stringify_ids') ? $_REQUEST['stringify_ids'] : false);
 
 	$r = q(
