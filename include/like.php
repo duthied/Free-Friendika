@@ -80,22 +80,26 @@ function do_like($item_id, $verb) {
 
 	$item = $items[0];
 
-	if (!can_write_wall($a, $item['uid'])) {
+	if (!can_write_wall($a, $item['uid']) && ($item['uid'] != 0)) {
 		logger('like: unable to write on wall ' . $item['uid']);
 		return false;
 	}
 
 	// Retrieves the local post owner
-	$owners = q("SELECT `contact`.* FROM `contact`
-		WHERE `contact`.`self`
-		AND `contact`.`uid` = %d",
-		intval($item['uid'])
-	);
-	if (DBM::is_result($owners)) {
-		$owner_self_contact = $owners[0];
+	if ($item['uid'] != 0) {
+		$owners = q("SELECT `contact`.* FROM `contact`
+			WHERE `contact`.`self`
+			AND `contact`.`uid` = %d",
+			intval($item['uid'])
+		);
+		if (DBM::is_result($owners)) {
+			$owner_self_contact = $owners[0];
+		} else {
+			logger('like: unknown owner ' . $item['uid']);
+			return false;
+		}
 	} else {
-		logger('like: unknown owner ' . $item['uid']);
-		return false;
+		$owner_self_contact = ['uid' => 0, 'nick' => 'feed-item'];
 	}
 
 	// Retrieve the current logged in user's public contact
