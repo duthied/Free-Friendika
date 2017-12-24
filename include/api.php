@@ -186,7 +186,7 @@ function api_login(App $a)
 	}
 
 	if (!x($_SERVER, 'PHP_AUTH_USER')) {
-		logger('API_login: ' . print_r($_SERVER,true), LOGGER_DEBUG);
+		logger('API_login: ' . print_r($_SERVER, true), LOGGER_DEBUG);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		throw new UnauthorizedException("This API requires login");
 	}
@@ -367,12 +367,13 @@ function api_call(App $a)
 						break;
 					case "json":
 						header("Content-Type: application/json");
-						foreach ($r as $rr)
+						foreach ($r as $rr) {
 							$json = json_encode($rr);
-							if (x($_GET, 'callback')) {
-								$json = $_GET['callback'] . "(" . $json . ")";
-							}
-							return $json;
+						}
+						if (x($_GET, 'callback')) {
+							$json = $_GET['callback'] . "(" . $json . ")";
+						}
+						return $json;
 						break;
 					case "rss":
 						header("Content-Type: application/rss+xml");
@@ -1737,7 +1738,8 @@ function api_statuses_public_timeline($type)
 			$sql_extra = 'AND `thread`.`iid` <= ' . intval($max_id);
 		}
 
-		$r = dba::p("SELECT " . item_fieldlists() . "
+		$r = dba::p(
+			"SELECT " . item_fieldlists() . "
 			FROM `thread`
 			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
 			" . item_joins() . "
@@ -1766,7 +1768,8 @@ function api_statuses_public_timeline($type)
 			$sql_extra .= ' AND `item`.`parent` = ' . intval($conversation_id);
 		}
 
-		$r = dba::p("SELECT " . item_fieldlists() . "
+		$r = dba::p(
+			"SELECT " . item_fieldlists() . "
 			FROM `item`
 			" . item_joins() . "
 			STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
@@ -1837,7 +1840,8 @@ function api_statuses_networkpublic_timeline($type)
 		$sql_extra = 'AND `thread`.`iid` <= ' . intval($max_id);
 	}
 
-	$r = dba::p("SELECT " . item_fieldlists() . "
+	$r = dba::p(
+		"SELECT " . item_fieldlists() . "
 		FROM `thread`
 		STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
 		" . item_joins() . "
@@ -2009,10 +2013,12 @@ function api_conversation_show($type)
 		AND `item`.`uid` = %d AND `item`.`verb` = '%s'
 		AND `item`.`id`>%d $sql_extra
 		ORDER BY `item`.`id` DESC LIMIT %d ,%d",
-		intval($id), intval(api_user()),
+		intval($id),
+		intval(api_user()),
 		dbesc(ACTIVITY_POST),
 		intval($since_id),
-		intval($start), intval($count)
+		intval($start),
+		intval($count)
 	);
 
 	if (!DBM::is_result($r)) {
@@ -2321,7 +2327,7 @@ function api_statuses_user_timeline($type)
 }
 
 /// @TODO move to top of file or somwhere better
-api_register_func('api/statuses/user_timeline','api_statuses_user_timeline', true);
+api_register_func('api/statuses/user_timeline', 'api_statuses_user_timeline', true);
 
 /**
  * Star/unstar an item
@@ -2372,7 +2378,7 @@ function api_favorites_create_destroy($type)
 			throw new BadRequestException("Invalid action ".$action);
 	}
 
-	$r = q("UPDATE item SET starred=%d WHERE id=%d AND uid=%d",	$item[0]['starred'], $itemid, api_user());
+	$r = q("UPDATE item SET starred=%d WHERE id=%d AND uid=%d", $item[0]['starred'], $itemid, api_user());
 
 	q("UPDATE thread SET starred=%d WHERE iid=%d AND uid=%d", $item[0]['starred'], $itemid, api_user());
 
@@ -2719,8 +2725,9 @@ function api_get_entitities(&$text, $bbcode)
 	foreach ($images[1] as $image) {
 		//$start = strpos($text, $url, $offset);
 		$start = iconv_strpos($text, $image, 0, "UTF-8");
-		if (!($start === false))
+		if (!($start === false)) {
 			$ordered_images[$start] = $image;
+		}
 	}
 	//$entities["media"] = array();
 	$offset = 0;
@@ -2729,8 +2736,9 @@ function api_get_entitities(&$text, $bbcode)
 		$display_url = str_replace(array("http://www.", "https://www."), array("", ""), $url);
 		$display_url = str_replace(array("http://", "https://"), array("", ""), $display_url);
 
-		if (strlen($display_url) > 26)
+		if (strlen($display_url) > 26) {
 			$display_url = substr($display_url, 0, 25)."…";
+		}
 
 		$start = iconv_strpos($text, $url, $offset, "UTF-8");
 		if (!($start === false)) {
@@ -2881,8 +2889,9 @@ function api_format_items_activities(&$item, $type = "json")
 			$xml_activities["friendica:".$k] = $v;
 			// add user data into xml output
 			$k_user = 0;
-			foreach ($v as $user)
+			foreach ($v as $user) {
 				$xml_activities["friendica:".$k][$k_user++.":user"] = $user;
+			}
 		}
 		$activities = $xml_activities;
 	}
@@ -3355,7 +3364,7 @@ api_register_func('api/statusnet/version', 'api_statusnet_version', false);
 /**
  * @todo use api_format_data() to return data
  */
-function api_ff_ids($type,$qtype)
+function api_ff_ids($type, $qtype)
 {
 	$a = get_app();
 
@@ -3409,9 +3418,13 @@ function api_direct_messages_new($type)
 
 	$a = get_app();
 
-	if (api_user() === false) throw new ForbiddenException();
+	if (api_user() === false) {
+		throw new ForbiddenException();
+	}
 
-	if (!x($_POST, "text") || (!x($_POST, "screen_name") && !x($_POST, "user_id"))) return;
+	if (!x($_POST, "text") || (!x($_POST, "screen_name") && !x($_POST, "user_id"))) {
+		return;
+	}
 
 	$sender = api_get_user($a);
 
@@ -3466,7 +3479,6 @@ function api_direct_messages_new($type)
 	}
 
 	return api_format_data("direct-messages", $type, $data);
-
 }
 
 /// @TODO move to top of file or somewhere better
@@ -3545,7 +3557,6 @@ function api_direct_messages_destroy($type)
 		}
 	}
 	/// @todo return JSON data like Twitter API not yet implemented
-
 }
 
 /// @TODO move to top of file or somewhere better
@@ -3727,8 +3738,9 @@ function api_fr_photoalbum_delete($type)
 		intval(api_user()),
 		dbesc($album)
 	);
-	if (!DBM::is_result($r))
+	if (!DBM::is_result($r)) {
 		throw new BadRequestException("album not available");
+	}
 
 	// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
 	// to the user and the contacts of the users (drop_items() performs the federation of the deletion to other networks
@@ -4264,7 +4276,8 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 	}
 	logger(
 		"File upload src: " . $src . " - filename: " . $filename .
-		" - size: " . $filesize . " - type: " . $filetype, LOGGER_DEBUG
+		" - size: " . $filesize . " - type: " . $filetype,
+		LOGGER_DEBUG
 	);
 
 	// check if there was a php upload error
@@ -4663,8 +4676,9 @@ function api_share_as_retweet(&$item)
 
 	$posted = "";
 	preg_match("/posted='(.*?)'/ism", $attributes, $matches);
-	if ($matches[1] != "")
+	if ($matches[1] != "") {
 		$posted = $matches[1];
+	}
 
 	preg_match('/posted="(.*?)"/ism', $attributes, $matches);
 	if ($matches[1] != "") {
@@ -4686,7 +4700,6 @@ function api_share_as_retweet(&$item)
 	$reshared_item["edited"] = $posted;
 
 	return $reshared_item;
-
 }
 
 function api_get_nick($profile)
@@ -4781,9 +4794,11 @@ function api_in_reply_to($item)
 	$in_reply_to['screen_name'] = null;
 
 	if (($item['thr-parent'] != $item['uri']) && (intval($item['parent']) != intval($item['id']))) {
-		$r = q("SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' LIMIT 1",
+		$r = q(
+			"SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' LIMIT 1",
 			intval($item['uid']),
-			dbesc($item['thr-parent']));
+			dbesc($item['thr-parent'])
+		);
 
 		if (DBM::is_result($r)) {
 			$in_reply_to['status_id'] = intval($r[0]['id']);
@@ -4793,7 +4808,8 @@ function api_in_reply_to($item)
 
 		$in_reply_to['status_id_str'] = (string) intval($in_reply_to['status_id']);
 
-		$r = q("SELECT `contact`.`nick`, `contact`.`name`, `contact`.`id`, `contact`.`url` FROM item
+		$r = q(
+			"SELECT `contact`.`nick`, `contact`.`name`, `contact`.`id`, `contact`.`url` FROM item
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`author-id`
 			WHERE `item`.`id` = %d LIMIT 1",
 			intval($in_reply_to['status_id'])
@@ -4878,39 +4894,56 @@ function api_best_nickname(&$contacts)
 {
 	$best_contact = array();
 
-	if (count($contact) == 0)
+	if (count($contact) == 0) {
 		return;
+	}
 
-	foreach ($contacts as $contact)
+	foreach ($contacts as $contact) {
 		if ($contact["network"] == "") {
 			$contact["network"] = "dfrn";
 			$best_contact = array($contact);
 		}
+	}
 
-	if (sizeof($best_contact) == 0)
-		foreach ($contacts as $contact)
-			if ($contact["network"] == "dfrn")
+	if (sizeof($best_contact) == 0) {
+		foreach ($contacts as $contact) {
+			if ($contact["network"] == "dfrn") {
 				$best_contact = array($contact);
+			}
+		}
+	}
 
-	if (sizeof($best_contact) == 0)
-		foreach ($contacts as $contact)
-			if ($contact["network"] == "dspr")
+	if (sizeof($best_contact) == 0) {
+		foreach ($contacts as $contact) {
+			if ($contact["network"] == "dspr") {
 				$best_contact = array($contact);
+			}
+		}
+	}
 
-	if (sizeof($best_contact) == 0)
-		foreach ($contacts as $contact)
-			if ($contact["network"] == "stat")
+	if (sizeof($best_contact) == 0) {
+		foreach ($contacts as $contact) {
+			if ($contact["network"] == "stat") {
 				$best_contact = array($contact);
+			}
+		}
+	}
 
-	if (sizeof($best_contact) == 0)
-		foreach ($contacts as $contact)
-			if ($contact["network"] == "pump")
+	if (sizeof($best_contact) == 0) {
+		foreach ($contacts as $contact) {
+			if ($contact["network"] == "pump") {
 				$best_contact = array($contact);
+			}
+		}
+	}
 
-	if (sizeof($best_contact) == 0)
-		foreach ($contacts as $contact)
-			if ($contact["network"] == "twit")
+	if (sizeof($best_contact) == 0) {
+		foreach ($contacts as $contact) {
+			if ($contact["network"] == "twit") {
 				$best_contact = array($contact);
+			}
+		}
+	}
 
 	if (sizeof($best_contact) == 1) {
 		$contacts = $best_contact;
@@ -4924,7 +4957,9 @@ function api_friendica_group_show($type)
 {
 	$a = get_app();
 
-	if (api_user() === false) throw new ForbiddenException();
+	if (api_user() === false) {
+		throw new ForbiddenException();
+	}
 
 	// params
 	$user_info = api_get_user($a);
@@ -4939,8 +4974,9 @@ function api_friendica_group_show($type)
 			intval($gid)
 		);
 		// error message if specified gid is not in database
-		if (!DBM::is_result($r))
+		if (!DBM::is_result($r)) {
 			throw new BadRequestException("gid not available");
+		}
 	} else {
 		$r = q(
 			"SELECT * FROM `group` WHERE `deleted` = 0 AND `uid` = %d",
@@ -5035,7 +5071,9 @@ function api_friendica_group_create($type)
 {
 	$a = get_app();
 
-	if (api_user() === false) throw new ForbiddenException();
+	if (api_user() === false) {
+		throw new ForbiddenException();
+	}
 
 	// params
 	$user_info = api_get_user($a);
@@ -5045,8 +5083,9 @@ function api_friendica_group_create($type)
 	$users = $json['user'];
 
 	// error if no name specified
-	if ($name == "")
+	if ($name == "") {
 		throw new BadRequestException('group name not specified');
+	}
 
 	// get data of the specified group name
 	$rname = q(
@@ -5055,8 +5094,9 @@ function api_friendica_group_create($type)
 		dbesc($name)
 	);
 	// error message if specified group name already exists
-	if (DBM::is_result($rname))
+	if (DBM::is_result($rname)) {
 		throw new BadRequestException('group name already exists');
+	}
 
 	// check if specified group name is a deleted group
 	$rname = q(
@@ -5065,8 +5105,9 @@ function api_friendica_group_create($type)
 		dbesc($name)
 	);
 	// error message if specified group name already exists
-	if (DBM::is_result($rname))
+	if (DBM::is_result($rname)) {
 		$reactivate_group = true;
+	}
 
 	// create group
 	$ret = Group::create($uid, $name);
@@ -5108,7 +5149,9 @@ function api_friendica_group_update($type)
 {
 	$a = get_app();
 
-	if (api_user() === false) throw new ForbiddenException();
+	if (api_user() === false) {
+		throw new ForbiddenException();
+	}
 
 	// params
 	$user_info = api_get_user($a);
@@ -5119,12 +5162,14 @@ function api_friendica_group_update($type)
 	$users = $json['user'];
 
 	// error if no name specified
-	if ($name == "")
+	if ($name == "") {
 		throw new BadRequestException('group name not specified');
+	}
 
 	// error if no gid specified
-	if ($gid == "")
+	if ($gid == "") {
 		throw new BadRequestException('gid not specified');
+	}
 
 	// remove members
 	$members = Contact::getByGroupId($gid);
@@ -5170,7 +5215,9 @@ function api_friendica_activity($type)
 {
 	$a = get_app();
 
-	if (api_user() === false) throw new ForbiddenException();
+	if (api_user() === false) {
+		throw new ForbiddenException();
+	}
 	$verb = strtolower($a->argv[3]);
 	$verb = preg_replace("|\..*$|", "", $verb);
 
@@ -5212,16 +5259,21 @@ function api_friendica_notification($type)
 {
 	$a = get_app();
 
-	if (api_user() === false) throw new ForbiddenException();
-	if ($a->argc!==3) throw new BadRequestException("Invalid argument count");
+	if (api_user() === false) {
+		throw new ForbiddenException();
+	}
+	if ($a->argc!==3) {
+		throw new BadRequestException("Invalid argument count");
+	}
 	$nm = new NotificationsManager();
 
 	$notes = $nm->getAll(array(), "+seen -date", 50);
 
 	if ($type == "xml") {
 		$xmlnotes = array();
-		foreach ($notes as $note)
+		foreach ($notes as $note) {
 			$xmlnotes[] = array("@attributes" => $note);
+		}
 
 		$notes = $xmlnotes;
 	}
@@ -5241,14 +5293,20 @@ function api_friendica_notification_seen($type)
 {
 	$a = get_app();
 
-	if (api_user() === false) throw new ForbiddenException();
-	if ($a->argc!==4) throw new BadRequestException("Invalid argument count");
+	if (api_user() === false) {
+		throw new ForbiddenException();
+	}
+	if ($a->argc!==4) {
+		throw new BadRequestException("Invalid argument count");
+	}
 
 	$id = (x($_REQUEST, 'id') ? intval($_REQUEST['id']) : 0);
 
 	$nm = new NotificationsManager();
 	$note = $nm->getByID($id);
-	if (is_null($note)) throw new BadRequestException("Invalid argument");
+	if (is_null($note)) {
+		throw new BadRequestException("Invalid argument");
+	}
 
 	$nm->setSeen($note);
 	if ($note['otype']=='item') {
@@ -5505,15 +5563,15 @@ api_register_func('api/saved_searches/list', 'api_saved_searches_list', true);
 /*
 @TODO Maybe open to implement?
 To.Do:
-    [pagename] => api/1.1/statuses/lookup.json
-    [id] => 605138389168451584
-    [include_cards] => true
-    [cards_platform] => Android-12
-    [include_entities] => true
-    [include_my_retweet] => 1
-    [include_rts] => 1
-    [include_reply_count] => true
-    [include_descendent_reply_count] => true
+	[pagename] => api/1.1/statuses/lookup.json
+	[id] => 605138389168451584
+	[include_cards] => true
+	[cards_platform] => Android-12
+	[include_entities] => true
+	[include_my_retweet] => 1
+	[include_rts] => 1
+	[include_reply_count] => true
+	[include_descendent_reply_count] => true
 (?)
 
 
