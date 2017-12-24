@@ -754,7 +754,7 @@ function api_get_user(App $a, $contact_id = null)
 	} elseif (!empty($uinfo[0]["location"])) {
 		$location = $uinfo[0]["location"];
 	} else {
-		$location = network_name;
+		$location = $network_name;
 	}
 
 	$ret = array(
