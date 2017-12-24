@@ -743,13 +743,27 @@ function api_get_user(App $a, $contact_id = null)
 
 	$pcontact_id  = Contact::getIdForURL($uinfo[0]['url'], 0, true);
 
+	if (!empty($profile[0]['pdesc'])) {
+		$description = $profile[0]['pdesc'];
+	} else {
+		$description = $uinfo[0]["about"];
+	}
+
+	if (!empty($usr[0]['default-location'])) {
+		$location = $usr[0]['default-location'];
+	} elseif (!empty($uinfo[0]["location"])) {
+		$location = $uinfo[0]["location"];
+	} else {
+		$location = network_name;
+	}
+
 	$ret = array(
 		'id' => intval($pcontact_id),
 		'id_str' => (string) intval($pcontact_id),
 		'name' => (($uinfo[0]['name']) ? $uinfo[0]['name'] : $uinfo[0]['nick']),
 		'screen_name' => (($uinfo[0]['nick']) ? $uinfo[0]['nick'] : $uinfo[0]['name']),
-		'location' => ($usr) ? $usr[0]['default-location'] : $network_name,
-		'description' => (($profile) ? $profile[0]['pdesc'] : null),
+		'location' => $location,
+		'description' => $description,
 		'profile_image_url' => $uinfo[0]['micro'],
 		'profile_image_url_https' => $uinfo[0]['micro'],
 		'url' => $uinfo[0]['url'],
