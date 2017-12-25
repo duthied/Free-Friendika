@@ -1029,7 +1029,7 @@ function api_account_verify_credentials($type)
 	return api_format_data("user", $type, array('user' => $user_info));
 }
 
-/// @TODO move to top of file or somwhere better
+/// @TODO move to top of file or somewhere better
 api_register_func('api/account/verify_credentials', 'api_account_verify_credentials', true);
 
 /**
@@ -1277,7 +1277,7 @@ function api_statuses_update($type)
 	return api_status_show($type);
 }
 
-/// @TODO move to top of file or somwhere better
+/// @TODO move to top of file or somewhere better
 api_register_func('api/statuses/update', 'api_statuses_update', true, API_METHOD_POST);
 api_register_func('api/statuses/update_with_media', 'api_statuses_update', true, API_METHOD_POST);
 
@@ -1324,7 +1324,7 @@ function api_media_upload($type)
 	return array("media" => $returndata);
 }
 
-/// @TODO move to top of file or somwhere better
+/// @TODO move to top of file or somewhere better
 api_register_func('api/media/upload', 'api_media_upload', true, API_METHOD_POST);
 
 /**
@@ -2415,7 +2415,7 @@ function api_statuses_user_timeline($type)
 	return api_format_data("statuses", $type, $data);
 }
 
-/// @TODO move to top of file or somwhere better
+/// @TODO move to top of file or somewhere better
 api_register_func('api/statuses/user_timeline', 'api_statuses_user_timeline', true);
 
 /**
@@ -2492,7 +2492,7 @@ function api_favorites_create_destroy($type)
 	return api_format_data("status", $type, $data);
 }
 
-/// @TODO move to top of file or somwhere better
+/// @TODO move to top of file or somewhere better
 api_register_func('api/favorites/create', 'api_favorites_create_destroy', true, API_METHOD_POST);
 api_register_func('api/favorites/destroy', 'api_favorites_create_destroy', true, API_METHOD_DELETE);
 
@@ -2574,7 +2574,7 @@ function api_favorites($type)
 	return api_format_data("statuses", $type, $data);
 }
 
-/// @TODO move to top of file or somwhere better
+/// @TODO move to top of file or somewhere better
 api_register_func('api/favorites', 'api_favorites', true);
 
 /**
@@ -3237,7 +3237,7 @@ function api_account_rate_limit_status($type)
 	return api_format_data('hash', $type, array('hash' => $hash));
 }
 
-/// @TODO move to top of file or somwhere better
+/// @TODO move to top of file or somewhere better
 api_register_func('api/account/rate_limit_status', 'api_account_rate_limit_status', true);
 
 /**
@@ -3258,7 +3258,7 @@ function api_help_test($type)
 	return api_format_data('ok', $type, array("ok" => $ok));
 }
 
-/// @TODO move to top of file or somwhere better
+/// @TODO move to top of file or somewhere better
 api_register_func('api/help/test', 'api_help_test', false);
 
 /**
@@ -3274,7 +3274,7 @@ function api_lists($type)
 	return api_format_data('lists', $type, array("lists_list" => $ret));
 }
 
-/// @TODO move to top of file or somwhere better
+/// @TODO move to top of file or somewhere better
 api_register_func('api/lists', 'api_lists', true);
 
 /**
@@ -3292,7 +3292,7 @@ function api_lists_list($type)
 	return api_format_data('lists', $type, array("lists_list" => $ret));
 }
 
-/// @TODO move to top of file or somwhere better
+/// @TODO move to top of file or somewhere better
 api_register_func('api/lists/list', 'api_lists_list', true);
 
 /**
@@ -5586,7 +5586,7 @@ function api_friendica_activity($type)
 	}
 }
 
-/// @TODO move to top of file or somwhere better
+/// @TODO move to top of file or somewhere better
 api_register_func('api/friendica/activity/like', 'api_friendica_activity', true, API_METHOD_POST);
 api_register_func('api/friendica/activity/dislike', 'api_friendica_activity', true, API_METHOD_POST);
 api_register_func('api/friendica/activity/attendyes', 'api_friendica_activity', true, API_METHOD_POST);
@@ -5677,7 +5677,7 @@ function api_friendica_notification_seen($type)
 	return api_format_data('result', $type, array('result' => "success"));
 }
 
-/// @TODO move to top of file or somwhere better
+/// @TODO move to top of file or somewhere better
 api_register_func('api/friendica/notification/seen', 'api_friendica_notification_seen', true, API_METHOD_POST);
 api_register_func('api/friendica/notification', 'api_friendica_notification', true, API_METHOD_GET);
 
@@ -5735,7 +5735,7 @@ function api_friendica_direct_messages_setseen($type)
 	}
 }
 
-/// @TODO move to top of file or somwhere better
+/// @TODO move to top of file or somewhere better
 api_register_func('api/friendica/direct_messages_setseen', 'api_friendica_direct_messages_setseen', true);
 
 /**
@@ -5798,7 +5798,7 @@ function api_friendica_direct_messages_search($type)
 	return api_format_data("direct_message_search", $type, array('$result' => $success));
 }
 
-/// @TODO move to top of file or somwhere better
+/// @TODO move to top of file or somewhere better
 api_register_func('api/friendica/direct_messages_search', 'api_friendica_direct_messages_search', true);
 
 /**
@@ -5906,7 +5906,7 @@ function api_saved_searches_list($type)
 	return api_format_data("terms", $type, array('terms' => $result));
 }
 
-/// @TODO move to top of file or somwhere better
+/// @TODO move to top of file or somewhere better
 api_register_func('api/saved_searches/list', 'api_saved_searches_list', true);
 
 /*
