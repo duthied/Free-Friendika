@@ -743,8 +743,8 @@ function api_get_user(App $a, $contact_id = null)
 
 	$pcontact_id  = Contact::getIdForURL($uinfo[0]['url'], 0, true);
 
-	if (!empty($profile[0]['pdesc'])) {
-		$description = $profile[0]['pdesc'];
+	if (!empty($profile[0]['about'])) {
+		$description = $profile[0]['about'];
 	} else {
 		$description = $uinfo[0]["about"];
 	}
