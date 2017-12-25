@@ -2708,7 +2708,7 @@ function api_convert_item($item)
  *
  * @param string $body
  *
- * @return array
+ * @return array|false
  */
 function api_get_attachments(&$body)
 {
@@ -4329,7 +4329,7 @@ function api_fr_photo_delete($type)
  * @brief returns the details of a specified photo id, if scale is given, returns the photo data in base 64
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string
+ * @return string|array
  */
 function api_fr_photo_detail($type)
 {
