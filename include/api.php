@@ -4498,6 +4498,11 @@ function api_account_update_profile($type)
 	}
 
 	Worker::add(PRIORITY_LOW, 'ProfileUpdate', api_user());
+	// Update global directory in background
+	$url = $_SESSION['my_url'];
+	if ($url && strlen(Config::get('system', 'directory'))) {
+		Worker::add(PRIORITY_LOW, "Directory", $url);
+	}
 
 	return api_account_verify_credentials($type);
 }
