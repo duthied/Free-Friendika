@@ -3964,6 +3964,62 @@ class Diaspora
 	}
 
 	/**
+	 * @brief Split a name into first name and last name
+	 *
+	 * @param string $name The name
+	 *
+	 * @return array The array with "first" and "last"
+	 */
+	public static function splitName($name) {
+		$name = trim($name);
+
+		// Is the name longer than 64 characters? Then cut the rest of it.
+		if (strlen($name) > 64) {
+			if ((strpos($name, ' ') <= 64) && (strpos($name, ' ') !== false)) {
+				$name = trim(substr($name, 0, strrpos(substr($name, 0, 65), ' ')));
+			} else {
+				$name = substr($name, 0, 64);
+			}
+		}
+
+		// Take the first word as first name
+		$first = ((strpos($name, ' ') ? trim(substr($name, 0, strpos($name, ' '))) : $name));
+		$last = (($first === $name) ? '' : trim(substr($name, strlen($first))));
+		if ((strlen($first) < 32) && (strlen($last) < 32)) {
+			return ['first' => $first, 'last' => $last];
+		}
+
+		// Take the last word as last name
+		$first = ((strrpos($name, ' ') ? trim(substr($name, 0, strrpos($name, ' '))) : $name));
+		$last = (($first === $name) ? '' : trim(substr($name, strlen($first))));
+
+		if ((strlen($first) < 32) && (strlen($last) < 32)) {
+			return ['first' => $first, 'last' => $last];
+		}
+
+		// Take the first 32 characters if there is no space in the first 32 characters
+		if ((strpos($name, ' ') > 32) || (strpos($name, ' ') === false)) {
+			$first = substr($name, 0, 32);
+			$last = substr($name, 32);
+			return ['first' => $first, 'last' => $last];
+		}
+
+		$first = trim(substr($name, 0, strrpos(substr($name, 0, 33), ' ')));
+		$last = (($first === $name) ? '' : trim(substr($name, strlen($first))));
+
+		// Check if the last name is longer than 32 characters
+		if (strlen($last) > 32) {
+			if (strpos($last, ' ') <= 32) {
+				$last = trim(substr($last, 0, strrpos(substr($last, 0, 33), ' ')));
+			} else {
+				$last = substr($last, 0, 32);
+			}
+		}
+
+		return ['first' => $first, 'last' => $last];
+	}
+
+	/**
 	 * @brief Create profile data
 	 *
 	 * @param int $uid The user id
@@ -3986,11 +4042,12 @@ class Diaspora
 		}
 
 		$profile = $r[0];
-
 		$handle = $profile["addr"];
-		$first = ((strpos($profile['name'], ' ')
-			? trim(substr($profile['name'], 0, strpos($profile['name'], ' '))) : $profile['name']));
-		$last = (($first === $profile['name']) ? '' : trim(substr($profile['name'], strlen($first))));
+
+		$split_name = self::splitName($profile['name']);
+		$first = $split_name['first'];
+		$last = $split_name['last'];
+
 		$large = System::baseUrl().'/photo/custom/300/'.$profile['uid'].'.jpg';
 		$medium = System::baseUrl().'/photo/custom/100/'.$profile['uid'].'.jpg';
 		$small = System::baseUrl().'/photo/custom/50/'  .$profile['uid'].'.jpg';

@@ -615,6 +615,12 @@ This is an alias for `search`.
 
 ---
 
+### saved_searches/list (*; AUTH)
+
+This call does not have any parameter.
+
+---
+
 ### users/search (*)
 
 #### Parameters
@@ -683,6 +689,23 @@ On error:
 			"image size exceeds Friendica Config setting (uploaded size: x)",
 			"unable to process image data",
 			"image upload failed"
+
+---
+
+### account/update_profile (POST; AUTH)
+
+#### Parameters
+
+* name (optional): full name of the user
+* description (optional): a description of the user
+
+#### Unsupported parameters
+
+* url
+* location
+* profile_link_color
+* include_entities
+* skip_status
 
 ---
 
@@ -1199,8 +1222,6 @@ The following API calls from the Twitter API are not implemented in either Frien
 * friendships/lookup
 * account/settings
 * account/update_delivery_device
-* account/update_profile
-* account/update_profile_background_image
 * blocks/ids
 * users/show
 * users/search
@@ -1234,7 +1255,6 @@ The following API calls from the Twitter API are not implemented in either Frien
 * lists/subscriptions
 * lists/members/destroy_all
 * lists/ownerships
-* saved_searches/list
 * saved_searches/show/:id
 * saved_searches/create
 * saved_searches/destroy/:id
