@@ -151,7 +151,7 @@ function do_like($item_id, $verb) {
 		AND (`parent` = '%s' OR `parent-uri` = '%s' OR `thr-parent` = '%s')
 		LIMIT 1",
 		intval($author_contact['id']),
-		intval($uid),
+		intval($item['uid']),
 		dbesc($item_id), dbesc($item_id), dbesc($item['uri'])
 	);
 
@@ -210,8 +210,8 @@ EOT;
 
 	$new_item = array(
 		'guid'          => get_guid(32),
-		'uri'           => item_new_uri($a->get_hostname(), $uid),
-		'uid'           => $uid,
+		'uri'           => item_new_uri($a->get_hostname(), $item['uid']),
+		'uid'           => $item['uid'],
 		'contact-id'    => $item_contact_id,
 		'type'          => 'activity',
 		'wall'          => $item['wall'],
