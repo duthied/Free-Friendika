@@ -4,6 +4,8 @@ use Friendica\App;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 
+require_once 'include/follow.php';
+
 function fsuggest_post(App $a) {
 
 	if (! local_user()) {

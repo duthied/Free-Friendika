@@ -13,6 +13,7 @@ use Friendica\Network\Probe;
 
 require_once 'include/contact_selectors.php';
 require_once 'mod/proxy.php';
+require_once 'include/follow.php';
 
 function contacts_init(App $a) {
 	if (! local_user()) {
