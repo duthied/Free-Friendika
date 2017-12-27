@@ -154,10 +154,12 @@ class Notifier {
 				FROM `item` LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id` WHERE `parent` = %d AND visible AND NOT moderated ORDER BY `id` ASC",
 				intval($parent_id)
 			);
+logger('Blubb: a-'.$item_id);
 
 			if (!count($items)) {
 				return;
 			}
+logger('Blubb: b-'.$item_id);
 
 			// avoid race condition with deleting entries
 			if ($items[0]['deleted']) {
@@ -171,11 +173,13 @@ class Notifier {
 				$top_level = true;
 			}
 		}
+logger('Blubb: 0-'.$item_id.' - '.$uid);
 
 		$owner = User::getOwnerDataById($uid);
 		if (!$owner) {
 			return;
 		}
+logger('Blubb: 1-'.$item_id);
 
 		$walltowall = ($top_level && ($owner['id'] != $items[0]['contact-id']) ? true : false);
 
@@ -193,12 +197,14 @@ class Notifier {
 
 		// fill this in with a single salmon slap if applicable
 		$slap = '';
+logger('Blubb: 2-'.$item_id);
 
 		if (! ($mail || $fsuggest || $relocate)) {
 
 			$slap = OStatus::salmon($target_item, $owner);
 
 			$parent = $items[0];
+logger('Blubb: 3-'.$item_id);
 
 			$thr_parent = q("SELECT `network`, `author-link`, `owner-link` FROM `item` WHERE `uri` = '%s' AND `uid` = %d",
 				dbesc($target_item["thr-parent"]), intval($target_item["uid"]));
@@ -280,13 +286,14 @@ class Notifier {
 				}
 			}
 			if ($relay_to_owner) {
-				logger('notifier: followup '.$target_item["guid"], LOGGER_DEBUG);
 				// local followup to remote post
 				$followup = true;
 				$public_message = false; // not public
 				$conversant_str = dbesc($parent['contact-id']);
 				$recipients = array($parent['contact-id']);
 				$recipients_followup  = array($parent['contact-id']);
+
+				logger('notifier: followup '.$target_item["guid"].' to '.$conversant_str, LOGGER_DEBUG);
 
 				//if (!$target_item['private'] && $target_item['wall'] &&
 				if (!$target_item['private'] &&
