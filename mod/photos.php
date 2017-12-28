@@ -28,7 +28,7 @@ function photos_init(App $a) {
 		auto_redir($a, $a->argv[1]);
 	}
 
-	if ((Config::get('system', 'block_public')) && (! local_user()) && (! remote_user())) {
+	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
 		return;
 	}
 
@@ -40,7 +40,7 @@ function photos_init(App $a) {
 			dbesc($nick)
 		);
 
-		if (! DBM::is_result($user)) {
+		if (!DBM::is_result($user)) {
 			return;
 		}
 
@@ -64,7 +64,7 @@ function photos_init(App $a) {
 
 		$albums = photo_albums($a->data['user']['uid']);
 
-		$albums_visible = ((intval($a->data['user']['hidewall']) && (! local_user()) && (! remote_user())) ? false : true);
+		$albums_visible = ((intval($a->data['user']['hidewall']) && !local_user() && !remote_user()) ? false : true);
 
 		// add various encodings to the array so we can just loop through and pick them out in a template
 		$ret = array('success' => false);
@@ -78,7 +78,7 @@ function photos_init(App $a) {
 			$ret['albums'] = array();
 			foreach ($albums as $k => $album) {
 				//hide profile photos to others
-				if ((! $is_owner) && (! remote_user()) && ($album['album'] == t('Profile Photos')))
+				if (!$is_owner && !remote_user() && ($album['album'] == t('Profile Photos')))
 					continue;
 				$entry = array(
 					'text'      => $album['album'],
@@ -110,7 +110,7 @@ function photos_init(App $a) {
 		}
 
 
-		if (! x($a->page, 'aside')) {
+		if (!x($a->page, 'aside')) {
 			$a->page['aside'] = '';
 		}
 		$a->page['aside'] .= $vcard_widget;
@@ -145,7 +145,7 @@ function photos_post(App $a) {
 	$page_owner_uid = $a->data['user']['uid'];
 	$community_page = (($a->data['user']['page-flags'] == PAGE_COMMUNITY) ? true : false);
 
-	if ((local_user()) && (local_user() == $page_owner_uid)) {
+	if (local_user() && (local_user() == $page_owner_uid)) {
 		$can_post = true;
 	} else {
 		if ($community_page && remote_user()) {
@@ -172,7 +172,7 @@ function photos_post(App $a) {
 		}
 	}
 
-	if (! $can_post) {
+	if (!$can_post) {
 		notice( t('Permission denied.') . EOL );
 		killme();
 	}
@@ -182,7 +182,7 @@ function photos_post(App $a) {
 		intval($page_owner_uid)
 	);
 
-	if (! DBM::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		notice( t('Contact information unavailable') . EOL);
 		logger('photos_post: unable to locate contact record for page owner. uid=' . $page_owner_uid);
 		killme();
@@ -399,11 +399,11 @@ function photos_post(App $a) {
 
 	if (($a->argc > 2) && ((x($_POST,'desc') !== false) || (x($_POST,'newtag') !== false)) || (x($_POST,'albname') !== false)) {
 
-		$desc        = ((x($_POST,'desc'))      ? notags(trim($_POST['desc']))    : '');
-		$rawtags     = ((x($_POST,'newtag'))    ? notags(trim($_POST['newtag']))  : '');
-		$item_id     = ((x($_POST,'item_id'))   ? intval($_POST['item_id'])       : 0);
-		$albname     = ((x($_POST,'albname'))   ? notags(trim($_POST['albname'])) : '');
-		$origaname   = ((x($_POST,'origaname')) ? notags(trim($_POST['origaname'])) : '');
+		$desc        = (x($_POST,'desc')      ? notags(trim($_POST['desc']))    : '');
+		$rawtags     = (x($_POST,'newtag')    ? notags(trim($_POST['newtag']))  : '');
+		$item_id     = (x($_POST,'item_id')   ? intval($_POST['item_id'])       : 0);
+		$albname     = (x($_POST,'albname')   ? notags(trim($_POST['albname'])) : '');
+		$origaname   = (x($_POST,'origaname') ? notags(trim($_POST['origaname'])) : '');
 		$str_group_allow   = perms2str($_POST['group_allow']);
 		$str_contact_allow = perms2str($_POST['contact_allow']);
 		$str_group_deny    = perms2str($_POST['group_deny']);
@@ -411,7 +411,7 @@ function photos_post(App $a) {
 
 		$resource_id = $a->argv[2];
 
-		if (! strlen($albname)) {
+		if (!strlen($albname)) {
 			$albname = datetime_convert('UTC',date_default_timezone_get(),'now', 'Y');
 		}
 
@@ -502,7 +502,7 @@ function photos_post(App $a) {
 			$visibility = 1;
 		}
 
-		if (! $item_id) {
+		if (!$item_id) {
 
 			// Create item container
 
@@ -614,7 +614,7 @@ function photos_post(App $a) {
 										intval($page_owner_uid)
 								);
 
-								if (! DBM::is_result($r)) {
+								if (!DBM::is_result($r)) {
 									//select someone by attag or nick and the name passed in
 									$r = q("SELECT * FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
 											dbesc($name),
@@ -761,7 +761,7 @@ function photos_post(App $a) {
 
 	logger('mod/photos.php: photos_post(): album= ' . $album . ' newalbum= ' . $newalbum , LOGGER_DEBUG);
 
-	if (! strlen($album)) {
+	if (!strlen($album)) {
 		if (strlen($newalbum)) {
 			$album = $newalbum;
 		} else {
@@ -781,7 +781,7 @@ function photos_post(App $a) {
 		dbesc($album),
 		intval($page_owner_uid)
 	);
-	if ((! DBM::is_result($r)) || ($album == t('Profile Photos'))) {
+	if (!DBM::is_result($r) || ($album == t('Profile Photos'))) {
 		$visible = 1;
 	} else {
 		$visible = 0;
@@ -791,10 +791,10 @@ function photos_post(App $a) {
 		$visible = 0;
 	}
 
-	$str_group_allow   = perms2str(((is_array($_REQUEST['group_allow']))   ? $_REQUEST['group_allow']   : explode(',', $_REQUEST['group_allow'])));
-	$str_contact_allow = perms2str(((is_array($_REQUEST['contact_allow'])) ? $_REQUEST['contact_allow'] : explode(',', $_REQUEST['contact_allow'])));
-	$str_group_deny    = perms2str(((is_array($_REQUEST['group_deny']))    ? $_REQUEST['group_deny']    : explode(',', $_REQUEST['group_deny'])));
-	$str_contact_deny  = perms2str(((is_array($_REQUEST['contact_deny']))  ? $_REQUEST['contact_deny']  : explode(',', $_REQUEST['contact_deny'])));
+	$str_group_allow   = perms2str((is_array($_REQUEST['group_allow'])   ? $_REQUEST['group_allow']   : explode(',', $_REQUEST['group_allow'])));
+	$str_contact_allow = perms2str((is_array($_REQUEST['contact_allow']) ? $_REQUEST['contact_allow'] : explode(',', $_REQUEST['contact_allow'])));
+	$str_group_deny    = perms2str((is_array($_REQUEST['group_deny'])    ? $_REQUEST['group_deny']    : explode(',', $_REQUEST['group_deny'])));
+	$str_contact_deny  = perms2str((is_array($_REQUEST['contact_deny'])  ? $_REQUEST['contact_deny']  : explode(',', $_REQUEST['contact_deny'])));
 
 	$ret = array('src' => '', 'filename' => '', 'filesize' => 0, 'type' => '');
 
@@ -819,7 +819,7 @@ function photos_post(App $a) {
 
 	$maximagesize = Config::get('system','maximagesize');
 
-	if (($maximagesize) && ($filesize > $maximagesize)) {
+	if ($maximagesize && ($filesize > $maximagesize)) {
 		notice( sprintf(t('Image exceeds size limit of %s'), formatBytes($maximagesize)) . EOL);
 		@unlink($src);
 		$foo = 0;
@@ -827,7 +827,7 @@ function photos_post(App $a) {
 		return;
 	}
 
-	if (! $filesize) {
+	if (!$filesize) {
 		notice( t('Image file is empty.') . EOL);
 		@unlink($src);
 		$foo = 0;
@@ -841,7 +841,7 @@ function photos_post(App $a) {
 
 	$Image = new Image($imagedata, $type);
 
-	if (! $Image->isValid()) {
+	if (!$Image->isValid()) {
 		logger('mod/photos.php: photos_post(): unable to process image' , LOGGER_DEBUG);
 		notice( t('Unable to process image.') . EOL );
 		@unlink($src);
@@ -854,7 +854,7 @@ function photos_post(App $a) {
 	@unlink($src);
 
 	$max_length = Config::get('system', 'max_image_length');
-	if (! $max_length) {
+	if (!$max_length) {
 		$max_length = MAX_IMAGE_LENGTH;
 	}
 	if ($max_length > 0) {
@@ -870,7 +870,7 @@ function photos_post(App $a) {
 
 	$r = Photo::store($Image, $page_owner_uid, $visitor, $photo_hash, $filename, $album, 0 , 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 
-	if (! $r) {
+	if (!$r) {
 		logger('mod/photos.php: photos_post(): image store failed' , LOGGER_DEBUG);
 		notice( t('Image upload failed.') . EOL );
 		killme();
@@ -967,7 +967,7 @@ function photos_content(App $a) {
 	// photos/name/image/xxxxx/edit
 
 
-	if ((Config::get('system', 'block_public')) && (! local_user()) && (! remote_user())) {
+	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
 		notice( t('Public access denied.') . EOL);
 		return;
 	}
@@ -976,7 +976,7 @@ function photos_content(App $a) {
 	require_once 'include/security.php';
 	require_once 'include/conversation.php';
 
-	if (! x($a->data,'user')) {
+	if (!x($a->data,'user')) {
 		notice( t('No photos selected') . EOL );
 		return;
 	}
@@ -1018,7 +1018,7 @@ function photos_content(App $a) {
 
 	$community_page = (($a->data['user']['page-flags'] == PAGE_COMMUNITY) ? true : false);
 
-	if ((local_user()) && (local_user() == $owner_uid)) {
+	if (local_user() && (local_user() == $owner_uid)) {
 		$can_post = true;
 	} else {
 		if ($community_page && remote_user()) {
@@ -1048,7 +1048,7 @@ function photos_content(App $a) {
 
 	// perhaps they're visiting - but not a community page, so they wouldn't have write access
 
-	if (remote_user() && (! $visitor)) {
+	if (remote_user() && !$visitor) {
 		$contact_id = 0;
 		if (is_array($_SESSION['remote'])) {
 			foreach ($_SESSION['remote'] as $v) {
@@ -1072,14 +1072,14 @@ function photos_content(App $a) {
 	}
 
 	/// @TODO merge these 2 if() into one?
-	if (! $remote_contact) {
+	if (!$remote_contact) {
 		if (local_user()) {
 			$contact_id = $_SESSION['cid'];
 			$contact = $a->contact;
 		}
 	}
 
-	if ($a->data['user']['hidewall'] && (local_user() != $owner_uid) && (! $remote_contact)) {
+	if ($a->data['user']['hidewall'] && (local_user() != $owner_uid) && !$remote_contact) {
 		notice( t('Access to this item is restricted.') . EOL);
 		return;
 	}
@@ -1097,19 +1097,19 @@ function photos_content(App $a) {
 	 */
 
 	if ($datatype === 'upload') {
-		if (! ($can_post)) {
+		if (!$can_post) {
 			notice(t('Permission denied.'));
 			return;
 		}
 
 
-		$selname = (($datum) ? hex2bin($datum) : '');
+		$selname = ($datum ? hex2bin($datum) : '');
 
 
 		$albumselect = '';
 
 
-		$albumselect .= '<option value="" ' . ((! $selname) ? ' selected="selected" ' : '') . '>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>';
+		$albumselect .= '<option value="" ' . (!$selname ? ' selected="selected" ' : '') . '>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>';
 		if (count($a->data['albums'])) {
 			foreach ($a->data['albums'] as $album) {
 				if (($album['album'] === '') || ($album['album'] === 'Contact Photos') || ($album['album'] === t('Contact Photos'))) {
@@ -1160,7 +1160,7 @@ function photos_content(App $a) {
 		$tpl = get_markup_template('photos_upload.tpl');
 
 		$albumselect_e = $albumselect;
-		$aclselect_e = (($visitor) ? '' : populate_acl($a->user));
+		$aclselect_e = ($visitor ? '' : populate_acl($a->user));
 
 		$o .= replace_macros($tpl,array(
 			'$pagename' => t('Upload Photos'),
@@ -1174,8 +1174,8 @@ function photos_content(App $a) {
 			'$permissions' => t('Permissions'),
 			'$aclselect' => $aclselect_e,
 			'$alt_uploader' => $ret['addon_text'],
-			'$default_upload_box' => (($ret['default_upload']) ? $default_upload_box : ''),
-			'$default_upload_submit' => (($ret['default_upload']) ? $default_upload_submit : ''),
+			'$default_upload_box' => ($ret['default_upload'] ? $default_upload_box : ''),
+			'$default_upload_submit' => ($ret['default_upload'] ? $default_upload_submit : ''),
 			'$uploadurl' => $ret['post_url'],
 
 			// ACL permissions box
@@ -1262,13 +1262,9 @@ function photos_content(App $a) {
 		$photos = array();
 
 		if (DBM::is_result($r))
-			$twist = 'rotright';
+			$twist = false;
 			foreach ($r as $rr) {
-				if ($twist == 'rotright') {
-					$twist = 'rotleft';
-				} else {
-					$twist = 'rotright';
-				}
+				$twist = !$twist;
 
 				$ext = $phototypes[$rr['type']];
 
@@ -1277,7 +1273,7 @@ function photos_content(App $a) {
 
 				$photos[] = array(
 					'id' => $rr['id'],
-					'twist' => ' ' . $twist . rand(2,4),
+					'twist' => ' ' . ($twist ? 'rotleft' : 'rotright') . rand(2,4),
 					'link' => 'photos/' . $a->data['user']['nickname'] . '/image/' . $rr['resource-id']
 						. (($_GET['order'] === 'posted') ? '?f=&order=posted' : ''),
 					'title' => t('View Photo'),
@@ -1318,7 +1314,7 @@ function photos_content(App $a) {
 			dbesc($datum)
 		);
 
-		if (! DBM::is_result($ph)) {
+		if (!DBM::is_result($ph)) {
 			$ph = q("SELECT `id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s'
 				LIMIT 1",
 				intval($owner_uid),
@@ -1339,10 +1335,11 @@ function photos_content(App $a) {
 		// The query leads to a really intense used index.
 		// By now we hide it if someone wants to.
 		if (!Config::get('system', 'no_count', false)) {
-			if ($_GET['order'] === 'posted')
+			if ($_GET['order'] === 'posted') {
 				$order = 'ASC';
-			else
+			} else {
 				$order = 'DESC';
+			}
 
 			$prvnxt = q("SELECT `resource-id` FROM `photo` WHERE `album` = '%s' AND `uid` = %d AND `scale` = 0
 				$sql_extra ORDER BY `created` $order ",
@@ -1364,7 +1361,7 @@ function photos_content(App $a) {
 						break;
 					}
 				}
-				$edit_suffix = ((($cmd === 'edit') && ($can_post)) ? '/edit' : '');
+				$edit_suffix = ((($cmd === 'edit') && $can_post) ? '/edit' : '');
 				$prevlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$prv]['resource-id'] . $edit_suffix . (($_GET['order'] === 'posted') ? '?f=&order=posted' : '');
 				$nextlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$nxt]['resource-id'] . $edit_suffix . (($_GET['order'] === 'posted') ? '?f=&order=posted' : '');
  			}
@@ -1479,7 +1476,7 @@ function photos_content(App $a) {
 
 			);
 
-			if ((local_user()) && (local_user() == $link_item['uid'])) {
+			if (local_user() && (local_user() == $link_item['uid'])) {
 				q("UPDATE `item` SET `unseen` = 0 WHERE `parent` = %d and `uid` = %d",
 					intval($link_item['parent']),
 					intval(local_user())
@@ -1513,7 +1510,7 @@ function photos_content(App $a) {
 
 
 		$edit = Null;
-		if (($cmd === 'edit') && ($can_post)) {
+		if (($cmd === 'edit') && $can_post) {
 			$edit_tpl = get_markup_template('photo_edit.tpl');
 
 			// Private/public post links for the non-JS ACL form
@@ -1556,7 +1553,7 @@ function photos_content(App $a) {
 				'$permissions' => t('Permissions'),
 				'$aclselect' => $aclselect_e,
 
-				'$item_id' => ((count($linked_items)) ? $link_item['id'] : 0),
+				'$item_id' => (count($linked_items) ? $link_item['id'] : 0),
 				'$submit' => t('Submit'),
 				'$delete' => t('Delete Photo'),
 
@@ -1593,7 +1590,7 @@ function photos_content(App $a) {
 			}
 
 			$comments = '';
-			if (! DBM::is_result($r)) {
+			if (!DBM::is_result($r)) {
 				if (($can_post || can_write_wall($a, $owner_uid)) && $link_item['last-child']) {
 					$comments .= replace_macros($cmnt_tpl, array(
 						'$return_path' => '',
@@ -1633,8 +1630,8 @@ function photos_content(App $a) {
 					builtin_activity_puller($item, $conv_responses);
 				}
 
-				$like    = ((x($conv_responses['like'], $link_item['uri'])) ? format_like($conv_responses['like'][$link_item['uri']], $conv_responses['like'][$link_item['uri'] . '-l'], 'like',$link_item['id']) : '');
-				$dislike = ((x($conv_responses['dislike'], $link_item['uri'])) ? format_like($conv_responses['dislike'][$link_item['uri']], $conv_responses['dislike'][$link_item['uri'] . '-l'], 'dislike',$link_item['id']) : '');
+				$like    = (x($conv_responses['like'], $link_item['uri']) ? format_like($conv_responses['like'][$link_item['uri']], $conv_responses['like'][$link_item['uri'] . '-l'], 'like',$link_item['id']) : '');
+				$dislike = (x($conv_responses['dislike'], $link_item['uri']) ? format_like($conv_responses['dislike'][$link_item['uri']], $conv_responses['dislike'][$link_item['uri'] . '-l'], 'dislike',$link_item['id']) : '');
 
 				if (($can_post || can_write_wall($a, $owner_uid)) && $link_item['last-child']) {
 					$comments .= replace_macros($cmnt_tpl,array(
@@ -1662,14 +1659,14 @@ function photos_content(App $a) {
 					$template = $tpl;
 					$sparkle = '';
 
-					if (((activity_match($item['verb'],ACTIVITY_LIKE)) || (activity_match($item['verb'],ACTIVITY_DISLIKE))) && ($item['id'] != $item['parent']))
+					if ((activity_match($item['verb'], ACTIVITY_LIKE) || activity_match($item['verb'], ACTIVITY_DISLIKE)) && ($item['id'] != $item['parent']))
 						continue;
 
 					$redirect_url = 'redir/' . $item['cid'];
 
 
 					if (local_user() && ($item['contact-uid'] == local_user())
-						&& ($item['network'] == NETWORK_DFRN) && (! $item['self'] )) {
+						&& ($item['network'] == NETWORK_DFRN) && !$item['self']) {
 						$profile_url = $redirect_url;
 						$sparkle = ' sparkle';
 					} else {
@@ -1679,8 +1676,8 @@ function photos_content(App $a) {
 
 					$diff_author = (($item['url'] !== $item['author-link']) ? true : false);
 
-					$profile_name   = (((strlen($item['author-name']))   && $diff_author) ? $item['author-name']   : $item['name']);
-					$profile_avatar = (((strlen($item['author-avatar'])) && $diff_author) ? $item['author-avatar'] : $item['thumb']);
+					$profile_name   = ((strlen($item['author-name'])   && $diff_author) ? $item['author-name']   : $item['name']);
+					$profile_avatar = ((strlen($item['author-avatar']) && $diff_author) ? $item['author-avatar'] : $item['thumb']);
 
 					$profile_link = $profile_url;
 
@@ -1807,16 +1804,13 @@ function photos_content(App $a) {
 
 	$photos = array();
 	if (DBM::is_result($r)) {
-		$twist = 'rotright';
+		$twist = false;
 		foreach ($r as $rr) {
 			//hide profile photos to others
-			if ((! $is_owner) && (! remote_user()) && ($rr['album'] == t('Profile Photos')))
-					continue;
+			if (!$is_owner && !remote_user() && ($rr['album'] == t('Profile Photos')))
+				continue;
 
-			if ($twist == 'rotright')
-				$twist = 'rotleft';
-			else
-				$twist = 'rotright';
+			$twist = !$twist;
 
 			$ext = $phototypes[$rr['type']];
 
@@ -1825,7 +1819,7 @@ function photos_content(App $a) {
 
 			$photos[] = array(
 				'id'		=> $rr['id'],
-				'twist'		=> ' ' . $twist . rand(2,4),
+				'twist'		=> ' ' . ($twist ? 'rotleft' : 'rotright') . rand(2,4),
 				'link'  	=> 'photos/' . $a->data['user']['nickname'] . '/image/' . $rr['resource-id'],
 				'title' 	=> t('View Photo'),
 				'src'     	=> 'photo/' . $rr['resource-id'] . '-' . ((($rr['scale']) == 6) ? 4 : $rr['scale']) . '.' . $ext,
