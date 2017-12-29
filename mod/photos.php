@@ -1262,6 +1262,7 @@ function photos_content(App $a) {
 		$photos = array();
 
 		if (DBM::is_result($r))
+			// "Twist" is only used for the duepunto theme with style "slackr"
 			$twist = false;
 			foreach ($r as $rr) {
 				$twist = !$twist;
@@ -1804,6 +1805,7 @@ function photos_content(App $a) {
 
 	$photos = array();
 	if (DBM::is_result($r)) {
+		// "Twist" is only used for the duepunto theme with style "slackr"
 		$twist = false;
 		foreach ($r as $rr) {
 			//hide profile photos to others
