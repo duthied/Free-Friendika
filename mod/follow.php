@@ -11,8 +11,8 @@ require_once 'include/contact_selectors.php';
 
 function follow_post(App $a) {
 
-	if (! local_user()) {
-		notice( t('Permission denied.') . EOL);
+	if (!local_user()) {
+		notice(t('Permission denied.') . EOL);
 		goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
@@ -40,7 +40,7 @@ function follow_post(App $a) {
 		goaway(System::baseUrl().'/contacts/'.$result['cid']);
 	}
 
-	info( t('Contact added').EOL);
+	info(t('Contact added').EOL);
 
 	if (strstr($return_url,'contacts')) {
 		goaway(System::baseUrl().'/contacts/'.$contact_id);
@@ -52,8 +52,8 @@ function follow_post(App $a) {
 
 function follow_content(App $a) {
 
-	if (! local_user()) {
-		notice( t('Permission denied.') . EOL);
+	if (!local_user()) {
+		notice(t('Permission denied.') . EOL);
 		goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
@@ -81,21 +81,21 @@ function follow_content(App $a) {
 	$ret = Probe::uri($url);
 
 	if (($ret["network"] == NETWORK_DIASPORA) && !Config::get('system','diaspora_enabled')) {
-		notice( t("Diaspora support isn't enabled. Contact can't be added.") . EOL);
+		notice(t("Diaspora support isn't enabled. Contact can't be added.") . EOL);
 		$submit = "";
 		//goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
 
 	if (($ret["network"] == NETWORK_OSTATUS) && Config::get('system','ostatus_disabled')) {
-		notice( t("OStatus support is disabled. Contact can't be added.") . EOL);
+		notice(t("OStatus support is disabled. Contact can't be added.") . EOL);
 		$submit = "";
 		//goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
 
 	if ($ret["network"] == NETWORK_PHANTOM) {
-		notice( t("The network type couldn't be detected. Contact can't be added.") . EOL);
+		notice(t("The network type couldn't be detected. Contact can't be added.") . EOL);
 		$submit = "";
 		//goaway($_SESSION['return_url']);
 		// NOTREACHED
@@ -116,7 +116,7 @@ function follow_content(App $a) {
 	$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1", intval($uid));
 
 	if (!$r) {
-		notice( t('Permission denied.') . EOL);
+		notice(t('Permission denied.') . EOL);
 		goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
@@ -176,7 +176,8 @@ function follow_content(App $a) {
 	));
 
 	$a->page['aside'] = "";
-	profile_load($a, "", 0, Contact::getDetailsByURL($ret["url"]));
+
+	profile_load($a, "", 0, Contact::getDetailsByURL($ret["url"]), false);
 
 	if ($gcontact_id <> 0) {
 		$o .= replace_macros(get_markup_template('section_title.tpl'),

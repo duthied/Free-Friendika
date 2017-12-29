@@ -41,8 +41,9 @@ require_once 'mod/proxy.php';
  * @param string $nickname    string
  * @param int    $profile     int
  * @param array  $profiledata array
+ * @param boolean $show_connect Show connect link
  */
-function profile_load(App $a, $nickname, $profile = 0, $profiledata = array())
+function profile_load(App $a, $nickname, $profile = 0, $profiledata = array(), $show_connect = true)
 {
 	$user = q(
 		"SELECT `uid` FROM `user` WHERE `nickname` = '%s' LIMIT 1",
@@ -115,7 +116,7 @@ function profile_load(App $a, $nickname, $profile = 0, $profiledata = array())
 		);
 	}
 
-	$block = (((Config::get('system', 'block_public')) && (! local_user()) && (! remote_user())) ? true : false);
+	$block = ((Config::get('system', 'block_public') && !local_user() && !remote_user()) ? true : false);
 
 	/**
 	 * @todo
@@ -123,9 +124,9 @@ function profile_load(App $a, $nickname, $profile = 0, $profiledata = array())
 	 * But: When this profile was on the same server, then we could display the contacts
 	 */
 	if ($profiledata) {
-		$a->page['aside'] .= profile_sidebar($profiledata, true);
+		$a->page['aside'] .= profile_sidebar($profiledata, true, $show_connect);
 	} else {
-		$a->page['aside'] .= profile_sidebar($a->profile, $block);
+		$a->page['aside'] .= profile_sidebar($a->profile, $block, $show_connect);
 	}
 
 	/*if (! $block)
@@ -206,6 +207,7 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0)
  *
  * @param array $profile
  * @param int $block
+ * @param boolean $show_connect Show connect link
  *
  * @return HTML string stuitable for sidebar inclusion
  *
@@ -216,7 +218,7 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0)
  * @hooks 'profile_sidebar'
  *      array $arr
  */
-function profile_sidebar($profile, $block = 0)
+function profile_sidebar($profile, $block = 0, $show_connect = true)
 {
 	$a = get_app();
 
@@ -254,6 +256,10 @@ function profile_sidebar($profile, $block = 0)
 				break;
 			}
 		}
+	}
+
+	if (!$show_connect) {
+		$connect = false;
 	}
 
 	// Is the local user already connected to that user?
