@@ -3247,16 +3247,14 @@ class Diaspora
 		$first_user = dba::select('user', ['uid'], $condition, ['limit' => 1]);
 		$owner = User::getOwnerDataById($first_user['uid']);
 
-		$parent_type = (self::isReshare($item['body']) ? 'Reshare' : 'StatusMessage');
-
 		$author = self::myHandle($owner);
 
 		$message = array("author" => $author,
 				"guid" => get_guid(32),
-				"parent_type" => $parent_type,
+				"parent_type" => "Post",
 				"parent_guid" => $item["guid"]);
 
-		logger("Send participation for ".$parent_type." ".$item["guid"]." by ".$author, LOGGER_DEBUG);
+		logger("Send participation for ".$item["guid"]." by ".$author, LOGGER_DEBUG);
 
 		// It doesn't matter what we store, we only want to avoid sending repeated notifications for the same item
 		Cache::set($cachekey, $item["guid"], CACHE_QUARTER_HOUR);
