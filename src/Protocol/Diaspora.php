@@ -2688,6 +2688,8 @@ class Diaspora
 		self::fetchGuid($datarray);
 		$message_id = item_store($datarray);
 
+		self::sendParticipation($contact, $datarray);
+
 		if ($message_id) {
 			logger("Stored reshare ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
 			return true;
@@ -2925,6 +2927,8 @@ class Diaspora
 
 		self::fetchGuid($datarray);
 		$message_id = item_store($datarray);
+
+		self::sendParticipation($contact, $datarray);
 
 		if ($message_id) {
 			logger("Stored item ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
@@ -3213,6 +3217,51 @@ class Diaspora
 		logger("guid: ".$guid." result ".$return_code, LOGGER_DEBUG);
 
 		return $return_code;
+	}
+
+	/**
+	 * @brief sends a participation (Used to get all further updates)
+	 *
+	 * @param array $contact Target of the communication
+	 * @param array $item	 Item array
+	 *
+	 * @return int The result of the transmission
+	 */
+	private static function sendParticipation($contact, $item)
+	{
+		// Don't send notifications for private postings
+		if ($item['private']) {
+			return;
+		}
+
+		$cachekey = "diaspora:sendParticipation:".$item['guid'];
+
+		$result = Cache::get($cachekey);
+		if (!is_null($result)) {
+			return;
+		}
+
+		// Fetch some user id to have a valid handle to transmit the participation.
+		// In fact it doesn't matter which user sends this - but it is needed by the protocol.
+		$condition = ['verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false];
+		$first_user = dba::select('user', ['uid'], $condition, ['limit' => 1]);
+		$owner = User::getOwnerDataById($first_user['uid']);
+
+		$parent_type = (self::isReshare($item['body']) ? 'Reshare' : 'StatusMessage');
+
+		$author = self::myHandle($owner);
+
+		$message = array("author" => $author,
+				"guid" => get_guid(32),
+				"parent_type" => $parent_type,
+				"parent_guid" => $item["guid"]);
+
+		logger("Send participation for ".$parent_type." ".$item["guid"]." by ".$author, LOGGER_DEBUG);
+
+		// It doesn't matter what we store, we only want to avoid sending repeated notifications for the same item
+		Cache::set($cachekey, $item["guid"], CACHE_QUARTER_HOUR);
+
+		return self::buildAndTransmit($owner, $contact, "participation", $message);
 	}
 
 	/**
