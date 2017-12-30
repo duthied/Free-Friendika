@@ -156,7 +156,7 @@ class Crypto
 		unset($lines[count($lines)]);
 		$x = base64_decode(implode('', $lines));
 
-		$r = ASN_BASE::parseASNString($x);
+		$r = parseASNString($x);
 
 		$m = base64url_decode($r[0]->asnData[0]->asnData);
 		$e = base64url_decode($r[0]->asnData[1]->asnData);
@@ -195,7 +195,7 @@ class Crypto
 		unset($lines[count($lines)]);
 		$x = base64_decode(implode('', $lines));
 
-		$r = ASN_BASE::parseASNString($x);
+		$r = parseASNString($x);
 
 		$m = base64url_decode($r[0]->asnData[1]->asnData[0]->asnData[0]->asnData);
 		$e = base64url_decode($r[0]->asnData[1]->asnData[0]->asnData[1]->asnData);
