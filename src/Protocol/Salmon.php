@@ -5,9 +5,8 @@
 namespace Friendica\Protocol;
 
 use Friendica\Network\Probe;
+use Friendica\Util\Crypto;
 use Friendica\Util\XML;
-
-require_once 'include/crypto.php';
 
 /**
  * @brief Salmon Protocol class
@@ -107,18 +106,18 @@ class Salmon
 		$data_type = 'application/atom+xml';
 		$encoding  = 'base64url';
 		$algorithm = 'RSA-SHA256';
-		$keyhash   = base64url_encode(hash('sha256', salmon_key($owner['spubkey'])), true);
+		$keyhash   = base64url_encode(hash('sha256', Crypto::salmonKey($owner['spubkey'])), true);
 
 		$precomputed = '.' . base64url_encode($data_type) . '.' . base64url_encode($encoding) . '.' . base64url_encode($algorithm);
 
 		// GNU Social format
-		$signature   = base64url_encode(rsa_sign($data . $precomputed, $owner['sprvkey']));
+		$signature   = base64url_encode(Crypto::rsaSign($data . $precomputed, $owner['sprvkey']));
 
 		// Compliant format
-		$signature2  = base64url_encode(rsa_sign(str_replace('=', '', $data . $precomputed), $owner['sprvkey']));
+		$signature2  = base64url_encode(Crypto::rsaSign(str_replace('=', '', $data . $precomputed), $owner['sprvkey']));
 
 		// Old Status.net format
-		$signature3  = base64url_encode(rsa_sign($data, $owner['sprvkey']));
+		$signature3  = base64url_encode(Crypto::rsaSign($data, $owner['sprvkey']));
 
 		// At first try the non compliant method that works for GNU Social
 		$xmldata = array("me:env" => array("me:data" => $data,

@@ -463,7 +463,7 @@ class DFRN
 		/* get site pubkey. this could be a new installation with no site keys*/
 		$pubkey = Config::get('system', 'site_pubkey');
 		if (! $pubkey) {
-			$res = new_keypair(1024);
+			$res = Crypto::newKeypair(1024);
 			Config::set('system', 'site_prvkey', $res['prvkey']);
 			Config::set('system', 'site_pubkey', $res['pubkey']);
 		}

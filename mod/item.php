@@ -29,7 +29,6 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 use Friendica\Util\Emailer;
 
-require_once 'include/crypto.php';
 require_once 'include/enotify.php';
 require_once 'include/tags.php';
 require_once 'include/files.php';
