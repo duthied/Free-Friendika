@@ -5,6 +5,7 @@
 namespace Friendica\Util;
 
 use Friendica\Core\Config;
+use ASN_BASE;
 
 require_once 'library/ASNValue.class.php';
 require_once 'library/asn1.php';
@@ -156,7 +157,7 @@ class Crypto
 		unset($lines[count($lines)]);
 		$x = base64_decode(implode('', $lines));
 
-		$r = parseASNString($x);
+		$r = ASN_BASE::parseASNString($x);
 
 		$m = base64url_decode($r[0]->asnData[0]->asnData);
 		$e = base64url_decode($r[0]->asnData[1]->asnData);
@@ -195,7 +196,7 @@ class Crypto
 		unset($lines[count($lines)]);
 		$x = base64_decode(implode('', $lines));
 
-		$r = parseASNString($x);
+		$r = ASN_BASE::parseASNString($x);
 
 		$m = base64url_decode($r[0]->asnData[1]->asnData[0]->asnData[0]->asnData);
 		$e = base64url_decode($r[0]->asnData[1]->asnData[0]->asnData[1]->asnData);
