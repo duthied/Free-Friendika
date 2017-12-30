@@ -1235,12 +1235,13 @@ class OStatus
 	/**
 	 * @brief Adds the header elements to the XML document
 	 *
-	 * @param object $doc   XML document
-	 * @param array  $owner Contact data of the poster
+	 * @param object $doc    XML document
+	 * @param array  $owner  Contact data of the poster
+	 * @param string $filter The related feed filter (activity, posts or comments)
 	 *
 	 * @return object header root element
 	 */
-	private static function addHeader($doc, $owner, $type)
+	private static function addHeader($doc, $owner, $filter)
 	{
 		$a = get_app();
 
@@ -1256,7 +1257,7 @@ class OStatus
 		$root->setAttribute("xmlns:statusnet", NAMESPACE_STATUSNET);
 		$root->setAttribute("xmlns:mastodon", NAMESPACE_MASTODON);
 
-		switch ($type) {
+		switch ($filter) {
 			case 'activity': $title = t('%s\'s timeline', $owner['name']); break;
 			case 'posts'   : $title = t('%s\'s posts'   , $owner['name']); break;
 			case 'comments': $title = t('%s\'s comments', $owner['name']); break;
@@ -2088,22 +2089,22 @@ class OStatus
 	 * @param string  $owner_nick  Nickname of the feed owner
 	 * @param string  $last_update Date of the last update
 	 * @param integer $max_items   Number of maximum items to fetch
-	 * @param string  $type        Type of feed (posts, comments or activity)
-	 * @param boolean $nocache     Wether to bypass the cache
+	 * @param string  $filter      Feed items filter (activity, posts or comments)
+	 * @param boolean $nocache     Wether to bypass caching
 	 *
 	 * @return string XML feed
 	 */
-	public static function feed($owner_nick, &$last_update, $max_items = 300, $type = 'activity', $nocache = false)
+	public static function feed($owner_nick, &$last_update, $max_items = 300, $filter = 'activity', $nocache = false)
 	{
 		$stamp = microtime(true);
 
-		$cachekey = "ostatus:feed:" . $owner_nick . ":" . $type . ":" . $last_update;
+		$cachekey = "ostatus:feed:" . $owner_nick . ":" . $filter . ":" . $last_update;
 
 		$previous_created = $last_update;
 
 		$result = Cache::get($cachekey);
 		if (!$nocache && !is_null($result)) {
-			logger('Feed duration: ' . number_format(microtime(true) - $stamp, 3) . ' - ' . $owner_nick . ' - ' . $type . ' - ' . $previous_created . ' (cached)', LOGGER_DEBUG);
+			logger('Feed duration: ' . number_format(microtime(true) - $stamp, 3) . ' - ' . $owner_nick . ' - ' . $filter . ' - ' . $previous_created . ' (cached)', LOGGER_DEBUG);
 			$last_update = $result['last_update'];
 			return $result['feed'];
 		}
@@ -2126,11 +2127,11 @@ class OStatus
 		$authorid = Contact::getIdForURL($owner["url"], 0);
 
 		$sql_extra = '';
-		if ($type === 'posts') {
+		if ($filter === 'posts') {
 			$sql_extra .= ' AND `item`.`id` = `item`.`parent` ';
 		}
 
-		if ($type === 'comments') {
+		if ($filter === 'comments') {
 			$sql_extra .= sprintf(" AND `item`.`object-type` = '%s' ", dbesc(ACTIVITY_OBJ_COMMENT));
 		}
 
@@ -2158,7 +2159,7 @@ class OStatus
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
 
-		$root = self::addHeader($doc, $owner, $type);
+		$root = self::addHeader($doc, $owner, $filter);
 
 		foreach ($items as $item) {
 			if (Config::get('system', 'ostatus_debug')) {
@@ -2177,7 +2178,7 @@ class OStatus
 		$msg = array('feed' => $feeddata, 'last_update' => $last_update);
 		Cache::set($cachekey, $msg, CACHE_QUARTER_HOUR);
 
-		logger('Feed duration: ' . number_format(microtime(true) - $stamp, 3) . ' - ' . $owner_nick . ' - ' . $type . ' - ' . $previous_created, LOGGER_DEBUG);
+		logger('Feed duration: ' . number_format(microtime(true) - $stamp, 3) . ' - ' . $owner_nick . ' - ' . $filter . ' - ' . $previous_created, LOGGER_DEBUG);
 
 		return $feeddata;
 	}
