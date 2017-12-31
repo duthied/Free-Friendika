@@ -207,7 +207,7 @@ class Salmon
 	 */
 	public static function salmonKey($pubkey)
 	{
-		self::pemToMe($pubkey, $m, $e);
+		Crypto::pemToMe($pubkey, $m, $e);
 		return 'RSA' . '.' . base64url_encode($m, true) . '.' . base64url_encode($e, true);
 	}
 }
