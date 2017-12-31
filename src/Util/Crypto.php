@@ -190,7 +190,7 @@ class Crypto
 	 * @param string $e   exponent reference
 	 * @return void
 	 */
-	private static function pemToMe($key, &$m, &$e)
+	public static function pemToMe($key, &$m, &$e)
 	{
 		$lines = explode("\n", $key);
 		unset($lines[0]);
