@@ -216,16 +216,6 @@ class Crypto
 	}
 
 	/**
-	 * @param string $pubkey public key
-	 * @return string
-	 */
-	public static function salmonKey($pubkey)
-	{
-		self::pemToMe($pubkey, $m, $e);
-		return 'RSA' . '.' . base64url_encode($m, true) . '.' . base64url_encode($e, true);
-	}
-
-	/**
 	 * @param integer $bits number of bits
 	 * @return mixed
 	 */

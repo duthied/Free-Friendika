@@ -5,6 +5,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Protocol\Salmon;
 use Friendica\Util\Crypto;
 
 function hostxrd_init(App $a)
@@ -25,7 +26,7 @@ function hostxrd_init(App $a)
 		'$zhost' => $a->get_hostname(),
 		'$zroot' => System::baseUrl(),
 		'$domain' => System::baseUrl(),
-		'$bigkey' => Crypto::salmonKey(Config::get('system', 'site_pubkey')))
+		'$bigkey' => Salmon::salmonKey(Config::get('system', 'site_pubkey')))
 	);
 
 	exit();

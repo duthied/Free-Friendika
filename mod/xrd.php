@@ -5,7 +5,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-use Friendica\Util\Crypto;
+use Friendica\Protocol\Salmon;
 
 function xrd_init(App $a)
 {
@@ -58,7 +58,7 @@ function xrd_init(App $a)
 
 function xrd_json($a, $uri, $alias, $profile_url, $r)
 {
-	$salmon_key = Crypto::salmonKey($r['spubkey']);
+	$salmon_key = Salmon::salmonKey($r['spubkey']);
 
 	header('Access-Control-Allow-Origin: *');
 	header("Content-type: application/json; charset=utf-8");
@@ -84,7 +84,7 @@ function xrd_json($a, $uri, $alias, $profile_url, $r)
 
 function xrd_xml($a, $uri, $alias, $profile_url, $r)
 {
-	$salmon_key = Crypto::salmonKey($r['spubkey']);
+	$salmon_key = Salmon::salmonKey($r['spubkey']);
 
 	header('Access-Control-Allow-Origin: *');
 	header("Content-type: text/xml");

@@ -106,7 +106,7 @@ class Salmon
 		$data_type = 'application/atom+xml';
 		$encoding  = 'base64url';
 		$algorithm = 'RSA-SHA256';
-		$keyhash   = base64url_encode(hash('sha256', Crypto::salmonKey($owner['spubkey'])), true);
+		$keyhash   = base64url_encode(hash('sha256', self::salmonKey($owner['spubkey'])), true);
 
 		$precomputed = '.' . base64url_encode($data_type) . '.' . base64url_encode($encoding) . '.' . base64url_encode($algorithm);
 
@@ -199,5 +199,15 @@ class Salmon
 		}
 
 		return (($return_code >= 200) && ($return_code < 300)) ? 0 : 1;
+	}
+
+	/**
+	 * @param string $pubkey public key
+	 * @return string
+	 */
+	public static function salmonKey($pubkey)
+	{
+		self::pemToMe($pubkey, $m, $e);
+		return 'RSA' . '.' . base64url_encode($m, true) . '.' . base64url_encode($e, true);
 	}
 }
