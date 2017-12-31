@@ -17,6 +17,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Profile;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\Feed;
+use Friendica\Util\Crypto;
 use Friendica\Util\XML;
 
 use dba;
@@ -25,7 +26,6 @@ use DOMDocument;
 
 require_once 'include/dba.php';
 require_once 'include/network.php';
-require_once "include/crypto.php";
 
 /**
  * @brief This class contain functions for probing URL
@@ -944,7 +944,7 @@ class Probe
 
 				//if (strstr($data["pubkey"], 'RSA ') || ($link["type"] == "RSA"))
 				if (strstr($data["pubkey"], 'RSA ')) {
-					$data["pubkey"] = rsatopem($data["pubkey"]);
+					$data["pubkey"] = Crypto::rsaToPem($data["pubkey"]);
 				}
 			}
 		}
@@ -1043,7 +1043,7 @@ class Probe
 			if ($search->length > 0) {
 				$data["pubkey"] = $search->item(0)->nodeValue;
 				if (strstr($data["pubkey"], 'RSA ')) {
-					$data["pubkey"] = rsatopem($data["pubkey"]);
+					$data["pubkey"] = Crypto::rsaToPem($data["pubkey"]);
 				}
 			}
 
@@ -1133,7 +1133,7 @@ class Probe
 
 				//if (strstr($data["pubkey"], 'RSA ') || ($link["type"] == "RSA"))
 				if (strstr($data["pubkey"], 'RSA ')) {
-					$data["pubkey"] = rsatopem($data["pubkey"]);
+					$data["pubkey"] = Crypto::rsaToPem($data["pubkey"]);
 				}
 			}
 		}
@@ -1244,7 +1244,7 @@ class Probe
 					if (sizeof($key) >= 3) {
 						$m = base64url_decode($key[1]);
 						$e = base64url_decode($key[2]);
-						$data["pubkey"] = metopem($m, $e);
+						$data["pubkey"] = Crypto::meToPem($m, $e);
 					}
 				}
 			}

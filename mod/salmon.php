@@ -7,8 +7,8 @@ use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
+use Friendica\Util\Crypto;
 
-require_once 'include/crypto.php';
 require_once 'include/items.php';
 require_once 'include/follow.php';
 
@@ -117,23 +117,23 @@ function salmon_post(App $a) {
 
 	logger('mod-salmon: key details: ' . print_r($key_info,true), LOGGER_DEBUG);
 
-	$pubkey = metopem($m,$e);
+	$pubkey = Crypto::meToPem($m, $e);
 
 	// We should have everything we need now. Let's see if it verifies.
 
 	// Try GNU Social format
-	$verify = rsa_verify($signed_data, $signature, $pubkey);
+	$verify = Crypto::rsaVerify($signed_data, $signature, $pubkey);
 	$mode = 1;
 
 	if (! $verify) {
 		logger('mod-salmon: message did not verify using protocol. Trying compliant format.');
-		$verify = rsa_verify($compliant_format, $signature, $pubkey);
+		$verify = Crypto::rsaVerify($compliant_format, $signature, $pubkey);
 		$mode = 2;
 	}
 
 	if (! $verify) {
 		logger('mod-salmon: message did not verify using padding. Trying old statusnet format.');
-		$verify = rsa_verify($stnet_signed_data, $signature, $pubkey);
+		$verify = Crypto::rsaVerify($stnet_signed_data, $signature, $pubkey);
 		$mode = 3;
 	}
 
