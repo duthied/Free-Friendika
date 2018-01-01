@@ -994,7 +994,7 @@ function contact_block() {
 function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 
 	// Use the contact URL if no address is available
-	if ($contact["addr"] == "") {
+	if (!x($contact, "addr")) {
 		$contact["addr"] = $contact["url"];
 	}
 
@@ -1020,7 +1020,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 	}
 
 	return replace_macros(get_markup_template(($textmode)?'micropro_txt.tpl':'micropro_img.tpl'),array(
-		'$click' => (($contact['click']) ? $contact['click'] : ''),
+		'$click' => defaults($contact, 'click', ''),
 		'$class' => $class,
 		'$url' => $url,
 		'$photo' => proxy_url($contact['thumb'], false, PROXY_SIZE_THUMB),
@@ -1202,11 +1202,15 @@ function redir_private_images($a, &$item)
 	}
 }
 
-function put_item_in_cache(&$item, $update = false) {
+function put_item_in_cache(&$item, $update = false)
+{
+	$rendered_hash = defaults($item, 'rendered-hash', '');
 
-	if (($item["rendered-hash"] != hash("md5", $item["body"])) || ($item["rendered-hash"] == "") ||
-		($item["rendered-html"] == "") || Config::get("system", "ignore_cache")) {
-
+	if ($rendered_hash == ''
+		|| $item["rendered-html"] == ""
+		|| $rendered_hash != hash("md5", $item["body"])
+		|| Config::get("system", "ignore_cache")
+	) {
 		// The function "redir_private_images" changes the body.
 		// I'm not sure if we should store it permanently, so we save the old value.
 		$body = $item["body"];
@@ -2026,7 +2030,7 @@ function deindent($text, $chr = "[\t ]", $count = NULL) {
 }
 
 function formatBytes($bytes, $precision = 2) {
-	 $units = array('B', 'KB', 'MB', 'GB', 'TB');
+	$units = array('B', 'KB', 'MB', 'GB', 'TB');
 
 	$bytes = max($bytes, 0);
 	$pow = floor(($bytes ? log($bytes) : 0) / log(1024));

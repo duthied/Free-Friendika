@@ -733,7 +733,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		logger("Contact-id was missing for post ".$arr["guid"]." from user id ".$uid." - now set to ".$arr["contact-id"], LOGGER_DEBUG);
 	}
 
-	if ($arr["gcontact-id"] == 0) {
+	if (defaults($arr, "gcontact-id", 0) === 0) {
 		/*
 		 * The gcontact should mostly behave like the contact. But is is supposed to be global for the system.
 		 * This means that wall posts, repeated posts, etc. should have the gcontact id of the owner.
