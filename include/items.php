@@ -421,7 +421,7 @@ function uri_to_guid($uri, $host = "") {
  * @return array Item array with removed conversation data
  */
 function store_conversation($arr) {
-	if (in_array($arr['network'], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)) && !empty($arr['uri'])) {
+	if (in_array(defaults($arr, 'network', NETWORK_PHANTOM), array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)) && !empty($arr['uri'])) {
 		$conversation = array('item-uri' => $arr['uri'], 'received' => DBM::date());
 
 		if (isset($arr['parent-uri']) && ($arr['parent-uri'] != $arr['uri'])) {
@@ -535,7 +535,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 
 	// Converting the plink
 	/// @todo Check if this is really still needed
-	if ($arr['network'] == NETWORK_OSTATUS) {
+	if (defaults($arr, 'network', NETWORK_PHANTOM) == NETWORK_OSTATUS) {
 		if (isset($arr['plink'])) {
 			$arr['plink'] = OStatus::convertHref($arr['plink']);
 		} elseif (isset($arr['uri'])) {
@@ -581,7 +581,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	 * We have to check several networks since Friendica posts could be repeated
 	 * via OStatus (maybe Diasporsa as well)
 	 */
-	if (in_array(trim($arr['network']), array(NETWORK_DIASPORA, NETWORK_DFRN, NETWORK_OSTATUS, ""))) {
+	if (in_array(trim(defaults($arr, 'network', NETWORK_PHANTOM)), array(NETWORK_DIASPORA, NETWORK_DFRN, NETWORK_OSTATUS, ""))) {
 		$r = q("SELECT `id`, `network` FROM `item` WHERE `uri` = '%s' AND `uid` = %d AND `network` IN ('%s', '%s', '%s')  LIMIT 1",
 				dbesc(trim($arr['uri'])),
 				intval($uid),
