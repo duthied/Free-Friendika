@@ -9,7 +9,6 @@ use Friendica\Core\Config;
 use Friendica\Model\Contact;
 use Friendica\Util\Map;
 
-require_once 'include/oembed.php';
 require_once 'include/event.php';
 require_once 'mod/proxy.php';
 require_once 'include/plaintext.php';

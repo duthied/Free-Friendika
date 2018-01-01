@@ -34,7 +34,6 @@ require_once "include/tags.php";
 require_once "include/files.php";
 require_once "include/event.php";
 require_once "include/text.php";
-require_once "include/oembed.php";
 require_once "include/html2bbcode.php";
 require_once "include/bbcode.php";
 

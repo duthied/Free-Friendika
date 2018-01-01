@@ -15,7 +15,6 @@ use DOMDocument;
 
 require_once 'include/dba.php';
 require_once "include/network.php";
-require_once "include/oembed.php";
 
 /**
  * @brief Class with methods for extracting certain content from an url

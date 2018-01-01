@@ -20,7 +20,6 @@ use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Feed;
 
 require_once 'include/bbcode.php';
-require_once 'include/oembed.php';
 require_once 'include/tags.php';
 require_once 'include/files.php';
 require_once 'include/text.php';
