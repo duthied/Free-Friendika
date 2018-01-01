@@ -1,9 +1,7 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * @file src/Content/OEmbed.php
  */
 
 namespace Friendica\Content;
@@ -22,17 +20,22 @@ require_once 'include/dba.php';
 require_once 'mod/proxy.php';
 
 /**
- * Description of OEmbed
+ * Handles all OEmbed content fetching and replacement
  *
- * @author benlo
+ * OEmbed is a standard used to allow an embedded representation of a URL on
+ * third party sites
+ *
+ * @see https://oembed.com
+ *
+ * @author Hypolite Petovan <mrpetovan@gmail.com>
  */
 class OEmbed
 {
 	public static function replaceCallback($matches)
 	{
 		$embedurl = $matches[1];
-		$j = OEmbed::fetchURL($embedurl);
-		$s = OEmbed::formatObject($j);
+		$j = self::fetchURL($embedurl);
+		$s = self::formatObject($j);
 
 		return $s;
 	}
@@ -157,7 +160,7 @@ class OEmbed
 	public static function formatObject($j)
 	{
 		$embedurl = $j->embedurl;
-		$jhtml = OEmbed::iframe($j->embedurl, (isset($j->width) ? $j->width : null), (isset($j->height) ? $j->height : null));
+		$jhtml = self::iframe($j->embedurl, (isset($j->width) ? $j->width : null), (isset($j->height) ? $j->height : null));
 		$ret = "<span class='oembed " . $j->type . "'>";
 		switch ($j->type) {
 			case "video":
@@ -268,7 +271,7 @@ class OEmbed
 			}
 			$xpath = new DOMXPath($dom);
 
-			$xattr = OEmbed::buildXPath("class", "oembed");
+			$xattr = self::buildXPath("class", "oembed");
 			$entries = $xpath->query("//span[$xattr]");
 
 			$xattr = "@rel='oembed'"; //oe_build_xpath("rel","oembed");
@@ -278,7 +281,7 @@ class OEmbed
 					$e->parentNode->replaceChild(new DOMText("[embed]" . $href . "[/embed]"), $e);
 				}
 			}
-			return OEmbed::getInnerHTML($dom->getElementsByTagName("body")->item(0));
+			return self::getInnerHTML($dom->getElementsByTagName("body")->item(0));
 		} else {
 			return $text;
 		}
@@ -329,7 +332,7 @@ class OEmbed
 	private static function buildXPath($attr, $value)
 	{
 		// https://www.westhoffswelt.de/blog/2009/6/9/select-html-elements-with-more-than-one-css-class-using-xpath
-		return "contains( normalize-space( @$attr ), ' $value ' ) or substring( normalize-space( @$attr ), 1, string-length( '$value' ) + 1 ) = '$value ' or substring( normalize-space( @$attr ), string-length( @$attr ) - string-length( '$value' ) ) = ' $value' or @$attr = '$value'";
+		return "contains(normalize-space(@$attr), ' $value ') or substring(normalize-space(@$attr), 1, string-length('$value') + 1) = '$value ' or substring(normalize-space(@$attr), string-length(@$attr) - string-length('$value')) = ' $value' or @$attr = '$value'";
 	}
 
 	/**
