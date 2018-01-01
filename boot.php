@@ -1635,14 +1635,11 @@ function argv($x)
 function infinite_scroll_data($module)
 {
 	if (PConfig::get(local_user(), 'system', 'infinite_scroll')
-		&& ($module == "network") && ($_GET["mode"] != "minimal")
+		&& $module == 'network'
+		&& defaults($_GET, 'mode', '') != 'minimal'
 	) {
 		// get the page number
-		if (is_string($_GET["page"])) {
-			$pageno = $_GET["page"];
-		} else {
-			$pageno = 1;
-		}
+		$pageno = defaults($_GET, 'page', 1);
 
 		$reload_uri = "";
 
@@ -1653,7 +1650,8 @@ function infinite_scroll_data($module)
 			}
 		}
 
-		if (($a->page_offset != "") && ! strstr($reload_uri, "&offset=")) {
+		$a = get_app();
+		if ($a->page_offset != "" && !strstr($reload_uri, "&offset=")) {
 			$reload_uri .= "&offset=" . urlencode($a->page_offset);
 		}
 

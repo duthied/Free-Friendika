@@ -97,6 +97,7 @@ if (!$a->is_backend()) {
 	session_start();
 	$a->save_timestamp($stamp1, "parser");
 } else {
+	$_SESSION = [];
 	Worker::executeIfIdle();
 }
 
@@ -148,7 +149,7 @@ if ((x($_GET, 'zrl')) && (!$install && !$maintenance)) {
 
 // header('Link: <' . System::baseUrl() . '/amcd>; rel="acct-mgmt";');
 
-if (x($_COOKIE["Friendica"]) || (x($_SESSION, 'authenticated')) || (x($_POST, 'auth-params')) || ($a->module === 'login')) {
+if (x($_COOKIE, "Friendica") || (x($_SESSION, 'authenticated')) || (x($_POST, 'auth-params')) || ($a->module === 'login')) {
 	require "include/auth.php";
 }
 
