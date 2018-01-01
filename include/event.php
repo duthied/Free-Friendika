@@ -13,7 +13,7 @@ use Friendica\Util\Map;
 
 require_once 'include/bbcode.php';
 require_once 'include/datetime.php';
-require_once "include/conversation.php";
+require_once 'include/conversation.php';
 
 function format_event_html($ev, $simple = false) {
 	if (! ((is_array($ev)) && count($ev))) {
@@ -88,7 +88,7 @@ function format_event_html($ev, $simple = false) {
 
 /**
  * @brief Convert an array with event data to bbcode.
- * 
+ *
  * @param array $ev Array which conains the event data.
  * @return string The event as a bbcode formatted string.
  */
@@ -126,7 +126,7 @@ function format_event_bbcode($ev) {
 /**
  * @brief Extract bbcode formatted event data from a string
  *     and convert it to html.
- * 
+ *
  * @params: string $s The string which should be parsed for event data.
  * @return string The html output.
  */
@@ -143,7 +143,7 @@ function bbtovcal($s) {
 
 /**
  * @brief Extract bbcode formatted event data from a string.
- * 
+ *
  * @params: string $s The string which should be parsed for event data.
  * @return array The array with the event information.
  */
@@ -206,10 +206,10 @@ function ev_compare($a,$b) {
 
 /**
  * @brief Delete an event from the event table.
- * 
+ *
  * Note: This function does only delete the event from the event table not its
  * related entry in the item table.
- * 
+ *
  * @param int $event_id Event ID.
  * @return void
  */
@@ -224,9 +224,9 @@ function event_delete($event_id) {
 
 /**
  * @brief Store the event.
- * 
+ *
  * Store the event in the event table and create an event item in the item table.
- * 
+ *
  * @param array $arr Array with event data.
  * @return int The event id.
  */
@@ -433,7 +433,7 @@ function event_store($arr) {
 
 /**
  * @brief Create an array with translation strings used for events.
- * 
+ *
  * @return array Array with translations strings.
  */
 function get_event_strings() {
@@ -564,7 +564,7 @@ function event_by_id($owner_uid = 0, $event_params, $sql_extra = '') {
  *	string 'adjust_start' =>
  *
  * @param string $sql_extra Additional sql conditions (e.g. permission request).
- * 
+ *
  * @return array Query results.
  */
 function events_by_date($owner_uid = 0, $event_params, $sql_extra = '') {
@@ -626,6 +626,9 @@ function process_events($arr) {
 
 			// Show edit and drop actions only if the user is the owner of the event and the event
 			// is a real event (no bithdays).
+			$edit = null;
+			$copy = null;
+			$drop = null;
 			if (local_user() && local_user() == $rr['uid'] && $rr['type'] == 'event') {
 				$edit = ((! $rr['cid']) ? array(System::baseUrl() . '/events/event/' . $rr['id'], t('Edit event'), '', '') : null);
 				$copy = ((! $rr['cid']) ? array(System::baseUrl() . '/events/copy/' . $rr['id'], t('Duplicate event'), '', '') : null);
@@ -768,7 +771,7 @@ function event_format_export ($events, $format = 'ical', $timezone) {
 
 /**
  * @brief Get all events for a user ID.
- * 
+ *
  *    The query for events is done permission sensitive.
  *    If the user is the owner of the calendar he/she
  *    will get all of his/her available events.
@@ -922,7 +925,7 @@ function widget_events() {
 
 /**
  * @brief Format an item array with event data to HTML.
- * 
+ *
  * @param arr $item Array with item and event data.
  * @return string HTML output.
  */
@@ -1013,12 +1016,12 @@ function format_event_item($item) {
 
 /**
  * @brief Format a string with map bbcode to an array with location data.
- * 
+ *
  * Note: The string must only contain location data. A string with no bbcode will be
  * handled as location name.
- * 
+ *
  * @param string $s The string with the bbcode formatted location data.
- * 
+ *
  * @return array The array with the location data.
  *  'name' => The name of the location,<br>
  * 'address' => The address of the location,<br>
