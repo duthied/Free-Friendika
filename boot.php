@@ -573,6 +573,51 @@ function x($s, $k = null)
 }
 
 /**
+ * Return the provided variable value if it exists and is truthy or the provided
+ * default value instead.
+ *
+ * Works with initialized variables and potentially uninitialized array keys
+ *
+ * Usages:
+ * - defaults($var, $default)
+ * - defaults($array, 'key', $default)
+ *
+ * @brief Returns a defaut value if the provided variable or array key is falsy
+ * @see x()
+ * @return mixed
+ */
+function defaults() {
+	$args = func_get_args();
+
+	if (count($args) < 2) {
+		throw new BadFunctionCallException('defaults() requires at least 2 parameters');
+	}
+	if (count($args) > 3) {
+		throw new BadFunctionCallException('defaults() cannot use more than 3 parameters');
+	}
+	if (count($args) === 3 && !is_array($args[0])) {
+		throw new BadFunctionCallException('defaults($arr, $key, $def) requires an array as first parameter');
+	}
+	if (count($args) === 3 && is_null($args[1])) {
+		throw new BadFunctionCallException('defaults($arr, $key, $def) $key is null');
+	}
+
+	$default = array_pop($args);
+
+	if (call_user_func_array('x', $args)) {
+		if (count($args) === 1) {
+			$return = $args[0];
+		} else {
+			$return = $args[0][$args[1]];
+		}
+	} else {
+		$return = $default;
+	}
+
+	return $return;
+}
+
+/**
  * @brief Returns the baseurl.
  *
  * @see System::baseUrl()
