@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Content\Smilies;
+use Friendica\Content\OEmbed;
 use Friendica\Core\Cache;
 use Friendica\Core\System;
 use Friendica\Core\Config;
@@ -232,7 +233,7 @@ function tryoembed($match) {
 	$url = str_replace(array("http://www.youtube.com/", "http://player.vimeo.com/"),
 				array("https://www.youtube.com/", "https://player.vimeo.com/"), $url);
 
-	$o = oembed_fetch_url($url);
+	$o = OEmbed::fetchURL($url);
 
 	if (!is_object($o)) {
 		return $match[0];
@@ -246,7 +247,7 @@ function tryoembed($match) {
 		return $match[0];
 	}
 
-	$html = oembed_format_object($o);
+	$html = OEmbed::formatObject($o);
 
 	return $html;
 }
@@ -1263,7 +1264,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 //	$Text = preg_replace("/\[youtube\](.*?)\[\/youtube\]/", '<object width="425" height="350" type="application/x-shockwave-flash" data="http://www.youtube.com/v/$1" ><param name="movie" value="http://www.youtube.com/v/$1"></param><!--[if IE]><embed src="http://www.youtube.com/v/$1" type="application/x-shockwave-flash" width="425" height="350" /><![endif]--></object>', $Text);
 
 	// oembed tag
-	$Text = oembed_bbcode2html($Text);
+	$Text = OEmbed::BBCode2HTML($Text);
 
 	// Avoid triple linefeeds through oembed
 	$Text = str_replace("<br style='clear:left'></span><br /><br />", "<br style='clear:left'></span><br />", $Text);

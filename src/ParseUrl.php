@@ -5,7 +5,7 @@
  */
 namespace Friendica;
 
-use Friendica\Core\Config;
+use Friendica\Content\OEmbed;
 use Friendica\Object\Image;
 use Friendica\Util\XML;
 
@@ -164,7 +164,7 @@ class ParseUrl
 		$body = $data["body"];
 
 		if ($do_oembed) {
-			$oembed_data = oembed_fetch_url($url);
+			$oembed_data = OEmbed::fetchURL($url);
 
 			if (!in_array($oembed_data->type, array("error", "rich", ""))) {
 				$siteinfo["type"] = $oembed_data->type;
