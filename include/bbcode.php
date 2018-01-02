@@ -485,8 +485,6 @@ function bb_ShareAttributes($share, $simplehtml)
 
 	$posted = "";
 
-	$itemcache = get_itemcachepath();
-
 	preg_match("/posted='(.*?)'/ism", $attributes, $matches);
 	if (x($matches, 1)) {
 		$posted = $matches[1];
