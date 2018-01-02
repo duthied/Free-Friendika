@@ -52,7 +52,7 @@ class PubSubPublish {
 		logger("Generate feed of user ".$rr['nickname']." to ".$rr['callback_url']." - last updated ".$rr['last_update'], LOGGER_DEBUG);
 
 		$last_update = $rr['last_update'];
-		$params = OStatus::feed($a, $rr['nickname'], $last_update);
+		$params = OStatus::feed($rr['nickname'], $last_update);
 
 		if (!$params) {
 			return;

@@ -1235,12 +1235,13 @@ class OStatus
 	/**
 	 * @brief Adds the header elements to the XML document
 	 *
-	 * @param object $doc   XML document
-	 * @param array  $owner Contact data of the poster
+	 * @param object $doc    XML document
+	 * @param array  $owner  Contact data of the poster
+	 * @param string $filter The related feed filter (activity, posts or comments)
 	 *
 	 * @return object header root element
 	 */
-	private static function addHeader($doc, $owner)
+	private static function addHeader($doc, $owner, $filter)
 	{
 		$a = get_app();
 
@@ -1256,10 +1257,16 @@ class OStatus
 		$root->setAttribute("xmlns:statusnet", NAMESPACE_STATUSNET);
 		$root->setAttribute("xmlns:mastodon", NAMESPACE_MASTODON);
 
-		$attributes = array("uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION."-".DB_UPDATE_VERSION);
+		switch ($filter) {
+			case 'activity': $title = t('%s\'s timeline', $owner['name']); break;
+			case 'posts'   : $title = t('%s\'s posts'   , $owner['name']); break;
+			case 'comments': $title = t('%s\'s comments', $owner['name']); break;
+		}
+
+		$attributes = array("uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION . "-" . DB_UPDATE_VERSION);
 		XML::addElement($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
-		XML::addElement($doc, $root, "id", System::baseUrl()."/profile/".$owner["nick"]);
-		XML::addElement($doc, $root, "title", sprintf("%s timeline", $owner["name"]));
+		XML::addElement($doc, $root, "id", System::baseUrl() . "/profile/" . $owner["nick"]);
+		XML::addElement($doc, $root, "title", $title);
 		XML::addElement($doc, $root, "subtitle", sprintf("Updates from %s on %s", $owner["name"], $a->config["sitename"]));
 		XML::addElement($doc, $root, "logo", $owner["photo"]);
 		XML::addElement($doc, $root, "updated", datetime_convert("UTC", "UTC", "now", ATOM_TIME));
@@ -1278,17 +1285,17 @@ class OStatus
 
 		self::hublinks($doc, $root, $owner["nick"]);
 
-		$attributes = array("href" => System::baseUrl()."/salmon/".$owner["nick"], "rel" => "salmon");
+		$attributes = array("href" => System::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "salmon");
 		XML::addElement($doc, $root, "link", "", $attributes);
 
-		$attributes = array("href" => System::baseUrl()."/salmon/".$owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-replies");
+		$attributes = array("href" => System::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-replies");
 		XML::addElement($doc, $root, "link", "", $attributes);
 
-		$attributes = array("href" => System::baseUrl()."/salmon/".$owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-mention");
+		$attributes = array("href" => System::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-mention");
 		XML::addElement($doc, $root, "link", "", $attributes);
 
-		$attributes = array("href" => System::baseUrl()."/api/statuses/user_timeline/".$owner["nick"].".atom",
-				"rel" => "self", "type" => "application/atom+xml");
+		$attributes = array("href" => System::baseUrl() . "/api/statuses/user_timeline/" . $owner["nick"] . ".atom",
+			"rel" => "self", "type" => "application/atom+xml");
 		XML::addElement($doc, $root, "link", "", $attributes);
 
 		return $root;
@@ -2067,41 +2074,50 @@ class OStatus
 	}
 
 	/**
+	 * Creates the XML feed for a given nickname
+	 *
+	 * Supported filters:
+	 * - activity (default): all the public posts
+	 * - posts: all the public top-level posts
+	 * - comments: all the public replies
+	 *
+	 * Updates the provided last_update parameter if the result comes from the
+	 * cache or it is empty
+	 *
 	 * @brief Creates the XML feed for a given nickname
 	 *
-	 * @param object  $a           The application class
 	 * @param string  $owner_nick  Nickname of the feed owner
 	 * @param string  $last_update Date of the last update
 	 * @param integer $max_items   Number of maximum items to fetch
+	 * @param string  $filter      Feed items filter (activity, posts or comments)
+	 * @param boolean $nocache     Wether to bypass caching
 	 *
 	 * @return string XML feed
 	 */
-	public static function feed(App $a, $owner_nick, &$last_update, $max_items = 300)
+	public static function feed($owner_nick, &$last_update, $max_items = 300, $filter = 'activity', $nocache = false)
 	{
 		$stamp = microtime(true);
 
-		$cachekey = "ostatus:feed:".$owner_nick.":".$last_update;
+		$cachekey = "ostatus:feed:" . $owner_nick . ":" . $filter . ":" . $last_update;
 
 		$previous_created = $last_update;
 
 		$result = Cache::get($cachekey);
-		if (!is_null($result)) {
-			logger('Feed duration: '.number_format(microtime(true) - $stamp, 3).' - '.$owner_nick.' - '.$previous_created.' (cached)', LOGGER_DEBUG);
+		if (!$nocache && !is_null($result)) {
+			logger('Feed duration: ' . number_format(microtime(true) - $stamp, 3) . ' - ' . $owner_nick . ' - ' . $filter . ' - ' . $previous_created . ' (cached)', LOGGER_DEBUG);
 			$last_update = $result['last_update'];
 			return $result['feed'];
 		}
 
-		$r = q(
+		$owner = dba::fetch_first(
 			"SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`
 				FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
-				WHERE `contact`.`self` AND `user`.`nickname` = '%s' LIMIT 1",
-			dbesc($owner_nick)
+				WHERE `contact`.`self` AND `user`.`nickname` = ? LIMIT 1",
+			$owner_nick
 		);
-		if (!DBM::is_result($r)) {
+		if (!DBM::is_result($owner)) {
 			return;
 		}
-
-		$owner = $r[0];
 
 		if (!strlen($last_update)) {
 			$last_update = 'now -30 days';
@@ -2110,23 +2126,40 @@ class OStatus
 		$check_date = datetime_convert('UTC', 'UTC', $last_update, 'Y-m-d H:i:s');
 		$authorid = Contact::getIdForURL($owner["url"], 0);
 
+		$sql_extra = '';
+		if ($filter === 'posts') {
+			$sql_extra .= ' AND `item`.`id` = `item`.`parent` ';
+		}
+
+		if ($filter === 'comments') {
+			$sql_extra .= sprintf(" AND `item`.`object-type` = '%s' ", dbesc(ACTIVITY_OBJ_COMMENT));
+		}
+
 		$items = q(
 			"SELECT `item`.*, `item`.`id` AS `item_id` FROM `item` USE INDEX (`uid_contactid_created`)
 				STRAIGHT_JOIN `thread` ON `thread`.`iid` = `item`.`parent`
-				WHERE `item`.`uid` = %d AND `item`.`contact-id` = %d AND
-					`item`.`author-id` = %d AND `item`.`created` > '%s' AND
-					NOT `item`.`deleted` AND NOT `item`.`private` AND
-					`thread`.`network` IN ('%s', '%s')
+				WHERE `item`.`uid` = %d
+				AND `item`.`contact-id` = %d
+				AND `item`.`author-id` = %d
+				AND `item`.`created` > '%s'
+				AND NOT `item`.`deleted`
+				AND NOT `item`.`private`
+				AND `thread`.`network` IN ('%s', '%s')
+				$sql_extra
 				ORDER BY `item`.`created` DESC LIMIT %d",
-			intval($owner["uid"]), intval($owner["id"]),
-			intval($authorid), dbesc($check_date),
-			dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DFRN), intval($max_items)
+			intval($owner["uid"]),
+			intval($owner["id"]),
+			intval($authorid),
+			dbesc($check_date),
+			dbesc(NETWORK_OSTATUS),
+			dbesc(NETWORK_DFRN),
+			intval($max_items)
 		);
 
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
 
-		$root = self::addHeader($doc, $owner);
+		$root = self::addHeader($doc, $owner, $filter);
 
 		foreach ($items as $item) {
 			if (Config::get('system', 'ostatus_debug')) {
@@ -2145,7 +2178,7 @@ class OStatus
 		$msg = array('feed' => $feeddata, 'last_update' => $last_update);
 		Cache::set($cachekey, $msg, CACHE_QUARTER_HOUR);
 
-		logger('Feed duration: '.number_format(microtime(true) - $stamp, 3).' - '.$owner_nick.' - '.$previous_created, LOGGER_DEBUG);
+		logger('Feed duration: ' . number_format(microtime(true) - $stamp, 3) . ' - ' . $owner_nick . ' - ' . $filter . ' - ' . $previous_created, LOGGER_DEBUG);
 
 		return $feeddata;
 	}
