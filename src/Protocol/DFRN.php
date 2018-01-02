@@ -8,6 +8,7 @@
  */
 namespace Friendica\Protocol;
 
+use Friendica\Content\OEmbed;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -33,7 +34,6 @@ require_once "include/tags.php";
 require_once "include/files.php";
 require_once "include/event.php";
 require_once "include/text.php";
-require_once "include/oembed.php";
 require_once "include/html2bbcode.php";
 require_once "include/bbcode.php";
 
@@ -2502,7 +2502,7 @@ class DFRN
 
 			$item['body'] = html2bb_video($item['body']);
 
-			$item['body'] = oembed_html2bbcode($item['body']);
+			$item['body'] = OEmbed::HTML2BBCode($item['body']);
 
 			$config = \HTMLPurifier_Config::createDefault();
 			$config->set('Cache.DefinitionImpl', null);
