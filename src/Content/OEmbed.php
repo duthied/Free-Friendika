@@ -100,7 +100,7 @@ class OEmbed
 
 			$txt = trim($txt);
 
-			if ($txt[0] != "{") {
+			if (!$txt || $txt[0] != "{") {
 				$txt = '{"type":"error"}';
 			} else { //save in cache
 				$j = json_decode($txt);
