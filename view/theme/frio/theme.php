@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Name: frio
  * Description: Bootstrap V3 theme. The theme is currently under construction, so it is far from finished. For further information have a look at the <a href="https://github.com/friendica/friendica/tree/develop/view/theme/frio/README.md">ReadMe</a>.
@@ -18,8 +19,8 @@ $frio = "view/theme/frio";
 
 global $frio;
 
-function frio_init(App $a) {
-
+function frio_init(App $a)
+{
 	// disable the events module link in the profile tab
 	$a->theme_events_in_profile = false;
 
@@ -35,19 +36,21 @@ function frio_init(App $a) {
 
 	// if the device is a mobile device set js is_mobile
 	// variable so the js scripts can use this information
-	if($a->is_mobile || $a->is_tablet) {
+	if ($a->is_mobile || $a->is_tablet) {
 		$a->page["htmlhead"] .= <<< EOT
 			<script type="text/javascript">
 				var is_mobile = 1;
 			</script>
 EOT;
-}
+	}
 
-	if ($style == "")
+	if ($style == "") {
 		$style = Config::get('frio', 'style');
+	}
 }
 
-function frio_install() {
+function frio_install()
+{
 	register_hook('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
 	register_hook('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
 	register_hook('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
@@ -58,7 +61,8 @@ function frio_install() {
 	logger("installed theme frio");
 }
 
-function frio_uninstall() {
+function frio_uninstall()
+{
 	unregister_hook('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
 	unregister_hook('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
 	unregister_hook('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
@@ -68,6 +72,7 @@ function frio_uninstall() {
 
 	logger("uninstalled theme frio");
 }
+
 /**
  * @brief Replace friendica photo links hook
  *
@@ -86,19 +91,19 @@ function frio_item_photo_links(App $a, &$body_info)
 	$occurence = 1;
 	$p = bb_find_open_close($body_info['html'], "<a", ">");
 
-	while($p !== false && ($occurence++ < 500)) {
+	while ($p !== false && ($occurence++ < 500)) {
 		$link = substr($body_info['html'], $p['start'], $p['end'] - $p['start']);
 		$matches = array();
 
 		preg_match("/\/photos\/[\w]+\/image\/([\w]+)/", $link, $matches);
-		if($matches) {
+		if ($matches) {
 			// Replace the link for the photo's page with a direct link to the photo itself
 			$newlink = str_replace($matches[0], "/photo/{$matches[1]}", $link);
 
 			// Add a "quiet" parameter to any redir links to prevent the "XX welcomes YY" info boxes
 			$newlink = preg_replace("/href=\"([^\"]+)\/redir\/([^\"]+)&url=([^\"]+)\"/", 'href="$1/redir/$2&quiet=1&url=$3"', $newlink);
 
-			 // Having any arguments to the link for Colorbox causes it to fetch base64 code instead of the image
+			// Having any arguments to the link for Colorbox causes it to fetch base64 code instead of the image
 			$newlink = preg_replace("/\/[?&]zrl=([^&\"]+)/", '', $newlink);
 
 			$body_info['html'] = str_replace($link, $newlink, $body_info['html']);
@@ -118,15 +123,14 @@ function frio_item_photo_links(App $a, &$body_info)
  * @param App $a Unused but required by the hook definition
  * @param array $arr Contains item data and the original photo_menu
  */
-function frio_item_photo_menu(App $a, &$arr) {
-
-	foreach($arr["menu"] as $k =>$v) {
-		if(strpos($v,'poke/?f=&c=') === 0 || strpos($v,'message/new/') === 0) {
+function frio_item_photo_menu(App $a, &$arr)
+{
+	foreach ($arr["menu"] as $k => $v) {
+		if (strpos($v, 'poke/?f=&c=') === 0 || strpos($v, 'message/new/') === 0) {
 			$v = "javascript:addToModal('" . $v . "'); return false;";
 			$arr["menu"][$k] = $v;
 		}
 	}
-	$args = array('item' => $item, 'menu' => $menu);
 }
 
 /**
@@ -141,12 +145,8 @@ function frio_item_photo_menu(App $a, &$arr) {
  * @param App $a The app data
  * @param array $args Contains contact data and the original photo_menu
  */
-function frio_contact_photo_menu(App $a, &$args){
-
-	$pokelink = "";
-	$pmlink = "";
-	$cid = "";
-
+function frio_contact_photo_menu(App $a, &$args)
+{
 	$cid = $args["contact"]["id"];
 	$pokelink = $args["menu"]["poke"][1];
 	$pmlink = $args["menu"]["pm"][1];
@@ -160,8 +160,8 @@ function frio_contact_photo_menu(App $a, &$args){
 	// The value for opening in a new tab is e.g. when
 	// $args["menu"]["status"][2] is true. If the value of the [2] key is true
 	// and if it's a friendica contact we set it to false
-	foreach($args["menu"] as $k =>$v) {
-		if($k === "status" || $k === "profile" || $k === "photos") {
+	foreach ($args["menu"] as $k => $v) {
+		if ($k === "status" || $k === "profile" || $k === "photos") {
 			$v[2] = (($args["contact"]["network"] === "dfrn") ? false : true);
 			$args["menu"][$k][2] = $v[2];
 		}
@@ -170,13 +170,13 @@ function frio_contact_photo_menu(App $a, &$args){
 	// Add to pm and poke links a new key with the value 'modal'.
 	// Later we can make conditions in the corresponing templates (e.g.
 	// contact_template.tpl)
-	if(strpos($pokelink,'poke/?f=&c='. $cid) !== false)
+	if (strpos($pokelink, 'poke/?f=&c=' . $cid) !== false) {
 		$args["menu"]["poke"][3] = "modal";
+	}
 
-	if(strpos($pmlink,'message/new/' . $cid) !== false)
+	if (strpos($pmlink, 'message/new/' . $cid) !== false) {
 		$args["menu"]["pm"][3] = "modal";
-
-	$args = array('contact' => $contact, 'menu' => &$menu);
+	}
 }
 
 /**
@@ -193,11 +193,13 @@ function frio_contact_photo_menu(App $a, &$args){
  * @param App $a The App class
  * @param array $nav The original nav menu
  */
-function frio_remote_nav($a,&$nav) {
+function frio_remote_nav($a, &$nav)
+{
 	// get the homelink from $_XSESSION
 	$homelink = get_my_url();
-	if(! $homelink)
-		$homelink = ((x($_SESSION,'visitor_home')) ? $_SESSION['visitor_home'] : '');
+	if (!$homelink) {
+		$homelink = defaults($_SESSION, 'visitor_home', '');
+	}
 
 	// split up the url in it's parts (protocol,domain/directory, /profile/, nickname
 	// I'm not familiar with regex, so someone might find a better solutionen
@@ -213,7 +215,7 @@ function frio_remote_nav($a,&$nav) {
 	// And construct a webbie (e.g. mickey@friendica.domain.com for the search in gcontact
 	// We use the webbie for search in gcontact because we don't know if gcontact table stores
 	// the right value if its http or https protocol
-	if(count($url_parts)) {
+	if (count($url_parts)) {
 		$server_url = $url_parts[1] . $url_parts[2];
 		$webbie = $url_parts[4] . '@' . $url_parts[2];
 	}
@@ -228,11 +230,9 @@ function frio_remote_nav($a,&$nav) {
 
 		$r[0]['photo'] = (DBM::is_result($r) ? $a->remove_baseurl($r[0]['micro']) : "images/person-48.jpg");
 		$r[0]['name'] = $a->user['username'];
-
 	} elseif (!local_user() && remote_user()) {
 		$r = q("SELECT `name`, `nick`, `micro` AS `photo` FROM `contact` WHERE `id` = %d", intval(remote_user()));
 		$nav['remote'] = t("Guest");
-
 	} elseif (get_my_url()) {
 		$r = q("SELECT `name`, `nick`, `photo` FROM `gcontact`
 				WHERE `addr` = '%s' AND `network` = 'dfrn'",
@@ -243,18 +243,18 @@ function frio_remote_nav($a,&$nav) {
 	}
 
 	if (DBM::is_result($r)) {
-			$nav['userinfo'] = array(
-				'icon' => (DBM::is_result($r) ? $r[0]['photo'] : "images/person-48.jpg"),
-				'name' => $r[0]['name'],
-			);
-		}
+		$nav['userinfo'] = array(
+			'icon' => (DBM::is_result($r) ? $r[0]['photo'] : "images/person-48.jpg"),
+			'name' => $r[0]['name'],
+		);
+	}
 
 	if (!local_user() && !empty($server_url)) {
 		$nav['logout'] = Array($server_url . '/logout', t('Logout'), "", t('End this session'));
 
 		// user menu
 		$nav['usermenu'][] = Array($server_url . '/profile/' . $a->user['nickname'], t('Status'), "", t('Your posts and conversations'));
-		$nav['usermenu'][] = Array($server_url . '/profile/' . $a->user['nickname']. '?tab=profile', t('Profile'), "", t('Your profile page'));
+		$nav['usermenu'][] = Array($server_url . '/profile/' . $a->user['nickname'] . '?tab=profile', t('Profile'), "", t('Your profile page'));
 		$nav['usermenu'][] = Array($server_url . '/photos/' . $a->user['nickname'], t('Photos'), "", t('Your photos'));
 		$nav['usermenu'][] = Array($server_url . '/videos/' . $a->user['nickname'], t('Videos'), "", t('Your videos'));
 		$nav['usermenu'][] = Array($server_url . '/events/', t('Events'), "", t('Your events'));
@@ -263,11 +263,12 @@ function frio_remote_nav($a,&$nav) {
 		$nav['network'] = array($server_url . '/network', t('Network'), "", t('Conversations from your friends'));
 		$nav['events'] = Array($server_url . '/events', t('Events'), "", t('Events and Calendar'));
 		$nav['messages'] = array($server_url . '/message', t('Messages'), "", t('Private mail'));
-		$nav['settings'] = array($server_url . '/settings', t('Settings'),"", t('Account settings'));
-		$nav['contacts'] = array($server_url . '/contacts', t('Contacts'),"", t('Manage/edit friends and contacts'));
+		$nav['settings'] = array($server_url . '/settings', t('Settings'), "", t('Account settings'));
+		$nav['contacts'] = array($server_url . '/contacts', t('Contacts'), "", t('Manage/edit friends and contacts'));
 		$nav['sitename'] = $a->config['sitename'];
 	}
 }
+
 /**
  * @brief: Search for contacts
  *
@@ -281,10 +282,11 @@ function frio_remote_nav($a,&$nav) {
  * @param App $a The app data @TODO Unused
  * @param array $results The array with the originals from acl_lookup()
  */
-function frio_acl_lookup(App $a, &$results) {
-	require_once("mod/contacts.php");
+function frio_acl_lookup(App $a, &$results)
+{
+	require_once 'mod/contacts.php';
 
-	$nets = ((x($_GET,"nets")) ? notags(trim($_GET["nets"])) : "");
+	$nets = x($_GET, "nets") ? notags(trim($_GET["nets"])) : "";
 
 	// we introduce a new search type, r should do the same query like it's
 	// done in /mod/contacts for connections
@@ -295,17 +297,17 @@ function frio_acl_lookup(App $a, &$results) {
 			$search_txt = dbesc(protect_sprintf(preg_quote($search)));
 			$searching = true;
 		}
-		$sql_extra .= (($searching) ? " AND (`attag` LIKE '%%".dbesc($search_txt)."%%' OR `name` LIKE '%%".dbesc($search_txt)."%%' OR `nick` LIKE '%%".dbesc($search_txt)."%%') " : "");
+		$sql_extra = '';
+		if ($searching) {
+			$sql_extra .= " AND (`attag` LIKE '%%" . dbesc($search_txt) . "%%' OR `name` LIKE '%%" . dbesc($search_txt) . "%%' OR `nick` LIKE '%%" . dbesc($search_txt) . "%%') ";
+		}
 
 		if ($nets) {
 			$sql_extra .= sprintf(" AND network = '%s' ", dbesc($nets));
 		}
 
-		$sql_extra2 = ((($sort_type > 0) && ($sort_type <= CONTACT_IS_FRIEND)) ? sprintf(" AND `rel` = %d ",intval($sort_type)) : '');
-
-
 		$r = q("SELECT COUNT(*) AS `total` FROM `contact`
-			WHERE `uid` = %d AND NOT `self` AND NOT `pending` $sql_extra $sql_extra2 ",
+			WHERE `uid` = %d AND NOT `self` AND NOT `pending` $sql_extra ",
 			intval($_SESSION['uid']));
 		if (DBM::is_result($r)) {
 			$total = $r[0]["total"];
@@ -313,7 +315,7 @@ function frio_acl_lookup(App $a, &$results) {
 
 		$sql_extra3 = unavailable_networks();
 
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `self` AND NOT `pending` $sql_extra $sql_extra2 $sql_extra3 ORDER BY `name` ASC LIMIT 100 ",
+		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `self` AND NOT `pending` $sql_extra $sql_extra3 ORDER BY `name` ASC LIMIT 100 ",
 			intval($_SESSION['uid'])
 		);
 
@@ -332,19 +334,19 @@ function frio_acl_lookup(App $a, &$results) {
 
 /**
  * @brief Manipulate the data of the item
- * 
+ *
  * At the moment we use this function to add some own stuff to the item menu
- * 
+ *
  * @param App $a App $a The app data
  * @param array $arr Array with the item and the item actions<br>
  *     'item' => Array with item data<br>
  *     'output' => Array with item actions<br>
  */
-function frio_display_item(App $a,&$arr) {
-
+function frio_display_item(App $a, &$arr)
+{
 	// Add subthread to the item menu
 	$subthread = array();
-	if ((local_user()) && local_user() == $arr['item']['uid'] && $arr['item']['parent'] == $arr['item']['id'] && (! $arr['item']['self'])) {
+	if (local_user() == $arr['item']['uid'] && $arr['item']['parent'] == $arr['item']['id'] && !$arr['item']['self']) {
 		$subthread = array(
 			'menu'   => 'follow_thread',
 			'title'  => t('Follow Thread'),

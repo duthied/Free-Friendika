@@ -545,8 +545,10 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 		$profile_owner = $a->profile['profile_uid'];
 
 		if (!$update) {
-			$tab = notags(trim($_GET['tab']));
-			$tab = ( $tab ? $tab : 'posts' );
+			$tab = 'posts';
+			if (x($_GET, 'tab')) {
+				$tab = notags(trim($_GET['tab']));
+			}
 			if ($tab === 'posts') {
 				/*
 				 * This is ugly, but we can't pass the profile_uid through the session to the ajax updater,
@@ -647,19 +649,9 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 
 				$threadsid++;
 
-				$comment     = '';
 				$owner_url   = '';
 				$owner_name  = '';
 				$sparkle     = '';
-
-				if ($mode === 'search' || $mode === 'community') {
-					if (((activity_match($item['verb'], ACTIVITY_LIKE)) || (activity_match($item['verb'], ACTIVITY_DISLIKE)))
-						&& ($item['id'] != $item['parent']))
-						continue;
-					$nickname = $item['nickname'];
-				} else {
-					$nickname = $a->user['nickname'];
-				}
 
 				// prevent private email from leaking.
 				if ($item['network'] === NETWORK_MAIL && local_user() != $item['uid']) {
@@ -813,7 +805,6 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 					'like' => '',
 					'dislike' => '',
 					'comment' => '',
-					//'conv' => (($preview) ? '' : array('href'=> 'display/' . $nickname . '/' . $item['id'], 'title'=> t('View in context'))),
 					'conv' => (($preview) ? '' : array('href'=> 'display/'.$item['guid'], 'title'=> t('View in context'))),
 					'previewing' => $previewing,
 					'wait' => t('Please wait'),
@@ -1197,39 +1188,40 @@ function format_like($cnt, array $arr, $type, $id) {
 	return $o;
 }
 
-function status_editor(App $a, $x, $notes_cid = 0, $popup = false) {
+function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
+{
 	$o = '';
 
-	$geotag = (x($x, 'allow_location') ? replace_macros(get_markup_template('jot_geotag.tpl'), array()) : '');
+	$geotag = x($x, 'allow_location') ? replace_macros(get_markup_template('jot_geotag.tpl'), array()) : '';
 
 	$tpl = get_markup_template('jot-header.tpl');
 	$a->page['htmlhead'] .= replace_macros($tpl, array(
-		'$newpost' => 'true',
-		'$baseurl' => System::baseUrl(true),
-		'$geotag' => $geotag,
-		'$nickname' => $x['nickname'],
-		'$ispublic' => t('Visible to <strong>everybody</strong>'),
-		'$linkurl' => t('Please enter a link URL:'),
-		'$vidurl' => t("Please enter a video link/URL:"),
-		'$audurl' => t("Please enter an audio link/URL:"),
-		'$term' => t('Tag term:'),
-		'$fileas' => t('Save to Folder:'),
+		'$newpost'   => 'true',
+		'$baseurl'   => System::baseUrl(true),
+		'$geotag'    => $geotag,
+		'$nickname'  => $x['nickname'],
+		'$ispublic'  => t('Visible to <strong>everybody</strong>'),
+		'$linkurl'   => t('Please enter a link URL:'),
+		'$vidurl'    => t("Please enter a video link/URL:"),
+		'$audurl'    => t("Please enter an audio link/URL:"),
+		'$term'      => t('Tag term:'),
+		'$fileas'    => t('Save to Folder:'),
 		'$whereareu' => t('Where are you right now?'),
-		'$delitems' => t('Delete item(s)?')
+		'$delitems'  => t('Delete item(s)?')
 	));
 
 	$tpl = get_markup_template('jot-end.tpl');
 	$a->page['end'] .= replace_macros($tpl, array(
-		'$newpost' => 'true',
-		'$baseurl' => System::baseUrl(true),
-		'$geotag' => $geotag,
-		'$nickname' => $x['nickname'],
-		'$ispublic' => t('Visible to <strong>everybody</strong>'),
-		'$linkurl' => t('Please enter a link URL:'),
-		'$vidurl' => t("Please enter a video link/URL:"),
-		'$audurl' => t("Please enter an audio link/URL:"),
-		'$term' => t('Tag term:'),
-		'$fileas' => t('Save to Folder:'),
+		'$newpost'   => 'true',
+		'$baseurl'   => System::baseUrl(true),
+		'$geotag'    => $geotag,
+		'$nickname'  => $x['nickname'],
+		'$ispublic'  => t('Visible to <strong>everybody</strong>'),
+		'$linkurl'   => t('Please enter a link URL:'),
+		'$vidurl'    => t("Please enter a video link/URL:"),
+		'$audurl'    => t("Please enter an audio link/URL:"),
+		'$term'      => t('Tag term:'),
+		'$fileas'    => t('Save to Folder:'),
 		'$whereareu' => t('Where are you right now?')
 	));
 
@@ -1262,57 +1254,56 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false) {
 	$tpl = get_markup_template("jot.tpl");
 
 	$o .= replace_macros($tpl,array(
-		'$return_path' => $query_str,
-		'$action' =>  'item',
-		'$share' => (x($x,'button') ? $x['button'] : t('Share')),
-		'$upload' => t('Upload photo'),
-		'$shortupload' => t('upload photo'),
-		'$attach' => t('Attach file'),
-		'$shortattach' => t('attach file'),
-		'$weblink' => t('Insert web link'),
+		'$return_path'  => $query_str,
+		'$action'       => 'item',
+		'$share'        => defaults($x, 'button', t('Share')),
+		'$upload'       => t('Upload photo'),
+		'$shortupload'  => t('upload photo'),
+		'$attach'       => t('Attach file'),
+		'$shortattach'  => t('attach file'),
+		'$weblink'      => t('Insert web link'),
 		'$shortweblink' => t('web link'),
-		'$video' => t('Insert video link'),
-		'$shortvideo' => t('video link'),
-		'$audio' => t('Insert audio link'),
-		'$shortaudio' => t('audio link'),
-		'$setloc' => t('Set your location'),
-		'$shortsetloc' => t('set location'),
-		'$noloc' => t('Clear browser location'),
-		'$shortnoloc' => t('clear location'),
-		'$title' => $x['title'],
+		'$video'        => t('Insert video link'),
+		'$shortvideo'   => t('video link'),
+		'$audio'        => t('Insert audio link'),
+		'$shortaudio'   => t('audio link'),
+		'$setloc'       => t('Set your location'),
+		'$shortsetloc'  => t('set location'),
+		'$noloc'        => t('Clear browser location'),
+		'$shortnoloc'   => t('clear location'),
+		'$title'        => defaults($x, 'title', ''),
 		'$placeholdertitle' => t('Set title'),
-		'$category' => $x['category'],
-		'$placeholdercategory' => (Feature::isEnabled(local_user(), 'categories') ? t('Categories (comma-separated list)') : ''),
-		'$wait' => t('Please wait'),
-		'$permset' => t('Permission settings'),
+		'$category'     => defaults($x, 'category', ''),
+		'$placeholdercategory' => Feature::isEnabled(local_user(), 'categories') ? t('Categories (comma-separated list)') : '',
+		'$wait'         => t('Please wait'),
+		'$permset'      => t('Permission settings'),
 		'$shortpermset' => t('permissions'),
-		'$ptyp' => (($notes_cid) ? 'note' : 'wall'),
-		'$content' => $x['content'],
-		'$post_id' => $x['post_id'],
-		'$baseurl' => System::baseUrl(true),
-		'$defloc' => $x['default_location'],
-		'$visitor' => $x['visitor'],
-		'$pvisit' => (($notes_cid) ? 'none' : $x['visitor']),
-		'$public' => t('Public post'),
-		'$jotnets' => $jotnets,
-		'$lockstate' => $x['lockstate'],
-		'$bang' => $x['bang'],
-		'$profile_uid' => $x['profile_uid'],
-		'$preview' => ((Feature::isEnabled($x['profile_uid'],'preview')) ? t('Preview') : ''),
-		'$jotplugins' => $jotplugins,
-		'$notes_cid' => $notes_cid,
-		'$sourceapp' => t($a->sourcename),
-		'$cancel' => t('Cancel'),
-		'$rand_num' => random_digits(12),
+		'$ptyp'         => $notes_cid ? 'note' : 'wall',
+		'$content'      => defaults($x, 'content', ''),
+		'$post_id'      => defaults($x, 'post_id', ''),
+		'$baseurl'      => System::baseUrl(true),
+		'$defloc'       => $x['default_location'],
+		'$visitor'      => $x['visitor'],
+		'$pvisit'       => $notes_cid ? 'none' : $x['visitor'],
+		'$public'       => t('Public post'),
+		'$lockstate'    => $x['lockstate'],
+		'$bang'         => $x['bang'],
+		'$profile_uid'  => $x['profile_uid'],
+		'$preview'      => Feature::isEnabled($x['profile_uid'], 'preview') ? t('Preview') : '',
+		'$jotplugins'   => $jotplugins,
+		'$notes_cid'    => $notes_cid,
+		'$sourceapp'    => t($a->sourcename),
+		'$cancel'       => t('Cancel'),
+		'$rand_num'     => random_digits(12),
 
 		// ACL permissions box
-		'$acl' => $x['acl'],
-		'$acl_data' => $x['acl_data'],
-		'$group_perms' => t('Post to Groups'),
+		'$acl'           => $x['acl'],
+		'$acl_data'      => $x['acl_data'],
+		'$group_perms'   => t('Post to Groups'),
 		'$contact_perms' => t('Post to Contacts'),
-		'$private' => t('Private post'),
-		'$is_private' => $private_post,
-		'$public_link' => $public_post_link,
+		'$private'       => t('Private post'),
+		'$is_private'    => $private_post,
+		'$public_link'   => $public_post_link,
 
 		//jot nav tab (used in some themes)
 		'$message' => t('Message'),
@@ -1321,7 +1312,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false) {
 
 
 	if ($popup == true) {
-		$o = '<div id="jot-popup" style="display: none;">'.$o.'</div>';
+		$o = '<div id="jot-popup" style="display: none;">' . $o . '</div>';
 	}
 
 	return $o;
@@ -1577,9 +1568,9 @@ function get_responses($conv_responses, $response_verbs, $ob, $item) {
 	$ret = array();
 	foreach ($response_verbs as $v) {
 		$ret[$v] = array();
-		$ret[$v]['count'] = ((x($conv_responses[$v], $item['uri'])) ? $conv_responses[$v][$item['uri']] : '');
-		$ret[$v]['list']  = ((x($conv_responses[$v], $item['uri'])) ? $conv_responses[$v][$item['uri'] . '-l'] : '');
-		$ret[$v]['self']  = ((x($conv_responses[$v], $item['uri'])) ? $conv_responses[$v][$item['uri'] . '-self'] : '0');
+		$ret[$v]['count'] = defaults($conv_responses[$v], $item['uri'], '');
+		$ret[$v]['list']  = defaults($conv_responses[$v], $item['uri'] . '-l', '');
+		$ret[$v]['self']  = defaults($conv_responses[$v], $item['uri'] . '-self', '0');
 		if (count($ret[$v]['list']) > MAX_LIKERS) {
 			$ret[$v]['list_part'] = array_slice($ret[$v]['list'], 0, MAX_LIKERS);
 			array_push($ret[$v]['list_part'], '<a href="#" data-toggle="modal" data-target="#' . $v . 'Modal-'

@@ -8,7 +8,7 @@ $schemecss = "";
 $schemecssfile = false;
 $scheme_modified = 0;
 
-if (! $a->install) {
+if ($a->module !== 'install') {
 	// Get the UID of the profile owner.
 	$uid = get_theme_uid();
 	if ($uid) {
@@ -57,7 +57,7 @@ if (! $a->install) {
 // Setting $schema to '' wasn't working for some reason, so we'll check it's
 // not --- like the mobile theme does instead.
 // Allow layouts to over-ride the schema.
-if ($_REQUEST['schema']) {
+if (x($_REQUEST, 'schema')) {
 	$schema = $_REQUEST['schema'];
 }
 
@@ -103,7 +103,7 @@ $contentbg_transp = ((isset($contentbg_transp) && $contentbg_transp != "") ? $co
 // Calculate some colors in dependance of existing colors.
 // Some colors are calculated to don't have too many selection
 // fields in the theme settings.
-if (! $menu_background_hover_color) {
+if (!isset($menu_background_hover_color)) {
 	$mbhc = new Color($nav_bg);
 	$mcolor = $mbhc->getHex();
 
@@ -115,7 +115,7 @@ if (! $menu_background_hover_color) {
 		$menu_background_hover_color = '#' . $mbhc->lighten(5);
 	}
 }
-if (! $nav_icon_hover_color) {
+if (!isset($nav_icon_hover_color)) {
 	$nihc = new Color($nav_bg);
 
 	if ($nihc->isLight()) {
@@ -124,7 +124,7 @@ if (! $nav_icon_hover_color) {
 		$nav_icon_hover_color = '#' . $nihc->lighten(10);
 	}
 }
-if (! $link_hover_color) {
+if (!isset($link_hover_color)) {
 	$lhc = new Color($link_color);
 	$lcolor = $lhc->getHex();
 
@@ -137,6 +137,9 @@ if (! $link_hover_color) {
 }
 
 // Convert $bg_image_options into css.
+if (!isset($bg_image_option)) {
+	$bg_image_option = null;
+}
 switch ($bg_image_option) {
 	case "stretch":
 		$background_size_img = "100%";

@@ -421,7 +421,7 @@ function uri_to_guid($uri, $host = "") {
  * @return array Item array with removed conversation data
  */
 function store_conversation($arr) {
-	if (in_array($arr['network'], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)) && !empty($arr['uri'])) {
+	if (in_array(defaults($arr, 'network', NETWORK_PHANTOM), array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS)) && !empty($arr['uri'])) {
 		$conversation = array('item-uri' => $arr['uri'], 'received' => DBM::date());
 
 		if (isset($arr['parent-uri']) && ($arr['parent-uri'] != $arr['uri'])) {
@@ -479,8 +479,8 @@ function store_conversation($arr) {
 }
 
 /// @TODO add type-hint array
-function item_store($arr, $force_parent = false, $notify = false, $dontcache = false) {
-
+function item_store($arr, $force_parent = false, $notify = false, $dontcache = false)
+{
 	$a = get_app();
 
 	// If it is a posting where users should get notifications, then define it as wall posting
@@ -502,6 +502,8 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 				$arr['guid'] = uri_to_guid($arr['uri'], $a->get_hostname());
 			}
 		}
+	} else {
+		$arr['network'] = trim(defaults($arr, 'network', NETWORK_PHANTOM));
 	}
 
 	if ($notify) {
@@ -581,7 +583,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	 * We have to check several networks since Friendica posts could be repeated
 	 * via OStatus (maybe Diasporsa as well)
 	 */
-	if (in_array(trim($arr['network']), array(NETWORK_DIASPORA, NETWORK_DFRN, NETWORK_OSTATUS, ""))) {
+	if (in_array($arr['network'], array(NETWORK_DIASPORA, NETWORK_DFRN, NETWORK_OSTATUS, ""))) {
 		$r = q("SELECT `id`, `network` FROM `item` WHERE `uri` = '%s' AND `uid` = %d AND `network` IN ('%s', '%s', '%s')  LIMIT 1",
 				dbesc(trim($arr['uri'])),
 				intval($uid),
@@ -644,7 +646,6 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	$arr['attach']        = ((x($arr, 'attach'))        ? notags(trim($arr['attach']))        : '');
 	$arr['app']           = ((x($arr, 'app'))           ? notags(trim($arr['app']))           : '');
 	$arr['origin']        = ((x($arr, 'origin'))        ? intval($arr['origin'])              : 0 );
-	$arr['network']       = ((x($arr, 'network'))       ? trim($arr['network'])               : '');
 	$arr['postopts']      = ((x($arr, 'postopts'))      ? trim($arr['postopts'])              : '');
 	$arr['resource-id']   = ((x($arr, 'resource-id'))   ? trim($arr['resource-id'])           : '');
 	$arr['event-id']      = ((x($arr, 'event-id'))      ? intval($arr['event-id'])            : 0 );
@@ -674,18 +675,19 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		$arr['plink'] = System::baseUrl() . '/display/' . urlencode($arr['guid']);
 	}
 
-	if ($arr['network'] == "") {
+	if ($arr['network'] == NETWORK_PHANTOM) {
 		$r = q("SELECT `network` FROM `contact` WHERE `network` IN ('%s', '%s', '%s') AND `nurl` = '%s' AND `uid` = %d LIMIT 1",
 			dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS),
 			dbesc(normalise_link($arr['author-link'])),
 			intval($arr['uid'])
 		);
 
-		if (!DBM::is_result($r))
+		if (!DBM::is_result($r)) {
 			$r = q("SELECT `network` FROM `gcontact` WHERE `network` IN ('%s', '%s', '%s') AND `nurl` = '%s' LIMIT 1",
 				dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS),
 				dbesc(normalise_link($arr['author-link']))
 			);
+		}
 
 		if (!DBM::is_result($r)) {
 			$r = q("SELECT `network` FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
@@ -733,7 +735,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		logger("Contact-id was missing for post ".$arr["guid"]." from user id ".$uid." - now set to ".$arr["contact-id"], LOGGER_DEBUG);
 	}
 
-	if ($arr["gcontact-id"] == 0) {
+	if (!x($arr, "gcontact-id")) {
 		/*
 		 * The gcontact should mostly behave like the contact. But is is supposed to be global for the system.
 		 * This means that wall posts, repeated posts, etc. should have the gcontact id of the owner.

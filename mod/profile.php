@@ -39,8 +39,8 @@ function profile_init(App $a)
 
 	profile_load($a, $which, $profile);
 
-	$blocked = Config::get('system', 'block_public') && !local_user() && !remote_user();
-	$userblock = $a->profile['hidewall'] && !local_user() && !remote_user();
+	$blocked   = !local_user() && !remote_user() && Config::get('system', 'block_public');
+	$userblock = !local_user() && !remote_user() && $a->profile['hidewall'];
 
 	if (x($a->profile, 'page-flags') && $a->profile['page-flags'] == PAGE_COMMUNITY) {
 		$a->page['htmlhead'] .= '<meta name="friendica.community" content="true" />';
@@ -51,13 +51,13 @@ function profile_init(App $a)
 	}
 
 	if (x($a->profile, 'openid')) {
-		$delegate = ((strstr($a->profile['openid'], '://')) ? $a->profile['openid'] : 'https://' . $a->profile['openid']);
+		$delegate = strstr($a->profile['openid'], '://') ? $a->profile['openid'] : 'https://' . $a->profile['openid'];
 		$a->page['htmlhead'] .= '<link rel="openid.delegate" href="' . $delegate . '" />' . "\r\n";
 	}
+
 	// site block
 	if (!$blocked && !$userblock) {
-		$keywords = x($a->profile, 'pub_keywords') ? $a->profile['pub_keywords'] : '';
-		$keywords = str_replace(array('#', ',', ' ', ',,'), array('', ' ', ',', ','), $keywords);
+		$keywords = str_replace(array('#', ',', ' ', ',,'), array('', ' ', ',', ','), defaults($a->profile, 'pub_keywords', ''));
 		if (strlen($keywords)) {
 			$a->page['htmlhead'] .= '<meta name="keywords" content="' . $keywords . '" />' . "\r\n";
 		}
@@ -75,8 +75,7 @@ function profile_init(App $a)
 	foreach ($dfrn_pages as $dfrn) {
 		$a->page['htmlhead'] .= "<link rel=\"dfrn-{$dfrn}\" href=\"" . System::baseUrl() . "/dfrn_{$dfrn}/{$which}\" />\r\n";
 	}
-
-	$a->page['htmlhead'] .= "<link rel=\"dfrn-poco\" href=\"" . System::baseUrl() . "/poco/{$which}\" />\r\n";
+	$a->page['htmlhead'] .= '<link rel="dfrn-poco" href="' . System::baseUrl() . "/poco/{$which}\" />\r\n";
 }
 
 function profile_content(App $a, $update = 0)
@@ -98,12 +97,12 @@ function profile_content(App $a, $update = 0)
 	}
 
 	if (!x($category)) {
-		$category = x($_GET, 'category') ? $_GET['category'] : '';
+		$category = defaults($_GET, 'category', '');
 	}
 
-	$hashtags = x($_GET, 'tag') ? $_GET['tag'] : '';
+	$hashtags = defaults($_GET, 'tag', '');
 
-	if (Config::get('system', 'block_public') && (!local_user()) && (!remote_user())) {
+	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
 		return login();
 	}
 
@@ -130,7 +129,7 @@ function profile_content(App $a, $update = 0)
 
 	$contact_id = 0;
 
-	if (is_array($_SESSION['remote'])) {
+	if (x($_SESSION, 'remote') && is_array($_SESSION['remote'])) {
 		foreach ($_SESSION['remote'] as $v) {
 			if ($v['uid'] == $a->profile['profile_uid']) {
 				$contact_id = $v['cid'];
@@ -158,15 +157,16 @@ function profile_content(App $a, $update = 0)
 		}
 	}
 
-	$is_owner = local_user() && local_user() == $a->profile['profile_uid'];
+	$is_owner = local_user() == $a->profile['profile_uid'];
 	$last_updated_key = "profile:" . $a->profile['profile_uid'] . ":" . local_user() . ":" . remote_user();
 
-	if ($a->profile['hidewall'] && !$is_owner && !$remote_contact) {
+	if (x($a->profile, 'hidewall') && !$is_owner && !$remote_contact) {
 		notice(t('Access to this profile has been restricted.') . EOL);
 		return;
 	}
 
 	if (!$update) {
+		$tab = false;
 		if (x($_GET, 'tab')) {
 			$tab = notags(trim($_GET['tab']));
 		}
@@ -181,12 +181,12 @@ function profile_content(App $a, $update = 0)
 
 		$o .= common_friends_visitor_widget($a->profile['profile_uid']);
 
-		if (x($_SESSION, 'new_member') && $_SESSION['new_member'] && $is_owner) {
+		if (x($_SESSION, 'new_member') && $is_owner) {
 			$o .= '<a href="newmember" id="newmember-tips" style="font-size: 1.2em;"><b>' . t('Tips for New Members') . '</b></a>' . EOL;
 		}
 
-		$commpage = (($a->profile['page-flags'] == PAGE_COMMUNITY) ? true : false);
-		$commvisitor = (($commpage && $remote_contact == true) ? true : false);
+		$commpage = $a->profile['page-flags'] == PAGE_COMMUNITY;
+		$commvisitor = $commpage && $remote_contact;
 
 		$a->page['aside'] .= posted_date_widget(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], $a->profile['profile_uid'], true);
 		$a->page['aside'] .= categories_widget(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], (x($category) ? xmlify($category) : ''));
@@ -195,8 +195,8 @@ function profile_content(App $a, $update = 0)
 		if (can_write_wall($a, $a->profile['profile_uid'])) {
 			$x = array(
 				'is_owner' => $is_owner,
-				'allow_location' => ((($is_owner || $commvisitor) && $a->profile['allow_location']) ? true : false),
-				'default_location' => (($is_owner) ? $a->user['default-location'] : ''),
+				'allow_location' => ($is_owner || $commvisitor) && $a->profile['allow_location'],
+				'default_location' => $is_owner ? $a->user['default-location'] : '',
 				'nickname' => $a->profile['nickname'],
 				'lockstate' => is_array($a->user)
 					&& (strlen($a->user['allow_cid'])
@@ -215,8 +215,10 @@ function profile_content(App $a, $update = 0)
 		}
 	}
 
+
 	// Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
 	$sql_extra = item_permissions_sql($a->profile['profile_uid'], $remote_contact, $groups);
+	$sql_extra2 = '';
 
 	if ($update) {
 		$last_updated = (x($_SESSION['last_updated'], $last_updated_key) ? $_SESSION['last_updated'][$last_updated_key] : 0);
@@ -254,7 +256,6 @@ function profile_content(App $a, $update = 0)
 		if (x($category)) {
 			$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
 				dbesc(protect_sprintf($category)), intval(TERM_OBJ_POST), intval(TERM_CATEGORY), intval($a->profile['profile_uid']));
-			//$sql_extra .= protect_sprintf(file_tag_file_query('item',$category,'category'));
 		}
 
 		if (x($hashtags)) {
@@ -274,7 +275,8 @@ function profile_content(App $a, $update = 0)
 		$r = q("SELECT `uid` FROM `user` WHERE `uid` = %d AND `page-flags` IN (%d, %d)",
 			intval($a->profile['profile_uid']),
 			intval(PAGE_COMMUNITY),
-			intval(PAGE_PRVGROUP));
+			intval(PAGE_PRVGROUP)
+		);
 
 		if (!DBM::is_result($r)) {
 			$sql_extra3 = sprintf(" AND `thread`.`contact-id` = %d ", intval(intval($a->profile['contact_id'])));
@@ -283,11 +285,9 @@ function profile_content(App $a, $update = 0)
 		//  check if we serve a mobile device and get the user settings
 		//  accordingly
 		if ($a->is_mobile) {
-			$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_mobile_network');
-			$itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 10);
+			$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_mobile_network', 10);
 		} else {
-			$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_network');
-			$itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 20);
+			$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_network', 20);
 		}
 
 		//  now that we have the user settings, see if the theme forces
