@@ -2,13 +2,13 @@
 
 use Friendica\App;
 use Friendica\Content\Smilies;
+use Friendica\Content\OEmbed;
 use Friendica\Core\Cache;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Model\Contact;
 use Friendica\Util\Map;
 
-require_once 'include/oembed.php';
 require_once 'include/event.php';
 require_once 'mod/proxy.php';
 require_once 'include/plaintext.php';
@@ -232,7 +232,7 @@ function tryoembed($match) {
 	$url = str_replace(array("http://www.youtube.com/", "http://player.vimeo.com/"),
 				array("https://www.youtube.com/", "https://player.vimeo.com/"), $url);
 
-	$o = oembed_fetch_url($url);
+	$o = OEmbed::fetchURL($url);
 
 	if (!is_object($o)) {
 		return $match[0];
@@ -246,7 +246,7 @@ function tryoembed($match) {
 		return $match[0];
 	}
 
-	$html = oembed_format_object($o);
+	$html = OEmbed::formatObject($o);
 
 	return $html;
 }
@@ -435,60 +435,65 @@ function bb_replace_images($body, $images) {
 	return $newbody;
 }
 
-function bb_ShareAttributes($share, $simplehtml) {
+function bb_ShareAttributes($share, $simplehtml)
+{
 	$attributes = $share[2];
 
 	$author = "";
 	preg_match("/author='(.*?)'/ism", $attributes, $matches);
-	if ($matches[1] != "")
-		$author = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
+	if (x($matches, 1)) {
+		$author = html_entity_decode($matches[1], ENT_QUOTES, 'UTF-8');
+	}
 
 	preg_match('/author="(.*?)"/ism', $attributes, $matches);
-	if ($matches[1] != "")
+	if (x($matches, 1)) {
 		$author = $matches[1];
+	}
 
 	$profile = "";
 	preg_match("/profile='(.*?)'/ism", $attributes, $matches);
-	if ($matches[1] != "")
+	if (x($matches, 1)) {
 		$profile = $matches[1];
+	}
 
 	preg_match('/profile="(.*?)"/ism', $attributes, $matches);
-	if ($matches[1] != "")
+	if (x($matches, 1)) {
 		$profile = $matches[1];
+	}
 
 	$avatar = "";
 	preg_match("/avatar='(.*?)'/ism", $attributes, $matches);
-	if ($matches[1] != "")
+	if (x($matches, 1)) {
 		$avatar = $matches[1];
+	}
 
 	preg_match('/avatar="(.*?)"/ism', $attributes, $matches);
-	if ($matches[1] != "")
+	if (x($matches, 1)) {
 		$avatar = $matches[1];
+	}
 
 	$link = "";
 	preg_match("/link='(.*?)'/ism", $attributes, $matches);
-	if ($matches[1] != "")
+	if (x($matches, 1)) {
 		$link = $matches[1];
+	}
 
 	preg_match('/link="(.*?)"/ism', $attributes, $matches);
-	if ($matches[1] != "")
+	if (x($matches, 1)) {
 		$link = $matches[1];
+	}
 
 	$posted = "";
 
-	$itemcache = get_itemcachepath();
-
 	preg_match("/posted='(.*?)'/ism", $attributes, $matches);
-	if ($matches[1] != "")
+	if (x($matches, 1)) {
 		$posted = $matches[1];
+	}
 
 	preg_match('/posted="(.*?)"/ism', $attributes, $matches);
-	if ($matches[1] != "")
+	if (x($matches, 1)) {
 		$posted = $matches[1];
-
-	// relative dates only make sense when they aren't cached
-	if ($itemcache == "")
-		$reldate = (($posted) ? " " . relative_date($posted) : '');
+	}
 
 	// We only call this so that a previously unknown contact can be added.
 	// This is important for the function "get_contact_details_by_url".
@@ -497,99 +502,107 @@ function bb_ShareAttributes($share, $simplehtml) {
 
 	$data = Contact::getDetailsByURL($profile);
 
-	if (isset($data["name"]) && ($data["name"] != "") && isset($data["addr"]) && ($data["addr"] != ""))
-	        $userid_compact = $data["name"]." (".$data["addr"].")";
-	else
-		$userid_compact = GetProfileUsername($profile,$author, true);
+	if (x($data, "name") && x($data, "addr")) {
+		$userid_compact = $data["name"] . " (" . $data["addr"] . ")";
+	} else {
+		$userid_compact = GetProfileUsername($profile, $author, true);
+	}
 
-	if (isset($data["addr"]) && ($data["addr"] != ""))
+	if (x($data, "addr")) {
 		$userid = $data["addr"];
-	else
-		$userid = GetProfileUsername($profile,$author, false);
+	} else {
+		$userid = GetProfileUsername($profile, $author, false);
+	}
 
-	if (isset($data["name"]) && ($data["name"] != ""))
+	if (x($data, "name")) {
 		$author = $data["name"];
+	}
 
-	if (isset($data["micro"]) && ($data["micro"] != ""))
+	if (x($data, "micro")) {
 		$avatar = $data["micro"];
+	}
 
 	$preshare = trim($share[1]);
 
-	if ($preshare != "")
+	if ($preshare != "") {
 		$preshare .= "<br /><br />";
+	}
 
 	switch ($simplehtml) {
 		case 1:
-			$text = $preshare.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' <a href="'.$profile.'">'.$userid."</a>: <br />»".$share[3]."«";
+			$text = $preshare . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . ' <a href="' . $profile . '">' . $userid . "</a>: <br />»" . $share[3] . "«";
 			break;
 		case 2:
-			$text = $preshare.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' '.$userid_compact.": <br />".$share[3];
+			$text = $preshare . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . ' ' . $userid_compact . ": <br />" . $share[3];
 			break;
 		case 3: // Diaspora
-			$headline .= '<b>'.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').$userid.':</b><br />';
+			$headline .= '<b>' . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . $userid . ':</b><br />';
 
 			$text = trim($share[1]);
 
-			if ($text != "")
+			if ($text != "") {
 				$text .= "<hr />";
+			}
 
 			if (substr(normalise_link($link), 0, 19) != "http://twitter.com/") {
-				$text .= $headline.'<blockquote>'.trim($share[3])."</blockquote><br />";
+				$text .= $headline . '<blockquote>' . trim($share[3]) . "</blockquote><br />";
 
-				if ($link != "")
-					$text .= '<br /><a href="'.$link.'">[l]</a>';
-			} else
-				$text .= '<br /><a href="'.$link.'">'.$link.'</a>';
+				if ($link != "") {
+					$text .= '<br /><a href="' . $link . '">[l]</a>';
+				}
+			} else {
+				$text .= '<br /><a href="' . $link . '">' . $link . '</a>';
+			}
 
 			break;
 		case 4:
-			$headline .= '<br /><b>'.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
-			$headline .= sprintf(t('<a href="%1$s" target="_blank">%2$s</a> %3$s'), $link, $userid, $posted);
+			$headline .= '<br /><b>' . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
+			$headline .= t('<a href="%1$s" target="_blank">%2$s</a> %3$s', $link, $userid, $posted);
 			$headline .= ":</b><br />";
 
 			$text = trim($share[1]);
 
-			if ($text != "")
+			if ($text != "") {
 				$text .= "<hr />";
+			}
 
-			$text .= $headline.'<blockquote class="shared_content">'.trim($share[3])."</blockquote><br />";
+			$text .= $headline . '<blockquote class="shared_content">' . trim($share[3]) . "</blockquote><br />";
 
 			break;
 		case 5:
-			$text = $preshare.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' '.$userid_compact.": <br />".$share[3];
+			$text = $preshare . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . ' ' . $userid_compact . ": <br />" . $share[3];
 			break;
 		case 6: // app.net
-			$text = $preshare."&gt;&gt; @".$userid_compact.": <br />".$share[3];
+			$text = $preshare . "&gt;&gt; @" . $userid_compact . ": <br />" . $share[3];
 			break;
 		case 7: // statusnet/GNU Social
-			$text = $preshare.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8')." @".$userid_compact.": ".$share[3];
+			$text = $preshare . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . " @" . $userid_compact . ": " . $share[3];
 			break;
 		case 8: // twitter
-			$text = $preshare."RT @".$userid_compact.": ".$share[3];
+			$text = $preshare . "RT @" . $userid_compact . ": " . $share[3];
 			break;
 		case 9: // Google+/Facebook
-			$text = $preshare.html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8').' '.$userid_compact.": <br />".$share[3];
+			$text = $preshare . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . ' ' . $userid_compact . ": <br />" . $share[3];
 
-			if ($link != "")
-				$text .= "<br /><br />".$link;
+			if ($link != "") {
+				$text .= "<br /><br />" . $link;
+			}
 			break;
 		default:
-			$text = trim($share[1])."\n";
+			$text = trim($share[1]) . "\n";
 
 			$avatar = proxy_url($avatar, false, PROXY_SIZE_THUMB);
 
 			$tpl = get_markup_template('shared_content.tpl');
-			$text .= replace_macros($tpl,
-					array(
-						'$profile' => $profile,
-						'$avatar' => $avatar,
-						'$author' => $author,
-						'$link' => $link,
-						'$posted' => $posted,
-						'$reldate' => $reldate,
-						'$content' => trim($share[3])
-					)
-				);
+			$text .= replace_macros($tpl, array(
+					'$profile' => $profile,
+					'$avatar' => $avatar,
+					'$author' => $author,
+					'$link' => $link,
+					'$posted' => $posted,
+					'$content' => trim($share[3])
+				)
+			);
 			break;
 	}
 
@@ -1263,7 +1276,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 //	$Text = preg_replace("/\[youtube\](.*?)\[\/youtube\]/", '<object width="425" height="350" type="application/x-shockwave-flash" data="http://www.youtube.com/v/$1" ><param name="movie" value="http://www.youtube.com/v/$1"></param><!--[if IE]><embed src="http://www.youtube.com/v/$1" type="application/x-shockwave-flash" width="425" height="350" /><![endif]--></object>', $Text);
 
 	// oembed tag
-	$Text = oembed_bbcode2html($Text);
+	$Text = OEmbed::BBCode2HTML($Text);
 
 	// Avoid triple linefeeds through oembed
 	$Text = str_replace("<br style='clear:left'></span><br /><br />", "<br style='clear:left'></span><br />", $Text);

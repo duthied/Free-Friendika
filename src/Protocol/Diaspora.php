@@ -22,6 +22,7 @@ use Friendica\Model\Group;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
+use Friendica\Util\Crypto;
 use Friendica\Util\XML;
 
 use dba;
@@ -173,7 +174,7 @@ class Diaspora
 
 		$key = self::key($handle);
 
-		$verify = rsa_verify($signable_data, $sig, $key);
+		$verify = Crypto::rsaVerify($signable_data, $sig, $key);
 		if (!$verify) {
 			logger('Message did not verify. Discarding.');
 			return false;
@@ -273,7 +274,7 @@ class Diaspora
 		$author_addr = base64_decode($key_id);
 		$key = self::key($author_addr);
 
-		$verify = rsa_verify($signed_data, $signature, $key);
+		$verify = Crypto::rsaVerify($signed_data, $signature, $key);
 		if (!$verify) {
 			logger('Message did not verify. Discarding.');
 			http_status_exit(400);
@@ -406,7 +407,7 @@ class Diaspora
 			http_status_exit(400);
 		}
 
-		$verify = rsa_verify($signed_data, $signature, $key);
+		$verify = Crypto::rsaVerify($signed_data, $signature, $key);
 
 		if (!$verify) {
 			logger('Message did not verify. Discarding.');
@@ -699,7 +700,7 @@ class Diaspora
 
 			$key = self::key($msg["author"]);
 
-			if (!rsa_verify($signed_data, $parent_author_signature, $key, "sha256")) {
+			if (!Crypto::rsaVerify($signed_data, $parent_author_signature, $key, "sha256")) {
 				logger("No valid parent author signature for parent author ".$msg["author"]. " in type ".$type." - signed data: ".$signed_data." - Message: ".$msg["message"]." - Signature ".$parent_author_signature, LOGGER_DEBUG);
 				return false;
 			}
@@ -709,7 +710,7 @@ class Diaspora
 
 		$key = self::key($fields->author);
 
-		if (!rsa_verify($signed_data, $author_signature, $key, "sha256")) {
+		if (!Crypto::rsaVerify($signed_data, $author_signature, $key, "sha256")) {
 			logger("No valid author signature for author ".$fields->author. " in type ".$type." - signed data: ".$signed_data." - Message: ".$msg["message"]." - Signature ".$author_signature, LOGGER_DEBUG);
 			return false;
 		} else {
@@ -1432,7 +1433,7 @@ class Diaspora
 		// Check signature
 		$signed_text = 'AccountMigration:'.$old_handle.':'.$new_handle;
 		$key = self::key($old_handle);
-		if (!rsa_verify($signed_text, $signature, $key, "sha256")) {
+		if (!Crypto::rsaVerify($signed_text, $signature, $key, "sha256")) {
 			logger('No valid signature for migration.');
 			return false;
 		}
@@ -3032,7 +3033,7 @@ class Diaspora
 			$user['uprvkey'] = $user['prvkey'];
 		}
 
-		$signature = rsa_sign($signable_data, $user["uprvkey"]);
+		$signature = Crypto::rsaSign($signable_data, $user["uprvkey"]);
 		$sig = base64url_encode($signature);
 
 		$xmldata = array("me:env" => array("me:data" => $data,
@@ -3088,7 +3089,7 @@ class Diaspora
 
 		$signed_text = implode(";", $sigmsg);
 
-		return base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
+		return base64_encode(Crypto::rsaSign($signed_text, $owner["uprvkey"], "sha256"));
 	}
 
 	/**
@@ -3282,7 +3283,7 @@ class Diaspora
 		$profile = self::createProfileData($uid);
 
 		$signed_text = 'AccountMigration:'.$old_handle.':'.$profile['author'];
-		$signature = base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
+		$signature = base64_encode(Crypto::rsaSign($signed_text, $owner["uprvkey"], "sha256"));
 
 		$message = array("author" => $old_handle,
 				"profile" => $profile,

@@ -16,11 +16,11 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
+use Friendica\Util\Crypto;
 use dba;
 use Exception;
 
 require_once 'boot.php';
-require_once 'include/crypto.php';
 require_once 'include/dba.php';
 require_once 'include/enotify.php';
 require_once 'include/network.php';
@@ -297,7 +297,7 @@ class User
 
 		$return['password'] = $new_password;
 
-		$keys = new_keypair(4096);
+		$keys = Crypto::newKeypair(4096);
 		if ($keys === false) {
 			throw new Exception(t('SERIOUS ERROR: Generation of security keys failed.'));
 		}
@@ -306,7 +306,7 @@ class User
 		$pubkey = $keys['pubkey'];
 
 		// Create another keypair for signing/verifying salmon protocol messages.
-		$sres = new_keypair(512);
+		$sres = Crypto::newKeypair(512);
 		$sprvkey = $sres['prvkey'];
 		$spubkey = $sres['pubkey'];
 

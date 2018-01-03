@@ -7,7 +7,6 @@ use Friendica\Network\Probe;
 
 use League\HTMLToMarkdown\HtmlConverter;
 
-require_once 'include/oembed.php';
 require_once 'include/event.php';
 require_once 'library/markdown.php';
 require_once 'include/html2bbcode.php';

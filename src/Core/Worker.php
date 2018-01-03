@@ -606,6 +606,7 @@ class Worker
 			$exponent = 3;
 			$slope = $maxworkers / pow($maxsysload, $exponent);
 			$queues = ceil($slope * pow(max(0, $maxsysload - $load), $exponent));
+			$processlist = '';
 
 			if (Config::get('system', 'worker_debug')) {
 				// Create a list of queue entries grouped by their priority

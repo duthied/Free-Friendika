@@ -35,8 +35,9 @@ function contacts_init(App $a) {
 
 	require_once 'include/contact_widgets.php';
 
-	if ($_GET['nets'] == "all") {
-		$_GET['nets'] = "";
+	$nets = defaults($_GET, 'nets', '');
+	if ($nets == "all") {
+		$nets = "";
 	}
 
 	if (! x($a->page,'aside')) {
@@ -63,22 +64,22 @@ function contacts_init(App $a) {
 			'$account_type' => Contact::getAccountType($a->data['contact'])
 		));
 
-		$finpeople_widget = '';
+		$findpeople_widget = '';
 		$follow_widget = '';
 		$networks_widget = '';
 	} else {
 		$vcard_widget = '';
-		$networks_widget .= networks_widget('contacts',$_GET['nets']);
+		$networks_widget = networks_widget('contacts', $nets);
 		if (isset($_GET['add'])) {
 			$follow_widget = follow_widget($_GET['add']);
 		} else {
 			$follow_widget = follow_widget();
 		}
 
-		$findpeople_widget .= findpeople_widget();
+		$findpeople_widget = findpeople_widget();
 	}
 
-	$groups_widget .= Group::sidebarWidget('contacts','group','full',0,$contact_id);
+	$groups_widget = Group::sidebarWidget('contacts','group','full',0,$contact_id);
 
 	$a->page['aside'] .= replace_macros(get_markup_template("contacts-widget-sidebar.tpl"),array(
 		'$vcard_widget' => $vcard_widget,
@@ -515,8 +516,6 @@ function contacts_content(App $a) {
 
 		require_once 'include/contact_selectors.php';
 
-		$tpl = get_markup_template("contact_edit.tpl");
-
 		switch($contact['rel']) {
 			case CONTACT_IS_FRIEND:
 				$dir_icon = 'images/lrarrow.gif';
@@ -577,6 +576,7 @@ function contacts_content(App $a) {
 
 		$lost_contact = (($contact['archive'] && $contact['term-date'] > NULL_DATE && $contact['term-date'] < datetime_convert('','','now')) ? t('Communications lost with this contact!') : '');
 
+		$fetch_further_information = null;
 		if ($contact['network'] == NETWORK_FEED) {
 			$fetch_further_information = array('fetch_further_information',
 							t('Fetch further information for feeds'),
@@ -587,12 +587,19 @@ function contacts_content(App $a) {
 									'3' => t('Fetch keywords'),
 									'2' => t('Fetch information and keywords')));
 		}
-		if (in_array($contact['network'], array(NETWORK_FEED, NETWORK_MAIL)))
+
+		$poll_interval = null;
+		if (in_array($contact['network'], array(NETWORK_FEED, NETWORK_MAIL))) {
 			$poll_interval = contact_poll_interval($contact['priority'],(! $poll_enabled));
+		}
 
-		if ($contact['network'] == NETWORK_DFRN)
+		$profile_select = null;
+		if ($contact['network'] == NETWORK_DFRN) {
 			$profile_select = contact_profile_assign($contact['profile-id'],(($contact['network'] !== NETWORK_DFRN) ? true : false));
+		}
 
+		$follow = '';
+		$follow_text = '';
 		if (in_array($contact['network'], array(NETWORK_DIASPORA, NETWORK_OSTATUS))) {
 			if ($contact['rel'] == CONTACT_IS_FOLLOWER) {
 				$follow = System::baseUrl(true)."/follow?url=".urlencode($contact["url"]);
@@ -606,7 +613,7 @@ function contacts_content(App $a) {
 		// Load contactact related actions like hide, suggest, delete and others
 		$contact_actions = contact_actions($contact);
 
-
+		$tpl = get_markup_template("contact_edit.tpl");
 		$o .= replace_macros($tpl, array(
 			//'$header' => t('Contact Editor'),
 			'$header' => t("Contact"),
@@ -618,9 +625,7 @@ function contacts_content(App $a) {
 			'$lbl_info2' => t('Their personal note'),
 			'$reason' => trim(notags($contact['reason'])),
 			'$infedit' => t('Edit contact notes'),
-			'$common_text' => $common_text,
 			'$common_link' => 'common/loc/' . local_user() . '/' . $contact['id'],
-			'$all_friends' => $all_friends,
 			'$relation_text' => $relation_text,
 			'$visit' => sprintf( t('Visit %s\'s profile [%s]'),$contact['name'],$contact['url']),
 			'$blockunblock' => t('Block/Unblock contact'),
@@ -658,7 +663,6 @@ function contacts_content(App $a) {
 			'$photo' => $contact['photo'],
 			'$name' => htmlentities($contact['name']),
 			'$dir_icon' => $dir_icon,
-			'$alt_text' => $alt_text,
 			'$sparkle' => $sparkle,
 			'$url' => $url,
 			'$profileurllabel' => t('Profile URL'),
@@ -688,36 +692,33 @@ function contacts_content(App $a) {
 
 	}
 
-	$blocked = false;
-	$hidden = false;
-	$ignored = false;
-	$all = false;
+	$blocked  = false;
+	$hidden   = false;
+	$ignored  = false;
+	$archived = false;
+	$all      = false;
 
 	if(($a->argc == 2) && ($a->argv[1] === 'all')) {
 		$sql_extra = '';
 		$all = true;
-	}
-	elseif(($a->argc == 2) && ($a->argv[1] === 'blocked')) {
+	} elseif(($a->argc == 2) && ($a->argv[1] === 'blocked')) {
 		$sql_extra = " AND `blocked` = 1 ";
 		$blocked = true;
-	}
-	elseif(($a->argc == 2) && ($a->argv[1] === 'hidden')) {
+	} elseif(($a->argc == 2) && ($a->argv[1] === 'hidden')) {
 		$sql_extra = " AND `hidden` = 1 ";
 		$hidden = true;
-	}
-	elseif(($a->argc == 2) && ($a->argv[1] === 'ignored')) {
+	} elseif(($a->argc == 2) && ($a->argv[1] === 'ignored')) {
 		$sql_extra = " AND `readonly` = 1 ";
 		$ignored = true;
-	}
-	elseif(($a->argc == 2) && ($a->argv[1] === 'archived')) {
+	} elseif(($a->argc == 2) && ($a->argv[1] === 'archived')) {
 		$sql_extra = " AND `archive` = 1 ";
 		$archived = true;
-	}
-	else
+	} else {
 		$sql_extra = " AND `blocked` = 0 ";
+	}
 
-	$search = ((x($_GET,'search')) ? notags(trim($_GET['search'])) : '');
-	$nets = ((x($_GET,'nets')) ? notags(trim($_GET['nets'])) : '');
+	$search = x($_GET, 'search') ? notags(trim($_GET['search'])) : '';
+	$nets = x($_GET, 'nets') ? notags(trim($_GET['nets'])) : '';
 
 	$tabs = array(
 		array(
@@ -786,25 +787,25 @@ function contacts_content(App $a) {
 	$tab_tpl = get_markup_template('common_tabs.tpl');
 	$t = replace_macros($tab_tpl, array('$tabs'=>$tabs));
 
-
-
 	$searching = false;
-	if($search) {
+	$search_hdr = null;
+	if ($search) {
 		$search_hdr = $search;
 		$search_txt = dbesc(protect_sprintf(preg_quote($search)));
 		$searching = true;
 	}
 	$sql_extra .= (($searching) ? " AND (name REGEXP '$search_txt' OR url REGEXP '$search_txt'  OR nick REGEXP '$search_txt') " : "");
 
-	if($nets)
+	if ($nets) {
 		$sql_extra .= sprintf(" AND network = '%s' ", dbesc($nets));
+	}
 
 	$sql_extra2 = ((($sort_type > 0) && ($sort_type <= CONTACT_IS_FRIEND)) ? sprintf(" AND `rel` = %d ",intval($sort_type)) : '');
 
-
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
 		WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 ",
-		intval($_SESSION['uid']));
+		intval($_SESSION['uid'])
+	);
 	if (DBM::is_result($r)) {
 		$a->set_pager_total($r[0]['total']);
 		$total = $r[0]['total'];
@@ -834,7 +835,7 @@ function contacts_content(App $a) {
 		'$total' => $total,
 		'$search' => $search_hdr,
 		'$desc' => t('Search your contacts'),
-		'$finding' => (($searching) ? sprintf(t('Results for: %s'),$search) : ""),
+		'$finding' => $searching ? t('Results for: %s', $search) : "",
 		'$submit' => t('Find'),
 		'$cmd' => $a->cmd,
 		'$contacts' => $contacts,
@@ -849,7 +850,6 @@ function contacts_content(App $a) {
 		),
 		'$h_batch_actions' => t('Batch Actions'),
 		'$paginate' => paginate($a),
-
 	));
 
 	return $o;
@@ -927,12 +927,11 @@ function contact_posts($a, $contact_id) {
 		$contact = $r[0];
 		$a->page['aside'] = "";
 		profile_load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
-	} else
-		$profile = "";
+	}
 
 	$tab_str = contacts_tab($a, $contact_id, 1);
 
-	$o .= $tab_str;
+	$o = $tab_str;
 
 	$o .= Contact::getPostsFromUrl($contact["url"]);
 

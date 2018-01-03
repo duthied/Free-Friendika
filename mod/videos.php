@@ -8,11 +8,11 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 
-require_once('include/items.php');
-require_once('include/acl_selectors.php');
-require_once('include/bbcode.php');
-require_once('include/security.php');
-require_once('include/redir.php');
+require_once 'include/items.php';
+require_once 'include/acl_selectors.php';
+require_once 'include/bbcode.php';
+require_once 'include/security.php';
+require_once 'include/redir.php';
 
 function videos_init(App $a) {
 
@@ -45,12 +45,12 @@ function videos_init(App $a) {
 
 		$tpl = get_markup_template("vcard-widget.tpl");
 
-		$vcard_widget .= replace_macros($tpl, array(
+		$vcard_widget = replace_macros($tpl, array(
 			'$name' => $profile['name'],
 			'$photo' => $profile['photo'],
-			'$addr' => (($profile['addr'] != "") ? $profile['addr'] : ""),
+			'$addr' => defaults($profile, 'addr', ''),
 			'$account_type' => $account_type,
-			'$pdesc' => (($profile['pdesc'] != "") ? $profile['pdesc'] : ""),
+			'$pdesc' => defaults($profile, 'pdesc', ''),
 		));
 
 
@@ -281,8 +281,9 @@ function videos_content(App $a) {
 		}
 	}
 
-	// perhaps they're visiting - but not a community page, so they wouldn't have write access
+	$groups = [];
 
+	// perhaps they're visiting - but not a community page, so they wouldn't have write access
 	if(remote_user() && (! $visitor)) {
 		$contact_id = 0;
 		if(is_array($_SESSION['remote'])) {
@@ -318,7 +319,7 @@ function videos_content(App $a) {
 		return;
 	}
 
-	$sql_extra = permissions_sql($owner_uid,$remote_contact,$groups);
+	$sql_extra = permissions_sql($owner_uid, $remote_contact, $groups);
 
 	$o = "";
 

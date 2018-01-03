@@ -29,6 +29,7 @@ use Friendica\Model\Group;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
+use Friendica\Util\Crypto;
 
 require_once 'include/enotify.php';
 
@@ -162,9 +163,7 @@ function dfrn_confirm_post(App $a, $handsfree = null) {
 			 * worried about key leakage than anybody cracking it.
 			 *
 			 */
-			require_once 'include/crypto.php';
-
-			$res = new_keypair(4096);
+			$res = Crypto::newKeypair(4096);
 
 
 			$private_key = $res['prvkey'];

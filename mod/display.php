@@ -202,8 +202,9 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 
 	if ($update) {
 		$item_id = $_REQUEST['item_id'];
-		$item = dba::select('item', ['uid'], ['id' => $item_id], ['limit' => 1]);
+		$item = dba::select('item', ['uid', 'parent'], ['id' => $item_id], ['limit' => 1]);
 		$a->profile = array('uid' => intval($item['uid']), 'profile_uid' => intval($item['uid']));
+		$item_parent = $item['parent'];
 	} else {
 		$item_id = (($a->argc > 2) ? $a->argv[2] : 0);
 
@@ -261,7 +262,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 
 	$contact_id = 0;
 
-	if (is_array($_SESSION['remote'])) {
+	if (x($_SESSION, 'remote') && is_array($_SESSION['remote'])) {
 		foreach ($_SESSION['remote'] as $v) {
 			if ($v['uid'] == $a->profile['uid']) {
 				$contact_id = $v['cid'];
@@ -295,7 +296,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	}
 	$is_owner = (local_user() && (in_array($a->profile['profile_uid'], [local_user(), 0])) ? true : false);
 
-	if ($a->profile['hidewall'] && !$is_owner && !$remote_contact) {
+	if (x($a->profile, 'hidewall') && !$is_owner && !$remote_contact) {
 		notice(t('Access to this profile has been restricted.') . EOL);
 		return;
 	}

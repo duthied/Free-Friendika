@@ -98,6 +98,7 @@ if (!$a->is_backend()) {
 	session_start();
 	$a->save_timestamp($stamp1, "parser");
 } else {
+	$_SESSION = [];
 	Worker::executeIfIdle();
 }
 
