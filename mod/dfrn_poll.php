@@ -23,7 +23,7 @@ function dfrn_poll_init(App $a)
 	$destination_url = defaults($_GET, 'destination_url', '');
 	$challenge       = defaults($_GET, 'challenge'      , '');
 	$sec             = defaults($_GET, 'sec'            , '');
-	$dfrn_version    = defaults($_GET, 'dfrn_version'   , 2.0);
+	$dfrn_version    = (float) defaults($_GET, 'dfrn_version'   , 2.0);
 	$perm            = defaults($_GET, 'perm'           , 'r');
 	$quiet			 = x($_GET, 'quiet');
 
