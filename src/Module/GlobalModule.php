@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file src/Module/Global.php
+ * @file src/Module/GlobalModule.php
  */
 
 namespace Friendica\Module;
@@ -19,14 +19,16 @@ use dba;
  * @author heluecht@pirati.ca
  */
 class GlobalModule extends BaseModule {
-	public static function init() {
+	public static function init()
+	{
 		if (!local_user()) {
 			unset($_SESSION['theme']);
 			unset($_SESSION['mobile-theme']);
 		}
 	}
 
-	public static function content($update = 0) {
+	public static function content($update = 0)
+	{
 		$a = self::getApp();
 
 		$o = '';
@@ -81,7 +83,8 @@ class GlobalModule extends BaseModule {
 		));
 	}
 
-	private static function getPublicItems($start, $itemspage) {
+	private static function getPublicItems($start, $itemspage)
+	{
 		$r = dba::p("SELECT ".item_fieldlists()." FROM `thread`
 			INNER JOIN `item` ON `item`.`id` = `thread`.`iid` ".item_joins().
 			"WHERE `thread`.`uid` = 0 AND `verb` = ?
