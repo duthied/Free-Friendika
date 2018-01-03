@@ -20,7 +20,7 @@ function events_init(App $a) {
 		return;
 	}
 
-	if ($a->argc == 1) {
+	if ($a->argc > 1) {
 		// If it's a json request abort here because we don't
 		// need the widget data
 		if ($a->argv[1] === 'json') {
@@ -234,6 +234,7 @@ function events_content(App $a) {
 	));
 
 	$o = '';
+	$tabs = '';
 	// tabs
 	if ($a->theme_events_in_profile) {
 		$tabs = profile_tabs($a, true);
@@ -309,10 +310,13 @@ function events_content(App $a) {
 		$start  = sprintf('%d-%d-%d %d:%d:%d', $y, $m, 1, 0, 0, 0);
 		$finish = sprintf('%d-%d-%d %d:%d:%d', $y, $m, $dim, 23, 59, 59);
 
-
-		if ($a->argv[1] === 'json') {
-			if (x($_GET, 'start')) {$start  = $_GET['start'];}
-			if (x($_GET, 'end'))   {$finish = $_GET['end'];}
+		if ($a->argc > 1 && $a->argv[1] === 'json') {
+			if (x($_GET, 'start')) {
+				$start  = $_GET['start'];
+			}
+			if (x($_GET, 'end'))   {
+				$finish = $_GET['end'];
+			}
 		}
 
 		$start  = datetime_convert('UTC', 'UTC', $start);
@@ -358,7 +362,7 @@ function events_content(App $a) {
 			$events = process_events($r);
 		}
 
-		if ($a->argv[1] === 'json'){
+		if ($a->argc > 1 && $a->argv[1] === 'json'){
 			echo json_encode($events);
 			killme();
 		}

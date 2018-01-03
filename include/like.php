@@ -24,7 +24,7 @@ use Friendica\Protocol\Diaspora;
 function do_like($item_id, $verb) {
 	$a = get_app();
 
-	if (! local_user() && ! remote_user()) {
+	if (!local_user() && !remote_user()) {
 		return false;
 	}
 
@@ -73,28 +73,33 @@ function do_like($item_id, $verb) {
 		dbesc($item_id)
 	);
 
-	if (! $item_id || ! DBM::is_result($items)) {
+	if (!$item_id || !DBM::is_result($items)) {
 		logger('like: unknown item ' . $item_id);
 		return false;
 	}
 
 	$item = $items[0];
+	$uid = $item['uid'];
 
-	if (! can_write_wall($a, $item['uid'])) {
-		logger('like: unable to write on wall ' . $item['uid']);
+	if (($uid == 0) && local_user()) {
+		$uid = local_user();
+	}
+
+	if (!can_write_wall($a, $uid)) {
+		logger('like: unable to write on wall ' . $uid);
 		return false;
 	}
 
 	// Retrieves the local post owner
 	$owners = q("SELECT `contact`.* FROM `contact`
-		WHERE `contact`.`self` = 1
+		WHERE `contact`.`self`
 		AND `contact`.`uid` = %d",
-		intval($item['uid'])
+		intval($uid)
 	);
 	if (DBM::is_result($owners)) {
 		$owner_self_contact = $owners[0];
 	} else {
-		logger('like: unknown owner ' . $item['uid']);
+		logger('like: unknown owner ' . $uid);
 		return false;
 	}
 
@@ -112,11 +117,11 @@ function do_like($item_id, $verb) {
 	}
 
 	// Contact-id is the uid-dependant author contact
-	if (local_user() == $item['uid']) {
+	if (local_user() == $uid) {
 		$item_contact_id = $owner_self_contact['id'];
 		$item_contact = $owner_self_contact;
 	} else {
-		$item_contact_id = Contact::getIdForURL($author_contact['url'], $item['uid']);
+		$item_contact_id = Contact::getIdForURL($author_contact['url'], $uid);
 
 		$contacts = q("SELECT * FROM `contact` WHERE `id` = %d",
 			intval($item_contact_id)
@@ -240,9 +245,8 @@ EOT;
 
 	// @todo: Explain this block
 	if (! $item['visible']) {
-		q("UPDATE `item` SET `visible` = 1 WHERE `id` = %d AND `uid` = %d",
-			intval($item['id']),
-			intval($item['uid'])
+		q("UPDATE `item` SET `visible` = 1 WHERE `id` = %d",
+			intval($item['id'])
 		);
 	}
 

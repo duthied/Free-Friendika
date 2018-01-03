@@ -47,8 +47,10 @@ Some parts of this template will be moved by js to other places (see theme.js) -
 		</form>
 	</div>
 	{{* This form is inserted as experiment to move the search-save button to the second navbar with js *}}
+	{{if $savedsearch}}
 	<form id="search-save-form" action="{{$action_url}}" method="get" >
 		<input type="hidden" name="search" value="{{$s}}" />
 		<button class="btn btn-primary btn-sm btn-main pull-right" type="submit" name="save" id="search-save" value="{{$save_label}}"><i class="fa fa-floppy-o fa-2x" aria-hidden="true"></i></button>
 	</form>
+	{{/if}}
 </div>

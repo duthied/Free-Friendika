@@ -164,8 +164,8 @@ function ping_init(App $a)
 
 			if (intval(Feature::isEnabled(local_user(), 'forumlist_widget'))) {
 				$forum_counts = ForumManager::countUnseenItems();
-				if (DBM::is_result($forums_counts)) {
-					foreach ($forums_counts as $forum_count) {
+				if (DBM::is_result($forum_counts)) {
+					foreach ($forum_counts as $forum_count) {
 						if ($forum_count['count'] > 0) {
 							$forums_unseen[] = $forum_count;
 						}
@@ -490,8 +490,10 @@ function ping_get_notifications($uid)
 
 			$notification["href"] = System::baseUrl() . "/notify/view/" . $notification["id"];
 
-			if ($notification["visible"] && !$notification["spam"]
-				&& !$notification["deleted"] && !is_array($result[$notification["parent"]])
+			if ($notification["visible"]
+				&& !$notification["spam"]
+				&& !$notification["deleted"]
+				&& !(x($result, $notification["parent"]) && is_array($result[$notification["parent"]]))
 			) {
 				// Should we condense the notifications or show them all?
 				if (PConfig::get(local_user(), 'system', 'detailed_notif')) {

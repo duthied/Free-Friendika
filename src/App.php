@@ -37,6 +37,7 @@ class App {
 	public $query_string;
 	public $config;
 	public $page;
+	public $page_offset;
 	public $profile;
 	public $profile_uid;
 	public $user;

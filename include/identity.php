@@ -1,8 +1,8 @@
 <?php
+
 /**
  * @file include/identity.php
  */
-
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\ForumManager;
@@ -41,19 +41,32 @@ require_once 'mod/proxy.php';
  * @param string $nickname    string
  * @param int    $profile     int
  * @param array  $profiledata array
+ * @param boolean $show_connect Show connect link
  */
-function profile_load(App $a, $nickname, $profile = 0, $profiledata = array())
+function profile_load(App $a, $nickname, $profile = 0, $profiledata = array(), $show_connect = true)
 {
 	$user = q(
 		"SELECT `uid` FROM `user` WHERE `nickname` = '%s' LIMIT 1",
 		dbesc($nickname)
 	);
 
-	if (!$user && count($user) && !count($profiledata)) {
+	if (!$user && !count($user) && !count($profiledata)) {
 		logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
 		notice(t('Requested account is not available.') . EOL);
 		$a->error = 404;
 		return;
+	}
+
+	if (!x($a->page, 'aside')) {
+		$a->page['aside'] = '';
+	}
+
+	if ($profiledata) {
+		$a->page['aside'] .= profile_sidebar($profiledata, true, $show_connect);
+
+		if (!DBM::is_result($user)) {
+			return;
+		}
 	}
 
 	$pdata = get_profiledata_by_nick($nickname, $user[0]['uid'], $profile);
@@ -72,8 +85,9 @@ function profile_load(App $a, $nickname, $profile = 0, $profiledata = array())
 			"SELECT `pub_keywords` FROM `profile` WHERE `uid` = %d AND `is-default` = 1 LIMIT 1",
 			intval($pdata['profile_uid'])
 		);
-		if ($x && count($x))
+		if ($x && count($x)) {
 			$pdata['pub_keywords'] = $x[0]['pub_keywords'];
+		}
 	}
 
 	$a->profile = $pdata;
@@ -82,9 +96,9 @@ function profile_load(App $a, $nickname, $profile = 0, $profiledata = array())
 	$a->profile['mobile-theme'] = PConfig::get($a->profile['profile_uid'], 'system', 'mobile_theme');
 	$a->profile['network'] = NETWORK_DFRN;
 
-	$a->page['title'] = $a->profile['name'] . " @ " . $a->config['sitename'];
+	$a->page['title'] = $a->profile['name'] . ' @ ' . $a->config['sitename'];
 
-	if (!$profiledata  && !PConfig::get(local_user(), 'system', 'always_my_theme')) {
+	if (!$profiledata && !PConfig::get(local_user(), 'system', 'always_my_theme')) {
 		$_SESSION['theme'] = $a->profile['theme'];
 	}
 
@@ -96,44 +110,37 @@ function profile_load(App $a, $nickname, $profile = 0, $profiledata = array())
 
 	$a->set_template_engine(); // reset the template engine to the default in case the user's theme doesn't specify one
 
-	$theme_info_file = "view/theme/" . current_theme() . "/theme.php";
+	$theme_info_file = 'view/theme/' . current_theme() . '/theme.php';
 	if (file_exists($theme_info_file)) {
 		require_once $theme_info_file;
 	}
 
-	if (! (x($a->page, 'aside'))) {
+	if (!x($a->page, 'aside')) {
 		$a->page['aside'] = '';
 	}
 
 	if (local_user() && local_user() == $a->profile['uid'] && $profiledata) {
 		$a->page['aside'] .= replace_macros(
-			get_markup_template('profile_edlink.tpl'),
-			array(
+			get_markup_template('profile_edlink.tpl'), array(
 				'$editprofile' => t('Edit profile'),
 				'$profid' => $a->profile['id']
 			)
 		);
 	}
 
-	$block = (((Config::get('system', 'block_public')) && (! local_user()) && (! remote_user())) ? true : false);
+	$block = ((Config::get('system', 'block_public') && !local_user() && !remote_user()) ? true : false);
 
 	/**
 	 * @todo
 	 * By now, the contact block isn't shown, when a different profile is given
 	 * But: When this profile was on the same server, then we could display the contacts
 	 */
-	if ($profiledata) {
-		$a->page['aside'] .= profile_sidebar($profiledata, true);
-	} else {
-		$a->page['aside'] .= profile_sidebar($a->profile, $block);
+	if (!$profiledata) {
+		$a->page['aside'] .= profile_sidebar($a->profile, $block, $show_connect);
 	}
-
-	/*if (! $block)
-	 $a->page['aside'] .= contact_block();*/
 
 	return;
 }
-
 
 /**
  * @brief Get all profil data of a local user
@@ -143,11 +150,12 @@ function profile_load(App $a, $nickname, $profile = 0, $profiledata = array())
  * Passing a non-zero profile ID can also allow a preview of a selected profile
  * by the owner
  *
+ * Includes all available profile data
+ *
  * @param string $nickname nick
  * @param int    $uid      uid
  * @param int    $profile  ID of the profile
  * @returns array
- *	Includes all available profile data
  */
 function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0)
 {
@@ -197,7 +205,6 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0)
 	return $r;
 }
 
-
 /**
  * @brief Formats a profile for display in the sidebar.
  *
@@ -206,6 +213,7 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0)
  *
  * @param array $profile
  * @param int $block
+ * @param boolean $show_connect Show connect link
  *
  * @return HTML string stuitable for sidebar inclusion
  *
@@ -216,35 +224,34 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0)
  * @hooks 'profile_sidebar'
  *      array $arr
  */
-function profile_sidebar($profile, $block = 0)
+function profile_sidebar($profile, $block = 0, $show_connect = true)
 {
 	$a = get_app();
 
 	$o = '';
 	$location = false;
 	$address = false;
-	// $pdesc = true;
 
 	// This function can also use contact information in $profile
 	$is_contact = x($profile, 'cid');
 
-	if ((! is_array($profile)) && (! count($profile))) {
+	if (!is_array($profile) && !count($profile)) {
 		return $o;
 	}
 
-	$profile['picdate'] = urlencode($profile['picdate']);
+	$profile['picdate'] = urlencode(defaults($profile, 'picdate', ''));
 
-	if (($profile['network'] != "") && ($profile['network'] != NETWORK_DFRN)) {
+	if (($profile['network'] != '') && ($profile['network'] != NETWORK_DFRN)) {
 		$profile['network_name'] = format_network_name($profile['network'], $profile['url']);
 	} else {
-		$profile['network_name'] = "";
+		$profile['network_name'] = '';
 	}
 
 	call_hooks('profile_sidebar_enter', $profile);
 
 
 	// don't show connect link to yourself
-	$connect = (($profile['uid'] != local_user()) ? t('Connect')  : false);
+	$connect = $profile['uid'] != local_user() ? t('Connect') : false;
 
 	// don't show connect link to authenticated visitors either
 	if (remote_user() && count($_SESSION['remote'])) {
@@ -256,12 +263,16 @@ function profile_sidebar($profile, $block = 0)
 		}
 	}
 
+	if (!$show_connect) {
+		$connect = false;
+	}
+
 	// Is the local user already connected to that user?
 	if ($connect && local_user()) {
-		if (isset($profile["url"])) {
-			$profile_url = normalise_link($profile["url"]);
+		if (isset($profile['url'])) {
+			$profile_url = normalise_link($profile['url']);
 		} else {
-			$profile_url = normalise_link(System::baseUrl()."/profile/".$profile["nickname"]);
+			$profile_url = normalise_link(System::baseUrl() . '/profile/' . $profile['nickname']);
 		}
 
 		if (dba::exists('contact', array('pending' => false, 'uid' => local_user(), 'nurl' => $profile_url))) {
@@ -269,21 +280,24 @@ function profile_sidebar($profile, $block = 0)
 		}
 	}
 
-	if ($connect && ($profile['network'] != NETWORK_DFRN) && !isset($profile['remoteconnect']))
+	if ($connect && ($profile['network'] != NETWORK_DFRN) && !isset($profile['remoteconnect'])) {
 		$connect = false;
+	}
 
 	$remoteconnect = null;
-	if (isset($profile['remoteconnect']))
+	if (isset($profile['remoteconnect'])) {
 		$remoteconnect = $profile['remoteconnect'];
+	}
 
-	if ($connect && ($profile['network'] == NETWORK_DFRN) && !isset($remoteconnect))
-		$subscribe_feed = t("Atom feed");
-	else
+	if ($connect && ($profile['network'] == NETWORK_DFRN) && !isset($remoteconnect)) {
+		$subscribe_feed = t('Atom feed');
+	} else {
 		$subscribe_feed = false;
+	}
 
-	if (remote_user() || (get_my_url() && $profile['unkmail'] && ($profile['uid'] != local_user()))) {
+	if (remote_user() || (get_my_url() && x($profile, 'unkmail') && ($profile['uid'] != local_user()))) {
 		$wallmessage = t('Message');
-		$wallmessage_link = "wallmessage/".$profile["nickname"];
+		$wallmessage_link = 'wallmessage/' . $profile['nickname'];
 
 		if (remote_user()) {
 			$r = q(
@@ -301,9 +315,9 @@ function profile_sidebar($profile, $block = 0)
 			);
 		}
 		if ($r) {
-			$remote_url = $r[0]["url"];
-			$message_path = preg_replace("=(.*)/profile/(.*)=ism", "$1/message/new/", $remote_url);
-			$wallmessage_link = $message_path.base64_encode($profile["addr"]);
+			$remote_url = $r[0]['url'];
+			$message_path = preg_replace('=(.*)/profile/(.*)=ism', '$1/message/new/', $remote_url);
+			$wallmessage_link = $message_path . base64_encode($profile['addr']);
 		}
 	} else {
 		$wallmessage = false;
@@ -312,7 +326,7 @@ function profile_sidebar($profile, $block = 0)
 
 	// show edit profile to yourself
 	if (!$is_contact && $profile['uid'] == local_user() && Feature::isEnabled(local_user(), 'multi_profiles')) {
-		$profile['edit'] = array(System::baseUrl(). '/profiles', t('Profiles'),"", t('Manage/edit profiles'));
+		$profile['edit'] = array(System::baseUrl() . '/profiles', t('Profiles'), '', t('Manage/edit profiles'));
 		$r = q(
 			"SELECT * FROM `profile` WHERE `uid` = %d",
 			local_user()
@@ -332,14 +346,14 @@ function profile_sidebar($profile, $block = 0)
 					'alt' => t('Profile Image'),
 					'profile_name' => $rr['profile-name'],
 					'isdefault' => $rr['is-default'],
-					'visibile_to_everybody' =>  t('visible to everybody'),
+					'visibile_to_everybody' => t('visible to everybody'),
 					'edit_visibility' => t('Edit visibility'),
 				);
 			}
 		}
 	}
 	if (!$is_contact && $profile['uid'] == local_user() && !Feature::isEnabled(local_user(), 'multi_profiles')) {
-		$profile['edit'] = array(System::baseUrl(). '/profiles/'.$profile['id'], t('Edit profile'),"", t('Edit profile'));
+		$profile['edit'] = array(System::baseUrl() . '/profiles/' . $profile['id'], t('Edit profile'), '', t('Edit profile'));
 		$profile['menu'] = array(
 			'chg_photo' => t('Change profile photo'),
 			'cr_new' => null,
@@ -350,28 +364,23 @@ function profile_sidebar($profile, $block = 0)
 	// Fetch the account type
 	$account_type = Contact::getAccountType($profile);
 
-	if ((x($profile, 'address') == 1)
-		|| (x($profile, 'location') == 1)
-		|| (x($profile, 'locality') == 1)
-		|| (x($profile, 'region') == 1)
-		|| (x($profile, 'postal-code') == 1)
-		|| (x($profile, 'country-name') == 1)
+	if (x($profile, 'address')
+		|| x($profile, 'location')
+		|| x($profile, 'locality')
+		|| x($profile, 'region')
+		|| x($profile, 'postal-code')
+		|| x($profile, 'country-name')
 	) {
 		$location = t('Location:');
 	}
 
-	$gender = ((x($profile, 'gender') == 1) ? t('Gender:') : false);
+	$gender   = x($profile, 'gender')   ? t('Gender:')   : false;
+	$marital  = x($profile, 'marital')  ? t('Status:')   : false;
+	$homepage = x($profile, 'homepage') ? t('Homepage:') : false;
+	$about    = x($profile, 'about')    ? t('About:')    : false;
+	$xmpp     = x($profile, 'xmpp')     ? t('XMPP:')     : false;
 
-
-	$marital = ((x($profile, 'marital') == 1) ?  t('Status:') : false);
-
-	$homepage = ((x($profile, 'homepage') == 1) ?  t('Homepage:') : false);
-
-	$about = ((x($profile, 'about') == 1) ?  t('About:') : false);
-
-	$xmpp = ((x($profile, 'xmpp') == 1) ?  t('XMPP:') : false);
-
-	if (($profile['hidewall'] || $block) && (! local_user()) && (! remote_user())) {
+	if ((x($profile, 'hidewall') || $block) && !local_user() && !remote_user()) {
 		$location = $pdesc = $gender = $marital = $homepage = $about = false;
 	}
 
@@ -379,7 +388,7 @@ function profile_sidebar($profile, $block = 0)
 	$firstname = $split_name['first'];
 	$lastname = $split_name['last'];
 
-	if ($profile['guid'] != "") {
+	if (x($profile, 'guid')) {
 		$diaspora = array(
 			'guid' => $profile['guid'],
 			'podloc' => System::baseUrl(),
@@ -396,6 +405,9 @@ function profile_sidebar($profile, $block = 0)
 		$diaspora = false;
 	}
 
+	$contact_block = '';
+	$updated = '';
+	$contacts = 0;
 	if (!$block) {
 		$contact_block = contact_block();
 
@@ -405,7 +417,7 @@ function profile_sidebar($profile, $block = 0)
 				intval($a->profile['uid'])
 			);
 			if (DBM::is_result($r)) {
-				$updated =  date("c", strtotime($r[0]['updated']));
+				$updated = date('c', strtotime($r[0]['updated']));
 			}
 
 			$r = q(
@@ -431,45 +443,41 @@ function profile_sidebar($profile, $block = 0)
 		$p[$k] = $v;
 	}
 
-	if (isset($p["about"])) {
-		$p["about"] = bbcode($p["about"]);
+	if (isset($p['about'])) {
+		$p['about'] = bbcode($p['about']);
 	}
 
-	if (isset($p["address"])) {
-		$p["address"] = bbcode($p["address"]);
+	if (isset($p['address'])) {
+		$p['address'] = bbcode($p['address']);
 	} else {
-		$p["address"] = bbcode($p["location"]);
+		$p['address'] = bbcode($p['location']);
 	}
 
-	if (isset($p["photo"])) {
-		$p["photo"] = proxy_url($p["photo"], false, PROXY_SIZE_SMALL);
+	if (isset($p['photo'])) {
+		$p['photo'] = proxy_url($p['photo'], false, PROXY_SIZE_SMALL);
 	}
 
 	$tpl = get_markup_template('profile_vcard.tpl');
-	$o .= replace_macros(
-		$tpl,
-		array(
+	$o .= replace_macros($tpl, array(
 		'$profile' => $p,
 		'$xmpp' => $xmpp,
-		'$connect'  => $connect,
-		'$remoteconnect'  => $remoteconnect,
+		'$connect' => $connect,
+		'$remoteconnect' => $remoteconnect,
 		'$subscribe_feed' => $subscribe_feed,
 		'$wallmessage' => $wallmessage,
 		'$wallmessage_link' => $wallmessage_link,
 		'$account_type' => $account_type,
 		'$location' => $location,
-		'$gender'   => $gender,
-		// '$pdesc'	=> $pdesc,
-		'$marital'  => $marital,
+		'$gender' => $gender,
+		'$marital' => $marital,
 		'$homepage' => $homepage,
 		'$about' => $about,
-		'$network' =>  t('Network:'),
+		'$network' => t('Network:'),
 		'$contacts' => $contacts,
 		'$updated' => $updated,
 		'$diaspora' => $diaspora,
 		'$contact_block' => $contact_block,
-		)
-	);
+	));
 
 	$arr = array('profile' => &$profile, 'entry' => &$o);
 
@@ -478,27 +486,26 @@ function profile_sidebar($profile, $block = 0)
 	return $o;
 }
 
-
 function get_birthdays()
 {
 	$a = get_app();
 	$o = '';
 
-	if (! local_user() || $a->is_mobile || $a->is_tablet) {
+	if (!local_user() || $a->is_mobile || $a->is_tablet) {
 		return $o;
 	}
 
 	/*
 	 * $mobile_detect = new Mobile_Detect();
 	 * $is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
-	 *		if ($is_mobile)
-	 *			return $o;
+	 * 		if ($is_mobile)
+	 * 			return $o;
 	 */
 
 	$bd_format = t('g A l F d'); // 8 AM Friday January 18
 	$bd_short = t('F d');
 
-	$cachekey = "get_birthdays:".local_user();
+	$cachekey = 'get_birthdays:' . local_user();
 	$r = Cache::get($cachekey);
 	if (is_null($r)) {
 		$s = dba::p(
@@ -532,7 +539,7 @@ function get_birthdays()
 		$classtoday = $istoday ? ' birthday-today ' : '';
 		if ($total) {
 			foreach ($r as &$rr) {
-				if (! strlen($rr['name'])) {
+				if (!strlen($rr['name'])) {
 					continue;
 				}
 
@@ -547,34 +554,30 @@ function get_birthdays()
 				$sparkle = '';
 				$url = $rr['url'];
 				if ($rr['network'] === NETWORK_DFRN) {
-					$sparkle = " sparkle";
-					$url = System::baseUrl() . '/redir/'  . $rr['cid'];
+					$sparkle = ' sparkle';
+					$url = System::baseUrl() . '/redir/' . $rr['cid'];
 				}
 
 				$rr['link'] = $url;
 				$rr['title'] = $rr['name'];
-				$rr['date'] = day_translate(datetime_convert('UTC', $a->timezone, $rr['start'], $rr['adjust'] ? $bd_format : $bd_short)) . (($today) ?  ' ' . t('[today]') : '');
+				$rr['date'] = day_translate(datetime_convert('UTC', $a->timezone, $rr['start'], $rr['adjust'] ? $bd_format : $bd_short)) . (($today) ? ' ' . t('[today]') : '');
 				$rr['startime'] = null;
 				$rr['today'] = $today;
 			}
 		}
 	}
-	$tpl = get_markup_template("birthdays_reminder.tpl");
-	return replace_macros(
-		$tpl,
-		array(
+	$tpl = get_markup_template('birthdays_reminder.tpl');
+	return replace_macros($tpl, array(
 		'$baseurl' => System::baseUrl(),
 		'$classtoday' => $classtoday,
 		'$count' => $total,
 		'$event_reminders' => t('Birthday Reminders'),
 		'$event_title' => t('Birthdays this week:'),
 		'$events' => $r,
-		'$lbr' => '{',  // raw brackets mess up if/endif macro processing
+		'$lbr' => '{', // raw brackets mess up if/endif macro processing
 		'$rbr' => '}'
-		)
-	);
+	));
 }
-
 
 function get_events()
 {
@@ -582,19 +585,19 @@ function get_events()
 
 	$a = get_app();
 
-	if (! local_user() || $a->is_mobile || $a->is_tablet) {
+	if (!local_user() || $a->is_mobile || $a->is_tablet) {
 		return $o;
 	}
 
 	/*
-	 *	$mobile_detect = new Mobile_Detect();
-	 *		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
-	 *		if ($is_mobile)
-	 *			return $o;
+	 * 	$mobile_detect = new Mobile_Detect();
+	 * 		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
+	 * 		if ($is_mobile)
+	 * 			return $o;
 	 */
 
 	$bd_format = t('g A l F d'); // 8 AM Friday January 18
-	$bd_short = t('F d');
+	$classtoday = '';
 
 	$s = dba::p(
 		"SELECT `event`.* FROM `event`
@@ -608,7 +611,6 @@ function get_events()
 	$r = array();
 
 	if (DBM::is_result($s)) {
-		$now = strtotime('now');
 		$istoday = false;
 
 		while ($rr = dba::fetch($s)) {
@@ -628,7 +630,7 @@ function get_events()
 			}
 
 			$description = substr(strip_tags(bbcode($rr['desc'])), 0, 32) . '... ';
-			if (! $description) {
+			if (!$description) {
 				$description = t('[No description]');
 			}
 
@@ -641,8 +643,8 @@ function get_events()
 			$today = ((substr($strt, 0, 10) === datetime_convert('UTC', $a->timezone, 'now', 'Y-m-d')) ? true : false);
 
 			$rr['title'] = $title;
-			$rr['description'] = $desciption;
-			$rr['date'] = day_translate(datetime_convert('UTC', $rr['adjust'] ? $a->timezone : 'UTC', $rr['start'], $bd_format)) . (($today) ?  ' ' . t('[today]') : '');
+			$rr['description'] = $description;
+			$rr['date'] = day_translate(datetime_convert('UTC', $rr['adjust'] ? $a->timezone : 'UTC', $rr['start'], $bd_format)) . (($today) ? ' ' . t('[today]') : '');
 			$rr['startime'] = $strt;
 			$rr['today'] = $today;
 
@@ -651,18 +653,15 @@ function get_events()
 		dba::close($s);
 		$classtoday = (($istoday) ? 'event-today' : '');
 	}
-	$tpl = get_markup_template("events_reminder.tpl");
-	return replace_macros(
-		$tpl,
-		array(
+	$tpl = get_markup_template('events_reminder.tpl');
+	return replace_macros($tpl, array(
 		'$baseurl' => System::baseUrl(),
 		'$classtoday' => $classtoday,
 		'$count' => count($r),
 		'$event_reminders' => t('Event Reminders'),
 		'$event_title' => t('Events this week:'),
 		'$events' => $r,
-		)
-	);
+	));
 }
 
 function advanced_profile(App $a)
@@ -671,9 +670,8 @@ function advanced_profile(App $a)
 	$uid = $a->profile['uid'];
 
 	$o .= replace_macros(
-		get_markup_template('section_title.tpl'),
-		array(
-		'$title' => t('Profile')
+		get_markup_template('section_title.tpl'), array(
+			'$title' => t('Profile')
 		)
 	);
 
@@ -682,32 +680,32 @@ function advanced_profile(App $a)
 
 		$profile = array();
 
-		$profile['fullname'] = array( t('Full Name:'), $a->profile['name'] ) ;
+		$profile['fullname'] = array(t('Full Name:'), $a->profile['name']);
 
 		if ($a->profile['gender']) {
-			$profile['gender'] = array( t('Gender:'),  $a->profile['gender'] );
+			$profile['gender'] = array(t('Gender:'), $a->profile['gender']);
 		}
 
 		if (($a->profile['dob']) && ($a->profile['dob'] > '0001-01-01')) {
 			$year_bd_format = t('j F, Y');
 			$short_bd_format = t('j F');
 
+			$val = intval($a->profile['dob']) ?
+				day_translate(datetime_convert('UTC', 'UTC', $a->profile['dob'] . ' 00:00 +00:00', $year_bd_format))
+				: day_translate(datetime_convert('UTC', 'UTC', '2001-' . substr($a->profile['dob'], 5) . ' 00:00 +00:00', $short_bd_format));
 
-			$val = ((intval($a->profile['dob']))
-				? day_translate(datetime_convert('UTC', 'UTC', $a->profile['dob'] . ' 00:00 +00:00', $year_bd_format))
-				: day_translate(datetime_convert('UTC', 'UTC', '2001-' . substr($a->profile['dob'], 5) . ' 00:00 +00:00', $short_bd_format)));
-
-			$profile['birthday'] = array( t('Birthday:'), $val);
+			$profile['birthday'] = array(t('Birthday:'), $val);
 		}
+
 		if (!empty($a->profile['dob'])
 			&& $a->profile['dob'] > '0001-01-01'
 			&& $age = age($a->profile['dob'], $a->profile['timezone'], '')
 		) {
-			$profile['age'] = array( t('Age:'), $age );
+			$profile['age'] = array(t('Age:'), $age);
 		}
 
 		if ($a->profile['marital']) {
-			$profile['marital'] = array( t('Status:'), $a->profile['marital']);
+			$profile['marital'] = array(t('Status:'), $a->profile['marital']);
 		}
 
 		/// @TODO Maybe use x() here, plus below?
@@ -720,95 +718,92 @@ function advanced_profile(App $a)
 		}
 
 		if ($a->profile['sexual']) {
-			$profile['sexual'] = array( t('Sexual Preference:'), $a->profile['sexual'] );
+			$profile['sexual'] = array(t('Sexual Preference:'), $a->profile['sexual']);
 		}
 
 		if ($a->profile['homepage']) {
-			$profile['homepage'] = array( t('Homepage:'), linkify($a->profile['homepage']) );
+			$profile['homepage'] = array(t('Homepage:'), linkify($a->profile['homepage']));
 		}
 
 		if ($a->profile['hometown']) {
-			$profile['hometown'] = array( t('Hometown:'), linkify($a->profile['hometown']) );
+			$profile['hometown'] = array(t('Hometown:'), linkify($a->profile['hometown']));
 		}
 
 		if ($a->profile['pub_keywords']) {
-			$profile['pub_keywords'] = array( t('Tags:'), $a->profile['pub_keywords']);
+			$profile['pub_keywords'] = array(t('Tags:'), $a->profile['pub_keywords']);
 		}
 
 		if ($a->profile['politic']) {
-			$profile['politic'] = array( t('Political Views:'), $a->profile['politic']);
+			$profile['politic'] = array(t('Political Views:'), $a->profile['politic']);
 		}
 
 		if ($a->profile['religion']) {
-			$profile['religion'] = array( t('Religion:'), $a->profile['religion']);
+			$profile['religion'] = array(t('Religion:'), $a->profile['religion']);
 		}
 
 		if ($txt = prepare_text($a->profile['about'])) {
-			$profile['about'] = array( t('About:'), $txt );
+			$profile['about'] = array(t('About:'), $txt);
 		}
 
 		if ($txt = prepare_text($a->profile['interest'])) {
-			$profile['interest'] = array( t('Hobbies/Interests:'), $txt);
+			$profile['interest'] = array(t('Hobbies/Interests:'), $txt);
 		}
 
 		if ($txt = prepare_text($a->profile['likes'])) {
-			$profile['likes'] = array( t('Likes:'), $txt);
+			$profile['likes'] = array(t('Likes:'), $txt);
 		}
 
 		if ($txt = prepare_text($a->profile['dislikes'])) {
-			$profile['dislikes'] = array( t('Dislikes:'), $txt);
+			$profile['dislikes'] = array(t('Dislikes:'), $txt);
 		}
 
 		if ($txt = prepare_text($a->profile['contact'])) {
-			$profile['contact'] = array( t('Contact information and Social Networks:'), $txt);
+			$profile['contact'] = array(t('Contact information and Social Networks:'), $txt);
 		}
 
 		if ($txt = prepare_text($a->profile['music'])) {
-			$profile['music'] = array( t('Musical interests:'), $txt);
+			$profile['music'] = array(t('Musical interests:'), $txt);
 		}
 
 		if ($txt = prepare_text($a->profile['book'])) {
-			$profile['book'] = array( t('Books, literature:'), $txt);
+			$profile['book'] = array(t('Books, literature:'), $txt);
 		}
 
 		if ($txt = prepare_text($a->profile['tv'])) {
-			$profile['tv'] = array( t('Television:'), $txt);
+			$profile['tv'] = array(t('Television:'), $txt);
 		}
 
 		if ($txt = prepare_text($a->profile['film'])) {
-			$profile['film'] = array( t('Film/dance/culture/entertainment:'), $txt);
+			$profile['film'] = array(t('Film/dance/culture/entertainment:'), $txt);
 		}
 
 		if ($txt = prepare_text($a->profile['romance'])) {
-			$profile['romance'] = array( t('Love/Romance:'), $txt);
+			$profile['romance'] = array(t('Love/Romance:'), $txt);
 		}
 
 		if ($txt = prepare_text($a->profile['work'])) {
-			$profile['work'] = array( t('Work/employment:'), $txt);
+			$profile['work'] = array(t('Work/employment:'), $txt);
 		}
 
 		if ($txt = prepare_text($a->profile['education'])) {
-			$profile['education'] = array( t('School/education:'), $txt );
+			$profile['education'] = array(t('School/education:'), $txt);
 		}
 
 		//show subcribed forum if it is enabled in the usersettings
 		if (Feature::isEnabled($uid, 'forumlist_profile')) {
-			$profile['forumlist'] = array( t('Forums:'), ForumManager::profileAdvanced($uid));
+			$profile['forumlist'] = array(t('Forums:'), ForumManager::profileAdvanced($uid));
 		}
 
 		if ($a->profile['uid'] == local_user()) {
-			$profile['edit'] = array(System::baseUrl(). '/profiles/'.$a->profile['id'], t('Edit profile'),"", t('Edit profile'));
+			$profile['edit'] = array(System::baseUrl() . '/profiles/' . $a->profile['id'], t('Edit profile'), '', t('Edit profile'));
 		}
 
-		return replace_macros(
-			$tpl,
-			array(
+		return replace_macros($tpl, array(
 			'$title' => t('Profile'),
 			'$basic' => t('Basic'),
 			'$advanced' => t('Advanced'),
 			'$profile' => $profile
-			)
-		);
+		));
 	}
 
 	return '';
@@ -816,12 +811,11 @@ function advanced_profile(App $a)
 
 function profile_tabs($a, $is_owner = false, $nickname = null)
 {
-	//echo "<pre>"; var_dump($a->user); killme();
-
 	if (is_null($nickname)) {
-		$nickname  = $a->user['nickname'];
+		$nickname = $a->user['nickname'];
 	}
 
+	$tab = false;
 	if (x($_GET, 'tab')) {
 		$tab = notags(trim($_GET['tab']));
 	}
@@ -830,85 +824,85 @@ function profile_tabs($a, $is_owner = false, $nickname = null)
 
 	$tabs = array(
 		array(
-			'label'=>t('Status'),
-			'url' => $url,
-			'sel' => ((!isset($tab) && $a->argv[0]=='profile') ? 'active' : ''),
+			'label' => t('Status'),
+			'url'   => $url,
+			'sel'   => !$tab && $a->argv[0] == 'profile' ? 'active' : '',
 			'title' => t('Status Messages and Posts'),
-			'id' => 'status-tab',
+			'id'    => 'status-tab',
 			'accesskey' => 'm',
 		),
 		array(
 			'label' => t('Profile'),
-			'url' 	=> $url.'/?tab=profile',
-			'sel'	=> ((isset($tab) && $tab=='profile') ? 'active' : ''),
+			'url'   => $url . '/?tab=profile',
+			'sel'   => $tab == 'profile' ? 'active' : '',
 			'title' => t('Profile Details'),
-			'id' => 'profile-tab',
+			'id'    => 'profile-tab',
 			'accesskey' => 'r',
 		),
 		array(
 			'label' => t('Photos'),
-			'url'	=> System::baseUrl() . '/photos/' . $nickname,
-			'sel'	=> ((!isset($tab) && $a->argv[0]=='photos') ? 'active' : ''),
+			'url'   => System::baseUrl() . '/photos/' . $nickname,
+			'sel'   => !$tab && $a->argv[0] == 'photos' ? 'active' : '',
 			'title' => t('Photo Albums'),
-			'id' => 'photo-tab',
+			'id'    => 'photo-tab',
 			'accesskey' => 'h',
 		),
 		array(
 			'label' => t('Videos'),
-			'url'	=> System::baseUrl() . '/videos/' . $nickname,
-			'sel'	=> ((!isset($tab) && $a->argv[0]=='videos') ? 'active' : ''),
+			'url'   => System::baseUrl() . '/videos/' . $nickname,
+			'sel'   => !$tab && $a->argv[0] == 'videos' ? 'active' : '',
 			'title' => t('Videos'),
-			'id' => 'video-tab',
+			'id'    => 'video-tab',
 			'accesskey' => 'v',
 		),
 	);
 
 	// the calendar link for the full featured events calendar
 	if ($is_owner && $a->theme_events_in_profile) {
-			$tabs[] = array(
-				'label' => t('Events'),
-				'url'	=> System::baseUrl() . '/events',
-				'sel' 	=>((!isset($tab) && $a->argv[0]=='events') ? 'active' : ''),
-				'title' => t('Events and Calendar'),
-				'id' => 'events-tab',
-				'accesskey' => 'e',
-			);
+		$tabs[] = array(
+			'label' => t('Events'),
+			'url'   => System::baseUrl() . '/events',
+			'sel'   => !$tab && $a->argv[0] == 'events' ? 'active' : '',
+			'title' => t('Events and Calendar'),
+			'id'    => 'events-tab',
+			'accesskey' => 'e',
+		);
 		// if the user is not the owner of the calendar we only show a calendar
 		// with the public events of the calendar owner
-	} elseif (! $is_owner) {
+	} elseif (!$is_owner) {
 		$tabs[] = array(
-				'label' => t('Events'),
-				'url'	=> System::baseUrl() . '/cal/' . $nickname,
-				'sel' 	=>((!isset($tab) && $a->argv[0]=='cal') ? 'active' : ''),
-				'title' => t('Events and Calendar'),
-				'id' => 'events-tab',
-				'accesskey' => 'e',
-			);
+			'label' => t('Events'),
+			'url'   => System::baseUrl() . '/cal/' . $nickname,
+			'sel'   => !$tab && $a->argv[0] == 'cal' ? 'active' : '',
+			'title' => t('Events and Calendar'),
+			'id'    => 'events-tab',
+			'accesskey' => 'e',
+		);
 	}
 
 	if ($is_owner) {
 		$tabs[] = array(
 			'label' => t('Personal Notes'),
-			'url'	=> System::baseUrl() . '/notes',
-			'sel' 	=>((!isset($tab) && $a->argv[0]=='notes') ? 'active' : ''),
+			'url'   => System::baseUrl() . '/notes',
+			'sel'   => !$tab && $a->argv[0] == 'notes' ? 'active' : '',
 			'title' => t('Only You Can See This'),
-			'id' => 'notes-tab',
+			'id'    => 'notes-tab',
 			'accesskey' => 't',
 		);
 	}
 
-	if ((! $is_owner) && ((count($a->profile)) || (! $a->profile['hide-friends']))) {
+	if ((!$is_owner) && ((count($a->profile)) || (!$a->profile['hide-friends']))) {
 		$tabs[] = array(
 			'label' => t('Contacts'),
-			'url'	=> System::baseUrl() . '/viewcontacts/' . $nickname,
-			'sel'	=> ((!isset($tab) && $a->argv[0]=='viewcontacts') ? 'active' : ''),
+			'url'   => System::baseUrl() . '/viewcontacts/' . $nickname,
+			'sel'   => !$tab && $a->argv[0] == 'viewcontacts' ? 'active' : '',
 			'title' => t('Contacts'),
-			'id' => 'viewcontacts-tab',
+			'id'    => 'viewcontacts-tab',
 			'accesskey' => 'k',
 		);
 	}
 
-	$arr = array('is_owner' => $is_owner, 'nickname' => $nickname, 'tab' => (($tab) ? $tab : false), 'tabs' => $tabs);
+	$arr = array('is_owner' => $is_owner, 'nickname' => $nickname, 'tab' => $tab, 'tabs' => $tabs);
 	call_hooks('profile_tabs', $arr);
 
 	$tpl = get_markup_template('common_tabs.tpl');
@@ -932,9 +926,9 @@ function zrl_init(App $a)
 		// The check fetches the cached value from gprobe to reduce the load for this system
 		$urlparts = parse_url($tmp_str);
 
-		$result = Cache::get("gprobe:" . $urlparts["host"]);
-		if ((!is_null($result)) && (in_array($result["network"], array(NETWORK_FEED, NETWORK_PHANTOM)))) {
-			logger("DDoS attempt detected for " . $urlparts["host"] . " by " . $_SERVER["REMOTE_ADDR"] . ". server data: " . print_r($_SERVER, true), LOGGER_DEBUG);
+		$result = Cache::get('gprobe:' . $urlparts['host']);
+		if ((!is_null($result)) && (in_array($result['network'], array(NETWORK_FEED, NETWORK_PHANTOM)))) {
+			logger('DDoS attempt detected for ' . $urlparts['host'] . ' by ' . $_SERVER['REMOTE_ADDR'] . '. server data: ' . print_r($_SERVER, true), LOGGER_DEBUG);
 			return;
 		}
 
@@ -946,10 +940,10 @@ function zrl_init(App $a)
 
 function zrl($s, $force = false)
 {
-	if (! strlen($s)) {
+	if (!strlen($s)) {
 		return $s;
 	}
-	if ((! strpos($s, '/profile/')) && (! $force)) {
+	if ((!strpos($s, '/profile/')) && (!$force)) {
 		return $s;
 	}
 	if ($force && substr($s, -1, 1) !== '/') {
@@ -957,7 +951,7 @@ function zrl($s, $force = false)
 	}
 	$achar = strpos($s, '?') ? '&' : '?';
 	$mine = get_my_url();
-	if ($mine && ! link_compare($mine, $s)) {
+	if ($mine && !link_compare($mine, $s)) {
 		return $s . $achar . 'zrl=' . urlencode($mine);
 	}
 	return $s;
@@ -980,7 +974,7 @@ function zrl($s, $force = false)
 function get_theme_uid()
 {
 	$uid = ((!empty($_REQUEST['puid'])) ? intval($_REQUEST['puid']) : 0);
-	if ((local_user()) && ((PConfig::get(local_user(), 'system', 'always_my_theme')) || (! $uid))) {
+	if ((local_user()) && ((PConfig::get(local_user(), 'system', 'always_my_theme')) || (!$uid))) {
 		return local_user();
 	}
 

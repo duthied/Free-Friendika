@@ -9,8 +9,6 @@ use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Protocol\Diaspora;
 
-require_once 'include/crypto.php';
-
 /**
  * @param object $a App
  * @return void

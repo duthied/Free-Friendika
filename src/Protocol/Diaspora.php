@@ -22,6 +22,7 @@ use Friendica\Model\Group;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
+use Friendica\Util\Crypto;
 use Friendica\Util\XML;
 
 use dba;
@@ -173,7 +174,7 @@ class Diaspora
 
 		$key = self::key($handle);
 
-		$verify = rsa_verify($signable_data, $sig, $key);
+		$verify = Crypto::rsaVerify($signable_data, $sig, $key);
 		if (!$verify) {
 			logger('Message did not verify. Discarding.');
 			return false;
@@ -273,7 +274,7 @@ class Diaspora
 		$author_addr = base64_decode($key_id);
 		$key = self::key($author_addr);
 
-		$verify = rsa_verify($signed_data, $signature, $key);
+		$verify = Crypto::rsaVerify($signed_data, $signature, $key);
 		if (!$verify) {
 			logger('Message did not verify. Discarding.');
 			http_status_exit(400);
@@ -406,7 +407,7 @@ class Diaspora
 			http_status_exit(400);
 		}
 
-		$verify = rsa_verify($signed_data, $signature, $key);
+		$verify = Crypto::rsaVerify($signed_data, $signature, $key);
 
 		if (!$verify) {
 			logger('Message did not verify. Discarding.');
@@ -699,7 +700,7 @@ class Diaspora
 
 			$key = self::key($msg["author"]);
 
-			if (!rsa_verify($signed_data, $parent_author_signature, $key, "sha256")) {
+			if (!Crypto::rsaVerify($signed_data, $parent_author_signature, $key, "sha256")) {
 				logger("No valid parent author signature for parent author ".$msg["author"]. " in type ".$type." - signed data: ".$signed_data." - Message: ".$msg["message"]." - Signature ".$parent_author_signature, LOGGER_DEBUG);
 				return false;
 			}
@@ -709,7 +710,7 @@ class Diaspora
 
 		$key = self::key($fields->author);
 
-		if (!rsa_verify($signed_data, $author_signature, $key, "sha256")) {
+		if (!Crypto::rsaVerify($signed_data, $author_signature, $key, "sha256")) {
 			logger("No valid author signature for author ".$fields->author. " in type ".$type." - signed data: ".$signed_data." - Message: ".$msg["message"]." - Signature ".$author_signature, LOGGER_DEBUG);
 			return false;
 		} else {
@@ -1432,7 +1433,7 @@ class Diaspora
 		// Check signature
 		$signed_text = 'AccountMigration:'.$old_handle.':'.$new_handle;
 		$key = self::key($old_handle);
-		if (!rsa_verify($signed_text, $signature, $key, "sha256")) {
+		if (!Crypto::rsaVerify($signed_text, $signature, $key, "sha256")) {
 			logger('No valid signature for migration.');
 			return false;
 		}
@@ -2688,6 +2689,8 @@ class Diaspora
 		self::fetchGuid($datarray);
 		$message_id = item_store($datarray);
 
+		self::sendParticipation($contact, $datarray);
+
 		if ($message_id) {
 			logger("Stored reshare ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
 			return true;
@@ -2926,6 +2929,8 @@ class Diaspora
 		self::fetchGuid($datarray);
 		$message_id = item_store($datarray);
 
+		self::sendParticipation($contact, $datarray);
+
 		if ($message_id) {
 			logger("Stored item ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
 			return true;
@@ -3028,7 +3033,7 @@ class Diaspora
 			$user['uprvkey'] = $user['prvkey'];
 		}
 
-		$signature = rsa_sign($signable_data, $user["uprvkey"]);
+		$signature = Crypto::rsaSign($signable_data, $user["uprvkey"]);
 		$sig = base64url_encode($signature);
 
 		$xmldata = array("me:env" => array("me:data" => $data,
@@ -3084,7 +3089,7 @@ class Diaspora
 
 		$signed_text = implode(";", $sigmsg);
 
-		return base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
+		return base64_encode(Crypto::rsaSign($signed_text, $owner["uprvkey"], "sha256"));
 	}
 
 	/**
@@ -3216,6 +3221,54 @@ class Diaspora
 	}
 
 	/**
+	 * @brief sends a participation (Used to get all further updates)
+	 *
+	 * @param array $contact Target of the communication
+	 * @param array $item	 Item array
+	 *
+	 * @return int The result of the transmission
+	 */
+	private static function sendParticipation($contact, $item)
+	{
+		// Don't send notifications for private postings
+		if ($item['private']) {
+			return;
+		}
+
+		$cachekey = "diaspora:sendParticipation:".$item['guid'];
+
+		$result = Cache::get($cachekey);
+		if (!is_null($result)) {
+			return;
+		}
+
+		// Fetch some user id to have a valid handle to transmit the participation.
+		// In fact it doesn't matter which user sends this - but it is needed by the protocol.
+		// If the item belongs to a user, we take this user id.
+		if ($item['uid'] == 0) {
+			$condition = ['verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false];
+			$first_user = dba::select('user', ['uid'], $condition, ['limit' => 1]);
+			$owner = User::getOwnerDataById($first_user['uid']);
+		} else {
+			$owner = User::getOwnerDataById($item['uid']);
+		}
+
+		$author = self::myHandle($owner);
+
+		$message = array("author" => $author,
+				"guid" => get_guid(32),
+				"parent_type" => "Post",
+				"parent_guid" => $item["guid"]);
+
+		logger("Send participation for ".$item["guid"]." by ".$author, LOGGER_DEBUG);
+
+		// It doesn't matter what we store, we only want to avoid sending repeated notifications for the same item
+		Cache::set($cachekey, $item["guid"], CACHE_QUARTER_HOUR);
+
+		return self::buildAndTransmit($owner, $contact, "participation", $message);
+	}
+
+	/**
 	 * @brief sends an account migration
 	 *
 	 * @param array $owner   the array of the item owner
@@ -3230,7 +3283,7 @@ class Diaspora
 		$profile = self::createProfileData($uid);
 
 		$signed_text = 'AccountMigration:'.$old_handle.':'.$profile['author'];
-		$signature = base64_encode(rsa_sign($signed_text, $owner["uprvkey"], "sha256"));
+		$signature = base64_encode(Crypto::rsaSign($signed_text, $owner["uprvkey"], "sha256"));
 
 		$message = array("author" => $old_handle,
 				"profile" => $profile,

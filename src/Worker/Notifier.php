@@ -280,13 +280,14 @@ class Notifier {
 				}
 			}
 			if ($relay_to_owner) {
-				logger('notifier: followup '.$target_item["guid"], LOGGER_DEBUG);
 				// local followup to remote post
 				$followup = true;
 				$public_message = false; // not public
 				$conversant_str = dbesc($parent['contact-id']);
 				$recipients = array($parent['contact-id']);
 				$recipients_followup  = array($parent['contact-id']);
+
+				logger('notifier: followup '.$target_item["guid"].' to '.$conversant_str, LOGGER_DEBUG);
 
 				//if (!$target_item['private'] && $target_item['wall'] &&
 				if (!$target_item['private'] &&

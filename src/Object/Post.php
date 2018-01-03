@@ -1,7 +1,9 @@
 <?php
+
 /**
  * @file src/Object/Post.php
  */
+
 namespace Friendica\Object;
 
 use Friendica\BaseObject;
@@ -52,9 +54,9 @@ class Post extends BaseObject
 
 		$this->data = $data;
 		$this->setTemplate('wall');
-		$this->toplevel = ($this->getId() == $this->getDataValue('parent'));
+		$this->toplevel = $this->getId() == $this->getDataValue('parent');
 
-		if (is_array($_SESSION['remote'])) {
+		if (x($_SESSION, 'remote') && is_array($_SESSION['remote'])) {
 			foreach ($_SESSION['remote'] as $visitor) {
 				if ($visitor['cid'] == $this->getDataValue('contact-id')) {
 					$this->visiting = true;
@@ -63,9 +65,7 @@ class Post extends BaseObject
 			}
 		}
 
-		$this->writable = ($this->getDataValue('writable') || $this->getDataValue('self'));
-
-		$ssl_state = ((local_user()) ? true : false);
+		$this->writable = $this->getDataValue('writable') || $this->getDataValue('self');
 		$this->redirect_url = 'redir/' . $this->getDataValue('cid');
 
 		if (!$this->isToplevel()) {
@@ -75,12 +75,10 @@ class Post extends BaseObject
 		// Prepare the children
 		if (count($data['children'])) {
 			foreach ($data['children'] as $item) {
-				/*
-				 * Only add will be displayed
-				 */
+				// Only add will be displayed
 				if ($item['network'] === NETWORK_MAIL && local_user() != $item['uid']) {
 					continue;
-				} elseif (! visible_activity($item)) {
+				} elseif (!visible_activity($item)) {
 					continue;
 				}
 
@@ -145,13 +143,13 @@ class Post extends BaseObject
 			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
 			? t('Private Message')
 			: false);
-		$shareable = ((in_array($conv->getProfileOwner(), [0, local_user()]) && ($item['private'] != 1)) ? true : false);
+		$shareable = in_array($conv->getProfileOwner(), [0, local_user()]) && $item['private'] != 1;
 
 		if (local_user() && link_compare($a->contact['url'], $item['author-link'])) {
 			if ($item["event-id"] != 0) {
-				$edpost = array("events/event/".$item['event-id'], t("Edit"));
+				$edpost = array("events/event/" . $item['event-id'], t("Edit"));
 			} else {
-				$edpost = array("editpost/".$item['id'], t("Edit"));
+				$edpost = array("editpost/" . $item['id'], t("Edit"));
 			}
 		} else {
 			$edpost = false;
@@ -170,9 +168,9 @@ class Post extends BaseObject
 
 		$filer = (($conv->getProfileOwner() == local_user()) ? t("save to folder") : false);
 
-		$diff_author    = ((link_compare($item['url'], $item['author-link'])) ? false : true);
-		$profile_name   = htmlentities(((strlen($item['author-name'])) && $diff_author) ? $item['author-name'] : $item['name']);
-		if ($item['author-link'] && (! $item['author-name'])) {
+		$diff_author = !link_compare($item['url'], $item['author-link']);
+		$profile_name = htmlentities(((strlen($item['author-name'])) && $diff_author) ? $item['author-name'] : $item['name']);
+		if ($item['author-link'] && (!$item['author-name'])) {
 			$profile_name = $item['author-link'];
 		}
 
@@ -210,39 +208,25 @@ class Post extends BaseObject
 		call_hooks('render_location', $locate);
 		$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
 
-		$tags=array();
-		$hashtags = array();
-		$mentions = array();
-
-		/*foreach(explode(',',$item['tag']) as $tag){
-			$tag = trim($tag);
-			if ($tag!="") {
-				$t = bbcode($tag);
-				$tags[] = $t;
-				if($t[0] == '#')
-					$hashtags[] = $t;
-				elseif($t[0] == '@')
-					$mentions[] = $t;
-			}
-		}*/
-
 		// process action responses - e.g. like/dislike/attend/agree/whatever
 		$response_verbs = array('like', 'dislike');
 
+		$isevent = false;
+		$attend = [];
 		if ($item['object-type'] === ACTIVITY_OBJ_EVENT) {
 			$response_verbs[] = 'attendyes';
 			$response_verbs[] = 'attendno';
 			$response_verbs[] = 'attendmaybe';
 			if ($conv->isWritable()) {
 				$isevent = true;
-				$attend = array( t('I will attend'), t('I will not attend'), t('I might attend'));
+				$attend = array(t('I will attend'), t('I will not attend'), t('I might attend'));
 			}
 		}
 
 		$responses = get_responses($conv_responses, $response_verbs, $this, $item);
 
 		foreach ($response_verbs as $value => $verbs) {
-			$responses[$verbs]['output']  = ((x($conv_responses[$verbs], $item['uri'])) ? format_like($conv_responses[$verbs][$item['uri']], $conv_responses[$verbs][$item['uri'] . '-l'], $verbs, $item['uri']) : '');
+			$responses[$verbs]['output'] = x($conv_responses[$verbs], $item['uri']) ? format_like($conv_responses[$verbs][$item['uri']], $conv_responses[$verbs][$item['uri'] . '-l'], $verbs, $item['uri']) : '';
 		}
 
 		/*
@@ -256,6 +240,8 @@ class Post extends BaseObject
 			$osparkle = ' sparkle';
 		}
 
+		$tagger = '';
+
 		if ($this->isToplevel()) {
 			if ($conv->getProfileOwner() == local_user()) {
 				$isstarred = (($item['starred']) ? "starred" : "unstarred");
@@ -264,9 +250,9 @@ class Post extends BaseObject
 					'do'        => t("add star"),
 					'undo'      => t("remove star"),
 					'toggle'    => t("toggle star status"),
-					'classdo'   => (($item['starred']) ? "hidden" : ""),
-					'classundo' => (($item['starred']) ? "" : "hidden"),
-					'starred'   =>  t('starred'),
+					'classdo'   => $item['starred'] ? "hidden" : "",
+					'classundo' => $item['starred'] ? "" : "hidden",
+					'starred'   => t('starred'),
 				);
 				$r = dba::select('thread', array('ignored'), array('uid' => $item['uid'], 'iid' => $item['id']), array('limit' => 1));
 				if (DBM::is_result($r)) {
@@ -274,13 +260,12 @@ class Post extends BaseObject
 						'do'        => t("ignore thread"),
 						'undo'      => t("unignore thread"),
 						'toggle'    => t("toggle ignore status"),
-						'classdo'   => (($r['ignored']) ? "hidden" : ""),
-						'classundo' => (($r['ignored']) ? "" : "hidden"),
-						'ignored'   =>  t('ignored'),
+						'classdo'   => $r['ignored'] ? "hidden" : "",
+						'classundo' => $r['ignored'] ? "" : "hidden",
+						'ignored'   => t('ignored'),
 					);
 				}
 
-				$tagger = '';
 				if (Feature::isEnabled($conv->getProfileOwner(), 'commtag')) {
 					$tagger = array(
 						'add'   => t("add tag"),
@@ -294,11 +279,11 @@ class Post extends BaseObject
 
 		if ($conv->isWritable()) {
 			$buttons = array(
-				'like' => array( t("I like this \x28toggle\x29"), t("like")),
-				'dislike' => ((Feature::isEnabled($conv->getProfileOwner(), 'dislike')) ? array( t("I don't like this \x28toggle\x29"), t("dislike")) : ''),
+				'like'    => array(t("I like this \x28toggle\x29"), t("like")),
+				'dislike' => Feature::isEnabled($conv->getProfileOwner(), 'dislike') ? array(t("I don't like this \x28toggle\x29"), t("dislike")) : '',
 			);
 			if ($shareable) {
-				$buttons['share'] = array( t('Share this'), t('share'));
+				$buttons['share'] = array(t('Share this'), t('share'));
 			}
 		}
 
@@ -322,10 +307,10 @@ class Post extends BaseObject
 		$owner_name_e = $this->getOwnerName();
 
 		// Disable features that aren't available in several networks
-
 		/// @todo Add NETWORK_DIASPORA when it will pass this information
 		if (!in_array($item["item_network"], array(NETWORK_DFRN)) && isset($buttons["dislike"])) {
-			unset($buttons["dislike"], $isevent);
+			unset($buttons["dislike"]);
+			$isevent = false;
 			$tagger = '';
 		}
 
@@ -355,8 +340,8 @@ class Post extends BaseObject
 			'guid'            => urlencode($item['guid']),
 			'isevent'         => $isevent,
 			'attend'          => $attend,
-			'linktitle'       => sprintf(t('View %s\'s profile @ %s'), $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),
-			'olinktitle'      => sprintf(t('View %s\'s profile @ %s'), htmlentities($this->getOwnerName()), ((strlen($item['owner-link'])) ? $item['owner-link'] : $item['url'])),
+			'linktitle'       => t('View %s\'s profile @ %s', $profile_name, defaults($item, 'author-link', $item['url'])),
+			'olinktitle'      => t('View %s\'s profile @ %s', htmlentities($this->getOwnerName()), defaults($item, 'owner-link', $item['url'])),
 			'to'              => t('to'),
 			'via'             => t('via'),
 			'wall'            => t('Wall-to-Wall'),
@@ -369,7 +354,7 @@ class Post extends BaseObject
 			'sparkle'         => $sparkle,
 			'title'           => $title_e,
 			'localtime'       => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
-			'ago'             => (($item['app']) ? sprintf(t('%s from %s'), relative_date($item['created']), $item['app']) : relative_date($item['created'])),
+			'ago'             => $item['app'] ? t('%s from %s', relative_date($item['created']), $item['app']) : relative_date($item['created']),
 			'app'             => $item['app'],
 			'created'         => relative_date($item['created']),
 			'lock'            => $lock,
@@ -380,12 +365,12 @@ class Post extends BaseObject
 			'owner_photo'     => $a->remove_baseurl(proxy_url($item['owner-thumb'], false, PROXY_SIZE_THUMB)),
 			'owner_name'      => htmlentities($owner_name_e),
 			'plink'           => get_plink($item),
-			'edpost'          => ((Feature::isEnabled($conv->getProfileOwner(), 'edit_posts')) ? $edpost : ''),
+			'edpost'          => Feature::isEnabled($conv->getProfileOwner(), 'edit_posts') ? $edpost : '',
 			'isstarred'       => $isstarred,
-			'star'            => ((Feature::isEnabled($conv->getProfileOwner(), 'star_posts')) ? $star : ''),
-			'ignore'          => ((Feature::isEnabled($conv->getProfileOwner(), 'ignore_posts')) ? $ignore : ''),
+			'star'            => Feature::isEnabled($conv->getProfileOwner(), 'star_posts') ? $star : '',
+			'ignore'          => Feature::isEnabled($conv->getProfileOwner(), 'ignore_posts') ? $ignore : '',
 			'tagger'          => $tagger,
-			'filer'           => ((Feature::isEnabled($conv->getProfileOwner(), 'filing')) ? $filer : ''),
+			'filer'           => Feature::isEnabled($conv->getProfileOwner(), 'filing') ? $filer : '',
 			'drop'            => $drop,
 			'vote'            => $buttons,
 			'like'            => $responses['like']['output'],
@@ -393,7 +378,7 @@ class Post extends BaseObject
 			'responses'       => $responses,
 			'switchcomment'   => t('Comment'),
 			'comment'         => $comment,
-			'previewing'      => ($conv->isPreview() ? ' preview ' : ''),
+			'previewing'      => $conv->isPreview() ? ' preview ' : '',
 			'wait'            => t('Please wait'),
 			'thread_level'    => $thread_level,
 			'edited'          => $edited,
@@ -419,7 +404,7 @@ class Post extends BaseObject
 			// Collapse
 			if (($nb_children > 2) || ($thread_level > 1)) {
 				$result['children'][0]['comment_firstcollapsed'] = true;
-				$result['children'][0]['num_comments'] = sprintf(tt('%d comment', '%d comments', $total_children), $total_children);
+				$result['children'][0]['num_comments'] = tt('%d comment', '%d comments', $total_children);
 				$result['children'][0]['hidden_comments_num'] = $total_children;
 				$result['children'][0]['hidden_comments_text'] = tt('comment', 'comments', $total_children);
 				$result['children'][0]['hide_text'] = t('show more');
@@ -480,7 +465,7 @@ class Post extends BaseObject
 			logger('[ERROR] Post::addChild : Item has no ID!!', LOGGER_DEBUG);
 			return false;
 		} elseif ($this->getChild($item->getId())) {
-			logger('[WARN] Post::addChild : Item already exists ('. $item->getId() .').', LOGGER_DEBUG);
+			logger('[WARN] Post::addChild : Item already exists (' . $item->getId() . ').', LOGGER_DEBUG);
 			return false;
 		}
 		/*
@@ -574,7 +559,7 @@ class Post extends BaseObject
 				return true;
 			}
 		}
-		logger('[WARN] Item::removeChild : Item is not a child ('. $id .').', LOGGER_DEBUG);
+		logger('[WARN] Item::removeChild : Item is not a child (' . $id . ').', LOGGER_DEBUG);
 		return false;
 	}
 
@@ -657,7 +642,7 @@ class Post extends BaseObject
 	private function setTemplate($name)
 	{
 		if (!x($this->available_templates, $name)) {
-			logger('[ERROR] Item::setTemplate : Template not available ("'. $name .'").', LOGGER_DEBUG);
+			logger('[ERROR] Item::setTemplate : Template not available ("' . $name . '").', LOGGER_DEBUG);
 			return false;
 		}
 
@@ -696,7 +681,6 @@ class Post extends BaseObject
 		if ($conv) {
 			// This will allow us to comment on wall-to-wall items owned by our friends
 			// and community forums even if somebody else wrote the post.
-
 			// bug #517 - this fixes for conversation owner
 			if ($conv->getMode() == 'profile' && $conv->getProfileOwner() == local_user()) {
 				return true;
@@ -750,14 +734,13 @@ class Post extends BaseObject
 
 		$comment_box = '';
 		$conv = $this->getThread();
-		$template = get_markup_template($this->getCommentBoxTemplate());
 		$ww = '';
 		if (($conv->getMode() === 'network') && $this->isWallToWall()) {
 			$ww = 'ww';
 		}
 
 		if ($conv->isWritable() && $this->isWritable()) {
-			$qc = $qcomment =  null;
+			$qc = $qcomment = null;
 
 			/*
 			 * Hmmm, code depending on the presence of a particular plugin?
@@ -768,18 +751,16 @@ class Post extends BaseObject
 				$qcomment = (($qc) ? explode("\n", $qc) : null);
 			}
 
-			$comment_box = replace_macros(
-				$template,
-				array(
+			$template = get_markup_template($this->getCommentBoxTemplate());
+			$comment_box = replace_macros($template, array(
 				'$return_path' => $a->query_string,
 				'$threaded'    => $this->isThreaded(),
-				// '$jsreload'    => (($conv->getMode() === 'display') ? $_SESSION['return_url'] : ''),
 				'$jsreload'    => '',
-				'$type'        => (($conv->getMode() === 'profile') ? 'wall-comment' : 'net-comment'),
+				'$type'        => $conv->getMode() === 'profile' ? 'wall-comment' : 'net-comment',
 				'$id'          => $this->getId(),
 				'$parent'      => $this->getId(),
 				'$qcomment'    => $qcomment,
-				'$profile_uid' =>  $conv->getProfileOwner(),
+				'$profile_uid' => $conv->getProfileOwner(),
 				'$mylink'      => $a->remove_baseurl($a->contact['url']),
 				'$mytitle'     => t('This is you'),
 				'$myphoto'     => $a->remove_baseurl($a->contact['thumb']),
@@ -796,9 +777,9 @@ class Post extends BaseObject
 				'$preview'     => ((Feature::isEnabled($conv->getProfileOwner(), 'preview')) ? t('Preview') : ''),
 				'$indent'      => $indent,
 				'$sourceapp'   => t($a->sourcename),
-				'$ww'          => (($conv->getMode() === 'network') ? $ww : ''),
-				'$rand_num'    => random_digits(12))
-			);
+				'$ww'          => $conv->getMode() === 'network' ? $ww : '',
+				'$rand_num'    => random_digits(12)
+			));
 		}
 
 		return $comment_box;
@@ -839,14 +820,13 @@ class Post extends BaseObject
 					$alias_linkmatch = (($this->getDataValue('alias')) && link_compare($this->getDataValue('alias'), $this->getDataValue('author-link')));
 					$owner_namematch = (($this->getDataValue('owner-name')) && $this->getDataValue('owner-name') == $this->getDataValue('author-name'));
 
-					if ((! $owner_linkmatch) && (! $alias_linkmatch) && (! $owner_namematch)) {
+					if ((!$owner_linkmatch) && (!$alias_linkmatch) && (!$owner_namematch)) {
 						// The author url doesn't match the owner (typically the contact)
 						// and also doesn't match the contact alias.
 						// The name match is a hack to catch several weird cases where URLs are
 						// all over the park. It can be tricked, but this prevents you from
 						// seeing "Bob Smith to Bob Smith via Wall-to-wall" and you know darn
 						// well that it's the same Bob Smith.
-
 						// But it could be somebody else with the same name. It just isn't highly likely.
 
 
@@ -854,8 +834,8 @@ class Post extends BaseObject
 						$this->owner_name = $this->getDataValue('owner-name');
 						$this->wall_to_wall = true;
 						// If it is our contact, use a friendly redirect link
-						if ((link_compare($this->getDataValue('owner-link'), $this->getDataValue('url')))
-							&& ($this->getDataValue('network') === NETWORK_DFRN)
+						if ($this->getDataValue('network') === NETWORK_DFRN
+							&& link_compare($this->getDataValue('owner-link'), $this->getDataValue('url'))
 						) {
 							$this->owner_url = $this->getRedirectUrl();
 						} else {

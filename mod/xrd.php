@@ -1,12 +1,14 @@
 <?php
-
+/**
+ * @file mod/xrd.php
+ */
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Protocol\Salmon;
 
-require_once('include/crypto.php');
-
-function xrd_init(App $a) {
+function xrd_init(App $a)
+{
 	if ($a->argv[0] == 'xrd') {
 		$uri = urldecode(notags(trim($_GET['uri'])));
 		if ($_SERVER['HTTP_ACCEPT'] == 'application/jrd+json') {
@@ -54,8 +56,9 @@ function xrd_init(App $a) {
 	}
 }
 
-function xrd_json($a, $uri, $alias, $profile_url, $r) {
-	$salmon_key = salmon_key($r['spubkey']);
+function xrd_json($a, $uri, $alias, $profile_url, $r)
+{
+	$salmon_key = Salmon::salmonKey($r['spubkey']);
 
 	header('Access-Control-Allow-Origin: *');
 	header("Content-type: application/json; charset=utf-8");
@@ -79,8 +82,9 @@ function xrd_json($a, $uri, $alias, $profile_url, $r) {
 	killme();
 }
 
-function xrd_xml($a, $uri, $alias, $profile_url, $r) {
-	$salmon_key = salmon_key($r['spubkey']);
+function xrd_xml($a, $uri, $alias, $profile_url, $r)
+{
+	$salmon_key = Salmon::salmonKey($r['spubkey']);
 
 	header('Access-Control-Allow-Origin: *');
 	header("Content-type: text/xml");
@@ -100,8 +104,8 @@ function xrd_xml($a, $uri, $alias, $profile_url, $r) {
 		'$salmon'      => System::baseUrl() . '/salmon/'        . $r['nickname'],
 		'$salmen'      => System::baseUrl() . '/salmon/'        . $r['nickname'] . '/mention',
 		'$subscribe'   => System::baseUrl() . '/follow?url={uri}',
-		'$modexp'      => 'data:application/magic-public-key,'  . $salmon_key,
-	));
+		'$modexp'      => 'data:application/magic-public-key,'  . $salmon_key)
+	);
 
 	$arr = array('user' => $r, 'xml' => $o);
 	call_hooks('personal_xrd', $arr);

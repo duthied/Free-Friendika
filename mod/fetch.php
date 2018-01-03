@@ -8,8 +8,6 @@ use Friendica\Core\System;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\XML;
 
-require_once "include/crypto.php";
-
 function fetch_init(App $a)
 {
 

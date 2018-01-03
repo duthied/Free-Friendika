@@ -365,7 +365,7 @@ function networkConversation($a, $items, $mode, $update) {
 	// Set this so that the conversation function can find out contact info for our wall-wall items
 	$a->page_contact = $a->contact;
 
-	$o .= conversation($a, $items, $mode, $update);
+	$o = conversation($a, $items, $mode, $update);
 
 	if (!$update) {
 		if (PConfig::get(local_user(), 'system', 'infinite_scroll')) {
@@ -568,9 +568,9 @@ function networkThreadedView(App $a, $update = 0) {
 
 		if ($group) {
 			if (($t = Contact::getOStatusCountByGroupId($group)) && !PConfig::get(local_user(), 'system', 'nowarn_insecure')) {
-				notice(sprintf(tt("Warning: This group contains %s member from a network that doesn't allow non public messages.",
+				notice(tt("Warning: This group contains %s member from a network that doesn't allow non public messages.",
 						"Warning: This group contains %s members from a network that doesn't allow non public messages.",
-						$t), $t).EOL);
+						$t) . EOL);
 				notice(t("Messages in this group won't be send to these receivers.").EOL);
 			}
 		}
@@ -664,7 +664,7 @@ function networkThreadedView(App $a, $update = 0) {
 		}
 
 		$o = replace_macros(get_markup_template("section_title.tpl"),array(
-			'$title' => sprintf(t('Group: %s'), $r['name'])
+			'$title' => t('Group: %s', $r['name'])
 		)) . $o;
 
 	} elseif ($cid) {
@@ -716,13 +716,6 @@ function networkThreadedView(App $a, $update = 0) {
 	$sql_order = "";
 	$order_mode = "received";
 
-	if (strlen($file)) {
-		$sql_post_table .= sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-				dbesc(protect_sprintf($file)), intval(TERM_OBJ_POST), intval(TERM_FILE), intval(local_user()));
-		$sql_order = "`item`.`id`";
-		$order_mode = "id";
-	}
-
 	if ($conv) {
 		$sql_extra3 .= " AND $sql_table.`mention`";
 	}
@@ -744,7 +737,7 @@ function networkThreadedView(App $a, $update = 0) {
 		$sql_order = "$sql_table.$ordering";
 	}
 
-	if (($_GET["offset"] != "")) {
+	if (x($_GET, 'offset')) {
 		$sql_extra3 .= sprintf(" AND $sql_order <= '%s'", dbesc($_GET["offset"]));
 	}
 
@@ -816,9 +809,10 @@ function networkThreadedView(App $a, $update = 0) {
 	$parents_str = '';
 	$date_offset = "";
 
+	$items = array();
 	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
-			if (!in_array($rr['item_id'],$parents_arr)) {
+			if (!in_array($rr['item_id'], $parents_arr)) {
 				$parents_arr[] = $rr['item_id'];
 			}
 		}
@@ -833,12 +827,10 @@ function networkThreadedView(App $a, $update = 0) {
 			$max_comments = 100;
 		}
 
-		$items = array();
-
 		foreach ($parents_arr AS $parents) {
-			$thread_items = dba::p(item_query()." AND `item`.`uid` = ?
+			$thread_items = dba::p(item_query() . " AND `item`.`uid` = ?
 				AND `item`.`parent` = ?
-				ORDER BY `item`.`commented` DESC LIMIT ".intval($max_comments + 1),
+				ORDER BY `item`.`commented` DESC LIMIT " . intval($max_comments + 1),
 				local_user(),
 				$parents
 			);
@@ -847,15 +839,15 @@ function networkThreadedView(App $a, $update = 0) {
 				$items = array_merge($items, dba::inArray($thread_items));
 			}
 		}
-		$items = conv_sort($items,$ordering);
-	} else {
-		$items = array();
+		$items = conv_sort($items, $ordering);
 	}
 
-	if ($_GET["offset"] == "") {
+	if (x($_GET, 'offset')) {
+		$date_offset = $_GET["offset"];
+	} elseif(count($items)) {
 		$date_offset = $items[0][$order_mode];
 	} else {
-		$date_offset = $_GET["offset"];
+		$date_offset = '';
 	}
 
 	$a->page_offset = $date_offset;

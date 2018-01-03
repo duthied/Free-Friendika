@@ -662,7 +662,7 @@ class Contact extends BaseObject
 		if (!DBM::is_result($contact)) {
 			// The link could be provided as http although we stored it as https
 			$ssl_url = str_replace('http://', 'https://', $url);
-			$r = dba::select('contact', array('id', 'avatar-date'), array('`alias` IN (?, ?, ?) AND `uid` = ?', $url, normalise_link($url), $ssl_url, $uid), array('limit' => 1));
+			$r = dba::select('contact', array('id', 'avatar', 'avatar-date'), array('`alias` IN (?, ?, ?) AND `uid` = ?', $url, normalise_link($url), $ssl_url, $uid), array('limit' => 1));
 			$contact = dba::fetch($r);
 			dba::close($r);
 		}
@@ -674,7 +674,7 @@ class Contact extends BaseObject
 			$update_contact = ($contact['avatar-date'] < datetime_convert('', '', 'now -7 days'));
 
 			// We force the update if the avatar is empty
-			if ($contact['avatar'] == '') {
+			if (!x($contact, 'avatar')) {
 				$update_contact = true;
 			}
 

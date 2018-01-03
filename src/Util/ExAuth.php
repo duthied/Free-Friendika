@@ -310,6 +310,7 @@ class ExAuth
 
 		$lockpath = Config::get('jabber', 'lockpath');
 		if (is_null($lockpath)) {
+			$this->writeLog(LOG_INFO, 'No lockpath defined.');
 			return;
 		}
 
@@ -325,6 +326,9 @@ class ExAuth
 
 		// Now it is safe to create the pid file
 		PidFile::create($file);
+		if (!file_exists($file)) {
+			$this->writeLog(LOG_WARNING, 'Logfile ' . $file . " couldn't be created.");
+		}
 	}
 
 	/**

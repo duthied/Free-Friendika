@@ -37,7 +37,6 @@ require_once 'include/datetime.php';
 require_once 'include/pgettext.php';
 require_once 'include/nav.php';
 require_once 'include/identity.php';
-require_once 'update.php';
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Asparagus');
@@ -574,6 +573,51 @@ function x($s, $k = null)
 }
 
 /**
+ * Return the provided variable value if it exists and is truthy or the provided
+ * default value instead.
+ *
+ * Works with initialized variables and potentially uninitialized array keys
+ *
+ * Usages:
+ * - defaults($var, $default)
+ * - defaults($array, 'key', $default)
+ *
+ * @brief Returns a defaut value if the provided variable or array key is falsy
+ * @see x()
+ * @return mixed
+ */
+function defaults() {
+	$args = func_get_args();
+
+	if (count($args) < 2) {
+		throw new BadFunctionCallException('defaults() requires at least 2 parameters');
+	}
+	if (count($args) > 3) {
+		throw new BadFunctionCallException('defaults() cannot use more than 3 parameters');
+	}
+	if (count($args) === 3 && !is_array($args[0])) {
+		throw new BadFunctionCallException('defaults($arr, $key, $def) requires an array as first parameter');
+	}
+	if (count($args) === 3 && is_null($args[1])) {
+		throw new BadFunctionCallException('defaults($arr, $key, $def) $key is null');
+	}
+
+	$default = array_pop($args);
+
+	if (call_user_func_array('x', $args)) {
+		if (count($args) === 1) {
+			$return = $args[0];
+		} else {
+			$return = $args[0][$args[1]];
+		}
+	} else {
+		$return = $default;
+	}
+
+	return $return;
+}
+
+/**
  * @brief Returns the baseurl.
  *
  * @see System::baseUrl()
@@ -619,10 +663,17 @@ function is_ajax()
 function check_db($via_worker)
 {
 	$build = Config::get('system', 'build');
-	if (!x($build)) {
+
+	if (empty($build)) {
 		Config::set('system', 'build', DB_UPDATE_VERSION);
 		$build = DB_UPDATE_VERSION;
 	}
+
+	// We don't support upgrading from very old versions anymore
+	if ($build < NEW_UPDATE_ROUTINE_VERSION) {
+		die('You try to update from a version prior to database version 1170. The direct upgrade path is not supported. Please update to version 3.5.4 before updating to this version.');
+	}
+
 	if ($build != DB_UPDATE_VERSION) {
 		// When we cannot execute the database update via the worker, we will do it directly
 		if (!Worker::add(PRIORITY_CRITICAL, 'DBUpdate') && $via_worker) {
@@ -647,7 +698,7 @@ function check_url(App $a)
 	// and www.example.com vs example.com.
 	// We will only change the url to an ip address if there is no existing setting
 
-	if (!x($url)) {
+	if (empty($url)) {
 		$url = Config::set('system', 'url', System::baseUrl());
 	}
 	if ((!link_compare($url, System::baseUrl())) && (!preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $a->get_hostname))) {
@@ -664,63 +715,46 @@ function check_url(App $a)
 function update_db(App $a)
 {
 	$build = Config::get('system', 'build');
-	if (!x($build)) {
-		$build = Config::set('system', 'build', DB_UPDATE_VERSION);
+
+	if (empty($build)) {
+		Config::set('system', 'build', DB_UPDATE_VERSION);
+		$build = DB_UPDATE_VERSION;
 	}
 
 	if ($build != DB_UPDATE_VERSION) {
+		require_once 'update.php';
+
 		$stored = intval($build);
 		$current = intval(DB_UPDATE_VERSION);
 		if ($stored < $current) {
 			Config::load('database');
 
-			// We're reporting a different version than what is currently installed.
-			// Run any existing update scripts to bring the database up to current.
-			// make sure that boot.php and update.php are the same release, we might be
-			// updating right this very second and the correct version of the update.php
-			// file may not be here yet. This can happen on a very busy site.
+			// Compare the current structure with the defined structure
+			$t = Config::get('database', 'dbupdate_' . DB_UPDATE_VERSION);
+			if (!is_null($t)) {
+				return;
+			}
 
-			if (DB_UPDATE_VERSION == UPDATE_VERSION) {
-				// Compare the current structure with the defined structure
+			Config::set('database', 'dbupdate_' . DB_UPDATE_VERSION, time());
 
-				$t = Config::get('database', 'dbupdate_' . DB_UPDATE_VERSION);
-				if (!is_null($t)) {
-					return;
-				}
+			// run update routine
+			// it update the structure in one call
+			$retval = DBStructure::update(false, true);
+			if ($retval) {
+				DBStructure::updateFail(
+					DB_UPDATE_VERSION,
+					$retval
+				);
+				return;
+			} else {
+				Config::set('database', 'dbupdate_' . DB_UPDATE_VERSION, 'success');
+			}
 
-				Config::set('database', 'dbupdate_' . DB_UPDATE_VERSION, time());
-
-				// run old update routine (wich could modify the schema and
-				// conflits with new routine)
-				for ($x = $stored; $x < NEW_UPDATE_ROUTINE_VERSION; $x++) {
-					$r = run_update_function($x);
-					if (!$r) {
-						break;
-					}
-				}
-				if ($stored < NEW_UPDATE_ROUTINE_VERSION) {
-					$stored = NEW_UPDATE_ROUTINE_VERSION;
-				}
-
-				// run new update routine
-				// it update the structure in one call
-				$retval = DBStructure::update(false, true);
-				if ($retval) {
-					DBStructure::updateFail(
-						DB_UPDATE_VERSION,
-						$retval
-					);
-					return;
-				} else {
-					Config::set('database', 'dbupdate_' . DB_UPDATE_VERSION, 'success');
-				}
-
-				// run any left update_nnnn functions in update.php
-				for ($x = $stored; $x < $current; $x ++) {
-					$r = run_update_function($x);
-					if (!$r) {
-						break;
-					}
+			// run any left update_nnnn functions in update.php
+			for ($x = $stored + 1; $x <= $current; $x++) {
+				$r = run_update_function($x);
+				if (!$r) {
+					break;
 				}
 			}
 		}
@@ -996,7 +1030,7 @@ function remote_user()
 	if (local_user()) {
 		return false;
 	}
-	if ((x($_SESSION, 'authenticated')) && (x($_SESSION, 'visitor_id'))) {
+	if (x($_SESSION, 'authenticated') && x($_SESSION, 'visitor_id')) {
 		return intval($_SESSION['visitor_id']);
 	}
 	return false;
@@ -1051,7 +1085,7 @@ function info($s)
 function get_max_import_size()
 {
 	$a = get_app();
-	return ((x($a->config, 'max_import_size')) ? $a->config['max_import_size'] : 0 );
+	return (x($a->config, 'max_import_size') ? $a->config['max_import_size'] : 0);
 }
 
 
@@ -1601,14 +1635,11 @@ function argv($x)
 function infinite_scroll_data($module)
 {
 	if (PConfig::get(local_user(), 'system', 'infinite_scroll')
-		&& ($module == "network") && ($_GET["mode"] != "minimal")
+		&& $module == 'network'
+		&& defaults($_GET, 'mode', '') != 'minimal'
 	) {
 		// get the page number
-		if (is_string($_GET["page"])) {
-			$pageno = $_GET["page"];
-		} else {
-			$pageno = 1;
-		}
+		$pageno = defaults($_GET, 'page', 1);
 
 		$reload_uri = "";
 
@@ -1619,7 +1650,8 @@ function infinite_scroll_data($module)
 			}
 		}
 
-		if (($a->page_offset != "") && ! strstr($reload_uri, "&offset=")) {
+		$a = get_app();
+		if ($a->page_offset != "" && !strstr($reload_uri, "&offset=")) {
 			$reload_uri .= "&offset=" . urlencode($a->page_offset);
 		}
 
