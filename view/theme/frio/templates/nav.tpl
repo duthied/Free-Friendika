@@ -50,6 +50,10 @@
 						{{if $nav.community}}
 						<a role="menuitem" class="nav-menu {{$sel.community}}" href="{{$nav.community.0}}" data-toggle="tooltip" title="{{$nav.community.3}}"><i class="fa fa-lg fa-bullseye" aria-hidden="true"></i></a>
 						{{/if}}
+
+						{{if $nav.global}}
+						<a role="menuitem" class="nav-menu {{$sel.global}}" href="{{$nav.global.0}}" data-toggle="tooltip" title="{{$nav.global.3}}"><i class="fa fa-lg fa-globe" aria-hidden="true"></i></a>
+						{{/if}}
 					</li>
 
 					<li id="nav-personal" class="nav-segment hidden-xs" role="presentation">

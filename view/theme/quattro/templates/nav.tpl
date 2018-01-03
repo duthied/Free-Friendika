@@ -19,26 +19,33 @@
 				</ul>
 			</li>
 		{{/if}}
-		
+
+		{{if $nav.global}}
+			<li id="nav-global-link" class="nav-menu {{$sel.global}}">
+				<a class="{{$nav.global.2}}" href="{{$nav.global.0}}" title="{{$nav.global.3}}" >{{$nav.global.1}}</a>
+			</li>
+		{{/if}}
+
 		{{if $nav.community}}
 			<li id="nav-community-link" class="nav-menu {{$sel.community}}">
 				<a class="{{$nav.community.2}}" href="{{$nav.community.0}}" title="{{$nav.community.3}}" >{{$nav.community.1}}</a>
 			</li>
 		{{/if}}
-		
+
 		{{if $nav.network}}
 			<li id="nav-network-link" class="nav-menu {{$sel.network}}">
 				<a accesskey="n" class="{{$nav.network.2}}" href="{{$nav.network.0}}" title="{{$nav.network.3}}" >{{$nav.network.1}}</a>
 				<span id="net-update" class="nav-notify"></span>
 			</li>
 		{{/if}}
+
 		{{if $nav.home}}
 			<li id="nav-home-link" class="nav-menu {{$sel.home}}">
 				<a accesskey="p" class="{{$nav.home.2}}" href="{{$nav.home.0}}" title="{{$nav.home.3}}" >{{$nav.home.1}}</a>
 				<span id="home-update" class="nav-notify"></span>
 			</li>
 		{{/if}}
-		
+
 		{{if $nav.introductions}}
 			<li id="nav-introductions-link" class="nav-menu-icon {{$sel.introductions}}">
 				<a class="{{$nav.introductions.2}}" href="{{$nav.introductions.0}}" title="{{$nav.introductions.3}}" >
@@ -47,7 +54,7 @@
 				<span id="intro-update" class="nav-notify"></span>
 			</li>
 		{{/if}}
-		
+
 		{{if $nav.messages}}
 			<li id="nav-messages-link" class="nav-menu-icon {{$sel.messages}}">
 				<a class="{{$nav.messages.2}}" href="{{$nav.messages.0}}" title="{{$nav.messages.3}}" >
@@ -57,8 +64,6 @@
 			</li>
 		{{/if}}
 
-
-		
 		{{if $nav.notifications}}
 			<li  id="nav-notifications-linkmenu" class="nav-menu-icon"><a accesskey="f" href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" title="{{$nav.notifications.1}}"><span class="icon s22 notify">{{$nav.notifications.1}}</span></a>
 				<span id="notify-update" class="nav-notify"></span>

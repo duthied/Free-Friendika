@@ -253,9 +253,13 @@ if (strlen($a->module)) {
 	}
 
 	// Controller class routing
-	if (! $a->module_loaded && class_exists('Friendica\\Module\\' . ucfirst($a->module))) {
-		$a->module_class = 'Friendica\\Module\\' . ucfirst($a->module);
-		$a->module_loaded = true;
+	$classes = ['Friendica\\Module\\' . ucfirst($a->module), 'Friendica\\Module\\' . ucfirst($a->module) . 'Module'];
+	foreach ($classes as $class) {
+		if (!$a->module_loaded && class_exists($class)) {
+			$a->module_class = $class;
+			$a->module_loaded = true;
+			break;
+		}
 	}
 
 	/**

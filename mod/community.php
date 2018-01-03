@@ -5,7 +5,7 @@ use Friendica\Core\Config;
 use Friendica\Database\DBM;
 
 function community_init(App $a) {
-	if (! local_user()) {
+	if (!local_user()) {
 		unset($_SESSION['theme']);
 		unset($_SESSION['mobile-theme']);
 	}
@@ -14,28 +14,28 @@ function community_init(App $a) {
 function community_content(App $a, $update = 0) {
 	$o = '';
 
-	if ((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
-		notice( t('Public access denied.') . EOL);
+	if (Config::get('system','block_public') && !local_user() && !remote_user()) {
+		notice(t('Public access denied.') . EOL);
 		return;
 	}
 
-	if (Config::get('system','community_page_style') == CP_NO_COMMUNITY_PAGE) {
-		notice( t('Not available.') . EOL);
+	if (!in_array(Config::get('system','community_page_style'), [CP_USERS_ON_SERVER, CP_USERS_AND_GLOBAL])) {
+		notice(t('Not available.') . EOL);
 		return;
 	}
 
-	require_once("include/bbcode.php");
-	require_once('include/security.php');
-	require_once('include/conversation.php');
+	require_once 'include/bbcode.php';
+	require_once 'include/security.php';
+	require_once 'include/conversation.php';
 
-	if (! $update) {
+	if (!$update) {
 		nav_set_selected('community');
 	}
 
 	if (x($a->data,'search')) {
 		$search = notags(trim($a->data['search']));
 	} else {
-		$search = ((x($_GET,'search')) ? notags(trim(rawurldecode($_GET['search']))) : '');
+		$search = (x($_GET,'search') ? notags(trim(rawurldecode($_GET['search']))) : '');
 	}
 
 	// Here is the way permissions work in this module...
@@ -44,8 +44,8 @@ function community_content(App $a, $update = 0) {
 
 	$r = community_getitems($a->pager['start'], $a->pager['itemspage']);
 
-	if (! DBM::is_result($r)) {
-		info( t('No results.') . EOL);
+	if (!DBM::is_result($r)) {
+		info(t('No results.') . EOL);
 		return $o;
 	}
 
@@ -70,7 +70,7 @@ function community_content(App $a, $update = 0) {
 					$s[] = $item;
 				}
 			}
-			if ((sizeof($s) < $a->pager['itemspage'])) {
+			if (sizeof($s) < $a->pager['itemspage']) {
 				$r = community_getitems($a->pager['start'] + ($count * $a->pager['itemspage']), $a->pager['itemspage']);
 			}
 		} while ((sizeof($s) < $a->pager['itemspage']) && (++$count < 50) && (sizeof($r) > 0));
@@ -87,15 +87,12 @@ function community_content(App $a, $update = 0) {
 	return replace_macros($t, array(
 		'$content' => $o,
 		'$header' => t("Community"),
-		'$show_global_community_hint' => (Config::get('system', 'community_page_style') == CP_GLOBAL_COMMUNITY && Config::get('system', 'show_global_community_hint')),
-		'$global_community_hint' => t("This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users.")
+		'$show_global_community_hint' => false,
+		'$global_community_hint' => ''
 	));
 }
 
 function community_getitems($start, $itemspage) {
-	if (Config::get('system','community_page_style') == CP_GLOBAL_COMMUNITY) {
-		return(community_getpublicitems($start, $itemspage));
-	}
 	$r = dba::p("SELECT ".item_fieldlists()." FROM `thread`
 		INNER JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
 		INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
@@ -108,40 +105,4 @@ function community_getitems($start, $itemspage) {
 	);
 
 	return dba::inArray($r);
-}
-
-function community_getpublicitems($start, $itemspage) {
-	$r = dba::p("SELECT ".item_fieldlists()." FROM `thread`
-		INNER JOIN `item` ON `item`.`id` = `thread`.`iid` ".item_joins().
-		"WHERE `thread`.`uid` = 0 AND `verb` = ?
-		ORDER BY `thread`.`commented` DESC LIMIT ".intval($start).", ".intval($itemspage),
-		ACTIVITY_POST
-	);
-
-	while ($rr = dba::fetch($r)) {
-		if (!in_array($rr['item_id'], $parents_arr)) {
-			$parents_arr[] = $rr['item_id'];
-		}
-	}
-
-	dba::close();
-
-	$max_comments = Config::get("system", "max_comments", 100);
-
-	$items = array();
-
-	foreach ($parents_arr AS $parents) {
-		$thread_items = dba::p(item_query()." AND `item`.`uid` = 0
-			AND `item`.`parent` = ?
-			ORDER BY `item`.`commented` DESC LIMIT ".intval($max_comments + 1),
-			$parents
-		);
-
-		if (DBM::is_result($thread_items)) {
-			$items = array_merge($items, dba::inArray($thread_items));
-		}
-	}
-	$items = conv_sort($items, "`commented`");
-
-	return $items;
 }

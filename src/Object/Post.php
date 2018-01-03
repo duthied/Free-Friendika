@@ -322,6 +322,12 @@ class Post extends BaseObject
 			unset($buttons["like"]);
 		}
 
+		// If a contact isn't writable, we cannot send a like or dislike to it
+		if (!$item['writable']) {
+			unset($buttons["like"]);
+			unset($buttons["dislike"]);
+		}
+
 		$tmp_item = array(
 			'template'        => $this->getTemplate(),
 			'type'            => implode("", array_slice(explode("/", $item['verb']), -1)),

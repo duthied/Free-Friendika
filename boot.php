@@ -228,9 +228,10 @@ define('ACCOUNT_TYPE_COMMUNITY',   3);
  * Type of the community page
  * @{
  */
-define('CP_NO_COMMUNITY_PAGE',   -1);
+define('CP_NO_COMMUNITY_PAGE',  -1);
 define('CP_USERS_ON_SERVER',     0);
 define('CP_GLOBAL_COMMUNITY',    1);
+define('CP_USERS_AND_GLOBAL',    2);
 /**
  * @}
  */

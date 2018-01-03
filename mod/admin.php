@@ -1176,7 +1176,8 @@ function admin_page_site(App $a)
 	$community_page_style_choices = array(
 		CP_NO_COMMUNITY_PAGE => t("No community page"),
 		CP_USERS_ON_SERVER => t("Public postings from users of this site"),
-		CP_GLOBAL_COMMUNITY => t("Global community page")
+		CP_GLOBAL_COMMUNITY => t("Global community page"),
+		CP_USERS_AND_GLOBAL => t("Public user postings and global postings")
 	);
 
 	/* OStatus conversation poll choices */

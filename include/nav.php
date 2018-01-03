@@ -147,10 +147,14 @@ function nav_info(App $a)
 		if (strlen($gdir)) {
 			$gdirpath = zrl($gdir, true);
 		}
-	} elseif (Config::get('system', 'community_page_style') == CP_USERS_ON_SERVER) {
+	}
+
+	if (in_array(Config::get('system', 'community_page_style'), [CP_USERS_ON_SERVER, CP_USERS_AND_GLOBAL])) {
 		$nav['community'] = array('community', t('Community'), '', t('Conversations on this site'));
-	} elseif (Config::get('system', 'community_page_style') == CP_GLOBAL_COMMUNITY) {
-		$nav['community'] = array('community', t('Community'), '', t('Conversations on the network'));
+	}
+
+	if (in_array(Config::get('system', 'community_page_style'), [CP_GLOBAL_COMMUNITY, CP_USERS_AND_GLOBAL])) {
+		$nav['global'] = array('global', t('Global Timeline'), '', t('Conversations on the network'));
 	}
 
 	if (local_user()) {
@@ -230,6 +234,7 @@ function nav_info(App $a)
 function nav_set_selected($item){
 	$a = get_app();
 	$a->nav_sel = array(
+		'global' 	=> null,
 		'community' 	=> null,
 		'network' 	=> null,
 		'home'		=> null,
