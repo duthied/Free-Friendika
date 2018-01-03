@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @file src/Module/Global.php
+ */
+
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
