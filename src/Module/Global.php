@@ -114,51 +114,5 @@ class GlobalModule extends BaseModule {
 		);
 
 		return dba::inArray($r);
-
-		// Currently deactivated
-		$parents_arr = [];
-
-		while ($rr = dba::fetch($r)) {
-			if (!in_array($rr['item_id'], $parents_arr)) {
-				$parents_arr[] = $rr['item_id'];
-			}
-		}
-
-		dba::close($r);
-
-		$max_comments = Config::get("system", "max_comments", 100);
-
-		$items = array();
-
-		foreach ($parents_arr AS $parents) {
-			$thread_items = dba::p(item_query()." AND `item`.`uid` = 0
-				AND `item`.`parent` = ?
-				ORDER BY `item`.`commented` DESC LIMIT ".intval($max_comments + 1),
-				$parents
-			);
-
-			if (DBM::is_result($thread_items)) {
-				$items = array_merge($items, dba::inArray($thread_items));
-			}
-		}
-
-		foreach ($items as $index => $item) {
-			$items[$index]['writable'] = in_array($item['network'], [NETWORK_DIASPORA, NETWORK_OSTATUS]);
-			if ($item['network'] == NETWORK_DFRN) {
-				$fields = ['id', 'writable', 'self'];
-				$condition = ['nurl' => normalise_link($item['author-link']), 'uid' => local_user()];
-				$contact = dba::select('contact', $fields, $condition, ['limit' => 1]);
-				if (DBM::is_result($contact)) {
-					$items[$index]['contact-id'] = $contact['id'];
-					$items[$index]['cid'] = $contact['id'];
-					$items[$index]['writable'] = $contact['writable'];
-					$items[$index]['self'] = $contact['self'];
-				}
-			}
-		}
-
-		$items = conv_sort($items, "`commented`");
-
-		return $items;
 	}
 }
