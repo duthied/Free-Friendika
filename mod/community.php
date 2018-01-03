@@ -19,7 +19,7 @@ function community_content(App $a, $update = 0) {
 		return;
 	}
 
-	if (!in_array(Config::get('system','community_page_style'), [CP_USERS_ON_SERVER, CP_USERS_AND_GLOBAL])) {
+	if (!local_user() && !in_array(Config::get('system','community_page_style'), [CP_USERS_ON_SERVER, CP_USERS_AND_GLOBAL])) {
 		notice(t('Not available.') . EOL);
 		return;
 	}

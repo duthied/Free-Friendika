@@ -36,7 +36,7 @@ class GlobalModule extends BaseModule {
 			return;
 		}
 
-		if (!in_array(Config::get('system','community_page_style'), [CP_GLOBAL_COMMUNITY, CP_USERS_AND_GLOBAL])) {
+		if (!local_user() && !in_array(Config::get('system','community_page_style'), [CP_GLOBAL_COMMUNITY, CP_USERS_AND_GLOBAL])) {
 			notice(t('Not available.') . EOL);
 			return;
 		}
@@ -66,37 +66,9 @@ class GlobalModule extends BaseModule {
 			return $o;
 		}
 
-		$maxpostperauthor = Config::get('system','max_author_posts_community_page');
-
-		if ($maxpostperauthor != 0) {
-			$count = 1;
-			$previousauthor = "";
-			$numposts = 0;
-			$s = array();
-
-			do {
-				foreach ($r AS $row=>$item) {
-					if ($previousauthor == $item["author-link"]) {
-						++$numposts;
-					} else {
-						$numposts = 0;
-					}
-					$previousauthor = $item["author-link"];
-
-					if (($numposts < $maxpostperauthor) && (sizeof($s) < $a->pager['itemspage'])) {
-						$s[] = $item;
-					}
-				}
-				if (sizeof($s) < $a->pager['itemspage']) {
-					$r = self::getPublicItems($a->pager['start'] + ($count * $a->pager['itemspage']), $a->pager['itemspage']);
-				}
-			} while ((sizeof($s) < $a->pager['itemspage']) && (++$count < 50) && (sizeof($r) > 0));
-		} else {
-			$s = $r;
-		}
 		// we behave the same in message lists as the search module
 
-		$o .= conversation($a, $s, 'community', $update);
+		$o .= conversation($a, $r, 'community', $update);
 
 		$o .= alt_pager($a, count($r));
 
