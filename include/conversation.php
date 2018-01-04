@@ -919,6 +919,20 @@ function community_add_items($parents) {
 		);
 		$comments = dba::inArray($thread_items);
 
+		// Check if the original item is in the result.
+		// When commenting from the community page there can be incomplete threads
+		if (count($comments) > 0) {
+			$parent_found = false;
+			foreach ($comments as $comment) {
+				if ($comment['uri'] == $comment['parent-uri']) {
+					$parent_found = true;
+					break;
+				}
+			}
+			if (!$parent_found) {
+				$comments = array();
+			}
+		}
 
 		if (count($comments) == 0) {
 			$thread_items = dba::p(item_query()." AND `item`.`uid` = 0
