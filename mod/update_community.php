@@ -12,7 +12,11 @@ function update_community_content(App $a) {
 	echo "<!DOCTYPE html><html><body>\r\n";
 	echo "<section>";
 
-	$text = community_content($a, true);
+	if ($_GET["force"] == 1) {
+		$text = community_content($a, true);
+	} else {
+		$text = '';
+	}
 
 	$pattern = "/<img([^>]*) src=\"([^\"]*)\"/";
 	$replace = "<img\${1} dst=\"\${2}\"";
