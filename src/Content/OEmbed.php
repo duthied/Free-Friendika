@@ -319,7 +319,7 @@ class OEmbed
 		if (Config::get('system', 'ssl_policy') == SSL_POLICY_FULL && parse_url($src, PHP_URL_SCHEME) !== 'https') {
 			$src = System::baseUrl() . '/oembed/' . base64url_encode($src);
 		}
-		return '<iframe onload="resizeIframe(this);" class="embed_rich" height="' . $height . '" width="' . $width . '" src="' . $s . '" allowfullscreen scrolling="no" frameborder="no">' . t('Embedded content') . '</iframe>';
+		return '<iframe onload="resizeIframe(this);" class="embed_rich" height="' . $height . '" width="' . $width . '" src="' . $src . '" allowfullscreen scrolling="no" frameborder="no">' . t('Embedded content') . '</iframe>';
 	}
 
 	/**
