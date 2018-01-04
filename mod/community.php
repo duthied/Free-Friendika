@@ -139,7 +139,9 @@ function community_content(App $a, $update = 0) {
 
 	$o .= conversation($a, $s, 'community', $update);
 
-	$o .= alt_pager($a, count($r));
+	if (!$update) {
+		$o .= alt_pager($a, count($r));
+	}
 
 	$t = get_markup_template("community.tpl");
 	return replace_macros($t, array(

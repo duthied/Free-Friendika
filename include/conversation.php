@@ -578,11 +578,11 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 			$items = community_add_items($items);
 		}
 		$profile_owner = 0;
-// Currently deactivated. Will be activated when we can comment on the community page
-//		if (!$update) {
-//			$live_update_div = '<div id="live-community"></div>' . "\r\n"
-//				. "<script> var profile_uid = -1; var netargs = '/?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
-//		}
+		if (!$update) {
+			$live_update_div = '<div id="live-community"></div>' . "\r\n"
+				. "<script> var profile_uid = -1; var netargs = '" . substr($a->cmd, 10)
+				."/?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
+		}
 	} elseif ($mode === 'search') {
 		$live_update_div = '<div id="live-search"></div>' . "\r\n";
 	}
