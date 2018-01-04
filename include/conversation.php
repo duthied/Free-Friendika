@@ -589,20 +589,14 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 
 	$page_dropping = ((local_user() && local_user() == $profile_owner) ? true : false);
 
-
-	if ($update) {
-		$return_url = $_SESSION['return_url'];
-	} else {
-		$return_url = $_SESSION['return_url'] = $a->query_string;
+	if (!$update) {
+		$_SESSION['return_url'] = $a->query_string;
 	}
 
 	$cb = array('items' => $items, 'mode' => $mode, 'update' => $update, 'preview' => $preview);
 	call_hooks('conversation_start',$cb);
 
 	$items = $cb['items'];
-
-	$cmnt_tpl    = get_markup_template('comment_item.tpl');
-	$hide_comments_tpl = get_markup_template('hide_comments.tpl');
 
 	$conv_responses = array(
 		'like' => array('title' => t('Likes','title')), 'dislike' => array('title' => t('Dislikes','title')),
@@ -759,7 +753,6 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 
 				$lock = false;
 				$likebuttons = false;
-				$shareable = false;
 
 				$body = prepare_body($item, true, $preview);
 
@@ -844,9 +837,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 			 * this shouldn't be needed, as we should have only them in our array
 			 * But for now, this array respects the old style, just in case
 			 */
-			$threads = array();
 			foreach ($items as $item) {
-
 				if ($arr_blocked) {
 					$blocked = false;
 					foreach ($arr_blocked as $b) {
@@ -883,7 +874,6 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 			}
 
 			$threads = $conv->getTemplateData($conv_responses);
-
 			if (!$threads) {
 				logger('[ERROR] conversation : Failed to get template data.', LOGGER_DEBUG);
 				$threads = array();
@@ -1000,7 +990,6 @@ function item_photo_menu($item) {
 	$status_link = '';
 	$photos_link = '';
 	$posts_link = '';
-	$network = '';
 
 	if ((local_user()) && local_user() == $item['uid'] && $item['parent'] == $item['id'] && (! $item['self'])) {
 		$sub_link = 'javascript:dosubthread(' . $item['id'] . '); return false;';
@@ -1026,7 +1015,6 @@ function item_photo_menu($item) {
 		$status_link = $profile_link . '?url=status';
 		$photos_link = $profile_link . '?url=photos';
 		$profile_link = $profile_link . '?url=profile';
-		$zurl = '';
 	} else {
 		$profile_link = zrl($profile_link);
 	}
@@ -1113,7 +1101,6 @@ function builtin_activity_puller($item, &$conv_responses) {
 				break;
 			default:
 				return;
-				break;
 		}
 
 		if ((activity_match($item['verb'], $verb)) && ($item['id'] != $item['parent'])) {
@@ -1361,7 +1348,6 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 
 		// ACL permissions box
 		'$acl'           => $x['acl'],
-		'$acl_data'      => $x['acl_data'],
 		'$group_perms'   => t('Post to Groups'),
 		'$contact_perms' => t('Post to Contacts'),
 		'$private'       => t('Private post'),
@@ -1656,22 +1642,25 @@ function get_responses($conv_responses, $response_verbs, $ob, $item) {
 	return $ret;
 }
 
-function get_response_button_text($v, $count) {
+function get_response_button_text($v, $count)
+{
 	switch ($v) {
 		case 'like':
-			return tt('Like', 'Likes', $count, 'noun');
+			$return = tt('Like', 'Likes', $count);
 			break;
 		case 'dislike':
-			return tt('Dislike', 'Dislikes', $count, 'noun');
+			$return = tt('Dislike', 'Dislikes', $count);
 			break;
 		case 'attendyes':
-			return tt('Attending', 'Attending', $count, 'noun');
+			$return = tt('Attending', 'Attending', $count);
 			break;
 		case 'attendno':
-			return tt('Not Attending', 'Not Attending', $count, 'noun');
+			$return = tt('Not Attending', 'Not Attending', $count);
 			break;
 		case 'attendmaybe':
-			return tt('Undecided', 'Undecided', $count, 'noun');
+			$return = tt('Undecided', 'Undecided', $count);
 			break;
 	}
+
+	return $return;
 }

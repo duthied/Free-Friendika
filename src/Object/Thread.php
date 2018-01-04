@@ -60,11 +60,11 @@ class Thread extends BaseObject
 				break;
 			case 'profile':
 				$this->profile_owner = $a->profile['profile_uid'];
-				$this->writable = can_write_wall($a, $this->profile_owner);
+				$this->writable = can_write_wall($this->profile_owner);
 				break;
 			case 'display':
 				$this->profile_owner = $a->profile['uid'];
-				$this->writable = can_write_wall($a, $this->profile_owner) || $writable;
+				$this->writable = can_write_wall($this->profile_owner) || $writable;
 				break;
 			case 'community':
 				$this->profile_owner = local_user();

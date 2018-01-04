@@ -177,13 +177,10 @@ function datetime_convert($from = 'UTC', $to = 'UTC', $s = 'now', $fmt = "Y-m-d 
  * @param string $dob Date of Birth
  * @return string Formatted html
  */
-function dob($dob) {
-	list($year,$month,$day) = sscanf($dob,'%4d-%2d-%2d');
+function dob($dob)
+{
+	list($year, $month, $day) = sscanf($dob, '%4d-%2d-%2d');
 
-	$f = Config::get('system', 'birthday_input_format');
-	if (! $f) {
-		$f = 'ymd';
-	}
 	if ($dob <= '0001-01-01') {
 		$value = '';
 	} else {
@@ -215,8 +212,6 @@ function dob($dob) {
 /**
  * @brief Returns a date selector
  *
- * @param string $format
- *  Format string, e.g. 'ymd' or 'mdy'. Not currently supported
  * @param string $min
  *  Unix timestamp of minimum date
  * @param string $max
@@ -228,15 +223,14 @@ function dob($dob) {
  *
  * @return string Parsed HTML output.
  */
-function datesel($format, $min, $max, $default, $id = 'datepicker') {
-	return datetimesel($format, $min, $max, $default, '', $id, true, false, '', '');
+function datesel($min, $max, $default, $id = 'datepicker')
+{
+	return datetimesel($min, $max, $default, '', $id, true, false, '', '');
 }
 
 /**
  * @brief Returns a time selector
  *
- * @param string $format
- *  Format string, e.g. 'ymd' or 'mdy'. Not currently supported
  * @param $h
  *  Already selected hour
  * @param $m
@@ -246,15 +240,14 @@ function datesel($format, $min, $max, $default, $id = 'datepicker') {
  *
  * @return string Parsed HTML output.
  */
-function timesel($format, $h, $m, $id = 'timepicker') {
-	return datetimesel($format, new DateTime(), new DateTime(), new DateTime("$h:$m"), '', $id, false, true);
+function timesel($h, $m, $id = 'timepicker')
+{
+	return datetimesel(new DateTime(), new DateTime(), new DateTime("$h:$m"), '', $id, false, true);
 }
 
 /**
  * @brief Returns a datetime selector.
  *
- * @param string $format
- *  format string, e.g. 'ymd' or 'mdy'. Not currently supported
  * @param string $min
  *  unix timestamp of minimum date
  * @param string $max
@@ -278,8 +271,8 @@ function timesel($format, $h, $m, $id = 'timepicker') {
  * @todo Once browser support is better this could probably be replaced with
  * native HTML5 date picker.
  */
-function datetimesel($format, $min, $max, $default, $label, $id = 'datetimepicker', $pickdate = true, $picktime = true, $minfrom = '', $maxfrom = '', $required = false) {
-
+function datetimesel($min, $max, $default, $label, $id = 'datetimepicker', $pickdate = true, $picktime = true, $minfrom = '', $maxfrom = '', $required = false)
+{
 	// First day of the week (0 = Sunday)
 	$firstDay = PConfig::get(local_user(), 'system', 'first_day_of_week', 0);
 
@@ -619,7 +612,7 @@ function update_contact_birthdays() {
 			$bdtext = sprintf( t('%s\'s birthday'), $rr['name']);
 			$bdtext2 = sprintf( t('Happy Birthday %s'), ' [url=' . $rr['url'] . ']' . $rr['name'] . '[/url]') ;
 
-			$r = q("INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`,`adjust`)
+			q("INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`,`adjust`)
 				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d' ) ",
 				intval($rr['uid']),
 			 	intval($rr['id']),

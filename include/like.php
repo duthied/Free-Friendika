@@ -85,7 +85,7 @@ function do_like($item_id, $verb) {
 		$uid = local_user();
 	}
 
-	if (!can_write_wall($a, $uid)) {
+	if (!can_write_wall($uid)) {
 		logger('like: unable to write on wall ' . $uid);
 		return false;
 	}

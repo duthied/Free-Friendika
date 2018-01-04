@@ -454,11 +454,10 @@ function networkFlatView(App $a, $update = 0) {
 			'bang'	=> '',
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
-			'acl_data' => construct_acl_data($a, $a->user), // For non-Javascript ACL selector
 			'content' => '',
 		);
 
-		$o .= status_editor($a,$x);
+		$o .= status_editor($a, $x);
 
 		if (!Config::get('theme','hide_eventlist')) {
 			$o .= get_birthdays();
@@ -605,12 +604,10 @@ function networkThreadedView(App $a, $update = 0) {
 			'bang'	=> (($group || $cid || $nets) ? '!' : ''),
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
-			'acl_data' => construct_acl_data($a, $a->user), // For non-Javascript ACL selector
 			'content' => $content,
 		);
 
-		$o .= status_editor($a,$x);
-
+		$o .= status_editor($a, $x);
 	}
 
 	// We don't have to deal with ACLs on this page. You're looking at everything

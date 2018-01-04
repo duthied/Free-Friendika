@@ -261,13 +261,10 @@ function event_store($arr) {
 		$contact = $c[0];
 	}
 
-
 	// Existing event being modified.
-
 	if ($arr['id']) {
 
 		// has the event actually changed?
-
 		$r = q("SELECT * FROM `event` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($arr['id']),
 			intval($arr['uid'])
@@ -275,7 +272,6 @@ function event_store($arr) {
 		if ((! DBM::is_result($r)) || ($r[0]['edited'] === $arr['edited'])) {
 
 			// Nothing has changed. Grab the item id to return.
-
 			$r = q("SELECT * FROM `item` WHERE `event-id` = %d AND `uid` = %d LIMIT 1",
 				intval($arr['id']),
 				intval($arr['uid'])
@@ -284,8 +280,7 @@ function event_store($arr) {
 		}
 
 		// The event changed. Update it.
-
-		$r = q("UPDATE `event` SET
+		q("UPDATE `event` SET
 			`edited` = '%s',
 			`start` = '%s',
 			`finish` = '%s',
@@ -309,6 +304,7 @@ function event_store($arr) {
 			intval($arr['id']),
 			intval($arr['uid'])
 		);
+
 		$r = q("SELECT * FROM `item` WHERE `event-id` = %d AND `uid` = %d LIMIT 1",
 			intval($arr['id']),
 			intval($arr['uid'])
@@ -336,8 +332,7 @@ function event_store($arr) {
 		return $item_id;
 	} else {
 		// New event. Store it.
-
-		$r = q("INSERT INTO `event` (`uid`,`cid`,`guid`,`uri`,`created`,`edited`,`start`,`finish`,`summary`, `desc`,`location`,`type`,
+		q("INSERT INTO `event` (`uid`,`cid`,`guid`,`uri`,`created`,`edited`,`start`,`finish`,`summary`, `desc`,`location`,`type`,
 			`adjust`,`nofinish`,`allow_cid`,`allow_gid`,`deny_cid`,`deny_gid`)
 			VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', '%s', '%s', '%s' ) ",
 			intval($arr['uid']),
@@ -403,21 +398,7 @@ function event_store($arr) {
 		$item_arr['object'] .= '</object>' . "\n";
 
 		$item_id = item_store($item_arr);
-
-		$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
-			intval($arr['uid'])
-		);
-		//if (DBM::is_result($r))
-		//	$plink = System::baseUrl() . '/display/' . $r[0]['nickname'] . '/' . $item_id;
-
-
 		if ($item_id) {
-			//q("UPDATE `item` SET `plink` = '%s', `event-id` = %d  WHERE `uid` = %d AND `id` = %d",
-			//	dbesc($plink),
-			//	intval($event['id']),
-			//	intval($arr['uid']),
-			//	intval($item_id)
-			//);
 			q("UPDATE `item` SET `event-id` = %d  WHERE `uid` = %d AND `id` = %d",
 				intval($event['id']),
 				intval($arr['uid']),
@@ -675,9 +656,12 @@ function process_events($arr) {
  * @param string $timezone The timezone of the user (not implemented yet).
  *
  * @return string Content according to selected export format.
+ *
+ * @todo Implement timezone support
  */
-function event_format_export ($events, $format = 'ical', $timezone) {
-	if (! ((is_array($events)) && count($events))) {
+function event_format_export($events, $format = 'ical', $timezone)
+{
+	if (!((is_array($events)) && count($events))) {
 		return;
 	}
 

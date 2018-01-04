@@ -475,11 +475,6 @@ function events_content(App $a) {
 		$fhour   = ((x($orig_event)) ? datetime_convert('UTC', $tz, $fdt, 'H') : 0);
 		$fminute = ((x($orig_event)) ? datetime_convert('UTC', $tz, $fdt, 'i') : 0);
 
-		$f = Config::get('system','event_input_format');
-		if (! $f) {
-			$f = 'ymd';
-		}
-
 		require_once 'include/acl_selectors.php' ;
 
 		$perms = get_acl_permissions($orig_event);
@@ -511,11 +506,11 @@ function events_content(App $a) {
 			'$title' => t('Event details'),
 			'$desc' => t('Starting date and Title are required.'),
 			'$s_text' => t('Event Starts:') . ' <span class="required" title="' . t('Required') . '">*</span>',
-			'$s_dsel' => datetimesel($f, new DateTime(), DateTime::createFromFormat('Y', $syear+5), DateTime::createFromFormat('Y-m-d H:i', "$syear-$smonth-$sday $shour:$sminute"), t('Event Starts:'), 'start_text', true, true, '', '', true),
+			'$s_dsel' => datetimesel(new DateTime(), DateTime::createFromFormat('Y', $syear+5), DateTime::createFromFormat('Y-m-d H:i', "$syear-$smonth-$sday $shour:$sminute"), t('Event Starts:'), 'start_text', true, true, '', '', true),
 			'$n_text' => t('Finish date/time is not known or not relevant'),
 			'$n_checked' => $n_checked,
 			'$f_text' => t('Event Finishes:'),
-			'$f_dsel' => datetimesel($f, new DateTime(), DateTime::createFromFormat('Y', $fyear+5), DateTime::createFromFormat('Y-m-d H:i', "$fyear-$fmonth-$fday $fhour:$fminute"), t('Event Finishes:'), 'finish_text', true, true, 'start_text'),
+			'$f_dsel' => datetimesel(new DateTime(), DateTime::createFromFormat('Y', $fyear+5), DateTime::createFromFormat('Y-m-d H:i', "$fyear-$fmonth-$fday $fhour:$fminute"), t('Event Finishes:'), 'finish_text', true, true, 'start_text'),
 			'$a_text' => t('Adjust for viewer timezone'),
 			'$a_checked' => $a_checked,
 			'$d_text' => t('Description:'),

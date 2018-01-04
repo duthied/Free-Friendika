@@ -24,8 +24,6 @@ function remove_queue_item($id) {
  * @return bool The communication with this contact has currently problems
  */
 function was_recently_delayed($cid) {
-	$was_delayed = false;
-
 	// Are there queue entries that were recently added?
 	$r = q("SELECT `id` FROM `queue` WHERE `cid` = %d
 		AND `last` > UTC_TIMESTAMP() - INTERVAL 15 MINUTE LIMIT 1",
@@ -59,7 +57,7 @@ function add_to_queue($cid,$network,$msg,$batch = false) {
 		$batch_queue = 1000;
 	}
 
-	$r = q("SELECT COUNT(*) AS `total` FROM `queue` INNER JOIN `contact` ON `queue`.`cid` = `contact`.`id` 
+	$r = q("SELECT COUNT(*) AS `total` FROM `queue` INNER JOIN `contact` ON `queue`.`cid` = `contact`.`id`
 		WHERE `queue`.`cid` = %d AND `contact`.`self` = 0 ",
 		intval($cid)
 	);

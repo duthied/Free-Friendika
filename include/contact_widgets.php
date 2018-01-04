@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file include/contact_widgets.php
  */
@@ -11,8 +12,8 @@ use Friendica\Model\GContact;
 
 require_once 'include/contact_selectors.php';
 
-function follow_widget($value = "") {
-
+function follow_widget($value = "")
+{
 	return replace_macros(get_markup_template('follow.tpl'), array(
 		'$connect' => t('Add New Contact'),
 		'$desc' => t('Enter address or web location'),
@@ -20,10 +21,10 @@ function follow_widget($value = "") {
 		'$value' => $value,
 		'$follow' => t('Connect')
 	));
-
 }
 
-function findpeople_widget() {
+function findpeople_widget()
+{
 	$a = get_app();
 	$global_dir = Config::get('system', 'directory');
 
@@ -31,8 +32,8 @@ function findpeople_widget() {
 		$x = PConfig::get(local_user(), 'system', 'invites_remaining');
 		if ($x || is_site_admin()) {
 			$a->page['aside'] .= '<div class="side-link" id="side-invite-remain">'
-			. sprintf( tt('%d invitation available', '%d invitations available', $x), $x)
-			. '</div>' . $inv;
+				. tt('%d invitation available', '%d invitations available', $x)
+				. '</div>' . $inv;
 		}
 	}
 
@@ -49,12 +50,10 @@ function findpeople_widget() {
 		'$directory' => t('View Global Directory'),
 		'$global_dir' => $global_dir
 	));
-
 }
 
-function unavailable_networks() {
-	$network_filter = "";
-
+function unavailable_networks()
+{
 	$networks = array();
 
 	if (!plugin_enabled("appnet")) {
@@ -100,10 +99,8 @@ function unavailable_networks() {
 	return $network_filter;
 }
 
-function networks_widget($baseurl, $selected = '') {
-
-	$a = get_app();
-
+function networks_widget($baseurl, $selected = '')
+{
 	if (!local_user()) {
 		return '';
 	}
@@ -138,21 +135,21 @@ function networks_widget($baseurl, $selected = '') {
 		'$all' => t('All Networks'),
 		'$nets' => $nets,
 		'$base' => $baseurl,
-
 	));
 }
 
-function fileas_widget($baseurl, $selected = '') {
-	if (! local_user()) {
+function fileas_widget($baseurl, $selected = '')
+{
+	if (!local_user()) {
 		return '';
 	}
 
-	if (! Feature::isEnabled(local_user(), 'filing')) {
+	if (!Feature::isEnabled(local_user(), 'filing')) {
 		return '';
 	}
 
 	$saved = PConfig::get(local_user(), 'system', 'filetags');
-	if (! strlen($saved)) {
+	if (!strlen($saved)) {
 		return;
 	}
 
@@ -173,20 +170,19 @@ function fileas_widget($baseurl, $selected = '') {
 		'$all' => t('Everything'),
 		'$terms' => $terms,
 		'$base' => $baseurl,
-
 	));
 }
 
-function categories_widget($baseurl, $selected = '') {
-
+function categories_widget($baseurl, $selected = '')
+{
 	$a = get_app();
 
-	if (! Feature::isEnabled($a->profile['profile_uid'], 'categories')) {
+	if (!Feature::isEnabled($a->profile['profile_uid'], 'categories')) {
 		return '';
 	}
 
 	$saved = PConfig::get($a->profile['profile_uid'], 'system', 'filetags');
-	if (! strlen($saved)) {
+	if (!strlen($saved)) {
 		return;
 	}
 
@@ -208,14 +204,11 @@ function categories_widget($baseurl, $selected = '') {
 		'$all' => t('Everything'),
 		'$terms' => $terms,
 		'$base' => $baseurl,
-
 	));
 }
 
-function common_friends_visitor_widget($profile_uid) {
-
-	$a = get_app();
-
+function common_friends_visitor_widget($profile_uid)
+{
 	if (local_user() == $profile_uid) {
 		return;
 	}
@@ -231,7 +224,7 @@ function common_friends_visitor_widget($profile_uid) {
 		}
 	}
 
-	if (! $cid) {
+	if (!$cid) {
 		if (get_my_url()) {
 			$r = dba::select('contact', array('id'),
 					array('nurl' => normalise_link(get_my_url()), 'uid' => $profile_uid), array('limit' => 1));
@@ -239,8 +232,9 @@ function common_friends_visitor_widget($profile_uid) {
 				$cid = $r['id'];
 			} else {
 				$r = dba::select('gcontact', array('id'), array('nurl' => normalise_link(get_my_url())), array('limit' => 1));
-				if (DBM::is_result($r))
+				if (DBM::is_result($r)) {
 					$zcid = $r['id'];
+				}
 			}
 		}
 	}
@@ -254,7 +248,8 @@ function common_friends_visitor_widget($profile_uid) {
 	} else {
 		$t = GContact::countCommonFriendsZcid($profile_uid, $zcid);
 	}
-	if (! $t) {
+
+	if (!$t) {
 		return;
 	}
 
@@ -265,7 +260,7 @@ function common_friends_visitor_widget($profile_uid) {
 	}
 
 	return replace_macros(get_markup_template('remote_friends_common.tpl'), array(
-		'$desc' =>  sprintf(tt("%d contact in common", "%d contacts in common", $t), $t),
+		'$desc' => tt("%d contact in common", "%d contacts in common", $t),
 		'$base' => System::baseUrl(),
 		'$uid' => $profile_uid,
 		'$cid' => (($cid) ? $cid : '0'),

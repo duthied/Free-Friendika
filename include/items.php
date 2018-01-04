@@ -37,13 +37,20 @@ function construct_verb($item) {
 
 /* limit_body_size()
  *
- *		The purpose of this function is to apply system message length limits to
- *		imported messages without including any embedded photos in the length
+ *
+ *
  */
-function limit_body_size($body) {
 
-//	logger('limit_body_size: start', LOGGER_DEBUG);
-
+/**
+ * The purpose of this function is to apply system message length limits to
+ * imported messages without including any embedded photos in the length
+ *
+ * @brief Truncates imported message body string length to max_import_size
+ * @param string $body
+ * @return string
+ */
+function limit_body_size($body)
+{
 	$maxlen = get_max_import_size();
 
 	// If the length of the body, including the embedded images, is smaller
@@ -55,7 +62,6 @@ function limit_body_size($body) {
 		$orig_body = $body;
 		$new_body = '';
 		$textlen = 0;
-		$max_found = false;
 
 		$img_start = strpos($orig_body, '[img');
 		$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
@@ -110,12 +116,10 @@ function limit_body_size($body) {
 			if ($textlen < $maxlen) {
 				logger('limit_body_size: the limit happens after the end of the last image', LOGGER_DEBUG);
 				$new_body = $new_body . substr($orig_body, 0, $maxlen - $textlen);
-				$textlen = $maxlen;
 			}
 		} else {
 			logger('limit_body_size: the text size with embedded images extracted did not violate the limit', LOGGER_DEBUG);
 			$new_body = $new_body . $orig_body;
-			$textlen += strlen($orig_body);
 		}
 
 		return $new_body;
@@ -167,12 +171,6 @@ function add_page_info_data($data) {
 
 	if ($no_photos && ($data["type"] == "photo")) {
 		return "";
-	}
-
-	if (sizeof($data["images"]) > 0) {
-		$preview = $data["images"][0];
-	} else {
-		$preview = "";
 	}
 
 	// Escape some bad characters
@@ -854,7 +852,6 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 			logger("item_store: Checking if parent ".$parent_id." has to be tagged as mention for user ".$arr['uid'], LOGGER_DEBUG);
 			$u = q("SELECT `nickname` FROM `user` WHERE `uid` = %d", intval($arr['uid']));
 			if (DBM::is_result($u)) {
-				$a = get_app();
 				$self = normalise_link(System::baseUrl() . '/profile/' . $u[0]['nickname']);
 				logger("item_store: 'myself' is ".$self." for parent ".$parent_id." checking against ".$arr['author-link']." and ".$arr['owner-link'], LOGGER_DEBUG);
 				if ((normalise_link($arr['author-link']) == $self) || (normalise_link($arr['owner-link']) == $self)) {
@@ -1051,7 +1048,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	}
 
 	// Set parent id
-	$r = dba::update('item', array('parent' => $parent_id), array('id' => $current_post));
+	dba::update('item', array('parent' => $parent_id), array('id' => $current_post));
 
 	$arr['id'] = $current_post;
 	$arr['parent'] = $parent_id;
@@ -1119,7 +1116,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	 * It is done after the transaction to avoid dead locks.
 	 */
 	if ($arr['last-child']) {
-		$r = q("UPDATE `item` SET `last-child` = 0 WHERE `parent-uri` = '%s' AND `uid` = %d AND `id` != %d",
+		q("UPDATE `item` SET `last-child` = 0 WHERE `parent-uri` = '%s' AND `uid` = %d AND `id` != %d",
 			dbesc($arr['uri']),
 			intval($arr['uid']),
 			intval($current_post)
@@ -1204,8 +1201,6 @@ function item_body_set_hashtags(&$item) {
 	// This sorting is important when there are hashtags that are part of other hashtags
 	// Otherwise there could be problems with hashtags like #test and #test2
 	rsort($tags);
-
-	$a = get_app();
 
 	$URLSearchString = "^\[\]";
 
@@ -1315,7 +1310,6 @@ function get_item_contact($item, $contacts) {
 	foreach ($contacts as $contact) {
 		if ($contact['id'] == $item['contact-id']) {
 			return $contact;
-			break; // NOTREACHED
 		}
 	}
 	return false;
@@ -1327,23 +1321,19 @@ function get_item_contact($item, $contacts) {
  * @param int $item_id
  * @return bool true if item was deleted, else false
  */
-function tag_deliver($uid, $item_id) {
-
-	$a = get_app();
-
+function tag_deliver($uid, $item_id)
+{
 	$mention = false;
 
 	$u = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 		intval($uid)
 	);
-
 	if (! DBM::is_result($u)) {
 		return;
 	}
 
 	$community_page = (($u[0]['page-flags'] == PAGE_COMMUNITY) ? true : false);
 	$prvgroup = (($u[0]['page-flags'] == PAGE_PRVGROUP) ? true : false);
-
 
 	$i = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 		intval($item_id),
@@ -1674,15 +1664,13 @@ function new_follower($importer, $contact, $datarray, $item, $sharing = false) {
 	if (is_array($contact)) {
 		if (($contact['network'] == NETWORK_OSTATUS && $contact['rel'] == CONTACT_IS_SHARING)
 			|| ($sharing && $contact['rel'] == CONTACT_IS_FOLLOWER)) {
-			$r = dba::update('contact', array('rel' => CONTACT_IS_FRIEND, 'writable' => true),
+			dba::update('contact', array('rel' => CONTACT_IS_FRIEND, 'writable' => true),
 					array('id' => $contact['id'], 'uid' => $importer['uid']));
 		}
 		// send email notification to owner?
 	} else {
-
 		// create contact record
-
-		$r = q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `name`, `nick`, `photo`, `network`, `rel`,
+		q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `name`, `nick`, `photo`, `network`, `rel`,
 			`blocked`, `readonly`, `pending`, `writable`)
 			VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, 0, 0, 1, 1)",
 			intval($importer['uid']),
@@ -1695,6 +1683,7 @@ function new_follower($importer, $contact, $datarray, $item, $sharing = false) {
 			dbesc(NETWORK_OSTATUS),
 			intval(CONTACT_IS_FOLLOWER)
 		);
+
 		$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `pending` = 1 LIMIT 1",
 				intval($importer['uid']),
 				dbesc($url)
@@ -1708,9 +1697,7 @@ function new_follower($importer, $contact, $datarray, $item, $sharing = false) {
 		$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 			intval($importer['uid'])
 		);
-
 		if (DBM::is_result($r) && !in_array($r[0]['page-flags'], array(PAGE_SOAPBOX, PAGE_FREELOVE, PAGE_COMMUNITY))) {
-
 			// create notification
 			$hash = random_string();
 
@@ -1742,7 +1729,7 @@ function new_follower($importer, $contact, $datarray, $item, $sharing = false) {
 
 			}
 		} elseif (DBM::is_result($r) && in_array($r[0]['page-flags'], array(PAGE_SOAPBOX, PAGE_FREELOVE, PAGE_COMMUNITY))) {
-			$r = q("UPDATE `contact` SET `pending` = 0 WHERE `uid` = %d AND `url` = '%s' AND `pending` LIMIT 1",
+			q("UPDATE `contact` SET `pending` = 0 WHERE `uid` = %d AND `url` = '%s' AND `pending` LIMIT 1",
 					intval($importer['uid']),
 					dbesc($url)
 			);
@@ -1798,7 +1785,7 @@ function subscribe_to_hub($url, $importer, $contact, $hubmode = 'subscribe') {
 	logger('subscribe_to_hub: ' . $hubmode . ' ' . $contact['name'] . ' to hub ' . $url . ' endpoint: '  . $push_url . ' with verifier ' . $verify_token);
 
 	if (!strlen($contact['hub-verify']) || ($contact['hub-verify'] != $verify_token)) {
-		$r = dba::update('contact', array('hub-verify' => $verify_token), array('id' => $contact['id']));
+		dba::update('contact', array('hub-verify' => $verify_token), array('id' => $contact['id']));
 	}
 
 	post_url($url, $params);
@@ -1809,16 +1796,22 @@ function subscribe_to_hub($url, $importer, $contact, $hubmode = 'subscribe') {
 
 }
 
-function fix_private_photos($s, $uid, $item = null, $cid = 0) {
-
-	if (Config::get('system','disable_embedded')) {
+/**
+ *
+ * @param string $s
+ * @param int    $uid
+ * @param array  $item
+ * @param int    $cid
+ * @return string
+ */
+function fix_private_photos($s, $uid, $item = null, $cid = 0)
+{
+	if (Config::get('system', 'disable_embedded')) {
 		return $s;
 	}
 
-	$a = get_app();
-
 	logger('fix_private_photos: check for photos', LOGGER_DEBUG);
-	$site = substr(System::baseUrl(),strpos(System::baseUrl(),'://'));
+	$site = substr(System::baseUrl(), strpos(System::baseUrl(), '://'));
 
 	$orig_body = $s;
 	$new_body = '';
@@ -1826,19 +1819,18 @@ function fix_private_photos($s, $uid, $item = null, $cid = 0) {
 	$img_start = strpos($orig_body, '[img');
 	$img_st_close = ($img_start !== false ? strpos(substr($orig_body, $img_start), ']') : false);
 	$img_len = ($img_start !== false ? strpos(substr($orig_body, $img_start + $img_st_close + 1), '[/img]') : false);
-	while ( ($img_st_close !== false) && ($img_len !== false) ) {
 
+	while (($img_st_close !== false) && ($img_len !== false)) {
 		$img_st_close++; // make it point to AFTER the closing bracket
 		$image = substr($orig_body, $img_start + $img_st_close, $img_len);
 
 		logger('fix_private_photos: found photo ' . $image, LOGGER_DEBUG);
 
-
-		if (stristr($image , $site . '/photo/')) {
+		if (stristr($image, $site . '/photo/')) {
 			// Only embed locally hosted photos
 			$replace = false;
 			$i = basename($image);
-			$i = str_replace(array('.jpg', '.png', '.gif'),array('', '',''), $i);
+			$i = str_replace(array('.jpg', '.png', '.gif'), array('', '', ''), $i);
 			$x = strpos($i, '-');
 
 			if ($x) {
@@ -1848,7 +1840,6 @@ function fix_private_photos($s, $uid, $item = null, $cid = 0) {
 					dbesc($i),
 					intval($res),
 					intval($uid)
-
 				);
 				if (DBM::is_result($r)) {
 					/*
@@ -2161,7 +2152,7 @@ function drop_item($id, $interactive = true) {
 		logger('delete item: ' . $item['id'], LOGGER_DEBUG);
 
 		// delete the item
-		$r = dba::update('item', array('deleted' => true, 'title' => '', 'body' => '',
+		dba::update('item', array('deleted' => true, 'title' => '', 'body' => '',
 					'edited' => datetime_convert(), 'changed' => datetime_convert()),
 				array('id' => $item['id']));
 
@@ -2229,12 +2220,12 @@ function drop_item($id, $interactive = true) {
 
 		// Now delete them
 		if ($parentid != "") {
-			$r = q("DELETE FROM `sign` WHERE `iid` IN (%s)", dbesc($parentid));
+			q("DELETE FROM `sign` WHERE `iid` IN (%s)", dbesc($parentid));
 		}
 
 		// If it's the parent of a comment thread, kill all the kids
 		if ($item['uri'] == $item['parent-uri']) {
-			$r = dba::update('item', array('deleted' => true, 'title' => '', 'body' => '',
+			dba::update('item', array('deleted' => true, 'title' => '', 'body' => '',
 					'edited' => datetime_convert(), 'changed' => datetime_convert()),
 				array('parent-uri' => $item['parent-uri'], 'uid' => $item['uid']));
 

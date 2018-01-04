@@ -292,30 +292,38 @@ function get_attached_data($body, $item = array()) {
 	return $post;
 }
 
-function shortenmsg($msg, $limit, $twitter = false) {
-	/// @TODO
-	/// For Twitter URLs aren't shortened, but they have to be calculated as if.
-
+/**
+ * Shortens message
+ *
+ * @param type $msg
+ * @param type $limit
+ * @return type
+ *
+ * @todo For Twitter URLs aren't shortened, but they have to be calculated as if.
+ */
+function shortenmsg($msg, $limit)
+{
 	$lines = explode("\n", $msg);
 	$msg = "";
 	$recycle = html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
 	$ellipsis = html_entity_decode("&#x2026;", ENT_QUOTES, 'UTF-8');
-	foreach ($lines AS $row=>$line) {
-		if (iconv_strlen(trim($msg."\n".$line), "UTF-8") <= $limit)
-			$msg = trim($msg."\n".$line);
-		// Is the new message empty by now or is it a reshared message?
-		elseif (($msg == "") || (($row == 1) && (substr($msg, 0, 4) == $recycle)))
-			$msg = iconv_substr(iconv_substr(trim($msg."\n".$line), 0, $limit, "UTF-8"), 0, -3, "UTF-8").$ellipsis;
-		else
+	foreach ($lines AS $row => $line) {
+		if (iconv_strlen(trim($msg . "\n" . $line), "UTF-8") <= $limit) {
+			$msg = trim($msg . "\n" . $line);
+		} elseif (($msg == "") || (($row == 1) && (substr($msg, 0, 4) == $recycle))) {
+			// Is the new message empty by now or is it a reshared message?
+			$msg = iconv_substr(iconv_substr(trim($msg . "\n" . $line), 0, $limit, "UTF-8"), 0, -3, "UTF-8") . $ellipsis;
+		} else {
 			break;
+		}
 	}
-	return($msg);
+
+	return $msg;
 }
 
 /**
  * @brief Convert a message into plaintext for connectors to other networks
  *
- * @param App $a The application class
  * @param array $b The message array that is about to be posted
  * @param int $limit The maximum number of characters when posting to that network
  * @param bool $includedlinks Has an attached link to be included into the message?
@@ -324,7 +332,7 @@ function shortenmsg($msg, $limit, $twitter = false) {
  *
  * @return string The converted message
  */
-function plaintext(App $a, $b, $limit = 0, $includedlinks = false, $htmlmode = 2, $target_network = "") {
+function plaintext($b, $limit = 0, $includedlinks = false, $htmlmode = 2, $target_network = "") {
 
 	// Remove the hash tags
 	$URLSearchString = "^\[\]";

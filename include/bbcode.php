@@ -67,8 +67,6 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 	} else {
 		if ($simplehtml != 4) {
 			$text = sprintf('<span class="type-%s">', $data["type"]);
-		} else {
-			$span_end = '';
 		}
 
 		$bookmark = array(sprintf('[bookmark=%s]%s[/bookmark]', $data["url"], $data["title"]), $data["url"], $data["title"]);
@@ -270,7 +268,6 @@ function bb_spacefy($st) {
  * returning [i]italic[/i]
  */
 function bb_unspacefy_and_trim($st) {
-	$whole_match = $st[0];
 	$captured = $st[1];
 	$unspacefied = preg_replace("/\[ (.*?)\ ]/", "[$1]", $captured);
 	return $unspacefied;
