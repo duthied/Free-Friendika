@@ -3,7 +3,6 @@
  * @file include/items.php
  */
 use Friendica\App;
-use Friendica\ParseUrl;
 use Friendica\Content\Feature;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
@@ -18,6 +17,7 @@ use Friendica\Object\Image;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Feed;
+use Friendica\Util\ParseUrl;
 
 require_once 'include/bbcode.php';
 require_once 'include/tags.php';

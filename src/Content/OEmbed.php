@@ -10,7 +10,7 @@ use Friendica\Core\Cache;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
-use Friendica\ParseUrl;
+use Friendica\Util\ParseUrl;
 use dba;
 use DOMDocument;
 use DOMXPath;

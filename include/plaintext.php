@@ -3,9 +3,9 @@
  * @file include/plaintext.php
  */
 use Friendica\App;
-use Friendica\ParseUrl;
 use Friendica\Core\PConfig;
 use Friendica\Object\Image;
+use Friendica\Util\ParseUrl;
 
 require_once "include/bbcode.php";
 require_once "include/html2plain.php";
