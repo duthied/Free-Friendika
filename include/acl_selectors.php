@@ -386,43 +386,6 @@ function populate_acl($user = null, $show_jotnets = false) {
 
 }
 
-function construct_acl_data(App $a, $user) {
-	// This function is now deactivated. It seems as if the generated data isn't used anywhere.
-	/// @todo Remove this function and all function calls before releasing Friendica 3.5.3
-	return;
-
-	// Get group and contact information for html ACL selector
-	$acl_data = acl_lookup($a, 'html');
-
-	$user_defaults = get_acl_permissions($user);
-
-	if ($acl_data['groups']) {
-		foreach ($acl_data['groups'] as $key => $group) {
-			// Add a "selected" flag to groups that are posted to by default
-			if ($user_defaults['allow_gid'] &&
-					in_array($group['id'], $user_defaults['allow_gid']) && !in_array($group['id'], $user_defaults['deny_gid']) ) {
-				$acl_data['groups'][$key]['selected'] = 1;
-			} else {
-				$acl_data['groups'][$key]['selected'] = 0;
-			}
-		}
-	}
-	if ($acl_data['contacts']) {
-		foreach ($acl_data['contacts'] as $key => $contact) {
-			// Add a "selected" flag to groups that are posted to by default
-			if ($user_defaults['allow_cid'] &&
-					in_array($contact['id'], $user_defaults['allow_cid']) && !in_array($contact['id'], $user_defaults['deny_cid']) ) {
-				$acl_data['contacts'][$key]['selected'] = 1;
-			} else {
-				$acl_data['contacts'][$key]['selected'] = 0;
-			}
-		}
-	}
-
-	return $acl_data;
-
-}
-
 function acl_lookup(App $a, $out_type = 'json') {
 
 	if (!local_user()) {

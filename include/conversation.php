@@ -1361,7 +1361,6 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 
 		// ACL permissions box
 		'$acl'           => $x['acl'],
-		'$acl_data'      => $x['acl_data'],
 		'$group_perms'   => t('Post to Groups'),
 		'$contact_perms' => t('Post to Contacts'),
 		'$private'       => t('Private post'),

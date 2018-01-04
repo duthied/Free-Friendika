@@ -313,9 +313,8 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 			'bang' => '',
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
-			'acl_data' => construct_acl_data($a, $a->user), // For non-Javascript ACL selector
 		);
-		$o .= status_editor($a,$x,0,true);
+		$o .= status_editor($a, $x, 0, true);
 	}
 
 	$sql_extra = item_permissions_sql($a->profile['uid'], $remote_contact, $groups);

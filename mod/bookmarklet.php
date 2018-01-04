@@ -37,7 +37,6 @@ function bookmarklet_content(App $a)
 			'bang' => '',
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
-			'acl_data' => construct_acl_data($a, $a->user), // For non-Javascript ACL selector
 			'title' => trim($_REQUEST["title"], "*"),
 			'content' => $content
 		);

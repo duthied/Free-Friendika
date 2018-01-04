@@ -1280,7 +1280,6 @@ function settings_content(App $a) {
 		'$blocktags'=> $blocktags, // array('blocktags', t('Allow friends to tag your posts:'), !$blocktags, ''),
 
 		// ACL permissions box
-		'$acl_data' => construct_acl_data($a, $a->user), // For non-Javascript ACL selector
 		'$group_perms' => t('Show to Groups'),
 		'$contact_perms' => t('Show to Contacts'),
 		'$private' => t('Default Private Post'),

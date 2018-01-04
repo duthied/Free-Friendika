@@ -1134,7 +1134,6 @@ function photos_content(App $a)
 			'$uploadurl' => $ret['post_url'],
 
 			// ACL permissions box
-			'$acl_data' => construct_acl_data($a, $a->user), // For non-Javascript ACL selector
 			'$group_perms' => t('Show to Groups'),
 			'$contact_perms' => t('Show to Contacts'),
 			'$return_path' => $a->query_string,
@@ -1482,7 +1481,6 @@ function photos_content(App $a)
 				'$delete' => t('Delete Photo'),
 
 				// ACL permissions box
-				'$acl_data' => construct_acl_data($a, $ph[0]), // For non-Javascript ACL selector
 				'$group_perms' => t('Show to Groups'),
 				'$contact_perms' => t('Show to Contacts'),
 				'$return_path' => $a->query_string,
