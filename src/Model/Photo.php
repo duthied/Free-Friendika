@@ -220,7 +220,7 @@ class Photo
 	 *
 	 * @return array Returns array of the photo albums
 	 */
-	public static function photoAlbums($uid, $update = false)
+	public static function getAlbums($uid, $update = false)
 	{
 		$sql_extra = permissions_sql($uid);
 
@@ -251,5 +251,15 @@ class Photo
 			Cache::set($key, $albums, CACHE_DAY);
 		}
 		return $albums;
+	}
+
+	/**
+	 * @param int $uid User id of the photos
+	 * @return void
+	 */
+	public static function clearAlbumCache($uid)
+	{
+		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
+		Cache::set($key, null, CACHE_DAY);
 	}
 }

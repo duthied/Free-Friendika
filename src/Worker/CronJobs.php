@@ -100,8 +100,8 @@ class CronJobs
 			return;
 		}
 
-		foreach ($r AS $user) {
-			Photo::photoAlbums($user['uid'], true);
+		foreach ($r as $user) {
+			Photo::clearAlbumCache($user['uid']);
 		}
 	}
 

@@ -61,7 +61,7 @@ function photos_init(App $a) {
 			'$pdesc' => defaults($profile, 'pdesc', ''),
 		));
 
-		$albums = Photo::photoAlbums($a->data['user']['uid']);
+		$albums = Photo::getAlbums($a->data['user']['uid']);
 
 		$albums_visible = ((intval($a->data['user']['hidewall']) && !local_user() && !remote_user()) ? false : true);
 
@@ -212,7 +212,7 @@ function photos_post(App $a)
 				intval($page_owner_uid)
 			);
 			// Update the photo albums cache
-			Photo::photoAlbums($page_owner_uid, true);
+			Photo::clearAlbumCache($page_owner_uid);
 
 			$newurl = str_replace(bin2hex($album), bin2hex($newalbum), $_SESSION['photo_return']);
 			goaway($newurl);
@@ -299,7 +299,7 @@ function photos_post(App $a)
 			}
 
 			// Update the photo albums cache
-			Photo::photoAlbums($page_owner_uid, true);
+			Photo::clearAlbumCache($page_owner_uid);
 		}
 
 		goaway('photos/' . $a->data['user']['nickname']);
@@ -367,7 +367,7 @@ function photos_post(App $a)
 				$drop_id = intval($i[0]['id']);
 
 				// Update the photo albums cache
-				Photo::photoAlbums($page_owner_uid, true);
+				Photo::clearAlbumCache($page_owner_uid);
 
 				if ($i[0]['visible']) {
 					Worker::add(PRIORITY_HIGH, "Notifier", "drop", $drop_id);
@@ -471,7 +471,7 @@ function photos_post(App $a)
 
 			// Update the photo albums cache if album name was changed
 			if ($albname !== $origaname) {
-				Photo::photoAlbums($page_owner_uid, true);
+				Photo::clearAlbumCache($page_owner_uid);
 			}
 		}
 
@@ -931,13 +931,13 @@ function photos_post(App $a)
 
 	$item_id = item_store($arr);
 	// Update the photo albums cache
-	Photo::photoAlbums($page_owner_uid, true);
+	Photo::clearAlbumCache($page_owner_uid);
 
 	if ($visible) {
 		Worker::add(PRIORITY_HIGH, "Notifier", 'wall-new', $item_id);
 	}
 
-	call_hooks('photo_post_end',intval($item_id));
+	call_hooks('photo_post_end', intval($item_id));
 
 	// addon uploaders should call "killme()" [e.g. exit] within the photo_post_end hook
 	// if they do not wish to be redirected
