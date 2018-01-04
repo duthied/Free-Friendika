@@ -25,7 +25,6 @@ Example: To set the directory value please add this line to your .htconfig.php:
 
 * **allowed_link_protocols** (Array) - Allowed protocols in links URLs, add at your own risk. http is always allowed.
 * **always_show_preview** (Boolean) - Only show small preview picures. Default value is false.
-* **birthday_input_format** - Default value is "ymd".
 * **block_local_dir** (Boolean) - Blocks the access to the directory of the local users.
 * **auth_cookie_lifetime** (Integer) - Number of days that should pass without any activity before a user who chose "Remember me" when logging in is considered logged out. Defaults to 7.
 * **curl_range_bytes** - Maximum number of bytes that should be fetched. Default is 0, which mean "no limit".
@@ -43,7 +42,6 @@ Example: To set the directory value please add this line to your .htconfig.php:
 * **disable_email_validation** (Boolean) - Disables the check if a mail address is in a valid format and can be resolved via DNS.
 * **disable_url_validation** (Boolean) - Disables the DNS lookup of an URL.
 * **dlogfile - location of the developer log file
-* **event_input_format** - Default value is "ymd".
 * **frontend_worker_timeout** - Value in minutes after we think that a frontend task was killed by the webserver. Default value is 10.
 * **hsts** (Boolean) - Enables the sending of HTTP Strict Transport Security headers
 * **ignore_cache** (Boolean) - For development only. Disables the item cache.

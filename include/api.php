@@ -1111,6 +1111,8 @@ function api_statuses_update($type)
 		throw new ForbiddenException();
 	}
 
+	api_get_user($a);
+
 	// convert $_POST array items to the form we use for web posts.
 	if (requestdata('htmlstatus')) {
 		$txt = requestdata('htmlstatus');
@@ -1285,6 +1287,8 @@ function api_media_upload()
 		logger('no user');
 		throw new ForbiddenException();
 	}
+
+	api_get_user($a);
 
 	if (!x($_FILES, 'media')) {
 		// Output error
@@ -2112,6 +2116,8 @@ function api_statuses_repeat($type)
 		throw new ForbiddenException();
 	}
 
+	api_get_user($a);
+
 	// params
 	$id = intval($a->argv[3]);
 
@@ -2189,6 +2195,8 @@ function api_statuses_destroy($type)
 	if (api_user() === false) {
 		throw new ForbiddenException();
 	}
+
+	api_get_user($a);
 
 	// params
 	$id = intval($a->argv[3]);
@@ -3523,6 +3531,8 @@ function api_ff_ids($type)
 	if (! api_user()) {
 		throw new ForbiddenException();
 	}
+
+	api_get_user($a);
 
 	$stringify_ids = defaults($_REQUEST, 'stringify_ids', false);
 
