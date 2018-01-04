@@ -59,19 +59,23 @@ function community_content(App $a, $update = 0) {
 	if (!$update) {
 		$tabs = [];
 
-		$tabs[] = array('label'=>t('Community'),
-				'url' => 'community/local',
-				'sel' => $content == 'local' ? 'active' : '',
-				'title' => t('Posts from local users on this server'),
-				'id' => 'community-local-tab',
-				'accesskey' => 'l');
+		if (local_user() || in_array($page_style, [CP_USERS_AND_GLOBAL, CP_USERS_ON_SERVER])) {
+			$tabs[] = array('label'=>t('Community'),
+					'url' => 'community/local',
+					'sel' => $content == 'local' ? 'active' : '',
+					'title' => t('Posts from local users on this server'),
+					'id' => 'community-local-tab',
+					'accesskey' => 'l');
+		}
 
-		$tabs[] = array('label' => t('Global Timeline'),
-				'url' => 'community/global',
-				'sel' => $content == 'global' ? 'active' : '',
-				'title' => t('Posts from users of the federated network'),
-				'id'    => 'community-global-tab',
-				'accesskey' => 'g');
+		if (local_user() || in_array($page_style, [CP_USERS_AND_GLOBAL, CP_GLOBAL_COMMUNITY])) {
+			$tabs[] = array('label' => t('Global Timeline'),
+					'url' => 'community/global',
+					'sel' => $content == 'global' ? 'active' : '',
+					'title' => t('Posts from users of the federated network'),
+					'id'    => 'community-global-tab',
+					'accesskey' => 'g');
+		}
 
 		$tab_tpl = get_markup_template('common_tabs.tpl');
 		$o .= replace_macros($tab_tpl, array('$tabs' => $tabs));
