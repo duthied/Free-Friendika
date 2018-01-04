@@ -32,7 +32,7 @@ function subthread_content(App $a) {
 
 	$owner_uid = $item['uid'];
 
-	if(! can_write_wall($a,$owner_uid)) {
+	if(! can_write_wall($owner_uid)) {
 		return;
 	}
 

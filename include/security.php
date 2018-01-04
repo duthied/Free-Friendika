@@ -165,7 +165,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 	}
 }
 
-function can_write_wall(App $a, $owner)
+function can_write_wall($owner)
 {
 	static $verified = 0;
 
@@ -174,8 +174,7 @@ function can_write_wall(App $a, $owner)
 	}
 
 	$uid = local_user();
-
-	if (($uid) && ($uid == $owner)) {
+	if ($uid == $owner) {
 		return true;
 	}
 

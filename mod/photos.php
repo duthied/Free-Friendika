@@ -1499,7 +1499,7 @@ function photos_content(App $a)
 			$tpl = get_markup_template('photo_item.tpl');
 			$return_url = $a->cmd;
 
-			if ($can_post || can_write_wall($a, $owner_uid)) {
+			if ($can_post || can_write_wall($owner_uid)) {
 				$like_tpl = get_markup_template('like_noshare.tpl');
 				$likebuttons = replace_macros($like_tpl, array(
 					'$id' => $link_item['id'],
@@ -1511,7 +1511,7 @@ function photos_content(App $a)
 			}
 
 			if (!DBM::is_result($r)) {
-				if (($can_post || can_write_wall($a, $owner_uid)) && $link_item['last-child']) {
+				if (($can_post || can_write_wall($owner_uid)) && $link_item['last-child']) {
 					$comments .= replace_macros($cmnt_tpl, array(
 						'$return_path' => '',
 						'$jsreload' => $return_url,
@@ -1550,7 +1550,7 @@ function photos_content(App $a)
 					$dislike = format_like($conv_responses['dislike'][$link_item['uri']], $conv_responses['dislike'][$link_item['uri'] . '-l'], 'dislike', $link_item['id']);
 				}
 
-				if (($can_post || can_write_wall($a, $owner_uid)) && $link_item['last-child']) {
+				if (($can_post || can_write_wall($owner_uid)) && $link_item['last-child']) {
 					$comments .= replace_macros($cmnt_tpl,array(
 						'$return_path' => '',
 						'$jsreload' => $return_url,
@@ -1623,7 +1623,7 @@ function photos_content(App $a)
 						'$comment' => $comment
 					));
 
-					if (($can_post || can_write_wall($a, $owner_uid)) && $item['last-child']) {
+					if (($can_post || can_write_wall($owner_uid)) && $item['last-child']) {
 						$comments .= replace_macros($cmnt_tpl, array(
 							'$return_path' => '',
 							'$jsreload' => $return_url,

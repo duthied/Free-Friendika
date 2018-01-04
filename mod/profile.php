@@ -194,7 +194,7 @@ function profile_content(App $a, $update = 0)
 		$a->page['aside'] .= categories_widget(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], (x($category) ? xmlify($category) : ''));
 		$a->page['aside'] .= tagcloud_wall_widget();
 
-		if (can_write_wall($a, $a->profile['profile_uid'])) {
+		if (can_write_wall($a->profile['profile_uid'])) {
 			$x = array(
 				'is_owner' => $is_owner,
 				'allow_location' => ($is_owner || $commvisitor) && $a->profile['allow_location'],
