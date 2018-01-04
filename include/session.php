@@ -9,7 +9,7 @@ use Friendica\Database\DBM;
 $session_exists = 0;
 $session_expire = 180000;
 
-function ref_session_open($s, $n)
+function ref_session_open()
 {
 	return true;
 }
@@ -109,7 +109,7 @@ function ref_session_destroy($id)
 	return true;
 }
 
-function ref_session_gc($expire)
+function ref_session_gc()
 {
 	dba::delete('session', array("`expire` < ?", time()));
 	return true;

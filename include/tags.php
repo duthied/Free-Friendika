@@ -97,7 +97,7 @@ function create_tags_from_item($itemid)
 			$global = (count($isglobal) > 0);
 		}
 
-		$r = q("INSERT INTO `term` (`uid`, `oid`, `otype`, `type`, `term`, `url`, `guid`, `created`, `received`, `global`)
+		q("INSERT INTO `term` (`uid`, `oid`, `otype`, `type`, `term`, `url`, `guid`, `created`, `received`, `global`)
 				VALUES (%d, %d, %d, %d, '%s', '%s', '%s', '%s', '%s', %d)",
 			intval($message['uid']), intval($itemid), intval(TERM_OBJ_POST), intval($type), dbesc($term),
 			dbesc($link), dbesc($message['guid']), dbesc($message['created']), dbesc($message['received']), intval($global));

@@ -182,14 +182,15 @@ function load_hooks() {
  * @param string $name of the hook to call
  * @param string|array &$data to transmit to the callback handler
  */
-function call_hooks($name, &$data = null) {
-	$stamp1 = microtime(true);
-
+function call_hooks($name, &$data = null)
+{
 	$a = get_app();
 
-	if (is_array($a->hooks) && array_key_exists($name, $a->hooks))
-		foreach ($a->hooks[$name] as $hook)
+	if (is_array($a->hooks) && array_key_exists($name, $a->hooks)) {
+		foreach ($a->hooks[$name] as $hook) {
 			call_single_hook($a, $name, $hook, $data);
+		}
+	}
 }
 
 /**

@@ -697,11 +697,8 @@ function check_url(App $a)
 	// and www.example.com vs example.com.
 	// We will only change the url to an ip address if there is no existing setting
 
-	if (empty($url)) {
-		$url = Config::set('system', 'url', System::baseUrl());
-	}
-	if ((!link_compare($url, System::baseUrl())) && (!preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $a->get_hostname))) {
-		$url = Config::set('system', 'url', System::baseUrl());
+	if (empty($url) || (!link_compare($url, System::baseUrl())) && (!preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $a->get_hostname))) {
+		Config::set('system', 'url', System::baseUrl());
 	}
 
 	return;
@@ -711,7 +708,7 @@ function check_url(App $a)
  * @brief Automatic database updates
  * @param object $a App
  */
-function update_db(App $a)
+function update_db()
 {
 	$build = Config::get('system', 'build');
 
@@ -800,7 +797,6 @@ function run_update_function($x)
 		Config::set('system', 'build', $x + 1);
 		return true;
 	}
-	return true;
 }
 
 /**
@@ -1051,7 +1047,6 @@ function current_theme()
 
 	if ($is_mobile) {
 		if (isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
-			$system_theme = $standard_system_theme;
 			$theme_name = $standard_theme_name;
 		} else {
 			$system_theme = Config::get('system', 'mobile-theme', '');
@@ -1062,7 +1057,6 @@ function current_theme()
 
 			if ($theme_name === '---') {
 				// user has selected to have the mobile theme be the same as the normal one
-				$system_theme = $standard_system_theme;
 				$theme_name = $standard_theme_name;
 
 				if ($page_theme) {
@@ -1071,7 +1065,6 @@ function current_theme()
 			}
 		}
 	} else {
-		$system_theme = $standard_system_theme;
 		$theme_name = $standard_theme_name;
 
 		if ($page_theme) {

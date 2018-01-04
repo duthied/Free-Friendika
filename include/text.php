@@ -1003,7 +1003,6 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 	$redir = false;
 
 	if ($redirect) {
-		$a = get_app();
 		$redirect_url = 'redir/' . $contact['id'];
 		if (local_user() && ($contact['uid'] == local_user()) && ($contact['network'] === NETWORK_DFRN)) {
 			$redir = true;
@@ -1041,8 +1040,6 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
  * @param boolean $savedsearch show save search button
  */
 function search($s, $id = 'search-box', $url = 'search', $save = false, $aside = true) {
-	$a = get_app();
-
 	$values = array(
 			'$s' => htmlspecialchars($s),
 			'$id' => $id,
@@ -1471,9 +1468,8 @@ function prepare_text($text) {
  *       ]
  *  ]
  */
-function get_cats_and_terms($item) {
-
-	$a = get_app();
+function get_cats_and_terms($item)
+{
 	$categories = array();
 	$folders = array();
 
@@ -1901,9 +1897,10 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 function file_tag_save_file($uid, $item, $file) {
 	require_once "include/files.php";
 
-	$result = false;
-	if (! intval($uid))
+	if (! intval($uid)) {
 		return false;
+	}
+
 	$r = q("SELECT `file` FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 		intval($item),
 		intval($uid)
@@ -1931,9 +1928,9 @@ function file_tag_save_file($uid, $item, $file) {
 function file_tag_unsave_file($uid, $item, $file, $cat = false) {
 	require_once "include/files.php";
 
-	$result = false;
-	if (! intval($uid))
+	if (! intval($uid)) {
 		return false;
+	}
 
 	if ($cat == true) {
 		$pattern = '<' . file_tag_encode($file) . '>' ;
@@ -1942,7 +1939,6 @@ function file_tag_unsave_file($uid, $item, $file, $cat = false) {
 		$pattern = '[' . file_tag_encode($file) . ']' ;
 		$termtype = TERM_FILE;
 	}
-
 
 	$r = q("SELECT `file` FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 		intval($item),
@@ -1964,8 +1960,8 @@ function file_tag_unsave_file($uid, $item, $file, $cat = false) {
 		dbesc($file),
 		intval(TERM_OBJ_POST),
 		intval($termtype),
-		intval($uid));
-
+		intval($uid)
+	);
 	if (!DBM::is_result($r)) {
 		$saved = PConfig::get($uid, 'system', 'filetags');
 		PConfig::set($uid, 'system', 'filetags', str_replace($pattern, '', $saved));

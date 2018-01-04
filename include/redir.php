@@ -4,18 +4,18 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 
-function auto_redir(App $a, $contact_nick) {
-
+function auto_redir(App $a, $contact_nick)
+{
 	// prevent looping
-
-	if (x($_REQUEST,'redir') && intval($_REQUEST['redir']))
+	if (x($_REQUEST,'redir') && intval($_REQUEST['redir'])) {
 		return;
+	}
 
-	if ((! $contact_nick) || ($contact_nick === $a->user['nickname']))
+	if ((! $contact_nick) || ($contact_nick === $a->user['nickname'])) {
 		return;
+	}
 
 	if (local_user()) {
-
 		// We need to find out if $contact_nick is a user on this hub, and if so, if I
 		// am a contact of that user. However, that user may have other contacts with the
 		// same nickname as me on other hubs or other networks. Exclude these by requiring
@@ -26,8 +26,9 @@ function auto_redir(App $a, $contact_nick) {
 
 		$baseurl = System::baseUrl();
 		$domain_st = strpos($baseurl, "://");
-		if ($domain_st === false)
+		if ($domain_st === false) {
 			return;
+		}
 		$baseurl = substr($baseurl, $domain_st + 3);
 		$nurl = normalise_link($baseurl);
 
@@ -39,7 +40,6 @@ function auto_redir(App $a, $contact_nick) {
 				dbesc($baseurl),
 				dbesc($nurl)
 		);
-
 		if ((! DBM::is_result($r)) || $r[0]['id'] == remote_user()) {
 			return;
 		}
@@ -51,14 +51,13 @@ function auto_redir(App $a, $contact_nick) {
 		       intval(local_user()),
 		       dbesc($baseurl)
 		);
-
 		if (! DBM::is_result($r)) {
 			return;
 		}
 
 		$cid = $r[0]['id'];
 
-		$dfrn_id = $orig_id = (($r[0]['issued-id']) ? $r[0]['issued-id'] : $r[0]['dfrn-id']);
+		$dfrn_id = (($r[0]['issued-id']) ? $r[0]['issued-id'] : $r[0]['dfrn-id']);
 
 		if ($r[0]['duplex'] && $r[0]['issued-id']) {
 			$orig_id = $r[0]['issued-id'];
@@ -72,8 +71,9 @@ function auto_redir(App $a, $contact_nick) {
 		// ensure that we've got a valid ID. There may be some edge cases with forums and non-duplex mode
 		// that may have triggered some of the "went to {profile/intro} and got an RSS feed" issues
 
-		if (strlen($dfrn_id) < 3)
+		if (strlen($dfrn_id) < 3) {
 			return;
+		}
 
 		$sec = random_string();
 

@@ -177,8 +177,9 @@ function datetime_convert($from = 'UTC', $to = 'UTC', $s = 'now', $fmt = "Y-m-d 
  * @param string $dob Date of Birth
  * @return string Formatted html
  */
-function dob($dob) {
-	list($year,$month,$day) = sscanf($dob,'%4d-%2d-%2d');
+function dob($dob)
+{
+	list($year, $month, $day) = sscanf($dob, '%4d-%2d-%2d');
 
 	if ($dob <= '0001-01-01') {
 		$value = '';
@@ -211,8 +212,6 @@ function dob($dob) {
 /**
  * @brief Returns a date selector
  *
- * @param string $format
- *  Format string, e.g. 'ymd' or 'mdy'. Not currently supported
  * @param string $min
  *  Unix timestamp of minimum date
  * @param string $max
@@ -613,7 +612,7 @@ function update_contact_birthdays() {
 			$bdtext = sprintf( t('%s\'s birthday'), $rr['name']);
 			$bdtext2 = sprintf( t('Happy Birthday %s'), ' [url=' . $rr['url'] . ']' . $rr['name'] . '[/url]') ;
 
-			$r = q("INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`,`adjust`)
+			q("INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`,`adjust`)
 				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d' ) ",
 				intval($rr['uid']),
 			 	intval($rr['id']),

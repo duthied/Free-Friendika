@@ -232,8 +232,6 @@ function z_fetch_url($url, $binary = false, &$redirects = 0, $opts = array())
 	$a->set_curl_code($http_code);
 	$a->set_curl_content_type($curl_info['content_type']);
 
-	$body = substr($s, strlen($header));
-
 	$rc = intval($http_code);
 	$ret['return_code'] = $rc;
 	$ret['success'] = (($rc >= 200 && $rc <= 299) ? true : false);
@@ -680,8 +678,6 @@ function scale_external_images($srctext, $include_link = true, $scale_replace = 
 		$include_link = false;
 	}
 
-	$a = get_app();
-
 	// Picture addresses can contain special characters
 	$s = htmlspecialchars_decode($srctext);
 
@@ -855,7 +851,6 @@ function original_url($url, $depth = 1, $fetchbody = false)
 
 	$stamp1 = microtime(true);
 
-	$siteinfo = array();
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
 	curl_setopt($ch, CURLOPT_HEADER, 1);
@@ -864,7 +859,7 @@ function original_url($url, $depth = 1, $fetchbody = false)
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
 
-	$header = curl_exec($ch);
+	curl_exec($ch);
 	$curl_info = @curl_getinfo($ch);
 	$http_code = $curl_info['http_code'];
 	curl_close($ch);
@@ -936,7 +931,6 @@ function original_url($url, $depth = 1, $fetchbody = false)
 		if (@$attr["http-equiv"] == 'refresh') {
 			$path = $attr["content"];
 			$pathinfo = explode(";", $path);
-			$content = "";
 			foreach ($pathinfo as $value) {
 				if (substr(strtolower($value), 0, 4) == "url=") {
 					return(original_url(substr($value, 4), ++$depth));
@@ -945,7 +939,7 @@ function original_url($url, $depth = 1, $fetchbody = false)
 		}
 	}
 
-	return($url);
+	return $url;
 }
 
 function short_link($url)

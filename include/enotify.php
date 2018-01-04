@@ -20,12 +20,11 @@ require_once 'include/html2bbcode.php';
 			source_link, activity, preamble, notify_flags,
 			language, show_in_notification_page
  */
-function notification($params) {
-
+function notification($params)
+{
 	$a = get_app();
 
 	// from here on everything is in the recipients language
-
 	push_lang($params['language']);
 
 	$banner = t('Friendica Notification');
@@ -33,21 +32,22 @@ function notification($params) {
 	$siteurl = System::baseUrl(true);
 	$thanks = t('Thank You,');
 	$sitename = $a->config['sitename'];
-	if (!x($a->config['admin_name']))
+	if (!x($a->config['admin_name'])) {
 	    $site_admin = sprintf(t('%s Administrator'), $sitename);
-	else
+	} else {
 	    $site_admin = sprintf(t('%1$s, %2$s Administrator'), $a->config['admin_name'], $sitename);
-
-	$nickname = "";
+	}
 
 	$sender_name = $sitename;
 	$hostname = $a->get_hostname();
-	if (strpos($hostname, ':'))
+	if (strpos($hostname, ':')) {
 		$hostname = substr($hostname, 0, strpos($hostname, ':'));
+	}
 
 	$sender_email = $a->config['sender_email'];
-	if (empty($sender_email))
+	if (empty($sender_email)) {
 		$sender_email = t('noreply').'@'.$hostname;
+	}
 
 	if ($params['type'] != SYSTEM_EMAIL) {
 		$user = dba::select('user', array('nickname', 'page-flags'),
@@ -77,21 +77,21 @@ function notification($params) {
 	if (array_key_exists('item', $params)) {
 		$title = $params['item']['title'];
 		$body = $params['item']['body'];
-	} else
+	} else {
 		$title = $body = '';
+	}
 
-	// e.g. "your post", "David's photo", etc.
-	$possess_desc = t('%s <!item_type!>');
-
-	if (isset($params['item']['id']))
+	if (isset($params['item']['id'])) {
 		$item_id = $params['item']['id'];
-	else
+	} else {
 		$item_id = 0;
+	}
 
-	if (isset($params['parent']))
+	if (isset($params['parent'])) {
 		$parent_id = $params['parent'];
-	else
+	} else {
 		$parent_id = 0;
+	}
 
 	if ($params['type'] == NOTIFY_MAIL) {
 		$subject = sprintf(t('[Friendica:Notify] New mail received at %s'), $sitename);
@@ -117,8 +117,6 @@ function notification($params) {
 
 		// Check to see if there was already a tag notify or comment notify for this post.
 		// If so don't create a second notification
-
-		$p = null;
 		$p = q("SELECT `id` FROM `notify` WHERE `type` IN (%d, %d, %d) AND `link` = '%s' AND `uid` = %d LIMIT 1",
 			intval(NOTIFY_TAGSELF),
 			intval(NOTIFY_COMMENT),
@@ -151,19 +149,21 @@ function notification($params) {
 								$item_post_type);
 
 		// "George Bull's post"
-		if ($p)
+		if ($p) {
 			$dest_str = sprintf(t('%1$s commented on [url=%2$s]%3$s\'s %4$s[/url]'),
 						'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 						$itemlink,
 						$p[0]['author-name'],
 						$item_post_type);
+		}
 
 		// "your post"
-		if ($p[0]['owner-name'] == $p[0]['author-name'] && $p[0]['wall'])
+		if ($p[0]['owner-name'] == $p[0]['author-name'] && $p[0]['wall']) {
 			$dest_str = sprintf(t('%1$s commented on [url=%2$s]your %3$s[/url]'),
 								'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 								$itemlink,
 								$item_post_type);
+		}
 
 		// Some mail softwares relies on subject field for threading.
 		// So, we cannot have different subjects for notifications of the same thread.
@@ -413,7 +413,6 @@ function notification($params) {
 
 	$body      = $h['body'];
 
-	$sitelink  = $h['sitelink'];
 	$tsitelink = $h['tsitelink'];
 	$hsitelink = $h['hsitelink'];
 	$itemlink  = $h['itemlink'];
@@ -455,8 +454,7 @@ function notification($params) {
 		}
 
 		// create notification entry in DB
-
-		$r = q("INSERT INTO `notify` (`hash`, `name`, `url`, `photo`, `date`, `uid`, `link`, `iid`, `parent`, `type`, `verb`, `otype`, `name_cache`)
+		q("INSERT INTO `notify` (`hash`, `name`, `url`, `photo`, `date`, `uid`, `link`, `iid`, `parent`, `type`, `verb`, `otype`, `name_cache`)
 			values('%s', '%s', '%s', '%s', '%s', %d, '%s', %d, %d, %d, '%s', '%s', '%s')",
 			dbesc($datarray['hash']),
 			dbesc($datarray['name']),
@@ -477,17 +475,15 @@ function notification($params) {
 			dbesc($hash),
 			intval($params['uid'])
 		);
-		if ($r)
+		if ($r) {
 			$notify_id = $r[0]['id'];
-		else {
+		} else {
 			pop_lang();
 			return False;
 		}
 
 		// we seem to have a lot of duplicate comment notifications due to race conditions, mostly from forums
 		// After we've stored everything, look again to see if there are any duplicates and if so remove them
-
-		$p = null;
 		$p = q("SELECT `id` FROM `notify` WHERE `type` IN (%d, %d) AND `link` = '%s' AND `uid` = %d ORDER BY `id`",
 			intval(NOTIFY_TAGSELF),
 			intval(NOTIFY_COMMENT),
@@ -500,13 +496,11 @@ function notification($params) {
 			}
 
 			// only continue on if we stored the first one
-
 			if ($notify_id != $p[0]['id']) {
 				pop_lang();
 				return False;
 			}
 		}
-
 
 		$itemlink = System::baseUrl().'/notify/view/'.$notify_id;
 		$msg = replace_macros($epreamble, array('$itemlink' => $itemlink));
@@ -539,7 +533,7 @@ function notification($params) {
 
 			if (!$r) {
 				logger("notify_id:".intval($notify_id).", parent: ".intval($params['parent'])."uid: ".intval($params['uid']), LOGGER_DEBUG);
-				$r = q("INSERT INTO `notify-threads` (`notify-id`, `master-parent-item`, `receiver-uid`, `parent-item`)
+				q("INSERT INTO `notify-threads` (`notify-id`, `master-parent-item`, `receiver-uid`, `parent-item`)
 					values(%d, %d, %d, %d)",
 					intval($notify_id),
 					intval($params['parent']),
@@ -637,7 +631,6 @@ function notification($params) {
 		));
 
 		// use the Emailer class to send the message
-
 		return Emailer::send(
 			array(
 			'uid' => $params['uid'],

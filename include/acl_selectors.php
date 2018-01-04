@@ -744,11 +744,10 @@ function navbar_complete(App $a) {
 	if (! $localsearch) {
 		$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
 
-		$x = z_fetch_url(get_server().'/lsearch?f=' . $p .  '&search=' . urlencode($search));
+		$x = z_fetch_url(get_server() . '/lsearch?f=' . $p .  '&search=' . urlencode($search));
 		if ($x['success']) {
-			$t = 0;
 			$j = json_decode($x['body'],true);
-			if ($j && $j['results']) {
+			if ($j && isset($j['results'])) {
 				return $j['results'];
 			}
 		}

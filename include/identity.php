@@ -230,7 +230,6 @@ function profile_sidebar($profile, $block = 0, $show_connect = true)
 
 	$o = '';
 	$location = false;
-	$address = false;
 
 	// This function can also use contact information in $profile
 	$is_contact = x($profile, 'cid');
@@ -381,7 +380,7 @@ function profile_sidebar($profile, $block = 0, $show_connect = true)
 	$xmpp     = x($profile, 'xmpp')     ? t('XMPP:')     : false;
 
 	if ((x($profile, 'hidewall') || $block) && !local_user() && !remote_user()) {
-		$location = $pdesc = $gender = $marital = $homepage = $about = false;
+		$location = $gender = $marital = $homepage = $about = false;
 	}
 
 	$split_name = Diaspora::splitName($profile['name']);
@@ -551,10 +550,8 @@ function get_birthdays()
 				$cids[] = $rr['cid'];
 
 				$today = (((strtotime($rr['start'] . ' +00:00') < $now) && (strtotime($rr['finish'] . ' +00:00') > $now)) ? true : false);
-				$sparkle = '';
 				$url = $rr['url'];
 				if ($rr['network'] === NETWORK_DFRN) {
-					$sparkle = ' sparkle';
 					$url = System::baseUrl() . '/redir/' . $rr['cid'];
 				}
 

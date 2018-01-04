@@ -144,7 +144,7 @@ function post_update_1194() {
 
 	logger("Progress: Start: ".$start_id." position: ".$pos_id." end: ".$end_id, LOGGER_DEBUG);
 
-	$r = q("UPDATE `item` ".$query2." SET `item`.`global` = 1 ".$query3,
+	q("UPDATE `item` ".$query2." SET `item`.`global` = 1 ".$query3,
 		intval($start_id), intval($pos_id),
 		dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS));
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file include/follow.php
  */
@@ -16,21 +17,24 @@ use Friendica\Protocol\OStatus;
 use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Salmon;
 
-function update_contact($id) {
+function update_contact($id)
+{
 	/*
-	Warning: Never ever fetch the public key via Probe::uri and write it into the contacts.
-	This will reliably kill your communication with Friendica contacts.
-	*/
+	  Warning: Never ever fetch the public key via Probe::uri and write it into the contacts.
+	  This will reliably kill your communication with Friendica contacts.
+	 */
 
 	$r = q("SELECT `url`, `nurl`, `addr`, `alias`, `batch`, `notify`, `poll`, `poco`, `network` FROM `contact` WHERE `id` = %d", intval($id));
-	if (!$r)
+	if (!$r) {
 		return false;
+	}
 
 	$ret = Probe::uri($r[0]["url"]);
 
 	// If Probe::uri fails the network code will be different
-	if ($ret["network"] != $r[0]["network"])
+	if ($ret["network"] != $r[0]["network"]) {
 		return false;
+	}
 
 	$update = false;
 
@@ -43,8 +47,9 @@ function update_contact($id) {
 			$update = true;
 	}
 
-	if (!$update)
+	if (!$update) {
 		return true;
+	}
 
 	q("UPDATE `contact` SET `url` = '%s', `nurl` = '%s', `addr` = '%s', `alias` = '%s', `batch` = '%s', `notify` = '%s', `poll` = '%s', `poco` = '%s' WHERE `id` = %d",
 		dbesc($ret['url']),
@@ -64,29 +69,34 @@ function update_contact($id) {
 	return true;
 }
 
-//
-// Takes a $uid and a url/handle and adds a new contact
-// Currently if the contact is DFRN, interactive needs to be true, to redirect to the
-// dfrn_request page.
-
-// Otherwise this can be used to bulk add statusnet contacts, twitter contacts, etc.
-// Returns an array
-//  $return['success'] boolean true if successful
-//  $return['message'] error text if success is false.
-
-
-
-function new_contact($uid, $url, $interactive = false, $network = '') {
-
-	$result = array('cid' => -1, 'success' => false,'message' => '');
+/**
+ * Takes a $uid and a url/handle and adds a new contact
+ * Currently if the contact is DFRN, interactive needs to be true, to redirect to the
+ * dfrn_request page.
+ *
+ * Otherwise this can be used to bulk add statusnet contacts, twitter contacts, etc.
+ *
+ * Returns an array
+ * $return['success'] boolean true if successful
+ * $return['message'] error text if success is false.
+ *
+ * @brief Takes a $uid and a url/handle and adds a new contact
+ * @param int    $uid
+ * @param string $url
+ * @param bool   $interactive
+ * @param string $network
+ * @return boolean|string
+ */
+function new_contact($uid, $url, $interactive = false, $network = '')
+{
+	$result = array('cid' => -1, 'success' => false, 'message' => '');
 
 	$a = get_app();
 
 	// remove ajax junk, e.g. Twitter
+	$url = str_replace('/#!/', '/', $url);
 
-	$url = str_replace('/#!/','/',$url);
-
-	if (! allowed_url($url)) {
+	if (!allowed_url($url)) {
 		$result['message'] = t('Disallowed profile URL.');
 		return $result;
 	}
@@ -96,7 +106,7 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 		return $result;
 	}
 
-	if (! $url) {
+	if (!$url) {
 		$result['message'] = t('Connect URL missing.');
 		return $result;
 	}
@@ -105,14 +115,14 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 
 	call_hooks('follow', $arr);
 
-	if (x($arr['contact'],'name')) {
+	if (x($arr['contact'], 'name')) {
 		$ret = $arr['contact'];
 	} else {
 		$ret = Probe::uri($url, $network, $uid, false);
 	}
 
 	if (($network != '') && ($ret['network'] != $network)) {
-		logger('Expected network '.$network.' does not match actual network '.$ret['network']);
+		logger('Expected network ' . $network . ' does not match actual network ' . $ret['network']);
 		return result;
 	}
 
@@ -128,7 +138,7 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 
 			// NOTREACHED
 		}
-	} elseif (Config::get('system','dfrn_only')) {
+	} elseif (Config::get('system', 'dfrn_only')) {
 		$result['message'] = t('This site is not configured to allow communications with other networks.') . EOL;
 		$result['message'] != t('No compatible communication protocols or feeds were discovered.') . EOL;
 		return $result;
@@ -136,36 +146,36 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 
 	// This extra param just confuses things, remove it
 	if ($ret['network'] === NETWORK_DIASPORA) {
-		$ret['url'] = str_replace('?absolute=true','',$ret['url']);
+		$ret['url'] = str_replace('?absolute=true', '', $ret['url']);
 	}
 
 	// do we have enough information?
 
-	if (! ((x($ret,'name')) && (x($ret,'poll')) && ((x($ret,'url')) || (x($ret,'addr'))))) {
-		$result['message'] .=  t('The profile address specified does not provide adequate information.') . EOL;
-		if (! x($ret,'poll')) {
+	if (!((x($ret, 'name')) && (x($ret, 'poll')) && ((x($ret, 'url')) || (x($ret, 'addr'))))) {
+		$result['message'] .= t('The profile address specified does not provide adequate information.') . EOL;
+		if (!x($ret, 'poll')) {
 			$result['message'] .= t('No compatible communication protocols or feeds were discovered.') . EOL;
 		}
-		if (! x($ret,'name')) {
-			$result['message'] .=  t('An author or name was not found.') . EOL;
+		if (!x($ret, 'name')) {
+			$result['message'] .= t('An author or name was not found.') . EOL;
 		}
-		if (! x($ret,'url')) {
-			$result['message'] .=  t('No browser URL could be matched to this address.') . EOL;
+		if (!x($ret, 'url')) {
+			$result['message'] .= t('No browser URL could be matched to this address.') . EOL;
 		}
-		if (strpos($url,'@') !== false) {
-			$result['message'] .=  t('Unable to match @-style Identity Address with a known protocol or email contact.') . EOL;
-			$result['message'] .=  t('Use mailto: in front of address to force email check.') . EOL;
+		if (strpos($url, '@') !== false) {
+			$result['message'] .= t('Unable to match @-style Identity Address with a known protocol or email contact.') . EOL;
+			$result['message'] .= t('Use mailto: in front of address to force email check.') . EOL;
 		}
 		return $result;
 	}
 
-	if ($ret['network'] === NETWORK_OSTATUS && Config::get('system','ostatus_disabled')) {
+	if ($ret['network'] === NETWORK_OSTATUS && Config::get('system', 'ostatus_disabled')) {
 		$result['message'] .= t('The profile address specified belongs to a network which has been disabled on this site.') . EOL;
 		$ret['notify'] = '';
 	}
 
-	if (! $ret['notify']) {
-		$result['message'] .=  t('Limited profile. This person will be unable to receive direct/personal notifications from you.') . EOL;
+	if (!$ret['notify']) {
+		$result['message'] .= t('Limited profile. This person will be unable to receive direct/personal notifications from you.') . EOL;
 	}
 
 	$writeable = ((($ret['network'] === NETWORK_OSTATUS) && ($ret['notify'])) ? 1 : 0);
@@ -189,10 +199,11 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 		dbesc($ret['network'])
 	);
 
-	if (!DBM::is_result($r))
+	if (!DBM::is_result($r)) {
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` = '%s' LIMIT 1",
 			intval($uid), dbesc(normalise_link($url)), dbesc($ret['network'])
-	);
+		);
+	}
 
 	if (DBM::is_result($r)) {
 		// update contact
@@ -204,7 +215,7 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 		$new_relation = ((in_array($ret['network'], array(NETWORK_MAIL))) ? CONTACT_IS_FRIEND : CONTACT_IS_SHARING);
 
 		// create contact record
-		$r = q("INSERT INTO `contact` ( `uid`, `created`, `url`, `nurl`, `addr`, `alias`, `batch`, `notify`, `poll`, `poco`, `name`, `nick`, `network`, `pubkey`, `rel`, `priority`,
+		q("INSERT INTO `contact` ( `uid`, `created`, `url`, `nurl`, `addr`, `alias`, `batch`, `notify`, `poll`, `poco`, `name`, `nick`, `network`, `pubkey`, `rel`, `priority`,
 			`writable`, `hidden`, `blocked`, `readonly`, `pending`, `subhub` )
 			VALUES ( %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d, 0, 0, 0, %d ) ",
 			intval($uid),
@@ -235,13 +246,13 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 		intval($uid)
 	);
 
-	if (! DBM::is_result($r)) {
-		$result['message'] .=  t('Unable to retrieve contact information.') . EOL;
+	if (!DBM::is_result($r)) {
+		$result['message'] .= t('Unable to retrieve contact information.') . EOL;
 		return $result;
 	}
 
 	$contact = $r[0];
-	$contact_id  = $r[0]['id'];
+	$contact_id = $r[0]['id'];
 	$result['cid'] = $contact_id;
 
 	Group::addMember(User::getDefaultGroup($uid, $contact["network"]), $contact_id);
@@ -270,7 +281,7 @@ function new_contact($uid, $url, $interactive = false, $network = '') {
 
 		if ($contact['network'] == NETWORK_DIASPORA) {
 			$ret = Diaspora::sendShare($a->user, $contact);
-			logger('share returns: '.$ret);
+			logger('share returns: ' . $ret);
 		}
 	}
 
