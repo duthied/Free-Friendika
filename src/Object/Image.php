@@ -15,8 +15,6 @@ use Exception;
 use Imagick;
 use ImagickPixel;
 
-require_once "include/photos.php";
-
 /**
  * Class to handle images
  */

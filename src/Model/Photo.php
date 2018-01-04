@@ -1,19 +1,19 @@
 <?php
-
 /**
  * @file src/Model/Photo.php
  * @brief This file contains the Photo class for database interface
  */
-
 namespace Friendica\Model;
 
+use Friendica\Core\Cache;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Object\Image;
 use dba;
 
 require_once 'include/dba.php';
-require_once "include/photos.php";
 
 /**
  * Class to handle photo dabatase table
@@ -21,6 +21,7 @@ require_once "include/photos.php";
 class Photo
 {
 	/**
+	 * @param Image   $Image     image
 	 * @param integer $uid       uid
 	 * @param integer $cid       cid
 	 * @param integer $rid       rid
@@ -172,5 +173,93 @@ class Photo
 		}
 
 		return array($photo, $thumb, $micro);
+	}
+
+	/**
+	 * @param string $exifCoord coordinate
+	 * @param string $hemi      hemi
+	 * @return float
+	 */
+	public static function getGps($exifCoord, $hemi)
+	{
+		$degrees = count($exifCoord) > 0 ? self::gps2Num($exifCoord[0]) : 0;
+		$minutes = count($exifCoord) > 1 ? self::gps2Num($exifCoord[1]) : 0;
+		$seconds = count($exifCoord) > 2 ? self::gps2Num($exifCoord[2]) : 0;
+	
+		$flip = ($hemi == 'W' || $hemi == 'S') ? -1 : 1;
+	
+		return floatval($flip * ($degrees + ($minutes / 60) + ($seconds / 3600)));
+	}
+
+	/**
+	 * @param string $coordPart coordPart
+	 * @return float
+	 */
+	private static function gps2Num($coordPart)
+	{
+		$parts = explode('/', $coordPart);
+	
+		if (count($parts) <= 0) {
+			return 0;
+		}
+	
+		if (count($parts) == 1) {
+			return $parts[0];
+		}
+	
+		return floatval($parts[0]) / floatval($parts[1]);
+	}
+
+	/**
+	 * @brief Fetch the photo albums that are available for a viewer
+	 *
+	 * The query in this function is cost intensive, so it is cached.
+	 *
+	 * @param int  $uid    User id of the photos
+	 * @param bool $update Update the cache
+	 *
+	 * @return array Returns array of the photo albums
+	 */
+	public static function getAlbums($uid, $update = false)
+	{
+		$sql_extra = permissions_sql($uid);
+
+		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
+		$albums = Cache::get($key);
+		if (is_null($albums) || $update) {
+			if (!Config::get('system', 'no_count', false)) {
+				/// @todo This query needs to be renewed. It is really slow
+				// At this time we just store the data in the cache
+				$albums = q("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`, ANY_VALUE(`created`) AS `created`
+					FROM `photo`
+					WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra
+					GROUP BY `album` ORDER BY `created` DESC",
+					intval($uid),
+					dbesc('Contact Photos'),
+					dbesc(t('Contact Photos'))
+				);
+			} else {
+				// This query doesn't do the count and is much faster
+				$albums = q("SELECT DISTINCT(`album`), '' AS `total`
+					FROM `photo` USE INDEX (`uid_album_scale_created`)
+					WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra",
+					intval($uid),
+					dbesc('Contact Photos'),
+					dbesc(t('Contact Photos'))
+				);
+			}
+			Cache::set($key, $albums, CACHE_DAY);
+		}
+		return $albums;
+	}
+
+	/**
+	 * @param int $uid User id of the photos
+	 * @return void
+	 */
+	public static function clearAlbumCache($uid)
+	{
+		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
+		Cache::set($key, null, CACHE_DAY);
 	}
 }

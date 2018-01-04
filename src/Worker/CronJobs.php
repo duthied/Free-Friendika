@@ -12,6 +12,7 @@ use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Model\Photo;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use dba;
@@ -29,7 +30,6 @@ class CronJobs
 		require_once 'include/datetime.php';
 		require_once 'include/post_update.php';
 		require_once 'mod/nodeinfo.php';
-		require_once 'include/photos.php';
 
 		// No parameter set? So return
 		if ($command == '') {
@@ -100,8 +100,8 @@ class CronJobs
 			return;
 		}
 
-		foreach ($r AS $user) {
-			photo_albums($user['uid'], true);
+		foreach ($r as $user) {
+			Photo::clearAlbumCache($user['uid']);
 		}
 	}
 
