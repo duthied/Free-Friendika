@@ -3520,8 +3520,6 @@ api_register_func('api/statusnet/version', 'api_statusnet_version', false);
  */
 function api_ff_ids($type)
 {
-	$a = get_app();
-
 	if (! api_user()) {
 		throw new ForbiddenException();
 	}
@@ -3534,7 +3532,6 @@ function api_ff_ids($type)
 			WHERE `contact`.`uid` = %s AND NOT `contact`.`self`",
 		intval(api_user())
 	);
-
 	if (!DBM::is_result($r)) {
 		return;
 	}
@@ -3919,12 +3916,10 @@ function api_oauth_request_token()
 /**
  * Returns an OAuth Access Token.
  *
- * @param string $type Return type (atom, rss, xml, json)
- *
  * @return array|string
  * @see https://oauth.net/core/1.0/#auth_step3
  */
-function api_oauth_access_token($type)
+function api_oauth_access_token()
 {
 	$oauth1 = new FKOAuth1();
 	try {

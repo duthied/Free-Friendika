@@ -505,7 +505,7 @@ function notification($params)
 		$itemlink = System::baseUrl().'/notify/view/'.$notify_id;
 		$msg = replace_macros($epreamble, array('$itemlink' => $itemlink));
 		$msg_cache = format_notification_message($datarray['name_cache'], strip_tags(bbcode($msg)));
-		$r = q("UPDATE `notify` SET `msg` = '%s', `msg_cache` = '%s' WHERE `id` = %d AND `uid` = %d",
+		q("UPDATE `notify` SET `msg` = '%s', `msg_cache` = '%s' WHERE `id` = %d AND `uid` = %d",
 			dbesc($msg),
 			dbesc($msg_cache),
 			intval($notify_id),

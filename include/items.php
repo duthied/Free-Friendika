@@ -1116,7 +1116,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	 * It is done after the transaction to avoid dead locks.
 	 */
 	if ($arr['last-child']) {
-		$r = q("UPDATE `item` SET `last-child` = 0 WHERE `parent-uri` = '%s' AND `uid` = %d AND `id` != %d",
+		q("UPDATE `item` SET `last-child` = 0 WHERE `parent-uri` = '%s' AND `uid` = %d AND `id` != %d",
 			dbesc($arr['uri']),
 			intval($arr['uid']),
 			intval($current_post)
@@ -2220,12 +2220,12 @@ function drop_item($id, $interactive = true) {
 
 		// Now delete them
 		if ($parentid != "") {
-			$r = q("DELETE FROM `sign` WHERE `iid` IN (%s)", dbesc($parentid));
+			q("DELETE FROM `sign` WHERE `iid` IN (%s)", dbesc($parentid));
 		}
 
 		// If it's the parent of a comment thread, kill all the kids
 		if ($item['uri'] == $item['parent-uri']) {
-			$r = dba::update('item', array('deleted' => true, 'title' => '', 'body' => '',
+			dba::update('item', array('deleted' => true, 'title' => '', 'body' => '',
 					'edited' => datetime_convert(), 'changed' => datetime_convert()),
 				array('parent-uri' => $item['parent-uri'], 'uid' => $item['uid']));
 

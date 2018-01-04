@@ -201,7 +201,7 @@ function html2plain($html, $wraplength = 75, $compact = false)
 		node2bbcode($doc, 'img', array('src' => '/(.+)/'), ' ', ' ');
 	}
 
-	node2bbcode($doc, 'iframe', array('src' => '/(.+)/'), ' $1 ', '', true);
+	node2bbcode($doc, 'iframe', array('src' => '/(.+)/'), ' $1 ', '');
 
 	$message = $doc->saveHTML();
 

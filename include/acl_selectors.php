@@ -386,22 +386,20 @@ function populate_acl($user = null, $show_jotnets = false) {
 
 }
 
-function acl_lookup(App $a, $out_type = 'json') {
-
+function acl_lookup(App $a, $out_type = 'json')
+{
 	if (!local_user()) {
 		return '';
 	}
 
-	$start	=	(x($_REQUEST,'start')		? $_REQUEST['start']		: 0);
-	$count	=	(x($_REQUEST,'count')		? $_REQUEST['count']		: 100);
-	$search	 =	(x($_REQUEST,'search')		? $_REQUEST['search']		: "");
-	$type	=	(x($_REQUEST,'type')		? $_REQUEST['type']		: "");
-	$mode	=	(x($_REQUEST,'smode')		? $_REQUEST['smode']		: "");
-	$conv_id =	(x($_REQUEST,'conversation')	? $_REQUEST['conversation']	: null);
+	$start   = defaults($_REQUEST, 'start'       , 0);
+	$count   = defaults($_REQUEST, 'count'       , 100);
+	$search  = defaults($_REQUEST, 'search'      , '');
+	$type    = defaults($_REQUEST, 'type'        , '');
+	$conv_id = defaults($_REQUEST, 'conversation', null);
 
 	// For use with jquery.textcomplete for private mail completion
-
-	if (x($_REQUEST, 'query') && strlen($_REQUEST['query'])) {
+	if (x($_REQUEST, 'query')) {
 		if (! $type) {
 			$type = 'm';
 		}
@@ -410,7 +408,7 @@ function acl_lookup(App $a, $out_type = 'json') {
 
 	logger("Searching for ".$search." - type ".$type, LOGGER_DEBUG);
 
-	if ($search != "") {
+	if ($search != '') {
 		$sql_extra = "AND `name` LIKE '%%".dbesc($search)."%%'";
 		$sql_extra2 = "AND (`attag` LIKE '%%".dbesc($search)."%%' OR `name` LIKE '%%".dbesc($search)."%%' OR `nick` LIKE '%%".dbesc($search)."%%')";
 	} else {
@@ -453,7 +451,6 @@ function acl_lookup(App $a, $out_type = 'json') {
 		$contact_count = (int)$r[0]['c'];
 	} elseif ($type == 'm') {
 		// autocomplete for Private Messages
-
 		$r = q("SELECT COUNT(*) AS c FROM `contact`
 				WHERE `uid` = %d AND NOT `self`
 				AND NOT `blocked` AND NOT `pending` AND NOT `archive`
@@ -466,28 +463,23 @@ function acl_lookup(App $a, $out_type = 'json') {
 		$contact_count = (int)$r[0]['c'];
 
 	} elseif ($type == 'a') {
-
 		// autocomplete for Contacts
-
 		$r = q("SELECT COUNT(*) AS c FROM `contact`
 				WHERE `uid` = %d AND NOT `self`
 				AND NOT `pending` $sql_extra2" ,
 			intval(local_user())
 		);
 		$contact_count = (int)$r[0]['c'];
-
 	} else {
 		$contact_count = 0;
 	}
 
-
-	$tot = $group_count+$contact_count;
+	$tot = $group_count + $contact_count;
 
 	$groups = array();
 	$contacts = array();
 
 	if ($type == '' || $type == 'g') {
-
 		/// @todo We should cache this query.
 		// This can be done when we can delete cache entries via wildcard
 		$r = q("SELECT `group`.`id`, `group`.`name`, GROUP_CONCAT(DISTINCT `group_member`.`contact-id` SEPARATOR ',') AS uids
@@ -504,7 +496,6 @@ function acl_lookup(App $a, $out_type = 'json') {
 		);
 
 		foreach ($r as $g) {
-//		logger('acl: group: ' . $g['name'] . ' members: ' . $g['uids']);
 			$groups[] = array(
 				"type"  => "g",
 				"photo" => "images/twopeople.png",
@@ -521,7 +512,6 @@ function acl_lookup(App $a, $out_type = 'json') {
 	}
 
 	if ($type == '') {
-
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv`, (`prv` OR `forum`) AS `frm` FROM `contact`
 			WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
 			AND `success_update` >= `failure_update` AND NOT (`network` IN ('%s', '%s'))
@@ -592,7 +582,6 @@ function acl_lookup(App $a, $out_type = 'json') {
 	} else {
 		$r = array();
 	}
-
 
 	if (DBM::is_result($r)) {
 		$forums = array();

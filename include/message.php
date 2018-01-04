@@ -196,7 +196,7 @@ function send_wallmessage($recipient = '', $body = '', $subject = '', $replyto =
 
 	$convid = $r['id'];
 
-	$r = q("INSERT INTO `mail` ( `uid`, `guid`, `convid`, `from-name`, `from-photo`, `from-url`,
+	q("INSERT INTO `mail` ( `uid`, `guid`, `convid`, `from-name`, `from-photo`, `from-url`,
 		`contact-id`, `title`, `body`, `seen`, `reply`, `replied`, `uri`, `parent-uri`, `created`, `unknown`)
 		VALUES ( %d, '%s', %d, '%s', '%s', '%s', %d, '%s', '%s', %d, %d, %d, '%s', '%s', '%s', %d )",
 		intval($recipient['uid']),

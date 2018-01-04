@@ -676,7 +676,7 @@ function check_db($via_worker)
 	if ($build != DB_UPDATE_VERSION) {
 		// When we cannot execute the database update via the worker, we will do it directly
 		if (!Worker::add(PRIORITY_CRITICAL, 'DBUpdate') && $via_worker) {
-			update_db(get_app());
+			update_db();
 		}
 	}
 }
