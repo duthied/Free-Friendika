@@ -8,9 +8,9 @@ namespace Friendica\Content;
 
 use Friendica\Core\Cache;
 use Friendica\Core\System;
-use Friendica\ParseUrl;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\ParseUrl;
 use dba;
 use DOMDocument;
 use DOMXPath;
@@ -193,8 +193,8 @@ class OEmbed
 				break;
 			case "rich":
 				// not so safe..
-				if (!Config::get("system", "no_oembed_rich_content")) {
-					$ret.= proxy_parse_html($jhtml);
+				if (self::isAllowedURL($embedurl)) {
+					$ret .= proxy_parse_html($jhtml);
 				}
 				break;
 		}
@@ -315,7 +315,10 @@ class OEmbed
 		}
 		$width = '100%';
 
-		$s = System::baseUrl() . '/oembed/' . base64url_encode($src);
+		// Only proxy OEmbed URLs to avoid mixed-content errors
+		if (Config::get('system', 'ssl_policy') == SSL_POLICY_FULL && parse_url($src, PHP_URL_SCHEME) !== 'https') {
+			$src = System::baseUrl() . '/oembed/' . base64url_encode($src);
+		}
 		return '<iframe onload="resizeIframe(this);" class="embed_rich" height="' . $height . '" width="' . $width . '" src="' . $s . '" allowfullscreen scrolling="no" frameborder="no">' . t('Embedded content') . '</iframe>';
 	}
 
@@ -351,5 +354,26 @@ class OEmbed
 			$innerHTML .= $child->ownerDocument->saveXML($child);
 		}
 		return $innerHTML;
+	}
+
+	/**
+	 * Determines if rich content OEmbed is allowed for the provided URL
+	 *
+	 * @brief Determines if rich content OEmbed is allowed for the provided URL
+	 * @param string $url
+	 * @return boolean
+	 */
+	private static function isAllowedURL($url)
+	{
+		if (!Config::get('system', 'no_oembed_rich_content')) {
+			return true;
+		}
+
+		$domain = parse_url($url, PHP_URL_HOST);
+
+		$str_allowed = Config::get('system', 'allowed_oembed', '');
+		$allowed = explode(',', $str_allowed);
+
+		return allowed_domain($domain, $allowed, true);
 	}
 }
