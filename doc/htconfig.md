@@ -65,7 +65,6 @@ Example: To set the directory value please add this line to your .htconfig.php:
 * **memcache_port** - Portnumber of the memcache daemon. Default is 11211.
 * **no_count** (Boolean) - Don't do count calculations (currently only when showing albums)
 * **no_oembed** (Boolean) - Don't use OEmbed to fetch more information about a link.
-* **no_oembed_rich_content** (Boolean) - Don't show the rich content (e.g. embedded PDF).
 * **no_smilies** (Boolean) - Don't show smilies.
 * **no_view_full_size** (Boolean) - Don't add the link "View full size" under a resized image.
 * **optimize_items** (Boolean) - Triggers an SQL command to optimize the item table before expiring items.
