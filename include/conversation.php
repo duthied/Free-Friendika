@@ -490,7 +490,6 @@ function item_condition() {
  *
  */
 function conversation(App $a, $items, $mode, $update, $preview = false) {
-
 	require_once 'include/bbcode.php';
 	require_once 'mod/proxy.php';
 
@@ -575,6 +574,9 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 				. " var profile_page = 1; </script>";
 		}
 	} elseif ($mode === 'community') {
+		if (!$community_readonly) {
+			$items = community_add_items($items);
+		}
 		$profile_owner = 0;
 // Currently deactivated. Will be activated when we can comment on the community page
 //		if (!$update) {
@@ -614,14 +616,21 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 	$page_template = get_markup_template("conversation.tpl");
 
 	if ($items && count($items)) {
+		$community_readonly = ($mode === 'community');
+
 		// Currently behind a config value. This allows the commenting and sharing of every public item.
 		if (Config::get('system', 'comment_public') && local_user()) {
-			$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], array(NETWORK_OSTATUS, NETWORK_DIASPORA));
+			if ($mode === 'community') {
+				$community_readonly = false;
+				$writable = true;
+			} else {
+				$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], array(NETWORK_OSTATUS, NETWORK_DIASPORA));
+			}
 		} else {
 			$writable = false;
 		}
 
-		if ($mode === 'network-new' || $mode === 'search' || $mode === 'community') {
+		if ($mode === 'network-new' || $mode === 'search' || $community_readonly) {
 
 			/*
 			 * "New Item View" on network page or search page results
@@ -890,6 +899,55 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 	));
 
 	return $o;
+}
+
+/**
+ * @brief Add comments to top level entries that had been fetched before
+ *
+ * The system will fetch the comments for the local user whenever possible.
+ * This behaviour is currently needed to allow commenting on Friendica posts.
+ *
+ * @param array $parents Parent items
+ *
+ * @return array items with parents and comments
+ */
+function community_add_items($parents) {
+	$max_comments = Config::get("system", "max_comments", 100);
+
+	$items = array();
+
+	foreach ($parents AS $parent) {
+		$thread_items = dba::p(item_query()." AND `item`.`uid` = ?
+			AND `item`.`parent-uri` = ?
+			ORDER BY `item`.`commented` DESC LIMIT ".intval($max_comments + 1),
+			local_user(),
+			$parent['uri']
+		);
+		$comments = dba::inArray($thread_items);
+
+		if (count($comments) == 0) {
+			$thread_items = dba::p(item_query()." AND `item`.`uid` = 0
+				AND `item`.`parent-uri` = ?
+				ORDER BY `item`.`commented` DESC LIMIT ".intval($max_comments + 1),
+				$parent['uri']
+			);
+			$comments = dba::inArray($thread_items);
+		}
+
+		if (count($comments) != 0) {
+			$items = array_merge($items, $comments);
+		}
+	}
+
+	foreach ($items as $index => $item) {
+		if ($item['uid'] == 0) {
+			$items[$index]['writable'] = in_array($item['network'], [NETWORK_DIASPORA, NETWORK_OSTATUS]);
+		}
+	}
+
+	$items = conv_sort($items, "`commented`");
+
+	return $items;
 }
 
 function best_link_url($item, &$sparkle, $url = '') {
