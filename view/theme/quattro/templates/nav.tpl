@@ -20,12 +20,6 @@
 			</li>
 		{{/if}}
 
-		{{if $nav.global}}
-			<li id="nav-global-link" class="nav-menu {{$sel.global}}">
-				<a class="{{$nav.global.2}}" href="{{$nav.global.0}}" title="{{$nav.global.3}}" >{{$nav.global.1}}</a>
-			</li>
-		{{/if}}
-
 		{{if $nav.community}}
 			<li id="nav-community-link" class="nav-menu {{$sel.community}}">
 				<a class="{{$nav.community.2}}" href="{{$nav.community.0}}" title="{{$nav.community.3}}" >{{$nav.community.1}}</a>

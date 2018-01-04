@@ -149,12 +149,8 @@ function nav_info(App $a)
 		}
 	}
 
-	if (in_array(Config::get('system', 'community_page_style'), [CP_USERS_ON_SERVER, CP_USERS_AND_GLOBAL])) {
-		$nav['community'] = array('community/local', t('Community'), '', t('Conversations on this site'));
-	}
-
-	if (in_array(Config::get('system', 'community_page_style'), [CP_GLOBAL_COMMUNITY, CP_USERS_AND_GLOBAL])) {
-		$nav['global'] = array('community/global', t('Global Timeline'), '', t('Conversations on the network'));
+	if (Config::get('system', 'community_page_style') != CP_NO_COMMUNITY_PAGE) {
+		$nav['community'] = array('community', t('Community'), '', t('Conversations on this and other servers'));
 	}
 
 	if (local_user()) {

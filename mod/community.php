@@ -57,6 +57,25 @@ function community_content(App $a, $update = 0) {
 	require_once 'include/conversation.php';
 
 	if (!$update) {
+		$tabs = [];
+
+		$tabs[] = array('label'=>t('Community'),
+				'url' => 'community/local',
+				'sel' => $content == 'local' ? 'active' : '',
+				'title' => t('Posts from local users on this server'),
+				'id' => 'community-local-tab',
+				'accesskey' => 'l');
+
+		$tabs[] = array('label' => t('Global Timeline'),
+				'url' => 'community/global',
+				'sel' => $content == 'global' ? 'active' : '',
+				'title' => t('Posts from users of the federated network'),
+				'id'    => 'community-global-tab',
+				'accesskey' => 'g');
+
+		$tab_tpl = get_markup_template('common_tabs.tpl');
+		$o .= replace_macros($tab_tpl, array('$tabs' => $tabs));
+
 		nav_set_selected('community');
 	}
 
@@ -121,7 +140,7 @@ function community_content(App $a, $update = 0) {
 	$t = get_markup_template("community.tpl");
 	return replace_macros($t, array(
 		'$content' => $o,
-		'$header' => $content == 'global' ? t("Global Timeline") : t("Community"),
+		'$header' => '',
 		'$show_global_community_hint' => ($content == 'global') && Config::get('system', 'show_global_community_hint'),
 		'$global_community_hint' => t("This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users.")
 	));

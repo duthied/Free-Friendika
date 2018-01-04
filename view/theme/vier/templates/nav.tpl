@@ -39,13 +39,6 @@
 			</li>
 		{{/if}}
 
-		{{if $nav.global}}
-			<li role="menuitem" id="nav-global-link" class="nav-menu {{$sel.global}}">
-				<a accesskey="g" class="{{$nav.global.2}} desktop-view" href="{{$nav.global.0}}" title="{{$nav.global.3}}" >{{$nav.global.1}}</a>
-				<a class="{{$nav.global.2}} mobile-view" href="{{$nav.global.0}}" title="{{$nav.global.3}}" ><i class="icon s22 icon-bullseye"></i></a>
-			</li>
-		{{/if}}
-
 		<li role="menu" aria-haspopup="true" id="nav-site-linkmenu" class="nav-menu-icon"><a><span class="icon s22 icon-question"><span class="sr-only">{{$nav.help.3}}</span></span></a>
 			<ul id="nav-site-menu" class="menu-popup">
 				{{if $nav.help}} <li role="menuitem"><a class="{{$nav.help.2}}" href="{{$nav.help.0}}" title="{{$nav.help.3}}" >{{$nav.help.1}}</a></li>{{/if}}
