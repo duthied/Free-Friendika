@@ -20,9 +20,36 @@ function community_content(App $a, $update = 0) {
 		return;
 	}
 
-	if (!local_user() && !in_array(Config::get('system','community_page_style'), [CP_USERS_ON_SERVER, CP_USERS_AND_GLOBAL])) {
-		notice(t('Not available.') . EOL);
+	$page_style = Config::get('system','community_page_style');
+
+	if ($a->argc > 1) {
+		$content = $a->argv[1];
+	} else {
+		// When only the global community is allowed, we use this as default
+		$content = $page_style == CP_GLOBAL_COMMUNITY ? 'global' : 'local';
+	}
+
+	if (!in_array($content, ['local', 'global'])) {
+		notice(t('Community option not available.') . EOL);
 		return;
+	}
+
+	// Check if we are allowed to display the content to visitors
+	if (!local_user()) {
+		$available = $page_style == CP_USERS_AND_GLOBAL;
+
+		if (!$available) {
+			$available = ($page_style == CP_USERS_ON_SERVER) && ($content == 'local');
+		}
+
+		if (!$available) {
+			$available = ($page_style == CP_GLOBAL_COMMUNITY) && ($content == 'global');
+		}
+
+		if (!$available) {
+			notice(t('Not available.') . EOL);
+			return;
+		}
 	}
 
 	require_once 'include/bbcode.php';
@@ -51,7 +78,7 @@ function community_content(App $a, $update = 0) {
 		$a->set_pager_itemspage($itemspage_network);
 	}
 
-	$r = community_getitems($a->pager['start'], $a->pager['itemspage']);
+	$r = community_getitems($a->pager['start'], $a->pager['itemspage'], $content);
 
 	if (!DBM::is_result($r)) {
 		info(t('No results.') . EOL);
@@ -60,7 +87,7 @@ function community_content(App $a, $update = 0) {
 
 	$maxpostperauthor = Config::get('system','max_author_posts_community_page');
 
-	if ($maxpostperauthor != 0) {
+	if (($maxpostperauthor != 0) && ($content == 'local')) {
 		$count = 1;
 		$previousauthor = "";
 		$numposts = 0;
@@ -80,7 +107,7 @@ function community_content(App $a, $update = 0) {
 				}
 			}
 			if (sizeof($s) < $a->pager['itemspage']) {
-				$r = community_getitems($a->pager['start'] + ($count * $a->pager['itemspage']), $a->pager['itemspage']);
+				$r = community_getitems($a->pager['start'] + ($count * $a->pager['itemspage']), $a->pager['itemspage'], $content);
 			}
 		} while ((sizeof($s) < $a->pager['itemspage']) && (++$count < 50) && (sizeof($r) > 0));
 	} else {
@@ -94,23 +121,35 @@ function community_content(App $a, $update = 0) {
 	$t = get_markup_template("community.tpl");
 	return replace_macros($t, array(
 		'$content' => $o,
-		'$header' => t("Community"),
-		'$show_global_community_hint' => false,
-		'$global_community_hint' => ''
+		'$header' => $content == 'global' ? t("Global Timeline") : t("Community"),
+		'$show_global_community_hint' => ($content == 'global') && Config::get('system', 'show_global_community_hint'),
+		'$global_community_hint' => t("This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users.")
 	));
 }
 
-function community_getitems($start, $itemspage) {
-	$r = dba::p("SELECT ".item_fieldlists()." FROM `thread`
-		INNER JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
-		INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
-		AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
-		AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''".
-		item_joins()." AND `contact`.`self`
-		WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
-		AND NOT `thread`.`private` AND `thread`.`wall`
-		ORDER BY `thread`.`received` DESC LIMIT ".intval($start).", ".intval($itemspage)
-	);
+function community_getitems($start, $itemspage, $content) {
+	if ($content == 'local') {
+		$r = dba::p("SELECT ".item_fieldlists()." FROM `thread`
+			INNER JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
+			INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
+			AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
+			AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''".
+			item_joins()." AND `contact`.`self`
+			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
+			AND NOT `thread`.`private` AND `thread`.`wall`
+			ORDER BY `thread`.`received` DESC LIMIT ".intval($start).", ".intval($itemspage)
+		);
+		return dba::inArray($r);
+	} elseif ($content == 'global') {
+		$r = dba::p("SELECT ".item_fieldlists()." FROM `thread`
+			INNER JOIN `item` ON `item`.`id` = `thread`.`iid` ".item_joins().
+			"WHERE `thread`.`uid` = 0 AND `verb` = ?
+			ORDER BY `thread`.`created` DESC LIMIT ".intval($start).", ".intval($itemspage),
+			ACTIVITY_POST
+		);
+		return dba::inArray($r);
+	}
 
-	return dba::inArray($r);
+	// Should never happen
+	return array();
 }

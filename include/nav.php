@@ -150,11 +150,11 @@ function nav_info(App $a)
 	}
 
 	if (in_array(Config::get('system', 'community_page_style'), [CP_USERS_ON_SERVER, CP_USERS_AND_GLOBAL])) {
-		$nav['community'] = array('community', t('Community'), '', t('Conversations on this site'));
+		$nav['community'] = array('community/local', t('Community'), '', t('Conversations on this site'));
 	}
 
 	if (in_array(Config::get('system', 'community_page_style'), [CP_GLOBAL_COMMUNITY, CP_USERS_AND_GLOBAL])) {
-		$nav['global'] = array('global', t('Global Timeline'), '', t('Conversations on the network'));
+		$nav['global'] = array('community/global', t('Global Timeline'), '', t('Conversations on the network'));
 	}
 
 	if (local_user()) {
