@@ -149,7 +149,7 @@ function nav_info(App $a)
 		}
 	}
 
-	if (Config::get('system', 'community_page_style') != CP_NO_COMMUNITY_PAGE) {
+	if (local_user() || Config::get('system', 'community_page_style') != CP_NO_COMMUNITY_PAGE) {
 		$nav['community'] = array('community', t('Community'), '', t('Conversations on this and other servers'));
 	}
 
