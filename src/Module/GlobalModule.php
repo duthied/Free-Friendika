@@ -8,6 +8,7 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use dba;
 
@@ -51,15 +52,23 @@ class GlobalModule extends BaseModule {
 			nav_set_selected('global');
 		}
 
-		if (x($a->data,'search')) {
-			$search = notags(trim($a->data['search']));
-		} else {
-			$search = (x($_GET,'search') ? notags(trim(rawurldecode($_GET['search']))) : '');
-		}
+		if (Config::get('system', 'comment_public')) {
+			// check if we serve a mobile device and get the user settings
+			// accordingly
+			if ($a->is_mobile) {
+				$itemspage_network = PConfig::get(local_user(),'system','itemspage_mobile_network', 20);
+			} else {
+				$itemspage_network = PConfig::get(local_user(),'system','itemspage_network', 40);
+			}
 
-		// Here is the way permissions work in this module...
-		// Only public posts can be shown
-		// OR your own posts if you are a logged in member
+			// now that we have the user settings, see if the theme forces
+			// a maximum item number which is lower then the user choice
+			if (($a->force_max_items > 0) && ($a->force_max_items < $itemspage_network)) {
+				$itemspage_network = $a->force_max_items;
+			}
+
+			$a->set_pager_itemspage($itemspage_network);
+		}
 
 		$r = self::getPublicItems($a->pager['start'], $a->pager['itemspage']);
 
@@ -67,8 +76,6 @@ class GlobalModule extends BaseModule {
 			info(t('No results.') . EOL);
 			return $o;
 		}
-
-		// we behave the same in message lists as the search module
 
 		$o .= conversation($a, $r, 'community', $update);
 
