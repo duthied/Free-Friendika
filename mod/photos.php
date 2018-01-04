@@ -13,7 +13,6 @@ use Friendica\Model\Photo;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 
-require_once 'include/photos.php';
 require_once 'include/items.php';
 require_once 'include/acl_selectors.php';
 require_once 'include/bbcode.php';
@@ -62,7 +61,7 @@ function photos_init(App $a) {
 			'$pdesc' => defaults($profile, 'pdesc', ''),
 		));
 
-		$albums = photo_albums($a->data['user']['uid']);
+		$albums = Photo::photoAlbums($a->data['user']['uid']);
 
 		$albums_visible = ((intval($a->data['user']['hidewall']) && !local_user() && !remote_user()) ? false : true);
 
@@ -213,7 +212,7 @@ function photos_post(App $a)
 				intval($page_owner_uid)
 			);
 			// Update the photo albums cache
-			photo_albums($page_owner_uid, true);
+			Photo::photoAlbums($page_owner_uid, true);
 
 			$newurl = str_replace(bin2hex($album), bin2hex($newalbum), $_SESSION['photo_return']);
 			goaway($newurl);
@@ -300,7 +299,7 @@ function photos_post(App $a)
 			}
 
 			// Update the photo albums cache
-			photo_albums($page_owner_uid, true);
+			Photo::photoAlbums($page_owner_uid, true);
 		}
 
 		goaway('photos/' . $a->data['user']['nickname']);
@@ -368,7 +367,7 @@ function photos_post(App $a)
 				$drop_id = intval($i[0]['id']);
 
 				// Update the photo albums cache
-				photo_albums($page_owner_uid, true);
+				Photo::photoAlbums($page_owner_uid, true);
 
 				if ($i[0]['visible']) {
 					Worker::add(PRIORITY_HIGH, "Notifier", "drop", $drop_id);
@@ -472,7 +471,7 @@ function photos_post(App $a)
 
 			// Update the photo albums cache if album name was changed
 			if ($albname !== $origaname) {
-				photo_albums($page_owner_uid, true);
+				Photo::photoAlbums($page_owner_uid, true);
 			}
 		}
 
@@ -894,8 +893,8 @@ function photos_post(App $a)
 	// Create item container
 	$lat = $lon = null;
 	if ($exif && $exif['GPS'] && Feature::isEnabled($channel_id, 'photo_location')) {
-		$lat = getGps($exif['GPS']['GPSLatitude'], $exif['GPS']['GPSLatitudeRef']);
-		$lon = getGps($exif['GPS']['GPSLongitude'], $exif['GPS']['GPSLongitudeRef']);
+		$lat = Photo::getGps($exif['GPS']['GPSLatitude'], $exif['GPS']['GPSLatitudeRef']);
+		$lon = Photo::getGps($exif['GPS']['GPSLongitude'], $exif['GPS']['GPSLongitudeRef']);
 	}
 
 	$arr = array();
@@ -932,7 +931,7 @@ function photos_post(App $a)
 
 	$item_id = item_store($arr);
 	// Update the photo albums cache
-	photo_albums($page_owner_uid, true);
+	Photo::photoAlbums($page_owner_uid, true);
 
 	if ($visible) {
 		Worker::add(PRIORITY_HIGH, "Notifier", 'wall-new', $item_id);
