@@ -1,9 +1,9 @@
 <?php
 /**
- * @file include/ParseUrl.php
+ * @file src/Util/ParseUrl.php
  * @brief Get informations about a given URL
  */
-namespace Friendica;
+namespace Friendica\Util;
 
 use Friendica\Content\OEmbed;
 use Friendica\Object\Image;

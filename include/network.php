@@ -615,24 +615,37 @@ function allowed_email($email)
 		return false;
 	}
 
-	$str_allowed = Config::get('system', 'allowed_email');
-	if (! $str_allowed) {
-		return true;
-	}
-
-	$found = false;
-
-	$fnmatch = function_exists('fnmatch');
+	$str_allowed = Config::get('system', 'allowed_email', '');
 	$allowed = explode(',', $str_allowed);
 
-	if (count($allowed)) {
-		foreach ($allowed as $a) {
-			$pat = strtolower(trim($a));
-			if (($fnmatch && fnmatch($pat, $domain)) || ($pat == $domain)) {
+	return allowed_domain($domain, $allowed);
+}
+
+/**
+ * Checks for the existence of a domain in a domain list
+ *
+ * If strict is not set, an empty domain list counts as found
+ *
+ * @brief Checks for the existence of a domain in a domain list
+ * @param string $domain
+ * @param array $domain_list
+ * @param bool   $strict
+ * @return boolean
+ */
+function allowed_domain($domain, array $domain_list, $strict = false)
+{
+	$found = false;
+
+	if (count($domain_list)) {
+		foreach ($domain_list as $item) {
+			$pat = strtolower(trim($item));
+			if (fnmatch($pat, $domain) || ($pat == $domain)) {
 				$found = true;
 				break;
 			}
 		}
+	} elseif(!$strict) {
+		$found = true;
 	}
 	return $found;
 }

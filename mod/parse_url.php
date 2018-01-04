@@ -11,7 +11,7 @@
 */
 
 use Friendica\App;
-use Friendica\ParseUrl;
+use Friendica\Util\ParseUrl;
 
 require_once("include/items.php");
 
