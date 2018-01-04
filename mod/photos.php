@@ -9,6 +9,7 @@ use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Group;
 use Friendica\Model\Photo;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
@@ -1045,7 +1046,7 @@ function photos_content(App $a)
 			}
 		}
 		if ($contact_id) {
-			$groups = init_groups_visitor($contact_id);
+			$groups = Group::getIdsByContactId($contact_id);
 			$r = q("SELECT * FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
 				intval($contact_id),
 				intval($owner_uid)

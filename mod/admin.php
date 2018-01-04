@@ -13,6 +13,7 @@ use Friendica\Database\DBM;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
+use Friendica\Module\Login;
 
 require_once 'include/enotify.php';
 require_once 'include/text.php';
@@ -153,7 +154,7 @@ function admin_post(App $a)
 function admin_content(App $a)
 {
 	if (!is_site_admin()) {
-		return login(false);
+		return Login::form();
 	}
 
 	if (x($_SESSION, 'submanage') && intval($_SESSION['submanage'])) {

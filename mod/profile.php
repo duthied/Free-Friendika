@@ -5,6 +5,8 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Group;
+use Friendica\Module\Login;
 
 require_once 'include/contact_widgets.php';
 require_once 'include/redir.php';
@@ -103,7 +105,7 @@ function profile_content(App $a, $update = 0)
 	$hashtags = defaults($_GET, 'tag', '');
 
 	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
-		return login();
+		return Login::form();
 	}
 
 	require_once 'include/bbcode.php';
@@ -139,7 +141,7 @@ function profile_content(App $a, $update = 0)
 	}
 
 	if ($contact_id) {
-		$groups = init_groups_visitor($contact_id);
+		$groups = Group::getIdsByContactId($contact_id);
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($contact_id),
 			intval($a->profile['profile_uid'])

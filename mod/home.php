@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Module\Login;
 
 if(! function_exists('home_init')) {
 function home_init(App $a) {
@@ -43,8 +44,8 @@ function home_content(App $a) {
 		$o .= '<h1>'.((x($a->config,'sitename')) ? sprintf(t("Welcome to %s"), $a->config['sitename']) : "").'</h1>';
 	}
 
+	$o .= Login::form($a->query_string, $a->config['register_policy'] == REGISTER_CLOSED ? 0 : 1);
 
-	$o .= login(($a->config['register_policy'] == REGISTER_CLOSED) ? 0 : 1);
 
 	call_hooks("home_content",$o);
 

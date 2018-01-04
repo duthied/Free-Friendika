@@ -537,10 +537,9 @@ function settings_post(App $a) {
 	// If openid has changed or if there's an openid but no openidserver, try and discover it.
 
 	if ($openid != $a->user['openid'] || (strlen($openid) && (!strlen($openidserver)))) {
-		$tmp_str = $openid;
-		if (strlen($tmp_str) && validate_url($tmp_str)) {
+		if (strlen($tmp_str) && validate_url($openid)) {
 			logger('updating openidserver');
-			require_once('library/openid.php');
+			require_once 'library/openid.php';
 			$open_id_obj = new LightOpenID;
 			$open_id_obj->identity = $openid;
 			$openidserver = $open_id_obj->discover($open_id_obj->identity);

@@ -61,7 +61,7 @@ class Group extends BaseObject
 	 * @param int $cid
 	 * @return array
 	 */
-	private static function getIdsByContactId($cid)
+	public static function getIdsByContactId($cid)
 	{
 		$condition = ['contact-id' => $cid];
 		$stmt = dba::select('group_member', ['gid'], $condition);

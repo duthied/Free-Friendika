@@ -470,26 +470,28 @@ function http_status_exit($val, $description = array())
  * and check DNS to see if it's real (or check if is a valid IP address)
  *
  * @param string $url The URL to be validated
- * @return boolean True if it's a valid URL, fals if something wrong with it
+ * @return string|boolean The actual working URL, false else
  */
-function validate_url(&$url)
+function validate_url($url)
 {
 	if (Config::get('system', 'disable_url_validation')) {
-		return true;
+		return $url;
 	}
 
 	// no naked subdomains (allow localhost for tests)
-	if (strpos($url, '.') === false && strpos($url, '/localhost/') === false)
+	if (strpos($url, '.') === false && strpos($url, '/localhost/') === false) {
 		return false;
+	}
 
-	if (substr($url, 0, 4) != 'http')
+	if (substr($url, 0, 4) != 'http') {
 		$url = 'http://' . $url;
+	}
 
-	/// @TODO Really supress function outcomes? Why not find them + debug them?
+	/// @TODO Really suppress function outcomes? Why not find them + debug them?
 	$h = @parse_url($url);
 
 	if ((is_array($h)) && (dns_get_record($h['host'], DNS_A + DNS_CNAME + DNS_PTR) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
-		return true;
+		return $url;
 	}
 
 	return false;

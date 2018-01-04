@@ -7,23 +7,25 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Module\Login;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
 
 require_once 'include/items.php';
-require_once 'include/auth.php';
 
 function dfrn_poll_init(App $a)
 {
-	$dfrn_id         = x($_GET,'dfrn_id')         ? $_GET['dfrn_id']              : '';
-	$type            = x($_GET,'type')            ? $_GET['type']                 : 'data';
-	$last_update     = x($_GET,'last_update')     ? $_GET['last_update']          : '';
-	$destination_url = x($_GET,'destination_url') ? $_GET['destination_url']      : '';
-	$challenge       = x($_GET,'challenge')       ? $_GET['challenge']            : '';
-	$sec             = x($_GET,'sec')             ? $_GET['sec']                  : '';
-	$dfrn_version    = x($_GET,'dfrn_version')    ? (float) $_GET['dfrn_version'] : 2.0;
-	$perm            = x($_GET,'perm')            ? $_GET['perm']                 : 'r';
-	$quiet           = x($_GET,'quiet')           ? true                          : false;
+	Login::sessionAuth();
+
+	$dfrn_id         = defaults($_GET, 'dfrn_id'        , '');
+	$type            = defaults($_GET, 'type'           , 'data');
+	$last_update     = defaults($_GET, 'last_update'    , '');
+	$destination_url = defaults($_GET, 'destination_url', '');
+	$challenge       = defaults($_GET, 'challenge'      , '');
+	$sec             = defaults($_GET, 'sec'            , '');
+	$dfrn_version    = (float) defaults($_GET, 'dfrn_version'   , 2.0);
+	$perm            = defaults($_GET, 'perm'           , 'r');
+	$quiet			 = x($_GET, 'quiet');
 
 	// Possibly it is an OStatus compatible server that requests a user feed
 	if (($a->argc > 1) && ($dfrn_id == '') && !strstr($_SERVER["HTTP_USER_AGENT"], 'Friendica')) {

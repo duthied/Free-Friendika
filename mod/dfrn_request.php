@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file mod/dfrn_request.php
  * @brief Module: dfrn_request
@@ -18,6 +19,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\User;
+use Friendica\Module\Login;
 use Friendica\Network\Probe;
 
 require_once 'include/enotify.php';
@@ -30,7 +32,6 @@ function dfrn_request_init(App $a)
 	profile_load($a, $which);
 	return;
 }
-
 
 /**
  * Function: dfrn_request_post
@@ -47,100 +48,73 @@ function dfrn_request_init(App $a)
  * After logging in, we click 'submit' to approve the linkage.
  *
  */
-function dfrn_request_post(App $a) {
-
-	if(($a->argc != 2) || (! count($a->profile))) {
+function dfrn_request_post(App $a)
+{
+	if (($a->argc != 2) || (!count($a->profile))) {
 		logger('Wrong count of argc or profiles: argc=' . $a->argc . ',profile()=' . count($a->profile));
 		return;
 	}
 
-
-	if(x($_POST, 'cancel')) {
+	if (x($_POST, 'cancel')) {
 		goaway(System::baseUrl());
 	}
 
-
 	/*
-	 *
 	 * Scenario 2: We've introduced ourself to another cell, then have been returned to our own cell
 	 * to confirm the request, and then we've clicked submit (perhaps after logging in).
 	 * That brings us here:
-	 *
 	 */
-
-	if((x($_POST,'localconfirm')) && ($_POST['localconfirm'] == 1)) {
-
-		/*
-		 * Ensure this is a valid request
-		 */
-
-		if(local_user() && ($a->user['nickname'] == $a->argv[1]) && (x($_POST,'dfrn_url'))) {
-
-
-			$dfrn_url    = notags(trim($_POST['dfrn_url']));
-			$aes_allow   = (((x($_POST,'aes_allow')) && ($_POST['aes_allow'] == 1)) ? 1 : 0);
-			$confirm_key = ((x($_POST,'confirm_key')) ? $_POST['confirm_key'] : "");
-			$hidden = ((x($_POST,'hidden-contact')) ? intval($_POST['hidden-contact']) : 0);
+	if ((x($_POST, 'localconfirm')) && ($_POST['localconfirm'] == 1)) {
+		// Ensure this is a valid request
+		if (local_user() && ($a->user['nickname'] == $a->argv[1]) && (x($_POST, 'dfrn_url'))) {
+			$dfrn_url = notags(trim($_POST['dfrn_url']));
+			$aes_allow = (((x($_POST, 'aes_allow')) && ($_POST['aes_allow'] == 1)) ? 1 : 0);
+			$confirm_key = ((x($_POST, 'confirm_key')) ? $_POST['confirm_key'] : "");
+			$hidden = ((x($_POST, 'hidden-contact')) ? intval($_POST['hidden-contact']) : 0);
 			$contact_record = null;
 			$blocked = 1;
 			$pending = 1;
 
-			if(x($dfrn_url)) {
-
-				/*
-				 * Lookup the contact based on their URL (which is the only unique thing we have at the moment)
-				 */
-
+			if (x($dfrn_url)) {
+				// Lookup the contact based on their URL (which is the only unique thing we have at the moment)
 				$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND NOT `self` LIMIT 1",
 					intval(local_user()),
 					dbesc(normalise_link($dfrn_url))
 				);
 
 				if (DBM::is_result($r)) {
-					if(strlen($r[0]['dfrn-id'])) {
-
-						/*
-						 * We don't need to be here. It has already happened.
-						 */
-
-						notice( t("This introduction has already been accepted.") . EOL );
+					if (strlen($r[0]['dfrn-id'])) {
+						// We don't need to be here. It has already happened.
+						notice(t("This introduction has already been accepted.") . EOL);
 						return;
-					}
-					else
+					} else {
 						$contact_record = $r[0];
+					}
 				}
 
-				if(is_array($contact_record)) {
+				if (is_array($contact_record)) {
 					$r = q("UPDATE `contact` SET `ret-aes` = %d, hidden = %d WHERE `id` = %d",
 						intval($aes_allow),
 						intval($hidden),
 						intval($contact_record['id'])
 					);
-				}
-				else {
-
-					/*
-					 * Scrape the other site's profile page to pick up the dfrn links, key, fn, and photo
-					 */
-
+				} else {
+					// Scrape the other site's profile page to pick up the dfrn links, key, fn, and photo
 					$parms = Probe::profile($dfrn_url);
 
-					if (! count($parms)) {
-						notice( t('Profile location is not valid or does not contain profile information.') . EOL );
+					if (!count($parms)) {
+						notice(t('Profile location is not valid or does not contain profile information.') . EOL);
 						return;
-					}
-					else {
-						if (! x($parms,'fn')) {
-							notice( t('Warning: profile location has no identifiable owner name.') . EOL );
+					} else {
+						if (!x($parms, 'fn')) {
+							notice(t('Warning: profile location has no identifiable owner name.') . EOL);
 						}
-						if (! x($parms,'photo')) {
-							notice( t('Warning: profile location has no profile photo.') . EOL );
+						if (!x($parms, 'photo')) {
+							notice(t('Warning: profile location has no profile photo.') . EOL);
 						}
 						$invalid = Probe::validDfrn($parms);
 						if ($invalid) {
-							notice( sprintf( tt("%d required parameter was not found at the given location",
-												"%d required parameters were not found at the given location",
-												$invalid), $invalid) . EOL );
+							notice(sprintf(tt("%d required parameter was not found at the given location", "%d required parameters were not found at the given location", $invalid), $invalid) . EOL);
 							return;
 						}
 					}
@@ -152,10 +126,7 @@ function dfrn_request_post(App $a) {
 					// Escape the entire array
 					DBM::esc_array($parms);
 
-					/*
-					 * Create a contact record on our site for the other person
-					 */
-
+					// Create a contact record on our site for the other person
 					$r = q("INSERT INTO `contact` ( `uid`, `created`,`url`, `nurl`, `addr`, `name`, `nick`, `photo`, `site-pubkey`,
 						`request`, `confirm`, `notify`, `poll`, `poco`, `network`, `aes_allow`, `hidden`, `blocked`, `pending`)
 						VALUES ( %d, '%s', '%s', '%s', '%s', '%s' , '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d)",
@@ -182,7 +153,7 @@ function dfrn_request_post(App $a) {
 				}
 
 				if ($r) {
-					info( t("Introduction complete.") . EOL);
+					info(t("Introduction complete.") . EOL);
 				}
 
 				$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `site-pubkey` = '%s' LIMIT 1",
@@ -197,15 +168,12 @@ function dfrn_request_post(App $a) {
 						Contact::updateAvatar($photo, local_user(), $r[0]["id"], true);
 					}
 
-					$forwardurl = System::baseUrl()."/contacts/".$r[0]['id'];
+					$forwardurl = System::baseUrl() . "/contacts/" . $r[0]['id'];
 				} else {
-					$forwardurl = System::baseUrl()."/contacts";
+					$forwardurl = System::baseUrl() . "/contacts";
 				}
 
-				/*
-				 * Allow the blocked remote notification to complete
-				 */
-
+				// Allow the blocked remote notification to complete
 				if (is_array($contact_record)) {
 					$dfrn_request = $contact_record['request'];
 				}
@@ -215,18 +183,14 @@ function dfrn_request_post(App $a) {
 				}
 
 				// (ignore reply, nothing we can do it failed)
-
 				// Old: goaway(zrl($dfrn_url));
 				goaway($forwardurl);
 				return; // NOTREACHED
-
 			}
-
 		}
 
- 		// invalid/bogus request
-
-		notice( t('Unrecoverable protocol error.') . EOL );
+		// invalid/bogus request
+		notice(t('Unrecoverable protocol error.') . EOL);
 		goaway(System::baseUrl());
 		return; // NOTREACHED
 	}
@@ -252,9 +216,8 @@ function dfrn_request_post(App $a) {
 	 * in $a->argv[1] and we should have their complete info in $a->profile.
 	 *
 	 */
-
-	if(! (is_array($a->profile) && count($a->profile))) {
-		notice( t('Profile unavailable.') . EOL);
+	if (!(is_array($a->profile) && count($a->profile))) {
+		notice(t('Profile unavailable.') . EOL);
 		return;
 	}
 
@@ -268,32 +231,24 @@ function dfrn_request_post(App $a) {
 	$blocked = 1;
 	$pending = 1;
 
-
-	if( x($_POST,'dfrn_url')) {
-
-		/*
-		 * Block friend request spam
-		 */
-
-		if($maxreq) {
+	if (x($_POST, 'dfrn_url')) {
+		// Block friend request spam
+		if ($maxreq) {
 			$r = q("SELECT * FROM `intro` WHERE `datetime` > '%s' AND `uid` = %d",
-				dbesc(datetime_convert('UTC','UTC','now - 24 hours')),
+				dbesc(datetime_convert('UTC', 'UTC', 'now - 24 hours')),
 				intval($uid)
 			);
 			if (DBM::is_result($r) && count($r) > $maxreq) {
-				notice( sprintf( t('%s has received too many connection requests today.'),  $a->profile['name']) . EOL);
-				notice( t('Spam protection measures have been invoked.') . EOL);
-				notice( t('Friends are advised to please try again in 24 hours.') . EOL);
+				notice(sprintf(t('%s has received too many connection requests today.'), $a->profile['name']) . EOL);
+				notice(t('Spam protection measures have been invoked.') . EOL);
+				notice(t('Friends are advised to please try again in 24 hours.') . EOL);
 				return;
 			}
 		}
 
-		/*
-		 *
-		 * Cleanup old introductions that remain blocked.
+		/* Cleanup old introductions that remain blocked.
 		 * Also remove the contact record, but only if there is no existing relationship
 		 */
-
 		$r = q("SELECT `intro`.*, `intro`.`id` AS `iid`, `contact`.`id` AS `cid`, `contact`.`rel`
 			FROM `intro` LEFT JOIN `contact` on `intro`.`contact-id` = `contact`.`id`
 			WHERE `intro`.`blocked` = 1 AND `contact`.`self` = 0
@@ -301,7 +256,7 @@ function dfrn_request_post(App $a) {
 		);
 		if (DBM::is_result($r)) {
 			foreach ($r as $rr) {
-				if(! $rr['rel']) {
+				if (!$rr['rel']) {
 					q("DELETE FROM `contact` WHERE `id` = %d AND NOT `self`",
 						intval($rr['cid'])
 					);
@@ -312,11 +267,11 @@ function dfrn_request_post(App $a) {
 			}
 		}
 
-		$real_name = (x($_POST,'realname') ? notags(trim($_POST['realname'])) : '');
+		$real_name = x($_POST, 'realname') ? notags(trim($_POST['realname'])) : '';
 
 		$url = trim($_POST['dfrn_url']);
-		if(! strlen($url)) {
-			notice( t("Invalid locator") . EOL );
+		if (!strlen($url)) {
+			notice(t("Invalid locator") . EOL);
 			return;
 		}
 
@@ -327,10 +282,9 @@ function dfrn_request_post(App $a) {
 		$network = $data["network"];
 
 		// Canonicalise email-style profile locator
-		$url = Probe::webfingerDfrn($url,$hcard);
+		$url = Probe::webfingerDfrn($url, $hcard);
 
-		if (substr($url,0,5) === 'stat:') {
-
+		if (substr($url, 0, 5) === 'stat:') {
 			// Every time we detect the remote subscription we define this as OStatus.
 			// We do this even if it is not OStatus.
 			// we only need to pass this through another section of the code.
@@ -338,29 +292,27 @@ function dfrn_request_post(App $a) {
 				$network = NETWORK_OSTATUS;
 			}
 
-			$url = substr($url,5);
+			$url = substr($url, 5);
 		} else {
 			$network = NETWORK_DFRN;
 		}
 
 		logger('dfrn_request: url: ' . $url . ',network=' . $network, LOGGER_DEBUG);
 
-		if($network === NETWORK_DFRN) {
+		if ($network === NETWORK_DFRN) {
 			$ret = q("SELECT * FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `self` = 0 LIMIT 1",
 				intval($uid),
 				dbesc($url)
 			);
 
 			if (DBM::is_result($ret)) {
-				if(strlen($ret[0]['issued-id'])) {
-					notice( t('You have already introduced yourself here.') . EOL );
+				if (strlen($ret[0]['issued-id'])) {
+					notice(t('You have already introduced yourself here.') . EOL);
 					return;
-				}
-				elseif($ret[0]['rel'] == CONTACT_IS_FRIEND) {
-					notice( sprintf( t('Apparently you are already friends with %s.'), $a->profile['name']) . EOL);
+				} elseif ($ret[0]['rel'] == CONTACT_IS_FRIEND) {
+					notice(sprintf(t('Apparently you are already friends with %s.'), $a->profile['name']) . EOL);
 					return;
-				}
-				else {
+				} else {
 					$contact_record = $ret[0];
 					$parms = array('dfrn-request' => $ret[0]['request']);
 				}
@@ -368,56 +320,52 @@ function dfrn_request_post(App $a) {
 
 			$issued_id = random_string();
 
-			if(is_array($contact_record)) {
+			if (is_array($contact_record)) {
 				// There is a contact record but no issued-id, so this
 				// is a reciprocal introduction from a known contact
 				$r = q("UPDATE `contact` SET `issued-id` = '%s' WHERE `id` = %d",
 					dbesc($issued_id),
 					intval($contact_record['id'])
 				);
-			}
-			else {
-				if (! validate_url($url)) {
-					notice( t('Invalid profile URL.') . EOL);
+			} else {
+				$url = validate_url($url);
+				if (!$url) {
+					notice(t('Invalid profile URL.') . EOL);
 					goaway(System::baseUrl() . '/' . $a->cmd);
 					return; // NOTREACHED
 				}
 
-				if (! allowed_url($url)) {
-					notice( t('Disallowed profile URL.') . EOL);
+				if (!allowed_url($url)) {
+					notice(t('Disallowed profile URL.') . EOL);
 					goaway(System::baseUrl() . '/' . $a->cmd);
 					return; // NOTREACHED
 				}
 
 				if (blocked_url($url)) {
-					notice( t('Blocked domain') . EOL);
+					notice(t('Blocked domain') . EOL);
 					goaway(System::baseUrl() . '/' . $a->cmd);
 					return; // NOTREACHED
 				}
 
 				$parms = Probe::profile(($hcard) ? $hcard : $url);
 
-				if (! count($parms)) {
-					notice( t('Profile location is not valid or does not contain profile information.') . EOL );
+				if (!count($parms)) {
+					notice(t('Profile location is not valid or does not contain profile information.') . EOL);
 					goaway(System::baseUrl() . '/' . $a->cmd);
-				}
-				else {
-					if (! x($parms,'fn')) {
-						notice( t('Warning: profile location has no identifiable owner name.') . EOL );
+				} else {
+					if (!x($parms, 'fn')) {
+						notice(t('Warning: profile location has no identifiable owner name.') . EOL);
 					}
-					if (! x($parms,'photo')) {
-						notice( t('Warning: profile location has no profile photo.') . EOL );
+					if (!x($parms, 'photo')) {
+						notice(t('Warning: profile location has no profile photo.') . EOL);
 					}
 					$invalid = Probe::validDfrn($parms);
 					if ($invalid) {
-						notice( sprintf( tt("%d required parameter was not found at the given location",
-											"%d required parameters were not found at the given location",
-											$invalid), $invalid) . EOL );
+						notice(sprintf(tt("%d required parameter was not found at the given location", "%d required parameters were not found at the given location", $invalid), $invalid) . EOL);
 
 						return;
 					}
 				}
-
 
 				$parms['url'] = $url;
 				$parms['issued-id'] = $issued_id;
@@ -460,10 +408,9 @@ function dfrn_request_post(App $a) {
 						Contact::updateAvatar($photo, $uid, $contact_record["id"], true);
 					}
 				}
-
 			}
 			if ($r === false) {
-				notice( t('Failed to update contact record.') . EOL );
+				notice(t('Failed to update contact record.') . EOL);
 				return;
 			}
 
@@ -482,43 +429,38 @@ function dfrn_request_post(App $a) {
 			}
 
 			// This notice will only be seen by the requestor if the requestor and requestee are on the same server.
-
-			if (! $failed) {
-				info( t('Your introduction has been sent.') . EOL );
+			if (!$failed) {
+				info(t('Your introduction has been sent.') . EOL);
 			}
 
 			// "Homecoming" - send the requestor back to their site to record the introduction.
-
 			$dfrn_url = bin2hex(System::baseUrl() . '/profile/' . $nickname);
 			$aes_allow = ((function_exists('openssl_encrypt')) ? 1 : 0);
 
 			goaway($parms['dfrn-request'] . "?dfrn_url=$dfrn_url"
 				. '&dfrn_version=' . DFRN_PROTOCOL_VERSION
-				. '&confirm_key='  . $hash
+				. '&confirm_key=' . $hash
 				. (($aes_allow) ? "&aes_allow=1" : "")
 			);
 			// NOTREACHED
 			// END $network === NETWORK_DFRN
 		} elseif (($network != NETWORK_PHANTOM) && ($url != "")) {
 
-			/*
-			 *
-			 * Substitute our user's feed URL into $url template
+			/* Substitute our user's feed URL into $url template
 			 * Send the subscriber home to subscribe
-			 *
 			 */
-
 			// Diaspora needs the uri in the format user@domain.tld
 			// Diaspora will support the remote subscription in a future version
 			if ($network == NETWORK_DIASPORA) {
-				$uri = $nickname.'@'.$a->get_hostname();
+				$uri = $nickname . '@' . $a->get_hostname();
 
-				if ($a->get_path())
-					$uri .= '/'.$a->get_path();
+				if ($a->get_path()) {
+					$uri .= '/' . $a->get_path();
+				}
 
 				$uri = urlencode($uri);
 			} else {
-				$uri = System::baseUrl().'/profile/'.$nickname;
+				$uri = System::baseUrl() . '/profile/' . $nickname;
 			}
 
 			$url = str_replace('{uri}', $uri, $url);
@@ -526,44 +468,37 @@ function dfrn_request_post(App $a) {
 			// NOTREACHED
 			// END $network != NETWORK_PHANTOM
 		} else {
-			notice(t("Remote subscription can't be done for your network. Please subscribe directly on your system.").EOL);
+			notice(t("Remote subscription can't be done for your network. Please subscribe directly on your system.") . EOL);
 			return;
 		}
-
-	}	return;
+	} return;
 }
 
-
-function dfrn_request_content(App $a) {
-
-	if (($a->argc != 2) || (! count($a->profile))) {
+function dfrn_request_content(App $a)
+{
+	if (($a->argc != 2) || (!count($a->profile))) {
 		return "";
 	}
 
-
 	// "Homecoming". Make sure we're logged in to this site as the correct user. Then offer a confirm button
 	// to send us to the post section to record the introduction.
-
-	if (x($_GET,'dfrn_url')) {
-
-		if (! local_user()) {
-			info( t("Please login to confirm introduction.") . EOL );
+	if (x($_GET, 'dfrn_url')) {
+		if (!local_user()) {
+			info(t("Please login to confirm introduction.") . EOL);
 			/* setup the return URL to come back to this page if they use openid */
-			$_SESSION['return_url'] = $a->query_string;
-			return login();
+			return Login::form();
 		}
 
 		// Edge case, but can easily happen in the wild. This person is authenticated,
 		// but not as the person who needs to deal with this request.
-
 		if ($a->user['nickname'] != $a->argv[1]) {
-			notice( t("Incorrect identity currently logged in. Please login to <strong>this</strong> profile.") . EOL);
-			return login();
+			notice(t("Incorrect identity currently logged in. Please login to <strong>this</strong> profile.") . EOL);
+			return Login::form();
 		}
 
 		$dfrn_url = notags(trim(hex2bin($_GET['dfrn_url'])));
-		$aes_allow = (((x($_GET,'aes_allow')) && ($_GET['aes_allow'] == 1)) ? 1 : 0);
-		$confirm_key = (x($_GET,'confirm_key') ? $_GET['confirm_key'] : "");
+		$aes_allow = x($_GET, 'aes_allow') && $_GET['aes_allow'] == 1 ? 1 : 0;
+		$confirm_key = x($_GET, 'confirm_key') ? $_GET['confirm_key'] : "";
 
 		// Checking fastlane for validity
 		if (x($_SESSION, "fastlane") && (normalise_link($_SESSION["fastlane"]) == normalise_link($dfrn_url))) {
@@ -580,34 +515,29 @@ function dfrn_request_content(App $a) {
 		}
 
 		$tpl = get_markup_template("dfrn_req_confirm.tpl");
-		$o  = replace_macros($tpl,array(
+		$o = replace_macros($tpl, array(
 			'$dfrn_url' => $dfrn_url,
 			'$aes_allow' => (($aes_allow) ? '<input type="hidden" name="aes_allow" value="1" />' : "" ),
 			'$hidethem' => t('Hide this contact'),
 			'$hidechecked' => '',
 			'$confirm_key' => $confirm_key,
-			'$welcome' => sprintf( t('Welcome home %s.'), $a->user['username']),
-			'$please' => sprintf( t('Please confirm your introduction/connection request to %s.'), $dfrn_url),
+			'$welcome' => sprintf(t('Welcome home %s.'), $a->user['username']),
+			'$please' => sprintf(t('Please confirm your introduction/connection request to %s.'), $dfrn_url),
 			'$submit' => t('Confirm'),
 			'$uid' => $_SESSION['uid'],
 			'$nickname' => $a->user['nickname'],
 			'dfrn_rawurl' => $_GET['dfrn_url']
-			));
+		));
 		return $o;
-
-	}
-	elseif((x($_GET,'confirm_key')) && strlen($_GET['confirm_key'])) {
-
+	} elseif ((x($_GET, 'confirm_key')) && strlen($_GET['confirm_key'])) {
 		// we are the requestee and it is now safe to send our user their introduction,
 		// We could just unblock it, but first we have to jump through a few hoops to
 		// send an email, or even to find out if we need to send an email.
-
 		$intro = q("SELECT * FROM `intro` WHERE `hash` = '%s' LIMIT 1",
 			dbesc($_GET['confirm_key'])
 		);
 
 		if (DBM::is_result($intro)) {
-
 			$r = q("SELECT `contact`.*, `user`.* FROM `contact` LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
 				WHERE `contact`.`id` = %d LIMIT 1",
 				intval($intro[0]['contact-id'])
@@ -616,11 +546,11 @@ function dfrn_request_content(App $a) {
 			$auto_confirm = false;
 
 			if (DBM::is_result($r)) {
-				if(($r[0]['page-flags'] != PAGE_NORMAL) && ($r[0]['page-flags'] != PAGE_PRVGROUP))
+				if ($r[0]['page-flags'] != PAGE_NORMAL && $r[0]['page-flags'] != PAGE_PRVGROUP) {
 					$auto_confirm = true;
+				}
 
-				if(! $auto_confirm) {
-
+				if (!$auto_confirm) {
 					notification(array(
 						'type'         => NOTIFY_INTRO,
 						'notify_flags' => $r[0]['notify-flags'],
@@ -637,7 +567,7 @@ function dfrn_request_content(App $a) {
 					));
 				}
 
-				if($auto_confirm) {
+				if ($auto_confirm) {
 					require_once 'mod/dfrn_confirm.php';
 					$handsfree = array(
 						'uid'      => $r[0]['uid'],
@@ -645,14 +575,13 @@ function dfrn_request_content(App $a) {
 						'dfrn_id'  => $r[0]['issued-id'],
 						'intro_id' => $intro[0]['id'],
 						'duplex'   => (($r[0]['page-flags'] == PAGE_FREELOVE) ? 1 : 0),
-						'activity' => intval(PConfig::get($r[0]['uid'],'system','post_newfriend'))
+						'activity' => intval(PConfig::get($r[0]['uid'], 'system', 'post_newfriend'))
 					);
-					dfrn_confirm_post($a,$handsfree);
+					dfrn_confirm_post($a, $handsfree);
 				}
-
 			}
 
-			if(! $auto_confirm) {
+			if (!$auto_confirm) {
 
 				// If we are auto_confirming, this record will have already been nuked
 				// in dfrn_confirm_post()
@@ -665,53 +594,39 @@ function dfrn_request_content(App $a) {
 
 		killme();
 		return; // NOTREACHED
-	}
-	else {
-
-		/*
-		 * Normal web request. Display our user's introduction form.
-		 */
-
-		if((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
-			if(! Config::get('system','local_block')) {
-				notice( t('Public access denied.') . EOL);
+	} else {
+		// Normal web request. Display our user's introduction form.
+		if ((Config::get('system', 'block_public')) && (!local_user()) && (!remote_user())) {
+			if (!Config::get('system', 'local_block')) {
+				notice(t('Public access denied.') . EOL);
 				return;
 			}
 		}
 
-
-		/*
-		 * Try to auto-fill the profile address
-		 */
-
+		// Try to auto-fill the profile address
 		// At first look if an address was provided
 		// Otherwise take the local address
-		if (x($_GET,'addr') && ($_GET['addr'] != "")) {
+		if (x($_GET, 'addr') && ($_GET['addr'] != "")) {
 			$myaddr = hex2bin($_GET['addr']);
-		} elseif (x($_GET,'address') && ($_GET['address'] != "")) {
+		} elseif (x($_GET, 'address') && ($_GET['address'] != "")) {
 			$myaddr = $_GET['address'];
 		} elseif (local_user()) {
 			if (strlen($a->path)) {
 				$myaddr = System::baseUrl() . '/profile/' . $a->user['nickname'];
 			} else {
-				$myaddr = $a->user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(),'://') + 3 );
+				$myaddr = $a->user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
 			}
 		} else {
 			// last, try a zrl
 			$myaddr = get_my_url();
 		}
 
-		$target_addr = $a->profile['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(),'://') + 3 );
+		$target_addr = $a->profile['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
 
-
-		/*
-		 *
-		 * The auto_request form only has the profile address
+		/* The auto_request form only has the profile address
 		 * because nobody is going to read the comments and
 		 * it doesn't matter if they know you or not.
-		 *
 		 */
-
 		if ($a->profile['page-flags'] == PAGE_NORMAL) {
 			$tpl = get_markup_template('dfrn_request.tpl');
 		} else {
@@ -725,20 +640,17 @@ function dfrn_request_content(App $a) {
 			get_server()
 		);
 
-		$o = replace_macros($tpl,array(
+		$o = replace_macros($tpl, array(
 			'$header' => t('Friend/Connection Request'),
 			'$desc' => t('Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@gnusocial.de'),
 			'$pls_answer' => t('Please answer the following:'),
-			'$does_know_you' => array('knowyou', sprintf(t('Does %s know you?'),$a->profile['name']), false, '', array(t('No'), t('Yes'))),
-			/*'$does_know' => sprintf( t('Does %s know you?'),$a->profile['name']),
-			'$yes' => t('Yes'),
-			'$no' => t('No'), */
+			'$does_know_you' => array('knowyou', sprintf(t('Does %s know you?'), $a->profile['name']), false, '', array(t('No'), t('Yes'))),
 			'$add_note' => t('Add a personal note:'),
 			'$page_desc' => $page_desc,
 			'$friendica' => t('Friendica'),
 			'$statusnet' => t('GNU Social (Pleroma, Mastodon)'),
 			'$diaspora' => t('Diaspora (Socialhome, Hubzilla)'),
-			'$diasnote' => sprintf (t(' - please do not use this form.  Instead, enter %s into your Diaspora search bar.'),$target_addr),
+			'$diasnote' => sprintf(t(' - please do not use this form.  Instead, enter %s into your Diaspora search bar.'), $target_addr),
 			'$your_address' => t('Your Identity Address:'),
 			'$invite_desc' => $invite_desc,
 			'$submit' => t('Submit Request'),

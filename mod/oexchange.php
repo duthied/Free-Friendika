@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Module\Login;
 
 function oexchange_init(App $a) {
 
@@ -17,7 +18,7 @@ function oexchange_init(App $a) {
 function oexchange_content(App $a) {
 
 	if (! local_user()) {
-		$o = login(false);
+		$o = Login::form();
 		return $o;
 	}
 

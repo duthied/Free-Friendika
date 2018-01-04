@@ -29,6 +29,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Database\DBStructure;
+use Friendica\Module\Login;
 
 require_once 'include/network.php';
 require_once 'include/plugin.php';
@@ -879,83 +880,6 @@ function get_guid($size = 16, $prefix = "")
 }
 
 /**
- * @brief Wrapper for adding a login box.
- *
- * @param bool $register If $register == true provide a registration link.
- *						 This will most always depend on the value of $a->config['register_policy'].
- * @param bool $hiddens  optional
- *
- * @return string Returns the complete html for inserting into the page
- *
- * @hooks 'login_hook'
- *	string $o
- */
-function login($register = false, $hiddens = false)
-{
-	$a = get_app();
-	$o = "";
-	$reg = false;
-	if ($register) {
-		$reg = array(
-			'title' => t('Create a New Account'),
-			'desc' => t('Register')
-		);
-	}
-
-	$noid = Config::get('system', 'no_openid');
-
-	$dest_url = $a->query_string;
-
-	if (local_user()) {
-		$tpl = get_markup_template("logout.tpl");
-	} else {
-		$a->page['htmlhead'] .= replace_macros(
-			get_markup_template("login_head.tpl"),
-			array(
-			'$baseurl' => $a->get_baseurl(true)
-			)
-		);
-
-		$tpl = get_markup_template("login.tpl");
-		$_SESSION['return_url'] = $a->query_string;
-		$a->module = 'login';
-	}
-
-	$o .= replace_macros(
-		$tpl,
-		array(
-		'$dest_url'     => $dest_url,
-		'$logout'       => t('Logout'),
-		'$login'        => t('Login'),
-
-		'$lname'        => array('username', t('Nickname or Email: ') , '', ''),
-		'$lpassword'    => array('password', t('Password: '), '', ''),
-		'$lremember'    => array('remember', t('Remember me'), 0,  ''),
-
-		'$openid'       => !$noid,
-		'$lopenid'      => array('openid_url', t('Or login using OpenID: '),'',''),
-
-		'$hiddens'      => $hiddens,
-
-		'$register'     => $reg,
-
-		'$lostpass'     => t('Forgot your password?'),
-		'$lostlink'     => t('Password Reset'),
-
-		'$tostitle'     => t('Website Terms of Service'),
-		'$toslink'      => t('terms of service'),
-
-		'$privacytitle' => t('Website Privacy Policy'),
-		'$privacylink'  => t('privacy policy'),
-		)
-	);
-
-	call_hooks('login_hook', $o);
-
-	return $o;
-}
-
-/**
  * @brief Used to end the current process, after saving session state.
  */
 function killme()
@@ -970,13 +894,15 @@ function killme()
 /**
  * @brief Redirect to another URL and terminate this process.
  */
-function goaway($s)
+function goaway($path)
 {
-	if (!strstr(normalise_link($s), "http://")) {
-		$s = System::baseUrl() . "/" . $s;
+	if (strstr(normalise_link($path), 'http://')) {
+		$url = $path;
+	} else {
+		$url = System::baseUrl() . '/' . ltrim($path, '/');
 	}
 
-	header("Location: $s");
+	header("Location: $url");
 	killme();
 }
 

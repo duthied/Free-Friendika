@@ -6,6 +6,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Group;
 
 require_once 'include/items.php';
 require_once 'include/acl_selectors.php';
@@ -294,7 +295,7 @@ function videos_content(App $a) {
 			}
 		}
 		if($contact_id) {
-			$groups = init_groups_visitor($contact_id);
+			$groups = Group::getIdsByContactId($contact_id);
 			$r = q("SELECT * FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
 				intval($contact_id),
 				intval($owner_uid)
