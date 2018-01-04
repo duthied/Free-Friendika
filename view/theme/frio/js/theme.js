@@ -206,19 +206,6 @@ $(document).ready(function(){
 		$("#topbar-second > .container > #tabmenu").append(newText);
 	}
 
-	if( $(".global-content-wrapper").length) {
-		// get the heading element
-		var heading = $(".global-content-wrapper > h3").first();
-		// get the text of the heading
-		var headingContent = heading.text();
-		// create a new element with the content of the heading
-		var newText = '<h4 class="heading">'+headingContent+'</h4>';
-		// remove the old heading element
-		heading.remove(),
-		// put the new element to the second nav bar
-		$("#topbar-second > .container > #tabmenu").append(newText);
-	}
-
 	// Dropdown menus with the class "dropdown-head" will display the active tab
 	// as button text
 	$("body").on('click', '.dropdown-head .dropdown-menu li a, .dropdown-head .dropdown-menu li button', function(){
