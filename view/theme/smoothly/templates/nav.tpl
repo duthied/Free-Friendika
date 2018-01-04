@@ -34,10 +34,6 @@
 			<li><a id="nav-community-link" class="nav-commlink {{$nav.community.2}}" href="{{$nav.community.0}}">{{$nav.community.1}}</a></li>
 			{{/if}}
 
-			{{if $nav.global}}
-			<li><a id="nav-global-link" class="nav-commlink {{$nav.global.2}}" href="{{$nav.global.0}}">{{$nav.global.1}}</a></li>
-			{{/if}}
-
 			<li><a id="nav-search-link" class="nav-link {{$nav.search.2}}" href="{{$nav.search.0}}">{{$nav.search.1}}</a></li>
 			<li><a id="nav-directory-link" class="nav-link {{$nav.directory.2}}" href="{{$nav.directory.0}}">{{$nav.directory.1}}</a></li>
 			{{if $nav.apps}}<li><a id="nav-apps-link" class="nav-link {{$nav.apps.2}}" href="{{$nav.apps.0}}">{{$nav.apps.1}}</a></li>{{/if}}

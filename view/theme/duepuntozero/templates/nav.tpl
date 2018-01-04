@@ -31,9 +31,6 @@
 	{{if $nav.community}}
 	<a accesskey="c" id="nav-community-link" class="nav-commlink {{$nav.community.2}} {{$sel.community}}" href="{{$nav.community.0}}" title="{{$nav.community.3}}" >{{$nav.community.1}}</a>
 	{{/if}}
-	{{if $nav.global}}
-	<a accesskey="g" id="nav-global-link" class="nav-commlink {{$nav.global.2}} {{$sel.global}}" href="{{$nav.global.0}}" title="{{$nav.global.3}}" >{{$nav.global.1}}</a>
-	{{/if}}
 	{{if $nav.introductions}}
 	<a id="nav-notify-link" class="nav-commlink {{$nav.introductions.2}} {{$sel.introductions}}" href="{{$nav.introductions.0}}" title="{{$nav.introductions.3}}" >{{$nav.introductions.1}}</a>
 	<span id="intro-update" class="nav-ajax-left"></span>
