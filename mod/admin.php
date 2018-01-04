@@ -907,6 +907,8 @@ function admin_page_site_post(App $a)
 
 	$allowed_sites		=	((x($_POST,'allowed_sites'))		? notags(trim($_POST['allowed_sites']))		: '');
 	$allowed_email		=	((x($_POST,'allowed_email'))		? notags(trim($_POST['allowed_email']))		: '');
+	$no_oembed_rich_content = x($_POST,'no_oembed_rich_content');
+	$allowed_oembed		=	((x($_POST,'allowed_embed'))		? notags(trim($_POST['allowed_embed']))		: '');
 	$block_public		=	((x($_POST,'block_public'))		? True						: False);
 	$force_publish		=	((x($_POST,'publish_all'))		? True						: False);
 	$global_directory	=	((x($_POST,'directory'))		? notags(trim($_POST['directory']))		: '');
@@ -1063,6 +1065,8 @@ function admin_page_site_post(App $a)
 	Config::set('config', 'register_text', $register_text);
 	Config::set('system', 'allowed_sites', $allowed_sites);
 	Config::set('system', 'allowed_email', $allowed_email);
+	Config::set('system', 'no_oembed_rich_content', $no_oembed_rich_content);
+	Config::set('system', 'allowed_oembed', $allowed_oembed);
 	Config::set('system', 'block_public', $block_public);
 	Config::set('system', 'publish_all', $force_publish);
 	Config::set('system', 'newuser_private', $newuser_private);
@@ -1300,6 +1304,8 @@ function admin_page_site(App $a)
 		'$abandon_days'		=> array('abandon_days', t('Accounts abandoned after x days'), Config::get('system','account_abandon_days'), t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.')),
 		'$allowed_sites'	=> array('allowed_sites', t("Allowed friend domains"), Config::get('system','allowed_sites'), t("Comma separated list of domains which are allowed to establish friendships with this site. Wildcards are accepted. Empty to allow any domains")),
 		'$allowed_email'	=> array('allowed_email', t("Allowed email domains"), Config::get('system','allowed_email'), t("Comma separated list of domains which are allowed in email addresses for registrations to this site. Wildcards are accepted. Empty to allow any domains")),
+		'$no_oembed_rich_content' => array('no_oembed_rich_content', t("No OEmbed rich content"), Config::get('system','no_oembed_rich_content'), t("Don't show the rich content (e.g. embedded PDF), except from the domains listed below.")),
+		'$allowed_oembed'	=> array('allowed_oembed', t("Allowed OEmbed domains"), Config::get('system','allowed_oembed'), t("Comma separated list of domains which oembed content is allowed to be displayed. Wildcards are accepted.")),
 		'$block_public'		=> array('block_public', t("Block public"), Config::get('system','block_public'), t("Check to block public access to all otherwise public personal pages on this site unless you are currently logged in.")),
 		'$force_publish'	=> array('publish_all', t("Force publish"), Config::get('system','publish_all'), t("Check to force all profiles on this site to be listed in the site directory.")),
 		'$global_directory'	=> array('directory', t("Global directory URL"), Config::get('system','directory'), t("URL to the global directory. If this is not set, the global directory is completely unavailable to the application.")),
