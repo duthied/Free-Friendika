@@ -619,7 +619,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 		$community_readonly = ($mode === 'community');
 
 		// Currently behind a config value. This allows the commenting and sharing of every public item.
-		if (Config::get('system', 'comment_public') && local_user()) {
+		if (Config::get('system', 'comment_public')) {
 			if ($mode === 'community') {
 				$community_readonly = false;
 				$writable = true;
@@ -627,6 +627,10 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 				$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], array(NETWORK_OSTATUS, NETWORK_DIASPORA));
 			}
 		} else {
+			$writable = false;
+		}
+
+		if (!local_user()) {
 			$writable = false;
 		}
 
