@@ -87,12 +87,16 @@ function dfrn_request_post(App $a)
 						// We don't need to be here. It has already happened.
 						notice(t("This introduction has already been accepted.") . EOL);
 						return;
-					} else
+					} else {
 						$contact_record = $r[0];
+					}
 				}
 
 				if (is_array($contact_record)) {
-					$r = q("UPDATE `contact` SET `ret-aes` = %d, hidden = %d WHERE `id` = %d", intval($aes_allow), intval($hidden), intval($contact_record['id'])
+					$r = q("UPDATE `contact` SET `ret-aes` = %d, hidden = %d WHERE `id` = %d",
+						intval($aes_allow),
+						intval($hidden),
+						intval($contact_record['id'])
 					);
 				} else {
 					// Scrape the other site's profile page to pick up the dfrn links, key, fn, and photo
