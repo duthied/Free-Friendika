@@ -66,6 +66,10 @@ class Thread extends BaseObject
 				$this->profile_owner = $a->profile['uid'];
 				$this->writable = can_write_wall($a, $this->profile_owner) || $writable;
 				break;
+			case 'community':
+				$this->profile_owner = local_user();
+				$this->writable = $writable;
+				break;
 			default:
 				logger('[ERROR] Conversation::setMode : Unhandled mode ('. $mode .').', LOGGER_DEBUG);
 				return false;

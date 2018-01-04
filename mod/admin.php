@@ -1176,7 +1176,8 @@ function admin_page_site(App $a)
 	$community_page_style_choices = array(
 		CP_NO_COMMUNITY_PAGE => t("No community page"),
 		CP_USERS_ON_SERVER => t("Public postings from users of this site"),
-		CP_GLOBAL_COMMUNITY => t("Global community page")
+		CP_GLOBAL_COMMUNITY => t("Public postings from the federated network"),
+		CP_USERS_AND_GLOBAL => t("Public postings from local users and the federated network")
 	);
 
 	/* OStatus conversation poll choices */
@@ -1311,7 +1312,7 @@ function admin_page_site(App $a)
 		'$no_multi_reg'		=> array('no_multi_reg', t("Block multiple registrations"),  Config::get('system','block_extended_register'), t("Disallow users to register additional accounts for use as pages.")),
 		'$no_openid'		=> array('no_openid', t("OpenID support"), !Config::get('system','no_openid'), t("OpenID support for registration and logins.")),
 		'$no_regfullname'	=> array('no_regfullname', t("Fullname check"), !Config::get('system','no_regfullname'), t("Force users to register with a space between firstname and lastname in Full name, as an antispam measure")),
-		'$community_page_style' => array('community_page_style', t("Community Page Style"), Config::get('system','community_page_style'), t("Type of community page to show. 'Global community' shows every public posting from an open distributed network that arrived on this server."), $community_page_style_choices),
+		'$community_page_style' => array('community_page_style', t("Community pages for visitors"), Config::get('system','community_page_style'), t("Which community pages should be available for visitors. Local users always see both pages."), $community_page_style_choices),
 		'$max_author_posts_community_page' => array('max_author_posts_community_page', t("Posts per user on community page"), Config::get('system','max_author_posts_community_page'), t("The maximum number of posts per user on the community page. (Not valid for 'Global Community')")),
 		'$ostatus_disabled' 	=> array('ostatus_disabled', t("Enable OStatus support"), !Config::get('system','ostatus_disabled'), t("Provide built-in OStatus \x28StatusNet, GNU Social etc.\x29 compatibility. All communications in OStatus are public, so privacy warnings will be occasionally displayed.")),
 		'$ostatus_full_threads'	=> array('ostatus_full_threads', t("Only import OStatus threads from our contacts"), Config::get('system','ostatus_full_threads'), t("Normally we import every content from our OStatus contacts. With this option we only store threads that are started by a contact that is known on our system.")),

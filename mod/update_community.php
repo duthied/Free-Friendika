@@ -8,12 +8,16 @@ use Friendica\Core\PConfig;
 require_once("mod/community.php");
 
 function update_community_content(App $a) {
-
 	header("Content-type: text/html");
 	echo "<!DOCTYPE html><html><body>\r\n";
 	echo "<section>";
 
-	$text = community_content($a, true);
+	if ($_GET["force"] == 1) {
+		$text = community_content($a, true);
+	} else {
+		$text = '';
+	}
+
 	$pattern = "/<img([^>]*) src=\"([^\"]*)\"/";
 	$replace = "<img\${1} dst=\"\${2}\"";
 	$text = preg_replace($pattern, $replace, $text);

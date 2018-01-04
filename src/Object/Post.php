@@ -285,6 +285,12 @@ class Post extends BaseObject
 			if ($shareable) {
 				$buttons['share'] = array(t('Share this'), t('share'));
 			}
+
+			// If a contact isn't writable, we cannot send a like or dislike to it
+			if (!$item['writable']) {
+				unset($buttons["like"]);
+				unset($buttons["dislike"]);
+			}
 		}
 
 		$comment = $this->getCommentBox($indent);
