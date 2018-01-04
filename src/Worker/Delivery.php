@@ -217,9 +217,14 @@ class Delivery {
 		}
 		$deliver_status = 0;
 
+		// Transmit via Diaspora if not possible via Friendica
+		if (($item['uid'] == 0) && ($contact['network'] == NETWORK_DFRN)) {
+			$contact['network'] = NETWORK_DIASPORA;
+		}
+
 		logger("main delivery by delivery: followup=$followup mail=$mail fsuggest=$fsuggest relocate=$relocate - network ".$contact['network']);
 
-		switch($contact['network']) {
+		switch ($contact['network']) {
 
 			case NETWORK_DFRN:
 				logger('notifier: '.$target_item["guid"].' dfrndelivery: '.$contact['name']);

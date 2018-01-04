@@ -624,7 +624,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 				$community_readonly = false;
 				$writable = true;
 			} else {
-				$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], array(NETWORK_OSTATUS, NETWORK_DIASPORA));
+				$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], array(NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_DFRN));
 			}
 		} else {
 			$writable = false;
@@ -929,6 +929,7 @@ function community_add_items($parents) {
 		);
 		$comments = dba::inArray($thread_items);
 
+
 		if (count($comments) == 0) {
 			$thread_items = dba::p(item_query()." AND `item`.`uid` = 0
 				AND `item`.`parent-uri` = ?
@@ -945,7 +946,7 @@ function community_add_items($parents) {
 
 	foreach ($items as $index => $item) {
 		if ($item['uid'] == 0) {
-			$items[$index]['writable'] = in_array($item['network'], [NETWORK_DIASPORA, NETWORK_OSTATUS]);
+			$items[$index]['writable'] = in_array($item['network'], [NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_DFRN]);
 		}
 	}
 
