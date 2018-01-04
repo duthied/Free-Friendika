@@ -3114,7 +3114,15 @@ class Diaspora
 		}
 
 		$logid = random_string(4);
-		$dest_url = (($public_batch) ? $contact["batch"] : $contact["notify"]);
+		$dest_url = ($public_batch ? $contact["batch"] : $contact["notify"]);
+
+		// Fetch the fcontact entry when there is missing data
+		// Will possibly happen when data is transmitted to a DFRN contact
+		if (empty($dest_url) && !empty($contact['addr'])) {
+			$fcontact = self::personByHandle($contact['addr']);
+			$dest_url = ($public_batch ? $fcontact["batch"] : $fcontact["notify"]);
+		}
+
 		if (!$dest_url) {
 			logger("no url for contact: ".$contact["id"]." batch mode =".$public_batch);
 			return 0;

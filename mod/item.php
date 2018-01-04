@@ -209,7 +209,7 @@ function item_post(App $a) {
 	}
 
 	// Allow commenting if it is an answer to a public post
-	$allow_comment = ($profile_uid == 0) && $parent && in_array($parent_item['network'], [NETWORK_OSTATUS, NETWORK_DIASPORA]);
+	$allow_comment = ($profile_uid == 0) && $parent && in_array($parent_item['network'], [NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_DFRN]);
 
 	/*
 	 * Now check that it is a page_type of PAGE_BLOG, and that valid personal details
