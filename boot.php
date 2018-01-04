@@ -595,9 +595,6 @@ function defaults() {
 	if (count($args) > 3) {
 		throw new BadFunctionCallException('defaults() cannot use more than 3 parameters');
 	}
-	if (count($args) === 3 && !is_array($args[0])) {
-		throw new BadFunctionCallException('defaults($arr, $key, $def) requires an array as first parameter');
-	}
 	if (count($args) === 3 && is_null($args[1])) {
 		throw new BadFunctionCallException('defaults($arr, $key, $def) $key is null');
 	}
