@@ -81,6 +81,22 @@ function community_content(App $a, $update = 0) {
 		$o .= replace_macros($tab_tpl, array('$tabs' => $tabs));
 
 		nav_set_selected('community');
+
+		// We need the editor here to be able to reshare an item.
+		if (local_user()) {
+			$x = array(
+				'is_owner' => true,
+				'allow_location' => $a->user['allow_location'],
+				'default_location' => $a->user['default-location'],
+				'nickname' => $a->user['nickname'],
+				'lockstate' => (is_array($a->user) && (strlen($a->user['allow_cid']) || strlen($a->user['allow_gid']) || strlen($a->user['deny_cid']) || strlen($a->user['deny_gid'])) ? 'lock' : 'unlock'),
+				'acl' => populate_acl($a->user, true),
+				'bang' => '',
+				'visitor' => 'block',
+				'profile_uid' => local_user(),
+			);
+			$o .= status_editor($a, $x, 0, true);
+		}
 	}
 
 	if (Config::get('system', 'comment_public')) {
