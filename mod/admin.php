@@ -671,7 +671,7 @@ function admin_page_queue(App $a)
 	return replace_macros($t, array(
 		'$title' => t('Administration'),
 		'$page' => t('Inspect Queue'),
-		'$count' => sizeof($r),
+		'$count' => count($r),
 		'id_header' => t('ID'),
 		'$to_header' => t('Recipient Name'),
 		'$url_header' => t('Recipient Profile'),
@@ -836,11 +836,8 @@ function admin_page_site_post(App $a)
 
 			$upds = implode(", ", $upd);
 
-
-
-			$q = sprintf("UPDATE %s SET %s;", $table_name, $upds);
-			$r = q($q);
-			if (!$r) {
+			$r = q("UPDATE %s SET %s;", $table_name, $upds);
+			if (!DBM::is_result($r)) {
 				notice("Failed updating '$table_name': " . dba::errorMessage());
 				goaway('admin/site');
 			}
