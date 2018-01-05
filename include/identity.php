@@ -907,12 +907,17 @@ function profile_tabs($a, $is_owner = false, $nickname = null)
 	return replace_macros($tpl, array('$tabs' => $arr['tabs']));
 }
 
+/**
+ * Retrieves the my_url session variable
+ *
+ * @return string
+ */
 function get_my_url()
 {
 	if (x($_SESSION, 'my_url')) {
 		return $_SESSION['my_url'];
 	}
-	return false;
+	return null;
 }
 
 function zrl_init(App $a)

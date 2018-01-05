@@ -327,8 +327,8 @@ class GContact
 	}
 
 	/**
-	 * @param object  $uid     user
-	 * @param object  $cid     cid
+	 * @param integer $uid     user
+	 * @param integer $cid     cid
 	 * @param integer $start   optional, default 0
 	 * @param integer $limit   optional, default 9999
 	 * @param boolean $shuffle optional, default false
@@ -365,8 +365,8 @@ class GContact
 	}
 
 	/**
-	 * @param object  $uid     user
-	 * @param object  $zcid    zcid
+	 * @param integer $uid     user
+	 * @param integer $zcid    zcid
 	 * @param integer $start   optional, default 0
 	 * @param integer $limit   optional, default 9999
 	 * @param boolean $shuffle optional, default false
@@ -397,8 +397,8 @@ class GContact
 	}
 
 	/**
-	 * @param object $uid user
-	 * @param object $cid cid
+	 * @param integer $uid user
+	 * @param integer $cid cid
 	 * @return integer
 	 */
 	public static function countAllFriends($uid, $cid)
@@ -420,11 +420,11 @@ class GContact
 	}
 
 	/**
-	 * @param object  $uid   user
-	 * @param object  $cid   cid
+	 * @param integer $uid   user
+	 * @param integer $cid   cid
 	 * @param integer $start optional, default 0
 	 * @param integer $limit optional, default 80
-	 * @return object
+	 * @return array
 	 */
 	public static function allFriends($uid, $cid, $start = 0, $limit = 80)
 	{

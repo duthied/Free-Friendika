@@ -11,6 +11,7 @@ function contactgroup_content(App $a)
 		killme();
 	}
 
+	$change = null;
 	if (($a->argc > 2) && intval($a->argv[1]) && intval($a->argv[2])) {
 		$r = q("SELECT `id` FROM `contact` WHERE `id` = %d AND `uid` = %d and `self` = 0 and `blocked` = 0 AND `pending` = 0 LIMIT 1",
 			intval($a->argv[2]),
@@ -39,7 +40,7 @@ function contactgroup_content(App $a)
 			}
 		}
 
-		if ($change) {
+		if (x($change)) {
 			if (in_array($change, $preselected)) {
 				Group::removeMember($group['id'], $change);
 			} else {

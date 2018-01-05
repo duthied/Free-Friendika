@@ -5,22 +5,24 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 
-function community_init(App $a) {
+function community_init(App $a)
+{
 	if (!local_user()) {
 		unset($_SESSION['theme']);
 		unset($_SESSION['mobile-theme']);
 	}
 }
 
-function community_content(App $a, $update = 0) {
+function community_content(App $a, $update = 0)
+{
 	$o = '';
 
-	if (Config::get('system','block_public') && !local_user() && !remote_user()) {
+	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
 		notice(t('Public access denied.') . EOL);
 		return;
 	}
 
-	$page_style = Config::get('system','community_page_style');
+	$page_style = Config::get('system', 'community_page_style');
 
 	if ($a->argc > 1) {
 		$content = $a->argv[1];
@@ -60,21 +62,25 @@ function community_content(App $a, $update = 0) {
 		$tabs = [];
 
 		if (local_user() || in_array($page_style, [CP_USERS_AND_GLOBAL, CP_USERS_ON_SERVER])) {
-			$tabs[] = array('label'=>t('Community'),
-					'url' => 'community/local',
-					'sel' => $content == 'local' ? 'active' : '',
-					'title' => t('Posts from local users on this server'),
-					'id' => 'community-local-tab',
-					'accesskey' => 'l');
+			$tabs[] = array(
+				'label' => t('Community'),
+				'url' => 'community/local',
+				'sel' => $content == 'local' ? 'active' : '',
+				'title' => t('Posts from local users on this server'),
+				'id' => 'community-local-tab',
+				'accesskey' => 'l'
+			);
 		}
 
 		if (local_user() || in_array($page_style, [CP_USERS_AND_GLOBAL, CP_GLOBAL_COMMUNITY])) {
-			$tabs[] = array('label' => t('Global Timeline'),
-					'url' => 'community/global',
-					'sel' => $content == 'global' ? 'active' : '',
-					'title' => t('Posts from users of the federated network'),
-					'id'    => 'community-global-tab',
-					'accesskey' => 'g');
+			$tabs[] = array(
+				'label' => t('Global Timeline'),
+				'url' => 'community/global',
+				'sel' => $content == 'global' ? 'active' : '',
+				'title' => t('Posts from users of the federated network'),
+				'id' => 'community-global-tab',
+				'accesskey' => 'g'
+			);
 		}
 
 		$tab_tpl = get_markup_template('common_tabs.tpl');
@@ -103,9 +109,9 @@ function community_content(App $a, $update = 0) {
 		// check if we serve a mobile device and get the user settings
 		// accordingly
 		if ($a->is_mobile) {
-			$itemspage_network = PConfig::get(local_user(),'system','itemspage_mobile_network', 20);
+			$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_mobile_network', 20);
 		} else {
-			$itemspage_network = PConfig::get(local_user(),'system','itemspage_network', 40);
+			$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_network', 40);
 		}
 
 		// now that we have the user settings, see if the theme forces
@@ -124,7 +130,7 @@ function community_content(App $a, $update = 0) {
 		return $o;
 	}
 
-	$maxpostperauthor = Config::get('system','max_author_posts_community_page');
+	$maxpostperauthor = (int) Config::get('system', 'max_author_posts_community_page');
 
 	if (($maxpostperauthor != 0) && ($content == 'local')) {
 		$count = 1;
@@ -133,7 +139,7 @@ function community_content(App $a, $update = 0) {
 		$s = array();
 
 		do {
-			foreach ($r AS $row=>$item) {
+			foreach ($r as $item) {
 				if ($previousauthor == $item["author-link"]) {
 					++$numposts;
 				} else {
@@ -141,14 +147,14 @@ function community_content(App $a, $update = 0) {
 				}
 				$previousauthor = $item["author-link"];
 
-				if (($numposts < $maxpostperauthor) && (sizeof($s) < $a->pager['itemspage'])) {
+				if (($numposts < $maxpostperauthor) && (count($s) < $a->pager['itemspage'])) {
 					$s[] = $item;
 				}
 			}
-			if (sizeof($s) < $a->pager['itemspage']) {
+			if (count($s) < $a->pager['itemspage']) {
 				$r = community_getitems($a->pager['start'] + ($count * $a->pager['itemspage']), $a->pager['itemspage'], $content);
 			}
-		} while ((sizeof($s) < $a->pager['itemspage']) && (++$count < 50) && (sizeof($r) > 0));
+		} while ((count($s) < $a->pager['itemspage']) && ( ++$count < 50) && (count($r) > 0));
 	} else {
 		$s = $r;
 	}
@@ -168,24 +174,25 @@ function community_content(App $a, $update = 0) {
 	));
 }
 
-function community_getitems($start, $itemspage, $content) {
+function community_getitems($start, $itemspage, $content)
+{
 	if ($content == 'local') {
-		$r = dba::p("SELECT ".item_fieldlists()." FROM `thread`
+		$r = dba::p("SELECT " . item_fieldlists() . " FROM `thread`
 			INNER JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
 			INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
 			AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
-			AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''".
-			item_joins()." AND `contact`.`self`
+			AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''" .
+			item_joins() . " AND `contact`.`self`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
 			AND NOT `thread`.`private` AND `thread`.`wall`
-			ORDER BY `thread`.`received` DESC LIMIT ".intval($start).", ".intval($itemspage)
+			ORDER BY `thread`.`received` DESC LIMIT " . intval($start) . ", " . intval($itemspage)
 		);
 		return dba::inArray($r);
 	} elseif ($content == 'global') {
-		$r = dba::p("SELECT ".item_fieldlists()." FROM `thread`
-			INNER JOIN `item` ON `item`.`id` = `thread`.`iid` ".item_joins().
-			"WHERE `thread`.`uid` = 0 AND `verb` = ?
-			ORDER BY `thread`.`created` DESC LIMIT ".intval($start).", ".intval($itemspage),
+		$r = dba::p("SELECT " . item_fieldlists() . " FROM `thread`
+			INNER JOIN `item` ON `item`.`id` = `thread`.`iid` " . item_joins() .
+				"WHERE `thread`.`uid` = 0 AND `verb` = ?
+			ORDER BY `thread`.`created` DESC LIMIT " . intval($start) . ", " . intval($itemspage),
 			ACTIVITY_POST
 		);
 		return dba::inArray($r);
