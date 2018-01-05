@@ -66,8 +66,8 @@ class Email
 	}
 
 	/**
-	 * @param array $mailacct mail account
-	 * @return object
+	 * @param array   $mailacct mail account
+	 * @return string
 	 */
 	public static function constructMailboxName($mailacct)
 	{
