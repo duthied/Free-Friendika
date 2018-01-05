@@ -14,7 +14,8 @@ use Friendica\Model\Group;
 use Friendica\Model\User;
 use Friendica\Protocol\Email;
 
-function get_theme_config_file($theme) {
+function get_theme_config_file($theme)
+{
 	$a = get_app();
 	$base_theme = $a->theme_info['extends'];
 
@@ -27,8 +28,8 @@ function get_theme_config_file($theme) {
 	return null;
 }
 
-function settings_init(App $a) {
-
+function settings_init(App $a)
+{
 	if (!local_user()) {
 		notice(t('Permission denied.') . EOL);
 		return;
@@ -40,8 +41,6 @@ function settings_init(App $a) {
 	$a->page['htmlhead'] .= replace_macros($tpl,array(
 		'$ispublic' => t('everybody')
 	));
-
-
 
 	$tabs = array(
 		array(
@@ -120,9 +119,8 @@ function settings_init(App $a) {
 
 }
 
-
-function settings_post(App $a) {
-
+function settings_post(App $a)
+{
 	if (!local_user()) {
 		return;
 	}
@@ -150,20 +148,19 @@ function settings_post(App $a) {
 	}
 
 	if (($a->argc > 2) && ($a->argv[1] === 'oauth')  && ($a->argv[2] === 'edit'||($a->argv[2] === 'add')) && x($_POST, 'submit')) {
-
 		check_form_security_token_redirectOnErr('/settings/oauth', 'settings_oauth');
 
-		$name   	= ((x($_POST, 'name')) ? $_POST['name'] : '');
-		$key		= ((x($_POST, 'key')) ? $_POST['key'] : '');
-		$secret		= ((x($_POST, 'secret')) ? $_POST['secret'] : '');
-		$redirect	= ((x($_POST, 'redirect')) ? $_POST['redirect'] : '');
-		$icon		= ((x($_POST, 'icon')) ? $_POST['icon'] : '');
-		if ($name=="" || $key=="" || $secret=="") {
-			notice(t("Missing some important data!"));
+		$name     = defaults($_POST, 'name'    , '');
+		$key      = defaults($_POST, 'key'     , '');
+		$secret   = defaults($_POST, 'secret'  , '');
+		$redirect = defaults($_POST, 'redirect', '');
+		$icon     = defaults($_POST, 'icon'    , '');
 
+		if ($name == "" || $key == "" || $secret == "") {
+			notice(t("Missing some important data!"));
 		} else {
 			if ($_POST['submit']==t("Update")) {
-				$r = q("UPDATE clients SET
+				q("UPDATE clients SET
 							client_id='%s',
 							pw='%s',
 							name='%s',
@@ -179,7 +176,7 @@ function settings_post(App $a) {
 						local_user(),
 						dbesc($key));
 			} else {
-				$r = q("INSERT INTO clients
+				q("INSERT INTO clients
 							(client_id, pw, name, redirect_uri, icon, uid)
 						VALUES ('%s', '%s', '%s', '%s', '%s',%d)",
 						dbesc($key),
@@ -342,8 +339,8 @@ function settings_post(App $a) {
 
 		if ($theme == $a->user['theme']) {
 			// call theme_post only if theme has not been changed
-			if (($themeconfigfile = get_theme_config_file($theme)) != null) {
-				require_once($themeconfigfile);
+			if (($themeconfigfile = get_theme_config_file($theme)) !== null) {
+				require_once $themeconfigfile;
 				theme_post($a);
 			}
 		}
@@ -395,7 +392,7 @@ function settings_post(App $a) {
 				dbesc($password),
 				intval(local_user())
 			);
-			if ($r) {
+			if (DBM::is_result($r)) {
 				info(t('Password changed.') . EOL);
 			} else {
 				notice(t('Password update failed. Please try again.') . EOL);
@@ -535,9 +532,8 @@ function settings_post(App $a) {
 	//$openid = normalise_openid($openid);
 
 	// If openid has changed or if there's an openid but no openidserver, try and discover it.
-
 	if ($openid != $a->user['openid'] || (strlen($openid) && (!strlen($openidserver)))) {
-		if (strlen($tmp_str) && validate_url($openid)) {
+		if (validate_url($openid)) {
 			logger('updating openidserver');
 			require_once 'library/openid.php';
 			$open_id_obj = new LightOpenID;
@@ -608,7 +604,7 @@ function settings_post(App $a) {
 			dbesc($language),
 			intval(local_user())
 	);
-	if ($r) {
+	if (DBM::is_result($r)) {
 		info(t('Settings updated.') . EOL);
 	}
 
@@ -650,21 +646,13 @@ function settings_post(App $a) {
 	// Update the global contact for the user
 	GContact::updateForUser(local_user());
 
-	//$_SESSION['theme'] = $theme;
-	if ($email_changed && $a->config['register_policy'] == REGISTER_VERIFY) {
-
-		/// @TODO set to un-verified, blocked and redirect to logout
-		/// @TODO Why? Are we verifying people or email addresses?
-
-	}
-
 	goaway('settings');
 	return; // NOTREACHED
 }
 
 
-function settings_content(App $a) {
-
+function settings_content(App $a)
+{
 	$o = '';
 	nav_set_selected('settings');
 
@@ -678,10 +666,7 @@ function settings_content(App $a) {
 		return;
 	}
 
-
-
 	if (($a->argc > 1) && ($a->argv[1] === 'oauth')) {
-
 		if (($a->argc > 2) && ($a->argv[2] === 'add')) {
 			$tpl = get_markup_template('settings/oauth_edit.tpl');
 			$o .= replace_macros($tpl, array(
@@ -727,7 +712,7 @@ function settings_content(App $a) {
 		if (($a->argc > 3) && ($a->argv[2] === 'delete')) {
 			check_form_security_token_redirectOnErr('/settings/oauth', 'settings_oauth', 't');
 
-			$r = q("DELETE FROM clients WHERE client_id='%s' AND uid=%d",
+			q("DELETE FROM clients WHERE client_id='%s' AND uid=%d",
 					dbesc($a->argv[3]),
 					local_user());
 			goaway(System::baseUrl(true)."/settings/oauth/");
@@ -757,7 +742,6 @@ function settings_content(App $a) {
 			'$apps'		=> $r,
 		));
 		return $o;
-
 	}
 
 	if (($a->argc > 1) && ($a->argv[1] === 'addon')) {
@@ -899,8 +883,8 @@ function settings_content(App $a) {
 			$default_theme = 'default';
 		}
 		$default_mobile_theme = Config::get('system', 'mobile-theme');
-		if (!$mobile_default_theme) {
-			$mobile_default_theme = 'none';
+		if (!$default_mobile_theme) {
+			$default_mobile_theme = 'none';
 		}
 
 		$allowed_themes_str = Config::get('system', 'allowed_themes');
@@ -917,25 +901,28 @@ function settings_content(App $a) {
 
 		$themes = array();
 		$mobile_themes = array("---" => t('No special theme for mobile devices'));
-		$files = glob('view/theme/*'); /* */
 		if ($allowed_themes) {
-			foreach ($allowed_themes as $th) {
-				$f = $th;
-				$is_experimental = file_exists('view/theme/' . $th . '/experimental');
-				$unsupported = file_exists('view/theme/' . $th . '/unsupported');
-				$is_mobile = file_exists('view/theme/' . $th . '/mobile');
+			foreach ($allowed_themes as $theme) {
+				$is_experimental = file_exists('view/theme/' . $theme . '/experimental');
+				$is_unsupported  = file_exists('view/theme/' . $theme . '/unsupported');
+				$is_mobile       = file_exists('view/theme/' . $theme . '/mobile');
 				if (!$is_experimental || ($is_experimental && (Config::get('experimentals', 'exp_themes')==1 || is_null(Config::get('experimentals', 'exp_themes'))))) {
-					$theme_name = (($is_experimental) ?  sprintf("%s - \x28Experimental\x29", $f) : $f);
+					$theme_name = ucfirst($theme);
+					if ($is_unsupported) {
+						$theme_name = t("%s - (Unsupported)", $theme_name);
+					} elseif ($is_experimental) {
+						$theme_name = t("%s - (Experimental)", $theme_name);
+					}
 					if ($is_mobile) {
-						$mobile_themes[$f]=$theme_name;
+						$mobile_themes[$theme] = $theme_name;
 					} else {
-						$themes[$f]=$theme_name;
+						$themes[$theme] = $theme_name;
 					}
 				}
 			}
 		}
-		$theme_selected = (!x($_SESSION, 'theme')? $default_theme : $_SESSION['theme']);
-		$mobile_theme_selected = (!x($_SESSION, 'mobile-theme')? $default_mobile_theme : $_SESSION['mobile-theme']);
+		$theme_selected        = defaults($_SESSION, 'theme'       , $default_theme);
+		$mobile_theme_selected = defaults($_SESSION, 'mobile-theme', $default_mobile_theme);
 
 		$nowarn_insecure = intval(PConfig::get(local_user(), 'system', 'nowarn_insecure'));
 
@@ -960,8 +947,8 @@ function settings_content(App $a) {
 		$smart_threading = PConfig::get(local_user(), 'system', 'smart_threading', 0);
 
 		$theme_config = "";
-		if (($themeconfigfile = get_theme_config_file($theme_selected)) != null) {
-			require_once($themeconfigfile);
+		if (($themeconfigfile = get_theme_config_file($theme_selected)) !== null) {
+			require_once $themeconfigfile;
 			$theme_config = theme_content($a);
 		}
 
@@ -1010,11 +997,10 @@ function settings_content(App $a) {
 
 	require_once('include/acl_selectors.php');
 
-	$p = q("SELECT * FROM `profile` WHERE `is-default` = 1 AND `uid` = %d LIMIT 1",
-		intval(local_user())
-	);
-	if (count($p)) {
-		$profile = $p[0];
+	$profile = dba::select('profile', [], ['is-default' => true, 'uid' => local_user()], ['limit' => 1]);
+	if (!DBM::is_result($profile)) {
+		notice(t('Unable to find your profile. Please contact your admin.') . EOL);
+		return;
 	}
 
 	$username   = $a->user['username'];
@@ -1027,8 +1013,6 @@ function settings_content(App $a) {
 	$openid     = $a->user['openid'];
 	$maxreq     = $a->user['maxreq'];
 	$expire     = ((intval($a->user['expire'])) ? $a->user['expire'] : '');
-	$blockwall  = $a->user['blockwall'];
-	$blocktags  = $a->user['blocktags'];
 	$unkmail    = $a->user['unkmail'];
 	$cntunkmail = $a->user['cntunkmail'];
 
