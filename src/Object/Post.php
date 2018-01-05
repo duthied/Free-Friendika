@@ -155,6 +155,13 @@ class Post extends BaseObject
 			$edpost = false;
 		}
 
+		// Editing on items of not subscribed users isn't currently possible
+		// There are some issues on editing that prevent this.
+		// But also it is an issue of the supported protocols that doesn't allow editing at all.
+		if ($item['uid'] == 0) {
+			$edpost = false;
+		}
+
 		if (($this->getDataValue('uid') == local_user()) || $this->isVisiting()) {
 			$dropping = true;
 		}
