@@ -40,7 +40,7 @@ function contactgroup_content(App $a)
 			}
 		}
 
-		if ($change) {
+		if (x($change)) {
 			if (in_array($change, $preselected)) {
 				Group::removeMember($group['id'], $change);
 			} else {

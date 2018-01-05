@@ -96,8 +96,6 @@ function cal_content(App $a)
 		'$baseurl' => System::baseUrl(),
 	));
 
-	$o = "";
-
 	$mode = 'view';
 	$y = 0;
 	$m = 0;
