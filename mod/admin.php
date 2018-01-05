@@ -1263,7 +1263,7 @@ function admin_page_site(App $a)
 		'$banner'		=> array('banner', t("Banner/Logo"), $banner, ""),
 		'$shortcut_icon'	=> array('shortcut_icon', t("Shortcut icon"), Config::get('system','shortcut_icon'),  t("Link to an icon that will be used for browsers.")),
 		'$touch_icon'		=> array('touch_icon', t("Touch icon"), Config::get('system','touch_icon'),  t("Link to an icon that will be used for tablets and mobiles.")),
-		'$info'			=> array('info', t('Additional Info'), $info, t('For public servers: you can add additional information here that will be listed at %s/servers.', System::baseUrl()), get_server()),
+		'$info'			=> array('info', t('Additional Info'), $info, t('For public servers: you can add additional information here that will be listed at %s/servers.', get_server())),
 		'$language' 		=> array('language', t("System language"), Config::get('system','language'), "", $lang_choices),
 		'$theme' 		=> array('theme', t("System theme"), Config::get('system','theme'), t("Default system theme - may be over-ridden by user profiles - <a href='#' id='cnftheme'>change theme settings</a>"), $theme_choices),
 		'$theme_mobile' 	=> array('theme_mobile', t("Mobile system theme"), Config::get('system', 'mobile-theme', '---'), t("Theme for mobile devices"), $theme_choices_mobile),
