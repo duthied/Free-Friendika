@@ -2276,7 +2276,7 @@ function admin_page_features_post(App $a)
 
 	foreach ($features as $fname => $fdata) {
 		foreach (array_slice($fdata, 1) as $f) {
-			$f eature = $f[0];
+			$feature = $f[0];
 			$feature_state = 'feature_' . $feature;
 			$featurelock = 'featurelock_' . $feature;
 
