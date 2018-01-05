@@ -27,8 +27,13 @@ function community_content(App $a, $update = 0)
 	if ($a->argc > 1) {
 		$content = $a->argv[1];
 	} else {
-		// When only the global community is allowed, we use this as default
-		$content = $page_style == CP_GLOBAL_COMMUNITY ? 'global' : 'local';
+		if (!empty(Config::get('system','singleuser'))) {
+			// On single user systems only the global page does make sense
+			$content = 'global';
+		} else {
+			// When only the global community is allowed, we use this as default
+			$content = $page_style == CP_GLOBAL_COMMUNITY ? 'global' : 'local';
+		}
 	}
 
 	if (!in_array($content, ['local', 'global'])) {
@@ -61,7 +66,7 @@ function community_content(App $a, $update = 0)
 	if (!$update) {
 		$tabs = [];
 
-		if (local_user() || in_array($page_style, [CP_USERS_AND_GLOBAL, CP_USERS_ON_SERVER])) {
+		if ((local_user() || in_array($page_style, [CP_USERS_AND_GLOBAL, CP_USERS_ON_SERVER])) && empty(Config::get('system','singleuser'))) {
 			$tabs[] = array(
 				'label' => t('Community'),
 				'url' => 'community/local',
