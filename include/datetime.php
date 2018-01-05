@@ -536,7 +536,9 @@ function cal($y = 0, $m = 0, $links = null, $class = '')
 	$o .= '</tr><tr>';
 
 	while ($d <= $l) {
-		$started = (($dow == $f) && (!$started));
+		if (($dow == $f) && (! $started)) {
+			$started = true;
+		}
 
 		$today = (((isset($tddate)) && ($tddate == $d)) ? "class=\"today\" " : '');
 		$o .= "<td $today>";
