@@ -7,6 +7,25 @@
 <form action="settings/connectors" method="post" autocomplete="off">
 <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
+<span id="settings_general_inflated" class="settings-block fakelink" style="display: block;" onclick="openClose('settings_general_expanded'); openClose('settings_general_inflated');">
+	<h3 class="connector">{{$general_settings}}</h3>
+</span>
+<div id="settings_general_expanded" class="settings-block" style="display: none;">
+	<span class="fakelink" onclick="openClose('settings_general_expanded'); openClose('settings_general_inflated');">
+		<h3 class="connector">{{$general_settings}}</h3>
+	</span>
+
+	{{include file="field_checkbox.tpl" field=$no_intelligent_shortening}}
+	{{include file="field_checkbox.tpl" field=$ostatus_autofriend}}
+	{{$default_group}}
+	{{include file="field_input.tpl" field=$legacy_contact}}
+
+	<p><a href="{{$repair_ostatus_url}}">{{$repair_ostatus_text}}</a></p>
+
+	<div class="settings-submit-wrapper" ><input type="submit" name="general-submit" class="settings-submit" value="{{$submit}}" /></div>
+</div>
+<div class="clear"></div>
+
 {{$settings_connectors}}
 
 {{if $mail_disabled}}
