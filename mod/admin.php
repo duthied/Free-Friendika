@@ -1441,11 +1441,11 @@ function admin_page_dbsync(App $a)
  */
 function admin_page_users_post(App $a)
 {
-	$pending     = (x($_POST, 'pending')           ? $_POST['pending']           : array());
-	$users       = (x($_POST, 'user')              ? $_POST['user']		      : array());
-	$nu_name     = (x($_POST, 'new_user_name')     ? $_POST['new_user_name']     : '');
-	$nu_nickname = (x($_POST, 'new_user_nickname') ? $_POST['new_user_nickname'] : '');
-	$nu_email    = (x($_POST, 'new_user_email')    ? $_POST['new_user_email']    : '');
+	$pending     = defaults($_POST, 'pending'          , array());
+	$users       = defaults($_POST, 'user'             , array());
+	$nu_name     = defaults($_POST, 'new_user_name'    , '');
+	$nu_nickname = defaults($_POST, 'new_user_nickname', '');
+	$nu_email    = defaults($_POST, 'new_user_email'   , '');
 	$nu_language = Config::get('system', 'language');
 
 	check_form_security_token_redirectOnErr('/admin/users', 'admin_users');
@@ -1520,13 +1520,13 @@ function admin_page_users_post(App $a)
 	}
 
 	if (x($_POST, 'page_users_approve')) {
-		require_once("mod/regmod.php");
+		require_once "mod/regmod.php";
 		foreach ($pending as $hash) {
 			user_allow($hash);
 		}
 	}
 	if (x($_POST, 'page_users_deny')) {
-		require_once("mod/regmod.php");
+		require_once "mod/regmod.php";
 		foreach ($pending as $hash) {
 			user_deny($hash);
 		}
