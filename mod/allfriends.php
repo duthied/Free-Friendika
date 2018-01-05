@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file mod/allfriends.php
  */
@@ -11,19 +12,20 @@ use Friendica\Model\GContact;
 require_once 'include/contact_selectors.php';
 require_once 'mod/contacts.php';
 
-function allfriends_content(App $a) {
-
+function allfriends_content(App $a)
+{
 	$o = '';
-	if (! local_user()) {
-		notice( t('Permission denied.') . EOL);
+	if (!local_user()) {
+		notice(t('Permission denied.') . EOL);
 		return;
 	}
 
+	$cid = 0;
 	if ($a->argc > 1) {
 		$cid = intval($a->argv[1]);
 	}
 
-	if (! $cid) {
+	if (!$cid) {
 		return;
 	}
 
@@ -34,7 +36,7 @@ function allfriends_content(App $a) {
 		intval(local_user())
 	);
 
-	if (! DBM::is_result($c)) {
+	if (!DBM::is_result($c)) {
 		return;
 	}
 
@@ -43,32 +45,30 @@ function allfriends_content(App $a) {
 
 	$total = GContact::countAllFriends(local_user(), $cid);
 
-	if(count($total))
-		$a->set_pager_total($total);
+	$a->set_pager_total($total);
 
 	$r = GContact::allFriends(local_user(), $cid, $a->pager['start'], $a->pager['itemspage']);
-
-	if (! DBM::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		$o .= t('No friends to display.');
 		return $o;
 	}
 
 	$id = 0;
 
+	$entries = [];
 	foreach ($r as $rr) {
-
 		//get further details of the contact
 		$contact_details = Contact::getDetailsByURL($rr['url'], $uid, $rr);
 
 		$photo_menu = '';
 
+		$connlnk = '';
 		// $rr[cid] is only available for common contacts. So if the contact is a common one, use contact_photo_menu to generate the photo_menu
 		// If the contact is not common to the user, Connect/Follow' will be added to the photo menu
-		if ($rr[cid]) {
-			$rr[id] = $rr[cid];
-			$photo_menu = Contact::photoMenu ($rr);
-		}
-		else {
+		if ($rr['cid']) {
+			$rr['id'] = $rr['cid'];
+			$photo_menu = Contact::photoMenu($rr);
+		} else {
 			$connlnk = System::baseUrl() . '/follow/?url=' . $rr['url'];
 			$photo_menu = array(
 				'profile' => array(t("View Profile"), zrl($rr['url'])),
@@ -78,7 +78,7 @@ function allfriends_content(App $a) {
 
 		$entry = array(
 			'url'          => $rr['url'],
-			'itemurl'      => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
+			'itemurl'      => defaults($contact_details, 'addr', $rr['url']),
 			'name'         => htmlentities($contact_details['name']),
 			'thumb'        => proxy_url($contact_details['thumb'], false, PROXY_SIZE_THUMB),
 			'img_hover'    => htmlentities($contact_details['name']),
@@ -99,7 +99,7 @@ function allfriends_content(App $a) {
 
 	$tpl = get_markup_template('viewcontact_template.tpl');
 
-	$o .= replace_macros($tpl,array(
+	$o .= replace_macros($tpl, array(
 		//'$title' => sprintf( t('Friends of %s'), htmlentities($c[0]['name'])),
 		'$tab_str' => $tab_str,
 		'$contacts' => $entries,

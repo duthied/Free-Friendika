@@ -60,6 +60,7 @@ class App {
 	public $timezone;
 	public $interactive = true;
 	public $plugins;
+	public $plugins_admin = array();
 	public $apps = array();
 	public $identities;
 	public $is_mobile = false;

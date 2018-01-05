@@ -7,7 +7,7 @@ use Friendica\Module\Login;
 require_once('include/conversation.php');
 require_once('include/items.php');
 
-function bookmarklet_init(App $a)
+function bookmarklet_init()
 {
 	$_GET["mode"] = "minimal";
 }

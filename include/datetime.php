@@ -486,18 +486,18 @@ function get_first_dim($y,$m) {
  * altering td class.
  * Months count from 1.
  *
- * @param int $y Year
- * @param int $m Month
- * @param bool $links (default false)
+ * @param int    $y Year
+ * @param int    $m Month
+ * @param array  $links (default null)
  * @param string $class
  *
  * @return string
  *
  * @todo Provide (prev,next) links, define class variations for different size calendars
  */
-function cal($y = 0,$m = 0, $links = false, $class='') {
+function cal($y = 0, $m = 0, $links = null, $class = '')
+{
 	// month table - start at 1 to match human usage.
-
 	$mtab = array(' ',
 		'January', 'February', 'March',
 		'April'  , 'May'     , 'June',
@@ -505,18 +505,19 @@ function cal($y = 0,$m = 0, $links = false, $class='') {
 		'October', 'November', 'December'
 	);
 
-	$thisyear = datetime_convert('UTC', date_default_timezone_get(), 'now','Y');
-	$thismonth = datetime_convert('UTC', date_default_timezone_get(), 'now','m');
-	if (! $y) {
+	$thisyear = datetime_convert('UTC', date_default_timezone_get(), 'now', 'Y');
+	$thismonth = datetime_convert('UTC', date_default_timezone_get(), 'now', 'm');
+	if (!$y) {
 		$y = $thisyear;
 	}
-	if (! $m) {
+
+	if (!$m) {
 		$m = intval($thismonth);
 	}
 
 	$dn = array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
-	$f = get_first_dim($y,$m);
-	$l = get_dim($y,$m);
+	$f = get_first_dim($y, $m);
+	$l = get_dim($y, $m);
 	$d = 1;
 	$dow = 0;
 	$started = false;
@@ -535,16 +536,14 @@ function cal($y = 0,$m = 0, $links = false, $class='') {
 	$o .= '</tr><tr>';
 
 	while ($d <= $l) {
-		if (($dow == $f) && (! $started)) {
-			$started = true;
-		}
+		$started = (($dow == $f) && (!$started));
 
 		$today = (((isset($tddate)) && ($tddate == $d)) ? "class=\"today\" " : '');
 		$o .= "<td $today>";
 		$day = str_replace(' ', '&nbsp;', sprintf('%2.2d', $d));
 		if ($started) {
-			if (is_array($links) && isset($links[$d])) {
-				$o .=  "<a href=\"{$links[$d]}\">$day</a>";
+			if (x($links, $d) !== false) {
+				$o .= "<a href=\"{$links[$d]}\">$day</a>";
 			} else {
 				$o .= $day;
 			}
@@ -567,7 +566,7 @@ function cal($y = 0,$m = 0, $links = false, $class='') {
 		}
 	}
 
-	$o .= '</tr></table>'."\r\n";
+	$o .= '</tr></table>' . "\r\n";
 
 	return $o;
 }

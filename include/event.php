@@ -507,10 +507,10 @@ function event_remove_duplicates($dates) {
 /**
  * @brief Get an event by its event ID.
  *
- * @param type $owner_uid The User ID of the owner of the event
- * @param type $event_params An assoziative array with
- *	int 'event_id' => The ID of the event in the event table
- * @param type $sql_extra
+ * @param int    $owner_uid    The User ID of the owner of the event
+ * @param array  $event_params An assoziative array with
+ *	                           int 'event_id' => The ID of the event in the event table
+ * @param string $sql_extra
  * @return array Query result
  */
 function event_by_id($owner_uid = 0, $event_params, $sql_extra = '') {

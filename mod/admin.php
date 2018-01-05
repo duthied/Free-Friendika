@@ -44,7 +44,7 @@ function admin_post(App $a)
 		return;
 	}
 
-	// urls
+	$return_path = 'admin';
 	if ($a->argc > 1) {
 		switch ($a->argv[1]) {
 			case 'site':
@@ -62,8 +62,7 @@ function admin_post(App $a)
 						$func($a);
 					}
 				}
-				goaway('admin/plugins/' . $a->argv[2]);
-				return; // NOTREACHED
+				$return_path = 'admin/plugins/' . $a->argv[2];
 				break;
 			case 'themes':
 				if ($a->argc < 2) {
@@ -76,47 +75,37 @@ function admin_post(App $a)
 
 				$theme = $a->argv[2];
 				if (is_file("view/theme/$theme/config.php")) {
+					$orig_theme = $a->theme;
+					$orig_page = $a->page;
+					$orig_session_theme = $_SESSION['theme'];
+					require_once "view/theme/$theme/theme.php";
+					require_once "view/theme/$theme/config.php";
+					$_SESSION['theme'] = $theme;
 
-					function __call_theme_admin_post(App $a, $theme)
-					{
-						$orig_theme = $a->theme;
-						$orig_page = $a->page;
-						$orig_session_theme = $_SESSION['theme'];
-						require_once("view/theme/$theme/theme.php");
-						require_once("view/theme/$theme/config.php");
-						$_SESSION['theme'] = $theme;
-
-
-						$init = $theme . "_init";
-						if (function_exists($init)) {
-							$init($a);
-						}
-						if (function_exists("theme_admin_post")) {
-							$admin_form = theme_admin_post($a);
-						}
-
-						$_SESSION['theme'] = $orig_session_theme;
-						$a->theme = $orig_theme;
-						$a->page = $orig_page;
-						return $admin_form;
+					$init = $theme . '_init';
+					if (function_exists($init)) {
+						$init($a);
 					}
-					__call_theme_admin_post($a, $theme);
+					if (function_exists('theme_admin_post')) {
+						theme_admin_post($a);
+					}
+
+					$_SESSION['theme'] = $orig_session_theme;
+					$a->theme = $orig_theme;
+					$a->page = $orig_page;
 				}
+
 				info(t('Theme settings updated.'));
 				if (is_ajax()) {
 					return;
 				}
-				goaway('admin/themes/' . $theme);
-				return;
+				$return_path = 'admin/themes/' . $theme;
 				break;
 			case 'features':
 				admin_page_features_post($a);
 				break;
 			case 'logs':
 				admin_page_logs_post($a);
-				break;
-			case 'dbsync':
-				admin_page_dbsync_post($a);
 				break;
 			case 'contactblock':
 				admin_page_contactblock_post($a);
@@ -130,7 +119,7 @@ function admin_post(App $a)
 		}
 	}
 
-	goaway('admin');
+	goaway($return_path);
 	return; // NOTREACHED
 }
 
@@ -720,7 +709,7 @@ function admin_page_summary(App $a)
 	if (Config::get('system', 'check_new_version_url', 'none') != 'none') {
 		$gitversion = Config::get('system', 'git_friendica_version');
 		if (version_compare(FRIENDICA_VERSION, $gitversion) < 0) {
-			$warningtext[] = sprintf(t('There is a new version of Friendica available for download. Your current version is %1$s, upstream version is %2$s'), $FRIENDICA_VERSION, $gitversion);
+			$warningtext[] = sprintf(t('There is a new version of Friendica available for download. Your current version is %1$s, upstream version is %2$s'), FRIENDICA_VERSION, $gitversion);
 			$showwarning = true;
 		}
 	}
@@ -817,7 +806,7 @@ function admin_page_site_post(App $a)
 		$new_url = rtrim($new_url, "/");
 
 		$parsed = @parse_url($new_url);
-		if (!$parsed || (!x($parsed, 'host') || !x($parsed, 'scheme'))) {
+		if (!is_array($parsed) || !x($parsed, 'host') || !x($parsed, 'scheme')) {
 			notice(t("Can not parse base url. Must have at least <scheme>://<domain>"));
 			goaway('admin/site');
 		}
@@ -1151,8 +1140,7 @@ function admin_page_site(App $a)
 	$theme_choices_mobile = array();
 	$theme_choices_mobile["---"] = t("No special theme for mobile devices");
 	$files = glob('view/theme/*');
-	if ($files) {
-
+	if (is_array($files)) {
 		$allowed_theme_list = Config::get('system', 'allowed_themes');
 
 		foreach ($files as $file) {
@@ -1183,16 +1171,6 @@ function admin_page_site(App $a)
 		CP_USERS_ON_SERVER => t("Public postings from users of this site"),
 		CP_GLOBAL_COMMUNITY => t("Public postings from the federated network"),
 		CP_USERS_AND_GLOBAL => t("Public postings from local users and the federated network")
-	);
-
-	/* OStatus conversation poll choices */
-	$ostatus_poll_choices = array(
-		"-2" => t("Never"),
-		"-1" => t("At post arrival"),
-		"0" => t("Frequently"),
-		"60" => t("Hourly"),
-		"720" => t("Twice daily"),
-		"1440" => t("Daily")
 	);
 
 	$poco_discovery_choices = array(
@@ -1397,7 +1375,7 @@ function admin_page_dbsync(App $a)
 
 	if (($a->argc > 2) && (intval($a->argv[2]) || ($a->argv[2] === 'check'))) {
 		$retval = DBStructure::update(false, true);
-		if (!$retval) {
+		if ($retval === '') {
 			$o .= sprintf(t("Database structure update %s was successfully applied."), DB_UPDATE_VERSION) . "<br />";
 			Config::set('database', 'dbupdate_' . DB_UPDATE_VERSION, 'success');
 		} else {
@@ -1637,9 +1615,6 @@ function admin_page_users(App $a)
 		if (in_array($new_order, $valid_orders)) {
 			$order = $new_order;
 		}
-		if (x($_GET, 'd')) {
-			$new_direction = $_GET['d'];
-		}
 	}
 	$sql_order = "`" . str_replace('.', '`.`', $order) . "`";
 	$sql_order_direction = ($order_direction === "+") ? "ASC" : "DESC";
@@ -1795,8 +1770,6 @@ function admin_page_plugins(App $a)
 		}
 
 		// display plugin details
-		require_once('library/markdown.php');
-
 		if (in_array($plugin, $a->plugins)) {
 			$status = "on";
 			$action = t("Disable");
@@ -1807,6 +1780,7 @@ function admin_page_plugins(App $a)
 
 		$readme = Null;
 		if (is_file("addon/$plugin/README.md")) {
+			require_once 'library/markdown.php';
 			$readme = file_get_contents("addon/$plugin/README.md");
 			$readme = Markdown($readme, false);
 		} elseif (is_file("addon/$plugin/README")) {
@@ -1814,7 +1788,7 @@ function admin_page_plugins(App $a)
 		}
 
 		$admin_form = "";
-		if (is_array($a->plugins_admin) && in_array($plugin, $a->plugins_admin)) {
+		if (in_array($plugin, $a->plugins_admin)) {
 			@require_once("addon/$plugin/$plugin.php");
 			$func = $plugin . '_plugin_admin';
 			$func($a, $admin_form);
@@ -1857,7 +1831,7 @@ function admin_page_plugins(App $a)
 
 	$plugins = array();
 	$files = glob("addon/*/");
-	if ($files) {
+	if (is_array($files)) {
 		foreach ($files as $file) {
 			if (is_dir($file)) {
 				list($tmp, $id) = array_map("trim", explode("/", $file));
@@ -1903,7 +1877,8 @@ function admin_page_plugins(App $a)
  */
 function toggle_theme(&$themes, $th, &$result)
 {
-	for ($x = 0; $x < count($themes); $x ++) {
+	$count = count($themes);
+	for ($x = 0; $x < $count; $x ++) {
 		if ($themes[$x]['name'] === $th) {
 			if ($themes[$x]['allowed']) {
 				$themes[$x]['allowed'] = 0;
@@ -1923,7 +1898,8 @@ function toggle_theme(&$themes, $th, &$result)
  */
 function theme_status($themes, $th)
 {
-	for ($x = 0; $x < count($themes); $x ++) {
+	$count = count($themes);
+	for ($x = 0; $x < $count; $x ++) {
 		if ($themes[$x]['name'] === $th) {
 			if ($themes[$x]['allowed']) {
 				return 1;
@@ -1986,7 +1962,7 @@ function admin_page_themes(App $a)
 
 	$themes = array();
 	$files = glob('view/theme/*');
-	if ($files) {
+	if (is_array($files)) {
 		foreach ($files as $file) {
 			$f = basename($file);
 
@@ -2045,8 +2021,6 @@ function admin_page_themes(App $a)
 		}
 
 		// display theme details
-		require_once 'library/markdown.php';
-
 		if (theme_status($themes, $theme)) {
 			$status = "on";
 			$action = t("Disable");
@@ -2055,41 +2029,36 @@ function admin_page_themes(App $a)
 			$action = t("Enable");
 		}
 
-		$readme = Null;
+		$readme = null;
 		if (is_file("view/theme/$theme/README.md")) {
+			require_once 'library/markdown.php';
 			$readme = file_get_contents("view/theme/$theme/README.md");
 			$readme = Markdown($readme, false);
 		} elseif (is_file("view/theme/$theme/README")) {
 			$readme = "<pre>" . file_get_contents("view/theme/$theme/README") . "</pre>";
 		}
 
-		$admin_form = "";
+		$admin_form = '';
 		if (is_file("view/theme/$theme/config.php")) {
+			$orig_theme = $a->theme;
+			$orig_page = $a->page;
+			$orig_session_theme = $_SESSION['theme'];
+			require_once "view/theme/$theme/theme.php";
+			require_once "view/theme/$theme/config.php";
+			$_SESSION['theme'] = $theme;
 
-			function __get_theme_admin_form(App $a, $theme)
-			{
-				$orig_theme = $a->theme;
-				$orig_page = $a->page;
-				$orig_session_theme = $_SESSION['theme'];
-				require_once("view/theme/$theme/theme.php");
-				require_once("view/theme/$theme/config.php");
-				$_SESSION['theme'] = $theme;
-
-
-				$init = $theme . "_init";
-				if (function_exists($init)) {
-					$init($a);
-				}
-				if (function_exists("theme_admin")) {
-					$admin_form = theme_admin($a);
-				}
-
-				$_SESSION['theme'] = $orig_session_theme;
-				$a->theme = $orig_theme;
-				$a->page = $orig_page;
-				return $admin_form;
+			$init = $theme . "_init";
+			if (function_exists($init)) {
+				$init($a);
 			}
-			$admin_form = __get_theme_admin_form($a, $theme);
+
+			if (function_exists('theme_admin')) {
+				$admin_form = theme_admin($a);
+			}
+
+			$_SESSION['theme'] = $orig_session_theme;
+			$a->theme = $orig_theme;
+			$a->page = $orig_page;
 		}
 
 		$screenshot = array(get_theme_screenshot($theme), t('Screenshot'));
@@ -2123,12 +2092,10 @@ function admin_page_themes(App $a)
 	// reload active themes
 	if (x($_GET, "a") && $_GET['a'] == "r") {
 		check_form_security_token_redirectOnErr(System::baseUrl() . '/admin/themes', 'admin_themes', 't');
-		if ($themes) {
-			foreach ($themes as $th) {
-				if ($th['allowed']) {
-					uninstall_theme($th['name']);
-					install_theme($th['name']);
-				}
+		foreach ($themes as $th) {
+			if ($th['allowed']) {
+				uninstall_theme($th['name']);
+				install_theme($th['name']);
 			}
 		}
 		info("Themes reloaded");
@@ -2139,11 +2106,9 @@ function admin_page_themes(App $a)
 	 * List themes
 	 */
 
-	$xthemes = array();
-	if ($themes) {
-		foreach ($themes as $th) {
-			$xthemes[] = array($th['name'], (($th['allowed']) ? "on" : "off"), get_theme_info($th['name']));
-		}
+	$plugins = array();
+	foreach ($themes as $th) {
+		$plugins[] = array($th['name'], (($th['allowed']) ? "on" : "off"), get_theme_info($th['name']));
 	}
 
 	$t = get_markup_template('admin/plugins.tpl');
@@ -2154,7 +2119,7 @@ function admin_page_themes(App $a)
 		'$reload'              => t('Reload active themes'),
 		'$baseurl'             => System::baseUrl(true),
 		'$function'            => 'themes',
-		'$plugins'             => $xthemes,
+		'$plugins'             => $plugins,
 		'$pcount'              => count($themes),
 		'$noplugshint'         => sprintf(t('No themes found on the system. They should be paced in %1$s'),'<code>/view/themes</code>'),
 		'$experimental'        => t('[Experimental]'),
@@ -2307,12 +2272,11 @@ function admin_page_features_post(App $a)
 
 	logger('postvars: ' . print_r($_POST, true), LOGGER_DATA);
 
-	$arr = array();
 	$features = Feature::get(false);
 
 	foreach ($features as $fname => $fdata) {
 		foreach (array_slice($fdata, 1) as $f) {
-			$feature = $f[0];
+			$f eature = $f[0];
 			$feature_state = 'feature_' . $feature;
 			$featurelock = 'featurelock_' . $feature;
 
@@ -2368,7 +2332,7 @@ function admin_page_features(App $a)
 		}
 
 		$tpl = get_markup_template('admin/settings_features.tpl');
-		$o .= replace_macros($tpl, array(
+		$o = replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("admin_manage_features"),
 			'$title' => t('Manage Additional Features'),
 			'$features' => $arr,

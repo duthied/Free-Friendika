@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file include/common.php
  */
@@ -10,8 +11,8 @@ use Friendica\Model\GContact;
 require_once 'include/contact_selectors.php';
 require_once 'mod/contacts.php';
 
-function common_content(App $a) {
-
+function common_content(App $a)
+{
 	$o = '';
 
 	$cmd = $a->argv[1];
@@ -19,8 +20,8 @@ function common_content(App $a) {
 	$cid = intval($a->argv[3]);
 	$zcid = 0;
 
-	if (! local_user()) {
-		notice( t('Permission denied.') . EOL);
+	if (!local_user()) {
+		notice(t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -28,7 +29,7 @@ function common_content(App $a) {
 		return;
 	}
 
-	if (! $uid) {
+	if (!$uid) {
 		return;
 	}
 
@@ -45,37 +46,36 @@ function common_content(App $a) {
 			intval($uid)
 		);
 		/// @TODO Handle $c with DBM::is_result()
-
-		$vcard_widget .= replace_macros(get_markup_template("vcard-widget.tpl"),array(
+		$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"), array(
 			'$name' => htmlentities($c[0]['name']),
 			'$photo' => $c[0]['photo'],
 			'url' => 'contacts/' . $cid
 		));
 
-		if (! x($a->page,'aside')) {
+		if (!x($a->page, 'aside')) {
 			$a->page['aside'] = '';
 		}
 		$a->page['aside'] .= $vcard_widget;
 	}
 
-	if (! DBM::is_result($c)) {
+	if (!DBM::is_result($c)) {
 		return;
 	}
 
-	if(! $cid) {
-		if(get_my_url()) {
-			$r = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
-				dbesc(normalise_link(get_my_url())),
-				intval($profile_uid)
+	if (!$cid && get_my_url()) {
+		/// @todo : Initialize $profile_uid
+		$r = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
+			dbesc(normalise_link(get_my_url())),
+			intval($profile_uid)
+		);
+		if (DBM::is_result($r)) {
+			$cid = $r[0]['id'];
+		} else {
+			$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
+				dbesc(normalise_link(get_my_url()))
 			);
-			if (DBM::is_result($r))
-				$cid = $r[0]['id'];
-			else {
-				$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
-					dbesc(normalise_link(get_my_url()))
-				);
-				if (DBM::is_result($r))
-					$zcid = $r[0]['id'];
+			if (DBM::is_result($r)) {
+				$zcid = $r[0]['id'];
 			}
 		}
 	}
@@ -90,13 +90,12 @@ function common_content(App $a) {
 		$t = GContact::countCommonFriendsZcid($uid, $zcid);
 	}
 
-	if (count($t)) {
+	if ($t > 0) {
 		$a->set_pager_total($t);
 	} else {
 		notice(t('No contacts in common.') . EOL);
 		return $o;
 	}
-
 
 	if ($cid) {
 		$r = GContact::commonFriends($uid, $cid, $a->pager['start'], $a->pager['itemspage']);
@@ -104,15 +103,14 @@ function common_content(App $a) {
 		$r = GContact::commonFriendsZcid($uid, $zcid, $a->pager['start'], $a->pager['itemspage']);
 	}
 
-
-	if (! DBM::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		return $o;
 	}
 
 	$id = 0;
 
+	$entries = [];
 	foreach ($r as $rr) {
-
 		//get further details of the contact
 		$contact_details = Contact::getDetailsByURL($rr['url'], $uid);
 
@@ -120,12 +118,11 @@ function common_content(App $a) {
 		/// @TODO Adding '/" here avoids E_NOTICE on missing constants
 		$rr['id'] = $rr['cid'];
 
-		$photo_menu = '';
 		$photo_menu = Contact::photoMenu($rr);
 
 		$entry = array(
 			'url'          => $rr['url'],
-			'itemurl'      => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
+			'itemurl'      => defaults($contact_details, 'addr', $rr['url']),
 			'name'         => $contact_details['name'],
 			'thumb'        => proxy_url($contact_details['thumb'], false, PROXY_SIZE_THUMB),
 			'img_hover'    => htmlentities($contact_details['name']),
@@ -140,7 +137,9 @@ function common_content(App $a) {
 		$entries[] = $entry;
 	}
 
-	if ($cmd === 'loc' && $cid && $uid == local_user()) {
+	$title = '';
+	$tab_str = '';
+	if ($cmd === 'loc' && $cid && local_user() == $uid) {
 		$tab_str = contacts_tab($a, $cid, 4);
 	} else {
 		$title = t('Common Friends');
@@ -148,7 +147,7 @@ function common_content(App $a) {
 
 	$tpl = get_markup_template('viewcontact_template.tpl');
 
-	$o .= replace_macros($tpl,array(
+	$o .= replace_macros($tpl, array(
 		'$title'    => $title,
 		'$tab_str'  => $tab_str,
 		'$contacts' => $entries,

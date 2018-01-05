@@ -130,7 +130,7 @@ class Config
 	 *
 	 * @param string $family The category of the configuration value
 	 * @param string $key    The configuration key to set
-	 * @param string $value  The value to store
+	 * @param mixed  $value  The value to store
 	 *
 	 * @return mixed Stored $value or false if the database update failed
 	 */
