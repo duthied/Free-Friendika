@@ -875,11 +875,13 @@ class Contact extends BaseObject
 		$contact = ($r[0]["contact-type"] == ACCOUNT_TYPE_COMMUNITY ? 'owner-id' : 'author-id');
 
 		$r = q(item_query() . " AND `item`.`" . $contact . "` = %d AND " . $sql .
-			" ORDER BY `item`.`created` DESC LIMIT %d, %d", intval($author_id), intval(local_user()), intval($a->pager['start']), intval($a->pager['itemspage'])
+			" AND `item`.`verb` = '%s' ORDER BY `item`.`created` DESC LIMIT %d, %d",
+			intval($author_id), intval(local_user()), dbesc(ACTIVITY_POST),
+			intval($a->pager['start']), intval($a->pager['itemspage'])
 		);
 
 
-		$o = conversation($a, $r, 'community', false);
+		$o = conversation($a, $r, 'contact-posts', false);
 
 		$o .= alt_pager($a, count($r));
 

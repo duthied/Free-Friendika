@@ -628,7 +628,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 			$writable = false;
 		}
 
-		if ($mode === 'network-new' || $mode === 'search' || $community_readonly) {
+		if (in_array($mode, ['network-new', 'search', 'contact-posts']) || $community_readonly) {
 
 			/*
 			 * "New Item View" on network page or search page results
