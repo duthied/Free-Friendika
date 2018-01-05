@@ -641,7 +641,7 @@ function admin_page_federation(App $a)
 		'$autoactive' => Config::get('system', 'poco_completion'),
 		'$counts' => $counts,
 		'$version' => FRIENDICA_VERSION,
-		'$legendtext' => sprintf(t('Currently this node is aware of %d nodes with %d registered users from the following platforms:'), $total, $users),
+		'$legendtext' => t('Currently this node is aware of %d nodes with %d registered users from the following platforms:', $total, $users),
 		'$baseurl' => System::baseUrl(),
 	));
 }
@@ -702,14 +702,14 @@ function admin_page_summary(App $a)
 	$warningtext = array();
 	if (DBM::is_result($r)) {
 		$showwarning = true;
-		$warningtext[] = sprintf(t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php scripts/dbstructure.php toinnodb</tt> of your Friendica installation for an automatic conversion.<br />'), 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
+		$warningtext[] = t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php scripts/dbstructure.php toinnodb</tt> of your Friendica installation for an automatic conversion.<br />', 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
 	}
 	// Check if github.com/friendica/master/VERSION is higher then
 	// the local version of Friendica. Check is opt-in, source may be master or devel branch
 	if (Config::get('system', 'check_new_version_url', 'none') != 'none') {
 		$gitversion = Config::get('system', 'git_friendica_version');
 		if (version_compare(FRIENDICA_VERSION, $gitversion) < 0) {
-			$warningtext[] = sprintf(t('There is a new version of Friendica available for download. Your current version is %1$s, upstream version is %2$s'), FRIENDICA_VERSION, $gitversion);
+			$warningtext[] = t('There is a new version of Friendica available for download. Your current version is %1$s, upstream version is %2$s', FRIENDICA_VERSION, $gitversion);
 			$showwarning = true;
 		}
 	}
@@ -728,7 +728,7 @@ function admin_page_summary(App $a)
 		$warningtext[] = t('The worker was never executed. Please check your database structure!');
 	} elseif ((strtotime(datetime_convert()) - strtotime($last_worker_call)) > 60 * 60) {
 		$showwarning = true;
-		$warningtext[] = sprintf(t('The last worker execution was on %s UTC. This is older than one hour. Please check your crontab settings.'), $last_worker_call);
+		$warningtext[] = t('The last worker execution was on %s UTC. This is older than one hour. Please check your crontab settings.', $last_worker_call);
 	}
 
 	$r = q("SELECT `page-flags`, COUNT(`uid`) AS `count` FROM `user` GROUP BY `page-flags`");
@@ -1266,7 +1266,7 @@ function admin_page_site(App $a)
 		'$banner'		=> array('banner', t("Banner/Logo"), $banner, ""),
 		'$shortcut_icon'	=> array('shortcut_icon', t("Shortcut icon"), Config::get('system','shortcut_icon'),  t("Link to an icon that will be used for browsers.")),
 		'$touch_icon'		=> array('touch_icon', t("Touch icon"), Config::get('system','touch_icon'),  t("Link to an icon that will be used for tablets and mobiles.")),
-		'$info'			=> array('info', t('Additional Info'), $info, sprintf(t('For public servers: you can add additional information here that will be listed at %s/servers.'), get_server())),
+		'$info'			=> array('info', t('Additional Info'), $info, t('For public servers: you can add additional information here that will be listed at %s/servers.', System::baseUrl()), get_server()),
 		'$language' 		=> array('language', t("System language"), Config::get('system','language'), "", $lang_choices),
 		'$theme' 		=> array('theme', t("System theme"), Config::get('system','theme'), t("Default system theme - may be over-ridden by user profiles - <a href='#' id='cnftheme'>change theme settings</a>"), $theme_choices),
 		'$theme_mobile' 	=> array('theme_mobile', t("Mobile system theme"), Config::get('system', 'mobile-theme', '---'), t("Theme for mobile devices"), $theme_choices_mobile),
@@ -1341,7 +1341,7 @@ function admin_page_site(App $a)
 		'$worker_queues' 	=> array('worker_queues', t("Maximum number of parallel workers"), Config::get('system','worker_queues'), t("On shared hosters set this to 2. On larger systems, values of 10 are great. Default value is 4.")),
 		'$worker_dont_fork'	=> array('worker_dont_fork', t("Don't use 'proc_open' with the worker"), Config::get('system','worker_dont_fork'), t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of worker calls in your crontab.")),
 		'$worker_fastlane'	=> array('worker_fastlane', t("Enable fastlane"), Config::get('system','worker_fastlane'), t("When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.")),
-		'$worker_frontend'	=> array('worker_frontend', t('Enable frontend worker'), Config::get('system','frontend_worker'), sprintf(t('When enabled the Worker process is triggered when backend access is performed (e.g. messages being delivered). On smaller sites you might want to call %s/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server.'), System::baseUrl())),
+		'$worker_frontend'	=> array('worker_frontend', t('Enable frontend worker'), Config::get('system','frontend_worker'), t('When enabled the Worker process is triggered when backend access is performed (e.g. messages being delivered). On smaller sites you might want to call %s/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server.', System::baseUrl())),
 
 		'$form_security_token'	=> get_form_security_token("admin_site")
 	));
@@ -1376,10 +1376,10 @@ function admin_page_dbsync(App $a)
 	if (($a->argc > 2) && (intval($a->argv[2]) || ($a->argv[2] === 'check'))) {
 		$retval = DBStructure::update(false, true);
 		if ($retval === '') {
-			$o .= sprintf(t("Database structure update %s was successfully applied."), DB_UPDATE_VERSION) . "<br />";
+			$o .= t("Database structure update %s was successfully applied.", DB_UPDATE_VERSION) . "<br />";
 			Config::set('database', 'dbupdate_' . DB_UPDATE_VERSION, 'success');
 		} else {
-			$o .= sprintf(t("Executing of database structure update %s failed with error: %s"), DB_UPDATE_VERSION, $retval) . "<br />";
+			$o .= t("Executing of database structure update %s failed with error: %s", DB_UPDATE_VERSION, $retval) . "<br />";
 		}
 		if ($a->argv[2] === 'check') {
 			return $o;
@@ -1392,15 +1392,15 @@ function admin_page_dbsync(App $a)
 		if (function_exists($func)) {
 			$retval = $func();
 			if ($retval === UPDATE_FAILED) {
-				$o .= sprintf(t("Executing %s failed with error: %s"), $func, $retval);
+				$o .= t("Executing %s failed with error: %s", $func, $retval);
 			} elseif ($retval === UPDATE_SUCCESS) {
-				$o .= sprintf(t('Update %s was successfully applied.', $func));
+				$o .= t('Update %s was successfully applied.', $func);
 				Config::set('database', $func, 'success');
 			} else {
-				$o .= sprintf(t('Update %s did not return a status. Unknown if it succeeded.'), $func);
+				$o .= t('Update %s did not return a status. Unknown if it succeeded.', $func);
 			}
 		} else {
-			$o .= sprintf(t('There was no additional update function %s that needed to be called.'), $func) . "<br />";
+			$o .= t('There was no additional update function %s that needed to be called.', $func) . "<br />";
 			Config::set('database', $func, 'success');
 		}
 		return $o;
@@ -1503,7 +1503,7 @@ function admin_page_users_post(App $a)
 		notification(array(
 			'type' => SYSTEM_EMAIL,
 			'to_email' => $user['email'],
-			'subject' => sprintf(t('Registration details for %s'), $a->config['sitename']),
+			'subject' => t('Registration details for %s', $a->config['sitename']),
 			'preamble' => $preamble,
 			'body' => $body));
 	}
@@ -1513,13 +1513,13 @@ function admin_page_users_post(App $a)
 			q("UPDATE `user` SET `blocked` = 1-`blocked` WHERE `uid` = %s", intval($uid)
 			);
 		}
-		notice(sprintf(tt("%s user blocked/unblocked", "%s users blocked/unblocked", count($users)), count($users)));
+		notice(tt("%s user blocked/unblocked", "%s users blocked/unblocked", count($users)));
 	}
 	if (x($_POST, 'page_users_delete')) {
 		foreach ($users as $uid) {
 			User::remove($uid);
 		}
-		notice(sprintf(tt("%s user deleted", "%s users deleted", count($users)), count($users)));
+		notice(tt("%s user deleted", "%s users deleted", count($users)));
 	}
 
 	if (x($_POST, 'page_users_approve')) {
@@ -1566,11 +1566,13 @@ function admin_page_users(App $a)
 				// delete user
 				User::remove($uid);
 
-				notice(sprintf(t("User '%s' deleted"), $user[0]['username']) . EOL);
+				notice(t("User '%s' deleted", $user[0]['username']) . EOL);
 				break;
 			case "block":
 				check_form_security_token_redirectOnErr('/admin/users', 'admin_users', 't');
-				q("UPDATE `user` SET `blocked` = %d WHERE `uid` = %s", intval(1 - $user[0]['blocked']), intval($uid)
+				q("UPDATE `user` SET `blocked` = %d WHERE `uid` = %s",
+					intval(1 - $user[0]['blocked']),
+					intval($uid)
 				);
 				notice(sprintf(($user[0]['blocked'] ? t("User '%s' unblocked") : t("User '%s' blocked")), $user[0]['username']) . EOL);
 				break;
@@ -1758,11 +1760,11 @@ function admin_page_plugins(App $a)
 			if ($idx !== false) {
 				unset($a->plugins[$idx]);
 				uninstall_plugin($plugin);
-				info(sprintf(t("Plugin %s disabled."), $plugin));
+				info(t("Plugin %s disabled.", $plugin));
 			} else {
 				$a->plugins[] = $plugin;
 				install_plugin($plugin);
-				info(sprintf(t("Plugin %s enabled."), $plugin));
+				info(t("Plugin %s enabled.", $plugin));
 			}
 			Config::set("system", "addon", implode(", ", $a->plugins));
 			goaway('admin/plugins');
@@ -1865,7 +1867,7 @@ function admin_page_plugins(App $a)
 		'$function' => 'plugins',
 		'$plugins' => $plugins,
 		'$pcount' => count($plugins),
-		'$noplugshint' => sprintf(t('There are currently no plugins available on your node. You can find the official plugin repository at %1$s and might find other interesting plugins in the open plugin registry at %2$s'), 'https://github.com/friendica/friendica-addons', 'http://addons.friendi.ca'),
+		'$noplugshint' => t('There are currently no plugins available on your node. You can find the official plugin repository at %1$s and might find other interesting plugins in the open plugin registry at %2$s', 'https://github.com/friendica/friendica-addons', 'http://addons.friendi.ca'),
 		'$form_security_token' => get_form_security_token("admin_themes"),
 	));
 }
@@ -2121,7 +2123,7 @@ function admin_page_themes(App $a)
 		'$function'            => 'themes',
 		'$plugins'             => $plugins,
 		'$pcount'              => count($themes),
-		'$noplugshint'         => sprintf(t('No themes found on the system. They should be paced in %1$s'),'<code>/view/themes</code>'),
+		'$noplugshint'         => t('No themes found on the system. They should be paced in %1$s', '<code>/view/themes</code>'),
 		'$experimental'        => t('[Experimental]'),
 		'$unsupported'         => t('[Unsupported]'),
 		'$form_security_token' => get_form_security_token("admin_themes"),
@@ -2326,7 +2328,7 @@ function admin_page_features(App $a)
 				$set = Config::get('feature', $f[0], $f[3]);
 				$arr[$fname][1][] = array(
 					array('feature_' . $f[0], $f[1], $set, $f[2], array(t('Off'), t('On'))),
-					array('featurelock_' . $f[0], sprintf(t('Lock feature %s'), $f[1]), (($f[4] !== false) ? "1" : ''), '', array(t('Off'), t('On')))
+					array('featurelock_' . $f[0], t('Lock feature %s', $f[1]), (($f[4] !== false) ? "1" : ''), '', array(t('Off'), t('On')))
 				);
 			}
 		}
