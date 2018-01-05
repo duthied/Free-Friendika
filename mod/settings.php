@@ -14,7 +14,8 @@ use Friendica\Model\Group;
 use Friendica\Model\User;
 use Friendica\Protocol\Email;
 
-function get_theme_config_file($theme) {
+function get_theme_config_file($theme)
+{
 	$a = get_app();
 	$base_theme = $a->theme_info['extends'];
 
@@ -27,8 +28,8 @@ function get_theme_config_file($theme) {
 	return null;
 }
 
-function settings_init(App $a) {
-
+function settings_init(App $a)
+{
 	if (!local_user()) {
 		notice(t('Permission denied.') . EOL);
 		return;
@@ -36,12 +37,10 @@ function settings_init(App $a) {
 
 	// These lines provide the javascript needed by the acl selector
 
-	$tpl = get_markup_template("settings-head.tpl");
+	$tpl = get_markup_template('settings/head.tpl');
 	$a->page['htmlhead'] .= replace_macros($tpl,array(
 		'$ispublic' => t('everybody')
 	));
-
-
 
 	$tabs = array(
 		array(
@@ -120,9 +119,8 @@ function settings_init(App $a) {
 
 }
 
-
-function settings_post(App $a) {
-
+function settings_post(App $a)
+{
 	if (!local_user()) {
 		return;
 	}
@@ -150,20 +148,19 @@ function settings_post(App $a) {
 	}
 
 	if (($a->argc > 2) && ($a->argv[1] === 'oauth')  && ($a->argv[2] === 'edit'||($a->argv[2] === 'add')) && x($_POST, 'submit')) {
-
 		check_form_security_token_redirectOnErr('/settings/oauth', 'settings_oauth');
 
-		$name   	= ((x($_POST, 'name')) ? $_POST['name'] : '');
-		$key		= ((x($_POST, 'key')) ? $_POST['key'] : '');
-		$secret		= ((x($_POST, 'secret')) ? $_POST['secret'] : '');
-		$redirect	= ((x($_POST, 'redirect')) ? $_POST['redirect'] : '');
-		$icon		= ((x($_POST, 'icon')) ? $_POST['icon'] : '');
-		if ($name=="" || $key=="" || $secret=="") {
-			notice(t("Missing some important data!"));
+		$name     = defaults($_POST, 'name'    , '');
+		$key      = defaults($_POST, 'key'     , '');
+		$secret   = defaults($_POST, 'secret'  , '');
+		$redirect = defaults($_POST, 'redirect', '');
+		$icon     = defaults($_POST, 'icon'    , '');
 
+		if ($name == "" || $key == "" || $secret == "") {
+			notice(t("Missing some important data!"));
 		} else {
 			if ($_POST['submit']==t("Update")) {
-				$r = q("UPDATE clients SET
+				q("UPDATE clients SET
 							client_id='%s',
 							pw='%s',
 							name='%s',
@@ -179,7 +176,7 @@ function settings_post(App $a) {
 						local_user(),
 						dbesc($key));
 			} else {
-				$r = q("INSERT INTO clients
+				q("INSERT INTO clients
 							(client_id, pw, name, redirect_uri, icon, uid)
 						VALUES ('%s', '%s', '%s', '%s', '%s',%d)",
 						dbesc($key),
@@ -342,8 +339,8 @@ function settings_post(App $a) {
 
 		if ($theme == $a->user['theme']) {
 			// call theme_post only if theme has not been changed
-			if (($themeconfigfile = get_theme_config_file($theme)) != null) {
-				require_once($themeconfigfile);
+			if (($themeconfigfile = get_theme_config_file($theme)) !== null) {
+				require_once $themeconfigfile;
 				theme_post($a);
 			}
 		}
@@ -395,7 +392,7 @@ function settings_post(App $a) {
 				dbesc($password),
 				intval(local_user())
 			);
-			if ($r) {
+			if (DBM::is_result($r)) {
 				info(t('Password changed.') . EOL);
 			} else {
 				notice(t('Password update failed. Please try again.') . EOL);
@@ -535,9 +532,8 @@ function settings_post(App $a) {
 	//$openid = normalise_openid($openid);
 
 	// If openid has changed or if there's an openid but no openidserver, try and discover it.
-
 	if ($openid != $a->user['openid'] || (strlen($openid) && (!strlen($openidserver)))) {
-		if (strlen($tmp_str) && validate_url($openid)) {
+		if (validate_url($openid)) {
 			logger('updating openidserver');
 			require_once 'library/openid.php';
 			$open_id_obj = new LightOpenID;
@@ -608,7 +604,7 @@ function settings_post(App $a) {
 			dbesc($language),
 			intval(local_user())
 	);
-	if ($r) {
+	if (DBM::is_result($r)) {
 		info(t('Settings updated.') . EOL);
 	}
 
@@ -650,21 +646,13 @@ function settings_post(App $a) {
 	// Update the global contact for the user
 	GContact::updateForUser(local_user());
 
-	//$_SESSION['theme'] = $theme;
-	if ($email_changed && $a->config['register_policy'] == REGISTER_VERIFY) {
-
-		/// @TODO set to un-verified, blocked and redirect to logout
-		/// @TODO Why? Are we verifying people or email addresses?
-
-	}
-
 	goaway('settings');
 	return; // NOTREACHED
 }
 
 
-function settings_content(App $a) {
-
+function settings_content(App $a)
+{
 	$o = '';
 	nav_set_selected('settings');
 
@@ -678,12 +666,9 @@ function settings_content(App $a) {
 		return;
 	}
 
-
-
 	if (($a->argc > 1) && ($a->argv[1] === 'oauth')) {
-
 		if (($a->argc > 2) && ($a->argv[2] === 'add')) {
-			$tpl = get_markup_template("settings_oauth_edit.tpl");
+			$tpl = get_markup_template('settings/oauth_edit.tpl');
 			$o .= replace_macros($tpl, array(
 				'$form_security_token' => get_form_security_token("settings_oauth"),
 				'$title'	=> t('Add application'),
@@ -709,7 +694,7 @@ function settings_content(App $a) {
 			}
 			$app = $r[0];
 
-			$tpl = get_markup_template("settings_oauth_edit.tpl");
+			$tpl = get_markup_template('settings/oauth_edit.tpl');
 			$o .= replace_macros($tpl, array(
 				'$form_security_token' => get_form_security_token("settings_oauth"),
 				'$title'	=> t('Add application'),
@@ -727,7 +712,7 @@ function settings_content(App $a) {
 		if (($a->argc > 3) && ($a->argv[2] === 'delete')) {
 			check_form_security_token_redirectOnErr('/settings/oauth', 'settings_oauth', 't');
 
-			$r = q("DELETE FROM clients WHERE client_id='%s' AND uid=%d",
+			q("DELETE FROM clients WHERE client_id='%s' AND uid=%d",
 					dbesc($a->argv[3]),
 					local_user());
 			goaway(System::baseUrl(true)."/settings/oauth/");
@@ -743,7 +728,7 @@ function settings_content(App $a) {
 				local_user());
 
 
-		$tpl = get_markup_template("settings_oauth.tpl");
+		$tpl = get_markup_template('settings/oauth.tpl');
 		$o .= replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("settings_oauth"),
 			'$baseurl'	=> System::baseUrl(true),
@@ -757,7 +742,6 @@ function settings_content(App $a) {
 			'$apps'		=> $r,
 		));
 		return $o;
-
 	}
 
 	if (($a->argc > 1) && ($a->argv[1] === 'addon')) {
@@ -771,7 +755,7 @@ function settings_content(App $a) {
 		call_hooks('plugin_settings', $settings_addons);
 
 
-		$tpl = get_markup_template("settings_addons.tpl");
+		$tpl = get_markup_template('settings/addons.tpl');
 		$o .= replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("settings_addon"),
 			'$title'	=> t('Plugin Settings'),
@@ -792,8 +776,7 @@ function settings_content(App $a) {
 			}
 		}
 
-
-		$tpl = get_markup_template("settings_features.tpl");
+		$tpl = get_markup_template('settings/features.tpl');
 		$o .= replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("settings_features"),
 			'$title'               => t('Additional Features'),
@@ -804,58 +787,22 @@ function settings_content(App $a) {
 	}
 
 	if (($a->argc > 1) && ($a->argv[1] === 'connectors')) {
+		$no_intelligent_shortening = intval(PConfig::get(local_user(), 'system', 'no_intelligent_shortening'));
+		$ostatus_autofriend        = intval(PConfig::get(local_user(), 'system', 'ostatus_autofriend'));
+		$default_group             = PConfig::get(local_user(), 'ostatus', 'default_group');
+		$legacy_contact            = PConfig::get(local_user(), 'ostatus', 'legacy_contact');
 
-		$settings_connectors = '<span id="settings_general_inflated" class="settings-block fakelink" style="display: block;" onclick="openClose(\'settings_general_expanded\'); openClose(\'settings_general_inflated\');">';
-		$settings_connectors .= '<h3 class="connector">'. t('General Social Media Settings').'</h3>';
-		$settings_connectors .= '</span>';
-		$settings_connectors .= '<div id="settings_general_expanded" class="settings-block" style="display: none;">';
-		$settings_connectors .= '<span class="fakelink" onclick="openClose(\'settings_general_expanded\'); openClose(\'settings_general_inflated\');">';
-		$settings_connectors .= '<h3 class="connector">'. t('General Social Media Settings').'</h3>';
-		$settings_connectors .= '</span>';
-
-		$checked = ((PConfig::get(local_user(), 'system', 'no_intelligent_shortening')) ? ' checked="checked" ' : '');
-
-		$settings_connectors .= '<div id="no_intelligent_shortening" class="field checkbox">';
-		$settings_connectors .= '<label id="no_intelligent_shortening-label" for="shortening-checkbox">'. t('Disable intelligent shortening'). '</label>';
-		$settings_connectors .= '<input id="shortening-checkbox" type="checkbox" name="no_intelligent_shortening" value="1" ' . $checked . '/>';
-		$settings_connectors .= '<span class="field_help">'.t('Normally the system tries to find the best link to add to shortened posts. If this option is enabled then every shortened post will always point to the original friendica post.').'</span>';
-		$settings_connectors .= '</div>';
-
-		$checked = ((PConfig::get(local_user(), 'system', 'ostatus_autofriend')) ? ' checked="checked" ' : '');
-
-		$settings_connectors .= '<div id="snautofollow-wrapper" class="field checkbox">';
-		$settings_connectors .= '<label id="snautofollow-label" for="snautofollow-checkbox">'. t('Automatically follow any GNU Social (OStatus) followers/mentioners'). '</label>';
-		$settings_connectors .= '<input id="snautofollow-checkbox" type="checkbox" name="snautofollow" value="1" ' . $checked . '/>';
-		$settings_connectors .= '<span class="field_help">'.t('If you receive a message from an unknown OStatus user, this option decides what to do. If it is checked, a new contact will be created for every unknown user.').'</span>';
-		$settings_connectors .= '</div>';
-
-		$default_group = PConfig::get(local_user(), 'ostatus', 'default_group');
-		$legacy_contact = PConfig::get(local_user(), 'ostatus', 'legacy_contact');
-
-		$settings_connectors .= Group::displayGroupSelection(local_user(), $default_group, t("Default group for OStatus contacts"));
-
-		/// @TODO Found to much different usage to test empty/non-empty strings (e.g. empty(), trim() == '') which is wanted?
-		if ($legacy_contact != "") {
-			$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL='.System::baseUrl().'/ostatus_subscribe?url='.urlencode($legacy_contact).'">';
+		if (x($legacy_contact)) {
+			/// @todo Isn't it supposed to be a goaway() call?
+			$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . System::baseUrl().'/ostatus_subscribe?url=' . urlencode($legacy_contact) . '">';
 		}
 
-		$settings_connectors .= '<div id="legacy-contact-wrapper" class="field input">';
-		$settings_connectors .= '<label id="legacy-contact-label" for="snautofollow-checkbox">'. t('Your legacy GNU Social account'). '</label>';
-		$settings_connectors .= '<input id="legacy-contact-checkbox" name="legacy_contact" value="'.$legacy_contact.'"/>';
-		$settings_connectors .= '<span class="field_help">'.t('If you enter your old GNU Social/Statusnet account name here (in the format user@domain.tld), your contacts will be added automatically. The field will be emptied when done.').'</span>';
-		$settings_connectors .= '</div>';
-
-		$settings_connectors .= '<p><a href="'.System::baseUrl().'/repair_ostatus">'.t("Repair OStatus subscriptions").'</a></p>';
-
-		$settings_connectors .= '<div class="settings-submit-wrapper" ><input type="submit" name="general-submit" class="settings-submit" value="' . t('Save Settings') . '" /></div>';
-
-		$settings_connectors .= '</div><div class="clear"></div>';
-
+		$settings_connectors = '';
 		call_hooks('connector_settings', $settings_connectors);
 
 		if (is_site_admin()) {
-			$diasp_enabled = sprintf(t('Built-in support for %s connectivity is %s'), t('Diaspora'), ((Config::get('system', 'diaspora_enabled')) ? t('enabled') : t('disabled')));
-			$ostat_enabled = sprintf(t('Built-in support for %s connectivity is %s'), t('GNU Social (OStatus)'), ((Config::get('system', 'ostatus_disabled')) ? t('disabled') : t('enabled')));
+			$diasp_enabled = t('Built-in support for %s connectivity is %s', t('Diaspora'), ((Config::get('system', 'diaspora_enabled')) ? t('enabled') : t('disabled')));
+			$ostat_enabled = t('Built-in support for %s connectivity is %s', t('GNU Social (OStatus)'), ((Config::get('system', 'ostatus_disabled')) ? t('disabled') : t('enabled')));
 		} else {
 			$diasp_enabled = "";
 			$ostat_enabled = "";
@@ -884,7 +831,7 @@ function settings_content(App $a) {
 		$mail_chk          = ((DBM::is_result($r)) ? $r[0]['last_check'] : NULL_DATE);
 
 
-		$tpl = get_markup_template("settings_connectors.tpl");
+		$tpl = get_markup_template('settings/connectors.tpl');
 
 		$mail_disabled_message = (($mail_disabled) ? t('Email access is disabled on this site.') : '');
 
@@ -895,6 +842,17 @@ function settings_content(App $a) {
 
 			'$diasp_enabled' => $diasp_enabled,
 			'$ostat_enabled' => $ostat_enabled,
+
+			'$general_settings' => t('General Social Media Settings'),
+			'$no_intelligent_shortening' => array('no_intelligent_shortening', t('Disable intelligent shortening'), $no_intelligent_shortening, t('Normally the system tries to find the best link to add to shortened posts. If this option is enabled then every shortened post will always point to the original friendica post.')),
+			'$ostatus_autofriend' => array('snautofollow', t('Automatically follow any GNU Social (OStatus) followers/mentioners'), $ostatus_autofriend, t('If you receive a message from an unknown OStatus user, this option decides what to do. If it is checked, a new contact will be created for every unknown user.')),
+			'$default_group' => Group::displayGroupSelection(local_user(), $default_group, t("Default group for OStatus contacts")),
+			'$legacy_contact' => array('legacy_contact', t('Your legacy GNU Social account'), $legacy_contact, t('If you enter your old GNU Social/Statusnet account name here (in the format user@domain.tld), your contacts will be added automatically. The field will be emptied when done.')),
+
+			'$repair_ostatus_url' => System::baseUrl() . '/repair_ostatus',
+			'$repair_ostatus_text' => t('Repair OStatus subscriptions'),
+
+			'$settings_connectors' => $settings_connectors,
 
 			'$h_imap' => t('Email/Mailbox Setup'),
 			'$imap_desc' => t("If you wish to communicate with email contacts using this service \x28optional\x29, please specify how to connect to your mailbox."),
@@ -910,8 +868,6 @@ function settings_content(App $a) {
 			'$mail_action'	=> array('mail_action',	 t('Action after import:'), $mail_action, '', array(0=>t('None'), /*1=>t('Delete'),*/ 2=>t('Mark as seen'), 3=>t('Move to folder'))),
 			'$mail_movetofolder'	=> array('mail_movetofolder',	 t('Move to folder:'), $mail_movetofolder, ''),
 			'$submit' => t('Save Settings'),
-
-			'$settings_connectors' => $settings_connectors
 		));
 
 		call_hooks('display_settings', $o);
@@ -927,8 +883,8 @@ function settings_content(App $a) {
 			$default_theme = 'default';
 		}
 		$default_mobile_theme = Config::get('system', 'mobile-theme');
-		if (!$mobile_default_theme) {
-			$mobile_default_theme = 'none';
+		if (!$default_mobile_theme) {
+			$default_mobile_theme = 'none';
 		}
 
 		$allowed_themes_str = Config::get('system', 'allowed_themes');
@@ -945,25 +901,28 @@ function settings_content(App $a) {
 
 		$themes = array();
 		$mobile_themes = array("---" => t('No special theme for mobile devices'));
-		$files = glob('view/theme/*'); /* */
 		if ($allowed_themes) {
-			foreach ($allowed_themes as $th) {
-				$f = $th;
-				$is_experimental = file_exists('view/theme/' . $th . '/experimental');
-				$unsupported = file_exists('view/theme/' . $th . '/unsupported');
-				$is_mobile = file_exists('view/theme/' . $th . '/mobile');
+			foreach ($allowed_themes as $theme) {
+				$is_experimental = file_exists('view/theme/' . $theme . '/experimental');
+				$is_unsupported  = file_exists('view/theme/' . $theme . '/unsupported');
+				$is_mobile       = file_exists('view/theme/' . $theme . '/mobile');
 				if (!$is_experimental || ($is_experimental && (Config::get('experimentals', 'exp_themes')==1 || is_null(Config::get('experimentals', 'exp_themes'))))) {
-					$theme_name = (($is_experimental) ?  sprintf("%s - \x28Experimental\x29", $f) : $f);
+					$theme_name = ucfirst($theme);
+					if ($is_unsupported) {
+						$theme_name = t("%s - (Unsupported)", $theme_name);
+					} elseif ($is_experimental) {
+						$theme_name = t("%s - (Experimental)", $theme_name);
+					}
 					if ($is_mobile) {
-						$mobile_themes[$f]=$theme_name;
+						$mobile_themes[$theme] = $theme_name;
 					} else {
-						$themes[$f]=$theme_name;
+						$themes[$theme] = $theme_name;
 					}
 				}
 			}
 		}
-		$theme_selected = (!x($_SESSION, 'theme')? $default_theme : $_SESSION['theme']);
-		$mobile_theme_selected = (!x($_SESSION, 'mobile-theme')? $default_mobile_theme : $_SESSION['mobile-theme']);
+		$theme_selected        = defaults($_SESSION, 'theme'       , $default_theme);
+		$mobile_theme_selected = defaults($_SESSION, 'mobile-theme', $default_mobile_theme);
 
 		$nowarn_insecure = intval(PConfig::get(local_user(), 'system', 'nowarn_insecure'));
 
@@ -988,12 +947,12 @@ function settings_content(App $a) {
 		$smart_threading = PConfig::get(local_user(), 'system', 'smart_threading', 0);
 
 		$theme_config = "";
-		if (($themeconfigfile = get_theme_config_file($theme_selected)) != null) {
-			require_once($themeconfigfile);
+		if (($themeconfigfile = get_theme_config_file($theme_selected)) !== null) {
+			require_once $themeconfigfile;
 			$theme_config = theme_content($a);
 		}
 
-		$tpl = get_markup_template("settings_display.tpl");
+		$tpl = get_markup_template('settings/display.tpl');
 		$o = replace_macros($tpl, array(
 			'$ptitle' 	=> t('Display Settings'),
 			'$form_security_token' => get_form_security_token("settings_display"),
@@ -1023,7 +982,7 @@ function settings_content(App $a) {
 			'$theme_config' => $theme_config,
 		));
 
-		$tpl = get_markup_template("settings_display_end.tpl");
+		$tpl = get_markup_template('settings/display_end.tpl');
 		$a->page['end'] .= replace_macros($tpl, array(
 			'$theme'	=> array('theme', t('Display Theme:'), $theme_selected, '', $themes)
 		));
@@ -1038,11 +997,10 @@ function settings_content(App $a) {
 
 	require_once('include/acl_selectors.php');
 
-	$p = q("SELECT * FROM `profile` WHERE `is-default` = 1 AND `uid` = %d LIMIT 1",
-		intval(local_user())
-	);
-	if (count($p)) {
-		$profile = $p[0];
+	$profile = dba::select('profile', [], ['is-default' => true, 'uid' => local_user()], ['limit' => 1]);
+	if (!DBM::is_result($profile)) {
+		notice(t('Unable to find your profile. Please contact your admin.') . EOL);
+		return;
 	}
 
 	$username   = $a->user['username'];
@@ -1055,8 +1013,6 @@ function settings_content(App $a) {
 	$openid     = $a->user['openid'];
 	$maxreq     = $a->user['maxreq'];
 	$expire     = ((intval($a->user['expire'])) ? $a->user['expire'] : '');
-	$blockwall  = $a->user['blockwall'];
-	$blocktags  = $a->user['blocktags'];
 	$unkmail    = $a->user['unkmail'];
 	$cntunkmail = $a->user['cntunkmail'];
 
@@ -1082,7 +1038,7 @@ function settings_content(App $a) {
 		($a->user['account-type'] != ACCOUNT_TYPE_COMMUNITY))
 		$a->user['account-type'] = ACCOUNT_TYPE_COMMUNITY;
 
-	$pageset_tpl = get_markup_template('settings_pagetypes.tpl');
+	$pageset_tpl = get_markup_template('settings/pagetypes.tpl');
 
 	$pagetype = replace_macros($pageset_tpl, array(
 		'$account_types'	=> t("Account Types"),
@@ -1158,52 +1114,42 @@ function settings_content(App $a) {
 		$profile_in_net_dir = '';
 	}
 
-	$hide_friends = replace_macros($opt_tpl,array(
-			'$field' 	=> array('hide-friends', t('Hide your contact/friend list from viewers of your default profile?'), $profile['hide-friends'], '', array(t('No'), t('Yes'))),
+	$hide_friends = replace_macros($opt_tpl, array(
+		'$field' => array('hide-friends', t('Hide your contact/friend list from viewers of your default profile?'), $profile['hide-friends'], '', array(t('No'), t('Yes'))),
 	));
 
-	$hide_wall = replace_macros($opt_tpl,array(
-			'$field' 	=> array('hidewall',  t('Hide your profile details from unknown viewers?'), $a->user['hidewall'], t("If enabled, posting public messages to Diaspora and other networks isn't possible."), array(t('No'), t('Yes'))),
-
+	$hide_wall = replace_macros($opt_tpl, array(
+		'$field' => array('hidewall', t('Hide your profile details from unknown viewers?'), $a->user['hidewall'], t("If enabled, posting public messages to Diaspora and other networks isn't possible."), array(t('No'), t('Yes'))),
 	));
 
-	$blockwall = replace_macros($opt_tpl,array(
-			'$field' 	=> array('blockwall',  t('Allow friends to post to your profile page?'), (intval($a->user['blockwall']) ? '0' : '1'), '', array(t('No'), t('Yes'))),
-
+	$blockwall = replace_macros($opt_tpl, array(
+		'$field' => array('blockwall', t('Allow friends to post to your profile page?'), (intval($a->user['blockwall']) ? '0' : '1'), '', array(t('No'), t('Yes'))),
 	));
 
-	$blocktags = replace_macros($opt_tpl,array(
-			'$field' 	=> array('blocktags',  t('Allow friends to tag your posts?'), (intval($a->user['blocktags']) ? '0' : '1'), '', array(t('No'), t('Yes'))),
-
+	$blocktags = replace_macros($opt_tpl, array(
+		'$field' => array('blocktags', t('Allow friends to tag your posts?'), (intval($a->user['blocktags']) ? '0' : '1'), '', array(t('No'), t('Yes'))),
 	));
 
-	$suggestme = replace_macros($opt_tpl,array(
-			'$field' 	=> array('suggestme',  t('Allow us to suggest you as a potential friend to new members?'), $suggestme, '', array(t('No'), t('Yes'))),
-
+	$suggestme = replace_macros($opt_tpl, array(
+		'$field' => array('suggestme', t('Allow us to suggest you as a potential friend to new members?'), $suggestme, '', array(t('No'), t('Yes'))),
 	));
 
-	$unkmail = replace_macros($opt_tpl,array(
-			'$field' 	=> array('unkmail',  t('Permit unknown people to send you private mail?'), $unkmail, '', array(t('No'), t('Yes'))),
-
+	$unkmail = replace_macros($opt_tpl, array(
+		'$field' => array('unkmail', t('Permit unknown people to send you private mail?'), $unkmail, '', array(t('No'), t('Yes'))),
 	));
 
-	$invisible = (((!$profile['publish']) && (!$profile['net-publish']))
-		? true : false);
-
-	if ($invisible) {
+	if (!$profile['publish'] && !$profile['net-publish']) {
 		info(t('Profile is <strong>not published</strong>.') . EOL);
 	}
 
-	//$subdir = ((strlen($a->get_path())) ? '<br />' . t('or') . ' ' . 'profile/' . $nickname : '');
-
-	$tpl_addr = get_markup_template("settings_nick_set.tpl");
+	$tpl_addr = get_markup_template('settings/nick_set.tpl');
 
 	$prof_addr = replace_macros($tpl_addr,array(
-		'$desc' => sprintf(t("Your Identity Address is <strong>'%s'</strong> or '%s'."), $nickname.'@'.$a->get_hostname().$a->get_path(), System::baseUrl().'/profile/'.$nickname),
+		'$desc' => t("Your Identity Address is <strong>'%s'</strong> or '%s'.", $nickname . '@' . $a->get_hostname() . $a->get_path(), System::baseUrl() . '/profile/' . $nickname),
 		'$basepath' => $a->get_hostname()
 	));
 
-	$stpl = get_markup_template('settings.tpl');
+	$stpl = get_markup_template('settings/settings.tpl');
 
 	$expire_arr = array(
 		'days' => array('expire',  t("Automatically expire posts after this many days:"), $expire, t('If empty, posts will not expire. Expired posts will be deleted')),
