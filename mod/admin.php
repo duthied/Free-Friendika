@@ -2120,7 +2120,7 @@ function admin_page_themes(App $a)
 		'$function'            => 'themes',
 		'$plugins'             => $plugins,
 		'$pcount'              => count($themes),
-		'$noplugshint'         => t('No themes found on the system. They should be paced in %1$s', '<code>/view/themes</code>'),
+		'$noplugshint'         => t('No themes found on the system. They should be placed in %1$s', '<code>/view/themes</code>'),
 		'$experimental'        => t('[Experimental]'),
 		'$unsupported'         => t('[Unsupported]'),
 		'$form_security_token' => get_form_security_token("admin_themes"),
