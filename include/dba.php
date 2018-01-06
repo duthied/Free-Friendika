@@ -1303,7 +1303,7 @@ function dbesc($str) {
  * dba::delete, dba::update, dba::p, dba::e
  *
  * @param $args Query parameters (1 to N parameters of different types)
- * @return array Query array
+ * @return array|bool Query array
  */
 function q($sql) {
 	$args = func_get_args();
