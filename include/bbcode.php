@@ -76,7 +76,7 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 			$oembed = $bookmark[0];
 		}
 
-		if (strstr(strtolower($oembed), "<iframe ")) {
+		if (stripos($oembed, "<iframe ") !== false) {
 			$text = $oembed;
 		} else {
 			if (($data["image"] != "") && !strstr(strtolower($oembed), "<img ")) {
@@ -541,7 +541,7 @@ function bb_ShareAttributes($share, $simplehtml)
 				$text .= "<hr />";
 			}
 
-			if (substr(normalise_link($link), 0, 19) != "http://twitter.com/") {
+			if (stripos(normalise_link($link), 'http://twitter.com/') === 0) {
 				$text .= $headline . '<blockquote>' . trim($share[3]) . "</blockquote><br />";
 
 				if ($link != "") {
@@ -586,20 +586,26 @@ function bb_ShareAttributes($share, $simplehtml)
 			}
 			break;
 		default:
-			$text = trim($share[1]) . "\n";
+			// Transforms quoted tweets in rich attachments to avoid nested tweetsx
+			if (stripos(normalise_link($link), 'http://twitter.com/') === 0) {
+				$bookmark = array(sprintf('[bookmark=%s]%s[/bookmark]', $link, $preshare), $link, $preshare);
+				$text = $preshare . tryoembed($bookmark);
+			} else {
+				$text = trim($share[1]) . "\n";
 
-			$avatar = proxy_url($avatar, false, PROXY_SIZE_THUMB);
+				$avatar = proxy_url($avatar, false, PROXY_SIZE_THUMB);
 
-			$tpl = get_markup_template('shared_content.tpl');
-			$text .= replace_macros($tpl, array(
-					'$profile' => $profile,
-					'$avatar' => $avatar,
-					'$author' => $author,
-					'$link' => $link,
-					'$posted' => $posted,
-					'$content' => trim($share[3])
-				)
-			);
+				$tpl = get_markup_template('shared_content.tpl');
+				$text .= replace_macros($tpl, array(
+						'$profile' => $profile,
+						'$avatar' => $avatar,
+						'$author' => $author,
+						'$link' => $link,
+						'$posted' => $posted,
+						'$content' => trim($share[3])
+					)
+				);
+			}
 			break;
 	}
 
