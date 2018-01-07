@@ -67,7 +67,7 @@ class Thread extends BaseObject
 				$this->writable = can_write_wall($this->profile_owner) || $writable;
 				break;
 			case 'community':
-				$this->profile_owner = local_user();
+				$this->profile_owner = 0;
 				$this->writable = $writable;
 				break;
 			default:

@@ -190,14 +190,14 @@ function community_getitems($start, $itemspage, $content)
 			item_joins() . " AND `contact`.`self`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
 			AND NOT `thread`.`private` AND `thread`.`wall`
-			ORDER BY `thread`.`received` DESC LIMIT " . intval($start) . ", " . intval($itemspage)
+			ORDER BY `thread`.`commented` DESC LIMIT " . intval($start) . ", " . intval($itemspage)
 		);
 		return dba::inArray($r);
 	} elseif ($content == 'global') {
 		$r = dba::p("SELECT " . item_fieldlists() . " FROM `thread`
 			INNER JOIN `item` ON `item`.`id` = `thread`.`iid` " . item_joins() .
 				"WHERE `thread`.`uid` = 0 AND `verb` = ?
-			ORDER BY `thread`.`created` DESC LIMIT " . intval($start) . ", " . intval($itemspage),
+			ORDER BY `thread`.`commented` DESC LIMIT " . intval($start) . ", " . intval($itemspage),
 			ACTIVITY_POST
 		);
 		return dba::inArray($r);
