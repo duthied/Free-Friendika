@@ -1203,7 +1203,7 @@ function put_item_in_cache(&$item, $update = false)
 {
 	$rendered_hash = defaults($item, 'rendered-hash', '');
 
-	if ($rendered_hash == ''
+	if (true || $rendered_hash == ''
 		|| $item["rendered-html"] == ""
 		|| $rendered_hash != hash("md5", $item["body"])
 		|| Config::get("system", "ignore_cache")
