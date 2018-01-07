@@ -740,9 +740,12 @@ function networkThreadedView(App $a, $update = 0) {
 
 	$pager_sql = networkPager($a, $update);
 
+	$last_date = '';
+
 	switch ($order_mode) {
 		case 'received':
 			if ($last_received != '') {
+				$last_date = $last_received;
 				$sql_extra3 .= sprintf(" AND $sql_table.`received` < '%s'", dbesc($last_received));
 				$a->set_pager_page(1);
 				$pager_sql = sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
@@ -750,6 +753,7 @@ function networkThreadedView(App $a, $update = 0) {
 			break;
 		case 'commented':
 			if ($last_commented != '') {
+				$last_date = $last_commented;
 				$sql_extra3 .= sprintf(" AND $sql_table.`commented` < '%s'", dbesc($last_commented));
 				$a->set_pager_page(1);
 				$pager_sql = sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
@@ -757,6 +761,7 @@ function networkThreadedView(App $a, $update = 0) {
 			break;
 		case 'created':
 			if ($last_created != '') {
+				$last_date = $last_created;
 				$sql_extra3 .= sprintf(" AND $sql_table.`created` < '%s'", dbesc($last_created));
 				$a->set_pager_page(1);
 				$pager_sql = sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
@@ -778,8 +783,7 @@ function networkThreadedView(App $a, $update = 0) {
 		} else {
 			$sql_extra4 = "";
 		}
-
-		$r = q("SELECT `item`.`parent` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
+		$r = q("SELECT `item`.`parent` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`, $sql_order AS `order_date`
 			FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 			WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted` $sql_extra4
@@ -789,7 +793,7 @@ function networkThreadedView(App $a, $update = 0) {
 			intval(local_user())
 		);
 	} else {
-		$r = q("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
+		$r = q("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`, $sql_order AS `order_date`
 			FROM $sql_table $sql_post_table STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
 			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 			WHERE `thread`.`uid` = %d AND `thread`.`visible` AND NOT `thread`.`deleted`
@@ -798,6 +802,31 @@ function networkThreadedView(App $a, $update = 0) {
 			ORDER BY $sql_order DESC $pager_sql",
 			intval(local_user())
 		);
+	}
+
+	if (count($r) > 0) {
+		$top_limit = current($r)['order_date'];
+		$bottom_limit = end($r)['order_date'];
+
+		if ($last_date > $top_limit) {
+			$top_limit = $last_date;
+		}
+
+		$items = dba::p("SELECT `item`.`id` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid` FROM `item`
+			INNER JOIN (SELECT `oid` FROM `term` WHERE `term` IN
+				(SELECT SUBSTR(`term`, 2) FROM `search` WHERE `uid` = ? AND `term` LIKE '#%') AND `otype` = ? AND `type` = ? AND `uid` = 0) AS `term`
+			ON `item`.`id` = `term`.`oid`
+			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+			WHERE `item`.`uid` = 0 AND `item`.$ordering < ? AND `item`.$ordering > ?",
+			local_user(), TERM_OBJ_POST, TERM_HASHTAG, $top_limit, $bottom_limit);
+		$data = dba::inArray($items);
+
+		if (count($data) > 0) {
+			logger('Tagged items: '.count($data).' - '.$bottom_limit." - ".$top_limit.' - '.$last_date);
+
+			// ToDo: Doppelte URI rausfiltern
+			$r = array_merge($r, $data);
+		}
 	}
 
 	// Then fetch all the children of the parents that are on this page
@@ -825,10 +854,8 @@ function networkThreadedView(App $a, $update = 0) {
 		}
 
 		foreach ($parents_arr AS $parents) {
-			$thread_items = dba::p(item_query() . " AND `item`.`uid` = ?
-				AND `item`.`parent` = ?
+			$thread_items = dba::p(item_query() . " AND `item`.`parent` = ?
 				ORDER BY `item`.`commented` DESC LIMIT " . intval($max_comments + 1),
-				local_user(),
 				$parents
 			);
 
