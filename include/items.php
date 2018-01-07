@@ -1129,7 +1129,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		add_shadow_entry($current_post);
 	}
 
-	check_item_notification($current_post, $uid);
+	check_user_notification($current_post);
 
 	if ($notify) {
 		Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "Notifier", $notify_type, $current_post);

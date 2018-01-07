@@ -106,9 +106,8 @@ function notification($params)
 	}
 
 	if ($params['type'] == NOTIFY_COMMENT) {
-		$p = q("SELECT `ignored` FROM `thread` WHERE `iid` = %d AND `uid` = %d LIMIT 1",
-			intval($parent_id),
-			intval($params['uid'])
+		$p = q("SELECT `ignored` FROM `thread` WHERE `iid` = %d LIMIT 1",
+			intval($parent_id)
 		);
 		if ($p && count($p) && ($p[0]["ignored"])) {
 			logger("Thread ".$parent_id." will be ignored", LOGGER_DEBUG);
@@ -134,9 +133,8 @@ function notification($params)
 		$p = null;
 
 		if ($params['otype'] === 'item' && $parent_id) {
-			$p = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-				intval($parent_id),
-				intval($params['uid'])
+			$p = q("SELECT * FROM `item` WHERE `id` = %d LIMIT 1",
+				intval($parent_id)
 			);
 		}
 
@@ -649,6 +647,20 @@ function notification($params)
 }
 
 /**
+ * @brief Checks for users who should be notified
+ *
+ * @param int $itemid ID of the item for which the check should be done
+ */
+function check_user_notification($itemid) {
+	// fetch all users in the thread
+	$users = dba::p("SELECT DISTINCT(`uid`) FROM `item` WHERE `parent` IN (SELECT `parent` FROM `item` WHERE `id`=?) AND `uid` != 0", $itemid);
+	while ($user = dba::fetch($users)) {
+		check_item_notification($itemid, $user['uid']);
+	}
+	dba::close($users);
+}
+
+/**
  * @brief Checks for item related notifications and sends them
  *
  * @param int $itemid ID of the item for which the check should be done
@@ -735,9 +747,8 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 
 	if ($item[0]["parent-uri"] === $item[0]["uri"]) {
 		// Send a notification for every new post?
-		$r = q("SELECT `notify_new_posts` FROM `contact` WHERE `id` = %d AND `uid` = %d AND `notify_new_posts` LIMIT 1",
-			intval($item[0]['contact-id']),
-			intval($uid)
+		$r = q("SELECT `notify_new_posts` FROM `contact` WHERE `id` = %d AND `notify_new_posts` LIMIT 1",
+			intval($item[0]['contact-id'])
 		);
 		$send_notification = DBM::is_result($r);
 
@@ -776,10 +787,10 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 
 	// Is it a post that the user had started or where he interacted?
 	$parent = q("SELECT `thread`.`iid` FROM `thread` INNER JOIN `item` ON `item`.`parent` = `thread`.`iid`
-			WHERE `thread`.`iid` = %d AND `thread`.`uid` = %d AND NOT `thread`.`ignored` AND
+			WHERE `thread`.`iid` = %d AND NOT `thread`.`ignored` AND
 				(`thread`.`mention` OR `item`.`author-link` IN ($profile_list))
 			LIMIT 1",
-			intval($item[0]["parent"]), intval($uid));
+			intval($item[0]["parent"]));
 
 	if ($parent && !isset($params["type"])) {
 		$params["type"] = NOTIFY_COMMENT;
