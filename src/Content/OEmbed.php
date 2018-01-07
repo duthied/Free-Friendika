@@ -15,6 +15,7 @@ use dba;
 use DOMDocument;
 use DOMXPath;
 use DOMNode;
+use Exception;
 
 require_once 'include/dba.php';
 require_once 'mod/proxy.php';
@@ -303,6 +304,27 @@ class OEmbed
 		$allowed = explode(',', $str_allowed);
 
 		return allowed_domain($domain, $allowed, true);
+	}
+
+	public static function getHTML($url, $title = null)
+	{
+		// Always embed the SSL version
+		$url = str_replace(array("http://www.youtube.com/", "http://player.vimeo.com/"),
+					array("https://www.youtube.com/", "https://player.vimeo.com/"), $url);
+
+		$o = OEmbed::fetchURL($url);
+
+		if (!is_object($o) || $o->type == 'error') {
+			throw new Exception('OEmbed failed for URL: ' . $url);
+		}
+
+		if (x($title)) {
+			$o->title = $title;
+		}
+
+		$html = OEmbed::formatObject($o);
+
+		return $html;
 	}
 
 	/**
