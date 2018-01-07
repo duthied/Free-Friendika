@@ -40,8 +40,19 @@ function bb_map_location($match) {
 	return str_replace($match[0], '<div class="map"  >' . Map::byLocation($match[1]) . '</div>', $match[0]);
 }
 
-function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
-
+/**
+ * Processes [attachment] tags
+ *
+ * Note: Can produce a [bookmark] tag in the returned string
+ *
+ * @brief Processes [attachment] tags
+ * @param string $Text
+ * @param bool|int $simplehtml
+ * @param bool $tryoembed
+ * @return string
+ */
+function bb_attachment($Text, $simplehtml = false, $tryoembed = true)
+{
 	$data = get_attachment_data($Text);
 	if (!$data) {
 		return $Text;
@@ -52,10 +63,7 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 		$data["title"] = str_replace(array("http://", "https://"), "", $data["title"]);
 	}
 
-	if (((strpos($data["text"], "[img=") !== false)
-		|| (strpos($data["text"], "[img]") !== false)
-		|| Config::get('system', 'always_show_preview'))
-		&& ($data["image"] != "")) {
+	if (((strpos($data["text"], "[img=") !== false) || (strpos($data["text"], "[img]") !== false) || Config::get('system', 'always_show_preview')) && ($data["image"] != "")) {
 		$data["preview"] = $data["image"];
 		$data["image"] = "";
 	}
@@ -69,14 +77,16 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 			$text = sprintf('<span class="type-%s">', $data["type"]);
 		}
 
-		$bookmark = array(sprintf('[bookmark=%s]%s[/bookmark]', $data["url"], $data["title"]), $data["url"], $data["title"]);
+		$oembed = sprintf('[bookmark=%s]%s[/bookmark]', $data['url'], $data['title']);
 		if ($tryoembed) {
-			$oembed = tryoembed($bookmark);
-		} else {
-			$oembed = $bookmark[0];
+			try {
+				$oembed = OEmbed::getHTML($data['url'], $data['title']);
+			} catch (Exception $e) {
+				// $oembed isn't modified
+			}
 		}
 
-		if (strstr(strtolower($oembed), "<iframe ")) {
+		if (stripos($oembed, "<iframe ") !== false) {
 			$text = $oembed;
 		} else {
 			if (($data["image"] != "") && !strstr(strtolower($oembed), "<img ")) {
@@ -100,7 +110,7 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true) {
 			$text .= '</span>';
 		}
 	}
-	return trim($data["text"].' '.$text.' '.$data["after"]);
+	return trim($data["text"] . ' ' . $text . ' ' . $data["after"]);
 }
 
 function bb_remove_share_information($Text, $plaintext = false, $nolink = false) {
@@ -221,32 +231,6 @@ function style_url_for_mastodon($url) {
 
 function stripcode_br_cb($s) {
 	return '[code]' . str_replace('<br />', '', $s[1]) . '[/code]';
-}
-
-function tryoembed($match) {
-	$url = $match[1];
-
-	// Always embed the SSL version
-	$url = str_replace(array("http://www.youtube.com/", "http://player.vimeo.com/"),
-				array("https://www.youtube.com/", "https://player.vimeo.com/"), $url);
-
-	$o = OEmbed::fetchURL($url);
-
-	if (!is_object($o)) {
-		return $match[0];
-	}
-
-	if (isset($match[2])) {
-		$o->title = $match[2];
-	}
-
-	if ($o->type == "error") {
-		return $match[0];
-	}
-
-	$html = OEmbed::formatObject($o);
-
-	return $html;
 }
 
 /*
@@ -432,6 +416,16 @@ function bb_replace_images($body, $images) {
 	return $newbody;
 }
 
+/**
+ * Processes [share] tags
+ *
+ * Note: Can produce a [bookmark] tag in the output
+ *
+ * @brief Processes [share] tags
+ * @param array    $share      preg_match_callback result array
+ * @param bool|int $simplehtml
+ * @return string
+ */
 function bb_ShareAttributes($share, $simplehtml)
 {
 	$attributes = $share[2];
@@ -520,7 +514,6 @@ function bb_ShareAttributes($share, $simplehtml)
 	}
 
 	$preshare = trim($share[1]);
-
 	if ($preshare != "") {
 		$preshare .= "<br /><br />";
 	}
@@ -541,7 +534,7 @@ function bb_ShareAttributes($share, $simplehtml)
 				$text .= "<hr />";
 			}
 
-			if (substr(normalise_link($link), 0, 19) != "http://twitter.com/") {
+			if (stripos(normalise_link($link), 'http://twitter.com/') === 0) {
 				$text .= $headline . '<blockquote>' . trim($share[3]) . "</blockquote><br />";
 
 				if ($link != "") {
@@ -586,20 +579,30 @@ function bb_ShareAttributes($share, $simplehtml)
 			}
 			break;
 		default:
-			$text = trim($share[1]) . "\n";
+			// Transforms quoted tweets in rich attachments to avoid nested tweets
+			if (stripos(normalise_link($link), 'http://twitter.com/') === 0 && OEmbed::isAllowedURL($link)) {
+				try {
+					$oembed = OEmbed::getHTML($link, $preshare);
+				} catch (Exception $e) {
+					$oembed = sprintf('[bookmark=%s]%s[/bookmark]', $link, $preshare);
+				}
 
-			$avatar = proxy_url($avatar, false, PROXY_SIZE_THUMB);
+				$text = $preshare . $oembed;
+			} else {
+				$text = trim($share[1]) . "\n";
 
-			$tpl = get_markup_template('shared_content.tpl');
-			$text .= replace_macros($tpl, array(
+				$avatar = proxy_url($avatar, false, PROXY_SIZE_THUMB);
+
+				$tpl = get_markup_template('shared_content.tpl');
+				$text .= replace_macros($tpl, array(
 					'$profile' => $profile,
 					'$avatar' => $avatar,
 					'$author' => $author,
 					'$link' => $link,
 					'$posted' => $posted,
 					'$content' => trim($share[3])
-				)
-			);
+				));
+			}
 			break;
 	}
 

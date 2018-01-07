@@ -15,6 +15,7 @@ use dba;
 use DOMDocument;
 use DOMXPath;
 use DOMNode;
+use Exception;
 
 require_once 'include/dba.php';
 require_once 'mod/proxy.php';
@@ -160,8 +161,8 @@ class OEmbed
 	public static function formatObject($j)
 	{
 		$embedurl = $j->embedurl;
-		$jhtml = self::iframe($j->embedurl, (isset($j->width) ? $j->width : null), (isset($j->height) ? $j->height : null));
-		$ret = "<span class='oembed " . $j->type . "'>";
+		$jhtml = $j->html;
+		$ret = '<div class="oembed ' . $j->type . '">';
 		switch ($j->type) {
 			case "video":
 				if (isset($j->thumbnail_url)) {
@@ -173,7 +174,7 @@ class OEmbed
 					$th = 120;
 					$tw = $th * $tr;
 					$tpl = get_markup_template('oembed_video.tpl');
-					$ret.=replace_macros($tpl, array(
+					$ret .= replace_macros($tpl, array(
 						'$baseurl' => System::baseUrl(),
 						'$embedurl' => $embedurl,
 						'$escapedhtml' => base64_encode($jhtml),
@@ -184,33 +185,32 @@ class OEmbed
 				} else {
 					$ret = $jhtml;
 				}
-				//$ret.="<br>";
 				break;
 			case "photo":
-				$ret.= "<img width='" . $j->width . "' src='" . proxy_url($j->url) . "'>";
+				$ret .= '<img width="' . $j->width . '" src="' . proxy_url($j->url) . '">';
 				break;
 			case "link":
 				break;
 			case "rich":
-				// not so safe..
 				if (self::isAllowedURL($embedurl)) {
 					$ret .= proxy_parse_html($jhtml);
 				}
 				break;
 		}
 
+		$ret .= '</div>';
 		// add link to source if not present in "rich" type
 		if ($j->type != 'rich' || !strpos($j->html, $embedurl)) {
-			$ret .= "<h4>";
+			$ret .= '<h4>';
 			if (isset($j->title)) {
 				if (isset($j->provider_name)) {
 					$ret .= $j->provider_name . ": ";
 				}
 
 				$embedlink = (isset($j->title)) ? $j->title : $embedurl;
-				$ret .= "<a href='$embedurl' rel='oembed'>$embedlink</a>";
+				$ret .= '<a href="' . $embedurl . '" rel="oembed">' . $embedlink . '</a>';
 				if (isset($j->author_name)) {
-					$ret.=" (" . $j->author_name . ")";
+					$ret .= ' (' . $j->author_name . ')';
 				}
 			} elseif (isset($j->provider_name) || isset($j->author_name)) {
 				$embedlink = "";
@@ -229,16 +229,14 @@ class OEmbed
 					$embedlink = $embedurl;
 				}
 
-				$ret .= "<a href='$embedurl' rel='oembed'>$embedlink</a>";
+				$ret .= '<a href="' . $embedurl . '" rel="oembed">' . $embedlink . '</a>';
 			}
-			//if (isset($j->author_name)) $ret.=" by ".$j->author_name;
-			//if (isset($j->provider_name)) $ret.=" on ".$j->provider_name;
 			$ret .= "</h4>";
-		} else {
+		} elseif (!strpos($j->html, $embedurl)) {
 			// add <a> for html2bbcode conversion
-			$ret .= "<a href='$embedurl' rel='oembed'>$embedurl</a>";
+			$ret .= '<a href="' . $embedurl . '" rel="oembed">' . $j->title . '</a>';
 		}
-		$ret.="</span>";
+
 		$ret = str_replace("\n", "", $ret);
 		return mb_convert_encoding($ret, 'HTML-ENTITIES', mb_detect_encoding($ret));
 	}
@@ -272,7 +270,7 @@ class OEmbed
 			$xpath = new DOMXPath($dom);
 
 			$xattr = self::buildXPath("class", "oembed");
-			$entries = $xpath->query("//span[$xattr]");
+			$entries = $xpath->query("//div[$xattr]");
 
 			$xattr = "@rel='oembed'"; //oe_build_xpath("rel","oembed");
 			foreach ($entries as $e) {
@@ -288,6 +286,48 @@ class OEmbed
 	}
 
 	/**
+	 * Determines if rich content OEmbed is allowed for the provided URL
+	 *
+	 * @brief Determines if rich content OEmbed is allowed for the provided URL
+	 * @param string $url
+	 * @return boolean
+	 */
+	public static function isAllowedURL($url)
+	{
+		if (!Config::get('system', 'no_oembed_rich_content')) {
+			return true;
+		}
+
+		$domain = parse_url($url, PHP_URL_HOST);
+
+		$str_allowed = Config::get('system', 'allowed_oembed', '');
+		$allowed = explode(',', $str_allowed);
+
+		return allowed_domain($domain, $allowed, true);
+	}
+
+	public static function getHTML($url, $title = null)
+	{
+		// Always embed the SSL version
+		$url = str_replace(array("http://www.youtube.com/", "http://player.vimeo.com/"),
+					array("https://www.youtube.com/", "https://player.vimeo.com/"), $url);
+
+		$o = OEmbed::fetchURL($url);
+
+		if (!is_object($o) || $o->type == 'error') {
+			throw new Exception('OEmbed failed for URL: ' . $url);
+		}
+
+		if (x($title)) {
+			$o->title = $title;
+		}
+
+		$html = OEmbed::formatObject($o);
+
+		return $html;
+	}
+
+	/**
 	 * @brief Generates the iframe HTML for an oembed attachment.
 	 *
 	 * Width and height are given by the remote, and are regularly too small for
@@ -298,6 +338,8 @@ class OEmbed
 	 *
 	 * Since the iframe is automatically resized on load, there are no need for ugly
 	 * and impractical scrollbars.
+	 *
+	 * @todo This function is currently unused until someone™ adds support for a separate OEmbed domain
 	 *
 	 * @param string $src Original remote URL to embed
 	 * @param string $width
@@ -315,10 +357,7 @@ class OEmbed
 		}
 		$width = '100%';
 
-		// Only proxy OEmbed URLs to avoid mixed-content errors
-		if (Config::get('system', 'ssl_policy') == SSL_POLICY_FULL && parse_url($src, PHP_URL_SCHEME) !== 'https') {
-			$src = System::baseUrl() . '/oembed/' . base64url_encode($src);
-		}
+		$src = System::baseUrl() . '/oembed/' . base64url_encode($src);
 		return '<iframe onload="resizeIframe(this);" class="embed_rich" height="' . $height . '" width="' . $width . '" src="' . $src . '" allowfullscreen scrolling="no" frameborder="no">' . t('Embedded content') . '</iframe>';
 	}
 
@@ -356,24 +395,4 @@ class OEmbed
 		return $innerHTML;
 	}
 
-	/**
-	 * Determines if rich content OEmbed is allowed for the provided URL
-	 *
-	 * @brief Determines if rich content OEmbed is allowed for the provided URL
-	 * @param string $url
-	 * @return boolean
-	 */
-	private static function isAllowedURL($url)
-	{
-		if (!Config::get('system', 'no_oembed_rich_content')) {
-			return true;
-		}
-
-		$domain = parse_url($url, PHP_URL_HOST);
-
-		$str_allowed = Config::get('system', 'allowed_oembed', '');
-		$allowed = explode(',', $str_allowed);
-
-		return allowed_domain($domain, $allowed, true);
-	}
 }
