@@ -131,12 +131,10 @@ function notification($params)
 		$p = null;
 
 		if ($params['otype'] === 'item' && $parent_id) {
-			$p = q("SELECT * FROM `item` WHERE `id` = %d LIMIT 1",
-				intval($parent_id)
-			);
+			$p = dba::select('item', [], ['id' => $parent_id], ['limit' => 1]);
 		}
 
-		$item_post_type = item_post_type($p[0]);
+		$item_post_type = item_post_type($p);
 
 		// "a post"
 		$dest_str = sprintf(t('%1$s commented on [url=%2$s]a %3$s[/url]'),
@@ -149,12 +147,12 @@ function notification($params)
 			$dest_str = sprintf(t('%1$s commented on [url=%2$s]%3$s\'s %4$s[/url]'),
 						'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 						$itemlink,
-						$p[0]['author-name'],
+						$p['author-name'],
 						$item_post_type);
 		}
 
 		// "your post"
-		if ($p[0]['owner-name'] == $p[0]['author-name'] && $p[0]['wall']) {
+		if ($p['owner-name'] == $p['author-name'] && $p['wall']) {
 			$dest_str = sprintf(t('%1$s commented on [url=%2$s]your %3$s[/url]'),
 								'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 								$itemlink,
