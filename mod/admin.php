@@ -895,7 +895,7 @@ function admin_page_site_post(App $a)
 	$allowed_sites		=	((x($_POST,'allowed_sites'))		? notags(trim($_POST['allowed_sites']))		: '');
 	$allowed_email		=	((x($_POST,'allowed_email'))		? notags(trim($_POST['allowed_email']))		: '');
 	$no_oembed_rich_content = x($_POST,'no_oembed_rich_content');
-	$allowed_oembed		=	((x($_POST,'allowed_embed'))		? notags(trim($_POST['allowed_embed']))		: '');
+	$allowed_oembed		=	((x($_POST,'allowed_oembed'))		? notags(trim($_POST['allowed_oembed']))		: '');
 	$block_public		=	((x($_POST,'block_public'))		? True						: False);
 	$force_publish		=	((x($_POST,'publish_all'))		? True						: False);
 	$global_directory	=	((x($_POST,'directory'))		? notags(trim($_POST['directory']))		: '');
