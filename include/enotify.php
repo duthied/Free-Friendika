@@ -653,7 +653,9 @@ function notification($params)
  */
 function check_user_notification($itemid) {
 	// fetch all users in the thread
-	$users = dba::p("SELECT DISTINCT(`uid`) FROM `item` WHERE `parent` IN (SELECT `parent` FROM `item` WHERE `id`=?) AND `uid` != 0", $itemid);
+	$users = dba::p("SELECT DISTINCT(`contact`.`uid`) FROM `item`
+			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` != 0
+			WHERE `parent` IN (SELECT `parent` FROM `item` WHERE `id`=?)", $itemid);
 	while ($user = dba::fetch($users)) {
 		check_item_notification($itemid, $user['uid']);
 	}
