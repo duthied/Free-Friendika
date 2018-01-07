@@ -285,6 +285,27 @@ class OEmbed
 	}
 
 	/**
+	 * Determines if rich content OEmbed is allowed for the provided URL
+	 *
+	 * @brief Determines if rich content OEmbed is allowed for the provided URL
+	 * @param string $url
+	 * @return boolean
+	 */
+	public static function isAllowedURL($url)
+	{
+		if (!Config::get('system', 'no_oembed_rich_content')) {
+			return true;
+		}
+
+		$domain = parse_url($url, PHP_URL_HOST);
+
+		$str_allowed = Config::get('system', 'allowed_oembed', '');
+		$allowed = explode(',', $str_allowed);
+
+		return allowed_domain($domain, $allowed, true);
+	}
+
+	/**
 	 * @brief Generates the iframe HTML for an oembed attachment.
 	 *
 	 * Width and height are given by the remote, and are regularly too small for
@@ -352,24 +373,4 @@ class OEmbed
 		return $innerHTML;
 	}
 
-	/**
-	 * Determines if rich content OEmbed is allowed for the provided URL
-	 *
-	 * @brief Determines if rich content OEmbed is allowed for the provided URL
-	 * @param string $url
-	 * @return boolean
-	 */
-	private static function isAllowedURL($url)
-	{
-		if (!Config::get('system', 'no_oembed_rich_content')) {
-			return true;
-		}
-
-		$domain = parse_url($url, PHP_URL_HOST);
-
-		$str_allowed = Config::get('system', 'allowed_oembed', '');
-		$allowed = explode(',', $str_allowed);
-
-		return allowed_domain($domain, $allowed, true);
-	}
 }

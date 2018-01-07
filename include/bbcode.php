@@ -586,8 +586,8 @@ function bb_ShareAttributes($share, $simplehtml)
 			}
 			break;
 		default:
-			// Transforms quoted tweets in rich attachments to avoid nested tweetsx
-			if (stripos(normalise_link($link), 'http://twitter.com/') === 0) {
+			// Transforms quoted tweets in rich attachments to avoid nested tweets
+			if (stripos(normalise_link($link), 'http://twitter.com/') === 0 && OEmbed::isAllowedURL($link)) {
 				$bookmark = array(sprintf('[bookmark=%s]%s[/bookmark]', $link, $preshare), $link, $preshare);
 				$text = $preshare . tryoembed($bookmark);
 			} else {
