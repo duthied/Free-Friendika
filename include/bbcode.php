@@ -515,7 +515,7 @@ function bb_ShareAttributes($share, $simplehtml)
 
 	$preshare = trim($share[1]);
 	if ($preshare != "") {
-		$preshare .= "<br /><br />";
+		$preshare .= "<br />";
 	}
 
 	switch ($simplehtml) {
@@ -862,9 +862,30 @@ function bb_highlight($match) {
  * @param bool $forplaintext
  * @return string
  */
-function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = false, $forplaintext = false) {
-
+function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = false, $forplaintext = false)
+{
 	$a = get_app();
+
+	/*
+	 * preg_match_callback function to replace potential Oembed tags with Oembed content
+	 *
+	 * $match[0] = [tag]$url[/tag] or [tag=$url]$title[/tag]
+	 * $match[1] = $url
+	 * $match[2] = $title or absent
+	 */
+	$tryoembed_callback = function ($match)
+	{
+		$url = $match[1];
+		$title = defaults($match, 2, null);
+
+		try {
+			$return = OEmbed::getHTML($url, $title);
+		} catch (Exception $ex) {
+			$return = $match[0];
+		}
+
+		return $return;
+	};
 
 	// Hide all [noparse] contained bbtags by spacefying them
 	// POSSIBLE BUG --> Will the 'preg' functions crash if there's an embedded image?
@@ -988,7 +1009,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 
 	// Perform URL Search
 	if ($tryoembed) {
-		$Text = preg_replace_callback("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", 'tryoembed', $Text);
+		$Text = preg_replace_callback("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $tryoembed_callback, $Text);
 	}
 
 	if ($simplehtml == 5) {
@@ -1023,7 +1044,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 //	}
 
 	if ($tryoembed) {
-		$Text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'tryoembed', $Text);
+		$Text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", $tryoembed_callback, $Text);
 	}
 
 	$Text = preg_replace("/([#])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
@@ -1222,8 +1243,8 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 		$Text = preg_replace("/\[video\](.*?\.(ogg|ogv|oga|ogm|webm|mp4))\[\/video\]/ism", '<video src="$1" controls="controls" width="' . $a->videowidth . '" height="' . $a->videoheight . '"><a href="$1">$1</a></video>', $Text);
 		$Text = preg_replace("/\[audio\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mp3))\[\/audio\]/ism", '<audio src="$1" controls="controls"><a href="$1">$1</a></audio>', $Text);
 
-		$Text = preg_replace_callback("/\[video\](.*?)\[\/video\]/ism", 'tryoembed', $Text);
-		$Text = preg_replace_callback("/\[audio\](.*?)\[\/audio\]/ism", 'tryoembed', $Text);
+		$Text = preg_replace_callback("/\[video\](.*?)\[\/video\]/ism", $tryoembed_callback, $Text);
+		$Text = preg_replace_callback("/\[audio\](.*?)\[\/audio\]/ism", $tryoembed_callback, $Text);
 	} else {
 		$Text = preg_replace("/\[video\](.*?)\[\/video\]/",
 					'<a href="$1" target="_blank">$1</a>', $Text);
@@ -1242,9 +1263,9 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 
 	// Youtube extensions
 	if ($tryoembed) {
-		$Text = preg_replace_callback("/\[youtube\](https?:\/\/www.youtube.com\/watch\?v\=.*?)\[\/youtube\]/ism", 'tryoembed', $Text);
-		$Text = preg_replace_callback("/\[youtube\](www.youtube.com\/watch\?v\=.*?)\[\/youtube\]/ism", 'tryoembed', $Text);
-		$Text = preg_replace_callback("/\[youtube\](https?:\/\/youtu.be\/.*?)\[\/youtube\]/ism", 'tryoembed', $Text);
+		$Text = preg_replace_callback("/\[youtube\](https?:\/\/www.youtube.com\/watch\?v\=.*?)\[\/youtube\]/ism", $tryoembed_callback, $Text);
+		$Text = preg_replace_callback("/\[youtube\](www.youtube.com\/watch\?v\=.*?)\[\/youtube\]/ism", $tryoembed_callback, $Text);
+		$Text = preg_replace_callback("/\[youtube\](https?:\/\/youtu.be\/.*?)\[\/youtube\]/ism", $tryoembed_callback, $Text);
 	}
 
 	$Text = preg_replace("/\[youtube\]https?:\/\/www.youtube.com\/watch\?v\=(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $Text);
@@ -1259,8 +1280,8 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	}
 
 	if ($tryoembed) {
-		$Text = preg_replace_callback("/\[vimeo\](https?:\/\/player.vimeo.com\/video\/[0-9]+).*?\[\/vimeo\]/ism", 'tryoembed', $Text);
-		$Text = preg_replace_callback("/\[vimeo\](https?:\/\/vimeo.com\/[0-9]+).*?\[\/vimeo\]/ism", 'tryoembed', $Text);
+		$Text = preg_replace_callback("/\[vimeo\](https?:\/\/player.vimeo.com\/video\/[0-9]+).*?\[\/vimeo\]/ism", $tryoembed_callback, $Text);
+		$Text = preg_replace_callback("/\[vimeo\](https?:\/\/vimeo.com\/[0-9]+).*?\[\/vimeo\]/ism", $tryoembed_callback, $Text);
 	}
 
 	$Text = preg_replace("/\[vimeo\]https?:\/\/player.vimeo.com\/video\/([0-9]+)(.*?)\[\/vimeo\]/ism", '[vimeo]$1[/vimeo]', $Text);
