@@ -151,6 +151,7 @@ class Post extends BaseObject
 			} else {
 				$edpost = array("editpost/" . $item['id'], t("Edit"));
 			}
+			$dropping = in_array($item['uid'], [0, local_user()]);
 		} else {
 			$edpost = false;
 		}
