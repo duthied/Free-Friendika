@@ -228,8 +228,9 @@ class ExAuth
 
 			$aUser = dba::select('user', ['uid', 'password'], ['nickname' => $sUser], ['limit' => 1]);
 			if (DBM::is_result($aUser)) {
-				$uid = User::authenticate($aUser, $aCommand[3]);
-				$Error = $uid === false;
+				$uid = $aUser['uid'];
+				$success = User::authenticate($aUser, $aCommand[3]);
+				$Error = $success === false;
 			} else {
 				$this->writeLog(LOG_WARNING, 'user not found: ' . $sUser);
 				$Error = true;
