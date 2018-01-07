@@ -106,11 +106,8 @@ function notification($params)
 	}
 
 	if ($params['type'] == NOTIFY_COMMENT) {
-		$p = q("SELECT `ignored` FROM `thread` WHERE `iid` = %d AND `uid` = %d LIMIT 1",
-			intval($parent_id),
-			intval($params['uid'])
-		);
-		if ($p && count($p) && ($p[0]["ignored"])) {
+		$p = dba::select('thread', ['ignored'], ['iid' => $parent_id], ['limit' => 1]);
+		if (DBM::is_result($p) && $p["ignored"]) {
 			logger("Thread ".$parent_id." will be ignored", LOGGER_DEBUG);
 			return;
 		}
@@ -134,13 +131,10 @@ function notification($params)
 		$p = null;
 
 		if ($params['otype'] === 'item' && $parent_id) {
-			$p = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-				intval($parent_id),
-				intval($params['uid'])
-			);
+			$p = dba::select('item', [], ['id' => $parent_id], ['limit' => 1]);
 		}
 
-		$item_post_type = item_post_type($p[0]);
+		$item_post_type = item_post_type($p);
 
 		// "a post"
 		$dest_str = sprintf(t('%1$s commented on [url=%2$s]a %3$s[/url]'),
@@ -153,12 +147,12 @@ function notification($params)
 			$dest_str = sprintf(t('%1$s commented on [url=%2$s]%3$s\'s %4$s[/url]'),
 						'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 						$itemlink,
-						$p[0]['author-name'],
+						$p['author-name'],
 						$item_post_type);
 		}
 
 		// "your post"
-		if ($p[0]['owner-name'] == $p[0]['author-name'] && $p[0]['wall']) {
+		if ($p['owner-name'] == $p['author-name'] && $p['wall']) {
 			$dest_str = sprintf(t('%1$s commented on [url=%2$s]your %3$s[/url]'),
 								'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 								$itemlink,
@@ -649,6 +643,22 @@ function notification($params)
 }
 
 /**
+ * @brief Checks for users who should be notified
+ *
+ * @param int $itemid ID of the item for which the check should be done
+ */
+function check_user_notification($itemid) {
+	// fetch all users in the thread
+	$users = dba::p("SELECT DISTINCT(`contact`.`uid`) FROM `item`
+			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` != 0
+			WHERE `parent` IN (SELECT `parent` FROM `item` WHERE `id`=?)", $itemid);
+	while ($user = dba::fetch($users)) {
+		check_item_notification($itemid, $user['uid']);
+	}
+	dba::close($users);
+}
+
+/**
  * @brief Checks for item related notifications and sends them
  *
  * @param int $itemid ID of the item for which the check should be done
@@ -661,19 +671,22 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 
 	$profiles = $notification_data["profiles"];
 
-	$user = q("SELECT `notify-flags`, `language`, `username`, `email`, `nickname` FROM `user` WHERE `uid` = %d", intval($uid));
-	if (!$user)
+	$fields = ['notify-flags', 'language', 'username', 'email', 'nickname'];
+	$user = dba::select('user', $fields, ['uid' => $uid], ['limit' => 1]);
+	if (!DBM::is_result($user)) {
 		return false;
+	}
 
-	$owner = q("SELECT `id`, `url` FROM `contact` WHERE `self` AND `uid` = %d LIMIT 1", intval($uid));
-	if (!$owner)
+	$owner = dba::select('contact', ['url'], ['self' => true, 'uid' => $uid], ['limit' => 1]);
+	if (!DBM::is_result($owner)) {
 		return false;
+	}
 
 	// This is our regular URL format
-	$profiles[] = $owner[0]["url"];
+	$profiles[] = $owner["url"];
 
 	// Notifications from Diaspora are often with an URL in the Diaspora format
-	$profiles[] = System::baseUrl()."/u/".$user[0]["nickname"];
+	$profiles[] = System::baseUrl()."/u/".$user["nickname"];
 
 	$profiles2 = array();
 
@@ -721,10 +734,10 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	// Generate the notification array
 	$params = array();
 	$params["uid"] = $uid;
-	$params["notify_flags"] = $user[0]["notify-flags"];
-	$params["language"] = $user[0]["language"];
-	$params["to_name"] = $user[0]["username"];
-	$params["to_email"] = $user[0]["email"];
+	$params["notify_flags"] = $user["notify-flags"];
+	$params["language"] = $user["language"];
+	$params["to_name"] = $user["username"];
+	$params["to_email"] = $user["email"];
 	$params["item"] = $item[0];
 	$params["parent"] = $item[0]["parent"];
 	$params["link"] = System::baseUrl().'/display/'.urlencode($item[0]["guid"]);
@@ -735,11 +748,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 
 	if ($item[0]["parent-uri"] === $item[0]["uri"]) {
 		// Send a notification for every new post?
-		$r = q("SELECT `notify_new_posts` FROM `contact` WHERE `id` = %d AND `uid` = %d AND `notify_new_posts` LIMIT 1",
-			intval($item[0]['contact-id']),
-			intval($uid)
-		);
-		$send_notification = DBM::is_result($r);
+		$send_notification = dba::exists('contact', ['id' => $item[0]['contact-id'], 'notify_new_posts' => true]);
 
 		if (!$send_notification) {
 			$tags = q("SELECT `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` = %d AND `uid` = %d",
@@ -747,10 +756,11 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 
 			if (DBM::is_result($tags)) {
 				foreach ($tags AS $tag) {
-					$r = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d AND `notify_new_posts`",
-						normalise_link($tag["url"]), intval($uid));
-					if (DBM::is_result($r))
+					$condition = ['nurl' => normalise_link($tag["url"]), 'uid' => $uid, 'notify_new_posts' => true];
+					$r = dba::exists('contact', $condition);
+					if ($r) {
 						$send_notification = true;
+					}
 				}
 			}
 		}
@@ -776,10 +786,10 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 
 	// Is it a post that the user had started or where he interacted?
 	$parent = q("SELECT `thread`.`iid` FROM `thread` INNER JOIN `item` ON `item`.`parent` = `thread`.`iid`
-			WHERE `thread`.`iid` = %d AND `thread`.`uid` = %d AND NOT `thread`.`ignored` AND
+			WHERE `thread`.`iid` = %d AND NOT `thread`.`ignored` AND
 				(`thread`.`mention` OR `item`.`author-link` IN ($profile_list))
 			LIMIT 1",
-			intval($item[0]["parent"]), intval($uid));
+			intval($item[0]["parent"]));
 
 	if ($parent && !isset($params["type"])) {
 		$params["type"] = NOTIFY_COMMENT;

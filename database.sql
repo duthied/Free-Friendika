@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.6-dev (Asparagus)
--- DB_UPDATE_VERSION 1238
+-- DB_UPDATE_VERSION 1239
 -- ------------------------------------------
 
 
@@ -972,7 +972,7 @@ CREATE TABLE IF NOT EXISTS `thread` (
 	 INDEX `uid_created` (`uid`,`created`),
 	 INDEX `uid_commented` (`uid`,`commented`),
 	 INDEX `uid_wall_created` (`uid`,`wall`,`created`),
-	 INDEX `private_wall_received` (`private`,`wall`,`received`)
+	 INDEX `private_wall_commented` (`private`,`wall`,`commented`)
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --

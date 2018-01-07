@@ -151,6 +151,7 @@ class Post extends BaseObject
 			} else {
 				$edpost = array("editpost/" . $item['id'], t("Edit"));
 			}
+			$dropping = in_array($item['uid'], [0, local_user()]);
 		} else {
 			$edpost = false;
 		}
@@ -764,6 +765,14 @@ class Post extends BaseObject
 				$qcomment = (($qc) ? explode("\n", $qc) : null);
 			}
 
+			// Fetch the user id from the parent when the owner user is empty
+			$uid = $conv->getProfileOwner();
+			$parent_uid = $this->getDataValue('uid');
+
+			if (!empty($parent_uid) && empty($uid) && ($uid != $parent_uid)) {
+				$uid = $parent_uid;
+			}
+
 			$template = get_markup_template($this->getCommentBoxTemplate());
 			$comment_box = replace_macros($template, array(
 				'$return_path' => $a->query_string,
@@ -773,7 +782,7 @@ class Post extends BaseObject
 				'$id'          => $this->getId(),
 				'$parent'      => $this->getId(),
 				'$qcomment'    => $qcomment,
-				'$profile_uid' => $conv->getProfileOwner(),
+				'$profile_uid' => $uid,
 				'$mylink'      => $a->remove_baseurl($a->contact['url']),
 				'$mytitle'     => t('This is you'),
 				'$myphoto'     => $a->remove_baseurl($a->contact['thumb']),

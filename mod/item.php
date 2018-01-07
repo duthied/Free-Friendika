@@ -1067,6 +1067,8 @@ function item_post(App $a) {
 	create_tags_from_item($post_id);
 	create_files_from_item($post_id);
 
+	check_user_notification($post_id);
+
 	// Insert an item entry for UID=0 for global entries.
 	// We now do it in the background to save some time.
 	// This is important in interactive environments like the frontend or the API.

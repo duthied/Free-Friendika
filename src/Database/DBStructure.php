@@ -1601,7 +1601,7 @@ class DBStructure {
 						"uid_created" => array("uid","created"),
 						"uid_commented" => array("uid","commented"),
 						"uid_wall_created" => array("uid","wall","created"),
-						"private_wall_received" => array("private","wall","received"),
+						"private_wall_commented" => array("private","wall","commented"),
 						)
 				);
 		$database["tokens"] = array(
