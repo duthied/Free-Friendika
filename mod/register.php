@@ -237,15 +237,15 @@ function register_content(App $a)
 
 	$license = '';
 
-	$o = get_markup_template("register.tpl");
+	$tpl = get_markup_template("register.tpl");
 
-	$arr = array('template' => $o);
+	$arr = array('template' => $tpl);
 
 	call_hooks('register_form', $arr);
 
-	$o = $arr['template'];
+	$tpl = $arr['template'];
 
-	$o = replace_macros($o, [
+	$o = replace_macros($tpl, [
 		'$oidhtml' => $oidhtml,
 		'$invitations' => Config::get('system', 'invitation_only'),
 		'$permonly'    => $a->config['register_policy'] == REGISTER_APPROVE,
