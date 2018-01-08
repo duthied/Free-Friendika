@@ -609,11 +609,15 @@ function blocked_url($url)
 function allowed_email($email)
 {
 	$domain = strtolower(substr($email, strpos($email, '@') + 1));
-	if (! $domain) {
+	if (!$domain) {
 		return false;
 	}
 
 	$str_allowed = Config::get('system', 'allowed_email', '');
+	if (!x($str_allowed)) {
+		return true;
+	}
+
 	$allowed = explode(',', $str_allowed);
 
 	return allowed_domain($domain, $allowed);
@@ -622,29 +626,23 @@ function allowed_email($email)
 /**
  * Checks for the existence of a domain in a domain list
  *
- * If strict is not set, an empty domain list counts as found
- *
  * @brief Checks for the existence of a domain in a domain list
  * @param string $domain
- * @param array $domain_list
- * @param bool   $strict
+ * @param array  $domain_list
  * @return boolean
  */
-function allowed_domain($domain, array $domain_list, $strict = false)
+function allowed_domain($domain, array $domain_list)
 {
 	$found = false;
 
-	if (count($domain_list)) {
-		foreach ($domain_list as $item) {
-			$pat = strtolower(trim($item));
-			if (fnmatch($pat, $domain) || ($pat == $domain)) {
-				$found = true;
-				break;
-			}
+	foreach ($domain_list as $item) {
+		$pat = strtolower(trim($item));
+		if (fnmatch($pat, $domain) || ($pat == $domain)) {
+			$found = true;
+			break;
 		}
-	} elseif(!$strict) {
-		$found = true;
 	}
+
 	return $found;
 }
 
