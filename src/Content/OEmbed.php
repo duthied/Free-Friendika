@@ -299,11 +299,18 @@ class OEmbed
 		}
 
 		$domain = parse_url($url, PHP_URL_HOST);
+		if (!x($domain)) {
+			return false;
+		}
 
 		$str_allowed = Config::get('system', 'allowed_oembed', '');
+		if (!x($str_allowed)) {
+			return false;
+		}
+		
 		$allowed = explode(',', $str_allowed);
 
-		return allowed_domain($domain, $allowed, true);
+		return allowed_domain($domain, $allowed);
 	}
 
 	public static function getHTML($url, $title = null)
