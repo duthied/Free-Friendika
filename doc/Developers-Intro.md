@@ -76,7 +76,7 @@ This tool checks your files against a variety of coding standards, including PSR
 You can simply install it through PEAR: `pear install PHP_CodeSniffer`
 Once it is installed and available in your PATH, here's the command to run before committing your work:
 
-	$> phpcs --standard=PSR2 <file or directory>
+	$> phpcs --standard=ruleset.xml <file or directory>
 
 The output is a list of all the coding standards violations that you should fix before committing your work.
 Additionally, `phpcs` integrates with a few IDEs (Eclipse, Netbeans, PHPStorm...) so that you don't have to fiddle with the command line.
@@ -87,7 +87,7 @@ If you're getting a massive list of standards violations when running `phpcs`, i
 Thankfully, PHP Code Sniffer is shipped with an automatic code fixer that can take care of the tedious task for you.
 Here's the command to automatically fix the files you created/modified:
 
-	$> phpcbf --standard=PSR2 <file or directory>
+	$> phpcbf --standard=ruleset.xml <file or directory>
 
 If the command-line tools `diff` and `patch` are unavailabe for you, `phpcbf` can use slightly slower PHP equivalents by using the `--no-patch` argument.
 
