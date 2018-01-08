@@ -735,36 +735,43 @@ function networkThreadedView(App $a, $update = 0) {
 	}
 
 	if (x($_GET, 'offset')) {
-		$sql_extra3 .= sprintf(" AND $sql_order <= '%s'", dbesc($_GET["offset"]));
+		$sql_range = sprintf(" AND $sql_order <= '%s'", dbesc($_GET["offset"]));
+	} else {
+		$sql_range = '';
 	}
 
 	$pager_sql = networkPager($a, $update);
 
+	$last_date = '';
+
 	switch ($order_mode) {
 		case 'received':
 			if ($last_received != '') {
-				$sql_extra3 .= sprintf(" AND $sql_table.`received` < '%s'", dbesc($last_received));
+				$last_date = $last_received;
+				$sql_range .= sprintf(" AND $sql_table.`received` < '%s'", dbesc($last_received));
 				$a->set_pager_page(1);
 				$pager_sql = sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
 			}
 			break;
 		case 'commented':
 			if ($last_commented != '') {
-				$sql_extra3 .= sprintf(" AND $sql_table.`commented` < '%s'", dbesc($last_commented));
+				$last_date = $last_commented;
+				$sql_range .= sprintf(" AND $sql_table.`commented` < '%s'", dbesc($last_commented));
 				$a->set_pager_page(1);
 				$pager_sql = sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
 			}
 			break;
 		case 'created':
 			if ($last_created != '') {
-				$sql_extra3 .= sprintf(" AND $sql_table.`created` < '%s'", dbesc($last_created));
+				$last_date = $last_created;
+				$sql_range .= sprintf(" AND $sql_table.`created` < '%s'", dbesc($last_created));
 				$a->set_pager_page(1);
 				$pager_sql = sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
 			}
 			break;
 		case 'id':
 			if (($last_id > 0) && ($sql_table == "`thread`")) {
-				$sql_extra3 .= sprintf(" AND $sql_table.`iid` < '%s'", dbesc($last_id));
+				$sql_range .= sprintf(" AND $sql_table.`iid` < '%s'", dbesc($last_id));
 				$a->set_pager_page(1);
 				$pager_sql = sprintf(" LIMIT %d, %d ",intval($a->pager['start']), intval($a->pager['itemspage']));
 			}
@@ -778,26 +785,55 @@ function networkThreadedView(App $a, $update = 0) {
 		} else {
 			$sql_extra4 = "";
 		}
-
-		$r = q("SELECT `item`.`parent` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
+		$r = q("SELECT `item`.`parent` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`, $sql_order AS `order_date`
 			FROM $sql_table $sql_post_table INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 			WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted` $sql_extra4
 			AND NOT `item`.`moderated` AND `item`.`unseen`
-			$sql_extra3 $sql_extra $sql_nets
-			ORDER BY `item_id` DESC LIMIT 100",
+			$sql_extra3 $sql_extra $sql_range $sql_nets
+			ORDER BY `order_date` DESC LIMIT 100",
 			intval(local_user())
 		);
 	} else {
-		$r = q("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`
+		$r = q("SELECT `thread`.`iid` AS `item_id`, `thread`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid`, $sql_order AS `order_date`
 			FROM $sql_table $sql_post_table STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
 			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 			WHERE `thread`.`uid` = %d AND `thread`.`visible` AND NOT `thread`.`deleted`
 			AND NOT `thread`.`moderated`
-			$sql_extra2 $sql_extra3 $sql_extra $sql_nets
+			$sql_extra2 $sql_extra3 $sql_range $sql_extra $sql_nets
 			ORDER BY $sql_order DESC $pager_sql",
 			intval(local_user())
 		);
+	}
+
+	// Only show it when unfiltered (no groups, no networks, ...)
+	if (Config::get('system', 'comment_public') && (count($r) > 0) && (strlen($sql_extra . $sql_extra2 . $sql_extra3 . $sql_extra4 . $sql_nets) == 0)) {
+		$top_limit = current($r)['order_date'];
+		$bottom_limit = end($r)['order_date'];
+
+		// When checking for updates we need to fetch from the newest date to the newest date before
+		if ($update && !empty($_SESSION['network_last_date']) && ($bottom_limit > $_SESSION['network_last_date'])) {
+			$bottom_limit = $_SESSION['network_last_date'];
+		}
+		$_SESSION['network_last_date'] = $top_limit;
+
+		if ($last_date > $top_limit) {
+			$top_limit = $last_date;
+		}
+
+		$items = dba::p("SELECT `item`.`id` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid` FROM `item`
+			INNER JOIN (SELECT `oid` FROM `term` WHERE `term` IN
+				(SELECT SUBSTR(`term`, 2) FROM `search` WHERE `uid` = ? AND `term` LIKE '#%') AND `otype` = ? AND `type` = ? AND `uid` = 0) AS `term`
+			ON `item`.`id` = `term`.`oid`
+			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+			WHERE `item`.`uid` = 0 AND `item`.$ordering < ? AND `item`.$ordering > ?",
+			local_user(), TERM_OBJ_POST, TERM_HASHTAG, $top_limit, $bottom_limit);
+		$data = dba::inArray($items);
+
+		if (count($data) > 0) {
+			logger('Tagged items: '.count($data).' - '.$bottom_limit." - ".$top_limit.' - '.local_user()); //$last_date);
+			$r = array_merge($r, $data);
+		}
 	}
 
 	// Then fetch all the children of the parents that are on this page
@@ -825,10 +861,8 @@ function networkThreadedView(App $a, $update = 0) {
 		}
 
 		foreach ($parents_arr AS $parents) {
-			$thread_items = dba::p(item_query() . " AND `item`.`uid` = ?
-				AND `item`.`parent` = ?
+			$thread_items = dba::p(item_query() . " AND `item`.`parent` = ?
 				ORDER BY `item`.`commented` DESC LIMIT " . intval($max_comments + 1),
-				local_user(),
 				$parents
 			);
 
