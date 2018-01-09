@@ -16,6 +16,7 @@ use Friendica\Model\Photo;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
+use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Salmon;
 use dba;
 
@@ -1014,33 +1015,33 @@ class Contact extends BaseObject
 	 * @param integer $id contact id
 	 * @return boolean
 	 */
-	function update_contact($id)
+	public static function update($id)
 	{
 		/*
 		Warning: Never ever fetch the public key via Probe::uri and write it into the contacts.
 		This will reliably kill your communication with Friendica contacts.
 		*/
 
-		$r = q("SELECT `url`, `nurl`, `addr`, `alias`, `batch`, `notify`, `poll`, `poco`, `network` FROM `contact` WHERE `id` = %d", intval($id));
-		if (!$r) {
+		$r = dba::select('contact', ['url', 'nurl', 'addr', 'alias', 'batch', 'notify', 'poll', 'poco', 'network'], ['id' => $id], ['limit' => 1]);
+		if (!DBM::is_result($r)) {
 			return false;
 		}
 
-		$ret = Probe::uri($r[0]["url"]);
+		$ret = Probe::uri($r["url"]);
 
 		// If Probe::uri fails the network code will be different
-		if ($ret["network"] != $r[0]["network"]) {
+		if ($ret["network"] != $r["network"]) {
 			return false;
 		}
 
 		$update = false;
 
 		// make sure to not overwrite existing values with blank entries
-		foreach ($ret AS $key => $val) {
-			if (isset($r[0][$key]) && ($r[0][$key] != "") && ($val == ""))
-				$ret[$key] = $r[0][$key];
+		foreach ($ret as $key => $val) {
+			if (isset($r[$key]) && ($r[$key] != "") && ($val == ""))
+				$ret[$key] = $r[$key];
 
-			if (isset($r[0][$key]) && ($ret[$key] != $r[0][$key]))
+			if (isset($r[$key]) && ($ret[$key] != $r[$key]))
 				$update = true;
 		}
 
@@ -1048,16 +1049,19 @@ class Contact extends BaseObject
 			return true;
 		}
 
-		q("UPDATE `contact` SET `url` = '%s', `nurl` = '%s', `addr` = '%s', `alias` = '%s', `batch` = '%s', `notify` = '%s', `poll` = '%s', `poco` = '%s' WHERE `id` = %d",
-			dbesc($ret['url']),
-			dbesc(normalise_link($ret['url'])),
-			dbesc($ret['addr']),
-			dbesc($ret['alias']),
-			dbesc($ret['batch']),
-			dbesc($ret['notify']),
-			dbesc($ret['poll']),
-			dbesc($ret['poco']),
-			intval($id)
+		dba::update(
+			'contact',
+			[
+				'url' => $ret['url'],
+				'nurl' => normalise_link($ret['url']),
+				'addr' => $ret['addr'],
+				'alias' => $ret['alias'],
+				'batch' => $ret['batch'],
+				'notify' => $ret['notify'],
+				'poll' => $ret['poll'],
+				'poco' => $ret['poco']
+			],
+			['id' => $id]
 		);
 
 		// Update the corresponding gcontact entry
