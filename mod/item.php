@@ -58,12 +58,12 @@ function item_post(App $a) {
 	// logger('postinput ' . file_get_contents('php://input'));
 	logger('postvars ' . print_r($_REQUEST,true), LOGGER_DATA);
 
-	$api_source = ((x($_REQUEST, 'api_source') && $_REQUEST['api_source']) ? true : false);
+	$api_source = x($_REQUEST, 'api_source') && $_REQUEST['api_source'];
 
 	$message_id = ((x($_REQUEST, 'message_id') && $api_source) ? strip_tags($_REQUEST['message_id']) : '');
 
-	$return_path = ((x($_REQUEST, 'return')) ? $_REQUEST['return'] : '');
-	$preview = ((x($_REQUEST, 'preview')) ? intval($_REQUEST['preview']) : 0);
+	$return_path = (x($_REQUEST, 'return') ? $_REQUEST['return'] : '');
+	$preview = (x($_REQUEST, 'preview') ? intval($_REQUEST['preview']) : 0);
 
 	/*
 	 * Check for doubly-submitted posts, and reject duplicates
@@ -94,7 +94,7 @@ function item_post(App $a) {
 
 		$objecttype = ACTIVITY_OBJ_COMMENT;
 
-		if (! x($_REQUEST, 'type')) {
+		if (!x($_REQUEST, 'type')) {
 			$_REQUEST['type'] = 'net-comment';
 		}
 
@@ -122,7 +122,7 @@ function item_post(App $a) {
 		}
 
 		if (!DBM::is_result($r)) {
-			notice( t('Unable to locate original post.') . EOL);
+			notice(t('Unable to locate original post.') . EOL);
 			if (x($_REQUEST, 'return')) {
 				goaway($return_path);
 			}
@@ -175,11 +175,11 @@ function item_post(App $a) {
 		logger('mod_item: item_post parent=' . $parent);
 	}
 
-	$profile_uid = ((x($_REQUEST, 'profile_uid')) ? intval($_REQUEST['profile_uid']) : 0);
-	$post_id     = ((x($_REQUEST, 'post_id'))     ? intval($_REQUEST['post_id'])     : 0);
-	$app         = ((x($_REQUEST, 'source'))      ? strip_tags($_REQUEST['source'])  : '');
-	$extid       = ((x($_REQUEST, 'extid'))       ? strip_tags($_REQUEST['extid'])   : '');
-	$object      = ((x($_REQUEST, 'object'))      ? $_REQUEST['object']              : '');
+	$profile_uid = (x($_REQUEST, 'profile_uid') ? intval($_REQUEST['profile_uid']) : 0);
+	$post_id     = (x($_REQUEST, 'post_id')     ? intval($_REQUEST['post_id'])     : 0);
+	$app         = (x($_REQUEST, 'source')      ? strip_tags($_REQUEST['source'])  : '');
+	$extid       = (x($_REQUEST, 'extid')       ? strip_tags($_REQUEST['extid'])   : '');
+	$object      = (x($_REQUEST, 'object')      ? $_REQUEST['object']              : '');
 
 	// Check for multiple posts with the same message id (when the post was created via API)
 	if (($message_id != '') && ($profile_uid != 0)) {
@@ -233,7 +233,7 @@ function item_post(App $a) {
 			intval($profile_uid),
 			intval($post_id)
 		);
-		if (! DBM::is_result($i)) {
+		if (!DBM::is_result($i)) {
 			killme();
 		}
 		$orig_post = $i[0];
@@ -277,10 +277,10 @@ function item_post(App $a) {
 		 */
 		/// @TODO use x($_REQUEST, 'foo') here
 		if (($api_source)
-			&& (! array_key_exists('contact_allow', $_REQUEST))
-			&& (! array_key_exists('group_allow', $_REQUEST))
-			&& (! array_key_exists('contact_deny', $_REQUEST))
-			&& (! array_key_exists('group_deny', $_REQUEST))) {
+			&& !array_key_exists('contact_allow', $_REQUEST)
+			&& !array_key_exists('group_allow', $_REQUEST)
+			&& !array_key_exists('contact_deny', $_REQUEST)
+			&& !array_key_exists('group_deny', $_REQUEST)) {
 			$str_group_allow   = $user['allow_gid'];
 			$str_contact_allow = $user['allow_cid'];
 			$str_group_deny    = $user['deny_gid'];
@@ -331,13 +331,13 @@ function item_post(App $a) {
 			$private           = $parent_item['private'];
 		}
 
-		$pubmail_enable    = ((x($_REQUEST, 'pubmail_enable') && intval($_REQUEST['pubmail_enable']) && (! $private)) ? 1 : 0);
+		$pubmail_enable    = ((x($_REQUEST, 'pubmail_enable') && intval($_REQUEST['pubmail_enable']) && !$private) ? 1 : 0);
 
 		// if using the API, we won't see pubmail_enable - figure out if it should be set
 
-		if ($api_source && $profile_uid && $profile_uid == local_user() && (! $private)) {
-			$mail_disabled = ((function_exists('imap_open') && (! Config::get('system', 'imap_disabled'))) ? 0 : 1);
-			if (! $mail_disabled) {
+		if ($api_source && $profile_uid && $profile_uid == local_user() && !$private) {
+			$mail_disabled = ((function_exists('imap_open') && !Config::get('system', 'imap_disabled')) ? 0 : 1);
+			if (!$mail_disabled) {
 				/// @TODO Check if only pubmail is loaded, * loads all columns
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
 					intval(local_user())
@@ -348,11 +348,11 @@ function item_post(App $a) {
 			}
 		}
 
-		if (! strlen($body)) {
+		if (!strlen($body)) {
 			if ($preview) {
 				killme();
 			}
-			info(t('Empty post discarded.') . EOL );
+			info(t('Empty post discarded.') . EOL);
 			if (x($_REQUEST, 'return')) {
 				goaway($return_path);
 			}
@@ -496,7 +496,7 @@ function item_post(App $a) {
 				continue;
 			}
 
-			$success = handle_tag($a, $body, $inform, $str_tags, (local_user()) ? local_user() : $profile_uid , $tag, $network);
+			$success = handle_tag($a, $body, $inform, $str_tags, local_user() ? local_user() : $profile_uid, $tag, $network);
 			if ($success['replaced']) {
 				$tagged[] = $tag;
 			}
@@ -571,7 +571,7 @@ function item_post(App $a) {
 					intval($profile_uid)
 				);
 
-				if (! DBM::is_result($r)) {
+				if (!DBM::is_result($r)) {
 					continue;
 				}
 
@@ -595,7 +595,7 @@ function item_post(App $a) {
 	 */
 	$match = false;
 
-	if ((! $preview) && preg_match_all("/\[attachment\](.*?)\[\/attachment\]/", $body, $match)) {
+	if (!$preview && preg_match_all("/\[attachment\](.*?)\[\/attachment\]/", $body, $match)) {
 		$attaches = $match[1];
 		if (count($attaches)) {
 			foreach ($attaches as $attach) {
@@ -676,24 +676,24 @@ function item_post(App $a) {
 		$wall = 1;
 	}
 
-	if (! strlen($verb)) {
-		$verb = ACTIVITY_POST ;
+	if (!strlen($verb)) {
+		$verb = ACTIVITY_POST;
 	}
 
 	if ($network == "") {
 		$network = NETWORK_DFRN;
 	}
 
-	$gravity = (($parent) ? 6 : 0 );
+	$gravity = ($parent ? 6 : 0);
 
 	// even if the post arrived via API we are considering that it
 	// originated on this site by default for determining relayability.
 
-	$origin = ((x($_REQUEST, 'origin')) ? intval($_REQUEST['origin']) : 1);
+	$origin = (x($_REQUEST, 'origin') ? intval($_REQUEST['origin']) : 1);
 
-	$notify_type = (($parent) ? 'comment-new' : 'wall-new' );
+	$notify_type = ($parent ? 'comment-new' : 'wall-new');
 
-	$uri = (($message_id) ? $message_id : item_new_uri($a->get_hostname(),$profile_uid, $guid));
+	$uri = ($message_id ? $message_id : item_new_uri($a->get_hostname(),$profile_uid, $guid));
 
 	// Fallback so that we alway have a thr-parent
 	if (!$thr_parent) {
@@ -756,7 +756,6 @@ function item_post(App $a) {
 	 */
 	$datarray['parent']        = $parent;
 	$datarray['self']          = $self;
-//	$datarray['prvnets']       = $user['prvnets'];
 
 	// This triggers posts via API and the mirror functions
 	$datarray['api_source'] = $api_source;
@@ -819,20 +818,23 @@ function item_post(App $a) {
 
 	$datarray = store_conversation($datarray);
 
+	unset($datarray['edit']);
+	unset($datarray['self']);
+	unset($datarray['api_source']);
+
 	if ($orig_post) {
-		$r = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `tag` = '%s', `attach` = '%s', `file` = '%s', `rendered-html` = '%s', `rendered-hash` = '%s', `edited` = '%s', `changed` = '%s' WHERE `id` = %d AND `uid` = %d",
-			dbesc($datarray['title']),
-			dbesc($datarray['body']),
-			dbesc($datarray['tag']),
-			dbesc($datarray['attach']),
-			dbesc($datarray['file']),
-			dbesc($datarray['rendered-html']),
-			dbesc($datarray['rendered-hash']),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			intval($post_id),
-			intval($profile_uid)
-		);
+		$fields = array(
+			'title' => $datarray['title'],
+			'body' => $datarray['body'],
+			'tag' => $datarray['tag'],
+			'attach' => $datarray['attach'],
+			'file' => $datarray['file'],
+			'rendered-html' => $datarray['rendered-html'],
+			'rendered-hash' => $datarray['rendered-hash'],
+			'edited' => datetime_convert(),
+			'changed' => datetime_convert());
+
+		dba::update('item', $fields, ['id' => $post_id]);
 
 		create_tags_from_item($post_id);
 		create_files_from_item($post_id);
@@ -842,7 +844,7 @@ function item_post(App $a) {
 		file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
 
 		Worker::add(PRIORITY_HIGH, "Notifier", 'edit_post', $post_id);
-		if ((x($_REQUEST, 'return')) && strlen($return_path)) {
+		if (x($_REQUEST, 'return') && strlen($return_path)) {
 			logger('return: ' . $return_path);
 			goaway($return_path);
 		}
@@ -851,123 +853,15 @@ function item_post(App $a) {
 		$post_id = 0;
 	}
 
-	dba::transaction();
-
-	$r = q("INSERT INTO `item` (`guid`, `extid`, `uid`,`type`,`wall`,`gravity`, `network`, `contact-id`,
-					`owner-name`,`owner-link`,`owner-avatar`, `owner-id`,
-					`author-name`, `author-link`, `author-avatar`, `author-id`,
-					`created`, `edited`, `commented`, `received`, `changed`,
-					`uri`, `thr-parent`, `title`, `body`, `app`, `location`, `coord`,
-					`tag`, `inform`, `verb`, `object-type`, `postopts`,
-					`allow_cid`, `allow_gid`, `deny_cid`, `deny_gid`, `private`,
-					`pubmail`, `attach`, `bookmark`,`origin`, `moderated`, `file`,
-					`rendered-html`, `rendered-hash`, `gcontact-id`, `object`,
-					`parent`, `parent-uri`, `plink`, `last-child`, `visible`)
-		VALUES('%s', '%s', %d, '%s', %d, %d, '%s', %d,
-			'%s', '%s', '%s', %d,
-			'%s', '%s', '%s', %d,
-			'%s', '%s', '%s', '%s', '%s',
-			'%s', '%s', '%s', '%s', '%s', '%s', '%s',
-			'%s', '%s', '%s', '%s', '%s',
-			'%s', '%s', '%s', '%s', %d,
-			%d, '%s', %d, %d, %d, '%s',
-			'%s', '%s', %d, '%s',
-			%d, '%s', '%s', %d, %d)",
-		dbesc($datarray['guid']),
-		dbesc($datarray['extid']),
-		intval($datarray['uid']),
-		dbesc($datarray['type']),
-		intval($datarray['wall']),
-		intval($datarray['gravity']),
-		dbesc($datarray['network']),
-		intval($datarray['contact-id']),
-		dbesc($datarray['owner-name']),
-		dbesc($datarray['owner-link']),
-		dbesc($datarray['owner-avatar']),
-		intval($datarray['owner-id']),
-		dbesc($datarray['author-name']),
-		dbesc($datarray['author-link']),
-		dbesc($datarray['author-avatar']),
-		intval($datarray['author-id']),
-		dbesc($datarray['created']),
-		dbesc($datarray['edited']),
-		dbesc($datarray['commented']),
-		dbesc($datarray['received']),
-		dbesc($datarray['changed']),
-		dbesc($datarray['uri']),
-		dbesc($datarray['thr-parent']),
-		dbesc($datarray['title']),
-		dbesc($datarray['body']),
-		dbesc($datarray['app']),
-		dbesc($datarray['location']),
-		dbesc($datarray['coord']),
-		dbesc($datarray['tag']),
-		dbesc($datarray['inform']),
-		dbesc($datarray['verb']),
-		dbesc($datarray['object-type']),
-		dbesc($datarray['postopts']),
-		dbesc($datarray['allow_cid']),
-		dbesc($datarray['allow_gid']),
-		dbesc($datarray['deny_cid']),
-		dbesc($datarray['deny_gid']),
-		intval($datarray['private']),
-		intval($datarray['pubmail']),
-		dbesc($datarray['attach']),
-		intval($datarray['bookmark']),
-		intval($datarray['origin']),
-		intval($datarray['moderated']),
-		dbesc($datarray['file']),
-		dbesc($datarray['rendered-html']),
-		dbesc($datarray['rendered-hash']),
-		intval($datarray['gcontact-id']),
-		dbesc($datarray['object']),
-		intval($datarray['parent']),
-		dbesc($datarray['parent-uri']),
-		dbesc($datarray['plink']),
-		intval($datarray['last-child']),
-		intval($datarray['visible'])
-	);
-
-	if (DBM::is_result($r)) {
-		$post_id = dba::lastInsertId();
-	} else {
-		logger('mod_item: unable to create post.');
-		$post_id = 0;
-	}
-
-	if ($post_id == 0) {
-		dba::commit();
-		logger('mod_item: unable to retrieve post that was just stored.');
-		notice(t('System error. Post not saved.') . EOL);
-		goaway($return_path);
-		// NOTREACHED
-	}
-
-	logger('mod_item: saved item ' . $post_id);
+	$post_id = item_store($datarray);
 
 	$datarray["id"] = $post_id;
 
-	item_set_last_item($datarray);
-
 	// update filetags in pconfig
-	file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
+	file_tag_update_pconfig($uid, $categories_old, $categories_new, 'category');
 
+	// These notifications are sent if someone else is commenting other your wall
 	if ($parent) {
-
-		// This item is the last leaf and gets the comment box, clear any ancestors
-		$r = q("UPDATE `item` SET `last-child` = 0, `changed` = '%s' WHERE `parent` = %d AND `last-child` AND `id` != %d",
-			dbesc(datetime_convert()),
-			intval($parent),
-			intval($post_id)
-		);
-
-		// update the commented timestamp on the parent
-		q("UPDATE `item` SET `visible` = 1, `commented` = '%s', `changed` = '%s' WHERE `id` = %d",
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			intval($parent)
-		);
-
 		if ($contact_record != $author) {
 			notification(array(
 				'type'         => NOTIFY_COMMENT,
@@ -986,20 +880,11 @@ function item_post(App $a) {
 				'parent'       => $parent,
 				'parent_uri'   => $parent_item['uri']
 			));
-
 		}
-
 
 		// Store the comment signature information in case we need to relay to Diaspora
 		Diaspora::storeCommentSignature($datarray, $author, ($self ? $user['prvkey'] : false), $post_id);
-
 	} else {
-		$parent = $post_id;
-
-		$r = q("UPDATE `item` SET `parent` = %d WHERE `id` = %d",
-			intval($parent),
-			intval($post_id));
-
 		if (($contact_record != $author) && !count($forum_contact)) {
 			notification(array(
 				'type'         => NOTIFY_WALL,
@@ -1026,17 +911,17 @@ function item_post(App $a) {
 		if (count($erecips)) {
 			foreach ($erecips as $recip) {
 				$addr = trim($recip);
-				if (! strlen($addr)) {
+				if (!strlen($addr)) {
 					continue;
 				}
-				$disclaimer = '<hr />' . sprintf( t('This message was sent to you by %s, a member of the Friendica social network.'), $a->user['username'])
+				$disclaimer = '<hr />' . sprintf(t('This message was sent to you by %s, a member of the Friendica social network.'), $a->user['username'])
 					. '<br />';
-				$disclaimer .= sprintf( t('You may visit them online at %s'), System::baseUrl() . '/profile/' . $a->user['nickname']) . EOL;
+				$disclaimer .= sprintf(t('You may visit them online at %s'), System::baseUrl() . '/profile/' . $a->user['nickname']) . EOL;
 				$disclaimer .= t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
 				if (!$datarray['title']=='') {
 					$subject = Email::encodeHeader($datarray['title'], 'UTF-8');
 				} else {
-					$subject = Email::encodeHeader('[Friendica]' . ' ' . sprintf( t('%s posted an update.'), $a->user['username']), 'UTF-8');
+					$subject = Email::encodeHeader('[Friendica]' . ' ' . sprintf(t('%s posted an update.'), $a->user['username']), 'UTF-8');
 				}
 				$link = '<a href="' . System::baseUrl() . '/profile/' . $a->user['nickname'] . '"><img src="' . $author['thumb'] . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
 				$html    = prepare_body($datarray);
@@ -1055,19 +940,6 @@ function item_post(App $a) {
 			}
 		}
 	}
-
-	if ($post_id == $parent) {
-		add_thread($post_id);
-	} else {
-		update_thread($parent, true);
-	}
-
-	dba::commit();
-
-	create_tags_from_item($post_id);
-	create_files_from_item($post_id);
-
-	check_user_notification($post_id);
 
 	// Insert an item entry for UID=0 for global entries.
 	// We now do it in the background to save some time.
@@ -1110,7 +982,7 @@ function item_post_return($baseurl, $api_source, $return_path) {
 
 function item_content(App $a) {
 
-	if ((! local_user()) && (! remote_user())) {
+	if (!local_user() && !remote_user()) {
 		return;
 	}
 
@@ -1329,7 +1201,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			$newtag = $tag_type.'[url=' . $profile . ']' . $newname . '[/url]';
 			$body = str_replace($tag_type . $name, $newtag, $body);
 			// append tag to str_tags
-			if (! stristr($str_tags, $newtag)) {
+			if (!stristr($str_tags, $newtag)) {
 				if (strlen($str_tags)) {
 					$str_tags .= ',';
 				}
@@ -1342,7 +1214,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			 */
 			if (strlen($alias)) {
 				$newtag = '@[url=' . $alias . ']' . $newname . '[/url]';
-				if (! stristr($str_tags, $newtag)) {
+				if (!stristr($str_tags, $newtag)) {
 					if (strlen($str_tags)) {
 						$str_tags .= ',';
 					}
