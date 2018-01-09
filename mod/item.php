@@ -21,6 +21,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Model\Item;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
@@ -820,16 +821,11 @@ function item_post(App $a) {
 			'edited' => datetime_convert(),
 			'changed' => datetime_convert());
 
-		dba::update('item', $fields, ['id' => $post_id]);
-
-		create_tags_from_item($post_id);
-		create_files_from_item($post_id);
-		update_thread($post_id);
+		Item::update($fields, ['id' => $post_id]);
 
 		// update filetags in pconfig
 		file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
 
-		Worker::add(PRIORITY_HIGH, "Notifier", 'edit_post', $post_id);
 		if (x($_REQUEST, 'return') && strlen($return_path)) {
 			logger('return: ' . $return_path);
 			goaway($return_path);
