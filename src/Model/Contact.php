@@ -1016,7 +1016,7 @@ class Contact extends BaseObject
 	 * @param integer $id contact id
 	 * @return boolean
 	 */
-	public static function update($id)
+	public static function updateFromProbe($id)
 	{
 		/*
 		Warning: Never ever fetch the public key via Probe::uri and write it into the contacts.
@@ -1089,7 +1089,7 @@ class Contact extends BaseObject
 	 * @param string $network
 	 * @return boolean|string
 	 */
-	public static function add($uid, $url, $interactive = false, $network = '')
+	public static function create($uid, $url, $interactive = false, $network = '')
 	{
 		$result = array('cid' => -1, 'success' => false, 'message' => '');
 

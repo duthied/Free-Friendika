@@ -68,7 +68,7 @@ function ostatus_subscribe_content(App $a) {
 
 	$data = Probe::uri($url);
 	if ($data["network"] == NETWORK_OSTATUS) {
-		$result = Contact::new($uid, $url, true, NETWORK_OSTATUS);
+		$result = Contact::create($uid, $url, true, NETWORK_OSTATUS);
 		if ($result["success"]) {
 			$o .= " - ".t("success");
 		} else {

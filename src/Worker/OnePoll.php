@@ -117,7 +117,7 @@ Class OnePoll
 				return;
 			}
 
-			if (!Contact::update($contact["id"])) {
+			if (!Contact::updateFromProbe($contact["id"])) {
 				Contact::markForArchival($contact);
 				logger('Contact is marked dead');
 

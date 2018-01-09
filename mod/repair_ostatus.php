@@ -52,7 +52,7 @@ function repair_ostatus_content(App $a) {
 
 	$o .= "<p>".t("Keep this window open until done.")."</p>";
 
-	$result = Contact::new($uid,$r[0]["url"],true);
+	$result = Contact::create($uid,$r[0]["url"],true);
 
 	$a->page['htmlhead'] = '<meta http-equiv="refresh" content="1; URL='.System::baseUrl().'/repair_ostatus?counter='.$counter.'">';
 

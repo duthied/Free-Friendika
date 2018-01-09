@@ -242,7 +242,7 @@ function _contact_update($contact_id)
 	$uid = $contact["uid"];
 
 	if ($r[0]["network"] == NETWORK_OSTATUS) {
-		$result = Contact::new($uid, $contact["url"], false, $contact["network"]);
+		$result = Contact::create($uid, $contact["url"], false, $contact["network"]);
 
 		if ($result['success']) {
 			q("UPDATE `contact` SET `subhub` = 1 WHERE `id` = %d", intval($contact_id));
@@ -274,7 +274,7 @@ function _contact_update_profile($contact_id)
 	$update = array();
 
 	if ($data["network"] == NETWORK_OSTATUS) {
-		$result = Contact::new($uid, $data["url"], false);
+		$result = Contact::create($uid, $data["url"], false);
 
 		if ($result['success']) {
 			$update["subhub"] = true;
