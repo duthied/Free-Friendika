@@ -5,12 +5,12 @@
 use Friendica\App;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
+use Friendica\Model\Contact;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\Crypto;
 
 require_once 'include/items.php';
-require_once 'include/follow.php';
 
 function salmon_return($val) {
 
@@ -164,7 +164,7 @@ function salmon_post(App $a) {
 	if (! DBM::is_result($r)) {
 		logger('mod-salmon: Author unknown to us.');
 		if(PConfig::get($importer['uid'],'system','ostatus_autofriend')) {
-			$result = new_contact($importer['uid'],$author_link);
+			$result = Contact::createFromProbe($importer['uid'], $author_link);
 			if($result['success']) {
 				$r = q("SELECT * FROM `contact` WHERE `network` = '%s' AND ( `url` = '%s' OR `alias` = '%s')
 					AND `uid` = %d LIMIT 1",

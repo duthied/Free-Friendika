@@ -1,12 +1,13 @@
 <?php
-
+/**
+ * @file mod/follow.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Network\Probe;
 
-require_once 'include/follow.php';
 require_once 'include/contact_selectors.php';
 
 function follow_post(App $a) {
@@ -29,7 +30,7 @@ function follow_post(App $a) {
 	// This is just a precaution if maybe this page is called somewhere directly via POST
 	$_SESSION["fastlane"] = $url;
 
-	$result = new_contact($uid,$url,true);
+	$result = Contact::createFromProbe($uid, $url, true);
 
 	if ($result['success'] == false) {
 		if ($result['message']) {

@@ -1,11 +1,12 @@
 <?php
-
+/**
+ * @file mod/ostatus_subscribe.php
+ */
 use Friendica\App;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Model\Contact;
 use Friendica\Network\Probe;
-
-require_once 'include/follow.php';
 
 function ostatus_subscribe_content(App $a) {
 
@@ -67,7 +68,7 @@ function ostatus_subscribe_content(App $a) {
 
 	$data = Probe::uri($url);
 	if ($data["network"] == NETWORK_OSTATUS) {
-		$result = new_contact($uid, $url, true, NETWORK_OSTATUS);
+		$result = Contact::createFromProbe($uid, $url, true, NETWORK_OSTATUS);
 		if ($result["success"]) {
 			$o .= " - ".t("success");
 		} else {

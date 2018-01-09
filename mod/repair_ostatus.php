@@ -1,9 +1,10 @@
 <?php
-
+/**
+ * @file mod/repair_ostatus.php
+ */
 use Friendica\App;
 use Friendica\Core\System;
-
-require_once 'include/follow.php';
+use Friendica\Model\Contact;
 
 function repair_ostatus_content(App $a) {
 
@@ -51,7 +52,7 @@ function repair_ostatus_content(App $a) {
 
 	$o .= "<p>".t("Keep this window open until done.")."</p>";
 
-	$result = new_contact($uid,$r[0]["url"],true);
+	$result = Contact::createFromProbe($uid,$r[0]["url"],true);
 
 	$a->page['htmlhead'] = '<meta http-equiv="refresh" content="1; URL='.System::baseUrl().'/repair_ostatus?counter='.$counter.'">';
 

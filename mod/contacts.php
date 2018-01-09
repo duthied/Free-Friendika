@@ -14,7 +14,6 @@ use Friendica\Network\Probe;
 
 require_once 'include/contact_selectors.php';
 require_once 'include/contact_widgets.php';
-require_once 'include/follow.php';
 require_once 'mod/proxy.php';
 
 function contacts_init(App $a)
@@ -243,7 +242,7 @@ function _contact_update($contact_id)
 	$uid = $contact["uid"];
 
 	if ($r[0]["network"] == NETWORK_OSTATUS) {
-		$result = new_contact($uid, $contact["url"], false, $contact["network"]);
+		$result = Contact::createFromProbe($uid, $contact["url"], false, $contact["network"]);
 
 		if ($result['success']) {
 			q("UPDATE `contact` SET `subhub` = 1 WHERE `id` = %d", intval($contact_id));
@@ -275,7 +274,7 @@ function _contact_update_profile($contact_id)
 	$update = array();
 
 	if ($data["network"] == NETWORK_OSTATUS) {
-		$result = new_contact($uid, $data["url"], false);
+		$result = Contact::createFromProbe($uid, $data["url"], false);
 
 		if ($result['success']) {
 			$update["subhub"] = true;
