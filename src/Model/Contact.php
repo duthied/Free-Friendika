@@ -1088,7 +1088,7 @@ class Contact extends BaseObject
 	 * @param string $network
 	 * @return boolean|string
 	 */
-	function new_contact($uid, $url, $interactive = false, $network = '')
+	public static function add($uid, $url, $interactive = false, $network = '')
 	{
 		$result = array('cid' => -1, 'success' => false, 'message' => '');
 
@@ -1216,44 +1216,44 @@ class Contact extends BaseObject
 			$new_relation = ((in_array($ret['network'], array(NETWORK_MAIL))) ? CONTACT_IS_FRIEND : CONTACT_IS_SHARING);
 
 			// create contact record
-			q("INSERT INTO `contact` ( `uid`, `created`, `url`, `nurl`, `addr`, `alias`, `batch`, `notify`, `poll`, `poco`, `name`, `nick`, `network`, `pubkey`, `rel`, `priority`,
-				`writable`, `hidden`, `blocked`, `readonly`, `pending`, `subhub` )
-				VALUES ( %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d, 0, 0, 0, %d ) ",
-				intval($uid),
-				dbesc(datetime_convert()),
-				dbesc($ret['url']),
-				dbesc(normalise_link($ret['url'])),
-				dbesc($ret['addr']),
-				dbesc($ret['alias']),
-				dbesc($ret['batch']),
-				dbesc($ret['notify']),
-				dbesc($ret['poll']),
-				dbesc($ret['poco']),
-				dbesc($ret['name']),
-				dbesc($ret['nick']),
-				dbesc($ret['network']),
-				dbesc($ret['pubkey']),
-				intval($new_relation),
-				intval($ret['priority']),
-				intval($writeable),
-				intval($hidden),
-				intval($subhub)
+			dba::insert(
+				'contact',
+				[
+					'uid' => $uid,
+					'created' => datetime_convert(),
+					'url' => $ret['url'],
+					'nurl' => normalise_link($ret['url']),
+					'addr' => $ret['addr'],
+					'alias' => $ret['alias'],
+					'batch' => $ret['batch'],
+					`notify` => $ret['notify'],
+					`poll` => $ret['poll'],
+					`poco` => $ret['poco'],
+					`name` => $ret['name'],
+					`nick` => $ret['nick'],
+					`network` => $ret['network'],
+					`pubkey` => $ret['pubkey'],
+					`rel` => $new_relation,
+					`priority` => $ret['priority'],
+					`writable` => $writeable,
+					`hidden` => $hidden,
+					`blocked` => 0,
+					`readonly` => 0,
+					`pending` => 0,
+					`subhub` => $subhub
+				]
 			);
 		}
 
-		$r = q("SELECT * FROM `contact` WHERE `url` = '%s' AND `network` = '%s' AND `uid` = %d LIMIT 1",
-			dbesc($ret['url']),
-			dbesc($ret['network']),
-			intval($uid)
-		);
+		$r = dba::select('contact', ['url' => $ret['url'], 'network' => $ret['network'], 'uid' => $uid], ['limit' => 1]);
 
 		if (!DBM::is_result($r)) {
 			$result['message'] .= t('Unable to retrieve contact information.') . EOL;
 			return $result;
 		}
 
-		$contact = $r[0];
-		$contact_id = $r[0]['id'];
+		$contact = $r;
+		$contact_id = $r['id'];
 		$result['cid'] = $contact_id;
 
 		Group::addMember(User::getDefaultGroup($uid, $contact["network"]), $contact_id);
