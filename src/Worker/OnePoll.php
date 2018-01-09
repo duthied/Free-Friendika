@@ -13,7 +13,6 @@ use Friendica\Protocol\PortableContact;
 use dba;
 
 require_once 'include/dba.php';
-require_once 'include/follow.php';
 
 Class OnePoll
 {
@@ -118,7 +117,7 @@ Class OnePoll
 				return;
 			}
 
-			if (!update_contact($contact["id"])) {
+			if (!Contact::update($contact["id"])) {
 				Contact::markForArchival($contact);
 				logger('Contact is marked dead');
 

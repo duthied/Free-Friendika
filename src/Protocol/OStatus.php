@@ -26,7 +26,6 @@ require_once 'include/bbcode.php';
 require_once 'include/items.php';
 require_once 'mod/share.php';
 require_once 'include/enotify.php';
-require_once 'include/follow.php';
 require_once 'include/api.php';
 require_once 'mod/proxy.php';
 

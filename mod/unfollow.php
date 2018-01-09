@@ -1,11 +1,12 @@
 <?php
-
+/**
+ * @file mod/unfollow.php
+ */
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 
-require_once 'include/follow.php';
 require_once 'include/contact_selectors.php';
 
 function unfollow_post(App $a) {
