@@ -21,7 +21,12 @@ class Item
 	 * @param array $fields The fields that are to be changed
 	 * @param array $condition The condition for finding the item entries
 	 *
-	 * @return boolean success
+	 * In the future we may have to change permissions as well.
+	 * Then we had to add the user id as third parameter.
+	 *
+	 * A return value of "0" doesn't mean an error - but that 0 rows had been changed.
+	 *
+	 * @return integer|boolean number of affected rows - or "false" if there was an error
 	 */
 	public static function update(array $fields, array $condition)
 	{
@@ -34,6 +39,8 @@ class Item
 		if (!$success) {
 			return false;
 		}
+
+		$rows = dba::affected_rows();
 
 		// We cannot simply expand the condition to check for origin entries
 		// The condition needn't to be a simple array but could be a complex condition.
@@ -51,6 +58,6 @@ class Item
 			Worker::add(PRIORITY_HIGH, "Notifier", 'edit_post', $item['id']);
 		}
 
-		return true;
+		return $rows;
 	}
 }
