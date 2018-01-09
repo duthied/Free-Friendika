@@ -810,6 +810,11 @@ function item_post(App $a) {
 	}
 
 	if ($orig_post) {
+
+		// Fill the cache field
+		// This could be done in Item::update as well - but we hasd to check for the existance of some fields.
+		put_item_in_cache($datarray);
+
 		$fields = array(
 			'title' => $datarray['title'],
 			'body' => $datarray['body'],
