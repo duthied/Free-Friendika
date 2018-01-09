@@ -13,9 +13,6 @@
  *
  * All of these become an "item" which is our basic unit of
  * information.
- *
- * Posts that originate externally or do not fall into the above
- * posting categories go through item_store() instead of this function.
  */
 use Friendica\App;
 use Friendica\Core\Config;
@@ -37,7 +34,6 @@ require_once 'include/text.php';
 require_once 'include/items.php';
 
 function item_post(App $a) {
-
 	if (!local_user() && !remote_user() && !x($_REQUEST, 'commenter')) {
 		return;
 	}
@@ -132,7 +128,6 @@ function item_post(App $a) {
 		$parent = $r[0]['id'];
 
 		// multi-level threading - preserve the info but re-parent to our single level threading
-		//if(($parid) && ($parid != $parent))
 		$thr_parent = $parent_uri;
 
 		if ($parent_item['contact-id'] && $uid) {
@@ -276,7 +271,7 @@ function item_post(App $a) {
 		 * been supplied via a form.
 		 */
 		/// @TODO use x($_REQUEST, 'foo') here
-		if (($api_source)
+		if ($api_source
 			&& !array_key_exists('contact_allow', $_REQUEST)
 			&& !array_key_exists('group_allow', $_REQUEST)
 			&& !array_key_exists('contact_deny', $_REQUEST)
@@ -485,7 +480,7 @@ function item_post(App $a) {
 			 * Robert Johnson should be first in the $tags array
 			 */
 			$fullnametagged = false;
-			/// @TODO $tagged is initialized above if() block and is not filled, maybe old-lost code?
+			/// @TODO $tagged is initialized above if () block and is not filled, maybe old-lost code?
 			foreach ($tagged as $nextTag) {
 				if (stristr($nextTag, $tag . ' ')) {
 					$fullnametagged = true;
@@ -813,15 +808,6 @@ function item_post(App $a) {
 		killme();
 	}
 
-	// Fill the cache field
-	put_item_in_cache($datarray);
-
-	$datarray = store_conversation($datarray);
-
-	unset($datarray['edit']);
-	unset($datarray['self']);
-	unset($datarray['api_source']);
-
 	if ($orig_post) {
 		$fields = array(
 			'title' => $datarray['title'],
@@ -852,6 +838,10 @@ function item_post(App $a) {
 	} else {
 		$post_id = 0;
 	}
+
+	unset($datarray['edit']);
+	unset($datarray['self']);
+	unset($datarray['api_source']);
 
 	$post_id = item_store($datarray);
 
@@ -1138,7 +1128,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			}
 
 			// select someone by attag or nick and the name passed in the current network
-			if(!DBM::is_result($r) && ($network != ""))
+			if (!DBM::is_result($r) && ($network != ""))
 				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `network` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
 						dbesc($name),
 						dbesc($name),
@@ -1156,7 +1146,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			}
 
 			// select someone by attag or nick and the name passed in
-			if(!DBM::is_result($r)) {
+			if (!DBM::is_result($r)) {
 				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
 						dbesc($name),
 						dbesc($name),
@@ -1165,7 +1155,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			}
 
 			// select someone from this user's contacts by name
-			if(!DBM::is_result($r)) {
+			if (!DBM::is_result($r)) {
 				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
 						dbesc($name),
 						intval($profile_uid)
