@@ -1277,11 +1277,12 @@ class DBStructure {
 		$database["oembed"] = array(
 				"fields" => array(
 						"url" => array("type" => "varbinary(255)", "not null" => "1", "primary" => "1"),
+						"maxwidth" => array("type" => "int(11)", "not null" => "1", "primary" => "1"),
 						"content" => array("type" => "mediumtext"),
 						"created" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE),
 						),
 				"indexes" => array(
-						"PRIMARY" => array("url"),
+						"PRIMARY" => array("url", "maxwidth"),
 						"created" => array("created"),
 						)
 				);

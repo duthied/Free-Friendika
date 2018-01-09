@@ -47,8 +47,8 @@ class OEmbed
 	 * @param string $embedurl The URL from which the data should be fetched.
 	 * @param bool $no_rich_type If set to true rich type content won't be fetched.
 	 *
-	 * @return bool|object Returns object with embed content or false if no embedable
-	 * 	 content exists
+	 * @return bool|object Returns object with embed content or false if no embeddable
+	 * 	                   content exists
 	 */
 	public static function fetchURL($embedurl, $no_rich_type = false)
 	{
@@ -57,7 +57,7 @@ class OEmbed
 
 		$a = get_app();
 
-		$condition = ['url' => normalise_link($embedurl)];
+		$condition = ['url' => normalise_link($embedurl), 'maxwidth' => $a->videowidth];
 		$r = dba::selectFirst('oembed', ['content'], $condition);
 		if (DBM::is_result($r)) {
 			$txt = $r["content"];
@@ -105,8 +105,12 @@ class OEmbed
 			} else { //save in cache
 				$j = json_decode($txt);
 				if ($j->type != "error") {
-					dba::insert('oembed', array('url' => normalise_link($embedurl),
-						'content' => $txt, 'created' => datetime_convert()), true);
+					dba::insert('oembed', [
+						'url' => normalise_link($embedurl),
+						'maxwidth' => $a->videowidth,
+						'content' => $txt,
+						'created' => datetime_convert()
+					], true);
 				}
 
 				Cache::set($a->videowidth . $embedurl, $txt, CACHE_DAY);
@@ -306,7 +310,7 @@ class OEmbed
 		if (!x($str_allowed)) {
 			return false;
 		}
-		
+
 		$allowed = explode(',', $str_allowed);
 
 		return allowed_domain($domain, $allowed);
