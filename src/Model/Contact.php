@@ -1089,7 +1089,7 @@ class Contact extends BaseObject
 	 * @param string $network
 	 * @return boolean|string
 	 */
-	public static function create($uid, $url, $interactive = false, $network = '')
+	public static function createFromProbe($uid, $url, $interactive = false, $network = '')
 	{
 		$result = array('cid' => -1, 'success' => false, 'message' => '');
 

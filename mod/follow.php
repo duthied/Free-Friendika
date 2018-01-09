@@ -30,7 +30,7 @@ function follow_post(App $a) {
 	// This is just a precaution if maybe this page is called somewhere directly via POST
 	$_SESSION["fastlane"] = $url;
 
-	$result = Contact::create($uid, $url, true);
+	$result = Contact::createFromProbe($uid, $url, true);
 
 	if ($result['success'] == false) {
 		if ($result['message']) {

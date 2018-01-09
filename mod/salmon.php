@@ -164,7 +164,7 @@ function salmon_post(App $a) {
 	if (! DBM::is_result($r)) {
 		logger('mod-salmon: Author unknown to us.');
 		if(PConfig::get($importer['uid'],'system','ostatus_autofriend')) {
-			$result = Contact::create($importer['uid'], $author_link);
+			$result = Contact::createFromProbe($importer['uid'], $author_link);
 			if($result['success']) {
 				$r = q("SELECT * FROM `contact` WHERE `network` = '%s' AND ( `url` = '%s' OR `alias` = '%s')
 					AND `uid` = %d LIMIT 1",
