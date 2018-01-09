@@ -7,6 +7,7 @@
 namespace Friendica\Model;
 
 use Friendica\BaseObject;
+use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -1259,7 +1260,7 @@ class Contact extends BaseObject
 		Group::addMember(User::getDefaultGroup($uid, $contact["network"]), $contact_id);
 
 		// Update the avatar
-		Contact::updateAvatar($ret['photo'], $uid, $contact_id);
+		self::updateAvatar($ret['photo'], $uid, $contact_id);
 
 		// pull feed and consume it, which should subscribe to the hub.
 
