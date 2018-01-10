@@ -25,7 +25,6 @@ Admins
 
 Nutzer
 --------
-****
 
 <a name="ssl"></a>
 ### Warum erhalte ich Warnungen über fehlende Zertifikate?
@@ -142,21 +141,25 @@ Hierzu gehören Foren, Gruppen und geteilte tags.
 
 Wenn Du die Beiträge Deines Accounts mit RSS teilen willst, dann kannst Du einen der folgenden Links nutzen:
 
-RSS-Feed Deiner Beiträge
+#### RSS-Feed Deiner Beiträge
 
-	deineSeite.de/**dfrn_poll/profilname  
+	deineSeite.de/feed/[profilname]/posts
 
-	Beispiel: Friendica Support 
+Beispiel: Friendica Support 
 	
-	https://forum.friendi.ca/dfrn_poll/helpers
+	https://forum.friendi.ca/feed/helpers/posts
 
-RSS-Feed aller Unterhaltungen auf Deiner Seite
+#### RSS-Feed all deiner Beiträge und Antworten
 
-	deineSeite.de/dfrn_poll/profilname/converse
+    deineSeite.de/dfrn_poll/feed/[profilname]/comments
 	
-	Beispiel: Friendica Support 
+Beispiel: Friendica Support 
 	
-	https://forum.friendi.ca/dfrn_poll/helpers/converse
+    https://forum.friendi.ca/feeds/helpers/comments
+
+#### RSS-Feed all deiner Aktivitäten
+
+    deineSeite.de/feed/[profilname]/
 
 <a name="clients">
 ### Gibt es Clients für Friendica?
@@ -193,7 +196,6 @@ Wenn Du ein Theme-Entwickler bist, wirst Du in diesem Forum Hilfe finden: [Frien
 
 Admin
 --------
-****
 
 <a name="multiple"></a>
 ### Kann ich mehrere Domains mit den selben Dateien aufsetzen?

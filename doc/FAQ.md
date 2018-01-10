@@ -25,9 +25,7 @@ Admins
 
 User
 --------
-*****
 <a name="ssl"></a>
-
 ### Why do I get warnings about SSL certificates?
 
 SSL (Secure Socket Layer) is a technology to encrypt data transfer between computers.
@@ -41,7 +39,6 @@ These warnings can have three reasons:
 We recommend to talk to the admin(s) of the affected friendica server. (Admins, please see the respective section of the [admin manual](help/SSL).)
 
 <a name="upload"></a>
-
 ### How can I upload images, files, links, videos and sound files to posts?
 
 You can upload images from your computer using the [editor](help/Text_editor).
@@ -71,7 +68,6 @@ Some supported filetypes are WebM, MP4, MP3 and OGG.
 See Wikipedia for more of them ([video](http://en.wikipedia.org/wiki/HTML5_video), [audio](http://en.wikipedia.org/wiki/HTML5_audio)).
 
 <a name="avatars"></a>
-
 ### Is it possible to have different avatars per profile?
 
 Yes. On your Edit/Manage Profiles page, you will find a "change profile photo" link.
@@ -79,7 +75,6 @@ Clicking this will take you to a page where you can upload a photograph and sele
 To avoid privacy leakage, we only display the photograph associated with your default profile as the avatar in your posts.
 
 <a name="contacts"></a>
-
 ### What is the difference between blocked|ignored|archived|hidden contacts?
 
 We prevent direct communication with **blocked contacts**.
@@ -102,7 +97,6 @@ A **hidden contact** will not be displayed in any "friend list" (except to you).
 However a hidden contact will appear normally in conversations and this may expose his/her hidden status to anybody who can see the conversation.
 
 <a name="removed"></a>
-
 ### What happens when an account is removed? Is it truly deleted?
 
 If you delete your account, we will immediately remove all your content on **your** server.
@@ -115,7 +109,6 @@ We can block it in several ways so that it appears empty and all profile informa
 After that, your account is deleted.
 
 <a name="hashtag"></a>
-
 ### Can I follow a hashtag?
 
 No. The act of 'following' a hashtags is an interesting technology, but presents a few issues.
@@ -129,29 +122,27 @@ No. The act of 'following' a hashtags is an interesting technology, but presents
 Instead, we offer other mechanisms for wide-area conversations while retaining a 'level playing ground' for both large and small sites, such as forums and community pages and shared tags.
 
 <a name="rss"></a>
-
 ### How to create a RSS feed of the stream?
 
 If you want to share your public page via rss you can use one of the following links:
 
-RSS feed of your posts
+#### RSS feed of your posts
 
-	basic-url.com/**dfrn_poll/profilename  
+	basic-url.com//feed/[nickname]/posts
 
-	Example: Friendica Support 
+Example: Friendica Support 
 	
-	https://forum.friendi.ca/dfrn_poll/helpers
+	https://forum.friendi.ca/feed/helpers/posts
 
-RSS feed of the conversations at your site
+#### RSS feed of the conversations at your site
 
-	basic-url.com/dfrn_poll/profilename/converse
+	basic-url.com/feed/profilename/comments
 	
-	Example: Friendica Support 
+Example: Friendica Support 
 	
-	https://forum.friendi.ca/dfrn_poll/helpers/converse
+	https://forum.friendi.ca/feed/helpers/comments
 
 <a name="clients"></a>
-
 ### Are there any clients for friendica I can use?
 
 Friendica is using a [Twitter/GNU Social compatible API](help/api), which means you can use any Twitter/GNU Social client for your plattform as long as you can change the API path in its settings.
@@ -187,15 +178,13 @@ If you are a theme developer, you will find help at this forum: [Friendica Theme
 
 Admin
 --------
-*****
-<a name="multiple"></a>
 
+<a name="multiple"></a>
 ### Can I configure multiple domains with the same code instance?
 
 No, this function is no longer supported as of Friendica 3.3 onwards.
 
 <a name="sources"></a>
-
 ### Where can I find the source code of friendica, addons and themes?
 
 You can find the main respository [here](https://github.com/friendica/friendica).
