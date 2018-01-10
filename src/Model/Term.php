@@ -6,6 +6,8 @@ namespace Friendica\Model;
 
 use dba;
 
+require_once "include/dba.php";
+
 class Term
 {
 	/**
@@ -14,7 +16,7 @@ class Term
 	 */
 	public static function createFromItem($itemid)
 	{
-		$messages = dba::select('item', ['guid', 'uid', 'id', 'edited', 'deleted', 'file', 'parent'], ['id' => $itemid], ['limit' => 1]);
+		$messages = dba::select('item', ['uid', 'deleted', 'file'], ['id' => $itemid], ['limit' => 1]);
 		if (!$messages) {
 			return;
 		}
@@ -54,21 +56,9 @@ class Term
 		$messages = q("SELECT `id` FROM `item` WHERE uri ='%s' AND uid=%d", dbesc($itemuri), intval($uid));
 
 		if (count($messages)) {
-			foreach ($messages as $message)
+			foreach ($messages as $message) {
 				self::createFromItem($message["id"]);
-		}
-	}
-
-	/**
-	 * @return void
-	 */
-	private function update_files_for_items()
-	{
-		$messages = q("SELECT `id` FROM `item` where file !=''");
-
-		foreach ($messages as $message) {
-			echo $message["id"] . "\n";
-			self::createFromItem($message["id"]);
+			}
 		}
 	}
 }
