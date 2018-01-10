@@ -14,7 +14,7 @@ class Term
 	 */
 	public static function createFromItem($itemid)
 	{
-		$messages = dba::selectFirst('item', ['guid', 'uid', 'id', 'edited', 'deleted', 'file', 'parent'], ['id' => $itemid]);
+		$messages = dba::select('item', ['guid', 'uid', 'id', 'edited', 'deleted', 'file', 'parent'], ['id' => $itemid], ['limit' => 1]);
 		if (!$messages) {
 			return;
 		}
