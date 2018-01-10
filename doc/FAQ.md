@@ -21,7 +21,7 @@ Admins
 * **[Where can I find the source code of friendica, addons and themes?](help/FAQ#sources)**
 * **[I've changed the my email address now the admin panel is gone?](help/FAQ#adminaccount1)**
 * **[Can there be more then just one admin for a node?](help/FAQ#adminaccount2)**
-* **[The Database seems not to be updated. What can I do?](help/FAQ#dbupdate)**
+* **[The Database structure seems not to be updated. What can I do?](help/FAQ#dbupdate)**
 
 User
 --------
@@ -217,7 +217,7 @@ Yes. You just have to list more then one email address in the
 <tt>.htconfig.php</tt> file. The listed emails need to be separated by a comma.
 
 <a name="dbupdate">
-### The Database seems not to be updated. What can I do?
+### The Database structure seems not to be updated. What can I do?
 
 Please have a look at the Admin panel under [DB updates](/admin/dbsync/) and follow the link to *check database structure*.
 This will start a background process to check if the structure is up to the current definition.
