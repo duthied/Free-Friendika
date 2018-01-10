@@ -39,7 +39,7 @@ class Group extends BaseObject
 				// all the old members are gone, but the group remains so we don't break any security
 				// access lists. What we're doing here is reviving the dead group, but old content which
 				// was restricted to this group may now be seen by the new group members.
-				$group = dba::select('group', ['deleted'], ['id' => $gid], ['limit' => 1]);
+				$group = dba::selectFirst('group', ['deleted'], ['id' => $gid]);
 				if (DBM::is_result($group) && $group['deleted']) {
 					dba::update('group', ['deleted' => 0], ['gid' => $gid]);
 					notice(t('A deleted group with this name was revived. Existing item permissions <strong>may</strong> apply to this group and any future members. If this is not what you intended, please create another group with a different name.') . EOL);
@@ -120,7 +120,7 @@ class Group extends BaseObject
 			return false;
 		}
 
-		$group = dba::select('group', ['id'], ['uid' => $uid, 'name' => $name], ['limit' => 1]);
+		$group = dba::selectFirst('group', ['id'], ['uid' => $uid, 'name' => $name]);
 		if (DBM::is_result($group)) {
 			return $group['id'];
 		}
@@ -139,13 +139,13 @@ class Group extends BaseObject
 			return false;
 		}
 
-		$group = dba::select('group', ['uid'], ['gid' => $gid], ['limit' => 1]);
+		$group = dba::selectFirst('group', ['uid'], ['gid' => $gid]);
 		if (!DBM::is_result($group)) {
 			return false;
 		}
 
 		// remove group from default posting lists
-		$user = dba::select('user', ['def_gid', 'allow_gid', 'deny_gid'], ['uid' => $group['uid']], ['limit' => 1]);
+		$user = dba::selectFirst('user', ['def_gid', 'allow_gid', 'deny_gid'], ['uid' => $group['uid']]);
 		if (DBM::is_result($user)) {
 			$change = false;
 

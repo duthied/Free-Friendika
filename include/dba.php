@@ -313,7 +313,7 @@ class dba {
 	 * For all regular queries please use dba::select or dba::exists
 	 *
 	 * @param string $sql SQL statement
-	 * @return object statement object
+	 * @return bool|object statement object
 	 */
 	public static function p($sql) {
 		$a = get_app();
@@ -572,7 +572,7 @@ class dba {
 			$fields = array($array_key);
 		}
 
-		$stmt = self::select($table, $fields, $condition, array('limit' => 1, 'only_query' => true));
+		$stmt = self::select($table, $fields, $condition, ['limit' => 1]);
 
 		if (is_bool($stmt)) {
 			$retval = $stmt;
@@ -586,10 +586,11 @@ class dba {
 	}
 
 	/**
+	 * Fetches the first row
+	 *
+	 * Please use dba::selectFirst or dba::exists whenever this is possible.
+	 *
 	 * @brief Fetches the first row
-	 *
-	 * Please use dba::select or dba::exists whenever this is possible.
-	 *
 	 * @param string $sql SQL statement
 	 * @return array first row of query
 	 */
@@ -639,7 +640,7 @@ class dba {
 	/**
 	 * @brief Returns the number of rows of a statement
 	 *
-	 * @param object Statement object
+	 * @param PDOStatement|mysqli_result|mysqli_stmt Statement object
 	 * @return int Number of rows
 	 */
 	public static function num_rows($stmt) {
@@ -658,7 +659,7 @@ class dba {
 	/**
 	 * @brief Fetch a single row
 	 *
-	 * @param object $stmt statement object
+	 * @param PDOStatement|mysqli_result|mysqli_stmt $stmt statement object
 	 * @return array current row
 	 */
 	public static function fetch($stmt) {
@@ -1046,7 +1047,7 @@ class dba {
 		if (is_bool($old_fields)) {
 			$do_insert = $old_fields;
 
-			$old_fields = self::select($table, array(), $condition, array('limit' => 1));
+			$old_fields = self::selectFirst($table, [], $condition);
 
 			if (is_bool($old_fields)) {
 				if ($do_insert) {
@@ -1084,14 +1085,39 @@ class dba {
 	}
 
 	/**
+	 * Retrieve a single record from a table and returns it in an associative array
+	 *
+	 * @brief Retrieve a single record from a table
+	 * @param string $table
+	 * @param array  $fields
+	 * @param array  $condition
+	 * @param array  $params
+	 * @return bool|array
+	 * @see dba::select
+	 */
+	public static function selectFirst($table, array $fields = [], array $condition = [], $params = [])
+	{
+		$params['limit'] = 1;
+		$result = self::select($table, $fields, $condition, $params);
+
+		if (is_bool($result)) {
+			return $result;
+		} else {
+			$row = self::fetch($result);
+			self::close($result);
+			return $row;
+		}
+	}
+
+	/**
 	 * @brief Select rows from a table
 	 *
-	 * @param string $table Table name
-	 * @param array $fields array of selected fields
-	 * @param array $condition array of fields for condition
-	 * @param array $params array of several parameters
+	 * @param string $table     Table name
+	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
 	 *
-	 * @return boolean|object If "limit" is equal "1" only a single row is returned, else a query object is returned
+	 * @return boolean|object
 	 *
 	 * Example:
 	 * $table = "item";
@@ -1101,7 +1127,7 @@ class dba {
 	 * or:
 	 * $condition = array("`uid` = ? AND `network` IN (?, ?)", 1, 'dfrn', 'dspr');
 	 *
-	 * $params = array("order" => array("id", "received" => true), "limit" => 1);
+	 * $params = array("order" => array("id", "received" => true), "limit" => 10);
 	 *
 	 * $data = dba::select($table, $fields, $condition, $params);
 	 */
@@ -1112,53 +1138,38 @@ class dba {
 		}
 
 		if (count($fields) > 0) {
-			$select_fields = "`".implode("`, `", array_values($fields))."`";
+			$select_fields = "`" . implode("`, `", array_values($fields)) . "`";
 		} else {
 			$select_fields = "*";
 		}
 
 		$condition_string = self::buildCondition($condition);
 
-		$param_string = '';
-		$single_row = false;
-
 		if (isset($params['order'])) {
-			$param_string .= " ORDER BY ";
+			$order_string = " ORDER BY ";
 			foreach ($params['order'] AS $fields => $order) {
 				if (!is_int($fields)) {
-					$param_string .= "`".$fields."` ".($order ? "DESC" : "ASC").", ";
+					$order_string .= "`" . $fields . "` " . ($order ? "DESC" : "ASC") . ", ";
 				} else {
-					$param_string .= "`".$order."`, ";
+					$order_string .= "`" . $order . "`, ";
 				}
 			}
-			$param_string = substr($param_string, 0, -2);
+			$order_string = substr($order_string, 0, -2);
 		}
 
 		if (isset($params['limit']) && is_int($params['limit'])) {
-			$param_string .= " LIMIT ".$params['limit'];
-			$single_row = ($params['limit'] == 1);
+			$limit_string = " LIMIT " . $params['limit'];
 		}
 
 		if (isset($params['limit']) && is_array($params['limit'])) {
-			$param_string .= " LIMIT ".intval($params['limit'][0]).", ".intval($params['limit'][1]);
-			$single_row = ($params['limit'][1] == 1);
+			$limit_string = " LIMIT " . intval($params['limit'][0]) . ", " . intval($params['limit'][1]);
 		}
 
-		if (isset($params['only_query']) && $params['only_query']) {
-			$single_row = !$params['only_query'];
-		}
-
-		$sql = "SELECT ".$select_fields." FROM `".$table."`".$condition_string.$param_string;
+		$sql = "SELECT " . $select_fields . " FROM `" . $table . "`" . $condition_string . $order_string . $limit_string;
 
 		$result = self::p($sql, $condition);
 
-		if (is_bool($result) || !$single_row) {
-			return $result;
-		} else {
-			$row = self::fetch($result);
-			self::close($result);
-			return $row;
-		}
+		return $result;
 	}
 
 	/**
@@ -1270,7 +1281,7 @@ class dba {
 	 * @brief Closes the current statement
 	 *
 	 * @param object $stmt statement object
-	 * @return boolean was the close successfull?
+	 * @return boolean was the close successful?
 	 */
 	public static function close($stmt) {
 		if (!is_object($stmt)) {

@@ -1551,8 +1551,8 @@ function admin_page_users(App $a)
 {
 	if ($a->argc > 2) {
 		$uid = $a->argv[3];
-		$user = q("SELECT `username`, `blocked` FROM `user` WHERE `uid` = %d", intval($uid));
-		if (count($user) == 0) {
+		$user = dba::selectFirst('user', ['username', 'blocked'], ['uid' => $uid]);
+		if (DBM::is_result($user)) {
 			notice('User not found' . EOL);
 			goaway('admin/users');
 			return ''; // NOTREACHED
@@ -1563,15 +1563,15 @@ function admin_page_users(App $a)
 				// delete user
 				User::remove($uid);
 
-				notice(t("User '%s' deleted", $user[0]['username']) . EOL);
+				notice(t("User '%s' deleted", $user['username']) . EOL);
 				break;
 			case "block":
 				check_form_security_token_redirectOnErr('/admin/users', 'admin_users', 't');
 				q("UPDATE `user` SET `blocked` = %d WHERE `uid` = %s",
-					intval(1 - $user[0]['blocked']),
+					intval(1 - $user['blocked']),
 					intval($uid)
 				);
-				notice(sprintf(($user[0]['blocked'] ? t("User '%s' unblocked") : t("User '%s' blocked")), $user[0]['username']) . EOL);
+				notice(sprintf(($user['blocked'] ? t("User '%s' unblocked") : t("User '%s' blocked")), $user['username']) . EOL);
 				break;
 		}
 		goaway('admin/users');
@@ -1624,8 +1624,6 @@ function admin_page_users(App $a)
 				WHERE `user`.`verified`
 				ORDER BY $sql_order $sql_order_direction LIMIT %d, %d", intval($a->pager['start']), intval($a->pager['itemspage'])
 	);
-
-	//echo "<pre>$users"; killme();
 
 	$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
 	$_setup_users = function ($e) use ($adminlist) {

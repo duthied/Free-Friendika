@@ -99,7 +99,7 @@ class Login extends BaseModule
 			} else {
 				$user_id = User::authenticate(trim($_POST['username']), trim($_POST['password']));
 				if ($user_id) {
-					$record = dba::select('user', [], ['uid' => $user_id], ['limit' => 1]);
+					$record = dba::selectFirst('user', [], ['uid' => $user_id]);
 				}
 			}
 
@@ -141,18 +141,15 @@ class Login extends BaseModule
 			$data = json_decode($_COOKIE["Friendica"]);
 			if (isset($data->uid)) {
 
-				$user = dba::select('user',
-					[],
+				$user = dba::selectFirst('user', [],
 					[
 						'uid'             => $data->uid,
 						'blocked'         => false,
 						'account_expired' => false,
 						'account_removed' => false,
 						'verified'        => true,
-					],
-					['limit' => 1]
+					]
 				);
-
 				if (DBM::is_result($user)) {
 					if ($data->hash != cookie_hash($user)) {
 						logger("Hash for user " . $data->uid . " doesn't fit.");
@@ -199,16 +196,14 @@ class Login extends BaseModule
 					goaway(self::getApp()->get_baseurl());
 				}
 
-				$user = dba::select('user',
-					[],
+				$user = dba::selectFirst('user', [],
 					[
 						'uid'             => $_SESSION['uid'],
 						'blocked'         => false,
 						'account_expired' => false,
 						'account_removed' => false,
 						'verified'        => true,
-					],
-					['limit' => 1]
+					]
 				);
 				if (!DBM::is_result($user)) {
 					nuke_session();

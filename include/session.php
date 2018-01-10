@@ -33,7 +33,7 @@ function ref_session_read($id)
 		return '';
 	}
 
-	$r = dba::select('session', array('data'), array('sid' => $id), array('limit' => 1));
+	$r = dba::selectFirst('session', ['data'], ['sid' => $id]);
 	if (DBM::is_result($r)) {
 		$session_exists = true;
 		return $r['data'];

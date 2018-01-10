@@ -63,19 +63,13 @@ function common_content(App $a)
 	}
 
 	if (!$cid && get_my_url()) {
-		/// @todo : Initialize $profile_uid
-		$r = q("SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
-			dbesc(normalise_link(get_my_url())),
-			intval($profile_uid)
-		);
-		if (DBM::is_result($r)) {
-			$cid = $r[0]['id'];
+		$contact = dba::selectFirst('contact', ['id'], ['nurl' => normalise_link(get_my_url()), 'uid' => $uid]);
+		if (DBM::is_result($contact)) {
+			$cid = $contact['id'];
 		} else {
-			$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
-				dbesc(normalise_link(get_my_url()))
-			);
-			if (DBM::is_result($r)) {
-				$zcid = $r[0]['id'];
+			$gcontact = dba::selectFirst('gcontact', ['id'], ['nurl' => normalise_link(get_my_url())]);
+			if (DBM::is_result($gcontact)) {
+				$zcid = $gcontact['id'];
 			}
 		}
 	}

@@ -16,12 +16,10 @@ class Term
 	 */
 	public static function createFromItem($itemid)
 	{
-		$messages = dba::select('item', ['uid', 'deleted', 'file'], ['id' => $itemid], ['limit' => 1]);
-		if (!$messages) {
+		$message = dba::selectFirst('item', ['uid', 'deleted', 'file'], ['id' => $itemid]);
+		if (!\Friendica\Database\DBM::is_result($message)) {
 			return;
 		}
-
-		$message = $messages[0];
 
 		// Clean up all tags
 		q("DELETE FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` IN (%d, %d)",
@@ -30,18 +28,31 @@ class Term
 			intval(TERM_FILE),
 			intval(TERM_CATEGORY));
 
-		if ($message["deleted"])
+		if ($message["deleted"]) {
 			return;
+		}
 
 		if (preg_match_all("/\[(.*?)\]/ism", $message["file"], $files)) {
 			foreach ($files[1] as $file) {
-				dba::insert('term', ['uid' => $message["uid"], 'oid' => $itemid, 'otype' => TERM_OBJ_POST, 'type' => TERM_FILE, 'term' => $file]);
+				dba::insert('term', [
+					'uid' => $message["uid"],
+					'oid' => $itemid,
+					'otype' => TERM_OBJ_POST,
+					'type' => TERM_FILE,
+					'term' => $file
+				]);
 			}
 		}
 
 		if (preg_match_all("/\<(.*?)\>/ism", $message["file"], $files)) {
 			foreach ($files[1] as $file) {
-				dba::insert('term', ['uid' => $message["uid"], 'oid' => $itemid, 'otype' => TERM_OBJ_POST, 'type' => TERM_CATEGORY, 'term' => $file]);
+				dba::insert('term', [
+					'uid' => $message["uid"],
+					'oid' => $itemid,
+					'otype' => TERM_OBJ_POST,
+					'type' => TERM_CATEGORY,
+					'term' => $file
+				]);
 			}
 		}
 	}

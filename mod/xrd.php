@@ -29,13 +29,14 @@ function xrd_init(App $a)
 		$name = ltrim(basename($uri), '~');
 	} else {
 		$local = str_replace('acct:', '', $uri);
-		if (substr($local, 0, 2) == '//')
+		if (substr($local, 0, 2) == '//') {
 			$local = substr($local, 2);
+		}
 
 		$name = substr($local, 0, strpos($local, '@'));
 	}
 
-	$r = dba::select('user', array(), array('nickname' => $name), array('limit' => 1));
+	$r = dba::selectFirst('user', [], ['nickname' => $name]);
 	if (!DBM::is_result($r)) {
 		killme();
 	}

@@ -50,8 +50,8 @@ function notification($params)
 	}
 
 	if ($params['type'] != SYSTEM_EMAIL) {
-		$user = dba::select('user', array('nickname', 'page-flags'),
-			array('uid' => $params['uid']), array('limit' => 1));
+		$user = dba::selectFirst('user', ['nickname', 'page-flags'],
+			['uid' => $params['uid']]);
 
 		// There is no need to create notifications for forum accounts
 		if (!DBM::is_result($user) || in_array($user["page-flags"], array(PAGE_COMMUNITY, PAGE_PRVGROUP))) {
@@ -106,7 +106,7 @@ function notification($params)
 	}
 
 	if ($params['type'] == NOTIFY_COMMENT) {
-		$p = dba::select('thread', ['ignored'], ['iid' => $parent_id], ['limit' => 1]);
+		$p = dba::selectFirst('thread', ['ignored'], ['iid' => $parent_id]);
 		if (DBM::is_result($p) && $p["ignored"]) {
 			logger("Thread ".$parent_id." will be ignored", LOGGER_DEBUG);
 			return;
@@ -131,7 +131,7 @@ function notification($params)
 		$p = null;
 
 		if ($params['otype'] === 'item' && $parent_id) {
-			$p = dba::select('item', [], ['id' => $parent_id], ['limit' => 1]);
+			$p = dba::selectFirst('item', [], ['id' => $parent_id]);
 		}
 
 		$item_post_type = item_post_type($p);
@@ -672,12 +672,12 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$profiles = $notification_data["profiles"];
 
 	$fields = ['notify-flags', 'language', 'username', 'email', 'nickname'];
-	$user = dba::select('user', $fields, ['uid' => $uid], ['limit' => 1]);
+	$user = dba::selectFirst('user', $fields, ['uid' => $uid]);
 	if (!DBM::is_result($user)) {
 		return false;
 	}
 
-	$owner = dba::select('contact', ['url'], ['self' => true, 'uid' => $uid], ['limit' => 1]);
+	$owner = dba::selectFirst('contact', ['url'], ['self' => true, 'uid' => $uid]);
 	if (!DBM::is_result($owner)) {
 		return false;
 	}

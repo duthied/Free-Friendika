@@ -6,10 +6,10 @@
  * 	This calendar is for profile visitors and contains only the events
  * 	of the profile owner
  */
+
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Core\Config;
-use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
@@ -32,16 +32,13 @@ function cal_init(App $a)
 
 	if ($a->argc > 1) {
 		$nick = $a->argv[1];
-		$user = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
-			dbesc($nick)
-		);
-
-		if (!count($user)) {
+		$user = dba::selectFirst('user', [], ['nickname' => $nick, 'blocked' => false]);
+		if (!DBM::is_result($user)) {
 			return;
 		}
 
-		$a->data['user'] = $user[0];
-		$a->profile_uid = $user[0]['uid'];
+		$a->data['user'] = $user;
+		$a->profile_uid = $user['uid'];
 
 		// if it's a json request abort here becaus we don't
 		// need the widget data

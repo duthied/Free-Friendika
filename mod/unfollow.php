@@ -23,10 +23,10 @@ function unfollow_post(App $a) {
 	$url = notags(trim($_REQUEST['url']));
 	$return_url = $_SESSION['return_url'];
 
-	$condition = array("`uid` = ? AND `rel` = ? AND (`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `network` != ?",
+	$condition = ["`uid` = ? AND `rel` = ? AND (`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `network` != ?",
 			$uid, CONTACT_IS_FRIEND, normalise_link($url),
-			normalise_link($url), $url, NETWORK_STATUSNET);
-	$contact = dba::select('contact', array(), $condition, array('limit' => 1));
+			normalise_link($url), $url, NETWORK_STATUSNET];
+	$contact = dba::selectFirst('contact', [], $condition);
 
 	if (!DBM::is_result($contact)) {
 		notice(t("Contact wasn't found or can't be unfollowed."));
@@ -62,10 +62,10 @@ function unfollow_content(App $a) {
 
 	$submit = t('Submit Request');
 
-	$condition = array("`uid` = ? AND `rel` = ? AND (`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `network` != ?",
+	$condition = ["`uid` = ? AND `rel` = ? AND (`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `network` != ?",
 			local_user(), CONTACT_IS_FRIEND, normalise_link($url),
-			normalise_link($url), $url, NETWORK_STATUSNET);
-	$contact = dba::select('contact', array('url', 'network', 'addr', 'name'), $condition, array('limit' => 1));
+			normalise_link($url), $url, NETWORK_STATUSNET];
+	$contact = dba::selectFirst('contact', ['url', 'network', 'addr', 'name'], $condition);
 
 	if (!DBM::is_result($contact)) {
 		notice(t("You aren't a friend of this contact.").EOL);

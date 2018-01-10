@@ -265,9 +265,9 @@ class Notifier {
 				($owner['id'] != $target_item['contact-id']) &&
 				($target_item['uri'] === $target_item['parent-uri'])) {
 
-				$fields = array('forum', 'prv');
-				$condition = array('id' => $target_item['contact-id']);
-				$contact = dba::select('contact', $fields, $condition, array('limit' => 1));
+				$fields = ['forum', 'prv'];
+				$condition = ['id' => $target_item['contact-id']];
+				$contact = dba::selectFirst('contact', $fields, $condition);
 				if (!DBM::is_result($contact)) {
 					// Should never happen
 					return false;

@@ -222,7 +222,7 @@ function api_login(App $a)
 	} else {
 		$user_id = User::authenticate(trim($user), trim($password));
 		if ($user_id) {
-			$record = dba::select('user', [], ['uid' => $user_id], ['limit' => 1]);
+			$record = dba::selectFirst('user', [], ['uid' => $user_id]);
 		}
 	}
 
@@ -473,7 +473,7 @@ function api_rss_extra(App $a, $arr, $user_info)
  */
 function api_unique_id_to_nurl($id)
 {
-	$r = dba::select('contact', array('nurl'), array('uid' => 0, 'id' => $id), array('limit' => 1));
+	$r = dba::selectFirst('contact', array('nurl'), array('uid' => 0, 'id' => $id));
 
 	if (DBM::is_result($r)) {
 		return $r["nurl"];
@@ -792,7 +792,7 @@ function api_get_user(App $a, $contact_id = null)
 
 	// If this is a local user and it uses Frio, we can get its color preferences.
 	if ($ret['self']) {
-		$theme_info = dba::select('user', ['theme'], ['uid' => $ret['uid']], ['limit' => 1]);
+		$theme_info = dba::selectFirst('user', ['theme'], ['uid' => $ret['uid']]);
 		if ($theme_info['theme'] === 'frio') {
 			$schema = PConfig::get($ret['uid'], 'frio', 'schema');
 			if ($schema && ($schema != '---')) {
@@ -4870,7 +4870,7 @@ function api_friendica_remoteauth()
 
 	// traditional DFRN
 
-	$r = dba::select('contact', [], ['uid' => api_user(), 'nurl' => $c_url], ['limit' => 1]);
+	$r = dba::selectFirst('contact', [], ['uid' => api_user(), 'nurl' => $c_url]);
 
 	if (!DBM::is_result($r) || ($r['network'] !== NETWORK_DFRN)) {
 		throw new BadRequestException("Unknown contact");
