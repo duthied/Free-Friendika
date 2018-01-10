@@ -8,7 +8,6 @@ use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Network\Probe;
 
-require_once 'include/contact_selectors.php';
 
 function follow_post(App $a) {
 

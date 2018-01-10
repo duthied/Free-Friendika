@@ -9,7 +9,6 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 
-require_once "include/contact_selectors.php";
 require_once "include/contact_widgets.php";
 require_once "mod/proxy.php";
 
