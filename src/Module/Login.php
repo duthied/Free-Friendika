@@ -181,7 +181,6 @@ class Login extends BaseModule
 					intval($_SESSION['visitor_id'])
 				);
 				if (DBM::is_result($r)) {
-					$a = self::getApp();
 					self::getApp()->contact = $r[0];
 				}
 			}
