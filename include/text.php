@@ -10,6 +10,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Term;
 use Friendica\Util\Map;
 
 require_once "include/friendica_smarty.php";
@@ -1895,9 +1896,8 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 	return true;
 }
 
-function file_tag_save_file($uid, $item, $file) {
-	require_once "include/files.php";
-
+function file_tag_save_file($uid, $item, $file)
+{
 	if (! intval($uid)) {
 		return false;
 	}
@@ -1915,7 +1915,7 @@ function file_tag_save_file($uid, $item, $file) {
 			);
 		}
 
-		create_files_from_item($item);
+		Term::createFromItem($item);
 
 		$saved = PConfig::get($uid, 'system', 'filetags');
 		if (!strlen($saved) || !stristr($saved, '[' . file_tag_encode($file) . ']')) {
@@ -1926,9 +1926,8 @@ function file_tag_save_file($uid, $item, $file) {
 	return true;
 }
 
-function file_tag_unsave_file($uid, $item, $file, $cat = false) {
-	require_once "include/files.php";
-
+function file_tag_unsave_file($uid, $item, $file, $cat = false)
+{
 	if (! intval($uid)) {
 		return false;
 	}
@@ -1955,7 +1954,7 @@ function file_tag_unsave_file($uid, $item, $file, $cat = false) {
 		intval($uid)
 	);
 
-	create_files_from_item($item);
+	Term::createFromItem($item);
 
 	$r = q("SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d",
 		dbesc($file),

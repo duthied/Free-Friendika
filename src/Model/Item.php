@@ -7,10 +7,10 @@
 namespace Friendica\Model;
 
 use Friendica\Core\Worker;
+use Friendica\Model\Term;
 use dba;
 
 require_once 'include/tags.php';
-require_once 'include/files.php';
 require_once 'include/threads.php';
 
 class Item
@@ -52,7 +52,7 @@ class Item
 			}
 
 			create_tags_from_item($item['id']);
-			create_files_from_item($item['id']);
+			Term::createFromItem($item['id']);
 			update_thread($item['id']);
 
 			Worker::add(PRIORITY_HIGH, "Notifier", 'edit_post', $item['id']);
