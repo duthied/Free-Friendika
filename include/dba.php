@@ -587,8 +587,8 @@ class dba {
 
 	/**
 	 * Fetches the first row
-	 * 
-	 * Please use dba::selectOne or dba::exists whenever this is possible.
+	 *
+	 * Please use dba::selectFirst or dba::exists whenever this is possible.
 	 *
 	 * @brief Fetches the first row
 	 * @param string $sql SQL statement
@@ -1086,7 +1086,7 @@ class dba {
 
 	/**
 	 * Retrieve a single record from a table and returns it in an associative array
-	 * 
+	 *
 	 * @brief Retrieve a single record from a table
 	 * @param string $table
 	 * @param array  $fields
