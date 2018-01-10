@@ -3,6 +3,7 @@
  * @file include/text.php
  */
 use Friendica\App;
+use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Content\Smilies;
 use Friendica\Core\Config;
@@ -2048,16 +2049,14 @@ function formatBytes($bytes, $precision = 2) {
  */
 function format_network_name($network, $url = 0) {
 	if ($network != "") {
-		require_once 'include/contact_selectors.php';
 		if ($url != "") {
-			$network_name = '<a href="'.$url.'">'.network_to_name($network, $url)."</a>";
+			$network_name = '<a href="'.$url.'">'.ContactSelector::networkToName($network, $url)."</a>";
 		} else {
-			$network_name = network_to_name($network);
+			$network_name = ContactSelector::networkToName($network);
 		}
 
 		return $network_name;
 	}
-
 }
 
 /**

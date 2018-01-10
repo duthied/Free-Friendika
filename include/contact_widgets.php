@@ -1,16 +1,14 @@
 <?php
-
 /**
  * @file include/contact_widgets.php
  */
+use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Model\GContact;
-
-require_once 'include/contact_selectors.php';
 
 function follow_widget($value = "")
 {
@@ -119,7 +117,7 @@ function networks_widget($baseurl, $selected = '')
 	while ($rr = dba::fetch($r)) {
 		/// @TODO If 'network' is not there, this triggers an E_NOTICE
 		if ($rr['network']) {
-			$nets[] = array('ref' => $rr['network'], 'name' => network_to_name($rr['network']), 'selected' => (($selected == $rr['network']) ? 'selected' : '' ));
+			$nets[] = array('ref' => $rr['network'], 'name' => ContactSelector::networkToName($rr['network']), 'selected' => (($selected == $rr['network']) ? 'selected' : '' ));
 		}
 	}
 	dba::close($r);

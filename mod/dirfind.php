@@ -3,6 +3,7 @@
  * @file mod/dirfind.php
  */
 use Friendica\App;
+use Friendica\Content\ContactSelector;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -12,7 +13,6 @@ use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 
 require_once 'include/contact_widgets.php';
-require_once 'include/contact_selectors.php';
 require_once 'mod/contacts.php';
 
 function dirfind_init(App $a) {
@@ -235,7 +235,7 @@ function dirfind_content(App $a, $prefix = "") {
 					'tags'          => $contact_details['keywords'],
 					'about'         => $contact_details['about'],
 					'account_type'  => Contact::getAccountType($contact_details),
-					'network' => network_to_name($jj->network, $jj->url),
+					'network' => ContactSelector::networkToName($jj->network, $jj->url),
 					'id' => ++$id,
 				);
 				$entries[] = $entry;

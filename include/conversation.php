@@ -3,6 +3,7 @@
  * @file include/conversation.php
  */
 use Friendica\App;
+use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
@@ -776,7 +777,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 					'id' => (($preview) ? 'P0' : $item['item_id']),
 					'guid' => (($preview) ? 'Q0' : $item['guid']),
 					'network' => $item['item_network'],
-					'network_name' => network_to_name($item['item_network'], $profile_link),
+					'network_name' => ContactSelector::networkToName($item['item_network'], $profile_link),
 					'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),
 					'profile_url' => $profile_link,
 					'item_photo_menu' => item_photo_menu($item),

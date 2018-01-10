@@ -7,8 +7,6 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 
-require_once 'include/contact_selectors.php';
-
 function unfollow_post(App $a) {
 
 	if (!local_user()) {

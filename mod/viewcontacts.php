@@ -1,11 +1,10 @@
 <?php
 
 use Friendica\App;
+use Friendica\Content\ContactSelector;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
-
-require_once('include/contact_selectors.php');
 
 function viewcontacts_init(App $a) {
 
@@ -116,7 +115,7 @@ function viewcontacts_content(App $a) {
 			'url' => $url,
 			'sparkle' => '',
 			'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
-			'network' => network_to_name($rr['network'], $rr['url']),
+			'network' => ContactSelector::networkToName($rr['network'], $rr['url']),
 		);
 	}
 

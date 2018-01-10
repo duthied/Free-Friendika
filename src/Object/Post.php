@@ -1,12 +1,11 @@
 <?php
-
 /**
  * @file src/Object/Post.php
  */
-
 namespace Friendica\Object;
 
 use Friendica\BaseObject;
+use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
@@ -397,7 +396,7 @@ class Post extends BaseObject
 			'thread_level'    => $thread_level,
 			'edited'          => $edited,
 			'network'         => $item["item_network"],
-			'network_name'    => network_to_name($item['item_network'], $profile_link),
+			'network_name'    => ContactSelector::networkToName($item['item_network'], $profile_link),
 			'received'        => $item['received'],
 			'commented'       => $item['commented'],
 			'created_date'    => $item['created'],
