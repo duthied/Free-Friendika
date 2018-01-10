@@ -93,6 +93,6 @@ Bei nginx solltest du deinen Server folgendermaßen konfigurieren ([documentatio
 
 Im Admin-Panel gibt es drei Einstellungen, die SSL betreffen:
 
-1. **Regelln für SSL Links**: Diese Einstellung betrifft wie Friendica interne Links erzeugt. Wenn deine SSL Installation erfolgreich war, empfehlen wir die Einstellung "SSL für alle Links erzwingen".
+1. **Regeln für SSL Links**: Diese Einstellung betrifft wie Friendica interne Links erzeugt. Wenn deine SSL Installation erfolgreich war, empfehlen wir die Einstellung "SSL für alle Links erzwingen".
 2. **Erzwinge SSL**: Mit dieser Einstellung werden alle externen Links auf HTTPS gesetzt. Dies kann bei Mixed-Content Problemen helfen, allerdings unterstützen noch nicht alle Webseiten HTTPS. Benutzung auf eigene Gefahr.
 3. **SSL überprüfen**: Wenn diese Einstellung aktiv ist, wird Friendica nicht mehr mit Instanzen interagieren, die über ein selbst signiertes Zertifikat verfügen. Da selbst signierte Zertifikate ein Hinweis auf Man-in-the.Middle Angriffe sein können, empfehlen wir dies zu tun.
