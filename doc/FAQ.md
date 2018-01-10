@@ -213,8 +213,10 @@ Have a look into your <tt>.htconfig.php</tt> and fix your email address there.
 <a name="adminaccount2"></a>
 ### Can there be more then one admin for a node?
 
-Yes. You just have to list more then one email address in the
-<tt>.htconfig.php</tt> file. The listed emails need to be separated by a comma.
+Yes.
+You just have to list more then one email address in the
+<tt>.htconfig.php</tt> file.
+The listed emails need to be separated by a comma.
 
 <a name="dbupdate">
 ### The Database structure seems not to be updated. What can I do?
