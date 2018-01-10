@@ -4,15 +4,17 @@
  */
 namespace Friendica\Model;
 
+use dba;
+
 class Term
 {
 	/**
 	 * @param integer $itemid item id
 	 * @return void
 	 */
-	function create_files_from_item($itemid)
+	public static function createFromItem($itemid)
 	{
-		$messages = q("SELECT `guid`, `uid`, `id`, `edited`, `deleted`, `file`, `parent` FROM `item` WHERE `id` = %d LIMIT 1", intval($itemid));
+		$messages = dba::selectFirst('item', ['guid', 'uid', 'id', 'edited', 'deleted', 'file', 'parent'], ['id' => $itemid]);
 		if (!$messages) {
 			return;
 		}
@@ -31,15 +33,13 @@ class Term
 
 		if (preg_match_all("/\[(.*?)\]/ism", $message["file"], $files)) {
 			foreach ($files[1] as $file) {
-				q("INSERT INTO `term` (`uid`, `oid`, `otype`, `type`, `term`) VALUES (%d, %d, %d, %d, '%s')",
-					intval($message["uid"]), intval($itemid), intval(TERM_OBJ_POST), intval(TERM_FILE), dbesc($file));
+				dba::insert('term', ['uid' => $message["uid"], 'oid' => $itemid, 'otype' => TERM_OBJ_POST, 'type' => TERM_FILE, 'term' => $file]);
 			}
 		}
 
 		if (preg_match_all("/\<(.*?)\>/ism", $message["file"], $files)) {
 			foreach ($files[1] as $file) {
-				q("INSERT INTO `term` (`uid`, `oid`, `otype`, `type`, `term`) VALUES (%d, %d, %d, %d, '%s')",
-					intval($message["uid"]), intval($itemid), intval(TERM_OBJ_POST), intval(TERM_CATEGORY), dbesc($file));
+				dba::insert('term', ['uid' => $message["uid"], 'oid' => $itemid, 'otype' => TERM_OBJ_POST, 'type' => TERM_CATEGORY, 'term' => $file]);
 			}
 		}
 	}
@@ -49,26 +49,26 @@ class Term
 	 * @param integer $uid     uid
 	 * @return void
 	 */
-	function create_files_from_itemuri($itemuri, $uid)
+	public static function createFromItemURI($itemuri, $uid)
 	{
 		$messages = q("SELECT `id` FROM `item` WHERE uri ='%s' AND uid=%d", dbesc($itemuri), intval($uid));
 
 		if (count($messages)) {
 			foreach ($messages as $message)
-				create_files_from_item($message["id"]);
+				self::createFromItem($message["id"]);
 		}
 	}
 
 	/**
 	 * @return void
 	 */
-	function update_files_for_items()
+	private function update_files_for_items()
 	{
 		$messages = q("SELECT `id` FROM `item` where file !=''");
 
 		foreach ($messages as $message) {
 			echo $message["id"] . "\n";
-			create_files_from_item($message["id"]);
+			self::createFromItem($message["id"]);
 		}
 	}
 }

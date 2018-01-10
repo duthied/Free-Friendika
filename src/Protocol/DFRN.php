@@ -17,6 +17,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\Profile;
+use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Object\Image;
 use Friendica\Protocol\OStatus;
@@ -32,7 +33,6 @@ require_once "include/enotify.php";
 require_once "include/threads.php";
 require_once "include/items.php";
 require_once "include/tags.php";
-require_once "include/files.php";
 require_once "include/event.php";
 require_once "include/text.php";
 require_once "include/html2bbcode.php";
@@ -2912,7 +2912,7 @@ class DFRN
 					intval($importer["uid"])
 				);
 				create_tags_from_itemuri($uri, $importer["uid"]);
-				create_files_from_itemuri($uri, $importer["uid"]);
+				Term::createFromItemURI($uri, $importer["uid"]);
 				update_thread_uri($uri, $importer["uid"]);
 			} else {
 				$r = q(
@@ -2925,7 +2925,7 @@ class DFRN
 					intval($importer["uid"])
 				);
 				create_tags_from_itemuri($uri, $importer["uid"]);
-				create_files_from_itemuri($uri, $importer["uid"]);
+				Term::createFromItemURI($uri, $importer["uid"]);
 				update_thread_uri($uri, $importer["importer_uid"]);
 				if ($item["last-child"]) {
 					// ensure that last-child is set in case the comment that had it just got wiped.

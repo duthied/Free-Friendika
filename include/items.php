@@ -12,6 +12,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Group;
+use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Object\Image;
 use Friendica\Protocol\DFRN;
@@ -21,7 +22,6 @@ use Friendica\Util\ParseUrl;
 
 require_once 'include/bbcode.php';
 require_once 'include/tags.php';
-require_once 'include/files.php';
 require_once 'include/text.php';
 require_once 'include/threads.php';
 require_once 'include/plaintext.php';
@@ -1109,7 +1109,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	 * This is not perfect - but a workable solution until we found the reason for the problem.
 	 */
 	create_tags_from_item($current_post);
-	create_files_from_item($current_post);
+	Term::createFromItem($current_post);
 
 	/*
 	 * If this is now the last-child, force all _other_ children of this parent to *not* be last-child
@@ -2157,7 +2157,7 @@ function drop_item($id, $interactive = true) {
 				array('id' => $item['id']));
 
 		create_tags_from_item($item['id']);
-		create_files_from_item($item['id']);
+		Term::createFromItem($item['id']);
 		delete_thread($item['id'], $item['parent-uri']);
 
 		// clean up categories and tags so they don't end up as orphans
@@ -2230,7 +2230,7 @@ function drop_item($id, $interactive = true) {
 				array('parent-uri' => $item['parent-uri'], 'uid' => $item['uid']));
 
 			create_tags_from_itemuri($item['parent-uri'], $item['uid']);
-			create_files_from_itemuri($item['parent-uri'], $item['uid']);
+			Term::createFromItemURI($item['parent-uri'], $item['uid']);
 			delete_thread_uri($item['parent-uri'], $item['uid']);
 			// ignore the result
 		} else {
