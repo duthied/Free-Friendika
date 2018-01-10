@@ -664,7 +664,7 @@ function check_db($via_worker)
 	$build = Config::get('system', 'build');
 
 	if (empty($build)) {
-		Config::set('system', 'build', DB_UPDATE_VERSION);
+		Config::set('system', 'build', DB_UPDATE_VERSION - 1);
 		$build = DB_UPDATE_VERSION;
 	}
 
@@ -712,9 +712,9 @@ function update_db()
 {
 	$build = Config::get('system', 'build');
 
-	if (empty($build)) {
-		Config::set('system', 'build', DB_UPDATE_VERSION);
-		$build = DB_UPDATE_VERSION;
+	if (empty($build) || ($build > DB_UPDATE_VERSION)) {
+		$build = DB_UPDATE_VERSION - 1;
+		Config::set('system', 'build', $build);
 	}
 
 	if ($build != DB_UPDATE_VERSION) {
@@ -789,12 +789,12 @@ function run_update_function($x)
 			return false;
 		} else {
 			Config::set('database', 'update_' . $x, 'success');
-			Config::set('system', 'build', $x + 1);
+			Config::set('system', 'build', $x);
 			return true;
 		}
 	} else {
 		Config::set('database', 'update_' . $x, 'success');
-		Config::set('system', 'build', $x + 1);
+		Config::set('system', 'build', $x);
 		return true;
 	}
 }
