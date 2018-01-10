@@ -1926,9 +1926,8 @@ function file_tag_save_file($uid, $item, $file)
 	return true;
 }
 
-function file_tag_unsave_file($uid, $item, $file, $cat = false) {
-	require_once "include/files.php";
-
+function file_tag_unsave_file($uid, $item, $file, $cat = false)
+{
 	if (! intval($uid)) {
 		return false;
 	}
