@@ -2015,7 +2015,7 @@ class Diaspora
 
 		// like on comments have the comment as parent. So we need to fetch the toplevel parent
 		if ($parent_item["id"] != $parent_item["parent"]) {
-			$toplevel = dba::selectOne('item', ['origin'], ['id' => $parent_item["parent"]]);
+			$toplevel = dba::selectFirst('item', ['origin'], ['id' => $parent_item["parent"]]);
 			$origin = $toplevel["origin"];
 		} else {
 			$origin = $parent_item["origin"];
@@ -2317,7 +2317,7 @@ class Diaspora
 
 				$arr["last-child"] = 1;
 
-				$user = dba::selectOne('user', ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'], ['uid' => $importer["uid"]]);
+				$user = dba::selectFirst('user', ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'], ['uid' => $importer["uid"]]);
 
 				$arr["allow_cid"] = $user["allow_cid"];
 				$arr["allow_gid"] = $user["allow_gid"];
@@ -2741,7 +2741,7 @@ class Diaspora
 
 		while ($item = dba::fetch($r)) {
 			// Fetch the parent item
-			$parent = dba::selectOne('item', ['author-link', 'origin'], ['id' => $item["parent"]]);
+			$parent = dba::selectFirst('item', ['author-link', 'origin'], ['id' => $item["parent"]]);
 
 			// Only delete it if the parent author really fits
 			if (!link_compare($parent["author-link"], $contact["url"]) && !link_compare($item["author-link"], $contact["url"])) {
@@ -3255,7 +3255,7 @@ class Diaspora
 		// If the item belongs to a user, we take this user id.
 		if ($item['uid'] == 0) {
 			$condition = ['verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false];
-			$first_user = dba::selectOne('user', ['uid'], $condition);
+			$first_user = dba::selectFirst('user', ['uid'], $condition);
 			$owner = User::getOwnerDataById($first_user['uid']);
 		} else {
 			$owner = User::getOwnerDataById($item['uid']);

@@ -42,7 +42,7 @@ Class OnePoll
 
 		$d = datetime_convert();
 
-		$contact = dba::selectOne('contact', [], ['id' => $contact_id]);
+		$contact = dba::selectFirst('contact', [], ['id' => $contact_id]);
 		if (!DBM::is_result($contact)) {
 			logger('Contact not found or cannot be used.');
 			return;
@@ -339,10 +339,10 @@ Class OnePoll
 			logger("Mail: Enabled", LOGGER_DEBUG);
 
 			$mbox = null;
-			$user = dba::selectOne('user', ['prvkey'], ['uid' => $importer_uid]);
+			$user = dba::selectFirst('user', ['prvkey'], ['uid' => $importer_uid]);
 
 			$condition = ["`server` != '' AND `uid` = ?", $importer_uid];
-			$mailconf = dba::selectOne('mailacct', [], $condition);
+			$mailconf = dba::selectFirst('mailacct', [], $condition);
 			if (DBM::is_result($user) && DBM::is_result($mailconf)) {
 				$mailbox = Email::constructMailboxName($mailconf);
 				$password = '';
@@ -384,7 +384,7 @@ Class OnePoll
 							// Have we seen it before?
 							$fields = ['deleted', 'id'];
 							$condition = ['uid' => $importer_uid, 'uri' => $datarray['uri']];
-							$r = dba::selectOne('item', $fields, $condition);
+							$r = dba::selectFirst('item', $fields, $condition);
 
 							if (DBM::is_result($r)) {
 								logger("Mail: Seen before ".$msg_uid." for ".$mailconf['user']." UID: ".$importer_uid." URI: ".$datarray['uri'],LOGGER_DEBUG);

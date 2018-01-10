@@ -32,7 +32,7 @@ function cal_init(App $a)
 
 	if ($a->argc > 1) {
 		$nick = $a->argv[1];
-		$user = dba::selectOne('user', [], ['nickname' => $nick, 'blocked' => false]);
+		$user = dba::selectFirst('user', [], ['nickname' => $nick, 'blocked' => false]);
 		if (!DBM::is_result($user)) {
 			return;
 		}

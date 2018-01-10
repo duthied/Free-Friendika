@@ -72,7 +72,7 @@ class OStatus
 		if ($aliaslink != '') {
 			$condition = ["`uid` = ? AND `alias` = ? AND `network` != ?",
 					$importer["uid"], $aliaslink, NETWORK_STATUSNET];
-			$r = dba::selectOne('contact', [], $condition);
+			$r = dba::selectFirst('contact', [], $condition);
 
 			if (DBM::is_result($r)) {
 				$found = true;
@@ -91,7 +91,7 @@ class OStatus
 
 			$condition = ["`uid` = ? AND `nurl` IN (?, ?) AND `network` != ?", $importer["uid"],
 					normalise_link($author["author-link"]), normalise_link($aliaslink), NETWORK_STATUSNET];
-			$r = dba::selectOne('contact', [], $condition);
+			$r = dba::selectFirst('contact', [], $condition);
 
 			if (DBM::is_result($r)) {
 				$found = true;
@@ -106,7 +106,7 @@ class OStatus
 		if (!$found && ($addr != "")) {
 			$condition = ["`uid` = ? AND `addr` = ? AND `network` != ?",
 					$importer["uid"], $addr, NETWORK_STATUSNET];
-			$r = dba::selectOne('contact', [], $condition);
+			$r = dba::selectFirst('contact', [], $condition);
 
 			if (DBM::is_result($r)) {
 				$found = true;
@@ -208,7 +208,7 @@ class OStatus
 
 			if ($cid) {
 				$fields = ['url', 'nurl', 'name', 'nick', 'alias', 'about', 'location'];
-				$old_contact = dba::selectOne('contact', $fields, ['id' => $cid]);
+				$old_contact = dba::selectFirst('contact', $fields, ['id' => $cid]);
 
 				// Update it with the current values
 				$fields = array('url' => $author["author-link"], 'name' => $contact["name"],
@@ -542,7 +542,7 @@ class OStatus
 	private static function deleteNotice($item)
 	{
 		$condition = ['uid' => $item['uid'], 'author-link' => $item['author-link'], 'uri' => $item['uri']];
-		$deleted = dba::selectOne('item', ['id', 'parent-uri'], $condition);
+		$deleted = dba::selectFirst('item', ['id', 'parent-uri'], $condition);
 		if (!DBM::is_result($deleted)) {
 			logger('Item from '.$item['author-link'].' with uri '.$item['uri'].' for user '.$item['uid']." wasn't found. We don't delete it. ");
 			return;
@@ -896,7 +896,7 @@ class OStatus
 	private static function fetchRelated($related, $related_uri, $importer)
 	{
 		$condition = ['`item-uri` = ? AND `protocol` IN (?, ?)', $related_uri, PROTOCOL_DFRN, PROTOCOL_OSTATUS_SALMON];
-		$conversation = dba::selectOne('conversation', ['source', 'protocol'], $condition);
+		$conversation = dba::selectFirst('conversation', ['source', 'protocol'], $condition);
 		if (DBM::is_result($conversation)) {
 			$stored = true;
 			$xml = $conversation['source'];
@@ -976,7 +976,7 @@ class OStatus
 		// Finally we take the data that we fetched from "ostatus:conversation"
 		if ($xml == '') {
 			$condition = ['item-uri' => $related_uri, 'protocol' => PROTOCOL_SPLITTED_CONV];
-			$conversation = dba::selectOne('conversation', ['source'], $condition);
+			$conversation = dba::selectFirst('conversation', ['source'], $condition);
 			if (DBM::is_result($conversation)) {
 				$stored = true;
 				logger('Got cached XML from conversation for URI '.$related_uri, LOGGER_DEBUG);

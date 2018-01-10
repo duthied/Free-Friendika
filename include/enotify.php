@@ -106,7 +106,7 @@ function notification($params)
 	}
 
 	if ($params['type'] == NOTIFY_COMMENT) {
-		$p = dba::selectOne('thread', ['ignored'], ['iid' => $parent_id]);
+		$p = dba::selectFirst('thread', ['ignored'], ['iid' => $parent_id]);
 		if (DBM::is_result($p) && $p["ignored"]) {
 			logger("Thread ".$parent_id." will be ignored", LOGGER_DEBUG);
 			return;
@@ -131,7 +131,7 @@ function notification($params)
 		$p = null;
 
 		if ($params['otype'] === 'item' && $parent_id) {
-			$p = dba::selectOne('item', [], ['id' => $parent_id]);
+			$p = dba::selectFirst('item', [], ['id' => $parent_id]);
 		}
 
 		$item_post_type = item_post_type($p);
@@ -672,12 +672,12 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$profiles = $notification_data["profiles"];
 
 	$fields = ['notify-flags', 'language', 'username', 'email', 'nickname'];
-	$user = dba::selectOne('user', $fields, ['uid' => $uid]);
+	$user = dba::selectFirst('user', $fields, ['uid' => $uid]);
 	if (!DBM::is_result($user)) {
 		return false;
 	}
 
-	$owner = dba::selectOne('contact', ['url'], ['self' => true, 'uid' => $uid]);
+	$owner = dba::selectFirst('contact', ['url'], ['self' => true, 'uid' => $uid]);
 	if (!DBM::is_result($owner)) {
 		return false;
 	}

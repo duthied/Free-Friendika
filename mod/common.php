@@ -63,11 +63,11 @@ function common_content(App $a)
 	}
 
 	if (!$cid && get_my_url()) {
-		$contact = dba::selectOne('contact', ['id'], ['nurl' => normalise_link(get_my_url()), 'uid' => $uid]);
+		$contact = dba::selectFirst('contact', ['id'], ['nurl' => normalise_link(get_my_url()), 'uid' => $uid]);
 		if (DBM::is_result($contact)) {
 			$cid = $contact['id'];
 		} else {
-			$gcontact = dba::selectOne('gcontact', ['id'], ['nurl' => normalise_link(get_my_url())]);
+			$gcontact = dba::selectFirst('gcontact', ['id'], ['nurl' => normalise_link(get_my_url())]);
 			if (DBM::is_result($gcontact)) {
 				$zcid = $gcontact['id'];
 			}

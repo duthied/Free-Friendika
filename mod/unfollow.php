@@ -26,7 +26,7 @@ function unfollow_post(App $a) {
 	$condition = ["`uid` = ? AND `rel` = ? AND (`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `network` != ?",
 			$uid, CONTACT_IS_FRIEND, normalise_link($url),
 			normalise_link($url), $url, NETWORK_STATUSNET];
-	$contact = dba::selectOne('contact', [], $condition);
+	$contact = dba::selectFirst('contact', [], $condition);
 
 	if (!DBM::is_result($contact)) {
 		notice(t("Contact wasn't found or can't be unfollowed."));
@@ -65,7 +65,7 @@ function unfollow_content(App $a) {
 	$condition = ["`uid` = ? AND `rel` = ? AND (`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `network` != ?",
 			local_user(), CONTACT_IS_FRIEND, normalise_link($url),
 			normalise_link($url), $url, NETWORK_STATUSNET];
-	$contact = dba::selectOne('contact', ['url', 'network', 'addr', 'name'], $condition);
+	$contact = dba::selectFirst('contact', ['url', 'network', 'addr', 'name'], $condition);
 
 	if (!DBM::is_result($contact)) {
 		notice(t("You aren't a friend of this contact.").EOL);

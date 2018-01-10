@@ -66,7 +66,7 @@ class PortableContact
 
 		if ($cid) {
 			if (!$url || !$uid) {
-				$r = dba::selectOne('contact', ['poco', 'uid'], ['id' => $cid]);
+				$r = dba::selectFirst('contact', ['poco', 'uid'], ['id' => $cid]);
 				if (DBM::is_result($r)) {
 					$url = $r['poco'];
 					$uid = $r['uid'];
@@ -813,7 +813,7 @@ class PortableContact
 			return false;
 		}
 
-		$servers = dba::selectOne('gserver', [], ['nurl' => normalise_link($server_url)]);
+		$servers = dba::selectFirst('gserver', [], ['nurl' => normalise_link($server_url)]);
 		if (DBM::is_result($servers)) {
 			if ($servers["created"] <= NULL_DATE) {
 				$fields = ['created' => datetime_convert()];

@@ -968,7 +968,7 @@ function best_link_url($item, &$sparkle, $url = '') {
 	$clean_url = normalise_link($item['author-link']);
 
 	if (local_user()) {
-		$r = dba::selectOne('contact', ['id'],
+		$r = dba::selectFirst('contact', ['id'],
 			['network' => NETWORK_DFRN, 'uid' => local_user(), 'nurl' => normalise_link($clean_url), 'pending' => false]);
 		if (DBM::is_result($r)) {
 			$best_url = 'redir/' . $r['id'];
@@ -1019,7 +1019,7 @@ function item_photo_menu($item) {
 	$cid = 0;
 	$network = '';
 	$rel = 0;
-	$r = dba::selectOne('contact', array('id', 'network', 'rel'), array('uid' => local_user(), 'nurl' => normalise_link($item['author-link'])));
+	$r = dba::selectFirst('contact', array('id', 'network', 'rel'), array('uid' => local_user(), 'nurl' => normalise_link($item['author-link'])));
 	if (DBM::is_result($r)) {
 		$cid = $r['id'];
 		$network = $r['network'];

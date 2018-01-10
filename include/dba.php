@@ -1047,7 +1047,7 @@ class dba {
 		if (is_bool($old_fields)) {
 			$do_insert = $old_fields;
 
-			$old_fields = self::selectOne($table, [], $condition);
+			$old_fields = self::selectFirst($table, [], $condition);
 
 			if (is_bool($old_fields)) {
 				if ($do_insert) {
@@ -1095,7 +1095,7 @@ class dba {
 	 * @return bool|array
 	 * @see dba::select
 	 */
-	public static function selectOne($table, array $fields = [], array $condition = [], $params = [])
+	public static function selectFirst($table, array $fields = [], array $condition = [], $params = [])
 	{
 		$params['limit'] = 1;
 		$result = self::select($table, $fields, $condition, $params);

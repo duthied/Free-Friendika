@@ -90,7 +90,7 @@ class PConfig
 			}
 		}
 
-		$ret = dba::selectOne('pconfig', ['v'], ['uid' => $uid, 'cat' => $family, 'k' => $key]);
+		$ret = dba::selectFirst('pconfig', ['v'], ['uid' => $uid, 'cat' => $family, 'k' => $key]);
 		if (DBM::is_result($ret)) {
 			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret['v']) ? unserialize($ret['v']) : $ret['v']);
 			$a->config[$uid][$family][$key] = $val;

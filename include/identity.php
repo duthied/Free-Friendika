@@ -162,7 +162,7 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0)
 	if (remote_user() && count($_SESSION['remote'])) {
 		foreach ($_SESSION['remote'] as $visitor) {
 			if ($visitor['uid'] == $uid) {
-				$r = dba::selectOne('contact', ['profile-id'], ['id' => $visitor['cid']]);
+				$r = dba::selectFirst('contact', ['profile-id'], ['id' => $visitor['cid']]);
 				if (DBM::is_result($r)) {
 					$profile = $r['profile-id'];
 				}

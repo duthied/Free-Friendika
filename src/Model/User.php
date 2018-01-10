@@ -84,7 +84,7 @@ class User
 			return $default_group;
 		}
 
-		$user = dba::selectOne('user', ['def_gid'], ['uid' => $uid]);
+		$user = dba::selectFirst('user', ['def_gid'], ['uid' => $uid]);
 
 		if (DBM::is_result($user)) {
 			$default_group = $user["def_gid"];
@@ -112,7 +112,7 @@ class User
 		if (is_object($user_info)) {
 			$user = (array) $user_info;
 		} elseif (is_int($user_info)) {
-			$user = dba::selectOne('user', ['uid', 'password'],
+			$user = dba::selectFirst('user', ['uid', 'password'],
 				[
 					'uid' => $user_info,
 					'blocked' => 0,
@@ -328,7 +328,7 @@ class User
 
 		if ($insert_result) {
 			$uid = dba::lastInsertId();
-			$user = dba::selectOne('user', [], ['uid' => $uid]);
+			$user = dba::selectFirst('user', [], ['uid' => $uid]);
 		} else {
 			throw new Exception(t('An error occurred during registration. Please try again.'));
 		}
@@ -530,7 +530,7 @@ class User
 
 		logger('Removing user: ' . $uid);
 
-		$user = dba::selectOne('user', [], ['uid' => $uid]);
+		$user = dba::selectFirst('user', [], ['uid' => $uid]);
 
 		call_hooks('remove_user', $user);
 

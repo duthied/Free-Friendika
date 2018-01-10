@@ -38,14 +38,14 @@ class Photo
 	 */
 	public static function store(Image $Image, $uid, $cid, $rid, $filename, $album, $scale, $profile = 0, $allow_cid = '', $allow_gid = '', $deny_cid = '', $deny_gid = '', $desc = '')
 	{
-		$r = dba::selectOne('photo', ['guid'], ["`resource-id` = ? AND `guid` != ?", $rid, '']);
+		$r = dba::selectFirst('photo', ['guid'], ["`resource-id` = ? AND `guid` != ?", $rid, '']);
 		if (DBM::is_result($r)) {
 			$guid = $r['guid'];
 		} else {
 			$guid = get_guid();
 		}
 
-		$x = dba::selectOne('photo', ['id'], ['resource-id' => $rid, 'uid' => $uid, 'contact-id' => $cid, 'scale' => $scale]);
+		$x = dba::selectFirst('photo', ['id'], ['resource-id' => $rid, 'uid' => $uid, 'contact-id' => $cid, 'scale' => $scale]);
 
 		$fields = array(
 			'uid' => $uid,
@@ -88,7 +88,7 @@ class Photo
 	 */
 	public static function importProfilePhoto($photo, $uid, $cid, $quit_on_error = false)
 	{
-		$r = dba::selectOne(
+		$r = dba::selectFirst(
 			'photo', ['resource-id'], ['uid' => $uid, 'contact-id' => $cid, 'scale' => 4, 'album' => 'Contact Photos']
 		);
 

@@ -99,7 +99,7 @@ class Login extends BaseModule
 			} else {
 				$user_id = User::authenticate(trim($_POST['username']), trim($_POST['password']));
 				if ($user_id) {
-					$record = dba::selectOne('user', [], ['uid' => $user_id]);
+					$record = dba::selectFirst('user', [], ['uid' => $user_id]);
 				}
 			}
 
@@ -141,7 +141,7 @@ class Login extends BaseModule
 			$data = json_decode($_COOKIE["Friendica"]);
 			if (isset($data->uid)) {
 
-				$user = dba::selectOne('user', [],
+				$user = dba::selectFirst('user', [],
 					[
 						'uid'             => $data->uid,
 						'blocked'         => false,
@@ -196,7 +196,7 @@ class Login extends BaseModule
 					goaway(self::getApp()->get_baseurl());
 				}
 
-				$user = dba::selectOne('user', [],
+				$user = dba::selectFirst('user', [],
 					[
 						'uid'             => $_SESSION['uid'],
 						'blocked'         => false,

@@ -562,7 +562,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	// check for create date and expire time
 	$expire_interval = Config::get('system', 'dbclean-expire-days', 0);
 
-	$user = dba::selectOne('user', ['expire'], ['uid' => $uid]);
+	$user = dba::selectFirst('user', ['expire'], ['uid' => $uid]);
 	if (DBM::is_result($user) && ($user['expire'] > 0) && (($user['expire'] < $expire_interval) || ($expire_interval == 0))) {
 		$expire_interval = $user['expire'];
 	}
@@ -1149,14 +1149,14 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
  */
 function item_set_last_item($arr) {
 	// Unarchive the author
-	$contact = dba::selectOne('contact', [], ['id' => $arr["author-link"]]);
+	$contact = dba::selectFirst('contact', [], ['id' => $arr["author-link"]]);
 	if ($contact['term-date'] > NULL_DATE) {
 		 Contact::unmarkForArchival($contact);
 	}
 
 	// Unarchive the contact if it is a toplevel posting
 	if ($arr["parent-uri"] === $arr["uri"]) {
-		$contact = dba::selectOne('contact', [], ['id' => $arr["contact-id"]]);
+		$contact = dba::selectFirst('contact', [], ['id' => $arr["contact-id"]]);
 		if ($contact['term-date'] > NULL_DATE) {
 			 Contact::unmarkForArchival($contact);
 		}

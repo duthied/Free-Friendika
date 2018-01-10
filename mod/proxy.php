@@ -148,7 +148,7 @@ function proxy_init(App $a) {
 	$r = array();
 
 	if (!$direct_cache && ($cachefile == '')) {
-		$r = dba::selectOne('photo', ['data', 'desc'], ['resource-id' => $urlhash]);
+		$r = dba::selectFirst('photo', ['data', 'desc'], ['resource-id' => $urlhash]);
 		if (DBM::is_result($r)) {
 			$img_str = $r['data'];
 			$mime = $r['desc'];

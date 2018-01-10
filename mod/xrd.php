@@ -36,7 +36,7 @@ function xrd_init(App $a)
 		$name = substr($local, 0, strpos($local, '@'));
 	}
 
-	$r = dba::selectOne('user', [], ['nickname' => $name]);
+	$r = dba::selectFirst('user', [], ['nickname' => $name]);
 	if (!DBM::is_result($r)) {
 		killme();
 	}

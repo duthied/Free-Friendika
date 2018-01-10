@@ -581,7 +581,7 @@ function networkThreadedView(App $a, $update = 0) {
 		if ($cid) {
 			// If $cid belongs to a communitity forum or a privat goup,.add a mention to the status editor
 			$condition = ["`id` = ? AND (`forum` OR `prv`)", $cid];
-			$contact = dba::selectOne('contact', ['addr', 'nick'], $condition);
+			$contact = dba::selectFirst('contact', ['addr', 'nick'], $condition);
 			if (DBM::is_result($contact)) {
 				if ($contact["addr"] != '') {
 					$content = "!".$contact["addr"];
@@ -632,7 +632,7 @@ function networkThreadedView(App $a, $update = 0) {
 	$sql_nets = (($nets) ? sprintf(" and $sql_table.`network` = '%s' ", dbesc($nets)) : '');
 
 	if ($group) {
-		$r = dba::selectOne('group', ['name'], ['id' => $group, 'uid' => $_SESSION['uid']]);
+		$r = dba::selectFirst('group', ['name'], ['id' => $group, 'uid' => $_SESSION['uid']]);
 		if (!DBM::is_result($r)) {
 			if ($update)
 				killme();
@@ -647,7 +647,7 @@ function networkThreadedView(App $a, $update = 0) {
 			$contact_str_self = "";
 
 			$contact_str = implode(',',$contacts);
-			$self = dba::selectOne('contact', ['id'], ['uid' => $_SESSION['uid'], 'self' => true]);
+			$self = dba::selectFirst('contact', ['id'], ['uid' => $_SESSION['uid'], 'self' => true]);
 			if (DBM::is_result($self)) {
 				$contact_str_self = $self["id"];
 			}
@@ -668,7 +668,7 @@ function networkThreadedView(App $a, $update = 0) {
 		$fields = ['id', 'name', 'network', 'writable', 'nurl',
 				'forum', 'prv', 'contact-type', 'addr', 'thumb', 'location'];
 		$condition = ["`id` = ? AND (NOT `blocked` OR `pending`)", $cid];
-		$r = dba::selectOne('contact', $fields, $condition);
+		$r = dba::selectFirst('contact', $fields, $condition);
 		if (DBM::is_result($r)) {
 			$sql_extra = " AND ".$sql_table.".`contact-id` = ".intval($cid);
 

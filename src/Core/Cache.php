@@ -109,7 +109,7 @@ class Cache
 		// Frequently clear cache
 		self::clear();
 
-		$r = dba::selectOne('cache', ['v'], ['k' => $key]);
+		$r = dba::selectFirst('cache', ['v'], ['k' => $key]);
 
 		if (DBM::is_result($r)) {
 			$cached = $r['v'];

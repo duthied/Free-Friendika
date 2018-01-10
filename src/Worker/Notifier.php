@@ -267,7 +267,7 @@ class Notifier {
 
 				$fields = ['forum', 'prv'];
 				$condition = ['id' => $target_item['contact-id']];
-				$contact = dba::selectOne('contact', $fields, $condition);
+				$contact = dba::selectFirst('contact', $fields, $condition);
 				if (!DBM::is_result($contact)) {
 					// Should never happen
 					return false;
