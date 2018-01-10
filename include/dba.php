@@ -313,7 +313,7 @@ class dba {
 	 * For all regular queries please use dba::select or dba::exists
 	 *
 	 * @param string $sql SQL statement
-	 * @return object statement object
+	 * @return bool|object statement object
 	 */
 	public static function p($sql) {
 		$a = get_app();
@@ -586,10 +586,11 @@ class dba {
 	}
 
 	/**
+	 * Fetches the first row
+	 * 
+	 * Please use dba::selectOne or dba::exists whenever this is possible.
+	 *
 	 * @brief Fetches the first row
-	 *
-	 * Please use dba::select or dba::exists whenever this is possible.
-	 *
 	 * @param string $sql SQL statement
 	 * @return array first row of query
 	 */
@@ -639,7 +640,7 @@ class dba {
 	/**
 	 * @brief Returns the number of rows of a statement
 	 *
-	 * @param object Statement object
+	 * @param PDOStatement|mysqli_result|mysqli_stmt Statement object
 	 * @return int Number of rows
 	 */
 	public static function num_rows($stmt) {
@@ -658,7 +659,7 @@ class dba {
 	/**
 	 * @brief Fetch a single row
 	 *
-	 * @param object $stmt statement object
+	 * @param PDOStatement|mysqli_result|mysqli_stmt $stmt statement object
 	 * @return array current row
 	 */
 	public static function fetch($stmt) {
@@ -1111,12 +1112,12 @@ class dba {
 	/**
 	 * @brief Select rows from a table
 	 *
-	 * @param string $table Table name
-	 * @param array $fields array of selected fields
-	 * @param array $condition array of fields for condition
-	 * @param array $params array of several parameters
+	 * @param string $table     Table name
+	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
 	 *
-	 * @return boolean|object If "limit" is equal "1" only a single row is returned, else a query object is returned
+	 * @return boolean|object
 	 *
 	 * Example:
 	 * $table = "item";
@@ -1126,7 +1127,7 @@ class dba {
 	 * or:
 	 * $condition = array("`uid` = ? AND `network` IN (?, ?)", 1, 'dfrn', 'dspr');
 	 *
-	 * $params = array("order" => array("id", "received" => true), "limit" => 1);
+	 * $params = array("order" => array("id", "received" => true), "limit" => 10);
 	 *
 	 * $data = dba::select($table, $fields, $condition, $params);
 	 */
@@ -1280,7 +1281,7 @@ class dba {
 	 * @brief Closes the current statement
 	 *
 	 * @param object $stmt statement object
-	 * @return boolean was the close successfull?
+	 * @return boolean was the close successful?
 	 */
 	public static function close($stmt) {
 		if (!is_object($stmt)) {

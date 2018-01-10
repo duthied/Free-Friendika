@@ -6,10 +6,10 @@
  * 	This calendar is for profile visitors and contains only the events
  * 	of the profile owner
  */
+
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Core\Config;
-use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;

@@ -1625,8 +1625,6 @@ function admin_page_users(App $a)
 				ORDER BY $sql_order $sql_order_direction LIMIT %d, %d", intval($a->pager['start']), intval($a->pager['itemspage'])
 	);
 
-	//echo "<pre>$users"; killme();
-
 	$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
 	$_setup_users = function ($e) use ($adminlist) {
 		$accounts = array(
