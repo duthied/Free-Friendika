@@ -38,28 +38,11 @@ class ContactSelector
 		return $o;
 	}
 
-	private static function contact_reputation($current)
-	{
-		$o = '';
-		$o .= "<select id=\"contact-reputation-selector\" name=\"reputation\" />\r\n";
-
-		$rep = array(
-			0 => t('Unknown | Not categorised'),
-			1 => t('Block immediately'),
-			2 => t('Shady, spammer, self-marketer'),
-			3 => t('Known to me, but no opinion'),
-			4 => t('OK, probably harmless'),
-			5 => t('Reputable, has my trust')
-		);
-
-		foreach ($rep as $k => $v) {
-			$selected = (($k == $current) ? " selected=\"selected\" " : "");
-			$o .= "<option value=\"$k\" $selected >$v</option>\r\n";
-		}
-		$o .= "</select>\r\n";
-		return $o;
-	}
-
+	/**
+	 * @param string  $current  current
+	 * @param boolean $disabled optional, default false
+	 * @return object
+	 */
 	public static function pollInterval($current, $disabled = false)
 	{
 		$dis = (($disabled) ? ' disabled="disabled" ' : '');
@@ -83,6 +66,11 @@ class ContactSelector
 		return $o;
 	}
 
+	/**
+	 * @param string $s       network
+	 * @param string $profile optional, default empty
+	 * @return string
+	 */
 	public static function networkToName($s, $profile = "")
 	{
 		$nets = array(
