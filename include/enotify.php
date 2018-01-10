@@ -50,8 +50,8 @@ function notification($params)
 	}
 
 	if ($params['type'] != SYSTEM_EMAIL) {
-		$user = dba::select('user', array('nickname', 'page-flags'),
-			array('uid' => $params['uid']), array('limit' => 1));
+		$user = dba::selectFirst('user', ['nickname', 'page-flags'],
+			['uid' => $params['uid']]);
 
 		// There is no need to create notifications for forum accounts
 		if (!DBM::is_result($user) || in_array($user["page-flags"], array(PAGE_COMMUNITY, PAGE_PRVGROUP))) {
