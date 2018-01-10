@@ -769,7 +769,7 @@ class Post extends BaseObject
 			$uid = $conv->getProfileOwner();
 			$parent_uid = $this->getDataValue('uid');
 
-			if (!empty($parent_uid) && empty($uid) && ($uid != $parent_uid)) {
+			if (!is_null($parent_uid) && ($uid != $parent_uid)) {
 				$uid = $parent_uid;
 			}
 
