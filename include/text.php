@@ -1033,7 +1033,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 }
 
 /**
- * @brief Search box.
+ * Search box.
  *
  * @param string $s     Search query.
  * @param string $id    HTML id
