@@ -1034,22 +1034,34 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 }
 
 /**
- * search box
+ * Search box.
  *
- * @param string $s search query
- * @param string $id html id
- * @param string $url search url
- * @param boolean $savedsearch show save search button
+ * @param string $s     Search query.
+ * @param string $id    HTML id
+ * @param string $url   Search url.
+ * @param bool   $save  Show save search button.
+ * @param bool   $aside Display the search widgit aside.
+ * 
+ * @return string Formatted HTML.
  */
-function search($s, $id = 'search-box', $url = 'search', $save = false, $aside = true) {
+function search($s, $id = 'search-box', $url = 'search', $save = false, $aside = true)
+{
+	$mode = 'text';
+
+	if (strpos($s, '#') === 0) {
+		$mode = 'tag';
+	}
+	$save_label = $mode === 'text' ? t('Save') : t('Follow');
+
 	$values = array(
 			'$s' => htmlspecialchars($s),
 			'$id' => $id,
 			'$action_url' => $url,
 			'$search_label' => t('Search'),
-			'$save_label' => t('Save'),
+			'$save_label' => $save_label,
 			'$savedsearch' => Feature::isEnabled(local_user(),'savedsearch'),
 			'$search_hint' => t('@name, !forum, #tags, content'),
+			'$mode' => $mode
 		);
 
 	if (!$aside) {
