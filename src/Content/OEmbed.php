@@ -57,9 +57,8 @@ class OEmbed
 
 		$a = get_app();
 
-		$condition = array('url' => normalise_link($embedurl));
-		$r = dba::select('oembed', array('content'), $condition, array('limit' => 1));
-
+		$condition = ['url' => normalise_link($embedurl)];
+		$r = dba::selectOne('oembed', ['content'], $condition);
 		if (DBM::is_result($r)) {
 			$txt = $r["content"];
 		} else {

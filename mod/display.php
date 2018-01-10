@@ -202,7 +202,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 
 	if ($update) {
 		$item_id = $_REQUEST['item_id'];
-		$item = dba::select('item', ['uid', 'parent'], ['id' => $item_id], ['limit' => 1]);
+		$item = dba::selectOne('item', ['uid', 'parent'], ['id' => $item_id]);
 		$a->profile = array('uid' => intval($item['uid']), 'profile_uid' => intval($item['uid']));
 		$item_parent = $item['parent'];
 	} else {
@@ -345,7 +345,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	$s = dba::inArray($r);
 
 	if (local_user() && (local_user() == $a->profile['uid'])) {
-		$unseen = dba::select('item', array('id'), array('parent' => $s[0]['parent'], 'unseen' => true), array('limit' => 1));
+		$unseen = dba::selectOne('item', ['id'], ['parent' => $s[0]['parent'], 'unseen' => true]);
 		if (DBM::is_result($unseen)) {
 			dba::update('item', array('unseen' => false), array('parent' => $s[0]['parent'], 'unseen' => true));
 		}

@@ -226,12 +226,7 @@ function wtagblock($uid, $count = 0, $owner_id = 0, $flags = '', $type = TERM_HA
 	$o = '';
 	$r = tagadelic($uid, $count, $owner_id, $flags, $type);
 	if (count($r)) {
-		$contact = dba::select(
-			'contact',
-			array('url'),
-			array('id' => $uid),
-			array('limit' => 1)
-		);
+		$contact = dba::selectOne('contact', ['url'], ['id' => $uid]);
 		$url = System::removedBaseUrl($contact['url']);
 
 		foreach ($r as $rr) {

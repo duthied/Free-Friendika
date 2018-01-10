@@ -80,7 +80,7 @@ class Queue
 
 		$q_item = $r[0];
 
-		$contact = dba::select('contact', [], ['id' => $q_item['cid']], ['limit' => 1]);
+		$contact = dba::selectOne('contact', [], ['id' => $q_item['cid']]);
 		if (!DBM::is_result($contact)) {
 			remove_queue_item($q_item['id']);
 			return;
@@ -113,7 +113,7 @@ class Queue
 			}
 		}
 
-		$user = dba::select('user', [], ['uid' => $contact['uid']], ['limit' => 1]);
+		$user = dba::selectOne('user', [], ['uid' => $contact['uid']]);
 		if (!DBM::is_result($user)) {
 			remove_queue_item($q_item['id']);
 			return;

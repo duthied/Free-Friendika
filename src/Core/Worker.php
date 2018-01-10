@@ -165,7 +165,7 @@ class Worker
 	private static function highestPriority()
 	{
 		$condition = array("`executed` <= ? AND NOT `done`", NULL_DATE);
-		$s = dba::select('workerqueue', array('priority'), $condition, array('limit' => 1, 'order' => array('priority')));
+		$s = dba::selectOne('workerqueue', ['priority'], $condition, ['order' => ['priority']]);
 		if (DBM::is_result($s)) {
 			return $s["priority"];
 		} else {
@@ -772,9 +772,9 @@ class Worker
 			// Are there waiting processes with a higher priority than the currently highest?
 			$result = dba::select(
 				'workerqueue',
-				array('id'),
-				array("`executed` <= ? AND `priority` < ? AND NOT `done`", NULL_DATE, $highest_priority),
-				array('limit' => $limit, 'order' => array('priority', 'created'), 'only_query' => true)
+				['id'],
+				["`executed` <= ? AND `priority` < ? AND NOT `done`", NULL_DATE, $highest_priority],
+				['limit' => $limit, 'order' => ['priority', 'created']]
 			);
 
 			while ($id = dba::fetch($result)) {
@@ -788,9 +788,9 @@ class Worker
 				// Give slower processes some processing time
 				$result = dba::select(
 					'workerqueue',
-					array('id'),
-					array("`executed` <= ? AND `priority` > ? AND NOT `done`", NULL_DATE, $highest_priority),
-					array('limit' => $limit, 'order' => array('priority', 'created'), 'only_query' => true)
+					['id'],
+					["`executed` <= ? AND `priority` > ? AND NOT `done`", NULL_DATE, $highest_priority],
+					['limit' => $limit, 'order' => ['priority', 'created']]
 				);
 
 				while ($id = dba::fetch($result)) {
@@ -807,9 +807,9 @@ class Worker
 		if (!$found) {
 			$result = dba::select(
 				'workerqueue',
-				array('id'),
-				array("`executed` <= ? AND NOT `done`", NULL_DATE),
-				array('limit' => $limit, 'order' => array('priority', 'created'), 'only_query' => true)
+				['id'],
+				["`executed` <= ? AND NOT `done`", NULL_DATE],
+				['limit' => $limit, 'order' => ['priority', 'created']]
 			);
 
 			while ($id = dba::fetch($result)) {

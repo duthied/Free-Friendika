@@ -33,7 +33,7 @@ function contacts_init(App $a)
 	$contact = [];
 	if ((($a->argc == 2) && intval($a->argv[1])) || (($a->argc == 3) && intval($a->argv[1]) && ($a->argv[2] == "posts"))) {
 		$contact_id = intval($a->argv[1]);
-		$contact = dba::select('contact', [], ['id' => $contact_id, 'uid' => local_user()], ['limit' => 1]);
+		$contact = dba::selectOne('contact', [], ['id' => $contact_id, 'uid' => local_user()]);
 	}
 
 	if (DBM::is_result($contact)) {
@@ -222,7 +222,7 @@ function contacts_post(App $a)
 		notice(t('Failed to update contact record.') . EOL);
 	}
 
-	$contact = dba::select('contact', [], ['id' => $contact_id, 'uid' => local_user()], ['limit' => 1]);
+	$contact = dba::selectOne('contact', [], ['id' => $contact_id, 'uid' => local_user()]);
 	if (DBM::is_result($contact)) {
 		$a->data['contact'] = $contact;
 	}
@@ -233,7 +233,7 @@ function contacts_post(App $a)
 
 function _contact_update($contact_id)
 {
-	$contact = dba::select('contact', ['uid', 'url', 'network'], ['id' => $contact_id, 'uid' => local_user()], ['limit' => 1]);
+	$contact = dba::selectOne('contact', ['uid', 'url', 'network'], ['id' => $contact_id, 'uid' => local_user()]);
 	if (!DBM::is_result($contact)) {
 		return;
 	}
@@ -254,7 +254,7 @@ function _contact_update($contact_id)
 
 function _contact_update_profile($contact_id)
 {
-	$contact = dba::select('contact', ['uid', 'url', 'network'], ['id' => $contact_id, 'uid' => local_user()], ['limit' => 1]);
+	$contact = dba::selectOne('contact', ['uid', 'url', 'network'], ['id' => $contact_id, 'uid' => local_user()]);
 	if (!DBM::is_result($contact)) {
 		return;
 	}
@@ -389,7 +389,7 @@ function contacts_content(App $a)
 
 		$cmd = $a->argv[2];
 
-		$orig_record = dba::select('contact', [], ['id' => $contact_id, 'uid' => local_user(), 'self' => false], ['limit' => 1]);
+		$orig_record = dba::selectOne('contact', [], ['id' => $contact_id, 'uid' => local_user(), 'self' => false]);
 		if (!DBM::is_result($orig_record)) {
 			notice(t('Could not access contact record.') . EOL);
 			goaway('contacts');
@@ -904,7 +904,7 @@ function contact_posts($a, $contact_id)
 {
 	$o = contacts_tab($a, $contact_id, 1);
 
-	$contact = dba::select('contact', ['url'], ['id' => $contact_id], ['limit' => 1]);
+	$contact = dba::selectOne('contact', ['url'], ['id' => $contact_id]);
 	if (DBM::is_result($contact)) {
 		$a->page['aside'] = "";
 		profile_load($a, "", 0, Contact::getDetailsByURL($contact["url"]));

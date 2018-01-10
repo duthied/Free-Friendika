@@ -406,7 +406,7 @@ class Probe
 
 				$condition = array('nurl' => normalise_link($data["url"]));
 
-				$old_fields = dba::select('gcontact', $fieldnames, $condition, array('limit' => 1));
+				$old_fields = dba::selectOne('gcontact', $fieldnames, $condition);
 
 				dba::update('gcontact', $fields, $condition, $old_fields);
 
@@ -439,7 +439,7 @@ class Probe
 
 				$condition = array('nurl' => normalise_link($data["url"]), 'self' => false, 'uid' => 0);
 
-				$old_fields = dba::select('contact', $fieldnames, $condition, array('limit' => 1));
+				$old_fields = dba::selectOne('contact', $fieldnames, $condition);
 
 				dba::update('contact', $fields, $condition, $old_fields);
 			}

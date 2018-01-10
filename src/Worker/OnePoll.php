@@ -42,7 +42,7 @@ Class OnePoll
 
 		$d = datetime_convert();
 
-		$contact = dba::select('contact', [], ['id' => $contact_id], ['limit' => 1]);
+		$contact = dba::selectOne('contact', [], ['id' => $contact_id]);
 		if (!DBM::is_result($contact)) {
 			logger('Contact not found or cannot be used.');
 			return;
@@ -339,14 +339,14 @@ Class OnePoll
 			logger("Mail: Enabled", LOGGER_DEBUG);
 
 			$mbox = null;
-			$x = dba::select('user', array('prvkey'), array('uid' => $importer_uid), array('limit' => 1));
+			$user = dba::selectOne('user', ['prvkey'], ['uid' => $importer_uid]);
 
-			$condition = array("`server` != '' AND `uid` = ?", $importer_uid);
-			$mailconf = dba::select('mailacct', array(), $condition, array('limit' => 1));
-			if (DBM::is_result($x) && DBM::is_result($mailconf)) {
+			$condition = ["`server` != '' AND `uid` = ?", $importer_uid];
+			$mailconf = dba::selectOne('mailacct', [], $condition);
+			if (DBM::is_result($user) && DBM::is_result($mailconf)) {
 				$mailbox = Email::constructMailboxName($mailconf);
 				$password = '';
-				openssl_private_decrypt(hex2bin($mailconf['pass']), $password, $x['prvkey']);
+				openssl_private_decrypt(hex2bin($mailconf['pass']), $password, $user['prvkey']);
 				$mbox = Email::connect($mailbox, $mailconf['user'], $password);
 				unset($password);
 				logger("Mail: Connect to " . $mailconf['user']);
@@ -382,9 +382,9 @@ Class OnePoll
 							$datarray['uri'] = Email::msgid2iri(trim($meta->message_id, '<>'));
 
 							// Have we seen it before?
-							$fields = array('deleted', 'id');
-							$condition = array('uid' => $importer_uid, 'uri' => $datarray['uri']);
-							$r = dba::select('item', $fields, $condition, array('limit' => 1));
+							$fields = ['deleted', 'id'];
+							$condition = ['uid' => $importer_uid, 'uri' => $datarray['uri']];
+							$r = dba::selectOne('item', $fields, $condition);
 
 							if (DBM::is_result($r)) {
 								logger("Mail: Seen before ".$msg_uid." for ".$mailconf['user']." UID: ".$importer_uid." URI: ".$datarray['uri'],LOGGER_DEBUG);

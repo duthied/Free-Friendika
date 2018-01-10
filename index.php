@@ -108,7 +108,7 @@ if (!$a->is_backend()) {
  */
 if (x($_SESSION, 'authenticated') && !x($_SESSION, 'language')) {
 	// we didn't loaded user data yet, but we need user language
-	$r = dba::select('user', array('language'), array('uid' => $_SESSION['uid']), array('limit' => 1));
+	$r = dba::selectOne('user', ['language'], ['uid' => $_SESSION['uid']]);
 	$_SESSION['language'] = $lang;
 	if (DBM::is_result($r)) {
 		$_SESSION['language'] = $r['language'];

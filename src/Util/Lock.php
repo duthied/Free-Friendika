@@ -126,7 +126,7 @@ class Lock
 
 		do {
 			dba::lock('locks');
-			$lock = dba::select('locks', array('locked', 'pid'), array('name' => $fn_name), array('limit' => 1));
+			$lock = dba::selectOne('locks', ['locked', 'pid'], ['name' => $fn_name]);
 
 			if (DBM::is_result($lock)) {
 				if ($lock['locked']) {

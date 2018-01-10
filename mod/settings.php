@@ -997,7 +997,7 @@ function settings_content(App $a)
 
 	require_once('include/acl_selectors.php');
 
-	$profile = dba::select('profile', [], ['is-default' => true, 'uid' => local_user()], ['limit' => 1]);
+	$profile = dba::selectOne('profile', [], ['is-default' => true, 'uid' => local_user()]);
 	if (!DBM::is_result($profile)) {
 		notice(t('Unable to find your profile. Please contact your admin.') . EOL);
 		return;

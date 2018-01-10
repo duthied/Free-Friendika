@@ -888,7 +888,7 @@ class GContact
 						'network', 'bd', 'gender',
 						'keywords', 'alias', 'contact-type',
 						'url', 'location', 'about');
-				$old_contact = dba::select('contact', $fields, array('id' => $r[0]["id"]), array('limit' => 1));
+				$old_contact = dba::selectOne('contact', $fields, ['id' => $r[0]["id"]]);
 
 				// Update it with the current values
 				$fields = array('name' => $contact['name'], 'nick' => $contact['nick'],

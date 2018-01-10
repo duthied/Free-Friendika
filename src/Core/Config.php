@@ -97,7 +97,7 @@ class Config
 			}
 		}
 
-		$ret = dba::select('config', array('v'), array('cat' => $family, 'k' => $key), array('limit' => 1));
+		$ret = dba::selectOne('config', ['v'], ['cat' => $family, 'k' => $key]);
 		if (DBM::is_result($ret)) {
 			// manage array value
 			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret['v']) ? unserialize($ret['v']) : $ret['v']);

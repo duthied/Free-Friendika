@@ -67,14 +67,14 @@ function noscrape_init(App $a) {
 
 	// We display the last activity (post or login), reduced to year and week number
 	$last_active = 0;
-	$condition = array('uid' => $a->profile['uid'], 'self' => true);
-	$contact = dba::select('contact', array('last-item'), $condition, array('limit' => 1));
+	$condition = ['uid' => $a->profile['uid'], 'self' => true];
+	$contact = dba::selectOne('contact', ['last-item'], $condition);
 	if (DBM::is_result($contact)) {
 		$last_active = strtotime($contact['last-item']);
 	}
 
-	$condition = array('uid' => $a->profile['uid']);
-	$user = dba::select('user', array('login_date'), $condition, array('limit' => 1));
+	$condition = ['uid' => $a->profile['uid']];
+	$user = dba::selectOne('user', ['login_date'], $condition);
 	if (DBM::is_result($user)) {
 		if ($last_active < strtotime($user['login_date'])) {
 			$last_active = strtotime($user['login_date']);

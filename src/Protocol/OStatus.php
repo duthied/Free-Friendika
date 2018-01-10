@@ -70,9 +70,9 @@ class OStatus
 		$found = false;
 
 		if ($aliaslink != '') {
-			$condition = array("`uid` = ? AND `alias` = ? AND `network` != ?",
-					$importer["uid"], $aliaslink, NETWORK_STATUSNET);
-			$r = dba::select('contact', array(), $condition, array('limit' => 1));
+			$condition = ["`uid` = ? AND `alias` = ? AND `network` != ?",
+					$importer["uid"], $aliaslink, NETWORK_STATUSNET];
+			$r = dba::selectOne('contact', [], $condition);
 
 			if (DBM::is_result($r)) {
 				$found = true;
@@ -89,9 +89,9 @@ class OStatus
 				$aliaslink = $author["author-link"];
 			}
 
-			$condition = array("`uid` = ? AND `nurl` IN (?, ?) AND `network` != ?", $importer["uid"],
-					normalise_link($author["author-link"]), normalise_link($aliaslink), NETWORK_STATUSNET);
-			$r = dba::select('contact', array(), $condition, array('limit' => 1));
+			$condition = ["`uid` = ? AND `nurl` IN (?, ?) AND `network` != ?", $importer["uid"],
+					normalise_link($author["author-link"]), normalise_link($aliaslink), NETWORK_STATUSNET];
+			$r = dba::selectOne('contact', [], $condition);
 
 			if (DBM::is_result($r)) {
 				$found = true;
@@ -104,9 +104,9 @@ class OStatus
 		}
 
 		if (!$found && ($addr != "")) {
-			$condition = array("`uid` = ? AND `addr` = ? AND `network` != ?",
-					$importer["uid"], $addr, NETWORK_STATUSNET);
-			$r = dba::select('contact', array(), $condition, array('limit' => 1));
+			$condition = ["`uid` = ? AND `addr` = ? AND `network` != ?",
+					$importer["uid"], $addr, NETWORK_STATUSNET];
+			$r = dba::selectOne('contact', [], $condition);
 
 			if (DBM::is_result($r)) {
 				$found = true;
@@ -207,8 +207,8 @@ class OStatus
 			$cid = Contact::getIdForURL($aliaslink, 0);
 
 			if ($cid) {
-				$fields = array('url', 'nurl', 'name', 'nick', 'alias', 'about', 'location');
-				$old_contact = dba::select('contact', $fields, array('id' => $cid), array('limit' => 1));
+				$fields = ['url', 'nurl', 'name', 'nick', 'alias', 'about', 'location'];
+				$old_contact = dba::selectOne('contact', $fields, ['id' => $cid]);
 
 				// Update it with the current values
 				$fields = array('url' => $author["author-link"], 'name' => $contact["name"],
@@ -541,8 +541,8 @@ class OStatus
 	 */
 	private static function deleteNotice($item)
 	{
-		$condition = array('uid' => $item['uid'], 'author-link' => $item['author-link'], 'uri' => $item['uri']);
-		$deleted = dba::select('item', array('id', 'parent-uri'), $condition, array('limit' => 1));
+		$condition = ['uid' => $item['uid'], 'author-link' => $item['author-link'], 'uri' => $item['uri']];
+		$deleted = dba::selectOne('item', ['id', 'parent-uri'], $condition);
 		if (!DBM::is_result($deleted)) {
 			logger('Item from '.$item['author-link'].' with uri '.$item['uri'].' for user '.$item['uid']." wasn't found. We don't delete it. ");
 			return;
@@ -895,8 +895,8 @@ class OStatus
 	 */
 	private static function fetchRelated($related, $related_uri, $importer)
 	{
-		$condition = array('`item-uri` = ? AND `protocol` IN (?, ?)', $related_uri, PROTOCOL_DFRN, PROTOCOL_OSTATUS_SALMON);
-		$conversation = dba::select('conversation', array('source', 'protocol'), $condition,  array('limit' => 1));
+		$condition = ['`item-uri` = ? AND `protocol` IN (?, ?)', $related_uri, PROTOCOL_DFRN, PROTOCOL_OSTATUS_SALMON];
+		$conversation = dba::selectOne('conversation', ['source', 'protocol'], $condition);
 		if (DBM::is_result($conversation)) {
 			$stored = true;
 			$xml = $conversation['source'];
@@ -975,8 +975,8 @@ class OStatus
 
 		// Finally we take the data that we fetched from "ostatus:conversation"
 		if ($xml == '') {
-			$condition = array('item-uri' => $related_uri, 'protocol' => PROTOCOL_SPLITTED_CONV);
-			$conversation = dba::select('conversation', array('source'), $condition,  array('limit' => 1));
+			$condition = ['item-uri' => $related_uri, 'protocol' => PROTOCOL_SPLITTED_CONV];
+			$conversation = dba::selectOne('conversation', ['source'], $condition);
 			if (DBM::is_result($conversation)) {
 				$stored = true;
 				logger('Got cached XML from conversation for URI '.$related_uri, LOGGER_DEBUG);
