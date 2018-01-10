@@ -1,17 +1,15 @@
 <?php
-
 /**
  * @file mod/notifications.php
  * @brief The notifications module
  */
-
 use Friendica\App;
+use Friendica\Content\ContactSelector;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 
-require_once("include/contact_selectors.php");
-require_once("include/network.php");
+require_once "include/network.php";
 
 function notifications_post(App $a) {
 
@@ -225,7 +223,7 @@ function notifications_content(App $a) {
 					if ($it["addr"] != "")
 						$header .= " <".$it["addr"].">";
 
-					$header .= " (".network_to_name($it['network'], $it['url']).")";
+					$header .= " (".ContactSelector::networkToName($it['network'], $it['url']).")";
 
 					if ($it['network'] != NETWORK_DIASPORA) {
 						$discard = t('Discard');
@@ -260,7 +258,7 @@ function notifications_content(App $a) {
 						'$addr' => $it['addr'],
 						'$lbl_knowyou' => $lbl_knowyou,
 						'$lbl_network' => t('Network:'),
-						'$network' => network_to_name($it['network'], $it['url']),
+						'$network' => ContactSelector::networkToName($it['network'], $it['url']),
 						'$knowyou' => $knowyou,
 						'$approve' => t('Approve'),
 						'$note' => $it['note'],

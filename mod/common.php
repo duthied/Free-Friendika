@@ -4,11 +4,11 @@
  * @file include/common.php
  */
 use Friendica\App;
+use Friendica\Content\ContactSelector;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 
-require_once 'include/contact_selectors.php';
 require_once 'mod/contacts.php';
 
 function common_content(App $a)
@@ -130,7 +130,7 @@ function common_content(App $a)
 			'tags'         => $contact_details['keywords'],
 			'about'        => $contact_details['about'],
 			'account_type' => Contact::getAccountType($contact_details),
-			'network'      => network_to_name($contact_details['network'], $contact_details['url']),
+			'network'      => ContactSelector::networkToName($contact_details['network'], $contact_details['url']),
 			'photo_menu'   => $photo_menu,
 			'id'           => ++$id,
 		);

@@ -3,6 +3,7 @@
  * @file mod/suggest.php
  */
 use Friendica\App;
+use Friendica\Content\ContactSelector;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
@@ -76,8 +77,6 @@ function suggest_content(App $a) {
 		return $o;
 	}
 
-	require_once 'include/contact_selectors.php';
-
 	foreach ($r as $rr) {
 
 		$connlnk = System::baseUrl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);
@@ -106,7 +105,7 @@ function suggest_content(App $a) {
 			'connlnk' => $connlnk,
 			'photo_menu' => $photo_menu,
 			'ignore' => t('Ignore/Hide'),
-			'network' => network_to_name($rr['network'], $rr['url']),
+			'network' => ContactSelector::networkToName($rr['network'], $rr['url']),
 			'id' => ++$id,
 		);
 		$entries[] = $entry;

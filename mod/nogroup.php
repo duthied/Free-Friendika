@@ -3,11 +3,10 @@
  * @file mod/nogroup.php
  */
 use Friendica\App;
+use Friendica\Content\ContactSelector;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
-
-require_once 'include/contact_selectors.php';
 
 function nogroup_init(App $a)
 {
@@ -53,7 +52,7 @@ function nogroup_content(App $a)
 				'about'         => $contact_details['about'],
 				'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
 				'url' => $rr['url'],
-				'network' => network_to_name($rr['network'], $rr['url']),
+				'network' => ContactSelector::networkToName($rr['network'], $rr['url']),
 			);
 		}
 	}

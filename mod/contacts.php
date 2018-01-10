@@ -1,9 +1,9 @@
 <?php
-
 /**
  * @file mod/contacts.php
  */
 use Friendica\App;
+use Friendica\Content\ContactSelector;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -12,7 +12,6 @@ use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Network\Probe;
 
-require_once 'include/contact_selectors.php';
 require_once 'include/contact_widgets.php';
 require_once 'mod/proxy.php';
 
@@ -506,8 +505,6 @@ function contacts_content(App $a)
 			'$baseurl' => System::baseUrl(true),
 		));
 
-		require_once 'include/contact_selectors.php';
-
 		$dir_icon = '';
 		$relation_text = '';
 		switch ($contact['rel']) {
@@ -552,7 +549,7 @@ function contacts_content(App $a)
 
 		$poll_enabled = in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_FEED, NETWORK_MAIL));
 
-		$nettype = t('Network type: %s', network_to_name($contact['network'], $contact["url"]));
+		$nettype = t('Network type: %s', ContactSelector::networkToName($contact['network'], $contact["url"]));
 
 		// tabs
 		$tab_str = contacts_tab($a, $contact_id, 2);
@@ -576,12 +573,12 @@ function contacts_content(App $a)
 
 		$poll_interval = null;
 		if (in_array($contact['network'], array(NETWORK_FEED, NETWORK_MAIL))) {
-			$poll_interval = contact_poll_interval($contact['priority'], (!$poll_enabled));
+			$poll_interval = ContactSelector::pollInterval($contact['priority'], (!$poll_enabled));
 		}
 
 		$profile_select = null;
 		if ($contact['network'] == NETWORK_DFRN) {
-			$profile_select = contact_profile_assign($contact['profile-id'], (($contact['network'] !== NETWORK_DFRN) ? true : false));
+			$profile_select = ContactSelector::profileAssign($contact['profile-id'], (($contact['network'] !== NETWORK_DFRN) ? true : false));
 		}
 
 		$follow = '';
@@ -808,7 +805,7 @@ function contacts_content(App $a)
 	$tpl = get_markup_template("contacts-template.tpl");
 	$o .= replace_macros($tpl, array(
 		'$baseurl' => System::baseUrl(),
-		'$header' => t('Contacts') . (($nets) ? ' - ' . network_to_name($nets) : ''),
+		'$header' => t('Contacts') . (($nets) ? ' - ' . ContactSelector::networkToName($nets) : ''),
 		'$tabs' => $t,
 		'$total' => $total,
 		'$search' => $search_hdr,
@@ -959,7 +956,7 @@ function _contact_detail_for_template($rr)
 		'sparkle' => $sparkle,
 		'itemurl' => (($rr['addr'] != "") ? $rr['addr'] : $rr['url']),
 		'url' => $url,
-		'network' => network_to_name($rr['network'], $rr['url']),
+		'network' => ContactSelector::networkToName($rr['network'], $rr['url']),
 	);
 }
 

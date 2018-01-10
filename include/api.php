@@ -6,6 +6,7 @@
  * @todo Automatically detect if incoming data is HTML or BBCode
  */
 use Friendica\App;
+use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Core\System;
 use Friendica\Core\Config;
@@ -38,7 +39,6 @@ require_once 'include/html2plain.php';
 require_once 'mod/share.php';
 require_once 'mod/item.php';
 require_once 'include/security.php';
-require_once 'include/contact_selectors.php';
 require_once 'include/html2bbcode.php';
 require_once 'mod/wall_upload.php';
 require_once 'mod/proxy.php';
@@ -610,7 +610,7 @@ function api_get_user(App $a, $contact_id = null)
 		}
 
 		if (DBM::is_result($r)) {
-			$network_name = network_to_name($r[0]['network'], $r[0]['url']);
+			$network_name = ContactSelector::networkToName($r[0]['network'], $r[0]['url']);
 
 			// If no nick where given, extract it from the address
 			if (($r[0]['nick'] == "") || ($r[0]['name'] == $r[0]['nick'])) {
@@ -734,7 +734,7 @@ function api_get_user(App $a, $contact_id = null)
 		$uinfo[0]['nick'] = api_get_nick($uinfo[0]["url"]);
 	}
 
-	$network_name = network_to_name($uinfo[0]['network'], $uinfo[0]['url']);
+	$network_name = ContactSelector::networkToName($uinfo[0]['network'], $uinfo[0]['url']);
 
 	$pcontact_id  = Contact::getIdForURL($uinfo[0]['url'], 0, true);
 
@@ -1405,9 +1405,9 @@ function api_status_show($type)
 		}
 
 		if (($lastwall['item_network'] != "") && ($status["source"] == 'web')) {
-			$status_info["source"] = network_to_name($lastwall['item_network'], $user_info['url']);
-		} elseif (($lastwall['item_network'] != "") && (network_to_name($lastwall['item_network'], $user_info['url']) != $status_info["source"])) {
-			$status_info["source"] = trim($status_info["source"].' ('.network_to_name($lastwall['item_network'], $user_info['url']).')');
+			$status_info["source"] = ContactSelector::networkToName($lastwall['item_network'], $user_info['url']);
+		} elseif (($lastwall['item_network'] != "") && (ContactSelector::networkToName($lastwall['item_network'], $user_info['url']) != $status_info["source"])) {
+			$status_info["source"] = trim($status_info["source"].' ('.ContactSelector::networkToName($lastwall['item_network'], $user_info['url']).')');
 		}
 
 		// "uid" and "self" are only needed for some internal stuff, so remove it from here
@@ -1496,11 +1496,11 @@ function api_users_show($type)
 		}
 
 		if (($lastwall['item_network'] != "") && ($user_info["status"]["source"] == 'web')) {
-			$user_info["status"]["source"] = network_to_name($lastwall['item_network'], $user_info['url']);
+			$user_info["status"]["source"] = ContactSelector::networkToName($lastwall['item_network'], $user_info['url']);
 		}
 
-		if (($lastwall['item_network'] != "") && (network_to_name($lastwall['item_network'], $user_info['url']) != $user_info["status"]["source"])) {
-			$user_info["status"]["source"] = trim($user_info["status"]["source"] . ' (' . network_to_name($lastwall['item_network'], $user_info['url']) . ')');
+		if (($lastwall['item_network'] != "") && (ContactSelector::networkToName($lastwall['item_network'], $user_info['url']) != $user_info["status"]["source"])) {
+			$user_info["status"]["source"] = trim($user_info["status"]["source"] . ' (' . ContactSelector::networkToName($lastwall['item_network'], $user_info['url']) . ')');
 		}
 	}
 
@@ -3131,9 +3131,9 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 		}
 
 		if (($item['item_network'] != "") && ($status["source"] == 'web')) {
-			$status["source"] = network_to_name($item['item_network'], $user_info['url']);
-		} elseif (($item['item_network'] != "") && (network_to_name($item['item_network'], $user_info['url']) != $status["source"])) {
-			$status["source"] = trim($status["source"].' ('.network_to_name($item['item_network'], $user_info['url']).')');
+			$status["source"] = ContactSelector::networkToName($item['item_network'], $user_info['url']);
+		} elseif (($item['item_network'] != "") && (ContactSelector::networkToName($item['item_network'], $user_info['url']) != $status["source"])) {
+			$status["source"] = trim($status["source"].' ('.ContactSelector::networkToName($item['item_network'], $user_info['url']).')');
 		}
 
 
