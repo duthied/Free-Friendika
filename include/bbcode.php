@@ -46,16 +46,16 @@ function bb_map_location($match) {
  * Note: Can produce a [bookmark] tag in the returned string
  *
  * @brief Processes [attachment] tags
- * @param string $Text
+ * @param string $return
  * @param bool|int $simplehtml
  * @param bool $tryoembed
  * @return string
  */
-function bb_attachment($Text, $simplehtml = false, $tryoembed = true)
+function bb_attachment($return, $simplehtml = false, $tryoembed = true)
 {
-	$data = get_attachment_data($Text);
+	$data = get_attachment_data($return);
 	if (!$data) {
-		return $Text;
+		return $return;
 	}
 
 	if (isset($data["title"])) {
@@ -68,49 +68,46 @@ function bb_attachment($Text, $simplehtml = false, $tryoembed = true)
 		$data["image"] = "";
 	}
 
+	$return = '';
 	if ($simplehtml == 7) {
-		$text = style_url_for_mastodon($data["url"]);
+		$return = style_url_for_mastodon($data["url"]);
 	} elseif (($simplehtml != 4) && ($simplehtml != 0)) {
-		$text = sprintf('<a href="%s" target="_blank">%s</a><br>', $data["url"], $data["title"]);
+		$return = sprintf('<a href="%s" target="_blank">%s</a><br>', $data["url"], $data["title"]);
 	} else {
-		if ($simplehtml != 4) {
-			$text = sprintf('<span class="type-%s">', $data["type"]);
-		}
-
-		$oembed = sprintf('[bookmark=%s]%s[/bookmark]', $data['url'], $data['title']);
-		if ($tryoembed) {
-			try {
-				$oembed = OEmbed::getHTML($data['url'], $data['title']);
-			} catch (Exception $e) {
-				// $oembed isn't modified
+		try {
+			if ($tryoembed) {
+				$return = OEmbed::getHTML($data['url'], $data['title']);
+			} else {
+				throw new Exception('OEmbed is disabled for this attachment.');
 			}
-		}
+		} catch (Exception $e) {
+			if ($simplehtml != 4) {
+				$return = sprintf('<span class="type-%s">', $data["type"]);
+			}
 
-		if (stripos($oembed, "<iframe ") !== false) {
-			$text = $oembed;
-		} else {
-			if (($data["image"] != "") && !strstr(strtolower($oembed), "<img ")) {
-				$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $data["url"], proxy_url($data["image"]), $data["title"]);
-			} elseif (($data["preview"] != "") && !strstr(strtolower($oembed), "<img ")) {
-				$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $data["url"], proxy_url($data["preview"]), $data["title"]);
+			if ($data["image"] != "") {
+				$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $data["url"], proxy_url($data["image"]), $data["title"]);
+			} elseif ($data["preview"] != "") {
+				$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $data["url"], proxy_url($data["preview"]), $data["title"]);
 			}
 
 			if (($data["type"] == "photo") && ($data["url"] != "") && ($data["image"] != "")) {
-				$text .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data["url"], proxy_url($data["image"]), $data["title"]);
+				$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data["url"], proxy_url($data["image"]), $data["title"]);
 			} else {
-				$text .= $oembed;
+				$return .= sprintf('[bookmark=%s]%s[/bookmark]', $data['url'], $data['title']);
 			}
 
 			if (trim($data["description"]) != "") {
-				$text .= sprintf('<blockquote>%s</blockquote>', trim(bbcode($data["description"])));
+				$return .= sprintf('<blockquote>%s</blockquote>', trim(bbcode($data["description"])));
+			}
+
+			if ($simplehtml != 4) {
+				$return .= '</span>';
 			}
 		}
-
-		if ($simplehtml != 4) {
-			$text .= '</span>';
-		}
 	}
-	return trim($data["text"] . ' ' . $text . ' ' . $data["after"]);
+
+	return trim($data["text"] . ' ' . $return . ' ' . $data["after"]);
 }
 
 function bb_remove_share_information($Text, $plaintext = false, $nolink = false) {
