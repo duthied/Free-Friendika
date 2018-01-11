@@ -417,7 +417,8 @@ class Feed {
 					}
 					$item["body"] .= "\n".$item['tag'];
 				}
-				if (!strstr($item["body"], '[url') && ($item['plink'] != '')) {
+x				// Add the link to the original feed entry if not present in feed
+				if (!strstr($item["body"], $item['plink']) && ($item['plink'] != '')) {
 					$item["body"] .= "[hr][url]".$item['plink']."[/url]";
 				}
 			}
