@@ -97,10 +97,10 @@ class Config
 			}
 		}
 
-		$ret = dba::selectFirst('config', ['v'], ['cat' => $family, 'k' => $key]);
-		if (DBM::is_result($ret)) {
+		$config = dba::selectFirst('config', ['v'], ['cat' => $family, 'k' => $key]);
+		if (DBM::is_result($config)) {
 			// manage array value
-			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret['v']) ? unserialize($ret['v']) : $ret['v']);
+			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $config['v']) ? unserialize($config['v']) : $config['v']);
 
 			// Assign the value from the database to the cache
 			self::$cache[$family][$key] = $val;

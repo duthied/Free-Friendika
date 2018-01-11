@@ -68,17 +68,10 @@ class Queue
 
 
 		// delivering
-
-		$r = q(
-			"SELECT * FROM `queue` WHERE `id` = %d LIMIT 1",
-			intval($queue_id)
-		);
-
-		if (!DBM::is_result($r)) {
+		$q_item = dba::selectFirst('queue', [], ['id' => $queue_id]);
+		if (!DBM::is_result($q_item)) {
 			return;
 		}
-
-		$q_item = $r[0];
 
 		$contact = dba::selectFirst('contact', [], ['id' => $q_item['cid']]);
 		if (!DBM::is_result($contact)) {

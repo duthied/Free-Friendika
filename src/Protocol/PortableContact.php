@@ -66,10 +66,10 @@ class PortableContact
 
 		if ($cid) {
 			if (!$url || !$uid) {
-				$r = dba::selectFirst('contact', ['poco', 'uid'], ['id' => $cid]);
-				if (DBM::is_result($r)) {
-					$url = $r['poco'];
-					$uid = $r['uid'];
+				$contact = dba::selectFirst('contact', ['poco', 'uid'], ['id' => $cid]);
+				if (DBM::is_result($contact)) {
+					$url = $contact['poco'];
+					$uid = $contact['uid'];
 				}
 			}
 			if (!$uid) {
@@ -813,30 +813,30 @@ class PortableContact
 			return false;
 		}
 
-		$servers = dba::selectFirst('gserver', [], ['nurl' => normalise_link($server_url)]);
-		if (DBM::is_result($servers)) {
-			if ($servers["created"] <= NULL_DATE) {
+		$gserver = dba::selectFirst('gserver', [], ['nurl' => normalise_link($server_url)]);
+		if (DBM::is_result($gserver)) {
+			if ($gserver["created"] <= NULL_DATE) {
 				$fields = ['created' => datetime_convert()];
 				$condition = ['nurl' => normalise_link($server_url)];
 				dba::update('gserver', $fields, $condition);
 			}
-			$poco = $servers["poco"];
-			$noscrape = $servers["noscrape"];
+			$poco = $gserver["poco"];
+			$noscrape = $gserver["noscrape"];
 
 			if ($network == "") {
-				$network = $servers["network"];
+				$network = $gserver["network"];
 			}
 
-			$last_contact = $servers["last_contact"];
-			$last_failure = $servers["last_failure"];
-			$version = $servers["version"];
-			$platform = $servers["platform"];
-			$site_name = $servers["site_name"];
-			$info = $servers["info"];
-			$register_policy = $servers["register_policy"];
-			$registered_users = $servers["registered-users"];
+			$last_contact = $gserver["last_contact"];
+			$last_failure = $gserver["last_failure"];
+			$version = $gserver["version"];
+			$platform = $gserver["platform"];
+			$site_name = $gserver["site_name"];
+			$info = $gserver["info"];
+			$register_policy = $gserver["register_policy"];
+			$registered_users = $gserver["registered-users"];
 
-			if (!$force && !self::updateNeeded($servers["created"], "", $last_failure, $last_contact)) {
+			if (!$force && !self::updateNeeded($gserver["created"], "", $last_failure, $last_contact)) {
 				logger("Use cached data for server ".$server_url, LOGGER_DEBUG);
 				return ($last_contact >= $last_failure);
 			}
@@ -853,7 +853,7 @@ class PortableContact
 			$last_contact = NULL_DATE;
 			$last_failure = NULL_DATE;
 		}
-		logger("Server ".$server_url." is outdated or unknown. Start discovery. Force: ".$force." Created: ".$servers["created"]." Failure: ".$last_failure." Contact: ".$last_contact, LOGGER_DEBUG);
+		logger("Server ".$server_url." is outdated or unknown. Start discovery. Force: ".$force." Created: ".$gserver["created"]." Failure: ".$last_failure." Contact: ".$last_contact, LOGGER_DEBUG);
 
 		$failure = false;
 		$possible_failure = false;
@@ -876,7 +876,7 @@ class PortableContact
 
 		// Quit if there is a timeout.
 		// But we want to make sure to only quit if we are mostly sure that this server url fits.
-		if (DBM::is_result($servers) && ($orig_server_url == $server_url) &&
+		if (DBM::is_result($gserver) && ($orig_server_url == $server_url) &&
 			($serverret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
 			logger("Connection to server ".$server_url." timed out.", LOGGER_DEBUG);
 			dba::update('gserver', array('last_failure' => datetime_convert()), array('nurl' => normalise_link($server_url)));

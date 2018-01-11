@@ -33,10 +33,10 @@ function ref_session_read($id)
 		return '';
 	}
 
-	$r = dba::selectFirst('session', ['data'], ['sid' => $id]);
-	if (DBM::is_result($r)) {
+	$session = dba::selectFirst('session', ['data'], ['sid' => $id]);
+	if (DBM::is_result($session)) {
 		$session_exists = true;
-		return $r['data'];
+		return $session['data'];
 	} else {
 		logger("no data for session $id", LOGGER_TRACE);
 	}

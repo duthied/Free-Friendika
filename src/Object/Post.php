@@ -261,14 +261,14 @@ class Post extends BaseObject
 					'classundo' => $item['starred'] ? "" : "hidden",
 					'starred'   => t('starred'),
 				);
-				$r = dba::selectFirst('thread', ['ignored'], ['uid' => $item['uid'], 'iid' => $item['id']]);
-				if (DBM::is_result($r)) {
+				$thread = dba::selectFirst('thread', ['ignored'], ['uid' => $item['uid'], 'iid' => $item['id']]);
+				if (DBM::is_result($thread)) {
 					$ignore = array(
 						'do'        => t("ignore thread"),
 						'undo'      => t("unignore thread"),
 						'toggle'    => t("toggle ignore status"),
-						'classdo'   => $r['ignored'] ? "hidden" : "",
-						'classundo' => $r['ignored'] ? "" : "hidden",
+						'classdo'   => $thread['ignored'] ? "hidden" : "",
+						'classundo' => $thread['ignored'] ? "" : "hidden",
 						'ignored'   => t('ignored'),
 					);
 				}

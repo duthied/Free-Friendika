@@ -968,10 +968,15 @@ function best_link_url($item, &$sparkle, $url = '') {
 	$clean_url = normalise_link($item['author-link']);
 
 	if (local_user()) {
-		$r = dba::selectFirst('contact', ['id'],
-			['network' => NETWORK_DFRN, 'uid' => local_user(), 'nurl' => normalise_link($clean_url), 'pending' => false]);
-		if (DBM::is_result($r)) {
-			$best_url = 'redir/' . $r['id'];
+		$condition = [
+			'network' => NETWORK_DFRN,
+			'uid' => local_user(),
+			'nurl' => normalise_link($clean_url),
+			'pending' => false
+		];
+		$contact = dba::selectFirst('contact', ['id'], $condition);
+		if (DBM::is_result($contact)) {
+			$best_url = 'redir/' . $contact['id'];
 			$sparkle = true;
 			if ($url != '') {
 				$hostname = get_app()->get_hostname();
@@ -1019,11 +1024,12 @@ function item_photo_menu($item) {
 	$cid = 0;
 	$network = '';
 	$rel = 0;
-	$r = dba::selectFirst('contact', array('id', 'network', 'rel'), array('uid' => local_user(), 'nurl' => normalise_link($item['author-link'])));
-	if (DBM::is_result($r)) {
-		$cid = $r['id'];
-		$network = $r['network'];
-		$rel = $r['rel'];
+	$condition = ['uid' => local_user(), 'nurl' => normalise_link($item['author-link'])];
+	$contact = dba::selectFirst('contact', ['id', 'network', 'rel'], $condition);
+	if (DBM::is_result($contact)) {
+		$cid = $contact['id'];
+		$network = $contact['network'];
+		$rel = $contact['rel'];
 	}
 
 	if ($sparkle) {

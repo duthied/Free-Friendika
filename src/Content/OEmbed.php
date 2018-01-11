@@ -58,9 +58,9 @@ class OEmbed
 		$a = get_app();
 
 		$condition = ['url' => normalise_link($embedurl), 'maxwidth' => $a->videowidth];
-		$r = dba::selectFirst('oembed', ['content'], $condition);
-		if (DBM::is_result($r)) {
-			$txt = $r["content"];
+		$oembed = dba::selectFirst('oembed', ['content'], $condition);
+		if (DBM::is_result($oembed)) {
+			$txt = $oembed["content"];
 		} else {
 			$txt = Cache::get($a->videowidth . $embedurl);
 		}

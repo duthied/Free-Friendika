@@ -38,16 +38,16 @@ class Photo
 	 */
 	public static function store(Image $Image, $uid, $cid, $rid, $filename, $album, $scale, $profile = 0, $allow_cid = '', $allow_gid = '', $deny_cid = '', $deny_gid = '', $desc = '')
 	{
-		$r = dba::selectFirst('photo', ['guid'], ["`resource-id` = ? AND `guid` != ?", $rid, '']);
-		if (DBM::is_result($r)) {
-			$guid = $r['guid'];
+		$photo = dba::selectFirst('photo', ['guid'], ["`resource-id` = ? AND `guid` != ?", $rid, '']);
+		if (DBM::is_result($photo)) {
+			$guid = $photo['guid'];
 		} else {
 			$guid = get_guid();
 		}
 
-		$x = dba::selectFirst('photo', ['id'], ['resource-id' => $rid, 'uid' => $uid, 'contact-id' => $cid, 'scale' => $scale]);
+		$existing_photo = dba::selectFirst('photo', ['id'], ['resource-id' => $rid, 'uid' => $uid, 'contact-id' => $cid, 'scale' => $scale]);
 
-		$fields = array(
+		$fields = [
 			'uid' => $uid,
 			'contact-id' => $cid,
 			'guid' => $guid,
@@ -68,10 +68,10 @@ class Photo
 			'deny_cid' => $deny_cid,
 			'deny_gid' => $deny_gid,
 			'desc' => $desc
-		);
+		];
 
-		if (DBM::is_result($x)) {
-			$r = dba::update('photo', $fields, array('id' => $x['id']));
+		if (DBM::is_result($existing_photo)) {
+			$r = dba::update('photo', $fields, ['id' => $existing_photo['id']]);
 		} else {
 			$r = dba::insert('photo', $fields);
 		}
@@ -80,34 +80,33 @@ class Photo
 	}
 
 	/**
-	 * @param string  $photo         photo
+	 * @param string  $image_url     Remote URL
 	 * @param integer $uid           user id
 	 * @param integer $cid           contact id
 	 * @param boolean $quit_on_error optional, default false
 	 * @return array
 	 */
-	public static function importProfilePhoto($photo, $uid, $cid, $quit_on_error = false)
+	public static function importProfilePhoto($image_url, $uid, $cid, $quit_on_error = false)
 	{
-		$r = dba::selectFirst(
+		$photo = dba::selectFirst(
 			'photo', ['resource-id'], ['uid' => $uid, 'contact-id' => $cid, 'scale' => 4, 'album' => 'Contact Photos']
 		);
-
-		if (DBM::is_result($r) && strlen($r['resource-id'])) {
-			$hash = $r['resource-id'];
+		if (x($photo['resource-id'])) {
+			$hash = $photo['resource-id'];
 		} else {
 			$hash = photo_new_resource();
 		}
 
 		$photo_failure = false;
 
-		$filename = basename($photo);
-		$img_str = fetch_url($photo, true);
+		$filename = basename($image_url);
+		$img_str = fetch_url($image_url, true);
 
 		if ($quit_on_error && ($img_str == "")) {
 			return false;
 		}
 
-		$type = Image::guessType($photo, true);
+		$type = Image::guessType($image_url, true);
 		$Image = new Image($img_str, $type);
 		if ($Image->isValid()) {
 			$Image->scaleToSquare(175);
@@ -136,7 +135,7 @@ class Photo
 
 			$suffix = '?ts=' . time();
 
-			$photo = System::baseUrl() . '/photo/' . $hash . '-4.' . $Image->getExt() . $suffix;
+			$image_url = System::baseUrl() . '/photo/' . $hash . '-4.' . $Image->getExt() . $suffix;
 			$thumb = System::baseUrl() . '/photo/' . $hash . '-5.' . $Image->getExt() . $suffix;
 			$micro = System::baseUrl() . '/photo/' . $hash . '-6.' . $Image->getExt() . $suffix;
 
@@ -167,12 +166,12 @@ class Photo
 		}
 
 		if ($photo_failure) {
-			$photo = System::baseUrl() . '/images/person-175.jpg';
+			$image_url = System::baseUrl() . '/images/person-175.jpg';
 			$thumb = System::baseUrl() . '/images/person-80.jpg';
 			$micro = System::baseUrl() . '/images/person-48.jpg';
 		}
 
-		return array($photo, $thumb, $micro);
+		return array($image_url, $thumb, $micro);
 	}
 
 	/**

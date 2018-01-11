@@ -44,8 +44,8 @@ function hovercard_content()
 	$cid = 0;
 	if (local_user() && strpos($profileurl, 'redir/') === 0) {
 		$cid = intval(substr($profileurl, 6));
-		$r = dba::selectFirst('contact', ['nurl'], ['id' => $cid]);
-		$profileurl = defaults($r, 'nurl', '');
+		$remote_contact = dba::selectFirst('contact', ['nurl'], ['id' => $cid]);
+		$profileurl = defaults($remote_contact, 'nurl', '');
 	}
 
 	$contact = [];

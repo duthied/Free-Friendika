@@ -517,7 +517,7 @@ function networkThreadedView(App $a, $update = 0) {
 
 	$datequery = $datequery2 = '';
 
-	$group = 0;
+	$gid = 0;
 
 	if ($a->argc > 1) {
 		for ($x = 1; $x < $a->argc; $x ++) {
@@ -529,8 +529,8 @@ function networkThreadedView(App $a, $update = 0) {
 					$_GET['order'] = 'post';
 				}
 			} elseif (intval($a->argv[$x])) {
-				$group = intval($a->argv[$x]);
-				$def_acl = array('allow_gid' => '<' . $group . '>');
+				$gid = intval($a->argv[$x]);
+				$def_acl = array('allow_gid' => '<' . $gid . '>');
 			}
 		}
 	}
@@ -565,8 +565,8 @@ function networkThreadedView(App $a, $update = 0) {
 		$tabs = network_tabs($a);
 		$o .= $tabs;
 
-		if ($group) {
-			if (($t = Contact::getOStatusCountByGroupId($group)) && !PConfig::get(local_user(), 'system', 'nowarn_insecure')) {
+		if ($gid) {
+			if (($t = Contact::getOStatusCountByGroupId($gid)) && !PConfig::get(local_user(), 'system', 'nowarn_insecure')) {
 				notice(tt("Warning: This group contains %s member from a network that doesn't allow non public messages.",
 						"Warning: This group contains %s members from a network that doesn't allow non public messages.",
 						$t) . EOL);
@@ -596,12 +596,12 @@ function networkThreadedView(App $a, $update = 0) {
 			'allow_location' => $a->user['allow_location'],
 			'default_location' => $a->user['default-location'],
 			'nickname' => $a->user['nickname'],
-			'lockstate'=> ((($group) || ($cid) || ($nets) || (is_array($a->user) &&
+			'lockstate'=> ((($gid) || ($cid) || ($nets) || (is_array($a->user) &&
 					((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) ||
 					(strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid']))))) ? 'lock' : 'unlock'),
 			'default_perms'	=> get_acl_permissions($a->user),
-			'acl'	=> populate_acl((($group || $cid || $nets) ? $def_acl : $a->user), true),
-			'bang'	=> (($group || $cid || $nets) ? '!' : ''),
+			'acl'	=> populate_acl((($gid || $cid || $nets) ? $def_acl : $a->user), true),
+			'bang'	=> (($gid || $cid || $nets) ? '!' : ''),
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
 			'content' => $content,
@@ -631,17 +631,18 @@ function networkThreadedView(App $a, $update = 0) {
 
 	$sql_nets = (($nets) ? sprintf(" and $sql_table.`network` = '%s' ", dbesc($nets)) : '');
 
-	if ($group) {
-		$r = dba::selectFirst('group', ['name'], ['id' => $group, 'uid' => $_SESSION['uid']]);
-		if (!DBM::is_result($r)) {
-			if ($update)
+	if ($gid) {
+		$group = dba::selectFirst('group', ['name'], ['id' => $gid, 'uid' => $_SESSION['uid']]);
+		if (!DBM::is_result($group)) {
+			if ($update) {
 				killme();
+			}
 			notice(t('No such group') . EOL);
 			goaway('network/0');
 			// NOTREACHED
 		}
 
-		$contacts = Group::expand(array($group));
+		$contacts = Group::expand(array($gid));
 
 		if ((is_array($contacts)) && count($contacts)) {
 			$contact_str_self = "";
@@ -654,40 +655,40 @@ function networkThreadedView(App $a, $update = 0) {
 
 			$sql_post_table .= " INNER JOIN `item` AS `temp1` ON `temp1`.`id` = ".$sql_table.".".$sql_parent;
 			$sql_extra3 .= " AND (`thread`.`contact-id` IN ($contact_str) ";
-			$sql_extra3 .= " OR (`thread`.`contact-id` = '$contact_str_self' AND `temp1`.`allow_gid` LIKE '".protect_sprintf('%<'.intval($group).'>%')."' AND `temp1`.`private`))";
+			$sql_extra3 .= " OR (`thread`.`contact-id` = '$contact_str_self' AND `temp1`.`allow_gid` LIKE '".protect_sprintf('%<'.intval($gid).'>%')."' AND `temp1`.`private`))";
 		} else {
 			$sql_extra3 .= " AND false ";
 			info(t('Group is empty'));
 		}
 
 		$o = replace_macros(get_markup_template("section_title.tpl"),array(
-			'$title' => t('Group: %s', $r['name'])
+			'$title' => t('Group: %s', $group['name'])
 		)) . $o;
 
 	} elseif ($cid) {
 		$fields = ['id', 'name', 'network', 'writable', 'nurl',
 				'forum', 'prv', 'contact-type', 'addr', 'thumb', 'location'];
 		$condition = ["`id` = ? AND (NOT `blocked` OR `pending`)", $cid];
-		$r = dba::selectFirst('contact', $fields, $condition);
-		if (DBM::is_result($r)) {
+		$contact = dba::selectFirst('contact', $fields, $condition);
+		if (DBM::is_result($contact)) {
 			$sql_extra = " AND ".$sql_table.".`contact-id` = ".intval($cid);
 
 			$entries[0] = array(
 				'id' => 'network',
-				'name' => htmlentities($r['name']),
-				'itemurl' => (($r['addr']) ? ($r['addr']) : ($r['nurl'])),
-				'thumb' => proxy_url($r['thumb'], false, PROXY_SIZE_THUMB),
-				'details' => $r['location'],
+				'name' => htmlentities($contact['name']),
+				'itemurl' => defaults($contact, 'addr', $contact['nurl']),
+				'thumb' => proxy_url($contact['thumb'], false, PROXY_SIZE_THUMB),
+				'details' => $contact['location'],
 			);
 
-			$entries[0]["account_type"] = Contact::getAccountType($r);
+			$entries[0]["account_type"] = Contact::getAccountType($contact);
 
 			$o = replace_macros(get_markup_template("viewcontact_template.tpl"),array(
 				'contacts' => $entries,
 				'id' => 'network',
 			)) . $o;
 
-			if ($r['network'] === NETWORK_OSTATUS && $r['writable'] && !PConfig::get(local_user(),'system','nowarn_insecure')) {
+			if ($contact['network'] === NETWORK_OSTATUS && $contact['writable'] && !PConfig::get(local_user(),'system','nowarn_insecure')) {
 				notice(t('Private messages to this person are at risk of public disclosure.') . EOL);
 			}
 
@@ -698,7 +699,7 @@ function networkThreadedView(App $a, $update = 0) {
 		}
 	}
 
-	if (!$group && !$cid && !$update && !Config::get('theme','hide_eventlist')) {
+	if (!$gid && !$cid && !$update && !Config::get('theme','hide_eventlist')) {
 		$o .= get_birthdays();
 		$o .= get_events();
 	}
@@ -887,7 +888,7 @@ function networkThreadedView(App $a, $update = 0) {
 	// level which items you've seen and which you haven't. If you're looking
 	// at the top level network page just mark everything seen.
 
-	if (!$group && !$cid && !$star) {
+	if (!$gid && !$cid && !$star) {
 		$condition = array('unseen' => true, 'uid' => local_user());
 		networkSetSeen($condition);
 	} elseif ($parents_str) {

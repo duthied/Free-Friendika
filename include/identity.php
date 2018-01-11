@@ -154,28 +154,27 @@ function profile_load(App $a, $nickname, $profile = 0, $profiledata = array(), $
  *
  * @param string $nickname nick
  * @param int    $uid      uid
- * @param int    $profile  ID of the profile
+ * @param int    $profile_id  ID of the profile
  * @returns array
  */
-function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0)
+function get_profiledata_by_nick($nickname, $uid = 0, $profile_id = 0)
 {
 	if (remote_user() && count($_SESSION['remote'])) {
 		foreach ($_SESSION['remote'] as $visitor) {
 			if ($visitor['uid'] == $uid) {
-				$r = dba::selectFirst('contact', ['profile-id'], ['id' => $visitor['cid']]);
-				if (DBM::is_result($r)) {
-					$profile = $r['profile-id'];
+				$contact = dba::selectFirst('contact', ['profile-id'], ['id' => $visitor['cid']]);
+				if (DBM::is_result($contact)) {
+					$profile_id = $contact['profile-id'];
 				}
 				break;
 			}
 		}
 	}
 
-	$r = null;
+	$profile = null;
 
-	if ($profile) {
-		$profile_int = intval($profile);
-		$r = dba::fetch_first(
+	if ($profile_id) {
+		$profile = dba::fetch_first(
 			"SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` AS `contact_photo`,
 				`contact`.`thumb` AS `contact_thumb`, `contact`.`micro` AS `contact_micro`,
 				`profile`.`uid` AS `profile_uid`, `profile`.*,
@@ -185,11 +184,11 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0)
 			INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
 			WHERE `user`.`nickname` = ? AND `profile`.`id` = ? LIMIT 1",
 			$nickname,
-			$profile_int
+			intval($profile_id)
 		);
 	}
-	if (!DBM::is_result($r)) {
-		$r = dba::fetch_first(
+	if (!DBM::is_result($profile)) {
+		$profile = dba::fetch_first(
 			"SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` as `contact_photo`,
 				`contact`.`thumb` AS `contact_thumb`, `contact`.`micro` AS `contact_micro`,
 				`profile`.`uid` AS `profile_uid`, `profile`.*,
@@ -202,7 +201,7 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0)
 		);
 	}
 
-	return $r;
+	return $profile;
 }
 
 /**
@@ -215,7 +214,7 @@ function get_profiledata_by_nick($nickname, $uid = 0, $profile = 0)
  * @param int $block
  * @param boolean $show_connect Show connect link
  *
- * @return HTML string stuitable for sidebar inclusion
+ * @return HTML string suitable for sidebar inclusion
  *
  * @note Returns empty string if passed $profile is wrong type or not populated
  *
