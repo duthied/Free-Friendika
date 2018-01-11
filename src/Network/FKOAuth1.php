@@ -63,11 +63,10 @@ class FKOAuth1 extends OAuthServer
 			$a->timezone = $a->user['timezone'];
 		}
 
-		$r = dba::selectFirst('contact', [], ['uid' => $_SESSION['uid'], 'self' => 1]);
-		
-		if (DBM::is_result($r)) {
-			$a->contact = $r;
-			$a->cid = $r['id'];
+		$contact = dba::selectFirst('contact', [], ['uid' => $_SESSION['uid'], 'self' => 1]);
+		if (DBM::is_result($contact)) {
+			$a->contact = $contact;
+			$a->cid = $contact['id'];
 			$_SESSION['cid'] = $a->cid;
 		}
 

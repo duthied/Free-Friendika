@@ -30,7 +30,7 @@ function contacts_init(App $a)
 		$a->page['aside'] = '';
 	}
 
-	$contact = [];
+	$contact = null;
 	if ((($a->argc == 2) && intval($a->argv[1])) || (($a->argc == 3) && intval($a->argv[1]) && ($a->argv[2] == "posts"))) {
 		$contact_id = intval($a->argv[1]);
 		$contact = dba::selectFirst('contact', [], ['id' => $contact_id, 'uid' => local_user()]);
@@ -240,7 +240,7 @@ function _contact_update($contact_id)
 
 	$uid = $contact["uid"];
 
-	if ($r[0]["network"] == NETWORK_OSTATUS) {
+	if ($contact["network"] == NETWORK_OSTATUS) {
 		$result = Contact::createFromProbe($uid, $contact["url"], false, $contact["network"]);
 
 		if ($result['success']) {

@@ -165,9 +165,9 @@ class Worker
 	private static function highestPriority()
 	{
 		$condition = array("`executed` <= ? AND NOT `done`", NULL_DATE);
-		$s = dba::selectFirst('workerqueue', ['priority'], $condition, ['order' => ['priority']]);
-		if (DBM::is_result($s)) {
-			return $s["priority"];
+		$workerqueue = dba::selectFirst('workerqueue', ['priority'], $condition, ['order' => ['priority']]);
+		if (DBM::is_result($workerqueue)) {
+			return $workerqueue["priority"];
 		} else {
 			return 0;
 		}

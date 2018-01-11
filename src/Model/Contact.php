@@ -145,13 +145,12 @@ class Contact extends BaseObject
 	public static function remove($id)
 	{
 		// We want just to make sure that we don't delete our "self" contact
-		$r = dba::selectFirst('contact', ['uid'], ['id' => $id, 'self' => false]);
-
-		if (!DBM::is_result($r) || !intval($r['uid'])) {
+		$contact = dba::selectFirst('contact', ['uid'], ['id' => $id, 'self' => false]);
+		if (!DBM::is_result($contact) || !intval($contact['uid'])) {
 			return;
 		}
 
-		$archive = PConfig::get($r['uid'], 'system', 'archive_removed_contacts');
+		$archive = PConfig::get($contact['uid'], 'system', 'archive_removed_contacts');
 		if ($archive) {
 			dba::update('contact', array('archive' => true, 'network' => 'none', 'writable' => false), array('id' => $id));
 			return;
@@ -490,9 +489,10 @@ class Contact extends BaseObject
 				return $menu;
 			}
 
-			$r = dba::selectFirst('contact', [], ['nurl' => $contact['nurl'], 'network' => $contact['network'], 'uid' => $uid]);
-			if ($r) {
-				return self::photoMenu($r, $uid);
+			// Look for our own contact if the uid doesn't match and isn't public
+			$contact_own = dba::selectFirst('contact', [], ['nurl' => $contact['nurl'], 'network' => $contact['network'], 'uid' => $uid]);
+			if (DBM::is_result($contact_own)) {
+				return self::photoMenu($contact_own, $uid);
 			} else {
 				$profile_link = zrl($contact['url']);
 				$connlnk = 'follow/?url=' . $contact['url'];
@@ -664,9 +664,8 @@ class Contact extends BaseObject
 		if (!DBM::is_result($contact)) {
 			// The link could be provided as http although we stored it as https
 			$ssl_url = str_replace('http://', 'https://', $url);
-			$r = dba::selectFirst('contact', ['id', 'avatar', 'avatar-date'], ['`alias` IN (?, ?, ?) AND `uid` = ?', $url, normalise_link($url), $ssl_url, $uid]);
-			$contact = dba::fetch($r);
-			dba::close($r);
+			$condition = ['`alias` IN (?, ?, ?) AND `uid` = ?', $url, normalise_link($url), $ssl_url, $uid];
+			$contact = dba::selectFirst('contact', ['id', 'avatar', 'avatar-date'], $condition);
 		}
 
 		if (DBM::is_result($contact)) {
@@ -697,12 +696,12 @@ class Contact extends BaseObject
 			}
 
 			// Get data from the gcontact table
-			$gcontacts = dba::selectFirst('gcontact', ['name', 'nick', 'url', 'photo', 'addr', 'alias', 'network'], ['nurl' => normalise_link($url)]);
-			if (!DBM::is_result($gcontacts)) {
+			$gcontact = dba::selectFirst('gcontact', ['name', 'nick', 'url', 'photo', 'addr', 'alias', 'network'], ['nurl' => normalise_link($url)]);
+			if (!DBM::is_result($gcontact)) {
 				return 0;
 			}
 
-			$data = array_merge($data, $gcontacts);
+			$data = array_merge($data, $gcontact);
 		}
 
 		if (!$contact_id && ($data["alias"] != '') && ($data["alias"] != $url)) {
@@ -726,7 +725,7 @@ class Contact extends BaseObject
 				'readonly' => 0, 'pending' => 0)
 			);
 
-			$s = dba::select('contact', array('id'), array('nurl' => normalise_link($data["url"]), 'uid' => $uid), array('order' => array('id'), 'limit' => 2));
+			$s = dba::select('contact', ['id'], ['nurl' => normalise_link($data["url"]), 'uid' => $uid], ['order' => ['id'], 'limit' => 2]);
 			$contacts = dba::inArray($s);
 			if (!DBM::is_result($contacts)) {
 				return 0;
@@ -979,15 +978,14 @@ class Contact extends BaseObject
 	 */
 	public static function updateAvatar($avatar, $uid, $cid, $force = false)
 	{
-		// Limit = 1 returns the row so no need for dba:inArray()
-		$r = dba::selectFirst('contact', ['avatar', 'photo', 'thumb', 'micro', 'nurl'], ['id' => $cid]);
-		if (!DBM::is_result($r)) {
+		$contact = dba::selectFirst('contact', ['avatar', 'photo', 'thumb', 'micro', 'nurl'], ['id' => $cid]);
+		if (!DBM::is_result($contact)) {
 			return false;
 		} else {
-			$data = array($r["photo"], $r["thumb"], $r["micro"]);
+			$data = array($contact["photo"], $contact["thumb"], $contact["micro"]);
 		}
 
-		if (($r["avatar"] != $avatar) || $force) {
+		if (($contact["avatar"] != $avatar) || $force) {
 			$photos = Photo::importProfilePhoto($avatar, $uid, $cid, true);
 
 			if ($photos) {
@@ -999,7 +997,7 @@ class Contact extends BaseObject
 
 				// Update the public contact (contact id = 0)
 				if ($uid != 0) {
-					$pcontact = dba::selectFirst('contact', ['id'], ['nurl' => $r[0]['nurl']]);
+					$pcontact = dba::selectFirst('contact', ['id'], ['nurl' => $contact['nurl']]);
 					if (DBM::is_result($pcontact)) {
 						self::updateAvatar($avatar, 0, $pcontact['id'], $force);
 					}
@@ -1023,15 +1021,16 @@ class Contact extends BaseObject
 		This will reliably kill your communication with Friendica contacts.
 		*/
 
-		$r = dba::selectFirst('contact', ['url', 'nurl', 'addr', 'alias', 'batch', 'notify', 'poll', 'poco', 'network'], ['id' => $id]);
-		if (!DBM::is_result($r)) {
+		$fields = ['url', 'nurl', 'addr', 'alias', 'batch', 'notify', 'poll', 'poco', 'network'];
+		$contact = dba::selectFirst('contact', $fields, ['id' => $id]);
+		if (!DBM::is_result($contact)) {
 			return false;
 		}
 
-		$ret = Probe::uri($r["url"]);
+		$ret = Probe::uri($contact["url"]);
 
 		// If Probe::uri fails the network code will be different
-		if ($ret["network"] != $r["network"]) {
+		if ($ret["network"] != $contact["network"]) {
 			return false;
 		}
 
@@ -1039,11 +1038,13 @@ class Contact extends BaseObject
 
 		// make sure to not overwrite existing values with blank entries
 		foreach ($ret as $key => $val) {
-			if (isset($r[$key]) && ($r[$key] != "") && ($val == ""))
-				$ret[$key] = $r[$key];
+			if (isset($contact[$key]) && ($contact[$key] != "") && ($val == "")) {
+				$ret[$key] = $contact[$key];
+			}
 
-			if (isset($r[$key]) && ($ret[$key] != $r[$key]))
+			if (isset($contact[$key]) && ($ret[$key] != $contact[$key])) {
 				$update = true;
+			}
 		}
 
 		if (!$update) {

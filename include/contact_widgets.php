@@ -224,14 +224,14 @@ function common_friends_visitor_widget($profile_uid)
 
 	if (!$cid) {
 		if (get_my_url()) {
-			$r = dba::selectFirst('contact', ['id'],
+			$contact = dba::selectFirst('contact', ['id'],
 					['nurl' => normalise_link(get_my_url()), 'uid' => $profile_uid]);
-			if (DBM::is_result($r)) {
-				$cid = $r['id'];
+			if (DBM::is_result($contact)) {
+				$cid = $contact['id'];
 			} else {
-				$r = dba::selectFirst('gcontact', ['id'], ['nurl' => normalise_link(get_my_url())]);
-				if (DBM::is_result($r)) {
-					$zcid = $r['id'];
+				$gcontact = dba::selectFirst('gcontact', ['id'], ['nurl' => normalise_link(get_my_url())]);
+				if (DBM::is_result($gcontact)) {
+					$zcid = $gcontact['id'];
 				}
 			}
 		}

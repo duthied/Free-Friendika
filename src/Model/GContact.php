@@ -766,7 +766,7 @@ class GContact
 			return false;
 		}
 
-		$r = q(
+		$public_contact = q(
 			"SELECT `name`, `nick`, `photo`, `location`, `about`, `addr`, `generation`, `birthday`, `gender`, `keywords`,
 				`contact-type`, `hide`, `nsfw`, `network`, `alias`, `notify`, `server_url`, `connect`, `updated`, `url`
 			FROM `gcontact` WHERE `id` = %d LIMIT 1",
@@ -775,7 +775,7 @@ class GContact
 
 		// Get all field names
 		$fields = array();
-		foreach ($r[0] as $field => $data) {
+		foreach ($public_contact[0] as $field => $data) {
 			$fields[$field] = $data;
 		}
 
@@ -789,22 +789,22 @@ class GContact
 			unset($contact["keywords"]);
 		}
 
-		if ($r[0]["keywords"] == "0") {
-			$r[0]["keywords"] = "";
+		if ($public_contact[0]["keywords"] == "0") {
+			$public_contact[0]["keywords"] = "";
 		}
 
 		// assign all unassigned fields from the database entry
 		foreach ($fields as $field => $data) {
 			if (!isset($contact[$field]) || ($contact[$field] == "")) {
-				$contact[$field] = $r[0][$field];
+				$contact[$field] = $public_contact[0][$field];
 			}
 		}
 
 		if (!isset($contact["hide"])) {
-			$contact["hide"] = $r[0]["hide"];
+			$contact["hide"] = $public_contact[0]["hide"];
 		}
 
-		$fields["hide"] = $r[0]["hide"];
+		$fields["hide"] = $public_contact[0]["hide"];
 
 		if ($contact["network"] == NETWORK_STATUSNET) {
 			$contact["network"] = NETWORK_OSTATUS;
@@ -839,16 +839,16 @@ class GContact
 		$update = false;
 		unset($fields["generation"]);
 
-		if ((($contact["generation"] > 0) && ($contact["generation"] <= $r[0]["generation"])) || ($r[0]["generation"] == 0)) {
+		if ((($contact["generation"] > 0) && ($contact["generation"] <= $public_contact[0]["generation"])) || ($public_contact[0]["generation"] == 0)) {
 			foreach ($fields as $field => $data) {
-				if ($contact[$field] != $r[0][$field]) {
-					logger("Difference for contact ".$contact["url"]." in field '".$field."'. New value: '".$contact[$field]."', old value '".$r[0][$field]."'", LOGGER_DEBUG);
+				if ($contact[$field] != $public_contact[0][$field]) {
+					logger("Difference for contact ".$contact["url"]." in field '".$field."'. New value: '".$contact[$field]."', old value '".$public_contact[0][$field]."'", LOGGER_DEBUG);
 					$update = true;
 				}
 			}
 
-			if ($contact["generation"] < $r[0]["generation"]) {
-				logger("Difference for contact ".$contact["url"]." in field 'generation'. new value: '".$contact["generation"]."', old value '".$r[0]["generation"]."'", LOGGER_DEBUG);
+			if ($contact["generation"] < $public_contact[0]["generation"]) {
+				logger("Difference for contact ".$contact["url"]." in field 'generation'. new value: '".$contact["generation"]."', old value '".$public_contact[0]["generation"]."'", LOGGER_DEBUG);
 				$update = true;
 			}
 		}
@@ -874,21 +874,18 @@ class GContact
 
 			// Now update the contact entry with the user id "0" as well.
 			// This is used for the shadow copies of public items.
-			$r = q(
-				"SELECT `id` FROM `contact` WHERE `nurl` = '%s' AND `uid` = 0 ORDER BY `id` LIMIT 1",
-				dbesc(normalise_link($contact["url"]))
-			);
+			
+			$public_contact = dba::selectFirst('contact', ['id'], ['nurl' => normalise_link($contact["url"]), 'uid' => 0]);
+			if (DBM::is_result($public_contact)) {
+				logger("Update public contact ".$public_contact["id"], LOGGER_DEBUG);
 
-			if (DBM::is_result($r)) {
-				logger("Update public contact ".$r[0]["id"], LOGGER_DEBUG);
-
-				Contact::updateAvatar($contact["photo"], 0, $r[0]["id"]);
+				Contact::updateAvatar($contact["photo"], 0, $public_contact["id"]);
 
 				$fields = array('name', 'nick', 'addr',
 						'network', 'bd', 'gender',
 						'keywords', 'alias', 'contact-type',
 						'url', 'location', 'about');
-				$old_contact = dba::selectFirst('contact', $fields, ['id' => $r[0]["id"]]);
+				$old_contact = dba::selectFirst('contact', $fields, ['id' => $public_contact["id"]]);
 
 				// Update it with the current values
 				$fields = array('name' => $contact['name'], 'nick' => $contact['nick'],
@@ -898,7 +895,7 @@ class GContact
 						'contact-type' => $contact['contact-type'], 'url' => $contact['url'],
 						'location' => $contact['location'], 'about' => $contact['about']);
 
-				dba::update('contact', $fields, array('id' => $r[0]["id"]), $old_contact);
+				dba::update('contact', $fields, array('id' => $public_contact["id"]), $old_contact);
 			}
 		}
 

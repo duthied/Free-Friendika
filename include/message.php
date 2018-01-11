@@ -68,11 +68,7 @@ function send_message($recipient = 0, $body = '', $subject = '', $replyto = '')
 			'created' => datetime_convert(), 'updated' => datetime_convert(),
 			'subject' => $subject, 'recips' => $handles);
 		dba::insert('conv', $fields);
-
-		$r = dba::selectFirst('conv', ['id'], ['guid' => $conv_guid, 'uid' => local_user()]);
-		if (DBM::is_result($r)) {
-			$convid = $r['id'];
-		}
+		$convid = dba::lastInsertId();
 	}
 
 	if (!$convid) {
@@ -103,15 +99,7 @@ function send_message($recipient = 0, $body = '', $subject = '', $replyto = '')
 		dbesc($replyto),
 		datetime_convert()
 	);
-
-
-	$r = q("SELECT * FROM `mail` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
-		dbesc($uri),
-		intval(local_user())
-	);
-	if (DBM::is_result($r)) {
-		$post_id = $r[0]['id'];
-	}
+	$post_id = dba::lastInsertId();
 
 	/**
 	 *
@@ -187,14 +175,12 @@ function send_wallmessage($recipient = '', $body = '', $subject = '', $replyto =
 		'created' => datetime_convert(), 'updated' => datetime_convert(),
 		'subject' => $subject, 'recips' => $handles);
 	dba::insert('conv', $fields);
-
-	$r = dba::selectFirst('conv', ['id'], ['guid' => $conv_guid, 'uid' => $recipient['uid']]);
-	if (!DBM::is_result($r)) {
+	$convid = dba::lastInsertId();
+	
+	if (!$convid) {
 		logger('send message: conversation not found.');
 		return -4;
 	}
-
-	$convid = $r['id'];
 
 	q("INSERT INTO `mail` ( `uid`, `guid`, `convid`, `from-name`, `from-photo`, `from-url`,
 		`contact-id`, `title`, `body`, `seen`, `reply`, `replied`, `uri`, `parent-uri`, `created`, `unknown`)

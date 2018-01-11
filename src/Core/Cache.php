@@ -109,10 +109,10 @@ class Cache
 		// Frequently clear cache
 		self::clear();
 
-		$r = dba::selectFirst('cache', ['v'], ['k' => $key]);
+		$cache = dba::selectFirst('cache', ['v'], ['k' => $key]);
 
-		if (DBM::is_result($r)) {
-			$cached = $r['v'];
+		if (DBM::is_result($cache)) {
+			$cached = $cache['v'];
 			$value = @unserialize($cached);
 
 			// Only return a value if the serialized value is valid.

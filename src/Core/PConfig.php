@@ -90,9 +90,9 @@ class PConfig
 			}
 		}
 
-		$ret = dba::selectFirst('pconfig', ['v'], ['uid' => $uid, 'cat' => $family, 'k' => $key]);
-		if (DBM::is_result($ret)) {
-			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $ret['v']) ? unserialize($ret['v']) : $ret['v']);
+		$pconfig = dba::selectFirst('pconfig', ['v'], ['uid' => $uid, 'cat' => $family, 'k' => $key]);
+		if (DBM::is_result($pconfig)) {
+			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $pconfig['v']) ? unserialize($pconfig['v']) : $pconfig['v']);
 			$a->config[$uid][$family][$key] = $val;
 			self::$in_db[$uid][$family][$key] = true;
 

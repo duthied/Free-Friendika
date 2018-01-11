@@ -36,24 +36,24 @@ function xrd_init(App $a)
 		$name = substr($local, 0, strpos($local, '@'));
 	}
 
-	$r = dba::selectFirst('user', [], ['nickname' => $name]);
-	if (!DBM::is_result($r)) {
+	$user = dba::selectFirst('user', [], ['nickname' => $name]);
+	if (!DBM::is_result($user)) {
 		killme();
 	}
 
-	$profile_url = System::baseUrl().'/profile/'.$r['nickname'];
+	$profile_url = System::baseUrl().'/profile/'.$user['nickname'];
 
 	$alias = str_replace('/profile/', '/~', $profile_url);
 
-	$addr = 'acct:'.$r['nickname'].'@'.$a->get_hostname();
+	$addr = 'acct:'.$user['nickname'].'@'.$a->get_hostname();
 	if ($a->get_path()) {
 		$addr .= '/'.$a->get_path();
 	}
 
 	if ($mode == 'xml') {
-		xrd_xml($a, $addr, $alias, $profile_url, $r);
+		xrd_xml($a, $addr, $alias, $profile_url, $user);
 	} else {
-		xrd_json($a, $addr, $alias, $profile_url, $r);
+		xrd_json($a, $addr, $alias, $profile_url, $user);
 	}
 }
 

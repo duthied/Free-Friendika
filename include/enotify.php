@@ -106,8 +106,8 @@ function notification($params)
 	}
 
 	if ($params['type'] == NOTIFY_COMMENT) {
-		$p = dba::selectFirst('thread', ['ignored'], ['iid' => $parent_id]);
-		if (DBM::is_result($p) && $p["ignored"]) {
+		$thread = dba::selectFirst('thread', ['ignored'], ['iid' => $parent_id]);
+		if (DBM::is_result($thread) && $thread["ignored"]) {
 			logger("Thread ".$parent_id." will be ignored", LOGGER_DEBUG);
 			return;
 		}
@@ -128,13 +128,13 @@ function notification($params)
 
 		// if it's a post figure out who's post it is.
 
-		$p = null;
+		$item = null;
 
 		if ($params['otype'] === 'item' && $parent_id) {
-			$p = dba::selectFirst('item', [], ['id' => $parent_id]);
+			$item = dba::selectFirst('item', [], ['id' => $parent_id]);
 		}
 
-		$item_post_type = item_post_type($p);
+		$item_post_type = item_post_type($item);
 
 		// "a post"
 		$dest_str = sprintf(t('%1$s commented on [url=%2$s]a %3$s[/url]'),
@@ -143,7 +143,7 @@ function notification($params)
 								$item_post_type);
 
 		// "George Bull's post"
-		if ($p) {
+		if ($item) {
 			$dest_str = sprintf(t('%1$s commented on [url=%2$s]%3$s\'s %4$s[/url]'),
 						'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 						$itemlink,
@@ -152,7 +152,7 @@ function notification($params)
 		}
 
 		// "your post"
-		if ($p['owner-name'] == $p['author-name'] && $p['wall']) {
+		if (DBM::is_result($item) && $item['owner-name'] == $item['author-name'] && $item['wall']) {
 			$dest_str = sprintf(t('%1$s commented on [url=%2$s]your %3$s[/url]'),
 								'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 								$itemlink,

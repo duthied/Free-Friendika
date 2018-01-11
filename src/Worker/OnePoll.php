@@ -384,16 +384,15 @@ Class OnePoll
 							// Have we seen it before?
 							$fields = ['deleted', 'id'];
 							$condition = ['uid' => $importer_uid, 'uri' => $datarray['uri']];
-							$r = dba::selectFirst('item', $fields, $condition);
-
-							if (DBM::is_result($r)) {
+							$item = dba::selectFirst('item', $fields, $condition);
+							if (DBM::is_result($item)) {
 								logger("Mail: Seen before ".$msg_uid." for ".$mailconf['user']." UID: ".$importer_uid." URI: ".$datarray['uri'],LOGGER_DEBUG);
 
 								// Only delete when mails aren't automatically moved or deleted
 								if (($mailconf['action'] != 1) && ($mailconf['action'] != 3))
-									if ($meta->deleted && ! $r['deleted']) {
+									if ($meta->deleted && ! $item['deleted']) {
 										$fields = array('deleted' => true, 'changed' => datetime_convert());
-										dba::update('item', $fields, array('id' => $r['id']));
+										dba::update('item', $fields, array('id' => $item['id']));
 									}
 
 								switch ($mailconf['action']) {

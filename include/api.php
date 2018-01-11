@@ -226,7 +226,7 @@ function api_login(App $a)
 		}
 	}
 
-	if (!$record || !count($record)) {
+	if (DBM::is_result($record)) {
 		logger('API_login failure: ' . print_r($_SERVER, true), LOGGER_DEBUG);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		//header('HTTP/1.0 401 Unauthorized');
@@ -4870,22 +4870,22 @@ function api_friendica_remoteauth()
 
 	// traditional DFRN
 
-	$r = dba::selectFirst('contact', [], ['uid' => api_user(), 'nurl' => $c_url]);
+	$contact = dba::selectFirst('contact', [], ['uid' => api_user(), 'nurl' => $c_url]);
 
-	if (!DBM::is_result($r) || ($r['network'] !== NETWORK_DFRN)) {
+	if (!DBM::is_result($contact) || ($contact['network'] !== NETWORK_DFRN)) {
 		throw new BadRequestException("Unknown contact");
 	}
 
-	$cid = $r['id'];
+	$cid = $contact['id'];
 
-	$dfrn_id = defaults($r, 'issued-id', $r['dfrn-id']);
+	$dfrn_id = defaults($contact, 'issued-id', $contact['dfrn-id']);
 
-	if ($r['duplex'] && $r['issued-id']) {
-		$orig_id = $r['issued-id'];
+	if ($contact['duplex'] && $contact['issued-id']) {
+		$orig_id = $contact['issued-id'];
 		$dfrn_id = '1:' . $orig_id;
 	}
-	if ($r['duplex'] && $r['dfrn-id']) {
-		$orig_id = $r['dfrn-id'];
+	if ($contact['duplex'] && $contact['dfrn-id']) {
+		$orig_id = $contact['dfrn-id'];
 		$dfrn_id = '0:' . $orig_id;
 	}
 
@@ -4901,10 +4901,10 @@ function api_friendica_remoteauth()
 		intval(time() + 45)
 	);
 
-	logger($r['name'] . ' ' . $sec, LOGGER_DEBUG);
+	logger($contact['name'] . ' ' . $sec, LOGGER_DEBUG);
 	$dest = ($url ? '&destination_url=' . $url : '');
 	goaway(
-		$r['poll'] . '?dfrn_id=' . $dfrn_id
+		$contact['poll'] . '?dfrn_id=' . $dfrn_id
 		. '&dfrn_version=' . DFRN_PROTOCOL_VERSION
 		. '&type=profile&sec=' . $sec . $dest . $quiet
 	);

@@ -145,20 +145,19 @@ function proxy_init(App $a) {
 	}
 
 	$valid = true;
-	$r = array();
-
+	$photo = null;
 	if (!$direct_cache && ($cachefile == '')) {
-		$r = dba::selectFirst('photo', ['data', 'desc'], ['resource-id' => $urlhash]);
-		if (DBM::is_result($r)) {
-			$img_str = $r['data'];
-			$mime = $r['desc'];
+		$photo = dba::selectFirst('photo', ['data', 'desc'], ['resource-id' => $urlhash]);
+		if (DBM::is_result($photo)) {
+			$img_str = $photo['data'];
+			$mime = $photo['desc'];
 			if ($mime == '') {
 				$mime = 'image/jpeg';
 			}
 		}
 	}
 
-	if (!DBM::is_result($r)) {
+	if (!DBM::is_result($photo)) {
 		// It shouldn't happen but it does - spaces in URL
 		$_REQUEST['url'] = str_replace(' ', '+', $_REQUEST['url']);
 		$redirects = 0;
