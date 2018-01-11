@@ -59,7 +59,7 @@ if (in_array($net['network'], array(NETWORK_PHANTOM, NETWORK_MAIL))) {
 $nurl = normalise_link($net['url']);
 $contact = dba::selectFirst("contact", ["id"], ["nurl" => $nurl, "uid" => 0]);
 if (DBM::is_result($contact)) {
-	dba::update("contact", array("hidden" => true), array("id" => $r["id"]));
+	dba::update("contact", array("hidden" => true), array("id" => $contact["id"]));
 	echo "NOTICE: The account should be silenced from the global community page\r\n";
 } else {
 	echo "NOTICE: Could not find any entry for this URL (".$nurl.")\r\n";
