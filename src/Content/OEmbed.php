@@ -322,7 +322,7 @@ class OEmbed
 		$url = str_replace(array("http://www.youtube.com/", "http://player.vimeo.com/"),
 					array("https://www.youtube.com/", "https://player.vimeo.com/"), $url);
 
-		$o = OEmbed::fetchURL($url);
+		$o = self::fetchURL($url);
 
 		if (!is_object($o) || $o->type == 'error') {
 			throw new Exception('OEmbed failed for URL: ' . $url);
@@ -332,7 +332,7 @@ class OEmbed
 			$o->title = $title;
 		}
 
-		$html = OEmbed::formatObject($o);
+		$html = self::formatObject($o);
 
 		return $html;
 	}
