@@ -81,7 +81,6 @@ function item_post(App $a) {
 
 	$parent_item = null;
 	$parent_contact = null;
-	$thr_parent = '';
 	$parid = 0;
 	$r = false;
 	$objecttype = null;
@@ -104,16 +103,15 @@ function item_post(App $a) {
 				dbesc($parent_uri),
 				intval(local_user())
 			);
-		}
 
-		// if this isn't the real parent of the conversation, find it
-		if (DBM::is_result($r)) {
-			$parid = $r[0]['parent'];
-			$parent_uri = $r[0]['uri'];
-			if ($r[0]['id'] != $r[0]['parent']) {
-				$r = q("SELECT * FROM `item` WHERE `id` = `parent` AND `parent` = %d LIMIT 1",
-					intval($parid)
-				);
+			// if this isn't the real parent of the conversation, find it
+			if (DBM::is_result($r)) {
+				$parid = $r[0]['parent'];
+				if ($r[0]['id'] != $r[0]['parent']) {
+					$r = q("SELECT * FROM `item` WHERE `id` = `parent` AND `parent` = %d LIMIT 1",
+						intval($parid)
+					);
+				}
 			}
 		}
 
@@ -125,22 +123,19 @@ function item_post(App $a) {
 			killme();
 		}
 		$parent_item = $r[0];
-		$parent = $r[0]['id'];
+		$parent = $parent_item['id'];
+		$parent_uri = $parent_item['uri'];
 
-		// multi-level threading - preserve the info but re-parent to our single level threading
-		$thr_parent = $parent_uri;
-
-		if ($parent_item['contact-id'] && $uid) {
-			$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-				intval($parent_item['contact-id']),
-				intval($uid)
+		if ($parent_item['contact-id']) {
+			$r = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
+				intval($parent_item['contact-id'])
 			);
 			if (DBM::is_result($r)) {
 				$parent_contact = $r[0];
 			}
 
 			// If the contact id doesn't fit with the contact, then set the contact to null
-			$thrparent = q("SELECT `author-link`, `network` FROM `item` WHERE `uri` = '%s' LIMIT 1", dbesc($thr_parent));
+			$thrparent = q("SELECT `author-link`, `network` FROM `item` WHERE `uri` = '%s' LIMIT 1", dbesc($parent_uri));
 			if (DBM::is_result($thrparent) && ($thrparent[0]["network"] === NETWORK_OSTATUS)
 				&& (normalise_link($parent_contact["url"]) != normalise_link($thrparent[0]["author-link"]))) {
 				$parent_contact = Contact::getDetailsByURL($thrparent[0]["author-link"]);
@@ -688,11 +683,11 @@ function item_post(App $a) {
 
 	$notify_type = ($parent ? 'comment-new' : 'wall-new');
 
-	$uri = ($message_id ? $message_id : item_new_uri($a->get_hostname(),$profile_uid, $guid));
+	$uri = ($message_id ? $message_id : item_new_uri($a->get_hostname(), $profile_uid, $guid));
 
-	// Fallback so that we alway have a thr-parent
-	if (!$thr_parent) {
-		$thr_parent = $uri;
+	// Fallback so that we alway have a parent uri
+	if (!$parent_uri || !$parent) {
+		$parent_uri = $uri;
 	}
 
 	$datarray = array();
@@ -736,13 +731,14 @@ function item_post(App $a) {
 	$datarray['pubmail']       = $pubmail_enable;
 	$datarray['attach']        = $attachments;
 	$datarray['bookmark']      = intval($bookmark);
-	$datarray['thr-parent']    = $thr_parent;
+	$datarray['parent-uri']    = $parent_uri;
 	$datarray['postopts']      = $postopts;
 	$datarray['origin']        = $origin;
 	$datarray['moderated']     = $allow_moderated;
 	$datarray['gcontact-id']   = GContact::getId(array("url" => $datarray['author-link'], "network" => $datarray['network'],
 							"photo" => $datarray['author-avatar'], "name" => $datarray['author-name']));
 	$datarray['object']        = $object;
+	$datarray['last-child'] = 1;
 
 	/*
 	 * These fields are for the convenience of plugins...
@@ -755,11 +751,7 @@ function item_post(App $a) {
 	// This triggers posts via API and the mirror functions
 	$datarray['api_source'] = $api_source;
 
-	$datarray['parent-uri'] = ($parent == 0) ? $uri : $parent_item['uri'];
-	$datarray['plink'] = System::baseUrl() . '/display/' . urlencode($datarray['guid']);
-	$datarray['last-child'] = 1;
-	$datarray['visible'] = 1;
-
+	// This field is for storing the raw conversation data
 	$datarray['protocol'] = PROTOCOL_DFRN;
 
 	$r = dba::fetch_first("SELECT `conversation-uri`, `conversation-href` FROM `conversation` WHERE `item-uri` = ?", $datarray['parent-uri']);
