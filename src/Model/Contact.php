@@ -1246,15 +1246,13 @@ class Contact extends BaseObject
 			);
 		}
 
-		$r = dba::selectFirst('contact', ['url' => $ret['url'], 'network' => $ret['network'], 'uid' => $uid]);
-
-		if (!DBM::is_result($r)) {
+		$contact = dba::selectFirst('contact', [], ['url' => $ret['url'], 'network' => $ret['network'], 'uid' => $uid]);
+		if (!DBM::is_result($contact)) {
 			$result['message'] .= t('Unable to retrieve contact information.') . EOL;
 			return $result;
 		}
 
-		$contact = $r;
-		$contact_id = $r['id'];
+		$contact_id = $contact['id'];
 		$result['cid'] = $contact_id;
 
 		Group::addMember(User::getDefaultGroup($uid, $contact["network"]), $contact_id);
