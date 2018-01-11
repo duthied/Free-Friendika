@@ -35,7 +35,7 @@ class OEmbed
 	public static function replaceCallback($matches)
 	{
 		$embedurl = $matches[1];
-		$j = self::fetchURL($embedurl);
+		$j = self::fetchURL($embedurl, !self::isAllowedURL($embedurl));
 		$s = self::formatObject($j);
 
 		return $s;
@@ -161,7 +161,7 @@ class OEmbed
 		return $j;
 	}
 
-	public static function formatObject($j)
+	private static function formatObject($j)
 	{
 		$embedurl = $j->embedurl;
 		$jhtml = $j->html;
@@ -195,9 +195,7 @@ class OEmbed
 			case "link":
 				break;
 			case "rich":
-				if (self::isAllowedURL($embedurl)) {
-					$ret .= proxy_parse_html($jhtml);
-				}
+				$ret .= proxy_parse_html($jhtml);
 				break;
 		}
 
@@ -322,7 +320,7 @@ class OEmbed
 		$url = str_replace(array("http://www.youtube.com/", "http://player.vimeo.com/"),
 					array("https://www.youtube.com/", "https://player.vimeo.com/"), $url);
 
-		$o = self::fetchURL($url);
+		$o = self::fetchURL($url, !self::isAllowedURL($url));
 
 		if (!is_object($o) || $o->type == 'error') {
 			throw new Exception('OEmbed failed for URL: ' . $url);
