@@ -199,7 +199,6 @@ class OEmbed
 				break;
 		}
 
-		$ret .= '</div>';
 		// add link to source if not present in "rich" type
 		if ($j->type != 'rich' || !strpos($j->html, $embedurl)) {
 			$ret .= '<h4>';
@@ -237,6 +236,8 @@ class OEmbed
 			// add <a> for html2bbcode conversion
 			$ret .= '<a href="' . $embedurl . '" rel="oembed">' . $j->title . '</a>';
 		}
+
+		$ret .= '</div>';
 
 		$ret = str_replace("\n", "", $ret);
 		return mb_convert_encoding($ret, 'HTML-ENTITIES', mb_detect_encoding($ret));
