@@ -75,7 +75,7 @@ function bb_attachment($return, $simplehtml = false, $tryoembed = true)
 		$return = sprintf('<a href="%s" target="_blank">%s</a><br>', $data["url"], $data["title"]);
 	} else {
 		try {
-			if ($tryoembed) {
+			if ($tryoembed && OEmbed::isAllowedURL($data['url'])) {
 				$return = OEmbed::getHTML($data['url'], $data['title']);
 			} else {
 				throw new Exception('OEmbed is disabled for this attachment.');
@@ -94,7 +94,7 @@ function bb_attachment($return, $simplehtml = false, $tryoembed = true)
 			if (($data["type"] == "photo") && ($data["url"] != "") && ($data["image"] != "")) {
 				$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data["url"], proxy_url($data["image"]), $data["title"]);
 			} else {
-				$return .= sprintf('[bookmark=%s]%s[/bookmark]', $data['url'], $data['title']);
+				$return .= sprintf('<h4><a href="%s">%s</a></h4>', $data['url'], $data['title']);
 			}
 
 			if (trim($data["description"]) != "") {
