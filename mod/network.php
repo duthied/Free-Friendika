@@ -809,7 +809,8 @@ function networkThreadedView(App $a, $update = 0) {
 	}
 
 	// Only show it when unfiltered (no groups, no networks, ...)
-	if (Config::get('system', 'comment_public') && (count($r) > 0) && (strlen($sql_extra . $sql_extra2 . $sql_extra3 . $sql_extra4) == 0)) {
+	if (Config::get('system', 'comment_public') && (count($r) > 0) && in_array($nets, ['', NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS])
+		&& (strlen($sql_extra . $sql_extra2 . $sql_extra3 . $sql_extra4) == 0)) {
 		$top_limit = current($r)['order_date'];
 		$bottom_limit = end($r)['order_date'];
 
