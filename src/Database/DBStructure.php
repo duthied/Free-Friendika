@@ -1299,6 +1299,16 @@ class DBStructure {
 						"created" => array("created"),
 						)
 				);
+		$database["participation"] = array(
+				"fields" => array(
+						"item" => array("type" => "int(10) unsigned", "not null" => "1", "primary" => "1", "relation" => array("item" => "id")),
+						"contact" => array("type" => "int(10) unsigned", "not null" => "1", "relation" => array("contact" => "id")),
+						"server" => array("type" => "varchar(60)", "not null" => "1", "primary" => "1"),
+						),
+				"indexes" => array(
+						"PRIMARY" => array("item", "server")
+						)
+				);
 		$database["pconfig"] = array(
 				"fields" => array(
 						"id" => array("type" => "int(11)", "not null" => "1", "extra" => "auto_increment", "primary" => "1"),
