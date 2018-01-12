@@ -1301,12 +1301,12 @@ class DBStructure {
 				);
 		$database["participation"] = array(
 				"fields" => array(
-						"item" => array("type" => "int(10) unsigned", "not null" => "1", "primary" => "1", "relation" => array("item" => "id")),
-						"contact" => array("type" => "int(10) unsigned", "not null" => "1", "relation" => array("contact" => "id")),
+						"iid" => array("type" => "int(10) unsigned", "not null" => "1", "primary" => "1", "relation" => array("item" => "id")),
 						"server" => array("type" => "varchar(60)", "not null" => "1", "primary" => "1"),
+						"cid" => array("type" => "int(10) unsigned", "not null" => "1", "relation" => array("contact" => "id")),
 						),
 				"indexes" => array(
-						"PRIMARY" => array("item", "server")
+						"PRIMARY" => array("iid", "server")
 						)
 				);
 		$database["pconfig"] = array(

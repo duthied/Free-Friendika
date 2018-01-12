@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.6-dev (Asparagus)
--- DB_UPDATE_VERSION 1239
+-- DB_UPDATE_VERSION 1241
 -- ------------------------------------------
 
 
@@ -650,9 +650,10 @@ CREATE TABLE IF NOT EXISTS `notify-threads` (
 --
 CREATE TABLE IF NOT EXISTS `oembed` (
 	`url` varbinary(255) NOT NULL,
+	`maxwidth` int(11) NOT NULL,
 	`content` mediumtext,
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
-	 PRIMARY KEY(`url`),
+	 PRIMARY KEY(`url`,`maxwidth`),
 	 INDEX `created` (`created`)
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
@@ -667,6 +668,16 @@ CREATE TABLE IF NOT EXISTS `parsed_url` (
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
 	 PRIMARY KEY(`url`,`guessing`,`oembed`),
 	 INDEX `created` (`created`)
+) DEFAULT COLLATE utf8mb4_general_ci;
+
+--
+-- TABLE participation
+--
+CREATE TABLE IF NOT EXISTS `participation` (
+	`iid` int(10) unsigned NOT NULL,
+	`server` varchar(60) NOT NULL,
+	`cid` int(10) unsigned NOT NULL,
+	 PRIMARY KEY(`iid`,`server`)
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --

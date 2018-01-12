@@ -115,9 +115,9 @@ class Diaspora
 	{
 		$r = dba::p("SELECT `contact`.`batch`, `contact`.`id`, `contact`.`name`, `contact`.`network`,
 				`fcontact`.`batch` AS `fbatch`, `fcontact`.`network` AS `fnetwork` FROM `participation`
-				INNER JOIN `contact` ON `contact`.`id` = `participation`.`contact`
+				INNER JOIN `contact` ON `contact`.`id` = `participation`.`cid`
 				LEFT JOIN `fcontact` ON `fcontact`.`url` = `contact`.`url`
-				WHERE `participation`.`item` = ?", $thread);
+				WHERE `participation`.`iid` = ?", $thread);
 
 		while ($contact = dba::fetch($r)) {
 			if (!empty($contact['fnetwork'])) {
