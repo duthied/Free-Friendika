@@ -82,7 +82,7 @@ function bb_attachment($return, $simplehtml = false, $tryoembed = true)
 			}
 		} catch (Exception $e) {
 			if ($simplehtml != 4) {
-				$return = sprintf('<span class="type-%s">', $data["type"]);
+				$return = sprintf('<div class="type-%s">', $data["type"]);
 			}
 
 			if ($data["image"] != "") {
@@ -97,12 +97,16 @@ function bb_attachment($return, $simplehtml = false, $tryoembed = true)
 				$return .= sprintf('<h4><a href="%s">%s</a></h4>', $data['url'], $data['title']);
 			}
 
-			if (trim($data["description"]) != "") {
+			if ($data["description"] != "" && $data["description"] != $data["title"]) {
 				$return .= sprintf('<blockquote>%s</blockquote>', trim(bbcode($data["description"])));
 			}
 
+			if ($data["type"] == "link") {
+				$return .= sprintf('<h5><a href="%s">%s</a></h5>', $data['url'], parse_url($data['url'], PHP_URL_HOST));
+			}
+
 			if ($simplehtml != 4) {
-				$return .= '</span>';
+				$return .= '</div>';
 			}
 		}
 	}
@@ -957,6 +961,28 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 		} while ($oldtext != $Text);
 	}
 
+	// Set up the parameters for a URL search string
+	$URLSearchString = "^\[\]";
+	// Set up the parameters for a MAIL search string
+	$MAILSearchString = $URLSearchString;
+
+	// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
+	if (!$forplaintext) {
+		// Autolink feature
+		if ($simplehtml != 7) {
+			$Text = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,\@]+)/ism", '$1<a href="$2" target="_blank">$2</a>', $Text);
+		} else {
+			$Text = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,\@]+)/ism", '$1[url]$2[/url]', $Text);
+
+			$Text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'bb_style_url', $Text);
+			$Text = preg_replace_callback("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", 'bb_style_url', $Text);
+		}
+	} else {
+		$Text = preg_replace("(\[url\]([$URLSearchString]*)\[\/url\])ism", " $1 ", $Text);
+		$Text = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'bb_RemovePictureLinks', $Text);
+	}
+
+
 	// Handle attached links or videos
 	$Text = bb_attachment($Text, $simplehtml, $tryoembed);
 
@@ -965,11 +991,6 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	if ($preserve_nl) {
 		$Text = str_replace(array("\n", "\r"), array('', ''), $Text);
 	}
-
-	// Set up the parameters for a URL search string
-	$URLSearchString = "^\[\]";
-	// Set up the parameters for a MAIL search string
-	$MAILSearchString = $URLSearchString;
 
 	// Remove all hashtag addresses
 	if ((!$tryoembed || $simplehtml) && !in_array($simplehtml, array(3, 7))) {
@@ -1022,23 +1043,6 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	// See issue: https://github.com/diaspora/diaspora_federation/issues/75
 	$expression = "=diaspora://.*?/post/([0-9A-Za-z\-_@.:]{15,254}[0-9A-Za-z])=ism";
 	$Text = preg_replace($expression, System::baseUrl()."/display/$1", $Text);
-
-	// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
-//	if ($simplehtml != 7) {
-		if (!$forplaintext) {
-			if ($simplehtml != 7) {
-				$Text = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1<a href="$2" target="_blank">$2</a>', $Text);
-			} else {
-				$Text = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url]$2[/url]', $Text);
-
-				$Text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'bb_style_url', $Text);
-				$Text = preg_replace_callback("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", 'bb_style_url', $Text);
-			}
-		} else {
-			$Text = preg_replace("(\[url\]([$URLSearchString]*)\[\/url\])ism", " $1 ", $Text);
-			$Text = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'bb_RemovePictureLinks', $Text);
-		}
-//	}
 
 	if ($tryoembed) {
 		$Text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", $tryoembed_callback, $Text);
@@ -1237,7 +1241,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 
 	// Try to Oembed
 	if ($tryoembed) {
-		$Text = preg_replace("/\[video\](.*?\.(ogg|ogv|oga|ogm|webm|mp4))\[\/video\]/ism", '<video src="$1" controls="controls" width="' . $a->videowidth . '" height="' . $a->videoheight . '"><a href="$1">$1</a></video>', $Text);
+		$Text = preg_replace("/\[video\](.*?\.(ogg|ogv|oga|ogm|webm|mp4))\[\/video\]/ism", '<video src="$1" controls="controls" width="' . $a->videowidth . '" height="' . $a->videoheight . '" loop="true"><a href="$1">$1</a></video>', $Text);
 		$Text = preg_replace("/\[audio\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mp3))\[\/audio\]/ism", '<audio src="$1" controls="controls"><a href="$1">$1</a></audio>', $Text);
 
 		$Text = preg_replace_callback("/\[video\](.*?)\[\/video\]/ism", $tryoembed_callback, $Text);
@@ -1351,7 +1355,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	// sanitizes src attributes (http and redir URLs for displaying in a web page, cid used for inline images in emails)
 	static $allowed_src_protocols = array('http', 'redir', 'cid');
 	$Text = preg_replace('#<([^>]*?)(src)="(?!' . implode('|', $allowed_src_protocols) . ')(.*?)"(.*?)>#ism',
-			     '<$1$2=""$4 class="invalid-src" title="' . t('Invalid source protocol') . '">', $Text);
+			     '<$1$2=""$4 data-original-src="$3" class="invalid-src" title="' . t('Invalid source protocol') . '">', $Text);
 
 	// sanitize href attributes (only whitelisted protocols URLs)
 	// default value for backward compatibility
@@ -1362,7 +1366,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	$allowed_link_protocols[] = 'redir/';
 
 	$regex = '#<([^>]*?)(href)="(?!' . implode('|', $allowed_link_protocols) . ')(.*?)"(.*?)>#ism';
-	$Text = preg_replace($regex, '<$1$2="javascript:void(0)"$4 class="invalid-href" title="' . t('Invalid link protocol') . '">', $Text);
+	$Text = preg_replace($regex, '<$1$2="javascript:void(0)"$4 data-original-href="$3" class="invalid-href" title="' . t('Invalid link protocol') . '">', $Text);
 
 	if ($saved_image) {
 		$Text = bb_replace_images($Text, $saved_image);

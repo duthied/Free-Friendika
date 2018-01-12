@@ -131,14 +131,12 @@ class OEmbed
 		$j->embedurl = $embedurl;
 
 		// If fetching information doesn't work, then improve via internal functions
-		if (($j->type == "error") || ($no_rich_type && ($j->type == "rich"))) {
+		if ($no_rich_type && ($j->type == "rich")) {
 			$data = ParseUrl::getSiteinfoCached($embedurl, true, false);
 			$j->type = $data["type"];
 
 			if ($j->type == "photo") {
 				$j->url = $data["url"];
-				//$j->width = $data["images"][0]["width"];
-				//$j->height = $data["images"][0]["height"];
 			}
 
 			if (isset($data["title"])) {
