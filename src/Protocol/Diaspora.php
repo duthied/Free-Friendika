@@ -111,7 +111,7 @@ class Diaspora
 	 *
 	 * @return array of relay servers
 	 */
-	public static function participationsForThread($thread, $contacts)
+	public static function participantsForThread($thread, $contacts)
 	{
 		$r = dba::p("SELECT `contact`.`batch`, `contact`.`id`, `contact`.`name`, `contact`.`network`,
 				`fcontact`.`batch` AS `fbatch`, `fcontact`.`network` AS `fnetwork` FROM `participation`

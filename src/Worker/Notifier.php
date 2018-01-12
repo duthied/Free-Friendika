@@ -525,7 +525,7 @@ class Notifier {
 
 				// Fetch the participation list
 				// The function will ensure that there are no duplicates
-				$r1 = Diaspora::ParticipationsForThread($item_id, $r1);
+				$r1 = Diaspora::participantsForThread($item_id, $r1);
 
 			}
 
