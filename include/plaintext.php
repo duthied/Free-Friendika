@@ -90,12 +90,13 @@ function get_old_attachment_data($body) {
  * 'title' -> Title of the attachment
  * 'description' -> Description of the attachment
  */
-function get_attachment_data($body) {
+function get_attachment_data($body)
+{
+	$data = [];
 
-	$data = array();
-
-	if (!preg_match("/(.*)\[attachment(.*?)\](.*?)\[\/attachment\](.*)/ism", $body, $match))
+	if (!preg_match("/(.*)\[attachment(.*?)\](.*?)\[\/attachment\](.*)/ism", $body, $match)) {
 		return get_old_attachment_data($body);
+	}
 
 	$attributes = $match[2];
 
@@ -103,79 +104,95 @@ function get_attachment_data($body) {
 
 	$type = "";
 	preg_match("/type='(.*?)'/ism", $attributes, $matches);
-	if ($matches[1] != "")
+	if (x($matches, 1)) {
 		$type = strtolower($matches[1]);
+	}
 
 	preg_match('/type="(.*?)"/ism', $attributes, $matches);
-	if ($matches[1] != "")
+	if (x($matches, 1)) {
 		$type = strtolower($matches[1]);
+	}
 
-	if ($type == "")
-		return(array());
+	if ($type == "") {
+		return [];
+	}
 
-	if (!in_array($type, array("link", "audio", "photo", "video")))
-		return(array());
+	if (!in_array($type, ["link", "audio", "photo", "video"])) {
+		return [];
+	}
 
-	if ($type != "")
+	if ($type != "") {
 		$data["type"] = $type;
+	}
 
 	$url = "";
 	preg_match("/url='(.*?)'/ism", $attributes, $matches);
-	if ($matches[1] != "")
+	if (x($matches, 1)) {
 		$url = $matches[1];
+	}
 
 	preg_match('/url="(.*?)"/ism', $attributes, $matches);
-	if ($matches[1] != "")
+	if (x($matches, 1)) {
 		$url = $matches[1];
+	}
 
-	if ($url != "")
+	if ($url != "") {
 		$data["url"] = html_entity_decode($url, ENT_QUOTES, 'UTF-8');
+	}
 
 	$title = "";
 	preg_match("/title='(.*?)'/ism", $attributes, $matches);
-	if ($matches[1] != "")
+	if (x($matches, 1)) {
 		$title = $matches[1];
+	}
 
 	preg_match('/title="(.*?)"/ism', $attributes, $matches);
-	if ($matches[1] != "")
+	if (x($matches, 1)) {
 		$title = $matches[1];
+	}
 
 	if ($title != "") {
 		$title = bbcode(html_entity_decode($title, ENT_QUOTES, 'UTF-8'), false, false, true);
 		$title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
-		$title = str_replace(array("[", "]"), array("&#91;", "&#93;"), $title);
+		$title = str_replace(["[", "]"], ["&#91;", "&#93;"], $title);
 		$data["title"] = $title;
 	}
 
 	$image = "";
 	preg_match("/image='(.*?)'/ism", $attributes, $matches);
-	if ($matches[1] != "")
+	if (x($matches, 1)) {
 		$image = $matches[1];
+	}
 
 	preg_match('/image="(.*?)"/ism', $attributes, $matches);
-	if ($matches[1] != "")
+	if (x($matches, 1)) {
 		$image = $matches[1];
+	}
 
-	if ($image != "")
+	if ($image != "") {
 		$data["image"] = html_entity_decode($image, ENT_QUOTES, 'UTF-8');
+	}
 
 	$preview = "";
 	preg_match("/preview='(.*?)'/ism", $attributes, $matches);
-	if ($matches[1] != "")
+	if (x($matches, 1)) {
 		$preview = $matches[1];
+	}
 
 	preg_match('/preview="(.*?)"/ism', $attributes, $matches);
-	if ($matches[1] != "")
+	if (x($matches, 1)) {
 		$preview = $matches[1];
+	}
 
-	if ($preview != "")
+	if ($preview != "") {
 		$data["preview"] = html_entity_decode($preview, ENT_QUOTES, 'UTF-8');
+	}
 
 	$data["description"] = trim($match[3]);
 
 	$data["after"] = trim($match[4]);
 
-	return($data);
+	return $data;
 }
 
 function get_attached_data($body, $item = array()) {
