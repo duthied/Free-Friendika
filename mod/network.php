@@ -629,7 +629,8 @@ function networkThreadedView(App $a, $update = 0) {
 		$sql_post_table = " INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`";
 	}
 
-	$sql_nets = (($nets) ? sprintf(" and $sql_table.`network` = '%s' ", dbesc($nets)) : '');
+	$sql_nets = (($nets) ? sprintf(" AND $sql_table.`network` = '%s' ", dbesc($nets)) : '');
+	$sql_tag_nets = (($nets) ? sprintf(" AND `item`.`network` = '%s' ", dbesc($nets)) : '');
 
 	if ($gid) {
 		$group = dba::selectFirst('group', ['name'], ['id' => $gid, 'uid' => $_SESSION['uid']]);
@@ -808,7 +809,8 @@ function networkThreadedView(App $a, $update = 0) {
 	}
 
 	// Only show it when unfiltered (no groups, no networks, ...)
-	if (Config::get('system', 'comment_public') && (count($r) > 0) && (strlen($sql_extra . $sql_extra2 . $sql_extra3 . $sql_extra4 . $sql_nets) == 0)) {
+	if (Config::get('system', 'comment_public') && (count($r) > 0) && in_array($nets, ['', NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS])
+		&& (strlen($sql_extra . $sql_extra2 . $sql_extra3 . $sql_extra4) == 0)) {
 		$top_limit = current($r)['order_date'];
 		$bottom_limit = end($r)['order_date'];
 
@@ -827,7 +829,7 @@ function networkThreadedView(App $a, $update = 0) {
 				(SELECT SUBSTR(`term`, 2) FROM `search` WHERE `uid` = ? AND `term` LIKE '#%') AND `otype` = ? AND `type` = ? AND `uid` = 0) AS `term`
 			ON `item`.`id` = `term`.`oid`
 			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			WHERE `item`.`uid` = 0 AND `item`.$ordering < ? AND `item`.$ordering > ?",
+			WHERE `item`.`uid` = 0 AND `item`.$ordering < ? AND `item`.$ordering > ?".$sql_tag_nets,
 			local_user(), TERM_OBJ_POST, TERM_HASHTAG, $top_limit, $bottom_limit);
 		$data = dba::inArray($items);
 
