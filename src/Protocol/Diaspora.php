@@ -2199,7 +2199,7 @@ class Diaspora
 		}
 
 		logger('Received participation for ID: '.$item['id'].' - Contact: '.$contact_id.' - Server: '.$server);
-		dba::insert('participation', ['item' => $item['id'], 'contact' => $contact_id, 'server' => $server]);
+		dba::insert('participation', ['iid' => $item['id'], 'cid' => $contact_id, 'server' => $server]);
 
 		return true;
 	}
