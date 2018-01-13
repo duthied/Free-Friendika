@@ -167,7 +167,7 @@ function contacts_post(App $a)
 		return;
 	}
 
-	if (!DBM::exists('contact', ['id' => $contact_id, 'uid' => local_user()])) {
+	if (!dba::exists('contact', ['id' => $contact_id, 'uid' => local_user()])) {
 		notice(t('Could not access contact record.') . EOL);
 		goaway('contacts');
 		return; // NOTREACHED
@@ -177,7 +177,7 @@ function contacts_post(App $a)
 
 	$profile_id = intval($_POST['profile-assign']);
 	if ($profile_id) {
-		if (!DBM::exists('profile', ['id' => $profile_id, 'uid' => local_user()])) {
+		if (!dba::exists('profile', ['id' => $profile_id, 'uid' => local_user()])) {
 			notice(t('Could not locate selected profile.') . EOL);
 			return;
 		}
