@@ -226,7 +226,7 @@ function api_login(App $a)
 		}
 	}
 
-	if (DBM::is_result($record)) {
+	if (!DBM::is_result($record)) {
 		logger('API_login failure: ' . print_r($_SERVER, true), LOGGER_DEBUG);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		//header('HTTP/1.0 401 Unauthorized');
