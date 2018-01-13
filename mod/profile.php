@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @file mod/profile.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
@@ -7,9 +9,9 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Group;
 use Friendica\Module\Login;
+use Friendica\Protocol\DFRN;
 
 require_once 'include/contact_widgets.php';
-require_once 'include/redir.php';
 
 function profile_init(App $a)
 {
@@ -36,7 +38,7 @@ function profile_init(App $a)
 		$which = $a->user['nickname'];
 		$profile = htmlspecialchars($a->argv[1]);
 	} else {
-		auto_redir($a, $which);
+		DFRN::autoRedir($a, $which);
 	}
 
 	profile_load($a, $which, $profile);

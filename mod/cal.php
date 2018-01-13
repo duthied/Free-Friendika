@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file mod/cal.php
  * @brief The calendar module
@@ -14,14 +13,14 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Protocol\DFRN;
 
 require_once 'include/event.php';
-require_once 'include/redir.php';
 
 function cal_init(App $a)
 {
 	if ($a->argc > 1) {
-		auto_redir($a, $a->argv[1]);
+		DFRN::autoRedir($a, $a->argv[1]);
 	}
 
 	if ((Config::get('system', 'block_public')) && (!local_user()) && (!remote_user())) {

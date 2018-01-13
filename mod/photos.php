@@ -13,19 +13,19 @@ use Friendica\Model\Group;
 use Friendica\Model\Photo;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
+use Friendica\Protocol\DFRN;
 
 require_once 'include/items.php';
 require_once 'include/acl_selectors.php';
 require_once 'include/bbcode.php';
 require_once 'include/security.php';
-require_once 'include/redir.php';
 require_once 'include/tags.php';
 require_once 'include/threads.php';
 
 function photos_init(App $a) {
 
 	if ($a->argc > 1) {
-		auto_redir($a, $a->argv[1]);
+		DFRN::autoRedir($a, $a->argv[1]);
 	}
 
 	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
