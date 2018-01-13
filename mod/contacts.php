@@ -1,7 +1,9 @@
 <?php
+
 /**
  * @file mod/contacts.php
  */
+
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Core\System;
@@ -30,6 +32,7 @@ function contacts_init(App $a)
 		$a->page['aside'] = '';
 	}
 
+	$contact_id = null;
 	$contact = null;
 	if ((($a->argc == 2) && intval($a->argv[1])) || (($a->argc == 3) && intval($a->argv[1]) && ($a->argv[2] == "posts"))) {
 		$contact_id = intval($a->argv[1]);
@@ -164,11 +167,7 @@ function contacts_post(App $a)
 		return;
 	}
 
-	$orig_record = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-		intval($contact_id),
-		intval(local_user())
-	);
-	if (!DBM::is_result($orig_record)) {
+	if (!DBM::exists('contact', ['id' => $contact_id, 'uid' => local_user()])) {
 		notice(t('Could not access contact record.') . EOL);
 		goaway('contacts');
 		return; // NOTREACHED
@@ -178,11 +177,7 @@ function contacts_post(App $a)
 
 	$profile_id = intval($_POST['profile-assign']);
 	if ($profile_id) {
-		$r = q("SELECT `id` FROM `profile` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-			intval($profile_id),
-			intval(local_user())
-		);
-		if (!DBM::is_result($r)) {
+		if (!DBM::exists('profile', ['id' => $profile_id, 'uid' => local_user()])) {
 			notice(t('Could not locate selected profile.') . EOL);
 			return;
 		}
@@ -229,6 +224,7 @@ function contacts_post(App $a)
 
 	return;
 }
+
 /* contact actions */
 
 function _contact_update($contact_id)
@@ -764,7 +760,6 @@ function contacts_content(App $a)
 	$total = 0;
 	$searching = false;
 	$search_hdr = null;
-	$search_txt = '';
 	if ($search) {
 		$searching = true;
 		$search_hdr = $search;

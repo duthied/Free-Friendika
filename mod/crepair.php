@@ -16,26 +16,17 @@ function crepair_init(App $a)
 		return;
 	}
 
-	$contact_id = 0;
-
+	$contact = null;
 	if (($a->argc == 2) && intval($a->argv[1])) {
-		$contact_id = intval($a->argv[1]);
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d and `id` = %d LIMIT 1",
-			intval(local_user()),
-			intval($contact_id)
-		);
-		if (!DBM::is_result($r)) {
-			$contact_id = 0;
-		}
+		$contact = dba::selectFirst('contact', [], ['uid' => local_user(), 'id' => $a->argv[1]]);
 	}
 
 	if (!x($a->page, 'aside')) {
 		$a->page['aside'] = '';
 	}
 
-	if ($contact_id) {
-		$a->data['contact'] = $r[0];
-		$contact = $r[0];
+	if (DBM::is_result($contact)) {
+		$a->data['contact'] = $contact;
 		profile_load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
 	}
 }
@@ -48,18 +39,14 @@ function crepair_post(App $a)
 
 	$cid = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
+	$contact = null;
 	if ($cid) {
-		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-			intval($cid),
-			intval(local_user())
-		);
+		$contact = dba::selectFirst('contact', [], ['id' => $cid, 'uid' => local_user()]);
 	}
 
-	if (!DBM::is_result($r)) {
+	if (!DBM::is_result($contact)) {
 		return;
 	}
-
-	$contact = $r[0];
 
 	$name        = defaults($_POST, 'name'       , $contact['name']);
 	$nick        = defaults($_POST, 'nick'       , '');
@@ -113,19 +100,15 @@ function crepair_content(App $a)
 
 	$cid = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
+		$contact = null;
 	if ($cid) {
-		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-			intval($cid),
-			intval(local_user())
-		);
+		$contact = dba::selectFirst('contact', [], ['id' => $cid, 'uid' => local_user()]);
 	}
 
-	if (!DBM::is_result($r)) {
+	if (!DBM::is_result($contact)) {
 		notice(t('Contact not found.') . EOL);
 		return;
 	}
-
-	$contact = $r[0];
 
 	$warning = t('<strong>WARNING: This is highly advanced</strong> and if you enter incorrect information your communications with this contact may stop working.');
 	$info = t('Please use your browser \'Back\' button <strong>now</strong> if you are uncertain what to do on this page.');
