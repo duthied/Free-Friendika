@@ -15,13 +15,13 @@ use dba;
 
 require_once "include/dba.php";
 
-define("IMPORT_DEBUG", false);
-
 /**
  * @brief UserImport class
  */
 class UserImport
 {
+	const IMPORT_DEBUG = false;
+
 	private static function lastInsertId()
 	{
 		if (IMPORT_DEBUG) {
