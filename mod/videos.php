@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @file mod/videos.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
@@ -7,17 +9,17 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Protocol\DFRN;
 
 require_once 'include/items.php';
 require_once 'include/acl_selectors.php';
 require_once 'include/bbcode.php';
 require_once 'include/security.php';
-require_once 'include/redir.php';
 
 function videos_init(App $a) {
 
 	if($a->argc > 1)
-		auto_redir($a, $a->argv[1]);
+		DFRN::autoRedir($a, $a->argv[1]);
 
 	if((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
 		return;
