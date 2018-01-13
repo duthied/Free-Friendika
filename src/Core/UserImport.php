@@ -155,9 +155,11 @@ class UserImport
 		unset($account['user']['account_expires_on']);
 		unset($account['user']['expire_notification_sent']);
 
-		foreach ($account['user'] as $k => &$v) {
-			$v = str_replace(array($oldbaseurl, $oldaddr), array($newbaseurl, $newaddr), $v);
-		}
+		$callback = function ($key, $value) use ($oldbaseurl, $oldaddr, $newbaseurl, $newaddr) {
+			return str_replace(array($oldbaseurl, $oldaddr), array($newbaseurl, $newaddr), $value);
+		};
+
+		$v = array_map($account['user'], $callback);
 
 		// import user
 		$r = self::dbImportAssoc('user', $account['user']);
