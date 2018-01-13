@@ -522,6 +522,11 @@ class Notifier {
 					intval($owner['uid']),
 					intval(CONTACT_IS_SHARING)
 				);
+
+				// Fetch the participation list
+				// The function will ensure that there are no duplicates
+				$r1 = Diaspora::participantsForThread($item_id, $r1);
+
 			}
 
 			$r2 = q("SELECT `id`, `name`,`network` FROM `contact`
@@ -531,7 +536,8 @@ class Notifier {
 				intval(CONTACT_IS_SHARING)
 			);
 
-			$r = array_merge($r2,$r1,$r0);
+
+			$r = array_merge($r2, $r1, $r0);
 
 			if (DBM::is_result($r)) {
 				logger('pubdeliver '.$target_item["guid"].': '.print_r($r,true), LOGGER_DEBUG);

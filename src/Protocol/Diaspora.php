@@ -100,6 +100,53 @@ class Diaspora
 	}
 
 	/**
+	 * @brief Return a list of participating contacts for a thread
+	 *
+	 * This is used for the participation feature.
+	 * One of the parameters is a contact array.
+	 * This is done to avoid duplicates.
+	 *
+	 * @param integer $thread   The id of the thread
+	 * @param array   $contacts The previously fetched contacts
+	 *
+	 * @return array of relay servers
+	 */
+	public static function participantsForThread($thread, $contacts)
+	{
+		$r = dba::p("SELECT `contact`.`batch`, `contact`.`id`, `contact`.`name`, `contact`.`network`,
+				`fcontact`.`batch` AS `fbatch`, `fcontact`.`network` AS `fnetwork` FROM `participation`
+				INNER JOIN `contact` ON `contact`.`id` = `participation`.`cid`
+				LEFT JOIN `fcontact` ON `fcontact`.`url` = `contact`.`url`
+				WHERE `participation`.`iid` = ?", $thread);
+
+		while ($contact = dba::fetch($r)) {
+			if (!empty($contact['fnetwork'])) {
+				$contact['network'] = $contact['fnetwork'];
+			}
+			unset($contact['fnetwork']);
+
+			if (empty($contact['batch']) && !empty($contact['fbatch'])) {
+				$contact['batch'] = $contact['fbatch'];
+			}
+			unset($contact['fbatch']);
+
+			$exists = false;
+			foreach ($contacts as $entry) {
+				if ($entry['batch'] == $contact['batch']) {
+					$exists = true;
+				}
+			}
+
+			if (!$exists) {
+				$contacts[] = $contact;
+			}
+		}
+		dba::close($r);
+
+		return $contacts;
+	}
+
+	/**
 	 * @brief repairs a signature that was double encoded
 	 *
 	 * The function is unused at the moment. It was copied from the old implementation.
@@ -542,7 +589,7 @@ class Diaspora
 			case "message":
 				return self::receiveMessage($importer, $fields);
 
-			case "participation": // Not implemented
+			case "participation":
 				return self::receiveParticipation($importer, $fields);
 
 			case "photo": // Not implemented
@@ -2128,7 +2175,32 @@ class Diaspora
 	 */
 	private static function receiveParticipation($importer, $data)
 	{
-		// I'm not sure if we can fully support this message type
+		$author = strtolower(notags(unxmlify($data->author)));
+		$parent_guid = notags(unxmlify($data->parent_guid));
+
+		$contact_id = Contact::getIdForURL($author);
+		if (!$contact_id) {
+			logger('Author not found: '.$author);
+			return false;
+		}
+
+		$item = dba::selectFirst('item', ['id'], ['guid' => $parent_guid, 'origin' => true, 'private' => false]);
+		if (!DBM::is_result($item)) {
+			logger('Item not found: '.$parent_guid);
+			return false;
+		}
+
+		$author_parts = explode('@', $author);
+		if (isset($author_parts[1])) {
+			$server = $author_parts[1];
+		} else {
+			// Should never happen
+			$server = $author;
+		}
+
+		logger('Received participation for ID: '.$item['id'].' - Contact: '.$contact_id.' - Server: '.$server);
+		dba::insert('participation', ['iid' => $item['id'], 'cid' => $contact_id, 'server' => $server]);
+
 		return true;
 	}
 
