@@ -22,7 +22,8 @@ define("IMPORT_DEBUG", false);
  */
 class UserImport
 {
-	function last_insert_id() {
+	private static function lastInsertId()
+	{
 		if (IMPORT_DEBUG) {
 			return 1;
 		}
@@ -36,7 +37,7 @@ class UserImport
 	 * @param string $table Table name
 	 * @param array &$arr Column=>Value array from json (by ref)
 	 */
-	function check_cols($table, &$arr)
+	private static function checkCols($table, &$arr)
 	{
 		$query = sprintf("SHOW COLUMNS IN `%s`", dbesc($table));
 		logger("uimport: $query", LOGGER_DEBUG);
@@ -60,13 +61,13 @@ class UserImport
 	 * @param string $table Table name
 	 * @param array $arr Column=>Value array from json
 	 */
-	function db_import_assoc($table, $arr)
+	private static function dbImportAssoc($table, $arr)
 	{
 		if (isset($arr['id'])) {
 			unset($arr['id']);
 		}
 
-		check_cols($table, $arr);
+		self::check_cols($table, $arr);
 		$cols = implode("`,`", array_map('dbesc', array_keys($arr)));
 		$vals = implode("','", array_map('dbesc', array_values($arr)));
 		$query = "INSERT INTO `$table` (`$cols`) VALUES ('$vals')";
@@ -85,7 +86,8 @@ class UserImport
 	 * @param App $a Friendica App Class
 	 * @param array $file array from $_FILES
 	 */
-	function import_account(App $a, $file) {
+	public static function importAccount(App $a, $file)
+	{
 		logger("Start user import from " . $file['tmp_name']);
 		/*
 		STEPS
@@ -109,24 +111,26 @@ class UserImport
 		}
 
 		// check for username
-		$r = q("SELECT uid FROM user WHERE nickname='%s'", $account['user']['nickname']);
+		$r = dba::selectFirst('user', ['uid'], ['nickname' => $account['user']['nickname']]);
 		if ($r === false) {
 			logger("uimport:check nickname : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 			notice(t('Error! Cannot check nickname'));
 			return;
 		}
+
 		if (DBM::is_result($r) > 0) {
 			notice(sprintf(t("User '%s' already exists on this server!"), $account['user']['nickname']));
 			return;
 		}
 
 		// check if username matches deleted account
-		$r = q("SELECT id FROM userd WHERE username='%s'", $account['user']['nickname']);
+		$r = dba::selectFirst('userd', ['id'], ['username' => $account['user']['nickname']]);
 		if ($r === false) {
 			logger("uimport:check nickname : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 			notice(t('Error! Cannot check nickname'));
 			return;
 		}
+
 		if (DBM::is_result($r) > 0) {
 			notice(sprintf(t("User '%s' already exists on this server!"), $account['user']['nickname']));
 			return;
@@ -156,19 +160,18 @@ class UserImport
 		}
 
 		// import user
-		$r = db_import_assoc('user', $account['user']);
+		$r = self::dbImportAssoc('user', $account['user']);
 		if ($r === false) {
 			logger("uimport:insert user : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 			notice(t("User creation error"));
 			return;
 		}
-		$newuid = last_insert_id();
+		$newuid = self::lastInsertId();
 
 		PConfig::set($newuid, 'system', 'previous_addr', $old_handle);
 
 		// Generate a new guid for the account. Otherwise there will be problems with diaspora
-		q("UPDATE `user` SET `guid` = '%s' WHERE `uid` = %d",
-			dbesc(generate_user_guid()), intval($newuid));
+		dba::update('user', ['guid' => generate_user_guid()], ['uid' => $newuid]);
 
 		foreach ($account['profile'] as &$profile) {
 			foreach ($profile as $k => &$v) {
@@ -178,7 +181,7 @@ class UserImport
 				}
 			}
 			$profile['uid'] = $newuid;
-			$r = db_import_assoc('profile', $profile);
+			$r = self::dbImportAssoc('profile', $profile);
 			if ($r === false) {
 				logger("uimport:insert profile " . $profile['profile-name'] . " : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 				info(t("User profile creation error"));
@@ -216,12 +219,12 @@ class UserImport
 				}
 			}
 			$contact['uid'] = $newuid;
-			$r = db_import_assoc('contact', $contact);
+			$r = self::dbImportAssoc('contact', $contact);
 			if ($r === false) {
 				logger("uimport:insert contact " . $contact['nick'] . "," . $contact['network'] . " : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 				$errorcount++;
 			} else {
-				$contact['newid'] = last_insert_id();
+				$contact['newid'] = self::lastInsertId();
 			}
 		}
 		if ($errorcount > 0) {
@@ -230,11 +233,11 @@ class UserImport
 
 		foreach ($account['group'] as &$group) {
 			$group['uid'] = $newuid;
-			$r = db_import_assoc('group', $group);
+			$r = self::dbImportAssoc('group', $group);
 			if ($r === false) {
 				logger("uimport:insert group " . $group['name'] . " : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 			} else {
-				$group['newid'] = last_insert_id();
+				$group['newid'] = self::lastInsertId();
 			}
 		}
 
@@ -255,7 +258,7 @@ class UserImport
 				}
 			}
 			if ($import == 2) {
-				$r = db_import_assoc('group_member', $group_member);
+				$r = self::dbImportAssoc('group_member', $group_member);
 				if ($r === false) {
 					logger("uimport:insert group member " . $group_member['id'] . " : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 				}
@@ -281,7 +284,7 @@ class UserImport
 
 		foreach ($account['pconfig'] as &$pconfig) {
 			$pconfig['uid'] = $newuid;
-			$r = db_import_assoc('pconfig', $pconfig);
+			$r = self::dbImportAssoc('pconfig', $pconfig);
 			if ($r === false) {
 				logger("uimport:insert pconfig " . $pconfig['id'] . " : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 			}
