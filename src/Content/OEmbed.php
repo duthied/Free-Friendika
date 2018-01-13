@@ -131,14 +131,12 @@ class OEmbed
 		$j->embedurl = $embedurl;
 
 		// If fetching information doesn't work, then improve via internal functions
-		if (($j->type == "error") || ($no_rich_type && ($j->type == "rich"))) {
+		if ($no_rich_type && ($j->type == "rich")) {
 			$data = ParseUrl::getSiteinfoCached($embedurl, true, false);
 			$j->type = $data["type"];
 
 			if ($j->type == "photo") {
 				$j->url = $data["url"];
-				//$j->width = $data["images"][0]["width"];
-				//$j->height = $data["images"][0]["height"];
 			}
 
 			if (isset($data["title"])) {
@@ -202,23 +200,22 @@ class OEmbed
 		// add link to source if not present in "rich" type
 		if ($j->type != 'rich' || !strpos($j->html, $embedurl)) {
 			$ret .= '<h4>';
-			if (isset($j->title)) {
-				if (isset($j->provider_name)) {
+			if (!empty($j->title)) {
+				if (!empty($j->provider_name)) {
 					$ret .= $j->provider_name . ": ";
 				}
 
-				$embedlink = (isset($j->title)) ? $j->title : $embedurl;
-				$ret .= '<a href="' . $embedurl . '" rel="oembed">' . $embedlink . '</a>';
-				if (isset($j->author_name)) {
+				$ret .= '<a href="' . $embedurl . '" rel="oembed">' . $j->title . '</a>';
+				if (!empty($j->author_name)) {
 					$ret .= ' (' . $j->author_name . ')';
 				}
-			} elseif (isset($j->provider_name) || isset($j->author_name)) {
+			} elseif (!empty($j->provider_name) || !empty($j->author_name)) {
 				$embedlink = "";
-				if (isset($j->provider_name)) {
+				if (!empty($j->provider_name)) {
 					$embedlink .= $j->provider_name;
 				}
 
-				if (isset($j->author_name)) {
+				if (!empty($j->author_name)) {
 					if ($embedlink != "") {
 						$embedlink .= ": ";
 					}
@@ -230,6 +227,8 @@ class OEmbed
 				}
 
 				$ret .= '<a href="' . $embedurl . '" rel="oembed">' . $embedlink . '</a>';
+			} else {
+				$ret .= '<a href="' . $embedurl . '" rel="oembed">' . $embedurl . '</a>';
 			}
 			$ret .= "</h4>";
 		} elseif (!strpos($j->html, $embedurl)) {
