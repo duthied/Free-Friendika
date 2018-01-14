@@ -116,7 +116,7 @@ class Diaspora
 		$r = dba::p("SELECT `contact`.`batch`, `contact`.`id`, `contact`.`name`, `contact`.`network`,
 				`fcontact`.`batch` AS `fbatch`, `fcontact`.`network` AS `fnetwork` FROM `participation`
 				INNER JOIN `contact` ON `contact`.`id` = `participation`.`cid`
-				LEFT JOIN `fcontact` ON `fcontact`.`url` = `contact`.`url`
+				INNER JOIN `fcontact` ON `fcontact`.`id` = `participation`.`fid`
 				WHERE `participation`.`iid` = ?", $thread);
 
 		while ($contact = dba::fetch($r)) {
@@ -2180,13 +2180,19 @@ class Diaspora
 
 		$contact_id = Contact::getIdForURL($author);
 		if (!$contact_id) {
-			logger('Author not found: '.$author);
+			logger('Contact not found: '.$author);
+			return false;
+		}
+
+		$person = self::personByHandle($author);
+		if (!is_array($person)) {
+			logger("Person not found: ".$author);
 			return false;
 		}
 
 		$item = dba::selectFirst('item', ['id'], ['guid' => $parent_guid, 'origin' => true, 'private' => false]);
 		if (!DBM::is_result($item)) {
-			logger('Item not found: '.$parent_guid);
+			logger('Item not found, no origin or private: '.$parent_guid);
 			return false;
 		}
 
@@ -2198,8 +2204,24 @@ class Diaspora
 			$server = $author;
 		}
 
-		logger('Received participation for ID: '.$item['id'].' - Contact: '.$contact_id.' - Server: '.$server);
-		dba::insert('participation', ['iid' => $item['id'], 'cid' => $contact_id, 'server' => $server]);
+		logger('Received participation for ID: '.$item['id'].' - Contact: '.$contact_id.' - Server: '.$server, LOGGER_DEBUG);
+		dba::insert('participation', ['iid' => $item['id'], 'cid' => $contact_id, 'fid' => $person['id'], 'server' => $server]);
+
+		// Send all existing comments and likes to the requesting server
+		$comments = dba::p("SELECT `item`.`id`, `item`.`verb`, `contact`.`self`
+				FROM `item`
+				INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+				WHERE `item`.`parent` = ? AND `item`.`id` != `item`.`parent`", $item['id']);
+		while ($comment = dba::fetch($comments)) {
+			if ($comment['verb'] == ACTIVITY_POST) {
+				$cmd = $comment['self'] ? 'comment-new' : 'comment-import';
+			} else {
+				$cmd = $comment['self'] ? 'like' : 'comment-import';
+			}
+			logger("Send ".$cmd." for item ".$comment['id']." to contact ".$contact_id, LOGGER_DEBUG);
+			Worker::add(PRIORITY_HIGH, 'Delivery', $cmd, $comment['id'], $contact_id);
+		}
+		dba::close($comments);
 
 		return true;
 	}
