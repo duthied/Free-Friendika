@@ -4,10 +4,12 @@
  *
  * @brief Friendica admin
  */
+
 use Friendica\App;
 use Friendica\Content\Feature;
-use Friendica\Core\System;
+use Friendica\Content\Text\Markdown;
 use Friendica\Core\Config;
+use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Database\DBStructure;
@@ -1777,9 +1779,7 @@ function admin_page_plugins(App $a)
 
 		$readme = Null;
 		if (is_file("addon/$plugin/README.md")) {
-			require_once 'library/markdown.php';
-			$readme = file_get_contents("addon/$plugin/README.md");
-			$readme = Markdown($readme, false);
+			$readme = Markdown::convert(file_get_contents("addon/$plugin/README.md"), false);
 		} elseif (is_file("addon/$plugin/README")) {
 			$readme = "<pre>" . file_get_contents("addon/$plugin/README") . "</pre>";
 		}
@@ -2028,9 +2028,7 @@ function admin_page_themes(App $a)
 
 		$readme = null;
 		if (is_file("view/theme/$theme/README.md")) {
-			require_once 'library/markdown.php';
-			$readme = file_get_contents("view/theme/$theme/README.md");
-			$readme = Markdown($readme, false);
+			$readme = Markdown::convert(file_get_contents("view/theme/$theme/README.md"), false);
 		} elseif (is_file("view/theme/$theme/README")) {
 			$readme = "<pre>" . file_get_contents("view/theme/$theme/README") . "</pre>";
 		}

@@ -1,11 +1,11 @@
 <?php
 
-use Friendica\App;
+use Friendica\Content\Text\Markdown;
 
 require_once 'include/bbcode.php';
-require_once 'library/markdown.php';
 require_once 'include/bb2diaspora.php';
 require_once 'include/html2bbcode.php';
+require_once 'include/pgettext.php';
 
 function visible_lf($s)
 {
@@ -51,7 +51,7 @@ function babel_content()
 		$o .= '<h2>' . t('bb2diaspora: ') . '</h2>' . EOL . EOL;
 		$o .= visible_lf($diaspora) . EOL . EOL;
 
-		$html = Markdown($diaspora);
+		$html = Markdown::convert($diaspora);
 		$o .= '<h2>' . t('bb2diaspora => Markdown: ') . '</h2>' . EOL . EOL;
 		$o .= $html . EOL . EOL;
 

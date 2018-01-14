@@ -1,14 +1,12 @@
 <?php
 
-use Friendica\App;
+use Friendica\Content\Text\Markdown;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Network\Probe;
-
 use League\HTMLToMarkdown\HtmlConverter;
 
 require_once 'include/event.php';
-require_once 'library/markdown.php';
 require_once 'include/html2bbcode.php';
 require_once 'include/bbcode.php';
 
@@ -58,7 +56,7 @@ function diaspora2bb($s) {
 	// Escaping the hash tags
 	$s = preg_replace('/\#([^\s\#])/', '&#35;$1', $s);
 
-	$s = Markdown($s);
+	$s = Markdown::convert($s);
 
 	$regexp = "/@\{(?:([^\}]+?); )?([^\} ]+)\}/";
 	$s = preg_replace_callback($regexp, 'diaspora_mention2bb', $s);
