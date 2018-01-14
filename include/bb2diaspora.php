@@ -146,12 +146,16 @@ function bb2diaspora($Text, $preserve_nl = false, $fordiaspora = true) {
 
 	// Extracting multi-line code blocks before the whitespace processing/code highlighter in bbcode()
 	$codeblocks = [];
-	$Text = preg_replace_callback('#\[code(?:=([^\]]*))?\](?=\n)(.*?)\[\/code\]#is',
-		function ($matches) use (&$codeblocks) {
-			$return = '#codeblock-' . count($codeblocks) . '#';
 
-            $prefix = '````' . $matches[1] . PHP_EOL;
-			$codeblocks[] = $prefix . trim($matches[2]) . PHP_EOL . '````';
+	$Text = preg_replace_callback("#\[code(?:=([^\]]*))?\](.*?)\[\/code\]#is",
+		function ($matches) use (&$codeblocks) {
+			$return = $matches[0];
+			if (strpos($matches[2], "\n") !== false) {
+				$return = '#codeblock-' . count($codeblocks) . '#';
+
+				$prefix = '````' . $matches[1] . PHP_EOL;
+				$codeblocks[] = $prefix . trim($matches[2]) . PHP_EOL . '````';
+			}
 			return $return;
 		}
 	, $Text);
