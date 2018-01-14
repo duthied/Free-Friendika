@@ -19,7 +19,8 @@
 		"defuse/php-encryption": "1.*",
 		"pear/Text_LanguageDetect": "1.*",
 		"pear-pear.php.net/Text_Highlighter": "*",
-		"paragonie/random_compat": "^2.0"
+		"paragonie/random_compat": "^2.0",
+		"smarty/smarty": "^3.1"
 	},
 	"repositories": [
         {
