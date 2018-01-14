@@ -1041,7 +1041,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
  * @param string $url   Search url.
  * @param bool   $save  Show save search button.
  * @param bool   $aside Display the search widgit aside.
- * 
+ *
  * @return string Formatted HTML.
  */
 function search($s, $id = 'search-box', $url = 'search', $save = false, $aside = true)
@@ -2106,7 +2106,8 @@ function text_highlight($s, $lang) {
 	}
 
 	$renderer = new Text_Highlighter_Renderer_Html($options);
-	$hl = Text_Highlighter::factory($lang);
+	$factory = new Text_Highlighter();
+	$hl = $factory->factory($lang);
 	$hl->setRenderer($renderer);
 	$o = $hl->highlight($s);
 	$o = str_replace("\n", '', $o);

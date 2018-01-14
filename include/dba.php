@@ -852,24 +852,24 @@ class dba {
 	/**
 	 * @brief Delete a row from a table
 	 *
-	 * @param string $table Table name
-	 * @param array $param parameter array
-	 * @param boolean $in_process Internal use: Only do a commit after the last delete
-	 * @param array $callstack Internal use: prevent endless loops
+	 * @param string  $table       Table name
+	 * @param array   $conditions  Field condition(s)
+	 * @param boolean $in_process  Internal use: Only do a commit after the last delete
+	 * @param array   $callstack   Internal use: prevent endless loops
 	 *
-	 * @return boolean|array was the delete successfull? When $in_process is set: deletion data
+	 * @return boolean|array was the delete successful? When $in_process is set: deletion data
 	 */
-	public static function delete($table, $param, $in_process = false, &$callstack = array()) {
-
-		if (empty($table) || empty($param)) {
-			logger('Table and condition have to be set');
+	public static function delete($table, array $conditions, $in_process = false, array &$callstack = [])
+	{
+		if (empty($table) || empty($conditions)) {
+			logger('Table and conditions have to be set');
 			return false;
 		}
 
-		$commands = array();
+		$commands = [];
 
 		// Create a key for the loop prevention
-		$key = $table.':'.implode(':', array_keys($param)).':'.implode(':', $param);
+		$key = $table . ':' . implode(':', array_keys($conditions)) . ':' . implode(':', $conditions);
 
 		// We quit when this key already exists in the callstack.
 		if (isset($callstack[$key])) {
@@ -880,7 +880,7 @@ class dba {
 
 		$table = self::escape($table);
 
-		$commands[$key] = array('table' => $table, 'param' => $param);
+		$commands[$key] = ['table' => $table, 'conditions' => $conditions];
 
 		// To speed up the whole process we cache the table relations
 		if (count(self::$relation) == 0) {
@@ -894,24 +894,24 @@ class dba {
 			$rel_def = array_values(self::$relation[$table])[0];
 
 			// Create a key for preventing double queries
-			$qkey = $field.'-'.$table.':'.implode(':', array_keys($param)).':'.implode(':', $param);
+			$qkey = $field . '-' . $table . ':' . implode(':', array_keys($conditions)) . ':' . implode(':', $conditions);
 
 			// When the search field is the relation field, we don't need to fetch the rows
 			// This is useful when the leading record is already deleted in the frontend but the rest is done in the backend
-			if ((count($param) == 1) && ($field == array_keys($param)[0])) {
+			if ((count($conditions) == 1) && ($field == array_keys($conditions)[0])) {
 				foreach ($rel_def AS $rel_table => $rel_fields) {
 					foreach ($rel_fields AS $rel_field) {
-						$retval = self::delete($rel_table, array($rel_field => array_values($param)[0]), true, $callstack);
+						$retval = self::delete($rel_table, array($rel_field => array_values($conditions)[0]), true, $callstack);
 						$commands = array_merge($commands, $retval);
 					}
 				}
-			// We quit when this key already exists in the callstack.
+				// We quit when this key already exists in the callstack.
 			} elseif (!isset($callstack[$qkey])) {
 
 				$callstack[$qkey] = true;
 
 				// Fetch all rows that are to be deleted
-				$data = self::select($table, array($field), $param);
+				$data = self::select($table, array($field), $conditions);
 
 				while ($row = self::fetch($data)) {
 					// Now we accumulate the delete commands
@@ -934,24 +934,24 @@ class dba {
 				self::transaction();
 			}
 
-			$compacted = array();
-			$counter = array();
+			$compacted = [];
+			$counter = [];
 
 			foreach ($commands AS $command) {
-				$condition = $command['param'];
-				$array_element = each($condition);
+				$conditions = $command['conditions'];
+				$array_element = each($conditions);
 				$array_key = $array_element['key'];
 				if (is_int($array_key)) {
-					$condition_string = " WHERE ".array_shift($condition);
+					$condition_string = " WHERE " . array_shift($conditions);
 				} else {
-					$condition_string = " WHERE `".implode("` = ? AND `", array_keys($condition))."` = ?";
+					$condition_string = " WHERE `" . implode("` = ? AND `", array_keys($conditions)) . "` = ?";
 				}
 
-				if ((count($command['param']) > 1) || is_int($array_key)) {
-					$sql = "DELETE FROM `".$command['table']."`".$condition_string;
-					logger(self::replace_parameters($sql, $condition), LOGGER_DATA);
+				if ((count($command['conditions']) > 1) || is_int($array_key)) {
+					$sql = "DELETE FROM `" . $command['table'] . "`" . $condition_string;
+					logger(self::replace_parameters($sql, $conditions), LOGGER_DATA);
 
-					if (!self::e($sql, $condition)) {
+					if (!self::e($sql, $conditions)) {
 						if ($do_transaction) {
 							self::rollback();
 						}
@@ -959,25 +959,25 @@ class dba {
 					}
 				} else {
 					$key_table = $command['table'];
-					$key_param = array_keys($command['param'])[0];
-					$value = array_values($command['param'])[0];
+					$key_condition = array_keys($command['conditions'])[0];
+					$value = array_values($command['conditions'])[0];
 
 					// Split the SQL queries in chunks of 100 values
 					// We do the $i stuff here to make the code better readable
-					$i = $counter[$key_table][$key_param];
-					if (count($compacted[$key_table][$key_param][$i]) > 100) {
+					$i = $counter[$key_table][$key_condition];
+					if (count($compacted[$key_table][$key_condition][$i]) > 100) {
 						++$i;
 					}
 
-					$compacted[$key_table][$key_param][$i][$value] = $value;
-					$counter[$key_table][$key_param] = $i;
+					$compacted[$key_table][$key_condition][$i][$value] = $value;
+					$counter[$key_table][$key_condition] = $i;
 				}
 			}
 			foreach ($compacted AS $table => $values) {
 				foreach ($values AS $field => $field_value_list) {
 					foreach ($field_value_list AS $field_values) {
-						$sql = "DELETE FROM `".$table."` WHERE `".$field."` IN (".
-							substr(str_repeat("?, ", count($field_values)), 0, -2).");";
+						$sql = "DELETE FROM `" . $table . "` WHERE `" . $field . "` IN (" .
+							substr(str_repeat("?, ", count($field_values)), 0, -2) . ");";
 
 						logger(self::replace_parameters($sql, $field_values), LOGGER_DATA);
 
