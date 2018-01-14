@@ -55,8 +55,8 @@ if (!isset($minimal)) {
 	echo '
 		<meta name="theme-color" content="' . $nav_bg . '" />';
 
-    $is_singleuser = Config::get('system','singleuser');
-    $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
+	$is_singleuser = Config::get('system','singleuser');
+	$is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 ?>
 	</head>
 	<body id="top" class="mod-<?php echo $a->module." ".$is_singleuser_class;?>">

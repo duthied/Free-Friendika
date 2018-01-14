@@ -42,7 +42,7 @@ if ($a->module !== 'install') {
 		$contentbg_transp = Config::get("frio", "contentbg_transp");
 		$background_image = Config::get("frio", "background_image");
 		$bg_image_option  = Config::get("frio", "bg_image_option");
-        $login_bg_image   = Config::get("frio", "login_bg_image");
+		$login_bg_image   = Config::get("frio", "login_bg_image");
 		$modified         = Config::get("frio", "css_modified");
 
 		// There is maybe the case that the user did never modify the theme settings.
@@ -177,7 +177,7 @@ $options = array (
 	'$contentbg_transp'            => $contentbg_transp,
 	'$background_image'            => $background_image,
 	'$background_size_img'         => $background_size_img,
-    '$login_bg_image'              => $login_bg_image,
+	'$login_bg_image'              => $login_bg_image,
 );
 
 $css_tpl = file_get_contents('view/theme/frio/css/style.css');

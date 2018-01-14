@@ -76,7 +76,7 @@ function theme_admin(App $a) {
 	$arr["contentbg_transp"] = Config::get('frio', 'contentbg_transp');
 	$arr["background_image"] = Config::get('frio', 'background_image');
 	$arr["bg_image_option"]  = Config::get('frio', 'bg_image_option');
-    $arr["login_bg_image"]   = Config::get('frio', 'login_bg_image');
+	$arr["login_bg_image"]   = Config::get('frio', 'login_bg_image');
 
 	return frio_form($arr);
 }
@@ -106,7 +106,7 @@ function frio_form($arr) {
 	$background_image_help = "<strong>" . t("Note"). ": </strong>".t("Check image permissions if all users are allowed to visit the image");
 
 	$t = get_markup_template('theme_settings.tpl');
-    $ctx = array(
+	$ctx = array(
 		'$submit'           => t('Submit'),
 		'$baseurl'          => System::baseUrl(),
 		'$title'            => t("Theme settings"),
@@ -120,9 +120,9 @@ function frio_form($arr) {
 		'$bg_image_options' => Image::get_options($arr),
 	);
 
-    if ( array_key_exists("login_bg_image", $arr ) &&  !array_key_exists("login_bg_image", $disable ) ) { 
-	    $ctx['$login_bg_image']  = array('frio_login_bg_image', t('Login page background image'), $arr['login_bg_image'], $background_image_help);
-    }
+	if ( array_key_exists("login_bg_image", $arr ) &&  !array_key_exists("login_bg_image", $disable ) ) { 
+		$ctx['$login_bg_image']  = array('frio_login_bg_image', t('Login page background image'), $arr['login_bg_image'], $background_image_help);
+	}
 
 	$o .= replace_macros($t, $ctx);
 
