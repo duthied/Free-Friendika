@@ -95,7 +95,7 @@ function html2bbcode($message, $basepath = '')
 			if ($matches[1] != '') {
 				$prefix = '[code=' . $matches[1] . ']';
 			}
-			$codeblocks[] = $prefix . $matches[2] . '[/code]';
+			$codeblocks[] = $prefix . trim($matches[2]) . '[/code]';
 			return $return;
 		},
 		$message
@@ -247,6 +247,7 @@ function html2bbcode($message, $basepath = '')
 	node2bbcode($doc, 'iframe', array('src'=>'/(.+)/'), '[iframe]$1', '[/iframe]');
 
 	node2bbcode($doc, 'key', array(), '[code]', '[/code]');
+	node2bbcode($doc, 'code', array(), '[code]', '[/code]');
 
 	$message = $doc->saveHTML();
 
