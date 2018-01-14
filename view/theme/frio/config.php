@@ -39,6 +39,7 @@ function theme_admin_post(App $a) {
 		Config::set('frio', 'contentbg_transp', $_POST["frio_contentbg_transp"]);
 		Config::set('frio', 'background_image', $_POST["frio_background_image"]);
 		Config::set('frio', 'bg_image_option',  $_POST["frio_bg_image_option"]);
+		Config::set('frio', 'login_bg_image',   $_POST["frio_login_bg_image"]);
 		Config::set('frio', 'css_modified',     time());
 	}
 }
@@ -75,6 +76,7 @@ function theme_admin(App $a) {
 	$arr["contentbg_transp"] = Config::get('frio', 'contentbg_transp');
 	$arr["background_image"] = Config::get('frio', 'background_image');
 	$arr["bg_image_option"]  = Config::get('frio', 'bg_image_option');
+    $arr["login_bg_image"]   = Config::get('frio', 'login_bg_image');
 
 	return frio_form($arr);
 }
@@ -104,7 +106,7 @@ function frio_form($arr) {
 	$background_image_help = "<strong>" . t("Note"). ": </strong>".t("Check image permissions if all users are allowed to visit the image");
 
 	$t = get_markup_template('theme_settings.tpl');
-	$o .= replace_macros($t, array(
+    $ctx = array(
 		'$submit'           => t('Submit'),
 		'$baseurl'          => System::baseUrl(),
 		'$title'            => t("Theme settings"),
@@ -116,7 +118,13 @@ function frio_form($arr) {
 		'$contentbg_transp' => array_key_exists("contentbg_transp", $disable) ? "" : array('frio_contentbg_transp', t("Content background transparency"), ((isset($arr["contentbg_transp"]) && $arr["contentbg_transp"] != "") ? $arr["contentbg_transp"] : 100)),
 		'$background_image' => array_key_exists("background_image", $disable ) ? "" : array('frio_background_image', t('Set the background image'), $arr['background_image'], $background_image_help),
 		'$bg_image_options' => Image::get_options($arr),
-	));
+	);
+
+    if ( array_key_exists("login_bg_image", $arr ) &&  !array_key_exists("login_bg_image", $disable ) ) { 
+	    $ctx['$login_bg_image']  = array('frio_login_bg_image', t('Login page background image'), $arr['login_bg_image'], $background_image_help);
+    }
+
+	$o .= replace_macros($t, $ctx);
 
 	return $o;
 }
