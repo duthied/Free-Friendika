@@ -323,7 +323,6 @@ class DBStructure {
 						$current_field_definition = implode(",", $field_definition);
 						$new_field_definition = implode(",", $parameters);
 						if ($current_field_definition != $new_field_definition) {
-						echo $current_field_definition ."\t". $new_field_definition ."\n";
 							$sql2 = self::modifyTableField($fieldname, $parameters);
 							if ($sql3 == "") {
 								$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
@@ -1645,7 +1644,7 @@ class DBStructure {
 						)
 				);
 		$database["thread"] = array(
-				"comment" => "Thread related data)",
+				"comment" => "Thread related data",
 				"fields" => array(
 						"iid" => array("type" => "int", "not null" => "1", "default" => "0", "primary" => "1", "relation" => array("item" => "id"), "comment" => ""),
 						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
