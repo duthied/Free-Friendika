@@ -10,6 +10,7 @@ class ComposerStaticInitFriendica
         '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
         '8170285c807a9f24f165f37b15bc9a36' => __DIR__ . '/..' . '/defuse/php-encryption/Crypto.php',
         '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
+        'f084d01b0a599f67676cffef638aa95b' => __DIR__ . '/..' . '/smarty/smarty/libs/bootstrap.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -65,6 +66,7 @@ class ComposerStaticInitFriendica
         'Friendica\\App' => __DIR__ . '/../..' . '/src/App.php',
         'Friendica\\BaseModule' => __DIR__ . '/../..' . '/src/BaseModule.php',
         'Friendica\\BaseObject' => __DIR__ . '/../..' . '/src/BaseObject.php',
+        'Friendica\\Content\\ContactSelector' => __DIR__ . '/../..' . '/src/Content/ContactSelector.php',
         'Friendica\\Content\\Feature' => __DIR__ . '/../..' . '/src/Content/Feature.php',
         'Friendica\\Content\\ForumManager' => __DIR__ . '/../..' . '/src/Content/ForumManager.php',
         'Friendica\\Content\\OEmbed' => __DIR__ . '/../..' . '/src/Content/OEmbed.php',
@@ -80,10 +82,14 @@ class ComposerStaticInitFriendica
         'Friendica\\Model\\Contact' => __DIR__ . '/../..' . '/src/Model/Contact.php',
         'Friendica\\Model\\GContact' => __DIR__ . '/../..' . '/src/Model/GContact.php',
         'Friendica\\Model\\Group' => __DIR__ . '/../..' . '/src/Model/Group.php',
+        'Friendica\\Model\\Item' => __DIR__ . '/../..' . '/src/Model/Item.php',
         'Friendica\\Model\\Photo' => __DIR__ . '/../..' . '/src/Model/Photo.php',
         'Friendica\\Model\\Profile' => __DIR__ . '/../..' . '/src/Model/Profile.php',
+        'Friendica\\Model\\Term' => __DIR__ . '/../..' . '/src/Model/Term.php',
         'Friendica\\Model\\User' => __DIR__ . '/../..' . '/src/Model/User.php',
         'Friendica\\Module\\Feed' => __DIR__ . '/../..' . '/src/Module/Feed.php',
+        'Friendica\\Module\\Login' => __DIR__ . '/../..' . '/src/Module/Login.php',
+        'Friendica\\Module\\Logout' => __DIR__ . '/../..' . '/src/Module/Logout.php',
         'Friendica\\Module\\Oembed' => __DIR__ . '/../..' . '/src/Module/Oembed.php',
         'Friendica\\Network\\FKOAuth1' => __DIR__ . '/../..' . '/src/Network/FKOAuth1.php',
         'Friendica\\Network\\FKOAuthDataStore' => __DIR__ . '/../..' . '/src/Network/FKOAuthDataStore.php',
