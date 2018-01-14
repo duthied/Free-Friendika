@@ -24,7 +24,7 @@ class UserImport
 
 	private static function lastInsertId()
 	{
-		if (IMPORT_DEBUG) {
+		if (self::IMPORT_DEBUG) {
 			return 1;
 		}
 	
@@ -73,7 +73,7 @@ class UserImport
 		$query = "INSERT INTO `$table` (`$cols`) VALUES ('$vals')";
 		logger("uimport: $query", LOGGER_TRACE);
 
-		if (IMPORT_DEBUG) {
+		if (self::IMPORT_DEBUG) {
 			return true;
 		}
 
@@ -155,11 +155,11 @@ class UserImport
 		unset($account['user']['account_expires_on']);
 		unset($account['user']['expire_notification_sent']);
 
-		$callback = function ($key, $value) use ($oldbaseurl, $oldaddr, $newbaseurl, $newaddr) {
-			return str_replace(array($oldbaseurl, $oldaddr), array($newbaseurl, $newaddr), $value);
+		$callback = function (&$value) use ($oldbaseurl, $oldaddr, $newbaseurl, $newaddr) {
+			$value =  str_replace(array($oldbaseurl, $oldaddr), array($newbaseurl, $newaddr), $value);
 		};
 
-		$v = array_map($account['user'], $callback);
+		array_walk($account['user'], $callback);
 
 		// import user
 		$r = self::dbImportAssoc('user', $account['user']);
