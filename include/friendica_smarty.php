@@ -2,7 +2,6 @@
 
 use Friendica\Render\ITemplateEngine;
 
-require_once("library/Smarty/libs/Smarty.class.php");
 require_once "include/plugin.php";
 
 define('SMARTY3_TEMPLATE_FOLDER','templates');
