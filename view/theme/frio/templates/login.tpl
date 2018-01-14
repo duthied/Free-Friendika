@@ -20,7 +20,7 @@
 
 		<div id="login-extra-links" class="list-unstyled">
 			{{if $register}}<a href="register" title="{{$register.title|escape:'html'}}" id="register-link">{{$register.desc}}</a>{{/if}}
-			<a href="lostpass" title="{{$lostpass|escape:'html'}}" id="lost-password-link" class="pull-right">{{$lostlink}}</a>
+			<a href="lostpass" title="{{$lostpass|escape:'html'}}" id="lost-password-link">{{$lostlink}}</a>
 		</div>
 
 		<div id="login-submit-wrapper" class="pull-right" >

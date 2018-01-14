@@ -54,9 +54,12 @@ if (!isset($minimal)) {
 	}
 	echo '
 		<meta name="theme-color" content="' . $nav_bg . '" />';
+
+	$is_singleuser = Config::get('system','singleuser');
+	$is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 ?>
 	</head>
-	<body id="top">
+	<body id="top" class="mod-<?php echo $a->module." ".$is_singleuser_class;?>">
 		<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
 <?php
 	if (x($page, 'nav') && !$minimal) {

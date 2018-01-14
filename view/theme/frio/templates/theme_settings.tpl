@@ -30,6 +30,8 @@
 {{/foreach}}
 </div>
 
+{{if $login_bg_image}}{{include file="field_fileinput.tpl" field=$login_bg_image}}{{/if}}
+
 <script type="text/javascript">
 	$(document).ready(function() {
 		$("#frio_nav_bg, #frio_nav_icon_color, #frio_background_color, #frio_link_color").colorpicker({format: 'hex', align: 'left'});
