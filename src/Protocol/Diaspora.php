@@ -4301,6 +4301,10 @@ class Diaspora
 		}
 
 		$message = self::constructLike($r[0], $contact);
+		if ($message === false) {
+			return false;
+		}
+
 		$message["author_signature"] = self::signature($contact, $message);
 
 		/*
@@ -4333,6 +4337,10 @@ class Diaspora
 		$contact["uprvkey"] = $uprvkey;
 
 		$message = self::constructComment($item, $contact);
+		if ($message === false) {
+			return false;
+		}
+
 		$message["author_signature"] = self::signature($contact, $message);
 
 		/*
