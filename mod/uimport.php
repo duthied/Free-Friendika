@@ -1,13 +1,12 @@
 <?php
-
 /**
- * View for user import
+ * @file mod/uimport.php
+ * @brief View for user import
  */
 
 use Friendica\App;
 use Friendica\Core\Config;
-
-require_once("include/uimport.php");
+use Friendica\Core\UserImport;
 
 function uimport_post(App $a) {
 	switch ($a->config['register_policy']) {
@@ -34,7 +33,7 @@ function uimport_post(App $a) {
 
 	if (x($_FILES, 'accountfile')) {
 		/// @TODO Pass $blocked / $verified, send email to admin on REGISTER_APPROVE
-		import_account($a, $_FILES['accountfile']);
+		UserImport::importAccount($a, $_FILES['accountfile']);
 		return;
 	}
 }
