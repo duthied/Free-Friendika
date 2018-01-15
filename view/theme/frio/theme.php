@@ -1,5 +1,4 @@
 <?php
-
 /*
  * Name: frio
  * Description: Bootstrap V3 theme. The theme is currently under construction, so it is far from finished. For further information have a look at the <a href="https://github.com/friendica/friendica/tree/develop/view/theme/frio/README.md">ReadMe</a>.
@@ -7,8 +6,8 @@
  * Author: Rabuzarus <https://friendica.kommune4.de/profile/rabuzarus>
  *
  */
-
 use Friendica\App;
+use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
@@ -315,7 +314,7 @@ function frio_acl_lookup(App $a, &$results)
 			$total = $r[0]["total"];
 		}
 
-		$sql_extra3 = unavailable_networks();
+		$sql_extra3 = Widget::unavailableNetworks();
 
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `self` AND NOT `pending` $sql_extra $sql_extra3 ORDER BY `name` ASC LIMIT 100 ",
 			intval($_SESSION['uid'])

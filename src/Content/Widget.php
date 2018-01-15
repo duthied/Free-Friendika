@@ -17,7 +17,12 @@ require_once 'boot.php';
 
 class Widget
 {
-	function follow_widget($value = "")
+	/**
+	 * Return the follow widget
+	 *
+	 * @param string $value optional, default empty
+	 */
+	public static function follow($value = "")
 	{
 		return replace_macros(get_markup_template('follow.tpl'), array(
 			'$connect' => t('Add New Contact'),
@@ -28,7 +33,10 @@ class Widget
 		));
 	}
 
-	function findpeople_widget()
+	/**
+	 * Return Find People widget
+	 */
+	public static function findPeople()
 	{
 		$a = get_app();
 		$global_dir = Config::get('system', 'directory');
@@ -57,7 +65,10 @@ class Widget
 		));
 	}
 
-	function unavailable_networks()
+	/**
+	 * Return unavailable networks
+	 */
+	public static function unavailableNetworks()
 	{
 		$networks = array();
 
@@ -104,7 +115,13 @@ class Widget
 		return $network_filter;
 	}
 
-	function networks_widget($baseurl, $selected = '')
+	/**
+	 * Return networks widget
+	 *
+	 * @param string $baseurl  baseurl
+	 * @param string $selected optional, default empty
+	 */
+	public static function networks($baseurl, $selected = '')
 	{
 		if (!local_user()) {
 			return '';
@@ -114,7 +131,7 @@ class Widget
 			return '';
 		}
 
-		$extra_sql = unavailable_networks();
+		$extra_sql = self::unavailableNetworks();
 
 		$r = dba::p("SELECT DISTINCT(`network`) FROM `contact` WHERE `uid` = ? AND `network` != '' $extra_sql ORDER BY `network`",
 			local_user()
@@ -143,7 +160,13 @@ class Widget
 		));
 	}
 
-	function fileas_widget($baseurl, $selected = '')
+	/**
+	 * Return file as widget
+	 *
+	 * @param string $baseurl  baseurl
+	 * @param string $selected optional, default empty
+	 */
+	public static function fileAs($baseurl, $selected = '')
 	{
 		if (!local_user()) {
 			return '';
@@ -178,7 +201,13 @@ class Widget
 		));
 	}
 
-	function categories_widget($baseurl, $selected = '')
+	/**
+	 * Return categories widget
+	 *
+	 * @param string $baseurl  baseurl
+	 * @param string $selected optional, default empty
+	 */
+	public static function categories($baseurl, $selected = '')
 	{
 		$a = get_app();
 
@@ -212,7 +241,12 @@ class Widget
 		));
 	}
 
-	function common_friends_visitor_widget($profile_uid)
+	/**
+	 * Return common friends visitor widget
+	 *
+	 * @param string $profile_uid uid
+	 */
+	public static function commonFriendsVisitor($profile_uid)
 	{
 		if (local_user() == $profile_uid) {
 			return;

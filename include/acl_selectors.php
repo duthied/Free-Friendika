@@ -4,12 +4,12 @@
  */
 use Friendica\App;
 use Friendica\Content\Feature;
+use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 
-require_once "include/contact_widgets.php";
 require_once "mod/proxy.php";
 
 /**
@@ -425,7 +425,7 @@ function acl_lookup(App $a, $out_type = 'json')
 		$group_count = 0;
 	}
 
-	$sql_extra2 .= " ".unavailable_networks();
+	$sql_extra2 .= " ".Widget::unavailableNetworks();
 
 	if ($type == '' || $type == 'c') {
 		// autocomplete for editor mentions

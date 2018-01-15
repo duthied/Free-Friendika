@@ -5,6 +5,7 @@
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\ForumManager;
+use Friendica\Content\Widget;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
@@ -15,7 +16,6 @@ use Friendica\Model\Profile;
 use Friendica\Module\Login;
 
 require_once 'include/conversation.php';
-require_once 'include/contact_widgets.php';
 require_once 'include/items.php';
 require_once 'include/acl_selectors.php';
 
@@ -159,12 +159,12 @@ function network_init(App $a) {
 		$a->page['aside'] = '';
 	}
 
-	$a->page['aside'] .= (Feature::isEnabled(local_user(),'groups') ? Group::sidebarWidget('network/0','network','standard',$group_id) : '');
+	$a->page['aside'] .= (Feature::isEnabled(local_user(), 'groups') ? Group::sidebarWidget('network/0', 'network', 'standard', $group_id) : '');
 	$a->page['aside'] .= (Feature::isEnabled(local_user(), 'forumlist_widget') ? ForumManager::widget(local_user(), $cid) : '');
-	$a->page['aside'] .= posted_date_widget('network',local_user(),false);
-	$a->page['aside'] .= networks_widget('network',(x($_GET, 'nets') ? $_GET['nets'] : ''));
+	$a->page['aside'] .= posted_date_widget('network', local_user(),false);
+	$a->page['aside'] .= Widget::networks('network', (x($_GET, 'nets') ? $_GET['nets'] : ''));
 	$a->page['aside'] .= saved_searches($search);
-	$a->page['aside'] .= fileas_widget('network',(x($_GET, 'file') ? $_GET['file'] : ''));
+	$a->page['aside'] .= Widget::fileAs('network', (x($_GET, 'file') ? $_GET['file'] : ''));
 }
 
 function saved_searches($search) {

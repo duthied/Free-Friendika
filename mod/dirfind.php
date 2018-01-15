@@ -4,6 +4,7 @@
  */
 use Friendica\App;
 use Friendica\Content\ContactSelector;
+use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -13,7 +14,6 @@ use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 
-require_once 'include/contact_widgets.php';
 require_once 'mod/contacts.php';
 
 function dirfind_init(App $a) {
@@ -27,9 +27,9 @@ function dirfind_init(App $a) {
 		$a->page['aside'] = '';
 	}
 
-	$a->page['aside'] .= findpeople_widget();
+	$a->page['aside'] .= Widget::findPeople();
 
-	$a->page['aside'] .= follow_widget();
+	$a->page['aside'] .= Widget::follow();
 }
 
 function dirfind_content(App $a, $prefix = "") {

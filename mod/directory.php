@@ -3,6 +3,7 @@
  * @file mod/directory.php
  */
 use Friendica\App;
+use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
@@ -12,13 +13,10 @@ function directory_init(App $a) {
 	$a->set_pager_itemspage(60);
 
 	if(local_user()) {
-		require_once('include/contact_widgets.php');
+		$a->page['aside'] .= Widget::findPeople();
 
-		$a->page['aside'] .= findpeople_widget();
-
-		$a->page['aside'] .= follow_widget();
-	}
-	else {
+		$a->page['aside'] .= Widget::follow();
+	} else {
 		unset($_SESSION['theme']);
 		unset($_SESSION['mobile-theme']);
 	}

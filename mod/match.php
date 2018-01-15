@@ -3,6 +3,7 @@
  * @file mod/match.php
  */
 use Friendica\App;
+use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -10,7 +11,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 
 require_once 'include/text.php';
-require_once 'include/contact_widgets.php';
 require_once 'mod/proxy.php';
 
 /**
@@ -30,8 +30,8 @@ function match_content(App $a)
 		return;
 	}
 
-	$a->page['aside'] .= findpeople_widget();
-	$a->page['aside'] .= follow_widget();
+	$a->page['aside'] .= Widget::findPeople();
+	$a->page['aside'] .= Widget::follow();
 
 	$_SESSION['return_url'] = System::baseUrl() . '/' . $a->cmd;
 

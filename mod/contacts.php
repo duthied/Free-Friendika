@@ -4,6 +4,7 @@
  */
 use Friendica\App;
 use Friendica\Content\ContactSelector;
+use Friendica\Content\Widget;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -13,7 +14,6 @@ use Friendica\Model\Group;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 
-require_once 'include/contact_widgets.php';
 require_once 'mod/proxy.php';
 
 function contacts_init(App $a)
@@ -63,14 +63,14 @@ function contacts_init(App $a)
 		$networks_widget = '';
 	} else {
 		$vcard_widget = '';
-		$networks_widget = networks_widget('contacts', $nets);
+		$networks_widget = Widget::networks('contacts', $nets);
 		if (isset($_GET['add'])) {
-			$follow_widget = follow_widget($_GET['add']);
+			$follow_widget = Widget::follow($_GET['add']);
 		} else {
-			$follow_widget = follow_widget();
+			$follow_widget = Widget::follow();
 		}
 
-		$findpeople_widget = findpeople_widget();
+		$findpeople_widget = Widget::findPeople();
 	}
 
 	$groups_widget = Group::sidebarWidget('contacts', 'group', 'full', 0, $contact_id);
@@ -781,7 +781,7 @@ function contacts_content(App $a)
 		$total = $r[0]['total'];
 	}
 
-	$sql_extra3 = unavailable_networks();
+	$sql_extra3 = Widget::unavailableNetworks();
 
 	$contacts = array();
 
