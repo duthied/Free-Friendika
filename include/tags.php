@@ -51,7 +51,7 @@ function create_tags_from_item($itemid)
 	// ignore anything in a code block
 	$data = preg_replace('/\[code\](.*?)\[\/code\]/sm', '', $data);
 
-	$tags = array();
+	$tags = [];
 
 	$pattern = '/\W\#([^\[].*?)[\s\'".,:;\?!\[\]\/]/ism';
 	if (preg_match_all($pattern, $data, $matches)) {
@@ -204,7 +204,7 @@ function tagadelic($uid, $count = 0, $owner_id = 0, $flags = '', $type = TERM_HA
 		TERM_OBJ_POST
 	);
 	if (!DBM::is_result($r)) {
-		return array();
+		return [];
 	}
 
 	return tag_calc($r);
@@ -238,10 +238,10 @@ function wtagblock($uid, $count = 0, $owner_id = 0, $flags = '', $type = TERM_HA
 		}
 
 		$tpl = get_markup_template('tagblock_widget.tpl');
-		$o = replace_macros($tpl, array(
+		$o = replace_macros($tpl, [
 			'$title' => t('Tags'),
 			'$tags' => $tags
-		));
+		]);
 	}
 	return $o;
 }
@@ -254,13 +254,13 @@ function wtagblock($uid, $count = 0, $owner_id = 0, $flags = '', $type = TERM_HA
  */
 function tag_calc($arr)
 {
-	$tags = array();
+	$tags = [];
 	$min = 1e9;
 	$max = -1e9;
 	$x = 0;
 
 	if (!$arr) {
-		return array();
+		return [];
 	}
 
 	foreach ($arr as $rr) {

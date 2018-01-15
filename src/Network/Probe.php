@@ -44,12 +44,12 @@ class Probe
 	 */
 	private static function rearrangeData($data)
 	{
-		$fields = array("name", "nick", "guid", "url", "addr", "alias",
+		$fields = ["name", "nick", "guid", "url", "addr", "alias",
 				"photo", "community", "keywords", "location", "about",
 				"batch", "notify", "poll", "request", "confirm", "poco",
-				"priority", "network", "pubkey", "baseurl");
+				"priority", "network", "pubkey", "baseurl"];
 
-		$newdata = array();
+		$newdata = [];
 		foreach ($fields as $field) {
 			if (isset($data[$field])) {
 				$newdata[$field] = $data[$field];
@@ -107,7 +107,7 @@ class Probe
 
 		logger("Probing for ".$host, LOGGER_DEBUG);
 
-		$ret = z_fetch_url($ssl_url, false, $redirects, array('timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml'));
+		$ret = z_fetch_url($ssl_url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 		if ($ret['success']) {
 			$xml = $ret['body'];
 			$xrd = parse_xml_string($xml, false);
@@ -115,7 +115,7 @@ class Probe
 		}
 
 		if (!is_object($xrd)) {
-			$ret = z_fetch_url($url, false, $redirects, array('timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml'));
+			$ret = z_fetch_url($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 			if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 				logger("Probing timeout for ".$url, LOGGER_DEBUG);
 				return false;
@@ -126,16 +126,16 @@ class Probe
 		}
 		if (!is_object($xrd)) {
 			logger("No xrd object found for ".$host, LOGGER_DEBUG);
-			return array();
+			return [];
 		}
 
 		$links = XML::elementToArray($xrd);
 		if (!isset($links["xrd"]["link"])) {
 			logger("No xrd data found for ".$host, LOGGER_DEBUG);
-			return array();
+			return [];
 		}
 
-		$lrdd = array();
+		$lrdd = [];
 		// The following webfinger path is defined in RFC 7033 https://tools.ietf.org/html/rfc7033
 		// Problem is that Hubzilla currently doesn't provide all data in the JSON webfinger
 		// compared to the XML webfinger. So this is commented out by now.
@@ -223,13 +223,13 @@ class Probe
 		$webfinger = null;
 
 		if (is_bool($lrdd)) {
-			return array();
+			return [];
 		}
 
 		if (!$lrdd) {
 			$parts = @parse_url($uri);
 			if (!$parts) {
-				return array();
+				return [];
 			}
 
 			$host = $parts["host"];
@@ -249,7 +249,7 @@ class Probe
 
 		if (!$lrdd) {
 			logger("No lrdd data found for ".$uri, LOGGER_DEBUG);
-			return array();
+			return [];
 		}
 
 		foreach ($lrdd as $type => $template) {
@@ -284,17 +284,17 @@ class Probe
 			return false;
 		}
 
-		$data = array();
+		$data = [];
 
 		foreach ($webfinger["links"] as $link) {
-			$data[] = array("@attributes" => $link);
+			$data[] = ["@attributes" => $link];
 		}
 
 		if (is_array($webfinger["aliases"])) {
 			foreach ($webfinger["aliases"] as $alias) {
-				$data[] = array("@attributes" =>
-							array("rel" => "alias",
-								"href" => $alias));
+				$data[] = ["@attributes" =>
+							["rel" => "alias",
+								"href" => $alias]];
 			}
 		}
 
@@ -365,7 +365,7 @@ class Probe
 		$data = self::rearrangeData($data);
 
 		// Only store into the cache if the value seems to be valid
-		if (!in_array($data['network'], array(NETWORK_PHANTOM, NETWORK_MAIL))) {
+		if (!in_array($data['network'], [NETWORK_PHANTOM, NETWORK_MAIL])) {
 			Cache::set("Probe::uri:".$network.":".$uri, $data, CACHE_DAY);
 
 			/// @todo temporary fix - we need a real contact update function that updates only changing fields
@@ -380,7 +380,7 @@ class Probe
 				&& $data["addr"]
 				&& $data["poll"]
 			) {
-				$fields = array('name' => $data['name'],
+				$fields = ['name' => $data['name'],
 						'nick' => $data['nick'],
 						'url' => $data['url'],
 						'addr' => $data['addr'],
@@ -390,9 +390,9 @@ class Probe
 						'about' => $data['about'],
 						'notify' => $data['notify'],
 						'network' => $data['network'],
-						'server_url' => $data['baseurl']);
+						'server_url' => $data['baseurl']];
 
-				$fieldnames = array();
+				$fieldnames = [];
 
 				foreach ($fields as $key => $val) {
 					if (empty($val)) {
@@ -404,13 +404,13 @@ class Probe
 
 				$fields['updated'] = DBM::date();
 
-				$condition = array('nurl' => normalise_link($data["url"]));
+				$condition = ['nurl' => normalise_link($data["url"])];
 
 				$old_fields = dba::selectFirst('gcontact', $fieldnames, $condition);
 
 				dba::update('gcontact', $fields, $condition, $old_fields);
 
-				$fields = array('name' => $data['name'],
+				$fields = ['name' => $data['name'],
 						'nick' => $data['nick'],
 						'url' => $data['url'],
 						'addr' => $data['addr'],
@@ -425,9 +425,9 @@ class Probe
 						'confirm' => $data['confirm'],
 						'poco' => $data['poco'],
 						'network' => $data['network'],
-						'success_update' => DBM::date());
+						'success_update' => DBM::date()];
 
-				$fieldnames = array();
+				$fieldnames = [];
 
 				foreach ($fields as $key => $val) {
 					if (empty($val)) {
@@ -437,7 +437,7 @@ class Probe
 					}
 				}
 
-				$condition = array('nurl' => normalise_link($data["url"]), 'self' => false, 'uid' => 0);
+				$condition = ['nurl' => normalise_link($data["url"]), 'self' => false, 'uid' => 0];
 
 				$old_fields = dba::selectFirst('contact', $fieldnames, $condition);
 
@@ -537,12 +537,12 @@ class Probe
 			}
 
 			if ($host == 'twitter.com') {
-				return array("network" => NETWORK_TWITTER);
+				return ["network" => NETWORK_TWITTER];
 			}
 			$lrdd = self::hostMeta($host);
 
 			if (is_bool($lrdd)) {
-				return array();
+				return [];
 			}
 
 			$path_parts = explode("/", trim($parts["path"], "/"));
@@ -578,12 +578,12 @@ class Probe
 			$nick = substr($uri, 0, strpos($uri, '@'));
 
 			if (strpos($uri, '@twitter.com')) {
-				return array("network" => NETWORK_TWITTER);
+				return ["network" => NETWORK_TWITTER];
 			}
 			$lrdd = self::hostMeta($host);
 
 			if (is_bool($lrdd)) {
-				return array();
+				return [];
 			}
 
 			if (!$lrdd) {
@@ -639,7 +639,7 @@ class Probe
 
 		logger("Probing ".$uri, LOGGER_DEBUG);
 
-		if (in_array($network, array("", NETWORK_DFRN))) {
+		if (in_array($network, ["", NETWORK_DFRN])) {
 			$result = self::dfrn($webfinger);
 		}
 		if ((!$result && ($network == "")) || ($network == NETWORK_DIASPORA)) {
@@ -692,7 +692,7 @@ class Probe
 		$xrd_timeout = Config::get('system', 'xrd_timeout', 20);
 		$redirects = 0;
 
-		$ret = z_fetch_url($url, false, $redirects, array('timeout' => $xrd_timeout, 'accept_content' => $type));
+		$ret = z_fetch_url($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => $type]);
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
 		}
@@ -720,7 +720,7 @@ class Probe
 			return false;
 		}
 
-		$webfinger = array();
+		$webfinger = [];
 
 		if (!empty($xrd_arr["xrd"]["subject"])) {
 			$webfinger["subject"] = $xrd_arr["xrd"]["subject"];
@@ -730,7 +730,7 @@ class Probe
 			$webfinger["aliases"] = $xrd_arr["xrd"]["alias"];
 		}
 
-		$webfinger["links"] = array();
+		$webfinger["links"] = [];
 
 		foreach ($xrd_arr["xrd"]["link"] as $value => $data) {
 			if (!empty($data["@attributes"])) {
@@ -875,12 +875,12 @@ class Probe
 	 */
 	public static function profile($profile_link)
 	{
-		$data = array();
+		$data = [];
 
 		logger("Check profile ".$profile_link, LOGGER_DEBUG);
 
 		// Fetch data via noscrape - this is faster
-		$noscrape_url = str_replace(array("/hcard/", "/profile/"), "/noscrape/", $profile_link);
+		$noscrape_url = str_replace(["/hcard/", "/profile/"], "/noscrape/", $profile_link);
 		$data = self::pollNoscrape($noscrape_url, $data);
 
 		if (!isset($data["notify"])
@@ -894,7 +894,7 @@ class Probe
 			$data = self::pollHcard($profile_link, $data, true);
 		}
 
-		$prof_data = array();
+		$prof_data = [];
 		$prof_data["addr"]         = $data["addr"];
 		$prof_data["nick"]         = $data["nick"];
 		$prof_data["dfrn-request"] = $data["request"];
@@ -921,7 +921,7 @@ class Probe
 	private static function dfrn($webfinger)
 	{
 		$hcard_url = "";
-		$data = array();
+		$data = [];
 		foreach ($webfinger["links"] as $link) {
 			if (($link["rel"] == NAMESPACE_DFRN) && ($link["href"] != "")) {
 				$data["network"] = NETWORK_DFRN;
@@ -1053,10 +1053,10 @@ class Probe
 			}
 		}
 
-		$avatar = array();
+		$avatar = [];
 		$photos = $xpath->query("//*[contains(concat(' ', @class, ' '), ' photo ') or contains(concat(' ', @class, ' '), ' avatar ')]", $vcard); // */
 		foreach ($photos as $photo) {
-			$attr = array();
+			$attr = [];
 			foreach ($photo->attributes as $attribute) {
 				$attr[$attribute->name] = trim($attribute->value);
 			}
@@ -1083,7 +1083,7 @@ class Probe
 			if ($search->length > 0) {
 				foreach ($search as $link) {
 					//$data["request"] = $search->item(0)->nodeValue;
-					$attr = array();
+					$attr = [];
 					foreach ($link->attributes as $attribute) {
 						$attr[$attribute->name] = trim($attribute->value);
 					}
@@ -1112,7 +1112,7 @@ class Probe
 	private static function diaspora($webfinger)
 	{
 		$hcard_url = "";
-		$data = array();
+		$data = [];
 		foreach ($webfinger["links"] as $link) {
 			if (($link["rel"] == "http://microformats.org/profile/hcard") && ($link["href"] != "")) {
 				$hcard_url = $link["href"];
@@ -1194,7 +1194,7 @@ class Probe
 	 */
 	private static function ostatus($webfinger, $short = false)
 	{
-		$data = array();
+		$data = [];
 
 		if (is_array($webfinger["aliases"])) {
 			foreach ($webfinger["aliases"] as $alias) {
@@ -1323,7 +1323,7 @@ class Probe
 
 		$xpath = new DomXPath($doc);
 
-		$data = array();
+		$data = [];
 
 		// This is ugly - but pump.io doesn't seem to know a better way for it
 		$data["name"] = trim($xpath->query("//h1[@class='media-header']")->item(0)->nodeValue);
@@ -1356,7 +1356,7 @@ class Probe
 	 */
 	private static function pumpio($webfinger)
 	{
-		$data = array();
+		$data = [];
 		foreach ($webfinger["links"] as $link) {
 			if (($link["rel"] == "http://webfinger.net/rel/profile-page")
 				&& ($link["type"] == "text/html")
@@ -1425,7 +1425,7 @@ class Probe
 		$feed_url = "";
 
 		foreach ($feeds as $feed) {
-			$attr = array();
+			$attr = [];
 			foreach ($feed->attributes as $attribute) {
 				$attr[$attribute->name] = trim($attribute->value);
 			}
@@ -1538,7 +1538,7 @@ class Probe
 
 		$phost = substr($uri, strpos($uri, '@') + 1);
 
-		$data = array();
+		$data = [];
 		$data["addr"]    = $uri;
 		$data["network"] = NETWORK_MAIL;
 		$data["name"]    = substr($uri, 0, strpos($uri, '@'));

@@ -86,7 +86,7 @@ function notifications_content(App $a) {
 	$o = '';
 	// Get the nav tabs for the notification pages
 	$tabs = $nm->getTabs();
-	$notif_content = array();
+	$notif_content = [];
 
 	// Notification results per page
 	$perpage = 20;
@@ -149,10 +149,10 @@ function notifications_content(App $a) {
 		$tpl = get_markup_template("intros.tpl");
 
 		// The link to switch between ignored and normal connection requests
-		$notif_show_lnk = array(
+		$notif_show_lnk = [
 			'href' => (!$all ? 'notifications/intros/all' : 'notifications/intros' ),
 			'text' => (!$all ? t('Show Ignored Requests') : t('Hide Ignored Requests'))
-		);
+		];
 
 		// Loop through all introduction notifications.This creates an array with the output html for each
 		// introduction
@@ -162,7 +162,7 @@ function notifications_content(App $a) {
 			// We have to distinguish between these two because they use different data.
 			switch ($it['label']) {
 				case 'friend_suggestion':
-					$notif_content[] = replace_macros($sugg, array(
+					$notif_content[] = replace_macros($sugg, [
 						'$str_notifytype' => t('Notification type: '),
 						'$notify_type' => $it['notify_type'],
 						'$intro_id' => $it['intro_id'],
@@ -171,8 +171,8 @@ function notifications_content(App $a) {
 						'$photo' => $it['photo'],
 						'$fullname' => $it['name'],
 						'$url' => $it['url'],
-						'$hidden' => array('hidden', t('Hide this contact from others'), ($it['hidden'] == 1), ''),
-						'$activity' => array('activity', t('Post a new friend activity'), $it['post_newfriend'], t('if applicable')),
+						'$hidden' => ['hidden', t('Hide this contact from others'), ($it['hidden'] == 1), ''],
+						'$activity' => ['activity', t('Post a new friend activity'), $it['post_newfriend'], t('if applicable')],
 
 						'$knowyou' => $it['knowyou'],
 						'$approve' => t('Approve'),
@@ -180,7 +180,7 @@ function notifications_content(App $a) {
 						'$request' => $it['request'],
 						'$ignore' => t('Ignore'),
 						'$discard' => t('Discard'),
-					));
+					]);
 					break;
 
 				// Normal connection requests
@@ -207,7 +207,7 @@ function notifications_content(App $a) {
 						}
 					}
 
-					$dfrn_text = replace_macros($dfrn_tpl,array(
+					$dfrn_text = replace_macros($dfrn_tpl,[
 						'$intro_id' => $it['intro_id'],
 						'$friend_selected' => $friend_selected,
 						'$fan_selected' => $fan_selected,
@@ -216,7 +216,7 @@ function notifications_content(App $a) {
 						'$approve_as3' => $helptext3,
 						'$as_friend' => t('Friend'),
 						'$as_fan' => (($it['network'] == NETWORK_DIASPORA) ? t('Sharer') : t('Subscriber'))
-					));
+					]);
 
 					$header = $it["name"];
 
@@ -231,7 +231,7 @@ function notifications_content(App $a) {
 						$discard = '';
 					}
 
-					$notif_content[] = replace_macros($tpl, array(
+					$notif_content[] = replace_macros($tpl, [
 						'$header' => htmlentities($header),
 						'$str_notifytype' => t('Notification type: '),
 						'$notify_type' => $it['notify_type'],
@@ -250,8 +250,8 @@ function notifications_content(App $a) {
 						'$lbl_keywords' => t('Tags:'),
 						'$gender' => $it['gender'],
 						'$lbl_gender' => t('Gender:'),
-						'$hidden' => array('hidden', t('Hide this contact from others'), ($it['hidden'] == 1), ''),
-						'$activity' => array('activity', t('Post a new friend activity'), $it['post_newfriend'], t('if applicable')),
+						'$hidden' => ['hidden', t('Hide this contact from others'), ($it['hidden'] == 1), ''],
+						'$activity' => ['activity', t('Post a new friend activity'), $it['post_newfriend'], t('if applicable')],
 						'$url' => $it['url'],
 						'$zrl' => $it['zrl'],
 						'$lbl_url' => t('Profile URL'),
@@ -265,7 +265,7 @@ function notifications_content(App $a) {
 						'$ignore' => t('Ignore'),
 						'$discard' => $discard,
 
-					));
+					]);
 					break;
 			}
 		}
@@ -295,7 +295,7 @@ function notifications_content(App $a) {
 			$tpl_var_name = 'tpl_item_'.$it['label'];
 			$tpl_notif = get_markup_template($$tpl_var_name);
 
-			$notif_content[] = replace_macros($tpl_notif,array(
+			$notif_content[] = replace_macros($tpl_notif,[
 				'$item_label' => $it['label'],
 				'$item_link' => $it['link'],
 				'$item_image' => $it['image'],
@@ -304,16 +304,16 @@ function notifications_content(App $a) {
 				'$item_when' => $it['when'],
 				'$item_ago' => $it['ago'],
 				'$item_seen' => $it['seen'],
-			));
+			]);
 		}
 
 		// It doesn't make sense to show the Show unread / Show all link visible if the user is on the
 		// "Show all" page and there are no notifications. So we will hide it.
 		if($show == 0 || intval($show) && $notifs['total'] > 0) {
-			$notif_show_lnk = array(
+			$notif_show_lnk = [
 				'href' => ($show ? 'notifications/'.$notifs['ident'] : 'notifications/'.$notifs['ident'].'?show=all' ),
 				'text' => ($show ? t('Show unread') : t('Show all')),
-			);
+			];
 		}
 
 		// Output if there aren't any notifications available
@@ -321,14 +321,14 @@ function notifications_content(App $a) {
 			$notif_nocontent = sprintf( t('No more %s notifications.'), $notifs['ident']);
 	}
 
-	$o .= replace_macros($notif_tpl, array(
+	$o .= replace_macros($notif_tpl, [
 		'$notif_header' => $notif_header,
 		'$tabs' => $tabs,
 		'$notif_content' => $notif_content,
 		'$notif_nocontent' => $notif_nocontent,
 		'$notif_show_lnk' => $notif_show_lnk,
 		'$notif_paginate' => paginate($a)
-	));
+	]);
 
 	return $o;
 }

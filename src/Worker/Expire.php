@@ -27,7 +27,7 @@ class Expire {
 			// physically remove anything that has been deleted for more than two months
 			$r = dba::p("SELECT `id` FROM `item` WHERE `deleted` AND `changed` < UTC_TIMESTAMP() - INTERVAL 60 DAY");
 			while ($row = dba::fetch($r)) {
-				dba::delete('item', array('id' => $row['id']));
+				dba::delete('item', ['id' => $row['id']]);
 			}
 			dba::close($r);
 
@@ -58,13 +58,13 @@ class Expire {
 
 		logger('expire: start');
 
-		Worker::add(array('priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true),
+		Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
 				'Expire', 'delete');
 
 		$r = dba::p("SELECT `uid`, `username` FROM `user` WHERE `expire` != 0");
 		while ($row = dba::fetch($r)) {
 			logger('Calling expiry for user '.$row['uid'].' ('.$row['username'].')', LOGGER_DEBUG);
-			Worker::add(array('priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true),
+			Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
 					'Expire', (int)$row['uid']);
 		}
 		dba::close($r);
@@ -74,7 +74,7 @@ class Expire {
 		if (is_array($a->hooks) && array_key_exists('expire', $a->hooks)) {
 			foreach ($a->hooks['expire'] as $hook) {
 				logger("Calling expire hook for '" . $hook[1] . "'", LOGGER_DEBUG);
-				Worker::add(array('priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true),
+				Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
 						'Expire', 'hook', $hook[1]);
 			}
 		}

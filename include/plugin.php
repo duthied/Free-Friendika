@@ -18,7 +18,7 @@ use Friendica\Database\DBM;
  */
 function uninstall_plugin($plugin) {
 	logger("Addons: uninstalling " . $plugin);
-	dba::delete('addon', array('name' => $plugin));
+	dba::delete('addon', ['name' => $plugin]);
 
 	@include_once('addon/' . $plugin . '/' . $plugin . '.php');
 	if (function_exists($plugin . '_uninstall')) {
@@ -48,15 +48,15 @@ function install_plugin($plugin) {
 
 		$plugin_admin = (function_exists($plugin."_plugin_admin") ? 1 : 0);
 
-		dba::insert('addon', array('name' => $plugin, 'installed' => true,
-					'timestamp' => $t, 'plugin_admin' => $plugin_admin));
+		dba::insert('addon', ['name' => $plugin, 'installed' => true,
+					'timestamp' => $t, 'plugin_admin' => $plugin_admin]);
 
 		// we can add the following with the previous SQL
 		// once most site tables have been updated.
 		// This way the system won't fall over dead during the update.
 
 		if (file_exists('addon/' . $plugin . '/.hidden')) {
-			dba::update('addon', array('hidden' => true), array('name' => $plugin));
+			dba::update('addon', ['hidden' => true], ['name' => $plugin]);
 		}
 		return true;
 	} else {
@@ -75,7 +75,7 @@ function reload_plugins() {
 		if (DBM::is_result($r)) {
 			$installed = $r;
 		} else {
-			$installed = array();
+			$installed = [];
 		}
 
 		$parr = explode(',',$plugins);
@@ -102,7 +102,7 @@ function reload_plugins() {
 								$func = $pl . '_install';
 								$func();
 							}
-							dba::update('addon', array('timestamp' => $t), array('id' => $i['id']));
+							dba::update('addon', ['timestamp' => $t], ['id' => $i['id']]);
 						}
 					}
 				}
@@ -119,7 +119,7 @@ function reload_plugins() {
  * @return boolean
  */
 function plugin_enabled($plugin) {
-	return dba::exists('addon', array('installed' => true, 'name' => $plugin));
+	return dba::exists('addon', ['installed' => true, 'name' => $plugin]);
 }
 
 
@@ -133,13 +133,13 @@ function plugin_enabled($plugin) {
  * @return mixed|bool
  */
 function register_hook($hook, $file, $function, $priority=0) {
-	$condition = array('hook' => $hook, 'file' => $file, 'function' => $function);
+	$condition = ['hook' => $hook, 'file' => $file, 'function' => $function];
 	$exists = dba::exists('hook', $condition);
 	if ($exists) {
 		return true;
 	}
 
-	$r = dba::insert('hook', array('hook' => $hook, 'file' => $file, 'function' => $function, 'priority' => $priority));
+	$r = dba::insert('hook', ['hook' => $hook, 'file' => $file, 'function' => $function, 'priority' => $priority]);
 
 	return $r;
 }
@@ -153,7 +153,7 @@ function register_hook($hook, $file, $function, $priority=0) {
  * @return array
  */
 function unregister_hook($hook, $file, $function) {
-	$condition = array('hook' => $hook, 'file' => $file, 'function' => $function);
+	$condition = ['hook' => $hook, 'file' => $file, 'function' => $function];
 	$r = dba::delete('hook', $condition);
 	return $r;
 }
@@ -161,14 +161,14 @@ function unregister_hook($hook, $file, $function) {
 
 function load_hooks() {
 	$a = get_app();
-	$a->hooks = array();
-	$r = dba::select('hook', array('hook', 'file', 'function'), array(), array('order' => array('priority' => 'desc', 'file')));
+	$a->hooks = [];
+	$r = dba::select('hook', ['hook', 'file', 'function'], [], ['order' => ['priority' => 'desc', 'file']]);
 
 	while ($rr = dba::fetch($r)) {
 		if (! array_key_exists($rr['hook'],$a->hooks)) {
-			$a->hooks[$rr['hook']] = array();
+			$a->hooks[$rr['hook']] = [];
 		}
-		$a->hooks[$rr['hook']][] = array($rr['file'],$rr['function']);
+		$a->hooks[$rr['hook']][] = [$rr['file'],$rr['function']];
 	}
 	dba::close($r);
 }
@@ -211,7 +211,7 @@ function call_single_hook($a, $name, $hook, &$data = null) {
 		$func($a, $data);
 	} else {
 		// remove orphan hooks
-		$condition = array('hook' => $name, 'file' => $hook[0], 'function' => $hook[1]);
+		$condition = ['hook' => $name, 'file' => $hook[0], 'function' => $hook[1]];
 		dba::delete('hook', $condition);
 	}
 }
@@ -251,13 +251,13 @@ function get_plugin_info($plugin) {
 
 	$a = get_app();
 
-	$info=Array(
+	$info=[
 		'name' => $plugin,
 		'description' => "",
-		'author' => array(),
+		'author' => [],
 		'version' => "",
 		'status' => ""
-	);
+	];
 
 	if (!is_file("addon/$plugin/$plugin.php")) return $info;
 
@@ -277,9 +277,9 @@ function get_plugin_info($plugin) {
 				if ($k == "author") {
 					$r=preg_match("|([^<]+)<([^>]+)>|", $v, $m);
 					if ($r) {
-						$info['author'][] = array('name'=>$m[1], 'link'=>$m[2]);
+						$info['author'][] = ['name'=>$m[1], 'link'=>$m[2]];
 					} else {
-						$info['author'][] = array('name'=>$v);
+						$info['author'][] = ['name'=>$v];
 					}
 				} else {
 					if (array_key_exists($k,$info)) {
@@ -312,16 +312,16 @@ function get_plugin_info($plugin) {
  */
 
 function get_theme_info($theme) {
-	$info=Array(
+	$info=[
 		'name' => $theme,
 		'description' => "",
-		'author' => array(),
-		'maintainer' => array(),
+		'author' => [],
+		'maintainer' => [],
 		'version' => "",
 		'credits' => "",
 		'experimental' => false,
 		'unsupported' => false
-	);
+	];
 
 	if (file_exists("view/theme/$theme/experimental"))
 		$info['experimental'] = true;
@@ -348,16 +348,16 @@ function get_theme_info($theme) {
 
 					$r=preg_match("|([^<]+)<([^>]+)>|", $v, $m);
 					if ($r) {
-						$info['author'][] = array('name'=>$m[1], 'link'=>$m[2]);
+						$info['author'][] = ['name'=>$m[1], 'link'=>$m[2]];
 					} else {
-						$info['author'][] = array('name'=>$v);
+						$info['author'][] = ['name'=>$v];
 					}
 				} elseif ($k == "maintainer") {
 					$r=preg_match("|([^<]+)<([^>]+)>|", $v, $m);
 					if ($r) {
-						$info['maintainer'][] = array('name'=>$m[1], 'link'=>$m[2]);
+						$info['maintainer'][] = ['name'=>$m[1], 'link'=>$m[2]];
 					} else {
-						$info['maintainer'][] = array('name'=>$v);
+						$info['maintainer'][] = ['name'=>$v];
 					}
 				} else {
 					if (array_key_exists($k,$info)) {
@@ -381,7 +381,7 @@ function get_theme_info($theme) {
  * @return string
  */
 function get_theme_screenshot($theme) {
-	$exts = array('.png','.jpg');
+	$exts = ['.png','.jpg'];
 	foreach ($exts as $ext) {
 		if (file_exists('view/theme/' . $theme . '/screenshot' . $ext)) {
 			return(System::baseUrl() . '/view/theme/' . $theme . '/screenshot' . $ext);
@@ -450,11 +450,11 @@ function theme_include($file, $root = '') {
 	$theme = current_theme();
 	$thname = $theme;
 	$ext = substr($file,strrpos($file,'.')+1);
-	$paths = array(
+	$paths = [
 		"{$root}view/theme/$thname/$ext/$file",
 		"{$root}view/theme/$parent/$ext/$file",
 		"{$root}view/$ext/$file",
-	);
+	];
 	foreach ($paths as $p) {
 		// strpos() is faster than strstr when checking if one string is in another (http://php.net/manual/en/function.strstr.php)
 		if (strpos($p,'NOPATH') !== false) {

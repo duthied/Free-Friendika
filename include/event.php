@@ -150,7 +150,7 @@ function bbtovcal($s) {
  */
 function bbtoevent($s) {
 
-	$ev = array();
+	$ev = [];
 
 	$match = '';
 	if (preg_match("/\[event\-summary\](.*?)\[\/event\-summary\]/is", $s, $match)) {
@@ -219,7 +219,7 @@ function event_delete($event_id) {
 		return;
 	}
 
-	dba::delete('event', array('id' => $event_id));
+	dba::delete('event', ['id' => $event_id]);
 	logger("Deleted event ".$event_id, LOGGER_DEBUG);
 }
 
@@ -364,7 +364,7 @@ function event_store($arr) {
 			$event = $r[0];
 		}
 
-		$item_arr = array();
+		$item_arr = [];
 
 		$item_arr['uid']           = $arr['uid'];
 		$item_arr['contact-id']    = $arr['cid'];
@@ -423,7 +423,7 @@ function get_event_strings() {
 	// First day of the week (0 = Sunday).
 	$firstDay = PConfig::get(local_user(), 'system', 'first_day_of_week', 0);
 
-	$i18n = array(
+	$i18n = [
 			"firstDay" => $firstDay,
 			"allday"   => t("all-day"),
 
@@ -479,7 +479,7 @@ function get_event_strings() {
 			"dtstart_label"  => t("Starts:"),
 			"dtend_label"    => t("Finishes:"),
 			"location_label" => t("Location:")
-		);
+		];
 
 	return $i18n;
 }
@@ -493,7 +493,7 @@ function get_event_strings() {
  * @todo We should replace this with a separate update function if there is some time left.
  */
 function event_remove_duplicates($dates) {
-	$dates2 = array();
+	$dates2 = [];
 
 	foreach ($dates as $date) {
 		if ($date['type'] == 'birthday') {
@@ -585,7 +585,7 @@ function events_by_date($owner_uid = 0, $event_params, $sql_extra = '') {
  * @return array Event array for the template.
  */
 function process_events($arr) {
-	$events=array();
+	$events=[];
 
 	$last_date = '';
 	$fmt = t('l, F j');
@@ -612,9 +612,9 @@ function process_events($arr) {
 			$copy = null;
 			$drop = null;
 			if (local_user() && local_user() == $rr['uid'] && $rr['type'] == 'event') {
-				$edit = ((! $rr['cid']) ? array(System::baseUrl() . '/events/event/' . $rr['id'], t('Edit event'), '', '') : null);
-				$copy = ((! $rr['cid']) ? array(System::baseUrl() . '/events/copy/' . $rr['id'], t('Duplicate event'), '', '') : null);
-				$drop = array(System::baseUrl() . '/events/drop/' . $rr['id'], t('Delete event'), '', '');
+				$edit = ((! $rr['cid']) ? [System::baseUrl() . '/events/event/' . $rr['id'], t('Edit event'), '', ''] : null);
+				$copy = ((! $rr['cid']) ? [System::baseUrl() . '/events/copy/' . $rr['id'], t('Duplicate event'), '', ''] : null);
+				$drop = [System::baseUrl() . '/events/drop/' . $rr['id'], t('Delete event'), '', ''];
 			}
 
 			$title = strip_tags(html_entity_decode(bbcode($rr['summary']), ENT_QUOTES, 'UTF-8'));
@@ -626,7 +626,7 @@ function process_events($arr) {
 			$html = format_event_html($rr);
 			$rr['desc'] = bbcode($rr['desc']);
 			$rr['location'] = bbcode($rr['location']);
-			$events[] = array(
+			$events[] = [
 				'id'     => $rr['id'],
 				'start'  => $start,
 				'end'    => $end,
@@ -641,8 +641,8 @@ function process_events($arr) {
 				'is_first' => $is_first,
 				'item'     => $rr,
 				'html'     => $html,
-				'plink'    => array($rr['plink'], t('link to source'), '', ''),
-			);
+				'plink'    => [$rr['plink'], t('link to source'), '', ''],
+			];
 		}
 	}
 
@@ -849,12 +849,12 @@ function event_export($uid, $format = 'ical') {
 			$file_ext = "";
 	}
 
-	$arr = array(
+	$arr = [
 		'success'   => $process,
 		'format'    => $format,
 		'extension' => $file_ext,
 		'content'   => $res,
-	);
+	];
 
 	return $arr;
 }
@@ -900,12 +900,12 @@ function widget_events() {
 		return;
 	}
 
-	return replace_macros(get_markup_template("events_aside.tpl"), array(
+	return replace_macros(get_markup_template("events_aside.tpl"), [
 		'$etitle' => t("Export"),
 		'$export_ical' => t("Export calendar as ical"),
 		'$export_csv' => t("Export calendar as csv"),
 		'$user' => $user
-	));
+	]);
 }
 
 /**
@@ -948,7 +948,7 @@ function format_event_item($item) {
 
 	// Format the event location.
 	$evloc = event_location2array($item['event-location']);
-	$location = array();
+	$location = [];
 
 	if (isset($evloc['name'])) {
 		$location['name'] = prepare_text($evloc['name']);
@@ -968,7 +968,7 @@ function format_event_item($item) {
 		$profile_link = Profile::zrl($profile_link);
 	}
 
-	$event = replace_macros(get_markup_template('event_stream_item.tpl'), array(
+	$event = replace_macros(get_markup_template('event_stream_item.tpl'), [
 		'$id'             => $item['event-id'],
 		'$title'          => prepare_text($item['event-summary']),
 		'$dtstart_label'  => t('Starts:'),
@@ -994,7 +994,7 @@ function format_event_item($item) {
 		'$hide_map_label' => t('Hide map'),
 		'$map_btn_label'  => t('Show map'),
 		'$location'       => $location
-	));
+	]);
 
 	return $event;
 }
@@ -1017,7 +1017,7 @@ function event_location2array($s = '') {
 		return;
 	}
 
-	$location = array('name' => $s);
+	$location = ['name' => $s];
 
 	// Map tag with location name - e.g. [map]Paris[/map].
 	if (strpos($s, '[/map]') !== false) {

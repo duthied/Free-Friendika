@@ -66,8 +66,8 @@ class Notifier {
 		$fsuggest = false;
 		$relocate = false;
 		$top_level = false;
-		$recipients = array();
-		$url_recipients = array();
+		$recipients = [];
+		$url_recipients = [];
 
 		$normal_mode = true;
 
@@ -284,8 +284,8 @@ class Notifier {
 				$followup = true;
 				$public_message = false; // not public
 				$conversant_str = dbesc($parent['contact-id']);
-				$recipients = array($parent['contact-id']);
-				$recipients_followup  = array($parent['contact-id']);
+				$recipients = [$parent['contact-id']];
+				$recipients_followup  = [$parent['contact-id']];
 
 				logger('notifier: followup '.$target_item["guid"].' to '.$conversant_str, LOGGER_DEBUG);
 
@@ -349,7 +349,7 @@ class Notifier {
 					Worker::add($a->queue['priority'], 'Notifier', 'uplink', $item_id);
 				}
 
-				$conversants = array();
+				$conversants = [];
 
 				foreach ($items as $item) {
 					$recipients[] = $item['contact-id'];
@@ -484,7 +484,7 @@ class Notifier {
 				}
 				logger("Deliver ".$target_item["guid"]." to ".$contact['url']." via network ".$contact['network'], LOGGER_DEBUG);
 
-				Worker::add(array('priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true),
+				Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
 						'Delivery', $cmd, $item_id, (int)$contact['id']);
 			}
 		}
@@ -507,8 +507,8 @@ class Notifier {
 
 		if ($public_message) {
 
-			$r0 = array();
-			$r1 = array();
+			$r0 = [];
+			$r1 = [];
 
 			if ($diaspora_delivery) {
 				if (!$followup) {
@@ -554,7 +554,7 @@ class Notifier {
 
 					if (!$mail && !$fsuggest && !$followup) {
 						logger('notifier: delivery agent: '.$rr['name'].' '.$rr['id'].' '.$rr['network'].' '.$target_item["guid"]);
-						Worker::add(array('priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true),
+						Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
 								'Delivery', $cmd, $item_id, (int)$rr['id']);
 					}
 				}
@@ -574,7 +574,7 @@ class Notifier {
 			logger('Activating internal PuSH for item '.$item_id, LOGGER_DEBUG);
 
 			// Handling the pubsubhubbub requests
-			Worker::add(array('priority' => PRIORITY_HIGH, 'created' => $a->queue['created'], 'dont_fork' => true),
+			Worker::add(['priority' => PRIORITY_HIGH, 'created' => $a->queue['created'], 'dont_fork' => true],
 					'PubSubPublish');
 		}
 

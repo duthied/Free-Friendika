@@ -37,7 +37,7 @@ function notify_init(App $a) {
 
 	if ($a->argc > 2 && $a->argv[1] === 'mark' && $a->argv[2] === 'all' ) {
 		$r = $nm->setAllSeen();
-		$j = json_encode(array('result' => ($r) ? 'success' : 'fail'));
+		$j = json_encode(['result' => ($r) ? 'success' : 'fail']);
 		echo $j;
 		killme();
 	}
@@ -56,25 +56,25 @@ function notify_content(App $a) {
 	$not_tpl = get_markup_template('notify.tpl');
 	require_once('include/bbcode.php');
 
-	$r = $nm->getAll(array('seen'=>0));
+	$r = $nm->getAll(['seen'=>0]);
 	if (DBM::is_result($r) > 0) {
 		foreach ($r as $it) {
-			$notif_content .= replace_macros($not_tpl,array(
+			$notif_content .= replace_macros($not_tpl,[
 				'$item_link' => System::baseUrl(true).'/notify/view/'. $it['id'],
 				'$item_image' => $it['photo'],
 				'$item_text' => strip_tags(bbcode($it['msg'])),
 				'$item_when' => relative_date($it['date'])
-			));
+			]);
 		}
 	} else {
 		$notif_content .= t('No more system notifications.');
 	}
 
-	$o .= replace_macros($notif_tpl, array(
+	$o .= replace_macros($notif_tpl, [
 		'$notif_header' => t('System Notifications'),
 		'$tabs' => false, // $tabs,
 		'$notif_content' => $notif_content,
-	));
+	]);
 
 	return $o;
 

@@ -80,12 +80,12 @@ class Login extends BaseModule
 		if (x($_POST, 'auth-params') && $_POST['auth-params'] === 'login') {
 			$record = null;
 
-			$addon_auth = array(
+			$addon_auth = [
 				'username' => trim($_POST['username']),
 				'password' => trim($_POST['password']),
 				'authenticated' => 0,
 				'user_record' => null
-			);
+			];
 
 			/*
 			 * A plugin indicates successful login by setting 'authenticated' to non-zero value and returning a user record
@@ -244,10 +244,10 @@ class Login extends BaseModule
 		$o = '';
 		$reg = false;
 		if ($register) {
-			$reg = array(
+			$reg = [
 				'title' => t('Create a New Account'),
 				'desc' => t('Register')
-			);
+			];
 		}
 
 		$noid = Config::get('system', 'no_openid');
@@ -277,12 +277,12 @@ class Login extends BaseModule
 				'$logout'       => t('Logout'),
 				'$login'        => t('Login'),
 
-				'$lname'        => array('username', t('Nickname or Email: ') , '', ''),
-				'$lpassword'    => array('password', t('Password: '), '', ''),
-				'$lremember'    => array('remember', t('Remember me'), 0,  ''),
+				'$lname'        => ['username', t('Nickname or Email: ') , '', ''],
+				'$lpassword'    => ['password', t('Password: '), '', ''],
+				'$lremember'    => ['remember', t('Remember me'), 0,  ''],
 
 				'$openid'       => !$noid,
-				'$lopenid'      => array('openid_url', t('Or login using OpenID: '),'',''),
+				'$lopenid'      => ['openid_url', t('Or login using OpenID: '),'',''],
 
 				'$hiddens'      => $hiddens,
 

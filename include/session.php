@@ -80,11 +80,11 @@ function ref_session_write($id, $data)
 	}
 
 	if ($session_exists) {
-		$fields = array('data' => $data, 'expire' => $expire);
-		$condition = array("`sid` = ? AND (`data` != ? OR `expire` != ?)", $id, $data, $expire);
+		$fields = ['data' => $data, 'expire' => $expire];
+		$condition = ["`sid` = ? AND (`data` != ? OR `expire` != ?)", $id, $data, $expire];
 		dba::update('session', $fields, $condition);
 	} else {
-		$fields = array('sid' => $id, 'expire' => $default_expire, 'data' => $data);
+		$fields = ['sid' => $id, 'expire' => $default_expire, 'data' => $data];
 		dba::insert('session', $fields);
 	}
 
@@ -105,13 +105,13 @@ function ref_session_destroy($id)
 		return true;
 	}
 
-	dba::delete('session', array('sid' => $id));
+	dba::delete('session', ['sid' => $id]);
 	return true;
 }
 
 function ref_session_gc()
 {
-	dba::delete('session', array("`expire` < ?", time()));
+	dba::delete('session', ["`expire` < ?", time()]);
 	return true;
 }
 

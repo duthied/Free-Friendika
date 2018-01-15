@@ -84,8 +84,8 @@ function user_deny($hash)
 		intval($register[0]['uid'])
 	);
 
-	dba::delete('user', array('uid' => $register[0]['uid']));
-	dba::delete('register', array('hash' => $register[0]['hash']));
+	dba::delete('user', ['uid' => $register[0]['uid']]);
+	dba::delete('register', ['hash' => $register[0]['hash']]);
 
 	notice(sprintf(t('Registration revoked for %s'), $user[0]['username']) . EOL);
 	return true;

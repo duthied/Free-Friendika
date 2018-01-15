@@ -17,7 +17,7 @@ function pretheme_init(App $a) {
 			$version = '';
 			$credits = '';
 		}
-		echo json_encode(array('img' => get_theme_screenshot($theme), 'desc' => $desc, 'version' => $version, 'credits' => $credits));
+		echo json_encode(['img' => get_theme_screenshot($theme), 'desc' => $desc, 'version' => $version, 'credits' => $credits]);
 	}
 
 	killme();

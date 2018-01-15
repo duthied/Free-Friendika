@@ -22,15 +22,15 @@ function suggest_init(App $a) {
 			// <form> can't take arguments in its "action" parameter
 			// so add any arguments as hidden inputs
 			$query = explode_querystring($a->query_string);
-			$inputs = array();
+			$inputs = [];
 			foreach ($query['args'] as $arg) {
 				if (strpos($arg, 'confirm=') === false) {
 					$arg_parts = explode('=', $arg);
-					$inputs[] = array('name' => $arg_parts[0], 'value' => $arg_parts[1]);
+					$inputs[] = ['name' => $arg_parts[0], 'value' => $arg_parts[1]];
 				}
 			}
 
-			$a->page['content'] = replace_macros(get_markup_template('confirm.tpl'), array(
+			$a->page['content'] = replace_macros(get_markup_template('confirm.tpl'), [
 				'$method' => 'get',
 				'$message' => t('Do you really want to delete this suggestion?'),
 				'$extra_inputs' => $inputs,
@@ -38,13 +38,13 @@ function suggest_init(App $a) {
 				'$confirm_url' => $query['base'],
 				'$confirm_name' => 'confirmed',
 				'$cancel' => t('Cancel'),
-			));
+			]);
 			$a->error = 1; // Set $a->error so the other module functions don't execute
 			return;
 		}
 		// Now check how the user responded to the confirmation query
 		if (!$_REQUEST['canceled']) {
-			dba::insert('gcign', array('uid' => local_user(), 'gcid' => $_GET['ignore']));
+			dba::insert('gcign', ['uid' => local_user(), 'gcid' => $_GET['ignore']]);
 		}
 	}
 
@@ -77,15 +77,15 @@ function suggest_content(App $a) {
 
 		$connlnk = System::baseUrl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);
 		$ignlnk = System::baseUrl() . '/suggest?ignore=' . $rr['id'];
-		$photo_menu = array(
-			'profile' => array(t("View Profile"), Profile::zrl($rr["url"])),
-			'follow' => array(t("Connect/Follow"), $connlnk),
-			'hide' => array(t('Ignore/Hide'), $ignlnk)
-		);
+		$photo_menu = [
+			'profile' => [t("View Profile"), Profile::zrl($rr["url"])],
+			'follow' => [t("Connect/Follow"), $connlnk],
+			'hide' => [t('Ignore/Hide'), $ignlnk]
+		];
 
 		$contact_details = Contact::getDetailsByURL($rr["url"], local_user(), $rr);
 
-		$entry = array(
+		$entry = [
 			'url' => Profile::zrl($rr['url']),
 			'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
 			'img_hover' => $rr['url'],
@@ -103,16 +103,16 @@ function suggest_content(App $a) {
 			'ignore' => t('Ignore/Hide'),
 			'network' => ContactSelector::networkToName($rr['network'], $rr['url']),
 			'id' => ++$id,
-		);
+		];
 		$entries[] = $entry;
 	}
 
 	$tpl = get_markup_template('viewcontact_template.tpl');
 
-	$o .= replace_macros($tpl,array(
+	$o .= replace_macros($tpl,[
 		'$title' => t('Friend Suggestions'),
 		'$contacts' => $entries,
-	));
+	]);
 
 	return $o;
 }

@@ -72,12 +72,12 @@ class Emailer
 			"--" . $mimeBoundary . "--\n";					// message ending
 
 		// send the message
-		$hookdata = array(
+		$hookdata = [
 			'to' => $params['toEmail'],
 			'subject' => $messageSubject,
 			'body' => $multipartMessageBody,
 			'headers' => $messageHeader
-		);
+		];
 		//echo "<pre>"; var_dump($hookdata); killme();
 		call_hooks("emailer_send", $hookdata);
 		$res = mail(

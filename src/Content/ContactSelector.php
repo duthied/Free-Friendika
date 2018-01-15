@@ -49,14 +49,14 @@ class ContactSelector
 		$o = '';
 		$o .= "<select id=\"contact-poll-interval\" name=\"poll\" $dis />" . "\r\n";
 
-		$rep = array(
+		$rep = [
 			0 => t('Frequently'),
 			1 => t('Hourly'),
 			2 => t('Twice daily'),
 			3 => t('Daily'),
 			4 => t('Weekly'),
 			5 => t('Monthly')
-		);
+		];
 
 		foreach ($rep as $k => $v) {
 			$selected = (($k == $current) ? " selected=\"selected\" " : "");
@@ -73,7 +73,7 @@ class ContactSelector
 	 */
 	public static function networkToName($s, $profile = "")
 	{
-		$nets = array(
+		$nets = [
 			NETWORK_DFRN     => t('Friendica'),
 			NETWORK_OSTATUS  => t('OStatus'),
 			NETWORK_FEED     => t('RSS/Atom'),
@@ -91,7 +91,7 @@ class ContactSelector
 			NETWORK_STATUSNET => t('GNU Social Connector'),
 			NETWORK_PNUT      => t('pnut'),
 			NETWORK_APPNET => t('App.net')
-		);
+		];
 
 		call_hooks('network_to_name', $nets);
 
@@ -100,7 +100,7 @@ class ContactSelector
 
 		$networkname = str_replace($search, $replace, $s);
 
-		if ((in_array($s, array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) && ($profile != "")) {
+		if ((in_array($s, [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS])) && ($profile != "")) {
 			$r = dba::fetch_first("SELECT `gserver`.`platform` FROM `gcontact`
 					INNER JOIN `gserver` ON `gserver`.`nurl` = `gcontact`.`server_url`
 					WHERE `gcontact`.`nurl` = ? AND `platform` != ''", normalise_link($profile));

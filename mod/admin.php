@@ -158,46 +158,46 @@ function admin_content(App $a)
 	//	apc_delete($toDelete);
 	//}
 	// Header stuff
-	$a->page['htmlhead'] .= replace_macros(get_markup_template('admin/settings_head.tpl'), array());
+	$a->page['htmlhead'] .= replace_macros(get_markup_template('admin/settings_head.tpl'), []);
 
 	/*
 	 * Side bar links
 	 */
-	$aside_tools = array();
+	$aside_tools = [];
 	// array(url, name, extra css classes)
 	// not part of $aside to make the template more adjustable
-	$aside_sub = array(
-		'site'         => array("admin/site/"        , t("Site")                 , "site"),
-		'users'        => array("admin/users/"       , t("Users")                , "users"),
-		'plugins'      => array("admin/plugins/"     , t("Plugins")              , "plugins"),
-		'themes'       => array("admin/themes/"      , t("Themes")               , "themes"),
-		'features'     => array("admin/features/"    , t("Additional features")  , "features"),
-		'dbsync'       => array("admin/dbsync/"      , t('DB updates')           , "dbsync"),
-		'queue'        => array("admin/queue/"       , t('Inspect Queue')        , "queue"),
-		'contactblock' => array("admin/contactblock/", t('Contact Blocklist')    , "contactblock"),
-		'blocklist'    => array("admin/blocklist/"   , t('Server Blocklist')     , "blocklist"),
-		'federation'   => array("admin/federation/"  , t('Federation Statistics'), "federation"),
-		'deleteitem'   => array("admin/deleteitem/"  , t('Delete Item')          , 'deleteitem'),
-	);
+	$aside_sub = [
+		'site'         => ["admin/site/"        , t("Site")                 , "site"],
+		'users'        => ["admin/users/"       , t("Users")                , "users"],
+		'plugins'      => ["admin/plugins/"     , t("Plugins")              , "plugins"],
+		'themes'       => ["admin/themes/"      , t("Themes")               , "themes"],
+		'features'     => ["admin/features/"    , t("Additional features")  , "features"],
+		'dbsync'       => ["admin/dbsync/"      , t('DB updates')           , "dbsync"],
+		'queue'        => ["admin/queue/"       , t('Inspect Queue')        , "queue"],
+		'contactblock' => ["admin/contactblock/", t('Contact Blocklist')    , "contactblock"],
+		'blocklist'    => ["admin/blocklist/"   , t('Server Blocklist')     , "blocklist"],
+		'federation'   => ["admin/federation/"  , t('Federation Statistics'), "federation"],
+		'deleteitem'   => ["admin/deleteitem/"  , t('Delete Item')          , 'deleteitem'],
+	];
 
 	/* get plugins admin page */
 
 	$r = q("SELECT `name` FROM `addon` WHERE `plugin_admin` = 1 ORDER BY `name`");
-	$aside_tools['plugins_admin'] = array();
+	$aside_tools['plugins_admin'] = [];
 	foreach ($r as $h) {
 		$plugin = $h['name'];
-		$aside_tools['plugins_admin'][] = array("admin/plugins/" . $plugin, $plugin, "plugin");
+		$aside_tools['plugins_admin'][] = ["admin/plugins/" . $plugin, $plugin, "plugin"];
 		// temp plugins with admin
 		$a->plugins_admin[] = $plugin;
 	}
 
-	$aside_tools['logs'] = array("admin/logs/", t("Logs"), "logs");
-	$aside_tools['viewlogs'] = array("admin/viewlogs/", t("View Logs"), 'viewlogs');
-	$aside_tools['diagnostics_probe'] = array('probe/', t('probe address'), 'probe');
-	$aside_tools['diagnostics_webfinger'] = array('webfinger/', t('check webfinger'), 'webfinger');
+	$aside_tools['logs'] = ["admin/logs/", t("Logs"), "logs"];
+	$aside_tools['viewlogs'] = ["admin/viewlogs/", t("View Logs"), 'viewlogs'];
+	$aside_tools['diagnostics_probe'] = ['probe/', t('probe address'), 'probe'];
+	$aside_tools['diagnostics_webfinger'] = ['webfinger/', t('check webfinger'), 'webfinger'];
 
 	$t = get_markup_template('admin/aside.tpl');
-	$a->page['aside'] .= replace_macros($t, array(
+	$a->page['aside'] .= replace_macros($t, [
 		'$admin' => $aside_tools,
 		'$subpages' => $aside_sub,
 		'$admtxt' => t('Admin'),
@@ -206,7 +206,7 @@ function admin_content(App $a)
 		'$diagnosticstxt' => t('diagnostics'),
 		'$h_pending' => t('User registrations waiting for confirmation'),
 		'$admurl' => "admin/"
-	));
+	]);
 
 	// Page content
 	$o = '';
@@ -282,25 +282,25 @@ function admin_content(App $a)
 function admin_page_blocklist(App $a)
 {
 	$blocklist = Config::get('system', 'blocklist');
-	$blocklistform = array();
+	$blocklistform = [];
 	if (is_array($blocklist)) {
 		foreach ($blocklist as $id => $b) {
-			$blocklistform[] = array(
-				'domain' => array("domain[$id]", t('Blocked domain'), $b['domain'], '', t('The blocked domain'), 'required', '', ''),
-				'reason' => array("reason[$id]", t("Reason for the block"), $b['reason'], t('The reason why you blocked this domain.') . '(' . $b['domain'] . ')', 'required', '', ''),
-				'delete' => array("delete[$id]", t("Delete domain") . ' (' . $b['domain'] . ')', False, t("Check to delete this entry from the blocklist"))
-			);
+			$blocklistform[] = [
+				'domain' => ["domain[$id]", t('Blocked domain'), $b['domain'], '', t('The blocked domain'), 'required', '', ''],
+				'reason' => ["reason[$id]", t("Reason for the block"), $b['reason'], t('The reason why you blocked this domain.') . '(' . $b['domain'] . ')', 'required', '', ''],
+				'delete' => ["delete[$id]", t("Delete domain") . ' (' . $b['domain'] . ')', False, t("Check to delete this entry from the blocklist")]
+			];
 		}
 	}
 	$t = get_markup_template('admin/blocklist.tpl');
-	return replace_macros($t, array(
+	return replace_macros($t, [
 		'$title' => t('Administration'),
 		'$page' => t('Server Blocklist'),
 		'$intro' => t('This page can be used to define a black list of servers from the federated network that are not allowed to interact with your node. For all entered domains you should also give a reason why you have blocked the remote server.'),
 		'$public' => t('The list of blocked servers will be made publically available on the /friendica page so that your users and people investigating communication problems can find the reason easily.'),
 		'$addtitle' => t('Add new entry to block list'),
-		'$newdomain' => array('newentry_domain', t('Server Domain'), '', t('The domain of the new server to add to the block list. Do not include the protocol.'), 'required', '', ''),
-		'$newreason' => array('newentry_reason', t('Block reason'), '', t('The reason why you blocked this domain.'), 'required', '', ''),
+		'$newdomain' => ['newentry_domain', t('Server Domain'), '', t('The domain of the new server to add to the block list. Do not include the protocol.'), 'required', '', ''],
+		'$newreason' => ['newentry_reason', t('Block reason'), '', t('The reason why you blocked this domain.'), 'required', '', ''],
 		'$submit' => t('Add Entry'),
 		'$savechanges' => t('Save changes to the blocklist'),
 		'$currenttitle' => t('Current Entries in the Blocklist'),
@@ -311,7 +311,7 @@ function admin_page_blocklist(App $a)
 		'$baseurl' => System::baseUrl(true),
 		'$confirm_delete' => t('Delete entry from blocklist?'),
 		'$form_security_token' => get_form_security_token("admin_blocklist")
-	));
+	]);
 }
 
 /**
@@ -330,24 +330,24 @@ function admin_page_blocklist_post(App $a)
 	if (x($_POST['page_blocklist_save'])) {
 		//  Add new item to blocklist
 		$blocklist = Config::get('system', 'blocklist');
-		$blocklist[] = array(
+		$blocklist[] = [
 			'domain' => notags(trim($_POST['newentry_domain'])),
 			'reason' => notags(trim($_POST['newentry_reason']))
-		);
+		];
 		Config::set('system', 'blocklist', $blocklist);
 		info(t('Server added to blocklist.') . EOL);
 	} else {
 		// Edit the entries from blocklist
-		$blocklist = array();
+		$blocklist = [];
 		foreach ($_POST['domain'] as $id => $domain) {
 			// Trimming whitespaces as well as any lingering slashes
 			$domain = notags(trim($domain, "\x00..\x1F/"));
 			$reason = notags(trim($_POST['reason'][$id]));
 			if (!x($_POST['delete'][$id])) {
-				$blocklist[] = array(
+				$blocklist[] = [
 					'domain' => $domain,
 					'reason' => $reason
-				);
+				];
 			}
 		}
 		Config::set('system', 'blocklist', $blocklist);
@@ -409,7 +409,7 @@ function admin_page_contactblock(App $a)
 	$contacts = dba::inArray($statement);
 
 	$t = get_markup_template('admin/contactblock.tpl');
-	$o = replace_macros($t, array(
+	$o = replace_macros($t, [
 		// strings //
 		'$title'       => t('Administration'),
 		'$page'        => t('Remote Contact Blocklist'),
@@ -434,7 +434,7 @@ function admin_page_contactblock(App $a)
 		'$total_contacts' => tt('%s total blocked contact', '%s total blocked contacts', $total),
 		'$paginate'   => paginate($a),
 		'$contacturl' => ['contact_url', t("Profile URL"), '', t("URL of the remote contact to block.")],
-	));
+	]);
 	return $o;
 }
 
@@ -452,16 +452,16 @@ function admin_page_deleteitem(App $a)
 {
 	$t = get_markup_template('admin/deleteitem.tpl');
 
-	return replace_macros($t, array(
+	return replace_macros($t, [
 		'$title' => t('Administration'),
 		'$page' => t('Delete Item'),
 		'$submit' => t('Delete this Item'),
 		'$intro1' => t('On this page you can delete an item from your node. If the item is a top level posting, the entire thread will be deleted.'),
 		'$intro2' => t('You need to know the GUID of the item. You can find it e.g. by looking at the display URL. The last part of http://example.com/display/123456 is the GUID, here 123456.'),
-		'$deleteitemguid' => array('deleteitemguid', t("GUID"), '', t("The GUID of the item you want to delete."), 'required', 'autofocus'),
+		'$deleteitemguid' => ['deleteitemguid', t("GUID"), '', t("The GUID of the item you want to delete."), 'required', 'autofocus'],
 		'$baseurl' => System::baseUrl(),
 		'$form_security_token' => get_form_security_token("admin_deleteitem")
-	));
+	]);
 }
 
 /**
@@ -490,7 +490,7 @@ function admin_page_deleteitem_post(App $a)
 		// Now that we have the GUID get all IDs of the associated entries in the
 		// item table of the DB and drop those items, which will also delete the
 		// associated threads.
-		$r = dba::select('item', array('id'), array('guid' => $guid));
+		$r = dba::select('item', ['id'], ['guid' => $guid]);
 		while ($row = dba::fetch($r)) {
 			drop_item($row['id'], false);
 		}
@@ -526,8 +526,8 @@ function admin_page_federation(App $a)
 	// off one % two of them are needed in the query
 	// Add more platforms if you like, when one returns 0 known nodes it is not
 	// displayed on the stats page.
-	$platforms = array('Friendi%%a', 'Diaspora', '%%red%%', 'Hubzilla', 'BlaBlaNet', 'GNU Social', 'StatusNet', 'Mastodon', 'Pleroma', 'socialhome');
-	$colors = array(
+	$platforms = ['Friendi%%a', 'Diaspora', '%%red%%', 'Hubzilla', 'BlaBlaNet', 'GNU Social', 'StatusNet', 'Mastodon', 'Pleroma', 'socialhome'];
+	$colors = [
 		'Friendi%%a' => '#ffc018', // orange from the logo
 		'Diaspora'   => '#a1a1a1', // logo is black and white, makes a gray
 		'%%red%%'    => '#c50001', // fire red from the logo
@@ -538,8 +538,8 @@ function admin_page_federation(App $a)
 		'Mastodon'   => '#1a9df9', // blue from the Mastodon logo
 		'Pleroma'    => '#E46F0F', // Orange from the text that is used on Pleroma instances
 		'socialhome' => '#52056b'  // lilac from the Django Image used at the Socialhome homepage
-	);
-	$counts = array();
+	];
+	$counts = [];
 	$total = 0;
 	$users = 0;
 
@@ -567,15 +567,15 @@ function admin_page_federation(App $a)
 		// to the version string for the displayed list.
 		foreach ($v as $key => $value) {
 			if ($v[$key]['version'] == '') {
-				$v[$key] = array('total' => $v[$key]['total'], 'version' => t('unknown'));
+				$v[$key] = ['total' => $v[$key]['total'], 'version' => t('unknown')];
 			}
 		}
 		// in the DB the Diaspora versions have the format x.x.x.x-xx the last
 		// part (-xx) should be removed to clean up the versions from the "head
 		// commit" information and combined into a single entry for x.x.x.x
 		if ($p == 'Diaspora') {
-			$newV = array();
-			$newVv = array();
+			$newV = [];
+			$newVv = [];
 			foreach ($v as $vv) {
 				$newVC = $vv['total'];
 				$newVV = $vv['version'];
@@ -590,7 +590,7 @@ function admin_page_federation(App $a)
 				}
 			}
 			foreach ($newV as $key => $value) {
-				array_push($newVv, array('total' => $value, 'version' => $key));
+				array_push($newVv, ['total' => $value, 'version' => $key]);
 			}
 			$v = $newVv;
 		}
@@ -599,8 +599,8 @@ function admin_page_federation(App $a)
 		// DB version stamp; those should be operated out and versions be
 		// conbined
 		if ($p == 'Friendi%%a') {
-			$newV = array();
-			$newVv = array();
+			$newV = [];
+			$newVv = [];
 			foreach ($v as $vv) {
 				$newVC = $vv['total'];
 				$newVV = $vv['version'];
@@ -616,7 +616,7 @@ function admin_page_federation(App $a)
 				}
 			}
 			foreach ($newV as $key => $value) {
-				array_push($newVv, array('total' => $value, 'version' => $key));
+				array_push($newVv, ['total' => $value, 'version' => $key]);
 			}
 			$v = $newVv;
 		}
@@ -626,7 +626,7 @@ function admin_page_federation(App $a)
 
 		// the 3rd array item is needed for the JavaScript graphs as JS does
 		// not like some characters in the names of variables...
-		$counts[$p] = array($c[0], $v, str_replace(array(' ', '%'), '', $p), $colors[$p]);
+		$counts[$p] = [$c[0], $v, str_replace([' ', '%'], '', $p), $colors[$p]];
 	}
 
 	// some helpful text
@@ -635,7 +635,7 @@ function admin_page_federation(App $a)
 
 	// load the template, replace the macros and return the page content
 	$t = get_markup_template('admin/federation.tpl');
-	return replace_macros($t, array(
+	return replace_macros($t, [
 		'$title' => t('Administration'),
 		'$page' => t('Federation Statistics'),
 		'$intro' => $intro,
@@ -645,7 +645,7 @@ function admin_page_federation(App $a)
 		'$version' => FRIENDICA_VERSION,
 		'$legendtext' => t('Currently this node is aware of %d nodes with %d registered users from the following platforms:', $total, $users),
 		'$baseurl' => System::baseUrl(),
-	));
+	]);
 }
 
 /**
@@ -670,7 +670,7 @@ function admin_page_queue(App $a)
 			ORDER BY `q`.`cid`, `q`.`created`;");
 
 	$t = get_markup_template('admin/queue.tpl');
-	return replace_macros($t, array(
+	return replace_macros($t, [
 		'$title' => t('Administration'),
 		'$page' => t('Inspect Queue'),
 		'$count' => count($r),
@@ -682,7 +682,7 @@ function admin_page_queue(App $a)
 		'$last_header' => t('Last Tried'),
 		'$info' => t('This page lists the content of the queue for outgoing postings. These are postings the initial delivery failed for. They will be resend later and eventually deleted if the delivery fails permanently.'),
 		'$entries' => $r,
-	));
+	]);
 }
 
 /**
@@ -701,7 +701,7 @@ function admin_page_summary(App $a)
 	// are there MyISAM tables in the DB? If so, trigger a warning message
 	$r = q("SELECT `engine` FROM `information_schema`.`tables` WHERE `engine` = 'myisam' AND `table_schema` = '%s' LIMIT 1", dbesc(dba::database_name()));
 	$showwarning = false;
-	$warningtext = array();
+	$warningtext = [];
 	if (DBM::is_result($r)) {
 		$showwarning = true;
 		$warningtext[] = t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php scripts/dbstructure.php toinnodb</tt> of your Friendica installation for an automatic conversion.<br />', 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
@@ -734,14 +734,14 @@ function admin_page_summary(App $a)
 	}
 
 	$r = q("SELECT `page-flags`, COUNT(`uid`) AS `count` FROM `user` GROUP BY `page-flags`");
-	$accounts = array(
-		array(t('Normal Account'), 0),
-		array(t('Automatic Follower Account'), 0),
-		array(t('Public Forum Account'), 0),
-		array(t('Automatic Friend Account'), 0),
-		array(t('Blog Account'), 0),
-		array(t('Private Forum Account'), 0)
-	);
+	$accounts = [
+		[t('Normal Account'), 0],
+		[t('Automatic Follower Account'), 0],
+		[t('Public Forum Account'), 0],
+		[t('Automatic Friend Account'), 0],
+		[t('Blog Account'), 0],
+		[t('Private Forum Account'), 0]
+	];
 
 	$users = 0;
 	foreach ($r as $u) {
@@ -762,26 +762,26 @@ function admin_page_summary(App $a)
 
 	// We can do better, but this is a quick queue status
 
-	$queues = array('label' => t('Message queues'), 'queue' => $queue, 'workerq' => $workerqueue);
+	$queues = ['label' => t('Message queues'), 'queue' => $queue, 'workerq' => $workerqueue];
 
 
 	$t = get_markup_template('admin/summary.tpl');
-	return replace_macros($t, array(
+	return replace_macros($t, [
 		'$title' => t('Administration'),
 		'$page' => t('Summary'),
 		'$queues' => $queues,
-		'$users' => array(t('Registered users'), $users),
+		'$users' => [t('Registered users'), $users],
 		'$accounts' => $accounts,
-		'$pending' => array(t('Pending registrations'), $pending),
-		'$version' => array(t('Version'), FRIENDICA_VERSION),
+		'$pending' => [t('Pending registrations'), $pending],
+		'$version' => [t('Version'), FRIENDICA_VERSION],
 		'$baseurl' => System::baseUrl(),
 		'$platform' => FRIENDICA_PLATFORM,
 		'$codename' => FRIENDICA_CODENAME,
 		'$build' => Config::get('system', 'build'),
-		'$plugins' => array(t('Active plugins'), $a->plugins),
+		'$plugins' => [t('Active plugins'), $a->plugins],
 		'$showwarning' => $showwarning,
 		'$warningtext' => $warningtext
-	));
+	]);
 }
 
 /**
@@ -831,7 +831,7 @@ function admin_page_site_post(App $a)
 			$dbold = dbesc($old_url);
 			$dbnew = dbesc($new_url);
 
-			$upd = array();
+			$upd = [];
 			foreach ($fields as $f) {
 				$upd[] = "`$f` = REPLACE(`$f`, '$dbold', '$dbnew')";
 			}
@@ -846,15 +846,15 @@ function admin_page_site_post(App $a)
 		}
 		// update tables
 		// update profile links in the format "http://server.tld"
-		update_table("profile", array('photo', 'thumb'), $old_url, $new_url);
-		update_table("term", array('url'), $old_url, $new_url);
-		update_table("contact", array('photo', 'thumb', 'micro', 'url', 'nurl', 'alias', 'request', 'notify', 'poll', 'confirm', 'poco', 'avatar'), $old_url, $new_url);
-		update_table("gcontact", array('url', 'nurl', 'photo', 'server_url', 'notify', 'alias'), $old_url, $new_url);
-		update_table("item", array('owner-link', 'owner-avatar', 'author-link', 'author-avatar', 'body', 'plink', 'tag'), $old_url, $new_url);
+		update_table("profile", ['photo', 'thumb'], $old_url, $new_url);
+		update_table("term", ['url'], $old_url, $new_url);
+		update_table("contact", ['photo', 'thumb', 'micro', 'url', 'nurl', 'alias', 'request', 'notify', 'poll', 'confirm', 'poco', 'avatar'], $old_url, $new_url);
+		update_table("gcontact", ['url', 'nurl', 'photo', 'server_url', 'notify', 'alias'], $old_url, $new_url);
+		update_table("item", ['owner-link', 'owner-avatar', 'author-link', 'author-avatar', 'body', 'plink', 'tag'], $old_url, $new_url);
 
 		// update profile addresses in the format "user@server.tld"
-		update_table("contact", array('addr'), $old_host, $new_host);
-		update_table("gcontact", array('connect', 'addr'), $old_host, $new_host);
+		update_table("contact", ['addr'], $old_host, $new_host);
+		update_table("gcontact", ['connect', 'addr'], $old_host, $new_host);
 
 		// update config
 		$a->set_baseurl($new_url);
@@ -1135,8 +1135,8 @@ function admin_page_site(App $a)
 	}
 
 	/* Installed themes */
-	$theme_choices = array();
-	$theme_choices_mobile = array();
+	$theme_choices = [];
+	$theme_choices_mobile = [];
 	$theme_choices_mobile["---"] = t("No special theme for mobile devices");
 	$files = glob('view/theme/*');
 	if (is_array($files)) {
@@ -1165,29 +1165,29 @@ function admin_page_site(App $a)
 	}
 
 	/* Community page style */
-	$community_page_style_choices = array(
+	$community_page_style_choices = [
 		CP_NO_COMMUNITY_PAGE => t("No community page"),
 		CP_USERS_ON_SERVER => t("Public postings from users of this site"),
 		CP_GLOBAL_COMMUNITY => t("Public postings from the federated network"),
 		CP_USERS_AND_GLOBAL => t("Public postings from local users and the federated network")
-	);
+	];
 
-	$poco_discovery_choices = array(
+	$poco_discovery_choices = [
 		"0" => t("Disabled"),
 		"1" => t("Users"),
 		"2" => t("Users, Global Contacts"),
 		"3" => t("Users, Global Contacts/fallback"),
-	);
+	];
 
-	$poco_discovery_since_choices = array(
+	$poco_discovery_since_choices = [
 		"30" => t("One month"),
 		"91" => t("Three months"),
 		"182" => t("Half a year"),
 		"365" => t("One year"),
-	);
+	];
 
 	/* get user names to make the install a personal install of X */
-	$user_names = array();
+	$user_names = [];
 	$user_names['---'] = t('Multi user instance');
 	$users = q("SELECT `username`, `nickname` FROM `user`");
 	foreach ($users as $user) {
@@ -1210,23 +1210,23 @@ function admin_page_site(App $a)
 	//echo "<pre>"; var_dump($lang_choices); die("</pre>");
 
 	/* Register policy */
-	$register_choices = array(
+	$register_choices = [
 		REGISTER_CLOSED => t("Closed"),
 		REGISTER_APPROVE => t("Requires approval"),
 		REGISTER_OPEN => t("Open")
-	);
+	];
 
-	$ssl_choices = array(
+	$ssl_choices = [
 		SSL_POLICY_NONE => t("No SSL policy, links will track page SSL state"),
 		SSL_POLICY_FULL => t("Force all links to use SSL"),
 		SSL_POLICY_SELFSIGN => t("Self-signed certificate, use SSL for local links only (discouraged)")
-	);
+	];
 
-	$check_git_version_choices = array(
+	$check_git_version_choices = [
 		"none" => t("Don't check"),
 		"master" => t("check the stable version"),
 		"develop" => t("check the development version")
-	);
+	];
 
 	if ($a->config['hostname'] == "") {
 		$a->config['hostname'] = $a->get_hostname();
@@ -1244,7 +1244,7 @@ function admin_page_site(App $a)
 	}
 
 	$t = get_markup_template('admin/site.tpl');
-	return replace_macros($t, array(
+	return replace_macros($t, [
 		'$title' => t('Administration'),
 		'$page' => t('Site'),
 		'$submit' => t('Save Settings'),
@@ -1259,91 +1259,91 @@ function admin_page_site(App $a)
 		'$relocate' => t('Relocate - WARNING: advanced function. Could make this server unreachable.'),
 		'$baseurl' => System::baseUrl(true),
 		// name, label, value, help string, extra data...
-		'$sitename' 		=> array('sitename', t("Site name"), $a->config['sitename'],''),
-		'$hostname' 		=> array('hostname', t("Host name"), $a->config['hostname'], ""),
-		'$sender_email'		=> array('sender_email', t("Sender Email"), $a->config['sender_email'], t("The email address your server shall use to send notification emails from."), "", "", "email"),
-		'$banner'		=> array('banner', t("Banner/Logo"), $banner, ""),
-		'$shortcut_icon'	=> array('shortcut_icon', t("Shortcut icon"), Config::get('system','shortcut_icon'),  t("Link to an icon that will be used for browsers.")),
-		'$touch_icon'		=> array('touch_icon', t("Touch icon"), Config::get('system','touch_icon'),  t("Link to an icon that will be used for tablets and mobiles.")),
-		'$info'			=> array('info', t('Additional Info'), $info, t('For public servers: you can add additional information here that will be listed at %s/servers.', get_server())),
-		'$language' 		=> array('language', t("System language"), Config::get('system','language'), "", $lang_choices),
-		'$theme' 		=> array('theme', t("System theme"), Config::get('system','theme'), t("Default system theme - may be over-ridden by user profiles - <a href='#' id='cnftheme'>change theme settings</a>"), $theme_choices),
-		'$theme_mobile' 	=> array('theme_mobile', t("Mobile system theme"), Config::get('system', 'mobile-theme', '---'), t("Theme for mobile devices"), $theme_choices_mobile),
-		'$ssl_policy'		=> array('ssl_policy', t("SSL link policy"), (string) intval(Config::get('system','ssl_policy')), t("Determines whether generated links should be forced to use SSL"), $ssl_choices),
-		'$force_ssl'		=> array('force_ssl', t("Force SSL"), Config::get('system','force_ssl'), t("Force all Non-SSL requests to SSL - Attention: on some systems it could lead to endless loops.")),
-		'$hide_help'		=> array('hide_help', t("Hide help entry from navigation menu"), Config::get('system','hide_help'), t("Hides the menu entry for the Help pages from the navigation menu. You can still access it calling /help directly.")),
-		'$singleuser' 		=> array('singleuser', t("Single user instance"), Config::get('system', 'singleuser', '---'), t("Make this instance multi-user or single-user for the named user"), $user_names),
-		'$maximagesize'		=> array('maximagesize', t("Maximum image size"), Config::get('system','maximagesize'), t("Maximum size in bytes of uploaded images. Default is 0, which means no limits.")),
-		'$maximagelength'	=> array('maximagelength', t("Maximum image length"), Config::get('system','max_image_length'), t("Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.")),
-		'$jpegimagequality'	=> array('jpegimagequality', t("JPEG image quality"), Config::get('system','jpeg_quality'), t("Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.")),
+		'$sitename' 		=> ['sitename', t("Site name"), $a->config['sitename'],''],
+		'$hostname' 		=> ['hostname', t("Host name"), $a->config['hostname'], ""],
+		'$sender_email'		=> ['sender_email', t("Sender Email"), $a->config['sender_email'], t("The email address your server shall use to send notification emails from."), "", "", "email"],
+		'$banner'		=> ['banner', t("Banner/Logo"), $banner, ""],
+		'$shortcut_icon'	=> ['shortcut_icon', t("Shortcut icon"), Config::get('system','shortcut_icon'),  t("Link to an icon that will be used for browsers.")],
+		'$touch_icon'		=> ['touch_icon', t("Touch icon"), Config::get('system','touch_icon'),  t("Link to an icon that will be used for tablets and mobiles.")],
+		'$info'			=> ['info', t('Additional Info'), $info, t('For public servers: you can add additional information here that will be listed at %s/servers.', get_server())],
+		'$language' 		=> ['language', t("System language"), Config::get('system','language'), "", $lang_choices],
+		'$theme' 		=> ['theme', t("System theme"), Config::get('system','theme'), t("Default system theme - may be over-ridden by user profiles - <a href='#' id='cnftheme'>change theme settings</a>"), $theme_choices],
+		'$theme_mobile' 	=> ['theme_mobile', t("Mobile system theme"), Config::get('system', 'mobile-theme', '---'), t("Theme for mobile devices"), $theme_choices_mobile],
+		'$ssl_policy'		=> ['ssl_policy', t("SSL link policy"), (string) intval(Config::get('system','ssl_policy')), t("Determines whether generated links should be forced to use SSL"), $ssl_choices],
+		'$force_ssl'		=> ['force_ssl', t("Force SSL"), Config::get('system','force_ssl'), t("Force all Non-SSL requests to SSL - Attention: on some systems it could lead to endless loops.")],
+		'$hide_help'		=> ['hide_help', t("Hide help entry from navigation menu"), Config::get('system','hide_help'), t("Hides the menu entry for the Help pages from the navigation menu. You can still access it calling /help directly.")],
+		'$singleuser' 		=> ['singleuser', t("Single user instance"), Config::get('system', 'singleuser', '---'), t("Make this instance multi-user or single-user for the named user"), $user_names],
+		'$maximagesize'		=> ['maximagesize', t("Maximum image size"), Config::get('system','maximagesize'), t("Maximum size in bytes of uploaded images. Default is 0, which means no limits.")],
+		'$maximagelength'	=> ['maximagelength', t("Maximum image length"), Config::get('system','max_image_length'), t("Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.")],
+		'$jpegimagequality'	=> ['jpegimagequality', t("JPEG image quality"), Config::get('system','jpeg_quality'), t("Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.")],
 
-		'$register_policy'	=> array('register_policy', t("Register policy"), $a->config['register_policy'], "", $register_choices),
-		'$daily_registrations'	=> array('max_daily_registrations', t("Maximum Daily Registrations"), Config::get('system', 'max_daily_registrations'), t("If registration is permitted above, this sets the maximum number of new user registrations to accept per day.  If register is set to closed, this setting has no effect.")),
-		'$register_text'	=> array('register_text', t("Register text"), $a->config['register_text'], t("Will be displayed prominently on the registration page.")),
-		'$abandon_days'		=> array('abandon_days', t('Accounts abandoned after x days'), Config::get('system','account_abandon_days'), t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.')),
-		'$allowed_sites'	=> array('allowed_sites', t("Allowed friend domains"), Config::get('system','allowed_sites'), t("Comma separated list of domains which are allowed to establish friendships with this site. Wildcards are accepted. Empty to allow any domains")),
-		'$allowed_email'	=> array('allowed_email', t("Allowed email domains"), Config::get('system','allowed_email'), t("Comma separated list of domains which are allowed in email addresses for registrations to this site. Wildcards are accepted. Empty to allow any domains")),
-		'$no_oembed_rich_content' => array('no_oembed_rich_content', t("No OEmbed rich content"), Config::get('system','no_oembed_rich_content'), t("Don't show the rich content (e.g. embedded PDF), except from the domains listed below.")),
-		'$allowed_oembed'	=> array('allowed_oembed', t("Allowed OEmbed domains"), Config::get('system','allowed_oembed'), t("Comma separated list of domains which oembed content is allowed to be displayed. Wildcards are accepted.")),
-		'$block_public'		=> array('block_public', t("Block public"), Config::get('system','block_public'), t("Check to block public access to all otherwise public personal pages on this site unless you are currently logged in.")),
-		'$force_publish'	=> array('publish_all', t("Force publish"), Config::get('system','publish_all'), t("Check to force all profiles on this site to be listed in the site directory.")),
-		'$global_directory'	=> array('directory', t("Global directory URL"), Config::get('system','directory'), t("URL to the global directory. If this is not set, the global directory is completely unavailable to the application.")),
-		'$newuser_private'	=> array('newuser_private', t("Private posts by default for new users"), Config::get('system','newuser_private'), t("Set default post permissions for all new members to the default privacy group rather than public.")),
-		'$enotify_no_content'	=> array('enotify_no_content', t("Don't include post content in email notifications"), Config::get('system','enotify_no_content'), t("Don't include the content of a post/comment/private message/etc. in the email notifications that are sent out from this site, as a privacy measure.")),
-		'$private_addons'	=> array('private_addons', t("Disallow public access to addons listed in the apps menu."), Config::get('config','private_addons'), t("Checking this box will restrict addons listed in the apps menu to members only.")),
-		'$disable_embedded'	=> array('disable_embedded', t("Don't embed private images in posts"), Config::get('system','disable_embedded'), t("Don't replace locally-hosted private photos in posts with an embedded copy of the image. This means that contacts who receive posts containing private photos will have to authenticate and load each image, which may take a while.")),
-		'$allow_users_remote_self' => array('allow_users_remote_self', t('Allow Users to set remote_self'), Config::get('system','allow_users_remote_self'), t('With checking this, every user is allowed to mark every contact as a remote_self in the repair contact dialog. Setting this flag on a contact causes mirroring every posting of that contact in the users stream.')),
-		'$no_multi_reg'		=> array('no_multi_reg', t("Block multiple registrations"),  Config::get('system','block_extended_register'), t("Disallow users to register additional accounts for use as pages.")),
-		'$no_openid'		=> array('no_openid', t("OpenID support"), !Config::get('system','no_openid'), t("OpenID support for registration and logins.")),
-		'$no_regfullname'	=> array('no_regfullname', t("Fullname check"), !Config::get('system','no_regfullname'), t("Force users to register with a space between firstname and lastname in Full name, as an antispam measure")),
-		'$community_page_style' => array('community_page_style', t("Community pages for visitors"), Config::get('system','community_page_style'), t("Which community pages should be available for visitors. Local users always see both pages."), $community_page_style_choices),
-		'$max_author_posts_community_page' => array('max_author_posts_community_page', t("Posts per user on community page"), Config::get('system','max_author_posts_community_page'), t("The maximum number of posts per user on the community page. (Not valid for 'Global Community')")),
-		'$ostatus_disabled' 	=> array('ostatus_disabled', t("Enable OStatus support"), !Config::get('system','ostatus_disabled'), t("Provide built-in OStatus \x28StatusNet, GNU Social etc.\x29 compatibility. All communications in OStatus are public, so privacy warnings will be occasionally displayed.")),
-		'$ostatus_full_threads'	=> array('ostatus_full_threads', t("Only import OStatus threads from our contacts"), Config::get('system','ostatus_full_threads'), t("Normally we import every content from our OStatus contacts. With this option we only store threads that are started by a contact that is known on our system.")),
+		'$register_policy'	=> ['register_policy', t("Register policy"), $a->config['register_policy'], "", $register_choices],
+		'$daily_registrations'	=> ['max_daily_registrations', t("Maximum Daily Registrations"), Config::get('system', 'max_daily_registrations'), t("If registration is permitted above, this sets the maximum number of new user registrations to accept per day.  If register is set to closed, this setting has no effect.")],
+		'$register_text'	=> ['register_text', t("Register text"), $a->config['register_text'], t("Will be displayed prominently on the registration page.")],
+		'$abandon_days'		=> ['abandon_days', t('Accounts abandoned after x days'), Config::get('system','account_abandon_days'), t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.')],
+		'$allowed_sites'	=> ['allowed_sites', t("Allowed friend domains"), Config::get('system','allowed_sites'), t("Comma separated list of domains which are allowed to establish friendships with this site. Wildcards are accepted. Empty to allow any domains")],
+		'$allowed_email'	=> ['allowed_email', t("Allowed email domains"), Config::get('system','allowed_email'), t("Comma separated list of domains which are allowed in email addresses for registrations to this site. Wildcards are accepted. Empty to allow any domains")],
+		'$no_oembed_rich_content' => ['no_oembed_rich_content', t("No OEmbed rich content"), Config::get('system','no_oembed_rich_content'), t("Don't show the rich content (e.g. embedded PDF), except from the domains listed below.")],
+		'$allowed_oembed'	=> ['allowed_oembed', t("Allowed OEmbed domains"), Config::get('system','allowed_oembed'), t("Comma separated list of domains which oembed content is allowed to be displayed. Wildcards are accepted.")],
+		'$block_public'		=> ['block_public', t("Block public"), Config::get('system','block_public'), t("Check to block public access to all otherwise public personal pages on this site unless you are currently logged in.")],
+		'$force_publish'	=> ['publish_all', t("Force publish"), Config::get('system','publish_all'), t("Check to force all profiles on this site to be listed in the site directory.")],
+		'$global_directory'	=> ['directory', t("Global directory URL"), Config::get('system','directory'), t("URL to the global directory. If this is not set, the global directory is completely unavailable to the application.")],
+		'$newuser_private'	=> ['newuser_private', t("Private posts by default for new users"), Config::get('system','newuser_private'), t("Set default post permissions for all new members to the default privacy group rather than public.")],
+		'$enotify_no_content'	=> ['enotify_no_content', t("Don't include post content in email notifications"), Config::get('system','enotify_no_content'), t("Don't include the content of a post/comment/private message/etc. in the email notifications that are sent out from this site, as a privacy measure.")],
+		'$private_addons'	=> ['private_addons', t("Disallow public access to addons listed in the apps menu."), Config::get('config','private_addons'), t("Checking this box will restrict addons listed in the apps menu to members only.")],
+		'$disable_embedded'	=> ['disable_embedded', t("Don't embed private images in posts"), Config::get('system','disable_embedded'), t("Don't replace locally-hosted private photos in posts with an embedded copy of the image. This means that contacts who receive posts containing private photos will have to authenticate and load each image, which may take a while.")],
+		'$allow_users_remote_self' => ['allow_users_remote_self', t('Allow Users to set remote_self'), Config::get('system','allow_users_remote_self'), t('With checking this, every user is allowed to mark every contact as a remote_self in the repair contact dialog. Setting this flag on a contact causes mirroring every posting of that contact in the users stream.')],
+		'$no_multi_reg'		=> ['no_multi_reg', t("Block multiple registrations"),  Config::get('system','block_extended_register'), t("Disallow users to register additional accounts for use as pages.")],
+		'$no_openid'		=> ['no_openid', t("OpenID support"), !Config::get('system','no_openid'), t("OpenID support for registration and logins.")],
+		'$no_regfullname'	=> ['no_regfullname', t("Fullname check"), !Config::get('system','no_regfullname'), t("Force users to register with a space between firstname and lastname in Full name, as an antispam measure")],
+		'$community_page_style' => ['community_page_style', t("Community pages for visitors"), Config::get('system','community_page_style'), t("Which community pages should be available for visitors. Local users always see both pages."), $community_page_style_choices],
+		'$max_author_posts_community_page' => ['max_author_posts_community_page', t("Posts per user on community page"), Config::get('system','max_author_posts_community_page'), t("The maximum number of posts per user on the community page. (Not valid for 'Global Community')")],
+		'$ostatus_disabled' 	=> ['ostatus_disabled', t("Enable OStatus support"), !Config::get('system','ostatus_disabled'), t("Provide built-in OStatus \x28StatusNet, GNU Social etc.\x29 compatibility. All communications in OStatus are public, so privacy warnings will be occasionally displayed.")],
+		'$ostatus_full_threads'	=> ['ostatus_full_threads', t("Only import OStatus threads from our contacts"), Config::get('system','ostatus_full_threads'), t("Normally we import every content from our OStatus contacts. With this option we only store threads that are started by a contact that is known on our system.")],
 		'$ostatus_not_able'	=> t("OStatus support can only be enabled if threading is enabled."),
 		'$diaspora_able'	=> $diaspora_able,
 		'$diaspora_not_able'	=> t("Diaspora support can't be enabled because Friendica was installed into a sub directory."),
-		'$diaspora_enabled'	=> array('diaspora_enabled', t("Enable Diaspora support"), Config::get('system','diaspora_enabled'), t("Provide built-in Diaspora network compatibility.")),
-		'$dfrn_only'		=> array('dfrn_only', t('Only allow Friendica contacts'), Config::get('system','dfrn_only'), t("All contacts must use Friendica protocols. All other built-in communication protocols disabled.")),
-		'$verifyssl' 		=> array('verifyssl', t("Verify SSL"), Config::get('system','verifyssl'), t("If you wish, you can turn on strict certificate checking. This will mean you cannot connect (at all) to self-signed SSL sites.")),
-		'$proxyuser'		=> array('proxyuser', t("Proxy user"), Config::get('system','proxyuser'), ""),
-		'$proxy'		=> array('proxy', t("Proxy URL"), Config::get('system','proxy'), ""),
-		'$timeout'		=> array('timeout', t("Network timeout"), (x(Config::get('system','curl_timeout'))?Config::get('system','curl_timeout'):60), t("Value is in seconds. Set to 0 for unlimited (not recommended).")),
-		'$maxloadavg'		=> array('maxloadavg', t("Maximum Load Average"), ((intval(Config::get('system','maxloadavg')) > 0)?Config::get('system','maxloadavg'):50), t("Maximum system load before delivery and poll processes are deferred - default 50.")),
-		'$maxloadavg_frontend'	=> array('maxloadavg_frontend', t("Maximum Load Average (Frontend)"), ((intval(Config::get('system','maxloadavg_frontend')) > 0)?Config::get('system','maxloadavg_frontend'):50), t("Maximum system load before the frontend quits service - default 50.")),
-		'$min_memory'		=> array('min_memory', t("Minimal Memory"), ((intval(Config::get('system','min_memory')) > 0)?Config::get('system','min_memory'):0), t("Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 (deactivated).")),
-		'$optimize_max_tablesize'=> array('optimize_max_tablesize', t("Maximum table size for optimization"), $optimize_max_tablesize, t("Maximum table size (in MB) for the automatic optimization - default 100 MB. Enter -1 to disable it.")),
-		'$optimize_fragmentation'=> array('optimize_fragmentation', t("Minimum level of fragmentation"), ((intval(Config::get('system','optimize_fragmentation')) > 0)?Config::get('system','optimize_fragmentation'):30), t("Minimum fragmenation level to start the automatic optimization - default value is 30%.")),
+		'$diaspora_enabled'	=> ['diaspora_enabled', t("Enable Diaspora support"), Config::get('system','diaspora_enabled'), t("Provide built-in Diaspora network compatibility.")],
+		'$dfrn_only'		=> ['dfrn_only', t('Only allow Friendica contacts'), Config::get('system','dfrn_only'), t("All contacts must use Friendica protocols. All other built-in communication protocols disabled.")],
+		'$verifyssl' 		=> ['verifyssl', t("Verify SSL"), Config::get('system','verifyssl'), t("If you wish, you can turn on strict certificate checking. This will mean you cannot connect (at all) to self-signed SSL sites.")],
+		'$proxyuser'		=> ['proxyuser', t("Proxy user"), Config::get('system','proxyuser'), ""],
+		'$proxy'		=> ['proxy', t("Proxy URL"), Config::get('system','proxy'), ""],
+		'$timeout'		=> ['timeout', t("Network timeout"), (x(Config::get('system','curl_timeout'))?Config::get('system','curl_timeout'):60), t("Value is in seconds. Set to 0 for unlimited (not recommended).")],
+		'$maxloadavg'		=> ['maxloadavg', t("Maximum Load Average"), ((intval(Config::get('system','maxloadavg')) > 0)?Config::get('system','maxloadavg'):50), t("Maximum system load before delivery and poll processes are deferred - default 50.")],
+		'$maxloadavg_frontend'	=> ['maxloadavg_frontend', t("Maximum Load Average (Frontend)"), ((intval(Config::get('system','maxloadavg_frontend')) > 0)?Config::get('system','maxloadavg_frontend'):50), t("Maximum system load before the frontend quits service - default 50.")],
+		'$min_memory'		=> ['min_memory', t("Minimal Memory"), ((intval(Config::get('system','min_memory')) > 0)?Config::get('system','min_memory'):0), t("Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 (deactivated).")],
+		'$optimize_max_tablesize'=> ['optimize_max_tablesize', t("Maximum table size for optimization"), $optimize_max_tablesize, t("Maximum table size (in MB) for the automatic optimization - default 100 MB. Enter -1 to disable it.")],
+		'$optimize_fragmentation'=> ['optimize_fragmentation', t("Minimum level of fragmentation"), ((intval(Config::get('system','optimize_fragmentation')) > 0)?Config::get('system','optimize_fragmentation'):30), t("Minimum fragmenation level to start the automatic optimization - default value is 30%.")],
 
-		'$poco_completion'	=> array('poco_completion', t("Periodical check of global contacts"), Config::get('system','poco_completion'), t("If enabled, the global contacts are checked periodically for missing or outdated data and the vitality of the contacts and servers.")),
-		'$poco_requery_days'	=> array('poco_requery_days', t("Days between requery"), Config::get('system','poco_requery_days'), t("Number of days after which a server is requeried for his contacts.")),
-		'$poco_discovery'	=> array('poco_discovery', t("Discover contacts from other servers"), (string) intval(Config::get('system','poco_discovery')), t("Periodically query other servers for contacts. You can choose between 'users': the users on the remote system, 'Global Contacts': active contacts that are known on the system. The fallback is meant for Redmatrix servers and older friendica servers, where global contacts weren't available. The fallback increases the server load, so the recommened setting is 'Users, Global Contacts'."), $poco_discovery_choices),
-		'$poco_discovery_since'	=> array('poco_discovery_since', t("Timeframe for fetching global contacts"), (string) intval(Config::get('system','poco_discovery_since')), t("When the discovery is activated, this value defines the timeframe for the activity of the global contacts that are fetched from other servers."), $poco_discovery_since_choices),
-		'$poco_local_search'	=> array('poco_local_search', t("Search the local directory"), Config::get('system','poco_local_search'), t("Search the local directory instead of the global directory. When searching locally, every search will be executed on the global directory in the background. This improves the search results when the search is repeated.")),
+		'$poco_completion'	=> ['poco_completion', t("Periodical check of global contacts"), Config::get('system','poco_completion'), t("If enabled, the global contacts are checked periodically for missing or outdated data and the vitality of the contacts and servers.")],
+		'$poco_requery_days'	=> ['poco_requery_days', t("Days between requery"), Config::get('system','poco_requery_days'), t("Number of days after which a server is requeried for his contacts.")],
+		'$poco_discovery'	=> ['poco_discovery', t("Discover contacts from other servers"), (string) intval(Config::get('system','poco_discovery')), t("Periodically query other servers for contacts. You can choose between 'users': the users on the remote system, 'Global Contacts': active contacts that are known on the system. The fallback is meant for Redmatrix servers and older friendica servers, where global contacts weren't available. The fallback increases the server load, so the recommened setting is 'Users, Global Contacts'."), $poco_discovery_choices],
+		'$poco_discovery_since'	=> ['poco_discovery_since', t("Timeframe for fetching global contacts"), (string) intval(Config::get('system','poco_discovery_since')), t("When the discovery is activated, this value defines the timeframe for the activity of the global contacts that are fetched from other servers."), $poco_discovery_since_choices],
+		'$poco_local_search'	=> ['poco_local_search', t("Search the local directory"), Config::get('system','poco_local_search'), t("Search the local directory instead of the global directory. When searching locally, every search will be executed on the global directory in the background. This improves the search results when the search is repeated.")],
 
-		'$nodeinfo'		=> array('nodeinfo', t("Publish server information"), Config::get('system','nodeinfo'), t("If enabled, general server and usage data will be published. The data contains the name and version of the server, number of users with public profiles, number of posts and the activated protocols and connectors. See <a href='http://the-federation.info/'>the-federation.info</a> for details.")),
+		'$nodeinfo'		=> ['nodeinfo', t("Publish server information"), Config::get('system','nodeinfo'), t("If enabled, general server and usage data will be published. The data contains the name and version of the server, number of users with public profiles, number of posts and the activated protocols and connectors. See <a href='http://the-federation.info/'>the-federation.info</a> for details.")],
 
-		'$check_new_version_url' => array('check_new_version_url', t("Check upstream version"), Config::get('system', 'check_new_version_url'), t("Enables checking for new Friendica versions at github. If there is a new version, you will be informed in the admin panel overview."), $check_git_version_choices),
-		'$suppress_tags'	=> array('suppress_tags', t("Suppress Tags"), Config::get('system','suppress_tags'), t("Suppress showing a list of hashtags at the end of the posting.")),
-		'$itemcache'		=> array('itemcache', t("Path to item cache"), Config::get('system','itemcache'), t("The item caches buffers generated bbcode and external images.")),
-		'$itemcache_duration' 	=> array('itemcache_duration', t("Cache duration in seconds"), Config::get('system','itemcache_duration'), t("How long should the cache files be hold? Default value is 86400 seconds (One day). To disable the item cache, set the value to -1.")),
-		'$max_comments' 	=> array('max_comments', t("Maximum numbers of comments per post"), Config::get('system','max_comments'), t("How much comments should be shown for each post? Default value is 100.")),
-		'$temppath'		=> array('temppath', t("Temp path"), Config::get('system','temppath'), t("If you have a restricted system where the webserver can't access the system temp path, enter another path here.")),
-		'$basepath'		=> array('basepath', t("Base path to installation"), Config::get('system','basepath'), t("If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot.")),
-		'$proxy_disabled'	=> array('proxy_disabled', t("Disable picture proxy"), Config::get('system','proxy_disabled'), t("The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith.")),
-		'$only_tag_search'	=> array('only_tag_search', t("Only search in tags"), Config::get('system','only_tag_search'), t("On large systems the text search can slow down the system extremely.")),
+		'$check_new_version_url' => ['check_new_version_url', t("Check upstream version"), Config::get('system', 'check_new_version_url'), t("Enables checking for new Friendica versions at github. If there is a new version, you will be informed in the admin panel overview."), $check_git_version_choices],
+		'$suppress_tags'	=> ['suppress_tags', t("Suppress Tags"), Config::get('system','suppress_tags'), t("Suppress showing a list of hashtags at the end of the posting.")],
+		'$itemcache'		=> ['itemcache', t("Path to item cache"), Config::get('system','itemcache'), t("The item caches buffers generated bbcode and external images.")],
+		'$itemcache_duration' 	=> ['itemcache_duration', t("Cache duration in seconds"), Config::get('system','itemcache_duration'), t("How long should the cache files be hold? Default value is 86400 seconds (One day). To disable the item cache, set the value to -1.")],
+		'$max_comments' 	=> ['max_comments', t("Maximum numbers of comments per post"), Config::get('system','max_comments'), t("How much comments should be shown for each post? Default value is 100.")],
+		'$temppath'		=> ['temppath', t("Temp path"), Config::get('system','temppath'), t("If you have a restricted system where the webserver can't access the system temp path, enter another path here.")],
+		'$basepath'		=> ['basepath', t("Base path to installation"), Config::get('system','basepath'), t("If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot.")],
+		'$proxy_disabled'	=> ['proxy_disabled', t("Disable picture proxy"), Config::get('system','proxy_disabled'), t("The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith.")],
+		'$only_tag_search'	=> ['only_tag_search', t("Only search in tags"), Config::get('system','only_tag_search'), t("On large systems the text search can slow down the system extremely.")],
 
-		'$relocate_url'		=> array('relocate_url', t("New base url"), System::baseUrl(), t("Change base url for this server. Sends relocate message to all Friendica and Diaspora* contacts of all users.")),
+		'$relocate_url'		=> ['relocate_url', t("New base url"), System::baseUrl(), t("Change base url for this server. Sends relocate message to all Friendica and Diaspora* contacts of all users.")],
 
-		'$rino' 		=> array('rino', t("RINO Encryption"), intval(Config::get('system','rino_encrypt')), t("Encryption layer between nodes."), array("Disabled", "RINO1 (deprecated)", "RINO2")),
+		'$rino' 		=> ['rino', t("RINO Encryption"), intval(Config::get('system','rino_encrypt')), t("Encryption layer between nodes."), ["Disabled", "RINO1 (deprecated)", "RINO2"]],
 
-		'$worker_queues' 	=> array('worker_queues', t("Maximum number of parallel workers"), Config::get('system','worker_queues'), t("On shared hosters set this to 2. On larger systems, values of 10 are great. Default value is 4.")),
-		'$worker_dont_fork'	=> array('worker_dont_fork', t("Don't use 'proc_open' with the worker"), Config::get('system','worker_dont_fork'), t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of worker calls in your crontab.")),
-		'$worker_fastlane'	=> array('worker_fastlane', t("Enable fastlane"), Config::get('system','worker_fastlane'), t("When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.")),
-		'$worker_frontend'	=> array('worker_frontend', t('Enable frontend worker'), Config::get('system','frontend_worker'), t('When enabled the Worker process is triggered when backend access is performed (e.g. messages being delivered). On smaller sites you might want to call %s/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server.', System::baseUrl())),
+		'$worker_queues' 	=> ['worker_queues', t("Maximum number of parallel workers"), Config::get('system','worker_queues'), t("On shared hosters set this to 2. On larger systems, values of 10 are great. Default value is 4.")],
+		'$worker_dont_fork'	=> ['worker_dont_fork', t("Don't use 'proc_open' with the worker"), Config::get('system','worker_dont_fork'), t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of worker calls in your crontab.")],
+		'$worker_fastlane'	=> ['worker_fastlane', t("Enable fastlane"), Config::get('system','worker_fastlane'), t("When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.")],
+		'$worker_frontend'	=> ['worker_frontend', t('Enable frontend worker'), Config::get('system','frontend_worker'), t('When enabled the Worker process is triggered when backend access is performed (e.g. messages being delivered). On smaller sites you might want to call %s/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server.', System::baseUrl())],
 
 		'$form_security_token'	=> get_form_security_token("admin_site")
-	));
+	]);
 }
 
 /**
@@ -1405,7 +1405,7 @@ function admin_page_dbsync(App $a)
 		return $o;
 	}
 
-	$failed = array();
+	$failed = [];
 	$r = q("SELECT `k`, `v` FROM `config` WHERE `cat` = 'database' ");
 	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
@@ -1417,20 +1417,20 @@ function admin_page_dbsync(App $a)
 		}
 	}
 	if (!count($failed)) {
-		$o = replace_macros(get_markup_template('structure_check.tpl'), array(
+		$o = replace_macros(get_markup_template('structure_check.tpl'), [
 			'$base' => System::baseUrl(true),
 			'$banner' => t('No failed updates.'),
 			'$check' => t('Check database structure'),
-		));
+		]);
 	} else {
-		$o = replace_macros(get_markup_template('failed_updates.tpl'), array(
+		$o = replace_macros(get_markup_template('failed_updates.tpl'), [
 			'$base' => System::baseUrl(true),
 			'$banner' => t('Failed Updates'),
 			'$desc' => t('This does not include updates prior to 1139, which did not return a status.'),
 			'$mark' => t('Mark success (if update was manually applied)'),
 			'$apply' => t('Attempt to execute this update step automatically'),
 			'$failed' => $failed
-		));
+		]);
 	}
 
 	return $o;
@@ -1443,8 +1443,8 @@ function admin_page_dbsync(App $a)
  */
 function admin_page_users_post(App $a)
 {
-	$pending     = defaults($_POST, 'pending'          , array());
-	$users       = defaults($_POST, 'user'             , array());
+	$pending     = defaults($_POST, 'pending'          , []);
+	$users       = defaults($_POST, 'user'             , []);
 	$nu_name     = defaults($_POST, 'new_user_name'    , '');
 	$nu_nickname = defaults($_POST, 'new_user_nickname', '');
 	$nu_email    = defaults($_POST, 'new_user_email'   , '');
@@ -1499,12 +1499,12 @@ function admin_page_users_post(App $a)
 		$preamble = sprintf($preamble, $user['username'], $a->config['sitename']);
 		$body = sprintf($body, System::baseUrl(), $user['email'], $result['password'], $a->config['sitename']);
 
-		notification(array(
+		notification([
 			'type' => SYSTEM_EMAIL,
 			'to_email' => $user['email'],
 			'subject' => t('Registration details for %s', $a->config['sitename']),
 			'preamble' => $preamble,
-			'body' => $body));
+			'body' => $body]);
 	}
 
 	if (x($_POST, 'page_users_block')) {
@@ -1595,14 +1595,14 @@ function admin_page_users(App $a)
 	}
 
 	/* ordering */
-	$valid_orders = array(
+	$valid_orders = [
 		'contact.name',
 		'user.email',
 		'user.register_date',
 		'user.login_date',
 		'lastitem_date',
 		'user.page-flags'
-	);
+	];
 
 	$order = "contact.name";
 	$order_direction = "+";
@@ -1629,12 +1629,12 @@ function admin_page_users(App $a)
 
 	$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
 	$_setup_users = function ($e) use ($adminlist) {
-		$accounts = array(
+		$accounts = [
 			t('Normal Account'),
 			t('Automatic Follower Account'),
 			t('Public Forum Account'),
 			t('Automatic Friend Account')
-		);
+		];
 		$e['page-flags'] = $accounts[$e['page-flags']];
 		$e['register_date'] = relative_date($e['register_date']);
 		$e['login_date'] = relative_date($e['login_date']);
@@ -1651,11 +1651,11 @@ function admin_page_users(App $a)
 	// Get rid of dashes in key names, Smarty3 can't handle them
 	// and extracting deleted users
 
-	$tmp_users = array();
-	$deleted = array();
+	$tmp_users = [];
+	$deleted = [];
 
 	while (count($users)) {
-		$new_user = array();
+		$new_user = [];
 		foreach (array_pop($users) as $k => $v) {
 			$k = str_replace('-', '_', $k);
 			$new_user[$k] = $v;
@@ -1672,11 +1672,11 @@ function admin_page_users(App $a)
 		array_push($users, array_pop($tmp_users));
 	}
 
-	$th_users = array_map(null, array(t('Name'), t('Email'), t('Register date'), t('Last login'), t('Last item'), t('Account')), $valid_orders
+	$th_users = array_map(null, [t('Name'), t('Email'), t('Register date'), t('Last login'), t('Last item'), t('Account')], $valid_orders
 	);
 
 	$t = get_markup_template('admin/users.tpl');
-	$o = replace_macros($t, array(
+	$o = replace_macros($t, [
 		// strings //
 		'$title' => t('Administration'),
 		'$page' => t('Users'),
@@ -1684,7 +1684,7 @@ function admin_page_users(App $a)
 		'$select_all' => t('select all'),
 		'$h_pending' => t('User registrations waiting for confirm'),
 		'$h_deleted' => t('User waiting for permanent deletion'),
-		'$th_pending' => array(t('Request date'), t('Name'), t('Email')),
+		'$th_pending' => [t('Request date'), t('Name'), t('Email')],
 		'$no_pending' => t('No registrations.'),
 		'$pendingnotetext' => t('Note from the user'),
 		'$approve' => t('Approve'),
@@ -1697,7 +1697,7 @@ function admin_page_users(App $a)
 
 		'$h_users' => t('Users'),
 		'$h_newuser' => t('New User'),
-		'$th_deleted' => array(t('Name'), t('Email'), t('Register date'), t('Last login'), t('Last item'), t('Deleted since')),
+		'$th_deleted' => [t('Name'), t('Email'), t('Register date'), t('Last login'), t('Last item'), t('Deleted since')],
 		'$th_users' => $th_users,
 		'$order_users' => $order,
 		'$order_direction_users' => $order_direction,
@@ -1713,10 +1713,10 @@ function admin_page_users(App $a)
 		'$pending' => $pending,
 		'deleted' => $deleted,
 		'$users' => $users,
-		'$newusername' => array('new_user_name', t("Name"), '', t("Name of the new user.")),
-		'$newusernickname' => array('new_user_nickname', t("Nickname"), '', t("Nickname of the new user.")),
-		'$newuseremail' => array('new_user_email', t("Email"), '', t("Email address of the new user."), '', '', 'email'),
-	));
+		'$newusername' => ['new_user_name', t("Name"), '', t("Name of the new user.")],
+		'$newusernickname' => ['new_user_nickname', t("Nickname"), '', t("Nickname of the new user.")],
+		'$newuseremail' => ['new_user_email', t("Email"), '', t("Email address of the new user."), '', '', 'email'],
+	]);
 	$o .= paginate($a);
 	return $o;
 }
@@ -1793,7 +1793,7 @@ function admin_page_plugins(App $a)
 
 		$t = get_markup_template('admin/plugins_details.tpl');
 
-		return replace_macros($t, array(
+		return replace_macros($t, [
 			'$title' => t('Administration'),
 			'$page' => t('Plugins'),
 			'$toggle' => t('Toggle'),
@@ -1813,7 +1813,7 @@ function admin_page_plugins(App $a)
 			'$readme' => $readme,
 
 			'$form_security_token' => get_form_security_token("admin_themes"),
-		));
+		]);
 	}
 
 	/*
@@ -1826,7 +1826,7 @@ function admin_page_plugins(App $a)
 		goaway(System::baseUrl() . '/admin/plugins');
 	}
 
-	$plugins = array();
+	$plugins = [];
 	$files = glob("addon/*/");
 	if (is_array($files)) {
 		foreach ($files as $file) {
@@ -1846,14 +1846,14 @@ function admin_page_plugins(App $a)
 				}
 
 				if ($show_plugin) {
-					$plugins[] = array($id, (in_array($id, $a->plugins) ? "on" : "off"), $info);
+					$plugins[] = [$id, (in_array($id, $a->plugins) ? "on" : "off"), $info];
 				}
 			}
 		}
 	}
 
 	$t = get_markup_template('admin/plugins.tpl');
-	return replace_macros($t, array(
+	return replace_macros($t, [
 		'$title' => t('Administration'),
 		'$page' => t('Plugins'),
 		'$submit' => t('Save Settings'),
@@ -1864,7 +1864,7 @@ function admin_page_plugins(App $a)
 		'$pcount' => count($plugins),
 		'$noplugshint' => t('There are currently no plugins available on your node. You can find the official plugin repository at %1$s and might find other interesting plugins in the open plugin registry at %2$s', 'https://github.com/friendica/friendica-addons', 'http://addons.friendi.ca'),
 		'$form_security_token' => get_form_security_token("admin_themes"),
-	));
+	]);
 }
 
 /**
@@ -1948,7 +1948,7 @@ function admin_page_themes(App $a)
 {
 	$allowed_themes_str = Config::get('system', 'allowed_themes');
 	$allowed_themes_raw = explode(',', $allowed_themes_str);
-	$allowed_themes = array();
+	$allowed_themes = [];
 	if (count($allowed_themes_raw)) {
 		foreach ($allowed_themes_raw as $x) {
 			if (strlen(trim($x))) {
@@ -1957,7 +1957,7 @@ function admin_page_themes(App $a)
 		}
 	}
 
-	$themes = array();
+	$themes = [];
 	$files = glob('view/theme/*');
 	if (is_array($files)) {
 		foreach ($files as $file) {
@@ -1976,7 +1976,7 @@ function admin_page_themes(App $a)
 			$is_allowed = intval(in_array($f, $allowed_themes));
 
 			if ($is_allowed || $is_supported || Config::get("system", "show_unsupported_themes")) {
-				$themes[] = array('name' => $f, 'experimental' => $is_experimental, 'supported' => $is_supported, 'allowed' => $is_allowed);
+				$themes[] = ['name' => $f, 'experimental' => $is_experimental, 'supported' => $is_supported, 'allowed' => $is_allowed];
 			}
 		}
 	}
@@ -2056,13 +2056,13 @@ function admin_page_themes(App $a)
 			$a->page = $orig_page;
 		}
 
-		$screenshot = array(get_theme_screenshot($theme), t('Screenshot'));
+		$screenshot = [get_theme_screenshot($theme), t('Screenshot')];
 		if (!stristr($screenshot[0], $theme)) {
 			$screenshot = null;
 		}
 
 		$t = get_markup_template('admin/plugins_details.tpl');
-		return replace_macros($t, array(
+		return replace_macros($t, [
 			'$title' => t('Administration'),
 			'$page' => t('Themes'),
 			'$toggle' => t('Toggle'),
@@ -2080,7 +2080,7 @@ function admin_page_themes(App $a)
 			'$readme' => $readme,
 
 			'$form_security_token' => get_form_security_token("admin_themes"),
-		));
+		]);
 	}
 
 
@@ -2101,13 +2101,13 @@ function admin_page_themes(App $a)
 	 * List themes
 	 */
 
-	$plugins = array();
+	$plugins = [];
 	foreach ($themes as $th) {
-		$plugins[] = array($th['name'], (($th['allowed']) ? "on" : "off"), get_theme_info($th['name']));
+		$plugins[] = [$th['name'], (($th['allowed']) ? "on" : "off"), get_theme_info($th['name'])];
 	}
 
 	$t = get_markup_template('admin/plugins.tpl');
-	return replace_macros($t, array(
+	return replace_macros($t, [
 		'$title'               => t('Administration'),
 		'$page'                => t('Themes'),
 		'$submit'              => t('Save Settings'),
@@ -2120,7 +2120,7 @@ function admin_page_themes(App $a)
 		'$experimental'        => t('[Experimental]'),
 		'$unsupported'         => t('[Unsupported]'),
 		'$form_security_token' => get_form_security_token("admin_themes"),
-	));
+	]);
 }
 
 /**
@@ -2165,13 +2165,13 @@ function admin_page_logs_post(App $a)
  */
 function admin_page_logs(App $a)
 {
-	$log_choices = array(
+	$log_choices = [
 		LOGGER_NORMAL	=> 'Normal',
 		LOGGER_TRACE	=> 'Trace',
 		LOGGER_DEBUG	=> 'Debug',
 		LOGGER_DATA	=> 'Data',
 		LOGGER_ALL	=> 'All'
-	);
+	];
 
 	if (ini_get('log_errors')) {
 		$phplogenabled = t('PHP log currently enabled.');
@@ -2181,7 +2181,7 @@ function admin_page_logs(App $a)
 
 	$t = get_markup_template('admin/logs.tpl');
 
-	return replace_macros($t, array(
+	return replace_macros($t, [
 		'$title' => t('Administration'),
 		'$page' => t('Logs'),
 		'$submit' => t('Save Settings'),
@@ -2189,15 +2189,15 @@ function admin_page_logs(App $a)
 		'$baseurl' => System::baseUrl(true),
 		'$logname' => Config::get('system', 'logfile'),
 		// name, label, value, help string, extra data...
-		'$debugging' => array('debugging', t("Enable Debugging"), Config::get('system', 'debugging'), ""),
-		'$logfile' => array('logfile', t("Log file"), Config::get('system', 'logfile'), t("Must be writable by web server. Relative to your Friendica top-level directory.")),
-		'$loglevel' => array('loglevel', t("Log level"), Config::get('system', 'loglevel'), "", $log_choices),
+		'$debugging' => ['debugging', t("Enable Debugging"), Config::get('system', 'debugging'), ""],
+		'$logfile' => ['logfile', t("Log file"), Config::get('system', 'logfile'), t("Must be writable by web server. Relative to your Friendica top-level directory.")],
+		'$loglevel' => ['loglevel', t("Log level"), Config::get('system', 'loglevel'), "", $log_choices],
 		'$form_security_token' => get_form_security_token("admin_logs"),
 		'$phpheader' => t("PHP logging"),
 		'$phphint' => t("To enable logging of PHP errors and warnings you can add the following to the .htconfig.php file of your installation. The filename set in the 'error_log' line is relative to the friendica top-level directory and must be writeable by the web server. The option '1' for 'log_errors' and 'display_errors' is to enable these options, set to '0' to disable them."),
 		'$phplogcode' => "error_reporting(E_ERROR | E_WARNING | E_PARSE);\nini_set('error_log','php.out');\nini_set('log_errors','1');\nini_set('display_errors', '1');",
 		'$phplogenabled' => $phplogenabled,
-	));
+	]);
 }
 
 /**
@@ -2248,12 +2248,12 @@ function admin_page_viewlogs(App $a)
 			fclose($fp);
 		}
 	}
-	return replace_macros($t, array(
+	return replace_macros($t, [
 		'$title' => t('Administration'),
 		'$page' => t('View Logs'),
 		'$data' => $data,
 		'$logname' => Config::get('system', 'logfile')
-	));
+	]);
 }
 
 /**
@@ -2311,28 +2311,28 @@ function admin_page_features_post(App $a)
 function admin_page_features(App $a)
 {
 	if ((argc() > 1) && (argv(1) === 'features')) {
-		$arr = array();
+		$arr = [];
 		$features = Feature::get(false);
 
 		foreach ($features as $fname => $fdata) {
-			$arr[$fname] = array();
+			$arr[$fname] = [];
 			$arr[$fname][0] = $fdata[0];
 			foreach (array_slice($fdata, 1) as $f) {
 				$set = Config::get('feature', $f[0], $f[3]);
-				$arr[$fname][1][] = array(
-					array('feature_' . $f[0], $f[1], $set, $f[2], array(t('Off'), t('On'))),
-					array('featurelock_' . $f[0], t('Lock feature %s', $f[1]), (($f[4] !== false) ? "1" : ''), '', array(t('Off'), t('On')))
-				);
+				$arr[$fname][1][] = [
+					['feature_' . $f[0], $f[1], $set, $f[2], [t('Off'), t('On')]],
+					['featurelock_' . $f[0], t('Lock feature %s', $f[1]), (($f[4] !== false) ? "1" : ''), '', [t('Off'), t('On')]]
+				];
 			}
 		}
 
 		$tpl = get_markup_template('admin/settings_features.tpl');
-		$o = replace_macros($tpl, array(
+		$o = replace_macros($tpl, [
 			'$form_security_token' => get_form_security_token("admin_manage_features"),
 			'$title' => t('Manage Additional Features'),
 			'$features' => $arr,
 			'$submit' => t('Save Settings'),
-		));
+		]);
 
 		return $o;
 	}

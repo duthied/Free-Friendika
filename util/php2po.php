@@ -13,7 +13,7 @@ DEFINE("NORM_REGEXP", "|[\\\]|");
 
 if(! class_exists('App')) {
 	class TmpA {
-		public $strings = Array();
+		public $strings = [];
 	}
 	$a = new TmpA();
 }
@@ -91,10 +91,10 @@ $out .= "\n";
 print "\nLoading base message.po...";
 
 // load base messages.po and extract msgids
-$base_msgids = array();
-$norm_base_msgids = array();
+$base_msgids = [];
+$norm_base_msgids = [];
 $base_f = file("util/messages.po") || die("No base messages.po\n");
-$_f = 0; $_mid = ""; $_mids = array();
+$_f = 0; $_mid = ""; $_mids = [];
 foreach( $base_f as $l) {
 	$l = trim($l);
 	//~ print $l."\n";
@@ -108,7 +108,7 @@ foreach( $base_f as $l) {
 
 		$_f = 0;
 		$_mid = "";
-		$_mids = array();
+		$_mids = [];
 
 	}
 
@@ -130,7 +130,7 @@ foreach( $base_f as $l) {
 	if (startsWith($l, 'msgid ')) {
 		$_f = 1;
 		$_mid = str_replace('msgid ', '' , $l);
-			$_mids = array($_mid);
+			$_mids = [$_mid];
 		//~ print "\t mid: $_mid \n";
 	}
 	//~ print "\t\t\t\t$_f\n\n";

@@ -26,13 +26,13 @@ class UpdateGContact {
 			return;
 		}
 
-		if (!in_array($r[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
+		if (!in_array($r[0]["network"], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS])) {
 			return;
 		}
 
 		$data = Probe::uri($r[0]["url"]);
 
-		if (!in_array($data["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
+		if (!in_array($data["network"], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS])) {
 			if ($r[0]["server_url"] != "")
 				PortableContact::checkServer($r[0]["server_url"], $r[0]["network"]);
 

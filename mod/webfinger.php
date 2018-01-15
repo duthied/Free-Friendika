@@ -7,8 +7,8 @@ function webfinger_content(App $a) {
 
 	if (!local_user()) {
 		http_status_exit(403,
-				array("title" => t("Public access denied."),
-					"description" => t("Only logged in users are permitted to perform a probing.")));
+				["title" => t("Public access denied."),
+					"description" => t("Only logged in users are permitted to perform a probing.")]);
 		killme();
 	}
 

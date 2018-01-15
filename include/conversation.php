@@ -19,7 +19,7 @@ require_once "include/acl_selectors.php";
 
 function item_extract_images($body) {
 
-	$saved_image = array();
+	$saved_image = [];
 	$orig_body = $body;
 	$new_body = '';
 
@@ -57,7 +57,7 @@ function item_extract_images($body) {
 
 	$new_body = $new_body . $orig_body;
 
-	return array('body' => $new_body, 'images' => $saved_image);
+	return ['body' => $new_body, 'images' => $saved_image];
 }
 
 function item_redir_and_replace_images($body, $images, $cid) {
@@ -145,7 +145,7 @@ function localize_item(&$item) {
 			default:
 				if ($obj['resource-id']) {
 					$post_type = t('photo');
-					$m = array();
+					$m = [];
 					preg_match("/\[url=([^]]*)\]/", $obj['body'], $m);
 					$rr['plink'] = $m[1];
 				} else {
@@ -283,7 +283,7 @@ function localize_item(&$item) {
 			default:
 				if ($obj['resource-id']) {
 					$post_type = t('photo');
-					$m=array(); preg_match("/\[url=([^]]*)\]/", $obj['body'], $m);
+					$m=[]; preg_match("/\[url=([^]]*)\]/", $obj['body'], $m);
 					$rr['plink'] = $m[1];
 				} else {
 					$post_type = t('status');
@@ -382,7 +382,7 @@ function visible_activity($item) {
 	 * likes (etc.) can apply to other things besides posts. Check if they are post children,
 	 * in which case we handle them specially
 	 */
-	$hidden_activities = array(ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE);
+	$hidden_activities = [ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE];
 	foreach ($hidden_activities as $act) {
 		if (activity_match($item['verb'], $act)) {
 			return false;
@@ -595,18 +595,18 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 		$_SESSION['return_url'] = $a->query_string;
 	}
 
-	$cb = array('items' => $items, 'mode' => $mode, 'update' => $update, 'preview' => $preview);
+	$cb = ['items' => $items, 'mode' => $mode, 'update' => $update, 'preview' => $preview];
 	call_hooks('conversation_start',$cb);
 
 	$items = $cb['items'];
 
-	$conv_responses = array(
-		'like' => array('title' => t('Likes','title')), 'dislike' => array('title' => t('Dislikes','title')),
-		'attendyes' => array('title' => t('Attending','title')), 'attendno' => array('title' => t('Not attending','title')), 'attendmaybe' => array('title' => t('Might attend','title'))
-	);
+	$conv_responses = [
+		'like' => ['title' => t('Likes','title')], 'dislike' => ['title' => t('Dislikes','title')],
+		'attendyes' => ['title' => t('Attending','title')], 'attendno' => ['title' => t('Not attending','title')], 'attendmaybe' => ['title' => t('Might attend','title')]
+	];
 
 	// array with html for each thread (parent+comments)
-	$threads = array();
+	$threads = [];
 	$threadsid = -1;
 
 	$page_template = get_markup_template("conversation.tpl");
@@ -620,7 +620,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 				$community_readonly = false;
 				$writable = true;
 			} else {
-				$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], array(NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_DFRN));
+				$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], [NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_DFRN]);
 			}
 		} else {
 			$writable = false;
@@ -673,15 +673,15 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 					$profile_name = $item['author-link'];
 				}
 
-				$tags = array();
-				$hashtags = array();
-				$mentions = array();
+				$tags = [];
+				$hashtags = [];
+				$mentions = [];
 
 				$searchpath = System::baseUrl()."/search?tag=";
 
-				$taglist = dba::select('term', array('type', 'term', 'url'),
-							array("`otype` = ? AND `oid` = ? AND `type` IN (?, ?)", TERM_OBJ_POST, $item['id'], TERM_HASHTAG, TERM_MENTION),
-							array('order' => array('tid')));
+				$taglist = dba::select('term', ['type', 'term', 'url'],
+							["`otype` = ? AND `oid` = ? AND `type` IN (?, ?)", TERM_OBJ_POST, $item['id'], TERM_HASHTAG, TERM_MENTION],
+							['order' => ['tid']]);
 
 				while ($tag = dba::fetch($taglist)) {
 					if ($tag["url"] == "") {
@@ -731,7 +731,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 					}
 				}
 
-				$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
+				$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
 				call_hooks('render_location',$locate);
 
 				$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
@@ -743,12 +743,12 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 					$dropping = false;
 				}
 
-				$drop = array(
+				$drop = [
 					'dropping' => $dropping,
 					'pagedrop' => $page_dropping,
 					'select' => t('Select'),
 					'delete' => t('Delete'),
-				);
+				];
 
 				$star = false;
 				$isstarred = "unstarred";
@@ -773,7 +773,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 					$item['item_network'] = $item['network'];
 				}
 
-				$tmp_item = array(
+				$tmp_item = [
 					'template' => $tpl,
 					'id' => (($preview) ? 'P0' : $item['item_id']),
 					'guid' => (($preview) ? 'Q0' : $item['guid']),
@@ -814,18 +814,18 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 					'like' => '',
 					'dislike' => '',
 					'comment' => '',
-					'conv' => (($preview) ? '' : array('href'=> 'display/'.$item['guid'], 'title'=> t('View in context'))),
+					'conv' => (($preview) ? '' : ['href'=> 'display/'.$item['guid'], 'title'=> t('View in context')]),
 					'previewing' => $previewing,
 					'wait' => t('Please wait'),
 					'thread_level' => 1,
-				);
+				];
 
-				$arr = array('item' => $item, 'output' => $tmp_item);
+				$arr = ['item' => $item, 'output' => $tmp_item];
 				call_hooks('display_item', $arr);
 
 				$threads[$threadsid]['id'] = $item['item_id'];
 				$threads[$threadsid]['network'] = $item['item_network'];
-				$threads[$threadsid]['items'] = array($arr['output']);
+				$threads[$threadsid]['items'] = [$arr['output']];
 
 			}
 		} else {
@@ -878,12 +878,12 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 			$threads = $conv->getTemplateData($conv_responses);
 			if (!$threads) {
 				logger('[ERROR] conversation : Failed to get template data.', LOGGER_DEBUG);
-				$threads = array();
+				$threads = [];
 			}
 		}
 	}
 
-	$o = replace_macros($page_template, array(
+	$o = replace_macros($page_template, [
 		'$baseurl' => System::baseUrl($ssl_state),
 		'$return_path' => $a->query_string,
 		'$live_update' => $live_update_div,
@@ -892,7 +892,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 		'$user' => $a->user,
 		'$threads' => $threads,
 		'$dropping' => ($page_dropping && Feature::isEnabled(local_user(), 'multi_delete') ? t('Delete Selected Items') : False),
-	));
+	]);
 
 	return $o;
 }
@@ -910,7 +910,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 function community_add_items($parents) {
 	$max_comments = Config::get("system", "max_comments", 100);
 
-	$items = array();
+	$items = [];
 
 	foreach ($parents AS $parent) {
 		$thread_items = dba::p(item_query()." AND `item`.`uid` = ?
@@ -932,7 +932,7 @@ function community_add_items($parents) {
 				}
 			}
 			if (!$parent_found) {
-				$comments = array();
+				$comments = [];
 			}
 		}
 
@@ -1046,13 +1046,13 @@ function item_photo_menu($item) {
 		$contact_url = 'contacts/' . $cid;
 		$posts_link = 'contacts/' . $cid . '/posts';
 
-		if (in_array($network, array(NETWORK_DFRN, NETWORK_DIASPORA))) {
+		if (in_array($network, [NETWORK_DFRN, NETWORK_DIASPORA])) {
 			$pm_url = 'message/new/' . $cid;
 		}
 	}
 
 	if (local_user()) {
-		$menu = array(
+		$menu = [
 			t('Follow Thread') => $sub_link,
 			t('View Status') => $status_link,
 			t('View Profile') => $profile_link,
@@ -1060,21 +1060,21 @@ function item_photo_menu($item) {
 			t('Network Posts') => $posts_link,
 			t('View Contact') => $contact_url,
 			t('Send PM') => $pm_url
-		);
+		];
 
 		if ($network == NETWORK_DFRN) {
 			$menu[t("Poke")] = $poke_link;
 		}
 
 		if ((($cid == 0) || ($rel == CONTACT_IS_FOLLOWER)) &&
-			in_array($item['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA))) {
+			in_array($item['network'], [NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA])) {
 			$menu[t('Connect/Follow')] = 'follow?url=' . urlencode($item['author-link']);
 		}
 	} else {
-		$menu = array(t('View Profile') => $item['author-link']);
+		$menu = [t('View Profile') => $item['author-link']];
 	}
 
-	$args = array('item' => $item, 'menu' => $menu);
+	$args = ['item' => $item, 'menu' => $menu];
 
 	call_hooks('item_photo_menu', $args);
 
@@ -1142,7 +1142,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 
 			if (! ((isset($conv_responses[$mode][$item['thr-parent'] . '-l']))
 				&& (is_array($conv_responses[$mode][$item['thr-parent'] . '-l'])))) {
-				$conv_responses[$mode][$item['thr-parent'] . '-l'] = array();
+				$conv_responses[$mode][$item['thr-parent'] . '-l'] = [];
 			}
 
 			// only list each unique author once
@@ -1250,11 +1250,11 @@ function format_like($cnt, array $arr, $type, $id) {
 	}
 
 	$phrase .= EOL ;
-	$o .= replace_macros(get_markup_template('voting_fakelink.tpl'), array(
+	$o .= replace_macros(get_markup_template('voting_fakelink.tpl'), [
 		'$phrase' => $phrase,
 		'$type' => $type,
 		'$id' => $id
-	));
+	]);
 	$o .= $expanded;
 
 	return $o;
@@ -1264,10 +1264,10 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 {
 	$o = '';
 
-	$geotag = x($x, 'allow_location') ? replace_macros(get_markup_template('jot_geotag.tpl'), array()) : '';
+	$geotag = x($x, 'allow_location') ? replace_macros(get_markup_template('jot_geotag.tpl'), []) : '';
 
 	$tpl = get_markup_template('jot-header.tpl');
-	$a->page['htmlhead'] .= replace_macros($tpl, array(
+	$a->page['htmlhead'] .= replace_macros($tpl, [
 		'$newpost'   => 'true',
 		'$baseurl'   => System::baseUrl(true),
 		'$geotag'    => $geotag,
@@ -1280,10 +1280,10 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$fileas'    => t('Save to Folder:'),
 		'$whereareu' => t('Where are you right now?'),
 		'$delitems'  => t('Delete item(s)?')
-	));
+	]);
 
 	$tpl = get_markup_template('jot-end.tpl');
-	$a->page['end'] .= replace_macros($tpl, array(
+	$a->page['end'] .= replace_macros($tpl, [
 		'$newpost'   => 'true',
 		'$baseurl'   => System::baseUrl(true),
 		'$geotag'    => $geotag,
@@ -1295,7 +1295,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$term'      => t('Tag term:'),
 		'$fileas'    => t('Save to Folder:'),
 		'$whereareu' => t('Where are you right now?')
-	));
+	]);
 
 	$jotplugins = '';
 	call_hooks('jot_tool', $jotplugins);
@@ -1308,7 +1308,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 
 	$query_str = $a->query_string;
 	if (strpos($query_str, 'public=1') !== false) {
-		$query_str = str_replace(array('?public=1', '&public=1'), array('', ''), $query_str);
+		$query_str = str_replace(['?public=1', '&public=1'], ['', ''], $query_str);
 	}
 
 	/*
@@ -1325,7 +1325,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 	// $tpl = replace_macros($tpl,array('$jotplugins' => $jotplugins));
 	$tpl = get_markup_template("jot.tpl");
 
-	$o .= replace_macros($tpl,array(
+	$o .= replace_macros($tpl,[
 		'$return_path'  => $query_str,
 		'$action'       => 'item',
 		'$share'        => defaults($x, 'button', t('Share')),
@@ -1379,7 +1379,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		//jot nav tab (used in some themes)
 		'$message' => t('Message'),
 		'$browser' => t('Browser'),
-	));
+	]);
 
 
 	if ($popup == true) {
@@ -1636,9 +1636,9 @@ function render_location_dummy($item) {
 
 /// @TODO Add type-hint
 function get_responses($conv_responses, $response_verbs, $ob, $item) {
-	$ret = array();
+	$ret = [];
 	foreach ($response_verbs as $v) {
-		$ret[$v] = array();
+		$ret[$v] = [];
 		$ret[$v]['count'] = defaults($conv_responses[$v], $item['uri'], '');
 		$ret[$v]['list']  = defaults($conv_responses[$v], $item['uri'] . '-l', '');
 		$ret[$v]['self']  = defaults($conv_responses[$v], $item['uri'] . '-self', '0');

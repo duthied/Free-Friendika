@@ -27,7 +27,7 @@ class UserImport
 		if (self::IMPORT_DEBUG) {
 			return 1;
 		}
-	
+
 		return dba::lastInsertId();
 	}
 
@@ -42,7 +42,7 @@ class UserImport
 		$query = sprintf("SHOW COLUMNS IN `%s`", dbesc($table));
 		logger("uimport: $query", LOGGER_DEBUG);
 		$r = q($query);
-		$tcols = array();
+		$tcols = [];
 		// get a plain array of column names
 		foreach ($r as $tcol) {
 			$tcols[] = $tcol['Field'];
@@ -156,7 +156,7 @@ class UserImport
 		unset($account['user']['expire_notification_sent']);
 
 		$callback = function (&$value) use ($oldbaseurl, $oldaddr, $newbaseurl, $newaddr) {
-			$value =  str_replace(array($oldbaseurl, $oldaddr), array($newbaseurl, $newaddr), $value);
+			$value =  str_replace([$oldbaseurl, $oldaddr], [$newbaseurl, $newaddr], $value);
 		};
 
 		array_walk($account['user'], $callback);
@@ -177,8 +177,8 @@ class UserImport
 
 		foreach ($account['profile'] as &$profile) {
 			foreach ($profile as $k => &$v) {
-				$v = str_replace(array($oldbaseurl, $oldaddr), array($newbaseurl, $newaddr), $v);
-				foreach (array("profile", "avatar") as $k) {
+				$v = str_replace([$oldbaseurl, $oldaddr], [$newbaseurl, $newaddr], $v);
+				foreach (["profile", "avatar"] as $k) {
 					$v = str_replace($oldbaseurl . "/photo/" . $k . "/" . $olduid . ".jpg", $newbaseurl . "/photo/" . $k . "/" . $newuid . ".jpg", $v);
 				}
 			}
@@ -187,7 +187,7 @@ class UserImport
 			if ($r === false) {
 				logger("uimport:insert profile " . $profile['profile-name'] . " : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
 				info(t("User profile creation error"));
-				dba::delete('user', array('uid' => $newuid));
+				dba::delete('user', ['uid' => $newuid]);
 				return;
 			}
 		}
@@ -196,8 +196,8 @@ class UserImport
 		foreach ($account['contact'] as &$contact) {
 			if ($contact['uid'] == $olduid && $contact['self'] == '1') {
 				foreach ($contact as $k => &$v) {
-					$v = str_replace(array($oldbaseurl, $oldaddr), array($newbaseurl, $newaddr), $v);
-					foreach (array("profile", "avatar", "micro") as $k) {
+					$v = str_replace([$oldbaseurl, $oldaddr], [$newbaseurl, $newaddr], $v);
+					foreach (["profile", "avatar", "micro"] as $k) {
 						$v = str_replace($oldbaseurl . "/photo/" . $k . "/" . $olduid . ".jpg", $newbaseurl . "/photo/" . $k . "/" . $newuid . ".jpg", $v);
 					}
 				}

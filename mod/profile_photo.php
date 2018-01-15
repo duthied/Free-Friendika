@@ -254,7 +254,7 @@ function profile_photo_content(App $a) {
 
 		$tpl = get_markup_template('profile_photo.tpl');
 
-		$o .= replace_macros($tpl,array(
+		$o .= replace_macros($tpl,[
 			'$user' => $a->user['nickname'],
 			'$lbl_upfile' => t('Upload File:'),
 			'$lbl_profiles' => t('Select a profile:'),
@@ -263,7 +263,7 @@ function profile_photo_content(App $a) {
 			'$profiles' => $profiles,
 			'$form_security_token' => get_form_security_token("profile_photo"),
 			'$select' => sprintf('%s %s', t('or'), ($newuser) ? '<a href="' . System::baseUrl() . '">' . t('skip this step') . '</a>' : '<a href="'. System::baseUrl() . '/photos/' . $a->user['nickname'] . '">' . t('select a photo from your photo albums') . '</a>')
-		));
+		]);
 
 		return $o;
 	}
@@ -271,7 +271,7 @@ function profile_photo_content(App $a) {
 		$filename = $a->config['imagecrop'] . '-' . $a->config['imagecrop_resolution'] . '.'.$a->config['imagecrop_ext'];
 		$resolution = $a->config['imagecrop_resolution'];
 		$tpl = get_markup_template("cropbody.tpl");
-		$o .= replace_macros($tpl,array(
+		$o .= replace_macros($tpl,[
 			'$filename' => $filename,
 			'$profile' => intval($_REQUEST['profile']),
 			'$resource' => $a->config['imagecrop'] . '-' . $a->config['imagecrop_resolution'],
@@ -280,7 +280,7 @@ function profile_photo_content(App $a) {
 			'$desc' => t('Please adjust the image cropping for optimum viewing.'),
 			'$form_security_token' => get_form_security_token("profile_photo"),
 			'$done' => t('Done Editing')
-		));
+		]);
 		return $o;
 	}
 
@@ -333,7 +333,7 @@ function profile_photo_crop_ui_head(App $a, Image $Image) {
 	$a->config['imagecrop'] = $hash;
 	$a->config['imagecrop_resolution'] = $smallest;
 	$a->config['imagecrop_ext'] = $Image->getExt();
-	$a->page['htmlhead'] .= replace_macros(get_markup_template("crophead.tpl"), array());
-	$a->page['end'] .= replace_macros(get_markup_template("cropend.tpl"), array());
+	$a->page['htmlhead'] .= replace_macros(get_markup_template("crophead.tpl"), []);
+	$a->page['end'] .= replace_macros(get_markup_template("cropend.tpl"), []);
 	return;
 }

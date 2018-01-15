@@ -44,7 +44,7 @@ class FKOAuthDataStore extends OAuthDataStore
 	{
 		logger(__function__ . ":" . $consumer_key);
 
-		$s = dba::select('clients', array('client_id', 'pw', 'redirect_uri'), array('client_id' => $consumer_key));
+		$s = dba::select('clients', ['client_id', 'pw', 'redirect_uri'], ['client_id' => $consumer_key]);
 		$r = dba::inArray($s);
 
 		if (DBM::is_result($r)) {
@@ -64,7 +64,7 @@ class FKOAuthDataStore extends OAuthDataStore
 	{
 		logger(__function__ . ":" . $consumer . ", " . $token_type . ", " . $token);
 
-		$s = dba::select('tokens', array('id', 'secret', 'scope', 'expires', 'uid'), array('client_id' => $consumer->key, 'scope' => $token_type, 'id' => $token));
+		$s = dba::select('tokens', ['id', 'secret', 'scope', 'expires', 'uid'], ['client_id' => $consumer->key, 'scope' => $token_type, 'id' => $token]);
 		$r = dba::inArray($s);
 
 		if (DBM::is_result($r)) {
@@ -114,12 +114,12 @@ class FKOAuthDataStore extends OAuthDataStore
 
 		$r = dba::insert(
 			'tokens',
-			array(
+			[
 				'id' => $key,
 				'secret' => $sec,
 				'client_id' => $k,
 				'scope' => 'request',
-				'expires' => time() + REQUEST_TOKEN_DURATION)
+				'expires' => time() + REQUEST_TOKEN_DURATION]
 		);
 
 		if (!$r) {
@@ -155,13 +155,13 @@ class FKOAuthDataStore extends OAuthDataStore
 			$sec = self::genToken();
 			$r = dba::insert(
 				'tokens',
-				array(
+				[
 					'id' => $key,
 					'secret' => $sec,
 					'client_id' => $consumer->key,
 					'scope' => 'access',
 					'expires' => time() + ACCESS_TOKEN_DURATION,
-					'uid' => $uverifier)
+					'uid' => $uverifier]
 			);
 
 			if ($r) {
@@ -169,7 +169,7 @@ class FKOAuthDataStore extends OAuthDataStore
 			}
 		}
 
-		dba::delete('tokens', array('id' => $token->key));
+		dba::delete('tokens', ['id' => $token->key]);
 
 		if (!is_null($ret) && !is_null($uverifier)) {
 			Config::delete("oauth", $verifier);

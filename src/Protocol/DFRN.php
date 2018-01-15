@@ -475,7 +475,7 @@ class DFRN
 				WHERE `profile` = 1 AND `uid` = %d ORDER BY scale;",
 			$uid
 		);
-		$photos = array();
+		$photos = [];
 		$ext = Image::supportedTypes();
 
 		foreach ($rp as $p) {
@@ -544,13 +544,13 @@ class DFRN
 		XML::addElement($doc, $root, "id", System::baseUrl()."/profile/".$owner["nick"]);
 		XML::addElement($doc, $root, "title", $owner["name"]);
 
-		$attributes = array("uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION."-".DB_UPDATE_VERSION);
+		$attributes = ["uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION."-".DB_UPDATE_VERSION];
 		XML::addElement($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
 
-		$attributes = array("rel" => "license", "href" => "http://creativecommons.org/licenses/by/3.0/");
+		$attributes = ["rel" => "license", "href" => "http://creativecommons.org/licenses/by/3.0/"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
-		$attributes = array("rel" => "alternate", "type" => "text/html", "href" => $alternatelink);
+		$attributes = ["rel" => "alternate", "type" => "text/html", "href" => $alternatelink];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
 
@@ -558,13 +558,13 @@ class DFRN
 			// DFRN itself doesn't uses this. But maybe someone else wants to subscribe to the public feed.
 			OStatus::hublinks($doc, $root, $owner["nick"]);
 
-			$attributes = array("rel" => "salmon", "href" => System::baseUrl()."/salmon/".$owner["nick"]);
+			$attributes = ["rel" => "salmon", "href" => System::baseUrl()."/salmon/".$owner["nick"]];
 			XML::addElement($doc, $root, "link", "", $attributes);
 
-			$attributes = array("rel" => "http://salmon-protocol.org/ns/salmon-replies", "href" => System::baseUrl()."/salmon/".$owner["nick"]);
+			$attributes = ["rel" => "http://salmon-protocol.org/ns/salmon-replies", "href" => System::baseUrl()."/salmon/".$owner["nick"]];
 			XML::addElement($doc, $root, "link", "", $attributes);
 
-			$attributes = array("rel" => "http://salmon-protocol.org/ns/salmon-mention", "href" => System::baseUrl()."/salmon/".$owner["nick"]);
+			$attributes = ["rel" => "http://salmon-protocol.org/ns/salmon-mention", "href" => System::baseUrl()."/salmon/".$owner["nick"]];
 			XML::addElement($doc, $root, "link", "", $attributes);
 		}
 
@@ -617,18 +617,18 @@ class DFRN
 		$uridate = datetime_convert('UTC', 'UTC', $owner['uri-date'].'+00:00', ATOM_TIME);
 		$picdate = datetime_convert('UTC', 'UTC', $owner['avatar-date'].'+00:00', ATOM_TIME);
 
-		$attributes = array();
+		$attributes = [];
 
 		if (!$public || !$hidewall) {
-			$attributes = array("dfrn:updated" => $namdate);
+			$attributes = ["dfrn:updated" => $namdate];
 		}
 
 		XML::addElement($doc, $author, "name", $owner["name"], $attributes);
 		XML::addElement($doc, $author, "uri", System::baseUrl().'/profile/'.$owner["nickname"], $attributes);
 		XML::addElement($doc, $author, "dfrn:handle", $owner["addr"], $attributes);
 
-		$attributes = array("rel" => "photo", "type" => "image/jpeg",
-					"media:width" => 175, "media:height" => 175, "href" => $owner['photo']);
+		$attributes = ["rel" => "photo", "type" => "image/jpeg",
+					"media:width" => 175, "media:height" => 175, "href" => $owner['photo']];
 
 		if (!$public || !$hidewall) {
 			$attributes["dfrn:updated"] = $picdate;
@@ -753,20 +753,20 @@ class DFRN
 		/// @Todo
 		/// - Check real image type and image size
 		/// - Check which of these boths elements we should use
-		$attributes = array(
+		$attributes = [
 				"rel" => "photo",
 				"type" => "image/jpeg",
 				"media:width" => 80,
 				"media:height" => 80,
-				"href" => $contact["photo"]);
+				"href" => $contact["photo"]];
 		XML::addElement($doc, $author, "link", "", $attributes);
 
-		$attributes = array(
+		$attributes = [
 				"rel" => "avatar",
 				"type" => "image/jpeg",
 				"media:width" => 80,
 				"media:height" => 80,
-				"href" => $contact["photo"]);
+				"href" => $contact["photo"]];
 		XML::addElement($doc, $author, "link", "", $attributes);
 
 		return $author;
@@ -813,7 +813,7 @@ class DFRN
 					$data = parse_xml_string("<dummy>" . $r->link . "</dummy>", false);
 					if (is_object($data)) {
 						foreach ($data->link as $link) {
-							$attributes = array();
+							$attributes = [];
 							foreach ($link->attributes() as $parameter => $value) {
 								$attributes[$parameter] = $value;
 							}
@@ -821,12 +821,12 @@ class DFRN
 						}
 					}
 				} else {
-					$attributes = array("rel" => "alternate", "type" => "text/html", "href" => $r->link);
+					$attributes = ["rel" => "alternate", "type" => "text/html", "href" => $r->link];
 					XML::addElement($doc, $entry, "link", "", $attributes);
 				}
 			}
 			if ($r->content) {
-				XML::addElement($doc, $entry, "content", bbcode($r->content), array("type" => "html"));
+				XML::addElement($doc, $entry, "content", bbcode($r->content), ["type" => "html"]);
 			}
 
 			return $entry;
@@ -853,9 +853,9 @@ class DFRN
 				$matches = false;
 				$cnt = preg_match('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\" title=\"(.*?)\"|', $r, $matches);
 				if ($cnt) {
-					$attributes = array("rel" => "enclosure",
+					$attributes = ["rel" => "enclosure",
 							"href" => $matches[1],
-							"type" => $matches[3]);
+							"type" => $matches[3]];
 
 					if (intval($matches[2])) {
 						$attributes["length"] = intval($matches[2]);
@@ -887,14 +887,14 @@ class DFRN
 	 */
 	private static function entry($doc, $type, $item, $owner, $comment = false, $cid = 0, $single = false)
 	{
-		$mentioned = array();
+		$mentioned = [];
 
 		if (!$item['parent']) {
 			return;
 		}
 
 		if ($item['deleted']) {
-			$attributes = array("ref" => $item['uri'], "when" => datetime_convert('UTC', 'UTC', $item['edited'] . '+00:00', ATOM_TIME));
+			$attributes = ["ref" => $item['uri'], "when" => datetime_convert('UTC', 'UTC', $item['edited'] . '+00:00', ATOM_TIME)];
 			return XML::createElement($doc, "at:deleted-entry", "", $attributes);
 		}
 
@@ -943,9 +943,9 @@ class DFRN
 		if (($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
 			$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 			$parent = q("SELECT `guid`,`plink` FROM `item` WHERE `uri` = '%s' AND `uid` = %d", dbesc($parent_item), intval($item['uid']));
-			$attributes = array("ref" => $parent_item, "type" => "text/html",
+			$attributes = ["ref" => $parent_item, "type" => "text/html",
 						"href" => $parent[0]['plink'],
-						"dfrn:diaspora_guid" => $parent[0]['guid']);
+						"dfrn:diaspora_guid" => $parent[0]['guid']];
 			XML::addElement($doc, $entry, "thr:in-reply-to", "", $attributes);
 		}
 
@@ -965,9 +965,9 @@ class DFRN
 			}
 		}
 
-		$attributes = array(
+		$attributes = [
 				"href" => $conversation_href,
-				"ref" => $conversation_uri);
+				"ref" => $conversation_uri];
 
 		XML::addElement($doc, $entry, "ostatus:conversation", $conversation_uri, $attributes);
 
@@ -982,7 +982,7 @@ class DFRN
 
 		// The "content" field is not read by the receiver. We could remove it when the type is "text"
 		// We keep it at the moment, maybe there is some old version that doesn't read "dfrn:env"
-		XML::addElement($doc, $entry, "content", (($type == 'html') ? $htmlbody : $body), array("type" => $type));
+		XML::addElement($doc, $entry, "content", (($type == 'html') ? $htmlbody : $body), ["type" => $type]);
 
 		// We save this value in "plink". Maybe we should read it from there as well?
 		XML::addElement(
@@ -990,8 +990,8 @@ class DFRN
 			$entry,
 			"link",
 			"",
-			array("rel" => "alternate", "type" => "text/html",
-				 "href" => System::baseUrl() . "/display/" . $item["guid"])
+			["rel" => "alternate", "type" => "text/html",
+				 "href" => System::baseUrl() . "/display/" . $item["guid"]]
 		);
 
 		// "comment-allow" is some old fashioned stuff for old Friendica versions.
@@ -1021,7 +1021,7 @@ class DFRN
 		}
 
 		if ($item['app']) {
-			XML::addElement($doc, $entry, "statusnet:notice_info", "", array("local_id" => $item['id'], "source" => $item['app']));
+			XML::addElement($doc, $entry, "statusnet:notice_info", "", ["local_id" => $item['id'], "source" => $item['app']]);
 		}
 
 		XML::addElement($doc, $entry, "dfrn:diaspora_guid", $item["guid"]);
@@ -1029,7 +1029,7 @@ class DFRN
 		// The signed text contains the content in Markdown, the sender handle and the signatur for the content
 		// It is needed for relayed comments to Diaspora.
 		if ($item['signed_text']) {
-			$sign = base64_encode(json_encode(array('signed_text' => $item['signed_text'],'signature' => $item['signature'],'signer' => $item['signer'])));
+			$sign = base64_encode(json_encode(['signed_text' => $item['signed_text'],'signature' => $item['signature'],'signer' => $item['signer']]));
 			XML::addElement($doc, $entry, "dfrn:diaspora_signature", $sign);
 		}
 
@@ -1058,7 +1058,7 @@ class DFRN
 		if (count($tags)) {
 			foreach ($tags as $t) {
 				if (($type != 'html') || ($t[0] != "@")) {
-					XML::addElement($doc, $entry, "category", "", array("scheme" => "X-DFRN:".$t[0].":".$t[1], "term" => $t[2]));
+					XML::addElement($doc, $entry, "category", "", ["scheme" => "X-DFRN:".$t[0].":".$t[1], "term" => $t[2]]);
 				}
 			}
 		}
@@ -1084,9 +1084,9 @@ class DFRN
 					$entry,
 					"link",
 					"",
-					array("rel" => "mentioned",
+					["rel" => "mentioned",
 							"ostatus:object-type" => ACTIVITY_OBJ_GROUP,
-							"href" => $mention)
+							"href" => $mention]
 				);
 			} else {
 				XML::addElement(
@@ -1094,9 +1094,9 @@ class DFRN
 					$entry,
 					"link",
 					"",
-					array("rel" => "mentioned",
+					["rel" => "mentioned",
 							"ostatus:object-type" => ACTIVITY_OBJ_PERSON,
-							"href" => $mention)
+							"href" => $mention]
 				);
 			}
 		}
@@ -1212,7 +1212,7 @@ class DFRN
 			return (($res->status) ? $res->status : 3);
 		}
 
-		$postvars     = array();
+		$postvars     = [];
 		$sent_dfrn_id = hex2bin((string) $res->dfrn_id);
 		$challenge    = hex2bin((string) $res->challenge);
 		$perm         = (($res->perm) ? $res->perm : null);
@@ -1447,7 +1447,7 @@ class DFRN
 	 */
 	private static function fetchauthor($xpath, $context, $importer, $element, $onlyfetch, $xml = "")
 	{
-		$author = array();
+		$author = [];
 		$author["name"] = $xpath->evaluate($element."/atom:name/text()", $context)->item(0)->nodeValue;
 		$author["link"] = $xpath->evaluate($element."/atom:uri/text()", $context)->item(0)->nodeValue;
 
@@ -1475,7 +1475,7 @@ class DFRN
 		}
 
 		// Until now we aren't serving different sizes - but maybe later
-		$avatarlist = array();
+		$avatarlist = [];
 		/// @todo check if "avatar" or "photo" would be the best field in the specification
 		$avatars = $xpath->query($element."/atom:link[@rel='avatar']", $context);
 		foreach ($avatars as $avatar) {
@@ -1505,7 +1505,7 @@ class DFRN
 		if (DBM::is_result($r) && !$onlyfetch) {
 			logger("Check if contact details for contact " . $r[0]["id"] . " (" . $r[0]["nick"] . ") have to be updated.", LOGGER_DEBUG);
 
-			$poco = array("url" => $contact["url"]);
+			$poco = ["url" => $contact["url"]];
 
 			// When was the last change to name or uri?
 			$name_element = $xpath->query($element . "/atom:name", $context)->item(0);
@@ -1573,7 +1573,7 @@ class DFRN
 			}
 
 			// Save the keywords into the contact table
-			$tags = array();
+			$tags = [];
 			$tagelements = $xpath->evaluate($element . "/poco:tags/text()", $context);
 			foreach ($tagelements as $tag) {
 				$tags[$tag->nodeValue] = $tag->nodeValue;
@@ -1597,7 +1597,7 @@ class DFRN
 			// "poco:birthday" is the birthday in the format "yyyy-mm-dd"
 			$value = $xpath->evaluate($element . "/poco:birthday/text()", $context)->item(0)->nodeValue;
 
-			if (!in_array($value, array("", "0000-00-00", "0001-01-01"))) {
+			if (!in_array($value, ["", "0000-00-00", "0001-01-01"])) {
 				$bdyear = date("Y");
 				$value = str_replace("0000", $bdyear, $value);
 
@@ -1616,7 +1616,7 @@ class DFRN
 			}
 
 			// Get all field names
-			$fields = array();
+			$fields = [];
 			foreach ($r[0] as $field => $data) {
 				$fields[$field] = $data;
 			}
@@ -1629,7 +1629,7 @@ class DFRN
 			unset($fields["uri-date"]);
 
 			// Update check for this field has to be done differently
-			$datefields = array("name-date", "uri-date");
+			$datefields = ["name-date", "uri-date"];
 			foreach ($datefields as $field) {
 				if (strtotime($contact[$field]) > strtotime($r[0][$field])) {
 					logger("Difference for contact " . $contact["id"] . " in field '" . $field . "'. New value: '" . $contact[$field] . "', old value '" . $r[0][$field] . "'", LOGGER_DEBUG);
@@ -1755,7 +1755,7 @@ class DFRN
 		logger("Processing mails");
 
 		/// @TODO Rewrite this to one statement
-		$msg = array();
+		$msg = [];
 		$msg["uid"] = $importer["importer_uid"];
 		$msg["from-name"] = $xpath->query("dfrn:sender/dfrn:name/text()", $mail)->item(0)->nodeValue;
 		$msg["from-url"] = $xpath->query("dfrn:sender/dfrn:uri/text()", $mail)->item(0)->nodeValue;
@@ -1773,7 +1773,7 @@ class DFRN
 
 		// send notifications.
 		/// @TODO Arange this mess
-		$notif_params = array(
+		$notif_params = [
 			"type" => NOTIFY_MAIL,
 			"notify_flags" => $importer["notify-flags"],
 			"language" => $importer["language"],
@@ -1786,7 +1786,7 @@ class DFRN
 			"source_photo" => $importer["thumb"],
 			"verb" => ACTIVITY_POST,
 			"otype" => "mail"
-		);
+		];
 
 		notification($notif_params);
 
@@ -1809,7 +1809,7 @@ class DFRN
 		logger("Processing suggestions");
 
 		/// @TODO Rewrite this to one statement
-		$suggest = array();
+		$suggest = [];
 		$suggest["uid"] = $importer["importer_uid"];
 		$suggest["cid"] = $importer["id"];
 		$suggest["url"] = $xpath->query("dfrn:url/text()", $suggestion)->item(0)->nodeValue;
@@ -1910,7 +1910,7 @@ class DFRN
 		);
 
 		notification(
-			array(
+			[
 				"type"         => NOTIFY_SUGGEST,
 				"notify_flags" => $importer["notify-flags"],
 				"language"     => $importer["language"],
@@ -1923,7 +1923,7 @@ class DFRN
 				"source_link"  => $importer["url"],
 				"source_photo" => $importer["photo"],
 				"verb"         => ACTIVITY_REQ_FRIEND,
-				"otype"        => "intro")
+				"otype"        => "intro"]
 		);
 
 		return true;
@@ -1943,7 +1943,7 @@ class DFRN
 		logger("Processing relocations");
 
 		/// @TODO Rewrite this to one statement
-		$relocate = array();
+		$relocate = [];
 		$relocate["uid"] = $importer["importer_uid"];
 		$relocate["cid"] = $importer["id"];
 		$relocate["url"] = $xpath->query("dfrn:url/text()", $relocation)->item(0)->nodeValue;
@@ -2043,12 +2043,12 @@ class DFRN
 
 		// update items
 		/// @todo This is an extreme performance killer
-		$fields = array(
-			'owner-link' => array($old["url"], $relocate["url"]),
-			'author-link' => array($old["url"], $relocate["url"]),
+		$fields = [
+			'owner-link' => [$old["url"], $relocate["url"]],
+			'author-link' => [$old["url"], $relocate["url"]],
 			//'owner-avatar' => array($old["photo"], $relocate["photo"]),
 			//'author-avatar' => array($old["photo"], $relocate["photo"]),
-		);
+		];
 		foreach ($fields as $n => $f) {
 			$r = q(
 				"SELECT `id` FROM `item` WHERE `%s` = '%s' AND `uid` = %d LIMIT 1",
@@ -2101,11 +2101,11 @@ class DFRN
 				return false;
 			}
 
-			$fields = array('title' => $item["title"], 'body' => $item["body"],
+			$fields = ['title' => $item["title"], 'body' => $item["body"],
 					'tag' => $item["tag"], 'changed' => datetime_convert(),
-					'edited' => datetime_convert("UTC", "UTC", $item["edited"]));
+					'edited' => datetime_convert("UTC", "UTC", $item["edited"])];
 
-			$condition = array("`uri` = ? AND `uid` IN (0, ?)", $item["uri"], $importer["importer_uid"]);
+			$condition = ["`uri` = ? AND `uid` IN (0, ?)", $item["uri"], $importer["importer_uid"]];
 			dba::update('item', $fields, $condition);
 
 			create_tags_from_itemuri($item["uri"], $importer["importer_uid"]);
@@ -2244,7 +2244,7 @@ class DFRN
 			if ($Blink && link_compare($Blink, System::baseUrl() . "/profile/" . $importer["nickname"])) {
 				// send a notification
 				notification(
-					array(
+					[
 					"type"         => NOTIFY_POKE,
 					"notify_flags" => $importer["notify-flags"],
 					"language"     => $importer["language"],
@@ -2260,7 +2260,7 @@ class DFRN
 					"verb"         => $item["verb"],
 					"otype"        => "person",
 					"activity"     => $verb,
-					"parent"       => $item["parent"])
+					"parent"       => $item["parent"]]
 				);
 			}
 		}
@@ -2491,7 +2491,7 @@ class DFRN
 		$item["created"] = $xpath->query("atom:published/text()", $entry)->item(0)->nodeValue;
 
 		$item["body"] = $xpath->query("dfrn:env/text()", $entry)->item(0)->nodeValue;
-		$item["body"] = str_replace(array(' ',"\t","\r","\n"), array('','','',''), $item["body"]);
+		$item["body"] = str_replace([' ',"\t","\r","\n"], ['','','',''], $item["body"]);
 		// make sure nobody is trying to sneak some html tags by us
 		$item["body"] = notags(base64url_decode($item["body"]));
 
@@ -2643,7 +2643,7 @@ class DFRN
 		$entrytype = self::getEntryType($importer, $item);
 
 		// Now assign the rest of the values that depend on the type of the message
-		if (in_array($entrytype, array(DFRN_REPLY, DFRN_REPLY_RC))) {
+		if (in_array($entrytype, [DFRN_REPLY, DFRN_REPLY_RC])) {
 			if (!isset($item["object-type"])) {
 				$item["object-type"] = ACTIVITY_OBJ_COMMENT;
 			}
@@ -2728,7 +2728,7 @@ class DFRN
 			return;
 		}
 
-		if (in_array($entrytype, array(DFRN_REPLY, DFRN_REPLY_RC))) {
+		if (in_array($entrytype, [DFRN_REPLY, DFRN_REPLY_RC])) {
 			$posted_id = item_store($item);
 			$parent = 0;
 
@@ -2883,7 +2883,7 @@ class DFRN
 						}
 						if ($author_remove || $owner_remove) {
 							$tags = explode(',', $i[0]["tag"]);
-							$newtags = array();
+							$newtags = [];
 							if (count($tags)) {
 								foreach ($tags as $tag) {
 									if (trim($tag) !== trim($xo->body)) {
@@ -2990,7 +2990,7 @@ class DFRN
 		$xpath->registerNamespace("ostatus", NAMESPACE_OSTATUS);
 		$xpath->registerNamespace("statusnet", NAMESPACE_STATUSNET);
 
-		$header = array();
+		$header = [];
 		$header["uid"] = $importer["uid"];
 		$header["network"] = NETWORK_DFRN;
 		$header["type"] = "remote";
@@ -3017,7 +3017,7 @@ class DFRN
 			$accounttype = intval($xpath->evaluate("/atom:feed/dfrn:account_type/text()")->item(0)->nodeValue);
 
 			if ($accounttype != $importer["contact-type"]) {
-				dba::update('contact', array('contact-type' => $accounttype), array('id' => $importer["id"]));
+				dba::update('contact', ['contact-type' => $accounttype], ['id' => $importer["id"]]);
 			}
 		}
 
@@ -3026,8 +3026,8 @@ class DFRN
 		$forum = intval($xpath->evaluate("/atom:feed/dfrn:community/text()")->item(0)->nodeValue);
 
 		if ($forum != $importer["forum"]) {
-			$condition = array('`forum` != ? AND `id` = ?', $forum, $importer["id"]);
-			dba::update('contact', array('forum' => $forum), $condition);
+			$condition = ['`forum` != ? AND `id` = ?', $forum, $importer["id"]];
+			dba::update('contact', ['forum' => $forum], $condition);
 		}
 
 		// We are processing relocations even if we are ignoring a contact
@@ -3064,7 +3064,7 @@ class DFRN
 				self::processEntry($header, $xpath, $entry, $importer, $xml);
 			}
 		} else {
-			$newentries = array();
+			$newentries = [];
 			$entries = $xpath->query("/atom:feed/atom:entry");
 			foreach ($entries as $entry) {
 				$created = $xpath->query("atom:published/text()", $entry)->item(0)->nodeValue;

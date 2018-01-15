@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * When I installed docblox, I had the experience that it does not generate any output at all.
  * This script may be used to find that kind of problems with the documentation build process.
@@ -12,11 +12,11 @@
  * If that list can't be build, it cuts it in two parts and tries both parts independently. If only one of them breaks,
  * it takes that one and tries the same independently. If both break, it assumes this is the smallest set. This assumption
  * is not necessarily true. Maybe the smallest set consists of two files and both of them were in different parts when
- * the list was divided, but by now it is my best guess. To make this assumption better, the list is shuffled after every step. 
+ * the list was divided, but by now it is my best guess. To make this assumption better, the list is shuffled after every step.
  *
  * After that, the script tries to remove a file from the list. It tests if the list breaks and if so, it
- * assumes that the file it removed belongs to the set of errorneous files. 
- * This is done for all files, so, in the end removing one file leads to a working doc build. 
+ * assumes that the file it removed belongs to the set of errorneous files.
+ * This is done for all files, so, in the end removing one file leads to a working doc build.
  *
  * @package util
  * @author Alexander Kampmann
@@ -24,11 +24,11 @@
 
 /**
  * This function generates a comma seperated list of file names.
- * 
+ *
  * @package util
- * 
+ *
  * @param array $fileset Set of file names
- * 
+ *
  * @return string comma-seperated list of the file names
  */
 function namesList($fileset) {
@@ -42,9 +42,9 @@ function namesList($fileset) {
 /**
  * This functions runs phpdoc on the provided list of files
  * @package util
- * 
+ *
  * @param array $fileset Set of filenames
- * 
+ *
  * @return bool true, if that set can be built
  */
 function runs($fileset) {
@@ -65,12 +65,12 @@ function runs($fileset) {
  * it was meant to be recursive, but php's maximum stack size is to small. So it just simulates recursion.
  *
  * In that version, it does not necessarily generate the smallest set, because it may not alter the elements order enough.
- * 
+ *
  * @package util
- * 
+ *
  * @param array $fileset set of filenames
  * @param int $ps number of files in subsets
- * 
+ *
  * @return array a part of $fileset, that crashes
  */
 function reduce($fileset, $ps) {
@@ -80,18 +80,18 @@ function reduce($fileset, $ps) {
 	$parts=array_filter($parts, "runs");
 	//melt remaining parts together
 	if(is_array($parts)) {
-		return array_reduce($parts, "array_merge", array());
+		return array_reduce($parts, "array_merge", []);
 	}
-	return array();
+	return [];
 };
 
 //return from util folder to frindica base dir
 $dir='..';
 
 //stack for dirs to search
-$dirstack=array();
+$dirstack=[];
 //list of source files
-$filelist=array();
+$filelist=[];
 
 //loop over all files in $dir
 while($dh=opendir($dir)) {
@@ -131,7 +131,7 @@ do {
 } while(count($res)<$i);
 
 //check one file after another
-$needed=array();
+$needed=[];
 
 while(count($res)!=0) {
 	$file=array_pop($res);

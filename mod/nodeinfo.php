@@ -12,8 +12,8 @@ use Friendica\Core\Config;
 require_once 'include/plugin.php';
 
 function nodeinfo_wellknown(App $a) {
-	$nodeinfo = array('links' => array(array('rel' => 'http://nodeinfo.diaspora.software/ns/schema/1.0',
-					'href' => System::baseUrl().'/nodeinfo/1.0')));
+	$nodeinfo = ['links' => [['rel' => 'http://nodeinfo.diaspora.software/ns/schema/1.0',
+					'href' => System::baseUrl().'/nodeinfo/1.0']]];
 
 	header('Content-type: application/json; charset=utf-8');
 	echo json_encode($nodeinfo, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
@@ -33,13 +33,13 @@ function nodeinfo_init(App $a) {
 
 	$smtp = (function_exists('imap_open') && !Config::get('system', 'imap_disabled') && !Config::get('system', 'dfrn_only'));
 
-	$nodeinfo = array();
+	$nodeinfo = [];
 	$nodeinfo['version'] = '1.0';
-	$nodeinfo['software'] = array('name' => 'friendica', 'version' => FRIENDICA_VERSION.'-'.DB_UPDATE_VERSION);
+	$nodeinfo['software'] = ['name' => 'friendica', 'version' => FRIENDICA_VERSION.'-'.DB_UPDATE_VERSION];
 
-	$nodeinfo['protocols'] = array();
-	$nodeinfo['protocols']['inbound'] = array();
-	$nodeinfo['protocols']['outbound'] = array();
+	$nodeinfo['protocols'] = [];
+	$nodeinfo['protocols']['inbound'] = [];
+	$nodeinfo['protocols']['outbound'] = [];
 
 	if (Config::get('system', 'diaspora_enabled')) {
 		$nodeinfo['protocols']['inbound'][] = 'diaspora';
@@ -54,21 +54,21 @@ function nodeinfo_init(App $a) {
 		$nodeinfo['protocols']['outbound'][] = 'gnusocial';
 	}
 
-	$nodeinfo['services'] = array();
-	$nodeinfo['services']['inbound'] = array();
-	$nodeinfo['services']['outbound'] = array();
+	$nodeinfo['services'] = [];
+	$nodeinfo['services']['inbound'] = [];
+	$nodeinfo['services']['outbound'] = [];
 
-	$nodeinfo['usage'] = array();
+	$nodeinfo['usage'] = [];
 
 	$nodeinfo['openRegistrations'] = ($a->config['register_policy'] != 0);
 
-	$nodeinfo['metadata'] = array('nodeName' => $a->config['sitename']);
+	$nodeinfo['metadata'] = ['nodeName' => $a->config['sitename']];
 
 	if (Config::get('system', 'nodeinfo')) {
 
-		$nodeinfo['usage']['users'] = array('total' => (int)Config::get('nodeinfo', 'total_users'),
+		$nodeinfo['usage']['users'] = ['total' => (int)Config::get('nodeinfo', 'total_users'),
 					'activeHalfyear' => (int)Config::get('nodeinfo', 'active_users_halfyear'),
-					'activeMonth' => (int)Config::get('nodeinfo', 'active_users_monthly'));
+					'activeMonth' => (int)Config::get('nodeinfo', 'active_users_monthly')];
 		$nodeinfo['usage']['localPosts'] = (int)Config::get('nodeinfo', 'local_posts');
 		$nodeinfo['usage']['localComments'] = (int)Config::get('nodeinfo', 'local_comments');
 
@@ -159,7 +159,7 @@ function nodeinfo_cron() {
 
 		$plugin = 'statistics_json';
 		$plugins = Config::get('system', 'addon');
-		$plugins_arr = array();
+		$plugins_arr = [];
 
 		if ($plugins) {
 			$plugins_arr = explode(',',str_replace(' ', '',$plugins));

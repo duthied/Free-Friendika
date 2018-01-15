@@ -22,7 +22,7 @@ class Salmon
 	 */
 	public static function getKey($uri, $keyhash)
 	{
-		$ret = array();
+		$ret = [];
 
 		logger('Fetching salmon key for '.$uri);
 
@@ -120,22 +120,22 @@ class Salmon
 		$signature3  = base64url_encode(Crypto::rsaSign($data, $owner['sprvkey']));
 
 		// At first try the non compliant method that works for GNU Social
-		$xmldata = array("me:env" => array("me:data" => $data,
-				"@attributes" => array("type" => $data_type),
+		$xmldata = ["me:env" => ["me:data" => $data,
+				"@attributes" => ["type" => $data_type],
 				"me:encoding" => $encoding,
 				"me:alg" => $algorithm,
 				"me:sig" => $signature,
-				"@attributes2" => array("key_id" => $keyhash)));
+				"@attributes2" => ["key_id" => $keyhash]]];
 
-		$namespaces = array("me" => "http://salmon-protocol.org/ns/magic-env");
+		$namespaces = ["me" => "http://salmon-protocol.org/ns/magic-env"];
 
 		$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
 		// slap them
-		post_url($url, $salmon, array(
+		post_url($url, $salmon, [
 			'Content-type: application/magic-envelope+xml',
 			'Content-length: ' . strlen($salmon)
-		));
+		]);
 
 		$a = get_app();
 		$return_code = $a->get_curl_code();
@@ -146,22 +146,22 @@ class Salmon
 			logger('GNU Social salmon failed. Falling back to compliant mode');
 
 			// Now try the compliant mode that normally isn't used for GNU Social
-			$xmldata = array("me:env" => array("me:data" => $data,
-					"@attributes" => array("type" => $data_type),
+			$xmldata = ["me:env" => ["me:data" => $data,
+					"@attributes" => ["type" => $data_type],
 					"me:encoding" => $encoding,
 					"me:alg" => $algorithm,
 					"me:sig" => $signature2,
-					"@attributes2" => array("key_id" => $keyhash)));
+					"@attributes2" => ["key_id" => $keyhash]]];
 
-			$namespaces = array("me" => "http://salmon-protocol.org/ns/magic-env");
+			$namespaces = ["me" => "http://salmon-protocol.org/ns/magic-env"];
 
 			$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
 			// slap them
-			post_url($url, $salmon, array(
+			post_url($url, $salmon, [
 				'Content-type: application/magic-envelope+xml',
 				'Content-length: ' . strlen($salmon)
-			));
+			]);
 			$return_code = $a->get_curl_code();
 		}
 
@@ -169,21 +169,21 @@ class Salmon
 			logger('compliant salmon failed. Falling back to old status.net');
 
 			// Last try. This will most likely fail as well.
-			$xmldata = array("me:env" => array("me:data" => $data,
-					"@attributes" => array("type" => $data_type),
+			$xmldata = ["me:env" => ["me:data" => $data,
+					"@attributes" => ["type" => $data_type],
 					"me:encoding" => $encoding,
 					"me:alg" => $algorithm,
 					"me:sig" => $signature3,
-					"@attributes2" => array("key_id" => $keyhash)));
+					"@attributes2" => ["key_id" => $keyhash]]];
 
-			$namespaces = array("me" => "http://salmon-protocol.org/ns/magic-env");
+			$namespaces = ["me" => "http://salmon-protocol.org/ns/magic-env"];
 
 			$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
 			// slap them
-			post_url($url, $salmon, array(
+			post_url($url, $salmon, [
 				'Content-type: application/magic-envelope+xml',
-				'Content-length: ' . strlen($salmon))
+				'Content-length: ' . strlen($salmon)]
 			);
 			$return_code = $a->get_curl_code();
 		}

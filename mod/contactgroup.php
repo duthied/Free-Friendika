@@ -33,7 +33,7 @@ function contactgroup_content(App $a)
 
 		$group = $r[0];
 		$members = Contact::getByGroupId($group['id']);
-		$preselected = array();
+		$preselected = [];
 		if (count($members)) {
 			foreach ($members as $member) {
 				$preselected[] = $member['id'];

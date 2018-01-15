@@ -25,18 +25,18 @@ function noscrape_init(App $a)
 
 	if (!$a->profile['net-publish'] || $a->profile['hidewall']) {
 		header('Content-type: application/json; charset=utf-8');
-		$json_info = array("hide" => true);
+		$json_info = ["hide" => true];
 		echo json_encode($json_info);
 		exit;
 	}
 
 	$keywords = ((x($a->profile, 'pub_keywords')) ? $a->profile['pub_keywords'] : '');
-	$keywords = str_replace(array('#',',',' ',',,'), array('',' ',',',','), $keywords);
+	$keywords = str_replace(['#',',',' ',',,'], ['',' ',',',','], $keywords);
 	$keywords = explode(',', $keywords);
 
 	$contactPhoto = dba::selectFirst('contact', ['photo'], ['self' => true, 'uid' => $a->profile['uid']]);
 
-	$json_info = array(
+	$json_info = [
 		'fn'       => $a->profile['name'],
 		'addr'     => $a->profile['addr'],
 		'nick'     => $which,
@@ -46,7 +46,7 @@ function noscrape_init(App $a)
 		'comm'     => (x($a->profile, 'page-flags')) && ($a->profile['page-flags'] == PAGE_COMMUNITY),
 		'photo'    => $contactPhoto["photo"],
 		'tags'     => $keywords
-	);
+	];
 
 	if (is_array($a->profile) && !$a->profile['hide-friends']) {
 		/// @todo What should this value tell us?
@@ -86,14 +86,14 @@ function noscrape_init(App $a)
 	$json_info["last-activity"] = date("o-W", $last_active);
 
 	//These are optional fields.
-	$profile_fields = array('pdesc', 'locality', 'region', 'postal-code', 'country-name', 'gender', 'marital', 'about');
+	$profile_fields = ['pdesc', 'locality', 'region', 'postal-code', 'country-name', 'gender', 'marital', 'about'];
 	foreach ($profile_fields as $field) {
 		if (!empty($a->profile[$field])) {
 			$json_info["$field"] = $a->profile[$field];
 		}
 	}
 
-	$dfrn_pages = array('request', 'confirm', 'notify', 'poll');
+	$dfrn_pages = ['request', 'confirm', 'notify', 'poll'];
 	foreach ($dfrn_pages as $dfrn) {
 		$json_info["dfrn-{$dfrn}"] = System::baseUrl()."/dfrn_{$dfrn}/{$which}";
 	}

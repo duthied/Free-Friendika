@@ -140,7 +140,7 @@ class ExAuth
 		$this->setHost($aCommand[2]);
 
 		// Now we check if the given user is valid
-		$sUser = str_replace(array('%20', '(a)'), array(' ', '@'), $aCommand[1]);
+		$sUser = str_replace(['%20', '(a)'], [' ', '@'], $aCommand[1]);
 
 		// Does the hostname match? So we try directly
 		if ($a->get_hostname() == $aCommand[2]) {
@@ -220,7 +220,7 @@ class ExAuth
 		$this->setHost($aCommand[2]);
 
 		// We now check if the password match
-		$sUser = str_replace(array('%20', '(a)'), array(' ', '@'), $aCommand[1]);
+		$sUser = str_replace(['%20', '(a)'], [' ', '@'], $aCommand[1]);
 
 		// Does the hostname match? So we try directly
 		if ($a->get_hostname() == $aCommand[2]) {

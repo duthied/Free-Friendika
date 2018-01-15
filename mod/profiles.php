@@ -154,7 +154,7 @@ function profile_clean_keywords($keywords) {
 	$keywords = str_replace(",", " ", $keywords);
 	$keywords = explode(" ", $keywords);
 
-	$cleaned = array();
+	$cleaned = [];
 	foreach ($keywords as $keyword) {
 		$keyword = trim(strtolower($keyword));
 		$keyword = trim($keyword, "#");
@@ -207,7 +207,7 @@ function profiles_post(App $a) {
 		} else {
 			$ignore_year = false;
 		}
-		if (!in_array($dob, array('0000-00-00', '0001-01-01'))) {
+		if (!in_array($dob, ['0000-00-00', '0001-01-01'])) {
 			if (strpos($dob, '0000-') === 0 || strpos($dob, '0001-') === 0) {
 				$ignore_year = true;
 				$dob = substr($dob, 5);
@@ -331,7 +331,7 @@ function profiles_post(App $a) {
 
 		PConfig::set(local_user(), 'system', 'detailled_profile', (($_POST['detailled_profile'] == 1) ? 1: 0));
 
-		$changes = array();
+		$changes = [];
 		$value = '';
 		if ($is_default) {
 			if ($marital != $orig[0]['marital']) {
@@ -491,7 +491,7 @@ function profiles_post(App $a) {
 		}
 
 		if ($is_default) {
-			$location = Profile::formatLocation(array("locality" => $locality, "region" => $region, "country-name" => $country_name));
+			$location = Profile::formatLocation(["locality" => $locality, "region" => $region, "country-name" => $country_name]);
 
 			q("UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `self` AND `uid` = %d",
 				dbesc($about),
@@ -541,7 +541,7 @@ function profile_activity($changed, $value) {
 		return;
 	}
 
-	$arr = array();
+	$arr = [];
 
 	$arr['guid'] = get_guid(32);
 	$arr['uri'] = $arr['parent-uri'] = item_new_uri($a->get_hostname(), local_user());
@@ -624,48 +624,48 @@ function profiles_content(App $a) {
 			notice( t('Profile not found.') . EOL);
 			return;
 		}
-		
-		$a->page['htmlhead'] .= replace_macros(get_markup_template('profed_head.tpl'), array(
+
+		$a->page['htmlhead'] .= replace_macros(get_markup_template('profed_head.tpl'), [
 			'$baseurl' => System::baseUrl(true),
-		));
-		$a->page['end'] .= replace_macros(get_markup_template('profed_end.tpl'), array(
+		]);
+		$a->page['end'] .= replace_macros(get_markup_template('profed_end.tpl'), [
 			'$baseurl' => System::baseUrl(true),
-		));
+		]);
 
 		$opt_tpl = get_markup_template("profile-hide-friends.tpl");
-		$hide_friends = replace_macros($opt_tpl,array(
-			'$yesno' => array(
+		$hide_friends = replace_macros($opt_tpl,[
+			'$yesno' => [
 				'hide-friends', //Name
 				t('Hide contacts and friends:'), //Label
 				!!$r[0]['hide-friends'], //Value
 				'', //Help string
-				array(t('No'), t('Yes')) //Off - On strings
-			),
+				[t('No'), t('Yes')] //Off - On strings
+			],
 			'$desc' => t('Hide your contact/friend list from viewers of this profile?'),
 			'$yes_str' => t('Yes'),
 			'$no_str' => t('No'),
 			'$yes_selected' => (($r[0]['hide-friends']) ? " checked=\"checked\" " : ""),
 			'$no_selected' => (($r[0]['hide-friends'] == 0) ? " checked=\"checked\" " : "")
-		));
+		]);
 
 		$personal_account = !(in_array($a->user["page-flags"],
-					array(PAGE_COMMUNITY, PAGE_PRVGROUP)));
+					[PAGE_COMMUNITY, PAGE_PRVGROUP]));
 
 		$detailled_profile = (PConfig::get(local_user(), 'system', 'detailled_profile') AND $personal_account);
 
 		$is_default = (($r[0]['is-default']) ? 1 : 0);
 		$tpl = get_markup_template("profile_edit.tpl");
-		$o .= replace_macros($tpl, array(
+		$o .= replace_macros($tpl, [
 			'$personal_account' => $personal_account,
 			'$detailled_profile' => $detailled_profile,
 
-			'$details' => array(
+			'$details' => [
 				'detailled_profile', //Name
 				t('Show more profile fields:'), //Label
 				$detailled_profile, //Value
 				'', //Help string
-				array(t('No'), t('Yes')) //Off - On strings
-			),
+				[t('No'), t('Yes')] //Off - On strings
+			],
 
 			'$multi_profiles'		=> Feature::isEnabled(local_user(), 'multi_profiles'),
 			'$form_security_token'		=> get_form_security_token("profile_edit"),
@@ -703,46 +703,46 @@ function profiles_content(App $a) {
 			'$disabled' => (($is_default) ? 'onclick="return false;" style="color: #BBBBFF;"' : ''),
 			'$baseurl' => System::baseUrl(true),
 			'$profile_id' => $r[0]['id'],
-			'$profile_name' => array('profile_name', t('Profile Name:'), $r[0]['profile-name'], t('Required'), '*'),
+			'$profile_name' => ['profile_name', t('Profile Name:'), $r[0]['profile-name'], t('Required'), '*'],
 			'$is_default'   => $is_default,
 			'$default' => (($is_default) ? '<p id="profile-edit-default-desc">' . t('This is your <strong>public</strong> profile.<br />It <strong>may</strong> be visible to anybody using the internet.') . '</p>' : ""),
-			'$name' => array('name', t('Your Full Name:'), $r[0]['name']),
-			'$pdesc' => array('pdesc', t('Title/Description:'), $r[0]['pdesc']),
+			'$name' => ['name', t('Your Full Name:'), $r[0]['name']],
+			'$pdesc' => ['pdesc', t('Title/Description:'), $r[0]['pdesc']],
 			'$dob' => dob($r[0]['dob']),
 			'$hide_friends' => $hide_friends,
-			'$address' => array('address', t('Street Address:'), $r[0]['address']),
-			'$locality' => array('locality', t('Locality/City:'), $r[0]['locality']),
-			'$region' => array('region', t('Region/State:'), $r[0]['region']),
-			'$postal_code' => array('postal_code', t('Postal/Zip Code:'), $r[0]['postal-code']),
-			'$country_name' => array('country_name', t('Country:'), $r[0]['country-name']),
+			'$address' => ['address', t('Street Address:'), $r[0]['address']],
+			'$locality' => ['locality', t('Locality/City:'), $r[0]['locality']],
+			'$region' => ['region', t('Region/State:'), $r[0]['region']],
+			'$postal_code' => ['postal_code', t('Postal/Zip Code:'), $r[0]['postal-code']],
+			'$country_name' => ['country_name', t('Country:'), $r[0]['country-name']],
 			'$age' => ((intval($r[0]['dob'])) ? '(' . t('Age: ') . age($r[0]['dob'],$a->user['timezone'],$a->user['timezone']) . ')' : ''),
 			'$gender' => ContactSelector::gender($r[0]['gender']),
 			'$marital' => ContactSelector::maritalStatus($r[0]['marital']),
-			'$with' => array('with', t("Who: \x28if applicable\x29"), strip_tags($r[0]['with']), t('Examples: cathy123, Cathy Williams, cathy@example.com')),
-			'$howlong' => array('howlong', t('Since [date]:'), ($r[0]['howlong'] <= NULL_DATE ? '' : datetime_convert('UTC',date_default_timezone_get(),$r[0]['howlong']))),
+			'$with' => ['with', t("Who: \x28if applicable\x29"), strip_tags($r[0]['with']), t('Examples: cathy123, Cathy Williams, cathy@example.com')],
+			'$howlong' => ['howlong', t('Since [date]:'), ($r[0]['howlong'] <= NULL_DATE ? '' : datetime_convert('UTC',date_default_timezone_get(),$r[0]['howlong']))],
 			'$sexual' => ContactSelector::sexualPreference($r[0]['sexual']),
-			'$about' => array('about', t('Tell us about yourself...'), $r[0]['about']),
-			'$xmpp' => array('xmpp', t('XMPP (Jabber) address:'), $r[0]['xmpp'], t("The XMPP address will be propagated to your contacts so that they can follow you.")),
-			'$homepage' => array('homepage', t('Homepage URL:'), $r[0]['homepage']),
-			'$hometown' => array('hometown', t('Hometown:'), $r[0]['hometown']),
-			'$politic' => array('politic', t('Political Views:'), $r[0]['politic']),
-			'$religion' => array('religion', t('Religious Views:'), $r[0]['religion']),
-			'$pub_keywords' => array('pub_keywords', t('Public Keywords:'), $r[0]['pub_keywords'], t("\x28Used for suggesting potential friends, can be seen by others\x29")),
-			'$prv_keywords' => array('prv_keywords', t('Private Keywords:'), $r[0]['prv_keywords'], t("\x28Used for searching profiles, never shown to others\x29")),
-			'$likes' => array('likes', t('Likes:'), $r[0]['likes']),
-			'$dislikes' => array('dislikes', t('Dislikes:'), $r[0]['dislikes']),
-			'$music' => array('music', t('Musical interests'), $r[0]['music']),
-			'$book' => array('book', t('Books, literature'), $r[0]['book']),
-			'$tv' => array('tv', t('Television'), $r[0]['tv']),
-			'$film' => array('film', t('Film/dance/culture/entertainment'), $r[0]['film']),
-			'$interest' => array('interest', t('Hobbies/Interests'), $r[0]['interest']),
-			'$romance' => array('romance', t('Love/romance'), $r[0]['romance']),
-			'$work' => array('work', t('Work/employment'), $r[0]['work']),
-			'$education' => array('education', t('School/education'), $r[0]['education']),
-			'$contact' => array('contact', t('Contact information and Social Networks'), $r[0]['contact']),
-		));
+			'$about' => ['about', t('Tell us about yourself...'), $r[0]['about']],
+			'$xmpp' => ['xmpp', t('XMPP (Jabber) address:'), $r[0]['xmpp'], t("The XMPP address will be propagated to your contacts so that they can follow you.")],
+			'$homepage' => ['homepage', t('Homepage URL:'), $r[0]['homepage']],
+			'$hometown' => ['hometown', t('Hometown:'), $r[0]['hometown']],
+			'$politic' => ['politic', t('Political Views:'), $r[0]['politic']],
+			'$religion' => ['religion', t('Religious Views:'), $r[0]['religion']],
+			'$pub_keywords' => ['pub_keywords', t('Public Keywords:'), $r[0]['pub_keywords'], t("\x28Used for suggesting potential friends, can be seen by others\x29")],
+			'$prv_keywords' => ['prv_keywords', t('Private Keywords:'), $r[0]['prv_keywords'], t("\x28Used for searching profiles, never shown to others\x29")],
+			'$likes' => ['likes', t('Likes:'), $r[0]['likes']],
+			'$dislikes' => ['dislikes', t('Dislikes:'), $r[0]['dislikes']],
+			'$music' => ['music', t('Musical interests'), $r[0]['music']],
+			'$book' => ['book', t('Books, literature'), $r[0]['book']],
+			'$tv' => ['tv', t('Television'), $r[0]['tv']],
+			'$film' => ['film', t('Film/dance/culture/entertainment'), $r[0]['film']],
+			'$interest' => ['interest', t('Hobbies/Interests'), $r[0]['interest']],
+			'$romance' => ['romance', t('Love/romance'), $r[0]['romance']],
+			'$work' => ['work', t('Work/employment'), $r[0]['work']],
+			'$education' => ['education', t('School/education'), $r[0]['education']],
+			'$contact' => ['contact', t('Contact information and Social Networks'), $r[0]['contact']],
+		]);
 
-		$arr = array('profile' => $r[0], 'entry' => $o);
+		$arr = ['profile' => $r[0], 'entry' => $o];
 		call_hooks('profile_edit', $arr);
 
 		return $o;
@@ -767,24 +767,24 @@ function profiles_content(App $a) {
 
 			$profiles = '';
 			foreach ($r as $rr) {
-				$profiles .= replace_macros($tpl, array(
+				$profiles .= replace_macros($tpl, [
 					'$photo'        => $a->remove_baseurl($rr['thumb']),
 					'$id'           => $rr['id'],
 					'$alt'          => t('Profile Image'),
 					'$profile_name' => $rr['profile-name'],
 					'$visible'      => (($rr['is-default']) ? '<strong>' . t('visible to everybody') . '</strong>'
 						: '<a href="'.'profperm/'.$rr['id'].'" />' . t('Edit visibility') . '</a>')
-				));
+				]);
 			}
 
 			$tpl_header = get_markup_template('profile_listing_header.tpl');
-			$o .= replace_macros($tpl_header,array(
+			$o .= replace_macros($tpl_header,[
 				'$header'      => t('Edit/Manage Profiles'),
 				'$chg_photo'   => t('Change profile photo'),
 				'$cr_new'      => t('Create New Profile'),
 				'$cr_new_link' => 'profiles/new?t=' . get_form_security_token("profile_new"),
 				'$profiles'    => $profiles
-			));
+			]);
 		}
 		return $o;
 	}

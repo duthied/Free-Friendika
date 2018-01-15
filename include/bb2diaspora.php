@@ -51,7 +51,7 @@ function diaspora2bb($s) {
 	$s = preg_replace('/^([^\*]+)\*([^\*]*)$/im', '$1\*$2', $s);
 
 	// The parser cannot handle paragraphs correctly
-	$s = str_replace(array('</p>', '<p>', '<p dir="ltr">'), array('<br>', '<br>', '<br>'), $s);
+	$s = str_replace(['</p>', '<p>', '<p dir="ltr">'], ['<br>', '<br>', '<br>'], $s);
 
 	// Escaping the hash tags
 	$s = preg_replace('/\#([^\s\#])/', '&#35;$1', $s);
@@ -178,11 +178,11 @@ function bb2diaspora($Text, $preserve_nl = false, $fordiaspora = true) {
 	}
 
 	// mask some special HTML chars from conversation to markdown
-	$Text = str_replace(array('&lt;', '&gt;', '&amp;'), array('&_lt_;', '&_gt_;', '&_amp_;'), $Text);
+	$Text = str_replace(['&lt;', '&gt;', '&amp;'], ['&_lt_;', '&_gt_;', '&_amp_;'], $Text);
 
 	// If a link is followed by a quote then there should be a newline before it
 	// Maybe we should make this newline at every time before a quote.
-	$Text = str_replace(array("</a><blockquote>"), array("</a><br><blockquote>"), $Text);
+	$Text = str_replace(["</a><blockquote>"], ["</a><br><blockquote>"], $Text);
 
 	$stamp1 = microtime(true);
 
@@ -191,12 +191,12 @@ function bb2diaspora($Text, $preserve_nl = false, $fordiaspora = true) {
 	$Text = $converter->convert($Text);
 
 	// unmask the special chars back to HTML
-	$Text = str_replace(array('&\_lt\_;', '&\_gt\_;', '&\_amp\_;'), array('&lt;', '&gt;', '&amp;'), $Text);
+	$Text = str_replace(['&\_lt\_;', '&\_gt\_;', '&\_amp\_;'], ['&lt;', '&gt;', '&amp;'], $Text);
 
 	$a->save_timestamp($stamp1, "parser");
 
 	// Libertree has a problem with escaped hashtags.
-	$Text = str_replace(array('\#'), array('#'), $Text);
+	$Text = str_replace(['\#'], ['#'], $Text);
 
 	// Remove any leading or trailing whitespace, as this will mess up
 	// the Diaspora signature verification and cause the item to disappear

@@ -9,7 +9,7 @@ function oexchange_init(App $a) {
 	if (($a->argc > 1) && ($a->argv[1] === 'xrd')) {
 		$tpl = get_markup_template('oexchange_xrd.tpl');
 
-		$o = replace_macros($tpl, array('$base' => System::baseUrl()));
+		$o = replace_macros($tpl, ['$base' => System::baseUrl()]);
 		echo $o;
 		killme();
 	}
@@ -44,7 +44,7 @@ function oexchange_content(App $a) {
 
 	require_once('include/html2bbcode.php');
 
-	$post = array();
+	$post = [];
 
 	$post['profile_uid'] = local_user();
 	$post['return'] = '/oexchange/done' ;

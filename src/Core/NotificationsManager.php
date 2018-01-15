@@ -40,7 +40,7 @@ class NotificationsManager extends BaseObject
 	 */
 	private function _set_extra($notes)
 	{
-		$rets = array();
+		$rets = [];
 		foreach ($notes as $n) {
 			$local_time = datetime_convert('UTC', date_default_timezone_get(), $n['date']);
 			$n['timestamp'] = strtotime($local_time);
@@ -63,9 +63,9 @@ class NotificationsManager extends BaseObject
 	 *
 	 * @return array of results or false on errors
 	 */
-	public function getAll($filter = array(), $order = "-date", $limit = "")
+	public function getAll($filter = [], $order = "-date", $limit = "")
 	{
-		$filter_str = array();
+		$filter_str = [];
 		$filter_sql = "";
 		foreach ($filter as $column => $value) {
 			$filter_str[] = sprintf("`%s` = '%s'", $column, dbesc($value));
@@ -75,7 +75,7 @@ class NotificationsManager extends BaseObject
 		}
 
 		$aOrder = explode(" ", $order);
-		$asOrder = array();
+		$asOrder = [];
 		foreach ($aOrder as $o) {
 			$dir = "asc";
 			if ($o[0] === "-") {
@@ -165,43 +165,43 @@ class NotificationsManager extends BaseObject
 	 */
 	public function getTabs()
 	{
-		$tabs = array(
-			array(
+		$tabs = [
+			[
 				'label' => t('System'),
 				'url'   => 'notifications/system',
 				'sel'   => ((self::getApp()->argv[1] == 'system') ? 'active' : ''),
 				'id'    => 'system-tab',
 				'accesskey' => 'y',
-			),
-			array(
+			],
+			[
 				'label' => t('Network'),
 				'url'   => 'notifications/network',
 				'sel'   => ((self::getApp()->argv[1] == 'network') ? 'active' : ''),
 				'id'    => 'network-tab',
 				'accesskey' => 'w',
-			),
-			array(
+			],
+			[
 				'label' => t('Personal'),
 				'url'   => 'notifications/personal',
 				'sel'   => ((self::getApp()->argv[1] == 'personal') ? 'active' : ''),
 				'id'    => 'personal-tab',
 				'accesskey' => 'r',
-			),
-			array(
+			],
+			[
 				'label' => t('Home'),
 				'url'   => 'notifications/home',
 				'sel'   => ((self::getApp()->argv[1] == 'home') ? 'active' : ''),
 				'id'    => 'home-tab',
 				'accesskey' => 'h',
-			),
-			array(
+			],
+			[
 				'label' => t('Introductions'),
 				'url'   => 'notifications/intros',
 				'sel'   => ((self::getApp()->argv[1] == 'intros') ? 'active' : ''),
 				'id'    => 'intro-tab',
 				'accesskey' => 'i',
-			),
-		);
+			],
+		];
 
 		return $tabs;
 	}
@@ -223,8 +223,8 @@ class NotificationsManager extends BaseObject
 	 */
 	private function formatNotifs($notifs, $ident = "")
 	{
-		$notif = array();
-		$arr = array();
+		$notif = [];
+		$arr = [];
 
 		if (DBM::is_result($notifs)) {
 			foreach ($notifs as $it) {
@@ -272,7 +272,7 @@ class NotificationsManager extends BaseObject
 				// Transform the different types of notification in an usable array
 				switch ($it['verb']) {
 					case ACTIVITY_LIKE:
-						$notif = array(
+						$notif = [
 							'label' => 'like',
 							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
@@ -281,11 +281,11 @@ class NotificationsManager extends BaseObject
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
-						);
+						];
 						break;
 
 					case ACTIVITY_DISLIKE:
-						$notif = array(
+						$notif = [
 							'label' => 'dislike',
 							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
@@ -294,11 +294,11 @@ class NotificationsManager extends BaseObject
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
-						);
+						];
 						break;
 
 					case ACTIVITY_ATTEND:
-						$notif = array(
+						$notif = [
 							'label' => 'attend',
 							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
@@ -307,11 +307,11 @@ class NotificationsManager extends BaseObject
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
-						);
+						];
 						break;
 
 					case ACTIVITY_ATTENDNO:
-						$notif = array(
+						$notif = [
 							'label' => 'attendno',
 							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
@@ -320,11 +320,11 @@ class NotificationsManager extends BaseObject
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
-						);
+						];
 						break;
 
 					case ACTIVITY_ATTENDMAYBE:
-						$notif = array(
+						$notif = [
 							'label' => 'attendmaybe',
 							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
@@ -333,7 +333,7 @@ class NotificationsManager extends BaseObject
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
-						);
+						];
 						break;
 
 					case ACTIVITY_FRIEND:
@@ -341,7 +341,7 @@ class NotificationsManager extends BaseObject
 						$obj = parse_xml_string($xmlhead . $it['object']);
 						$it['fname'] = $obj->title;
 
-						$notif = array(
+						$notif = [
 							'label' => 'friend',
 							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
@@ -350,11 +350,11 @@ class NotificationsManager extends BaseObject
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
-						);
+						];
 						break;
 
 					default:
-						$notif = array(
+						$notif = [
 							'label' => $default_item_label,
 							'link' => $default_item_link,
 							'image' => $default_item_image,
@@ -363,7 +363,7 @@ class NotificationsManager extends BaseObject
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
-						);
+						];
 				}
 
 				$arr[] = $notif;
@@ -420,7 +420,7 @@ class NotificationsManager extends BaseObject
 	{
 		$ident = 'network';
 		$total = $this->networkTotal($seen);
-		$notifs = array();
+		$notifs = [];
 		$sql_seen = "";
 
 		if ($seen === 0) {
@@ -496,7 +496,7 @@ class NotificationsManager extends BaseObject
 	{
 		$ident = 'system';
 		$total = $this->systemTotal($seen);
-		$notifs = array();
+		$notifs = [];
 		$sql_seen = "";
 
 		if ($seen === 0) {
@@ -532,7 +532,7 @@ class NotificationsManager extends BaseObject
 	{
 		$myurl = System::baseUrl(true) . '/profile/' . self::getApp()->user['nickname'];
 		$myurl = substr($myurl, strpos($myurl, '://') + 3);
-		$myurl = str_replace(array('www.', '.'), array('', '\\.'), $myurl);
+		$myurl = str_replace(['www.', '.'], ['', '\\.'], $myurl);
 		$diasp_url = str_replace('/profile/', '/u/', $myurl);
 		$sql_extra = sprintf(
 			" AND ( `item`.`author-link` regexp '%s' OR `item`.`tag` regexp '%s' OR `item`.`tag` regexp '%s' ) ",
@@ -594,7 +594,7 @@ class NotificationsManager extends BaseObject
 		$ident = 'personal';
 		$total = $this->personalTotal($seen);
 		$sql_extra = $this->personalSqlExtra();
-		$notifs = array();
+		$notifs = [];
 		$sql_seen = "";
 
 		if ($seen === 0) {
@@ -619,11 +619,11 @@ class NotificationsManager extends BaseObject
 			$notifs = $this->formatNotifs($r, $ident);
 		}
 
-		$arr = array(
+		$arr = [
 			'notifications' => $notifs,
 			'ident' => $ident,
 			'total' => $total,
-		);
+		];
 
 		return $arr;
 	}
@@ -674,7 +674,7 @@ class NotificationsManager extends BaseObject
 	{
 		$ident = 'home';
 		$total = $this->homeTotal($seen);
-		$notifs = array();
+		$notifs = [];
 		$sql_seen = "";
 
 		if ($seen === 0) {
@@ -752,7 +752,7 @@ class NotificationsManager extends BaseObject
 	{
 		$ident = 'introductions';
 		$total = $this->introTotal($all);
-		$notifs = array();
+		$notifs = [];
 		$sql_extra = "";
 
 		if (!$all) {
@@ -807,7 +807,7 @@ class NotificationsManager extends BaseObject
 			if ($it['fid']) {
 				$return_addr = bin2hex(self::getApp()->user['nickname'] . '@' . self::getApp()->get_hostname() . ((self::getApp()->path) ? '/' . self::getApp()->path : ''));
 
-				$intro = array(
+				$intro = [
 					'label' => 'friend_suggestion',
 					'notify_type' => t('Friend Suggestion'),
 					'intro_id' => $it['intro_id'],
@@ -821,7 +821,7 @@ class NotificationsManager extends BaseObject
 					'knowyou' => $knowyou,
 					'note' => $it['note'],
 					'request' => $it['frequest'] . '?addr=' . $return_addr,
-				);
+				];
 
 				// Normal connection requests
 			} else {
@@ -833,7 +833,7 @@ class NotificationsManager extends BaseObject
 					$it['gabout'] = "";
 					$it['ggender'] = "";
 				}
-				$intro = array(
+				$intro = [
 					'label' => (($it['network'] !== NETWORK_OSTATUS) ? 'friend_request' : 'follower'),
 					'notify_type' => (($it['network'] !== NETWORK_OSTATUS) ? t('Friend/Connect Request') : t('New Follower')),
 					'dfrn_id' => $it['issued-id'],
@@ -854,7 +854,7 @@ class NotificationsManager extends BaseObject
 					'network' => $it['gnetwork'],
 					'knowyou' => $it['knowyou'],
 					'note' => $it['note'],
-				);
+				];
 			}
 
 			$arr[] = $intro;

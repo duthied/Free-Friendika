@@ -316,7 +316,7 @@ function dfrn_request_post(App $a)
 					return;
 				} else {
 					$contact_record = $ret[0];
-					$parms = array('dfrn-request' => $ret[0]['request']);
+					$parms = ['dfrn-request' => $ret[0]['request']];
 				}
 			}
 
@@ -517,7 +517,7 @@ function dfrn_request_content(App $a)
 		}
 
 		$tpl = get_markup_template("dfrn_req_confirm.tpl");
-		$o = replace_macros($tpl, array(
+		$o = replace_macros($tpl, [
 			'$dfrn_url' => $dfrn_url,
 			'$aes_allow' => (($aes_allow) ? '<input type="hidden" name="aes_allow" value="1" />' : "" ),
 			'$hidethem' => t('Hide this contact'),
@@ -529,7 +529,7 @@ function dfrn_request_content(App $a)
 			'$uid' => $_SESSION['uid'],
 			'$nickname' => $a->user['nickname'],
 			'dfrn_rawurl' => $_GET['dfrn_url']
-		));
+		]);
 		return $o;
 	} elseif ((x($_GET, 'confirm_key')) && strlen($_GET['confirm_key'])) {
 		// we are the requestee and it is now safe to send our user their introduction,
@@ -553,7 +553,7 @@ function dfrn_request_content(App $a)
 				}
 
 				if (!$auto_confirm) {
-					notification(array(
+					notification([
 						'type'         => NOTIFY_INTRO,
 						'notify_flags' => $r[0]['notify-flags'],
 						'language'     => $r[0]['language'],
@@ -566,19 +566,19 @@ function dfrn_request_content(App $a)
 						'source_photo' => $r[0]['photo'],
 						'verb'         => ACTIVITY_REQ_FRIEND,
 						'otype'        => 'intro'
-					));
+					]);
 				}
 
 				if ($auto_confirm) {
 					require_once 'mod/dfrn_confirm.php';
-					$handsfree = array(
+					$handsfree = [
 						'uid'      => $r[0]['uid'],
 						'node'     => $r[0]['nickname'],
 						'dfrn_id'  => $r[0]['issued-id'],
 						'intro_id' => $intro[0]['id'],
 						'duplex'   => (($r[0]['page-flags'] == PAGE_FREELOVE) ? 1 : 0),
 						'activity' => intval(PConfig::get($r[0]['uid'], 'system', 'post_newfriend'))
-					);
+					];
 					dfrn_confirm_post($a, $handsfree);
 				}
 			}
@@ -642,11 +642,11 @@ function dfrn_request_content(App $a)
 			get_server()
 		);
 
-		$o = replace_macros($tpl, array(
+		$o = replace_macros($tpl, [
 			'$header' => t('Friend/Connection Request'),
 			'$desc' => t('Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@gnusocial.de'),
 			'$pls_answer' => t('Please answer the following:'),
-			'$does_know_you' => array('knowyou', sprintf(t('Does %s know you?'), $a->profile['name']), false, '', array(t('No'), t('Yes'))),
+			'$does_know_you' => ['knowyou', sprintf(t('Does %s know you?'), $a->profile['name']), false, '', [t('No'), t('Yes')]],
 			'$add_note' => t('Add a personal note:'),
 			'$page_desc' => $page_desc,
 			'$friendica' => t('Friendica'),
@@ -660,7 +660,7 @@ function dfrn_request_content(App $a)
 			'$nickname' => $a->argv[1],
 			'$name' => $a->profile['name'],
 			'$myaddr' => $myaddr
-		));
+		]);
 		return $o;
 	}
 

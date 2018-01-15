@@ -69,7 +69,7 @@ function install_post(App $a) {
 			dba::connect($dbhost, $dbuser, $dbpass, $dbdata, true);
 
 			$tpl = get_markup_template('htconfig.tpl');
-			$txt = replace_macros($tpl,array(
+			$txt = replace_macros($tpl,[
 				'$dbhost' => $dbhost,
 				'$dbuser' => $dbuser,
 				'$dbpass' => $dbpass,
@@ -80,7 +80,7 @@ function install_post(App $a) {
 				'$phpath' => $phpath,
 				'$adminmail' => $adminmail,
 				'$rino' => $rino
-			));
+			]);
 
 
 			$result = file_put_contents('.htconfig.php', $txt);
@@ -138,12 +138,12 @@ function install_content(App $a) {
 		$r = q("SELECT COUNT(*) as `total` FROM `user`");
 		if (DBM::is_result($r) && $r[0]['total']) {
 			$tpl = get_markup_template('install.tpl');
-			return replace_macros($tpl, array(
+			return replace_macros($tpl, [
 				'$title' => $install_title,
 				'$pass' => '',
 				'$status' => t('Database already in use.'),
 				'$text' => '',
-			));
+			]);
 		}
 	}
 
@@ -153,18 +153,18 @@ function install_content(App $a) {
 
 	if ($db_return_text != "") {
 		$tpl = get_markup_template('install.tpl');
-		return replace_macros($tpl, array(
+		return replace_macros($tpl, [
 			'$title' => $install_title,
 			'$pass' => "",
 			'$text' => $db_return_text . what_next(),
-		));
+		]);
 	}
 
 	switch ($install_wizard_pass) {
 		case 1: { // System check
 
 
-			$checks = array();
+			$checks = [];
 
 			check_funcs($checks);
 
@@ -196,7 +196,7 @@ function install_content(App $a) {
 
 
 			$tpl = get_markup_template('install_checks.tpl');
-			$o .= replace_macros($tpl, array(
+			$o .= replace_macros($tpl, [
 				'$title' => $install_title,
 				'$pass' => t('System check'),
 				'$checks' => $checks,
@@ -206,7 +206,7 @@ function install_content(App $a) {
 				'$reload' => t('Check again'),
 				'$phpath' => $phpath,
 				'$baseurl' => System::baseUrl(),
-			));
+			]);
 			return $o;
 		}; break;
 
@@ -220,7 +220,7 @@ function install_content(App $a) {
 
 
 			$tpl = get_markup_template('install_db.tpl');
-			$o .= replace_macros($tpl, array(
+			$o .= replace_macros($tpl, [
 				'$title' => $install_title,
 				'$pass' => t('Database connection'),
 				'$info_01' => t('In order to install Friendica we need to know how to connect to your database.'),
@@ -229,11 +229,11 @@ function install_content(App $a) {
 
 				'$status' => $wizard_status,
 
-				'$dbhost' => array('dbhost', t('Database Server Name'), $dbhost, '', 'required'),
-				'$dbuser' => array('dbuser', t('Database Login Name'), $dbuser, '', 'required', 'autofocus'),
-				'$dbpass' => array('dbpass', t('Database Login Password'), $dbpass, t("For security reasons the password must not be empty"), 'required'),
-				'$dbdata' => array('dbdata', t('Database Name'), $dbdata, '', 'required'),
-				'$adminmail' => array('adminmail', t('Site administrator email address'), $adminmail, t('Your account email address must match this in order to use the web admin panel.'), 'required', 'autofocus', 'email'),
+				'$dbhost' => ['dbhost', t('Database Server Name'), $dbhost, '', 'required'],
+				'$dbuser' => ['dbuser', t('Database Login Name'), $dbuser, '', 'required', 'autofocus'],
+				'$dbpass' => ['dbpass', t('Database Login Password'), $dbpass, t("For security reasons the password must not be empty"), 'required'],
+				'$dbdata' => ['dbdata', t('Database Name'), $dbdata, '', 'required'],
+				'$adminmail' => ['adminmail', t('Site administrator email address'), $adminmail, t('Your account email address must match this in order to use the web admin panel.'), 'required', 'autofocus', 'email'],
 
 
 
@@ -245,7 +245,7 @@ function install_content(App $a) {
 
 				'$submit' => t('Submit'),
 
-			));
+			]);
 			return $o;
 		}; break;
 		case 3: { // Site settings
@@ -262,7 +262,7 @@ function install_content(App $a) {
 			$lang_choices = get_available_languages();
 
 			$tpl = get_markup_template('install_settings.tpl');
-			$o .= replace_macros($tpl, array(
+			$o .= replace_macros($tpl, [
 				'$title' => $install_title,
 				'$pass' => t('Site settings'),
 
@@ -274,18 +274,18 @@ function install_content(App $a) {
 				'$dbdata' => $dbdata,
 				'$phpath' => $phpath,
 
-				'$adminmail' => array('adminmail', t('Site administrator email address'), $adminmail, t('Your account email address must match this in order to use the web admin panel.'), 'required', 'autofocus', 'email'),
+				'$adminmail' => ['adminmail', t('Site administrator email address'), $adminmail, t('Your account email address must match this in order to use the web admin panel.'), 'required', 'autofocus', 'email'],
 
 
 				'$timezone' => field_timezone('timezone', t('Please select a default timezone for your website'), $timezone, ''),
-				'$language' => array('language', t('System Language:'), 'en', t('Set the default language for your Friendica installation interface and to send emails.'), $lang_choices),
+				'$language' => ['language', t('System Language:'), 'en', t('Set the default language for your Friendica installation interface and to send emails.'), $lang_choices],
 				'$baseurl' => System::baseUrl(),
 
 
 
 				'$submit' => t('Submit'),
 
-			));
+			]);
 			return $o;
 		}; break;
 
@@ -300,12 +300,12 @@ function install_content(App $a) {
  * help		: string optional
  */
 function check_add(&$checks, $title, $status, $required, $help) {
-	$checks[] = array(
+	$checks[] = [
 		'title' => $title,
 		'status' => $status,
 		'required' => $required,
 		'help'	=> $help,
-	);
+	];
 }
 
 function check_php(&$phpath, &$checks) {
@@ -322,9 +322,9 @@ function check_php(&$phpath, &$checks) {
 		$help .= t("If you don't have a command line version of PHP installed on your server, you will not be able to run the background processing. See <a href='https://github.com/friendica/friendica/blob/master/doc/Install.md#set-up-the-worker'>'Setup the worker'</a>") . EOL;
 		$help .= EOL . EOL;
 		$tpl = get_markup_template('field_input.tpl');
-		$help .= replace_macros($tpl, array(
-			'$field' => array('phpath', t('PHP executable path'), $phpath, t('Enter full path to php executable. You can leave this blank to continue the installation.')),
-		));
+		$help .= replace_macros($tpl, [
+			'$field' => ['phpath', t('PHP executable path'), $phpath, t('Enter full path to php executable. You can leave this blank to continue the installation.')],
+		]);
 		$phpath = "";
 	}
 
@@ -367,11 +367,11 @@ function check_keys(&$checks) {
 	$res = false;
 
 	if (function_exists('openssl_pkey_new')) {
-		$res = openssl_pkey_new(array(
+		$res = openssl_pkey_new([
 			'digest_alg'       => 'sha1',
 			'private_key_bits' => 4096,
 			'encrypt_key'      => false
-		));
+		]);
 	}
 
 	// Get private key
@@ -386,7 +386,7 @@ function check_keys(&$checks) {
 
 
 function check_funcs(&$checks) {
-	$ck_funcs = array();
+	$ck_funcs = [];
 	check_add($ck_funcs, t('libCurl PHP module'), true, true, "");
 	check_add($ck_funcs, t('GD graphics PHP module'), true, true, "");
 	check_add($ck_funcs, t('OpenSSL PHP module'), true, true, "");

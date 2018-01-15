@@ -67,35 +67,35 @@ function community_content(App $a, $update = 0)
 		$tabs = [];
 
 		if ((local_user() || in_array($page_style, [CP_USERS_AND_GLOBAL, CP_USERS_ON_SERVER])) && empty(Config::get('system','singleuser'))) {
-			$tabs[] = array(
+			$tabs[] = [
 				'label' => t('Community'),
 				'url' => 'community/local',
 				'sel' => $content == 'local' ? 'active' : '',
 				'title' => t('Posts from local users on this server'),
 				'id' => 'community-local-tab',
 				'accesskey' => 'l'
-			);
+			];
 		}
 
 		if (local_user() || in_array($page_style, [CP_USERS_AND_GLOBAL, CP_GLOBAL_COMMUNITY])) {
-			$tabs[] = array(
+			$tabs[] = [
 				'label' => t('Global Timeline'),
 				'url' => 'community/global',
 				'sel' => $content == 'global' ? 'active' : '',
 				'title' => t('Posts from users of the federated network'),
 				'id' => 'community-global-tab',
 				'accesskey' => 'g'
-			);
+			];
 		}
 
 		$tab_tpl = get_markup_template('common_tabs.tpl');
-		$o .= replace_macros($tab_tpl, array('$tabs' => $tabs));
+		$o .= replace_macros($tab_tpl, ['$tabs' => $tabs]);
 
 		nav_set_selected('community');
 
 		// We need the editor here to be able to reshare an item.
 		if (local_user()) {
-			$x = array(
+			$x = [
 				'is_owner' => true,
 				'allow_location' => $a->user['allow_location'],
 				'default_location' => $a->user['default-location'],
@@ -105,7 +105,7 @@ function community_content(App $a, $update = 0)
 				'bang' => '',
 				'visitor' => 'block',
 				'profile_uid' => local_user(),
-			);
+			];
 			$o .= status_editor($a, $x, 0, true);
 		}
 	}
@@ -141,7 +141,7 @@ function community_content(App $a, $update = 0)
 		$count = 1;
 		$previousauthor = "";
 		$numposts = 0;
-		$s = array();
+		$s = [];
 
 		do {
 			foreach ($r as $item) {
@@ -171,12 +171,12 @@ function community_content(App $a, $update = 0)
 	}
 
 	$t = get_markup_template("community.tpl");
-	return replace_macros($t, array(
+	return replace_macros($t, [
 		'$content' => $o,
 		'$header' => '',
 		'$show_global_community_hint' => ($content == 'global') && Config::get('system', 'show_global_community_hint'),
 		'$global_community_hint' => t("This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users.")
-	));
+	]);
 }
 
 function community_getitems($start, $itemspage, $content)
@@ -204,5 +204,5 @@ function community_getitems($start, $itemspage, $content)
 	}
 
 	// Should never happen
-	return array();
+	return [];
 }

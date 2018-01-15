@@ -14,9 +14,9 @@ function smilies_content(App $a)
 {
 	if ($a->argv[1] === "json") {
 		$tmp = Smilies::getList();
-		$results = array();
+		$results = [];
 		for ($i = 0; $i < count($tmp['texts']); $i++) {
-			$results[] = array('text' => $tmp['texts'][$i], 'icon' => $tmp['icons'][$i]);
+			$results[] = ['text' => $tmp['texts'][$i], 'icon' => $tmp['icons'][$i]];
 		}
 		json_return_and_die($results);
 	} else {

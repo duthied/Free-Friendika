@@ -22,7 +22,7 @@ class Oembed extends BaseModule
 
 		// Unused form: /oembed/b2h?url=...
 		if ($a->argv[1] == 'b2h') {
-			$url = array("", trim(hex2bin($_REQUEST['url'])));
+			$url = ["", trim(hex2bin($_REQUEST['url']))];
 			echo Content\OEmbed::replaceCallback($url);
 			killme();
 		}

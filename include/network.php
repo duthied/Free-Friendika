@@ -32,10 +32,10 @@ function fetch_url($url, $binary = false, &$redirects = 0, $timeout = 0, $accept
 		$url,
 		$binary,
 		$redirects,
-		array('timeout'=>$timeout,
+		['timeout'=>$timeout,
 		'accept_content'=>$accept_content,
 		'cookiejar'=>$cookiejar
-		)
+		]
 	);
 
 	return($ret['body']);
@@ -63,9 +63,9 @@ function fetch_url($url, $binary = false, &$redirects = 0, $timeout = 0, $accept
  *    string 'header' => HTTP headers
  *    string 'body' => fetched content
  */
-function z_fetch_url($url, $binary = false, &$redirects = 0, $opts = array())
+function z_fetch_url($url, $binary = false, &$redirects = 0, $opts = [])
 {
-	$ret = array('return_code' => 0, 'success' => false, 'header' => '', 'info' => '', 'body' => '');
+	$ret = ['return_code' => 0, 'success' => false, 'header' => '', 'info' => '', 'body' => ''];
 
 	$stamp1 = microtime(true);
 
@@ -97,7 +97,7 @@ function z_fetch_url($url, $binary = false, &$redirects = 0, $opts = array())
 		curl_setopt(
 			$ch,
 			CURLOPT_HTTPHEADER,
-			array('Accept: ' . $opts['accept_content'])
+			['Accept: ' . $opts['accept_content']]
 		);
 	}
 
@@ -213,7 +213,7 @@ function z_fetch_url($url, $binary = false, &$redirects = 0, $opts = array())
 			$newurl = $new_location_info['scheme'] . '://' . $new_location_info['host'] . $old_location_info['path'];
 		}
 
-		$matches = array();
+		$matches = [];
 
 		if (preg_match('/(Location:|URI:)(.*?)\n/i', $header, $matches)) {
 			$newurl = trim(array_pop($matches));
@@ -306,7 +306,7 @@ function post_url($url, $params, $headers = null, &$redirects = 0, $timeout = 0)
 
 	if (defined('LIGHTTPD')) {
 		if (!is_array($headers)) {
-			$headers = array('Expect:');
+			$headers = ['Expect:'];
 		} else {
 			if (!in_array('Expect:', $headers)) {
 				array_push($headers, 'Expect:');
@@ -361,7 +361,7 @@ function post_url($url, $params, $headers = null, &$redirects = 0, $timeout = 0)
 	}
 
 	if ($http_code == 301 || $http_code == 302 || $http_code == 303 || $http_code == 307) {
-		$matches = array();
+		$matches = [];
 		preg_match('/(Location:|URI:)(.*?)\n/', $header, $matches);
 		$newurl = trim(array_pop($matches));
 
@@ -397,7 +397,7 @@ function post_url($url, $params, $headers = null, &$redirects = 0, $timeout = 0)
 
 function xml_status($st, $message = '')
 {
-	$result = array('status' => $st);
+	$result = ['status' => $st];
 
 	if ($message != '') {
 		$result['message'] = $message;
@@ -409,7 +409,7 @@ function xml_status($st, $message = '')
 
 	header("Content-type: text/xml");
 
-	$xmldata = array("result" => $result);
+	$xmldata = ["result" => $result];
 
 	echo XML::fromArray($xmldata, $xml);
 
@@ -433,7 +433,7 @@ function xml_status($st, $message = '')
  *                             'title' => header title
  *                             'description' => optional message
  */
-function http_status_exit($val, $description = array())
+function http_status_exit($val, $description = [])
 {
 	$err = '';
 	if ($val >= 400) {
@@ -452,9 +452,9 @@ function http_status_exit($val, $description = array())
 		$tpl = get_markup_template('http_status.tpl');
 		echo replace_macros(
 			$tpl,
-			array(
+			[
 				'$title' => $description["title"],
-				'$description' => $description["description"])
+				'$description' => $description["description"]]
 		);
 	}
 
@@ -581,7 +581,7 @@ function blocked_url($url)
 		return true;
 	}
 
-	$domain_blocklist = Config::get('system', 'blocklist', array());
+	$domain_blocklist = Config::get('system', 'blocklist', []);
 	if (! $domain_blocklist) {
 		return false;
 	}
@@ -777,10 +777,10 @@ function fix_contact_ssl_policy(&$contact, $new_policy)
 	}
 
 	if ($ssl_changed) {
-		$fields = array('url' => $contact['url'], 'request' => $contact['request'],
+		$fields = ['url' => $contact['url'], 'request' => $contact['request'],
 				'notify' => $contact['notify'], 'poll' => $contact['poll'],
-				'confirm' => $contact['confirm'], 'poco' => $contact['poco']);
-		dba::update('contact', $fields, array('id' => $contact['id']));
+				'confirm' => $contact['confirm'], 'poco' => $contact['poco']];
+		dba::update('contact', $fields, ['id' => $contact['id']]);
 	}
 }
 
@@ -801,12 +801,12 @@ function strip_tracking_query_params($url)
 			foreach ($querydata as $param => $value) {
 				if (in_array(
 					$param,
-					array(
+					[
 						"utm_source", "utm_medium", "utm_term", "utm_content", "utm_campaign",
 						"wt_mc", "pk_campaign", "pk_kwd", "mc_cid", "mc_eid",
 						"fb_action_ids", "fb_action_types", "fb_ref",
 						"awesm", "wtrid",
-						"woo_campaign", "woo_source", "woo_medium", "woo_content", "woo_term")
+						"woo_campaign", "woo_source", "woo_medium", "woo_content", "woo_term"]
 					)
 				) {
 					$pair = $param . "=" . urlencode($value);
@@ -820,7 +820,7 @@ function strip_tracking_query_params($url)
 					$pair = $param . "=" . $value;
 					$url = str_replace($pair, "", $url);
 
-					$url = str_replace(array("?&", "&&"), array("?", ""), $url);
+					$url = str_replace(["?&", "&&"], ["?", ""], $url);
 				}
 			}
 		}
@@ -932,7 +932,7 @@ function original_url($url, $depth = 1, $fetchbody = false)
 
 	$list = $xpath->query("//meta[@content]");
 	foreach ($list as $node) {
-		$attr = array();
+		$attr = [];
 		if ($node->attributes->length) {
 			foreach ($node->attributes as $attribute) {
 				$attr[$attribute->name] = $attribute->value;
@@ -967,12 +967,12 @@ function short_link($url)
 		$yourls->set('password', $yourls_password);
 		$yourls->set('ssl', $yourls_ssl);
 		$yourls->set('yourls-url', $yourls_url);
-		$slinky->set_cascade(array($yourls, new Slinky_Ur1ca(), new Slinky_TinyURL()));
+		$slinky->set_cascade([$yourls, new Slinky_Ur1ca(), new Slinky_TinyURL()]);
 	} else {
 		// setup a cascade of shortening services
 		// try to get a short link from these services
 		// in the order ur1.ca, tinyurl
-		$slinky->set_cascade(array(new Slinky_Ur1ca(), new Slinky_TinyURL()));
+		$slinky->set_cascade([new Slinky_Ur1ca(), new Slinky_TinyURL()]);
 	}
 	return $slinky->short();
 }

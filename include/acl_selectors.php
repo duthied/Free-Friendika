@@ -28,7 +28,7 @@ function group_select($selname,$selclass,$preselected = false,$size = 4) {
 	);
 
 
-	$arr = array('group' => $r, 'entry' => $o);
+	$arr = ['group' => $r, 'entry' => $o];
 
 	// e.g. 'network_pre_group_deny', 'profile_pre_group_allow'
 
@@ -87,20 +87,20 @@ function contact_selector($selname, $selclass, $options, $preselected = false)
 		if (x($options, 'networks')) {
 			switch ($options['networks']) {
 				case 'DFRN_ONLY':
-					$networks = array(NETWORK_DFRN);
+					$networks = [NETWORK_DFRN];
 					break;
 				case 'PRIVATE':
 					if (is_array($a->user) && $a->user['prvnets']) {
-						$networks = array(NETWORK_DFRN, NETWORK_MAIL, NETWORK_DIASPORA);
+						$networks = [NETWORK_DFRN, NETWORK_MAIL, NETWORK_DIASPORA];
 					} else {
-						$networks = array(NETWORK_DFRN, NETWORK_FACEBOOK, NETWORK_MAIL, NETWORK_DIASPORA);
+						$networks = [NETWORK_DFRN, NETWORK_FACEBOOK, NETWORK_MAIL, NETWORK_DIASPORA];
 					}
 					break;
 				case 'TWO_WAY':
 					if (is_array($a->user) && $a->user['prvnets']) {
-						$networks = array(NETWORK_DFRN, NETWORK_MAIL, NETWORK_DIASPORA);
+						$networks = [NETWORK_DFRN, NETWORK_MAIL, NETWORK_DIASPORA];
 					} else {
-						$networks = array(NETWORK_DFRN, NETWORK_FACEBOOK, NETWORK_MAIL, NETWORK_DIASPORA, NETWORK_OSTATUS);
+						$networks = [NETWORK_DFRN, NETWORK_FACEBOOK, NETWORK_MAIL, NETWORK_DIASPORA, NETWORK_OSTATUS];
 					}
 					break;
 				default: /// @TODO Maybe log this call?
@@ -109,7 +109,7 @@ function contact_selector($selname, $selclass, $options, $preselected = false)
 		}
 	}
 
-	$x = array('options' => $options, 'size' => $size, 'single' => $single, 'mutual' => $mutual, 'exclude' => $exclude, 'networks' => $networks);
+	$x = ['options' => $options, 'size' => $size, 'single' => $single, 'mutual' => $mutual, 'exclude' => $exclude, 'networks' => $networks];
 
 	call_hooks('contact_select_options', $x);
 
@@ -150,7 +150,7 @@ function contact_selector($selname, $selclass, $options, $preselected = false)
 	);
 
 
-	$arr = array('contact' => $r, 'entry' => $o);
+	$arr = ['contact' => $r, 'entry' => $o];
 
 	// e.g. 'network_pre_contact_deny', 'profile_pre_contact_allow'
 
@@ -228,13 +228,13 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 	);
 
 
-	$arr = array('contact' => $r, 'entry' => $o);
+	$arr = ['contact' => $r, 'entry' => $o];
 
 	// e.g. 'network_pre_contact_deny', 'profile_pre_contact_allow'
 
 	call_hooks($a->module . '_pre_' . $selname, $arr);
 
-	$receiverlist = array();
+	$receiverlist = [];
 
 	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
@@ -270,7 +270,7 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 
 
 function fixacl(&$item) {
-	$item = intval(str_replace(array('<', '>'), array('', ''), $item));
+	$item = intval(str_replace(['<', '>'], ['', ''], $item));
 }
 
 function prune_deadguys($arr) {
@@ -284,14 +284,14 @@ function prune_deadguys($arr) {
 	$r = q("SELECT `id` FROM `contact` WHERE `id` IN ( " . $str . ") AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0 ");
 
 	if (DBM::is_result($r)) {
-		$ret = array();
+		$ret = [];
 		foreach ($r as $rr) {
 			$ret[] = intval($rr['id']);
 		}
 		return $ret;
 	}
 
-	return array();
+	return [];
 }
 
 
@@ -300,13 +300,13 @@ function get_acl_permissions($user = null) {
 
 	if (is_array($user)) {
 		$allow_cid = ((strlen($user['allow_cid']))
-			? explode('><', $user['allow_cid']) : array() );
+			? explode('><', $user['allow_cid']) : [] );
 		$allow_gid = ((strlen($user['allow_gid']))
-			? explode('><', $user['allow_gid']) : array() );
+			? explode('><', $user['allow_gid']) : [] );
 		$deny_cid  = ((strlen($user['deny_cid']))
-			? explode('><', $user['deny_cid']) : array() );
+			? explode('><', $user['deny_cid']) : [] );
 		$deny_gid  = ((strlen($user['deny_gid']))
-			? explode('><', $user['deny_gid']) : array() );
+			? explode('><', $user['deny_gid']) : [] );
 		array_walk($allow_cid,'fixacl');
 		array_walk($allow_gid,'fixacl');
 		array_walk($deny_cid,'fixacl');
@@ -315,12 +315,12 @@ function get_acl_permissions($user = null) {
 
 	$allow_cid = prune_deadguys($allow_cid);
 
-	return array(
+	return [
 		'allow_cid' => $allow_cid,
 		'allow_gid' => $allow_gid,
 		'deny_cid' => $deny_cid,
 		'deny_gid' => $deny_gid,
-	);
+	];
 }
 
 
@@ -361,7 +361,7 @@ function populate_acl($user = null, $show_jotnets = false) {
 	}
 
 	$tpl = get_markup_template("acl_selector.tpl");
-	$o = replace_macros($tpl, array(
+	$o = replace_macros($tpl, [
 		'$showall'=> t("Visible to everybody"),
 		'$show'	=> t("show"),
 		'$hide'	 => t("don't show"),
@@ -375,10 +375,10 @@ function populate_acl($user = null, $show_jotnets = false) {
 		'$jotnets' => $jotnets,
 		'$aclModalTitle' => t('Permissions'),
 		'$aclModalDismiss' => t('Close'),
-		'$features' => array(
+		'$features' => [
 		'aclautomention' => (Feature::isEnabled($user['uid'], "aclautomention") ? "true" : "false")
-		),
-	));
+		],
+	]);
 
 
 	return $o;
@@ -475,8 +475,8 @@ function acl_lookup(App $a, $out_type = 'json')
 
 	$tot = $group_count + $contact_count;
 
-	$groups = array();
-	$contacts = array();
+	$groups = [];
+	$contacts = [];
 
 	if ($type == '' || $type == 'g') {
 		/// @todo We should cache this query.
@@ -495,7 +495,7 @@ function acl_lookup(App $a, $out_type = 'json')
 		);
 
 		foreach ($r as $g) {
-			$groups[] = array(
+			$groups[] = [
 				"type"  => "g",
 				"photo" => "images/twopeople.png",
 				"name"  => htmlentities($g['name']),
@@ -503,10 +503,10 @@ function acl_lookup(App $a, $out_type = 'json')
 				"uids"  => array_map("intval", explode(",",$g['uids'])),
 				"link"  => '',
 				"forum" => '0'
-			);
+			];
 		}
 		if ((count($groups) > 0) && ($search == "")) {
-			$groups[] = array("separator" => true);
+			$groups[] = ["separator" => true];
 		}
 	}
 
@@ -558,34 +558,34 @@ function acl_lookup(App $a, $out_type = 'json')
 	} elseif ($type == 'x') {
 		// autocomplete for global contact search (e.g. navbar search)
 		$r = navbar_complete($a);
-		$contacts = array();
+		$contacts = [];
 		if ($r) {
 			foreach ($r as $g) {
-				$contacts[] = array(
+				$contacts[] = [
 					'photo'   => proxy_url($g['photo'], false, PROXY_SIZE_MICRO),
 					'name'    => $g['name'],
 					'nick'    => (x($g['addr']) ? $g['addr'] : $g['url']),
 					'network' => $g['network'],
 					'link'    => $g['url'],
 					'forum'   => (x($g['community']) ? 1 : 0),
-				);
+				];
 			}
 		}
-		$o = array(
+		$o = [
 			'start' => $start,
 			'count' => $count,
 			'items' => $contacts,
-		);
+		];
 		echo json_encode($o);
 		killme();
 	} else {
-		$r = array();
+		$r = [];
 	}
 
 	if (DBM::is_result($r)) {
-		$forums = array();
+		$forums = [];
 		foreach ($r as $g) {
-			$entry = array(
+			$entry = [
 				'type'    => 'c',
 				'photo'   => proxy_url($g['micro'], false, PROXY_SIZE_MICRO),
 				'name'    => htmlentities($g['name']),
@@ -595,7 +595,7 @@ function acl_lookup(App $a, $out_type = 'json')
 				'nick'    => htmlentities(($g['attag']) ? $g['attag'] : $g['nick']),
 				'addr'    => htmlentities(($g['addr']) ? $g['addr'] : $g['url']),
 				'forum'   => ((x($g, 'forum') || x($g, 'prv')) ? 1 : 0),
-			);
+			];
 			if ($entry['forum']) {
 				$forums[] = $entry;
 			} else {
@@ -604,7 +604,7 @@ function acl_lookup(App $a, $out_type = 'json')
 		}
 		if (count($forums) > 0) {
 			if ($search == "") {
-				$forums[] = array("separator" => true);
+				$forums[] = ["separator" => true];
 			}
 			$contacts = array_merge($forums, $contacts);
 		}
@@ -623,7 +623,7 @@ function acl_lookup(App $a, $out_type = 'json')
 			}
 		, $contacts);
 
-		$unknown_contacts = array();
+		$unknown_contacts = [];
 		$r = q("SELECT `author-link`
 				FROM `item` WHERE `parent` = %d
 					AND (`author-name` LIKE '%%%s%%' OR `author-link` LIKE '%%%s%%')
@@ -641,7 +641,7 @@ function acl_lookup(App $a, $out_type = 'json')
 				$contact = Contact::getDetailsByURL($row['author-link']);
 
 				if (count($contact) > 0) {
-					$unknown_contacts[] = array(
+					$unknown_contacts[] = [
 						'type'    => 'c',
 						'photo'   => proxy_url($contact['micro'], false, PROXY_SIZE_MICRO),
 						'name'    => htmlentities($contact['name']),
@@ -651,7 +651,7 @@ function acl_lookup(App $a, $out_type = 'json')
 						'nick'    => htmlentities($contact['nick'] ? : $contact['addr']),
 						'addr'    => htmlentities(($contact['addr']) ? $contact['addr'] : $contact['url']),
 						'forum'   => $contact['forum']
-					);
+					];
 				}
 			}
 		}
@@ -660,7 +660,7 @@ function acl_lookup(App $a, $out_type = 'json')
 		$tot += count($unknown_contacts);
 	}
 
-	$results = array(
+	$results = [
 		'tot'      => $tot,
 		'start'    => $start,
 		'count'    => $count,
@@ -669,27 +669,27 @@ function acl_lookup(App $a, $out_type = 'json')
 		'items'    => $items,
 		'type'     => $type,
 		'search'   => $search,
-	);
+	];
 
 	call_hooks('acl_lookup_end', $results);
 
 	if ($out_type === 'html') {
-		$o = array(
+		$o = [
 			'tot'      => $results['tot'],
 			'start'    => $results['start'],
 			'count'    => $results['count'],
 			'groups'   => $results['groups'],
 			'contacts' => $results['contacts'],
-		);
+		];
 		return $o;
 	}
 
-	$o = array(
+	$o = [
 		'tot'   => $results['tot'],
 		'start' => $results['start'],
 		'count' => $results['count'],
 		'items' => $results['items'],
-	);
+	];
 
 	echo json_encode($o);
 
@@ -717,7 +717,7 @@ function navbar_complete(App $a) {
 
 	// don't search if search term has less than 2 characters
 	if (! $search || mb_strlen($search) < 2) {
-		return array();
+		return [];
 	}
 
 	if (substr($search,0,1) === '@') {

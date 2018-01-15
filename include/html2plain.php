@@ -10,7 +10,7 @@ function breaklines($line, $level, $wraplength = 75)
 
 	$wraplen = $wraplength - $level;
 
-	$newlines = array();
+	$newlines = [];
 
 	do {
 		$oldline = $line;
@@ -47,7 +47,7 @@ function quotelevel($message, $wraplength = 75)
 {
 	$lines = explode("\n", $message);
 
-	$newlines = array();
+	$newlines = [];
 	$level = 0;
 	foreach ($lines as $line) {
 		$line = trim($line);
@@ -84,13 +84,13 @@ function collecturls($message)
 	$pattern = '/<a.*?href="(.*?)".*?>(.*?)<\/a>/is';
 	preg_match_all($pattern, $message, $result, PREG_SET_ORDER);
 
-	$urls = array();
+	$urls = [];
 	foreach ($result as $treffer) {
 		$ignore = false;
 
 		// A list of some links that should be ignored
-		$list = array("/user/", "/tag/", "/group/", "/profile/", "/search?search=", "/search?tag=", "mailto:", "/u/", "/node/",
-			"//facebook.com/profile.php?id=", "//plus.google.com/", "//twitter.com/");
+		$list = ["/user/", "/tag/", "/group/", "/profile/", "/search?search=", "/search?tag=", "mailto:", "/u/", "/node/",
+			"//facebook.com/profile.php?id=", "//plus.google.com/", "//twitter.com/"];
 		foreach ($list as $listitem) {
 			if (strpos($treffer[1], $listitem) !== false) {
 				$ignore = true;
@@ -137,7 +137,7 @@ function html2plain($html, $wraplength = 75, $compact = false)
 	}
 
 	$message = $doc->saveHTML();
-	$message = str_replace(array("\n<", ">\n", "\r", "\n", "\xC3\x82\xC2\xA0"), array("<", ">", "<br>", " ", ""), $message);
+	$message = str_replace(["\n<", ">\n", "\r", "\n", "\xC3\x82\xC2\xA0"], ["<", ">", "<br>", " ", ""], $message);
 	$message = preg_replace('= [\s]*=i', " ", $message);
 
 	// Collecting all links
@@ -145,8 +145,8 @@ function html2plain($html, $wraplength = 75, $compact = false)
 
 	@$doc->loadHTML($message);
 
-	node2bbcode($doc, 'html', array(), '', '');
-	node2bbcode($doc, 'body', array(), '', '');
+	node2bbcode($doc, 'html', [], '', '');
+	node2bbcode($doc, 'body', [], '', '');
 
 	// MyBB-Auszeichnungen
 	/*
@@ -161,33 +161,33 @@ function html2plain($html, $wraplength = 75, $compact = false)
 	 */
 
 	if ($compact) {
-		node2bbcode($doc, 'blockquote', array(), "»", "«");
+		node2bbcode($doc, 'blockquote', [], "»", "«");
 	} else {
-		node2bbcode($doc, 'blockquote', array(), '[quote]', "[/quote]\n");
+		node2bbcode($doc, 'blockquote', [], '[quote]', "[/quote]\n");
 	}
 
-	node2bbcode($doc, 'br', array(), "\n", '');
+	node2bbcode($doc, 'br', [], "\n", '');
 
-	node2bbcode($doc, 'span', array(), "", "");
-	node2bbcode($doc, 'pre', array(), "", "");
-	node2bbcode($doc, 'div', array(), "\r", "\r");
-	node2bbcode($doc, 'p', array(), "\n", "\n");
+	node2bbcode($doc, 'span', [], "", "");
+	node2bbcode($doc, 'pre', [], "", "");
+	node2bbcode($doc, 'div', [], "\r", "\r");
+	node2bbcode($doc, 'p', [], "\n", "\n");
 
 	//node2bbcode($doc, 'ul', array(), "\n[list]", "[/list]\n");
 	//node2bbcode($doc, 'ol', array(), "\n[list=1]", "[/list]\n");
-	node2bbcode($doc, 'li', array(), "\n* ", "\n");
+	node2bbcode($doc, 'li', [], "\n* ", "\n");
 
-	node2bbcode($doc, 'hr', array(), "\n" . str_repeat("-", 70) . "\n", "");
+	node2bbcode($doc, 'hr', [], "\n" . str_repeat("-", 70) . "\n", "");
 
-	node2bbcode($doc, 'tr', array(), "\n", "");
-	node2bbcode($doc, 'td', array(), "\t", "");
+	node2bbcode($doc, 'tr', [], "\n", "");
+	node2bbcode($doc, 'td', [], "\t", "");
 
-	node2bbcode($doc, 'h1', array(), "\n\n*", "*\n");
-	node2bbcode($doc, 'h2', array(), "\n\n*", "*\n");
-	node2bbcode($doc, 'h3', array(), "\n\n*", "*\n");
-	node2bbcode($doc, 'h4', array(), "\n\n*", "*\n");
-	node2bbcode($doc, 'h5', array(), "\n\n*", "*\n");
-	node2bbcode($doc, 'h6', array(), "\n\n*", "*\n");
+	node2bbcode($doc, 'h1', [], "\n\n*", "*\n");
+	node2bbcode($doc, 'h2', [], "\n\n*", "*\n");
+	node2bbcode($doc, 'h3', [], "\n\n*", "*\n");
+	node2bbcode($doc, 'h4', [], "\n\n*", "*\n");
+	node2bbcode($doc, 'h5', [], "\n\n*", "*\n");
+	node2bbcode($doc, 'h6', [], "\n\n*", "*\n");
 
 	// Problem: there is no reliable way to detect if it is a link to a tag or profile
 	//node2bbcode($doc, 'a', array('href'=>'/(.+)/'), ' $1 ', ' ', true);
@@ -196,12 +196,12 @@ function html2plain($html, $wraplength = 75, $compact = false)
 	//node2bbcode($doc, 'img', array('title'=>'/(.+)/'), '$1', '');
 	//node2bbcode($doc, 'img', array(), '', '');
 	if (!$compact) {
-		node2bbcode($doc, 'img', array('src' => '/(.+)/'), ' [img]$1', '[/img] ');
+		node2bbcode($doc, 'img', ['src' => '/(.+)/'], ' [img]$1', '[/img] ');
 	} else {
-		node2bbcode($doc, 'img', array('src' => '/(.+)/'), ' ', ' ');
+		node2bbcode($doc, 'img', ['src' => '/(.+)/'], ' ', ' ');
 	}
 
-	node2bbcode($doc, 'iframe', array('src' => '/(.+)/'), ' $1 ', '');
+	node2bbcode($doc, 'iframe', ['src' => '/(.+)/'], ' $1 ', '');
 
 	$message = $doc->saveHTML();
 

@@ -26,7 +26,7 @@ class PubSubPublish {
 
 			foreach ($r as $rr) {
 				logger("Publish feed to ".$rr["callback_url"], LOGGER_DEBUG);
-				Worker::add(array('priority' => PRIORITY_HIGH, 'created' => $a->queue['created'], 'dont_fork' => true),
+				Worker::add(['priority' => PRIORITY_HIGH, 'created' => $a->queue['created'], 'dont_fork' => true],
 						'PubSubPublish', (int)$rr["id"]);
 			}
 		}
@@ -60,11 +60,11 @@ class PubSubPublish {
 
 		$hmac_sig = hash_hmac("sha1", $params, $rr['secret']);
 
-		$headers = array("Content-type: application/atom+xml",
+		$headers = ["Content-type: application/atom+xml",
 				sprintf("Link: <%s>;rel=hub,<%s>;rel=self",
 					System::baseUrl().'/pubsubhubbub/'.$rr['nickname'],
 					$rr['topic']),
-				"X-Hub-Signature: sha1=".$hmac_sig);
+				"X-Hub-Signature: sha1=".$hmac_sig];
 
 		logger('POST '.print_r($headers, true)."\n".$params, LOGGER_DEBUG);
 

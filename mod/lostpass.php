@@ -70,12 +70,12 @@ function lostpass_post(App $a) {
 	$preamble = sprintf($preamble, $username, $sitename);
 	$body = sprintf($body, $resetlink, System::baseUrl(), $email);
 
-	notification(array(
+	notification([
 		'type' => SYSTEM_EMAIL,
 		'to_email' => $email,
 		'subject'=> sprintf( t('Password reset requested at %s'),$sitename),
 		'preamble'=> $preamble,
-		'body' => $body));
+		'body' => $body]);
 
 	goaway(System::baseUrl());
 
@@ -111,7 +111,7 @@ function lostpass_content(App $a) {
 		/// @TODO Is DBM::is_result() okay here?
 		if ($r) {
 			$tpl = get_markup_template('pwdreset.tpl');
-			$o .= replace_macros($tpl,array(
+			$o .= replace_macros($tpl,[
 				'$lbl1' => t('Password Reset'),
 				'$lbl2' => t('Your password has been reset as requested.'),
 				'$lbl3' => t('Your new password is'),
@@ -121,7 +121,7 @@ function lostpass_content(App $a) {
 				'$newpass' => $new_password,
 				'$baseurl' => System::baseUrl()
 
-			));
+			]);
 				info("Your password has been reset." . EOL);
 
 
@@ -146,12 +146,12 @@ function lostpass_content(App $a) {
 			$preamble = sprintf($preamble, $username);
 			$body = sprintf($body, System::baseUrl(), $email, $new_password);
 
-			notification(array(
+			notification([
 				'type' => SYSTEM_EMAIL,
 				'to_email' => $email,
 				'subject'=> sprintf( t('Your password has been changed at %s'),$sitename),
 				'preamble'=> $preamble,
-				'body' => $body));
+				'body' => $body]);
 
 			return $o;
 		}
@@ -160,12 +160,12 @@ function lostpass_content(App $a) {
 	else {
 		$tpl = get_markup_template('lostpass.tpl');
 
-		$o .= replace_macros($tpl,array(
+		$o .= replace_macros($tpl,[
 			'$title' => t('Forgot your Password?'),
 			'$desc' => t('Enter your email address and submit to have your password reset. Then check your email for further instructions.'),
 			'$name' => t('Nickname or Email: '),
 			'$submit' => t('Reset')
-		));
+		]);
 
 		return $o;
 	}

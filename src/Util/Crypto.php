@@ -96,7 +96,7 @@ class Crypto
 		$modulus->SetIntBuffer($Modulus);
 		$publicExponent = new ASNValue(ASNValue::TAG_INTEGER);
 		$publicExponent->SetIntBuffer($PublicExponent);
-		$keySequenceItems = array($modulus, $publicExponent);
+		$keySequenceItems = [$modulus, $publicExponent];
 		$keySequence = new ASNValue(ASNValue::TAG_SEQUENCE);
 		$keySequence->SetSequence($keySequenceItems);
 		//Encode bit string
@@ -125,7 +125,7 @@ class Crypto
 		$modulus->SetIntBuffer($Modulus);
 		$publicExponent = new ASNValue(ASNValue::TAG_INTEGER);
 		$publicExponent->SetIntBuffer($PublicExponent);
-		$keySequenceItems = array($modulus, $publicExponent);
+		$keySequenceItems = [$modulus, $publicExponent];
 		$keySequence = new ASNValue(ASNValue::TAG_SEQUENCE);
 		$keySequence->SetSequence($keySequenceItems);
 		//Encode bit string
@@ -221,11 +221,11 @@ class Crypto
 	 */
 	public static function newKeypair($bits)
 	{
-		$openssl_options = array(
+		$openssl_options = [
 			'digest_alg'       => 'sha1',
 			'private_key_bits' => $bits,
 			'encrypt_key'      => false
-		);
+		];
 
 		$conf = Config::get('system', 'openssl_conf_file');
 		if ($conf) {
@@ -239,7 +239,7 @@ class Crypto
 		}
 
 		// Get private key
-		$response = array('prvkey' => '', 'pubkey' => '');
+		$response = ['prvkey' => '', 'pubkey' => ''];
 
 		openssl_pkey_export($result, $response['prvkey']);
 

@@ -9,10 +9,10 @@ $a->strings["Add New Contact"] = "Bæta við tengilið";
 $a->strings["Enter address or web location"] = "Settu inn slóð";
 $a->strings["Example: bob@example.com, http://example.com/barbara"] = "Dæmi: gudmundur@simnet.is, http://simnet.is/gudmundur";
 $a->strings["Connect"] = "Tengjast";
-$a->strings["%d invitation available"] = array(
+$a->strings["%d invitation available"] = [
 	0 => "%d boðskort í boði",
 	1 => "%d boðskort í boði",
-);
+];
 $a->strings["Find People"] = "Finna fólk";
 $a->strings["Enter name or interest"] = "Settu inn nafn eða áhugamál";
 $a->strings["Connect/Follow"] = "Tengjast/fylgja";
@@ -27,10 +27,10 @@ $a->strings["All Networks"] = "Öll net";
 $a->strings["Saved Folders"] = "Vistaðar möppur";
 $a->strings["Everything"] = "Allt";
 $a->strings["Categories"] = "Flokkar";
-$a->strings["%d contact in common"] = array(
+$a->strings["%d contact in common"] = [
 	0 => "%d tengiliður sameiginlegur",
 	1 => "%d tengiliðir sameiginlegir",
-);
+];
 $a->strings["show more"] = "birta meira";
 $a->strings["Forums"] = "Spjallsvæði";
 $a->strings["External link to forum"] = "Ytri tengill á spjallsvæði";
@@ -47,10 +47,10 @@ $a->strings["Hermaphrodite"] = "Tvíkynja";
 $a->strings["Neuter"] = "Hvorukyn";
 $a->strings["Non-specific"] = "Ekki ákveðið";
 $a->strings["Other"] = "Annað";
-$a->strings["Undecided"] = array(
+$a->strings["Undecided"] = [
 	0 => "Óviss",
 	1 => "Óvissir",
-);
+];
 $a->strings["Males"] = "Karlar";
 $a->strings["Females"] = "Konur";
 $a->strings["Gay"] = "Hommi";
@@ -169,10 +169,10 @@ $a->strings["Error! Cannot check nickname"] = "";
 $a->strings["User '%s' already exists on this server!"] = "";
 $a->strings["User creation error"] = "";
 $a->strings["User profile creation error"] = "";
-$a->strings["%d contact not imported"] = array(
+$a->strings["%d contact not imported"] = [
 	0 => "",
 	1 => "",
-);
+];
 $a->strings["Done. You can now login with your username and password"] = "";
 $a->strings["Miscellaneous"] = "Ýmislegt";
 $a->strings["Birthday:"] = "Afmælisdagur:";
@@ -432,10 +432,10 @@ $a->strings["post/item"] = "";
 $a->strings["%1\$s marked %2\$s's %3\$s as favorite"] = "";
 $a->strings["Likes"] = "Líkar";
 $a->strings["Dislikes"] = "Mislíkar";
-$a->strings["Attending"] = array(
+$a->strings["Attending"] = [
 	0 => "Mætir",
 	1 => "Mæta",
-);
+];
 $a->strings["Not attending"] = "Mætir ekki";
 $a->strings["Might attend"] = "Gæti mætt";
 $a->strings["Select"] = "Velja";
@@ -502,18 +502,18 @@ $a->strings["Private post"] = "Einkafærsla";
 $a->strings["Message"] = "Skilaboð";
 $a->strings["Browser"] = "Vafri";
 $a->strings["View all"] = "Skoða allt";
-$a->strings["Like"] = array(
+$a->strings["Like"] = [
 	0 => "Líkar",
 	1 => "Líkar",
-);
-$a->strings["Dislike"] = array(
+];
+$a->strings["Dislike"] = [
 	0 => "Mislíkar",
 	1 => "Mislíkar",
-);
-$a->strings["Not Attending"] = array(
+];
+$a->strings["Not Attending"] = [
 	0 => "Mæti ekki",
 	1 => "Mæta ekki",
-);
+];
 $a->strings["%s\\'s birthday"] = "Afmælisdagur %s";
 $a->strings["General Features"] = "Almennir eiginleikar";
 $a->strings["Multiple Profiles"] = "";
@@ -651,10 +651,10 @@ $a->strings["next"] = "næsta";
 $a->strings["Loading more entries..."] = "Hleð inn fleiri færslum...";
 $a->strings["The end"] = "Endir";
 $a->strings["No contacts"] = "Engir tengiliðir";
-$a->strings["%d Contact"] = array(
+$a->strings["%d Contact"] = [
 	0 => "%d tengiliður",
 	1 => "%d tengiliðir",
-);
+];
 $a->strings["View Contacts"] = "Skoða tengiliði";
 $a->strings["Save"] = "Vista";
 $a->strings["poke"] = "pota";
@@ -695,10 +695,10 @@ $a->strings["Click to open/close"] = "";
 $a->strings["View on separate page"] = "";
 $a->strings["view on separate page"] = "";
 $a->strings["activity"] = "virkni";
-$a->strings["comment"] = array(
+$a->strings["comment"] = [
 	0 => "athugasemd",
 	1 => "athugasemdir",
-);
+];
 $a->strings["post"] = "";
 $a->strings["Item filed"] = "";
 $a->strings["Passwords do not match. Password unchanged."] = "Aðgangsorð ber ekki saman.  Aðgangsorð óbreytt.";
@@ -794,10 +794,10 @@ $a->strings["%s : Not a valid email address."] = "%s : Ekki gilt póstfang";
 $a->strings["Please join us on Friendica"] = "";
 $a->strings["Invitation limit exceeded. Please contact your site administrator."] = "";
 $a->strings["%s : Message delivery failed."] = "%s : Skilaboð komust ekki til skila.";
-$a->strings["%d message sent."] = array(
+$a->strings["%d message sent."] = [
 	0 => "%d skilaboð send.",
 	1 => "%d skilaboð send",
-);
+];
 $a->strings["You have no more invitations available"] = "Þú hefur ekki fleiri boðskort.";
 $a->strings["Visit %s for a list of public sites that you can join. Friendica members on other sites can all connect with each other, as well as with members of many other social networks."] = "";
 $a->strings["To accept this invitation, please visit and register at %s or any other public Friendica website."] = "";
@@ -949,10 +949,10 @@ $a->strings["Unknown sender - %s"] = "";
 $a->strings["You and %s"] = "";
 $a->strings["%s and You"] = "";
 $a->strings["D, d M Y - g:i A"] = "";
-$a->strings["%d message"] = array(
+$a->strings["%d message"] = [
 	0 => "",
 	1 => "",
-);
+];
 $a->strings["Manage Identities and/or Pages"] = "Sýsla með notendur og/eða síður";
 $a->strings["Toggle between different identities or community/group pages which share your account details or which you have been granted \"manage\" permissions"] = "Skipta á milli auðkenna eða hópa- / stjörnunotanda sem deila þínum aðgangs upplýsingum eða þér verið úthlutað \"umsýslu\" réttindum.";
 $a->strings["Select an identity to manage: "] = "Veldu notanda til að sýsla með:";
@@ -981,10 +981,10 @@ $a->strings["New photo from this URL"] = "Ný mynd frá slóð";
 $a->strings["No such group"] = "Hópur ekki til";
 $a->strings["Group: %s"] = "";
 $a->strings["This entry was edited"] = "";
-$a->strings["%d comment"] = array(
+$a->strings["%d comment"] = [
 	0 => "%d ummæli",
 	1 => "%d ummæli",
-);
+];
 $a->strings["Private Message"] = "Einkaskilaboð";
 $a->strings["I like this (toggle)"] = "Mér líkar þetta (kveikja/slökkva)";
 $a->strings["like"] = "líkar";
@@ -1687,14 +1687,14 @@ $a->strings["Mark success (if update was manually applied)"] = "Merkja sem tóks
 $a->strings["Attempt to execute this update step automatically"] = "Framkvæma þessa uppfærslu sjálfkrafa";
 $a->strings["\n\t\t\tDear %1\$s,\n\t\t\t\tthe administrator of %2\$s has set up an account for you."] = "";
 $a->strings["\n\t\t\tThe login details are as follows:\n\n\t\t\tSite Location:\t%1\$s\n\t\t\tLogin Name:\t\t%2\$s\n\t\t\tPassword:\t\t%3\$s\n\n\t\t\tYou may change your password from your account \"Settings\" page after logging\n\t\t\tin.\n\n\t\t\tPlease take a few moments to review the other account settings on that page.\n\n\t\t\tYou may also wish to add some basic information to your default profile\n\t\t\t(on the \"Profiles\" page) so that other people can easily find you.\n\n\t\t\tWe recommend setting your full name, adding a profile photo,\n\t\t\tadding some profile \"keywords\" (very useful in making new friends) - and\n\t\t\tperhaps what country you live in; if you do not wish to be more specific\n\t\t\tthan that.\n\n\t\t\tWe fully respect your right to privacy, and none of these items are necessary.\n\t\t\tIf you are new and do not know anybody here, they may help\n\t\t\tyou to make some new and interesting friends.\n\n\t\t\tThank you and welcome to %4\$s."] = "";
-$a->strings["%s user blocked/unblocked"] = array(
+$a->strings["%s user blocked/unblocked"] = [
 	0 => "",
 	1 => "",
-);
-$a->strings["%s user deleted"] = array(
+];
+$a->strings["%s user deleted"] = [
 	0 => "%s notenda eytt",
 	1 => "%s notendum eytt",
-);
+];
 $a->strings["User '%s' deleted"] = "Notanda '%s' eytt";
 $a->strings["User '%s' unblocked"] = "Notanda '%s' gefið frelsi";
 $a->strings["User '%s' blocked"] = "Notanda '%s' settur í bann";
@@ -1748,10 +1748,10 @@ $a->strings["PHP logging"] = "";
 $a->strings["To enable logging of PHP errors and warnings you can add the following to the .htconfig.php file of your installation. The filename set in the 'error_log' line is relative to the friendica top-level directory and must be writeable by the web server. The option '1' for 'log_errors' and 'display_errors' is to enable these options, set to '0' to disable them."] = "";
 $a->strings["Lock feature %s"] = "";
 $a->strings["Manage Additional Features"] = "";
-$a->strings["%d contact edited."] = array(
+$a->strings["%d contact edited."] = [
 	0 => "",
 	1 => "",
-);
+];
 $a->strings["Could not access contact record."] = "Tókst ekki að ná í uppl. um tengilið";
 $a->strings["Could not locate selected profile."] = "Tókst ekki að staðsetja valinn forsíðu";
 $a->strings["Contact updated."] = "Tengiliður uppfærður";
@@ -1848,10 +1848,10 @@ $a->strings["This introduction has already been accepted."] = "Þessi kynning he
 $a->strings["Profile location is not valid or does not contain profile information."] = "Forsíðu slóð er ekki í lagi eða inniheldur ekki forsíðu upplýsingum.";
 $a->strings["Warning: profile location has no identifiable owner name."] = "Aðvörun: forsíðu staðsetning hefur ekki aðgreinanlegt eigendanafn.";
 $a->strings["Warning: profile location has no profile photo."] = "Aðvörun: forsíðu slóð hefur ekki forsíðu mynd.";
-$a->strings["%d required parameter was not found at the given location"] = array(
+$a->strings["%d required parameter was not found at the given location"] = [
 	0 => "%d skilyrt breyta fannst ekki á uppgefinni staðsetningu",
 	1 => "%d skilyrtar breytur fundust ekki á uppgefninni staðsetningu",
-);
+];
 $a->strings["Introduction complete."] = "Kynning tilbúinn.";
 $a->strings["Unrecoverable protocol error."] = "Alvarleg samskipta villa.";
 $a->strings["Profile unavailable."] = "Ekki hægt að sækja forsíðu";
@@ -1971,10 +1971,10 @@ $a->strings["This message was sent to you by %s, a member of the Friendica socia
 $a->strings["You may visit them online at %s"] = "Þú getur heimsótt þau á netinu á %s";
 $a->strings["Please contact the sender by replying to this post if you do not wish to receive these messages."] = "Hafðu samband við sendanda með því að svara á þessari færslu ef þú villt ekki fá þessi skilaboð.";
 $a->strings["%s posted an update."] = "%s hefur sent uppfærslu.";
-$a->strings["Warning: This group contains %s member from a network that doesn't allow non public messages."] = array(
+$a->strings["Warning: This group contains %s member from a network that doesn't allow non public messages."] = [
 	0 => "",
 	1 => "",
-);
+];
 $a->strings["Messages in this group won't be send to these receivers."] = "";
 $a->strings["Private messages to this person are at risk of public disclosure."] = "Einka skilaboð send á þennan notanda eiga á hættu að verða opinber.";
 $a->strings["Invalid contact."] = "Ógildur tengiliður.";

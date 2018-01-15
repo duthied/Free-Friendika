@@ -22,11 +22,11 @@ function hostxrd_init(App $a)
 	}
 
 	$tpl = get_markup_template('xrd_host.tpl');
-	echo replace_macros($tpl, array(
+	echo replace_macros($tpl, [
 		'$zhost' => $a->get_hostname(),
 		'$zroot' => System::baseUrl(),
 		'$domain' => System::baseUrl(),
-		'$bigkey' => Salmon::salmonKey(Config::get('system', 'site_pubkey')))
+		'$bigkey' => Salmon::salmonKey(Config::get('system', 'site_pubkey'))]
 	);
 
 	exit();

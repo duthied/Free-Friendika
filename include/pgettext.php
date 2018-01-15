@@ -69,7 +69,7 @@ function push_lang($language) {
 	if (isset($a->strings) && count($a->strings)) {
 		$a->stringsave = $a->strings;
 	}
-	$a->strings = array();
+	$a->strings = [];
 	load_translation_table($language);
 	$lang = $language;
 }
@@ -84,7 +84,7 @@ function pop_lang() {
 	if (isset($a->stringsave)) {
 		$a->strings = $a->stringsave;
 	} else {
-		$a->strings = array();
+		$a->strings = [];
 	}
 
 	$lang = $a->langsave;
@@ -102,9 +102,9 @@ function pop_lang() {
 function load_translation_table($lang) {
 	$a = get_app();
 
-	$a->strings = array();
+	$a->strings = [];
 	// load enabled plugins strings
-	$plugins = dba::select('addon', array('name'), array('installed' => true));
+	$plugins = dba::select('addon', ['name'], ['installed' => true]);
 	while ($p = dba::fetch($plugins)) {
 		$name = $p['name'];
 		if (file_exists("addon/$name/lang/$lang/strings.php")) {
@@ -217,7 +217,7 @@ function string_plural_select_default($n)
  * @return array
  */
 function get_available_languages() {
-	$langs = array();
+	$langs = [];
 	$strings_file_paths = glob('view/lang/*/strings.php');
 
 	if (is_array($strings_file_paths) && count($strings_file_paths)) {

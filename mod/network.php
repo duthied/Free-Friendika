@@ -32,13 +32,13 @@ function network_init(App $a) {
 	}
 
 	if (x($_GET, 'save')) {
-		$exists = dba::exists('search', array('uid' => local_user(), 'term' => $search));
+		$exists = dba::exists('search', ['uid' => local_user(), 'term' => $search]);
 		if (!$exists) {
-			dba::insert('search', array('uid' => local_user(), 'term' => $search));
+			dba::insert('search', ['uid' => local_user(), 'term' => $search]);
 		}
 	}
 	if (x($_GET, 'remove')) {
-		dba::delete('search', array('uid' => local_user(), 'term' => $search));
+		dba::delete('search', ['uid' => local_user(), 'term' => $search]);
 	}
 
 	$is_a_date_query = false;
@@ -64,7 +64,7 @@ function network_init(App $a) {
 	}
 
 	// convert query string to array. remove friendica args
-	$query_array = array();
+	$query_array = [];
 	$query_string = str_replace($a->cmd."?", "", $a->query_string);
 	parse_str($query_string, $query_array);
 	array_shift($query_array);
@@ -83,7 +83,7 @@ function network_init(App $a) {
 		$remember_group = ($sel_groups === false && $last_sel_groups && $last_sel_groups != 0);
 
 		$net_baseurl = '/network';
-		$net_args = array();
+		$net_args = [];
 
 		if ($remember_group) {
 			$net_baseurl .= '/' . $last_sel_groups; // Note that the group number must come before the "/new" tab selection
@@ -96,7 +96,7 @@ function network_init(App $a) {
 			// last selected tab is _not_ '/network?f=&order=comment'.
 			// and this isn't a date query
 
-			$tab_baseurls = array(
+			$tab_baseurls = [
 				'',		//all
 				'',		//postord
 				'',		//conv
@@ -104,8 +104,8 @@ function network_init(App $a) {
 				'',		//starred
 				'',		//bookmarked
 				'',		//spam
-			);
-			$tab_args = array(
+			];
+			$tab_args = [
 				'f=&order=comment',	//all
 				'f=&order=post',	//postord
 				'f=&conv=1',		//conv
@@ -113,7 +113,7 @@ function network_init(App $a) {
 				'f=&star=1',		//starred
 				'f=&bmark=1',		//bookmarked
 				'f=&spam=1',		//spam
-			);
+			];
 
 			$k = array_search('active', $last_sel_tabs);
 
@@ -121,7 +121,7 @@ function network_init(App $a) {
 				$net_baseurl .= $tab_baseurls[$k];
 
 				// parse out tab queries
-				$dest_qa = array();
+				$dest_qa = [];
 				$dest_qs = $tab_args[$k];
 				parse_str($dest_qs, $dest_qa);
 				$net_args = array_merge($net_args, $dest_qa);
@@ -188,26 +188,26 @@ function saved_searches($search) {
 
 	$o = '';
 
-	$terms = dba::select('search', array('id', 'term'), array('uid' => local_user()));
-	$saved = array();
+	$terms = dba::select('search', ['id', 'term'], ['uid' => local_user()]);
+	$saved = [];
 
 	while ($rr = dba::fetch($terms)) {
-		$saved[] = array(
+		$saved[] = [
 			'id'          => $rr['id'],
 			'term'        => $rr['term'],
 			'encodedterm' => urlencode($rr['term']),
 			'delete'      => t('Remove term'),
 			'selected'    => ($search==$rr['term']),
-		);
+		];
 	}
 
 	$tpl = get_markup_template("saved_searches_aside.tpl");
-	$o = replace_macros($tpl, array(
+	$o = replace_macros($tpl, [
 		'$title'     => t('Saved Searches'),
 		'$add'       => t('add'),
 		'$searchbox' => search($search,'netsearch-box',$srchurl,true),
 		'$saved'     => $saved,
-	));
+	]);
 
 	return $o;
 }
@@ -275,7 +275,7 @@ function network_query_get_sel_tab(App $a) {
 		}
 	}
 
-	return array($no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active);
+	return [$no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active];
 }
 
 /**
@@ -350,7 +350,7 @@ function networkSetSeen($condition) {
 	$unseen = dba::exists('item', $condition);
 
 	if ($unseen) {
-		$r = dba::update('item', array('unseen' => false), $condition);
+		$r = dba::update('item', ['unseen' => false], $condition);
 	}
 }
 
@@ -386,7 +386,7 @@ function network_content(App $a, $update = 0) {
 	}
 
 	/// @TODO Is this really necessary? $a is already available to hooks
-	$arr = array('query' => $a->query_string);
+	$arr = ['query' => $a->query_string];
 	call_hooks('network_content_init', $arr);
 
 	$nouveau = false;
@@ -442,7 +442,7 @@ function networkFlatView(App $a, $update = 0) {
 
 		nav_set_selected('network');
 
-		$x = array(
+		$x = [
 			'is_owner' => true,
 			'allow_location' => $a->user['allow_location'],
 			'default_location' => $a->user['default-location'],
@@ -456,7 +456,7 @@ function networkFlatView(App $a, $update = 0) {
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
 			'content' => '',
-		);
+		];
 
 		$o .= status_editor($a, $x);
 
@@ -483,7 +483,7 @@ function networkFlatView(App $a, $update = 0) {
 		intval($_SESSION['uid'])
 	);
 
-	$condition = array('unseen' => true, 'uid' => local_user());
+	$condition = ['unseen' => true, 'uid' => local_user()];
 	networkSetSeen($condition);
 
 	$mode = 'network-new';
@@ -531,7 +531,7 @@ function networkThreadedView(App $a, $update = 0) {
 				}
 			} elseif (intval($a->argv[$x])) {
 				$gid = intval($a->argv[$x]);
-				$def_acl = array('allow_gid' => '<' . $gid . '>');
+				$def_acl = ['allow_gid' => '<' . $gid . '>'];
 			}
 		}
 	}
@@ -546,18 +546,18 @@ function networkThreadedView(App $a, $update = 0) {
 	$nets = ((x($_GET,'nets')) ? $_GET['nets'] : '');
 
 	if ($cid) {
-		$def_acl = array('allow_cid' => '<' . intval($cid) . '>');
+		$def_acl = ['allow_cid' => '<' . intval($cid) . '>'];
 	}
 
 	if ($nets) {
-		$r = dba::select('contact', array('id'), array('uid' => local_user(), 'network' => $nets), array('self' => false));
+		$r = dba::select('contact', ['id'], ['uid' => local_user(), 'network' => $nets], ['self' => false]);
 
 		$str = '';
 		while ($rr = dba::fetch($r)) {
 			$str .= '<' . $rr['id'] . '>';
 		}
 		if (strlen($str)) {
-			$def_acl = array('allow_cid' => $str);
+			$def_acl = ['allow_cid' => $str];
 		}
 	}
 	PConfig::set(local_user(), 'network.view', 'net.selected', ($nets ? $nets : 'all'));
@@ -592,7 +592,7 @@ function networkThreadedView(App $a, $update = 0) {
 			}
 		}
 
-		$x = array(
+		$x = [
 			'is_owner' => true,
 			'allow_location' => $a->user['allow_location'],
 			'default_location' => $a->user['default-location'],
@@ -606,7 +606,7 @@ function networkThreadedView(App $a, $update = 0) {
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
 			'content' => $content,
-		);
+		];
 
 		$o .= status_editor($a, $x);
 	}
@@ -644,7 +644,7 @@ function networkThreadedView(App $a, $update = 0) {
 			// NOTREACHED
 		}
 
-		$contacts = Group::expand(array($gid));
+		$contacts = Group::expand([$gid]);
 
 		if ((is_array($contacts)) && count($contacts)) {
 			$contact_str_self = "";
@@ -663,9 +663,9 @@ function networkThreadedView(App $a, $update = 0) {
 			info(t('Group is empty'));
 		}
 
-		$o = replace_macros(get_markup_template("section_title.tpl"),array(
+		$o = replace_macros(get_markup_template("section_title.tpl"),[
 			'$title' => t('Group: %s', $group['name'])
-		)) . $o;
+		]) . $o;
 
 	} elseif ($cid) {
 		$fields = ['id', 'name', 'network', 'writable', 'nurl',
@@ -675,20 +675,20 @@ function networkThreadedView(App $a, $update = 0) {
 		if (DBM::is_result($contact)) {
 			$sql_extra = " AND ".$sql_table.".`contact-id` = ".intval($cid);
 
-			$entries[0] = array(
+			$entries[0] = [
 				'id' => 'network',
 				'name' => htmlentities($contact['name']),
 				'itemurl' => defaults($contact, 'addr', $contact['nurl']),
 				'thumb' => proxy_url($contact['thumb'], false, PROXY_SIZE_THUMB),
 				'details' => $contact['location'],
-			);
+			];
 
 			$entries[0]["account_type"] = Contact::getAccountType($contact);
 
-			$o = replace_macros(get_markup_template("viewcontact_template.tpl"),array(
+			$o = replace_macros(get_markup_template("viewcontact_template.tpl"),[
 				'contacts' => $entries,
 				'id' => 'network',
-			)) . $o;
+			]) . $o;
 
 			if ($contact['network'] === NETWORK_OSTATUS && $contact['writable'] && !PConfig::get(local_user(),'system','nowarn_insecure')) {
 				notice(t('Private messages to this person are at risk of public disclosure.') . EOL);
@@ -851,11 +851,11 @@ function networkThreadedView(App $a, $update = 0) {
 
 	// Then fetch all the children of the parents that are on this page
 
-	$parents_arr = array();
+	$parents_arr = [];
 	$parents_str = '';
 	$date_offset = "";
 
-	$items = array();
+	$items = [];
 	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
 			if (!in_array($rr['item_id'], $parents_arr)) {
@@ -901,10 +901,10 @@ function networkThreadedView(App $a, $update = 0) {
 	// at the top level network page just mark everything seen.
 
 	if (!$gid && !$cid && !$star) {
-		$condition = array('unseen' => true, 'uid' => local_user());
+		$condition = ['unseen' => true, 'uid' => local_user()];
 		networkSetSeen($condition);
 	} elseif ($parents_str) {
-		$condition = array("`uid` = ? AND `unseen` AND `parent` IN (" . dbesc($parents_str) . ")", local_user());
+		$condition = ["`uid` = ? AND `unseen` AND `parent` IN (" . dbesc($parents_str) . ")", local_user()];
 		networkSetSeen($condition);
 	}
 
@@ -936,80 +936,80 @@ function network_tabs(App $a)
 	$cmd = $a->cmd;
 
 	// tabs
-	$tabs = array(
-		array(
+	$tabs = [
+		[
 			'label'	=> t('Commented Order'),
 			'url'	=> str_replace('/new', '', $cmd) . '?f=&order=comment' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
 			'sel'	=> $all_active,
 			'title'	=> t('Sort by Comment Date'),
 			'id'	=> 'commented-order-tab',
 			'accesskey' => "e",
-		),
-		array(
+		],
+		[
 			'label'	=> t('Posted Order'),
 			'url'	=> str_replace('/new', '', $cmd) . '?f=&order=post' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
 			'sel'	=> $postord_active,
 			'title'	=> t('Sort by Post Date'),
 			'id'	=> 'posted-order-tab',
 			'accesskey' => "t",
-		),
-	);
+		],
+	];
 
 	if (Feature::isEnabled(local_user(),'personal_tab')) {
-		$tabs[] = array(
+		$tabs[] = [
 			'label'	=> t('Personal'),
 			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
 			'sel'	=> $conv_active,
 			'title'	=> t('Posts that mention or involve you'),
 			'id'	=> 'personal-tab',
 			'accesskey' => "r",
-		);
+		];
 	}
 
 	if (Feature::isEnabled(local_user(),'new_tab')) {
-		$tabs[] = array(
+		$tabs[] = [
 			'label'	=> t('New'),
 			'url'	=> 'network/new' . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : ''),
 			'sel'	=> $new_active,
 			'title'	=> t('Activity Stream - by date'),
 			'id'	=> 'activitiy-by-date-tab',
 			'accesskey' => "w",
-		);
+		];
 	}
 
 	if (Feature::isEnabled(local_user(),'link_tab')) {
-		$tabs[] = array(
+		$tabs[] = [
 			'label'	=> t('Shared Links'),
 			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&bmark=1',
 			'sel'	=> $bookmarked_active,
 			'title'	=> t('Interesting Links'),
 			'id'	=> 'shared-links-tab',
 			'accesskey' => "b",
-		);
+		];
 	}
 
 	if (Feature::isEnabled(local_user(),'star_posts')) {
-		$tabs[] = array(
+		$tabs[] = [
 			'label'	=> t('Starred'),
 			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&star=1',
 			'sel'	=> $starred_active,
 			'title'	=> t('Favourite Posts'),
 			'id'	=> 'starred-posts-tab',
 			'accesskey' => "m",
-		);
+		];
 	}
 
 	// save selected tab, but only if not in file mode
 	if (!x($_GET,'file')) {
-		PConfig::set(local_user(), 'network.view','tab.selected',array($all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active));
+		PConfig::set(local_user(), 'network.view','tab.selected',[$all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active]);
 	}
 
-	$arr = array('tabs' => $tabs);
+	$arr = ['tabs' => $tabs];
 	call_hooks('network_tabs', $arr);
 
 	$tpl = get_markup_template('common_tabs.tpl');
 
-	return replace_macros($tpl, array('$tabs' => $arr['tabs']));
+	return replace_macros($tpl, ['$tabs' => $arr['tabs']]);
 
 	// --- end item filter tabs
 }

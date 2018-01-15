@@ -46,12 +46,12 @@ function common_content(App $a)
 		$contact = dba::selectFirst('contact', ['name', 'url', 'photo'], ['self' => true, 'uid' => $uid]);
 
 		if (DBM::is_result($contact)) {
-			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"), array(
+			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"), [
 				'$name' => htmlentities($contact['name']),
 				'$photo' => $contact['photo'],
 				'url' => 'contacts/' . $cid
-			));
-	
+			]);
+
 			if (!x($a->page, 'aside')) {
 				$a->page['aside'] = '';
 			}
@@ -115,7 +115,7 @@ function common_content(App $a)
 
 		$photo_menu = Contact::photoMenu($rr);
 
-		$entry = array(
+		$entry = [
 			'url'          => $rr['url'],
 			'itemurl'      => defaults($contact_details, 'addr', $rr['url']),
 			'name'         => $contact_details['name'],
@@ -128,7 +128,7 @@ function common_content(App $a)
 			'network'      => ContactSelector::networkToName($contact_details['network'], $contact_details['url']),
 			'photo_menu'   => $photo_menu,
 			'id'           => ++$id,
-		);
+		];
 		$entries[] = $entry;
 	}
 
@@ -142,12 +142,12 @@ function common_content(App $a)
 
 	$tpl = get_markup_template('viewcontact_template.tpl');
 
-	$o .= replace_macros($tpl, array(
+	$o .= replace_macros($tpl, [
 		'$title'    => $title,
 		'$tab_str'  => $tab_str,
 		'$contacts' => $entries,
 		'$paginate' => paginate($a),
-	));
+	]);
 
 	return $o;
 }

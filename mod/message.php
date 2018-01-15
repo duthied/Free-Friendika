@@ -20,31 +20,31 @@ function message_init(App $a)
 		$tabs = render_messages(get_messages(local_user(), 0, 5), 'mail_list.tpl');
 	}
 
-	$new = array(
+	$new = [
 		'label' => t('New Message'),
 		'url' => 'message/new',
 		'sel' => $a->argc > 1 && $a->argv[1] == 'new',
 		'accesskey' => 'm',
-	);
+	];
 
 	$tpl = get_markup_template('message_side.tpl');
-	$a->page['aside'] = replace_macros($tpl, array(
+	$a->page['aside'] = replace_macros($tpl, [
 		'$tabs' => $tabs,
 		'$new' => $new,
-	));
+	]);
 	$base = System::baseUrl();
 
 	$head_tpl = get_markup_template('message-head.tpl');
-	$a->page['htmlhead'] .= replace_macros($head_tpl, array(
+	$a->page['htmlhead'] .= replace_macros($head_tpl, [
 		'$baseurl' => System::baseUrl(true),
 		'$base' => $base
-	));
+	]);
 
 	$end_tpl = get_markup_template('message-end.tpl');
-	$a->page['end'] .= replace_macros($end_tpl, array(
+	$a->page['end'] .= replace_macros($end_tpl, [
 		'$baseurl' => System::baseUrl(true),
 		'$base' => $base
-	));
+	]);
 }
 
 function message_post(App $a)
@@ -102,9 +102,9 @@ function message_content(App $a)
 	$myprofile = System::baseUrl() . '/profile/' . $a->user['nickname'];
 
 	$tpl = get_markup_template('mail_head.tpl');
-	$header = replace_macros($tpl, array(
+	$header = replace_macros($tpl, [
 		'$messages' => t('Messages'),
-	));
+	]);
 
 	if (($a->argc == 3) && ($a->argv[1] === 'drop' || $a->argv[1] === 'dropconv')) {
 		if (!intval($a->argv[2])) {
@@ -116,16 +116,16 @@ function message_content(App $a)
 			// <form> can't take arguments in its "action" parameter
 			// so add any arguments as hidden inputs
 			$query = explode_querystring($a->query_string);
-			$inputs = array();
+			$inputs = [];
 			foreach ($query['args'] as $arg) {
 				if (strpos($arg, 'confirm=') === false) {
 					$arg_parts = explode('=', $arg);
-					$inputs[] = array('name' => $arg_parts[0], 'value' => $arg_parts[1]);
+					$inputs[] = ['name' => $arg_parts[0], 'value' => $arg_parts[1]];
 				}
 			}
 
 			//$a->page['aside'] = '';
-			return replace_macros(get_markup_template('confirm.tpl'), array(
+			return replace_macros(get_markup_template('confirm.tpl'), [
 				'$method' => 'get',
 				'$message' => t('Do you really want to delete this message?'),
 				'$extra_inputs' => $inputs,
@@ -133,7 +133,7 @@ function message_content(App $a)
 				'$confirm_url' => $query['base'],
 				'$confirm_name' => 'confirmed',
 				'$cancel' => t('Cancel'),
-			));
+			]);
 		}
 		// Now check how the user responded to the confirmation query
 		if ($_REQUEST['canceled']) {
@@ -188,20 +188,20 @@ function message_content(App $a)
 		$o .= $header;
 
 		$tpl = get_markup_template('msg-header.tpl');
-		$a->page['htmlhead'] .= replace_macros($tpl, array(
+		$a->page['htmlhead'] .= replace_macros($tpl, [
 			'$baseurl' => System::baseUrl(true),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => t('Please enter a link URL:')
-		));
+		]);
 
 		$tpl = get_markup_template('msg-end.tpl');
-		$a->page['end'] .= replace_macros($tpl, array(
+		$a->page['end'] .= replace_macros($tpl, [
 			'$baseurl' => System::baseUrl(true),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => t('Please enter a link URL:')
-		));
+		]);
 
-		$preselect = isset($a->argv[2]) ? array($a->argv[2]) : false;
+		$preselect = isset($a->argv[2]) ? [$a->argv[2]] : false;
 
 		$prename = $preurl = $preid = '';
 
@@ -228,7 +228,7 @@ function message_content(App $a)
 				$prename = $r[0]['name'];
 				$preurl = $r[0]['url'];
 				$preid = $r[0]['id'];
-				$preselect = array($preid);
+				$preselect = [$preid];
 			} else {
 				$preselect = false;
 			}
@@ -240,7 +240,7 @@ function message_content(App $a)
 		$select = contact_select('messageto', 'message-to-select', $preselect, 4, true, false, false, 10);
 
 		$tpl = get_markup_template('prv_message.tpl');
-		$o .= replace_macros($tpl, array(
+		$o .= replace_macros($tpl, [
 			'$header' => t('Send Private Message'),
 			'$to' => t('To:'),
 			'$showinputs' => 'true',
@@ -258,7 +258,7 @@ function message_content(App $a)
 			'$insert' => t('Insert web link'),
 			'$wait' => t('Please wait'),
 			'$submit' => t('Submit')
-		));
+		]);
 		return $o;
 	}
 
@@ -334,20 +334,20 @@ function message_content(App $a)
 		require_once("include/bbcode.php");
 
 		$tpl = get_markup_template('msg-header.tpl');
-		$a->page['htmlhead'] .= replace_macros($tpl, array(
+		$a->page['htmlhead'] .= replace_macros($tpl, [
 			'$baseurl' => System::baseUrl(true),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => t('Please enter a link URL:')
-		));
+		]);
 
 		$tpl = get_markup_template('msg-end.tpl');
-		$a->page['end'] .= replace_macros($tpl, array(
+		$a->page['end'] .= replace_macros($tpl, [
 			'$baseurl' => System::baseUrl(true),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => t('Please enter a link URL:')
-		));
+		]);
 
-		$mails = array();
+		$mails = [];
 		$seen = 0;
 		$unknown = false;
 
@@ -382,7 +382,7 @@ function message_content(App $a)
 				$from_photo = $message['from-photo'];
 			}
 
-			$mails[] = array(
+			$mails[] = [
 				'id' => $message['id'],
 				'from_name' => $from_name_e,
 				'from_url' => $from_url,
@@ -395,7 +395,7 @@ function message_content(App $a)
 				'to_name' => $to_name_e,
 				'date' => datetime_convert('UTC', date_default_timezone_get(), $message['created'], 'D, d M Y - g:i A'),
 				'ago' => relative_date($message['created']),
-			);
+			];
 
 			$seen = $message['seen'];
 		}
@@ -404,7 +404,7 @@ function message_content(App $a)
 		$parent = '<input type="hidden" name="replyto" value="' . $message['parent-uri'] . '" />';
 
 		$tpl = get_markup_template('mail_display.tpl');
-		$o = replace_macros($tpl, array(
+		$o = replace_macros($tpl, [
 			'$thread_id' => $a->argv[1],
 			'$thread_subject' => $message['title'],
 			'$thread_seen' => $seen,
@@ -428,7 +428,7 @@ function message_content(App $a)
 			'$insert' => t('Insert web link'),
 			'$submit' => t('Submit'),
 			'$wait' => t('Please wait')
-		));
+		]);
 
 		return $o;
 	}
@@ -483,7 +483,7 @@ function render_messages(array $msg, $t)
 			$from_photo = (($rr['thumb']) ? $rr['thumb'] : $rr['from-photo']);
 		}
 
-		$rslt .= replace_macros($tpl, array(
+		$rslt .= replace_macros($tpl, [
 			'$id' => $rr['id'],
 			'$from_name' => $participants,
 			'$from_url' => (($rr['network'] === NETWORK_DFRN) ? 'redir/' . $rr['contact-id'] : $rr['url']),
@@ -498,7 +498,7 @@ function render_messages(array $msg, $t)
 			'$ago' => relative_date($rr['mailcreated']),
 			'$seen' => $rr['mailseen'],
 			'$count' => tt('%d message', '%d messages', $rr['count']),
-		));
+		]);
 	}
 
 	return $rslt;

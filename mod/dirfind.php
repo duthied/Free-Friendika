@@ -47,7 +47,7 @@ function dirfind_content(App $a, $prefix = "") {
 		if ((valid_email($search) && validate_email($search)) ||
 			(substr(normalise_link($search), 0, 7) == "http://")) {
 			$user_data = Probe::uri($search);
-			$discover_user = (in_array($user_data["network"], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA)));
+			$discover_user = (in_array($user_data["network"], [NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA]));
 		}
 	}
 
@@ -209,20 +209,20 @@ function dirfind_content(App $a, $prefix = "") {
 						$details = _contact_detail_for_template($contact[0]);
 						$alt_text = $details['alt_text'];
 					} else {
-						$photo_menu = array();
+						$photo_menu = [];
 					}
 				} else {
 					$connlnk = System::baseUrl().'/follow/?url='.(($jj->connect) ? $jj->connect : $jj->url);
 					$conntxt = t('Connect');
-					$photo_menu = array(
-						'profile' => array(t("View Profile"), Profile::zrl($jj->url)),
-						'follow' => array(t("Connect/Follow"), $connlnk)
-					);
+					$photo_menu = [
+						'profile' => [t("View Profile"), Profile::zrl($jj->url)],
+						'follow' => [t("Connect/Follow"), $connlnk]
+					];
 				}
 
 				$jj->photo = str_replace("http:///photo/", get_server()."/photo/", $jj->photo);
 
-				$entry = array(
+				$entry = [
 					'alt_text' => $alt_text,
 					'url' => Profile::zrl($jj->url),
 					'itemurl' => $itemurl,
@@ -238,17 +238,17 @@ function dirfind_content(App $a, $prefix = "") {
 					'account_type'  => Contact::getAccountType($contact_details),
 					'network' => ContactSelector::networkToName($jj->network, $jj->url),
 					'id' => ++$id,
-				);
+				];
 				$entries[] = $entry;
 			}
 
 		$tpl = get_markup_template('viewcontact_template.tpl');
 
-		$o .= replace_macros($tpl,array(
+		$o .= replace_macros($tpl,[
 			'title' => $header,
 			'$contacts' => $entries,
 			'$paginate' => paginate($a),
-		));
+		]);
 
 		} else {
 			info( t('No matches') . EOL);

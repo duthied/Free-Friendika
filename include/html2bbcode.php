@@ -26,7 +26,7 @@ function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 
 	$list = $xpath->query("//".$oldnode);
 	foreach ($list as $oldNode) {
-		$attr = array();
+		$attr = [];
 		if ($oldNode->attributes->length) {
 			foreach ($oldNode->attributes as $attribute) {
 				$attr[$attribute->name] = $attribute->value;
@@ -102,14 +102,14 @@ function html2bbcode($message, $basepath = '')
 	);
 
 	$message = str_replace(
-		array(
+		[
 			"<li><p>",
 			"</p></li>",
-		),
-		array(
+		],
+		[
 			"<li>",
 			"</li>",
-		),
+		],
 		$message
 	);
 
@@ -138,23 +138,23 @@ function html2bbcode($message, $basepath = '')
 	}
 
 	$message = $doc->saveHTML();
-	$message = str_replace(array("\n<", ">\n", "\r", "\n", "\xC3\x82\xC2\xA0"), array("<", ">", "<br />", " ", ""), $message);
+	$message = str_replace(["\n<", ">\n", "\r", "\n", "\xC3\x82\xC2\xA0"], ["<", ">", "<br />", " ", ""], $message);
 	$message = preg_replace('= [\s]*=i', " ", $message);
 	@$doc->loadHTML($message);
 
-	node2bbcode($doc, 'html', array(), "", "");
-	node2bbcode($doc, 'body', array(), "", "");
+	node2bbcode($doc, 'html', [], "", "");
+	node2bbcode($doc, 'body', [], "", "");
 
 	// Outlook-Quote - Variant 1
-	node2bbcode($doc, 'p', array('class'=>'MsoNormal', 'style'=>'margin-left:35.4pt'), '[quote]', '[/quote]');
+	node2bbcode($doc, 'p', ['class'=>'MsoNormal', 'style'=>'margin-left:35.4pt'], '[quote]', '[/quote]');
 
 	// Outlook-Quote - Variant 2
-	node2bbcode($doc, 'div', array('style'=>'border:none;border-left:solid blue 1.5pt;padding:0cm 0cm 0cm 4.0pt'), '[quote]', '[/quote]');
+	node2bbcode($doc, 'div', ['style'=>'border:none;border-left:solid blue 1.5pt;padding:0cm 0cm 0cm 4.0pt'], '[quote]', '[/quote]');
 
 	// MyBB-Stuff
-	node2bbcode($doc, 'span', array('style'=>'text-decoration: underline;'), '[u]', '[/u]');
-	node2bbcode($doc, 'span', array('style'=>'font-style: italic;'), '[i]', '[/i]');
-	node2bbcode($doc, 'span', array('style'=>'font-weight: bold;'), '[b]', '[/b]');
+	node2bbcode($doc, 'span', ['style'=>'text-decoration: underline;'], '[u]', '[/u]');
+	node2bbcode($doc, 'span', ['style'=>'font-style: italic;'], '[i]', '[/i]');
+	node2bbcode($doc, 'span', ['style'=>'font-weight: bold;'], '[b]', '[/b]');
 
 	/*node2bbcode($doc, 'font', array('face'=>'/([\w ]+)/', 'size'=>'/(\d+)/', 'color'=>'/(.+)/'), '[font=$1][size=$2][color=$3]', '[/color][/size][/font]');
 	node2bbcode($doc, 'font', array('size'=>'/(\d+)/', 'color'=>'/(.+)/'), '[size=$1][color=$2]', '[/color][/size]');
@@ -169,7 +169,7 @@ function html2bbcode($message, $basepath = '')
 	//node2bbcode($doc, 'span', array('style'=>'/.*font-size:\s*(\d+)[,;].*/'), '[size=$1]', '[/size]');
 	//node2bbcode($doc, 'span', array('style'=>'/.*font-size:\s*(.+?)[,;].*/'), '[size=$1]', '[/size]');
 
-	node2bbcode($doc, 'span', array('style'=>'/.*color:\s*(.+?)[,;].*/'), '[color="$1"]', '[/color]');
+	node2bbcode($doc, 'span', ['style'=>'/.*color:\s*(.+?)[,;].*/'], '[color="$1"]', '[/color]');
 
 	//node2bbcode($doc, 'span', array('style'=>'/.*font-family:\s*(.+?)[,;].*/'), '[font=$1]', '[/font]');
 
@@ -180,42 +180,42 @@ function html2bbcode($message, $basepath = '')
 	// Importing the classes - interesting for importing of posts from third party networks that were exported from friendica
 	// Test
 	//node2bbcode($doc, 'span', array('class'=>'/([\w ]+)/'), '[class=$1]', '[/class]');
-	node2bbcode($doc, 'span', array('class'=>'type-link'), '[class=type-link]', '[/class]');
-	node2bbcode($doc, 'span', array('class'=>'type-video'), '[class=type-video]', '[/class]');
+	node2bbcode($doc, 'span', ['class'=>'type-link'], '[class=type-link]', '[/class]');
+	node2bbcode($doc, 'span', ['class'=>'type-video'], '[class=type-video]', '[/class]');
 
-	node2bbcode($doc, 'strong', array(), '[b]', '[/b]');
-	node2bbcode($doc, 'em', array(), '[i]', '[/i]');
-	node2bbcode($doc, 'b', array(), '[b]', '[/b]');
-	node2bbcode($doc, 'i', array(), '[i]', '[/i]');
-	node2bbcode($doc, 'u', array(), '[u]', '[/u]');
+	node2bbcode($doc, 'strong', [], '[b]', '[/b]');
+	node2bbcode($doc, 'em', [], '[i]', '[/i]');
+	node2bbcode($doc, 'b', [], '[b]', '[/b]');
+	node2bbcode($doc, 'i', [], '[i]', '[/i]');
+	node2bbcode($doc, 'u', [], '[u]', '[/u]');
 
-	node2bbcode($doc, 'big', array(), "[size=large]", "[/size]");
-	node2bbcode($doc, 'small', array(), "[size=small]", "[/size]");
+	node2bbcode($doc, 'big', [], "[size=large]", "[/size]");
+	node2bbcode($doc, 'small', [], "[size=small]", "[/size]");
 
-	node2bbcode($doc, 'blockquote', array(), '[quote]', '[/quote]');
+	node2bbcode($doc, 'blockquote', [], '[quote]', '[/quote]');
 
-	node2bbcode($doc, 'br', array(), "\n", '');
+	node2bbcode($doc, 'br', [], "\n", '');
 
-	node2bbcode($doc, 'p', array('class'=>'MsoNormal'), "\n", "");
-	node2bbcode($doc, 'div', array('class'=>'MsoNormal'), "\r", "");
+	node2bbcode($doc, 'p', ['class'=>'MsoNormal'], "\n", "");
+	node2bbcode($doc, 'div', ['class'=>'MsoNormal'], "\r", "");
 
-	node2bbcode($doc, 'span', array(), "", "");
+	node2bbcode($doc, 'span', [], "", "");
 
-	node2bbcode($doc, 'span', array(), "", "");
-	node2bbcode($doc, 'pre', array(), "", "");
+	node2bbcode($doc, 'span', [], "", "");
+	node2bbcode($doc, 'pre', [], "", "");
 
-	node2bbcode($doc, 'div', array(), "\r", "\r");
-	node2bbcode($doc, 'p', array(), "\n", "\n");
+	node2bbcode($doc, 'div', [], "\r", "\r");
+	node2bbcode($doc, 'p', [], "\n", "\n");
 
-	node2bbcode($doc, 'ul', array(), "[list]", "[/list]");
-	node2bbcode($doc, 'ol', array(), "[list=1]", "[/list]");
-	node2bbcode($doc, 'li', array(), "[*]", "");
+	node2bbcode($doc, 'ul', [], "[list]", "[/list]");
+	node2bbcode($doc, 'ol', [], "[list=1]", "[/list]");
+	node2bbcode($doc, 'li', [], "[*]", "");
 
-	node2bbcode($doc, 'hr', array(), "[hr]", "");
+	node2bbcode($doc, 'hr', [], "[hr]", "");
 
-	node2bbcode($doc, 'table', array(), "", "");
-	node2bbcode($doc, 'tr', array(), "\n", "");
-	node2bbcode($doc, 'td', array(), "\t", "");
+	node2bbcode($doc, 'table', [], "", "");
+	node2bbcode($doc, 'tr', [], "\n", "");
+	node2bbcode($doc, 'td', [], "\t", "");
 	//node2bbcode($doc, 'table', array(), "[table]", "[/table]");
 	//node2bbcode($doc, 'th', array(), "[th]", "[/th]");
 	//node2bbcode($doc, 'tr', array(), "[tr]", "[/tr]");
@@ -228,26 +228,26 @@ function html2bbcode($message, $basepath = '')
 	//node2bbcode($doc, 'h5', array(), "\n\n[size=small][b]", "[/b][/size]\n");
 	//node2bbcode($doc, 'h6', array(), "\n\n[size=x-small][b]", "[/b][/size]\n");
 
-	node2bbcode($doc, 'h1', array(), "\n\n[h1]", "[/h1]\n");
-	node2bbcode($doc, 'h2', array(), "\n\n[h2]", "[/h2]\n");
-	node2bbcode($doc, 'h3', array(), "\n\n[h3]", "[/h3]\n");
-	node2bbcode($doc, 'h4', array(), "\n\n[h4]", "[/h4]\n");
-	node2bbcode($doc, 'h5', array(), "\n\n[h5]", "[/h5]\n");
-	node2bbcode($doc, 'h6', array(), "\n\n[h6]", "[/h6]\n");
+	node2bbcode($doc, 'h1', [], "\n\n[h1]", "[/h1]\n");
+	node2bbcode($doc, 'h2', [], "\n\n[h2]", "[/h2]\n");
+	node2bbcode($doc, 'h3', [], "\n\n[h3]", "[/h3]\n");
+	node2bbcode($doc, 'h4', [], "\n\n[h4]", "[/h4]\n");
+	node2bbcode($doc, 'h5', [], "\n\n[h5]", "[/h5]\n");
+	node2bbcode($doc, 'h6', [], "\n\n[h6]", "[/h6]\n");
 
-	node2bbcode($doc, 'a', array('href'=>'/mailto:(.+)/'), '[mail=$1]', '[/mail]');
-	node2bbcode($doc, 'a', array('href'=>'/(.+)/'), '[url=$1]', '[/url]');
+	node2bbcode($doc, 'a', ['href'=>'/mailto:(.+)/'], '[mail=$1]', '[/mail]');
+	node2bbcode($doc, 'a', ['href'=>'/(.+)/'], '[url=$1]', '[/url]');
 
-	node2bbcode($doc, 'img', array('src'=>'/(.+)/', 'width'=>'/(\d+)/', 'height'=>'/(\d+)/'), '[img=$2x$3]$1', '[/img]');
-	node2bbcode($doc, 'img', array('src'=>'/(.+)/'), '[img]$1', '[/img]');
+	node2bbcode($doc, 'img', ['src'=>'/(.+)/', 'width'=>'/(\d+)/', 'height'=>'/(\d+)/'], '[img=$2x$3]$1', '[/img]');
+	node2bbcode($doc, 'img', ['src'=>'/(.+)/'], '[img]$1', '[/img]');
 
 
-	node2bbcode($doc, 'video', array('src'=>'/(.+)/'), '[video]$1', '[/video]');
-	node2bbcode($doc, 'audio', array('src'=>'/(.+)/'), '[audio]$1', '[/audio]');
-	node2bbcode($doc, 'iframe', array('src'=>'/(.+)/'), '[iframe]$1', '[/iframe]');
+	node2bbcode($doc, 'video', ['src'=>'/(.+)/'], '[video]$1', '[/video]');
+	node2bbcode($doc, 'audio', ['src'=>'/(.+)/'], '[audio]$1', '[/audio]');
+	node2bbcode($doc, 'iframe', ['src'=>'/(.+)/'], '[iframe]$1', '[/iframe]');
 
-	node2bbcode($doc, 'key', array(), '[code]', '[/code]');
-	node2bbcode($doc, 'code', array(), '[code]', '[/code]');
+	node2bbcode($doc, 'key', [], '[code]', '[/code]');
+	node2bbcode($doc, 'code', [], '[code]', '[/code]');
 
 	$message = $doc->saveHTML();
 
@@ -267,7 +267,7 @@ function html2bbcode($message, $basepath = '')
 
 	$message = html_entity_decode($message, ENT_QUOTES, 'UTF-8');
 
-	$message = str_replace(array("<"), array("&lt;"), $message);
+	$message = str_replace(["<"], ["&lt;"], $message);
 
 	// remove quotes if they don't make sense
 	$message = preg_replace('=\[/quote\][\s]*\[quote\]=i', "\n", $message);
@@ -288,7 +288,7 @@ function html2bbcode($message, $basepath = '')
 	do {
 		$oldmessage = $message;
 		$message = str_replace(
-			array(
+			[
 				"[/size]\n\n",
 				"\n[hr]",
 				"[hr]\n",
@@ -297,8 +297,8 @@ function html2bbcode($message, $basepath = '')
 				"\n[/",
 				"[list]\n",
 				"[list=1]\n",
-				"\n[*]"),
-			array(
+				"\n[*]"],
+			[
 				"[/size]\n",
 				"[hr]",
 				"[hr]",
@@ -307,14 +307,14 @@ function html2bbcode($message, $basepath = '')
 				"[/",
 				"[list]",
 				"[list=1]",
-				"[*]"),
+				"[*]"],
 			$message
 		);
 	} while ($message != $oldmessage);
 
 	$message = str_replace(
-		array('[b][b]', '[/b][/b]', '[i][i]', '[/i][/i]'),
-		array('[b]', '[/b]', '[i]', '[/i]'),
+		['[b][b]', '[/b][/b]', '[i][i]', '[/i][/i]'],
+		['[b]', '[/b]', '[i]', '[/i]'],
 		$message
 	);
 
@@ -378,7 +378,7 @@ function addHostname($body, $basepath)
 {
 	$URLSearchString = "^\[\]";
 
-	$matches = array("/\[url\=([$URLSearchString]*)\].*?\[\/url\]/ism",
+	$matches = ["/\[url\=([$URLSearchString]*)\].*?\[\/url\]/ism",
 			"/\[url\]([$URLSearchString]*)\[\/url\]/ism",
 			"/\[img\=[0-9]*x[0-9]*\](.*?)\[\/img\]/ism",
 			"/\[img\](.*?)\[\/img\]/ism",
@@ -386,7 +386,7 @@ function addHostname($body, $basepath)
 			"/\[zmg\](.*?)\[\/zmg\]/ism",
 			"/\[video\](.*?)\[\/video\]/ism",
 			"/\[audio\](.*?)\[\/audio\]/ism",
-			);
+			];
 
 	foreach ($matches as $match) {
 		$body = preg_replace_callback(

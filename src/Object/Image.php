@@ -41,13 +41,13 @@ class Image
 		if (class_exists('Imagick')) {
 			// Imagick::queryFormats won't help us a lot there...
 			// At least, not yet, other parts of friendica uses this array
-			$t = array(
+			$t = [
 				'image/jpeg' => 'jpg',
 				'image/png' => 'png',
 				'image/gif' => 'gif'
-			);
+			];
 		} else {
-			$t = array();
+			$t = [];
 			$t['image/jpeg'] ='jpg';
 			if (imagetypes() & IMG_PNG) {
 				$t['image/png'] = 'png';
@@ -113,11 +113,11 @@ class Image
 	 */
 	public static function getFormatsMap()
 	{
-		$m = array(
+		$m = [
 			'image/jpeg' => 'JPG',
 			'image/png' => 'PNG',
 			'image/gif' => 'GIF'
-		);
+		];
 		return $m;
 	}
 
@@ -726,7 +726,7 @@ class Image
 		$type = null;
 		if ($fromcurl) {
 			$a = get_app();
-			$headers=array();
+			$headers=[];
 			$h = explode("\n", $a->get_curl_headers());
 			foreach ($h as $l) {
 				list($k,$v) = array_map("trim", explode(":", trim($l), 2));
@@ -767,7 +767,7 @@ class Image
 	 */
 	public static function getInfoFromURL($url)
 	{
-		$data = array();
+		$data = [];
 
 		$data = Cache::get($url);
 
@@ -850,7 +850,7 @@ class Image
 				}
 			}
 		}
-		return array("width" => $dest_width, "height" => $dest_height);
+		return ["width" => $dest_width, "height" => $dest_height];
 	}
 
 	/**
@@ -871,7 +871,7 @@ class Image
 
 		if (!DBM::is_result($r)) {
 			logger("Can't detect user data for uid ".$uid, LOGGER_DEBUG);
-			return(array());
+			return([]);
 		}
 
 		$page_owner_nick  = $r[0]['nickname'];
@@ -882,7 +882,7 @@ class Image
 
 		if ((strlen($imagedata) == 0) && ($url == "")) {
 			logger("No image data and no url provided", LOGGER_DEBUG);
-			return(array());
+			return([]);
 		} elseif (strlen($imagedata) == 0) {
 			logger("Uploading picture from ".$url, LOGGER_DEBUG);
 
@@ -895,7 +895,7 @@ class Image
 
 		if (($maximagesize) && (strlen($imagedata) > $maximagesize)) {
 			logger("Image exceeds size limit of ".$maximagesize, LOGGER_DEBUG);
-			return(array());
+			return([]);
 		}
 
 		$tempfile = tempnam(get_temppath(), "cache");
@@ -909,7 +909,7 @@ class Image
 		if (!isset($data["mime"])) {
 			unlink($tempfile);
 			logger("File is no picture", LOGGER_DEBUG);
-			return(array());
+			return([]);
 		}
 
 		$Image = new Image($imagedata, $data["mime"]);
@@ -917,7 +917,7 @@ class Image
 		if (!$Image->isValid()) {
 			unlink($tempfile);
 			logger("Picture is no valid picture", LOGGER_DEBUG);
-			return(array());
+			return([]);
 		}
 
 		$Image->orient($tempfile);
@@ -948,11 +948,11 @@ class Image
 
 		if (!$r) {
 			logger("Picture couldn't be stored", LOGGER_DEBUG);
-			return(array());
+			return([]);
 		}
 
-		$image = array("page" => System::baseUrl().'/photos/'.$page_owner_nick.'/image/'.$hash,
-			"full" => System::baseUrl()."/photo/{$hash}-0.".$Image->getExt());
+		$image = ["page" => System::baseUrl().'/photos/'.$page_owner_nick.'/image/'.$hash,
+			"full" => System::baseUrl()."/photo/{$hash}-0.".$Image->getExt()];
 
 		if ($width > 800 || $height > 800) {
 			$image["large"] = System::baseUrl()."/photo/{$hash}-0.".$Image->getExt();

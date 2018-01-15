@@ -54,7 +54,7 @@ function add_shadow_thread($itemid) {
 	}
 
 	// is it an entry from a connector? Only add an entry for natively connected networks
-	if (!in_array($item["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""))) {
+	if (!in_array($item["network"], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""])) {
 		return;
 	}
 
@@ -106,7 +106,7 @@ function add_shadow_thread($itemid) {
 			$item[0]['wall'] = 0;
 			$item[0]['contact-id'] = Contact::getIdForURL($item[0]['author-link'], 0);
 
-			if (in_array($item[0]['type'], array("net-comment", "wall-comment"))) {
+			if (in_array($item[0]['type'], ["net-comment", "wall-comment"])) {
 				$item[0]['type'] = 'remote-comment';
 			} elseif ($item[0]['type'] == 'wall') {
 				$item[0]['type'] = 'remote';
@@ -165,7 +165,7 @@ function add_shadow_entry($itemid) {
 	$item['wall'] = 0;
 	$item['contact-id'] = Contact::getIdForURL($item['author-link'], 0);
 
-	if (in_array($item['type'], array("net-comment", "wall-comment"))) {
+	if (in_array($item['type'], ["net-comment", "wall-comment"])) {
 		$item['type'] = 'remote-comment';
 	} elseif ($item['type'] == 'wall') {
 		$item['type'] = 'remote';
@@ -203,7 +203,7 @@ function update_thread($itemid, $setmention = false) {
 	$sql = "";
 
 	foreach ($item AS $field => $data)
-		if (!in_array($field, array("guid", "title", "body", "rendered-html", "rendered-hash"))) {
+		if (!in_array($field, ["guid", "title", "body", "rendered-html", "rendered-hash"])) {
 			if ($sql != "") {
 				$sql .= ", ";
 			}
@@ -261,7 +261,7 @@ function delete_thread($itemid, $itemuri = "") {
 				intval($item["uid"])
 			);
 		if (!DBM::is_result($r)) {
-			dba::delete('item', array('uri' => $itemuri, 'uid' => 0));
+			dba::delete('item', ['uri' => $itemuri, 'uid' => 0]);
 			logger("delete_thread: Deleted shadow for item ".$itemuri, LOGGER_DEBUG);
 		}
 	}
@@ -270,7 +270,7 @@ function delete_thread($itemid, $itemuri = "") {
 function update_threads() {
 	logger("update_threads: start");
 
-	$messages = dba::select('item', array('id'), array("`id` = `parent`"));
+	$messages = dba::select('item', ['id'], ["`id` = `parent`"]);
 
 	logger("update_threads: fetched messages: ".dba::num_rows($messages));
 
@@ -301,8 +301,8 @@ function update_shadow_copy() {
 	logger("start");
 
 	$condition = "`uid` != 0 AND `network` IN ('', ?, ?, ?) AND `visible` AND NOT `deleted` AND NOT `moderated` AND NOT `private`";
-	$messages = dba::select('thread', array('iid'), array($condition, NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS),
-				array('order' => 'created'));
+	$messages = dba::select('thread', ['iid'], [$condition, NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS],
+				['order' => 'created']);
 
 	logger("fetched messages: ".dba::num_rows($messages));
 	while ($message = dba::fetch($messages))

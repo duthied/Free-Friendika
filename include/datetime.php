@@ -102,9 +102,9 @@ function field_timezone($name='timezone', $label='', $current = 'America/Los_Ang
 	$options = str_replace('</select>','', $options);
 
 	$tpl = get_markup_template('field_select_raw.tpl');
-	return replace_macros($tpl, array(
-		'$field' => array($name, $label, $current, $help, $options),
-	));
+	return replace_macros($tpl, [
+		'$field' => [$name, $label, $current, $help, $options],
+	]);
 
 }
 
@@ -189,16 +189,16 @@ function dob($dob)
 
 	$age = ((intval($value)) ? age($value, $a->user["timezone"], $a->user["timezone"]) : "");
 
-	$o = replace_macros(get_markup_template("field_input.tpl"), array(
-		'$field' => array(
+	$o = replace_macros(get_markup_template("field_input.tpl"), [
+		'$field' => [
 			'dob',
 			t('Birthday:'),
 			$value,
 			(((intval($age)) > 0 ) ? t('Age: ') . $age : ""),
 			'',
 			'placeholder="' . t('YYYY-MM-DD or MM-DD') . '"'
-		)
-	));
+		]
+	]);
 
 	/// @TODO Old-lost code?
 //	if ($dob && $dob > '0001-01-01')
@@ -279,7 +279,7 @@ function datetimesel($min, $max, $default, $label, $id = 'datetimepicker', $pick
 	$lang = substr(get_browser_language(), 0, 2);
 
 	// Check if the detected language is supported by the picker
-	if (!in_array($lang, array("ar", "ro", "id", "bg", "fa", "ru", "uk", "en", "el", "de", "nl", "tr", "fr", "es", "th", "pl", "pt", "ch", "se", "kr", "it", "da", "no", "ja", "vi", "sl", "cs", "hu"))) {
+	if (!in_array($lang, ["ar", "ro", "id", "bg", "fa", "ru", "uk", "en", "el", "de", "nl", "tr", "fr", "es", "th", "pl", "pt", "ch", "se", "kr", "it", "da", "no", "ja", "vi", "sl", "cs", "hu"])) {
 		$lang = Config::get('system', 'language', 'en');
 	}
 
@@ -327,9 +327,9 @@ function datetimesel($min, $max, $default, $label, $id = 'datetimepicker', $pick
 	$readable_format = str_replace('i','MM',$readable_format);
 
 	$tpl = get_markup_template('field_input.tpl');
-	$o .= replace_macros($tpl, array(
-			'$field' => array($id, $label, $input_text, '', (($required) ? '*' : ''), 'placeholder="' . $readable_format . '"'),
-		));
+	$o .= replace_macros($tpl, [
+			'$field' => [$id, $label, $input_text, '', (($required) ? '*' : ''), 'placeholder="' . $readable_format . '"'],
+		]);
 
 	$o .= "<script type='text/javascript'>";
 	$o .= "\$(function () {var picker = \$('#id_$id').datetimepicker({step:5,format:'$dateformat' $minjs $maxjs $pickers $defaultdatejs}); $extra_js})";
@@ -368,14 +368,14 @@ function relative_date($posted_date, $format = null) {
 		return t('less than a second ago');
 	}
 
-	$a = array( 12 * 30 * 24 * 60 * 60  =>  array( t('year'),   t('years')),
-				30 * 24 * 60 * 60       =>  array( t('month'),  t('months')),
-				7  * 24 * 60 * 60       =>  array( t('week'),   t('weeks')),
-				24 * 60 * 60            =>  array( t('day'),    t('days')),
-				60 * 60                 =>  array( t('hour'),   t('hours')),
-				60                      =>  array( t('minute'), t('minutes')),
-				1                       =>  array( t('second'), t('seconds'))
-	);
+	$a = [ 12 * 30 * 24 * 60 * 60  =>  [ t('year'),   t('years')],
+				30 * 24 * 60 * 60       =>  [ t('month'),  t('months')],
+				7  * 24 * 60 * 60       =>  [ t('week'),   t('weeks')],
+				24 * 60 * 60            =>  [ t('day'),    t('days')],
+				60 * 60                 =>  [ t('hour'),   t('hours')],
+				60                      =>  [ t('minute'), t('minutes')],
+				1                       =>  [ t('second'), t('seconds')]
+	];
 
 	foreach ($a as $secs => $str) {
 		$d = $etime / $secs;
@@ -449,9 +449,9 @@ function age($dob, $owner_tz = '', $viewer_tz = '') {
  */
 function get_dim($y, $m) {
 
-	$dim = array( 0,
+	$dim = [ 0,
 		31, 28, 31, 30, 31, 30,
-		31, 31, 30, 31, 30, 31);
+		31, 31, 30, 31, 30, 31];
 
 	if ($m != 2) {
 		return $dim[$m];
@@ -498,12 +498,12 @@ function get_first_dim($y,$m) {
 function cal($y = 0, $m = 0, $links = null, $class = '')
 {
 	// month table - start at 1 to match human usage.
-	$mtab = array(' ',
+	$mtab = [' ',
 		'January', 'February', 'March',
 		'April'  , 'May'     , 'June',
 		'July'   , 'August'  , 'September',
 		'October', 'November', 'December'
-	);
+	];
 
 	$thisyear = datetime_convert('UTC', date_default_timezone_get(), 'now', 'Y');
 	$thismonth = datetime_convert('UTC', date_default_timezone_get(), 'now', 'm');
@@ -515,7 +515,7 @@ function cal($y = 0, $m = 0, $links = null, $class = '')
 		$m = intval($thismonth);
 	}
 
-	$dn = array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
+	$dn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 	$f = get_first_dim($y, $m);
 	$l = get_dim($y, $m);
 	$d = 1;

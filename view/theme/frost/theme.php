@@ -55,7 +55,7 @@ function frost_item_photo_links(App $a, &$body_info)
 	while($p !== false && ($occurence++ < 500)) {
 		$link = substr($body_info['html'], $p['start'], $p['end'] - $p['start']);
 
-		$matches = array();
+		$matches = [];
 		preg_match("/\/photos\/[\w]+\/image\/([\w]+)/", $link, $matches);
 		if($matches) {
 

@@ -75,11 +75,11 @@ Class OnePoll
 					$last_updated = $contact['last-item'];
 				}
 
-				$fields = array('last-item' => $last_updated, 'last-update' => $updated, 'success_update' => $updated);
+				$fields = ['last-item' => $last_updated, 'last-update' => $updated, 'success_update' => $updated];
 				self::updateContact($contact, $fields);
 				Contact::unmarkForArchival($contact);
 			} else {
-				self::updateContact($contact, array('last-update' => $updated, 'failure_update' => $updated));
+				self::updateContact($contact, ['last-update' => $updated, 'failure_update' => $updated]);
 				Contact::markForArchival($contact);
 				logger('Contact '.$contact['id'].' is marked for archival', LOGGER_DEBUG);
 			}
@@ -168,8 +168,8 @@ Class OnePoll
 			// But this may be our first communication, so set the writable flag if it isn't set already.
 
 			if (!intval($contact['writable'])) {
-				$fields = array('writable' => true);
-				dba::update('contact', $fields, array('id' => $contact['id']));
+				$fields = ['writable' => true];
+				dba::update('contact', $fields, ['id' => $contact['id']]);
 			}
 
 			$url = $contact['poll'] . '?dfrn_id=' . $idtosend
@@ -203,7 +203,7 @@ Class OnePoll
 				Contact::markForArchival($contact);
 
 				// set the last-update so we don't keep polling
-				$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
+				$fields = ['last-update' => datetime_convert(), 'failure_update' => datetime_convert()];
 				self::updateContact($contact, $fields);
 				return;
 			}
@@ -213,7 +213,7 @@ Class OnePoll
 
 				Contact::markForArchival($contact);
 
-				$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
+				$fields = ['last-update' => datetime_convert(), 'failure_update' => datetime_convert()];
 				self::updateContact($contact, $fields);
 				return;
 			}
@@ -226,7 +226,7 @@ Class OnePoll
 
 				// we may not be friends anymore. Will keep trying for one month.
 				// set the last-update so we don't keep polling
-				$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
+				$fields = ['last-update' => datetime_convert(), 'failure_update' => datetime_convert()];
 				self::updateContact($contact, $fields);
 
 				Contact::markForArchival($contact);
@@ -242,11 +242,11 @@ Class OnePoll
 			}
 
 			if (((float)$res->dfrn_version > 2.21) && ($contact['poco'] == '')) {
-				$fields = array('poco' => str_replace('/profile/', '/poco/', $contact['url']));
-				dba::update('contact', $fields, array('id' => $contact['id']));
+				$fields = ['poco' => str_replace('/profile/', '/poco/', $contact['url'])];
+				dba::update('contact', $fields, ['id' => $contact['id']]);
 			}
 
-			$postvars = array();
+			$postvars = [];
 
 			$sent_dfrn_id = hex2bin((string) $res->dfrn_id);
 			$challenge    = hex2bin((string) $res->challenge);
@@ -299,8 +299,8 @@ Class OnePoll
 			}
 
 			if ($stat_writeable != $contact['writable']) {
-				$fields = array('writable' => $stat_writeable);
-				dba::update('contact', $fields, array('id' => $contact['id']));
+				$fields = ['writable' => $stat_writeable];
+				dba::update('contact', $fields, ['id' => $contact['id']]);
 			}
 
 			// Are we allowed to import from this person?
@@ -312,7 +312,7 @@ Class OnePoll
 			}
 
 			$cookiejar = tempnam(get_temppath(), 'cookiejar-onepoll-');
-			$ret = z_fetch_url($contact['poll'], false, $redirects, array('cookiejar' => $cookiejar));
+			$ret = z_fetch_url($contact['poll'], false, $redirects, ['cookiejar' => $cookiejar]);
 			unlink($cookiejar);
 
 			if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
@@ -351,8 +351,8 @@ Class OnePoll
 				unset($password);
 				logger("Mail: Connect to " . $mailconf['user']);
 				if ($mbox) {
-					$fields = array('last_check' => datetime_convert());
-					dba::update('mailacct', $fields, array('id' => $mailconf['id']));
+					$fields = ['last_check' => datetime_convert()];
+					dba::update('mailacct', $fields, ['id' => $mailconf['id']]);
 					logger("Mail: Connected to " . $mailconf['user']);
 				} else {
 					logger("Mail: Connection error ".$mailconf['user']." ".print_r(imap_errors(), true));
@@ -374,7 +374,7 @@ Class OnePoll
 						foreach ($msgs as $msg_uid => $meta) {
 							logger("Mail: Parsing mail ".$msg_uid, LOGGER_DATA);
 
-							$datarray = array();
+							$datarray = [];
 							$datarray['verb'] = ACTIVITY_POST;
 							$datarray['object-type'] = ACTIVITY_OBJ_NOTE;
 							// $meta = Email::messageMeta($mbox, $msg_uid);
@@ -391,8 +391,8 @@ Class OnePoll
 								// Only delete when mails aren't automatically moved or deleted
 								if (($mailconf['action'] != 1) && ($mailconf['action'] != 3))
 									if ($meta->deleted && ! $item['deleted']) {
-										$fields = array('deleted' => true, 'changed' => datetime_convert());
-										dba::update('item', $fields, array('id' => $item['id']));
+										$fields = ['deleted' => true, 'changed' => datetime_convert()];
+										dba::update('item', $fields, ['id' => $item['id']]);
 									}
 
 								switch ($mailconf['action']) {
@@ -430,7 +430,7 @@ Class OnePoll
 								$refs_arr = explode(' ', $raw_refs);
 								if (count($refs_arr)) {
 									for ($x = 0; $x < count($refs_arr); $x ++) {
-										$refs_arr[$x] = "'" . Email::msgid2iri(str_replace(array('<', '>', ' '),array('', '', ''),dbesc($refs_arr[$x]))) . "'";
+										$refs_arr[$x] = "'" . Email::msgid2iri(str_replace(['<', '>', ' '],['', '', ''],dbesc($refs_arr[$x]))) . "'";
 									}
 								}
 								$qstr = implode(',', $refs_arr);
@@ -532,10 +532,10 @@ Class OnePoll
 
 							$stored_item = item_store($datarray);
 
-							$condition = array('parent-uri' => $datarray['parent-uri'], 'uid' => $importer_uid);
-							dba::update('item', array('last-child' => false), $condition);
+							$condition = ['parent-uri' => $datarray['parent-uri'], 'uid' => $importer_uid];
+							dba::update('item', ['last-child' => false], $condition);
 
-							dba::update('item', array('last-child' => true), array('id' => $stored_item));
+							dba::update('item', ['last-child' => true], ['id' => $stored_item]);
 
 							switch ($mailconf['action']) {
 								case 0:
@@ -573,7 +573,7 @@ Class OnePoll
 			if (!strstr($xml, '<')) {
 				logger('post_handshake: response from ' . $url . ' did not contain XML.');
 
-				$fields = array('last-update' => datetime_convert(), 'failure_update' => datetime_convert());
+				$fields = ['last-update' => datetime_convert(), 'failure_update' => datetime_convert()];
 				self::updateContact($contact, $fields);
 				Contact::markForArchival($contact);
 				return;
@@ -619,25 +619,25 @@ Class OnePoll
 
 			$updated = datetime_convert();
 
-			self::updateContact($contact, array('last-update' => $updated, 'success_update' => $updated));
-			dba::update('gcontact', array('last_contact' => $updated), array('nurl' => $contact['nurl']));
+			self::updateContact($contact, ['last-update' => $updated, 'success_update' => $updated]);
+			dba::update('gcontact', ['last_contact' => $updated], ['nurl' => $contact['nurl']]);
 			Contact::unmarkForArchival($contact);
-		} elseif (in_array($contact["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_FEED))) {
+		} elseif (in_array($contact["network"], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_FEED])) {
 			$updated = datetime_convert();
 
-			self::updateContact($contact, array('last-update' => $updated, 'failure_update' => $updated));
-			dba::update('gcontact', array('last_failure' => $updated), array('nurl' => $contact['nurl']));
+			self::updateContact($contact, ['last-update' => $updated, 'failure_update' => $updated]);
+			dba::update('gcontact', ['last_failure' => $updated], ['nurl' => $contact['nurl']]);
 			Contact::markForArchival($contact);
 		} else {
 			$updated = datetime_convert();
-			dba::update('contact', array('last-update' => $updated), array('id' => $contact['id']));
+			dba::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
 		}
 
 		return;
 	}
 
 	private static function RemoveReply($subject) {
-		while (in_array(strtolower(substr($subject, 0, 3)), array("re:", "aw:"))) {
+		while (in_array(strtolower(substr($subject, 0, 3)), ["re:", "aw:"])) {
 			$subject = trim(substr($subject, 4));
 		}
 
@@ -651,7 +651,7 @@ Class OnePoll
 	 * @param array $fields The fields that are updated
 	 */
 	private static function updateContact($contact, $fields) {
-		dba::update('contact', $fields, array('id' => $contact['id']));
-		dba::update('contact', $fields, array('uid' => 0, 'nurl' => $contact['nurl']));
+		dba::update('contact', $fields, ['id' => $contact['id']]);
+		dba::update('contact', $fields, ['uid' => 0, 'nurl' => $contact['nurl']]);
 	}
 }

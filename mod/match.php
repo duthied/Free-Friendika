@@ -47,7 +47,7 @@ function match_content(App $a)
 		return;
 	}
 
-	$params = array();
+	$params = [];
 	$tags = trim($r[0]['pub_keywords'] . ' ' . $r[0]['prv_keywords']);
 
 	if ($tags) {
@@ -83,14 +83,14 @@ function match_content(App $a)
 				if (!count($match)) {
 					$jj->photo = str_replace("http:///photo/", get_server()."/photo/", $jj->photo);
 					$connlnk = System::baseUrl() . '/follow/?url=' . $jj->url;
-					$photo_menu = array(
-						'profile' => array(t("View Profile"), Profile::zrl($jj->url)),
-						'follow' => array(t("Connect/Follow"), $connlnk)
-					);
+					$photo_menu = [
+						'profile' => [t("View Profile"), Profile::zrl($jj->url)],
+						'follow' => [t("Connect/Follow"), $connlnk]
+					];
 
 					$contact_details = Contact::getDetailsByURL($jj->url, local_user());
 
-					$entry = array(
+					$entry = [
 						'url' => Profile::zrl($jj->url),
 						'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $jj->url),
 						'name' => $jj->name,
@@ -105,7 +105,7 @@ function match_content(App $a)
 						'img_hover' => $jj->tags,
 						'photo_menu' => $photo_menu,
 						'id' => ++$id,
-					);
+					];
 					$entries[] = $entry;
 				}
 			}
@@ -114,10 +114,10 @@ function match_content(App $a)
 
 			$o .= replace_macros(
 				$tpl,
-				array(
+				[
 				'$title' => t('Profile Match'),
 				'$contacts' => $entries,
-				'$paginate' => paginate($a))
+				'$paginate' => paginate($a)]
 			);
 		} else {
 			info(t('No matches') . EOL);

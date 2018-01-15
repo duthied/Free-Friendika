@@ -7,7 +7,7 @@ use Friendica\Database\DBM;
 
 function friendica_init(App $a) {
 	if ($a->argv[1] == "json"){
-		$register_policy = Array('REGISTER_CLOSED', 'REGISTER_APPROVE', 'REGISTER_OPEN');
+		$register_policy = ['REGISTER_CLOSED', 'REGISTER_APPROVE', 'REGISTER_OPEN'];
 
 		$sql_extra = '';
 		if (x($a->config,'admin_nickname')) {
@@ -17,15 +17,15 @@ function friendica_init(App $a) {
 			$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
 
 			$r = q("SELECT `username`, `nickname` FROM `user` WHERE `email` = '%s' $sql_extra", dbesc($adminlist[0]));
-			$admin = array(
+			$admin = [
 				'name' => $r[0]['username'],
 				'profile'=> System::baseUrl() . '/profile/' . $r[0]['nickname'],
-			);
+			];
 		} else {
 			$admin = false;
 		}
 
-		$visible_plugins = array();
+		$visible_plugins = [];
 		if (is_array($a->plugins) && count($a->plugins)) {
 			$r = q("SELECT * FROM `addon` WHERE `hidden` = 0");
 			if (DBM::is_result($r)) {
@@ -36,7 +36,7 @@ function friendica_init(App $a) {
 		}
 
 		Config::load('feature_lock');
-		$locked_features = array();
+		$locked_features = [];
 		if (is_array($a->config['feature_lock']) && count($a->config['feature_lock'])) {
 			foreach ($a->config['feature_lock'] as $k => $v) {
 				if ($k === 'config_loaded') {
@@ -47,7 +47,7 @@ function friendica_init(App $a) {
 			}
 		}
 
-		$data = Array(
+		$data = [
 			'version'         => FRIENDICA_VERSION,
 			'url'             => System::baseUrl(),
 			'plugins'         => $visible_plugins,
@@ -58,7 +58,7 @@ function friendica_init(App $a) {
 			'platform'        => FRIENDICA_PLATFORM,
 			'info'            => ((x($a->config,'info')) ? $a->config['info'] : ''),
 			'no_scrape_url'   => System::baseUrl().'/noscrape'
-		);
+		];
 
 		echo json_encode($data);
 		killme();
@@ -83,7 +83,7 @@ function friendica_content(App $a) {
 	$o .= t('Suggestions, praise, donations, etc. - please email "Info" at Friendica - dot com');
 	$o .= '</p>' . PHP_EOL;
 
-	$visible_plugins = array();
+	$visible_plugins = [];
 	if (is_array($a->plugins) && count($a->plugins)) {
 		$r = q("SELECT * FROM `addon` WHERE `hidden` = 0");
 		if (DBM::is_result($r)) {

@@ -17,7 +17,7 @@ require_once 'include/text.php';
  */
 class Thread extends BaseObject
 {
-	private $parents = array();
+	private $parents = [];
 	private $mode = null;
 	private $writable = false;
 	private $profile_owner = 0;
@@ -172,7 +172,7 @@ class Thread extends BaseObject
 	public function getTemplateData($conv_responses)
 	{
 		$a = self::getApp();
-		$result = array();
+		$result = [];
 		$i = 0;
 
 		foreach ($this->parents as $item) {

@@ -176,7 +176,7 @@ class PortableContact
 				$contact_type = $entry->contactType;
 			}
 
-			$gcontact = array("url" => $profile_url,
+			$gcontact = ["url" => $profile_url,
 					"name" => $name,
 					"network" => $network,
 					"photo" => $profile_photo,
@@ -187,7 +187,7 @@ class PortableContact
 					"connect" => $connect_url,
 					"updated" => $updated,
 					"contact-type" => $contact_type,
-					"generation" => $generation);
+					"generation" => $generation];
 
 			try {
 				$gcontact = GContact::sanitize($gcontact);
@@ -311,7 +311,7 @@ class PortableContact
 			return false;
 		}
 
-		$contact = array("url" => $profile);
+		$contact = ["url" => $profile];
 
 		if ($gcontacts[0]["created"] <= NULL_DATE) {
 			$contact['created'] = datetime_convert();
@@ -329,7 +329,7 @@ class PortableContact
 			$server_url = normalise_link(self::detectServer($profile));
 		}
 
-		if (!in_array($gcontacts[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_FEED, NETWORK_OSTATUS, ""))) {
+		if (!in_array($gcontacts[0]["network"], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_FEED, NETWORK_OSTATUS, ""])) {
 			logger("Profile ".$profile.": Network type ".$gcontacts[0]["network"]." can't be checked", LOGGER_DEBUG);
 			return false;
 		}
@@ -347,7 +347,7 @@ class PortableContact
 			$contact['server_url'] = $server_url;
 		}
 
-		if (in_array($gcontacts[0]["network"], array("", NETWORK_FEED))) {
+		if (in_array($gcontacts[0]["network"], ["", NETWORK_FEED])) {
 			$server = q(
 				"SELECT `network` FROM `gserver` WHERE `nurl` = '%s' AND `network` != ''",
 				dbesc(normalise_link($server_url))
@@ -466,7 +466,7 @@ class PortableContact
 			return false;
 		}
 
-		if (($data["poll"] == "") || (in_array($data["network"], array(NETWORK_FEED, NETWORK_PHANTOM)))) {
+		if (($data["poll"] == "") || (in_array($data["network"], [NETWORK_FEED, NETWORK_PHANTOM]))) {
 			$fields = ['last_failure' => datetime_convert()];
 			dba::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
 
@@ -614,7 +614,7 @@ class PortableContact
 
 		foreach ($data->entry[0]->urls as $url) {
 			if ($url->type == 'zot') {
-				$server = array();
+				$server = [];
 				$server["platform"] = 'Hubzilla';
 				$server["network"] = NETWORK_DIASPORA;
 				return $server;
@@ -674,7 +674,7 @@ class PortableContact
 			return false;
 		}
 
-		$server = array();
+		$server = [];
 
 		$server['register_policy'] = REGISTER_CLOSED;
 
@@ -757,7 +757,7 @@ class PortableContact
 		$list = $xpath->query("//meta[@name]");
 
 		foreach ($list as $node) {
-			$attr = array();
+			$attr = [];
 			if ($node->attributes->length) {
 				foreach ($node->attributes as $attribute) {
 					$attr[$attribute->name] = $attribute->value;
@@ -766,8 +766,8 @@ class PortableContact
 			if ($attr['name'] == 'generator') {
 				$version_part = explode(" ", $attr['content']);
 				if (count($version_part) == 2) {
-					if (in_array($version_part[0], array("Friendika", "Friendica"))) {
-						$server = array();
+					if (in_array($version_part[0], ["Friendika", "Friendica"])) {
+						$server = [];
 						$server["platform"] = $version_part[0];
 						$server["version"] = $version_part[1];
 						$server["network"] = NETWORK_DFRN;
@@ -780,14 +780,14 @@ class PortableContact
 			$list = $xpath->query("//meta[@property]");
 
 			foreach ($list as $node) {
-				$attr = array();
+				$attr = [];
 				if ($node->attributes->length) {
 					foreach ($node->attributes as $attribute) {
 						$attr[$attribute->name] = $attribute->value;
 					}
 				}
-				if ($attr['property'] == 'generator' && in_array($attr['content'], array("hubzilla", "BlaBlaNet"))) {
-					$server = array();
+				if ($attr['property'] == 'generator' && in_array($attr['content'], ["hubzilla", "BlaBlaNet"])) {
+					$server = [];
 					$server["platform"] = $attr['content'];
 					$server["version"] = "";
 					$server["network"] = NETWORK_DIASPORA;
@@ -863,7 +863,7 @@ class PortableContact
 		// Mastodon uses the "@" for user profiles.
 		// But this can be misunderstood.
 		if (parse_url($server_url, PHP_URL_USER) != '') {
-			dba::update('gserver', array('last_failure' => datetime_convert()), array('nurl' => normalise_link($server_url)));
+			dba::update('gserver', ['last_failure' => datetime_convert()], ['nurl' => normalise_link($server_url)]);
 			return false;
 		}
 
@@ -872,14 +872,14 @@ class PortableContact
 		$server_url = str_replace("http://", "https://", $server_url);
 
 		// We set the timeout to 20 seconds since this operation should be done in no time if the server was vital
-		$serverret = z_fetch_url($server_url."/.well-known/host-meta", false, $redirects, array('timeout' => 20));
+		$serverret = z_fetch_url($server_url."/.well-known/host-meta", false, $redirects, ['timeout' => 20]);
 
 		// Quit if there is a timeout.
 		// But we want to make sure to only quit if we are mostly sure that this server url fits.
 		if (DBM::is_result($gserver) && ($orig_server_url == $server_url) &&
 			($serverret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
 			logger("Connection to server ".$server_url." timed out.", LOGGER_DEBUG);
-			dba::update('gserver', array('last_failure' => datetime_convert()), array('nurl' => normalise_link($server_url)));
+			dba::update('gserver', ['last_failure' => datetime_convert()], ['nurl' => normalise_link($server_url)]);
 			return false;
 		}
 
@@ -889,12 +889,12 @@ class PortableContact
 			$server_url = str_replace("https://", "http://", $server_url);
 
 			// We set the timeout to 20 seconds since this operation should be done in no time if the server was vital
-			$serverret = z_fetch_url($server_url."/.well-known/host-meta", false, $redirects, array('timeout' => 20));
+			$serverret = z_fetch_url($server_url."/.well-known/host-meta", false, $redirects, ['timeout' => 20]);
 
 			// Quit if there is a timeout
 			if ($serverret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 				logger("Connection to server ".$server_url." timed out.", LOGGER_DEBUG);
-				dba::update('gserver', array('last_failure' => datetime_convert()), array('nurl' => normalise_link($server_url)));
+				dba::update('gserver', ['last_failure' => datetime_convert()], ['nurl' => normalise_link($server_url)]);
 				return false;
 			}
 
@@ -903,7 +903,7 @@ class PortableContact
 
 		if (!$serverret["success"] || ($serverret["body"] == "") || (sizeof($xmlobj) == 0) || !is_object($xmlobj)) {
 			// Workaround for bad configured servers (known nginx problem)
-			if (!in_array($serverret["debug"]["http_code"], array("403", "404"))) {
+			if (!in_array($serverret["debug"]["http_code"], ["403", "404"])) {
 				$failure = true;
 			}
 			$possible_failure = true;
@@ -1180,7 +1180,7 @@ class PortableContact
 
 		// Check for noscrape
 		// Friendica servers could be detected as OStatus servers
-		if (!$failure && in_array($network, array(NETWORK_DFRN, NETWORK_OSTATUS))) {
+		if (!$failure && in_array($network, [NETWORK_DFRN, NETWORK_OSTATUS])) {
 			$serverret = z_fetch_url($server_url."/friendica/json");
 
 			if (!$serverret["success"]) {
@@ -1239,7 +1239,7 @@ class PortableContact
 		}
 
 		// Check again if the server exists
-		$found = dba::exists('gserver', array('nurl' => normalise_link($server_url)));
+		$found = dba::exists('gserver', ['nurl' => normalise_link($server_url)]);
 
 		$version = strip_tags($version);
 		$site_name = strip_tags($site_name);
@@ -1342,7 +1342,7 @@ class PortableContact
 			$accesstoken = Config::get('system', 'instances_social_key');
 			if (!empty($accesstoken)) {
 				$api = 'https://instances.social/api/1.0/instances/list?count=0';
-				$header = array('Authorization: Bearer '.$accesstoken);
+				$header = ['Authorization: Bearer '.$accesstoken];
 				$serverdata = z_fetch_url($api, false, $redirects, ['headers' => $header]);
 				if ($serverdata['success']) {
 				        $servers = json_decode($serverdata['body']);
@@ -1586,7 +1586,7 @@ class PortableContact
 
 				logger("Store profile ".$profile_url, LOGGER_DEBUG);
 
-				$gcontact = array("url" => $profile_url,
+				$gcontact = ["url" => $profile_url,
 						"name" => $name,
 						"network" => $network,
 						"photo" => $profile_photo,
@@ -1597,7 +1597,7 @@ class PortableContact
 						"connect" => $connect_url,
 						"updated" => $updated,
 						"contact-type" => $contact_type,
-						"generation" => $generation);
+						"generation" => $generation];
 
 				try {
 					$gcontact = GContact::sanitize($gcontact);

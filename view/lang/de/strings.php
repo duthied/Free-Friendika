@@ -18,10 +18,10 @@ $a->strings["Hermaphrodite"] = "Hermaphrodit";
 $a->strings["Neuter"] = "Neuter";
 $a->strings["Non-specific"] = "Nicht spezifiziert";
 $a->strings["Other"] = "Andere";
-$a->strings["Undecided"] = array(
+$a->strings["Undecided"] = [
 	0 => "Unentschieden",
 	1 => "Unentschieden",
-);
+];
 $a->strings["Males"] = "Männer";
 $a->strings["Females"] = "Frauen";
 $a->strings["Gay"] = "Schwul";
@@ -128,10 +128,10 @@ $a->strings["Add New Contact"] = "Neuen Kontakt hinzufügen";
 $a->strings["Enter address or web location"] = "Adresse oder Web-Link eingeben";
 $a->strings["Example: bob@example.com, http://example.com/barbara"] = "Beispiel: bob@example.com, http://example.com/barbara";
 $a->strings["Connect"] = "Verbinden";
-$a->strings["%d invitation available"] = array(
+$a->strings["%d invitation available"] = [
 	0 => "%d Einladung verfügbar",
 	1 => "%d Einladungen verfügbar",
-);
+];
 $a->strings["Find People"] = "Leute finden";
 $a->strings["Enter name or interest"] = "Name oder Interessen eingeben";
 $a->strings["Connect/Follow"] = "Verbinden/Folgen";
@@ -147,10 +147,10 @@ $a->strings["All Networks"] = "Alle Netzwerke";
 $a->strings["Saved Folders"] = "Gespeicherte Ordner";
 $a->strings["Everything"] = "Alles";
 $a->strings["Categories"] = "Kategorien";
-$a->strings["%d contact in common"] = array(
+$a->strings["%d contact in common"] = [
 	0 => "%d gemeinsamer Kontakt",
 	1 => "%d gemeinsame Kontakte",
-);
+];
 $a->strings["show more"] = "mehr anzeigen";
 $a->strings["event"] = "Event";
 $a->strings["status"] = "Status";
@@ -168,10 +168,10 @@ $a->strings["post/item"] = "Nachricht/Beitrag";
 $a->strings["%1\$s marked %2\$s's %3\$s as favorite"] = "%1\$s hat %2\$s\\s %3\$s als Favorit markiert";
 $a->strings["Likes"] = "Likes";
 $a->strings["Dislikes"] = "Dislikes";
-$a->strings["Attending"] = array(
+$a->strings["Attending"] = [
 	0 => "Teilnehmend",
 	1 => "Teilnehmend",
-);
+];
 $a->strings["Not attending"] = "Nicht teilnehmend";
 $a->strings["Might attend"] = "Eventuell teilnehmend";
 $a->strings["Select"] = "Auswählen";
@@ -245,18 +245,18 @@ $a->strings["Private post"] = "Privater Beitrag";
 $a->strings["Message"] = "Nachricht";
 $a->strings["Browser"] = "Browser";
 $a->strings["View all"] = "Zeige alle";
-$a->strings["Like"] = array(
+$a->strings["Like"] = [
 	0 => "mag ich",
 	1 => "Mag ich",
-);
-$a->strings["Dislike"] = array(
+];
+$a->strings["Dislike"] = [
 	0 => "mag ich nicht",
 	1 => "Mag ich nicht",
-);
-$a->strings["Not Attending"] = array(
+];
+$a->strings["Not Attending"] = [
 	0 => "Nicht teilnehmend ",
 	1 => "Nicht teilnehmend",
-);
+];
 $a->strings["Miscellaneous"] = "Verschiedenes";
 $a->strings["Birthday:"] = "Geburtstag:";
 $a->strings["Age: "] = "Alter: ";
@@ -623,10 +623,10 @@ $a->strings["last"] = "letzte";
 $a->strings["Loading more entries..."] = "lade weitere Einträge...";
 $a->strings["The end"] = "Das Ende";
 $a->strings["No contacts"] = "Keine Kontakte";
-$a->strings["%d Contact"] = array(
+$a->strings["%d Contact"] = [
 	0 => "%d Kontakt",
 	1 => "%d Kontakte",
-);
+];
 $a->strings["View Contacts"] = "Kontakte anzeigen";
 $a->strings["Save"] = "Speichern";
 $a->strings["poke"] = "anstupsen";
@@ -669,10 +669,10 @@ $a->strings["Click to open/close"] = "Zum öffnen/schließen klicken";
 $a->strings["View on separate page"] = "Auf separater Seite ansehen";
 $a->strings["view on separate page"] = "auf separater Seite ansehen";
 $a->strings["activity"] = "Aktivität";
-$a->strings["comment"] = array(
+$a->strings["comment"] = [
 	0 => "Kommentar",
 	1 => "Kommentare",
-);
+];
 $a->strings["post"] = "Beitrag";
 $a->strings["Item filed"] = "Beitrag abgelegt";
 $a->strings["Error decoding account file"] = "Fehler beim Verarbeiten der Account Datei";
@@ -681,10 +681,10 @@ $a->strings["Error! Cannot check nickname"] = "Fehler! Konnte den Nickname nicht
 $a->strings["User '%s' already exists on this server!"] = "Nutzer '%s' existiert bereits auf diesem Server!";
 $a->strings["User creation error"] = "Fehler beim Anlegen des Nutzeraccounts aufgetreten";
 $a->strings["User profile creation error"] = "Fehler beim Anlegen des Nutzerkontos";
-$a->strings["%d contact not imported"] = array(
+$a->strings["%d contact not imported"] = [
 	0 => "%d Kontakt nicht importiert",
 	1 => "%d Kontakte nicht importiert",
-);
+];
 $a->strings["Done. You can now login with your username and password"] = "Erledigt. Du kannst Dich jetzt mit Deinem Nutzernamen und Passwort anmelden";
 $a->strings["Passwords do not match. Password unchanged."] = "Die Passwörter stimmen nicht überein. Das Passwort bleibt unverändert.";
 $a->strings["An invitation is required."] = "Du benötigst eine Einladung.";
@@ -994,14 +994,14 @@ $a->strings["Mark success (if update was manually applied)"] = "Als erfolgreich 
 $a->strings["Attempt to execute this update step automatically"] = "Versuchen, diesen Schritt automatisch auszuführen";
 $a->strings["\n\t\t\tDear %1\$s,\n\t\t\t\tthe administrator of %2\$s has set up an account for you."] = "\nHallo %1\$s,\n\nauf %2\$s wurde ein Account für Dich angelegt.";
 $a->strings["\n\t\t\tThe login details are as follows:\n\n\t\t\tSite Location:\t%1\$s\n\t\t\tLogin Name:\t\t%2\$s\n\t\t\tPassword:\t\t%3\$s\n\n\t\t\tYou may change your password from your account \"Settings\" page after logging\n\t\t\tin.\n\n\t\t\tPlease take a few moments to review the other account settings on that page.\n\n\t\t\tYou may also wish to add some basic information to your default profile\n\t\t\t(on the \"Profiles\" page) so that other people can easily find you.\n\n\t\t\tWe recommend setting your full name, adding a profile photo,\n\t\t\tadding some profile \"keywords\" (very useful in making new friends) - and\n\t\t\tperhaps what country you live in; if you do not wish to be more specific\n\t\t\tthan that.\n\n\t\t\tWe fully respect your right to privacy, and none of these items are necessary.\n\t\t\tIf you are new and do not know anybody here, they may help\n\t\t\tyou to make some new and interesting friends.\n\n\t\t\tThank you and welcome to %4\$s."] = "\nNachfolgend die Anmelde-Details:\n\tAdresse der Seite:\t%1\$s\n\tBenutzername:\t%2\$s\n\tPasswort:\t%3\$s\n\nDu kannst Dein Passwort unter \"Einstellungen\" ändern, sobald Du Dich\nangemeldet hast.\n\nBitte nimm Dir ein paar Minuten um die anderen Einstellungen auf dieser\nSeite zu kontrollieren.\n\nEventuell magst Du ja auch einige Informationen über Dich in Deinem\nProfil veröffentlichen, damit andere Leute Dich einfacher finden können.\nBearbeite hierfür einfach Dein Standard-Profil (über die Profil-Seite).\n\nWir empfehlen Dir, Deinen kompletten Namen anzugeben und ein zu Dir\npassendes Profilbild zu wählen, damit Dich alte Bekannte wieder finden.\nAußerdem ist es nützlich, wenn Du auf Deinem Profil Schlüsselwörter\nangibst. Das erleichtert es, Leute zu finden, die Deine Interessen teilen.\n\nWir respektieren Deine Privatsphäre - keine dieser Angaben ist nötig.\nWenn Du neu im Netzwerk bist und noch niemanden kennst, dann können sie\nallerdings dabei helfen, neue und interessante Kontakte zu knüpfen.\n\nNun viel Spaß, gute Begegnungen und willkommen auf %4\$s.";
-$a->strings["%s user blocked/unblocked"] = array(
+$a->strings["%s user blocked/unblocked"] = [
 	0 => "%s Benutzer geblockt/freigegeben",
 	1 => "%s Benutzer geblockt/freigegeben",
-);
-$a->strings["%s user deleted"] = array(
+];
+$a->strings["%s user deleted"] = [
 	0 => "%s Nutzer gelöscht",
 	1 => "%s Nutzer gelöscht",
-);
+];
 $a->strings["User '%s' deleted"] = "Nutzer '%s' gelöscht";
 $a->strings["User '%s' unblocked"] = "Nutzer '%s' entsperrt";
 $a->strings["User '%s' blocked"] = "Nutzer '%s' gesperrt";
@@ -1085,10 +1085,10 @@ $a->strings["Common Friends"] = "Gemeinsame Kontakte";
 $a->strings["Not available."] = "Nicht verfügbar.";
 $a->strings["No results."] = "Keine Ergebnisse.";
 $a->strings["This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users."] = "Diese Gemeinschaftsseite zeigt alle öffentlichen Beiträge, die auf diesem Knoten eingegangen sind. Der Inhalt entspricht nicht zwingend der Meinung der Nutzer dieses Servers.";
-$a->strings["%d contact edited."] = array(
+$a->strings["%d contact edited."] = [
 	0 => "%d Kontakt bearbeitet.",
 	1 => "%d Kontakte bearbeitet.",
-);
+];
 $a->strings["Could not access contact record."] = "Konnte nicht auf die Kontaktdaten zugreifen.";
 $a->strings["Could not locate selected profile."] = "Konnte das ausgewählte Profil nicht finden.";
 $a->strings["Contact updated."] = "Kontakt aktualisiert.";
@@ -1229,10 +1229,10 @@ $a->strings["This introduction has already been accepted."] = "Diese Kontaktanfr
 $a->strings["Profile location is not valid or does not contain profile information."] = "Profiladresse ist ungültig oder stellt keine Profildaten zur Verfügung.";
 $a->strings["Warning: profile location has no identifiable owner name."] = "Warnung: Es konnte kein Name des Besitzers von der angegebenen Profiladresse gefunden werden.";
 $a->strings["Warning: profile location has no profile photo."] = "Warnung: Es gibt kein Profilbild bei der angegebenen Profiladresse.";
-$a->strings["%d required parameter was not found at the given location"] = array(
+$a->strings["%d required parameter was not found at the given location"] = [
 	0 => "%d benötigter Parameter wurde an der angegebenen Stelle nicht gefunden",
 	1 => "%d benötigte Parameter wurden an der angegebenen Stelle nicht gefunden",
-);
+];
 $a->strings["Introduction complete."] = "Kontaktanfrage abgeschlossen.";
 $a->strings["Unrecoverable protocol error."] = "Nicht behebbarer Protokollfehler.";
 $a->strings["Profile unavailable."] = "Profil nicht verfügbar.";
@@ -1406,10 +1406,10 @@ $a->strings["%s : Not a valid email address."] = "%s: Keine gültige Email Adres
 $a->strings["Please join us on Friendica"] = "Ich lade Dich zu unserem sozialen Netzwerk Friendica ein";
 $a->strings["Invitation limit exceeded. Please contact your site administrator."] = "Limit für Einladungen erreicht. Bitte kontaktiere des Administrator der Seite.";
 $a->strings["%s : Message delivery failed."] = "%s: Zustellung der Nachricht fehlgeschlagen.";
-$a->strings["%d message sent."] = array(
+$a->strings["%d message sent."] = [
 	0 => "%d Nachricht gesendet.",
 	1 => "%d Nachrichten gesendet.",
-);
+];
 $a->strings["You have no more invitations available"] = "Du hast keine weiteren Einladungen";
 $a->strings["Visit %s for a list of public sites that you can join. Friendica members on other sites can all connect with each other, as well as with members of many other social networks."] = "Besuche %s für eine Liste der öffentlichen Server, denen Du beitreten kannst. Friendica Mitglieder unterschiedlicher Server können sich sowohl alle miteinander verbinden, als auch mit Mitgliedern anderer Sozialer Netzwerke.";
 $a->strings["To accept this invitation, please visit and register at %s or any other public Friendica website."] = "Um diese Kontaktanfrage zu akzeptieren, besuche und registriere Dich bitte bei %s oder einer anderen öffentlichen Friendica Website.";
@@ -1479,17 +1479,17 @@ $a->strings["Unknown sender - %s"] = "'Unbekannter Absender - %s";
 $a->strings["You and %s"] = "Du und %s";
 $a->strings["%s and You"] = "%s und Du";
 $a->strings["D, d M Y - g:i A"] = "D, d. M Y - g:i A";
-$a->strings["%d message"] = array(
+$a->strings["%d message"] = [
 	0 => "%d Nachricht",
 	1 => "%d Nachrichten",
-);
+];
 $a->strings["Mood"] = "Stimmung";
 $a->strings["Set your current mood and tell your friends"] = "Wähle Deine aktuelle Stimmung und erzähle sie Deinen Kontakten";
 $a->strings["Remove term"] = "Begriff entfernen";
-$a->strings["Warning: This group contains %s member from a network that doesn't allow non public messages."] = array(
+$a->strings["Warning: This group contains %s member from a network that doesn't allow non public messages."] = [
 	0 => "Warnung: Diese Gruppe beinhaltet %s Person aus einem Netzwerk das keine nicht öffentlichen Beiträge empfangen kann.",
 	1 => "Warnung: Diese Gruppe beinhaltet %s Personen aus Netzwerken die keine nicht-öffentlichen Beiträge empfangen können.",
-);
+];
 $a->strings["Messages in this group won't be send to these receivers."] = "Beiträge in dieser Gruppe werden deshalb nicht an diese Personen zugestellt werden.";
 $a->strings["No such group"] = "Es gibt keine solche Gruppe";
 $a->strings["Group: %s"] = "Gruppe: %s";
@@ -2066,10 +2066,10 @@ $a->strings["to"] = "zu";
 $a->strings["via"] = "via";
 $a->strings["Wall-to-Wall"] = "Wall-to-Wall";
 $a->strings["via Wall-To-Wall:"] = "via Wall-To-Wall:";
-$a->strings["%d comment"] = array(
+$a->strings["%d comment"] = [
 	0 => "%d Kommentar",
 	1 => "%d Kommentare",
-);
+];
 $a->strings["Bold"] = "Fett";
 $a->strings["Italic"] = "Kursiv";
 $a->strings["Underline"] = "Unterstrichen";

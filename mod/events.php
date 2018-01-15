@@ -150,7 +150,7 @@ function events_post(App $a) {
 	}
 
 
-	$datarray = array();
+	$datarray = [];
 	$datarray['guid']      = get_guid(32);
 	$datarray['start']     = $start;
 	$datarray['finish']    = $finish;
@@ -221,17 +221,17 @@ function events_content(App $a) {
 	$i18n = get_event_strings();
 
 	$htpl = get_markup_template('event_head.tpl');
-	$a->page['htmlhead'] .= replace_macros($htpl, array(
+	$a->page['htmlhead'] .= replace_macros($htpl, [
 		'$baseurl' => System::baseUrl(),
 		'$module_url' => '/events',
 		'$modparams' => 1,
 		'$i18n' => $i18n,
-	));
+	]);
 
 	$etpl = get_markup_template('event_end.tpl');
-	$a->page['end'] .= replace_macros($etpl, array(
+	$a->page['end'] .= replace_macros($etpl, [
 		'$baseurl' => System::baseUrl(),
-	));
+	]);
 
 	$o = '';
 	$tabs = '';
@@ -326,14 +326,14 @@ function events_content(App $a) {
 		$adjust_finish = datetime_convert('UTC', date_default_timezone_get(), $finish);
 
 		// put the event parametes in an array so we can better transmit them
-		$event_params = array(
+		$event_params = [
 			'event_id'      => (x($_GET, 'id') ? $_GET['id'] : 0),
 			'start'         => $start,
 			'finish'        => $finish,
 			'adjust_start'  => $adjust_start,
 			'adjust_finish' => $adjust_finish,
 			'ignored'       => $ignored,
-		);
+		];
 
 		// get events by id or by date
 		if (x($_GET, 'id')) {
@@ -342,7 +342,7 @@ function events_content(App $a) {
 			$r = events_by_date(local_user(), $event_params);
 		}
 
-		$links = array();
+		$links = [];
 
 		if (DBM::is_result($r)) {
 			$r = sort_by_date($r);
@@ -354,7 +354,7 @@ function events_content(App $a) {
 			}
 		}
 
-		$events = array();
+		$events = [];
 
 		// transform the event in a usable array
 		if (DBM::is_result($r)) {
@@ -375,7 +375,7 @@ function events_content(App $a) {
 
 		// Get rid of dashes in key names, Smarty3 can't handle them
 		foreach ($events as $key => $event) {
-			$event_item = array();
+			$event_item = [];
 			foreach ($event['item'] as $k => $v) {
 				$k = str_replace('-' ,'_', $k);
 				$event_item[$k] = $v;
@@ -383,14 +383,14 @@ function events_content(App $a) {
 			$events[$key]['item'] = $event_item;
 		}
 
-		$o = replace_macros($tpl, array(
+		$o = replace_macros($tpl, [
 			'$baseurl'   => System::baseUrl(),
 			'$tabs'      => $tabs,
 			'$title'     => t('Events'),
 			'$view'      => t('View'),
-			'$new_event' => array(System::baseUrl() . '/events/new', t('Create New Event'), '', ''),
-			'$previous'  => array(System::baseUrl() . '/events/$prevyear/$prevmonth', t('Previous'), '', ''),
-			'$next'      => array(System::baseUrl() . '/events/$nextyear/$nextmonth', t('Next'), '', ''),
+			'$new_event' => [System::baseUrl() . '/events/new', t('Create New Event'), '', ''],
+			'$previous'  => [System::baseUrl() . '/events/$prevyear/$prevmonth', t('Previous'), '', ''],
+			'$next'      => [System::baseUrl() . '/events/$nextyear/$nextmonth', t('Next'), '', ''],
 			'$calendar'  => cal($y, $m, $links, ' eventcal'),
 
 			'$events'    => $events,
@@ -400,7 +400,7 @@ function events_content(App $a) {
 			'$week'  => t('week'),
 			'$day'   => t('day'),
 			'$list'  => t('list'),
-		));
+		]);
 
 		if (x($_GET, 'id')) {
 			echo $o;
@@ -421,8 +421,8 @@ function events_content(App $a) {
 	}
 
 	// Passed parameters overrides anything found in the DB
-	if (in_array($mode, array('edit', 'new', 'copy'))) {
-		if (!x($orig_event)) {$orig_event = array();}
+	if (in_array($mode, ['edit', 'new', 'copy'])) {
+		if (!x($orig_event)) {$orig_event = [];}
 		// In case of an error the browser is redirected back here, with these parameters filled in with the previous values
 		if (x($_REQUEST, 'nofinish'))    {$orig_event['nofinish']    = $_REQUEST['nofinish'];}
 		if (x($_REQUEST, 'adjust'))      {$orig_event['adjust']      = $_REQUEST['adjust'];}
@@ -492,7 +492,7 @@ function events_content(App $a) {
 
 		$tpl = get_markup_template('event_form.tpl');
 
-		$o .= replace_macros($tpl,array(
+		$o .= replace_macros($tpl,[
 			'$post' => System::baseUrl() . '/events',
 			'$eid'  => $eid,
 			'$cid'  => $cid,
@@ -519,12 +519,12 @@ function events_content(App $a) {
 			'$l_orig' => $l_orig,
 			'$t_text' => t('Title:') . ' <span class="required" title="' . t('Required') . '">*</span>',
 			'$t_orig' => $t_orig,
-			'$summary' => array('summary', t('Title:'), $t_orig, '', '*'),
+			'$summary' => ['summary', t('Title:'), $t_orig, '', '*'],
 			'$sh_text' => t('Share this event'),
-			'$share' => array('share', t('Share this event'), $sh_checked, '', $sh_disabled),
+			'$share' => ['share', t('Share this event'), $sh_checked, '', $sh_disabled],
 			'$sh_checked' => $sh_checked,
-			'$nofinish' => array('nofinish', t('Finish date/time is not known or not relevant'), $n_checked),
-			'$adjust' => array('adjust', t('Adjust for viewer timezone'), $a_checked),
+			'$nofinish' => ['nofinish', t('Finish date/time is not known or not relevant'), $n_checked],
+			'$adjust' => ['adjust', t('Adjust for viewer timezone'), $a_checked],
 			'$preview' => t('Preview'),
 			'$acl' => $acl,
 			'$submit' => t('Submit'),
@@ -532,7 +532,7 @@ function events_content(App $a) {
 			'$advanced' => t('Advanced'),
 			'$permissions' => t('Permissions'),
 
-		));
+		]);
 
 		return $o;
 	}
@@ -541,7 +541,7 @@ function events_content(App $a) {
 	if ($mode === 'drop' && $event_id) {
 		$del = 0;
 
-		$params = array('event_id' => ($event_id));
+		$params = ['event_id' => ($event_id)];
 		$ev = event_by_id(local_user(), $params);
 
 		// Delete only real events (no birthdays)

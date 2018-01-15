@@ -146,11 +146,11 @@ function directory_content(App $a) {
 
 			$location_e = $location;
 
-			$photo_menu = array(
-				'profile' => array(t("View Profile"), Profile::zrl($profile_link))
-			);
+			$photo_menu = [
+				'profile' => [t("View Profile"), Profile::zrl($profile_link)]
+			];
 
-			$entry = array(
+			$entry = [
 				'id' => $rr['id'],
 				'url' => $profile_link,
 				'itemurl' => $itemurl,
@@ -169,9 +169,9 @@ function directory_content(App $a) {
 				'about' => $about,
 				'photo_menu' => $photo_menu,
 
-			);
+			];
 
-			$arr = array('contact' => $rr, 'entry' => $entry);
+			$arr = ['contact' => $rr, 'entry' => $entry];
 
 			call_hooks('directory_item', $arr);
 
@@ -187,7 +187,7 @@ function directory_content(App $a) {
 
 		$tpl = get_markup_template('directory_header.tpl');
 
-		$o .= replace_macros($tpl, array(
+		$o .= replace_macros($tpl, [
 			'$search' => $search,
 			'$globaldir' => t('Global Directory'),
 			'$gdirpath' => $gdirpath,
@@ -198,7 +198,7 @@ function directory_content(App $a) {
 			'$title' => t('Site Directory'),
 			'$submit' => t('Find'),
 			'$paginate' => paginate($a),
-		));
+		]);
 
 	}
 	else

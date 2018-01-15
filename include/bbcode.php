@@ -60,7 +60,7 @@ function bb_attachment($return, $simplehtml = false, $tryoembed = true)
 
 	if (isset($data["title"])) {
 		$data["title"] = strip_tags($data["title"]);
-		$data["title"] = str_replace(array("http://", "https://"), "", $data["title"]);
+		$data["title"] = str_replace(["http://", "https://"], "", $data["title"]);
 	}
 
 	if (((strpos($data["text"], "[img=") !== false) || (strpos($data["text"], "[img]") !== false) || Config::get('system', 'always_show_preview')) && ($data["image"] != "")) {
@@ -280,7 +280,7 @@ function bb_find_open_close($s, $open, $close, $occurence = 1) {
 		return false;
 	}
 
-	$res = array( 'start' => $start_pos, 'end' => $end_pos );
+	$res = [ 'start' => $start_pos, 'end' => $end_pos ];
 
 	return $res;
 }
@@ -316,16 +316,16 @@ function get_bb_tag_pos($s, $name, $occurence = 1) {
 		return false;
 	}
 
-	$res = array(
-		'start' => array(
+	$res = [
+		'start' => [
 			'open'  => $start_open,
 			'close' => $start_close
-		),
-		'end'   => array(
+		],
+		'end'   => [
 			'open'  => $end_open,
 			'close' => $end_open + strlen('[/' . $name . ']')
-		),
-	);
+		],
+	];
 
 	if ($start_equal !== false) {
 		$res['start']['equal'] = $start_equal + 1;
@@ -360,7 +360,7 @@ function bb_tag_preg_replace($pattern, $replace, $name, $s) {
 
 function bb_extract_images($body) {
 
-	$saved_image = array();
+	$saved_image = [];
 	$orig_body = $body;
 	$new_body = '';
 
@@ -398,7 +398,7 @@ function bb_extract_images($body) {
 
 	$new_body = $new_body . $orig_body;
 
-	return array('body' => $new_body, 'images' => $saved_image);
+	return ['body' => $new_body, 'images' => $saved_image];
 }
 
 function bb_replace_images($body, $images) {
@@ -595,14 +595,14 @@ function bb_ShareAttributes($share, $simplehtml)
 				$avatar = proxy_url($avatar, false, PROXY_SIZE_THUMB);
 
 				$tpl = get_markup_template('shared_content.tpl');
-				$text .= replace_macros($tpl, array(
+				$text .= replace_macros($tpl, [
 					'$profile' => $profile,
 					'$avatar' => $avatar,
 					'$author' => $author,
 					'$link' => $link,
 					'$posted' => $posted,
 					'$content' => trim($share[3])
-				));
+				]);
 			}
 			break;
 	}
@@ -752,7 +752,7 @@ function bb_RemovePictureLinks($match) {
 			$xpath = new DomXPath($doc);
 			$list = $xpath->query("//meta[@name]");
 			foreach ($list as $node) {
-				$attr = array();
+				$attr = [];
 
 				if ($node->attributes->length)
 					foreach ($node->attributes as $attribute)
@@ -809,7 +809,7 @@ function bb_CleanPictureLinksSub($match) {
 			$xpath = new DomXPath($doc);
 			$list = $xpath->query("//meta[@name]");
 			foreach ($list as $node) {
-				$attr = array();
+				$attr = [];
 
 				if ($node->attributes->length)
 					foreach ($node->attributes as $attribute)
@@ -951,10 +951,10 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 
 	// removing multiplicated newlines
 	if (Config::get("system", "remove_multiplicated_lines")) {
-		$search = array("\n\n\n", "\n ", " \n", "[/quote]\n\n", "\n[/quote]", "[/li]\n", "\n[li]", "\n[ul]", "[/ul]\n", "\n\n[share ", "[/attachment]\n",
-				"\n[h1]", "[/h1]\n", "\n[h2]", "[/h2]\n", "\n[h3]", "[/h3]\n", "\n[h4]", "[/h4]\n", "\n[h5]", "[/h5]\n", "\n[h6]", "[/h6]\n");
-		$replace = array("\n\n", "\n", "\n", "[/quote]\n", "[/quote]", "[/li]", "[li]", "[ul]", "[/ul]", "\n[share ", "[/attachment]",
-				"[h1]", "[/h1]", "[h2]", "[/h2]", "[h3]", "[/h3]", "[h4]", "[/h4]", "[h5]", "[/h5]", "[h6]", "[/h6]");
+		$search = ["\n\n\n", "\n ", " \n", "[/quote]\n\n", "\n[/quote]", "[/li]\n", "\n[li]", "\n[ul]", "[/ul]\n", "\n\n[share ", "[/attachment]\n",
+				"\n[h1]", "[/h1]\n", "\n[h2]", "[/h2]\n", "\n[h3]", "[/h3]\n", "\n[h4]", "[/h4]\n", "\n[h5]", "[/h5]\n", "\n[h6]", "[/h6]\n"];
+		$replace = ["\n\n", "\n", "\n", "[/quote]\n", "[/quote]", "[/li]", "[li]", "[ul]", "[/ul]", "\n[share ", "[/attachment]",
+				"[h1]", "[/h1]", "[h2]", "[/h2]", "[h3]", "[/h3]", "[h4]", "[/h4]", "[h5]", "[/h5]", "[h6]", "[/h6]"];
 		do {
 			$oldtext = $Text;
 			$Text = str_replace($search, $replace, $Text);
@@ -986,14 +986,14 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	// Handle attached links or videos
 	$Text = bb_attachment($Text, $simplehtml, $tryoembed);
 
-	$Text = str_replace(array("\r","\n"), array('<br />', '<br />'), $Text);
+	$Text = str_replace(["\r","\n"], ['<br />', '<br />'], $Text);
 
 	if ($preserve_nl) {
-		$Text = str_replace(array("\n", "\r"), array('', ''), $Text);
+		$Text = str_replace(["\n", "\r"], ['', ''], $Text);
 	}
 
 	// Remove all hashtag addresses
-	if ((!$tryoembed || $simplehtml) && !in_array($simplehtml, array(3, 7))) {
+	if ((!$tryoembed || $simplehtml) && !in_array($simplehtml, [3, 7])) {
 		$Text = preg_replace("/([#@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $Text);
 	} elseif ($simplehtml == 3) {
 		$Text = preg_replace("/([@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
@@ -1015,7 +1015,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	$Text = preg_replace("/#\[url\=[$URLSearchString]*\]\^\[\/url\]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/i",
 				"[bookmark=$1]$2[/bookmark]", $Text);
 
-	if (in_array($simplehtml, array(2, 6, 7, 8, 9))) {
+	if (in_array($simplehtml, [2, 6, 7, 8, 9])) {
 		$Text = preg_replace_callback("/([^#@!])\[url\=([^\]]*)\](.*?)\[\/url\]/ism", "bb_expand_links", $Text);
 		//$Text = preg_replace("/[^#@!]\[url\=([^\]]*)\](.*?)\[\/url\]/ism", ' $2 [url]$1[/url]', $Text);
 		$Text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", ' $2 [url]$1[/url]',$Text);
@@ -1353,13 +1353,13 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	$Text = preg_replace('/\<([^>]*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism', '<$1$2=$3&$4>', $Text);
 
 	// sanitizes src attributes (http and redir URLs for displaying in a web page, cid used for inline images in emails)
-	static $allowed_src_protocols = array('http', 'redir', 'cid');
+	static $allowed_src_protocols = ['http', 'redir', 'cid'];
 	$Text = preg_replace('#<([^>]*?)(src)="(?!' . implode('|', $allowed_src_protocols) . ')(.*?)"(.*?)>#ism',
 			     '<$1$2=""$4 data-original-src="$3" class="invalid-src" title="' . t('Invalid source protocol') . '">', $Text);
 
 	// sanitize href attributes (only whitelisted protocols URLs)
 	// default value for backward compatibility
-	$allowed_link_protocols = Config::get('system', 'allowed_link_protocols', array('ftp', 'mailto', 'gopher', 'cid'));
+	$allowed_link_protocols = Config::get('system', 'allowed_link_protocols', ['ftp', 'mailto', 'gopher', 'cid']);
 
 	// Always allowed protocol even if config isn't set or not including it
 	$allowed_link_protocols[] = 'http';
@@ -1386,7 +1386,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 		@$doc->loadHTML($encoding.$doctype."<html><body>".$Text."</body></html>");
 		$doc->encoding = 'UTF-8';
 		$Text = $doc->saveHTML();
-		$Text = str_replace(array("<html><body>", "</body></html>", $doctype, $encoding), array("", "", "", ""), $Text);
+		$Text = str_replace(["<html><body>", "</body></html>", $doctype, $encoding], ["", "", "", ""], $Text);
 
 		$Text = str_replace('<br></li>', '</li>', $Text);
 
@@ -1427,7 +1427,7 @@ function remove_abstract($text) {
  */
 function fetch_abstract($text, $addon = "") {
 	$abstract = "";
-	$abstracts = array();
+	$abstracts = [];
 	$addon = strtolower($addon);
 
 	if (preg_match_all("/\[abstract=(.*?)\](.*?)\[\/abstract\]/ism",$text, $results, PREG_SET_ORDER))

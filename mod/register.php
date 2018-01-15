@@ -19,7 +19,7 @@ function register_post(App $a)
 	$verified = 0;
 	$blocked  = 1;
 
-	$arr = array('post' => $_POST);
+	$arr = ['post' => $_POST];
 	call_hooks('register_post', $arr);
 
 	$max_dailies = intval(Config::get('system', 'max_daily_registrations'));
@@ -133,7 +133,7 @@ function register_post(App $a)
 
 		// send notification to admins
 		foreach ($adminlist as $admin) {
-			notification(array(
+			notification([
 				'type'         => NOTIFY_SYSTEM,
 				'event'        => 'SYSTEM_REGISTER_REQUEST',
 				'source_name'  => $user['username'],
@@ -146,7 +146,7 @@ function register_post(App $a)
 				'uid'          => $admin['uid'],
 				'language'     => $admin['language'] ? $admin['language'] : 'en',
 				'show_in_notification_page' => false
-			));
+			]);
 		}
 		// send notification to the user, that the registration is pending
 		User::sendRegisterPendingEmail(
@@ -222,14 +222,14 @@ function register_content(App $a)
 		$profile_publish = '<input type="hidden" name="profile_publish_reg" value="1" />';
 	} else {
 		$publish_tpl = get_markup_template("profile_publish.tpl");
-		$profile_publish = replace_macros($publish_tpl, array(
+		$profile_publish = replace_macros($publish_tpl, [
 			'$instance' => 'reg',
 			'$pubdesc' => t('Include your profile in member directory?'),
 			'$yes_selected' => ' checked="checked" ',
 			'$no_selected' => '',
 			'$str_yes' => t('Yes'),
 			'$str_no' => t('No'),
-		));
+		]);
 	}
 
 	$r = q("SELECT COUNT(*) AS `contacts` FROM `contact`");
@@ -239,7 +239,7 @@ function register_content(App $a)
 
 	$tpl = get_markup_template("register.tpl");
 
-	$arr = array('template' => $tpl);
+	$arr = ['template' => $tpl];
 
 	call_hooks('register_form', $arr);
 
@@ -249,7 +249,7 @@ function register_content(App $a)
 		'$oidhtml' => $oidhtml,
 		'$invitations' => Config::get('system', 'invitation_only'),
 		'$permonly'    => $a->config['register_policy'] == REGISTER_APPROVE,
-		'$permonlybox' => array('permonlybox', t('Note for the admin'), '', t('Leave a message for the admin, why you want to join this node')),
+		'$permonlybox' => ['permonlybox', t('Note for the admin'), '', t('Leave a message for the admin, why you want to join this node')],
 		'$invite_desc' => t('Membership on this site is by invitation only.'),
 		'$invite_label' => t('Your invitation ID: '),
 		'$invite_id'  => $invite_id,
@@ -263,8 +263,8 @@ function register_content(App $a)
 		'$namelabel' => t('Your Full Name ' . "\x28" . 'e.g. Joe Smith, real or real-looking' . "\x29" . ': '),
 		'$addrlabel' => t('Your Email Address: (Initial information will be send there, so this has to be an existing address.)'),
 		'$passwords' => $passwords,
-		'$password1' => array('password1', t('New Password:'), '', t('Leave empty for an auto generated password.')),
-		'$password2' => array('confirm', t('Confirm:'), '', ''),
+		'$password1' => ['password1', t('New Password:'), '', t('Leave empty for an auto generated password.')],
+		'$password2' => ['confirm', t('Confirm:'), '', ''],
 		'$nickdesc'  => t('Choose a profile nickname. This must begin with a text character. Your profile address on this site will then be \'<strong>nickname@%s</strong>\'.', $a->get_hostname()),
 		'$nicklabel' => t('Choose a nickname: '),
 		'$photo'     => $photo,

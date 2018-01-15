@@ -71,7 +71,7 @@ function photo_init(App $a)
 				break;
 		}
 
-		$uid = str_replace(array('.jpg', '.png', '.gif'), array('', '', ''), $person);
+		$uid = str_replace(['.jpg', '.png', '.gif'], ['', '', ''], $person);
 
 		foreach (Image::supportedTypes() AS $m => $e) {
 			$uid = str_replace('.' . $e, '', $uid);
@@ -92,7 +92,7 @@ function photo_init(App $a)
 	} else {
 		// Other photos
 		$resolution = 0;
-		$photo = str_replace(array('.jpg', '.png', '.gif'), array('', '', ''), $photo);
+		$photo = str_replace(['.jpg', '.png', '.gif'], ['', '', ''], $photo);
 
 		foreach (Image::supportedTypes() AS $m => $e) {
 			$photo = str_replace('.' . $e, '', $photo);

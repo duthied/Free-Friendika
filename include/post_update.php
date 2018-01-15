@@ -64,18 +64,18 @@ function post_update_1192() {
 		return false;
 	}
 
-	$item_arr = array();
+	$item_arr = [];
 	foreach ($r AS $item) {
 		$index = $item["author-link"]."-".$item["uid"];
-		$item_arr[$index] = array("author-link" => $item["author-link"],
+		$item_arr[$index] = ["author-link" => $item["author-link"],
 						"uid" => $item["uid"],
-						"network" => $item["network"]);
+						"network" => $item["network"]];
 	}
 
 	// Set the "gcontact-id" in the item table and add a new gcontact entry if needed
 	foreach ($item_arr AS $item) {
-		$gcontact_id = GContact::getId(array("url" => $item['author-link'], "network" => $item['network'],
-						"photo" => $item['author-avatar'], "name" => $item['author-name']));
+		$gcontact_id = GContact::getId(["url" => $item['author-link'], "network" => $item['network'],
+						"photo" => $item['author-avatar'], "name" => $item['author-name']]);
 		q("UPDATE `item` SET `gcontact-id` = %d WHERE `uid` = %d AND `author-link` = '%s' AND `gcontact-id` = 0",
 			intval($gcontact_id), intval($item["uid"]), dbesc($item["author-link"]));
 	}
@@ -200,12 +200,12 @@ function post_update_1198() {
 
 	logger("Query done", LOGGER_DEBUG);
 
-	$item_arr = array();
+	$item_arr = [];
 	foreach ($r AS $item) {
 		$index = $item["author-link"]."-".$item["owner-link"]."-".$item["uid"];
-		$item_arr[$index] = array("author-link" => $item["author-link"],
+		$item_arr[$index] = ["author-link" => $item["author-link"],
 						"owner-link" => $item["owner-link"],
-						"uid" => $item["uid"]);
+						"uid" => $item["uid"]];
 	}
 
 	// Set the "gcontact-id" in the item table and add a new gcontact entry if needed

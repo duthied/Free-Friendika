@@ -26,14 +26,14 @@ require_once "include/network.php";
  */
 function get_old_attachment_data($body) {
 
-	$post = array();
+	$post = [];
 
 	// Simplify image codes
 	$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
 
 	if (preg_match_all("(\[class=(.*?)\](.*?)\[\/class\])ism",$body, $attached,  PREG_SET_ORDER)) {
 		foreach ($attached AS $data) {
-			if (!in_array($data[1], array("type-link", "type-video", "type-photo")))
+			if (!in_array($data[1], ["type-link", "type-video", "type-photo"]))
 				continue;
 
 			$post["type"] = substr($data[1], 5);
@@ -63,7 +63,7 @@ function get_old_attachment_data($body) {
 				$post["url"] = $matches[1];
 				$post["title"] = $matches[2];
 			}
-			if (($post["url"] == "") && (in_array($post["type"], array("link", "video")))
+			if (($post["url"] == "") && (in_array($post["type"], ["link", "video"]))
 				&& preg_match("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", $attacheddata, $matches)) {
 				$post["url"] = $matches[1];
 			}
@@ -195,7 +195,7 @@ function get_attachment_data($body)
 	return $data;
 }
 
-function get_attached_data($body, $item = array()) {
+function get_attached_data($body, $item = []) {
 /*
  - text:
  - type: link, video, photo

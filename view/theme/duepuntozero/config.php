@@ -45,7 +45,7 @@ function theme_admin_post(App $a) {
 
 /// @TODO $a is no longer used
 function clean_form(App $a, &$colorset, $user) {
-	$colorset = array(
+	$colorset = [
 		'default'     =>t('default'),
 		'greenzero'   =>t('greenzero'),
 		'purplezero'  =>t('purplezero'),
@@ -53,7 +53,7 @@ function clean_form(App $a, &$colorset, $user) {
 		'darkzero'    =>t('darkzero'),
 		'comix'       =>t('comix'),
 		'slackr'      =>t('slackr'),
-	);
+	];
 
 	if ($user) {
 		$color = PConfig::get(local_user(), 'duepuntozero', 'colorset');
@@ -63,12 +63,12 @@ function clean_form(App $a, &$colorset, $user) {
 
 	$t = get_markup_template("theme_settings.tpl" );
 	/// @TODO No need for adding string here, $o is not defined
-	$o .= replace_macros($t, array(
+	$o .= replace_macros($t, [
 		'$submit'   => t('Submit'),
 		'$baseurl'  => System::baseUrl(),
 		'$title'    => t("Theme settings"),
-		'$colorset' => array('duepuntozero_colorset', t('Variations'), $color, '', $colorset),
-	));
+		'$colorset' => ['duepuntozero_colorset', t('Variations'), $color, '', $colorset],
+	]);
 
 	return $o;
 }

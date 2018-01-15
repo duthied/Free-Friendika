@@ -48,13 +48,13 @@ function videos_init(App $a) {
 
 		$tpl = get_markup_template("vcard-widget.tpl");
 
-		$vcard_widget = replace_macros($tpl, array(
+		$vcard_widget = replace_macros($tpl, [
 			'$name' => $profile['name'],
 			'$photo' => $profile['photo'],
 			'$addr' => defaults($profile, 'addr', ''),
 			'$account_type' => $account_type,
 			'$pdesc' => defaults($profile, 'pdesc', ''),
-		));
+		]);
 
 
 		/*$sql_extra = permissions_sql($a->data['user']['uid']);
@@ -97,14 +97,14 @@ function videos_init(App $a) {
 
 
 		$tpl = get_markup_template("videos_head.tpl");
-		$a->page['htmlhead'] .= replace_macros($tpl,array(
+		$a->page['htmlhead'] .= replace_macros($tpl,[
 			'$baseurl' => System::baseUrl(),
-		));
+		]);
 
 		$tpl = get_markup_template("videos_end.tpl");
-		$a->page['end'] .= replace_macros($tpl,array(
+		$a->page['end'] .= replace_macros($tpl,[
 			'$baseurl' => System::baseUrl(),
-		));
+		]);
 
 	}
 
@@ -130,19 +130,19 @@ function videos_post(App $a) {
 			}
 
 			$drop_url = $a->query_string;
-			$a->page['content'] = replace_macros(get_markup_template('confirm.tpl'), array(
+			$a->page['content'] = replace_macros(get_markup_template('confirm.tpl'), [
 				'$method' => 'post',
 				'$message' => t('Do you really want to delete this video?'),
-				'$extra_inputs' => array(
-					array('name'=>'id', 'value'=> $_POST['id']),
-					array('name'=>'delete', 'value'=>'x')
-				),
+				'$extra_inputs' => [
+					['name'=>'id', 'value'=> $_POST['id']],
+					['name'=>'delete', 'value'=>'x']
+				],
 				'$confirm' => t('Delete Video'),
 				'$confirm_url' => $drop_url,
 				'$confirm_name' => 'confirm', // Needed so that confirmation will bring us back into this if statement
 				'$cancel' => t('Cancel'),
 
-			));
+			]);
 			$a->error = 1; // Set $a->error so the other module functions don't execute
 			return;
 		}
@@ -380,37 +380,37 @@ function videos_content(App $a) {
 
 
 
-	$videos = array();
+	$videos = [];
 	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
 			$alt_e = $rr['filename'];
 			$name_e = $rr['album'];
 
-			$videos[] = array(
+			$videos[] = [
 				'id'       => $rr['id'],
 				'link'     => System::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/video/' . $rr['resource-id'],
 				'title'    => t('View Video'),
 				'src'      => System::baseUrl() . '/attach/' . $rr['id'] . '?attachment=0',
 				'alt'      => $alt_e,
 				'mime'     => $rr['filetype'],
-				'album' => array(
+				'album' => [
 					'link'  => System::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($rr['album']),
 					'name'  => $name_e,
 					'alt'   => t('View Album'),
-				),
+				],
 
-			);
+			];
 		}
 	}
 
 	$tpl = get_markup_template('videos_recent.tpl');
-	$o .= replace_macros($tpl, array(
+	$o .= replace_macros($tpl, [
 		'$title'      => t('Recent Videos'),
 		'$can_post'   => $can_post,
-		'$upload'     => array(t('Upload New Videos'), System::baseUrl().'/videos/'.$a->data['user']['nickname'].'/upload'),
+		'$upload'     => [t('Upload New Videos'), System::baseUrl().'/videos/'.$a->data['user']['nickname'].'/upload'],
 		'$videos'     => $videos,
 		'$delete_url' => (($can_post)?System::baseUrl().'/videos/'.$a->data['user']['nickname']:False)
-	));
+	]);
 
 
 	$o .= paginate($a);

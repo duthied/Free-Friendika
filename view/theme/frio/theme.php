@@ -94,7 +94,7 @@ function frio_item_photo_links(App $a, &$body_info)
 
 	while ($p !== false && ($occurence++ < 500)) {
 		$link = substr($body_info['html'], $p['start'], $p['end'] - $p['start']);
-		$matches = array();
+		$matches = [];
 
 		preg_match("/\/photos\/[\w]+\/image\/([\w]+)/", $link, $matches);
 		if ($matches) {
@@ -244,28 +244,28 @@ function frio_remote_nav($a, &$nav)
 	}
 
 	if (DBM::is_result($r)) {
-		$nav['userinfo'] = array(
+		$nav['userinfo'] = [
 			'icon' => (DBM::is_result($r) ? $r[0]['photo'] : "images/person-48.jpg"),
 			'name' => $r[0]['name'],
-		);
+		];
 	}
 
 	if (!local_user() && !empty($server_url)) {
-		$nav['logout'] = Array($server_url . '/logout', t('Logout'), "", t('End this session'));
+		$nav['logout'] = [$server_url . '/logout', t('Logout'), "", t('End this session')];
 
 		// user menu
-		$nav['usermenu'][] = Array($server_url . '/profile/' . $a->user['nickname'], t('Status'), "", t('Your posts and conversations'));
-		$nav['usermenu'][] = Array($server_url . '/profile/' . $a->user['nickname'] . '?tab=profile', t('Profile'), "", t('Your profile page'));
-		$nav['usermenu'][] = Array($server_url . '/photos/' . $a->user['nickname'], t('Photos'), "", t('Your photos'));
-		$nav['usermenu'][] = Array($server_url . '/videos/' . $a->user['nickname'], t('Videos'), "", t('Your videos'));
-		$nav['usermenu'][] = Array($server_url . '/events/', t('Events'), "", t('Your events'));
+		$nav['usermenu'][] = [$server_url . '/profile/' . $a->user['nickname'], t('Status'), "", t('Your posts and conversations')];
+		$nav['usermenu'][] = [$server_url . '/profile/' . $a->user['nickname'] . '?tab=profile', t('Profile'), "", t('Your profile page')];
+		$nav['usermenu'][] = [$server_url . '/photos/' . $a->user['nickname'], t('Photos'), "", t('Your photos')];
+		$nav['usermenu'][] = [$server_url . '/videos/' . $a->user['nickname'], t('Videos'), "", t('Your videos')];
+		$nav['usermenu'][] = [$server_url . '/events/', t('Events'), "", t('Your events')];
 
 		// navbar links
-		$nav['network'] = array($server_url . '/network', t('Network'), "", t('Conversations from your friends'));
-		$nav['events'] = Array($server_url . '/events', t('Events'), "", t('Events and Calendar'));
-		$nav['messages'] = array($server_url . '/message', t('Messages'), "", t('Private mail'));
-		$nav['settings'] = array($server_url . '/settings', t('Settings'), "", t('Account settings'));
-		$nav['contacts'] = array($server_url . '/contacts', t('Contacts'), "", t('Manage/edit friends and contacts'));
+		$nav['network'] = [$server_url . '/network', t('Network'), "", t('Conversations from your friends')];
+		$nav['events'] = [$server_url . '/events', t('Events'), "", t('Events and Calendar')];
+		$nav['messages'] = [$server_url . '/message', t('Messages'), "", t('Private mail')];
+		$nav['settings'] = [$server_url . '/settings', t('Settings'), "", t('Account settings')];
+		$nav['contacts'] = [$server_url . '/contacts', t('Contacts'), "", t('Manage/edit friends and contacts')];
 		$nav['sitename'] = $a->config['sitename'];
 	}
 }
@@ -320,7 +320,7 @@ function frio_acl_lookup(App $a, &$results)
 			intval($_SESSION['uid'])
 		);
 
-		$contacts = array();
+		$contacts = [];
 
 		if (DBM::is_result($r)) {
 			foreach ($r as $rr) {
@@ -346,14 +346,14 @@ function frio_acl_lookup(App $a, &$results)
 function frio_display_item(App $a, &$arr)
 {
 	// Add subthread to the item menu
-	$subthread = array();
+	$subthread = [];
 	if (local_user() == $arr['item']['uid'] && $arr['item']['parent'] == $arr['item']['id'] && !$arr['item']['self']) {
-		$subthread = array(
+		$subthread = [
 			'menu'   => 'follow_thread',
 			'title'  => t('Follow Thread'),
 			'action' => 'dosubthread(' . $arr['item']['id'] . '); return false;',
 			'href'   => '#'
-		);
+		];
 	}
 	$arr['output']['subthread'] = $subthread;
 }

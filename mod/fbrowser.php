@@ -30,7 +30,7 @@ function fbrowser_content(App $a) {
 
 	switch ($a->argv[1]) {
 		case "image":
-			$path = array(array("", t("Photos")));
+			$path = [["", t("Photos")]];
 			$albums = false;
 			$sql_extra = "";
 			$sql_extra2 = " ORDER BY created DESC LIMIT 0, 10";
@@ -42,7 +42,7 @@ function fbrowser_content(App $a) {
 					dbesc( t('Contact Photos'))
 				);
 
-				function _map_folder1($el){return array(bin2hex($el['album']),$el['album']);};
+				function _map_folder1($el){return [bin2hex($el['album']),$el['album']];};
 				$albums = array_map( "_map_folder1" , $albums);
 
 			}
@@ -52,7 +52,7 @@ function fbrowser_content(App $a) {
 				$album = hex2bin($a->argv[2]);
 				$sql_extra = sprintf("AND `album` = '%s' ",dbesc($album));
 				$sql_extra2 = "";
-				$path[]=array($a->argv[2], $album);
+				$path[]=[$a->argv[2], $album];
 			}
 
 			$r = q("SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`, ANY_VALUE(`type`) AS `type`,
@@ -78,17 +78,17 @@ function fbrowser_content(App $a) {
 				else
 					$scale = $rr['loq'];
 
-				return array(
+				return [
 					System::baseUrl() . '/photos/' . $a->user['nickname'] . '/image/' . $rr['resource-id'],
 					$filename_e,
 					System::baseUrl() . '/photo/' . $rr['resource-id'] . '-' . $scale . '.'. $ext
-				);
+				];
 			}
 			$files = array_map("_map_files1", $r);
 
 			$tpl = get_markup_template($template_file);
 
-			$o =  replace_macros($tpl, array(
+			$o =  replace_macros($tpl, [
 				'$type'     => 'image',
 				'$baseurl'  => System::baseUrl(),
 				'$path'     => $path,
@@ -96,7 +96,7 @@ function fbrowser_content(App $a) {
 				'$files'    => $files,
 				'$cancel'   => t('Cancel'),
 				'$nickname' => $a->user['nickname'],
-			));
+			]);
 
 
 			break;
@@ -112,21 +112,21 @@ function fbrowser_content(App $a) {
 					$filetype = ( (file_exists("images/icons/$m1.png"))?$m1:"zip");
 					$filename_e = $rr['filename'];
 
-					return array(System::baseUrl() . '/attach/' . $rr['id'], $filename_e, System::baseUrl() . '/images/icons/16/' . $filetype . '.png');
+					return [System::baseUrl() . '/attach/' . $rr['id'], $filename_e, System::baseUrl() . '/images/icons/16/' . $filetype . '.png'];
 				}
 				$files = array_map("_map_files2", $files);
 
 
 				$tpl = get_markup_template($template_file);
-				$o = replace_macros($tpl, array(
+				$o = replace_macros($tpl, [
 					'$type'     => 'file',
 					'$baseurl'  => System::baseUrl(),
-					'$path'     => array( array( "", t("Files")) ),
+					'$path'     => [ [ "", t("Files")] ],
 					'$folders'  => false,
 					'$files'    =>$files,
 					'$cancel'   => t('Cancel'),
 					'$nickname' => $a->user['nickname'],
-				));
+				]);
 
 			}
 

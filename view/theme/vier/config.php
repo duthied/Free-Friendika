@@ -69,9 +69,9 @@ function theme_admin(App $a) {
 		$helperlist = "https://forum.friendi.ca/profile/helpers";
 
 	$t = get_markup_template("theme_admin_settings.tpl");
-	$o .= replace_macros($t, array(
-		'$helperlist' => array('vier_helperlist', t('Comma separated list of helper forums'), $helperlist, '', ''),
-		));
+	$o .= replace_macros($t, [
+		'$helperlist' => ['vier_helperlist', t('Comma separated list of helper forums'), $helperlist, '', ''],
+		]);
 
 	$show_pages = get_vier_config('show_pages', true, true);
 	$show_profiles = get_vier_config('show_profiles', true, true);
@@ -100,7 +100,7 @@ function theme_admin_post(App $a) {
 
 /// @TODO $a is no longer used
 function vier_form(App $a, $style, $show_pages, $show_profiles, $show_helpers, $show_services, $show_friends, $show_lastusers) {
-	$styles = array(
+	$styles = [
 		"breathe"=>"Breathe",
 		"netcolour"=>"Coloured Networks",
 		"dark"=>"Dark",
@@ -108,22 +108,22 @@ function vier_form(App $a, $style, $show_pages, $show_profiles, $show_helpers, $
 		"plus"=>"Plus",
 		"plusminus"=>"Plus Minus",
 		"shadow"=>"Shadow"
-	);
+	];
 
-	$show_or_not = array('0'=>t("don't show"),     '1'=>t("show"),);
+	$show_or_not = ['0'=>t("don't show"),     '1'=>t("show"),];
 
 	$t = get_markup_template("theme_settings.tpl");
-	$o .= replace_macros($t, array(
+	$o .= replace_macros($t, [
 		'$submit' => t('Submit'),
 		'$baseurl' => System::baseUrl(),
 		'$title' => t("Theme settings"),
-		'$style' => array('vier_style',t ('Set style'),$style,'',$styles),
-		'$show_pages' => array('vier_show_pages', t('Community Pages'), $show_pages, '', $show_or_not),
-		'$show_profiles' => array('vier_show_profiles', t('Community Profiles'), $show_profiles, '', $show_or_not),
-		'$show_helpers' => array('vier_show_helpers', t('Help or @NewHere ?'), $show_helpers, '', $show_or_not),
-		'$show_services' => array('vier_show_services', t('Connect Services'), $show_services, '', $show_or_not),
-		'$show_friends' => array('vier_show_friends', t('Find Friends'), $show_friends, '', $show_or_not),
-		'$show_lastusers' => array('vier_show_lastusers', t('Last users'), $show_lastusers, '', $show_or_not)
-	));
+		'$style' => ['vier_style',t ('Set style'),$style,'',$styles],
+		'$show_pages' => ['vier_show_pages', t('Community Pages'), $show_pages, '', $show_or_not],
+		'$show_profiles' => ['vier_show_profiles', t('Community Profiles'), $show_profiles, '', $show_or_not],
+		'$show_helpers' => ['vier_show_helpers', t('Help or @NewHere ?'), $show_helpers, '', $show_or_not],
+		'$show_services' => ['vier_show_services', t('Connect Services'), $show_services, '', $show_or_not],
+		'$show_friends' => ['vier_show_friends', t('Find Friends'), $show_friends, '', $show_or_not],
+		'$show_lastusers' => ['vier_show_lastusers', t('Last users'), $show_lastusers, '', $show_or_not]
+	]);
 	return $o;
 }

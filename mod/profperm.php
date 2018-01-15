@@ -69,7 +69,7 @@ function profperm_content(App $a) {
 			intval($a->argv[1])
 		);
 
-		$ingroup = array();
+		$ingroup = [];
 		if (DBM::is_result($r))
 			foreach($r as $member)
 				$ingroup[] = $member['id'];
@@ -99,7 +99,7 @@ function profperm_content(App $a) {
 
 			$members = $r;
 
-			$ingroup = array();
+			$ingroup = [];
 			if (DBM::is_result($r))
 				foreach($r as $member)
 					$ingroup[] = $member['id'];

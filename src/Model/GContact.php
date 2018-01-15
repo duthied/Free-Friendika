@@ -157,7 +157,7 @@ class GContact
 			throw new Exception("This (".$gcontact['url'].") doesn't seem to be an url.");
 		}
 
-		if (in_array($urlparts["host"],	array("www.facebook.com", "facebook.com", "twitter.com", "identi.ca", "alpha.app.net"))) {
+		if (in_array($urlparts["host"],	["www.facebook.com", "facebook.com", "twitter.com", "identi.ca", "alpha.app.net"])) {
 			throw new Exception('Contact from a non federated network ignored. ('.$gcontact['url'].')');
 		}
 
@@ -168,7 +168,7 @@ class GContact
 		}
 
 		// Assure that there are no parameter fragments in the profile url
-		if (in_array($gcontact['network'], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""))) {
+		if (in_array($gcontact['network'], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""])) {
 			$gcontact['url'] = self::cleanContactUrl($gcontact['url']);
 		}
 
@@ -254,7 +254,7 @@ class GContact
 			throw new Exception('No name and photo for URL '.$gcontact['url']);
 		}
 
-		if (!in_array($gcontact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA))) {
+		if (!in_array($gcontact['network'], [NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA])) {
 			throw new Exception('No federated network ('.$gcontact['network'].') detected for URL '.$gcontact['url']);
 		}
 
@@ -456,7 +456,7 @@ class GContact
 	public static function suggestionQuery($uid, $start = 0, $limit = 80)
 	{
 		if (!$uid) {
-			return array();
+			return [];
 		}
 
 		/*
@@ -468,7 +468,7 @@ class GContact
 		//	return $list;
 		//}
 
-		$network = array(NETWORK_DFRN);
+		$network = [NETWORK_DFRN];
 
 		if (Config::get('system', 'diaspora_enabled')) {
 			$network[] = NETWORK_DIASPORA;
@@ -532,7 +532,7 @@ class GContact
 			intval($limit)
 		);
 
-		$list = array();
+		$list = [];
 		foreach ($r2 as $suggestion) {
 			$list[$suggestion["nurl"]] = $suggestion;
 		}
@@ -560,7 +560,7 @@ class GContact
 	{
 		$a = get_app();
 
-		$done = array();
+		$done = [];
 
 		/// @TODO Check if it is really neccessary to poll the own server
 		PortableContact::loadWorker(0, 0, 0, System::baseUrl() . '/poco');
@@ -665,7 +665,7 @@ class GContact
 		$gcontact_id = 0;
 		$doprobing = false;
 
-		if (in_array($contact["network"], array(NETWORK_PHANTOM))) {
+		if (in_array($contact["network"], [NETWORK_PHANTOM])) {
 			logger("Invalid network for contact url ".$contact["url"]." - Called by: ".System::callstack(), LOGGER_DEBUG);
 			return false;
 		}
@@ -683,7 +683,7 @@ class GContact
 		self::fixAlternateContactAddress($contact);
 
 		// Remove unwanted parts from the contact url (e.g. "?zrl=...")
-		if (in_array($contact["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
+		if (in_array($contact["network"], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS])) {
 			$contact["url"] = self::cleanContactUrl($contact["url"]);
 		}
 
@@ -697,7 +697,7 @@ class GContact
 			$gcontact_id = $r[0]["id"];
 
 			// Update every 90 days
-			if (in_array($r[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""))) {
+			if (in_array($r[0]["network"], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""])) {
 				$last_failure_str = $r[0]["last_failure"];
 				$last_failure = strtotime($r[0]["last_failure"]);
 				$last_contact_str = $r[0]["last_contact"];
@@ -731,7 +731,7 @@ class GContact
 			if (DBM::is_result($r)) {
 				$gcontact_id = $r[0]["id"];
 
-				$doprobing = in_array($r[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""));
+				$doprobing = in_array($r[0]["network"], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""]);
 			}
 		}
 		dba::unlock();
@@ -774,7 +774,7 @@ class GContact
 		);
 
 		// Get all field names
-		$fields = array();
+		$fields = [];
 		foreach ($public_contact[0] as $field => $data) {
 			$fields[$field] = $data;
 		}
@@ -855,11 +855,11 @@ class GContact
 
 		if ($update) {
 			logger("Update gcontact for ".$contact["url"], LOGGER_DEBUG);
-			$condition = array('`nurl` = ? AND (`generation` = 0 OR `generation` >= ?)',
-					normalise_link($contact["url"]), $contact["generation"]);
+			$condition = ['`nurl` = ? AND (`generation` = 0 OR `generation` >= ?)',
+					normalise_link($contact["url"]), $contact["generation"]];
 			$contact["updated"] = DBM::date($contact["updated"]);
 
-			$updated = array('photo' => $contact['photo'], 'name' => $contact['name'],
+			$updated = ['photo' => $contact['photo'], 'name' => $contact['name'],
 					'nick' => $contact['nick'], 'addr' => $contact['addr'],
 					'network' => $contact['network'], 'birthday' => $contact['birthday'],
 					'gender' => $contact['gender'], 'keywords' => $contact['keywords'],
@@ -868,34 +868,34 @@ class GContact
 					'notify' => $contact['notify'], 'url' => $contact['url'],
 					'location' => $contact['location'], 'about' => $contact['about'],
 					'generation' => $contact['generation'], 'updated' => $contact['updated'],
-					'server_url' => $contact['server_url'], 'connect' => $contact['connect']);
+					'server_url' => $contact['server_url'], 'connect' => $contact['connect']];
 
 			dba::update('gcontact', $updated, $condition, $fields);
 
 			// Now update the contact entry with the user id "0" as well.
 			// This is used for the shadow copies of public items.
-			
+
 			$public_contact = dba::selectFirst('contact', ['id'], ['nurl' => normalise_link($contact["url"]), 'uid' => 0]);
 			if (DBM::is_result($public_contact)) {
 				logger("Update public contact ".$public_contact["id"], LOGGER_DEBUG);
 
 				Contact::updateAvatar($contact["photo"], 0, $public_contact["id"]);
 
-				$fields = array('name', 'nick', 'addr',
+				$fields = ['name', 'nick', 'addr',
 						'network', 'bd', 'gender',
 						'keywords', 'alias', 'contact-type',
-						'url', 'location', 'about');
+						'url', 'location', 'about'];
 				$old_contact = dba::selectFirst('contact', $fields, ['id' => $public_contact["id"]]);
 
 				// Update it with the current values
-				$fields = array('name' => $contact['name'], 'nick' => $contact['nick'],
+				$fields = ['name' => $contact['name'], 'nick' => $contact['nick'],
 						'addr' => $contact['addr'], 'network' => $contact['network'],
 						'bd' => $contact['birthday'], 'gender' => $contact['gender'],
 						'keywords' => $contact['keywords'], 'alias' => $contact['alias'],
 						'contact-type' => $contact['contact-type'], 'url' => $contact['url'],
-						'location' => $contact['location'], 'about' => $contact['about']);
+						'location' => $contact['location'], 'about' => $contact['about']];
 
-				dba::update('contact', $fields, array('id' => $public_contact["id"]), $old_contact);
+				dba::update('contact', $fields, ['id' => $public_contact["id"]], $old_contact);
 			}
 		}
 
@@ -912,7 +912,7 @@ class GContact
 	{
 		$data = Probe::uri($url);
 
-		if (in_array($data["network"], array(NETWORK_PHANTOM))) {
+		if (in_array($data["network"], [NETWORK_PHANTOM])) {
 			logger("Invalid network for contact url ".$data["url"]." - Called by: ".System::callstack(), LOGGER_DEBUG);
 			return;
 		}
@@ -944,24 +944,24 @@ class GContact
 		);
 
 		$location = Profile::formatLocation(
-			array("locality" => $r[0]["locality"], "region" => $r[0]["region"], "country-name" => $r[0]["country-name"])
+			["locality" => $r[0]["locality"], "region" => $r[0]["region"], "country-name" => $r[0]["country-name"]]
 		);
 
 		// The "addr" field was added in 3.4.3 so it can be empty for older users
 		if ($r[0]["addr"] != "") {
-			$addr = $r[0]["nickname"].'@'.str_replace(array("http://", "https://"), "", System::baseUrl());
+			$addr = $r[0]["nickname"].'@'.str_replace(["http://", "https://"], "", System::baseUrl());
 		} else {
 			$addr = $r[0]["addr"];
 		}
 
-		$gcontact = array("name" => $r[0]["name"], "location" => $location, "about" => $r[0]["about"],
+		$gcontact = ["name" => $r[0]["name"], "location" => $location, "about" => $r[0]["about"],
 				"gender" => $r[0]["gender"], "keywords" => $r[0]["pub_keywords"],
 				"birthday" => $r[0]["dob"], "photo" => $r[0]["photo"],
 				"notify" => $r[0]["notify"], "url" => $r[0]["url"],
 				"hide" => ($r[0]["hidewall"] || !$r[0]["net-publish"]),
 				"nick" => $r[0]["nickname"], "addr" => $addr,
 				"connect" => $addr, "server_url" => System::baseUrl(),
-				"generation" => 1, "network" => NETWORK_DFRN);
+				"generation" => 1, "network" => NETWORK_DFRN];
 
 		self::update($gcontact);
 	}
@@ -1014,13 +1014,13 @@ class GContact
 			foreach ($statistics->users as $nick => $user) {
 				$profile_url = $server."/".$user->nickname;
 
-				$contact = array("url" => $profile_url,
+				$contact = ["url" => $profile_url,
 						"name" => $user->fullname,
 						"addr" => $user->nickname."@".$hostname,
 						"nick" => $user->nickname,
 						"about" => $user->bio,
 						"network" => NETWORK_OSTATUS,
-						"photo" => System::baseUrl()."/images/person-175.jpg");
+						"photo" => System::baseUrl()."/images/person-175.jpg"];
 				self::getId($contact);
 			}
 		}

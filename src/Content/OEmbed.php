@@ -67,7 +67,7 @@ class OEmbed
 		// These media files should now be caught in bbcode.php
 		// left here as a fallback in case this is called from another source
 
-		$noexts = array("mp3", "mp4", "ogg", "ogv", "oga", "ogm", "webm");
+		$noexts = ["mp3", "mp4", "ogg", "ogv", "oga", "ogm", "webm"];
 		$ext = pathinfo(strtolower($embedurl), PATHINFO_EXTENSION);
 
 
@@ -125,7 +125,7 @@ class OEmbed
 
 		// Always embed the SSL version
 		if (isset($j->html)) {
-			$j->html = str_replace(array("http://www.youtube.com/", "http://player.vimeo.com/"), array("https://www.youtube.com/", "https://player.vimeo.com/"), $j->html);
+			$j->html = str_replace(["http://www.youtube.com/", "http://player.vimeo.com/"], ["https://www.youtube.com/", "https://player.vimeo.com/"], $j->html);
 		}
 
 		$j->embedurl = $embedurl;
@@ -175,14 +175,14 @@ class OEmbed
 					$th = 120;
 					$tw = $th * $tr;
 					$tpl = get_markup_template('oembed_video.tpl');
-					$ret .= replace_macros($tpl, array(
+					$ret .= replace_macros($tpl, [
 						'$baseurl' => System::baseUrl(),
 						'$embedurl' => $embedurl,
 						'$escapedhtml' => base64_encode($jhtml),
 						'$tw' => $tw,
 						'$th' => $th,
 						'$turl' => $j->thumbnail_url,
-					));
+					]);
 				} else {
 					$ret = $jhtml;
 				}
@@ -317,8 +317,8 @@ class OEmbed
 	public static function getHTML($url, $title = null)
 	{
 		// Always embed the SSL version
-		$url = str_replace(array("http://www.youtube.com/", "http://player.vimeo.com/"),
-					array("https://www.youtube.com/", "https://player.vimeo.com/"), $url);
+		$url = str_replace(["http://www.youtube.com/", "http://player.vimeo.com/"],
+					["https://www.youtube.com/", "https://player.vimeo.com/"], $url);
 
 		$o = self::fetchURL($url, !self::isAllowedURL($url));
 

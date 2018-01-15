@@ -88,7 +88,7 @@ function update_1191() {
 	if (plugin_enabled('forumlist')) {
 		$plugin = 'forumlist';
 		$plugins = Config::get('system','addon');
-		$plugins_arr = array();
+		$plugins_arr = [];
 
 		if ($plugins) {
 			$plugins_arr = explode(",",str_replace(" ", "",$plugins));
