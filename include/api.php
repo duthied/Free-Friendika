@@ -16,6 +16,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Mail;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Network\FKOAuth1;
@@ -42,7 +43,6 @@ require_once 'include/security.php';
 require_once 'include/html2bbcode.php';
 require_once 'mod/wall_upload.php';
 require_once 'mod/proxy.php';
-require_once 'include/message.php';
 require_once 'include/like.php';
 require_once 'include/plaintext.php';
 
@@ -3644,7 +3644,7 @@ function api_direct_messages_new($type)
 		}
 	}
 
-	$id = send_message($recipient['cid'], $_POST['text'], $sub, $replyto);
+	$id = Mail::send($recipient['cid'], $_POST['text'], $sub, $replyto);
 
 	if ($id > -1) {
 		$r = q("SELECT * FROM `mail` WHERE id=%d", intval($id));

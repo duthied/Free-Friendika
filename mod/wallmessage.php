@@ -5,9 +5,8 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Mail;
 use Friendica\Model\Profile;
-
-require_once 'include/message.php';
 
 function wallmessage_post(App $a) {
 
@@ -50,7 +49,7 @@ function wallmessage_post(App $a) {
 		return;
 	}
 
-	$ret = send_wallmessage($user, $body, $subject, $replyto);
+	$ret = Mail::sendWall($user, $body, $subject, $replyto);
 
 	switch($ret){
 		case -1:
