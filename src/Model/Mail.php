@@ -105,15 +105,15 @@ class Mail
 				'from-name' => $me[0]['name'],
 				'from-photo' => $me[0]['thumb'],
 				'from-url' => $me[0]['url'],
-				`contact-id` => $recipient,
-				`title` => $subject,
-				`body` => $body,
-				`seen` => true,
-				`reply` => $reply,
-				`replied` => false,
-				`uri` => $uri,
-				`parent-uri` => $replyto,
-				`created` => datetime_convert()
+				'contact-id' => $recipient,
+				'title' => $subject,
+				'body' => $body,
+				'seen' => true,
+				'reply' => $reply,
+				'replied' => false,
+				'uri' => $uri,
+				'parent-uri' => $replyto,
+				'created' => datetime_convert()
 			]
 		);
 
@@ -207,22 +207,22 @@ class Mail
 		dba::insert(
 			'mail',
 			[
-				`uid` => $recipient['uid'],
-				`guid` => $guid,
-				`convid` => $convid,
-				`from-name` => $me['name'],
-				`from-photo` => $me['photo'],
-				`from-url` => $me['url'],
-				`contact-id` => 0,
-				`title` => $subject,
-				`body` => $body,
-				`seen` => false,
-				`reply` => false,
-				`replied` => false,
-				`uri` => $uri,
-				`parent-uri` => $replyto,
-				`created` => datetime_convert(),
-				`unknown` => true
+				'uid' => $recipient['uid'],
+				'guid' => $guid,
+				'convid' => $convid,
+				'from-name' => $me['name'],
+				'from-photo' => $me['photo'],
+				'from-url' => $me['url'],
+				'contact-id' => 0,
+				'title' => $subject,
+				'body' => $body,
+				'seen' => false,
+				'reply' => false,
+				'replied' => false,
+				'uri' => $uri,
+				'parent-uri' => $replyto,
+				'created' => datetime_convert(),
+				'unknown' => true
 			]
 		);
 
