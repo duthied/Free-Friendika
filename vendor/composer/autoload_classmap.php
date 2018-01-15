@@ -17,6 +17,7 @@ return array(
     'Friendica\\Content\\ForumManager' => $baseDir . '/src/Content/ForumManager.php',
     'Friendica\\Content\\OEmbed' => $baseDir . '/src/Content/OEmbed.php',
     'Friendica\\Content\\Smilies' => $baseDir . '/src/Content/Smilies.php',
+    'Friendica\\Content\\Text\\Markdown' => $baseDir . '/src/Content/Text/Markdown.php',
     'Friendica\\Core\\Cache' => $baseDir . '/src/Core/Cache.php',
     'Friendica\\Core\\Config' => $baseDir . '/src/Core/Config.php',
     'Friendica\\Core\\NotificationsManager' => $baseDir . '/src/Core/NotificationsManager.php',

@@ -14,6 +14,10 @@ class ComposerStaticInitFriendica
     );
 
     public static $prefixLengthsPsr4 = array (
+        'M' => 
+        array (
+            'Michelf\\' => 8,
+        ),
         'L' => 
         array (
             'League\\HTMLToMarkdown\\' => 22,
@@ -25,6 +29,10 @@ class ComposerStaticInitFriendica
     );
 
     public static $prefixDirsPsr4 = array (
+        'Michelf\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/michelf/php-markdown/Michelf',
+        ),
         'League\\HTMLToMarkdown\\' => 
         array (
             0 => __DIR__ . '/..' . '/league/html-to-markdown/src',
@@ -41,13 +49,6 @@ class ComposerStaticInitFriendica
             'Text' => 
             array (
                 0 => __DIR__ . '/..' . '/pear/text_languagedetect',
-            ),
-        ),
-        'M' => 
-        array (
-            'Michelf' => 
-            array (
-                0 => __DIR__ . '/..' . '/michelf/php-markdown',
             ),
         ),
         'H' => 
@@ -78,6 +79,7 @@ class ComposerStaticInitFriendica
         'Friendica\\Content\\ForumManager' => __DIR__ . '/../..' . '/src/Content/ForumManager.php',
         'Friendica\\Content\\OEmbed' => __DIR__ . '/../..' . '/src/Content/OEmbed.php',
         'Friendica\\Content\\Smilies' => __DIR__ . '/../..' . '/src/Content/Smilies.php',
+        'Friendica\\Content\\Text\\Markdown' => __DIR__ . '/../..' . '/src/Content/Text/Markdown.php',
         'Friendica\\Core\\Cache' => __DIR__ . '/../..' . '/src/Core/Cache.php',
         'Friendica\\Core\\Config' => __DIR__ . '/../..' . '/src/Core/Config.php',
         'Friendica\\Core\\NotificationsManager' => __DIR__ . '/../..' . '/src/Core/NotificationsManager.php',
