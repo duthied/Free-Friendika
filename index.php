@@ -14,8 +14,8 @@ use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\Profile;
 use Friendica\Module\Login;
-use Friendica\Module\Profile;
 
 require_once 'boot.php';
 

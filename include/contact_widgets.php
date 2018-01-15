@@ -9,6 +9,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Model\GContact;
+use Friendica\Model\Profile;
 
 function follow_widget($value = "")
 {
