@@ -22,7 +22,6 @@ define('ACCESS_TOKEN_DURATION', 31536000);
 require_once 'include/dba.php';
 
 require_once "library/OAuth1.php";
-require_once "library/oauth2-php/lib/OAuth2.inc";
 
 /**
  * @brief OAuthDataStore class
