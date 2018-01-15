@@ -44,8 +44,7 @@ class Nav
 	
 		$tpl = get_markup_template('nav.tpl');
 	
-		$a->page['nav'] .= replace_macros($tpl,
-			[
+		$a->page['nav'] .= replace_macros($tpl, [
 				'$baseurl' => System::baseUrl(),
 				'$sitelocation' => $nav_info['sitelocation'],
 				'$nav' => $nav_info['nav'],
@@ -56,8 +55,7 @@ class Nav
 				'$apps' => $a->apps,
 				'$clear_notifs' => t('Clear notifications'),
 				'$search_hint' => t('@name, !forum, #tags, content')
-			]
-		);
+		]);
 	
 		call_hooks('page_header', $a->page['nav']);
 	}
