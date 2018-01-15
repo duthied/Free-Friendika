@@ -3,6 +3,7 @@
  * @file mod/profiles.php
  */
 use Friendica\App;
+use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
@@ -623,10 +624,7 @@ function profiles_content(App $a) {
 			notice( t('Profile not found.') . EOL);
 			return;
 		}
-
-		require_once 'include/profile_selectors.php';
-
-
+		
 		$a->page['htmlhead'] .= replace_macros(get_markup_template('profed_head.tpl'), array(
 			'$baseurl' => System::baseUrl(true),
 		));
@@ -718,11 +716,11 @@ function profiles_content(App $a) {
 			'$postal_code' => array('postal_code', t('Postal/Zip Code:'), $r[0]['postal-code']),
 			'$country_name' => array('country_name', t('Country:'), $r[0]['country-name']),
 			'$age' => ((intval($r[0]['dob'])) ? '(' . t('Age: ') . age($r[0]['dob'],$a->user['timezone'],$a->user['timezone']) . ')' : ''),
-			'$gender' => gender_selector($r[0]['gender']),
-			'$marital' => marital_selector($r[0]['marital']),
+			'$gender' => ContactSelector::gender($r[0]['gender']),
+			'$marital' => ContactSelector::maritalStatus($r[0]['marital']),
 			'$with' => array('with', t("Who: \x28if applicable\x29"), strip_tags($r[0]['with']), t('Examples: cathy123, Cathy Williams, cathy@example.com')),
 			'$howlong' => array('howlong', t('Since [date]:'), ($r[0]['howlong'] <= NULL_DATE ? '' : datetime_convert('UTC',date_default_timezone_get(),$r[0]['howlong']))),
-			'$sexual' => sexpref_selector($r[0]['sexual']),
+			'$sexual' => ContactSelector::sexualPreference($r[0]['sexual']),
 			'$about' => array('about', t('Tell us about yourself...'), $r[0]['about']),
 			'$xmpp' => array('xmpp', t('XMPP (Jabber) address:'), $r[0]['xmpp'], t("The XMPP address will be propagated to your contacts so that they can follow you.")),
 			'$homepage' => array('homepage', t('Homepage URL:'), $r[0]['homepage']),

@@ -113,7 +113,12 @@ class ContactSelector
 		return $networkname;
 	}
 
-	function gender_selector($current="",$suffix="") {
+	/**
+	 * @param string $current optional, default empty
+	 * @param string $suffix  optionsl, default empty
+	 */
+	public static function gender($current = "", $suffix = "")
+	{
 		$o = '';
 		$select = array('', t('Male'), t('Female'), t('Currently Male'), t('Currently Female'), t('Mostly Male'), t('Mostly Female'), t('Transgender'), t('Intersex'), t('Transsexual'), t('Hermaphrodite'), t('Neuter'), t('Non-specific'), t('Other'), t('Undecided'));
 	
@@ -130,7 +135,12 @@ class ContactSelector
 		return $o;
 	}
 	
-	function sexpref_selector($current="",$suffix="") {
+	/**
+	 * @param string $current optional, default empty
+	 * @param string $suffix  optionsl, default empty
+	 */
+	public static function sexualPreference($current = "", $suffix = "")
+	{
 		$o = '';
 		$select = array('', t('Males'), t('Females'), t('Gay'), t('Lesbian'), t('No Preference'), t('Bisexual'), t('Autosexual'), t('Abstinent'), t('Virgin'), t('Deviant'), t('Fetish'), t('Oodles'), t('Nonsexual'));
 	
@@ -148,8 +158,10 @@ class ContactSelector
 		return $o;
 	}
 	
-	
-	function marital_selector($current = "")
+	/**
+	 * @param string $current optional, default empty
+	 */
+	public static function maritalStatus($current = "")
 	{
 		$o = '';
 		$select = array('', t('Single'), t('Lonely'), t('Available'), t('Unavailable'), t('Has crush'), t('Infatuated'), t('Dating'), t('Unfaithful'), t('Sex Addict'), t('Friends'), t('Friends/Benefits'), t('Casual'), t('Engaged'), t('Married'), t('Imaginarily married'), t('Partners'), t('Cohabiting'), t('Common law'), t('Happy'), t('Not looking'), t('Swinger'), t('Betrayed'), t('Separated'), t('Unstable'), t('Divorced'), t('Imaginarily divorced'), t('Widowed'), t('Uncertain'), t('It\'s complicated'), t('Don\'t care'), t('Ask me'));
