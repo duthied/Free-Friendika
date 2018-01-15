@@ -6,8 +6,8 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
+use Friendica\Model\Profile;
 use Friendica\Network\Probe;
-
 
 function follow_post(App $a) {
 
@@ -163,7 +163,7 @@ function follow_content(App $a) {
 			'$nickname' => "",
 			'$name' => $ret["name"],
 			'$url' => $ret["url"],
-			'$zrl' => zrl($ret["url"]),
+			'$zrl' => Profile::zrl($ret["url"]),
 			'$url_label' => t("Profile URL"),
 			'$myaddr' => $myaddr,
 			'$request' => $request,
@@ -177,7 +177,7 @@ function follow_content(App $a) {
 
 	$a->page['aside'] = "";
 
-	profile_load($a, "", 0, Contact::getDetailsByURL($ret["url"]), false);
+	Profile::load($a, "", 0, Contact::getDetailsByURL($ret["url"]), false);
 
 	if ($gcontact_id <> 0) {
 		$o .= replace_macros(get_markup_template('section_title.tpl'),

@@ -1,15 +1,19 @@
 <?php
-
+/**
+ * @file mod/display.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Profile;
 use Friendica\Protocol\DFRN;
 
-function display_init(App $a) {
-	if (Config::get('system','block_public') && !local_user() && !remote_user()) {
+function display_init(App $a)
+{
+	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
 		return;
 	}
 
@@ -103,7 +107,7 @@ function display_init(App $a) {
 		}
 	}
 
-	profile_load($a, $nick, 0, $profiledata);
+	Profile::load($a, $nick, 0, $profiledata);
 }
 
 function display_fetchauthor($a, $item) {

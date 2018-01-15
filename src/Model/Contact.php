@@ -1,9 +1,7 @@
 <?php
-
 /**
  * @file src/Model/Contact.php
  */
-
 namespace Friendica\Model;
 
 use Friendica\BaseObject;
@@ -14,6 +12,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 use Friendica\Model\Photo;
+use Friendica\Model\Profile;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
@@ -490,7 +489,7 @@ class Contact extends BaseObject
 
 		if ($contact['uid'] != $uid) {
 			if ($uid == 0) {
-				$profile_link = zrl($contact['url']);
+				$profile_link = Profile::zrl($contact['url']);
 				$menu = array('profile' => array(t('View Profile'), $profile_link, true));
 
 				return $menu;
@@ -501,7 +500,7 @@ class Contact extends BaseObject
 			if (DBM::is_result($contact_own)) {
 				return self::photoMenu($contact_own, $uid);
 			} else {
-				$profile_link = zrl($contact['url']);
+				$profile_link = Profile::zrl($contact['url']);
 				$connlnk = 'follow/?url=' . $contact['url'];
 				$menu = array(
 					'profile' => array(t('View Profile'), $profile_link, true),

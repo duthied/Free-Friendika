@@ -19,6 +19,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\User;
+use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Network\Probe;
 
@@ -26,10 +27,11 @@ require_once 'include/enotify.php';
 
 function dfrn_request_init(App $a)
 {
-	if ($a->argc > 1)
+	if ($a->argc > 1) {
 		$which = $a->argv[1];
+	}
 
-	profile_load($a, $which);
+	Profile::load($a, $which);
 	return;
 }
 
@@ -183,7 +185,7 @@ function dfrn_request_post(App $a)
 				}
 
 				// (ignore reply, nothing we can do it failed)
-				// Old: goaway(zrl($dfrn_url));
+				// Old: goaway(Profile::zrl($dfrn_url));
 				goaway($forwardurl);
 				return; // NOTREACHED
 			}
@@ -618,7 +620,7 @@ function dfrn_request_content(App $a)
 			}
 		} else {
 			// last, try a zrl
-			$myaddr = get_my_url();
+			$myaddr = Profile::getMyURL();
 		}
 
 		$target_addr = $a->profile['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);

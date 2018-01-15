@@ -1,7 +1,10 @@
 <?php
-
+/**
+ * @file mod/notes.php
+ */
 use Friendica\App;
 use Friendica\Database\DBM;
+use Friendica\Model\Profile;
 
 function notes_init(App $a) {
 
@@ -15,7 +18,7 @@ function notes_init(App $a) {
 
 	nav_set_selected('home');
 
-//	profile_load($a,$which,$profile);
+	//Profile::load($a, $which, $profile);
 
 }
 
@@ -44,7 +47,7 @@ function notes_content(App $a, $update = false) {
 	$is_owner = true;
 
 	$o ="";
-	$o .= profile_tabs($a,True);
+	$o .= Profile::getTabs($a, true);
 
 	if(! $update) {
 		$o .= '<h3>' . t('Personal Notes') . '</h3>';

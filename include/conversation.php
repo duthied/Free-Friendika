@@ -10,6 +10,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Profile;
 use Friendica\Object\Thread;
 use Friendica\Object\Post;
 
@@ -194,10 +195,10 @@ function localize_item(&$item) {
 			}
 		}
 
-		$A = '[url=' . zrl($Alink) . ']' . $Aname . '[/url]';
-		$B = '[url=' . zrl($Blink) . ']' . $Bname . '[/url]';
+		$A = '[url=' . Profile::zrl($Alink) . ']' . $Aname . '[/url]';
+		$B = '[url=' . Profile::zrl($Blink) . ']' . $Bname . '[/url]';
 		if ($Bphoto != "") {
-			$Bphoto = '[url=' . zrl($Blink) . '][img]' . $Bphoto . '[/img][/url]';
+			$Bphoto = '[url=' . Profile::zrl($Blink) . '][img]' . $Bphoto . '[/img][/url]';
 		}
 
 		$item['body'] = sprintf( t('%1$s is now friends with %2$s'), $A, $B)."\n\n\n".$Bphoto;
@@ -231,10 +232,10 @@ function localize_item(&$item) {
 			}
 		}
 
-		$A = '[url=' . zrl($Alink) . ']' . $Aname . '[/url]';
-		$B = '[url=' . zrl($Blink) . ']' . $Bname . '[/url]';
+		$A = '[url=' . Profile::zrl($Alink) . ']' . $Aname . '[/url]';
+		$B = '[url=' . Profile::zrl($Blink) . ']' . $Bname . '[/url]';
 		if ($Bphoto != "") {
-			$Bphoto = '[url=' . zrl($Blink) . '][img=80x80]' . $Bphoto . '[/img][/url]';
+			$Bphoto = '[url=' . Profile::zrl($Blink) . '][img=80x80]' . $Bphoto . '[/img][/url]';
 		}
 
 		/*
@@ -266,8 +267,8 @@ function localize_item(&$item) {
 
 		$obj = $r[0];
 
-		$author  = '[url=' . zrl($item['author-link']) . ']' . $item['author-name'] . '[/url]';
-		$objauthor =  '[url=' . zrl($obj['author-link']) . ']' . $obj['author-name'] . '[/url]';
+		$author  = '[url=' . Profile::zrl($item['author-link']) . ']' . $item['author-name'] . '[/url]';
+		$objauthor =  '[url=' . Profile::zrl($obj['author-link']) . ']' . $obj['author-name'] . '[/url]';
 
 		switch ($obj['verb']) {
 			case ACTIVITY_POST:
@@ -320,8 +321,8 @@ function localize_item(&$item) {
 				$target = $r[0];
 				$Bname = $target['author-name'];
 				$Blink = $target['author-link'];
-				$A = '[url=' . zrl($Alink) . ']' . $Aname . '[/url]';
-				$B = '[url=' . zrl($Blink) . ']' . $Bname . '[/url]';
+				$A = '[url=' . Profile::zrl($Alink) . ']' . $Aname . '[/url]';
+				$B = '[url=' . Profile::zrl($Blink) . ']' . $Bname . '[/url]';
 				$P = '[url=' . $target['plink'] . ']' . t('post/item') . '[/url]';
 				$item['body'] = sprintf( t('%1$s marked %2$s\'s %3$s as favorite'), $A, $B, $P)."\n";
 			}
@@ -331,7 +332,7 @@ function localize_item(&$item) {
 	if (preg_match_all('/@\[url=(.*?)\]/is', $item['body'], $matches, PREG_SET_ORDER)) {
 		foreach ($matches as $mtch) {
 			if (! strpos($mtch[1], 'zrl=')) {
-				$item['body'] = str_replace($mtch[0], '@[url=' . zrl($mtch[1]) . ']', $item['body']);
+				$item['body'] = str_replace($mtch[0], '@[url=' . Profile::zrl($mtch[1]) . ']', $item['body']);
 			}
 		}
 	}
@@ -339,7 +340,7 @@ function localize_item(&$item) {
 	// add zrl's to public images
 	$photo_pattern = "/\[url=(.*?)\/photos\/(.*?)\/image\/(.*?)\]\[img(.*?)\]h(.*?)\[\/img\]\[\/url\]/is";
 	if (preg_match($photo_pattern, $item['body'])) {
-		$photo_replace = '[url=' . zrl('$1' . '/photos/' . '$2' . '/image/' . '$3' ,true) . '][img' . '$4' . ']h' . '$5'  . '[/img][/url]';
+		$photo_replace = '[url=' . Profile::zrl('$1' . '/photos/' . '$2' . '/image/' . '$3' ,true) . '][img' . '$4' . ']h' . '$5'  . '[/img][/url]';
 		$item['body'] = bb_tag_preg_replace($photo_pattern, $photo_replace, 'url', $item['body']);
 	}
 
@@ -709,7 +710,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 				if ($sp) {
 					$sparkle = ' sparkle';
 				} else {
-					$profile_link = zrl($profile_link);
+					$profile_link = Profile::zrl($profile_link);
 				}
 
 				if (!x($item, 'author-thumb') || ($item['author-thumb'] == "")) {
@@ -1037,7 +1038,7 @@ function item_photo_menu($item) {
 		$photos_link = $profile_link . '?url=photos';
 		$profile_link = $profile_link . '?url=profile';
 	} else {
-		$profile_link = zrl($profile_link);
+		$profile_link = Profile::zrl($profile_link);
 	}
 
 	if ($cid && !$item['self']) {
@@ -1130,7 +1131,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 				$url = 'redir/' . $item['contact-id'];
 				$sparkle = ' class="sparkle" ';
 			} else {
-				$url = zrl($url);
+				$url = Profile::zrl($url);
 			}
 
 			$url = '<a href="'. $url . '"'. $sparkle .'>' . htmlentities($item['author-name']) . '</a>';

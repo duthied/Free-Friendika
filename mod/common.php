@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file include/common.php
  */
@@ -8,7 +7,10 @@ use Friendica\Content\ContactSelector;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Model\Profile;
+use dba;
 
+require_once 'include/dba.php';
 require_once 'mod/contacts.php';
 
 function common_content(App $a)
@@ -34,40 +36,39 @@ function common_content(App $a)
 	}
 
 	if ($cmd === 'loc' && $cid) {
-		$c = q("SELECT `name`, `url`, `photo` FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-			intval($cid),
-			intval($uid)
-		);
-		/// @TODO Handle $c with DBM::is_result()
-		$a->page['aside'] = "";
-		profile_load($a, "", 0, Contact::getDetailsByURL($c[0]["url"]));
-	} else {
-		$c = q("SELECT `name`, `url`, `photo` FROM `contact` WHERE `self` = 1 AND `uid` = %d LIMIT 1",
-			intval($uid)
-		);
-		/// @TODO Handle $c with DBM::is_result()
-		$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"), array(
-			'$name' => htmlentities($c[0]['name']),
-			'$photo' => $c[0]['photo'],
-			'url' => 'contacts/' . $cid
-		));
+		$c = dba::selectFirst('contact', ['name', 'url', 'photo'], ['id' => $cid, 'uid' => $uid]);
 
-		if (!x($a->page, 'aside')) {
-			$a->page['aside'] = '';
+		if (DBM::is_result($c)) {
+			$a->page['aside'] = "";
+			Profile::load($a, "", 0, Contact::getDetailsByURL($c["url"]));
 		}
-		$a->page['aside'] .= $vcard_widget;
+	} else {
+		$c = dba::selectFirst('contact', ['name', 'url', 'photo'], ['self' => true, 'uid' => $uid]);
+
+		if (DBM::is_result($c)) {
+			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"), array(
+				'$name' => htmlentities($c['name']),
+				'$photo' => $c['photo'],
+				'url' => 'contacts/' . $cid
+			));
+	
+			if (!x($a->page, 'aside')) {
+				$a->page['aside'] = '';
+			}
+			$a->page['aside'] .= $vcard_widget;
+		}
 	}
 
 	if (!DBM::is_result($c)) {
 		return;
 	}
 
-	if (!$cid && get_my_url()) {
-		$contact = dba::selectFirst('contact', ['id'], ['nurl' => normalise_link(get_my_url()), 'uid' => $uid]);
+	if (!$cid && Profile::getMyURL()) {
+		$contact = dba::selectFirst('contact', ['id'], ['nurl' => normalise_link(Profile::getMyURL()), 'uid' => $uid]);
 		if (DBM::is_result($contact)) {
 			$cid = $contact['id'];
 		} else {
-			$gcontact = dba::selectFirst('gcontact', ['id'], ['nurl' => normalise_link(get_my_url())]);
+			$gcontact = dba::selectFirst('gcontact', ['id'], ['nurl' => normalise_link(Profile::getMyURL())]);
 			if (DBM::is_result($gcontact)) {
 				$zcid = $gcontact['id'];
 			}

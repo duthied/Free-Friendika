@@ -10,6 +10,7 @@
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Model\Profile;
 
 require_once 'view/theme/frio/php/frio_boot.php';
 
@@ -38,7 +39,7 @@ if (!isset($minimal)) {
 	// It makes mobile Chrome UI match Frio's top bar color.
 	$uid = $a->profile_uid;
 	if (is_null($uid)) {
-		$uid = get_theme_uid();
+		$uid = Profile::getThemeUid();
 	}
 	$schema = PConfig::get($uid, 'frio', 'schema');
 	if (($schema) && ($schema != '---')) {

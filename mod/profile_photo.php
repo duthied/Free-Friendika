@@ -8,15 +8,16 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Photo;
+use Friendica\Model\Profile;
 use Friendica\Object\Image;
 
-function profile_photo_init(App $a) {
-
+function profile_photo_init(App $a)
+{
 	if (! local_user()) {
 		return;
 	}
 
-	profile_load($a,$a->user['nickname']);
+	Profile::load($a, $a->user['nickname']);
 }
 
 function profile_photo_post(App $a) {

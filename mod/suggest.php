@@ -8,6 +8,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Model\Profile;
 
 require_once 'include/contact_widgets.php';
 
@@ -82,7 +83,7 @@ function suggest_content(App $a) {
 		$connlnk = System::baseUrl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);
 		$ignlnk = System::baseUrl() . '/suggest?ignore=' . $rr['id'];
 		$photo_menu = array(
-			'profile' => array(t("View Profile"), zrl($rr["url"])),
+			'profile' => array(t("View Profile"), Profile::zrl($rr["url"])),
 			'follow' => array(t("Connect/Follow"), $connlnk),
 			'hide' => array(t('Ignore/Hide'), $ignlnk)
 		);
@@ -90,7 +91,7 @@ function suggest_content(App $a) {
 		$contact_details = Contact::getDetailsByURL($rr["url"], local_user(), $rr);
 
 		$entry = array(
-			'url' => zrl($rr['url']),
+			'url' => Profile::zrl($rr['url']),
 			'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
 			'img_hover' => $rr['url'],
 			'name' => $contact_details['name'],

@@ -7,6 +7,7 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Profile;
 
 require_once 'include/text.php';
 require_once 'include/contact_widgets.php';
@@ -83,14 +84,14 @@ function match_content(App $a)
 					$jj->photo = str_replace("http:///photo/", get_server()."/photo/", $jj->photo);
 					$connlnk = System::baseUrl() . '/follow/?url=' . $jj->url;
 					$photo_menu = array(
-						'profile' => array(t("View Profile"), zrl($jj->url)),
+						'profile' => array(t("View Profile"), Profile::zrl($jj->url)),
 						'follow' => array(t("Connect/Follow"), $connlnk)
 					);
 
 					$contact_details = Contact::getDetailsByURL($jj->url, local_user());
 
 					$entry = array(
-						'url' => zrl($jj->url),
+						'url' => Profile::zrl($jj->url),
 						'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $jj->url),
 						'name' => $jj->name,
 						'details'       => $contact_details['location'],

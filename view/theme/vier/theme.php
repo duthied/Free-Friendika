@@ -16,6 +16,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\GContact;
+use Friendica\Model\Profile;
 
 require_once "include/plugin.php";
 require_once "mod/proxy.php";
@@ -150,7 +151,7 @@ function vier_community_info() {
 			foreach ($r as $rr) {
 				$entry = replace_macros($tpl,array(
 					'$id' => $rr['id'],
-					//'$profile_link' => zrl($rr['url']),
+					//'$profile_link' => Profile::zrl($rr['url']),
 					'$profile_link' => 'follow/?url='.urlencode($rr['url']),
 					'$photo' => proxy_url($rr['photo'], false, PROXY_SIZE_MICRO),
 					'$alt_text' => $rr['name'],
@@ -280,7 +281,7 @@ function vier_community_info() {
 		}
 
 		foreach ($r AS $index => $helper)
-			$r[$index]["url"] = zrl($helper["url"]);
+			$r[$index]["url"] = Profile::zrl($helper["url"]);
 
 		$r[] = array("url" => "help/Quick-Start-guide", "name" => t("Quick Start"));
 

@@ -142,7 +142,7 @@ function profiles_init(App $a) {
 			return;
 		}
 
-		profile_load($a,$a->user['nickname'], $r[0]['id']);
+		Profile::load($a, $a->user['nickname'], $r[0]['id']);
 	}
 
 

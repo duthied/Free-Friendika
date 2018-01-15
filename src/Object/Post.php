@@ -10,6 +10,7 @@ use Friendica\Content\Feature;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Profile;
 use dba;
 
 require_once 'include/dba.php';
@@ -190,7 +191,7 @@ class Post extends BaseObject
 		if ($sp) {
 			$sparkle = ' sparkle';
 		} else {
-			$profile_link = zrl($profile_link);
+			$profile_link = Profile::zrl($profile_link);
 		}
 
 		if (!isset($item['author-thumb']) || ($item['author-thumb'] == "")) {
@@ -832,7 +833,7 @@ class Post extends BaseObject
 					// This will have been stored in $a->page_contact by our calling page.
 					// Put this person as the wall owner of the wall-to-wall notice.
 
-					$this->owner_url = zrl($a->page_contact['url']);
+					$this->owner_url = Profile::zrl($a->page_contact['url']);
 					$this->owner_photo = $a->page_contact['thumb'];
 					$this->owner_name = $a->page_contact['name'];
 					$this->wall_to_wall = true;
@@ -860,7 +861,7 @@ class Post extends BaseObject
 						) {
 							$this->owner_url = $this->getRedirectUrl();
 						} else {
-							$this->owner_url = zrl($this->getDataValue('owner-link'));
+							$this->owner_url = Profile::zrl($this->getDataValue('owner-link'));
 						}
 					}
 				}

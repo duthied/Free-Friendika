@@ -13,6 +13,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Profile;
 
 require_once 'include/dba.php';
 require_once 'include/html2plain.php';
@@ -814,7 +815,7 @@ class NotificationsManager extends BaseObject
 					'contact_id' => $it['contact-id'],
 					'photo' => ((x($it, 'fphoto')) ? proxy_url($it['fphoto'], false, PROXY_SIZE_SMALL) : "images/person-175.jpg"),
 					'name' => $it['fname'],
-					'url' => zrl($it['furl']),
+					'url' => Profile::zrl($it['furl']),
 					'hidden' => $it['hidden'] == 1,
 					'post_newfriend' => (intval(PConfig::get(local_user(), 'system', 'post_newfriend')) ? '1' : 0),
 					'knowyou' => $knowyou,
@@ -848,7 +849,7 @@ class NotificationsManager extends BaseObject
 					'hidden' => $it['hidden'] == 1,
 					'post_newfriend' => (intval(PConfig::get(local_user(), 'system', 'post_newfriend')) ? '1' : 0),
 					'url' => $it['url'],
-					'zrl' => zrl($it['url']),
+					'zrl' => Profile::zrl($it['url']),
 					'addr' => $it['gaddr'],
 					'network' => $it['gnetwork'],
 					'knowyou' => $it['knowyou'],

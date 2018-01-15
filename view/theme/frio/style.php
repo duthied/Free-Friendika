@@ -1,8 +1,12 @@
 <?php
-require_once 'view/theme/frio/php/PHPColors/Color.php';
+/**
+ * @file view/theme/frio/style.php
+ */
 
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+
+require_once 'view/theme/frio/php/PHPColors/Color.php';
 
 $schemecss = "";
 $schemecssfile = false;
@@ -10,7 +14,7 @@ $scheme_modified = 0;
 
 if ($a->module !== 'install') {
 	// Get the UID of the profile owner.
-	$uid = get_theme_uid();
+	$uid = Profile::getThemeUid();
 	if ($uid) {
 		PConfig::load($uid, 'frio');
 
@@ -80,11 +84,11 @@ if (($schema) && ($schema != '---')) {
 // should leave it for admins to define for themselves.
 // default.php and default.css MUST be symlinks to existing schema files.
 if (! $schema) {
-	if(file_exists('view/theme/frio/schema/default.php')) {
+	if (file_exists('view/theme/frio/schema/default.php')) {
 		$schemefile = 'view/theme/frio/schema/default.php';
 		require_once $schemefile;
 	}
-	if(file_exists('view/theme/frio/schema/default.css')) {
+	if (file_exists('view/theme/frio/schema/default.css')) {
 		$schemecssfile = 'view/theme/frio/schema/default.css';
 	}
 }
@@ -135,7 +139,6 @@ if (!isset($link_hover_color)) {
 	} else {
 		$link_hover_color = '#' . $lhc->lighten(5);
 	}
-
 }
 
 // Convert $bg_image_options into css.

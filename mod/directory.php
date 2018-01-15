@@ -1,9 +1,12 @@
 <?php
-
+/**
+ * @file mod/directory.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Profile;
 
 function directory_init(App $a) {
 	$a->set_pager_itemspage(60);
@@ -46,7 +49,7 @@ function directory_content(App $a) {
 	$gdirpath = '';
 	$dirurl = Config::get('system','directory');
 	if(strlen($dirurl)) {
-		$gdirpath = zrl($dirurl,true);
+		$gdirpath = Profile::zrl($dirurl,true);
 	}
 
 	if($search) {
@@ -146,7 +149,7 @@ function directory_content(App $a) {
 			$location_e = $location;
 
 			$photo_menu = array(
-				'profile' => array(t("View Profile"), zrl($profile_link))
+				'profile' => array(t("View Profile"), Profile::zrl($profile_link))
 			);
 
 			$entry = array(

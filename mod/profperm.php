@@ -1,12 +1,14 @@
 <?php
-
+/**
+ * @file mod/profperm.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 
-function profperm_init(App $a) {
-
+function profperm_init(App $a)
+{
 	if (! local_user()) {
 		return;
 	}
@@ -14,8 +16,7 @@ function profperm_init(App $a) {
 	$which = $a->user['nickname'];
 	$profile = $a->argv[1];
 
-	profile_load($a,$which,$profile);
-
+	Profile::load($a, $which, $profile);
 }
 
 

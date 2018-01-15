@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file src/Model/Profile.php
  */
@@ -17,7 +16,9 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Protocol\Diaspora;
+use dba;
 
+require_once 'include/dba.php';
 require_once 'include/bbcode.php';
 require_once 'mod/proxy.php';
 
@@ -76,18 +77,15 @@ class Profile
 	 *      the theme is chosen before the _init() function of a theme is run, which will usually
 	 *      load a lot of theme-specific content
 	 *
-	 * @param object $a           App
-	 * @param string $nickname    string
-	 * @param int    $profile     int
-	 * @param array  $profiledata array
+	 * @param object  $a            App
+	 * @param string  $nickname     string
+	 * @param int     $profile      int
+	 * @param array   $profiledata  array
 	 * @param boolean $show_connect Show connect link
 	 */
-	function profile_load(App $a, $nickname, $profile = 0, $profiledata = array(), $show_connect = true)
+	public static function load(App $a, $nickname, $profile = 0, $profiledata = array(), $show_connect = true)
 	{
-		$user = q(
-			"SELECT `uid` FROM `user` WHERE `nickname` = '%s' LIMIT 1",
-			dbesc($nickname)
-		);
+		$user = dba::selectFirst('user', ['uid'], ['nickname' => $nickname]);
 
 		if (!$user && !count($user) && !count($profiledata)) {
 			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
@@ -101,14 +99,14 @@ class Profile
 		}
 
 		if ($profiledata) {
-			$a->page['aside'] .= profile_sidebar($profiledata, true, $show_connect);
+			$a->page['aside'] .= self::sidebar($profiledata, true, $show_connect);
 
 			if (!DBM::is_result($user)) {
 				return;
 			}
 		}
 
-		$pdata = get_profiledata_by_nick($nickname, $user[0]['uid'], $profile);
+		$pdata = self::getProfiledataByNick($nickname, $user[0]['uid'], $profile);
 
 		if (empty($pdata) && empty($profiledata)) {
 			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
@@ -176,7 +174,7 @@ class Profile
 		 * But: When this profile was on the same server, then we could display the contacts
 		 */
 		if (!$profiledata) {
-			$a->page['aside'] .= profile_sidebar($a->profile, $block, $show_connect);
+			$a->page['aside'] .= self::sidebar($a->profile, $block, $show_connect);
 		}
 
 		return;
@@ -197,7 +195,7 @@ class Profile
 	 * @param int    $profile_id  ID of the profile
 	 * @returns array
 	 */
-	function get_profiledata_by_nick($nickname, $uid = 0, $profile_id = 0)
+	public static function getProfiledataByNick($nickname, $uid = 0, $profile_id = 0)
 	{
 		if (remote_user() && count($_SESSION['remote'])) {
 			foreach ($_SESSION['remote'] as $visitor) {
@@ -263,7 +261,7 @@ class Profile
 	 * @hooks 'profile_sidebar'
 	 *      array $arr
 	 */
-	function profile_sidebar($profile, $block = 0, $show_connect = true)
+	private static function sidebar($profile, $block = 0, $show_connect = true)
 	{
 		$a = get_app();
 
@@ -333,7 +331,7 @@ class Profile
 			$subscribe_feed = false;
 		}
 
-		if (remote_user() || (get_my_url() && x($profile, 'unkmail') && ($profile['uid'] != local_user()))) {
+		if (remote_user() || (self::getMyURL() && x($profile, 'unkmail') && ($profile['uid'] != local_user()))) {
 			$wallmessage = t('Message');
 			$wallmessage_link = 'wallmessage/' . $profile['nickname'];
 
@@ -348,7 +346,7 @@ class Profile
 				$r = q(
 					"SELECT `url` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `rel` = %d",
 					intval($profile['uid']),
-					dbesc(normalise_link(get_my_url())),
+					dbesc(normalise_link(self::getMyURL())),
 					intval(CONTACT_IS_FRIEND)
 				);
 			}
@@ -524,7 +522,7 @@ class Profile
 		return $o;
 	}
 
-	function get_birthdays()
+	public static function getBirthdays()
 	{
 		$a = get_app();
 		$o = '';
@@ -615,7 +613,7 @@ class Profile
 		));
 	}
 
-	function get_events()
+	public static function getEvents()
 	{
 		require_once 'include/bbcode.php';
 
@@ -700,7 +698,7 @@ class Profile
 		));
 	}
 
-	function advanced_profile(App $a)
+	public static function getAdvanced(App $a)
 	{
 		$o = '';
 		$uid = $a->profile['uid'];
@@ -844,7 +842,7 @@ class Profile
 		return '';
 	}
 
-	function profile_tabs($a, $is_owner = false, $nickname = null)
+	public static function getTabs($a, $is_owner = false, $nickname = null)
 	{
 		if (is_null($nickname)) {
 			$nickname = $a->user['nickname'];
@@ -950,7 +948,7 @@ class Profile
 	 *
 	 * @return string
 	 */
-	function get_my_url()
+	public static function getMyURL()
 	{
 		if (x($_SESSION, 'my_url')) {
 			return $_SESSION['my_url'];
@@ -958,9 +956,9 @@ class Profile
 		return null;
 	}
 
-	function zrl_init(App $a)
+	public static function zrlInit(App $a)
 	{
-		$my_url = get_my_url();
+		$my_url = self::getMyURL();
 		$my_url = validate_url($my_url);
 		if ($my_url) {
 			// Is it a DDoS attempt?
@@ -979,7 +977,7 @@ class Profile
 		}
 	}
 
-	function zrl($s, $force = false)
+	public static function zrl($s, $force = false)
 	{
 		if (!strlen($s)) {
 			return $s;
@@ -991,7 +989,7 @@ class Profile
 			$s = $s . '/';
 		}
 		$achar = strpos($s, '?') ? '&' : '?';
-		$mine = get_my_url();
+		$mine = self::getMyURL();
 		if ($mine && !link_compare($mine, $s)) {
 			return $s . $achar . 'zrl=' . urlencode($mine);
 		}
@@ -1012,7 +1010,7 @@ class Profile
 	 * @note Returns local_user instead of user ID if "always_my_theme"
 	 *      is set to true
 	 */
-	function get_theme_uid()
+	public static function getThemeUid()
 	{
 		$uid = ((!empty($_REQUEST['puid'])) ? intval($_REQUEST['puid']) : 0);
 		if ((local_user()) && ((PConfig::get(local_user(), 'system', 'always_my_theme')) || (!$uid))) {
@@ -1021,5 +1019,4 @@ class Profile
 
 		return $uid;
 	}
-
 }

@@ -223,13 +223,13 @@ function common_friends_visitor_widget($profile_uid)
 	}
 
 	if (!$cid) {
-		if (get_my_url()) {
+		if (Profile::getMyURL()) {
 			$contact = dba::selectFirst('contact', ['id'],
-					['nurl' => normalise_link(get_my_url()), 'uid' => $profile_uid]);
+					['nurl' => normalise_link(Profile::getMyURL()), 'uid' => $profile_uid]);
 			if (DBM::is_result($contact)) {
 				$cid = $contact['id'];
 			} else {
-				$gcontact = dba::selectFirst('gcontact', ['id'], ['nurl' => normalise_link(get_my_url())]);
+				$gcontact = dba::selectFirst('gcontact', ['id'], ['nurl' => normalise_link(Profile::getMyURL())]);
 				if (DBM::is_result($gcontact)) {
 					$zcid = $gcontact['id'];
 				}

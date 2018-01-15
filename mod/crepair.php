@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file mod/crepair.php
  */
@@ -7,6 +6,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Profile;
 
 require_once 'mod/contacts.php';
 
@@ -27,7 +27,7 @@ function crepair_init(App $a)
 
 	if (DBM::is_result($contact)) {
 		$a->data['contact'] = $contact;
-		profile_load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
+		Profile::load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
 	}
 }
 
