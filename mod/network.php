@@ -809,10 +809,16 @@ function networkThreadedView(App $a, $update = 0) {
 	}
 
 	// Only show it when unfiltered (no groups, no networks, ...)
-	if (Config::get('system', 'comment_public') && (count($r) > 0) && in_array($nets, ['', NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS])
-		&& (strlen($sql_extra . $sql_extra2 . $sql_extra3 . $sql_extra4) == 0)) {
-		$top_limit = current($r)['order_date'];
-		$bottom_limit = end($r)['order_date'];
+	if (Config::get('system', 'comment_public') && in_array($nets, ['', NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS])
+		&& (strlen($sql_extra . $sql_extra2 . $sql_extra3) == 0)) {
+
+		if (count($r) > 0) {
+			$top_limit = current($r)['order_date'];
+			$bottom_limit = end($r)['order_date'];
+		} else {
+			$top_limit = datetime_convert();
+			$bottom_limit = datetime_convert();
+		}
 
 		// When checking for updates we need to fetch from the newest date to the newest date before
 		if ($update && !empty($_SESSION['network_last_date']) && ($bottom_limit > $_SESSION['network_last_date'])) {
@@ -822,6 +828,9 @@ function networkThreadedView(App $a, $update = 0) {
 
 		if ($last_date > $top_limit) {
 			$top_limit = $last_date;
+		} elseif ($a->pager['page'] == 1) {
+			// Highest possible top limit when we are on the first page
+			$top_limit = datetime_convert();
 		}
 
 		$items = dba::p("SELECT `item`.`id` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid` FROM `item`
