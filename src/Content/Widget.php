@@ -6,12 +6,14 @@ namespace Friendica\Content;
 
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
-use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
+
+use dba;
 
 require_once 'boot.php';
 
