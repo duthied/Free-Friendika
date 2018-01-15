@@ -11,6 +11,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Photo;
+use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Protocol\DFRN;
@@ -48,7 +49,7 @@ function photos_init(App $a) {
 		$a->profile_uid = $user[0]['uid'];
 		$is_owner = (local_user() && (local_user() == $a->profile_uid));
 
-		$profile = get_profiledata_by_nick($nick, $a->profile_uid);
+		$profile = Profile::getByNickname($nick, $a->profile_uid);
 
 		$account_type = Contact::getAccountType($profile);
 
@@ -1074,7 +1075,7 @@ function photos_content(App $a)
 
 	// tabs
 	$is_owner = (local_user() && (local_user() == $owner_uid));
-	$o .= profile_tabs($a, $is_owner, $a->data['user']['nickname']);
+	$o .= Profile::getTabs($a, $is_owner, $a->data['user']['nickname']);
 
 	// Display upload form
 	if ($datatype === 'upload') {

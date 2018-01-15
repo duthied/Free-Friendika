@@ -9,6 +9,7 @@ use Friendica\Content\Feature;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Profile;
 use Friendica\Util\Map;
 
 require_once 'include/bbcode.php';
@@ -964,7 +965,7 @@ function format_event_item($item) {
 	$profile_link = best_link_url($item, $sp);
 
 	if (!$sp) {
-		$profile_link = zrl($profile_link);
+		$profile_link = Profile::zrl($profile_link);
 	}
 
 	$event = replace_macros(get_markup_template('event_stream_item.tpl'), array(

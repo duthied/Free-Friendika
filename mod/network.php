@@ -11,6 +11,7 @@ use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Profile;
 use Friendica\Module\Login;
 
 require_once 'include/conversation.php';
@@ -459,9 +460,9 @@ function networkFlatView(App $a, $update = 0) {
 
 		$o .= status_editor($a, $x);
 
-		if (!Config::get('theme','hide_eventlist')) {
-			$o .= get_birthdays();
-			$o .= get_events();
+		if (!Config::get('theme', 'hide_eventlist')) {
+			$o .= Profile::getBirthdays();
+			$o .= Profile::getEvents();
 		}
 	}
 
@@ -700,9 +701,9 @@ function networkThreadedView(App $a, $update = 0) {
 		}
 	}
 
-	if (!$gid && !$cid && !$update && !Config::get('theme','hide_eventlist')) {
-		$o .= get_birthdays();
-		$o .= get_events();
+	if (!$gid && !$cid && !$update && !Config::get('theme', 'hide_eventlist')) {
+		$o .= Profile::getBirthdays();
+		$o .= Profile::getEvents();
 	}
 
 	if ($datequery) {

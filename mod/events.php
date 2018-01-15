@@ -3,12 +3,12 @@
  * @file mod/events.php
  * @brief The events module
  */
-
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\Profile;
 
 require_once 'include/bbcode.php';
 require_once 'include/datetime.php';
@@ -237,7 +237,7 @@ function events_content(App $a) {
 	$tabs = '';
 	// tabs
 	if ($a->theme_events_in_profile) {
-		$tabs = profile_tabs($a, true);
+		$tabs = Profile::getTabs($a, true);
 	}
 
 	$mode = 'view';

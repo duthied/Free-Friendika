@@ -11,6 +11,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Model\Profile;
 
 function hovercard_init(App $a)
 {
@@ -70,7 +71,7 @@ function hovercard_content()
 		'nick'     => $contact['nick'],
 		'addr'     => defaults($contact, 'addr', $contact['url']),
 		'thumb'    => proxy_url($contact['thumb'], false, PROXY_SIZE_THUMB),
-		'url'      => $cid ? ('redir/' . $cid) : zrl($contact['url']),
+		'url'      => $cid ? ('redir/' . $cid) : Profile::zrl($contact['url']),
 		'nurl'     => $contact['nurl'], // We additionally store the nurl as identifier
 		'location' => $contact['location'],
 		'gender'   => $contact['gender'],

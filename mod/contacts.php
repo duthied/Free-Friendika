@@ -1,9 +1,7 @@
 <?php
-
 /**
  * @file mod/contacts.php
  */
-
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Core\System;
@@ -12,6 +10,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Group;
+use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 
 require_once 'include/contact_widgets.php';
@@ -902,7 +901,7 @@ function contact_posts($a, $contact_id)
 	$contact = dba::selectFirst('contact', ['url'], ['id' => $contact_id]);
 	if (DBM::is_result($contact)) {
 		$a->page['aside'] = "";
-		profile_load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
+		Profile::load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
 		$o .= Contact::getPostsFromUrl($contact["url"]);
 	}
 

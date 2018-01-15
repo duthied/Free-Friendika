@@ -9,6 +9,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Profile;
 use Friendica\Protocol\DFRN;
 
 require_once 'include/items.php';
@@ -41,7 +42,7 @@ function videos_init(App $a) {
 		$a->data['user'] = $user[0];
 		$a->profile_uid = $user[0]['uid'];
 
-		$profile = get_profiledata_by_nick($nick, $a->profile_uid);
+		$profile = Profile::getByNickname($nick, $a->profile_uid);
 
 		$account_type = Contact::getAccountType($profile);
 
@@ -327,7 +328,7 @@ function videos_content(App $a) {
 
 	// tabs
 	$_is_owner = (local_user() && (local_user() == $owner_uid));
-	$o .= profile_tabs($a,$_is_owner, $a->data['user']['nickname']);
+	$o .= Profile::getTabs($a, $_is_owner, $a->data['user']['nickname']);
 
 	//
 	// dispatch request

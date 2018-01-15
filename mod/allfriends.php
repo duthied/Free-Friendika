@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file mod/allfriends.php
  */
@@ -9,7 +8,10 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Model\Profile;
+use dba;
 
+require_once 'include/dba.php';
 require_once 'mod/contacts.php';
 
 function allfriends_content(App $a)
@@ -31,17 +33,14 @@ function allfriends_content(App $a)
 
 	$uid = $a->user['uid'];
 
-	$c = q("SELECT `name`, `url`, `photo` FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-		intval($cid),
-		intval(local_user())
-	);
+	$contact = dba::selectFirst('contact', ['name', 'url', 'photo'], ['id' => $cid, 'uid' => local_user()]);
 
-	if (!DBM::is_result($c)) {
+	if (!DBM::is_result($contact)) {
 		return;
 	}
 
 	$a->page['aside'] = "";
-	profile_load($a, "", 0, Contact::getDetailsByURL($c[0]["url"]));
+	Profile::load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
 
 	$total = GContact::countAllFriends(local_user(), $cid);
 
@@ -71,7 +70,7 @@ function allfriends_content(App $a)
 		} else {
 			$connlnk = System::baseUrl() . '/follow/?url=' . $rr['url'];
 			$photo_menu = array(
-				'profile' => array(t("View Profile"), zrl($rr['url'])),
+				'profile' => array(t("View Profile"), Profile::zrl($rr['url'])),
 				'follow' => array(t("Connect/Follow"), $connlnk)
 			);
 		}

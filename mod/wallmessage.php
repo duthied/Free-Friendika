@@ -1,14 +1,17 @@
 <?php
-
+/**
+ * @file mod/wallmessage.php
+ */
 use Friendica\App;
-use \Friendica\Core\System;
+use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Profile;
 
-require_once('include/message.php');
+require_once 'include/message.php';
 
 function wallmessage_post(App $a) {
 
-	$replyto = get_my_url();
+	$replyto = Profile::getMyURL();
 	if(! $replyto) {
 		notice( t('Permission denied.') . EOL);
 		return;
@@ -73,8 +76,8 @@ function wallmessage_post(App $a) {
 
 function wallmessage_content(App $a) {
 
-	if(! get_my_url()) {
-		notice( t('Permission denied.') . EOL);
+	if (!Profile::getMyURL()) {
+		notice(t('Permission denied.') . EOL);
 		return;
 	}
 

@@ -9,6 +9,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 
@@ -214,7 +215,7 @@ function dirfind_content(App $a, $prefix = "") {
 					$connlnk = System::baseUrl().'/follow/?url='.(($jj->connect) ? $jj->connect : $jj->url);
 					$conntxt = t('Connect');
 					$photo_menu = array(
-						'profile' => array(t("View Profile"), zrl($jj->url)),
+						'profile' => array(t("View Profile"), Profile::zrl($jj->url)),
 						'follow' => array(t("Connect/Follow"), $connlnk)
 					);
 				}
@@ -223,7 +224,7 @@ function dirfind_content(App $a, $prefix = "") {
 
 				$entry = array(
 					'alt_text' => $alt_text,
-					'url' => zrl($jj->url),
+					'url' => Profile::zrl($jj->url),
 					'itemurl' => $itemurl,
 					'name' => htmlentities($jj->name),
 					'thumb' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),

@@ -1,23 +1,27 @@
 <?php
-
+/**
+ * @file mod/noscrape.php
+ */
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Profile;
 
-function noscrape_init(App $a) {
-
-	if($a->argc > 1)
+function noscrape_init(App $a)
+{
+	if ($a->argc > 1) {
 		$which = $a->argv[1];
-	else
+	} else {
 		killme();
+	}
 
 	$profile = 0;
-	if((local_user()) && ($a->argc > 2) && ($a->argv[2] === 'view')) {
+	if ((local_user()) && ($a->argc > 2) && ($a->argv[2] === 'view')) {
 		$which = $a->user['nickname'];
 		$profile = $a->argv[1];
 	}
 
-	profile_load($a,$which,$profile);
+	Profile::load($a, $which, $profile);
 
 	if (!$a->profile['net-publish'] || $a->profile['hidewall']) {
 		header('Content-type: application/json; charset=utf-8');
@@ -26,12 +30,11 @@ function noscrape_init(App $a) {
 		exit;
 	}
 
-	$keywords = ((x($a->profile,'pub_keywords')) ? $a->profile['pub_keywords'] : '');
-	$keywords = str_replace(array('#',',',' ',',,'),array('',' ',',',','),$keywords);
+	$keywords = ((x($a->profile, 'pub_keywords')) ? $a->profile['pub_keywords'] : '');
+	$keywords = str_replace(array('#',',',' ',',,'), array('',' ',',',','), $keywords);
 	$keywords = explode(',', $keywords);
 
-	$r = q("SELECT `photo` FROM `contact` WHERE `self` AND `uid` = %d",
-		intval($a->profile['uid']));
+	$contactPhoto = dba::selectFirst('contact', ['photo'], ['self' => true, 'uid' => $a->profile['uid']]);
 
 	$json_info = array(
 		'fn'       => $a->profile['name'],
@@ -40,8 +43,8 @@ function noscrape_init(App $a) {
 		'guid'     => $a->profile['guid'],
 		'key'      => $a->profile['pubkey'],
 		'homepage' => System::baseUrl()."/profile/{$which}",
-		'comm'     => (x($a->profile,'page-flags')) && ($a->profile['page-flags'] == PAGE_COMMUNITY),
-		'photo'    => $r[0]["photo"],
+		'comm'     => (x($a->profile, 'page-flags')) && ($a->profile['page-flags'] == PAGE_COMMUNITY),
+		'photo'    => $contactPhoto["photo"],
 		'tags'     => $keywords
 	);
 
@@ -99,5 +102,4 @@ function noscrape_init(App $a) {
 	header('Content-type: application/json; charset=utf-8');
 	echo json_encode($json_info);
 	exit;
-
 }

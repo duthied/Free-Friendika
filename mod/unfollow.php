@@ -6,9 +6,10 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Profile;
 
-function unfollow_post(App $a) {
-
+function unfollow_post(App $a)
+{
 	if (!local_user()) {
 		notice(t('Permission denied.') . EOL);
 		goaway($_SESSION['return_url']);
@@ -116,7 +117,7 @@ function unfollow_content(App $a) {
 			'$nickname' => "",
 			'$name' => $contact["name"],
 			'$url' => $contact["url"],
-			'$zrl' => zrl($contact["url"]),
+			'$zrl' => Profile::zrl($contact["url"]),
 			'$url_label' => t("Profile URL"),
 			'$myaddr' => $myaddr,
 			'$request' => $request,
@@ -125,11 +126,9 @@ function unfollow_content(App $a) {
 	));
 
 	$a->page['aside'] = "";
-	profile_load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
+	Profile::load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
 
-	$o .= replace_macros(get_markup_template('section_title.tpl'),
-					array('$title' => t('Status Messages and Posts')
-	));
+	$o .= replace_macros(get_markup_template('section_title.tpl'), array('$title' => t('Status Messages and Posts')));
 
 	// Show last public posts
 	$o .= Contact::getPostsFromUrl($contact["url"]);

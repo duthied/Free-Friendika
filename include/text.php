@@ -10,6 +10,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Profile;
 use Friendica\Model\Term;
 use Friendica\Util\Map;
 
@@ -1011,7 +1012,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 			$url = $redirect_url;
 			$sparkle = ' sparkle';
 		} else {
-			$url = zrl($url);
+			$url = Profile::zrl($url);
 		}
 	}
 

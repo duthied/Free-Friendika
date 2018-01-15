@@ -8,6 +8,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Group;
+use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Protocol\DFRN;
 
@@ -41,7 +42,7 @@ function profile_init(App $a)
 		DFRN::autoRedir($a, $which);
 	}
 
-	profile_load($a, $which, $profile);
+	Profile::load($a, $which, $profile);
 
 	$blocked   = !local_user() && !remote_user() && Config::get('system', 'block_public');
 	$userblock = !local_user() && !remote_user() && $a->profile['hidewall'];
@@ -175,10 +176,10 @@ function profile_content(App $a, $update = 0)
 			$tab = notags(trim($_GET['tab']));
 		}
 
-		$o .= profile_tabs($a, $is_owner, $a->profile['nickname']);
+		$o .= Profile::getTabs($a, $is_owner, $a->profile['nickname']);
 
 		if ($tab === 'profile') {
-			$o .= advanced_profile($a);
+			$o .= Profile::getAdvanced($a);
 			call_hooks('profile_advanced', $o);
 			return $o;
 		}
@@ -346,8 +347,8 @@ function profile_content(App $a, $update = 0)
 	}
 
 	if ($is_owner && !$update && !Config::get('theme', 'hide_eventlist')) {
-		$o .= get_birthdays();
-		$o .= get_events();
+		$o .= Profile::getBirthdays();
+		$o .= Profile::getEvents();
 	}
 
 

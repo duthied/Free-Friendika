@@ -1,10 +1,13 @@
 <?php
-
+/**
+ * @file mod/viewcontacts.php
+ */
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Profile;
 
 function viewcontacts_init(App $a) {
 
@@ -28,7 +31,7 @@ function viewcontacts_init(App $a) {
 		$a->profile_uid = $r[0]['uid'];
 		$is_owner = (local_user() && (local_user() == $a->profile_uid));
 
-		profile_load($a,$a->argv[1]);
+		Profile::load($a, $a->argv[1]);
 	}
 }
 
@@ -44,7 +47,7 @@ function viewcontacts_content(App $a) {
 	$o = "";
 
 	// tabs
-	$o .= profile_tabs($a,$is_owner, $a->data['user']['nickname']);
+	$o .= Profile::getTabs($a, $is_owner, $a->data['user']['nickname']);
 
 	if(((! count($a->profile)) || ($a->profile['hide-friends']))) {
 		notice( t('Permission denied.') . EOL);
@@ -97,7 +100,7 @@ function viewcontacts_content(App $a) {
 		if($is_owner && ($rr['network'] === NETWORK_DFRN) && ($rr['rel']))
 			$url = 'redir/' . $rr['id'];
 		else
-			$url = zrl($url);
+			$url = Profile::zrl($url);
 
 		$contact_details = Contact::getDetailsByURL($rr['url'], $a->profile['uid'], $rr);
 

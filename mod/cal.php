@@ -5,7 +5,6 @@
  * 	This calendar is for profile visitors and contains only the events
  * 	of the profile owner
  */
-
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Core\Config;
@@ -13,6 +12,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Profile;
 use Friendica\Protocol\DFRN;
 
 require_once 'include/event.php';
@@ -45,7 +45,7 @@ function cal_init(App $a)
 			return;
 		}
 
-		$profile = get_profiledata_by_nick($nick, $a->profile_uid);
+		$profile = Profile::getByNickname($nick, $a->profile_uid);
 
 		$account_type = Contact::getAccountType($profile);
 
@@ -144,7 +144,7 @@ function cal_content(App $a)
 	$sql_extra = " AND `event`.`cid` = 0 " . $sql_perms;
 
 	// get the tab navigation bar
-	$tabs = profile_tabs($a, false, $a->data['user']['nickname']);
+	$tabs = Profile::getTabs($a, false, $a->data['user']['nickname']);
 
 	// The view mode part is similiar to /mod/events.php
 	if ($mode == 'view') {

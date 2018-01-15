@@ -13,6 +13,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Profile;
 use Friendica\Object\Image;
 
 $frio = "view/theme/frio";
@@ -197,7 +198,7 @@ function frio_contact_photo_menu(App $a, &$args)
 function frio_remote_nav($a, &$nav)
 {
 	// get the homelink from $_XSESSION
-	$homelink = get_my_url();
+	$homelink = Profile::getMyURL();
 	if (!$homelink) {
 		$homelink = defaults($_SESSION, 'visitor_home', '');
 	}
@@ -234,7 +235,7 @@ function frio_remote_nav($a, &$nav)
 	} elseif (!local_user() && remote_user()) {
 		$r = q("SELECT `name`, `nick`, `micro` AS `photo` FROM `contact` WHERE `id` = %d", intval(remote_user()));
 		$nav['remote'] = t("Guest");
-	} elseif (get_my_url()) {
+	} elseif (Profile::getMyURL()) {
 		$r = q("SELECT `name`, `nick`, `photo` FROM `gcontact`
 				WHERE `addr` = '%s' AND `network` = 'dfrn'",
 			dbesc($webbie));

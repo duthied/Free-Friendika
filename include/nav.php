@@ -7,6 +7,7 @@ use Friendica\Content\Feature;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Profile;
 
 function nav(App $a) {
 
@@ -104,9 +105,9 @@ function nav_info(App $a)
 	}
 
 	// "Home" should also take you home from an authenticated remote profile connection
-	$homelink = get_my_url();
+	$homelink = Profile::getMyURL();
 	if (! $homelink) {
-		$homelink = ((x($_SESSION,'visitor_home')) ? $_SESSION['visitor_home'] : '');
+		$homelink = ((x($_SESSION, 'visitor_home')) ? $_SESSION['visitor_home'] : '');
 	}
 
 	if (($a->module != 'home') && (! (local_user()))) {
@@ -145,7 +146,7 @@ function nav_info(App $a)
 	if (strlen(Config::get('system', 'singleuser'))) {
 		$gdir = Config::get('system', 'directory');
 		if (strlen($gdir)) {
-			$gdirpath = zrl($gdir, true);
+			$gdirpath = Profile::zrl($gdir, true);
 		}
 	}
 

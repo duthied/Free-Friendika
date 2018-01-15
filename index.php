@@ -14,6 +14,7 @@ use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\Profile;
 use Friendica\Module\Login;
 
 require_once 'boot.php';
@@ -128,7 +129,7 @@ if ((x($_GET, 'zrl')) && (!$install && !$maintenance)) {
 	) {
 		$_SESSION['my_url'] = $_GET['zrl'];
 		$a->query_string = preg_replace('/[\?&]zrl=(.*?)([\?&]|$)/is', '', $a->query_string);
-		zrl_init($a);
+		Profile::zrlInit($a);
 	} else {
 		// Someone came with an invalid parameter, maybe as a DDoS attempt
 		// We simply stop processing here
