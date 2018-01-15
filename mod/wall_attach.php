@@ -1,11 +1,13 @@
 <?php
-
+/**
+ * @file mod/wall_attach.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\Util\Mimetype;
 
-require_once('include/attach.php');
-require_once('include/datetime.php');
+require_once 'include/datetime.php';
 
 function wall_attach_post(App $a) {
 
@@ -117,7 +119,7 @@ function wall_attach_post(App $a) {
 	}
 
 	$filedata = @file_get_contents($src);
-	$mimetype = z_mime_content_type($filename);
+	$mimetype = Mimetype::getContentType($filename);
 	$hash = get_guid(64);
 	$created = datetime_convert();
 
