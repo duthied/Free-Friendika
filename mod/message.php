@@ -1,13 +1,15 @@
 <?php
-
+/**
+ * @file mod/message.php
+ */
 use Friendica\App;
 use Friendica\Content\Smilies;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Mail;
 
 require_once 'include/acl_selectors.php';
-require_once 'include/message.php';
 require_once 'include/conversation.php';
 
 function message_init(App $a)
@@ -57,7 +59,7 @@ function message_post(App $a)
 	$body      = x($_REQUEST, 'body')      ? escape_tags(trim($_REQUEST['body'])) : '';
 	$recipient = x($_REQUEST, 'messageto') ? intval($_REQUEST['messageto'])       : 0;
 
-	$ret = send_message($recipient, $body, $subject, $replyto);
+	$ret = Mail::send($recipient, $body, $subject, $replyto);
 	$norecip = false;
 
 	switch ($ret) {

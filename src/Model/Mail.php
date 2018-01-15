@@ -11,13 +11,22 @@ use Friendica\Database\DBM;
 use dba;
 
 require_once 'include/dba.php';
+require_once 'include/datetime.php';
 
 /**
  * Class to handle private messages
  */
 class Mail
 {
-	function send_message($recipient = 0, $body = '', $subject = '', $replyto = '')
+	/**
+	 * Send private message
+	 *
+	 * @param integer $recipient recipient id, default 0
+	 * @param string  $body      message body, default empty
+	 * @param string  $subject   message subject, default empty
+	 * @param string  $replyto   reply to
+	 */
+	public static function send($recipient = 0, $body = '', $subject = '', $replyto = '')
 	{
 		$a = get_app();
 
@@ -29,13 +38,8 @@ class Mail
 			$subject = t('[no subject]');
 		}
 
-		$me = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 1 LIMIT 1",
-			intval(local_user())
-		);
-		$contact = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-			intval($recipient),
-			intval(local_user())
-		);
+		$me = dba::selectFirst('contact', [], ['uid' => local_user(), 'self' => true]);
+		$contact = dba::selectFirst('contact', [], ['id' => $recipient, 'uid' => local_user()]);
 
 		if (!(count($me) && (count($contact)))) {
 			return -2;
@@ -74,9 +78,9 @@ class Mail
 
 			$handles = $recip_handle . ';' . $sender_handle;
 
-			$fields = array('uid' => local_user(), 'guid' => $conv_guid, 'creator' => $sender_handle,
+			$fields = ['uid' => local_user(), 'guid' => $conv_guid, 'creator' => $sender_handle,
 				'created' => datetime_convert(), 'updated' => datetime_convert(),
-				'subject' => $subject, 'recips' => $handles);
+				'subject' => $subject, 'recips' => $handles];
 			if (dba::insert('conv', $fields)) {
 				$convid = dba::lastInsertId();
 			}
@@ -92,26 +96,28 @@ class Mail
 		}
 
 		$post_id = null;
-		$result = q("INSERT INTO `mail` ( `uid`, `guid`, `convid`, `from-name`, `from-photo`, `from-url`,
-			`contact-id`, `title`, `body`, `seen`, `reply`, `replied`, `uri`, `parent-uri`, `created`)
-			VALUES ( %d, '%s', %d, '%s', '%s', '%s', %d, '%s', '%s', %d, %d, %d, '%s', '%s', '%s' )",
-			intval(local_user()),
-			dbesc($guid),
-			intval($convid),
-			dbesc($me[0]['name']),
-			dbesc($me[0]['thumb']),
-			dbesc($me[0]['url']),
-			intval($recipient),
-			dbesc($subject),
-			dbesc($body),
-			1,
-			intval($reply),
-			0,
-			dbesc($uri),
-			dbesc($replyto),
-			datetime_convert()
+		$success = dba::insert(
+			'mail',
+			[
+				'uid' => local_user(),
+				'guid' => $guid,
+				'convid' => $convid,
+				'from-name' => $me[0]['name'],
+				'from-photo' => $me[0]['thumb'],
+				'from-url' => $me[0]['url'],
+				`contact-id` => $recipient,
+				`title` => $subject,
+				`body` => $body,
+				`seen` => true,
+				`reply` => $reply,
+				`replied` => false,
+				`uri` => $uri,
+				`parent-uri` => $replyto,
+				`created` => datetime_convert()
+			]
 		);
-		if ($result) {
+
+		if ($success) {
 			$post_id = dba::lastInsertId();
 		}
 
@@ -136,13 +142,7 @@ class Mail
 					}
 					$image_uri = substr($image, strrpos($image, '/') + 1);
 					$image_uri = substr($image_uri, 0, strpos($image_uri, '-'));
-					q("UPDATE `photo` SET `allow_cid` = '%s'
-						WHERE `resource-id` = '%s' AND `album` = '%s' AND `uid` = %d ",
-						dbesc('<' . $recipient . '>'),
-						dbesc($image_uri),
-						dbesc( t('Wall Photos')),
-						intval(local_user())
-					);
+					dba::update('photo', ['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_uri, 'album' => 'Wall Photos', 'uid' => local_user()]);
 				}
 			}
 		}
@@ -155,7 +155,13 @@ class Mail
 		}
 	}
 
-	function send_wallmessage($recipient = '', $body = '', $subject = '', $replyto = '')
+	/**
+	 * @param string $recipient recipient, default empty
+	 * @param string $body      message body, default empty
+	 * @param string $subject   message subject, default empty
+	 * @param string $replyto   reply to, default empty
+	 */
+	public static function sendWall($recipient = '', $body = '', $subject = '', $replyto = '')
 	{
 		if (!$recipient) {
 			return -1;
@@ -186,9 +192,9 @@ class Mail
 		$handles = $recip_handle . ';' . $sender_handle;
 
 		$convid = null;
-		$fields = array('uid' => $recipient['uid'], 'guid' => $conv_guid, 'creator' => $sender_handle,
+		$fields = ['uid' => $recipient['uid'], 'guid' => $conv_guid, 'creator' => $sender_handle,
 			'created' => datetime_convert(), 'updated' => datetime_convert(),
-			'subject' => $subject, 'recips' => $handles);
+			'subject' => $subject, 'recips' => $handles];
 		if (dba::insert('conv', $fields)) {
 			$convid = dba::lastInsertId();
 		}
@@ -198,25 +204,26 @@ class Mail
 			return -4;
 		}
 
-		q("INSERT INTO `mail` ( `uid`, `guid`, `convid`, `from-name`, `from-photo`, `from-url`,
-			`contact-id`, `title`, `body`, `seen`, `reply`, `replied`, `uri`, `parent-uri`, `created`, `unknown`)
-			VALUES ( %d, '%s', %d, '%s', '%s', '%s', %d, '%s', '%s', %d, %d, %d, '%s', '%s', '%s', %d )",
-			intval($recipient['uid']),
-			dbesc($guid),
-			intval($convid),
-			dbesc($me['name']),
-			dbesc($me['photo']),
-			dbesc($me['url']),
-			0,
-			dbesc($subject),
-			dbesc($body),
-			0,
-			0,
-			0,
-			dbesc($uri),
-			dbesc($replyto),
-			datetime_convert(),
-			1
+		dba::insert(
+			'mail',
+			[
+				`uid` => $recipient['uid'],
+				`guid` => $guid,
+				`convid` => $convid,
+				`from-name` => $me['name'],
+				`from-photo` => $me['photo'],
+				`from-url` => $me['url'],
+				`contact-id` => 0,
+				`title` => $subject,
+				`body` => $body,
+				`seen` => false,
+				`reply` => false,
+				`replied` => false,
+				`uri` => $uri,
+				`parent-uri` => $replyto,
+				`created` => datetime_convert(),
+				`unknown` => true
+			]
 		);
 
 		return 0;
