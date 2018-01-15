@@ -45,16 +45,16 @@ class Nav
 		$tpl = get_markup_template('nav.tpl');
 	
 		$a->page['nav'] .= replace_macros($tpl, [
-				'$baseurl' => System::baseUrl(),
-				'$sitelocation' => $nav_info['sitelocation'],
-				'$nav' => $nav_info['nav'],
-				'$banner' => $nav_info['banner'],
-				'$emptynotifications' => t('Nothing new here'),
-				'$userinfo' => $nav_info['userinfo'],
-				'$sel' =>  $a->nav_sel,
-				'$apps' => $a->apps,
-				'$clear_notifs' => t('Clear notifications'),
-				'$search_hint' => t('@name, !forum, #tags, content')
+			'$baseurl' => System::baseUrl(),
+			'$sitelocation' => $nav_info['sitelocation'],
+			'$nav' => $nav_info['nav'],
+			'$banner' => $nav_info['banner'],
+			'$emptynotifications' => t('Nothing new here'),
+			'$userinfo' => $nav_info['userinfo'],
+			'$sel' =>  $a->nav_sel,
+			'$apps' => $a->apps,
+			'$clear_notifs' => t('Clear notifications'),
+			'$search_hint' => t('@name, !forum, #tags, content')
 		]);
 	
 		call_hooks('page_header', $a->page['nav']);
@@ -141,10 +141,10 @@ class Nav
 			$nav['search'] = ['search', t('Search'), '', t('Search site content')];
 	
 			$nav['searchoption'] = [
-							t('Full Text'),
-							t('Tags'),
-							t('Contacts')
-						];
+				t('Full Text'),
+				t('Tags'),
+				t('Contacts')
+			];
 	
 			if (Config::get('system', 'poco_local_search')) {
 				$nav['searchoption'][] = t('Forums');
@@ -179,12 +179,12 @@ class Nav
 	
 			$nav['home'] = ['profile/' . $a->user['nickname'], t('Home'), '', t('Your posts and conversations')];
 	
-			if (in_array($_SESSION['page_flags'], array(PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE, PAGE_PRVGROUP))) {
+			if (in_array($_SESSION['page_flags'], [PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE, PAGE_PRVGROUP])) {
 				// only show friend requests for normal pages. Other page types have automatic friendship.
-				if (in_array($_SESSION['page_flags'], array(PAGE_NORMAL, PAGE_SOAPBOX, PAGE_PRVGROUP))) {
-					$nav['introductions'] = array('notifications/intros', t('Introductions'), '', t('Friend Requests'));
+				if (in_array($_SESSION['page_flags'], [PAGE_NORMAL, PAGE_SOAPBOX, PAGE_PRVGROUP])) {
+					$nav['introductions'] = ['notifications/intros', t('Introductions'), '', t('Friend Requests')];
 				}
-				if (in_array($_SESSION['page_flags'], array(PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE))) {
+				if (in_array($_SESSION['page_flags'], [PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE])) {
 					$nav['notifications'] = ['notifications',	t('Notifications'), '', t('Notifications')];
 					$nav['notifications']['all'] = ['notifications/system', t('See all notifications'), '', ''];
 					$nav['notifications']['mark'] = ['', t('Mark as seen'), '', t('Mark all system notifications seen')];
