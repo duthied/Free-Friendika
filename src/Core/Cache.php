@@ -146,8 +146,8 @@ class Cache
 			$memcache->set(get_app()->get_hostname().":".$key, serialize($value), MEMCACHE_COMPRESSED, self::duration($duration));
 			return;
 		}
-		$fields = array('v' => serialize($value), 'expire_mode' => $duration, 'updated' => datetime_convert());
-		$condition = array('k' => $key);
+		$fields = ['v' => serialize($value), 'expire_mode' => $duration, 'updated' => datetime_convert()];
+		$condition = ['k' => $key];
 		dba::update('cache', $fields, $condition, true);
 	}
 
@@ -163,68 +163,68 @@ class Cache
 		// Clear long lasting cache entries only once a day
 		if (Config::get("system", "cache_cleared_day") < time() - self::duration(CACHE_DAY)) {
 			if ($max_level == CACHE_MONTH) {
-				$condition = array("`updated` < ? AND `expire_mode` = ?",
+				$condition = ["`updated` < ? AND `expire_mode` = ?",
 						datetime_convert('UTC', 'UTC', "now - 30 days"),
-						CACHE_MONTH);
+						CACHE_MONTH];
 				dba::delete('cache', $condition);
 			}
 
 			if ($max_level <= CACHE_WEEK) {
-				$condition = array("`updated` < ? AND `expire_mode` = ?",
+				$condition = ["`updated` < ? AND `expire_mode` = ?",
 						datetime_convert('UTC', 'UTC', "now - 7 days"),
-						CACHE_WEEK);
+						CACHE_WEEK];
 				dba::delete('cache', $condition);
 			}
 
 			if ($max_level <= CACHE_DAY) {
-				$condition = array("`updated` < ? AND `expire_mode` = ?",
+				$condition = ["`updated` < ? AND `expire_mode` = ?",
 						datetime_convert('UTC', 'UTC', "now - 1 days"),
-						CACHE_DAY);
+						CACHE_DAY];
 				dba::delete('cache', $condition);
 			}
 			Config::set("system", "cache_cleared_day", time());
 		}
 
 		if (($max_level <= CACHE_HOUR) && (Config::get("system", "cache_cleared_hour")) < time() - self::duration(CACHE_HOUR)) {
-			$condition = array("`updated` < ? AND `expire_mode` = ?",
+			$condition = ["`updated` < ? AND `expire_mode` = ?",
 					datetime_convert('UTC', 'UTC', "now - 1 hours"),
-					CACHE_HOUR);
+					CACHE_HOUR];
 			dba::delete('cache', $condition);
 
 			Config::set("system", "cache_cleared_hour", time());
 		}
 
 		if (($max_level <= CACHE_HALF_HOUR) && (Config::get("system", "cache_cleared_half_hour")) < time() - self::duration(CACHE_HALF_HOUR)) {
-			$condition = array("`updated` < ? AND `expire_mode` = ?",
+			$condition = ["`updated` < ? AND `expire_mode` = ?",
 					datetime_convert('UTC', 'UTC', "now - 30 minutes"),
-					CACHE_HALF_HOUR);
+					CACHE_HALF_HOUR];
 			dba::delete('cache', $condition);
 
 			Config::set("system", "cache_cleared_half_hour", time());
 		}
 
 		if (($max_level <= CACHE_QUARTER_HOUR) && (Config::get("system", "cache_cleared_quarter_hour")) < time() - self::duration(CACHE_QUARTER_HOUR)) {
-			$condition = array("`updated` < ? AND `expire_mode` = ?",
+			$condition = ["`updated` < ? AND `expire_mode` = ?",
 					datetime_convert('UTC', 'UTC', "now - 15 minutes"),
-					CACHE_QUARTER_HOUR);
+					CACHE_QUARTER_HOUR];
 			dba::delete('cache', $condition);
 
 			Config::set("system", "cache_cleared_quarter_hour", time());
 		}
 
 		if (($max_level <= CACHE_FIVE_MINUTES) && (Config::get("system", "cache_cleared_five_minute")) < time() - self::duration(CACHE_FIVE_MINUTES)) {
-			$condition = array("`updated` < ? AND `expire_mode` = ?",
+			$condition = ["`updated` < ? AND `expire_mode` = ?",
 					datetime_convert('UTC', 'UTC', "now - 5 minutes"),
-					CACHE_FIVE_MINUTES);
+					CACHE_FIVE_MINUTES];
 			dba::delete('cache', $condition);
 
 			Config::set("system", "cache_cleared_five_minute", time());
 		}
 
 		if (($max_level <= CACHE_MINUTE) && (Config::get("system", "cache_cleared_minute")) < time() - self::duration(CACHE_MINUTE)) {
-			$condition = array("`updated` < ? AND `expire_mode` = ?",
+			$condition = ["`updated` < ? AND `expire_mode` = ?",
 					datetime_convert('UTC', 'UTC', "now - 1 minutes"),
-					CACHE_MINUTE);
+					CACHE_MINUTE];
 			dba::delete('cache', $condition);
 
 			Config::set("system", "cache_cleared_minute", time());

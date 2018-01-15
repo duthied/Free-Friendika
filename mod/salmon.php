@@ -69,7 +69,7 @@ function salmon_post(App $a) {
 	// unpack the  data
 
 	// strip whitespace so our data element will return to one big base64 blob
-	$data = str_replace(array(" ","\t","\r","\n"),array("","","",""),$base->data);
+	$data = str_replace([" ","\t","\r","\n"],["","","",""],$base->data);
 
 	// stash away some other stuff for later
 

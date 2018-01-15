@@ -83,7 +83,7 @@ function random_string($size = 64)
  * @return string Filtered string
  */
 function notags($string) {
-	return str_replace(array("<", ">"), array('[', ']'), $string);
+	return str_replace(["<", ">"], ['[', ']'], $string);
 
 //  High-bit filter no longer used
 //	return str_replace(array("<",">","\xBA","\xBC","\xBE"), array('[',']','','',''), $string);
@@ -113,12 +113,12 @@ function autoname($len) {
 		return '';
 	}
 
-	$vowels = array('a','a','ai','au','e','e','e','ee','ea','i','ie','o','ou','u');
+	$vowels = ['a','a','ai','au','e','e','e','ee','ea','i','ie','o','ou','u'];
 	if (mt_rand(0, 5) == 4) {
 		$vowels[] = 'y';
 	}
 
-	$cons = array(
+	$cons = [
 			'b','bl','br',
 			'c','ch','cl','cr',
 			'd','dr',
@@ -139,13 +139,13 @@ function autoname($len) {
 			'w','wh',
 			'x',
 			'z','zh'
-			);
+			];
 
-	$midcons = array('ck','ct','gn','ld','lf','lm','lt','mb','mm', 'mn','mp',
-				'nd','ng','nk','nt','rn','rp','rt');
+	$midcons = ['ck','ct','gn','ld','lf','lm','lt','mb','mm', 'mn','mp',
+				'nd','ng','nk','nt','rn','rp','rt'];
 
-	$noend = array('bl', 'br', 'cl','cr','dr','fl','fr','gl','gr',
-				'kh', 'kl','kr','mn','pl','pr','rh','tr','qu','wh');
+	$noend = ['bl', 'br', 'cl','cr','dr','fl','fr','gl','gr',
+				'kh', 'kl','kr','mn','pl','pr','rh','tr','qu','wh'];
 
 	$start = mt_rand(0,2);
 	if ($start == 0) {
@@ -280,14 +280,14 @@ function paginate_data(App $a, $count = null) {
 	}
 
 	$url = $stripped;
-	$data = array();
+	$data = [];
 
 	function _l(&$d, $name, $url, $text, $class = '') {
 		if (strpos($url, '?') === false && ($pos = strpos($url, '&')) !== false) {
 			$url = substr($url, 0, $pos) . '?' . substr($url, $pos + 1);
 		}
 
-		$d[$name] = array('url' => $url, 'text' => $text, 'class' => $class);
+		$d[$name] = ['url' => $url, 'text' => $text, 'class' => $class];
 	}
 
 	if (!is_null($count)) {
@@ -313,7 +313,7 @@ function paginate_data(App $a, $count = null) {
 				$numstop = (($pagenum > ($numpages - 7)) ? $numpages : ($numstart + 8));
 			}
 
-			$pages = array();
+			$pages = [];
 
 			for ($i = $numstart; $i <= $numstop; $i++) {
 				if ($i == $a->pager['page']) {
@@ -362,7 +362,7 @@ function paginate(App $a) {
 
 	$data = paginate_data($a);
 	$tpl = get_markup_template("paginate.tpl");
-	return replace_macros($tpl, array("pager" => $data));
+	return replace_macros($tpl, ["pager" => $data]);
 
 }
 
@@ -377,7 +377,7 @@ function alt_pager(App $a, $i) {
 
 	$data = paginate_data($a, $i);
 	$tpl = get_markup_template("paginate.tpl");
-	return replace_macros($tpl, array('pager' => $data));
+	return replace_macros($tpl, ['pager' => $data]);
 
 }
 
@@ -388,10 +388,10 @@ function alt_pager(App $a, $i) {
  */
 function scroll_loader() {
 	$tpl = get_markup_template("scroll_loader.tpl");
-	return replace_macros($tpl, array(
+	return replace_macros($tpl, [
 		'wait' => t('Loading more entries...'),
 		'end' => t('The end')
-	));
+	]);
 }
 
 
@@ -404,7 +404,7 @@ function scroll_loader() {
 function expand_acl($s) {
 	// turn string array of angle-bracketed elements into numeric array
 	// e.g. "<1><2><3>" => array(1,2,3);
-	$ret = array();
+	$ret = [];
 
 	if (strlen($s)) {
 		$t = str_replace('<', '', $s);
@@ -477,7 +477,7 @@ function item_new_uri($hostname, $uid, $guid = "") {
 
 		$uri = "urn:X-dfrn:" . $hostname . ':' . $uid . ':' . $hash;
 
-		$dups = dba::exists('item', array('uri' => $uri));
+		$dups = dba::exists('item', ['uri' => $uri]);
 	} while ($dups == true);
 
 	return $uri;
@@ -663,7 +663,7 @@ function attribute_contains($attr, $s) {
 
 
 /* setup int->string log level map */
-$LOGGER_LEVELS = array();
+$LOGGER_LEVELS = [];
 
 /**
  * @brief Logs the given message at the given log level
@@ -825,7 +825,7 @@ function activity_match($haystack,$needle) {
  * @return array List of tag and person names
  */
 function get_tags($string) {
-	$ret = array();
+	$ret = [];
 
 	// Convert hashtag links to hashtags
 	$string = preg_replace('/#\[url\=([^\[\]]*)\](.*?)\[\/url\]/ism', '#$2', $string);
@@ -834,7 +834,7 @@ function get_tags($string) {
 	$string = preg_replace('/\[code\](.*?)\[\/code\]/sm', '', $string);
 
 	// Force line feeds at bbtags
-	$string = str_replace(array('[', ']'), array("\n[", "]\n"), $string);
+	$string = str_replace(['[', ']'], ["\n[", "]\n"], $string);
 
 	// ignore anything in a bbtag
 	$string = preg_replace('/\[(.*?)\]/sm', '', $string);
@@ -942,7 +942,7 @@ function contact_block() {
 				intval($shown)
 		);
 		if (DBM::is_result($r)) {
-			$contacts = array();
+			$contacts = [];
 			foreach ($r AS $contact) {
 				$contacts[] = $contact["id"];
 			}
@@ -951,7 +951,7 @@ function contact_block() {
 
 			if (DBM::is_result($r)) {
 				$contacts = sprintf(tt('%d Contact','%d Contacts', $total),$total);
-				$micropro = Array();
+				$micropro = [];
 				foreach ($r as $rr) {
 					$micropro[] = micropro($rr,true,'mpfriend');
 				}
@@ -960,14 +960,14 @@ function contact_block() {
 	}
 
 	$tpl = get_markup_template('contact_block.tpl');
-	$o = replace_macros($tpl, array(
+	$o = replace_macros($tpl, [
 		'$contacts' => $contacts,
 		'$nickname' => $a->profile['nickname'],
 		'$viewcontacts' => t('View Contacts'),
 		'$micropro' => $micropro,
-	));
+	]);
 
-	$arr = array('contacts' => $r, 'output' => $o);
+	$arr = ['contacts' => $r, 'output' => $o];
 
 	call_hooks('contact_block_end', $arr);
 	return $o;
@@ -1021,7 +1021,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 		$url = '';
 	}
 
-	return replace_macros(get_markup_template(($textmode)?'micropro_txt.tpl':'micropro_img.tpl'),array(
+	return replace_macros(get_markup_template(($textmode)?'micropro_txt.tpl':'micropro_img.tpl'),[
 		'$click' => defaults($contact, 'click', ''),
 		'$class' => $class,
 		'$url' => $url,
@@ -1031,7 +1031,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 		'$parkle' => $sparkle,
 		'$redir' => $redir,
 
-	));
+	]);
 }
 
 /**
@@ -1054,7 +1054,7 @@ function search($s, $id = 'search-box', $url = 'search', $save = false, $aside =
 	}
 	$save_label = $mode === 'text' ? t('Save') : t('Follow');
 
-	$values = array(
+	$values = [
 			'$s' => htmlspecialchars($s),
 			'$id' => $id,
 			'$action_url' => $url,
@@ -1063,13 +1063,13 @@ function search($s, $id = 'search-box', $url = 'search', $save = false, $aside =
 			'$savedsearch' => Feature::isEnabled(local_user(),'savedsearch'),
 			'$search_hint' => t('@name, !forum, #tags, content'),
 			'$mode' => $mode
-		);
+		];
 
 	if (!$aside) {
-		$values['$searchoption'] = array(
+		$values['$searchoption'] = [
 					t("Full Text"),
 					t("Tags"),
-					t("Contacts"));
+					t("Contacts")];
 
 		if (Config::get('system','poco_local_search')) {
 			$values['$searchoption'][] = t("Forums");
@@ -1115,14 +1115,14 @@ function get_poke_verbs() {
 	// index is present tense verb
 	// value is array containing past tense verb, translation of present, translation of past
 
-	$arr = array(
-		'poke' => array('poked', t('poke'), t('poked')),
-		'ping' => array('pinged', t('ping'), t('pinged')),
-		'prod' => array('prodded', t('prod'), t('prodded')),
-		'slap' => array('slapped', t('slap'), t('slapped')),
-		'finger' => array('fingered', t('finger'), t('fingered')),
-		'rebuff' => array('rebuffed', t('rebuff'), t('rebuffed')),
-	);
+	$arr = [
+		'poke' => ['poked', t('poke'), t('poked')],
+		'ping' => ['pinged', t('ping'), t('pinged')],
+		'prod' => ['prodded', t('prod'), t('prodded')],
+		'slap' => ['slapped', t('slap'), t('slapped')],
+		'finger' => ['fingered', t('finger'), t('fingered')],
+		'rebuff' => ['rebuffed', t('rebuff'), t('rebuffed')],
+	];
 	call_hooks('poke_verbs', $arr);
 	return $arr;
 }
@@ -1134,12 +1134,12 @@ function get_poke_verbs() {
  * @return string Translated string.
  */
 function day_translate($s) {
-	$ret = str_replace(array('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'),
-		array(t('Monday'), t('Tuesday'), t('Wednesday'), t('Thursday'), t('Friday'), t('Saturday'), t('Sunday')),
+	$ret = str_replace(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],
+		[t('Monday'), t('Tuesday'), t('Wednesday'), t('Thursday'), t('Friday'), t('Saturday'), t('Sunday')],
 		$s);
 
-	$ret = str_replace(array('January','February','March','April','May','June','July','August','September','October','November','December'),
-		array(t('January'), t('February'), t('March'), t('April'), t('May'), t('June'), t('July'), t('August'), t('September'), t('October'), t('November'), t('December')),
+	$ret = str_replace(['January','February','March','April','May','June','July','August','September','October','November','December'],
+		[t('January'), t('February'), t('March'), t('April'), t('May'), t('June'), t('July'), t('August'), t('September'), t('October'), t('November'), t('December')],
 		$ret);
 
 	return $ret;
@@ -1152,11 +1152,11 @@ function day_translate($s) {
  * @return string Translated string.
  */
 function day_short_translate($s) {
-	$ret = str_replace(array('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'),
-		array(t('Mon'), t('Tue'), t('Wed'), t('Thu'), t('Fri'), t('Sat'), t('Sun')),
+	$ret = str_replace(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+		[t('Mon'), t('Tue'), t('Wed'), t('Thu'), t('Fri'), t('Sat'), t('Sun')],
 		$s);
-	$ret = str_replace(array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov','Dec'),
-		array(t('Jan'), t('Feb'), t('Mar'), t('Apr'), t('May'), ('Jun'), t('Jul'), t('Aug'), t('Sep'), t('Oct'), t('Nov'), t('Dec')),
+	$ret = str_replace(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov','Dec'],
+		[t('Jan'), t('Feb'), t('Mar'), t('Apr'), t('May'), ('Jun'), t('Jul'), t('Aug'), t('Sep'), t('Oct'), t('Nov'), t('Dec')],
 		$ret);
 	return $ret;
 }
@@ -1169,7 +1169,7 @@ function day_short_translate($s) {
  * @return string
  */
 function normalise_link($url) {
-	$ret = str_replace(array('https:', '//www.'), array('http:', '//'), $url);
+	$ret = str_replace(['https:', '//www.'], ['http:', '//'], $url);
 	return rtrim($ret,'/');
 }
 
@@ -1235,8 +1235,8 @@ function put_item_in_cache(&$item, $update = false)
 		$item["body"] = $body;
 
 		if ($update && ($item["id"] > 0)) {
-			dba::update('item', array('rendered-html' => $item["rendered-html"], 'rendered-hash' => $item["rendered-hash"]),
-					array('id' => $item["id"]), false);
+			dba::update('item', ['rendered-html' => $item["rendered-html"], 'rendered-hash' => $item["rendered-hash"]],
+					['id' => $item["id"]], false);
 		}
 	}
 }
@@ -1259,9 +1259,9 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 
 	$searchpath = System::baseUrl() . "/search?tag=";
 
-	$tags = array();
-	$hashtags = array();
-	$mentions = array();
+	$tags = [];
+	$hashtags = [];
+	$mentions = [];
 
 	// In order to provide theme developers more possibilities, event items
 	// are treated differently.
@@ -1313,14 +1313,14 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 	put_item_in_cache($item, $update);
 	$s = $item["rendered-html"];
 
-	$prep_arr = array('item' => $item, 'html' => $s, 'preview' => $preview);
+	$prep_arr = ['item' => $item, 'html' => $s, 'preview' => $preview];
 	call_hooks('prepare_body', $prep_arr);
 	$s = $prep_arr['html'];
 
 	if (! $attach) {
 		// Replace the blockquotes with quotes that are used in mails.
 		$mailquote = '<blockquote type="cite" class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">';
-		$s = str_replace(array('<blockquote>', '<blockquote class="spoiler">', '<blockquote class="author">'), array($mailquote, $mailquote, $mailquote), $s);
+		$s = str_replace(['<blockquote>', '<blockquote class="spoiler">', '<blockquote class="author">'], [$mailquote, $mailquote, $mailquote], $s);
 		return $s;
 	}
 
@@ -1345,23 +1345,23 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 					if (strpos($mime, 'video') !== false) {
 						if (!$vhead) {
 							$vhead = true;
-							$a->page['htmlhead'] .= replace_macros(get_markup_template('videos_head.tpl'), array(
+							$a->page['htmlhead'] .= replace_macros(get_markup_template('videos_head.tpl'), [
 								'$baseurl' => System::baseUrl(),
-							));
-							$a->page['end'] .= replace_macros(get_markup_template('videos_end.tpl'), array(
+							]);
+							$a->page['end'] .= replace_macros(get_markup_template('videos_end.tpl'), [
 								'$baseurl' => System::baseUrl(),
-							));
+							]);
 						}
 
 						$id = end(explode('/', $the_url));
-						$as .= replace_macros(get_markup_template('video_top.tpl'), array(
-							'$video' => array(
+						$as .= replace_macros(get_markup_template('video_top.tpl'), [
+							'$video' => [
 								'id'     => $id,
 								'title'  => t('View Video'),
 								'src'    => $the_url,
 								'mime'   => $mime,
-							),
-						));
+							],
+						]);
 					}
 
 					$filetype = strtolower(substr($mime, 0, strpos($mime, '/')));
@@ -1431,7 +1431,7 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 		$s = preg_replace('|(<img[^>]+src="[^"]+/photo/[0-9a-f]+)-[0-9]|', "$1-" . $ps, $s);
 	}
 
-	$prep_arr = array('item' => $item, 'html' => $s);
+	$prep_arr = ['item' => $item, 'html' => $s];
 	call_hooks('prepare_body_final', $prep_arr);
 
 	return $prep_arr['html'];
@@ -1485,21 +1485,21 @@ function prepare_text($text) {
  */
 function get_cats_and_terms($item)
 {
-	$categories = array();
-	$folders = array();
+	$categories = [];
+	$folders = [];
 
 	$matches = false;
 	$first = true;
 	$cnt = preg_match_all('/<(.*?)>/', $item['file'], $matches, PREG_SET_ORDER);
 	if ($cnt) {
 		foreach ($matches as $mtch) {
-			$categories[] = array(
+			$categories[] = [
 				'name' => xmlify(file_tag_decode($mtch[1])),
 				'url' =>  "#",
 				'removeurl' => ((local_user() == $item['uid'])?'filerm/' . $item['id'] . '?f=&cat=' . xmlify(file_tag_decode($mtch[1])):""),
 				'first' => $first,
 				'last' => false
-			);
+			];
 			$first = false;
 		}
 	}
@@ -1514,13 +1514,13 @@ function get_cats_and_terms($item)
 		$cnt = preg_match_all('/\[(.*?)\]/', $item['file'], $matches, PREG_SET_ORDER);
 		if ($cnt) {
 			foreach ($matches as $mtch) {
-				$folders[] = array(
+				$folders[] = [
 					'name' => xmlify(file_tag_decode($mtch[1])),
 					'url' =>  "#",
 					'removeurl' => ((local_user() == $item['uid']) ? 'filerm/' . $item['id'] . '?f=&term=' . xmlify(file_tag_decode($mtch[1])) : ""),
 					'first' => $first,
 					'last' => false
-				);
+				];
 				$first = false;
 			}
 		}
@@ -1530,7 +1530,7 @@ function get_cats_and_terms($item)
 		$folders[count($folders) - 1]['last'] = true;
 	}
 
-	return array($categories, $folders);
+	return [$categories, $folders];
 }
 
 
@@ -1543,13 +1543,13 @@ function get_plink($item) {
 	$a = get_app();
 
 	if ($a->user['nickname'] != "") {
-		$ret = array(
+		$ret = [
 				//'href' => "display/" . $a->user['nickname'] . "/" . $item['id'],
 				'href' => "display/" . $item['guid'],
 				'orig' => "display/" . $item['guid'],
 				'title' => t('View on separate page'),
 				'orig_title' => t('view on separate page'),
-			);
+			];
 
 		if (x($item, 'plink')) {
 			$ret["href"] = $a->remove_baseurl($item['plink']);
@@ -1557,13 +1557,13 @@ function get_plink($item) {
 		}
 
 	} elseif (x($item, 'plink') && ($item['private'] != 1)) {
-		$ret = array(
+		$ret = [
 				'href' => $item['plink'],
 				'orig' => $item['plink'],
 				'title' => t('link to source'),
-			);
+			];
 	} else {
-		$ret = array();
+		$ret = [];
 	}
 
 	return $ret;
@@ -1780,11 +1780,11 @@ function item_post_type($item) {
 // To do this we need to escape these characters if they appear in our tag.
 
 function file_tag_encode($s) {
-	return str_replace(array('<','>','[',']'),array('%3c','%3e','%5b','%5d'),$s);
+	return str_replace(['<','>','[',']'],['%3c','%3e','%5b','%5d'],$s);
 }
 
 function file_tag_decode($s) {
-	return str_replace(array('%3c', '%3e', '%5b', '%5d'), array('<', '>', '[', ']'), $s);
+	return str_replace(['%3c', '%3e', '%5b', '%5d'], ['<', '>', '[', ']'], $s);
 }
 
 function file_tag_file_query($table,$s,$type = 'file') {
@@ -1866,7 +1866,7 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 		$filetags_updated = $saved;
 
 		// check for new tags to be added as filetags in pconfig
-		$new_tags = array();
+		$new_tags = [];
 		$check_new_tags = explode(",",file_tag_file_to_list($file_new,$type));
 
 		foreach ($check_new_tags as $tag) {
@@ -1877,7 +1877,7 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 		$filetags_updated .= file_tag_list_to_file(implode(",",$new_tags),$type);
 
 		// check for deleted tags to be removed from filetags in pconfig
-		$deleted_tags = array();
+		$deleted_tags = [];
 		$check_deleted_tags = explode(",",file_tag_file_to_list($file_old,$type));
 
 		foreach ($check_deleted_tags as $tag) {
@@ -1984,7 +1984,7 @@ function file_tag_unsave_file($uid, $item, $file, $cat = false)
 }
 
 function normalise_openid($s) {
-	return trim(str_replace(array('http://', 'https://'), array('', ''), $s), '/');
+	return trim(str_replace(['http://', 'https://'], ['', ''], $s), '/');
 }
 
 
@@ -2023,7 +2023,7 @@ function is_a_date_arg($s) {
 function deindent($text, $chr = "[\t ]", $count = NULL) {
 	$lines = explode("\n", $text);
 	if (is_null($count)) {
-		$m = array();
+		$m = [];
 		$k = 0;
 		while ($k < count($lines) && strlen($lines[$k]) == 0) {
 			$k++;
@@ -2039,7 +2039,7 @@ function deindent($text, $chr = "[\t ]", $count = NULL) {
 }
 
 function formatBytes($bytes, $precision = 2) {
-	$units = array('B', 'KB', 'MB', 'GB', 'TB');
+	$units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
 	$bytes = max($bytes, 0);
 	$pow = floor(($bytes ? log($bytes) : 0) / log(1024));
@@ -2087,10 +2087,10 @@ function text_highlight($s, $lang) {
 	// Autoload the library to make constants available
 	class_exists('Text_Highlighter_Renderer_Html');
 
-	$options = array(
+	$options = [
 		'numbers' => HL_NUMBERS_LI,
 		'tabsize' => 4,
-	);
+	];
 
 	$tag_added = false;
 	$s = trim(html_entity_decode($s, ENT_COMPAT));

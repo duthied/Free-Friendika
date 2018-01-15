@@ -46,7 +46,7 @@ class App {
 	public $contacts;
 	public $page_contact;
 	public $content;
-	public $data = array();
+	public $data = [];
 	public $error = false;
 	public $cmd;
 	public $argv;
@@ -60,15 +60,15 @@ class App {
 	public $timezone;
 	public $interactive = true;
 	public $plugins;
-	public $plugins_admin = array();
-	public $apps = array();
+	public $plugins_admin = [];
+	public $apps = [];
 	public $identities;
 	public $is_mobile = false;
 	public $is_tablet = false;
 	public $is_friendica_app;
-	public $performance = array();
-	public $callstack = array();
-	public $theme_info = array();
+	public $performance = [];
+	public $callstack = [];
+	public $theme_info = [];
 	public $backend = true;
 	public $nav_sel;
 	public $category;
@@ -87,34 +87,34 @@ class App {
 	 * Mostly unimplemented yet. Only options 'template_engine' and
 	 * beyond are used.
 	 */
-	public $theme = array(
+	public $theme = [
 		'sourcename' => '',
 		'videowidth' => 425,
 		'videoheight' => 350,
 		'force_max_items' => 0,
 		'stylesheet' => '',
 		'template_engine' => 'smarty3',
-	);
+	];
 
 	/**
 	 * @brief An array of registered template engines ('name'=>'class name')
 	 */
-	public $template_engines = array();
+	public $template_engines = [];
 
 	/**
 	 * @brief An array of instanced template engines ('name'=>'instance')
 	 */
-	public $template_engine_instance = array();
+	public $template_engine_instance = [];
 	public $process_id;
 	public $queue;
-	private $ldelim = array(
+	private $ldelim = [
 		'internal' => '',
 		'smarty3' => '{{'
-	);
-	private $rdelim = array(
+	];
+	private $rdelim = [
 		'internal' => '',
 		'smarty3' => '}}'
-	);
+	];
 	private $scheme;
 	private $hostname;
 	private $db;
@@ -160,16 +160,16 @@ class App {
 		$this->performance['marktime'] = 0;
 		$this->performance['markstart'] = microtime(true);
 
-		$this->callstack['database'] = array();
-		$this->callstack['database_write'] = array();
-		$this->callstack['network'] = array();
-		$this->callstack['file'] = array();
-		$this->callstack['rendering'] = array();
-		$this->callstack['parser'] = array();
+		$this->callstack['database'] = [];
+		$this->callstack['database_write'] = [];
+		$this->callstack['network'] = [];
+		$this->callstack['file'] = [];
+		$this->callstack['rendering'] = [];
+		$this->callstack['parser'] = [];
 
-		$this->config = array();
-		$this->page = array();
-		$this->pager = array();
+		$this->config = [];
+		$this->page = [];
+		$this->pager = [];
 
 		$this->query_string = '';
 
@@ -274,7 +274,7 @@ class App {
 			$this->module = str_replace('-', '_', $this->module);
 		} else {
 			$this->argc = 1;
-			$this->argv = array('home');
+			$this->argv = ['home'];
 			$this->module = 'home';
 		}
 
@@ -517,7 +517,7 @@ class App {
 		$invinite_scroll = infinite_scroll_data($this->module);
 
 		$tpl = get_markup_template('head.tpl');
-		$this->page['htmlhead'] = replace_macros($tpl, array(
+		$this->page['htmlhead'] = replace_macros($tpl, [
 				'$baseurl' => $this->get_baseurl(),
 				'$local_user' => local_user(),
 				'$generator' => 'Friendica' . ' ' . FRIENDICA_VERSION,
@@ -529,7 +529,7 @@ class App {
 				'$touch_icon' => $touch_icon,
 				'$stylesheet' => $stylesheet,
 				'$infinite_scroll' => $invinite_scroll,
-			)) . $this->page['htmlhead'];
+			]) . $this->page['htmlhead'];
 	}
 
 	function init_page_end() {
@@ -537,9 +537,9 @@ class App {
 			$this->page['end'] = '';
 		}
 		$tpl = get_markup_template('end.tpl');
-		$this->page['end'] = replace_macros($tpl, array(
+		$this->page['end'] = replace_macros($tpl, [
 				'$baseurl' => $this->get_baseurl()
-			)) . $this->page['end'];
+			]) . $this->page['end'];
 	}
 
 	function set_curl_code($code) {
@@ -709,7 +709,7 @@ class App {
 
 		$r = q('SELECT `pid` FROM `process` WHERE `pid` = %d', intval(getmypid()));
 		if (!DBM::is_result($r)) {
-			dba::insert('process', array('pid' => getmypid(), 'command' => $command, 'created' => datetime_convert()));
+			dba::insert('process', ['pid' => getmypid(), 'command' => $command, 'created' => datetime_convert()]);
 		}
 		dba::commit();
 	}
@@ -724,7 +724,7 @@ class App {
 		if (DBM::is_result($r)) {
 			foreach ($r AS $process) {
 				if (!posix_kill($process['pid'], 0)) {
-					dba::delete('process', array('pid' => $process['pid']));
+					dba::delete('process', ['pid' => $process['pid']]);
 				}
 			}
 		}
@@ -735,7 +735,7 @@ class App {
 	 * @brief Remove the active process from the "process" table
 	 */
 	function end_process() {
-		dba::delete('process', array('pid' => getmypid()));
+		dba::delete('process', ['pid' => getmypid()]);
 	}
 
 	function get_useragent() {
@@ -760,7 +760,7 @@ class App {
 	 * @return bool Is it a known backend?
 	 */
 	function is_backend() {
-		static $backends = array();
+		static $backends = [];
 		$backends[] = '_well_known';
 		$backends[] = 'api';
 		$backends[] = 'dfrn_notify';
@@ -837,7 +837,7 @@ class App {
 
 		$memdata = explode("\n", file_get_contents('/proc/meminfo'));
 
-		$meminfo = array();
+		$meminfo = [];
 		foreach ($memdata as $line) {
 			list($key, $val) = explode(':', $line);
 			$meminfo[$key] = (int) trim(str_replace('kB', '', $val));
@@ -924,9 +924,9 @@ class App {
 		}
 
 		if (Config::get('system', 'proc_windows')) {
-			$resource = proc_open('cmd /c start /b ' . $cmdline, array(), $foo, $this->get_basepath());
+			$resource = proc_open('cmd /c start /b ' . $cmdline, [], $foo, $this->get_basepath());
 		} else {
-			$resource = proc_open($cmdline . ' &', array(), $foo, $this->get_basepath());
+			$resource = proc_open($cmdline . ' &', [], $foo, $this->get_basepath());
 		}
 		if (!is_resource($resource)) {
 			logger('We got no resource for command ' . $cmdline, LOGGER_DEBUG);

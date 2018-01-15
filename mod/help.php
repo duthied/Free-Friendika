@@ -55,9 +55,9 @@ function help_content(App $a) {
 	if (!strlen($text)) {
 		header($_SERVER["SERVER_PROTOCOL"] . ' 404 ' . t('Not Found'));
 		$tpl = get_markup_template("404.tpl");
-		return replace_macros($tpl, array(
+		return replace_macros($tpl, [
 					'$message' => t('Page not found.')
-				));
+				]);
 	}
 
 	$html = Markdown::convert($text, false);
@@ -67,7 +67,7 @@ function help_content(App $a) {
 		$lines = explode("\n", $html);
 		$toc="<style>aside ul {padding-left: 1em;}aside h1{font-size:2em}</style><h2>TOC</h2><ul id='toc'>";
 		$lastlevel=1;
-		$idnum = array(0,0,0,0,0,0,0);
+		$idnum = [0,0,0,0,0,0,0];
 		foreach($lines as &$line){
 			if (substr($line,0,2)=="<h") {
 				$level = substr($line,2,1);

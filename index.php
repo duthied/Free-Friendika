@@ -163,16 +163,16 @@ $a->page['end'] = '';
 
 
 if (! x($_SESSION, 'sysmsg')) {
-	$_SESSION['sysmsg'] = array();
+	$_SESSION['sysmsg'] = [];
 }
 
 if (! x($_SESSION, 'sysmsg_info')) {
-	$_SESSION['sysmsg_info'] = array();
+	$_SESSION['sysmsg_info'] = [];
 }
 
 // Array for informations about last received items
 if (! x($_SESSION, 'last_updated')) {
-	$_SESSION['last_updated'] = array();
+	$_SESSION['last_updated'] = [];
 }
 /*
  * check_config() is responsible for running update scripts. These automatically
@@ -197,7 +197,7 @@ nav_set_selected('nothing');
 //Don't populate apps_menu if apps are private
 $privateapps = Config::get('config', 'private_addons');
 if ((local_user()) || (! $privateapps === "1")) {
-	$arr = array('app_menu' => $a->apps);
+	$arr = ['app_menu' => $a->apps];
 
 	call_hooks('app_menu', $arr);
 
@@ -294,8 +294,8 @@ if (strlen($a->module)) {
 		$tpl = get_markup_template("404.tpl");
 		$a->page['content'] = replace_macros(
 			$tpl,
-			array(
-			'$message' =>  t('Page not found.'))
+			[
+			'$message' =>  t('Page not found.')]
 		);
 	}
 }
@@ -362,14 +362,14 @@ if ($a->module_loaded) {
 	}
 
 	if (! $a->error) {
-		$arr = array('content' => $a->page['content']);
+		$arr = ['content' => $a->page['content']];
 		call_hooks($a->module . '_mod_content', $arr);
 		$a->page['content'] = $arr['content'];
 		if ($a->module_class) {
-			$arr = array('content' => call_user_func([$a->module_class, 'content']));
+			$arr = ['content' => call_user_func([$a->module_class, 'content'])];
 		} else if (function_exists($a->module . '_content')) {
 			$func = $a->module . '_content';
-			$arr = array('content' => $func($a));
+			$arr = ['content' => $func($a)];
 		}
 		call_hooks($a->module . '_mod_aftercontent', $arr);
 		$a->page['content'] .= $arr['content'];
@@ -440,9 +440,9 @@ if ($a->is_mobile || $a->is_tablet) {
 	}
 	$a->page['footer'] = replace_macros(
 		get_markup_template("toggle_mobile_footer.tpl"),
-		array(
+		[
 			'$toggle_link' => $link,
-			'$toggle_text' => t('toggle mobile'))
+			'$toggle_text' => t('toggle mobile')]
 	);
 }
 

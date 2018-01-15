@@ -97,7 +97,7 @@ function poke_init(App $a) {
 
 	$uri = item_new_uri($a->get_hostname(),$uid);
 
-	$arr = array();
+	$arr = [];
 
 	$arr['guid']          = get_guid(32);
 	$arr['uid']           = $uid;
@@ -177,10 +177,10 @@ function poke_content(App $a) {
 	$base = System::baseUrl();
 
 	$head_tpl = get_markup_template('poke_head.tpl');
-	$a->page['htmlhead'] .= replace_macros($head_tpl,array(
+	$a->page['htmlhead'] .= replace_macros($head_tpl,[
 		'$baseurl' => System::baseUrl(true),
 		'$base' => $base
-	));
+	]);
 
 
 	$parent = ((x($_GET,'parent')) ? intval($_GET['parent']) : '0');
@@ -188,15 +188,15 @@ function poke_content(App $a) {
 
 	$verbs = get_poke_verbs();
 
-	$shortlist = array();
+	$shortlist = [];
 	foreach($verbs as $k => $v)
 		if($v[1] !== 'NOTRANSLATION')
-			$shortlist[] = array($k,$v[1]);
+			$shortlist[] = [$k,$v[1]];
 
 
 	$tpl = get_markup_template('poke_content.tpl');
 
-	$o = replace_macros($tpl,array(
+	$o = replace_macros($tpl,[
 		'$title' => t('Poke/Prod'),
 		'$desc' => t('poke, prod or do other things to somebody'),
 		'$clabel' => t('Recipient'),
@@ -207,7 +207,7 @@ function poke_content(App $a) {
 		'$submit' => t('Submit'),
 		'$name' => $name,
 		'$id' => $id
-	));
+	]);
 
 	return $o;
 

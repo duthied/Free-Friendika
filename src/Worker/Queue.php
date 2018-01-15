@@ -33,7 +33,7 @@ class Queue
 			logger('queue: start');
 
 			// Handling the pubsubhubbub requests
-			Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), 'PubSubPublish');
+			Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'PubSubPublish');
 
 			$r = q(
 				"SELECT `queue`.*, `contact`.`name`, `contact`.`uid` FROM `queue`
@@ -60,7 +60,7 @@ class Queue
 			if (DBM::is_result($r)) {
 				foreach ($r as $q_item) {
 					logger('Call queue for id ' . $q_item['id']);
-					Worker::add(array('priority' => PRIORITY_LOW, 'dont_fork' => true), "Queue", (int) $q_item['id']);
+					Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], "Queue", (int) $q_item['id']);
 				}
 			}
 			return;
@@ -158,7 +158,7 @@ class Queue
 				break;
 
 			default:
-				$params = array('owner' => $owner, 'contact' => $contact, 'queue' => $q_item, 'result' => false);
+				$params = ['owner' => $owner, 'contact' => $contact, 'queue' => $q_item, 'result' => false];
 				call_hooks('queue_deliver', $params);
 
 				if ($params['result']) {

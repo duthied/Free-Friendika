@@ -23,16 +23,16 @@ require_once 'include/conversation.php';
  */
 class Post extends BaseObject
 {
-	private $data = array();
+	private $data = [];
 	private $template = null;
-	private $available_templates = array(
+	private $available_templates = [
 		'wall' => 'wall_thread.tpl',
 		'wall2wall' => 'wallwall_thread.tpl'
-	);
+	];
 	private $comment_box_template = 'comment_item.tpl';
 	private $toplevel = false;
 	private $writable = false;
-	private $children = array();
+	private $children = [];
 	private $parent = null;
 	private $thread = null;
 	private $redirect_url = null;
@@ -107,7 +107,7 @@ class Post extends BaseObject
 	{
 		require_once "mod/proxy.php";
 
-		$result = array();
+		$result = [];
 
 		$a = self::getApp();
 
@@ -119,11 +119,11 @@ class Post extends BaseObject
 		// between creation time and edit time of a second. Thats why we add the notice
 		// only if the difference is more than 1 second.
 		if (strtotime($item['edited']) - strtotime($item['created']) > 1) {
-			$edited = array(
+			$edited = [
 				'label'    => t('This entry was edited'),
 				'date'     => datetime_convert('UTC', date_default_timezone_get(), $item['edited'], 'r'),
 				'relative' => relative_date($item['edited'])
-			);
+			];
 		}
 		$commentww = '';
 		$sparkle = '';
@@ -147,9 +147,9 @@ class Post extends BaseObject
 
 		if (local_user() && link_compare($a->contact['url'], $item['author-link'])) {
 			if ($item["event-id"] != 0) {
-				$edpost = array("events/event/" . $item['event-id'], t("Edit"));
+				$edpost = ["events/event/" . $item['event-id'], t("Edit")];
 			} else {
-				$edpost = array("editpost/" . $item['id'], t("Edit"));
+				$edpost = ["editpost/" . $item['id'], t("Edit")];
 			}
 			$dropping = in_array($item['uid'], [0, local_user()]);
 		} else {
@@ -167,12 +167,12 @@ class Post extends BaseObject
 			$dropping = true;
 		}
 
-		$drop = array(
+		$drop = [
 			'dropping' => $dropping,
 			'pagedrop' => ((Feature::isEnabled($conv->getProfileOwner(), 'multi_delete')) ? $item['pagedrop'] : ''),
 			'select'   => t('Select'),
 			'delete'   => t('Delete'),
-		);
+		];
 
 		$filer = (($conv->getProfileOwner() == local_user()) ? t("save to folder") : false);
 
@@ -212,12 +212,12 @@ class Post extends BaseObject
 			}
 		}
 
-		$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
+		$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
 		call_hooks('render_location', $locate);
 		$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
 
 		// process action responses - e.g. like/dislike/attend/agree/whatever
-		$response_verbs = array('like', 'dislike');
+		$response_verbs = ['like', 'dislike'];
 
 		$isevent = false;
 		$attend = [];
@@ -227,7 +227,7 @@ class Post extends BaseObject
 			$response_verbs[] = 'attendmaybe';
 			if ($conv->isWritable()) {
 				$isevent = true;
-				$attend = array(t('I will attend'), t('I will not attend'), t('I might attend'));
+				$attend = [t('I will attend'), t('I will not attend'), t('I might attend')];
 			}
 		}
 
@@ -254,31 +254,31 @@ class Post extends BaseObject
 			if ($conv->getProfileOwner() == local_user()) {
 				$isstarred = (($item['starred']) ? "starred" : "unstarred");
 
-				$star = array(
+				$star = [
 					'do'        => t("add star"),
 					'undo'      => t("remove star"),
 					'toggle'    => t("toggle star status"),
 					'classdo'   => $item['starred'] ? "hidden" : "",
 					'classundo' => $item['starred'] ? "" : "hidden",
 					'starred'   => t('starred'),
-				);
+				];
 				$thread = dba::selectFirst('thread', ['ignored'], ['uid' => $item['uid'], 'iid' => $item['id']]);
 				if (DBM::is_result($thread)) {
-					$ignore = array(
+					$ignore = [
 						'do'        => t("ignore thread"),
 						'undo'      => t("unignore thread"),
 						'toggle'    => t("toggle ignore status"),
 						'classdo'   => $thread['ignored'] ? "hidden" : "",
 						'classundo' => $thread['ignored'] ? "" : "hidden",
 						'ignored'   => t('ignored'),
-					);
+					];
 				}
 
 				if (Feature::isEnabled($conv->getProfileOwner(), 'commtag')) {
-					$tagger = array(
+					$tagger = [
 						'add'   => t("add tag"),
 						'class' => "",
-					);
+					];
 				}
 			}
 		} else {
@@ -286,12 +286,12 @@ class Post extends BaseObject
 		}
 
 		if ($conv->isWritable()) {
-			$buttons = array(
-				'like'    => array(t("I like this \x28toggle\x29"), t("like")),
-				'dislike' => Feature::isEnabled($conv->getProfileOwner(), 'dislike') ? array(t("I don't like this \x28toggle\x29"), t("dislike")) : '',
-			);
+			$buttons = [
+				'like'    => [t("I like this \x28toggle\x29"), t("like")],
+				'dislike' => Feature::isEnabled($conv->getProfileOwner(), 'dislike') ? [t("I don't like this \x28toggle\x29"), t("dislike")] : '',
+			];
 			if ($shareable) {
-				$buttons['share'] = array(t('Share this'), t('share'));
+				$buttons['share'] = [t('Share this'), t('share')];
 			}
 
 			// If a contact isn't writable, we cannot send a like or dislike to it
@@ -322,7 +322,7 @@ class Post extends BaseObject
 
 		// Disable features that aren't available in several networks
 		/// @todo Add NETWORK_DIASPORA when it will pass this information
-		if (!in_array($item["item_network"], array(NETWORK_DFRN)) && isset($buttons["dislike"])) {
+		if (!in_array($item["item_network"], [NETWORK_DFRN]) && isset($buttons["dislike"])) {
 			unset($buttons["dislike"]);
 			$isevent = false;
 			$tagger = '';
@@ -336,7 +336,7 @@ class Post extends BaseObject
 			unset($buttons["like"]);
 		}
 
-		$tmp_item = array(
+		$tmp_item = [
 			'template'        => $this->getTemplate(),
 			'type'            => implode("", array_slice(explode("/", $item['verb']), -1)),
 			'tags'            => $item['tags'],
@@ -401,14 +401,14 @@ class Post extends BaseObject
 			'received'        => $item['received'],
 			'commented'       => $item['commented'],
 			'created_date'    => $item['created'],
-		);
+		];
 
-		$arr = array('item' => $item, 'output' => $tmp_item);
+		$arr = ['item' => $item, 'output' => $tmp_item];
 		call_hooks('display_item', $arr);
 
 		$result = $arr['output'];
 
-		$result['children'] = array();
+		$result['children'] = [];
 		$children = $this->getChildren();
 		$nb_children = count($children);
 		if ($nb_children > 0) {
@@ -774,7 +774,7 @@ class Post extends BaseObject
 			}
 
 			$template = get_markup_template($this->getCommentBoxTemplate());
-			$comment_box = replace_macros($template, array(
+			$comment_box = replace_macros($template, [
 				'$return_path' => $a->query_string,
 				'$threaded'    => $this->isThreaded(),
 				'$jsreload'    => '',
@@ -801,7 +801,7 @@ class Post extends BaseObject
 				'$sourceapp'   => t($a->sourcename),
 				'$ww'          => $conv->getMode() === 'network' ? $ww : '',
 				'$rand_num'    => random_digits(12)
-			));
+			]);
 		}
 
 		return $comment_box;

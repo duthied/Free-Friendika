@@ -119,7 +119,7 @@ class CronJobs
 		$r = q("SELECT * FROM `user` WHERE `account_removed` AND `account_expires_on` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
 		if (DBM::is_result($r)) {
 			foreach ($r as $user) {
-				dba::delete('user', array('uid' => $user['uid']));
+				dba::delete('user', ['uid' => $user['uid']]);
 			}
 		}
 	}
@@ -164,15 +164,15 @@ class CronJobs
 			if (!$cachetime) {
 				$cachetime = PROXY_DEFAULT_TIME;
 			}
-			$condition = array('`uid` = 0 AND `resource-id` LIKE "pic:%" AND `created` < NOW() - INTERVAL ? SECOND', $cachetime);
+			$condition = ['`uid` = 0 AND `resource-id` LIKE "pic:%" AND `created` < NOW() - INTERVAL ? SECOND', $cachetime];
 			dba::delete('photo', $condition);
 		}
 
 		// Delete the cached OEmbed entries that are older than three month
-		dba::delete('oembed', array("`created` < NOW() - INTERVAL 3 MONTH"));
+		dba::delete('oembed', ["`created` < NOW() - INTERVAL 3 MONTH"]);
 
 		// Delete the cached "parse_url" entries that are older than three month
-		dba::delete('parsed_url', array("`created` < NOW() - INTERVAL 3 MONTH"));
+		dba::delete('parsed_url', ["`created` < NOW() - INTERVAL 3 MONTH"]);
 
 		// Maximum table size in megabyte
 		$max_tablesize = intval(Config::get('system', 'optimize_max_tablesize')) * 1000000;

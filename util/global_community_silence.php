@@ -51,7 +51,7 @@ unset($db_host, $db_user, $db_pass, $db_data);
  * 3. set the flag hidden=1 for the contact entry with the found ID
  **/
 $net = Probe::uri($argv[1]);
-if (in_array($net['network'], array(NETWORK_PHANTOM, NETWORK_MAIL))) {
+if (in_array($net['network'], [NETWORK_PHANTOM, NETWORK_MAIL])) {
 	echo "This account seems not to exist.";
 	echo "\r\n";
 	exit(1);
@@ -59,7 +59,7 @@ if (in_array($net['network'], array(NETWORK_PHANTOM, NETWORK_MAIL))) {
 $nurl = normalise_link($net['url']);
 $contact = dba::selectFirst("contact", ["id"], ["nurl" => $nurl, "uid" => 0]);
 if (DBM::is_result($contact)) {
-	dba::update("contact", array("hidden" => true), array("id" => $contact["id"]));
+	dba::update("contact", ["hidden" => true], ["id" => $contact["id"]]);
 	echo "NOTICE: The account should be silenced from the global community page\r\n";
 } else {
 	echo "NOTICE: Could not find any entry for this URL (".$nurl.")\r\n";

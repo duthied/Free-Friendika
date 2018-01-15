@@ -217,8 +217,8 @@ class User
 				$openid = new \LightOpenID;
 				$openid->identity = $openid_url;
 				$openid->returnUrl = System::baseUrl() . '/openid';
-				$openid->required = array('namePerson/friendly', 'contact/email', 'namePerson');
-				$openid->optional = array('namePerson/first', 'media/image/aspect11', 'media/image/default');
+				$openid->required = ['namePerson/friendly', 'contact/email', 'namePerson'];
+				$openid->optional = ['namePerson/first', 'media/image/aspect11', 'media/image/default'];
 				try {
 					$authurl = $openid->authUrl();
 				} catch (Exception $e) {
@@ -456,11 +456,11 @@ class User
 
 		$body = sprintf($body, $username, $sitename);
 
-		return notification(array(
+		return notification([
 			'type' => SYSTEM_EMAIL,
 			'to_email' => $email,
 			'subject'=> sprintf( t('Registration at %s'), $sitename),
-			'body' => $body));
+			'body' => $body]);
 	}
 
 	/**
@@ -510,12 +510,12 @@ class User
 		$preamble = sprintf($preamble, $username, $sitename);
 		$body = sprintf($body, $email, $sitename, $siteurl, $username, $password);
 
-		return notification(array(
+		return notification([
 			'type' => SYSTEM_EMAIL,
 			'to_email' => $email,
 			'subject'=> sprintf( t('Registration details for %s'), $sitename),
 			'preamble'=> $preamble,
-			'body' => $body));
+			'body' => $body]);
 	}
 
 	/**

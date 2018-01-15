@@ -111,7 +111,7 @@ function fsuggest_content(App $a)
 	$o .= contact_selector(
 		'suggest',
 		'suggest-select',
-		array('size' => 4, 'exclude' => $contact_id, 'networks' => 'DFRN_ONLY', 'single' => true),
+		['size' => 4, 'exclude' => $contact_id, 'networks' => 'DFRN_ONLY', 'single' => true],
 		false
 	);
 

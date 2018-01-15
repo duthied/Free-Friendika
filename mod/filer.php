@@ -28,10 +28,10 @@ function filer_content(App $a) {
                 $filetags = explode(",", $filetags);
 
 		$tpl = get_markup_template("filer_dialog.tpl");
-		$o = replace_macros($tpl, array(
-			'$field' => array('term', t("Save to Folder:"), '', '', $filetags, t('- select -')),
+		$o = replace_macros($tpl, [
+			'$field' => ['term', t("Save to Folder:"), '', '', $filetags, t('- select -')],
 			'$submit' => t('Save'),
-		));
+		]);
 
 		echo $o;
 	}

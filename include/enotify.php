@@ -54,7 +54,7 @@ function notification($params)
 			['uid' => $params['uid']]);
 
 		// There is no need to create notifications for forum accounts
-		if (!DBM::is_result($user) || in_array($user["page-flags"], array(PAGE_COMMUNITY, PAGE_PRVGROUP))) {
+		if (!DBM::is_result($user) || in_array($user["page-flags"], [PAGE_COMMUNITY, PAGE_PRVGROUP])) {
 			return;
 		}
 	}
@@ -386,7 +386,7 @@ function notification($params)
 
 	$subject .= " (".$nickname."@".$hostname.")";
 
-	$h = array(
+	$h = [
 		'params'    => $params,
 		'subject'   => $subject,
 		'preamble'  => $preamble,
@@ -396,7 +396,7 @@ function notification($params)
 		'tsitelink' => $tsitelink,
 		'hsitelink' => $hsitelink,
 		'itemlink'  => $itemlink
-	);
+	];
 
 	call_hooks('enotify', $h);
 
@@ -424,7 +424,7 @@ function notification($params)
 		} while ($dups == true);
 
 		/// @TODO One statement is enough
-		$datarray = array();
+		$datarray = [];
 		$datarray['hash']  = $hash;
 		$datarray['name']  = $params['source_name'];
 		$datarray['name_cache'] = strip_tags(bbcode($params['source_name']));
@@ -486,7 +486,7 @@ function notification($params)
 		);
 		if ($p && (count($p) > 1)) {
 			for ($d = 1; $d < count($p); $d ++) {
-				dba::delete('notify', array('id' => $p[$d]['id']));
+				dba::delete('notify', ['id' => $p[$d]['id']]);
 			}
 
 			// only continue on if we stored the first one
@@ -497,7 +497,7 @@ function notification($params)
 		}
 
 		$itemlink = System::baseUrl().'/notify/view/'.$notify_id;
-		$msg = replace_macros($epreamble, array('$itemlink' => $itemlink));
+		$msg = replace_macros($epreamble, ['$itemlink' => $itemlink]);
 		$msg_cache = format_notification_message($datarray['name_cache'], strip_tags(bbcode($msg)));
 		q("UPDATE `notify` SET `msg` = '%s', `msg_cache` = '%s' WHERE `id` = %d AND `uid` = %d",
 			dbesc($msg),
@@ -546,12 +546,12 @@ function notification($params)
 		}
 
 		// textversion keeps linebreaks
-		$textversion = strip_tags(str_replace("<br>", "\n", html_entity_decode(bbcode(stripslashes(str_replace(array("\\r\\n", "\\r", "\\n"), "\n",
+		$textversion = strip_tags(str_replace("<br>", "\n", html_entity_decode(bbcode(stripslashes(str_replace(["\\r\\n", "\\r", "\\n"], "\n",
 			$body))),ENT_QUOTES, 'UTF-8')));
-		$htmlversion = html_entity_decode(bbcode(stripslashes(str_replace(array("\\r\\n", "\\r", "\\n\\n", "\\n"),
+		$htmlversion = html_entity_decode(bbcode(stripslashes(str_replace(["\\r\\n", "\\r", "\\n\\n", "\\n"],
 			"<br />\n", $body))), ENT_QUOTES, 'UTF-8');
 
-		$datarray = array();
+		$datarray = [];
 		$datarray['banner'] = $banner;
 		$datarray['product'] = $product;
 		$datarray['preamble'] = $preamble;
@@ -584,7 +584,7 @@ function notification($params)
 
 		// load the template for private message notifications
 		$tpl = get_markup_template('email_notify_html.tpl');
-		$email_html_body = replace_macros($tpl, array(
+		$email_html_body = replace_macros($tpl, [
 			'$banner'       => $datarray['banner'],
 			'$product'      => $datarray['product'],
 			'$preamble'     => str_replace("\n", "<br>\n", $datarray['preamble']),
@@ -601,11 +601,11 @@ function notification($params)
 			'$title'	=> $datarray['title'],
 			'$htmlversion'	=> $datarray['htmlversion'],
 			'$content_allowed'	=> $content_allowed,
-		));
+		]);
 
 		// load the template for private message notifications
 		$tpl = get_markup_template('email_notify_text.tpl');
-		$email_text_body = replace_macros($tpl, array(
+		$email_text_body = replace_macros($tpl, [
 			'$banner'       => $datarray['banner'],
 			'$product'      => $datarray['product'],
 			'$preamble'     => $datarray['preamble'],
@@ -622,11 +622,11 @@ function notification($params)
 			'$title'	=> $datarray['title'],
 			'$textversion'	=> $datarray['textversion'],
 			'$content_allowed'	=> $content_allowed,
-		));
+		]);
 
 		// use the Emailer class to send the message
 		return Emailer::send(
-			array(
+			[
 			'uid' => $params['uid'],
 			'fromName' => $sender_name,
 			'fromEmail' => $sender_email,
@@ -635,7 +635,7 @@ function notification($params)
 			'messageSubject' => $datarray['subject'],
 			'htmlVersion' => $email_html_body,
 			'textVersion' => $email_text_body,
-			'additionalMailHeader' => $datarray['headers'])
+			'additionalMailHeader' => $datarray['headers']]
 		);
 	}
 
@@ -666,7 +666,7 @@ function check_user_notification($itemid) {
  * @param str $defaulttype (Optional) Forces a notification with this type.
  */
 function check_item_notification($itemid, $uid, $defaulttype = "") {
-	$notification_data = array("uid" => $uid, "profiles" => array());
+	$notification_data = ["uid" => $uid, "profiles" => []];
 	call_hooks('check_item_notification', $notification_data);
 
 	$profiles = $notification_data["profiles"];
@@ -688,7 +688,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	// Notifications from Diaspora are often with an URL in the Diaspora format
 	$profiles[] = System::baseUrl()."/u/".$user["nickname"];
 
-	$profiles2 = array();
+	$profiles2 = [];
 
 	foreach ($profiles AS $profile) {
 		// Check for invalid profile urls. 13 should be the shortest possible profile length:
@@ -732,7 +732,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 		return false;
 
 	// Generate the notification array
-	$params = array();
+	$params = [];
 	$params["uid"] = $uid;
 	$params["notify_flags"] = $user["notify-flags"];
 	$params["language"] = $user["language"];

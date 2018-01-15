@@ -32,7 +32,7 @@ function invite_post(App $a) {
 	}
 
 
-	$recips  = ((x($_POST,'recipients')) ? explode("\n",$_POST['recipients']) : array());
+	$recips  = ((x($_POST,'recipients')) ? explode("\n",$_POST['recipients']) : []);
 	$message = ((x($_POST,'message'))    ? notags(trim($_POST['message']))    : '');
 
 	$total = 0;
@@ -136,7 +136,7 @@ function invite_content(App $a) {
 		}
 	}
 
-	$o = replace_macros($tpl, array(
+	$o = replace_macros($tpl, [
 		'$form_security_token' => get_form_security_token("send_invite"),
 		'$invite'              => t('Send invitations'),
 		'$addr_text'           => t('Enter email addresses, one per line:'),
@@ -147,7 +147,7 @@ function invite_content(App $a) {
 			. "\r\n" . "\r\n" . System::baseUrl() . '/profile/' . $a->user['nickname']
 			. "\r\n" . "\r\n" . t('For more information about the Friendica project and why we feel it is important, please visit http://friendi.ca') . "\r\n" . "\r\n"  ,
 		'$submit'              => t('Submit')
-	));
+	]);
 
 	return $o;
 }

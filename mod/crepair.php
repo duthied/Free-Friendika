@@ -120,22 +120,22 @@ function crepair_content(App $a)
 	// Disable remote self for everything except feeds.
 	// There is an issue when you repeat an item from maybe twitter and you got comments from friendica and twitter
 	// Problem is, you couldn't reply to both networks.
-	if (!in_array($contact['network'], array(NETWORK_FEED, NETWORK_DFRN, NETWORK_DIASPORA))) {
+	if (!in_array($contact['network'], [NETWORK_FEED, NETWORK_DFRN, NETWORK_DIASPORA])) {
 		$allow_remote_self = false;
 	}
 
 	if ($contact['network'] == NETWORK_FEED) {
-		$remote_self_options = array('0' => t('No mirroring'), '1' => t('Mirror as forwarded posting'), '2' => t('Mirror as my own posting'));
+		$remote_self_options = ['0' => t('No mirroring'), '1' => t('Mirror as forwarded posting'), '2' => t('Mirror as my own posting')];
 	} else {
-		$remote_self_options = array('0' => t('No mirroring'), '2' => t('Mirror as my own posting'));
+		$remote_self_options = ['0' => t('No mirroring'), '2' => t('Mirror as my own posting')];
 	}
 
-	$update_profile = in_array($contact['network'], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS));
+	$update_profile = in_array($contact['network'], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS]);
 
 	$tab_str = contacts_tab($a, $contact['id'], 5);
 
 	$tpl = get_markup_template('crepair.tpl');
-	$o = replace_macros($tpl, array(
+	$o = replace_macros($tpl, [
 		'$tab_str'        => $tab_str,
 		'$warning'        => $warning,
 		'$info'           => $info,
@@ -147,23 +147,23 @@ function crepair_content(App $a)
 		'$lbl_submit'     => t('Submit'),
 		'$label_remote_self' => t('Remote Self'),
 		'$allow_remote_self' => $allow_remote_self,
-		'$remote_self' => array('remote_self',
+		'$remote_self' => ['remote_self',
 			t('Mirror postings from this contact'),
 			$contact['remote_self'],
 			t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'),
 			$remote_self_options
-		),
+		],
 
-		'$name'		=> array('name', t('Name') , htmlentities($contact['name'])),
-		'$nick'		=> array('nick', t('Account Nickname'), htmlentities($contact['nick'])),
-		'$attag'	=> array('attag', t('@Tagname - overrides Name/Nickname'), $contact['attag']),
-		'$url'		=> array('url', t('Account URL'), $contact['url']),
-		'$request'	=> array('request', t('Friend Request URL'), $contact['request']),
-		'confirm'	=> array('confirm', t('Friend Confirm URL'), $contact['confirm']),
-		'notify'	=> array('notify', t('Notification Endpoint URL'), $contact['notify']),
-		'poll'		=> array('poll', t('Poll/Feed URL'), $contact['poll']),
-		'photo'		=> array('photo', t('New photo from this URL'), ''),
-	));
+		'$name'		=> ['name', t('Name') , htmlentities($contact['name'])],
+		'$nick'		=> ['nick', t('Account Nickname'), htmlentities($contact['nick'])],
+		'$attag'	=> ['attag', t('@Tagname - overrides Name/Nickname'), $contact['attag']],
+		'$url'		=> ['url', t('Account URL'), $contact['url']],
+		'$request'	=> ['request', t('Friend Request URL'), $contact['request']],
+		'confirm'	=> ['confirm', t('Friend Confirm URL'), $contact['confirm']],
+		'notify'	=> ['notify', t('Notification Endpoint URL'), $contact['notify']],
+		'poll'		=> ['poll', t('Poll/Feed URL'), $contact['poll']],
+		'photo'		=> ['photo', t('New photo from this URL'), ''],
+	]);
 
 	return $o;
 }

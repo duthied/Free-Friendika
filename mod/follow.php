@@ -131,7 +131,7 @@ function follow_content(App $a) {
 		normalise_link($ret["url"]));
 
 	if (!$r) {
-		$r = array(array("location" => "", "about" => "", "keywords" => ""));
+		$r = [["location" => "", "about" => "", "keywords" => ""]];
 	} else {
 		$gcontact_id = $r[0]["id"];
 	}
@@ -143,12 +143,12 @@ function follow_content(App $a) {
 
 	$header = t("Connect/Follow");
 
-	$o  = replace_macros($tpl,array(
+	$o  = replace_macros($tpl,[
 			'$header' => htmlentities($header),
 			//'$photo' => proxy_url($ret["photo"], false, PROXY_SIZE_SMALL),
 			'$desc' => "",
 			'$pls_answer' => t('Please answer the following:'),
-			'$does_know_you' => array('knowyou', sprintf(t('Does %s know you?'),$ret["name"]), false, '', array(t('No'), t('Yes'))),
+			'$does_know_you' => ['knowyou', sprintf(t('Does %s know you?'),$ret["name"]), false, '', [t('No'), t('Yes')]],
 			'$add_note' => t('Add a personal note:'),
 			'$page_desc' => "",
 			'$friendica' => "",
@@ -173,7 +173,7 @@ function follow_content(App $a) {
 			'$about_label' => t("About:"), */
 			'$keywords' => $r[0]["keywords"],
 			'$keywords_label' => t("Tags:")
-	));
+	]);
 
 	$a->page['aside'] = "";
 
@@ -181,8 +181,8 @@ function follow_content(App $a) {
 
 	if ($gcontact_id <> 0) {
 		$o .= replace_macros(get_markup_template('section_title.tpl'),
-						array('$title' => t('Status Messages and Posts')
-		));
+						['$title' => t('Status Messages and Posts')
+		]);
 
 		// Show last public posts
 		$o .= Contact::getPostsFromUrl($ret["url"]);

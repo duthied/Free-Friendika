@@ -34,7 +34,7 @@ function notes_content(App $a, $update = false) {
 	require_once('include/security.php');
 	require_once('include/conversation.php');
 	require_once('include/acl_selectors.php');
-	$groups = array();
+	$groups = [];
 
 
 	$o = '';
@@ -55,7 +55,7 @@ function notes_content(App $a, $update = false) {
 		$commpage = false;
 		$commvisitor = false;
 
-		$x = array(
+		$x = [
 			'is_owner' => $is_owner,
 			'allow_location' => (($a->user['allow_location']) ? true : false),
 			'default_location' => $a->user['default-location'],
@@ -67,7 +67,7 @@ function notes_content(App $a, $update = false) {
 			'profile_uid' => local_user(),
 			'button' => t('Save'),
 			'acl_data' => '',
-		);
+		];
 
 		$o .= status_editor($a,$x,$a->contact['id']);
 
@@ -106,7 +106,7 @@ function notes_content(App $a, $update = false) {
 
 	);
 
-	$parents_arr = array();
+	$parents_arr = [];
 	$parents_str = '';
 
 	if (DBM::is_result($r)) {

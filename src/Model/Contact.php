@@ -150,11 +150,11 @@ class Contact extends BaseObject
 
 		$archive = PConfig::get($contact['uid'], 'system', 'archive_removed_contacts');
 		if ($archive) {
-			dba::update('contact', array('archive' => true, 'network' => 'none', 'writable' => false), array('id' => $id));
+			dba::update('contact', ['archive' => true, 'network' => 'none', 'writable' => false], ['id' => $id]);
 			return;
 		}
 
-		dba::delete('contact', array('id' => $id));
+		dba::delete('contact', ['id' => $id]);
 
 		// Delete the rest in the background
 		Worker::add(PRIORITY_LOW, 'RemoveContact', $id);
@@ -171,7 +171,7 @@ class Contact extends BaseObject
 	{
 		if ($contact['network'] === NETWORK_OSTATUS) {
 			// create an unfollow slap
-			$item = array();
+			$item = [];
 			$item['verb'] = NAMESPACE_OSTATUS . "/unfollow";
 			$item['follow'] = $contact["url"];
 			$slap = OStatus::salmon($item, $user);
@@ -206,10 +206,10 @@ class Contact extends BaseObject
 		}
 
 		if ($contact['term-date'] <= NULL_DATE) {
-			dba::update('contact', array('term-date' => datetime_convert()), array('id' => $contact['id']));
+			dba::update('contact', ['term-date' => datetime_convert()], ['id' => $contact['id']]);
 
 			if ($contact['url'] != '') {
-				dba::update('contact', array('term-date' => datetime_convert()), array('`nurl` = ? AND `term-date` <= ? AND NOT `self`', normalise_link($contact['url']), NULL_DATE));
+				dba::update('contact', ['term-date' => datetime_convert()], ['`nurl` = ? AND `term-date` <= ? AND NOT `self`', normalise_link($contact['url']), NULL_DATE]);
 			}
 		} else {
 			/* @todo
@@ -225,10 +225,10 @@ class Contact extends BaseObject
 				 * delete, though if the owner tries to unarchive them we'll start
 				 * the whole process over again.
 				 */
-				dba::update('contact', array('archive' => 1), array('id' => $contact['id']));
+				dba::update('contact', ['archive' => 1], ['id' => $contact['id']]);
 
 				if ($contact['url'] != '') {
-					dba::update('contact', array('archive' => 1), array('nurl' => normalise_link($contact['url']), 'self' => false));
+					dba::update('contact', ['archive' => 1], ['nurl' => normalise_link($contact['url']), 'self' => false]);
 				}
 			}
 		}
@@ -244,7 +244,7 @@ class Contact extends BaseObject
 	 */
 	public static function unmarkForArchival(array $contact)
 	{
-		$condition = array('`id` = ? AND (`term-date` > ? OR `archive`)', $contact['id'], NULL_DATE);
+		$condition = ['`id` = ? AND (`term-date` > ? OR `archive`)', $contact['id'], NULL_DATE];
 		$exists = dba::exists('contact', $condition);
 
 		// We don't need to update, we never marked this contact for archival
@@ -253,11 +253,11 @@ class Contact extends BaseObject
 		}
 
 		// It's a miracle. Our dead contact has inexplicably come back to life.
-		$fields = array('term-date' => NULL_DATE, 'archive' => false);
-		dba::update('contact', $fields, array('id' => $contact['id']));
+		$fields = ['term-date' => NULL_DATE, 'archive' => false];
+		dba::update('contact', $fields, ['id' => $contact['id']]);
 
 		if ($contact['url'] != '') {
-			dba::update('contact', $fields, array('nurl' => normalise_link($contact['url'])));
+			dba::update('contact', $fields, ['nurl' => normalise_link($contact['url'])]);
 		}
 	}
 
@@ -275,7 +275,7 @@ class Contact extends BaseObject
 	 */
 	public static function getDetailsByURL($url, $uid = -1, array $default = [])
 	{
-		static $cache = array();
+		static $cache = [];
 
 		if ($url == '') {
 			return $default;
@@ -387,7 +387,7 @@ class Contact extends BaseObject
 		}
 
 		if ((($profile["addr"] == "") || ($profile["name"] == "")) && ($profile["gid"] != 0)
-			&& in_array($profile["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))
+			&& in_array($profile["network"], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS])
 		) {
 			Worker::add(PRIORITY_LOW, "UpdateGContact", $profile["gid"]);
 		}
@@ -417,10 +417,10 @@ class Contact extends BaseObject
 	 */
 	public static function getDetailsByAddr($addr, $uid = -1)
 	{
-		static $cache = array();
+		static $cache = [];
 
 		if ($addr == '') {
-			return array();
+			return [];
 		}
 
 		if ($uid == -1) {
@@ -490,7 +490,7 @@ class Contact extends BaseObject
 		if ($contact['uid'] != $uid) {
 			if ($uid == 0) {
 				$profile_link = Profile::zrl($contact['url']);
-				$menu = array('profile' => array(t('View Profile'), $profile_link, true));
+				$menu = ['profile' => [t('View Profile'), $profile_link, true]];
 
 				return $menu;
 			}
@@ -502,10 +502,10 @@ class Contact extends BaseObject
 			} else {
 				$profile_link = Profile::zrl($contact['url']);
 				$connlnk = 'follow/?url=' . $contact['url'];
-				$menu = array(
-					'profile' => array(t('View Profile'), $profile_link, true),
-					'follow' => array(t('Connect/Follow'), $connlnk, true)
-				);
+				$menu = [
+					'profile' => [t('View Profile'), $profile_link, true],
+					'follow' => [t('Connect/Follow'), $connlnk, true]
+				];
 
 				return $menu;
 			}
@@ -529,7 +529,7 @@ class Contact extends BaseObject
 			$profile_link = $profile_link . '?url=profile';
 		}
 
-		if (in_array($contact['network'], array(NETWORK_DFRN, NETWORK_DIASPORA))) {
+		if (in_array($contact['network'], [NETWORK_DFRN, NETWORK_DIASPORA])) {
 			$pm_url = System::baseUrl() . '/message/new/' . $contact['id'];
 		}
 
@@ -561,7 +561,7 @@ class Contact extends BaseObject
 
 		call_hooks('contact_photo_menu', $args);
 
-		$menucondensed = array();
+		$menucondensed = [];
 
 		foreach ($menu as $menuname => $menuitem) {
 			if ($menuitem[1] != '') {
@@ -625,7 +625,7 @@ class Contact extends BaseObject
 			intval($start),
 			intval($count)
 		);
-		
+
 		return $r;
 	}
 
@@ -702,7 +702,7 @@ class Contact extends BaseObject
 		$data = Probe::uri($url, "", $uid);
 
 		// Last try in gcontact for unsupported networks
-		if (!in_array($data["network"], array(NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_PUMPIO, NETWORK_MAIL))) {
+		if (!in_array($data["network"], [NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_PUMPIO, NETWORK_MAIL])) {
 			if ($uid != 0) {
 				return 0;
 			}
@@ -775,7 +775,7 @@ class Contact extends BaseObject
 				if ($data['about'] != '') {
 					unset($gcontact['about']);
 				}
-				dba::update('contact', $gcontact, array('id' => $contact_id));
+				dba::update('contact', $gcontact, ['id' => $contact_id]);
 			}
 
 			if (count($contacts) > 1 && $uid == 0 && $contact_id != 0 && $data["url"] != "") {
@@ -794,12 +794,12 @@ class Contact extends BaseObject
 			return $contact_id;
 		}
 
-		$updated = array('addr' => $data['addr'],
+		$updated = ['addr' => $data['addr'],
 			'alias' => $data['alias'],
 			'url' => $data['url'],
 			'nurl' => normalise_link($data['url']),
 			'name' => $data['name'],
-			'nick' => $data['nick']);
+			'nick' => $data['nick']];
 
 		// Only fill the pubkey if it was empty before. We have to prevent identity theft.
 		if (!empty($contact['pubkey'])) {
@@ -827,7 +827,7 @@ class Contact extends BaseObject
 
 		$updated['avatar-date'] = datetime_convert();
 
-		dba::update('contact', $updated, array('id' => $contact_id), $contact);
+		dba::update('contact', $updated, ['id' => $contact_id], $contact);
 
 		return $contact_id;
 	}
@@ -896,7 +896,7 @@ class Contact extends BaseObject
 			return '';
 		}
 
-		if (in_array($r[0]["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""))) {
+		if (in_array($r[0]["network"], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""])) {
 			$sql = "(`item`.`uid` = 0 OR (`item`.`uid` = %d AND NOT `item`.`global`))";
 		} else {
 			$sql = "`item`.`uid` = %d";
@@ -1013,7 +1013,7 @@ class Contact extends BaseObject
 		if (!DBM::is_result($contact)) {
 			return false;
 		} else {
-			$data = array($contact["photo"], $contact["thumb"], $contact["micro"]);
+			$data = [$contact["photo"], $contact["thumb"], $contact["micro"]];
 		}
 
 		if (($contact["avatar"] != $avatar) || $force) {
@@ -1022,8 +1022,8 @@ class Contact extends BaseObject
 			if ($photos) {
 				dba::update(
 					'contact',
-					array('avatar' => $avatar, 'photo' => $photos[0], 'thumb' => $photos[1], 'micro' => $photos[2], 'avatar-date' => datetime_convert()),
-					array('id' => $cid)
+					['avatar' => $avatar, 'photo' => $photos[0], 'thumb' => $photos[1], 'micro' => $photos[2], 'avatar-date' => datetime_convert()],
+					['id' => $cid]
 				);
 
 				// Update the public contact (contact id = 0)
@@ -1122,7 +1122,7 @@ class Contact extends BaseObject
 	 */
 	public static function createFromProbe($uid, $url, $interactive = false, $network = '')
 	{
-		$result = array('cid' => -1, 'success' => false, 'message' => '');
+		$result = ['cid' => -1, 'success' => false, 'message' => ''];
 
 		$a = get_app();
 
@@ -1144,7 +1144,7 @@ class Contact extends BaseObject
 			return $result;
 		}
 
-		$arr = array('url' => $url, 'contact' => array());
+		$arr = ['url' => $url, 'contact' => []];
 
 		call_hooks('follow', $arr);
 
@@ -1217,7 +1217,7 @@ class Contact extends BaseObject
 
 		$hidden = (($ret['network'] === NETWORK_MAIL) ? 1 : 0);
 
-		if (in_array($ret['network'], array(NETWORK_MAIL, NETWORK_DIASPORA))) {
+		if (in_array($ret['network'], [NETWORK_MAIL, NETWORK_DIASPORA])) {
 			$writeable = 1;
 		}
 
@@ -1244,10 +1244,10 @@ class Contact extends BaseObject
 			// update contact
 			$new_relation = (($r[0]['rel'] == CONTACT_IS_FOLLOWER) ? CONTACT_IS_FRIEND : CONTACT_IS_SHARING);
 
-			$fields = array('rel' => $new_relation, 'subhub' => $subhub, 'readonly' => false);
-			dba::update('contact', $fields, array('id' => $r[0]['id']));
+			$fields = ['rel' => $new_relation, 'subhub' => $subhub, 'readonly' => false];
+			dba::update('contact', $fields, ['id' => $r[0]['id']]);
 		} else {
-			$new_relation = ((in_array($ret['network'], array(NETWORK_MAIL))) ? CONTACT_IS_FRIEND : CONTACT_IS_SHARING);
+			$new_relation = ((in_array($ret['network'], [NETWORK_MAIL])) ? CONTACT_IS_FRIEND : CONTACT_IS_SHARING);
 
 			// create contact record
 			dba::insert('contact', [
@@ -1302,7 +1302,7 @@ class Contact extends BaseObject
 		if (DBM::is_result($r)) {
 			if (($contact['network'] == NETWORK_OSTATUS) && (strlen($contact['notify']))) {
 				// create a follow slap
-				$item = array();
+				$item = [];
 				$item['verb'] = ACTIVITY_FOLLOW;
 				$item['follow'] = $contact["url"];
 				$slap = OStatus::salmon($item, $r[0]);

@@ -18,7 +18,7 @@ function display_init(App $a)
 	}
 
 	$nick = (($a->argc > 1) ? $a->argv[1] : '');
-	$profiledata = array();
+	$profiledata = [];
 
 	if ($a->argc == 3) {
 		if (substr($a->argv[2], -5) == '.atom') {
@@ -102,7 +102,7 @@ function display_init(App $a)
 				}
 				$profiledata["network"] = NETWORK_DFRN;
 			} else {
-				$profiledata = array();
+				$profiledata = [];
 			}
 		}
 	}
@@ -111,7 +111,7 @@ function display_init(App $a)
 }
 
 function display_fetchauthor($a, $item) {
-	$profiledata = array();
+	$profiledata = [];
 	$profiledata["uid"] = -1;
 	$profiledata["nickname"] = $item["author-name"];
 	$profiledata["name"] = $item["author-name"];
@@ -181,7 +181,7 @@ function display_fetchauthor($a, $item) {
 	$profiledata["photo"] = System::removedBaseUrl($profiledata["photo"]);
 
 	if (local_user()) {
-		if (in_array($profiledata["network"], array(NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS))) {
+		if (in_array($profiledata["network"], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS])) {
 			$profiledata["remoteconnect"] = System::baseUrl()."/follow?url=".urlencode($profiledata["url"]);
 		}
 	} elseif ($profiledata["network"] == NETWORK_DFRN) {
@@ -207,7 +207,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	if ($update) {
 		$item_id = $_REQUEST['item_id'];
 		$item = dba::selectFirst('item', ['uid', 'parent'], ['id' => $item_id]);
-		$a->profile = array('uid' => intval($item['uid']), 'profile_uid' => intval($item['uid']));
+		$a->profile = ['uid' => intval($item['uid']), 'profile_uid' => intval($item['uid'])];
 		$item_parent = $item['parent'];
 	} else {
 		$item_id = (($a->argc > 2) ? $a->argv[2] : 0);
@@ -245,7 +245,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	}
 
 	// We are displaying an "alternate" link if that post was public. See issue 2864
-	$is_public = dba::exists('item', array('id' => $item_id, 'private' => false));
+	$is_public = dba::exists('item', ['id' => $item_id, 'private' => false]);
 	if ($is_public) {
 		// For the atom feed the nickname doesn't matter at all, we only need the item id.
 		$alternate = System::baseUrl().'/display/feed-item/'.$item_id.'.atom';
@@ -256,10 +256,10 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	}
 
 	$a->page['htmlhead'] .= replace_macros(get_markup_template('display-head.tpl'),
-				array('$alternate' => $alternate,
-					'$conversation' => $conversation));
+				['$alternate' => $alternate,
+					'$conversation' => $conversation]);
 
-	$groups = array();
+	$groups = [];
 
 	$contact = null;
 	$remote_contact = false;
@@ -307,7 +307,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 
 	// We need the editor here to be able to reshare an item.
 	if ($is_owner) {
-		$x = array(
+		$x = [
 			'is_owner' => true,
 			'allow_location' => $a->user['allow_location'],
 			'default_location' => $a->user['default-location'],
@@ -317,7 +317,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 			'bang' => '',
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
-		);
+		];
 		$o .= status_editor($a, $x, 0, true);
 	}
 
@@ -351,7 +351,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	if (local_user() && (local_user() == $a->profile['uid'])) {
 		$unseen = dba::selectFirst('item', ['id'], ['parent' => $s[0]['parent'], 'unseen' => true]);
 		if (DBM::is_result($unseen)) {
-			dba::update('item', array('unseen' => false), array('parent' => $s[0]['parent'], 'unseen' => true));
+			dba::update('item', ['unseen' => false], ['parent' => $s[0]['parent'], 'unseen' => true]);
 		}
 	}
 

@@ -35,8 +35,8 @@ class Delivery {
 		$fsuggest = false;
 		$relocate = false;
 		$top_level = false;
-		$recipients = array();
-		$url_recipients = array();
+		$recipients = [];
+		$url_recipients = [];
 		$followup = false;
 
 		$normal_mode = true;
@@ -108,7 +108,7 @@ class Delivery {
 			}
 
 			$icontacts = null;
-			$contacts_arr = array();
+			$contacts_arr = [];
 			foreach ($items as $item) {
 				if (!in_array($item['contact-id'],$contacts_arr)) {
 					$contacts_arr[] = intval($item['contact-id']);
@@ -238,7 +238,7 @@ class Delivery {
 				} elseif ($relocate) {
 					$atom = DFRN::relocate($owner, $uid);
 				} elseif ($followup) {
-					$msgitems = array();
+					$msgitems = [];
 					foreach ($items as $item) {  // there is only one item
 						if (!$item['parent']) {
 							return;
@@ -250,7 +250,7 @@ class Delivery {
 					}
 					$atom = DFRN::entries($msgitems,$owner);
 				} else {
-					$msgitems = array();
+					$msgitems = [];
 					foreach ($items as $item) {
 						if (!$item['parent']) {
 							return;

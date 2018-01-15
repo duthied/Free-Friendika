@@ -21,7 +21,7 @@ class dba {
 	private static $errorno = 0;
 	private static $affected_rows = 0;
 	private static $in_transaction = false;
-	private static $relation = array();
+	private static $relation = [];
 
 	public static function connect($serveraddr, $user, $pass, $db, $install = false) {
 		if (!is_null(self::$db)) {
@@ -157,7 +157,7 @@ class dba {
 		}
 
 		// Only do the explain on "select", "update" and "delete"
-		if (!in_array(strtolower(substr($query, 0, 6)), array("select", "update", "delete"))) {
+		if (!in_array(strtolower(substr($query, 0, 6)), ["select", "update", "delete"])) {
 			return;
 		}
 
@@ -253,8 +253,8 @@ class dba {
 	 * @return string The input SQL string modified if necessary.
 	 */
 	public static function clean_query($sql) {
-		$search = array("\t", "\n", "\r", "  ");
-		$replace = array(' ', ' ', ' ', ' ');
+		$search = ["\t", "\n", "\r", "  "];
+		$replace = [' ', ' ', ' ', ' '];
 		do {
 			$oldsql = $sql;
 			$sql = str_replace($search, $replace, $sql);
@@ -324,7 +324,7 @@ class dba {
 
 		// Renumber the array keys to be sure that they fit
 		$i = 0;
-		$args = array();
+		$args = [];
 		foreach ($params AS $param) {
 			// Avoid problems with some MySQL servers and boolean values. See issue #3645
 			if (is_bool($param)) {
@@ -408,7 +408,7 @@ class dba {
 				// There are SQL statements that cannot be executed with a prepared statement
 				$parts = explode(' ', $orig_sql);
 				$command = strtolower($parts[0]);
-				$can_be_prepared = in_array($command, array('select', 'update', 'insert', 'delete'));
+				$can_be_prepared = in_array($command, ['select', 'update', 'insert', 'delete']);
 
 				// The fallback routine is called as well when there are no arguments
 				if (!$can_be_prepared || (count($args) == 0)) {
@@ -437,7 +437,7 @@ class dba {
 				}
 
 				$params = '';
-				$values = array();
+				$values = [];
 				foreach ($args AS $param => $value) {
 					if (is_int($args[$param])) {
 						$params .= 'i';
@@ -453,7 +453,7 @@ class dba {
 
 				if (count($values) > 0) {
 					array_unshift($values, $params);
-					call_user_func_array(array($stmt, 'bind_param'), $values);
+					call_user_func_array([$stmt, 'bind_param'], $values);
 				}
 
 				if (!$stmt->execute()) {
@@ -564,12 +564,12 @@ class dba {
 			return false;
 		}
 
-		$fields = array();
+		$fields = [];
 
 		$array_element = each($condition);
 		$array_key = $array_element['key'];
 		if (!is_int($array_key)) {
-			$fields = array($array_key);
+			$fields = [$array_key];
 		}
 
 		$stmt = self::select($table, $fields, $condition, ['limit' => 1]);
@@ -678,14 +678,14 @@ class dba {
 				// This code works, but is slow
 
 				// Bind the result to a result array
-				$cols = array();
+				$cols = [];
 
-				$cols_num = array();
+				$cols_num = [];
 				for ($x = 0; $x < $stmt->field_count; $x++) {
 					$cols[] = &$cols_num[$x];
 				}
 
-				call_user_func_array(array($stmt, 'bind_result'), $cols);
+				call_user_func_array([$stmt, 'bind_result'], $cols);
 
 				if (!$stmt->fetch()) {
 					return false;
@@ -697,7 +697,7 @@ class dba {
 				$result = $stmt->result_metadata();
 				$fields = $result->fetch_fields();
 
-				$columns = array();
+				$columns = [];
 				foreach ($cols_num AS $param => $col) {
 					$columns[$fields[$param]->name] = $col;
 				}
@@ -901,7 +901,7 @@ class dba {
 			if ((count($conditions) == 1) && ($field == array_keys($conditions)[0])) {
 				foreach ($rel_def AS $rel_table => $rel_fields) {
 					foreach ($rel_fields AS $rel_field) {
-						$retval = self::delete($rel_table, array($rel_field => array_values($conditions)[0]), true, $callstack);
+						$retval = self::delete($rel_table, [$rel_field => array_values($conditions)[0]], true, $callstack);
 						$commands = array_merge($commands, $retval);
 					}
 				}
@@ -911,11 +911,11 @@ class dba {
 				$callstack[$qkey] = true;
 
 				// Fetch all rows that are to be deleted
-				$data = self::select($table, array($field), $conditions);
+				$data = self::select($table, [$field], $conditions);
 
 				while ($row = self::fetch($data)) {
 					// Now we accumulate the delete commands
-					$retval = self::delete($table, array($field => $row[$field]), true, $callstack);
+					$retval = self::delete($table, [$field => $row[$field]], true, $callstack);
 					$commands = array_merge($commands, $retval);
 				}
 
@@ -1027,7 +1027,7 @@ class dba {
 	 *
 	 * @return boolean was the update successfull?
 	 */
-	public static function update($table, $fields, $condition, $old_fields = array()) {
+	public static function update($table, $fields, $condition, $old_fields = []) {
 
 		if (empty($table) || empty($fields) || empty($condition)) {
 			logger('Table, fields and condition have to be set');
@@ -1054,7 +1054,7 @@ class dba {
 					$values = array_merge($condition, $fields);
 					return self::insert($table, $values, $do_insert);
 				}
-				$old_fields = array();
+				$old_fields = [];
 			}
 		}
 
@@ -1249,7 +1249,7 @@ class dba {
 			return $stmt;
 		}
 
-		$data = array();
+		$data = [];
 		while ($row = self::fetch($stmt)) {
 			$data[] = $row;
 		}

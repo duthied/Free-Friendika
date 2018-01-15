@@ -36,25 +36,25 @@ function editpost_content(App $a) {
 		return;
 	}
 
-	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
+	$o .= replace_macros(get_markup_template("section_title.tpl"),[
 		'$title' => t('Edit post')
-	));
+	]);
 
 	$tpl = get_markup_template('jot-header.tpl');
-	$a->page['htmlhead'] .= replace_macros($tpl, array(
+	$a->page['htmlhead'] .= replace_macros($tpl, [
 		'$baseurl' => System::baseUrl(),
 		'$ispublic' => '&nbsp;', // t('Visible to <strong>everybody</strong>'),
 		'$geotag' => $geotag,
 		'$nickname' => $a->user['nickname']
-	));
+	]);
 
 	$tpl = get_markup_template('jot-end.tpl');
-	$a->page['end'] .= replace_macros($tpl, array(
+	$a->page['end'] .= replace_macros($tpl, [
 		'$baseurl' => System::baseUrl(),
 		'$ispublic' => '&nbsp;', // t('Visible to <strong>everybody</strong>'),
 		'$geotag' => $geotag,
 		'$nickname' => $a->user['nickname']
-	));
+	]);
 
 
 	$tpl = get_markup_template("jot.tpl");
@@ -100,7 +100,7 @@ function editpost_content(App $a) {
 
 	//$tpl = replace_macros($tpl,array('$jotplugins' => $jotplugins));
 
-	$o .= replace_macros($tpl,array(
+	$o .= replace_macros($tpl,[
 		'$is_edit' => true,
 		'$return_path' => $_SESSION['return_url'],
 		'$action' => 'item',
@@ -150,7 +150,7 @@ function editpost_content(App $a) {
 		'$message' => t('Message'),
 		'$browser' => t('Browser'),
 		'$shortpermset' => t('permissions'),
-	));
+	]);
 
 	return $o;
 

@@ -77,11 +77,11 @@ function api_content(App $a)
 			}
 
 			$tpl = get_markup_template("oauth_authorize_done.tpl");
-			$o = replace_macros($tpl, array(
+			$o = replace_macros($tpl, [
 				'$title' => t('Authorize application connection'),
 				'$info' => t('Return to your app and insert this Securty Code:'),
 				'$code' => $verifier,
-			));
+			]);
 
 			return $o;
 		}
@@ -99,13 +99,13 @@ function api_content(App $a)
 		}
 
 		$tpl = get_markup_template('oauth_authorize.tpl');
-		$o = replace_macros($tpl, array(
+		$o = replace_macros($tpl, [
 			'$title' => t('Authorize application connection'),
 			'$app' => $app,
 			'$authorize' => t('Do you want to authorize this application to access your posts and contacts, and/or create new posts for you?'),
 			'$yes' => t('Yes'),
 			'$no' => t('No'),
-		));
+		]);
 
 		return $o;
 	}

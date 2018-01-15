@@ -66,7 +66,7 @@ function hovercard_content()
 	}
 
 	// Move the contact data to the profile array so we can deliver it to
-	$profile = array(
+	$profile = [
 		'name'     => $contact['name'],
 		'nick'     => $contact['nick'],
 		'addr'     => defaults($contact, 'addr', $contact['url']),
@@ -81,12 +81,12 @@ function hovercard_content()
 		'bd'       => $contact['birthday'] <= '0001-01-01' ? '' : $contact['birthday'],
 		'account_type' => Contact::getAccountType($contact),
 		'actions'  => $actions,
-	);
+	];
 	if ($datatype == 'html') {
 		$tpl = get_markup_template('hovercard.tpl');
-		$o = replace_macros($tpl, array(
+		$o = replace_macros($tpl, [
 			'$profile' => $profile,
-		));
+		]);
 
 		return $o;
 	} else {

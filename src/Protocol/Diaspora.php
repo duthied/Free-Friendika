@@ -51,10 +51,10 @@ class Diaspora
 	{
 		$serverdata = Config::get("system", "relay_server");
 		if ($serverdata == "") {
-			return array();
+			return [];
 		}
 
-		$relay = array();
+		$relay = [];
 
 		$servers = explode(",", $serverdata);
 
@@ -215,7 +215,7 @@ class Diaspora
 		}
 
 		$b64url_data = base64url_encode($data);
-		$msg = str_replace(array("\n", "\r", " ", "\t"), array("", "", "", ""), $b64url_data);
+		$msg = str_replace(["\n", "\r", " ", "\t"], ["", "", "", ""], $b64url_data);
 
 		$signable_data = $msg.".".base64url_encode($type).".".base64url_encode($encoding).".".base64url_encode($alg);
 
@@ -305,7 +305,7 @@ class Diaspora
 		$base = $basedom->children(NAMESPACE_SALMON_ME);
 
 		// Not sure if this cleaning is needed
-		$data = str_replace(array(" ", "\t", "\r", "\n"), array("", "", "", ""), $base->data);
+		$data = str_replace([" ", "\t", "\r", "\n"], ["", "", "", ""], $base->data);
 
 		// Build the signed data
 		$type = $base->data[0]->attributes()->type[0];
@@ -327,9 +327,9 @@ class Diaspora
 			http_status_exit(400);
 		}
 
-		return array('message' => (string)base64url_decode($base->data),
+		return ['message' => (string)base64url_decode($base->data),
 				'author' => unxmlify($author_addr),
-				'key' => (string)$key);
+				'key' => (string)$key];
 	}
 
 	/**
@@ -412,7 +412,7 @@ class Diaspora
 		// unpack the  data
 
 		// strip whitespace so our data element will return to one big base64 blob
-		$data = str_replace(array(" ", "\t", "\r", "\n"), array("", "", "", ""), $base->data);
+		$data = str_replace([" ", "\t", "\r", "\n"], ["", "", "", ""], $base->data);
 
 
 		// stash away some other stuff for later
@@ -463,9 +463,9 @@ class Diaspora
 
 		logger('Message verified.');
 
-		return array('message' => (string)$inner_decrypted,
+		return ['message' => (string)$inner_decrypted,
 				'author' => unxmlify($author_link),
-				'key' => (string)$key);
+				'key' => (string)$key];
 	}
 
 
@@ -504,11 +504,11 @@ class Diaspora
 
 		// Process item retractions. This has to be done separated from the other stuff,
 		// since retractions for comments could come even from non followers.
-		if (!empty($fields) && in_array($fields->getName(), array('retraction'))) {
+		if (!empty($fields) && in_array($fields->getName(), ['retraction'])) {
 			$target = notags(unxmlify($fields->target_type));
-			if (in_array($target, array("Comment", "Like", "Post", "Reshare", "StatusMessage"))) {
+			if (in_array($target, ["Comment", "Like", "Post", "Reshare", "StatusMessage"])) {
 				logger('processing retraction for '.$target, LOGGER_DEBUG);
-				$importer = array("uid" => 0, "page-flags" => PAGE_FREELOVE);
+				$importer = ["uid" => 0, "page-flags" => PAGE_FREELOVE];
 				$message_id = self::dispatch($importer, $msg, $fields);
 				return $message_id;
 			}
@@ -532,7 +532,7 @@ class Diaspora
 			logger("Unwanted message from ".$msg["author"]." send by ".$_SERVER["REMOTE_ADDR"]." with ".$_SERVER["HTTP_USER_AGENT"].": ".print_r($msg, true), LOGGER_DEBUG);
 		} else {
 			// Use a dummy importer to import the data for the public copy
-			$importer = array("uid" => 0, "page-flags" => PAGE_FREELOVE);
+			$importer = ["uid" => 0, "page-flags" => PAGE_FREELOVE];
 			$message_id = self::dispatch($importer, $msg, $fields);
 		}
 
@@ -657,7 +657,7 @@ class Diaspora
 
 		// All retractions are handled identically from now on.
 		// In the new version there will only be "retraction".
-		if (in_array($type, array("signed_retraction", "relayable_retraction")))
+		if (in_array($type, ["signed_retraction", "relayable_retraction"]))
 			$type = "retraction";
 
 		if ($type == "request") {
@@ -677,7 +677,7 @@ class Diaspora
 				if ($fieldname == "participant_handles") {
 					$fieldname = "participants";
 				}
-				if (in_array($type, array("like", "participation"))) {
+				if (in_array($type, ["like", "participation"])) {
 					if ($fieldname == "target_type") {
 						$fieldname = "parent_type";
 					}
@@ -710,14 +710,14 @@ class Diaspora
 				$author_signature = base64_decode($entry);
 			} elseif (($fieldname == "parent_author_signature") && ($entry != "")) {
 				$parent_author_signature = base64_decode($entry);
-			} elseif (!in_array($fieldname, array("author_signature", "parent_author_signature", "target_author_signature"))) {
+			} elseif (!in_array($fieldname, ["author_signature", "parent_author_signature", "target_author_signature"])) {
 				if ($signed_data != "") {
 					$signed_data .= ";";
 				}
 
 				$signed_data .= $entry;
 			}
-			if (!in_array($fieldname, array("parent_author_signature", "target_author_signature"))
+			if (!in_array($fieldname, ["parent_author_signature", "target_author_signature"])
 				|| ($orig_type == "relayable_retraction")
 			) {
 				XML::copy($entry, $fields, $fieldname);
@@ -725,7 +725,7 @@ class Diaspora
 		}
 
 		// This is something that shouldn't happen at all.
-		if (in_array($type, array("status_message", "reshare", "profile"))) {
+		if (in_array($type, ["status_message", "reshare", "profile"])) {
 			if ($msg["author"] != $fields->author) {
 				logger("Message handle is not the same as envelope sender. Quitting this message.");
 				return false;
@@ -733,8 +733,8 @@ class Diaspora
 		}
 
 		// Only some message types have signatures. So we quit here for the other types.
-		if (!in_array($type, array("comment", "like"))) {
-			return array("fields" => $fields, "relayed" => false);
+		if (!in_array($type, ["comment", "like"])) {
+			return ["fields" => $fields, "relayed" => false];
 		}
 		// No author_signature? This is a must, so we quit.
 		if (!isset($author_signature)) {
@@ -761,7 +761,7 @@ class Diaspora
 			logger("No valid author signature for author ".$fields->author. " in type ".$type." - signed data: ".$signed_data." - Message: ".$msg["message"]." - Signature ".$author_signature, LOGGER_DEBUG);
 			return false;
 		} else {
-			return array("fields" => $fields, "relayed" => $relayed);
+			return ["fields" => $fields, "relayed" => $relayed];
 		}
 	}
 
@@ -1311,7 +1311,7 @@ class Diaspora
 			return false;
 		}
 
-		$msg = array("message" => $x, "author" => $author);
+		$msg = ["message" => $x, "author" => $author];
 
 		$msg["key"] = self::key($msg["author"]);
 
@@ -1396,7 +1396,7 @@ class Diaspora
 			$network = NETWORK_DIASPORA;
 		}
 
-		return array("cid" => $cid, "network" => $network);
+		return ["cid" => $cid, "network" => $network];
 	}
 
 	/**
@@ -1495,30 +1495,30 @@ class Diaspora
 			return false;
 		}
 
-		$fields = array('url' => $data['url'], 'nurl' => normalise_link($data['url']),
+		$fields = ['url' => $data['url'], 'nurl' => normalise_link($data['url']),
 				'name' => $data['name'], 'nick' => $data['nick'],
 				'addr' => $data['addr'], 'batch' => $data['batch'],
 				'notify' => $data['notify'], 'poll' => $data['poll'],
-				'network' => $data['network']);
+				'network' => $data['network']];
 
-		dba::update('contact', $fields, array('addr' => $old_handle));
+		dba::update('contact', $fields, ['addr' => $old_handle]);
 
-		$fields = array('url' => $data['url'], 'nurl' => normalise_link($data['url']),
+		$fields = ['url' => $data['url'], 'nurl' => normalise_link($data['url']),
 				'name' => $data['name'], 'nick' => $data['nick'],
 				'addr' => $data['addr'], 'connect' => $data['addr'],
 				'notify' => $data['notify'], 'photo' => $data['photo'],
-				'server_url' => $data['baseurl'], 'network' => $data['network']);
+				'server_url' => $data['baseurl'], 'network' => $data['network']];
 
-		dba::update('gcontact', $fields, array('addr' => $old_handle));
+		dba::update('gcontact', $fields, ['addr' => $old_handle]);
 
 		logger('Contacts are updated.');
 
 		// update items
 		/// @todo This is an extreme performance killer
-		$fields = array(
-			'owner-link' => array($contact["url"], $data["url"]),
-			'author-link' => array($contact["url"], $data["url"]),
-		);
+		$fields = [
+			'owner-link' => [$contact["url"], $data["url"]],
+			'author-link' => [$contact["url"], $data["url"]],
+		];
 		foreach ($fields as $n => $f) {
 			$r = q(
 				"SELECT `id` FROM `item` WHERE `%s` = '%s' AND `uid` = %d LIMIT 1",
@@ -1687,7 +1687,7 @@ class Diaspora
 		// Fetch the contact id - if we know this contact
 		$author_contact = self::authorContactByUrl($contact, $person, $importer["uid"]);
 
-		$datarray = array();
+		$datarray = [];
 
 		$datarray["uid"] = $importer["uid"];
 		$datarray["contact-id"] = $author_contact["cid"];
@@ -1743,7 +1743,7 @@ class Diaspora
 		if ($message_id && $parent_item["origin"]) {
 			// Formerly we stored the signed text, the signature and the author in different fields.
 			// We now store the raw data so that we are more flexible.
-			dba::insert('sign', array('iid' => $message_id, 'signed_text' => json_encode($data)));
+			dba::insert('sign', ['iid' => $message_id, 'signed_text' => json_encode($data)]);
 
 			// notify others
 			Worker::add(PRIORITY_HIGH, "Notifier", "comment-import", $message_id);
@@ -1828,22 +1828,22 @@ class Diaspora
 
 		dba::unlock();
 
-		dba::update('conv', array('updated' => datetime_convert()), array('id' => $conversation["id"]));
+		dba::update('conv', ['updated' => datetime_convert()], ['id' => $conversation["id"]]);
 
 		notification(
-			array(
+			[
 			"type" => NOTIFY_MAIL,
 			"notify_flags" => $importer["notify-flags"],
 			"language" => $importer["language"],
 			"to_name" => $importer["username"],
 			"to_email" => $importer["email"],
 			"uid" =>$importer["uid"],
-			"item" => array("subject" => $subject, "body" => $body),
+			"item" => ["subject" => $subject, "body" => $body],
 			"source_name" => $person["name"],
 			"source_link" => $person["url"],
 			"source_photo" => $person["thumb"],
 			"verb" => ACTIVITY_POST,
-			"otype" => "mail")
+			"otype" => "mail"]
 		);
 		return true;
 	}
@@ -1956,12 +1956,12 @@ class Diaspora
 		$link = '<link rel="alternate" type="text/html" href="'.System::baseUrl()."/display/".$importer["nickname"]."/".$parent_item["id"].'" />';
 		$parent_body = $parent_item["body"];
 
-		$xmldata = array("object" => array("type" => $objtype,
+		$xmldata = ["object" => ["type" => $objtype,
 						"local" => "1",
 						"id" => $parent_item["uri"],
 						"link" => $link,
 						"title" => "",
-						"content" => $parent_body));
+						"content" => $parent_body]];
 
 		return XML::fromArray($xmldata, $xml, true);
 	}
@@ -1985,7 +1985,7 @@ class Diaspora
 
 		// likes on comments aren't supported by Diaspora - only on posts
 		// But maybe this will be supported in the future, so we will accept it.
-		if (!in_array($parent_type, array("Post", "Comment"))) {
+		if (!in_array($parent_type, ["Post", "Comment"])) {
 			return false;
 		}
 
@@ -2021,7 +2021,7 @@ class Diaspora
 			$verb = ACTIVITY_DISLIKE;
 		}
 
-		$datarray = array();
+		$datarray = [];
 
 		$datarray["protocol"] = PROTOCOL_DIASPORA;
 
@@ -2072,7 +2072,7 @@ class Diaspora
 		if ($message_id && $origin) {
 			// Formerly we stored the signed text, the signature and the author in different fields.
 			// We now store the raw data so that we are more flexible.
-			dba::insert('sign', array('iid' => $message_id, 'signed_text' => json_encode($data)));
+			dba::insert('sign', ['iid' => $message_id, 'signed_text' => json_encode($data)]);
 
 			// notify others
 			Worker::add(PRIORITY_HIGH, "Notifier", "comment-import", $message_id);
@@ -2161,7 +2161,7 @@ class Diaspora
 
 		dba::unlock();
 
-		dba::update('conv', array('updated' => datetime_convert()), array('id' => $conversation["id"]));
+		dba::update('conv', ['updated' => datetime_convert()], ['id' => $conversation["id"]]);
 		return true;
 	}
 
@@ -2284,7 +2284,7 @@ class Diaspora
 
 		$tags = explode("#", $tags);
 
-		$keywords = array();
+		$keywords = [];
 		foreach ($tags as $tag) {
 			$tag = trim(strtolower($tag));
 			if ($tag != "") {
@@ -2338,11 +2338,11 @@ class Diaspora
 			intval($importer["uid"])
 		);
 
-		$gcontact = array("url" => $contact["url"], "network" => NETWORK_DIASPORA, "generation" => 2,
+		$gcontact = ["url" => $contact["url"], "network" => NETWORK_DIASPORA, "generation" => 2,
 					"photo" => $image_url, "name" => $name, "location" => $location,
 					"about" => $about, "birthday" => $birthday, "gender" => $gender,
 					"addr" => $author, "nick" => $nick, "keywords" => $keywords,
-					"hide" => !$searchable, "nsfw" => $nsfw);
+					"hide" => !$searchable, "nsfw" => $nsfw];
 
 		$gcid = GContact::update($gcontact);
 
@@ -2367,8 +2367,8 @@ class Diaspora
 		if ($contact["rel"] == CONTACT_IS_SHARING) {
 			dba::update(
 				'contact',
-				array('rel' => CONTACT_IS_FRIEND, 'writable' => true),
-				array('id' => $contact["id"], 'uid' => $importer["uid"])
+				['rel' => CONTACT_IS_FRIEND, 'writable' => true],
+				['id' => $contact["id"], 'uid' => $importer["uid"]]
 			);
 		}
 		// send notification
@@ -2387,7 +2387,7 @@ class Diaspora
 			// they are not CONTACT_IS_FOLLOWER anymore but that's what we have in the array
 
 			if ($self && $contact["rel"] == CONTACT_IS_FOLLOWER) {
-				$arr = array();
+				$arr = [];
 				$arr["protocol"] = PROTOCOL_DIASPORA;
 				$arr["uri"] = $arr["parent-uri"] = item_new_uri($a->get_hostname(), $importer["uid"]);
 				$arr["uid"] = $importer["uid"];
@@ -2439,10 +2439,10 @@ class Diaspora
 		$link = '<link rel="alternate" type="text/html" href="'.$contact["url"].'" />'."\n".
 			'<link rel="photo" type="image/jpeg" href="'.$contact["thumb"].'" />'."\n";
 
-		$xmldata = array("object" => array("type" => $objtype,
+		$xmldata = ["object" => ["type" => $objtype,
 						"title" => $contact["name"],
 						"id" => $contact["url"]."/".$contact["name"],
-						"link" => $link));
+						"link" => $link]];
 
 		return XML::fromArray($xmldata, $xml, true);
 	}
@@ -2492,7 +2492,7 @@ class Diaspora
 
 				// If we are now friends, we are sending a share message.
 				// Normally we needn't to do so, but the first message could have been vanished.
-				if (in_array($contact["rel"], array(CONTACT_IS_FRIEND))) {
+				if (in_array($contact["rel"], [CONTACT_IS_FRIEND])) {
 					$u = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval($importer["uid"]));
 					if ($u) {
 						logger("Sending share message to author ".$author." - Contact: ".$contact["id"]." - User: ".$importer["uid"], LOGGER_DEBUG);
@@ -2507,7 +2507,7 @@ class Diaspora
 			}
 		}
 
-		if (!$following && $sharing && in_array($importer["page-flags"], array(PAGE_SOAPBOX, PAGE_NORMAL))) {
+		if (!$following && $sharing && in_array($importer["page-flags"], [PAGE_SOAPBOX, PAGE_NORMAL])) {
 			logger("Author ".$author." wants to share with us - but doesn't want to listen. Request is ignored.", LOGGER_DEBUG);
 			return false;
 		} elseif (!$following && !$sharing) {
@@ -2621,7 +2621,7 @@ class Diaspora
 				$ret = self::sendShare($u[0], $contact_record);
 
 				// Send the profile data, maybe it weren't transmitted before
-				self::sendProfile($importer["uid"], array($contact_record));
+				self::sendProfile($importer["uid"], [$contact_record]);
 			}
 		}
 
@@ -2654,7 +2654,7 @@ class Diaspora
 			// Then refetch the content, if it is a reshare from a reshare.
 			// If it is a reshared post from another network then reformat to avoid display problems with two share elements
 			if (self::isReshare($r[0]["body"], true)) {
-				$r = array();
+				$r = [];
 			} elseif (self::isReshare($r[0]["body"], false) || strstr($r[0]["body"], "[share")) {
 				$r[0]["body"] = diaspora2bb(bb2diaspora($r[0]["body"]));
 
@@ -2738,7 +2738,7 @@ class Diaspora
 
 		$orig_url = System::baseUrl()."/display/".$original_item["guid"];
 
-		$datarray = array();
+		$datarray = [];
 
 		$datarray["uid"] = $importer["uid"];
 		$datarray["contact-id"] = $contact["id"];
@@ -2819,13 +2819,13 @@ class Diaspora
 		}
 
 		// Fetch items that are about to be deleted
-		$fields = array('uid', 'id', 'parent', 'parent-uri', 'author-link');
+		$fields = ['uid', 'id', 'parent', 'parent-uri', 'author-link'];
 
 		// When we receive a public retraction, we delete every item that we find.
 		if ($importer['uid'] == 0) {
-			$condition = array("`guid` = ? AND NOT `file` LIKE '%%[%%' AND NOT `deleted`", $target_guid);
+			$condition = ["`guid` = ? AND NOT `file` LIKE '%%[%%' AND NOT `deleted`", $target_guid];
 		} else {
-			$condition = array("`guid` = ? AND `uid` = ? AND NOT `file` LIKE '%%[%%' AND NOT `deleted`", $target_guid, $importer['uid']);
+			$condition = ["`guid` = ? AND `uid` = ? AND NOT `file` LIKE '%%[%%' AND NOT `deleted`", $target_guid, $importer['uid']];
 		}
 		$r = dba::select('item', $fields, $condition);
 		if (!DBM::is_result($r)) {
@@ -2847,13 +2847,13 @@ class Diaspora
 			// The function "item_drop" doesn't work for that case
 			dba::update(
 				'item',
-				array(
+				[
 					'deleted' => true,
 					'title' => '',
 					'body' => '',
 					'edited' => datetime_convert(),
-					'changed' => datetime_convert()),
-				array('id' => $item["id"])
+					'changed' => datetime_convert()],
+				['id' => $item["id"]]
 			);
 
 			// Delete the thread - if it is a starting post and not a comment
@@ -2887,7 +2887,7 @@ class Diaspora
 		$target_type = notags(unxmlify($data->target_type));
 
 		$contact = self::contactByHandle($importer["uid"], $sender);
-		if (!$contact && (in_array($target_type, array("Contact", "Person")))) {
+		if (!$contact && (in_array($target_type, ["Contact", "Person"]))) {
 			logger("cannot find contact for sender: ".$sender." and user ".$importer["uid"]);
 			return false;
 		}
@@ -2944,7 +2944,7 @@ class Diaspora
 			return true;
 		}
 
-		$address = array();
+		$address = [];
 		if ($data->location) {
 			foreach ($data->location->children() as $fieldname => $data) {
 				$address[$fieldname] = notags(unxmlify($data));
@@ -2953,7 +2953,7 @@ class Diaspora
 
 		$body = diaspora2bb($text);
 
-		$datarray = array();
+		$datarray = [];
 
 		// Attach embedded pictures to the body
 		if ($data->photo) {
@@ -3090,14 +3090,14 @@ class Diaspora
 
 		$ciphertext = self::aesEncrypt($aes_key, $iv, $msg);
 
-		$json = json_encode(array("iv" => $b_iv, "key" => $b_aes_key));
+		$json = json_encode(["iv" => $b_iv, "key" => $b_aes_key]);
 
 		$encrypted_key_bundle = "";
 		openssl_public_encrypt($json, $encrypted_key_bundle, $pubkey);
 
 		$json_object = json_encode(
-			array("aes_key" => base64_encode($encrypted_key_bundle),
-					"encrypted_magic_envelope" => base64_encode($ciphertext))
+			["aes_key" => base64_encode($encrypted_key_bundle),
+					"encrypted_magic_envelope" => base64_encode($ciphertext)]
 		);
 
 		return $json_object;
@@ -3114,7 +3114,7 @@ class Diaspora
 	public static function buildMagicEnvelope($msg, $user)
 	{
 		$b64url_data = base64url_encode($msg);
-		$data = str_replace(array("\n", "\r", " ", "\t"), array("", "", "", ""), $b64url_data);
+		$data = str_replace(["\n", "\r", " ", "\t"], ["", "", "", ""], $b64url_data);
 
 		$key_id = base64url_encode(self::myHandle($user));
 		$type = "application/xml";
@@ -3130,14 +3130,14 @@ class Diaspora
 		$signature = Crypto::rsaSign($signable_data, $user["uprvkey"]);
 		$sig = base64url_encode($signature);
 
-		$xmldata = array("me:env" => array("me:data" => $data,
-							"@attributes" => array("type" => $type),
+		$xmldata = ["me:env" => ["me:data" => $data,
+							"@attributes" => ["type" => $type],
 							"me:encoding" => $encoding,
 							"me:alg" => $alg,
 							"me:sig" => $sig,
-							"@attributes2" => array("key_id" => $key_id)));
+							"@attributes2" => ["key_id" => $key_id]]];
 
-		$namespaces = array("me" => "http://salmon-protocol.org/ns/magic-env");
+		$namespaces = ["me" => "http://salmon-protocol.org/ns/magic-env"];
 
 		return XML::fromArray($xmldata, $xml, false, $namespaces);
 	}
@@ -3230,7 +3230,7 @@ class Diaspora
 			if (!intval(Config::get("system", "diaspora_test"))) {
 				$content_type = (($public_batch) ? "application/magic-envelope+xml" : "application/json");
 
-				post_url($dest_url."/", $envelope, array("Content-Type: ".$content_type));
+				post_url($dest_url."/", $envelope, ["Content-Type: ".$content_type]);
 				$return_code = $a->get_curl_code();
 			} else {
 				logger("test_mode");
@@ -3278,7 +3278,7 @@ class Diaspora
 	 */
 	public static function buildPostXml($type, $message)
 	{
-		$data = array($type => $message);
+		$data = [$type => $message];
 
 		return XML::fromArray($data, $xml);
 	}
@@ -3357,10 +3357,10 @@ class Diaspora
 
 		$author = self::myHandle($owner);
 
-		$message = array("author" => $author,
+		$message = ["author" => $author,
 				"guid" => get_guid(32),
 				"parent_type" => "Post",
-				"parent_guid" => $item["guid"]);
+				"parent_guid" => $item["guid"]];
 
 		logger("Send participation for ".$item["guid"]." by ".$author, LOGGER_DEBUG);
 
@@ -3387,9 +3387,9 @@ class Diaspora
 		$signed_text = 'AccountMigration:'.$old_handle.':'.$profile['author'];
 		$signature = base64_encode(Crypto::rsaSign($signed_text, $owner["uprvkey"], "sha256"));
 
-		$message = array("author" => $old_handle,
+		$message = ["author" => $old_handle,
 				"profile" => $profile,
-				"signature" => $signature);
+				"signature" => $signature];
 
 		logger("Send account migration ".print_r($message, true), LOGGER_DEBUG);
 
@@ -3427,10 +3427,10 @@ class Diaspora
 		}
 		*/
 
-		$message = array("author" => self::myHandle($owner),
+		$message = ["author" => self::myHandle($owner),
 				"recipient" => $contact["addr"],
 				"following" => "true",
-				"sharing" => "true");
+				"sharing" => "true"];
 
 		logger("Send share ".print_r($message, true), LOGGER_DEBUG);
 
@@ -3447,10 +3447,10 @@ class Diaspora
 	 */
 	public static function sendUnshare($owner, $contact)
 	{
-		$message = array("author" => self::myHandle($owner),
+		$message = ["author" => self::myHandle($owner),
 				"recipient" => $contact["addr"],
 				"following" => "false",
-				"sharing" => "false");
+				"sharing" => "false"];
 
 		logger("Send unshare ".print_r($message, true), LOGGER_DEBUG);
 
@@ -3510,7 +3510,7 @@ class Diaspora
 				NETWORK_DIASPORA
 			);
 			if ($r) {
-				$ret= array();
+				$ret= [];
 				$ret["root_handle"] = self::handleFromContact($r[0]["contact-id"]);
 				$ret["root_guid"] = $guid;
 				return($ret);
@@ -3528,7 +3528,7 @@ class Diaspora
 			$profile = $matches[1];
 		}
 
-		$ret= array();
+		$ret= [];
 
 		$ret["root_handle"] = preg_replace("=https?://(.*)/u/(.*)=ism", "$2@$1", $profile);
 		if (($ret["root_handle"] == $profile) || ($ret["root_handle"] == "")) {
@@ -3565,23 +3565,23 @@ class Diaspora
 	{
 		$r = q("SELECT `guid`, `uid`, `start`, `finish`, `nofinish`, `summary`, `desc`, `location`, `adjust` FROM `event` WHERE `id` = %d", intval($event_id));
 		if (!DBM::is_result($r)) {
-			return array();
+			return [];
 		}
 
 		$event = $r[0];
 
-		$eventdata = array();
+		$eventdata = [];
 
 		$r = q("SELECT `timezone` FROM `user` WHERE `uid` = %d", intval($event['uid']));
 		if (!DBM::is_result($r)) {
-			return array();
+			return [];
 		}
 
 		$user = $r[0];
 
 		$r = q("SELECT `addr`, `nick` FROM `contact` WHERE `uid` = %d AND `self`", intval($event['uid']));
 		if (!DBM::is_result($r)) {
-			return array();
+			return [];
 		}
 
 		$owner = $r[0];
@@ -3618,7 +3618,7 @@ class Diaspora
 			$eventdata['description'] = html_entity_decode(bb2diaspora($event['desc']));
 		}
 		if ($event['location']) {
-			$location = array();
+			$location = [];
 			$location["address"] = html_entity_decode(bb2diaspora($event['location']));
 			$location["lat"] = 0;
 			$location["lng"] = 0;
@@ -3655,13 +3655,13 @@ class Diaspora
 
 		// Detect a share element and do a reshare
 		if (!$item['private'] && ($ret = self::isReshare($item["body"]))) {
-			$message = array("author" => $myaddr,
+			$message = ["author" => $myaddr,
 					"guid" => $item["guid"],
 					"created_at" => $created,
 					"root_author" => $ret["root_handle"],
 					"root_guid" => $ret["root_guid"],
 					"provider_display_name" => $item["app"],
-					"public" => $public);
+					"public" => $public];
 
 			$type = "reshare";
 		} else {
@@ -3686,7 +3686,7 @@ class Diaspora
 				}
 			}
 
-			$location = array();
+			$location = [];
 
 			if ($item["location"] != "")
 				$location["address"] = $item["location"];
@@ -3697,13 +3697,13 @@ class Diaspora
 				$location["lng"] = $coord[1];
 			}
 
-			$message = array("author" => $myaddr,
+			$message = ["author" => $myaddr,
 					"guid" => $item["guid"],
 					"created_at" => $created,
 					"public" => $public,
 					"text" => $body,
 					"provider_display_name" => $item["app"],
-					"location" => $location);
+					"location" => $location];
 
 			// Diaspora rejects messages when they contain a location without "lat" or "lng"
 			if (!isset($location["lat"]) || !isset($location["lng"])) {
@@ -3723,7 +3723,7 @@ class Diaspora
 			$type = "status_message";
 		}
 
-		$msg = array("type" => $type, "message" => $message);
+		$msg = ["type" => $type, "message" => $message];
 
 		Cache::set($cachekey, $msg, CACHE_QUARTER_HOUR);
 
@@ -3774,12 +3774,12 @@ class Diaspora
 			$positive = "false";
 		}
 
-		return(array("author" => self::myHandle($owner),
+		return(["author" => self::myHandle($owner),
 				"guid" => $item["guid"],
 				"parent_guid" => $parent["guid"],
 				"parent_type" => $target_type,
 				"positive" => $positive,
-				"author_signature" => ""));
+				"author_signature" => ""]);
 	}
 
 	/**
@@ -3817,11 +3817,11 @@ class Diaspora
 				return false;
 		}
 
-		return(array("author" => self::myHandle($owner),
+		return(["author" => self::myHandle($owner),
 				"guid" => $item["guid"],
 				"parent_guid" => $parent["guid"],
 				"status" => $attend_answer,
-				"author_signature" => ""));
+				"author_signature" => ""]);
 	}
 
 	/**
@@ -3856,12 +3856,12 @@ class Diaspora
 		$text = html_entity_decode(bb2diaspora($item["body"]));
 		$created = datetime_convert("UTC", "UTC", $item["created"], 'Y-m-d\TH:i:s\Z');
 
-		$comment = array("author" => self::myHandle($owner),
+		$comment = ["author" => self::myHandle($owner),
 				"guid" => $item["guid"],
 				"created_at" => $created,
 				"parent_guid" => $parent["guid"],
 				"text" => $text,
-				"author_signature" => "");
+				"author_signature" => ""];
 
 		// Send the thread parent guid only if it is a threaded comment
 		if ($item['thr-parent'] != $item['parent-uri']) {
@@ -3885,10 +3885,10 @@ class Diaspora
 	 */
 	public static function sendFollowup($item, $owner, $contact, $public_batch = false)
 	{
-		if (in_array($item['verb'], array(ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE))) {
+		if (in_array($item['verb'], [ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE])) {
 			$message = self::constructAttend($item, $owner);
 			$type = "event_participation";
-		} elseif (in_array($item["verb"], array(ACTIVITY_LIKE, ACTIVITY_DISLIKE))) {
+		} elseif (in_array($item["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
 			$message = self::constructLike($item, $owner);
 			$type = "like";
 		} else {
@@ -3919,17 +3919,17 @@ class Diaspora
 		$signed_parts = explode(";", $signature['signed_text']);
 
 		if ($item["deleted"]) {
-			$message = array("author" => $signature['signer'],
+			$message = ["author" => $signature['signer'],
 					"target_guid" => $signed_parts[0],
-					"target_type" => $signed_parts[1]);
-		} elseif (in_array($item["verb"], array(ACTIVITY_LIKE, ACTIVITY_DISLIKE))) {
-			$message = array("author" => $signed_parts[4],
+					"target_type" => $signed_parts[1]];
+		} elseif (in_array($item["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
+			$message = ["author" => $signed_parts[4],
 					"guid" => $signed_parts[1],
 					"parent_guid" => $signed_parts[3],
 					"parent_type" => $signed_parts[2],
 					"positive" => $signed_parts[0],
 					"author_signature" => $signature['signature'],
-					"parent_author_signature" => "");
+					"parent_author_signature" => ""];
 		} else {
 			// Remove the comment guid
 			$guid = array_shift($signed_parts);
@@ -3943,12 +3943,12 @@ class Diaspora
 			// Glue the parts together
 			$text = implode(";", $signed_parts);
 
-			$message = array("author" => $handle,
+			$message = ["author" => $handle,
 					"guid" => $guid,
 					"parent_guid" => $parent_guid,
 					"text" => implode(";", $signed_parts),
 					"author_signature" => $signature['signature'],
-					"parent_author_signature" => "");
+					"parent_author_signature" => ""];
 		}
 		return $message;
 	}
@@ -3967,7 +3967,7 @@ class Diaspora
 	{
 		if ($item["deleted"]) {
 			return self::sendRetraction($item, $owner, $contact, $public_batch, true);
-		} elseif (in_array($item["verb"], array(ACTIVITY_LIKE, ACTIVITY_DISLIKE))) {
+		} elseif (in_array($item["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
 			$type = "like";
 		} else {
 			$type = "comment";
@@ -3996,7 +3996,7 @@ class Diaspora
 		} else {// New way
 			$msg = json_decode($signature['signed_text'], true);
 
-			$message = array();
+			$message = [];
 			if (is_array($msg)) {
 				foreach ($msg as $field => $data) {
 					if (!$item["deleted"]) {
@@ -4041,15 +4041,15 @@ class Diaspora
 
 		if ($item['id'] == $item['parent']) {
 			$target_type = "Post";
-		} elseif (in_array($item["verb"], array(ACTIVITY_LIKE, ACTIVITY_DISLIKE))) {
+		} elseif (in_array($item["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
 			$target_type = "Like";
 		} else {
 			$target_type = "Comment";
 		}
 
-		$message = array("author" => $itemaddr,
+		$message = ["author" => $itemaddr,
 				"target_guid" => $item['guid'],
-				"target_type" => $target_type);
+				"target_type" => $target_type];
 
 		logger("Got message ".print_r($message, true), LOGGER_DEBUG);
 
@@ -4081,36 +4081,36 @@ class Diaspora
 		}
 		$cnv = $r[0];
 
-		$conv = array(
+		$conv = [
 			"author" => $cnv["creator"],
 			"guid" => $cnv["guid"],
 			"subject" => $cnv["subject"],
 			"created_at" => datetime_convert("UTC", "UTC", $cnv['created'], 'Y-m-d\TH:i:s\Z'),
 			"participants" => $cnv["recips"]
-		);
+		];
 
 		$body = bb2diaspora($item["body"]);
 		$created = datetime_convert("UTC", "UTC", $item["created"], 'Y-m-d\TH:i:s\Z');
 
-		$msg = array(
+		$msg = [
 			"author" => $myaddr,
 			"guid" => $item["guid"],
 			"conversation_guid" => $cnv["guid"],
 			"text" => $body,
 			"created_at" => $created,
-		);
+		];
 
 		if ($item["reply"]) {
 			$message = $msg;
 			$type = "message";
 		} else {
-			$message = array(
+			$message = [
 					"author" => $cnv["creator"],
 					"guid" => $cnv["guid"],
 					"subject" => $cnv["subject"],
 					"created_at" => datetime_convert("UTC", "UTC", $cnv['created'], 'Y-m-d\TH:i:s\Z'),
 					"participants" => $cnv["recips"],
-					"message" => $msg);
+					"message" => $msg];
 
 			$type = "conversation";
 		}
@@ -4193,7 +4193,7 @@ class Diaspora
 		);
 
 		if (!$r) {
-			return array();
+			return [];
 		}
 
 		$profile = $r[0];
@@ -4235,7 +4235,7 @@ class Diaspora
 			$tags = trim($tags);
 		}
 
-		return array("author" => $handle,
+		return ["author" => $handle,
 				"first_name" => $first,
 				"last_name" => $last,
 				"image_url" => $large,
@@ -4247,7 +4247,7 @@ class Diaspora
 				"location" => $location,
 				"searchable" => $searchable,
 				"nsfw" => "false",
-				"tag_string" => $tags);
+				"tag_string" => $tags];
 	}
 
 	/**
@@ -4318,7 +4318,7 @@ class Diaspora
 			return false;
 		}
 
-		if (!in_array($r[0]["verb"], array(ACTIVITY_LIKE, ACTIVITY_DISLIKE))) {
+		if (!in_array($r[0]["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
 			return false;
 		}
 
@@ -4333,7 +4333,7 @@ class Diaspora
 		 * Now store the signature more flexible to dynamically support new fields.
 		 * This will break Diaspora compatibility with Friendica versions prior to 3.5.
 		 */
-		dba::insert('sign', array('iid' => $post_id, 'signed_text' => json_encode($message)));
+		dba::insert('sign', ['iid' => $post_id, 'signed_text' => json_encode($message)]);
 
 		logger('Stored diaspora like signature');
 		return true;
@@ -4369,7 +4369,7 @@ class Diaspora
 		 * Now store the signature more flexible to dynamically support new fields.
 		 * This will break Diaspora compatibility with Friendica versions prior to 3.5.
 		 */
-		dba::insert('sign', array('iid' => $message_id, 'signed_text' => json_encode($message)));
+		dba::insert('sign', ['iid' => $message_id, 'signed_text' => json_encode($message)]);
 
 		logger('Stored diaspora comment signature');
 		return true;

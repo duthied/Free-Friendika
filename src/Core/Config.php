@@ -49,7 +49,7 @@ class Config
 
 		$a = get_app();
 
-		$r = dba::select('config', array('v', 'k'), array('cat' => $family));
+		$r = dba::select('config', ['v', 'k'], ['cat' => $family]);
 		while ($rr = dba::fetch($r)) {
 			$k = $rr['k'];
 			if ($family === 'config') {
@@ -161,7 +161,7 @@ class Config
 		// manage array value
 		$dbvalue = (is_array($value) ? serialize($value) : $dbvalue);
 
-		$ret = dba::update('config', array('v' => $dbvalue), array('cat' => $family, 'k' => $key), true);
+		$ret = dba::update('config', ['v' => $dbvalue], ['cat' => $family, 'k' => $key], true);
 
 		if ($ret) {
 			self::$in_db[$family][$key] = true;
@@ -188,7 +188,7 @@ class Config
 			unset(self::$in_db[$family][$key]);
 		}
 
-		$ret = dba::delete('config', array('cat' => $family, 'k' => $key));
+		$ret = dba::delete('config', ['cat' => $family, 'k' => $key]);
 
 		return $ret;
 	}

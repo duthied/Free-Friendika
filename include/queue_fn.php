@@ -13,7 +13,7 @@ function update_queue_time($id) {
 
 function remove_queue_item($id) {
 	logger('queue: remove queue item ' . $id);
-	dba::delete('queue', array('id' => $id));
+	dba::delete('queue', ['id' => $id]);
 }
 
 /**

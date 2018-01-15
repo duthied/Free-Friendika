@@ -110,7 +110,7 @@ EOT;
 		return;
 	}
 
-	$arr = array();
+	$arr = [];
 
 	$arr['guid'] = get_guid(32);
 	$arr['uri'] = $uri;

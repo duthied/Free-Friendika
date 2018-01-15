@@ -114,21 +114,21 @@ function wallmessage_content(App $a) {
 	}
 
 	$tpl = get_markup_template('wallmsg-header.tpl');
-	$a->page['htmlhead'] .= replace_macros($tpl, array(
+	$a->page['htmlhead'] .= replace_macros($tpl, [
 		'$baseurl' => System::baseUrl(true),
 		'$nickname' => $user['nickname'],
 		'$linkurl' => t('Please enter a link URL:')
-	));
+	]);
 
 	$tpl = get_markup_template('wallmsg-end.tpl');
-	$a->page['end'] .= replace_macros($tpl, array(
+	$a->page['end'] .= replace_macros($tpl, [
 		'$baseurl' => System::baseUrl(true),
 		'$nickname' => $user['nickname'],
 		'$linkurl' => t('Please enter a link URL:')
-	));
+	]);
 
 	$tpl = get_markup_template('wallmessage.tpl');
-	$o .= replace_macros($tpl,array(
+	$o .= replace_macros($tpl,[
 		'$header' => t('Send Private Message'),
 		'$subheader' => sprintf( t('If you wish for %s to respond, please check that the privacy settings on your site allow private mail from unknown senders.'), $user['username']),
 		'$to' => t('To:'),
@@ -144,7 +144,7 @@ function wallmessage_content(App $a) {
 		'$upload' => t('Upload photo'),
 		'$insert' => t('Insert web link'),
 		'$wait' => t('Please wait')
-	));
+	]);
 
 	return $o;
 }

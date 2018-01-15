@@ -69,10 +69,10 @@ class ParseUrl
 
 		dba::insert(
 			'parsed_url',
-			array(
+			[
 				'url' => normalise_link($url), 'guessing' => !$no_guessing,
 				'oembed' => $do_oembed, 'content' => serialize($data),
-				'created' => datetime_convert()),
+				'created' => datetime_convert()],
 			true
 		);
 
@@ -122,7 +122,7 @@ class ParseUrl
 	{
 		$a = get_app();
 
-		$siteinfo = array();
+		$siteinfo = [];
 
 		// Check if the URL does contain a scheme
 		$scheme = parse_url($url, PHP_URL_SCHEME);
@@ -165,7 +165,7 @@ class ParseUrl
 		if ($do_oembed) {
 			$oembed_data = OEmbed::fetchURL($url);
 
-			if (!in_array($oembed_data->type, array("error", "rich", ""))) {
+			if (!in_array($oembed_data->type, ["error", "rich", ""])) {
 				$siteinfo["type"] = $oembed_data->type;
 			}
 
@@ -219,7 +219,7 @@ class ParseUrl
 
 		$list = $xpath->query("//meta[@content]");
 		foreach ($list as $node) {
-			$attr = array();
+			$attr = [];
 			if ($node->attributes->length) {
 				foreach ($node->attributes as $attribute) {
 					$attr[$attribute->name] = $attribute->value;
@@ -250,7 +250,7 @@ class ParseUrl
 		//$list = $xpath->query("head/meta[@name]");
 		$list = $xpath->query("//meta[@name]");
 		foreach ($list as $node) {
-			$attr = array();
+			$attr = [];
 			if ($node->attributes->length) {
 				foreach ($node->attributes as $attribute) {
 					$attr[$attribute->name] = $attribute->value;
@@ -307,7 +307,7 @@ class ParseUrl
 		}
 
 		if (isset($keywords)) {
-			$siteinfo["keywords"] = array();
+			$siteinfo["keywords"] = [];
 			foreach ($keywords as $keyword) {
 				if (!in_array(trim($keyword), $siteinfo["keywords"])) {
 					$siteinfo["keywords"][] = trim($keyword);
@@ -318,7 +318,7 @@ class ParseUrl
 		//$list = $xpath->query("head/meta[@property]");
 		$list = $xpath->query("//meta[@property]");
 		foreach ($list as $node) {
-			$attr = array();
+			$attr = [];
 			if ($node->attributes->length) {
 				foreach ($node->attributes as $attribute) {
 					$attr[$attribute->name] = $attribute->value;
@@ -345,7 +345,7 @@ class ParseUrl
 		if ((@$siteinfo["image"] == "") && !$no_guessing) {
 			$list = $xpath->query("//img[@src]");
 			foreach ($list as $node) {
-				$attr = array();
+				$attr = [];
 				if ($node->attributes->length) {
 					foreach ($node->attributes as $attribute) {
 						$attr[$attribute->name] = $attribute->value;
@@ -364,9 +364,9 @@ class ParseUrl
 						$photodata[0] = round($photodata[0] * (300 / $photodata[1]));
 						$photodata[1] = 300;
 					}
-					$siteinfo["images"][] = array("src" => $src,
+					$siteinfo["images"][] = ["src" => $src,
 									"width" => $photodata[0],
-									"height" => $photodata[1]);
+									"height" => $photodata[1]];
 				}
 			}
 		} elseif ($siteinfo["image"] != "") {
@@ -377,9 +377,9 @@ class ParseUrl
 			$photodata = Image::getInfoFromURL($src);
 
 			if (($photodata) && ($photodata[0] > 10) && ($photodata[1] > 10)) {
-				$siteinfo["images"][] = array("src" => $src,
+				$siteinfo["images"][] = ["src" => $src,
 								"width" => $photodata[0],
-								"height" => $photodata[1]);
+								"height" => $photodata[1]];
 			}
 		}
 
@@ -413,7 +413,7 @@ class ParseUrl
 			}
 
 			if ($text != "") {
-				$text = trim(str_replace(array("\n", "\r"), array(" ", " "), $text));
+				$text = trim(str_replace(["\n", "\r"], [" ", " "], $text));
 
 				while (strpos($text, "  ")) {
 					$text = trim(str_replace("  ", " ", $text));
@@ -441,7 +441,7 @@ class ParseUrl
 		$arr_tags = str_getcsv($string);
 		if (count($arr_tags)) {
 			// add the # sign to every tag
-			array_walk($arr_tags, array("self", "arrAddHashes"));
+			array_walk($arr_tags, ["self", "arrAddHashes"]);
 
 			return $arr_tags;
 		}

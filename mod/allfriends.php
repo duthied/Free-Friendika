@@ -69,13 +69,13 @@ function allfriends_content(App $a)
 			$photo_menu = Contact::photoMenu($rr);
 		} else {
 			$connlnk = System::baseUrl() . '/follow/?url=' . $rr['url'];
-			$photo_menu = array(
-				'profile' => array(t("View Profile"), Profile::zrl($rr['url'])),
-				'follow' => array(t("Connect/Follow"), $connlnk)
-			);
+			$photo_menu = [
+				'profile' => [t("View Profile"), Profile::zrl($rr['url'])],
+				'follow' => [t("Connect/Follow"), $connlnk]
+			];
 		}
 
-		$entry = array(
+		$entry = [
 			'url'          => $rr['url'],
 			'itemurl'      => defaults($contact_details, 'addr', $rr['url']),
 			'name'         => htmlentities($contact_details['name']),
@@ -90,7 +90,7 @@ function allfriends_content(App $a)
 			'conntxt'      => t('Connect'),
 			'connlnk'      => $connlnk,
 			'id'           => ++$id,
-		);
+		];
 		$entries[] = $entry;
 	}
 
@@ -98,12 +98,12 @@ function allfriends_content(App $a)
 
 	$tpl = get_markup_template('viewcontact_template.tpl');
 
-	$o .= replace_macros($tpl, array(
+	$o .= replace_macros($tpl, [
 		//'$title' => sprintf( t('Friends of %s'), htmlentities($c[0]['name'])),
 		'$tab_str' => $tab_str,
 		'$contacts' => $entries,
 		'$paginate' => paginate($a),
-	));
+	]);
 
 	return $o;
 }

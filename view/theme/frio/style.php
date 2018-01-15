@@ -167,7 +167,7 @@ switch ($bg_image_option) {
 // Convert transparency level from percentage to opacity value.
 $contentbg_transp = $contentbg_transp / 100;
 
-$options = array (
+$options =  [
 	'$nav_bg'                      => $nav_bg,
 	'$nav_icon_color'              => $nav_icon_color,
 	'$nav_icon_hover_color'        => $nav_icon_hover_color,
@@ -181,7 +181,7 @@ $options = array (
 	'$background_image'            => $background_image,
 	'$background_size_img'         => $background_size_img,
 	'$login_bg_image'              => $login_bg_image,
-);
+];
 
 $css_tpl = file_get_contents('view/theme/frio/css/style.css');
 
@@ -211,7 +211,7 @@ header('Last-Modified: '.$modified);
 // Only send the CSS file if it was changed.
 if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) || isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
 	$cached_modified = gmdate('r', strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']));
-	$cached_etag = str_replace(array('"', "-gzip"), array('', ''),
+	$cached_etag = str_replace(['"', "-gzip"], ['', ''],
 				stripslashes($_SERVER['HTTP_IF_NONE_MATCH']));
 
 	if (($cached_modified == $modified) && ($cached_etag == $etag)) {

@@ -54,12 +54,12 @@ class System extends BaseObject
 		array_shift($trace);
 		array_shift($trace);
 
-		$callstack = array();
+		$callstack = [];
 		$counter = 0;
-		$previous = array('class' => '', 'function' => '');
+		$previous = ['class' => '', 'function' => ''];
 
 		// The ignore list contains all functions that are only wrapper functions
-		$ignore = array('get_config', 'get_pconfig', 'set_config', 'set_pconfig', 'fetch_url', 'probe_url');
+		$ignore = ['get_config', 'get_pconfig', 'set_config', 'set_pconfig', 'fetch_url', 'probe_url'];
 
 		while ($func = array_pop($trace)) {
 			if (!empty($func['class'])) {
@@ -75,7 +75,7 @@ class System extends BaseObject
 			}
 		}
 
-		$callstack2 = array();
+		$callstack2 = [];
 		while ((count($callstack2) < $depth) && (count($callstack) > 0)) {
 			$callstack2[] = array_pop($callstack);
 		}

@@ -90,7 +90,7 @@ function manage_post(App $a) {
 		$_SESSION['submanage'] = $original_id;
 	}
 
-	$ret = array();
+	$ret = [];
 	call_hooks('home_init',$ret);
 
 	goaway( System::baseUrl() . "/profile/" . $a->user['nickname'] );
@@ -150,13 +150,13 @@ function manage_content(App $a) {
 		$identities[$key]['notifications'] = $notifications;
 	}
 
-	$o = replace_macros(get_markup_template('manage.tpl'), array(
+	$o = replace_macros(get_markup_template('manage.tpl'), [
 		'$title' => t('Manage Identities and/or Pages'),
 		'$desc' => t('Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'),
 		'$choose' => t('Select an identity to manage: '),
 		'$identities' => $identities,
 		'$submit' => t('Submit'),
-	));
+	]);
 
 	return $o;
 

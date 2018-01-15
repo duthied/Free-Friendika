@@ -17,7 +17,7 @@ function tagger_content(App $a) {
 
 	$term = notags(trim($_GET['term']));
 	// no commas allowed
-	$term = str_replace(array(',',' '),array('','_'),$term);
+	$term = str_replace([',',' '],['','_'],$term);
 
 	if(! $term)
 		return;
@@ -104,7 +104,7 @@ EOT;
 
 	$termlink = html_entity_decode('&#x2317;') . '[url=' . System::baseUrl() . '/search?tag=' . urlencode($term) . ']'. $term . '[/url]';
 
-	$arr = array();
+	$arr = [];
 
 	$arr['guid'] = get_guid(32);
 	$arr['uri'] = $uri;

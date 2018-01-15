@@ -88,7 +88,7 @@ Class Cron {
 			Worker::add(PRIORITY_LOW, "CronJobs", "update_photo_albums");
 
 			// Delete all done workerqueue entries
-			dba::delete('workerqueue', array('`done` AND `executed` < UTC_TIMESTAMP() - INTERVAL 12 HOUR'));
+			dba::delete('workerqueue', ['`done` AND `executed` < UTC_TIMESTAMP() - INTERVAL 12 HOUR']);
 
 			// check upstream version?
 			Worker::add(PRIORITY_LOW, 'CheckVersion');
@@ -181,11 +181,11 @@ Class Cron {
 			}
 
 			// Friendica and OStatus are checked once a day
-			if (in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS))) {
+			if (in_array($contact['network'], [NETWORK_DFRN, NETWORK_OSTATUS])) {
 				$contact['priority'] = 2;
 			}
 
-			if ($contact['subhub'] && in_array($contact['network'], array(NETWORK_DFRN, NETWORK_OSTATUS))) {
+			if ($contact['subhub'] && in_array($contact['network'], [NETWORK_DFRN, NETWORK_OSTATUS])) {
 				/*
 				 * We should be getting everything via a hub. But just to be sure, let's check once a day.
 				 * (You can make this more or less frequent if desired by setting 'pushpoll_frequency' appropriately)
@@ -262,7 +262,7 @@ Class Cron {
 
 			logger("Polling " . $contact["network"] . " " . $contact["id"] . " " . $contact['priority'] . " " . $contact["nick"] . " " . $contact["name"]);
 
-			Worker::add(array('priority' => $priority, 'dont_fork' => true), 'OnePoll', (int)$contact['id']);
+			Worker::add(['priority' => $priority, 'dont_fork' => true], 'OnePoll', (int)$contact['id']);
 		}
 	}
 }

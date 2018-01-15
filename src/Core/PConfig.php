@@ -41,7 +41,7 @@ class PConfig
 	{
 		$a = get_app();
 
-		$r = dba::select('pconfig', array('v', 'k'), array('cat' => $family, 'uid' => $uid));
+		$r = dba::select('pconfig', ['v', 'k'], ['cat' => $family, 'uid' => $uid]);
 		if (DBM::is_result($r)) {
 			while ($rr = dba::fetch($r)) {
 				$k = $rr['k'];
@@ -140,7 +140,7 @@ class PConfig
 		// manage array value
 		$dbvalue = (is_array($value) ? serialize($value) : $dbvalue);
 
-		$ret = dba::update('pconfig', array('v' => $dbvalue), array('uid' => $uid, 'cat' => $family, 'k' => $key), true);
+		$ret = dba::update('pconfig', ['v' => $dbvalue], ['uid' => $uid, 'cat' => $family, 'k' => $key], true);
 
 		if ($ret) {
 			self::$in_db[$uid][$family][$key] = true;
@@ -170,7 +170,7 @@ class PConfig
 			unset(self::$in_db[$uid][$family][$key]);
 		}
 
-		$ret = dba::delete('pconfig', array('uid' => $uid, 'cat' => $family, 'k' => $key));
+		$ret = dba::delete('pconfig', ['uid' => $uid, 'cat' => $family, 'k' => $key]);
 
 		return $ret;
 	}

@@ -16,7 +16,7 @@ function lockview_content(App $a) {
 	if(! $item_id)
 		killme();
 
-	if (!in_array($type, array('item','photo','event')))
+	if (!in_array($type, ['item','photo','event']))
 		killme();
 
 	$r = q("SELECT * FROM `%s` WHERE `id` = %d LIMIT 1",
@@ -49,7 +49,7 @@ function lockview_content(App $a) {
 	$deny_groups = expand_acl($item['deny_gid']);
 
 	$o = t('Visible to:') . '<br />';
-	$l = array();
+	$l = [];
 
 	if(count($allowed_groups)) {
 		$r = q("SELECT `name` FROM `group` WHERE `id` IN ( %s )",

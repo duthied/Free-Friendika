@@ -44,7 +44,7 @@ function po2php_run(&$argv, &$argc) {
 			$l = "";
 		}
 		if (substr($l, 0, 15) == '"Plural-Forms: ') {
-			$match = array();
+			$match = [];
 			preg_match("|nplurals=([0-9]*); *plural=(.*)[;\\\\]|", $l, $match);
 			$cond = str_replace('n', '$n', $match[2]);
 			// define plural select function if not already defined
@@ -82,9 +82,9 @@ function po2php_run(&$argv, &$argc) {
 
 			if (!$arr) {
 				$arr=True;
-				$out .= "array(\n";
+				$out .= "[\n";
 			}
-			$match = array();
+			$match = [];
 			preg_match("|\[([0-9]*)\] (.*)|", $l, $match);
 			$out .= "\t"
 				. preg_replace_callback($escape_s_exp, 'escape_s', $match[1])
@@ -110,7 +110,7 @@ function po2php_run(&$argv, &$argc) {
 				$out .= '"' . $v . '"';
 			}
 			if ($k != "") {
-				$out .= ($arr) ? ");\n" : ";\n";
+				$out .= ($arr) ? "];\n" : ";\n";
 			}
 			$arr = false;
 			$k = str_replace("msgid ", "", $l);
@@ -138,7 +138,7 @@ function po2php_run(&$argv, &$argc) {
 		$out .= '"' . $v . '"';
 	}
 	if ($k != "") {
-		$out .= ($arr ? ");\n" : ";\n");
+		$out .= ($arr ? "];\n" : ";\n");
 	}
 
 	$out = str_replace(DQ_ESCAPE, '\"', $out);

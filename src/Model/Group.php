@@ -330,10 +330,10 @@ class Group extends BaseObject
 			$label = t('Default privacy group for new contacts');
 		}
 
-		$o = replace_macros(get_markup_template('group_selection.tpl'), array(
+		$o = replace_macros(get_markup_template('group_selection.tpl'), [
 			'$label' => $label,
 			'$groups' => $display_groups
-		));
+		]);
 		return $o;
 	}
 
@@ -369,7 +369,7 @@ class Group extends BaseObject
 
 		$stmt = dba::select('group', [], ['deleted' => 0, 'uid' => local_user()], ['order' => ['name']]);
 
-		$member_of = array();
+		$member_of = [];
 		if ($cid) {
 			$member_of = self::getIdsByContactId($cid);
 		}

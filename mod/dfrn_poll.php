@@ -107,10 +107,10 @@ function dfrn_poll_init(App $a)
 				if ((int) $xml->status === 1) {
 					$_SESSION['authenticated'] = 1;
 					if (!x($_SESSION, 'remote')) {
-						$_SESSION['remote'] = array();
+						$_SESSION['remote'] = [];
 					}
 
-					$_SESSION['remote'][] = array('cid' => $r[0]['id'], 'uid' => $r[0]['uid'], 'url' => $r[0]['url']);
+					$_SESSION['remote'][] = ['cid' => $r[0]['id'], 'uid' => $r[0]['uid'], 'url' => $r[0]['url']];
 
 					$_SESSION['visitor_id'] = $r[0]['id'];
 					$_SESSION['visitor_home'] = $r[0]['url'];
@@ -488,13 +488,13 @@ function dfrn_poll_content(App $a)
 					. '&sec=' . $sec
 				);
 			} else {
-				$s = post_url($r[0]['poll'], array(
+				$s = post_url($r[0]['poll'], [
 					'dfrn_id' => $encrypted_id,
 					'type' => 'profile-check',
 					'dfrn_version' => DFRN_PROTOCOL_VERSION,
 					'challenge' => $challenge,
 					'sec' => $sec
-				));
+				]);
 			}
 
 			$profile = ((DBM::is_result($r) && $r[0]['nickname']) ? $r[0]['nickname'] : $nickname);
@@ -529,10 +529,10 @@ function dfrn_poll_content(App $a)
 				if (((int) $xml->status == 0) && ($xml->challenge == $hash) && ($xml->sec == $sec)) {
 					$_SESSION['authenticated'] = 1;
 					if (!x($_SESSION, 'remote')) {
-						$_SESSION['remote'] = array();
+						$_SESSION['remote'] = [];
 					}
 
-					$_SESSION['remote'][] = array('cid' => $r[0]['id'], 'uid' => $r[0]['uid'], 'url' => $r[0]['url']);
+					$_SESSION['remote'][] = ['cid' => $r[0]['id'], 'uid' => $r[0]['uid'], 'url' => $r[0]['url']];
 					$_SESSION['visitor_id'] = $r[0]['id'];
 					$_SESSION['visitor_home'] = $r[0]['url'];
 					$_SESSION['visitor_visiting'] = $r[0]['uid'];

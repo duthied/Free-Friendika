@@ -9,10 +9,10 @@ $a->strings["Add New Contact"] = "Nieuw Contact toevoegen";
 $a->strings["Enter address or web location"] = "Voeg een webadres of -locatie in:";
 $a->strings["Example: bob@example.com, http://example.com/barbara"] = "Voorbeeld: jan@voorbeeld.be, http://voorbeeld.nl/barbara";
 $a->strings["Connect"] = "Verbinden";
-$a->strings["%d invitation available"] = array(
+$a->strings["%d invitation available"] = [
 	0 => "%d uitnodiging beschikbaar",
 	1 => "%d uitnodigingen beschikbaar",
-);
+];
 $a->strings["Find People"] = "Zoek mensen";
 $a->strings["Enter name or interest"] = "Vul naam of interesse in";
 $a->strings["Connect/Follow"] = "Verbind/Volg";
@@ -27,10 +27,10 @@ $a->strings["All Networks"] = "Alle netwerken";
 $a->strings["Saved Folders"] = "Bewaarde Mappen";
 $a->strings["Everything"] = "Alles";
 $a->strings["Categories"] = "Categorieën";
-$a->strings["%d contact in common"] = array(
+$a->strings["%d contact in common"] = [
 	0 => "%d gedeeld contact",
 	1 => "%d gedeelde contacten",
-);
+];
 $a->strings["show more"] = "toon meer";
 $a->strings["Forums"] = "";
 $a->strings["External link to forum"] = "";
@@ -47,10 +47,10 @@ $a->strings["Hermaphrodite"] = "Hermafrodiet";
 $a->strings["Neuter"] = "Genderneutraal";
 $a->strings["Non-specific"] = "Niet-specifiek";
 $a->strings["Other"] = "Anders";
-$a->strings["Undecided"] = array(
+$a->strings["Undecided"] = [
 	0 => "",
 	1 => "",
-);
+];
 $a->strings["Males"] = "Mannen";
 $a->strings["Females"] = "Vrouwen";
 $a->strings["Gay"] = "Homo";
@@ -169,10 +169,10 @@ $a->strings["Error! Cannot check nickname"] = "";
 $a->strings["User '%s' already exists on this server!"] = "Gebruiker '%s' bestaat al op deze server!";
 $a->strings["User creation error"] = "Fout bij het aanmaken van de gebruiker";
 $a->strings["User profile creation error"] = "Fout bij het aanmaken van het gebruikersprofiel";
-$a->strings["%d contact not imported"] = array(
+$a->strings["%d contact not imported"] = [
 	0 => "%d contact werd niet geïmporteerd",
 	1 => "%d contacten werden niet geïmporteerd",
-);
+];
 $a->strings["Done. You can now login with your username and password"] = "Gebeurd. Je kunt nu inloggen met je gebruikersnaam en wachtwoord";
 $a->strings["Miscellaneous"] = "Diversen";
 $a->strings["Birthday:"] = "Verjaardag:";
@@ -432,10 +432,10 @@ $a->strings["post/item"] = "bericht/item";
 $a->strings["%1\$s marked %2\$s's %3\$s as favorite"] = "%1\$s markeerde %2\$s's %3\$s als favoriet";
 $a->strings["Likes"] = "Houdt van";
 $a->strings["Dislikes"] = "Houdt niet van";
-$a->strings["Attending"] = array(
+$a->strings["Attending"] = [
 	0 => "",
 	1 => "",
-);
+];
 $a->strings["Not attending"] = "";
 $a->strings["Might attend"] = "";
 $a->strings["Select"] = "Kies";
@@ -502,18 +502,18 @@ $a->strings["Private post"] = "Privé verzending";
 $a->strings["Message"] = "Bericht";
 $a->strings["Browser"] = "";
 $a->strings["View all"] = "";
-$a->strings["Like"] = array(
+$a->strings["Like"] = [
 	0 => "",
 	1 => "",
-);
-$a->strings["Dislike"] = array(
+];
+$a->strings["Dislike"] = [
 	0 => "",
 	1 => "",
-);
-$a->strings["Not Attending"] = array(
+];
+$a->strings["Not Attending"] = [
 	0 => "",
 	1 => "",
-);
+];
 $a->strings["%s\\'s birthday"] = "";
 $a->strings["General Features"] = "Algemene functies";
 $a->strings["Multiple Profiles"] = "Meerdere profielen";
@@ -651,10 +651,10 @@ $a->strings["next"] = "volgende";
 $a->strings["Loading more entries..."] = "";
 $a->strings["The end"] = "";
 $a->strings["No contacts"] = "Geen contacten";
-$a->strings["%d Contact"] = array(
+$a->strings["%d Contact"] = [
 	0 => "%d contact",
 	1 => "%d contacten",
-);
+];
 $a->strings["View Contacts"] = "Bekijk contacten";
 $a->strings["Save"] = "Bewaren";
 $a->strings["poke"] = "aanstoten";
@@ -695,10 +695,10 @@ $a->strings["Click to open/close"] = "klik om te openen/sluiten";
 $a->strings["View on separate page"] = "";
 $a->strings["view on separate page"] = "";
 $a->strings["activity"] = "activiteit";
-$a->strings["comment"] = array(
+$a->strings["comment"] = [
 	0 => "reactie",
 	1 => "reacties",
-);
+];
 $a->strings["post"] = "bericht";
 $a->strings["Item filed"] = "Item bewaard";
 $a->strings["Passwords do not match. Password unchanged."] = "Wachtwoorden komen niet overeen. Wachtwoord niet gewijzigd.";
@@ -794,10 +794,10 @@ $a->strings["%s : Not a valid email address."] = "%s: Geen geldig e-mailadres.";
 $a->strings["Please join us on Friendica"] = "Kom bij ons op Friendica";
 $a->strings["Invitation limit exceeded. Please contact your site administrator."] = "Uitnodigingslimiet overschreden. Neem contact op met de beheerder van je website.";
 $a->strings["%s : Message delivery failed."] = "%s : Aflevering van bericht mislukt.";
-$a->strings["%d message sent."] = array(
+$a->strings["%d message sent."] = [
 	0 => "%d bericht verzonden.",
 	1 => "%d berichten verzonden.",
-);
+];
 $a->strings["You have no more invitations available"] = "Je kunt geen uitnodigingen meer sturen";
 $a->strings["Visit %s for a list of public sites that you can join. Friendica members on other sites can all connect with each other, as well as with members of many other social networks."] = "Bezoek %s voor een lijst van openbare sites waar je je kunt aansluiten. Friendica leden op andere sites kunnen allemaal met elkaar verbonden worden, en ook met leden van verschillende andere sociale netwerken.";
 $a->strings["To accept this invitation, please visit and register at %s or any other public Friendica website."] = "Om deze uitnodiging te accepteren kan je je op %s registreren of op een andere vrij toegankelijke Friendica-website.";
@@ -949,10 +949,10 @@ $a->strings["Unknown sender - %s"] = "Onbekende afzender - %s";
 $a->strings["You and %s"] = "Jij en %s";
 $a->strings["%s and You"] = "%s en jij";
 $a->strings["D, d M Y - g:i A"] = "D, d M Y - g:i A";
-$a->strings["%d message"] = array(
+$a->strings["%d message"] = [
 	0 => "%d bericht",
 	1 => "%d berichten",
-);
+];
 $a->strings["Manage Identities and/or Pages"] = "Beheer Identiteiten en/of Pagina's";
 $a->strings["Toggle between different identities or community/group pages which share your account details or which you have been granted \"manage\" permissions"] = "Wissel tussen verschillende identiteiten of forum/groeppagina's die jouw accountdetails delen of waar je \"beheerdersrechten\" hebt gekregen.";
 $a->strings["Select an identity to manage: "] = "Selecteer een identiteit om te beheren:";
@@ -981,10 +981,10 @@ $a->strings["New photo from this URL"] = "Nieuwe foto van deze URL";
 $a->strings["No such group"] = "Zo'n groep bestaat niet";
 $a->strings["Group: %s"] = "";
 $a->strings["This entry was edited"] = "";
-$a->strings["%d comment"] = array(
+$a->strings["%d comment"] = [
 	0 => "%d reactie",
 	1 => "%d reacties",
-);
+];
 $a->strings["Private Message"] = "Privébericht";
 $a->strings["I like this (toggle)"] = "Vind ik leuk";
 $a->strings["like"] = "leuk";
@@ -1687,14 +1687,14 @@ $a->strings["Mark success (if update was manually applied)"] = "Markeren als suc
 $a->strings["Attempt to execute this update step automatically"] = "Probeer deze stap automatisch uit te voeren";
 $a->strings["\n\t\t\tDear %1\$s,\n\t\t\t\tthe administrator of %2\$s has set up an account for you."] = "";
 $a->strings["\n\t\t\tThe login details are as follows:\n\n\t\t\tSite Location:\t%1\$s\n\t\t\tLogin Name:\t\t%2\$s\n\t\t\tPassword:\t\t%3\$s\n\n\t\t\tYou may change your password from your account \"Settings\" page after logging\n\t\t\tin.\n\n\t\t\tPlease take a few moments to review the other account settings on that page.\n\n\t\t\tYou may also wish to add some basic information to your default profile\n\t\t\t(on the \"Profiles\" page) so that other people can easily find you.\n\n\t\t\tWe recommend setting your full name, adding a profile photo,\n\t\t\tadding some profile \"keywords\" (very useful in making new friends) - and\n\t\t\tperhaps what country you live in; if you do not wish to be more specific\n\t\t\tthan that.\n\n\t\t\tWe fully respect your right to privacy, and none of these items are necessary.\n\t\t\tIf you are new and do not know anybody here, they may help\n\t\t\tyou to make some new and interesting friends.\n\n\t\t\tThank you and welcome to %4\$s."] = "";
-$a->strings["%s user blocked/unblocked"] = array(
+$a->strings["%s user blocked/unblocked"] = [
 	0 => "%s gebruiker geblokkeerd/niet geblokkeerd",
 	1 => "%s gebruikers geblokkeerd/niet geblokkeerd",
-);
-$a->strings["%s user deleted"] = array(
+];
+$a->strings["%s user deleted"] = [
 	0 => "%s gebruiker verwijderd",
 	1 => "%s gebruikers verwijderd",
-);
+];
 $a->strings["User '%s' deleted"] = "Gebruiker '%s' verwijderd";
 $a->strings["User '%s' unblocked"] = "Gebruiker '%s' niet meer geblokkeerd";
 $a->strings["User '%s' blocked"] = "Gebruiker '%s' geblokkeerd";
@@ -1748,10 +1748,10 @@ $a->strings["PHP logging"] = "";
 $a->strings["To enable logging of PHP errors and warnings you can add the following to the .htconfig.php file of your installation. The filename set in the 'error_log' line is relative to the friendica top-level directory and must be writeable by the web server. The option '1' for 'log_errors' and 'display_errors' is to enable these options, set to '0' to disable them."] = "";
 $a->strings["Lock feature %s"] = "";
 $a->strings["Manage Additional Features"] = "";
-$a->strings["%d contact edited."] = array(
+$a->strings["%d contact edited."] = [
 	0 => "",
 	1 => "",
-);
+];
 $a->strings["Could not access contact record."] = "Kon geen toegang krijgen tot de contactgegevens";
 $a->strings["Could not locate selected profile."] = "Kon het geselecteerde profiel niet vinden.";
 $a->strings["Contact updated."] = "Contact bijgewerkt.";
@@ -1848,10 +1848,10 @@ $a->strings["This introduction has already been accepted."] = "Verzoek is al goe
 $a->strings["Profile location is not valid or does not contain profile information."] = "Profiel is ongeldig of bevat geen informatie";
 $a->strings["Warning: profile location has no identifiable owner name."] = "Waarschuwing: de profiellocatie heeft geen identificeerbare eigenaar.";
 $a->strings["Warning: profile location has no profile photo."] = "Waarschuwing: Profieladres heeft geen profielfoto.";
-$a->strings["%d required parameter was not found at the given location"] = array(
+$a->strings["%d required parameter was not found at the given location"] = [
 	0 => "De %d vereiste parameter is niet op het gegeven adres gevonden",
 	1 => "De %d vereiste parameters zijn niet op het gegeven adres gevonden",
-);
+];
 $a->strings["Introduction complete."] = "Verzoek voltooid.";
 $a->strings["Unrecoverable protocol error."] = "Onherstelbare protocolfout. ";
 $a->strings["Profile unavailable."] = "Profiel onbeschikbaar";
@@ -1971,10 +1971,10 @@ $a->strings["This message was sent to you by %s, a member of the Friendica socia
 $a->strings["You may visit them online at %s"] = "Je kunt ze online bezoeken op %s";
 $a->strings["Please contact the sender by replying to this post if you do not wish to receive these messages."] = "Contacteer de afzender door op dit bericht te antwoorden als je deze berichten niet wilt ontvangen.";
 $a->strings["%s posted an update."] = "%s heeft een wijziging geplaatst.";
-$a->strings["Warning: This group contains %s member from a network that doesn't allow non public messages."] = array(
+$a->strings["Warning: This group contains %s member from a network that doesn't allow non public messages."] = [
 	0 => "",
 	1 => "",
-);
+];
 $a->strings["Messages in this group won't be send to these receivers."] = "";
 $a->strings["Private messages to this person are at risk of public disclosure."] = "Privéberichten naar deze persoon kunnen openbaar gemaakt worden.";
 $a->strings["Invalid contact."] = "Ongeldig contact.";

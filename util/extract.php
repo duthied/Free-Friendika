@@ -1,8 +1,8 @@
 <?php
 
-	$arr = array();
+	$arr = [];
 
-	$files = array('index.php','boot.php');
+	$files = ['index.php','boot.php'];
 	$files = array_merge($files,glob('mod/*'),glob('include/*'),glob('addon/*/*'));
 
 
@@ -14,7 +14,7 @@
 
 		preg_match_all($pat,$str,$matches);
 		preg_match_all($patt, $str, $matchestt);
-		
+
 
 		if(count($matches)){
 			foreach($matches[1] as $match) {
@@ -51,7 +51,7 @@ function string_plural_select($n){
 			$s .= ");\n";
 		} else {
 			if(substr($a,0,1) == '$')
-				continue;			
+				continue;
 			$s .= '$a->strings[' . $a . '] = '. $a . ';' . "\n";
 		}
 	}
@@ -59,5 +59,5 @@ function string_plural_select($n){
 	$zones = timezone_identifiers_list();
 	foreach($zones as $zone)
 		$s .= '$a->strings[\'' . $zone . '\'] = \'' . $zone . '\';' . "\n";
-	
+
 	echo $s;

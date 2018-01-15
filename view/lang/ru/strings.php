@@ -117,12 +117,12 @@ $a->strings["Hermaphrodite"] = "Гермафродит";
 $a->strings["Neuter"] = "Средний род";
 $a->strings["Non-specific"] = "Не определен";
 $a->strings["Other"] = "Другой";
-$a->strings["Undecided"] = array(
+$a->strings["Undecided"] = [
 	0 => "",
 	1 => "",
 	2 => "",
 	3 => "",
-);
+];
 $a->strings["Males"] = "Мужчины";
 $a->strings["Females"] = "Женщины";
 $a->strings["Gay"] = "Гей";
@@ -177,12 +177,12 @@ $a->strings["Error! Cannot check nickname"] = "Ошибка! Невозможн�
 $a->strings["User '%s' already exists on this server!"] = "Пользователь '%s' уже существует на этом сервере!";
 $a->strings["User creation error"] = "Ошибка создания пользователя";
 $a->strings["User profile creation error"] = "Ошибка создания профиля пользователя";
-$a->strings["%d contact not imported"] = array(
+$a->strings["%d contact not imported"] = [
 	0 => "%d контакт не импортирован",
 	1 => "%d контакты не импортированы",
 	2 => "%d контакты не импортированы",
 	3 => "%d контакты не импортированы",
-);
+];
 $a->strings["Done. You can now login with your username and password"] = "Завершено. Теперь вы можете войти с вашим логином и паролем";
 $a->strings["View Profile"] = "Просмотреть профиль";
 $a->strings["Connect/Follow"] = "Подключиться/Следовать";
@@ -256,12 +256,12 @@ $a->strings["Add New Contact"] = "Добавить контакт";
 $a->strings["Enter address or web location"] = "Введите адрес или веб-местонахождение";
 $a->strings["Example: bob@example.com, http://example.com/barbara"] = "Пример: bob@example.com, http://example.com/barbara";
 $a->strings["Connect"] = "Подключить";
-$a->strings["%d invitation available"] = array(
+$a->strings["%d invitation available"] = [
 	0 => "%d приглашение доступно",
 	1 => "%d приглашений доступно",
 	2 => "%d приглашений доступно",
 	3 => "%d приглашений доступно",
-);
+];
 $a->strings["Find People"] = "Поиск людей";
 $a->strings["Enter name or interest"] = "Введите имя или интерес";
 $a->strings["Examples: Robert Morgenstein, Fishing"] = "Примеры: Роберт Morgenstein, Рыбалка";
@@ -275,12 +275,12 @@ $a->strings["All Networks"] = "Все сети";
 $a->strings["Saved Folders"] = "Сохранённые папки";
 $a->strings["Everything"] = "Всё";
 $a->strings["Categories"] = "Категории";
-$a->strings["%d contact in common"] = array(
+$a->strings["%d contact in common"] = [
 	0 => "%d Контакт",
 	1 => "%d Контактов",
 	2 => "%d Контактов",
 	3 => "%d Контактов",
-);
+];
 $a->strings["%1\$s attends %2\$s's %3\$s"] = "%1\$s уделил внимание %2\$s's %3\$s";
 $a->strings["%1\$s doesn't attend %2\$s's %3\$s"] = "";
 $a->strings["%1\$s attends maybe %2\$s's %3\$s"] = "";
@@ -292,12 +292,12 @@ $a->strings["post/item"] = "пост/элемент";
 $a->strings["%1\$s marked %2\$s's %3\$s as favorite"] = "%1\$s пометил %2\$s %3\$s как Фаворит";
 $a->strings["Likes"] = "Лайки";
 $a->strings["Dislikes"] = "Не нравится";
-$a->strings["Attending"] = array(
+$a->strings["Attending"] = [
 	0 => "",
 	1 => "",
 	2 => "",
 	3 => "",
-);
+];
 $a->strings["Not attending"] = "";
 $a->strings["Might attend"] = "";
 $a->strings["Select"] = "Выберите";
@@ -364,24 +364,24 @@ $a->strings["Private post"] = "Личное сообщение";
 $a->strings["Message"] = "Сообщение";
 $a->strings["Browser"] = "Браузер";
 $a->strings["View all"] = "Посмотреть все";
-$a->strings["Like"] = array(
+$a->strings["Like"] = [
 	0 => "Нравится",
 	1 => "Нравится",
 	2 => "Нравится",
 	3 => "Нравится",
-);
-$a->strings["Dislike"] = array(
+];
+$a->strings["Dislike"] = [
 	0 => "Не нравится",
 	1 => "Не нравится",
 	2 => "Не нравится",
 	3 => "Не нравится",
-);
-$a->strings["Not Attending"] = array(
+];
+$a->strings["Not Attending"] = [
 	0 => "",
 	1 => "",
 	2 => "",
 	3 => "",
-);
+];
 $a->strings["Miscellaneous"] = "Разное";
 $a->strings["Birthday:"] = "День рождения:";
 $a->strings["Age: "] = "Возраст: ";
@@ -694,12 +694,12 @@ $a->strings["last"] = "последний";
 $a->strings["Loading more entries..."] = "Загружаю больше сообщений...";
 $a->strings["The end"] = "Конец";
 $a->strings["No contacts"] = "Нет контактов";
-$a->strings["%d Contact"] = array(
+$a->strings["%d Contact"] = [
 	0 => "%d контакт",
 	1 => "%d контактов",
 	2 => "%d контактов",
 	3 => "%d контактов",
-);
+];
 $a->strings["View Contacts"] = "Просмотр контактов";
 $a->strings["Save"] = "Сохранить";
 $a->strings["poke"] = "poke";
@@ -740,12 +740,12 @@ $a->strings["Click to open/close"] = "Нажмите, чтобы открыть 
 $a->strings["View on separate page"] = "";
 $a->strings["view on separate page"] = "";
 $a->strings["activity"] = "активность";
-$a->strings["comment"] = array(
+$a->strings["comment"] = [
 	0 => "",
 	1 => "",
 	2 => "комментарий",
 	3 => "комментарий",
-);
+];
 $a->strings["post"] = "сообщение";
 $a->strings["Item filed"] = "";
 $a->strings["No friends to display."] = "Нет друзей.";
@@ -762,12 +762,12 @@ $a->strings["Item was not found."] = "Пункт не был найден.";
 $a->strings["The post was created"] = "Пост был создан";
 $a->strings["No contacts in common."] = "Нет общих контактов.";
 $a->strings["Common Friends"] = "Общие друзья";
-$a->strings["%d contact edited."] = array(
+$a->strings["%d contact edited."] = [
 	0 => "",
 	1 => "",
 	2 => "",
 	3 => "",
-);
+];
 $a->strings["Could not access contact record."] = "Не удалось получить доступ к записи контакта.";
 $a->strings["Could not locate selected profile."] = "Не удалось найти выбранный профиль.";
 $a->strings["Contact updated."] = "Контакт обновлен.";
@@ -860,12 +860,12 @@ $a->strings["No such group"] = "Нет такой группы";
 $a->strings["Group is empty"] = "Группа пуста";
 $a->strings["Group: %s"] = "Группа: %s";
 $a->strings["This entry was edited"] = "Эта запись была отредактирована";
-$a->strings["%d comment"] = array(
+$a->strings["%d comment"] = [
 	0 => "%d комментарий",
 	1 => "%d комментариев",
 	2 => "%d комментариев",
 	3 => "%d комментариев",
-);
+];
 $a->strings["Private Message"] = "Личное сообщение";
 $a->strings["I like this (toggle)"] = "Нравится";
 $a->strings["like"] = "нравится";
@@ -958,12 +958,12 @@ $a->strings["%s : Not a valid email address."] = "%s: Неверный адре�
 $a->strings["Please join us on Friendica"] = "Пожалуйста, присоединяйтесь к нам на Friendica";
 $a->strings["Invitation limit exceeded. Please contact your site administrator."] = "Лимит приглашений превышен. Пожалуйста, свяжитесь с администратором сайта.";
 $a->strings["%s : Message delivery failed."] = "%s: Доставка сообщения не удалась.";
-$a->strings["%d message sent."] = array(
+$a->strings["%d message sent."] = [
 	0 => "%d сообщение отправлено.",
 	1 => "%d сообщений отправлено.",
 	2 => "%d сообщений отправлено.",
 	3 => "%d сообщений отправлено.",
-);
+];
 $a->strings["You have no more invitations available"] = "У вас нет больше приглашений";
 $a->strings["Visit %s for a list of public sites that you can join. Friendica members on other sites can all connect with each other, as well as with members of many other social networks."] = "Посетите %s со списком общедоступных сайтов, к которым вы можете присоединиться. Все участники Friendica на других сайтах могут соединиться друг с другом, а также с участниками многих других социальных сетей.";
 $a->strings["To accept this invitation, please visit and register at %s or any other public Friendica website."] = "Для одобрения этого приглашения, пожалуйста, посетите и зарегистрируйтесь на %s ,или любом другом публичном сервере Friendica";
@@ -1168,12 +1168,12 @@ $a->strings["This introduction has already been accepted."] = "Этот запр
 $a->strings["Profile location is not valid or does not contain profile information."] = "Местоположение профиля является недопустимым или не содержит информацию о профиле.";
 $a->strings["Warning: profile location has no identifiable owner name."] = "Внимание: местоположение профиля не имеет идентифицируемого имени владельца.";
 $a->strings["Warning: profile location has no profile photo."] = "Внимание: местоположение профиля не имеет еще фотографии профиля.";
-$a->strings["%d required parameter was not found at the given location"] = array(
+$a->strings["%d required parameter was not found at the given location"] = [
 	0 => "%d требуемый параметр не был найден в заданном месте",
 	1 => "%d требуемых параметров не были найдены в заданном месте",
 	2 => "%d требуемых параметров не были найдены в заданном месте",
 	3 => "%d требуемых параметров не были найдены в заданном месте",
-);
+];
 $a->strings["Introduction complete."] = "Запрос создан.";
 $a->strings["Unrecoverable protocol error."] = "Неисправимая ошибка протокола.";
 $a->strings["Profile unavailable."] = "Профиль недоступен.";
@@ -1268,19 +1268,19 @@ $a->strings["Unknown sender - %s"] = "Неизвестный отправите�
 $a->strings["You and %s"] = "Вы и %s";
 $a->strings["%s and You"] = "%s и Вы";
 $a->strings["D, d M Y - g:i A"] = "D, d M Y - g:i A";
-$a->strings["%d message"] = array(
+$a->strings["%d message"] = [
 	0 => "%d сообщение",
 	1 => "%d сообщений",
 	2 => "%d сообщений",
 	3 => "%d сообщений",
-);
+];
 $a->strings["Remove term"] = "Удалить элемент";
-$a->strings["Warning: This group contains %s member from a network that doesn't allow non public messages."] = array(
+$a->strings["Warning: This group contains %s member from a network that doesn't allow non public messages."] = [
 	0 => "Внимание: в группе %s пользователь из сети, которая не поддерживает непубличные сообщения.",
 	1 => "Внимание: в группе %s пользователя из сети, которая не поддерживает непубличные сообщения.",
 	2 => "Внимание: в группе %s пользователей из сети, которая не поддерживает непубличные сообщения.",
 	3 => "Внимание: в группе %s пользователей из сети, которая не поддерживает непубличные сообщения.",
-);
+];
 $a->strings["Messages in this group won't be send to these receivers."] = "Сообщения в этой группе не будут отправлены следующим получателям.";
 $a->strings["Private messages to this person are at risk of public disclosure."] = "Личные сообщения этому человеку находятся под угрозой обнародования.";
 $a->strings["Invalid contact."] = "Недопустимый контакт.";
@@ -1976,18 +1976,18 @@ $a->strings["Mark success (if update was manually applied)"] = "Отмечено
 $a->strings["Attempt to execute this update step automatically"] = "Попытаться выполнить этот шаг обновления автоматически";
 $a->strings["\n\t\t\tDear %1\$s,\n\t\t\t\tthe administrator of %2\$s has set up an account for you."] = "";
 $a->strings["\n\t\t\tThe login details are as follows:\n\n\t\t\tSite Location:\t%1\$s\n\t\t\tLogin Name:\t\t%2\$s\n\t\t\tPassword:\t\t%3\$s\n\n\t\t\tYou may change your password from your account \"Settings\" page after logging\n\t\t\tin.\n\n\t\t\tPlease take a few moments to review the other account settings on that page.\n\n\t\t\tYou may also wish to add some basic information to your default profile\n\t\t\t(on the \"Profiles\" page) so that other people can easily find you.\n\n\t\t\tWe recommend setting your full name, adding a profile photo,\n\t\t\tadding some profile \"keywords\" (very useful in making new friends) - and\n\t\t\tperhaps what country you live in; if you do not wish to be more specific\n\t\t\tthan that.\n\n\t\t\tWe fully respect your right to privacy, and none of these items are necessary.\n\t\t\tIf you are new and do not know anybody here, they may help\n\t\t\tyou to make some new and interesting friends.\n\n\t\t\tThank you and welcome to %4\$s."] = "";
-$a->strings["%s user blocked/unblocked"] = array(
+$a->strings["%s user blocked/unblocked"] = [
 	0 => "%s пользователь заблокирован/разблокирован",
 	1 => "%s пользователей заблокировано/разблокировано",
 	2 => "%s пользователей заблокировано/разблокировано",
 	3 => "%s пользователей заблокировано/разблокировано",
-);
-$a->strings["%s user deleted"] = array(
+];
+$a->strings["%s user deleted"] = [
 	0 => "%s человек удален",
 	1 => "%s чел. удалено",
 	2 => "%s чел. удалено",
 	3 => "%s чел. удалено",
-);
+];
 $a->strings["User '%s' deleted"] = "Пользователь '%s' удален";
 $a->strings["User '%s' unblocked"] = "Пользователь '%s' разблокирован";
 $a->strings["User '%s' blocked"] = "Пользователь '%s' блокирован";

@@ -48,7 +48,7 @@ function theme_content(App $a) {
 	if (!local_user()) {
 		return;
 	}
-	$arr = array();
+	$arr = [];
 
 	$arr["schema"]           = PConfig::get(local_user(), 'frio', 'schema');
 	$arr["nav_bg"]           = PConfig::get(local_user(), 'frio', 'nav_bg');
@@ -66,7 +66,7 @@ function theme_admin(App $a) {
 	if (!local_user()) {
 		return;
 	}
-	$arr = array();
+	$arr = [];
 
 	$arr["schema"]           = Config::get('frio', 'schema');
 	$arr["nav_bg"]           = Config::get('frio', 'nav_bg');
@@ -87,10 +87,10 @@ function frio_form($arr) {
 	$scheme_info = get_schema_info($arr["schema"]);
 	$disable = $scheme_info["overwrites"];
 	if (!is_array($disable)) {
-		$disable = array();
+		$disable = [];
 	}
 
-	$scheme_choices = array();
+	$scheme_choices = [];
 	$scheme_choices["---"] = t("Default");
 	$files = glob('view/theme/frio/schema/*.php');
 	if ($files) {
@@ -106,22 +106,22 @@ function frio_form($arr) {
 	$background_image_help = "<strong>" . t("Note"). ": </strong>".t("Check image permissions if all users are allowed to visit the image");
 
 	$t = get_markup_template('theme_settings.tpl');
-	$ctx = array(
+	$ctx = [
 		'$submit'           => t('Submit'),
 		'$baseurl'          => System::baseUrl(),
 		'$title'            => t("Theme settings"),
-		'$schema'           => array('frio_schema', t("Select scheme"), $arr["schema"], '', $scheme_choices),
-		'$nav_bg'           => array_key_exists("nav_bg", $disable) ? "" : array('frio_nav_bg', t('Navigation bar background color'), $arr['nav_bg']),
-		'$nav_icon_color'   => array_key_exists("nav_icon_color", $disable) ? "" : array('frio_nav_icon_color', t('Navigation bar icon color '), $arr['nav_icon_color']),
-		'$link_color'       => array_key_exists("link_color", $disable) ? "" : array('frio_link_color', t('Link color'), $arr['link_color'], '', $link_colors),
-		'$bgcolor'          => array_key_exists("bgcolor", $disable) ? "" : array('frio_background_color', t('Set the background color'), $arr['bgcolor']),
-		'$contentbg_transp' => array_key_exists("contentbg_transp", $disable) ? "" : array('frio_contentbg_transp', t("Content background transparency"), ((isset($arr["contentbg_transp"]) && $arr["contentbg_transp"] != "") ? $arr["contentbg_transp"] : 100)),
-		'$background_image' => array_key_exists("background_image", $disable ) ? "" : array('frio_background_image', t('Set the background image'), $arr['background_image'], $background_image_help),
+		'$schema'           => ['frio_schema', t("Select scheme"), $arr["schema"], '', $scheme_choices],
+		'$nav_bg'           => array_key_exists("nav_bg", $disable) ? "" : ['frio_nav_bg', t('Navigation bar background color'), $arr['nav_bg']],
+		'$nav_icon_color'   => array_key_exists("nav_icon_color", $disable) ? "" : ['frio_nav_icon_color', t('Navigation bar icon color '), $arr['nav_icon_color']],
+		'$link_color'       => array_key_exists("link_color", $disable) ? "" : ['frio_link_color', t('Link color'), $arr['link_color'], '', $link_colors],
+		'$bgcolor'          => array_key_exists("bgcolor", $disable) ? "" : ['frio_background_color', t('Set the background color'), $arr['bgcolor']],
+		'$contentbg_transp' => array_key_exists("contentbg_transp", $disable) ? "" : ['frio_contentbg_transp', t("Content background transparency"), ((isset($arr["contentbg_transp"]) && $arr["contentbg_transp"] != "") ? $arr["contentbg_transp"] : 100)],
+		'$background_image' => array_key_exists("background_image", $disable ) ? "" : ['frio_background_image', t('Set the background image'), $arr['background_image'], $background_image_help],
 		'$bg_image_options' => Image::get_options($arr),
-	);
+	];
 
-	if ( array_key_exists("login_bg_image", $arr ) &&  !array_key_exists("login_bg_image", $disable ) ) { 
-		$ctx['$login_bg_image']  = array('frio_login_bg_image', t('Login page background image'), $arr['login_bg_image'], $background_image_help);
+	if ( array_key_exists("login_bg_image", $arr ) &&  !array_key_exists("login_bg_image", $disable ) ) {
+		$ctx['$login_bg_image']  = ['frio_login_bg_image', t('Login page background image'), $arr['login_bg_image'], $background_image_help];
 	}
 
 	$o .= replace_macros($t, $ctx);

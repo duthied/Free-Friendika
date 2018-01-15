@@ -92,17 +92,17 @@ function group_content(App $a) {
 
 	$tpl = get_markup_template('group_edit.tpl');
 
-	$context = array(
+	$context = [
 			'$submit' => t('Save Group'),
-	);
+	];
 
 	if (($a->argc == 2) && ($a->argv[1] === 'new')) {
-		return replace_macros($tpl, $context + array(
+		return replace_macros($tpl, $context + [
 			'$title' => t('Create a group of contacts/friends.'),
-			'$gname' => array('groupname', t('Group Name: '), '', ''),
+			'$gname' => ['groupname', t('Group Name: '), '', ''],
 			'$gid' => 'new',
 			'$form_security_token' => get_form_security_token("group_edit"),
-		));
+		]);
 
 
 	}
@@ -160,8 +160,8 @@ function group_content(App $a) {
 
 		$group = $r[0];
 		$members = Contact::getByGroupId($group['id']);
-		$preselected = array();
-		$entry = array();
+		$preselected = [];
+		$entry = [];
 		$id = 0;
 
 		if (count($members)) {
@@ -178,7 +178,7 @@ function group_content(App $a) {
 			}
 
 			$members = Contact::getByGroupId($group['id']);
-			$preselected = array();
+			$preselected = [];
 			if (count($members)) {
 				foreach ($members as $member) {
 					$preselected[] = $member['id'];
@@ -187,21 +187,21 @@ function group_content(App $a) {
 		}
 
 		$drop_tpl = get_markup_template('group_drop.tpl');
-		$drop_txt = replace_macros($drop_tpl, array(
+		$drop_txt = replace_macros($drop_tpl, [
 			'$id' => $group['id'],
 			'$delete' => t('Delete Group'),
 			'$form_security_token' => get_form_security_token("group_drop"),
-		));
+		]);
 
 
-		$context = $context + array(
+		$context = $context + [
 			'$title' => t('Group Editor'),
-			'$gname' => array('groupname', t('Group Name: '), $group['name'], ''),
+			'$gname' => ['groupname', t('Group Name: '), $group['name'], ''],
 			'$gid' => $group['id'],
 			'$drop' => $drop_txt,
 			'$form_security_token' => get_form_security_token('group_edit'),
 			'$edit_name' => t('Edit Group Name')
-		);
+		];
 
 	}
 
@@ -209,13 +209,13 @@ function group_content(App $a) {
 		return;
 	}
 
-	$groupeditor = array(
+	$groupeditor = [
 		'label_members' => t('Members'),
-		'members' => array(),
+		'members' => [],
 		'label_contacts' => t('All Contacts'),
 		'group_is_empty' => t('Group is empty'),
-		'contacts' => array(),
-	);
+		'contacts' => [],
+	];
 
 	$sec_token = addslashes(get_form_security_token('group_member_change'));
 
@@ -225,12 +225,12 @@ function group_content(App $a) {
 			$entry = _contact_detail_for_template($member);
 			$entry['label'] = 'members';
 			$entry['photo_menu'] = '';
-			$entry['change_member'] = array(
+			$entry['change_member'] = [
 				'title'     => t("Remove Contact"),
 				'gid'       => $group['id'],
 				'cid'       => $member['id'],
 				'sec_token' => $sec_token
-			);
+			];
 
 			$groupeditor['members'][] = $entry;
 		} else {
@@ -249,12 +249,12 @@ function group_content(App $a) {
 				$entry = _contact_detail_for_template($member);
 				$entry['label'] = 'contacts';
 				$entry['photo_menu'] = '';
-				$entry['change_member'] = array(
+				$entry['change_member'] = [
 					'title'     => t("Add Contact"),
 					'gid'       => $group['id'],
 					'cid'       => $member['id'],
 					'sec_token' => $sec_token
-				);
+				];
 
 				$groupeditor['contacts'][] = $entry;
 			}

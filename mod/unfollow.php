@@ -32,7 +32,7 @@ function unfollow_post(App $a)
 	if (!DBM::is_result($contact)) {
 		notice(t("Contact wasn't found or can't be unfollowed."));
 	} else {
-		if (in_array($contact['network'], array(NETWORK_OSTATUS, NETWORK_DIASPORA))) {
+		if (in_array($contact['network'], [NETWORK_OSTATUS, NETWORK_DIASPORA])) {
 			$r = q("SELECT `contact`.*, `user`.* FROM `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid`
 				WHERE `user`.`uid` = %d AND `contact`.`self` LIMIT 1",
 				intval($uid)
@@ -41,7 +41,7 @@ function unfollow_post(App $a)
 				Contact::terminateFriendship($r[0], $contact);
 			}
 		}
-		dba::update('contact', array('rel' => CONTACT_IS_FOLLOWER), array('id' => $contact['id']));
+		dba::update('contact', ['rel' => CONTACT_IS_FOLLOWER], ['id' => $contact['id']]);
 
 		info(t('Contact unfollowed').EOL);
 		goaway(System::baseUrl().'/contacts/'.$contact['id']);
@@ -74,7 +74,7 @@ function unfollow_content(App $a) {
 		// NOTREACHED
 	}
 
-	if (!in_array($contact['network'], array(NETWORK_DIASPORA, NETWORK_OSTATUS))) {
+	if (!in_array($contact['network'], [NETWORK_DIASPORA, NETWORK_OSTATUS])) {
 		notice(t("Unfollowing is currently not supported by your network.").EOL);
 		$submit = "";
 		// NOTREACHED
@@ -98,7 +98,7 @@ function unfollow_content(App $a) {
 
 	$header = t("Disconnect/Unfollow");
 
-	$o  = replace_macros($tpl,array(
+	$o  = replace_macros($tpl,[
 			'$header' => htmlentities($header),
 			'$desc' => "",
 			'$pls_answer' => "",
@@ -123,12 +123,12 @@ function unfollow_content(App $a) {
 			'$request' => $request,
 			'$keywords' => "",
 			'$keywords_label' => ""
-	));
+	]);
 
 	$a->page['aside'] = "";
 	Profile::load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
 
-	$o .= replace_macros(get_markup_template('section_title.tpl'), array('$title' => t('Status Messages and Posts')));
+	$o .= replace_macros(get_markup_template('section_title.tpl'), ['$title' => t('Status Messages and Posts')]);
 
 	// Show last public posts
 	$o .= Contact::getPostsFromUrl($contact["url"]);

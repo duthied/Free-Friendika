@@ -40,7 +40,7 @@ function hcard_init(App $a)
 
 	if (!$blocked) {
 		$keywords = ((x($a->profile, 'pub_keywords')) ? $a->profile['pub_keywords'] : '');
-		$keywords = str_replace(array(',',' ',',,'), array(' ',',',','), $keywords);
+		$keywords = str_replace([',',' ',',,'], [' ',',',','], $keywords);
 		if (strlen($keywords)) {
 			$a->page['htmlhead'] .= '<meta name="keywords" content="' . $keywords . '" />' . "\r\n" ;
 		}
@@ -52,7 +52,7 @@ function hcard_init(App $a)
 	$a->page['htmlhead'] .= '<link rel="lrdd" type="application/xrd+xml" href="' . System::baseUrl() . '/xrd/?uri=' . $uri . '" />' . "\r\n";
 	header('Link: <' . System::baseUrl() . '/xrd/?uri=' . $uri . '>; rel="lrdd"; type="application/xrd+xml"', false);
 
-	$dfrn_pages = array('request', 'confirm', 'notify', 'poll');
+	$dfrn_pages = ['request', 'confirm', 'notify', 'poll'];
 	foreach ($dfrn_pages as $dfrn) {
 		$a->page['htmlhead'] .= "<link rel=\"dfrn-{$dfrn}\" href=\"".System::baseUrl()."/dfrn_{$dfrn}/{$which}\" />\r\n";
 	}

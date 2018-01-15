@@ -26,7 +26,7 @@ function bookmarklet_content(App $a)
 	if (!strstr($referer, $page)) {
 		$content = add_page_info($_REQUEST["url"]);
 
-		$x = array(
+		$x = [
 			'is_owner' => true,
 			'allow_location' => $a->user['allow_location'],
 			'default_location' => $a->user['default-location'],
@@ -39,7 +39,7 @@ function bookmarklet_content(App $a)
 			'profile_uid' => local_user(),
 			'title' => trim($_REQUEST["title"], "*"),
 			'content' => $content
-		);
+		];
 		$o = status_editor($a, $x, 0, false);
 		$o .= "<script>window.resizeTo(800,550);</script>";
 	} else {

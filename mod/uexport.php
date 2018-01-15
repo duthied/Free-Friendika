@@ -36,26 +36,26 @@ function uexport_content(App $a) {
 	 * options shown on "Export personal data" page
 	 * list of array( 'link url', 'link text', 'help text' )
 	 */
-	$options = array(
-		array('uexport/account', t('Export account'), t('Export your account info and contacts. Use this to make a backup of your account and/or to move it to another server.')),
-		array('uexport/backup', t('Export all'), t('Export your accout info, contacts and all your items as json. Could be a very big file, and could take a lot of time. Use this to make a full backup of your account (photos are not exported)')),
-	);
+	$options = [
+		['uexport/account', t('Export account'), t('Export your account info and contacts. Use this to make a backup of your account and/or to move it to another server.')],
+		['uexport/backup', t('Export all'), t('Export your accout info, contacts and all your items as json. Could be a very big file, and could take a lot of time. Use this to make a full backup of your account (photos are not exported)')],
+	];
 	call_hooks('uexport_options', $options);
 
 	$tpl = get_markup_template("uexport.tpl");
-	return replace_macros($tpl, array(
+	return replace_macros($tpl, [
 		'$baseurl' => System::baseUrl(),
 		'$title' => t('Export personal data'),
 		'$options' => $options
-	));
+	]);
 }
 
 function _uexport_multirow($query) {
-	$result = array();
+	$result = [];
 	$r = q($query);
 	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
-			$p = array();
+			$p = [];
 			foreach ($rr as $k => $v) {
 				$p[$k] = $v;
 			}
@@ -66,7 +66,7 @@ function _uexport_multirow($query) {
 }
 
 function _uexport_row($query) {
-	$result = array();
+	$result = [];
 	$r = q($query);
 	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
@@ -112,7 +112,7 @@ function uexport_account($a) {
 		sprintf("SELECT `group_member`.`gid`, `group_member`.`contact-id` FROM `group_member` INNER JOIN `group` ON `group`.`id` = `group_member`.`gid` WHERE `group`.`uid` = %d", intval(local_user()))
 	);
 
-	$output = array(
+	$output = [
 		'version' => FRIENDICA_VERSION,
 		'schema' => DB_UPDATE_VERSION,
 		'baseurl' => System::baseUrl(),
@@ -123,7 +123,7 @@ function uexport_account($a) {
 		'pconfig' => $pconfig,
 		'group' => $group,
 		'group_member' => $group_member,
-	);
+	];
 
 	//echo "<pre>"; var_dump(json_encode($output)); killme();
 	echo json_encode($output, JSON_PARTIAL_OUTPUT_ON_ERROR);
@@ -146,14 +146,14 @@ function uexport_all(App $a) {
 	// chunk the output to avoid exhausting memory
 
 	for ($x = 0; $x < $total; $x += 500) {
-		$item = array();
+		$item = [];
 		$r = q("SELECT * FROM `item` WHERE `uid` = %d LIMIT %d, %d",
 			intval(local_user()),
 			intval($x),
 			intval(500)
 		);
 
-		$output = array('item' => $r);
+		$output = ['item' => $r];
 		echo json_encode($output, JSON_PARTIAL_OUTPUT_ON_ERROR). "\n";
 	}
 }

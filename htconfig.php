@@ -86,7 +86,7 @@ $a->config['system']['no_regfullname'] = true;
 $a->config['system']['directory'] = 'https://dir.friendica.social';
 
 // Allowed protocols in link URLs; HTTP protocols always are accepted
-$a->config['system']['allowed_link_protocols'] = array('ftp', 'ftps', 'mailto', 'cid', 'gopher');
+$a->config['system']['allowed_link_protocols'] = ['ftp', 'ftps', 'mailto', 'cid', 'gopher'];
 
 // Authentication cookie lifetime, in days
 $a->config['system']['auth_cookie_lifetime'] = 7;

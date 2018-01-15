@@ -152,7 +152,7 @@ function poco_init(App $a) {
 	}
 	logger("Query done", LOGGER_DEBUG);
 
-	$ret = array();
+	$ret = [];
 	if (x($_GET, 'sorted')) {
 		$ret['sorted'] = false;
 	}
@@ -165,10 +165,10 @@ function poco_init(App $a) {
 	$ret['startIndex']   = (int) $startIndex;
 	$ret['itemsPerPage'] = (int) $itemsPerPage;
 	$ret['totalResults'] = (int) $totalResults;
-	$ret['entry']        = array();
+	$ret['entry']        = [];
 
 
-	$fields_ret = array(
+	$fields_ret = [
 		'id' => false,
 		'displayName' => false,
 		'urls' => false,
@@ -183,7 +183,7 @@ function poco_init(App $a) {
 		'address' => false,
 		'contactType' => false,
 		'generation' => false
-	);
+	];
 
 	if ((! x($_GET, 'fields')) || ($_GET['fields'] === '@all')) {
 		foreach ($fields_ret as $k => $v) {
@@ -254,7 +254,7 @@ function poco_init(App $a) {
 					$contact['gender'] = "";
 				}
 
-				$entry = array();
+				$entry = [];
 				if ($fields_ret['id']) {
 					$entry['id'] = (int)$contact['id'];
 				}
@@ -274,9 +274,9 @@ function poco_init(App $a) {
 					$entry['generation'] = (int)$contact['generation'];
 				}
 				if ($fields_ret['urls']) {
-					$entry['urls'] = array(array('value' => $contact['url'], 'type' => 'profile'));
+					$entry['urls'] = [['value' => $contact['url'], 'type' => 'profile']];
 					if ($contact['addr'] && ($contact['network'] !== NETWORK_MAIL)) {
-						$entry['urls'][] = array('value' => 'acct:' . $contact['addr'], 'type' => 'webfinger');
+						$entry['urls'][] = ['value' => 'acct:' . $contact['addr'], 'type' => 'webfinger'];
 					}
 				}
 				if ($fields_ret['preferredUsername']) {
@@ -301,7 +301,7 @@ function poco_init(App $a) {
 					$entry['updated'] = date("c", strtotime($entry['updated']));
 				}
 				if ($fields_ret['photos']) {
-					$entry['photos'] = array(array('value' => $contact['photo'], 'type' => 'profile'));
+					$entry['photos'] = [['value' => $contact['photo'], 'type' => 'profile']];
 				}
 				if ($fields_ret['network']) {
 					$entry['network'] = $contact['network'];
@@ -316,7 +316,7 @@ function poco_init(App $a) {
 					$tags = str_replace(",", " ", $contact['keywords']);
 					$tags = explode(" ", $tags);
 
-					$cleaned = array();
+					$cleaned = [];
 					foreach ($tags as $tag) {
 						$tag = trim(strtolower($tag));
 						if ($tag != "") {
@@ -324,10 +324,10 @@ function poco_init(App $a) {
 						}
 					}
 
-					$entry['tags'] = array($cleaned);
+					$entry['tags'] = [$cleaned];
 				}
 				if ($fields_ret['address']) {
-					$entry['address'] = array();
+					$entry['address'] = [];
 
 					// Deactivated. It just reveals too much data. (Although its from the default profile)
 					//if (isset($rr['paddress']))
@@ -354,7 +354,7 @@ function poco_init(App $a) {
 				$ret['entry'][] = $entry;
 			}
 		} else {
-			$ret['entry'][] = array();
+			$ret['entry'][] = [];
 		}
 	} else {
 		http_status_exit(500);
@@ -363,7 +363,7 @@ function poco_init(App $a) {
 
 	if ($format === 'xml') {
 		header('Content-type: text/xml');
-		echo replace_macros(get_markup_template('poco_xml.tpl'), array_xmlify(array('$response' => $ret)));
+		echo replace_macros(get_markup_template('poco_xml.tpl'), array_xmlify(['$response' => $ret]));
 		killme();
 	}
 	if ($format === 'json') {

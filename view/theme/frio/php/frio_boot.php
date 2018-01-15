@@ -63,12 +63,12 @@ function is_modal() {
  */
 function get_modalpage_list() {
 	//Arry of pages wich getting bootstrap modal dialogs
-	$modalpages = array('poke/',
+	$modalpages = ['poke/',
 			'message/new',
 			'settings/oauth/add',
 			'events/new',
 //			'fbrowser/image/'
-	);
+	];
 
 	return $modalpages;
 }
@@ -83,9 +83,9 @@ function get_modalpage_list() {
  */
 function get_standard_page_list() {
 	//Arry of pages wich getting the standard page template
-	$standardpages = array(//'profile',
+	$standardpages = [//'profile',
 //			'fbrowser/image/'
-	);
+	];
 
 	return $standardpages;
 }

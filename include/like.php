@@ -168,7 +168,7 @@ function do_like($item_id, $verb) {
 		// Clean up the Diaspora signatures for this like
 		// Go ahead and do it even if Diaspora support is disabled. We still want to clean up
 		// if it had been enabled in the past
-		dba::delete('sign', array('iid' => $like_item['id']));
+		dba::delete('sign', ['iid' => $like_item['id']]);
 
 		$like_item_id = $like_item['id'];
 		Worker::add(PRIORITY_HIGH, "Notifier", "like", $like_item_id);
@@ -208,7 +208,7 @@ EOT;
 	$alink = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
 	$plink = '[url=' . System::baseUrl() . '/display/' . $owner_self_contact['nick'] . '/' . $item['id'] . ']' . $post_type . '[/url]';
 
-	$new_item = array(
+	$new_item = [
 		'guid'          => get_guid(32),
 		'uri'           => item_new_uri($a->get_hostname(), $item['uid']),
 		'uid'           => $item['uid'],
@@ -239,7 +239,7 @@ EOT;
 		'visible'       => 1,
 		'unseen'        => 1,
 		'last-child'    => 0
-	);
+	];
 
 	$new_item_id = item_store($new_item);
 

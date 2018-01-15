@@ -45,7 +45,7 @@ function item_post(App $a) {
 	if (x($_REQUEST, 'dropitems')) {
 		$arr_drop = explode(',', $_REQUEST['dropitems']);
 		drop_items($arr_drop);
-		$json = array('success' => 1);
+		$json = ['success' => 1];
 		echo json_encode($json);
 		killme();
 	}
@@ -455,11 +455,11 @@ function item_post(App $a) {
 		}
 	}
 
-	$tagged = array();
+	$tagged = [];
 
 	$private_forum = false;
 	$only_to_forum = false;
-	$forum_contact = array();
+	$forum_contact = [];
 
 	if (count($tags)) {
 		foreach ($tags as $tag) {
@@ -690,7 +690,7 @@ function item_post(App $a) {
 		$parent_uri = $uri;
 	}
 
-	$datarray = array();
+	$datarray = [];
 	$datarray['uid']           = $profile_uid;
 	$datarray['type']          = $post_type;
 	$datarray['wall']          = $wall;
@@ -735,8 +735,8 @@ function item_post(App $a) {
 	$datarray['postopts']      = $postopts;
 	$datarray['origin']        = $origin;
 	$datarray['moderated']     = $allow_moderated;
-	$datarray['gcontact-id']   = GContact::getId(array("url" => $datarray['author-link'], "network" => $datarray['network'],
-							"photo" => $datarray['author-avatar'], "name" => $datarray['author-name']));
+	$datarray['gcontact-id']   = GContact::getId(["url" => $datarray['author-link'], "network" => $datarray['network'],
+							"photo" => $datarray['author-avatar'], "name" => $datarray['author-name']]);
 	$datarray['object']        = $object;
 	$datarray['last-child'] = 1;
 
@@ -777,9 +777,9 @@ function item_post(App $a) {
 		// We set the datarray ID to -1 because in preview mode the dataray
 		// doesn't have an ID.
 		$datarray["id"] = -1;
-		$o = conversation($a,array(array_merge($contact_record,$datarray)),'search', false, true);
+		$o = conversation($a,[array_merge($contact_record,$datarray)],'search', false, true);
 		logger('preview: ' . $o);
-		echo json_encode(array('preview' => $o));
+		echo json_encode(['preview' => $o]);
 		killme();
 	}
 
@@ -791,7 +791,7 @@ function item_post(App $a) {
 			goaway($return_path);
 		}
 
-		$json = array('cancel' => 1);
+		$json = ['cancel' => 1];
 		if (x($_REQUEST, 'jsreload') && strlen($_REQUEST['jsreload'])) {
 			$json['reload'] = System::baseUrl() . '/' . $_REQUEST['jsreload'];
 		}
@@ -806,7 +806,7 @@ function item_post(App $a) {
 		// This could be done in Item::update as well - but we have to check for the existance of some fields.
 		put_item_in_cache($datarray);
 
-		$fields = array(
+		$fields = [
 			'title' => $datarray['title'],
 			'body' => $datarray['body'],
 			'tag' => $datarray['tag'],
@@ -815,7 +815,7 @@ function item_post(App $a) {
 			'rendered-html' => $datarray['rendered-html'],
 			'rendered-hash' => $datarray['rendered-hash'],
 			'edited' => datetime_convert(),
-			'changed' => datetime_convert());
+			'changed' => datetime_convert()];
 
 		Item::update($fields, ['id' => $post_id]);
 
@@ -845,7 +845,7 @@ function item_post(App $a) {
 	// These notifications are sent if someone else is commenting other your wall
 	if ($parent) {
 		if ($contact_record != $author) {
-			notification(array(
+			notification([
 				'type'         => NOTIFY_COMMENT,
 				'notify_flags' => $user['notify-flags'],
 				'language'     => $user['language'],
@@ -861,14 +861,14 @@ function item_post(App $a) {
 				'otype'        => 'item',
 				'parent'       => $parent,
 				'parent_uri'   => $parent_item['uri']
-			));
+			]);
 		}
 
 		// Store the comment signature information in case we need to relay to Diaspora
 		Diaspora::storeCommentSignature($datarray, $author, ($self ? $user['prvkey'] : false), $post_id);
 	} else {
 		if (($contact_record != $author) && !count($forum_contact)) {
-			notification(array(
+			notification([
 				'type'         => NOTIFY_WALL,
 				'notify_flags' => $user['notify-flags'],
 				'language'     => $user['language'],
@@ -882,7 +882,7 @@ function item_post(App $a) {
 				'source_photo' => $datarray['author-avatar'],
 				'verb'         => ACTIVITY_POST,
 				'otype'        => 'item'
-			));
+			]);
 		}
 	}
 
@@ -909,7 +909,7 @@ function item_post(App $a) {
 				$html    = prepare_body($datarray);
 				$message = '<html><body>' . $link . $html . $disclaimer . '</body></html>';
 				include_once 'include/html2plain.php';
-				$params = array (
+				$params =  [
 					'fromName' => $a->user['username'],
 					'fromEmail' => $a->user['email'],
 					'toEmail' => $addr,
@@ -917,7 +917,7 @@ function item_post(App $a) {
 					'messageSubject' => $subject,
 					'htmlVersion' => $message,
 					'textVersion' => html2plain($html.$disclaimer)
-				);
+				];
 				Emailer::send($params);
 			}
 		}
@@ -927,7 +927,7 @@ function item_post(App $a) {
 	// We now do it in the background to save some time.
 	// This is important in interactive environments like the frontend or the API.
 	// We don't fork a new process since this is done anyway with the following command
-	Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "CreateShadowEntry", $post_id);
+	Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], "CreateShadowEntry", $post_id);
 
 	// Call the background process that is delivering the item to the receivers
 	Worker::add(PRIORITY_HIGH, "Notifier", $notify_type, $post_id);
@@ -949,7 +949,7 @@ function item_post_return($baseurl, $api_source, $return_path) {
 		goaway($return_path);
 	}
 
-	$json = array('success' => 1);
+	$json = ['success' => 1];
 	if (x($_REQUEST, 'jsreload') && strlen($_REQUEST['jsreload'])) {
 		$json['reload'] = $baseurl . '/' . $_REQUEST['jsreload'];
 	}
@@ -975,7 +975,7 @@ function item_content(App $a) {
 		$o = drop_item($a->argv[2], !is_ajax());
 		if (is_ajax()) {
 			// ajax return: [<item id>, 0 (no perm) | <owner id>]
-			echo json_encode(array(intval($a->argv[2]), intval($o)));
+			echo json_encode([intval($a->argv[2]), intval($o)]);
 			killme();
 		}
 	}
@@ -1206,5 +1206,5 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 		}
 	}
 
-	return array('replaced' => $replaced, 'contact' => $r[0]);
+	return ['replaced' => $replaced, 'contact' => $r[0]];
 }

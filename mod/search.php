@@ -25,26 +25,26 @@ function search_saved_searches() {
 	);
 
 	if (DBM::is_result($r)) {
-		$saved = array();
+		$saved = [];
 		foreach ($r as $rr) {
-			$saved[] = array(
+			$saved[] = [
 				'id'		=> $rr['id'],
 				'term'		=> $rr['term'],
 				'encodedterm'	=> urlencode($rr['term']),
 				'delete'	=> t('Remove term'),
 				'selected'	=> ($search==$rr['term']),
-			);
+			];
 		}
 
 
 		$tpl = get_markup_template("saved_searches_aside.tpl");
 
-		$o .= replace_macros($tpl, array(
+		$o .= replace_macros($tpl, [
 			'$title'	=> t('Saved Searches'),
 			'$add'		=> '',
 			'$searchbox'	=> '',
 			'$saved' 	=> $saved,
-		));
+		]);
 	}
 
 	return $o;
@@ -63,11 +63,11 @@ function search_init(App $a) {
 				dbesc($search)
 			);
 			if (!DBM::is_result($r)) {
-				dba::insert('search', array('uid' => local_user(), 'term' => $search));
+				dba::insert('search', ['uid' => local_user(), 'term' => $search]);
 			}
 		}
 		if (x($_GET,'remove') && $search) {
-			dba::delete('search', array('uid' => local_user(), 'term' => $search));
+			dba::delete('search', ['uid' => local_user(), 'term' => $search]);
 		}
 
 		$a->page['aside'] .= search_saved_searches();
@@ -98,8 +98,8 @@ function search_content(App $a) {
 
 	if (Config::get('system','local_search') && !local_user() && !remote_user()) {
 		http_status_exit(403,
-				array("title" => t("Public access denied."),
-					"description" => t("Only logged in users are permitted to perform a search.")));
+				["title" => t("Public access denied."),
+					"description" => t("Only logged in users are permitted to perform a search.")]);
 		killme();
 		//notice(t('Public access denied.').EOL);
 		//return;
@@ -123,13 +123,13 @@ function search_content(App $a) {
 			$resultdata = json_decode($result);
 			if (($resultdata->time > (time() - $crawl_permit_period)) && ($resultdata->accesses > $free_crawls)) {
 				http_status_exit(429,
-						array("title" => t("Too Many Requests"),
-							"description" => t("Only one search per minute is permitted for not logged in users.")));
+						["title" => t("Too Many Requests"),
+							"description" => t("Only one search per minute is permitted for not logged in users.")]);
 				killme();
 			}
-			Cache::set("remote_search:".$remote, json_encode(array("time" => time(), "accesses" => $resultdata->accesses + 1)), CACHE_HOUR);
+			Cache::set("remote_search:".$remote, json_encode(["time" => time(), "accesses" => $resultdata->accesses + 1]), CACHE_HOUR);
 		} else
-			Cache::set("remote_search:".$remote, json_encode(array("time" => time(), "accesses" => 1)), CACHE_HOUR);
+			Cache::set("remote_search:".$remote, json_encode(["time" => time(), "accesses" => 1]), CACHE_HOUR);
 	}
 
 	nav_set_selected('search');
@@ -146,12 +146,12 @@ function search_content(App $a) {
 	}
 
 	// contruct a wrapper for the search header
-	$o .= replace_macros(get_markup_template("content_wrapper.tpl"),array(
+	$o .= replace_macros(get_markup_template("content_wrapper.tpl"),[
 		'name' => "search-header",
 		'$title' => t("Search"),
 		'$title_size' => 3,
 		'$content' => search($search,'search-box','search',((local_user()) ? true : false), false)
-	));
+	]);
 
 	if (strpos($search,'#') === 0) {
 		$tag = true;
@@ -228,9 +228,9 @@ function search_content(App $a) {
 	else
 		$title = sprintf( t('Results for: %s'), $search);
 
-	$o .= replace_macros(get_markup_template("section_title.tpl"),array(
+	$o .= replace_macros(get_markup_template("section_title.tpl"),[
 		'$title' => $title
-	));
+	]);
 
 	logger("Start Conversation for '".$search."'", LOGGER_DEBUG);
 	$o .= conversation($a,$r,'search',false);

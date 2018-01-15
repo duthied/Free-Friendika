@@ -25,7 +25,7 @@ class Directory {
 
 		$dir .= "/submit";
 
-		$arr = array('url' => $url);
+		$arr = ['url' => $url];
 
 		call_hooks('globaldir_update', $arr);
 

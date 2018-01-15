@@ -39,7 +39,7 @@ function wk_social_relay()
 		$scope = SR_SCOPE_NONE;
 	}
 
-	$tags = array();
+	$tags = [];
 
 	if ($scope == SR_SCOPE_TAGS) {
 		$server_tags = Config::get('system', 'relay_server_tags');
@@ -59,16 +59,16 @@ function wk_social_relay()
 		}
 	}
 
-	$taglist = array();
+	$taglist = [];
 	foreach ($tags AS $tag) {
 		$taglist[] = $tag;
 	}
 
-	$relay = array(
+	$relay = [
 		"subscribe" => $subscribe,
 		"scope" => $scope,
 		"tags" => $taglist
-	);
+	];
 
 	header('Content-type: application/json; charset=utf-8');
 	echo json_encode($relay, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);

@@ -288,7 +288,7 @@ define('NETWORK_PHANTOM',          'unkn');    // Place holder
  * and existing allocations MUST NEVER BE CHANGED
  * OR RE-ASSIGNED! You may only add to them.
  */
-$netgroup_ids = array(
+$netgroup_ids = [
 	NETWORK_DFRN     => (-1),
 	NETWORK_ZOT      => (-2),
 	NETWORK_OSTATUS  => (-3),
@@ -310,7 +310,7 @@ $netgroup_ids = array(
 	NETWORK_PNUT      => (-20),
 
 	NETWORK_PHANTOM  => (-127),
-);
+];
 
 /**
  * Maximum number of "people who like (or don't like) this"  that we will list by name
@@ -504,7 +504,7 @@ function startup()
 	ini_set('pcre.backtrack_limit', 500000);
 
 	if (get_magic_quotes_gpc()) {
-		$process = array(&$_GET, &$_POST, &$_COOKIE, &$_REQUEST);
+		$process = [&$_GET, &$_POST, &$_COOKIE, &$_REQUEST];
 		while (list($key, $val) = each($process)) {
 			foreach ($val as $k => $v) {
 				unset($process[$key][$k]);
@@ -817,11 +817,11 @@ function check_plugins(App $a)
 	if (DBM::is_result($r)) {
 		$installed = $r;
 	} else {
-		$installed = array();
+		$installed = [];
 	}
 
 	$plugins = Config::get('system', 'addon');
-	$plugins_arr = array();
+	$plugins_arr = [];
 
 	if ($plugins) {
 		$plugins_arr = explode(',', str_replace(' ', '', $plugins));
@@ -829,7 +829,7 @@ function check_plugins(App $a)
 
 	$a->plugins = $plugins_arr;
 
-	$installed_arr = array();
+	$installed_arr = [];
 
 	if (count($installed)) {
 		foreach ($installed as $i) {
@@ -966,7 +966,7 @@ function notice($s)
 {
 	$a = get_app();
 	if (!x($_SESSION, 'sysmsg')) {
-		$_SESSION['sysmsg'] = array();
+		$_SESSION['sysmsg'] = [];
 	}
 	if ($a->interactive) {
 		$_SESSION['sysmsg'][] = $s;
@@ -989,7 +989,7 @@ function info($s)
 	}
 
 	if (!x($_SESSION, 'sysmsg_info')) {
-		$_SESSION['sysmsg_info'] = array();
+		$_SESSION['sysmsg_info'] = [];
 	}
 	if ($a->interactive) {
 		$_SESSION['sysmsg_info'][] = $s;
@@ -1010,7 +1010,7 @@ function get_max_import_size()
 
 function current_theme()
 {
-	$app_base_themes = array('duepuntozero', 'dispy', 'quattro');
+	$app_base_themes = ['duepuntozero', 'dispy', 'quattro'];
 
 	$a = get_app();
 
@@ -1238,10 +1238,10 @@ function explode_querystring($query)
 		$args = array_values($args);
 	}
 
-	return array(
+	return [
 		'base' => $base,
 		'args' => $args,
-	);
+	];
 }
 
 /**
@@ -1571,7 +1571,7 @@ function infinite_scroll_data($module)
 			$reload_uri .= "&offset=" . urlencode($a->page_offset);
 		}
 
-		$arr = array("pageno" => $pageno, "reload_uri" => $reload_uri);
+		$arr = ["pageno" => $pageno, "reload_uri" => $reload_uri];
 
 		return $arr;
 	}

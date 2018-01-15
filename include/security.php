@@ -27,16 +27,16 @@ function cookie_hash($user)
  * @param int $time
  * @param array $user Record from "user" table
  */
-function new_cookie($time, $user = array())
+function new_cookie($time, $user = [])
 {
 	if ($time != 0) {
 		$time = $time + time();
 	}
 
 	if ($user) {
-		$value = json_encode(array("uid" => $user["uid"],
+		$value = json_encode(["uid" => $user["uid"],
 			"hash" => cookie_hash($user),
-			"ip" => $_SERVER['REMOTE_ADDR']));
+			"ip" => $_SERVER['REMOTE_ADDR']]);
 	} else {
 		$value = "";
 	}
@@ -102,12 +102,12 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		}
 	}
 
-	$r = dba::select('user', array('uid', 'username', 'nickname'),
-		array('password' => $master_record['password'], 'email' => $master_record['email'], 'account_removed' => false));
+	$r = dba::select('user', ['uid', 'username', 'nickname'],
+		['password' => $master_record['password'], 'email' => $master_record['email'], 'account_removed' => false]);
 	if (DBM::is_result($r)) {
 		$a->identities = dba::inArray($r);
 	} else {
-		$a->identities = array();
+		$a->identities = [];
 	}
 
 	$r = dba::p("SELECT `user`.`uid`, `user`.`username`, `user`.`nickname`
@@ -137,11 +137,11 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 	header('X-Account-Management-Status: active; name="' . $a->user['username'] . '"; id="' . $a->user['nickname'] . '"');
 
 	if ($login_initial || $login_refresh) {
-		dba::update('user', array('login_date' => datetime_convert()), array('uid' => $_SESSION['uid']));
+		dba::update('user', ['login_date' => datetime_convert()], ['uid' => $_SESSION['uid']]);
 
 		// Set the login date for all identities of the user
-		dba::update('user', array('login_date' => datetime_convert()),
-			array('password' => $master_record['password'], 'email' => $master_record['email'], 'account_removed' => false));
+		dba::update('user', ['login_date' => datetime_convert()],
+			['password' => $master_record['password'], 'email' => $master_record['email'], 'account_removed' => false]);
 	}
 
 	if ($login_initial) {

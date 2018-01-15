@@ -65,7 +65,7 @@ class Feed {
 		$xpath->registerNamespace('media', "http://search.yahoo.com/mrss/");
 		$xpath->registerNamespace('poco', NAMESPACE_POCO);
 
-		$author = array();
+		$author = [];
 
 		// Is it RDF?
 		if ($xpath->query('/rdf:RDF/rss:channel')->length > 0) {
@@ -185,7 +185,7 @@ class Feed {
 			$author["owner-avatar"] = $contact["thumb"];
 		}
 
-		$header = array();
+		$header = [];
 		$header["uid"] = $importer["uid"];
 		$header["network"] = NETWORK_FEED;
 		$header["type"] = "remote";
@@ -208,9 +208,9 @@ class Feed {
 			return;
 		}
 
-		$items = array();
+		$items = [];
 
-		$entrylist = array();
+		$entrylist = [];
 
 		foreach ($entries AS $entry) {
 			$entrylist[] = $entry;
@@ -309,7 +309,7 @@ class Feed {
 			// <category>Ausland</category>
 			// <media:thumbnail width="152" height="76" url="http://www.taz.de/picture/667875/192/14388767.jpg"/>
 
-			$attachments = array();
+			$attachments = [];
 
 			$enclosures = $xpath->query("enclosure", $entry);
 			foreach ($enclosures AS $enclosure) {
@@ -331,7 +331,7 @@ class Feed {
 					$item["attach"] .= ',';
 				}
 
-				$attachments[] = array("link" => $href, "type" => $type, "length" => $length);
+				$attachments[] = ["link" => $href, "type" => $type, "length" => $length];
 
 				$item["attach"] .= '[attach]href="'.$href.'" length="'.$length.'" type="'.$type.'"[/attach]';
 			}
@@ -448,7 +448,7 @@ class Feed {
 		}
 
 		if ($simulate) {
-			return array("header" => $author, "items" => $items);
+			return ["header" => $author, "items" => $items];
 		}
 	}
 }

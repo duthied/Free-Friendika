@@ -25,15 +25,15 @@ class DBM
 	public static function processlist()
 	{
 		$r = q("SHOW PROCESSLIST");
-		$s = array();
+		$s = [];
 
 		$processes = 0;
-		$states = array();
+		$states = [];
 		foreach ($r as $process) {
 			$state = trim($process["State"]);
 
 			// Filter out all non blocking processes
-			if (!in_array($state, array("", "init", "statistics", "updating"))) {
+			if (!in_array($state, ["", "init", "statistics", "updating"])) {
 				++$states[$state];
 				++$processes;
 			}
@@ -46,7 +46,7 @@ class DBM
 			}
 			$statelist .= $state.": ".$usage;
 		}
-		return(array("list" => $statelist, "amount" => $processes));
+		return(["list" => $statelist, "amount" => $processes]);
 	}
 
 	/**

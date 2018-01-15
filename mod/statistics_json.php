@@ -16,7 +16,7 @@ function statistics_json_init(App $a) {
 		killme();
 	}
 
-	$statistics = array(
+	$statistics = [
 		"name" => $a->config["sitename"],
 		"network" => FRIENDICA_PLATFORM,
 		"version" => FRIENDICA_VERSION . "-" . DB_UPDATE_VERSION,
@@ -25,9 +25,9 @@ function statistics_json_init(App $a) {
 		"active_users_halfyear" => Config::get('nodeinfo', 'active_users_halfyear'),
 		"active_users_monthly" => Config::get('nodeinfo', 'active_users_monthly'),
 		"local_posts" => Config::get('nodeinfo', 'local_posts')
-	);
+	];
 
-	$statistics["services"] = array();
+	$statistics["services"] = [];
 	$statistics["services"]["appnet"] = plugin_enabled("appnet");
 	$statistics["services"]["blogger"] = plugin_enabled("blogger");
 	$statistics["services"]["buffer"] = plugin_enabled("buffer");

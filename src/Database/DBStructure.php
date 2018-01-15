@@ -79,12 +79,12 @@ class DBStructure {
 			$preamble = sprintf($preamble, $update_id);
 			$body = sprintf($body, $error_message);
 
-			notification(array(
+			notification([
 				'type' => SYSTEM_EMAIL,
 				'to_email' => $admin['email'],
 				'preamble' => $preamble,
 				'body' => $body,
-				'language' => $lang)
+				'language' => $lang]
 			);
 		}
 
@@ -105,16 +105,16 @@ class DBStructure {
 		if (DBM::is_result($table_status)) {
 			$table_status = $table_status[0];
 		} else {
-			$table_status = array();
+			$table_status = [];
 		}
 
-		$fielddata = array();
-		$indexdata = array();
+		$fielddata = [];
+		$indexdata = [];
 
 		if (DBM::is_result($indexes)) {
 			foreach ($indexes AS $index) {
 				if ($index['Key_name'] != 'PRIMARY' && $index['Non_unique'] == '0' && !isset($indexdata[$index["Key_name"]])) {
-					$indexdata[$index["Key_name"]] = array('UNIQUE');
+					$indexdata[$index["Key_name"]] = ['UNIQUE'];
 				}
 
 				$column = $index["Column_name"];
@@ -158,7 +158,7 @@ class DBStructure {
 			}
 		}
 
-		return array("fields" => $fielddata, "indexes" => $indexdata, "table_status" => $table_status);
+		return ["fields" => $fielddata, "indexes" => $indexdata, "table_status" => $table_status];
 	}
 
 	public static function printStructure() {
@@ -212,7 +212,7 @@ class DBStructure {
 		logger('updating structure', LOGGER_DEBUG);
 
 		// Get the current structure
-		$database = array();
+		$database = [];
 
 		if (is_null($tables)) {
 			$tables = q("SHOW TABLES");
@@ -553,8 +553,8 @@ class DBStructure {
 	private static function createTable($name, $fields, $verbose, $action, $indexes=null) {
 		$r = true;
 
-		$sql_rows = array();
-		$primary_keys = array();
+		$sql_rows = [];
+		$primary_keys = [];
 		foreach ($fields AS $fieldname => $field) {
 			$sql_rows[] = "`".dbesc($fieldname)."` ".self::FieldCommand($field);
 			if (x($field,'primary') && $field['primary']!='') {
@@ -658,1131 +658,1131 @@ class DBStructure {
 	}
 
 	public static function definition() {
-		$database = array();
+		$database = [];
 
-		$database["addon"] = array(
+		$database["addon"] = [
 				"comment" => "registered plugins",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"name" => array("type" => "varchar(190)", "not null" => "1", "default" => "", "comment" => ""),
-						"version" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"installed" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"hidden" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"timestamp" => array("type" => "bigint", "not null" => "1", "default" => "0", "comment" => ""),
-						"plugin_admin" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"name" => array("UNIQUE", "name"),
-						)
-				);
-		$database["attach"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"name" => ["type" => "varchar(190)", "not null" => "1", "default" => "", "comment" => ""],
+						"version" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"installed" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"timestamp" => ["type" => "bigint", "not null" => "1", "default" => "0", "comment" => ""],
+						"plugin_admin" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"name" => ["UNIQUE", "name"],
+						]
+				];
+		$database["attach"] = [
 				"comment" => "file attachments",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"hash" => array("type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""),
-						"filename" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"filetype" => array("type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""),
-						"filesize" => array("type" => "int", "not null" => "1", "default" => "0", "comment" => ""),
-						"data" => array("type" => "longblob", "not null" => "1", "comment" => ""),
-						"created" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"edited" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"allow_cid" => array("type" => "mediumtext", "comment" => ""),
-						"allow_gid" => array("type" => "mediumtext", "comment" => ""),
-						"deny_cid" => array("type" => "mediumtext", "comment" => ""),
-						"deny_gid" => array("type" => "mediumtext", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						)
-				);
-		$database["auth_codes"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"hash" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""],
+						"filename" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"filetype" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""],
+						"filesize" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"data" => ["type" => "longblob", "not null" => "1", "comment" => ""],
+						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"edited" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"allow_cid" => ["type" => "mediumtext", "comment" => ""],
+						"allow_gid" => ["type" => "mediumtext", "comment" => ""],
+						"deny_cid" => ["type" => "mediumtext", "comment" => ""],
+						"deny_gid" => ["type" => "mediumtext", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						]
+				];
+		$database["auth_codes"] = [
 				"comment" => "OAuth usage",
-				"fields" => array(
-						"id" => array("type" => "varchar(40)", "not null" => "1", "primary" => "1", "comment" => ""),
-						"client_id" => array("type" => "varchar(20)", "not null" => "1", "default" => "", "relation" => array("clients" => "client_id"), "comment" => ""),
-						"redirect_uri" => array("type" => "varchar(200)", "not null" => "1", "default" => "", "comment" => ""),
-						"expires" => array("type" => "int", "not null" => "1", "default" => "0", "comment" => ""),
-						"scope" => array("type" => "varchar(250)", "not null" => "1", "default" => "", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						)
-				);
-		$database["cache"] = array(
+				"fields" => [
+						"id" => ["type" => "varchar(40)", "not null" => "1", "primary" => "1", "comment" => ""],
+						"client_id" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "relation" => ["clients" => "client_id"], "comment" => ""],
+						"redirect_uri" => ["type" => "varchar(200)", "not null" => "1", "default" => "", "comment" => ""],
+						"expires" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"scope" => ["type" => "varchar(250)", "not null" => "1", "default" => "", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						]
+				];
+		$database["cache"] = [
 				"comment" => "Used to store different data that doesn't to be stored for a long time",
-				"fields" => array(
-						"k" => array("type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => ""),
-						"v" => array("type" => "mediumtext", "comment" => ""),
-						"expire_mode" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"updated" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("k"),
-						"expire_mode_updated" => array("expire_mode", "updated"),
-						)
-				);
-		$database["challenge"] = array(
+				"fields" => [
+						"k" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => ""],
+						"v" => ["type" => "mediumtext", "comment" => ""],
+						"expire_mode" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"updated" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["k"],
+						"expire_mode_updated" => ["expire_mode", "updated"],
+						]
+				];
+		$database["challenge"] = [
 				"comment" => "",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"challenge" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"dfrn-id" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"expire" => array("type" => "int", "not null" => "1", "default" => "0", "comment" => ""),
-						"type" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"last_update" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						)
-				);
-		$database["clients"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"challenge" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"dfrn-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"expire" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"type" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"last_update" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						]
+				];
+		$database["clients"] = [
 				"comment" => "OAuth usage",
-				"fields" => array(
-						"client_id" => array("type" => "varchar(20)", "not null" => "1", "primary" => "1", "comment" => ""),
-						"pw" => array("type" => "varchar(20)", "not null" => "1", "default" => "", "comment" => ""),
-						"redirect_uri" => array("type" => "varchar(200)", "not null" => "1", "default" => "", "comment" => ""),
-						"name" => array("type" => "text", "comment" => ""),
-						"icon" => array("type" => "text", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("client_id"),
-						)
-				);
-		$database["config"] = array(
+				"fields" => [
+						"client_id" => ["type" => "varchar(20)", "not null" => "1", "primary" => "1", "comment" => ""],
+						"pw" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "comment" => ""],
+						"redirect_uri" => ["type" => "varchar(200)", "not null" => "1", "default" => "", "comment" => ""],
+						"name" => ["type" => "text", "comment" => ""],
+						"icon" => ["type" => "text", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						],
+				"indexes" => [
+						"PRIMARY" => ["client_id"],
+						]
+				];
+		$database["config"] = [
 				"comment" => "main configuration storage",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"cat" => array("type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"k" => array("type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"v" => array("type" => "mediumtext", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"cat_k" => array("UNIQUE", "cat", "k"),
-						)
-				);
-		$database["contact"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"cat" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"k" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"v" => ["type" => "mediumtext", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"cat_k" => ["UNIQUE", "cat", "k"],
+						]
+				];
+		$database["contact"] = [
 				"comment" => "contact table",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"created" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"self" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"remote_self" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"rel" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"duplex" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"network" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"name" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"nick" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"location" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"about" => array("type" => "text", "comment" => ""),
-						"keywords" => array("type" => "text", "comment" => ""),
-						"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""),
-						"xmpp" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"attag" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"avatar" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"photo" => array("type" => "text", "comment" => ""),
-						"thumb" => array("type" => "text", "comment" => ""),
-						"micro" => array("type" => "text", "comment" => ""),
-						"site-pubkey" => array("type" => "text", "comment" => ""),
-						"issued-id" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"dfrn-id" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"url" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"nurl" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"addr" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"alias" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"pubkey" => array("type" => "text", "comment" => ""),
-						"prvkey" => array("type" => "text", "comment" => ""),
-						"batch" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"request" => array("type" => "text", "comment" => ""),
-						"notify" => array("type" => "text", "comment" => ""),
-						"poll" => array("type" => "text", "comment" => ""),
-						"confirm" => array("type" => "text", "comment" => ""),
-						"poco" => array("type" => "text", "comment" => ""),
-						"aes_allow" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"ret-aes" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"usehub" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"subhub" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"hub-verify" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"last-update" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"success_update" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"failure_update" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"name-date" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"uri-date" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"avatar-date" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"term-date" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"last-item" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"priority" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"blocked" => array("type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""),
-						"readonly" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"writable" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"forum" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"prv" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"contact-type" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"hidden" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"archive" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"pending" => array("type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""),
-						"rating" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"reason" => array("type" => "text", "comment" => ""),
-						"closeness" => array("type" => "tinyint", "not null" => "1", "default" => "99", "comment" => ""),
-						"info" => array("type" => "mediumtext", "comment" => ""),
-						"profile-id" => array("type" => "int", "not null" => "1", "default" => "0", "comment" => ""),
-						"bdyear" => array("type" => "varchar(4)", "not null" => "1", "default" => "", "comment" => ""),
-						"bd" => array("type" => "date", "not null" => "1", "default" => "0001-01-01", "comment" => ""),
-						"notify_new_posts" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"fetch_further_information" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"ffi_keyword_blacklist" => array("type" => "text", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"uid_name" => array("uid", "name(190)"),
-						"self_uid" => array("self", "uid"),
-						"alias_uid" => array("alias(32)", "uid"),
-						"pending_uid" => array("pending", "uid"),
-						"blocked_uid" => array("blocked", "uid"),
-						"uid_rel_network_poll" => array("uid", "rel", "network(4)", "poll(64)", "archive"),
-						"uid_network_batch" => array("uid", "network(4)", "batch(64)"),
-						"addr_uid" => array("addr(32)", "uid"),
-						"nurl_uid" => array("nurl(32)", "uid"),
-						"nick_uid" => array("nick(32)", "uid"),
-						"dfrn-id" => array("dfrn-id(64)"),
-						"issued-id" => array("issued-id(64)"),
-						)
-				);
-		$database["conv"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"self" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"remote_self" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"rel" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"duplex" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"network" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"nick" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"about" => ["type" => "text", "comment" => ""],
+						"keywords" => ["type" => "text", "comment" => ""],
+						"gender" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
+						"xmpp" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"attag" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"photo" => ["type" => "text", "comment" => ""],
+						"thumb" => ["type" => "text", "comment" => ""],
+						"micro" => ["type" => "text", "comment" => ""],
+						"site-pubkey" => ["type" => "text", "comment" => ""],
+						"issued-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"dfrn-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"nurl" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"addr" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"alias" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"pubkey" => ["type" => "text", "comment" => ""],
+						"prvkey" => ["type" => "text", "comment" => ""],
+						"batch" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"request" => ["type" => "text", "comment" => ""],
+						"notify" => ["type" => "text", "comment" => ""],
+						"poll" => ["type" => "text", "comment" => ""],
+						"confirm" => ["type" => "text", "comment" => ""],
+						"poco" => ["type" => "text", "comment" => ""],
+						"aes_allow" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"ret-aes" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"usehub" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"subhub" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"hub-verify" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"last-update" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"success_update" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"failure_update" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"name-date" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"uri-date" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"avatar-date" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"term-date" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"last-item" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"priority" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"blocked" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
+						"readonly" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"writable" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"forum" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"prv" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"contact-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"archive" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"pending" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
+						"rating" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"reason" => ["type" => "text", "comment" => ""],
+						"closeness" => ["type" => "tinyint", "not null" => "1", "default" => "99", "comment" => ""],
+						"info" => ["type" => "mediumtext", "comment" => ""],
+						"profile-id" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"bdyear" => ["type" => "varchar(4)", "not null" => "1", "default" => "", "comment" => ""],
+						"bd" => ["type" => "date", "not null" => "1", "default" => "0001-01-01", "comment" => ""],
+						"notify_new_posts" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"fetch_further_information" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"ffi_keyword_blacklist" => ["type" => "text", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"uid_name" => ["uid", "name(190)"],
+						"self_uid" => ["self", "uid"],
+						"alias_uid" => ["alias(32)", "uid"],
+						"pending_uid" => ["pending", "uid"],
+						"blocked_uid" => ["blocked", "uid"],
+						"uid_rel_network_poll" => ["uid", "rel", "network(4)", "poll(64)", "archive"],
+						"uid_network_batch" => ["uid", "network(4)", "batch(64)"],
+						"addr_uid" => ["addr(32)", "uid"],
+						"nurl_uid" => ["nurl(32)", "uid"],
+						"nick_uid" => ["nick(32)", "uid"],
+						"dfrn-id" => ["dfrn-id(64)"],
+						"issued-id" => ["issued-id(64)"],
+						]
+				];
+		$database["conv"] = [
 				"comment" => "private messages",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"guid" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"recips" => array("type" => "text", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"creator" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"created" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"updated" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"subject" => array("type" => "text", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"uid" => array("uid"),
-						)
-				);
-		$database["conversation"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"recips" => ["type" => "text", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"creator" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"updated" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"subject" => ["type" => "text", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"uid" => ["uid"],
+						]
+				];
+		$database["conversation"] = [
 				"comment" => "Raw data and structure information for messages",
-				"fields" => array(
-						"item-uri" => array("type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => ""),
-						"reply-to-uri" => array("type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"conversation-uri" => array("type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"conversation-href" => array("type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"protocol" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"source" => array("type" => "mediumtext", "comment" => ""),
-						"received" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("item-uri"),
-						"conversation-uri" => array("conversation-uri"),
-						"received" => array("received"),
-						)
-				);
-		$database["event"] = array(
+				"fields" => [
+						"item-uri" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => ""],
+						"reply-to-uri" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"conversation-uri" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"conversation-href" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"protocol" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"source" => ["type" => "mediumtext", "comment" => ""],
+						"received" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["item-uri"],
+						"conversation-uri" => ["conversation-uri"],
+						"received" => ["received"],
+						]
+				];
+		$database["event"] = [
 				"comment" => "Events",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"guid" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"cid" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("contact" => "id"), "comment" => ""),
-						"uri" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"created" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"edited" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"start" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"finish" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"summary" => array("type" => "text", "comment" => ""),
-						"desc" => array("type" => "text", "comment" => ""),
-						"location" => array("type" => "text", "comment" => ""),
-						"type" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"nofinish" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"adjust" => array("type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""),
-						"ignore" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"allow_cid" => array("type" => "mediumtext", "comment" => ""),
-						"allow_gid" => array("type" => "mediumtext", "comment" => ""),
-						"deny_cid" => array("type" => "mediumtext", "comment" => ""),
-						"deny_gid" => array("type" => "mediumtext", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"uid_start" => array("uid", "start"),
-						)
-				);
-		$database["fcontact"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"cid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"edited" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"start" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"finish" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"summary" => ["type" => "text", "comment" => ""],
+						"desc" => ["type" => "text", "comment" => ""],
+						"location" => ["type" => "text", "comment" => ""],
+						"type" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"nofinish" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"adjust" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
+						"ignore" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"allow_cid" => ["type" => "mediumtext", "comment" => ""],
+						"allow_gid" => ["type" => "mediumtext", "comment" => ""],
+						"deny_cid" => ["type" => "mediumtext", "comment" => ""],
+						"deny_gid" => ["type" => "mediumtext", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"uid_start" => ["uid", "start"],
+						]
+				];
+		$database["fcontact"] = [
 				"comment" => "Diaspora compatible contacts - used in the Diaspora implementation",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"guid" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"url" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"name" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"photo" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"request" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"nick" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"addr" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"batch" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"notify" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"poll" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"confirm" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"priority" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"network" => array("type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""),
-						"alias" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"pubkey" => array("type" => "text", "comment" => ""),
-						"updated" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"addr" => array("addr(32)"),
-						"url" => array("UNIQUE", "url(190)"),
-						)
-				);
-		$database["fsuggest"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"request" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"nick" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"addr" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"batch" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"notify" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"poll" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"confirm" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"priority" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"network" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
+						"alias" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"pubkey" => ["type" => "text", "comment" => ""],
+						"updated" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"addr" => ["addr(32)"],
+						"url" => ["UNIQUE", "url(190)"],
+						]
+				];
+		$database["fsuggest"] = [
 				"comment" => "friend suggestion stuff",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"cid" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("contact" => "id"), "comment" => ""),
-						"name" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"url" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"request" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"photo" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"note" => array("type" => "text", "comment" => ""),
-						"created" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						)
-				);
-		$database["gcign"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"cid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"request" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"note" => ["type" => "text", "comment" => ""],
+						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						]
+				];
+		$database["gcign"] = [
 				"comment" => "contacts ignored by friend suggestions",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"gcid" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("gcontact" => "id"), "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"uid" => array("uid"),
-						"gcid" => array("gcid"),
-						)
-				);
-		$database["gcontact"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"gcid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"uid" => ["uid"],
+						"gcid" => ["gcid"],
+						]
+				];
+		$database["gcontact"] = [
 				"comment" => "global contacts",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"name" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"nick" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"url" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"nurl" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"photo" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"connect" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"created" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"updated" => array("type" => "datetime", "default" => NULL_DATE, "comment" => ""),
-						"last_contact" => array("type" => "datetime", "default" => NULL_DATE, "comment" => ""),
-						"last_failure" => array("type" => "datetime", "default" => NULL_DATE, "comment" => ""),
-						"location" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"about" => array("type" => "text", "comment" => ""),
-						"keywords" => array("type" => "text", "comment" => ""),
-						"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""),
-						"birthday" => array("type" => "varchar(32)", "not null" => "1", "default" => "0001-01-01", "comment" => ""),
-						"community" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"contact-type" => array("type" => "tinyint", "not null" => "1", "default" => "-1", "comment" => ""),
-						"hide" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"nsfw" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"network" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"addr" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"notify" => array("type" => "text", "comment" => ""),
-						"alias" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"generation" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"server_url" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"nurl" => array("UNIQUE", "nurl(190)"),
-						"name" => array("name(64)"),
-						"nick" => array("nick(32)"),
-						"addr" => array("addr(64)"),
-						"hide_network_updated" => array("hide", "network(4)", "updated"),
-						"updated" => array("updated"),
-						)
-				);
-		$database["glink"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"nick" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"nurl" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"connect" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"updated" => ["type" => "datetime", "default" => NULL_DATE, "comment" => ""],
+						"last_contact" => ["type" => "datetime", "default" => NULL_DATE, "comment" => ""],
+						"last_failure" => ["type" => "datetime", "default" => NULL_DATE, "comment" => ""],
+						"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"about" => ["type" => "text", "comment" => ""],
+						"keywords" => ["type" => "text", "comment" => ""],
+						"gender" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
+						"birthday" => ["type" => "varchar(32)", "not null" => "1", "default" => "0001-01-01", "comment" => ""],
+						"community" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"contact-type" => ["type" => "tinyint", "not null" => "1", "default" => "-1", "comment" => ""],
+						"hide" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"nsfw" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"network" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"addr" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"notify" => ["type" => "text", "comment" => ""],
+						"alias" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"generation" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"server_url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"nurl" => ["UNIQUE", "nurl(190)"],
+						"name" => ["name(64)"],
+						"nick" => ["nick(32)"],
+						"addr" => ["addr(64)"],
+						"hide_network_updated" => ["hide", "network(4)", "updated"],
+						"updated" => ["updated"],
+						]
+				];
+		$database["glink"] = [
 				"comment" => "'friends of friends' linkages derived from poco",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"cid" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("contact" => "id"), "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"gcid" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("gcontact" => "id"), "comment" => ""),
-						"zcid" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("gcontact" => "id"), "comment" => ""),
-						"updated" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"cid_uid_gcid_zcid" => array("UNIQUE", "cid","uid","gcid","zcid"),
-						"gcid" => array("gcid"),
-						)
-				);
-		$database["group"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"cid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"gcid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
+						"zcid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
+						"updated" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"cid_uid_gcid_zcid" => ["UNIQUE", "cid","uid","gcid","zcid"],
+						"gcid" => ["gcid"],
+						]
+				];
+		$database["group"] = [
 				"comment" => "privacy groups, group info",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"visible" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"deleted" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"name" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"uid" => array("uid"),
-						)
-				);
-		$database["group_member"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"uid" => ["uid"],
+						]
+				];
+		$database["group_member"] = [
 				"comment" => "privacy groups, member info",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"gid" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("group" => "id"), "comment" => ""),
-						"contact-id" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("contact" => "id"), "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"contactid" => array("contact-id"),
-						"gid_contactid" => array("UNIQUE", "gid", "contact-id"),
-						)
-				);
-		$database["gserver"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"gid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["group" => "id"], "comment" => ""],
+						"contact-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"contactid" => ["contact-id"],
+						"gid_contactid" => ["UNIQUE", "gid", "contact-id"],
+						]
+				];
+		$database["gserver"] = [
 				"comment" => "Global servers",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"url" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"nurl" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"version" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"site_name" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"info" => array("type" => "text", "comment" => ""),
-						"register_policy" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"registered-users" => array("type" => "int", "not null" => "1", "default" => "0", "comment" => ""),
-						"poco" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"noscrape" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"network" => array("type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""),
-						"platform" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"created" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"last_poco_query" => array("type" => "datetime", "default" => NULL_DATE, "comment" => ""),
-						"last_contact" => array("type" => "datetime", "default" => NULL_DATE, "comment" => ""),
-						"last_failure" => array("type" => "datetime", "default" => NULL_DATE, "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"nurl" => array("UNIQUE", "nurl(190)"),
-						)
-				);
-		$database["hook"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"nurl" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"version" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"site_name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"info" => ["type" => "text", "comment" => ""],
+						"register_policy" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"registered-users" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"poco" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"noscrape" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"network" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
+						"platform" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"last_poco_query" => ["type" => "datetime", "default" => NULL_DATE, "comment" => ""],
+						"last_contact" => ["type" => "datetime", "default" => NULL_DATE, "comment" => ""],
+						"last_failure" => ["type" => "datetime", "default" => NULL_DATE, "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"nurl" => ["UNIQUE", "nurl(190)"],
+						]
+				];
+		$database["hook"] = [
 				"comment" => "plugin hook registry",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"hook" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"file" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"function" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"priority" => array("type" => "smallint", "not null" => "1", "default" => "0", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"hook_file_function" => array("UNIQUE", "hook(50)","file(80)","function(60)"),
-						)
-				);
-		$database["intro"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"hook" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"file" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"function" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"priority" => ["type" => "smallint", "not null" => "1", "default" => "0", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"hook_file_function" => ["UNIQUE", "hook(50)","file(80)","function(60)"],
+						]
+				];
+		$database["intro"] = [
 				"comment" => "",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"fid" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("fcontact" => "id"), "comment" => ""),
-						"contact-id" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("contact" => "id"), "comment" => ""),
-						"knowyou" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"duplex" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"note" => array("type" => "text", "comment" => ""),
-						"hash" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"datetime" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"blocked" => array("type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""),
-						"ignore" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						)
-				);
-		$database["item"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"fid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["fcontact" => "id"], "comment" => ""],
+						"contact-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"knowyou" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"duplex" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"note" => ["type" => "text", "comment" => ""],
+						"hash" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"datetime" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"blocked" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
+						"ignore" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						]
+				];
+		$database["item"] = [
 				"comment" => "All posts",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "relation" => array("thread" => "iid")),
-						"guid" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"uri" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"contact-id" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("contact" => "id"), "comment" => ""),
-						"gcontact-id" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("gcontact" => "id"), "comment" => ""),
-						"type" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"wall" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"gravity" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"parent" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("item" => "id"), "comment" => ""),
-						"parent-uri" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"extid" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"thr-parent" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"created" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"edited" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"commented" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"received" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"changed" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"owner-id" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("contact" => "id"), "comment" => ""),
-						"owner-name" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"owner-link" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"owner-avatar" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"author-id" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("contact" => "id"), "comment" => ""),
-						"author-name" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"author-link" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"author-avatar" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"title" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"body" => array("type" => "mediumtext", "comment" => ""),
-						"app" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"verb" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"object-type" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"object" => array("type" => "text", "comment" => ""),
-						"target-type" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"target" => array("type" => "text", "comment" => ""),
-						"postopts" => array("type" => "text", "comment" => ""),
-						"plink" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"resource-id" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"event-id" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("event" => "id"), "comment" => ""),
-						"tag" => array("type" => "mediumtext", "comment" => ""),
-						"attach" => array("type" => "mediumtext", "comment" => ""),
-						"inform" => array("type" => "mediumtext", "comment" => ""),
-						"file" => array("type" => "mediumtext", "comment" => ""),
-						"location" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"coord" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"allow_cid" => array("type" => "mediumtext", "comment" => ""),
-						"allow_gid" => array("type" => "mediumtext", "comment" => ""),
-						"deny_cid" => array("type" => "mediumtext", "comment" => ""),
-						"deny_gid" => array("type" => "mediumtext", "comment" => ""),
-						"private" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"pubmail" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"moderated" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"visible" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"spam" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"starred" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"bookmark" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"unseen" => array("type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""),
-						"deleted" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"origin" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"forum_mode" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"last-child" => array("type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""),
-						"mention" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"network" => array("type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""),
-						"rendered-hash" => array("type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""),
-						"rendered-html" => array("type" => "mediumtext", "comment" => ""),
-						"global" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"guid" => array("guid(191)"),
-						"uri" => array("uri(191)"),
-						"parent" => array("parent"),
-						"parent-uri" => array("parent-uri(191)"),
-						"extid" => array("extid(191)"),
-						"uid_id" => array("uid","id"),
-						"uid_contactid_id" => array("uid","contact-id","id"),
-						"uid_created" => array("uid","created"),
-						"uid_unseen_contactid" => array("uid","unseen","contact-id"),
-						"uid_network_received" => array("uid","network(4)","received"),
-						"uid_network_commented" => array("uid","network(4)","commented"),
-						"uid_thrparent" => array("uid","thr-parent(190)"),
-						"uid_parenturi" => array("uid","parent-uri(190)"),
-						"uid_contactid_created" => array("uid","contact-id","created"),
-						"authorid_created" => array("author-id","created"),
-						"ownerid" => array("owner-id"),
-						"uid_uri" => array("uid", "uri(190)"),
-						"resource-id" => array("resource-id(191)"),
-						"contactid_allowcid_allowpid_denycid_denygid" => array("contact-id","allow_cid(10)","allow_gid(10)","deny_cid(10)","deny_gid(10)"), //
-						"uid_type_changed" => array("uid","type(190)","changed"),
-						"contactid_verb" => array("contact-id","verb(190)"),
-						"deleted_changed" => array("deleted","changed"),
-						"uid_wall_changed" => array("uid","wall","changed"),
-						"uid_eventid" => array("uid","event-id"),
-						"uid_authorlink" => array("uid","author-link(190)"),
-						"uid_ownerlink" => array("uid","owner-link(190)"),
-						)
-				);
-		$database["locks"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "relation" => ["thread" => "iid"]],
+						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"contact-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"gcontact-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
+						"type" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"wall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"gravity" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"parent" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
+						"parent-uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"extid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"thr-parent" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"edited" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"commented" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"received" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"changed" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"owner-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"owner-name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"owner-link" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"owner-avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"author-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"author-name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"author-link" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"author-avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"body" => ["type" => "mediumtext", "comment" => ""],
+						"app" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"verb" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"object-type" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"object" => ["type" => "text", "comment" => ""],
+						"target-type" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"target" => ["type" => "text", "comment" => ""],
+						"postopts" => ["type" => "text", "comment" => ""],
+						"plink" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"resource-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"event-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["event" => "id"], "comment" => ""],
+						"tag" => ["type" => "mediumtext", "comment" => ""],
+						"attach" => ["type" => "mediumtext", "comment" => ""],
+						"inform" => ["type" => "mediumtext", "comment" => ""],
+						"file" => ["type" => "mediumtext", "comment" => ""],
+						"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"coord" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"allow_cid" => ["type" => "mediumtext", "comment" => ""],
+						"allow_gid" => ["type" => "mediumtext", "comment" => ""],
+						"deny_cid" => ["type" => "mediumtext", "comment" => ""],
+						"deny_gid" => ["type" => "mediumtext", "comment" => ""],
+						"private" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"pubmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"moderated" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"spam" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"starred" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"bookmark" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"unseen" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
+						"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"origin" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"forum_mode" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"last-child" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
+						"mention" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"network" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
+						"rendered-hash" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
+						"rendered-html" => ["type" => "mediumtext", "comment" => ""],
+						"global" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"guid" => ["guid(191)"],
+						"uri" => ["uri(191)"],
+						"parent" => ["parent"],
+						"parent-uri" => ["parent-uri(191)"],
+						"extid" => ["extid(191)"],
+						"uid_id" => ["uid","id"],
+						"uid_contactid_id" => ["uid","contact-id","id"],
+						"uid_created" => ["uid","created"],
+						"uid_unseen_contactid" => ["uid","unseen","contact-id"],
+						"uid_network_received" => ["uid","network(4)","received"],
+						"uid_network_commented" => ["uid","network(4)","commented"],
+						"uid_thrparent" => ["uid","thr-parent(190)"],
+						"uid_parenturi" => ["uid","parent-uri(190)"],
+						"uid_contactid_created" => ["uid","contact-id","created"],
+						"authorid_created" => ["author-id","created"],
+						"ownerid" => ["owner-id"],
+						"uid_uri" => ["uid", "uri(190)"],
+						"resource-id" => ["resource-id(191)"],
+						"contactid_allowcid_allowpid_denycid_denygid" => ["contact-id","allow_cid(10)","allow_gid(10)","deny_cid(10)","deny_gid(10)"], //
+						"uid_type_changed" => ["uid","type(190)","changed"],
+						"contactid_verb" => ["contact-id","verb(190)"],
+						"deleted_changed" => ["deleted","changed"],
+						"uid_wall_changed" => ["uid","wall","changed"],
+						"uid_eventid" => ["uid","event-id"],
+						"uid_authorlink" => ["uid","author-link(190)"],
+						"uid_ownerlink" => ["uid","owner-link(190)"],
+						]
+				];
+		$database["locks"] = [
 				"comment" => "",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"name" => array("type" => "varchar(128)", "not null" => "1", "default" => "", "comment" => ""),
-						"locked" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"pid" => array("type" => "int", "not null" => "1", "default" => "0", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						)
-				);
-		$database["mail"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"name" => ["type" => "varchar(128)", "not null" => "1", "default" => "", "comment" => ""],
+						"locked" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"pid" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						]
+				];
+		$database["mail"] = [
 				"comment" => "private messages",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"guid" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"from-name" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"from-photo" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"from-url" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"contact-id" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "relation" => array("contact" => "id"), "comment" => ""),
-						"convid" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("conv" => "id"), "comment" => ""),
-						"title" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"body" => array("type" => "mediumtext", "comment" => ""),
-						"seen" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"reply" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"replied" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"unknown" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"uri" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"parent-uri" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"created" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"uid_seen" => array("uid", "seen"),
-						"convid" => array("convid"),
-						"uri" => array("uri(64)"),
-						"parent-uri" => array("parent-uri(64)"),
-						"contactid" => array("contact-id(32)"),
-						)
-				);
-		$database["mailacct"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"from-name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"from-photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"from-url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"contact-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "relation" => ["contact" => "id"], "comment" => ""],
+						"convid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["conv" => "id"], "comment" => ""],
+						"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"body" => ["type" => "mediumtext", "comment" => ""],
+						"seen" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"reply" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"replied" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"unknown" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"parent-uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"uid_seen" => ["uid", "seen"],
+						"convid" => ["convid"],
+						"uri" => ["uri(64)"],
+						"parent-uri" => ["parent-uri(64)"],
+						"contactid" => ["contact-id(32)"],
+						]
+				];
+		$database["mailacct"] = [
 				"comment" => "Mail account data for fetching mails",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"server" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"port" => array("type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""),
-						"ssltype" => array("type" => "varchar(16)", "not null" => "1", "default" => "", "comment" => ""),
-						"mailbox" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"user" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"pass" => array("type" => "text", "comment" => ""),
-						"reply_to" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"action" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"movetofolder" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"pubmail" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"last_check" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						)
-				);
-		$database["manage"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"server" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"port" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+						"ssltype" => ["type" => "varchar(16)", "not null" => "1", "default" => "", "comment" => ""],
+						"mailbox" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"user" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"pass" => ["type" => "text", "comment" => ""],
+						"reply_to" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"action" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"movetofolder" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"pubmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"last_check" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						]
+				];
+		$database["manage"] = [
 				"comment" => "table of accounts that can manage each other",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"mid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"uid_mid" => array("UNIQUE", "uid","mid"),
-						)
-				);
-		$database["notify"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"mid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"uid_mid" => ["UNIQUE", "uid","mid"],
+						]
+				];
+		$database["notify"] = [
 				"comment" => "notifications",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"hash" => array("type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""),
-						"type" => array("type" => "smallint", "not null" => "1", "default" => "0", "comment" => ""),
-						"name" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"url" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"photo" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"date" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"msg" => array("type" => "mediumtext", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"link" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"iid" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("item" => "id"), "comment" => ""),
-						"parent" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("item" => "id"), "comment" => ""),
-						"seen" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"verb" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"otype" => array("type" => "varchar(16)", "not null" => "1", "default" => "", "comment" => ""),
-						"name_cache" => array("type" => "tinytext", "comment" => ""),
-						"msg_cache" => array("type" => "mediumtext", "comment" => "")
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"hash_uid" => array("hash", "uid"),
-						"seen_uid_date" => array("seen", "uid", "date"),
-						"uid_date" => array("uid", "date"),
-						"uid_type_link" => array("uid", "type", "link(190)"),
-						)
-				);
-		$database["notify-threads"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"hash" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""],
+						"type" => ["type" => "smallint", "not null" => "1", "default" => "0", "comment" => ""],
+						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"date" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"msg" => ["type" => "mediumtext", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"link" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"iid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
+						"parent" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
+						"seen" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"verb" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"otype" => ["type" => "varchar(16)", "not null" => "1", "default" => "", "comment" => ""],
+						"name_cache" => ["type" => "tinytext", "comment" => ""],
+						"msg_cache" => ["type" => "mediumtext", "comment" => ""]
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"hash_uid" => ["hash", "uid"],
+						"seen_uid_date" => ["seen", "uid", "date"],
+						"uid_date" => ["uid", "date"],
+						"uid_type_link" => ["uid", "type", "link(190)"],
+						]
+				];
+		$database["notify-threads"] = [
 				"comment" => "",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"notify-id" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("notify" => "id"), "comment" => ""),
-						"master-parent-item" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("item" => "id"), "comment" => ""),
-						"parent-item" => array("type" => "int", "not null" => "1", "default" => "0", "comment" => ""),
-						"receiver-uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						)
-				);
-		$database["oembed"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"notify-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["notify" => "id"], "comment" => ""],
+						"master-parent-item" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
+						"parent-item" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"receiver-uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						]
+				];
+		$database["oembed"] = [
 				"comment" => "cache for OEmbed queries",
-				"fields" => array(
-						"url" => array("type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => ""),
-						"maxwidth" => array("type" => "mediumint", "not null" => "1", "primary" => "1", "comment" => ""),
-						"content" => array("type" => "mediumtext", "comment" => ""),
-						"created" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("url", "maxwidth"),
-						"created" => array("created"),
-						)
-				);
-		$database["parsed_url"] = array(
+				"fields" => [
+						"url" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => ""],
+						"maxwidth" => ["type" => "mediumint", "not null" => "1", "primary" => "1", "comment" => ""],
+						"content" => ["type" => "mediumtext", "comment" => ""],
+						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["url", "maxwidth"],
+						"created" => ["created"],
+						]
+				];
+		$database["parsed_url"] = [
 				"comment" => "cache for 'parse_url' queries",
-				"fields" => array(
-						"url" => array("type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => ""),
-						"guessing" => array("type" => "boolean", "not null" => "1", "default" => "0", "primary" => "1", "comment" => ""),
-						"oembed" => array("type" => "boolean", "not null" => "1", "default" => "0", "primary" => "1", "comment" => ""),
-						"content" => array("type" => "mediumtext", "comment" => ""),
-						"created" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("url", "guessing", "oembed"),
-						"created" => array("created"),
-						)
-				);
-		$database["participation"] = array(
+				"fields" => [
+						"url" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => ""],
+						"guessing" => ["type" => "boolean", "not null" => "1", "default" => "0", "primary" => "1", "comment" => ""],
+						"oembed" => ["type" => "boolean", "not null" => "1", "default" => "0", "primary" => "1", "comment" => ""],
+						"content" => ["type" => "mediumtext", "comment" => ""],
+						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["url", "guessing", "oembed"],
+						"created" => ["created"],
+						]
+				];
+		$database["participation"] = [
 				"comment" => "Storage for participation messages from Diaspora",
-				"fields" => array(
-						"iid" => array("type" => "int", "not null" => "1", "primary" => "1", "relation" => array("item" => "id"), "comment" => ""),
-						"server" => array("type" => "varchar(60)", "not null" => "1", "primary" => "1", "comment" => ""),
-						"cid" => array("type" => "int", "not null" => "1", "relation" => array("contact" => "id"), "comment" => ""),
-						"fid" => array("type" => "int", "not null" => "1", "relation" => array("fcontact" => "id"), "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("iid", "server")
-						)
-				);
-		$database["pconfig"] = array(
+				"fields" => [
+						"iid" => ["type" => "int", "not null" => "1", "primary" => "1", "relation" => ["item" => "id"], "comment" => ""],
+						"server" => ["type" => "varchar(60)", "not null" => "1", "primary" => "1", "comment" => ""],
+						"cid" => ["type" => "int", "not null" => "1", "relation" => ["contact" => "id"], "comment" => ""],
+						"fid" => ["type" => "int", "not null" => "1", "relation" => ["fcontact" => "id"], "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["iid", "server"]
+						]
+				];
+		$database["pconfig"] = [
 				"comment" => "personal (per user) configuration storage",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"cat" => array("type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"k" => array("type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"v" => array("type" => "mediumtext", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"uid_cat_k" => array("UNIQUE", "uid", "cat", "k"),
-						)
-				);
-		$database["photo"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"cat" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"k" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"v" => ["type" => "mediumtext", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"uid_cat_k" => ["UNIQUE", "uid", "cat", "k"],
+						]
+				];
+		$database["photo"] = [
 				"comment" => "photo storage",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"contact-id" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("contact" => "id"), "comment" => ""),
-						"guid" => array("type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""),
-						"resource-id" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"created" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"edited" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"title" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"desc" => array("type" => "text", "comment" => ""),
-						"album" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"filename" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"type" => array("type" => "varchar(128)", "not null" => "1", "default" => "image/jpeg"),
-						"height" => array("type" => "smallint", "not null" => "1", "default" => "0", "comment" => ""),
-						"width" => array("type" => "smallint", "not null" => "1", "default" => "0", "comment" => ""),
-						"datasize" => array("type" => "int", "not null" => "1", "default" => "0", "comment" => ""),
-						"data" => array("type" => "mediumblob", "not null" => "1", "comment" => ""),
-						"scale" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"profile" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"allow_cid" => array("type" => "mediumtext", "comment" => ""),
-						"allow_gid" => array("type" => "mediumtext", "comment" => ""),
-						"deny_cid" => array("type" => "mediumtext", "comment" => ""),
-						"deny_gid" => array("type" => "mediumtext", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"contactid" => array("contact-id"),
-						"uid_contactid" => array("uid", "contact-id"),
-						"uid_profile" => array("uid", "profile"),
-						"uid_album_scale_created" => array("uid", "album(32)", "scale", "created"),
-						"uid_album_resource-id_created" => array("uid", "album(32)", "resource-id(64)", "created"),
-						"resource-id" => array("resource-id(64)"),
-						)
-				);
-		$database["poll"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"contact-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"guid" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""],
+						"resource-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"edited" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"desc" => ["type" => "text", "comment" => ""],
+						"album" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"filename" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"type" => ["type" => "varchar(128)", "not null" => "1", "default" => "image/jpeg"],
+						"height" => ["type" => "smallint", "not null" => "1", "default" => "0", "comment" => ""],
+						"width" => ["type" => "smallint", "not null" => "1", "default" => "0", "comment" => ""],
+						"datasize" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"data" => ["type" => "mediumblob", "not null" => "1", "comment" => ""],
+						"scale" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"profile" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"allow_cid" => ["type" => "mediumtext", "comment" => ""],
+						"allow_gid" => ["type" => "mediumtext", "comment" => ""],
+						"deny_cid" => ["type" => "mediumtext", "comment" => ""],
+						"deny_gid" => ["type" => "mediumtext", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"contactid" => ["contact-id"],
+						"uid_contactid" => ["uid", "contact-id"],
+						"uid_profile" => ["uid", "profile"],
+						"uid_album_scale_created" => ["uid", "album(32)", "scale", "created"],
+						"uid_album_resource-id_created" => ["uid", "album(32)", "resource-id(64)", "created"],
+						"resource-id" => ["resource-id(64)"],
+						]
+				];
+		$database["poll"] = [
 				"comment" => "Currently unused table for storing poll results",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"q0" => array("type" => "text", "comment" => ""),
-						"q1" => array("type" => "text", "comment" => ""),
-						"q2" => array("type" => "text", "comment" => ""),
-						"q3" => array("type" => "text", "comment" => ""),
-						"q4" => array("type" => "text", "comment" => ""),
-						"q5" => array("type" => "text", "comment" => ""),
-						"q6" => array("type" => "text", "comment" => ""),
-						"q7" => array("type" => "text", "comment" => ""),
-						"q8" => array("type" => "text", "comment" => ""),
-						"q9" => array("type" => "text", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"uid" => array("uid"),
-						)
-				);
-		$database["poll_result"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"q0" => ["type" => "text", "comment" => ""],
+						"q1" => ["type" => "text", "comment" => ""],
+						"q2" => ["type" => "text", "comment" => ""],
+						"q3" => ["type" => "text", "comment" => ""],
+						"q4" => ["type" => "text", "comment" => ""],
+						"q5" => ["type" => "text", "comment" => ""],
+						"q6" => ["type" => "text", "comment" => ""],
+						"q7" => ["type" => "text", "comment" => ""],
+						"q8" => ["type" => "text", "comment" => ""],
+						"q9" => ["type" => "text", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"uid" => ["uid"],
+						]
+				];
+		$database["poll_result"] = [
 				"comment" => "data for polls - currently unused",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"poll_id" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("poll" => "id")),
-						"choice" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"poll_id" => array("poll_id"),
-						)
-				);
-		$database["process"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"poll_id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["poll" => "id"]],
+						"choice" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"poll_id" => ["poll_id"],
+						]
+				];
+		$database["process"] = [
 				"comment" => "Currently running system processes",
-				"fields" => array(
-						"pid" => array("type" => "int", "not null" => "1", "primary" => "1", "comment" => ""),
-						"command" => array("type" => "varbinary(32)", "not null" => "1", "default" => "", "comment" => ""),
-						"created" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("pid"),
-						"command" => array("command"),
-						)
-				);
-		$database["profile"] = array(
+				"fields" => [
+						"pid" => ["type" => "int", "not null" => "1", "primary" => "1", "comment" => ""],
+						"command" => ["type" => "varbinary(32)", "not null" => "1", "default" => "", "comment" => ""],
+						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["pid"],
+						"command" => ["command"],
+						]
+				];
+		$database["profile"] = [
 				"comment" => "user profiles data",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"profile-name" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"is-default" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"hide-friends" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"name" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"pdesc" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"dob" => array("type" => "varchar(32)", "not null" => "1", "default" => "0001-01-01", "comment" => ""),
-						"address" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"locality" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"region" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"postal-code" => array("type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""),
-						"country-name" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"hometown" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"gender" => array("type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""),
-						"marital" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"with" => array("type" => "text", "comment" => ""),
-						"howlong" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"sexual" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"politic" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"religion" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"pub_keywords" => array("type" => "text", "comment" => ""),
-						"prv_keywords" => array("type" => "text", "comment" => ""),
-						"likes" => array("type" => "text", "comment" => ""),
-						"dislikes" => array("type" => "text", "comment" => ""),
-						"about" => array("type" => "text", "comment" => ""),
-						"summary" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"music" => array("type" => "text", "comment" => ""),
-						"book" => array("type" => "text", "comment" => ""),
-						"tv" => array("type" => "text", "comment" => ""),
-						"film" => array("type" => "text", "comment" => ""),
-						"interest" => array("type" => "text", "comment" => ""),
-						"romance" => array("type" => "text", "comment" => ""),
-						"work" => array("type" => "text", "comment" => ""),
-						"education" => array("type" => "text", "comment" => ""),
-						"contact" => array("type" => "text", "comment" => ""),
-						"homepage" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"xmpp" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"photo" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"thumb" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"publish" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"net-publish" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"uid_is-default" => array("uid", "is-default"),
-						)
-				);
-		$database["profile_check"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"profile-name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"is-default" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"hide-friends" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"pdesc" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"dob" => ["type" => "varchar(32)", "not null" => "1", "default" => "0001-01-01", "comment" => ""],
+						"address" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"locality" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"region" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"postal-code" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
+						"country-name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"hometown" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"gender" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
+						"marital" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"with" => ["type" => "text", "comment" => ""],
+						"howlong" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"sexual" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"politic" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"religion" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"pub_keywords" => ["type" => "text", "comment" => ""],
+						"prv_keywords" => ["type" => "text", "comment" => ""],
+						"likes" => ["type" => "text", "comment" => ""],
+						"dislikes" => ["type" => "text", "comment" => ""],
+						"about" => ["type" => "text", "comment" => ""],
+						"summary" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"music" => ["type" => "text", "comment" => ""],
+						"book" => ["type" => "text", "comment" => ""],
+						"tv" => ["type" => "text", "comment" => ""],
+						"film" => ["type" => "text", "comment" => ""],
+						"interest" => ["type" => "text", "comment" => ""],
+						"romance" => ["type" => "text", "comment" => ""],
+						"work" => ["type" => "text", "comment" => ""],
+						"education" => ["type" => "text", "comment" => ""],
+						"contact" => ["type" => "text", "comment" => ""],
+						"homepage" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"xmpp" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"thumb" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"publish" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"net-publish" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"uid_is-default" => ["uid", "is-default"],
+						]
+				];
+		$database["profile_check"] = [
 				"comment" => "DFRN remote auth use",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"cid" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("contact" => "id"), "comment" => ""),
-						"dfrn_id" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"sec" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"expire" => array("type" => "int", "not null" => "1", "default" => "0", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						)
-				);
-		$database["push_subscriber"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"cid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"dfrn_id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"sec" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"expire" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						]
+				];
+		$database["push_subscriber"] = [
 				"comment" => "Used for OStatus: Contains feed subscribers",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"callback_url" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"topic" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"nickname" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"push" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"last_update" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"secret" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						)
-				);
-		$database["queue"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"callback_url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"topic" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"nickname" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"push" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"last_update" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"secret" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						]
+				];
+		$database["queue"] = [
 				"comment" => "Queue for messages that couldn't be delivered",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"cid" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("contact" => "id"), "comment" => ""),
-						"network" => array("type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""),
-						"created" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"last" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"content" => array("type" => "mediumtext", "comment" => ""),
-						"batch" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"cid" => array("cid"),
-						"created" => array("created"),
-						"last" => array("last"),
-						"network" => array("network"),
-						"batch" => array("batch"),
-						)
-				);
-		$database["register"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"cid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"network" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
+						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"last" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"content" => ["type" => "mediumtext", "comment" => ""],
+						"batch" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"cid" => ["cid"],
+						"created" => ["created"],
+						"last" => ["last"],
+						"network" => ["network"],
+						"batch" => ["batch"],
+						]
+				];
+		$database["register"] = [
 				"comment" => "registrations requiring admin approval",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"hash" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"created" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"password" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"language" => array("type" => "varchar(16)", "not null" => "1", "default" => "", "comment" => ""),
-						"note" => array("type" => "text", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						)
-				);
-		$database["search"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"hash" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"password" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"language" => ["type" => "varchar(16)", "not null" => "1", "default" => "", "comment" => ""],
+						"note" => ["type" => "text", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						]
+				];
+		$database["search"] = [
 				"comment" => "",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"term" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"uid" => array("uid"),
-						)
-				);
-		$database["session"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"term" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"uid" => ["uid"],
+						]
+				];
+		$database["session"] = [
 				"comment" => "web session storage",
-				"fields" => array(
-						"id" => array("type" => "bigint", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"sid" => array("type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"data" => array("type" => "text", "comment" => ""),
-						"expire" => array("type" => "int", "not null" => "1", "default" => "0", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"sid" => array("sid(64)"),
-						"expire" => array("expire"),
-						)
-				);
-		$database["sign"] = array(
+				"fields" => [
+						"id" => ["type" => "bigint", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"sid" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"data" => ["type" => "text", "comment" => ""],
+						"expire" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"sid" => ["sid(64)"],
+						"expire" => ["expire"],
+						]
+				];
+		$database["sign"] = [
 				"comment" => "Diaspora signatures",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"iid" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("item" => "id"), "comment" => ""),
-						"signed_text" => array("type" => "mediumtext", "comment" => ""),
-						"signature" => array("type" => "text", "comment" => ""),
-						"signer" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"iid" => array("UNIQUE", "iid"),
-						)
-				);
-		$database["term"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"iid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
+						"signed_text" => ["type" => "mediumtext", "comment" => ""],
+						"signature" => ["type" => "text", "comment" => ""],
+						"signer" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"iid" => ["UNIQUE", "iid"],
+						]
+				];
+		$database["term"] = [
 				"comment" => "item taxonomy (categories, tags, etc.) table",
-				"fields" => array(
-						"tid" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"oid" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("item" => "id"), "comment" => ""),
-						"otype" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"type" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"term" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"url" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"guid" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"created" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"received" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"global" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"aid" => array("type" => "int", "not null" => "1", "default" => "0", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("tid"),
-						"oid_otype_type_term" => array("oid","otype","type","term(32)"),
-						"uid_otype_type_term_global_created" => array("uid","otype","type","term(32)","global","created"),
-						"uid_otype_type_url" => array("uid","otype","type","url(64)"),
-						"guid" => array("guid(64)"),
-						)
-				);
-		$database["thread"] = array(
+				"fields" => [
+						"tid" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"oid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
+						"otype" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"term" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"received" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"global" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"aid" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						],
+				"indexes" => [
+						"PRIMARY" => ["tid"],
+						"oid_otype_type_term" => ["oid","otype","type","term(32)"],
+						"uid_otype_type_term_global_created" => ["uid","otype","type","term(32)","global","created"],
+						"uid_otype_type_url" => ["uid","otype","type","url(64)"],
+						"guid" => ["guid(64)"],
+						]
+				];
+		$database["thread"] = [
 				"comment" => "Thread related data",
-				"fields" => array(
-						"iid" => array("type" => "int", "not null" => "1", "default" => "0", "primary" => "1", "relation" => array("item" => "id"), "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						"contact-id" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("contact" => "id"), "comment" => ""),
-						"gcontact-id" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("gcontact" => "id"), "comment" => ""),
-						"owner-id" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("contact" => "id"), "comment" => ""),
-						"author-id" => array("type" => "int", "not null" => "1", "default" => "0", "relation" => array("contact" => "id"), "comment" => ""),
-						"created" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"edited" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"commented" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"received" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"changed" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"wall" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"private" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"pubmail" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"moderated" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"visible" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"spam" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"starred" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"ignored" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"bookmark" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"unseen" => array("type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""),
-						"deleted" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"origin" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"forum_mode" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"mention" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"network" => array("type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("iid"),
-						"uid_network_commented" => array("uid","network","commented"),
-						"uid_network_created" => array("uid","network","created"),
-						"uid_contactid_commented" => array("uid","contact-id","commented"),
-						"uid_contactid_created" => array("uid","contact-id","created"),
-						"contactid" => array("contact-id"),
-						"ownerid" => array("owner-id"),
-						"authorid" => array("author-id"),
-						"uid_created" => array("uid","created"),
-						"uid_commented" => array("uid","commented"),
-						"uid_wall_created" => array("uid","wall","created"),
-						"private_wall_commented" => array("private","wall","commented"),
-						)
-				);
-		$database["tokens"] = array(
+				"fields" => [
+						"iid" => ["type" => "int", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["item" => "id"], "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"contact-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"gcontact-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
+						"owner-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"author-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"edited" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"commented" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"received" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"changed" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"wall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"private" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"pubmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"moderated" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"spam" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"starred" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"ignored" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"bookmark" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"unseen" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
+						"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"origin" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"forum_mode" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"mention" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"network" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["iid"],
+						"uid_network_commented" => ["uid","network","commented"],
+						"uid_network_created" => ["uid","network","created"],
+						"uid_contactid_commented" => ["uid","contact-id","commented"],
+						"uid_contactid_created" => ["uid","contact-id","created"],
+						"contactid" => ["contact-id"],
+						"ownerid" => ["owner-id"],
+						"authorid" => ["author-id"],
+						"uid_created" => ["uid","created"],
+						"uid_commented" => ["uid","commented"],
+						"uid_wall_created" => ["uid","wall","created"],
+						"private_wall_commented" => ["private","wall","commented"],
+						]
+				];
+		$database["tokens"] = [
 				"comment" => "OAuth usage",
-				"fields" => array(
-						"id" => array("type" => "varchar(40)", "not null" => "1", "primary" => "1", "comment" => ""),
-						"secret" => array("type" => "text", "comment" => ""),
-						"client_id" => array("type" => "varchar(20)", "not null" => "1", "default" => "", "relation" => array("clients" => "client_id")),
-						"expires" => array("type" => "int", "not null" => "1", "default" => "0", "comment" => ""),
-						"scope" => array("type" => "varchar(200)", "not null" => "1", "default" => "", "comment" => ""),
-						"uid" => array("type" => "mediumint", "not null" => "1", "default" => "0", "relation" => array("user" => "uid"), "comment" => "User id"),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						)
-				);
-		$database["user"] = array(
+				"fields" => [
+						"id" => ["type" => "varchar(40)", "not null" => "1", "primary" => "1", "comment" => ""],
+						"secret" => ["type" => "text", "comment" => ""],
+						"client_id" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "relation" => ["clients" => "client_id"]],
+						"expires" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"scope" => ["type" => "varchar(200)", "not null" => "1", "default" => "", "comment" => ""],
+						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						]
+				];
+		$database["user"] = [
 				"comment" => "The local users",
-				"fields" => array(
-						"uid" => array("type" => "mediumint", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"guid" => array("type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""),
-						"username" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"password" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"nickname" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"email" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"openid" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"timezone" => array("type" => "varchar(128)", "not null" => "1", "default" => "", "comment" => ""),
-						"language" => array("type" => "varchar(32)", "not null" => "1", "default" => "en", "comment" => ""),
-						"register_date" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"login_date" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"default-location" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"allow_location" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"theme" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"pubkey" => array("type" => "text", "comment" => ""),
-						"prvkey" => array("type" => "text", "comment" => ""),
-						"spubkey" => array("type" => "text", "comment" => ""),
-						"sprvkey" => array("type" => "text", "comment" => ""),
-						"verified" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"blocked" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"blockwall" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"hidewall" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"blocktags" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"unkmail" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"cntunkmail" => array("type" => "int", "not null" => "1", "default" => "10", "comment" => ""),
-						"notify-flags" => array("type" => "smallint unsigned", "not null" => "1", "default" => "65535", "comment" => ""),
-						"page-flags" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"account-type" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""),
-						"prvnets" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"pwdreset" => array("type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""),
-						"maxreq" => array("type" => "int", "not null" => "1", "default" => "10", "comment" => ""),
-						"expire" => array("type" => "int", "not null" => "1", "default" => "0", "comment" => ""),
-						"account_removed" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"account_expired" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""),
-						"account_expires_on" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"expire_notification_sent" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""),
-						"def_gid" => array("type" => "int", "not null" => "1", "default" => "0", "comment" => ""),
-						"allow_cid" => array("type" => "mediumtext", "comment" => ""),
-						"allow_gid" => array("type" => "mediumtext", "comment" => ""),
-						"deny_cid" => array("type" => "mediumtext", "comment" => ""),
-						"deny_gid" => array("type" => "mediumtext", "comment" => ""),
-						"openidserver" => array("type" => "text", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("uid"),
-						"nickname" => array("nickname(32)"),
-						)
-				);
-		$database["userd"] = array(
+				"fields" => [
+						"uid" => ["type" => "mediumint", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"guid" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""],
+						"username" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"password" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"nickname" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"email" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"openid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"timezone" => ["type" => "varchar(128)", "not null" => "1", "default" => "", "comment" => ""],
+						"language" => ["type" => "varchar(32)", "not null" => "1", "default" => "en", "comment" => ""],
+						"register_date" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"login_date" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"default-location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"allow_location" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"theme" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"pubkey" => ["type" => "text", "comment" => ""],
+						"prvkey" => ["type" => "text", "comment" => ""],
+						"spubkey" => ["type" => "text", "comment" => ""],
+						"sprvkey" => ["type" => "text", "comment" => ""],
+						"verified" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"blocked" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"blockwall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"hidewall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"blocktags" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"unkmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"cntunkmail" => ["type" => "int", "not null" => "1", "default" => "10", "comment" => ""],
+						"notify-flags" => ["type" => "smallint unsigned", "not null" => "1", "default" => "65535", "comment" => ""],
+						"page-flags" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"account-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"prvnets" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"pwdreset" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"maxreq" => ["type" => "int", "not null" => "1", "default" => "10", "comment" => ""],
+						"expire" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"account_removed" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"account_expired" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+						"account_expires_on" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"expire_notification_sent" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"def_gid" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"allow_cid" => ["type" => "mediumtext", "comment" => ""],
+						"allow_gid" => ["type" => "mediumtext", "comment" => ""],
+						"deny_cid" => ["type" => "mediumtext", "comment" => ""],
+						"deny_gid" => ["type" => "mediumtext", "comment" => ""],
+						"openidserver" => ["type" => "text", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["uid"],
+						"nickname" => ["nickname(32)"],
+						]
+				];
+		$database["userd"] = [
 				"comment" => "Deleted usernames",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""),
-						"username" => array("type" => "varchar(255)", "not null" => "1", "comment" => ""),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"username" => array("username(32)"),
-						)
-				);
-		$database["workerqueue"] = array(
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"username" => ["type" => "varchar(255)", "not null" => "1", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"username" => ["username(32)"],
+						]
+				];
+		$database["workerqueue"] = [
 				"comment" => "Background tasks queue entries",
-				"fields" => array(
-						"id" => array("type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "Auto incremented worker task id"),
-						"parameter" => array("type" => "text", "comment" => "Task command"),
-						"priority" => array("type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Task priority"),
-						"created" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Creation date"),
-						"pid" => array("type" => "int", "not null" => "1", "default" => "0", "comment" => "Process id of the worker"),
-						"executed" => array("type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Execution date"),
-						"done" => array("type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Marked when the task was done, will be deleted later"),
-						),
-				"indexes" => array(
-						"PRIMARY" => array("id"),
-						"pid" => array("pid"),
-						"parameter" => array("parameter(64)"),
-						"priority_created" => array("priority", "created"),
-						"executed" => array("executed"),
-						)
-				);
+				"fields" => [
+						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "Auto incremented worker task id"],
+						"parameter" => ["type" => "text", "comment" => "Task command"],
+						"priority" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Task priority"],
+						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Creation date"],
+						"pid" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => "Process id of the worker"],
+						"executed" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Execution date"],
+						"done" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Marked when the task was done, will be deleted later"],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"pid" => ["pid"],
+						"parameter" => ["parameter(64)"],
+						"priority_created" => ["priority", "created"],
+						"executed" => ["executed"],
+						]
+				];
 
 		return($database);
 	}

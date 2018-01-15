@@ -46,14 +46,14 @@ function removeme_content(App $a)
 	$_SESSION['remove_account_verify'] = $hash;
 
 	$tpl = get_markup_template('removeme.tpl');
-	$o .= replace_macros($tpl, array(
+	$o .= replace_macros($tpl, [
 		'$basedir' => System::baseUrl(),
 		'$hash' => $hash,
 		'$title' => t('Remove My Account'),
 		'$desc' => t('This will completely remove your account. Once this has been done it is not recoverable.'),
 		'$passwd' => t('Please enter your password for verification:'),
 		'$submit' => t('Remove My Account')
-	));
+	]);
 
 	return $o;
 }

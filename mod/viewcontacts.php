@@ -83,7 +83,7 @@ function viewcontacts_content(App $a) {
 		return $o;
 	}
 
-	$contacts = array();
+	$contacts = [];
 
 	foreach ($r as $rr) {
 		/// @TODO This triggers an E_NOTICE if 'self' is not there
@@ -104,7 +104,7 @@ function viewcontacts_content(App $a) {
 
 		$contact_details = Contact::getDetailsByURL($rr['url'], $a->profile['uid'], $rr);
 
-		$contacts[] = array(
+		$contacts[] = [
 			'id' => $rr['id'],
 			'img_hover' => sprintf( t('Visit %s\'s profile [%s]'), $contact_details['name'], $rr['url']),
 			'photo_menu' => Contact::photoMenu($rr),
@@ -119,16 +119,16 @@ function viewcontacts_content(App $a) {
 			'sparkle' => '',
 			'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
 			'network' => ContactSelector::networkToName($rr['network'], $rr['url']),
-		);
+		];
 	}
 
 
 	$tpl = get_markup_template("viewcontact_template.tpl");
-	$o .= replace_macros($tpl, array(
+	$o .= replace_macros($tpl, [
 		'$title' => t('Contacts'),
 		'$contacts' => $contacts,
 		'$paginate' => paginate($a),
-	));
+	]);
 
 
 	return $o;

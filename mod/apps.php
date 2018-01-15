@@ -19,8 +19,8 @@ function apps_content(App $a) {
 	}
 
 	$tpl = get_markup_template('apps.tpl');
-	return replace_macros($tpl, array(
+	return replace_macros($tpl, [
 		'$title' => $title,
 		'$apps' => $a->apps,
-	));
+	]);
 }

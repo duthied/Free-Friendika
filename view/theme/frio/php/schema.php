@@ -3,14 +3,14 @@
 
 /**
  * @brief: Get info header of the shema
- * 
+ *
  * This function parses the header of the shemename.php file for inormations like
  * Author, Description and Overwrites. Most of the code comes from the get_plugin_info()
  * function. We use this to get the variables which get overwritten through the shema.
  * All color variables which get overwritten through the theme have to be
  * listed (comma seperated) in the shema header under Overwrites:
  * This seemst not to be the best solution. We need to investigate further.
- * 
+ *
  * @param string $schema Name of the shema
  * @return array With theme information
  *    'author' => Author Name
@@ -27,13 +27,13 @@ function get_schema_info($schema){
 	$themepath = "view/theme/" . $theme . "/";
 	$schema = PConfig::get(local_user(),'frio', 'schema');
 
-	$info=Array(
+	$info=[
 		'name' => $schema,
 		'description' => "",
-		'author' => array(),
+		'author' => [],
 		'version' => "",
 		'overwrites' => ""
-	);
+	];
 
 	if (!is_file($themepath . "schema/" . $schema . ".php")) return $info;
 
@@ -51,9 +51,9 @@ function get_schema_info($schema){
 				if ($k=="author"){
 					$r=preg_match("|([^<]+)<([^>]+)>|", $v, $m);
 					if ($r) {
-						$info['author'][] = array('name'=>$m[1], 'link'=>$m[2]);
+						$info['author'][] = ['name'=>$m[1], 'link'=>$m[2]];
 					} else {
-						$info['author'][] = array('name'=>$v);
+						$info['author'][] = ['name'=>$v];
 					}
 				} elseif ($k == "overwrites") {
 					$theme_settings = explode(',',str_replace(' ','', $v));

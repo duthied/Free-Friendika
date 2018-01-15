@@ -17,8 +17,8 @@ function maintenance_content(App $a) {
 	header('Status: 503 Service Temporarily Unavailable');
 	header('Retry-After: 600');
 
-	return replace_macros(get_markup_template('maintenance.tpl'), array(
+	return replace_macros(get_markup_template('maintenance.tpl'), [
 		'$sysdown' => t('System down for maintenance'),
 		'$reason' => $reason
-	));
+	]);
 }

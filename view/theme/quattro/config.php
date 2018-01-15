@@ -55,11 +55,11 @@ function theme_admin_post(App $a) {
 
 /// @TODO $a is no longer used here
 function quattro_form(App $a, $align, $color, $tfs, $pfs) {
-	$colors = array(
+	$colors = [
 		"dark"  => "Quattro",
 		"lilac" => "Lilac",
 		"green" => "Green",
-	);
+	];
 
 	if ($tfs === false) {
 		$tfs = "20";
@@ -69,14 +69,14 @@ function quattro_form(App $a, $align, $color, $tfs, $pfs) {
 	}
 
 	$t = get_markup_template("theme_settings.tpl" );
-	$o .= replace_macros($t, array(
+	$o .= replace_macros($t, [
 		'$submit'  => t('Submit'),
 		'$baseurl' => System::baseUrl(),
 		'$title'   => t("Theme settings"),
-		'$align'   => array('quattro_align', t('Alignment'), $align, '', array('left'=>t('Left'), 'center'=>t('Center'))),
-		'$color'   => array('quattro_color', t('Color scheme'), $color, '', $colors),
-		'$pfs'     => array('quattro_pfs', t('Posts font size'), $pfs),
-		'$tfs'     => array('quattro_tfs', t('Textareas font size'), $tfs),
-	));
+		'$align'   => ['quattro_align', t('Alignment'), $align, '', ['left'=>t('Left'), 'center'=>t('Center')]],
+		'$color'   => ['quattro_color', t('Color scheme'), $color, '', $colors],
+		'$pfs'     => ['quattro_pfs', t('Posts font size'), $pfs],
+		'$tfs'     => ['quattro_tfs', t('Textareas font size'), $tfs],
+	]);
 	return $o;
 }

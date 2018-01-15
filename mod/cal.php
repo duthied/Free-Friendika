@@ -51,13 +51,13 @@ function cal_init(App $a)
 
 		$tpl = get_markup_template("vcard-widget.tpl");
 
-		$vcard_widget = replace_macros($tpl, array(
+		$vcard_widget = replace_macros($tpl, [
 			'$name' => $profile['name'],
 			'$photo' => $profile['photo'],
 			'$addr' => (($profile['addr'] != "") ? $profile['addr'] : ""),
 			'$account_type' => $account_type,
 			'$pdesc' => (($profile['pdesc'] != "") ? $profile['pdesc'] : ""),
-		));
+		]);
 
 		$cal_widget = widget_events();
 
@@ -80,17 +80,17 @@ function cal_content(App $a)
 	$i18n = get_event_strings();
 
 	$htpl = get_markup_template('event_head.tpl');
-	$a->page['htmlhead'] .= replace_macros($htpl, array(
+	$a->page['htmlhead'] .= replace_macros($htpl, [
 		'$baseurl' => System::baseUrl(),
 		'$module_url' => '/cal/' . $a->data['user']['nickname'],
 		'$modparams' => 2,
 		'$i18n' => $i18n,
-	));
+	]);
 
 	$etpl = get_markup_template('event_end.tpl');
-	$a->page['end'] .= replace_macros($etpl, array(
+	$a->page['end'] .= replace_macros($etpl, [
 		'$baseurl' => System::baseUrl(),
-	));
+	]);
 
 	$mode = 'view';
 	$y = 0;
@@ -206,14 +206,14 @@ function cal_content(App $a)
 		$adjust_finish = datetime_convert('UTC', date_default_timezone_get(), $finish);
 
 		// put the event parametes in an array so we can better transmit them
-		$event_params = array(
+		$event_params = [
 			'event_id' => (x($_GET, 'id') ? $_GET["id"] : 0),
 			'start' => $start,
 			'finish' => $finish,
 			'adjust_start' => $adjust_start,
 			'adjust_finish' => $adjust_finish,
 			'ignored' => $ignored,
-		);
+		];
 
 		// get events by id or by date
 		if (x($_GET, 'id')) {
@@ -222,7 +222,7 @@ function cal_content(App $a)
 			$r = events_by_date($owner_uid, $event_params, $sql_extra);
 		}
 
-		$links = array();
+		$links = [];
 
 		if (DBM::is_result($r)) {
 			$r = sort_by_date($r);
@@ -255,7 +255,7 @@ function cal_content(App $a)
 
 		// Get rid of dashes in key names, Smarty3 can't handle them
 		foreach ($events as $key => $event) {
-			$event_item = array();
+			$event_item = [];
 			foreach ($event['item'] as $k => $v) {
 				$k = str_replace('-', '_', $k);
 				$event_item[$k] = $v;
@@ -263,13 +263,13 @@ function cal_content(App $a)
 			$events[$key]['item'] = $event_item;
 		}
 
-		$o = replace_macros($tpl, array(
+		$o = replace_macros($tpl, [
 			'$baseurl' => System::baseUrl(),
 			'$tabs' => $tabs,
 			'$title' => t('Events'),
 			'$view' => t('View'),
-			'$previous' => array(System::baseUrl() . "/events/$prevyear/$prevmonth", t('Previous'), '', ''),
-			'$next' => array(System::baseUrl() . "/events/$nextyear/$nextmonth", t('Next'), '', ''),
+			'$previous' => [System::baseUrl() . "/events/$prevyear/$prevmonth", t('Previous'), '', ''],
+			'$next' => [System::baseUrl() . "/events/$nextyear/$nextmonth", t('Next'), '', ''],
 			'$calendar' => cal($y, $m, $links, ' eventcal'),
 			'$events' => $events,
 			"today" => t("today"),
@@ -277,7 +277,7 @@ function cal_content(App $a)
 			"week" => t("week"),
 			"day" => t("day"),
 			"list" => t("list"),
-		));
+		]);
 
 		if (x($_GET, 'id')) {
 			echo $o;

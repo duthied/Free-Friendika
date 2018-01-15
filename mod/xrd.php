@@ -64,21 +64,21 @@ function xrd_json($a, $uri, $alias, $profile_url, $r)
 	header('Access-Control-Allow-Origin: *');
 	header("Content-type: application/json; charset=utf-8");
 
-	$json = array('subject' => $uri,
-			'aliases' => array($alias, $profile_url),
-			'links' => array(array('rel' => NAMESPACE_DFRN, 'href' => $profile_url),
-					array('rel' => NAMESPACE_FEED, 'type' => 'application/atom+xml', 'href' => System::baseUrl().'/dfrn_poll/'.$r['nickname']),
-					array('rel' => 'http://webfinger.net/rel/profile-page', 'type' => 'text/html', 'href' => $profile_url),
-					array('rel' => 'http://microformats.org/profile/hcard', 'type' => 'text/html', 'href' => System::baseUrl().'/hcard/'.$r['nickname']),
-					array('rel' => NAMESPACE_POCO, 'href' => System::baseUrl().'/poco/'.$r['nickname']),
-					array('rel' => 'http://webfinger.net/rel/avatar', 'type' => 'image/jpeg', 'href' => System::baseUrl().'/photo/profile/'.$r['uid'].'.jpg'),
-					array('rel' => 'http://joindiaspora.com/seed_location', 'type' => 'text/html', 'href' => System::baseUrl()),
-					array('rel' => 'salmon', 'href' => System::baseUrl().'/salmon/'.$r['nickname']),
-					array('rel' => 'http://salmon-protocol.org/ns/salmon-replies', 'href' => System::baseUrl().'/salmon/'.$r['nickname']),
-					array('rel' => 'http://salmon-protocol.org/ns/salmon-mention', 'href' => System::baseUrl().'/salmon/'.$r['nickname'].'/mention'),
-					array('rel' => 'http://ostatus.org/schema/1.0/subscribe', 'template' => System::baseUrl().'/follow?url={uri}'),
-					array('rel' => 'magic-public-key', 'href' => 'data:application/magic-public-key,'.$salmon_key)
-	));
+	$json = ['subject' => $uri,
+			'aliases' => [$alias, $profile_url],
+			'links' => [['rel' => NAMESPACE_DFRN, 'href' => $profile_url],
+					['rel' => NAMESPACE_FEED, 'type' => 'application/atom+xml', 'href' => System::baseUrl().'/dfrn_poll/'.$r['nickname']],
+					['rel' => 'http://webfinger.net/rel/profile-page', 'type' => 'text/html', 'href' => $profile_url],
+					['rel' => 'http://microformats.org/profile/hcard', 'type' => 'text/html', 'href' => System::baseUrl().'/hcard/'.$r['nickname']],
+					['rel' => NAMESPACE_POCO, 'href' => System::baseUrl().'/poco/'.$r['nickname']],
+					['rel' => 'http://webfinger.net/rel/avatar', 'type' => 'image/jpeg', 'href' => System::baseUrl().'/photo/profile/'.$r['uid'].'.jpg'],
+					['rel' => 'http://joindiaspora.com/seed_location', 'type' => 'text/html', 'href' => System::baseUrl()],
+					['rel' => 'salmon', 'href' => System::baseUrl().'/salmon/'.$r['nickname']],
+					['rel' => 'http://salmon-protocol.org/ns/salmon-replies', 'href' => System::baseUrl().'/salmon/'.$r['nickname']],
+					['rel' => 'http://salmon-protocol.org/ns/salmon-mention', 'href' => System::baseUrl().'/salmon/'.$r['nickname'].'/mention'],
+					['rel' => 'http://ostatus.org/schema/1.0/subscribe', 'template' => System::baseUrl().'/follow?url={uri}'],
+					['rel' => 'magic-public-key', 'href' => 'data:application/magic-public-key,'.$salmon_key]
+	]];
 	echo json_encode($json);
 	killme();
 }
@@ -92,7 +92,7 @@ function xrd_xml($a, $uri, $alias, $profile_url, $r)
 
 	$tpl = get_markup_template('xrd_person.tpl');
 
-	$o = replace_macros($tpl, array(
+	$o = replace_macros($tpl, [
 		'$nick'        => $r['nickname'],
 		'$accturi'     => $uri,
 		'$alias'       => $alias,
@@ -105,10 +105,10 @@ function xrd_xml($a, $uri, $alias, $profile_url, $r)
 		'$salmon'      => System::baseUrl() . '/salmon/'        . $r['nickname'],
 		'$salmen'      => System::baseUrl() . '/salmon/'        . $r['nickname'] . '/mention',
 		'$subscribe'   => System::baseUrl() . '/follow?url={uri}',
-		'$modexp'      => 'data:application/magic-public-key,'  . $salmon_key)
+		'$modexp'      => 'data:application/magic-public-key,'  . $salmon_key]
 	);
 
-	$arr = array('user' => $r, 'xml' => $o);
+	$arr = ['user' => $r, 'xml' => $o];
 	call_hooks('personal_xrd', $arr);
 
 	echo $arr['xml'];

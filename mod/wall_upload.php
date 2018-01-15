@@ -35,7 +35,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 
 			if (! DBM::is_result($r)) {
 				if ($r_json) {
-					echo json_encode(array('error'=>t('Invalid request.')));
+					echo json_encode(['error'=>t('Invalid request.')]);
 					killme();
 				}
 				return;
@@ -51,7 +51,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 		}
 	} else {
 		if ($r_json) {
-			echo json_encode(array('error'=>t('Invalid request.')));
+			echo json_encode(['error'=>t('Invalid request.')]);
 			killme();
 		}
 		return;
@@ -100,7 +100,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 
 	if (! $can_post) {
 		if ($r_json) {
-			echo json_encode(array('error'=>t('Permission denied.')));
+			echo json_encode(['error'=>t('Permission denied.')]);
 			killme();
 		}
 		notice(t('Permission denied.') . EOL);
@@ -109,7 +109,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 
 	if (! x($_FILES, 'userfile') && ! x($_FILES, 'media')) {
 		if ($r_json) {
-			echo json_encode(array('error'=>t('Invalid request.')));
+			echo json_encode(['error'=>t('Invalid request.')]);
 		}
 		killme();
 	}
@@ -149,7 +149,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 
 	if ($src=="") {
 		if ($r_json) {
-			echo json_encode(array('error'=>t('Invalid request.')));
+			echo json_encode(['error'=>t('Invalid request.')]);
 			killme();
 		}
 		notice(t('Invalid request.').EOL);
@@ -182,7 +182,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 	if (($maximagesize) && ($filesize > $maximagesize)) {
 		$msg = sprintf(t('Image exceeds size limit of %s'), formatBytes($maximagesize));
 		if ($r_json) {
-			echo json_encode(array('error'=>$msg));
+			echo json_encode(['error'=>$msg]);
 		} else {
 			echo  $msg. EOL;
 		}
@@ -196,7 +196,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 	if (! $Image->isValid()) {
 		$msg = t('Unable to process image.');
 		if ($r_json) {
-			echo json_encode(array('error'=>$msg));
+			echo json_encode(['error'=>$msg]);
 		} else {
 			echo  $msg. EOL;
 		}
@@ -235,7 +235,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 	if (! $r) {
 		$msg = t('Image upload failed.');
 		if ($r_json) {
-			echo json_encode(array('error'=>$msg));
+			echo json_encode(['error'=>$msg]);
 		} else {
 			echo  $msg. EOL;
 		}
@@ -268,12 +268,12 @@ function wall_upload_post(App $a, $desktopmode = true) {
 		);
 		if (!$r) {
 			if ($r_json) {
-				echo json_encode(array('error'=>''));
+				echo json_encode(['error'=>'']);
 				killme();
 			}
 			return false;
 		}
-		$picture = array();
+		$picture = [];
 
 		$picture["id"]        = $r[0]["id"];
 		$picture["size"]      = $r[0]["datasize"];
@@ -285,7 +285,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 		$picture["preview"]   = System::baseUrl() . "/photo/{$hash}-{$smallest}." . $Image->getExt();
 
 		if ($r_json) {
-			echo json_encode(array('picture'=>$picture));
+			echo json_encode(['picture'=>$picture]);
 			killme();
 		}
 		return $picture;
@@ -293,7 +293,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 
 
 	if ($r_json) {
-		echo json_encode(array('ok'=>true));
+		echo json_encode(['ok'=>true]);
 		killme();
 	}
 

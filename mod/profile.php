@@ -61,7 +61,7 @@ function profile_init(App $a)
 
 	// site block
 	if (!$blocked && !$userblock) {
-		$keywords = str_replace(array('#', ',', ' ', ',,'), array('', ' ', ',', ','), defaults($a->profile, 'pub_keywords', ''));
+		$keywords = str_replace(['#', ',', ' ', ',,'], ['', ' ', ',', ','], defaults($a->profile, 'pub_keywords', ''));
 		if (strlen($keywords)) {
 			$a->page['htmlhead'] .= '<meta name="keywords" content="' . $keywords . '" />' . "\r\n";
 		}
@@ -75,7 +75,7 @@ function profile_init(App $a)
 	$a->page['htmlhead'] .= '<link rel="lrdd" type="application/xrd+xml" href="' . System::baseUrl() . '/xrd/?uri=' . $uri . '" />' . "\r\n";
 	header('Link: <' . System::baseUrl() . '/xrd/?uri=' . $uri . '>; rel="lrdd"; type="application/xrd+xml"', false);
 
-	$dfrn_pages = array('request', 'confirm', 'notify', 'poll');
+	$dfrn_pages = ['request', 'confirm', 'notify', 'poll'];
 	foreach ($dfrn_pages as $dfrn) {
 		$a->page['htmlhead'] .= "<link rel=\"dfrn-{$dfrn}\" href=\"" . System::baseUrl() . "/dfrn_{$dfrn}/{$which}\" />\r\n";
 	}
@@ -116,7 +116,7 @@ function profile_content(App $a, $update = 0)
 	require_once 'include/acl_selectors.php';
 	require_once 'include/items.php';
 
-	$groups = array();
+	$groups = [];
 
 	$tab = 'posts';
 	$o = '';
@@ -197,7 +197,7 @@ function profile_content(App $a, $update = 0)
 		$a->page['aside'] .= tagcloud_wall_widget();
 
 		if (can_write_wall($a->profile['profile_uid'])) {
-			$x = array(
+			$x = [
 				'is_owner' => $is_owner,
 				'allow_location' => ($is_owner || $commvisitor) && $a->profile['allow_location'],
 				'default_location' => $is_owner ? $a->user['default-location'] : '',
@@ -212,7 +212,7 @@ function profile_content(App $a, $update = 0)
 				'bang' => '',
 				'visitor' => $is_owner || $commvisitor ? 'block' : 'none',
 				'profile_uid' => $a->profile['profile_uid'],
-			);
+			];
 
 			$o .= status_editor($a, $x);
 		}
@@ -319,7 +319,7 @@ function profile_content(App $a, $update = 0)
 		);
 	}
 
-	$parents_arr = array();
+	$parents_arr = [];
 	$parents_str = '';
 
 	// Set a time stamp for this page. We will make use of it when we
@@ -342,7 +342,7 @@ function profile_content(App $a, $update = 0)
 
 		$items = conv_sort($items, 'created');
 	} else {
-		$items = array();
+		$items = [];
 	}
 
 	if ($is_owner && !$update && !Config::get('theme', 'hide_eventlist')) {
@@ -352,10 +352,10 @@ function profile_content(App $a, $update = 0)
 
 
 	if ($is_owner) {
-		$unseen = dba::exists('item', array('wall' => true, 'unseen' => true, 'uid' => local_user()));
+		$unseen = dba::exists('item', ['wall' => true, 'unseen' => true, 'uid' => local_user()]);
 		if ($unseen) {
-			$r = dba::update('item', array('unseen' => false),
-					array('wall' => true, 'unseen' => true, 'uid' => local_user()));
+			$r = dba::update('item', ['unseen' => false],
+					['wall' => true, 'unseen' => true, 'uid' => local_user()]);
 		}
 	}
 
