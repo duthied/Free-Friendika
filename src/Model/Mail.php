@@ -108,9 +108,9 @@ class Mail
 				'contact-id' => $recipient,
 				'title' => $subject,
 				'body' => $body,
-				'seen' => true,
+				'seen' => 1,
 				'reply' => $reply,
-				'replied' => false,
+				'replied' => 0,
 				'uri' => $uri,
 				'parent-uri' => $replyto,
 				'created' => datetime_convert()
@@ -216,13 +216,13 @@ class Mail
 				'contact-id' => 0,
 				'title' => $subject,
 				'body' => $body,
-				'seen' => false,
-				'reply' => false,
-				'replied' => false,
+				'seen' => 0,
+				'reply' => 0,
+				'replied' => 0,
 				'uri' => $uri,
 				'parent-uri' => $replyto,
 				'created' => datetime_convert(),
-				'unknown' => true
+				'unknown' => 1
 			]
 		);
 
