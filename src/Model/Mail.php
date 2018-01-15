@@ -67,10 +67,10 @@ class Mail
 
 		if (!$convid) {
 			// create a new conversation
-			$recip_host = substr($contact[0]['url'], strpos($contact[0]['url'], '://') + 3);
+			$recip_host = substr($contact['url'], strpos($contact['url'], '://') + 3);
 			$recip_host = substr($recip_host, 0, strpos($recip_host, '/'));
 
-			$recip_handle = (($contact[0]['addr']) ? $contact[0]['addr'] : $contact[0]['nick'] . '@' . $recip_host);
+			$recip_handle = (($contact['addr']) ? $contact['addr'] : $contact['nick'] . '@' . $recip_host);
 			$sender_handle = $a->user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
 
 			$conv_guid = get_guid(32);
@@ -102,9 +102,9 @@ class Mail
 				'uid' => local_user(),
 				'guid' => $guid,
 				'convid' => $convid,
-				'from-name' => $me[0]['name'],
-				'from-photo' => $me[0]['thumb'],
-				'from-url' => $me[0]['url'],
+				'from-name' => $me['name'],
+				'from-photo' => $me['thumb'],
+				'from-url' => $me['url'],
 				'contact-id' => $recipient,
 				'title' => $subject,
 				'body' => $body,
