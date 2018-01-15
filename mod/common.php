@@ -36,19 +36,19 @@ function common_content(App $a)
 	}
 
 	if ($cmd === 'loc' && $cid) {
-		$c = dba::selectFirst('contact', ['name', 'url', 'photo'], ['id' => $cid, 'uid' => $uid]);
+		$contact = dba::selectFirst('contact', ['name', 'url', 'photo'], ['id' => $cid, 'uid' => $uid]);
 
-		if (DBM::is_result($c)) {
+		if (DBM::is_result($contact)) {
 			$a->page['aside'] = "";
-			Profile::load($a, "", 0, Contact::getDetailsByURL($c["url"]));
+			Profile::load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
 		}
 	} else {
-		$c = dba::selectFirst('contact', ['name', 'url', 'photo'], ['self' => true, 'uid' => $uid]);
+		$contact = dba::selectFirst('contact', ['name', 'url', 'photo'], ['self' => true, 'uid' => $uid]);
 
-		if (DBM::is_result($c)) {
+		if (DBM::is_result($contact)) {
 			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"), array(
-				'$name' => htmlentities($c['name']),
-				'$photo' => $c['photo'],
+				'$name' => htmlentities($contact['name']),
+				'$photo' => $contact['photo'],
 				'url' => 'contacts/' . $cid
 			));
 	
@@ -59,7 +59,7 @@ function common_content(App $a)
 		}
 	}
 
-	if (!DBM::is_result($c)) {
+	if (!DBM::is_result($contact)) {
 		return;
 	}
 

@@ -9,7 +9,7 @@ use Friendica\Model\Profile;
 
 function hcard_init(App $a)
 {
-	$blocked = (((Config::get('system', 'block_public')) && (! local_user()) && (! remote_user())) ? true : false);
+	$blocked = Config::get('system', 'block_public') && !local_user() && !remote_user();
 
 	if ($a->argc > 1) {
 		$which = $a->argv[1];
@@ -38,7 +38,7 @@ function hcard_init(App $a)
 		$a->page['htmlhead'] .= '<link rel="openid.delegate" href="' . $delegate . '" />' . "\r\n";
 	}
 
-	if (! $blocked) {
+	if (!$blocked) {
 		$keywords = ((x($a->profile, 'pub_keywords')) ? $a->profile['pub_keywords'] : '');
 		$keywords = str_replace(array(',',' ',',,'), array(' ',',',','), $keywords);
 		if (strlen($keywords)) {

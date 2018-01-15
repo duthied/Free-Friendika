@@ -33,14 +33,14 @@ function allfriends_content(App $a)
 
 	$uid = $a->user['uid'];
 
-	$c = dba::selectFirst('contact', ['name', 'url', 'photo'], ['id' => $cid, 'uid' => local_user()]);
+	$contact = dba::selectFirst('contact', ['name', 'url', 'photo'], ['id' => $cid, 'uid' => local_user()]);
 
-	if (!DBM::is_result($c)) {
+	if (!DBM::is_result($contact)) {
 		return;
 	}
 
 	$a->page['aside'] = "";
-	Profile::load($a, "", 0, Contact::getDetailsByURL($c[0]["url"]));
+	Profile::load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
 
 	$total = GContact::countAllFriends(local_user(), $cid);
 

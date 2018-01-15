@@ -45,7 +45,7 @@ function cal_init(App $a)
 			return;
 		}
 
-		$profile = Profile::getProfiledataByNick($nick, $a->profile_uid);
+		$profile = Profile::getByNickname($nick, $a->profile_uid);
 
 		$account_type = Contact::getAccountType($profile);
 

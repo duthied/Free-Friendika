@@ -42,7 +42,7 @@ function videos_init(App $a) {
 		$a->data['user'] = $user[0];
 		$a->profile_uid = $user[0]['uid'];
 
-		$profile = Profile::getProfiledataByNick($nick, $a->profile_uid);
+		$profile = Profile::getByNickname($nick, $a->profile_uid);
 
 		$account_type = Contact::getAccountType($profile);
 

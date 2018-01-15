@@ -34,7 +34,7 @@ function noscrape_init(App $a)
 	$keywords = str_replace(array('#',',',' ',',,'), array('',' ',',',','), $keywords);
 	$keywords = explode(',', $keywords);
 
-	$r = dba::selectFirst('contact', ['photo'], ['self' => true, 'uid' => $a->profile['uid']]);
+	$contactPhoto = dba::selectFirst('contact', ['photo'], ['self' => true, 'uid' => $a->profile['uid']]);
 
 	$json_info = array(
 		'fn'       => $a->profile['name'],
@@ -44,7 +44,7 @@ function noscrape_init(App $a)
 		'key'      => $a->profile['pubkey'],
 		'homepage' => System::baseUrl()."/profile/{$which}",
 		'comm'     => (x($a->profile, 'page-flags')) && ($a->profile['page-flags'] == PAGE_COMMUNITY),
-		'photo'    => $r["photo"],
+		'photo'    => $contactPhoto["photo"],
 		'tags'     => $keywords
 	);
 

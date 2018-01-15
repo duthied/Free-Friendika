@@ -60,7 +60,7 @@ class Profile
 
 	/**
 	 *
-	 * @brief Loads a profile into the page sidebar.
+	 * Loads a profile into the page sidebar.
 	 *
 	 * The function requires a writeable copy of the main App structure, and the nickname
 	 * of a registered local account.
@@ -77,6 +77,7 @@ class Profile
 	 *      the theme is chosen before the _init() function of a theme is run, which will usually
 	 *      load a lot of theme-specific content
 	 *
+	 * @brief Loads a profile into the page sidebar.
 	 * @param object  $a            App
 	 * @param string  $nickname     string
 	 * @param int     $profile      int
@@ -106,7 +107,7 @@ class Profile
 			}
 		}
 
-		$pdata = self::getProfiledataByNick($nickname, $user[0]['uid'], $profile);
+		$pdata = self::getByNickname($nickname, $user[0]['uid'], $profile);
 
 		if (empty($pdata) && empty($profiledata)) {
 			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
@@ -181,7 +182,7 @@ class Profile
 	}
 
 	/**
-	 * @brief Get all profil data of a local user
+	 * Get all profile data of a local user
 	 *
 	 * If the viewer is an authenticated remote viewer, the profile displayed is the
 	 * one that has been configured for his/her viewing in the Contact manager.
@@ -190,12 +191,13 @@ class Profile
 	 *
 	 * Includes all available profile data
 	 *
+	 * @brief Get all profile data of a local user
 	 * @param string $nickname nick
 	 * @param int    $uid      uid
 	 * @param int    $profile_id  ID of the profile
-	 * @returns array
+	 * @return array
 	 */
-	public static function getProfiledataByNick($nickname, $uid = 0, $profile_id = 0)
+	public static function getByNickname($nickname, $uid = 0, $profile_id = 0)
 	{
 		if (remote_user() && count($_SESSION['remote'])) {
 			foreach ($_SESSION['remote'] as $visitor) {
@@ -243,11 +245,12 @@ class Profile
 	}
 
 	/**
-	 * @brief Formats a profile for display in the sidebar.
+	 * Formats a profile for display in the sidebar.
 	 *
 	 * It is very difficult to templatise the HTML completely
 	 * because of all the conditional logic.
 	 *
+	 * @brief Formats a profile for display in the sidebar.
 	 * @param array $profile
 	 * @param int $block
 	 * @param boolean $show_connect Show connect link
@@ -997,7 +1000,7 @@ class Profile
 	}
 
 	/**
-	 * @brief Get the user ID of the page owner
+	 * Get the user ID of the page owner.
 	 *
 	 * Used from within PCSS themes to set theme parameters. If there's a
 	 * puid request variable, that is the "page owner" and normally their theme
@@ -1005,6 +1008,7 @@ class Profile
 	 * system pconfig, which means they don't want to see anybody else's theme
 	 * settings except their own while on this site.
 	 *
+	 * @brief Get the user ID of the page owner
 	 * @return int user ID
 	 *
 	 * @note Returns local_user instead of user ID if "always_my_theme"
