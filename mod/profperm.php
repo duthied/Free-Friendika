@@ -6,6 +6,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
+use Friendica\Model\Profile;
 
 function profperm_init(App $a)
 {

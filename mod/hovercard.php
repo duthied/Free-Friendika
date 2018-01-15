@@ -11,6 +11,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Model\Profile;
 
 function hovercard_init(App $a)
 {
