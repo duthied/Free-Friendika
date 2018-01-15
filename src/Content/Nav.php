@@ -11,21 +11,22 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Profile;
 
+require_once 'boot.php';
+require_once 'include/pgettext.php';
+require_once 'include/text.php';
+
 class Nav
 {
-	function nav(App $a)
+	/**
+	 * Build page header and site navigation bars
+	 */
+	public static function build(App $a)
 	{
-		/*
-		 *
-		 * Build page header and site navigation bars
-		 *
-		 */
-	
 		if (!(x($a->page, 'nav'))) {
 			$a->page['nav'] = '';
 		}
 	
-		$a->page['htmlhead'] .= replace_macros(get_markup_template('nav_head.tpl'), array());
+		$a->page['htmlhead'] .= replace_macros(get_markup_template('nav_head.tpl'), []);
 	
 		/*
 		 * Placeholder div for popup panel
@@ -33,7 +34,7 @@ class Nav
 	
 		$a->page['nav'] .= '<div id="panel" style="display: none;"></div>' ;
 	
-		$nav_info = nav_info($a);
+		$nav_info = self::getInfo($a);
 	
 		/*
 		 * Build the page
@@ -41,25 +42,28 @@ class Nav
 	
 		$tpl = get_markup_template('nav.tpl');
 	
-		$a->page['nav'] .= replace_macros($tpl, array(
-			'$baseurl' => System::baseUrl(),
-			'$sitelocation' => $nav_info['sitelocation'],
-			'$nav' => $nav_info['nav'],
-			'$banner' => $nav_info['banner'],
-			'$emptynotifications' => t('Nothing new here'),
-			'$userinfo' => $nav_info['userinfo'],
-			'$sel' =>  $a->nav_sel,
-			'$apps' => $a->apps,
-			'$clear_notifs' => t('Clear notifications'),
-			'$search_hint' => t('@name, !forum, #tags, content')
-		));
+		$a->page['nav'] .= replace_macros($tpl,
+			[
+				'$baseurl' => System::baseUrl(),
+				'$sitelocation' => $nav_info['sitelocation'],
+				'$nav' => $nav_info['nav'],
+				'$banner' => $nav_info['banner'],
+				'$emptynotifications' => t('Nothing new here'),
+				'$userinfo' => $nav_info['userinfo'],
+				'$sel' =>  $a->nav_sel,
+				'$apps' => $a->apps,
+				'$clear_notifs' => t('Clear notifications'),
+				'$search_hint' => t('@name, !forum, #tags, content')
+			]
+		);
 	
 		call_hooks('page_header', $a->page['nav']);
 	}
 	
 	/**
-	 * @brief Prepares a list of navigation links
+	 * Prepares a list of navigation links
 	 *
+	 * @brief Prepares a list of navigation links
 	 * @param App $a
 	 * @return array Navigation links
 	 *	string 'sitelocation' => The webbie (username@site.com)
@@ -67,7 +71,7 @@ class Nav
 	 *	string 'banner' => Formatted html link with banner image
 	 *	array 'userinfo' => Array of user information (name, icon)
 	 */
-	function nav_info(App $a)
+	private static function getInfo(App $a)
 	{
 		$ssl_state = ((local_user()) ? true : false);
 	
@@ -82,31 +86,31 @@ class Nav
 		$sitelocation = $myident . substr(System::baseUrl($ssl_state), strpos(System::baseUrl($ssl_state), '//') + 2);
 	
 		// nav links: array of array('href', 'text', 'extra css classes', 'title')
-		$nav = array();
+		$nav = [];
 	
 		// Display login or logout
-		$nav['usermenu'] = array();
+		$nav['usermenu'] = [];
 		$userinfo = null;
 	
 		if (local_user()) {
-			$nav['logout'] = array('logout', t('Logout'), '', t('End this session'));
+			$nav['logout'] = ['logout', t('Logout'), '', t('End this session')];
 	
 			// user menu
-			$nav['usermenu'][] = array('profile/' . $a->user['nickname'], t('Status'), '', t('Your posts and conversations'));
-			$nav['usermenu'][] = array('profile/' . $a->user['nickname'] . '?tab=profile', t('Profile'), '', t('Your profile page'));
-			$nav['usermenu'][] = array('photos/' . $a->user['nickname'], t('Photos'), '', t('Your photos'));
-			$nav['usermenu'][] = array('videos/' . $a->user['nickname'], t('Videos'), '', t('Your videos'));
-			$nav['usermenu'][] = array('events/', t('Events'), '', t('Your events'));
-			$nav['usermenu'][] = array('notes/', t('Personal notes'), '', t('Your personal notes'));
+			$nav['usermenu'][] = ['profile/' . $a->user['nickname'], t('Status'), '', t('Your posts and conversations')];
+			$nav['usermenu'][] = ['profile/' . $a->user['nickname'] . '?tab=profile', t('Profile'), '', t('Your profile page')];
+			$nav['usermenu'][] = ['photos/' . $a->user['nickname'], t('Photos'), '', t('Your photos')];
+			$nav['usermenu'][] = ['videos/' . $a->user['nickname'], t('Videos'), '', t('Your videos')];
+			$nav['usermenu'][] = ['events/', t('Events'), '', t('Your events')];
+			$nav['usermenu'][] = ['notes/', t('Personal notes'), '', t('Your personal notes')];
 	
 			// user info
 			$contact = dba::selectFirst('contact', ['micro'], ['uid' => $a->user['uid'], 'self' => true]);
-			$userinfo = array(
+			$userinfo = [
 				'icon' => (DBM::is_result($contact) ? $a->remove_baseurl($contact['micro']) : 'images/person-48.jpg'),
 				'name' => $a->user['username'],
-			);
+			];
 		} else {
-			$nav['login'] = array('login', t('Login'), ($a->module == 'login' ? 'selected' : ''), t('Sign in'));
+			$nav['login'] = ['login', t('Login'), ($a->module == 'login' ? 'selected' : ''), t('Sign in')];
 		}
 	
 		// "Home" should also take you home from an authenticated remote profile connection
@@ -116,30 +120,31 @@ class Nav
 		}
 	
 		if (($a->module != 'home') && (! (local_user()))) {
-			$nav['home'] = array($homelink, t('Home'), '', t('Home Page'));
+			$nav['home'] = [$homelink, t('Home'), '', t('Home Page')];
 		}
 	
 		if (($a->config['register_policy'] == REGISTER_OPEN) && (! local_user()) && (! remote_user())) {
-			$nav['register'] = array('register', t('Register'), '', t('Create an account'));
+			$nav['register'] = ['register', t('Register'), '', t('Create an account')];
 		}
 	
 		$help_url = 'help';
 	
 		if (!Config::get('system', 'hide_help')) {
-			$nav['help'] = array($help_url, t('Help'), '', t('Help and documentation'));
+			$nav['help'] = [$help_url, t('Help'), '', t('Help and documentation')];
 		}
 	
 		if (count($a->apps) > 0) {
-			$nav['apps'] = array('apps', t('Apps'), '', t('Addon applications, utilities, games'));
+			$nav['apps'] = ['apps', t('Apps'), '', t('Addon applications, utilities, games')];
 		}
 	
 		if (local_user() || !Config::get('system', 'local_search')) {
-			$nav['search'] = array('search', t('Search'), '', t('Search site content'));
+			$nav['search'] = ['search', t('Search'), '', t('Search site content')];
 	
-			$nav['searchoption'] = array(
+			$nav['searchoption'] = [
 							t('Full Text'),
 							t('Tags'),
-							t('Contacts'));
+							t('Contacts')
+						];
 	
 			if (Config::get('system', 'poco_local_search')) {
 				$nav['searchoption'][] = t('Forums');
@@ -156,23 +161,23 @@ class Nav
 		}
 	
 		if (local_user() || Config::get('system', 'community_page_style') != CP_NO_COMMUNITY_PAGE) {
-			$nav['community'] = array('community', t('Community'), '', t('Conversations on this and other servers'));
+			$nav['community'] = ['community', t('Community'), '', t('Conversations on this and other servers')];
 		}
 	
 		if (local_user()) {
-			$nav['events'] = array('events', t('Events'), '', t('Events and Calendar'));
+			$nav['events'] = ['events', t('Events'), '', t('Events and Calendar')];
 		}
 	
-		$nav['directory'] = array($gdirpath, t('Directory'), '', t('People directory'));
+		$nav['directory'] = [$gdirpath, t('Directory'), '', t('People directory')];
 	
-		$nav['about'] = array('friendica', t('Information'), '', t('Information about this friendica instance'));
+		$nav['about'] = ['friendica', t('Information'), '', t('Information about this friendica instance')];
 	
 		// The following nav links are only show to logged in users
 		if (local_user()) {
-			$nav['network'] = array('network', t('Network'), '', t('Conversations from your friends'));
-			$nav['net_reset'] = array('network/0?f=&order=comment&nets=all', t('Network Reset'), '', t('Load Network page with no filters'));
+			$nav['network'] = ['network', t('Network'), '', t('Conversations from your friends')];
+			$nav['net_reset'] = ['network/0?f=&order=comment&nets=all', t('Network Reset'), '', t('Load Network page with no filters')];
 	
-			$nav['home'] = array('profile/' . $a->user['nickname'], t('Home'), '', t('Your posts and conversations'));
+			$nav['home'] = ['profile/' . $a->user['nickname'], t('Home'), '', t('Your posts and conversations')];
 	
 			if (in_array($_SESSION['page_flags'], array(PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE, PAGE_PRVGROUP))) {
 				// only show friend requests for normal pages. Other page types have automatic friendship.
@@ -180,38 +185,38 @@ class Nav
 					$nav['introductions'] = array('notifications/intros', t('Introductions'), '', t('Friend Requests'));
 				}
 				if (in_array($_SESSION['page_flags'], array(PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE))) {
-					$nav['notifications'] = array('notifications',	t('Notifications'), '', t('Notifications'));
-					$nav['notifications']['all'] = array('notifications/system', t('See all notifications'), '', '');
-					$nav['notifications']['mark'] = array('', t('Mark as seen'), '', t('Mark all system notifications seen'));
+					$nav['notifications'] = ['notifications',	t('Notifications'), '', t('Notifications')];
+					$nav['notifications']['all'] = ['notifications/system', t('See all notifications'), '', ''];
+					$nav['notifications']['mark'] = ['', t('Mark as seen'), '', t('Mark all system notifications seen')];
 				}
 			}
 	
-			$nav['messages'] = array('message', t('Messages'), '', t('Private mail'));
-			$nav['messages']['inbox'] = array('message', t('Inbox'), '', t('Inbox'));
-			$nav['messages']['outbox'] = array('message/sent', t('Outbox'), '', t('Outbox'));
-			$nav['messages']['new'] = array('message/new', t('New Message'), '', t('New Message'));
+			$nav['messages'] = ['message', t('Messages'), '', t('Private mail')];
+			$nav['messages']['inbox'] = ['message', t('Inbox'), '', t('Inbox')];
+			$nav['messages']['outbox'] = ['message/sent', t('Outbox'), '', t('Outbox')];
+			$nav['messages']['new'] = ['message/new', t('New Message'), '', t('New Message')];
 	
 			if (is_array($a->identities) && count($a->identities) > 1) {
-				$nav['manage'] = array('manage', t('Manage'), '', t('Manage other pages'));
+				$nav['manage'] = ['manage', t('Manage'), '', t('Manage other pages')];
 			}
 	
-			$nav['delegations'] = array('delegate', t('Delegations'), '', t('Delegate Page Management'));
+			$nav['delegations'] = ['delegate', t('Delegations'), '', t('Delegate Page Management')];
 	
-			$nav['settings'] = array('settings', t('Settings'), '', t('Account settings'));
+			$nav['settings'] = ['settings', t('Settings'), '', t('Account settings')];
 	
 			if (Feature::isEnabled(local_user(), 'multi_profiles')) {
-				$nav['profiles'] = array('profiles', t('Profiles'), '', t('Manage/Edit Profiles'));
+				$nav['profiles'] = ['profiles', t('Profiles'), '', t('Manage/Edit Profiles')];
 			}
 	
-			$nav['contacts'] = array('contacts', t('Contacts'), '', t('Manage/edit friends and contacts'));
+			$nav['contacts'] = ['contacts', t('Contacts'), '', t('Manage/edit friends and contacts')];
 		}
 	
 		// Show the link to the admin configuration page if user is admin
 		if (is_site_admin()) {
-			$nav['admin'] = array('admin/', t('Admin'), '', t('Site setup and configuration'));
+			$nav['admin'] = ['admin/', t('Admin'), '', t('Site setup and configuration')];
 		}
 	
-		$nav['navigation'] = array('navigation/', t('Navigation'), '', t('Site map'));
+		$nav['navigation'] = ['navigation/', t('Navigation'), '', t('Site map')];
 	
 		// Provide a banner/logo/whatever
 		$banner = Config::get('system', 'banner');
@@ -221,22 +226,21 @@ class Nav
 	
 		call_hooks('nav_info', $nav);
 	
-		return array(
+		return [
 			'sitelocation' => $sitelocation,
 			'nav' => $nav,
 			'banner' => $banner,
 			'userinfo' => $userinfo,
-		);
+		];
 	}
 	
 	/**
 	 * Set a menu item in navbar as selected
-	 *
 	 */
-	function nav_set_selected($item)
+	public static function setSelected($item)
 	{
 		$a = get_app();
-		$a->nav_sel = array(
+		$a->nav_sel = [
 			'global' 	=> null,
 			'community' 	=> null,
 			'network' 	=> null,
@@ -250,8 +254,8 @@ class Nav
 			'contacts'	=> null,
 			'manage'	=> null,
 			'events'	=> null,
-			'register'	=> null,
-		);
+			'register'	=> null
+		];
 		$a->nav_sel[$item] = 'selected';
 	}
 }

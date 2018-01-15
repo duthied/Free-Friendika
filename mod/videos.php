@@ -3,6 +3,7 @@
  * @file mod/videos.php
  */
 use Friendica\App;
+use Friendica\Content\Nav;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -26,7 +27,7 @@ function videos_init(App $a) {
 		return;
 	}
 
-	nav_set_selected('home');
+	Nav::setSelected('home');
 
 	$o = '';
 

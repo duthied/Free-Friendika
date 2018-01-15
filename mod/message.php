@@ -3,6 +3,7 @@
  * @file mod/message.php
  */
 use Friendica\App;
+use Friendica\Content\Nav;
 use Friendica\Content\Smilies;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -92,7 +93,7 @@ function message_post(App $a)
 function message_content(App $a)
 {
 	$o = '';
-	nav_set_selected('messages');
+	Nav::setSelected('messages');
 
 	if (!local_user()) {
 		notice(t('Permission denied.') . EOL);

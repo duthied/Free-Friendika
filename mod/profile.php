@@ -4,6 +4,7 @@
  */
 use Friendica\App;
 use Friendica\Content\Widget;
+use Friendica\Content\Nav;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
@@ -125,7 +126,7 @@ function profile_content(App $a, $update = 0)
 		// Ensure we've got a profile owner if updating.
 		$a->profile['profile_uid'] = $update;
 	} elseif ($a->profile['profile_uid'] == local_user()) {
-		nav_set_selected('home');
+		Nav::setSelected('home');
 	}
 
 	$contact = null;
