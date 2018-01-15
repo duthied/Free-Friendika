@@ -4,13 +4,12 @@
  */
 use Friendica\App;
 use Friendica\Content\ContactSelector;
+use Friendica\Content\Widget;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
-
-require_once 'include/contact_widgets.php';
 
 function suggest_init(App $a) {
 	if (! local_user()) {
@@ -51,10 +50,6 @@ function suggest_init(App $a) {
 
 }
 
-
-
-
-
 function suggest_content(App $a) {
 
 	require_once("mod/proxy.php");
@@ -67,8 +62,8 @@ function suggest_content(App $a) {
 
 	$_SESSION['return_url'] = System::baseUrl() . '/' . $a->cmd;
 
-	$a->page['aside'] .= findpeople_widget();
-	$a->page['aside'] .= follow_widget();
+	$a->page['aside'] .= Widget::findPeople();
+	$a->page['aside'] .= Widget::follow();
 
 
 	$r = GContact::suggestionQuery(local_user());

@@ -3,6 +3,7 @@
  * @file mod/profile.php
  */
 use Friendica\App;
+use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
@@ -11,8 +12,6 @@ use Friendica\Model\Group;
 use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Protocol\DFRN;
-
-require_once 'include/contact_widgets.php';
 
 function profile_init(App $a)
 {
@@ -184,7 +183,7 @@ function profile_content(App $a, $update = 0)
 			return $o;
 		}
 
-		$o .= common_friends_visitor_widget($a->profile['profile_uid']);
+		$o .= Widget::commonFriendsVisitor($a->profile['profile_uid']);
 
 		if (x($_SESSION, 'new_member') && $is_owner) {
 			$o .= '<a href="newmember" id="newmember-tips" style="font-size: 1.2em;"><b>' . t('Tips for New Members') . '</b></a>' . EOL;
@@ -194,7 +193,7 @@ function profile_content(App $a, $update = 0)
 		$commvisitor = $commpage && $remote_contact;
 
 		$a->page['aside'] .= posted_date_widget(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], $a->profile['profile_uid'], true);
-		$a->page['aside'] .= categories_widget(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], (x($category) ? xmlify($category) : ''));
+		$a->page['aside'] .= Widget::categories(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], (x($category) ? xmlify($category) : ''));
 		$a->page['aside'] .= tagcloud_wall_widget();
 
 		if (can_write_wall($a->profile['profile_uid'])) {
