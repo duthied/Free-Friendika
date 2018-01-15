@@ -129,8 +129,8 @@ class DBStructure {
 		if (DBM::is_result($structures)) {
 			foreach ($structures AS $field) {
 				// Replace the default size values so that we don't have to define them
-				$search = ['tinyint(1)', 'tinyint(4)', 'smallint(6)', 'mediumint(9)', 'bigint(20)', 'int(11)'];
-				$replace = ['boolean', 'tinyint', 'smallint', 'mediumint', 'bigint', 'int'];
+				$search = ['tinyint(1)', 'tinyint(4)', 'smallint(5) unsigned', 'smallint(6)', 'mediumint(9)', 'bigint(20)', 'int(11)'];
+				$replace = ['boolean', 'tinyint', 'smallint unsigned', 'smallint', 'mediumint', 'bigint', 'int'];
 				$field["Type"] = str_replace($search, $replace, $field["Type"]);
 
 				$fielddata[$field["Field"]]["type"] = $field["Type"];
