@@ -5,6 +5,7 @@
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
+use Friendica\Content\Nav;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
@@ -16,7 +17,7 @@ use Friendica\Network\Probe;
 
 function profiles_init(App $a) {
 
-	nav_set_selected('profiles');
+	Nav::setSelected('profiles');
 
 	if (! local_user()) {
 		return;

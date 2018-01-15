@@ -4,6 +4,7 @@
  * @brief The events module
  */
 use Friendica\App;
+use Friendica\Content\Nav;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -212,9 +213,9 @@ function events_content(App $a) {
 	}
 
 	if ($a->theme_events_in_profile) {
-		nav_set_selected('home');
+		Nav::setSelected('home');
 	} else {
-		nav_set_selected('events');
+		Nav::setSelected('events');
 	}
 
 	// get the translation strings for the callendar

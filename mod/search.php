@@ -4,6 +4,7 @@
  */
 use Friendica\App;
 use Friendica\Content\Feature;
+use Friendica\Content\Nav;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
@@ -132,7 +133,7 @@ function search_content(App $a) {
 			Cache::set("remote_search:".$remote, json_encode(array("time" => time(), "accesses" => 1)), CACHE_HOUR);
 	}
 
-	nav_set_selected('search');
+	Nav::setSelected('search');
 
 	if (x($a->data,'search'))
 		$search = notags(trim($a->data['search']));

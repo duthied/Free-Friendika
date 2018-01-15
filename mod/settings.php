@@ -4,6 +4,7 @@
  */
 use Friendica\App;
 use Friendica\Content\Feature;
+use Friendica\Content\Nav;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Core\Config;
@@ -654,7 +655,7 @@ function settings_post(App $a)
 function settings_content(App $a)
 {
 	$o = '';
-	nav_set_selected('settings');
+	Nav::setSelected('settings');
 
 	if (!local_user()) {
 		//notice(t('Permission denied.') . EOL);

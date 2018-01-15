@@ -3,6 +3,7 @@
  * @file mod/directory.php
  */
 use Friendica\App;
+use Friendica\Content\Nav;
 use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
@@ -37,7 +38,7 @@ function directory_content(App $a) {
 	}
 
 	$o = '';
-	nav_set_selected('directory');
+	Nav::setSelected('directory');
 
 	if(x($a->data,'search'))
 		$search = notags(trim($a->data['search']));

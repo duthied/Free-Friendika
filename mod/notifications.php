@@ -5,6 +5,7 @@
  */
 use Friendica\App;
 use Friendica\Content\ContactSelector;
+use Friendica\Content\Nav;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -77,7 +78,7 @@ function notifications_content(App $a) {
 	$page	=	(x($_REQUEST,'page')		? $_REQUEST['page']		: 1);
 	$show	=	(x($_REQUEST,'show')		? $_REQUEST['show']		: 0);
 
-	nav_set_selected('notifications');
+	Nav::setSelected('notifications');
 
 	$json = (($a->argc > 1 && $a->argv[$a->argc - 1] === 'json') ? true : false);
 
@@ -93,8 +94,8 @@ function notifications_content(App $a) {
 	$startrec = ($page * $perpage) - $perpage;
 
 	// Get introductions
-	if( (($a->argc > 1) && ($a->argv[1] == 'intros')) || (($a->argc == 1))) {
-		nav_set_selected('introductions');
+	if ((($a->argc > 1) && ($a->argv[1] == 'intros')) || (($a->argc == 1))) {
+		Nav::setSelected('introductions');
 		$notif_header = t('Notifications');
 
 		$all = (($a->argc > 2) && ($a->argv[2] == 'all'));

@@ -1,6 +1,9 @@
 <?php
-
+/**
+ * @file mod/help.php
+ */
 use Friendica\App;
+use Friendica\Content\Nav;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\System;
 
@@ -23,7 +26,7 @@ if (!function_exists('load_doc_file')) {
 
 function help_content(App $a) {
 
-	nav_set_selected('help');
+	Nav::setSelected('help');
 
 	global $lang;
 

@@ -1,6 +1,9 @@
 <?php
-
+/**
+ * @file mod/community.php
+ */
 use Friendica\App;
+use Friendica\Content\Nav;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
@@ -91,7 +94,7 @@ function community_content(App $a, $update = 0)
 		$tab_tpl = get_markup_template('common_tabs.tpl');
 		$o .= replace_macros($tab_tpl, array('$tabs' => $tabs));
 
-		nav_set_selected('community');
+		Nav::setSelected('community');
 
 		// We need the editor here to be able to reshare an item.
 		if (local_user()) {
