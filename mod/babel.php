@@ -1,11 +1,11 @@
 <?php
 
-use Friendica\App;
+use Friendica\Content\Text\Markdown;
 
 require_once 'include/bbcode.php';
-require_once 'library/markdown.php';
 require_once 'include/bb2diaspora.php';
 require_once 'include/html2bbcode.php';
+require_once 'include/pgettext.php';
 
 function visible_lf($s)
 {
@@ -36,31 +36,31 @@ function babel_content()
 		$o .= visible_lf($text) . EOL . EOL;
 
 		$html = bbcode($text);
-		$o .= '<h2>' . t('bb2html (raw HTML): ') . '</h2>' . EOL . EOL;
+		$o .= '<h2>' . t('bbcode (raw HTML): ') . '</h2>' . EOL . EOL;
 		$o .= htmlspecialchars($html) . EOL . EOL;
 
 		//$html = bbcode($text);
-		$o .= '<h2>' . t('bb2html: ') . '</h2>' . EOL . EOL;
+		$o .= '<h2>' . t('bbcode: ') . '</h2>' . EOL . EOL;
 		$o .= $html . EOL . EOL;
 
 		$bbcode = html2bbcode($html);
-		$o .= '<h2>' . t('bb2html2bb: ') . '</h2>' . EOL . EOL;
+		$o .= '<h2>' . t('bbcode => html2bbcode: ') . '</h2>' . EOL . EOL;
 		$o .= visible_lf($bbcode) . EOL . EOL;
 
 		$diaspora = bb2diaspora($text);
-		$o .= '<h2>' . t('bb2md: ') . '</h2>' . EOL . EOL;
+		$o .= '<h2>' . t('bb2diaspora: ') . '</h2>' . EOL . EOL;
 		$o .= visible_lf($diaspora) . EOL . EOL;
 
-		$html = Markdown($diaspora);
-		$o .= '<h2>' . t('bb2md2html: ') . '</h2>' . EOL . EOL;
+		$html = Markdown::convert($diaspora);
+		$o .= '<h2>' . t('bb2diaspora => Markdown: ') . '</h2>' . EOL . EOL;
 		$o .= $html . EOL . EOL;
 
 		$bbcode = diaspora2bb($diaspora);
-		$o .= '<h2>' . t('bb2dia2bb: ') . '</h2>' . EOL . EOL;
+		$o .= '<h2>' . t('bb2diaspora => diaspora2bb: ') . '</h2>' . EOL . EOL;
 		$o .= visible_lf($bbcode) . EOL . EOL;
 
 		$bbcode = html2bbcode($html);
-		$o .= '<h2>' . t('bb2md2html2bb: ') . '</h2>' . EOL . EOL;
+		$o .= '<h2>' . t('bbcode => html2bbcode: ') . '</h2>' . EOL . EOL;
 		$o .= visible_lf($bbcode) . EOL . EOL;
 	}
 

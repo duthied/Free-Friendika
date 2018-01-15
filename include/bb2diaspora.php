@@ -1,14 +1,12 @@
 <?php
 
-use Friendica\App;
+use Friendica\Content\Text\Markdown;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Network\Probe;
-
 use League\HTMLToMarkdown\HtmlConverter;
 
 require_once 'include/event.php';
-require_once 'library/markdown.php';
 require_once 'include/html2bbcode.php';
 require_once 'include/bbcode.php';
 
@@ -58,7 +56,7 @@ function diaspora2bb($s) {
 	// Escaping the hash tags
 	$s = preg_replace('/\#([^\s\#])/', '&#35;$1', $s);
 
-	$s = Markdown($s);
+	$s = Markdown::convert($s);
 
 	$regexp = "/@\{(?:([^\}]+?); )?([^\} ]+)\}/";
 	$s = preg_replace_callback($regexp, 'diaspora_mention2bb', $s);
@@ -146,12 +144,16 @@ function bb2diaspora($Text, $preserve_nl = false, $fordiaspora = true) {
 
 	// Extracting multi-line code blocks before the whitespace processing/code highlighter in bbcode()
 	$codeblocks = [];
-	$Text = preg_replace_callback('#\[code(?:=([^\]]*))?\](?=\n)(.*?)\[\/code\]#is',
-		function ($matches) use (&$codeblocks) {
-			$return = '#codeblock-' . count($codeblocks) . '#';
 
-            $prefix = '````' . $matches[1] . PHP_EOL;
-			$codeblocks[] = $prefix . trim($matches[2]) . PHP_EOL . '````';
+	$Text = preg_replace_callback("#\[code(?:=([^\]]*))?\](.*?)\[\/code\]#is",
+		function ($matches) use (&$codeblocks) {
+			$return = $matches[0];
+			if (strpos($matches[2], "\n") !== false) {
+				$return = '#codeblock-' . count($codeblocks) . '#';
+
+				$prefix = '````' . $matches[1] . PHP_EOL;
+				$codeblocks[] = $prefix . trim($matches[2]) . PHP_EOL . '````';
+			}
 			return $return;
 		}
 	, $Text);

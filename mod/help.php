@@ -1,9 +1,8 @@
 <?php
 
 use Friendica\App;
+use Friendica\Content\Text\Markdown;
 use Friendica\Core\System;
-
-require_once('library/markdown.php');
 
 if (!function_exists('load_doc_file')) {
 
@@ -50,7 +49,7 @@ function help_content(App $a) {
 		$filename = "Home";
 		$a->page['title'] = t('Help');
 	} else {
-		$a->page['aside'] = Markdown($home, false);
+		$a->page['aside'] = Markdown::convert($home, false);
 	}
 
 	if (!strlen($text)) {
@@ -61,7 +60,7 @@ function help_content(App $a) {
 				));
 	}
 
-	$html = Markdown($text, false);
+	$html = Markdown::convert($text, false);
 
 	if ($filename !== "Home") {
 		// create TOC but not for home

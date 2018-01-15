@@ -25,11 +25,11 @@ REM -------------------
 REM Test to see if this is a raw pear.bat (uninstalled version)
 SET TMPTMPTMPTMPT=@includ
 SET PMTPMTPMT=%TMPTMPTMPTMPT%e_path@
-FOR %%x IN ("D:\Mes Projets\Friendica\friendica\friendica\vendor/pear-pear.php.net/PEAR") DO (if %%x=="%PMTPMTPMT%" GOTO :NOTINSTALLED)
+FOR %%x IN ("D:\Projects\Friendica\friendica\friendica\vendor/pear-pear.php.net/PEAR") DO (if %%x=="%PMTPMTPMT%" GOTO :NOTINSTALLED)
 
 REM Check PEAR global ENV, set them if they do not exist
-IF "%PHP_PEAR_INSTALL_DIR%"=="" SET "PHP_PEAR_INSTALL_DIR=D:\Mes Projets\Friendica\friendica\friendica\vendor/pear-pear.php.net/PEAR"
-IF "%PHP_PEAR_BIN_DIR%"=="" SET "PHP_PEAR_BIN_DIR=D:\Mes Projets\Friendica\friendica\friendica\vendor/pear-pear.php.net/PEAR/bin"
+IF "%PHP_PEAR_INSTALL_DIR%"=="" SET "PHP_PEAR_INSTALL_DIR=D:\Projects\Friendica\friendica\friendica\vendor/pear-pear.php.net/PEAR"
+IF "%PHP_PEAR_BIN_DIR%"=="" SET "PHP_PEAR_BIN_DIR=D:\Projects\Friendica\friendica\friendica\vendor/pear-pear.php.net/PEAR/bin"
 IF "%PHP_PEAR_PHP_BIN%"=="" SET "PHP_PEAR_PHP_BIN=/composer-php.bat"
 GOTO :INSTALLED
 

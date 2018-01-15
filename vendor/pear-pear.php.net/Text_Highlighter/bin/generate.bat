@@ -26,7 +26,7 @@ shift
 if -%1- == -- GOTO noshift
 GOTO doshift
 :noshift
-/composer-php.bat -q -d output_buffering=1 -d include_path="D:\Mes Projets\Friendica\friendica\vendor/pear-pear.php.net/Text_Highlighter" D:\Mes Projets\Friendica\friendica\vendor/pear-pear.php.net/Text_Highlighter/bin/Text/Highlighter/generate.bat %MHL_PARAMS%
+/composer-php.bat -q -d output_buffering=1 -d include_path="D:\Projects\Friendica\friendica\friendica\vendor/pear-pear.php.net/Text_Highlighter" D:\Projects\Friendica\friendica\friendica\vendor/pear-pear.php.net/Text_Highlighter/bin/Text/Highlighter/generate.bat %MHL_PARAMS%
 
 GOTO finish
 <?php

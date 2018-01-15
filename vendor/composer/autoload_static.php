@@ -7,8 +7,8 @@ namespace Composer\Autoload;
 class ComposerStaticInitFriendica
 {
     public static $files = array (
-        '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
         '8170285c807a9f24f165f37b15bc9a36' => __DIR__ . '/..' . '/defuse/php-encryption/Crypto.php',
+        '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
         '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
         'f084d01b0a599f67676cffef638aa95b' => __DIR__ . '/..' . '/smarty/smarty/libs/bootstrap.php',
     );
@@ -41,6 +41,13 @@ class ComposerStaticInitFriendica
             'Text' => 
             array (
                 0 => __DIR__ . '/..' . '/pear/text_languagedetect',
+            ),
+        ),
+        'M' => 
+        array (
+            'Michelf' => 
+            array (
+                0 => __DIR__ . '/..' . '/michelf/php-markdown',
             ),
         ),
         'H' => 
@@ -76,6 +83,7 @@ class ComposerStaticInitFriendica
         'Friendica\\Core\\NotificationsManager' => __DIR__ . '/../..' . '/src/Core/NotificationsManager.php',
         'Friendica\\Core\\PConfig' => __DIR__ . '/../..' . '/src/Core/PConfig.php',
         'Friendica\\Core\\System' => __DIR__ . '/../..' . '/src/Core/System.php',
+        'Friendica\\Core\\UserImport' => __DIR__ . '/../..' . '/src/Core/UserImport.php',
         'Friendica\\Core\\Worker' => __DIR__ . '/../..' . '/src/Core/Worker.php',
         'Friendica\\Database\\DBM' => __DIR__ . '/../..' . '/src/Database/DBM.php',
         'Friendica\\Database\\DBStructure' => __DIR__ . '/../..' . '/src/Database/DBStructure.php',
@@ -408,6 +416,9 @@ class ComposerStaticInitFriendica
         'League\\HTMLToMarkdown\\ElementInterface' => __DIR__ . '/..' . '/league/html-to-markdown/src/ElementInterface.php',
         'League\\HTMLToMarkdown\\Environment' => __DIR__ . '/..' . '/league/html-to-markdown/src/Environment.php',
         'League\\HTMLToMarkdown\\HtmlConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/HtmlConverter.php',
+        'Michelf\\Markdown' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/Markdown.php',
+        'Michelf\\MarkdownExtra' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/MarkdownExtra.php',
+        'Michelf\\MarkdownInterface' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/MarkdownInterface.php',
         'Mobile_Detect' => __DIR__ . '/..' . '/mobiledetect/mobiledetectlib/Mobile_Detect.php',
         'OS_Guess' => __DIR__ . '/..' . '/pear-pear.php.net/PEAR/OS/Guess.php',
         'PEAR' => __DIR__ . '/..' . '/pear-pear.php.net/PEAR/PEAR.php',

@@ -22,5 +22,10 @@
 	},
 	"autoload": {
  		"psr-0": { "Michelf": "" }
+	},
+	"extra": {
+		"branch-alias": {
+			"dev-lib": "1.4.x-dev"
+		}
 	}
 }
