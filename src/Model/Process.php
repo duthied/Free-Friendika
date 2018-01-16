@@ -8,6 +8,7 @@ use Friendica\BaseObject;
 use dba;
 
 require_once 'include/dba.php';
+require_once 'include/datetime.php';
 
 /**
  * @brief functions for interacting with a process
