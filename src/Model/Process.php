@@ -23,6 +23,8 @@ class Process extends BaseObject
 	 */
 	public static function insert($command, $pid = null)
 	{
+		$return = true;
+
 		dba::transaction();
 
 		if (!dba::exists('process', ['pid' => getmypid()])) {
