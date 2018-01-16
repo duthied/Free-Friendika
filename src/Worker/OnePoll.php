@@ -14,14 +14,13 @@ use dba;
 
 require_once 'include/dba.php';
 
-Class OnePoll
+class OnePoll
 {
 	public static function execute($contact_id = 0, $command = '') {
 		global $a;
 
 		require_once 'include/datetime.php';
 		require_once 'include/items.php';
-		require_once 'include/queue_fn.php';
 
 		logger('start');
 

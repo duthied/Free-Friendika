@@ -2,7 +2,6 @@
 /**
  * @file src/Worker/Delivery.php
  */
-
 namespace Friendica\Worker;
 
 use Friendica\App;
@@ -10,13 +9,13 @@ use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Queue;
 use Friendica\Model\User;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Email;
 use dba;
 
-require_once 'include/queue_fn.php';
 require_once 'include/html2plain.php';
 require_once 'include/datetime.php';
 require_once 'include/items.php';
@@ -335,8 +334,8 @@ class Delivery {
 					}
 				}
 
-				if (!was_recently_delayed($contact['id'])) {
-					$deliver_status = DFRN::deliver($owner,$contact,$atom);
+				if (!Queue::wasDelayed($contact['id'])) {
+					$deliver_status = DFRN::deliver($owner, $contact, $atom);
 				} else {
 					$deliver_status = (-1);
 				}
@@ -345,7 +344,7 @@ class Delivery {
 
 				if ($deliver_status < 0) {
 					logger('notifier: delivery failed: queuing message');
-					add_to_queue($contact['id'],NETWORK_DFRN,$atom);
+					Queue::add($contact['id'], NETWORK_DFRN, $atom);
 
 					// The message could not be delivered. We mark the contact as "dead"
 					Contact::markForArchival($contact);
