@@ -72,7 +72,8 @@ class Item
 	 *
 	 * @param integer $itemid Item ID that should be added
 	 */
-	public static function addShadow($itemid) {
+	public static function addShadow($itemid)
+	{
 		$fields = ['uid', 'wall', 'private', 'moderated', 'visible', 'contact-id', 'deleted', 'network', 'author-id', 'owner-id'];
 		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
 		$item = dba::selectFirst('item', $fields, $condition);
@@ -154,7 +155,8 @@ class Item
 	 *
 	 * @param integer $itemid Item ID that should be added
 	 */
-	public static function addShadowPost($itemid) {
+	public static function addShadowPost($itemid)
+	{
 		$item = dba::selectFirst('item', [], ['id' => $itemid]);
 		if (!DBM::is_result($item)) {
 			return;
