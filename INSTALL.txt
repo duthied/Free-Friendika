@@ -60,7 +60,15 @@ you wish to communicate with the Diaspora network.
 	that you also copy .htaccess - as "dot" files are often hidden 
 	and aren't normally copied.
 
-3. Create an empty database and note the access details (hostname, username, 
+OR
+
+2b. Clone the friendica/friendica GitHub repository and import dependencies
+
+	git clone https://github.com/friendica/friendica [web server folder]
+	cd [web server folder]
+	php util/composer.phar install
+
+3. Create an empty database and note the access details (hostname, username,
 password, database name).
 
     - Friendica needs the permission to create and delete fields and tables in its own database.
