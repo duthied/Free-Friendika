@@ -63,6 +63,128 @@ class Item
 		return $rows;
 	}
 
+	public static function delete(array $condition, $priority = PRIORITY_HIGH)
+	{
+/*
+		// locate item to be deleted
+		$item = dba::selectFirst('item', [], $condition);
+		if (!DBM::is_result($item)) {
+			return false;
+		}
+
+		if ($item['deleted']) {
+			return false;
+		}
+
+		$owner = $item['uid'];
+
+		$contact_id = 0;
+
+		logger('delete item: ' . $item['id'], LOGGER_DEBUG);
+
+		// clean up categories and tags so they don't end up as orphans
+
+		$matches = false;
+		$cnt = preg_match_all('/<(.*?)>/', $item['file'], $matches, PREG_SET_ORDER);
+		if ($cnt) {
+			foreach ($matches as $mtch) {
+				file_tag_unsave_file($item['uid'], $item['id'], $mtch[1],true);
+			}
+		}
+
+		$matches = false;
+
+		$cnt = preg_match_all('/\[(.*?)\]/', $item['file'], $matches, PREG_SET_ORDER);
+		if ($cnt) {
+			foreach ($matches as $mtch) {
+				file_tag_unsave_file($item['uid'], $item['id'], $mtch[1],false);
+			}
+		}
+
+		//*
+		// * If item is a link to a photo resource, nuke all the associated photos
+		// * (visitors will not have photo resources)
+		// * This only applies to photos uploaded from the photos page. Photos inserted into a post do not
+		// * generate a resource-id and therefore aren't intimately linked to the item.
+		// *
+		if (strlen($item['resource-id'])) {
+			dba::delete('photo', ['resource-id' => $item['resource-id'], 'uid' => $item['uid']]);
+		}
+
+		// If item is a link to an event, nuke the event record.
+		if (intval($item['event-id'])) {
+			dba::delete('event', ['id' => $item['event-id'], 'uid' => $item['uid']]);
+		}
+
+		// If item has attachments, drop them
+		foreach (explode(", ", $item['attach']) as $attach) {
+			preg_match("|attach/(\d+)|", $attach, $matches);
+			dba::delete('attach', ['id' => $matches[1], 'uid' => $item['uid']]);
+		}
+
+		// Set the item to "deleted"
+		// Don't delete it here, since we have to send delete messages
+		dba::update('item', ['deleted' => true, 'title' => '', 'body' => '',
+					'edited' => datetime_convert(), 'changed' => datetime_convert()],
+				['id' => $item['id']]);
+
+		create_tags_from_item($item['id']);
+		Term::createFromItem($item['id']);
+		delete_thread($item['id'], $item['parent-uri']);
+
+		// Creating list of parents
+		$r = q("SELECT `id` FROM `item` WHERE `parent` = %d AND `uid` = %d",
+			intval($item['id']),
+			intval($item['uid'])
+		);
+
+		$parentid = "";
+
+		foreach ($r as $row) {
+			if ($parentid != "") {
+				$parentid .= ", ";
+			}
+
+			$parentid .= $row["id"];
+		}
+
+		// Now delete them
+		if ($parentid != "") {
+			q("DELETE FROM `sign` WHERE `iid` IN (%s)", dbesc($parentid));
+		}
+
+		// If it's the parent of a comment thread, kill all the kids
+		if ($item['uri'] == $item['parent-uri']) {
+			dba::update('item', ['deleted' => true, 'title' => '', 'body' => '',
+					'edited' => datetime_convert(), 'changed' => datetime_convert()],
+				['parent-uri' => $item['parent-uri'], 'uid' => $item['uid']]);
+
+			create_tags_from_itemuri($item['parent-uri'], $item['uid']);
+			Term::createFromItemURI($item['parent-uri'], $item['uid']);
+			delete_thread_uri($item['parent-uri'], $item['uid']);
+			// ignore the result
+		} else {
+			// ensure that last-child is set in case the comment that had it just got wiped.
+			dba::update('item', ['last-child' => false, 'changed' => datetime_convert()],
+					['parent-uri' => $item['parent-uri'], 'uid' => $item['uid']]);
+
+			// who is the last child now?
+			$r = q("SELECT `id` FROM `item` WHERE `parent-uri` = '%s' AND `type` != 'activity' AND `deleted` = 0 AND `uid` = %d ORDER BY `edited` DESC LIMIT 1",
+				dbesc($item['parent-uri']),
+				intval($item['uid'])
+			);
+			if (DBM::is_result($r)) {
+				dba::update('item', ['last-child' => true], ['id' => $r[0]['id']]);
+			}
+		}
+
+		// send the notification upstream/downstream
+		Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", "drop", intval($item['id']));
+
+		return true;
+*/
+	}
+
 	/**
 	 * @brief Add a shadow entry for a given item id that is a thread starter
 	 *
