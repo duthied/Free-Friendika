@@ -20,6 +20,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\Profile;
+use Friendica\Model\Queue;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
@@ -32,7 +33,6 @@ require_once 'include/dba.php';
 require_once 'include/items.php';
 require_once 'include/bb2diaspora.php';
 require_once 'include/datetime.php';
-require_once 'include/queue_fn.php';
 
 /**
  * @brief This class contain functions to create and send Diaspora XML files
@@ -3224,7 +3224,7 @@ class Diaspora
 
 		logger("transmit: ".$logid."-".$guid." ".$dest_url);
 
-		if (!$queue_run && was_recently_delayed($contact["id"])) {
+		if (!$queue_run && Queue::wasDelayed($contact["id"])) {
 			$return_code = 0;
 		} else {
 			if (!intval(Config::get("system", "diaspora_test"))) {
@@ -3254,7 +3254,7 @@ class Diaspora
 				logger("add_to_queue ignored - identical item already in queue");
 			} else {
 				// queue message for redelivery
-				add_to_queue($contact["id"], NETWORK_DIASPORA, $envelope, $public_batch);
+				Queue::add($contact["id"], NETWORK_DIASPORA, $envelope, $public_batch);
 
 				// The message could not be delivered. We mark the contact as "dead"
 				Contact::markForArchival($contact);
@@ -3311,7 +3311,7 @@ class Diaspora
 		$envelope = self::buildMessage($msg, $owner, $contact, $owner['uprvkey'], $contact['pubkey'], $public_batch);
 
 		if ($spool) {
-			add_to_queue($contact['id'], NETWORK_DIASPORA, $envelope, $public_batch);
+			Queue::add($contact['id'], NETWORK_DIASPORA, $envelope, $public_batch);
 			return true;
 		} else {
 			$return_code = self::transmit($owner, $contact, $envelope, $public_batch, false, $guid);

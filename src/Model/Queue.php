@@ -13,13 +13,19 @@ require_once 'include/datetime.php';
 
 class Queue
 {
-	function update_queue_time($id)
+	/**
+	 * @param string $id id
+	 */
+	public static function updateTime($id)
 	{
 		logger('queue: requeue item ' . $id);
 		dba::update('queue', ['last' => datetime_convert()], ['id' => $id]);
 	}
 	
-	function remove_queue_item($id)
+	/**
+	 * @param string $id id
+	 */
+	public static function removeItem($id)
 	{
 		logger('queue: remove queue item ' . $id);
 		dba::delete('queue', ['id' => $id]);
@@ -32,7 +38,7 @@ class Queue
 	 *
 	 * @return bool The communication with this contact has currently problems
 	 */
-	function was_recently_delayed($cid)
+	public static function wasDelayed($cid)
 	{
 		// Are there queue entries that were recently added?
 		$r = q("SELECT `id` FROM `queue` WHERE `cid` = %d
@@ -54,8 +60,13 @@ class Queue
 		return $was_delayed;
 	}
 	
-	
-	function add_to_queue($cid, $network, $msg, $batch = false)
+	/**
+	 * @param string  $cid     cid
+	 * @param string  $network network
+	 * @param string  $msg     message
+	 * @param boolean $batch   batch, default false
+	 */
+	public static function add($cid, $network, $msg, $batch = false)
 	{
 	
 		$max_queue = Config::get('system', 'max_contact_queue');
@@ -72,6 +83,7 @@ class Queue
 			WHERE `queue`.`cid` = %d AND `contact`.`self` = 0 ",
 			intval($cid)
 		);
+
 		if (DBM::is_result($r)) {
 			if ($batch &&  ($r[0]['total'] > $batch_queue)) {
 				logger('add_to_queue: too many queued items for batch server ' . $cid . ' - discarding message');
