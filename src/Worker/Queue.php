@@ -8,7 +8,7 @@ use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Model\Queue;
+use Friendica\Model\Queue as QueueModel;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\PortableContact;
@@ -75,7 +75,7 @@ class Queue
 
 		$contact = dba::selectFirst('contact', [], ['id' => $q_item['cid']]);
 		if (!DBM::is_result($contact)) {
-			Queue::removeItem($q_item['id']);
+			QueueModel::removeItem($q_item['id']);
 			return;
 		}
 
@@ -83,7 +83,7 @@ class Queue
 
 		if (!is_null($dead) && $dead) {
 			logger('queue: skipping known dead url: ' . $contact['notify']);
-			Queue::updateTime($q_item['id']);
+			QueueModel::updateTime($q_item['id']);
 			return;
 		}
 
@@ -101,14 +101,14 @@ class Queue
 
 			if (!is_null($vital) && !$vital) {
 				logger('queue: skipping dead server: ' . $server);
-				Queue::updateTime($q_item['id']);
+				QueueModel::updateTime($q_item['id']);
 				return;
 			}
 		}
 
 		$user = dba::selectFirst('user', [], ['uid' => $contact['uid']]);
 		if (!DBM::is_result($user)) {
-			Queue::removeItem($q_item['id']);
+			QueueModel::removeItem($q_item['id']);
 			return;
 		}
 
@@ -124,10 +124,10 @@ class Queue
 				$deliver_status = DFRN::deliver($owner, $contact, $data);
 
 				if ($deliver_status == (-1)) {
-					Queue::updateTime($q_item['id']);
+					QueueModel::updateTime($q_item['id']);
 					Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_QUARTER_HOUR);
 				} else {
-					Queue::removeItem($q_item['id']);
+					QueueModel::removeItem($q_item['id']);
 				}
 				break;
 			case NETWORK_OSTATUS:
@@ -136,10 +136,10 @@ class Queue
 					$deliver_status = Salmon::slapper($owner, $contact['notify'], $data);
 
 					if ($deliver_status == (-1)) {
-						Queue::updateTime($q_item['id']);
+						QueueModel::updateTime($q_item['id']);
 						Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_QUARTER_HOUR);
 					} else {
-						Queue::removeItem($q_item['id']);
+						QueueModel::removeItem($q_item['id']);
 					}
 				}
 				break;
@@ -149,10 +149,10 @@ class Queue
 					$deliver_status = Diaspora::transmit($owner, $contact, $data, $public, true);
 
 					if ($deliver_status == (-1)) {
-						Queue::updateTime($q_item['id']);
+						QueueModel::updateTime($q_item['id']);
 						Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_QUARTER_HOUR);
 					} else {
-						Queue::removeItem($q_item['id']);
+						QueueModel::removeItem($q_item['id']);
 					}
 				}
 				break;
@@ -162,9 +162,9 @@ class Queue
 				call_hooks('queue_deliver', $params);
 
 				if ($params['result']) {
-					Queue::removeItem($q_item['id']);
+					QueueModel::removeItem($q_item['id']);
 				} else {
-					Queue::updateTime($q_item['id']);
+					QueueModel::updateTime($q_item['id']);
 				}
 				break;
 		}
