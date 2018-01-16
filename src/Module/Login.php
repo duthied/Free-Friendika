@@ -6,6 +6,7 @@ use Friendica\BaseModule;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Model\User;
+use LightOpenID;
 use dba;
 
 require_once 'boot.php';
