@@ -65,7 +65,7 @@ class Login extends BaseModule
 			// Otherwise it's probably an openid.
 			try {
 				require_once 'library/openid.php';
-				$openid = new LightOpenID;
+				$openid = new \LightOpenID;
 				$openid->identity = $openid_url;
 				$_SESSION['openid'] = $openid_url;
 				$_SESSION['remember'] = $_POST['remember'];
