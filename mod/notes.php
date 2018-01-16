@@ -3,6 +3,7 @@
  * @file mod/notes.php
  */
 use Friendica\App;
+use Friendica\Content\Nav;
 use Friendica\Database\DBM;
 use Friendica\Model\Profile;
 
@@ -16,7 +17,7 @@ function notes_init(App $a) {
 
 	$which = $a->user['nickname'];
 
-	nav_set_selected('home');
+	Nav::setSelected('home');
 
 	//Profile::load($a, $which, $profile);
 

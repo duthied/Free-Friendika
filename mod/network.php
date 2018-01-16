@@ -5,6 +5,7 @@
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\ForumManager;
+use Friendica\Content\Nav;
 use Friendica\Content\Widget;
 use Friendica\Core\System;
 use Friendica\Core\Config;
@@ -440,7 +441,7 @@ function networkFlatView(App $a, $update = 0) {
 		$tabs = network_tabs($a);
 		$o .= $tabs;
 
-		nav_set_selected('network');
+		Nav::setSelected('network');
 
 		$x = [
 			'is_owner' => true,
@@ -575,7 +576,7 @@ function networkThreadedView(App $a, $update = 0) {
 			}
 		}
 
-		nav_set_selected('network');
+		Nav::setSelected('network');
 
 		$content = "";
 

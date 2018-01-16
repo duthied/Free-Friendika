@@ -4,6 +4,7 @@
  */
 use Friendica\App;
 use Friendica\Content\ContactSelector;
+use Friendica\Content\Nav;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
@@ -15,7 +16,7 @@ function viewcontacts_init(App $a) {
 		return;
 	}
 
-	nav_set_selected('home');
+	Nav::setSelected('home');
 
 	if($a->argc > 1) {
 		$nick = $a->argv[1];

@@ -10,6 +10,7 @@
 
 use Friendica\App;
 use Friendica\BaseObject;
+use Friendica\Content\Nav;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
@@ -192,7 +193,7 @@ if ($install && $a->module!="view") {
 	check_plugins($a);
 }
 
-nav_set_selected('nothing');
+Nav::setSelected('nothing');
 
 //Don't populate apps_menu if apps are private
 $privateapps = Config::get('config', 'private_addons');
@@ -426,7 +427,7 @@ call_hooks('page_end', $a->page['content']);
  * Add the navigation (menu) template
  */
 if ($a->module != 'install' && $a->module != 'maintenance') {
-	nav($a);
+	Nav::build($a);
 }
 
 /*

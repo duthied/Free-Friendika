@@ -7,6 +7,7 @@
  */
 use Friendica\App;
 use Friendica\Content\Feature;
+use Friendica\Content\Nav;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -27,7 +28,7 @@ function cal_init(App $a)
 		return;
 	}
 
-	nav_set_selected('events');
+	Nav::setSelected('events');
 
 	if ($a->argc > 1) {
 		$nick = $a->argv[1];
@@ -74,7 +75,7 @@ function cal_init(App $a)
 
 function cal_content(App $a)
 {
-	nav_set_selected('events');
+	Nav::setSelected('events');
 
 	// get the translation strings for the callendar
 	$i18n = get_event_strings();

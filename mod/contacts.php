@@ -4,6 +4,7 @@
  */
 use Friendica\App;
 use Friendica\Content\ContactSelector;
+use Friendica\Content\Nav;
 use Friendica\Content\Widget;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -369,7 +370,7 @@ function contacts_content(App $a)
 {
 	$sort_type = 0;
 	$o = '';
-	nav_set_selected('contacts');
+	Nav::setSelected('contacts');
 
 	if (!local_user()) {
 		notice(t('Permission denied.') . EOL);
