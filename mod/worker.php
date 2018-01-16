@@ -29,7 +29,7 @@ function worker_init($a){
 		return;
 	}
 
-	$a->start_process();
+	Worker::startProcess();
 
 	logger("Front end worker started: ".getmypid());
 
@@ -50,7 +50,7 @@ function worker_init($a){
 
 	Worker::unclaimProcess();
 
-	$a->end_process();
+	Worker::endProcess();
 
 	logger("Front end worker ended: ".getmypid());
 

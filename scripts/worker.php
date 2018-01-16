@@ -57,7 +57,7 @@ Worker::processQueue($run_cron);
 
 Worker::unclaimProcess();
 
-$a->end_process();
+Worker::endProcess();
 
 killme();
 

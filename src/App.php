@@ -2,20 +2,17 @@
 
 namespace Friendica;
 
-use Friendica\Core\System;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
-use Friendica\Database\DBM;
-
-use dba;
+use Friendica\Core\System;
 
 use Detection\MobileDetect;
 
 use Exception;
 
 require_once 'boot.php';
-require_once 'include/dba.php';
+require_once 'include/text.php';
 
 /**
  *
@@ -693,49 +690,6 @@ class App {
 		}
 
 		$this->callstack[$value][$callstack] += (float) $duration;
-	}
-
-	/**
-	 * @brief Log active processes into the "process" table
-	 */
-	function start_process() {
-		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
-
-		$command = basename($trace[0]['file']);
-
-		$this->remove_inactive_processes();
-
-		dba::transaction();
-
-		$r = q('SELECT `pid` FROM `process` WHERE `pid` = %d', intval(getmypid()));
-		if (!DBM::is_result($r)) {
-			dba::insert('process', ['pid' => getmypid(), 'command' => $command, 'created' => datetime_convert()]);
-		}
-		dba::commit();
-	}
-
-	/**
-	 * @brief Remove inactive processes
-	 */
-	function remove_inactive_processes() {
-		dba::transaction();
-
-		$r = q('SELECT `pid` FROM `process`');
-		if (DBM::is_result($r)) {
-			foreach ($r AS $process) {
-				if (!posix_kill($process['pid'], 0)) {
-					dba::delete('process', ['pid' => $process['pid']]);
-				}
-			}
-		}
-		dba::commit();
-	}
-
-	/**
-	 * @brief Remove the active process from the "process" table
-	 */
-	function end_process() {
-		dba::delete('process', ['pid' => getmypid()]);
 	}
 
 	function get_useragent() {
