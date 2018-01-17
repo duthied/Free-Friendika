@@ -31,7 +31,7 @@ function home_content(App $a) {
 		unset($_SESSION['mobile-theme']);
 	}
 
-	$customhome = False;
+	$customhome = false;
 	$defaultheader = '<h1>'.((x($a->config,'sitename')) ? sprintf(t("Welcome to %s"), $a->config['sitename']) : "").'</h1>';
 
 	$homefilepath = $a->basepath . "/home.html";
