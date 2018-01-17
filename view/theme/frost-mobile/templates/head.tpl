@@ -5,7 +5,7 @@
 <meta name="generator" content="{{$generator}}" />
 <link rel="stylesheet" href="{{$baseurl}}/library/jgrowl/jquery.jgrowl.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="{{$baseurl}}/library/datetimepicker/jquery.datetimepicker.css" type="text/css" media="screen" />
-<script type="text/javascript" src="{{$baseurl}}/js/jquery.js"></script>
+<script type="text/javascript" src="{{$baseurl}}/vendor/asset/jquery/dist/jquery.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="{{$stylesheet}}" media="all" />
 
