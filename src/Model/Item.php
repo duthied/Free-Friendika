@@ -119,7 +119,7 @@ class Item
 		}
 
 		// When it is our item we don't delete it here, since we have to send delete messages
-		if ($item['origin']) {
+		if ($item['origin'] || $item['wall']) {
 			// Set the item to "deleted"
 			dba::update('item', ['deleted' => true, 'title' => '', 'body' => '',
 						'edited' => datetime_convert(), 'changed' => datetime_convert()],
