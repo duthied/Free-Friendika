@@ -26,7 +26,7 @@ Requirements
 ---
 
 * Apache with mod-rewrite enabled and "Options All" so you can use a local .htaccess file
-* PHP 5.4+.
+* PHP 5.6+ (PHP 7 is recommended for performance)
 * PHP *command line* access with register_argc_argv set to true in the php.ini file
 * Curl, GD, PDO, MySQLi, hash, xml and OpenSSL extensions
 * some form of email server or email gateway such that PHP mail() works

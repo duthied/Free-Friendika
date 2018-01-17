@@ -13,6 +13,8 @@
 		"issues": "https://github.com/friendica/friendica/issues"
 	},
 	"require": {
+		"php": ">5.6",
+		"ext-xml": "*",
 		"ezyang/htmlpurifier": "~4.7.0",
 		"mobiledetect/mobiledetectlib": "2.8.*",
 		"league/html-to-markdown": "~4.4.1",

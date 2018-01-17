@@ -22,7 +22,7 @@ Wir planen, diese Einschränkung in einer zukünftigen Version zu beheben.
 
 1. Voraussetzungen
     - Apache mit einer aktiverten mod-rewrite-Funktion und dem Eintrag "Options All", so dass du die lokale .htaccess-Datei nutzen kannst
-    - PHP  5.4+. Je neuer, desto besser.
+    - PHP  5.6+. Je neuer, desto besser.
         - PHP *Kommandozeilen*-Zugang mit register_argc_argv auf "true" gesetzt in der php.ini-Datei
         - Curl, GD, PDO, MySQLi, xml und OpenSSL-Erweiterung
         - etwas in der Art eines Email-Servers oder eines Gateways wie PHP mail()
