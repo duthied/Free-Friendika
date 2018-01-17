@@ -14,6 +14,7 @@ use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\Term;
 use Friendica\Model\User;
+use Friendica\Model\Item;
 use Friendica\Object\Image;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
@@ -1124,9 +1125,9 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	}
 
 	if ($arr['parent-uri'] === $arr['uri']) {
-		add_shadow_thread($current_post);
+		Item::addShadow($current_post);
 	} else {
-		add_shadow_entry($current_post);
+		Item::addShadowPost($current_post);
 	}
 
 	check_user_notification($current_post);
