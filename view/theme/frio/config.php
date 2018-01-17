@@ -40,6 +40,7 @@ function theme_admin_post(App $a) {
 		Config::set('frio', 'background_image', $_POST["frio_background_image"]);
 		Config::set('frio', 'bg_image_option',  $_POST["frio_bg_image_option"]);
 		Config::set('frio', 'login_bg_image',   $_POST["frio_login_bg_image"]);
+		Config::set('frio', 'login_bg_color',   $_POST["frio_login_bg_color"]);
 		Config::set('frio', 'css_modified',     time());
 	}
 }
@@ -77,6 +78,7 @@ function theme_admin(App $a) {
 	$arr["background_image"] = Config::get('frio', 'background_image');
 	$arr["bg_image_option"]  = Config::get('frio', 'bg_image_option');
 	$arr["login_bg_image"]   = Config::get('frio', 'login_bg_image');
+	$arr["login_bg_color"]	 = Config::get('frio', 'login_bg_color');
 
 	return frio_form($arr);
 }
@@ -123,6 +125,10 @@ function frio_form($arr) {
 	if ( array_key_exists("login_bg_image", $arr ) &&  !array_key_exists("login_bg_image", $disable ) ) {
 		$ctx['$login_bg_image']  = ['frio_login_bg_image', t('Login page background image'), $arr['login_bg_image'], $background_image_help];
 	}
+	if ( array_key_exists("login_bg_color", $arr ) &&  !array_key_exists("login_bg_color", $disable ) ) {
+		$ctx['$login_bg_color']  = ['frio_login_bg_color', t('Login page background color'), $arr['login_bg_color'], t('Leave background image and color empty for theme defaults')];
+	}
+
 
 	$o .= replace_macros($t, $ctx);
 

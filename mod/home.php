@@ -34,8 +34,8 @@ function home_content(App $a) {
 	$customhome = False;
 	$defaultheader = '<h1>'.((x($a->config,'sitename')) ? sprintf(t("Welcome to %s"), $a->config['sitename']) : "").'</h1>';
 
-	$homefilepath = $a->basepath . '/home.html';
-	$cssfilepath = $a->basepath . '/home.css';
+	$homefilepath = $a->basepath . "/home.html";
+	$cssfilepath = $a->basepath . "/home.css";
 	if (file_exists($homefilepath)) {
 		$customhome = $homefilepath;
 		if (file_exists($cssfilepath)) {
