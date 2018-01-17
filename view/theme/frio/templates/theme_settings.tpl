@@ -31,10 +31,11 @@
 </div>
 
 {{if $login_bg_image}}{{include file="field_fileinput.tpl" field=$login_bg_image}}{{/if}}
+{{if $login_bg_color}}{{include file="field_colorinput.tpl" field=$login_bg_color}}{{/if}}
 
 <script type="text/javascript">
 	$(document).ready(function() {
-		$("#frio_nav_bg, #frio_nav_icon_color, #frio_background_color, #frio_link_color").colorpicker({format: 'hex', align: 'left'});
+		$("#frio_nav_bg, #frio_nav_icon_color, #frio_background_color, #frio_link_color, #frio_login_bg_color").colorpicker({format: 'hex', align: 'left'});
 
 		// show image options when user user starts to type the address of the image
 		$("#id_frio_background_image").keyup(function(){

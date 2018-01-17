@@ -3008,8 +3008,17 @@ section .profile-match-wrapper {
 /** 
  * Login page
  */
+#login-submit-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+#lost-password-link { flex-grow: 2; }
+
 .mod-home.is-not-singleuser,
 .mod-login {
+    background-color: $login_bg_color;
     background-image: linear-gradient(to right, rgba(0,0,0, 0.7) , rgba(0,0,0, 0.4)), url($login_bg_image);
     background-size: cover;
     background-attachment: fixed;
@@ -3024,25 +3033,45 @@ section .profile-match-wrapper {
     box-shadow: unset;
     border: 0
 }
-.mod-home.is-not-singleuser #content > h1,
-.mod-login #content > h1 {
+.mod-home.is-not-singleuser .login-content,
+.mod-login .login-content {
     color: #eee;
+    margin-top: 2.5%;
 }
 
-@media screen and (min-width: 700px) {
-    .mod-home.is-not-singleuser #content > #login-form,
-    .mod-login #content > #login-form {    
-        width: 50%;
+.mod-home.is-not-singleuser .login-form > #login-form label,
+.mod-login #content #login-form label {
+    color: #eee;  
+}
+
+	
+.mod-home.is-not-singleuser .login-panel-content,
+.mod-login .login-panel-content { 
+    background-color: rgba(255,255,255,.85);
+}
+
+/* Medium devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+    .mod-home.is-not-singleuser #content,
+    .mod-login #content {
+        margin-top: 100px!important;
+    }
+
+    .mod-home.is-not-singleuser .login-form > #login-form,
+    .mod-login #content #login-form {    
         background-color: #fff;
-        color: #444;
         padding: 1em;
-        float: right;
         position: relative;
         margin-top: 4em;
     }
 
-    .mod-home.is-not-singleuser #content > #login-form:before,
-    .mod-login #content > #login-form:before {
+    .mod-home.is-not-singleuser .login-form > #login-form label,
+    .mod-login #content #login-form label {
+        color: #444;  
+    }
+
+    .mod-home.is-not-singleuser .login-form > #login-form::before,
+    .mod-login #content #login-form::before {
         display: block;
         position: absolute;
         content: " ";
@@ -3054,8 +3083,8 @@ section .profile-match-wrapper {
         z-index: -1;
     }
 
-    .mod-home.is-not-singleuser #content > #login-form:after,
-    .mod-login #content > #login-form:after {
+    .mod-home.is-not-singleuser .login-form > #login-form::after,
+    .mod-login #content #login-form::after {
         display: block;
         position: absolute;
         content: " ";
@@ -3066,6 +3095,7 @@ section .profile-match-wrapper {
         left: 10%;
         z-index: -1;
     }
+
 }
 
 

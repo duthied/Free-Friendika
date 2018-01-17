@@ -47,6 +47,7 @@ if ($a->module !== 'install') {
 		$background_image = Config::get("frio", "background_image");
 		$bg_image_option  = Config::get("frio", "bg_image_option");
 		$login_bg_image   = Config::get("frio", "login_bg_image");
+		$login_bg_color   = Config::get("frio", "login_bg_color");
 		$modified         = Config::get("frio", "css_modified");
 
 		// There is maybe the case that the user did never modify the theme settings.
@@ -101,8 +102,15 @@ $link_color       = (empty($link_color)       ? "#6fdbe8"      : $link_color);
 $bgcolor          = (empty($bgcolor)          ? "#ededed"      : $bgcolor);
 // The background image can not be empty. So we use a dummy jpg if no image was set.
 $background_image = (empty($background_image) ? 'img/none.jpg' : $background_image);
-$login_bg_image   = (empty($login_bg_image)   ? 'img/login_bg.jpg' : $login_bg_image);
 $modified         = (empty($modified)         ? time()         :$modified);
+
+
+// set a default login bg image if no custom image and no custom bg color are set.
+if (empty($login_bg_image) && empty($login_bg_color)) {
+	$login_bg_image   = (empty($login_bg_image)   ? 'img/login_bg.jpg' : $login_bg_image);
+}
+$login_bg_color = (empty($login_bg_color) ? "#ededed" : $login_bg_color);
+
 
 $contentbg_transp = ((isset($contentbg_transp) && $contentbg_transp != "") ? $contentbg_transp : 100);
 
@@ -181,6 +189,7 @@ $options =  [
 	'$background_image'            => $background_image,
 	'$background_size_img'         => $background_size_img,
 	'$login_bg_image'              => $login_bg_image,
+	'$login_bg_color'              => $login_bg_color
 ];
 
 $css_tpl = file_get_contents('view/theme/frio/css/style.css');
