@@ -133,7 +133,7 @@
 				last_popup_button = null;
 			}
 		}
-		$('a[rel^=#]').click(function(e){
+		$('a[rel^="#"]').click(function(e){
 			e.preventDefault();
 			var parent = $(this).parent();
 			var isSelected = (last_popup_button && parent.attr('id') == last_popup_button.attr('id'));
