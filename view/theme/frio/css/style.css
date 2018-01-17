@@ -3008,6 +3008,14 @@ section .profile-match-wrapper {
 /** 
  * Login page
  */
+#login-submit-wrapper {
+	display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+#lost-password-link { flex-grow: 2; }
+
 .mod-home.is-not-singleuser,
 .mod-login {
     background-image: linear-gradient(to right, rgba(0,0,0, 0.7) , rgba(0,0,0, 0.4)), url($login_bg_image);
@@ -3030,10 +3038,11 @@ section .profile-match-wrapper {
 	margin-top: 2.5%;
 }
 
-.mod-home.is-not-singleuser .login-form > #login-form,
-.mod-login .login-form > #login-form {
+.mod-home.is-not-singleuser .login-form > #login-form label,
+.mod-login #content #login-form label {
 	color: #eee;  
 }
+
 	
 .mod-home.is-not-singleuser .login-panel-content,
 .mod-login .login-panel-content { 
@@ -3046,20 +3055,22 @@ section .profile-match-wrapper {
     .mod-login #content {
 		margin-top: 100px!important;
 	}    
-	
-	
 
 	.mod-home.is-not-singleuser .login-form > #login-form,
-    .mod-login .login-form > #login-form {    
+    .mod-login #content #login-form {    
         background-color: #fff;
-        color: #444;
         padding: 1em;
         position: relative;
         margin-top: 4em;
     }
 
-    .mod-home.is-not-singleuser .login-form > #login-form:before,
-    .mod-login .login-form > #login-form:before {
+	.mod-home.is-not-singleuser .login-form > #login-form label,
+	.mod-login #content #login-form label {
+		color: #444;  
+	}
+
+    .mod-home.is-not-singleuser .login-form > #login-form::before,
+    .mod-login #content #login-form::before {
         display: block;
         position: absolute;
         content: " ";
@@ -3071,8 +3082,8 @@ section .profile-match-wrapper {
         z-index: -1;
     }
 
-    .mod-home.is-not-singleuser .login-form > #login-form:after,
-    .mod-login .login-form > #login-form:after {
+    .mod-home.is-not-singleuser .login-form > #login-form::after,
+    .mod-login #content #login-form::after {
         display: block;
         position: absolute;
         content: " ";

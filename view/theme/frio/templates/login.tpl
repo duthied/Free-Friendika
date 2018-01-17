@@ -18,15 +18,15 @@
 
 		{{include file="field_checkbox.tpl" field=$lremember}}
 
-		<div id="login-extra-links" class="list-unstyled">
-			{{if $register}}<a href="register" title="{{$register.title|escape:'html'}}" id="register-link">{{$register.desc}}</a>{{/if}}
+		<div id="login-submit-wrapper">
 			<a href="lostpass" title="{{$lostpass|escape:'html'}}" id="lost-password-link">{{$lostlink}}</a>
+
+			<div class="pull-right" >
+				{{if $register}}<a href="register" title="{{$register.title|escape:'html'}}" id="register-link" class="btn btn-default">{{$register.desc}}</a>{{/if}}
+				<button type="submit" name="submit" id="login-submit-button" class="btn btn-primary" value="{{$login|escape:'html'}}">{{$login|escape:'html'}}</button>
+			</div>
 		</div>
 
-		<div id="login-submit-wrapper" class="pull-right" >
-			<button type="submit" name="submit" id="login-submit-button" class="btn btn-primary" value="{{$login|escape:'html'}}">{{$login|escape:'html'}}</button>
-		</div>
-		<div class="clear"></div>
 
 		{{foreach $hiddens as $k=>$v}}
 			<input type="hidden" name="{{$k}}" value="{{$v|escape:'html'}}" />
