@@ -43,9 +43,11 @@ Installation procedure
 Unpack the Friendica files into the root of your web server document area.
 If you are able to do so, we recommend using git to clone the source repository rather than to use a packaged tar or zip file.
 This makes the software much easier to update.
-The Linux command to clone the repository into a directory "mywebsite" would be
+The Linux commands to clone the repository into a directory "mywebsite" would be
 
     git clone https://github.com/friendica/friendica.git mywebsite
+    cd mywebsite
+    util/composer.phar install
 
 Make sure the folder *view/smarty3* exists and is writable by the webserver user
 
@@ -123,6 +125,7 @@ You can get the latest changes at any time with
 
     cd mywebsite
     git pull
+    util/composer.phar install
 
 The default branch to use it the ``master`` branch, which is the stable version of Friendica.
 If you want to use and test bleeding edge code please checkout the ``develop`` branch.
@@ -136,7 +139,7 @@ The addon tree has to be updated separately like so:
 ###Set up a backup plan
 Bad things will happen.
 Let there be a hardware failure, a corrupted database or whatever you can think of.
-So once the installation of your Friendica node is done, you should make yoursef a backup plan.
+So once the installation of your Friendica node is done, you should make yourself a backup plan.
 
 The most important file is the `.htconfig.php` file in the base directory.
 As it stores all your data, you should also have a recent dump of your Friendica database at hand, should you have to recover your node.
