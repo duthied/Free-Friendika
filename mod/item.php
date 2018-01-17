@@ -731,7 +731,7 @@ function item_post(App $a) {
 	$datarray['object']        = $object;
 
 	/*
-	 * These fields are for the convenience of plugins...
+	 * These fields are for the convenience of addons...
 	 * 'self' if true indicates the owner is posting on their own wall
 	 * If parent is 0 it is a top-level post.
 	 */
@@ -776,7 +776,7 @@ function item_post(App $a) {
 	Addon::callHooks('post_local',$datarray);
 
 	if (x($datarray, 'cancel')) {
-		logger('mod_item: post cancelled by plugin.');
+		logger('mod_item: post cancelled by addon.');
 		if ($return_path) {
 			goaway($return_path);
 		}
