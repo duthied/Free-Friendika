@@ -64,11 +64,10 @@ class Item
 		return $rows;
 	}
 
-	public static function delete(array $condition, $priority = PRIORITY_HIGH)
+	public static function delete($item_id, $priority = PRIORITY_HIGH)
 	{
-/*
 		// locate item to be deleted
-		$item = dba::selectFirst('item', [], $condition);
+		$item = dba::selectFirst('item', [], ['id' => $item_id]);
 		if (!DBM::is_result($item)) {
 			return false;
 		}
@@ -76,10 +75,6 @@ class Item
 		if ($item['deleted']) {
 			return false;
 		}
-
-		$owner = $item['uid'];
-
-		$contact_id = 0;
 
 		logger('delete item: ' . $item['id'], LOGGER_DEBUG);
 
@@ -102,12 +97,12 @@ class Item
 			}
 		}
 
-		//*
-		// * If item is a link to a photo resource, nuke all the associated photos
-		// * (visitors will not have photo resources)
-		// * This only applies to photos uploaded from the photos page. Photos inserted into a post do not
-		// * generate a resource-id and therefore aren't intimately linked to the item.
-		// *
+		/*
+		 * If item is a link to a photo resource, nuke all the associated photos
+		 * (visitors will not have photo resources)
+		 * This only applies to photos uploaded from the photos page. Photos inserted into a post do not
+		 * generate a resource-id and therefore aren't intimately linked to the item.
+		 */
 		if (strlen($item['resource-id'])) {
 			dba::delete('photo', ['resource-id' => $item['resource-id'], 'uid' => $item['uid']]);
 		}
@@ -123,51 +118,36 @@ class Item
 			dba::delete('attach', ['id' => $matches[1], 'uid' => $item['uid']]);
 		}
 
-		// Set the item to "deleted"
-		// Don't delete it here, since we have to send delete messages
-		dba::update('item', ['deleted' => true, 'title' => '', 'body' => '',
-					'edited' => datetime_convert(), 'changed' => datetime_convert()],
-				['id' => $item['id']]);
+		// When it is our item we don't delete it here, since we have to send delete messages
+		if ($item['origin']) {
+			// Set the item to "deleted"
+			dba::update('item', ['deleted' => true, 'title' => '', 'body' => '',
+						'edited' => datetime_convert(), 'changed' => datetime_convert()],
+					['id' => $item['id']]);
 
-		create_tags_from_item($item['id']);
-		Term::createFromItem($item['id']);
-		delete_thread($item['id'], $item['parent-uri']);
+			create_tags_from_item($item['id']);
+			Term::createFromItem($item['id']);
+			delete_thread($item['id'], $item['parent-uri']);
 
-		// Creating list of parents
-		$r = q("SELECT `id` FROM `item` WHERE `parent` = %d AND `uid` = %d",
-			intval($item['id']),
-			intval($item['uid'])
-		);
-
-		$parentid = "";
-
-		foreach ($r as $row) {
-			if ($parentid != "") {
-				$parentid .= ", ";
+			// If it's the parent of a comment thread, kill all the kids
+			if ($item['id'] == $item['parent']) {
+				$items = dba::select('item', ['id'], ['parent' => $item['parent']]);
+				while ($row = dba::fetch($items)) {
+					self::delete($row['id'], $priority);
+				}
 			}
 
-			$parentid .= $row["id"];
-		}
-
-		// Now delete them
-		if ($parentid != "") {
-			q("DELETE FROM `sign` WHERE `iid` IN (%s)", dbesc($parentid));
-		}
-
-		// If it's the parent of a comment thread, kill all the kids
-		if ($item['uri'] == $item['parent-uri']) {
-			dba::update('item', ['deleted' => true, 'title' => '', 'body' => '',
-					'edited' => datetime_convert(), 'changed' => datetime_convert()],
-				['parent-uri' => $item['parent-uri'], 'uid' => $item['uid']]);
-
-			create_tags_from_itemuri($item['parent-uri'], $item['uid']);
-			Term::createFromItemURI($item['parent-uri'], $item['uid']);
-			delete_thread_uri($item['parent-uri'], $item['uid']);
-			// ignore the result
+			// send the notification upstream/downstream
+			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", "drop", intval($item['id']));
 		} else {
+			// delete it immediately. All related children will be deleted as well.
+			dba::delete('item', ['id' => $item['id']]);
+		}
+
+		if ($item['id'] != $item['parent']) {
 			// ensure that last-child is set in case the comment that had it just got wiped.
 			dba::update('item', ['last-child' => false, 'changed' => datetime_convert()],
-					['parent-uri' => $item['parent-uri'], 'uid' => $item['uid']]);
+					['parent' => $item['parent']]);
 
 			// who is the last child now?
 			$r = q("SELECT `id` FROM `item` WHERE `parent-uri` = '%s' AND `type` != 'activity' AND `deleted` = 0 AND `uid` = %d ORDER BY `edited` DESC LIMIT 1",
@@ -179,11 +159,7 @@ class Item
 			}
 		}
 
-		// send the notification upstream/downstream
-		Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", "drop", intval($item['id']));
-
 		return true;
-*/
 	}
 
 	/**
