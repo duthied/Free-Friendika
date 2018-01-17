@@ -19,6 +19,7 @@ use Friendica\Model\Group;
 use Friendica\Model\Mail;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
+use Friendica\Model\Item;
 use Friendica\Network\FKOAuth1;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\BadRequestException;
@@ -2214,7 +2215,7 @@ function api_statuses_destroy($type)
 
 	$ret = api_statuses_show($type);
 
-	drop_item($id, false);
+	Item::delete($id);
 
 	return $ret;
 }
@@ -3987,7 +3988,7 @@ function api_fr_photoalbum_delete($type)
 		if (!DBM::is_result($photo_item)) {
 			throw new InternalServerErrorException("problem with deleting items occured");
 		}
-		drop_item($photo_item[0]['id'], false);
+		Item::delete($photo_item[0]['id']);
 	}
 
 	// now let's delete all photos from the album
@@ -4290,7 +4291,7 @@ function api_fr_photo_delete($type)
 		}
 		// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
 		// to the user and the contacts of the users (drop_items() do all the necessary magic to avoid orphans in database and federate deletion)
-		drop_item($photo_item[0]['id'], false);
+		Item::delete($photo_item[0]['id']);
 
 		$answer = ['result' => 'deleted', 'message' => 'photo with id `' . $photo_id . '` has been deleted from server.'];
 		return api_format_data("photo_delete", $type, ['$result' => $answer]);

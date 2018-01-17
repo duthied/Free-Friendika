@@ -64,16 +64,29 @@ class Item
 		return $rows;
 	}
 
+	/**
+	 * @brief Delete an item and notify others about it - if it was ours
+	 *
+	 * @param integer $item_id Item ID that should be delete
+	 *
+	 * @return $boolean success
+	 */
 	public static function delete($item_id, $priority = PRIORITY_HIGH)
 	{
 		// locate item to be deleted
-		$item = dba::selectFirst('item', [], ['id' => $item_id]);
+		$fields = ['id', 'uid', 'parent', 'parent-uri', 'origin', 'deleted', 'file', 'resource-id', 'event-id', 'attach'];
+		$item = dba::selectFirst('item', $fields, ['id' => $item_id]);
 		if (!DBM::is_result($item)) {
 			return false;
 		}
 
 		if ($item['deleted']) {
 			return false;
+		}
+
+		$parent = dba::selectFirst('item', ['origin'], ['id' => $item['parent']]);
+		if (!DBM::is_result($parent)) {
+			$parent = ['origin' => false];
 		}
 
 		logger('delete item: ' . $item['id'], LOGGER_DEBUG);
@@ -119,7 +132,7 @@ class Item
 		}
 
 		// When it is our item we don't delete it here, since we have to send delete messages
-		if ($item['origin'] || $item['wall']) {
+		if ($item['origin'] || $parent['origin']) {
 			// Set the item to "deleted"
 			dba::update('item', ['deleted' => true, 'title' => '', 'body' => '',
 						'edited' => datetime_convert(), 'changed' => datetime_convert()],
@@ -142,21 +155,6 @@ class Item
 		} else {
 			// delete it immediately. All related children will be deleted as well.
 			dba::delete('item', ['id' => $item['id']]);
-		}
-
-		if ($item['id'] != $item['parent']) {
-			// ensure that last-child is set in case the comment that had it just got wiped.
-			dba::update('item', ['last-child' => false, 'changed' => datetime_convert()],
-					['parent' => $item['parent']]);
-
-			// who is the last child now?
-			$r = q("SELECT `id` FROM `item` WHERE `parent-uri` = '%s' AND `type` != 'activity' AND `deleted` = 0 AND `uid` = %d ORDER BY `edited` DESC LIMIT 1",
-				dbesc($item['parent-uri']),
-				intval($item['uid'])
-			);
-			if (DBM::is_result($r)) {
-				dba::update('item', ['last-child' => true], ['id' => $r[0]['id']]);
-			}
 		}
 
 		return true;

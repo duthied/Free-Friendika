@@ -10,6 +10,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Profile;
+use Friendica\Model\Item;
 
 require_once 'include/bbcode.php';
 require_once 'include/datetime.php';
@@ -547,7 +548,7 @@ function events_content(App $a) {
 
 		// Delete only real events (no birthdays)
 		if (DBM::is_result($ev) && $ev[0]['type'] == 'event') {
-			$del = drop_item($ev[0]['itemid'], false);
+			$del = Item::delete($ev[0]['itemid']);
 		}
 
 		if ($del == 0) {
