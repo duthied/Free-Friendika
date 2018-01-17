@@ -3,7 +3,7 @@
 <base href="{{$baseurl}}/" />
 <meta name="generator" content="{{$generator}}" />
 <link rel="stylesheet" href="view/global.css" type="text/css" media="all" />
-<link rel="stylesheet" href="library/colorbox/colorbox.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="vendor/asset/jquery-colorbox/example5/colorbox.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="library/jgrowl/jquery.jgrowl.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="library/datetimepicker/jquery.datetimepicker.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="library/perfect-scrollbar/perfect-scrollbar.min.css" type="text/css" media="screen" />
@@ -35,12 +35,11 @@
 <![endif]-->
 <script type="text/javascript" src="js/modernizr.js" ></script>
 <script type="text/javascript" src="js/jquery.js" ></script>
-<!-- <script type="text/javascript" src="js/jquery-migrate.js" ></script>-->
 <script type="text/javascript" src="js/jquery-migrate.js" ></script>
 <script type="text/javascript" src="js/jquery.textinputs.js" ></script>
 <script type="text/javascript" src="library/jquery-textcomplete/jquery.textcomplete.min.js" ></script>
 <script type="text/javascript" src="js/autocomplete.js" ></script>
-<script type="text/javascript" src="library/colorbox/jquery.colorbox-min.js"></script>
+<script type="text/javascript" src="vendor/asset/jquery-colorbox/jquery.colorbox-min.js"></script>
 <script type="text/javascript" src="library/jgrowl/jquery.jgrowl_minimized.js"></script>
 <script type="text/javascript" src="library/datetimepicker/jquery.datetimepicker.js"></script>
 <script type="text/javascript" src="library/perfect-scrollbar/perfect-scrollbar.jquery.min.js" ></script>
