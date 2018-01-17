@@ -14,6 +14,7 @@ use dba;
 
 require_once 'include/tags.php';
 require_once 'include/threads.php';
+require_once 'include/items.php';
 
 class Item
 {
@@ -244,13 +245,11 @@ class Item
 
 		$item = dba::selectFirst('item', [], ['id' => $itemid]);
 
-		if (count($item) && ($item["allow_cid"] == '')  && ($item["allow_gid"] == '') &&
+		if (DBM::is_result($item) && ($item["allow_cid"] == '')  && ($item["allow_gid"] == '') &&
 			($item["deny_cid"] == '') && ($item["deny_gid"] == '')) {
 
 			if (!dba::exists('item', ['uri' => $item['uri'], 'uid' => 0])) {
 				// Preparing public shadow (removing user specific data)
-				require_once("include/items.php");
-
 				unset($item['id']);
 				$item['uid'] = 0;
 				$item['origin'] = 0;
@@ -305,8 +304,6 @@ class Item
 		}
 
 		// Preparing public shadow (removing user specific data)
-		require_once("include/items.php");
-
 		unset($item['id']);
 		$item['uid'] = 0;
 		$item['origin'] = 0;

@@ -4,11 +4,10 @@
  */
 namespace Friendica\Core;
 
-use Friendica\App;
-use Friendica\Core\System;
 use Friendica\Core\Config;
-use Friendica\Core\Worker;
+use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Process;
 use Friendica\Util\Lock;
 
 use dba;
@@ -50,7 +49,7 @@ class Worker
 		}
 
 		// We now start the process. This is done after the load check since this could increase the load.
-		$a->start_process();
+		self::startProcess();
 
 		// Kill stale processes every 5 minutes
 		$last_cleanup = Config::get('system', 'poller_last_cleaned', 0);
@@ -915,7 +914,7 @@ class Worker
 			if (self::tooMuchWorkers()) {
 				// Cleaning dead processes
 				self::killStaleWorkers();
-				get_app()->remove_inactive_processes();
+				Process::deleteInactive();
 
 				return;
 			}
@@ -1091,5 +1090,32 @@ class Worker
 		self::spawnWorker();
 
 		return true;
+	}
+
+	/**
+	 * Log active processes into the "process" table
+	 *
+	 * @brief Log active processes into the "process" table
+	 */
+	public static function startProcess()
+	{
+		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+
+		$command = basename($trace[0]['file']);
+
+		Process::deleteInactive();
+
+		Process::insert($command);
+	}
+
+	/**
+	 * Remove the active process from the "process" table
+	 *
+	 * @brief Remove the active process from the "process" table
+	 * @return bool
+	 */
+	public static function endProcess()
+	{
+		return Process::deleteByPid();
 	}
 }

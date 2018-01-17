@@ -659,7 +659,7 @@ class dba {
 	/**
 	 * @brief Fetch a single row
 	 *
-	 * @param PDOStatement|mysqli_result|mysqli_stmt $stmt statement object
+	 * @param mixed $stmt statement object
 	 * @return array current row
 	 */
 	public static function fetch($stmt) {

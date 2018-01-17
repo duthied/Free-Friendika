@@ -2,20 +2,17 @@
 
 namespace Friendica;
 
-use Friendica\Core\System;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
-use Friendica\Database\DBM;
-
-use dba;
+use Friendica\Core\System;
 
 use Detection\MobileDetect;
 
 use Exception;
 
 require_once 'boot.php';
-require_once 'include/dba.php';
+require_once 'include/text.php';
 
 /**
  *
@@ -30,8 +27,8 @@ require_once 'include/dba.php';
  * before we spit the page out.
  *
  */
-class App {
-
+class App
+{
 	public $module_loaded = false;
 	public $module_class = null;
 	public $query_string;
@@ -117,12 +114,9 @@ class App {
 	];
 	private $scheme;
 	private $hostname;
-	private $db;
 	private $curl_code;
 	private $curl_content_type;
 	private $curl_headers;
-	private $cached_profile_image;
-	private $cached_profile_picdate;
 	private static $a;
 
 	/**
@@ -130,20 +124,18 @@ class App {
 	 *
 	 * @param string $basepath Path to the app base folder
 	 */
-	function __construct($basepath) {
-
+	public function __construct($basepath)
+	{
 		global $default_timezone;
 
-		$hostname = '';
-
-		if (! static::directory_usable($basepath, false)) {
+		if (!static::directory_usable($basepath, false)) {
 			throw new Exception('Basepath ' . $basepath . ' isn\'t usable.');
 		}
 
 		$this->basepath = rtrim($basepath, DIRECTORY_SEPARATOR);
 
-		if (file_exists($this->basepath.DIRECTORY_SEPARATOR.'.htpreconfig.php')) {
-			include $this->basepath.DIRECTORY_SEPARATOR.'.htpreconfig.php';
+		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htpreconfig.php')) {
+			include $this->basepath . DIRECTORY_SEPARATOR . '.htpreconfig.php';
 		}
 
 		$this->timezone = ((x($default_timezone)) ? $default_timezone : 'UTC');
@@ -205,10 +197,6 @@ class App {
 			if (isset($path) && strlen($path) && ($path != $this->path)) {
 				$this->path = $path;
 			}
-		}
-
-		if ($hostname != '') {
-			$this->hostname = $hostname;
 		}
 
 		set_include_path(
@@ -315,18 +303,19 @@ class App {
 	 *
 	 * @return string
 	 */
-	public function get_basepath() {
+	public function get_basepath()
+	{
 		$basepath = $this->basepath;
 
-		if (! $basepath) {
+		if (!$basepath) {
 			$basepath = Config::get('system', 'basepath');
 		}
 
-		if (! $basepath && x($_SERVER, 'DOCUMENT_ROOT')) {
+		if (!$basepath && x($_SERVER, 'DOCUMENT_ROOT')) {
 			$basepath = $_SERVER['DOCUMENT_ROOT'];
 		}
 
-		if (! $basepath && x($_SERVER, 'PWD')) {
+		if (!$basepath && x($_SERVER, 'PWD')) {
 			$basepath = $_SERVER['PWD'];
 		}
 
@@ -343,7 +332,8 @@ class App {
 	 * @param string $path The path that is about to be normalized
 	 * @return string normalized path - when possible
 	 */
-	public static function realpath($path) {
+	public static function realpath($path)
+	{
 		$normalized = realpath($path);
 
 		if (!is_bool($normalized)) {
@@ -353,7 +343,8 @@ class App {
 		}
 	}
 
-	function get_scheme() {
+	public function get_scheme()
+	{
 		return $this->scheme;
 	}
 
@@ -371,7 +362,8 @@ class App {
 	 * @param bool $ssl Whether to append http or https under SSL_POLICY_SELFSIGN
 	 * @return string Friendica server base URL
 	 */
-	function get_baseurl($ssl = false) {
+	public function get_baseurl($ssl = false)
+	{
 		$scheme = $this->scheme;
 
 		if (Config::get('system', 'ssl_policy') == SSL_POLICY_FULL) {
@@ -399,14 +391,15 @@ class App {
 	/**
 	 * @brief Initializes the baseurl components
 	 *
-	 * Clears the baseurl cache to prevent inconstistencies
+	 * Clears the baseurl cache to prevent inconsistencies
 	 *
 	 * @param string $url
 	 */
-	function set_baseurl($url) {
+	public function set_baseurl($url)
+	{
 		$parsed = @parse_url($url);
 
-		if ($parsed) {
+		if (x($parsed)) {
 			$this->scheme = $parsed['scheme'];
 
 			$hostname = $parsed['host'];
@@ -417,8 +410,8 @@ class App {
 				$this->path = trim($parsed['path'], '\\/');
 			}
 
-			if (file_exists($this->basepath.DIRECTORY_SEPARATOR.'.htpreconfig.php')) {
-				include $this->basepath.DIRECTORY_SEPARATOR.'.htpreconfig.php';
+			if (file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htpreconfig.php')) {
+				include $this->basepath . DIRECTORY_SEPARATOR . '.htpreconfig.php';
 			}
 
 			if (Config::get('config', 'hostname') != '') {
@@ -431,7 +424,8 @@ class App {
 		}
 	}
 
-	function get_hostname() {
+	public function get_hostname()
+	{
 		if (Config::get('config', 'hostname') != '') {
 			$this->hostname = Config::get('config', 'hostname');
 		}
@@ -439,33 +433,30 @@ class App {
 		return $this->hostname;
 	}
 
-	function set_hostname($h) {
-		$this->hostname = $h;
-	}
-
-	function set_path($p) {
-		$this->path = trim(trim($p), '/');
-	}
-
-	function get_path() {
+	public function get_path()
+	{
 		return $this->path;
 	}
 
-	function set_pager_total($n) {
+	public function set_pager_total($n)
+	{
 		$this->pager['total'] = intval($n);
 	}
 
-	function set_pager_itemspage($n) {
+	public function set_pager_itemspage($n)
+	{
 		$this->pager['itemspage'] = ((intval($n) > 0) ? intval($n) : 0);
 		$this->pager['start'] = ($this->pager['page'] * $this->pager['itemspage']) - $this->pager['itemspage'];
 	}
 
-	function set_pager_page($n) {
+	public function set_pager_page($n)
+	{
 		$this->pager['page'] = $n;
 		$this->pager['start'] = ($this->pager['page'] * $this->pager['itemspage']) - $this->pager['itemspage'];
 	}
 
-	function init_pagehead() {
+	public function init_pagehead()
+	{
 		$interval = ((local_user()) ? PConfig::get(local_user(), 'system', 'update_interval') : 40000);
 
 		// If the update is 'deactivated' set it to the highest integer number (~24 days)
@@ -518,67 +509,70 @@ class App {
 
 		$tpl = get_markup_template('head.tpl');
 		$this->page['htmlhead'] = replace_macros($tpl, [
-				'$baseurl' => $this->get_baseurl(),
-				'$local_user' => local_user(),
-				'$generator' => 'Friendica' . ' ' . FRIENDICA_VERSION,
-				'$delitem' => t('Delete this item?'),
-				'$showmore' => t('show more'),
-				'$showfewer' => t('show fewer'),
-				'$update_interval' => $interval,
-				'$shortcut_icon' => $shortcut_icon,
-				'$touch_icon' => $touch_icon,
-				'$stylesheet' => $stylesheet,
-				'$infinite_scroll' => $invinite_scroll,
-			]) . $this->page['htmlhead'];
+			'$baseurl'         => $this->get_baseurl(),
+			'$local_user'      => local_user(),
+			'$generator'       => 'Friendica' . ' ' . FRIENDICA_VERSION,
+			'$delitem'         => t('Delete this item?'),
+			'$showmore'        => t('show more'),
+			'$showfewer'       => t('show fewer'),
+			'$update_interval' => $interval,
+			'$shortcut_icon'   => $shortcut_icon,
+			'$touch_icon'      => $touch_icon,
+			'$stylesheet'      => $stylesheet,
+			'$infinite_scroll' => $invinite_scroll,
+		]) . $this->page['htmlhead'];
 	}
 
-	function init_page_end() {
+	public function init_page_end()
+	{
 		if (!isset($this->page['end'])) {
 			$this->page['end'] = '';
 		}
 		$tpl = get_markup_template('end.tpl');
 		$this->page['end'] = replace_macros($tpl, [
-				'$baseurl' => $this->get_baseurl()
-			]) . $this->page['end'];
+			'$baseurl' => $this->get_baseurl()
+		]) . $this->page['end'];
 	}
 
-	function set_curl_code($code) {
+	public function set_curl_code($code)
+	{
 		$this->curl_code = $code;
 	}
 
-	function get_curl_code() {
+	public function get_curl_code()
+	{
 		return $this->curl_code;
 	}
 
-	function set_curl_content_type($content_type) {
+	public function set_curl_content_type($content_type)
+	{
 		$this->curl_content_type = $content_type;
 	}
 
-	function get_curl_content_type() {
+	public function get_curl_content_type()
+	{
 		return $this->curl_content_type;
 	}
 
-	function set_curl_headers($headers) {
+	public function set_curl_headers($headers)
+	{
 		$this->curl_headers = $headers;
 	}
 
-	function get_curl_headers() {
+	public function get_curl_headers()
+	{
 		return $this->curl_headers;
 	}
 
-	function get_cached_avatar_image($avatar_image) {
-		return $avatar_image;
-	}
-
 	/**
-	 * @brief Removes the baseurl from an url. This avoids some mixed content problems.
+	 * @brief Removes the base url from an url. This avoids some mixed content problems.
 	 *
 	 * @param string $orig_url
 	 *
 	 * @return string The cleaned url
 	 */
-	function remove_baseurl($orig_url) {
-
+	public function remove_baseurl($orig_url)
+	{
 		// Remove the hostname from the url if it is an internal link
 		$nurl = normalise_link($orig_url);
 		$base = normalise_link($this->get_baseurl());
@@ -595,23 +589,18 @@ class App {
 	/**
 	 * @brief Register template engine class
 	 *
-	 * If $name is '', is used class static property $class::$name
-	 *
 	 * @param string $class
-	 * @param string $name
 	 */
-	function register_template_engine($class, $name = '') {
-		/// @TODO Really === and not just == ?
-		if ($name === '') {
-			$v = get_class_vars($class);
-			if (x($v, 'name'))
-				$name = $v['name'];
-		}
-		if ($name === '') {
+	private function register_template_engine($class)
+	{
+		$v = get_class_vars($class);
+		if (x($v, 'name')) {
+			$name = $v['name'];
+			$this->template_engines[$name] = $class;
+		} else {
 			echo "template engine <tt>$class</tt> cannot be registered without a name.\n";
 			killme();
 		}
-		$this->template_engines[$name] = $class;
 	}
 
 	/**
@@ -620,18 +609,13 @@ class App {
 	 * If $name is not defined, return engine defined by theme,
 	 * or default
 	 *
-	 * @param string $name Template engine name
 	 * @return object Template Engine instance
 	 */
-	function template_engine($name = '') {
-		/// @TODO really type-check included?
-		if ($name !== '') {
-			$template_engine = $name;
-		} else {
-			$template_engine = 'smarty3';
-			if (x($this->theme, 'template_engine')) {
-				$template_engine = $this->theme['template_engine'];
-			}
+	public function template_engine()
+	{
+		$template_engine = 'smarty3';
+		if (x($this->theme, 'template_engine')) {
+			$template_engine = $this->theme['template_engine'];
 		}
 
 		if (isset($this->template_engines[$template_engine])) {
@@ -654,23 +638,28 @@ class App {
 	 *
 	 * @return string
 	 */
-	function get_template_engine() {
+	public function get_template_engine()
+	{
 		return $this->theme['template_engine'];
 	}
 
-	function set_template_engine($engine = 'smarty3') {
+	public function set_template_engine($engine = 'smarty3')
+	{
 		$this->theme['template_engine'] = $engine;
 	}
 
-	function get_template_ldelim($engine = 'smarty3') {
+	public function get_template_ldelim($engine = 'smarty3')
+	{
 		return $this->ldelim[$engine];
 	}
 
-	function get_template_rdelim($engine = 'smarty3') {
+	public function get_template_rdelim($engine = 'smarty3')
+	{
 		return $this->rdelim[$engine];
 	}
 
-	function save_timestamp($stamp, $value) {
+	public function save_timestamp($stamp, $value)
+	{
 		if (!isset($this->config['system']['profiler']) || !$this->config['system']['profiler']) {
 			return;
 		}
@@ -695,50 +684,8 @@ class App {
 		$this->callstack[$value][$callstack] += (float) $duration;
 	}
 
-	/**
-	 * @brief Log active processes into the "process" table
-	 */
-	function start_process() {
-		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
-
-		$command = basename($trace[0]['file']);
-
-		$this->remove_inactive_processes();
-
-		dba::transaction();
-
-		$r = q('SELECT `pid` FROM `process` WHERE `pid` = %d', intval(getmypid()));
-		if (!DBM::is_result($r)) {
-			dba::insert('process', ['pid' => getmypid(), 'command' => $command, 'created' => datetime_convert()]);
-		}
-		dba::commit();
-	}
-
-	/**
-	 * @brief Remove inactive processes
-	 */
-	function remove_inactive_processes() {
-		dba::transaction();
-
-		$r = q('SELECT `pid` FROM `process`');
-		if (DBM::is_result($r)) {
-			foreach ($r AS $process) {
-				if (!posix_kill($process['pid'], 0)) {
-					dba::delete('process', ['pid' => $process['pid']]);
-				}
-			}
-		}
-		dba::commit();
-	}
-
-	/**
-	 * @brief Remove the active process from the "process" table
-	 */
-	function end_process() {
-		dba::delete('process', ['pid' => getmypid()]);
-	}
-
-	function get_useragent() {
+	public function get_useragent()
+	{
 		return
 			FRIENDICA_PLATFORM . " '" .
 			FRIENDICA_CODENAME . "' " .
@@ -747,7 +694,8 @@ class App {
 			$this->get_baseurl();
 	}
 
-	function is_friendica_app() {
+	public function is_friendica_app()
+	{
 		return $this->is_friendica_app;
 	}
 
@@ -759,27 +707,29 @@ class App {
 	 *
 	 * @return bool Is it a known backend?
 	 */
-	function is_backend() {
-		static $backends = [];
-		$backends[] = '_well_known';
-		$backends[] = 'api';
-		$backends[] = 'dfrn_notify';
-		$backends[] = 'fetch';
-		$backends[] = 'hcard';
-		$backends[] = 'hostxrd';
-		$backends[] = 'nodeinfo';
-		$backends[] = 'noscrape';
-		$backends[] = 'p';
-		$backends[] = 'poco';
-		$backends[] = 'post';
-		$backends[] = 'proxy';
-		$backends[] = 'pubsub';
-		$backends[] = 'pubsubhubbub';
-		$backends[] = 'receive';
-		$backends[] = 'rsd_xml';
-		$backends[] = 'salmon';
-		$backends[] = 'statistics_json';
-		$backends[] = 'xrd';
+	public function is_backend()
+	{
+		static $backends = [
+			'_well_known',
+			'api',
+			'dfrn_notify',
+			'fetch',
+			'hcard',
+			'hostxrd',
+			'nodeinfo',
+			'noscrape',
+			'p',
+			'poco',
+			'post',
+			'proxy',
+			'pubsub',
+			'pubsubhubbub',
+			'receive',
+			'rsd_xml',
+			'salmon',
+			'statistics_json',
+			'xrd',
+		];
 
 		// Check if current module is in backend or backend flag is set
 		return (in_array($this->module, $backends) || $this->backend);
@@ -790,10 +740,14 @@ class App {
 	 *
 	 * @return bool Is the limit reached?
 	 */
-	function max_processes_reached() {
+	public function max_processes_reached()
+	{
 		// Deactivated, needs more investigating if this check really makes sense
 		return false;
 
+		/*
+		 * Commented out to suppress static analyzer issues
+		 *
 		if ($this->is_backend()) {
 			$process = 'backend';
 			$max_processes = Config::get('system', 'max_processes_backend');
@@ -818,6 +772,7 @@ class App {
 			}
 		}
 		return false;
+		 */
 	}
 
 	/**
@@ -825,7 +780,8 @@ class App {
 	 *
 	 * @return bool Is the memory limit reached?
 	 */
-	public function min_memory_reached() {
+	public function min_memory_reached()
+	{
 		$min_memory = Config::get('system', 'min_memory', 0);
 		if ($min_memory == 0) {
 			return false;
@@ -844,7 +800,7 @@ class App {
 			$meminfo[$key] = (int) ($meminfo[$key] / 1024);
 		}
 
-		if (!isset($meminfo['MemAvailable']) || ! isset($meminfo['MemFree'])) {
+		if (!isset($meminfo['MemAvailable']) || !isset($meminfo['MemFree'])) {
 			return false;
 		}
 
@@ -864,8 +820,8 @@ class App {
 	 *
 	 * @return bool Is the load reached?
 	 */
-	function maxload_reached() {
-
+	public function maxload_reached()
+	{
 		if ($this->is_backend()) {
 			$process = 'backend';
 			$maxsysload = intval(Config::get('system', 'maxloadavg'));
@@ -890,8 +846,8 @@ class App {
 		return false;
 	}
 
-	function proc_run($args) {
-
+	public function proc_run($args)
+	{
 		if (!function_exists('proc_open')) {
 			return;
 		}
@@ -917,7 +873,7 @@ class App {
 			$args[$x] = escapeshellarg($args[$x]);
 		}
 
-		$cmdline = implode($args, ' ');
+		$cmdline = implode(' ', $args);
 
 		if ($this->min_memory_reached()) {
 			return;
@@ -942,8 +898,9 @@ class App {
 	 *
 	 * @return string system username
 	 */
-	static function systemuser() {
-		if (!function_exists('posix_getpwuid') || ! function_exists('posix_geteuid')) {
+	private static function systemuser()
+	{
+		if (!function_exists('posix_getpwuid') || !function_exists('posix_geteuid')) {
 			return '';
 		}
 
@@ -956,7 +913,8 @@ class App {
 	 *
 	 * @return boolean the directory is usable
 	 */
-	static function directory_usable($directory, $check_writable = true) {
+	public static function directory_usable($directory, $check_writable = true)
+	{
 		if ($directory == '') {
 			logger('Directory is empty. This shouldn\'t happen.', LOGGER_DEBUG);
 			return false;
@@ -966,18 +924,22 @@ class App {
 			logger('Path "' . $directory . '" does not exist for user ' . self::systemuser(), LOGGER_DEBUG);
 			return false;
 		}
+
 		if (is_file($directory)) {
 			logger('Path "' . $directory . '" is a file for user ' . self::systemuser(), LOGGER_DEBUG);
 			return false;
 		}
+
 		if (!is_dir($directory)) {
 			logger('Path "' . $directory . '" is not a directory for user ' . self::systemuser(), LOGGER_DEBUG);
 			return false;
 		}
+
 		if ($check_writable && !is_writable($directory)) {
 			logger('Path "' . $directory . '" is not writable for user ' . self::systemuser(), LOGGER_DEBUG);
 			return false;
 		}
+
 		return true;
 	}
 }
