@@ -26,9 +26,13 @@ class Process extends BaseObject
 	{
 		$return = true;
 
+		if (is_null($pid)) {
+			$pid = getmypid();
+		}
+
 		dba::transaction();
 
-		if (!dba::exists('process', ['pid' => getmypid()])) {
+		if (!dba::exists('process', ['pid' => $pid])) {
 			$return = dba::insert('process', ['pid' => $pid, 'command' => $command, 'created' => datetime_convert()]);
 		}
 
