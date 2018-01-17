@@ -118,24 +118,6 @@ If it is not possible to set up a cron job then please activate the "frontend wo
 
 Once you have installed Friendica and created an admin account as part of the process, you can access the admin panel of your installation and do most of the server wide configuration from there
 
-Updating your installation with git
----
-
-You can get the latest changes at any time with
-
-    cd mywebsite
-    git pull
-    util/composer.phar install
-
-The default branch to use it the ``master`` branch, which is the stable version of Friendica.
-If you want to use and test bleeding edge code please checkout the ``develop`` branch.
-The new features and fixes will be merged from ``develop`` into ``master`` when they are stable approx four times a year.
-
-The addon tree has to be updated separately like so:
-
-    cd mywebsite/addon
-    git pull
-
 ###Set up a backup plan
 Bad things will happen.
 Let there be a hardware failure, a corrupted database or whatever you can think of.
