@@ -175,7 +175,7 @@ class Post extends BaseObject
 			'delete'   => t('Delete'),
 		];
 
-		$filer = (($conv->getProfileOwner() == local_user()) ? t("save to folder") : false);
+		$filer = (($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) ? t("save to folder") : false);
 
 		$diff_author = !link_compare($item['url'], $item['author-link']);
 		$profile_name = htmlentities(((strlen($item['author-name'])) && $diff_author) ? $item['author-name'] : $item['name']);
@@ -252,7 +252,7 @@ class Post extends BaseObject
 		$tagger = '';
 
 		if ($this->isToplevel()) {
-			if ($conv->getProfileOwner() == local_user()) {
+			if ($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) {
 				$isstarred = (($item['starred']) ? "starred" : "unstarred");
 
 				$star = [
@@ -263,6 +263,7 @@ class Post extends BaseObject
 					'classundo' => $item['starred'] ? "" : "hidden",
 					'starred'   => t('starred'),
 				];
+
 				$thread = dba::selectFirst('thread', ['ignored'], ['uid' => $item['uid'], 'iid' => $item['id']]);
 				if (DBM::is_result($thread)) {
 					$ignore = [
