@@ -8,7 +8,6 @@ JSFILES=(
 	"js/acl.js"
 	"js/ajaxupload.js"
 	"js/country.js"
-	"js/jquery.htmlstream.js"
 	"js/main.js"
 	"js/webtoolkit.base64.js"
 	"view/theme/frost/js/acl.js"
