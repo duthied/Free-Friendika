@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "9eeabb43bd9f244c3e293ae6f4a33ffc",
+    "content-hash": "7a5d27cfcae62b1d9d10a10a343c0c96",
     "packages": [
         {
             "name": "defuse/php-encryption",
@@ -94,6 +94,65 @@
                 "html"
             ],
             "time": "2015-08-05T01:03:42+00:00"
+        },
+        {
+            "name": "fxp/composer-asset-plugin",
+            "version": "v1.4.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/fxpio/composer-asset-plugin.git",
+                "reference": "61352d99940d2b2392a5d2db83b8c0ef5faf222a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/fxpio/composer-asset-plugin/zipball/61352d99940d2b2392a5d2db83b8c0ef5faf222a",
+                "reference": "61352d99940d2b2392a5d2db83b8c0ef5faf222a",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^1.0",
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "composer/composer": "^1.4.0"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "Fxp\\Composer\\AssetPlugin\\FxpAssetPlugin",
+                "branch-alias": {
+                    "dev-master": "1.4-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Fxp\\Composer\\AssetPlugin\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "François Pluchino",
+                    "email": "francois.pluchino@gmail.com"
+                }
+            ],
+            "description": "NPM/Bower Dependency Manager for Composer",
+            "homepage": "https://github.com/fxpio/composer-asset-plugin",
+            "keywords": [
+                "asset",
+                "bower",
+                "composer",
+                "dependency manager",
+                "nodejs",
+                "npm",
+                "package"
+            ],
+            "time": "2017-10-20T06:53:56+00:00"
         },
         {
             "name": "league/html-to-markdown",
@@ -306,222 +365,202 @@
             "time": "2017-09-27T21:40:39+00:00"
         },
         {
-            "name": "pear-pear.php.net/Archive_Tar",
-            "version": "1.4.3",
+            "name": "pear/console_getopt",
+            "version": "v1.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pear/Console_Getopt.git",
+                "reference": "82f05cd1aa3edf34e19aa7c8ca312ce13a6a577f"
+            },
             "dist": {
-                "type": "file",
-                "url": "https://pear.php.net/get/Archive_Tar-1.4.3.tgz",
-                "reference": null,
-                "shasum": null
+                "type": "zip",
+                "url": "https://api.github.com/repos/pear/Console_Getopt/zipball/82f05cd1aa3edf34e19aa7c8ca312ce13a6a577f",
+                "reference": "82f05cd1aa3edf34e19aa7c8ca312ce13a6a577f",
+                "shasum": ""
             },
-            "require": {
-                "php": ">=5.2.0.0"
-            },
-            "replace": {
-                "pear-pear/archive_tar": "== 1.4.3.0"
-            },
-            "type": "pear-library",
+            "type": "library",
             "autoload": {
-                "classmap": [
-                    ""
-                ]
+                "psr-0": {
+                    "Console": "./"
+                }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "include-path": [
-                "/"
-            ],
-            "license": [
-                "New BSD License"
-            ],
-            "description": "This class provides handling of tar files in PHP.\nIt supports creating, listing, extracting and adding to tar files.\nGzip support is available if PHP has the zlib extension built-in or\nloaded. Bz2 compression is also supported with the bz2 extension loaded."
-        },
-        {
-            "name": "pear-pear.php.net/Console_Getopt",
-            "version": "1.4.1",
-            "dist": {
-                "type": "file",
-                "url": "https://pear.php.net/get/Console_Getopt-1.4.1.tgz",
-                "reference": null,
-                "shasum": null
-            },
-            "require": {
-                "php": ">=5.4.0.0"
-            },
-            "replace": {
-                "pear-pear/console_getopt": "== 1.4.1.0"
-            },
-            "type": "pear-library",
-            "autoload": {
-                "classmap": [
-                    ""
-                ]
-            },
-            "include-path": [
-                "/"
+                "./"
             ],
             "license": [
                 "BSD-2-Clause"
             ],
-            "description": "This is a PHP implementation of &quot;getopt&quot; supporting both\nshort and long options."
+            "authors": [
+                {
+                    "name": "Greg Beaver",
+                    "email": "cellog@php.net",
+                    "role": "Helper"
+                },
+                {
+                    "name": "Andrei Zmievski",
+                    "email": "andrei@php.net",
+                    "role": "Lead"
+                },
+                {
+                    "name": "Stig Bakken",
+                    "email": "stig@php.net",
+                    "role": "Developer"
+                }
+            ],
+            "description": "More info available on: http://pear.php.net/package/Console_Getopt",
+            "time": "2015-07-20T20:28:12+00:00"
         },
         {
-            "name": "pear-pear.php.net/PEAR",
-            "version": "1.10.5",
+            "name": "pear/pear-core-minimal",
+            "version": "v1.10.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pear/pear-core-minimal.git",
+                "reference": "070f0b600b2caca2501e2c9b7e553016e4b0d115"
+            },
             "dist": {
-                "type": "file",
-                "url": "https://pear.php.net/get/PEAR-1.10.5.tgz",
-                "reference": null,
-                "shasum": null
+                "type": "zip",
+                "url": "https://api.github.com/repos/pear/pear-core-minimal/zipball/070f0b600b2caca2501e2c9b7e553016e4b0d115",
+                "reference": "070f0b600b2caca2501e2c9b7e553016e4b0d115",
+                "shasum": ""
             },
             "require": {
-                "ext-pcre": "*",
-                "ext-xml": "*",
-                "pear-pear.php.net/archive_tar": ">=1.4.0.0",
-                "pear-pear.php.net/console_getopt": ">=1.4.1.0",
-                "pear-pear.php.net/structures_graph": ">=1.1.0.0",
-                "pear-pear.php.net/xml_util": ">=1.3.0.0",
-                "php": ">=5.4.0.0"
-            },
-            "conflict": {
-                "pear-pear.php.net/pear_frontend_gtk": "<0.4.0.0",
-                "pear-pear.php.net/pear_frontend_web": "<=0.4.0.0"
+                "pear/console_getopt": "~1.4",
+                "pear/pear_exception": "~1.0"
             },
             "replace": {
-                "pear-pear/pear": "== 1.10.5.0"
+                "rsky/pear-core-min": "self.version"
             },
-            "type": "pear-library",
+            "type": "library",
             "autoload": {
-                "classmap": [
-                    ""
-                ]
+                "psr-0": {
+                    "": "src/"
+                }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "include-path": [
-                "/"
+                "src/"
             ],
             "license": [
-                "New BSD License"
+                "BSD-3-Clause"
             ],
-            "description": "The PEAR package contains:\n * the PEAR installer, for creating, distributing\n   and installing packages\n * the PEAR_Exception PHP5 error handling mechanism\n * the PEAR_ErrorStack advanced error handling mechanism\n * the PEAR_Error error handling mechanism\n * the OS_Guess class for retrieving info about the OS\n   where PHP is running on\n * the System class for quick handling of common operations\n   with files and directories\n * the PEAR base class\n  Features in a nutshell:\n  * full support for channels\n  * pre-download dependency validation\n  * new package.xml 2.0 format allows tremendous flexibility while maintaining BC\n  * support for optional dependency groups and limited support for sub-packaging\n  * robust dependency support\n  * full dependency validation on uninstall\n  * remote install for hosts with only ftp access - no more problems with\n    restricted host installation\n  * full support for mirroring\n  * support for bundling several packages into a single tarball\n  * support for static dependencies on a url-based package\n  * support for custom file roles and installation tasks"
+            "authors": [
+                {
+                    "name": "Christian Weiske",
+                    "email": "cweiske@php.net",
+                    "role": "Lead"
+                }
+            ],
+            "description": "Minimal set of PEAR core files to be used as composer dependency",
+            "time": "2017-02-28T16:46:11+00:00"
         },
         {
-            "name": "pear-pear.php.net/Structures_Graph",
-            "version": "1.1.1",
+            "name": "pear/pear_exception",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pear/PEAR_Exception.git",
+                "reference": "8c18719fdae000b690e3912be401c76e406dd13b"
+            },
             "dist": {
-                "type": "file",
-                "url": "https://pear.php.net/get/Structures_Graph-1.1.1.tgz",
-                "reference": null,
-                "shasum": null
+                "type": "zip",
+                "url": "https://api.github.com/repos/pear/PEAR_Exception/zipball/8c18719fdae000b690e3912be401c76e406dd13b",
+                "reference": "8c18719fdae000b690e3912be401c76e406dd13b",
+                "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0.0"
+                "php": ">=4.4.0"
             },
-            "replace": {
-                "pear-pear/structures_graph": "== 1.1.1.0"
+            "require-dev": {
+                "phpunit/phpunit": "*"
             },
-            "type": "pear-library",
+            "type": "class",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
             "autoload": {
-                "classmap": [
-                    ""
-                ]
+                "psr-0": {
+                    "PEAR": ""
+                }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "include-path": [
-                "/"
+                "."
             ],
             "license": [
-                "LGPL-3.0+"
+                "BSD-2-Clause"
             ],
-            "description": "Structures_Graph is a package for creating and manipulating graph datastructures. It allows building of directed\nand undirected graphs, with data and metadata stored in nodes. The library provides functions for graph traversing\nas well as for characteristic extraction from the graph topology."
+            "authors": [
+                {
+                    "name": "Helgi Thormar",
+                    "email": "dufuz@php.net"
+                },
+                {
+                    "name": "Greg Beaver",
+                    "email": "cellog@php.net"
+                }
+            ],
+            "description": "The PEAR Exception base class.",
+            "homepage": "https://github.com/pear/PEAR_Exception",
+            "keywords": [
+                "exception"
+            ],
+            "time": "2015-02-10T20:07:52+00:00"
         },
         {
-            "name": "pear-pear.php.net/Text_Highlighter",
-            "version": "0.8.0",
+            "name": "pear/text_highlighter",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pear/Text_Highlighter.git",
+                "reference": "4178158d6fef4729bb08654fce8796a123ad0abd"
+            },
             "dist": {
-                "type": "file",
-                "url": "https://pear.php.net/get/Text_Highlighter-0.8.0.tgz",
-                "reference": null,
-                "shasum": null
+                "type": "zip",
+                "url": "https://api.github.com/repos/pear/Text_Highlighter/zipball/4178158d6fef4729bb08654fce8796a123ad0abd",
+                "reference": "4178158d6fef4729bb08654fce8796a123ad0abd",
+                "shasum": ""
             },
             "require": {
-                "pear-pear.php.net/console_getopt": ">=1.4.1.0",
-                "pear-pear.php.net/pear": ">=1.10.3.0",
-                "pear-pear.php.net/xml_parser": ">=1.3.7.0",
-                "php": ">=5.4.0.0"
+                "pear/pear-core-minimal": "@stable",
+                "php": ">=5.4.0"
             },
-            "replace": {
-                "pear-pear/text_highlighter": "== 0.8.0.0"
+            "require-dev": {
+                "phpunit/phpunit": "@stable"
             },
-            "type": "pear-library",
+            "type": "library",
             "autoload": {
-                "classmap": [
-                    ""
-                ]
+                "psr-0": {
+                    "Text": "./"
+                }
             },
             "include-path": [
-                "/"
+                "./"
             ],
             "license": [
                 "PHP License"
             ],
-            "description": "Text_Highlighter is a package for syntax highlighting.\n\nIt provides a base class provining all the functionality,\nand a descendent classes geneator class.\n\nThe main idea is to simplify creation of subclasses\nimplementing syntax highlighting for particular language.\nSubclasses do not implement any new functioanality,\nthey just provide syntax highlighting rules.\nThe rules sources are in XML format.\n\nTo create a highlighter for a language, there is no need\nto code a new class manually. Simply describe the rules\nin XML file and use Text_Highlighter_Generator to create\na new class."
-        },
-        {
-            "name": "pear-pear.php.net/XML_Parser",
-            "version": "1.3.7",
-            "dist": {
-                "type": "file",
-                "url": "https://pear.php.net/get/XML_Parser-1.3.7.tgz",
-                "reference": null,
-                "shasum": null
-            },
-            "require": {
-                "pear-pear.php.net/pear": "*",
-                "php": ">=4.2.0.0"
-            },
-            "replace": {
-                "pear-pear/xml_parser": "== 1.3.7.0"
-            },
-            "type": "pear-library",
-            "autoload": {
-                "classmap": [
-                    ""
-                ]
-            },
-            "include-path": [
-                "/"
+            "authors": [
+                {
+                    "email": "ssttoo@gmail.com",
+                    "name": "Stoyan Stefanov",
+                    "role": "Lead"
+                },
+                {
+                    "email": "demenev@gmail.com",
+                    "name": "Andrey Demenev",
+                    "role": "Lead"
+                }
             ],
-            "license": [
-                "BSD License"
-            ],
-            "description": "This is an XML parser based on PHPs built-in xml extension.\nIt supports two basic modes of operation: \"func\" and \"event\".  In \"func\" mode, it will look for a function named after each element (xmltag_ELEMENT for start tags and xmltag_ELEMENT_ for end tags), and in \"event\" mode it uses a set of generic callbacks.\n\nSince version 1.2.0 there's a new XML_Parser_Simple class that makes parsing of most XML documents easier, by automatically providing a stack for the elements.\nFurthermore its now possible to split the parser from the handler object, so you do not have to extend XML_Parser anymore in order to parse a document with it."
-        },
-        {
-            "name": "pear-pear.php.net/XML_Util",
-            "version": "1.4.3",
-            "dist": {
-                "type": "file",
-                "url": "https://pear.php.net/get/XML_Util-1.4.3.tgz",
-                "reference": null,
-                "shasum": null
+            "description": "More info available on: http://pear.php.net/package/Text_Highlighter",
+            "support": {
+                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Text_Highlighter",
+                "source": "https://github.com/pear/Text_Highlighter"
             },
-            "require": {
-                "ext-pcre": "*",
-                "php": ">=5.4.0.0"
-            },
-            "replace": {
-                "pear-pear/xml_util": "== 1.4.3.0"
-            },
-            "type": "pear-library",
-            "autoload": {
-                "classmap": [
-                    ""
-                ]
-            },
-            "include-path": [
-                "/"
-            ],
-            "license": [
-                "BSD License"
-            ],
-            "description": "Selection of methods that are often needed when working with XML documents.  Functionality includes creating of attribute lists from arrays, creation of tags, validation of XML names and more."
+            "time": "2017-03-07T21:20:30+00:00"
         },
         {
             "name": "pear/text_languagedetect",
@@ -624,9 +663,14 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "pear/text_highlighter": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": ">5.6",
+        "ext-xml": "*"
+    },
     "platform-dev": []
 }

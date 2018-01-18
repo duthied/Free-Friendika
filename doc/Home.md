@@ -27,6 +27,7 @@ Friendica Documentation and Resources
 **Admin Manual**
 
 * [Install](help/Install)
+* [Update](help/Update)
 * [Settings & Admin Panel](help/Settings)
 * [Installing Connectors (Twitter/GNU Social)](help/Installing-Connectors)
 * [Install an ejabberd server (XMPP chat) with synchronized credentials](help/install-ejabberd)

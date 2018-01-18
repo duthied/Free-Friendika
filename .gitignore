@@ -52,8 +52,8 @@ nbproject
 #ignore things from transifex-client
 venv/
 
-#ignore git projects in vendor
-vendor/**/.git
+#ignore Composer dependencies
+vendor
 
 #ignore config files from JetBrains
 /.idea

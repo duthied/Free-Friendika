@@ -26,7 +26,7 @@ Requirements
 ---
 
 * Apache with mod-rewrite enabled and "Options All" so you can use a local .htaccess file
-* PHP 5.4+.
+* PHP 5.6+ (PHP 7 is recommended for performance)
 * PHP *command line* access with register_argc_argv set to true in the php.ini file
 * Curl, GD, PDO, MySQLi, hash, xml and OpenSSL extensions
 * some form of email server or email gateway such that PHP mail() works
@@ -43,9 +43,11 @@ Installation procedure
 Unpack the Friendica files into the root of your web server document area.
 If you are able to do so, we recommend using git to clone the source repository rather than to use a packaged tar or zip file.
 This makes the software much easier to update.
-The Linux command to clone the repository into a directory "mywebsite" would be
+The Linux commands to clone the repository into a directory "mywebsite" would be
 
     git clone https://github.com/friendica/friendica.git mywebsite
+    cd mywebsite
+    util/composer.phar install
 
 Make sure the folder *view/smarty3* exists and is writable by the webserver user
 
@@ -116,27 +118,10 @@ If it is not possible to set up a cron job then please activate the "frontend wo
 
 Once you have installed Friendica and created an admin account as part of the process, you can access the admin panel of your installation and do most of the server wide configuration from there
 
-Updating your installation with git
----
-
-You can get the latest changes at any time with
-
-    cd mywebsite
-    git pull
-
-The default branch to use it the ``master`` branch, which is the stable version of Friendica.
-If you want to use and test bleeding edge code please checkout the ``develop`` branch.
-The new features and fixes will be merged from ``develop`` into ``master`` when they are stable approx four times a year.
-
-The addon tree has to be updated separately like so:
-
-    cd mywebsite/addon
-    git pull
-
 ###Set up a backup plan
 Bad things will happen.
 Let there be a hardware failure, a corrupted database or whatever you can think of.
-So once the installation of your Friendica node is done, you should make yoursef a backup plan.
+So once the installation of your Friendica node is done, you should make yourself a backup plan.
 
 The most important file is the `.htconfig.php` file in the base directory.
 As it stores all your data, you should also have a recent dump of your Friendica database at hand, should you have to recover your node.

@@ -1,25 +1,26 @@
-Friendica on Github
+Friendica on GitHub
 ===================
 
 * [Home](help)
 
 Here is how you can work on the code with us. If you have any questions please write to the Friendica developers' forum.
 
-Introduction to the workflow with our Github repository
+Introduction to the workflow with our GitHub repository
 -------------------------------------------------------
 
 1. Install git on the system you will be developing on.
-2. Create your own [github](https://github.com) account.
+2. Create your own [GitHub](https://github.com) account.
 3. Fork the Friendica repository from [https://github.com/friendica/friendica.git](https://github.com/friendica/friendica.git).
-4. Clone your fork from your Github account to your machine.
-Follow the instructions provided here: [http://help.github.com/fork-a-repo/](http://help.github.com/fork-a-repo/) to create and use your own tracking fork on github
-5. Commit your changes to your fork.
-Then go to your github page and create a "Pull request" to notify us to merge your work.
+4. Clone your fork from your GitHub account to your machine.
+Follow the instructions provided here: [http://help.github.com/fork-a-repo/](http://help.github.com/fork-a-repo/) to create and use your own tracking fork on GitHub
+5. Run `util/composer.phar install` in Friendica's folder.
+6. Commit your changes to your fork.
+Then go to your GitHub page and create a "Pull request" to notify us to merge your work.
 
 Our Git Branches
 ----------------
 
-There are two relevant branches in the main repo on Github:
+There are two relevant branches in the main repo on GitHub:
 
 1. master: This branch contains stable releases only.
 2. develop: This branch contains the latest code.
