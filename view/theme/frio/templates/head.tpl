@@ -69,7 +69,7 @@
 <script type="text/javascript" src="library/datetimepicker/jquery.datetimepicker.js"></script>
 <script type="text/javascript" src="library/perfect-scrollbar/perfect-scrollbar.jquery.min.js" ></script>
 <script type="text/javascript" src="js/acl.js" ></script>
-<script type="text/javascript" src="js/webtoolkit.base64.js" ></script>
+<script type="text/javascript" src="vendor/asset/base64/base64.min.js" ></script>
 <script type="text/javascript" src="js/main.js" ></script>
 
 <script type="text/javascript" src="view/theme/frio/frameworks/bootstrap/js/bootstrap.min.js"></script>

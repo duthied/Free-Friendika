@@ -4,8 +4,39 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "7a5d27cfcae62b1d9d10a10a343c0c96",
+    "content-hash": "fcf1ea05c07796ccf5ef2c437e6acffd",
     "packages": [
+        {
+            "name": "bower-asset/base64",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/davidchambers/Base64.js.git",
+                "reference": "b2d49f347ed1bce61000a82769bffc837b7c79dc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/davidchambers/Base64.js/zipball/b2d49f347ed1bce61000a82769bffc837b7c79dc",
+                "reference": "b2d49f347ed1bce61000a82769bffc837b7c79dc",
+                "shasum": ""
+            },
+            "type": "bower-asset-library",
+            "extra": {
+                "bower-asset-main": "./base64.js",
+                "bower-asset-ignore": [
+                    "**/.*",
+                    "Makefile",
+                    "coverage/",
+                    "scripts/",
+                    "test/"
+                ]
+            },
+            "license": [
+                "WTFPL"
+            ],
+            "description": "Base64 encoding and decoding",
+            "time": "2017-03-25T21:16:21+00:00"
+        },
         {
             "name": "defuse/php-encryption",
             "version": "v1.2.1",
