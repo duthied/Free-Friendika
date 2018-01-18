@@ -82,8 +82,9 @@ class Post extends BaseObject
 					continue;
 				}
 
-				// You can always comment on Diaspora items
-				if (($item['network'] == NETWORK_DIASPORA) && (local_user() == $item['uid'])) {
+				// You can always comment on Diaspora and OStatus items
+				// The empty network can happen with your local (self) contact
+				if (in_array($item['network'], ['', NETWORK_OSTATUS, NETWORK_DIASPORA]) && (local_user() == $item['uid'])) {
 					$item['writable'] = true;
 				}
 
@@ -321,8 +322,7 @@ class Post extends BaseObject
 		$owner_name_e = $this->getOwnerName();
 
 		// Disable features that aren't available in several networks
-		/// @todo Add NETWORK_DIASPORA when it will pass this information
-		if (!in_array($item["item_network"], [NETWORK_DFRN]) && isset($buttons["dislike"])) {
+		if (!in_array($item["item_network"], [NETWORK_DFRN, NETWORK_DIASPORA]) && isset($buttons["dislike"])) {
 			unset($buttons["dislike"]);
 			$isevent = false;
 			$tagger = '';
