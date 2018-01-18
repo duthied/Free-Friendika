@@ -2409,8 +2409,6 @@ class Diaspora
 
 				$arr["object"] = self::constructNewFriendObject($contact);
 
-				$arr["last-child"] = 1;
-
 				$user = dba::selectFirst('user', ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'], ['uid' => $importer["uid"]]);
 
 				$arr["allow_cid"] = $user["allow_cid"];

@@ -997,7 +997,7 @@ class DFRN
 		// "comment-allow" is some old fashioned stuff for old Friendica versions.
 		// It is included in the rewritten code for completeness
 		if ($comment) {
-			XML::addElement($doc, $entry, "dfrn:comment-allow", intval($item['last-child']));
+			XML::addElement($doc, $entry, "dfrn:comment-allow", 1);
 		}
 
 		if ($item['location']) {
@@ -2117,23 +2117,6 @@ class DFRN
 				Worker::add(PRIORITY_HIGH, "Notifier", "comment-import", $current["id"]);
 			}
 		}
-
-		// update last-child if it changes
-		if ($item["last-child"] && ($item["last-child"] != $current["last-child"])) {
-			$r = q(
-				"UPDATE `item` SET `last-child` = 0, `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` IN (0, %d)",
-				dbesc(datetime_convert()),
-				dbesc($item["parent-uri"]),
-				intval($importer["importer_uid"])
-			);
-			$r = q(
-				"UPDATE `item` SET `last-child` = %d , `changed` = '%s' WHERE `uri` = '%s' AND `uid` IN (0, %d)",
-				intval($item["last-child"]),
-				dbesc(datetime_convert()),
-				dbesc($item["uri"]),
-				intval($importer["importer_uid"])
-			);
-		}
 		return $changed;
 	}
 
@@ -2459,7 +2442,7 @@ class DFRN
 		$item["edited"] = $xpath->query("atom:updated/text()", $entry)->item(0)->nodeValue;
 
 		$current = q(
-			"SELECT `id`, `uid`, `last-child`, `edited`, `body` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
+			"SELECT `id`, `uid`, `edited`, `body` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
 			dbesc($item["uri"]),
 			intval($importer["importer_uid"])
 		);
@@ -2523,7 +2506,6 @@ class DFRN
 		// We don't need the content element since "dfrn:env" is always present
 		//$item["body"] = $xpath->query("atom:content/text()", $entry)->item(0)->nodeValue;
 
-		$item["last-child"] = $xpath->query("dfrn:comment-allow/text()", $entry)->item(0)->nodeValue;
 		$item["location"] = $xpath->query("dfrn:location/text()", $entry)->item(0)->nodeValue;
 
 		$georsspoint = $xpath->query("georss:point", $entry);
@@ -2747,22 +2729,6 @@ class DFRN
 					$parent_uri = $r[0]["parent-uri"];
 				}
 
-				if (!$is_like) {
-					$r1 = q(
-						"UPDATE `item` SET `last-child` = 0, `changed` = '%s' WHERE `uid` = %d AND `parent` = %d",
-						dbesc(datetime_convert()),
-						intval($importer["importer_uid"]),
-						intval($r[0]["parent"])
-					);
-
-					$r2 = q(
-						"UPDATE `item` SET `last-child` = 1, `changed` = '%s' WHERE `uid` = %d AND `id` = %d",
-						dbesc(datetime_convert()),
-						intval($importer["importer_uid"]),
-						intval($posted_id)
-					);
-				}
-
 				if ($posted_id && $parent && ($entrytype == DFRN_REPLY_RC)) {
 					logger("Notifying followers about comment ".$posted_id, LOGGER_DEBUG);
 					Worker::add(PRIORITY_HIGH, "Notifier", "comment-import", $posted_id);
@@ -2928,28 +2894,7 @@ class DFRN
 				create_tags_from_itemuri($uri, $importer["uid"]);
 				Term::createFromItemURI($uri, $importer["uid"]);
 				update_thread_uri($uri, $importer["importer_uid"]);
-				if ($item["last-child"]) {
-					// ensure that last-child is set in case the comment that had it just got wiped.
-					q(
-						"UPDATE `item` SET `last-child` = 0, `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` IN (0, %d)",
-						dbesc(datetime_convert()),
-						dbesc($item["parent-uri"]),
-						intval($item["uid"])
-					);
-					// who is the last child now?
-					$r = q(
-						"SELECT `id` FROM `item` WHERE `parent-uri` = '%s' AND `type` != 'activity' AND `deleted` = 0 AND `moderated` = 0 AND `uid` = %d
-						ORDER BY `created` DESC LIMIT 1",
-						dbesc($item["parent-uri"]),
-						intval($importer["uid"])
-					);
-					if (DBM::is_result($r)) {
-						q(
-							"UPDATE `item` SET `last-child` = 1 WHERE `id` = %d",
-							intval($r[0]["id"])
-						);
-					}
-				}
+
 				// if this is a relayed delete, propagate it to other recipients
 
 				if ($entrytype == DFRN_REPLY_RC) {

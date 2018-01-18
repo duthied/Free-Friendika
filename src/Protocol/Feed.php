@@ -198,11 +198,6 @@ class Feed {
 
 		$header["contact-id"] = $contact["id"];
 
-		if (!strlen($contact["notify"])) {
-			// one way feed - no remote comment ability
-			$header["last-child"] = 0;
-		}
-
 		if (!is_object($entries)) {
 			logger("There are no entries in this feed.", LOGGER_DEBUG);
 			return;

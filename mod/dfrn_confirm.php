@@ -432,8 +432,6 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 					$arr['object'] .= xmlify('<link rel="photo" type="image/jpeg" href="' . $contact['thumb'] . '" />' . "\n");
 					$arr['object'] .= '</link></object>' . "\n";
 
-					$arr['last-child'] = 1;
-
 					$arr['allow_cid'] = $user['allow_cid'];
 					$arr['allow_gid'] = $user['allow_gid'];
 					$arr['deny_cid']  = $user['deny_cid'];
@@ -695,8 +693,6 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 					$arr['object'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . $combined['url'] . '" />' . "\n");
 					$arr['object'] .= xmlify('<link rel="photo" type="image/jpeg" href="' . $combined['thumb'] . '" />' . "\n");
 					$arr['object'] .= '</link></object>' . "\n";
-
-					$arr['last-child'] = 1;
 
 					$arr['allow_cid'] = $user['allow_cid'];
 					$arr['allow_gid'] = $user['allow_gid'];

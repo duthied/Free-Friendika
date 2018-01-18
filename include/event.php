@@ -386,7 +386,6 @@ function event_store($arr) {
 		$item_arr['deny_cid']      = $arr['deny_cid'];
 		$item_arr['deny_gid']      = $arr['deny_gid'];
 		$item_arr['private']       = $arr['private'];
-		$item_arr['last-child']    = 1;
 		$item_arr['visible']       = 1;
 		$item_arr['verb']          = ACTIVITY_POST;
 		$item_arr['object-type']   = ACTIVITY_OBJ_EVENT;

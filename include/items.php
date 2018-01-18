@@ -487,7 +487,6 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		$arr['wall'] = 1;
 		$arr['type'] = 'wall';
 		$arr['origin'] = 1;
-		$arr['last-child'] = 1;
 		$arr['network'] = NETWORK_DFRN;
 		$arr['protocol'] = PROTOCOL_DFRN;
 
@@ -624,7 +623,6 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	$arr['title']         = ((x($arr, 'title'))         ? trim($arr['title'])         : '');
 	$arr['location']      = ((x($arr, 'location'))      ? trim($arr['location'])      : '');
 	$arr['coord']         = ((x($arr, 'coord'))         ? notags(trim($arr['coord']))         : '');
-	$arr['last-child']    = ((x($arr, 'last-child'))    ? intval($arr['last-child'])          : 0 );
 	$arr['visible']       = ((x($arr, 'visible') !== false) ? intval($arr['visible'])         : 1 );
 	$arr['deleted']       = 0;
 	$arr['parent-uri']    = ((x($arr, 'parent-uri'))    ? notags(trim($arr['parent-uri']))    : $arr['uri']);
@@ -1111,18 +1109,6 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	 */
 	create_tags_from_item($current_post);
 	Term::createFromItem($current_post);
-
-	/*
-	 * If this is now the last-child, force all _other_ children of this parent to *not* be last-child
-	 * It is done after the transaction to avoid dead locks.
-	 */
-	if ($arr['last-child']) {
-		q("UPDATE `item` SET `last-child` = 0 WHERE `parent-uri` = '%s' AND `uid` = %d AND `id` != %d",
-			dbesc($arr['uri']),
-			intval($arr['uid']),
-			intval($current_post)
-		);
-	}
 
 	if ($arr['parent-uri'] === $arr['uri']) {
 		Item::addShadow($current_post);

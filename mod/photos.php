@@ -510,7 +510,6 @@ function photos_post(App $a)
 			$arr['allow_gid']     = $p[0]['allow_gid'];
 			$arr['deny_cid']      = $p[0]['deny_cid'];
 			$arr['deny_gid']      = $p[0]['deny_gid'];
-			$arr['last-child']    = 1;
 			$arr['visible']       = $visibility;
 			$arr['origin']        = 1;
 
@@ -687,7 +686,6 @@ function photos_post(App $a)
 					$arr['allow_gid']     = $p[0]['allow_gid'];
 					$arr['deny_cid']      = $p[0]['deny_cid'];
 					$arr['deny_gid']      = $p[0]['deny_gid'];
-					$arr['last-child']    = 1;
 					$arr['visible']       = 1;
 					$arr['verb']          = ACTIVITY_TAG;
 					$arr['object-type']   = ACTIVITY_OBJ_PERSON;
@@ -924,7 +922,6 @@ function photos_post(App $a)
 	$arr['allow_gid']     = $str_group_allow;
 	$arr['deny_cid']      = $str_contact_deny;
 	$arr['deny_gid']      = $str_group_deny;
-	$arr['last-child']    = 1;
 	$arr['visible']       = $visible;
 	$arr['origin']        = 1;
 
@@ -1513,7 +1510,7 @@ function photos_content(App $a)
 			}
 
 			if (!DBM::is_result($r)) {
-				if (($can_post || can_write_wall($owner_uid)) && $link_item['last-child']) {
+				if (($can_post || can_write_wall($owner_uid))) {
 					$comments .= replace_macros($cmnt_tpl, [
 						'$return_path' => '',
 						'$jsreload' => $return_url,
@@ -1552,7 +1549,7 @@ function photos_content(App $a)
 					$dislike = format_like($conv_responses['dislike'][$link_item['uri']], $conv_responses['dislike'][$link_item['uri'] . '-l'], 'dislike', $link_item['id']);
 				}
 
-				if (($can_post || can_write_wall($owner_uid)) && $link_item['last-child']) {
+				if (($can_post || can_write_wall($owner_uid))) {
 					$comments .= replace_macros($cmnt_tpl,[
 						'$return_path' => '',
 						'$jsreload' => $return_url,
@@ -1625,7 +1622,7 @@ function photos_content(App $a)
 						'$comment' => $comment
 					]);
 
-					if (($can_post || can_write_wall($owner_uid)) && $item['last-child']) {
+					if (($can_post || can_write_wall($owner_uid))) {
 						$comments .= replace_macros($cmnt_tpl, [
 							'$return_path' => '',
 							'$jsreload' => $return_url,

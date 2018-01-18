@@ -430,7 +430,6 @@ These Fields are not added below (yet). They are here to for bug search.
 `item`.`deleted`,
 `item`.`origin`,
 `item`.`forum_mode`,
-`item`.`last-child`,
 `item`.`mention`,
 `item`.`global`,
 `item`.`gcontact-id`,
