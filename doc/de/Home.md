@@ -28,6 +28,7 @@ Friendica - Dokumentation und Ressourcen
 **Dokumentation für Administratoren**
 
 * [Installation](help/Install)
+* [Update](help/Update) (EN)
 * [Konfigurationen & Admin-Panel](help/Settings)
 * [Plugins](help/Plugins)
 * [Konnektoren (Connectors) installieren (Twitter/GNU Social)](help/Installing-Connectors)
