@@ -499,7 +499,6 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`deleted` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`origin` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`forum_mode` tinyint NOT NULL DEFAULT 0 COMMENT '',
-	`last-child` boolean NOT NULL DEFAULT '1' COMMENT '',
 	`mention` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`network` varchar(32) NOT NULL DEFAULT '' COMMENT '',
 	`rendered-hash` varchar(32) NOT NULL DEFAULT '' COMMENT '',

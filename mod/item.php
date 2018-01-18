@@ -738,7 +738,6 @@ function item_post(App $a) {
 	$datarray['gcontact-id']   = GContact::getId(["url" => $datarray['author-link'], "network" => $datarray['network'],
 							"photo" => $datarray['author-avatar'], "name" => $datarray['author-name']]);
 	$datarray['object']        = $object;
-	$datarray['last-child'] = 1;
 
 	/*
 	 * These fields are for the convenience of plugins...

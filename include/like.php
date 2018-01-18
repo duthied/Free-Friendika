@@ -238,7 +238,6 @@ EOT;
 		'deny_gid'      => $item['deny_gid'],
 		'visible'       => 1,
 		'unseen'        => 1,
-		'last-child'    => 0
 	];
 
 	$new_item_id = item_store($new_item);

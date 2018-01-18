@@ -4713,7 +4713,6 @@ function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $f
 	$arr['allow_gid']     = $allow_gid;
 	$arr['deny_cid']      = $deny_cid;
 	$arr['deny_gid']      = $deny_gid;
-	$arr['last-child']    = 1;
 	$arr['visible']       = $visibility;
 	$arr['origin']        = 1;
 

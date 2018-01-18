@@ -531,11 +531,6 @@ class OnePoll
 
 							$stored_item = item_store($datarray);
 
-							$condition = ['parent-uri' => $datarray['parent-uri'], 'uid' => $importer_uid];
-							dba::update('item', ['last-child' => false], $condition);
-
-							dba::update('item', ['last-child' => true], ['id' => $stored_item]);
-
 							switch ($mailconf['action']) {
 								case 0:
 									logger("Mail: Seen before ".$msg_uid." for ".$mailconf['user'].". Doing nothing.", LOGGER_DEBUG);

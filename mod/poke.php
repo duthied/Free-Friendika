@@ -117,7 +117,6 @@ function poke_init(App $a) {
 	$arr['allow_gid']     = $allow_gid;
 	$arr['deny_cid']      = $deny_cid;
 	$arr['deny_gid']      = $deny_gid;
-	$arr['last-child']    = 1;
 	$arr['visible']       = 1;
 	$arr['verb']          = $activity;
 	$arr['private']       = $private;
