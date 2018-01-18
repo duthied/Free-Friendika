@@ -6,6 +6,7 @@
     ],
     "content-hash": "fcf1ea05c07796ccf5ef2c437e6acffd",
     "content-hash": "eff7188edca155144e5ce162208634df",
+    "content-hash": "1e1ff52e017d09ec0cb865e4fbcb9a7f",
     "packages": [
         {
             "name": "bower-asset/base64",
@@ -350,12 +351,12 @@
         },
         {
             "name": "npm-asset/jquery",
-            "version": "2.2.4",
+            "version": "1.12.4",
             "dist": {
                 "type": "tar",
-                "url": "https://registry.npmjs.org/jquery/-/jquery-2.2.4.tgz",
+                "url": "https://registry.npmjs.org/jquery/-/jquery-1.12.4.tgz",
                 "reference": null,
-                "shasum": "2c89d6889b5eac522a7eea32c14521559c6cbf02"
+                "shasum": "01e1dfba290fe73deba77ceeacb0f9ba2fec9e0c"
             },
             "require-dev": {
                 "npm-asset/commitplease": "2.0.0",
@@ -374,10 +375,11 @@
                 "npm-asset/gzip-js": "0.3.2",
                 "npm-asset/jsdom": "5.6.1",
                 "npm-asset/load-grunt-tasks": "1.0.0",
+                "npm-asset/npm": "2.1.12",
                 "npm-asset/qunit-assert-step": "1.0.3",
                 "npm-asset/qunitjs": "1.17.1",
                 "npm-asset/requirejs": "2.1.17",
-                "npm-asset/sinon": "1.10.3",
+                "npm-asset/sinon": "1.12.2",
                 "npm-asset/sizzle": "2.2.1",
                 "npm-asset/strip-json-comments": "1.0.3",
                 "npm-asset/testswarm": "1.1.0",
@@ -406,7 +408,7 @@
             "authors": [
                 {
                     "name": "jQuery Foundation and other contributors",
-                    "url": "https://github.com/jquery/jquery/blob/2.2.4/AUTHORS.txt"
+                    "url": "https://github.com/jquery/jquery/blob/1.12-stable/AUTHORS.txt"
                 }
             ],
             "description": "JavaScript library for DOM operations",
@@ -417,7 +419,7 @@
                 "jquery",
                 "library"
             ],
-            "time": "2016-05-20T17:26:07+00:00"
+            "time": "2016-05-20T17:19:07+00:00"
         },
         {
             "name": "npm-asset/jquery-colorbox",
