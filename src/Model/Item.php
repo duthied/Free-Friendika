@@ -65,6 +65,102 @@ class Item
 	}
 
 	/**
+	 * @brief Delete an item and notify others about it - if it was ours
+	 *
+	 * @param integer $item_id Item ID that should be delete
+	 *
+	 * @return $boolean success
+	 */
+	public static function delete($item_id, $priority = PRIORITY_HIGH)
+	{
+		// locate item to be deleted
+		$fields = ['id', 'uid', 'parent', 'parent-uri', 'origin', 'deleted', 'file', 'resource-id', 'event-id', 'attach'];
+		$item = dba::selectFirst('item', $fields, ['id' => $item_id]);
+		if (!DBM::is_result($item)) {
+			return false;
+		}
+
+		if ($item['deleted']) {
+			return false;
+		}
+
+		$parent = dba::selectFirst('item', ['origin'], ['id' => $item['parent']]);
+		if (!DBM::is_result($parent)) {
+			$parent = ['origin' => false];
+		}
+
+		logger('delete item: ' . $item['id'], LOGGER_DEBUG);
+
+		// clean up categories and tags so they don't end up as orphans
+
+		$matches = false;
+		$cnt = preg_match_all('/<(.*?)>/', $item['file'], $matches, PREG_SET_ORDER);
+		if ($cnt) {
+			foreach ($matches as $mtch) {
+				file_tag_unsave_file($item['uid'], $item['id'], $mtch[1],true);
+			}
+		}
+
+		$matches = false;
+
+		$cnt = preg_match_all('/\[(.*?)\]/', $item['file'], $matches, PREG_SET_ORDER);
+		if ($cnt) {
+			foreach ($matches as $mtch) {
+				file_tag_unsave_file($item['uid'], $item['id'], $mtch[1],false);
+			}
+		}
+
+		/*
+		 * If item is a link to a photo resource, nuke all the associated photos
+		 * (visitors will not have photo resources)
+		 * This only applies to photos uploaded from the photos page. Photos inserted into a post do not
+		 * generate a resource-id and therefore aren't intimately linked to the item.
+		 */
+		if (strlen($item['resource-id'])) {
+			dba::delete('photo', ['resource-id' => $item['resource-id'], 'uid' => $item['uid']]);
+		}
+
+		// If item is a link to an event, nuke the event record.
+		if (intval($item['event-id'])) {
+			dba::delete('event', ['id' => $item['event-id'], 'uid' => $item['uid']]);
+		}
+
+		// If item has attachments, drop them
+		foreach (explode(", ", $item['attach']) as $attach) {
+			preg_match("|attach/(\d+)|", $attach, $matches);
+			dba::delete('attach', ['id' => $matches[1], 'uid' => $item['uid']]);
+		}
+
+		// When it is our item we don't delete it here, since we have to send delete messages
+		if ($item['origin'] || $parent['origin']) {
+			// Set the item to "deleted"
+			dba::update('item', ['deleted' => true, 'title' => '', 'body' => '',
+						'edited' => datetime_convert(), 'changed' => datetime_convert()],
+					['id' => $item['id']]);
+
+			create_tags_from_item($item['id']);
+			Term::createFromItem($item['id']);
+			delete_thread($item['id'], $item['parent-uri']);
+
+			// If it's the parent of a comment thread, kill all the kids
+			if ($item['id'] == $item['parent']) {
+				$items = dba::select('item', ['id'], ['parent' => $item['parent']]);
+				while ($row = dba::fetch($items)) {
+					self::delete($row['id'], $priority);
+				}
+			}
+
+			// send the notification upstream/downstream
+			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", "drop", intval($item['id']));
+		} else {
+			// delete it immediately. All related children will be deleted as well.
+			dba::delete('item', ['id' => $item['id']]);
+		}
+
+		return true;
+	}
+
+	/**
 	 * @brief Add a shadow entry for a given item id that is a thread starter
 	 *
 	 * We store every public item entry additionally with the user id "0".

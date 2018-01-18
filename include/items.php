@@ -1980,7 +1980,7 @@ function item_getfeedtags($item) {
 
 function item_expire($uid, $days, $network = "", $force = false) {
 
-	if ((! $uid) || ($days < 1)) {
+	if (!$uid || ($days < 1)) {
 		return;
 	}
 
@@ -1989,7 +1989,7 @@ function item_expire($uid, $days, $network = "", $force = false) {
 	 * and just expire conversations started by others
 	 */
 	$expire_network_only = PConfig::get($uid,'expire', 'network_only');
-	$sql_extra = ((intval($expire_network_only)) ? " AND wall = 0 " : "");
+	$sql_extra = (intval($expire_network_only) ? " AND wall = 0 " : "");
 
 	if ($network != "") {
 		$sql_extra .= sprintf(" AND network = '%s' ", dbesc($network));
@@ -2013,7 +2013,7 @@ function item_expire($uid, $days, $network = "", $force = false) {
 		intval($days)
 	);
 
-	if (! DBM::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		return;
 	}
 
@@ -2050,37 +2050,28 @@ function item_expire($uid, $days, $network = "", $force = false) {
 			continue;
 		}
 
-		drop_item($item['id'], false);
+		Item::delete($item['id'], PRIORITY_LOW);
 	}
-
-	Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], "Notifier", "expire", $uid);
 }
 
 /// @TODO type-hint is array
 function drop_items($items) {
 	$uid = 0;
 
-	if (! local_user() && ! remote_user()) {
+	if (!local_user() && !remote_user()) {
 		return;
 	}
 
 	if (count($items)) {
 		foreach ($items as $item) {
-			$owner = drop_item($item,false);
+			$owner = Item::delete($item);
 			if ($owner && ! $uid)
 				$uid = $owner;
 		}
 	}
-
-	// multiple threads may have been deleted, send an expire notification
-
-	if ($uid) {
-		Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], "Notifier", "expire", $uid);
-	}
 }
 
-
-function drop_item($id, $interactive = true) {
+function drop_item($id) {
 
 	$a = get_app();
 
@@ -2090,11 +2081,8 @@ function drop_item($id, $interactive = true) {
 		intval($id)
 	);
 
-	if (! DBM::is_result($r)) {
-		if (! $interactive) {
-			return 0;
-		}
-		notice( t('Item not found.') . EOL);
+	if (!DBM::is_result($r)) {
+		notice(t('Item not found.') . EOL);
 		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
 	}
 
@@ -2103,8 +2091,6 @@ function drop_item($id, $interactive = true) {
 	if ($item['deleted']) {
 		return 0;
 	}
-
-	$owner = $item['uid'];
 
 	$contact_id = 0;
 
@@ -2119,8 +2105,7 @@ function drop_item($id, $interactive = true) {
 		}
 	}
 
-
-	if ((local_user() == $item['uid']) || $contact_id || !$interactive) {
+	if ((local_user() == $item['uid']) || $contact_id) {
 
 		// Check if we should do HTML-based delete confirmation
 		if ($_REQUEST['confirm']) {
@@ -2150,126 +2135,16 @@ function drop_item($id, $interactive = true) {
 			goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
 		}
 
-		logger('delete item: ' . $item['id'], LOGGER_DEBUG);
-
 		// delete the item
-		dba::update('item', ['deleted' => true, 'title' => '', 'body' => '',
-					'edited' => datetime_convert(), 'changed' => datetime_convert()],
-				['id' => $item['id']]);
+		Item::delete($item['id']);
 
-		create_tags_from_item($item['id']);
-		Term::createFromItem($item['id']);
-		delete_thread($item['id'], $item['parent-uri']);
-
-		// clean up categories and tags so they don't end up as orphans
-
-		$matches = false;
-		$cnt = preg_match_all('/<(.*?)>/', $item['file'], $matches, PREG_SET_ORDER);
-		if ($cnt) {
-			foreach ($matches as $mtch) {
-				file_tag_unsave_file($item['uid'], $item['id'], $mtch[1],true);
-			}
-		}
-
-		$matches = false;
-
-		$cnt = preg_match_all('/\[(.*?)\]/', $item['file'], $matches, PREG_SET_ORDER);
-		if ($cnt) {
-			foreach ($matches as $mtch) {
-				file_tag_unsave_file($item['uid'], $item['id'], $mtch[1],false);
-			}
-		}
-
-		/*
-		 * If item is a link to a photo resource, nuke all the associated photos
-		 * (visitors will not have photo resources)
-		 * This only applies to photos uploaded from the photos page. Photos inserted into a post do not
-		 * generate a resource-id and therefore aren't intimately linked to the item.
-		 */
-		if (strlen($item['resource-id'])) {
-			dba::delete('photo', ['resource-id' => $item['resource-id'], 'uid' => $item['uid']]);
-		}
-
-		// If item is a link to an event, nuke the event record.
-		if (intval($item['event-id'])) {
-			dba::delete('event', ['id' => $item['event-id'], 'uid' => $item['uid']]);
-		}
-
-		// If item has attachments, drop them
-		foreach (explode(", ", $item['attach']) as $attach) {
-			preg_match("|attach/(\d+)|", $attach, $matches);
-			dba::delete('attach', ['id' => $matches[1], 'uid' => $item['uid']]);
-		}
-
-		// The new code splits the queries since the mysql optimizer really has bad problems with subqueries
-
-		// Creating list of parents
-		$r = q("SELECT `id` FROM `item` WHERE `parent` = %d AND `uid` = %d",
-			intval($item['id']),
-			intval($item['uid'])
-		);
-
-		$parentid = "";
-
-		foreach ($r as $row) {
-			if ($parentid != "") {
-				$parentid .= ", ";
-			}
-
-			$parentid .= $row["id"];
-		}
-
-		// Now delete them
-		if ($parentid != "") {
-			q("DELETE FROM `sign` WHERE `iid` IN (%s)", dbesc($parentid));
-		}
-
-		// If it's the parent of a comment thread, kill all the kids
-		if ($item['uri'] == $item['parent-uri']) {
-			dba::update('item', ['deleted' => true, 'title' => '', 'body' => '',
-					'edited' => datetime_convert(), 'changed' => datetime_convert()],
-				['parent-uri' => $item['parent-uri'], 'uid' => $item['uid']]);
-
-			create_tags_from_itemuri($item['parent-uri'], $item['uid']);
-			Term::createFromItemURI($item['parent-uri'], $item['uid']);
-			delete_thread_uri($item['parent-uri'], $item['uid']);
-			// ignore the result
-		} else {
-			// ensure that last-child is set in case the comment that had it just got wiped.
-			dba::update('item', ['last-child' => false, 'changed' => datetime_convert()],
-					['parent-uri' => $item['parent-uri'], 'uid' => $item['uid']]);
-
-			// who is the last child now?
-			$r = q("SELECT `id` FROM `item` WHERE `parent-uri` = '%s' AND `type` != 'activity' AND `deleted` = 0 AND `uid` = %d ORDER BY `edited` DESC LIMIT 1",
-				dbesc($item['parent-uri']),
-				intval($item['uid'])
-			);
-			if (DBM::is_result($r)) {
-				dba::update('item', ['last-child' => true], ['id' => $r[0]['id']]);
-			}
-		}
-
-		// send the notification upstream/downstream
-		// The priority depends on how the deletion is done.
-		$drop_id = intval($item['id']);
-		$priority = ($interactive ? PRIORITY_HIGH : PRIORITY_LOW);
-
-		Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", "drop", $drop_id);
-
-		if (! $interactive) {
-			return $owner;
-		}
 		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
 		//NOTREACHED
 	} else {
-		if (! $interactive) {
-			return 0;
-		}
-		notice( t('Permission denied.') . EOL);
+		notice(t('Permission denied.') . EOL);
 		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
 		//NOTREACHED
 	}
-
 }
 
 /// @todo: This query seems to be really slow

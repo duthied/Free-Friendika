@@ -15,6 +15,7 @@ use Friendica\Database\DBM;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
+use Friendica\Model\Item;
 use Friendica\Module\Login;
 
 require_once 'include/enotify.php';
@@ -492,7 +493,7 @@ function admin_page_deleteitem_post(App $a)
 		// associated threads.
 		$r = dba::select('item', ['id'], ['guid' => $guid]);
 		while ($row = dba::fetch($r)) {
-			drop_item($row['id'], false);
+			Item::delete($row['id']);
 		}
 		dba::close($r);
 	}

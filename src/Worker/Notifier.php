@@ -41,7 +41,6 @@ require_once 'include/bbcode.php';
  *		drop					(in diaspora.php, items.php, photos.php)
  *		edit_post				(in item.php)
  *		event					(in events.php)
- *		expire					(in items.php)
  *		like					(in like.php, poke.php)
  *		mail					(in message.php)
  *		suggest					(in fsuggest.php)
@@ -60,7 +59,6 @@ class Notifier {
 
 		logger('notifier: invoked: '.$cmd.': '.$item_id, LOGGER_DEBUG);
 
-		$expire = false;
 		$mail = false;
 		$fsuggest = false;
 		$relocate = false;
@@ -82,19 +80,6 @@ class Notifier {
 			$uid = $message[0]['uid'];
 			$recipients[] = $message[0]['contact-id'];
 			$item = $message[0];
-
-		} elseif ($cmd === 'expire') {
-			$normal_mode = false;
-			$expire = true;
-			$items = q("SELECT * FROM `item` WHERE `uid` = %d AND `wall` = 1
-				AND `deleted` = 1 AND `changed` > UTC_TIMESTAMP() - INTERVAL 10 MINUTE",
-				intval($item_id)
-			);
-			$uid = $item_id;
-			$item_id = 0;
-			if (!count($items)) {
-				return;
-			}
 		} elseif ($cmd === 'suggest') {
 			$normal_mode = false;
 			$fsuggest = true;
@@ -213,18 +198,6 @@ class Notifier {
 			// if $parent['wall'] == 1 we will already have the parent message in our array
 			// and we will relay the whole lot.
 
-			// expire sends an entire group of expire messages and cannot be forwarded.
-			// However the conversation owner will be a part of the conversation and will
-			// be notified during this run.
-			// Other DFRN conversation members will be alerted during polled updates.
-
-
-
-			// Diaspora members currently are not notified of expirations, and other networks have
-			// either limited or no ability to process deletions. We should at least fix Diaspora
-			// by stringing togther an array of retractions and sending them onward.
-
-
 			$localhost = str_replace('www.','',$a->get_hostname());
 			if (strpos($localhost,':')) {
 				$localhost = substr($localhost,0,strpos($localhost,':'));
@@ -239,7 +212,7 @@ class Notifier {
 
 			$relay_to_owner = false;
 
-			if (!$top_level && ($parent['wall'] == 0) && !$expire && (stristr($target_item['uri'],$localhost))) {
+			if (!$top_level && ($parent['wall'] == 0) && (stristr($target_item['uri'],$localhost))) {
 				$relay_to_owner = true;
 			}
 
