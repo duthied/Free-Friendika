@@ -836,7 +836,17 @@ function item_post(App $a) {
 
 	$post_id = item_store($datarray);
 
-	$datarray["id"] = $post_id;
+	if (!$post_id) {
+		logger("Item wasn't stored.");
+		goaway($return_path);
+	}
+
+	$datarray = dba::selectFirst('item', [], ['id' => $post_id]);
+
+	if (!DBM::is_result($datarray)) {
+		logger("Item with id ".$post_id." couldn't be fetched.");
+		goaway($return_path);
+	}
 
 	// update filetags in pconfig
 	file_tag_update_pconfig($uid, $categories_old, $categories_new, 'category');
