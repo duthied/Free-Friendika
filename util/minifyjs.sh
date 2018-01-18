@@ -9,7 +9,7 @@ JSFILES=(
 	"js/ajaxupload.js"
 	"js/country.js"
 	"js/main.js"
-	"js/webtoolkit.base64.js"
+	"vendor/asset/base64/base64.min.js"
 	"view/theme/frost/js/acl.js"
 	"view/theme/frost/js/jquery.divgrow-1.3.1.f1.js"
 	"view/theme/frost/js/main.js"

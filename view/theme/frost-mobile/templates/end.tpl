@@ -10,7 +10,7 @@
 <script type="text/javascript" src="{{$baseurl}}/library/jquery-textcomplete/jquery.textcomplete.min.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/js/autocomplete.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/view/theme/frost-mobile/js/acl.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/js/webtoolkit.base64.js" ></script>
+<script type="text/javascript" src="{{$baseurl}}/vendor/asset/base64/base64.min.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/view/theme/frost-mobile/js/main.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/view/theme/frost-mobile/js/theme.js"></script>
 
