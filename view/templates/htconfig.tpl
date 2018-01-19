@@ -78,8 +78,7 @@ $a->config['max_import_size'] = 200000;
 $a->config['system']['maximagesize'] = 800000;
 
 // Server-to-server private message encryption (RINO) is allowed by default.
-// Encryption will only be provided if this setting is set to a non zero value
-// set to 0 to disable, 2 to enable, 1 is deprecated
+// set to 0 to disable, 1 to enable
 
 $a->config['system']['rino_encrypt'] = {{$rino}};
 

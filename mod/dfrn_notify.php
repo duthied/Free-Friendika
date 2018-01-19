@@ -6,10 +6,6 @@
  * @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/master/spec/dfrn2.pdf
  */
 
-use Defuse\Crypto\Crypto;
-use Defuse\Crypto\Exception\EnvironmentIsBrokenException;
-use Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException;
-use Defuse\Crypto\Key;
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
@@ -176,53 +172,15 @@ function dfrn_notify_post(App $a) {
 			case 0:
 			case 1:
 				/*
-				 *we got a key. old code send only the key, without RINO version.
+				 * we got a key. old code send only the key, without RINO version.
 				 * we assume RINO 1 if key and no RINO version
 				 */
 				$data = DFRN::aesDecrypt(hex2bin($data), $final_key);
-				break;
-			case 2:
-				try {
-					$data = Crypto::legacyDecrypt(hex2bin($data), $final_key);
-				} catch (WrongKeyOrModifiedCiphertextException $ex) { // VERY IMPORTANT
-					/*
-					 * Either:
-					 *   1. The ciphertext was modified by the attacker,
-					 *   2. The key is wrong, or
-					 *   3. $ciphertext is not a valid ciphertext or was corrupted.
-					 * Assume the worst.
-					 */
-					logger('The ciphertext has been tampered with!');
-					xml_status(0, 'The ciphertext has been tampered with!');
-				} catch (EnvironmentIsBrokenException $ex) {
-					logger('Cannot safely perform decryption');
-					xml_status(0, 'Environment is broken');
-				}
-				break;
-			case 3:
-				$KeyObject = Key::loadFromAsciiSafeString($final_key);
-				try {
-					$data = Crypto::decrypt(hex2bin($data), $KeyObject);
-				} catch (WrongKeyOrModifiedCiphertextException $ex) { // VERY IMPORTANT
-					/*
-					 * Either:
-					 *   1. The ciphertext was modified by the attacker,
-					 *   2. The key is wrong, or
-					 *   3. $ciphertext is not a valid ciphertext or was corrupted.
-					 * Assume the worst.
-					 */
-					logger('The ciphertext has been tampered with!');
-					xml_status(0, 'The ciphertext has been tampered with!');
-				} catch (EnvironmentIsBrokenException $ex) {
-					logger('Cannot safely perform decryption');
-					xml_status(0, 'Environment is broken');
-				}
 				break;
 			default:
 				logger("rino: invalid sent version '$rino_remote'");
 				xml_status(0, "Invalid sent version '$rino_remote'");
 		}
-
 
 		logger('rino: decrypted data: ' . $data, LOGGER_DATA);
 	}

@@ -8,9 +8,6 @@
  */
 namespace Friendica\Protocol;
 
-use Defuse\Crypto\Crypto;
-use Defuse\Crypto\Exception\EnvironmentIsBrokenException;
-use Defuse\Crypto\Key;
 use Friendica\App;
 use Friendica\Content\OEmbed;
 use Friendica\Core\Config;
@@ -1304,23 +1301,6 @@ class DFRN
 					$key = openssl_random_pseudo_bytes(16);
 					$data = self::aesEncrypt($postvars['data'], $key);
 					break;
-				case 3:
-					try {
-						$KeyObject = Key::createNewRandomKey();
-					} catch (EnvironmentIsBrokenException $ex) {
-						logger('Cannot safely create a key');
-						return -4;
-					}
-
-					try {
-						$data = Crypto::encrypt($postvars['data'], $key);
-					} catch (EnvironmentIsBrokenException $ex) {
-						logger('Cannot safely perform encryption');
-						return -6;
-					}
-
-					$key = $KeyObject->saveToAsciiSafeString();
-					break;
 				default:
 					logger("rino: invalid requested version '$rino_remote_version'");
 					return -8;
@@ -1330,7 +1310,6 @@ class DFRN
 			$postvars['data'] = bin2hex($data);
 
 			//logger('rino: sent key = ' . $key, LOGGER_DEBUG);
-
 
 			if ($dfrn_version >= 2.1) {
 				if (($contact['duplex'] && strlen($contact['pubkey']))
