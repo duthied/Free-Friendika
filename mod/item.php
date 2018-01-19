@@ -174,7 +174,7 @@ function item_post(App $a) {
 	$object      = (x($_REQUEST, 'object')      ? $_REQUEST['object']              : '');
 
 	// Ensure that the user id in a thread always stay the same
-	if (!is_null($parent_user)) {
+	if (!is_null($parent_user) && in_array($parent_user, [local_user(), 0])) {
 		$profile_uid = $parent_user;
 	}
 
