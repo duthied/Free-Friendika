@@ -1294,11 +1294,6 @@ class DFRN
 
 			switch ($rino_remote_version) {
 				case 1:
-				case 2:
-					// Force downgrade in case the remote server is still using the deprecated version 2
-					$rino = 1;
-					$rino_remote_version = 1;
-
 					$key = openssl_random_pseudo_bytes(16);
 					$data = self::aesEncrypt($postvars['data'], $key);
 					break;
