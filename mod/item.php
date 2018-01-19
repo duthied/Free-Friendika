@@ -85,6 +85,7 @@ function item_post(App $a) {
 	$r = false;
 	$objecttype = null;
 	$parent_user = null;
+	$profile_uid = defaults($_REQUEST, 'profile_uid', local_user());
 
 	if ($parent || $parent_uri) {
 
@@ -98,11 +99,11 @@ function item_post(App $a) {
 			$r = q("SELECT * FROM `item` WHERE `id` = %d LIMIT 1",
 				intval($parent)
 			);
-		} elseif ($parent_uri && local_user()) {
+		} elseif ($parent_uri) {
 			// This is coming from an API source, and we are logged in
 			$r = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
 				dbesc($parent_uri),
-				intval(local_user())
+				intval($profile_uid)
 			);
 
 			// if this isn't the real parent of the conversation, find it
@@ -167,7 +168,6 @@ function item_post(App $a) {
 		logger('mod_item: item_post parent=' . $parent);
 	}
 
-	$profile_uid = (x($_REQUEST, 'profile_uid') ? intval($_REQUEST['profile_uid']) : 0);
 	$post_id     = (x($_REQUEST, 'post_id')     ? intval($_REQUEST['post_id'])     : 0);
 	$app         = (x($_REQUEST, 'source')      ? strip_tags($_REQUEST['source'])  : '');
 	$extid       = (x($_REQUEST, 'extid')       ? strip_tags($_REQUEST['extid'])   : '');
