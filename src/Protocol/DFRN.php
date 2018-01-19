@@ -8,6 +8,9 @@
  */
 namespace Friendica\Protocol;
 
+use Defuse\Crypto\Crypto;
+use Defuse\Crypto\Exception\EnvironmentIsBrokenException;
+use Defuse\Crypto\Key;
 use Friendica\App;
 use Friendica\Content\OEmbed;
 use Friendica\Core\Config;
@@ -22,11 +25,14 @@ use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Object\Image;
 use Friendica\Protocol\OStatus;
+use Friendica\Util\Crypto as FriendicaCrypto;
 use Friendica\Util\XML;
 
 use dba;
 use DOMDocument;
 use DOMXPath;
+use HTMLPurifier;
+use HTMLPurifier_Config;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
@@ -465,7 +471,7 @@ class DFRN
 		/* get site pubkey. this could be a new installation with no site keys*/
 		$pubkey = Config::get('system', 'site_pubkey');
 		if (! $pubkey) {
-			$res = Crypto::newKeypair(1024);
+			$res = FriendicaCrypto::newKeypair(1024);
 			Config::set('system', 'site_prvkey', $res['prvkey']);
 			Config::set('system', 'site_pubkey', $res['pubkey']);
 		}
@@ -1291,30 +1297,29 @@ class DFRN
 
 			switch ($rino_remote_version) {
 				case 1:
+				case 2:
+					$rino = 1;
+					$rino_remote_version = 1;
 					// Deprecated rino version!
 					$key = openssl_random_pseudo_bytes(16);
 					$data = self::aesEncrypt($postvars['data'], $key);
 					break;
-				case 2:
-					// RINO 2 based on php-encryption
+				case 3:
 					try {
-						$key = \Crypto::CreateNewRandomKey();
-					} catch (\CryptoTestFailedException $ex) {
+						$KeyObject = Key::createNewRandomKey();
+					} catch (EnvironmentIsBrokenException $ex) {
 						logger('Cannot safely create a key');
 						return -4;
-					} catch (\CannotPerformOperationException $ex) {
-						logger('Cannot safely create a key');
-						return -5;
 					}
+
 					try {
-						$data = \Crypto::Encrypt($postvars['data'], $key);
-					} catch (\CryptoTestFailedException $ex) {
+						$data = Crypto::encrypt($postvars['data'], $key);
+					} catch (EnvironmentIsBrokenException $ex) {
 						logger('Cannot safely perform encryption');
 						return -6;
-					} catch (\CannotPerformOperationException $ex) {
-						logger('Cannot safely perform encryption');
-						return -7;
 					}
+
+					$key = $KeyObject->saveToAsciiSafeString();
 					break;
 				default:
 					logger("rino: invalid requested version '$rino_remote_version'");
@@ -2489,13 +2494,13 @@ class DFRN
 
 			$item['body'] = OEmbed::HTML2BBCode($item['body']);
 
-			$config = \HTMLPurifier_Config::createDefault();
+			$config = HTMLPurifier_Config::createDefault();
 			$config->set('Cache.DefinitionImpl', null);
 
 			// we shouldn't need a whitelist, because the bbcode converter
 			// will strip out any unsupported tags.
 
-			$purifier = new \HTMLPurifier($config);
+			$purifier = new HTMLPurifier($config);
 			$item['body'] = $purifier->purify($item['body']);
 
 			$item['body'] = @html2bbcode($item['body']);
