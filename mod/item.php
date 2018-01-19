@@ -34,7 +34,7 @@ require_once 'include/text.php';
 require_once 'include/items.php';
 
 function item_post(App $a) {
-	if (!local_user() && !remote_user() && !x($_REQUEST, 'commenter')) {
+	if (!local_user() && !remote_user()) {
 		return;
 	}
 
@@ -84,6 +84,7 @@ function item_post(App $a) {
 	$parid = 0;
 	$r = false;
 	$objecttype = null;
+	$parent_user = null;
 
 	if ($parent || $parent_uri) {
 
@@ -125,6 +126,7 @@ function item_post(App $a) {
 		$parent_item = $r[0];
 		$parent = $parent_item['id'];
 		$parent_uri = $parent_item['uri'];
+		$parent_user = $parent_item['uid'];
 
 		if ($parent_item['contact-id']) {
 			$r = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
@@ -171,6 +173,11 @@ function item_post(App $a) {
 	$extid       = (x($_REQUEST, 'extid')       ? strip_tags($_REQUEST['extid'])   : '');
 	$object      = (x($_REQUEST, 'object')      ? $_REQUEST['object']              : '');
 
+	// Ensure that the user id in a thread always stay the same
+	if (!is_null($parent_user)) {
+		$profile_uid = $parent_user;
+	}
+
 	// Check for multiple posts with the same message id (when the post was created via API)
 	if (($message_id != '') && ($profile_uid != 0)) {
 		$r = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
@@ -184,28 +191,11 @@ function item_post(App $a) {
 		}
 	}
 
-	$allow_moderated = false;
-
-	// here is where we are going to check for permission to post a moderated comment.
-
-	// First check that the parent exists and it is a wall item.
-
-	if (x($_REQUEST, 'commenter') && (!$parent || !$parent_item['wall'])) {
-		notice(t('Permission denied.') . EOL) ;
-		if (x($_REQUEST, 'return')) {
-			goaway($return_path);
-		}
-		killme();
-	}
-
 	// Allow commenting if it is an answer to a public post
-	$allow_comment = ($profile_uid == 0) && $parent && in_array($parent_item['network'], [NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_DFRN]);
+	$allow_comment = local_user() && ($profile_uid == 0) && $parent && in_array($parent_item['network'], [NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_DFRN]);
 
-	/*
-	 * Now check that it is a page_type of PAGE_BLOG, and that valid personal details
-	 * have been provided, and run any anti-spam plugins
-	 */
-	if (!(can_write_wall($profile_uid) || $allow_comment) && !$allow_moderated) {
+	// Now check that valid personal details have been provided
+	if (!can_write_wall($profile_uid) && !$allow_comment) {
 		notice(t('Permission denied.') . EOL) ;
 		if (x($_REQUEST, 'return')) {
 			goaway($return_path);
@@ -734,7 +724,7 @@ function item_post(App $a) {
 	$datarray['parent-uri']    = $parent_uri;
 	$datarray['postopts']      = $postopts;
 	$datarray['origin']        = $origin;
-	$datarray['moderated']     = $allow_moderated;
+	$datarray['moderated']     = false;
 	$datarray['gcontact-id']   = GContact::getId(["url" => $datarray['author-link'], "network" => $datarray['network'],
 							"photo" => $datarray['author-avatar'], "name" => $datarray['author-name']]);
 	$datarray['object']        = $object;
