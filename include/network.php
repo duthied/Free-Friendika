@@ -488,7 +488,7 @@ function validate_url($url)
 	/// @TODO Really suppress function outcomes? Why not find them + debug them?
 	$h = @parse_url($url);
 
-	if ((is_array($h)) && (dns_get_record($h['host'], DNS_A + DNS_CNAME + DNS_PTR) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
+	if ((is_array($h)) && (@dns_get_record($h['host'], DNS_A + DNS_CNAME + DNS_PTR) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
 		return $url;
 	}
 
