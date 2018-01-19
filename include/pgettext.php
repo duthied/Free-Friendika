@@ -19,12 +19,12 @@ require_once "include/dba.php";
  */
 function get_browser_language() {
 
+	$lang_list = [];
 	if (x($_SERVER, 'HTTP_ACCEPT_LANGUAGE')) {
 		// break up string into pieces (languages and q factors)
 		preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i',
 			$_SERVER['HTTP_ACCEPT_LANGUAGE'], $lang_parse);
 
-		$lang_list = [];
 		if (count($lang_parse[1])) {
 			// go through the list of prefered languages and add a generic language
 			// for sub-linguas (e.g. de-ch will add de) if not already in array
@@ -41,8 +41,7 @@ function get_browser_language() {
 	}
 
 	// check if we have translations for the preferred languages and pick the 1st that has
-	for ($i = 0; $i < count($lang_list); $i++) {
-		$lang = $lang_list[$i];
+	foreach ($lang_list as $lang) {
 		if ($lang === 'en' || (file_exists("view/lang/$lang") && is_dir("view/lang/$lang"))) {
 			$preferred = $lang;
 			break;
