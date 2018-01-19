@@ -1310,8 +1310,6 @@ class DFRN
 			$postvars['rino'] = $rino_remote_version;
 			$postvars['data'] = bin2hex($data);
 
-			//logger('rino: sent key = ' . $key, LOGGER_DEBUG);
-
 			if ($dfrn_version >= 2.1) {
 				if (($contact['duplex'] && strlen($contact['pubkey']))
 					|| ($owner['page-flags'] == PAGE_COMMUNITY && strlen($contact['pubkey']))
@@ -2162,8 +2160,6 @@ class DFRN
 			 * valid community action. Also forum_mode makes it valid for sure.
 			 * If neither, it's not.
 			 */
-
-			/// @TODO Maybe merge these if() blocks into one?
 			if ($is_a_remote_action && $community && (!$r[0]["forum_mode"]) && (!$r[0]["wall"])) {
 				$is_a_remote_action = false;
 				logger("not a community action");
@@ -2365,21 +2361,12 @@ class DFRN
 		$title = "";
 		foreach ($links as $link) {
 			foreach ($link->attributes as $attributes) {
-				/// @TODO Rewrite these repeated (same) if () statements to a switch()
-				if ($attributes->name == "href") {
-					$href = $attributes->textContent;
-				}
-				if ($attributes->name == "rel") {
-					$rel = $attributes->textContent;
-				}
-				if ($attributes->name == "type") {
-					$type = $attributes->textContent;
-				}
-				if ($attributes->name == "length") {
-					$length = $attributes->textContent;
-				}
-				if ($attributes->name == "title") {
-					$title = $attributes->textContent;
+				switch ($attributes->name) {
+					case "href"  : $href   = $attributes->textContent; break;
+					case "rel"   : $rel    = $attributes->textContent; break;
+					case "type"  : $type   = $attributes->textContent; break;
+					case "length": $length = $attributes->textContent; break;
+					case "title" : $title  = $attributes->textContent; break;
 				}
 			}
 			if (($rel != "") && ($href != "")) {
@@ -2630,16 +2617,6 @@ class DFRN
 			if (($item["network"] != $author["network"]) && ($author["network"] != "")) {
 				$item["network"] = $author["network"];
 			}
-
-			/// @TODO maybe remove this old-lost code then?
-			// This code was taken from the old DFRN code
-			// When activated, forums don't work.
-			// And: Why should we disallow commenting by followers?
-			// the behaviour is now similar to the Diaspora part.
-			//if ($importer["rel"] == CONTACT_IS_FOLLOWER) {
-			//	logger("Contact ".$importer["id"]." is only follower. Quitting", LOGGER_DEBUG);
-			//	return;
-			//}
 		}
 
 		if ($entrytype == DFRN_REPLY_RC) {
@@ -2656,13 +2633,12 @@ class DFRN
 				$ev = bbtoevent($item["body"]);
 				if ((x($ev, "desc") || x($ev, "summary")) && x($ev, "start")) {
 					logger("Event in item ".$item["uri"]." was found.", LOGGER_DEBUG);
-					/// @TODO Mixure of "/' ahead ...
-					$ev["cid"] = $importer["id"];
-					$ev["uid"] = $importer["uid"];
-					$ev["uri"] = $item["uri"];
-					$ev["edited"] = $item["edited"];
-					$ev['private'] = $item['private'];
-					$ev["guid"] = $item["guid"];
+					$ev["cid"]     = $importer["id"];
+					$ev["uid"]     = $importer["uid"];
+					$ev["uri"]     = $item["uri"];
+					$ev["edited"]  = $item["edited"];
+					$ev["private"] = $item["private"];
+					$ev["guid"]    = $item["guid"];
 
 					$r = q(
 						"SELECT `id` FROM `event` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
