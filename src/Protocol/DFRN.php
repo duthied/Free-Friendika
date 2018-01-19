@@ -22,7 +22,7 @@ use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Object\Image;
 use Friendica\Protocol\OStatus;
-use Friendica\Util\Crypto as FriendicaCrypto;
+use Friendica\Util\Crypto;
 use Friendica\Util\XML;
 
 use dba;
@@ -468,7 +468,7 @@ class DFRN
 		/* get site pubkey. this could be a new installation with no site keys*/
 		$pubkey = Config::get('system', 'site_pubkey');
 		if (! $pubkey) {
-			$res = FriendicaCrypto::newKeypair(2048);
+			$res = Crypto::newKeypair(2048);
 			Config::set('system', 'site_prvkey', $res['prvkey']);
 			Config::set('system', 'site_pubkey', $res['pubkey']);
 		}
@@ -1295,9 +1295,10 @@ class DFRN
 			switch ($rino_remote_version) {
 				case 1:
 				case 2:
+					// Force downgrade in case the remote server is still using the deprecated version 2
 					$rino = 1;
 					$rino_remote_version = 1;
-					// Deprecated rino version!
+
 					$key = openssl_random_pseudo_bytes(16);
 					$data = self::aesEncrypt($postvars['data'], $key);
 					break;
