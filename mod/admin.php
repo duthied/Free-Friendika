@@ -1855,7 +1855,7 @@ function admin_page_addons(App $a)
 		}
 	}
 
-	$t = get_markup_template('admin/plugins.tpl');
+	$t = get_markup_template('admin/addons.tpl');
 	return replace_macros($t, [
 		'$title' => t('Administration'),
 		'$page' => t('Addons'),
@@ -2108,7 +2108,7 @@ function admin_page_themes(App $a)
 		$addons[] = [$th['name'], (($th['allowed']) ? "on" : "off"), Theme::getInfo($th['name'])];
 	}
 
-	$t = get_markup_template('admin/plugins.tpl');
+	$t = get_markup_template('admin/addons.tpl');
 	return replace_macros($t, [
 		'$title'               => t('Administration'),
 		'$page'                => t('Themes'),
