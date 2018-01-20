@@ -614,7 +614,10 @@ function item_post(App $a) {
 	$datarray['pubmail']       = $pubmail_enabled;
 	$datarray['attach']        = $attachments;
 	$datarray['bookmark']      = intval($bookmark);
+
+	// This is not a bug. The item store function changes 'parent-uri' to 'thr-parent' and fetches 'parent-uri' new. (We should change this)
 	$datarray['parent-uri']    = $thr_parent_uri;
+
 	$datarray['postopts']      = $postopts;
 	$datarray['origin']        = $origin;
 	$datarray['moderated']     = false;
