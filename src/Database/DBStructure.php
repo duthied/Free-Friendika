@@ -1733,7 +1733,8 @@ class DBStructure {
 						"page-flags" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
 						"account-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
 						"prvnets" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"pwdreset" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"pwdreset" => ["type" => "varchar(255)", "comment" => "Password reset request token"],
+						"pwdreset_time" => ["type" => "datetime", "comment" => "Timestamp of the last password reset request"],
 						"maxreq" => ["type" => "int", "not null" => "1", "default" => "10", "comment" => ""],
 						"expire" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
 						"account_removed" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
@@ -1783,6 +1784,6 @@ class DBStructure {
 						]
 				];
 
-		return($database);
+		return $database;
 	}
 }
