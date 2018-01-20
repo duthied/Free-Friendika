@@ -52,15 +52,15 @@ function item_post(App $a) {
 	}
 
 	Addon::callHooks('post_local_start', $_REQUEST);
-	// logger('postinput ' . file_get_contents('php://input'));
+
 	logger('postvars ' . print_r($_REQUEST,true), LOGGER_DATA);
 
-	$api_source = x($_REQUEST, 'api_source') && $_REQUEST['api_source'];
+	$api_source = defaults($_REQUEST, 'api_source', false);
 
 	$message_id = ((x($_REQUEST, 'message_id') && $api_source) ? strip_tags($_REQUEST['message_id']) : '');
 
-	$return_path = (x($_REQUEST, 'return') ? $_REQUEST['return'] : '');
-	$preview = (x($_REQUEST, 'preview') ? intval($_REQUEST['preview']) : 0);
+	$return_path = defaults($_REQUEST, 'return', '');
+	$preview = intval(defaults($_REQUEST, 'preview', 0));
 
 	/*
 	 * Check for doubly-submitted posts, and reject duplicates
@@ -77,90 +77,56 @@ function item_post(App $a) {
 	}
 
 	// Is this a reply to something?
-	$parent = (x($_REQUEST, 'parent') ? intval($_REQUEST['parent']) : 0);
-	$parent_uri = (x($_REQUEST, 'parent_uri') ? trim($_REQUEST['parent_uri']) : '');
+	$thr_parent = intval(defaults($_REQUEST, 'parent', 0));
+	$thr_parent_uri = trim(defaults($_REQUEST, 'parent_uri', ''));
 
+	$thr_parent_contact = null;
+
+	$parent = 0;
 	$parent_item = null;
-	$parent_contact = null;
-	$parid = 0;
-	$r = false;
-	$objecttype = null;
 	$parent_user = null;
 
-	if ($parent || $parent_uri) {
+	$parent_contact = null;
 
-		$objecttype = ACTIVITY_OBJ_COMMENT;
+	$objecttype = null;
+	$profile_uid = defaults($_REQUEST, 'profile_uid', local_user());
 
-		if (!x($_REQUEST, 'type')) {
-			$_REQUEST['type'] = 'net-comment';
+	if ($thr_parent || $thr_parent_uri) {
+		if ($thr_parent) {
+			$parent_item = dba::selectFirst('item', [], ['id' => $thr_parent]);
+		} elseif ($thr_parent_uri) {
+			$parent_item = dba::selectFirst('item', [], ['uri' => $thr_parent_uri, 'uid' => $profile_uid]);
 		}
 
-		if ($parent) {
-			$r = q("SELECT * FROM `item` WHERE `id` = %d LIMIT 1",
-				intval($parent)
-			);
-		} elseif ($parent_uri && local_user()) {
-			// This is coming from an API source, and we are logged in
-			$r = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
-				dbesc($parent_uri),
-				intval(local_user())
-			);
+		// if this isn't the real parent of the conversation, find it
+		if (DBM::is_result($parent_item)) {
 
-			// if this isn't the real parent of the conversation, find it
-			if (DBM::is_result($r)) {
-				$parid = $r[0]['parent'];
-				if ($r[0]['id'] != $r[0]['parent']) {
-					$r = q("SELECT * FROM `item` WHERE `id` = `parent` AND `parent` = %d LIMIT 1",
-						intval($parid)
-					);
-				}
+			// The URI and the contact is taken from the direct parent which needn't to be the top parent
+			$thr_parent_uri = $parent_item['uri'];
+			$thr_parent_contact = Contact::getDetailsByURL($parent_item["author-link"]);
+
+			if ($parent_item['id'] != $parent_item['parent']) {
+				$parent_item = dba::selectFirst('item', [], ['id' => $parent_item['parent']]);
 			}
 		}
 
-		if (!DBM::is_result($r)) {
+		if (!DBM::is_result($parent_item)) {
 			notice(t('Unable to locate original post.') . EOL);
 			if (x($_REQUEST, 'return')) {
 				goaway($return_path);
 			}
 			killme();
 		}
-		$parent_item = $r[0];
+
 		$parent = $parent_item['id'];
-		$parent_uri = $parent_item['uri'];
 		$parent_user = $parent_item['uid'];
 
-		if ($parent_item['contact-id']) {
-			$r = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
-				intval($parent_item['contact-id'])
-			);
-			if (DBM::is_result($r)) {
-				$parent_contact = $r[0];
-			}
+		$parent_contact = Contact::getDetailsByURL($parent_item["author-link"]);
 
-			// If the contact id doesn't fit with the contact, then set the contact to null
-			$thrparent = q("SELECT `author-link`, `network` FROM `item` WHERE `uri` = '%s' LIMIT 1", dbesc($parent_uri));
-			if (DBM::is_result($thrparent) && ($thrparent[0]["network"] === NETWORK_OSTATUS)
-				&& (normalise_link($parent_contact["url"]) != normalise_link($thrparent[0]["author-link"]))) {
-				$parent_contact = Contact::getDetailsByURL($thrparent[0]["author-link"]);
+		$objecttype = ACTIVITY_OBJ_COMMENT;
 
-				if (!isset($parent_contact["nick"])) {
-					$probed_contact = Probe::uri($thrparent[0]["author-link"]);
-					if ($probed_contact["network"] != NETWORK_FEED) {
-						$parent_contact = $probed_contact;
-						$parent_contact["nurl"] = normalise_link($probed_contact["url"]);
-						$parent_contact["thumb"] = $probed_contact["photo"];
-						$parent_contact["micro"] = $probed_contact["photo"];
-						$parent_contact["addr"] = $probed_contact["addr"];
-					}
-				}
-				logger('no contact found: ' . print_r($thrparent, true), LOGGER_DEBUG);
-			} else {
-				logger('parent contact: ' . print_r($parent_contact, true), LOGGER_DEBUG);
-			}
-
-			if ($parent_contact["nick"] == "") {
-				$parent_contact["nick"] = $parent_contact["name"];
-			}
+		if (!x($_REQUEST, 'type')) {
+			$_REQUEST['type'] = 'net-comment';
 		}
 	}
 
@@ -168,11 +134,10 @@ function item_post(App $a) {
 		logger('mod_item: item_post parent=' . $parent);
 	}
 
-	$profile_uid = (x($_REQUEST, 'profile_uid') ? intval($_REQUEST['profile_uid']) : 0);
-	$post_id     = (x($_REQUEST, 'post_id')     ? intval($_REQUEST['post_id'])     : 0);
-	$app         = (x($_REQUEST, 'source')      ? strip_tags($_REQUEST['source'])  : '');
-	$extid       = (x($_REQUEST, 'extid')       ? strip_tags($_REQUEST['extid'])   : '');
-	$object      = (x($_REQUEST, 'object')      ? $_REQUEST['object']              : '');
+	$post_id     = intval(defaults($_REQUEST, 'post_id', 0));
+	$app         = strip_tags(defaults($_REQUEST, 'source', ''));
+	$extid       = strip_tags(defaults($_REQUEST, 'extid', ''));
+	$object      = defaults($_REQUEST, 'object', '');
 
 	// Ensure that the user id in a thread always stay the same
 	if (!is_null($parent_user) && in_array($parent_user, [local_user(), 0])) {
@@ -181,12 +146,7 @@ function item_post(App $a) {
 
 	// Check for multiple posts with the same message id (when the post was created via API)
 	if (($message_id != '') && ($profile_uid != 0)) {
-		$r = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
-			dbesc($message_id),
-			intval($profile_uid)
-		);
-
-		if (DBM::is_result($r)) {
+		if (dba::exists('item', ['uri' => $message_id, 'uid' => $profile_uid])) {
 			logger("Message with URI ".$message_id." already exists for user ".$profile_uid, LOGGER_DEBUG);
 			return;
 		}
@@ -210,23 +170,12 @@ function item_post(App $a) {
 	$orig_post = null;
 
 	if ($post_id) {
-		$i = q("SELECT * FROM `item` WHERE `uid` = %d AND `id` = %d LIMIT 1",
-			intval($profile_uid),
-			intval($post_id)
-		);
-		if (!DBM::is_result($i)) {
-			killme();
-		}
-		$orig_post = $i[0];
+		$orig_post = dba::selectFirst('item', [], ['id' => $post_id]);
 	}
 
-	$user = null;
-
-	$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
-		intval($profile_uid)
-	);
-	if (DBM::is_result($r)) {
-		$user = $r[0];
+	$user = dba::selectFirst('user', [], ['uid' => $profile_uid]);
+	if (!DBM::is_result($user) && !$orig_post) {
+		return;
 	}
 
 	if ($orig_post) {
@@ -244,7 +193,7 @@ function item_post(App $a) {
 		$title             = notags(trim($_REQUEST['title']));
 		$body              = escape_tags(trim($_REQUEST['body']));
 		$private           = $orig_post['private'];
-		$pubmail_enable    = $orig_post['pubmail'];
+		$pubmail_enabled   = $orig_post['pubmail'];
 		$network           = $orig_post['network'];
 		$guid              = $orig_post['guid'];
 		$extid             = $orig_post['extid'];
@@ -267,9 +216,7 @@ function item_post(App $a) {
 			$str_group_deny    = $user['deny_gid'];
 			$str_contact_deny  = $user['deny_cid'];
 		} else {
-
 			// use the posted permissions
-
 			$str_group_allow   = perms2str($_REQUEST['group_allow']);
 			$str_contact_allow = perms2str($_REQUEST['contact_allow']);
 			$str_group_deny    = perms2str($_REQUEST['group_deny']);
@@ -312,20 +259,12 @@ function item_post(App $a) {
 			$private           = $parent_item['private'];
 		}
 
-		$pubmail_enable    = ((x($_REQUEST, 'pubmail_enable') && intval($_REQUEST['pubmail_enable']) && !$private) ? 1 : 0);
+		$pubmail_enabled = defaults($_REQUEST, 'pubmail_enable', false) && !$private;
 
 		// if using the API, we won't see pubmail_enable - figure out if it should be set
-
 		if ($api_source && $profile_uid && $profile_uid == local_user() && !$private) {
-			$mail_disabled = ((function_exists('imap_open') && !Config::get('system', 'imap_disabled')) ? 0 : 1);
-			if (!$mail_disabled) {
-				/// @TODO Check if only pubmail is loaded, * loads all columns
-				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
-					intval(local_user())
-				);
-				if (DBM::is_result($r) && intval($r[0]['pubmail'])) {
-					$pubmail_enabled = true;
-				}
+			if (function_exists('imap_open') && !Config::get('system', 'imap_disabled')) {
+				$pubmail_enabled = dba::exists('mailacct', ["`uid` = ? AND `server` != ? AND `pubmail`", local_user(), '']);
 			}
 		}
 
@@ -362,8 +301,7 @@ function item_post(App $a) {
 
 	if (local_user() && ((local_user() == $profile_uid) || $allow_comment)) {
 		$self = true;
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1",
-			intval($_SESSION['uid']));
+		$author = dba::selectFirst('contact', [], ['uid' => local_user(), 'self' => true]);
 	} elseif (remote_user()) {
 		if (x($_SESSION, 'remote') && is_array($_SESSION['remote'])) {
 			foreach ($_SESSION['remote'] as $v) {
@@ -374,28 +312,19 @@ function item_post(App $a) {
 			}
 		}
 		if ($contact_id) {
-			$r = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
-				intval($contact_id)
-			);
+			$author = dba::selectFirst('contact', [], ['id' => $contact_id]);
 		}
 	}
 
-	if (DBM::is_result($r)) {
-		$author = $r[0];
+	if (DBM::is_result($author)) {
 		$contact_id = $author['id'];
 	}
 
 	// get contact info for owner
-
 	if ($profile_uid == local_user() || $allow_comment) {
 		$contact_record = $author;
 	} else {
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1",
-			intval($profile_uid)
-		);
-		if (DBM::is_result($r)) {
-			$contact_record = $r[0];
-		}
+		$contact_record = dba::selectFirst('contact', [], ['uid' => $profile_uid, 'self' => true]);
 	}
 
 	$post_type = notags(trim($_REQUEST['type']));
@@ -414,35 +343,20 @@ function item_post(App $a) {
 
 	$tags = get_tags($body);
 
-	/*
-	 * add a statusnet style reply tag if the original post was from there
-	 * and we are replying, and there isn't one already
-	 */
-	if ($parent && ($parent_contact['network'] == NETWORK_OSTATUS)) {
-		$contact = '@[url=' . $parent_contact['url'] . ']' . $parent_contact['nick'] . '[/url]';
-
-		if (!in_array($contact, $tags)) {
-			$body = $contact . ' ' . $body;
-			$tags[] = $contact;
-		}
-
-		$toplevel_contact = "";
-		$toplevel_parent = q("SELECT `contact`.* FROM `contact`
-						INNER JOIN `item` ON `item`.`contact-id` = `contact`.`id` AND `contact`.`url` = `item`.`author-link`
-						WHERE `item`.`id` = `item`.`parent` AND `item`.`parent` = %d", intval($parent));
-		if (DBM::is_result($toplevel_parent)) {
-			if (!empty($toplevel_parent[0]['addr'])) {
-				$toplevel_contact = '@' . $toplevel_parent[0]['addr'];
-			} else {
-				$toplevel_contact = '@' . $toplevel_parent[0]['nick'] . '+' . $toplevel_parent[0]['id'];
+	// Add a tag if the parent contact is from OStatus (This will notify them during delivery)
+	if ($parent) {
+		if ($thr_parent_contact['network'] == NETWORK_OSTATUS) {
+			$contact = '@[url=' . $thr_parent_contact['url'] . ']' . $thr_parent_contact['nick'] . '[/url]';
+			if (!in_array($contact, $tags)) {
+				$tags[] = $contact;
 			}
-		} else {
-			$toplevel_parent = q("SELECT `author-link`, `author-name` FROM `item` WHERE `id` = `parent` AND `parent` = %d", intval($parent));
-			$toplevel_contact = '@[url=' . $toplevel_parent[0]['author-link'] . ']' . $toplevel_parent[0]['author-name'] . '[/url]';
 		}
 
-		if (!in_array($toplevel_contact, $tags)) {
-			$tags[] = $toplevel_contact;
+		if ($parent_contact['network'] == NETWORK_OSTATUS) {
+			$contact = '@[url=' . $parent_contact['url'] . ']' . $parent_contact['nick'] . '[/url]';
+			if (!in_array($contact, $tags)) {
+				$tags[] = $contact;
+			}
 		}
 	}
 
@@ -528,6 +442,7 @@ function item_post(App $a) {
 
 	$match = null;
 
+	/// @todo these lines should be moved to Model/Photo
 	if (!$preview && preg_match_all("/\[img([\=0-9x]*?)\](.*?)\[\/img\]/",$body,$match)) {
 		$images = $match[2];
 		if (count($images)) {
@@ -543,29 +458,20 @@ function item_post(App $a) {
 				if (!strlen($image_uri)) {
 					continue;
 				}
+
+				// Ensure to only modify photos that you own
 				$srch = '<' . intval($original_contact_id) . '>';
 
-				$r = q("SELECT `id` FROM `photo` WHERE `allow_cid` = '%s' AND `allow_gid` = '' AND `deny_cid` = '' AND `deny_gid` = ''
-					AND `resource-id` = '%s' AND `uid` = %d LIMIT 1",
-					dbesc($srch),
-					dbesc($image_uri),
-					intval($profile_uid)
-				);
-
-				if (!DBM::is_result($r)) {
+				$condition = ['allow_cid' => $srch, 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '',
+						'resource-id' => $image_uri, 'uid' => $profile_uid];
+				if (!dba::exists('photo', $condition)) {
 					continue;
 				}
 
-				$r = q("UPDATE `photo` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'
-					WHERE `resource-id` = '%s' AND `uid` = %d AND `album` = '%s' ",
-					dbesc($str_contact_allow),
-					dbesc($str_group_allow),
-					dbesc($str_contact_deny),
-					dbesc($str_group_deny),
-					dbesc($image_uri),
-					intval($profile_uid),
-					dbesc(t('Wall Photos'))
-				);
+				$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
+						'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny];
+				$condition = ['resource-id' => $image_uri, 'uid' => $profile_uid, 'album' => t('Wall Photos')];
+				dba::update('photo', $fields, $condition);
 			}
 		}
 	}
@@ -576,25 +482,24 @@ function item_post(App $a) {
 	 */
 	$match = false;
 
+	/// @todo these lines should be moved to Model/Attach (Once it exists)
 	if (!$preview && preg_match_all("/\[attachment\](.*?)\[\/attachment\]/", $body, $match)) {
 		$attaches = $match[1];
 		if (count($attaches)) {
 			foreach ($attaches as $attach) {
-				$r = q("SELECT * FROM `attach` WHERE `uid` = %d AND `id` = %d LIMIT 1",
-					intval($profile_uid),
-					intval($attach)
-				);
-				if (DBM::is_result($r)) {
-					$r = q("UPDATE `attach` SET `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'
-						WHERE `uid` = %d AND `id` = %d",
-						dbesc($str_contact_allow),
-						dbesc($str_group_allow),
-						dbesc($str_contact_deny),
-						dbesc($str_group_deny),
-						intval($profile_uid),
-						intval($attach)
-					);
+				// Ensure to only modify attachments that you own
+				$srch = '<' . intval($original_contact_id) . '>';
+
+				$condition = ['allow_cid' => $srch, 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '',
+						'id' => $attach];
+				if (!dba::exists('attach', $condition)) {
+					continue;
 				}
+
+				$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
+						'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny];
+				$condition = ['id' => $attach];
+				dba::update('attach', $fields, $condition);
 			}
 		}
 	}
@@ -637,15 +542,15 @@ function item_post(App $a) {
 
 	if (preg_match_all('/(\[attachment\]([0-9]+)\[\/attachment\])/',$body,$match)) {
 		foreach ($match[2] as $mtch) {
-			$r = q("SELECT `id`,`filename`,`filesize`,`filetype` FROM `attach` WHERE `uid` = %d AND `id` = %d LIMIT 1",
-				intval($profile_uid),
-				intval($mtch)
-			);
-			if (DBM::is_result($r)) {
+			$fields = ['id', 'filename', 'filesize', 'filetype'];
+			$attachment = dba::selectFirst('attach', $fields, ['id' => $mtch]);
+			if (DBM::is_result($attachment)) {
 				if (strlen($attachments)) {
 					$attachments .= ',';
 				}
-				$attachments .= '[attach]href="' . System::baseUrl() . '/attach/' . $r[0]['id'] . '" length="' . $r[0]['filesize'] . '" type="' . $r[0]['filetype'] . '" title="' . (($r[0]['filename']) ? $r[0]['filename'] : '') . '"[/attach]';
+				$attachments .= '[attach]href="' . System::baseUrl() . '/attach/' . $attachment['id'] .
+						'" length="' . $attachment['filesize'] . '" type="' . $attachment['filetype'] .
+						'" title="' . ($attachment['filename'] ? $attachment['filename'] : '') . '"[/attach]';
 			}
 			$body = str_replace($match[1],'',$body);
 		}
@@ -670,15 +575,15 @@ function item_post(App $a) {
 	// even if the post arrived via API we are considering that it
 	// originated on this site by default for determining relayability.
 
-	$origin = (x($_REQUEST, 'origin') ? intval($_REQUEST['origin']) : 1);
+	$origin = intval(defaults($_REQUEST, 'origin', 1));
 
 	$notify_type = ($parent ? 'comment-new' : 'wall-new');
 
 	$uri = ($message_id ? $message_id : item_new_uri($a->get_hostname(), $profile_uid, $guid));
 
 	// Fallback so that we alway have a parent uri
-	if (!$parent_uri || !$parent) {
-		$parent_uri = $uri;
+	if (!$thr_parent_uri || !$parent) {
+		$thr_parent_uri = $uri;
 	}
 
 	$datarray = [];
@@ -719,10 +624,13 @@ function item_post(App $a) {
 	$datarray['deny_cid']      = $str_contact_deny;
 	$datarray['deny_gid']      = $str_group_deny;
 	$datarray['private']       = $private;
-	$datarray['pubmail']       = $pubmail_enable;
+	$datarray['pubmail']       = $pubmail_enabled;
 	$datarray['attach']        = $attachments;
 	$datarray['bookmark']      = intval($bookmark);
-	$datarray['parent-uri']    = $parent_uri;
+
+	// This is not a bug. The item store function changes 'parent-uri' to 'thr-parent' and fetches 'parent-uri' new. (We should change this)
+	$datarray['parent-uri']    = $thr_parent_uri;
+
 	$datarray['postopts']      = $postopts;
 	$datarray['origin']        = $origin;
 	$datarray['moderated']     = false;
