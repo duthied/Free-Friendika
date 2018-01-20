@@ -262,7 +262,7 @@ function item_post(App $a) {
 		// if using the API, we won't see pubmail_enable - figure out if it should be set
 		if ($api_source && $profile_uid && $profile_uid == local_user() && !$private) {
 			if (function_exists('imap_open') && !Config::get('system', 'imap_disabled')) {
-				$pubmail_enabled = dba::exists('mailacct', ["`uid` = ? AND `server` != ?", local_user(), '']);
+				$pubmail_enabled = dba::exists('mailacct', ["`uid` = ? AND `server` != ? AND `pubmail`", local_user(), '']);
 			}
 		}
 
