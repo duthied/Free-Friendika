@@ -131,30 +131,26 @@ class Item
 			dba::delete('attach', ['id' => $matches[1], 'uid' => $item['uid']]);
 		}
 
-		// When it is our item we don't delete it here, since we have to send delete messages
-		if ($item['origin'] || $parent['origin']) {
-			// Set the item to "deleted"
-			dba::update('item', ['deleted' => true, 'title' => '', 'body' => '',
-						'edited' => datetime_convert(), 'changed' => datetime_convert()],
-					['id' => $item['id']]);
+		// Set the item to "deleted"
+		dba::update('item', ['deleted' => true, 'title' => '', 'body' => '',
+					'edited' => datetime_convert(), 'changed' => datetime_convert()],
+				['id' => $item['id']]);
 
-			create_tags_from_item($item['id']);
-			Term::createFromItem($item['id']);
-			delete_thread($item['id'], $item['parent-uri']);
+		create_tags_from_item($item['id']);
+		Term::createFromItem($item['id']);
+		delete_thread($item['id'], $item['parent-uri']);
 
-			// If it's the parent of a comment thread, kill all the kids
-			if ($item['id'] == $item['parent']) {
-				$items = dba::select('item', ['id'], ['parent' => $item['parent']]);
-				while ($row = dba::fetch($items)) {
-					self::delete($row['id'], $priority);
-				}
+		// If it's the parent of a comment thread, kill all the kids
+		if ($item['id'] == $item['parent']) {
+			$items = dba::select('item', ['id'], ['parent' => $item['parent']]);
+			while ($row = dba::fetch($items)) {
+				self::delete($row['id'], $priority);
 			}
+		}
 
-			// send the notification upstream/downstream
+		// send the notification upstream/downstream
+		if ($item['origin'] || $parent['origin']) {
 			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", "drop", intval($item['id']));
-		} else {
-			// delete it immediately. All related children will be deleted as well.
-			dba::delete('item', ['id' => $item['id']]);
 		}
 
 		return true;
