@@ -7,6 +7,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\User;
 
 require_once 'include/boot.php';
 require_once 'include/enotify.php';
@@ -84,10 +85,8 @@ function lostpass_content(App $a)
 			return $o;
 		}
 
-		$new_password = autoname(6) . mt_rand(100, 9999);
-		$new_password_encoded = hash('whirlpool', $new_password);
-
-		$result = dba::update('user', ['password' => $new_password_encoded, 'pwdreset' => ''], ['uid' => $user['uid']]);
+		$new_password = User::generateNewPassword();
+		$result = User::updatePassword($user['uid'], $new_password);
 		if (DBM::is_result($result)) {
 			$tpl = get_markup_template('pwdreset.tpl');
 			$o .= replace_macros($tpl,
