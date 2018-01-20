@@ -11,6 +11,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Model\Conversation;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Util\Lock;
@@ -700,7 +701,7 @@ class OStatus
 		}
 
 		if (($item['author-link'] != '') && !empty($item['protocol'])) {
-			$item = store_conversation($item);
+			$item = Conversation::insert($item);
 		}
 
 		self::$itemlist[] = $item;
@@ -843,7 +844,7 @@ class OStatus
 			}
 
 			logger('Store conversation data for uri '.$conv_data['uri'], LOGGER_DEBUG);
-			store_conversation($conv_data);
+			Conversation::insert($conv_data);
 		}
 	}
 

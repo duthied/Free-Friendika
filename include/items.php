@@ -16,6 +16,7 @@ use Friendica\Model\Group;
 use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Model\Item;
+use Friendica\Model\Conversation;
 use Friendica\Object\Image;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
@@ -29,13 +30,6 @@ require_once 'include/threads.php';
 require_once 'include/plaintext.php';
 require_once 'mod/share.php';
 require_once 'include/enotify.php';
-
-function construct_verb($item) {
-	if ($item['verb']) {
-		return $item['verb'];
-	}
-	return ACTIVITY_POST;
-}
 
 /* limit_body_size()
  *
@@ -51,6 +45,7 @@ function construct_verb($item) {
  * @param string $body
  * @return string
  */
+/// @TODO move to src/Model/Item.php
 function limit_body_size($body)
 {
 	$maxlen = get_max_import_size();
@@ -130,33 +125,7 @@ function limit_body_size($body)
 	}
 }
 
-function title_is_body($title, $body) {
-
-	$title = strip_tags($title);
-	$title = trim($title);
-	$title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
-	$title = str_replace(["\n", "\r", "\t", " "], ["", "", "", ""], $title);
-
-	$body = strip_tags($body);
-	$body = trim($body);
-	$body = html_entity_decode($body, ENT_QUOTES, 'UTF-8');
-	$body = str_replace(["\n", "\r", "\t", " "], ["", "", "", ""], $body);
-
-	if (strlen($title) < strlen($body)) {
-		$body = substr($body, 0, strlen($title));
-	}
-
-	if (($title != $body) && (substr($title, -3) == "...")) {
-		$pos = strrpos($title, "...");
-		if ($pos > 0) {
-			$title = substr($title, 0, $pos);
-			$body = substr($body, 0, $pos);
-		}
-	}
-
-	return ($title == $body);
-}
-
+/// @TODO move to ???
 function add_page_info_data($data) {
 	Addon::callHooks('page_info_data', $data);
 
@@ -215,7 +184,7 @@ function add_page_info_data($data) {
 	if (isset($data["keywords"]) && count($data["keywords"])) {
 		$hashtags = "\n";
 		foreach ($data["keywords"] AS $keyword) {
-			/// @todo make a positive list of allowed characters
+			/// @TODO make a positive list of allowed characters
 			$hashtag = str_replace([" ", "+", "/", ".", "#", "'", "’", "`", "(", ")", "„", "“"],
 						["", "", "", "", "", "", "", "", "", "", "", ""], $keyword);
 			$hashtags .= "#[url=" . System::baseUrl() . "/search?tag=" . rawurlencode($hashtag) . "]" . $hashtag . "[/url] ";
@@ -225,6 +194,7 @@ function add_page_info_data($data) {
 	return "\n".$text.$hashtags;
 }
 
+/// @TODO move to ???
 function query_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
 
 	$data = ParseUrl::getSiteinfoCached($url, true);
@@ -253,6 +223,7 @@ function query_page_info($url, $no_photos = false, $photo = "", $keywords = fals
 	return $data;
 }
 
+/// @TODO move to ???
 function add_page_keywords($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
 	$data = query_page_info($url, $no_photos, $photo, $keywords, $keyword_blacklist);
 
@@ -273,6 +244,7 @@ function add_page_keywords($url, $no_photos = false, $photo = "", $keywords = fa
 	return $tags;
 }
 
+/// @TODO move to ???
 function add_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
 	$data = query_page_info($url, $no_photos, $photo, $keywords, $keyword_blacklist);
 
@@ -281,6 +253,7 @@ function add_page_info($url, $no_photos = false, $photo = "", $keywords = false,
 	return $text;
 }
 
+/// @TODO move to ???
 function add_page_info_to_body($body, $texturl = false, $no_photos = false) {
 
 	logger('add_page_info_to_body: fetch page info for body ' . $body, LOGGER_DEBUG);
@@ -334,151 +307,8 @@ function add_page_info_to_body($body, $texturl = false, $no_photos = false) {
 	return $body;
 }
 
-/**
- * Adds a "lang" specification in a "postopts" element of given $arr,
- * if possible and not already present.
- * Expects "body" element to exist in $arr.
- *
- * @todo Add a parameter to request forcing override
- */
-function item_add_language_opt(&$arr) {
-
-	if (version_compare(PHP_VERSION, '5.3.0', '<')) {
-		 // LanguageDetect.php not available ?
-		return;
-	}
-
-	if (x($arr, 'postopts') ) {
-		if (strstr($arr['postopts'], 'lang=') ) {
-			// do not override
-			/// @TODO Add parameter to request overriding
-			return;
-		}
-		$postopts = $arr['postopts'];
-	} else {
-		$postopts = "";
-	}
-
-	$naked_body = preg_replace('/\[(.+?)\]/','', $arr['body']);
-	$l = new Text_LanguageDetect();
-	$lng = $l->detect($naked_body, 3);
-
-	if (sizeof($lng) > 0) {
-		if ($postopts != "") $postopts .= '&'; // arbitrary separator, to be reviewed
-		$postopts .= 'lang=';
-		$sep = "";
-		foreach ($lng as $language => $score) {
-			$postopts .= $sep . $language . ";" . $score;
-			$sep = ':';
-		}
-		$arr['postopts'] = $postopts;
-	}
-}
-
-/**
- * @brief Creates an unique guid out of a given uri
- *
- * @param string $uri uri of an item entry
- * @param string $host (Optional) hostname for the GUID prefix
- * @return string unique guid
- */
-function uri_to_guid($uri, $host = "") {
-
-	// Our regular guid routine is using this kind of prefix as well
-	// We have to avoid that different routines could accidentally create the same value
-	$parsed = parse_url($uri);
-
-	// When the hostname isn't given, we take it from the uri
-	if ($host == "") {
-		// Is it in the format data@host.tld?
-		if ((count($parsed) == 1) && strstr($uri, '@')) {
-			$mailparts = explode('@', $uri);
-			$host = array_pop($mailparts);
-		} else {
-			$host = $parsed["host"];
-		}
-	}
-
-	// We use a hash of the hostname as prefix for the guid
-	$guid_prefix = hash("crc32", $host);
-
-	// Remove the scheme to make sure that "https" and "http" doesn't make a difference
-	unset($parsed["scheme"]);
-
-	// Glue it together to be able to make a hash from it
-	$host_id = implode("/", $parsed);
-
-	// We could use any hash algorithm since it isn't a security issue
-	$host_hash = hash("ripemd128", $host_id);
-
-	return $guid_prefix.$host_hash;
-}
-
-/**
- * @brief Store the conversation data
- *
- * @param array $arr Item array with conversation data
- * @return array Item array with removed conversation data
- */
-function store_conversation($arr) {
-	if (in_array(defaults($arr, 'network', NETWORK_PHANTOM), [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS]) && !empty($arr['uri'])) {
-		$conversation = ['item-uri' => $arr['uri'], 'received' => DBM::date()];
-
-		if (isset($arr['parent-uri']) && ($arr['parent-uri'] != $arr['uri'])) {
-			$conversation['reply-to-uri'] = $arr['parent-uri'];
-		}
-		if (isset($arr['thr-parent']) && ($arr['thr-parent'] != $arr['uri'])) {
-			$conversation['reply-to-uri'] = $arr['thr-parent'];
-		}
-
-		if (isset($arr['conversation-uri'])) {
-			$conversation['conversation-uri'] = $arr['conversation-uri'];
-		}
-
-		if (isset($arr['conversation-href'])) {
-			$conversation['conversation-href'] = $arr['conversation-href'];
-		}
-
-		if (isset($arr['protocol'])) {
-			$conversation['protocol'] = $arr['protocol'];
-		}
-
-		if (isset($arr['source'])) {
-			$conversation['source'] = $arr['source'];
-		}
-
-		$old_conv = dba::fetch_first("SELECT `item-uri`, `reply-to-uri`, `conversation-uri`, `conversation-href`, `protocol`, `source`
-				FROM `conversation` WHERE `item-uri` = ?", $conversation['item-uri']);
-		if (DBM::is_result($old_conv)) {
-			// Don't update when only the source has changed.
-			// Only do this when there had been no source before.
-			if ($old_conv['source'] != '') {
-				unset($old_conv['source']);
-			}
-			// Update structure data all the time but the source only when its from a better protocol.
-			if (($old_conv['protocol'] < $conversation['protocol']) && ($old_conv['protocol'] != 0)) {
-				unset($conversation['protocol']);
-				unset($conversation['source']);
-			}
-			if (!dba::update('conversation', $conversation, ['item-uri' => $conversation['item-uri']], $old_conv)) {
-				logger('Conversation: update for '.$conversation['item-uri'].' from '.$conv['protocol'].' to '.$conversation['protocol'].' failed', LOGGER_DEBUG);
-			}
-		} else {
-			if (!dba::insert('conversation', $conversation, true)) {
-				logger('Conversation: insert for '.$conversation['item-uri'].' (protocol '.$conversation['protocol'].') failed', LOGGER_DEBUG);
-			}
-		}
-	}
-
-	unset($arr['conversation-uri']);
-	unset($arr['conversation-href']);
-	unset($arr['protocol']);
-	unset($arr['source']);
-
-	return $arr;
-}
-
 /// @TODO add type-hint array
+/// @TODO move to src/Model/Item.php
 function item_store($arr, $force_parent = false, $notify = false, $dontcache = false)
 {
 	$a = get_app();
@@ -492,13 +322,13 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		$arr['protocol'] = PROTOCOL_DFRN;
 
 		// We have to avoid duplicates. So we create the GUID in form of a hash of the plink or uri.
-		// In difference to the call to "uri_to_guid" several lines below we add the hash of our own host.
+		// In difference to the call to "Item::GuidFromUri" several lines below we add the hash of our own host.
 		// This is done because our host is the original creator of the post.
 		if (!isset($arr['guid'])) {
 			if (isset($arr['plink'])) {
-				$arr['guid'] = uri_to_guid($arr['plink'], $a->get_hostname());
+				$arr['guid'] = Item::GuidFromUri($arr['plink'], $a->get_hostname());
 			} elseif (isset($arr['uri'])) {
-				$arr['guid'] = uri_to_guid($arr['uri'], $a->get_hostname());
+				$arr['guid'] = Item::GuidFromUri($arr['uri'], $a->get_hostname());
 			}
 		}
 	} else {
@@ -508,9 +338,9 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	if ($notify) {
 		$guid_prefix = "";
 	} elseif ((trim($arr['guid']) == "") && (trim($arr['plink']) != "")) {
-		$arr['guid'] = uri_to_guid($arr['plink']);
+		$arr['guid'] = Item::GuidFromUri($arr['plink']);
 	} elseif ((trim($arr['guid']) == "") && (trim($arr['uri']) != "")) {
-		$arr['guid'] = uri_to_guid($arr['uri']);
+		$arr['guid'] = Item::GuidFromUri($arr['uri']);
 	} else {
 		$parsed = parse_url($arr["author-link"]);
 		$guid_prefix = hash("crc32", $parsed["host"]);
@@ -520,7 +350,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	$arr['uri']           = ((x($arr, 'uri'))           ? notags(trim($arr['uri']))           : item_new_uri($a->get_hostname(), $uid, $arr['guid']));
 
 	// Store conversation data
-	$arr = store_conversation($arr);
+	$arr = Conversation::insert($arr);
 
 	/*
 	 * If a Diaspora signature structure was passed in, pull it out of the
@@ -535,7 +365,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	}
 
 	// Converting the plink
-	/// @todo Check if this is really still needed
+	/// @TODO Check if this is really still needed
 	if ($arr['network'] == NETWORK_OSTATUS) {
 		if (isset($arr['plink'])) {
 			$arr['plink'] = OStatus::convertHref($arr['plink']);
@@ -606,7 +436,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	//if ((strpos($arr['body'],'<') !== false) || (strpos($arr['body'],'>') !== false))
 	//	$arr['body'] = strip_tags($arr['body']);
 
-	item_add_language_opt($arr);
+	Item::addLanguageInPostopts($arr);
 
 	$arr['wall']          = ((x($arr, 'wall'))          ? intval($arr['wall'])                : 0);
 	$arr['extid']         = ((x($arr, 'extid'))         ? notags(trim($arr['extid']))         : '');
@@ -1041,7 +871,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	}
 
 	logger('item_store: created item '.$current_post);
-	item_set_last_item($arr);
+	Item::updateContact($arr);
 
 	if (!$parent_id || ($arr['parent-uri'] === $arr['uri'])) {
 		$parent_id = $current_post;
@@ -1126,57 +956,7 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	return $current_post;
 }
 
-/**
- * @brief Set "success_update" and "last-item" to the date of the last time we heard from this contact
- *
- * This can be used to filter for inactive contacts.
- * Only do this for public postings to avoid privacy problems, since poco data is public.
- * Don't set this value if it isn't from the owner (could be an author that we don't know)
- *
- * @param array $arr Contains the just posted item record
- */
-function item_set_last_item($arr) {
-	// Unarchive the author
-	$contact = dba::selectFirst('contact', [], ['id' => $arr["author-link"]]);
-	if ($contact['term-date'] > NULL_DATE) {
-		 Contact::unmarkForArchival($contact);
-	}
-
-	// Unarchive the contact if it is a toplevel posting
-	if ($arr["parent-uri"] === $arr["uri"]) {
-		$contact = dba::selectFirst('contact', [], ['id' => $arr["contact-id"]]);
-		if ($contact['term-date'] > NULL_DATE) {
-			 Contact::unmarkForArchival($contact);
-		}
-	}
-
-	$update = (!$arr['private'] && (($arr["author-link"] === $arr["owner-link"]) || ($arr["parent-uri"] === $arr["uri"])));
-
-	// Is it a forum? Then we don't care about the rules from above
-	if (!$update && ($arr["network"] == NETWORK_DFRN) && ($arr["parent-uri"] === $arr["uri"])) {
-		$isforum = q("SELECT `forum` FROM `contact` WHERE `id` = %d AND `forum`",
-				intval($arr['contact-id']));
-		if (DBM::is_result($isforum)) {
-			$update = true;
-		}
-	}
-
-	if ($update) {
-		dba::update('contact', ['success_update' => $arr['received'], 'last-item' => $arr['received']],
-			['id' => $arr['contact-id']]);
-	}
-	// Now do the same for the system wide contacts with uid=0
-	if (!$arr['private']) {
-		dba::update('contact', ['success_update' => $arr['received'], 'last-item' => $arr['received']],
-			['id' => $arr['owner-id']]);
-
-		if ($arr['owner-id'] != $arr['author-id']) {
-			dba::update('contact', ['success_update' => $arr['received'], 'last-item' => $arr['received']],
-				['id' => $arr['author-id']]);
-		}
-	}
-}
-
+/// @TODO move to src/Model/Item.php
 function item_body_set_hashtags(&$item) {
 
 	$tags = get_tags($item["body"]);
@@ -1244,6 +1024,7 @@ function item_body_set_hashtags(&$item) {
 	$item["body"] = str_replace("&num;", "#", $item["body"]);
 }
 
+/// @TODO move to src/Model/Item.php
 function get_item_guid($id) {
 	$r = q("SELECT `guid` FROM `item` WHERE `id` = %d LIMIT 1", intval($id));
 	if (DBM::is_result($r)) {
@@ -1254,6 +1035,7 @@ function get_item_guid($id) {
 	}
 }
 
+/// @TODO move to src/Model/Item.php
 function get_item_id($guid, $uid = 0) {
 
 	$nick = "";
@@ -1291,6 +1073,7 @@ function get_item_id($guid, $uid = 0) {
 }
 
 // return - test
+/// @TODO move to src/Model/Item.php
 function get_item_contact($item, $contacts) {
 	if (! count($contacts) || (! is_array($item))) {
 		return false;
@@ -1309,6 +1092,7 @@ function get_item_contact($item, $contacts) {
  * @param int $item_id
  * @return bool true if item was deleted, else false
  */
+/// @TODO move to src/Model/Item.php
 function tag_deliver($uid, $item_id)
 {
 	$mention = false;
@@ -1413,8 +1197,7 @@ function tag_deliver($uid, $item_id)
 
 }
 
-
-
+/// @TODO move to src/Protocol/DFRN.php
 function tgroup_check($uid, $item) {
 
 	$mention = false;
@@ -1470,8 +1253,9 @@ function tgroup_check($uid, $item) {
  * item is assumed to be up-to-date.  If the timestamps are equal it
  * assumes the update has been seen before and should be ignored.
  *
- * @todo fix type-hints (both array)
+ * @TODO fix type-hints (both array)
  */
+/// @TODO move to src/Protocol/DFRN.php
 function edited_timestamp_is_newer($existing, $update) {
 	if (!x($existing, 'edited') || !$existing['edited']) {
 		return true;
@@ -1511,8 +1295,9 @@ function edited_timestamp_is_newer($existing, $update) {
  * to get all the feed items into a mostly linear ordering, and might still require
  * recursion.
  *
- * @todo find proper type-hints
+ * @TODO find proper type-hints
  */
+/// @TODO move to ???
 function consume_feed($xml, $importer, &$contact, &$hub, $datedir = 0, $pass = 0) {
 	if ($contact['network'] === NETWORK_OSTATUS) {
 		if ($pass < 2) {
@@ -1557,6 +1342,7 @@ function consume_feed($xml, $importer, &$contact, &$hub, $datedir = 0, $pass = 0
 }
 
 /// @TODO type-hint is array
+/// @TODO move to src/Model/Item.php
 function item_is_remote_self($contact, &$datarray) {
 	$a = get_app();
 
@@ -1635,6 +1421,7 @@ function item_is_remote_self($contact, &$datarray) {
 }
 
 /// @TODO find proper type-hints
+/// @TODO move to src/Model/Item.php
 function new_follower($importer, $contact, $datarray, $item, $sharing = false) {
 	$url = notags(trim($datarray['author-link']));
 	$name = notags(trim($datarray['author-name']));
@@ -1726,6 +1513,7 @@ function new_follower($importer, $contact, $datarray, $item, $sharing = false) {
 	}
 }
 
+/// @TODO move to src/Model/Item.php
 function lose_follower($importer, $contact, array $datarray = [], $item = "") {
 
 	if (($contact['rel'] == CONTACT_IS_FRIEND) || ($contact['rel'] == CONTACT_IS_SHARING)) {
@@ -1735,6 +1523,7 @@ function lose_follower($importer, $contact, array $datarray = [], $item = "") {
 	}
 }
 
+/// @TODO move to src/Model/Item.php
 function lose_sharer($importer, $contact, array $datarray = [], $item = "") {
 
 	if (($contact['rel'] == CONTACT_IS_FRIEND) || ($contact['rel'] == CONTACT_IS_FOLLOWER)) {
@@ -1744,6 +1533,7 @@ function lose_sharer($importer, $contact, array $datarray = [], $item = "") {
 	}
 }
 
+/// @TODO move to ???
 function subscribe_to_hub($url, $importer, $contact, $hubmode = 'subscribe') {
 
 	$a = get_app();
@@ -1792,6 +1582,7 @@ function subscribe_to_hub($url, $importer, $contact, $hubmode = 'subscribe') {
  * @param int    $cid
  * @return string
  */
+/// @TODO move to src/Model/Item.php
 function fix_private_photos($s, $uid, $item = null, $cid = 0)
 {
 	if (Config::get('system', 'disable_embedded')) {
@@ -1895,6 +1686,7 @@ function fix_private_photos($s, $uid, $item = null, $cid = 0)
 }
 
 /// @TODO type-hint is array
+/// @TODO move to src/Model/Item.php
 function has_permissions($obj) {
 	return (
 		(
@@ -1910,6 +1702,7 @@ function has_permissions($obj) {
 }
 
 /// @TODO type-hint is array
+/// @TODO move to src/Model/Item.php
 function compare_permissions($obj1, $obj2) {
 	// first part is easy. Check that these are exactly the same.
 	if (($obj1['allow_cid'] == $obj2['allow_cid'])
@@ -1931,6 +1724,7 @@ function compare_permissions($obj1, $obj2) {
 
 // returns an array of contact-ids that are allowed to see this object
 /// @TODO type-hint is array
+/// @TODO move to src/Model/Item.php
 function enumerate_permissions($obj) {
 	$allow_people = expand_acl($obj['allow_cid']);
 	$allow_groups = Group::expand(expand_acl($obj['allow_gid']));
@@ -1942,6 +1736,7 @@ function enumerate_permissions($obj) {
 	return $recipients;
 }
 
+/// @TODO move to src/Model/Item.php
 function item_getfeedtags($item) {
 	$ret = [];
 	$matches = false;
@@ -1965,6 +1760,7 @@ function item_getfeedtags($item) {
 	return $ret;
 }
 
+/// @TODO move to src/Model/Item.php
 function item_expire($uid, $days, $network = "", $force = false) {
 
 	if (!$uid || ($days < 1)) {
@@ -2042,6 +1838,7 @@ function item_expire($uid, $days, $network = "", $force = false) {
 }
 
 /// @TODO type-hint is array
+/// @TODO move to ...
 function drop_items($items) {
 	$uid = 0;
 
@@ -2058,6 +1855,7 @@ function drop_items($items) {
 	}
 }
 
+/// @TODO move to ...
 function drop_item($id) {
 
 	$a = get_app();
@@ -2134,7 +1932,8 @@ function drop_item($id) {
 	}
 }
 
-/// @todo: This query seems to be really slow
+/// @TODO: This query seems to be really slow
+/// @TODO move to src/Model/Item.php
 function first_post_date($uid, $wall = false) {
 	$r = q("SELECT `id`, `created` FROM `item`
 		WHERE `uid` = %d AND `wall` = %d AND `deleted` = 0 AND `visible` = 1 AND `moderated` = 0
@@ -2150,7 +1949,8 @@ function first_post_date($uid, $wall = false) {
 	return false;
 }
 
-/* modified posted_dates() {below} to arrange the list in years */
+/* arrange the list in years */
+/// @TODO move to src/Model/Item.php
 function list_post_dates($uid, $wall) {
 	$dnow = datetime_convert('',date_default_timezone_get(), 'now','Y-m-d');
 
@@ -2185,36 +1985,7 @@ function list_post_dates($uid, $wall) {
 	return $ret;
 }
 
-function posted_dates($uid, $wall) {
-	$dnow = datetime_convert('', date_default_timezone_get(), 'now', 'Y-m-d');
-
-	$dthen = first_post_date($uid, $wall);
-	if (! $dthen) {
-		return [];
-	}
-
-	// Set the start and end date to the beginning of the month
-	$dnow = substr($dnow, 0, 8) . '01';
-	$dthen = substr($dthen, 0, 8) . '01';
-
-	$ret = [];
-	/*
-	 * Starting with the current month, get the first and last days of every
-	 * month down to and including the month of the first post
-	 */
-	while (substr($dnow, 0, 7) >= substr($dthen, 0, 7)) {
-		$dstart = substr($dnow, 0, 8) . '01';
-		$dend = substr($dnow, 0, 8) . get_dim(intval($dnow), intval(substr($dnow, 5)));
-		$start_month = datetime_convert('', '', $dstart, 'Y-m-d');
-		$end_month = datetime_convert('', '', $dend, 'Y-m-d');
-		$str = day_translate(datetime_convert('', '', $dnow, 'F Y'));
-		$ret[] = [$str, $end_month, $start_month];
-		$dnow = datetime_convert('', '', $dnow . ' -1 month', 'Y-m-d');
-	}
-	return $ret;
-}
-
-
+/// @TODO move to src/Model/Item.php
 function posted_date_widget($url, $uid, $wall) {
 	$o = '';
 

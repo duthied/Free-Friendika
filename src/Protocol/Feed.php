@@ -8,6 +8,7 @@ namespace Friendica\Protocol;
 
 use Friendica\Database\DBM;
 use Friendica\Core\System;
+use Friendica\Model\Item;
 use dba;
 use DOMDocument;
 use DOMXPath;
@@ -357,7 +358,7 @@ class Feed {
 
 			// remove the content of the title if it is identically to the body
 			// This helps with auto generated titles e.g. from tumblr
-			if (title_is_body($item["title"], $body)) {
+			if (self::titleIsBody($item["title"], $body)) {
 				$item["title"] = "";
 			}
 			$item["body"] = html2bbcode($body, $basepath);
@@ -426,7 +427,7 @@ class Feed {
 				// Distributed items should have a well formatted URI.
 				// Additionally we have to avoid conflicts with identical URI between imported feeds and these items.
 				if ($notify) {
-					$item['guid'] = uri_to_guid($orig_plink, $a->get_hostname());
+					$item['guid'] = Item::GuidFromUri($orig_plink, $a->get_hostname());
 					unset($item['uri']);
 					unset($item['parent-uri']);
 				}
@@ -445,5 +446,31 @@ class Feed {
 		if ($simulate) {
 			return ["header" => $author, "items" => $items];
 		}
+	}
+
+	private static function titleIsBody($title, $body)
+	{
+		$title = strip_tags($title);
+		$title = trim($title);
+		$title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
+		$title = str_replace(["\n", "\r", "\t", " "], ["", "", "", ""], $title);
+
+		$body = strip_tags($body);
+		$body = trim($body);
+		$body = html_entity_decode($body, ENT_QUOTES, 'UTF-8');
+		$body = str_replace(["\n", "\r", "\t", " "], ["", "", "", ""], $body);
+
+		if (strlen($title) < strlen($body)) {
+			$body = substr($body, 0, strlen($title));
+		}
+
+		if (($title != $body) && (substr($title, -3) == "...")) {
+			$pos = strrpos($title, "...");
+			if ($pos > 0) {
+				$title = substr($title, 0, $pos);
+				$body = substr($body, 0, $pos);
+			}
+		}
+		return ($title == $body);
 	}
 }

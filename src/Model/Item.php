@@ -11,6 +11,7 @@ use Friendica\Model\Term;
 use Friendica\Model\Contact;
 use Friendica\Database\DBM;
 use dba;
+use Text_LanguageDetect;
 
 require_once 'include/tags.php';
 require_once 'include/threads.php';
@@ -289,5 +290,136 @@ class Item
 		$public_shadow = item_store($item, false, false, true);
 
 		logger("Stored public shadow for comment ".$item['uri']." under id ".$public_shadow, LOGGER_DEBUG);
+	}
+
+	 /**
+	 * Adds a "lang" specification in a "postopts" element of given $arr,
+	 * if possible and not already present.
+	 * Expects "body" element to exist in $arr.
+	 *
+	 * @todo change to "local", once the "Item::insert" is in this class
+	 */
+	public static function addLanguageInPostopts(&$arr)
+	{
+		if (x($arr, 'postopts')) {
+			if (strstr($arr['postopts'], 'lang=')) {
+				// do not override
+				return;
+			}
+			$postopts = $arr['postopts'];
+		} else {
+			$postopts = "";
+		}
+
+		$naked_body = preg_replace('/\[(.+?)\]/','', $arr['body']);
+		$l = new Text_LanguageDetect();
+		$lng = $l->detect($naked_body, 3);
+
+		if (sizeof($lng) > 0) {
+			if ($postopts != "") {
+				$postopts .= '&'; // arbitrary separator, to be reviewed
+			}
+
+			$postopts .= 'lang=';
+			$sep = "";
+
+			foreach ($lng as $language => $score) {
+				$postopts .= $sep . $language . ";" . $score;
+				$sep = ':';
+			}
+			$arr['postopts'] = $postopts;
+		}
+	}
+
+	/**
+	 * @brief Creates an unique guid out of a given uri
+	 *
+	 * @param string $uri uri of an item entry
+	 * @param string $host (Optional) hostname for the GUID prefix
+	 * @return string unique guid
+	 */
+	public static function GuidFromUri($uri, $host = "")
+	{
+		// Our regular guid routine is using this kind of prefix as well
+		// We have to avoid that different routines could accidentally create the same value
+		$parsed = parse_url($uri);
+
+		// When the hostname isn't given, we take it from the uri
+		if ($host == "") {
+			// Is it in the format data@host.tld?
+			if ((count($parsed) == 1) && strstr($uri, '@')) {
+				$mailparts = explode('@', $uri);
+				$host = array_pop($mailparts);
+			} else {
+				$host = $parsed["host"];
+			}
+		}
+
+		// We use a hash of the hostname as prefix for the guid
+		$guid_prefix = hash("crc32", $host);
+
+		// Remove the scheme to make sure that "https" and "http" doesn't make a difference
+		unset($parsed["scheme"]);
+
+		// Glue it together to be able to make a hash from it
+		$host_id = implode("/", $parsed);
+
+		// We could use any hash algorithm since it isn't a security issue
+		$host_hash = hash("ripemd128", $host_id);
+
+		return $guid_prefix.$host_hash;
+	}
+
+	/**
+	 * @brief Set "success_update" and "last-item" to the date of the last time we heard from this contact
+	 *
+	 * This can be used to filter for inactive contacts.
+	 * Only do this for public postings to avoid privacy problems, since poco data is public.
+	 * Don't set this value if it isn't from the owner (could be an author that we don't know)
+	 *
+	 * @Todo Set this to private, once Item::insert is there
+	 *
+	 * @param array $arr Contains the just posted item record
+	 */
+	public static function updateContact($arr) {
+		// Unarchive the author
+		$contact = dba::selectFirst('contact', [], ['id' => $arr["author-link"]]);
+		if ($contact['term-date'] > NULL_DATE) {
+			 Contact::unmarkForArchival($contact);
+		}
+
+		// Unarchive the contact if it is a toplevel posting
+		if ($arr["parent-uri"] === $arr["uri"]) {
+			$contact = dba::selectFirst('contact', [], ['id' => $arr["contact-id"]]);
+			if ($contact['term-date'] > NULL_DATE) {
+				 Contact::unmarkForArchival($contact);
+			}
+		}
+
+		$update = (!$arr['private'] && (($arr["author-link"] === $arr["owner-link"]) || ($arr["parent-uri"] === $arr["uri"])));
+
+		// Is it a forum? Then we don't care about the rules from above
+		if (!$update && ($arr["network"] == NETWORK_DFRN) && ($arr["parent-uri"] === $arr["uri"])) {
+			$isforum = q("SELECT `forum` FROM `contact` WHERE `id` = %d AND `forum`",
+					intval($arr['contact-id']));
+			if (DBM::is_result($isforum)) {
+				$update = true;
+			}
+		}
+
+		if ($update) {
+			dba::update('contact', ['success_update' => $arr['received'], 'last-item' => $arr['received']],
+				['id' => $arr['contact-id']]);
+		}
+		// Now do the same for the system wide contacts with uid=0
+		if (!$arr['private']) {
+			dba::update('contact', ['success_update' => $arr['received'], 'last-item' => $arr['received']],
+				['id' => $arr['owner-id']]);
+
+			if ($arr['owner-id'] != $arr['author-id']) {
+				dba::update('contact', ['success_update' => $arr['received'], 'last-item' => $arr['received']],
+					['id' => $arr['author-id']]);
+			}
+		}
 	}
 }
