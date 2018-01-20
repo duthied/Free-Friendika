@@ -440,6 +440,7 @@ function item_post(App $a) {
 
 	$match = null;
 
+	/// @todo these lines should be moved to Model/Photo
 	if (!$preview && preg_match_all("/\[img([\=0-9x]*?)\](.*?)\[\/img\]/",$body,$match)) {
 		$images = $match[2];
 		if (count($images)) {
@@ -456,7 +457,7 @@ function item_post(App $a) {
 					continue;
 				}
 
-				/// @todo these lines should be moved to Model/Photo
+				// Ensure to only modify photos that you own
 				$srch = '<' . intval($original_contact_id) . '>';
 
 				$condition = ['allow_cid' => $srch, 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '',
@@ -479,10 +480,20 @@ function item_post(App $a) {
 	 */
 	$match = false;
 
+	/// @todo these lines should be moved to Model/Attach (Once it exists)
 	if (!$preview && preg_match_all("/\[attachment\](.*?)\[\/attachment\]/", $body, $match)) {
 		$attaches = $match[1];
 		if (count($attaches)) {
 			foreach ($attaches as $attach) {
+				// Ensure to only modify attachments that you own
+				$srch = '<' . intval($original_contact_id) . '>';
+
+				$condition = ['allow_cid' => $srch, 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '',
+						'id' => $attach];
+				if (!dba::exists('attach', $condition)) {
+					continue;
+				}
+
 				$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
 						'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny];
 				$condition = ['id' => $attach];
