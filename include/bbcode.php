@@ -968,11 +968,12 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 
 	// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
 	if (!$forplaintext) {
-		// Autolink feature
+		// Autolink feature (thanks to http://code.seebz.net/p/autolink-php/)
+		$autolink_regex = "`([^\]\=\"']|^)(https?\://[^\s<]+[^\s<\.\)])`ism";
 		if ($simplehtml != 7) {
-			$Text = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,\@]+)/ism", '$1<a href="$2" target="_blank">$2</a>', $Text);
+			$Text = preg_replace($autolink_regex, '$1<a href="$2" target="_blank">$2</a>', $Text);
 		} else {
-			$Text = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,\@]+)/ism", '$1[url]$2[/url]', $Text);
+			$Text = preg_replace($autolink_regex, '$1[url]$2[/url]', $Text);
 
 			$Text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'bb_style_url', $Text);
 			$Text = preg_replace_callback("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", 'bb_style_url', $Text);
