@@ -143,7 +143,7 @@ function dfrn_notify_post(App $a) {
 
 		// if local rino is lower than remote rino, abort: should not happen!
 		// but only for $remote_rino > 1, because old code did't send rino version
-		if ($rino_remote_version > 1 && $rino < $rino_remote) {
+		if ($rino_remote > 1 && $rino < $rino_remote) {
 			logger("rino version '$rino_remote' is lower than supported '$rino'");
 			xml_status(0, "rino version '$rino_remote' is lower than supported '$rino'");
 		}
@@ -166,43 +166,17 @@ function dfrn_notify_post(App $a) {
 			}
 		}
 
-		#logger('rino: received key : ' . $final_key);
-
 		switch($rino_remote) {
 			case 0:
 			case 1:
-				/*
-				 *we got a key. old code send only the key, without RINO version.
-				 * we assume RINO 1 if key and no RINO version
-				 */
+				// we got a key. old code send only the key, without RINO version.
+				// we assume RINO 1 if key and no RINO version
 				$data = DFRN::aesDecrypt(hex2bin($data), $final_key);
-				break;
-			case 2:
-				try {
-					$data = \Crypto::decrypt(hex2bin($data), $final_key);
-				} catch (\InvalidCiphertextException $ex) { // VERY IMPORTANT
-					/*
-					 * Either:
-					 *   1. The ciphertext was modified by the attacker,
-					 *   2. The key is wrong, or
-					 *   3. $ciphertext is not a valid ciphertext or was corrupted.
-					 * Assume the worst.
-					 */
-					logger('The ciphertext has been tampered with!');
-					xml_status(0, 'The ciphertext has been tampered with!');
-				} catch (\CryptoTestFailedException $ex) {
-					logger('Cannot safely perform dencryption');
-					xml_status(0, 'CryptoTestFailed');
-				} catch (\CannotPerformOperationException $ex) {
-					logger('Cannot safely perform decryption');
-					xml_status(0, 'Cannot safely perform decryption');
-				}
 				break;
 			default:
 				logger("rino: invalid sent version '$rino_remote'");
 				xml_status(0, "Invalid sent version '$rino_remote'");
 		}
-
 
 		logger('rino: decrypted data: ' . $data, LOGGER_DATA);
 	}

@@ -73,7 +73,7 @@ aside hr,
 section hr {
     border-color: rgba(238, 238, 238, $contentbg_transp);
 }
-iframe, img {
+iframe, img, video {
     max-width: 100%;
 }
 blockquote {
@@ -3005,7 +3005,7 @@ section .profile-match-wrapper {
     float: left;
 }
 
-/** 
+/**
  * Login page
  */
 #login-submit-wrapper {
@@ -3028,7 +3028,7 @@ section .profile-match-wrapper {
 .mod-home.is-not-singleuser nav.navbar,
 .mod-login nav.navbar { background-color: transparent }
 .mod-home.is-not-singleuser #topbar-second,
-.mod-login #topbar-second { 
+.mod-login #topbar-second {
     background-color: transparent;
     box-shadow: unset;
     border: 0
@@ -3041,12 +3041,12 @@ section .profile-match-wrapper {
 
 .mod-home.is-not-singleuser .login-form > #login-form label,
 .mod-login #content #login-form label {
-    color: #eee;  
+    color: #eee;
 }
 
-	
+
 .mod-home.is-not-singleuser .login-panel-content,
-.mod-login .login-panel-content { 
+.mod-login .login-panel-content {
     background-color: rgba(255,255,255,.85);
 }
 
@@ -3058,7 +3058,7 @@ section .profile-match-wrapper {
     }
 
     .mod-home.is-not-singleuser .login-form > #login-form,
-    .mod-login #content #login-form {    
+    .mod-login #content #login-form {
         background-color: #fff;
         padding: 1em;
         position: relative;
@@ -3067,7 +3067,7 @@ section .profile-match-wrapper {
 
     .mod-home.is-not-singleuser .login-form > #login-form label,
     .mod-login #content #login-form label {
-        color: #444;  
+        color: #444;
     }
 
     .mod-home.is-not-singleuser .login-form > #login-form::before,

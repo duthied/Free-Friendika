@@ -1145,6 +1145,7 @@ class dba {
 
 		$condition_string = self::buildCondition($condition);
 
+		$order_string = '';
 		if (isset($params['order'])) {
 			$order_string = " ORDER BY ";
 			foreach ($params['order'] AS $fields => $order) {
@@ -1157,6 +1158,7 @@ class dba {
 			$order_string = substr($order_string, 0, -2);
 		}
 
+		$limit_string = '';
 		if (isset($params['limit']) && is_int($params['limit'])) {
 			$limit_string = " LIMIT " . $params['limit'];
 		}

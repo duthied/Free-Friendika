@@ -4,8 +4,40 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "228247829bf46d313ca451f94b87c7ef",
+    "content-hash": "7fcbb730be98076fe8318b03c858f41c",
     "packages": [
+        {
+            "name": "bower-asset/Chart-js",
+            "version": "v2.7.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/chartjs/Chart.js.git",
+                "reference": "0fead21939b92c15093c1b7d5ee2627fb5900fff"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/chartjs/Chart.js/zipball/0fead21939b92c15093c1b7d5ee2627fb5900fff",
+                "reference": "0fead21939b92c15093c1b7d5ee2627fb5900fff",
+                "shasum": ""
+            },
+            "type": "bower-asset-library",
+            "extra": {
+                "bower-asset-main": "./dist/Chart.js",
+                "bower-asset-ignore": [
+                    ".github",
+                    ".codeclimate.yml",
+                    ".gitignore",
+                    ".npmignore",
+                    ".travis.yml",
+                    "scripts"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Simple HTML5 charts using the canvas element.",
+            "time": "2017-10-28T15:01:52+00:00"
+        },
         {
             "name": "bower-asset/base64",
             "version": "1.0.1",
@@ -36,51 +68,6 @@
             ],
             "description": "Base64 encoding and decoding",
             "time": "2017-03-25T21:16:21+00:00"
-        },
-        {
-            "name": "defuse/php-encryption",
-            "version": "v1.2.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/defuse/php-encryption.git",
-                "reference": "b87737b2eec06b13f025cabea847338fa203d1b4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/defuse/php-encryption/zipball/b87737b2eec06b13f025cabea847338fa203d1b4",
-                "reference": "b87737b2eec06b13f025cabea847338fa203d1b4",
-                "shasum": ""
-            },
-            "require": {
-                "ext-mcrypt": "*",
-                "ext-openssl": "*",
-                "php": ">=5.4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "Crypto.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Taylor Hornby",
-                    "email": "havoc@defuse.ca"
-                }
-            ],
-            "description": "Secure PHP Encryption Library",
-            "keywords": [
-                "aes",
-                "cipher",
-                "encryption",
-                "mcrypt",
-                "security"
-            ],
-            "time": "2015-03-14T20:27:45+00:00"
         },
         {
             "name": "ezyang/htmlpurifier",

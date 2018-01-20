@@ -22,11 +22,14 @@ use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Object\Image;
 use Friendica\Protocol\OStatus;
+use Friendica\Util\Crypto;
 use Friendica\Util\XML;
 
 use dba;
 use DOMDocument;
 use DOMXPath;
+use HTMLPurifier;
+use HTMLPurifier_Config;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
@@ -1291,30 +1294,8 @@ class DFRN
 
 			switch ($rino_remote_version) {
 				case 1:
-					// Deprecated rino version!
 					$key = openssl_random_pseudo_bytes(16);
 					$data = self::aesEncrypt($postvars['data'], $key);
-					break;
-				case 2:
-					// RINO 2 based on php-encryption
-					try {
-						$key = \Crypto::CreateNewRandomKey();
-					} catch (\CryptoTestFailedException $ex) {
-						logger('Cannot safely create a key');
-						return -4;
-					} catch (\CannotPerformOperationException $ex) {
-						logger('Cannot safely create a key');
-						return -5;
-					}
-					try {
-						$data = \Crypto::Encrypt($postvars['data'], $key);
-					} catch (\CryptoTestFailedException $ex) {
-						logger('Cannot safely perform encryption');
-						return -6;
-					} catch (\CannotPerformOperationException $ex) {
-						logger('Cannot safely perform encryption');
-						return -7;
-					}
 					break;
 				default:
 					logger("rino: invalid requested version '$rino_remote_version'");
@@ -1323,9 +1304,6 @@ class DFRN
 
 			$postvars['rino'] = $rino_remote_version;
 			$postvars['data'] = bin2hex($data);
-
-			//logger('rino: sent key = ' . $key, LOGGER_DEBUG);
-
 
 			if ($dfrn_version >= 2.1) {
 				if (($contact['duplex'] && strlen($contact['pubkey']))
@@ -2177,8 +2155,6 @@ class DFRN
 			 * valid community action. Also forum_mode makes it valid for sure.
 			 * If neither, it's not.
 			 */
-
-			/// @TODO Maybe merge these if() blocks into one?
 			if ($is_a_remote_action && $community && (!$r[0]["forum_mode"]) && (!$r[0]["wall"])) {
 				$is_a_remote_action = false;
 				logger("not a community action");
@@ -2380,21 +2356,12 @@ class DFRN
 		$title = "";
 		foreach ($links as $link) {
 			foreach ($link->attributes as $attributes) {
-				/// @TODO Rewrite these repeated (same) if () statements to a switch()
-				if ($attributes->name == "href") {
-					$href = $attributes->textContent;
-				}
-				if ($attributes->name == "rel") {
-					$rel = $attributes->textContent;
-				}
-				if ($attributes->name == "type") {
-					$type = $attributes->textContent;
-				}
-				if ($attributes->name == "length") {
-					$length = $attributes->textContent;
-				}
-				if ($attributes->name == "title") {
-					$title = $attributes->textContent;
+				switch ($attributes->name) {
+					case "href"  : $href   = $attributes->textContent; break;
+					case "rel"   : $rel    = $attributes->textContent; break;
+					case "type"  : $type   = $attributes->textContent; break;
+					case "length": $length = $attributes->textContent; break;
+					case "title" : $title  = $attributes->textContent; break;
 				}
 			}
 			if (($rel != "") && ($href != "")) {
@@ -2489,13 +2456,13 @@ class DFRN
 
 			$item['body'] = OEmbed::HTML2BBCode($item['body']);
 
-			$config = \HTMLPurifier_Config::createDefault();
+			$config = HTMLPurifier_Config::createDefault();
 			$config->set('Cache.DefinitionImpl', null);
 
 			// we shouldn't need a whitelist, because the bbcode converter
 			// will strip out any unsupported tags.
 
-			$purifier = new \HTMLPurifier($config);
+			$purifier = new HTMLPurifier($config);
 			$item['body'] = $purifier->purify($item['body']);
 
 			$item['body'] = @html2bbcode($item['body']);
@@ -2645,16 +2612,6 @@ class DFRN
 			if (($item["network"] != $author["network"]) && ($author["network"] != "")) {
 				$item["network"] = $author["network"];
 			}
-
-			/// @TODO maybe remove this old-lost code then?
-			// This code was taken from the old DFRN code
-			// When activated, forums don't work.
-			// And: Why should we disallow commenting by followers?
-			// the behaviour is now similar to the Diaspora part.
-			//if ($importer["rel"] == CONTACT_IS_FOLLOWER) {
-			//	logger("Contact ".$importer["id"]." is only follower. Quitting", LOGGER_DEBUG);
-			//	return;
-			//}
 		}
 
 		if ($entrytype == DFRN_REPLY_RC) {
@@ -2671,13 +2628,12 @@ class DFRN
 				$ev = bbtoevent($item["body"]);
 				if ((x($ev, "desc") || x($ev, "summary")) && x($ev, "start")) {
 					logger("Event in item ".$item["uri"]." was found.", LOGGER_DEBUG);
-					/// @TODO Mixure of "/' ahead ...
-					$ev["cid"] = $importer["id"];
-					$ev["uid"] = $importer["uid"];
-					$ev["uri"] = $item["uri"];
-					$ev["edited"] = $item["edited"];
-					$ev['private'] = $item['private'];
-					$ev["guid"] = $item["guid"];
+					$ev["cid"]     = $importer["id"];
+					$ev["uid"]     = $importer["uid"];
+					$ev["uri"]     = $item["uri"];
+					$ev["edited"]  = $item["edited"];
+					$ev["private"] = $item["private"];
+					$ev["guid"]    = $item["guid"];
 
 					$r = q(
 						"SELECT `id` FROM `event` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",

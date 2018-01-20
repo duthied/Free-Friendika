@@ -49,10 +49,9 @@ $a->config['php_path'] = '/usr/bin/php';
 
 
 // Server-to-server private message encryption (RINO) is allowed by default.
-// Encryption will only be provided if this setting is true and the
-// PHP mcrypt extension is installed on both systems
+// set to 0 to disable, 1 to enable
 
-$a->config['system']['rino_encrypt'] = true;
+$a->config['system']['rino_encrypt'] = 1;
 
 // default system theme
 
