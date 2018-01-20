@@ -194,7 +194,12 @@ class User
 	 */
 	private static function updatePasswordHashed($uid, $pasword_hashed)
 	{
-		return dba::update('user', ['password' => $pasword_hashed, 'pwdreset' => ''], ['uid' => $uid]);
+		$fields = [
+			'password' => $pasword_hashed,
+			'pwdreset' => null,
+			'pwdreset_time' => null
+		];
+		return dba::update('user', $fields, ['uid' => $uid]);
 	}
 
 	/**

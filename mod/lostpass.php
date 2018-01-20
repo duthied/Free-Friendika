@@ -9,7 +9,8 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\User;
 
-require_once 'include/boot.php';
+require_once 'boot.php';
+require_once 'include/datetime.php';
 require_once 'include/enotify.php';
 require_once 'include/text.php';
 require_once 'include/pgettext.php';
@@ -30,13 +31,17 @@ function lostpass_post(App $a)
 
 	$pwdreset_token = autoname(12) . mt_rand(1000, 9999);
 
-	$result = dba::update('user', ['pwdreset' => $pwdreset_token], ['uid' => $user['uid']]);
+	$fields = [
+		'pwdreset' => $pwdreset_token,
+		'pwdreset_time' => datetime_convert()
+	];
+	$result = dba::update('user', $fields, ['uid' => $user['uid']]);
 	if ($result) {
 		info(t('Password reset request issued. Check your email.') . EOL);
 	}
 
 	$sitename = $a->config['sitename'];
-	$resetlink = System::baseUrl() . '/lostpass?verify=' . $pwdreset_token;
+	$resetlink = System::baseUrl() . '/lostpass/' . $pwdreset_token;
 
 	$preamble = deindent(t('
 		Dear %1$s,
@@ -76,69 +81,94 @@ function lostpass_post(App $a)
 function lostpass_content(App $a)
 {
 	$o = '';
-	if (x($_GET, 'verify')) {
-		$pwdreset_token = $_GET['verify'];
+	if ($a->argc > 1) {
+		$pwdreset_token = $a->argv[1];
 
-		$user = dba::selectFirst('user', ['uid', 'username', 'email'], ['pwdreset' => $pwdreset_token]);
+		$user = dba::selectFirst('user', ['uid', 'username', 'email', 'pwdreset_time'], ['pwdreset' => $pwdreset_token]);
 		if (!DBM::is_result($user)) {
-			$o = t("Request could not be verified. \x28You may have previously submitted it.\x29 Password reset failed.");
-			return $o;
+			notice(t("Request could not be verified. \x28You may have previously submitted it.\x29 Password reset failed."));
+
+			return lostpass_form();
 		}
 
-		$new_password = User::generateNewPassword();
-		$result = User::updatePassword($user['uid'], $new_password);
-		if (DBM::is_result($result)) {
-			$tpl = get_markup_template('pwdreset.tpl');
-			$o .= replace_macros($tpl,
-				[
-				'$lbl1'    => t('Password Reset'),
-				'$lbl2'    => t('Your password has been reset as requested.'),
-				'$lbl3'    => t('Your new password is'),
-				'$lbl4'    => t('Save or copy your new password - and then'),
-				'$lbl5'    => '<a href="' . System::baseUrl() . '">' . t('click here to login') . '</a>.',
-				'$lbl6'    => t('Your password may be changed from the <em>Settings</em> page after successful login.'),
-				'$newpass' => $new_password,
-				'$baseurl' => System::baseUrl()
-			]);
+		// Password reset requests expire in 20 minutes
+		if ($user['pwdreset_time'] < datetime_convert('UTC', 'UTC', 'now - 20 minutes')) {
+			$fields = [
+				'pwdreset' => null,
+				'pwdreset_time' => null
+			];
+			dba::update('user', $fields, ['uid' => $user['uid']]);
 
-			info("Your password has been reset." . EOL);
+			notice(t('Request has expired, please make a new one.'));
 
-			$sitename = $a->config['sitename'];
-			$preamble = deindent(t('
-				Dear %1$s,
-					Your password has been changed as requested. Please retain this
-				information for your records (or change your password immediately to
-				something that you will remember).
-			', $user['username']));
-			$body = deindent(t('
-				Your login details are as follows:
-
-				Site Location:	%1$s
-				Login Name:	%2$s
-				Password:	%3$s
-
-				You may change that password from your account settings page after logging in.
-			', System::baseUrl(), $user['email'], $new_password));
-
-			notification([
-				'type'     => SYSTEM_EMAIL,
-				'to_email' => $user['email'],
-				'subject'  => t('Your password has been changed at %s', $sitename),
-				'preamble' => $preamble,
-				'body'     => $body
-			]);
-
-			return $o;
+			return lostpass_form();
 		}
+
+		return lostpass_generate_password($user);
 	} else {
-		$tpl = get_markup_template('lostpass.tpl');
+		return lostpass_form();
+	}
+}
+
+function lostpass_form()
+{
+	$tpl = get_markup_template('lostpass.tpl');
+	$o = replace_macros($tpl, [
+		'$title' => t('Forgot your Password?'),
+		'$desc' => t('Enter your email address and submit to have your password reset. Then check your email for further instructions.'),
+		'$name' => t('Nickname or Email: '),
+		'$submit' => t('Reset')
+	]);
+
+	return $o;
+}
+
+function lostpass_generate_password($user)
+{
+	$o = '';
+
+	$new_password = User::generateNewPassword();
+	$result = User::updatePassword($user['uid'], $new_password);
+	if (DBM::is_result($result)) {
+		$tpl = get_markup_template('pwdreset.tpl');
 		$o .= replace_macros($tpl, [
-			'$title'  => t('Forgot your Password?'),
-			'$desc'   => t('Enter your email address and submit to have your password reset. Then check your email for further instructions.'),
-			'$name'   => t('Nickname or Email: '),
-			'$submit' => t('Reset')
+			'$lbl1'    => t('Password Reset'),
+			'$lbl2'    => t('Your password has been reset as requested.'),
+			'$lbl3'    => t('Your new password is'),
+			'$lbl4'    => t('Save or copy your new password - and then'),
+			'$lbl5'    => '<a href="' . System::baseUrl() . '">' . t('click here to login') . '</a>.',
+			'$lbl6'    => t('Your password may be changed from the <em>Settings</em> page after successful login.'),
+			'$newpass' => $new_password,
+			'$baseurl' => System::baseUrl()
 		]);
 
-		return $o;
+		info("Your password has been reset." . EOL);
+
+		$sitename = $a->config['sitename'];
+		$preamble = deindent(t('
+			Dear %1$s,
+				Your password has been changed as requested. Please retain this
+			information for your records (or change your password immediately to
+			something that you will remember).
+		', $user['username']));
+		$body = deindent(t('
+			Your login details are as follows:
+
+			Site Location:	%1$s
+			Login Name:	%2$s
+			Password:	%3$s
+
+			You may change that password from your account settings page after logging in.
+		', System::baseUrl(), $user['email'], $new_password));
+
+		notification([
+			'type'     => SYSTEM_EMAIL,
+			'to_email' => $user['email'],
+			'subject'  => t('Your password has been changed at %s', $sitename),
+			'preamble' => $preamble,
+			'body'     => $body
+		]);
 	}
+
+	return $o;
 }
