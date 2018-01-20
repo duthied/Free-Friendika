@@ -832,7 +832,7 @@ function item_post(App $a) {
 	item_post_return(System::baseUrl(), $api_source, $return_path);
 	// NOTREACHED
 }
-// q(
+
 function item_post_return($baseurl, $api_source, $return_path) {
 	// figure out how to return, depending on from whence we came
 
