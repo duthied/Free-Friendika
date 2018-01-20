@@ -661,7 +661,7 @@ class DBStructure {
 		$database = [];
 
 		$database["addon"] = [
-				"comment" => "registered plugins",
+				"comment" => "registered addons",
 				"fields" => [
 						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
 						"name" => ["type" => "varchar(190)", "not null" => "1", "default" => "", "comment" => ""],
@@ -1081,7 +1081,7 @@ class DBStructure {
 						]
 				];
 		$database["hook"] = [
-				"comment" => "plugin hook registry",
+				"comment" => "addon hook registry",
 				"fields" => [
 						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
 						"hook" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
