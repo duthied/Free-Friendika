@@ -135,6 +135,7 @@ function search_content(App $a) {
 
 	Nav::setSelected('search');
 
+	$search = '';
 	if (x($a->data,'search'))
 		$search = notags(trim($a->data['search']));
 	else
