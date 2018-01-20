@@ -170,23 +170,25 @@ function settings_post(App $a)
 							icon='%s',
 							uid=%d
 						WHERE client_id='%s'",
-						dbesc($key),
-						dbesc($secret),
-						dbesc($name),
-						dbesc($redirect),
-						dbesc($icon),
-						local_user(),
-						dbesc($key));
+					dbesc($key),
+					dbesc($secret),
+					dbesc($name),
+					dbesc($redirect),
+					dbesc($icon),
+					local_user(),
+					dbesc($key)
+				);
 			} else {
 				q("INSERT INTO clients
 							(client_id, pw, name, redirect_uri, icon, uid)
 						VALUES ('%s', '%s', '%s', '%s', '%s',%d)",
-						dbesc($key),
-						dbesc($secret),
-						dbesc($name),
-						dbesc($redirect),
-						dbesc($icon),
-						local_user());
+					dbesc($key),
+					dbesc($secret),
+					dbesc($name),
+					dbesc($redirect),
+					dbesc($icon),
+					local_user()
+				);
 			}
 		}
 		goaway(System::baseUrl(true)."/settings/oauth/");
@@ -196,12 +198,12 @@ function settings_post(App $a)
 	if (($a->argc > 1) && ($a->argv[1] == 'addon')) {
 		check_form_security_token_redirectOnErr('/settings/addon', 'settings_addon');
 
-		Addon::callHooks('plugin_settings_post', $_POST);
+		Addon::callHooks('addon_settings_post', $_POST);
 		return;
 	}
 
-	if (($a->argc > 1) && ($a->argv[1] == 'connectors')) {
-
+	if (($a->argc > 1) && ($a->argv[1] == 'connectors'))
+	{
 		check_form_security_token_redirectOnErr('/settings/connectors', 'settings_connectors');
 
 		if (x($_POST, 'general-submit')) {
@@ -749,12 +751,12 @@ function settings_content(App $a)
 	if (($a->argc > 1) && ($a->argv[1] === 'addon')) {
 		$settings_addons = "";
 
-		$r = q("SELECT * FROM `hook` WHERE `hook` = 'plugin_settings' ");
+		$r = q("SELECT * FROM `hook` WHERE `hook` = 'addon_settings' ");
 		if (!DBM::is_result($r)) {
 			$settings_addons = t('No Addon settings configured');
 		}
 
-		Addon::callHooks('plugin_settings', $settings_addons);
+		Addon::callHooks('addon_settings', $settings_addons);
 
 
 		$tpl = get_markup_template('settings/addons.tpl');
