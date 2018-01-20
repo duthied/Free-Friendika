@@ -14,8 +14,6 @@ function nogroup_init(App $a)
 		return;
 	}
 
-	require_once 'include/contact_widgets.php';
-
 	if (! x($a->page, 'aside')) {
 		$a->page['aside'] = '';
 	}
