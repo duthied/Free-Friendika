@@ -322,13 +322,13 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 		$arr['protocol'] = PROTOCOL_DFRN;
 
 		// We have to avoid duplicates. So we create the GUID in form of a hash of the plink or uri.
-		// In difference to the call to "Item::GuidFromUri" several lines below we add the hash of our own host.
+		// In difference to the call to "Item::guidFromUri" several lines below we add the hash of our own host.
 		// This is done because our host is the original creator of the post.
 		if (!isset($arr['guid'])) {
 			if (isset($arr['plink'])) {
-				$arr['guid'] = Item::GuidFromUri($arr['plink'], $a->get_hostname());
+				$arr['guid'] = Item::guidFromUri($arr['plink'], $a->get_hostname());
 			} elseif (isset($arr['uri'])) {
-				$arr['guid'] = Item::GuidFromUri($arr['uri'], $a->get_hostname());
+				$arr['guid'] = Item::guidFromUri($arr['uri'], $a->get_hostname());
 			}
 		}
 	} else {
@@ -338,9 +338,9 @@ function item_store($arr, $force_parent = false, $notify = false, $dontcache = f
 	if ($notify) {
 		$guid_prefix = "";
 	} elseif ((trim($arr['guid']) == "") && (trim($arr['plink']) != "")) {
-		$arr['guid'] = Item::GuidFromUri($arr['plink']);
+		$arr['guid'] = Item::guidFromUri($arr['plink']);
 	} elseif ((trim($arr['guid']) == "") && (trim($arr['uri']) != "")) {
-		$arr['guid'] = Item::GuidFromUri($arr['uri']);
+		$arr['guid'] = Item::guidFromUri($arr['uri']);
 	} else {
 		$parsed = parse_url($arr["author-link"]);
 		$guid_prefix = hash("crc32", $parsed["host"]);

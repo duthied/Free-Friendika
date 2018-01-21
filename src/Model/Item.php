@@ -338,7 +338,7 @@ class Item
 	 * @param string $host (Optional) hostname for the GUID prefix
 	 * @return string unique guid
 	 */
-	public static function GuidFromUri($uri, $host = "")
+	public static function guidFromUri($uri, $host = "")
 	{
 		// Our regular guid routine is using this kind of prefix as well
 		// We have to avoid that different routines could accidentally create the same value
