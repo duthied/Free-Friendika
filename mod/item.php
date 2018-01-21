@@ -232,8 +232,7 @@ function item_post(App $a) {
 		$network           = notags(trim($_REQUEST['network']));
 		$guid              = get_guid(32);
 
-		item_add_language_opt($_REQUEST);
-		$postopts = $_REQUEST['postopts'] ? $_REQUEST['postopts'] : "";
+		$postopts = defaults($_REQUEST, 'postopts', '');
 
 		$private = ((strlen($str_group_allow) || strlen($str_contact_allow) || strlen($str_group_deny) || strlen($str_contact_deny)) ? 1 : 0);
 
@@ -665,9 +664,6 @@ function item_post(App $a) {
 	if ($orig_post) {
 		$datarray['edit'] = true;
 	}
-
-	// Search for hashtags
-	item_body_set_hashtags($datarray);
 
 	// preview mode - prepare the body for display and send it via json
 	if ($preview) {

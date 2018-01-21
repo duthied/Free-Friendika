@@ -1037,7 +1037,7 @@ class DFRN
 			XML::addElement($doc, $entry, "dfrn:diaspora_signature", $sign);
 		}
 
-		XML::addElement($doc, $entry, "activity:verb", construct_verb($item));
+		XML::addElement($doc, $entry, "activity:verb", self::constructVerb($item));
 
 		if ($item['object-type'] != "") {
 			XML::addElement($doc, $entry, "activity:object-type", $item['object-type']);
@@ -3072,5 +3072,20 @@ class DFRN
 		}
 
 		return;
+	}
+
+	/**
+	 * @brief Returns the activity verb
+	 *
+	 * @param array $item Item array
+	 *
+	 * @return string activity verb
+	 */
+	private static function constructVerb(array $item)
+	{
+		if ($item['verb']) {
+			return $item['verb'];
+		}
+		return ACTIVITY_POST;
 	}
 }
