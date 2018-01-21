@@ -8,6 +8,7 @@ use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -1186,7 +1187,7 @@ function settings_content(App $a)
 	}
 
 	/* Installed langs */
-	$lang_choices = get_available_languages();
+	$lang_choices = L10n::getAvailableLanguages();
 
 	/// @TODO Fix indending (or so)
 	$o .= replace_macros($stpl, [

@@ -10,6 +10,7 @@ use Friendica\Content\Feature;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
@@ -1129,7 +1130,7 @@ function admin_page_site_post(App $a)
 function admin_page_site(App $a)
 {
 	/* Installed langs */
-	$lang_choices = get_available_languages();
+	$lang_choices = L10n::getAvailableLanguages();
 
 	if (strlen(Config::get('system', 'directory_submit_url')) &&
 		!strlen(Config::get('system', 'directory'))) {

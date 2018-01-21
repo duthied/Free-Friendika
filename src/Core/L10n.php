@@ -7,6 +7,7 @@ namespace Friendica\Core;
 use Friendica\Core\Config;
 use dba;
 
+require_once 'boot.php';
 require_once 'include/dba.php';
 
 /**
@@ -183,14 +184,14 @@ class L10n
 			if (is_array($t)) {
 				$plural_function = 'string_plural_select_' . str_replace('-', '_', $lang);
 				if (function_exists($plural_function)) {
-					$plural_function = 'string_plural_select_default';
+					$plural_function = 'self::stringPluralSelectDefault';
 				}
 				$i = $plural_function($count);
 				$s = $t[$i];
 			} else {
 				$s = $t;
 			}
-		} elseif (string_plural_select_default($count)) {
+		} elseif (self::stringPluralSelectDefault($count)) {
 			$s = $plural;
 		} else {
 			$s = $singular;
@@ -201,9 +202,10 @@ class L10n
 		return $s;
 	}
 
-	// provide a fallback which will not collide with
-	// a function defined in any language file
-	function string_plural_select_default($n)
+	/**
+	 * Provide a fallback which will not collide with a function defined in any language file
+	 */
+	private static function stringPluralSelectDefault($n)
 	{
 		return $n != 1;
 	}
@@ -221,7 +223,8 @@ class L10n
 	 *
 	 * @return array
 	 */
-	function get_available_languages() {
+	public static function getAvailableLanguages()
+	{
 		$langs = [];
 		$strings_file_paths = glob('view/lang/*/strings.php');
 

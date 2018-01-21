@@ -3,6 +3,7 @@
  * @file mod/install.php
  */
 use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Database\DBStructure;
@@ -259,7 +260,7 @@ function install_content(App $a) {
 			$adminmail = notags(trim($_POST['adminmail']));
 			$timezone = ((x($_POST, 'timezone')) ? ($_POST['timezone']) : 'America/Los_Angeles');
 			/* Installed langs */
-			$lang_choices = get_available_languages();
+			$lang_choices = L10n::getAvailableLanguages();
 
 			$tpl = get_markup_template('install_settings.tpl');
 			$o .= replace_macros($tpl, [
