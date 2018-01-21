@@ -7,6 +7,7 @@ use Friendica\Content\Nav;
 use Friendica\Content\Widget;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
@@ -34,7 +35,7 @@ function directory_content(App $a) {
 
 	if((Config::get('system','block_public')) && (! local_user()) && (! remote_user()) ||
 		(Config::get('system','block_local_dir')) && (! local_user()) && (! remote_user())) {
-		notice( t('Public access denied.') . EOL);
+		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}
 
@@ -124,10 +125,10 @@ function directory_content(App $a) {
 			}
 //			if(strlen($rr['dob'])) {
 //				if(($years = age($rr['dob'],$rr['timezone'],'')) != 0)
-//					$details .= '<br />' . t('Age: ') . $years ;
+//					$details .= '<br />' . L10n::t('Age: ') . $years ;
 //			}
 //			if(strlen($rr['gender']))
-//				$details .= '<br />' . t('Gender: ') . $rr['gender'];
+//				$details .= '<br />' . L10n::t('Gender: ') . $rr['gender'];
 
 			$profile = $rr;
 
@@ -136,15 +137,15 @@ function directory_content(App $a) {
 				|| (x($profile,'region') == 1)
 				|| (x($profile,'postal-code') == 1)
 				|| (x($profile,'country-name') == 1))
-			$location = t('Location:');
+			$location = L10n::t('Location:');
 
-			$gender = ((x($profile,'gender') == 1) ? t('Gender:') : False);
+			$gender = ((x($profile,'gender') == 1) ? L10n::t('Gender:') : False);
 
-			$marital = ((x($profile,'marital') == 1) ?  t('Status:') : False);
+			$marital = ((x($profile,'marital') == 1) ?  L10n::t('Status:') : False);
 
-			$homepage = ((x($profile,'homepage') == 1) ?  t('Homepage:') : False);
+			$homepage = ((x($profile,'homepage') == 1) ?  L10n::t('Homepage:') : False);
 
-			$about = ((x($profile,'about') == 1) ?  t('About:') : False);
+			$about = ((x($profile,'about') == 1) ?  L10n::t('About:') : False);
 
 			$location_e = $location;
 
@@ -180,31 +181,30 @@ function directory_content(App $a) {
 			unset($profile);
 			unset($location);
 
-			if(! $arr['entry'])
+			if (!$arr['entry']) {
 				continue;
+			}
 
 			$entries[] = $arr['entry'];
-
 		}
 
 		$tpl = get_markup_template('directory_header.tpl');
 
 		$o .= replace_macros($tpl, [
 			'$search' => $search,
-			'$globaldir' => t('Global Directory'),
+			'$globaldir' => L10n::t('Global Directory'),
 			'$gdirpath' => $gdirpath,
-			'$desc' => t('Find on this site'),
+			'$desc' => L10n::t('Find on this site'),
 			'$contacts' => $entries,
-			'$finding' => t('Results for:'),
+			'$finding' => L10n::t('Results for:'),
 			'$findterm' => (strlen($search) ? $search : ""),
-			'$title' => t('Site Directory'),
-			'$submit' => t('Find'),
+			'$title' => L10n::t('Site Directory'),
+			'$submit' => L10n::t('Find'),
 			'$paginate' => paginate($a),
 		]);
-
+	} else {
+		info(L10n::t("No entries \x28some entries may be hidden\x29.") . EOL);
 	}
-	else
-		info( t("No entries \x28some entries may be hidden\x29.") . EOL);
 
 	return $o;
 }

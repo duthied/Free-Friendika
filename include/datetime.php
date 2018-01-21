@@ -18,21 +18,21 @@ use Friendica\Database\DBM;
  */
 function timezone_cmp($a, $b) {
 	if (strstr($a, '/') && strstr($b, '/')) {
-		if ( t($a) == t($b)) {
+		if (L10n::t($a) == L10n::t($b)) {
 			return 0;
 		}
-		return ( t($a) < t($b)) ? -1 : 1;
+		return (L10n::t($a) < L10n::t($b)) ? -1 : 1;
 	}
 
 	if (strstr($a, '/')) {
 		return -1;
 	} elseif (strstr($b, '/')) {
 		return  1;
-	} elseif ( t($a) == t($b)) {
+	} elseif (L10n::t($a) == L10n::t($b)) {
 		return 0;
 	}
 
-	return ( t($a) < t($b)) ? -1 : 1;
+	return (L10n::t($a) < L10n::t($b)) ? -1 : 1;
 }
 
 /**
@@ -57,7 +57,7 @@ function select_timezone($current = 'America/Los_Angeles') {
 					$o .= '</optgroup>';
 				}
 				$continent = $ex[0];
-				$o .= '<optgroup label="' . t($continent) . '">';
+				$o .= '<optgroup label="' . L10n::t($continent) . '">';
 			}
 			if (count($ex) > 2) {
 				$city = substr($value,strpos($value,'/')+1);
@@ -66,13 +66,13 @@ function select_timezone($current = 'America/Los_Angeles') {
 			}
 		} else {
 			$city = $ex[0];
-			if ($continent != t('Miscellaneous')) {
+			if ($continent != L10n::t('Miscellaneous')) {
 				$o .= '</optgroup>';
-				$continent = t('Miscellaneous');
-				$o .= '<optgroup label="' . t($continent) . '">';
+				$continent = L10n::t('Miscellaneous');
+				$o .= '<optgroup label="' . L10n::t($continent) . '">';
 			}
 		}
-		$city = str_replace('_', ' ',  t($city));
+		$city = str_replace('_', ' ', L10n::t($city));
 		$selected = (($value == $current) ? " selected=\"selected\" " : "");
 		$o .= "<option value=\"$value\" $selected >$city</option>";
 	}
@@ -195,17 +195,17 @@ function dob($dob)
 			'dob',
 			t('Birthday:'),
 			$value,
-			(((intval($age)) > 0 ) ? t('Age: ') . $age : ""),
+			(((intval($age)) > 0 ) ? L10n::t('Age: ') . $age : ""),
 			'',
-			'placeholder="' . t('YYYY-MM-DD or MM-DD') . '"'
+			'placeholder="' . L10n::t('YYYY-MM-DD or MM-DD') . '"'
 		]
 	]);
 
 	/// @TODO Old-lost code?
-//	if ($dob && $dob > '0001-01-01')
-//		$o = datesel($f,mktime(0,0,0,0,0,1900),mktime(),mktime(0,0,0,$month,$day,$year), 'dob');
-//	else
-//		$o = datesel($f,mktime(0,0,0,0,0,1900),mktime(),false,'dob');
+	//	if ($dob && $dob > '0001-01-01')
+	//		$o = datesel($f,mktime(0,0,0,0,0,1900),mktime(),mktime(0,0,0,$month,$day,$year), 'dob');
+	//	else
+	//		$o = datesel($f,mktime(0,0,0,0,0,1900),mktime(),false,'dob');
 
 	return $o;
 }
@@ -359,23 +359,23 @@ function relative_date($posted_date, $format = null) {
 
 	$abs = strtotime($localtime);
 
-	if (is_null($posted_date) || $posted_date <= NULL_DATE || $abs === False) {
-		 return t('never');
+	if (is_null($posted_date) || $posted_date <= NULL_DATE || $abs === false) {
+		 return L10n::t('never');
 	}
 
 	$etime = time() - $abs;
 
 	if ($etime < 1) {
-		return t('less than a second ago');
+		return L10n::t('less than a second ago');
 	}
 
-	$a = [ 12 * 30 * 24 * 60 * 60  =>  [ t('year'),   t('years')],
-				30 * 24 * 60 * 60       =>  [ t('month'),  t('months')],
-				7  * 24 * 60 * 60       =>  [ t('week'),   t('weeks')],
-				24 * 60 * 60            =>  [ t('day'),    t('days')],
-				60 * 60                 =>  [ t('hour'),   t('hours')],
-				60                      =>  [ t('minute'), t('minutes')],
-				1                       =>  [ t('second'), t('seconds')]
+	$a = [ 12 * 30 * 24 * 60 * 60  =>  [L10n::t('year'),   L10n::t('years')],
+				30 * 24 * 60 * 60       =>  [L10n::t('month'),  L10n::t('months')],
+				7  * 24 * 60 * 60       =>  [L10n::t('week'),   L10n::t('weeks')],
+				24 * 60 * 60            =>  [L10n::t('day'),    L10n::t('days')],
+				60 * 60                 =>  [L10n::t('hour'),   L10n::t('hours')],
+				60                      =>  [L10n::t('minute'), L10n::t('minutes')],
+				1                       =>  [L10n::t('second'), L10n::t('seconds')]
 	];
 
 	foreach ($a as $secs => $str) {
@@ -384,7 +384,7 @@ function relative_date($posted_date, $format = null) {
 			$r = round($d);
 			// translators - e.g. 22 hours ago, 1 minute ago
 			if (!$format) {
-				$format = t('%1$d %2$s ago');
+				$format = L10n::t('%1$d %2$s ago');
 			}
 
 			return sprintf($format, $r, (($r == 1) ? $str[0] : $str[1]));
@@ -611,8 +611,8 @@ function update_contact_birthdays() {
 				continue;
 			}
 
-			$bdtext = sprintf( t('%s\'s birthday'), $rr['name']);
-			$bdtext2 = sprintf( t('Happy Birthday %s'), ' [url=' . $rr['url'] . ']' . $rr['name'] . '[/url]') ;
+			$bdtext = sprintf(L10n::t('%s\'s birthday'), $rr['name']);
+			$bdtext2 = sprintf(L10n::t('Happy Birthday %s'), ' [url=' . $rr['url'] . ']' . $rr['name'] . '[/url]') ;
 
 			q("INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`,`adjust`)
 				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d' ) ",

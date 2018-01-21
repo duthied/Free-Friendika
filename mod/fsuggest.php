@@ -3,6 +3,7 @@
  * @file mod/fsuggest.php
  */
 use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 
@@ -23,7 +24,7 @@ function fsuggest_post(App $a) {
 		intval(local_user())
 	);
 	if (! DBM::is_result($r)) {
-		notice( t('Contact not found.') . EOL);
+		notice(L10n::t('Contact not found.') . EOL);
 		return;
 	}
 	$contact = $r[0];
@@ -66,7 +67,7 @@ function fsuggest_post(App $a) {
 				Worker::add(PRIORITY_HIGH, 'Notifier', 'suggest', $fsuggest_id);
 			}
 
-			info( t('Friend suggestion sent.') . EOL);
+			info(L10n::t('Friend suggestion sent.') . EOL);
 		}
 
 	}
@@ -81,7 +82,7 @@ function fsuggest_content(App $a)
 	require_once 'include/acl_selectors.php';
 
 	if (! local_user()) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -97,7 +98,7 @@ function fsuggest_content(App $a)
 		intval(local_user())
 	);
 	if (! DBM::is_result($r)) {
-		notice(t('Contact not found.') . EOL);
+		notice(L10n::t('Contact not found.') . EOL);
 		return;
 	}
 	$contact = $r[0];

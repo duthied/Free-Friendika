@@ -4,6 +4,7 @@
  */
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Model\Profile;
@@ -24,13 +25,13 @@ function profperm_init(App $a)
 function profperm_content(App $a) {
 
 	if (! local_user()) {
-		notice( t('Permission denied') . EOL);
+		notice(L10n::t('Permission denied') . EOL);
 		return;
 	}
 
 
 	if($a->argc < 2) {
-		notice( t('Invalid profile identifier.') . EOL );
+		notice(L10n::t('Invalid profile identifier.') . EOL );
 		return;
 	}
 
@@ -59,7 +60,7 @@ function profperm_content(App $a) {
 			intval(local_user())
 		);
 		if (! DBM::is_result($r)) {
-			notice( t('Invalid profile identifier.') . EOL );
+			notice(L10n::t('Invalid profile identifier.') . EOL );
 			return;
 		}
 		$profile = $r[0];

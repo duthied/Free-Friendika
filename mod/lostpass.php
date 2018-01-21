@@ -1,10 +1,10 @@
 <?php
-
 /**
  * @file mod/lostpass.php
  */
 
 use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\User;
@@ -25,7 +25,7 @@ function lostpass_post(App $a)
 	$condition = ['(`email` = ? OR `nickname` = ?) AND `verified` = 1 AND `blocked` = 0', $loginame, $loginame];
 	$user = dba::selectFirst('user', ['uid', 'username', 'email'], $condition);
 	if (!DBM::is_result($user)) {
-		notice(t('No valid account found.') . EOL);
+		notice(L10n::t('No valid account found.') . EOL);
 		goaway(System::baseUrl());
 	}
 
@@ -86,7 +86,7 @@ function lostpass_content(App $a)
 
 		$user = dba::selectFirst('user', ['uid', 'username', 'email', 'pwdreset_time'], ['pwdreset' => $pwdreset_token]);
 		if (!DBM::is_result($user)) {
-			notice(t("Request could not be verified. \x28You may have previously submitted it.\x29 Password reset failed."));
+			notice(L10n::t("Request could not be verified. \x28You may have previously submitted it.\x29 Password reset failed."));
 
 			return lostpass_form();
 		}
@@ -99,7 +99,7 @@ function lostpass_content(App $a)
 			];
 			dba::update('user', $fields, ['uid' => $user['uid']]);
 
-			notice(t('Request has expired, please make a new one.'));
+			notice(L10n::t('Request has expired, please make a new one.'));
 
 			return lostpass_form();
 		}

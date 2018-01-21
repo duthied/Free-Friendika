@@ -4,6 +4,7 @@
  */
 use Friendica\App;
 use Friendica\Core\Addon;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Network\Probe;
@@ -737,7 +738,7 @@ function scale_external_images($srctext, $include_link = true, $scale_replace = 
 							$mtch[0],
 							'[img=' . $new_width . 'x' . $new_height. ']' . $scaled . '[/img]'
 							. "\n" . (($include_link)
-								? '[url=' . $mtch[1] . ']' . t('view full size') . '[/url]' . "\n"
+								? '[url=' . $mtch[1] . ']' . L10n::t('view full size') . '[/url]' . "\n"
 								: ''),
 							$s
 						);

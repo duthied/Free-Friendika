@@ -5,6 +5,7 @@
 namespace Friendica\Core;
 
 use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
@@ -100,13 +101,13 @@ class UserImport
 
 		$account = json_decode(file_get_contents($file['tmp_name']), true);
 		if ($account === null) {
-			notice(t("Error decoding account file"));
+			notice(L10n::t("Error decoding account file"));
 			return;
 		}
 
 
 		if (!x($account, 'version')) {
-			notice(t("Error! No version data in file! This is not a Friendica account file?"));
+			notice(L10n::t("Error! No version data in file! This is not a Friendica account file?"));
 			return;
 		}
 
@@ -114,7 +115,7 @@ class UserImport
 		$r = dba::selectFirst('user', ['uid'], ['nickname' => $account['user']['nickname']]);
 		if ($r === false) {
 			logger("uimport:check nickname : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
-			notice(t('Error! Cannot check nickname'));
+			notice(L10n::t('Error! Cannot check nickname'));
 			return;
 		}
 
@@ -127,7 +128,7 @@ class UserImport
 		$r = dba::selectFirst('userd', ['id'], ['username' => $account['user']['nickname']]);
 		if ($r === false) {
 			logger("uimport:check nickname : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
-			notice(t('Error! Cannot check nickname'));
+			notice(L10n::t('Error! Cannot check nickname'));
 			return;
 		}
 
@@ -165,7 +166,7 @@ class UserImport
 		$r = self::dbImportAssoc('user', $account['user']);
 		if ($r === false) {
 			logger("uimport:insert user : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
-			notice(t("User creation error"));
+			notice(L10n::t("User creation error"));
 			return;
 		}
 		$newuid = self::lastInsertId();

@@ -7,6 +7,7 @@ use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Database\DBM;
 
 require_once "include/bbcode.php";
@@ -93,7 +94,7 @@ function search_post(App $a) {
 function search_content(App $a) {
 
 	if (Config::get('system','block_public') && !local_user() && !remote_user()) {
-		notice(t('Public access denied.') . EOL);
+		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}
 
@@ -102,7 +103,7 @@ function search_content(App $a) {
 				["title" => t("Public access denied."),
 					"description" => t("Only logged in users are permitted to perform a search.")]);
 		killme();
-		//notice(t('Public access denied.').EOL);
+		//notice(L10n::t('Public access denied.').EOL);
 		//return;
 	}
 
@@ -220,7 +221,7 @@ function search_content(App $a) {
 	}
 
 	if (! DBM::is_result($r)) {
-		info( t('No results.') . EOL);
+		info(L10n::t('No results.') . EOL);
 		return $o;
 	}
 

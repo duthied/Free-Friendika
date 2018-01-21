@@ -4,6 +4,7 @@
  */
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -48,7 +49,7 @@ function profile_photo_post(App $a) {
 		// phase 2 - we have finished cropping
 
 		if($a->argc != 2) {
-			notice( t('Image uploaded but image cropping failed.') . EOL );
+			notice(L10n::t('Image uploaded but image cropping failed.') . EOL );
 			return;
 		}
 
@@ -131,7 +132,7 @@ function profile_photo_post(App $a) {
 					intval(local_user())
 				);
 
-				info( t('Shift-reload the page or clear browser cache if the new photo does not display immediately.') . EOL);
+				info(L10n::t('Shift-reload the page or clear browser cache if the new photo does not display immediately.') . EOL);
 				// Update global directory in background
 				$url = System::baseUrl() . '/profile/' . $a->user['nickname'];
 				if ($url && strlen(Config::get('system','directory'))) {
@@ -140,7 +141,7 @@ function profile_photo_post(App $a) {
 
 				Worker::add(PRIORITY_LOW, 'ProfileUpdate', local_user());
 			} else {
-				notice( t('Unable to process image') . EOL);
+				notice(L10n::t('Unable to process image') . EOL);
 			}
 		}
 
@@ -168,7 +169,7 @@ function profile_photo_post(App $a) {
 	$ph = new Image($imagedata, $filetype);
 
 	if (! $ph->isValid()) {
-		notice(t('Unable to process image.') . EOL);
+		notice(L10n::t('Unable to process image.') . EOL);
 		@unlink($src);
 		return;
 	}
@@ -182,7 +183,7 @@ function profile_photo_post(App $a) {
 function profile_photo_content(App $a) {
 
 	if (! local_user()) {
-		notice( t('Permission denied.') . EOL );
+		notice(L10n::t('Permission denied.') . EOL );
 		return;
 	}
 
@@ -193,7 +194,7 @@ function profile_photo_content(App $a) {
 
 	if( $a->argv[1]=='use'){
 		if ($a->argc<3){
-			notice( t('Permission denied.') . EOL );
+			notice(L10n::t('Permission denied.') . EOL );
 			return;
 		};
 
@@ -206,7 +207,7 @@ function profile_photo_content(App $a) {
 			dbesc($resource_id)
 			);
 		if (!DBM::is_result($r)){
-			notice( t('Permission denied.') . EOL );
+			notice(L10n::t('Permission denied.') . EOL );
 			return;
 		}
 		$havescale = false;
@@ -314,9 +315,9 @@ function profile_photo_crop_ui_head(App $a, Image $Image) {
 	$r = Photo::store($Image, local_user(), 0 , $hash, $filename, t('Profile Photos'), 0 );
 
 	if ($r) {
-		info( t('Image uploaded successfully.') . EOL );
+		info(L10n::t('Image uploaded successfully.') . EOL );
 	} else {
-		notice( t('Image upload failed.') . EOL );
+		notice(L10n::t('Image upload failed.') . EOL );
 	}
 
 	if ($width > 640 || $height > 640) {

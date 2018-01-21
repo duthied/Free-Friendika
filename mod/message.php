@@ -5,6 +5,7 @@
 use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Content\Smilies;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
@@ -51,7 +52,7 @@ function message_init(App $a)
 function message_post(App $a)
 {
 	if (!local_user()) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -65,17 +66,17 @@ function message_post(App $a)
 
 	switch ($ret) {
 		case -1:
-			notice(t('No recipient selected.') . EOL);
+			notice(L10n::t('No recipient selected.') . EOL);
 			$norecip = true;
 			break;
 		case -2:
-			notice(t('Unable to locate contact information.') . EOL);
+			notice(L10n::t('Unable to locate contact information.') . EOL);
 			break;
 		case -3:
-			notice(t('Message could not be sent.') . EOL);
+			notice(L10n::t('Message could not be sent.') . EOL);
 			break;
 		case -4:
-			notice(t('Message collection failure.') . EOL);
+			notice(L10n::t('Message collection failure.') . EOL);
 			break;
 		default:
 			info(t('Message sent.') . EOL);
@@ -96,7 +97,7 @@ function message_content(App $a)
 	Nav::setSelected('messages');
 
 	if (!local_user()) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -323,7 +324,7 @@ function message_content(App $a)
 			);
 		}
 		if (!count($messages)) {
-			notice(t('Message not available.') . EOL);
+			notice(L10n::t('Message not available.') . EOL);
 			return $o;
 		}
 

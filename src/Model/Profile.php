@@ -11,6 +11,7 @@ use Friendica\Content\ForumManager;
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -91,7 +92,7 @@ class Profile
 
 		if (!$user && !count($user) && !count($profiledata)) {
 			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
-			notice(t('Requested account is not available.') . EOL);
+			notice(L10n::t('Requested account is not available.') . EOL);
 			$a->error = 404;
 			return;
 		}
@@ -112,7 +113,7 @@ class Profile
 
 		if (empty($pdata) && empty($profiledata)) {
 			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
-			notice(t('Requested profile is not available.') . EOL);
+			notice(L10n::t('Requested profile is not available.') . EOL);
 			$a->error = 404;
 			return;
 		}

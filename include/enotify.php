@@ -29,10 +29,10 @@ function notification($params)
 	// from here on everything is in the recipients language
 	L10n::pushLang($params['language']);
 
-	$banner = t('Friendica Notification');
+	$banner = L10n::t('Friendica Notification');
 	$product = FRIENDICA_PLATFORM;
 	$siteurl = System::baseUrl(true);
-	$thanks = t('Thank You,');
+	$thanks = L10n::t('Thank You,');
 	$sitename = $a->config['sitename'];
 	if (!x($a->config['admin_name'])) {
 	    $site_admin = sprintf(t('%s Administrator'), $sitename);
@@ -48,7 +48,7 @@ function notification($params)
 
 	$sender_email = $a->config['sender_email'];
 	if (empty($sender_email)) {
-		$sender_email = t('noreply').'@'.$hostname;
+		$sender_email = L10n::t('noreply').'@'.$hostname;
 	}
 
 	if ($params['type'] != SYSTEM_EMAIL) {
@@ -101,7 +101,7 @@ function notification($params)
 		$preamble = sprintf(t('%1$s sent you a new private message at %2$s.'), $params['source_name'], $sitename);
 		$epreamble = sprintf(t('%1$s sent you %2$s.'), '[url='.$params['source_link'].']'.$params['source_name'].'[/url]', '[url=$itemlink]'.t('a private message').'[/url]');
 
-		$sitelink = t('Please visit %s to view and/or reply to your private messages.');
+		$sitelink = L10n::t('Please visit %s to view and/or reply to your private messages.');
 		$tsitelink = sprintf($sitelink, $siteurl.'/message/'.$params['item']['id']);
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'/message/'.$params['item']['id'].'">'.$sitename.'</a>');
 		$itemlink = $siteurl.'/message/'.$params['item']['id'];
@@ -171,7 +171,7 @@ function notification($params)
 		$preamble = sprintf(t('%s commented on an item/conversation you have been following.'), $params['source_name']);
 		$epreamble = $dest_str;
 
-		$sitelink = t('Please visit %s to view and/or reply to the conversation.');
+		$sitelink = L10n::t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf($sitelink, $siteurl);
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 		$itemlink =  $params['link'];
@@ -185,7 +185,7 @@ function notification($params)
 					'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 					$params['link']);
 
-		$sitelink = t('Please visit %s to view and/or reply to the conversation.');
+		$sitelink = L10n::t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf($sitelink, $siteurl);
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 		$itemlink =  $params['link'];
@@ -199,7 +199,7 @@ function notification($params)
 					'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 					$params['link']);
 
-		$sitelink = t('Please visit %s to view and/or reply to the conversation.');
+		$sitelink = L10n::t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf($sitelink, $siteurl);
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 		$itemlink =  $params['link'];
@@ -213,7 +213,7 @@ function notification($params)
 					'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 					$params['link']);
 
-		$sitelink = t('Please visit %s to view and/or reply to the conversation.');
+		$sitelink = L10n::t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf($sitelink, $siteurl);
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 		$itemlink =  $params['link'];
@@ -227,11 +227,11 @@ function notification($params)
 					'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 					$params['link']);
 
-		$subject = str_replace('poked', t($params['activity']), $subject);
-		$preamble = str_replace('poked', t($params['activity']), $preamble);
-		$epreamble = str_replace('poked', t($params['activity']), $epreamble);
+		$subject = str_replace('poked', L10n::t($params['activity']), $subject);
+		$preamble = str_replace('poked', L10n::t($params['activity']), $preamble);
+		$epreamble = str_replace('poked', L10n::t($params['activity']), $epreamble);
 
-		$sitelink = t('Please visit %s to view and/or reply to the conversation.');
+		$sitelink = L10n::t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf($sitelink, $siteurl);
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 		$itemlink =  $params['link'];
@@ -245,7 +245,7 @@ function notification($params)
 					'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 					$itemlink);
 
-		$sitelink = t('Please visit %s to view and/or reply to the conversation.');
+		$sitelink = L10n::t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf($sitelink, $siteurl);
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 		$itemlink =  $params['link'];
@@ -261,7 +261,7 @@ function notification($params)
 
 		$body = sprintf(t('You may visit their profile at %s'), $params['source_link']);
 
-		$sitelink = t('Please visit %s to approve or reject the introduction.');
+		$sitelink = L10n::t('Please visit %s to approve or reject the introduction.');
 		$tsitelink = sprintf($sitelink, $siteurl);
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 		$itemlink =  $params['link'];
@@ -300,11 +300,11 @@ function notification($params)
 					'[url='.$params['item']['url'].']'.$params['item']['name'].'[/url]',
 					'[url='.$params['source_link'].']'.$params['source_name'].'[/url]');
 
-		$body = t('Name:').' '.$params['item']['name']."\n";
-		$body .= t('Photo:').' '.$params['item']['photo']."\n";
+		$body = L10n::t('Name:').' '.$params['item']['name']."\n";
+		$body .= L10n::t('Photo:').' '.$params['item']['photo']."\n";
 		$body .= sprintf(t('You may visit their profile at %s'), $params['item']['url']);
 
-		$sitelink = t('Please visit %s to approve or reject the suggestion.');
+		$sitelink = L10n::t('Please visit %s to approve or reject the suggestion.');
 		$tsitelink = sprintf($sitelink, $siteurl);
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 		$itemlink =  $params['link'];
@@ -319,9 +319,9 @@ function notification($params)
 						$itemlink,
 						'[url='.$params['source_link'].']'.$params['source_name'].'[/url]');
 
-			$body =  t('You are now mutual friends and may exchange status updates, photos, and email without restriction.');
+			$body =  L10n::t('You are now mutual friends and may exchange status updates, photos, and email without restriction.');
 
-			$sitelink = t('Please visit %s if you wish to make any changes to this relationship.');
+			$sitelink = L10n::t('Please visit %s if you wish to make any changes to this relationship.');
 			$tsitelink = sprintf($sitelink, $siteurl);
 			$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 			$itemlink =  $params['link'];
@@ -337,7 +337,7 @@ function notification($params)
 			$body .= "\n\n";
 			$body .= sprintf(t('\'%1$s\' may choose to extend this into a two-way or more permissive relationship in the future.'), $params['source_name']);
 
-			$sitelink = t('Please visit %s  if you wish to make any changes to this relationship.');
+			$sitelink = L10n::t('Please visit %s  if you wish to make any changes to this relationship.');
 			$tsitelink = sprintf($sitelink, $siteurl);
 			$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 			$itemlink =  $params['link'];
@@ -357,7 +357,7 @@ function notification($params)
 				$body = sprintf(t('Full Name:	%1$s\nSite Location:	%2$s\nLogin Name:	%3$s (%4$s)'),
 									$params['source_name'], $siteurl, $params['source_mail'], $params['source_nick']);
 
-				$sitelink = t('Please visit %s to approve or reject the request.');
+				$sitelink = L10n::t('Please visit %s to approve or reject the request.');
 				$tsitelink = sprintf($sitelink, $params['link']);
 				$hsitelink = sprintf($sitelink, '<a href="'.$params['link'].'">'.$sitename.'</a><br><br>');
 				$itemlink =  $params['link'];

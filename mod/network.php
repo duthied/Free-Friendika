@@ -9,6 +9,7 @@ use Friendica\Content\ForumManager;
 use Friendica\Content\Nav;
 use Friendica\Content\Widget;
 use Friendica\Core\Addon;
+use Friendica\Core\L10n;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
@@ -25,7 +26,7 @@ require_once 'include/acl_selectors.php';
 function network_init(App $a)
 {
 	if (!local_user()) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -541,8 +542,9 @@ function networkThreadedView(App $a, $update = 0)
 		if ($gid) {
 			if (($t = Contact::getOStatusCountByGroupId($gid)) && !PConfig::get(local_user(), 'system', 'nowarn_insecure')) {
 				notice(tt("Warning: This group contains %s member from a network that doesn't allow non public messages.",
-						"Warning: This group contains %s members from a network that doesn't allow non public messages.", $t) . EOL);
-				notice(t("Messages in this group won't be send to these receivers.") . EOL);
+						"Warning: This group contains %s members from a network that doesn't allow non public messages.",
+						$t) . EOL);
+				notice(L10n::t("Messages in this group won't be send to these receivers.").EOL);
 			}
 		}
 
@@ -610,7 +612,7 @@ function networkThreadedView(App $a, $update = 0)
 			if ($update) {
 				killme();
 			}
-			notice(t('No such group') . EOL);
+			notice(L10n::t('No such group') . EOL);
 			goaway('network/0');
 			// NOTREACHED
 		}
@@ -660,12 +662,11 @@ function networkThreadedView(App $a, $update = 0)
 				'id' => 'network',
 			]) . $o;
 
-			if ($contact['network'] === NETWORK_OSTATUS && $contact['writable'] && !PConfig::get(local_user(), 'system',
-					'nowarn_insecure')) {
-				notice(t('Private messages to this person are at risk of public disclosure.') . EOL);
+			if ($contact['network'] === NETWORK_OSTATUS && $contact['writable'] && !PConfig::get(local_user(),'system','nowarn_insecure')) {
+				notice(L10n::t('Private messages to this person are at risk of public disclosure.') . EOL);
 			}
 		} else {
-			notice(t('Invalid contact.') . EOL);
+			notice(L10n::t('Invalid contact.') . EOL);
 			goaway('network');
 			// NOTREACHED
 		}

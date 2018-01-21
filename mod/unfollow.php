@@ -3,6 +3,7 @@
  * @file mod/unfollow.php
  */
 use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
@@ -11,7 +12,7 @@ use Friendica\Model\Profile;
 function unfollow_post(App $a)
 {
 	if (!local_user()) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
@@ -30,7 +31,7 @@ function unfollow_post(App $a)
 	$contact = dba::selectFirst('contact', [], $condition);
 
 	if (!DBM::is_result($contact)) {
-		notice(t("Contact wasn't found or can't be unfollowed."));
+		notice(L10n::t("Contact wasn't found or can't be unfollowed."));
 	} else {
 		if (in_array($contact['network'], [NETWORK_OSTATUS, NETWORK_DIASPORA])) {
 			$r = q("SELECT `contact`.*, `user`.* FROM `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid`
@@ -53,7 +54,7 @@ function unfollow_post(App $a)
 function unfollow_content(App $a) {
 
 	if (! local_user()) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
@@ -69,13 +70,13 @@ function unfollow_content(App $a) {
 	$contact = dba::selectFirst('contact', ['url', 'network', 'addr', 'name'], $condition);
 
 	if (!DBM::is_result($contact)) {
-		notice(t("You aren't a friend of this contact.").EOL);
+		notice(L10n::t("You aren't a friend of this contact.").EOL);
 		$submit = "";
 		// NOTREACHED
 	}
 
 	if (!in_array($contact['network'], [NETWORK_DIASPORA, NETWORK_OSTATUS])) {
-		notice(t("Unfollowing is currently not supported by your network.").EOL);
+		notice(L10n::t("Unfollowing is currently not supported by your network.").EOL);
 		$submit = "";
 		// NOTREACHED
 	}
@@ -86,7 +87,7 @@ function unfollow_content(App $a) {
 	$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1", intval($uid));
 
 	if (!$r) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}

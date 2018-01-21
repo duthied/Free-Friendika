@@ -8,6 +8,7 @@ use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -30,7 +31,7 @@ function profiles_init(App $a) {
 			intval(local_user())
 		);
 		if (! DBM::is_result($r)) {
-			notice( t('Profile not found.') . EOL);
+			notice(L10n::t('Profile not found.') . EOL);
 			goaway('profiles');
 			return; // NOTREACHED
 		}
@@ -84,7 +85,7 @@ function profiles_init(App $a) {
 			dbesc($name)
 		);
 
-		info( t('New profile created.') . EOL);
+		info(L10n::t('New profile created.') . EOL);
 		if (DBM::is_result($r3) && count($r3) == 1) {
 			goaway('profiles/' . $r3[0]['id']);
 		}
@@ -107,7 +108,7 @@ function profiles_init(App $a) {
 			intval($a->argv[2])
 		);
 		if(! DBM::is_result($r1)) {
-			notice( t('Profile unavailable to clone.') . EOL);
+			notice(L10n::t('Profile unavailable to clone.') . EOL);
 			killme();
 			return;
 		}
@@ -123,7 +124,7 @@ function profiles_init(App $a) {
 			intval(local_user()),
 			dbesc($name)
 		);
-		info( t('New profile created.') . EOL);
+		info(L10n::t('New profile created.') . EOL);
 		if ((DBM::is_result($r3)) && (count($r3) == 1)) {
 			goaway('profiles/'.$r3[0]['id']);
 		}
@@ -140,7 +141,7 @@ function profiles_init(App $a) {
 			intval(local_user())
 		);
 		if (! DBM::is_result($r)) {
-			notice( t('Profile not found.') . EOL);
+			notice(L10n::t('Profile not found.') . EOL);
 			killme();
 			return;
 		}
@@ -173,7 +174,7 @@ function profile_clean_keywords($keywords) {
 function profiles_post(App $a) {
 
 	if (! local_user()) {
-		notice( t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -187,7 +188,7 @@ function profiles_post(App $a) {
 			intval(local_user())
 		);
 		if (! DBM::is_result($orig)) {
-			notice( t('Profile not found.') . EOL);
+			notice(L10n::t('Profile not found.') . EOL);
 			return;
 		}
 
@@ -197,7 +198,7 @@ function profiles_post(App $a) {
 
 		$profile_name = notags(trim($_POST['profile_name']));
 		if (! strlen($profile_name)) {
-			notice( t('Profile Name is required.') . EOL);
+			notice(L10n::t('Profile Name is required.') . EOL);
 			return;
 		}
 
@@ -610,7 +611,7 @@ function profile_activity($changed, $value) {
 function profiles_content(App $a) {
 
 	if (! local_user()) {
-		notice( t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -622,7 +623,7 @@ function profiles_content(App $a) {
 			intval(local_user())
 		);
 		if (! DBM::is_result($r)) {
-			notice( t('Profile not found.') . EOL);
+			notice(L10n::t('Profile not found.') . EOL);
 			return;
 		}
 

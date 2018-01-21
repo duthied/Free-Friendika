@@ -7,6 +7,7 @@
  */
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Protocol\Email;
@@ -14,7 +15,7 @@ use Friendica\Protocol\Email;
 function invite_post(App $a) {
 
 	if (! local_user()) {
-		notice( t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -27,7 +28,7 @@ function invite_post(App $a) {
 
 	$current_invites = intval(PConfig::get(local_user(),'system','sent_invites'));
 	if ($current_invites > $max_invites) {
-		notice( t('Total invitation limit exceeded.') . EOL);
+		notice(L10n::t('Total invitation limit exceeded.') . EOL);
 		return;
 	}
 
@@ -86,7 +87,7 @@ function invite_post(App $a) {
 			$current_invites ++;
 			PConfig::set(local_user(),'system','sent_invites',$current_invites);
 			if($current_invites > $max_invites) {
-				notice( t('Invitation limit exceeded. Please contact your site administrator.') . EOL);
+				notice(L10n::t('Invitation limit exceeded. Please contact your site administrator.') . EOL);
 				return;
 			}
 		} else {
@@ -102,7 +103,7 @@ function invite_post(App $a) {
 function invite_content(App $a) {
 
 	if (! local_user()) {
-		notice( t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -113,7 +114,7 @@ function invite_content(App $a) {
 		$invonly = true;
 		$x = PConfig::get(local_user(),'system','invites_remaining');
 		if ((! $x) && (! is_site_admin())) {
-			notice( t('You have no more invitations available') . EOL);
+			notice(L10n::t('You have no more invitations available') . EOL);
 			return '';
 		}
 	}

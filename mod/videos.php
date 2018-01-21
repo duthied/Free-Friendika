@@ -5,6 +5,7 @@
 use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -207,7 +208,7 @@ function videos_content(App $a) {
 
 
 	if((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
-		notice( t('Public access denied.') . EOL);
+		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}
 
@@ -217,7 +218,7 @@ function videos_content(App $a) {
 	require_once('include/conversation.php');
 
 	if(! x($a->data,'user')) {
-		notice( t('No videos selected') . EOL );
+		notice(L10n::t('No videos selected') . EOL );
 		return;
 	}
 
@@ -319,7 +320,7 @@ function videos_content(App $a) {
 	}
 
 	if($a->data['user']['hidewall'] && (local_user() != $owner_uid) && (! $remote_contact)) {
-		notice( t('Access to this item is restricted.') . EOL);
+		notice(L10n::t('Access to this item is restricted.') . EOL);
 		return;
 	}
 

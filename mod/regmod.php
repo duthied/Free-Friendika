@@ -105,7 +105,7 @@ function regmod_content(App $a)
 	}
 
 	if ((!is_site_admin()) || (x($_SESSION, 'submanage') && intval($_SESSION['submanage']))) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return '';
 	}
 

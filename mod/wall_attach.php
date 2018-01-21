@@ -4,6 +4,7 @@
  */
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Database\DBM;
 use Friendica\Util\Mimetype;
 
@@ -73,7 +74,7 @@ function wall_attach_post(App $a) {
 			echo json_encode(['error'=>t('Permission denied.')]);
 			killme();
 		}
-		notice( t('Permission denied.') . EOL );
+		notice(L10n::t('Permission denied.') . EOL );
 		killme();
 	}
 

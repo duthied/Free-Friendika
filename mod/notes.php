@@ -4,6 +4,7 @@
  */
 use Friendica\App;
 use Friendica\Content\Nav;
+use Friendica\Core\L10n;
 use Friendica\Database\DBM;
 use Friendica\Model\Profile;
 
@@ -27,7 +28,7 @@ function notes_init(App $a) {
 function notes_content(App $a, $update = false) {
 
 	if (! local_user()) {
-		notice( t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 

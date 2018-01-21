@@ -7,6 +7,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -22,7 +23,7 @@ function group_init(App $a) {
 function group_post(App $a) {
 
 	if (! local_user()) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -38,7 +39,7 @@ function group_post(App $a) {
 				goaway(System::baseUrl() . '/group/' . $r);
 			}
 		} else {
-			notice(t('Could not create group.') . EOL);
+			notice(L10n::t('Could not create group.') . EOL);
 		}
 		goaway(System::baseUrl() . '/group');
 		return; // NOTREACHED
@@ -52,7 +53,7 @@ function group_post(App $a) {
 			intval(local_user())
 		);
 		if (! DBM::is_result($r)) {
-			notice(t('Group not found.') . EOL);
+			notice(L10n::t('Group not found.') . EOL);
 			goaway(System::baseUrl() . '/contacts');
 			return; // NOTREACHED
 		}
@@ -79,7 +80,7 @@ function group_content(App $a) {
 	$change = false;
 
 	if (! local_user()) {
-		notice(t('Permission denied') . EOL);
+		notice(L10n::t('Permission denied') . EOL);
 		return;
 	}
 
@@ -125,7 +126,7 @@ function group_content(App $a) {
 			if ($result) {
 				info(t('Group removed.') . EOL);
 			} else {
-				notice(t('Unable to remove group.') . EOL);
+				notice(L10n::t('Unable to remove group.') . EOL);
 			}
 		}
 		goaway(System::baseUrl() . '/group');
@@ -154,7 +155,7 @@ function group_content(App $a) {
 		);
 
 		if (! DBM::is_result($r)) {
-			notice(t('Group not found.') . EOL);
+			notice(L10n::t('Group not found.') . EOL);
 			goaway(System::baseUrl() . '/contacts');
 		}
 

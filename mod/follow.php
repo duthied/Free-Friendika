@@ -4,6 +4,7 @@
  */
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
@@ -12,7 +13,7 @@ use Friendica\Network\Probe;
 function follow_post(App $a) {
 
 	if (!local_user()) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
@@ -42,7 +43,7 @@ function follow_post(App $a) {
 
 	info(t('Contact added').EOL);
 
-	if (strstr($return_url,'contacts')) {
+	if (strstr($return_url, 'contacts')) {
 		goaway(System::baseUrl().'/contacts/'.$contact_id);
 	}
 
@@ -53,7 +54,7 @@ function follow_post(App $a) {
 function follow_content(App $a) {
 
 	if (!local_user()) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
@@ -72,7 +73,7 @@ function follow_content(App $a) {
 		dbesc(normalise_link($url)), dbesc($url), dbesc(NETWORK_STATUSNET));
 
 	if ($r) {
-		notice(t('You already added this contact.').EOL);
+		notice(L10n::t('You already added this contact.').EOL);
 		$submit = "";
 		//goaway($_SESSION['return_url']);
 		// NOTREACHED
@@ -80,22 +81,22 @@ function follow_content(App $a) {
 
 	$ret = Probe::uri($url);
 
-	if (($ret["network"] == NETWORK_DIASPORA) && !Config::get('system','diaspora_enabled')) {
-		notice(t("Diaspora support isn't enabled. Contact can't be added.") . EOL);
+	if (($ret["network"] == NETWORK_DIASPORA) && !Config::get('system', 'diaspora_enabled')) {
+		notice(L10n::t("Diaspora support isn't enabled. Contact can't be added.") . EOL);
 		$submit = "";
 		//goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
 
-	if (($ret["network"] == NETWORK_OSTATUS) && Config::get('system','ostatus_disabled')) {
-		notice(t("OStatus support is disabled. Contact can't be added.") . EOL);
+	if (($ret["network"] == NETWORK_OSTATUS) && Config::get('system', 'ostatus_disabled')) {
+		notice(L10n::t("OStatus support is disabled. Contact can't be added.") . EOL);
 		$submit = "";
 		//goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
 
 	if ($ret["network"] == NETWORK_PHANTOM) {
-		notice(t("The network type couldn't be detected. Contact can't be added.") . EOL);
+		notice(L10n::t("The network type couldn't be detected. Contact can't be added.") . EOL);
 		$submit = "";
 		//goaway($_SESSION['return_url']);
 		// NOTREACHED
@@ -116,7 +117,7 @@ function follow_content(App $a) {
 	$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1", intval($uid));
 
 	if (!$r) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}

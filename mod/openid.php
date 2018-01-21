@@ -1,7 +1,10 @@
 <?php
-
+/**
+ * @file mod/openid.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 
@@ -61,7 +64,7 @@ function openid_content(App $a) {
 			// New registration?
 
 			if ($a->config['register_policy'] == REGISTER_CLOSED) {
-				notice( t('Account not found and OpenID registration is not permitted on this site.') . EOL);
+				notice(L10n::t('Account not found and OpenID registration is not permitted on this site.') . EOL);
 				goaway(System::baseUrl());
 			}
 
@@ -111,7 +114,7 @@ function openid_content(App $a) {
 			// NOTREACHED
 		}
 	}
-	notice( t('Login failed.') . EOL);
+	notice(L10n::t('Login failed.') . EOL);
 	goaway(System::baseUrl());
 	// NOTREACHED
 }

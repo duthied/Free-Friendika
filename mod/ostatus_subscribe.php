@@ -3,6 +3,7 @@
  * @file mod/ostatus_subscribe.php
  */
 use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
@@ -11,7 +12,7 @@ use Friendica\Network\Probe;
 function ostatus_subscribe_content(App $a) {
 
 	if (! local_user()) {
-		notice( t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}

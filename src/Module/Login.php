@@ -1,10 +1,13 @@
 <?php
-
+/**
+ * @file src/Module/Login.php
+ */
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Database\DBM;
 use Friendica\Model\User;
 use dba;
@@ -58,7 +61,7 @@ class Login extends BaseModule
 
 			// if it's an email address or doesn't resolve to a URL, fail.
 			if ($noid || strpos($openid_url, '@') || !validate_url($openid_url)) {
-				notice(t('Login failed.') . EOL);
+				notice(L10n::t('Login failed.') . EOL);
 				goaway(self::getApp()->get_baseurl());
 				// NOTREACHED
 			}
@@ -73,7 +76,7 @@ class Login extends BaseModule
 				$openid->returnUrl = self::getApp()->get_baseurl(true) . '/openid';
 				goaway($openid->authUrl());
 			} catch (Exception $e) {
-				notice(t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . '<br /><br >' . t('The error message was:') . ' ' . $e->getMessage());
+				notice(L10n::t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . '<br /><br >' . t('The error message was:') . ' ' . $e->getMessage());
 			}
 			// NOTREACHED
 		}
@@ -106,7 +109,7 @@ class Login extends BaseModule
 
 			if (!$record || !count($record)) {
 				logger('authenticate: failed login attempt: ' . notags(trim($_POST['username'])) . ' from IP ' . $_SERVER['REMOTE_ADDR']);
-				notice(t('Login failed.') . EOL);
+				notice(L10n::t('Login failed.') . EOL);
 				goaway(self::getApp()->get_baseurl());
 			}
 

@@ -6,6 +6,7 @@
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
+use Friendica\Core\L10n;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -35,7 +36,7 @@ function notifications_post(App $a) {
 			$contact_id = $r[0]['contact-id'];
 		}
 		else {
-			notice( t('Invalid request identifier.') . EOL);
+			notice(L10n::t('Invalid request identifier.') . EOL);
 			return;
 		}
 
@@ -71,7 +72,7 @@ function notifications_post(App $a) {
 function notifications_content(App $a) {
 
 	if (! local_user()) {
-		notice( t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -272,7 +273,7 @@ function notifications_content(App $a) {
 		}
 
 		if($notifs['total'] == 0)
-			info( t('No introductions.') . EOL);
+			info(L10n::t('No introductions.') . EOL);
 
 	// Normal notifications (no introductions)
 	} else {

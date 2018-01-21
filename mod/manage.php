@@ -1,11 +1,14 @@
 <?php
-
+/**
+ * @file mod/manage.php
+ */
 use Friendica\App;
 use Friendica\Core\Addon;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 
-require_once("include/text.php");
+require_once "include/text.php";
 
 function manage_post(App $a) {
 
@@ -103,7 +106,7 @@ function manage_post(App $a) {
 function manage_content(App $a) {
 
 	if (! local_user()) {
-		notice( t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 

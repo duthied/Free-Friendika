@@ -1,6 +1,9 @@
 <?php
-
+/**
+ * @file mod/delegate.php
+ */
 use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 
@@ -14,7 +17,7 @@ function delegate_init(App $a)
 function delegate_content(App $a)
 {
 	if (!local_user()) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -90,7 +93,7 @@ function delegate_content(App $a)
 		dbesc(NETWORK_DFRN)
 	);
 	if (!DBM::is_result($r)) {
-		notice(t('No potential page delegates located.') . EOL);
+		notice(L10n::t('No potential page delegates located.') . EOL);
 		return;
 	}
 
@@ -116,18 +119,18 @@ function delegate_content(App $a)
 	settings_init($a);
 
 	$o = replace_macros(get_markup_template('delegate.tpl'), [
-		'$header' => t('Delegate Page Management'),
+		'$header' => L10n::t('Delegate Page Management'),
 		'$base' => System::baseUrl(),
-		'$desc' => t('Delegates are able to manage all aspects of this account/page except for basic account settings. Please do not delegate your personal account to anybody that you do not trust completely.'),
-		'$head_managers' => t('Existing Page Managers'),
+		'$desc' => L10n::t('Delegates are able to manage all aspects of this account/page except for basic account settings. Please do not delegate your personal account to anybody that you do not trust completely.'),
+		'$head_managers' => L10n::t('Existing Page Managers'),
 		'$managers' => $full_managers,
-		'$head_delegates' => t('Existing Page Delegates'),
+		'$head_delegates' => L10n::t('Existing Page Delegates'),
 		'$delegates' => $delegates,
-		'$head_potentials' => t('Potential Delegates'),
+		'$head_potentials' => L10n::t('Potential Delegates'),
 		'$potentials' => $potentials,
-		'$remove' => t('Remove'),
-		'$add' => t('Add'),
-		'$none' => t('No entries.')
+		'$remove' => L10n::t('Remove'),
+		'$add' => L10n::t('Add'),
+		'$none' => L10n::t('No entries.')
 	]);
 
 

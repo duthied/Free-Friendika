@@ -35,7 +35,7 @@ function get_theme_config_file($theme)
 function settings_init(App $a)
 {
 	if (!local_user()) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -134,7 +134,7 @@ function settings_post(App $a)
 	}
 
 	if (count($a->user) && x($a->user, 'uid') && $a->user['uid'] != local_user()) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -161,7 +161,7 @@ function settings_post(App $a)
 		$icon     = defaults($_POST, 'icon'    , '');
 
 		if ($name == "" || $key == "" || $secret == "") {
-			notice(t("Missing some important data!"));
+			notice(L10n::t("Missing some important data!"));
 		} else {
 			if ($_POST['submit']==t("Update")) {
 				q("UPDATE clients SET
@@ -272,7 +272,7 @@ function settings_post(App $a)
 						unset($dcrpass);
 						if (!$mbox) {
 							$failed = true;
-							notice(t('Failed to connect with email account using the settings provided.') . EOL);
+							notice(L10n::t('Failed to connect with email account using the settings provided.') . EOL);
 						}
 					}
 				}
@@ -377,18 +377,18 @@ function settings_post(App $a)
 
 		$err = false;
 		if ($newpass != $confirm) {
-			notice(t('Passwords do not match. Password unchanged.') . EOL);
+			notice(L10n::t('Passwords do not match. Password unchanged.') . EOL);
 			$err = true;
 		}
 
 		if (!x($newpass) || !x($confirm)) {
-			notice(t('Empty passwords are not allowed. Password unchanged.') . EOL);
+			notice(L10n::t('Empty passwords are not allowed. Password unchanged.') . EOL);
 			$err = true;
         }
 
         //  check if the old password was supplied correctly before changing it to the new value
         if (!User::authenticate(intval(local_user()), $_POST['opassword'])) {
-            notice(t('Wrong password.') . EOL);
+            notice(L10n::t('Wrong password.') . EOL);
             $err = true;
         }
 
@@ -397,7 +397,7 @@ function settings_post(App $a)
 			if (DBM::is_result($result)) {
 				info(t('Password changed.') . EOL);
 			} else {
-				notice(t('Password update failed. Please try again.') . EOL);
+				notice(L10n::t('Password update failed. Please try again.') . EOL);
 			}
 		}
 	}
@@ -567,7 +567,7 @@ function settings_post(App $a)
 				info(t('Private forum has no privacy permissions. Using default privacy group.'). EOL);
 				$str_group_allow = '<' . $def_gid . '>';
 			} else {
-				notice(t('Private forum has no privacy permissions and no default privacy group.') . EOL);
+				notice(L10n::t('Private forum has no privacy permissions and no default privacy group.') . EOL);
 			}
 		}
 	}
@@ -659,12 +659,12 @@ function settings_content(App $a)
 	Nav::setSelected('settings');
 
 	if (!local_user()) {
-		//notice(t('Permission denied.') . EOL);
+		//notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
 	if (x($_SESSION, 'submanage') && intval($_SESSION['submanage'])) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -691,7 +691,7 @@ function settings_content(App $a)
 					local_user());
 
 			if (!DBM::is_result($r)) {
-				notice(t("You can't edit this application."));
+				notice(L10n::t("You can't edit this application."));
 				return;
 			}
 			$app = $r[0];
@@ -1001,7 +1001,7 @@ function settings_content(App $a)
 
 	$profile = dba::selectFirst('profile', [], ['is-default' => true, 'uid' => local_user()]);
 	if (!DBM::is_result($profile)) {
-		notice(t('Unable to find your profile. Please contact your admin.') . EOL);
+		notice(L10n::t('Unable to find your profile. Please contact your admin.') . EOL);
 		return;
 	}
 

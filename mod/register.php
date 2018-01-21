@@ -48,7 +48,7 @@ function register_post(App $a)
 		default:
 		case REGISTER_CLOSED:
 			if ((!x($_SESSION, 'authenticated') && (!x($_SESSION, 'administrator')))) {
-				notice(t('Permission denied.') . EOL);
+				notice(L10n::t('Permission denied.') . EOL);
 				return;
 			}
 			$blocked = 1;
@@ -109,7 +109,7 @@ function register_post(App $a)
 		}
 	} elseif ($a->config['register_policy'] == REGISTER_APPROVE) {
 		if (!strlen($a->config['admin_email'])) {
-			notice(t('Your registration can not be processed.') . EOL);
+			notice(L10n::t('Your registration can not be processed.') . EOL);
 			goaway(System::baseUrl());
 		}
 
@@ -185,7 +185,7 @@ function register_content(App $a)
 		$r = q("select count(*) as total from user where register_date > UTC_TIMESTAMP - INTERVAL 1 day");
 		if ($r && $r[0]['total'] >= $max_dailies) {
 			logger('max daily registrations exceeded.');
-			notice(t('This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.') . EOL);
+			notice(L10n::t('This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.') . EOL);
 			return;
 		}
 	}

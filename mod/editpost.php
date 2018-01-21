@@ -6,24 +6,25 @@ use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 
-require_once('include/acl_selectors.php');
+require_once 'include/acl_selectors.php';
 
 function editpost_content(App $a) {
 
 	$o = '';
 
 	if (! local_user()) {
-		notice( t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
 	$post_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
 	if (! $post_id) {
-		notice( t('Item not found') . EOL);
+		notice(L10n::t('Item not found') . EOL);
 		return;
 	}
 
@@ -33,7 +34,7 @@ function editpost_content(App $a) {
 	);
 
 	if (! DBM::is_result($itm)) {
-		notice( t('Item not found') . EOL);
+		notice(L10n::t('Item not found') . EOL);
 		return;
 	}
 

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file mod/wall_upload.php
  * @brief Module for uploading a picture to the profile wall
@@ -10,6 +9,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
@@ -103,7 +103,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 			echo json_encode(['error'=>t('Permission denied.')]);
 			killme();
 		}
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		killme();
 	}
 
@@ -152,7 +152,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 			echo json_encode(['error'=>t('Invalid request.')]);
 			killme();
 		}
-		notice(t('Invalid request.').EOL);
+		notice(L10n::t('Invalid request.').EOL);
 		killme();
 	}
 

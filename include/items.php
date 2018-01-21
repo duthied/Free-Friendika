@@ -6,6 +6,7 @@ use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
 use Friendica\Core\System;
@@ -1495,7 +1496,7 @@ function new_follower($importer, $contact, $datarray, $item, $sharing = false) {
 					'to_email'     => $r[0]['email'],
 					'uid'          => $r[0]['uid'],
 					'link'		   => System::baseUrl() . '/notifications/intro',
-					'source_name'  => ((strlen(stripslashes($contact_record['name']))) ? stripslashes($contact_record['name']) : t('[Name Withheld]')),
+					'source_name'  => ((strlen(stripslashes($contact_record['name']))) ? stripslashes($contact_record['name']) : L10n::t('[Name Withheld]')),
 					'source_link'  => $contact_record['url'],
 					'source_photo' => $contact_record['photo'],
 					'verb'         => ($sharing ? ACTIVITY_FRIEND : ACTIVITY_FOLLOW),
@@ -1867,7 +1868,7 @@ function drop_item($id) {
 	);
 
 	if (!DBM::is_result($r)) {
-		notice(t('Item not found.') . EOL);
+		notice(L10n::t('Item not found.') . EOL);
 		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
 	}
 
@@ -1907,12 +1908,12 @@ function drop_item($id) {
 
 			return replace_macros(get_markup_template('confirm.tpl'), [
 				'$method' => 'get',
-				'$message' => t('Do you really want to delete this item?'),
+				'$message' => L10n::t('Do you really want to delete this item?'),
 				'$extra_inputs' => $inputs,
-				'$confirm' => t('Yes'),
+				'$confirm' => L10n::t('Yes'),
 				'$confirm_url' => $query['base'],
 				'$confirm_name' => 'confirmed',
-				'$cancel' => t('Cancel'),
+				'$cancel' => L10n::t('Cancel'),
 			]);
 		}
 		// Now check how the user responded to the confirmation query
@@ -1926,7 +1927,7 @@ function drop_item($id) {
 		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
 		//NOTREACHED
 	} else {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
 		//NOTREACHED
 	}
@@ -2015,13 +2016,13 @@ function posted_date_widget($url, $uid, $wall) {
 	$cutoff = ((array_key_exists($cutoff_year, $ret))? true : false);
 
 	$o = replace_macros(get_markup_template('posted_date_widget.tpl'),[
-		'$title' => t('Archives'),
+		'$title' => L10n::t('Archives'),
 		'$size' => $visible_years,
 		'$cutoff_year' => $cutoff_year,
 		'$cutoff' => $cutoff,
 		'$url' => $url,
 		'$dates' => $ret,
-		'$showmore' => t('show more')
+		'$showmore' => L10n::t('show more')
 
 	]);
 	return $o;

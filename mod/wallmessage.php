@@ -3,6 +3,7 @@
  * @file mod/wallmessage.php
  */
 use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Mail;
@@ -12,7 +13,7 @@ function wallmessage_post(App $a) {
 
 	$replyto = Profile::getMyURL();
 	if(! $replyto) {
-		notice( t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -36,7 +37,7 @@ function wallmessage_post(App $a) {
 	$user = $r[0];
 
 	if(! intval($user['unkmail'])) {
-		notice( t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -53,19 +54,19 @@ function wallmessage_post(App $a) {
 
 	switch($ret){
 		case -1:
-			notice( t('No recipient selected.') . EOL );
+			notice(L10n::t('No recipient selected.') . EOL );
 			break;
 		case -2:
-			notice( t('Unable to check your home location.') . EOL );
+			notice(L10n::t('Unable to check your home location.') . EOL );
 			break;
 		case -3:
-			notice( t('Message could not be sent.') . EOL );
+			notice(L10n::t('Message could not be sent.') . EOL );
 			break;
 		case -4:
-			notice( t('Message collection failure.') . EOL );
+			notice(L10n::t('Message collection failure.') . EOL );
 			break;
 		default:
-			info( t('Message sent.') . EOL );
+			info(L10n::t('Message sent.') . EOL );
 	}
 
 	goaway('profile/'.$user['nickname']);
@@ -76,14 +77,14 @@ function wallmessage_post(App $a) {
 function wallmessage_content(App $a) {
 
 	if (!Profile::getMyURL()) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
 	$recipient = (($a->argc > 1) ? $a->argv[1] : '');
 
 	if(! $recipient) {
-		notice( t('No recipient.') . EOL);
+		notice(L10n::t('No recipient.') . EOL);
 		return;
 	}
 
@@ -92,7 +93,7 @@ function wallmessage_content(App $a) {
 	);
 
 	if (! DBM::is_result($r)) {
-		notice( t('No recipient.') . EOL);
+		notice(L10n::t('No recipient.') . EOL);
 		logger('wallmessage: no recipient');
 		return;
 	}
@@ -100,7 +101,7 @@ function wallmessage_content(App $a) {
 	$user = $r[0];
 
 	if(! intval($user['unkmail'])) {
-		notice( t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 

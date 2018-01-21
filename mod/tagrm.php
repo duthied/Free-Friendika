@@ -1,10 +1,13 @@
 <?php
-
+/**
+ * @file mod/tagrm.php
+ */
 use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 
-require_once('include/bbcode.php');
+require_once 'include/bbcode.php';
 
 function tagrm_post(App $a) {
 
@@ -44,7 +47,7 @@ function tagrm_post(App $a) {
 		intval(local_user())
 	);
 
-	info( t('Tag removed') . EOL );
+	info(L10n::t('Tag removed') . EOL );
 	goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 
 	// NOTREACHED

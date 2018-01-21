@@ -5,6 +5,7 @@
 use Friendica\App;
 use Friendica\Content\Widget;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
@@ -43,7 +44,7 @@ function match_content(App $a)
 		return;
 	}
 	if (! $r[0]['pub_keywords'] && (! $r[0]['prv_keywords'])) {
-		notice(t('No keywords to match. Please add keywords to your default profile.') . EOL);
+		notice(L10n::t('No keywords to match. Please add keywords to your default profile.') . EOL);
 		return;
 	}
 

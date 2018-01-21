@@ -6,6 +6,7 @@
 use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -99,7 +100,7 @@ function events_post(App $a) {
 	$onerror_url = System::baseUrl() . "/events/" . $action . "?summary=$summary&description=$desc&location=$location&start=$start_text&finish=$finish_text&adjust=$adjust&nofinish=$nofinish";
 
 	if (strcmp($finish, $start) < 0 && !$nofinish) {
-		notice(t('Event can not end before it has started.') . EOL);
+		notice(L10n::t('Event can not end before it has started.') . EOL);
 		if (intval($_REQUEST['preview'])) {
 			echo t('Event can not end before it has started.');
 			killme();
@@ -108,7 +109,7 @@ function events_post(App $a) {
 	}
 
 	if ((! $summary) || ($start === NULL_DATE)) {
-		notice(t('Event title and start time are required.') . EOL);
+		notice(L10n::t('Event title and start time are required.') . EOL);
 		if (intval($_REQUEST['preview'])) {
 			echo t('Event title and start time are required.');
 			killme();
@@ -191,7 +192,7 @@ function events_post(App $a) {
 function events_content(App $a) {
 
 	if (! local_user()) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -552,7 +553,7 @@ function events_content(App $a) {
 		}
 
 		if ($del == 0) {
-			notice(t('Failed to remove event' ) . EOL);
+			notice(L10n::t('Failed to remove event') . EOL);
 		} else {
 			info(t('Event removed') . EOL);
 		}

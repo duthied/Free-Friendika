@@ -6,6 +6,7 @@ use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Core\Addon;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
@@ -167,7 +168,7 @@ function photos_post(App $a)
 	}
 
 	if (!$can_post) {
-		notice( t('Permission denied.') . EOL );
+		notice(L10n::t('Permission denied.') . EOL );
 		killme();
 	}
 
@@ -177,7 +178,7 @@ function photos_post(App $a)
 	);
 
 	if (!DBM::is_result($r)) {
-		notice( t('Contact information unavailable') . EOL);
+		notice(L10n::t('Contact information unavailable') . EOL);
 		logger('photos_post: unable to locate contact record for page owner. uid=' . $page_owner_uid);
 		killme();
 	}
@@ -197,7 +198,7 @@ function photos_post(App $a)
 			intval($page_owner_uid)
 		);
 		if (!DBM::is_result($r)) {
-			notice( t('Album not found.') . EOL);
+			notice(L10n::t('Album not found.') . EOL);
 			goaway($_SESSION['photo_return']);
 			return; // NOTREACHED
 		}
@@ -790,21 +791,21 @@ function photos_post(App $a)
 	if ($error !== UPLOAD_ERR_OK) {
 		switch ($error) {
 			case UPLOAD_ERR_INI_SIZE:
-				notice(t('Image exceeds size limit of %s', ini_get('upload_max_filesize')) . EOL);
+				notice(L10n::t('Image exceeds size limit of %s', ini_get('upload_max_filesize')) . EOL);
 				break;
 			case UPLOAD_ERR_FORM_SIZE:
-				notice(t('Image exceeds size limit of %s', formatBytes(defaults($_REQUEST, 'MAX_FILE_SIZE', 0))) . EOL);
+				notice(L10n::t('Image exceeds size limit of %s', formatBytes(defaults($_REQUEST, 'MAX_FILE_SIZE', 0))) . EOL);
 				break;
 			case UPLOAD_ERR_PARTIAL:
-				notice(t('Image upload didn\'t complete, please try again') . EOL);
+				notice(L10n::t('Image upload didn\'t complete, please try again') . EOL);
 				break;
 			case UPLOAD_ERR_NO_FILE:
-				notice(t('Image file is missing') . EOL);
+				notice(L10n::t('Image file is missing') . EOL);
 				break;
 			case UPLOAD_ERR_NO_TMP_DIR:
 			case UPLOAD_ERR_CANT_WRITE:
 			case UPLOAD_ERR_EXTENSION:
-				notice(t('Server can\'t accept new file upload at this time, please contact your administrator') . EOL);
+				notice(L10n::t('Server can\'t accept new file upload at this time, please contact your administrator') . EOL);
 				break;
 		}
 		@unlink($src);
@@ -822,7 +823,7 @@ function photos_post(App $a)
 	$maximagesize = Config::get('system', 'maximagesize');
 
 	if ($maximagesize && ($filesize > $maximagesize)) {
-		notice(t('Image exceeds size limit of %s', formatBytes($maximagesize)) . EOL);
+		notice(L10n::t('Image exceeds size limit of %s', formatBytes($maximagesize)) . EOL);
 		@unlink($src);
 		$foo = 0;
 		Addon::callHooks('photo_post_end', $foo);
@@ -830,7 +831,7 @@ function photos_post(App $a)
 	}
 
 	if (!$filesize) {
-		notice(t('Image file is empty.') . EOL);
+		notice(L10n::t('Image file is empty.') . EOL);
 		@unlink($src);
 		$foo = 0;
 		Addon::callHooks('photo_post_end', $foo);
@@ -845,7 +846,7 @@ function photos_post(App $a)
 
 	if (!$Image->isValid()) {
 		logger('mod/photos.php: photos_post(): unable to process image' , LOGGER_DEBUG);
-		notice(t('Unable to process image.') . EOL);
+		notice(L10n::t('Unable to process image.') . EOL);
 		@unlink($src);
 		$foo = 0;
 		Addon::callHooks('photo_post_end',$foo);
@@ -874,7 +875,7 @@ function photos_post(App $a)
 
 	if (!$r) {
 		logger('mod/photos.php: photos_post(): image store failed' , LOGGER_DEBUG);
-		notice(t('Image upload failed.') . EOL);
+		notice(L10n::t('Image upload failed.') . EOL);
 		killme();
 	}
 
@@ -959,7 +960,7 @@ function photos_content(App $a)
 	// photos/name/image/xxxxx/edit
 
 	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
-		notice( t('Public access denied.') . EOL);
+		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}
 
@@ -968,7 +969,7 @@ function photos_content(App $a)
 	require_once 'include/conversation.php';
 
 	if (!x($a->data,'user')) {
-		notice( t('No photos selected') . EOL );
+		notice(L10n::t('No photos selected') . EOL );
 		return;
 	}
 
@@ -1064,7 +1065,7 @@ function photos_content(App $a)
 	}
 
 	if ($a->data['user']['hidewall'] && (local_user() != $owner_uid) && !$remote_contact) {
-		notice( t('Access to this item is restricted.') . EOL);
+		notice(L10n::t('Access to this item is restricted.') . EOL);
 		return;
 	}
 
@@ -1079,7 +1080,7 @@ function photos_content(App $a)
 	// Display upload form
 	if ($datatype === 'upload') {
 		if (!$can_post) {
-			notice(t('Permission denied.'));
+			notice(L10n::t('Permission denied.'));
 			return;
 		}
 
@@ -1264,9 +1265,9 @@ function photos_content(App $a)
 				dbesc($datum)
 			);
 			if (DBM::is_result($ph)) {
-				notice(t('Permission denied. Access to this item may be restricted.'));
+				notice(L10n::t('Permission denied. Access to this item may be restricted.'));
 			} else {
-				notice(t('Photo not available') . EOL );
+				notice(L10n::t('Photo not available') . EOL );
 			}
 			return;
 		}

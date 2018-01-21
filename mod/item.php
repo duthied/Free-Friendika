@@ -17,6 +17,7 @@
 use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -111,7 +112,7 @@ function item_post(App $a) {
 		}
 
 		if (!DBM::is_result($parent_item)) {
-			notice(t('Unable to locate original post.') . EOL);
+			notice(L10n::t('Unable to locate original post.') . EOL);
 			if (x($_REQUEST, 'return')) {
 				goaway($return_path);
 			}
@@ -157,7 +158,7 @@ function item_post(App $a) {
 
 	// Now check that valid personal details have been provided
 	if (!can_write_wall($profile_uid) && !$allow_comment) {
-		notice(t('Permission denied.') . EOL) ;
+		notice(L10n::t('Permission denied.') . EOL) ;
 		if (x($_REQUEST, 'return')) {
 			goaway($return_path);
 		}

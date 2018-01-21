@@ -8,6 +8,7 @@ use Friendica\Content\Feature;
 use Friendica\Content\Smilies;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -294,14 +295,14 @@ function paginate_data(App $a, $count = null) {
 	if (!is_null($count)) {
 		// minimal pager (newer / older)
 		$data['class'] = 'pager';
-		_l($data, 'prev', $url . '&page=' . ($a->pager['page'] - 1), t('newer'), 'previous' . ($a->pager['page'] == 1 ? ' disabled' : ''));
-		_l($data, 'next', $url . '&page=' . ($a->pager['page'] + 1), t('older'), 'next' . ($count <= 0 ? ' disabled' : ''));
+		_l($data, 'prev', $url . '&page=' . ($a->pager['page'] - 1), L10n::t('newer'), 'previous' . ($a->pager['page'] == 1 ? ' disabled' : ''));
+		_l($data, 'next', $url . '&page=' . ($a->pager['page'] + 1), L10n::t('older'), 'next' . ($count <= 0 ? ' disabled' : ''));
 	} else {
 		// full pager (first / prev / 1 / 2 / ... / 14 / 15 / next / last)
 		$data['class'] = 'pagination';
 		if ($a->pager['total'] > $a->pager['itemspage']) {
-			_l($data, 'first', $url . '&page=1',  t('first'), $a->pager['page'] == 1 ? 'disabled' : '');
-			_l($data, 'prev', $url . '&page=' . ($a->pager['page'] - 1), t('prev'), $a->pager['page'] == 1 ? 'disabled' : '');
+			_l($data, 'first', $url . '&page=1', L10n::t('first'), $a->pager['page'] == 1 ? 'disabled' : '');
+			_l($data, 'prev', $url . '&page=' . ($a->pager['page'] - 1), L10n::t('prev'), $a->pager['page'] == 1 ? 'disabled' : '');
 
 			$numpages = $a->pager['total'] / $a->pager['itemspage'];
 
@@ -335,8 +336,8 @@ function paginate_data(App $a, $count = null) {
 			$data['pages'] = $pages;
 
 			$lastpage = (($numpages > intval($numpages)) ? intval($numpages)+1 : $numpages);
-			_l($data, 'next', $url . '&page=' . ($a->pager['page'] + 1), t('next'), $a->pager['page'] == $lastpage ? 'disabled' : '');
-			_l($data, 'last', $url . '&page=' . $lastpage, t('last'), $a->pager['page'] == $lastpage ? 'disabled' : '');
+			_l($data, 'next', $url . '&page=' . ($a->pager['page'] + 1), L10n::t('next'), $a->pager['page'] == $lastpage ? 'disabled' : '');
+			_l($data, 'last', $url . '&page=' . $lastpage, L10n::t('last'), $a->pager['page'] == $lastpage ? 'disabled' : '');
 		}
 	}
 
@@ -390,8 +391,8 @@ function alt_pager(App $a, $i) {
 function scroll_loader() {
 	$tpl = get_markup_template("scroll_loader.tpl");
 	return replace_macros($tpl, [
-		'wait' => t('Loading more entries...'),
-		'end' => t('The end')
+		'wait' => L10n::t('Loading more entries...'),
+		'end' => L10n::t('The end')
 	]);
 }
 
@@ -927,7 +928,7 @@ function contact_block() {
 		$total = intval($r[0]['total']);
 	}
 	if (!$total) {
-		$contacts = t('No contacts');
+		$contacts = L10n::t('No contacts');
 		$micropro = null;
 	} else {
 		// Splitting the query in two parts makes it much faster
@@ -964,7 +965,7 @@ function contact_block() {
 	$o = replace_macros($tpl, [
 		'$contacts' => $contacts,
 		'$nickname' => $a->profile['nickname'],
-		'$viewcontacts' => t('View Contacts'),
+		'$viewcontacts' => L10n::t('View Contacts'),
 		'$micropro' => $micropro,
 	]);
 
@@ -1053,16 +1054,16 @@ function search($s, $id = 'search-box', $url = 'search', $save = false, $aside =
 	if (strpos($s, '#') === 0) {
 		$mode = 'tag';
 	}
-	$save_label = $mode === 'text' ? t('Save') : t('Follow');
+	$save_label = $mode === 'text' ? L10n::t('Save') : L10n::t('Follow');
 
 	$values = [
 			'$s' => htmlspecialchars($s),
 			'$id' => $id,
 			'$action_url' => $url,
-			'$search_label' => t('Search'),
+			'$search_label' => L10n::t('Search'),
 			'$save_label' => $save_label,
 			'$savedsearch' => Feature::isEnabled(local_user(),'savedsearch'),
-			'$search_hint' => t('@name, !forum, #tags, content'),
+			'$search_hint' => L10n::t('@name, !forum, #tags, content'),
 			'$mode' => $mode
 		];
 
@@ -1073,7 +1074,7 @@ function search($s, $id = 'search-box', $url = 'search', $save = false, $aside =
 					t("Contacts")];
 
 		if (Config::get('system','poco_local_search')) {
-			$values['$searchoption'][] = t("Forums");
+			$values['$searchoption'][] = L10n::t("Forums");
 		}
 	}
 
@@ -1117,12 +1118,12 @@ function get_poke_verbs() {
 	// value is array containing past tense verb, translation of present, translation of past
 
 	$arr = [
-		'poke' => ['poked', t('poke'), t('poked')],
-		'ping' => ['pinged', t('ping'), t('pinged')],
-		'prod' => ['prodded', t('prod'), t('prodded')],
-		'slap' => ['slapped', t('slap'), t('slapped')],
-		'finger' => ['fingered', t('finger'), t('fingered')],
-		'rebuff' => ['rebuffed', t('rebuff'), t('rebuffed')],
+		'poke' => ['poked', L10n::t('poke'), L10n::t('poked')],
+		'ping' => ['pinged', L10n::t('ping'), L10n::t('pinged')],
+		'prod' => ['prodded', L10n::t('prod'), L10n::t('prodded')],
+		'slap' => ['slapped', L10n::t('slap'), L10n::t('slapped')],
+		'finger' => ['fingered', L10n::t('finger'), L10n::t('fingered')],
+		'rebuff' => ['rebuffed', L10n::t('rebuff'), L10n::t('rebuffed')],
 	];
 	Addon::callHooks('poke_verbs', $arr);
 	return $arr;
@@ -1136,11 +1137,11 @@ function get_poke_verbs() {
  */
 function day_translate($s) {
 	$ret = str_replace(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],
-		[t('Monday'), t('Tuesday'), t('Wednesday'), t('Thursday'), t('Friday'), t('Saturday'), t('Sunday')],
+		[L10n::t('Monday'), L10n::t('Tuesday'), L10n::t('Wednesday'), L10n::t('Thursday'), L10n::t('Friday'), L10n::t('Saturday'), L10n::t('Sunday')],
 		$s);
 
 	$ret = str_replace(['January','February','March','April','May','June','July','August','September','October','November','December'],
-		[t('January'), t('February'), t('March'), t('April'), t('May'), t('June'), t('July'), t('August'), t('September'), t('October'), t('November'), t('December')],
+		[L10n::t('January'), L10n::t('February'), L10n::t('March'), L10n::t('April'), L10n::t('May'), L10n::t('June'), L10n::t('July'), L10n::t('August'), L10n::t('September'), L10n::t('October'), L10n::t('November'), L10n::t('December')],
 		$ret);
 
 	return $ret;
@@ -1154,10 +1155,10 @@ function day_translate($s) {
  */
 function day_short_translate($s) {
 	$ret = str_replace(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-		[t('Mon'), t('Tue'), t('Wed'), t('Thu'), t('Fri'), t('Sat'), t('Sun')],
+		[L10n::t('Mon'), L10n::t('Tue'), L10n::t('Wed'), L10n::t('Thu'), L10n::t('Fri'), L10n::t('Sat'), L10n::t('Sun')],
 		$s);
 	$ret = str_replace(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov','Dec'],
-		[t('Jan'), t('Feb'), t('Mar'), t('Apr'), t('May'), ('Jun'), t('Jul'), t('Aug'), t('Sep'), t('Oct'), t('Nov'), t('Dec')],
+		[L10n::t('Jan'), L10n::t('Feb'), L10n::t('Mar'), L10n::t('Apr'), L10n::t('May'), ('Jun'), L10n::t('Jul'), L10n::t('Aug'), L10n::t('Sep'), L10n::t('Oct'), L10n::t('Nov'), L10n::t('Dec')],
 		$ret);
 	return $ret;
 }
@@ -1358,7 +1359,7 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 						$as .= replace_macros(get_markup_template('video_top.tpl'), [
 							'$video' => [
 								'id'     => $id,
-								'title'  => t('View Video'),
+								'title'  => L10n::t('View Video'),
 								'src'    => $the_url,
 								'mime'   => $mime,
 							],
@@ -1375,7 +1376,7 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 					}
 
 					$title = ((strlen(trim($mtch[4]))) ? escape_tags(trim($mtch[4])) : escape_tags($mtch[1]));
-					$title .= ' ' . $mtch[2] . ' ' . t('bytes');
+					$title .= ' ' . $mtch[2] . ' ' . L10n::t('bytes');
 
 					$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
 					$as .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" >' . $icon . '</a>';
@@ -1410,7 +1411,7 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 	while ((strpos($s, $spoilersearch) !== false)) {
 		$pos = strpos($s, $spoilersearch);
 		$rnd = random_string(8);
-		$spoilerreplace = '<br /> <span id="spoiler-wrap-' . $rnd . '" class="spoiler-wrap fakelink" onclick="openClose(\'spoiler-' . $rnd . '\');">' . sprintf(t('Click to open/close')) . '</span>'.
+		$spoilerreplace = '<br /> <span id="spoiler-wrap-' . $rnd . '" class="spoiler-wrap fakelink" onclick="openClose(\'spoiler-' . $rnd . '\');">' . sprintf(L10n::t('Click to open/close')) . '</span>'.
 					'<blockquote class="spoiler" id="spoiler-' . $rnd . '" style="display: none;">';
 		$s = substr($s, 0, $pos) . $spoilerreplace . substr($s, $pos + strlen($spoilersearch));
 	}
@@ -1421,7 +1422,7 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 	while ((strpos($s, $authorsearch) !== false)) {
 		$pos = strpos($s, $authorsearch);
 		$rnd = random_string(8);
-		$authorreplace = '<br /> <span id="author-wrap-' . $rnd . '" class="author-wrap fakelink" onclick="openClose(\'author-' . $rnd . '\');">' . sprintf(t('Click to open/close')) . '</span>'.
+		$authorreplace = '<br /> <span id="author-wrap-' . $rnd . '" class="author-wrap fakelink" onclick="openClose(\'author-' . $rnd . '\');">' . sprintf(L10n::t('Click to open/close')) . '</span>'.
 					'<blockquote class="author" id="author-' . $rnd . '" style="display: block;">';
 		$s = substr($s, 0, $pos) . $authorreplace . substr($s, $pos + strlen($authorsearch));
 	}
@@ -1548,20 +1549,20 @@ function get_plink($item) {
 				//'href' => "display/" . $a->user['nickname'] . "/" . $item['id'],
 				'href' => "display/" . $item['guid'],
 				'orig' => "display/" . $item['guid'],
-				'title' => t('View on separate page'),
-				'orig_title' => t('view on separate page'),
+				'title' => L10n::t('View on separate page'),
+				'orig_title' => L10n::t('view on separate page'),
 			];
 
 		if (x($item, 'plink')) {
 			$ret["href"] = $a->remove_baseurl($item['plink']);
-			$ret["title"] = t('link to source');
+			$ret["title"] = L10n::t('link to source');
 		}
 
 	} elseif (x($item, 'plink') && ($item['private'] != 1)) {
 		$ret = [
 				'href' => $item['plink'],
 				'orig' => $item['plink'],
-				'title' => t('link to source'),
+				'title' => L10n::t('link to source'),
 			];
 	} else {
 		$ret = [];
@@ -1763,16 +1764,16 @@ function reltoabs($text, $base) {
  */
 function item_post_type($item) {
 	if (intval($item['event-id'])) {
-		return t('event');
+		return L10n::t('event');
 	} elseif (strlen($item['resource-id'])) {
-		return t('photo');
+		return L10n::t('photo');
 	} elseif (strlen($item['verb']) && $item['verb'] !== ACTIVITY_POST) {
-		return t('activity');
+		return L10n::t('activity');
 	} elseif ($item['id'] != $item['parent']) {
-		return t('comment');
+		return L10n::t('comment');
 	}
 
-	return t('post');
+	return L10n::t('post');
 }
 
 // post categories and "save to file" use the same item.file table for storage.
@@ -1935,7 +1936,7 @@ function file_tag_save_file($uid, $item, $file)
 		if (!strlen($saved) || !stristr($saved, '[' . file_tag_encode($file) . ']')) {
 			PConfig::set($uid, 'system', 'filetags', $saved . '[' . file_tag_encode($file) . ']');
 		}
-		info(t('Item filed'));
+		info(L10n::t('Item filed'));
 	}
 	return true;
 }

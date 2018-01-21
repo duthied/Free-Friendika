@@ -1,8 +1,11 @@
 <?php
-
+/**
+ * @file include/security.php
+ */
 use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -401,7 +404,7 @@ function check_form_security_token($typename = '', $formname = 'form_security_to
 
 function check_form_security_std_err_msg()
 {
-	return t('The form security token was not correct. This probably happened because the form has been opened for too long (>3 hours) before submitting it.') . EOL;
+	return L10n::t('The form security token was not correct. This probably happened because the form has been opened for too long (>3 hours) before submitting it.') . EOL;
 }
 
 function check_form_security_token_redirectOnErr($err_redirect, $typename = '', $formname = 'form_security_token')

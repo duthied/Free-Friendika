@@ -6,6 +6,7 @@ use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
@@ -41,7 +42,7 @@ function viewcontacts_content(App $a) {
 	require_once("mod/proxy.php");
 
 	if((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
-		notice( t('Public access denied.') . EOL);
+		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}
 
@@ -51,7 +52,7 @@ function viewcontacts_content(App $a) {
 	$o .= Profile::getTabs($a, $is_owner, $a->data['user']['nickname']);
 
 	if(((! count($a->profile)) || ($a->profile['hide-friends']))) {
-		notice( t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return $o;
 	}
 

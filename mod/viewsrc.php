@@ -1,12 +1,15 @@
 <?php
-
+/**
+ * @file mod/viewsrc.php
+ */
 use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Database\DBM;
 
 function viewsrc_content(App $a) {
 
 	if (! local_user()) {
-		notice( t('Access denied.') . EOL);
+		notice(L10n::t('Access denied.') . EOL);
 		return;
 	}
 
@@ -14,7 +17,7 @@ function viewsrc_content(App $a) {
 
 	if(! $item_id) {
 		$a->error = 404;
-		notice( t('Item not found.') . EOL);
+		notice(L10n::t('Item not found.') . EOL);
 		return;
 	}
 

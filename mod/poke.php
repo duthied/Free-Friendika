@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Poke, prod, finger, or otherwise do unspeakable things to somebody - who must be a connection in your address book
  * This function can be invoked with the required arguments (verb and cid and private and possibly parent) silently via ajax or
@@ -16,13 +15,14 @@
 
 use Friendica\App;
 use Friendica\Core\Addon;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 
-require_once('include/security.php');
-require_once('include/bbcode.php');
-require_once('include/items.php');
+require_once 'include/security.php';
+require_once 'include/bbcode.php';
+require_once 'include/items.php';
 
 function poke_init(App $a) {
 
@@ -155,7 +155,7 @@ function poke_init(App $a) {
 function poke_content(App $a) {
 
 	if (! local_user()) {
-		notice( t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 

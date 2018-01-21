@@ -7,6 +7,7 @@
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Core\Addon;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -22,7 +23,7 @@ function format_event_html($ev, $simple = false) {
 		return '';
 	}
 
-	$bd_format = t('l F d, Y \@ g:i A') ; // Friday January 18, 2011 @ 8 AM.
+	$bd_format = L10n::t('l F d, Y \@ g:i A') ; // Friday January 18, 2011 @ 8 AM.
 
 	$event_start = (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(),
 			$ev['start'] , $bd_format ))
@@ -39,14 +40,14 @@ function format_event_html($ev, $simple = false) {
 
 		$o .= "<div>" . bbcode($ev['desc']) . "</div>";
 
-		$o .= "<h4>" . t('Starts:') . "</h4><p>" . $event_start . "</p>";
+		$o .= "<h4>" . L10n::t('Starts:') . "</h4><p>" . $event_start . "</p>";
 
 		if (! $ev['nofinish']) {
-			$o .= "<h4>" . t('Finishes:') . "</h4><p>" . $event_end  ."</p>";
+			$o .= "<h4>" . L10n::t('Finishes:') . "</h4><p>" . $event_end  ."</p>";
 		}
 
 		if (strlen($ev['location'])) {
-			$o .= "<h4>" . t('Location:') . "</h4><p>" . $ev['location'] . "</p>";
+			$o .= "<h4>" . L10n::t('Location:') . "</h4><p>" . $ev['location'] . "</p>";
 		}
 
 		return $o;
@@ -56,13 +57,13 @@ function format_event_html($ev, $simple = false) {
 
 	$o .= '<div class="summary event-summary">' . bbcode($ev['summary']) . '</div>' . "\r\n";
 
-	$o .= '<div class="event-start"><span class="event-label">' . t('Starts:') . '</span>&nbsp;<span class="dtstart" title="'
+	$o .= '<div class="event-start"><span class="event-label">' . L10n::t('Starts:') . '</span>&nbsp;<span class="dtstart" title="'
 		. datetime_convert('UTC', 'UTC', $ev['start'], (($ev['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' ))
 		. '" >'.$event_start
 		. '</span></div>' . "\r\n";
 
 	if (! $ev['nofinish']) {
-		$o .= '<div class="event-end" ><span class="event-label">' . t('Finishes:') . '</span>&nbsp;<span class="dtend" title="'
+		$o .= '<div class="event-end" ><span class="event-label">' . L10n::t('Finishes:') . '</span>&nbsp;<span class="dtend" title="'
 			. datetime_convert('UTC', 'UTC', $ev['finish'], (($ev['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' ))
 			. '" >'.$event_end
 			. '</span></div>' . "\r\n";
@@ -71,7 +72,7 @@ function format_event_html($ev, $simple = false) {
 	$o .= '<div class="description event-description">' . bbcode($ev['desc']) . '</div>' . "\r\n";
 
 	if (strlen($ev['location'])) {
-		$o .= '<div class="event-location"><span class="event-label">' . t('Location:') . '</span>&nbsp;<span class="location">'
+		$o .= '<div class="event-location"><span class="event-label">' . L10n::t('Location:') . '</span>&nbsp;<span class="location">'
 			. bbcode($ev['location'])
 			. '</span></div>' . "\r\n";
 
@@ -425,60 +426,60 @@ function get_event_strings() {
 
 	$i18n = [
 			"firstDay" => $firstDay,
-			"allday"   => t("all-day"),
+			"allday"   => L10n::t("all-day"),
 
-			"Sun" => t("Sun"),
-			"Mon" => t("Mon"),
-			"Tue" => t("Tue"),
-			"Wed" => t("Wed"),
-			"Thu" => t("Thu"),
-			"Fri" => t("Fri"),
-			"Sat" => t("Sat"),
+			"Sun" => L10n::t("Sun"),
+			"Mon" => L10n::t("Mon"),
+			"Tue" => L10n::t("Tue"),
+			"Wed" => L10n::t("Wed"),
+			"Thu" => L10n::t("Thu"),
+			"Fri" => L10n::t("Fri"),
+			"Sat" => L10n::t("Sat"),
 
-			"Sunday"    => t("Sunday"),
-			"Monday"    => t("Monday"),
-			"Tuesday"   => t("Tuesday"),
-			"Wednesday" => t("Wednesday"),
-			"Thursday"  => t("Thursday"),
-			"Friday"    => t("Friday"),
-			"Saturday"  => t("Saturday"),
+			"Sunday"    => L10n::t("Sunday"),
+			"Monday"    => L10n::t("Monday"),
+			"Tuesday"   => L10n::t("Tuesday"),
+			"Wednesday" => L10n::t("Wednesday"),
+			"Thursday"  => L10n::t("Thursday"),
+			"Friday"    => L10n::t("Friday"),
+			"Saturday"  => L10n::t("Saturday"),
 
-			"Jan" => t("Jan"),
-			"Feb" => t("Feb"),
-			"Mar" => t("Mar"),
-			"Apr" => t("Apr"),
-			"May" => t("May"),
-			"Jun" => t("Jun"),
-			"Jul" => t("Jul"),
-			"Aug" => t("Aug"),
-			"Sep" => t("Sept"),
-			"Oct" => t("Oct"),
-			"Nov" => t("Nov"),
-			"Dec" => t("Dec"),
+			"Jan" => L10n::t("Jan"),
+			"Feb" => L10n::t("Feb"),
+			"Mar" => L10n::t("Mar"),
+			"Apr" => L10n::t("Apr"),
+			"May" => L10n::t("May"),
+			"Jun" => L10n::t("Jun"),
+			"Jul" => L10n::t("Jul"),
+			"Aug" => L10n::t("Aug"),
+			"Sep" => L10n::t("Sept"),
+			"Oct" => L10n::t("Oct"),
+			"Nov" => L10n::t("Nov"),
+			"Dec" => L10n::t("Dec"),
 
-			"January"   => t("January"),
-			"February"  => t("February"),
-			"March"     => t("March"),
-			"April"     => t("April"),
-			"May"       => t("May"),
-			"June"      => t("June"),
-			"July"      => t("July"),
-			"August"    => t("August"),
-			"September" => t("September"),
-			"October"   => t("October"),
-			"November"  => t("November"),
-			"December"  => t("December"),
+			"January"   => L10n::t("January"),
+			"February"  => L10n::t("February"),
+			"March"     => L10n::t("March"),
+			"April"     => L10n::t("April"),
+			"May"       => L10n::t("May"),
+			"June"      => L10n::t("June"),
+			"July"      => L10n::t("July"),
+			"August"    => L10n::t("August"),
+			"September" => L10n::t("September"),
+			"October"   => L10n::t("October"),
+			"November"  => L10n::t("November"),
+			"December"  => L10n::t("December"),
 
-			"today" => t("today"),
-			"month" => t("month"),
-			"week"  => t("week"),
-			"day"   => t("day"),
+			"today" => L10n::t("today"),
+			"month" => L10n::t("month"),
+			"week"  => L10n::t("week"),
+			"day"   => L10n::t("day"),
 
-			"noevent" => t("No events to display"),
+			"noevent" => L10n::t("No events to display"),
 
-			"dtstart_label"  => t("Starts:"),
-			"dtend_label"    => t("Finishes:"),
-			"location_label" => t("Location:")
+			"dtstart_label"  => L10n::t("Starts:"),
+			"dtend_label"    => L10n::t("Finishes:"),
+			"location_label" => L10n::t("Location:")
 		];
 
 	return $i18n;
@@ -588,7 +589,7 @@ function process_events($arr) {
 	$events=[];
 
 	$last_date = '';
-	$fmt = t('l, F j');
+	$fmt = L10n::t('l, F j');
 	if (count($arr)) {
 		foreach ($arr as $rr) {
 			$j = (($rr['adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $rr['start'], 'j') : datetime_convert('UTC', 'UTC', $rr['start'], 'j'));
@@ -612,9 +613,9 @@ function process_events($arr) {
 			$copy = null;
 			$drop = null;
 			if (local_user() && local_user() == $rr['uid'] && $rr['type'] == 'event') {
-				$edit = ((! $rr['cid']) ? [System::baseUrl() . '/events/event/' . $rr['id'], t('Edit event'), '', ''] : null);
-				$copy = ((! $rr['cid']) ? [System::baseUrl() . '/events/copy/' . $rr['id'], t('Duplicate event'), '', ''] : null);
-				$drop = [System::baseUrl() . '/events/drop/' . $rr['id'], t('Delete event'), '', ''];
+				$edit = ((! $rr['cid']) ? [System::baseUrl() . '/events/event/' . $rr['id'], L10n::t('Edit event'), '', ''] : null);
+				$copy = ((! $rr['cid']) ? [System::baseUrl() . '/events/copy/' . $rr['id'], L10n::t('Duplicate event'), '', ''] : null);
+				$drop = [System::baseUrl() . '/events/drop/' . $rr['id'], L10n::t('Delete event'), '', ''];
 			}
 
 			$title = strip_tags(html_entity_decode(bbcode($rr['summary']), ENT_QUOTES, 'UTF-8'));
@@ -641,7 +642,7 @@ function process_events($arr) {
 				'is_first' => $is_first,
 				'item'     => $rr,
 				'html'     => $html,
-				'plink'    => [$rr['plink'], t('link to source'), '', ''],
+				'plink'    => [$rr['plink'], L10n::t('link to source'), '', ''],
 			];
 		}
 	}
@@ -901,9 +902,9 @@ function widget_events() {
 	}
 
 	return replace_macros(get_markup_template("events_aside.tpl"), [
-		'$etitle' => t("Export"),
-		'$export_ical' => t("Export calendar as ical"),
-		'$export_csv' => t("Export calendar as csv"),
+		'$etitle' => L10n::t("Export"),
+		'$export_ical' => L10n::t("Export calendar as ical"),
+		'$export_csv' => L10n::t("Export calendar as csv"),
 		'$user' => $user
 	]);
 }
@@ -919,9 +920,9 @@ function format_event_item($item) {
 	$finish    = false;
 
 	// Set the different time formats.
-	$dformat       = t('l F d, Y \@ g:i A'); // Friday January 18, 2011 @ 8:01 AM.
-	$dformat_short = t('D g:i A'); // Fri 8:01 AM.
-	$tformat       = t('g:i A'); // 8:01 AM.
+	$dformat       = L10n::t('l F d, Y \@ g:i A'); // Friday January 18, 2011 @ 8:01 AM.
+	$dformat_short = L10n::t('D g:i A'); // Fri 8:01 AM.
+	$tformat       = L10n::t('g:i A'); // 8:01 AM.
 
 	// Convert the time to different formats.
 	$dtstart_dt = (($item['event-adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $item['event-start'], $dformat)) : day_translate(datetime_convert('UTC', 'UTC', $item['event-start'], $dformat)));
@@ -971,11 +972,11 @@ function format_event_item($item) {
 	$event = replace_macros(get_markup_template('event_stream_item.tpl'), [
 		'$id'             => $item['event-id'],
 		'$title'          => prepare_text($item['event-summary']),
-		'$dtstart_label'  => t('Starts:'),
+		'$dtstart_label'  => L10n::t('Starts:'),
 		'$dtstart_title'  => $dtstart_title,
 		'$dtstart_dt'     => $dtstart_dt,
 		'$finish'         => $finish,
-		'$dtend_label'    => t('Finishes:'),
+		'$dtend_label'    => L10n::t('Finishes:'),
 		'$dtend_title'    => $dtend_title,
 		'$dtend_dt'       => $dtend_dt,
 		'$month_short'    => $month_short,
@@ -989,10 +990,10 @@ function format_event_item($item) {
 		'$author_link'    => $profile_link,
 		'$author_avatar'  => $item['author-avatar'],
 		'$description'    => prepare_text($item['event-desc']),
-		'$location_label' => t('Location:'),
-		'$show_map_label' => t('Show map'),
-		'$hide_map_label' => t('Hide map'),
-		'$map_btn_label'  => t('Show map'),
+		'$location_label' => L10n::t('Location:'),
+		'$show_map_label' => L10n::t('Show map'),
+		'$hide_map_label' => L10n::t('Hide map'),
+		'$map_btn_label'  => L10n::t('Show map'),
 		'$location'       => $location
 	]);
 
