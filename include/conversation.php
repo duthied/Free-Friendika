@@ -7,6 +7,7 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -1668,19 +1669,19 @@ function get_response_button_text($v, $count)
 {
 	switch ($v) {
 		case 'like':
-			$return = tt('Like', 'Likes', $count);
+			$return = L10n::tt('Like', 'Likes', $count);
 			break;
 		case 'dislike':
-			$return = tt('Dislike', 'Dislikes', $count);
+			$return = L10n::tt('Dislike', 'Dislikes', $count);
 			break;
 		case 'attendyes':
-			$return = tt('Attending', 'Attending', $count);
+			$return = L10n::tt('Attending', 'Attending', $count);
 			break;
 		case 'attendno':
-			$return = tt('Not Attending', 'Not Attending', $count);
+			$return = L10n::tt('Not Attending', 'Not Attending', $count);
 			break;
 		case 'attendmaybe':
-			$return = tt('Undecided', 'Undecided', $count);
+			$return = L10n::tt('Undecided', 'Undecided', $count);
 			break;
 	}
 

@@ -174,7 +174,7 @@ class L10n
 	 * @param int $count
 	 * @return string
 	 */
-	function tt($singular, $plural, $count)
+	public static function tt($singular, $plural, $count)
 	{
 		global $lang;
 		$a = get_app();

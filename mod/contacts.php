@@ -143,7 +143,7 @@ function contacts_batch_actions(App $a)
 		}
 	}
 	if ($count_actions > 0) {
-		info(tt("%d contact edited.", "%d contacts edited.", $count_actions));
+		info(L10n::tt("%d contact edited.", "%d contacts edited.", $count_actions));
 	}
 
 	if (x($_SESSION, 'return_url')) {

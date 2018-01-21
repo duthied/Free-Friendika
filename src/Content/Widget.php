@@ -8,6 +8,7 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -48,7 +49,7 @@ class Widget
 			$x = PConfig::get(local_user(), 'system', 'invites_remaining');
 			if ($x || is_site_admin()) {
 				$a->page['aside'] .= '<div class="side-link" id="side-invite-remain">'
-					. tt('%d invitation available', '%d invitations available', $x)
+					. L10n::tt('%d invitation available', '%d invitations available', $x)
 					. '</div>' . $inv;
 			}
 		}
@@ -302,7 +303,7 @@ class Widget
 		}
 
 		return replace_macros(get_markup_template('remote_friends_common.tpl'), array(
-			'$desc' => tt("%d contact in common", "%d contacts in common", $t),
+			'$desc' => L10n::tt("%d contact in common", "%d contacts in common", $t),
 			'$base' => System::baseUrl(),
 			'$uid' => $profile_uid,
 			'$cid' => (($cid) ? $cid : '0'),

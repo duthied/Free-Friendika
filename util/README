@@ -61,7 +61,7 @@ e.g.
 
 Plural
 
-The tt() function supports plural form. Script extract.php write this in
+The L10n::tt() function supports plural form. Script extract.php write this in
 strings.php as an array, one string for every plural form language supports:
 
 $a->string["%d message sent"] = Array(
@@ -79,7 +79,7 @@ More info at http://www.gnu.org/software/hello/manual/gettext/Plural-forms.html
 Xgettext and .po workflow
 
 1. Run util/run_xgettext.sh script (on *unix sistems, with GNU xgettext installed)
-	This script runs xgettext on source tree, extracting strings from t() and tt()
+	This script runs xgettext on source tree, extracting strings from L10n::t() and L10n::tt()
 	functions, and creates a util/messages.po file.
 
 	$ cd util; ./run_xgettext.sh

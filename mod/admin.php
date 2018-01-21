@@ -387,7 +387,7 @@ function admin_page_contactblock_post(App $a)
 		foreach ($contacts as $uid) {
 			Contact::unblock($uid);
 		}
-		notice(tt("%s contact unblocked", "%s contacts unblocked", count($contacts)));
+		notice(L10n::tt("%s contact unblocked", "%s contacts unblocked", count($contacts)));
 	}
 	goaway('admin/contactblock');
 	return; // NOTREACHED
@@ -435,7 +435,7 @@ function admin_page_contactblock(App $a)
 		'$baseurl'    => System::baseUrl(true),
 
 		'$contacts'   => $contacts,
-		'$total_contacts' => tt('%s total blocked contact', '%s total blocked contacts', $total),
+		'$total_contacts' => L10n::tt('%s total blocked contact', '%s total blocked contacts', $total),
 		'$paginate'   => paginate($a),
 		'$contacturl' => ['contact_url', L10n::t("Profile URL"), '', L10n::t("URL of the remote contact to block.")],
 	]);
@@ -1516,13 +1516,13 @@ function admin_page_users_post(App $a)
 			q("UPDATE `user` SET `blocked` = 1-`blocked` WHERE `uid` = %s", intval($uid)
 			);
 		}
-		notice(tt("%s user blocked/unblocked", "%s users blocked/unblocked", count($users)));
+		notice(L10n::tt("%s user blocked/unblocked", "%s users blocked/unblocked", count($users)));
 	}
 	if (x($_POST, 'page_users_delete')) {
 		foreach ($users as $uid) {
 			User::remove($uid);
 		}
-		notice(tt("%s user deleted", "%s users deleted", count($users)));
+		notice(L10n::tt("%s user deleted", "%s users deleted", count($users)));
 	}
 
 	if (x($_POST, 'page_users_approve')) {

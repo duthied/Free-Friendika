@@ -499,7 +499,7 @@ function render_messages(array $msg, $t)
 			'$date' => datetime_convert('UTC', date_default_timezone_get(), $rr['mailcreated'], t('D, d M Y - g:i A')),
 			'$ago' => relative_date($rr['mailcreated']),
 			'$seen' => $rr['mailseen'],
-			'$count' => tt('%d message', '%d messages', $rr['count']),
+			'$count' => L10n::tt('%d message', '%d messages', $rr['count']),
 		]);
 	}
 

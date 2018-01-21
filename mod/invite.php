@@ -91,11 +91,11 @@ function invite_post(App $a) {
 				return;
 			}
 		} else {
-			notice( sprintf( t('%s : Message delivery failed.'), $recip) . EOL);
+			notice(sprintf(L10n::t('%s : Message delivery failed.'), $recip) . EOL);
 		}
 
 	}
-	notice( sprintf( tt("%d message sent.", "%d messages sent.", $total) , $total) . EOL);
+	notice(sprintf(L10n::tt("%d message sent.", "%d messages sent.", $total), $total) . EOL);
 	return;
 }
 

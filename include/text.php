@@ -952,10 +952,10 @@ function contact_block() {
 				dbesc(implode(",", $contacts)));
 
 			if (DBM::is_result($r)) {
-				$contacts = sprintf(tt('%d Contact','%d Contacts', $total),$total);
+				$contacts = sprintf(L10n::tt('%d Contact', '%d Contacts', $total), $total);
 				$micropro = [];
 				foreach ($r as $rr) {
-					$micropro[] = micropro($rr,true,'mpfriend');
+					$micropro[] = micropro($rr, true, 'mpfriend');
 				}
 			}
 		}
