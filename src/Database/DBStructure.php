@@ -5,6 +5,7 @@
 namespace Friendica\Database;
 
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Database\DBM;
 use dba;
 
@@ -68,7 +69,7 @@ class DBStructure {
 		// every admin could had different language
 		foreach ($adminlist as $admin) {
 			$lang = (($admin['language'])?$admin['language']:'en');
-			push_lang($lang);
+			L10n::pushLang($lang);
 
 			$preamble = deindent(t("
 				The friendica developers released update %s recently,

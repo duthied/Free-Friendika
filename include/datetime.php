@@ -5,6 +5,7 @@
  */
 
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 
@@ -276,7 +277,7 @@ function datetimesel($min, $max, $default, $label, $id = 'datetimepicker', $pick
 	// First day of the week (0 = Sunday)
 	$firstDay = PConfig::get(local_user(), 'system', 'first_day_of_week', 0);
 
-	$lang = substr(get_browser_language(), 0, 2);
+	$lang = substr(L10n::getBrowserLanguage(), 0, 2);
 
 	// Check if the detected language is supported by the picker
 	if (!in_array($lang, ["ar", "ro", "id", "bg", "fa", "ru", "uk", "en", "el", "de", "nl", "tr", "fr", "es", "th", "pl", "pt", "ch", "se", "kr", "it", "da", "no", "ja", "vi", "sl", "cs", "hu"])) {

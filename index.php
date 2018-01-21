@@ -15,6 +15,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Profile;
@@ -83,9 +84,9 @@ if (!$install) {
 	$maintenance = Config::get('system', 'maintenance');
 }
 
-$lang = get_browser_language();
+$lang = L10n::getBrowserLanguage();
 
-load_translation_table($lang);
+L10n::loadTranslationTable($lang);
 
 /**
  * Important stuff we always need to do.
@@ -121,7 +122,7 @@ if (x($_SESSION, 'authenticated') && !x($_SESSION, 'language')) {
 
 if ((x($_SESSION, 'language')) && ($_SESSION['language'] !== $lang)) {
 	$lang = $_SESSION['language'];
-	load_translation_table($lang);
+	L10n::loadTranslationTable($lang);
 }
 
 if ((x($_GET, 'zrl')) && (!$install && !$maintenance)) {

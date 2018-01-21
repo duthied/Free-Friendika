@@ -18,22 +18,22 @@ class L10n
 	/**
 	 * @brief get the prefered language from the HTTP_ACCEPT_LANGUAGE header
 	 */
-	function get_browser_language() {
-
+	public static function getBrowserLanguage()
+	{
 		$lang_list = [];
+
 		if (x($_SERVER, 'HTTP_ACCEPT_LANGUAGE')) {
 			// break up string into pieces (languages and q factors)
-			preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i',
-				$_SERVER['HTTP_ACCEPT_LANGUAGE'], $lang_parse);
+			preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $lang_parse);
 
 			if (count($lang_parse[1])) {
 				// go through the list of prefered languages and add a generic language
 				// for sub-linguas (e.g. de-ch will add de) if not already in array
 				for ($i = 0; $i < count($lang_parse[1]); $i++) {
 					$lang_list[] = strtolower($lang_parse[1][$i]);
-					if (strlen($lang_parse[1][$i])>3 ) {
+					if (strlen($lang_parse[1][$i])>3) {
 						$dashpos = strpos($lang_parse[1][$i], '-');
-						if (!in_array(substr($lang_parse[1][$i], 0, $dashpos), $lang_list ) ) {
+						if (!in_array(substr($lang_parse[1][$i], 0, $dashpos), $lang_list)) {
 							$lang_list[] = strtolower(substr($lang_parse[1][$i], 0, $dashpos));
 						}
 					}
@@ -56,8 +56,11 @@ class L10n
 		return Config::get('system', 'language', 'en');
 	}
 
-
-	function push_lang($language) {
+	/**
+	 * @param string $language language
+	 */
+	public static function pushLang($language)
+	{
 		global $lang, $a;
 
 		$a->langsave = $lang;
@@ -70,11 +73,15 @@ class L10n
 			$a->stringsave = $a->strings;
 		}
 		$a->strings = [];
-		load_translation_table($language);
+		self::loadTranslationTable($language);
 		$lang = $language;
 	}
 
-	function pop_lang() {
+	/**
+	 * Pop language off the top of the stack
+	 */
+	public static function popLang()
+	{
 		global $lang, $a;
 
 		if ($lang === $a->langsave) {
@@ -90,22 +97,21 @@ class L10n
 		$lang = $a->langsave;
 	}
 
-	// l
-
 	/**
 	 * load string translation table for alternate language
 	 *
-	 * first plugin strings are loaded, then globals
+	 * first addon strings are loaded, then globals
 	 *
 	 * @param string $lang language code to load
 	 */
-	function load_translation_table($lang) {
+	public static function loadTranslationTable($lang)
+	{
 		$a = get_app();
 
 		$a->strings = [];
-		// load enabled plugins strings
-		$plugins = dba::select('addon', ['name'], ['installed' => true]);
-		while ($p = dba::fetch($plugins)) {
+		// load enabled addons strings
+		$addons = dba::select('addon', ['name'], ['installed' => true]);
+		while ($p = dba::fetch($addons)) {
 			$name = $p['name'];
 			if (file_exists("addon/$name/lang/$lang/strings.php")) {
 				include("addon/$name/lang/$lang/strings.php");
@@ -115,7 +121,6 @@ class L10n
 		if (file_exists("view/lang/$lang/strings.php")) {
 			include("view/lang/$lang/strings.php");
 		}
-
 	}
 
 	/**
@@ -133,7 +138,7 @@ class L10n
 	 * @param string $s
 	 * @return string
 	 */
-	function t($s)
+	public static function t($s)
 	{
 		$a = get_app();
 

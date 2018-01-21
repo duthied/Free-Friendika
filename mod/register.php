@@ -1,8 +1,11 @@
 <?php
-
+/**
+ * @file mod/register.php
+ */
 use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -58,7 +61,7 @@ function register_post(App $a)
 
 	$arr['blocked'] = $blocked;
 	$arr['verified'] = $verified;
-	$arr['language'] = get_browser_language();
+	$arr['language'] = L10n::getBrowserLanguage();
 
 	try {
 		$result = User::create($arr);

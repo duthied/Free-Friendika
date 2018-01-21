@@ -1,7 +1,10 @@
 <?php
-
+/**
+ * @file mod/regmod.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -50,7 +53,7 @@ function user_allow($hash)
 		}
 	}
 
-	push_lang($register[0]['language']);
+	L10n::pushLang($register[0]['language']);
 
 	User::sendRegisterOpenEmail(
 		$user[0]['email'],
@@ -59,7 +62,7 @@ function user_allow($hash)
 		$user[0]['username'],
 		$register[0]['password']);
 
-	pop_lang();
+	L10n::popLang();
 
 	if ($res) {
 		info(t('Account approved.') . EOL);

@@ -411,7 +411,7 @@ function bb_replace_images($body, $images) {
 		// We're depending on the property of 'foreach' (specified on the PHP website) that
 		// it loops over the array starting from the first element and going sequentially
 		// to the last element
-		$newbody = str_replace('[$#saved_image' . $cnt . '#$]', '<img src="' . proxy_url($image) .'" alt="' . t('Image/photo') . '" />', $newbody);
+		$newbody = str_replace('[$#saved_image' . $cnt . '#$]', '<img src="' . proxy_url($image) .'" alt="' . L10n::t('Image/photo') . '" />', $newbody);
 		$cnt++;
 	}
 
@@ -549,7 +549,7 @@ function bb_ShareAttributes($share, $simplehtml)
 			break;
 		case 4:
 			$headline .= '<br /><b>' . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
-			$headline .= t('<a href="%1$s" target="_blank">%2$s</a> %3$s', $link, $userid, $posted);
+			$headline .= L10n::t('<a href="%1$s" target="_blank">%2$s</a> %3$s', $link, $userid, $posted);
 			$headline .= ":</b><br />";
 
 			$text = trim($share[1]);
@@ -1180,7 +1180,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 
 	// Check for [spoiler=Author] text
 
-	$t_wrote = t('$1 wrote:');
+	$t_wrote = L10n::t('$1 wrote:');
 
 	// handle nested quotes
 	$endlessloop = 0;
@@ -1202,7 +1202,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 
 	// Check for [quote=Author] text
 
-	$t_wrote = t('$1 wrote:');
+	$t_wrote = L10n::t('$1 wrote:');
 
 	// handle nested quotes
 	$endlessloop = 0;
@@ -1223,8 +1223,8 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	// [img]pathtoimage[/img]
 	$Text = preg_replace_callback("/\[img\](.*?)\[\/img\]/ism", 'bb_PictureCache', $Text);
 
-	$Text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img src="$1" alt="' . t('Image/photo') . '" />', $Text);
-	$Text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img src="$1" alt="' . t('Image/photo') . '" />', $Text);
+	$Text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img src="$1" alt="' . L10n::t('Image/photo') . '" />', $Text);
+	$Text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img src="$1" alt="' . L10n::t('Image/photo') . '" />', $Text);
 
 	// Shared content
 	$Text = preg_replace_callback("/(.*?)\[share(.*?)\](.*?)\[\/share\]/ism",
@@ -1232,9 +1232,9 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 			return bb_ShareAttributes($match, $simplehtml);
 		}, $Text);
 
-	$Text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . t('Encrypted content') . '" title="' . t('Encrypted content') . '" /><br />', $Text);
-	$Text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . t('Encrypted content') . '" title="' . '$1' . ' ' . t('Encrypted content') . '" /><br />', $Text);
-	//$Text = preg_replace("/\[crypt=(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . t('Encrypted content') . '" title="' . '$1' . ' ' . t('Encrypted content') . '" /><br />', $Text);
+	$Text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . L10n::t('Encrypted content') . '" /><br />', $Text);
+	$Text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $Text);
+	//$Text = preg_replace("/\[crypt=(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $Text);
 
 	// Try to Oembed
 	if ($tryoembed) {
@@ -1352,7 +1352,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	// sanitizes src attributes (http and redir URLs for displaying in a web page, cid used for inline images in emails)
 	static $allowed_src_protocols = ['http', 'redir', 'cid'];
 	$Text = preg_replace('#<([^>]*?)(src)="(?!' . implode('|', $allowed_src_protocols) . ')(.*?)"(.*?)>#ism',
-			     '<$1$2=""$4 data-original-src="$3" class="invalid-src" title="' . t('Invalid source protocol') . '">', $Text);
+			     '<$1$2=""$4 data-original-src="$3" class="invalid-src" title="' . L10n::t('Invalid source protocol') . '">', $Text);
 
 	// sanitize href attributes (only whitelisted protocols URLs)
 	// default value for backward compatibility
@@ -1363,7 +1363,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	$allowed_link_protocols[] = 'redir/';
 
 	$regex = '#<([^>]*?)(href)="(?!' . implode('|', $allowed_link_protocols) . ')(.*?)"(.*?)>#ism';
-	$Text = preg_replace($regex, '<$1$2="javascript:void(0)"$4 data-original-href="$3" class="invalid-href" title="' . t('Invalid link protocol') . '">', $Text);
+	$Text = preg_replace($regex, '<$1$2="javascript:void(0)"$4 data-original-href="$3" class="invalid-href" title="' . L10n::t('Invalid link protocol') . '">', $Text);
 
 	if ($saved_image) {
 		$Text = bb_replace_images($Text, $saved_image);

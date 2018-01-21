@@ -1,9 +1,13 @@
 <?php
-
+/**
+ * @file util/maintenance.php
+ */
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 
-require_once("boot.php");
+require_once 'boot.php';
+require_once 'include/dba.php';
 
 if (empty($a)) {
 	$a = new App(dirname(__DIR__));
@@ -11,10 +15,9 @@ if (empty($a)) {
 
 @include(".htconfig.php");
 
-$lang = get_browser_language();
-load_translation_table($lang);
+$lang = L10n::getBrowserLanguage();
+L10n::loadTranslationTable($lang);
 
-require_once("include/dba.php");
 dba::connect($db_host, $db_user, $db_pass, $db_data, false);
 unset($db_host, $db_user, $db_pass, $db_data);
 

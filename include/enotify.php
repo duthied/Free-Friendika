@@ -5,6 +5,7 @@
 use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Util\Emailer;
@@ -26,7 +27,7 @@ function notification($params)
 	$a = get_app();
 
 	// from here on everything is in the recipients language
-	push_lang($params['language']);
+	L10n::pushLang($params['language']);
 
 	$banner = t('Friendica Notification');
 	$product = FRIENDICA_PLATFORM;
@@ -123,7 +124,7 @@ function notification($params)
 			intval($params['uid'])
 		);
 		if ($p && count($p)) {
-			pop_lang();
+			L10n::popLang();
 			return;
 		}
 
@@ -444,7 +445,7 @@ function notification($params)
 		Addon::callHooks('enotify_store', $datarray);
 
 		if ($datarray['abort']) {
-			pop_lang();
+			L10n::popLang();
 			return False;
 		}
 
@@ -473,7 +474,7 @@ function notification($params)
 		if ($r) {
 			$notify_id = $r[0]['id'];
 		} else {
-			pop_lang();
+			L10n::popLang();
 			return False;
 		}
 
@@ -492,8 +493,8 @@ function notification($params)
 
 			// only continue on if we stored the first one
 			if ($notify_id != $p[0]['id']) {
-				pop_lang();
-				return False;
+				L10n::popLang();
+				return false;
 			}
 		}
 
