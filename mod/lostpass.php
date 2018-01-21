@@ -91,7 +91,7 @@ function lostpass_content(App $a)
 			return lostpass_form();
 		}
 
-		// Password reset requests expire in 20 minutes
+		// Password reset requests expire in 60 minutes
 		if ($user['pwdreset_time'] < datetime_convert('UTC', 'UTC', 'now - 1 hour')) {
 			$fields = [
 				'pwdreset' => null,
