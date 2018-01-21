@@ -56,8 +56,6 @@ function network_init(App $a)
 		$group_id = 0;
 	}
 
-	PConfig::set(local_user(), 'network.view', 'group.selected', $group_id);
-
 	if ($a->argc > 1) {
 		for ($x = 1; $x < $a->argc; $x ++) {
 			if (is_a_date_arg($a->argv[$x])) {
@@ -75,23 +73,17 @@ function network_init(App $a)
 
 	// fetch last used network view and redirect if needed
 	if (!$is_a_date_query) {
+		$sel_nets = defaults($_GET, 'nets', false);
 		$sel_tabs = network_query_get_sel_tab($a);
-		$sel_nets = network_query_get_sel_net();
 		$sel_groups = network_query_get_sel_group($a);
 		$last_sel_tabs = PConfig::get(local_user(), 'network.view', 'tab.selected');
-		$last_sel_nets = PConfig::get(local_user(), 'network.view', 'net.selected');
-		$last_sel_groups = PConfig::get(local_user(), 'network.view', 'group.selected');
 
 		$remember_tab = ($sel_tabs[0] === 'active' && is_array($last_sel_tabs) && $last_sel_tabs[0] !== 'active');
-		$remember_net = ($sel_nets === false && $last_sel_nets && $last_sel_nets !== 'all');
-		$remember_group = ($sel_groups === false && $last_sel_groups && $last_sel_groups != 0);
 
 		$net_baseurl = '/network';
 		$net_args = [];
 
-		if ($remember_group) {
-			$net_baseurl .= '/' . $last_sel_groups; // Note that the group number must come before the "/new" tab selection
-		} elseif ($sel_groups !== false) {
+		if ($sel_groups !== false) {
 			$net_baseurl .= '/' . $sel_groups;
 		}
 
@@ -132,18 +124,13 @@ function network_init(App $a)
 			} else {
 				$remember_tab = false;
 			}
-		} elseif ($sel_tabs[4] === 'active') {
-			// The '/new' tab is selected
-			$remember_group = false;
 		}
 
-		if ($remember_net) {
-			$net_args['nets'] = $last_sel_nets;
-		} elseif ($sel_nets !== false) {
+		if ($sel_nets !== false) {
 			$net_args['nets'] = $sel_nets;
 		}
 
-		if ($remember_tab || $remember_net || $remember_group) {
+		if ($remember_tab) {
 			$net_args = array_merge($query_array, $net_args);
 			$net_queries = build_querystring($net_args);
 
@@ -274,21 +261,6 @@ function network_query_get_sel_tab(App $a)
 	}
 
 	return [$no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active];
-}
-
-/**
- * @brief Return selected network from query
- * @return string Name of the selected network
- */
-function network_query_get_sel_net()
-{
-	$network = false;
-
-	if (x($_GET, 'nets')) {
-		$network = $_GET['nets'];
-	}
-
-	return $network;
 }
 
 function network_query_get_sel_group(App $a)
@@ -437,8 +409,6 @@ function networkFlatView(App $a, $update = 0)
 
 	$file = ((x($_GET, 'file')) ? $_GET['file'] : '');
 
-	PConfig::set(local_user(), 'network.view', 'net.selected', 'all');
-
 	if (!$update && !$rawmode) {
 		$tabs = network_tabs($a);
 		$o .= $tabs;
@@ -563,7 +533,6 @@ function networkThreadedView(App $a, $update = 0)
 			$def_acl = ['allow_cid' => $str];
 		}
 	}
-	PConfig::set(local_user(), 'network.view', 'net.selected', ($nets ? $nets : 'all'));
 
 	if (!$update && !$rawmode) {
 		$tabs = network_tabs($a);
