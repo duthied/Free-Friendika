@@ -292,46 +292,47 @@ function frio_acl_lookup(App $a, &$results)
 
 	// we introduce a new search type, r should do the same query like it's
 	// done in /mod/contacts for connections
-	if ($results["type"] == "r") {
-		$searching = false;
-		if ($search) {
-			$search_hdr = $search;
-			$search_txt = dbesc(protect_sprintf(preg_quote($search)));
-			$searching = true;
-		}
-		$sql_extra = '';
-		if ($searching) {
-			$sql_extra .= " AND (`attag` LIKE '%%" . dbesc($search_txt) . "%%' OR `name` LIKE '%%" . dbesc($search_txt) . "%%' OR `nick` LIKE '%%" . dbesc($search_txt) . "%%') ";
-		}
-
-		if ($nets) {
-			$sql_extra .= sprintf(" AND network = '%s' ", dbesc($nets));
-		}
-
-		$r = q("SELECT COUNT(*) AS `total` FROM `contact`
-			WHERE `uid` = %d AND NOT `self` AND NOT `pending` $sql_extra ",
-			intval($_SESSION['uid']));
-		if (DBM::is_result($r)) {
-			$total = $r[0]["total"];
-		}
-
-		$sql_extra3 = Widget::unavailableNetworks();
-
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `self` AND NOT `pending` $sql_extra $sql_extra3 ORDER BY `name` ASC LIMIT 100 ",
-			intval($_SESSION['uid'])
-		);
-
-		$contacts = [];
-
-		if (DBM::is_result($r)) {
-			foreach ($r as $rr) {
-				$contacts[] = _contact_detail_for_template($rr);
-			}
-		}
-
-		$results["items"] = $contacts;
-		$results["tot"] = $total;
+	if ($results["type"] !== "r") {
+		return;
 	}
+
+	$searching = false;
+	if ($results["search"]) {
+		$search_txt = dbesc(protect_sprintf(preg_quote($results["search"])));
+		$searching = true;
+	}
+	
+	$sql_extra = '';
+	if ($searching) {
+		$sql_extra .= " AND (`attag` LIKE '%%" . dbesc($search_txt) . "%%' OR `name` LIKE '%%" . dbesc($search_txt) . "%%' OR `nick` LIKE '%%" . dbesc($search_txt) . "%%') ";
+	}
+
+	if ($nets) {
+		$sql_extra .= sprintf(" AND network = '%s' ", dbesc($nets));
+	}
+
+	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
+		WHERE `uid` = %d AND NOT `self` AND NOT `pending` $sql_extra ", intval($_SESSION['uid']));
+	if (DBM::is_result($r)) {
+		$total = $r[0]["total"];
+	}
+
+	$sql_extra3 = Widget::unavailableNetworks();
+
+	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `self` AND NOT `pending` $sql_extra $sql_extra3 ORDER BY `name` ASC LIMIT %d, %d ",
+		intval($_SESSION['uid']), intval($results['start']), intval($results['count'])
+	);
+
+	$contacts = [];
+
+	if (DBM::is_result($r)) {
+		foreach ($r as $rr) {
+			$contacts[] = _contact_detail_for_template($rr);
+		}
+	}
+
+	$results["items"] = $contacts;
+	$results["tot"] = $total;
 }
 
 /**
