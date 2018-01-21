@@ -50,12 +50,12 @@ function lostpass_post(App $a)
 		below or paste it into your web browser address bar.
 
 		If you did NOT request this change, please DO NOT follow the link
-		provided and ignore and/or delete this email.
+		provided and ignore and/or delete this email, the request will expire shortly.
 
 		Your password will not be changed unless we can verify that you
 		issued this request.', $user['username'], $sitename));
 	$body = deindent(t('
-		Follow this link to verify your identity:
+		Follow this link soon to verify your identity:
 
 		%1$s
 
