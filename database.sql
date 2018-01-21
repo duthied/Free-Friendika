@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.6-dev (Asparagus)
--- DB_UPDATE_VERSION 1242
+-- DB_UPDATE_VERSION 1243
 -- ------------------------------------------
 
 
@@ -1031,7 +1031,8 @@ CREATE TABLE IF NOT EXISTS `user` (
 	`page-flags` tinyint NOT NULL DEFAULT 0 COMMENT '',
 	`account-type` tinyint NOT NULL DEFAULT 0 COMMENT '',
 	`prvnets` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`pwdreset` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`pwdreset` varchar(255) COMMENT 'Password reset request token',
+	`pwdreset_time` datetime COMMENT 'Timestamp of the last password reset request',
 	`maxreq` int NOT NULL DEFAULT 10 COMMENT '',
 	`expire` int NOT NULL DEFAULT 0 COMMENT '',
 	`account_removed` boolean NOT NULL DEFAULT '0' COMMENT '',
