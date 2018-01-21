@@ -2,14 +2,15 @@
 /**
  * @file mod/settings.php
  */
+
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Core\Addon;
-use Friendica\Core\System;
-use Friendica\Core\Worker;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\Core\System;
+use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\GContact;
 use Friendica\Model\Group;
@@ -391,12 +392,8 @@ function settings_post(App $a)
         }
 
 		if (!$err) {
-			$password = hash('whirlpool', $newpass);
-			$r = q("UPDATE `user` SET `password` = '%s' WHERE `uid` = %d",
-				dbesc($password),
-				intval(local_user())
-			);
-			if (DBM::is_result($r)) {
+			$result = User::updatePassword(local_user(), $newpass);
+			if (DBM::is_result($result)) {
 				info(t('Password changed.') . EOL);
 			} else {
 				notice(t('Password update failed. Please try again.') . EOL);

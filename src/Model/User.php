@@ -142,13 +142,64 @@ class User
 			return false;
 		}
 
-		$password_hashed = hash('whirlpool', $password);
+		$password_hashed = self::hashPassword($password);
 
 		if ($password_hashed !== $user['password']) {
 			return false;
 		}
 
 		return $user['uid'];
+	}
+
+	/**
+	 * Generates a human-readable random password
+	 *
+	 * @return string
+	 */
+	public static function generateNewPassword()
+	{
+		return autoname(6) . mt_rand(100, 9999);
+	}
+
+	/**
+	 * Global user password hashing function
+	 *
+	 * @param string $password
+	 * @return string
+	 */
+	private static function hashPassword($password)
+	{
+		return hash('whirlpool', $password);
+	}
+
+	/**
+	 * Updates a user row with a new plaintext password
+	 *
+	 * @param int    $uid
+	 * @param string $password
+	 * @return bool
+	 */
+	public static function updatePassword($uid, $password)
+	{
+		return self::updatePasswordHashed($uid, self::hashPassword($password));
+	}
+
+	/**
+	 * Updates a user row with a new hashed password.
+	 * Empties the password reset token field just in case.
+	 *
+	 * @param int    $uid
+	 * @param string $pasword_hashed
+	 * @return bool
+	 */
+	private static function updatePasswordHashed($uid, $pasword_hashed)
+	{
+		$fields = [
+			'password' => $pasword_hashed,
+			'pwdreset' => null,
+			'pwdreset_time' => null
+		];
+		return dba::update('user', $fields, ['uid' => $uid]);
 	}
 
 	/**
@@ -290,8 +341,8 @@ class User
 			throw new Exception(t('Nickname is already registered. Please choose another.'));
 		}
 
-		$new_password = strlen($password) ? $password : autoname(6) . mt_rand(100, 9999);
-		$new_password_encoded = hash('whirlpool', $new_password);
+		$new_password = strlen($password) ? $password : User::generateNewPassword();
+		$new_password_encoded = self::hashPassword($new_password);
 
 		$return['password'] = $new_password;
 
