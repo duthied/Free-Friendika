@@ -1634,10 +1634,10 @@ function admin_page_users(App $a)
 	$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
 	$_setup_users = function ($e) use ($adminlist) {
 		$accounts = [
-			t('Normal Account'),
-			t('Automatic Follower Account'),
-			t('Public Forum Account'),
-			t('Automatic Friend Account')
+			L10n::t('Normal Account'),
+			L10n::t('Automatic Follower Account'),
+			L10n::t('Public Forum Account'),
+			L10n::t('Automatic Friend Account')
 		];
 		$e['page-flags'] = $accounts[$e['page-flags']];
 		$e['register_date'] = relative_date($e['register_date']);
