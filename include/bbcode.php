@@ -970,7 +970,8 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
 	if (!$forplaintext) {
 		// Autolink feature (thanks to http://code.seebz.net/p/autolink-php/)
-		$autolink_regex = "`([^\]\=\"']|^)(https?\://[^\s<]+[^\s<\.\)])`ism";
+		// Currently disabled, since the function is too greedy
+		// $autolink_regex = "`([^\]\=\"']|^)(https?\://[^\s<]+[^\s<\.\)])`ism";
 		$autolink_regex = "/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism";
 		$Text = preg_replace($autolink_regex, '$1[url]$2[/url]', $Text);
 		if ($simplehtml == 7) {
@@ -1043,10 +1044,6 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	// See issue: https://github.com/diaspora/diaspora_federation/issues/75
 	$expression = "=diaspora://.*?/post/([0-9A-Za-z\-_@.:]{15,254}[0-9A-Za-z])=ism";
 	$Text = preg_replace($expression, System::baseUrl()."/display/$1", $Text);
-
-	if ($tryoembed) {
-	//	$Text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", $tryoembed_callback, $Text);
-	}
 
 	$Text = preg_replace("/([#])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
 				'$1<a href="$2" class="tag" title="$3">$3</a>', $Text);
