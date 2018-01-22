@@ -272,7 +272,7 @@ function item_post(App $a) {
 			if ($preview) {
 				killme();
 			}
-			info(t('Empty post discarded.') . EOL);
+			info(L10n::t('Empty post discarded.') . EOL);
 			if (x($_REQUEST, 'return')) {
 				goaway($return_path);
 			}
@@ -800,14 +800,14 @@ function item_post(App $a) {
 				if (!strlen($addr)) {
 					continue;
 				}
-				$disclaimer = '<hr />' . sprintf(t('This message was sent to you by %s, a member of the Friendica social network.'), $a->user['username'])
+				$disclaimer = '<hr />' . sprintf(L10n::t('This message was sent to you by %s, a member of the Friendica social network.'), $a->user['username'])
 					. '<br />';
-				$disclaimer .= sprintf(t('You may visit them online at %s'), System::baseUrl() . '/profile/' . $a->user['nickname']) . EOL;
+				$disclaimer .= sprintf(L10n::t('You may visit them online at %s'), System::baseUrl() . '/profile/' . $a->user['nickname']) . EOL;
 				$disclaimer .= L10n::t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
 				if (!$datarray['title']=='') {
 					$subject = Email::encodeHeader($datarray['title'], 'UTF-8');
 				} else {
-					$subject = Email::encodeHeader('[Friendica]' . ' ' . sprintf(t('%s posted an update.'), $a->user['username']), 'UTF-8');
+					$subject = Email::encodeHeader('[Friendica]' . ' ' . sprintf(L10n::t('%s posted an update.'), $a->user['username']), 'UTF-8');
 				}
 				$link = '<a href="' . System::baseUrl() . '/profile/' . $a->user['nickname'] . '"><img src="' . $author['thumb'] . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
 				$html    = prepare_body($datarray);

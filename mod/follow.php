@@ -41,7 +41,7 @@ function follow_post(App $a) {
 		goaway(System::baseUrl().'/contacts/'.$result['cid']);
 	}
 
-	info(t('Contact added').EOL);
+	info(L10n::t('Contact added').EOL);
 
 	if (strstr($return_url, 'contacts')) {
 		goaway(System::baseUrl().'/contacts/'.$contact_id);
@@ -149,7 +149,7 @@ function follow_content(App $a) {
 			//'$photo' => proxy_url($ret["photo"], false, PROXY_SIZE_SMALL),
 			'$desc' => "",
 			'$pls_answer' => L10n::t('Please answer the following:'),
-			'$does_know_you' => ['knowyou', sprintf(t('Does %s know you?'),$ret["name"]), false, '', [L10n::t('No'), L10n::t('Yes')]],
+			'$does_know_you' => ['knowyou', sprintf(L10n::t('Does %s know you?'),$ret["name"]), false, '', [L10n::t('No'), L10n::t('Yes')]],
 			'$add_note' => L10n::t('Add a personal note:'),
 			'$page_desc' => "",
 			'$friendica' => "",

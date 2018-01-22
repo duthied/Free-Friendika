@@ -156,7 +156,7 @@ function dfrn_request_post(App $a)
 				}
 
 				if ($r) {
-					info(t("Introduction complete.") . EOL);
+					info(L10n::t("Introduction complete.") . EOL);
 				}
 
 				$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `site-pubkey` = '%s' LIMIT 1",
@@ -242,7 +242,7 @@ function dfrn_request_post(App $a)
 				intval($uid)
 			);
 			if (DBM::is_result($r) && count($r) > $maxreq) {
-				notice(sprintf(t('%s has received too many connection requests today.'), $a->profile['name']) . EOL);
+				notice(sprintf(L10n::t('%s has received too many connection requests today.'), $a->profile['name']) . EOL);
 				notice(L10n::t('Spam protection measures have been invoked.') . EOL);
 				notice(L10n::t('Friends are advised to please try again in 24 hours.') . EOL);
 				return;
@@ -313,7 +313,7 @@ function dfrn_request_post(App $a)
 					notice(L10n::t('You have already introduced yourself here.') . EOL);
 					return;
 				} elseif ($ret[0]['rel'] == CONTACT_IS_FRIEND) {
-					notice(sprintf(t('Apparently you are already friends with %s.'), $a->profile['name']) . EOL);
+					notice(sprintf(L10n::t('Apparently you are already friends with %s.'), $a->profile['name']) . EOL);
 					return;
 				} else {
 					$contact_record = $ret[0];
@@ -433,7 +433,7 @@ function dfrn_request_post(App $a)
 
 			// This notice will only be seen by the requestor if the requestor and requestee are on the same server.
 			if (!$failed) {
-				info(t('Your introduction has been sent.') . EOL);
+				info(L10n::t('Your introduction has been sent.') . EOL);
 			}
 
 			// "Homecoming" - send the requestor back to their site to record the introduction.
@@ -487,7 +487,7 @@ function dfrn_request_content(App $a)
 	// to send us to the post section to record the introduction.
 	if (x($_GET, 'dfrn_url')) {
 		if (!local_user()) {
-			info(t("Please login to confirm introduction.") . EOL);
+			info(L10n::t("Please login to confirm introduction.") . EOL);
 			/* setup the return URL to come back to this page if they use openid */
 			return Login::form();
 		}
@@ -524,8 +524,8 @@ function dfrn_request_content(App $a)
 			'$hidethem' => L10n::t('Hide this contact'),
 			'$hidechecked' => '',
 			'$confirm_key' => $confirm_key,
-			'$welcome' => sprintf(t('Welcome home %s.'), $a->user['username']),
-			'$please' => sprintf(t('Please confirm your introduction/connection request to %s.'), $dfrn_url),
+			'$welcome' => sprintf(L10n::t('Welcome home %s.'), $a->user['username']),
+			'$please' => sprintf(L10n::t('Please confirm your introduction/connection request to %s.'), $dfrn_url),
 			'$submit' => L10n::t('Confirm'),
 			'$uid' => $_SESSION['uid'],
 			'$nickname' => $a->user['nickname'],
@@ -647,13 +647,13 @@ function dfrn_request_content(App $a)
 			'$header' => L10n::t('Friend/Connection Request'),
 			'$desc' => L10n::t('Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@gnusocial.de'),
 			'$pls_answer' => L10n::t('Please answer the following:'),
-			'$does_know_you' => ['knowyou', sprintf(t('Does %s know you?'), $a->profile['name']), false, '', [t('No'), L10n::t('Yes')]],
+			'$does_know_you' => ['knowyou', sprintf(L10n::t('Does %s know you?'), $a->profile['name']), false, '', [L10n::t('No'), L10n::t('Yes')]],
 			'$add_note' => L10n::t('Add a personal note:'),
 			'$page_desc' => $page_desc,
 			'$friendica' => L10n::t('Friendica'),
 			'$statusnet' => L10n::t('GNU Social (Pleroma, Mastodon)'),
 			'$diaspora' => L10n::t('Diaspora (Socialhome, Hubzilla)'),
-			'$diasnote' => sprintf(t(' - please do not use this form.  Instead, enter %s into your Diaspora search bar.'), $target_addr),
+			'$diasnote' => sprintf(L10n::t(' - please do not use this form.  Instead, enter %s into your Diaspora search bar.'), $target_addr),
 			'$your_address' => L10n::t('Your Identity Address:'),
 			'$invite_desc' => $invite_desc,
 			'$submit' => L10n::t('Submit Request'),

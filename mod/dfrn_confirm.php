@@ -256,7 +256,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			$message = unxmlify($xml->message);   // human readable text of what may have gone wrong.
 			switch ($status) {
 				case 0:
-					info(t("Confirmation completed successfully.") . EOL);
+					info(L10n::t("Confirmation completed successfully.") . EOL);
 					break;
 				case 1:
 					// birthday paradox - generate new dfrn-id and fall through.

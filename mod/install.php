@@ -546,9 +546,9 @@ function what_next() {
 	$baseurl = System::baseUrl();
 	return
 		t('<h1>What next</h1>')
-		."<p>".t('IMPORTANT: You will need to [manually] setup a scheduled task for the worker.')
-		.t('Please see the file "INSTALL.txt".')
+		."<p>".L10n::t('IMPORTANT: You will need to [manually] setup a scheduled task for the worker.')
+		.L10n::t('Please see the file "INSTALL.txt".')
 		."</p><p>"
-		.t("Go to your new Friendica node <a href='$baseurl/register'>registration page</a> and register as new user. Remember to use the same email you have entered as administrator email. This will allow you to enter the site admin panel.")
+		.L10n::t("Go to your new Friendica node <a href='$baseurl/register'>registration page</a> and register as new user. Remember to use the same email you have entered as administrator email. This will allow you to enter the site admin panel.")
 		."</p>";
 }

@@ -15,7 +15,7 @@ function repair_ostatus_content(App $a) {
 		// NOTREACHED
 	}
 
-	$o = "<h2>".t("Resubscribing to OStatus contacts")."</h2>";
+	$o = "<h2>".L10n::t("Resubscribing to OStatus contacts")."</h2>";
 
 	$uid = local_user();
 
@@ -31,7 +31,7 @@ function repair_ostatus_content(App $a) {
                 intval(CONTACT_IS_SHARING));
 
 	if (!$r)
-		return($o.t("Error"));
+		return($o.L10n::t("Error"));
 
 	$total = $r[0]["total"];
 
@@ -51,7 +51,7 @@ function repair_ostatus_content(App $a) {
 
 	$o .= "<p>".$counter."/".$total.": ".$r[0]["url"]."</p>";
 
-	$o .= "<p>".t("Keep this window open until done.")."</p>";
+	$o .= "<p>".L10n::t("Keep this window open until done.")."</p>";
 
 	$result = Contact::createFromProbe($uid, $r[0]["url"], true);
 

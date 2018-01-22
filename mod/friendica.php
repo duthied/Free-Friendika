@@ -83,7 +83,7 @@ function friendica_content(App $a)
 	$o .= '</p>' . PHP_EOL;
 
 	$o .= '<p>';
-	$o .= L10n::t('Bug reports and issues: please visit') . ' ' . '<a href="https://github.com/friendica/friendica/issues?state=open">'.t('the bugtracker at github').'</a>';
+	$o .= L10n::t('Bug reports and issues: please visit') . ' ' . '<a href="https://github.com/friendica/friendica/issues?state=open">'.L10n::t('the bugtracker at github').'</a>';
 	$o .= '</p>' . PHP_EOL;
 	$o .= '<p>';
 	$o .= L10n::t('Suggestions, praise, donations, etc. - please email "Info" at Friendica - dot com');

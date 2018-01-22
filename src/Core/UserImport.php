@@ -120,7 +120,7 @@ class UserImport
 		}
 
 		if (DBM::is_result($r) > 0) {
-			notice(sprintf(t("User '%s' already exists on this server!"), $account['user']['nickname']));
+			notice(sprintf(L10n::t("User '%s' already exists on this server!"), $account['user']['nickname']));
 			return;
 		}
 
@@ -133,7 +133,7 @@ class UserImport
 		}
 
 		if (DBM::is_result($r) > 0) {
-			notice(sprintf(t("User '%s' already exists on this server!"), $account['user']['nickname']));
+			notice(sprintf(L10n::t("User '%s' already exists on this server!"), $account['user']['nickname']));
 			return;
 		}
 
@@ -187,7 +187,7 @@ class UserImport
 			$r = self::dbImportAssoc('profile', $profile);
 			if ($r === false) {
 				logger("uimport:insert profile " . $profile['profile-name'] . " : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
-				info(t("User profile creation error"));
+				info(L10n::t("User profile creation error"));
 				dba::delete('user', ['uid' => $newuid]);
 				return;
 			}
@@ -296,7 +296,7 @@ class UserImport
 		// send relocate messages
 		Worker::add(PRIORITY_HIGH, 'Notifier', 'relocate', $newuid);
 
-		info(t("Done. You can now login with your username and password"));
+		info(L10n::t("Done. You can now login with your username and password"));
 		goaway(System::baseUrl() . "/login");
 	}
 }

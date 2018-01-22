@@ -150,7 +150,7 @@ function directory_content(App $a) {
 			$location_e = $location;
 
 			$photo_menu = [
-				'profile' => [t("View Profile"), Profile::zrl($profile_link)]
+				'profile' => [L10n::t("View Profile"), Profile::zrl($profile_link)]
 			];
 
 			$entry = [

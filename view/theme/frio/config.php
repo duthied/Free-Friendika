@@ -106,7 +106,7 @@ function frio_form($arr) {
 		}
 	}
 
-	$background_image_help = "<strong>" . L10n::t("Note"). ": </strong>".t("Check image permissions if all users are allowed to visit the image");
+	$background_image_help = "<strong>" . L10n::t("Note"). ": </strong>".L10n::t("Check image permissions if all users are allowed to visit the image");
 
 	$t = get_markup_template('theme_settings.tpl');
 	$ctx = [

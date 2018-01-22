@@ -65,7 +65,7 @@ function user_allow($hash)
 	L10n::popLang();
 
 	if ($res) {
-		info(t('Account approved.') . EOL);
+		info(L10n::t('Account approved.') . EOL);
 		return true;
 	}
 }
@@ -90,7 +90,7 @@ function user_deny($hash)
 	dba::delete('user', ['uid' => $register[0]['uid']]);
 	dba::delete('register', ['hash' => $register[0]['hash']]);
 
-	notice(sprintf(t('Registration revoked for %s'), $user[0]['username']) . EOL);
+	notice(sprintf(L10n::t('Registration revoked for %s'), $user[0]['username']) . EOL);
 	return true;
 }
 
@@ -99,7 +99,7 @@ function regmod_content(App $a)
 	global $lang;
 
 	if (!local_user()) {
-		info(t('Please login.') . EOL);
+		info(L10n::t('Please login.') . EOL);
 		$o .= '<br /><br />' . Login::form($a->query_string, $a->config['register_policy'] == REGISTER_CLOSED ? 0 : 1);
 		return $o;
 	}

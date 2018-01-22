@@ -555,7 +555,7 @@ function events_content(App $a) {
 		if ($del == 0) {
 			notice(L10n::t('Failed to remove event') . EOL);
 		} else {
-			info(t('Event removed') . EOL);
+			info(L10n::t('Event removed') . EOL);
 		}
 
 		goaway(System::baseUrl() . '/events');

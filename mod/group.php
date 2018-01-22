@@ -33,7 +33,7 @@ function group_post(App $a) {
 		$name = notags(trim($_POST['groupname']));
 		$r = Group::create(local_user(), $name);
 		if ($r) {
-			info(t('Group created.') . EOL);
+			info(L10n::t('Group created.') . EOL);
 			$r = Group::getIdByName(local_user(), $name);
 			if ($r) {
 				goaway(System::baseUrl() . '/group/' . $r);
@@ -67,7 +67,7 @@ function group_post(App $a) {
 			);
 
 			if ($r) {
-				info(t('Group name changed.') . EOL);
+				info(L10n::t('Group name changed.') . EOL);
 			}
 		}
 
@@ -124,7 +124,7 @@ function group_content(App $a) {
 			}
 
 			if ($result) {
-				info(t('Group removed.') . EOL);
+				info(L10n::t('Group removed.') . EOL);
 			} else {
 				notice(L10n::t('Unable to remove group.') . EOL);
 			}
