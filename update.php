@@ -161,3 +161,15 @@ function update_1244() {
 
 	return UPDATE_SUCCESS;
 }
+
+function update_1245() {
+	$rino = Config::get('system', 'rino_encrypt');
+
+	if (!$rino) {
+		return UPDATE_SUCCESS;
+	}
+
+	Config::set('system', 'rino_encrypt', 1);
+
+	return UPDATE_SUCCESS;
+}
