@@ -174,7 +174,7 @@ function item_post(App $a) {
 	}
 
 	$user = dba::selectFirst('user', [], ['uid' => $profile_uid]);
-	if (!DBM::is_result($user) && !$orig_post) {
+	if (!DBM::is_result($user) && !$parent) {
 		return;
 	}
 
