@@ -1,10 +1,13 @@
 <?php
-
+/**
+ * @file include/bbcode.php
+ */
 use Friendica\App;
 use Friendica\Content\Smilies;
 use Friendica\Content\OEmbed;
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Model\Contact;
