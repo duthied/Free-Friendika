@@ -13,7 +13,6 @@ require_once 'boot.php';
 require_once 'include/datetime.php';
 require_once 'include/enotify.php';
 require_once 'include/text.php';
-require_once 'include/pgettext.php';
 
 function lostpass_post(App $a)
 {

@@ -16,7 +16,6 @@ use dba;
 
 require_once 'boot.php';
 require_once 'dba.php';
-require_once 'include/pgettext.php';
 require_once 'include/text.php';
 
 class Nav

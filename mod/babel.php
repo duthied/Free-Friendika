@@ -8,7 +8,6 @@ use Friendica\Core\L10n;
 require_once 'include/bbcode.php';
 require_once 'include/bb2diaspora.php';
 require_once 'include/html2bbcode.php';
-require_once 'include/pgettext.php';
 
 function visible_lf($s)
 {

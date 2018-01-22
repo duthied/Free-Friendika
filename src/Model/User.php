@@ -25,7 +25,6 @@ require_once 'include/dba.php';
 require_once 'include/enotify.php';
 require_once 'include/network.php';
 require_once 'library/openid.php';
-require_once 'include/pgettext.php';
 require_once 'include/text.php';
 /**
  * @brief This class handles User related functions

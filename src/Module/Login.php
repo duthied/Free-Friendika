@@ -14,7 +14,6 @@ use dba;
 
 require_once 'boot.php';
 require_once 'include/datetime.php';
-require_once 'include/pgettext.php';
 require_once 'include/security.php';
 require_once 'include/text.php';
 

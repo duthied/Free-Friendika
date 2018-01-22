@@ -35,7 +35,6 @@ use Friendica\Module\Login;
 require_once 'include/network.php';
 require_once 'include/text.php';
 require_once 'include/datetime.php';
-require_once 'include/pgettext.php';
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Asparagus');
