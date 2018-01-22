@@ -815,7 +815,7 @@ function networkThreadedView(App $a, $update = 0)
 
 		if (count($data) > 0) {
 			logger('Tagged items: ' . count($data) . ' - ' . $bottom_limit . ' - ' . $top_limit . ' - ' . local_user()); //$last_date);
-			$r = array_merge($r, $data);
+			$r = array_merge($data, $r);
 		}
 	}
 
