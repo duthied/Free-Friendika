@@ -29,11 +29,11 @@ class Widget
 	public static function follow($value = "")
 	{
 		return replace_macros(get_markup_template('follow.tpl'), array(
-			'$connect' => t('Add New Contact'),
-			'$desc' => t('Enter address or web location'),
-			'$hint' => t('Example: bob@example.com, http://example.com/barbara'),
+			'$connect' => L10n::t('Add New Contact'),
+			'$desc' => L10n::t('Enter address or web location'),
+			'$hint' => L10n::t('Example: bob@example.com, http://example.com/barbara'),
 			'$value' => $value,
-			'$follow' => t('Connect')
+			'$follow' => L10n::t('Connect')
 		));
 	}
 
@@ -55,16 +55,16 @@ class Widget
 		}
 
 		return replace_macros(get_markup_template('peoplefind.tpl'), array(
-			'$findpeople' => t('Find People'),
-			'$desc' => t('Enter name or interest'),
-			'$label' => t('Connect/Follow'),
-			'$hint' => t('Examples: Robert Morgenstein, Fishing'),
-			'$findthem' => t('Find'),
-			'$suggest' => t('Friend Suggestions'),
-			'$similar' => t('Similar Interests'),
-			'$random' => t('Random Profile'),
-			'$inv' => t('Invite Friends'),
-			'$directory' => t('View Global Directory'),
+			'$findpeople' => L10n::t('Find People'),
+			'$desc' => L10n::t('Enter name or interest'),
+			'$label' => L10n::t('Connect/Follow'),
+			'$hint' => L10n::t('Examples: Robert Morgenstein, Fishing'),
+			'$findthem' => L10n::t('Find'),
+			'$suggest' => L10n::t('Friend Suggestions'),
+			'$similar' => L10n::t('Similar Interests'),
+			'$random' => L10n::t('Random Profile'),
+			'$inv' => L10n::t('Invite Friends'),
+			'$directory' => L10n::t('View Global Directory'),
 			'$global_dir' => $global_dir
 		));
 	}
@@ -155,10 +155,10 @@ class Widget
 		}
 
 		return replace_macros(get_markup_template('nets.tpl'), array(
-			'$title' => t('Networks'),
+			'$title' => L10n::t('Networks'),
 			'$desc' => '',
 			'$sel_all' => (($selected == '') ? 'selected' : ''),
-			'$all' => t('All Networks'),
+			'$all' => L10n::t('All Networks'),
 			'$nets' => $nets,
 			'$base' => $baseurl,
 		));
@@ -196,10 +196,10 @@ class Widget
 		}
 
 		return replace_macros(get_markup_template('fileas_widget.tpl'), array(
-			'$title' => t('Saved Folders'),
+			'$title' => L10n::t('Saved Folders'),
 			'$desc' => '',
 			'$sel_all' => (($selected == '') ? 'selected' : ''),
-			'$all' => t('Everything'),
+			'$all' => L10n::t('Everything'),
 			'$terms' => $terms,
 			'$base' => $baseurl,
 		));
@@ -236,10 +236,10 @@ class Widget
 		}
 
 		return replace_macros(get_markup_template('categories_widget.tpl'), array(
-			'$title' => t('Categories'),
+			'$title' => L10n::t('Categories'),
 			'$desc' => '',
 			'$sel_all' => (($selected == '') ? 'selected' : ''),
-			'$all' => t('Everything'),
+			'$all' => L10n::t('Everything'),
 			'$terms' => $terms,
 			'$base' => $baseurl,
 		));
@@ -308,7 +308,7 @@ class Widget
 			'$uid' => $profile_uid,
 			'$cid' => (($cid) ? $cid : '0'),
 			'$linkmore' => (($t > 5) ? 'true' : ''),
-			'$more' => t('show more'),
+			'$more' => L10n::t('show more'),
 			'$items' => $r)
 		);
 	}

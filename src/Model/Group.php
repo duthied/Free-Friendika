@@ -2,7 +2,6 @@
 /**
  * @file src/Model/Group.php
  */
-
 namespace Friendica\Model;
 
 use Friendica\Core\L10n;
@@ -327,7 +326,7 @@ class Group extends BaseObject
 		logger('groups: ' . print_r($display_groups, true));
 
 		if ($label == '') {
-			$label = t('Default privacy group for new contacts');
+			$label = L10n::t('Default privacy group for new contacts');
 		}
 
 		$o = replace_macros(get_markup_template('group_selection.tpl'), [
@@ -360,7 +359,7 @@ class Group extends BaseObject
 
 		$display_groups = [
 			[
-				'text' => t('Everybody'),
+				'text' => L10n::t('Everybody'),
 				'id' => 0,
 				'selected' => (($group_id == 0) ? 'group-selected' : ''),
 				'href' => $every,
@@ -380,7 +379,7 @@ class Group extends BaseObject
 			if ($editmode == 'full') {
 				$groupedit = [
 					'href' => 'group/' . $group['id'],
-					'title' => t('edit'),
+					'title' => L10n::t('edit'),
 				];
 			} else {
 				$groupedit = null;
@@ -399,16 +398,16 @@ class Group extends BaseObject
 
 		$tpl = get_markup_template('group_side.tpl');
 		$o = replace_macros($tpl, [
-			'$add' => t('add'),
-			'$title' => t('Groups'),
+			'$add' => L10n::t('add'),
+			'$title' => L10n::t('Groups'),
 			'$groups' => $display_groups,
 			'newgroup' => $editmode == 'extended' || $editmode == 'full' ? 1 : '',
 			'grouppage' => 'group/',
-			'$edittext' => t('Edit group'),
-			'$ungrouped' => $every === 'contacts' ? t('Contacts not in any group') : '',
-			'$createtext' => t('Create a new group'),
-			'$creategroup' => t('Group Name: '),
-			'$editgroupstext' => t('Edit groups'),
+			'$edittext' => L10n::t('Edit group'),
+			'$ungrouped' => $every === 'contacts' ? L10n::t('Contacts not in any group') : '',
+			'$createtext' => L10n::t('Create a new group'),
+			'$creategroup' => L10n::t('Group Name: '),
+			'$editgroupstext' => L10n::t('Edit groups'),
 			'$form_security_token' => get_form_security_token('group_edit'),
 		]);
 

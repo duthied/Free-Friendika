@@ -1,15 +1,14 @@
 <?php
-
 /**
  * @file src/Model/User.php
  * @brief This file includes the User class with user related database functions
  */
-
 namespace Friendica\Model;
 
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -266,25 +265,25 @@ class User
 		$netpublish = strlen(Config::get('system', 'directory')) ? $publish : 0;
 
 		if ($password1 != $confirm) {
-			throw new Exception(t('Passwords do not match. Password unchanged.'));
+			throw new Exception(L10n::t('Passwords do not match. Password unchanged.'));
 		} elseif ($password1 != '') {
 			$password = $password1;
 		}
 
 		if ($using_invites) {
 			if (!$invite_id) {
-				throw new Exception(t('An invitation is required.'));
+				throw new Exception(L10n::t('An invitation is required.'));
 			}
 
 			if (!dba::exists('register', ['hash' => $invite_id])) {
-				throw new Exception(t('Invitation could not be verified.'));
+				throw new Exception(L10n::t('Invitation could not be verified.'));
 			}
 		}
 
 		if (!x($username) || !x($email) || !x($nickname)) {
 			if ($openid_url) {
 				if (!validate_url($openid_url)) {
-					throw new Exception(t('Invalid OpenID url'));
+					throw new Exception(L10n::t('Invalid OpenID url'));
 				}
 				$_SESSION['register'] = 1;
 				$_SESSION['openid'] = $openid_url;
@@ -297,13 +296,13 @@ class User
 				try {
 					$authurl = $openid->authUrl();
 				} catch (Exception $e) {
-					throw new Exception(t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . EOL . EOL . t('The error message was:') . $e->getMessage(), 0, $e);
+					throw new Exception(L10n::t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . EOL . EOL . L10n::t('The error message was:') . $e->getMessage(), 0, $e);
 				}
 				goaway($authurl);
 				// NOTREACHED
 			}
 
-			throw new Exception(t('Please enter the required information.'));
+			throw new Exception(L10n::t('Please enter the required information.'));
 		}
 
 		if (!validate_url($openid_url)) {
@@ -316,10 +315,10 @@ class User
 		$username = preg_replace('/ +/', ' ', $username);
 
 		if (mb_strlen($username) > 48) {
-			throw new Exception(t('Please use a shorter name.'));
+			throw new Exception(L10n::t('Please use a shorter name.'));
 		}
 		if (mb_strlen($username) < 3) {
-			throw new Exception(t('Name too short.'));
+			throw new Exception(L10n::t('Name too short.'));
 		}
 
 		// So now we are just looking for a space in the full name.
@@ -327,20 +326,20 @@ class User
 		if (!$loose_reg) {
 			$username = mb_convert_case($username, MB_CASE_TITLE, 'UTF-8');
 			if (!strpos($username, ' ')) {
-				throw new Exception(t("That doesn't appear to be your full \x28First Last\x29 name."));
+				throw new Exception(L10n::t("That doesn't appear to be your full \x28First Last\x29 name."));
 			}
 		}
 
 		if (!allowed_email($email)) {
-			throw new Exception(t('Your email domain is not among those allowed on this site.'));
+			throw new Exception(L10n::t('Your email domain is not among those allowed on this site.'));
 		}
 
 		if (!valid_email($email) || !validate_email($email)) {
-			throw new Exception(t('Not a valid email address.'));
+			throw new Exception(L10n::t('Not a valid email address.'));
 		}
 
 		if (dba::exists('user', ['email' => $email])) {
-			throw new Exception(t('Cannot use that email.'));
+			throw new Exception(L10n::t('Cannot use that email.'));
 		}
 
 		// Disallow somebody creating an account using openid that uses the admin email address,
@@ -348,21 +347,21 @@ class User
 		if (x($a->config, 'admin_email') && strlen($openid_url)) {
 			$adminlist = explode(',', str_replace(' ', '', strtolower($a->config['admin_email'])));
 			if (in_array(strtolower($email), $adminlist)) {
-				throw new Exception(t('Cannot use that email.'));
+				throw new Exception(L10n::t('Cannot use that email.'));
 			}
 		}
 
 		$nickname = $data['nickname'] = strtolower($nickname);
 
 		if (!preg_match('/^[a-z0-9][a-z0-9\_]*$/', $nickname)) {
-			throw new Exception(t('Your "nickname" can only contain "a-z", "0-9" and "_".'));
+			throw new Exception(L10n::t('Your "nickname" can only contain "a-z", "0-9" and "_".'));
 		}
 
 		// Check existing and deleted accounts for this nickname.
 		if (dba::exists('user', ['nickname' => $nickname])
 			|| dba::exists('userd', ['username' => $nickname])
 		) {
-			throw new Exception(t('Nickname is already registered. Please choose another.'));
+			throw new Exception(L10n::t('Nickname is already registered. Please choose another.'));
 		}
 
 		$new_password = strlen($password) ? $password : User::generateNewPassword();
@@ -372,7 +371,7 @@ class User
 
 		$keys = Crypto::newKeypair(4096);
 		if ($keys === false) {
-			throw new Exception(t('SERIOUS ERROR: Generation of security keys failed.'));
+			throw new Exception(L10n::t('SERIOUS ERROR: Generation of security keys failed.'));
 		}
 
 		$prvkey = $keys['prvkey'];
@@ -405,11 +404,11 @@ class User
 			$uid = dba::lastInsertId();
 			$user = dba::selectFirst('user', [], ['uid' => $uid]);
 		} else {
-			throw new Exception(t('An error occurred during registration. Please try again.'));
+			throw new Exception(L10n::t('An error occurred during registration. Please try again.'));
 		}
 
 		if (!$uid) {
-			throw new Exception(t('An error occurred during registration. Please try again.'));
+			throw new Exception(L10n::t('An error occurred during registration. Please try again.'));
 		}
 
 		// if somebody clicked submit twice very quickly, they could end up with two accounts
@@ -418,7 +417,7 @@ class User
 		if ($user_count > 1) {
 			dba::delete('user', ['uid' => $uid]);
 
-			throw new Exception(t('Nickname is already registered. Please choose another.'));
+			throw new Exception(L10n::t('Nickname is already registered. Please choose another.'));
 		}
 
 		$insert_result = dba::insert('profile', [
@@ -429,28 +428,28 @@ class User
 			'publish' => $publish,
 			'is-default' => 1,
 			'net-publish' => $netpublish,
-			'profile-name' => t('default')
+			'profile-name' => L10n::t('default')
 		]);
 		if (!$insert_result) {
 			dba::delete('user', ['uid' => $uid]);
 
-			throw new Exception(t('An error occurred creating your default profile. Please try again.'));
+			throw new Exception(L10n::t('An error occurred creating your default profile. Please try again.'));
 		}
 
 		// Create the self contact
 		if (!Contact::createSelfFromUserId($uid)) {
 			dba::delete('user', ['uid' => $uid]);
 
-			throw new Exception(t('An error occurred creating your self contact. Please try again.'));
+			throw new Exception(L10n::t('An error occurred creating your self contact. Please try again.'));
 		}
 
 		// Create a group with no members. This allows somebody to use it
 		// right away as a default group for new contacts.
-		$def_gid = Group::create($uid, t('Friends'));
+		$def_gid = Group::create($uid, L10n::t('Friends'));
 		if (!$def_gid) {
 			dba::delete('user', ['uid' => $uid]);
 
-			throw new Exception(t('An error occurred creating your default contact group. Please try again.'));
+			throw new Exception(L10n::t('An error occurred creating your default contact group. Please try again.'));
 		}
 
 		$fields = ['def_gid' => $def_gid];
@@ -480,7 +479,7 @@ class User
 
 				$hash = photo_new_resource();
 
-				$r = Photo::store($Image, $uid, 0, $hash, $filename, t('Profile Photos'), 4);
+				$r = Photo::store($Image, $uid, 0, $hash, $filename, L10n::t('Profile Photos'), 4);
 
 				if ($r === false) {
 					$photo_failure = true;
@@ -488,7 +487,7 @@ class User
 
 				$Image->scaleDown(80);
 
-				$r = Photo::store($Image, $uid, 0, $hash, $filename, t('Profile Photos'), 5);
+				$r = Photo::store($Image, $uid, 0, $hash, $filename, L10n::t('Profile Photos'), 5);
 
 				if ($r === false) {
 					$photo_failure = true;
@@ -496,7 +495,7 @@ class User
 
 				$Image->scaleDown(48);
 
-				$r = Photo::store($Image, $uid, 0, $hash, $filename, t('Profile Photos'), 6);
+				$r = Photo::store($Image, $uid, 0, $hash, $filename, L10n::t('Profile Photos'), 6);
 
 				if ($r === false) {
 					$photo_failure = true;
@@ -524,7 +523,7 @@ class User
 	 */
 	public static function sendRegisterPendingEmail($email, $sitename, $username)
 	{
-		$body = deindent(t('
+		$body = deindent(L10n::t('
 			Dear %1$s,
 				Thank you for registering at %2$s. Your account is pending for approval by the administrator.
 		'));
@@ -534,7 +533,7 @@ class User
 		return notification([
 			'type' => SYSTEM_EMAIL,
 			'to_email' => $email,
-			'subject'=> sprintf( t('Registration at %s'), $sitename),
+			'subject'=> sprintf(L10n::t('Registration at %s'), $sitename),
 			'body' => $body]);
 	}
 
@@ -552,11 +551,11 @@ class User
 	 */
 	public static function sendRegisterOpenEmail($email, $sitename, $siteurl, $username, $password)
 	{
-		$preamble = deindent(t('
+		$preamble = deindent(L10n::t('
 			Dear %1$s,
 				Thank you for registering at %2$s. Your account has been created.
 		'));
-		$body = deindent(t('
+		$body = deindent(L10n::t('
 			The login details are as follows:
 				Site Location:	%3$s
 				Login Name:	%1$s
@@ -588,7 +587,7 @@ class User
 		return notification([
 			'type' => SYSTEM_EMAIL,
 			'to_email' => $email,
-			'subject'=> sprintf( t('Registration details for %s'), $sitename),
+			'subject'=> sprintf(L10n::t('Registration details for %s'), $sitename),
 			'preamble'=> $preamble,
 			'body' => $body]);
 	}

@@ -7,6 +7,7 @@ namespace Friendica\Model;
 use Friendica\BaseObject;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -491,7 +492,7 @@ class Contact extends BaseObject
 		if ($contact['uid'] != $uid) {
 			if ($uid == 0) {
 				$profile_link = Profile::zrl($contact['url']);
-				$menu = ['profile' => [t('View Profile'), $profile_link, true]];
+				$menu = ['profile' => [L10n::t('View Profile'), $profile_link, true]];
 
 				return $menu;
 			}
@@ -504,8 +505,8 @@ class Contact extends BaseObject
 				$profile_link = Profile::zrl($contact['url']);
 				$connlnk = 'follow/?url=' . $contact['url'];
 				$menu = [
-					'profile' => [t('View Profile'), $profile_link, true],
-					'follow' => [t('Connect/Follow'), $connlnk, true]
+					'profile' => [L10n::t('View Profile'), $profile_link, true],
+					'follow' => [L10n::t('Connect/Follow'), $connlnk, true]
 				];
 
 				return $menu;
@@ -548,14 +549,14 @@ class Contact extends BaseObject
 		 * "name" => [ "Label", "link", (bool)Should the link opened in a new tab? ]
 		 */
 		$menu = [
-			'status'  => [t("View Status")  , $status_link      , true],
-			'profile' => [t("View Profile") , $profile_link     , true],
-			'photos'  => [t("View Photos")  , $photos_link      , true],
-			'network' => [t("Network Posts"), $posts_link       , false],
-			'edit'    => [t("View Contact") , $contact_url      , false],
-			'drop'    => [t("Drop Contact") , $contact_drop_link, false],
-			'pm'      => [t("Send PM")      , $pm_url           , false],
-			'poke'    => [t("Poke")         , $poke_link        , false],
+			'status'  => [L10n::t("View Status")  , $status_link      , true],
+			'profile' => [L10n::t("View Profile") , $profile_link     , true],
+			'photos'  => [L10n::t("View Photos")  , $photos_link      , true],
+			'network' => [L10n::t("Network Posts"), $posts_link       , false],
+			'edit'    => [L10n::t("View Contact") , $contact_url      , false],
+			'drop'    => [L10n::t("Drop Contact") , $contact_drop_link, false],
+			'pm'      => [L10n::t("Send PM")      , $pm_url           , false],
+			'poke'    => [L10n::t("Poke")         , $poke_link        , false],
 		];
 
 		$args = ['contact' => $contact, 'menu' => &$menu];
@@ -956,13 +957,13 @@ class Contact extends BaseObject
 
 		switch ($type) {
 			case ACCOUNT_TYPE_ORGANISATION:
-				$account_type = t("Organisation");
+				$account_type = L10n::t("Organisation");
 				break;
 			case ACCOUNT_TYPE_NEWS:
-				$account_type = t('News');
+				$account_type = L10n::t('News');
 				break;
 			case ACCOUNT_TYPE_COMMUNITY:
-				$account_type = t("Forum");
+				$account_type = L10n::t("Forum");
 				break;
 			default:
 				$account_type = "";
@@ -1131,17 +1132,17 @@ class Contact extends BaseObject
 		$url = str_replace('/#!/', '/', $url);
 
 		if (!allowed_url($url)) {
-			$result['message'] = t('Disallowed profile URL.');
+			$result['message'] = L10n::t('Disallowed profile URL.');
 			return $result;
 		}
 
 		if (blocked_url($url)) {
-			$result['message'] = t('Blocked domain');
+			$result['message'] = L10n::t('Blocked domain');
 			return $result;
 		}
 
 		if (!$url) {
-			$result['message'] = t('Connect URL missing.');
+			$result['message'] = L10n::t('Connect URL missing.');
 			return $result;
 		}
 
@@ -1173,8 +1174,8 @@ class Contact extends BaseObject
 				// NOTREACHED
 			}
 		} elseif (Config::get('system', 'dfrn_only')) {
-			$result['message'] = t('This site is not configured to allow communications with other networks.') . EOL;
-			$result['message'] != t('No compatible communication protocols or feeds were discovered.') . EOL;
+			$result['message'] = L10n::t('This site is not configured to allow communications with other networks.') . EOL;
+			$result['message'] != L10n::t('No compatible communication protocols or feeds were discovered.') . EOL;
 			return $result;
 		}
 
@@ -1186,30 +1187,30 @@ class Contact extends BaseObject
 		// do we have enough information?
 
 		if (!((x($ret, 'name')) && (x($ret, 'poll')) && ((x($ret, 'url')) || (x($ret, 'addr'))))) {
-			$result['message'] .= t('The profile address specified does not provide adequate information.') . EOL;
+			$result['message'] .= L10n::t('The profile address specified does not provide adequate information.') . EOL;
 			if (!x($ret, 'poll')) {
-				$result['message'] .= t('No compatible communication protocols or feeds were discovered.') . EOL;
+				$result['message'] .= L10n::t('No compatible communication protocols or feeds were discovered.') . EOL;
 			}
 			if (!x($ret, 'name')) {
-				$result['message'] .= t('An author or name was not found.') . EOL;
+				$result['message'] .= L10n::t('An author or name was not found.') . EOL;
 			}
 			if (!x($ret, 'url')) {
-				$result['message'] .= t('No browser URL could be matched to this address.') . EOL;
+				$result['message'] .= L10n::t('No browser URL could be matched to this address.') . EOL;
 			}
 			if (strpos($url, '@') !== false) {
-				$result['message'] .= t('Unable to match @-style Identity Address with a known protocol or email contact.') . EOL;
-				$result['message'] .= t('Use mailto: in front of address to force email check.') . EOL;
+				$result['message'] .= L10n::t('Unable to match @-style Identity Address with a known protocol or email contact.') . EOL;
+				$result['message'] .= L10n::t('Use mailto: in front of address to force email check.') . EOL;
 			}
 			return $result;
 		}
 
 		if ($ret['network'] === NETWORK_OSTATUS && Config::get('system', 'ostatus_disabled')) {
-			$result['message'] .= t('The profile address specified belongs to a network which has been disabled on this site.') . EOL;
+			$result['message'] .= L10n::t('The profile address specified belongs to a network which has been disabled on this site.') . EOL;
 			$ret['notify'] = '';
 		}
 
 		if (!$ret['notify']) {
-			$result['message'] .= t('Limited profile. This person will be unable to receive direct/personal notifications from you.') . EOL;
+			$result['message'] .= L10n::t('Limited profile. This person will be unable to receive direct/personal notifications from you.') . EOL;
 		}
 
 		$writeable = ((($ret['network'] === NETWORK_OSTATUS) && ($ret['notify'])) ? 1 : 0);
@@ -1279,7 +1280,7 @@ class Contact extends BaseObject
 
 		$contact = dba::selectFirst('contact', [], ['url' => $ret['url'], 'network' => $ret['network'], 'uid' => $uid]);
 		if (!DBM::is_result($contact)) {
-			$result['message'] .= t('Unable to retrieve contact information.') . EOL;
+			$result['message'] .= L10n::t('Unable to retrieve contact information.') . EOL;
 			return $result;
 		}
 

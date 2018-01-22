@@ -1,9 +1,12 @@
 <?php
-
+/**
+ * @file src/App.php
+ */
 namespace Friendica;
 
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 
@@ -512,9 +515,9 @@ class App
 			'$baseurl'         => $this->get_baseurl(),
 			'$local_user'      => local_user(),
 			'$generator'       => 'Friendica' . ' ' . FRIENDICA_VERSION,
-			'$delitem'         => t('Delete this item?'),
-			'$showmore'        => t('show more'),
-			'$showfewer'       => t('show fewer'),
+			'$delitem'         => L10n::t('Delete this item?'),
+			'$showmore'        => L10n::t('show more'),
+			'$showfewer'       => L10n::t('show fewer'),
 			'$update_interval' => $interval,
 			'$shortcut_icon'   => $shortcut_icon,
 			'$touch_icon'      => $touch_icon,

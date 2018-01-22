@@ -1,14 +1,13 @@
 <?php
-
 /**
  * @file src/Core/NotificationsManager.php
  * @brief Methods for read and write notifications from/to database
  *  or for formatting notifications
  */
-
 namespace Friendica\Core;
 
 use Friendica\BaseObject;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -167,35 +166,35 @@ class NotificationsManager extends BaseObject
 	{
 		$tabs = [
 			[
-				'label' => t('System'),
+				'label' => L10n::t('System'),
 				'url'   => 'notifications/system',
 				'sel'   => ((self::getApp()->argv[1] == 'system') ? 'active' : ''),
 				'id'    => 'system-tab',
 				'accesskey' => 'y',
 			],
 			[
-				'label' => t('Network'),
+				'label' => L10n::t('Network'),
 				'url'   => 'notifications/network',
 				'sel'   => ((self::getApp()->argv[1] == 'network') ? 'active' : ''),
 				'id'    => 'network-tab',
 				'accesskey' => 'w',
 			],
 			[
-				'label' => t('Personal'),
+				'label' => L10n::t('Personal'),
 				'url'   => 'notifications/personal',
 				'sel'   => ((self::getApp()->argv[1] == 'personal') ? 'active' : ''),
 				'id'    => 'personal-tab',
 				'accesskey' => 'r',
 			],
 			[
-				'label' => t('Home'),
+				'label' => L10n::t('Home'),
 				'url'   => 'notifications/home',
 				'sel'   => ((self::getApp()->argv[1] == 'home') ? 'active' : ''),
 				'id'    => 'home-tab',
 				'accesskey' => 'h',
 			],
 			[
-				'label' => t('Introductions'),
+				'label' => L10n::t('Introductions'),
 				'url'   => 'notifications/intros',
 				'sel'   => ((self::getApp()->argv[1] == 'intros') ? 'active' : ''),
 				'id'    => 'intro-tab',
@@ -252,7 +251,7 @@ class NotificationsManager extends BaseObject
 						$default_item_link = System::baseUrl(true) . '/display/' . $it['pguid'];
 						$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
 						$default_item_url = $it['author-link'];
-						$default_item_text = sprintf(t("%s commented on %s's post"), $it['author-name'], $it['pname']);
+						$default_item_text = sprintf(L10n::t("%s commented on %s's post"), $it['author-name'], $it['pname']);
 						$default_item_when = datetime_convert('UTC', date_default_timezone_get(), $it['created'], 'r');
 						$default_item_ago = relative_date($it['created']);
 						break;
@@ -263,8 +262,8 @@ class NotificationsManager extends BaseObject
 						$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
 						$default_item_url = $it['author-link'];
 						$default_item_text = (($it['id'] == $it['parent'])
-									? sprintf(t("%s created a new post"), $it['author-name'])
-									: sprintf(t("%s commented on %s's post"), $it['author-name'], $it['pname']));
+									? sprintf(L10n::t("%s created a new post"), $it['author-name'])
+									: sprintf(L10n::t("%s commented on %s's post"), $it['author-name'], $it['pname']));
 						$default_item_when = datetime_convert('UTC', date_default_timezone_get(), $it['created'], 'r');
 						$default_item_ago = relative_date($it['created']);
 				}
@@ -277,7 +276,7 @@ class NotificationsManager extends BaseObject
 							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
-							'text' => sprintf(t("%s liked %s's post"), $it['author-name'], $it['pname']),
+							'text' => sprintf(L10n::t("%s liked %s's post"), $it['author-name'], $it['pname']),
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
@@ -290,7 +289,7 @@ class NotificationsManager extends BaseObject
 							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
-							'text' => sprintf(t("%s disliked %s's post"), $it['author-name'], $it['pname']),
+							'text' => sprintf(L10n::t("%s disliked %s's post"), $it['author-name'], $it['pname']),
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
@@ -303,7 +302,7 @@ class NotificationsManager extends BaseObject
 							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
-							'text' => sprintf(t("%s is attending %s's event"), $it['author-name'], $it['pname']),
+							'text' => sprintf(L10n::t("%s is attending %s's event"), $it['author-name'], $it['pname']),
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
@@ -316,7 +315,7 @@ class NotificationsManager extends BaseObject
 							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
-							'text' => sprintf(t("%s is not attending %s's event"), $it['author-name'], $it['pname']),
+							'text' => sprintf(L10n::t("%s is not attending %s's event"), $it['author-name'], $it['pname']),
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
@@ -329,7 +328,7 @@ class NotificationsManager extends BaseObject
 							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
-							'text' => sprintf(t("%s may attend %s's event"), $it['author-name'], $it['pname']),
+							'text' => sprintf(L10n::t("%s may attend %s's event"), $it['author-name'], $it['pname']),
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
@@ -346,7 +345,7 @@ class NotificationsManager extends BaseObject
 							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
-							'text' => sprintf(t("%s is now friends with %s"), $it['author-name'], $it['fname']),
+							'text' => sprintf(L10n::t("%s is now friends with %s"), $it['author-name'], $it['fname']),
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
@@ -809,7 +808,7 @@ class NotificationsManager extends BaseObject
 
 				$intro = [
 					'label' => 'friend_suggestion',
-					'notify_type' => t('Friend Suggestion'),
+					'notify_type' => L10n::t('Friend Suggestion'),
 					'intro_id' => $it['intro_id'],
 					'madeby' => $it['name'],
 					'contact_id' => $it['contact-id'],
@@ -835,7 +834,7 @@ class NotificationsManager extends BaseObject
 				}
 				$intro = [
 					'label' => (($it['network'] !== NETWORK_OSTATUS) ? 'friend_request' : 'follower'),
-					'notify_type' => (($it['network'] !== NETWORK_OSTATUS) ? t('Friend/Connect Request') : t('New Follower')),
+					'notify_type' => (($it['network'] !== NETWORK_OSTATUS) ? L10n::t('Friend/Connect Request') : L10n::t('New Follower')),
 					'dfrn_id' => $it['issued-id'],
 					'uid' => $_SESSION['uid'],
 					'intro_id' => $it['intro_id'],
