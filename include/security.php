@@ -77,10 +77,10 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		if ($a->user['login_date'] <= NULL_DATE) {
 			$_SESSION['return_url'] = 'profile_photo/new';
 			$a->module = 'profile_photo';
-			info(t("Welcome ") . $a->user['username'] . EOL);
-			info(t('Please upload a profile photo.') . EOL);
+			info(L10n::t("Welcome ") . $a->user['username'] . EOL);
+			info(L10n::t('Please upload a profile photo.') . EOL);
 		} else {
-			info(t("Welcome back ") . $a->user['username'] . EOL);
+			info(L10n::t("Welcome back ") . $a->user['username'] . EOL);
 		}
 	}
 
