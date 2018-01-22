@@ -5,8 +5,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Model\Photo;
-use Friendica\Object\Image;
+use Friendica\Model\User;
 
 /**
  *
@@ -145,4 +144,20 @@ function update_1191() {
 function update_1203() {
 	$r = q("UPDATE `user` SET `account-type` = %d WHERE `page-flags` IN (%d, %d)",
 		dbesc(ACCOUNT_TYPE_COMMUNITY), dbesc(PAGE_COMMUNITY), dbesc(PAGE_PRVGROUP));
+}
+
+function update_1244() {
+	// Sets legacy_password for all legacy hashes
+	dba::update('user', ['legacy_password' => true], ['SUBSTR(password, 1, 4) != "$2y$"']);
+
+	// All legacy hashes are re-hashed using the new secure hashing function
+	$stmt = dba::select('user', ['uid', 'password'], ['legacy_password' => true]);
+	while($user = dba::fetch($stmt)) {
+		dba::update('user', ['password' => User::hashPassword($user['password'])], ['uid' => $user['uid']]);
+	}
+
+	// Logged in users are forcibly logged out
+	dba::delete('session', ['1 = 1']);
+
+	return UPDATE_SUCCESS;
 }

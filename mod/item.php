@@ -951,7 +951,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 		// Try to detect the contact in various ways
 		if (strpos($name, 'http://')) {
 			// At first we have to ensure that the contact exists
-			$id = Contact::getIdForURL($name);
+			Contact::getIdForURL($name);
 
 			// Now we should have something
 			$contact = Contact::getDetailsByURL($name);
@@ -968,25 +968,26 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 				$contact = dba::selectFirst('contact', $fields, ['id' => $tagcid, 'uid' => $profile_uid]);
 			}
 
-			// select someone by nick and the name passed in the current network
+			// select someone by nick or attag in the current network
 			if (!DBM::is_result($contact) && ($network != "")) {
-				$condition = ['nick' => $name, 'network' => $network, 'uid' => $profile_uid];
+				$condition = ["(`nick` = ? OR `attag` = ?) AND `network` = ? AND `uid` = ?",
+						$name, $name, $network, $profile_uid];
 				$contact = dba::selectFirst('contact', $fields, $condition);
 			}
 
-			//select someone from this user's contacts by name in the current network
+			//select someone by name in the current network
 			if (!DBM::is_result($contact) && ($network != "")) {
 				$condition = ['name' => $name, 'network' => $network, 'uid' => $profile_uid];
 				$contact = dba::selectFirst('contact', $fields, $condition);
 			}
 
-			// select someone by nick in any network
+			// select someone by nick or attag in any network
 			if (!DBM::is_result($contact)) {
-				$condition = ['nick' => $name, 'uid' => $profile_uid];
+				$condition = ["(`nick` = ? OR `attag` = ?) AND `uid` = ?", $name, $name, $profile_uid];
 				$contact = dba::selectFirst('contact', $fields, $condition);
 			}
 
-			// select someone from this user's contacts by name
+			// select someone by name in any network
 			if (!DBM::is_result($contact)) {
 				$condition = ['name' => $name, 'uid' => $profile_uid];
 				$contact = dba::selectFirst('contact', $fields, $condition);
