@@ -1069,9 +1069,9 @@ function search($s, $id = 'search-box', $url = 'search', $save = false, $aside =
 
 	if (!$aside) {
 		$values['$searchoption'] = [
-					t("Full Text"),
-					t("Tags"),
-					t("Contacts")];
+					L10n::t("Full Text"),
+					L10n::t("Tags"),
+					L10n::t("Contacts")];
 
 		if (Config::get('system','poco_local_search')) {
 			$values['$searchoption'][] = L10n::t("Forums");
