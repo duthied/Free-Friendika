@@ -112,7 +112,7 @@ class User
 		if (is_object($user_info)) {
 			$user = (array) $user_info;
 		} elseif (is_int($user_info)) {
-			$user = dba::selectFirst('user', ['uid', 'password'],
+			$user = dba::selectFirst('user', ['uid', 'password', 'legacy_password'],
 				[
 					'uid' => $user_info,
 					'blocked' => 0,
@@ -122,7 +122,7 @@ class User
 				]
 			);
 		} elseif (is_string($user_info)) {
-			$user = dba::fetch_first('SELECT `uid`, `password`
+			$user = dba::fetch_first('SELECT `uid`, `password`, `legacy_password`
 				FROM `user`
 				WHERE (`email` = ? OR `username` = ? OR `nickname` = ?)
 				AND `blocked` = 0
@@ -138,17 +138,29 @@ class User
 			$user = $user_info;
 		}
 
-		if (!DBM::is_result($user) || !isset($user['uid']) || !isset($user['password'])) {
-			return false;
+		if (!DBM::is_result($user)
+			|| !isset($user['uid'])
+			|| !isset($user['password'])
+			|| !isset($user['legacy_password'])
+		) {
+			throw new Exception('Not enough information to authenticate');
 		}
 
-		$password_hashed = self::hashPassword($password);
+		if ($user['legacy_password']) {
+			if (password_verify(self::hashPasswordLegacy($password), $user['password'])) {
+				self::updatePassword($user['uid'], $password);
 
-		if ($password_hashed !== $user['password']) {
-			return false;
+				return $user['uid'];
+			}
+		} elseif (password_verify($password, $user['password'])) {
+			if (password_needs_rehash($user['password'], PASSWORD_DEFAULT)) {
+				self::updatePassword($user['uid'], $password);
+			}
+
+			return $user['uid'];
 		}
 
-		return $user['uid'];
+		return false;
 	}
 
 	/**
@@ -162,14 +174,25 @@ class User
 	}
 
 	/**
+	 * Legacy hashing function, kept for password migration purposes
+	 *
+	 * @param string $password
+	 * @return string
+	 */
+	private static function hashPasswordLegacy($password)
+	{
+		return hash('whirlpool', $password);
+	}
+
+	/**
 	 * Global user password hashing function
 	 *
 	 * @param string $password
 	 * @return string
 	 */
-	private static function hashPassword($password)
+	public static function hashPassword($password)
 	{
-		return hash('whirlpool', $password);
+		return password_hash($password, PASSWORD_DEFAULT);
 	}
 
 	/**
@@ -197,7 +220,8 @@ class User
 		$fields = [
 			'password' => $pasword_hashed,
 			'pwdreset' => null,
-			'pwdreset_time' => null
+			'pwdreset_time' => null,
+			'legacy_password' => false
 		];
 		return dba::update('user', $fields, ['uid' => $uid]);
 	}

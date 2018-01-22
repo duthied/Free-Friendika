@@ -1708,6 +1708,7 @@ class DBStructure {
 						"guid" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""],
 						"username" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"password" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"legacy_password" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Is the password hash double-hashed?"],
 						"nickname" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"email" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"openid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
