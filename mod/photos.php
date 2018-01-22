@@ -82,7 +82,7 @@ function photos_init(App $a) {
 			$ret['albums'] = [];
 			foreach ($albums as $k => $album) {
 				//hide profile photos to others
-				if (!$is_owner && !remote_user() && ($album['album'] == t('Profile Photos')))
+				if (!$is_owner && !remote_user() && ($album['album'] == L10n::t('Profile Photos')))
 					continue;
 				$entry = [
 					'text'      => $album['album'],
@@ -102,11 +102,11 @@ function photos_init(App $a) {
 		if ($ret['success']) {
 			$photo_albums_widget = replace_macros(get_markup_template('photo_albums.tpl'), [
 				'$nick'     => $a->data['user']['nickname'],
-				'$title'    => t('Photo Albums'),
-				'$recent'   => t('Recent Photos'),
+				'$title'    => L10n::t('Photo Albums'),
+				'$recent'   => L10n::t('Recent Photos'),
 				'$albums'   => $ret['albums'],
 				'$baseurl'  => System::baseUrl(),
-				'$upload'   => [t('Upload New Photos'), 'photos/' . $a->data['user']['nickname'] . '/upload'],
+				'$upload'   => [L10n::t('Upload New Photos'), 'photos/' . $a->data['user']['nickname'] . '/upload'],
 				'$can_post' => $can_post
 			]);
 		}
@@ -120,7 +120,7 @@ function photos_init(App $a) {
 
 		$tpl = get_markup_template("photos_head.tpl");
 		$a->page['htmlhead'] .= replace_macros($tpl,[
-			'$ispublic' => t('everybody')
+			'$ispublic' => L10n::t('everybody')
 		]);
 	}
 
@@ -188,7 +188,7 @@ function photos_post(App $a)
 	if ($a->argc > 3 && $a->argv[2] === 'album') {
 		$album = hex2bin($a->argv[3]);
 
-		if ($album === t('Profile Photos') || $album === 'Contact Photos' || $album === t('Contact Photos')) {
+		if ($album === L10n::t('Profile Photos') || $album === 'Contact Photos' || $album === L10n::t('Contact Photos')) {
 			goaway($_SESSION['photo_return']);
 			return; // NOTREACHED
 		}
@@ -228,7 +228,7 @@ function photos_post(App $a)
 		 * DELETE photo album and all its photos
 		 */
 
-		if ($_POST['dropalbum'] == t('Delete Album')) {
+		if ($_POST['dropalbum'] == L10n::t('Delete Album')) {
 			// Check if we should do HTML-based delete confirmation
 			if (x($_REQUEST, 'confirm')) {
 				$drop_url = $a->query_string;
@@ -237,12 +237,12 @@ function photos_post(App $a)
 				];
 				$a->page['content'] = replace_macros(get_markup_template('confirm.tpl'), [
 					'$method' => 'post',
-					'$message' => t('Do you really want to delete this photo album and all its photos?'),
+					'$message' => L10n::t('Do you really want to delete this photo album and all its photos?'),
 					'$extra_inputs' => $extra_inputs,
-					'$confirm' => t('Delete Album'),
+					'$confirm' => L10n::t('Delete Album'),
 					'$confirm_url' => $drop_url,
 					'$confirm_name' => 'dropalbum', // Needed so that confirmation will bring us back into this if statement
-					'$cancel' => t('Cancel'),
+					'$cancel' => L10n::t('Cancel'),
 				]);
 				$a->error = 1; // Set $a->error so the other module functions don't execute
 				return;
@@ -317,7 +317,7 @@ function photos_post(App $a)
 		goaway($_SESSION['photo_return']);
 	}
 
-	if ($a->argc > 2 && defaults($_POST, 'delete', '') === t('Delete Photo')) {
+	if ($a->argc > 2 && defaults($_POST, 'delete', '') === L10n::t('Delete Photo')) {
 
 		// same as above but remove single photo
 
@@ -326,12 +326,12 @@ function photos_post(App $a)
 			$drop_url = $a->query_string;
 			$a->page['content'] = replace_macros(get_markup_template('confirm.tpl'), [
 				'$method' => 'post',
-				'$message' => t('Do you really want to delete this photo?'),
+				'$message' => L10n::t('Do you really want to delete this photo?'),
 				'$extra_inputs' => [],
-				'$confirm' => t('Delete Photo'),
+				'$confirm' => L10n::t('Delete Photo'),
 				'$confirm_url' => $drop_url,
 				'$confirm_name' => 'delete', // Needed so that confirmation will bring us back into this if statement
-				'$cancel' => t('Cancel'),
+				'$cancel' => L10n::t('Cancel'),
 			]);
 			$a->error = 1; // Set $a->error so the other module functions don't execute
 			return;
@@ -695,7 +695,7 @@ function photos_post(App $a)
 					$arr['tag']           = $tagged[4];
 					$arr['inform']        = $tagged[2];
 					$arr['origin']        = 1;
-					$arr['body']          = sprintf( t('%1$s was tagged in %2$s by %3$s'), '[url=' . $tagged[1] . ']' . $tagged[0] . '[/url]', '[url=' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . t('a photo') . '[/url]', '[url=' . $owner_record['url'] . ']' . $owner_record['name'] . '[/url]') ;
+					$arr['body']          = sprintf( L10n::t('%1$s was tagged in %2$s by %3$s'), '[url=' . $tagged[1] . ']' . $tagged[0] . '[/url]', '[url=' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . L10n::t('a photo') . '[/url]', '[url=' . $owner_record['url'] . ']' . $owner_record['name'] . '[/url]') ;
 					$arr['body'] .= "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . '[img]' . System::baseUrl() . "/photo/" . $p[0]['resource-id'] . '-' . $best . '.' . $ext . '[/img][/url]' . "\n" ;
 
 					$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $tagged[0] . '</title><id>' . $tagged[1] . '/' . $tagged[0] . '</id>';
@@ -750,7 +750,7 @@ function photos_post(App $a)
 		dbesc($album),
 		intval($page_owner_uid)
 	);
-	if (!DBM::is_result($r) || ($album == t('Profile Photos'))) {
+	if (!DBM::is_result($r) || ($album == L10n::t('Profile Photos'))) {
 		$visible = 1;
 	} else {
 		$visible = 0;
@@ -874,7 +874,7 @@ function photos_post(App $a)
 	$r = Photo::store($Image, $page_owner_uid, $visitor, $photo_hash, $filename, $album, 0 , 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 
 	if (!$r) {
-		logger('mod/photos.php: photos_post(): image store failed' , LOGGER_DEBUG);
+		logger('mod/photos.php: photos_post(): image store failed', LOGGER_DEBUG);
 		notice(L10n::t('Image upload failed.') . EOL);
 		killme();
 	}
@@ -1091,7 +1091,7 @@ function photos_content(App $a)
 		$albumselect .= '<option value="" ' . (!$selname ? ' selected="selected" ' : '') . '>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>';
 		if (count($a->data['albums'])) {
 			foreach ($a->data['albums'] as $album) {
-				if (($album['album'] === '') || ($album['album'] === 'Contact Photos') || ($album['album'] === t('Contact Photos'))) {
+				if (($album['album'] === '') || ($album['album'] === 'Contact Photos') || ($album['album'] === L10n::t('Contact Photos'))) {
 					continue;
 				}
 				$selected = (($selname === $album['album']) ? ' selected="selected" ' : '');
@@ -1109,7 +1109,7 @@ function photos_content(App $a)
 
 		$default_upload_box = replace_macros(get_markup_template('photos_default_uploader_box.tpl'), []);
 		$default_upload_submit = replace_macros(get_markup_template('photos_default_uploader_submit.tpl'), [
-			'$submit' => t('Submit'),
+			'$submit' => L10n::t('Submit'),
 		]);
 
 		$usage_message = '';
@@ -1119,15 +1119,15 @@ function photos_content(App $a)
 		$aclselect_e = ($visitor ? '' : populate_acl($a->user));
 
 		$o .= replace_macros($tpl,[
-			'$pagename' => t('Upload Photos'),
+			'$pagename' => L10n::t('Upload Photos'),
 			'$sessid' => session_id(),
 			'$usage' => $usage_message,
 			'$nickname' => $a->data['user']['nickname'],
-			'$newalbum' => t('New album name: '),
-			'$existalbumtext' => t('or existing album name: '),
-			'$nosharetext' => t('Do not show a status post for this upload'),
+			'$newalbum' => L10n::t('New album name: '),
+			'$existalbumtext' => L10n::t('or existing album name: '),
+			'$nosharetext' => L10n::t('Do not show a status post for this upload'),
 			'$albumselect' => $albumselect,
-			'$permissions' => t('Permissions'),
+			'$permissions' => L10n::t('Permissions'),
 			'$aclselect' => $aclselect_e,
 			'$alt_uploader' => $ret['addon_text'],
 			'$default_upload_box' => ($ret['default_upload'] ? $default_upload_box : ''),
@@ -1135,8 +1135,8 @@ function photos_content(App $a)
 			'$uploadurl' => $ret['post_url'],
 
 			// ACL permissions box
-			'$group_perms' => t('Show to Groups'),
-			'$contact_perms' => t('Show to Contacts'),
+			'$group_perms' => L10n::t('Show to Groups'),
+			'$contact_perms' => L10n::t('Show to Contacts'),
 			'$return_path' => $a->query_string,
 		]);
 
@@ -1178,32 +1178,32 @@ function photos_content(App $a)
 
 		// edit album name
 		if ($cmd === 'edit') {
-			if (($album !== t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== t('Contact Photos'))) {
+			if (($album !== L10n::t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== L10n::t('Contact Photos'))) {
 				if ($can_post) {
 					$edit_tpl = get_markup_template('album_edit.tpl');
 
 					$album_e = $album;
 
 					$o .= replace_macros($edit_tpl,[
-						'$nametext' => t('New album name: '),
+						'$nametext' => L10n::t('New album name: '),
 						'$nickname' => $a->data['user']['nickname'],
 						'$album' => $album_e,
 						'$hexalbum' => bin2hex($album),
-						'$submit' => t('Submit'),
-						'$dropsubmit' => t('Delete Album')
+						'$submit' => L10n::t('Submit'),
+						'$dropsubmit' => L10n::t('Delete Album')
 					]);
 				}
 			}
 		} else {
-			if (($album !== t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== t('Contact Photos')) && $can_post) {
-				$edit = [t('Edit Album'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '/edit'];
+			if (($album !== L10n::t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== L10n::t('Contact Photos')) && $can_post) {
+				$edit = [L10n::t('Edit Album'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '/edit'];
 			}
 		}
 
 		if ($order_field === 'posted') {
-			$order =  [t('Show Newest First'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album)];
+			$order =  [L10n::t('Show Newest First'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album)];
 		} else {
-			$order = [t('Show Oldest First'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '?f=&order=posted'];
+			$order = [L10n::t('Show Oldest First'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '?f=&order=posted'];
 		}
 
 		$photos = [];
@@ -1224,7 +1224,7 @@ function photos_content(App $a)
 					'twist' => ' ' . ($twist ? 'rotleft' : 'rotright') . rand(2,4),
 					'link' => 'photos/' . $a->data['user']['nickname'] . '/image/' . $rr['resource-id']
 						. ($order_field === 'posted' ? '?f=&order=posted' : ''),
-					'title' => t('View Photo'),
+					'title' => L10n::t('View Photo'),
 					'src' => 'photo/' . $rr['resource-id'] . '-' . $rr['scale'] . '.' .$ext,
 					'alt' => $imgalt_e,
 					'desc'=> $desc_e,
@@ -1239,7 +1239,7 @@ function photos_content(App $a)
 				'$photos' => $photos,
 				'$album' => $album,
 				'$can_post' => $can_post,
-				'$upload' => [t('Upload New Photos'), 'photos/' . $a->data['user']['nickname'] . '/upload/' . bin2hex($album)],
+				'$upload' => [L10n::t('Upload New Photos'), 'photos/' . $a->data['user']['nickname'] . '/upload/' . bin2hex($album)],
 				'$order' => $order,
 				'$edit' => $edit,
 				'$paginate' => paginate($a),
@@ -1330,14 +1330,14 @@ function photos_content(App $a)
 
 		if ($can_post && ($ph[0]['uid'] == $owner_uid)) {
 			$tools = [
-				'edit'	=> ['photos/' . $a->data['user']['nickname'] . '/image/' . $datum . (($cmd === 'edit') ? '' : '/edit'), (($cmd === 'edit') ? t('View photo') : t('Edit photo'))],
-				'profile'=>['profile_photo/use/'.$ph[0]['resource-id'], t('Use as profile photo')],
+				'edit'	=> ['photos/' . $a->data['user']['nickname'] . '/image/' . $datum . (($cmd === 'edit') ? '' : '/edit'), (($cmd === 'edit') ? L10n::t('View photo') : L10n::t('Edit photo'))],
+				'profile'=>['profile_photo/use/'.$ph[0]['resource-id'], L10n::t('Use as profile photo')],
 			];
 
 			// lock
 			$lock = ( ( ($ph[0]['uid'] == local_user()) && (strlen($ph[0]['allow_cid']) || strlen($ph[0]['allow_gid'])
 					|| strlen($ph[0]['deny_cid']) || strlen($ph[0]['deny_gid'])) )
-					? t('Private Message')
+					? L10n::t('Private Message')
 					: Null);
 
 
@@ -1356,7 +1356,7 @@ function photos_content(App $a)
 
 		$photo = [
 			'href' => 'photo/' . $hires['resource-id'] . '-' . $hires['scale'] . '.' . $phototypes[$hires['type']],
-			'title'=> t('View Full Size'),
+			'title'=> L10n::t('View Full Size'),
 			'src'  => 'photo/' . $lores['resource-id'] . '-' . $lores['scale'] . '.' . $phototypes[$lores['type']] . '?f=&_u=' . datetime_convert('','','','ymdhis'),
 			'height' => $hires['height'],
 			'width' => $hires['width'],
@@ -1447,10 +1447,10 @@ function photos_content(App $a)
 				}
 				$tag_str .= bbcode($t);
 			}
-			$tags = [t('Tags: '), $tag_str];
+			$tags = [L10n::t('Tags: '), $tag_str];
 			if ($cmd === 'edit') {
 				$tags[] = 'tagrm/' . $link_item['id'];
-				$tags[] = t('[Remove any tag]');
+				$tags[] = L10n::t('[Remove any tag]');
 			}
 		}
 
@@ -1465,25 +1465,25 @@ function photos_content(App $a)
 
 			$edit = replace_macros($edit_tpl, [
 				'$id' => $ph[0]['id'],
-				'$album' => ['albname', t('New album name'), $album_e,''],
-				'$caption' => ['desc', t('Caption'), $caption_e, ''],
-				'$tags' => ['newtag', t('Add a Tag'), "", t('Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping')],
-				'$rotate_none' => ['rotate', t('Do not rotate'),0,'', true],
-				'$rotate_cw' => ['rotate', t('Rotate CW (right)'),1,''],
-				'$rotate_ccw' => ['rotate', t('Rotate CCW (left)'),2,''],
+				'$album' => ['albname', L10n::t('New album name'), $album_e,''],
+				'$caption' => ['desc', L10n::t('Caption'), $caption_e, ''],
+				'$tags' => ['newtag', L10n::t('Add a Tag'), "", L10n::t('Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping')],
+				'$rotate_none' => ['rotate', L10n::t('Do not rotate'),0,'', true],
+				'$rotate_cw' => ['rotate', L10n::t('Rotate CW (right)'),1,''],
+				'$rotate_ccw' => ['rotate', L10n::t('Rotate CCW (left)'),2,''],
 
 				'$nickname' => $a->data['user']['nickname'],
 				'$resource_id' => $ph[0]['resource-id'],
-				'$permissions' => t('Permissions'),
+				'$permissions' => L10n::t('Permissions'),
 				'$aclselect' => $aclselect_e,
 
 				'$item_id' => defaults($link_item, 'id', 0),
-				'$submit' => t('Submit'),
-				'$delete' => t('Delete Photo'),
+				'$submit' => L10n::t('Submit'),
+				'$delete' => L10n::t('Delete Photo'),
 
 				// ACL permissions box
-				'$group_perms' => t('Show to Groups'),
-				'$contact_perms' => t('Show to Contacts'),
+				'$group_perms' => L10n::t('Show to Groups'),
+				'$contact_perms' => L10n::t('Show to Contacts'),
 				'$return_path' => $a->query_string,
 			]);
 		}
@@ -1504,9 +1504,9 @@ function photos_content(App $a)
 				$like_tpl = get_markup_template('like_noshare.tpl');
 				$likebuttons = replace_macros($like_tpl, [
 					'$id' => $link_item['id'],
-					'$likethis' => t("I like this \x28toggle\x29"),
-					'$nolike' => (Feature::isEnabled(local_user(), 'dislike') ? t("I don't like this \x28toggle\x29") : ''),
-					'$wait' => t('Please wait'),
+					'$likethis' => L10n::t("I like this \x28toggle\x29"),
+					'$nolike' => (Feature::isEnabled(local_user(), 'dislike') ? L10n::t("I don't like this \x28toggle\x29") : ''),
+					'$wait' => L10n::t('Please wait'),
 					'$return_path' => $a->query_string,
 				]);
 			}
@@ -1521,12 +1521,12 @@ function photos_content(App $a)
 						'$parent' => $link_item['id'],
 						'$profile_uid' =>  $owner_uid,
 						'$mylink' => $contact['url'],
-						'$mytitle' => t('This is you'),
+						'$mytitle' => L10n::t('This is you'),
 						'$myphoto' => $contact['thumb'],
-						'$comment' => t('Comment'),
-						'$submit' => t('Submit'),
-						'$preview' => t('Preview'),
-						'$sourceapp' => t($a->sourcename),
+						'$comment' => L10n::t('Comment'),
+						'$submit' => L10n::t('Submit'),
+						'$preview' => L10n::t('Preview'),
+						'$sourceapp' => L10n::t($a->sourcename),
 						'$ww' => '',
 						'$rand_num' => random_digits(12)
 					]);
@@ -1534,8 +1534,8 @@ function photos_content(App $a)
 			}
 
 			$conv_responses = [
-				'like' => ['title' => t('Likes','title')],'dislike' => ['title' => t('Dislikes','title')],
-				'attendyes' => ['title' => t('Attending','title')], 'attendno' => ['title' => t('Not attending','title')], 'attendmaybe' => ['title' => t('Might attend','title')]
+				'like' => ['title' => L10n::t('Likes','title')],'dislike' => ['title' => L10n::t('Dislikes','title')],
+				'attendyes' => ['title' => L10n::t('Attending','title')], 'attendno' => ['title' => L10n::t('Not attending','title')], 'attendmaybe' => ['title' => L10n::t('Might attend','title')]
 			];
 
 			// display comments
@@ -1560,12 +1560,12 @@ function photos_content(App $a)
 						'$parent' => $link_item['id'],
 						'$profile_uid' =>  $owner_uid,
 						'$mylink' => $contact['url'],
-						'$mytitle' => t('This is you'),
+						'$mytitle' => L10n::t('This is you'),
 						'$myphoto' => $contact['thumb'],
-						'$comment' => t('Comment'),
-						'$submit' => t('Submit'),
-						'$preview' => t('Preview'),
-						'$sourceapp' => t($a->sourcename),
+						'$comment' => L10n::t('Comment'),
+						'$submit' => L10n::t('Submit'),
+						'$preview' => L10n::t('Preview'),
+						'$sourceapp' => L10n::t($a->sourcename),
 						'$ww' => '',
 						'$rand_num' => random_digits(12)
 					]);
@@ -1602,8 +1602,8 @@ function photos_content(App $a)
 					$drop = [
 						'dropping' => $dropping,
 						'pagedrop' => false,
-						'select' => t('Select'),
-						'delete' => t('Delete'),
+						'select' => L10n::t('Select'),
+						'delete' => L10n::t('Delete'),
 					];
 
 					$name_e = $profile_name;
@@ -1633,12 +1633,12 @@ function photos_content(App $a)
 							'$parent' => $item['parent'],
 							'$profile_uid' =>  $owner_uid,
 							'$mylink' => $contact['url'],
-							'$mytitle' => t('This is you'),
+							'$mytitle' => L10n::t('This is you'),
 							'$myphoto' => $contact['thumb'],
-							'$comment' => t('Comment'),
-							'$submit' => t('Submit'),
-							'$preview' => t('Preview'),
-							'$sourceapp' => t($a->sourcename),
+							'$comment' => L10n::t('Comment'),
+							'$submit' => L10n::t('Submit'),
+							'$preview' => L10n::t('Preview'),
+							'$sourceapp' => L10n::t($a->sourcename),
 							'$ww' => '',
 							'$rand_num' => random_digits(12)
 						]);
@@ -1667,7 +1667,7 @@ function photos_content(App $a)
 			'$tags' => $tags,
 			'$edit' => $edit,
 			'$map' => $map,
-			'$map_text' => t('Map'),
+			'$map_text' => L10n::t('Map'),
 			'$likebuttons' => $likebuttons,
 			'$like' => $like,
 			'$dislike' => $dislike,
@@ -1692,7 +1692,7 @@ function photos_content(App $a)
 		$sql_extra GROUP BY `resource-id`",
 		intval($a->data['user']['uid']),
 		dbesc('Contact Photos'),
-		dbesc( t('Contact Photos'))
+		dbesc(L10n::t('Contact Photos'))
 	);
 	if (DBM::is_result($r)) {
 		$a->set_pager_total(count($r));
@@ -1706,7 +1706,7 @@ function photos_content(App $a)
 		$sql_extra GROUP BY `resource-id` ORDER BY `created` DESC LIMIT %d , %d",
 		intval($a->data['user']['uid']),
 		dbesc('Contact Photos'),
-		dbesc( t('Contact Photos')),
+		dbesc(L10n::t('Contact Photos')),
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
 	);
@@ -1717,7 +1717,7 @@ function photos_content(App $a)
 		$twist = false;
 		foreach ($r as $rr) {
 			//hide profile photos to others
-			if (!$is_owner && !remote_user() && ($rr['album'] == t('Profile Photos')))
+			if (!$is_owner && !remote_user() && ($rr['album'] == L10n::t('Profile Photos')))
 				continue;
 
 			$twist = !$twist;
@@ -1731,13 +1731,13 @@ function photos_content(App $a)
 				'id'		=> $rr['id'],
 				'twist'		=> ' ' . ($twist ? 'rotleft' : 'rotright') . rand(2,4),
 				'link'  	=> 'photos/' . $a->data['user']['nickname'] . '/image/' . $rr['resource-id'],
-				'title' 	=> t('View Photo'),
+				'title' 	=> L10n::t('View Photo'),
 				'src'     	=> 'photo/' . $rr['resource-id'] . '-' . ((($rr['scale']) == 6) ? 4 : $rr['scale']) . '.' . $ext,
 				'alt'     	=> $alt_e,
 				'album'	=> [
 					'link'  => 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($rr['album']),
 					'name'  => $name_e,
-					'alt'   => t('View Album'),
+					'alt'   => L10n::t('View Album'),
 				],
 
 			];
@@ -1746,9 +1746,9 @@ function photos_content(App $a)
 
 	$tpl = get_markup_template('photos_recent.tpl');
 	$o .= replace_macros($tpl, [
-		'$title' => t('Recent Photos'),
+		'$title' => L10n::t('Recent Photos'),
 		'$can_post' => $can_post,
-		'$upload' => [t('Upload New Photos'), 'photos/'.$a->data['user']['nickname'].'/upload'],
+		'$upload' => [L10n::t('Upload New Photos'), 'photos/'.$a->data['user']['nickname'].'/upload'],
 		'$photos' => $photos,
 		'$paginate' => paginate($a),
 	]);

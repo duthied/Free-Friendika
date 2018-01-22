@@ -1,13 +1,16 @@
 <?php
-
+/**
+ * @file mod/probe.php
+ */
 use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Network\Probe;
 
-function probe_content(App $a) {
-
+function probe_content(App $a)
+{
 	if (!local_user()) {
-		http_status_exit(403, ["title" => t("Public access denied."),
-			"description" => t("Only logged in users are permitted to perform a probing.")]);
+		http_status_exit(403, ["title" => L10n::t("Public access denied."),
+			"description" => L10n::t("Only logged in users are permitted to perform a probing.")]);
 		killme();
 	}
 

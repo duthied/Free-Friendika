@@ -106,11 +106,11 @@ function profperm_content(App $a) {
 					$ingroup[] = $member['id'];
 		}
 
-		$o .= '<h2>' . t('Profile Visibility Editor') . '</h2>';
+		$o .= '<h2>' . L10n::t('Profile Visibility Editor') . '</h2>';
 
-		$o .= '<h3>' . t('Profile') . ' \'' . $profile['profile-name'] . '\'</h3>';
+		$o .= '<h3>' . L10n::t('Profile') . ' \'' . $profile['profile-name'] . '\'</h3>';
 
-		$o .= '<div id="prof-edit-desc">' . t('Click on a contact to add or remove.') . '</div>';
+		$o .= '<div id="prof-edit-desc">' . L10n::t('Click on a contact to add or remove.') . '</div>';
 
 	}
 
@@ -119,7 +119,7 @@ function profperm_content(App $a) {
 		$o = '';
 
 	$o .= '<div id="prof-members-title">';
-	$o .= '<h3>' . t('Visible To') . '</h3>';
+	$o .= '<h3>' . L10n::t('Visible To') . '</h3>';
 	$o .= '</div>';
 	$o .= '<div id="prof-members">';
 
@@ -135,7 +135,7 @@ function profperm_content(App $a) {
 	$o .= '<hr id="prof-separator" />';
 
 	$o .= '<div id="prof-all-contcts-title">';
-	$o .= '<h3>' . t("All Contacts \x28with secure profile access\x29") . '</h3>';
+	$o .= '<h3>' . L10n::t("All Contacts \x28with secure profile access\x29") . '</h3>';
 	$o .= '</div>';
 	$o .= '<div id="prof-all-contacts">';
 

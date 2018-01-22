@@ -124,7 +124,7 @@ function poke_init(App $a) {
 	$arr['object-type']   = ACTIVITY_OBJ_PERSON;
 
 	$arr['origin']        = 1;
-	$arr['body']          = '[url=' . $poster['url'] . ']' . $poster['name'] . '[/url]' . ' ' . t($verbs[$verb][0]) . ' ' . '[url=' . $target['url'] . ']' . $target['name'] . '[/url]';
+	$arr['body']          = '[url=' . $poster['url'] . ']' . $poster['name'] . '[/url]' . ' ' . L10n::t($verbs[$verb][0]) . ' ' . '[url=' . $target['url'] . ']' . $target['name'] . '[/url]';
 
 	$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $target['name'] . '</title><id>' . System::baseUrl() . '/contact/' . $target['id'] . '</id>';
 	$arr['object'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . $target['url'] . '" />' . "\n");
@@ -197,14 +197,14 @@ function poke_content(App $a) {
 	$tpl = get_markup_template('poke_content.tpl');
 
 	$o = replace_macros($tpl,[
-		'$title' => t('Poke/Prod'),
-		'$desc' => t('poke, prod or do other things to somebody'),
-		'$clabel' => t('Recipient'),
-		'$choice' => t('Choose what you wish to do to recipient'),
+		'$title' => L10n::t('Poke/Prod'),
+		'$desc' => L10n::t('poke, prod or do other things to somebody'),
+		'$clabel' => L10n::t('Recipient'),
+		'$choice' => L10n::t('Choose what you wish to do to recipient'),
 		'$verbs' => $shortlist,
 		'$parent' => $parent,
-		'$prv_desc' => t('Make this post private'),
-		'$submit' => t('Submit'),
+		'$prv_desc' => L10n::t('Make this post private'),
+		'$submit' => L10n::t('Submit'),
 		'$name' => $name,
 		'$id' => $id
 	]);

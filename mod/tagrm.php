@@ -15,7 +15,7 @@ function tagrm_post(App $a) {
 		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 	}
 
-	if ((x($_POST,'submit')) && ($_POST['submit'] === t('Cancel'))) {
+	if ((x($_POST,'submit')) && ($_POST['submit'] === L10n::t('Cancel'))) {
 		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 	}
 
@@ -86,9 +86,9 @@ function tagrm_content(App $a) {
 		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 	}
 
-	$o .= '<h3>' . t('Remove Item Tag') . '</h3>';
+	$o .= '<h3>' . L10n::t('Remove Item Tag') . '</h3>';
 
-	$o .= '<p id="tag-remove-desc">' . t('Select a tag to remove: ') . '</p>';
+	$o .= '<p id="tag-remove-desc">' . L10n::t('Select a tag to remove: ') . '</p>';
 
 	$o .= '<form id="tagrm" action="tagrm" method="post" >';
 	$o .= '<input type="hidden" name="item" value="' . $item . '" />';
@@ -99,8 +99,8 @@ function tagrm_content(App $a) {
 	}
 
 	$o .= '</ul>';
-	$o .= '<input id="tagrm-submit" type="submit" name="submit" value="' . t('Remove') .'" />';
-	$o .= '<input id="tagrm-cancel" type="submit" name="submit" value="' . t('Cancel') .'" />';
+	$o .= '<input id="tagrm-submit" type="submit" name="submit" value="' . L10n::t('Remove') .'" />';
+	$o .= '<input id="tagrm-cancel" type="submit" name="submit" value="' . L10n::t('Cancel') .'" />';
 	$o .= '</form>';
 
 	return $o;

@@ -155,11 +155,11 @@ function manage_content(App $a) {
 	}
 
 	$o = replace_macros(get_markup_template('manage.tpl'), [
-		'$title' => t('Manage Identities and/or Pages'),
-		'$desc' => t('Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'),
-		'$choose' => t('Select an identity to manage: '),
+		'$title' => L10n::t('Manage Identities and/or Pages'),
+		'$desc' => L10n::t('Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'),
+		'$choose' => L10n::t('Select an identity to manage: '),
 		'$identities' => $identities,
-		'$submit' => t('Submit'),
+		'$submit' => L10n::t('Submit'),
 	]);
 
 	return $o;
