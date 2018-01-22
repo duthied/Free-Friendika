@@ -35,9 +35,9 @@ function notification($params)
 	$thanks = L10n::t('Thank You,');
 	$sitename = $a->config['sitename'];
 	if (!x($a->config['admin_name'])) {
-	    $site_admin = sprintf(t('%s Administrator'), $sitename);
+	    $site_admin = sprintf(L10n::t('%s Administrator'), $sitename);
 	} else {
-	    $site_admin = sprintf(t('%1$s, %2$s Administrator'), $a->config['admin_name'], $sitename);
+	    $site_admin = sprintf(L10n::t('%1$s, %2$s Administrator'), $a->config['admin_name'], $sitename);
 	}
 
 	$sender_name = $sitename;
