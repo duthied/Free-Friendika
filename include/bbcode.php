@@ -971,11 +971,9 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	if (!$forplaintext) {
 		// Autolink feature (thanks to http://code.seebz.net/p/autolink-php/)
 		$autolink_regex = "`([^\]\=\"']|^)(https?\://[^\s<]+[^\s<\.\)])`ism";
-		if ($simplehtml != 7) {
-			$Text = preg_replace($autolink_regex, '$1<a href="$2" target="_blank">$2</a>', $Text);
-		} else {
-			$Text = preg_replace($autolink_regex, '$1[url]$2[/url]', $Text);
-
+		$autolink_regex = "/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism";
+		$Text = preg_replace($autolink_regex, '$1[url]$2[/url]', $Text);
+		if ($simplehtml == 7) {
 			$Text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'bb_style_url', $Text);
 			$Text = preg_replace_callback("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", 'bb_style_url', $Text);
 		}
@@ -1047,7 +1045,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	$Text = preg_replace($expression, System::baseUrl()."/display/$1", $Text);
 
 	if ($tryoembed) {
-		$Text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", $tryoembed_callback, $Text);
+	//	$Text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", $tryoembed_callback, $Text);
 	}
 
 	$Text = preg_replace("/([#])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
