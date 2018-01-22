@@ -346,14 +346,14 @@ function item_post(App $a) {
 	if ($parent) {
 		if ($thr_parent_contact['network'] == NETWORK_OSTATUS) {
 			$contact = '@[url=' . $thr_parent_contact['url'] . ']' . $thr_parent_contact['nick'] . '[/url]';
-			if (!in_array($contact, $tags)) {
+			if (!stripos(implode($tags), '[url=' . $thr_parent_contact['url'] . ']')) {
 				$tags[] = $contact;
 			}
 		}
 
 		if ($parent_contact['network'] == NETWORK_OSTATUS) {
 			$contact = '@[url=' . $parent_contact['url'] . ']' . $parent_contact['nick'] . '[/url]';
-			if (!in_array($contact, $tags)) {
+			if (!stripos(implode($tags), '[url=' . $parent_contact['url'] . ']')) {
 				$tags[] = $contact;
 			}
 		}
@@ -367,7 +367,6 @@ function item_post(App $a) {
 
 	if (count($tags)) {
 		foreach ($tags as $tag) {
-
 			$tag_type = substr($tag, 0, 1);
 
 			if ($tag_type == '#') {
@@ -926,22 +925,10 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			// Checking for the alias that is used for OStatus
 			$pattern = "/[@!]\[url\=(.*?)\](.*?)\[\/url\]/ism";
 			if (preg_match($pattern, $tag, $matches)) {
-
-				$r = q("SELECT `alias`, `name` FROM `contact` WHERE `nurl` = '%s' AND `alias` != '' AND `uid` = 0",
-					normalise_link($matches[1]));
-				if (!DBM::is_result($r)) {
-					$r = q("SELECT `alias`, `name` FROM `gcontact` WHERE `nurl` = '%s' AND `alias` != ''",
-						normalise_link($matches[1]));
-				}
-				if (DBM::is_result($r)) {
-					$data = $r[0];
-				} else {
-					$data = Probe::uri($matches[1]);
-				}
-
+				$data = Contact::getDetailsByURL($matches[1]);
 				if ($data["alias"] != "") {
-					$newtag = '@[url=' . $data["alias"] . ']' . $data["name"] . '[/url]';
-					if (!stristr($str_tags, $newtag)) {
+					$newtag = '@[url=' . $data["alias"] . ']' . $data["nick"] . '[/url]';
+					if (!stripos($str_tags, '[url=' . $data["alias"] . ']')) {
 						if (strlen($str_tags)) {
 							$str_tags .= ',';
 						}
@@ -962,124 +949,68 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 		$name = $nameparts[0];
 
 		// Try to detect the contact in various ways
-		if ((strpos($name, '@')) || (strpos($name, 'http://'))) {
-			// Is it in format @user@domain.tld or @http://domain.tld/...?
+		if (strpos($name, 'http://')) {
+			// At first we have to ensure that the contact exists
+			Contact::getIdForURL($name);
 
-			// First check the contact table for the address
-			$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network`, `notify`, `forum`, `prv` FROM `contact`
-				WHERE `addr` = '%s' AND `uid` = %d AND
-					(`network` != '%s' OR (`notify` != '' AND `alias` != ''))
-				LIMIT 1",
-					dbesc($name),
-					intval($profile_uid),
-					dbesc(NETWORK_OSTATUS)
-			);
-
-			// Then check in the contact table for the url
-			if (!DBM::is_result($r)) {
-				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network`, `notify`, `forum`, `prv` FROM `contact`
-					WHERE `nurl` = '%s' AND `uid` = %d AND
-						(`network` != '%s' OR (`notify` != '' AND `alias` != ''))
-					LIMIT 1",
-						dbesc(normalise_link($name)),
-						intval($profile_uid),
-						dbesc(NETWORK_OSTATUS)
-				);
-			}
-
-			// Then check in the global contacts for the address
-			if (!DBM::is_result($r)) {
-				$r = q("SELECT `url`, `nick`, `name`, `alias`, `network`, `notify` FROM `gcontact`
-					WHERE `addr` = '%s' AND (`network` != '%s' OR (`notify` != '' AND `alias` != ''))
-					LIMIT 1",
-						dbesc($name),
-						dbesc(NETWORK_OSTATUS)
-				);
-			}
-
-			// Then check in the global contacts for the url
-			if (!DBM::is_result($r)) {
-				$r = q("SELECT `url`, `nick`, `name`, `alias`, `network`, `notify` FROM `gcontact`
-					WHERE `nurl` = '%s' AND (`network` != '%s' OR (`notify` != '' AND `alias` != ''))
-					LIMIT 1",
-						dbesc(normalise_link($name)),
-						dbesc(NETWORK_OSTATUS)
-				);
-			}
-
-			if (!DBM::is_result($r)) {
-				$probed = Probe::uri($name);
-				if ($result['network'] != NETWORK_PHANTOM) {
-					GContact::update($probed);
-					$r = q("SELECT `url`, `name`, `nick`, `network`, `alias`, `notify` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
-						dbesc(normalise_link($probed["url"])));
-				}
-			}
+			// Now we should have something
+			$contact = Contact::getDetailsByURL($name);
+		} elseif (strpos($name, '@')) {
+			// This function automatically probes when no entry was found
+			$contact = Contact::getDetailsByAddr($name);
 		} else {
-			$r = false;
+			$contact = false;
+			$fields = ['id', 'url', 'nick', 'name', 'alias', 'network'];
+
 			if (strrpos($name, '+')) {
 				// Is it in format @nick+number?
 				$tagcid = intval(substr($name, strrpos($name, '+') + 1));
-
-				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-						intval($tagcid),
-						intval($profile_uid)
-				);
+				$contact = dba::selectFirst('contact', $fields, ['id' => $tagcid, 'uid' => $profile_uid]);
 			}
 
-			// select someone by attag or nick and the name passed in the current network
-			if (!DBM::is_result($r) && ($network != ""))
-				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `network` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
-						dbesc($name),
-						dbesc($name),
-						dbesc($network),
-						intval($profile_uid)
-				);
-
-			//select someone from this user's contacts by name in the current network
-			if (!DBM::is_result($r) && ($network != "")) {
-				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `name` = '%s' AND `network` = '%s' AND `uid` = %d LIMIT 1",
-						dbesc($name),
-						dbesc($network),
-						intval($profile_uid)
-				);
+			// select someone by nick or attag in the current network
+			if (!DBM::is_result($contact) && ($network != "")) {
+				$condition = ["(`nick` = ? OR `attag` = ?) AND `network` = ? AND `uid` = ?",
+						$name, $name, $network, $profile_uid];
+				$contact = dba::selectFirst('contact', $fields, $condition);
 			}
 
-			// select someone by attag or nick and the name passed in
-			if (!DBM::is_result($r)) {
-				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
-						dbesc($name),
-						dbesc($name),
-						intval($profile_uid)
-				);
+			//select someone by name in the current network
+			if (!DBM::is_result($contact) && ($network != "")) {
+				$condition = ['name' => $name, 'network' => $network, 'uid' => $profile_uid];
+				$contact = dba::selectFirst('contact', $fields, $condition);
 			}
 
-			// select someone from this user's contacts by name
-			if (!DBM::is_result($r)) {
-				$r = q("SELECT `id`, `url`, `nick`, `name`, `alias`, `network` FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
-						dbesc($name),
-						intval($profile_uid)
-				);
+			// select someone by nick or attag in any network
+			if (!DBM::is_result($contact)) {
+				$condition = ["(`nick` = ? OR `attag` = ?) AND `uid` = ?", $name, $name, $profile_uid];
+				$contact = dba::selectFirst('contact', $fields, $condition);
+			}
+
+			// select someone by name in any network
+			if (!DBM::is_result($contact)) {
+				$condition = ['name' => $name, 'uid' => $profile_uid];
+				$contact = dba::selectFirst('contact', $fields, $condition);
 			}
 		}
 
-		if (DBM::is_result($r)) {
-			if (strlen($inform) && (isset($r[0]["notify"]) || isset($r[0]["id"]))) {
+		if ($contact) {
+			if (strlen($inform) && (isset($contact["notify"]) || isset($contact["id"]))) {
 				$inform .= ',';
 			}
 
-			if (isset($r[0]["id"])) {
-				$inform .= 'cid:' . $r[0]["id"];
-			} elseif (isset($r[0]["notify"])) {
-				$inform  .= $r[0]["notify"];
+			if (isset($contact["id"])) {
+				$inform .= 'cid:' . $contact["id"];
+			} elseif (isset($contact["notify"])) {
+				$inform  .= $contact["notify"];
 			}
 
-			$profile = $r[0]["url"];
-			$alias   = $r[0]["alias"];
-			$newname = $r[0]["nick"];
-			if (($newname == "") || (($r[0]["network"] != NETWORK_OSTATUS) && ($r[0]["network"] != NETWORK_TWITTER)
-				&& ($r[0]["network"] != NETWORK_STATUSNET) && ($r[0]["network"] != NETWORK_APPNET))) {
-				$newname = $r[0]["name"];
+			$profile = $contact["url"];
+			$alias   = $contact["alias"];
+			$newname = $contact["nick"];
+			if (($newname == "") || (($contact["network"] != NETWORK_OSTATUS) && ($contact["network"] != NETWORK_TWITTER)
+				&& ($contact["network"] != NETWORK_STATUSNET) && ($contact["network"] != NETWORK_APPNET))) {
+				$newname = $contact["name"];
 			}
 		}
 
@@ -1104,7 +1035,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			 */
 			if (strlen($alias)) {
 				$newtag = '@[url=' . $alias . ']' . $newname . '[/url]';
-				if (!stristr($str_tags, $newtag)) {
+				if (!stripos($str_tags, '[url=' . $alias . ']')) {
 					if (strlen($str_tags)) {
 						$str_tags .= ',';
 					}
