@@ -45,7 +45,7 @@ function repair_ostatus_content(App $a) {
                 intval(CONTACT_IS_SHARING), $counter++);
 
 	if (!$r) {
-		$o .= t("Done");
+		$o .= L10n::t("Done");
 		return $o;
 	}
 
@@ -53,7 +53,7 @@ function repair_ostatus_content(App $a) {
 
 	$o .= "<p>".t("Keep this window open until done.")."</p>";
 
-	$result = Contact::createFromProbe($uid,$r[0]["url"],true);
+	$result = Contact::createFromProbe($uid, $r[0]["url"], true);
 
 	$a->page['htmlhead'] = '<meta http-equiv="refresh" content="1; URL='.System::baseUrl().'/repair_ostatus?counter='.$counter.'">';
 

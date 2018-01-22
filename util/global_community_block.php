@@ -29,13 +29,14 @@ if ($argc != 2 || $argv[1] == "-h" || $argv[1] == "--help" || $argv[1] == "-?") 
 }
 
 use Friendica\BaseObject;
+use Friendica\Core\L10n;
 use Friendica\Model\Contact;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
 require_once 'include/text.php';
 
-$a = get_app();;
+$a = get_app();
 BaseObject::setApp($a);
 
 require_once '.htconfig.php';
@@ -44,11 +45,11 @@ unset($db_host, $db_user, $db_pass, $db_data);
 
 $contact_id = Contact::getIdForURL($argv[1], 0);
 if (!$contact_id) {
-	echo t('Could not find any contact entry for this URL (%s)', $nurl);
+	echo L10n::t('Could not find any contact entry for this URL (%s)', $nurl);
 	echo "\r\n";
 	exit(1);
 }
 Contact::block($contact_id);
-echo t('The contact has been blocked from the node');
+echo L10n::t('The contact has been blocked from the node');
 echo "\r\n";
 exit(0);

@@ -57,7 +57,7 @@ function ostatus_subscribe_content(App $a) {
 		$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL='.System::baseUrl().'/settings/connectors">';
 		PConfig::delete($uid, "ostatus", "legacy_friends");
 		PConfig::delete($uid, "ostatus", "legacy_contact");
-		$o .= t("Done");
+		$o .= L10n::t("Done");
 		return $o;
 	}
 

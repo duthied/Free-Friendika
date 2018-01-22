@@ -469,7 +469,7 @@ function item_post(App $a) {
 
 				$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
 						'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny];
-				$condition = ['resource-id' => $image_uri, 'uid' => $profile_uid, 'album' => t('Wall Photos')];
+				$condition = ['resource-id' => $image_uri, 'uid' => $profile_uid, 'album' => L10n::t('Wall Photos')];
 				dba::update('photo', $fields, $condition);
 			}
 		}
@@ -803,7 +803,7 @@ function item_post(App $a) {
 				$disclaimer = '<hr />' . sprintf(t('This message was sent to you by %s, a member of the Friendica social network.'), $a->user['username'])
 					. '<br />';
 				$disclaimer .= sprintf(t('You may visit them online at %s'), System::baseUrl() . '/profile/' . $a->user['nickname']) . EOL;
-				$disclaimer .= t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
+				$disclaimer .= L10n::t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
 				if (!$datarray['title']=='') {
 					$subject = Email::encodeHeader($datarray['title'], 'UTF-8');
 				} else {

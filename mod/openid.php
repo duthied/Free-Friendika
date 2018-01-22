@@ -27,7 +27,7 @@ function openid_content(App $a) {
 			$authid = $_REQUEST['openid_identity'];
 
 			if(! strlen($authid)) {
-				logger( t('OpenID protocol error. No ID returned.') . EOL);
+				logger(L10n::t('OpenID protocol error. No ID returned.') . EOL);
 				goaway(System::baseUrl());
 			}
 

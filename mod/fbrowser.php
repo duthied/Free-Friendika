@@ -6,6 +6,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Object\Image;
 
@@ -30,7 +31,7 @@ function fbrowser_content(App $a) {
 
 	switch ($a->argv[1]) {
 		case "image":
-			$path = [["", t("Photos")]];
+			$path = [["", L10n::t("Photos")]];
 			$albums = false;
 			$sql_extra = "";
 			$sql_extra2 = " ORDER BY created DESC LIMIT 0, 10";
@@ -39,7 +40,7 @@ function fbrowser_content(App $a) {
 				$albums = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s' ",
 					intval(local_user()),
 					dbesc('Contact Photos'),
-					dbesc( t('Contact Photos'))
+					dbesc(L10n::t('Contact Photos'))
 				);
 
 				function _map_folder1($el){return [bin2hex($el['album']),$el['album']];};
@@ -61,7 +62,7 @@ function fbrowser_content(App $a) {
 					GROUP BY `resource-id` $sql_extra2",
 				intval(local_user()),
 				dbesc('Contact Photos'),
-				dbesc( t('Contact Photos'))
+				dbesc(L10n::t('Contact Photos'))
 			);
 
 			function _map_files1($rr){
@@ -94,7 +95,7 @@ function fbrowser_content(App $a) {
 				'$path'     => $path,
 				'$folders'  => $albums,
 				'$files'    => $files,
-				'$cancel'   => t('Cancel'),
+				'$cancel'   => L10n::t('Cancel'),
 				'$nickname' => $a->user['nickname'],
 			]);
 
@@ -121,10 +122,10 @@ function fbrowser_content(App $a) {
 				$o = replace_macros($tpl, [
 					'$type'     => 'file',
 					'$baseurl'  => System::baseUrl(),
-					'$path'     => [ [ "", t("Files")] ],
+					'$path'     => [ [ "", L10n::t("Files")] ],
 					'$folders'  => false,
 					'$files'    =>$files,
-					'$cancel'   => t('Cancel'),
+					'$cancel'   => L10n::t('Cancel'),
 					'$nickname' => $a->user['nickname'],
 				]);
 

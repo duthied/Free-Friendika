@@ -62,7 +62,7 @@ function follow_content(App $a) {
 	$uid = local_user();
 	$url = notags(trim($_REQUEST['url']));
 
-	$submit = t('Submit Request');
+	$submit = L10n::t('Submit Request');
 
 	// There is a current issue. It seems as if you can't start following a Friendica that is following you
 	// With Diaspora this works - but Friendica is special, it seems ...
@@ -142,38 +142,38 @@ function follow_content(App $a) {
 		$r[0]["about"] = "";
 	}
 
-	$header = t("Connect/Follow");
+	$header = L10n::t("Connect/Follow");
 
 	$o  = replace_macros($tpl,[
 			'$header' => htmlentities($header),
 			//'$photo' => proxy_url($ret["photo"], false, PROXY_SIZE_SMALL),
 			'$desc' => "",
-			'$pls_answer' => t('Please answer the following:'),
-			'$does_know_you' => ['knowyou', sprintf(t('Does %s know you?'),$ret["name"]), false, '', [t('No'), t('Yes')]],
-			'$add_note' => t('Add a personal note:'),
+			'$pls_answer' => L10n::t('Please answer the following:'),
+			'$does_know_you' => ['knowyou', sprintf(t('Does %s know you?'),$ret["name"]), false, '', [L10n::t('No'), L10n::t('Yes')]],
+			'$add_note' => L10n::t('Add a personal note:'),
 			'$page_desc' => "",
 			'$friendica' => "",
 			'$statusnet' => "",
 			'$diaspora' => "",
 			'$diasnote' => "",
-			'$your_address' => t('Your Identity Address:'),
+			'$your_address' => L10n::t('Your Identity Address:'),
 			'$invite_desc' => "",
 			'$emailnet' => "",
 			'$submit' => $submit,
-			'$cancel' => t('Cancel'),
+			'$cancel' => L10n::t('Cancel'),
 			'$nickname' => "",
 			'$name' => $ret["name"],
 			'$url' => $ret["url"],
 			'$zrl' => Profile::zrl($ret["url"]),
-			'$url_label' => t("Profile URL"),
+			'$url_label' => L10n::t("Profile URL"),
 			'$myaddr' => $myaddr,
 			'$request' => $request,
 			/*'$location' => bbcode($r[0]["location"]),
-			'$location_label' => t("Location:"),
+			'$location_label' => L10n::t("Location:"),
 			'$about' => bbcode($r[0]["about"], false, false),
-			'$about_label' => t("About:"), */
+			'$about_label' => L10n::t("About:"), */
 			'$keywords' => $r[0]["keywords"],
-			'$keywords_label' => t("Tags:")
+			'$keywords_label' => L10n::t("Tags:")
 	]);
 
 	$a->page['aside'] = "";
@@ -182,7 +182,7 @@ function follow_content(App $a) {
 
 	if ($gcontact_id <> 0) {
 		$o .= replace_macros(get_markup_template('section_title.tpl'),
-						['$title' => t('Status Messages and Posts')
+						['$title' => L10n::t('Status Messages and Posts')
 		]);
 
 		// Show last public posts

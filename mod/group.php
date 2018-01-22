@@ -94,13 +94,13 @@ function group_content(App $a) {
 	$tpl = get_markup_template('group_edit.tpl');
 
 	$context = [
-			'$submit' => t('Save Group'),
+			'$submit' => L10n::t('Save Group'),
 	];
 
 	if (($a->argc == 2) && ($a->argv[1] === 'new')) {
 		return replace_macros($tpl, $context + [
-			'$title' => t('Create a group of contacts/friends.'),
-			'$gname' => ['groupname', t('Group Name: '), '', ''],
+			'$title' => L10n::t('Create a group of contacts/friends.'),
+			'$gname' => ['groupname', L10n::t('Group Name: '), '', ''],
 			'$gid' => 'new',
 			'$form_security_token' => get_form_security_token("group_edit"),
 		]);
@@ -190,18 +190,18 @@ function group_content(App $a) {
 		$drop_tpl = get_markup_template('group_drop.tpl');
 		$drop_txt = replace_macros($drop_tpl, [
 			'$id' => $group['id'],
-			'$delete' => t('Delete Group'),
+			'$delete' => L10n::t('Delete Group'),
 			'$form_security_token' => get_form_security_token("group_drop"),
 		]);
 
 
 		$context = $context + [
-			'$title' => t('Group Editor'),
-			'$gname' => ['groupname', t('Group Name: '), $group['name'], ''],
+			'$title' => L10n::t('Group Editor'),
+			'$gname' => ['groupname', L10n::t('Group Name: '), $group['name'], ''],
 			'$gid' => $group['id'],
 			'$drop' => $drop_txt,
 			'$form_security_token' => get_form_security_token('group_edit'),
-			'$edit_name' => t('Edit Group Name')
+			'$edit_name' => L10n::t('Edit Group Name')
 		];
 
 	}
@@ -211,10 +211,10 @@ function group_content(App $a) {
 	}
 
 	$groupeditor = [
-		'label_members' => t('Members'),
+		'label_members' => L10n::t('Members'),
 		'members' => [],
-		'label_contacts' => t('All Contacts'),
-		'group_is_empty' => t('Group is empty'),
+		'label_contacts' => L10n::t('All Contacts'),
+		'group_is_empty' => L10n::t('Group is empty'),
 		'contacts' => [],
 	];
 
@@ -227,7 +227,7 @@ function group_content(App $a) {
 			$entry['label'] = 'members';
 			$entry['photo_menu'] = '';
 			$entry['change_member'] = [
-				'title'     => t("Remove Contact"),
+				'title'     => L10n::t("Remove Contact"),
 				'gid'       => $group['id'],
 				'cid'       => $member['id'],
 				'sec_token' => $sec_token
@@ -251,7 +251,7 @@ function group_content(App $a) {
 				$entry['label'] = 'contacts';
 				$entry['photo_menu'] = '';
 				$entry['change_member'] = [
-					'title'     => t("Add Contact"),
+					'title'     => L10n::t("Add Contact"),
 					'gid'       => $group['id'],
 					'cid'       => $member['id'],
 					'sec_token' => $sec_token
@@ -263,7 +263,7 @@ function group_content(App $a) {
 	}
 
 	$context['$groupeditor'] = $groupeditor;
-	$context['$desc'] = t('Click on a contact to add or remove.');
+	$context['$desc'] = L10n::t('Click on a contact to add or remove.');
 
 	// If there are to many contacts we could provide an alternative view mode
 	$total = count($groupeditor['members']) + count($groupeditor['contacts']);
