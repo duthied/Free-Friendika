@@ -7,6 +7,8 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\User;
 
+require_once 'include/dba.php';
+
 /**
  *
  * update.php - automatic system update
@@ -172,4 +174,13 @@ function update_1245() {
 	Config::set('system', 'rino_encrypt', 1);
 
 	return UPDATE_SUCCESS;
+}
+
+function update_1247() {
+	// Removing hooks with the old name
+	dba::e("DELETE FROM `hook`
+WHERE `hook` LIKE 'plugin_%'");
+
+	// Make sure we install the new renamed ones
+	Addon::reload();
 }
