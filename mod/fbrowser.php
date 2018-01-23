@@ -13,8 +13,8 @@ use Friendica\Object\Image;
 /**
  * @param App $a
  */
-function fbrowser_content(App $a) {
-
+function fbrowser_content(App $a)
+{
 	if (!local_user()) {
 		killme();
 	}
@@ -25,7 +25,7 @@ function fbrowser_content(App $a) {
 
 	$template_file = "filebrowser.tpl";
 	$mode = "";
-	if (x($_GET,'mode')) {
+	if (x($_GET, 'mode')) {
 		$mode  = "?mode=".$_GET['mode'];
 	}
 
@@ -36,22 +36,25 @@ function fbrowser_content(App $a) {
 			$sql_extra = "";
 			$sql_extra2 = " ORDER BY created DESC LIMIT 0, 10";
 
-			if ($a->argc==2){
+			if ($a->argc==2) {
 				$albums = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s' ",
 					intval(local_user()),
 					dbesc('Contact Photos'),
 					dbesc(L10n::t('Contact Photos'))
 				);
 
-				function _map_folder1($el){return [bin2hex($el['album']),$el['album']];};
-				$albums = array_map( "_map_folder1" , $albums);
+				function _map_folder1($el)
+				{
+					return [bin2hex($el['album']),$el['album']];
+				};
 
+				$albums = array_map("_map_folder1", $albums);
 			}
 
 			$album = "";
-			if ($a->argc==3){
+			if ($a->argc==3) {
 				$album = hex2bin($a->argv[2]);
-				$sql_extra = sprintf("AND `album` = '%s' ",dbesc($album));
+				$sql_extra = sprintf("AND `album` = '%s' ", dbesc($album));
 				$sql_extra2 = "";
 				$path[]=[$a->argv[2], $album];
 			}
@@ -65,7 +68,8 @@ function fbrowser_content(App $a) {
 				dbesc(L10n::t('Contact Photos'))
 			);
 
-			function _map_files1($rr){
+			function _map_files1($rr)
+			{
 				$a = get_app();
 				$types = Image::supportedTypes();
 				$ext = $types[$rr['type']];
@@ -74,10 +78,11 @@ function fbrowser_content(App $a) {
 				// Take the largest picture that is smaller or equal 640 pixels
 				$p = q("SELECT `scale` FROM `photo` WHERE `resource-id` = '%s' AND `height` <= 640 AND `width` <= 640 ORDER BY `resource-id`, `scale` LIMIT 1",
 					dbesc($rr['resource-id']));
-				if ($p)
+				if ($p) {
 					$scale = $p[0]["scale"];
-				else
+				} else {
 					$scale = $rr['loq'];
+				}
 
 				return [
 					System::baseUrl() . '/photos/' . $a->user['nickname'] . '/image/' . $rr['resource-id'],
@@ -97,8 +102,8 @@ function fbrowser_content(App $a) {
 				'$files'    => $files,
 				'$cancel'   => L10n::t('Cancel'),
 				'$nickname' => $a->user['nickname'],
+				'$upload'	=> L10n::t('Upload')
 			]);
-
 
 			break;
 		case "file":
@@ -107,9 +112,10 @@ function fbrowser_content(App $a) {
 					intval(local_user())
 				);
 
-				function _map_files2($rr){
+				function _map_files2($rr)
+				{
 					$a = get_app();
-					list($m1,$m2) = explode("/",$rr['filetype']);
+					list($m1,$m2) = explode("/", $rr['filetype']);
 					$filetype = ( (file_exists("images/icons/$m1.png"))?$m1:"zip");
 					$filename_e = $rr['filename'];
 
@@ -124,22 +130,20 @@ function fbrowser_content(App $a) {
 					'$baseurl'  => System::baseUrl(),
 					'$path'     => [ [ "", L10n::t("Files")] ],
 					'$folders'  => false,
-					'$files'    =>$files,
+					'$files'    => $files,
 					'$cancel'   => L10n::t('Cancel'),
 					'$nickname' => $a->user['nickname'],
+					'$upload'	=> L10n::t('Upload')
 				]);
-
 			}
 
 			break;
 	}
 
-	if (x($_GET,'mode')) {
+	if (x($_GET, 'mode')) {
 		return $o;
 	} else {
 		echo $o;
 		killme();
 	}
-
-
 }
