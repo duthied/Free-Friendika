@@ -498,9 +498,6 @@
 			$(".comment-edit-form  textarea").editor_autocomplete(baseurl+"/acl");
 			/* autocomplete bbcode */
 			$(".comment-edit-form  textarea").bbco_autocomplete('bbcode');
-
-			// setup videos, since VideoJS won't take care of any loaded via AJAX
-			if(typeof videojs != 'undefined') videojs.autoSetup();
 		});
 	}
 
