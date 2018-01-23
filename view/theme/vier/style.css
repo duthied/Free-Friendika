@@ -3322,10 +3322,6 @@ img.photo-album-photo {
   margin: 0px 10px 10px 0px;
   position: relative;
 }
-.videos .video-top-wrapper .video-js {
-  width: 300px!important;
-  height: 232px!important;
-}
 .videos .video-top-wrapper .video-delete {
   position: absolute;
   opacity: 0;

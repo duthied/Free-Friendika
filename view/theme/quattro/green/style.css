@@ -2154,10 +2154,6 @@ ul.tabs li .active {
   margin: 0 10px 10px 0;
   position: relative;
 }
-.videos .video-top-wrapper .video-js {
-  width: 200px!important;
-  height: 132px!important;
-}
 .videos .video-top-wrapper .video-delete {
   position: absolute;
   opacity: 0;
