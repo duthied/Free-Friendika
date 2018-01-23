@@ -10,11 +10,11 @@ $uid = Profile::getThemeUid();
 
 $style = PConfig::get($uid, 'vier', 'style');
 
-if ($style == "") {
+if (empty($style)) {
 	$style = Config::get('vier', 'style');
 }
 
-if ($style == "") {
+if (empty($style)) {
 	$style = "plus";
 }
 
