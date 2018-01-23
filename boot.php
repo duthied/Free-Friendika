@@ -781,7 +781,7 @@ function run_update_function($x)
 			//send the administrator an e-mail
 			DBStructure::updateFail(
 				$x,
-				sprintf(L10n::t('Update %s failed. See error logs.'), $x)
+				L10n::t('Update %s failed. See error logs.', $x)
 			);
 			return false;
 		} else {

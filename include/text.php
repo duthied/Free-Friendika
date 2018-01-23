@@ -952,7 +952,7 @@ function contact_block() {
 				dbesc(implode(",", $contacts)));
 
 			if (DBM::is_result($r)) {
-				$contacts = sprintf(L10n::tt('%d Contact', '%d Contacts', $total), $total);
+				$contacts = L10n::tt('%d Contact', '%d Contacts', $total);
 				$micropro = [];
 				foreach ($r as $rr) {
 					$micropro[] = micropro($rr, true, 'mpfriend');
@@ -1411,7 +1411,7 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 	while ((strpos($s, $spoilersearch) !== false)) {
 		$pos = strpos($s, $spoilersearch);
 		$rnd = random_string(8);
-		$spoilerreplace = '<br /> <span id="spoiler-wrap-' . $rnd . '" class="spoiler-wrap fakelink" onclick="openClose(\'spoiler-' . $rnd . '\');">' . sprintf(L10n::t('Click to open/close')) . '</span>'.
+		$spoilerreplace = '<br /> <span id="spoiler-wrap-' . $rnd . '" class="spoiler-wrap fakelink" onclick="openClose(\'spoiler-' . $rnd . '\');">' . L10n::t('Click to open/close') . '</span>'.
 					'<blockquote class="spoiler" id="spoiler-' . $rnd . '" style="display: none;">';
 		$s = substr($s, 0, $pos) . $spoilerreplace . substr($s, $pos + strlen($spoilersearch));
 	}
@@ -1422,7 +1422,7 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 	while ((strpos($s, $authorsearch) !== false)) {
 		$pos = strpos($s, $authorsearch);
 		$rnd = random_string(8);
-		$authorreplace = '<br /> <span id="author-wrap-' . $rnd . '" class="author-wrap fakelink" onclick="openClose(\'author-' . $rnd . '\');">' . sprintf(L10n::t('Click to open/close')) . '</span>'.
+		$authorreplace = '<br /> <span id="author-wrap-' . $rnd . '" class="author-wrap fakelink" onclick="openClose(\'author-' . $rnd . '\');">' . L10n::t('Click to open/close') . '</span>'.
 					'<blockquote class="author" id="author-' . $rnd . '" style="display: block;">';
 		$s = substr($s, 0, $pos) . $authorreplace . substr($s, $pos + strlen($authorsearch));
 	}

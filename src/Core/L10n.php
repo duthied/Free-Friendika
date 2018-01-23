@@ -115,12 +115,12 @@ class L10n
 		while ($p = dba::fetch($addons)) {
 			$name = $p['name'];
 			if (file_exists("addon/$name/lang/$lang/strings.php")) {
-				include("addon/$name/lang/$lang/strings.php");
+				include "addon/$name/lang/$lang/strings.php";
 			}
 		}
 
 		if (file_exists("view/lang/$lang/strings.php")) {
-			include("view/lang/$lang/strings.php");
+			include "view/lang/$lang/strings.php";
 		}
 	}
 
@@ -184,9 +184,10 @@ class L10n
 			if (is_array($t)) {
 				$plural_function = 'string_plural_select_' . str_replace('-', '_', $lang);
 				if (function_exists($plural_function)) {
-					$plural_function = 'stringPluralSelectDefault';
+					$i = $plural_function($count);
+				} else {
+					$i = self::stringPluralSelectDefault($count);
 				}
-				$i = $plural_function($count);
 				$s = $t[$i];
 			} else {
 				$s = $t;
