@@ -184,7 +184,7 @@ class L10n
 			if (is_array($t)) {
 				$plural_function = 'string_plural_select_' . str_replace('-', '_', $lang);
 				if (function_exists($plural_function)) {
-					$plural_function = 'self::stringPluralSelectDefault';
+					$plural_function = 'stringPluralSelectDefault';
 				}
 				$i = $plural_function($count);
 				$s = $t[$i];
