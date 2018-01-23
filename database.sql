@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.6-dev (Asparagus)
--- DB_UPDATE_VERSION 1244
+-- DB_UPDATE_VERSION 1246
 -- ------------------------------------------
 
 
@@ -781,7 +781,7 @@ CREATE TABLE IF NOT EXISTS `profile` (
 	`hide-friends` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`name` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`pdesc` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`dob` varchar(32) NOT NULL DEFAULT '0001-01-01' COMMENT '',
+	`dob` varchar(32) NOT NULL DEFAULT '0000-00-00' COMMENT '',
 	`address` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`locality` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`region` varchar(255) NOT NULL DEFAULT '' COMMENT '',
@@ -1006,7 +1006,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 	`guid` varchar(64) NOT NULL DEFAULT '' COMMENT '',
 	`username` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`password` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`legacy_password` boolean NOT NULL DEFAULT 0 COMMENT 'Is the password hash double-hashed?',
+	`legacy_password` boolean NOT NULL DEFAULT '0' COMMENT 'Is the password hash double-hashed?',
 	`nickname` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`email` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`openid` varchar(255) NOT NULL DEFAULT '' COMMENT '',

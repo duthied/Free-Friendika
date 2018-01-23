@@ -201,7 +201,7 @@ function profiles_post(App $a) {
 			return;
 		}
 
-		$dob = $_POST['dob'] ? escape_tags(trim($_POST['dob'])) : '0001-01-01'; // FIXME: Needs to be validated?
+		$dob = $_POST['dob'] ? escape_tags(trim($_POST['dob'])) : '0000-00-00';
 
 		$y = substr($dob, 0, 4);
 		if ((! ctype_digit($y)) || ($y < 1900)) {
@@ -217,7 +217,7 @@ function profiles_post(App $a) {
 			$dob = datetime_convert('UTC', 'UTC', (($ignore_year) ? '1900-' . $dob : $dob), (($ignore_year) ? 'm-d' : 'Y-m-d'));
 
 			if ($ignore_year) {
-				$dob = '0001-' . $dob;
+				$dob = '0000-' . $dob;
 			}
 		}
 

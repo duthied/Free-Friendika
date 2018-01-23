@@ -4207,10 +4207,14 @@ class Diaspora
 		$searchable = (($profile['publish'] && $profile['net-publish']) ? 'true' : 'false');
 
 		if ($searchable === 'true') {
-			$dob = '1000-00-00';
+			$dob = '';
 
-			if (($profile['dob']) && ($profile['dob'] > '0001-01-01')) {
-				$dob = ((intval($profile['dob'])) ? intval($profile['dob']) : '1000') .'-'. datetime_convert('UTC', 'UTC', $profile['dob'],'m-d');
+			if ($profile['dob'] && ($profile['dob'] > '0000-00-00')) {
+				list($year, $month, $day) = sscanf($profile['dob'], '%4d-%2d-%2d');
+				if ($year < 1004) {
+					$year = 1004;
+				}
+				$dob = datetime_convert('UTC', 'UTC', $year . '-' . $month . '-'. $day, 'Y-m-d');
 			}
 
 			$about = $profile['about'];
@@ -4284,7 +4288,7 @@ class Diaspora
 
 		foreach ($recips as $recip) {
 			logger("Send updated profile data for user ".$uid." to contact ".$recip["id"], LOGGER_DEBUG);
-			self::buildAndTransmit($owner, $recip, "profile", $message, false, "", true);
+			self::buildAndTransmit($owner, $recip, "profile", $message, false, "", false);
 		}
 	}
 
