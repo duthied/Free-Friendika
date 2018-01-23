@@ -1472,7 +1472,7 @@ class DBStructure {
 						"hide-friends" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"pdesc" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"dob" => ["type" => "varchar(32)", "not null" => "1", "default" => "0001-01-01", "comment" => ""],
+						"dob" => ["type" => "varchar(32)", "not null" => "1", "default" => "0000-00-00", "comment" => ""],
 						"address" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"locality" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"region" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],

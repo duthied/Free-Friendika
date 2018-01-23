@@ -181,13 +181,13 @@ function dob($dob)
 {
 	list($year, $month, $day) = sscanf($dob, '%4d-%2d-%2d');
 
-	if ($dob <= '0001-01-01') {
+	if ($dob < '0000-01-01') {
 		$value = '';
 	} else {
-		$value = (($year) ? datetime_convert('UTC','UTC',$dob,'Y-m-d') : datetime_convert('UTC','UTC',$dob,'m-d'));
+		$value = (($year > 1000) ? datetime_convert('UTC', 'UTC', $dob, 'Y-m-d') : datetime_convert('UTC', 'UTC', '1000-' . $month . '-'. $day, 'm-d'));
 	}
 
-	$age = ((intval($value)) ? age($value, $a->user["timezone"], $a->user["timezone"]) : "");
+	$age = (intval($value) ? age($value, $a->user["timezone"], $a->user["timezone"]) : "");
 
 	$o = replace_macros(get_markup_template("field_input.tpl"), [
 		'$field' => [
@@ -199,12 +199,6 @@ function dob($dob)
 			'placeholder="' . t('YYYY-MM-DD or MM-DD') . '"'
 		]
 	]);
-
-	/// @TODO Old-lost code?
-//	if ($dob && $dob > '0001-01-01')
-//		$o = datesel($f,mktime(0,0,0,0,0,1900),mktime(),mktime(0,0,0,$month,$day,$year), 'dob');
-//	else
-//		$o = datesel($f,mktime(0,0,0,0,0,1900),mktime(),false,'dob');
 
 	return $o;
 }
