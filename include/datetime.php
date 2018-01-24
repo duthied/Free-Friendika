@@ -193,7 +193,7 @@ function dob($dob)
 	$o = replace_macros(get_markup_template("field_input.tpl"), [
 		'$field' => [
 			'dob',
-			t('Birthday:'),
+			L10n::t('Birthday:'),
 			$value,
 			(((intval($age)) > 0 ) ? L10n::t('Age: ') . $age : ""),
 			'',

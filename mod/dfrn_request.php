@@ -639,7 +639,7 @@ function dfrn_request_content(App $a)
 		$page_desc = L10n::t("Please enter your 'Identity Address' from one of the following supported communications networks:");
 
 		$invite_desc = sprintf(
-			t('If you are not yet a member of the free social web, <a href="%s">follow this link to find a public Friendica site and join us today</a>.'),
+			L10n::t('If you are not yet a member of the free social web, <a href="%s">follow this link to find a public Friendica site and join us today</a>.'),
 			get_server() . '/servers'
 		);
 

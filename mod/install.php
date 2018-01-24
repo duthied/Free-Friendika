@@ -545,7 +545,7 @@ function load_database() {
 function what_next() {
 	$baseurl = System::baseUrl();
 	return
-		t('<h1>What next</h1>')
+		L10n::t('<h1>What next</h1>')
 		."<p>".L10n::t('IMPORTANT: You will need to [manually] setup a scheduled task for the worker.')
 		.L10n::t('Please see the file "INSTALL.txt".')
 		."</p><p>"
