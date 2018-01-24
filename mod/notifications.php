@@ -168,7 +168,7 @@ function notifications_content(App $a) {
 						'$str_notifytype' => L10n::t('Notification type: '),
 						'$notify_type' => $it['notify_type'],
 						'$intro_id' => $it['intro_id'],
-						'$madeby' => sprintf(L10n::t('suggested by %s'), $it['madeby']),
+						'$madeby' => L10n::t('suggested by %s', $it['madeby']),
 						'$contact_id' => $it['contact-id'],
 						'$photo' => $it['photo'],
 						'$fullname' => $it['name'],
@@ -199,13 +199,13 @@ function notifications_content(App $a) {
 							$lbl_knowyou = L10n::t('Claims to be known to you: ');
 							$knowyou = (($it['knowyou']) ? L10n::t('yes') : L10n::t('no'));
 							$helptext = L10n::t('Shall your connection be bidirectional or not?');
-							$helptext2 = sprintf(L10n::t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.'), $it['name'], $it['name']);
-							$helptext3 = sprintf(L10n::t('Accepting %s as a subscriber allows them to subscribe to your posts, but you will not receive updates from them in your news feed.'), $it['name']);
+							$helptext2 = L10n::t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.', $it['name'], $it['name']);
+							$helptext3 = L10n::t('Accepting %s as a subscriber allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $it['name']);
 						} else {
 							$knowyou = '';
 							$helptext = L10n::t('Shall your connection be bidirectional or not?');
-							$helptext2 = sprintf(L10n::t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.'), $it['name'], $it['name']);
-							$helptext3 = sprintf(L10n::t('Accepting %s as a sharer allows them to subscribe to your posts, but you will not receive updates from them in your news feed.'), $it['name']);
+							$helptext2 = L10n::t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.', $it['name'], $it['name']);
+							$helptext3 = L10n::t('Accepting %s as a sharer allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $it['name']);
 						}
 					}
 
@@ -311,7 +311,7 @@ function notifications_content(App $a) {
 
 		// It doesn't make sense to show the Show unread / Show all link visible if the user is on the
 		// "Show all" page and there are no notifications. So we will hide it.
-		if($show == 0 || intval($show) && $notifs['total'] > 0) {
+		if ($show == 0 || intval($show) && $notifs['total'] > 0) {
 			$notif_show_lnk = [
 				'href' => ($show ? 'notifications/'.$notifs['ident'] : 'notifications/'.$notifs['ident'].'?show=all' ),
 				'text' => ($show ? L10n::t('Show unread') : L10n::t('Show all')),
@@ -319,8 +319,9 @@ function notifications_content(App $a) {
 		}
 
 		// Output if there aren't any notifications available
-		if($notifs['total'] == 0)
-			$notif_nocontent = sprintf(L10n::t('No more %s notifications.'), $notifs['ident']);
+		if ($notifs['total'] == 0) {
+			$notif_nocontent = L10n::t('No more %s notifications.', $notifs['ident']);
+		}
 	}
 
 	$o .= replace_macros($notif_tpl, [

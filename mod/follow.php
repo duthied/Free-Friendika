@@ -144,12 +144,12 @@ function follow_content(App $a) {
 
 	$header = L10n::t("Connect/Follow");
 
-	$o  = replace_macros($tpl,[
+	$o  = replace_macros($tpl, [
 			'$header' => htmlentities($header),
 			//'$photo' => proxy_url($ret["photo"], false, PROXY_SIZE_SMALL),
 			'$desc' => "",
 			'$pls_answer' => L10n::t('Please answer the following:'),
-			'$does_know_you' => ['knowyou', sprintf(L10n::t('Does %s know you?'),$ret["name"]), false, '', [L10n::t('No'), L10n::t('Yes')]],
+			'$does_know_you' => ['knowyou', L10n::t('Does %s know you?', $ret["name"]), false, '', [L10n::t('No'), L10n::t('Yes')]],
 			'$add_note' => L10n::t('Add a personal note:'),
 			'$page_desc' => "",
 			'$friendica' => "",
@@ -182,8 +182,8 @@ function follow_content(App $a) {
 
 	if ($gcontact_id <> 0) {
 		$o .= replace_macros(get_markup_template('section_title.tpl'),
-						['$title' => L10n::t('Status Messages and Posts')
-		]);
+			['$title' => L10n::t('Status Messages and Posts')]
+		);
 
 		// Show last public posts
 		$o .= Contact::getPostsFromUrl($ret["url"]);

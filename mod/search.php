@@ -226,10 +226,11 @@ function search_content(App $a) {
 	}
 
 
-	if ($tag)
-		$title = sprintf(L10n::t('Items tagged with: %s'), $search);
-	else
-		$title = sprintf(L10n::t('Results for: %s'), $search);
+	if ($tag) {
+		$title = L10n::t('Items tagged with: %s', $search);
+	} else {
+		$title = L10n::t('Results for: %s', $search);
+	}
 
 	$o .= replace_macros(get_markup_template("section_title.tpl"),[
 		'$title' => $title

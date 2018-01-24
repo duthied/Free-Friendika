@@ -102,7 +102,7 @@ function fbrowser_content(App $a)
 				'$files'    => $files,
 				'$cancel'   => L10n::t('Cancel'),
 				'$nickname' => $a->user['nickname'],
-				'$upload'	=> L10n::t('Upload')
+				'$upload'   => L10n::t('Upload')
 			]);
 
 			break;
@@ -133,7 +133,7 @@ function fbrowser_content(App $a)
 					'$files'    => $files,
 					'$cancel'   => L10n::t('Cancel'),
 					'$nickname' => $a->user['nickname'],
-					'$upload'	=> L10n::t('Upload')
+					'$upload'   => L10n::t('Upload')
 				]);
 			}
 

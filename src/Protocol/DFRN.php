@@ -1394,8 +1394,8 @@ class DFRN
 
 		logger("updating birthday: ".$birthday." for contact ".$contact["id"]);
 
-		$bdtext = sprintf(L10n::t("%s\'s birthday"), $contact["name"]);
-		$bdtext2 = sprintf(L10n::t("Happy Birthday %s"), " [url=".$contact["url"]."]".$contact["name"]."[/url]");
+		$bdtext = L10n::t("%s\'s birthday", $contact["name"]);
+		$bdtext2 = L10n::t("Happy Birthday %s", " [url=".$contact["url"]."]".$contact["name"]."[/url]");
 
 		$r = q(
 			"INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`)

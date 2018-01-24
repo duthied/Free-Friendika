@@ -12,8 +12,8 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Protocol\Email;
 
-function invite_post(App $a) {
-
+function invite_post(App $a)
+{
 	if (! local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
@@ -47,11 +47,10 @@ function invite_post(App $a) {
 	}
 
 	foreach ($recips as $recip) {
-
 		$recip = trim($recip);
 
 		if (! valid_email($recip)) {
-			notice(sprintf(L10n::t('%s : Not a valid email address.'), $recip) . EOL);
+			notice(L10n::t('%s : Not a valid email address.', $recip) . EOL);
 			continue;
 		}
 
@@ -91,14 +90,13 @@ function invite_post(App $a) {
 				return;
 			}
 		} else {
-			notice(sprintf(L10n::t('%s : Message delivery failed.'), $recip) . EOL);
+			notice(L10n::t('%s : Message delivery failed.', $recip) . EOL);
 		}
 
 	}
-	notice(sprintf(L10n::tt("%d message sent.", "%d messages sent.", $total), $total) . EOL);
+	notice(L10n::tt("%d message sent.", "%d messages sent.", $total) . EOL);
 	return;
 }
-
 
 function invite_content(App $a) {
 
@@ -122,17 +120,17 @@ function invite_content(App $a) {
 	$dirloc = Config::get('system', 'directory');
 	if (strlen($dirloc)) {
 		if ($a->config['register_policy'] == REGISTER_CLOSED) {
-			$linktxt = sprintf(L10n::t('Visit %s for a list of public sites that you can join. Friendica members on other sites can all connect with each other, as well as with members of many other social networks.'), $dirloc . '/servers');
+			$linktxt = L10n::t('Visit %s for a list of public sites that you can join. Friendica members on other sites can all connect with each other, as well as with members of many other social networks.', $dirloc . '/servers');
 		} else {
-			$linktxt = sprintf(L10n::t('To accept this invitation, please visit and register at %s or any other public Friendica website.'), System::baseUrl())
-			. "\r\n" . "\r\n" . sprintf(L10n::t('Friendica sites all inter-connect to create a huge privacy-enhanced social web that is owned and controlled by its members. They can also connect with many traditional social networks. See %s for a list of alternate Friendica sites you can join.'), $dirloc . '/servers');
+			$linktxt = L10n::t('To accept this invitation, please visit and register at %s or any other public Friendica website.', System::baseUrl())
+			. "\r\n" . "\r\n" . L10n::t('Friendica sites all inter-connect to create a huge privacy-enhanced social web that is owned and controlled by its members. They can also connect with many traditional social networks. See %s for a list of alternate Friendica sites you can join.', $dirloc . '/servers');
 		}
 	} else { // there is no global directory URL defined
 		if ($a->config['register_policy'] == REGISTER_CLOSED) {
 			$o = L10n::t('Our apologies. This system is not currently configured to connect with other public sites or invite members.');
 			return $o;
 		} else {
-			$linktxt = sprintf(L10n::t('To accept this invitation, please visit and register at %s.'), System::baseUrl()
+			$linktxt = L10n::t('To accept this invitation, please visit and register at %s.', System::baseUrl()
 			. "\r\n" . "\r\n" . L10n::t('Friendica sites all inter-connect to create a huge privacy-enhanced social web that is owned and controlled by its members. They can also connect with many traditional social networks.'));
 		}
 	}

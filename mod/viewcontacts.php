@@ -110,7 +110,7 @@ function viewcontacts_content(App $a)
 
 		$contacts[] = [
 			'id' => $rr['id'],
-			'img_hover' => sprintf(L10n::t('Visit %s\'s profile [%s]'), $contact_details['name'], $rr['url']),
+			'img_hover' => L10n::t('Visit %s\'s profile [%s]', $contact_details['name'], $rr['url']),
 			'photo_menu' => Contact::photoMenu($rr),
 			'thumb' => proxy_url($contact_details['thumb'], false, PROXY_SIZE_THUMB),
 			'name' => htmlentities(substr($contact_details['name'], 0, 20)),

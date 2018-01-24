@@ -2406,7 +2406,7 @@ class Diaspora
 				$A = "[url=".$self[0]["url"]."]".$self[0]["name"]."[/url]";
 				$B = "[url=".$contact["url"]."]".$contact["name"]."[/url]";
 				$BPhoto = "[url=".$contact["url"]."][img]".$contact["thumb"]."[/img][/url]";
-				$arr["body"] = sprintf(L10n::t('%1$s is now friends with %2$s'), $A, $B)."\n\n\n".$BPhoto;
+				$arr["body"] = L10n::t('%1$s is now friends with %2$s', $A, $B)."\n\n\n".$BPhoto;
 
 				$arr["object"] = self::constructNewFriendObject($contact);
 

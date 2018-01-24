@@ -99,7 +99,7 @@ function allfriends_content(App $a)
 	$tpl = get_markup_template('viewcontact_template.tpl');
 
 	$o .= replace_macros($tpl, [
-		//'$title' => sprintf(L10n::t('Friends of %s'), htmlentities($c[0]['name'])),
+		//'$title' => L10n::t('Friends of %s', htmlentities($c[0]['name'])),
 		'$tab_str' => $tab_str,
 		'$contacts' => $entries,
 		'$paginate' => paginate($a),

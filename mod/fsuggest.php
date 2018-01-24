@@ -99,7 +99,7 @@ function fsuggest_content(App $a)
 
 	$o = '<h3>' . L10n::t('Suggest Friends') . '</h3>';
 
-	$o .= '<div id="fsuggest-desc" >' . sprintf(L10n::t('Suggest a friend for %s'), $contact['name']) . '</div>';
+	$o .= '<div id="fsuggest-desc" >' . L10n::t('Suggest a friend for %s', $contact['name']) . '</div>';
 
 	$o .= '<form id="fsuggest-form" action="fsuggest/' . $contact_id . '" method="post" >';
 

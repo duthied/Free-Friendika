@@ -120,7 +120,7 @@ class UserImport
 		}
 
 		if (DBM::is_result($r) > 0) {
-			notice(sprintf(L10n::t("User '%s' already exists on this server!"), $account['user']['nickname']));
+			notice(L10n::t("User '%s' already exists on this server!", $account['user']['nickname']));
 			return;
 		}
 
@@ -133,7 +133,7 @@ class UserImport
 		}
 
 		if (DBM::is_result($r) > 0) {
-			notice(sprintf(L10n::t("User '%s' already exists on this server!"), $account['user']['nickname']));
+			notice(L10n::t("User '%s' already exists on this server!", $account['user']['nickname']));
 			return;
 		}
 
@@ -231,7 +231,7 @@ class UserImport
 			}
 		}
 		if ($errorcount > 0) {
-			notice(sprintf(L10n::tt("%d contact not imported", "%d contacts not imported", $errorcount), $errorcount));
+			notice(L10n::tt("%d contact not imported", "%d contacts not imported", $errorcount));
 		}
 
 		foreach ($account['group'] as &$group) {

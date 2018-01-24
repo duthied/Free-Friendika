@@ -1177,8 +1177,8 @@ function api_statuses_update($type)
 
 			if ($posts_day > $throttle_day) {
 				logger('Daily posting limit reached for user '.api_user(), LOGGER_DEBUG);
-				// die(api_error($type, sprintf(L10n::t("Daily posting limit of %d posts reached. The post was rejected."), $throttle_day)));
-				throw new TooManyRequestsException(sprintf(L10n::t("Daily posting limit of %d posts reached. The post was rejected."), $throttle_day));
+				// die(api_error($type, L10n::t("Daily posting limit of %d posts reached. The post was rejected.", $throttle_day));
+				throw new TooManyRequestsException(L10n::t("Daily posting limit of %d posts reached. The post was rejected.", $throttle_day));
 			}
 		}
 
@@ -1201,8 +1201,8 @@ function api_statuses_update($type)
 
 			if ($posts_week > $throttle_week) {
 				logger('Weekly posting limit reached for user '.api_user(), LOGGER_DEBUG);
-				// die(api_error($type, sprintf(L10n::t("Weekly posting limit of %d posts reached. The post was rejected."), $throttle_week)));
-				throw new TooManyRequestsException(sprintf(L10n::t("Weekly posting limit of %d posts reached. The post was rejected."), $throttle_week));
+				// die(api_error($type, L10n::t("Weekly posting limit of %d posts reached. The post was rejected.", $throttle_week)));
+				throw new TooManyRequestsException(L10n::t("Weekly posting limit of %d posts reached. The post was rejected.", $throttle_week));
 			}
 		}
 
@@ -1225,8 +1225,8 @@ function api_statuses_update($type)
 
 			if ($posts_month > $throttle_month) {
 				logger('Monthly posting limit reached for user '.api_user(), LOGGER_DEBUG);
-				// die(api_error($type, sprintf(L10n::t("Monthly posting limit of %d posts reached. The post was rejected."), $throttle_month)));
-				throw new TooManyRequestsException(sprintf(L10n::t("Monthly posting limit of %d posts reached. The post was rejected."), $throttle_month));
+				// die(api_error($type, L10n::t("Monthly posting limit of %d posts reached. The post was rejected.", $throttle_month));
+				throw new TooManyRequestsException(L10n::t("Monthly posting limit of %d posts reached. The post was rejected.", $throttle_month));
 			}
 		}
 

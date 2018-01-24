@@ -357,8 +357,7 @@ function populate_acl($user = null, $show_jotnets = false) {
 
 			Addon::callHooks('jot_networks', $jotnets);
 		} else {
-			$jotnets .= sprintf(L10n::t('Connectors disabled, since "%s" is enabled.'),
-					    L10n::t('Hide your profile details from unknown viewers?'));
+			$jotnets .= L10n::t('Connectors disabled, since "%s" is enabled.', 'Hide your profile details from unknown viewers?');
 		}
 	}
 

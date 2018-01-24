@@ -251,7 +251,7 @@ class NotificationsManager extends BaseObject
 						$default_item_link = System::baseUrl(true) . '/display/' . $it['pguid'];
 						$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
 						$default_item_url = $it['author-link'];
-						$default_item_text = sprintf(L10n::t("%s commented on %s's post"), $it['author-name'], $it['pname']);
+						$default_item_text = L10n::t("%s commented on %s's post", $it['author-name'], $it['pname']);
 						$default_item_when = datetime_convert('UTC', date_default_timezone_get(), $it['created'], 'r');
 						$default_item_ago = relative_date($it['created']);
 						break;
@@ -262,8 +262,8 @@ class NotificationsManager extends BaseObject
 						$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
 						$default_item_url = $it['author-link'];
 						$default_item_text = (($it['id'] == $it['parent'])
-									? sprintf(L10n::t("%s created a new post"), $it['author-name'])
-									: sprintf(L10n::t("%s commented on %s's post"), $it['author-name'], $it['pname']));
+									? L10n::t("%s created a new post", $it['author-name'])
+									: L10n::t("%s commented on %s's post", $it['author-name'], $it['pname']));
 						$default_item_when = datetime_convert('UTC', date_default_timezone_get(), $it['created'], 'r');
 						$default_item_ago = relative_date($it['created']);
 				}
@@ -276,7 +276,7 @@ class NotificationsManager extends BaseObject
 							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
-							'text' => sprintf(L10n::t("%s liked %s's post"), $it['author-name'], $it['pname']),
+							'text' => L10n::t("%s liked %s's post", $it['author-name'], $it['pname']),
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
@@ -289,7 +289,7 @@ class NotificationsManager extends BaseObject
 							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
-							'text' => sprintf(L10n::t("%s disliked %s's post"), $it['author-name'], $it['pname']),
+							'text' => L10n::t("%s disliked %s's post", $it['author-name'], $it['pname']),
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
@@ -302,7 +302,7 @@ class NotificationsManager extends BaseObject
 							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
-							'text' => sprintf(L10n::t("%s is attending %s's event"), $it['author-name'], $it['pname']),
+							'text' => L10n::t("%s is attending %s's event", $it['author-name'], $it['pname']),
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
@@ -315,7 +315,7 @@ class NotificationsManager extends BaseObject
 							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
-							'text' => sprintf(L10n::t("%s is not attending %s's event"), $it['author-name'], $it['pname']),
+							'text' => L10n::t("%s is not attending %s's event", $it['author-name'], $it['pname']),
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
@@ -328,7 +328,7 @@ class NotificationsManager extends BaseObject
 							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
-							'text' => sprintf(L10n::t("%s may attend %s's event"), $it['author-name'], $it['pname']),
+							'text' => L10n::t("%s may attend %s's event", $it['author-name'], $it['pname']),
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
@@ -345,7 +345,7 @@ class NotificationsManager extends BaseObject
 							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
-							'text' => sprintf(L10n::t("%s is now friends with %s"), $it['author-name'], $it['fname']),
+							'text' => L10n::t("%s is now friends with %s", $it['author-name'], $it['fname']),
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']

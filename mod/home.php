@@ -36,7 +36,7 @@ function home_content(App $a) {
 	}
 
 	$customhome = false;
-	$defaultheader = '<h1>'.((x($a->config,'sitename')) ? sprintf(L10n::t("Welcome to %s"), $a->config['sitename']) : "").'</h1>';
+	$defaultheader = '<h1>'.((x($a->config,'sitename')) ? L10n::t("Welcome to %s", $a->config['sitename']) : "").'</h1>';
 
 	$homefilepath = $a->basepath . "/home.html";
 	$cssfilepath = $a->basepath . "/home.css";

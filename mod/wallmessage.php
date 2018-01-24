@@ -46,7 +46,7 @@ function wallmessage_post(App $a) {
 	);
 
 	if ($r[0]['total'] > $user['cntunkmail']) {
-		notice(sprintf(L10n::t('Number of daily wall messages for %s exceeded. Message failed.', $user['username'])));
+		notice(L10n::t('Number of daily wall messages for %s exceeded. Message failed.', $user['username']));
 		return;
 	}
 
@@ -109,7 +109,7 @@ function wallmessage_content(App $a) {
 	);
 
 	if ($r[0]['total'] > $user['cntunkmail']) {
-		notice(sprintf(L10n::t('Number of daily wall messages for %s exceeded. Message failed.', $user['username'])));
+		notice(L10n::t('Number of daily wall messages for %s exceeded. Message failed.', $user['username']));
 		return;
 	}
 
@@ -130,7 +130,7 @@ function wallmessage_content(App $a) {
 	$tpl = get_markup_template('wallmessage.tpl');
 	$o .= replace_macros($tpl, [
 		'$header' => L10n::t('Send Private Message'),
-		'$subheader' => sprintf(L10n::t('If you wish for %s to respond, please check that the privacy settings on your site allow private mail from unknown senders.'), $user['username']),
+		'$subheader' => L10n::t('If you wish for %s to respond, please check that the privacy settings on your site allow private mail from unknown senders.', $user['username']),
 		'$to' => L10n::t('To:'),
 		'$subject' => L10n::t('Subject:'),
 		'$recipname' => $user['username'],

@@ -188,7 +188,7 @@ class DBStructure
 	 * @return string Error message
 	 */
 	private static function printUpdateError($message) {
-		echo sprintf(L10n::t("\nError %d occurred during database update:\n%s\n"),
+		echo L10n::t("\nError %d occurred during database update:\n%s\n",
 			dba::errorNo(), dba::errorMessage());
 
 		return L10n::t('Errors encountered performing database changes: ').$message.EOL;
@@ -206,7 +206,7 @@ class DBStructure
 	public static function update($verbose, $action, array $tables = null, array $definition = null) {
 		if ($action) {
 			Config::set('system', 'maintenance', 1);
-			Config::set('system', 'maintenance_reason', sprintf(L10n::t(': Database update'), DBM::date().' '.date('e')));
+			Config::set('system', 'maintenance_reason', L10n::t(': Database update', DBM::date().' '.date('e')));
 		}
 
 		$errors = '';
@@ -456,7 +456,7 @@ class DBStructure
 				}
 
 				if ($action) {
-					Config::set('system', 'maintenance_reason', sprintf(L10n::t('%s: updating %s table.'), DBM::date().' '.date('e'), $name));
+					Config::set('system', 'maintenance_reason', L10n::t('%s: updating %s table.', DBM::date().' '.date('e'), $name));
 
 					// Ensure index conversion to unique removes duplicates
 					if ($is_unique && ($temp_name != $name)) {

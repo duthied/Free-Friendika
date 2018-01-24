@@ -581,10 +581,10 @@ function profile_activity($changed, $value) {
 	$prof = '[url=' . $self[0]['url'] . '?tab=profile' . ']' . L10n::t('public profile') . '[/url]';
 
 	if ($t == 1 && strlen($value)) {
-		$message = sprintf(L10n::t('%1$s changed %2$s to &ldquo;%3$s&rdquo;'), $A, $changes, $value);
-		$message .= "\n\n" . sprintf(L10n::t(' - Visit %1$s\'s %2$s'), $A, $prof);
+		$message = L10n::t('%1$s changed %2$s to &ldquo;%3$s&rdquo;', $A, $changes, $value);
+		$message .= "\n\n" . L10n::t(' - Visit %1$s\'s %2$s', $A, $prof);
 	} else {
-		$message = 	sprintf(L10n::t('%1$s has an updated %2$s, changing %3$s.'), $A, $prof, $changes);
+		$message = 	L10n::t('%1$s has an updated %2$s, changing %3$s.', $A, $prof, $changes);
 	}
 
 

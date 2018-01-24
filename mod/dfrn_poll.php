@@ -117,7 +117,7 @@ function dfrn_poll_init(App $a)
 					$_SESSION['visitor_handle'] = $r[0]['addr'];
 					$_SESSION['visitor_visiting'] = $r[0]['uid'];
 					if (!$quiet) {
-						info(sprintf(L10n::t('%1$s welcomes %2$s'), $r[0]['username'], $r[0]['name']) . EOL);
+						info(L10n::t('%1$s welcomes %2$s', $r[0]['username'], $r[0]['name']) . EOL);
 					}
 
 					// Visitors get 1 day session.
@@ -537,7 +537,7 @@ function dfrn_poll_content(App $a)
 					$_SESSION['visitor_home'] = $r[0]['url'];
 					$_SESSION['visitor_visiting'] = $r[0]['uid'];
 					if (!$quiet) {
-						info(sprintf(L10n::t('%1$s welcomes %2$s'), $r[0]['username'], $r[0]['name']) . EOL);
+						info(L10n::t('%1$s welcomes %2$s', $r[0]['username'], $r[0]['name']) . EOL);
 					}
 
 					// Visitors get 1 day session.

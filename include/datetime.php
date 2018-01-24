@@ -611,8 +611,8 @@ function update_contact_birthdays() {
 				continue;
 			}
 
-			$bdtext = sprintf(L10n::t('%s\'s birthday'), $rr['name']);
-			$bdtext2 = sprintf(L10n::t('Happy Birthday %s'), ' [url=' . $rr['url'] . ']' . $rr['name'] . '[/url]') ;
+			$bdtext = L10n::t('%s\'s birthday', $rr['name']);
+			$bdtext2 = L10n::t('Happy Birthday %s', ' [url=' . $rr['url'] . ']' . $rr['name'] . '[/url]');
 
 			q("INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`,`adjust`)
 				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d' ) ",

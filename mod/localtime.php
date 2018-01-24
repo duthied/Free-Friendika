@@ -35,14 +35,14 @@ function localtime_content(App $a)
 
 
 
-	$o .= '<p>' . sprintf(L10n::t('UTC time: %s'), $t) . '</p>';
+	$o .= '<p>' . L10n::t('UTC time: %s', $t) . '</p>';
 
 	if ($_REQUEST['timezone']) {
-		$o .= '<p>' . sprintf(L10n::t('Current timezone: %s'), $_REQUEST['timezone']) . '</p>';
+		$o .= '<p>' . L10n::t('Current timezone: %s', $_REQUEST['timezone']) . '</p>';
 	}
 
 	if (x($a->data, 'mod-localtime')) {
-		$o .= '<p>' . sprintf(L10n::t('Converted localtime: %s'), $a->data['mod-localtime']) . '</p>';
+		$o .= '<p>' . L10n::t('Converted localtime: %s', $a->data['mod-localtime']) . '</p>';
 	}
 
 

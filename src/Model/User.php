@@ -532,7 +532,7 @@ class User
 		return notification([
 			'type' => SYSTEM_EMAIL,
 			'to_email' => $email,
-			'subject'=> sprintf(L10n::t('Registration at %s'), $sitename),
+			'subject'=> L10n::t('Registration at %s', $sitename),
 			'body' => $body]);
 	}
 
@@ -586,7 +586,7 @@ class User
 		return notification([
 			'type' => SYSTEM_EMAIL,
 			'to_email' => $email,
-			'subject'=> sprintf(L10n::t('Registration details for %s'), $sitename),
+			'subject'=> L10n::t('Registration details for %s', $sitename),
 			'preamble'=> $preamble,
 			'body' => $body]);
 	}

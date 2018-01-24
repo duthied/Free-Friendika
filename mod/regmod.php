@@ -90,7 +90,7 @@ function user_deny($hash)
 	dba::delete('user', ['uid' => $register[0]['uid']]);
 	dba::delete('register', ['hash' => $register[0]['hash']]);
 
-	notice(sprintf(L10n::t('Registration revoked for %s'), $user[0]['username']) . EOL);
+	notice(L10n::t('Registration revoked for %s', $user[0]['username']) . EOL);
 	return true;
 }
 

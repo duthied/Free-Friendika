@@ -44,7 +44,7 @@ function dirfind_content(App $a, $prefix = "") {
 
 	if (strpos($search,'@') === 0) {
 		$search = substr($search,1);
-		$header = sprintf(L10n::t('People Search - %s'), $search);
+		$header = L10n::t('People Search - %s', $search);
 		if ((valid_email($search) && validate_email($search)) ||
 			(substr(normalise_link($search), 0, 7) == "http://")) {
 			$user_data = Probe::uri($search);
@@ -55,7 +55,7 @@ function dirfind_content(App $a, $prefix = "") {
 	if (strpos($search,'!') === 0) {
 		$search = substr($search,1);
 		$community = true;
-		$header = sprintf(L10n::t('Forum Search - %s'), $search);
+		$header = L10n::t('Forum Search - %s', $search);
 	}
 
 	$o = '';

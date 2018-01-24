@@ -82,7 +82,7 @@ function profile_photo_post(App $a) {
 				$r = Photo::store($Image, local_user(), 0, $base_image['resource-id'],$base_image['filename'], L10n::t('Profile Photos'), 4, $is_default_profile);
 
 				if ($r === false) {
-					notice(sprintf(L10n::t('Image size reduction [%s] failed.'),"175") . EOL);
+					notice(L10n::t('Image size reduction [%s] failed.', "175") . EOL);
 				}
 
 				$Image->scaleDown(80);
@@ -90,7 +90,7 @@ function profile_photo_post(App $a) {
 				$r = Photo::store($Image, local_user(), 0, $base_image['resource-id'],$base_image['filename'], L10n::t('Profile Photos'), 5, $is_default_profile);
 
 				if ($r === false) {
-					notice( sprintf(L10n::t('Image size reduction [%s] failed.'),"80") . EOL );
+					notice(L10n::t('Image size reduction [%s] failed.', "80") . EOL);
 				}
 
 				$Image->scaleDown(48);
@@ -98,7 +98,7 @@ function profile_photo_post(App $a) {
 				$r = Photo::store($Image, local_user(), 0, $base_image['resource-id'],$base_image['filename'], L10n::t('Profile Photos'), 6, $is_default_profile);
 
 				if ($r === false) {
-					notice( sprintf(L10n::t('Image size reduction [%s] failed.'),"48") . EOL );
+					notice(L10n::t('Image size reduction [%s] failed.', "48") . EOL);
 				}
 
 				// If setting for the default profile, unset the profile photo flag from any other photos I own
@@ -160,7 +160,7 @@ function profile_photo_post(App $a) {
 	$maximagesize = Config::get('system', 'maximagesize');
 
 	if (($maximagesize) && ($filesize > $maximagesize)) {
-		notice(sprintf(L10n::t('Image exceeds size limit of %s'), formatBytes($maximagesize)) . EOL);
+		notice(L10n::t('Image exceeds size limit of %s', formatBytes($maximagesize)) . EOL);
 		@unlink($src);
 		return;
 	}
@@ -325,7 +325,7 @@ function profile_photo_crop_ui_head(App $a, Image $Image) {
 		$r = Photo::store($Image, local_user(), 0, $hash, $filename, L10n::t('Profile Photos'), 1);
 
 		if ($r === false) {
-			notice(sprintf(L10n::t('Image size reduction [%s] failed.'), "640") . EOL);
+			notice(L10n::t('Image size reduction [%s] failed.', "640") . EOL);
 		} else {
 			$smallest = 1;
 		}

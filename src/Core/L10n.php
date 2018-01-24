@@ -132,9 +132,9 @@ class L10n
 	 * string interpolation (sprintf) with additional optional arguments.
 	 *
 	 * Usages:
-	 * - t('This is an example')
-	 * - t('URL %s returned no result', $url)
-	 * - t('Current version: %s, new version: %s', $current_version, $new_version)
+	 * - L10n::t('This is an example')
+	 * - L10n::t('URL %s returned no result', $url)
+	 * - L10n::t('Current version: %s, new version: %s', $current_version, $new_version)
 	 *
 	 * @param string $s
 	 * @return string
@@ -165,8 +165,8 @@ class L10n
 	 * is performed using the count as parameter.
 	 *
 	 * Usages:
-	 * - tt('Like', 'Likes', $count)
-	 * - tt("%s user deleted", "%s users deleted", count($users))
+	 * - L10n::tt('Like', 'Likes', $count)
+	 * - L10n::tt("%s user deleted", "%s users deleted", count($users))
 	 *
 	 * @global type $lang
 	 * @param string $singular
