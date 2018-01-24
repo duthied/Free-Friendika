@@ -29,7 +29,7 @@ function removeme_post(App $a)
 		return;
 	}
 
-	if (User::authenticate($a->user['uid'], trim($_POST['qxz_password']))) {
+	if (User::authenticate($a->user, trim($_POST['qxz_password']))) {
 		User::remove($a->user['uid']);
 		// NOTREACHED
 	}
