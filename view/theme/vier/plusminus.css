@@ -12,7 +12,6 @@ h1 {
 h2 {
   font-size: 16px;
   color: blue;
-  background-color: #EEEEEE;
   border-radius:5px;
 }
 
@@ -293,6 +292,10 @@ div.pager, ul.tabs {
 
 
 /* Post content */
+.mention {
+  font-weight: bold;
+}
+
 .wall-item-content blockquote {
   border-left: 0px;
   margin-top: 10px;
@@ -552,8 +555,9 @@ select{
 .settings-heading {
   font-size: 18px;
   font-weight: bold;
-  background-color: #cfcece;
+  background-color: whitesmoke;
   border-radius: 5px;
+  border-bottom: 1px solid black;
 }
 
 .setings-contend-block {
