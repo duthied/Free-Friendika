@@ -1049,7 +1049,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	$Text = preg_replace($expression, System::baseUrl()."/display/$1", $Text);
 
 	$Text = preg_replace("/([#])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-				'$1<a href="$2" class="tag" title="$3">$3</a>', $Text);
+				'$1<a href="' . System::baseUrl() . '/search?tag=$3" class="tag" title="$3">$3</a>', $Text);
 
 	$Text = preg_replace("/\[url\]([$URLSearchString]*)\[\/url\]/ism", '<a href="$1" target="_blank">$1</a>', $Text);
 	$Text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="$1" target="_blank">$2</a>', $Text);
