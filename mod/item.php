@@ -1045,5 +1045,5 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 		}
 	}
 
-	return ['replaced' => $replaced, 'contact' => $r[0]];
+	return ['replaced' => $replaced, 'contact' => $contact];
 }
