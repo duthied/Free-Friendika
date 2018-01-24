@@ -6,6 +6,7 @@
 use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -99,18 +100,18 @@ function events_post(App $a) {
 	$onerror_url = System::baseUrl() . "/events/" . $action . "?summary=$summary&description=$desc&location=$location&start=$start_text&finish=$finish_text&adjust=$adjust&nofinish=$nofinish";
 
 	if (strcmp($finish, $start) < 0 && !$nofinish) {
-		notice(t('Event can not end before it has started.') . EOL);
+		notice(L10n::t('Event can not end before it has started.') . EOL);
 		if (intval($_REQUEST['preview'])) {
-			echo t('Event can not end before it has started.');
+			echo L10n::t('Event can not end before it has started.');
 			killme();
 		}
 		goaway($onerror_url);
 	}
 
 	if ((! $summary) || ($start === NULL_DATE)) {
-		notice(t('Event title and start time are required.') . EOL);
+		notice(L10n::t('Event title and start time are required.') . EOL);
 		if (intval($_REQUEST['preview'])) {
-			echo t('Event title and start time are required.');
+			echo L10n::t('Event title and start time are required.');
 			killme();
 		}
 		goaway($onerror_url);
@@ -191,7 +192,7 @@ function events_post(App $a) {
 function events_content(App $a) {
 
 	if (! local_user()) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -388,20 +389,20 @@ function events_content(App $a) {
 		$o = replace_macros($tpl, [
 			'$baseurl'   => System::baseUrl(),
 			'$tabs'      => $tabs,
-			'$title'     => t('Events'),
-			'$view'      => t('View'),
-			'$new_event' => [System::baseUrl() . '/events/new', t('Create New Event'), '', ''],
-			'$previous'  => [System::baseUrl() . '/events/$prevyear/$prevmonth', t('Previous'), '', ''],
-			'$next'      => [System::baseUrl() . '/events/$nextyear/$nextmonth', t('Next'), '', ''],
+			'$title'     => L10n::t('Events'),
+			'$view'      => L10n::t('View'),
+			'$new_event' => [System::baseUrl() . '/events/new', L10n::t('Create New Event'), '', ''],
+			'$previous'  => [System::baseUrl() . '/events/$prevyear/$prevmonth', L10n::t('Previous'), '', ''],
+			'$next'      => [System::baseUrl() . '/events/$nextyear/$nextmonth', L10n::t('Next'), '', ''],
 			'$calendar'  => cal($y, $m, $links, ' eventcal'),
 
 			'$events'    => $events,
 
-			'$today' => t('today'),
-			'$month' => t('month'),
-			'$week'  => t('week'),
-			'$day'   => t('day'),
-			'$list'  => t('list'),
+			'$today' => L10n::t('today'),
+			'$month' => L10n::t('month'),
+			'$week'  => L10n::t('week'),
+			'$day'   => L10n::t('day'),
+			'$list'  => L10n::t('list'),
 		]);
 
 		if (x($_GET, 'id')) {
@@ -505,34 +506,34 @@ function events_content(App $a) {
 			'$deny_cid'  => json_encode($perms['deny_cid']),
 			'$deny_gid'  => json_encode($perms['deny_gid']),
 
-			'$title' => t('Event details'),
-			'$desc' => t('Starting date and Title are required.'),
-			'$s_text' => t('Event Starts:') . ' <span class="required" title="' . t('Required') . '">*</span>',
-			'$s_dsel' => datetimesel(new DateTime(), DateTime::createFromFormat('Y', $syear+5), DateTime::createFromFormat('Y-m-d H:i', "$syear-$smonth-$sday $shour:$sminute"), t('Event Starts:'), 'start_text', true, true, '', '', true),
-			'$n_text' => t('Finish date/time is not known or not relevant'),
+			'$title' => L10n::t('Event details'),
+			'$desc' => L10n::t('Starting date and Title are required.'),
+			'$s_text' => L10n::t('Event Starts:') . ' <span class="required" title="' . L10n::t('Required') . '">*</span>',
+			'$s_dsel' => datetimesel(new DateTime(), DateTime::createFromFormat('Y', $syear+5), DateTime::createFromFormat('Y-m-d H:i', "$syear-$smonth-$sday $shour:$sminute"), L10n::t('Event Starts:'), 'start_text', true, true, '', '', true),
+			'$n_text' => L10n::t('Finish date/time is not known or not relevant'),
 			'$n_checked' => $n_checked,
-			'$f_text' => t('Event Finishes:'),
-			'$f_dsel' => datetimesel(new DateTime(), DateTime::createFromFormat('Y', $fyear+5), DateTime::createFromFormat('Y-m-d H:i', "$fyear-$fmonth-$fday $fhour:$fminute"), t('Event Finishes:'), 'finish_text', true, true, 'start_text'),
-			'$a_text' => t('Adjust for viewer timezone'),
+			'$f_text' => L10n::t('Event Finishes:'),
+			'$f_dsel' => datetimesel(new DateTime(), DateTime::createFromFormat('Y', $fyear+5), DateTime::createFromFormat('Y-m-d H:i', "$fyear-$fmonth-$fday $fhour:$fminute"), L10n::t('Event Finishes:'), 'finish_text', true, true, 'start_text'),
+			'$a_text' => L10n::t('Adjust for viewer timezone'),
 			'$a_checked' => $a_checked,
-			'$d_text' => t('Description:'),
+			'$d_text' => L10n::t('Description:'),
 			'$d_orig' => $d_orig,
-			'$l_text' => t('Location:'),
+			'$l_text' => L10n::t('Location:'),
 			'$l_orig' => $l_orig,
-			'$t_text' => t('Title:') . ' <span class="required" title="' . t('Required') . '">*</span>',
+			'$t_text' => L10n::t('Title:') . ' <span class="required" title="' . L10n::t('Required') . '">*</span>',
 			'$t_orig' => $t_orig,
-			'$summary' => ['summary', t('Title:'), $t_orig, '', '*'],
-			'$sh_text' => t('Share this event'),
-			'$share' => ['share', t('Share this event'), $sh_checked, '', $sh_disabled],
+			'$summary' => ['summary', L10n::t('Title:'), $t_orig, '', '*'],
+			'$sh_text' => L10n::t('Share this event'),
+			'$share' => ['share', L10n::t('Share this event'), $sh_checked, '', $sh_disabled],
 			'$sh_checked' => $sh_checked,
-			'$nofinish' => ['nofinish', t('Finish date/time is not known or not relevant'), $n_checked],
-			'$adjust' => ['adjust', t('Adjust for viewer timezone'), $a_checked],
-			'$preview' => t('Preview'),
+			'$nofinish' => ['nofinish', L10n::t('Finish date/time is not known or not relevant'), $n_checked],
+			'$adjust' => ['adjust', L10n::t('Adjust for viewer timezone'), $a_checked],
+			'$preview' => L10n::t('Preview'),
 			'$acl' => $acl,
-			'$submit' => t('Submit'),
-			'$basic' => t('Basic'),
-			'$advanced' => t('Advanced'),
-			'$permissions' => t('Permissions'),
+			'$submit' => L10n::t('Submit'),
+			'$basic' => L10n::t('Basic'),
+			'$advanced' => L10n::t('Advanced'),
+			'$permissions' => L10n::t('Permissions'),
 
 		]);
 
@@ -552,9 +553,9 @@ function events_content(App $a) {
 		}
 
 		if ($del == 0) {
-			notice(t('Failed to remove event' ) . EOL);
+			notice(L10n::t('Failed to remove event') . EOL);
 		} else {
-			info(t('Event removed') . EOL);
+			info(L10n::t('Event removed') . EOL);
 		}
 
 		goaway(System::baseUrl() . '/events');

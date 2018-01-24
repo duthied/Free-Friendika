@@ -1,7 +1,10 @@
 <?php
-
+/**
+ * @file include/like.php
+ */
 use Friendica\App;
 use Friendica\Core\Addon;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -31,31 +34,31 @@ function do_like($item_id, $verb) {
 
 	switch ($verb) {
 		case 'like':
-			$bodyverb = t('%1$s likes %2$s\'s %3$s');
+			$bodyverb = L10n::t('%1$s likes %2$s\'s %3$s');
 			$activity = ACTIVITY_LIKE;
 			break;
 		case 'unlike':
-			$bodyverb = t('%1$s doesn\'t like %2$s\'s %3$s');
+			$bodyverb = L10n::t('%1$s doesn\'t like %2$s\'s %3$s');
 			$activity = ACTIVITY_LIKE;
 			break;
 		case 'dislike':
 		case 'undislike':
-			$bodyverb = t('%1$s doesn\'t like %2$s\'s %3$s');
+			$bodyverb = L10n::t('%1$s doesn\'t like %2$s\'s %3$s');
 			$activity = ACTIVITY_DISLIKE;
 			break;
 		case 'attendyes':
 		case 'unattendyes':
-			$bodyverb = t('%1$s is attending %2$s\'s %3$s');
+			$bodyverb = L10n::t('%1$s is attending %2$s\'s %3$s');
 			$activity = ACTIVITY_ATTEND;
 			break;
 		case 'attendno':
 		case 'unattendno':
-			$bodyverb = t('%1$s is not attending %2$s\'s %3$s');
+			$bodyverb = L10n::t('%1$s is not attending %2$s\'s %3$s');
 			$activity = ACTIVITY_ATTENDNO;
 			break;
 		case 'attendmaybe':
 		case 'unattendmaybe':
-			$bodyverb = t('%1$s may attend %2$s\'s %3$s');
+			$bodyverb = L10n::t('%1$s may attend %2$s\'s %3$s');
 			$activity = ACTIVITY_ATTENDMAYBE;
 			break;
 		default:
@@ -185,9 +188,9 @@ function do_like($item_id, $verb) {
 	}
 
 	// Else or if event verb different from existing row, create a new item row
-	$post_type = (($item['resource-id']) ? t('photo') : t('status'));
+	$post_type = (($item['resource-id']) ? L10n::t('photo') : L10n::t('status'));
 	if ($item['object-type'] === ACTIVITY_OBJ_EVENT) {
-		$post_type = t('event');
+		$post_type = L10n::t('event');
 	}
 	$objtype = $item['resource-id'] ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE ;
 	$link = xmlify('<link rel="alternate" type="text/html" href="' . System::baseUrl() . '/display/' . $owner_self_contact['nick'] . '/' . $item['id'] . '" />' . "\n") ;

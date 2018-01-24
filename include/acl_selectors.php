@@ -7,6 +7,7 @@ use Friendica\Content\Feature;
 use Friendica\Content\Widget;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
@@ -351,31 +352,30 @@ function populate_acl($user = null, $show_jotnets = false) {
 		if (!$user['hidewall']) {
 			if ($mail_enabled) {
 				$selected = (($pubmail_enabled) ? ' checked="checked" ' : '');
-				$jotnets .= '<div class="profile-jot-net"><input type="checkbox" name="pubmail_enable"' . $selected . ' value="1" /> ' . t("Post to Email") . '</div>';
+				$jotnets .= '<div class="profile-jot-net"><input type="checkbox" name="pubmail_enable"' . $selected . ' value="1" /> ' . L10n::t("Post to Email") . '</div>';
 			}
 
 			Addon::callHooks('jot_networks', $jotnets);
 		} else {
-			$jotnets .= sprintf(t('Connectors disabled, since "%s" is enabled.'),
-					    t('Hide your profile details from unknown viewers?'));
+			$jotnets .= L10n::t('Connectors disabled, since "%s" is enabled.', L10n::t('Hide your profile details from unknown viewers?'));
 		}
 	}
 
 	$tpl = get_markup_template("acl_selector.tpl");
 	$o = replace_macros($tpl, [
-		'$showall'=> t("Visible to everybody"),
-		'$show'	=> t("show"),
-		'$hide'	 => t("don't show"),
+		'$showall'=> L10n::t("Visible to everybody"),
+		'$show'	=> L10n::t("show"),
+		'$hide'	 => L10n::t("don't show"),
 		'$allowcid' => json_encode($perms['allow_cid']),
 		'$allowgid' => json_encode($perms['allow_gid']),
 		'$denycid' => json_encode($perms['deny_cid']),
 		'$denygid' => json_encode($perms['deny_gid']),
 		'$networks' => $show_jotnets,
-		'$emailcc' => t('CC: email addresses'),
-		'$emtitle' => t('Example: bob@example.com, mary@example.com'),
+		'$emailcc' => L10n::t('CC: email addresses'),
+		'$emtitle' => L10n::t('Example: bob@example.com, mary@example.com'),
 		'$jotnets' => $jotnets,
-		'$aclModalTitle' => t('Permissions'),
-		'$aclModalDismiss' => t('Close'),
+		'$aclModalTitle' => L10n::t('Permissions'),
+		'$aclModalDismiss' => L10n::t('Close'),
 		'$features' => [
 		'aclautomention' => (Feature::isEnabled($user['uid'], "aclautomention") ? "true" : "false")
 		],

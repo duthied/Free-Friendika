@@ -5,20 +5,22 @@
 namespace Friendica\Database;
 
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Database\DBM;
 use dba;
 
-require_once "boot.php";
+require_once 'boot.php';
 require_once 'include/dba.php';
 require_once 'include/enotify.php';
-require_once "include/text.php";
+require_once 'include/text.php';
 
 /**
  * @brief This class contain functions for the database management
  *
  * This class contains functions that doesn't need to know if pdo, mysqli or whatever is used.
  */
-class DBStructure {
+class DBStructure
+{
 	/*
 	 * Converts all tables from MyISAM to InnoDB
 	 */
@@ -27,7 +29,7 @@ class DBStructure {
 			dbesc(dba::database_name()));
 
 		if (!DBM::is_result($r)) {
-			echo t('There are no tables on MyISAM.')."\n";
+			echo L10n::t('There are no tables on MyISAM.')."\n";
 			return;
 		}
 
@@ -68,14 +70,14 @@ class DBStructure {
 		// every admin could had different language
 		foreach ($adminlist as $admin) {
 			$lang = (($admin['language'])?$admin['language']:'en');
-			push_lang($lang);
+			L10n::pushLang($lang);
 
-			$preamble = deindent(t("
+			$preamble = deindent(L10n::t("
 				The friendica developers released update %s recently,
 				but when I tried to install it, something went terribly wrong.
 				This needs to be fixed soon and I can't do it alone. Please contact a
 				friendica developer if you can not help me on your own. My database might be invalid."));
-			$body = t("The error message is\n[pre]%s[/pre]");
+			$body = L10n::t("The error message is\n[pre]%s[/pre]");
 			$preamble = sprintf($preamble, $update_id);
 			$body = sprintf($body, $error_message);
 
@@ -186,10 +188,10 @@ class DBStructure {
 	 * @return string Error message
 	 */
 	private static function printUpdateError($message) {
-		echo sprintf(t("\nError %d occurred during database update:\n%s\n"),
+		echo L10n::t("\nError %d occurred during database update:\n%s\n",
 			dba::errorNo(), dba::errorMessage());
 
-		return t('Errors encountered performing database changes: ').$message.EOL;
+		return L10n::t('Errors encountered performing database changes: ').$message.EOL;
 	}
 
 	/**
@@ -204,7 +206,7 @@ class DBStructure {
 	public static function update($verbose, $action, array $tables = null, array $definition = null) {
 		if ($action) {
 			Config::set('system', 'maintenance', 1);
-			Config::set('system', 'maintenance_reason', sprintf(t(': Database update'), DBM::date().' '.date('e')));
+			Config::set('system', 'maintenance_reason', L10n::t(': Database update', DBM::date().' '.date('e')));
 		}
 
 		$errors = '';
@@ -454,7 +456,7 @@ class DBStructure {
 				}
 
 				if ($action) {
-					Config::set('system', 'maintenance_reason', sprintf(t('%s: updating %s table.'), DBM::date().' '.date('e'), $name));
+					Config::set('system', 'maintenance_reason', L10n::t('%s: updating %s table.', DBM::date().' '.date('e'), $name));
 
 					// Ensure index conversion to unique removes duplicates
 					if ($is_unique && ($temp_name != $name)) {

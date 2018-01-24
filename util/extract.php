@@ -9,8 +9,8 @@
 	foreach($files as $file) {
 		$str = file_get_contents($file);
 
-		$pat = '| t\(([^\)]*)\)|';
-		$patt = '| tt\(([^\)]*)\)|';
+		$pat = '| L10n::t\(([^\)]*)\)|';
+		$patt = '| L10n::tt\(([^\)]*)\)|';
 
 		preg_match_all($pat,$str,$matches);
 		preg_match_all($patt, $str, $matchestt);

@@ -1,5 +1,4 @@
 <?php
-
 /** @file boot.php
  *
  * This file defines some global constants and includes the central App class.
@@ -25,6 +24,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\System;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendida\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -35,7 +35,6 @@ use Friendica\Module\Login;
 require_once 'include/network.php';
 require_once 'include/text.php';
 require_once 'include/datetime.php';
-require_once 'include/pgettext.php';
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Asparagus');
@@ -782,7 +781,7 @@ function run_update_function($x)
 			//send the administrator an e-mail
 			DBStructure::updateFail(
 				$x,
-				sprintf(t('Update %s failed. See error logs.'), $x)
+				L10n::t('Update %s failed. See error logs.', $x)
 			);
 			return false;
 		} else {

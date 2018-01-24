@@ -58,7 +58,7 @@
 		</div>
 
 		<div class="upload">
-			<button id="upload-{{$type}}">{{"Upload"|t}}</button>
+			<button id="upload-{{$type}}">{{$upload}}</button>
 		</div>
 	</div>
 

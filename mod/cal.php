@@ -9,6 +9,7 @@ use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
@@ -135,7 +136,7 @@ function cal_content(App $a)
 	$is_owner = local_user() == $a->profile['profile_uid'];
 
 	if ($a->profile['hidewall'] && (!$is_owner) && (!$remote_contact)) {
-		notice(t('Access to this profile has been restricted.') . EOL);
+		notice(L10n::t('Access to this profile has been restricted.') . EOL);
 		return;
 	}
 
@@ -267,17 +268,17 @@ function cal_content(App $a)
 		$o = replace_macros($tpl, [
 			'$baseurl' => System::baseUrl(),
 			'$tabs' => $tabs,
-			'$title' => t('Events'),
-			'$view' => t('View'),
-			'$previous' => [System::baseUrl() . "/events/$prevyear/$prevmonth", t('Previous'), '', ''],
-			'$next' => [System::baseUrl() . "/events/$nextyear/$nextmonth", t('Next'), '', ''],
+			'$title' => L10n::t('Events'),
+			'$view' => L10n::t('View'),
+			'$previous' => [System::baseUrl() . "/events/$prevyear/$prevmonth", L10n::t('Previous'), '', ''],
+			'$next' => [System::baseUrl() . "/events/$nextyear/$nextmonth", L10n::t('Next'), '', ''],
 			'$calendar' => cal($y, $m, $links, ' eventcal'),
 			'$events' => $events,
-			"today" => t("today"),
-			"month" => t("month"),
-			"week" => t("week"),
-			"day" => t("day"),
-			"list" => t("list"),
+			"today" => L10n::t("today"),
+			"month" => L10n::t("month"),
+			"week" => L10n::t("week"),
+			"day" => L10n::t("day"),
+			"list" => L10n::t("list"),
 		]);
 
 		if (x($_GET, 'id')) {
@@ -290,14 +291,14 @@ function cal_content(App $a)
 
 	if ($mode == 'export') {
 		if (!(intval($owner_uid))) {
-			notice(t('User not found'));
+			notice(L10n::t('User not found'));
 			return;
 		}
 
 		// Test permissions
 		// Respect the export feature setting for all other /cal pages if it's not the own profile
 		if (((local_user() !== intval($owner_uid))) && !Feature::isEnabled($owner_uid, "export_calendar")) {
-			notice(t('Permission denied.') . EOL);
+			notice(L10n::t('Permission denied.') . EOL);
 			goaway('cal/' . $nick);
 		}
 
@@ -306,9 +307,9 @@ function cal_content(App $a)
 
 		if (!$evexport["success"]) {
 			if ($evexport["content"]) {
-				notice(t('This calendar format is not supported'));
+				notice(L10n::t('This calendar format is not supported'));
 			} else {
-				notice(t('No exportable data found'));
+				notice(L10n::t('No exportable data found'));
 			}
 
 			// If it the own calendar return to the events page
@@ -325,7 +326,7 @@ function cal_content(App $a)
 		// If nothing went wrong we can echo the export content
 		if ($evexport["success"]) {
 			header('Content-type: text/calendar');
-			header('content-disposition: attachment; filename="' . t('calendar') . '-' . $nick . '.' . $evexport["extension"] . '"');
+			header('content-disposition: attachment; filename="' . L10n::t('calendar') . '-' . $nick . '.' . $evexport["extension"] . '"');
 			echo $evexport["content"];
 			killme();
 		}

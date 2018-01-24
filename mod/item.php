@@ -17,6 +17,7 @@
 use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -111,7 +112,7 @@ function item_post(App $a) {
 		}
 
 		if (!DBM::is_result($parent_item)) {
-			notice(t('Unable to locate original post.') . EOL);
+			notice(L10n::t('Unable to locate original post.') . EOL);
 			if (x($_REQUEST, 'return')) {
 				goaway($return_path);
 			}
@@ -157,7 +158,7 @@ function item_post(App $a) {
 
 	// Now check that valid personal details have been provided
 	if (!can_write_wall($profile_uid) && !$allow_comment) {
-		notice(t('Permission denied.') . EOL) ;
+		notice(L10n::t('Permission denied.') . EOL) ;
 		if (x($_REQUEST, 'return')) {
 			goaway($return_path);
 		}
@@ -271,7 +272,7 @@ function item_post(App $a) {
 			if ($preview) {
 				killme();
 			}
-			info(t('Empty post discarded.') . EOL);
+			info(L10n::t('Empty post discarded.') . EOL);
 			if (x($_REQUEST, 'return')) {
 				goaway($return_path);
 			}
@@ -468,7 +469,7 @@ function item_post(App $a) {
 
 				$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
 						'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny];
-				$condition = ['resource-id' => $image_uri, 'uid' => $profile_uid, 'album' => t('Wall Photos')];
+				$condition = ['resource-id' => $image_uri, 'uid' => $profile_uid, 'album' => L10n::t('Wall Photos')];
 				dba::update('photo', $fields, $condition);
 			}
 		}
@@ -799,14 +800,14 @@ function item_post(App $a) {
 				if (!strlen($addr)) {
 					continue;
 				}
-				$disclaimer = '<hr />' . sprintf(t('This message was sent to you by %s, a member of the Friendica social network.'), $a->user['username'])
+				$disclaimer = '<hr />' . L10n::t('This message was sent to you by %s, a member of the Friendica social network.', $a->user['username'])
 					. '<br />';
-				$disclaimer .= sprintf(t('You may visit them online at %s'), System::baseUrl() . '/profile/' . $a->user['nickname']) . EOL;
-				$disclaimer .= t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
+				$disclaimer .= L10n::t('You may visit them online at %s', System::baseUrl() . '/profile/' . $a->user['nickname']) . EOL;
+				$disclaimer .= L10n::t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
 				if (!$datarray['title']=='') {
 					$subject = Email::encodeHeader($datarray['title'], 'UTF-8');
 				} else {
-					$subject = Email::encodeHeader('[Friendica]' . ' ' . sprintf(t('%s posted an update.'), $a->user['username']), 'UTF-8');
+					$subject = Email::encodeHeader('[Friendica]' . ' ' . L10n::t('%s posted an update.', $a->user['username']), 'UTF-8');
 				}
 				$link = '<a href="' . System::baseUrl() . '/profile/' . $a->user['nickname'] . '"><img src="' . $author['thumb'] . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
 				$html    = prepare_body($datarray);

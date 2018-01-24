@@ -13,6 +13,7 @@ use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -1933,11 +1934,11 @@ class Diaspora
 	 */
 	private static function constructLikeBody($contact, $parent_item, $guid)
 	{
-		$bodyverb = t('%1$s likes %2$s\'s %3$s');
+		$bodyverb = L10n::t('%1$s likes %2$s\'s %3$s');
 
 		$ulink = "[url=".$contact["url"]."]".$contact["name"]."[/url]";
 		$alink = "[url=".$parent_item["author-link"]."]".$parent_item["author-name"]."[/url]";
-		$plink = "[url=".System::baseUrl()."/display/".urlencode($guid)."]".t("status")."[/url]";
+		$plink = "[url=".System::baseUrl()."/display/".urlencode($guid)."]".L10n::t("status")."[/url]";
 
 		return sprintf($bodyverb, $ulink, $alink, $plink);
 	}
@@ -2405,7 +2406,7 @@ class Diaspora
 				$A = "[url=".$self[0]["url"]."]".$self[0]["name"]."[/url]";
 				$B = "[url=".$contact["url"]."]".$contact["name"]."[/url]";
 				$BPhoto = "[url=".$contact["url"]."][img]".$contact["thumb"]."[/img][/url]";
-				$arr["body"] = sprintf(t('%1$s is now friends with %2$s'), $A, $B)."\n\n\n".$BPhoto;
+				$arr["body"] = L10n::t('%1$s is now friends with %2$s', $A, $B)."\n\n\n".$BPhoto;
 
 				$arr["object"] = self::constructNewFriendObject($contact);
 
@@ -2575,7 +2576,7 @@ class Diaspora
 				intval($contact_record["id"]),
 				0,
 				0,
-				dbesc(t("Sharing notification from Diaspora network")),
+				dbesc(L10n::t("Sharing notification from Diaspora network")),
 				dbesc($hash),
 				dbesc(datetime_convert())
 			);
@@ -3677,7 +3678,7 @@ class Diaspora
 			if ($item["attach"]) {
 				$cnt = preg_match_all('/href=\"(.*?)\"(.*?)title=\"(.*?)\"/ism', $item["attach"], $matches, PREG_SET_ORDER);
 				if (cnt) {
-					$body .= "\n".t("Attachments:")."\n";
+					$body .= "\n".L10n::t("Attachments:")."\n";
 					foreach ($matches as $mtch) {
 						$body .= "[".$mtch[3]."](".$mtch[1].")\n";
 					}

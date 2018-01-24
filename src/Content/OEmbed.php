@@ -1,13 +1,12 @@
 <?php
-
 /**
  * @file src/Content/OEmbed.php
  */
-
 namespace Friendica\Content;
 
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
@@ -247,7 +246,7 @@ class OEmbed
 	{
 		$stopoembed = Config::get("system", "no_oembed");
 		if ($stopoembed == true) {
-			return preg_replace("/\[embed\](.+?)\[\/embed\]/is", "<!-- oembed $1 --><i>" . t('Embedding disabled') . " : $1</i><!-- /oembed $1 -->", $text);
+			return preg_replace("/\[embed\](.+?)\[\/embed\]/is", "<!-- oembed $1 --><i>" . L10n::t('Embedding disabled') . " : $1</i><!-- /oembed $1 -->", $text);
 		}
 		return preg_replace_callback("/\[embed\](.+?)\[\/embed\]/is", ['self', 'replaceCallback'], $text);
 	}
@@ -367,7 +366,7 @@ class OEmbed
 		$width = '100%';
 
 		$src = System::baseUrl() . '/oembed/' . base64url_encode($src);
-		return '<iframe onload="resizeIframe(this);" class="embed_rich" height="' . $height . '" width="' . $width . '" src="' . $src . '" allowfullscreen scrolling="no" frameborder="no">' . t('Embedded content') . '</iframe>';
+		return '<iframe onload="resizeIframe(this);" class="embed_rich" height="' . $height . '" width="' . $width . '" src="' . $src . '" allowfullscreen scrolling="no" frameborder="no">' . L10n::t('Embedded content') . '</iframe>';
 	}
 
 	/**

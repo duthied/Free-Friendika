@@ -2,7 +2,6 @@
 /**
  * @file src/Model/Profile.php
  */
-
 namespace Friendica\Model;
 
 use Friendica\App;
@@ -11,6 +10,7 @@ use Friendica\Content\ForumManager;
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -91,7 +91,7 @@ class Profile
 
 		if (!$user && !count($user) && !count($profiledata)) {
 			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
-			notice(t('Requested account is not available.') . EOL);
+			notice(L10n::t('Requested account is not available.') . EOL);
 			$a->error = 404;
 			return;
 		}
@@ -112,7 +112,7 @@ class Profile
 
 		if (empty($pdata) && empty($profiledata)) {
 			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
-			notice(t('Requested profile is not available.') . EOL);
+			notice(L10n::t('Requested profile is not available.') . EOL);
 			$a->error = 404;
 			return;
 		}
@@ -162,7 +162,7 @@ class Profile
 			$a->page['aside'] .= replace_macros(
 				get_markup_template('profile_edlink.tpl'),
 				[
-					'$editprofile' => t('Edit profile'),
+					'$editprofile' => L10n::t('Edit profile'),
 					'$profid' => $a->profile['id']
 				]
 			);
@@ -291,7 +291,7 @@ class Profile
 
 
 		// don't show connect link to yourself
-		$connect = $profile['uid'] != local_user() ? t('Connect') : false;
+		$connect = $profile['uid'] != local_user() ? L10n::t('Connect') : false;
 
 		// don't show connect link to authenticated visitors either
 		if (remote_user() && count($_SESSION['remote'])) {
@@ -330,13 +330,13 @@ class Profile
 		}
 
 		if ($connect && ($profile['network'] == NETWORK_DFRN) && !isset($remoteconnect)) {
-			$subscribe_feed = t('Atom feed');
+			$subscribe_feed = L10n::t('Atom feed');
 		} else {
 			$subscribe_feed = false;
 		}
 
 		if (remote_user() || (self::getMyURL() && x($profile, 'unkmail') && ($profile['uid'] != local_user()))) {
-			$wallmessage = t('Message');
+			$wallmessage = L10n::t('Message');
 			$wallmessage_link = 'wallmessage/' . $profile['nickname'];
 
 			if (remote_user()) {
@@ -366,15 +366,15 @@ class Profile
 
 		// show edit profile to yourself
 		if (!$is_contact && $profile['uid'] == local_user() && Feature::isEnabled(local_user(), 'multi_profiles')) {
-			$profile['edit'] = [System::baseUrl() . '/profiles', t('Profiles'), '', t('Manage/edit profiles')];
+			$profile['edit'] = [System::baseUrl() . '/profiles', L10n::t('Profiles'), '', L10n::t('Manage/edit profiles')];
 			$r = q(
 				"SELECT * FROM `profile` WHERE `uid` = %d",
 				local_user()
 			);
 
 			$profile['menu'] = [
-				'chg_photo' => t('Change profile photo'),
-				'cr_new' => t('Create New Profile'),
+				'chg_photo' => L10n::t('Change profile photo'),
+				'cr_new' => L10n::t('Create New Profile'),
 				'entries' => [],
 			];
 
@@ -383,19 +383,19 @@ class Profile
 					$profile['menu']['entries'][] = [
 						'photo' => $rr['thumb'],
 						'id' => $rr['id'],
-						'alt' => t('Profile Image'),
+						'alt' => L10n::t('Profile Image'),
 						'profile_name' => $rr['profile-name'],
 						'isdefault' => $rr['is-default'],
-						'visibile_to_everybody' => t('visible to everybody'),
-						'edit_visibility' => t('Edit visibility'),
+						'visibile_to_everybody' => L10n::t('visible to everybody'),
+						'edit_visibility' => L10n::t('Edit visibility'),
 					];
 				}
 			}
 		}
 		if (!$is_contact && $profile['uid'] == local_user() && !Feature::isEnabled(local_user(), 'multi_profiles')) {
-			$profile['edit'] = [System::baseUrl() . '/profiles/' . $profile['id'], t('Edit profile'), '', t('Edit profile')];
+			$profile['edit'] = [System::baseUrl() . '/profiles/' . $profile['id'], L10n::t('Edit profile'), '', L10n::t('Edit profile')];
 			$profile['menu'] = [
-				'chg_photo' => t('Change profile photo'),
+				'chg_photo' => L10n::t('Change profile photo'),
 				'cr_new' => null,
 				'entries' => [],
 			];
@@ -411,14 +411,14 @@ class Profile
 			|| x($profile, 'postal-code')
 			|| x($profile, 'country-name')
 		) {
-			$location = t('Location:');
+			$location = L10n::t('Location:');
 		}
 
-		$gender   = x($profile, 'gender')   ? t('Gender:')   : false;
-		$marital  = x($profile, 'marital')  ? t('Status:')   : false;
-		$homepage = x($profile, 'homepage') ? t('Homepage:') : false;
-		$about    = x($profile, 'about')    ? t('About:')    : false;
-		$xmpp     = x($profile, 'xmpp')     ? t('XMPP:')     : false;
+		$gender   = x($profile, 'gender')   ? L10n::t('Gender:')   : false;
+		$marital  = x($profile, 'marital')  ? L10n::t('Status:')   : false;
+		$homepage = x($profile, 'homepage') ? L10n::t('Homepage:') : false;
+		$about    = x($profile, 'about')    ? L10n::t('About:')    : false;
+		$xmpp     = x($profile, 'xmpp')     ? L10n::t('XMPP:')     : false;
 
 		if ((x($profile, 'hidewall') || $block) && !local_user() && !remote_user()) {
 			$location = $gender = $marital = $homepage = $about = false;
@@ -512,7 +512,7 @@ class Profile
 			'$marital' => $marital,
 			'$homepage' => $homepage,
 			'$about' => $about,
-			'$network' => t('Network:'),
+			'$network' => L10n::t('Network:'),
 			'$contacts' => $contacts,
 			'$updated' => $updated,
 			'$diaspora' => $diaspora,
@@ -542,8 +542,8 @@ class Profile
 		* 			return $o;
 		*/
 
-		$bd_format = t('g A l F d'); // 8 AM Friday January 18
-		$bd_short = t('F d');
+		$bd_format = L10n::t('g A l F d'); // 8 AM Friday January 18
+		$bd_short = L10n::t('F d');
 
 		$cachekey = 'get_birthdays:' . local_user();
 		$r = Cache::get($cachekey);
@@ -598,7 +598,7 @@ class Profile
 
 					$rr['link'] = $url;
 					$rr['title'] = $rr['name'];
-					$rr['date'] = day_translate(datetime_convert('UTC', $a->timezone, $rr['start'], $rr['adjust'] ? $bd_format : $bd_short)) . (($today) ? ' ' . t('[today]') : '');
+					$rr['date'] = day_translate(datetime_convert('UTC', $a->timezone, $rr['start'], $rr['adjust'] ? $bd_format : $bd_short)) . (($today) ? ' ' . L10n::t('[today]') : '');
 					$rr['startime'] = null;
 					$rr['today'] = $today;
 				}
@@ -609,8 +609,8 @@ class Profile
 			'$baseurl' => System::baseUrl(),
 			'$classtoday' => $classtoday,
 			'$count' => $total,
-			'$event_reminders' => t('Birthday Reminders'),
-			'$event_title' => t('Birthdays this week:'),
+			'$event_reminders' => L10n::t('Birthday Reminders'),
+			'$event_title' => L10n::t('Birthdays this week:'),
 			'$events' => $r,
 			'$lbr' => '{', // raw brackets mess up if/endif macro processing
 			'$rbr' => '}'
@@ -634,7 +634,7 @@ class Profile
 		* 			return $o;
 		*/
 
-		$bd_format = t('g A l F d'); // 8 AM Friday January 18
+		$bd_format = L10n::t('g A l F d'); // 8 AM Friday January 18
 		$classtoday = '';
 
 		$s = dba::p(
@@ -669,7 +669,7 @@ class Profile
 
 				$description = substr(strip_tags(bbcode($rr['desc'])), 0, 32) . '... ';
 				if (!$description) {
-					$description = t('[No description]');
+					$description = L10n::t('[No description]');
 				}
 
 				$strt = datetime_convert('UTC', $rr['convert'] ? $a->timezone : 'UTC', $rr['start']);
@@ -682,7 +682,7 @@ class Profile
 
 				$rr['title'] = $title;
 				$rr['description'] = $description;
-				$rr['date'] = day_translate(datetime_convert('UTC', $rr['adjust'] ? $a->timezone : 'UTC', $rr['start'], $bd_format)) . (($today) ? ' ' . t('[today]') : '');
+				$rr['date'] = day_translate(datetime_convert('UTC', $rr['adjust'] ? $a->timezone : 'UTC', $rr['start'], $bd_format)) . (($today) ? ' ' . L10n::t('[today]') : '');
 				$rr['startime'] = $strt;
 				$rr['today'] = $today;
 
@@ -696,8 +696,8 @@ class Profile
 			'$baseurl' => System::baseUrl(),
 			'$classtoday' => $classtoday,
 			'$count' => count($r),
-			'$event_reminders' => t('Event Reminders'),
-			'$event_title' => t('Events this week:'),
+			'$event_reminders' => L10n::t('Event Reminders'),
+			'$event_title' => L10n::t('Events this week:'),
 			'$events' => $r,
 		]);
 	}
@@ -709,7 +709,7 @@ class Profile
 
 		$o .= replace_macros(
 			get_markup_template('section_title.tpl'),
-			['$title' => t('Profile')]
+			['$title' => L10n::t('Profile')]
 		);
 
 		if ($a->profile['name']) {
@@ -717,32 +717,32 @@ class Profile
 
 			$profile = [];
 
-			$profile['fullname'] = [t('Full Name:'), $a->profile['name']];
+			$profile['fullname'] = [L10n::t('Full Name:'), $a->profile['name']];
 
 			if ($a->profile['gender']) {
-				$profile['gender'] = [t('Gender:'), $a->profile['gender']];
+				$profile['gender'] = [L10n::t('Gender:'), $a->profile['gender']];
 			}
 
 			if (($a->profile['dob']) && ($a->profile['dob'] > '0001-01-01')) {
-				$year_bd_format = t('j F, Y');
-				$short_bd_format = t('j F');
+				$year_bd_format = L10n::t('j F, Y');
+				$short_bd_format = L10n::t('j F');
 
 				$val = intval($a->profile['dob']) ?
 					day_translate(datetime_convert('UTC', 'UTC', $a->profile['dob'] . ' 00:00 +00:00', $year_bd_format))
 					: day_translate(datetime_convert('UTC', 'UTC', '2001-' . substr($a->profile['dob'], 5) . ' 00:00 +00:00', $short_bd_format));
 
-				$profile['birthday'] = [t('Birthday:'), $val];
+				$profile['birthday'] = [L10n::t('Birthday:'), $val];
 			}
 
 			if (!empty($a->profile['dob'])
 				&& $a->profile['dob'] > '0001-01-01'
 				&& $age = age($a->profile['dob'], $a->profile['timezone'], '')
 			) {
-				$profile['age'] = [t('Age:'), $age];
+				$profile['age'] = [L10n::t('Age:'), $age];
 			}
 
 			if ($a->profile['marital']) {
-				$profile['marital'] = [t('Status:'), $a->profile['marital']];
+				$profile['marital'] = [L10n::t('Status:'), $a->profile['marital']];
 			}
 
 			/// @TODO Maybe use x() here, plus below?
@@ -751,94 +751,94 @@ class Profile
 			}
 
 			if (strlen($a->profile['howlong']) && $a->profile['howlong'] >= NULL_DATE) {
-				$profile['howlong'] = relative_date($a->profile['howlong'], t('for %1$d %2$s'));
+				$profile['howlong'] = relative_date($a->profile['howlong'], L10n::t('for %1$d %2$s'));
 			}
 
 			if ($a->profile['sexual']) {
-				$profile['sexual'] = [t('Sexual Preference:'), $a->profile['sexual']];
+				$profile['sexual'] = [L10n::t('Sexual Preference:'), $a->profile['sexual']];
 			}
 
 			if ($a->profile['homepage']) {
-				$profile['homepage'] = [t('Homepage:'), linkify($a->profile['homepage'])];
+				$profile['homepage'] = [L10n::t('Homepage:'), linkify($a->profile['homepage'])];
 			}
 
 			if ($a->profile['hometown']) {
-				$profile['hometown'] = [t('Hometown:'), linkify($a->profile['hometown'])];
+				$profile['hometown'] = [L10n::t('Hometown:'), linkify($a->profile['hometown'])];
 			}
 
 			if ($a->profile['pub_keywords']) {
-				$profile['pub_keywords'] = [t('Tags:'), $a->profile['pub_keywords']];
+				$profile['pub_keywords'] = [L10n::t('Tags:'), $a->profile['pub_keywords']];
 			}
 
 			if ($a->profile['politic']) {
-				$profile['politic'] = [t('Political Views:'), $a->profile['politic']];
+				$profile['politic'] = [L10n::t('Political Views:'), $a->profile['politic']];
 			}
 
 			if ($a->profile['religion']) {
-				$profile['religion'] = [t('Religion:'), $a->profile['religion']];
+				$profile['religion'] = [L10n::t('Religion:'), $a->profile['religion']];
 			}
 
 			if ($txt = prepare_text($a->profile['about'])) {
-				$profile['about'] = [t('About:'), $txt];
+				$profile['about'] = [L10n::t('About:'), $txt];
 			}
 
 			if ($txt = prepare_text($a->profile['interest'])) {
-				$profile['interest'] = [t('Hobbies/Interests:'), $txt];
+				$profile['interest'] = [L10n::t('Hobbies/Interests:'), $txt];
 			}
 
 			if ($txt = prepare_text($a->profile['likes'])) {
-				$profile['likes'] = [t('Likes:'), $txt];
+				$profile['likes'] = [L10n::t('Likes:'), $txt];
 			}
 
 			if ($txt = prepare_text($a->profile['dislikes'])) {
-				$profile['dislikes'] = [t('Dislikes:'), $txt];
+				$profile['dislikes'] = [L10n::t('Dislikes:'), $txt];
 			}
 
 			if ($txt = prepare_text($a->profile['contact'])) {
-				$profile['contact'] = [t('Contact information and Social Networks:'), $txt];
+				$profile['contact'] = [L10n::t('Contact information and Social Networks:'), $txt];
 			}
 
 			if ($txt = prepare_text($a->profile['music'])) {
-				$profile['music'] = [t('Musical interests:'), $txt];
+				$profile['music'] = [L10n::t('Musical interests:'), $txt];
 			}
 
 			if ($txt = prepare_text($a->profile['book'])) {
-				$profile['book'] = [t('Books, literature:'), $txt];
+				$profile['book'] = [L10n::t('Books, literature:'), $txt];
 			}
 
 			if ($txt = prepare_text($a->profile['tv'])) {
-				$profile['tv'] = [t('Television:'), $txt];
+				$profile['tv'] = [L10n::t('Television:'), $txt];
 			}
 
 			if ($txt = prepare_text($a->profile['film'])) {
-				$profile['film'] = [t('Film/dance/culture/entertainment:'), $txt];
+				$profile['film'] = [L10n::t('Film/dance/culture/entertainment:'), $txt];
 			}
 
 			if ($txt = prepare_text($a->profile['romance'])) {
-				$profile['romance'] = [t('Love/Romance:'), $txt];
+				$profile['romance'] = [L10n::t('Love/Romance:'), $txt];
 			}
 
 			if ($txt = prepare_text($a->profile['work'])) {
-				$profile['work'] = [t('Work/employment:'), $txt];
+				$profile['work'] = [L10n::t('Work/employment:'), $txt];
 			}
 
 			if ($txt = prepare_text($a->profile['education'])) {
-				$profile['education'] = [t('School/education:'), $txt];
+				$profile['education'] = [L10n::t('School/education:'), $txt];
 			}
 
 			//show subcribed forum if it is enabled in the usersettings
 			if (Feature::isEnabled($uid, 'forumlist_profile')) {
-				$profile['forumlist'] = [t('Forums:'), ForumManager::profileAdvanced($uid)];
+				$profile['forumlist'] = [L10n::t('Forums:'), ForumManager::profileAdvanced($uid)];
 			}
 
 			if ($a->profile['uid'] == local_user()) {
-				$profile['edit'] = [System::baseUrl() . '/profiles/' . $a->profile['id'], t('Edit profile'), '', t('Edit profile')];
+				$profile['edit'] = [System::baseUrl() . '/profiles/' . $a->profile['id'], L10n::t('Edit profile'), '', L10n::t('Edit profile')];
 			}
 
 			return replace_macros($tpl, [
-				'$title' => t('Profile'),
-				'$basic' => t('Basic'),
-				'$advanced' => t('Advanced'),
+				'$title' => L10n::t('Profile'),
+				'$basic' => L10n::t('Basic'),
+				'$advanced' => L10n::t('Advanced'),
 				'$profile' => $profile
 			]);
 		}
@@ -861,34 +861,34 @@ class Profile
 
 		$tabs = [
 			[
-				'label' => t('Status'),
+				'label' => L10n::t('Status'),
 				'url'   => $url,
 				'sel'   => !$tab && $a->argv[0] == 'profile' ? 'active' : '',
-				'title' => t('Status Messages and Posts'),
+				'title' => L10n::t('Status Messages and Posts'),
 				'id'    => 'status-tab',
 				'accesskey' => 'm',
 			],
 			[
-				'label' => t('Profile'),
+				'label' => L10n::t('Profile'),
 				'url'   => $url . '/?tab=profile',
 				'sel'   => $tab == 'profile' ? 'active' : '',
-				'title' => t('Profile Details'),
+				'title' => L10n::t('Profile Details'),
 				'id'    => 'profile-tab',
 				'accesskey' => 'r',
 			],
 			[
-				'label' => t('Photos'),
+				'label' => L10n::t('Photos'),
 				'url'   => System::baseUrl() . '/photos/' . $nickname,
 				'sel'   => !$tab && $a->argv[0] == 'photos' ? 'active' : '',
-				'title' => t('Photo Albums'),
+				'title' => L10n::t('Photo Albums'),
 				'id'    => 'photo-tab',
 				'accesskey' => 'h',
 			],
 			[
-				'label' => t('Videos'),
+				'label' => L10n::t('Videos'),
 				'url'   => System::baseUrl() . '/videos/' . $nickname,
 				'sel'   => !$tab && $a->argv[0] == 'videos' ? 'active' : '',
-				'title' => t('Videos'),
+				'title' => L10n::t('Videos'),
 				'id'    => 'video-tab',
 				'accesskey' => 'v',
 			],
@@ -897,10 +897,10 @@ class Profile
 		// the calendar link for the full featured events calendar
 		if ($is_owner && $a->theme_events_in_profile) {
 			$tabs[] = [
-				'label' => t('Events'),
+				'label' => L10n::t('Events'),
 				'url'   => System::baseUrl() . '/events',
 				'sel'   => !$tab && $a->argv[0] == 'events' ? 'active' : '',
-				'title' => t('Events and Calendar'),
+				'title' => L10n::t('Events and Calendar'),
 				'id'    => 'events-tab',
 				'accesskey' => 'e',
 			];
@@ -908,10 +908,10 @@ class Profile
 			// with the public events of the calendar owner
 		} elseif (!$is_owner) {
 			$tabs[] = [
-				'label' => t('Events'),
+				'label' => L10n::t('Events'),
 				'url'   => System::baseUrl() . '/cal/' . $nickname,
 				'sel'   => !$tab && $a->argv[0] == 'cal' ? 'active' : '',
-				'title' => t('Events and Calendar'),
+				'title' => L10n::t('Events and Calendar'),
 				'id'    => 'events-tab',
 				'accesskey' => 'e',
 			];
@@ -919,10 +919,10 @@ class Profile
 
 		if ($is_owner) {
 			$tabs[] = [
-				'label' => t('Personal Notes'),
+				'label' => L10n::t('Personal Notes'),
 				'url'   => System::baseUrl() . '/notes',
 				'sel'   => !$tab && $a->argv[0] == 'notes' ? 'active' : '',
-				'title' => t('Only You Can See This'),
+				'title' => L10n::t('Only You Can See This'),
 				'id'    => 'notes-tab',
 				'accesskey' => 't',
 			];
@@ -930,10 +930,10 @@ class Profile
 
 		if ((!$is_owner) && ((count($a->profile)) || (!$a->profile['hide-friends']))) {
 			$tabs[] = [
-				'label' => t('Contacts'),
+				'label' => L10n::t('Contacts'),
 				'url'   => System::baseUrl() . '/viewcontacts/' . $nickname,
 				'sel'   => !$tab && $a->argv[0] == 'viewcontacts' ? 'active' : '',
-				'title' => t('Contacts'),
+				'title' => L10n::t('Contacts'),
 				'id'    => 'viewcontacts-tab',
 				'accesskey' => 'k',
 			];

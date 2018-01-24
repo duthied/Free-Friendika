@@ -15,6 +15,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Profile;
@@ -83,9 +84,9 @@ if (!$install) {
 	$maintenance = Config::get('system', 'maintenance');
 }
 
-$lang = get_browser_language();
+$lang = L10n::getBrowserLanguage();
 
-load_translation_table($lang);
+L10n::loadTranslationTable($lang);
 
 /**
  * Important stuff we always need to do.
@@ -121,7 +122,7 @@ if (x($_SESSION, 'authenticated') && !x($_SESSION, 'language')) {
 
 if ((x($_SESSION, 'language')) && ($_SESSION['language'] !== $lang)) {
 	$lang = $_SESSION['language'];
-	load_translation_table($lang);
+	L10n::loadTranslationTable($lang);
 }
 
 if ((x($_GET, 'zrl')) && (!$install && !$maintenance)) {
@@ -246,7 +247,7 @@ if (strlen($a->module)) {
 	if (is_array($a->addons) && in_array($a->module, $a->addons) && file_exists("addon/{$a->module}/{$a->module}.php")) {
 		//Check if module is an app and if public access to apps is allowed or not
 		if ((!local_user()) && Addon::isApp($a->module) && $privateapps === "1") {
-			info(t("You must be logged in to use addons. "));
+			info(L10n::t("You must be logged in to use addons. "));
 		} else {
 			include_once "addon/{$a->module}/{$a->module}.php";
 			if (function_exists($a->module . '_module')) {
@@ -293,12 +294,12 @@ if (strlen($a->module)) {
 		}
 
 		logger('index.php: page not found: ' . $_SERVER['REQUEST_URI'] . ' ADDRESS: ' . $_SERVER['REMOTE_ADDR'] . ' QUERY: ' . $_SERVER['QUERY_STRING'], LOGGER_DEBUG);
-		header($_SERVER["SERVER_PROTOCOL"] . ' 404 ' . t('Not Found'));
+		header($_SERVER["SERVER_PROTOCOL"] . ' 404 ' . L10n::t('Not Found'));
 		$tpl = get_markup_template("404.tpl");
 		$a->page['content'] = replace_macros(
 			$tpl,
 			[
-			'$message' =>  t('Page not found.')]
+			'$message' =>  L10n::t('Page not found.')]
 		);
 	}
 }
@@ -416,8 +417,8 @@ if (isset($homebase)) {
  * now that we've been through the module content, see if the page reported
  * a permission problem and if so, a 403 response would seem to be in order.
  */
-if (stristr(implode("", $_SESSION['sysmsg']), t('Permission denied'))) {
-	header($_SERVER["SERVER_PROTOCOL"] . ' 403 ' . t('Permission denied.'));
+if (stristr(implode("", $_SESSION['sysmsg']), L10n::t('Permission denied'))) {
+	header($_SERVER["SERVER_PROTOCOL"] . ' 403 ' . L10n::t('Permission denied.'));
 }
 
 /*
@@ -445,7 +446,7 @@ if ($a->is_mobile || $a->is_tablet) {
 		get_markup_template("toggle_mobile_footer.tpl"),
 		[
 			'$toggle_link' => $link,
-			'$toggle_text' => t('toggle mobile')]
+			'$toggle_text' => L10n::t('toggle mobile')]
 	);
 }
 

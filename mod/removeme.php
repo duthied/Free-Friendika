@@ -1,6 +1,9 @@
 <?php
-
+/**
+ * @file mod/removeme.php
+ */
 use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Model\User;
 
@@ -49,10 +52,10 @@ function removeme_content(App $a)
 	$o .= replace_macros($tpl, [
 		'$basedir' => System::baseUrl(),
 		'$hash' => $hash,
-		'$title' => t('Remove My Account'),
-		'$desc' => t('This will completely remove your account. Once this has been done it is not recoverable.'),
-		'$passwd' => t('Please enter your password for verification:'),
-		'$submit' => t('Remove My Account')
+		'$title' => L10n::t('Remove My Account'),
+		'$desc' => L10n::t('This will completely remove your account. Once this has been done it is not recoverable.'),
+		'$passwd' => L10n::t('Please enter your password for verification:'),
+		'$submit' => L10n::t('Remove My Account')
 	]);
 
 	return $o;

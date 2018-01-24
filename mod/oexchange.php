@@ -1,6 +1,9 @@
 <?php
-
+/**
+ * @file mod/oexchange.php
+ */
 use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Module\Login;
 
@@ -23,7 +26,7 @@ function oexchange_content(App $a) {
 	}
 
 	if (($a->argc > 1) && $a->argv[1] === 'done') {
-		info( t('Post successful.') . EOL);
+		info(L10n::t('Post successful.') . EOL);
 		return;
 	}
 

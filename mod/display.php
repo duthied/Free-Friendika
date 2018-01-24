@@ -4,6 +4,7 @@
  */
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
@@ -63,7 +64,7 @@ function display_init(App $a)
 
 		if (!DBM::is_result($r)) {
 			$a->error = 404;
-			notice(t('Item not found.') . EOL);
+			notice(L10n::t('Item not found.') . EOL);
 			return;
 		}
 	} elseif (($a->argc == 3) && ($nick == 'feed-item')) {
@@ -194,7 +195,7 @@ function display_fetchauthor($a, $item) {
 
 function display_content(App $a, $update = false, $update_uid = 0) {
 	if (Config::get('system','block_public') && !local_user() && !remote_user()) {
-		notice(t('Public access denied.') . EOL);
+		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}
 
@@ -240,7 +241,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 
 	if (!$item_id) {
 		$a->error = 404;
-		notice(t('Item not found.').EOL);
+		notice(L10n::t('Item not found.').EOL);
 		return;
 	}
 
@@ -301,7 +302,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	$is_owner = (local_user() && (in_array($a->profile['profile_uid'], [local_user(), 0])) ? true : false);
 
 	if (x($a->profile, 'hidewall') && !$is_owner && !$remote_contact) {
-		notice(t('Access to this profile has been restricted.') . EOL);
+		notice(L10n::t('Access to this profile has been restricted.') . EOL);
 		return;
 	}
 
@@ -342,7 +343,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	);
 
 	if (!DBM::is_result($r)) {
-		notice(t('Item not found.') . EOL);
+		notice(L10n::t('Item not found.') . EOL);
 		return $o;
 	}
 

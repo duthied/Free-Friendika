@@ -5,6 +5,7 @@
 namespace Friendica\Core;
 
 use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
@@ -100,13 +101,13 @@ class UserImport
 
 		$account = json_decode(file_get_contents($file['tmp_name']), true);
 		if ($account === null) {
-			notice(t("Error decoding account file"));
+			notice(L10n::t("Error decoding account file"));
 			return;
 		}
 
 
 		if (!x($account, 'version')) {
-			notice(t("Error! No version data in file! This is not a Friendica account file?"));
+			notice(L10n::t("Error! No version data in file! This is not a Friendica account file?"));
 			return;
 		}
 
@@ -114,12 +115,12 @@ class UserImport
 		$r = dba::selectFirst('user', ['uid'], ['nickname' => $account['user']['nickname']]);
 		if ($r === false) {
 			logger("uimport:check nickname : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
-			notice(t('Error! Cannot check nickname'));
+			notice(L10n::t('Error! Cannot check nickname'));
 			return;
 		}
 
 		if (DBM::is_result($r) > 0) {
-			notice(sprintf(t("User '%s' already exists on this server!"), $account['user']['nickname']));
+			notice(L10n::t("User '%s' already exists on this server!", $account['user']['nickname']));
 			return;
 		}
 
@@ -127,12 +128,12 @@ class UserImport
 		$r = dba::selectFirst('userd', ['id'], ['username' => $account['user']['nickname']]);
 		if ($r === false) {
 			logger("uimport:check nickname : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
-			notice(t('Error! Cannot check nickname'));
+			notice(L10n::t('Error! Cannot check nickname'));
 			return;
 		}
 
 		if (DBM::is_result($r) > 0) {
-			notice(sprintf(t("User '%s' already exists on this server!"), $account['user']['nickname']));
+			notice(L10n::t("User '%s' already exists on this server!", $account['user']['nickname']));
 			return;
 		}
 
@@ -165,7 +166,7 @@ class UserImport
 		$r = self::dbImportAssoc('user', $account['user']);
 		if ($r === false) {
 			logger("uimport:insert user : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
-			notice(t("User creation error"));
+			notice(L10n::t("User creation error"));
 			return;
 		}
 		$newuid = self::lastInsertId();
@@ -186,7 +187,7 @@ class UserImport
 			$r = self::dbImportAssoc('profile', $profile);
 			if ($r === false) {
 				logger("uimport:insert profile " . $profile['profile-name'] . " : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
-				info(t("User profile creation error"));
+				info(L10n::t("User profile creation error"));
 				dba::delete('user', ['uid' => $newuid]);
 				return;
 			}
@@ -230,7 +231,7 @@ class UserImport
 			}
 		}
 		if ($errorcount > 0) {
-			notice(sprintf(tt("%d contact not imported", "%d contacts not imported", $errorcount), $errorcount));
+			notice(L10n::tt("%d contact not imported", "%d contacts not imported", $errorcount));
 		}
 
 		foreach ($account['group'] as &$group) {
@@ -295,7 +296,7 @@ class UserImport
 		// send relocate messages
 		Worker::add(PRIORITY_HIGH, 'Notifier', 'relocate', $newuid);
 
-		info(t("Done. You can now login with your username and password"));
+		info(L10n::t("Done. You can now login with your username and password"));
 		goaway(System::baseUrl() . "/login");
 	}
 }

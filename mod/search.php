@@ -7,6 +7,7 @@ use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Database\DBM;
 
 require_once "include/bbcode.php";
@@ -32,7 +33,7 @@ function search_saved_searches() {
 				'id'		=> $rr['id'],
 				'term'		=> $rr['term'],
 				'encodedterm'	=> urlencode($rr['term']),
-				'delete'	=> t('Remove term'),
+				'delete'	=> L10n::t('Remove term'),
 				'selected'	=> ($search==$rr['term']),
 			];
 		}
@@ -41,7 +42,7 @@ function search_saved_searches() {
 		$tpl = get_markup_template("saved_searches_aside.tpl");
 
 		$o .= replace_macros($tpl, [
-			'$title'	=> t('Saved Searches'),
+			'$title'	=> L10n::t('Saved Searches'),
 			'$add'		=> '',
 			'$searchbox'	=> '',
 			'$saved' 	=> $saved,
@@ -93,16 +94,16 @@ function search_post(App $a) {
 function search_content(App $a) {
 
 	if (Config::get('system','block_public') && !local_user() && !remote_user()) {
-		notice(t('Public access denied.') . EOL);
+		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}
 
 	if (Config::get('system','local_search') && !local_user() && !remote_user()) {
 		http_status_exit(403,
-				["title" => t("Public access denied."),
-					"description" => t("Only logged in users are permitted to perform a search.")]);
+				["title" => L10n::t("Public access denied."),
+					"description" => L10n::t("Only logged in users are permitted to perform a search.")]);
 		killme();
-		//notice(t('Public access denied.').EOL);
+		//notice(L10n::t('Public access denied.').EOL);
 		//return;
 	}
 
@@ -124,8 +125,8 @@ function search_content(App $a) {
 			$resultdata = json_decode($result);
 			if (($resultdata->time > (time() - $crawl_permit_period)) && ($resultdata->accesses > $free_crawls)) {
 				http_status_exit(429,
-						["title" => t("Too Many Requests"),
-							"description" => t("Only one search per minute is permitted for not logged in users.")]);
+						["title" => L10n::t("Too Many Requests"),
+							"description" => L10n::t("Only one search per minute is permitted for not logged in users.")]);
 				killme();
 			}
 			Cache::set("remote_search:".$remote, json_encode(["time" => time(), "accesses" => $resultdata->accesses + 1]), CACHE_HOUR);
@@ -150,7 +151,7 @@ function search_content(App $a) {
 	// contruct a wrapper for the search header
 	$o .= replace_macros(get_markup_template("content_wrapper.tpl"),[
 		'name' => "search-header",
-		'$title' => t("Search"),
+		'$title' => L10n::t("Search"),
 		'$title_size' => 3,
 		'$content' => search($search,'search-box','search',((local_user()) ? true : false), false)
 	]);
@@ -220,15 +221,16 @@ function search_content(App $a) {
 	}
 
 	if (! DBM::is_result($r)) {
-		info( t('No results.') . EOL);
+		info(L10n::t('No results.') . EOL);
 		return $o;
 	}
 
 
-	if ($tag)
-		$title = sprintf( t('Items tagged with: %s'), $search);
-	else
-		$title = sprintf( t('Results for: %s'), $search);
+	if ($tag) {
+		$title = L10n::t('Items tagged with: %s', $search);
+	} else {
+		$title = L10n::t('Results for: %s', $search);
+	}
 
 	$o .= replace_macros(get_markup_template("section_title.tpl"),[
 		'$title' => $title

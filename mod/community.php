@@ -5,6 +5,7 @@
 use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 
@@ -21,7 +22,7 @@ function community_content(App $a, $update = 0)
 	$o = '';
 
 	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
-		notice(t('Public access denied.') . EOL);
+		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}
 
@@ -30,7 +31,7 @@ function community_content(App $a, $update = 0)
 	if ($a->argc > 1) {
 		$content = $a->argv[1];
 	} else {
-		if (!empty(Config::get('system','singleuser'))) {
+		if (!empty(Config::get('system', 'singleuser'))) {
 			// On single user systems only the global page does make sense
 			$content = 'global';
 		} else {
@@ -40,7 +41,7 @@ function community_content(App $a, $update = 0)
 	}
 
 	if (!in_array($content, ['local', 'global'])) {
-		notice(t('Community option not available.') . EOL);
+		notice(L10n::t('Community option not available.') . EOL);
 		return;
 	}
 
@@ -57,7 +58,7 @@ function community_content(App $a, $update = 0)
 		}
 
 		if (!$available) {
-			notice(t('Not available.') . EOL);
+			notice(L10n::t('Not available.') . EOL);
 			return;
 		}
 	}
@@ -69,12 +70,12 @@ function community_content(App $a, $update = 0)
 	if (!$update) {
 		$tabs = [];
 
-		if ((local_user() || in_array($page_style, [CP_USERS_AND_GLOBAL, CP_USERS_ON_SERVER])) && empty(Config::get('system','singleuser'))) {
+		if ((local_user() || in_array($page_style, [CP_USERS_AND_GLOBAL, CP_USERS_ON_SERVER])) && empty(Config::get('system', 'singleuser'))) {
 			$tabs[] = [
-				'label' => t('Community'),
+				'label' => L10n::t('Community'),
 				'url' => 'community/local',
 				'sel' => $content == 'local' ? 'active' : '',
-				'title' => t('Posts from local users on this server'),
+				'title' => L10n::t('Posts from local users on this server'),
 				'id' => 'community-local-tab',
 				'accesskey' => 'l'
 			];
@@ -82,10 +83,10 @@ function community_content(App $a, $update = 0)
 
 		if (local_user() || in_array($page_style, [CP_USERS_AND_GLOBAL, CP_GLOBAL_COMMUNITY])) {
 			$tabs[] = [
-				'label' => t('Global Timeline'),
+				'label' => L10n::t('Global Timeline'),
 				'url' => 'community/global',
 				'sel' => $content == 'global' ? 'active' : '',
-				'title' => t('Posts from users of the federated network'),
+				'title' => L10n::t('Posts from users of the federated network'),
 				'id' => 'community-global-tab',
 				'accesskey' => 'g'
 			];
@@ -134,7 +135,7 @@ function community_content(App $a, $update = 0)
 	$r = community_getitems($a->pager['start'], $a->pager['itemspage'], $content);
 
 	if (!DBM::is_result($r)) {
-		info(t('No results.') . EOL);
+		info(L10n::t('No results.') . EOL);
 		return $o;
 	}
 
@@ -178,7 +179,7 @@ function community_content(App $a, $update = 0)
 		'$content' => $o,
 		'$header' => '',
 		'$show_global_community_hint' => ($content == 'global') && Config::get('system', 'show_global_community_hint'),
-		'$global_community_hint' => t("This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users.")
+		'$global_community_hint' => L10n::t("This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users.")
 	]);
 }
 

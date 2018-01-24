@@ -6,6 +6,7 @@ use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Widget;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Model\Contact;
@@ -19,7 +20,7 @@ require_once 'mod/contacts.php';
 function dirfind_init(App $a) {
 
 	if (! local_user()) {
-		notice( t('Permission denied.') . EOL );
+		notice(L10n::t('Permission denied.') . EOL );
 		return;
 	}
 
@@ -43,7 +44,7 @@ function dirfind_content(App $a, $prefix = "") {
 
 	if (strpos($search,'@') === 0) {
 		$search = substr($search,1);
-		$header = sprintf( t('People Search - %s'), $search);
+		$header = L10n::t('People Search - %s', $search);
 		if ((valid_email($search) && validate_email($search)) ||
 			(substr(normalise_link($search), 0, 7) == "http://")) {
 			$user_data = Probe::uri($search);
@@ -54,7 +55,7 @@ function dirfind_content(App $a, $prefix = "") {
 	if (strpos($search,'!') === 0) {
 		$search = substr($search,1);
 		$community = true;
-		$header = sprintf( t('Forum Search - %s'), $search);
+		$header = L10n::t('Forum Search - %s', $search);
 	}
 
 	$o = '';
@@ -213,10 +214,10 @@ function dirfind_content(App $a, $prefix = "") {
 					}
 				} else {
 					$connlnk = System::baseUrl().'/follow/?url='.(($jj->connect) ? $jj->connect : $jj->url);
-					$conntxt = t('Connect');
+					$conntxt = L10n::t('Connect');
 					$photo_menu = [
-						'profile' => [t("View Profile"), Profile::zrl($jj->url)],
-						'follow' => [t("Connect/Follow"), $connlnk]
+						'profile' => [L10n::t("View Profile"), Profile::zrl($jj->url)],
+						'follow' => [L10n::t("Connect/Follow"), $connlnk]
 					];
 				}
 
@@ -251,7 +252,7 @@ function dirfind_content(App $a, $prefix = "") {
 		]);
 
 		} else {
-			info( t('No matches') . EOL);
+			info(L10n::t('No matches') . EOL);
 		}
 
 	}

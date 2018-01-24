@@ -1,12 +1,16 @@
 <?php
-
+/**
+ * @file mod/notify.php
+ */
 use Friendica\App;
 use Friendica\Core\NotificationsManager;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Module\Login;
 
-function notify_init(App $a) {
+function notify_init(App $a)
+{
 	if (! local_user()) {
 		return;
 	}
@@ -35,16 +39,16 @@ function notify_init(App $a) {
 		goaway(System::baseUrl(true));
 	}
 
-	if ($a->argc > 2 && $a->argv[1] === 'mark' && $a->argv[2] === 'all' ) {
+	if ($a->argc > 2 && $a->argv[1] === 'mark' && $a->argv[2] === 'all') {
 		$r = $nm->setAllSeen();
 		$j = json_encode(['result' => ($r) ? 'success' : 'fail']);
 		echo $j;
 		killme();
 	}
-
 }
 
-function notify_content(App $a) {
+function notify_content(App $a)
+{
 	if (! local_user()) {
 		return Login::form();
 	}
@@ -59,7 +63,7 @@ function notify_content(App $a) {
 	$r = $nm->getAll(['seen'=>0]);
 	if (DBM::is_result($r) > 0) {
 		foreach ($r as $it) {
-			$notif_content .= replace_macros($not_tpl,[
+			$notif_content .= replace_macros($not_tpl, [
 				'$item_link' => System::baseUrl(true).'/notify/view/'. $it['id'],
 				'$item_image' => $it['photo'],
 				'$item_text' => strip_tags(bbcode($it['msg'])),
@@ -67,16 +71,14 @@ function notify_content(App $a) {
 			]);
 		}
 	} else {
-		$notif_content .= t('No more system notifications.');
+		$notif_content .= L10n::t('No more system notifications.');
 	}
 
 	$o .= replace_macros($notif_tpl, [
-		'$notif_header' => t('System Notifications'),
+		'$notif_header' => L10n::t('System Notifications'),
 		'$tabs' => false, // $tabs,
 		'$notif_content' => $notif_content,
 	]);
 
 	return $o;
-
-
 }

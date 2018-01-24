@@ -7,6 +7,7 @@ namespace Friendica\Protocol;
 use Friendica\App;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
@@ -1258,9 +1259,9 @@ class OStatus
 		$root->setAttribute("xmlns:mastodon", NAMESPACE_MASTODON);
 
 		switch ($filter) {
-			case 'activity': $title = t('%s\'s timeline', $owner['name']); break;
-			case 'posts'   : $title = t('%s\'s posts'   , $owner['name']); break;
-			case 'comments': $title = t('%s\'s comments', $owner['name']); break;
+			case 'activity': $title = L10n::t('%s\'s timeline', $owner['name']); break;
+			case 'posts'   : $title = L10n::t('%s\'s posts'   , $owner['name']); break;
+			case 'comments': $title = L10n::t('%s\'s comments', $owner['name']); break;
 		}
 
 		$attributes = ["uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION . "-" . DB_UPDATE_VERSION];
@@ -1787,12 +1788,12 @@ class OStatus
 		}
 
 		if ($item['verb'] == ACTIVITY_FOLLOW) {
-			$message = t('%s is now following %s.');
-			$title = t('following');
+			$message = L10n::t('%s is now following %s.');
+			$title = L10n::t('following');
 			$action = "subscription";
 		} else {
-			$message = t('%s stopped following %s.');
-			$title = t('stopped following');
+			$message = L10n::t('%s stopped following %s.');
+			$title = L10n::t('stopped following');
 			$action = "unfollow";
 		}
 

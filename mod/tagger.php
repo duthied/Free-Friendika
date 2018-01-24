@@ -1,14 +1,17 @@
 <?php
-
+/**
+ * @file mod/tagger.php
+ */
 use Friendica\App;
 use Friendica\Core\Addon;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 
-require_once('include/security.php');
-require_once('include/bbcode.php');
-require_once('include/items.php');
+require_once 'include/security.php';
+require_once 'include/bbcode.php';
+require_once 'include/items.php';
 
 function tagger_content(App $a) {
 
@@ -64,7 +67,7 @@ function tagger_content(App $a) {
 
 	$uri = item_new_uri($a->get_hostname(),$owner_uid);
 	$xterm = xmlify($term);
-	$post_type = (($item['resource-id']) ? t('photo') : t('status'));
+	$post_type = (($item['resource-id']) ? L10n::t('photo') : L10n::t('status'));
 	$targettype = (($item['resource-id']) ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE );
 
 	$link = xmlify('<link rel="alternate" type="text/html" href="'
@@ -97,7 +100,7 @@ EOT;
 	</object>
 EOT;
 
-	$bodyverb = t('%1$s tagged %2$s\'s %3$s with %4$s');
+	$bodyverb = L10n::t('%1$s tagged %2$s\'s %3$s with %4$s');
 
 	if (! isset($bodyverb)) {
 		return;

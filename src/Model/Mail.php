@@ -5,6 +5,7 @@
 namespace Friendica\Model;
 
 use Friendica\App;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -35,7 +36,7 @@ class Mail
 		}
 
 		if (!strlen($subject)) {
-			$subject = t('[no subject]');
+			$subject = L10n::t('[no subject]');
 		}
 
 		$me = dba::selectFirst('contact', [], ['uid' => local_user(), 'self' => true]);
@@ -168,7 +169,7 @@ class Mail
 		}
 
 		if (!strlen($subject)) {
-			$subject = t('[no subject]');
+			$subject = L10n::t('[no subject]');
 		}
 
 		$guid = get_guid(32);

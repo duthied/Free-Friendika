@@ -7,6 +7,7 @@ use Friendica\Content\Widget;
 use Friendica\Content\Nav;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -29,7 +30,7 @@ function profile_init(App $a)
 			goaway(System::baseUrl() . '/profile/' . $r[0]['nickname']);
 		} else {
 			logger('profile error: mod_profile ' . $a->query_string, LOGGER_DEBUG);
-			notice(t('Requested profile is not available.') . EOL);
+			notice(L10n::t('Requested profile is not available.') . EOL);
 			$a->error = 404;
 			return;
 		}
@@ -70,9 +71,9 @@ function profile_init(App $a)
 	}
 
 	$a->page['htmlhead'] .= '<meta name="dfrn-global-visibility" content="' . ($a->profile['net-publish'] ? 'true' : 'false') . '" />' . "\r\n";
-	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . $which . '/" title="' . t('%s\'s posts', $a->profile['username']) . '"/>' . "\r\n";
-	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . $which . '/comments" title="' . t('%s\'s comments', $a->profile['username']) . '"/>' . "\r\n";
-	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . $which . '/activity" title="' . t('%s\'s timeline', $a->profile['username']) . '"/>' . "\r\n";
+	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . $which . '/" title="' . L10n::t('%s\'s posts', $a->profile['username']) . '"/>' . "\r\n";
+	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . $which . '/comments" title="' . L10n::t('%s\'s comments', $a->profile['username']) . '"/>' . "\r\n";
+	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . $which . '/activity" title="' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\r\n";
 	$uri = urlencode('acct:' . $a->profile['nickname'] . '@' . $a->get_hostname() . ($a->path ? '/' . $a->path : ''));
 	$a->page['htmlhead'] .= '<link rel="lrdd" type="application/xrd+xml" href="' . System::baseUrl() . '/xrd/?uri=' . $uri . '" />' . "\r\n";
 	header('Link: <' . System::baseUrl() . '/xrd/?uri=' . $uri . '>; rel="lrdd"; type="application/xrd+xml"', false);
@@ -167,7 +168,7 @@ function profile_content(App $a, $update = 0)
 	$last_updated_key = "profile:" . $a->profile['profile_uid'] . ":" . local_user() . ":" . remote_user();
 
 	if (x($a->profile, 'hidewall') && !$is_owner && !$remote_contact) {
-		notice(t('Access to this profile has been restricted.') . EOL);
+		notice(L10n::t('Access to this profile has been restricted.') . EOL);
 		return;
 	}
 
@@ -188,7 +189,7 @@ function profile_content(App $a, $update = 0)
 		$o .= Widget::commonFriendsVisitor($a->profile['profile_uid']);
 
 		if (x($_SESSION, 'new_member') && $is_owner) {
-			$o .= '<a href="newmember" id="newmember-tips" style="font-size: 1.2em;"><b>' . t('Tips for New Members') . '</b></a>' . EOL;
+			$o .= '<a href="newmember" id="newmember-tips" style="font-size: 1.2em;"><b>' . L10n::t('Tips for New Members') . '</b></a>' . EOL;
 		}
 
 		$commpage = $a->profile['page-flags'] == PAGE_COMMUNITY;

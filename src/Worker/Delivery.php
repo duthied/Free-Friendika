@@ -7,6 +7,7 @@ namespace Friendica\Worker;
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Queue;
@@ -388,7 +389,7 @@ class Delivery {
 						$reply_to = $r1[0]['reply_to'];
 					}
 
-					$subject  = (($it['title']) ? Email::encodeHeader($it['title'],'UTF-8') : t("\x28no subject\x29")) ;
+					$subject  = (($it['title']) ? Email::encodeHeader($it['title'],'UTF-8') : L10n::t("\x28no subject\x29")) ;
 
 					// only expose our real email address to true friends
 
@@ -400,7 +401,7 @@ class Delivery {
 							$headers  = 'From: '.Email::encodeHeader($local_user[0]['username'],'UTF-8').' <'.$local_user[0]['email'].'>'."\n";
 						}
 					} else {
-						$headers  = 'From: '. Email::encodeHeader($local_user[0]['username'],'UTF-8') .' <'. t('noreply') .'@'.$a->get_hostname() .'>'. "\n";
+						$headers  = 'From: '. Email::encodeHeader($local_user[0]['username'],'UTF-8') .' <'. L10n::t('noreply') .'@'.$a->get_hostname() .'>'. "\n";
 					}
 
 					//if ($reply_to)

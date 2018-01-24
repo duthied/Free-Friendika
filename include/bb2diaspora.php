@@ -234,13 +234,13 @@ function format_event_diaspora($ev) {
 		return '';
 	}
 
-	$bd_format = t('l F d, Y \@ g:i A') ; // Friday January 18, 2011 @ 8 AM
+	$bd_format = L10n::t('l F d, Y \@ g:i A') ; // Friday January 18, 2011 @ 8 AM
 
 	$o = 'Friendica event notification:' . "\n";
 
 	$o .= '**' . (($ev['summary']) ? bb2diaspora($ev['summary']) : bb2diaspora($ev['desc'])) .  '**' . "\n";
 
-	$o .= t('Starts:') . ' ' . '['
+	$o .= L10n::t('Starts:') . ' ' . '['
 		. (($ev['adjust']) ? day_translate(datetime_convert('UTC', 'UTC',
 			$ev['start'] , $bd_format ))
 			:  day_translate(datetime_convert('UTC', 'UTC',
@@ -248,7 +248,7 @@ function format_event_diaspora($ev) {
 		.  '](' . System::baseUrl() . '/localtime/?f=&time=' . urlencode(datetime_convert('UTC','UTC',$ev['start'])) . ")\n";
 
 	if (! $ev['nofinish']) {
-		$o .= t('Finishes:') . ' ' . '['
+		$o .= L10n::t('Finishes:') . ' ' . '['
 			. (($ev['adjust']) ? day_translate(datetime_convert('UTC', 'UTC',
 				$ev['finish'] , $bd_format ))
 				:  day_translate(datetime_convert('UTC', 'UTC',
@@ -257,7 +257,7 @@ function format_event_diaspora($ev) {
 	}
 
 	if (strlen($ev['location'])) {
-		$o .= t('Location:') . bb2diaspora($ev['location'])
+		$o .= L10n::t('Location:') . bb2diaspora($ev['location'])
 			. "\n";
 	}
 

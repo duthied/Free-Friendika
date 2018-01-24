@@ -9,6 +9,7 @@ use Friendica\Content\ForumManager;
 use Friendica\Content\Nav;
 use Friendica\Content\Widget;
 use Friendica\Core\Addon;
+use Friendica\Core\L10n;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
@@ -25,7 +26,7 @@ require_once 'include/acl_selectors.php';
 function network_init(App $a)
 {
 	if (!local_user()) {
-		notice(t('Permission denied.') . EOL);
+		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -187,15 +188,15 @@ function saved_searches($search)
 			'id'          => $rr['id'],
 			'term'        => $rr['term'],
 			'encodedterm' => urlencode($rr['term']),
-			'delete'      => t('Remove term'),
+			'delete'      => L10n::t('Remove term'),
 			'selected'    => ($search == $rr['term']),
 		];
 	}
 
 	$tpl = get_markup_template('saved_searches_aside.tpl');
 	$o = replace_macros($tpl, [
-		'$title'     => t('Saved Searches'),
-		'$add'       => t('add'),
+		'$title'     => L10n::t('Saved Searches'),
+		'$add'       => L10n::t('add'),
 		'$searchbox' => search($search, 'netsearch-box', $srchurl, true),
 		'$saved'     => $saved,
 	]);
@@ -540,9 +541,10 @@ function networkThreadedView(App $a, $update = 0)
 
 		if ($gid) {
 			if (($t = Contact::getOStatusCountByGroupId($gid)) && !PConfig::get(local_user(), 'system', 'nowarn_insecure')) {
-				notice(tt("Warning: This group contains %s member from a network that doesn't allow non public messages.",
-						"Warning: This group contains %s members from a network that doesn't allow non public messages.", $t) . EOL);
-				notice(t("Messages in this group won't be send to these receivers.") . EOL);
+				notice(L10n::tt("Warning: This group contains %s member from a network that doesn't allow non public messages.",
+						"Warning: This group contains %s members from a network that doesn't allow non public messages.",
+						$t) . EOL);
+				notice(L10n::t("Messages in this group won't be send to these receivers.").EOL);
 			}
 		}
 
@@ -610,7 +612,7 @@ function networkThreadedView(App $a, $update = 0)
 			if ($update) {
 				killme();
 			}
-			notice(t('No such group') . EOL);
+			notice(L10n::t('No such group') . EOL);
 			goaway('network/0');
 			// NOTREACHED
 		}
@@ -631,11 +633,11 @@ function networkThreadedView(App $a, $update = 0)
 			$sql_extra3 .= " OR (`thread`.`contact-id` = '$contact_str_self' AND `temp1`.`allow_gid` LIKE '" . protect_sprintf('%<' . intval($gid) . '>%') . "' AND `temp1`.`private`))";
 		} else {
 			$sql_extra3 .= " AND false ";
-			info(t('Group is empty'));
+			info(L10n::t('Group is empty'));
 		}
 
 		$o = replace_macros(get_markup_template('section_title.tpl'), [
-			'$title' => t('Group: %s', $group['name'])
+			'$title' => L10n::t('Group: %s', $group['name'])
 		]) . $o;
 	} elseif ($cid) {
 		$fields = ['id', 'name', 'network', 'writable', 'nurl',
@@ -660,12 +662,11 @@ function networkThreadedView(App $a, $update = 0)
 				'id' => 'network',
 			]) . $o;
 
-			if ($contact['network'] === NETWORK_OSTATUS && $contact['writable'] && !PConfig::get(local_user(), 'system',
-					'nowarn_insecure')) {
-				notice(t('Private messages to this person are at risk of public disclosure.') . EOL);
+			if ($contact['network'] === NETWORK_OSTATUS && $contact['writable'] && !PConfig::get(local_user(),'system','nowarn_insecure')) {
+				notice(L10n::t('Private messages to this person are at risk of public disclosure.') . EOL);
 			}
 		} else {
-			notice(t('Invalid contact.') . EOL);
+			notice(L10n::t('Invalid contact.') . EOL);
 			goaway('network');
 			// NOTREACHED
 		}
@@ -908,18 +909,18 @@ function network_tabs(App $a)
 	// tabs
 	$tabs = [
 		[
-			'label'	=> t('Commented Order'),
+			'label'	=> L10n::t('Commented Order'),
 			'url'	=> str_replace('/new', '', $cmd) . '?f=&order=comment' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
 			'sel'	=> $all_active,
-			'title'	=> t('Sort by Comment Date'),
+			'title'	=> L10n::t('Sort by Comment Date'),
 			'id'	=> 'commented-order-tab',
 			'accesskey' => 'e',
 		],
 		[
-			'label'	=> t('Posted Order'),
+			'label'	=> L10n::t('Posted Order'),
 			'url'	=> str_replace('/new', '', $cmd) . '?f=&order=post' . ((x($_GET,'cid')) ? '&cid=' . $_GET['cid'] : ''),
 			'sel'	=> $postord_active,
-			'title'	=> t('Sort by Post Date'),
+			'title'	=> L10n::t('Sort by Post Date'),
 			'id'	=> 'posted-order-tab',
 			'accesskey' => 't',
 		],
@@ -927,10 +928,10 @@ function network_tabs(App $a)
 
 	if (Feature::isEnabled(local_user(), 'personal_tab')) {
 		$tabs[] = [
-			'label'	=> t('Personal'),
+			'label'	=> L10n::t('Personal'),
 			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
 			'sel'	=> $conv_active,
-			'title'	=> t('Posts that mention or involve you'),
+			'title'	=> L10n::t('Posts that mention or involve you'),
 			'id'	=> 'personal-tab',
 			'accesskey' => 'r',
 		];
@@ -938,10 +939,10 @@ function network_tabs(App $a)
 
 	if (Feature::isEnabled(local_user(), 'new_tab')) {
 		$tabs[] = [
-			'label'	=> t('New'),
+			'label'	=> L10n::t('New'),
 			'url'	=> 'network/new' . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : ''),
 			'sel'	=> $new_active,
-			'title'	=> t('Activity Stream - by date'),
+			'title'	=> L10n::t('Activity Stream - by date'),
 			'id'	=> 'activitiy-by-date-tab',
 			'accesskey' => 'w',
 		];
@@ -949,10 +950,10 @@ function network_tabs(App $a)
 
 	if (Feature::isEnabled(local_user(), 'link_tab')) {
 		$tabs[] = [
-			'label'	=> t('Shared Links'),
+			'label'	=> L10n::t('Shared Links'),
 			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&bmark=1',
 			'sel'	=> $bookmarked_active,
-			'title'	=> t('Interesting Links'),
+			'title'	=> L10n::t('Interesting Links'),
 			'id'	=> 'shared-links-tab',
 			'accesskey' => 'b',
 		];
@@ -960,10 +961,10 @@ function network_tabs(App $a)
 
 	if (Feature::isEnabled(local_user(), 'star_posts')) {
 		$tabs[] = [
-			'label'	=> t('Starred'),
+			'label'	=> L10n::t('Starred'),
 			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&star=1',
 			'sel'	=> $starred_active,
-			'title'	=> t('Favourite Posts'),
+			'title'	=> L10n::t('Favourite Posts'),
 			'id'	=> 'starred-posts-tab',
 			'accesskey' => 'm',
 		];

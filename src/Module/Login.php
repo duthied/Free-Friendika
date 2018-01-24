@@ -1,17 +1,19 @@
 <?php
-
+/**
+ * @file src/Module/Login.php
+ */
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Database\DBM;
 use Friendica\Model\User;
 use dba;
 
 require_once 'boot.php';
 require_once 'include/datetime.php';
-require_once 'include/pgettext.php';
 require_once 'include/security.php';
 require_once 'include/text.php';
 
@@ -58,7 +60,7 @@ class Login extends BaseModule
 
 			// if it's an email address or doesn't resolve to a URL, fail.
 			if ($noid || strpos($openid_url, '@') || !validate_url($openid_url)) {
-				notice(t('Login failed.') . EOL);
+				notice(L10n::t('Login failed.') . EOL);
 				goaway(self::getApp()->get_baseurl());
 				// NOTREACHED
 			}
@@ -73,7 +75,7 @@ class Login extends BaseModule
 				$openid->returnUrl = self::getApp()->get_baseurl(true) . '/openid';
 				goaway($openid->authUrl());
 			} catch (Exception $e) {
-				notice(t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . '<br /><br >' . t('The error message was:') . ' ' . $e->getMessage());
+				notice(L10n::t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . '<br /><br >' . L10n::t('The error message was:') . ' ' . $e->getMessage());
 			}
 			// NOTREACHED
 		}
@@ -106,7 +108,7 @@ class Login extends BaseModule
 
 			if (!$record || !count($record)) {
 				logger('authenticate: failed login attempt: ' . notags(trim($_POST['username'])) . ' from IP ' . $_SERVER['REMOTE_ADDR']);
-				notice(t('Login failed.') . EOL);
+				notice(L10n::t('Login failed.') . EOL);
 				goaway(self::getApp()->get_baseurl());
 			}
 
@@ -246,8 +248,8 @@ class Login extends BaseModule
 		$reg = false;
 		if ($register) {
 			$reg = [
-				'title' => t('Create a New Account'),
-				'desc' => t('Register')
+				'title' => L10n::t('Create a New Account'),
+				'desc' => L10n::t('Register')
 			];
 		}
 
@@ -275,28 +277,28 @@ class Login extends BaseModule
 			$tpl,
 			[
 				'$dest_url'     => self::getApp()->get_baseurl(true) . '/login',
-				'$logout'       => t('Logout'),
-				'$login'        => t('Login'),
+				'$logout'       => L10n::t('Logout'),
+				'$login'        => L10n::t('Login'),
 
-				'$lname'        => ['username', t('Nickname or Email: ') , '', ''],
-				'$lpassword'    => ['password', t('Password: '), '', ''],
-				'$lremember'    => ['remember', t('Remember me'), 0,  ''],
+				'$lname'        => ['username', L10n::t('Nickname or Email: ') , '', ''],
+				'$lpassword'    => ['password', L10n::t('Password: '), '', ''],
+				'$lremember'    => ['remember', L10n::t('Remember me'), 0,  ''],
 
 				'$openid'       => !$noid,
-				'$lopenid'      => ['openid_url', t('Or login using OpenID: '),'',''],
+				'$lopenid'      => ['openid_url', L10n::t('Or login using OpenID: '),'',''],
 
 				'$hiddens'      => $hiddens,
 
 				'$register'     => $reg,
 
-				'$lostpass'     => t('Forgot your password?'),
-				'$lostlink'     => t('Password Reset'),
+				'$lostpass'     => L10n::t('Forgot your password?'),
+				'$lostlink'     => L10n::t('Password Reset'),
 
-				'$tostitle'     => t('Website Terms of Service'),
-				'$toslink'      => t('terms of service'),
+				'$tostitle'     => L10n::t('Website Terms of Service'),
+				'$toslink'      => L10n::t('terms of service'),
 
-				'$privacytitle' => t('Website Privacy Policy'),
-				'$privacylink'  => t('privacy policy'),
+				'$privacytitle' => L10n::t('Website Privacy Policy'),
+				'$privacylink'  => L10n::t('privacy policy'),
 			]
 		);
 

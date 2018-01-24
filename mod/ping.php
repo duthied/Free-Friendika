@@ -7,6 +7,7 @@ use Friendica\Content\Feature;
 use Friendica\Content\ForumManager;
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
@@ -286,7 +287,7 @@ function ping_init(App $a)
 					'photo'   => $intro['photo'],
 					'date'    => $intro['datetime'],
 					'seen'    => false,
-					'message' => t('{0} wants to be your friend'),
+					'message' => L10n::t('{0} wants to be your friend'),
 				];
 				$notifs[] = $notif;
 			}
@@ -301,7 +302,7 @@ function ping_init(App $a)
 					'photo'   => $mail['from-photo'],
 					'date'    => $mail['created'],
 					'seen'    => false,
-					'message' => t('{0} sent you a message'),
+					'message' => L10n::t('{0} sent you a message'),
 				];
 				$notifs[] = $notif;
 			}
@@ -316,7 +317,7 @@ function ping_init(App $a)
 					'photo'   => $reg['micro'],
 					'date'    => $reg['created'],
 					'seen'    => false,
-					'message' => t('{0} requested registration'),
+					'message' => L10n::t('{0} requested registration'),
 				];
 				$notifs[] = $notif;
 			}

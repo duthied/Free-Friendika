@@ -12,6 +12,7 @@ use Friendica\App;
 use Friendica\Content\OEmbed;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -1393,8 +1394,8 @@ class DFRN
 
 		logger("updating birthday: ".$birthday." for contact ".$contact["id"]);
 
-		$bdtext = sprintf(t("%s\'s birthday"), $contact["name"]);
-		$bdtext2 = sprintf(t("Happy Birthday %s"), " [url=".$contact["url"]."]".$contact["name"]."[/url]");
+		$bdtext = L10n::t("%s\'s birthday", $contact["name"]);
+		$bdtext2 = L10n::t("Happy Birthday %s", " [url=".$contact["url"]."]".$contact["name"]."[/url]");
 
 		$r = q(
 			"INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`)

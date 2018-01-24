@@ -1,10 +1,10 @@
 <?php
-
 /**
  * @file include/tags.php
  */
 use Friendica\App;
 use Friendica\Content\Feature;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
@@ -239,7 +239,7 @@ function wtagblock($uid, $count = 0, $owner_id = 0, $flags = '', $type = TERM_HA
 
 		$tpl = get_markup_template('tagblock_widget.tpl');
 		$o = replace_macros($tpl, [
-			'$title' => t('Tags'),
+			'$title' => L10n::t('Tags'),
 			'$tags' => $tags
 		]);
 	}

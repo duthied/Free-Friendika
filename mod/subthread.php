@@ -1,13 +1,16 @@
 <?php
-
+/**
+ * @file mod/subthread.php
+ */
 use Friendica\App;
 use Friendica\Core\Addon;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 
-require_once('include/security.php');
-require_once('include/bbcode.php');
-require_once('include/items.php');
+require_once 'include/security.php';
+require_once 'include/bbcode.php';
+require_once 'include/items.php';
 
 function subthread_content(App $a) {
 
@@ -89,7 +92,7 @@ function subthread_content(App $a) {
 
 	$uri = item_new_uri($a->get_hostname(),$owner_uid);
 
-	$post_type = (($item['resource-id']) ? t('photo') : t('status'));
+	$post_type = (($item['resource-id']) ? L10n::t('photo') : L10n::t('status'));
 	$objtype = (($item['resource-id']) ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE );
 	$link = xmlify('<link rel="alternate" type="text/html" href="' . System::baseUrl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
 	$body = $item['body'];
@@ -105,7 +108,7 @@ function subthread_content(App $a) {
 		<content>$body</content>
 	</object>
 EOT;
-	$bodyverb = t('%1$s is following %2$s\'s %3$s');
+	$bodyverb = L10n::t('%1$s is following %2$s\'s %3$s');
 
 	if (! isset($bodyverb)) {
 		return;
