@@ -338,7 +338,7 @@ function check_php(&$phpath, &$checks) {
 		list($result) = explode("\n", $result);
 		$help = "";
 		if (!$passed2) {
-			$help .= L10n::t('PHP executable is not the php cli binary (could be cgi-fgci version)'). EOL;
+			$help .= L10n::t("PHP executable is not the php cli binary \x28could be cgi-fgci version\x29"). EOL;
 			$help .= L10n::t('Found PHP version: ')."<tt>$result</tt>";
 		}
 		check_add($checks, L10n::t('PHP cli binary'), $passed2, true, $help);
@@ -470,8 +470,8 @@ function check_smarty3(&$checks) {
 		$status = false;
 		$help = L10n::t('Friendica uses the Smarty3 template engine to render its web views. Smarty3 compiles templates to PHP to speed up rendering.') .EOL;
 		$help .= L10n::t('In order to store these compiled templates, the web server needs to have write access to the directory view/smarty3/ under the Friendica top level folder.').EOL;
-		$help .= L10n::t('Please ensure that the user that your web server runs as (e.g. www-data) has write access to this folder.').EOL;
-		$help .= L10n::t('Note: as a security measure, you should give the web server write access to view/smarty3/ only--not the template files (.tpl) that it contains.').EOL;
+		$help .= L10n::t("Please ensure that the user that your web server runs as \x28e.g. www-data\x29 has write access to this folder.").EOL;
+		$help .= L10n::t("Note: as a security measure, you should give the web server write access to view/smarty3/ only--not the template files \x28.tpl\x29 that it contains.").EOL;
 	}
 
 	check_add($checks, L10n::t('view/smarty3 is writable'), $status, true, $help);
@@ -549,6 +549,6 @@ function what_next() {
 		."<p>".L10n::t('IMPORTANT: You will need to [manually] setup a scheduled task for the worker.')
 		.L10n::t('Please see the file "INSTALL.txt".')
 		."</p><p>"
-		.L10n::t("Go to your new Friendica node <a href='$baseurl/register'>registration page</a> and register as new user. Remember to use the same email you have entered as administrator email. This will allow you to enter the site admin panel.")
+		.L10n::t('Go to your new Friendica node <a href="%s/register">registration page</a> and register as new user. Remember to use the same email you have entered as administrator email. This will allow you to enter the site admin panel.', $baseurl)
 		."</p>";
 }

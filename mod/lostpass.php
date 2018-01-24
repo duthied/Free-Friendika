@@ -147,8 +147,8 @@ function lostpass_generate_password($user)
 		$preamble = deindent(L10n::t('
 			Dear %1$s,
 				Your password has been changed as requested. Please retain this
-			information for your records (or change your password immediately to
-			something that you will remember).
+			information for your records ' . "\x28" . 'or change your password immediately to
+			something that you will remember' . "\x29" . '.
 		', $user['username']));
 		$body = deindent(L10n::t('
 			Your login details are as follows:

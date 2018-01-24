@@ -136,7 +136,7 @@ function editpost_content(App $a) {
 		'$title' => htmlspecialchars($itm[0]['title']),
 		'$placeholdertitle' => L10n::t('Set title'),
 		'$category' => file_tag_file_to_list($itm[0]['file'], 'category'),
-		'$placeholdercategory' => (Feature::isEnabled(local_user(),'categories') ? L10n::t('Categories (comma-separated list)') : ''),
+		'$placeholdercategory' => (Feature::isEnabled(local_user(),'categories') ? L10n::t("Categories \x28comma-separated list\x29") : ''),
 		'$emtitle' => L10n::t('Example: bob@example.com, mary@example.com'),
 		'$lockstate' => $lockstate,
 		'$acl' => '', // populate_acl((($group) ? $group_acl : $a->user)),

@@ -724,7 +724,7 @@ function profiles_content(App $a) {
 			'$howlong' => ['howlong', L10n::t('Since [date]:'), ($r[0]['howlong'] <= NULL_DATE ? '' : datetime_convert('UTC',date_default_timezone_get(),$r[0]['howlong']))],
 			'$sexual' => ContactSelector::sexualPreference($r[0]['sexual']),
 			'$about' => ['about', L10n::t('Tell us about yourself...'), $r[0]['about']],
-			'$xmpp' => ['xmpp', L10n::t('XMPP (Jabber) address:'), $r[0]['xmpp'], L10n::t("The XMPP address will be propagated to your contacts so that they can follow you.")],
+			'$xmpp' => ['xmpp', L10n::t("XMPP \x28Jabber\x29 address:"), $r[0]['xmpp'], L10n::t("The XMPP address will be propagated to your contacts so that they can follow you.")],
 			'$homepage' => ['homepage', L10n::t('Homepage URL:'), $r[0]['homepage']],
 			'$hometown' => ['hometown', L10n::t('Hometown:'), $r[0]['hometown']],
 			'$politic' => ['politic', L10n::t('Political Views:'), $r[0]['politic']],

@@ -380,7 +380,7 @@ function admin_page_contactblock_post(App $a)
 			Contact::block($contact_id);
 			notice(L10n::t('The contact has been blocked from the node'));
 		} else {
-			notice(L10n::t('Could not find any contact entry for this URL (%s)', $contact_url));
+			notice(L10n::t("Could not find any contact entry for this URL \x28%s\x29", $contact_url));
 		}
 	}
 	if (x($_POST, 'page_contactblock_unblock')) {
@@ -1223,7 +1223,7 @@ function admin_page_site(App $a)
 	$ssl_choices = [
 		SSL_POLICY_NONE => L10n::t("No SSL policy, links will track page SSL state"),
 		SSL_POLICY_FULL => L10n::t("Force all links to use SSL"),
-		SSL_POLICY_SELFSIGN => L10n::t("Self-signed certificate, use SSL for local links only (discouraged)")
+		SSL_POLICY_SELFSIGN => L10n::t("Self-signed certificate, use SSL for local links only \x28discouraged\x29")
 	];
 
 	$check_git_version_choices = [
@@ -1287,7 +1287,7 @@ function admin_page_site(App $a)
 		'$abandon_days'		=> ['abandon_days', L10n::t('Accounts abandoned after x days'), Config::get('system','account_abandon_days'), L10n::t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.')],
 		'$allowed_sites'	=> ['allowed_sites', L10n::t("Allowed friend domains"), Config::get('system','allowed_sites'), L10n::t("Comma separated list of domains which are allowed to establish friendships with this site. Wildcards are accepted. Empty to allow any domains")],
 		'$allowed_email'	=> ['allowed_email', L10n::t("Allowed email domains"), Config::get('system','allowed_email'), L10n::t("Comma separated list of domains which are allowed in email addresses for registrations to this site. Wildcards are accepted. Empty to allow any domains")],
-		'$no_oembed_rich_content' => ['no_oembed_rich_content', L10n::t("No OEmbed rich content"), Config::get('system','no_oembed_rich_content'), L10n::t("Don't show the rich content (e.g. embedded PDF), except from the domains listed below.")],
+		'$no_oembed_rich_content' => ['no_oembed_rich_content', L10n::t("No OEmbed rich content"), Config::get('system','no_oembed_rich_content'), L10n::t("Don't show the rich content \x28e.g. embedded PDF\x29, except from the domains listed below.")],
 		'$allowed_oembed'	=> ['allowed_oembed', L10n::t("Allowed OEmbed domains"), Config::get('system','allowed_oembed'), L10n::t("Comma separated list of domains which oembed content is allowed to be displayed. Wildcards are accepted.")],
 		'$block_public'		=> ['block_public', L10n::t("Block public"), Config::get('system','block_public'), L10n::t("Check to block public access to all otherwise public personal pages on this site unless you are currently logged in.")],
 		'$force_publish'	=> ['publish_all', L10n::t("Force publish"), Config::get('system','publish_all'), L10n::t("Check to force all profiles on this site to be listed in the site directory.")],
@@ -1301,7 +1301,7 @@ function admin_page_site(App $a)
 		'$no_openid'		=> ['no_openid', L10n::t("OpenID support"), !Config::get('system','no_openid'), L10n::t("OpenID support for registration and logins.")],
 		'$no_regfullname'	=> ['no_regfullname', L10n::t("Fullname check"), !Config::get('system','no_regfullname'), L10n::t("Force users to register with a space between firstname and lastname in Full name, as an antispam measure")],
 		'$community_page_style' => ['community_page_style', L10n::t("Community pages for visitors"), Config::get('system','community_page_style'), L10n::t("Which community pages should be available for visitors. Local users always see both pages."), $community_page_style_choices],
-		'$max_author_posts_community_page' => ['max_author_posts_community_page', L10n::t("Posts per user on community page"), Config::get('system','max_author_posts_community_page'), L10n::t("The maximum number of posts per user on the community page. (Not valid for 'Global Community')")],
+		'$max_author_posts_community_page' => ['max_author_posts_community_page', L10n::t("Posts per user on community page"), Config::get('system','max_author_posts_community_page'), L10n::t("The maximum number of posts per user on the community page. \x28Not valid for 'Global Community'\x29")],
 		'$ostatus_disabled' 	=> ['ostatus_disabled', L10n::t("Enable OStatus support"), !Config::get('system','ostatus_disabled'), L10n::t("Provide built-in OStatus \x28StatusNet, GNU Social etc.\x29 compatibility. All communications in OStatus are public, so privacy warnings will be occasionally displayed.")],
 		'$ostatus_full_threads'	=> ['ostatus_full_threads', L10n::t("Only import OStatus threads from our contacts"), Config::get('system','ostatus_full_threads'), L10n::t("Normally we import every content from our OStatus contacts. With this option we only store threads that are started by a contact that is known on our system.")],
 		'$ostatus_not_able'	=> L10n::t("OStatus support can only be enabled if threading is enabled."),
@@ -1309,14 +1309,14 @@ function admin_page_site(App $a)
 		'$diaspora_not_able'	=> L10n::t("Diaspora support can't be enabled because Friendica was installed into a sub directory."),
 		'$diaspora_enabled'	=> ['diaspora_enabled', L10n::t("Enable Diaspora support"), Config::get('system','diaspora_enabled'), L10n::t("Provide built-in Diaspora network compatibility.")],
 		'$dfrn_only'		=> ['dfrn_only', L10n::t('Only allow Friendica contacts'), Config::get('system','dfrn_only'), L10n::t("All contacts must use Friendica protocols. All other built-in communication protocols disabled.")],
-		'$verifyssl' 		=> ['verifyssl', L10n::t("Verify SSL"), Config::get('system','verifyssl'), L10n::t("If you wish, you can turn on strict certificate checking. This will mean you cannot connect (at all) to self-signed SSL sites.")],
+		'$verifyssl' 		=> ['verifyssl', L10n::t("Verify SSL"), Config::get('system','verifyssl'), L10n::t("If you wish, you can turn on strict certificate checking. This will mean you cannot connect \x28at all\x29 to self-signed SSL sites.")],
 		'$proxyuser'		=> ['proxyuser', L10n::t("Proxy user"), Config::get('system','proxyuser'), ""],
 		'$proxy'		=> ['proxy', L10n::t("Proxy URL"), Config::get('system','proxy'), ""],
-		'$timeout'		=> ['timeout', L10n::t("Network timeout"), (x(Config::get('system','curl_timeout'))?Config::get('system','curl_timeout'):60), L10n::t("Value is in seconds. Set to 0 for unlimited (not recommended).")],
+		'$timeout'		=> ['timeout', L10n::t("Network timeout"), (x(Config::get('system','curl_timeout'))?Config::get('system','curl_timeout'):60), L10n::t("Value is in seconds. Set to 0 for unlimited \x28not recommended\x29.")],
 		'$maxloadavg'		=> ['maxloadavg', L10n::t("Maximum Load Average"), ((intval(Config::get('system','maxloadavg')) > 0)?Config::get('system','maxloadavg'):50), L10n::t("Maximum system load before delivery and poll processes are deferred - default 50.")],
-		'$maxloadavg_frontend'	=> ['maxloadavg_frontend', L10n::t("Maximum Load Average (Frontend)"), ((intval(Config::get('system','maxloadavg_frontend')) > 0)?Config::get('system','maxloadavg_frontend'):50), L10n::t("Maximum system load before the frontend quits service - default 50.")],
-		'$min_memory'		=> ['min_memory', L10n::t("Minimal Memory"), ((intval(Config::get('system','min_memory')) > 0)?Config::get('system','min_memory'):0), L10n::t("Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 (deactivated).")],
-		'$optimize_max_tablesize'=> ['optimize_max_tablesize', L10n::t("Maximum table size for optimization"), $optimize_max_tablesize, L10n::t("Maximum table size (in MB) for the automatic optimization - default 100 MB. Enter -1 to disable it.")],
+		'$maxloadavg_frontend'	=> ['maxloadavg_frontend', L10n::t("Maximum Load Average \x28Frontend\x29"), ((intval(Config::get('system','maxloadavg_frontend')) > 0)?Config::get('system','maxloadavg_frontend'):50), L10n::t("Maximum system load before the frontend quits service - default 50.")],
+		'$min_memory'		=> ['min_memory', L10n::t("Minimal Memory"), ((intval(Config::get('system','min_memory')) > 0)?Config::get('system','min_memory'):0), L10n::t("Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 \x28deactivated\x29.")],
+		'$optimize_max_tablesize'=> ['optimize_max_tablesize', L10n::t("Maximum table size for optimization"), $optimize_max_tablesize, L10n::t("Maximum table size \x28in MB\x29 for the automatic optimization - default 100 MB. Enter -1 to disable it.")],
 		'$optimize_fragmentation'=> ['optimize_fragmentation', L10n::t("Minimum level of fragmentation"), ((intval(Config::get('system','optimize_fragmentation')) > 0)?Config::get('system','optimize_fragmentation'):30), L10n::t("Minimum fragmenation level to start the automatic optimization - default value is 30%.")],
 
 		'$poco_completion'	=> ['poco_completion', L10n::t("Periodical check of global contacts"), Config::get('system','poco_completion'), L10n::t("If enabled, the global contacts are checked periodically for missing or outdated data and the vitality of the contacts and servers.")],
@@ -1330,7 +1330,7 @@ function admin_page_site(App $a)
 		'$check_new_version_url' => ['check_new_version_url', L10n::t("Check upstream version"), Config::get('system', 'check_new_version_url'), L10n::t("Enables checking for new Friendica versions at github. If there is a new version, you will be informed in the admin panel overview."), $check_git_version_choices],
 		'$suppress_tags'	=> ['suppress_tags', L10n::t("Suppress Tags"), Config::get('system','suppress_tags'), L10n::t("Suppress showing a list of hashtags at the end of the posting.")],
 		'$itemcache'		=> ['itemcache', L10n::t("Path to item cache"), Config::get('system','itemcache'), L10n::t("The item caches buffers generated bbcode and external images.")],
-		'$itemcache_duration' 	=> ['itemcache_duration', L10n::t("Cache duration in seconds"), Config::get('system','itemcache_duration'), L10n::t("How long should the cache files be hold? Default value is 86400 seconds (One day). To disable the item cache, set the value to -1.")],
+		'$itemcache_duration' 	=> ['itemcache_duration', L10n::t("Cache duration in seconds"), Config::get('system','itemcache_duration'), L10n::t("How long should the cache files be hold? Default value is 86400 seconds \x28One day\x29. To disable the item cache, set the value to -1.")],
 		'$max_comments' 	=> ['max_comments', L10n::t("Maximum numbers of comments per post"), Config::get('system','max_comments'), L10n::t("How much comments should be shown for each post? Default value is 100.")],
 		'$temppath'		=> ['temppath', L10n::t("Temp path"), Config::get('system','temppath'), L10n::t("If you have a restricted system where the webserver can't access the system temp path, enter another path here.")],
 		'$basepath'		=> ['basepath', L10n::t("Base path to installation"), Config::get('system','basepath'), L10n::t("If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot.")],
@@ -1344,7 +1344,7 @@ function admin_page_site(App $a)
 		'$worker_queues' 	=> ['worker_queues', L10n::t("Maximum number of parallel workers"), Config::get('system','worker_queues'), L10n::t("On shared hosters set this to 2. On larger systems, values of 10 are great. Default value is 4.")],
 		'$worker_dont_fork'	=> ['worker_dont_fork', L10n::t("Don't use 'proc_open' with the worker"), Config::get('system','worker_dont_fork'), L10n::t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of worker calls in your crontab.")],
 		'$worker_fastlane'	=> ['worker_fastlane', L10n::t("Enable fastlane"), Config::get('system','worker_fastlane'), L10n::t("When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.")],
-		'$worker_frontend'	=> ['worker_frontend', L10n::t('Enable frontend worker'), Config::get('system','frontend_worker'), L10n::t('When enabled the Worker process is triggered when backend access is performed (e.g. messages being delivered). On smaller sites you might want to call %s/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server.', System::baseUrl())],
+		'$worker_frontend'	=> ['worker_frontend', L10n::t('Enable frontend worker'), Config::get('system','frontend_worker'), L10n::t('When enabled the Worker process is triggered when backend access is performed \x28e.g. messages being delivered\x29. On smaller sites you might want to call %s/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server.', System::baseUrl())],
 
 		'$form_security_token'	=> get_form_security_token("admin_site")
 	]);
@@ -1431,7 +1431,7 @@ function admin_page_dbsync(App $a)
 			'$base' => System::baseUrl(true),
 			'$banner' => L10n::t('Failed Updates'),
 			'$desc' => L10n::t('This does not include updates prior to 1139, which did not return a status.'),
-			'$mark' => L10n::t('Mark success (if update was manually applied)'),
+			'$mark' => L10n::t("Mark success \x28if update was manually applied\x29"),
 			'$apply' => L10n::t('Attempt to execute this update step automatically'),
 			'$failed' => $failed
 		]);
@@ -1487,10 +1487,10 @@ function admin_page_users_post(App $a)
 			Please take a few moments to review the other account settings on that page.
 
 			You may also wish to add some basic information to your default profile
-			(on the "Profiles" page) so that other people can easily find you.
+			' . "\x28" . 'on the "Profiles" page' . "\x29" . ' so that other people can easily find you.
 
 			We recommend setting your full name, adding a profile photo,
-			adding some profile "keywords" (very useful in making new friends) - and
+			adding some profile "keywords" ' . "\x28" . 'very useful in making new friends' . "\x29" . ' - and
 			perhaps what country you live in; if you do not wish to be more specific
 			than that.
 
@@ -2228,11 +2228,11 @@ function admin_page_viewlogs(App $a)
 	$data = '';
 
 	if (!file_exists($f)) {
-		$data = L10n::t("Error trying to open <strong>$f</strong> log file.\r\n<br/>Check to see if file $f exist and is readable.");
+		$data = L10n::t('Error trying to open <strong>%1$s</strong> log file.\r\n<br/>Check to see if file %1$s exist and is readable.', $f);
 	} else {
 		$fp = fopen($f, 'r');
 		if (!$fp) {
-			$data = L10n::t("Couldn't open <strong>$f</strong> log file.\r\n<br/>Check to see if file $f is readable.");
+			$data = L10n::t('Couldn\'t open <strong>%1$s</strong> log file.\r\n<br/>Check to see if file %1$s is readable.', $f);
 		} else {
 			$fstat = fstat($fp);
 			$size = $fstat['size'];

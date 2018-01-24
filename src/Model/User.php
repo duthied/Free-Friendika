@@ -353,7 +353,7 @@ class User
 		$nickname = $data['nickname'] = strtolower($nickname);
 
 		if (!preg_match('/^[a-z0-9][a-z0-9\_]*$/', $nickname)) {
-			throw new Exception(L10n::t('Your "nickname" can only contain "a-z", "0-9" and "_".'));
+			throw new Exception(L10n::t('Your nickname can only contain a-z, 0-9 and _.'));
 		}
 
 		// Check existing and deleted accounts for this nickname.
@@ -560,16 +560,16 @@ class User
 				Login Name:	%1$s
 				Password:	%5$s
 
-			You may change your password from your account "Settings" page after logging
+			You may change your password from your account Settings page after logging
 			in.
 
 			Please take a few moments to review the other account settings on that page.
 
 			You may also wish to add some basic information to your default profile
-			(on the "Profiles" page) so that other people can easily find you.
+			' . "\x28" . 'on the "Profiles" page' . "\x29" . ' so that other people can easily find you.
 
 			We recommend setting your full name, adding a profile photo,
-			adding some profile "keywords" (very useful in making new friends) - and
+			adding some profile keywords ' . "\x28" . 'very useful in making new friends' . "\x29" . ' - and
 			perhaps what country you live in; if you do not wish to be more specific
 			than that.
 

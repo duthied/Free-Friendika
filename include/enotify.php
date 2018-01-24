@@ -347,7 +347,7 @@ function notification($params)
 				'[url='.$params['source_link'].']'.$params['source_name'].'[/url]'
 			);
 
-			$body =  L10n::t('\'%1$s\' has chosen to accept you a "fan", which restricts some forms of communication - such as private messaging and some profile interactions. If this is a celebrity or community page, these settings were applied automatically.', $params['source_name']);
+			$body =  L10n::t('\'%1$s\' has chosen to accept you a fan, which restricts some forms of communication - such as private messaging and some profile interactions. If this is a celebrity or community page, these settings were applied automatically.', $params['source_name']);
 			$body .= "\n\n";
 			$body .= L10n::t('\'%1$s\' may choose to extend this into a two-way or more permissive relationship in the future.', $params['source_name']);
 
@@ -369,7 +369,7 @@ function notification($params)
 					'[url='.$params['source_link'].']'.$params['source_name'].'[/url]'
 				);
 
-				$body = L10n::t('Full Name:	%1$s\nSite Location:	%2$s\nLogin Name:	%3$s (%4$s)',
+				$body = L10n::t('Full Name:	%1$s\nSite Location:	%2$s\nLogin Name:	%3$s ' . "\x28" . '%4$s' . "\x28",
 					$params['source_name'],
 					$siteurl, $params['source_mail'],
 					$params['source_nick']

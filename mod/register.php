@@ -265,7 +265,7 @@ function register_content(App $a)
 		'$oidlabel'  => $oidlabel,
 		'$openid'    => $openid_url,
 		'$namelabel' => L10n::t('Your Full Name ' . "\x28" . 'e.g. Joe Smith, real or real-looking' . "\x29" . ': '),
-		'$addrlabel' => L10n::t('Your Email Address: (Initial information will be send there, so this has to be an existing address.)'),
+		'$addrlabel' => L10n::t("Your Email Address: \x28Initial information will be send there, so this has to be an existing address.\x29"),
 		'$passwords' => $passwords,
 		'$password1' => ['password1', L10n::t('New Password:'), '', L10n::t('Leave empty for an auto generated password.')],
 		'$password2' => ['confirm', L10n::t('Confirm:'), '', ''],
