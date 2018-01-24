@@ -2075,7 +2075,7 @@ class DFRN
 	{
 		$changed = false;
 
-		if (self::editedTimestampIsNewer($current, $item)) {
+		if (self::isEditedTimestampNewer($current, $item)) {
 			// do not accept (ignore) an earlier edit than one we currently have.
 			if (datetime_convert("UTC", "UTC", $item["edited"]) < $current["edited"]) {
 				return false;
@@ -2417,7 +2417,7 @@ class DFRN
 		);
 
 		// Is there an existing item?
-		if (DBM::is_result($current) && self::editedTimestampIsNewer($current[0], $item)
+		if (DBM::is_result($current) && self::isEditedTimestampNewer($current[0], $item)
 			&& (datetime_convert("UTC", "UTC", $item["edited"]) < $current[0]["edited"])
 		) {
 			logger("Item ".$item["uri"]." already existed.", LOGGER_DEBUG);
@@ -3144,7 +3144,7 @@ class DFRN
 	 * assumes the update has been seen before and should be ignored.
 	 *
 	 */
-	private static function editedTimestampIsNewer($existing, $update)
+	private static function isEditedTimestampNewer($existing, $update)
 	{
 		if (!x($existing, 'edited') || !$existing['edited']) {
 			return true;
