@@ -238,7 +238,7 @@ class Delivery {
 							return;
 						}
 
-						$item_contact = get_item_contact($item,$icontacts);
+						$item_contact = self::getItemContact($item,$icontacts);
 						if (!$item_contact) {
 							return;
 						}
@@ -504,5 +504,18 @@ class Delivery {
 		}
 
 		return;
+	}
+
+	private static function getItemContact($item, $contacts)
+	{
+		if (!count($contacts) || !is_array($item)) {
+			return false;
+		}
+		foreach ($contacts as $contact) {
+			if ($contact['id'] == $item['contact-id']) {
+				return $contact;
+			}
+		}
+		return false;
 	}
 }
