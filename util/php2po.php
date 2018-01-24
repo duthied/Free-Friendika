@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 /**
  * Read strings.php file and create messages.po
@@ -7,16 +8,9 @@
  * Output to <path/to/messages.po>
  */
 
-use Friendica\App;
-
 DEFINE("NORM_REGEXP", "|[\\\]|");
 
-if(! class_exists('App')) {
-	class TmpA {
-		public $strings = [];
-	}
-	$a = new TmpA();
-}
+$a = new stdClass();
 
 if ($argc<2 || in_array('-h', $argv) || in_array('--h', $argv)) {
 	print "Usage: ".$argv[0]." [-p <n>] <strings.php>\n\n";
@@ -93,8 +87,14 @@ print "\nLoading base message.po...";
 // load base messages.po and extract msgids
 $base_msgids = [];
 $norm_base_msgids = [];
-$base_f = file("util/messages.po") || die("No base messages.po\n");
-$_f = 0; $_mid = ""; $_mids = [];
+$base_f = file("util/messages.po");
+if (!$base_f) {
+	die("No base messages.po\n");
+}
+
+$_f = 0;
+$_mid = "";
+$_mids = [];
 foreach( $base_f as $l) {
 	$l = trim($l);
 	//~ print $l."\n";
