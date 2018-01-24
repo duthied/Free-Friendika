@@ -84,8 +84,7 @@ class Post extends BaseObject
 				}
 
 				// You can always comment on Diaspora and OStatus items
-				// The empty network can happen with your local (self) contact
-				if (in_array($item['network'], ['', NETWORK_OSTATUS, NETWORK_DIASPORA]) && (local_user() == $item['uid'])) {
+				if (in_array($item['network'], [NETWORK_OSTATUS, NETWORK_DIASPORA]) && (local_user() == $item['uid'])) {
 					$item['writable'] = true;
 				}
 
@@ -295,12 +294,6 @@ class Post extends BaseObject
 			];
 			if ($shareable) {
 				$buttons['share'] = [t('Share this'), t('share')];
-			}
-
-			// If a contact isn't writable, we cannot send a like or dislike to it
-			if (!$item['writable']) {
-				unset($buttons["like"]);
-				unset($buttons["dislike"]);
 			}
 		}
 
