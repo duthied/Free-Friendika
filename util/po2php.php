@@ -1,6 +1,6 @@
+#!/usr/bin/env php
 <?php
 define("DQ_ESCAPE", "__DQ__");
-
 
 function po2php_run(&$argv, &$argc) {
 
