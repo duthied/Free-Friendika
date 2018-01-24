@@ -201,12 +201,6 @@ function dob($dob)
 		]
 	]);
 
-	/// @TODO Old-lost code?
-	//	if ($dob && $dob > '0001-01-01')
-	//		$o = datesel($f,mktime(0,0,0,0,0,1900),mktime(),mktime(0,0,0,$month,$day,$year), 'dob');
-	//	else
-	//		$o = datesel($f,mktime(0,0,0,0,0,1900),mktime(),false,'dob');
-
 	return $o;
 }
 
