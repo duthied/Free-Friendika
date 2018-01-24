@@ -203,7 +203,7 @@ function localize_item(&$item) {
 			$Bphoto = '[url=' . Profile::zrl($Blink) . '][img]' . $Bphoto . '[/img][/url]';
 		}
 
-		$item['body'] = sprintf( L10n::t('%1$s is now friends with %2$s'), $A, $B)."\n\n\n".$Bphoto;
+		$item['body'] = L10n::t('%1$s is now friends with %2$s', $A, $B)."\n\n\n".$Bphoto;
 
 	}
 	if (stristr($item['verb'], ACTIVITY_POKE)) {
@@ -298,7 +298,7 @@ function localize_item(&$item) {
 		$parsedobj = parse_xml_string($xmlhead.$item['object']);
 
 		$tag = sprintf('#[url=%s]%s[/url]', $parsedobj->id, $parsedobj->content);
-		$item['body'] = sprintf( L10n::t('%1$s tagged %2$s\'s %3$s with %4$s'), $author, $objauthor, $plink, $tag );
+		$item['body'] = L10n::t('%1$s tagged %2$s\'s %3$s with %4$s', $author, $objauthor, $plink, $tag );
 
 	}
 	if (activity_match($item['verb'], ACTIVITY_FAVORITE)) {
@@ -326,7 +326,7 @@ function localize_item(&$item) {
 				$A = '[url=' . Profile::zrl($Alink) . ']' . $Aname . '[/url]';
 				$B = '[url=' . Profile::zrl($Blink) . ']' . $Bname . '[/url]';
 				$P = '[url=' . $target['plink'] . ']' . L10n::t('post/item') . '[/url]';
-				$item['body'] = sprintf( L10n::t('%1$s marked %2$s\'s %3$s as favorite'), $A, $B, $P)."\n";
+				$item['body'] = L10n::t('%1$s marked %2$s\'s %3$s as favorite', $A, $B, $P)."\n";
 			}
 		}
 	}
@@ -780,7 +780,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 					'guid' => (($preview) ? 'Q0' : $item['guid']),
 					'network' => $item['item_network'],
 					'network_name' => ContactSelector::networkToName($item['item_network'], $profile_link),
-					'linktitle' => sprintf( L10n::t('View %s\'s profile @ %s'), $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),
+					'linktitle' => L10n::t('View %s\'s profile @ %s', $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),
 					'profile_url' => $profile_link,
 					'item_photo_menu' => item_photo_menu($item),
 					'name' => $profile_name_e,
@@ -800,7 +800,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 					'folders' => $folders,
 					'text' => strip_tags($body_e),
 					'localtime' => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
-					'ago' => (($item['app']) ? sprintf( L10n::t('%s from %s'),relative_date($item['created']),$item['app']) : relative_date($item['created'])),
+					'ago' => (($item['app']) ? L10n::t('%s from %s', relative_date($item['created']),$item['app']) : relative_date($item['created'])),
 					'location' => $location_e,
 					'indent' => '',
 					'owner_name' => $owner_name_e,
@@ -1188,19 +1188,19 @@ function format_like($cnt, array $arr, $type, $id) {
 		// list which show all likers
 		switch ($type) {
 			case 'like' :
-				$phrase = sprintf( L10n::t('%s likes this.'), $likers);
+				$phrase = L10n::t('%s likes this.', $likers);
 				break;
 			case 'dislike' :
-				$phrase = sprintf( L10n::t('%s doesn\'t like this.'), $likers);
+				$phrase = L10n::t('%s doesn\'t like this.', $likers);
 				break;
 			case 'attendyes' :
-				$phrase = sprintf( L10n::t('%s attends.'), $likers);
+				$phrase = L10n::t('%s attends.', $likers);
 				break;
 			case 'attendno' :
-				$phrase = sprintf( L10n::t('%s doesn\'t attend.'), $likers);
+				$phrase = L10n::t('%s doesn\'t attend.', $likers);
 				break;
 			case 'attendmaybe' :
-				$phrase = sprintf( L10n::t('%s attends maybe.'), $likers);
+				$phrase = L10n::t('%s attends maybe.', $likers);
 				break;
 		}
 	}
@@ -1217,7 +1217,7 @@ function format_like($cnt, array $arr, $type, $id) {
 		}
 		if ($total >= MAX_LIKERS) {
 			$str = implode(', ', $arr);
-			$str .= sprintf( L10n::t(', and %d other people'), $total - MAX_LIKERS );
+			$str .= L10n::t(', and %d other people', $total - MAX_LIKERS );
 		}
 
 		$likers = $str;
@@ -1226,24 +1226,24 @@ function format_like($cnt, array $arr, $type, $id) {
 
 		switch ($type) {
 			case 'like':
-				$phrase = sprintf( L10n::t('<span  %1$s>%2$d people</span> like this'), $spanatts, $cnt);
-				$explikers = sprintf( L10n::t('%s like this.'), $likers);
+				$phrase = L10n::t('<span  %1$s>%2$d people</span> like this', $spanatts, $cnt);
+				$explikers = L10n::t('%s like this.', $likers);
 				break;
 			case 'dislike':
-				$phrase = sprintf( L10n::t('<span  %1$s>%2$d people</span> don\'t like this'), $spanatts, $cnt);
-				$explikers = sprintf( L10n::t('%s don\'t like this.'), $likers);
+				$phrase = L10n::t('<span  %1$s>%2$d people</span> don\'t like this', $spanatts, $cnt);
+				$explikers = L10n::t('%s don\'t like this.', $likers);
 				break;
 			case 'attendyes':
-				$phrase = sprintf( L10n::t('<span  %1$s>%2$d people</span> attend'), $spanatts, $cnt);
-				$explikers = sprintf( L10n::t('%s attend.'), $likers);
+				$phrase = L10n::t('<span  %1$s>%2$d people</span> attend', $spanatts, $cnt);
+				$explikers = L10n::t('%s attend.', $likers);
 				break;
 			case 'attendno':
-				$phrase = sprintf( L10n::t('<span  %1$s>%2$d people</span> don\'t attend'), $spanatts, $cnt);
-				$explikers = sprintf( L10n::t('%s don\'t attend.'), $likers);
+				$phrase = L10n::t('<span  %1$s>%2$d people</span> don\'t attend', $spanatts, $cnt);
+				$explikers = L10n::t('%s don\'t attend.', $likers);
 				break;
 			case 'attendmaybe':
-				$phrase = sprintf( L10n::t('<span  %1$s>%2$d people</span> attend maybe'), $spanatts, $cnt);
-				$explikers = sprintf( L10n::t('%s anttend maybe.'), $likers);
+				$phrase = L10n::t('<span  %1$s>%2$d people</span> attend maybe', $spanatts, $cnt);
+				$explikers = L10n::t('%s anttend maybe.', $likers);
 				break;
 		}
 
