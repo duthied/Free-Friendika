@@ -1073,20 +1073,6 @@ function get_item_id($guid, $uid = 0) {
 	return ["nick" => $nick, "id" => $id];
 }
 
-// return - test
-/// @TODO move to src/Model/Item.php
-function get_item_contact($item, $contacts) {
-	if (! count($contacts) || (! is_array($item))) {
-		return false;
-	}
-	foreach ($contacts as $contact) {
-		if ($contact['id'] == $item['contact-id']) {
-			return $contact;
-		}
-	}
-	return false;
-}
-
 /**
  * look for mention tags and setup a second delivery chain for forum/community posts if appropriate
  * @param int $uid
@@ -1196,78 +1182,6 @@ function tag_deliver($uid, $item_id)
 
 	Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', 'tgroup', $item_id);
 
-}
-
-/// @TODO move to src/Protocol/DFRN.php
-function tgroup_check($uid, $item) {
-
-	$mention = false;
-
-	// check that the message originated elsewhere and is a top-level post
-
-	if (($item['wall']) || ($item['origin']) || ($item['uri'] != $item['parent-uri'])) {
-		return false;
-	}
-
-	/// @TODO Encapsulate this or find it encapsulated and replace all occurrances
-	$u = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
-		intval($uid)
-	);
-	if (! DBM::is_result($u)) {
-		return false;
-	}
-
-	$community_page = (($u[0]['page-flags'] == PAGE_COMMUNITY) ? true : false);
-	$prvgroup = (($u[0]['page-flags'] == PAGE_PRVGROUP) ? true : false);
-
-	$link = normalise_link(System::baseUrl() . '/profile/' . $u[0]['nickname']);
-
-	/*
-	 * Diaspora uses their own hardwired link URL in @-tags
-	 * instead of the one we supply with webfinger
-	 */
-	$dlink = normalise_link(System::baseUrl() . '/u/' . $u[0]['nickname']);
-
-	$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism', $item['body'], $matches, PREG_SET_ORDER);
-	if ($cnt) {
-		foreach ($matches as $mtch) {
-			if (link_compare($link, $mtch[1]) || link_compare($dlink, $mtch[1])) {
-				$mention = true;
-				logger('tgroup_check: mention found: ' . $mtch[2]);
-			}
-		}
-	}
-
-	if (! $mention) {
-		return false;
-	}
-
-	/// @TODO Combine both return statements into one
-	return (($community_page) || ($prvgroup));
-}
-
-/**
- * This function returns true if $update has an edited timestamp newer
- * than $existing, i.e. $update contains new data which should override
- * what's already there.  If there is no timestamp yet, the update is
- * assumed to be newer.  If the update has no timestamp, the existing
- * item is assumed to be up-to-date.  If the timestamps are equal it
- * assumes the update has been seen before and should be ignored.
- *
- * @TODO fix type-hints (both array)
- */
-/// @TODO move to src/Protocol/DFRN.php
-function edited_timestamp_is_newer($existing, $update) {
-	if (!x($existing, 'edited') || !$existing['edited']) {
-		return true;
-	}
-	if (!x($update, 'edited') || !$update['edited']) {
-		return false;
-	}
-
-	$existing_edited = datetime_convert('UTC', 'UTC', $existing['edited']);
-	$update_edited = datetime_convert('UTC', 'UTC', $update['edited']);
-	return (strcmp($existing_edited, $update_edited) < 0);
 }
 
 /**

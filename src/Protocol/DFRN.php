@@ -2075,7 +2075,7 @@ class DFRN
 	{
 		$changed = false;
 
-		if (edited_timestamp_is_newer($current, $item)) {
+		if (self::editedTimestampIsNewer($current, $item)) {
 			// do not accept (ignore) an earlier edit than one we currently have.
 			if (datetime_convert("UTC", "UTC", $item["edited"]) < $current["edited"]) {
 				return false;
@@ -2417,7 +2417,7 @@ class DFRN
 		);
 
 		// Is there an existing item?
-		if (DBM::is_result($current) && edited_timestamp_is_newer($current[0], $item)
+		if (DBM::is_result($current) && self::editedTimestampIsNewer($current[0], $item)
 			&& (datetime_convert("UTC", "UTC", $item["edited"]) < $current[0]["edited"])
 		) {
 			logger("Item ".$item["uri"]." already existed.", LOGGER_DEBUG);
@@ -2708,7 +2708,7 @@ class DFRN
 				$item["owner-avatar"] = $importer["thumb"];
 			}
 
-			if (($importer["rel"] == CONTACT_IS_FOLLOWER) && (!tgroup_check($importer["importer_uid"], $item))) {
+			if (($importer["rel"] == CONTACT_IS_FOLLOWER) && (!self::tgroupCheck($importer["importer_uid"], $item))) {
 				logger("Contact ".$importer["id"]." is only follower and tgroup check was negative.", LOGGER_DEBUG);
 				return;
 			}
@@ -3088,5 +3088,74 @@ class DFRN
 			return $item['verb'];
 		}
 		return ACTIVITY_POST;
+	}
+
+	private static function tgroupCheck($uid, $item)
+	{
+		$mention = false;
+
+		// check that the message originated elsewhere and is a top-level post
+
+		if ($item['wall'] || $item['origin'] || ($item['uri'] != $item['parent-uri'])) {
+			return false;
+		}
+
+		$u = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
+			intval($uid)
+		);
+		if (!DBM::is_result($u)) {
+			return false;
+		}
+
+		$community_page = ($u[0]['page-flags'] == PAGE_COMMUNITY);
+		$prvgroup = ($u[0]['page-flags'] == PAGE_PRVGROUP);
+
+		$link = normalise_link(System::baseUrl() . '/profile/' . $u[0]['nickname']);
+
+		/*
+		 * Diaspora uses their own hardwired link URL in @-tags
+		 * instead of the one we supply with webfinger
+		 */
+		$dlink = normalise_link(System::baseUrl() . '/u/' . $u[0]['nickname']);
+
+		$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism', $item['body'], $matches, PREG_SET_ORDER);
+		if ($cnt) {
+			foreach ($matches as $mtch) {
+				if (link_compare($link, $mtch[1]) || link_compare($dlink, $mtch[1])) {
+					$mention = true;
+					logger('mention found: ' . $mtch[2]);
+				}
+			}
+		}
+
+		if (!$mention) {
+			return false;
+		}
+
+		return $community_page || $prvgroup;
+	}
+
+	/**
+	 * This function returns true if $update has an edited timestamp newer
+	 * than $existing, i.e. $update contains new data which should override
+	 * what's already there.  If there is no timestamp yet, the update is
+	 * assumed to be newer.  If the update has no timestamp, the existing
+	 * item is assumed to be up-to-date.  If the timestamps are equal it
+	 * assumes the update has been seen before and should be ignored.
+	 *
+	 */
+	private static function editedTimestampIsNewer($existing, $update)
+	{
+		if (!x($existing, 'edited') || !$existing['edited']) {
+			return true;
+		}
+		if (!x($update, 'edited') || !$update['edited']) {
+			return false;
+		}
+
+		$existing_edited = datetime_convert('UTC', 'UTC', $existing['edited']);
+		$update_edited = datetime_convert('UTC', 'UTC', $update['edited']);
+
+		return (strcmp($existing_edited, $update_edited) < 0);
 	}
 }
