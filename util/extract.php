@@ -33,7 +33,7 @@
 
 	}
 
-	$s = '<?php' . "\n" . 'use Friendica\Core\L10n;' . "\n";
+	$s = '<?php' . "\n";
 	$s .= '
 function string_plural_select($n){
 	return ($n != 1);
