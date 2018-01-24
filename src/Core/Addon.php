@@ -4,10 +4,9 @@
  */
 namespace Friendica\Core;
 
-use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\System;
 use Friendica\Database\DBM;
+
 use dba;
 
 require_once 'include/dba.php';
@@ -83,7 +82,7 @@ class Addon
 		if (strlen($addons)) {
 			$r = dba::select('addon', [], ['installed' => 1]);
 			if (DBM::is_result($r)) {
-				$installed = $r;
+				$installed = dba::inArray($r);
 			} else {
 				$installed = [];
 			}
