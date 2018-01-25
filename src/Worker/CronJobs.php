@@ -1,15 +1,14 @@
 <?php
-
 /**
  * @file src/worker/CronJobs.php
  */
-
 namespace Friendica\Worker;
 
 use Friendica\App;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\Database\PostUpdate;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Photo;
@@ -18,7 +17,6 @@ use Friendica\Protocol\PortableContact;
 use dba;
 
 require_once 'include/dba.php';
-require_once 'include/post_update.php';
 require_once 'mod/nodeinfo.php';
 
 class CronJobs
@@ -28,7 +26,6 @@ class CronJobs
 		global $a;
 
 		require_once 'include/datetime.php';
-		require_once 'include/post_update.php';
 		require_once 'mod/nodeinfo.php';
 
 		// No parameter set? So return
@@ -39,9 +36,9 @@ class CronJobs
 		logger("Starting cronjob " . $command, LOGGER_DEBUG);
 
 		// Call possible post update functions
-		// see include/post_update.php for more details
+		// see src/Database/PostUpdate.php for more details
 		if ($command == 'post_update') {
-			post_update();
+			PostUpdate::update();
 			return;
 		}
 
