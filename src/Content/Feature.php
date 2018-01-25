@@ -79,7 +79,7 @@ class Feature
 				L10n::t('General Features'),
 				//array('expire',         L10n::t('Content Expiration'),		L10n::t('Remove old posts/comments after a period of time')),
 				['multi_profiles', L10n::t('Multiple Profiles'),			L10n::t('Ability to create multiple profiles'), false, Config::get('feature_lock', 'multi_profiles', false)],
-				['photo_location', L10n::t('Photo Location'),			L10n::t('Photo metadata is normally stripped. This extracts the location (if present) prior to stripping metadata and links it to a map.'), false, Config::get('feature_lock', 'photo_location', false)],
+				['photo_location', L10n::t('Photo Location'),			L10n::t("Photo metadata is normally stripped. This extracts the location \x28if present\x29 prior to stripping metadata and links it to a map."), false, Config::get('feature_lock', 'photo_location', false)],
 				['export_calendar', L10n::t('Export Public Calendar'),		L10n::t('Ability for visitors to download the public calendar'), false, Config::get('feature_lock', 'export_calendar', false)],
 			],
 
@@ -104,7 +104,7 @@ class Feature
 			'net_tabs' => [
 				L10n::t('Network Tabs'),
 				['personal_tab',	L10n::t('Network Personal Tab'),		L10n::t('Enable tab to display only Network posts that you\'ve interacted on'), false, Config::get('feature_lock', 'personal_tab', false)],
-				['new_tab',	L10n::t('Network New Tab'),			L10n::t('Enable tab to display only new Network posts (from the last 12 hours)'), false, Config::get('feature_lock', 'new_tab', false)],
+				['new_tab',	L10n::t('Network New Tab'),			L10n::t("Enable tab to display only new Network posts \x28from the last 12 hours\x29"), false, Config::get('feature_lock', 'new_tab', false)],
 				['link_tab',	L10n::t('Network Shared Links Tab'),		L10n::t('Enable tab to display only Network posts with links in them'), false, Config::get('feature_lock', 'link_tab', false)],
 			],
 

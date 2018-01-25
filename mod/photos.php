@@ -1469,8 +1469,8 @@ function photos_content(App $a)
 				'$caption' => ['desc', L10n::t('Caption'), $caption_e, ''],
 				'$tags' => ['newtag', L10n::t('Add a Tag'), "", L10n::t('Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping')],
 				'$rotate_none' => ['rotate', L10n::t('Do not rotate'),0,'', true],
-				'$rotate_cw' => ['rotate', L10n::t('Rotate CW (right)'),1,''],
-				'$rotate_ccw' => ['rotate', L10n::t('Rotate CCW (left)'),2,''],
+				'$rotate_cw' => ['rotate', L10n::t("Rotate CW \x28right\x29"),1,''],
+				'$rotate_ccw' => ['rotate', L10n::t("Rotate CCW \x28left\x29"),2,''],
 
 				'$nickname' => $a->data['user']['nickname'],
 				'$resource_id' => $ph[0]['resource-id'],

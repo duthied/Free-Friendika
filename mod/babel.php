@@ -19,14 +19,14 @@ function babel_content()
 	$o = '<h1>Babel Diagnostic</h1>';
 
 	$o .= '<form action="babel" method="post">';
-	$o .= L10n::t('Source (bbcode) text:') . EOL;
+	$o .= L10n::t("Source \x28bbcode\x29 text:") . EOL;
 	$o .= '<textarea name="text" cols="80" rows="10">' . htmlspecialchars($_REQUEST['text']) . '</textarea>' . EOL;
 	$o .= '<input type="submit" name="submit" value="Submit" /></form>';
 
 	$o .= '<br /><br />';
 
 	$o .= '<form action="babel" method="post">';
-	$o .= L10n::t('Source (Diaspora) text to convert to BBcode:') . EOL;
+	$o .= L10n::t("Source \x28Diaspora\x29 text to convert to BBcode:") . EOL;
 	$o .= '<textarea name="d2bbtext" cols="80" rows="10">' . htmlspecialchars($_REQUEST['d2bbtext']) . '</textarea>' . EOL;
 	$o .= '<input type="submit" name="submit" value="Submit" /></form>';
 
@@ -38,7 +38,7 @@ function babel_content()
 		$o .= visible_lf($text) . EOL . EOL;
 
 		$html = bbcode($text);
-		$o .= '<h2>' . L10n::t('bbcode (raw HTML): ') . '</h2>' . EOL . EOL;
+		$o .= '<h2>' . L10n::t("bbcode \x28raw HTML\x28: ") . '</h2>' . EOL . EOL;
 		$o .= htmlspecialchars($html) . EOL . EOL;
 
 		//$html = bbcode($text);
@@ -68,7 +68,7 @@ function babel_content()
 
 	if (x($_REQUEST, 'd2bbtext')) {
 		$d2bbtext = trim($_REQUEST['d2bbtext']);
-		$o .= '<h2>' . L10n::t('Source input (Diaspora format): ') . '</h2>' . EOL . EOL;
+		$o .= '<h2>' . L10n::t("Source input \x28Diaspora format\x29: ") . '</h2>' . EOL . EOL;
 		$o .= '<pre>' . $d2bbtext . '</pre>' . EOL . EOL;
 
 		$bb = diaspora2bb($d2bbtext);

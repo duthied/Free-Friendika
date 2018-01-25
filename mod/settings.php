@@ -804,7 +804,7 @@ function settings_content(App $a)
 
 		if (is_site_admin()) {
 			$diasp_enabled = L10n::t('Built-in support for %s connectivity is %s', L10n::t('Diaspora'), ((Config::get('system', 'diaspora_enabled')) ? L10n::t('enabled') : L10n::t('disabled')));
-			$ostat_enabled = L10n::t('Built-in support for %s connectivity is %s', L10n::t('GNU Social (OStatus)'), ((Config::get('system', 'ostatus_disabled')) ? L10n::t('disabled') : L10n::t('enabled')));
+			$ostat_enabled = L10n::t('Built-in support for %s connectivity is %s', L10n::t("GNU Social \x28OStatus\x29"), ((Config::get('system', 'ostatus_disabled')) ? L10n::t('disabled') : L10n::t('enabled')));
 		} else {
 			$diasp_enabled = "";
 			$ostat_enabled = "";
@@ -847,9 +847,9 @@ function settings_content(App $a)
 
 			'$general_settings' => L10n::t('General Social Media Settings'),
 			'$no_intelligent_shortening' => ['no_intelligent_shortening', L10n::t('Disable intelligent shortening'), $no_intelligent_shortening, L10n::t('Normally the system tries to find the best link to add to shortened posts. If this option is enabled then every shortened post will always point to the original friendica post.')],
-			'$ostatus_autofriend' => ['snautofollow', L10n::t('Automatically follow any GNU Social (OStatus) followers/mentioners'), $ostatus_autofriend, L10n::t('If you receive a message from an unknown OStatus user, this option decides what to do. If it is checked, a new contact will be created for every unknown user.')],
+			'$ostatus_autofriend' => ['snautofollow', L10n::t("Automatically follow any GNU Social \x28OStatus\x29 followers/mentioners"), $ostatus_autofriend, L10n::t('If you receive a message from an unknown OStatus user, this option decides what to do. If it is checked, a new contact will be created for every unknown user.')],
 			'$default_group' => Group::displayGroupSelection(local_user(), $default_group, L10n::t("Default group for OStatus contacts")),
-			'$legacy_contact' => ['legacy_contact', L10n::t('Your legacy GNU Social account'), $legacy_contact, L10n::t('If you enter your old GNU Social/Statusnet account name here (in the format user@domain.tld), your contacts will be added automatically. The field will be emptied when done.')],
+			'$legacy_contact' => ['legacy_contact', L10n::t('Your legacy GNU Social account'), $legacy_contact, L10n::t("If you enter your old GNU Social/Statusnet account name here \x28in the format user@domain.tld\x29, your contacts will be added automatically. The field will be emptied when done.")],
 
 			'$repair_ostatus_url' => System::baseUrl() . '/repair_ostatus',
 			'$repair_ostatus_text' => L10n::t('Repair OStatus subscriptions'),
@@ -911,9 +911,9 @@ function settings_content(App $a)
 				if (!$is_experimental || ($is_experimental && (Config::get('experimentals', 'exp_themes')==1 || is_null(Config::get('experimentals', 'exp_themes'))))) {
 					$theme_name = ucfirst($theme);
 					if ($is_unsupported) {
-						$theme_name = L10n::t("%s - (Unsupported)", $theme_name);
+						$theme_name = L10n::t("%s - \x28Unsupported\x29", $theme_name);
 					} elseif ($is_experimental) {
-						$theme_name = L10n::t("%s - (Experimental)", $theme_name);
+						$theme_name = L10n::t("%s - \x28Experimental\x29", $theme_name);
 					}
 					if ($is_mobile) {
 						$mobile_themes[$theme] = $theme_name;

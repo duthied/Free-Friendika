@@ -1217,7 +1217,7 @@ function format_like($cnt, array $arr, $type, $id) {
 		}
 		if ($total >= MAX_LIKERS) {
 			$str = implode(', ', $arr);
-			$str .= L10n::t(', and %d other people', $total - MAX_LIKERS );
+			$str .= L10n::t('and %d other people', $total - MAX_LIKERS );
 		}
 
 		$likers = $str;
@@ -1280,7 +1280,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$term'      => L10n::t('Tag term:'),
 		'$fileas'    => L10n::t('Save to Folder:'),
 		'$whereareu' => L10n::t('Where are you right now?'),
-		'$delitems'  => L10n::t('Delete item(s)?')
+		'$delitems'  => L10n::t("Delete item\x28s\x29?")
 	]);
 
 	$tpl = get_markup_template('jot-end.tpl');
@@ -1347,7 +1347,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$title'        => defaults($x, 'title', ''),
 		'$placeholdertitle' => L10n::t('Set title'),
 		'$category'     => defaults($x, 'category', ''),
-		'$placeholdercategory' => Feature::isEnabled(local_user(), 'categories') ? L10n::t('Categories (comma-separated list)') : '',
+		'$placeholdercategory' => Feature::isEnabled(local_user(), 'categories') ? L10n::t("Categories \x28comma-separated list\x29") : '',
 		'$wait'         => L10n::t('Please wait'),
 		'$permset'      => L10n::t('Permission settings'),
 		'$shortpermset' => L10n::t('permissions'),
