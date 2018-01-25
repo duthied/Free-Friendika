@@ -65,11 +65,11 @@ they will be overwritten by files in
 
 ### Theme Variations
 
-Many themes are more *theme families* then only one theme.
+Many themes are more *theme families* than only one theme.
 *duepunto zero* and *vier* allow easily to add new theme variation.
 We will go through the process of creating a new variation for *duepunto zero*.
 The same  (well almost, some names change) procedure applies to the *vier* theme.
-And similar steps are needed for *quattro* but this theme is using [lessc](http://lesscss.org/#docs) to maintain the CSS files..
+And similar steps are needed for *quattro* but this theme is using [lesscss](http://lesscss.org/#docs) to maintain the CSS files..
 
 In
 
@@ -88,12 +88,12 @@ The template (theme_settings.tpl)
     </div>
 
 defines a formular consisting of a [select](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select) pull-down which contains all aviable variants and s submit button.
-See the documentation about [SMARTY3 templates](/help/snarty3-templates.md) for a summary of friendica specific blocks other then the select element.
+See the documentation about [SMARTY3 templates](/help/snarty3-templates.md) for a summary of friendica specific blocks other than the select element.
 But we don't really need to change anything at the template itself.
 
 The template alone wont work though.
 You make friendica aware of its existance and tell it how to use the template file, by defining a config.php file.
-It needs to define at lest the following functions
+It needs to define at least the following functions
 
 * theme_content
 * theme_post
@@ -230,7 +230,7 @@ Supported formats are PNG and JPEG.
 ### theme.php
 
 This is the main definition file of the theme.
-In the header of that file, some meta information are stored.
+In the header of that file, some meta information is stored.
 For example, have a look at the theme.php of the *quattro* theme:
 
     <?php
@@ -242,10 +242,10 @@ For example, have a look at the theme.php of the *quattro* theme:
      * Maintainer: Tobias <https://f.diekershoff.de/profile/tobias>
      */
 
-You see the definition of the themes name, it's version and the initial author of the theme.
+You see the definition of the theme's name, it's version and the initial author of the theme.
 These three pieces of information should be listed.
 If the original author is no longer working on the theme, but a maintainer has taken over, the maintainer should be listed as well.
-The information from the theme header will be displayed in the admin panelö.
+The information from the theme header will be displayed in the admin panel.
 
 The next crucial part of the theme.php file is a definition of an init function.
 The name of the function is <theme-name>_init.
