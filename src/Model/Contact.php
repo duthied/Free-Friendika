@@ -12,15 +12,16 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Network\Probe;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
-use Friendica\Protocol\Diaspora;
+use Friendica\Network\Probe;
 use Friendica\Protocol\DFRN;
+use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\Network;
+use Friendica\Util\Temporal;
 use dba;
 
 require_once 'boot.php';
@@ -1466,6 +1467,58 @@ class Contact extends BaseObject
 			dba::update('contact', ['rel' => CONTACT_IS_FOLLOWER], ['id' => $contact['id']]);
 		} else {
 			Contact::remove($contact['id']);
+		}
+	}
+
+	/**
+	 * @brief Create a birthday event.
+	 *
+	 * Update the year and the birthday.
+	 */
+	public static function updateBirthdays()
+	{
+		// This only handles foreign or alien networks where a birthday has been provided.
+		// In-network birthdays are handled within local_delivery
+
+		$r = q("SELECT * FROM `contact` WHERE `bd` != '' AND `bd` > '0001-01-01' AND SUBSTRING(`bd`, 1, 4) != `bdyear` ");
+		if (DBM::is_result($r)) {
+			foreach ($r as $rr) {
+				logger('update_contact_birthday: ' . $rr['bd']);
+
+				$nextbd = Temporal::convert('now', 'UTC', 'UTC', 'Y') . substr($rr['bd'], 4);
+
+				/*
+				 * Add new birthday event for this person
+				 *
+				 * $bdtext is just a readable placeholder in case the event is shared
+				 * with others. We will replace it during presentation to our $importer
+				 * to contain a sparkle link and perhaps a photo.
+				 */
+
+				// Check for duplicates
+				$s = q("SELECT `id` FROM `event` WHERE `uid` = %d AND `cid` = %d AND `start` = '%s' AND `type` = '%s' LIMIT 1",
+					intval($rr['uid']), intval($rr['id']), dbesc(Temporal::convert($nextbd)), dbesc('birthday'));
+
+				if (DBM::is_result($s)) {
+					continue;
+				}
+
+				$bdtext = L10n::t('%s\'s birthday', $rr['name']);
+				$bdtext2 = L10n::t('Happy Birthday %s', ' [url=' . $rr['url'] . ']' . $rr['name'] . '[/url]');
+
+				q("INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`,`adjust`)
+				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d' ) ", intval($rr['uid']), intval($rr['id']),
+					dbesc(Temporal::convert()), dbesc(Temporal::convert()), dbesc(Temporal::convert($nextbd)),
+					dbesc(Temporal::convert($nextbd . ' + 1 day ')), dbesc($bdtext), dbesc($bdtext2), dbesc('birthday'),
+					intval(0)
+				);
+
+
+				// update bdyear
+				q("UPDATE `contact` SET `bdyear` = '%s', `bd` = '%s' WHERE `uid` = %d AND `id` = %d", dbesc(substr($nextbd, 0, 4)),
+					dbesc($nextbd), intval($rr['uid']), intval($rr['id'])
+				);
+			}
 		}
 	}
 }
