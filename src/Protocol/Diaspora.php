@@ -27,6 +27,7 @@ use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
 use Friendica\Util\Network;
+use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 use dba;
 use SimpleXMLElement;
