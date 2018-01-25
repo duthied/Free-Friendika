@@ -47,11 +47,12 @@ class PostUpdate
     private static function update1192()
     {
         // Was the script completed?
-        if (Config::get("system", "post_update_version") >= 1192)
+        if (Config::get("system", "post_update_version") >= 1192) {
             return true;
+        }
 
         // Check if the first step is done (Setting "gcontact-id" in the item table)
-        $r = q("SELECT `author-link`, `author-name`, `author-avatar`, `uid`, `network` FROM `item` WHERE `gcontact-id` = 0 LIMIT 1000");
+        $r = dba::select('item', ['author-link', 'author-name', 'author-avatar', 'uid', 'network'], ['gcontact-id' => 0], ['limit' => 1000]);
         if (!$r) {
             // Are there unfinished entries in the thread table?
             $r = q("SELECT COUNT(*) AS `total` FROM `thread`
@@ -85,8 +86,7 @@ class PostUpdate
         foreach ($item_arr as $item) {
             $gcontact_id = GContact::getId(["url" => $item['author-link'], "network" => $item['network'],
                             "photo" => $item['author-avatar'], "name" => $item['author-name']]);
-            q("UPDATE `item` SET `gcontact-id` = %d WHERE `uid` = %d AND `author-link` = '%s' AND `gcontact-id` = 0",
-                intval($gcontact_id), intval($item["uid"]), dbesc($item["author-link"]));
+            dba::update('item', ['gcontact-id' => $gcontact_id], ['uid' => $item['uid'], 'author-link' => $item['author-link'], 'gcontact-id' => 0]);
         }
         return false;
     }
@@ -99,8 +99,9 @@ class PostUpdate
     private static function update1194()
     {
         // Was the script completed?
-        if (Config::get("system", "post_update_version") >= 1194)
+        if (Config::get("system", "post_update_version") >= 1194) {
             return true;
+        }
 
         logger("Start", LOGGER_DEBUG);
 
@@ -171,13 +172,14 @@ class PostUpdate
     private static function update1198()
     {
         // Was the script completed?
-        if (Config::get("system", "post_update_version") >= 1198)
+        if (Config::get("system", "post_update_version") >= 1198) {
             return true;
+        }
 
         logger("Start", LOGGER_DEBUG);
 
         // Check if the first step is done (Setting "author-id" and "owner-id" in the item table)
-        $r = q("SELECT `author-link`, `owner-link`, `uid` FROM `item` WHERE `author-id` = 0 AND `owner-id` = 0 LIMIT 100");
+        $r = dba::select('item', ['author-link', 'owner-link', 'uid'], ['author-id' => 0, 'owner-id' => 0], ['limit' => 1000]);
         if (!$r) {
             // Are there unfinished entries in the thread table?
             $r = q("SELECT COUNT(*) AS `total` FROM `thread`
@@ -210,7 +212,7 @@ class PostUpdate
         logger("Query done", LOGGER_DEBUG);
 
         $item_arr = [];
-        foreach ($r AS $item) {
+        foreach ($r as $item) {
             $index = $item["author-link"]."-".$item["owner-link"]."-".$item["uid"];
             $item_arr[$index] = ["author-link" => $item["author-link"],
                             "owner-link" => $item["owner-link"],
@@ -218,7 +220,7 @@ class PostUpdate
         }
 
         // Set the "gcontact-id" in the item table and add a new gcontact entry if needed
-        foreach ($item_arr AS $item) {
+        foreach ($item_arr as $item) {
             $author_id = Contact::getIdForURL($item["author-link"], 0);
             $owner_id = Contact::getIdForURL($item["owner-link"], 0);
 
@@ -228,11 +230,7 @@ class PostUpdate
             if ($owner_id == 0)
                 $owner_id = -1;
 
-            q("UPDATE `item` SET `author-id` = %d, `owner-id` = %d
-                WHERE `uid` = %d AND `author-link` = '%s' AND `owner-link` = '%s'
-                    AND `author-id` = 0 AND `owner-id` = 0",
-                intval($author_id), intval($owner_id), intval($item["uid"]),
-                dbesc($item["author-link"]), dbesc($item["owner-link"]));
+            dba::update('item', ['author-id' => $author_id, 'owner-id' => $owner_id], ['uid' => $item['uid'], 'author-link' => $item['author-link'], 'owner-link' => $item['owner-link'], 'author-id' => 0, 'owner-id' => 0]);
         }
 
         logger("Updated items", LOGGER_DEBUG);
@@ -249,8 +247,9 @@ class PostUpdate
     private static function update1206()
     {
         // Was the script completed?
-        if (Config::get("system", "post_update_version") >= 1206)
+        if (Config::get("system", "post_update_version") >= 1206) {
             return true;
+        }
 
         logger("Start", LOGGER_DEBUG);
         $r = q("SELECT `contact`.`id`, `contact`.`last-item`,
@@ -261,11 +260,9 @@ class PostUpdate
         if (!DBM::is_result($r)) {
             return false;
         }
-        foreach ($r AS $user) {
+        foreach ($r as $user) {
             if (!empty($user["lastitem_date"]) && ($user["lastitem_date"] > $user["last-item"])) {
-                q("UPDATE `contact` SET `last-item` = '%s' WHERE `id` = %d",
-                    dbesc($user["lastitem_date"]),
-                    intval($user["id"]));
+                dba::update('contact', ['last-item' => $user['lastitem_date']], ['id' => $user['id']]);
             }
         }
 
