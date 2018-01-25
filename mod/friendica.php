@@ -100,7 +100,7 @@ function friendica_content(App $a)
 	}
 
 	if (count($visible_addons)) {
-		$o .= '<p>' . L10n::t('Installed addons/addons/apps:') . '</p>' . PHP_EOL;
+		$o .= '<p>' . L10n::t('Installed addons/apps:') . '</p>' . PHP_EOL;
 		$sorted = $visible_addons;
 		$s = '';
 		sort($sorted);
@@ -114,7 +114,7 @@ function friendica_content(App $a)
 		}
 		$o .= '<div style="margin-left: 25px; margin-right: 25px;">' . $s . '</div>' . PHP_EOL;
 	} else {
-		$o .= '<p>' . L10n::t('No installed addons/addons/apps') . '</p>' . PHP_EOL;
+		$o .= '<p>' . L10n::t('No installed addons/apps') . '</p>' . PHP_EOL;
 	}
 
 	$blocklist = Config::get('system', 'blocklist');
