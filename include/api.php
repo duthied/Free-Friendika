@@ -5,24 +5,25 @@
  * @file include/api.php
  * @todo Automatically detect if incoming data is HTML or BBCode
  */
+
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
-use Friendica\Core\System;
 use Friendica\Core\Config;
-use Friendica\Core\NotificationsManager;
 use Friendica\Core\L10n;
+use Friendica\Core\NotificationsManager;
 use Friendica\Core\PConfig;
+use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Model\Mail;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
-use Friendica\Model\Item;
 use Friendica\Network\FKOAuth1;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\BadRequestException;
@@ -31,11 +32,12 @@ use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Network\HTTPException\MethodNotAllowedException;
 use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Network\HTTPException\NotImplementedException;
-use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Network\HTTPException\TooManyRequestsException;
+use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Object\Image;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\Network;
+use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 
 require_once 'include/bbcode.php';
@@ -109,7 +111,7 @@ function api_source()
 function api_date($str)
 {
 	// Wed May 23 06:01:13 +0000 2007
-	return datetime_convert('UTC', 'UTC', $str, "D M d H:i:s +0000 Y");
+	return Temporal::convert($str, 'UTC', 'UTC', "D M d H:i:s +0000 Y");
 }
 
 /**
@@ -458,7 +460,7 @@ function api_rss_extra(App $a, $arr, $user_info)
 		'self'         => System::baseUrl() . "/" . $a->query_string,
 		'base'         => System::baseUrl(),
 		'updated'      => api_date(null),
-		'atom_updated' => datetime_convert('UTC', 'UTC', 'now', ATOM_TIME),
+		'atom_updated' => Temporal::convert('now', 'UTC', 'UTC', ATOM_TIME),
 		'language'     => $user_info['language'],
 		'logo'         => System::baseUrl() . "/images/friendica-32.png",
 	];
@@ -3205,7 +3207,7 @@ function api_account_rate_limit_status($type)
 				'@attributes' => ["type" => "integer"],
 				'hourly-limit' => '150',
 				'@attributes2' => ["type" => "integer"],
-				'reset-time' => datetime_convert('UTC', 'UTC', 'now + 1 hour', ATOM_TIME),
+				'reset-time' => Temporal::convert('now + 1 hour', 'UTC', 'UTC', ATOM_TIME),
 				'@attributes3' => ["type" => "datetime"],
 				'reset_time_in_seconds' => strtotime('now + 1 hour'),
 				'@attributes4' => ["type" => "integer"],
@@ -3215,7 +3217,7 @@ function api_account_rate_limit_status($type)
 				'reset_time_in_seconds' => strtotime('now + 1 hour'),
 				'remaining_hits' => '150',
 				'hourly_limit' => '150',
-				'reset_time' => api_date(datetime_convert('UTC', 'UTC', 'now + 1 hour', ATOM_TIME)),
+				'reset_time' => api_date(Temporal::convert('now + 1 hour', 'UTC', 'UTC', ATOM_TIME)),
 			];
 	}
 
@@ -4214,7 +4216,7 @@ function api_fr_photo_create_update($type)
 			$result = q(
 				"UPDATE `photo` SET %s, `edited`='%s' WHERE `uid` = %d AND `resource-id` = '%s' AND `album` = '%s'",
 				$sql_extra,
-				datetime_convert(),   // update edited timestamp
+				Temporal::convert(),   // update edited timestamp
 				intval(api_user()),
 				dbesc($photo_id),
 				dbesc($album)
@@ -4418,7 +4420,7 @@ function api_account_update_profile_image($type)
 
 	q(
 		"UPDATE `contact` SET `avatar-date` = '%s' WHERE `self` = 1 AND `uid` = %d",
-		dbesc(datetime_convert()),
+		dbesc(Temporal::convert()),
 		intval(local_user())
 	);
 

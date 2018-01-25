@@ -5,6 +5,7 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Util\Network;
+use Friendica\Util\Temporal;
 
 function post_var($name) {
 	return (x($_POST, $name)) ? notags(trim($_POST[$name])) : '';
@@ -138,7 +139,7 @@ function pubsubhubbub_init(App $a) {
 		  dbesc($hub_callback));
 
 		if ($subscribe) {
-			$last_update = datetime_convert('UTC','UTC','now','Y-m-d H:i:s');
+			$last_update = Temporal::convert();
 			$push_flag = 0;
 
 			// if we are just updating an old subscription, keep the

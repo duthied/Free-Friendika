@@ -9,6 +9,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Network\FKOAuthDataStore;
+use Friendica\Util\Temporal;
 use dba;
 use OAuthServer;
 use OAuthSignatureMethod_HMAC_SHA1;
@@ -67,7 +68,7 @@ class FKOAuth1 extends OAuthServer
 			$_SESSION['cid'] = $a->cid;
 		}
 
-		dba::update('user', ['login_date' => datetime_convert()], ['uid' => $_SESSION['uid']]);
+		dba::update('user', ['login_date' => Temporal::convert()], ['uid' => $_SESSION['uid']]);
 
 		Addon::callHooks('logged_in', $a->user);
 	}

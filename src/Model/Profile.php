@@ -18,6 +18,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\Network;
+use Friendica\Util\Temporal;
 use dba;
 
 require_once 'include/dba.php';
@@ -555,8 +556,8 @@ class Profile
 				WHERE `event`.`uid` = ? AND `type` = 'birthday' AND `start` < ? AND `finish` > ?
 				ORDER BY `start` ASC ",
 				local_user(),
-				datetime_convert('UTC', 'UTC', 'now + 6 days'),
-				datetime_convert('UTC', 'UTC', 'now')
+				Temporal::convert('now + 6 days'),
+				Temporal::convert('now')
 			);
 			if (DBM::is_result($s)) {
 				$r = dba::inArray($s);
@@ -599,7 +600,7 @@ class Profile
 
 					$rr['link'] = $url;
 					$rr['title'] = $rr['name'];
-					$rr['date'] = day_translate(datetime_convert('UTC', $a->timezone, $rr['start'], $rr['adjust'] ? $bd_format : $bd_short)) . (($today) ? ' ' . L10n::t('[today]') : '');
+					$rr['date'] = day_translate(Temporal::convert($rr['start'], $a->timezone, 'UTC', $rr['adjust'] ? $bd_format : $bd_short)) . (($today) ? ' ' . L10n::t('[today]') : '');
 					$rr['startime'] = null;
 					$rr['today'] = $today;
 				}
@@ -643,8 +644,8 @@ class Profile
 			WHERE `event`.`uid` = ? AND `type` != 'birthday' AND `start` < ? AND `start` >= ?
 			ORDER BY `start` ASC ",
 			local_user(),
-			datetime_convert('UTC', 'UTC', 'now + 7 days'),
-			datetime_convert('UTC', 'UTC', 'now - 1 days')
+			Temporal::convert('now + 7 days'),
+			Temporal::convert('now - 1 days')
 		);
 
 		$r = [];
@@ -657,8 +658,8 @@ class Profile
 					$total ++;
 				}
 
-				$strt = datetime_convert('UTC', $rr['convert'] ? $a->timezone : 'UTC', $rr['start'], 'Y-m-d');
-				if ($strt === datetime_convert('UTC', $a->timezone, 'now', 'Y-m-d')) {
+				$strt = Temporal::convert($rr['start'], $rr['convert'] ? $a->timezone : 'UTC', 'UTC', 'Y-m-d');
+				if ($strt === Temporal::convert('now', $a->timezone, 'UTC', 'Y-m-d')) {
 					$istoday = true;
 				}
 
@@ -673,17 +674,17 @@ class Profile
 					$description = L10n::t('[No description]');
 				}
 
-				$strt = datetime_convert('UTC', $rr['convert'] ? $a->timezone : 'UTC', $rr['start']);
+				$strt = Temporal::convert($rr['start'], $rr['convert'] ? $a->timezone : 'UTC');
 
-				if (substr($strt, 0, 10) < datetime_convert('UTC', $a->timezone, 'now', 'Y-m-d')) {
+				if (substr($strt, 0, 10) < Temporal::convert('now', $a->timezone, 'UTC', 'Y-m-d')) {
 					continue;
 				}
 
-				$today = ((substr($strt, 0, 10) === datetime_convert('UTC', $a->timezone, 'now', 'Y-m-d')) ? true : false);
+				$today = ((substr($strt, 0, 10) === Temporal::convert('now', $a->timezone, 'UTC', 'Y-m-d')) ? true : false);
 
 				$rr['title'] = $title;
 				$rr['description'] = $description;
-				$rr['date'] = day_translate(datetime_convert('UTC', $rr['adjust'] ? $a->timezone : 'UTC', $rr['start'], $bd_format)) . (($today) ? ' ' . L10n::t('[today]') : '');
+				$rr['date'] = day_translate(Temporal::convert($rr['start'], $rr['adjust'] ? $a->timezone : 'UTC', 'UTC', $bd_format)) . (($today) ? ' ' . L10n::t('[today]') : '');
 				$rr['startime'] = $strt;
 				$rr['today'] = $today;
 
@@ -729,8 +730,8 @@ class Profile
 				$short_bd_format = L10n::t('j F');
 
 				$val = intval($a->profile['dob']) ?
-					day_translate(datetime_convert('UTC', 'UTC', $a->profile['dob'] . ' 00:00 +00:00', $year_bd_format))
-					: day_translate(datetime_convert('UTC', 'UTC', '2001-' . substr($a->profile['dob'], 5) . ' 00:00 +00:00', $short_bd_format));
+					day_translate(Temporal::convert($a->profile['dob'] . ' 00:00 +00:00', 'UTC', 'UTC', $year_bd_format))
+					: day_translate(Temporal::convert('2001-' . substr($a->profile['dob'], 'UTC', 'UTC', 5) . ' 00:00 +00:00', $short_bd_format));
 
 				$profile['birthday'] = [L10n::t('Birthday:'), $val];
 			}

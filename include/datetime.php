@@ -7,18 +7,6 @@
 use Friendica\Model\Contact;
 use Friendica\Util\Temporal;
 
-function select_timezone($current = 'America/Los_Angeles') {
-	return Temporal::getTimezoneSelect($current);
-}
-
-function field_timezone($name='timezone', $label='', $current = 'America/Los_Angeles', $help = ''){
-	return Temporal::getTimezoneField($name, $label, $current, $help);
-}
-
-function datetime_convert($from = 'UTC', $to = 'UTC', $s = 'now', $fmt = "Y-m-d H:i:s") {
-	return Temporal::convert($s, $to, $from, $fmt);
-}
-
 function dob($dob) {
 	return Temporal::getDateofBirthField($dob);
 }

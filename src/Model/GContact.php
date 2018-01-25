@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file src/Model/GlobalContact.php
  * @brief This file includes the GlobalContact class with directory related functions
@@ -14,6 +15,7 @@ use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\Network;
+use Friendica\Util\Temporal;
 use dba;
 use Exception;
 
@@ -118,12 +120,12 @@ class GContact
 				intval($uid),
 				intval($gcid),
 				intval($zcid),
-				dbesc(datetime_convert())
+				dbesc(Temporal::convert())
 			);
 		} else {
 			q(
 				"UPDATE `glink` SET `updated` = '%s' WHERE `cid` = %d AND `uid` = %d AND `gcid` = %d AND `zcid` = %d",
-				dbesc(datetime_convert()),
+				dbesc(Temporal::convert()),
 				intval($cid),
 				intval($uid),
 				intval($gcid),
@@ -715,8 +717,8 @@ class GContact
 				dbesc($contact["url"]),
 				dbesc(normalise_link($contact["url"])),
 				dbesc($contact["photo"]),
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert()),
+				dbesc(Temporal::convert()),
+				dbesc(Temporal::convert()),
 				dbesc($contact["location"]),
 				dbesc($contact["about"]),
 				intval($contact["hide"]),
@@ -1048,7 +1050,7 @@ class GContact
 
 		foreach ($r as $server) {
 			self::fetchGsUsers($server["url"]);
-			q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(datetime_convert()), dbesc($server["nurl"]));
+			q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(Temporal::convert()), dbesc($server["nurl"]));
 		}
 	}
 

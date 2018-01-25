@@ -2,9 +2,10 @@
 /**
  * @file mod/profile.php
  */
+
 use Friendica\App;
-use Friendica\Content\Widget;
 use Friendica\Content\Nav;
+use Friendica\Content\Widget;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -15,6 +16,7 @@ use Friendica\Model\Group;
 use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Protocol\DFRN;
+use Friendica\Util\Temporal;
 
 function profile_init(App $a)
 {
@@ -270,10 +272,10 @@ function profile_content(App $a, $update = 0)
 		}
 
 		if ($datequery) {
-			$sql_extra2 .= protect_sprintf(sprintf(" AND `thread`.`created` <= '%s' ", dbesc(datetime_convert(date_default_timezone_get(), '', $datequery))));
+			$sql_extra2 .= protect_sprintf(sprintf(" AND `thread`.`created` <= '%s' ", dbesc(Temporal::convert($datequery, 'UTC', date_default_timezone_get()))));
 		}
 		if ($datequery2) {
-			$sql_extra2 .= protect_sprintf(sprintf(" AND `thread`.`created` >= '%s' ", dbesc(datetime_convert(date_default_timezone_get(), '', $datequery2))));
+			$sql_extra2 .= protect_sprintf(sprintf(" AND `thread`.`created` >= '%s' ", dbesc(Temporal::convert($datequery2, 'UTC', date_default_timezone_get()))));
 		}
 
 		// Belongs the profile page to a forum?

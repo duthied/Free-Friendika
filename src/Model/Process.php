@@ -5,6 +5,7 @@
 namespace Friendica\Model;
 
 use Friendica\BaseObject;
+use Friendica\Util\Temporal;
 use dba;
 
 require_once 'include/dba.php';
@@ -33,7 +34,7 @@ class Process extends BaseObject
 		dba::transaction();
 
 		if (!dba::exists('process', ['pid' => $pid])) {
-			$return = dba::insert('process', ['pid' => $pid, 'command' => $command, 'created' => datetime_convert()]);
+			$return = dba::insert('process', ['pid' => $pid, 'command' => $command, 'created' => Temporal::convert()]);
 		}
 
 		dba::commit();

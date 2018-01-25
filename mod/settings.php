@@ -18,6 +18,7 @@ use Friendica\Model\Group;
 use Friendica\Model\User;
 use Friendica\Protocol\Email;
 use Friendica\Util\Network;
+use Friendica\Util\Temporal;
 
 function get_theme_config_file($theme)
 {
@@ -630,7 +631,7 @@ function settings_post(App $a)
 	if ($name_change) {
 		q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `self`",
 			dbesc($username),
-			dbesc(datetime_convert()),
+			dbesc(Temporal::convert()),
 			intval(local_user())
 		);
 	}
@@ -1210,7 +1211,7 @@ function settings_content(App $a)
 		'$h_basic' 	=> L10n::t('Basic Settings'),
 		'$username' => ['username',  L10n::t('Full Name:'), $username, ''],
 		'$email' 	=> ['email', L10n::t('Email Address:'), $email, '', '', '', 'email'],
-		'$timezone' => ['timezone_select' , L10n::t('Your Timezone:'), select_timezone($timezone), ''],
+		'$timezone' => ['timezone_select' , L10n::t('Your Timezone:'), Temporal::getTimezoneSelect($timezone), ''],
 		'$language' => ['language', L10n::t('Your Language:'), $language, L10n::t('Set the language we use to show you friendica interface and to send you emails'), $lang_choices],
 		'$defloc'	=> ['defloc', L10n::t('Default Post Location:'), $defloc, ''],
 		'$allowloc' => ['allow_location', L10n::t('Use Browser Location:'), ($a->user['allow_location'] == 1), ''],

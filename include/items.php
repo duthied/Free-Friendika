@@ -2,28 +2,29 @@
 /**
  * @file include/items.php
  */
-use Friendica\App;
+
 use Friendica\Content\Feature;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
-use Friendica\Core\Worker;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
 use Friendica\Model\GContact;
 use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Model\Term;
 use Friendica\Model\User;
-use Friendica\Model\Item;
-use Friendica\Model\Conversation;
 use Friendica\Object\Image;
 use Friendica\Protocol\DFRN;
-use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Feed;
 use Friendica\Util\Network;
+use Friendica\Protocol\OStatus;
 use Friendica\Util\ParseUrl;
+use Friendica\Util\Temporal;
 
 require_once 'include/bbcode.php';
 require_once 'include/tags.php';
@@ -415,7 +416,7 @@ function drop_item($id) {
 
 /* arrange the list in years */
 function list_post_dates($uid, $wall) {
-	$dnow = datetime_convert('',date_default_timezone_get(), 'now','Y-m-d');
+	$dnow = Temporal::convert('now', date_default_timezone_get(), 'UTC', 'Y-m-d');
 
 	$dthen = Item::firstPostDate($uid, $wall);
 	if (!$dthen) {
@@ -436,14 +437,14 @@ function list_post_dates($uid, $wall) {
 		$dyear = intval(substr($dnow, 0, 4));
 		$dstart = substr($dnow, 0, 8) . '01';
 		$dend = substr($dnow, 0, 8) . get_dim(intval($dnow), intval(substr($dnow, 5)));
-		$start_month = datetime_convert('', '', $dstart, 'Y-m-d');
-		$end_month = datetime_convert('', '', $dend, 'Y-m-d');
-		$str = day_translate(datetime_convert('', '', $dnow, 'F'));
+		$start_month = Temporal::convert($dstart, 'UTC', 'UTC', 'Y-m-d');
+		$end_month = Temporal::convert($dend, 'UTC', 'UTC', 'Y-m-d');
+		$str = day_translate(Temporal::convert($dnow, 'UTC', 'UTC', 'F'));
 		if (!$ret[$dyear]) {
 			$ret[$dyear] = [];
 		}
 		$ret[$dyear][] = [$str, $end_month, $start_month];
-		$dnow = datetime_convert('', '', $dnow . ' -1 month', 'Y-m-d');
+		$dnow = Temporal::convert($dnow . ' -1 month', 'UTC', 'UTC', 'Y-m-d');
 	}
 	return $ret;
 }
@@ -473,7 +474,7 @@ function posted_date_widget($url, $uid, $wall) {
 		return $o;
 	}
 
-	$cutoff_year = intval(datetime_convert('',date_default_timezone_get(), 'now', 'Y')) - $visible_years;
+	$cutoff_year = intval(Temporal::convert('now', date_default_timezone_get(), 'UTC', 'Y')) - $visible_years;
 	$cutoff = ((array_key_exists($cutoff_year, $ret))? true : false);
 
 	$o = replace_macros(get_markup_template('posted_date_widget.tpl'),[

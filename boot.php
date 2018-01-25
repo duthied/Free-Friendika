@@ -21,16 +21,15 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'a
 
 use Friendica\App;
 use Friendica\Core\Addon;
-use Friendica\Core\System;
-use Friendica\Core\Cache;
 use Friendica\Core\Config;
-use Friendida\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Model\Contact;
 use Friendica\Database\DBStructure;
-use Friendica\Module\Login;
+use Friendica\Model\Contact;
+use Friendica\Util\Temporal;
+use Friendida\Core\L10n;
 
 require_once 'include/text.php';
 require_once 'include/datetime.php';
@@ -1144,14 +1143,14 @@ function feed_birthday($uid, $tz)
 	if (DBM::is_result($p)) {
 		$tmp_dob = substr($p[0]['dob'], 5);
 		if (intval($tmp_dob)) {
-			$y = datetime_convert($tz, $tz, 'now', 'Y');
+			$y = Temporal::convert('now', $tz, $tz, 'Y');
 			$bd = $y . '-' . $tmp_dob . ' 00:00';
 			$t_dob = strtotime($bd);
-			$now = strtotime(datetime_convert($tz, $tz, 'now'));
+			$now = strtotime(Temporal::convert('now', $tz, $tz));
 			if ($t_dob < $now) {
 				$bd = $y + 1 . '-' . $tmp_dob . ' 00:00';
 			}
-			$birthday = datetime_convert($tz, 'UTC', $bd, ATOM_TIME);
+			$birthday = Temporal::convert($bd, 'UTC', $tz, ATOM_TIME);
 		}
 	}
 

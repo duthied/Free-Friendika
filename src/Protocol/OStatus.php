@@ -4,7 +4,6 @@
  */
 namespace Friendica\Protocol;
 
-use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
@@ -12,13 +11,14 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
-use Friendica\Model\GContact;
 use Friendica\Model\Conversation;
+use Friendica\Model\GContact;
 use Friendica\Model\Item;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Util\Lock;
 use Friendica\Util\Network;
+use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 use dba;
 use DOMDocument;
@@ -199,7 +199,7 @@ class OStatus
 				$contact["location"] = $value;
 			}
 
-			$contact['name-date'] = datetime_convert();
+			$contact['name-date'] = Temporal::convert();
 
 			dba::update('contact', $contact, ['id' => $contact["id"]], $current);
 
@@ -220,7 +220,7 @@ class OStatus
 						'nurl' => normalise_link($author["author-link"]),
 						'nick' => $contact["nick"], 'alias' => $contact["alias"],
 						'about' => $contact["about"], 'location' => $contact["location"],
-						'success_update' => datetime_convert(), 'last-update' => datetime_convert()];
+						'success_update' => Temporal::convert(), 'last-update' => Temporal::convert()];
 
 				dba::update('contact', $fields, ['id' => $cid], $old_contact);
 
@@ -558,7 +558,7 @@ class OStatus
 		dba::update(
 			'item',
 			['deleted' => true, 'title' => '', 'body' => '',
-					'edited' => datetime_convert(), 'changed' => datetime_convert()],
+					'edited' => Temporal::convert(), 'changed' => Temporal::convert()],
 			['id' => $deleted["id"]]
 		);
 
@@ -1273,7 +1273,7 @@ class OStatus
 		XML::addElement($doc, $root, "title", $title);
 		XML::addElement($doc, $root, "subtitle", sprintf("Updates from %s on %s", $owner["name"], $a->config["sitename"]));
 		XML::addElement($doc, $root, "logo", $owner["photo"]);
-		XML::addElement($doc, $root, "updated", datetime_convert("UTC", "UTC", "now", ATOM_TIME));
+		XML::addElement($doc, $root, "updated", Temporal::convert("now", "UTC", "UTC", ATOM_TIME));
 
 		$author = self::addAuthor($doc, $owner);
 		$root->appendChild($author);
@@ -1539,7 +1539,7 @@ class OStatus
 		XML::addElement($doc, $source, "link", "", ["rel" => "alternate", "type" => "text/html", "href" => $contact["alias"]]);
 		XML::addElement($doc, $source, "link", "", ["rel" => "self", "type" => "application/atom+xml", "href" => $contact["poll"]]);
 		XML::addElement($doc, $source, "icon", $contact["photo"]);
-		XML::addElement($doc, $source, "updated", datetime_convert("UTC", "UTC", $contact["success_update"]."+00:00", ATOM_TIME));
+		XML::addElement($doc, $source, "updated", Temporal::convert($contact["success_update"]."+00:00", "UTC", "UTC", ATOM_TIME));
 
 		return $source;
 	}
@@ -1923,8 +1923,8 @@ class OStatus
 
 		XML::addElement($doc, $entry, "activity:verb", $verb);
 
-		XML::addElement($doc, $entry, "published", datetime_convert("UTC", "UTC", $item["created"]."+00:00", ATOM_TIME));
-		XML::addElement($doc, $entry, "updated", datetime_convert("UTC", "UTC", $item["edited"]."+00:00", ATOM_TIME));
+		XML::addElement($doc, $entry, "published", Temporal::convert($item["created"]."+00:00", "UTC", "UTC", ATOM_TIME));
+		XML::addElement($doc, $entry, "updated", Temporal::convert($item["edited"]."+00:00", "UTC", "UTC", ATOM_TIME));
 	}
 
 	/**
@@ -2127,7 +2127,7 @@ class OStatus
 			$last_update = 'now -30 days';
 		}
 
-		$check_date = datetime_convert('UTC', 'UTC', $last_update, 'Y-m-d H:i:s');
+		$check_date = Temporal::convert($last_update);
 		$authorid = Contact::getIdForURL($owner["url"], 0);
 
 		$sql_extra = '';

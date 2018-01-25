@@ -11,6 +11,7 @@
  *    You also find a graphic which describes the confirmation process at
  *    https://github.com/friendica/friendica/blob/master/spec/dfrn2_contact_request.png
  */
+
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -19,11 +20,12 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
-use Friendica\Model\User;
 use Friendica\Model\Profile;
+use Friendica\Model\User;
 use Friendica\Module\Login;
 use Friendica\Network\Probe;
 use Friendica\Util\Network;
+use Friendica\Util\Temporal;
 
 require_once 'include/enotify.php';
 
@@ -135,7 +137,7 @@ function dfrn_request_post(App $a)
 						`request`, `confirm`, `notify`, `poll`, `poco`, `network`, `aes_allow`, `hidden`, `blocked`, `pending`)
 						VALUES ( %d, '%s', '%s', '%s', '%s', '%s' , '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d)",
 						intval(local_user()),
-						datetime_convert(),
+						Temporal::convert(),
 						dbesc($dfrn_url),
 						dbesc(normalise_link($dfrn_url)),
 						$parms['addr'],
@@ -239,7 +241,7 @@ function dfrn_request_post(App $a)
 		// Block friend request spam
 		if ($maxreq) {
 			$r = q("SELECT * FROM `intro` WHERE `datetime` > '%s' AND `uid` = %d",
-				dbesc(datetime_convert('UTC', 'UTC', 'now - 24 hours')),
+				dbesc(Temporal::convert('now - 24 hours')),
 				intval($uid)
 			);
 			if (DBM::is_result($r) && count($r) > $maxreq) {
@@ -380,7 +382,7 @@ function dfrn_request_post(App $a)
 					`request`, `confirm`, `notify`, `poll`, `poco`, `network`, `blocked`, `pending` )
 					VALUES ( %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d )",
 					intval($uid),
-					dbesc(datetime_convert()),
+					dbesc(Temporal::convert()),
 					$parms['url'],
 					dbesc(normalise_link($url)),
 					$parms['addr'],
@@ -428,7 +430,7 @@ function dfrn_request_post(App $a)
 					((x($_POST,'knowyou') && ($_POST['knowyou'] == 1)) ? 1 : 0),
 					dbesc(notags(trim($_POST['dfrn-request-message']))),
 					dbesc($hash),
-					dbesc(datetime_convert())
+					dbesc(Temporal::convert())
 				);
 			}
 

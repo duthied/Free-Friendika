@@ -14,6 +14,7 @@
  * All of these become an "item" which is our basic unit of
  * information.
  */
+
 use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
@@ -25,10 +26,10 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Item;
-use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 use Friendica\Util\Emailer;
+use Friendica\Util\Temporal;
 
 require_once 'include/enotify.php';
 require_once 'include/tags.php';
@@ -600,11 +601,11 @@ function item_post(App $a) {
 	$datarray['author-link']   = $author['url'];
 	$datarray['author-avatar'] = $author['thumb'];
 	$datarray['author-id']     = Contact::getIdForURL($datarray['author-link'], 0);
-	$datarray['created']       = datetime_convert();
-	$datarray['edited']        = datetime_convert();
-	$datarray['commented']     = datetime_convert();
-	$datarray['received']      = datetime_convert();
-	$datarray['changed']       = datetime_convert();
+	$datarray['created']       = Temporal::convert();
+	$datarray['edited']        = Temporal::convert();
+	$datarray['commented']     = Temporal::convert();
+	$datarray['received']      = Temporal::convert();
+	$datarray['changed']       = Temporal::convert();
 	$datarray['extid']         = $extid;
 	$datarray['guid']          = $guid;
 	$datarray['uri']           = $uri;
@@ -708,8 +709,8 @@ function item_post(App $a) {
 			'file' => $datarray['file'],
 			'rendered-html' => $datarray['rendered-html'],
 			'rendered-hash' => $datarray['rendered-hash'],
-			'edited' => datetime_convert(),
-			'changed' => datetime_convert()];
+			'edited' => Temporal::convert(),
+			'changed' => Temporal::convert()];
 
 		Item::update($fields, ['id' => $post_id]);
 

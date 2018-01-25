@@ -2,6 +2,7 @@
 /**
  * @file include/conversation.php
  */
+
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
@@ -13,9 +14,10 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
-use Friendica\Object\Thread;
 use Friendica\Object\Post;
 use Friendica\Util\XML;
+use Friendica\Object\Thread;
+use Friendica\Util\Temporal;
 
 require_once "include/bbcode.php";
 require_once "include/acl_selectors.php";
@@ -788,7 +790,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 					'categories' => $categories,
 					'folders' => $folders,
 					'text' => strip_tags($body_e),
-					'localtime' => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
+					'localtime' => Temporal::convert($item['created'], date_default_timezone_get(), 'UTC', 'r'),
 					'ago' => (($item['app']) ? L10n::t('%s from %s', relative_date($item['created']),$item['app']) : relative_date($item['created'])),
 					'location' => $location_e,
 					'indent' => '',

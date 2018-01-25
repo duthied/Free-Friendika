@@ -2,13 +2,14 @@
 /**
  * @file include/enotify.php
  */
-use Friendica\App;
+
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Util\Emailer;
+use Friendica\Util\Temporal;
 
 require_once 'include/bbcode.php';
 require_once 'include/html2bbcode.php';
@@ -450,7 +451,7 @@ function notification($params)
 		$datarray['name_cache'] = strip_tags(bbcode($params['source_name']));
 		$datarray['url']   = $params['source_link'];
 		$datarray['photo'] = $params['source_photo'];
-		$datarray['date']  = datetime_convert();
+		$datarray['date']  = Temporal::convert();
 		$datarray['uid']   = $params['uid'];
 		$datarray['link']  = $itemlink;
 		$datarray['iid']   = $item_id;

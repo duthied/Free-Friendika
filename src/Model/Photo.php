@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file src/Model/Photo.php
  * @brief This file contains the Photo class for database interface
@@ -8,11 +9,11 @@ namespace Friendica\Model;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Object\Image;
 use Friendica\Util\Network;
+use Friendica\Util\Temporal;
 use dba;
 
 require_once 'include/dba.php';
@@ -54,8 +55,8 @@ class Photo
 			'contact-id' => $cid,
 			'guid' => $guid,
 			'resource-id' => $rid,
-			'created' => datetime_convert(),
-			'edited' => datetime_convert(),
+			'created' => Temporal::convert(),
+			'edited' => Temporal::convert(),
 			'filename' => basename($filename),
 			'type' => $Image->getType(),
 			'album' => $album,

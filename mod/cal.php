@@ -5,6 +5,7 @@
  * 	This calendar is for profile visitors and contains only the events
  * 	of the profile owner
  */
+
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
@@ -16,6 +17,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Profile;
 use Friendica\Protocol\DFRN;
+use Friendica\Util\Temporal;
 
 require_once 'include/event.php';
 
@@ -150,8 +152,8 @@ function cal_content(App $a)
 
 	// The view mode part is similiar to /mod/events.php
 	if ($mode == 'view') {
-		$thisyear = datetime_convert('UTC', date_default_timezone_get(), 'now', 'Y');
-		$thismonth = datetime_convert('UTC', date_default_timezone_get(), 'now', 'm');
+		$thisyear = Temporal::convert('now', date_default_timezone_get(), 'UTC', 'Y');
+		$thismonth = Temporal::convert('now', date_default_timezone_get(), 'UTC', 'm');
 		if (!$y) {
 			$y = intval($thisyear);
 		}
@@ -201,11 +203,11 @@ function cal_content(App $a)
 			}
 		}
 
-		$start = datetime_convert('UTC', 'UTC', $start);
-		$finish = datetime_convert('UTC', 'UTC', $finish);
+		$start = Temporal::convert($start);
+		$finish = Temporal::convert($finish);
 
-		$adjust_start = datetime_convert('UTC', date_default_timezone_get(), $start);
-		$adjust_finish = datetime_convert('UTC', date_default_timezone_get(), $finish);
+		$adjust_start = Temporal::convert($start, date_default_timezone_get());
+		$adjust_finish = Temporal::convert($finish, date_default_timezone_get());
 
 		// put the event parametes in an array so we can better transmit them
 		$event_params = [
@@ -229,7 +231,7 @@ function cal_content(App $a)
 		if (DBM::is_result($r)) {
 			$r = sort_by_date($r);
 			foreach ($r as $rr) {
-				$j = (($rr['adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $rr['start'], 'j') : datetime_convert('UTC', 'UTC', $rr['start'], 'j'));
+				$j = (($rr['adjust']) ? Temporal::convert($rr['start'], date_default_timezone_get(), 'UTC', 'j') : Temporal::convert($rr['start'], 'UTC', 'UTC', 'j'));
 				if (!x($links, $j)) {
 					$links[$j] = System::baseUrl() . '/' . $a->cmd . '#link-' . $j;
 				}

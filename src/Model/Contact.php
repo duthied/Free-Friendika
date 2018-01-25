@@ -112,7 +112,7 @@ class Contact extends BaseObject
 
 		$return = dba::insert('contact', [
 			'uid'         => $user['uid'],
-			'created'     => datetime_convert(),
+			'created'     => Temporal::convert(),
 			'self'        => 1,
 			'name'        => $user['username'],
 			'nick'        => $user['nickname'],
@@ -129,9 +129,9 @@ class Contact extends BaseObject
 			'poll'        => System::baseUrl() . '/dfrn_poll/'    . $user['nickname'],
 			'confirm'     => System::baseUrl() . '/dfrn_confirm/' . $user['nickname'],
 			'poco'        => System::baseUrl() . '/poco/'         . $user['nickname'],
-			'name-date'   => datetime_convert(),
-			'uri-date'    => datetime_convert(),
-			'avatar-date' => datetime_convert(),
+			'name-date'   => Temporal::convert(),
+			'uri-date'    => Temporal::convert(),
+			'avatar-date' => Temporal::convert(),
 			'closeness'   => 0
 		]);
 
@@ -210,10 +210,10 @@ class Contact extends BaseObject
 		}
 
 		if ($contact['term-date'] <= NULL_DATE) {
-			dba::update('contact', ['term-date' => datetime_convert()], ['id' => $contact['id']]);
+			dba::update('contact', ['term-date' => Temporal::convert()], ['id' => $contact['id']]);
 
 			if ($contact['url'] != '') {
-				dba::update('contact', ['term-date' => datetime_convert()], ['`nurl` = ? AND `term-date` <= ? AND NOT `self`', normalise_link($contact['url']), NULL_DATE]);
+				dba::update('contact', ['term-date' => Temporal::convert()], ['`nurl` = ? AND `term-date` <= ? AND NOT `self`', normalise_link($contact['url']), NULL_DATE]);
 			}
 		} else {
 			/* @todo
@@ -224,7 +224,7 @@ class Contact extends BaseObject
 
 			/// @todo Check for contact vitality via probing
 			$expiry = $contact['term-date'] . ' + 32 days ';
-			if (datetime_convert() > datetime_convert('UTC', 'UTC', $expiry)) {
+			if (Temporal::convert() > Temporal::convert($expiry)) {
 				/* Relationship is really truly dead. archive them rather than
 				 * delete, though if the owner tries to unarchive them we'll start
 				 * the whole process over again.
@@ -688,7 +688,7 @@ class Contact extends BaseObject
 			$contact_id = $contact["id"];
 
 			// Update the contact every 7 days
-			$update_contact = ($contact['avatar-date'] < datetime_convert('', '', 'now -7 days'));
+			$update_contact = ($contact['avatar-date'] < Temporal::convert('now -7 days'));
 
 			// We force the update if the avatar is empty
 			if (!x($contact, 'avatar')) {
@@ -728,7 +728,7 @@ class Contact extends BaseObject
 		if (!$contact_id) {
 			dba::insert('contact', [
 				'uid'       => $uid,
-				'created'   => datetime_convert(),
+				'created'   => Temporal::convert(),
 				'url'       => $data["url"],
 				'nurl'      => normalise_link($data["url"]),
 				'addr'      => $data["addr"],
@@ -749,9 +749,9 @@ class Contact extends BaseObject
 				'request'   => $data["request"],
 				'confirm'   => $data["confirm"],
 				'poco'      => $data["poco"],
-				'name-date' => datetime_convert(),
-				'uri-date'  => datetime_convert(),
-				'avatar-date' => datetime_convert(),
+				'name-date' => Temporal::convert(),
+				'uri-date'  => Temporal::convert(),
+				'avatar-date' => Temporal::convert(),
 				'writable'  => 1,
 				'blocked'   => 0,
 				'readonly'  => 0,
@@ -823,13 +823,13 @@ class Contact extends BaseObject
 		}
 
 		if (($data["addr"] != $contact["addr"]) || ($data["alias"] != $contact["alias"])) {
-			$updated['uri-date'] = datetime_convert();
+			$updated['uri-date'] = Temporal::convert();
 		}
 		if (($data["name"] != $contact["name"]) || ($data["nick"] != $contact["nick"])) {
-			$updated['name-date'] = datetime_convert();
+			$updated['name-date'] = Temporal::convert();
 		}
 
-		$updated['avatar-date'] = datetime_convert();
+		$updated['avatar-date'] = Temporal::convert();
 
 		dba::update('contact', $updated, ['id' => $contact_id], $contact);
 
@@ -1026,7 +1026,7 @@ class Contact extends BaseObject
 			if ($photos) {
 				dba::update(
 					'contact',
-					['avatar' => $avatar, 'photo' => $photos[0], 'thumb' => $photos[1], 'micro' => $photos[2], 'avatar-date' => datetime_convert()],
+					['avatar' => $avatar, 'photo' => $photos[0], 'thumb' => $photos[1], 'micro' => $photos[2], 'avatar-date' => Temporal::convert()],
 					['id' => $cid]
 				);
 
@@ -1261,7 +1261,7 @@ class Contact extends BaseObject
 			// create contact record
 			dba::insert('contact', [
 				'uid'     => $uid,
-				'created' => datetime_convert(),
+				'created' => Temporal::convert(),
 				'url'     => $ret['url'],
 				'nurl'    => normalise_link($ret['url']),
 				'addr'    => $ret['addr'],

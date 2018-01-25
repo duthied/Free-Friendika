@@ -2,6 +2,7 @@
 /**
  * @file mod/profile_photo.php
  */
+
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -11,6 +12,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
 use Friendica\Object\Image;
+use Friendica\Util\Temporal;
 
 function profile_photo_init(App $a)
 {
@@ -128,7 +130,7 @@ function profile_photo_post(App $a) {
 				// so that browsers will do a cache update unconditionally
 
 				$r = q("UPDATE `contact` SET `avatar-date` = '%s' WHERE `self` = 1 AND `uid` = %d",
-					dbesc(datetime_convert()),
+					dbesc(Temporal::convert()),
 					intval(local_user())
 				);
 
@@ -228,7 +230,7 @@ function profile_photo_content(App $a) {
 				);
 
 			$r = q("UPDATE `contact` SET `avatar-date` = '%s' WHERE `self` = 1 AND `uid` = %d",
-				dbesc(datetime_convert()),
+				dbesc(Temporal::convert()),
 				intval(local_user())
 			);
 

@@ -2,6 +2,7 @@
 /**
  * @file mod/profiles.php
  */
+
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
@@ -17,6 +18,7 @@ use Friendica\Model\GContact;
 use Friendica\Model\Profile;
 use Friendica\Model\Item;
 use Friendica\Network\Probe;
+use Friendica\Util\Temporal;
 
 function profiles_init(App $a) {
 
@@ -216,7 +218,7 @@ function profiles_post(App $a) {
 				$ignore_year = true;
 				$dob = substr($dob, 5);
 			}
-			$dob = datetime_convert('UTC', 'UTC', (($ignore_year) ? '1900-' . $dob : $dob), (($ignore_year) ? 'm-d' : 'Y-m-d'));
+			$dob = Temporal::convert((($ignore_year) ? '1900-' . $dob : $dob), 'UTC', 'UTC', (($ignore_year) ? 'm-d' : 'Y-m-d'));
 
 			if ($ignore_year) {
 				$dob = '0000-' . $dob;
@@ -250,7 +252,7 @@ function profiles_post(App $a) {
 		if (! strlen($howlong)) {
 			$howlong = NULL_DATE;
 		} else {
-			$howlong = datetime_convert(date_default_timezone_get(), 'UTC', $howlong);
+			$howlong = Temporal::convert($howlong, 'UTC', date_default_timezone_get());
 		}
 		// linkify the relationship target if applicable
 
@@ -485,7 +487,7 @@ function profiles_post(App $a) {
 		if ($namechanged && $is_default) {
 			$r = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `self` = 1 AND `uid` = %d",
 				dbesc($name),
-				dbesc(datetime_convert()),
+				dbesc(Temporal::convert()),
 				intval(local_user())
 			);
 			$r = q("UPDATE `user` set `username` = '%s' where `uid` = %d",
@@ -722,7 +724,7 @@ function profiles_content(App $a) {
 			'$gender' => ContactSelector::gender($r[0]['gender']),
 			'$marital' => ContactSelector::maritalStatus($r[0]['marital']),
 			'$with' => ['with', L10n::t("Who: \x28if applicable\x29"), strip_tags($r[0]['with']), L10n::t('Examples: cathy123, Cathy Williams, cathy@example.com')],
-			'$howlong' => ['howlong', L10n::t('Since [date]:'), ($r[0]['howlong'] <= NULL_DATE ? '' : datetime_convert('UTC',date_default_timezone_get(),$r[0]['howlong']))],
+			'$howlong' => ['howlong', L10n::t('Since [date]:'), ($r[0]['howlong'] <= NULL_DATE ? '' : Temporal::convert($r[0]['howlong'], date_default_timezone_get()))],
 			'$sexual' => ContactSelector::sexualPreference($r[0]['sexual']),
 			'$about' => ['about', L10n::t('Tell us about yourself...'), $r[0]['about']],
 			'$xmpp' => ['xmpp', L10n::t("XMPP \x28Jabber\x29 address:"), $r[0]['xmpp'], L10n::t("The XMPP address will be propagated to your contacts so that they can follow you.")],
