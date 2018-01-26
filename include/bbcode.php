@@ -106,7 +106,7 @@ function bb_attachment($return, $simplehtml = false, $tryoembed = true)
 			}
 
 			if ($data["type"] == "link") {
-				$return .= sprintf('<h5><a href="%s">%s</a></h5>', $data['url'], parse_url($data['url'], PHP_URL_HOST));
+				$return .= sprintf('<sup><a href="%s">%s</a></sup>', $data['url'], parse_url($data['url'], PHP_URL_HOST));
 			}
 
 			if ($simplehtml != 4) {
