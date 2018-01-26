@@ -56,7 +56,6 @@ const DB_UPDATE_FAILED = 2;      // Database check failed
  * This can be used in HTML and JavaScript where needed a line break.
  */
 define('EOL',                    "<br />\r\n");
-define('ATOM_TIME',              'Y-m-d\TH:i:s\Z');
 
 /**
  * @brief Image storage quality.
@@ -1150,7 +1149,7 @@ function feed_birthday($uid, $tz)
 			if ($t_dob < $now) {
 				$bd = $y + 1 . '-' . $tmp_dob . ' 00:00';
 			}
-			$birthday = Temporal::convert($bd, 'UTC', $tz, ATOM_TIME);
+			$birthday = Temporal::convert($bd, 'UTC', $tz, Temporal::ATOM);
 		}
 	}
 

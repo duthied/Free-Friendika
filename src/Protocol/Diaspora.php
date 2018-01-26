@@ -3593,7 +3593,7 @@ class Diaspora
 			$eventdata['guid'] = $event['guid'];
 		}
 
-		$mask = 'Y-m-d\TH:i:s\Z';
+		$mask = Temporal::ATOM;
 
 		/// @todo - establish "all day" events in Friendica
 		$eventdata["all_day"] = "false";
@@ -3652,7 +3652,7 @@ class Diaspora
 
 		$public = (($item["private"]) ? "false" : "true");
 
-		$created = Temporal::convert($item["created"], "UTC", "UTC", 'Y-m-d\TH:i:s\Z');
+		$created = Temporal::convert($item["created"], "UTC", "UTC", Temporal::ATOM);
 
 		// Detect a share element and do a reshare
 		if (!$item['private'] && ($ret = self::isReshare($item["body"]))) {
@@ -3855,7 +3855,7 @@ class Diaspora
 		$parent = $p[0];
 
 		$text = html_entity_decode(bb2diaspora($item["body"]));
-		$created = Temporal::convert($item["created"], "UTC", "UTC", 'Y-m-d\TH:i:s\Z');
+		$created = Temporal::convert($item["created"], "UTC", "UTC", Temporal::ATOM);
 
 		$comment = ["author" => self::myHandle($owner),
 				"guid" => $item["guid"],
@@ -4086,12 +4086,12 @@ class Diaspora
 			"author" => $cnv["creator"],
 			"guid" => $cnv["guid"],
 			"subject" => $cnv["subject"],
-			"created_at" => Temporal::convert($cnv['created'], "UTC", "UTC", 'Y-m-d\TH:i:s\Z'),
+			"created_at" => Temporal::convert($cnv['created'], "UTC", "UTC", Temporal::ATOM),
 			"participants" => $cnv["recips"]
 		];
 
 		$body = bb2diaspora($item["body"]);
-		$created = Temporal::convert($item["created"], "UTC", "UTC", 'Y-m-d\TH:i:s\Z');
+		$created = Temporal::convert($item["created"], "UTC", "UTC", Temporal::ATOM);
 
 		$msg = [
 			"author" => $myaddr,
@@ -4109,7 +4109,7 @@ class Diaspora
 					"author" => $cnv["creator"],
 					"guid" => $cnv["guid"],
 					"subject" => $cnv["subject"],
-					"created_at" => Temporal::convert($cnv['created'], "UTC", "UTC", 'Y-m-d\TH:i:s\Z'),
+					"created_at" => Temporal::convert($cnv['created'], "UTC", "UTC", Temporal::ATOM),
 					"participants" => $cnv["recips"],
 					"message" => $msg];
 

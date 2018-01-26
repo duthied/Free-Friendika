@@ -421,7 +421,7 @@ class DFRN
 
 		XML::addElement($doc, $mail, "dfrn:id", $item['uri']);
 		XML::addElement($doc, $mail, "dfrn:in-reply-to", $item['parent-uri']);
-		XML::addElement($doc, $mail, "dfrn:sentdate", Temporal::convert($item['created'] . '+00:00', 'UTC', 'UTC', ATOM_TIME));
+		XML::addElement($doc, $mail, "dfrn:sentdate", Temporal::convert($item['created'] . '+00:00', 'UTC', 'UTC', Temporal::ATOM));
 		XML::addElement($doc, $mail, "dfrn:subject", $item['title']);
 		XML::addElement($doc, $mail, "dfrn:content", $item['body']);
 
@@ -587,7 +587,7 @@ class DFRN
 
 		/// @todo We need a way to transmit the different page flags like "PAGE_PRVGROUP"
 
-		XML::addElement($doc, $root, "updated", Temporal::convert("now", "UTC", "UTC", ATOM_TIME));
+		XML::addElement($doc, $root, "updated", Temporal::convert("now", "UTC", "UTC", Temporal::ATOM));
 
 		$author = self::addAuthor($doc, $owner, $authorelement, $public);
 		$root->appendChild($author);
@@ -622,9 +622,9 @@ class DFRN
 
 		$author = $doc->createElement($authorelement);
 
-		$namdate = Temporal::convert($owner['name-date'].'+00:00', 'UTC', 'UTC', ATOM_TIME);
-		$uridate = Temporal::convert($owner['uri-date'].'+00:00', 'UTC', 'UTC', ATOM_TIME);
-		$picdate = Temporal::convert($owner['avatar-date'].'+00:00', 'UTC', 'UTC', ATOM_TIME);
+		$namdate = Temporal::convert($owner['name-date'].'+00:00', 'UTC', 'UTC', Temporal::ATOM);
+		$uridate = Temporal::convert($owner['uri-date'].'+00:00', 'UTC', 'UTC', Temporal::ATOM);
+		$picdate = Temporal::convert($owner['avatar-date'].'+00:00', 'UTC', 'UTC', Temporal::ATOM);
 
 		$attributes = [];
 
@@ -903,7 +903,7 @@ class DFRN
 		}
 
 		if ($item['deleted']) {
-			$attributes = ["ref" => $item['uri'], "when" => Temporal::convert($item['edited'] . '+00:00', 'UTC', 'UTC', ATOM_TIME)];
+			$attributes = ["ref" => $item['uri'], "when" => Temporal::convert($item['edited'] . '+00:00', 'UTC', 'UTC', Temporal::ATOM)];
 			return XML::createElement($doc, "at:deleted-entry", "", $attributes);
 		}
 
@@ -983,8 +983,8 @@ class DFRN
 		XML::addElement($doc, $entry, "id", $item["uri"]);
 		XML::addElement($doc, $entry, "title", $item["title"]);
 
-		XML::addElement($doc, $entry, "published", Temporal::convert($item["created"] . "+00:00", "UTC", "UTC", ATOM_TIME));
-		XML::addElement($doc, $entry, "updated", Temporal::convert($item["edited"] . "+00:00", "UTC", "UTC", ATOM_TIME));
+		XML::addElement($doc, $entry, "published", Temporal::convert($item["created"] . "+00:00", "UTC", "UTC", Temporal::ATOM));
+		XML::addElement($doc, $entry, "updated", Temporal::convert($item["edited"] . "+00:00", "UTC", "UTC", Temporal::ATOM));
 
 		// "dfrn:env" is used to read the content
 		XML::addElement($doc, $entry, "dfrn:env", base64url_encode($body, true));

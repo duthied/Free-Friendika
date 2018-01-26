@@ -460,7 +460,7 @@ function api_rss_extra(App $a, $arr, $user_info)
 		'self'         => System::baseUrl() . "/" . $a->query_string,
 		'base'         => System::baseUrl(),
 		'updated'      => api_date(null),
-		'atom_updated' => Temporal::convert('now', 'UTC', 'UTC', ATOM_TIME),
+		'atom_updated' => Temporal::convert('now', 'UTC', 'UTC', Temporal::ATOM),
 		'language'     => $user_info['language'],
 		'logo'         => System::baseUrl() . "/images/friendica-32.png",
 	];
@@ -3207,7 +3207,7 @@ function api_account_rate_limit_status($type)
 				'@attributes' => ["type" => "integer"],
 				'hourly-limit' => '150',
 				'@attributes2' => ["type" => "integer"],
-				'reset-time' => Temporal::convert('now + 1 hour', 'UTC', 'UTC', ATOM_TIME),
+				'reset-time' => Temporal::convert('now + 1 hour', 'UTC', 'UTC', Temporal::ATOM),
 				'@attributes3' => ["type" => "datetime"],
 				'reset_time_in_seconds' => strtotime('now + 1 hour'),
 				'@attributes4' => ["type" => "integer"],
@@ -3217,7 +3217,7 @@ function api_account_rate_limit_status($type)
 				'reset_time_in_seconds' => strtotime('now + 1 hour'),
 				'remaining_hits' => '150',
 				'hourly_limit' => '150',
-				'reset_time' => api_date(Temporal::convert('now + 1 hour', 'UTC', 'UTC', ATOM_TIME)),
+				'reset_time' => api_date(Temporal::convert('now + 1 hour', 'UTC', 'UTC', Temporal::ATOM)),
 			];
 	}
 

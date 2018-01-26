@@ -723,7 +723,7 @@ function logger($msg, $level = 0) {
 
 	$callers = debug_backtrace();
 	$logline = sprintf("%s@%s\t[%s]:%s:%s:%s\t%s\n",
-			Temporal::convert('now', 'UTC', 'UTC', 'Y-m-d\TH:i:s\Z'),
+			Temporal::convert('now', 'UTC', 'UTC', Temporal::ATOM),
 			$process_id,
 			$LOGGER_LEVELS[$level],
 			basename($callers[0]['file']),

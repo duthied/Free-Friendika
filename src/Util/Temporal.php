@@ -21,6 +21,7 @@ require_once 'include/text.php';
  */
 class Temporal
 {
+	const ATOM = 'Y-m-d\TH:i:s\Z';
 
 	/**
 	 * @brief Two-level sort for timezones.

@@ -107,8 +107,8 @@ class OnePoll
 		}
 
 		$last_update = (($contact['last-update'] <= NULL_DATE)
-			? Temporal::convert('now - 7 days', 'UTC', 'UTC', ATOM_TIME)
-			: Temporal::convert($contact['last-update'], 'UTC', 'UTC', ATOM_TIME)
+			? Temporal::convert('now - 7 days', 'UTC', 'UTC', Temporal::ATOM)
+			: Temporal::convert($contact['last-update'], 'UTC', 'UTC', Temporal::ATOM)
 		);
 
 		// Update the contact entry
