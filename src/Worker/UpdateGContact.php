@@ -42,7 +42,7 @@ class UpdateGContact
 			}
 
 			q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `id` = %d",
-				dbesc(Temporal::convert()), intval($contact_id));
+				dbesc(Temporal::utcNow()), intval($contact_id));
 			return;
 		}
 

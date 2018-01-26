@@ -77,7 +77,7 @@ class Diaspora
 				$r = q(
 					"INSERT INTO `contact` (`uid`, `created`, `name`, `nick`, `addr`, `url`, `nurl`, `batch`, `network`, `rel`, `blocked`, `pending`, `writable`, `name-date`, `uri-date`, `avatar-date`)
 					VALUES (0, '%s', '%s', 'relay', '%s', '%s', '%s', '%s', '%s', %d, 0, 0, 1, '%s', '%s', '%s')",
-					Temporal::convert(),
+					Temporal::utcNow(),
 					dbesc($addr),
 					dbesc($addr),
 					dbesc($server),
@@ -85,9 +85,9 @@ class Diaspora
 					dbesc($batch),
 					dbesc(NETWORK_DIASPORA),
 					intval(CONTACT_IS_FOLLOWER),
-					dbesc(Temporal::convert()),
-					dbesc(Temporal::convert()),
-					dbesc(Temporal::convert())
+					dbesc(Temporal::utcNow()),
+					dbesc(Temporal::utcNow()),
+					dbesc(Temporal::utcNow())
 				);
 
 				$relais = q("SELECT `batch`, `id`, `name`,`network` FROM `contact` WHERE `uid` = 0 AND `batch` = '%s' LIMIT 1", dbesc($batch));
@@ -871,7 +871,7 @@ class Diaspora
 				dbesc($arr["confirm"]),
 				dbesc($arr["alias"]),
 				dbesc($arr["pubkey"]),
-				dbesc(Temporal::convert()),
+				dbesc(Temporal::utcNow()),
 				dbesc($arr["url"]),
 				dbesc($arr["network"])
 			);
@@ -894,7 +894,7 @@ class Diaspora
 				dbesc($arr["network"]),
 				dbesc($arr["alias"]),
 				dbesc($arr["pubkey"]),
-				dbesc(Temporal::convert())
+				dbesc(Temporal::utcNow())
 			);
 		}
 
@@ -1656,7 +1656,7 @@ class Diaspora
 		if (isset($data->created_at)) {
 			$created_at = Temporal::convert(notags(unxmlify($data->created_at)));
 		} else {
-			$created_at = Temporal::convert();
+			$created_at = Temporal::utcNow();
 		}
 
 		if (isset($data->thread_parent_guid)) {
@@ -1831,7 +1831,7 @@ class Diaspora
 
 		dba::unlock();
 
-		dba::update('conv', ['updated' => Temporal::convert()], ['id' => $conversation["id"]]);
+		dba::update('conv', ['updated' => Temporal::utcNow()], ['id' => $conversation["id"]]);
 
 		notification(
 			[
@@ -1897,7 +1897,7 @@ class Diaspora
 				dbesc($guid),
 				dbesc($author),
 				dbesc($created_at),
-				dbesc(Temporal::convert()),
+				dbesc(Temporal::utcNow()),
 				dbesc($subject),
 				dbesc($participants)
 			);
@@ -2164,7 +2164,7 @@ class Diaspora
 
 		dba::unlock();
 
-		dba::update('conv', ['updated' => Temporal::convert()], ['id' => $conversation["id"]]);
+		dba::update('conv', ['updated' => Temporal::utcNow()], ['id' => $conversation["id"]]);
 		return true;
 	}
 
@@ -2331,7 +2331,7 @@ class Diaspora
 			dbesc($name),
 			dbesc($nick),
 			dbesc($author),
-			dbesc(Temporal::convert()),
+			dbesc(Temporal::utcNow()),
 			dbesc($birthday),
 			dbesc($location),
 			dbesc($about),
@@ -2537,7 +2537,7 @@ class Diaspora
 			intval($importer["uid"]),
 			dbesc($ret["network"]),
 			dbesc($ret["addr"]),
-			Temporal::convert(),
+			Temporal::utcNow(),
 			dbesc($ret["url"]),
 			dbesc(normalise_link($ret["url"])),
 			dbesc($batch),
@@ -2580,7 +2580,7 @@ class Diaspora
 				0,
 				dbesc(L10n::t("Sharing notification from Diaspora network")),
 				dbesc($hash),
-				dbesc(Temporal::convert())
+				dbesc(Temporal::utcNow())
 			);
 		} else {
 			// automatic friend approval
@@ -2611,8 +2611,8 @@ class Diaspora
 				WHERE `id` = %d
 				",
 				intval($new_relation),
-				dbesc(Temporal::convert()),
-				dbesc(Temporal::convert()),
+				dbesc(Temporal::utcNow()),
+				dbesc(Temporal::utcNow()),
 				intval($contact_record["id"])
 			);
 
@@ -2852,8 +2852,8 @@ class Diaspora
 					'deleted' => true,
 					'title' => '',
 					'body' => '',
-					'edited' => Temporal::convert(),
-					'changed' => Temporal::convert()],
+					'edited' => Temporal::utcNow(),
+					'changed' => Temporal::utcNow()],
 				['id' => $item["id"]]
 			);
 

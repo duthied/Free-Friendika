@@ -460,7 +460,7 @@ function api_rss_extra(App $a, $arr, $user_info)
 		'self'         => System::baseUrl() . "/" . $a->query_string,
 		'base'         => System::baseUrl(),
 		'updated'      => api_date(null),
-		'atom_updated' => Temporal::convert('now', 'UTC', 'UTC', Temporal::ATOM),
+		'atom_updated' => Temporal::utcNow(Temporal::ATOM),
 		'language'     => $user_info['language'],
 		'logo'         => System::baseUrl() . "/images/friendica-32.png",
 	];
@@ -4216,7 +4216,7 @@ function api_fr_photo_create_update($type)
 			$result = q(
 				"UPDATE `photo` SET %s, `edited`='%s' WHERE `uid` = %d AND `resource-id` = '%s' AND `album` = '%s'",
 				$sql_extra,
-				Temporal::convert(),   // update edited timestamp
+				Temporal::utcNow(),   // update edited timestamp
 				intval(api_user()),
 				dbesc($photo_id),
 				dbesc($album)
@@ -4420,7 +4420,7 @@ function api_account_update_profile_image($type)
 
 	q(
 		"UPDATE `contact` SET `avatar-date` = '%s' WHERE `self` = 1 AND `uid` = %d",
-		dbesc(Temporal::convert()),
+		dbesc(Temporal::utcNow()),
 		intval(local_user())
 	);
 

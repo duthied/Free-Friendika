@@ -33,7 +33,7 @@ function lostpass_post(App $a)
 
 	$fields = [
 		'pwdreset' => $pwdreset_token,
-		'pwdreset_time' => Temporal::convert()
+		'pwdreset_time' => Temporal::utcNow()
 	];
 	$result = dba::update('user', $fields, ['uid' => $user['uid']]);
 	if ($result) {

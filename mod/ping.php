@@ -226,7 +226,7 @@ function ping_init(App $a)
 				ORDER BY `start` ASC ",
 				intval(local_user()),
 				dbesc(Temporal::convert('now + 7 days')),
-				dbesc(Temporal::convert('now'))
+				dbesc(Temporal::utcNow())
 			);
 			if (DBM::is_result($ev)) {
 				Cache::set($cachekey, $ev, CACHE_HOUR);

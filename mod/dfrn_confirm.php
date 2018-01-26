@@ -327,8 +327,8 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				`network` = '%s' WHERE `id` = %d
 			",
 				intval($new_relation),
-				dbesc(Temporal::convert()),
-				dbesc(Temporal::convert()),
+				dbesc(Temporal::utcNow()),
+				dbesc(Temporal::utcNow()),
 				intval($duplex),
 				intval($hidden),
 				dbesc(NETWORK_DFRN),
@@ -378,8 +378,8 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				`rel` = %d
 				WHERE `id` = %d
 			",
-				dbesc(Temporal::convert()),
-				dbesc(Temporal::convert()),
+				dbesc(Temporal::utcNow()),
+				dbesc(Temporal::utcNow()),
 				dbesc($addr),
 				dbesc($notify),
 				dbesc($poll),
@@ -619,8 +619,8 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			`network` = '%s' WHERE `id` = %d
 		",
 			intval($new_relation),
-			dbesc(Temporal::convert()),
-			dbesc(Temporal::convert()),
+			dbesc(Temporal::utcNow()),
+			dbesc(Temporal::utcNow()),
 			intval($duplex),
 			intval($forum),
 			intval($prv),

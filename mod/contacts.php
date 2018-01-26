@@ -554,7 +554,7 @@ function contacts_content(App $a)
 		// tabs
 		$tab_str = contacts_tab($a, $contact_id, 2);
 
-		$lost_contact = (($contact['archive'] && $contact['term-date'] > NULL_DATE && $contact['term-date'] < datetime_convert('', '', 'now')) ? L10n::t('Communications lost with this contact!') : '');
+		$lost_contact = (($contact['archive'] && $contact['term-date'] > NULL_DATE && $contact['term-date'] < Temporal::utcNow()) ? L10n::t('Communications lost with this contact!') : '');
 
 		$fetch_further_information = null;
 		if ($contact['network'] == NETWORK_FEED) {

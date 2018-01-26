@@ -487,7 +487,7 @@ function profiles_post(App $a) {
 		if ($namechanged && $is_default) {
 			$r = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `self` = 1 AND `uid` = %d",
 				dbesc($name),
-				dbesc(Temporal::convert()),
+				dbesc(Temporal::utcNow()),
 				intval(local_user())
 			);
 			$r = q("UPDATE `user` set `username` = '%s' where `uid` = %d",

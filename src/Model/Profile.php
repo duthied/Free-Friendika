@@ -557,7 +557,7 @@ class Profile
 				ORDER BY `start` ASC ",
 				local_user(),
 				Temporal::convert('now + 6 days'),
-				Temporal::convert('now')
+				Temporal::utcNow()
 			);
 			if (DBM::is_result($s)) {
 				$r = dba::inArray($s);

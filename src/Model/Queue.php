@@ -20,7 +20,7 @@ class Queue
 	public static function updateTime($id)
 	{
 		logger('queue: requeue item ' . $id);
-		dba::update('queue', ['last' => Temporal::convert()], ['id' => $id]);
+		dba::update('queue', ['last' => Temporal::utcNow()], ['id' => $id]);
 	}
 
 	/**
@@ -95,6 +95,6 @@ class Queue
 			}
 		}
 
-		dba::insert('queue', ['cid' => $cid, 'network' => $network, 'created' => Temporal::convert(), 'last' => Temporal::convert(), 'content' => $msg, 'batch' =>($batch) ? 1 : 0]);
+		dba::insert('queue', ['cid' => $cid, 'network' => $network, 'created' => Temporal::utcNow(), 'last' => Temporal::utcNow(), 'content' => $msg, 'batch' =>($batch) ? 1 : 0]);
 	}
 }

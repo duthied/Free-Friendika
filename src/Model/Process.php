@@ -34,7 +34,7 @@ class Process extends BaseObject
 		dba::transaction();
 
 		if (!dba::exists('process', ['pid' => $pid])) {
-			$return = dba::insert('process', ['pid' => $pid, 'command' => $command, 'created' => Temporal::convert()]);
+			$return = dba::insert('process', ['pid' => $pid, 'command' => $command, 'created' => Temporal::utcNow()]);
 		}
 
 		dba::commit();

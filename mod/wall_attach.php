@@ -124,7 +124,7 @@ function wall_attach_post(App $a) {
 	$filedata = @file_get_contents($src);
 	$mimetype = Mimetype::getContentType($filename);
 	$hash = get_guid(64);
-	$created = Temporal::convert();
+	$created = Temporal::utcNow();
 
 	$fields = ['uid' => $page_owner_uid, 'hash' => $hash, 'filename' => $filename, 'filetype' => $mimetype,
 		'filesize' => $filesize, 'data' => $filedata, 'created' => $created, 'edited' => $created,

@@ -199,7 +199,7 @@ class OStatus
 				$contact["location"] = $value;
 			}
 
-			$contact['name-date'] = Temporal::convert();
+			$contact['name-date'] = Temporal::utcNow();
 
 			dba::update('contact', $contact, ['id' => $contact["id"]], $current);
 
@@ -220,7 +220,7 @@ class OStatus
 						'nurl' => normalise_link($author["author-link"]),
 						'nick' => $contact["nick"], 'alias' => $contact["alias"],
 						'about' => $contact["about"], 'location' => $contact["location"],
-						'success_update' => Temporal::convert(), 'last-update' => Temporal::convert()];
+						'success_update' => Temporal::utcNow(), 'last-update' => Temporal::utcNow()];
 
 				dba::update('contact', $fields, ['id' => $cid], $old_contact);
 
@@ -558,7 +558,7 @@ class OStatus
 		dba::update(
 			'item',
 			['deleted' => true, 'title' => '', 'body' => '',
-					'edited' => Temporal::convert(), 'changed' => Temporal::convert()],
+					'edited' => Temporal::utcNow(), 'changed' => Temporal::utcNow()],
 			['id' => $deleted["id"]]
 		);
 

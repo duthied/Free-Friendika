@@ -451,7 +451,7 @@ function notification($params)
 		$datarray['name_cache'] = strip_tags(bbcode($params['source_name']));
 		$datarray['url']   = $params['source_link'];
 		$datarray['photo'] = $params['source_photo'];
-		$datarray['date']  = Temporal::convert();
+		$datarray['date']  = Temporal::utcNow();
 		$datarray['uid']   = $params['uid'];
 		$datarray['link']  = $itemlink;
 		$datarray['iid']   = $item_id;

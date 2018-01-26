@@ -723,7 +723,7 @@ function logger($msg, $level = 0) {
 
 	$callers = debug_backtrace();
 	$logline = sprintf("%s@%s\t[%s]:%s:%s:%s\t%s\n",
-			Temporal::convert('now', 'UTC', 'UTC', Temporal::ATOM),
+			Temporal::utcNow(Temporal::ATOM),
 			$process_id,
 			$LOGGER_LEVELS[$level],
 			basename($callers[0]['file']),
@@ -789,7 +789,7 @@ function dlogger($msg, $level = 0) {
 
 	$callers = debug_backtrace();
 	$logline = sprintf("%s@\t%s:\t%s:\t%s\t%s\t%s\n",
-			Temporal::convert(),
+			Temporal::utcNow(),
 			$process_id,
 			basename($callers[0]['file']),
 			$callers[0]['line'],

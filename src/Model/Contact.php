@@ -112,7 +112,7 @@ class Contact extends BaseObject
 
 		$return = dba::insert('contact', [
 			'uid'         => $user['uid'],
-			'created'     => Temporal::convert(),
+			'created'     => Temporal::utcNow(),
 			'self'        => 1,
 			'name'        => $user['username'],
 			'nick'        => $user['nickname'],
@@ -129,9 +129,9 @@ class Contact extends BaseObject
 			'poll'        => System::baseUrl() . '/dfrn_poll/'    . $user['nickname'],
 			'confirm'     => System::baseUrl() . '/dfrn_confirm/' . $user['nickname'],
 			'poco'        => System::baseUrl() . '/poco/'         . $user['nickname'],
-			'name-date'   => Temporal::convert(),
-			'uri-date'    => Temporal::convert(),
-			'avatar-date' => Temporal::convert(),
+			'name-date'   => Temporal::utcNow(),
+			'uri-date'    => Temporal::utcNow(),
+			'avatar-date' => Temporal::utcNow(),
 			'closeness'   => 0
 		]);
 
@@ -210,10 +210,10 @@ class Contact extends BaseObject
 		}
 
 		if ($contact['term-date'] <= NULL_DATE) {
-			dba::update('contact', ['term-date' => Temporal::convert()], ['id' => $contact['id']]);
+			dba::update('contact', ['term-date' => Temporal::utcNow()], ['id' => $contact['id']]);
 
 			if ($contact['url'] != '') {
-				dba::update('contact', ['term-date' => Temporal::convert()], ['`nurl` = ? AND `term-date` <= ? AND NOT `self`', normalise_link($contact['url']), NULL_DATE]);
+				dba::update('contact', ['term-date' => Temporal::utcNow()], ['`nurl` = ? AND `term-date` <= ? AND NOT `self`', normalise_link($contact['url']), NULL_DATE]);
 			}
 		} else {
 			/* @todo
@@ -224,7 +224,7 @@ class Contact extends BaseObject
 
 			/// @todo Check for contact vitality via probing
 			$expiry = $contact['term-date'] . ' + 32 days ';
-			if (Temporal::convert() > Temporal::convert($expiry)) {
+			if (Temporal::utcNow() > Temporal::convert($expiry)) {
 				/* Relationship is really truly dead. archive them rather than
 				 * delete, though if the owner tries to unarchive them we'll start
 				 * the whole process over again.
@@ -728,7 +728,7 @@ class Contact extends BaseObject
 		if (!$contact_id) {
 			dba::insert('contact', [
 				'uid'       => $uid,
-				'created'   => Temporal::convert(),
+				'created'   => Temporal::utcNow(),
 				'url'       => $data["url"],
 				'nurl'      => normalise_link($data["url"]),
 				'addr'      => $data["addr"],
@@ -749,9 +749,9 @@ class Contact extends BaseObject
 				'request'   => $data["request"],
 				'confirm'   => $data["confirm"],
 				'poco'      => $data["poco"],
-				'name-date' => Temporal::convert(),
-				'uri-date'  => Temporal::convert(),
-				'avatar-date' => Temporal::convert(),
+				'name-date' => Temporal::utcNow(),
+				'uri-date'  => Temporal::utcNow(),
+				'avatar-date' => Temporal::utcNow(),
 				'writable'  => 1,
 				'blocked'   => 0,
 				'readonly'  => 0,
@@ -823,13 +823,13 @@ class Contact extends BaseObject
 		}
 
 		if (($data["addr"] != $contact["addr"]) || ($data["alias"] != $contact["alias"])) {
-			$updated['uri-date'] = Temporal::convert();
+			$updated['uri-date'] = Temporal::utcNow();
 		}
 		if (($data["name"] != $contact["name"]) || ($data["nick"] != $contact["nick"])) {
-			$updated['name-date'] = Temporal::convert();
+			$updated['name-date'] = Temporal::utcNow();
 		}
 
-		$updated['avatar-date'] = Temporal::convert();
+		$updated['avatar-date'] = Temporal::utcNow();
 
 		dba::update('contact', $updated, ['id' => $contact_id], $contact);
 
@@ -1026,7 +1026,7 @@ class Contact extends BaseObject
 			if ($photos) {
 				dba::update(
 					'contact',
-					['avatar' => $avatar, 'photo' => $photos[0], 'thumb' => $photos[1], 'micro' => $photos[2], 'avatar-date' => Temporal::convert()],
+					['avatar' => $avatar, 'photo' => $photos[0], 'thumb' => $photos[1], 'micro' => $photos[2], 'avatar-date' => Temporal::utcNow()],
 					['id' => $cid]
 				);
 
@@ -1261,7 +1261,7 @@ class Contact extends BaseObject
 			// create contact record
 			dba::insert('contact', [
 				'uid'     => $uid,
-				'created' => Temporal::convert(),
+				'created' => Temporal::utcNow(),
 				'url'     => $ret['url'],
 				'nurl'    => normalise_link($ret['url']),
 				'addr'    => $ret['addr'],
@@ -1485,7 +1485,7 @@ class Contact extends BaseObject
 			foreach ($r as $rr) {
 				logger('update_contact_birthday: ' . $rr['bd']);
 
-				$nextbd = Temporal::convert('now', 'UTC', 'UTC', 'Y') . substr($rr['bd'], 4);
+				$nextbd = Temporal::convert('Y') . substr($rr['bd'], 4);
 
 				/*
 				 * Add new birthday event for this person
@@ -1508,7 +1508,7 @@ class Contact extends BaseObject
 
 				q("INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`,`adjust`)
 				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d' ) ", intval($rr['uid']), intval($rr['id']),
-					dbesc(Temporal::convert()), dbesc(Temporal::convert()), dbesc(Temporal::convert($nextbd)),
+					dbesc(Temporal::utcNow()), dbesc(Temporal::utcNow()), dbesc(Temporal::convert($nextbd)),
 					dbesc(Temporal::convert($nextbd . ' + 1 day ')), dbesc($bdtext), dbesc($bdtext2), dbesc('birthday'),
 					intval(0)
 				);

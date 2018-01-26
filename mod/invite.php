@@ -62,7 +62,7 @@ function invite_post(App $a)
 
 			$r = q("INSERT INTO `register` (`hash`,`created`) VALUES ('%s', '%s') ",
 				dbesc($code),
-				dbesc(Temporal::convert())
+				dbesc(Temporal::utcNow())
 			);
 
 			if (! is_site_admin()) {

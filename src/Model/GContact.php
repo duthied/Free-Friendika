@@ -120,12 +120,12 @@ class GContact
 				intval($uid),
 				intval($gcid),
 				intval($zcid),
-				dbesc(Temporal::convert())
+				dbesc(Temporal::utcNow())
 			);
 		} else {
 			q(
 				"UPDATE `glink` SET `updated` = '%s' WHERE `cid` = %d AND `uid` = %d AND `gcid` = %d AND `zcid` = %d",
-				dbesc(Temporal::convert()),
+				dbesc(Temporal::utcNow()),
 				intval($cid),
 				intval($uid),
 				intval($gcid),
@@ -717,8 +717,8 @@ class GContact
 				dbesc($contact["url"]),
 				dbesc(normalise_link($contact["url"])),
 				dbesc($contact["photo"]),
-				dbesc(Temporal::convert()),
-				dbesc(Temporal::convert()),
+				dbesc(Temporal::utcNow()),
+				dbesc(Temporal::utcNow()),
 				dbesc($contact["location"]),
 				dbesc($contact["about"]),
 				intval($contact["hide"]),
@@ -1050,7 +1050,7 @@ class GContact
 
 		foreach ($r as $server) {
 			self::fetchGsUsers($server["url"]);
-			q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(Temporal::convert()), dbesc($server["nurl"]));
+			q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(Temporal::utcNow()), dbesc($server["nurl"]));
 		}
 	}
 

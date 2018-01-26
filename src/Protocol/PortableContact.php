@@ -315,7 +315,7 @@ class PortableContact
 		$contact = ["url" => $profile];
 
 		if ($gcontacts[0]["created"] <= NULL_DATE) {
-			$contact['created'] = Temporal::convert();
+			$contact['created'] = Temporal::utcNow();
 		}
 
 		if ($force) {
@@ -338,7 +338,7 @@ class PortableContact
 		if ($server_url != "") {
 			if (!self::checkServer($server_url, $gcontacts[0]["network"], $force)) {
 				if ($force) {
-					$fields = ['last_failure' => Temporal::convert()];
+					$fields = ['last_failure' => Temporal::utcNow()];
 					dba::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
 				}
 
@@ -412,14 +412,14 @@ class PortableContact
 
 						// Set the date of the last contact
 						/// @todo By now the function "update_gcontact" doesn't work with this field
-						//$contact["last_contact"] = Temporal::convert();
+						//$contact["last_contact"] = Temporal::utcNow();
 
 						$contact = array_merge($contact, $noscrape);
 
 						GContact::update($contact);
 
 						if (trim($noscrape["updated"]) != "") {
-							$fields = ['last_contact' => Temporal::convert()];
+							$fields = ['last_contact' => Temporal::utcNow()];
 							dba::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
 
 							logger("Profile ".$profile." was last updated at ".$noscrape["updated"]." (noscrape)", LOGGER_DEBUG);
@@ -468,7 +468,7 @@ class PortableContact
 		}
 
 		if (($data["poll"] == "") || (in_array($data["network"], [NETWORK_FEED, NETWORK_PHANTOM]))) {
-			$fields = ['last_failure' => Temporal::convert()];
+			$fields = ['last_failure' => Temporal::utcNow()];
 			dba::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
 
 			logger("Profile ".$profile." wasn't reachable (profile)", LOGGER_DEBUG);
@@ -484,7 +484,7 @@ class PortableContact
 		$feedret = Network::curl($data["poll"]);
 
 		if (!$feedret["success"]) {
-			$fields = ['last_failure' => Temporal::convert()];
+			$fields = ['last_failure' => Temporal::utcNow()];
 			dba::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
 
 			logger("Profile ".$profile." wasn't reachable (no feed)", LOGGER_DEBUG);
@@ -533,7 +533,7 @@ class PortableContact
 
 	public static function updateNeeded($created, $updated, $last_failure, $last_contact)
 	{
-		$now = strtotime(Temporal::convert());
+		$now = strtotime(Temporal::utcNow());
 
 		if ($updated > $last_contact) {
 			$contact_time = strtotime($updated);
@@ -922,7 +922,7 @@ class PortableContact
 		$gserver = dba::selectFirst('gserver', [], ['nurl' => normalise_link($server_url)]);
 		if (DBM::is_result($gserver)) {
 			if ($gserver["created"] <= NULL_DATE) {
-				$fields = ['created' => Temporal::convert()];
+				$fields = ['created' => Temporal::utcNow()];
 				$condition = ['nurl' => normalise_link($server_url)];
 				dba::update('gserver', $fields, $condition);
 			}
@@ -969,7 +969,7 @@ class PortableContact
 		// Mastodon uses the "@" for user profiles.
 		// But this can be misunderstood.
 		if (parse_url($server_url, PHP_URL_USER) != '') {
-			dba::update('gserver', ['last_failure' => Temporal::convert()], ['nurl' => normalise_link($server_url)]);
+			dba::update('gserver', ['last_failure' => Temporal::utcNow()], ['nurl' => normalise_link($server_url)]);
 			return false;
 		}
 
@@ -985,7 +985,7 @@ class PortableContact
 		if (DBM::is_result($gserver) && ($orig_server_url == $server_url) &&
 			($serverret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
 			logger("Connection to server ".$server_url." timed out.", LOGGER_DEBUG);
-			dba::update('gserver', ['last_failure' => Temporal::convert()], ['nurl' => normalise_link($server_url)]);
+			dba::update('gserver', ['last_failure' => Temporal::utcNow()], ['nurl' => normalise_link($server_url)]);
 			return false;
 		}
 
@@ -1000,7 +1000,7 @@ class PortableContact
 			// Quit if there is a timeout
 			if ($serverret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 				logger("Connection to server ".$server_url." timed out.", LOGGER_DEBUG);
-				dba::update('gserver', ['last_failure' => Temporal::convert()], ['nurl' => normalise_link($server_url)]);
+				dba::update('gserver', ['last_failure' => Temporal::utcNow()], ['nurl' => normalise_link($server_url)]);
 				return false;
 			}
 
@@ -1332,9 +1332,9 @@ class PortableContact
 
 		if ($failure) {
 			$last_contact = $orig_last_contact;
-			$last_failure = Temporal::convert();
+			$last_failure = Temporal::utcNow();
 		} else {
-			$last_contact = Temporal::convert();
+			$last_contact = Temporal::utcNow();
 			$last_failure = $orig_last_failure;
 		}
 
@@ -1362,7 +1362,7 @@ class PortableContact
 			dba::update('gserver', $fields, ['nurl' => normalise_link($server_url)]);
 		} elseif (!$failure) {
 			$fields['nurl'] = normalise_link($server_url);
-			$fields['created'] = Temporal::convert();
+			$fields['created'] = Temporal::utcNow();
 			dba::insert('gserver', $fields);
 		}
 		logger("End discovery for server " . $server_url, LOGGER_DEBUG);
@@ -1526,7 +1526,7 @@ class PortableContact
 				}
 			}
 
-			$fields = ['last_poco_query' => Temporal::convert()];
+			$fields = ['last_poco_query' => Temporal::utcNow()];
 			dba::update('gserver', $fields, ['nurl' => $server["nurl"]]);
 
 			return true;
@@ -1535,7 +1535,7 @@ class PortableContact
 			self::checkServer($server["url"], $server["network"], true);
 
 			// If we couldn't reach the server, we will try it some time later
-			$fields = ['last_poco_query' => Temporal::convert()];
+			$fields = ['last_poco_query' => Temporal::utcNow()];
 			dba::update('gserver', $fields, ['nurl' => $server["nurl"]]);
 
 			return false;
@@ -1561,7 +1561,7 @@ class PortableContact
 			foreach ($r as $server) {
 				if (!self::checkServer($server["url"], $server["network"])) {
 					// The server is not reachable? Okay, then we will try it later
-					$fields = ['last_poco_query' => Temporal::convert()];
+					$fields = ['last_poco_query' => Temporal::utcNow()];
 					dba::update('gserver', $fields, ['nurl' => $server["nurl"]]);
 					continue;
 				}

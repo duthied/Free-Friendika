@@ -137,7 +137,7 @@ function dfrn_request_post(App $a)
 						`request`, `confirm`, `notify`, `poll`, `poco`, `network`, `aes_allow`, `hidden`, `blocked`, `pending`)
 						VALUES ( %d, '%s', '%s', '%s', '%s', '%s' , '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d)",
 						intval(local_user()),
-						Temporal::convert(),
+						Temporal::utcNow(),
 						dbesc($dfrn_url),
 						dbesc(normalise_link($dfrn_url)),
 						$parms['addr'],
@@ -382,7 +382,7 @@ function dfrn_request_post(App $a)
 					`request`, `confirm`, `notify`, `poll`, `poco`, `network`, `blocked`, `pending` )
 					VALUES ( %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d )",
 					intval($uid),
-					dbesc(Temporal::convert()),
+					dbesc(Temporal::utcNow()),
 					$parms['url'],
 					dbesc(normalise_link($url)),
 					$parms['addr'],
@@ -430,7 +430,7 @@ function dfrn_request_post(App $a)
 					((x($_POST,'knowyou') && ($_POST['knowyou'] == 1)) ? 1 : 0),
 					dbesc(notags(trim($_POST['dfrn-request-message']))),
 					dbesc($hash),
-					dbesc(Temporal::convert())
+					dbesc(Temporal::utcNow())
 				);
 			}
 

@@ -240,8 +240,8 @@ function event_store($arr) {
 
 	$a = get_app();
 
-	$arr['created'] = (($arr['created'])     ? $arr['created']         : Temporal::convert());
-	$arr['edited']  = (($arr['edited'])      ? $arr['edited']          : Temporal::convert());
+	$arr['created'] = (($arr['created'])     ? $arr['created']         : Temporal::utcNow());
+	$arr['edited']  = (($arr['edited'])      ? $arr['edited']          : Temporal::utcNow());
 	$arr['type']    = (($arr['type'])        ? $arr['type']            : 'event' );
 	$arr['cid']     = ((intval($arr['cid'])) ? intval($arr['cid'])     : 0);
 	$arr['uri']     = (x($arr, 'uri')        ? $arr['uri']             : item_new_uri($a->get_hostname(), $arr['uid']));

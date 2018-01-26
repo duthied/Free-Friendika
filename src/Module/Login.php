@@ -121,7 +121,7 @@ class Login extends BaseModule
 
 			// if we haven't failed up this point, log them in.
 			$_SESSION['remember'] = $_POST['remember'];
-			$_SESSION['last_login_date'] = Temporal::convert();
+			$_SESSION['last_login_date'] = Temporal::utcNow();
 			authenticate_success($record, true, true);
 
 			if (x($_SESSION, 'return_url')) {
@@ -220,10 +220,10 @@ class Login extends BaseModule
 				// stays logged in for a long time, e.g. with "Remember Me"
 				$login_refresh = false;
 				if (!x($_SESSION['last_login_date'])) {
-					$_SESSION['last_login_date'] = Temporal::convert();
+					$_SESSION['last_login_date'] = Temporal::utcNow();
 				}
 				if (strcmp(Temporal::convert('now - 12 hours'), $_SESSION['last_login_date']) > 0) {
-					$_SESSION['last_login_date'] = Temporal::convert();
+					$_SESSION['last_login_date'] = Temporal::utcNow();
 					$login_refresh = true;
 				}
 				authenticate_success($user, false, false, $login_refresh);

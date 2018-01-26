@@ -147,7 +147,7 @@ class Cache
 			$memcache->set(get_app()->get_hostname().":".$key, serialize($value), MEMCACHE_COMPRESSED, self::duration($duration));
 			return;
 		}
-		$fields = ['v' => serialize($value), 'expire_mode' => $duration, 'updated' => Temporal::convert()];
+		$fields = ['v' => serialize($value), 'expire_mode' => $duration, 'updated' => Temporal::utcNow()];
 		$condition = ['k' => $key];
 		dba::update('cache', $fields, $condition, true);
 	}

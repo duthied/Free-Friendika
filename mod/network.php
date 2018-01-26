@@ -790,8 +790,8 @@ function networkThreadedView(App $a, $update = 0)
 			$top_limit = current($r)['order_date'];
 			$bottom_limit = end($r)['order_date'];
 		} else {
-			$top_limit = Temporal::convert();
-			$bottom_limit = Temporal::convert();
+			$top_limit = Temporal::utcNow();
+			$bottom_limit = Temporal::utcNow();
 		}
 
 		// When checking for updates we need to fetch from the newest date to the newest date before
@@ -804,7 +804,7 @@ function networkThreadedView(App $a, $update = 0)
 			$top_limit = $last_date;
 		} elseif ($a->pager['page'] == 1) {
 			// Highest possible top limit when we are on the first page
-			$top_limit = Temporal::convert();
+			$top_limit = Temporal::utcNow();
 		}
 
 		$items = dba::p("SELECT `item`.`id` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid` FROM `item`

@@ -1406,8 +1406,8 @@ class DFRN
 			VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
 			intval($contact["uid"]),
 			intval($contact["id"]),
-			dbesc(Temporal::convert()),
-			dbesc(Temporal::convert()),
+			dbesc(Temporal::utcNow()),
+			dbesc(Temporal::utcNow()),
 			dbesc(Temporal::convert($birthday)),
 			dbesc(Temporal::convert($birthday . " + 1 day ")),
 			dbesc($bdtext),
@@ -1889,7 +1889,7 @@ class DFRN
 			intval($suggest["cid"]),
 			dbesc($suggest["body"]),
 			dbesc($hash),
-			dbesc(Temporal::convert()),
+			dbesc(Temporal::utcNow()),
 			intval(0)
 		);
 
@@ -2086,7 +2086,7 @@ class DFRN
 			}
 
 			$fields = ['title' => $item["title"], 'body' => $item["body"],
-					'tag' => $item["tag"], 'changed' => Temporal::convert(),
+					'tag' => $item["tag"], 'changed' => Temporal::utcNow(),
 					'edited' => Temporal::convert($item["edited"])];
 
 			$condition = ["`uri` = ? AND `uid` IN (0, ?)", $item["uri"], $importer["importer_uid"]];
@@ -2836,7 +2836,7 @@ class DFRN
 						`body` = '', `title` = ''
 					WHERE `parent-uri` = '%s' AND `uid` IN (0, %d)",
 					dbesc($when),
-					dbesc(Temporal::convert()),
+					dbesc(Temporal::utcNow()),
 					dbesc($uri),
 					intval($importer["uid"])
 				);
@@ -2849,7 +2849,7 @@ class DFRN
 						`body` = '', `title` = ''
 					WHERE `uri` = '%s' AND `uid` IN (0, %d)",
 					dbesc($when),
-					dbesc(Temporal::convert()),
+					dbesc(Temporal::utcNow()),
 					dbesc($uri),
 					intval($importer["uid"])
 				);

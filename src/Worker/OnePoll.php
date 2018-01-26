@@ -44,7 +44,7 @@ class OnePoll
 			return;
 		}
 
-		$d = Temporal::convert();
+		$d = Temporal::utcNow();
 
 		$contact = dba::selectFirst('contact', [], ['id' => $contact_id]);
 		if (!DBM::is_result($contact)) {
@@ -70,7 +70,7 @@ class OnePoll
 		// Diaspora users, archived users and followers are only checked if they still exist.
 		if ($contact['archive'] || ($contact["network"] == NETWORK_DIASPORA) || ($contact["rel"] == CONTACT_IS_FOLLOWER)) {
 			$last_updated = PortableContact::lastUpdated($contact["url"], true);
-			$updated = Temporal::convert();
+			$updated = Temporal::utcNow();
 			if ($last_updated) {
 				logger('Contact '.$contact['id'].' had last update on '.$last_updated, LOGGER_DEBUG);
 
@@ -99,7 +99,7 @@ class OnePoll
 			$contact['priority'] = intval($poll_interval);
 			$hub_update = false;
 
-			if (Temporal::convert('now') > Temporal::convert($t . " + 1 day")) {
+			if (Temporal::utcNow() > Temporal::convert($t . " + 1 day")) {
 				$hub_update = true;
 			}
 		} else {
@@ -117,7 +117,7 @@ class OnePoll
 				logger("Skipping probably dead contact ".$contact['url']);
 
 				// set the last-update so we don't keep polling
-				dba::update('contact', ['last-update' => Temporal::convert()], ['id' => $contact['id']]);
+				dba::update('contact', ['last-update' => Temporal::utcNow()], ['id' => $contact['id']]);
 				return;
 			}
 
@@ -126,7 +126,7 @@ class OnePoll
 				logger('Contact is marked dead');
 
 				// set the last-update so we don't keep polling
-				dba::update('contact', ['last-update' => Temporal::convert()], ['id' => $contact['id']]);
+				dba::update('contact', ['last-update' => Temporal::utcNow()], ['id' => $contact['id']]);
 				return;
 			} else {
 				Contact::unmarkForArchival($contact);
@@ -137,7 +137,7 @@ class OnePoll
 			logger('Ignore public contacts');
 
 			// set the last-update so we don't keep polling
-			dba::update('contact', ['last-update' => Temporal::convert()], ['id' => $contact['id']]);
+			dba::update('contact', ['last-update' => Temporal::utcNow()], ['id' => $contact['id']]);
 			return;
 		}
 
@@ -149,7 +149,7 @@ class OnePoll
 			logger('No self contact for user '.$importer_uid);
 
 			// set the last-update so we don't keep polling
-			dba::update('contact', ['last-update' => Temporal::convert()], ['id' => $contact['id']]);
+			dba::update('contact', ['last-update' => Temporal::utcNow()], ['id' => $contact['id']]);
 			return;
 		}
 
@@ -185,7 +185,7 @@ class OnePoll
 
 			if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 				// set the last-update so we don't keep polling
-				dba::update('contact', ['last-update' => Temporal::convert()], ['id' => $contact['id']]);
+				dba::update('contact', ['last-update' => Temporal::utcNow()], ['id' => $contact['id']]);
 				Contact::markForArchival($contact);
 				return;
 			}
@@ -207,7 +207,7 @@ class OnePoll
 				Contact::markForArchival($contact);
 
 				// set the last-update so we don't keep polling
-				$fields = ['last-update' => Temporal::convert(), 'failure_update' => Temporal::convert()];
+				$fields = ['last-update' => Temporal::utcNow(), 'failure_update' => Temporal::utcNow()];
 				self::updateContact($contact, $fields);
 				return;
 			}
@@ -217,7 +217,7 @@ class OnePoll
 
 				Contact::markForArchival($contact);
 
-				$fields = ['last-update' => Temporal::convert(), 'failure_update' => Temporal::convert()];
+				$fields = ['last-update' => Temporal::utcNow(), 'failure_update' => Temporal::utcNow()];
 				self::updateContact($contact, $fields);
 				return;
 			}
@@ -230,7 +230,7 @@ class OnePoll
 
 				// we may not be friends anymore. Will keep trying for one month.
 				// set the last-update so we don't keep polling
-				$fields = ['last-update' => Temporal::convert(), 'failure_update' => Temporal::convert()];
+				$fields = ['last-update' => Temporal::utcNow(), 'failure_update' => Temporal::utcNow()];
 				self::updateContact($contact, $fields);
 
 				Contact::markForArchival($contact);
@@ -241,7 +241,7 @@ class OnePoll
 
 			if ((intval($res->status) != 0) || !strlen($res->challenge) || !strlen($res->dfrn_id)) {
 				// set the last-update so we don't keep polling
-				dba::update('contact', ['last-update' => Temporal::convert()], ['id' => $contact['id']]);
+				dba::update('contact', ['last-update' => Temporal::utcNow()], ['id' => $contact['id']]);
 				return;
 			}
 
@@ -276,7 +276,7 @@ class OnePoll
 				logger('ID did not decode: ' . $contact['id'] . ' orig: ' . $orig_id . ' final: ' . $final_dfrn_id);
 
 				// set the last-update so we don't keep polling
-				dba::update('contact', ['last-update' => Temporal::convert()], ['id' => $contact['id']]);
+				dba::update('contact', ['last-update' => Temporal::utcNow()], ['id' => $contact['id']]);
 				Contact::markForArchival($contact);
 				return;
 			}
@@ -311,7 +311,7 @@ class OnePoll
 
 			if ($contact['rel'] == CONTACT_IS_FOLLOWER || $contact['blocked'] || $contact['readonly']) {
 				// set the last-update so we don't keep polling
-				dba::update('contact', ['last-update' => Temporal::convert()], ['id' => $contact['id']]);
+				dba::update('contact', ['last-update' => Temporal::utcNow()], ['id' => $contact['id']]);
 				return;
 			}
 
@@ -321,7 +321,7 @@ class OnePoll
 
 			if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 				// set the last-update so we don't keep polling
-				dba::update('contact', ['last-update' => Temporal::convert()], ['id' => $contact['id']]);
+				dba::update('contact', ['last-update' => Temporal::utcNow()], ['id' => $contact['id']]);
 				Contact::markForArchival($contact);
 				return;
 			}
@@ -335,7 +335,7 @@ class OnePoll
 			$mail_disabled = ((function_exists('imap_open') && (! Config::get('system', 'imap_disabled'))) ? 0 : 1);
 			if ($mail_disabled) {
 				// set the last-update so we don't keep polling
-				dba::update('contact', ['last-update' => Temporal::convert()], ['id' => $contact['id']]);
+				dba::update('contact', ['last-update' => Temporal::utcNow()], ['id' => $contact['id']]);
 				Contact::markForArchival($contact);
 				return;
 			}
@@ -355,7 +355,7 @@ class OnePoll
 				unset($password);
 				logger("Mail: Connect to " . $mailconf['user']);
 				if ($mbox) {
-					$fields = ['last_check' => Temporal::convert()];
+					$fields = ['last_check' => Temporal::utcNow()];
 					dba::update('mailacct', $fields, ['id' => $mailconf['id']]);
 					logger("Mail: Connected to " . $mailconf['user']);
 				} else {
@@ -395,7 +395,7 @@ class OnePoll
 								// Only delete when mails aren't automatically moved or deleted
 								if (($mailconf['action'] != 1) && ($mailconf['action'] != 3))
 									if ($meta->deleted && ! $item['deleted']) {
-										$fields = ['deleted' => true, 'changed' => Temporal::convert()];
+										$fields = ['deleted' => true, 'changed' => Temporal::utcNow()];
 										dba::update('item', $fields, ['id' => $item['id']]);
 									}
 
@@ -572,7 +572,7 @@ class OnePoll
 			if (!strstr($xml, '<')) {
 				logger('post_handshake: response from ' . $url . ' did not contain XML.');
 
-				$fields = ['last-update' => Temporal::convert(), 'failure_update' => Temporal::convert()];
+				$fields = ['last-update' => Temporal::utcNow(), 'failure_update' => Temporal::utcNow()];
 				self::updateContact($contact, $fields);
 				Contact::markForArchival($contact);
 				return;
@@ -616,19 +616,19 @@ class OnePoll
 				}
 			}
 
-			$updated = Temporal::convert();
+			$updated = Temporal::utcNow();
 
 			self::updateContact($contact, ['last-update' => $updated, 'success_update' => $updated]);
 			dba::update('gcontact', ['last_contact' => $updated], ['nurl' => $contact['nurl']]);
 			Contact::unmarkForArchival($contact);
 		} elseif (in_array($contact["network"], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_FEED])) {
-			$updated = Temporal::convert();
+			$updated = Temporal::utcNow();
 
 			self::updateContact($contact, ['last-update' => $updated, 'failure_update' => $updated]);
 			dba::update('gcontact', ['last_failure' => $updated], ['nurl' => $contact['nurl']]);
 			Contact::markForArchival($contact);
 		} else {
-			$updated = Temporal::convert();
+			$updated = Temporal::utcNow();
 			dba::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
 		}
 

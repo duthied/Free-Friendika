@@ -139,7 +139,7 @@ function pubsubhubbub_init(App $a) {
 		  dbesc($hub_callback));
 
 		if ($subscribe) {
-			$last_update = Temporal::convert();
+			$last_update = Temporal::utcNow();
 			$push_flag = 0;
 
 			// if we are just updating an old subscription, keep the

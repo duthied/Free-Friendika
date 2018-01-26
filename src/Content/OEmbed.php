@@ -113,7 +113,7 @@ class OEmbed
 						'url' => normalise_link($embedurl),
 						'maxwidth' => $a->videowidth,
 						'content' => $txt,
-						'created' => Temporal::convert()
+						'created' => Temporal::utcNow()
 					], true);
 				}
 

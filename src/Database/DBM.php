@@ -126,6 +126,6 @@ class DBM
 			$timestamp = -62135596800;
 		}
 
-		return date('Y-m-d H:i:s', (int)$timestamp);
+		return date(Temporal::MYSQL, (int)$timestamp);
 	}
 }

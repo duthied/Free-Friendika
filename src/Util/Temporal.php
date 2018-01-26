@@ -124,6 +124,17 @@ class Temporal
 	}
 
 	/**
+	 * convert() shorthand for UTC now.
+	 *
+	 * @param string $format DateTime format string or Temporal constant
+	 * @return string
+	 */
+	public static function utcNow($format = self::MYSQL)
+	{
+		return self::convert('now', 'UTC', 'UTC', $format);
+	}
+
+	/**
 	 * @brief General purpose date parse/convert/format function.
 	 *
 	 * @param string $s       Some parseable date/time string

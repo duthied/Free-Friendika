@@ -45,7 +45,7 @@ Class CronHooks {
 
 		logger('cronhooks: start');
 
-		$d = Temporal::convert();
+		$d = Temporal::utcNow();
 
 		if (is_array($a->hooks) && array_key_exists("cron", $a->hooks)) {
 			foreach ($a->hooks["cron"] as $hook) {

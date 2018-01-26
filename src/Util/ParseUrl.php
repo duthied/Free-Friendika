@@ -73,7 +73,7 @@ class ParseUrl
 			[
 				'url' => normalise_link($url), 'guessing' => !$no_guessing,
 				'oembed' => $do_oembed, 'content' => serialize($data),
-				'created' => Temporal::convert()
+				'created' => Temporal::utcNow()
 			],
 			true
 		);

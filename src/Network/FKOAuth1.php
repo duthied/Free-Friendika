@@ -68,7 +68,7 @@ class FKOAuth1 extends OAuthServer
 			$_SESSION['cid'] = $a->cid;
 		}
 
-		dba::update('user', ['login_date' => Temporal::convert()], ['uid' => $_SESSION['uid']]);
+		dba::update('user', ['login_date' => Temporal::utcNow()], ['uid' => $_SESSION['uid']]);
 
 		Addon::callHooks('logged_in', $a->user);
 	}

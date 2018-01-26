@@ -52,7 +52,7 @@ function fsuggest_post(App $a)
 				dbesc($r[0]['request']),
 				dbesc($r[0]['photo']),
 				dbesc($hash),
-				dbesc(Temporal::convert())
+				dbesc(Temporal::utcNow())
 			);
 			$r = q("SELECT `id` FROM `fsuggest` WHERE `note` = '%s' AND `uid` = %d LIMIT 1",
 				dbesc($hash),

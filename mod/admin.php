@@ -740,7 +740,7 @@ function admin_page_summary(App $a)
 	if (!$last_worker_call) {
 		$showwarning = true;
 		$warningtext[] = L10n::t('The worker was never executed. Please check your database structure!');
-	} elseif ((strtotime(Temporal::convert()) - strtotime($last_worker_call)) > 60 * 60) {
+	} elseif ((strtotime(Temporal::utcNow()) - strtotime($last_worker_call)) > 60 * 60) {
 		$showwarning = true;
 		$warningtext[] = L10n::t('The last worker execution was on %s UTC. This is older than one hour. Please check your crontab settings.', $last_worker_call);
 	}

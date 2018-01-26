@@ -82,7 +82,7 @@ class Mail
 			$handles = $recip_handle . ';' . $sender_handle;
 
 			$fields = ['uid' => local_user(), 'guid' => $conv_guid, 'creator' => $sender_handle,
-				'created' => Temporal::convert(), 'updated' => Temporal::convert(),
+				'created' => Temporal::utcNow(), 'updated' => Temporal::utcNow(),
 				'subject' => $subject, 'recips' => $handles];
 			if (dba::insert('conv', $fields)) {
 				$convid = dba::lastInsertId();
@@ -116,7 +116,7 @@ class Mail
 				'replied' => 0,
 				'uri' => $uri,
 				'parent-uri' => $replyto,
-				'created' => Temporal::convert()
+				'created' => Temporal::utcNow()
 			]
 		);
 
@@ -196,7 +196,7 @@ class Mail
 
 		$convid = null;
 		$fields = ['uid' => $recipient['uid'], 'guid' => $conv_guid, 'creator' => $sender_handle,
-			'created' => Temporal::convert(), 'updated' => Temporal::convert(),
+			'created' => Temporal::utcNow(), 'updated' => Temporal::utcNow(),
 			'subject' => $subject, 'recips' => $handles];
 		if (dba::insert('conv', $fields)) {
 			$convid = dba::lastInsertId();
@@ -224,7 +224,7 @@ class Mail
 				'replied' => 0,
 				'uri' => $uri,
 				'parent-uri' => $replyto,
-				'created' => Temporal::convert(),
+				'created' => Temporal::utcNow(),
 				'unknown' => 1
 			]
 		);

@@ -118,7 +118,7 @@ function register_post(App $a)
 		$hash = random_string();
 		$r = q("INSERT INTO `register` ( `hash`, `created`, `uid`, `password`, `language`, `note` ) VALUES ( '%s', '%s', %d, '%s', '%s', '%s' ) ",
 			dbesc($hash),
-			dbesc(Temporal::convert()),
+			dbesc(Temporal::utcNow()),
 			intval($user['uid']),
 			dbesc($result['password']),
 			dbesc($lang),

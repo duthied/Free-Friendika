@@ -198,7 +198,7 @@ class DiscoverPoCo {
 				}
 			} else {
 				q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
-					dbesc(Temporal::convert()), dbesc(normalise_link($user["url"])));
+					dbesc(Temporal::utcNow()), dbesc(normalise_link($user["url"])));
 			}
 
 			// Quit the loop after 3 minutes

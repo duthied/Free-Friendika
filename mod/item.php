@@ -601,11 +601,11 @@ function item_post(App $a) {
 	$datarray['author-link']   = $author['url'];
 	$datarray['author-avatar'] = $author['thumb'];
 	$datarray['author-id']     = Contact::getIdForURL($datarray['author-link'], 0);
-	$datarray['created']       = Temporal::convert();
-	$datarray['edited']        = Temporal::convert();
-	$datarray['commented']     = Temporal::convert();
-	$datarray['received']      = Temporal::convert();
-	$datarray['changed']       = Temporal::convert();
+	$datarray['created']       = Temporal::utcNow();
+	$datarray['edited']        = Temporal::utcNow();
+	$datarray['commented']     = Temporal::utcNow();
+	$datarray['received']      = Temporal::utcNow();
+	$datarray['changed']       = Temporal::utcNow();
 	$datarray['extid']         = $extid;
 	$datarray['guid']          = $guid;
 	$datarray['uri']           = $uri;
@@ -709,8 +709,8 @@ function item_post(App $a) {
 			'file' => $datarray['file'],
 			'rendered-html' => $datarray['rendered-html'],
 			'rendered-hash' => $datarray['rendered-hash'],
-			'edited' => Temporal::convert(),
-			'changed' => Temporal::convert()];
+			'edited' => Temporal::utcNow(),
+			'changed' => Temporal::utcNow()];
 
 		Item::update($fields, ['id' => $post_id]);
 

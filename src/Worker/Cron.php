@@ -71,7 +71,7 @@ Class Cron {
 
 		// once daily run birthday_updates and then expire in background
 		$d1 = Config::get('system', 'last_expire_day');
-		$d2 = intval(Temporal::convert('now', 'UTC', 'UTC', 'd'));
+		$d2 = intval(Temporal::utcNow('d'));
 
 		if ($d2 != intval($d1)) {
 
@@ -142,7 +142,7 @@ Class Cron {
 
 		Addon::reload();
 
-		$d = Temporal::convert();
+		$d = Temporal::utcNow();
 
 		// Only poll from those with suitable relationships,
 		// and which have a polling address and ignore Diaspora since
@@ -218,33 +218,33 @@ Class Cron {
 				 */
 				switch ($contact['priority']) {
 					case 5:
-						if (Temporal::convert('now') > Temporal::convert($t . " + 1 month")) {
+						if (Temporal::utcNow() > Temporal::convert($t . " + 1 month")) {
 							$update = true;
 						}
 						break;
 					case 4:
-						if (Temporal::convert('now') > Temporal::convert($t . " + 1 week")) {
+						if (Temporal::utcNow() > Temporal::convert($t . " + 1 week")) {
 							$update = true;
 						}
 						break;
 					case 3:
-						if (Temporal::convert('now') > Temporal::convert($t . " + 1 day")) {
+						if (Temporal::utcNow() > Temporal::convert($t . " + 1 day")) {
 							$update = true;
 						}
 						break;
 					case 2:
-						if (Temporal::convert('now') > Temporal::convert($t . " + 12 hour")) {
+						if (Temporal::utcNow() > Temporal::convert($t . " + 12 hour")) {
 							$update = true;
 						}
 						break;
 					case 1:
-						if (Temporal::convert('now') > Temporal::convert($t . " + 1 hour")) {
+						if (Temporal::utcNow() > Temporal::convert($t . " + 1 hour")) {
 							$update = true;
 						}
 						break;
 					case 0:
 					default:
-						if (Temporal::convert('now') > Temporal::convert($t . " + ".$min_poll_interval." minute")) {
+						if (Temporal::utcNow() > Temporal::convert($t . " + ".$min_poll_interval." minute")) {
 							$update = true;
 						}
 						break;

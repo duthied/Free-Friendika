@@ -631,7 +631,7 @@ function settings_post(App $a)
 	if ($name_change) {
 		q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `self`",
 			dbesc($username),
-			dbesc(Temporal::convert()),
+			dbesc(Temporal::utcNow()),
 			intval(local_user())
 		);
 	}

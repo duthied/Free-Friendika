@@ -149,7 +149,7 @@ class Item extends BaseObject
 
 		// Set the item to "deleted"
 		dba::update('item', ['deleted' => true, 'title' => '', 'body' => '',
-					'edited' => Temporal::convert(), 'changed' => Temporal::convert()],
+					'edited' => Temporal::utcNow(), 'changed' => Temporal::utcNow()],
 				['id' => $item['id']]);
 
 		create_tags_from_item($item['id']);
