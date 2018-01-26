@@ -5,6 +5,7 @@
 namespace Friendica\Database;
 
 use dba;
+use Friendica\Util\Temporal;
 
 require_once 'include/dba.php';
 
