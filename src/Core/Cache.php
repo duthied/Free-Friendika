@@ -165,21 +165,21 @@ class Cache
 		if (Config::get("system", "cache_cleared_day") < time() - self::duration(CACHE_DAY)) {
 			if ($max_level == CACHE_MONTH) {
 				$condition = ["`updated` < ? AND `expire_mode` = ?",
-						Temporal::convert("now - 30 days"),
+						Temporal::utc("now - 30 days"),
 						CACHE_MONTH];
 				dba::delete('cache', $condition);
 			}
 
 			if ($max_level <= CACHE_WEEK) {
 				$condition = ["`updated` < ? AND `expire_mode` = ?",
-						Temporal::convert("now - 7 days"),
+						Temporal::utc("now - 7 days"),
 						CACHE_WEEK];
 				dba::delete('cache', $condition);
 			}
 
 			if ($max_level <= CACHE_DAY) {
 				$condition = ["`updated` < ? AND `expire_mode` = ?",
-						Temporal::convert("now - 1 days"),
+						Temporal::utc("now - 1 days"),
 						CACHE_DAY];
 				dba::delete('cache', $condition);
 			}
@@ -188,7 +188,7 @@ class Cache
 
 		if (($max_level <= CACHE_HOUR) && (Config::get("system", "cache_cleared_hour")) < time() - self::duration(CACHE_HOUR)) {
 			$condition = ["`updated` < ? AND `expire_mode` = ?",
-					Temporal::convert("now - 1 hours"),
+					Temporal::utc("now - 1 hours"),
 					CACHE_HOUR];
 			dba::delete('cache', $condition);
 
@@ -197,7 +197,7 @@ class Cache
 
 		if (($max_level <= CACHE_HALF_HOUR) && (Config::get("system", "cache_cleared_half_hour")) < time() - self::duration(CACHE_HALF_HOUR)) {
 			$condition = ["`updated` < ? AND `expire_mode` = ?",
-					Temporal::convert("now - 30 minutes"),
+					Temporal::utc("now - 30 minutes"),
 					CACHE_HALF_HOUR];
 			dba::delete('cache', $condition);
 
@@ -206,7 +206,7 @@ class Cache
 
 		if (($max_level <= CACHE_QUARTER_HOUR) && (Config::get("system", "cache_cleared_quarter_hour")) < time() - self::duration(CACHE_QUARTER_HOUR)) {
 			$condition = ["`updated` < ? AND `expire_mode` = ?",
-					Temporal::convert("now - 15 minutes"),
+					Temporal::utc("now - 15 minutes"),
 					CACHE_QUARTER_HOUR];
 			dba::delete('cache', $condition);
 
@@ -215,7 +215,7 @@ class Cache
 
 		if (($max_level <= CACHE_FIVE_MINUTES) && (Config::get("system", "cache_cleared_five_minute")) < time() - self::duration(CACHE_FIVE_MINUTES)) {
 			$condition = ["`updated` < ? AND `expire_mode` = ?",
-					Temporal::convert("now - 5 minutes"),
+					Temporal::utc("now - 5 minutes"),
 					CACHE_FIVE_MINUTES];
 			dba::delete('cache', $condition);
 
@@ -224,7 +224,7 @@ class Cache
 
 		if (($max_level <= CACHE_MINUTE) && (Config::get("system", "cache_cleared_minute")) < time() - self::duration(CACHE_MINUTE)) {
 			$condition = ["`updated` < ? AND `expire_mode` = ?",
-					Temporal::convert("now - 1 minutes"),
+					Temporal::utc("now - 1 minutes"),
 					CACHE_MINUTE];
 			dba::delete('cache', $condition);
 

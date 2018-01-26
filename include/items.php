@@ -437,14 +437,14 @@ function list_post_dates($uid, $wall) {
 		$dyear = intval(substr($dnow, 0, 4));
 		$dstart = substr($dnow, 0, 8) . '01';
 		$dend = substr($dnow, 0, 8) . get_dim(intval($dnow), intval(substr($dnow, 5)));
-		$start_month = Temporal::convert($dstart, 'UTC', 'UTC', 'Y-m-d');
-		$end_month = Temporal::convert($dend, 'UTC', 'UTC', 'Y-m-d');
-		$str = day_translate(Temporal::convert($dnow, 'UTC', 'UTC', 'F'));
+		$start_month = Temporal::utc($dstart, 'Y-m-d');
+		$end_month = Temporal::utc($dend, 'Y-m-d');
+		$str = day_translate(Temporal::utc($dnow, 'F'));
 		if (!$ret[$dyear]) {
 			$ret[$dyear] = [];
 		}
 		$ret[$dyear][] = [$str, $end_month, $start_month];
-		$dnow = Temporal::convert($dnow . ' -1 month', 'UTC', 'UTC', 'Y-m-d');
+		$dnow = Temporal::utc($dnow . ' -1 month', 'Y-m-d');
 	}
 	return $ret;
 }

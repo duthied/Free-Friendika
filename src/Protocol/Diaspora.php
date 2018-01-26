@@ -1654,7 +1654,7 @@ class Diaspora
 		$text = unxmlify($data->text);
 
 		if (isset($data->created_at)) {
-			$created_at = Temporal::convert(notags(unxmlify($data->created_at)));
+			$created_at = Temporal::utc(notags(unxmlify($data->created_at)));
 		} else {
 			$created_at = Temporal::utcNow();
 		}
@@ -1786,7 +1786,7 @@ class Diaspora
 		$msg_guid = notags(unxmlify($mesg->guid));
 		$msg_conversation_guid = notags(unxmlify($mesg->conversation_guid));
 		$msg_text = unxmlify($mesg->text);
-		$msg_created_at = Temporal::convert(notags(unxmlify($mesg->created_at)));
+		$msg_created_at = Temporal::utc(notags(unxmlify($mesg->created_at)));
 
 		if ($msg_conversation_guid != $guid) {
 			logger("message conversation guid does not belong to the current conversation.");
@@ -1865,7 +1865,7 @@ class Diaspora
 		$author = notags(unxmlify($data->author));
 		$guid = notags(unxmlify($data->guid));
 		$subject = notags(unxmlify($data->subject));
-		$created_at = Temporal::convert(notags(unxmlify($data->created_at)));
+		$created_at = Temporal::utc(notags(unxmlify($data->created_at)));
 		$participants = notags(unxmlify($data->participants));
 
 		$messages = $data->message;
@@ -2098,7 +2098,7 @@ class Diaspora
 		$guid = notags(unxmlify($data->guid));
 		$conversation_guid = notags(unxmlify($data->conversation_guid));
 		$text = unxmlify($data->text);
-		$created_at = Temporal::convert(notags(unxmlify($data->created_at)));
+		$created_at = Temporal::utc(notags(unxmlify($data->created_at)));
 
 		$contact = self::allowedContactByHandle($importer, $author, true);
 		if (!$contact) {
@@ -2315,7 +2315,7 @@ class Diaspora
 		$birthday = str_replace("1000", "1901", $birthday);
 
 		if ($birthday != "") {
-			$birthday = Temporal::convert($birthday, "UTC", "UTC", "Y-m-d");
+			$birthday = Temporal::utc($birthday, "Y-m-d");
 		}
 
 		// this is to prevent multiple birthday notifications in a single year
@@ -2716,7 +2716,7 @@ class Diaspora
 	{
 		$author = notags(unxmlify($data->author));
 		$guid = notags(unxmlify($data->guid));
-		$created_at = Temporal::convert(notags(unxmlify($data->created_at)));
+		$created_at = Temporal::utc(notags(unxmlify($data->created_at)));
 		$root_author = notags(unxmlify($data->root_author));
 		$root_guid = notags(unxmlify($data->root_guid));
 		/// @todo handle unprocessed property "provider_display_name"
@@ -2930,7 +2930,7 @@ class Diaspora
 	{
 		$author = notags(unxmlify($data->author));
 		$guid = notags(unxmlify($data->guid));
-		$created_at = Temporal::convert(notags(unxmlify($data->created_at)));
+		$created_at = Temporal::utc(notags(unxmlify($data->created_at)));
 		$public = notags(unxmlify($data->public));
 		$text = unxmlify($data->text);
 		$provider_display_name = notags(unxmlify($data->provider_display_name));
@@ -3652,7 +3652,7 @@ class Diaspora
 
 		$public = (($item["private"]) ? "false" : "true");
 
-		$created = Temporal::convert($item["created"], "UTC", "UTC", Temporal::ATOM);
+		$created = Temporal::utc($item["created"], Temporal::ATOM);
 
 		// Detect a share element and do a reshare
 		if (!$item['private'] && ($ret = self::isReshare($item["body"]))) {
@@ -3855,7 +3855,7 @@ class Diaspora
 		$parent = $p[0];
 
 		$text = html_entity_decode(bb2diaspora($item["body"]));
-		$created = Temporal::convert($item["created"], "UTC", "UTC", Temporal::ATOM);
+		$created = Temporal::utc($item["created"], Temporal::ATOM);
 
 		$comment = ["author" => self::myHandle($owner),
 				"guid" => $item["guid"],
@@ -4086,12 +4086,12 @@ class Diaspora
 			"author" => $cnv["creator"],
 			"guid" => $cnv["guid"],
 			"subject" => $cnv["subject"],
-			"created_at" => Temporal::convert($cnv['created'], "UTC", "UTC", Temporal::ATOM),
+			"created_at" => Temporal::utc($cnv['created'], Temporal::ATOM),
 			"participants" => $cnv["recips"]
 		];
 
 		$body = bb2diaspora($item["body"]);
-		$created = Temporal::convert($item["created"], "UTC", "UTC", Temporal::ATOM);
+		$created = Temporal::utc($item["created"], Temporal::ATOM);
 
 		$msg = [
 			"author" => $myaddr,
@@ -4109,7 +4109,7 @@ class Diaspora
 					"author" => $cnv["creator"],
 					"guid" => $cnv["guid"],
 					"subject" => $cnv["subject"],
-					"created_at" => Temporal::convert($cnv['created'], "UTC", "UTC", Temporal::ATOM),
+					"created_at" => Temporal::utc($cnv['created'], Temporal::ATOM),
 					"participants" => $cnv["recips"],
 					"message" => $msg];
 
@@ -4217,7 +4217,7 @@ class Diaspora
 				if ($year < 1004) {
 					$year = 1004;
 				}
-				$dob = Temporal::convert($year . '-' . $month . '-'. $day, 'UTC', 'UTC', 'Y-m-d');
+				$dob = Temporal::utc($year . '-' . $month . '-'. $day, 'Y-m-d');
 			}
 
 			$about = $profile['about'];

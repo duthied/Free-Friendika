@@ -92,7 +92,7 @@ function lostpass_content(App $a)
 		}
 
 		// Password reset requests expire in 60 minutes
-		if ($user['pwdreset_time'] < Temporal::convert('now - 1 hour')) {
+		if ($user['pwdreset_time'] < Temporal::utc('now - 1 hour')) {
 			$fields = [
 				'pwdreset' => null,
 				'pwdreset_time' => null

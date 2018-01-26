@@ -99,7 +99,7 @@ class OnePoll
 			$contact['priority'] = intval($poll_interval);
 			$hub_update = false;
 
-			if (Temporal::utcNow() > Temporal::convert($t . " + 1 day")) {
+			if (Temporal::utcNow() > Temporal::utc($t . " + 1 day")) {
 				$hub_update = true;
 			}
 		} else {
@@ -107,8 +107,8 @@ class OnePoll
 		}
 
 		$last_update = (($contact['last-update'] <= NULL_DATE)
-			? Temporal::convert('now - 7 days', 'UTC', 'UTC', Temporal::ATOM)
-			: Temporal::convert($contact['last-update'], 'UTC', 'UTC', Temporal::ATOM)
+			? Temporal::utc('now - 7 days', Temporal::ATOM)
+			: Temporal::utc($contact['last-update'], Temporal::ATOM)
 		);
 
 		// Update the contact entry
@@ -459,7 +459,7 @@ class OnePoll
 							$datarray['title'] = notags(trim($datarray['title']));
 
 							//$datarray['title'] = notags(trim($meta->subject));
-							$datarray['created'] = Temporal::convert($meta->date);
+							$datarray['created'] = Temporal::utc($meta->date);
 
 							// Is it a reply?
 							$reply = ((substr(strtolower($datarray['title']), 0, 3) == "re:") ||

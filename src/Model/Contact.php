@@ -224,7 +224,7 @@ class Contact extends BaseObject
 
 			/// @todo Check for contact vitality via probing
 			$expiry = $contact['term-date'] . ' + 32 days ';
-			if (Temporal::utcNow() > Temporal::convert($expiry)) {
+			if (Temporal::utcNow() > Temporal::utc($expiry)) {
 				/* Relationship is really truly dead. archive them rather than
 				 * delete, though if the owner tries to unarchive them we'll start
 				 * the whole process over again.
@@ -688,7 +688,7 @@ class Contact extends BaseObject
 			$contact_id = $contact["id"];
 
 			// Update the contact every 7 days
-			$update_contact = ($contact['avatar-date'] < Temporal::convert('now -7 days'));
+			$update_contact = ($contact['avatar-date'] < Temporal::utc('now -7 days'));
 
 			// We force the update if the avatar is empty
 			if (!x($contact, 'avatar')) {
@@ -1485,7 +1485,7 @@ class Contact extends BaseObject
 			foreach ($r as $rr) {
 				logger('update_contact_birthday: ' . $rr['bd']);
 
-				$nextbd = Temporal::convert('Y') . substr($rr['bd'], 4);
+				$nextbd = Temporal::utcNow('Y') . substr($rr['bd'], 4);
 
 				/*
 				 * Add new birthday event for this person
@@ -1497,7 +1497,7 @@ class Contact extends BaseObject
 
 				// Check for duplicates
 				$s = q("SELECT `id` FROM `event` WHERE `uid` = %d AND `cid` = %d AND `start` = '%s' AND `type` = '%s' LIMIT 1",
-					intval($rr['uid']), intval($rr['id']), dbesc(Temporal::convert($nextbd)), dbesc('birthday'));
+					intval($rr['uid']), intval($rr['id']), dbesc(Temporal::utc($nextbd)), dbesc('birthday'));
 
 				if (DBM::is_result($s)) {
 					continue;
@@ -1508,8 +1508,8 @@ class Contact extends BaseObject
 
 				q("INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`,`adjust`)
 				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d' ) ", intval($rr['uid']), intval($rr['id']),
-					dbesc(Temporal::utcNow()), dbesc(Temporal::utcNow()), dbesc(Temporal::convert($nextbd)),
-					dbesc(Temporal::convert($nextbd . ' + 1 day ')), dbesc($bdtext), dbesc($bdtext2), dbesc('birthday'),
+					dbesc(Temporal::utcNow()), dbesc(Temporal::utcNow()), dbesc(Temporal::utc($nextbd)),
+					dbesc(Temporal::utc($nextbd . ' + 1 day ')), dbesc($bdtext), dbesc($bdtext2), dbesc('birthday'),
 					intval(0)
 				);
 

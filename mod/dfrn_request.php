@@ -241,7 +241,7 @@ function dfrn_request_post(App $a)
 		// Block friend request spam
 		if ($maxreq) {
 			$r = q("SELECT * FROM `intro` WHERE `datetime` > '%s' AND `uid` = %d",
-				dbesc(Temporal::convert('now - 24 hours')),
+				dbesc(Temporal::utc('now - 24 hours')),
 				intval($uid)
 			);
 			if (DBM::is_result($r) && count($r) > $maxreq) {

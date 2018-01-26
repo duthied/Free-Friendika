@@ -245,17 +245,17 @@ function format_event_diaspora($ev) {
 
 	// @todo What. Is. Going. On. With. This. Useless. Ternary. Operator? - mrpetovan
 	$o .= L10n::t('Starts:') . ' ' . '['
-		. (($ev['adjust']) ? day_translate(Temporal::convert($ev['start'], 'UTC', 'UTC', $bd_format))
-			:  day_translate(Temporal::convert($ev['start'], 'UTC', 'UTC', $bd_format))
+		. (($ev['adjust']) ? day_translate(Temporal::utc($ev['start'], $bd_format))
+			:  day_translate(Temporal::convert($ev['start'], $bd_format))
 		)
-		.  '](' . System::baseUrl() . '/localtime/?f=&time=' . urlencode(Temporal::convert($ev['start'])) . ")\n";
+		.  '](' . System::baseUrl() . '/localtime/?f=&time=' . urlencode(Temporal::utc($ev['start'])) . ")\n";
 
 	if (! $ev['nofinish']) {
 		$o .= L10n::t('Finishes:') . ' ' . '['
-			. (($ev['adjust']) ? day_translate(Temporal::convert($ev['finish'], 'UTC', 'UTC', $bd_format))
-				:  day_translate(Temporal::convert($ev['finish'], 'UTC', 'UTC', $bd_format))
+			. (($ev['adjust']) ? day_translate(Temporal::utc($ev['finish'], $bd_format))
+				:  day_translate(Temporal::utc($ev['finish'], $bd_format))
 			)
-			. '](' . System::baseUrl() . '/localtime/?f=&time=' . urlencode(Temporal::convert($ev['finish'])) . ")\n";
+			. '](' . System::baseUrl() . '/localtime/?f=&time=' . urlencode(Temporal::utc($ev['finish'])) . ")\n";
 	}
 
 	if (strlen($ev['location'])) {

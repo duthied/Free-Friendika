@@ -203,8 +203,8 @@ function cal_content(App $a)
 			}
 		}
 
-		$start = Temporal::convert($start);
-		$finish = Temporal::convert($finish);
+		$start = Temporal::utc($start);
+		$finish = Temporal::utc($finish);
 
 		$adjust_start = Temporal::convert($start, date_default_timezone_get());
 		$adjust_finish = Temporal::convert($finish, date_default_timezone_get());
@@ -231,7 +231,7 @@ function cal_content(App $a)
 		if (DBM::is_result($r)) {
 			$r = sort_by_date($r);
 			foreach ($r as $rr) {
-				$j = (($rr['adjust']) ? Temporal::convert($rr['start'], date_default_timezone_get(), 'UTC', 'j') : Temporal::convert($rr['start'], 'UTC', 'UTC', 'j'));
+				$j = $rr['adjust'] ? Temporal::convert($rr['start'], date_default_timezone_get(), 'UTC', 'j') : Temporal::utc($rr['start'], 'j');
 				if (!x($links, $j)) {
 					$links[$j] = System::baseUrl() . '/' . $a->cmd . '#link-' . $j;
 				}

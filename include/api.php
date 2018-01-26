@@ -111,7 +111,7 @@ function api_source()
 function api_date($str)
 {
 	// Wed May 23 06:01:13 +0000 2007
-	return Temporal::convert($str, 'UTC', 'UTC', "D M d H:i:s +0000 Y");
+	return Temporal::utc($str, "D M d H:i:s +0000 Y");
 }
 
 /**
@@ -3207,7 +3207,7 @@ function api_account_rate_limit_status($type)
 				'@attributes' => ["type" => "integer"],
 				'hourly-limit' => '150',
 				'@attributes2' => ["type" => "integer"],
-				'reset-time' => Temporal::convert('now + 1 hour', 'UTC', 'UTC', Temporal::ATOM),
+				'reset-time' => Temporal::utc('now + 1 hour', Temporal::ATOM),
 				'@attributes3' => ["type" => "datetime"],
 				'reset_time_in_seconds' => strtotime('now + 1 hour'),
 				'@attributes4' => ["type" => "integer"],
@@ -3217,7 +3217,7 @@ function api_account_rate_limit_status($type)
 				'reset_time_in_seconds' => strtotime('now + 1 hour'),
 				'remaining_hits' => '150',
 				'hourly_limit' => '150',
-				'reset_time' => api_date(Temporal::convert('now + 1 hour', 'UTC', 'UTC', Temporal::ATOM)),
+				'reset_time' => api_date(Temporal::utc('now + 1 hour', Temporal::ATOM)),
 			];
 	}
 

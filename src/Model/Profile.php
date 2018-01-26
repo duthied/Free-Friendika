@@ -556,7 +556,7 @@ class Profile
 				WHERE `event`.`uid` = ? AND `type` = 'birthday' AND `start` < ? AND `finish` > ?
 				ORDER BY `start` ASC ",
 				local_user(),
-				Temporal::convert('now + 6 days'),
+				Temporal::utc('now + 6 days'),
 				Temporal::utcNow()
 			);
 			if (DBM::is_result($s)) {
@@ -644,8 +644,8 @@ class Profile
 			WHERE `event`.`uid` = ? AND `type` != 'birthday' AND `start` < ? AND `start` >= ?
 			ORDER BY `start` ASC ",
 			local_user(),
-			Temporal::convert('now + 7 days'),
-			Temporal::convert('now - 1 days')
+			Temporal::utc('now + 7 days'),
+			Temporal::utc('now - 1 days')
 		);
 
 		$r = [];
@@ -729,9 +729,11 @@ class Profile
 				$year_bd_format = L10n::t('j F, Y');
 				$short_bd_format = L10n::t('j F');
 
-				$val = intval($a->profile['dob']) ?
-					day_translate(Temporal::convert($a->profile['dob'] . ' 00:00 +00:00', 'UTC', 'UTC', $year_bd_format))
-					: day_translate(Temporal::convert('2001-' . substr($a->profile['dob'], 'UTC', 'UTC', 5) . ' 00:00 +00:00', $short_bd_format));
+				$val = day_translate(
+					intval($a->profile['dob']) ?
+						Temporal::utc($a->profile['dob'] . ' 00:00 +00:00', $year_bd_format)
+						: Temporal::utc('2001-' . substr($a->profile['dob'], 5) . ' 00:00 +00:00', $short_bd_format)
+				);
 
 				$profile['birthday'] = [L10n::t('Birthday:'), $val];
 			}

@@ -218,10 +218,11 @@ function profiles_post(App $a) {
 				$ignore_year = true;
 				$dob = substr($dob, 5);
 			}
-			$dob = Temporal::convert((($ignore_year) ? '1900-' . $dob : $dob), 'UTC', 'UTC', (($ignore_year) ? 'm-d' : 'Y-m-d'));
 
 			if ($ignore_year) {
-				$dob = '0000-' . $dob;
+				$dob = '0000-' . Temporal::utc('1900-' . $dob, 'm-d');
+			} else {
+				$dob = Temporal::utc($dob, 'Y-m-d');
 			}
 		}
 

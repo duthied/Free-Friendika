@@ -1273,7 +1273,7 @@ class OStatus
 		XML::addElement($doc, $root, "title", $title);
 		XML::addElement($doc, $root, "subtitle", sprintf("Updates from %s on %s", $owner["name"], $a->config["sitename"]));
 		XML::addElement($doc, $root, "logo", $owner["photo"]);
-		XML::addElement($doc, $root, "updated", Temporal::convert("now", "UTC", "UTC", Temporal::ATOM));
+		XML::addElement($doc, $root, "updated", Temporal::utcNow(Temporal::ATOM));
 
 		$author = self::addAuthor($doc, $owner);
 		$root->appendChild($author);
@@ -1539,7 +1539,7 @@ class OStatus
 		XML::addElement($doc, $source, "link", "", ["rel" => "alternate", "type" => "text/html", "href" => $contact["alias"]]);
 		XML::addElement($doc, $source, "link", "", ["rel" => "self", "type" => "application/atom+xml", "href" => $contact["poll"]]);
 		XML::addElement($doc, $source, "icon", $contact["photo"]);
-		XML::addElement($doc, $source, "updated", Temporal::convert($contact["success_update"]."+00:00", "UTC", "UTC", Temporal::ATOM));
+		XML::addElement($doc, $source, "updated", Temporal::utc($contact["success_update"]."+00:00", Temporal::ATOM));
 
 		return $source;
 	}
@@ -1923,8 +1923,8 @@ class OStatus
 
 		XML::addElement($doc, $entry, "activity:verb", $verb);
 
-		XML::addElement($doc, $entry, "published", Temporal::convert($item["created"]."+00:00", "UTC", "UTC", Temporal::ATOM));
-		XML::addElement($doc, $entry, "updated", Temporal::convert($item["edited"]."+00:00", "UTC", "UTC", Temporal::ATOM));
+		XML::addElement($doc, $entry, "published", Temporal::utc($item["created"]."+00:00", Temporal::ATOM));
+		XML::addElement($doc, $entry, "updated", Temporal::utc($item["edited"]."+00:00", Temporal::ATOM));
 	}
 
 	/**
@@ -2127,7 +2127,7 @@ class OStatus
 			$last_update = 'now -30 days';
 		}
 
-		$check_date = Temporal::convert($last_update);
+		$check_date = Temporal::utc($last_update);
 		$authorid = Contact::getIdForURL($owner["url"], 0);
 
 		$sql_extra = '';

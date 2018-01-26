@@ -225,7 +225,7 @@ function ping_init(App $a)
 				WHERE `event`.`uid` = %d AND `start` < '%s' AND `finish` > '%s' and `ignore` = 0
 				ORDER BY `start` ASC ",
 				intval(local_user()),
-				dbesc(Temporal::convert('now + 7 days')),
+				dbesc(Temporal::utc('now + 7 days')),
 				dbesc(Temporal::utcNow())
 			);
 			if (DBM::is_result($ev)) {

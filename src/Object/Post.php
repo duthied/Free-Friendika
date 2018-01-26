@@ -301,7 +301,7 @@ class Post extends BaseObject
 
 		$comment = $this->getCommentBox($indent);
 
-		if (strcmp(Temporal::convert($item['created']), Temporal::convert('now - 12 hours')) > 0) {
+		if (strcmp(Temporal::utc($item['created']), Temporal::utc('now - 12 hours')) > 0) {
 			$shiny = 'shiny';
 		}
 

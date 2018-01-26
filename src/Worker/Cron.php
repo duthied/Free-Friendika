@@ -218,33 +218,33 @@ Class Cron {
 				 */
 				switch ($contact['priority']) {
 					case 5:
-						if (Temporal::utcNow() > Temporal::convert($t . " + 1 month")) {
+						if (Temporal::utcNow() > Temporal::utc($t . " + 1 month")) {
 							$update = true;
 						}
 						break;
 					case 4:
-						if (Temporal::utcNow() > Temporal::convert($t . " + 1 week")) {
+						if (Temporal::utcNow() > Temporal::utc($t . " + 1 week")) {
 							$update = true;
 						}
 						break;
 					case 3:
-						if (Temporal::utcNow() > Temporal::convert($t . " + 1 day")) {
+						if (Temporal::utcNow() > Temporal::utc($t . " + 1 day")) {
 							$update = true;
 						}
 						break;
 					case 2:
-						if (Temporal::utcNow() > Temporal::convert($t . " + 12 hour")) {
+						if (Temporal::utcNow() > Temporal::utc($t . " + 12 hour")) {
 							$update = true;
 						}
 						break;
 					case 1:
-						if (Temporal::utcNow() > Temporal::convert($t . " + 1 hour")) {
+						if (Temporal::utcNow() > Temporal::utc($t . " + 1 hour")) {
 							$update = true;
 						}
 						break;
 					case 0:
 					default:
-						if (Temporal::utcNow() > Temporal::convert($t . " + ".$min_poll_interval." minute")) {
+						if (Temporal::utcNow() > Temporal::utc($t . " + ".$min_poll_interval." minute")) {
 							$update = true;
 						}
 						break;

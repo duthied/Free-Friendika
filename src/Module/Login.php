@@ -222,7 +222,7 @@ class Login extends BaseModule
 				if (!x($_SESSION['last_login_date'])) {
 					$_SESSION['last_login_date'] = Temporal::utcNow();
 				}
-				if (strcmp(Temporal::convert('now - 12 hours'), $_SESSION['last_login_date']) > 0) {
+				if (strcmp(Temporal::utc('now - 12 hours'), $_SESSION['last_login_date']) > 0) {
 					$_SESSION['last_login_date'] = Temporal::utcNow();
 					$login_refresh = true;
 				}

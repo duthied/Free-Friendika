@@ -953,7 +953,7 @@ class Worker
 
 		/// @todo We should clean up the corresponding workerqueue entries as well
 		$condition = ["`created` < ? AND `command` = 'worker.php'",
-				Temporal::convert("now - ".$timeout." minutes")];
+				Temporal::utc("now - ".$timeout." minutes")];
 		dba::delete('process', $condition);
 	}
 

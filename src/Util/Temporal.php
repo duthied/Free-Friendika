@@ -113,7 +113,7 @@ class Temporal
 	 */
 	public static function getTimezoneField($name = 'timezone', $label = '', $current = 'America/Los_Angeles', $help = '')
 	{
-		$options = Temporal::getTimezoneSelect($current);
+		$options = self::getTimezoneSelect($current);
 		$options = str_replace('<select id="timezone_select" name="timezone">', '', $options);
 		$options = str_replace('</select>', '', $options);
 
@@ -121,6 +121,18 @@ class Temporal
 		return replace_macros($tpl, [
 			'$field' => [$name, $label, $current, $help, $options],
 		]);
+	}
+
+	/**
+	 * convert() shorthand for UTC.
+	 *
+	 * @param string $time   A date/time string
+	 * @param string $format DateTime format string or Temporal constant
+	 * @return string
+	 */
+	public static function utc($time, $format = self::MYSQL)
+	{
+		return self::convert($time, 'UTC', 'UTC', $format);
 	}
 
 	/**
@@ -209,7 +221,7 @@ class Temporal
 		if ($dob < '0000-01-01') {
 			$value = '';
 		} else {
-			$value = Temporal::convert(($year > 1000) ? $dob : '1000-' . $month . '-' . $day, 'UTC', 'UTC', 'Y-m-d');
+			$value = self::utc(($year > 1000) ? $dob : '1000-' . $month . '-' . $day, 'Y-m-d');
 		}
 
 		$age = (intval($value) ? age($value, $a->user["timezone"], $a->user["timezone"]) : "");
@@ -445,11 +457,11 @@ class Temporal
 			$viewer_tz = date_default_timezone_get();
 		}
 
-		$birthdate = Temporal::convert($dob . ' 00:00:00+00:00', $owner_tz, 'UTC', 'Y-m-d');
+		$birthdate = self::convert($dob . ' 00:00:00+00:00', $owner_tz, 'UTC', 'Y-m-d');
 		list($year, $month, $day) = explode("-", $birthdate);
-		$year_diff = Temporal::convert('now', $viewer_tz, 'UTC', 'Y') - $year;
-		$curr_month = Temporal::convert('now', $viewer_tz, 'UTC', 'm');
-		$curr_day = Temporal::convert('now', $viewer_tz, 'UTC', 'd');
+		$year_diff = self::convert('now', $viewer_tz, 'UTC', 'Y') - $year;
+		$curr_month = self::convert('now', $viewer_tz, 'UTC', 'm');
+		$curr_day = self::convert('now', $viewer_tz, 'UTC', 'd');
 
 		if (($curr_month < $month) || (($curr_month == $month) && ($curr_day < $day))) {
 			$year_diff--;
@@ -489,7 +501,7 @@ class Temporal
 	{
 		$d = sprintf('%04d-%02d-01 00:00', intval($y), intval($m));
 
-		return Temporal::convert($d, 'UTC', 'UTC', 'w');
+		return self::utc($d, 'w');
 	}
 
 	/**
@@ -519,8 +531,8 @@ class Temporal
 			'October', 'November', 'December'
 		];
 
-		$thisyear = Temporal::convert('now', date_default_timezone_get(), 'UTC', 'Y');
-		$thismonth = Temporal::convert('now', date_default_timezone_get(), 'UTC', 'm');
+		$thisyear = self::convert('now', date_default_timezone_get(), 'UTC', 'Y');
+		$thismonth = self::convert('now', date_default_timezone_get(), 'UTC', 'm');
 		if (!$y) {
 			$y = $thisyear;
 		}
@@ -537,7 +549,7 @@ class Temporal
 		$started = false;
 
 		if (($y == $thisyear) && ($m == $thismonth)) {
-			$tddate = intval(Temporal::convert('now', date_default_timezone_get(), 'UTC', 'j'));
+			$tddate = intval(self::convert('now', date_default_timezone_get(), 'UTC', 'j'));
 		}
 
 		$str_month = day_translate($mtab[$m]);
