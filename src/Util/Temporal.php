@@ -22,6 +22,7 @@ require_once 'include/text.php';
 class Temporal
 {
 	const ATOM = 'Y-m-d\TH:i:s\Z';
+	const MYSQL = 'Y-m-d H:i:s';
 
 	/**
 	 * @brief Two-level sort for timezones.
@@ -123,17 +124,17 @@ class Temporal
 	}
 
 	/**
-	 * @brief General purpose date parse/convert function.
+	 * @brief General purpose date parse/convert/format function.
 	 *
-	 * @param string $s    Some parseable date/time string
-	 * @param string $from Source timezone
-	 * @param string $to   Dest timezone
-	 * @param string $fmt  Output format recognised from php's DateTime class
+	 * @param string $s       Some parseable date/time string
+	 * @param string $tz_to   Destination timezone
+	 * @param string $tz_from Source timezone
+	 * @param string $format  Output format recognised from php's DateTime class
 	 *   http://www.php.net/manual/en/datetime.format.php
 	 *
 	 * @return string Formatted date according to given format
 	 */
-	public static function convert($s = 'now', $to = 'UTC', $from = 'UTC', $fmt = "Y-m-d H:i:s")
+	public static function convert($s = 'now', $tz_to = 'UTC', $tz_from = 'UTC', $format = self::MYSQL)
 	{
 		// Defaults to UTC if nothing is set, but throws an exception if set to empty string.
 		// Provide some sane defaults regardless.
@@ -155,14 +156,13 @@ class Temporal
 		 * add 32 days so that we at least get year 00, and then hack around the fact that
 		 * months and days always start with 1.
 		 */
-
 		if (substr($s, 0, 10) <= '0001-01-01') {
 			$d = new DateTime($s . ' + 32 days', new DateTimeZone('UTC'));
-			return str_replace('1', '0', $d->format($fmt));
+			return str_replace('1', '0', $d->format($format));
 		}
 
 		try {
-			$from_obj = new DateTimeZone($from);
+			$from_obj = new DateTimeZone($tz_from);
 		} catch (Exception $e) {
 			$from_obj = new DateTimeZone('UTC');
 		}
@@ -175,14 +175,14 @@ class Temporal
 		}
 
 		try {
-			$to_obj = new DateTimeZone($to);
+			$to_obj = new DateTimeZone($tz_to);
 		} catch (Exception $e) {
 			$to_obj = new DateTimeZone('UTC');
 		}
 
 		$d->setTimeZone($to_obj);
 
-		return $d->format($fmt);
+		return $d->format($format);
 	}
 
 	/**

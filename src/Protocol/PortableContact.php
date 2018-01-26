@@ -144,7 +144,7 @@ class PortableContact
 			}
 
 			if (isset($entry->updated)) {
-				$updated = date("Y-m-d H:i:s", strtotime($entry->updated));
+				$updated = date(Temporal::MYSQL, strtotime($entry->updated));
 			}
 
 			if (isset($entry->network)) {
@@ -1507,7 +1507,7 @@ class PortableContact
 					$timeframe = 30;
 				}
 
-				$updatedSince = date("Y-m-d H:i:s", time() - $timeframe * 86400);
+				$updatedSince = date(Temporal::MYSQL, time() - $timeframe * 86400);
 
 				// Fetch all global contacts from the other server (Not working with Redmatrix and Friendica versions before 3.3)
 				$url = $server["poco"]."/@global?updatedSince=".$updatedSince."&fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation";
@@ -1654,7 +1654,7 @@ class PortableContact
 			}
 
 			if (isset($entry->updated)) {
-				$updated = date("Y-m-d H:i:s", strtotime($entry->updated));
+				$updated = date(Temporal::MYSQL, strtotime($entry->updated));
 			}
 
 			if (isset($entry->network)) {

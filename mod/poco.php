@@ -9,6 +9,7 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Protocol\PortableContact;
+use Friendica\Util\Temporal;
 
 function poco_init(App $a) {
 	$system_mode = false;
@@ -43,7 +44,7 @@ function poco_init(App $a) {
 	if ($a->argc > 1 && $a->argv[1] === '@global') {
 		// List of all profiles that this server recently had data from
 		$global = true;
-		$update_limit = date("Y-m-d H:i:s", time() - 30 * 86400);
+		$update_limit = date(Temporal::MYSQL, time() - 30 * 86400);
 	}
 	if ($a->argc > 2 && $a->argv[2] === '@me') {
 		$justme = true;
@@ -80,7 +81,7 @@ function poco_init(App $a) {
 		$sql_extra = sprintf(" AND `contact`.`id` = %d ", intval($cid));
 	}
 	if (x($_GET, 'updatedSince')) {
-		$update_limit = date("Y-m-d H:i:s", strtotime($_GET['updatedSince']));
+		$update_limit = date(Temporal::MYSQL, strtotime($_GET['updatedSince']));
 	}
 	if ($global) {
 		$contacts = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND `updated` >= `last_failure` AND NOT `hide` AND `network` IN ('%s', '%s', '%s')",

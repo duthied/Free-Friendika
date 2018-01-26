@@ -236,7 +236,7 @@ function profile_content(App $a, $update = 0)
 		if ($is_owner || !$last_updated) {
 			$sql_extra4 = " AND `item`.`unseen`";
 		} else {
-			$gmupdate = gmdate("Y-m-d H:i:s", $last_updated);
+			$gmupdate = gmdate(Temporal::MYSQL, $last_updated);
 			$sql_extra4 = " AND `item`.`received` > '" . $gmupdate . "'";
 		}
 

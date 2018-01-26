@@ -1162,7 +1162,7 @@ function api_statuses_update($type)
 		// Check for throttling (maximum posts per day, week and month)
 		$throttle_day = Config::get('system', 'throttle_limit_day');
 		if ($throttle_day > 0) {
-			$datefrom = date("Y-m-d H:i:s", time() - 24*60*60);
+			$datefrom = date(Temporal::MYSQL, time() - 24*60*60);
 
 			$r = q(
 				"SELECT COUNT(*) AS `posts_day` FROM `item` WHERE `uid`=%d AND `wall`
@@ -1186,7 +1186,7 @@ function api_statuses_update($type)
 
 		$throttle_week = Config::get('system', 'throttle_limit_week');
 		if ($throttle_week > 0) {
-			$datefrom = date("Y-m-d H:i:s", time() - 24*60*60*7);
+			$datefrom = date(Temporal::MYSQL, time() - 24*60*60*7);
 
 			$r = q(
 				"SELECT COUNT(*) AS `posts_week` FROM `item` WHERE `uid`=%d AND `wall`
@@ -1210,7 +1210,7 @@ function api_statuses_update($type)
 
 		$throttle_month = Config::get('system', 'throttle_limit_month');
 		if ($throttle_month > 0) {
-			$datefrom = date("Y-m-d H:i:s", time() - 24*60*60*30);
+			$datefrom = date(Temporal::MYSQL, time() - 24*60*60*30);
 
 			$r = q(
 				"SELECT COUNT(*) AS `posts_month` FROM `item` WHERE `uid`=%d AND `wall`
