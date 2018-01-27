@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "0c4bc39a37462cde6783b1fb90f0e530",
+    "content-hash": "8402715b736c86ea2ec19051997292e4",
     "packages": [
         {
             "name": "bower-asset/Chart-js",
@@ -333,6 +333,47 @@
                 "php mobile detect"
             ],
             "time": "2017-12-18T10:38:51+00:00"
+        },
+        {
+            "name": "npm-asset/jgrowl",
+            "version": "1.4.6",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/jgrowl/-/jgrowl-1.4.6.tgz",
+                "reference": null,
+                "shasum": "2736e332aaee73ccf0a14a5f0066391a0a13f4a3"
+            },
+            "require-dev": {
+                "npm-asset/grunt": "~0.4.2",
+                "npm-asset/grunt-contrib-cssmin": "~0.9.0",
+                "npm-asset/grunt-contrib-jshint": "~0.6.3",
+                "npm-asset/grunt-contrib-less": "~0.11.0",
+                "npm-asset/grunt-contrib-uglify": "~0.4.0",
+                "npm-asset/grunt-contrib-watch": "~0.6.1"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/stanlemon/jGrowl/issues"
+                },
+                "npm-asset-main": "jquery.jgrowl.js",
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git+ssh://git@github.com/stanlemon/jGrowl.git"
+                },
+                "npm-asset-scripts": []
+            },
+            "authors": [
+                {
+                    "name": "Stan Lemon",
+                    "email": "stosh1985@gmail.com",
+                    "url": "http://stanlemon.net"
+                }
+            ],
+            "description": "jGrowl is a jQuery plugin that raises unobtrusive messages within the browser, similar to the way that OS X's Growl Framework works. The idea is simple, deliver notifications to the end user in a noticeable way that doesn't obstruct the work flow and yet ",
+            "homepage": "https://github.com/stanlemon/jGrowl#readme",
+            "time": "2017-07-21T02:36:34+00:00"
         },
         {
             "name": "npm-asset/jquery",
