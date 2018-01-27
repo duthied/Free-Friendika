@@ -246,7 +246,7 @@ function format_event_diaspora($ev) {
 	// @todo What. Is. Going. On. With. This. Useless. Ternary. Operator? - mrpetovan
 	$o .= L10n::t('Starts:') . ' ' . '['
 		. (($ev['adjust']) ? day_translate(Temporal::utc($ev['start'], $bd_format))
-			:  day_translate(Temporal::convert($ev['start'], $bd_format))
+			:  day_translate(Temporal::utc($ev['start'], $bd_format))
 		)
 		.  '](' . System::baseUrl() . '/localtime/?f=&time=' . urlencode(Temporal::utc($ev['start'])) . ")\n";
 
