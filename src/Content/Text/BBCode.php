@@ -6,7 +6,7 @@ namespace Friendica\Content\Text;
 
 use Friendica\App;
 use Friendica\Content\Text\Plaintext;
-use Friencica\Core\Config;
+use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
