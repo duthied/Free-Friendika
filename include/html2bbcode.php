@@ -363,7 +363,7 @@ function addHostnameSub($matches, $basepath)
 	$url = $matches[1];
 
 	$parts = array_merge($base, parse_url($url));
-	$url2 = Network::unParseURL($parts);
+	$url2 = Network::unparseURL($parts);
 
 	return str_replace($url, $url2, $link);
 }

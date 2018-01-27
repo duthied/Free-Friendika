@@ -483,10 +483,10 @@ function check_htaccess(&$checks) {
 	$status = true;
 	$help = "";
 	if (function_exists('curl_init')) {
-		$test = Network::fetchURL(System::baseUrl()."/install/testrewrite");
+		$test = Network::fetchUrl(System::baseUrl()."/install/testrewrite");
 
 		if ($test != "ok") {
-			$test = Network::fetchURL(normalise_link(System::baseUrl()."/install/testrewrite"));
+			$test = Network::fetchUrl(normalise_link(System::baseUrl()."/install/testrewrite"));
 		}
 
 		if ($test != "ok") {

@@ -15,7 +15,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Object\Thread;
 use Friendica\Object\Post;
-use Friendica\Util\Network;
+use Friendica\Util\XML;
 
 require_once "include/bbcode.php";
 require_once "include/acl_selectors.php";
@@ -185,8 +185,8 @@ function localize_item(&$item) {
 
 		$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
 
-		$obj = Network::parseXmlString($xmlhead.$item['object']);
-		$links = Network::parseXmlString($xmlhead."<links>".unxmlify($obj->link)."</links>");
+		$obj = XML::parseString($xmlhead.$item['object']);
+		$links = XML::parseString($xmlhead."<links>".unxmlify($obj->link)."</links>");
 
 		$Bname = $obj->title;
 		$Blink = ""; $Bphoto = "";
@@ -221,8 +221,8 @@ function localize_item(&$item) {
 
 		$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
 
-		$obj = Network::parseXmlString($xmlhead.$item['object']);
-		$links = Network::parseXmlString($xmlhead."<links>".unxmlify($obj->link)."</links>");
+		$obj = XML::parseString($xmlhead.$item['object']);
+		$links = XML::parseString($xmlhead."<links>".unxmlify($obj->link)."</links>");
 
 		$Bname = $obj->title;
 		$Blink = "";
@@ -296,7 +296,7 @@ function localize_item(&$item) {
 		}
 		$plink = '[url=' . $obj['plink'] . ']' . $post_type . '[/url]';
 
-		$parsedobj = Network::parseXmlString($xmlhead.$item['object']);
+		$parsedobj = XML::parseString($xmlhead.$item['object']);
 
 		$tag = sprintf('#[url=%s]%s[/url]', $parsedobj->id, $parsedobj->content);
 		$item['body'] = L10n::t('%1$s tagged %2$s\'s %3$s with %4$s', $author, $objauthor, $plink, $tag );
@@ -313,7 +313,7 @@ function localize_item(&$item) {
 
 		$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
 
-		$obj = Network::parseXmlString($xmlhead.$item['object']);
+		$obj = XML::parseString($xmlhead.$item['object']);
 		if (strlen($obj->id)) {
 			$r = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
 					dbesc($obj->id),

@@ -181,7 +181,7 @@ class ExAuth
 
 		$url = ($ssl ? 'https' : 'http') . '://' . $host . '/noscrape/' . $user;
 
-		$data = Network::zFetchURL($url);
+		$data = Network::curl($url);
 
 		if (!is_array($data)) {
 			return false;

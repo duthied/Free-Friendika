@@ -726,7 +726,7 @@ class OStatus
 
 		self::$conv_list[$conversation] = true;
 
-		$conversation_data = Network::zFetchURL($conversation, false, $redirects, ['accept_content' => 'application/atom+xml, text/html']);
+		$conversation_data = Network::curl($conversation, false, $redirects, ['accept_content' => 'application/atom+xml, text/html']);
 
 		if (!$conversation_data['success']) {
 			return;
@@ -754,7 +754,7 @@ class OStatus
 					}
 				}
 				if ($file != '') {
-					$conversation_atom = Network::zFetchURL($attribute['href']);
+					$conversation_atom = Network::curl($attribute['href']);
 
 					if ($conversation_atom['success']) {
 						$xml = $conversation_atom['body'];
@@ -870,7 +870,7 @@ class OStatus
 			return;
 		}
 
-		$self_data = Network::zFetchURL($self);
+		$self_data = Network::curl($self);
 
 		if (!$self_data['success']) {
 			return;
@@ -915,7 +915,7 @@ class OStatus
 		}
 
 		$stored = false;
-		$related_data = Network::zFetchURL($related, false, $redirects, ['accept_content' => 'application/atom+xml, text/html']);
+		$related_data = Network::curl($related, false, $redirects, ['accept_content' => 'application/atom+xml, text/html']);
 
 		if (!$related_data['success']) {
 			return;
@@ -946,7 +946,7 @@ class OStatus
 					}
 				}
 				if ($atom_file != '') {
-					$related_atom = Network::zFetchURL($atom_file);
+					$related_atom = Network::curl($atom_file);
 
 					if ($related_atom['success']) {
 						logger('Fetched XML for URI '.$related_uri, LOGGER_DEBUG);
@@ -958,7 +958,7 @@ class OStatus
 
 		// Workaround for older GNU Social servers
 		if (($xml == '') && strstr($related, '/notice/')) {
-			$related_atom = Network::zFetchURL(str_replace('/notice/', '/api/statuses/show/', $related).'.atom');
+			$related_atom = Network::curl(str_replace('/notice/', '/api/statuses/show/', $related).'.atom');
 
 			if ($related_atom['success']) {
 				logger('GNU Social workaround to fetch XML for URI '.$related_uri, LOGGER_DEBUG);
@@ -969,7 +969,7 @@ class OStatus
 		// Even more worse workaround for GNU Social ;-)
 		if ($xml == '') {
 			$related_guess = OStatus::convertHref($related_uri);
-			$related_atom = Network::zFetchURL(str_replace('/notice/', '/api/statuses/show/', $related_guess).'.atom');
+			$related_atom = Network::curl(str_replace('/notice/', '/api/statuses/show/', $related_guess).'.atom');
 
 			if ($related_atom['success']) {
 				logger('GNU Social workaround 2 to fetch XML for URI '.$related_uri, LOGGER_DEBUG);

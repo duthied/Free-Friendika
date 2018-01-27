@@ -186,7 +186,7 @@ class Diaspora
 	 */
 	private static function verifyMagicEnvelope($envelope)
 	{
-		$basedom = Network::parseXmlString($envelope);
+		$basedom = XML::parseString($envelope);
 
 		if (!is_object($basedom)) {
 			logger("Envelope is no XML file");
@@ -296,7 +296,7 @@ class Diaspora
 			$xml = $raw;
 		}
 
-		$basedom = Network::parseXmlString($xml);
+		$basedom = XML::parseString($xml);
 
 		if (!is_object($basedom)) {
 			logger('Received data does not seem to be an XML. Discarding. '.$xml);
@@ -347,7 +347,7 @@ class Diaspora
 	public static function decode($importer, $xml)
 	{
 		$public = false;
-		$basedom = Network::parseXmlString($xml);
+		$basedom = XML::parseString($xml);
 
 		if (!is_object($basedom)) {
 			logger("XML is not parseable.");
@@ -381,7 +381,7 @@ class Diaspora
 			$decrypted = self::aesDecrypt($outer_key, $outer_iv, $ciphertext);
 
 			logger('decrypted: '.$decrypted, LOGGER_DEBUG);
-			$idom = Network::parseXmlString($decrypted);
+			$idom = XML::parseString($decrypted);
 
 			$inner_iv = base64_decode($idom->iv);
 			$inner_aes_key = base64_decode($idom->aes_key);
@@ -631,7 +631,7 @@ class Diaspora
 	 */
 	private static function validPosting($msg)
 	{
-		$data = Network::parseXmlString($msg["message"]);
+		$data = XML::parseString($msg["message"]);
 
 		if (!is_object($data)) {
 			logger("No valid XML ".$msg["message"], LOGGER_DEBUG);
@@ -1257,7 +1257,7 @@ class Diaspora
 
 		logger("Fetch post from ".$source_url, LOGGER_DEBUG);
 
-		$envelope = Network::fetchURL($source_url);
+		$envelope = Network::fetchUrl($source_url);
 		if ($envelope) {
 			logger("Envelope was fetched.", LOGGER_DEBUG);
 			$x = self::verifyMagicEnvelope($envelope);
@@ -1275,13 +1275,13 @@ class Diaspora
 			$source_url = $server."/p/".urlencode($guid).".xml";
 			logger("Fetch post from ".$source_url, LOGGER_DEBUG);
 
-			$x = Network::fetchURL($source_url);
+			$x = Network::fetchUrl($source_url);
 			if (!$x) {
 				return false;
 			}
 		}
 
-		$source_xml = Network::parseXmlString($x);
+		$source_xml = XML::parseString($x);
 
 		if (!is_object($source_xml)) {
 			return false;
@@ -3229,7 +3229,7 @@ class Diaspora
 			if (!intval(Config::get("system", "diaspora_test"))) {
 				$content_type = (($public_batch) ? "application/magic-envelope+xml" : "application/json");
 
-				Network::postURL($dest_url."/", $envelope, ["Content-Type: ".$content_type]);
+				Network::post($dest_url."/", $envelope, ["Content-Type: ".$content_type]);
 				$return_code = $a->get_curl_code();
 			} else {
 				logger("test_mode");

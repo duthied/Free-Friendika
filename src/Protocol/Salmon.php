@@ -51,7 +51,7 @@ class Salmon
 						$ret[$x] = substr($ret[$x], 5);
 					}
 				} elseif (normalise_link($ret[$x]) == 'http://') {
-					$ret[$x] = Network::fetchURL($ret[$x]);
+					$ret[$x] = Network::fetchUrl($ret[$x]);
 				}
 			}
 		}
@@ -133,7 +133,7 @@ class Salmon
 		$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
 		// slap them
-		Network::postURL($url, $salmon, [
+		Network::post($url, $salmon, [
 			'Content-type: application/magic-envelope+xml',
 			'Content-length: ' . strlen($salmon)
 		]);
@@ -159,7 +159,7 @@ class Salmon
 			$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
 			// slap them
-			Network::postURL($url, $salmon, [
+			Network::post($url, $salmon, [
 				'Content-type: application/magic-envelope+xml',
 				'Content-length: ' . strlen($salmon)
 			]);
@@ -182,7 +182,7 @@ class Salmon
 			$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
 			// slap them
-			Network::postURL($url, $salmon, [
+			Network::post($url, $salmon, [
 				'Content-type: application/magic-envelope+xml',
 				'Content-length: ' . strlen($salmon)]);
 			$return_code = $a->get_curl_code();

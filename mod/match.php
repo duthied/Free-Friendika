@@ -59,9 +59,9 @@ function match_content(App $a)
 		}
 
 		if (strlen(Config::get('system', 'directory'))) {
-			$x = Network::postURL(get_server().'/msearch', $params);
+			$x = Network::post(get_server().'/msearch', $params);
 		} else {
-			$x = Network::postURL(System::baseUrl() . '/msearch', $params);
+			$x = Network::post(System::baseUrl() . '/msearch', $params);
 		}
 
 		$j = json_decode($x);

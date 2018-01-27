@@ -78,7 +78,7 @@ class OEmbed
 			if (!in_array($ext, $noexts)) {
 				// try oembed autodiscovery
 				$redirects = 0;
-				$html_text = Network::fetchURL($embedurl, false, $redirects, 15, "text/*");
+				$html_text = Network::fetchUrl($embedurl, false, $redirects, 15, "text/*");
 				if ($html_text) {
 					$dom = @DOMDocument::loadHTML($html_text);
 					if ($dom) {
@@ -86,13 +86,13 @@ class OEmbed
 						$entries = $xpath->query("//link[@type='application/json+oembed']");
 						foreach ($entries as $e) {
 							$href = $e->getAttributeNode("href")->nodeValue;
-							$txt = Network::fetchURL($href . '&maxwidth=' . $a->videowidth);
+							$txt = Network::fetchUrl($href . '&maxwidth=' . $a->videowidth);
 							break;
 						}
 						$entries = $xpath->query("//link[@type='text/json+oembed']");
 						foreach ($entries as $e) {
 							$href = $e->getAttributeNode("href")->nodeValue;
-							$txt = Network::fetchURL($href . '&maxwidth=' . $a->videowidth);
+							$txt = Network::fetchUrl($href . '&maxwidth=' . $a->videowidth);
 							break;
 						}
 					}
@@ -312,7 +312,7 @@ class OEmbed
 
 		$allowed = explode(',', $str_allowed);
 
-		return Network::allowedDomain($domain, $allowed);
+		return Network::isDomainAllowed($domain, $allowed);
 	}
 
 	public static function getHTML($url, $title = null)

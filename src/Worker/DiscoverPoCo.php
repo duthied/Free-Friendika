@@ -218,7 +218,7 @@ class DiscoverPoCo {
 			}
 		}
 
-		$x = Network::fetchURL(get_server()."/lsearch?p=1&n=500&search=".urlencode($search));
+		$x = Network::fetchUrl(get_server()."/lsearch?p=1&n=500&search=".urlencode($search));
 		$j = json_decode($x);
 
 		if (count($j->results)) {
@@ -281,7 +281,7 @@ class DiscoverPoCo {
 
 		$url = "http://gstools.org/api/users_search/".urlencode($search);
 
-		$result = Network::zFetchURL($url);
+		$result = Network::curl($url);
 		if (!$result["success"]) {
 			return false;
 		}

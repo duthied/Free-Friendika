@@ -41,7 +41,7 @@ function ostatus_subscribe_content(App $a) {
 		$api = $contact["baseurl"]."/api/";
 
 		// Fetching friends
-		$data = Network::zFetchURL($api."statuses/friends.json?screen_name=".$contact["nick"]);
+		$data = Network::curl($api."statuses/friends.json?screen_name=".$contact["nick"]);
 
 		if (!$data["success"]) {
 			return $o.L10n::t("Couldn't fetch friends for contact.");

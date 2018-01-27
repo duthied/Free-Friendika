@@ -11,7 +11,6 @@ use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
-use Friendica\Util\Network;
 use Friendica\Util\XML;
 
 require_once 'library/slinky.php';
@@ -35,9 +34,9 @@ class Network
 	 *
 	 * @return string The fetched content
 	 */
-	public static function fetchURL($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = 0)
+	public static function fetchUrl($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = 0)
 	{
-		$ret = self::zFetchURL(
+		$ret = self::curl(
 			$url,
 			$binary,
 			$redirects,
@@ -72,7 +71,7 @@ class Network
 	 *    string 'header' => HTTP headers
 	 *    string 'body' => fetched content
 	 */
-	public static function zFetchURL($url, $binary = false, &$redirects = 0, $opts = [])
+	public static function curl($url, $binary = false, &$redirects = 0, $opts = [])
 	{
 		$ret = ['return_code' => 0, 'success' => false, 'header' => '', 'info' => '', 'body' => ''];
 
@@ -80,7 +79,7 @@ class Network
 
 		$a = get_app();
 
-		if (self::blockedURL($url)) {
+		if (self::isUrlBlocked($url)) {
 			logger('z_fetch_url: domain of ' . $url . ' is blocked', LOGGER_DATA);
 			return $ret;
 		}
@@ -278,11 +277,11 @@ class Network
 	 *
 	 * @return string The content
 	 */
-	public static function postURL($url, $params, $headers = null, &$redirects = 0, $timeout = 0)
+	public static function post($url, $params, $headers = null, &$redirects = 0, $timeout = 0)
 	{
 		$stamp1 = microtime(true);
 
-		if (self::blockedURL($url)) {
+		if (self::isUrlBlocked($url)) {
 			logger('post_url: domain of ' . $url . ' is blocked', LOGGER_DATA);
 			return false;
 		}
@@ -381,7 +380,7 @@ class Network
 			if (filter_var($newurl, FILTER_VALIDATE_URL)) {
 				$redirects++;
 				logger('post_url: redirect ' . $url . ' to ' . $newurl);
-				return self::postURL($newurl, $params, $headers, $redirects, $timeout);
+				return self::post($newurl, $params, $headers, $redirects, $timeout);
 			}
 		}
 
@@ -405,7 +404,7 @@ class Network
 	 * Outputs a basic dfrn XML status structure to STDOUT, with a <status> variable
 	 * of $st and an optional text <message> of $message and terminates the current process.
 	 */
-	public static function xmlStatus($st, $message = '')
+	public static function xmlExit($st, $message = '')
 	{
 		$result = ['status' => $st];
 
@@ -465,7 +464,7 @@ class Network
 	}
 
 	/**
-	 * @brief Check URL to se if ts's real
+	 * @brief Check URL to see if it's real
 	 *
 	 * Take a URL from the wild, prepend http:// if necessary
 	 * and check DNS to see if it's real (or check if is a valid IP address)
@@ -473,7 +472,7 @@ class Network
 	 * @param string $url The URL to be validated
 	 * @return string|boolean The actual working URL, false else
 	 */
-	public static function validateURL($url)
+	public static function isUrlValid($url)
 	{
 		if (Config::get('system', 'disable_url_validation')) {
 			return $url;
@@ -504,7 +503,7 @@ class Network
 	 * @param string $addr The email address
 	 * @return boolean True if it's a valid email address, false if it's not
 	 */
-	public static function validateEmail($addr)
+	public static function isEmailDomainValid($addr)
 	{
 		if (Config::get('system', 'disable_email_validation')) {
 			return true;
@@ -531,7 +530,7 @@ class Network
 	 * @param string $url URL which get tested
 	 * @return boolean True if url is allowed otherwise return false
 	 */
-	public static function allowedURL($url)
+	public static function isUrlAllowed($url)
 	{
 		$h = @parse_url($url);
 
@@ -576,7 +575,7 @@ class Network
 	 *
 	 * @return boolean
 	 */
-	public static function blockedURL($url)
+	public static function isUrlBlocked($url)
 	{
 		$h = @parse_url($url);
 
@@ -609,7 +608,7 @@ class Network
 	 * @return boolean False if not allowed, true if allowed
 	 *    or if allowed list is not configured
 	 */
-	public static function allowedEmail($email)
+	public static function isEmailDomainAllowed($email)
 	{
 		$domain = strtolower(substr($email, strpos($email, '@') + 1));
 		if (!$domain) {
@@ -623,7 +622,7 @@ class Network
 
 		$allowed = explode(',', $str_allowed);
 
-		return self::allowedDomain($domain, $allowed);
+		return self::isDomainAllowed($domain, $allowed);
 	}
 
 	/**
@@ -634,7 +633,7 @@ class Network
 	 * @param array  $domain_list
 	 * @return boolean
 	 */
-	public static function allowedDomain($domain, array $domain_list)
+	public static function isDomainAllowed($domain, array $domain_list)
 	{
 		$found = false;
 
@@ -649,7 +648,7 @@ class Network
 		return $found;
 	}
 
-	public static function avatarImg($email)
+	public static function lookupAvatarByEmail($email)
 	{
 		$avatar['size'] = 175;
 		$avatar['email'] = $email;
@@ -664,125 +663,6 @@ class Network
 
 		logger('Avatar: ' . $avatar['email'] . ' ' . $avatar['url'], LOGGER_DEBUG);
 		return $avatar['url'];
-	}
-
-	public static function parseXmlString($s, $strict = true)
-	{
-		// the "strict" parameter is deactivated
-
-		/// @todo Move this function to the xml class
-		libxml_use_internal_errors(true);
-
-		$x = @simplexml_load_string($s);
-		if (!$x) {
-			logger('libxml: parse: error: ' . $s, LOGGER_DATA);
-			foreach (libxml_get_errors() as $err) {
-				logger('libxml: parse: ' . $err->code." at ".$err->line.":".$err->column." : ".$err->message, LOGGER_DATA);
-			}
-			libxml_clear_errors();
-		}
-		return $x;
-	}
-
-	public static function scaleExternalImages($srctext, $include_link = true, $scale_replace = false)
-	{
-		// Suppress "view full size"
-		if (intval(Config::get('system', 'no_view_full_size'))) {
-			$include_link = false;
-		}
-
-		// Picture addresses can contain special characters
-		$s = htmlspecialchars_decode($srctext);
-
-		$matches = null;
-		$c = preg_match_all('/\[img.*?\](.*?)\[\/img\]/ism', $s, $matches, PREG_SET_ORDER);
-		if ($c) {
-			foreach ($matches as $mtch) {
-				logger('scale_external_image: ' . $mtch[1]);
-
-				$hostname = str_replace('www.', '', substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3));
-				if (stristr($mtch[1], $hostname)) {
-					continue;
-				}
-
-				// $scale_replace, if passed, is an array of two elements. The
-				// first is the name of the full-size image. The second is the
-				// name of a remote, scaled-down version of the full size image.
-				// This allows Friendica to display the smaller remote image if
-				// one exists, while still linking to the full-size image
-				if ($scale_replace) {
-					$scaled = str_replace($scale_replace[0], $scale_replace[1], $mtch[1]);
-				} else {
-					$scaled = $mtch[1];
-				}
-				$i = self::fetchURL($scaled);
-				if (! $i) {
-					return $srctext;
-				}
-
-				// guess mimetype from headers or filename
-				$type = Image::guessType($mtch[1], true);
-
-				if ($i) {
-					$Image = new Image($i, $type);
-					if ($Image->isValid()) {
-						$orig_width = $Image->getWidth();
-						$orig_height = $Image->getHeight();
-
-						if ($orig_width > 640 || $orig_height > 640) {
-							$Image->scaleDown(640);
-							$new_width = $Image->getWidth();
-							$new_height = $Image->getHeight();
-							logger('scale_external_images: ' . $orig_width . '->' . $new_width . 'w ' . $orig_height . '->' . $new_height . 'h' . ' match: ' . $mtch[0], LOGGER_DEBUG);
-							$s = str_replace(
-								$mtch[0],
-								'[img=' . $new_width . 'x' . $new_height. ']' . $scaled . '[/img]'
-								. "\n" . (($include_link)
-									? '[url=' . $mtch[1] . ']' . L10n::t('view full size') . '[/url]' . "\n"
-									: ''),
-								$s
-							);
-							logger('scale_external_images: new string: ' . $s, LOGGER_DEBUG);
-						}
-					}
-				}
-			}
-		}
-
-		// replace the special char encoding
-		$s = htmlspecialchars($s, ENT_NOQUOTES, 'UTF-8');
-		return $s;
-	}
-
-	public static function fixContactSslPolicy(&$contact, $new_policy)
-	{
-		$ssl_changed = false;
-		if ((intval($new_policy) == SSL_POLICY_SELFSIGN || $new_policy === 'self') && strstr($contact['url'], 'https:')) {
-			$ssl_changed = true;
-			$contact['url']     = 	str_replace('https:', 'http:', $contact['url']);
-			$contact['request'] = 	str_replace('https:', 'http:', $contact['request']);
-			$contact['notify']  = 	str_replace('https:', 'http:', $contact['notify']);
-			$contact['poll']    = 	str_replace('https:', 'http:', $contact['poll']);
-			$contact['confirm'] = 	str_replace('https:', 'http:', $contact['confirm']);
-			$contact['poco']    = 	str_replace('https:', 'http:', $contact['poco']);
-		}
-
-		if ((intval($new_policy) == SSL_POLICY_FULL || $new_policy === 'full') && strstr($contact['url'], 'http:')) {
-			$ssl_changed = true;
-			$contact['url']     = 	str_replace('http:', 'https:', $contact['url']);
-			$contact['request'] = 	str_replace('http:', 'https:', $contact['request']);
-			$contact['notify']  = 	str_replace('http:', 'https:', $contact['notify']);
-			$contact['poll']    = 	str_replace('http:', 'https:', $contact['poll']);
-			$contact['confirm'] = 	str_replace('http:', 'https:', $contact['confirm']);
-			$contact['poco']    = 	str_replace('http:', 'https:', $contact['poco']);
-		}
-
-		if ($ssl_changed) {
-			$fields = ['url' => $contact['url'], 'request' => $contact['request'],
-					'notify' => $contact['notify'], 'poll' => $contact['poll'],
-					'confirm' => $contact['confirm'], 'poco' => $contact['poco']];
-			dba::update('contact', $fields, ['id' => $contact['id']]);
-		}
 	}
 
 	/**
@@ -849,7 +729,7 @@ class Network
 	 * @param bool   $fetchbody Wether to fetch the body or not after the HEAD requests
 	 * @return string A canonical URL
 	 */
-	public static function originalURL($url, $depth = 1, $fetchbody = false)
+	public static function finalUrl($url, $depth = 1, $fetchbody = false)
 	{
 		$a = get_app();
 
@@ -886,15 +766,15 @@ class Network
 			&& (($curl_info['redirect_url'] != "") || ($curl_info['location'] != ""))
 		) {
 			if ($curl_info['redirect_url'] != "") {
-				return(Network::originalURL($curl_info['redirect_url'], ++$depth, $fetchbody));
+				return(self::finalUrl($curl_info['redirect_url'], ++$depth, $fetchbody));
 			} else {
-				return(Network::originalURL($curl_info['location'], ++$depth, $fetchbody));
+				return(self::finalUrl($curl_info['location'], ++$depth, $fetchbody));
 			}
 		}
 
 		// Check for redirects in the meta elements of the body if there are no redirects in the header.
 		if (!$fetchbody) {
-			return(Network::originalURL($url, ++$depth, true));
+			return(self::finalUrl($url, ++$depth, true));
 		}
 
 		// if the file is too large then exit
@@ -946,7 +826,7 @@ class Network
 				$pathinfo = explode(";", $path);
 				foreach ($pathinfo as $value) {
 					if (substr(strtolower($value), 0, 4) == "url=") {
-						return(Network::originalURL(substr($value, 4), ++$depth));
+						return(self::finalUrl(substr($value, 4), ++$depth));
 					}
 				}
 			}
@@ -955,7 +835,7 @@ class Network
 		return $url;
 	}
 
-	public static function shortLink($url)
+	public static function shortenUrl($url)
 	{
 		$slinky = new Slinky($url);
 		$yourls_url = Config::get('yourls', 'url1');
@@ -987,7 +867,7 @@ class Network
 	 *
 	 * @param array $x The input content
 	 */
-	public static function jsonReturnAndDie($x)
+	public static function jsonExit($x)
 	{
 		header("content-type: application/json");
 		echo json_encode($x);
@@ -1001,7 +881,7 @@ class Network
 	 * @param string $url2
 	 * @return string The matching part
 	 */
-	public static function matchingURL($url1, $url2)
+	public static function getUrlMatch($url1, $url2)
 	{
 		if (($url1 == "") || ($url2 == "")) {
 			return "";
@@ -1061,7 +941,7 @@ class Network
 	 *
 	 * @return string The glued URL
 	 */
-	public static function unParseURL($parsed)
+	public static function unparseURL($parsed)
 	{
 		$get = function ($key) use ($parsed) {
 			return isset($parsed[$key]) ? $parsed[$key] : null;

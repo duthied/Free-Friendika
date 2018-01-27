@@ -1481,7 +1481,7 @@ function subscribe_to_hub($url, $importer, $contact, $hubmode = 'subscribe') {
 		dba::update('contact', ['hub-verify' => $verify_token], ['id' => $contact['id']]);
 	}
 
-	Network::postURL($url, $params);
+	Network::post($url, $params);
 
 	logger('subscribe_to_hub: returns: ' . $a->get_curl_code(), LOGGER_DEBUG);
 

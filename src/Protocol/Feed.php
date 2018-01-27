@@ -244,7 +244,7 @@ class Feed {
 
 			$orig_plink = $item["plink"];
 
-			$item["plink"] = Network::originalURL($item["plink"]);
+			$item["plink"] = Network::finalUrl($item["plink"]);
 
 			$item["parent-uri"] = $item["uri"];
 

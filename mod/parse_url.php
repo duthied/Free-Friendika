@@ -61,7 +61,7 @@ function parse_url_content(App $a) {
 	// the URL with the corresponding BBCode media tag
 	$redirects = 0;
 	// Fetch the header of the URL
-	$result = Network::zFetchURL($url, false, $redirects, ["novalidate" => true, "nobody" => true]);
+	$result = Network::curl($url, false, $redirects, ["novalidate" => true, "nobody" => true]);
 	if($result["success"]) {
 		// Convert the header fields into an array
 		$hdrs = [];

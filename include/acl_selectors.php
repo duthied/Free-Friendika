@@ -734,7 +734,7 @@ function navbar_complete(App $a) {
 	if (! $localsearch) {
 		$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
 
-		$x = Network::zFetchURL(get_server() . '/lsearch?f=' . $p .  '&search=' . urlencode($search));
+		$x = Network::curl(get_server() . '/lsearch?f=' . $p .  '&search=' . urlencode($search));
 		if ($x['success']) {
 			$j = json_decode($x['body'],true);
 			if ($j && isset($j['results'])) {

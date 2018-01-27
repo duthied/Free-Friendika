@@ -413,4 +413,20 @@ class XML
 			$child->parentNode->removeChild($child);
 		}
 	}
+
+	public static function parseString($s, $strict = true)
+	{
+		// the "strict" parameter is deactivated
+		libxml_use_internal_errors(true);
+
+		$x = @simplexml_load_string($s);
+		if (!$x) {
+			logger('libxml: parse: error: ' . $s, LOGGER_DATA);
+			foreach (libxml_get_errors() as $err) {
+				logger('libxml: parse: ' . $err->code." at ".$err->line.":".$err->column." : ".$err->message, LOGGER_DATA);
+			}
+			libxml_clear_errors();
+		}
+		return $x;
+	}
 }

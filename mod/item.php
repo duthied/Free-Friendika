@@ -29,7 +29,6 @@ use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 use Friendica\Util\Emailer;
-use Friendica\Util\Network;
 
 require_once 'include/enotify.php';
 require_once 'include/tags.php';
@@ -520,7 +519,7 @@ function item_post(App $a) {
 	// Fold multi-line [code] sequences
 	$body = preg_replace('/\[\/code\]\s*\[code\]/ism', "\n", $body);
 
-	$body = Network::scaleExternalImages($body, false);
+	$body = BBCode::scaleExternalImages($body, false);
 
 	// Setting the object type if not defined before
 	if (!$objecttype) {

@@ -888,7 +888,7 @@ class Worker
 		}
 
 		$url = System::baseUrl()."/worker";
-		Network::fetchURL($url, false, $redirects, 1);
+		Network::fetchUrl($url, false, $redirects, 1);
 	}
 
 	/**

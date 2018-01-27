@@ -12,8 +12,10 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Util\Network;
 
-class Directory {
-	public static function execute($url = '') {
+class Directory
+{
+	public static function execute($url = '')
+	{
 		$dir = Config::get('system', 'directory');
 
 		if (!strlen($dir)) {
@@ -33,7 +35,7 @@ class Directory {
 
 		logger('Updating directory: ' . $arr['url'], LOGGER_DEBUG);
 		if (strlen($arr['url'])) {
-			Network::fetchURL($dir . '?url=' . bin2hex($arr['url']));
+			Network::fetchUrl($dir . '?url=' . bin2hex($arr['url']));
 		}
 
 		return;

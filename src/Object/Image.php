@@ -774,7 +774,7 @@ class Image
 		$data = Cache::get($url);
 
 		if (is_null($data) || !$data || !is_array($data)) {
-			$img_str = Network::fetchURL($url, true, $redirects, 4);
+			$img_str = Network::fetchUrl($url, true, $redirects, 4);
 			$filesize = strlen($img_str);
 
 			if (function_exists("getimagesizefromstring")) {

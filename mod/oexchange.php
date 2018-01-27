@@ -40,7 +40,7 @@ function oexchange_content(App $a) {
 	$tags = (((x($_REQUEST,'tags')) && strlen($_REQUEST['tags']))
 		? '&tags=' . urlencode(notags(trim($_REQUEST['tags']))) : '');
 
-	$s = Network::fetchURL(System::baseUrl() . '/parse_url?f=&url=' . $url . $title . $description . $tags);
+	$s = Network::fetchUrl(System::baseUrl() . '/parse_url?f=&url=' . $url . $title . $description . $tags);
 
 	if (! strlen($s)) {
 		return;

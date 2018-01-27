@@ -145,7 +145,7 @@ class ParseUrl
 		$siteinfo["url"] = $url;
 		$siteinfo["type"] = "link";
 
-		$data = Network::zFetchURL($url);
+		$data = Network::curl($url);
 		if (!$data['success']) {
 			return($siteinfo);
 		}

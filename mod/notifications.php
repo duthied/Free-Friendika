@@ -139,7 +139,7 @@ function notifications_content(App $a) {
 
 	// Json output
 	if (intval($json) === 1) {
-		Network::jsonReturnAndDie($notifs);
+		Network::jsonExit($notifs);
 	}
 
 	$notif_tpl = get_markup_template('notifications.tpl');

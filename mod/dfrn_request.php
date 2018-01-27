@@ -183,7 +183,7 @@ function dfrn_request_post(App $a)
 				}
 
 				if (strlen($dfrn_request) && strlen($confirm_key)) {
-					$s = Network::fetchURL($dfrn_request . '?confirm_key=' . $confirm_key);
+					$s = Network::fetchUrl($dfrn_request . '?confirm_key=' . $confirm_key);
 				}
 
 				// (ignore reply, nothing we can do it failed)
@@ -332,20 +332,20 @@ function dfrn_request_post(App $a)
 					intval($contact_record['id'])
 				);
 			} else {
-				$url = Network::validateURL($url);
+				$url = Network::isUrlValid($url);
 				if (!$url) {
 					notice(L10n::t('Invalid profile URL.') . EOL);
 					goaway(System::baseUrl() . '/' . $a->cmd);
 					return; // NOTREACHED
 				}
 
-				if (!Network::allowedURL($url)) {
+				if (!Network::isUrlAllowed($url)) {
 					notice(L10n::t('Disallowed profile URL.') . EOL);
 					goaway(System::baseUrl() . '/' . $a->cmd);
 					return; // NOTREACHED
 				}
 
-				if (Network::blockedURL($url)) {
+				if (Network::isUrlBlocked($url)) {
 					notice(L10n::t('Blocked domain') . EOL);
 					goaway(System::baseUrl() . '/' . $a->cmd);
 					return; // NOTREACHED

@@ -60,7 +60,7 @@ class Login extends BaseModule
 			$openid_url = trim($_POST['openid_url'] ? : $_POST['username']);
 
 			// if it's an email address or doesn't resolve to a URL, fail.
-			if ($noid || strpos($openid_url, '@') || !Network::validateURL($openid_url)) {
+			if ($noid || strpos($openid_url, '@') || !Network::isUrlValid($openid_url)) {
 				notice(L10n::t('Login failed.') . EOL);
 				goaway(self::getApp()->get_baseurl());
 				// NOTREACHED

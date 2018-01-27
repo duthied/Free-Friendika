@@ -281,7 +281,7 @@ class User
 
 		if (!x($username) || !x($email) || !x($nickname)) {
 			if ($openid_url) {
-				if (!Network::validateURL($openid_url)) {
+				if (!Network::isUrlValid($openid_url)) {
 					throw new Exception(L10n::t('Invalid OpenID url'));
 				}
 				$_SESSION['register'] = 1;
@@ -304,7 +304,7 @@ class User
 			throw new Exception(L10n::t('Please enter the required information.'));
 		}
 
-		if (!Network::validateURL($openid_url)) {
+		if (!Network::isUrlValid($openid_url)) {
 			$openid_url = '';
 		}
 
@@ -329,11 +329,11 @@ class User
 			}
 		}
 
-		if (!Network::allowedEmail($email)) {
+		if (!Network::isEmailDomainAllowed($email)) {
 			throw new Exception(L10n::t('Your email domain is not among those allowed on this site.'));
 		}
 
-		if (!valid_email($email) || !Network::validateEmail($email)) {
+		if (!valid_email($email) || !Network::isEmailDomainValid($email)) {
 			throw new Exception(L10n::t('Not a valid email address.'));
 		}
 
@@ -460,7 +460,7 @@ class User
 
 		// if we have no OpenID photo try to look up an avatar
 		if (!strlen($photo)) {
-			$photo = Network::avatarImg($email);
+			$photo = Network::lookupAvatarByEmail($email);
 		}
 
 		// unless there is no avatar-addon loaded
@@ -468,7 +468,7 @@ class User
 			$photo_failure = false;
 
 			$filename = basename($photo);
-			$img_str = Network::fetchURL($photo, true);
+			$img_str = Network::fetchUrl($photo, true);
 			// guess mimetype from headers or filename
 			$type = Image::guessType($photo, true);
 

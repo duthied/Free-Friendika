@@ -11,6 +11,7 @@ use Friendica\Model\Contact;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\Network;
+use Friendica\Util\XML;
 use dba;
 
 require_once 'include/dba.php';
@@ -177,7 +178,7 @@ class OnePoll
 				. '&type=data&last_update=' . $last_update
 				. '&perm=' . $perm ;
 
-			$ret = Network::zFetchURL($url);
+			$ret = Network::curl($url);
 
 			if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 				// set the last-update so we don't keep polling
@@ -219,7 +220,7 @@ class OnePoll
 			}
 
 
-			$res = Network::parseXmlString($handshake_xml);
+			$res = XML::parseString($handshake_xml);
 
 			if (intval($res->status) == 1) {
 				logger("$url replied status 1 - marking for death ");
@@ -281,7 +282,7 @@ class OnePoll
 			$postvars['dfrn_version'] = DFRN_PROTOCOL_VERSION;
 			$postvars['perm'] = 'rw';
 
-			$xml = Network::postURL($contact['poll'], $postvars);
+			$xml = Network::post($contact['poll'], $postvars);
 
 		} elseif (($contact['network'] === NETWORK_OSTATUS)
 			|| ($contact['network'] === NETWORK_DIASPORA)
@@ -312,7 +313,7 @@ class OnePoll
 			}
 
 			$cookiejar = tempnam(get_temppath(), 'cookiejar-onepoll-');
-			$ret = Network::zFetchURL($contact['poll'], false, $redirects, ['cookiejar' => $cookiejar]);
+			$ret = Network::curl($contact['poll'], false, $redirects, ['cookiejar' => $cookiejar]);
 			unlink($cookiejar);
 
 			if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {

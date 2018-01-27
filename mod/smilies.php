@@ -18,7 +18,7 @@ function smilies_content(App $a)
 		for ($i = 0; $i < count($tmp['texts']); $i++) {
 			$results[] = ['text' => $tmp['texts'][$i], 'icon' => $tmp['icons'][$i]];
 		}
-		Network::jsonReturnAndDie($results);
+		Network::jsonExit($results);
 	} else {
 		return Smilies::replace('', true);
 	}

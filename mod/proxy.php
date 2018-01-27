@@ -162,7 +162,7 @@ function proxy_init(App $a) {
 		// It shouldn't happen but it does - spaces in URL
 		$_REQUEST['url'] = str_replace(' ', '+', $_REQUEST['url']);
 		$redirects = 0;
-		$img_str = Network::fetchURL($_REQUEST['url'], true, $redirects, 10);
+		$img_str = Network::fetchUrl($_REQUEST['url'], true, $redirects, 10);
 
 		$tempfile = tempnam(get_temppath(), 'cache');
 		file_put_contents($tempfile, $img_str);

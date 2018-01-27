@@ -15,7 +15,6 @@ use Friendica\Model\User;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Email;
-use Friendica\Util\Network;
 use dba;
 
 require_once 'include/html2plain.php';
@@ -300,7 +299,7 @@ class Delivery {
 						}
 
 						$ssl_policy = Config::get('system','ssl_policy');
-						Network::fixContactSslPolicy($x[0], $ssl_policy);
+						$x[0] = Contact::updateSslPolicy($x[0], $ssl_policy);
 
 						// If we are setup as a soapbox we aren't accepting top level posts from this person
 

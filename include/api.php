@@ -5074,7 +5074,7 @@ function api_get_nick($profile)
 		if ($StatusnetHost != $profile) {
 			$StatusnetUser = preg_replace("=https?://(.*)/user/(.*)=ism", "$2", $profile);
 			if ($StatusnetUser != $profile) {
-				$UserData = Network::fetchURL("http://".$StatusnetHost."/api/users/show.json?user_id=".$StatusnetUser);
+				$UserData = Network::fetchUrl("http://".$StatusnetHost."/api/users/show.json?user_id=".$StatusnetUser);
 				$user = json_decode($UserData);
 				if ($user) {
 					$nick = $user->screen_name;

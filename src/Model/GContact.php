@@ -568,7 +568,7 @@ class GContact
 		$done[] = System::baseUrl() . '/poco';
 
 		if (strlen(Config::get('system', 'directory'))) {
-			$x = Network::fetchURL(get_server()."/pubsites");
+			$x = Network::fetchUrl(get_server()."/pubsites");
 			if ($x) {
 				$j = json_decode($x);
 				if ($j->entries) {
@@ -980,7 +980,7 @@ class GContact
 
 		$url = $server."/main/statistics";
 
-		$result = Network::zFetchURL($url);
+		$result = Network::curl($url);
 		if (!$result["success"]) {
 			return false;
 		}

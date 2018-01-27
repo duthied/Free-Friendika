@@ -69,7 +69,7 @@ class PubSubPublish {
 
 		logger('POST '.print_r($headers, true)."\n".$params, LOGGER_DEBUG);
 
-		Network::postURL($rr['callback_url'], $params, $headers);
+		Network::post($rr['callback_url'], $params, $headers);
 		$ret = $a->get_curl_code();
 
 		if ($ret >= 200 && $ret <= 299) {
