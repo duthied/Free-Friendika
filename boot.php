@@ -22,6 +22,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'a
 use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -29,7 +30,6 @@ use Friendica\Database\DBM;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Contact;
 use Friendica\Util\DateTimeFormat;
-use Friendida\Core\L10n;
 
 require_once 'include/text.php';
 require_once 'include/datetime.php';
