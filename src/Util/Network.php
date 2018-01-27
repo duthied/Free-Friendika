@@ -12,6 +12,8 @@ use Friendica\Core\Config;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Util\XML;
+use DOMDocument;
+use DomXPath;
 
 require_once 'library/slinky.php';
 
