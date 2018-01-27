@@ -276,8 +276,8 @@ function events_content(App $a) {
 	// The view mode part is similiar to /mod/cal.php
 	if ($mode == 'view') {
 
-		$thisyear  = Temporal::timezoneNow(date_default_timezone_get(), 'Y');
-		$thismonth = Temporal::timezoneNow(date_default_timezone_get(), 'm');
+		$thisyear  = Temporal::localNow('Y');
+		$thismonth = Temporal::localNow('m');
 		if (! $y) {
 			$y = intval($thisyear);
 		}

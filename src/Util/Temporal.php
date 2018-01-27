@@ -136,7 +136,7 @@ class Temporal
 	}
 
 	/**
-	 * convert() shorthand for UTC now.
+	 * convert() shorthand for timezoned now.
 	 *
 	 * @param string $format DateTime format string or Temporal constant
 	 * @return string
@@ -144,6 +144,17 @@ class Temporal
 	public static function timezoneNow($timezone, $format = self::MYSQL)
 	{
 		return self::convert('now', $timezone, 'UTC', $format);
+	}
+
+	/**
+	 * convert() shorthand for local now.
+	 *
+	 * @param string $format DateTime format string or Temporal constant
+	 * @return string
+	 */
+	public static function localNow($format = self::MYSQL)
+	{
+		return self::convert('now', date_default_timezone_get(), 'UTC', $format);
 	}
 
 	/**
@@ -542,8 +553,8 @@ class Temporal
 			'October', 'November', 'December'
 		];
 
-		$thisyear = self::timezoneNow(date_default_timezone_get(), 'Y');
-		$thismonth = self::timezoneNow(date_default_timezone_get(), 'm');
+		$thisyear = self::localNow('Y');
+		$thismonth = self::localNow('m');
 		if (!$y) {
 			$y = $thisyear;
 		}
@@ -560,7 +571,7 @@ class Temporal
 		$started = false;
 
 		if (($y == $thisyear) && ($m == $thismonth)) {
-			$tddate = intval(self::timezoneNow(date_default_timezone_get(), 'j'));
+			$tddate = intval(self::localNow('j'));
 		}
 
 		$str_month = day_translate($mtab[$m]);
