@@ -524,7 +524,6 @@ function item_post(App $a) {
 	// Setting the object type if not defined before
 	if (!$objecttype) {
 		$objecttype = ACTIVITY_OBJ_NOTE; // Default value
-		require_once 'include/plaintext.php';
 		$objectdata = Plaintext::getAttachedData($body);
 
 		if ($objectdata["type"] == "link") {
