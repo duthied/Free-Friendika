@@ -5,7 +5,7 @@
 use Friendica\App;
 use Friendica\Content\Smilies;
 use Friendica\Content\OEmbed;
-use Friendica\Content\Text\Plaintext;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\L10n;
@@ -57,7 +57,7 @@ function bb_map_location($match) {
  */
 function bb_attachment($return, $simplehtml = false, $tryoembed = true)
 {
-	$data = Plaintext::getAttachmentData($return);
+	$data = BBCode::getAttachmentData($return);
 	if (!$data) {
 		return $return;
 	}
@@ -120,7 +120,7 @@ function bb_attachment($return, $simplehtml = false, $tryoembed = true)
 
 function bb_remove_share_information($Text, $plaintext = false, $nolink = false) {
 
-	$data = Plaintext::getAttachmentData($Text);
+	$data = BBCode::getAttachmentData($Text);
 
 	if (!$data) {
 		return $Text;

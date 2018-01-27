@@ -8,7 +8,7 @@
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
-use Friendica\Content\Text\Plaintext;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\System;
 use Friendica\Core\Config;
@@ -5196,7 +5196,7 @@ function api_clean_plain_items($Text)
  */
 function api_clean_attachments($body)
 {
-	$data = Plaintext::getAttachmentData($body);
+	$data = BBCode::getAttachmentData($body);
 
 	if (!$data) {
 		return $body;

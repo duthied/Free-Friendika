@@ -1,6 +1,6 @@
 <?php
 /**
- * @file src/Content/Text/Plaintext.php
+ * @file src/Content/Text/BBCode.php
  */
 namespace Friendica\Content\Text;
 
@@ -13,7 +13,7 @@ require_once "include/bbcode.php";
 require_once "include/html2plain.php";
 require_once "include/network.php";
 
-class Plaintext
+class BBCode
 {
 	/**
 	 * @brief Fetches attachment data that were generated the old way
