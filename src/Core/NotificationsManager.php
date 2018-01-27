@@ -13,6 +13,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Util\Network;
 
 require_once 'include/dba.php';
 require_once 'include/html2plain.php';
@@ -337,7 +338,7 @@ class NotificationsManager extends BaseObject
 
 					case ACTIVITY_FRIEND:
 						$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
-						$obj = parse_xml_string($xmlhead . $it['object']);
+						$obj = Network::parseXmlString($xmlhead . $it['object']);
 						$it['fname'] = $obj->title;
 
 						$notif = [

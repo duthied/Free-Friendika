@@ -11,6 +11,7 @@ use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
+use Friendica\Util\Network;
 use Friendica\Util\XML;
 
 require_once 'library/slinky.php';
@@ -852,7 +853,7 @@ class Network
 	{
 		$a = get_app();
 
-		$url = strip_tracking_query_params($url);
+		$url = self::stripTrackingQueryParams($url);
 
 		if ($depth > 10) {
 			return($url);
@@ -885,15 +886,15 @@ class Network
 			&& (($curl_info['redirect_url'] != "") || ($curl_info['location'] != ""))
 		) {
 			if ($curl_info['redirect_url'] != "") {
-				return(original_url($curl_info['redirect_url'], ++$depth, $fetchbody));
+				return(Network::originalURL($curl_info['redirect_url'], ++$depth, $fetchbody));
 			} else {
-				return(original_url($curl_info['location'], ++$depth, $fetchbody));
+				return(Network::originalURL($curl_info['location'], ++$depth, $fetchbody));
 			}
 		}
 
 		// Check for redirects in the meta elements of the body if there are no redirects in the header.
 		if (!$fetchbody) {
-			return(original_url($url, ++$depth, true));
+			return(Network::originalURL($url, ++$depth, true));
 		}
 
 		// if the file is too large then exit
@@ -945,7 +946,7 @@ class Network
 				$pathinfo = explode(";", $path);
 				foreach ($pathinfo as $value) {
 					if (substr(strtolower($value), 0, 4) == "url=") {
-						return(original_url(substr($value, 4), ++$depth));
+						return(Network::originalURL(substr($value, 4), ++$depth));
 					}
 				}
 			}

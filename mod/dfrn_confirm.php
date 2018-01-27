@@ -252,7 +252,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				return;
 			}
 
-			$xml = parse_xml_string($res);
+			$xml = Network::parseXmlString($res);
 			$status = (int) $xml->status;
 			$message = unxmlify($xml->message);   // human readable text of what may have gone wrong.
 			switch ($status) {

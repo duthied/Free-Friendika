@@ -26,7 +26,6 @@ use DOMXPath;
 use DOMDocument;
 
 require_once 'include/dba.php';
-require_once 'include/network.php';
 
 /**
  * @brief This class contain functions for probing URL
@@ -111,7 +110,7 @@ class Probe
 		$ret = Network::zFetchURL($ssl_url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 		if ($ret['success']) {
 			$xml = $ret['body'];
-			$xrd = parse_xml_string($xml, false);
+			$xrd = Network::parseXmlString($xml, false);
 			$host_url = 'https://'.$host;
 		}
 
@@ -122,7 +121,7 @@ class Probe
 				return false;
 			}
 			$xml = $ret['body'];
-			$xrd = parse_xml_string($xml, false);
+			$xrd = Network::parseXmlString($xml, false);
 			$host_url = 'http://'.$host;
 		}
 		if (!is_object($xrd)) {
@@ -332,7 +331,7 @@ class Probe
 		}
 
 		if (x($data, "photo")) {
-			$data["baseurl"] = matching_url(normalise_link($data["baseurl"]), normalise_link($data["photo"]));
+			$data["baseurl"] = Network::matchingURL(normalise_link($data["baseurl"]), normalise_link($data["photo"]));
 		} else {
 			$data["photo"] = System::baseUrl().'/images/person-175.jpg';
 		}
@@ -709,7 +708,7 @@ class Probe
 		}
 
 		// If it is not JSON, maybe it is XML
-		$xrd = parse_xml_string($data, false);
+		$xrd = Network::parseXmlString($data, false);
 		if (!is_object($xrd)) {
 			logger("No webfinger data retrievable for ".$url, LOGGER_DEBUG);
 			return false;

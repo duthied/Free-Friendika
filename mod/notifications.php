@@ -10,8 +10,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-
-require_once "include/network.php";
+use Friendica\Util\Network;
 
 function notifications_post(App $a) {
 
@@ -139,8 +138,9 @@ function notifications_content(App $a) {
 	$notifs['page'] = $a->pager['page'];
 
 	// Json output
-	if(intval($json) === 1)
-		json_return_and_die($notifs);
+	if (intval($json) === 1) {
+		Network::jsonReturnAndDie($notifs);
+	}
 
 	$notif_tpl = get_markup_template('notifications.tpl');
 

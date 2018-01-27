@@ -141,7 +141,7 @@ class ParseUrl
 		$url = trim($url, "'");
 		$url = trim($url, '"');
 
-		$url = strip_tracking_query_params($url);
+		$url = Network::stripTrackingQueryParams($url);
 
 		$siteinfo["url"] = $url;
 		$siteinfo["type"] = "link";

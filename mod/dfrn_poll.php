@@ -104,7 +104,7 @@ function dfrn_poll_init(App $a)
 			logger("dfrn_poll: old profile returns " . $s, LOGGER_DATA);
 
 			if (strlen($s)) {
-				$xml = parse_xml_string($s);
+				$xml = Network::parseXmlString($s);
 
 				if ((int) $xml->status === 1) {
 					$_SESSION['authenticated'] = 1;
@@ -521,7 +521,7 @@ function dfrn_poll_content(App $a)
 			logger("dfrn_poll: sec profile: " . $s, LOGGER_DATA);
 
 			if (strlen($s) && strstr($s, '<?xml')) {
-				$xml = parse_xml_string($s);
+				$xml = Network::parseXmlString($s);
 
 				logger('dfrn_poll: profile: parsed xml: ' . print_r($xml, true), LOGGER_DATA);
 

@@ -219,7 +219,7 @@ class OnePoll
 			}
 
 
-			$res = parse_xml_string($handshake_xml);
+			$res = Network::parseXmlString($handshake_xml);
 
 			if (intval($res->status) == 1) {
 				logger("$url replied status 1 - marking for death ");

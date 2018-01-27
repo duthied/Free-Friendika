@@ -123,7 +123,7 @@ function dfrn_notify_post(App $a) {
 
 	// if contact's ssl policy changed, update our links
 
-	fix_contact_ssl_policy($importer,$ssl_policy);
+	Network::fixContactSslPolicy($importer, $ssl_policy);
 
 	logger('dfrn_notify: received notify from ' . $importer['name'] . ' for ' . $importer['username']);
 	logger('dfrn_notify: data: ' . $data, LOGGER_DATA);

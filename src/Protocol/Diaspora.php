@@ -186,7 +186,7 @@ class Diaspora
 	 */
 	private static function verifyMagicEnvelope($envelope)
 	{
-		$basedom = parse_xml_string($envelope);
+		$basedom = Network::parseXmlString($envelope);
 
 		if (!is_object($basedom)) {
 			logger("Envelope is no XML file");
@@ -296,7 +296,7 @@ class Diaspora
 			$xml = $raw;
 		}
 
-		$basedom = parse_xml_string($xml);
+		$basedom = Network::parseXmlString($xml);
 
 		if (!is_object($basedom)) {
 			logger('Received data does not seem to be an XML. Discarding. '.$xml);
@@ -347,7 +347,7 @@ class Diaspora
 	public static function decode($importer, $xml)
 	{
 		$public = false;
-		$basedom = parse_xml_string($xml);
+		$basedom = Network::parseXmlString($xml);
 
 		if (!is_object($basedom)) {
 			logger("XML is not parseable.");
@@ -381,7 +381,7 @@ class Diaspora
 			$decrypted = self::aesDecrypt($outer_key, $outer_iv, $ciphertext);
 
 			logger('decrypted: '.$decrypted, LOGGER_DEBUG);
-			$idom = parse_xml_string($decrypted);
+			$idom = Network::parseXmlString($decrypted);
 
 			$inner_iv = base64_decode($idom->iv);
 			$inner_aes_key = base64_decode($idom->aes_key);
@@ -631,7 +631,7 @@ class Diaspora
 	 */
 	private static function validPosting($msg)
 	{
-		$data = parse_xml_string($msg["message"]);
+		$data = Network::parseXmlString($msg["message"]);
 
 		if (!is_object($data)) {
 			logger("No valid XML ".$msg["message"], LOGGER_DEBUG);
@@ -1281,7 +1281,7 @@ class Diaspora
 			}
 		}
 
-		$source_xml = parse_xml_string($x);
+		$source_xml = Network::parseXmlString($x);
 
 		if (!is_object($source_xml)) {
 			return false;

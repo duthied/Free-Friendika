@@ -91,7 +91,7 @@ function hovercard_content()
 
 		return $o;
 	} else {
-		json_return_and_die($profile);
+		Network::jsonReturnAndDie($profile);
 	}
 }
 
