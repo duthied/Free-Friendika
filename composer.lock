@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "993cfc5f6a545674b2c201fbb502d45a",
+    "content-hash": "3ff4187b4f7167583a3b8caa5f7c2a8a",
     "packages": [
         {
             "name": "bower-asset/Chart-js",
@@ -266,6 +266,39 @@
                 "markdown"
             ],
             "time": "2017-03-16T00:45:59+00:00"
+        },
+        {
+            "name": "lightopenid/lightopenid",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Mewp/lightopenid.git",
+                "reference": "9d42dc24e4dd34121c98a6491bc3ef7933a68a19"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Mewp/lightopenid/zipball/9d42dc24e4dd34121c98a6491bc3ef7933a68a19",
+                "reference": "9d42dc24e4dd34121c98a6491bc3ef7933a68a19",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.3"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "./"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "homepage": "http://code.google.com/p/lightopenid/",
+            "keywords": [
+                "OpenId"
+            ],
+            "time": "2013-10-27T16:25:49+00:00"
         },
         {
             "name": "michelf/php-markdown",
@@ -1251,6 +1284,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "lightopenid/lightopenid": 20,
         "pear/text_highlighter": 20
     },
     "prefer-stable": false,
