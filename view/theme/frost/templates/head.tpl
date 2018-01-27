@@ -4,7 +4,7 @@
 <meta name="generator" content="{{$generator}}" />
 <link rel="stylesheet" href="{{$baseurl}}/vendor/asset/jquery-colorbox/example5/colorbox.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="{{$baseurl}}/library/jgrowl/jquery.jgrowl.css" type="text/css" media="screen" />
-<link rel="stylesheet" href="{{$baseurl}}/library/datetimepicker/jquery.datetimepicker.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="{{$baseurl}}/vendor/asset/jquery-datetimepicker/build/jquery.datetimepicker.min.css" type="text/css" media="screen" />
 
 <link rel="stylesheet" type="text/css" href="{{$stylesheet}}" media="all" />
 

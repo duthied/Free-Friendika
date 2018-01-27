@@ -8,7 +8,7 @@
 <script type="text/javascript" src="{{$baseurl}}/js/jquery.textinputs.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/vendor/asset/jquery-colorbox/jquery.colorbox-min.js"></script>
 <script type="text/javascript" src="{{$baseurl}}/library/jgrowl/jquery.jgrowl_minimized.js"></script>
-<script type="text/javascript" src="{{$baseurl}}/library/datetimepicker/jquery.datetimepicker.js"></script>
+<script type="text/javascript" src="{{$baseurl}}/vendor/asset/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
 <script type="text/javascript" src="{{$baseurl}}/view/theme/frost/js/acl.js" ></script>
 <script type="text/javascript" src="{{$baseurl}}/vendor/asset/base64/base64.min.js" ></script>
