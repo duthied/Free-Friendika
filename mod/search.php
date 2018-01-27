@@ -8,6 +8,7 @@ use Friendica\Content\Nav;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\System;
 use Friendica\Database\DBM;
 
 require_once "include/bbcode.php";
@@ -99,7 +100,7 @@ function search_content(App $a) {
 	}
 
 	if (Config::get('system','local_search') && !local_user() && !remote_user()) {
-		http_status_exit(403,
+		System::httpExit(403,
 				["title" => L10n::t("Public access denied."),
 					"description" => L10n::t("Only logged in users are permitted to perform a search.")]);
 		killme();
@@ -124,7 +125,7 @@ function search_content(App $a) {
 		if (!is_null($result)) {
 			$resultdata = json_decode($result);
 			if (($resultdata->time > (time() - $crawl_permit_period)) && ($resultdata->accesses > $free_crawls)) {
-				http_status_exit(429,
+				System::httpExit(429,
 						["title" => L10n::t("Too Many Requests"),
 							"description" => L10n::t("Only one search per minute is permitted for not logged in users.")]);
 				killme();

@@ -22,6 +22,7 @@ use Friendica\Object\Image;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Feed;
+use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 
 require_once 'include/bbcode.php';
@@ -1480,7 +1481,7 @@ function subscribe_to_hub($url, $importer, $contact, $hubmode = 'subscribe') {
 		dba::update('contact', ['hub-verify' => $verify_token], ['id' => $contact['id']]);
 	}
 
-	post_url($url, $params);
+	Network::post($url, $params);
 
 	logger('subscribe_to_hub: returns: ' . $a->get_curl_code(), LOGGER_DEBUG);
 

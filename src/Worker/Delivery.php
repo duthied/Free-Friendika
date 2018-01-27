@@ -299,7 +299,7 @@ class Delivery {
 						}
 
 						$ssl_policy = Config::get('system','ssl_policy');
-						fix_contact_ssl_policy($x[0],$ssl_policy);
+						$x[0] = Contact::updateSslPolicy($x[0], $ssl_policy);
 
 						// If we are setup as a soapbox we aren't accepting top level posts from this person
 

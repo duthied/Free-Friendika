@@ -13,12 +13,12 @@ use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
+use Friendica\Util\Network;
 use dba;
 use Exception;
 
 require_once 'include/datetime.php';
 require_once 'include/dba.php';
-require_once 'include/network.php';
 require_once 'include/html2bbcode.php';
 
 /**
@@ -568,7 +568,7 @@ class GContact
 		$done[] = System::baseUrl() . '/poco';
 
 		if (strlen(Config::get('system', 'directory'))) {
-			$x = fetch_url(get_server()."/pubsites");
+			$x = Network::fetchUrl(get_server()."/pubsites");
 			if ($x) {
 				$j = json_decode($x);
 				if ($j->entries) {
@@ -980,7 +980,7 @@ class GContact
 
 		$url = $server."/main/statistics";
 
-		$result = z_fetch_url($url);
+		$result = Network::curl($url);
 		if (!$result["success"]) {
 			return false;
 		}

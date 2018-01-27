@@ -10,6 +10,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Util\Network;
 
 require_once 'include/text.php';
 require_once 'mod/proxy.php';
@@ -58,9 +59,9 @@ function match_content(App $a)
 		}
 
 		if (strlen(Config::get('system', 'directory'))) {
-			$x = post_url(get_server().'/msearch', $params);
+			$x = Network::post(get_server().'/msearch', $params);
 		} else {
-			$x = post_url(System::baseUrl() . '/msearch', $params);
+			$x = Network::post(System::baseUrl() . '/msearch', $params);
 		}
 
 		$j = json_decode($x);

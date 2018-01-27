@@ -18,6 +18,7 @@ use Friendica\Model\Profile;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\Feed;
 use Friendica\Util\Crypto;
+use Friendica\Util\Network;
 use Friendica\Util\XML;
 
 use dba;
@@ -25,7 +26,6 @@ use DOMXPath;
 use DOMDocument;
 
 require_once 'include/dba.php';
-require_once 'include/network.php';
 
 /**
  * @brief This class contain functions for probing URL
@@ -107,21 +107,21 @@ class Probe
 
 		logger("Probing for ".$host, LOGGER_DEBUG);
 
-		$ret = z_fetch_url($ssl_url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
+		$ret = Network::curl($ssl_url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 		if ($ret['success']) {
 			$xml = $ret['body'];
-			$xrd = parse_xml_string($xml, false);
+			$xrd = XML::parseString($xml, false);
 			$host_url = 'https://'.$host;
 		}
 
 		if (!is_object($xrd)) {
-			$ret = z_fetch_url($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
+			$ret = Network::curl($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 			if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 				logger("Probing timeout for ".$url, LOGGER_DEBUG);
 				return false;
 			}
 			$xml = $ret['body'];
-			$xrd = parse_xml_string($xml, false);
+			$xrd = XML::parseString($xml, false);
 			$host_url = 'http://'.$host;
 		}
 		if (!is_object($xrd)) {
@@ -209,7 +209,7 @@ class Probe
 	/**
 	 * @brief Check an URI for LRDD data
 	 *
-	 * this is a replacement for the "lrdd" function in include/network.php.
+	 * this is a replacement for the "lrdd" function.
 	 * It isn't used in this class and has some redundancies in the code.
 	 * When time comes we can check the existing calls for "lrdd" if we can rework them.
 	 *
@@ -331,7 +331,7 @@ class Probe
 		}
 
 		if (x($data, "photo")) {
-			$data["baseurl"] = matching_url(normalise_link($data["baseurl"]), normalise_link($data["photo"]));
+			$data["baseurl"] = Network::getUrlMatch(normalise_link($data["baseurl"]), normalise_link($data["photo"]));
 		} else {
 			$data["photo"] = System::baseUrl().'/images/person-175.jpg';
 		}
@@ -692,7 +692,7 @@ class Probe
 		$xrd_timeout = Config::get('system', 'xrd_timeout', 20);
 		$redirects = 0;
 
-		$ret = z_fetch_url($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => $type]);
+		$ret = Network::curl($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => $type]);
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
 		}
@@ -708,7 +708,7 @@ class Probe
 		}
 
 		// If it is not JSON, maybe it is XML
-		$xrd = parse_xml_string($data, false);
+		$xrd = XML::parseString($data, false);
 		if (!is_object($xrd)) {
 			logger("No webfinger data retrievable for ".$url, LOGGER_DEBUG);
 			return false;
@@ -759,7 +759,7 @@ class Probe
 	 */
 	private static function pollNoscrape($noscrape_url, $data)
 	{
-		$ret = z_fetch_url($noscrape_url);
+		$ret = Network::curl($noscrape_url);
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
 		}
@@ -993,7 +993,7 @@ class Probe
 	 */
 	private static function pollHcard($hcard_url, $data, $dfrn = false)
 	{
-		$ret = z_fetch_url($hcard_url);
+		$ret = Network::curl($hcard_url);
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
 		}
@@ -1232,7 +1232,7 @@ class Probe
 							$pubkey = substr($pubkey, 5);
 						}
 					} elseif (normalise_link($pubkey) == 'http://') {
-						$ret = z_fetch_url($pubkey);
+						$ret = Network::curl($pubkey);
 						if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 							return false;
 						}
@@ -1264,7 +1264,7 @@ class Probe
 		}
 
 		// Fetch all additional data from the feed
-		$ret = z_fetch_url($data["poll"]);
+		$ret = Network::curl($data["poll"]);
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
 		}
@@ -1448,7 +1448,7 @@ class Probe
 	 */
 	private static function feed($url, $probe = true)
 	{
-		$ret = z_fetch_url($url);
+		$ret = Network::curl($url);
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
 		}
@@ -1509,7 +1509,7 @@ class Probe
 	 */
 	private static function mail($uri, $uid)
 	{
-		if (!validate_email($uri)) {
+		if (!Network::isEmailDomainValid($uri)) {
 			return false;
 		}
 
@@ -1543,7 +1543,7 @@ class Probe
 		$data["network"] = NETWORK_MAIL;
 		$data["name"]    = substr($uri, 0, strpos($uri, '@'));
 		$data["nick"]    = $data["name"];
-		$data["photo"]   = avatar_img($uri);
+		$data["photo"]   = Network::lookupAvatarByEmail($uri);
 		$data["url"]     = 'mailto:'.$uri;
 		$data["notify"]  = 'smtp '.random_string();
 		$data["poll"]    = 'email '.random_string();

@@ -12,6 +12,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Object\Image;
+use Friendica\Util\Network;
 use dba;
 
 require_once 'include/dba.php';
@@ -101,7 +102,7 @@ class Photo
 		$photo_failure = false;
 
 		$filename = basename($image_url);
-		$img_str = fetch_url($image_url, true);
+		$img_str = Network::fetchUrl($image_url, true);
 
 		if ($quit_on_error && ($img_str == "")) {
 			return false;

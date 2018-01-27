@@ -17,6 +17,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Protocol\Diaspora;
+use Friendica\Util\Network;
 use dba;
 
 require_once 'include/dba.php';
@@ -963,7 +964,7 @@ class Profile
 	public static function zrlInit(App $a)
 	{
 		$my_url = self::getMyURL();
-		$my_url = validate_url($my_url);
+		$my_url = Network::isUrlValid($my_url);
 		if ($my_url) {
 			// Is it a DDoS attempt?
 			// The check fetches the cached value from gprobe to reduce the load for this system

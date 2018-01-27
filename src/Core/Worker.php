@@ -10,7 +10,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Process;
 use Friendica\Util\Lock;
-
+use Friendica\Util\Network;
 use dba;
 
 require_once 'include/dba.php';
@@ -888,7 +888,7 @@ class Worker
 		}
 
 		$url = System::baseUrl()."/worker";
-		fetch_url($url, false, $redirects, 1);
+		Network::fetchUrl($url, false, $redirects, 1);
 	}
 
 	/**

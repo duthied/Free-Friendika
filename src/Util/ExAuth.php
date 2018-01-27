@@ -38,9 +38,9 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Model\User;
+use Friendica\Util\Network;
 use dba;
 
-require_once 'include/dba.php';
 require_once 'include/dba.php';
 
 class ExAuth
@@ -181,7 +181,7 @@ class ExAuth
 
 		$url = ($ssl ? 'https' : 'http') . '://' . $host . '/noscrape/' . $user;
 
-		$data = z_fetch_url($url);
+		$data = Network::curl($url);
 
 		if (!is_array($data)) {
 			return false;

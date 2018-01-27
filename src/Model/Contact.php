@@ -20,6 +20,7 @@ use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Salmon;
+use Friendica\Util\Network;
 use dba;
 
 require_once 'boot.php';
@@ -1131,12 +1132,12 @@ class Contact extends BaseObject
 		// remove ajax junk, e.g. Twitter
 		$url = str_replace('/#!/', '/', $url);
 
-		if (!allowed_url($url)) {
+		if (!Network::isUrlAllowed($url)) {
 			$result['message'] = L10n::t('Disallowed profile URL.');
 			return $result;
 		}
 
-		if (blocked_url($url)) {
+		if (Network::isUrlBlocked($url)) {
 			$result['message'] = L10n::t('Blocked domain');
 			return $result;
 		}
@@ -1319,5 +1320,38 @@ class Contact extends BaseObject
 
 		$result['success'] = true;
 		return $result;
+	}
+
+	public static function updateSslPolicy($contact, $new_policy)
+	{
+		$ssl_changed = false;
+		if ((intval($new_policy) == SSL_POLICY_SELFSIGN || $new_policy === 'self') && strstr($contact['url'], 'https:')) {
+			$ssl_changed = true;
+			$contact['url']     = 	str_replace('https:', 'http:', $contact['url']);
+			$contact['request'] = 	str_replace('https:', 'http:', $contact['request']);
+			$contact['notify']  = 	str_replace('https:', 'http:', $contact['notify']);
+			$contact['poll']    = 	str_replace('https:', 'http:', $contact['poll']);
+			$contact['confirm'] = 	str_replace('https:', 'http:', $contact['confirm']);
+			$contact['poco']    = 	str_replace('https:', 'http:', $contact['poco']);
+		}
+
+		if ((intval($new_policy) == SSL_POLICY_FULL || $new_policy === 'full') && strstr($contact['url'], 'http:')) {
+			$ssl_changed = true;
+			$contact['url']     = 	str_replace('http:', 'https:', $contact['url']);
+			$contact['request'] = 	str_replace('http:', 'https:', $contact['request']);
+			$contact['notify']  = 	str_replace('http:', 'https:', $contact['notify']);
+			$contact['poll']    = 	str_replace('http:', 'https:', $contact['poll']);
+			$contact['confirm'] = 	str_replace('http:', 'https:', $contact['confirm']);
+			$contact['poco']    = 	str_replace('http:', 'https:', $contact['poco']);
+		}
+
+		if ($ssl_changed) {
+			$fields = ['url' => $contact['url'], 'request' => $contact['request'],
+					'notify' => $contact['notify'], 'poll' => $contact['poll'],
+					'confirm' => $contact['confirm'], 'poco' => $contact['poco']];
+			dba::update('contact', $fields, ['id' => $contact['id']]);
+		}
+
+		return $contact;
 	}
 }

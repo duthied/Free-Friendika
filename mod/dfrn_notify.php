@@ -8,6 +8,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Protocol\DFRN;
@@ -48,7 +49,7 @@ function dfrn_notify_post(App $a) {
 	);
 	if (! DBM::is_result($r)) {
 		logger('dfrn_notify: could not match challenge to dfrn_id ' . $dfrn_id . ' challenge=' . $challenge);
-		xml_status(3, 'Could not match challenge');
+		System::xmlExit(3, 'Could not match challenge');
 	}
 
 	$r = q("DELETE FROM `challenge` WHERE `dfrn-id` = '%s' AND `challenge` = '%s'",
@@ -70,7 +71,7 @@ function dfrn_notify_post(App $a) {
 			$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
 			break;
 		default:
-			xml_status(3, 'Invalid direction');
+			System::xmlExit(3, 'Invalid direction');
 			break; // NOTREACHED
 	}
 
@@ -96,7 +97,7 @@ function dfrn_notify_post(App $a) {
 
 	if (! DBM::is_result($r)) {
 		logger('dfrn_notify: contact not found for dfrn_id ' . $dfrn_id);
-		xml_status(3, 'Contact not found');
+		System::xmlExit(3, 'Contact not found');
 		//NOTREACHED
 	}
 
@@ -122,7 +123,7 @@ function dfrn_notify_post(App $a) {
 
 	// if contact's ssl policy changed, update our links
 
-	fix_contact_ssl_policy($importer,$ssl_policy);
+	$importer = Contact::updateSslPolicy($importer, $ssl_policy);
 
 	logger('dfrn_notify: received notify from ' . $importer['name'] . ' for ' . $importer['username']);
 	logger('dfrn_notify: data: ' . $data, LOGGER_DATA);
@@ -131,7 +132,7 @@ function dfrn_notify_post(App $a) {
 		// Relationship is dissolved permanently
 		Contact::remove($importer['id']);
 		logger('relationship dissolved : ' . $importer['name'] . ' dissolved ' . $importer['username']);
-		xml_status(0, 'relationship dissolved');
+		System::xmlExit(0, 'relationship dissolved');
 	}
 
 	$rino = Config::get('system', 'rino_encrypt');
@@ -145,7 +146,7 @@ function dfrn_notify_post(App $a) {
 		// but only for $remote_rino > 1, because old code did't send rino version
 		if ($rino_remote > 1 && $rino < $rino_remote) {
 			logger("rino version '$rino_remote' is lower than supported '$rino'");
-			xml_status(0, "rino version '$rino_remote' is lower than supported '$rino'");
+			System::xmlExit(0, "rino version '$rino_remote' is lower than supported '$rino'");
 		}
 
 		$rawkey = hex2bin(trim($key));
@@ -175,14 +176,14 @@ function dfrn_notify_post(App $a) {
 				break;
 			default:
 				logger("rino: invalid sent version '$rino_remote'");
-				xml_status(0, "Invalid sent version '$rino_remote'");
+				System::xmlExit(0, "Invalid sent version '$rino_remote'");
 		}
 
 		logger('rino: decrypted data: ' . $data, LOGGER_DATA);
 	}
 
 	$ret = DFRN::import($data, $importer);
-	xml_status($ret, 'Processed');
+	System::xmlExit($ret, 'Processed');
 
 	// NOTREACHED
 }

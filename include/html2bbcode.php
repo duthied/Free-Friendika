@@ -9,6 +9,7 @@
  */
 
 use Friendica\Core\Addon;
+use Friendica\Util\Network;
 use Friendica\Util\XML;
 
 function node2bbcode(&$doc, $oldnode, $attributes, $startbb, $endbb)
@@ -362,7 +363,7 @@ function addHostnameSub($matches, $basepath)
 	$url = $matches[1];
 
 	$parts = array_merge($base, parse_url($url));
-	$url2 = unParseUrl($parts);
+	$url2 = Network::unparseURL($parts);
 
 	return str_replace($url, $url2, $link);
 }

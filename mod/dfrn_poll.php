@@ -11,6 +11,8 @@ use Friendica\Database\DBM;
 use Friendica\Module\Login;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
+use Friendica\Util\Network;
+use Friendica\Util\XML;
 
 require_once 'include/items.php';
 
@@ -47,7 +49,7 @@ function dfrn_poll_init(App $a)
 
 	if (($dfrn_id === '') && (!x($_POST, 'dfrn_id'))) {
 		if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
-			http_status_exit(403);
+			System::httpExit(403);
 		}
 
 		$user = '';
@@ -56,7 +58,7 @@ function dfrn_poll_init(App $a)
 				dbesc($a->argv[1])
 			);
 			if (!$r) {
-				http_status_exit(404);
+				System::httpExit(404);
 			}
 
 			$hidewall = ($r[0]['hidewall'] && !local_user());
@@ -98,12 +100,12 @@ function dfrn_poll_init(App $a)
 		);
 
 		if (DBM::is_result($r)) {
-			$s = fetch_url($r[0]['poll'] . '?dfrn_id=' . $my_id . '&type=profile-check');
+			$s = Network::fetchUrl($r[0]['poll'] . '?dfrn_id=' . $my_id . '&type=profile-check');
 
 			logger("dfrn_poll: old profile returns " . $s, LOGGER_DATA);
 
 			if (strlen($s)) {
-				$xml = parse_xml_string($s);
+				$xml = XML::parseString($s);
 
 				if ((int) $xml->status === 1) {
 					$_SESSION['authenticated'] = 1;
@@ -143,7 +145,7 @@ function dfrn_poll_init(App $a)
 				dbesc($sec)
 			);
 			if (!DBM::is_result($r)) {
-				xml_status(3, 'No ticket');
+				System::xmlExit(3, 'No ticket');
 				// NOTREACHED
 			}
 
@@ -156,7 +158,7 @@ function dfrn_poll_init(App $a)
 				intval($r[0]['cid'])
 			);
 			if (!DBM::is_result($c)) {
-				xml_status(3, 'No profile');
+				System::xmlExit(3, 'No profile');
 			}
 
 			$contact = $c[0];
@@ -183,7 +185,7 @@ function dfrn_poll_init(App $a)
 			if ($final_dfrn_id != $orig_id) {
 				logger('profile_check: ' . $final_dfrn_id . ' != ' . $orig_id, LOGGER_DEBUG);
 				// did not decode properly - cannot trust this site
-				xml_status(3, 'Bad decryption');
+				System::xmlExit(3, 'Bad decryption');
 			}
 
 			header("Content-type: text/xml");
@@ -207,10 +209,10 @@ function dfrn_poll_init(App $a)
 			$r = q("SELECT * FROM `profile_check` WHERE `dfrn_id` = '%s' ORDER BY `expire` DESC",
 				dbesc($dfrn_id));
 			if (DBM::is_result($r)) {
-				xml_status(1);
+				System::xmlExit(1);
 				return; // NOTREACHED
 			}
-			xml_status(0);
+			System::xmlExit(0);
 			return; // NOTREACHED
 		}
 	}
@@ -235,7 +237,7 @@ function dfrn_poll_post(App $a)
 				dbesc($sec)
 			);
 			if (!DBM::is_result($r)) {
-				xml_status(3, 'No ticket');
+				System::xmlExit(3, 'No ticket');
 				// NOTREACHED
 			}
 
@@ -248,7 +250,7 @@ function dfrn_poll_post(App $a)
 				intval($r[0]['cid'])
 			);
 			if (!DBM::is_result($c)) {
-				xml_status(3, 'No profile');
+				System::xmlExit(3, 'No profile');
 			}
 
 			$contact = $c[0];
@@ -275,7 +277,7 @@ function dfrn_poll_post(App $a)
 			if ($final_dfrn_id != $orig_id) {
 				logger('profile_check: ' . $final_dfrn_id . ' != ' . $orig_id, LOGGER_DEBUG);
 				// did not decode properly - cannot trust this site
-				xml_status(3, 'Bad decryption');
+				System::xmlExit(3, 'Bad decryption');
 			}
 
 			header("Content-type: text/xml");
@@ -481,7 +483,7 @@ function dfrn_poll_content(App $a)
 		if (($type === 'profile') && (strlen($sec))) {
 			// URL reply
 			if ($dfrn_version < 2.2) {
-				$s = fetch_url($r[0]['poll']
+				$s = Network::fetchUrl($r[0]['poll']
 					. '?dfrn_id=' . $encrypted_id
 					. '&type=profile-check'
 					. '&dfrn_version=' . DFRN_PROTOCOL_VERSION
@@ -489,7 +491,7 @@ function dfrn_poll_content(App $a)
 					. '&sec=' . $sec
 				);
 			} else {
-				$s = post_url($r[0]['poll'], [
+				$s = Network::post($r[0]['poll'], [
 					'dfrn_id' => $encrypted_id,
 					'type' => 'profile-check',
 					'dfrn_version' => DFRN_PROTOCOL_VERSION,
@@ -520,7 +522,7 @@ function dfrn_poll_content(App $a)
 			logger("dfrn_poll: sec profile: " . $s, LOGGER_DATA);
 
 			if (strlen($s) && strstr($s, '<?xml')) {
-				$xml = parse_xml_string($s);
+				$xml = XML::parseString($s);
 
 				logger('dfrn_poll: profile: parsed xml: ' . print_r($xml, true), LOGGER_DATA);
 

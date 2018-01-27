@@ -6,13 +6,15 @@ namespace Friendica\Content\Text;
 
 use Friendica\App;
 use Friendica\Content\Text\Plaintext;
+use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\System;
 use Friendica\Object\Image;
 use Friendica\Util\ParseUrl;
 
 require_once "include/bbcode.php";
 require_once "include/html2plain.php";
-require_once "include/network.php";
 
 class BBCode
 {
@@ -475,5 +477,75 @@ class BBCode
 		$post["text"] = trim($msg);
 
 		return($post);
+	}
+
+	public static function scaleExternalImages($srctext, $include_link = true, $scale_replace = false)
+	{
+		// Suppress "view full size"
+		if (intval(Config::get('system', 'no_view_full_size'))) {
+			$include_link = false;
+		}
+
+		// Picture addresses can contain special characters
+		$s = htmlspecialchars_decode($srctext);
+
+		$matches = null;
+		$c = preg_match_all('/\[img.*?\](.*?)\[\/img\]/ism', $s, $matches, PREG_SET_ORDER);
+		if ($c) {
+			foreach ($matches as $mtch) {
+				logger('scale_external_image: ' . $mtch[1]);
+
+				$hostname = str_replace('www.', '', substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3));
+				if (stristr($mtch[1], $hostname)) {
+					continue;
+				}
+
+				// $scale_replace, if passed, is an array of two elements. The
+				// first is the name of the full-size image. The second is the
+				// name of a remote, scaled-down version of the full size image.
+				// This allows Friendica to display the smaller remote image if
+				// one exists, while still linking to the full-size image
+				if ($scale_replace) {
+					$scaled = str_replace($scale_replace[0], $scale_replace[1], $mtch[1]);
+				} else {
+					$scaled = $mtch[1];
+				}
+				$i = self::fetchURL($scaled);
+				if (! $i) {
+					return $srctext;
+				}
+
+				// guess mimetype from headers or filename
+				$type = Image::guessType($mtch[1], true);
+
+				if ($i) {
+					$Image = new Image($i, $type);
+					if ($Image->isValid()) {
+						$orig_width = $Image->getWidth();
+						$orig_height = $Image->getHeight();
+
+						if ($orig_width > 640 || $orig_height > 640) {
+							$Image->scaleDown(640);
+							$new_width = $Image->getWidth();
+							$new_height = $Image->getHeight();
+							logger('scale_external_images: ' . $orig_width . '->' . $new_width . 'w ' . $orig_height . '->' . $new_height . 'h' . ' match: ' . $mtch[0], LOGGER_DEBUG);
+							$s = str_replace(
+								$mtch[0],
+								'[img=' . $new_width . 'x' . $new_height. ']' . $scaled . '[/img]'
+								. "\n" . (($include_link)
+									? '[url=' . $mtch[1] . ']' . L10n::t('view full size') . '[/url]' . "\n"
+									: ''),
+								$s
+							);
+							logger('scale_external_images: new string: ' . $s, LOGGER_DEBUG);
+						}
+					}
+				}
+			}
+		}
+
+		// replace the special char encoding
+		$s = htmlspecialchars($s, ENT_NOQUOTES, 'UTF-8');
+		return $s;
 	}
 }

@@ -1,5 +1,6 @@
 <?php
 
+use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Addon;
 use Friendica\Core\System;
@@ -82,7 +83,7 @@ function diaspora2bb($s) {
 	$s = preg_replace('/(\[code\])+(.*?)(\[\/code\])+/ism', '[code]$2[/code]', $s);
 
 	// Don't show link to full picture (until it is fixed)
-	$s = scale_external_images($s, false);
+	$s = BBCode::scaleExternalImages($s, false);
 
 	return $s;
 }

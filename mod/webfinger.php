@@ -4,12 +4,13 @@
  */
 use Friendica\App;
 use Friendica\Core\L10n;
+use Friendica\Core\System;
 use Friendica\Network\Probe;
 
 function webfinger_content(App $a)
 {
 	if (!local_user()) {
-		http_status_exit(
+		System::httpExit(
 			403,
 			[
 				"title" => L10n::t("Public access denied."),

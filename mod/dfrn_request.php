@@ -23,6 +23,7 @@ use Friendica\Model\User;
 use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Network\Probe;
+use Friendica\Util\Network;
 
 require_once 'include/enotify.php';
 
@@ -182,7 +183,7 @@ function dfrn_request_post(App $a)
 				}
 
 				if (strlen($dfrn_request) && strlen($confirm_key)) {
-					$s = fetch_url($dfrn_request . '?confirm_key=' . $confirm_key);
+					$s = Network::fetchUrl($dfrn_request . '?confirm_key=' . $confirm_key);
 				}
 
 				// (ignore reply, nothing we can do it failed)
@@ -331,20 +332,20 @@ function dfrn_request_post(App $a)
 					intval($contact_record['id'])
 				);
 			} else {
-				$url = validate_url($url);
+				$url = Network::isUrlValid($url);
 				if (!$url) {
 					notice(L10n::t('Invalid profile URL.') . EOL);
 					goaway(System::baseUrl() . '/' . $a->cmd);
 					return; // NOTREACHED
 				}
 
-				if (!allowed_url($url)) {
+				if (!Network::isUrlAllowed($url)) {
 					notice(L10n::t('Disallowed profile URL.') . EOL);
 					goaway(System::baseUrl() . '/' . $a->cmd);
 					return; // NOTREACHED
 				}
 
-				if (blocked_url($url)) {
+				if (Network::isUrlBlocked($url)) {
 					notice(L10n::t('Blocked domain') . EOL);
 					goaway(System::baseUrl() . '/' . $a->cmd);
 					return; // NOTREACHED

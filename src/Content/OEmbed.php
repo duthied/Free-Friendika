@@ -10,6 +10,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use dba;
 use DOMDocument;
@@ -77,7 +78,7 @@ class OEmbed
 			if (!in_array($ext, $noexts)) {
 				// try oembed autodiscovery
 				$redirects = 0;
-				$html_text = fetch_url($embedurl, false, $redirects, 15, "text/*");
+				$html_text = Network::fetchUrl($embedurl, false, $redirects, 15, "text/*");
 				if ($html_text) {
 					$dom = @DOMDocument::loadHTML($html_text);
 					if ($dom) {
@@ -85,13 +86,13 @@ class OEmbed
 						$entries = $xpath->query("//link[@type='application/json+oembed']");
 						foreach ($entries as $e) {
 							$href = $e->getAttributeNode("href")->nodeValue;
-							$txt = fetch_url($href . '&maxwidth=' . $a->videowidth);
+							$txt = Network::fetchUrl($href . '&maxwidth=' . $a->videowidth);
 							break;
 						}
 						$entries = $xpath->query("//link[@type='text/json+oembed']");
 						foreach ($entries as $e) {
 							$href = $e->getAttributeNode("href")->nodeValue;
-							$txt = fetch_url($href . '&maxwidth=' . $a->videowidth);
+							$txt = Network::fetchUrl($href . '&maxwidth=' . $a->videowidth);
 							break;
 						}
 					}
@@ -311,7 +312,7 @@ class OEmbed
 
 		$allowed = explode(',', $str_allowed);
 
-		return allowed_domain($domain, $allowed);
+		return Network::isDomainAllowed($domain, $allowed);
 	}
 
 	public static function getHTML($url, $title = null)

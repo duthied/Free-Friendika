@@ -25,6 +25,7 @@ use Friendica\Model\User;
 use Friendica\Object\Image;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Crypto;
+use Friendica\Util\Network;
 use Friendica\Util\XML;
 
 use dba;
@@ -792,7 +793,7 @@ class DFRN
 		if ($activity) {
 			$entry = $doc->createElement($element);
 
-			$r = parse_xml_string($activity, false);
+			$r = XML::parseString($activity, false);
 			if (!$r) {
 				return false;
 			}
@@ -815,7 +816,7 @@ class DFRN
 					$r->link = preg_replace('/\<link(.*?)\"\>/', '<link$1"/>', $r->link);
 
 					// XML does need a single element as root element so we add a dummy element here
-					$data = parse_xml_string("<dummy>" . $r->link . "</dummy>", false);
+					$data = XML::parseString("<dummy>" . $r->link . "</dummy>", false);
 					if (is_object($data)) {
 						foreach ($data->link as $link) {
 							$attributes = [];
@@ -1186,7 +1187,7 @@ class DFRN
 
 		logger('dfrn_deliver: ' . $url);
 
-		$ret = z_fetch_url($url);
+		$ret = Network::curl($url);
 
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return -2; // timed out
@@ -1211,7 +1212,7 @@ class DFRN
 			return 3;
 		}
 
-		$res = parse_xml_string($xml);
+		$res = XML::parseString($xml);
 
 		if ((intval($res->status) != 0) || (! strlen($res->challenge)) || (! strlen($res->dfrn_id))) {
 			return (($res->status) ? $res->status : 3);
@@ -1332,7 +1333,7 @@ class DFRN
 
 		logger('dfrn_deliver: ' . "SENDING: " . print_r($postvars, true), LOGGER_DATA);
 
-		$xml = post_url($contact['notify'], $postvars);
+		$xml = Network::post($contact['notify'], $postvars);
 
 		logger('dfrn_deliver: ' . "RECEIVED: " . $xml, LOGGER_DATA);
 
@@ -1356,7 +1357,7 @@ class DFRN
 			Contact::unmarkForArchival($contact);
 		}
 
-		$res = parse_xml_string($xml);
+		$res = XML::parseString($xml);
 
 		if (!isset($res->status)) {
 			return -11;
@@ -2187,7 +2188,7 @@ class DFRN
 		if (!$verb) {
 			return;
 		}
-		$xo = parse_xml_string($item["object"], false);
+		$xo = XML::parseString($item["object"], false);
 
 		if (($xo->type == ACTIVITY_OBJ_PERSON) && ($xo->id)) {
 			// somebody was poked/prodded. Was it me?
@@ -2309,8 +2310,8 @@ class DFRN
 			}
 
 			if (($item["verb"] == ACTIVITY_TAG) && ($item["object-type"] == ACTIVITY_OBJ_TAGTERM)) {
-				$xo = parse_xml_string($item["object"], false);
-				$xt = parse_xml_string($item["target"], false);
+				$xo = XML::parseString($item["object"], false);
+				$xt = XML::parseString($item["target"], false);
 
 				if ($xt->type == ACTIVITY_OBJ_NOTE) {
 					$r = q(
@@ -2517,7 +2518,7 @@ class DFRN
 		$item["object"] = self::transformActivity($xpath, $object, "object");
 
 		if (trim($item["object"]) != "") {
-			$r = parse_xml_string($item["object"], false);
+			$r = XML::parseString($item["object"], false);
 			if (isset($r->type)) {
 				$item["object-type"] = $r->type;
 			}
@@ -2786,8 +2787,8 @@ class DFRN
 			}
 
 			if (($item["verb"] == ACTIVITY_TAG) && ($item["object-type"] == ACTIVITY_OBJ_TAGTERM)) {
-				$xo = parse_xml_string($item["object"], false);
-				$xt = parse_xml_string($item["target"], false);
+				$xo = XML::parseString($item["object"], false);
+				$xt = XML::parseString($item["target"], false);
 
 				if ($xt->type == ACTIVITY_OBJ_NOTE) {
 					$i = q(

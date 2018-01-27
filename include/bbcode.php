@@ -13,6 +13,7 @@ use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Model\Contact;
 use Friendica\Util\Map;
+use Friendica\Util\Network;
 
 require_once 'include/event.php';
 require_once 'mod/proxy.php';
@@ -688,7 +689,7 @@ function GetProfileUsername($profile, $username, $compact = false, $getnetwork =
 		$StatusnetUser = preg_replace("=https?://(.*)/user/(.*)=ism", "$2", $profile);
 		if ($StatusnetUser != $profile) {
 			/// @TODO Some hosts run on https, not just http and sometimes http is disabled, let's support both here
-			$UserData = fetch_url("http://".$StatusnetHost."/api/users/show.json?user_id=".$StatusnetUser);
+			$UserData = Network::fetchUrl("http://".$StatusnetHost."/api/users/show.json?user_id=".$StatusnetUser);
 			$user = json_decode($UserData);
 			if ($user) {
 				if ($getnetwork) {
@@ -747,9 +748,7 @@ function bb_RemovePictureLinks($match) {
 			$text = "[url=".$match[2]."]".$match[2]."[/url]";
 
 			// if its not a picture then look if its a page that contains a picture link
-			require_once("include/network.php");
-
-			$body = fetch_url($match[1]);
+			$body = Network::fetchUrl($match[1]);
 
 			$doc = new DOMDocument();
 			@$doc->loadHTML($body);
@@ -804,9 +803,7 @@ function bb_CleanPictureLinksSub($match) {
 			$text = "[img]".$match[2]."[/img]";
 
 			// if its not a picture then look if its a page that contains a picture link
-			require_once("include/network.php");
-
-			$body = fetch_url($match[1]);
+			$body = Network::fetchUrl($match[1]);
 
 			$doc = new DOMDocument();
 			@$doc->loadHTML($body);

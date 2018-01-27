@@ -8,6 +8,7 @@ namespace Friendica\Util;
 use Friendica\Content\OEmbed;
 use Friendica\Core\Addon;
 use Friendica\Object\Image;
+use Friendica\Util\Network;
 use Friendica\Util\XML;
 
 use dba;
@@ -15,7 +16,6 @@ use DOMXPath;
 use DOMDocument;
 
 require_once 'include/dba.php';
-require_once "include/network.php";
 
 /**
  * @brief Class with methods for extracting certain content from an url
@@ -140,12 +140,12 @@ class ParseUrl
 		$url = trim($url, "'");
 		$url = trim($url, '"');
 
-		$url = strip_tracking_query_params($url);
+		$url = Network::stripTrackingQueryParams($url);
 
 		$siteinfo["url"] = $url;
 		$siteinfo["type"] = "link";
 
-		$data = z_fetch_url($url);
+		$data = Network::curl($url);
 		if (!$data['success']) {
 			return($siteinfo);
 		}

@@ -25,8 +25,8 @@ use Friendica\Model\Queue;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
+use Friendica\Util\Network;
 use Friendica\Util\XML;
-
 use dba;
 use SimpleXMLElement;
 
@@ -186,7 +186,7 @@ class Diaspora
 	 */
 	private static function verifyMagicEnvelope($envelope)
 	{
-		$basedom = parse_xml_string($envelope);
+		$basedom = XML::parseString($envelope);
 
 		if (!is_object($basedom)) {
 			logger("Envelope is no XML file");
@@ -285,7 +285,7 @@ class Diaspora
 
 			if (!is_object($j_outer_key_bundle)) {
 				logger('Outer Salmon did not verify. Discarding.');
-				http_status_exit(400);
+				System::httpExit(400);
 			}
 
 			$outer_iv = base64_decode($j_outer_key_bundle->iv);
@@ -296,11 +296,11 @@ class Diaspora
 			$xml = $raw;
 		}
 
-		$basedom = parse_xml_string($xml);
+		$basedom = XML::parseString($xml);
 
 		if (!is_object($basedom)) {
 			logger('Received data does not seem to be an XML. Discarding. '.$xml);
-			http_status_exit(400);
+			System::httpExit(400);
 		}
 
 		$base = $basedom->children(NAMESPACE_SALMON_ME);
@@ -325,7 +325,7 @@ class Diaspora
 		$verify = Crypto::rsaVerify($signed_data, $signature, $key);
 		if (!$verify) {
 			logger('Message did not verify. Discarding.');
-			http_status_exit(400);
+			System::httpExit(400);
 		}
 
 		return ['message' => (string)base64url_decode($base->data),
@@ -347,7 +347,7 @@ class Diaspora
 	public static function decode($importer, $xml)
 	{
 		$public = false;
-		$basedom = parse_xml_string($xml);
+		$basedom = XML::parseString($xml);
 
 		if (!is_object($basedom)) {
 			logger("XML is not parseable.");
@@ -381,7 +381,7 @@ class Diaspora
 			$decrypted = self::aesDecrypt($outer_key, $outer_iv, $ciphertext);
 
 			logger('decrypted: '.$decrypted, LOGGER_DEBUG);
-			$idom = parse_xml_string($decrypted);
+			$idom = XML::parseString($decrypted);
 
 			$inner_iv = base64_decode($idom->iv);
 			$inner_aes_key = base64_decode($idom->aes_key);
@@ -403,7 +403,7 @@ class Diaspora
 
 		if (!$base) {
 			logger('unable to locate salmon data in xml');
-			http_status_exit(400);
+			System::httpExit(400);
 		}
 
 
@@ -441,7 +441,7 @@ class Diaspora
 
 		if (!$author_link) {
 			logger('Could not retrieve author URI.');
-			http_status_exit(400);
+			System::httpExit(400);
 		}
 		// Once we have the author URI, go to the web and try to find their public key
 		// (first this will look it up locally if it is in the fcontact cache)
@@ -452,14 +452,14 @@ class Diaspora
 
 		if (!$key) {
 			logger('Could not retrieve author key.');
-			http_status_exit(400);
+			System::httpExit(400);
 		}
 
 		$verify = Crypto::rsaVerify($signed_data, $signature, $key);
 
 		if (!$verify) {
 			logger('Message did not verify. Discarding.');
-			http_status_exit(400);
+			System::httpExit(400);
 		}
 
 		logger('Message verified.');
@@ -631,7 +631,7 @@ class Diaspora
 	 */
 	private static function validPosting($msg)
 	{
-		$data = parse_xml_string($msg["message"]);
+		$data = XML::parseString($msg["message"]);
 
 		if (!is_object($data)) {
 			logger("No valid XML ".$msg["message"], LOGGER_DEBUG);
@@ -1257,7 +1257,7 @@ class Diaspora
 
 		logger("Fetch post from ".$source_url, LOGGER_DEBUG);
 
-		$envelope = fetch_url($source_url);
+		$envelope = Network::fetchUrl($source_url);
 		if ($envelope) {
 			logger("Envelope was fetched.", LOGGER_DEBUG);
 			$x = self::verifyMagicEnvelope($envelope);
@@ -1275,13 +1275,13 @@ class Diaspora
 			$source_url = $server."/p/".urlencode($guid).".xml";
 			logger("Fetch post from ".$source_url, LOGGER_DEBUG);
 
-			$x = fetch_url($source_url);
+			$x = Network::fetchUrl($source_url);
 			if (!$x) {
 				return false;
 			}
 		}
 
-		$source_xml = parse_xml_string($x);
+		$source_xml = XML::parseString($x);
 
 		if (!is_object($source_xml)) {
 			return false;
@@ -3229,7 +3229,7 @@ class Diaspora
 			if (!intval(Config::get("system", "diaspora_test"))) {
 				$content_type = (($public_batch) ? "application/magic-envelope+xml" : "application/json");
 
-				post_url($dest_url."/", $envelope, ["Content-Type: ".$content_type]);
+				Network::post($dest_url."/", $envelope, ["Content-Type: ".$content_type]);
 				$return_code = $a->get_curl_code();
 			} else {
 				logger("test_mode");

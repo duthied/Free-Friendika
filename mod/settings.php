@@ -17,6 +17,7 @@ use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\User;
 use Friendica\Protocol\Email;
+use Friendica\Util\Network;
 
 function get_theme_config_file($theme)
 {
@@ -535,7 +536,7 @@ function settings_post(App $a)
 
 	// If openid has changed or if there's an openid but no openidserver, try and discover it.
 	if ($openid != $a->user['openid'] || (strlen($openid) && (!strlen($openidserver)))) {
-		if (validate_url($openid)) {
+		if (Network::isUrlValid($openid)) {
 			logger('updating openidserver');
 			require_once 'library/openid.php';
 			$open_id_obj = new LightOpenID;

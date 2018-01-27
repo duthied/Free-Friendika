@@ -14,6 +14,7 @@ use Friendica\Model\GContact;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
+use Friendica\Util\Network;
 
 require_once 'mod/contacts.php';
 
@@ -45,7 +46,7 @@ function dirfind_content(App $a, $prefix = "") {
 	if (strpos($search,'@') === 0) {
 		$search = substr($search,1);
 		$header = L10n::t('People Search - %s', $search);
-		if ((valid_email($search) && validate_email($search)) ||
+		if ((valid_email($search) && Network::isEmailDomainValid($search)) ||
 			(substr(normalise_link($search), 0, 7) == "http://")) {
 			$user_data = Probe::uri($search);
 			$discover_user = (in_array($user_data["network"], [NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA]));
@@ -177,7 +178,7 @@ function dirfind_content(App $a, $prefix = "") {
 			$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
 
 			if(strlen(Config::get('system','directory')))
-				$x = fetch_url(get_server().'/lsearch?f=' . $p .  '&search=' . urlencode($search));
+				$x = Network::fetchUrl(get_server().'/lsearch?f=' . $p .  '&search=' . urlencode($search));
 
 			$j = json_decode($x);
 		}

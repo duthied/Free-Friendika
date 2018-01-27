@@ -9,6 +9,7 @@ namespace Friendica\Protocol;
 use Friendica\Database\DBM;
 use Friendica\Core\System;
 use Friendica\Model\Item;
+use Friendica\Util\Network;
 use dba;
 use DOMDocument;
 use DOMXPath;
@@ -243,7 +244,7 @@ class Feed {
 
 			$orig_plink = $item["plink"];
 
-			$item["plink"] = original_url($item["plink"]);
+			$item["plink"] = Network::finalUrl($item["plink"]);
 
 			$item["parent-uri"] = $item["uri"];
 
