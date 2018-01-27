@@ -79,7 +79,7 @@ class Network
 
 		$a = get_app();
 
-		if (blocked_url($url)) {
+		if (self::blockedURL($url)) {
 			logger('z_fetch_url: domain of ' . $url . ' is blocked', LOGGER_DATA);
 			return $ret;
 		}
@@ -281,7 +281,7 @@ class Network
 	{
 		$stamp1 = microtime(true);
 
-		if (blocked_url($url)) {
+		if (self::blockedURL($url)) {
 			logger('post_url: domain of ' . $url . ' is blocked', LOGGER_DATA);
 			return false;
 		}
@@ -622,7 +622,7 @@ class Network
 
 		$allowed = explode(',', $str_allowed);
 
-		return allowed_domain($domain, $allowed);
+		return self::allowedDomain($domain, $allowed);
 	}
 
 	/**

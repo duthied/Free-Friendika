@@ -1510,7 +1510,7 @@ class Probe
 	 */
 	private static function mail($uri, $uid)
 	{
-		if (!validate_email($uri)) {
+		if (!Network::validateEmail($uri)) {
 			return false;
 		}
 
@@ -1544,7 +1544,7 @@ class Probe
 		$data["network"] = NETWORK_MAIL;
 		$data["name"]    = substr($uri, 0, strpos($uri, '@'));
 		$data["nick"]    = $data["name"];
-		$data["photo"]   = avatar_img($uri);
+		$data["photo"]   = Network::avatarImg($uri);
 		$data["url"]     = 'mailto:'.$uri;
 		$data["notify"]  = 'smtp '.random_string();
 		$data["poll"]    = 'email '.random_string();

@@ -20,6 +20,7 @@ use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Salmon;
+use Friendica\Util\Network;
 use dba;
 
 require_once 'boot.php';
@@ -1131,12 +1132,12 @@ class Contact extends BaseObject
 		// remove ajax junk, e.g. Twitter
 		$url = str_replace('/#!/', '/', $url);
 
-		if (!allowed_url($url)) {
+		if (!Network::allowedURL($url)) {
 			$result['message'] = L10n::t('Disallowed profile URL.');
 			return $result;
 		}
 
-		if (blocked_url($url)) {
+		if (Network::blockedURL($url)) {
 			$result['message'] = L10n::t('Blocked domain');
 			return $result;
 		}

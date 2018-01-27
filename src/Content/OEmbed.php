@@ -312,7 +312,7 @@ class OEmbed
 
 		$allowed = explode(',', $str_allowed);
 
-		return allowed_domain($domain, $allowed);
+		return Network::allowedDomain($domain, $allowed);
 	}
 
 	public static function getHTML($url, $title = null)

@@ -12,42 +12,6 @@ use Friendica\Object\Image;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
 
-function validate_url($url)
-{
-	return Network::validateURL($url);
-}
-
-function validate_email($addr)
-{
-	return Network::validateEmail($addr);
-}
-
-function allowed_url($url)
-{
-	return Network::allowedURL($url);
-}
-
-function blocked_url($url)
-{
-	return Network::blockedURL($url);
-}
-
-function allowed_email($email)
-{
-	return Network::allowedEmail($email);
-}
-
-function allowed_domain($domain, array $domain_list)
-{
-	return Network::allowedDomain($domain, $domain_list);
-}
-
-function avatar_img($email)
-{
-	return Network::avatarImg($email);
-}
-
-
 function parse_xml_string($s, $strict = true)
 {
 	return Network::parseXmlString($s, $strict);

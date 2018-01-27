@@ -332,20 +332,20 @@ function dfrn_request_post(App $a)
 					intval($contact_record['id'])
 				);
 			} else {
-				$url = validate_url($url);
+				$url = Network::validateURL($url);
 				if (!$url) {
 					notice(L10n::t('Invalid profile URL.') . EOL);
 					goaway(System::baseUrl() . '/' . $a->cmd);
 					return; // NOTREACHED
 				}
 
-				if (!allowed_url($url)) {
+				if (!Network::allowedURL($url)) {
 					notice(L10n::t('Disallowed profile URL.') . EOL);
 					goaway(System::baseUrl() . '/' . $a->cmd);
 					return; // NOTREACHED
 				}
 
-				if (blocked_url($url)) {
+				if (Network::blockedURL($url)) {
 					notice(L10n::t('Blocked domain') . EOL);
 					goaway(System::baseUrl() . '/' . $a->cmd);
 					return; // NOTREACHED
