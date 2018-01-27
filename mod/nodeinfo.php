@@ -22,12 +22,12 @@ function nodeinfo_wellknown(App $a) {
 
 function nodeinfo_init(App $a) {
 	if (!Config::get('system', 'nodeinfo')) {
-		Network::httpStatusExit(404);
+		System::httpExit(404);
 		killme();
 	}
 
 	if (($a->argc != 2) || ($a->argv[1] != '1.0')) {
-		Network::httpStatusExit(404);
+		System::httpExit(404);
 		killme();
 	}
 

@@ -400,70 +400,6 @@ class Network
 	}
 
 	/**
-	 * Generic XML return
-	 * Outputs a basic dfrn XML status structure to STDOUT, with a <status> variable
-	 * of $st and an optional text <message> of $message and terminates the current process.
-	 */
-	public static function xmlExit($st, $message = '')
-	{
-		$result = ['status' => $st];
-
-		if ($message != '') {
-			$result['message'] = $message;
-		}
-
-		if ($st) {
-			logger('xml_status returning non_zero: ' . $st . " message=" . $message);
-		}
-
-		header("Content-type: text/xml");
-
-		$xmldata = ["result" => $result];
-
-		echo XML::fromArray($xmldata, $xml);
-
-		killme();
-	}
-
-	/**
-	 * @brief Send HTTP status header and exit.
-	 *
-	 * @param integer $val         HTTP status result value
-	 * @param array   $description optional message
-	 *                             'title' => header title
-	 *                             'description' => optional message
-	 */
-	public static function httpStatusExit($val, $description = [])
-	{
-		$err = '';
-		if ($val >= 400) {
-			$err = 'Error';
-			if (!isset($description["title"])) {
-				$description["title"] = $err." ".$val;
-			}
-		}
-
-		if ($val >= 200 && $val < 300) {
-			$err = 'OK';
-		}
-
-		logger('http_status_exit ' . $val);
-		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $val . ' ' . $err);
-
-		if (isset($description["title"])) {
-			$tpl = get_markup_template('http_status.tpl');
-			echo replace_macros(
-				$tpl,
-				[
-					'$title' => $description["title"],
-					'$description' => $description["description"]]
-			);
-		}
-
-		killme();
-	}
-
-	/**
 	 * @brief Check URL to see if it's real
 	 *
 	 * Take a URL from the wild, prepend http:// if necessary
@@ -856,22 +792,6 @@ class Network
 			$slinky->set_cascade([new Slinky_Ur1ca(), new Slinky_TinyURL()]);
 		}
 		return $slinky->short();
-	}
-
-	/**
-	 * @brief Encodes content to json
-	 *
-	 * This function encodes an array to json format
-	 * and adds an application/json HTTP header to the output.
-	 * After finishing the process is getting killed.
-	 *
-	 * @param array $x The input content
-	 */
-	public static function jsonExit($x)
-	{
-		header("content-type: application/json");
-		echo json_encode($x);
-		killme();
 	}
 
 	/**

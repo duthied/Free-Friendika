@@ -6,15 +6,15 @@
 use Friendica\App;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Protocol\PortableContact;
-use Friendica\Util\Network;
 
 function poco_init(App $a) {
 	$system_mode = false;
 
 	if (intval(Config::get('system', 'block_public')) || (Config::get('system', 'block_local_dir'))) {
-		Network::httpStatusExit(401);
+		System::httpExit(401);
 	}
 
 	if ($a->argc > 1) {
@@ -23,7 +23,7 @@ function poco_init(App $a) {
 	if (! x($user)) {
 		$c = q("SELECT * FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1");
 		if (! DBM::is_result($c)) {
-			Network::httpStatusExit(401);
+			System::httpExit(401);
 		}
 		$system_mode = true;
 	}
@@ -64,7 +64,7 @@ function poco_init(App $a) {
 			dbesc($user)
 		);
 		if (! DBM::is_result($users) || $users[0]['hidewall'] || $users[0]['hide-friends']) {
-			Network::httpStatusExit(404);
+			System::httpExit(404);
 		}
 
 		$user = $users[0];
@@ -358,7 +358,7 @@ function poco_init(App $a) {
 			$ret['entry'][] = [];
 		}
 	} else {
-		Network::httpStatusExit(500);
+		System::httpExit(500);
 	}
 	logger("End of poco", LOGGER_DEBUG);
 
@@ -372,6 +372,6 @@ function poco_init(App $a) {
 		echo json_encode($ret);
 		killme();
 	} else {
-		Network::httpStatusExit(500);
+		System::httpExit(500);
 	}
 }

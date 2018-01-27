@@ -11,7 +11,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Profile;
 use Friendica\Protocol\DFRN;
-use Friendica\Util\Network;
 
 function display_init(App $a)
 {
@@ -424,7 +423,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 function displayShowFeed($item_id, $conversation) {
 	$xml = DFRN::itemFeed($item_id, $conversation);
 	if ($xml == '') {
-		Network::httpStatusExit(500);
+		System::httpExit(500);
 	}
 	header("Content-type: application/atom+xml");
 	echo $xml;

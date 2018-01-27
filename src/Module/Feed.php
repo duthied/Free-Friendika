@@ -3,8 +3,8 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\System;
 use Friendica\Protocol\OStatus;
-use Friendica\Util\Network;
 
 /**
  * Provides public Atom feeds
@@ -32,7 +32,7 @@ class Feed extends BaseModule
 		$nocache     = x($_GET, 'nocache') && local_user();
 
 		if ($a->argc < 2) {
-			Network::httpStatusExit(400);
+			System::httpExit(400);
 		}
 
 		$type = null;

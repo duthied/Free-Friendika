@@ -4,7 +4,7 @@
  */
 use Friendica\App;
 use Friendica\Content\Smilies;
-use Friendica\Util\Network;
+use Friendica\Core\System;
 
 /**
  * @param object $a App
@@ -18,7 +18,7 @@ function smilies_content(App $a)
 		for ($i = 0; $i < count($tmp['texts']); $i++) {
 			$results[] = ['text' => $tmp['texts'][$i], 'icon' => $tmp['icons'][$i]];
 		}
-		Network::jsonExit($results);
+		System::jsonExit($results);
 	} else {
 		return Smilies::replace('', true);
 	}

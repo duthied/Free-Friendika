@@ -2,7 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Util\Network;
+use Friendica\Core\System;
 
 require_once 'mod/hostxrd.php';
 require_once 'mod/nodeinfo.php';
@@ -26,7 +26,7 @@ function _well_known_init(App $a)
 				break;
 		}
 	}
-	Network::httpStatusExit(404);
+	System::httpExit(404);
 	killme();
 }
 

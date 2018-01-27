@@ -9,10 +9,10 @@
  */
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
-use Friendica\Util\Network;
 
 function hovercard_init(App $a)
 {
@@ -27,7 +27,7 @@ function hovercard_content()
 
 	// Get out if the system doesn't have public access allowed
 	if (intval(Config::get('system', 'block_public'))) {
-		Network::httpStatusExit(401);
+		System::httpExit(401);
 	}
 
 	// Return the raw content of the template. We use this to make templates usable for js functions.
@@ -91,7 +91,7 @@ function hovercard_content()
 
 		return $o;
 	} else {
-		Network::jsonExit($profile);
+		System::jsonExit($profile);
 	}
 }
 

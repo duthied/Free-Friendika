@@ -494,7 +494,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		$user = dba::selectFirst('user', [], ['nickname' => $node]);
 		if (!DBM::is_result($user)) {
 			$message = L10n::t('No user record found for \'%s\' ', $node);
-			Network::xmlExit(3, $message); // failure
+			System::xmlExit(3, $message); // failure
 			// NOTREACHED
 		}
 
@@ -504,7 +504,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 		if (!strstr($my_prvkey, 'PRIVATE KEY')) {
 			$message = L10n::t('Our site encryption key is apparently messed up.');
-			Network::xmlExit(3, $message);
+			System::xmlExit(3, $message);
 		}
 
 		// verify everything
@@ -515,7 +515,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 		if (!strlen($decrypted_source_url)) {
 			$message = L10n::t('Empty site URL was provided or URL could not be decrypted by us.');
-			Network::xmlExit(3, $message);
+			System::xmlExit(3, $message);
 			// NOTREACHED
 		}
 
@@ -531,7 +531,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			if (!DBM::is_result($contact)) {
 				// this is either a bogus confirmation (?) or we deleted the original introduction.
 				$message = L10n::t('Contact record was not found for you on our site.');
-				Network::xmlExit(3, $message);
+				System::xmlExit(3, $message);
 				return; // NOTREACHED
 			}
 		}
@@ -545,7 +545,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 		if (!$foreign_pubkey) {
 			$message = L10n::t('Site public key not available in contact record for URL %s.', $decrypted_source_url);
-			Network::xmlExit(3, $message);
+			System::xmlExit(3, $message);
 		}
 
 		$decrypted_dfrn_id = "";
@@ -561,7 +561,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 		if (dba::exists('contact', ['dfrn-id' => $decrypted_dfrn_id])) {
 			$message = L10n::t('The ID provided by your system is a duplicate on our system. It should work if you try again.');
-			Network::xmlExit(1, $message); // Birthday paradox - duplicate dfrn-id
+			System::xmlExit(1, $message); // Birthday paradox - duplicate dfrn-id
 			// NOTREACHED
 		}
 
@@ -572,7 +572,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		);
 		if (!DBM::is_result($r)) {
 			$message = L10n::t('Unable to set your contact credentials on our system.');
-			Network::xmlExit(3, $message);
+			System::xmlExit(3, $message);
 		}
 
 		// It's possible that the other person also requested friendship.
@@ -627,7 +627,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		);
 		if (!DBM::is_result($r)) {	// indicates schema is messed up or total db failure
 			$message = L10n::t('Unable to update your contact profile details on our system');
-			Network::xmlExit(3, $message);
+			System::xmlExit(3, $message);
 		}
 
 		// Otherwise everything seems to have worked and we are almost done. Yay!
@@ -708,7 +708,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				}
 			}
 		}
-		Network::xmlExit(0); // Success
+		System::xmlExit(0); // Success
 		return; // NOTREACHED
 		////////////////////// End of this scenario ///////////////////////////////////////////////
 	}
