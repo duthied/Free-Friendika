@@ -132,7 +132,7 @@ class Temporal
 		if ($dob < '0000-01-01') {
 			$value = '';
 		} else {
-			$value = self::utc(($year > 1000) ? $dob : '1000-' . $month . '-' . $day, 'Y-m-d');
+			$value = DateTimeFormat::utc(($year > 1000) ? $dob : '1000-' . $month . '-' . $day, 'Y-m-d');
 		}
 
 		$age = (intval($value) ? age($value, $a->user["timezone"], $a->user["timezone"]) : "");
@@ -368,11 +368,11 @@ class Temporal
 			$viewer_tz = date_default_timezone_get();
 		}
 
-		$birthdate = self::convert($dob . ' 00:00:00+00:00', $owner_tz, 'UTC', 'Y-m-d');
+		$birthdate = DateTimeFormat::convert($dob . ' 00:00:00+00:00', $owner_tz, 'UTC', 'Y-m-d');
 		list($year, $month, $day) = explode("-", $birthdate);
-		$year_diff = self::timezoneNow($viewer_tz, 'Y') - $year;
-		$curr_month = self::timezoneNow($viewer_tz, 'm');
-		$curr_day = self::timezoneNow($viewer_tz, 'd');
+		$year_diff  = DateTimeFormat::timezoneNow($viewer_tz, 'Y') - $year;
+		$curr_month = DateTimeFormat::timezoneNow($viewer_tz, 'm');
+		$curr_day   = DateTimeFormat::timezoneNow($viewer_tz, 'd');
 
 		if (($curr_month < $month) || (($curr_month == $month) && ($curr_day < $day))) {
 			$year_diff--;
@@ -412,7 +412,7 @@ class Temporal
 	{
 		$d = sprintf('%04d-%02d-01 00:00', intval($y), intval($m));
 
-		return self::utc($d, 'w');
+		return DateTimeFormat::utc($d, 'w');
 	}
 
 	/**
@@ -442,8 +442,8 @@ class Temporal
 			'October', 'November', 'December'
 		];
 
-		$thisyear = self::localNow('Y');
-		$thismonth = self::localNow('m');
+		$thisyear = DateTimeFormat::localNow('Y');
+		$thismonth = DateTimeFormat::localNow('m');
 		if (!$y) {
 			$y = $thisyear;
 		}
@@ -460,7 +460,7 @@ class Temporal
 		$started = false;
 
 		if (($y == $thisyear) && ($m == $thismonth)) {
-			$tddate = intval(self::localNow('j'));
+			$tddate = intval(DateTimeFormat::localNow('j'));
 		}
 
 		$str_month = day_translate($mtab[$m]);
