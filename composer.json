@@ -28,7 +28,8 @@
 		"npm-asset/jquery": "^1.11.2",
 		"npm-asset/jquery-colorbox": "^1.6",
 		"bower-asset/Chart-js": "^2.7",
-		"npm-asset/jquery-datetimepicker": "^2.4.0"
+		"npm-asset/jquery-datetimepicker": "^2.4.0",
+		"npm-asset/jgrowl": "^1.4"
 	},
 	"repositories": [
         {
