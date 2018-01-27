@@ -12,6 +12,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Object\Image;
 use Friendica\Util\ParseUrl;
+use Friendica\Content\OEmbed;
 
 require_once "include/bbcode.php";
 require_once "include/html2plain.php";
@@ -510,7 +511,7 @@ class BBCode
 				} else {
 					$scaled = $mtch[1];
 				}
-				$i = self::fetchURL($scaled);
+				$i = OEmbed::fetchURL($scaled);
 				if (! $i) {
 					return $srctext;
 				}
