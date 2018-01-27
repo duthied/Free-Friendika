@@ -285,7 +285,7 @@ class Diaspora
 
 			if (!is_object($j_outer_key_bundle)) {
 				logger('Outer Salmon did not verify. Discarding.');
-				http_status_exit(400);
+				Network::httpStatusExit(400);
 			}
 
 			$outer_iv = base64_decode($j_outer_key_bundle->iv);
@@ -300,7 +300,7 @@ class Diaspora
 
 		if (!is_object($basedom)) {
 			logger('Received data does not seem to be an XML. Discarding. '.$xml);
-			http_status_exit(400);
+			Network::httpStatusExit(400);
 		}
 
 		$base = $basedom->children(NAMESPACE_SALMON_ME);
@@ -325,7 +325,7 @@ class Diaspora
 		$verify = Crypto::rsaVerify($signed_data, $signature, $key);
 		if (!$verify) {
 			logger('Message did not verify. Discarding.');
-			http_status_exit(400);
+			Network::httpStatusExit(400);
 		}
 
 		return ['message' => (string)base64url_decode($base->data),
@@ -403,7 +403,7 @@ class Diaspora
 
 		if (!$base) {
 			logger('unable to locate salmon data in xml');
-			http_status_exit(400);
+			Network::httpStatusExit(400);
 		}
 
 
@@ -441,7 +441,7 @@ class Diaspora
 
 		if (!$author_link) {
 			logger('Could not retrieve author URI.');
-			http_status_exit(400);
+			Network::httpStatusExit(400);
 		}
 		// Once we have the author URI, go to the web and try to find their public key
 		// (first this will look it up locally if it is in the fcontact cache)
@@ -452,14 +452,14 @@ class Diaspora
 
 		if (!$key) {
 			logger('Could not retrieve author key.');
-			http_status_exit(400);
+			Network::httpStatusExit(400);
 		}
 
 		$verify = Crypto::rsaVerify($signed_data, $signature, $key);
 
 		if (!$verify) {
 			logger('Message did not verify. Discarding.');
-			http_status_exit(400);
+			Network::httpStatusExit(400);
 		}
 
 		logger('Message verified.');

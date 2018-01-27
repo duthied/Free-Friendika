@@ -12,16 +12,6 @@ use Friendica\Object\Image;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
 
-function xml_status($st, $message = '')
-{
-	Network::xmlStatus($st, $message);
-}
-
-function http_status_exit($val, $description = [])
-{
-	Network::httpStatusExit($val, $description);
-}
-
 function validate_url($url)
 {
 	return Network::validateURL($url);

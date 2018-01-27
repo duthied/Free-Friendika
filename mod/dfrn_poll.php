@@ -48,7 +48,7 @@ function dfrn_poll_init(App $a)
 
 	if (($dfrn_id === '') && (!x($_POST, 'dfrn_id'))) {
 		if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
-			http_status_exit(403);
+			Network::httpStatusExit(403);
 		}
 
 		$user = '';
@@ -57,7 +57,7 @@ function dfrn_poll_init(App $a)
 				dbesc($a->argv[1])
 			);
 			if (!$r) {
-				http_status_exit(404);
+				Network::httpStatusExit(404);
 			}
 
 			$hidewall = ($r[0]['hidewall'] && !local_user());
@@ -144,7 +144,7 @@ function dfrn_poll_init(App $a)
 				dbesc($sec)
 			);
 			if (!DBM::is_result($r)) {
-				xml_status(3, 'No ticket');
+				Network::xmlStatus(3, 'No ticket');
 				// NOTREACHED
 			}
 
@@ -157,7 +157,7 @@ function dfrn_poll_init(App $a)
 				intval($r[0]['cid'])
 			);
 			if (!DBM::is_result($c)) {
-				xml_status(3, 'No profile');
+				Network::xmlStatus(3, 'No profile');
 			}
 
 			$contact = $c[0];
@@ -184,7 +184,7 @@ function dfrn_poll_init(App $a)
 			if ($final_dfrn_id != $orig_id) {
 				logger('profile_check: ' . $final_dfrn_id . ' != ' . $orig_id, LOGGER_DEBUG);
 				// did not decode properly - cannot trust this site
-				xml_status(3, 'Bad decryption');
+				Network::xmlStatus(3, 'Bad decryption');
 			}
 
 			header("Content-type: text/xml");
@@ -208,10 +208,10 @@ function dfrn_poll_init(App $a)
 			$r = q("SELECT * FROM `profile_check` WHERE `dfrn_id` = '%s' ORDER BY `expire` DESC",
 				dbesc($dfrn_id));
 			if (DBM::is_result($r)) {
-				xml_status(1);
+				Network::xmlStatus(1);
 				return; // NOTREACHED
 			}
-			xml_status(0);
+			Network::xmlStatus(0);
 			return; // NOTREACHED
 		}
 	}
@@ -236,7 +236,7 @@ function dfrn_poll_post(App $a)
 				dbesc($sec)
 			);
 			if (!DBM::is_result($r)) {
-				xml_status(3, 'No ticket');
+				Network::xmlStatus(3, 'No ticket');
 				// NOTREACHED
 			}
 
@@ -249,7 +249,7 @@ function dfrn_poll_post(App $a)
 				intval($r[0]['cid'])
 			);
 			if (!DBM::is_result($c)) {
-				xml_status(3, 'No profile');
+				Network::xmlStatus(3, 'No profile');
 			}
 
 			$contact = $c[0];
@@ -276,7 +276,7 @@ function dfrn_poll_post(App $a)
 			if ($final_dfrn_id != $orig_id) {
 				logger('profile_check: ' . $final_dfrn_id . ' != ' . $orig_id, LOGGER_DEBUG);
 				// did not decode properly - cannot trust this site
-				xml_status(3, 'Bad decryption');
+				Network::xmlStatus(3, 'Bad decryption');
 			}
 
 			header("Content-type: text/xml");

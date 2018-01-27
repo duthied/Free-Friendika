@@ -13,7 +13,7 @@ function pubsubhubbub_init(App $a) {
 	// PuSH subscription must be considered "public" so just block it
 	// if public access isn't enabled.
 	if (Config::get('system', 'block_public')) {
-		http_status_exit(403);
+		Network::httpStatusExit(403);
 	}
 
 	// Subscription request from subscriber
@@ -41,7 +41,7 @@ function pubsubhubbub_init(App $a) {
 			$subscribe = 0;
 		} else {
 			logger("pubsubhubbub: invalid hub_mode=$hub_mode, ignoring.");
-			http_status_exit(404);
+			Network::httpStatusExit(404);
 		}
 
 		logger("pubsubhubbub: $hub_mode request from " .
@@ -57,7 +57,7 @@ function pubsubhubbub_init(App $a) {
 
 		if (!$nick) {
 			logger('pubsubhubbub: bad hub_topic=$hub_topic, ignoring.');
-			http_status_exit(404);
+			Network::httpStatusExit(404);
 		}
 
 		// fetch user from database given the nickname
@@ -67,7 +67,7 @@ function pubsubhubbub_init(App $a) {
 
 		if (!DBM::is_result($r)) {
 			logger('pubsubhubbub: local account not found: ' . $nick);
-			http_status_exit(404);
+			Network::httpStatusExit(404);
 		}
 
 		$owner = $r[0];
@@ -76,7 +76,7 @@ function pubsubhubbub_init(App $a) {
 		if ($r[0]['hidewall']) {
 			logger('pubsubhubbub: local user ' . $nick .
 				   'has chosen to hide wall, ignoring.');
-			http_status_exit(403);
+			Network::httpStatusExit(403);
 		}
 
 		// get corresponding row from contact table
@@ -85,7 +85,7 @@ function pubsubhubbub_init(App $a) {
 			   intval($owner['uid']));
 		if (!DBM::is_result($r)) {
 			logger('pubsubhubbub: contact not found.');
-			http_status_exit(404);
+			Network::httpStatusExit(404);
 		}
 
 		$contact = $r[0];
@@ -94,7 +94,7 @@ function pubsubhubbub_init(App $a) {
 		if (!link_compare($hub_topic, $contact['poll'])) {
 			logger('pubsubhubbub: hub topic ' . $hub_topic . ' != ' .
 				   $contact['poll']);
-			http_status_exit(404);
+			Network::httpStatusExit(404);
 		}
 
 		// do subscriber verification according to the PuSH protocol
@@ -117,7 +117,7 @@ function pubsubhubbub_init(App $a) {
 		if ($ret < 200 || $ret > 299) {
 			logger("pubsubhubbub: subscriber verification at $hub_callback ".
 				   "returned $ret, ignoring.");
-			http_status_exit(404);
+			Network::httpStatusExit(404);
 		}
 
 		// check that the correct hub_challenge code was echoed back
@@ -125,7 +125,7 @@ function pubsubhubbub_init(App $a) {
 			logger("pubsubhubbub: subscriber did not echo back ".
 				   "hub.challenge, ignoring.");
 			logger("\"$hub_challenge\" != \"".trim($body)."\"");
-			http_status_exit(404);
+			Network::httpStatusExit(404);
 		}
 
 		// fetch the old subscription if it exists
@@ -163,7 +163,7 @@ function pubsubhubbub_init(App $a) {
 			logger("pubsubhubbub: successfully unsubscribed [$hub_callback].");
 			// we do nothing here, since the row was already deleted
 		}
-		http_status_exit(202);
+		Network::httpStatusExit(202);
 	}
 
 	killme();

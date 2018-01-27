@@ -9,6 +9,7 @@ use Friendica\Model\Contact;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\Crypto;
+use Friendica\Util\Network;
 
 require_once 'include/items.php';
 
@@ -38,7 +39,7 @@ function salmon_post(App $a) {
 		dbesc($nick)
 	);
 	if (! DBM::is_result($r)) {
-		http_status_exit(500);
+		Network::httpStatusExit(500);
 	}
 
 	$importer = $r[0];
@@ -58,7 +59,7 @@ function salmon_post(App $a) {
 
 	if(! $base) {
 		logger('mod-salmon: unable to locate salmon data in xml ');
-		http_status_exit(400);
+		Network::httpStatusExit(400);
 	}
 
 	// Stash the signature away for now. We have to find their key or it won't be good for anything.
@@ -96,7 +97,7 @@ function salmon_post(App $a) {
 
 	if(! $author_link) {
 		logger('mod-salmon: Could not retrieve author URI.');
-		http_status_exit(400);
+		Network::httpStatusExit(400);
 	}
 
 	// Once we have the author URI, go to the web and try to find their public key
@@ -107,7 +108,7 @@ function salmon_post(App $a) {
 
 	if(! $key) {
 		logger('mod-salmon: Could not retrieve author key.');
-		http_status_exit(400);
+		Network::httpStatusExit(400);
 	}
 
 	$key_info = explode('.',$key);
@@ -139,7 +140,7 @@ function salmon_post(App $a) {
 
 	if (! $verify) {
 		logger('mod-salmon: Message did not verify. Discarding.');
-		http_status_exit(400);
+		Network::httpStatusExit(400);
 	}
 
 	logger('mod-salmon: Message verified with mode '.$mode);
@@ -183,7 +184,7 @@ function salmon_post(App $a) {
 	//if((DBM::is_result($r)) && (($r[0]['readonly']) || ($r[0]['rel'] == CONTACT_IS_FOLLOWER) || ($r[0]['blocked']))) {
 	if (DBM::is_result($r) && $r[0]['blocked']) {
 		logger('mod-salmon: Ignoring this author.');
-		http_status_exit(202);
+		Network::httpStatusExit(202);
 		// NOTREACHED
 	}
 
@@ -194,5 +195,5 @@ function salmon_post(App $a) {
 
 	OStatus::import($data, $importer, $contact_rec, $hub);
 
-	http_status_exit(200);
+	Network::httpStatusExit(200);
 }
