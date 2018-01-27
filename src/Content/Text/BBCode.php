@@ -5,6 +5,7 @@
 namespace Friendica\Content\Text;
 
 use Friendica\App;
+use Friendica\Content\Text\Plaintext;
 use Friendica\Core\PConfig;
 use Friendica\Object\Image;
 use Friendica\Util\ParseUrl;
@@ -321,35 +322,6 @@ class BBCode
 	}
 
 	/**
-	 * Shortens message
-	 *
-	 * @param type $msg
-	 * @param type $limit
-	 * @return type
-	 *
-	 * @todo For Twitter URLs aren't shortened, but they have to be calculated as if.
-	 */
-	public static function shortenMsg($msg, $limit)
-	{
-		$lines = explode("\n", $msg);
-		$msg = "";
-		$recycle = html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
-		$ellipsis = html_entity_decode("&#x2026;", ENT_QUOTES, 'UTF-8');
-		foreach ($lines as $row => $line) {
-			if (iconv_strlen(trim($msg . "\n" . $line), "UTF-8") <= $limit) {
-				$msg = trim($msg . "\n" . $line);
-			} elseif (($msg == "") || (($row == 1) && (substr($msg, 0, 4) == $recycle))) {
-				// Is the new message empty by now or is it a reshared message?
-				$msg = iconv_substr(iconv_substr(trim($msg . "\n" . $line), 0, $limit, "UTF-8"), 0, -3, "UTF-8") . $ellipsis;
-			} else {
-				break;
-			}
-		}
-
-		return $msg;
-	}
-
-	/**
 	 * @brief Convert a message into plaintext for connectors to other networks
 	 *
 	 * @param array $b The message array that is about to be posted
@@ -496,7 +468,7 @@ class BBCode
 				} elseif (PConfig::get($b["uid"], "system", "no_intelligent_shortening")) {
 					$post["url"] = $b["plink"];
 				}
-				$msg = self::shortenMsg($msg, $limit);
+				$msg = Plaintext::shorten($msg, $limit);
 			}
 		}
 
