@@ -5,6 +5,7 @@
 use Friendica\App;
 use Friendica\Content\Smilies;
 use Friendica\Content\OEmbed;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\L10n;
@@ -15,7 +16,6 @@ use Friendica\Util\Map;
 
 require_once 'include/event.php';
 require_once 'mod/proxy.php';
-require_once 'include/plaintext.php';
 
 function bb_PictureCacheExt($matches) {
 	if (strpos($matches[3], "data:image/") === 0) {
@@ -57,7 +57,7 @@ function bb_map_location($match) {
  */
 function bb_attachment($return, $simplehtml = false, $tryoembed = true)
 {
-	$data = get_attachment_data($return);
+	$data = BBCode::getAttachmentData($return);
 	if (!$data) {
 		return $return;
 	}
@@ -120,7 +120,7 @@ function bb_attachment($return, $simplehtml = false, $tryoembed = true)
 
 function bb_remove_share_information($Text, $plaintext = false, $nolink = false) {
 
-	$data = get_attachment_data($Text);
+	$data = BBCode::getAttachmentData($Text);
 
 	if (!$data) {
 		return $Text;

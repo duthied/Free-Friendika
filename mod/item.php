@@ -15,6 +15,7 @@
  * information.
  */
 use Friendica\App;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -506,7 +507,7 @@ function item_post(App $a) {
 	// embedded bookmark or attachment in post? set bookmark flag
 
 	$bookmark = 0;
-	$data = get_attachment_data($body);
+	$data = BBCode::getAttachmentData($body);
 	if (preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $body, $match, PREG_SET_ORDER) || isset($data["type"])) {
 		$objecttype = ACTIVITY_OBJ_BOOKMARK;
 		$bookmark = 1;
@@ -523,8 +524,7 @@ function item_post(App $a) {
 	// Setting the object type if not defined before
 	if (!$objecttype) {
 		$objecttype = ACTIVITY_OBJ_NOTE; // Default value
-		require_once 'include/plaintext.php';
-		$objectdata = get_attached_data($body);
+		$objectdata = BBCode::getAttachedData($body);
 
 		if ($objectdata["type"] == "link") {
 			$objecttype = ACTIVITY_OBJ_BOOKMARK;
