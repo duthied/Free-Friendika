@@ -28,7 +28,7 @@ class Plaintext
 	 * 'title' -> Title of the attachment
 	 * 'description' -> Description of the attachment
 	 */
-	function getOldAttachmentData($body)
+	private static function getOldAttachmentData($body)
 	{
 		$post = [];
 
@@ -97,12 +97,12 @@ class Plaintext
 	 * 'title' -> Title of the attachment
 	 * 'description' -> Description of the attachment
 	 */
-	function getAttachmentData($body)
+	public static function getAttachmentData($body)
 	{
 		$data = [];
 
 		if (!preg_match("/(.*)\[attachment(.*?)\](.*?)\[\/attachment\](.*)/ism", $body, $match)) {
-			return get_old_attachment_data($body);
+			return self::getOldAttachmentData($body);
 		}
 
 		$attributes = $match[2];
@@ -202,7 +202,7 @@ class Plaintext
 		return $data;
 	}
 
-	function getAttachedData($body, $item = [])
+	public static function getAttachedData($body, $item = [])
 	{
 		/*
 		- text:
@@ -216,7 +216,7 @@ class Plaintext
 
 		$has_title = !empty($item['title']);
 		$plink = (!empty($item['plink']) ? $item['plink'] : '');
-		$post = get_attachment_data($body);
+		$post = self::getAttachmentData($body);
 
 		// if nothing is found, it maybe having an image.
 		if (!isset($post["type"])) {
@@ -329,7 +329,7 @@ class Plaintext
 	 *
 	 * @todo For Twitter URLs aren't shortened, but they have to be calculated as if.
 	 */
-	function shortenMsg($msg, $limit)
+	public static function shortenMsg($msg, $limit)
 	{
 		$lines = explode("\n", $msg);
 		$msg = "";
@@ -360,7 +360,7 @@ class Plaintext
 	 *
 	 * @return string The converted message
 	 */
-	function toPlaintext($b, $limit = 0, $includedlinks = false, $htmlmode = 2, $target_network = "")
+	public static function toPlaintext($b, $limit = 0, $includedlinks = false, $htmlmode = 2, $target_network = "")
 	{
 		// Remove the hash tags
 		$URLSearchString = "^\[\]";
@@ -374,8 +374,8 @@ class Plaintext
 
 		// At first look at data that is attached via "type-..." stuff
 		// This will hopefully replaced with a dedicated bbcode later
-		//$post = get_attached_data($b["body"]);
-		$post = get_attached_data($body, $b);
+		//$post = self::getAttachedData($b["body"]);
+		$post = self::getAttachedData($body, $b);
 
 		if (($b["title"] != "") && ($post["text"] != "")) {
 			$post["text"] = trim($b["title"]."\n\n".$post["text"]);
@@ -496,7 +496,7 @@ class Plaintext
 				} elseif (PConfig::get($b["uid"], "system", "no_intelligent_shortening")) {
 					$post["url"] = $b["plink"];
 				}
-				$msg = shortenmsg($msg, $limit);
+				$msg = self::shortenMsg($msg, $limit);
 			}
 		}
 

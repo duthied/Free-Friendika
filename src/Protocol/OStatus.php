@@ -5,6 +5,7 @@
 namespace Friendica\Protocol;
 
 use Friendica\App;
+use Friendica\Content\Text\Plaintext;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -1205,7 +1206,7 @@ class OStatus
 	 */
 	private static function formatPicturePost($body)
 	{
-		$siteinfo = get_attached_data($body);
+		$siteinfo = Plaintext::getAttachedData($body);
 
 		if (($siteinfo["type"] == "photo")) {
 			if (isset($siteinfo["preview"])) {
@@ -1327,7 +1328,7 @@ class OStatus
 	private static function getAttachment($doc, $root, $item)
 	{
 		$o = "";
-		$siteinfo = get_attached_data($item["body"]);
+		$siteinfo = Plaintext::getAttachedData($item["body"]);
 
 		switch ($siteinfo["type"]) {
 			case 'photo':

@@ -8,6 +8,7 @@
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
+use Friendica\Content\Text\Plaintext;
 use Friendica\Core\Addon;
 use Friendica\Core\System;
 use Friendica\Core\Config;
@@ -47,7 +48,6 @@ require_once 'include/html2bbcode.php';
 require_once 'mod/wall_upload.php';
 require_once 'mod/proxy.php';
 require_once 'include/like.php';
-require_once 'include/plaintext.php';
 
 define('API_METHOD_ANY', '*');
 define('API_METHOD_GET', 'GET');
@@ -5196,7 +5196,7 @@ function api_clean_plain_items($Text)
  */
 function api_clean_attachments($body)
 {
-	$data = get_attachment_data($body);
+	$data = Plaintext::getAttachmentData($body);
 
 	if (!$data) {
 		return $body;
