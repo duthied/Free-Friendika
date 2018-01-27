@@ -748,8 +748,6 @@ function bb_RemovePictureLinks($match) {
 			$text = "[url=".$match[2]."]".$match[2]."[/url]";
 
 			// if its not a picture then look if its a page that contains a picture link
-			require_once("include/network.php");
-
 			$body = Network::fetchURL($match[1]);
 
 			$doc = new DOMDocument();
@@ -805,8 +803,6 @@ function bb_CleanPictureLinksSub($match) {
 			$text = "[img]".$match[2]."[/img]";
 
 			// if its not a picture then look if its a page that contains a picture link
-			require_once("include/network.php");
-
 			$body = Network::fetchURL($match[1]);
 
 			$doc = new DOMDocument();

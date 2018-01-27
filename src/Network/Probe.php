@@ -209,7 +209,7 @@ class Probe
 	/**
 	 * @brief Check an URI for LRDD data
 	 *
-	 * this is a replacement for the "lrdd" function in include/network.php.
+	 * this is a replacement for the "lrdd" function.
 	 * It isn't used in this class and has some redundancies in the code.
 	 * When time comes we can check the existing calls for "lrdd" if we can rework them.
 	 *

@@ -24,7 +24,6 @@ use Exception;
 require_once 'boot.php';
 require_once 'include/dba.php';
 require_once 'include/enotify.php';
-require_once 'include/network.php';
 require_once 'library/openid.php';
 require_once 'include/text.php';
 /**

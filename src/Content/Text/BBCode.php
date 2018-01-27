@@ -12,7 +12,6 @@ use Friendica\Util\ParseUrl;
 
 require_once "include/bbcode.php";
 require_once "include/html2plain.php";
-require_once "include/network.php";
 
 class BBCode
 {
