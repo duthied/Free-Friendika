@@ -402,7 +402,7 @@ function photos_post(App $a)
 		$resource_id = $a->argv[2];
 
 		if (!strlen($albname)) {
-			$albname = Temporal::convert('now', date_default_timezone_get(), 'UTC', 'Y');
+			$albname = Temporal::timezoneNow(date_default_timezone_get(), 'Y');
 		}
 
 		if (x($_POST,'rotate') !== false &&
@@ -738,7 +738,7 @@ function photos_post(App $a)
 		if (strlen($newalbum)) {
 			$album = $newalbum;
 		} else {
-			$album = Temporal::convert('now', date_default_timezone_get(), 'UTC', 'Y');
+			$album = Temporal::timezoneNow(date_default_timezone_get(), 'Y');
 		}
 	}
 

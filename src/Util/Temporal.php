@@ -141,6 +141,17 @@ class Temporal
 	 * @param string $format DateTime format string or Temporal constant
 	 * @return string
 	 */
+	public static function timezoneNow($timezone, $format = self::MYSQL)
+	{
+		return self::convert('now', $timezone, 'UTC', $format);
+	}
+
+	/**
+	 * convert() shorthand for UTC now.
+	 *
+	 * @param string $format DateTime format string or Temporal constant
+	 * @return string
+	 */
 	public static function utcNow($format = self::MYSQL)
 	{
 		return self::convert('now', 'UTC', 'UTC', $format);
@@ -459,9 +470,9 @@ class Temporal
 
 		$birthdate = self::convert($dob . ' 00:00:00+00:00', $owner_tz, 'UTC', 'Y-m-d');
 		list($year, $month, $day) = explode("-", $birthdate);
-		$year_diff = self::convert('now', $viewer_tz, 'UTC', 'Y') - $year;
-		$curr_month = self::convert('now', $viewer_tz, 'UTC', 'm');
-		$curr_day = self::convert('now', $viewer_tz, 'UTC', 'd');
+		$year_diff = self::timezoneNow($viewer_tz, 'Y') - $year;
+		$curr_month = self::timezoneNow($viewer_tz, 'm');
+		$curr_day = self::timezoneNow($viewer_tz, 'd');
 
 		if (($curr_month < $month) || (($curr_month == $month) && ($curr_day < $day))) {
 			$year_diff--;
@@ -531,8 +542,8 @@ class Temporal
 			'October', 'November', 'December'
 		];
 
-		$thisyear = self::convert('now', date_default_timezone_get(), 'UTC', 'Y');
-		$thismonth = self::convert('now', date_default_timezone_get(), 'UTC', 'm');
+		$thisyear = self::timezoneNow(date_default_timezone_get(), 'Y');
+		$thismonth = self::timezoneNow(date_default_timezone_get(), 'm');
 		if (!$y) {
 			$y = $thisyear;
 		}
@@ -549,7 +560,7 @@ class Temporal
 		$started = false;
 
 		if (($y == $thisyear) && ($m == $thismonth)) {
-			$tddate = intval(self::convert('now', date_default_timezone_get(), 'UTC', 'j'));
+			$tddate = intval(self::timezoneNow(date_default_timezone_get(), 'j'));
 		}
 
 		$str_month = day_translate($mtab[$m]);

@@ -237,7 +237,7 @@ function ping_init(App $a)
 			$all_events = count($ev);
 
 			if ($all_events) {
-				$str_now = Temporal::convert('now', $a->timezone, 'UTC', 'Y-m-d');
+				$str_now = Temporal::timezoneNow($a->timezone, 'Y-m-d');
 				foreach ($ev as $x) {
 					$bd = false;
 					if ($x['type'] === 'birthday') {

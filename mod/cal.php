@@ -152,8 +152,8 @@ function cal_content(App $a)
 
 	// The view mode part is similiar to /mod/events.php
 	if ($mode == 'view') {
-		$thisyear = Temporal::convert('now', date_default_timezone_get(), 'UTC', 'Y');
-		$thismonth = Temporal::convert('now', date_default_timezone_get(), 'UTC', 'm');
+		$thisyear = Temporal::timezoneNow(date_default_timezone_get(), 'Y');
+		$thismonth = Temporal::timezoneNow(date_default_timezone_get(), 'm');
 		if (!$y) {
 			$y = intval($thisyear);
 		}

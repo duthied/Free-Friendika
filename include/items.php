@@ -416,7 +416,7 @@ function drop_item($id) {
 
 /* arrange the list in years */
 function list_post_dates($uid, $wall) {
-	$dnow = Temporal::convert('now', date_default_timezone_get(), 'UTC', 'Y-m-d');
+	$dnow = Temporal::timezoneNow(date_default_timezone_get(), 'Y-m-d');
 
 	$dthen = Item::firstPostDate($uid, $wall);
 	if (!$dthen) {
@@ -474,7 +474,7 @@ function posted_date_widget($url, $uid, $wall) {
 		return $o;
 	}
 
-	$cutoff_year = intval(Temporal::convert('now', date_default_timezone_get(), 'UTC', 'Y')) - $visible_years;
+	$cutoff_year = intval(Temporal::timezoneNow(date_default_timezone_get(), 'Y')) - $visible_years;
 	$cutoff = ((array_key_exists($cutoff_year, $ret))? true : false);
 
 	$o = replace_macros(get_markup_template('posted_date_widget.tpl'),[

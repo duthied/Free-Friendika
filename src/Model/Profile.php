@@ -659,7 +659,7 @@ class Profile
 				}
 
 				$strt = Temporal::convert($rr['start'], $rr['convert'] ? $a->timezone : 'UTC', 'UTC', 'Y-m-d');
-				if ($strt === Temporal::convert('now', $a->timezone, 'UTC', 'Y-m-d')) {
+				if ($strt === Temporal::timezoneNow($a->timezone, 'Y-m-d')) {
 					$istoday = true;
 				}
 
@@ -676,11 +676,11 @@ class Profile
 
 				$strt = Temporal::convert($rr['start'], $rr['convert'] ? $a->timezone : 'UTC');
 
-				if (substr($strt, 0, 10) < Temporal::convert('now', $a->timezone, 'UTC', 'Y-m-d')) {
+				if (substr($strt, 0, 10) < Temporal::timezoneNow($a->timezone, 'Y-m-d')) {
 					continue;
 				}
 
-				$today = ((substr($strt, 0, 10) === Temporal::convert('now', $a->timezone, 'UTC', 'Y-m-d')) ? true : false);
+				$today = ((substr($strt, 0, 10) === Temporal::timezoneNow($a->timezone, 'Y-m-d')) ? true : false);
 
 				$rr['title'] = $title;
 				$rr['description'] = $description;

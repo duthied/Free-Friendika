@@ -1142,10 +1142,10 @@ function feed_birthday($uid, $tz)
 	if (DBM::is_result($p)) {
 		$tmp_dob = substr($p[0]['dob'], 5);
 		if (intval($tmp_dob)) {
-			$y = Temporal::convert('now', $tz, $tz, 'Y');
+			$y = Temporal::timezoneNow($tz, 'Y');
 			$bd = $y . '-' . $tmp_dob . ' 00:00';
 			$t_dob = strtotime($bd);
-			$now = strtotime(Temporal::convert('now', $tz, $tz));
+			$now = strtotime(Temporal::timezoneNow($tz));
 			if ($t_dob < $now) {
 				$bd = $y + 1 . '-' . $tmp_dob . ' 00:00';
 			}
