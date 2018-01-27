@@ -25,6 +25,7 @@ use Friendica\Model\User;
 use Friendica\Object\Image;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Crypto;
+use Friendica\Util\Network;
 use Friendica\Util\XML;
 
 use dba;
@@ -1186,7 +1187,7 @@ class DFRN
 
 		logger('dfrn_deliver: ' . $url);
 
-		$ret = z_fetch_url($url);
+		$ret = Network::zFetchURL($url);
 
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return -2; // timed out

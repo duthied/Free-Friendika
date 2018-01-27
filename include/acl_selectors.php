@@ -11,6 +11,7 @@ use Friendica\Core\L10n;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Util\Network;
 
 require_once "mod/proxy.php";
 
@@ -733,7 +734,7 @@ function navbar_complete(App $a) {
 	if (! $localsearch) {
 		$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
 
-		$x = z_fetch_url(get_server() . '/lsearch?f=' . $p .  '&search=' . urlencode($search));
+		$x = Network::zFetchURL(get_server() . '/lsearch?f=' . $p .  '&search=' . urlencode($search));
 		if ($x['success']) {
 			$j = json_decode($x['body'],true);
 			if ($j && isset($j['results'])) {

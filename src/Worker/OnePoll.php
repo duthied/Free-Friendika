@@ -10,6 +10,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\PortableContact;
+use Friendica\Util\Network;
 use dba;
 
 require_once 'include/dba.php';
@@ -176,7 +177,7 @@ class OnePoll
 				. '&type=data&last_update=' . $last_update
 				. '&perm=' . $perm ;
 
-			$ret = z_fetch_url($url);
+			$ret = Network::zFetchURL($url);
 
 			if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 				// set the last-update so we don't keep polling
@@ -311,7 +312,7 @@ class OnePoll
 			}
 
 			$cookiejar = tempnam(get_temppath(), 'cookiejar-onepoll-');
-			$ret = z_fetch_url($contact['poll'], false, $redirects, ['cookiejar' => $cookiejar]);
+			$ret = Network::zFetchURL($contact['poll'], false, $redirects, ['cookiejar' => $cookiejar]);
 			unlink($cookiejar);
 
 			if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {

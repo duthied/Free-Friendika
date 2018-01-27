@@ -233,7 +233,7 @@ class Network
 			if (filter_var($newurl, FILTER_VALIDATE_URL)) {
 				$redirects++;
 				@curl_close($ch);
-				return z_fetch_url($newurl, $binary, $redirects, $opts);
+				return self::zFetchURL($newurl, $binary, $redirects, $opts);
 			}
 		}
 

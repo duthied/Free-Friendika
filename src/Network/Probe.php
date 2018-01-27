@@ -18,6 +18,7 @@ use Friendica\Model\Profile;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\Feed;
 use Friendica\Util\Crypto;
+use Friendica\Util\Network;
 use Friendica\Util\XML;
 
 use dba;
@@ -107,7 +108,7 @@ class Probe
 
 		logger("Probing for ".$host, LOGGER_DEBUG);
 
-		$ret = z_fetch_url($ssl_url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
+		$ret = Network::zFetchURL($ssl_url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 		if ($ret['success']) {
 			$xml = $ret['body'];
 			$xrd = parse_xml_string($xml, false);
@@ -115,7 +116,7 @@ class Probe
 		}
 
 		if (!is_object($xrd)) {
-			$ret = z_fetch_url($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
+			$ret = Network::zFetchURL($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 			if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 				logger("Probing timeout for ".$url, LOGGER_DEBUG);
 				return false;
@@ -692,7 +693,7 @@ class Probe
 		$xrd_timeout = Config::get('system', 'xrd_timeout', 20);
 		$redirects = 0;
 
-		$ret = z_fetch_url($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => $type]);
+		$ret = Network::zFetchURL($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => $type]);
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
 		}
@@ -759,7 +760,7 @@ class Probe
 	 */
 	private static function pollNoscrape($noscrape_url, $data)
 	{
-		$ret = z_fetch_url($noscrape_url);
+		$ret = Network::zFetchURL($noscrape_url);
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
 		}
@@ -993,7 +994,7 @@ class Probe
 	 */
 	private static function pollHcard($hcard_url, $data, $dfrn = false)
 	{
-		$ret = z_fetch_url($hcard_url);
+		$ret = Network::zFetchURL($hcard_url);
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
 		}
@@ -1232,7 +1233,7 @@ class Probe
 							$pubkey = substr($pubkey, 5);
 						}
 					} elseif (normalise_link($pubkey) == 'http://') {
-						$ret = z_fetch_url($pubkey);
+						$ret = Network::zFetchURL($pubkey);
 						if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 							return false;
 						}
@@ -1264,7 +1265,7 @@ class Probe
 		}
 
 		// Fetch all additional data from the feed
-		$ret = z_fetch_url($data["poll"]);
+		$ret = Network::zFetchURL($data["poll"]);
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
 		}
@@ -1448,7 +1449,7 @@ class Probe
 	 */
 	private static function feed($url, $probe = true)
 	{
-		$ret = z_fetch_url($url);
+		$ret = Network::zFetchURL($url);
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
 			return false;
 		}

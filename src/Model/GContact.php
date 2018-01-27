@@ -981,7 +981,7 @@ class GContact
 
 		$url = $server."/main/statistics";
 
-		$result = z_fetch_url($url);
+		$result = Network::zFetchURL($url);
 		if (!$result["success"]) {
 			return false;
 		}

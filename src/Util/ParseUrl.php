@@ -8,6 +8,7 @@ namespace Friendica\Util;
 use Friendica\Content\OEmbed;
 use Friendica\Core\Addon;
 use Friendica\Object\Image;
+use Friendica\Util\Network;
 use Friendica\Util\XML;
 
 use dba;
@@ -145,7 +146,7 @@ class ParseUrl
 		$siteinfo["url"] = $url;
 		$siteinfo["type"] = "link";
 
-		$data = z_fetch_url($url);
+		$data = Network::zFetchURL($url);
 		if (!$data['success']) {
 			return($siteinfo);
 		}

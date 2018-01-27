@@ -281,7 +281,7 @@ class DiscoverPoCo {
 
 		$url = "http://gstools.org/api/users_search/".urlencode($search);
 
-		$result = z_fetch_url($url);
+		$result = Network::zFetchURL($url);
 		if (!$result["success"]) {
 			return false;
 		}

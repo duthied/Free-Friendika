@@ -8,6 +8,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Network\Probe;
+use Friendica\Util\Network;
 
 function ostatus_subscribe_content(App $a) {
 
@@ -40,7 +41,7 @@ function ostatus_subscribe_content(App $a) {
 		$api = $contact["baseurl"]."/api/";
 
 		// Fetching friends
-		$data = z_fetch_url($api."statuses/friends.json?screen_name=".$contact["nick"]);
+		$data = Network::zFetchURL($api."statuses/friends.json?screen_name=".$contact["nick"]);
 
 		if (!$data["success"]) {
 			return $o.L10n::t("Couldn't fetch friends for contact.");

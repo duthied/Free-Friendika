@@ -288,7 +288,7 @@ class PortableContact
 		}
 
 		// Fetch the host-meta to check if this really is a server
-		$serverret = z_fetch_url($server_url."/.well-known/host-meta");
+		$serverret = Network::zFetchURL($server_url."/.well-known/host-meta");
 		if (!$serverret["success"]) {
 			return "";
 		}
@@ -367,7 +367,7 @@ class PortableContact
 			$server = q("SELECT `noscrape`, `network` FROM `gserver` WHERE `nurl` = '%s' AND `noscrape` != ''", dbesc(normalise_link($server_url)));
 
 			if ($server) {
-				$noscraperet = z_fetch_url($server[0]["noscrape"]."/".$gcontacts[0]["nick"]);
+				$noscraperet = Network::zFetchURL($server[0]["noscrape"]."/".$gcontacts[0]["nick"]);
 
 				if ($noscraperet["success"] && ($noscraperet["body"] != "")) {
 					$noscrape = json_decode($noscraperet["body"], true);
@@ -481,7 +481,7 @@ class PortableContact
 
 		GContact::update($contact);
 
-		$feedret = z_fetch_url($data["poll"]);
+		$feedret = Network::zFetchURL($data["poll"]);
 
 		if (!$feedret["success"]) {
 			$fields = ['last_failure' => datetime_convert()];
@@ -632,7 +632,7 @@ class PortableContact
 	 */
 	private static function fetchNodeinfo($server_url)
 	{
-		$serverret = z_fetch_url($server_url."/.well-known/nodeinfo");
+		$serverret = Network::zFetchURL($server_url."/.well-known/nodeinfo");
 		if (!$serverret["success"]) {
 			return false;
 		}
@@ -664,7 +664,7 @@ class PortableContact
 			return false;
 		}
 
-		$serverret = z_fetch_url($nodeinfo_url);
+		$serverret = Network::zFetchURL($nodeinfo_url);
 		if (!$serverret["success"]) {
 			return false;
 		}
@@ -873,7 +873,7 @@ class PortableContact
 		$server_url = str_replace("http://", "https://", $server_url);
 
 		// We set the timeout to 20 seconds since this operation should be done in no time if the server was vital
-		$serverret = z_fetch_url($server_url."/.well-known/host-meta", false, $redirects, ['timeout' => 20]);
+		$serverret = Network::zFetchURL($server_url."/.well-known/host-meta", false, $redirects, ['timeout' => 20]);
 
 		// Quit if there is a timeout.
 		// But we want to make sure to only quit if we are mostly sure that this server url fits.
@@ -890,7 +890,7 @@ class PortableContact
 			$server_url = str_replace("https://", "http://", $server_url);
 
 			// We set the timeout to 20 seconds since this operation should be done in no time if the server was vital
-			$serverret = z_fetch_url($server_url."/.well-known/host-meta", false, $redirects, ['timeout' => 20]);
+			$serverret = Network::zFetchURL($server_url."/.well-known/host-meta", false, $redirects, ['timeout' => 20]);
 
 			// Quit if there is a timeout
 			if ($serverret['errno'] == CURLE_OPERATION_TIMEDOUT) {
@@ -926,7 +926,7 @@ class PortableContact
 
 		// Look for poco
 		if (!$failure) {
-			$serverret = z_fetch_url($server_url."/poco");
+			$serverret = Network::zFetchURL($server_url."/poco");
 			if ($serverret["success"]) {
 				$data = json_decode($serverret["body"]);
 				if (isset($data->totalResults)) {
@@ -952,7 +952,7 @@ class PortableContact
 
 		if (!$failure) {
 			// Test for Diaspora, Hubzilla, Mastodon or older Friendica servers
-			$serverret = z_fetch_url($server_url);
+			$serverret = Network::zFetchURL($server_url);
 
 			if (!$serverret["success"] || ($serverret["body"] == "")) {
 				$failure = true;
@@ -991,7 +991,7 @@ class PortableContact
 			// Test for Statusnet
 			// Will also return data for Friendica and GNU Social - but it will be overwritten later
 			// The "not implemented" is a special treatment for really, really old Friendica versions
-			$serverret = z_fetch_url($server_url."/api/statusnet/version.json");
+			$serverret = Network::zFetchURL($server_url."/api/statusnet/version.json");
 			if ($serverret["success"] && ($serverret["body"] != '{"error":"not implemented"}') &&
 				($serverret["body"] != '') && (strlen($serverret["body"]) < 30)) {
 				$platform = "StatusNet";
@@ -1002,7 +1002,7 @@ class PortableContact
 			}
 
 			// Test for GNU Social
-			$serverret = z_fetch_url($server_url."/api/gnusocial/version.json");
+			$serverret = Network::zFetchURL($server_url."/api/gnusocial/version.json");
 			if ($serverret["success"] && ($serverret["body"] != '{"error":"not implemented"}') &&
 				($serverret["body"] != '') && (strlen($serverret["body"]) < 30)) {
 				$platform = "GNU Social";
@@ -1014,7 +1014,7 @@ class PortableContact
 
 			// Test for Mastodon
 			$orig_version = $version;
-			$serverret = z_fetch_url($server_url."/api/v1/instance");
+			$serverret = Network::zFetchURL($server_url."/api/v1/instance");
 			if ($serverret["success"] && ($serverret["body"] != '')) {
 				$data = json_decode($serverret["body"]);
 
@@ -1037,7 +1037,7 @@ class PortableContact
 
 		if (!$failure) {
 			// Test for Hubzilla and Red
-			$serverret = z_fetch_url($server_url."/siteinfo.json");
+			$serverret = Network::zFetchURL($server_url."/siteinfo.json");
 			if ($serverret["success"]) {
 				$data = json_decode($serverret["body"]);
 				if (isset($data->url)) {
@@ -1065,7 +1065,7 @@ class PortableContact
 				}
 			} else {
 				// Test for Hubzilla, Redmatrix or Friendica
-				$serverret = z_fetch_url($server_url."/api/statusnet/config.json");
+				$serverret = Network::zFetchURL($server_url."/api/statusnet/config.json");
 				if ($serverret["success"]) {
 					$data = json_decode($serverret["body"]);
 					if (isset($data->site->server)) {
@@ -1120,7 +1120,7 @@ class PortableContact
 
 		// Query statistics.json. Optional package for Diaspora, Friendica and Redmatrix
 		if (!$failure) {
-			$serverret = z_fetch_url($server_url."/statistics.json");
+			$serverret = Network::zFetchURL($server_url."/statistics.json");
 			if ($serverret["success"]) {
 				$data = json_decode($serverret["body"]);
 
@@ -1182,10 +1182,10 @@ class PortableContact
 		// Check for noscrape
 		// Friendica servers could be detected as OStatus servers
 		if (!$failure && in_array($network, [NETWORK_DFRN, NETWORK_OSTATUS])) {
-			$serverret = z_fetch_url($server_url."/friendica/json");
+			$serverret = Network::zFetchURL($server_url."/friendica/json");
 
 			if (!$serverret["success"]) {
-				$serverret = z_fetch_url($server_url."/friendika/json");
+				$serverret = Network::zFetchURL($server_url."/friendika/json");
 			}
 
 			if ($serverret["success"]) {
@@ -1295,7 +1295,7 @@ class PortableContact
 	 */
 	private static function fetchServerlist($poco)
 	{
-		$serverret = z_fetch_url($poco."/@server");
+		$serverret = Network::zFetchURL($poco."/@server");
 		if (!$serverret["success"]) {
 			return;
 		}
@@ -1344,7 +1344,7 @@ class PortableContact
 			if (!empty($accesstoken)) {
 				$api = 'https://instances.social/api/1.0/instances/list?count=0';
 				$header = ['Authorization: Bearer '.$accesstoken];
-				$serverdata = z_fetch_url($api, false, $redirects, ['headers' => $header]);
+				$serverdata = Network::zFetchURL($api, false, $redirects, ['headers' => $header]);
 				if ($serverdata['success']) {
 				        $servers = json_decode($serverdata['body']);
 				        foreach ($servers->instances as $server) {
@@ -1361,7 +1361,7 @@ class PortableContact
 		//if (!Config::get('system','ostatus_disabled')) {
 		//	$serverdata = "http://gstools.org/api/get_open_instances/";
 
-		//	$result = z_fetch_url($serverdata);
+		//	$result = Network::zFetchURL($serverdata);
 		//	if ($result["success"]) {
 		//		$servers = json_decode($result["body"]);
 
@@ -1390,7 +1390,7 @@ class PortableContact
 
 		logger("Fetch all users from the server ".$server["url"], LOGGER_DEBUG);
 
-		$retdata = z_fetch_url($url);
+		$retdata = Network::zFetchURL($url);
 		if ($retdata["success"]) {
 			$data = json_decode($retdata["body"]);
 
@@ -1409,7 +1409,7 @@ class PortableContact
 
 				$success = false;
 
-				$retdata = z_fetch_url($url);
+				$retdata = Network::zFetchURL($url);
 				if ($retdata["success"]) {
 					logger("Fetch all global contacts from the server ".$server["nurl"], LOGGER_DEBUG);
 					$success = self::discoverServer(json_decode($retdata["body"]));
@@ -1494,7 +1494,7 @@ class PortableContact
 				// Fetch all contacts from a given user from the other server
 				$url = $server["poco"]."/".$username."/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation";
 
-				$retdata = z_fetch_url($url);
+				$retdata = Network::zFetchURL($url);
 				if ($retdata["success"]) {
 					self::discoverServer(json_decode($retdata["body"]), 3);
 				}
