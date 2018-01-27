@@ -1,8 +1,8 @@
 
-<link rel='stylesheet' type='text/css' href='{{$baseurl}}/library/fullcalendar/fullcalendar.css' />
-<script type="text/javascript" src="{{$baseurl}}/library/moment/moment.min.js"></script>
-<script type="text/javascript" src="{{$baseurl}}/library/moment/locales.min.js"></script>
-<script language="javascript" type="text/javascript" src="{{$baseurl}}/library/fullcalendar/fullcalendar.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{{$baseurl}}/vendor/asset/fullcalendar/dist/fullcalendar.min.css" />
+<link rel="stylesheet" type="text/css" href="{{$baseurl}}/vendor/asset/fullcalendar/dist/fullcalendar.print.min.css" />
+<script type="text/javascript" src="{{$baseurl}}/vendor/asset/moment/min/moment-with-locales.min.js"></script>
+<script type="text/javascript" src="{{$baseurl}}/vendor/asset/fullcalendar/dist/fullcalendar.min.js"></script>
 
 <script>
 	function showEvent(eventid) {

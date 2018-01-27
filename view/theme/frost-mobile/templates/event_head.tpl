@@ -1,9 +1,10 @@
 
-<link rel='stylesheet' type='text/css' href='{{$baseurl}}/library/fullcalendar/fullcalendar.css' />
+<link rel="stylesheet" type="text/css" href="{{$baseurl}}/vendor/asset/fullcalendar/dist/fullcalendar.min.css" />
+<link rel="stylesheet" type="text/css" href="{{$baseurl}}/vendor/asset/fullcalendar/dist/fullcalendar.print.min.css" />
 
 <script language="javascript" type="text/javascript">
 window.aclType = 'event_head';
-window.eventModuleUrl = "{{$module_url}}";
-window.eventModeParams = "{{$modparams}}" ;
+window.eventModuleUrl = '{{$module_url}}';
+window.eventModeParams = '{{$modparams}}';
 </script>
 
