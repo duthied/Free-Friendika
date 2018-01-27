@@ -2,13 +2,12 @@
 /**
  * @file mod/openid.php
  */
+
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-
-require_once('library/openid.php');
 
 function openid_content(App $a) {
 
