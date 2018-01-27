@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "8402715b736c86ea2ec19051997292e4",
+    "content-hash": "77fbec143bd07b349f7cd5763f982734",
     "packages": [
         {
             "name": "bower-asset/Chart-js",
@@ -335,6 +335,117 @@
             "time": "2017-12-18T10:38:51+00:00"
         },
         {
+            "name": "npm-asset/fullcalendar",
+            "version": "3.8.0",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/fullcalendar/-/fullcalendar-3.8.0.tgz",
+                "reference": null,
+                "shasum": "4c0fe494a62b0a8d640c6de8eb883b49a212b5dc"
+            },
+            "require": {
+                "npm-asset/jquery": ">=2,<4.0",
+                "npm-asset/moment": ">=2.9.0,<3.0.0"
+            },
+            "require-dev": {
+                "npm-asset/awesome-typescript-loader": ">=3.3.0,<4.0.0",
+                "npm-asset/bootstrap": ">=3.3.7,<4.0.0",
+                "npm-asset/components-jqueryui": "dev-github:components/jqueryui",
+                "npm-asset/css-loader": ">=0.28.7,<0.29.0",
+                "npm-asset/del": ">=2.2.1,<3.0.0",
+                "npm-asset/dts-generator": ">=2.1.0,<3.0.0",
+                "npm-asset/eslint": ">=4.13.1,<5.0.0",
+                "npm-asset/eslint-config-standard": ">=11.0.0-beta.0,<12.0.0",
+                "npm-asset/eslint-plugin-import": ">=2.8.0,<3.0.0",
+                "npm-asset/eslint-plugin-node": ">=5.2.1,<6.0.0",
+                "npm-asset/eslint-plugin-promise": ">=3.6.0,<4.0.0",
+                "npm-asset/eslint-plugin-standard": ">=3.0.1,<4.0.0",
+                "npm-asset/extract-text-webpack-plugin": ">=3.0.2,<4.0.0",
+                "npm-asset/glob": ">=7.1.2,<8.0.0",
+                "npm-asset/gulp": ">=3.9.1,<4.0.0",
+                "npm-asset/gulp-cssmin": ">=0.1.7,<0.2.0",
+                "npm-asset/gulp-eslint": ">=4.0.0,<5.0.0",
+                "npm-asset/gulp-filter": ">=4.0.0,<5.0.0",
+                "npm-asset/gulp-modify-file": ">=1.0.0,<2.0.0",
+                "npm-asset/gulp-rename": ">=1.2.2,<2.0.0",
+                "npm-asset/gulp-tslint": ">=8.1.2,<9.0.0",
+                "npm-asset/gulp-uglify": ">=2.0.0,<3.0.0",
+                "npm-asset/gulp-util": ">=3.0.7,<4.0.0",
+                "npm-asset/gulp-watch": ">=4.3.11,<5.0.0",
+                "npm-asset/gulp-zip": ">=3.2.0,<4.0.0",
+                "npm-asset/jasmine-core": "2.5.2",
+                "npm-asset/jasmine-fixture": ">=2.0.0,<3.0.0",
+                "npm-asset/jasmine-jquery": ">=2.1.1,<3.0.0",
+                "npm-asset/jquery-mockjax": ">=2.2.0,<3.0.0",
+                "npm-asset/jquery-simulate": "dev-github:jquery/jquery-simulate",
+                "npm-asset/karma": ">=0.13.22,<0.14.0",
+                "npm-asset/karma-jasmine": ">=1.0.2,<2.0.0",
+                "npm-asset/karma-phantomjs-launcher": ">=1.0.0,<2.0.0",
+                "npm-asset/karma-sourcemap-loader": ">=0.3.7,<0.4.0",
+                "npm-asset/karma-verbose-reporter": "0.0.6",
+                "npm-asset/moment-timezone": ">=0.5.5,<0.6.0",
+                "npm-asset/native-promise-only": ">=0.8.1,<0.9.0",
+                "npm-asset/node-sass": ">=4.7.2,<5.0.0",
+                "npm-asset/phantomjs-prebuilt": ">=2.1.7,<3.0.0",
+                "npm-asset/sass-loader": ">=6.0.6,<7.0.0",
+                "npm-asset/tslib": ">=1.8.0,<2.0.0",
+                "npm-asset/tslint": ">=5.8.0,<6.0.0",
+                "npm-asset/tslint-config-standard": ">=7.0.0,<8.0.0",
+                "npm-asset/types--jquery": "2.0.47",
+                "npm-asset/typescript": ">=2.6.1,<3.0.0",
+                "npm-asset/webpack": ">=3.8.1,<4.0.0",
+                "npm-asset/webpack-stream": ">=4.0.0,<5.0.0",
+                "npm-asset/yargs": ">=4.8.1,<5.0.0"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://fullcalendar.io/wiki/Reporting-Bugs/"
+                },
+                "npm-asset-files": [
+                    "dist/*.js",
+                    "dist/*.css",
+                    "dist/*.d.ts",
+                    "dist/locale/*.js",
+                    "README.*",
+                    "LICENSE.*",
+                    "CHANGELOG.*",
+                    "CONTRIBUTING.*"
+                ],
+                "npm-asset-main": "dist/fullcalendar.js",
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git+https://github.com/fullcalendar/fullcalendar.git"
+                },
+                "npm-asset-scripts": {
+                    "clean": "gulp clean",
+                    "dist": "gulp dist",
+                    "lint": "gulp lint",
+                    "test": "gulp test:single"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Adam Shaw",
+                    "email": "arshaw@arshaw.com",
+                    "url": "http://arshaw.com/"
+                }
+            ],
+            "description": "Full-sized drag & drop event calendar",
+            "homepage": "https://fullcalendar.io/",
+            "keywords": [
+                "calendar",
+                "event",
+                "full-sized",
+                "jquery-plugin"
+            ],
+            "time": "2017-12-18T05:59:22+00:00"
+        },
+        {
             "name": "npm-asset/jgrowl",
             "version": "1.4.6",
             "dist": {
@@ -377,12 +488,12 @@
         },
         {
             "name": "npm-asset/jquery",
-            "version": "1.12.4",
+            "version": "2.2.4",
             "dist": {
                 "type": "tar",
-                "url": "https://registry.npmjs.org/jquery/-/jquery-1.12.4.tgz",
+                "url": "https://registry.npmjs.org/jquery/-/jquery-2.2.4.tgz",
                 "reference": null,
-                "shasum": "01e1dfba290fe73deba77ceeacb0f9ba2fec9e0c"
+                "shasum": "2c89d6889b5eac522a7eea32c14521559c6cbf02"
             },
             "require-dev": {
                 "npm-asset/commitplease": "2.0.0",
@@ -401,11 +512,10 @@
                 "npm-asset/gzip-js": "0.3.2",
                 "npm-asset/jsdom": "5.6.1",
                 "npm-asset/load-grunt-tasks": "1.0.0",
-                "npm-asset/npm": "2.1.12",
                 "npm-asset/qunit-assert-step": "1.0.3",
                 "npm-asset/qunitjs": "1.17.1",
                 "npm-asset/requirejs": "2.1.17",
-                "npm-asset/sinon": "1.12.2",
+                "npm-asset/sinon": "1.10.3",
                 "npm-asset/sizzle": "2.2.1",
                 "npm-asset/strip-json-comments": "1.0.3",
                 "npm-asset/testswarm": "1.1.0",
@@ -434,7 +544,7 @@
             "authors": [
                 {
                     "name": "jQuery Foundation and other contributors",
-                    "url": "https://github.com/jquery/jquery/blob/1.12-stable/AUTHORS.txt"
+                    "url": "https://github.com/jquery/jquery/blob/2.2.4/AUTHORS.txt"
                 }
             ],
             "description": "JavaScript library for DOM operations",
@@ -445,7 +555,7 @@
                 "jquery",
                 "library"
             ],
-            "time": "2016-05-20T17:19:07+00:00"
+            "time": "2016-05-20T17:26:07+00:00"
         },
         {
             "name": "npm-asset/jquery-colorbox",
@@ -612,6 +722,118 @@
                 "wheel"
             ],
             "time": "2015-07-15T18:05:23+00:00"
+        },
+        {
+            "name": "npm-asset/moment",
+            "version": "2.20.1",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/moment/-/moment-2.20.1.tgz",
+                "reference": null,
+                "shasum": "d6eb1a46cbcc14a2b2f9434112c1ff8907f313fd"
+            },
+            "require-dev": {
+                "npm-asset/benchmark": "dev-default|*",
+                "npm-asset/coveralls": ">=2.11.2,<3.0.0",
+                "npm-asset/es6-promise": "dev-default|*",
+                "npm-asset/grunt": "~0.4",
+                "npm-asset/grunt-benchmark": "dev-default|*",
+                "npm-asset/grunt-cli": "dev-default|*",
+                "npm-asset/grunt-contrib-clean": "dev-default|*",
+                "npm-asset/grunt-contrib-concat": "dev-default|*",
+                "npm-asset/grunt-contrib-copy": "dev-default|*",
+                "npm-asset/grunt-contrib-jshint": "dev-default|*",
+                "npm-asset/grunt-contrib-uglify": "dev-default|*",
+                "npm-asset/grunt-contrib-watch": "dev-default|*",
+                "npm-asset/grunt-env": "dev-default|*",
+                "npm-asset/grunt-exec": "dev-default|*",
+                "npm-asset/grunt-jscs": "dev-default|*",
+                "npm-asset/grunt-karma": "dev-default|*",
+                "npm-asset/grunt-nuget": "dev-default|*",
+                "npm-asset/grunt-string-replace": "dev-default|*",
+                "npm-asset/karma": "dev-default|*",
+                "npm-asset/karma-chrome-launcher": "dev-default|*",
+                "npm-asset/karma-firefox-launcher": "dev-default|*",
+                "npm-asset/karma-qunit": "dev-default|*",
+                "npm-asset/karma-sauce-launcher": "dev-default|*",
+                "npm-asset/load-grunt-tasks": "dev-default|*",
+                "npm-asset/nyc": ">=2.1.4,<3.0.0",
+                "npm-asset/qunit": ">=0.7.5,<0.8.0",
+                "npm-asset/qunit-cli": ">=0.1.4,<0.2.0",
+                "npm-asset/rollup": "dev-default|*",
+                "npm-asset/spacejam": "dev-default|*",
+                "npm-asset/typescript": ">=1.8.10,<2.0.0",
+                "npm-asset/uglify-js": "dev-default|*"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/moment/moment/issues"
+                },
+                "npm-asset-main": "./moment.js",
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git+https://github.com/moment/moment.git"
+                },
+                "npm-asset-scripts": {
+                    "typescript-test": "tsc --project typing-tests",
+                    "test": "grunt test",
+                    "coverage": "nyc npm test && nyc report",
+                    "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls"
+                },
+                "npm-asset-engines": {
+                    "node": "*"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Iskren Ivov Chernev",
+                    "email": "iskren.chernev@gmail.com",
+                    "url": "https://github.com/ichernev"
+                },
+                {
+                    "name": "Tim Wood",
+                    "email": "washwithcare@gmail.com",
+                    "url": "http://timwoodcreates.com/"
+                },
+                {
+                    "name": "Rocky Meza",
+                    "url": "http://rockymeza.com"
+                },
+                {
+                    "name": "Matt Johnson",
+                    "email": "mj1856@hotmail.com",
+                    "url": "http://codeofmatt.com"
+                },
+                {
+                    "name": "Isaac Cambron",
+                    "email": "isaac@isaaccambron.com",
+                    "url": "http://isaaccambron.com"
+                },
+                {
+                    "name": "Andre Polykanine",
+                    "email": "andre@oire.org",
+                    "url": "https://github.com/oire"
+                }
+            ],
+            "description": "Parse, validate, manipulate, and display dates",
+            "homepage": "http://momentjs.com",
+            "keywords": [
+                "date",
+                "ender",
+                "format",
+                "i18n",
+                "l10n",
+                "moment",
+                "parse",
+                "time",
+                "validate"
+            ],
+            "time": "2017-12-19T04:44:18+00:00"
         },
         {
             "name": "npm-asset/php-date-formatter",
