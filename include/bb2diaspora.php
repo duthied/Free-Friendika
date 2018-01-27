@@ -244,16 +244,14 @@ function format_event_diaspora($ev) {
 	$o .= '**' . (($ev['summary']) ? bb2diaspora($ev['summary']) : bb2diaspora($ev['desc'])) .  '**' . "\n";
 
 	// @todo What. Is. Going. On. With. This. Useless. Ternary. Operator? - mrpetovan
-	$o .= L10n::t('Starts:') . ' ' . '['
-		. (($ev['adjust']) ? day_translate(Temporal::utc($ev['start'], $bd_format))
-			:  day_translate(Temporal::utc($ev['start'], $bd_format))
+	$o .= L10n::t('Starts:') . ' ' . '[' . day_translate(
+			$ev['adjust'] ? Temporal::utc($ev['start'], $bd_format) : Temporal::utc($ev['start'], $bd_format)
 		)
 		.  '](' . System::baseUrl() . '/localtime/?f=&time=' . urlencode(Temporal::utc($ev['start'])) . ")\n";
 
 	if (! $ev['nofinish']) {
-		$o .= L10n::t('Finishes:') . ' ' . '['
-			. (($ev['adjust']) ? day_translate(Temporal::utc($ev['finish'], $bd_format))
-				:  day_translate(Temporal::utc($ev['finish'], $bd_format))
+		$o .= L10n::t('Finishes:') . ' ' . '[' . day_translate(
+				$ev['adjust'] ? Temporal::utc($ev['finish'], $bd_format) : Temporal::utc($ev['finish'], $bd_format)
 			)
 			. '](' . System::baseUrl() . '/localtime/?f=&time=' . urlencode(Temporal::utc($ev['finish'])) . ")\n";
 	}
