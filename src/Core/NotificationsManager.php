@@ -43,7 +43,7 @@ class NotificationsManager extends BaseObject
 	{
 		$rets = [];
 		foreach ($notes as $n) {
-			$local_time = Temporal::convert($n['date'], date_default_timezone_get());
+			$local_time = Temporal::local($n['date']);
 			$n['timestamp'] = strtotime($local_time);
 			$n['date_rel'] = relative_date($n['date']);
 			$n['msg_html'] = bbcode($n['msg'], false, false, false, false);
@@ -244,7 +244,7 @@ class NotificationsManager extends BaseObject
 						$default_item_image = proxy_url($it['photo'], false, PROXY_SIZE_MICRO);
 						$default_item_url = $it['url'];
 						$default_item_text = strip_tags(bbcode($it['msg']));
-						$default_item_when = Temporal::convert($it['date'], date_default_timezone_get(), 'UTC', 'r');
+						$default_item_when = Temporal::local($it['date'], 'r');
 						$default_item_ago = relative_date($it['date']);
 						break;
 
@@ -254,7 +254,7 @@ class NotificationsManager extends BaseObject
 						$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
 						$default_item_url = $it['author-link'];
 						$default_item_text = L10n::t("%s commented on %s's post", $it['author-name'], $it['pname']);
-						$default_item_when = Temporal::convert($it['created'], date_default_timezone_get(), 'UTC', 'r');
+						$default_item_when = Temporal::local($it['created'], 'r');
 						$default_item_ago = relative_date($it['created']);
 						break;
 
@@ -266,7 +266,7 @@ class NotificationsManager extends BaseObject
 						$default_item_text = (($it['id'] == $it['parent'])
 									? L10n::t("%s created a new post", $it['author-name'])
 									: L10n::t("%s commented on %s's post", $it['author-name'], $it['pname']));
-						$default_item_when = Temporal::convert($it['created'], date_default_timezone_get(), 'UTC', 'r');
+						$default_item_when = Temporal::local($it['created'], 'r');
 						$default_item_ago = relative_date($it['created']);
 				}
 

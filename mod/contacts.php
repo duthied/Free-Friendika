@@ -540,7 +540,7 @@ function contacts_content(App $a)
 
 		$insecure = L10n::t('Private communications are not available for this contact.');
 
-		$last_update = (($contact['last-update'] <= NULL_DATE) ? L10n::t('Never') : Temporal::convert($contact['last-update'], date_default_timezone_get(), 'UTC', 'D, j M Y, g:i A'));
+		$last_update = (($contact['last-update'] <= NULL_DATE) ? L10n::t('Never') : Temporal::local($contact['last-update'], 'D, j M Y, g:i A'));
 
 		if ($contact['last-update'] > NULL_DATE) {
 			$last_update .= ' ' . (($contact['last-update'] <= $contact['success_update']) ? L10n::t("\x28Update was successful\x29") : L10n::t("\x28Update was not successful\x29"));

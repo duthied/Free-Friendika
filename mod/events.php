@@ -326,8 +326,8 @@ function events_content(App $a) {
 		$start  = Temporal::utc($start);
 		$finish = Temporal::utc($finish);
 
-		$adjust_start  = Temporal::convert($start, date_default_timezone_get());
-		$adjust_finish = Temporal::convert($finish, date_default_timezone_get());
+		$adjust_start  = Temporal::local($start);
+		$adjust_finish = Temporal::local($finish);
 
 		// put the event parametes in an array so we can better transmit them
 		$event_params = [
@@ -351,7 +351,7 @@ function events_content(App $a) {
 		if (DBM::is_result($r)) {
 			$r = sort_by_date($r);
 			foreach ($r as $rr) {
-				$j = $rr['adjust'] ? Temporal::convert($rr['start'], date_default_timezone_get(), 'UTC', 'j') : Temporal::utc($rr['start'], 'j');
+				$j = $rr['adjust'] ? Temporal::local($rr['start'], 'j') : Temporal::utc($rr['start'], 'j');
 				if (! x($links,$j)) {
 					$links[$j] = System::baseUrl() . '/' . $a->cmd . '#link-' . $j;
 				}

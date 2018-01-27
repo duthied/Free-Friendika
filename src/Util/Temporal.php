@@ -136,6 +136,18 @@ class Temporal
 	}
 
 	/**
+	 * convert() shorthand for local.
+	 *
+	 * @param string $time   A date/time string
+	 * @param string $format DateTime format string or Temporal constant
+	 * @return string
+	 */
+	public static function local($time, $format = self::MYSQL)
+	{
+		return self::convert($time, date_default_timezone_get(), 'UTC', $format);
+	}
+
+	/**
 	 * convert() shorthand for timezoned now.
 	 *
 	 * @param string $format DateTime format string or Temporal constant
@@ -154,7 +166,7 @@ class Temporal
 	 */
 	public static function localNow($format = self::MYSQL)
 	{
-		return self::convert('now', date_default_timezone_get(), 'UTC', $format);
+		return self::local('now', $format);
 	}
 
 	/**
@@ -165,7 +177,7 @@ class Temporal
 	 */
 	public static function utcNow($format = self::MYSQL)
 	{
-		return self::convert('now', 'UTC', 'UTC', $format);
+		return self::utc('now', $format);
 	}
 
 	/**

@@ -397,7 +397,7 @@ function message_content(App $a)
 				'body' => $body_e,
 				'delete' => L10n::t('Delete message'),
 				'to_name' => $to_name_e,
-				'date' => Temporal::convert($message['created'], date_default_timezone_get(), 'UTC', 'D, d M Y - g:i A'),
+				'date' => Temporal::local($message['created'], 'D, d M Y - g:i A'),
 				'ago' => relative_date($message['created']),
 			];
 
@@ -498,7 +498,7 @@ function render_messages(array $msg, $t)
 			'$delete' => L10n::t('Delete conversation'),
 			'$body' => $body_e,
 			'$to_name' => $to_name_e,
-			'$date' => Temporal::convert($rr['mailcreated'], date_default_timezone_get(), 'UTC', L10n::t('D, d M Y - g:i A')),
+			'$date' => Temporal::local($rr['mailcreated'], L10n::t('D, d M Y - g:i A')),
 			'$ago' => relative_date($rr['mailcreated']),
 			'$seen' => $rr['mailseen'],
 			'$count' => L10n::tt('%d message', '%d messages', $rr['count']),

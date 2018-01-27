@@ -362,7 +362,7 @@ function ping_init(App $a)
 					$notif['photo'] = proxy_url($notif['photo'], false, PROXY_SIZE_MICRO);
 				}
 
-				$local_time = Temporal::convert($notif['date'], date_default_timezone_get());
+				$local_time = Temporal::local($notif['date']);
 
 				$notifications[] = [
 					'id'        => $notif['id'],

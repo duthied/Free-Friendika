@@ -28,13 +28,13 @@ function format_event_html($ev, $simple = false) {
 
 	$event_start = day_translate(
 		$ev['adjust'] ?
-			Temporal::convert($ev['start'], date_default_timezone_get(), 'UTC', $bd_format)
+			Temporal::local($ev['start'], $bd_format)
 			: Temporal::utc($ev['start'], $bd_format)
 	);
 
 	$event_end = day_translate(
 		$ev['adjust'] ?
-			Temporal::convert($ev['finish'], date_default_timezone_get(), 'UTC', $bd_format)
+			Temporal::local($ev['finish'], $bd_format)
 			: Temporal::utc($ev['finish'], $bd_format)
 	);
 
@@ -200,8 +200,8 @@ function sort_by_date($a) {
 
 function ev_compare($a,$b) {
 
-	$date_a = (($a['adjust']) ? Temporal::convert($a['start'], date_default_timezone_get()) : $a['start']);
-	$date_b = (($b['adjust']) ? Temporal::convert($b['start'], date_default_timezone_get()) : $b['start']);
+	$date_a = (($a['adjust']) ? Temporal::local($a['start']) : $a['start']);
+	$date_b = (($b['adjust']) ? Temporal::local($b['start']) : $b['start']);
 
 	if ($date_a === $date_b) {
 		return strcasecmp($a['desc'], $b['desc']);
@@ -595,15 +595,15 @@ function process_events($arr) {
 	$fmt = L10n::t('l, F j');
 	if (count($arr)) {
 		foreach ($arr as $rr) {
-			$j = (($rr['adjust']) ? Temporal::convert($rr['start'], date_default_timezone_get(), 'UTC', 'j') : Temporal::utc($rr['start'], 'j'));
-			$d = (($rr['adjust']) ? Temporal::convert($rr['start'], date_default_timezone_get(), 'UTC', $fmt) : Temporal::utc($rr['start'], $fmt));
+			$j = (($rr['adjust']) ? Temporal::local($rr['start'], 'j') : Temporal::utc($rr['start'], 'j'));
+			$d = (($rr['adjust']) ? Temporal::local($rr['start'], $fmt) : Temporal::utc($rr['start'], $fmt));
 			$d = day_translate($d);
 
-			$start = (($rr['adjust']) ? Temporal::convert($rr['start'], date_default_timezone_get(), 'UTC', 'c') : Temporal::utc($rr['start'], 'c'));
+			$start = (($rr['adjust']) ? Temporal::local($rr['start'], 'c') : Temporal::utc($rr['start'], 'c'));
 			if ($rr['nofinish']) {
 				$end = null;
 			} else {
-				$end = (($rr['adjust']) ? Temporal::convert($rr['finish'], date_default_timezone_get(), 'UTC', 'c') : Temporal::utc($rr['finish'], 'c'));
+				$end = (($rr['adjust']) ? Temporal::local($rr['finish'], 'c') : Temporal::utc($rr['finish'], 'c'));
 			}
 
 			$is_first = ($d !== $last_date);
@@ -930,26 +930,26 @@ function format_event_item($item) {
 	// Convert the time to different formats.
 	$dtstart_dt = day_translate(
 		$item['event-adjust'] ?
-			Temporal::convert($item['event-start'], date_default_timezone_get(), 'UTC', $dformat)
+			Temporal::local($item['event-start'], $dformat)
 			: Temporal::utc($item['event-start'], $dformat)
 	);
 	$dtstart_title = Temporal::utc($item['event-start'], $item['event-adjust'] ? Temporal::ATOM : 'Y-m-d\TH:i:s');
 	// Format: Jan till Dec.
 	$month_short = day_short_translate(
 		$item['event-adjust'] ?
-			Temporal::convert($item['event-start'], date_default_timezone_get(), 'UTC', 'M')
+			Temporal::local($item['event-start'], 'M')
 			: Temporal::utc($item['event-start'], 'M')
 	);
 	// Format: 1 till 31.
 	$date_short = $item['event-adjust'] ?
-		Temporal::convert($item['event-start'], date_default_timezone_get(), 'UTC', 'j')
+		Temporal::local($item['event-start'], 'j')
 		: Temporal::utc($item['event-start'], 'j');
 	$start_time = $item['event-adjust'] ?
-		Temporal::convert($item['event-start'], date_default_timezone_get(), 'UTC', $tformat)
+		Temporal::local($item['event-start'], $tformat)
 		: Temporal::utc($item['event-start'], $tformat);
 	$start_short = day_short_translate(
 		$item['event-adjust'] ?
-			Temporal::convert($item['event-start'], date_default_timezone_get(), 'UTC', $dformat_short)
+			Temporal::local($item['event-start'], $dformat_short)
 			: Temporal::utc($item['event-start'], $dformat_short)
 	);
 
@@ -958,17 +958,17 @@ function format_event_item($item) {
 		$finish = true;
 		$dtend_dt  = day_translate(
 			$item['event-adjust'] ?
-				Temporal::convert($item['event-finish'], date_default_timezone_get(), 'UTC', $dformat)
+				Temporal::local($item['event-finish'], $dformat)
 				: Temporal::utc($item['event-finish'], $dformat)
 		);
 		$dtend_title = Temporal::utc($item['event-finish'], $item['event-adjust']   ? Temporal::ATOM : 'Y-m-d\TH:i:s');
 		$end_short = day_short_translate(
 			$item['event-adjust'] ?
-				Temporal::convert($item['event-finish'], date_default_timezone_get(), 'UTC', $dformat_short)
+				Temporal::local($item['event-finish'], $dformat_short)
 				: Temporal::utc($item['event-finish'], $dformat_short)
 		);
 		$end_time = $item['event-adjust'] ?
-			Temporal::convert($item['event-finish'], date_default_timezone_get(), 'UTC', $tformat)
+			Temporal::local($item['event-finish'], $tformat)
 			: Temporal::utc($item['event-finish'], $tformat);
 		// Check if start and finish time is at the same day.
 		if (substr($dtstart_title, 0, 10) === substr($dtend_title, 0, 10)) {

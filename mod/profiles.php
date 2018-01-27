@@ -725,7 +725,7 @@ function profiles_content(App $a) {
 			'$gender' => ContactSelector::gender($r[0]['gender']),
 			'$marital' => ContactSelector::maritalStatus($r[0]['marital']),
 			'$with' => ['with', L10n::t("Who: \x28if applicable\x29"), strip_tags($r[0]['with']), L10n::t('Examples: cathy123, Cathy Williams, cathy@example.com')],
-			'$howlong' => ['howlong', L10n::t('Since [date]:'), ($r[0]['howlong'] <= NULL_DATE ? '' : Temporal::convert($r[0]['howlong'], date_default_timezone_get()))],
+			'$howlong' => ['howlong', L10n::t('Since [date]:'), ($r[0]['howlong'] <= NULL_DATE ? '' : Temporal::local($r[0]['howlong']))],
 			'$sexual' => ContactSelector::sexualPreference($r[0]['sexual']),
 			'$about' => ['about', L10n::t('Tell us about yourself...'), $r[0]['about']],
 			'$xmpp' => ['xmpp', L10n::t("XMPP \x28Jabber\x29 address:"), $r[0]['xmpp'], L10n::t("The XMPP address will be propagated to your contacts so that they can follow you.")],

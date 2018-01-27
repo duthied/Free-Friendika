@@ -124,7 +124,7 @@ class Post extends BaseObject
 		if (strtotime($item['edited']) - strtotime($item['created']) > 1) {
 			$edited = [
 				'label'    => L10n::t('This entry was edited'),
-				'date'     => Temporal::convert($item['edited'], date_default_timezone_get(), 'UTC', 'r'),
+				'date'     => Temporal::local($item['edited'], 'r'),
 				'relative' => relative_date($item['edited'])
 			];
 		}
@@ -364,7 +364,7 @@ class Post extends BaseObject
 			'osparkle'        => $osparkle,
 			'sparkle'         => $sparkle,
 			'title'           => $title_e,
-			'localtime'       => Temporal::convert($item['created'], date_default_timezone_get(), 'UTC', 'r'),
+			'localtime'       => Temporal::local($item['created'], 'r'),
 			'ago'             => $item['app'] ? L10n::t('%s from %s', relative_date($item['created']), $item['app']) : relative_date($item['created']),
 			'app'             => $item['app'],
 			'created'         => relative_date($item['created']),
