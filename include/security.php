@@ -10,7 +10,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Group;
-use Friendica\Util\Temporal;
+use Friendica\Util\DateTimeFormat;
 
 /**
  * @brief Calculate the hash that is needed for the "Friendica" cookie
@@ -142,10 +142,10 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 	header('X-Account-Management-Status: active; name="' . $a->user['username'] . '"; id="' . $a->user['nickname'] . '"');
 
 	if ($login_initial || $login_refresh) {
-		dba::update('user', ['login_date' => Temporal::utcNow()], ['uid' => $_SESSION['uid']]);
+		dba::update('user', ['login_date' => DateTimeFormat::utcNow()], ['uid' => $_SESSION['uid']]);
 
 		// Set the login date for all identities of the user
-		dba::update('user', ['login_date' => Temporal::utcNow()],
+		dba::update('user', ['login_date' => DateTimeFormat::utcNow()],
 			['password' => $master_record['password'], 'email' => $master_record['email'], 'account_removed' => false]);
 	}
 

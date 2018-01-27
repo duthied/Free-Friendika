@@ -8,7 +8,7 @@ namespace Friendica\Worker;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
-use Friendica\Util\Temporal;
+use Friendica\Util\DateTimeFormat;
 
 Class CronHooks {
 	public static function execute($hook = '') {
@@ -45,7 +45,7 @@ Class CronHooks {
 
 		logger('cronhooks: start');
 
-		$d = Temporal::utcNow();
+		$d = DateTimeFormat::utcNow();
 
 		if (is_array($a->hooks) && array_key_exists("cron", $a->hooks)) {
 			foreach ($a->hooks["cron"] as $hook) {

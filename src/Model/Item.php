@@ -22,6 +22,7 @@ use Friendica\Model\Term;
 use Friendica\Object\Image;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 use dba;
 use Text_LanguageDetect;
@@ -149,7 +150,7 @@ class Item extends BaseObject
 
 		// Set the item to "deleted"
 		dba::update('item', ['deleted' => true, 'title' => '', 'body' => '',
-					'edited' => Temporal::utcNow(), 'changed' => Temporal::utcNow()],
+					'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()],
 				['id' => $item['id']]);
 
 		create_tags_from_item($item['id']);

@@ -12,8 +12,8 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Object\Image;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
-use Friendica\Util\Temporal;
 use dba;
 
 require_once 'include/dba.php';
@@ -55,8 +55,8 @@ class Photo
 			'contact-id' => $cid,
 			'guid' => $guid,
 			'resource-id' => $rid,
-			'created' => Temporal::utcNow(),
-			'edited' => Temporal::utcNow(),
+			'created' => DateTimeFormat::utcNow(),
+			'edited' => DateTimeFormat::utcNow(),
 			'filename' => basename($filename),
 			'type' => $Image->getType(),
 			'album' => $album,

@@ -10,7 +10,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
-use Friendica\Util\Temporal;
+use Friendica\Util\DateTimeFormat;
 use dba;
 
 require_once 'include/dba.php';
@@ -82,7 +82,7 @@ class Mail
 			$handles = $recip_handle . ';' . $sender_handle;
 
 			$fields = ['uid' => local_user(), 'guid' => $conv_guid, 'creator' => $sender_handle,
-				'created' => Temporal::utcNow(), 'updated' => Temporal::utcNow(),
+				'created' => DateTimeFormat::utcNow(), 'updated' => DateTimeFormat::utcNow(),
 				'subject' => $subject, 'recips' => $handles];
 			if (dba::insert('conv', $fields)) {
 				$convid = dba::lastInsertId();
@@ -116,7 +116,7 @@ class Mail
 				'replied' => 0,
 				'uri' => $uri,
 				'parent-uri' => $replyto,
-				'created' => Temporal::utcNow()
+				'created' => DateTimeFormat::utcNow()
 			]
 		);
 
@@ -196,7 +196,7 @@ class Mail
 
 		$convid = null;
 		$fields = ['uid' => $recipient['uid'], 'guid' => $conv_guid, 'creator' => $sender_handle,
-			'created' => Temporal::utcNow(), 'updated' => Temporal::utcNow(),
+			'created' => DateTimeFormat::utcNow(), 'updated' => DateTimeFormat::utcNow(),
 			'subject' => $subject, 'recips' => $handles];
 		if (dba::insert('conv', $fields)) {
 			$convid = dba::lastInsertId();
@@ -224,7 +224,7 @@ class Mail
 				'replied' => 0,
 				'uri' => $uri,
 				'parent-uri' => $replyto,
-				'created' => Temporal::utcNow(),
+				'created' => DateTimeFormat::utcNow(),
 				'unknown' => 1
 			]
 		);

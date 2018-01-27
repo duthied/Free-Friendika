@@ -14,8 +14,8 @@ use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
-use Friendica\Util\Temporal;
 use dba;
 use Exception;
 
@@ -120,12 +120,12 @@ class GContact
 				intval($uid),
 				intval($gcid),
 				intval($zcid),
-				dbesc(Temporal::utcNow())
+				dbesc(DateTimeFormat::utcNow())
 			);
 		} else {
 			q(
 				"UPDATE `glink` SET `updated` = '%s' WHERE `cid` = %d AND `uid` = %d AND `gcid` = %d AND `zcid` = %d",
-				dbesc(Temporal::utcNow()),
+				dbesc(DateTimeFormat::utcNow()),
 				intval($cid),
 				intval($uid),
 				intval($gcid),
@@ -717,8 +717,8 @@ class GContact
 				dbesc($contact["url"]),
 				dbesc(normalise_link($contact["url"])),
 				dbesc($contact["photo"]),
-				dbesc(Temporal::utcNow()),
-				dbesc(Temporal::utcNow()),
+				dbesc(DateTimeFormat::utcNow()),
+				dbesc(DateTimeFormat::utcNow()),
 				dbesc($contact["location"]),
 				dbesc($contact["about"]),
 				intval($contact["hide"]),
@@ -1050,7 +1050,7 @@ class GContact
 
 		foreach ($r as $server) {
 			self::fetchGsUsers($server["url"]);
-			q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(Temporal::utcNow()), dbesc($server["nurl"]));
+			q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(DateTimeFormat::utcNow()), dbesc($server["nurl"]));
 		}
 	}
 

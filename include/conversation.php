@@ -17,7 +17,7 @@ use Friendica\Model\Profile;
 use Friendica\Object\Post;
 use Friendica\Util\XML;
 use Friendica\Object\Thread;
-use Friendica\Util\Temporal;
+use Friendica\Util\DateTimeFormat;
 
 require_once "include/bbcode.php";
 require_once "include/acl_selectors.php";
@@ -790,7 +790,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 					'categories' => $categories,
 					'folders' => $folders,
 					'text' => strip_tags($body_e),
-					'localtime' => Temporal::local($item['created'], 'r'),
+					'localtime' => DateTimeFormat::local($item['created'], 'r'),
 					'ago' => (($item['app']) ? L10n::t('%s from %s', relative_date($item['created']),$item['app']) : relative_date($item['created'])),
 					'location' => $location_e,
 					'indent' => '',

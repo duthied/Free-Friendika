@@ -15,8 +15,8 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Profile;
 use Friendica\Model\Term;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
-use Friendica\Util\Temporal;
 
 require_once "mod/proxy.php";
 require_once "include/conversation.php";
@@ -723,7 +723,7 @@ function logger($msg, $level = 0) {
 
 	$callers = debug_backtrace();
 	$logline = sprintf("%s@%s\t[%s]:%s:%s:%s\t%s\n",
-			Temporal::utcNow(Temporal::ATOM),
+			DateTimeFormat::utcNow(DateTimeFormat::ATOM),
 			$process_id,
 			$LOGGER_LEVELS[$level],
 			basename($callers[0]['file']),
@@ -789,7 +789,7 @@ function dlogger($msg, $level = 0) {
 
 	$callers = debug_backtrace();
 	$logline = sprintf("%s@\t%s:\t%s:\t%s\t%s\t%s\n",
-			Temporal::utcNow(),
+			DateTimeFormat::utcNow(),
 			$process_id,
 			basename($callers[0]['file']),
 			$callers[0]['line'],

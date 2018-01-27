@@ -31,8 +31,8 @@ use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\Crypto;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
-use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 
 require_once 'include/enotify.php';
@@ -327,8 +327,8 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				`network` = '%s' WHERE `id` = %d
 			",
 				intval($new_relation),
-				dbesc(Temporal::utcNow()),
-				dbesc(Temporal::utcNow()),
+				dbesc(DateTimeFormat::utcNow()),
+				dbesc(DateTimeFormat::utcNow()),
 				intval($duplex),
 				intval($hidden),
 				dbesc(NETWORK_DFRN),
@@ -378,8 +378,8 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				`rel` = %d
 				WHERE `id` = %d
 			",
-				dbesc(Temporal::utcNow()),
-				dbesc(Temporal::utcNow()),
+				dbesc(DateTimeFormat::utcNow()),
+				dbesc(DateTimeFormat::utcNow()),
 				dbesc($addr),
 				dbesc($notify),
 				dbesc($poll),
@@ -619,8 +619,8 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			`network` = '%s' WHERE `id` = %d
 		",
 			intval($new_relation),
-			dbesc(Temporal::utcNow()),
-			dbesc(Temporal::utcNow()),
+			dbesc(DateTimeFormat::utcNow()),
+			dbesc(DateTimeFormat::utcNow()),
 			intval($duplex),
 			intval($forum),
 			intval($prv),

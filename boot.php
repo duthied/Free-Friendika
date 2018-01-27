@@ -28,7 +28,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Contact;
-use Friendica\Util\Temporal;
+use Friendica\Util\DateTimeFormat;
 use Friendida\Core\L10n;
 
 require_once 'include/text.php';
@@ -1142,14 +1142,14 @@ function feed_birthday($uid, $tz)
 	if (DBM::is_result($p)) {
 		$tmp_dob = substr($p[0]['dob'], 5);
 		if (intval($tmp_dob)) {
-			$y = Temporal::timezoneNow($tz, 'Y');
+			$y = DateTimeFormat::timezoneNow($tz, 'Y');
 			$bd = $y . '-' . $tmp_dob . ' 00:00';
 			$t_dob = strtotime($bd);
-			$now = strtotime(Temporal::timezoneNow($tz));
+			$now = strtotime(DateTimeFormat::timezoneNow($tz));
 			if ($t_dob < $now) {
 				$bd = $y + 1 . '-' . $tmp_dob . ' 00:00';
 			}
-			$birthday = Temporal::convert($bd, 'UTC', $tz, Temporal::ATOM);
+			$birthday = DateTimeFormat::convert($bd, 'UTC', $tz, DateTimeFormat::ATOM);
 		}
 	}
 

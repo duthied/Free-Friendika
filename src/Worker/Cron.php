@@ -8,7 +8,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Util\Temporal;
+use Friendica\Util\DateTimeFormat;
 use dba;
 
 require_once 'include/dba.php';
@@ -71,7 +71,7 @@ Class Cron {
 
 		// once daily run birthday_updates and then expire in background
 		$d1 = Config::get('system', 'last_expire_day');
-		$d2 = intval(Temporal::utcNow('d'));
+		$d2 = intval(DateTimeFormat::utcNow('d'));
 
 		if ($d2 != intval($d1)) {
 
@@ -142,7 +142,7 @@ Class Cron {
 
 		Addon::reload();
 
-		$d = Temporal::utcNow();
+		$d = DateTimeFormat::utcNow();
 
 		// Only poll from those with suitable relationships,
 		// and which have a polling address and ignore Diaspora since
@@ -218,33 +218,33 @@ Class Cron {
 				 */
 				switch ($contact['priority']) {
 					case 5:
-						if (Temporal::utcNow() > Temporal::utc($t . " + 1 month")) {
+						if (DateTimeFormat::utcNow() > DateTimeFormat::utc($t . " + 1 month")) {
 							$update = true;
 						}
 						break;
 					case 4:
-						if (Temporal::utcNow() > Temporal::utc($t . " + 1 week")) {
+						if (DateTimeFormat::utcNow() > DateTimeFormat::utc($t . " + 1 week")) {
 							$update = true;
 						}
 						break;
 					case 3:
-						if (Temporal::utcNow() > Temporal::utc($t . " + 1 day")) {
+						if (DateTimeFormat::utcNow() > DateTimeFormat::utc($t . " + 1 day")) {
 							$update = true;
 						}
 						break;
 					case 2:
-						if (Temporal::utcNow() > Temporal::utc($t . " + 12 hour")) {
+						if (DateTimeFormat::utcNow() > DateTimeFormat::utc($t . " + 12 hour")) {
 							$update = true;
 						}
 						break;
 					case 1:
-						if (Temporal::utcNow() > Temporal::utc($t . " + 1 hour")) {
+						if (DateTimeFormat::utcNow() > DateTimeFormat::utc($t . " + 1 hour")) {
 							$update = true;
 						}
 						break;
 					case 0:
 					default:
-						if (Temporal::utcNow() > Temporal::utc($t . " + ".$min_poll_interval." minute")) {
+						if (DateTimeFormat::utcNow() > DateTimeFormat::utc($t . " + ".$min_poll_interval." minute")) {
 							$update = true;
 						}
 						break;

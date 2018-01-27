@@ -28,8 +28,8 @@ use Friendica\Model\GContact;
 use Friendica\Model\Item;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
-use Friendica\Util\Temporal;
 
 require_once 'include/enotify.php';
 require_once 'include/tags.php';
@@ -601,11 +601,11 @@ function item_post(App $a) {
 	$datarray['author-link']   = $author['url'];
 	$datarray['author-avatar'] = $author['thumb'];
 	$datarray['author-id']     = Contact::getIdForURL($datarray['author-link'], 0);
-	$datarray['created']       = Temporal::utcNow();
-	$datarray['edited']        = Temporal::utcNow();
-	$datarray['commented']     = Temporal::utcNow();
-	$datarray['received']      = Temporal::utcNow();
-	$datarray['changed']       = Temporal::utcNow();
+	$datarray['created']       = DateTimeFormat::utcNow();
+	$datarray['edited']        = DateTimeFormat::utcNow();
+	$datarray['commented']     = DateTimeFormat::utcNow();
+	$datarray['received']      = DateTimeFormat::utcNow();
+	$datarray['changed']       = DateTimeFormat::utcNow();
 	$datarray['extid']         = $extid;
 	$datarray['guid']          = $guid;
 	$datarray['uri']           = $uri;
@@ -709,8 +709,8 @@ function item_post(App $a) {
 			'file' => $datarray['file'],
 			'rendered-html' => $datarray['rendered-html'],
 			'rendered-hash' => $datarray['rendered-hash'],
-			'edited' => Temporal::utcNow(),
-			'changed' => Temporal::utcNow()];
+			'edited' => DateTimeFormat::utcNow(),
+			'changed' => DateTimeFormat::utcNow()];
 
 		Item::update($fields, ['id' => $post_id]);
 

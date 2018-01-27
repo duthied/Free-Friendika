@@ -17,8 +17,8 @@ use Friendica\Model\Group;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
 use Friendica\Util\Crypto;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
-use Friendica\Util\Temporal;
 use dba;
 use Exception;
 use LightOpenID;
@@ -396,7 +396,7 @@ class User
 			'verified' => $verified,
 			'blocked'  => $blocked,
 			'timezone' => 'UTC',
-			'register_date' => Temporal::utcNow(),
+			'register_date' => DateTimeFormat::utcNow(),
 			'default-location' => ''
 		]);
 
@@ -613,7 +613,7 @@ class User
 		dba::insert('userd', ['username' => $user['nickname']]);
 
 		// The user and related data will be deleted in "cron_expire_and_remove_users" (cronjobs.php)
-		dba::update('user', ['account_removed' => true, 'account_expires_on' => Temporal::utcNow()], ['uid' => $uid]);
+		dba::update('user', ['account_removed' => true, 'account_expires_on' => DateTimeFormat::utcNow()], ['uid' => $uid]);
 		Worker::add(PRIORITY_HIGH, "Notifier", "removeme", $uid);
 
 		// Send an update to the directory

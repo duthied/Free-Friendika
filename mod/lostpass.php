@@ -8,7 +8,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\User;
-use Friendica\Util\Temporal;
+use Friendica\Util\DateTimeFormat;
 
 require_once 'boot.php';
 require_once 'include/datetime.php';
@@ -33,7 +33,7 @@ function lostpass_post(App $a)
 
 	$fields = [
 		'pwdreset' => $pwdreset_token,
-		'pwdreset_time' => Temporal::utcNow()
+		'pwdreset_time' => DateTimeFormat::utcNow()
 	];
 	$result = dba::update('user', $fields, ['uid' => $user['uid']]);
 	if ($result) {
@@ -92,7 +92,7 @@ function lostpass_content(App $a)
 		}
 
 		// Password reset requests expire in 60 minutes
-		if ($user['pwdreset_time'] < Temporal::utc('now - 1 hour')) {
+		if ($user['pwdreset_time'] < DateTimeFormat::utc('now - 1 hour')) {
 			$fields = [
 				'pwdreset' => null,
 				'pwdreset_time' => null

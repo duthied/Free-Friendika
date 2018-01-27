@@ -36,8 +36,8 @@ use Friendica\Network\HTTPException\TooManyRequestsException;
 use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Object\Image;
 use Friendica\Protocol\Diaspora;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
-use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 
 require_once 'include/bbcode.php';
@@ -111,7 +111,7 @@ function api_source()
 function api_date($str)
 {
 	// Wed May 23 06:01:13 +0000 2007
-	return Temporal::utc($str, "D M d H:i:s +0000 Y");
+	return DateTimeFormat::utc($str, "D M d H:i:s +0000 Y");
 }
 
 /**
@@ -460,7 +460,7 @@ function api_rss_extra(App $a, $arr, $user_info)
 		'self'         => System::baseUrl() . "/" . $a->query_string,
 		'base'         => System::baseUrl(),
 		'updated'      => api_date(null),
-		'atom_updated' => Temporal::utcNow(Temporal::ATOM),
+		'atom_updated' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
 		'language'     => $user_info['language'],
 		'logo'         => System::baseUrl() . "/images/friendica-32.png",
 	];
@@ -1162,7 +1162,7 @@ function api_statuses_update($type)
 		// Check for throttling (maximum posts per day, week and month)
 		$throttle_day = Config::get('system', 'throttle_limit_day');
 		if ($throttle_day > 0) {
-			$datefrom = date(Temporal::MYSQL, time() - 24*60*60);
+			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60);
 
 			$r = q(
 				"SELECT COUNT(*) AS `posts_day` FROM `item` WHERE `uid`=%d AND `wall`
@@ -1186,7 +1186,7 @@ function api_statuses_update($type)
 
 		$throttle_week = Config::get('system', 'throttle_limit_week');
 		if ($throttle_week > 0) {
-			$datefrom = date(Temporal::MYSQL, time() - 24*60*60*7);
+			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*7);
 
 			$r = q(
 				"SELECT COUNT(*) AS `posts_week` FROM `item` WHERE `uid`=%d AND `wall`
@@ -1210,7 +1210,7 @@ function api_statuses_update($type)
 
 		$throttle_month = Config::get('system', 'throttle_limit_month');
 		if ($throttle_month > 0) {
-			$datefrom = date(Temporal::MYSQL, time() - 24*60*60*30);
+			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*30);
 
 			$r = q(
 				"SELECT COUNT(*) AS `posts_month` FROM `item` WHERE `uid`=%d AND `wall`
@@ -3207,7 +3207,7 @@ function api_account_rate_limit_status($type)
 				'@attributes' => ["type" => "integer"],
 				'hourly-limit' => '150',
 				'@attributes2' => ["type" => "integer"],
-				'reset-time' => Temporal::utc('now + 1 hour', Temporal::ATOM),
+				'reset-time' => DateTimeFormat::utc('now + 1 hour', DateTimeFormat::ATOM),
 				'@attributes3' => ["type" => "datetime"],
 				'reset_time_in_seconds' => strtotime('now + 1 hour'),
 				'@attributes4' => ["type" => "integer"],
@@ -3217,7 +3217,7 @@ function api_account_rate_limit_status($type)
 				'reset_time_in_seconds' => strtotime('now + 1 hour'),
 				'remaining_hits' => '150',
 				'hourly_limit' => '150',
-				'reset_time' => api_date(Temporal::utc('now + 1 hour', Temporal::ATOM)),
+				'reset_time' => api_date(DateTimeFormat::utc('now + 1 hour', DateTimeFormat::ATOM)),
 			];
 	}
 
@@ -4216,7 +4216,7 @@ function api_fr_photo_create_update($type)
 			$result = q(
 				"UPDATE `photo` SET %s, `edited`='%s' WHERE `uid` = %d AND `resource-id` = '%s' AND `album` = '%s'",
 				$sql_extra,
-				Temporal::utcNow(),   // update edited timestamp
+				DateTimeFormat::utcNow(),   // update edited timestamp
 				intval(api_user()),
 				dbesc($photo_id),
 				dbesc($album)
@@ -4420,7 +4420,7 @@ function api_account_update_profile_image($type)
 
 	q(
 		"UPDATE `contact` SET `avatar-date` = '%s' WHERE `self` = 1 AND `uid` = %d",
-		dbesc(Temporal::utcNow()),
+		dbesc(DateTimeFormat::utcNow()),
 		intval(local_user())
 	);
 

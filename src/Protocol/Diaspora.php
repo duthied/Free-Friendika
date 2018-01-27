@@ -9,12 +9,11 @@
  */
 namespace Friendica\Protocol;
 
-use Friendica\App;
-use Friendica\Core\System;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
@@ -26,8 +25,8 @@ use Friendica\Model\Queue;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
-use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 use dba;
 use SimpleXMLElement;
@@ -77,7 +76,7 @@ class Diaspora
 				$r = q(
 					"INSERT INTO `contact` (`uid`, `created`, `name`, `nick`, `addr`, `url`, `nurl`, `batch`, `network`, `rel`, `blocked`, `pending`, `writable`, `name-date`, `uri-date`, `avatar-date`)
 					VALUES (0, '%s', '%s', 'relay', '%s', '%s', '%s', '%s', '%s', %d, 0, 0, 1, '%s', '%s', '%s')",
-					Temporal::utcNow(),
+					DateTimeFormat::utcNow(),
 					dbesc($addr),
 					dbesc($addr),
 					dbesc($server),
@@ -85,9 +84,9 @@ class Diaspora
 					dbesc($batch),
 					dbesc(NETWORK_DIASPORA),
 					intval(CONTACT_IS_FOLLOWER),
-					dbesc(Temporal::utcNow()),
-					dbesc(Temporal::utcNow()),
-					dbesc(Temporal::utcNow())
+					dbesc(DateTimeFormat::utcNow()),
+					dbesc(DateTimeFormat::utcNow()),
+					dbesc(DateTimeFormat::utcNow())
 				);
 
 				$relais = q("SELECT `batch`, `id`, `name`,`network` FROM `contact` WHERE `uid` = 0 AND `batch` = '%s' LIMIT 1", dbesc($batch));
@@ -871,7 +870,7 @@ class Diaspora
 				dbesc($arr["confirm"]),
 				dbesc($arr["alias"]),
 				dbesc($arr["pubkey"]),
-				dbesc(Temporal::utcNow()),
+				dbesc(DateTimeFormat::utcNow()),
 				dbesc($arr["url"]),
 				dbesc($arr["network"])
 			);
@@ -894,7 +893,7 @@ class Diaspora
 				dbesc($arr["network"]),
 				dbesc($arr["alias"]),
 				dbesc($arr["pubkey"]),
-				dbesc(Temporal::utcNow())
+				dbesc(DateTimeFormat::utcNow())
 			);
 		}
 
@@ -1654,9 +1653,9 @@ class Diaspora
 		$text = unxmlify($data->text);
 
 		if (isset($data->created_at)) {
-			$created_at = Temporal::utc(notags(unxmlify($data->created_at)));
+			$created_at = DateTimeFormat::utc(notags(unxmlify($data->created_at)));
 		} else {
-			$created_at = Temporal::utcNow();
+			$created_at = DateTimeFormat::utcNow();
 		}
 
 		if (isset($data->thread_parent_guid)) {
@@ -1786,7 +1785,7 @@ class Diaspora
 		$msg_guid = notags(unxmlify($mesg->guid));
 		$msg_conversation_guid = notags(unxmlify($mesg->conversation_guid));
 		$msg_text = unxmlify($mesg->text);
-		$msg_created_at = Temporal::utc(notags(unxmlify($mesg->created_at)));
+		$msg_created_at = DateTimeFormat::utc(notags(unxmlify($mesg->created_at)));
 
 		if ($msg_conversation_guid != $guid) {
 			logger("message conversation guid does not belong to the current conversation.");
@@ -1831,7 +1830,7 @@ class Diaspora
 
 		dba::unlock();
 
-		dba::update('conv', ['updated' => Temporal::utcNow()], ['id' => $conversation["id"]]);
+		dba::update('conv', ['updated' => DateTimeFormat::utcNow()], ['id' => $conversation["id"]]);
 
 		notification(
 			[
@@ -1865,7 +1864,7 @@ class Diaspora
 		$author = notags(unxmlify($data->author));
 		$guid = notags(unxmlify($data->guid));
 		$subject = notags(unxmlify($data->subject));
-		$created_at = Temporal::utc(notags(unxmlify($data->created_at)));
+		$created_at = DateTimeFormat::utc(notags(unxmlify($data->created_at)));
 		$participants = notags(unxmlify($data->participants));
 
 		$messages = $data->message;
@@ -1897,7 +1896,7 @@ class Diaspora
 				dbesc($guid),
 				dbesc($author),
 				dbesc($created_at),
-				dbesc(Temporal::utcNow()),
+				dbesc(DateTimeFormat::utcNow()),
 				dbesc($subject),
 				dbesc($participants)
 			);
@@ -2098,7 +2097,7 @@ class Diaspora
 		$guid = notags(unxmlify($data->guid));
 		$conversation_guid = notags(unxmlify($data->conversation_guid));
 		$text = unxmlify($data->text);
-		$created_at = Temporal::utc(notags(unxmlify($data->created_at)));
+		$created_at = DateTimeFormat::utc(notags(unxmlify($data->created_at)));
 
 		$contact = self::allowedContactByHandle($importer, $author, true);
 		if (!$contact) {
@@ -2164,7 +2163,7 @@ class Diaspora
 
 		dba::unlock();
 
-		dba::update('conv', ['updated' => Temporal::utcNow()], ['id' => $conversation["id"]]);
+		dba::update('conv', ['updated' => DateTimeFormat::utcNow()], ['id' => $conversation["id"]]);
 		return true;
 	}
 
@@ -2315,7 +2314,7 @@ class Diaspora
 		$birthday = str_replace("1000", "1901", $birthday);
 
 		if ($birthday != "") {
-			$birthday = Temporal::utc($birthday, "Y-m-d");
+			$birthday = DateTimeFormat::utc($birthday, "Y-m-d");
 		}
 
 		// this is to prevent multiple birthday notifications in a single year
@@ -2331,7 +2330,7 @@ class Diaspora
 			dbesc($name),
 			dbesc($nick),
 			dbesc($author),
-			dbesc(Temporal::utcNow()),
+			dbesc(DateTimeFormat::utcNow()),
 			dbesc($birthday),
 			dbesc($location),
 			dbesc($about),
@@ -2537,7 +2536,7 @@ class Diaspora
 			intval($importer["uid"]),
 			dbesc($ret["network"]),
 			dbesc($ret["addr"]),
-			Temporal::utcNow(),
+			DateTimeFormat::utcNow(),
 			dbesc($ret["url"]),
 			dbesc(normalise_link($ret["url"])),
 			dbesc($batch),
@@ -2580,7 +2579,7 @@ class Diaspora
 				0,
 				dbesc(L10n::t("Sharing notification from Diaspora network")),
 				dbesc($hash),
-				dbesc(Temporal::utcNow())
+				dbesc(DateTimeFormat::utcNow())
 			);
 		} else {
 			// automatic friend approval
@@ -2611,8 +2610,8 @@ class Diaspora
 				WHERE `id` = %d
 				",
 				intval($new_relation),
-				dbesc(Temporal::utcNow()),
-				dbesc(Temporal::utcNow()),
+				dbesc(DateTimeFormat::utcNow()),
+				dbesc(DateTimeFormat::utcNow()),
 				intval($contact_record["id"])
 			);
 
@@ -2716,7 +2715,7 @@ class Diaspora
 	{
 		$author = notags(unxmlify($data->author));
 		$guid = notags(unxmlify($data->guid));
-		$created_at = Temporal::utc(notags(unxmlify($data->created_at)));
+		$created_at = DateTimeFormat::utc(notags(unxmlify($data->created_at)));
 		$root_author = notags(unxmlify($data->root_author));
 		$root_guid = notags(unxmlify($data->root_guid));
 		/// @todo handle unprocessed property "provider_display_name"
@@ -2852,8 +2851,8 @@ class Diaspora
 					'deleted' => true,
 					'title' => '',
 					'body' => '',
-					'edited' => Temporal::utcNow(),
-					'changed' => Temporal::utcNow()],
+					'edited' => DateTimeFormat::utcNow(),
+					'changed' => DateTimeFormat::utcNow()],
 				['id' => $item["id"]]
 			);
 
@@ -2930,7 +2929,7 @@ class Diaspora
 	{
 		$author = notags(unxmlify($data->author));
 		$guid = notags(unxmlify($data->guid));
-		$created_at = Temporal::utc(notags(unxmlify($data->created_at)));
+		$created_at = DateTimeFormat::utc(notags(unxmlify($data->created_at)));
 		$public = notags(unxmlify($data->public));
 		$text = unxmlify($data->text);
 		$provider_display_name = notags(unxmlify($data->provider_display_name));
@@ -3593,7 +3592,7 @@ class Diaspora
 			$eventdata['guid'] = $event['guid'];
 		}
 
-		$mask = Temporal::ATOM;
+		$mask = DateTimeFormat::ATOM;
 
 		/// @todo - establish "all day" events in Friendica
 		$eventdata["all_day"] = "false";
@@ -3607,10 +3606,10 @@ class Diaspora
 		}
 
 		if ($event['start']) {
-			$eventdata['start'] = Temporal::convert($event['start'], "UTC", $eventdata['timezone'], $mask);
+			$eventdata['start'] = DateTimeFormat::convert($event['start'], "UTC", $eventdata['timezone'], $mask);
 		}
 		if ($event['finish'] && !$event['nofinish']) {
-			$eventdata['end'] = Temporal::convert($event['finish'], "UTC", $eventdata['timezone'], $mask);
+			$eventdata['end'] = DateTimeFormat::convert($event['finish'], "UTC", $eventdata['timezone'], $mask);
 		}
 		if ($event['summary']) {
 			$eventdata['summary'] = html_entity_decode(bb2diaspora($event['summary']));
@@ -3652,7 +3651,7 @@ class Diaspora
 
 		$public = (($item["private"]) ? "false" : "true");
 
-		$created = Temporal::utc($item["created"], Temporal::ATOM);
+		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
 
 		// Detect a share element and do a reshare
 		if (!$item['private'] && ($ret = self::isReshare($item["body"]))) {
@@ -3855,7 +3854,7 @@ class Diaspora
 		$parent = $p[0];
 
 		$text = html_entity_decode(bb2diaspora($item["body"]));
-		$created = Temporal::utc($item["created"], Temporal::ATOM);
+		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
 
 		$comment = ["author" => self::myHandle($owner),
 				"guid" => $item["guid"],
@@ -4086,12 +4085,12 @@ class Diaspora
 			"author" => $cnv["creator"],
 			"guid" => $cnv["guid"],
 			"subject" => $cnv["subject"],
-			"created_at" => Temporal::utc($cnv['created'], Temporal::ATOM),
+			"created_at" => DateTimeFormat::utc($cnv['created'], DateTimeFormat::ATOM),
 			"participants" => $cnv["recips"]
 		];
 
 		$body = bb2diaspora($item["body"]);
-		$created = Temporal::utc($item["created"], Temporal::ATOM);
+		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
 
 		$msg = [
 			"author" => $myaddr,
@@ -4109,7 +4108,7 @@ class Diaspora
 					"author" => $cnv["creator"],
 					"guid" => $cnv["guid"],
 					"subject" => $cnv["subject"],
-					"created_at" => Temporal::utc($cnv['created'], Temporal::ATOM),
+					"created_at" => DateTimeFormat::utc($cnv['created'], DateTimeFormat::ATOM),
 					"participants" => $cnv["recips"],
 					"message" => $msg];
 
@@ -4217,7 +4216,7 @@ class Diaspora
 				if ($year < 1004) {
 					$year = 1004;
 				}
-				$dob = Temporal::utc($year . '-' . $month . '-'. $day, 'Y-m-d');
+				$dob = DateTimeFormat::utc($year . '-' . $month . '-'. $day, 'Y-m-d');
 			}
 
 			$about = $profile['about'];

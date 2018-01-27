@@ -10,8 +10,8 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
-use Friendica\Util\Temporal;
 
 define('PROXY_DEFAULT_TIME', 86400); // 1 Day
 
@@ -188,7 +188,7 @@ function proxy_init(App $a) {
 				die();
 			}
 
-			$fields = ['uid' => 0, 'contact-id' => 0, 'guid' => get_guid(), 'resource-id' => $urlhash, 'created' => Temporal::utcNow(), 'edited' => Temporal::utcNow(),
+			$fields = ['uid' => 0, 'contact-id' => 0, 'guid' => get_guid(), 'resource-id' => $urlhash, 'created' => DateTimeFormat::utcNow(), 'edited' => DateTimeFormat::utcNow(),
 				'filename' => basename($_REQUEST['url']), 'type' => '', 'album' => '', 'height' => imagesy($image), 'width' => imagesx($image),
 				'datasize' => 0, 'data' => $img_str, 'scale' => 100, 'profile' => 0,
 				'allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '', 'desc' => $mime];

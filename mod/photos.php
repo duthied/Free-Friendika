@@ -20,8 +20,8 @@ use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Protocol\DFRN;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
-use Friendica\Util\Temporal;
 
 require_once 'include/items.php';
 require_once 'include/acl_selectors.php';
@@ -291,7 +291,7 @@ function photos_post(App $a)
 			if (DBM::is_result($r)) {
 				foreach ($r as $rr) {
 					q("UPDATE `item` SET `deleted` = 1, `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
-						dbesc(Temporal::utcNow()),
+						dbesc(DateTimeFormat::utcNow()),
 						dbesc($rr['parent-uri']),
 						intval($page_owner_uid)
 					);
@@ -364,8 +364,8 @@ function photos_post(App $a)
 			);
 			if (DBM::is_result($i)) {
 				q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
-					dbesc(Temporal::utcNow()),
-					dbesc(Temporal::utcNow()),
+					dbesc(DateTimeFormat::utcNow()),
+					dbesc(DateTimeFormat::utcNow()),
 					dbesc($i[0]['uri']),
 					intval($page_owner_uid)
 				);
@@ -402,7 +402,7 @@ function photos_post(App $a)
 		$resource_id = $a->argv[2];
 
 		if (!strlen($albname)) {
-			$albname = Temporal::localNow('Y');
+			$albname = DateTimeFormat::localNow('Y');
 		}
 
 		if (x($_POST,'rotate') !== false &&
@@ -649,8 +649,8 @@ function photos_post(App $a)
 			$r = q("UPDATE `item` SET `tag` = '%s', `inform` = '%s', `edited` = '%s', `changed` = '%s' WHERE `id` = %d AND `uid` = %d",
 				dbesc($newtag),
 				dbesc($newinform),
-				dbesc(Temporal::utcNow()),
-				dbesc(Temporal::utcNow()),
+				dbesc(DateTimeFormat::utcNow()),
+				dbesc(DateTimeFormat::utcNow()),
 				intval($item_id),
 				intval($page_owner_uid)
 			);
@@ -738,7 +738,7 @@ function photos_post(App $a)
 		if (strlen($newalbum)) {
 			$album = $newalbum;
 		} else {
-			$album = Temporal::localNow('Y');
+			$album = DateTimeFormat::localNow('Y');
 		}
 	}
 
@@ -1361,7 +1361,7 @@ function photos_content(App $a)
 		$photo = [
 			'href' => 'photo/' . $hires['resource-id'] . '-' . $hires['scale'] . '.' . $phototypes[$hires['type']],
 			'title'=> L10n::t('View Full Size'),
-			'src'  => 'photo/' . $lores['resource-id'] . '-' . $lores['scale'] . '.' . $phototypes[$lores['type']] . '?f=&_u=' . Temporal::utcNow('ymdhis'),
+			'src'  => 'photo/' . $lores['resource-id'] . '-' . $lores['scale'] . '.' . $phototypes[$lores['type']] . '?f=&_u=' . DateTimeFormat::utcNow('ymdhis'),
 			'height' => $hires['height'],
 			'width' => $hires['width'],
 			'album' => $hires['album'],

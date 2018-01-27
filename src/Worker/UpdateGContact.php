@@ -9,7 +9,7 @@ namespace Friendica\Worker;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
-use Friendica\Util\Temporal;
+use Friendica\Util\DateTimeFormat;
 
 class UpdateGContact
 {
@@ -42,7 +42,7 @@ class UpdateGContact
 			}
 
 			q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `id` = %d",
-				dbesc(Temporal::utcNow()), intval($contact_id));
+				dbesc(DateTimeFormat::utcNow()), intval($contact_id));
 			return;
 		}
 

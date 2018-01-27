@@ -17,7 +17,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Profile;
 use Friendica\Protocol\DFRN;
-use Friendica\Util\Temporal;
+use Friendica\Util\DateTimeFormat;
 
 require_once 'include/event.php';
 
@@ -152,8 +152,8 @@ function cal_content(App $a)
 
 	// The view mode part is similiar to /mod/events.php
 	if ($mode == 'view') {
-		$thisyear = Temporal::localNow('Y');
-		$thismonth = Temporal::localNow('m');
+		$thisyear = DateTimeFormat::localNow('Y');
+		$thismonth = DateTimeFormat::localNow('m');
 		if (!$y) {
 			$y = intval($thisyear);
 		}
@@ -203,11 +203,11 @@ function cal_content(App $a)
 			}
 		}
 
-		$start = Temporal::utc($start);
-		$finish = Temporal::utc($finish);
+		$start = DateTimeFormat::utc($start);
+		$finish = DateTimeFormat::utc($finish);
 
-		$adjust_start = Temporal::local($start);
-		$adjust_finish = Temporal::local($finish);
+		$adjust_start = DateTimeFormat::local($start);
+		$adjust_finish = DateTimeFormat::local($finish);
 
 		// put the event parametes in an array so we can better transmit them
 		$event_params = [
@@ -231,7 +231,7 @@ function cal_content(App $a)
 		if (DBM::is_result($r)) {
 			$r = sort_by_date($r);
 			foreach ($r as $rr) {
-				$j = $rr['adjust'] ? Temporal::local($rr['start'], 'j') : Temporal::utc($rr['start'], 'j');
+				$j = $rr['adjust'] ? DateTimeFormat::local($rr['start'], 'j') : DateTimeFormat::utc($rr['start'], 'j');
 				if (!x($links, $j)) {
 					$links[$j] = System::baseUrl() . '/' . $a->cmd . '#link-' . $j;
 				}

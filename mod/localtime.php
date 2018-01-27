@@ -20,7 +20,7 @@ function localtime_post(App $a)
 	$bd_format = L10n::t('l F d, Y \@ g:i A') ; // Friday January 18, 2011 @ 8 AM
 
 	if ($_POST['timezone']) {
-		$a->data['mod-localtime'] = Temporal::convert($t, $_POST['timezone'], 'UTC', $bd_format);
+		$a->data['mod-localtime'] = DateTimeFormat::convert($t, $_POST['timezone'], 'UTC', $bd_format);
 	}
 }
 

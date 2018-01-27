@@ -19,7 +19,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Profile;
 use Friendica\Module\Login;
-use Friendica\Util\Temporal;
+use Friendica\Util\DateTimeFormat;
 
 require_once 'include/conversation.php';
 require_once 'include/items.php';
@@ -681,11 +681,11 @@ function networkThreadedView(App $a, $update = 0)
 
 	if ($datequery) {
 		$sql_extra3 .= protect_sprintf(sprintf(" AND $sql_table.created <= '%s' ",
-				dbesc(Temporal::convert($datequery, 'UTC', date_default_timezone_get()))));
+				dbesc(DateTimeFormat::convert($datequery, 'UTC', date_default_timezone_get()))));
 	}
 	if ($datequery2) {
 		$sql_extra3 .= protect_sprintf(sprintf(" AND $sql_table.created >= '%s' ",
-				dbesc(Temporal::convert($datequery2, 'UTC', date_default_timezone_get()))));
+				dbesc(DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get()))));
 	}
 
 	$sql_order = '';
@@ -790,8 +790,8 @@ function networkThreadedView(App $a, $update = 0)
 			$top_limit = current($r)['order_date'];
 			$bottom_limit = end($r)['order_date'];
 		} else {
-			$top_limit = Temporal::utcNow();
-			$bottom_limit = Temporal::utcNow();
+			$top_limit = DateTimeFormat::utcNow();
+			$bottom_limit = DateTimeFormat::utcNow();
 		}
 
 		// When checking for updates we need to fetch from the newest date to the newest date before
@@ -804,7 +804,7 @@ function networkThreadedView(App $a, $update = 0)
 			$top_limit = $last_date;
 		} elseif ($a->pager['page'] == 1) {
 			// Highest possible top limit when we are on the first page
-			$top_limit = Temporal::utcNow();
+			$top_limit = DateTimeFormat::utcNow();
 		}
 
 		$items = dba::p("SELECT `item`.`id` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`uid` AS `contact_uid` FROM `item`

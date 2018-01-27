@@ -4,7 +4,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Database\DBStructure;
-use Friendica\Util\Temporal;
+use Friendica\Util\DateTimeFormat;
 
 require_once('include/datetime.php');
 
@@ -190,7 +190,7 @@ class dba {
 
 			if ($log) {
 				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-				@file_put_contents($a->config["system"]["db_log_index"], Temporal::utcNow()."\t".
+				@file_put_contents($a->config["system"]["db_log_index"], DateTimeFormat::utcNow()."\t".
 						$row['key']."\t".$row['rows']."\t".$row['Extra']."\t".
 						basename($backtrace[1]["file"])."\t".
 						$backtrace[1]["line"]."\t".$backtrace[2]["function"]."\t".
@@ -495,7 +495,7 @@ class dba {
 				$duration = round($duration, 3);
 				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-				@file_put_contents($a->config["system"]["db_log"], Temporal::utcNow()."\t".$duration."\t".
+				@file_put_contents($a->config["system"]["db_log"], DateTimeFormat::utcNow()."\t".$duration."\t".
 						basename($backtrace[1]["file"])."\t".
 						$backtrace[1]["line"]."\t".$backtrace[2]["function"]."\t".
 						substr(self::replace_parameters($sql, $args), 0, 2000)."\n", FILE_APPEND);

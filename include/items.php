@@ -9,22 +9,14 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
-use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Model\Contact;
-use Friendica\Model\Conversation;
-use Friendica\Model\GContact;
-use Friendica\Model\Group;
 use Friendica\Model\Item;
-use Friendica\Model\Term;
-use Friendica\Model\User;
-use Friendica\Object\Image;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Feed;
-use Friendica\Util\Network;
 use Friendica\Protocol\OStatus;
+use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
-use Friendica\Util\Temporal;
 
 require_once 'include/bbcode.php';
 require_once 'include/tags.php';
@@ -416,7 +408,7 @@ function drop_item($id) {
 
 /* arrange the list in years */
 function list_post_dates($uid, $wall) {
-	$dnow = Temporal::localNow('Y-m-d');
+	$dnow = DateTimeFormat::localNow('Y-m-d');
 
 	$dthen = Item::firstPostDate($uid, $wall);
 	if (!$dthen) {
@@ -437,14 +429,14 @@ function list_post_dates($uid, $wall) {
 		$dyear = intval(substr($dnow, 0, 4));
 		$dstart = substr($dnow, 0, 8) . '01';
 		$dend = substr($dnow, 0, 8) . get_dim(intval($dnow), intval(substr($dnow, 5)));
-		$start_month = Temporal::utc($dstart, 'Y-m-d');
-		$end_month = Temporal::utc($dend, 'Y-m-d');
-		$str = day_translate(Temporal::utc($dnow, 'F'));
+		$start_month = DateTimeFormat::utc($dstart, 'Y-m-d');
+		$end_month = DateTimeFormat::utc($dend, 'Y-m-d');
+		$str = day_translate(DateTimeFormat::utc($dnow, 'F'));
 		if (!$ret[$dyear]) {
 			$ret[$dyear] = [];
 		}
 		$ret[$dyear][] = [$str, $end_month, $start_month];
-		$dnow = Temporal::utc($dnow . ' -1 month', 'Y-m-d');
+		$dnow = DateTimeFormat::utc($dnow . ' -1 month', 'Y-m-d');
 	}
 	return $ret;
 }
@@ -474,7 +466,7 @@ function posted_date_widget($url, $uid, $wall) {
 		return $o;
 	}
 
-	$cutoff_year = intval(Temporal::localNow('Y')) - $visible_years;
+	$cutoff_year = intval(DateTimeFormat::localNow('Y')) - $visible_years;
 	$cutoff = ((array_key_exists($cutoff_year, $ret))? true : false);
 
 	$o = replace_macros(get_markup_template('posted_date_widget.tpl'),[

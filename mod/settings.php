@@ -17,6 +17,7 @@ use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\User;
 use Friendica\Protocol\Email;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Temporal;
 
@@ -631,7 +632,7 @@ function settings_post(App $a)
 	if ($name_change) {
 		q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `self`",
 			dbesc($username),
-			dbesc(Temporal::utcNow()),
+			dbesc(DateTimeFormat::utcNow()),
 			intval(local_user())
 		);
 	}

@@ -12,7 +12,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
-use Friendica\Util\Temporal;
+use Friendica\Util\DateTimeFormat;
 
 require_once 'include/bbcode.php';
 require_once 'include/datetime.php';
@@ -76,14 +76,14 @@ function events_post(App $a) {
 	}
 
 	if ($adjust) {
-		$start = Temporal::convert($start, 'UTC', date_default_timezone_get());
+		$start = DateTimeFormat::convert($start, 'UTC', date_default_timezone_get());
 		if (! $nofinish) {
-			$finish = Temporal::convert($finish, 'UTC', date_default_timezone_get());
+			$finish = DateTimeFormat::convert($finish, 'UTC', date_default_timezone_get());
 		}
 	} else {
-		$start = Temporal::utc($start);
+		$start = DateTimeFormat::utc($start);
 		if (! $nofinish) {
-			$finish = Temporal::utc($finish);
+			$finish = DateTimeFormat::utc($finish);
 		}
 	}
 
@@ -276,8 +276,8 @@ function events_content(App $a) {
 	// The view mode part is similiar to /mod/cal.php
 	if ($mode == 'view') {
 
-		$thisyear  = Temporal::localNow('Y');
-		$thismonth = Temporal::localNow('m');
+		$thisyear  = DateTimeFormat::localNow('Y');
+		$thismonth = DateTimeFormat::localNow('m');
 		if (! $y) {
 			$y = intval($thisyear);
 		}
@@ -323,11 +323,11 @@ function events_content(App $a) {
 			}
 		}
 
-		$start  = Temporal::utc($start);
-		$finish = Temporal::utc($finish);
+		$start  = DateTimeFormat::utc($start);
+		$finish = DateTimeFormat::utc($finish);
 
-		$adjust_start  = Temporal::local($start);
-		$adjust_finish = Temporal::local($finish);
+		$adjust_start  = DateTimeFormat::local($start);
+		$adjust_finish = DateTimeFormat::local($finish);
 
 		// put the event parametes in an array so we can better transmit them
 		$event_params = [
@@ -351,7 +351,7 @@ function events_content(App $a) {
 		if (DBM::is_result($r)) {
 			$r = sort_by_date($r);
 			foreach ($r as $rr) {
-				$j = $rr['adjust'] ? Temporal::local($rr['start'], 'j') : Temporal::utc($rr['start'], 'j');
+				$j = $rr['adjust'] ? DateTimeFormat::local($rr['start'], 'j') : DateTimeFormat::utc($rr['start'], 'j');
 				if (! x($links,$j)) {
 					$links[$j] = System::baseUrl() . '/' . $a->cmd . '#link-' . $j;
 				}
@@ -465,19 +465,19 @@ function events_content(App $a) {
 			$tz = (($orig_event['adjust']) ? date_default_timezone_get() : 'UTC');
 		}
 
-		$syear  = Temporal::convert($sdt, $tz, 'UTC', 'Y');
-		$smonth = Temporal::convert($sdt, $tz, 'UTC', 'm');
-		$sday   = Temporal::convert($sdt, $tz, 'UTC', 'd');
+		$syear  = DateTimeFormat::convert($sdt, $tz, 'UTC', 'Y');
+		$smonth = DateTimeFormat::convert($sdt, $tz, 'UTC', 'm');
+		$sday   = DateTimeFormat::convert($sdt, $tz, 'UTC', 'd');
 
-		$shour   = ((x($orig_event)) ? Temporal::convert($sdt, $tz, 'UTC', 'H') : 0);
-		$sminute = ((x($orig_event)) ? Temporal::convert($sdt, $tz, 'UTC', 'i') : 0);
+		$shour   = ((x($orig_event)) ? DateTimeFormat::convert($sdt, $tz, 'UTC', 'H') : 0);
+		$sminute = ((x($orig_event)) ? DateTimeFormat::convert($sdt, $tz, 'UTC', 'i') : 0);
 
-		$fyear  = Temporal::convert($fdt, $tz, 'UTC', 'Y');
-		$fmonth = Temporal::convert($fdt, $tz, 'UTC', 'm');
-		$fday   = Temporal::convert($fdt, $tz, 'UTC', 'd');
+		$fyear  = DateTimeFormat::convert($fdt, $tz, 'UTC', 'Y');
+		$fmonth = DateTimeFormat::convert($fdt, $tz, 'UTC', 'm');
+		$fday   = DateTimeFormat::convert($fdt, $tz, 'UTC', 'd');
 
-		$fhour   = ((x($orig_event)) ? Temporal::convert($fdt, $tz, 'UTC', 'H') : 0);
-		$fminute = ((x($orig_event)) ? Temporal::convert($fdt, $tz, 'UTC', 'i') : 0);
+		$fhour   = ((x($orig_event)) ? DateTimeFormat::convert($fdt, $tz, 'UTC', 'H') : 0);
+		$fminute = ((x($orig_event)) ? DateTimeFormat::convert($fdt, $tz, 'UTC', 'i') : 0);
 
 		require_once 'include/acl_selectors.php' ;
 

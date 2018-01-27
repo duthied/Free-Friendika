@@ -5,7 +5,7 @@
 namespace Friendica\Database;
 
 use dba;
-use Friendica\Util\Temporal;
+use Friendica\Util\DateTimeFormat;
 
 require_once 'include/dba.php';
 
@@ -127,6 +127,6 @@ class DBM
 			$timestamp = -62135596800;
 		}
 
-		return date(Temporal::MYSQL, (int)$timestamp);
+		return date(DateTimeFormat::MYSQL, (int)$timestamp);
 	}
 }

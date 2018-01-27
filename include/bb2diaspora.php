@@ -7,7 +7,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Network\Probe;
-use Friendica\Util\Temporal;
+use Friendica\Util\DateTimeFormat;
 use League\HTMLToMarkdown\HtmlConverter;
 
 require_once 'include/event.php';
@@ -245,15 +245,15 @@ function format_event_diaspora($ev) {
 
 	// @todo What. Is. Going. On. With. This. Useless. Ternary. Operator? - mrpetovan
 	$o .= L10n::t('Starts:') . ' ' . '[' . day_translate(
-			$ev['adjust'] ? Temporal::utc($ev['start'], $bd_format) : Temporal::utc($ev['start'], $bd_format)
+			$ev['adjust'] ? DateTimeFormat::utc($ev['start'], $bd_format) : DateTimeFormat::utc($ev['start'], $bd_format)
 		)
-		.  '](' . System::baseUrl() . '/localtime/?f=&time=' . urlencode(Temporal::utc($ev['start'])) . ")\n";
+		.  '](' . System::baseUrl() . '/localtime/?f=&time=' . urlencode(DateTimeFormat::utc($ev['start'])) . ")\n";
 
 	if (! $ev['nofinish']) {
 		$o .= L10n::t('Finishes:') . ' ' . '[' . day_translate(
-				$ev['adjust'] ? Temporal::utc($ev['finish'], $bd_format) : Temporal::utc($ev['finish'], $bd_format)
+				$ev['adjust'] ? DateTimeFormat::utc($ev['finish'], $bd_format) : DateTimeFormat::utc($ev['finish'], $bd_format)
 			)
-			. '](' . System::baseUrl() . '/localtime/?f=&time=' . urlencode(Temporal::utc($ev['finish'])) . ")\n";
+			. '](' . System::baseUrl() . '/localtime/?f=&time=' . urlencode(DateTimeFormat::utc($ev['finish'])) . ")\n";
 	}
 
 	if (strlen($ev['location'])) {

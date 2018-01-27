@@ -11,9 +11,9 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
-use Friendica\Util\Temporal;
 use dba;
 use DOMDocument;
 use DOMNode;
@@ -113,7 +113,7 @@ class OEmbed
 						'url' => normalise_link($embedurl),
 						'maxwidth' => $a->videowidth,
 						'content' => $txt,
-						'created' => Temporal::utcNow()
+						'created' => DateTimeFormat::utcNow()
 					], true);
 				}
 

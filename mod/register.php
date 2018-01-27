@@ -11,7 +11,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Model\User;
-use Friendica\Util\Temporal;
+use Friendica\Util\DateTimeFormat;
 
 require_once 'include/enotify.php';
 require_once 'include/bbcode.php';
@@ -118,7 +118,7 @@ function register_post(App $a)
 		$hash = random_string();
 		$r = q("INSERT INTO `register` ( `hash`, `created`, `uid`, `password`, `language`, `note` ) VALUES ( '%s', '%s', %d, '%s', '%s', '%s' ) ",
 			dbesc($hash),
-			dbesc(Temporal::utcNow()),
+			dbesc(DateTimeFormat::utcNow()),
 			intval($user['uid']),
 			dbesc($result['password']),
 			dbesc($lang),

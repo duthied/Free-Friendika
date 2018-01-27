@@ -14,7 +14,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
-use Friendica\Util\Temporal;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\XML;
 
 require_once 'include/datetime.php';
@@ -225,8 +225,8 @@ function ping_init(App $a)
 				WHERE `event`.`uid` = %d AND `start` < '%s' AND `finish` > '%s' and `ignore` = 0
 				ORDER BY `start` ASC ",
 				intval(local_user()),
-				dbesc(Temporal::utc('now + 7 days')),
-				dbesc(Temporal::utcNow())
+				dbesc(DateTimeFormat::utc('now + 7 days')),
+				dbesc(DateTimeFormat::utcNow())
 			);
 			if (DBM::is_result($ev)) {
 				Cache::set($cachekey, $ev, CACHE_HOUR);
@@ -237,7 +237,7 @@ function ping_init(App $a)
 			$all_events = count($ev);
 
 			if ($all_events) {
-				$str_now = Temporal::timezoneNow($a->timezone, 'Y-m-d');
+				$str_now = DateTimeFormat::timezoneNow($a->timezone, 'Y-m-d');
 				foreach ($ev as $x) {
 					$bd = false;
 					if ($x['type'] === 'birthday') {
@@ -246,7 +246,7 @@ function ping_init(App $a)
 					} else {
 						$events ++;
 					}
-					if (Temporal::convert($x['start'], ((intval($x['adjust'])) ? $a->timezone : 'UTC'), 'UTC', 'Y-m-d') === $str_now) {
+					if (DateTimeFormat::convert($x['start'], ((intval($x['adjust'])) ? $a->timezone : 'UTC'), 'UTC', 'Y-m-d') === $str_now) {
 						$all_events_today ++;
 						if ($bd) {
 							$birthdays_today ++;
@@ -362,7 +362,7 @@ function ping_init(App $a)
 					$notif['photo'] = proxy_url($notif['photo'], false, PROXY_SIZE_MICRO);
 				}
 
-				$local_time = Temporal::local($notif['date']);
+				$local_time = DateTimeFormat::local($notif['date']);
 
 				$notifications[] = [
 					'id'        => $notif['id'],

@@ -6,7 +6,7 @@ namespace Friendica\Model;
 
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
-use Friendica\Util\Temporal;
+use Friendica\Util\DateTimeFormat;
 use dba;
 
 require_once 'include/dba.php';
@@ -20,7 +20,7 @@ class Queue
 	public static function updateTime($id)
 	{
 		logger('queue: requeue item ' . $id);
-		dba::update('queue', ['last' => Temporal::utcNow()], ['id' => $id]);
+		dba::update('queue', ['last' => DateTimeFormat::utcNow()], ['id' => $id]);
 	}
 
 	/**
@@ -95,6 +95,13 @@ class Queue
 			}
 		}
 
-		dba::insert('queue', ['cid' => $cid, 'network' => $network, 'created' => Temporal::utcNow(), 'last' => Temporal::utcNow(), 'content' => $msg, 'batch' =>($batch) ? 1 : 0]);
+		dba::insert('queue', [
+			'cid'     => $cid,
+			'network' => $network,
+			'created' => DateTimeFormat::utcNow(),
+			'last'    => DateTimeFormat::utcNow(),
+			'content' => $msg,
+			'batch'   =>($batch) ? 1 : 0
+		]);
 	}
 }
