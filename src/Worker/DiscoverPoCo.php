@@ -11,6 +11,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\GContact;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
+use Friendica\Util\Network;
 
 require_once 'include/datetime.php';
 
@@ -217,7 +218,7 @@ class DiscoverPoCo {
 			}
 		}
 
-		$x = fetch_url(get_server()."/lsearch?p=1&n=500&search=".urlencode($search));
+		$x = Network::fetchURL(get_server()."/lsearch?p=1&n=500&search=".urlencode($search));
 		$j = json_decode($x);
 
 		if (count($j->results)) {

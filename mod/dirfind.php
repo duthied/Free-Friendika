@@ -14,6 +14,7 @@ use Friendica\Model\GContact;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
+use Friendica\Util\Network;
 
 require_once 'mod/contacts.php';
 
@@ -177,7 +178,7 @@ function dirfind_content(App $a, $prefix = "") {
 			$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
 
 			if(strlen(Config::get('system','directory')))
-				$x = fetch_url(get_server().'/lsearch?f=' . $p .  '&search=' . urlencode($search));
+				$x = Network::fetchURL(get_server().'/lsearch?f=' . $p .  '&search=' . urlencode($search));
 
 			$j = json_decode($x);
 		}

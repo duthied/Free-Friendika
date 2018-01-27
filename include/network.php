@@ -57,7 +57,7 @@ function blocked_url($url)
 	return Network::blockedURL($url);
 }
 
-function allowedEmail($email)
+function allowed_email($email)
 {
 	return Network::allowedEmail($email);
 }

@@ -25,8 +25,8 @@ use Friendica\Model\Queue;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
+use Friendica\Util\Network;
 use Friendica\Util\XML;
-
 use dba;
 use SimpleXMLElement;
 
@@ -1257,7 +1257,7 @@ class Diaspora
 
 		logger("Fetch post from ".$source_url, LOGGER_DEBUG);
 
-		$envelope = fetch_url($source_url);
+		$envelope = Network::fetchURL($source_url);
 		if ($envelope) {
 			logger("Envelope was fetched.", LOGGER_DEBUG);
 			$x = self::verifyMagicEnvelope($envelope);
@@ -1275,7 +1275,7 @@ class Diaspora
 			$source_url = $server."/p/".urlencode($guid).".xml";
 			logger("Fetch post from ".$source_url, LOGGER_DEBUG);
 
-			$x = fetch_url($source_url);
+			$x = Network::fetchURL($source_url);
 			if (!$x) {
 				return false;
 			}

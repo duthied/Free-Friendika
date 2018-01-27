@@ -6,6 +6,7 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Module\Login;
+use Friendica\Util\Network;
 
 function oexchange_init(App $a) {
 
@@ -39,7 +40,7 @@ function oexchange_content(App $a) {
 	$tags = (((x($_REQUEST,'tags')) && strlen($_REQUEST['tags']))
 		? '&tags=' . urlencode(notags(trim($_REQUEST['tags']))) : '');
 
-	$s = fetch_url(System::baseUrl() . '/parse_url?f=&url=' . $url . $title . $description . $tags);
+	$s = Network::fetchURL(System::baseUrl() . '/parse_url?f=&url=' . $url . $title . $description . $tags);
 
 	if (! strlen($s)) {
 		return;

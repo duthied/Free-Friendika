@@ -17,6 +17,7 @@ use Friendica\Model\Group;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
 use Friendica\Util\Crypto;
+use Friendica\Util\Network;
 use dba;
 use Exception;
 
@@ -468,7 +469,7 @@ class User
 			$photo_failure = false;
 
 			$filename = basename($photo);
-			$img_str = fetch_url($photo, true);
+			$img_str = Network::fetchURL($photo, true);
 			// guess mimetype from headers or filename
 			$type = Image::guessType($photo, true);
 

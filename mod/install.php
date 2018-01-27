@@ -8,6 +8,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
+use Friendica\Util\Network;
 
 $install_wizard_pass = 1;
 
@@ -482,10 +483,10 @@ function check_htaccess(&$checks) {
 	$status = true;
 	$help = "";
 	if (function_exists('curl_init')) {
-		$test = fetch_url(System::baseUrl()."/install/testrewrite");
+		$test = Network::fetchURL(System::baseUrl()."/install/testrewrite");
 
 		if ($test != "ok") {
-			$test = fetch_url(normalise_link(System::baseUrl()."/install/testrewrite"));
+			$test = Network::fetchURL(normalise_link(System::baseUrl()."/install/testrewrite"));
 		}
 
 		if ($test != "ok") {

@@ -13,6 +13,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
+use Friendica\Util\Network;
 use dba;
 use Exception;
 
@@ -568,7 +569,7 @@ class GContact
 		$done[] = System::baseUrl() . '/poco';
 
 		if (strlen(Config::get('system', 'directory'))) {
-			$x = fetch_url(get_server()."/pubsites");
+			$x = Network::fetchURL(get_server()."/pubsites");
 			if ($x) {
 				$j = json_decode($x);
 				if ($j->entries) {

@@ -714,7 +714,7 @@ class Network
 				} else {
 					$scaled = $mtch[1];
 				}
-				$i = fetch_url($scaled);
+				$i = self::fetchURL($scaled);
 				if (! $i) {
 					return $srctext;
 				}

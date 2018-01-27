@@ -35,6 +35,7 @@ use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Network\HTTPException\TooManyRequestsException;
 use Friendica\Object\Image;
 use Friendica\Protocol\Diaspora;
+use Friendica\Util\Network;
 use Friendica\Util\XML;
 
 require_once 'include/bbcode.php';
@@ -5073,7 +5074,7 @@ function api_get_nick($profile)
 		if ($StatusnetHost != $profile) {
 			$StatusnetUser = preg_replace("=https?://(.*)/user/(.*)=ism", "$2", $profile);
 			if ($StatusnetUser != $profile) {
-				$UserData = fetch_url("http://".$StatusnetHost."/api/users/show.json?user_id=".$StatusnetUser);
+				$UserData = Network::fetchURL("http://".$StatusnetHost."/api/users/show.json?user_id=".$StatusnetUser);
 				$user = json_decode($UserData);
 				if ($user) {
 					$nick = $user->screen_name;

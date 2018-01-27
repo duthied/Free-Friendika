@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\Util\Network;
 
 function post_var($name) {
 	return (x($_POST, $name)) ? notags(trim($_POST[$name])) : '';
@@ -109,7 +110,7 @@ function pubsubhubbub_init(App $a) {
 		// we don't actually enforce the lease time because GNU
 		// Social/StatusNet doesn't honour it (yet)
 
-		$body = fetch_url($hub_callback . "?" . $params);
+		$body = Network::fetchURL($hub_callback . "?" . $params);
 		$ret = $a->get_curl_code();
 
 		// give up if the HTTP return code wasn't a success (2xx)

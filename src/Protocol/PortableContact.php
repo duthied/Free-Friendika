@@ -15,6 +15,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
+use Friendica\Util\Network;
 use dba;
 use DOMDocument;
 use DOMXPath;
@@ -85,7 +86,7 @@ class PortableContact
 
 		logger('load: ' . $url, LOGGER_DEBUG);
 
-		$s = fetch_url($url);
+		$s = Network::fetchURL($url);
 
 		logger('load: returns ' . $s, LOGGER_DATA);
 

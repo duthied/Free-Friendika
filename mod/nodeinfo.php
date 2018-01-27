@@ -9,6 +9,7 @@ use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Util\Network;
 
 function nodeinfo_wellknown(App $a) {
 	$nodeinfo = ['links' => [['rel' => 'http://nodeinfo.diaspora.software/ns/schema/1.0',
@@ -246,7 +247,7 @@ function nodeinfo_cron() {
 	// Now trying to register
 	$url = 'http://the-federation.info/register/'.$a->get_hostname();
         logger('registering url: '.$url, LOGGER_DEBUG);
-	$ret = fetch_url($url);
+	$ret = Network::fetchURL($url);
         logger('registering answer: '.$ret, LOGGER_DEBUG);
 
         logger('cron_end');

@@ -6,6 +6,7 @@ namespace Friendica\Protocol;
 
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
+use Friendica\Util\Network;
 use Friendica\Util\XML;
 
 /**
@@ -50,7 +51,7 @@ class Salmon
 						$ret[$x] = substr($ret[$x], 5);
 					}
 				} elseif (normalise_link($ret[$x]) == 'http://') {
-					$ret[$x] = fetch_url($ret[$x]);
+					$ret[$x] = Network::fetchURL($ret[$x]);
 				}
 			}
 		}

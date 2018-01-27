@@ -12,6 +12,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Photo;
+use Friendica\Util\Network;
 use Exception;
 use Imagick;
 use ImagickPixel;
@@ -773,7 +774,7 @@ class Image
 		$data = Cache::get($url);
 
 		if (is_null($data) || !$data || !is_array($data)) {
-			$img_str = fetch_url($url, true, $redirects, 4);
+			$img_str = Network::fetchURL($url, true, $redirects, 4);
 			$filesize = strlen($img_str);
 
 			if (function_exists("getimagesizefromstring")) {

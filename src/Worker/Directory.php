@@ -10,6 +10,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Util\Network;
 
 class Directory {
 	public static function execute($url = '') {
@@ -32,7 +33,7 @@ class Directory {
 
 		logger('Updating directory: ' . $arr['url'], LOGGER_DEBUG);
 		if (strlen($arr['url'])) {
-			fetch_url($dir . '?url=' . bin2hex($arr['url']));
+			Network::fetchURL($dir . '?url=' . bin2hex($arr['url']));
 		}
 
 		return;
