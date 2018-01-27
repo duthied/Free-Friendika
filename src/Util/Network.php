@@ -380,7 +380,7 @@ class Network
 			if (filter_var($newurl, FILTER_VALIDATE_URL)) {
 				$redirects++;
 				logger('post_url: redirect ' . $url . ' to ' . $newurl);
-				return post_url($newurl, $params, $headers, $redirects, $timeout);
+				return self::postURL($newurl, $params, $headers, $redirects, $timeout);
 			}
 		}
 

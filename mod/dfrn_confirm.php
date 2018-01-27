@@ -30,6 +30,7 @@ use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\Crypto;
+use Friendica\Util\Network;
 
 require_once 'include/enotify.php';
 require_once 'include/items.php';
@@ -220,7 +221,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			 *
 			 */
 
-			$res = post_url($dfrn_confirm, $params, null, $redirects, 120);
+			$res = Network::postURL($dfrn_confirm, $params, null, $redirects, 120);
 
 			logger(' Confirm: received data: ' . $res, LOGGER_DATA);
 

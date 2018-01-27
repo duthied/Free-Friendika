@@ -1333,7 +1333,7 @@ class DFRN
 
 		logger('dfrn_deliver: ' . "SENDING: " . print_r($postvars, true), LOGGER_DATA);
 
-		$xml = post_url($contact['notify'], $postvars);
+		$xml = Network::postURL($contact['notify'], $postvars);
 
 		logger('dfrn_deliver: ' . "RECEIVED: " . $xml, LOGGER_DATA);
 

@@ -281,7 +281,7 @@ class OnePoll
 			$postvars['dfrn_version'] = DFRN_PROTOCOL_VERSION;
 			$postvars['perm'] = 'rw';
 
-			$xml = post_url($contact['poll'], $postvars);
+			$xml = Network::postURL($contact['poll'], $postvars);
 
 		} elseif (($contact['network'] === NETWORK_OSTATUS)
 			|| ($contact['network'] === NETWORK_DIASPORA)

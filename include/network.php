@@ -12,11 +12,6 @@ use Friendica\Object\Image;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
 
-function post_url($url, $params, $headers = null, &$redirects = 0, $timeout = 0)
-{
-	return Network::postURL($url, $params, $headers, $redirects, $timeout);
-}
-
 function xml_status($st, $message = '')
 {
 	Network::xmlStatus($st, $message);

@@ -490,7 +490,7 @@ function dfrn_poll_content(App $a)
 					. '&sec=' . $sec
 				);
 			} else {
-				$s = post_url($r[0]['poll'], [
+				$s = Network::postURL($r[0]['poll'], [
 					'dfrn_id' => $encrypted_id,
 					'type' => 'profile-check',
 					'dfrn_version' => DFRN_PROTOCOL_VERSION,
