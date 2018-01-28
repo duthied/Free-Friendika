@@ -302,11 +302,11 @@ class Item extends BaseObject
 		$arr['owner-name']    = trim(defaults($arr, 'owner-name', ''));
 		$arr['owner-link']    = trim(defaults($arr, 'owner-link', ''));
 		$arr['owner-avatar']  = trim(defaults($arr, 'owner-avatar', ''));
-		$arr['received']      = ((x($arr, 'received') !== false) ? Temporal::convert($arr['received']) : Temporal::convert());
-		$arr['created']       = ((x($arr, 'created') !== false) ? Temporal::convert($arr['created']) : $arr['received']);
-		$arr['edited']        = ((x($arr, 'edited') !== false) ? Temporal::convert($arr['edited']) : $arr['created']);
-		$arr['changed']       = ((x($arr, 'changed') !== false) ? Temporal::convert($arr['changed']) : $arr['created']);
-		$arr['commented']     = ((x($arr, 'commented') !== false) ? Temporal::convert($arr['commented']) : $arr['created']);
+		$arr['received']      = ((x($arr, 'received') !== false) ? DateTimeFormat::utc($arr['received']) : DateTimeFormat::utcNow());
+		$arr['created']       = ((x($arr, 'created') !== false) ? DateTimeFormat::utc($arr['created']) : $arr['received']);
+		$arr['edited']        = ((x($arr, 'edited') !== false) ? DateTimeFormat::utc($arr['edited']) : $arr['created']);
+		$arr['changed']       = ((x($arr, 'changed') !== false) ? DateTimeFormat::utc($arr['changed']) : $arr['created']);
+		$arr['commented']     = ((x($arr, 'commented') !== false) ? DateTimeFormat::utc($arr['commented']) : $arr['created']);
 		$arr['title']         = trim(defaults($arr, 'title', ''));
 		$arr['location']      = trim(defaults($arr, 'location', ''));
 		$arr['coord']         = trim(defaults($arr, 'coord', ''));
@@ -342,13 +342,13 @@ class Item extends BaseObject
 		}
 
 		// Items cannot be stored before they happen ...
-		if ($arr['created'] > Temporal::convert()) {
-			$arr['created'] = Temporal::convert();
+		if ($arr['created'] > DateTimeFormat::utcNow()) {
+			$arr['created'] = DateTimeFormat::utcNow();
 		}
 
 		// We haven't invented time travel by now.
-		if ($arr['edited'] > Temporal::convert()) {
-			$arr['edited'] = Temporal::convert();
+		if ($arr['edited'] > DateTimeFormat::utcNow()) {
+			$arr['edited'] = DateTimeFormat::utcNow();
 		}
 
 		if (($arr['author-link'] == "") && ($arr['owner-link'] == "")) {
@@ -742,9 +742,9 @@ class Item extends BaseObject
 		// update the commented timestamp on the parent
 		// Only update "commented" if it is really a comment
 		if (($arr['verb'] == ACTIVITY_POST) || !Config::get("system", "like_no_comment")) {
-			dba::update('item', ['commented' => Temporal::convert(), 'changed' => Temporal::convert()], ['id' => $parent_id]);
+			dba::update('item', ['commented' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
 		} else {
-			dba::update('item', ['changed' => Temporal::convert()], ['id' => $parent_id]);
+			dba::update('item', ['changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
 		}
 
 		if ($dsprsig) {
@@ -1644,7 +1644,7 @@ class Item extends BaseObject
 			intval($wall ? 1 : 0)
 		);
 		if (DBM::is_result($r)) {
-			return substr(Temporal::convert($r[0]['created'], date_default_timezone_get()),0,10);
+			return substr(DateTimeFormat::local($r[0]['created']),0,10);
 		}
 		return false;
 	}
