@@ -82,7 +82,7 @@ class Network
 		$a = get_app();
 
 		if (self::isUrlBlocked($url)) {
-			logger('z_fetch_url: domain of ' . $url . ' is blocked', LOGGER_DATA);
+			logger('domain of ' . $url . ' is blocked', LOGGER_DATA);
 			return $ret;
 		}
 
@@ -187,7 +187,7 @@ class Network
 		}
 
 		if (curl_errno($ch) !== CURLE_OK) {
-			logger('fetch_url error fetching ' . $url . ': ' . curl_error($ch), LOGGER_NORMAL);
+			logger('error fetching ' . $url . ': ' . curl_error($ch), LOGGER_NORMAL);
 		}
 
 		$ret['errno'] = curl_errno($ch);
@@ -197,7 +197,7 @@ class Network
 
 		$http_code = $curl_info['http_code'];
 
-		logger('fetch_url ' . $url . ': ' . $http_code . " " . $s, LOGGER_DATA);
+		logger($url . ': ' . $http_code . " " . $s, LOGGER_DATA);
 		$header = '';
 
 		// Pull out multiple headers, e.g. proxy and continuation headers
@@ -250,8 +250,8 @@ class Network
 		if (!$ret['success']) {
 			$ret['error'] = curl_error($ch);
 			$ret['debug'] = $curl_info;
-			logger('z_fetch_url: error: '.$url.': '.$ret['return_code'].' - '.$ret['error'], LOGGER_DEBUG);
-			logger('z_fetch_url: debug: '.print_r($curl_info, true), LOGGER_DATA);
+			logger('error: '.$url.': '.$ret['return_code'].' - '.$ret['error'], LOGGER_DEBUG);
+			logger('debug: '.print_r($curl_info, true), LOGGER_DATA);
 		}
 
 		$ret['body'] = substr($s, strlen($header));

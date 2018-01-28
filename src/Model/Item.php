@@ -204,8 +204,8 @@ class Item
 			$guid_prefix = hash("crc32", $parsed["host"]);
 		}
 
-		$arr['guid']          = ((x($arr, 'guid'))          ? notags(trim($arr['guid']))          : get_guid(32, $guid_prefix));
-		$arr['uri']           = ((x($arr, 'uri'))           ? notags(trim($arr['uri']))           : item_new_uri($a->get_hostname(), $uid, $arr['guid']));
+		$arr['guid'] = notags(trim(defaults($arr, 'guid', get_guid(32, $guid_prefix))));
+		$arr['uri'] = notags(trim(defaults($arr, 'uri', item_new_uri($a->get_hostname(), $uid, $arr['guid']))));
 
 		// Store conversation data
 		$arr = Conversation::insert($arr);
@@ -242,9 +242,7 @@ class Item
 			$arr['gravity'] = 6;   // extensible catchall
 		}
 
-		if (!x($arr, 'type')) {
-			$arr['type']      = 'remote';
-		}
+		$arr['type'] = defaults($arr, 'type', 'remote');
 
 		$uid = intval($arr['uid']);
 
@@ -290,47 +288,47 @@ class Item
 
 		self::addLanguageInPostopts($arr);
 
-		$arr['wall']          = ((x($arr, 'wall'))          ? intval($arr['wall'])                : 0);
-		$arr['extid']         = ((x($arr, 'extid'))         ? notags(trim($arr['extid']))         : '');
-		$arr['author-name']   = ((x($arr, 'author-name'))   ? trim($arr['author-name'])   : '');
-		$arr['author-link']   = ((x($arr, 'author-link'))   ? notags(trim($arr['author-link']))   : '');
-		$arr['author-avatar'] = ((x($arr, 'author-avatar')) ? notags(trim($arr['author-avatar'])) : '');
-		$arr['owner-name']    = ((x($arr, 'owner-name'))    ? trim($arr['owner-name'])    : '');
-		$arr['owner-link']    = ((x($arr, 'owner-link'))    ? notags(trim($arr['owner-link']))    : '');
-		$arr['owner-avatar']  = ((x($arr, 'owner-avatar'))  ? notags(trim($arr['owner-avatar']))  : '');
+		$arr['wall']          = intval(defaults($arr, 'wall', 0));
+		$arr['extid']         = trim(defaults($arr, 'extid', ''));
+		$arr['author-name']   = trim(defaults($arr, 'author-name', ''));
+		$arr['author-link']   = trim(defaults($arr, 'author-link', ''));
+		$arr['author-avatar'] = trim(defaults($arr, 'author-avatar', ''));
+		$arr['owner-name']    = trim(defaults($arr, 'owner-name', ''));
+		$arr['owner-link']    = trim(defaults($arr, 'owner-link', ''));
+		$arr['owner-avatar']  = trim(defaults($arr, 'owner-avatar', ''));
 		$arr['received']      = ((x($arr, 'received') !== false) ? datetime_convert('UTC','UTC', $arr['received']) : datetime_convert());
 		$arr['created']       = ((x($arr, 'created') !== false) ? datetime_convert('UTC','UTC', $arr['created']) : $arr['received']);
 		$arr['edited']        = ((x($arr, 'edited') !== false) ? datetime_convert('UTC','UTC', $arr['edited']) : $arr['created']);
 		$arr['changed']       = ((x($arr, 'changed') !== false) ? datetime_convert('UTC','UTC', $arr['changed']) : $arr['created']);
 		$arr['commented']     = ((x($arr, 'commented') !== false) ? datetime_convert('UTC','UTC', $arr['commented']) : $arr['created']);
-		$arr['title']         = ((x($arr, 'title'))         ? trim($arr['title'])         : '');
-		$arr['location']      = ((x($arr, 'location'))      ? trim($arr['location'])      : '');
-		$arr['coord']         = ((x($arr, 'coord'))         ? notags(trim($arr['coord']))         : '');
+		$arr['title']         = trim(defaults($arr, 'title', ''));
+		$arr['location']      = trim(defaults($arr, 'location', ''));
+		$arr['coord']         = trim(defaults($arr, 'coord', ''));
 		$arr['visible']       = ((x($arr, 'visible') !== false) ? intval($arr['visible'])         : 1);
 		$arr['deleted']       = 0;
-		$arr['parent-uri']    = ((x($arr, 'parent-uri'))    ? notags(trim($arr['parent-uri']))    : $arr['uri']);
-		$arr['verb']          = ((x($arr, 'verb'))          ? notags(trim($arr['verb']))          : '');
-		$arr['object-type']   = ((x($arr, 'object-type'))   ? notags(trim($arr['object-type']))   : '');
-		$arr['object']        = ((x($arr, 'object'))        ? trim($arr['object'])                : '');
-		$arr['target-type']   = ((x($arr, 'target-type'))   ? notags(trim($arr['target-type']))   : '');
-		$arr['target']        = ((x($arr, 'target'))        ? trim($arr['target'])                : '');
-		$arr['plink']         = ((x($arr, 'plink'))         ? notags(trim($arr['plink']))         : '');
-		$arr['allow_cid']     = ((x($arr, 'allow_cid'))     ? trim($arr['allow_cid'])             : '');
-		$arr['allow_gid']     = ((x($arr, 'allow_gid'))     ? trim($arr['allow_gid'])             : '');
-		$arr['deny_cid']      = ((x($arr, 'deny_cid'))      ? trim($arr['deny_cid'])              : '');
-		$arr['deny_gid']      = ((x($arr, 'deny_gid'))      ? trim($arr['deny_gid'])              : '');
-		$arr['private']       = ((x($arr, 'private'))       ? intval($arr['private'])             : 0);
-		$arr['bookmark']      = ((x($arr, 'bookmark'))      ? intval($arr['bookmark'])            : 0);
-		$arr['body']          = ((x($arr, 'body'))          ? trim($arr['body'])                  : '');
-		$arr['tag']           = ((x($arr, 'tag'))           ? notags(trim($arr['tag']))           : '');
-		$arr['attach']        = ((x($arr, 'attach'))        ? notags(trim($arr['attach']))        : '');
-		$arr['app']           = ((x($arr, 'app'))           ? notags(trim($arr['app']))           : '');
-		$arr['origin']        = ((x($arr, 'origin'))        ? intval($arr['origin'])              : 0);
-		$arr['postopts']      = ((x($arr, 'postopts'))      ? trim($arr['postopts'])              : '');
-		$arr['resource-id']   = ((x($arr, 'resource-id'))   ? trim($arr['resource-id'])           : '');
-		$arr['event-id']      = ((x($arr, 'event-id'))      ? intval($arr['event-id'])            : 0);
-		$arr['inform']        = ((x($arr, 'inform'))        ? trim($arr['inform'])                : '');
-		$arr['file']          = ((x($arr, 'file'))          ? trim($arr['file'])                  : '');
+		$arr['parent-uri']    = trim(defaults($arr, 'parent-uri', $arr['uri']));
+		$arr['verb']          = trim(defaults($arr, 'verb', ''));
+		$arr['object-type']   = trim(defaults($arr, 'object-type', ''));
+		$arr['object']        = trim(defaults($arr, 'object', ''));
+		$arr['target-type']   = trim(defaults($arr, 'target-type', ''));
+		$arr['target']        = trim(defaults($arr, 'target', ''));
+		$arr['plink']         = trim(defaults($arr, 'plink', ''));
+		$arr['allow_cid']     = trim(defaults($arr, 'allow_cid', ''));
+		$arr['allow_gid']     = trim(defaults($arr, 'allow_gid', ''));
+		$arr['deny_cid']      = trim(defaults($arr, 'deny_cid', ''));
+		$arr['deny_gid']      = trim(defaults($arr, 'deny_gid', ''));
+		$arr['private']       = intval(defaults($arr, 'private', 0));
+		$arr['bookmark']      = intval(defaults($arr, 'bookmark', 0));
+		$arr['body']          = trim(defaults($arr, 'body', ''));
+		$arr['tag']           = trim(defaults($arr, 'tag', ''));
+		$arr['attach']        = trim(defaults($arr, 'attach', ''));
+		$arr['app']           = trim(defaults($arr, 'app', ''));
+		$arr['origin']        = intval(defaults($arr, 'origin', 0));
+		$arr['postopts']      = trim(defaults($arr, 'postopts', ''));
+		$arr['resource-id']   = trim(defaults($arr, 'resource-id', ''));
+		$arr['event-id']      = intval(defaults($arr, 'event-id', 0));
+		$arr['inform']        = trim(defaults($arr, 'inform', ''));
+		$arr['file']          = trim(defaults($arr, 'file', ''));
 
 		// When there is no content then we don't post it
 		if ($arr['body'].$arr['title'] == '') {

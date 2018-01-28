@@ -60,7 +60,7 @@ class System extends BaseObject
 		$previous = ['class' => '', 'function' => ''];
 
 		// The ignore list contains all functions that are only wrapper functions
-		$ignore = ['get_config', 'get_pconfig', 'set_config', 'set_pconfig', 'fetch_url', 'probe_url'];
+		$ignore = ['fetchUrl'];
 
 		while ($func = array_pop($trace)) {
 			if (!empty($func['class'])) {
