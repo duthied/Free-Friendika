@@ -26,7 +26,7 @@ You can get the latest changes at any time with
 The addon tree has to be updated separately like so:
 
     git -C addon pull
-	util/composer.phar install -d addon
+    util/composer.phar install -d addon
 
 For both repositories:
 The default branch to use is the ``master`` branch, which is the stable version of Friendica.
