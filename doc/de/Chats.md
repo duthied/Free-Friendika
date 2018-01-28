@@ -46,7 +46,9 @@ Als erstes musst Du die aktuellste Version herunterladen:
 
 Per Git:
 <p style="font-family: courier; background-color: #CCCCCC; margin-left:25px; width: 450px;">
-cd /var/www/&lt;Pfad zu Deiner friendica-Installation&gt;/addon; git pull
+cd /var/www/&lt;Pfad zu Deiner friendica-Installation&gt;
+git -C addon pull
+util/composer.phar install -d addon
 </p>
 
 oder als normaler Download von hier: https://github.com/friendica/friendica-addons/blob/master/jappixmini.tgz (auf „view raw“ klicken)
