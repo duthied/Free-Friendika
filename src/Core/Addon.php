@@ -254,25 +254,26 @@ class Addon
 	 *
 	 * like
 	 * \code
-	 *...* Name: addon
-	*   * Description: An addon which plugs in
-	* . * Version: 1.2.3
-	*   * Author: John <profile url>
-	*   * Author: Jane <email>
-	*   *
-	*  *\endcode
-	* @param string $addon the name of the addon
-	* @return array with the addon information
-	*/
-
+	 *   * Name: addon
+	 *   * Description: An addon which plugs in
+	 * . * Version: 1.2.3
+	 *   * Author: John <profile url>
+	 *   * Author: Jane <email>
+	 *   * Maintainer: Jess <email>
+	 *   *
+	 *   *\endcode
+	 * @param string $addon the name of the addon
+	 * @return array with the addon information
+	 */
 	public static function getInfo($addon)
 	{
 		$a = get_app();
 
-		$info=[
+		$info = [
 			'name' => $addon,
 			'description' => "",
 			'author' => [],
+			'maintainer' => [],
 			'version' => "",
 			'status' => ""
 		];
@@ -292,18 +293,18 @@ class Addon
 			foreach ($ll as $l) {
 				$l = trim($l, "\t\n\r */");
 				if ($l != "") {
-					list($k,$v) = array_map("trim", explode(":", $l, 2));
-					$k= strtolower($k);
-					if ($k == "author") {
-						$r=preg_match("|([^<]+)<([^>]+)>|", $v, $m);
+					list($type, $v) = array_map("trim", explode(":", $l, 2));
+					$type = strtolower($type);
+					if ($type == "author" || $type == "maintainer") {
+						$r = preg_match("|([^<]+)<([^>]+)>|", $v, $m);
 						if ($r) {
-							$info['author'][] = ['name'=>$m[1], 'link'=>$m[2]];
+							$info[$type][] = ['name' => $m[1], 'link' => $m[2]];
 						} else {
-							$info['author'][] = ['name'=>$v];
+							$info[$type][] = ['name' => $v];
 						}
 					} else {
-						if (array_key_exists($k, $info)) {
-							$info[$k]=$v;
+						if (array_key_exists($type, $info)) {
+							$info[$type] = $v;
 						}
 					}
 				}
