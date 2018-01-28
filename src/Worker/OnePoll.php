@@ -8,6 +8,8 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Item;
+use Friendica\Content\Text\BBCode;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\Network;
@@ -487,7 +489,7 @@ class OnePoll
 								continue;
 							}
 							$datarray['body'] = escape_tags($r['body']);
-							$datarray['body'] = limit_body_size($datarray['body']);
+							$datarray['body'] = BBCode::limitBodySize($datarray['body']);
 
 							logger("Mail: Importing ".$msg_uid." for ".$mailconf['user']);
 
@@ -531,7 +533,7 @@ class OnePoll
 								$datarray['allow_cid'] = '<' . $contact['id'] . '>';
 							}
 
-							$stored_item = item_store($datarray);
+							$stored_item = Item::insert($datarray);
 
 							switch ($mailconf['action']) {
 								case 0:

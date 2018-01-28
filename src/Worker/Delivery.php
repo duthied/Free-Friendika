@@ -207,7 +207,7 @@ class Delivery {
 				logger('notifier: '.$target_item["guid"].' dfrndelivery: '.$contact['name']);
 
 				if ($mail) {
-					$item['body'] = fix_private_photos($item['body'],$owner['uid'],null,$message[0]['contact-id']);
+					$item['body'] = Item::fixPrivatePhotos($item['body'],$owner['uid'],null,$message[0]['contact-id']);
 					$atom = DFRN::mail($item, $owner);
 				} elseif ($fsuggest) {
 					$atom = DFRN::fsuggest($item, $owner);

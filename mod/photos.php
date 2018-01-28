@@ -13,6 +13,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
@@ -519,7 +520,7 @@ function photos_post(App $a)
 						. '[img]' . System::baseUrl() . '/photo/' . $p[0]['resource-id'] . '-' . $p[0]['scale'] . '.'. $ext . '[/img]'
 						. '[/url]';
 
-			$item_id = item_store($arr);
+			$item_id = Item::insert($arr);
 		}
 
 		if ($item_id) {
@@ -709,7 +710,7 @@ function photos_post(App $a)
 						. System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . '</id>';
 					$arr['target'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . '" />' . "\n" . '<link rel="preview" type="'.$p[0]['type'].'" href="' . System::baseUrl() . "/photo/" . $p[0]['resource-id'] . '-' . $best . '.' . $ext . '" />') . '</link></target>';
 
-					$item_id = item_store($arr);
+					$item_id = Item::insert($arr);
 					if ($item_id) {
 						Worker::add(PRIORITY_HIGH, "Notifier", "tag", $item_id);
 					}
@@ -931,7 +932,7 @@ function photos_post(App $a)
 				. '[img]' . System::baseUrl() . "/photo/{$photo_hash}-{$smallest}.".$Image->getExt() . '[/img]'
 				. '[/url]';
 
-	$item_id = item_store($arr);
+	$item_id = Item::insert($arr);
 	// Update the photo albums cache
 	Photo::clearAlbumCache($page_owner_uid);
 

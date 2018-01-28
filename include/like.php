@@ -9,6 +9,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Item;
 use Friendica\Protocol\Diaspora;
 
 /**
@@ -244,7 +245,7 @@ EOT;
 		'unseen'        => 1,
 	];
 
-	$new_item_id = item_store($new_item);
+	$new_item_id = Item::insert($new_item);
 
 	// @todo: Explain this block
 	if (! $item['visible']) {

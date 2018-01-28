@@ -15,6 +15,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
+use Friendica\Model\Item;
 use Friendica\Network\Probe;
 
 function profiles_init(App $a) {
@@ -601,7 +602,7 @@ function profile_activity($changed, $value) {
 	$arr['deny_cid']  = $a->user['deny_cid'];
 	$arr['deny_gid']  = $a->user['deny_gid'];
 
-	$i = item_store($arr);
+	$i = Item::insert($arr);
 	if ($i) {
 		Worker::add(PRIORITY_HIGH, "Notifier", "activity", $i);
 	}
