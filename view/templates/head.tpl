@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="vendor/asset/jquery-colorbox/example5/colorbox.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="vendor/asset/jgrowl/jquery.jgrowl.min.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="vendor/asset/jquery-datetimepicker/build/jquery.datetimepicker.min.css" type="text/css" media="screen" />
-<link rel="stylesheet" href="vendor/perfect-scrollbar/css/perfect-scrollbar.min.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="vendor/asset/perfect-scrollbar/css/perfect-scrollbar.min.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="vendor/pear/text_highlighter/sample.css" type="text/css" media="screen" />
 
 <link rel="stylesheet" type="text/css" href="{{$stylesheet}}" media="all" />
@@ -42,7 +42,7 @@
 <script type="text/javascript" src="vendor/asset/jquery-colorbox/jquery.colorbox-min.js"></script>
 <script type="text/javascript" src="vendor/asset/jgrowl/jquery.jgrowl.min.js"></script>
 <script type="text/javascript" src="vendor/asset/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src="vendor/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" ></script>
+<script type="text/javascript" src="vendor/asset/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" ></script>
 <script type="text/javascript" src="js/acl.js" ></script>
 <script type="text/javascript" src="vendor/asset/base64/base64.min.js" ></script>
 <script type="text/javascript" src="js/main.js" ></script>
