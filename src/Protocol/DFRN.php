@@ -28,6 +28,7 @@ use Friendica\Protocol\OStatus;
 use Friendica\Util\Crypto;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
+use Friendica\Content\Text\BBCode;
 
 use dba;
 use DOMDocument;
@@ -2449,7 +2450,7 @@ class DFRN
 		// make sure nobody is trying to sneak some html tags by us
 		$item["body"] = notags(base64url_decode($item["body"]));
 
-		$item["body"] = Item::limitBodySize($item["body"]);
+		$item["body"] = BBCode::limitBodySize($item["body"]);
 
 		/// @todo Do we really need this check for HTML elements? (It was copied from the old function)
 		if ((strpos($item['body'], '<') !== false) && (strpos($item['body'], '>') !== false)) {
