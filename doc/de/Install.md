@@ -62,9 +62,9 @@ Wir planen, diese Einschränkung in einer zukünftigen Version zu beheben.
 
         - Um das Addon-Verzeichnis aktuell zu halten, solltest du in diesem Pfad ein "git pull"-Befehl eintragen
 
-            `git -C addon pull`
+            `cd meinewebseite/addon`
 
-            `util/composer.phar install -d addon`
+            `git pull`
 
     - Wenn du den Verzeichnispfad auf deinen Webserver kopierst, dann stelle sicher, dass du auch die .htaccess kopierst, da "Punkt"-Dateien oft versteckt sind und normalerweise nicht direkt kopiert werden.
 

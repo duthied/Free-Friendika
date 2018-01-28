@@ -61,7 +61,6 @@ Get the addons by going into your website folder.
 Clone the addon repository (separately):
 
     git clone https://github.com/friendica/friendica-addons.git addon
-    util/composer install -d addon
 
 If you copy the directory tree to your webserver, make sure that you also copy .htaccess - as "dot" files are often hidden and aren't normally copied.
 
