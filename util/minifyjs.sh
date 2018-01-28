@@ -5,10 +5,10 @@ command -v uglifyjs >/dev/null 2>&1 || { echo >&2 "I require UglifyJS but it's n
 MINIFY_CMD=uglifyjs
 
 JSFILES=(
-	"js/acl.js"
-	"js/ajaxupload.js"
-	"js/country.js"
-	"js/main.js"
+	"view/js/acl.js"
+	"view/js/ajaxupload.js"
+	"view/js/country.js"
+	"view/js/main.js"
 	"vendor/asset/base64/base64.min.js"
 	"view/theme/frost/js/acl.js"
 	"view/theme/frost/js/jquery.divgrow-1.3.1.f1.js"
