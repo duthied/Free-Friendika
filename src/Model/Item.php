@@ -896,7 +896,7 @@ class Item
 	 *
 	 * @param integer $itemid Item ID that should be added
 	 */
-	private static function addShadowPost($itemid)
+	public static function addShadowPost($itemid)
 	{
 		$item = dba::selectFirst('item', [], ['id' => $itemid]);
 		if (!DBM::is_result($item)) {
