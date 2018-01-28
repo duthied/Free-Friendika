@@ -1327,7 +1327,7 @@ class PortableContact
 		}
 
 		// Discover Friendica, Hubzilla and Diaspora servers
-		$serverdata = fetch_url("http://the-federation.info/pods.json");
+		$serverdata = Network::fetchUrl("http://the-federation.info/pods.json");
 
 		if ($serverdata) {
 			$servers = json_decode($serverdata);
