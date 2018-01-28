@@ -19,6 +19,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Model\Term;
 use Friendica\Model\User;
@@ -922,7 +923,7 @@ class DFRN
 		}
 
 		if ($item['allow_cid'] || $item['allow_gid'] || $item['deny_cid'] || $item['deny_gid']) {
-			$body = fix_private_photos($item['body'], $owner['uid'], $item, $cid);
+			$body = Item::fixPrivatePhotos($item['body'], $owner['uid'], $item, $cid);
 		} else {
 			$body = $item['body'];
 		}
@@ -1059,7 +1060,7 @@ class DFRN
 			$entry->appendChild($actarg);
 		}
 
-		$tags = item_getfeedtags($item);
+		$tags = Item::getFeedTags($item);
 
 		if (count($tags)) {
 			foreach ($tags as $t) {
@@ -2214,7 +2215,7 @@ class DFRN
 					"to_email"     => $importer["email"],
 					"uid"          => $importer["importer_uid"],
 					"item"         => $item,
-					"link"         => System::baseUrl()."/display/".urlencode(get_item_guid($posted_id)),
+					"link"         => System::baseUrl()."/display/".urlencode(Item::getGuidById($posted_id)),
 					"source_name"  => stripslashes($item["author-name"]),
 					"source_link"  => $item["author-link"],
 					"source_photo" => ((link_compare($item["author-link"], $importer["url"]))
@@ -2254,22 +2255,22 @@ class DFRN
 			// This function once was responsible for DFRN and OStatus.
 			if (activity_match($item["verb"], ACTIVITY_FOLLOW)) {
 				logger("New follower");
-				new_follower($importer, $contact, $item, $nickname);
+				Contact::newFollower($importer, $contact, $item, $nickname);
 				return false;
 			}
 			if (activity_match($item["verb"], ACTIVITY_UNFOLLOW)) {
 				logger("Lost follower");
-				lose_follower($importer, $contact, $item);
+				Contact::loseFollower($importer, $contact, $item);
 				return false;
 			}
 			if (activity_match($item["verb"], ACTIVITY_REQ_FRIEND)) {
 				logger("New friend request");
-				new_follower($importer, $contact, $item, $nickname, true);
+				Contact::newFollower($importer, $contact, $item, $nickname, true);
 				return false;
 			}
 			if (activity_match($item["verb"], ACTIVITY_UNFRIEND)) {
 				logger("Lost sharer");
-				lose_sharer($importer, $contact, $item);
+				Contact::loseSharer($importer, $contact, $item);
 				return false;
 			}
 		} else {
@@ -2448,7 +2449,7 @@ class DFRN
 		// make sure nobody is trying to sneak some html tags by us
 		$item["body"] = notags(base64url_decode($item["body"]));
 
-		$item["body"] = limit_body_size($item["body"]);
+		$item["body"] = Item::limitBodySize($item["body"]);
 
 		/// @todo Do we really need this check for HTML elements? (It was copied from the old function)
 		if ((strpos($item['body'], '<') !== false) && (strpos($item['body'], '>') !== false)) {
@@ -2502,7 +2503,7 @@ class DFRN
 
 		$item["guid"] = $xpath->query("dfrn:diaspora_guid/text()", $entry)->item(0)->nodeValue;
 
-		// We store the data from "dfrn:diaspora_signature" in a different table, this is done in "item_store"
+		// We store the data from "dfrn:diaspora_signature" in a different table, this is done in "Item::insert"
 		$dsprsig = unxmlify($xpath->query("dfrn:diaspora_signature/text()", $entry)->item(0)->nodeValue);
 		if ($dsprsig != "") {
 			$item["dsprsig"] = $dsprsig;
@@ -2670,7 +2671,7 @@ class DFRN
 		}
 
 		if (in_array($entrytype, [DFRN_REPLY, DFRN_REPLY_RC])) {
-			$posted_id = item_store($item);
+			$posted_id = Item::insert($item);
 			$parent = 0;
 
 			if ($posted_id) {
@@ -2700,7 +2701,7 @@ class DFRN
 				/*
 				 * The item owner info is not our contact. It's OK and is to be expected if this is a tgroup delivery,
 				 * but otherwise there's a possible data mixup on the sender's system.
-				 * the tgroup delivery code called from item_store will correct it if it's a forum,
+				 * the tgroup delivery code called from Item::insert will correct it if it's a forum,
 				 * but we're going to unconditionally correct it here so that the post will always be owned by our contact.
 				 */
 				logger('Correcting item owner.', LOGGER_DEBUG);
@@ -2716,9 +2717,9 @@ class DFRN
 
 			// This is my contact on another system, but it's really me.
 			// Turn this into a wall post.
-			$notify = item_is_remote_self($importer, $item);
+			$notify = Item::isRemoteSelf($importer, $item);
 
-			$posted_id = item_store($item, false, $notify);
+			$posted_id = Item::insert($item, false, $notify);
 
 			logger("Item was stored with id ".$posted_id, LOGGER_DEBUG);
 

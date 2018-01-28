@@ -8,6 +8,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\Item;
 
 require_once 'include/security.php';
 require_once 'include/bbcode.php';
@@ -145,13 +146,7 @@ EOT;
 	$arr['unseen'] = 1;
 	$arr['origin'] = 1;
 
-	$post_id = item_store($arr);
-
-//	q("UPDATE `item` set plink = '%s' where id = %d",
-//		dbesc(System::baseUrl() . '/display/' . $owner_nick . '/' . $post_id),
-//		intval($post_id)
-//	);
-
+	$post_id = Item::insert($arr);
 
 	if(! $item['visible']) {
 		$r = q("UPDATE `item` SET `visible` = 1 WHERE `id` = %d AND `uid` = %d",

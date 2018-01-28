@@ -20,6 +20,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Model\Queue;
 use Friendica\Model\User;
@@ -1730,7 +1731,7 @@ class Diaspora
 
 		self::fetchGuid($datarray);
 
-		$message_id = item_store($datarray);
+		$message_id = Item::insert($datarray);
 
 		if ($message_id <= 0) {
 			return false;
@@ -2051,7 +2052,7 @@ class Diaspora
 
 		$datarray["body"] = self::constructLikeBody($contact, $parent_item, $guid);
 
-		$message_id = item_store($datarray);
+		$message_id = Item::insert($datarray);
 
 		if ($message_id <= 0) {
 			return false;
@@ -2417,7 +2418,7 @@ class Diaspora
 				$arr["deny_cid"]  = $user["deny_cid"];
 				$arr["deny_gid"]  = $user["deny_gid"];
 
-				$i = item_store($arr);
+				$i = Item::insert($arr);
 				if ($i) {
 					Worker::add(PRIORITY_HIGH, "Notifier", "activity", $i);
 				}
@@ -2501,7 +2502,7 @@ class Diaspora
 				return true;
 			} else {
 				logger("Author ".$author." doesn't want to follow us anymore.", LOGGER_DEBUG);
-				lose_follower($importer, $contact);
+				Contact::loseFollower($importer, $contact);
 				return true;
 			}
 		}
@@ -2780,7 +2781,7 @@ class Diaspora
 		$datarray["object-type"] = $original_item["object-type"];
 
 		self::fetchGuid($datarray);
-		$message_id = item_store($datarray);
+		$message_id = Item::insert($datarray);
 
 		self::sendParticipation($contact, $datarray);
 
@@ -3020,7 +3021,7 @@ class Diaspora
 		}
 
 		self::fetchGuid($datarray);
-		$message_id = item_store($datarray);
+		$message_id = Item::insert($datarray);
 
 		self::sendParticipation($contact, $datarray);
 

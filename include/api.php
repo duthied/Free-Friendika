@@ -4731,7 +4731,7 @@ function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $f
 				. '[/url]';
 
 	// do the magic for storing the item in the database and trigger the federation to other contacts
-	item_store($arr);
+	Item::insert($arr);
 }
 
 /**

@@ -7,6 +7,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Item;
 
 require_once 'include/security.php';
 require_once 'include/bbcode.php';
@@ -149,7 +150,7 @@ EOT;
 	$arr['visible'] = 1;
 	$arr['unseen'] = 1;
 
-	$post_id = item_store($arr);
+	$post_id = Item::insert($arr);
 
 	if (! $item['visible']) {
 		$r = q("UPDATE `item` SET `visible` = 1 WHERE `id` = %d AND `uid` = %d",

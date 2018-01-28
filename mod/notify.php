@@ -8,6 +8,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Module\Login;
+use Friendica\Model\Item;
 
 function notify_init(App $a)
 {
@@ -27,7 +28,7 @@ function notify_init(App $a)
 				require_once("include/items.php");
 				$urldata = parse_url($note['link']);
 				$guid = basename($urldata["path"]);
-				$itemdata = get_item_id($guid, local_user());
+				$itemdata = Item::getIdAndNickByGuid($guid, local_user());
 				if ($itemdata["id"] != 0) {
 					$note['link'] = System::baseUrl().'/display/'.$itemdata["nick"].'/'.$itemdata["id"];
 				}

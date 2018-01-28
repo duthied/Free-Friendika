@@ -11,6 +11,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Util\Map;
 
@@ -399,7 +400,7 @@ function event_store($arr) {
 		$item_arr['object'] .= '<content>' . xmlify(format_event_bbcode($event)) . '</content>';
 		$item_arr['object'] .= '</object>' . "\n";
 
-		$item_id = item_store($item_arr);
+		$item_id = Item::insert($item_arr);
 		if ($item_id) {
 			q("UPDATE `item` SET `event-id` = %d  WHERE `uid` = %d AND `id` = %d",
 				intval($event['id']),

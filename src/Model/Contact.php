@@ -1354,4 +1354,113 @@ class Contact extends BaseObject
 
 		return $contact;
 	}
+
+	public static function newFollower($importer, $contact, $datarray, $item, $sharing = false) {
+		$url = notags(trim($datarray['author-link']));
+		$name = notags(trim($datarray['author-name']));
+		$photo = notags(trim($datarray['author-avatar']));
+
+		if (is_object($item)) {
+			$rawtag = $item->get_item_tags(NAMESPACE_ACTIVITY,'actor');
+			if ($rawtag && $rawtag[0]['child'][NAMESPACE_POCO]['preferredUsername'][0]['data']) {
+				$nick = $rawtag[0]['child'][NAMESPACE_POCO]['preferredUsername'][0]['data'];
+			}
+		} else {
+			$nick = $item;
+		}
+
+		if (is_array($contact)) {
+			if (($contact['network'] == NETWORK_OSTATUS && $contact['rel'] == CONTACT_IS_SHARING)
+				|| ($sharing && $contact['rel'] == CONTACT_IS_FOLLOWER)) {
+				dba::update('contact', ['rel' => CONTACT_IS_FRIEND, 'writable' => true],
+						['id' => $contact['id'], 'uid' => $importer['uid']]);
+			}
+			// send email notification to owner?
+		} else {
+			// create contact record
+			q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `name`, `nick`, `photo`, `network`, `rel`,
+				`blocked`, `readonly`, `pending`, `writable`)
+				VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, 0, 0, 1, 1)",
+				intval($importer['uid']),
+				dbesc(datetime_convert()),
+				dbesc($url),
+				dbesc(normalise_link($url)),
+				dbesc($name),
+				dbesc($nick),
+				dbesc($photo),
+				dbesc(NETWORK_OSTATUS),
+				intval(CONTACT_IS_FOLLOWER)
+			);
+
+			$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `pending` = 1 LIMIT 1",
+					intval($importer['uid']),
+					dbesc($url)
+			);
+			if (DBM::is_result($r)) {
+				$contact_record = $r[0];
+				Contact::updateAvatar($photo, $importer["uid"], $contact_record["id"], true);
+			}
+
+			/// @TODO Encapsulate this into a function/method
+			$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
+				intval($importer['uid'])
+			);
+			if (DBM::is_result($r) && !in_array($r[0]['page-flags'], [PAGE_SOAPBOX, PAGE_FREELOVE, PAGE_COMMUNITY])) {
+				// create notification
+				$hash = random_string();
+
+				if (is_array($contact_record)) {
+					dba::insert('intro', ['uid' => $importer['uid'], 'contact-id' => $contact_record['id'],
+								'blocked' => false, 'knowyou' => false,
+								'hash' => $hash, 'datetime' => datetime_convert()]);
+				}
+
+				Group::addMember(User::getDefaultGroup($importer['uid'], $contact_record["network"]), $contact_record['id']);
+
+				if (($r[0]['notify-flags'] & NOTIFY_INTRO) &&
+					in_array($r[0]['page-flags'], [PAGE_NORMAL])) {
+
+					notification([
+						'type'         => NOTIFY_INTRO,
+						'notify_flags' => $r[0]['notify-flags'],
+						'language'     => $r[0]['language'],
+						'to_name'      => $r[0]['username'],
+						'to_email'     => $r[0]['email'],
+						'uid'          => $r[0]['uid'],
+						'link'		   => System::baseUrl() . '/notifications/intro',
+						'source_name'  => ((strlen(stripslashes($contact_record['name']))) ? stripslashes($contact_record['name']) : L10n::t('[Name Withheld]')),
+						'source_link'  => $contact_record['url'],
+						'source_photo' => $contact_record['photo'],
+						'verb'         => ($sharing ? ACTIVITY_FRIEND : ACTIVITY_FOLLOW),
+						'otype'        => 'intro'
+					]);
+
+				}
+			} elseif (DBM::is_result($r) && in_array($r[0]['page-flags'], [PAGE_SOAPBOX, PAGE_FREELOVE, PAGE_COMMUNITY])) {
+				q("UPDATE `contact` SET `pending` = 0 WHERE `uid` = %d AND `url` = '%s' AND `pending` LIMIT 1",
+						intval($importer['uid']),
+						dbesc($url)
+				);
+			}
+
+		}
+	}
+
+	public static function loseFollower($importer, $contact, array $datarray = [], $item = "") {
+
+		if (($contact['rel'] == CONTACT_IS_FRIEND) || ($contact['rel'] == CONTACT_IS_SHARING)) {
+			dba::update('contact', ['rel' => CONTACT_IS_SHARING], ['id' => $contact['id']]);
+		} else {
+			Contact::remove($contact['id']);
+		}
+	}
+
+	public static function loseSharer($importer, $contact, array $datarray = [], $item = "") {
+
+		if (($contact['rel'] == CONTACT_IS_FRIEND) || ($contact['rel'] == CONTACT_IS_FOLLOWER)) {
+			dba::update('contact', ['rel' => CONTACT_IS_FOLLOWER], ['id' => $contact['id']]);
+		} else {
+			Contact::remove($contact['id']);
+		}
+	}
 }

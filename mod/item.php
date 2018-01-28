@@ -729,7 +729,7 @@ function item_post(App $a) {
 	unset($datarray['self']);
 	unset($datarray['api_source']);
 
-	$post_id = item_store($datarray);
+	$post_id = Item::insert($datarray);
 
 	if (!$post_id) {
 		logger("Item wasn't stored.");

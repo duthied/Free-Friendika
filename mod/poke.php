@@ -19,6 +19,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\Item;
 
 require_once 'include/security.php';
 require_once 'include/bbcode.php';
@@ -132,7 +133,7 @@ function poke_init(App $a) {
 	$arr['object'] .= xmlify('<link rel="photo" type="image/jpeg" href="' . $target['photo'] . '" />' . "\n");
 	$arr['object'] .= '</link></object>' . "\n";
 
-	$item_id = item_store($arr);
+	$item_id = Item::insert($arr);
 	if($item_id) {
 		//q("UPDATE `item` SET `plink` = '%s' WHERE `uid` = %d AND `id` = %d",
 		//	dbesc(System::baseUrl() . '/display/' . $poster['nickname'] . '/' . $item_id),

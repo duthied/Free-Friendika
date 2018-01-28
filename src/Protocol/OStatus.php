@@ -14,6 +14,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Conversation;
+use Friendica\Model\Item;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Util\Lock;
@@ -455,12 +456,12 @@ class OStatus
 			}
 
 			if ($item["verb"] == ACTIVITY_FOLLOW) {
-				new_follower($importer, $contact, $item, $nickname);
+				Contact::newFollower($importer, $contact, $item, $nickname);
 				continue;
 			}
 
 			if ($item["verb"] == NAMESPACE_OSTATUS."/unfollow") {
-				lose_follower($importer, $contact, $item, $dummy);
+				Contact::loseFollower($importer, $contact, $item, $dummy);
 				continue;
 			}
 
@@ -521,12 +522,12 @@ class OStatus
 							logger("Item with uri ".$item["uri"]." is from a blocked contact.", LOGGER_DEBUG);
 						} else {
 							// We are having duplicated entries. Hopefully this solves it.
-							if (Lock::set('ostatus_process_item_store')) {
-								$ret = item_store($item);
-								Lock::remove('ostatus_process_item_store');
+							if (Lock::set('ostatus_process_item_insert')) {
+								$ret = Item::insert($item);
+								Lock::remove('ostatus_process_item_insert');
 								logger("Item with uri ".$item["uri"]." for user ".$importer["uid"].' stored. Return value: '.$ret);
 							} else {
-								$ret = item_store($item);
+								$ret = Item::insert($item);
 								logger("We couldn't lock - but tried to store the item anyway. Return value is ".$ret);
 							}
 						}
@@ -1996,7 +1997,7 @@ class OStatus
 			XML::addElement($doc, $entry, "ostatus:conversation", $conversation_uri, $attributes);
 		}
 
-		$tags = item_getfeedtags($item);
+		$tags = item::getFeedTags($item);
 
 		if (count($tags)) {
 			foreach ($tags as $t) {

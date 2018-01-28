@@ -26,6 +26,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
@@ -439,7 +440,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 					$arr['deny_cid']  = $user['deny_cid'];
 					$arr['deny_gid']  = $user['deny_gid'];
 
-					$i = item_store($arr);
+					$i = Item::insert($arr);
 					if ($i) {
 						Worker::add(PRIORITY_HIGH, "Notifier", "activity", $i);
 					}
@@ -701,7 +702,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 					$arr['deny_cid']  = $user['deny_cid'];
 					$arr['deny_gid']  = $user['deny_gid'];
 
-					$i = item_store($arr);
+					$i = Item::insert($arr);
 					if ($i) {
 						Worker::add(PRIORITY_HIGH, "Notifier", "activity", $i);
 					}
