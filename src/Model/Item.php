@@ -1024,7 +1024,8 @@ class Item
 	 *
 	 * @param array $arr Contains the just posted item record
 	 */
-	private static function updateContact($arr) {
+	private static function updateContact($arr)
+	{
 		// Unarchive the author
 		$contact = dba::selectFirst('contact', [], ['id' => $arr["author-link"]]);
 		if ($contact['term-date'] > NULL_DATE) {
@@ -1153,7 +1154,8 @@ class Item
 		}
 	}
 
-	private static function setHashtags(&$item) {
+	private static function setHashtags(&$item)
+	{
 
 		$tags = get_tags($item["body"]);
 
@@ -1220,7 +1222,8 @@ class Item
 		$item["body"] = str_replace("&num;", "#", $item["body"]);
 	}
 
-	public static function getGuidById($id) {
+	public static function getGuidById($id)
+	{
 		$r = q("SELECT `guid` FROM `item` WHERE `id` = %d LIMIT 1", intval($id));
 		if (DBM::is_result($r)) {
 			return $r[0]["guid"];
@@ -1229,8 +1232,8 @@ class Item
 		}
 	}
 
-	public static function getIdAndNickByGuid($guid, $uid = 0) {
-
+	public static function getIdAndNickByGuid($guid, $uid = 0)
+	{
 		$nick = "";
 		$id = 0;
 
@@ -1375,7 +1378,8 @@ class Item
 
 	}
 
-	public static function isRemoteSelf($contact, &$datarray) {
+	public static function isRemoteSelf($contact, &$datarray)
+	{
 		$a = get_app();
 
 		if (!$contact['remote_self']) {
@@ -1562,7 +1566,8 @@ class Item
 		return $new_body;
 	}
 
-	private static function hasPermissions($obj) {
+	private static function hasPermissions($obj)
+	{
 		return (
 			(
 				x($obj, 'allow_cid')
@@ -1576,7 +1581,8 @@ class Item
 		);
 	}
 
-	private static function samePermissions($obj1, $obj2) {
+	private static function samePermissions($obj1, $obj2)
+	{
 		// first part is easy. Check that these are exactly the same.
 		if (($obj1['allow_cid'] == $obj2['allow_cid'])
 			&& ($obj1['allow_gid'] == $obj2['allow_gid'])
@@ -1596,7 +1602,8 @@ class Item
 	}
 
 	// returns an array of contact-ids that are allowed to see this object
-	private static function enumeratePermissions($obj) {
+	private static function enumeratePermissions($obj)
+	{
 		$allow_people = expand_acl($obj['allow_cid']);
 		$allow_groups = Group::expand(expand_acl($obj['allow_gid']));
 		$deny_people  = expand_acl($obj['deny_cid']);
@@ -1607,7 +1614,8 @@ class Item
 		return $recipients;
 	}
 
-	public static function getFeedTags($item) {
+	public static function getFeedTags($item)
+	{
 		$ret = [];
 		$matches = false;
 		$cnt = preg_match_all('|\#\[url\=(.*?)\](.*?)\[\/url\]|', $item['tag'], $matches);
@@ -1630,8 +1638,8 @@ class Item
 		return $ret;
 	}
 
-	public static function expire($uid, $days, $network = "", $force = false) {
-
+	public static function expire($uid, $days, $network = "", $force = false)
+	{
 		if (!$uid || ($days < 1)) {
 			return;
 		}
@@ -1707,7 +1715,8 @@ class Item
 	}
 
 	/// @TODO: This query seems to be really slow
-	public static function firstPostDate($uid, $wall = false) {
+	public static function firstPostDate($uid, $wall = false)
+	{
 		$r = q("SELECT `id`, `created` FROM `item`
 			WHERE `uid` = %d AND `wall` = %d AND `deleted` = 0 AND `visible` = 1 AND `moderated` = 0
 			AND `id` = `parent`
