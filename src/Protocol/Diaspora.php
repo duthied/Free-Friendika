@@ -2502,7 +2502,7 @@ class Diaspora
 				return true;
 			} else {
 				logger("Author ".$author." doesn't want to follow us anymore.", LOGGER_DEBUG);
-				Contact::loseFollower($importer, $contact);
+				Contact::removeFollower($importer, $contact);
 				return true;
 			}
 		}

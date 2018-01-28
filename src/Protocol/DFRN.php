@@ -2255,22 +2255,22 @@ class DFRN
 			// This function once was responsible for DFRN and OStatus.
 			if (activity_match($item["verb"], ACTIVITY_FOLLOW)) {
 				logger("New follower");
-				Contact::newFollower($importer, $contact, $item, $nickname);
+				Contact::addRelationship($importer, $contact, $item, $nickname);
 				return false;
 			}
 			if (activity_match($item["verb"], ACTIVITY_UNFOLLOW)) {
 				logger("Lost follower");
-				Contact::loseFollower($importer, $contact, $item);
+				Contact::removeFollower($importer, $contact, $item);
 				return false;
 			}
 			if (activity_match($item["verb"], ACTIVITY_REQ_FRIEND)) {
 				logger("New friend request");
-				Contact::newFollower($importer, $contact, $item, $nickname, true);
+				Contact::addRelationship($importer, $contact, $item, $nickname, true);
 				return false;
 			}
 			if (activity_match($item["verb"], ACTIVITY_UNFRIEND)) {
 				logger("Lost sharer");
-				Contact::loseSharer($importer, $contact, $item);
+				Contact::removeSharer($importer, $contact, $item);
 				return false;
 			}
 		} else {

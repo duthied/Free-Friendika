@@ -1355,7 +1355,7 @@ class Contact extends BaseObject
 		return $contact;
 	}
 
-	public static function newFollower($importer, $contact, $datarray, $item, $sharing = false) {
+	public static function addRelationship($importer, $contact, $datarray, $item, $sharing = false) {
 		$url = notags(trim($datarray['author-link']));
 		$name = notags(trim($datarray['author-name']));
 		$photo = notags(trim($datarray['author-avatar']));
@@ -1446,7 +1446,7 @@ class Contact extends BaseObject
 		}
 	}
 
-	public static function loseFollower($importer, $contact, array $datarray = [], $item = "") {
+	public static function removeFollower($importer, $contact, array $datarray = [], $item = "") {
 
 		if (($contact['rel'] == CONTACT_IS_FRIEND) || ($contact['rel'] == CONTACT_IS_SHARING)) {
 			dba::update('contact', ['rel' => CONTACT_IS_SHARING], ['id' => $contact['id']]);
@@ -1455,7 +1455,7 @@ class Contact extends BaseObject
 		}
 	}
 
-	public static function loseSharer($importer, $contact, array $datarray = [], $item = "") {
+	public static function removeSharer($importer, $contact, array $datarray = [], $item = "") {
 
 		if (($contact['rel'] == CONTACT_IS_FRIEND) || ($contact['rel'] == CONTACT_IS_FOLLOWER)) {
 			dba::update('contact', ['rel' => CONTACT_IS_FOLLOWER], ['id' => $contact['id']]);

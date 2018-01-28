@@ -456,12 +456,12 @@ class OStatus
 			}
 
 			if ($item["verb"] == ACTIVITY_FOLLOW) {
-				Contact::newFollower($importer, $contact, $item, $nickname);
+				Contact::addRelationship($importer, $contact, $item, $nickname);
 				continue;
 			}
 
 			if ($item["verb"] == NAMESPACE_OSTATUS."/unfollow") {
-				Contact::loseFollower($importer, $contact, $item, $dummy);
+				Contact::removeFollower($importer, $contact, $item, $dummy);
 				continue;
 			}
 
