@@ -33,18 +33,18 @@
 <!--[if IE]>
 <script type="text/javascript" src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
-<script type="text/javascript" src="js/modernizr.js" ></script>
+<script type="text/javascript" src="view/js/modernizr.js" ></script>
 <script type="text/javascript" src="vendor/asset/jquery/dist/jquery.min.js" ></script>
-<script type="text/javascript" src="js/jquery.textinputs.js" ></script>
-<script type="text/javascript" src="library/jquery-textcomplete/jquery.textcomplete.min.js" ></script>
-<script type="text/javascript" src="js/autocomplete.js" ></script>
+<script type="text/javascript" src="view/js/jquery.textinputs.js" ></script>
+<script type="text/javascript" src="view/js/jquery-textcomplete/jquery.textcomplete.min.js" ></script>
+<script type="text/javascript" src="view/js/autocomplete.js" ></script>
 <script type="text/javascript" src="vendor/asset/jquery-colorbox/jquery.colorbox-min.js"></script>
 <script type="text/javascript" src="vendor/asset/jgrowl/jquery.jgrowl.min.js"></script>
 <script type="text/javascript" src="vendor/asset/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 <script type="text/javascript" src="vendor/asset/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" ></script>
-<script type="text/javascript" src="js/acl.js" ></script>
+<script type="text/javascript" src="view/js/acl.js" ></script>
 <script type="text/javascript" src="vendor/asset/base64/base64.min.js" ></script>
-<script type="text/javascript" src="js/main.js" ></script>
+<script type="text/javascript" src="view/js/main.js" ></script>
 <script>
 
 	var updateInterval = {{$update_interval}};
