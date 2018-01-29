@@ -1,7 +1,7 @@
 <script src="{{$baseurl}}/vendor/asset/Chart-js/dist/Chart.min.js"></script>
-<canvas id="FederationChart" class="federation-graph" width="400" height="400"></canvas>
 <div id="adminpage">
     <h1>{{$title}} - {{$page}}</h1>
+    <canvas id="FederationChart" class="federation-graph" width="320" height="320"></canvas>
     <p>{{$intro}}</p>
     {{if not $autoactive}}
     <p class="error-message">{{$hint}}</p>
