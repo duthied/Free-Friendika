@@ -1151,6 +1151,11 @@ class Contact extends BaseObject
 
 		Addon::callHooks('follow', $arr);
 
+		if (empty($arr)) {
+			$result['message'] = L10n::t('The contact could not be added. Please check the relevant network credentials in your Settings -> Social Networks page.');
+			return $result;
+		}
+
 		if (x($arr['contact'], 'name')) {
 			$ret = $arr['contact'];
 		} else {
