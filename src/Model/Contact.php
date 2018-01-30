@@ -1151,6 +1151,11 @@ class Contact extends BaseObject
 
 		Addon::callHooks('follow', $arr);
 
+		if (empty($arr)) {
+			$result['message'] = L10n::t('Contact cannot be added.');
+			return $result;
+		}
+
 		if (x($arr['contact'], 'name')) {
 			$ret = $arr['contact'];
 		} else {
