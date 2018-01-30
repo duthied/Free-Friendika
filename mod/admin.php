@@ -171,17 +171,30 @@ function admin_content(App $a)
 	// array(url, name, extra css classes)
 	// not part of $aside to make the template more adjustable
 	$aside_sub = [
-		'site'         => ["admin/site/"        , L10n::t("Site")                 , "site"],
-		'users'        => ["admin/users/"       , L10n::t("Users")                , "users"],
-		'addons'       => ["admin/addons/"      , L10n::t("Addons")               , "addons"],
-		'themes'       => ["admin/themes/"      , L10n::t("Themes")               , "themes"],
-		'features'     => ["admin/features/"    , L10n::t("Additional features")  , "features"],
-		'dbsync'       => ["admin/dbsync/"      , L10n::t('DB updates')           , "dbsync"],
-		'queue'        => ["admin/queue/"       , L10n::t('Inspect Queue')        , "queue"],
-		'contactblock' => ["admin/contactblock/", L10n::t('Contact Blocklist')    , "contactblock"],
-		'blocklist'    => ["admin/blocklist/"   , L10n::t('Server Blocklist')     , "blocklist"],
-		'federation'   => ["admin/federation/"  , L10n::t('Federation Statistics'), "federation"],
-		'deleteitem'   => ["admin/deleteitem/"  , L10n::t('Delete Item')          , 'deleteitem'],
+		'information' => [ L10n::t('Information'), [
+			"overview" => ["admin/", L10n::t("Overview"), "overview" ],
+			'federation'   => ["admin/federation/"  , L10n::t('Federation Statistics'), "federation"] ]],
+		'configuration' => [ L10n::t('Configuration'), [
+			'site'         => ["admin/site/"        , L10n::t("Site")                 , "site"],
+			'users'        => ["admin/users/"       , L10n::t("Users")                , "users"],
+			'addons'       => ["admin/addons/"      , L10n::t("Addons")               , "addons"],
+			'themes'       => ["admin/themes/"      , L10n::t("Themes")               , "themes"],
+			'features'     => ["admin/features/"    , L10n::t("Additional features")  , "features"] ]],
+		'database' => [ L10n::t('Database'), [ 
+			'dbsync'       => ["admin/dbsync/"      , L10n::t('DB updates')           , "dbsync"],
+			'queue'        => ["admin/queue/"       , L10n::t('Inspect Queue')        , "queue"], ]],
+		'tools' => [ L10n::t('Tools'), [ 
+			'contactblock' => ["admin/contactblock/", L10n::t('Contact Blocklist')    , "contactblock"],
+			'blocklist'    => ["admin/blocklist/"   , L10n::t('Server Blocklist')     , "blocklist"],
+			'deleteitem'   => ["admin/deleteitem/"  , L10n::t('Delete Item')          , 'deleteitem'], ]],
+		"logs" => [ L10n::t("Logs"), [
+			"logsconfig" => ["admin/logs/", L10n::t("Logs"), "logs"],
+			"logsview" => ["admin/viewlogs/", L10n::t("View Logs"), 'viewlogs']
+		]],
+		"diagnostics" => [ L10n::t("Diagnostics"), [
+			"probe" => ['probe/', L10n::t('probe address'), 'probe'],
+			"webfinger" =>['webfinger/', L10n::t('check webfinger'), 'webfinger']
+		]]
 	];
 
 	/* get addons admin page */
@@ -195,19 +208,12 @@ function admin_content(App $a)
 		$a->addons_admin[] = $addon;
 	}
 
-	$aside_tools['logs'] = ["admin/logs/", L10n::t("Logs"), "logs"];
-	$aside_tools['viewlogs'] = ["admin/viewlogs/", L10n::t("View Logs"), 'viewlogs'];
-	$aside_tools['diagnostics_probe'] = ['probe/', L10n::t('probe address'), 'probe'];
-	$aside_tools['diagnostics_webfinger'] = ['webfinger/', L10n::t('check webfinger'), 'webfinger'];
-
 	$t = get_markup_template('admin/aside.tpl');
 	$a->page['aside'] .= replace_macros($t, [
 		'$admin' => $aside_tools,
 		'$subpages' => $aside_sub,
 		'$admtxt' => L10n::t('Admin'),
 		'$plugadmtxt' => L10n::t('Addon Features'),
-		'$logtxt' => L10n::t('Logs'),
-		'$diagnosticstxt' => L10n::t('diagnostics'),
 		'$h_pending' => L10n::t('User registrations waiting for confirmation'),
 		'$admurl' => "admin/"
 	]);
