@@ -997,8 +997,9 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $simplehtml = fa
 	if ((!$tryoembed || $simplehtml) && !in_array($simplehtml, [3, 7])) {
 		$Text = preg_replace("/([#@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $Text);
 	} elseif ($simplehtml == 3) {
+		// The ! is converted to @ since Diaspora only understands the @
 		$Text = preg_replace("/([@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-			'$1<a href="$2">$3</a>',
+			'@<a href="$2">$3</a>',
 			$Text);
 	} elseif ($simplehtml == 7) {
 		$Text = preg_replace("/([@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",

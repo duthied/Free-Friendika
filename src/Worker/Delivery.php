@@ -133,7 +133,8 @@ class Delivery {
 			return;
 		}
 
-		$walltowall = (($top_level && ($owner['id'] != $items[0]['contact-id'])) ? true : false);
+		// We don't treat Forum posts as "wall-to-wall" to be able to post them via Diaspora
+		$walltowall = $top_level && ($owner['id'] != $items[0]['contact-id']) & ($owner['account-type'] != ACCOUNT_TYPE_COMMUNITY);
 
 		$public_message = true;
 
