@@ -400,12 +400,12 @@
         },
         {
             "name": "npm-asset/fullcalendar",
-            "version": "3.8.0",
+            "version": "3.8.2",
             "dist": {
                 "type": "tar",
-                "url": "https://registry.npmjs.org/fullcalendar/-/fullcalendar-3.8.0.tgz",
+                "url": "https://registry.npmjs.org/fullcalendar/-/fullcalendar-3.8.2.tgz",
                 "reference": null,
-                "shasum": "4c0fe494a62b0a8d640c6de8eb883b49a212b5dc"
+                "shasum": "ef7dc77b89134bbe6163e51136f7a1f8bfc1d807"
             },
             "require": {
                 "npm-asset/jquery": ">=2,<4.0",
@@ -432,6 +432,7 @@
                 "npm-asset/gulp-filter": ">=4.0.0,<5.0.0",
                 "npm-asset/gulp-modify-file": ">=1.0.0,<2.0.0",
                 "npm-asset/gulp-rename": ">=1.2.2,<2.0.0",
+                "npm-asset/gulp-shell": ">=0.6.5,<0.7.0",
                 "npm-asset/gulp-tslint": ">=8.1.2,<9.0.0",
                 "npm-asset/gulp-uglify": ">=2.0.0,<3.0.0",
                 "npm-asset/gulp-util": ">=3.0.7,<4.0.0",
@@ -456,7 +457,7 @@
                 "npm-asset/tslint": ">=5.8.0,<6.0.0",
                 "npm-asset/tslint-config-standard": ">=7.0.0,<8.0.0",
                 "npm-asset/types--jquery": "2.0.47",
-                "npm-asset/typescript": ">=2.6.1,<3.0.0",
+                "npm-asset/typescript": ">=2.6.2,<3.0.0",
                 "npm-asset/webpack": ">=3.8.1,<4.0.0",
                 "npm-asset/webpack-stream": ">=4.0.0,<5.0.0",
                 "npm-asset/yargs": ">=4.8.1,<5.0.0"
@@ -507,7 +508,7 @@
                 "full-sized",
                 "jquery-plugin"
             ],
-            "time": "2017-12-18T05:59:22+00:00"
+            "time": "2018-01-30T23:49:01+00:00"
         },
         {
             "name": "npm-asset/jgrowl",
