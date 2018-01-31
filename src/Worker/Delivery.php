@@ -4,16 +4,16 @@
  */
 namespace Friendica\Worker;
 
-use Friendica\App;
-use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Item;
 use Friendica\Model\Queue;
 use Friendica\Model\User;
-use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
+use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 use dba;
 
