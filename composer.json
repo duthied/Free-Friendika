@@ -43,6 +43,9 @@
 	"autoload": {
 		"psr-4": {
 			"Friendica\\": "src/"
+		},
+		"psr-0": {
+			"": "library/"
 		}
 	},
 	"config": {
