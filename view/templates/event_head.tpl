@@ -1,6 +1,6 @@
 
 <link rel="stylesheet" type="text/css" href="{{$baseurl}}/vendor/asset/fullcalendar/dist/fullcalendar.min.css" />
-<link rel="stylesheet" type="text/css" href="{{$baseurl}}/vendor/asset/fullcalendar/dist/fullcalendar.print.min.css" />
+<link rel="stylesheet" type="text/css" href="{{$baseurl}}/vendor/asset/fullcalendar/dist/fullcalendar.print.min.css" media="print" />
 <script type="text/javascript" src="{{$baseurl}}/vendor/asset/moment/min/moment-with-locales.min.js"></script>
 <script type="text/javascript" src="{{$baseurl}}/vendor/asset/fullcalendar/dist/fullcalendar.min.js"></script>
 
