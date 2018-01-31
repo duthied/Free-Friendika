@@ -114,23 +114,20 @@ function community_content(App $a, $update = 0)
 		}
 	}
 
-	if (Config::get('system', 'comment_public')) {
-		// check if we serve a mobile device and get the user settings
-		// accordingly
-		if ($a->is_mobile) {
-			$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_mobile_network', 20);
-		} else {
-			$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_network', 40);
-		}
-
-		// now that we have the user settings, see if the theme forces
-		// a maximum item number which is lower then the user choice
-		if (($a->force_max_items > 0) && ($a->force_max_items < $itemspage_network)) {
-			$itemspage_network = $a->force_max_items;
-		}
-
-		$a->set_pager_itemspage($itemspage_network);
+	// check if we serve a mobile device and get the user settings accordingly
+	if ($a->is_mobile) {
+		$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_mobile_network', 20);
+	} else {
+		$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_network', 40);
 	}
+
+	// now that we have the user settings, see if the theme forces
+	// a maximum item number which is lower then the user choice
+	if (($a->force_max_items > 0) && ($a->force_max_items < $itemspage_network)) {
+		$itemspage_network = $a->force_max_items;
+	}
+
+	$a->set_pager_itemspage($itemspage_network);
 
 	$r = community_getitems($a->pager['start'], $a->pager['itemspage'], $content);
 
@@ -198,12 +195,10 @@ function community_getitems($start, $itemspage, $content)
 		);
 		return dba::inArray($r);
 	} elseif ($content == 'global') {
-		$r = dba::p("SELECT " . item_fieldlists() . " FROM `thread`
-			INNER JOIN `item` ON `item`.`id` = `thread`.`iid` " . item_joins() .
-				"WHERE `thread`.`uid` = 0 AND `verb` = ?
-			ORDER BY `thread`.`commented` DESC LIMIT " . intval($start) . ", " . intval($itemspage),
-			ACTIVITY_POST
-		);
+		$r = dba::p("SELECT `uri` FROM `thread`
+				INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
+				WHERE `thread`.`uid` = 0
+				ORDER BY `thread`.`commented` DESC LIMIT " . intval($start) . ", " . intval($itemspage));
 		return dba::inArray($r);
 	}
 
