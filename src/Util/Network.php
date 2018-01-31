@@ -15,8 +15,6 @@ use Friendica\Util\XML;
 use DOMDocument;
 use DomXPath;
 
-require_once 'library/slinky.php';
-
 class Network
 {
 	/**
@@ -771,29 +769,6 @@ class Network
 		}
 
 		return $url;
-	}
-
-	public static function shortenUrl($url)
-	{
-		$slinky = new Slinky($url);
-		$yourls_url = Config::get('yourls', 'url1');
-		if ($yourls_url) {
-			$yourls_username = Config::get('yourls', 'username1');
-			$yourls_password = Config::get('yourls', 'password1');
-			$yourls_ssl = Config::get('yourls', 'ssl1');
-			$yourls = new Slinky_YourLS();
-			$yourls->set('username', $yourls_username);
-			$yourls->set('password', $yourls_password);
-			$yourls->set('ssl', $yourls_ssl);
-			$yourls->set('yourls-url', $yourls_url);
-			$slinky->set_cascade([$yourls, new Slinky_Ur1ca(), new Slinky_TinyURL()]);
-		} else {
-			// setup a cascade of shortening services
-			// try to get a short link from these services
-			// in the order ur1.ca, tinyurl
-			$slinky->set_cascade([new Slinky_Ur1ca(), new Slinky_TinyURL()]);
-		}
-		return $slinky->short();
 	}
 
 	/**
