@@ -1,10 +1,9 @@
 <?php
 /**
- * @file src/Protocol/OAuth1.php
+ * @file src/Network/FKOAuth1.php
  */
 namespace Friendica\Network;
 
-use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
@@ -12,10 +11,8 @@ use Friendica\Database\DBM;
 use Friendica\Network\FKOAuthDataStore;
 use dba;
 use OAuthServer;
-use OAuthSignatureMethod_PLAINTEXT;
 use OAuthSignatureMethod_HMAC_SHA1;
-
-require_once "library/OAuth1.php";
+use OAuthSignatureMethod_PLAINTEXT;
 
 /**
  * @brief OAuth protocol
