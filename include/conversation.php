@@ -578,9 +578,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 				. " var profile_page = 1; </script>";
 		}
 	} elseif ($mode === 'community') {
-		if (!$community_readonly) {
-			$items = community_add_items($items);
-		}
+		$items = community_add_items($items);
 		$profile_owner = 0;
 		if (!$update) {
 			$live_update_div = '<div id="live-community"></div>' . "\r\n"
@@ -614,33 +612,23 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 	$page_template = get_markup_template("conversation.tpl");
 
 	if ($items && count($items)) {
-		$community_readonly = ($mode === 'community');
-
-		// Currently behind a config value. This allows the commenting and sharing of every public item.
-		if (Config::get('system', 'comment_public')) {
-			if ($mode === 'community') {
-				$community_readonly = false;
-				$writable = true;
-			} else {
-				$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], [NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_DFRN]);
-			}
+		if ($mode === 'community') {
+			$writable = true;
 		} else {
-			$writable = false;
+			$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], [NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_DFRN]);
 		}
 
 		if (!local_user()) {
 			$writable = false;
 		}
 
-		if (in_array($mode, ['network-new', 'search', 'contact-posts']) || $community_readonly) {
+		if (in_array($mode, ['network-new', 'search', 'contact-posts'])) {
 
 			/*
 			 * "New Item View" on network page or search page results
 			 * - just loop through the items and format them minimally for display
 			 */
 
-			/// @TODO old lost code?
-			// $tpl = get_markup_template('search_item.tpl');
 			$tpl = 'search_item.tpl';
 
 			foreach ($items as $item) {

@@ -72,7 +72,7 @@ function community_content(App $a, $update = 0)
 
 		if ((local_user() || in_array($page_style, [CP_USERS_AND_GLOBAL, CP_USERS_ON_SERVER])) && empty(Config::get('system', 'singleuser'))) {
 			$tabs[] = [
-				'label' => L10n::t('Community'),
+				'label' => L10n::t('Local Community'),
 				'url' => 'community/local',
 				'sel' => $content == 'local' ? 'active' : '',
 				'title' => L10n::t('Posts from local users on this server'),
@@ -83,10 +83,10 @@ function community_content(App $a, $update = 0)
 
 		if (local_user() || in_array($page_style, [CP_USERS_AND_GLOBAL, CP_GLOBAL_COMMUNITY])) {
 			$tabs[] = [
-				'label' => L10n::t('Global Timeline'),
+				'label' => L10n::t('Global Community'),
 				'url' => 'community/global',
 				'sel' => $content == 'global' ? 'active' : '',
-				'title' => L10n::t('Posts from users of the federated network'),
+				'title' => L10n::t('Posts from users of the whole federated network'),
 				'id' => 'community-global-tab',
 				'accesskey' => 'g'
 			];
@@ -114,23 +114,20 @@ function community_content(App $a, $update = 0)
 		}
 	}
 
-	if (Config::get('system', 'comment_public')) {
-		// check if we serve a mobile device and get the user settings
-		// accordingly
-		if ($a->is_mobile) {
-			$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_mobile_network', 20);
-		} else {
-			$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_network', 40);
-		}
-
-		// now that we have the user settings, see if the theme forces
-		// a maximum item number which is lower then the user choice
-		if (($a->force_max_items > 0) && ($a->force_max_items < $itemspage_network)) {
-			$itemspage_network = $a->force_max_items;
-		}
-
-		$a->set_pager_itemspage($itemspage_network);
+	// check if we serve a mobile device and get the user settings accordingly
+	if ($a->is_mobile) {
+		$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_mobile_network', 20);
+	} else {
+		$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_network', 40);
 	}
+
+	// now that we have the user settings, see if the theme forces
+	// a maximum item number which is lower then the user choice
+	if (($a->force_max_items > 0) && ($a->force_max_items < $itemspage_network)) {
+		$itemspage_network = $a->force_max_items;
+	}
+
+	$a->set_pager_itemspage($itemspage_network);
 
 	$r = community_getitems($a->pager['start'], $a->pager['itemspage'], $content);
 
@@ -186,24 +183,19 @@ function community_content(App $a, $update = 0)
 function community_getitems($start, $itemspage, $content)
 {
 	if ($content == 'local') {
-		$r = dba::p("SELECT " . item_fieldlists() . " FROM `thread`
+		$r = dba::p("SELECT `item`.`uri`, `item`.`author-link` FROM `thread`
 			INNER JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
 			INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
-			AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
-			AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''" .
-			item_joins() . " AND `contact`.`self`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
-			AND NOT `thread`.`private` AND `thread`.`wall`
+			AND NOT `thread`.`private` AND `thread`.`wall` AND `thread`.`origin`
 			ORDER BY `thread`.`commented` DESC LIMIT " . intval($start) . ", " . intval($itemspage)
 		);
 		return dba::inArray($r);
 	} elseif ($content == 'global') {
-		$r = dba::p("SELECT " . item_fieldlists() . " FROM `thread`
-			INNER JOIN `item` ON `item`.`id` = `thread`.`iid` " . item_joins() .
-				"WHERE `thread`.`uid` = 0 AND `verb` = ?
-			ORDER BY `thread`.`commented` DESC LIMIT " . intval($start) . ", " . intval($itemspage),
-			ACTIVITY_POST
-		);
+		$r = dba::p("SELECT `uri` FROM `thread`
+				INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
+				WHERE `thread`.`uid` = 0
+				ORDER BY `thread`.`commented` DESC LIMIT " . intval($start) . ", " . intval($itemspage));
 		return dba::inArray($r);
 	}
 
