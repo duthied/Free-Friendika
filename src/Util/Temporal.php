@@ -395,7 +395,6 @@ class Temporal
 	public static function getDaysInMonth($y, $m)
 	{
 		return date('t', mktime(0, 0, 0, $m, 1, $y));
-		;
 	}
 
 	/**
