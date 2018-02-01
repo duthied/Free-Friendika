@@ -16,7 +16,6 @@ use Friendica\Model\Profile;
 use Friendica\Model\Term;
 use Friendica\Util\Map;
 
-require_once "include/friendica_smarty.php";
 require_once "mod/proxy.php";
 require_once "include/conversation.php";
 
