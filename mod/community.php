@@ -72,7 +72,7 @@ function community_content(App $a, $update = 0)
 
 		if ((local_user() || in_array($page_style, [CP_USERS_AND_GLOBAL, CP_USERS_ON_SERVER])) && empty(Config::get('system', 'singleuser'))) {
 			$tabs[] = [
-				'label' => L10n::t('Community'),
+				'label' => L10n::t('Local Community'),
 				'url' => 'community/local',
 				'sel' => $content == 'local' ? 'active' : '',
 				'title' => L10n::t('Posts from local users on this server'),
@@ -83,10 +83,10 @@ function community_content(App $a, $update = 0)
 
 		if (local_user() || in_array($page_style, [CP_USERS_AND_GLOBAL, CP_GLOBAL_COMMUNITY])) {
 			$tabs[] = [
-				'label' => L10n::t('Global Timeline'),
+				'label' => L10n::t('Global Community'),
 				'url' => 'community/global',
 				'sel' => $content == 'global' ? 'active' : '',
-				'title' => L10n::t('Posts from users of the federated network'),
+				'title' => L10n::t('Posts from users of the whole federated network'),
 				'id' => 'community-global-tab',
 				'accesskey' => 'g'
 			];
