@@ -5587,7 +5587,7 @@ function api_friendica_activity($type)
 
 	$id = (x($_REQUEST, 'id') ? $_REQUEST['id'] : 0);
 
-	$res = do_like($id, $verb);
+	$res = Item::performLike($id, $verb);
 
 	if ($res) {
 		if ($type == "xml") {

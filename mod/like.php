@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Model\Item;
 
 require_once 'include/security.php';
 require_once 'include/bbcode.php';
@@ -22,7 +23,7 @@ function like_content(App $a) {
 
 	$item_id = (($a->argc > 1) ? notags(trim($a->argv[1])) : 0);
 
-	$r = do_like($item_id, $verb);
+	$r = Item::performLike($item_id, $verb);
 	if (!$r) {
 		return;
 	}
