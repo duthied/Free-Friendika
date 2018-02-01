@@ -183,14 +183,11 @@ function community_content(App $a, $update = 0)
 function community_getitems($start, $itemspage, $content)
 {
 	if ($content == 'local') {
-		$r = dba::p("SELECT " . item_fieldlists() . " FROM `thread`
+		$r = dba::p("SELECT `item`.`uri`, `item`.`author-link` FROM `thread`
 			INNER JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
 			INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
-			AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
-			AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''" .
-			item_joins() . " AND `contact`.`self`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
-			AND NOT `thread`.`private` AND `thread`.`wall`
+			AND NOT `thread`.`private` AND `thread`.`wall` AND `thread`.`origin`
 			ORDER BY `thread`.`commented` DESC LIMIT " . intval($start) . ", " . intval($itemspage)
 		);
 		return dba::inArray($r);

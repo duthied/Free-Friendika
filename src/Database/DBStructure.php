@@ -1686,7 +1686,7 @@ class DBStructure
 						"uid_created" => ["uid","created"],
 						"uid_commented" => ["uid","commented"],
 						"uid_wall_created" => ["uid","wall","created"],
-						"private_wall_commented" => ["private","wall","commented"],
+						"private_wall_origin_commented" => ["private","wall","origin","commented"],
 						]
 				];
 		$database["tokens"] = [
